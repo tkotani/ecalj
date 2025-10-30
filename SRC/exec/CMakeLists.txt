@@ -1,6 +1,6 @@
 # Make libecaljF.so and all binaries. Run > FC=gfortran cmake . for generating make file
 # run >VERBOSE=1 make to see detailed compile options
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.18)
 
 if(DEFINED CACHE{FC} OR DEFINED ENV{FC})
   set(FC $ENV{FC})
@@ -37,9 +37,15 @@ message("BUILD_MP_GPU is " ${BUILD_MP_GPU})
 # SET(CMAKE_VERBOSE_MAKEFILE ON)
 enable_language(Fortran)
 
-file(GLOB SOURCES "../subroutines/*.f90") # existing source files 
-file(GLOB MAINS "../main/*.f90")
-file(GLOB MAINS_GPU "../main/hsfp0_sc.f90" "../main/hrcxq.f90" "../main/hx0fp0.f90" "../main/hvccfp0.f90" "../main/lmf.f90")  #main files for GPU versions
+file(GLOB SOURCES "${CMAKE_SOURCE_DIR}/../subroutines/*.f90") # existing source files 
+file(GLOB MAINS "${CMAKE_SOURCE_DIR}/../main/*.f90")
+file(GLOB MAINS_GPU
+    "${CMAKE_SOURCE_DIR}/../main/hsfp0_sc.f90"
+    "${CMAKE_SOURCE_DIR}/../main/hrcxq.f90"
+    "${CMAKE_SOURCE_DIR}/../main/hx0fp0.f90"
+    "${CMAKE_SOURCE_DIR}/../main/hvccfp0.f90"
+    "${CMAKE_SOURCE_DIR}/../main/lmf.f90"
+)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}) # directory for *.so
 set(CMAKE_Fortran_FLAGS_RELEASE "-O2 -g") # -traceback")
 set(FLAGS -cpp)
@@ -57,12 +63,11 @@ elseif(FC MATCHES "ifort")
   find_program(MPIIFORT_COMPILER mpiifort)
   if(NOT MPIIFORT_COMPILER) 
     set(CMAKE_Fortran_COMPILER mpifort)
-    # set(FLAGS ${FLAGS} -D__Nomm3m)               #use zgemm instaed of zgemm3m
     # set(FLAGS ${FLAGS} -D__MKL_ZMINV_SEQUENTIAL) #use sequental version of zgetri 
   endif()
   set(CMAKE_Fortran_FLAGS "-init:snan -fpic -assume byterecl -g -traceback") # compile flags
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -traceback")
-  set(LIBM -qmkl=parallel -lmkl_rt -qopenmp)
+  set(LIBM -qmkl=parallel -qopenmp)
 elseif(FC MATCHES "ifx")
   set(CMAKE_Fortran_COMPILER mpiifx)
   set(CMAKE_Fortran_FLAGS "-fpic -assume byterecl -g -traceback") # ifx: -init:snan option causes segmentation fault in zhegvx
@@ -74,7 +79,7 @@ elseif(FC MATCHES "nvfortran")
   set(CMAKE_Fortran_FLAGS "-fpic -Mbackslash -traceback") # "-Mvect=simd -mcmodel=medium -fpic") # compile flags
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -traceback")
   # set(CMAKE_Fortran_FLAGS_DEBUG "-g -O0 -traceback -Mbounds -Mchkptr -Mchkstk")
-  set(LIBM -mp -lmkl_intel_lp64 -lmkl_pgi_thread -lmkl_core)
+  set(LIBM -mp -lmkl_rt) # set(LIBM -mp -lmkl_intel_lp64 -lmkl_pgi_thread -lmkl_core)
 endif()
 
 ## source-dependent compile options
@@ -135,12 +140,12 @@ endif()
 # )
 
 # emacs tags
-add_custom_target(etags ALL COMMAND etags ../subroutines/*.f90 ../main/*.f90
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
+# add_custom_target(etags ALL COMMAND etags ../subroutines/*.f90 ../main/*.f90
+#   WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # copy executables etc to ../exec${FCMOD}
-file(MAKE_DIRECTORY   ${CMAKE_BINARY_DIR}/../exec${FCMOD})
-set(CMAKE_Fortran_BINS ${CMAKE_BINARY_DIR}/../exec${FCMOD}) # directory for *.mod
+set(CMAKE_Fortran_BINS ${CMAKE_SOURCE_DIR}/../exec_${FCMOD}) # directory for *.mod
+file(MAKE_DIRECTORY ${CMAKE_Fortran_BINS})
 add_custom_target(copyexe ALL 
   COMMAND cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${CMAKE_Fortran_BINS} 
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
@@ -186,25 +191,32 @@ foreach(i RANGE 1 3)
   if(BUILD_MP AND i EQUAL 1)
     set(TYPE _mp)
     set(LIBM2 )
-    set(FLAGS2 -D__MP)
+    set(FLAGS2 )
+    set(CPP_DEFINITIONS -D__MP)
   elseif(BUILD_GPU AND i EQUAL 2)
     set(TYPE _gpu)
     set(LIBM2 -acc=gpu -cuda -cudalib=cufft,cublas,cusolver)
-    set(FLAGS2 -D__GPU -Minfo -Mfree -cuda -acc=gpu -cudalib=cufft,cublas,cusolver)
+    set(CPP_DEFINITIONS -D__GPU)
+    set(FLAGS2 -Mfree -cuda -acc=gpu -cudalib=cufft,cublas,cusolver)
   elseif(BUILD_MP_GPU AND i EQUAL 3)
     set(TYPE _mp_gpu)
     set(LIBM2 -acc=gpu -cuda -cudalib=cufft,cublas,cusolver)
-    set(FLAGS2 -D__MP -D__GPU -Minfo -Mfree -cuda -acc=gpu -cudalib=cufft,cublas,cusolver)
+    set(CPP_DEFINITIONS -D__GPU -D__MP)
+    set(FLAGS2 -Mfree -cuda -acc=gpu -cudalib=cufft,cublas,cusolver)
   else()
     continue()
   endif()
   set(LIB2 ecaljF${TYPE})
   message(STATUS "LIB is " ${LIB2})
   add_library(${LIB2} SHARED ${SOURCES})
+  add_custom_command(TARGET ${LIB2} PRE_LINK
+    COMMAND ${CMAKE_COMMAND} -E rm -f ${CMAKE_BINARY_DIR}/lib${LIB2}.so
+    COMMENT "Removing old lib${LIB2}.so (NVIDIA compiler workaround)"
+  )
   set_target_properties(${LIB2} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FCMOD}/mod${TYPE})
-#  add_dependencies(${LIB2} show_prog)
+  target_compile_definitions(${LIB2} PRIVATE ${CPP_DEFINITIONS})
   target_link_options(${LIB2} PRIVATE ${LIBM} ${LIBM2})
-  target_compile_options(${LIB2} PRIVATE ${FLAGS} ${FLAGS2})
+  target_compile_options(${LIB2} PRIVATE ${FLAGS} ${CPP_DEFINITIONS} ${FLAGS2})
 
   foreach(target IN ITEMS ${MAINS_GPU})
     get_filename_component(exename ${target} NAME_WE)

@@ -105,24 +105,23 @@ contains
          !    enddo
          !    s(1:i2,i2) = s(1:i2,i2) + [(sum( dconjg(b(:,:,i1))*g(:,:) ),i1=1,i2)]
          ! enddo
-         ! MO The above two loops were placed in the following blas_mode block 2024-11-07
+         ! MO The above two loops were placed in the following blas_mode block 2024-11-07, update 2025-10-23
          blas_mode: block
            use m_blas, only: zmm => zmm_h, m_op_C
-           complex(8), allocatable :: ppib(:,:,:), ppi_isp(:,:,:,:), sigb_ilm(:,:),b_ilm(:,:), csig(:,:)
+           complex(8), allocatable :: ppib(:,:,:), ppi_isp(:,:,:,:), sigb(:,:,:), csig(:,:)
            integer :: istat
            allocate(ppib(0:kmax,nlma,ndimh), ppi_isp(0:kmax,nlma,0:kmax,nlma))
            ppi_isp = reshape(source=ppi(0:kmax,0:kmax,1:nlma,1:nlma,isp), shape=[kmax+1,nlma,kmax+1,nlma], order=[1,3,2,4])
            istat = zmm(ppi_isp, b, ppib, m=(kmax+1)*nlma, n=ndimh, k=(kmax+1)*nlma)
            istat = zmm(b, ppib, h, m=ndimh, n=ndimh, k=(kmax+1)*nlma, beta=(1d0,0d0), opA=m_op_C)
            deallocate(ppib, ppi_isp)
-           allocate(sigb_ilm(0:kmax,ndimh), b_ilm(0:kmax,ndimh), csig(0:kmax,0:kmax))
-           do ilm=1,nlma
-             b_ilm(0:kmax,1:ndimh) = b(0:kmax,ilm,1:ndimh)
+           allocate(sigb(0:kmax,nlma,ndimh), csig(0:kmax,0:kmax))
+           do ilm=1, nlma
              csig(0:kmax,0:kmax) = sig(0:kmax,0:kmax,ll(ilm),isp) !convert to complex from real
-             istat = zmm(csig, b_ilm, sigb_ilm, m=kmax+1, n=ndimh, k=kmax+1)
-             istat = zmm(b_ilm, sigb_ilm, s, m=ndimh, n=ndimh, k=kmax+1, beta=(1d0,0d0), opA=m_op_C)
+             istat = zmm(csig, b(0,ilm,1), sigb(0,ilm,1), m=kmax+1, n=ndimh, k=kmax+1, ldB=(kmax+1)*nlma, ldC=(kmax+1)*nlma)
            enddo
-           deallocate(sigb_ilm, b_ilm, csig)
+           istat = zmm(b, sigb, s, m=ndimh, n=ndimh, k=(kmax+1)*nlma, beta=(1d0,0d0), opA=m_op_C)
+           deallocate(sigb, csig)
          endblock blas_mode
          endassociate
        endblock addaug

@@ -39,7 +39,7 @@ contains
     s = 0d0 !Overlap matrix for the basis of MTO+APW
 
     show_time = cmdopt0('--show_time')
-    if(show_time)call stopwatch_init(sw, 'getham_apw')
+    if(show_time)call stopwatch_init(sw, 'getham_aug')
     if(show_time)call stopwatch_start(sw)
     call augmbl(isp,qin,osig,otau,oppi,ndimh, h,s)! Augmentation parts of h,s
     if(show_time) call stopwatch_show(sw)

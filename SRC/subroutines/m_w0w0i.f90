@@ -32,13 +32,13 @@ contains
     deallocate(wmu)
   end subroutine finalizew4p
   !-------------------------------------------------------------
-  subroutine w0w0i(nw_i,nw,nq0i,niw,q0i,is_m_basis) !llw,llwI,
+  subroutine w0w0i(nw_i,nw,nq0i,niw,q0i,is_wc_m_basis) !llw,llwI,
     !! Get w0 and w0i (diagonal element at Gamma point) for given llw and llwi
     !! Outputs w0,w0i,llmat. See use m_w0w0i at the begining of this routine.
     use m_read_bzdata,only:  wbz,lxklm,dmlx,epinvq0i,epinv,wklm
     intent(in)::     nw_i,nw,nq0i,niw,q0i !llw,llwI,
     real(8)   :: q0i(1:3,1:nq0i)
-    logical :: is_m_basis
+    logical :: is_wc_m_basis
     integer:: nw_i,nw,nq0i,nq0ix,niw,ifidmlx,i,ifw0w0i,ixc,nlxklm
     logical:: readw0w0itest
     complex(8):: llmat_dummy(3,3)
@@ -69,11 +69,11 @@ contains
        write(6,"('w0i=',i4,2f13.4)")i,w0i(i)
     enddo
     !! modivy files WVR and WVI
-    call ModifyWV0(is_m_basis)
+    call ModifyWV0(is_wc_m_basis)
     if(w4pmode) call FinalizeW4p() !W for phonon mode finalized.
   end subroutine w0w0i
   !-------------------------------------------------
-  subroutine modifyWV0(is_m_basis)
+  subroutine modifyWV0(is_wc_m_basis)
     use m_qbze,only: nqbze,nqibze,qbze,qibze
     use m_rdpp,only: nblochpmx,mrecl
     use m_freq,only: niw ,nw,nw_i
@@ -91,7 +91,7 @@ contains
 #endif
     integer:: ifrcwx,iq,ircw,iw,nini,nend,mreclx
     real(8)::q(3)
-    logical:: is_m_basis
+    logical:: is_wc_m_basis
     complex(kind=kp),allocatable:: zw(:,:), x_m2e(:,:), m2e(:,:)
     character(10):: i2char
     integer :: istat
@@ -101,10 +101,11 @@ contains
     !! === w0,w0i are stored to zw for q=0 ===
     !! === w_ks*wk are stored to zw for iq >nqibz ===
     ! We assume iq=1 is for rank=0
+    !! __WVR.1, __WVI.1 are in E basis
     allocate( zw(nblochpmx,nblochpmx) )
     iq = 1             !iq=1 only 4pi/k**2 /eps part only ! iq = iqxini,iqxend
     q = qibze(:,iq)
-    if(is_m_basis) then
+    if(is_wc_m_basis) then
       call Readvcoud(q, iq, NoVcou=.false.)   !update ngb, zcousq
       allocate(m2e(ngb,ngb), x_m2e(ngb, ngb))
       m2e(1:ngb,1:ngb) = cmplx(zcousq(1:ngb,1:ngb),kind=kp)
@@ -126,7 +127,7 @@ contains
           if( iq==1 ) then
             if(ircw==1) zw(1,1) = cmplx(w0(iw),kind=kp)
             if(ircw==2) zw(1,1) = cmplx(w0i(iw),kind=kp)
-            if(is_m_basis) then
+            if(is_wc_m_basis) then
               !$acc data copy(zw) present(x_m2e,m2e)
               istat = gemm(zw, m2e, x_m2e, ngb, ngb, ngb, opB=m_op_C, ldA=nblochpmx)
               istat = gemm(m2e, x_m2e, zw, ngb, ngb, ngb, ldC=nblochpmx)
@@ -137,7 +138,7 @@ contains
        enddo
        close(ifrcwx)
     enddo
-    if(is_m_basis) then
+    if(is_wc_m_basis) then
       !$acc exit data delete(x_m2e,m2e)
       deallocate(x_m2e,m2e)
     endif

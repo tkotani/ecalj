@@ -6,7 +6,7 @@ def test(args,bindir,testdir,workdir):
         out2='log.nio'
         rmfiles(workdir,[out1,out2])
         runprogs([
-                 gwsc0+ " nio",
+                 gwsc0+ " nio" + f' {args.run_args}',
         ])
         for outfile in out1.split():   
                 tall+=dqpu(testdir+'/'+outfile, workdir+'/'+outfile)

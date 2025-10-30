@@ -116,11 +116,8 @@ module m_sxcf_gemm
   integer, allocatable :: ndiv(:), nstatei(:,:), nstatee(:,:)
   real(8), allocatable :: ekc(:), eq(:), omega(:)
   logical :: emptyrun, keepwv
-  complex(kind=kp), allocatable :: wvr(:,:,:), wvi(:,:,:)
+  complex(kind=kp), allocatable :: wvr_upper(:,:), wvi_upper(:,:)
   real(8), parameter:: rmax=2d0
-! #ifdef __GPU
-!   attributes(device) :: wvr, wvi
-! #endif
   logical,external :: cmdopt0 !we need external here
   type(stopwatch) :: t_sw_zmel, t_sw_xc, t_sw_cr, t_sw_ci, t_sw_setwv
 contains
@@ -261,10 +258,11 @@ contains
     implicit none
     integer, intent(in) :: nspinmx, ixc
     real(8), intent(in) :: ef, esmr
-    integer :: icount, ns1, ns2, kr, nwxi, nws, ns2r, nwx,izz, n_nttp, wi_ini, wi_fin, wi_num, wr_ini, wr_fin, wr_num
+    integer :: icount, ns1, ns2, kr, nwxi, nws, ns2r, nwx,izz, n_nttp, wi_ini, wi_fin, wi_num, wr_ini, wr_fin, wr_num, tri_idx
     real(8) :: q(3), qibz_k(3), qbz_kr(3), qk(3)
     logical :: debug=.false.
     real(8),parameter :: ddw=10d0
+    integer, allocatable :: idx_i(:), idx_j(:)
     character(64):: charli
     character(8):: charext
     allocate(ekc(nctot+nband), eq(nband), omega(ntq)) 
@@ -311,17 +309,10 @@ contains
       call ReleaseZcousq()                         !Release zcousq used in set_m2e_prod_basis
       !call setwv()
       SetWVblock: block !subroutine setwv()
-        integer :: iqini, iqend, iw
+        integer :: iqini, iqend, iw, i, j
         character(10) :: i2char
+        complex(kind=kp), allocatable :: wv(:,:)
         real(8), parameter :: gb = 1000*1000*1000
-        if(allocated(wvi)) then
-          !$acc exit data delete(wvi)
-          deallocate(wvi)
-        endif
-        if(allocated(wvr)) then
-          !$acc exit data delete(wvr)
-          deallocate(wvr)
-        endif
         if(any(kx==kxc(:))) then
           open(newunit=ifrcwi,file='__WVI.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
           open(newunit=ifrcw, file='__WVR.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
@@ -331,24 +322,45 @@ contains
            ! device memory made a error (I don't know the reason). therefore, we used openacc data copyin procedure
            ! but it is usually ok becuase CPU memoery size is always larger than that of GPU.
             call flush(stdo)
-            allocate(wvi(nblochpmx,nblochpmx,wi_ini:wi_fin))
             call stopwatch_reset(t_sw_setwv)
             call stopwatch_start(t_sw_setwv)
+            allocate(idx_i(ngb*(ngb+1)/2), idx_j(ngb*(ngb+1)/2))
+            tri_idx = 1
+            do j = 1, ngb
+              do i = 1, j
+                idx_i(tri_idx) = i
+                idx_j(tri_idx) = j
+                tri_idx = tri_idx + 1
+              enddo
+            enddo
+            allocate(wv(nblochpmx,nblochpmx))
+            allocate(wvi_upper(ngb*(ngb+1)/2,wi_ini:wi_fin))
+            allocate(wvr_upper(ngb*(ngb+1)/2,wr_ini:wr_fin))
             do iw = wi_ini, wi_fin
               if(iw == 0) then
-                read(ifrcw,rec=iw-nw_i+1) wvi(:,:,iw)
+                read(ifrcw,rec=iw-nw_i+1) wv(:,:)
               else
-                read(ifrcwi,rec=iw) wvi(:,:,iw)
+                read(ifrcwi,rec=iw) wv(:,:)
               endif
+              do tri_idx = 1, ngb*(ngb+1)/2
+                i = idx_i(tri_idx)
+                j = idx_j(tri_idx)
+                wvi_upper(tri_idx,iw) = wv(i,j)
+              enddo
             enddo
-            allocate(wvr(nblochpmx,nblochpmx,wr_ini:wr_fin))
             do iw = wr_ini, wr_fin
-              read(ifrcw,rec=iw-nw_i+1) wvr(:,:,iw)
+              read(ifrcw,rec=iw-nw_i+1) wv(:,:)
+              do tri_idx = 1, ngb*(ngb+1)/2
+                i = idx_i(tri_idx)
+                j = idx_j(tri_idx)
+                wvr_upper(tri_idx,iw) = (wv(i,j) + conjg(wv(j,i)))*0.5_kp
+              enddo
             enddo
-            !$acc enter data copyin(wvi, wvr)
+            !$acc enter data copyin(wvi_upper, wvr_upper, idx_i, idx_j)
             call stopwatch_pause(t_sw_setwv)
-            if(ipr)write(stdo, '(X,A,2F8.3)') 'WVI/WVR : sizes (GB)', dble(size(wvi))*kp*2/gb, dble(size(wvr))*kp*2/gb
+            if(ipr)write(stdo, '(X,A,2F8.3)') 'WVI/WVR : sizes (GB)', dble(size(wvi_upper))*kp*2/gb, dble(size(wvr_upper))*kp*2/gb
             call stopwatch_show(t_sw_setwv)
+            deallocate(wv)
           endif
         endif
         !end subroutine setwv
@@ -397,7 +409,7 @@ contains
                   complex(kind=kp), parameter :: img=(0_kp,1_kp)
                   complex(kind=kp) :: beta
                   complex(kind=kp), allocatable :: czmelwc(:,:,:)
-                  integer :: it, itp, iw, ierr, i
+                  integer :: it, itp, iw, ierr, i, j
                   complex(kind=kp), allocatable :: wv(:,:), wc(:,:)
                   real(kind=kp) :: zsec_img
 #ifdef __GPU
@@ -405,21 +417,22 @@ contains
 #endif
                   if(ns1 > ns2) goto 1114 !instead of return
                   allocate(wv(nblochpmx,nblochpmx))
-                  allocate(wc, mold = wv)
+                  allocate(wc(ngb,ngb))
+                  allocate(czmelwc, mold = zmel)
                   call stopwatch_start(t_sw_ci)
                   CorrelationSelfEnergyImagAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)! Integration along ImAxis for zwz(omega) 
                     use m_readfreq_r, only: wt=>wwx, x=>freqx
-                    real(8):: wgtim_(0:npm*niw), wgtim(0:npm*niw,ntqxx,ns1:ns2), we, cons(niw), omd(niw), omd2w(niw)
+                    real(8):: wgtim_(0:npm*niw), wgtim(0:npm*niw,ns1:ns2,ntqxx), we, cons(niw), omd(niw), omd2w(niw)
                     real(8):: sig, sig2, aw, aw2
                     integer :: igb
-                    complex(kind=kp), allocatable :: wzmel(:,:,:),  czwc(:,:,:)
+                    complex(kind=kp), allocatable :: wzmel(:,:,:)
 #ifdef __GPU
-                    attributes(device) :: wzmel, czwc
+                    attributes(device) :: wzmel
 #endif
                     sig = .5d0*esmr
                     sig2 = 2d0*(.5d0*esmr)**2
-                    itpo :   do it = ns1, ns2
-                      itpdo: do itp = 1, ntqxx
+                    itpdo: do itp = 1, ntqxx
+                     itpo: do it = ns1, ns2
                         we = .5d0*(omega(itp)-ekc(it)) !we in hartree unit (atomic unit)
                         aw = abs(ua_*we)
                         aw2 = aw*aw
@@ -440,10 +453,10 @@ contains
                                + dsign(1d0,we)*.5d0*exp(aw2)*( erfc(sqrt(aw2 + we**2/sig2)) -erfc(aw) ) !See Eq.(57) in PRB165106
                           if(npm==2) wgtim_(niw+1:2*niw) = cons*omd*wt/(x**2)/pi !Asymmetric contribution need check
                         endif
-                        wgtim(:,itp,it)= wkkr*wgtim_ !! Integration weight wgtim along im axis for zwz(0:niw*npm)
-                      enddo itpdo
-                    enddo   itpo
-                    allocate(wzmel(1:ngb,ns1:ns2,1:ntqxx), czwc(ns1:ns2,1:ntqxx,1:ngb))
+                        wgtim(:,it,itp)= wkkr*wgtim_ !! Integration weight wgtim along im axis for zwz(0:niw*npm)
+                      enddo itpo
+                    enddo itpdo
+                    allocate(wzmel(1:ngb,ns1:ns2,1:ntqxx))
                     if(debug) call writemem('    Goto iwimag')
                     if(debug) write(stdo,ftox) 'mmmmSc size of mm in imagaxis', (ns2-ns1+1)*ntqxx, ngb, ngb
                     !$acc data copyin(wgtim)
@@ -452,36 +465,34 @@ contains
                       if(emptyrun) cycle
                       call stopwatch_start(t_sw_setwv)
                       if(keepwv) then
-                        !$acc kernels
-                        wc(:,:) = wvi(:,:,iw)
+                        !$acc kernels loop independent present(wvi_upper, idx_i, idx_j)
+                        do tri_idx = 1, ngb*(ngb+1)/2
+                          i = idx_i(tri_idx)
+                          j = idx_j(tri_idx)
+                          wc(i,j) = wvi_upper(tri_idx,iw)
+                          wc(j,i) = conjg(wvi_upper(tri_idx,iw))
+                        enddo
                         !$acc end kernels
                       else
                         if(iw == 0) read(ifrcw,rec=1+(0-nw_i)) wv!direct access Wc(0) = W(0)-v ! nw_i=0 (Time reversal) or nw_i =-nw
                         if(iw > 0) read(ifrcwi,rec=iw) wv ! direct access read Wc(i*omega)=W(i*omega)-v
-                        wc = wv
+                        wc(1:ngb,1:ngb) = wv(1:ngb,1:ngb)  !copy to GPU
                       endif
                       call stopwatch_pause(t_sw_setwv)
                       !$acc kernels loop independent collapse(2) present(zmel)
                       do itp = 1, ntqxx
                         do it = ns1, ns2
-                          wzmel(1:ngb,it,itp) = cmplx(wgtim(iw,itp,it)*zmel(1:ngb,it,itp),kind=kp)
+                          wzmel(1:ngb,it,itp) = cmplx(wgtim(iw,it,itp)*zmel(1:ngb,it,itp),kind=kp)
                         enddo
                       enddo
                       !$acc end kernels
                       !the most time-consuming part in the correlation part
                       beta = CONE
                       if(iw == wi_ini) beta = CZERO
-                      ierr = gemm(wzmel, wc, czwc, (ns2-ns1+1)*ntqxx, ngb, ngb, opA = m_op_c, beta = beta, ldB = nblochpmx)
+                      ierr = gemm(wc, wzmel, czmelwc, ngb, (ns2-ns1+1)*ntqxx, ngb, beta = beta, opA = m_op_C)
                     enddo iwimag
                     !$acc end data
                     deallocate(wzmel)
-                    allocate(czmelwc(1:nbb,ns1:ns2,1:ntqxx)) !same size with zmel
-                    !$acc kernels loop independent
-                    do igb = 1, ngb
-                      czmelwc(igb,ns1:ns2,1:ntqxx) = czwc(ns1:ns2,1:ntqxx,igb)
-                    enddo
-                    !$acc end kernels
-                    deallocate(czwc)
                   EndBlock CorrelationSelfEnergyImagAxis
                   if(debug) call writemem('    endof CorrelationSelfEnergyImagAxis')
                   call stopwatch_pause(t_sw_ci)
@@ -489,7 +500,7 @@ contains
                   call stopwatch_start(t_sw_cr)
                   CorrelationSelfEnergyRealAxis: Block !Real Axis integral. Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
                     use m_wfac, only: wfacx2, weavx2
-                    integer :: itini, itend, ittp, ittp3(3), ixs, nttp_max, nttp(0:nw)
+                    integer :: itini, itend, ittp, ittp3(3), ixs, nttp_max, nttp(0:nw), i, j
                     real(8) :: we_(ns1:ns2r,ntqxx), wfac_(ns1:ns2r,ntqxx), omg, amat(3,3), wgt3ititp(3)
                     complex(kind=kp), allocatable :: wz_iw(:,:), czwc_iw(:,:)
                     real(8), allocatable :: wgtiw(:,:)
@@ -540,19 +551,27 @@ contains
                       enddo
                     enddo itploopFORwgtiw
                     n_nttp = count(nttp(wr_ini:wr_fin)>0)
-                    allocate(wz_iw(ngb,nttp_max), czwc_iw(nttp_max,ngb))
+                    allocate(wz_iw(ngb,nttp_max), czwc_iw(ngb,nttp_max))
                     !$acc data copyin(wgtiw, nttp, itw, itpw)
                     iwreal: do iw = wr_ini, wr_fin
                       if(iw < nwxi .or. iw > nwx) cycle
                       if(nttp(iw) < 1) cycle
                       call stopwatch_start(t_sw_setwv)
                       if(keepwv) then
-                        !$acc kernels
-                        wc(:,:) = (wvr(:,:,iw) + transpose(conjg(wvr(:,:,iw))))*0.5d0
+                        !$acc kernels loop independent present(wvr_upper, idx_i, idx_j)
+                        do tri_idx = 1, ngb*(ngb+1)/2
+                          i = idx_i(tri_idx)
+                          j = idx_j(tri_idx)
+                          wc(i,j) = wvr_upper(tri_idx,iw)
+                          wc(j,i) = conjg(wvr_upper(tri_idx,iw))
+                        enddo
                         !$acc end kernels
                       else
                         read(ifrcw,rec=iw-nw_i+1) wv
-                        wc = (wv + transpose(conjg(wv)))*0.5d0  !copy to GPU
+                        wc(1:ngb,1:ngb) = wv(1:ngb,1:ngb)  !copy to GPU
+                        !$acc kernels
+                        wc(:,:) = (wc(:,:) + transpose(conjg(wc(:,:))))*0.5_kp
+                        !$acc end kernels
                       endif
                       call stopwatch_pause(t_sw_setwv)
                       !$acc kernels loop independent present(zmel)
@@ -561,11 +580,11 @@ contains
                         wz_iw(1:ngb,ittp) = cmplx(wgtiw(ittp,iw)*zmel(1:ngb,it,itp),kind=kp)
                       enddo
                       !$acc end kernels
-                      ierr = gemm(wz_iw, wc, czwc_iw, nttp(iw), ngb, ngb, opA = m_op_c, ldB = nblochpmx, ldC = nttp_max)
+                      ierr = gemm(wc, wz_iw, czwc_iw, ngb, nttp(iw), ngb, opA=m_op_C)
                       !$acc kernels loop independent
                       do ittp = 1, nttp(iw) 
                         it = itw(ittp,iw); itp = itpw(ittp,iw)
-                        czmelwc(1:ngb,it,itp) = czmelwc(1:ngb,it,itp) + czwc_iw(ittp,1:ngb)
+                        czmelwc(1:ngb,it,itp) = czmelwc(1:ngb,it,itp) + czwc_iw(1:ngb,ittp)
                       enddo
                       !$acc end kernels
                     enddo iwreal
@@ -577,7 +596,7 @@ contains
                   call stopwatch_pause(t_sw_cr)
 
                   !$acc host_data use_device(zmel, zsec)
-                  ierr = gemm(czmelwc, zmel, zsec, ntqxx, ntqxx, nbb*(ns2-ns1+1), opA = m_op_T, beta = CONE, ldC = ntq)
+                  ierr = gemm(czmelwc, zmel, zsec, ntqxx, ntqxx, nbb*(ns2-ns1+1), opA = m_op_C, beta = CONE, ldC = ntq)
                   !$acc end host_data
                   !$acc kernels loop independent
                   do itp = 1, ntqxx
@@ -606,20 +625,28 @@ contains
           enddo isploopexternal
         enddo iploopexternal
       enddo irotloop
-      releasew :block !subroutine releasewv()
+      ReleaseWV :block !subroutine releasewv()
         if(any(kx==kxc(:))) then
-          if(allocated(wvi)) then
-            !$acc exit data delete(wvi)
-            deallocate(wvi)
+          if(allocated(wvi_upper)) then
+            !$acc exit data delete(wvi_upper)
+            deallocate(wvi_upper)
           endif
-          if(allocated(wvr)) then
-            !$acc exit data delete(wvr)
-            deallocate(wvr)
+          if(allocated(wvr_upper)) then
+            !$acc exit data delete(wvr_upper)
+            deallocate(wvr_upper)
+          endif
+          if(allocated(idx_i)) then
+            !$acc exit data delete(idx_i)
+            deallocate(idx_i)
+          endif
+          if(allocated(idx_j)) then
+            !$acc exit data delete(idx_j)
+            deallocate(idx_j)
           endif
           close(ifrcwi)
           close(ifrcw)
         endif
-      endblock releasew !  end subroutine releasewv
+      endblock ReleaseWV !  end subroutine releasewv
     enddo kxloop
     !$acc exit data copyout (zsecall)
     deallocate(ekc, eq, omega)

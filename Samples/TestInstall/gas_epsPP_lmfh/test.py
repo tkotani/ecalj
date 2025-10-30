@@ -1,7 +1,7 @@
 import os
 from comp import test2_check,runprogs,diffnum,rmfiles
 def test(args,bindir,testdir,workdir):
-    lmfa= bindir +'/lmfa '
+    lmfa= f'mpirun -np 1 {bindir}/lmfa '
     lmf = f'mpirun -np {args.np} '+ bindir +'/lmf '
     eps_lmfh= bindir + f'/eps_lmfh -np {args.np} '
     epsPP_lmfh= bindir + f'/epsPP_lmfh -np {args.np} '
