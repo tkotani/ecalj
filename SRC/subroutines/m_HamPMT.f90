@@ -101,7 +101,8 @@ contains
         use m_nvfortran,only : findloc
         integer::lmindex(16,nbas),ifmloc,ret,lm
         character(256):: labl,aaa
-        call getkeyvalue("GWinput","mlo_method",mlomethod,default=1)
+        !        call getkeyvalue("GWinput","mlo_method",mlomethod,default=2)
+        mlomethod=-999
         call getkeyvalue("GWinput","<Worb>",unit=ifmloc,status=ret)
         do 
           read(ifmloc,"(a)") aaa
@@ -253,7 +254,7 @@ contains
         hammovlm: block
           complex(8):: ovlm(1:ndimPMT,1:ndimPMT),hamm(1:ndimPMT,1:ndimPMT),rotmatt(ndimMTO,ndimMTO)
           do jsp=1,nspx
-            if(master_mpi) write(stdo,"('=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q=',3i4,3f9.5,'ig=',i5)")iqibz,iqbz,jsp,qp,irotg(iqbz)
+            if(master_mpi) write(stdo,ftox)'=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q=',iqibz,iqbz,jsp,'q ig=',ftof(qp,4),irotg(iqbz)
             call rotmatMTO(igg=irotg(iqbz),q=qibz(:,iqibz),qtarget=qp+matmul(qlat,ndiff(:,iqibz)),ndimh=nMTO,rotmat=rotmat)
             forall(i=1:ndimMTO,j=1:ndimMTO) rotmatt(i,j)=rotmat(ix(i),ix(j))
             ovlm(1:ndimMTO,1:ndimMTO) = matmul(rotmatt,matmul(ovlmi(:,:,iqibz,jsp),dconjg(transpose(rotmatt))))
@@ -320,11 +321,11 @@ contains
       allocate(ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO))
       read(ifihmto) ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO)
       close(ifihmto)
-      if(master_mpi) write(stdo,*)'OK: Read HamRsMPO file! Use i-ioffib for setting <Worb>'
+!      if(master_mpi) write(stdo,*)'OK: Read HamRsMPO file! Use i-ioffib for setting <Worb>'
    end subroutine ReadHamRsMPO
 end module m_HamRsMPO
  
-subroutine Hreduction(mlomethod,iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,ovlmout, cmpo,qp) !> Reduce H(ndimPMT) to H(ndimMTO)
+subroutine Hreduction(mlomethod_dummy,iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,ovlmout, cmpo,qp) !> Reduce H(ndimPMT) to H(ndimMTO)
    use m_zhev,only:zhev_tk4
    use m_readqplist,only: eferm
    use m_HamPMT,only: GramSchmidt!,epsovl
@@ -332,7 +333,7 @@ subroutine Hreduction(mlomethod,iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,
    use m_lmfinit,only:oveps
    use m_keyvalue,only: getkeyvalue
    implicit none
-   integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev,nxx,jj,ndimPMTx,nvpmt,mlomethod,nskip
+   integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev,nxx,jj,ndimPMTx,nvpmt,mlomethod_dummy,nskip
    real(8)::beta,emu,val,wgt(ndimPMT),evlmto(ndimMTO),evl(ndimPMT),evlx(ndimPMT),qp(3),eww
    complex(8):: evecmto(ndimMTO,ndimMTO),evecpmt(ndimPMT,ndimPMT)
    complex(8):: ovlmx(ndimPMT,ndimPMT),hammx(ndimPMT,ndimPMT),fac(ndimPMT,ndimMTO),ddd(ndimMTO,ndimMTO)
@@ -392,11 +393,14 @@ subroutine Hreduction(mlomethod,iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,
         enddo
       enddo
       endif
+
       
       epscore=0.1d0
-      eww=.1d0 !Ry
+      eww=0.2d0 !Ry
 
-      call getkeyvalue("GWinput","mlo_nskip",nskip,default=nskip) !nskip is LO bands
+      call getkeyvalue("GWinput","mlo_nskip",nskip,default=nskip) !nskip is LO bands. This will be automatic
+
+      
       ! nskip = findloc( sum(abs(fac(:,:))**2,dim=2)>epscore,value=.true.,dim=1)-1 !semicore level skip by LO. Or skip evec outside of MTO
       ! do j=1,ndimMTO
       !   write(stdo,ftox) 'ffffff',j,'wgt=',ftof(abs(fac(1:5,j))**2)
@@ -406,32 +410,34 @@ subroutine Hreduction(mlomethod,iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,
       
       emax  = evl(ndimMTO+nskip)
       emin  = evl(1+nskip)
-      alpha=1d0
       Amat=0d0
-      call getkeyvalue("GWinput","mlo_emax",eee,default=10d0) !10 eV above fermi energy
+      call getkeyvalue("GWinput","mlo_emax",eee,default=0d0) !10 eV above fermi energy
       eee=eee/rydberg()
-      nbx= findloc(evl(:)-eferm>eee,value=.true.,dim=1)-1    
-      do j=1,ndimMTO
+      nbx= findloc(evl(:)-eferm>eee,value=.true.,dim=1)-1-nskip !if eee=0d0, this gives index for VBM
+
+      do j=1,ndimMTO         !MTO             ! do i= nskip+1,nskip+ndimMTO !nbx
         if(abs(sum(abs(fac(:,j))**2)-1d0)>1d-6) call rxi('normalization error',j)
-!        write(stdo,ftox) 'sumcheck=',j,ftof([(abs(fac(i,j))**2,i=1,ndimPMTx)],2)
-        if(mlomethod==1) then !for GaAs
+        !version 1
+            !   Amat(i,j)= fac(i,j) !* fermidist((evl(i)-emax-eww)/eww) !i in ndimPMT , j in ndimMTO
+            ! enddo
+
+        ! write(stdo,ftox) 'sumcheck=',j,ftof([(abs(fac(i,j))**2,i=1,ndimPMTx)],2)
+        if(j<=nbx) then !for levelx <eee
+          do i=nskip+1,ndimPMTx  !PMT
+            Amat(i,j)= fac(i,j) * fermidist((evl(i)-eferm-eee)/eww) !i in ndimPMT , j in ndimMTO
+            ! Amat(i,j)= fac(i,j) * abs(fac(i,j))**2 *fermidist((evl(i)-emax)/eww) !i in ndimPMT , j in ndimMTO
+            ! Amat(i,j)= fac(i,j) *fermidist((evl(i)-emax)/eww) !i in ndimPMT , j in ndimMTO
+          enddo
+        else  
           i=j+nskip
-          Amat(i,j)=   fac(i,j) * fermidist((evl(i)-emax-eww)/eww)
-        else !for NiO 3d2p model
-          if(j<=nbx-nskip) then !for levelx <eee
-            do i= 1,nbx 
-              Amat(i,j)= fac(i,j) * fermidist((evl(i)-emax-eww)/eww)
-            enddo
-          else  
-            i=j+nskip
-            Amat(i,j)=   fac(i,j) * fermidist((evl(i)-emax-eww)/eww)
-          endif  
+          Amat(i,j)=  fac(i,j) * fermidist((evl(i)-emax-eww)/eww)
         endif
       enddo
       Amat(1:nskip,:)=0d0 
       call GramSchmidt(ndimPMTx,ndimMTO,Amat)
+      
       ! KEYPART!
-      ! P = \sum_i \sum_j |Psi_i><Psi_i|MTO_j><MTO_j|, where range of i is restricted. Amat= <PsiPMT_n|PsiMTO_m>
+      ! P = \sum_i \sum_j |Psi_i><Psi_i|MTO_j><MTO_j|, where range of i is restricted. Amat modified <PsiPMT_n|PsiMTO_m>.
 
       
       ! |MPO_k>=  P| F_k>, where we make take Limited Hilbert space spanned by i for the number of MTOs

@@ -367,6 +367,9 @@ contains
   subroutine readqplistsy()
     implicit none
     integer:: ifqplistsy,nnn,ix
+    logical :: file_exists
+    inquire(file='qplist.dat', exist=file_exists)
+    if(.not. file_exists) call rx('qplist.dat do not exist! you may need to run job_band in advance!')
     open(newunit=ifqplistsy,file='qplist.dat')
     nnn=10000
     if(allocated(xdat)) deallocate(xdat)

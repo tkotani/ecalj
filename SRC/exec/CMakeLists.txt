@@ -151,6 +151,13 @@ add_custom_target(copyexe ALL
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 )
 
+# cp all executables in build directory using shell
+add_custom_target(copy_binaries ALL
+  COMMAND ${CMAKE_COMMAND} -E echo "Copying executables via shell script"
+  COMMAND bash ${CMAKE_SOURCE_DIR}/cp_execs.sh
+  DEPENDS copyexe
+)
+
 # For setting mkl location
 add_executable(dummy ./dummy.f90) # exe
 target_link_libraries(dummy ${BLAS} ${LIBM} ${MPI}) # linked
