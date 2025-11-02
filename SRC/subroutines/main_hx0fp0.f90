@@ -530,7 +530,7 @@ contains
             if(ipr) write(stdo,'( " iq iw omega eps epsi  wLFC=",2i6,f8.3,2e23.15,3x, 2e23.15)') &
                  iqixc2,iw,2*frr,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
             if(ipr) write(stdo,*)
-            write(ifepsdat,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)') qp, 2*frr,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
+            write(ifepsdat,'(3f12.8,2x,e12.4,2e23.15,2x,2e23.15)') qp, 2*frr,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
           endif
         endif
       elseif(chipm) then ! ChiPM mode without LFC
