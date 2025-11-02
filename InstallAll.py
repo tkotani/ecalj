@@ -8,7 +8,7 @@ Install ecalj and run tests. Instead of InstallAll, we will use InstallAll.py
 parser.add_argument("-np",    help='number of mpi cores for install test',default=8,type=int)
 parser.add_argument('--clean',help='Clean CMakeCache CMakeFiles before make',action='store_true')
 parser.add_argument('--gpu'  ,help='nvfortran for GPU',action='store_true')
-parser.add_argument('--bindir' ,help='ecalj binaries and scripts',type=str,default='bin')
+parser.add_argument('--bindir',help='ecalj binaries and scripts',type=str,default=os.path.join(os.getenv('HOME'), 'bin'))
 parser.add_argument('--fc'   ,help='fortran compilar  gfortran/ifort/ifx/nvfortran',type=str,required=True)
 parser.add_argument('--notest' ,help='no test. only compile',action='store_true')
 parser.add_argument('--verbose' ,help='verbose on for debug',action='store_true')
@@ -22,7 +22,7 @@ def main():
         BUILD_TYPE = "Release"    # = "Debug"
     CWD =os.getcwd()
     HOME=os.getenv('HOME')
-    BINDIR = os.path.join(HOME,args.bindir) #os.path.join(HOME, 'bin')  # Make directory for ecalj binaries and scripts.
+    BINDIR = os.path.abspath(os.path.expanduser(args.bindir)) #os.path.join(HOME, 'bin')  # Make directory for ecalj binaries and scripts.
     ncore=args.np
     #FC = os.getenv('FC')
     #if not FC:
@@ -32,7 +32,7 @@ def main():
     #    if(FC==''):
     #        print('Usage: >FC=gfortran ./InstallAll [options]. Run ./InstallAll -h for help.')
     #        sys.exit()
-    if not os.path.exists(BINDIR): os.makedirs(BINDIR)
+    os.makedirs(BINDIR, exist_ok=True)
     print(f"Going to install required binaries and scripts to {BINDIR}")
     start0_time = time.time()
     # Make links
@@ -52,24 +52,24 @@ def main():
         os.symlink(src, slink2)
     if(args.clean):
         # Clean CMakeCache & CMakeFiles in exec
+        os.path.exists(f'{EXECDIR}/Makefile') and subprocess.run(["make", "clean"], cwd=EXECDIR)
         os.path.exists(f'{EXECDIR}/CMakeCache.txt') and os.remove(f'{EXECDIR}/CMakeCache.txt')
         shutil.rmtree(f'{EXECDIR}/CMakeFiles', ignore_errors=True)
         shutil.rmtree(f'{BUILDIR}', ignore_errors=True)
     os.makedirs(f'{BUILDIR}', exist_ok=True)
-    os.chdir(f'{BUILDIR}')
     if(args.gpu): #Obata for nvfortran
-        if os.system(f'FC={FC} cmake .. -DBUILD_MP=ON -DBUILD_GPU=ON -DBUILD_MP_GPU=ON -DCMAKE_BUILD_TYPE={BUILD_TYPE}') != 0:sys.exit(1)
+        if os.system(f'FC={FC} cmake -S {EXECDIR} -B {BUILDIR} -DBUILD_MP=ON -DBUILD_GPU=ON -DBUILD_MP_GPU=ON -DCMAKE_BUILD_TYPE={BUILD_TYPE}') != 0:sys.exit(1)
     elif(FC in ["gfortran", "ifort", "ifx", "nvfortran"]):
-        if os.system(f'FC={FC} cmake .. -DCMAKE_BUILD_TYPE={BUILD_TYPE}') != 0: sys.exit(1)
+        if os.system(f'FC={FC} cmake -S {EXECDIR} -B {BUILDIR} -DCMAKE_BUILD_TYPE={BUILD_TYPE}') != 0: sys.exit(1)
     else:
         print('Check InstallAll')
         sys.exit(-1)
     jobs = min(os.cpu_count(), 32)
-    if os.system(f'{verbose}make -j {jobs}') != 0: sys.exit(1)
+    if os.system(f'{verbose}cmake --build {BUILDIR} -j{jobs}') != 0: sys.exit(1)
     # Copy executables to BINDIR (but not soft link)
     executables = [
         os.path.join(d, f)
-        for d in [BUILDIR, EXECDIR]
+        for d in [EXECDIR, BUILDIR]
         for f in os.listdir(d)
         if os.path.isfile(os.path.join(d, f))
         and not os.path.islink(os.path.join(d, f))
