@@ -69,7 +69,7 @@ contains
     use m_dfrce,only: dfrce
     use m_sugcut,only:sugcut
     use m_bzints,only: bzints
-    use m_writeband,only: writeband,writefs,writepdos,writedossawada
+    use m_writeband,only: writeband,writefs,writepdos,writedossawada,writeeigs
     use m_totfrc,only:totfrc
     ! inputs
     ! main input are smrho, orhoat (in m_mkpot_init), specifing density, and vorb, which is potential for LDA+U
@@ -114,7 +114,7 @@ contains
     integer:: plbnd,nk1,nk2,nk3,nx,ny, iter,i,ifi,ipr,iq,isp,jsp,iprint,ipts,ierr
     integer:: ifih,ifii,ib,ix,ifimag,nevmin,nnn,ikp
     logical:: llmfgw,sigx, ltet,cmdopt0,sigmamode,tdos,debug=.false.
-    logical:: fullmesh,PROCARon,writeham=.false.,magexist, fsmode 
+    logical:: fullmesh,PROCARon,writeham=.false.,magexist, fsmode , eigenatk
     logical,save:: siginit=.true.
     real(8):: sttime,entime,vesav
     real(8):: ekinval,eharris,eksham,  dosw(2),dum(1),evtop,ecbot,qp(3),xxx,dumx
@@ -126,6 +126,7 @@ contains
     debug  = cmdopt0('--debugbndfp')
     tdos   = cmdopt0('--tdos')  !total dos mode or not
     fsmode = cmdopt0('--fermisurface')!FermiSurfece for xcrysden in http://www.xcrysden.org/doc/XSF.html#2l.16
+    eigenatk = cmdopt0('--eigen-at-k') ! for eigenatk output mode in m_bandcal_init
     ipr    = iprint() ! for procid/=master, we set iprint=0 at lmv7.F
     ltet = ntet>0! tetrahedron method or not
     vmag=0d0
@@ -192,6 +193,37 @@ contains
       call mpibc2_int(nevls,  size(nevls),  'bndfp_nevls')   
       nevmin = minval(nevls(1:nkp,1:nspx))
     endblock GetHamiltonianAndDiagonalize
+    WriteEigen_PlotbandMODE: block
+      ! eigenvalue stored in `__EVL` and spinweightsoc in `__SPINWEIGHT` are written to the formatted file
+      if(plbnd/=0 .and. (fsmode .or. eigenatk)) then
+        if(master_mpi) then 
+          WrittingProcess: block
+            real(8), allocatable:: evlall_(:,:,:), spinweightsoc_(:,:,:)
+            integer :: ifile_evlall, ifile_spinweightsoc, istat
+            allocate(evlall_(nbandmx,nspx,nkp))
+            open(newunit=ifile_evlall, file = '__EVL', access='direct', recl=8*nbandmx)
+            if(lso==1) allocate(spinweightsoc_(nbandmx,nsp,nkp))
+            if(lso==1) open(newunit=ifile_spinweightsoc, file='__SPINWEIGHT', access='direct', recl=8*nbandmx)
+            do iq=1, nkp
+              do isp=1,nspx
+                read(ifile_evlall, rec=(iq-1)*nspx+isp) evlall_(1:nbandmx,isp,iq)
+              enddo
+              do isp=1,nsp
+                if(lso==1) read(ifile_spinweightsoc, rec=(iq-1)*nsp+isp) spinweightsoc_(1:nbandmx,isp,iq)
+              enddo
+            enddo
+            close(ifile_evlall)
+            if(lso==1) close(ifile_spinweightsoc)
+            if(fsmode)   call writefs(evlall_, eferm, spinweightsoc_)
+            if(eigenatk) call writeeigs(evlall_, eferm, spinweightsoc_)
+            deallocate(evlall_)
+            if(allocated(spinweightsoc_)) deallocate(spinweightsoc_)
+          endblock WrittingProcess
+        endif
+        if(fsmode)   call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
+        if(eigenatk) call rx0('done --eigen-at-k mode *.up/dw.eigen.dat is generated')
+      endif
+    endblock WriteEigen_PlotbandMODE
     BROADCASTevlall:block
       integer:: nspxa
       if(afsym) then !this block recovered! (was commented out at 2025-06-09)
@@ -225,12 +257,9 @@ contains
          endif Boltztrap
          Writebandmode: if(plbnd/=0 ) then 
             if(master_mpi) then
-               if(fsmode)  call writefs(evlall,eferm,spinweightsoc)   !fermi surface !bias field vmag added  2023-9-20.
-               !Obata bugfix add spinweightsoc at 2024-6-11
                write(stdo,*)' Writing bands to bands file for gnuplot ...'
                if(nsyml/=0)call writeband(evlall,eferm,vesav,evtop,ecbot,spinweightsoc) !bias field added  2023-9-20
             endif
-            if(fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
             call rx0('plot band mode done') ! end of band plbnd/=0, that is, band plot mode.
          endif Writebandmode
       endif

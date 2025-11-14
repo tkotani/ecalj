@@ -121,6 +121,38 @@ contains
                 enddo
              enddo
           endif
+       elseif(cmdopt0('--eigen-at-k')) then
+         ReadEigenAtK:block
+           logical :: filexists
+           integer :: iunit
+           character(512) :: line, tline
+           inquire(file='kpoints_eigen.in', exist=filexists)
+           if(.not.filexists) call rx('kpoints_eigen.in not found for --eigen-at-k option')
+           open(newunit=iunit,file='kpoints_eigen.in',status='old')
+           nkp = 0
+           do
+             read(iunit, '(A)', iostat=ios) line
+             if (ios /= 0) exit
+             tline = trim(adjustl(line))
+             if (tline /= "" .and. tline(1:1) /= "#") then
+               read(tline, *, iostat=ios_data) q(1:3)
+               if (ios_data == 0) nkp = nkp + 1
+             endif
+           enddo
+           rewind(iunit)
+           allocate(qplist(3,nkp))
+           do iq= 1, nkp
+             read(iunit, '(A)', iostat=ios) line
+             if (ios /= 0) exit
+             tline = trim(adjustl(line))
+             if (tline /= "" .and. tline(1:1) /= "#") then
+               read(tline, *, iostat=ios_data) q(1:3)
+               if (ios_data == 0) qplist(:,iq) = q(1:3)
+             endif
+           enddo
+           write(stdo,*)' -- Readin kpoints_eigen.in for --eigen-at-k option: nkp=',nkp
+           close(iunit)
+         endblock ReadEigenAtK
           !! syml direct read for plbnd mode. See "call writeband" below. feb2015
        else
           !            readeferm=.false.

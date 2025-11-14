@@ -26,6 +26,7 @@ module m_bandcal
   use m_lmfinit,only: ispec,nkaphh,kmxt_i=>kmxt,lmxb_i=>lmxb
   use m_lmfinit,only: nlmax,nspc,n0,lldau,idu
   use m_struc_def,only:s_rv5   !o oqkkl : memory is allocated for qkkl
+  use m_mpiio, only: writem_d, openm, closem
   ! outputs ---------------------------
   public m_bandcal_init, m_bandcal_2nd, m_bandcal_clean, m_bandcal_allreduce, m_bandcal_symsmrho
   integer,allocatable,protected,public::     ndimhx_(:,:),nevls(:,:) 
@@ -33,7 +34,7 @@ module m_bandcal
   complex(8),allocatable,protected,public::  smrho_out(:,:,:,:),dmatu(:,:,:,:)
   type(s_rv5),allocatable,protected,public:: oeqkkl(:,:), oqkkl(:,:)
   !------------------------------------------------
-  logical,private:: debug,sigmamode,call_m_bandcal_2nd,procaron,writeham,dmatuinit=.true.
+  logical,private:: debug,sigmamode,call_m_bandcal_2nd,procaron,writeham,dmatuinit=.true.,q_properties_in_memory =.true.
   real(8),private:: sumqv(3,2),sumev(3,2)
   integer,allocatable,private::neviqis(:),ndimhxiqis(:)
   complex(8),allocatable,private:: eveciqis(:,:,:)
@@ -44,9 +45,11 @@ contains
     intent(in)::            lrout,ef0,vmag,ifih
     complex(8),allocatable:: hamm(:,:,:,:),ovlm(:,:,:,:),hammhso(:,:,:),ovlms(:,:,:,:) !Hamiltonian,Overlapmatrix
     integer:: iq,nmx,ispinit,isp,nev,ifih,lwtkb,lrout,ifig,i,ibas,iwsene,idat,ikp
+    integer::istat, ifile_spineightsoc, ifile_evlall
     real(8):: qp(3),ef0,def=0d0,xv(3),q(3),vmag
     real(8),allocatable    :: evl(:,:)  !eigenvalue (nband,nspin)
     complex(8),allocatable :: evec(:,:) !eigenvector( :,nband)
+    real(8), allocatable :: spinweightsoc_iq(:,:)
     logical:: ltet,cmdopt0,dmatuinit=.true.,wsene,magexist
     character(3):: charnum3  
     call tcn('m_bandcal_init')
@@ -55,6 +58,7 @@ contains
     writeham = cmdopt0('--writeham')
     PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
     debug    = cmdopt0('--debugbndfp')
+    q_properties_in_memory = .not. (cmdopt0('--fermisurface') .or. cmdopt0('--eigen-at-k'))
     ltet = ntet>0 !   nspx=nsp/nspc !nspc=1 only for so=1 
     if(plbnd==0 .AND. lso/=0 .AND. lmet==0 ) call rx('metal weights required to get orb.moment')
     if(lso/=0) allocate(orbtm_rv(lmxax+1,nsp,nbas),source=0d0) !for spin-orbit coupling
@@ -62,8 +66,14 @@ contains
     if(master_mpi) write(stdo,"('MagField added to Hailtonian -vmag/2 for isp=1, +vmag/2 for isp=2: vmag(Ry)=',d13.6)") vmag
     magexist= abs(vmag)>1d-6
     allocate( ndimhx_(nkp,nspx),nevls(nkp,nspx),source=0) 
-    allocate( evlall(nbandmx,nspx,nkp),source=0d0)
-    if(lso==1) allocate( spinweightsoc(nbandmx,nsp,nkp),source=0d0) !nsp=2 for lso==1
+    if(lso==1) allocate( spinweightsoc_iq(nbandmx,nsp),source=0d0)
+    if(q_properties_in_memory) then
+      allocate( evlall(nbandmx,nspx,nkp),source=0d0)
+      if(lso==1) allocate( spinweightsoc(nbandmx,nsp,nkp),source=0d0) !nsp=2 for lso==1
+    else 
+      istat = openm(newunit=ifile_evlall, file = '__EVL', recl=8*nbandmx)
+      if(lso==1) istat = openm(newunit=ifile_spineightsoc, file = '__SPINWEIGHT', recl=8*nbandmx)
+    endif
     if(nlibu>0 .AND. dmatuinit) then
        allocate( dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu))
        dmatuinit=.false.
@@ -156,7 +166,7 @@ contains
          endif
          if(wsene) close(iwsene)
          nmx=min(nevmx,ndimhx)! nmx:maximum number of eigenfunctions we will obtain. Smaller is faster.
-         if(iprint()>=30) write(stdo,'(" bndfp: kpt ",i5," of ",i5, " k=",3f8.4, &
+         if(iprint()>=30) write(stdo,'(" bndfp: kpt ",i5," of ",i7, " k=",3f8.4, &
               " ndimh = nmto+napw = ",3i5,f13.5)') iq,nkp,qp,ndimh,ndimh-napw,napw
          if(writeham) then
             write(ifih) qp,ndimhx,lso,epsovl,isp ! ndimhx=ndimh*nspc 
@@ -195,22 +205,30 @@ contains
        evl(nev+1:nbandmx,isp)=1d99  !padding. flag to skip these data
        nevls(iq,isp)  = nev        !nov2014 isp and isp is confusing...
        ndimhx_(iq,isp)= ndimhx     !Hamiltonian dimension
-       evlall(1:nbandmx,isp,iq) = evl(1:nbandmx,isp)
        GetSpinWeightSOC1: if(lso==1.and.nmx/=0) then !note! nmx=0 lets zhev_tk to calculate only eigenvalues
           associate(nd=>ndimh)
-            spinweightsoc(1:nev,1,iq)= [(sum(dconjg(evec(1:nd,i))*matmul(ovlms(:,1,:,1),evec(1:nd,i))),i=1,nev)]
-            spinweightsoc(1:nev,2,iq)= [(sum(dconjg(evec(nd+1:nd+nd,i))*matmul(ovlms(:,2,:,2),evec(nd+1:nd+nd,i))),i=1,nev)]
-            NormalizationcheckFORspinweightSOC: if(any([(abs(sum(spinweightsoc(i,:,iq))-1d0)>1d-6,i=1,nev-10)])) then
+            spinweightsoc_iq(:,:) = 0d0
+            spinweightsoc_iq(1:nev,1)= [(sum(dconjg(evec(1:nd,i))*matmul(ovlms(:,1,:,1),evec(1:nd,i))),i=1,nev)]
+            spinweightsoc_iq(1:nev,2)= [(sum(dconjg(evec(nd+1:nd+nd,i))*matmul(ovlms(:,2,:,2),evec(nd+1:nd+nd,i))),i=1,nev)]
+            NormalizationcheckFORspinweightSOC: if(any([(abs(sum(spinweightsoc_iq(i,:))-1d0)>1d-6,i=1,nev-10)])) then
                !                                                                                      nev-10 to avoid num error of high bands
                do i=1,nev
-                  write(stdo,ftox)'spinweightsoc=',i,ftof(spinweightsoc(i,1:2,iq)),sum(spinweightsoc(i,1:2,iq))
+                  write(stdo,ftox)'spinweightsoc=',i,ftof(spinweightsoc_iq(i,1:2)),sum(spinweightsoc_iq(i,1:2))
                enddo
                call rx('m_bandcal: error of SpinWeight sumcheck')
             endif NormalizationcheckFORspinweightSOC
           endassociate
        endif GetSpinWeightSOC1
+       if(q_properties_in_memory) then
+         evlall(1:nbandmx,isp,iq) = evl(1:nbandmx,isp)
+         if(lso==1)spinweightsoc(:,:,iq) = spinweightsoc_iq(:,:)
+       else
+         istat = writem_d(unit=ifile_evlall,       rec=(iq-1)*nspx+isp, data=evl(1:nbandmx,isp))
+         if(lso==1)istat = writem_d(unit=ifile_spineightsoc, rec=(iq-1)*nsp+1, data=spinweightsoc_iq(1:nbandmx,1)) !lso==1, nsp=2
+         if(lso==1)istat = writem_d(unit=ifile_spineightsoc, rec=(iq-1)*nsp+2, data=spinweightsoc_iq(1:nbandmx,2))
+       endif
        if(afsym) then !cmdopt0('--afsym')) then
-          evlall(1:nbandmx,2,iq) = evl(1:nbandmx,1)
+          if(q_properties_in_memory) evlall(1:nbandmx,2,iq) = evl(1:nbandmx,1)
           nevls(iq,2)  = nev        
           ndimhx_(iq,2)= ndimhx     !Hamiltonian dimension
        endif   
@@ -229,7 +247,10 @@ contains
     if(PROCARon) call m_procar_closeprocar()
     if(debug) write(stdo,"(' ---- end of do 2010 ---- ',2i5)") procid !if(call_m_bandcal_2nd) close(ifig)
     deallocate(evl)
+    if(allocated(spinweightsoc_iq))deallocate(spinweightsoc_iq)
     call tcx('m_bandcal_init')
+    if(.not.q_properties_in_memory) istat = closem(unit=ifile_evlall)
+    if(lso==1 .and. (.not.q_properties_in_memory)) istat = closem(unit=ifile_spineightsoc)
   end subroutine m_bandcal_init
   subroutine m_bandcal_2nd()! accumulate eval,evec-related quantities by addrbl
     implicit none

@@ -3,7 +3,7 @@ module m_writeband
   use m_MPItk,only: comm
   use m_ftox
   real(8),external:: rydberg
-  public writeband,writefs,writepdos,writedossawada
+  public writeband,writefs,writepdos,writedossawada,writeeigs
   private
 contains
   subroutine writeband(evlall,eferm,vesav,evtop,ecbot,spinweightsoc) !write band file. bnd* and bandplot.isp*.glt
@@ -286,12 +286,13 @@ contains
     use m_qplist,only:nkp,qplist
     use m_shortn3_qlat,only: shortn3_qlat,nout,nlatout
     implicit none
-    logical:: cmdopt0,allband
+    logical:: cmdopt0,allband, cmdopt2
     real(8):: ppin(3),eferm
     integer:: ip,i,isp,ififm,nbxx,iq,ib,nkk1,nkk2,nkk3,ifi,nx(3),ndhamx
     real(8):: rlatp(3,3),xmx2(3),vadd,qshort(3),evlall(:,:,:)
-    real(8):: spinweightsoc(:,:,:)
+    real(8):: spinweightsoc(:,:,:), emin, emax
     character*100::sss=''
+    character(len=256) :: strn
     integer:: iout 
     nkk1=bz_nabc(1)
     nkk2=bz_nabc(2)
@@ -299,6 +300,16 @@ contains
     allband  = cmdopt0('--allband')
     nx=shape(evlall)
     ndhamx=nx(1)
+    emin = -0.5d0
+    emax = 0.5d0
+    if(cmdopt2('-emin=',strn))then
+      read(strn,*) emin
+      emin = emin/rydberg()
+    endif
+    if(cmdopt2('-emax=',strn))then
+      read(strn,*) emax
+      emax = emax/rydberg()
+    endif
     do isp=1,nsp/nspc
        if(isp==1) open(newunit=ifi, file='fermiup.bxsf')
        if(isp==2) open(newunit=ifi, file='fermidn.bxsf')
@@ -319,7 +330,7 @@ contains
        write(ifi,*)"  BEGIN_BANDGRID_3D_simple_test"
        nbxx=0
        do ib=1,ndhamx
-          if(allband .OR. (minval(evlall(ib,isp,:))<eferm+0.5 .AND.maxval(evlall(ib,isp,:))>eferm-0.5)) then
+          if(allband .OR. (minval(evlall(ib,isp,:))<eferm + emax .AND.maxval(evlall(ib,isp,:))>eferm + emin)) then
              nbxx=nbxx+1
           endif
        enddo
@@ -331,10 +342,10 @@ contains
        write(ifi,"(4x,3(f9.5,1x))") qlat(:,3)
        !call shortn3_initialize(qlat)
        do ib=1,ndhamx
-          if(allband .OR. (minval(evlall(ib,isp,:))<eferm+0.5 .AND. maxval(evlall(ib,isp,:))>eferm-0.5)) then
+          if(allband .OR. (minval(evlall(ib,isp,:))<eferm+emax .AND. maxval(evlall(ib,isp,:))>eferm+emin)) then
              write(ifi,"(a,i8)")"  BAND: ",ib
              write(ififm,"(a,i8)")"  # BAND: ",ib
-             write(ifi,"(3x,10(x,f9.5))") (evlall(ib,isp,iq), iq=1,nkk1*nkk2*nkk3)
+             write(ifi,"(10(x,f9.5))") (evlall(ib,isp,iq), iq=1,nkk1*nkk2*nkk3)
              ! to reduce q-point to qshort
              do iq=1,nkk1*nkk2*nkk3
                 ppin=matmul(transpose(plat),qplist(:,iq))
@@ -355,6 +366,7 @@ contains
   end subroutine writefs
   subroutine writepdos(ext)! Readin pdosinput, and print out pdos files.
     use m_dstrbp,only: dstrbp
+    use m_mpiio, only: readm_d, openm, closem
 !    use m_lmfinit,only:lso
     implicit none
     integer:: ifip,ndhamx,nsp,nspx,nevmin,nchanp,nbas,nkk1,nkk2,nkk3,ntete,ndos,nkp &
@@ -371,8 +383,8 @@ contains
     integer, dimension(:),allocatable :: kpproc
     integer::numprocs,procid,ierr,itete,iteti,ispx,lso
     logical :: cmdopt0, idwmode
-    real(8), allocatable :: dwgt4(:,:,:,:)
-    integer :: iq, idt, idw
+    real(8), allocatable :: dwgt4(:,:,:,:,:)
+    integer :: iq, idt, idw, ifile_dw, istat
     include "mpif.h"
     idwmode = cmdopt0('--writedw')
     if(idwmode) print *, 'writedw mode ON'
@@ -382,7 +394,10 @@ contains
     allocate(idtete(0:4,6*nkp),ipqe(nkk1,nkk2,nkk3))
     allocate(evlall(ndhamx,nspx,nkp))
     if(.not.idwmode) allocate(dwgtall(nchanp,nbas,ndhamx,nsp,nkp))
-    if(idwmode) allocate(dwgt4(nchanp,nbas,ndhamx,4))
+    if(idwmode) then
+      allocate(dwgt4(nchanp,nbas,ndhamx,nsp,4))
+      istat = openm(newunit=ifile_dw, file='__DWGT', recl=8*nchanp*nbas*ndhamx*nsp)
+    endif
     read(ifip) idtete
     read(ifip) evlall
     if(.not.idwmode) read(ifip) dwgtall
@@ -413,15 +428,13 @@ contains
     vvv = ( 3d0  -  nsp ) / ( nkk1 * nkk2 * nkk3 * 6d0 )/4d0
     allocate(pdosalla(ndos,nsp,nchanp,nbas))
     tetrehedronloop:do itet = iteti, itete
+       if(idwmode) then
+          do idt = 1, 4
+            iq = idtete(idt,itet)
+            istat = readm_d(ifile_dw, rec=iq, data=dwgt4(:,:,:,:,idt))
+          enddo
+       endif
        do isp = 1, nsp
-          if(idwmode) then
-             do idt = 1, 4
-                 iq = idtete(idt,itet)
-                 open(newunit=idw,file='dwgt.dir/dwgtk'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
-                 read(idw) dwgt4(:,:,:,idt)
-                 close(idw)
-             enddo
-          endif
           ispx= merge(1,isp,lso==1)
           do ib = 1, nevmin
              eigen(1:4) = evlall(ib,ispx,idtete(1:4,itet))
@@ -429,7 +442,7 @@ contains
              do ibas = 1,nbas
                 do ichan = 1, nchanp
                    if(idwmode) then
-                     wt = sum(dwgt4(ichan,ibas,ib,1:4)) * idtete(0,itet) * vvv
+                     wt = sum(dwgt4(ichan,ibas,ib,isp,1:4)) * idtete(0,itet) * vvv
                    else
                      wt = sum(dwgtall(ichan,ibas,ib,isp,idtete(1:4,itet))) * idtete(0,itet) * vvv
                    endif
@@ -439,6 +452,7 @@ contains
           enddo
        enddo
     enddo tetrehedronloop
+    if(idwmode) istat = closem(ifile_dw)
     call mpibc2_real( pdosalla, ndos*nsp*nchanp*nbas, 'writepdos_pdosalla' )
     if(procid==0) then
        allocate(pdosp (ndos,nchanp))
@@ -576,4 +590,48 @@ contains
        close(ifi)
     endif
   end subroutine writedossawada
+  subroutine writeeigs(evlall,eferm,spinweightsoc)
+    use m_lmfinit, only: nsp,nspc,lso,nspx
+    use m_qplist,only: nkp, qplist
+    use m_sort, only: lower_bound, upper_bound
+    implicit none
+    real(8), intent(in):: eferm, evlall(:,:,:), spinweightsoc(:,:,:)
+    logical:: cmdopt2
+    integer :: lower, upper, iq, isp, ifile, nbands
+    character(len=256) :: strn
+    real(8) :: emin = -huge(0d0), emax = 10d0 !Ryd
+    if(cmdopt2('-emin=',strn))then
+      read(strn,*) emin
+      emin = emin/rydberg()
+    endif
+    if(cmdopt2('-emax=',strn))then
+      read(strn,*) emax
+      emax = emax/rydberg()
+    endif
+    nbands = minval(count(evlall(:,:,:) - eferm <= 100d0, dim=1))  !!trancation for dummy large eigenvalues
+    lower = minval([ ((lower_bound(evlall(1:nbands,isp,iq) - eferm, value=emin), isp=1,nspx), iq=1,nkp) ])
+    upper = maxval([ ((upper_bound(evlall(1:nbands,isp,iq) - eferm, value=emax), isp=1,nspx), iq=1,nkp) ])
+    do isp=1, nspx
+      if(isp==1) open(newunit=ifile, file='eigenup.dat')
+      if(isp==2) open(newunit=ifile, file='eigendw.dat')
+      write(ifile,'(A,I5)') '# number of states:', upper - lower + 1
+      do iq=1, nkp
+        write(ifile,'(A,3F10.5)') '# eigenvalue - efermi (eV) @ k-point', qplist(1:3,iq)
+        write(ifile,'(10F10.5)') (evlall(lower:upper,isp,iq) - eferm)*rydberg()
+      enddo
+      close(ifile)
+     enddo
+    if(lso==1) then
+      do isp=1, nsp
+        if(isp==1) open(newunit=ifile, file='spinweightup.dat')
+        if(isp==2) open(newunit=ifile, file='spinweightdw.dat')
+        write(ifile,'(A,I5)') '# number of states:', upper - lower + 1
+        do iq=1, nkp
+          write(ifile,'(A,3F10.5)') '# spinweight @ k-point', qplist(1:3,iq)
+          write(ifile,'(10F10.5)') spinweightsoc(lower:upper,isp,iq)
+        enddo
+      close(ifile)
+      enddo
+    endif
+   end subroutine writeeigs
 endmodule m_writeband

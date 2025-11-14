@@ -6,6 +6,7 @@ module m_procar
   use m_locpot,only: sab_rv=>sab 
   use m_MPItk,only: master_mpi, strprocid, numprocs=>nsize,procid,xmpbnd2
   use m_qplist,only: nkp,xdatt,qplist
+  use m_mpiio,only: openm, writem_d, closem
 !  public m_procar_init, m_procar_closeprocar, m_procar_writepdos, dwgtall,nchanp,m_procar_add
   public m_procar_init, m_procar_closeprocar, m_procar_writepdos, dwgtall,nchanp,m_procar_add,sdendwgtall,m_sden_add,read_sdenmat
 
@@ -18,6 +19,8 @@ module m_procar
   logical,private:: cmdopt0,fullmesh,debug,procaron
   logical,private:: idwmode=.false.
   real(8), allocatable:: dlmm(:,:,:,:)
+  real(8), allocatable :: dwgtk(:,:,:,:)
+  integer :: ifile_dw
 contains
   subroutine m_procar_closeprocar()
     logical:: nexist
@@ -27,12 +30,17 @@ contains
   end subroutine m_procar_closeprocar
   subroutine m_procar_init()
     logical:: cmdopt0
+    integer :: istat
     fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface')
     debug    = cmdopt0('--debugbndfp')
     PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
     idwmode  = cmdopt0('--writedw')
     if(procaron .AND. fullmesh ) then
        if(.not.idwmode) allocate(dwgtall(nchanp,nbas,ndhamx,nsp,nkp),source=0d0)
+       if(idwmode) then
+         allocate(dwgtk(nchanp,nbas,ndhamx,nsp),source=0d0)
+         istat = openm(newunit=ifile_dw,file='__DWGT', recl=8*size(dwgtk))
+       endif
     endif
     call m_procar_setlocalaxis_init()
   end subroutine m_procar_init
@@ -50,10 +58,9 @@ contains
     integer:: iq,isp,iprocar,iband,is,ilm,nspc,ib,nev,i,m,l,ndimhx,ispin,ispstart,ispend,ispx
     real(8):: rydberg=13.6058d0,evl(ndhamx,nspx)
     logical:: cmdopt0
-    real(8), allocatable :: dwgtk(:,:,:)
     real(8),allocatable:: evlm(:,:)
     character(8)::xt
-    integer::idw
+    integer :: istat
 !    idwmode  = cmdopt0('--writedw')
 !    fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface')
 !    debug    = cmdopt0('--debugbndfp')
@@ -86,10 +93,6 @@ contains
        if(isp2init .AND. isp==2) then
           open(newunit=iprocar2,file='PROCAR.DN.'//trim(strprocid))
           isp2init=.false.
-       endif
-       if(idwmode) then
-          allocate(dwgtk(nchanp,nbas,ndhamx),source=0d0)
-          call execute_command_line('mkdir -p dwgt.dir')
        endif
 
        if(isp==1) iprocar=iprocar1
@@ -152,17 +155,12 @@ contains
              if(ib==1)  write(iprocar,"(a)") trim(ccc)
              write(iprocar,"(i3,100(x,f8.5))")ib,(dwgt(i),i=1,nchanp),sum(dwgt(1:nchanp))
              if(ib==nbas) write(iprocar,"('tot',100(x,f8.5))")(dwgtt(i),i=1,nchanp),sum(dwgtt(1:nchanp))
-             if((.not.idwmode).and.fullmesh) dwgtall(1:nchanp,ib,iband,isp,iq) = dwgt(1:nchanp)
-             if(idwmode.and.fullmesh) dwgtk(1:nchanp,ib,iband) = dwgt(1:nchanp) 
+             if(allocated(dwgtall)) dwgtall(1:nchanp,ib,iband,isp,iq) = dwgt(1:nchanp)
+             if(allocated(dwgtk)) dwgtk(1:nchanp,ib,iband,isp) = dwgt(1:nchanp) 
           enddo ibloop
        enddo ibandloop
-       if(procaron .AND. fullmesh .AND. idwmode) then
-         open(newunit=idw,file='dwgt.dir/dwgtk'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
-         write(idw) dwgtk
-       endif
-       if(allocated(dwgtk)) deallocate(dwgtk)
     enddo isploop
-    if(idwmode) close(idw)
+    istat = writem_d(ifile_dw, rec=iq, data=dwgtk)
     deallocate( evlm,auspp )
   end subroutine m_procar_add
   
@@ -376,11 +374,9 @@ contains
              write(isdenmat,"(i3,x,i3,100(x,f8.5))")ixyz,ib,(dwgt(i,ixyz),i=1,nchanp),sum(dwgt(1:nchanp,ixyz))
              if(ib==nbas) write(isdenmat,"('tot',100(x,f8.5))")(dwgtt(i),i=1,nchanp),sum(dwgtt(1:nchanp))
              if((.not.idwmode).and.fullmesh) sdendwgtall(1:nchanp,ib,iband,ixyz,iq) = dwgt(1:nchanp,ixyz)
-             if(idwmode.and.fullmesh) write(idw) dwgt(1:nchanp,ixyz) 
           enddo ibloop
        enddo ixyzloop
     enddo ibandloop
-    if(idwmode) close(idw)
     deallocate( evlm,auspp )
   end subroutine m_sden_add
 !!--------------------------------------------------------
