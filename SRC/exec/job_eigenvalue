@@ -33,10 +33,10 @@ if __name__ == "__main__":
             '  kx2 ky2 kz2\n'
             '  kx3 ky3 kz3\n'
             '  ...\n\n'
-            'The energy range can be specified with the -emin and -emax options. '
+            'The energy range can be specified with the -emin and -emax options.\n'
             'The default range is -100 eV to 30 eV.\n\n'
             'Example:\n'
-            '  job_eigenvalue cu -np 8 -emin=-20 -emax=20 -vpwemax=4 -vgmax=15'
+            '  job_eigenvalue cu -np 8 -emin=-20 -emax=20 -vpwemax=4 -vgmax=15\n'
             'Output: Eigenvalues for the specified k-points and energy range are saved in eigenup.dat (majority spin state) and eigendw.dat (minority spin state).\n'
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter
