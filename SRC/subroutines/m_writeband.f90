@@ -616,7 +616,7 @@ contains
       if(isp==2) open(newunit=ifile, file='eigendw.dat')
       write(ifile,'(A,I5)') '# number of states:', upper - lower + 1
       do iq=1, nkp
-        write(ifile,'(A,3F10.5)') '# eigenvalue - efermi (eV) @ k-point', qplist(1:3,iq)
+        write(ifile,'(A,3F10.6,X,I8,X,A,X,I8)') '# eigenvalue - efermi (eV) @ k-point', qplist(1:3,iq), iq, "of", nkp
         write(ifile,'(10F10.5)') (evlall(lower:upper,isp,iq) - eferm)*rydberg()
       enddo
       close(ifile)
