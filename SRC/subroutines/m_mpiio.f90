@@ -2,7 +2,7 @@ module m_mpiio !MPI-IO only for complex(8). Fixed length recl
   use m_nvfortran
   use mpi
   implicit none
-  public:: openm,writem,readm,closem
+  public:: openm,writem,readm,closem, openedm
   public:: writem_c, writem_d, readm_d
   private
   integer,parameter::nfmax=1000, nsize=16 !maxsize of opened file by openm
@@ -97,4 +97,15 @@ contains
     call mpi_file_close(unit, ierr)
     i=0
   end function closem
+  function openedm(unit) result(is_open)
+    integer::unit
+    logical:: is_open
+    integer:: ifx
+    ifx = findloc(unit==fhl(1:iff),dim=1,value=.True.)
+    if(ifx>0) then
+      is_open = .true.
+    else
+      is_open = .false.
+    endif
+  end function openedm
 end module m_mpiio
