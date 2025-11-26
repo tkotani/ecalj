@@ -174,6 +174,18 @@ contains
           facso(:,2) = [complex(8)::  0d0, -d2+d2/img, -d2-d2/img ]
           facso(:,3) = [complex(8):: -1d0,  d2*img+d2,  d2*img-d2 ]
           facso=0.5d0* facso  ! prefactor 1/2
+       elseif( sum(abs(socaxis-[1d0,0d0,0d0])) <1d-6) then
+          !     (100)                   Lz         L-          L+
+          facso(:,1) = [complex(8)::  0d0,      0.5d0,      0.5d0]
+          facso(:,2) = [complex(8)::  0d0,     -0.5d0,     -0.5d0]
+          facso(:,3) = [complex(8):: -img, -0.5d0/img,  0.5d0/img]
+          facso=0.5d0* facso  ! prefactor 1/2
+       elseif( sum(abs(socaxis-[0d0,1d0,0d0])) <1d-6) then
+          !     (010)                   Lz         L-          L+
+          facso(:,1) = [complex(8)::  0d0, -0.5d0/img,  0.5d0/img]
+          facso(:,2) = [complex(8)::  0d0,  0.5d0/img, -0.5d0/img]
+          facso(:,3) = [complex(8)::  1d0, -0.5d0*img, -0.5d0*img]
+          facso=0.5d0* facso  ! prefactor 1/2
        else
           call rx('Given HAM_SOCAXIS is not yet implemented. Modify facso matrix in subrouitne aughsoc in m_augmbl.f90.')
        endif

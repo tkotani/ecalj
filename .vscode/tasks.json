@@ -1,0 +1,24 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build-ifx",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-c",
+        "FC=ifx cmake -S ./SRC/exec -B ./SRC/exec/build && cmake --build ./SRC/exec/build -j"
+      ]
+    },
+    {
+      "label": "clean",
+      "type": "shell",
+      "command": "cmake --build ./SRC/exec/build --target clean"
+    },
+    {
+      "label": "InstallAll-ifx",
+      "type": "shell",
+      "command": "python ./InstallAll.py --fc=ifx --notest"
+    }
+  ]
+}

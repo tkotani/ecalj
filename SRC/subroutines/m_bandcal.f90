@@ -3,7 +3,7 @@ module m_bandcal
   use m_ftox
   use m_lgunit,only:stdo,stdl
   use m_lmfinit,only: lmxa_i=>lmxa,rmt_i=>rmt,afsym,nspx
-  use m_struc_def,only: s_rv1,s_rv5
+  use m_struc_def,only: s_rv1,s_rv2,s_rv5
   use m_qplist, only: nkp
   use m_mkqp,only: ntet=> bz_ntet, bz_nabc
   use m_qplist,only: qplist,niqisp,iqproc,isproc
@@ -26,12 +26,16 @@ module m_bandcal
   use m_lmfinit,only: ispec,nkaphh,kmxt_i=>kmxt,lmxb_i=>lmxb
   use m_lmfinit,only: nlmax,nspc,n0,lldau,idu
   use m_struc_def,only:s_rv5   !o oqkkl : memory is allocated for qkkl
+  use m_mpiio, only: writem_d, openm, closem, openedm
   ! outputs ---------------------------
   public m_bandcal_init, m_bandcal_2nd, m_bandcal_clean, m_bandcal_allreduce, m_bandcal_symsmrho
+  public :: m_bandcal_gather_evlall, m_bandcal_gather_spinweightall
   integer,allocatable,protected,public::     ndimhx_(:,:),nevls(:,:) 
-  real(8),allocatable,protected,public::     frcband(:,:), orbtm_rv(:,:,:),evlall(:,:,:), spinweightsoc(:,:,:)
+  real(8),allocatable,protected,public::     frcband(:,:), orbtm_rv(:,:,:),evlall(:,:,:), spinweightall(:,:,:) !all data is accumulated in mpi master 
   complex(8),allocatable,protected,public::  smrho_out(:,:,:,:),dmatu(:,:,:,:)
   type(s_rv5),allocatable,protected,public:: oeqkkl(:,:), oqkkl(:,:)
+  type(s_rv1), allocatable, protected, public :: t_evl(:,:)
+  type(s_rv2), allocatable, protected, public :: t_spinweight(:)
   !------------------------------------------------
   logical,private:: debug,sigmamode,call_m_bandcal_2nd,procaron,writeham,dmatuinit=.true.
   real(8),private:: sumqv(3,2),sumev(3,2)
@@ -45,7 +49,7 @@ contains
     complex(8),allocatable:: hamm(:,:,:,:),ovlm(:,:,:,:),hammhso(:,:,:),ovlms(:,:,:,:) !Hamiltonian,Overlapmatrix
     integer:: iq,nmx,ispinit,isp,nev,ifih,lwtkb,lrout,ifig,i,ibas,iwsene,idat,ikp
     real(8):: qp(3),ef0,def=0d0,xv(3),q(3),vmag
-    real(8),allocatable    :: evl(:,:)  !eigenvalue (nband,nspin)
+    real(8),allocatable    :: evl(:,:), spinweight(:,:)
     complex(8),allocatable :: evec(:,:) !eigenvector( :,nband)
     logical:: ltet,cmdopt0,dmatuinit=.true.,wsene,magexist
     character(3):: charnum3  
@@ -62,8 +66,10 @@ contains
     if(master_mpi) write(stdo,"('MagField added to Hailtonian -vmag/2 for isp=1, +vmag/2 for isp=2: vmag(Ry)=',d13.6)") vmag
     magexist= abs(vmag)>1d-6
     allocate( ndimhx_(nkp,nspx),nevls(nkp,nspx),source=0) 
-    allocate( evlall(nbandmx,nspx,nkp),source=0d0)
-    if(lso==1) allocate( spinweightsoc(nbandmx,nsp,nkp),source=0d0) !nsp=2 for lso==1
+    allocate( t_evl(nspx,nkp))
+    if(lso==1) allocate(t_spinweight(nkp))
+    if(master_mpi) allocate( evlall(nbandmx,nspx,nkp),source=0d0)
+    if(master_mpi .and. lso==1) allocate( spinweightall(nbandmx,nsp,nkp),source=0d0) !nsp=2 for lso==1
     if(nlibu>0 .AND. dmatuinit) then
        allocate( dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu))
        dmatuinit=.false.
@@ -81,7 +87,7 @@ contains
        if(allocated(neviqis))deallocate(neviqis,ndimhxiqis,eveciqis)
        allocate(neviqis(niqisp),ndimhxiqis(niqisp),eveciqis(nbandmx,nevmx,niqisp)) 
     endif
-    allocate( evl(nbandmx,nspx))
+    allocate( evl(nbandmx,nspx), spinweight(nbandmx,nsp))
     sumev = 0d0
     sumqv = 0d0
     bandcalculation_q: do 2010 idat=1,niqisp
@@ -156,7 +162,7 @@ contains
          endif
          if(wsene) close(iwsene)
          nmx=min(nevmx,ndimhx)! nmx:maximum number of eigenfunctions we will obtain. Smaller is faster.
-         if(iprint()>=30) write(stdo,'(" bndfp: kpt ",i5," of ",i5, " k=",3f8.4, &
+         if(iprint()>=30) write(stdo,'(" bndfp: kpt ",i5," of ",i7, " k=",3f8.4, &
               " ndimh = nmto+napw = ",3i5,f13.5)') iq,nkp,qp,ndimh,ndimh-napw,napw
          if(writeham) then
             write(ifih) qp,ndimhx,lso,epsovl,isp ! ndimhx=ndimh*nspc 
@@ -195,22 +201,24 @@ contains
        evl(nev+1:nbandmx,isp)=1d99  !padding. flag to skip these data
        nevls(iq,isp)  = nev        !nov2014 isp and isp is confusing...
        ndimhx_(iq,isp)= ndimhx     !Hamiltonian dimension
-       evlall(1:nbandmx,isp,iq) = evl(1:nbandmx,isp)
        GetSpinWeightSOC1: if(lso==1.and.nmx/=0) then !note! nmx=0 lets zhev_tk to calculate only eigenvalues
           associate(nd=>ndimh)
-            spinweightsoc(1:nev,1,iq)= [(sum(dconjg(evec(1:nd,i))*matmul(ovlms(:,1,:,1),evec(1:nd,i))),i=1,nev)]
-            spinweightsoc(1:nev,2,iq)= [(sum(dconjg(evec(nd+1:nd+nd,i))*matmul(ovlms(:,2,:,2),evec(nd+1:nd+nd,i))),i=1,nev)]
-            NormalizationcheckFORspinweightSOC: if(any([(abs(sum(spinweightsoc(i,:,iq))-1d0)>1d-6,i=1,nev-10)])) then
+            spinweight(:,:) = 0d0
+            spinweight(1:nev,1)= [(sum(dconjg(evec(1:nd,i))*matmul(ovlms(:,1,:,1),evec(1:nd,i))),i=1,nev)]
+            spinweight(1:nev,2)= [(sum(dconjg(evec(nd+1:nd+nd,i))*matmul(ovlms(:,2,:,2),evec(nd+1:nd+nd,i))),i=1,nev)]
+            NormalizationcheckFORspinweightSOC: if(any([(abs(sum(spinweight(i,:))-1d0)>1d-6,i=1,nev-10)])) then
                !                                                                                      nev-10 to avoid num error of high bands
                do i=1,nev
-                  write(stdo,ftox)'spinweightsoc=',i,ftof(spinweightsoc(i,1:2,iq)),sum(spinweightsoc(i,1:2,iq))
+                  write(stdo,ftox)'spinweightsoc=',i,ftof(spinweight(i,1:2)),sum(spinweight(i,1:2))
                enddo
                call rx('m_bandcal: error of SpinWeight sumcheck')
             endif NormalizationcheckFORspinweightSOC
           endassociate
        endif GetSpinWeightSOC1
+       allocate(t_evl(isp,iq)%v(nbandmx), source = evl(:,isp))
+       if(lso==1) allocate(t_spinweight(iq)%v(nbandmx,nsp), source = spinweight)
        if(afsym) then !cmdopt0('--afsym')) then
-          evlall(1:nbandmx,2,iq) = evl(1:nbandmx,1)
+          allocate(t_evl(2,iq)%v(nbandmx), source = evl(:,1))
           nevls(iq,2)  = nev        
           ndimhx_(iq,2)= ndimhx     !Hamiltonian dimension
        endif   
@@ -229,6 +237,7 @@ contains
     if(PROCARon) call m_procar_closeprocar()
     if(debug) write(stdo,"(' ---- end of do 2010 ---- ',2i5)") procid !if(call_m_bandcal_2nd) close(ifig)
     deallocate(evl)
+    if(allocated(spinweight))deallocate(spinweight)
     call tcx('m_bandcal_init')
   end subroutine m_bandcal_init
   subroutine m_bandcal_2nd()! accumulate eval,evec-related quantities by addrbl
@@ -260,7 +269,7 @@ contains
        !write(6,*)'nnnnnnnnnn iq nev=',iq,nev
        ndimhx= ndimhxiqis(idat)
        allocate(evec(ndimhx,nev))
-       evl(1:nev,isp)=evlall(1:nev,isp,iq) !evliqis(1:nev,idat)
+       evl(1:nev,isp)= t_evl(isp,iq)%v(1:nev)
        evl(nev+1:nbandmx,isp)=1d99 !padding 
        evec(1:ndimhx,1:nev)=eveciqis(1:ndimhx,1:nev,idat)
        if(lso/=0)              call mkorbm(isp, nev, iq,qp, evec,  orbtm_rv)
@@ -275,6 +284,7 @@ contains
             use m_qplist,only: qplist,nkp
             use m_lattic,only: plat=>lat_plat
             use m_ftox
+            use m_subzi, only: m_subzi_copy_wtkb
             logical:: cmdopt0
             integer:: igrp,isp2,ikp,iev,ndeltaG(3),ikpx
             real(8):: qtarget(3),platt(3,3),diffq(3),tol=1d-4,qpr(3)
@@ -298,6 +308,7 @@ contains
             isp2 = 2
             call m_Igv2x_setiq(ikp) ! Get napw and so on for given qp !Bug fix at 2023-10-29. This set igv.
             call rotevec(igrp,qp, qpr,ndimhx,napw,nev,evec(:,1:nev), evecrot(:,1:nev))! evec at qp is roteted to be evecrot at qpr by symops(:,:,igrp)
+            call m_subzi_copy_wtkb(isp, iq, isp2, ikp) !copy t_wtkb(isp,iq)%v to t_wtkb(isp2,ikp)%v
             if( lso/=0)              call mkorbm(isp2, nev, ikp,qpr, evecrot,  orbtm_rv)
             if( nlibu>0 .AND. nev>0) call mkdmtu(isp2,      ikp,qpr, nev, evecrot,  dmatu)
             if( cmdopt0('--cls'))    call m_clsmode_set1(nev,isp2,ikp,qpr,nev,evecrot) 
@@ -315,14 +326,57 @@ contains
     deallocate(evl)
     call tcx('m_bandcal_2nd')
   end subroutine m_bandcal_2nd
+  subroutine m_bandcal_gather_evlall()
+    use m_qplist, only: owner
+    use m_MPItk, only: master, master_mpi, procid, comm
+    use mpi, only: mpi_double_precision, mpi_status_size
+    implicit none
+    integer:: status(MPI_Status_size), iq, isp, itag, ierr
+    do iq = 1, nkp
+      do isp = 1, nspx
+        itag = (iq-1)*nspx + isp
+        if(master_mpi) then
+          if(owner(isp,iq) == master) evlall(:,isp,iq) = t_evl(isp,iq)%v
+          if(owner(isp,iq) /= master) call mpi_recv(evlall(:,isp,iq), nbandmx, mpi_double_precision, &
+                                                    owner(isp,iq), itag, comm, status, ierr)
+        else
+          if(owner(isp,iq) == procid) call mpi_send(t_evl(isp,iq)%v, nbandmx, mpi_double_precision, &
+                                                    master, itag, comm, ierr)
+        endif
+      enddo
+    enddo
+  end subroutine
+  subroutine m_bandcal_gather_spinweightall()
+    use m_qplist, only: owner
+    use m_MPItk, only: master, master_mpi, procid, comm
+    use mpi, only: mpi_double_precision, mpi_status_size
+    implicit none
+    integer:: status(MPI_Status_size), iq, isp, itag, ierr
+    do iq = 1, nkp
+      do isp = 1, nspx !nspx should be 1
+        itag = (iq-1)*nspx + isp
+        if(master_mpi) then
+          if(owner(isp,iq) == master) spinweightall(:,:,iq) = t_spinweight(iq)%v
+          if(owner(isp,iq) /= master) call mpi_recv(spinweightall(:,:,iq), nbandmx*2, mpi_double_precision, &
+                                                    owner(isp,iq), itag, comm, status, ierr)
+        else
+          if(owner(isp,iq) == procid) call mpi_send(t_spinweight(iq)%v, nbandmx*2, mpi_double_precision, &
+                                                    master, itag, comm, ierr)
+        endif
+      enddo
+    enddo
+  end subroutine
   subroutine m_bandcal_clean() !cleaning allocation
     if(allocated(orbtm_rv)) deallocate(orbtm_rv)
     if(allocated(smrho_out)) deallocate(smrho_out)
     if(allocated(frcband))  deallocate(frcband)
-    if(allocated(ndimhx_))  deallocate(ndimhx_,nevls,evlall)
-    if(allocated(spinweightsoc)) deallocate(spinweightsoc)
+    if(allocated(ndimhx_))  deallocate(ndimhx_,nevls)
+    if(allocated(evlall)) deallocate(evlall)
+    if(allocated(spinweightall)) deallocate(spinweightall)
     if(allocated(oqkkl)) deallocate( oqkkl)
     if(allocated(oeqkkl))deallocate( oeqkkl)
+    if(allocated(t_evl))  deallocate(t_evl)
+    if(allocated(t_spinweight)) deallocate(t_spinweight)
   end subroutine m_bandcal_clean
   subroutine m_bandcal_allreduce()!  Allreduce density-related quantities
     integer:: nnn,ib,i
@@ -357,7 +411,7 @@ contains
     use m_ll,only:ll
     use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
     use m_locpot,only: sab_rv=>sab
-    use m_subzi, only: wtkb
+    use m_subzi, only: t_wtkb
     use m_qplist,only: nkp
     !i   isp   :current spin channel (1 or 2)
     !i   nsp   :2 for spin-polarized case, otherwise 1
@@ -426,7 +480,8 @@ contains
                       auasaz= aus(ilm,iv,:,ksp,ib)
                    endif ! (au as az) are for (u,s,gz) functions where gz=gz'=0 at MT
                    ispx=merge(1,isp,lso==1)
-                   orbtm(l+1,ksp,ib)= orbtm(l+1,ksp,ib) +m*wtkb(iv,ispx,iq)&
+                   ! orbtm(l+1,ksp,ib)= orbtm(l+1,ksp,ib) +m*wtkb(iv,ispx,iq)&
+                   orbtm(l+1,ksp,ib)= orbtm(l+1,ksp,ib) +m*t_wtkb(ispx,iq)%v(iv)&
                         *sum(dconjg(auasaz)*matmul(sab_rv(:,:,l+1,ksp,ib),auasaz))
                 enddo mloop
              enddo lloop
@@ -437,7 +492,7 @@ contains
   end subroutine mkorbm
   subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu) !Get density matrix dmatu for LDA+U (phi-projected density matrix)
     use m_locpot,only: phzdphz
-    use m_subzi, only: wtkb
+    use m_subzi, only: t_wtkb
     use m_igv2x,only: ndimh
     use m_makusq,only: makusq
     use m_locpot,only: rotp
@@ -500,7 +555,8 @@ contains
                       as = aus(ilm2,iv,2,ksp,ib) - dphz*az
                       auas= matmul([au,as],rotp(l,ksp,:,:,ib))
                       ap2 = auas(1) !au*r(1,1) + as*r(2,1)
-                      add = add + ap1*dconjg(ap2)*wtkb(iv,isp,iq)
+                      ! add = add + ap1*dconjg(ap2)*wtkb(iv,isp,iq)
+                      add = add + ap1*dconjg(ap2)*t_wtkb(isp,iq)%v(iv)
                    enddo
                    dmatu(m1,m2,ksp,iblu) = dmatu(m1,m2,ksp,iblu) + add !dmatu is for phi-projected density matrix
                 enddo

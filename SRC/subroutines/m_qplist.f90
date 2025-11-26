@@ -3,6 +3,7 @@ module m_qplist
   use m_ftox
   use m_lgunit,only:stdo
   use m_nvfortran,only: findloc
+  use m_sort, only: sort_index, lower_bound, upper_bound
   public :: m_qplist_init,m_qplist_qspdivider,qshortn
   integer,protected,public::   napwmxqp
   integer,allocatable,public:: igv2qp(:,:,:),igv2revqp(:,:,:,:),napwkqp(:)
@@ -10,7 +11,7 @@ module m_qplist
   integer,parameter,private:: nsymlmax=100
   integer,protected,public:: nkp,ngpmx ,nqi,iqibzmax ,  iqini,iqend     !for current rank
   integer,protected,public:: nsyml=0, nqp_syml(nsymlmax),nqps_syml(nsymlmax),nqpe_syml(nsymlmax),nqp2n_syml(nsymlmax)
-  integer,allocatable,protected,public:: ngplist(:),iprocq(:,:),ispp(:),ngvecp(:,:,:), kpproc(:)
+  integer,allocatable,protected,public:: ngplist(:),iprocq(:,:),ispp(:),ngvecp(:,:,:), kpproc(:), owner(:,:)
   integer,protected,allocatable,public:: iqproc(:),isproc(:)
   integer,protected,public:: niqisp
   real(8),protected,public:: dqsyml(nsymlmax),etolv,etolc
@@ -19,11 +20,8 @@ module m_qplist
   private
   real(8),allocatable:: qplistss(:,:)
   real(8)::tolq=1d-12
-
-  logical :: init_qshortn = .true.
-  integer, allocatable :: iqsave(:)
-  real(8), allocatable :: qsave(:,:)
-  integer :: current_save_size
+  real(8), allocatable :: qplist_norm(:)
+  integer, allocatable :: qplist_norm_idx(:)
 contains
   subroutine m_qplist_init(plbnd,llmfgw)
     use m_lmfinit,only: nspx,pwemax,alat,pwmode
@@ -123,6 +121,38 @@ contains
                 enddo
              enddo
           endif
+       elseif(cmdopt0('--eigen-at-k')) then
+         ReadEigenAtK:block
+           logical :: filexists
+           integer :: iunit
+           character(512) :: line, tline
+           inquire(file='kpoints_eigen.in', exist=filexists)
+           if(.not.filexists) call rx('kpoints_eigen.in not found for --eigen-at-k option')
+           open(newunit=iunit,file='kpoints_eigen.in',status='old')
+           nkp = 0
+           do
+             read(iunit, '(A)', iostat=ios) line
+             if (ios /= 0) exit
+             tline = trim(adjustl(line))
+             if (tline /= "" .and. tline(1:1) /= "#") then
+               read(tline, *, iostat=ios_data) q(1:3)
+               if (ios_data == 0) nkp = nkp + 1
+             endif
+           enddo
+           rewind(iunit)
+           allocate(qplist(3,nkp))
+           do iq= 1, nkp
+             read(iunit, '(A)', iostat=ios) line
+             if (ios /= 0) exit
+             tline = trim(adjustl(line))
+             if (tline /= "" .and. tline(1:1) /= "#") then
+               read(tline, *, iostat=ios_data) q(1:3)
+               if (ios_data == 0) qplist(:,iq) = q(1:3)
+             endif
+           enddo
+           write(stdo,*)' -- Readin kpoints_eigen.in for --eigen-at-k option: nkp=',nkp
+           close(iunit)
+         endblock ReadEigenAtK
           !! syml direct read for plbnd mode. See "call writeband" below. feb2015
        else
           !            readeferm=.false.
@@ -282,41 +312,25 @@ contains
          enddo
       endif PMTmodeOnly
     endblock Gindexqplist
+    allocate(qplist_norm(nkp), source = [(sqrt(sum(qplist(1:3,iq)**2)), iq=1, nkp)])
+    allocate(qplist_norm_idx(nkp), source = sort_index(qplist_norm(:)))
     call tcx('m_qplist_init')
   end subroutine m_qplist_init
   function qshortn(q) result(qs) !shortest q vectror. module of qlat 2023-4-27
     intent(in):: q
-    integer:: ikp,iq
-    real(8):: q(3),qs(3)
-    integer :: i
-    logical :: findq
-    if(init_qshortn) then
-      allocate(iqsave(nkp), qsave(3,nkp))
-      current_save_size = 0
-      init_qshortn = .false.
-    endif
+    integer:: iq, i, lower, upper, iq_found !ikp
+    real(8):: q(3), qs(3), q_norm
     if(sum(abs(q))<tolq) then
        qs=0d0
     else
        ! iq = findloc([(sum(abs(qplist(:,ikp)-q))<tolq,ikp=1,nkp)],value=.true.,dim=1)
-       findq =.false.
-       do i = 1, current_save_size !search the saved table
-         if(sum(abs(qsave(:,i)-q))<tolq) then
-            iq = iqsave(i)
-            findq = .true.
-            exit
-         endif
-       enddo
-       if(.not.findq) then !search the all qplist
-         do iq = 1, nkp
-           if(sum(abs(qplist(:,iq)-q))<tolq) then
-             current_save_size = current_save_size + 1
-             iqsave(current_save_size) = iq
-             qsave(:,current_save_size) = q(:)
-             exit
-           endif
-         enddo
-       endif
+       ! Search algorithm is updated by using norm of qplist
+       q_norm = sqrt(sum(q**2))
+       lower = lower_bound(qplist_norm, value=q_norm-tolq*10, idx=qplist_norm_idx)
+       upper = upper_bound(qplist_norm, value=q_norm+tolq*10, idx=qplist_norm_idx)
+       iq_found = findloc([(sum(abs(qplist(:,qplist_norm_idx(i))-q(:))) < tolq, i=lower,upper)], value=.true., dim=1)
+       if(iq_found == 0) call rx('qshortn: can not find iq')
+       iq = qplist_norm_idx(lower + iq_found - 1)
        if(iq>nkp) call rx('qshortn: can not find iq iq>nkp')
        if(iq==0) call rx('qshortn: can not find iq')
        qs = qplistss(:,iq) !write(aaa,ftox)'q=',ftof(q,3),'qshortn=',ftof(qs,3),'qdiff=',ftof(q-qs,3),iq
@@ -328,7 +342,7 @@ contains
     use m_ext,only: sname
     use m_dstrbp,only: dstrbp
     implicit none
-    integer:: iqq,isp,ispx,icount,iqs,ncount,iqsi,iqse,iprint,idat,i,nsize,nspxx
+    integer:: iq,isp,ispx,icount,iqs,ncount,iqsi,iqse,iprint,idat,i,nsize,nspxx
     logical:: cmdopt0
     call tcn('m_qplist_qpsdivider')
     nspxx=nspx !npsx=nsp,  but nspx=1 for so=1 
@@ -351,6 +365,14 @@ contains
        iqini=0
        iqend=-1
     endif
+    ! make owner(isp,iq) table: which processor owns (iq,isp)
+    allocate(owner(nspx, nkp), source = -1)
+    do i = 1, nkp*nspxx
+      iq = (i-1)/nspxx + 1
+      isp = mod(i-1, nspxx) + 1
+      owner(isp,iq) = findloc(kpproc(:)>i, value=.true., dim=1) - 2
+      if(afsym) owner(2,iq) = owner(1,iq)
+    enddo
 !    do idat=1,niqisp
 !       write(stdo,ftox)'qspdivider: procid=',procid,' idat iq isp=',idat,iqproc(idat),isproc(idat)
 !    enddo

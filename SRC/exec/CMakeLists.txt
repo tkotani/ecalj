@@ -144,24 +144,29 @@ endif()
 #   WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
 
 # copy executables etc to ../exec${FCMOD}
-set(CMAKE_Fortran_BINS ${CMAKE_SOURCE_DIR}/../exec_${FCMOD}) # directory for *.mod
-file(MAKE_DIRECTORY ${CMAKE_Fortran_BINS})
-add_custom_target(copyexe ALL 
-  COMMAND cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${CMAKE_Fortran_BINS} 
-  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-)
-
-# cp all executables in build directory using shell
-add_custom_target(copy_binaries ALL
-  COMMAND ${CMAKE_COMMAND} -E echo "Copying executables via shell script"
-  COMMAND bash ${CMAKE_SOURCE_DIR}/cp_execs.sh
-  DEPENDS copyexe
-)
+# set(CMAKE_Fortran_BINS ${CMAKE_SOURCE_DIR}/../exec_${FCMOD}) # directory for *.mod
+# file(MAKE_DIRECTORY ${CMAKE_Fortran_BINS})
+# add_custom_target(copyexe ALL 
+#   COMMAND cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${CMAKE_Fortran_BINS} 
+#   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+# )
+#
+# # cp all executables in build directory using shell
+# add_custom_target(copy_binaries ALL
+#   COMMAND ${CMAKE_COMMAND} -E echo "Copying executables via shell script"
+#   COMMAND bash ${CMAKE_SOURCE_DIR}/cp_execs.sh
+#   DEPENDS copyexe
+# )
 
 # For setting mkl location
 add_executable(dummy ./dummy.f90) # exe
 target_link_libraries(dummy ${BLAS} ${LIBM} ${MPI}) # linked
-# add_custom_target(fcheck ALL COMMAND ldd dummy|grep mkl >mklloc.txt  WORKING_DIRECTORY ${CMAKE_BINARY_DIR} DEPENDS dummy)
+
+# make list of files to be delivered to ../exec
+set(DELIVER_FILES
+  ${CMAKE_BINARY_DIR}/libecaljF.so
+  ${CMAKE_BINARY_DIR}/dummy
+)
 
 # library compilation
 set(LIB ecaljF) # ecaljF, ecaljF_gpu ecaljF_mp, or ecaljF_mp_gpu
@@ -182,7 +187,8 @@ foreach(target IN ITEMS ${MAINS})
       BUILD_RPATH "\$ORIGIN"  
       INSTALL_RPATH "\$ORIGIN"
   ) 
-  add_dependencies(copyexe ${exename})
+  # add_dependencies(copyexe ${exename})
+  list(APPEND DELIVER_FILES ${CMAKE_BINARY_DIR}/${exename})
 endforeach()
 
 ### GPU or MP version ####
@@ -236,6 +242,31 @@ foreach(i RANGE 1 3)
         BUILD_RPATH "\$ORIGIN"
         INSTALL_RPATH "\$ORIGIN"
     ) 
-    add_dependencies(copyexe ${exename})
+    # add_dependencies(copyexe ${exename})
+    list(APPEND DELIVER_FILES ${CMAKE_BINARY_DIR}/${exename})
   endforeach()
 endforeach()
+
+# copy executables etc to ../exec${FCMOD} and CMAKE_SOURCE_DIR (exec)
+set(CMAKE_Fortran_BINS ${CMAKE_SOURCE_DIR}/../exec_${FCMOD}) # directory for *.mod
+add_custom_target(deliver ALL
+  COMMAND ${CMAKE_COMMAND} -E echo "Delivering build products to parent directory"
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_Fortran_BINS}
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DELIVER_FILES} ${CMAKE_Fortran_BINS}
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DELIVER_FILES} ${CMAKE_SOURCE_DIR}
+  DEPENDS ${DELIVER_FILES}
+  COMMENT "Copying build products to parent directory"
+)
+
+# clean delivered files in CMAKE_SOURCE_DIR
+set(DELIVERED_TARGET_FILES "")
+foreach(f ${DELIVER_FILES})
+  get_filename_component(fname ${f} NAME)
+  list(APPEND DELIVERED_TARGET_FILES ${CMAKE_SOURCE_DIR}/${fname})
+endforeach()
+add_custom_target(clean_delivered
+  COMMAND ${CMAKE_COMMAND} -E echo "Removing delivered files from ${CMAKE_SOURCE_DIR}"
+  COMMAND ${CMAKE_COMMAND} -E echo ${DELIVERED_TARGET_FILES}
+  COMMAND ${CMAKE_COMMAND} -E rm -f ${DELIVERED_TARGET_FILES}
+  COMMENT "Cleaning delivered files in ${CMAKE_SOURCE_DIR}"
+)

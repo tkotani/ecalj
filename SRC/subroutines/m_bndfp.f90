@@ -50,7 +50,7 @@ contains
     use m_mkqp,only: nkabc=> bz_nabc,ntet=> bz_ntet,rv_a_owtkp,rv_p_oqp,iv_a_oipq,iv_a_oidtet
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
     use m_rdsigm2,only: m_rdsigm2_init
-    use m_subzi,only: m_subzi_init,m_subzi_bzintegration 
+    use m_subzi,only: m_subzi_init,m_subzi_bzintegration
     use m_MPItk,only: master_mpi, strprocid, numprocs=>nsize,xmpbnd2,comm,procid
     use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyterms,m_mkpot_novxc 
     use m_mkpot,only: osmpot, qmom, vconst, qval , qsc , fes1_rv , fes2_rv, amom
@@ -59,9 +59,9 @@ contains
     use m_qplist,only: qplist,nkp,xdatt,labeli,labele,dqsyml,etolc,etolv
     use m_qplist,only: nqp2n_syml,nqp_syml,nqpe_syml,nqps_syml,nsyml,kpproc,iqini,iqend    ! MPIK divider. iqini:iqend are node-dependent
     use m_igv2x,only: napw,ndimh,ndimhx,igv2x
-    use m_procar,only: dwgtall,nchanp,m_procar_closeprocar,m_procar_writepdos,m_procar_init
+    use m_procar,only: nchanp,m_procar_closeprocar,m_procar_writepdos,m_procar_init
     use m_bandcal,only: m_bandcal_init,m_bandcal_2nd,m_bandcal_clean,m_bandcal_allreduce
-    use m_bandcal,only: smrho_out,oqkkl,oeqkkl, ndimhx_,nevls,m_bandcal_symsmrho,evlall,spinweightsoc
+    use m_bandcal,only: smrho_out,oqkkl,oeqkkl, ndimhx_,nevls,m_bandcal_symsmrho,evlall,spinweightall
     use m_mkrout,only: m_mkrout_init,orhoat_out,frcbandsym,hbyl_rv,qbyl_rv
     use m_sugw,only: m_sugw_init
     use m_mkehkf,only: m_mkehkf_etot1,m_mkehkf_etot2
@@ -69,7 +69,7 @@ contains
     use m_dfrce,only: dfrce
     use m_sugcut,only:sugcut
     use m_bzints,only: bzints
-    use m_writeband,only: writeband,writefs,writepdos,writedossawada
+    use m_writeband,only: writeband,writefs,writepdos,writedossawada,write_eigenvalues
     use m_totfrc,only:totfrc
     ! inputs
     ! main input are smrho, orhoat (in m_mkpot_init), specifing density, and vorb, which is potential for LDA+U
@@ -114,7 +114,7 @@ contains
     integer:: plbnd,nk1,nk2,nk3,nx,ny, iter,i,ifi,ipr,iq,isp,jsp,iprint,ipts,ierr
     integer:: ifih,ifii,ib,ix,ifimag,nevmin,nnn,ikp
     logical:: llmfgw,sigx, ltet,cmdopt0,sigmamode,tdos,debug=.false.
-    logical:: fullmesh,PROCARon,writeham=.false.,magexist, fsmode 
+    logical:: fullmesh,PROCARon,writeham=.false.,magexist, fsmode , writeeigen=.false.
     logical,save:: siginit=.true.
     real(8):: sttime,entime,vesav
     real(8):: ekinval,eharris,eksham,  dosw(2),dum(1),evtop,ecbot,qp(3),xxx,dumx
@@ -126,6 +126,7 @@ contains
     debug  = cmdopt0('--debugbndfp')
     tdos   = cmdopt0('--tdos')  !total dos mode or not
     fsmode = cmdopt0('--fermisurface')!FermiSurfece for xcrysden in http://www.xcrysden.org/doc/XSF.html#2l.16
+    writeeigen = cmdopt0('--eigen-at-k') .or. cmdopt0('--writeeigen') ! for eigenatk output mode in m_bandcal_init
     ipr    = iprint() ! for procid/=master, we set iprint=0 at lmv7.F
     ltet = ntet>0! tetrahedron method or not
     vmag=0d0
@@ -193,15 +194,18 @@ contains
       nevmin = minval(nevls(1:nkp,1:nspx))
     endblock GetHamiltonianAndDiagonalize
     BROADCASTevlall:block
+      use m_bandcal,only: m_bandcal_gather_evlall, m_bandcal_gather_spinweightall
       integer:: nspxa
-      if(afsym) then !this block recovered! (was commented out at 2025-06-09)
-        call xmpbnd2(kpproc,nbandmx,nkp,evlall(:,1,:)) !all eigenvalues are distributed nbandmx blocks
-        call xmpbnd2(kpproc,nbandmx,nkp,evlall(:,2,:)) 
-      else
-        nspxa=merge(2,nspx,afsym)
-        call xmpbnd2(kpproc,nbandmx,nkp*nspxa,evlall)   !all eigenvalues broadcasted !note (iq,isp) order in m_qplist.f90
-      endif
-      if(lso==1) call xmpbnd2(kpproc,nbandmx*2,nkp,spinweightsoc)   !all eigenvalues broadcasted
+      ! if(afsym) then !this block recovered! (was commented out at 2025-06-09)
+      !   call xmpbnd2(kpproc,nbandmx,nkp,evlall(:,1,:)) !all eigenvalues are distributed nbandmx blocks
+      !   call xmpbnd2(kpproc,nbandmx,nkp,evlall(:,2,:)) 
+      ! else
+      !   nspxa=merge(2,nspx,afsym)
+      !   call xmpbnd2(kpproc,nbandmx,nkp*nspxa,evlall)   !all eigenvalues broadcasted !note (iq,isp) order in m_qplist.f90
+      ! endif
+      ! if(lso==1) call xmpbnd2(kpproc,nbandmx*2,nkp,spinweightsoc)   !all eigenvalues broadcasted
+      call m_bandcal_gather_evlall() ! gather evlall on master process from t_evl 
+      if(lso==1) call m_bandcal_gather_spinweightall() !gather spinweightall on master process from t_spinweight
       if(master_mpi) then
         do iq=1,1;do jsp=1,nspx; write(stdl,"('fp evl',8f8.4)")(evlall(i,jsp,iq),i=1,nevls(iq,jsp))
         enddo;        enddo
@@ -212,8 +216,6 @@ contains
       PROCARon = cmdopt0('--mkprocar') 
       if(plbnd/=0.or.(procaron.and.fullmesh).or.cmdopt0('--boltztrap')) then
          ! evlallm is removed. vmag is included in Hamitonian now.  2024-06-14
-         evtop=maxval(evlall,mask=evlall<eferm)
-         ecbot=minval(evlall,mask=evlall>eferm)
          Procarmode:block
            nevmin = minval(nevls(1:nkp,1:nspx))
            if(fullmesh .AND. procaron) call m_procar_writepdos(evlall,nevmin,eferm,kpproc) 
@@ -223,23 +225,39 @@ contains
             call writeboltztrap(eferm) ! boltztrap data
             call rx0('Done boltztrap: boltztrap.* are generated')
          endif Boltztrap
+         WriteEigenmode: if((fsmode .or. writeeigen)) then
+           if(fsmode .and. master_mpi) call writefs(evlall, eferm, spinweightall)
+           if(fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
+           if(writeeigen .and. master_mpi) call write_eigenvalues(evlall, eferm, spinweightall)
+           if(writeeigen) call rx0('done --eigen-at-k/--write-eigen mode *.up/dw.eigen.dat is generated')
+         endif WriteEigenmode
          Writebandmode: if(plbnd/=0 ) then 
             if(master_mpi) then
-               if(fsmode)  call writefs(evlall,eferm,spinweightsoc)   !fermi surface !bias field vmag added  2023-9-20.
-               !Obata bugfix add spinweightsoc at 2024-6-11
+               evtop=maxval(evlall,mask=evlall<eferm)
+               ecbot=minval(evlall,mask=evlall>eferm)
                write(stdo,*)' Writing bands to bands file for gnuplot ...'
-               if(nsyml/=0)call writeband(evlall,eferm,vesav,evtop,ecbot,spinweightsoc) !bias field added  2023-9-20
+               if(nsyml/=0)call writeband(evlall,eferm,vesav,evtop,ecbot,spinweightall) !bias field added  2023-9-20
             endif
-            if(fsmode) call rx0('done --fermisurface mode. *.bxsf for xcryden generated')
             call rx0('plot band mode done') ! end of band plbnd/=0, that is, band plot mode.
          endif Writebandmode
       endif
     endblock BandPLOTmode
     GetFermiEnergy:block
-      call m_subzi_bzintegration(evlall, eferm,sev,qvalm,vmag) !Get new eferm, vmag and wtkb, from evlall ;vmag is given for fsmom(fixedmoment) mode.
-      evtop=maxval(evlall,evlall <eferm)
-      ecbot=minval(evlall,evlall >eferm)
-      emin =minval(evlall) !for plot
+      use m_subzi,only: m_subzi_bcast_wtkb
+      if(master_mpi) then
+        call m_subzi_bzintegration(evlall, eferm,sev,qvalm,vmag) !Get new eferm, vmag and wtkb, from evlall ;vmag is given for fsmom(fixedmoment) mode.
+        evtop=maxval(evlall,evlall <eferm)
+        ecbot=minval(evlall,evlall >eferm)
+        emin =minval(evlall) !for plot
+      endif
+      call m_subzi_bcast_wtkb()
+      call mpibc1_real(evtop, 1, 'evtop') 
+      call mpibc1_real(ecbot, 1, 'ecbot') 
+      call mpibc1_real(emin, 1, 'emin') 
+      call mpibc1_real(qvalm, 1, 'qvalm') 
+      call mpibc1_real(vmag, 1, 'vmag') 
+      call mpibc1_real(eferm, 1, 'eferm') 
+      call mpibc1_real(sev, 1, 'sev') 
       if(lmet==0) eferm = (evtop+ecbot)/2d0 !for metal
     endblock GetFermiEnergy
     WriteEfermiFile: if(master_mpi) then
@@ -271,7 +289,7 @@ contains
           !   enddo          !enddo
           call bzints(nnn,evlall,dum,nkp, nevmin,nbandmx,nspx,nsp,dosw(1),dosw(2), dosi_rv,ndos,xxx,1,ntet,iv_a_oidtet,dumx,dumx,&
           !                                                                               job=1 give IntegratedDos to dosi_rv
-               spinweightsoc) !2024-5-10           !write(stdo,ftox)'xxx dosi rv=',sum(dosi_rv)
+               spinweightall) !2024-5-10           !write(stdo,ftox)'xxx dosi rv=',sum(dosi_rv)
           dos_rv(2:ndos-1,:)=(dosi_rv(3:ndos,:)-dosi_rv(1:ndos-2,:))/(2d0*(dosw(2)-dosw(1))/(ndos-1))
           dos_rv(1,:)    = dos_rv(2,:)
           dos_rv(ndos,:) = dos_rv(ndos-1,:)

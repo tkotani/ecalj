@@ -2,8 +2,8 @@ module m_mpiio !MPI-IO only for complex(8). Fixed length recl
   use m_nvfortran
   use mpi
   implicit none
-  public:: openm,writem,readm,closem
-  public:: writem_kind4
+  public:: openm,writem,readm,closem, openedm
+  public:: writem_c, writem_d, readm_d
   private
   integer,parameter::nfmax=1000, nsize=16 !maxsize of opened file by openm
   integer :: ierr,fhl(nfmax)=-9999,iff=0  ! -9999 is used as a missing value indicator (assumed not to occur as a valid value)
@@ -37,7 +37,7 @@ contains
     call mpi_file_write_at(fhl(ifx), offset, data, count, MPI_DOUBLE_COMPLEX, status, ierr)
     i=0
   end function writem
-  function writem_kind4(unit,rec,data) result(i)
+  function writem_c(unit,rec,data) result(i)
     integer::unit
     integer(mpi_offset_kind) :: offset
     integer::rec,count
@@ -46,10 +46,23 @@ contains
     integer:: status(MPI_Status_size)
     ifx = findloc(unit==fhl(1:iff),dim=1,value=.True.)
     offset= (rec-1)*recll(ifx)
-    count = recll(ifx)/nsize     !    write(6,*)'writemmmmm',ifx,offset,count 
+    count = recll(ifx)/8 !    write(6,*)'writemmmmm',ifx,offset,count 
     call mpi_file_write_at(fhl(ifx), offset, data, count, MPI_COMPLEX, status, ierr)
     i=0
-  end function writem_kind4
+  end function writem_c
+  function writem_d(unit,rec,data) result(i)
+    integer::unit
+    integer(mpi_offset_kind) :: offset
+    integer::rec,count
+    real(8):: data(1)
+    integer:: i,ifx
+    integer:: status(MPI_Status_size)
+    ifx = findloc(unit==fhl(1:iff),dim=1,value=.True.)
+    offset= (rec-1)*recll(ifx)
+    count = recll(ifx)/8 !    write(6,*)'writemmmmm',ifx,offset,count 
+    call mpi_file_write_at(fhl(ifx), offset, data, count, MPI_DOUBLE_PRECISION, status, ierr)
+    i=0
+  end function writem_d
   function readm(unit,rec,data) result(i)
     integer::unit
     integer::rec,count
@@ -63,6 +76,19 @@ contains
     call mpi_file_read_at(fhl(ifx), offset, data, count, MPI_DOUBLE_COMPLEX, status, ierr)
     i=0
   end function readm
+  function readm_d(unit,rec,data) result(i)
+    integer::unit
+    integer::rec,count
+    integer(mpi_offset_kind) :: offset
+    integer::  status(MPI_STATUS_SIZE)
+    real(8):: data(1)
+    integer:: i,ifx
+    ifx = findloc(unit==fhl,dim=1,value=.True.)
+    offset=(rec-1)*recll(ifx)
+    count=recll(ifx)/8
+    call mpi_file_read_at(fhl(ifx), offset, data, count, MPI_DOUBLE_PRECISION, status, ierr)
+    i=0
+  end function readm_d
   function closem(unit) result(i)
     integer::unit
     integer:: i, ifx
@@ -71,4 +97,15 @@ contains
     call mpi_file_close(unit, ierr)
     i=0
   end function closem
+  function openedm(unit) result(is_open)
+    integer::unit
+    logical:: is_open
+    integer:: ifx
+    ifx = findloc(unit==fhl(1:iff),dim=1,value=.True.)
+    if(ifx>0) then
+      is_open = .true.
+    else
+      is_open = .false.
+    endif
+  end function openedm
 end module m_mpiio

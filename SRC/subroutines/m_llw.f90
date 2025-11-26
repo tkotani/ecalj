@@ -15,7 +15,7 @@ module m_llw
   use m_zmel, only: m2e_prod_basis
 #ifdef __MP
   use m_mpi, only: MPI__GatherXqw => MPI__GatherXqw_kind4
-  use m_mpiio, only: openm, closem, writem => writem_kind4
+  use m_mpiio, only: openm, closem, writem => writem_c
 #else
   use m_mpi, only: MPI__GatherXqw => MPI__GatherXqw
   use m_mpiio, only: openm, closem, writem

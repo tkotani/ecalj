@@ -54,7 +54,12 @@ contains
     call tcn('m_rdsigm2_init')
     ndimsig= ldim      
     if(procid==master) then
-       open(newunit=ifi,file='sigm.'//trim(sname),form='unformatted')
+       if(cmdopt0('--use_sigm_fbz')) then
+         open(newunit=ifi,file='sigm_fbz.'//trim(sname),form='unformatted')
+         write(stdo, ftox) 'open sigm_fbz'
+       else
+         open(newunit=ifi,file='sigm.'//trim(sname),form='unformatted')
+       endif
        read(ifi,err=9995,end=9995) nspsigm,ndimh_dummy,nk1,nk2,nk3,nqp
 !       write(stdo,ftox) 'rrrrreading sigm nspsigm,nk1,nk2,nk3,nqp=', nspsigm,nk1,nk2,nk3,nqp
        write(stdo,"(' sigm file has ',i5,' irreducible QP: nk =',3i5)") nqp,nk1,nk2,nk3
