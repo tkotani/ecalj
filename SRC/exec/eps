@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+import os
+import argparse
+from run_arg import run_arg
+
+def main(args, extra_args):
+    nfpgw = os.path.dirname(os.path.abspath(__file__))
+    TARGET = args.extension
+    MPI_SIZE = args.np
+    NO_MPI = 1
+    print(f"### START eps with/without LCF: MPI size= {MPI_SIZE}, TARGET= {TARGET}")
+    run_arg('---', NO_MPI, nfpgw, '/lmf', 'llmfgw00', TARGET, '--novxc', '--jobgw=0', *extra_args)
+    run_arg('---', NO_MPI, nfpgw, '/qg4gw', 'lqg4gw02', '--job=2', *extra_args)
+    run_arg('---', MPI_SIZE, nfpgw, '/lmf', 'llmfgw01', TARGET, '--jobgw=1', '--skipbstruxinit', *extra_args)
+    run_arg('---', NO_MPI, nfpgw, '/heftet', 'leftet', '--job=1', *extra_args)
+
+    if args.lcf: # with local field correction
+        run_arg('---', NO_MPI, nfpgw, '/hbasfp0', 'lbas', '--job=0', *extra_args)
+        run_arg('---', MPI_SIZE, nfpgw, '/hvccfp0', 'lvcc', '--job=202', *extra_args)
+        run_arg('---', MPI_SIZE, nfpgw, '/hx0fp0', 'lx0', '--job=203', *extra_args)
+    else: # without local field correction
+        run_arg('---', NO_MPI, nfpgw, '/hbasfp0', 'lbas', '--job=4', *extra_args)
+        run_arg('---', MPI_SIZE, nfpgw, '/hvccfp0', 'lvcc', '--job=202', *extra_args)
+        run_arg('---', MPI_SIZE, nfpgw, '/hx0fp0', 'lx0', '--job=202', *extra_args)
+
+    print(f"OK! ==== All calculation finished for eps ====")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(prog='eps',description='dielectric function calculation')
+    parser.add_argument("extension",   help='extension of ctrl')
+    parser.add_argument("-np",        help='number of mpi cores in lmf',default=4,type=int)
+    parser.add_argument('--gpu' ,help='USE GPU version for hsfp0 and hrcxq',    action='store_true')
+    parser.add_argument('--lcf' ,help='local field correction', action='store_true')
+    args, extra_args = parser.parse_known_args()
+    main(args, extra_args)
