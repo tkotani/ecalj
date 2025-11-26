@@ -29,22 +29,22 @@ def get_mae_gcft(args, extra_args):
 
     run_arg(
         '---', MPI_SIZE, nfpgw, '/lmf', 'llmf_so001', TARGET,
-        '--nosym --use_sigm_fbz', '--phispinsym', '-vso=1', '--quit=band', '-vsoa1=0 -vsoa2=0 -vsoa3=1',
+        '--nosym --use_sigm_fbz', '--skipbstruxinit', '--phispinsym', '-vso=1', '--quit=band', '-vsoa1=0 -vsoa2=0 -vsoa3=1',
         *extra_args
     )
     run_arg(
         '---', MPI_SIZE, nfpgw, '/lmf', 'llmf_so100', TARGET,
-        '--nosym --use_sigm_fbz', '--phispinsym', '-vso=1', '--quit=band', '-vsoa1=1 -vsoa2=0 -vsoa3=0',
+        '--nosym --use_sigm_fbz', '--skipbstruxinit', '--phispinsym', '-vso=1', '--quit=band', '-vsoa1=1 -vsoa2=0 -vsoa3=0',
         *extra_args
     )
     run_arg(
         '---', MPI_SIZE, nfpgw, '/lmf', 'llmf_so010', TARGET,
-        '--nosym --use_sigm_fbz', '--phispinsym', '-vso=1', '--quit=band', '-vsoa1=0 -vsoa2=1 -vsoa3=0',
+        '--nosym --use_sigm_fbz', '--skipbstruxinit', '--phispinsym', '-vso=1', '--quit=band', '-vsoa1=0 -vsoa2=1 -vsoa3=0',
         *extra_args
     )
     run_arg(
         '---', MPI_SIZE, nfpgw, '/lmf', 'llmf_so110', TARGET,
-        '--nosym --use_sigm_fbz', '--phispinsym', '-vso=1', '--quit=band', '-vsoa1=1 -vsoa2=1 -vsoa3=0',
+        '--nosym --use_sigm_fbz', '--skipbstruxinit', '--phispinsym', '-vso=1', '--quit=band', '-vsoa1=1 -vsoa2=1 -vsoa3=0',
         *extra_args
     )
     vals = []
