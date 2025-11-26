@@ -3,7 +3,7 @@ module m_writeband
   use m_MPItk,only: comm
   use m_ftox
   real(8),external:: rydberg
-  public writeband,writefs,writepdos,writedossawada,writeeigs
+  public writeband,writefs,writepdos,writedossawada,write_eigenvalues
   private
 contains
   subroutine writeband(evlall,eferm,vesav,evtop,ecbot,spinweightsoc) !write band file. bnd* and bandplot.isp*.glt
@@ -590,7 +590,7 @@ contains
        close(ifi)
     endif
   end subroutine writedossawada
-  subroutine writeeigs(evlall,eferm,spinweightsoc)
+  subroutine write_eigenvalues(evlall,eferm,spinweightsoc)
     use m_lmfinit, only: nsp,nspc,lso,nspx
     use m_qplist,only: nkp, qplist
     use m_sort, only: lower_bound, upper_bound
@@ -633,5 +633,5 @@ contains
       close(ifile)
       enddo
     endif
-   end subroutine writeeigs
+   end subroutine write_eigenvalues
 endmodule m_writeband

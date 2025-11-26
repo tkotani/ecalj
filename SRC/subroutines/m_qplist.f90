@@ -11,7 +11,7 @@ module m_qplist
   integer,parameter,private:: nsymlmax=100
   integer,protected,public:: nkp,ngpmx ,nqi,iqibzmax ,  iqini,iqend     !for current rank
   integer,protected,public:: nsyml=0, nqp_syml(nsymlmax),nqps_syml(nsymlmax),nqpe_syml(nsymlmax),nqp2n_syml(nsymlmax)
-  integer,allocatable,protected,public:: ngplist(:),iprocq(:,:),ispp(:),ngvecp(:,:,:), kpproc(:)
+  integer,allocatable,protected,public:: ngplist(:),iprocq(:,:),ispp(:),ngvecp(:,:,:), kpproc(:), owner(:,:)
   integer,protected,allocatable,public:: iqproc(:),isproc(:)
   integer,protected,public:: niqisp
   real(8),protected,public:: dqsyml(nsymlmax),etolv,etolc
@@ -342,7 +342,7 @@ contains
     use m_ext,only: sname
     use m_dstrbp,only: dstrbp
     implicit none
-    integer:: iqq,isp,ispx,icount,iqs,ncount,iqsi,iqse,iprint,idat,i,nsize,nspxx
+    integer:: iq,isp,ispx,icount,iqs,ncount,iqsi,iqse,iprint,idat,i,nsize,nspxx
     logical:: cmdopt0
     call tcn('m_qplist_qpsdivider')
     nspxx=nspx !npsx=nsp,  but nspx=1 for so=1 
@@ -365,6 +365,14 @@ contains
        iqini=0
        iqend=-1
     endif
+    ! make owner(isp,iq) table: which processor owns (iq,isp)
+    allocate(owner(nspx, nkp), source = -1)
+    do i = 1, nkp*nspxx
+      iq = (i-1)/nspxx + 1
+      isp = mod(i-1, nspxx) + 1
+      owner(isp,iq) = findloc(kpproc(:)>i, value=.true., dim=1) - 2
+      if(afsym) owner(2,iq) = owner(1,iq)
+    enddo
 !    do idat=1,niqisp
 !       write(stdo,ftox)'qspdivider: procid=',procid,' idat iq isp=',idat,iqproc(idat),isproc(idat)
 !    enddo

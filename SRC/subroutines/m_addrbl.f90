@@ -11,7 +11,7 @@ contains
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol
     use m_supot,only: n1,n2,n3
     use m_igv2x,only: napw,ndimh,ndimhx,igapw=>igv2x
-    use m_subzi, only: wtkb
+    use m_subzi, only: t_wtkb
     use m_mkqp,only: wtkp=>rv_a_owtkp
     use m_mkpot,only: qval_=>qval
     use m_ropyln,only: ropyln
@@ -89,13 +89,13 @@ contains
        call mkewgt(lmet,wgt,qval,ndimh,evl(1,isp),nevec,ewgt,sumev,sumqv(1,isp))
        ewgt(1:nevec)=wgt*ewgt(1:nevec) !ewtg=wgt*ewgt caused error because ewgt(>nevl) did not initialized.2024-5-16
     else ! ... Case band weights are passed
-       ewgt(1:nevl)=wtkb(1:nevl,isp,iq) 
+       ewgt(1:nevl)=t_wtkb(isp,iq)%v(1:nevl)
 !       eee=epsnevec()
 !       nevec=findloc(abs(wtkb(1:nevl,isp,iq)) > eee,value=.true.,dim=1,back=.true.) !ifort 19.1.2.254 can not handle this.
 !       nevec=findloc(abs(wtkb(1:nevl,isp,iq)) > epsnevec(),value=.true.,dim=1,back=.true.) !ifort 19.1.2.254 can not handle this.
        do  i = nevl, 1, -1
           nevec = i
-          if (abs(wtkb(i,isp,iq)) > epsnevec()) exit
+          if (abs(t_wtkb(isp,iq)%v(i)) > epsnevec()) exit
        enddo
     endif
     if(lfrce>0) then ! ... Force from smooth analytic hamiltonian and overlap
