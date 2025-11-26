@@ -378,7 +378,7 @@ contains
     use m_ll,only:ll
     use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
     use m_locpot,only: sab_rv=>sab
-    use m_subzi, only: wtkb
+    use m_subzi, only: t_wtkb
     use m_qplist,only: nkp
     !i   isp   :current spin channel (1 or 2)
     !i   nsp   :2 for spin-polarized case, otherwise 1
