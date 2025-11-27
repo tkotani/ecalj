@@ -11,6 +11,15 @@
       ]
     },
     {
+      "label": "build-nvfortran CPU & GPU versions",
+      "type": "shell",
+      "command": "bash",
+      "args": [
+        "-c",
+        "FC=nvfortran cmake -S ./SRC/exec -B ./SRC/exec/build -DBUILD_MP=ON -DBUILD_GPU=ON -DBUILD_MP_GPU=ON && cmake --build ./SRC/exec/build -j"
+      ]
+    },
+    {
       "label": "clean",
       "type": "shell",
       "command": "cmake --build ./SRC/exec/build --target clean"
@@ -19,6 +28,11 @@
       "label": "InstallAll-ifx",
       "type": "shell",
       "command": "python ./InstallAll.py --fc=ifx --notest"
+    },
+    {
+      "label": "InstallAll-nvfortran CPU & GPU versions",
+      "type": "shell",
+      "command": "python ./InstallAll.py --fc=nvfortran --gpu --notest"
     }
   ]
 }
