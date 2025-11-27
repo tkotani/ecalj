@@ -85,7 +85,6 @@ contains
         else
           if(owner(isp,iq) == procid) call mpi_recv(t_wtkb(isp,iq)%v, nbandmx, mpi_double_precision, &
                                                   & master, itag, comm, status, ierr)
-          if(owner(isp,iq) == procid) print *,'get t_wtkb',isp,iq, t_wtkb(isp,iq)%v(1:3)
         endif
       enddo
     enddo
