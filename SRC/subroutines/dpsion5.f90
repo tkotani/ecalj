@@ -226,7 +226,12 @@ contains
         !$acc kernels
         cimatt(:,:,:) = cmplx(imatt(:,:,:), kind=kp)
         !$acc end kernels
-        istat = gemm(rcxq(1,1,1), cimatt, zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T)
+        ! istat = gemm(rcxq(1,1,1), cimatt, zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T)
+        ! Above line is replaced by the following loop to reduce internal memory usage on gemmul8
+        do ipr_col = 1, npr_col
+          istat = gemm(rcxq(1,ipr_col,1), cimatt, zxqi(1,ipr_col,1), m=npr, n=niwt, k=nwhis, &
+                     & ldA=npr*npr_col, opB=m_op_T, ldC=npr*npr_col)
+        enddo
         !$acc end data
       elseif(npm==2) then
         !$acc data copyin(imattC) create(cimatt)

@@ -15,6 +15,16 @@ parser.add_argument('--verbose' ,help='verbose on for debug',action='store_true'
 parser.add_argument('--debug' ,help='debug',action='store_true')
 args=parser.parse_args()
 
+def build_and_install_gemmul8(buildir, bindir):
+    repo_url = "https://github.com/RIKEN-RCCS/GEMMul8"
+    clone_dir = os.path.join(buildir, "GEMMul8")
+    libfile = os.path.join(clone_dir, "GEMMul8", "lib", "libgemmul8.so")
+    if not os.path.exists(clone_dir):
+        subprocess.run(["git", "clone", repo_url, clone_dir])
+    if not os.path.isfile(libfile):
+        subprocess.run(["make", "-j"], cwd=clone_dir)
+    shutil.copy(libfile, bindir)
+
 def main():
     if(args.debug):
         BUILD_TYPE = "Debug"    # = "Debug"
@@ -58,6 +68,7 @@ def main():
         shutil.rmtree(f'{BUILDIR}', ignore_errors=True)
     os.makedirs(f'{BUILDIR}', exist_ok=True)
     if(args.gpu): #Obata for nvfortran
+        build_and_install_gemmul8(BUILDIR, BINDIR)
         if os.system(f'FC={FC} cmake -S {EXECDIR} -B {BUILDIR} -DBUILD_MP=ON -DBUILD_GPU=ON -DBUILD_MP_GPU=ON -DCMAKE_BUILD_TYPE={BUILD_TYPE}') != 0:sys.exit(1)
     elif(FC in ["gfortran", "ifort", "ifx", "nvfortran"]):
         if os.system(f'FC={FC} cmake -S {EXECDIR} -B {BUILDIR} -DCMAKE_BUILD_TYPE={BUILD_TYPE}') != 0: sys.exit(1)

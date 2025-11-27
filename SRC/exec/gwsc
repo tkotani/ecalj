@@ -8,12 +8,13 @@ parser = argparse.ArgumentParser(prog='gwsc',description='''
 ''')
 parser.add_argument("nloop",       help='number of QSGW iteration, starting from current result.',default=1,type=int)
 parser.add_argument("extension",   help='extension of ctrl')
-parser.add_argument("-np",        help='number of mpi cores in lmf',default=4,type=int)
-parser.add_argument("-np2",       help='number of mpi cores in lxc etc') 
+parser.add_argument("-np",         help='number of mpi cores in lmf',default=4,type=int)
+parser.add_argument("-np2",        help='number of mpi cores in lxc etc') 
 parser.add_argument('--phispinsym',help='spin-symmetrized augmentation',action='store_true')
 parser.add_argument('--emptyrun'  ,help='test for gprof for memory',    action='store_true')
-parser.add_argument('--gpu' ,help='USE GPU version for hsfp0 and hrcxq',    action='store_true')
-parser.add_argument('--mp'  ,help='USE mixed precision version for hsfp0 and hrcxq',    action='store_true')
+parser.add_argument('--gpu'       ,help='USE GPU version for hsfp0 and hrcxq',    action='store_true')
+parser.add_argument('--gemmul8'   ,help='USE GEMMul8 valid in GPU without MP',    action='store_true')
+parser.add_argument('--mp'        ,help='USE mixed precision version for hsfp0 and hrcxq',    action='store_true')
 args,unknown=parser.parse_known_args()
 
 target=''.join(re.split('ctrl.',args.extension))
@@ -35,6 +36,13 @@ if args.mp        ==True: exec_type='_mp'
 if args.gpu       ==True:
     exec_type=exec_type+'_gpu'
     option = option + ' --keepwv '
+if args.gemmul8  ==True:
+    option = option + ' --use_gemmul8'
+    libpath = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'libgemmul8.so')
+    os.environ['LD_PRELOAD'] = libpath
+    if not os.path.isfile(libpath):
+        raise FileNotFoundError(f"{libpath} does not exist.")
+
 option = ' '+option+' '.join(unknown)+' '
 datei=run_program('echo --- Start gwsc ---',1)
 print('option=',option)

@@ -1,11 +1,11 @@
 module m_blas !wrapper for BLAS and cuBLAS
   !$use omp_lib
+  use m_mpi
 #ifdef __GPU
   use cublas_v2
   use cudafor
 #endif
   implicit none
-  include "mpif.h"
   public :: int_split
   public :: m_op_n, m_op_t, m_op_c
   public :: cmm_h, cmm_batch_h, zmm_h, zmm_batch_h, dmm_h, dmv_h, zmv_h, zvv_h
@@ -13,7 +13,7 @@ module m_blas !wrapper for BLAS and cuBLAS
   public :: cmm_d, cmm_batch_d, zmm_d, zmm_batch_d, dmm_d, dmv_d, zmv_d, zvv_d
   public :: cublas_init, cublas_handle, cublas_finalize
   type(cublashandle), value :: cublas_handle
-  logical, save :: set_cublas_handle = .false.
+  logical, save :: set_cublas_handle = .false., use_gemmul8 = .false., is_gemmul8_inited = .false.
 #endif
   character, parameter :: m_op_n = 'N', m_op_t = 'T', m_op_c = 'C'
 contains
@@ -219,11 +219,7 @@ contains
     if(present(lda)) lda_in = lda
     if(present(ldb)) ldb_in = ldb
     if(present(ldc)) ldc_in = ldc
-#ifdef __Nomm3m
-    call zgemm(opa_in, opb_in, m, n, k, alpha_in, a, lda_in, b, ldb_in, beta_in, c, ldc_in)
-#else
     call zgemm3m(opa_in, opb_in, m, n, k, alpha_in, a, lda_in, b, ldb_in, beta_in, c, ldc_in)
-#endif
     istat = 0
   end function zmm_h
   integer function zmm_batch_h(a, b, c, m, n, k, nbatch, opa, opb, alpha, beta, lda, ldb, ldc, samea, sameb, comm) result(istat)
@@ -279,13 +275,8 @@ contains
       enddo
     else
       do i = 1, nbatch
-#ifdef __Nomm3m
-        call zgemm(opa_in, opb_in, m, n, k, alpha_in, a(stridea*(i-1)+1), lda_in, &
-                   & b(strideb*(i-1)+1), ldb_in, beta_in, c(stridec*(i-1)+1), ldc_in)
-#else
         call zgemm3m(opa_in, opb_in, m, n, k, alpha_in, a(stridea*(i-1)+1), lda_in, &
                    & b(strideb*(i-1)+1), ldb_in, beta_in, c(stridec*(i-1)+1), ldc_in)
-#endif
       enddo
     endif
     istat = nbatch
@@ -491,10 +482,16 @@ contains
     if(present(ldb)) ldb_in = ldb
     if(present(ldc)) ldc_in = ldc
     istat = cublas_init()
+    istat = gemmul_init()
     opa_in_cublas = get_m_op_cublas(opa_in)
     opb_in_cublas = get_m_op_cublas(opb_in)
-    istat = cublaszgemm3m(cublas_handle, opa_in_cublas, opb_in_cublas,  m, n, k, &
+    if(use_gemmul8) then
+      istat = cublaszgemm(cublas_handle, opa_in_cublas, opb_in_cublas,  m, n, k, &
                         & alpha_in, a, lda_in , b, ldb_in, beta_in, c, ldc_in)
+    else
+      istat = cublaszgemm3m(cublas_handle, opa_in_cublas, opb_in_cublas,  m, n, k, &
+                          & alpha_in, a, lda_in , b, ldb_in, beta_in, c, ldc_in)
+    endif
   end function zmm_d
   integer function zmm_batch_d(a, b, c, m, n, k, nbatch, opa, opb, alpha, beta, lda, ldb, ldc, samea, sameb, comm) result(istat)
     complex(8), device :: a(*), b(*), c(*)
@@ -509,6 +506,7 @@ contains
     integer :: lda_in, ldb_in, ldc_in
     character :: opa_in, opb_in
     integer :: opa_in_cublas, opb_in_cublas
+    integer :: i
     if (nbatch < 1) return
     if (m < 1 .or. n < 1 .or. k < 1) return
     alpha_in = (1d0, 0d0); beta_in = (0d0, 0d0)
@@ -534,10 +532,19 @@ contains
       if(sameb) strideb = 0_8
     endif
     istat = cublas_init()
+    istat = gemmul_init()
     opa_in_cublas = get_m_op_cublas(opa_in)
     opb_in_cublas = get_m_op_cublas(opb_in)
-    istat = cublaszgemmstridedbatched(cublas_handle, opa_in_cublas, opb_in_cublas,  m, n, k,  &
-               &  alpha_in, a, lda_in, stridea, b, ldb_in, strideb, beta_in, c, ldc_in, stridec, nbatch)
+    if(use_gemmul8) then
+      do i = 1, nbatch
+        istat = cublaszgemm(cublas_handle, opa_in_cublas, opb_in_cublas, m, n, k, &
+                         &  alpha_in, a(stridea*(i-1)+1), lda_in, &
+                         &  b(strideb*(i-1)+1), ldb_in, beta_in, c(stridec*(i-1)+1), ldc_in)
+      enddo
+    else
+      istat = cublaszgemmstridedbatched(cublas_handle, opa_in_cublas, opb_in_cublas,  m, n, k,  &
+                 &  alpha_in, a, lda_in, stridea, b, ldb_in, strideb, beta_in, c, ldc_in, stridec, nbatch)
+    endif
   end function zmm_batch_d
 #endif
 
@@ -550,12 +557,35 @@ contains
     endif
   end function cublas_init
   integer function cublas_finalize() result(istat)
-      istat = 0
-      if(set_cublas_handle) then
-          istat = cublasdestroy(cublas_handle)
-          set_cublas_handle = .false.
-      endif
+    istat = 0
+    if(set_cublas_handle) then
+        istat = cublasdestroy(cublas_handle)
+        set_cublas_handle = .false.
+    endif
   end function cublas_finalize
+  integer function gemmul_init() result(istat)
+    use m_env, only: setenv
+    logical :: cmdopt0
+    if(is_gemmul8_inited) return
+    use_gemmul8 = cmdopt0('--use_gemmul8')
+    if(use_gemmul8) then
+      istat = setenv('GEMMUL8_NUM_MOD_D','15')
+      istat = setenv('GEMMUL8_NUM_MOD_S','7')
+      istat = setenv('GEMMUL8_NUM_MOD_Z','15')
+      istat = setenv('GEMMUL8_NUM_MOD_C','7')
+      istat = setenv('GEMMUL8_FASTMODE_D','1')
+      istat = setenv('GEMMUL8_FASTMODE_S','0')
+      istat = setenv('GEMMUL8_FASTMODE_Z','1')
+      istat = setenv('GEMMUL8_FASTMODE_C','0')
+      istat = setenv('GEMMUL8_MAX_M','0')
+      istat = setenv('GEMMUL8_MAX_N','0')
+      istat = setenv('GEMMUL8_MAX_K','0')
+      istat = setenv('GEMMUL8_MAX_NUM_MOD','2')
+      istat = setenv('GEMMUL8_SKIP_SCALE_A','0')
+      istat = setenv('GEMMUL8_SKIP_SCALE_B','0')
+    endif
+    is_gemmul8_inited = .true.
+  end function gemmul_init
   integer function get_m_op_cublas(m_op_blas) result(m_op_cublas)
     character, intent(in) :: m_op_blas
     select case (m_op_blas)
