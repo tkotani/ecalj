@@ -4,7 +4,8 @@ module m_readwan
   use m_iqindx_wan,only: iqindx2_wan
   implicit none
   public:: Write_qdata, Wan_readeigen, Wan_readeval, Wan_readeval2, Readscr, &
-       Checkorb,Checkorb2, Diagwan, Diagwan_tr, Wan_imat, Writehmat, Writeddmat, Read_wandata
+       Checkorb,Checkorb2, Diagwan, Diagwan_tr, Wan_imat, Writehmat, Writeddmat, Read_wandata, &
+       tr_mat_onsite, tr_mat_onsite_diag
   integer,protected,public:: nwf,nsp_w,nqtt_w !! read by read_wandata
   private
   logical:: init=.true.
@@ -470,7 +471,18 @@ contains
     enddo
     !! threshold
   end subroutine wan_imat
-
+  complex(8) function tr_mat_onsite(mat) result(trmat)
+    complex(8), intent(in) :: mat(nwf,nwf,nwf,nwf)
+    integer :: iwf, jwf
+    trmat = sum(pack([((mat(iwf,iwf,jwf,jwf),     iwf=1,nwf), jwf=1,nwf)], &
+                     [((ibaswf(iwf)==ibaswf(jwf), iwf=1,nwf), jwf=1,nwf)]))
+  end function tr_mat_onsite
+  complex(8) function tr_mat_onsite_diag(mat) result(trmat)
+    complex(8), intent(in) :: mat(nwf,nwf,nwf,nwf)
+    integer :: iwf
+    trmat = sum(pack([(mat(iwf,iwf,iwf,iwf),     iwf=1,nwf)], &
+                     [(ibaswf(iwf)==ibaswf(iwf), iwf=1,nwf)]))
+  end function tr_mat_onsite_diag
   !---------------------------------------
 !!! extract zmat(ijwf,klwf) ---> eval_o(nnwf)
 !!! sum of eval_o is trmat

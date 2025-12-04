@@ -4,7 +4,7 @@ module m_hmagnon
 subroutine hmagnon() bind(C)
   use m_readwan,only: write_qdata, wan_readeigen, wan_readeval, wan_readeval2, &
        readscr, checkorb, checkorb2, diagwan, diagwan_tr, wan_imat, &
-       writehmat, writeddmat, read_wandata, nwf, nsp_w, nqtt_w
+       writehmat, writeddmat, read_wandata, nwf, nsp_w, nqtt_w, tr_mat_onsite, tr_mat_onsite_diag
   use m_ReadEfermi,only: readefermi,ef_read=>ef, readefermi_kbt,ef_kbt
   use m_readeigen,only: readeval,init_readeigen,init_readeigen2
   use m_hamindex,only:qtt,nqtt
@@ -23,6 +23,7 @@ subroutine hmagnon() bind(C)
   use m_kind,only:kindrcxq
   use m_mpi,only: MPI__Initialize_magnon, MPI__consoleout_magnon, MPI__AllreduceSum
   use m_mpi,only: MPI__rank=>mpi__rankMG,MPI__size=>mpi__sizeMG, MPI__root ,comm
+  use m_blas, only: m_op_C, zmm => zmm_h
   implicit none
   !! We calculate chi0 by the follwoing three steps.
   !!  gettetwt: tetrahedron weights
@@ -61,14 +62,14 @@ subroutine hmagnon() bind(C)
        ,vtt(:,:),zzz(:,:),sqsvec(:),ooo(:,:),ppo(:,:) !,sqovlp(:,:),sqovlpi(:,:)
   complex(8),allocatable:: UU0(:,:),VT0(:,:)
   complex(8),allocatable::evc_w1(:,:,:),evc_w2(:,:,:)
-  complex(8),allocatable::wanmat(:,:) ,wkmat(:,:),wkmat2(:,:),rmat(:,:,:),rmat2(:,:),wmat_check(:,:)
+  complex(8),allocatable::wanmat(:,:) ,wkmat(:,:),wkmat2(:,:),rmat(:,:),rmat2(:,:),wmat_check(:,:)
   complex(8),allocatable:: scrw(:,:) ,cmat2(:,:), scrw_original(:,:) !screening W
   complex(8),allocatable:: eval_wk(:),eval_k(:),eval_wk2(:),trmat22(:)
   complex(8)::trmat,trmatt,trmat1,trmat2
   complex(8),allocatable::imat(:,:) !unit matrix for 1-WK
   complex(kindrcxq),allocatable::kmat(:,:,:,:)
   logical :: tetra=.true., usetetrakbt !  tetrahedron method
-!  logical :: debug=.false.,  
+  logical :: debug=.false.
   logical:: realomega=.true., imagomega=.true.,omitqbz=.false. !, noq0p
   logical ::  chipm=.false.,nolfco=.false.,epsmode=.false.,normalm=.false., crpa=.false. &
        ,autogamma=.false., l1wkout=.false., addgamma=.false.
@@ -295,34 +296,73 @@ subroutine hmagnon() bind(C)
       !!     from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
     endblock GETtet
     GETzxq: block ! zxq and zxqi are the main output after Hilbert transformation, ! zxqi is not used in hmagnon (imagomega=.false.)
-      complex(8):: kmat(1:nnwf,1:nnwf,1:nwhis,1:npm), wanmat(1:nnwf,1:nnwf), zxqi(1,1,1)
+      complex(8):: kmat(1:nnwf,1:nnwf,1:nwhis,1:npm), zxqi(1,1,1) !,wanmat(1:nnwf,1:nnwf)
+      integer, allocatable :: nttp(:),  itw(:,:), itpw(:,:)
+      integer :: nttp_max, ittp
+      real(8), allocatable :: whwc(:,:)
+      complex(8), allocatable :: zw(:,:), wzw(:,:)
       zxq=0d0
       rnqbz=1/dble(nqbz)
       znorm=-1d0*pi ! normalization of Im[K]:
       kmat=0d0
       kxloop:       do 2011 kx=1,nqbz 
         jpmloop:    do 2012 jpm=1,npm ! jpm=2: negative frequency
-          ibibloop: do 2013 ibib=1,nbnb(kx,jpm) !! n,n' pair band index loop
-            it=n1b(ibib,kx,jpm)  !index for n  for q   ! n1b(ibib,k,jpm) = n :band index for k (occupied),   
-            itp=n2b(ibib,kx,jpm) !index for n' for q+k ! n2b(ibib,k,jpm) = n':band index for q+k (unoccupied)
-            wanmat=0d0
-            do concurrent(iwf=1:nwf,jwf=1:nwf, kwf=1:nwf,lwf=1:nwf)
-              ijwf=(iwf-1)*nwf+jwf
-              klwf=(kwf-1)*nwf+lwf 
-              if ( ijwf > klwf ) cycle         ! calculate numerator of Kmatrix
-              wan_j=dconjg(evc_w1(jwf,it,kx))  !a_{Rj   beta}^{kn}*
-              wan_i=evc_w2(iwf,itp,kx)         !a_{Ri  alpha}^{(k+q)n'}
-              wan_l=evc_w1(lwf,it,kx)          !a_{R'l  beta}^{kn}
-              wan_k=dconjg(evc_w2(kwf,itp,kx)) !a_{R'k alpha}^{(k+q)n'}*
-              wanijkl=wan_j*wan_i*wan_k*wan_l
-              wanmat(ijwf,klwf)=wanijkl
-              wanmat(klwf,ijwf)=dconjg(wanijkl) !!! Suppose Hermite Kmat ! wanmat (dimension:nnwf)
-            enddo
-            do iw=ihw(ibib,kx,jpm),ihw(ibib,kx,jpm)+nhw(ibib,kx,jpm)-1
-              imagweight=whw(jhw(ibib,kx,jpm)+iw-ihw(ibib,kx,jpm))
-              kmat(:,:,iw,jpm)=kmat(:,:,iw,jpm)+imagweight*wanmat(:,:) !accumulate Im[K]
-            enddo
-2013      enddo ibibloop
+!           ibibloop: do 2013 ibib=1,nbnb(kx,jpm) !! n,n' pair band index loop
+!             it=n1b(ibib,kx,jpm)  !index for n  for q   ! n1b(ibib,k,jpm) = n :band index for k (occupied),   
+!             itp=n2b(ibib,kx,jpm) !index for n' for q+k ! n2b(ibib,k,jpm) = n':band index for q+k (unoccupied)
+!             wanmat=0d0
+!             do concurrent(iwf=1:nwf,jwf=1:nwf, kwf=1:nwf,lwf=1:nwf)
+!               ijwf=(iwf-1)*nwf+jwf
+!               klwf=(kwf-1)*nwf+lwf 
+!               if ( ijwf > klwf ) cycle         ! calculate numerator of Kmatrix
+!               wan_j=dconjg(evc_w1(jwf,it,kx))  !a_{Rj   beta}^{kn}*
+!               wan_i=evc_w2(iwf,itp,kx)         !a_{Ri  alpha}^{(k+q)n'}
+!               wan_l=evc_w1(lwf,it,kx)          !a_{R'l  beta}^{kn}
+!               wan_k=dconjg(evc_w2(kwf,itp,kx)) !a_{R'k alpha}^{(k+q)n'}*
+!               wanijkl=wan_j*wan_i*wan_k*wan_l
+!               wanmat(ijwf,klwf)=wanijkl
+!               wanmat(klwf,ijwf)=dconjg(wanijkl) !!! Suppose Hermite Kmat ! wanmat (dimension:nnwf)
+!             enddo
+!             do iw=ihw(ibib,kx,jpm),ihw(ibib,kx,jpm)+nhw(ibib,kx,jpm)-1
+!               imagweight=whw(jhw(ibib,kx,jpm)+iw-ihw(ibib,kx,jpm))
+!               kmat(:,:,iw,jpm)=kmat(:,:,iw,jpm)+imagweight*wanmat(:,:) !accumulate Im[K]
+!             enddo
+! 2013      enddo ibibloop
+         ! 2025-12-02 MO optimize calculation of kmat same as in x0gemm
+         allocate(nttp(nwhis), source = 0)
+         do ibib = 1, nbnb(kx,jpm)
+           do iw = ihw(ibib,kx,jpm), ihw(ibib,kx,jpm)+nhw(ibib,kx,jpm)-1
+             nttp(iw) = nttp(iw) + 1
+           enddo
+         enddo
+         nttp_max = maxval(nttp(1:nwhis))
+         allocate(itw(nttp_max,nwhis), itpw(nttp_max,nwhis), whwc(nttp_max,nwhis))
+         nttp(:) = 0
+         do ibib = 1, nbnb(kx,jpm) !! n,n' pair band index loop
+           it = n1b(ibib,kx,jpm)  !index for n  for q   ! n1b(ibib,k,jpm) = n :band index for k (occupied),   
+           itp = n2b(ibib,kx,jpm) !index for n' for q+k ! n2b(ibib,k,jpm) = n':band index for q+k (unoccupied)
+           do iw = ihw(ibib,kx,jpm), ihw(ibib,kx,jpm)+nhw(ibib,kx,jpm)-1
+             nttp(iw) = nttp(iw) + 1
+             ittp = nttp(iw)
+             itw(ittp,iw) = it
+             itpw(ittp,iw) = itp
+             whwc(ittp,iw) = whw(jhw(ibib,kx,jpm)+iw-ihw(ibib,kx,jpm))
+           enddo
+         enddo
+         allocate(zw(nttp_max,nnwf), wzw(nttp_max,nnwf))
+         do iw = 1, nwhis
+           if (nttp(iw) < 1) cycle
+           do ittp = 1, nttp(iw)
+             it = itw(ittp,iw); itp = itpw(ittp,iw)
+             do concurrent(lwf=1:nwf,kwf=1:nwf)
+               klwf = (kwf-1)*nwf+lwf 
+               zw(ittp,klwf) = dconjg(evc_w2(kwf,itp,kx))*evc_w1(lwf,it,kx) !a_{Rk alpha}^{(k+q)n'}* a_{Rl beta}^{kn}
+               wzw(ittp,klwf) = whwc(ittp,iw)*zw(ittp,klwf)
+             enddo
+           enddo
+           istat = zmm(zw, wzw, kmat(1,1,iw,jpm), nnwf, nnwf, nttp(iw), opA=m_op_C, beta=(1d0,0d0), ldA=nttp_max, ldB=nttp_max)
+         enddo
+         deallocate(nttp, itw, itpw, whwc, zw, wzw)
 2012    enddo jpmloop
 2011  enddo kxloop
       call tetdeallocate()      ! --> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
@@ -355,9 +395,10 @@ subroutine hmagnon() bind(C)
       deallocate(zxq2)
     endif
     where(abs(dimag(zxq))<1d-15) zxq=dreal(zxq) ! threshold for Im[K] (zxq)
-    allocate(wkmat(1:nnwf,1:nnwf),wkmat2(1:nnwf,1:nnwf),rmat(1:nnwf,1:nnwf,nw_i:nw),source=(0d0,0d0)) !WKmatrix, WKmatrix_inv
+    allocate(wkmat(1:nnwf,1:nnwf),wkmat2(1:nnwf,1:nnwf),rmat(1:nnwf,1:nnwf),source=(0d0,0d0)) !WKmatrix, WKmatrix_inv
     GetEta: if (iq==1) then ! (1-eta*WK)
-      wkmat(1:nnwf,1:nnwf) =matmul(scrw(1:nnwf,1:nnwf),zxq(1:nnwf,1:nnwf,0)) !omega=0
+      ! wkmat(1:nnwf,1:nnwf) =matmul(scrw(1:nnwf,1:nnwf),zxq(1:nnwf,1:nnwf,0)) !omega=0
+      istat = zmm(scrw, zxq(1,1,0), wkmat, nnwf, nnwf, nnwf)
       call diagcvuh3(wkmat(:,:),nnwf,eval_wk) !!   eval_wk is complex array because of Non-Hermite WK
       eta=-1d0/maxval(abs(eval_wk))
       write(6,*) "now eigenvalue abs(WK)",abs(eval_wk(1)),"is inversed"
@@ -384,11 +425,12 @@ subroutine hmagnon() bind(C)
     endif InitalWritewan_ChiPM
     maximr=0d0; w_maximr=0d0 !!! search for Im[R] peak
     iwloop: do 2050 iw = nw_i,nw
-      call diagcvuh3(zxq(:,:,iw),nnwf,eval_wk)
+      ! call diagcvuh3(zxq(:,:,iw),nnwf,eval_wk)
 !!! Hermite matrix diagonization        ! all diagcvh2(zxq(:,:,iw),nnwf,eval_wk)
-      where(abs(dimag(eval_wk)) < 1d-16) eval_wk=dreal(eval_wk)
+      ! where(abs(dimag(eval_wk)) < 1d-16) eval_wk=dreal(eval_wk)
       www = merge(-freq_r(-iw),freq_r(iw),iw<0)
       if(MPI__task(iq)) then ! Check for KK relatioin ! Some Error: remove this section or modified ... (Okumura, Oct02,2019)
+        if(debug) then !make it debug mode
         if(iw==nw_i) then !only first line
           write(6,"(' --check iww sum(zxq)',i5,2E13.5)") iw,sum((zxq(:,:,:)))
           trmat22=0d0
@@ -402,7 +444,10 @@ subroutine hmagnon() bind(C)
           call diagcvuh3(zxq(:,:,0),nnwf,eval_wk2) !for Re[K(w=0)]
           write(ifchipmz_wan,"('# int ImK/omega dw, Re[K(0)]=',2E13.5)") dimag(trmat2),sum(dreal(eval_wk2))
         endif
-        write(ifchipmz_wan,"(3f9.4,i6,E13.4,2x,2E17.9)") q,iw,www*2d0,hartree*sum(eval_wk)/(znorm)
+        endif
+        ! write(ifchipmz_wan,"(3f9.4,i6,E13.4,2x,2E17.9)") q,iw,www*2d0,hartree*sum(eval_wk)/(znorm)
+        write(ifchipmz_wan,"(3f9.4,i6,E13.4,2x,4E17.9)") q,iw,www*2d0,hartree*tr_mat_onsite(zxq(1,1,iw))/(znorm), &
+                                                               & hartree*tr_mat_onsite_diag(zxq(1,1,iw))/(znorm)
         !! Im[K] [1/Ry] ? write d-d (diagonal) and d-other (non-diagonal)
         ! if (output_ddmat) then
         !   if (iw==1000) then !!! Note: writeddmat(matrix, nwf, nw_i, nw, filename, diagonal or non-diagnal)
@@ -424,16 +469,20 @@ subroutine hmagnon() bind(C)
         endif
       endif
       !!  K/(1-WK) = K(1-WK)^(-1)  !W shift (q is far from Gamma) ! W shift for Cu2MnAl
-      wkmat(1:nnwf,1:nnwf) =eta*matmul(scrw(1:nnwf,1:nnwf),zxq(1:nnwf,1:nnwf,iw)) !! WK matrix
+      ! wkmat(1:nnwf,1:nnwf) =eta*matmul(scrw(1:nnwf,1:nnwf),zxq(1:nnwf,1:nnwf,iw)) !! WK matrix
+      istat = zmm(scrw, zxq(1,1,iw), wkmat, nnwf, nnwf, nnwf, alpha=dcmplx(eta,0d0))
+
       wkmat2(1:nnwf,1:nnwf)=imat(1:nnwf,1:nnwf)-wkmat(1:nnwf,1:nnwf)        ! c Hermite check for 1-eWK for developing code
       call matcinv(nnwf,wkmat2(1:nnwf,1:nnwf)) ! inv(1-WK)
-      rmat(1:nnwf,1:nnwf,iw)=matmul(zxq(1:nnwf,1:nnwf,iw), wkmat2(1:nnwf,1:nnwf))
-      call diagcvuh3(wkmat2(:,:),nnwf,eval_wk)
-      call diagwan(rmat(:,:,iw),eval_wk) !! diagonalization for R
-      trmat = sum(eval_wk(1:nnwf))
-      call diagcvuh3(rmat(:,:,iw),nnwf,eval_wk)
+      ! rmat(1:nnwf,1:nnwf,iw)=matmul(zxq(1:nnwf,1:nnwf,iw), wkmat2(1:nnwf,1:nnwf))
+      istat = zmm(zxq(1,1,iw), wkmat2, rmat, nnwf, nnwf, nnwf)
+      ! call diagcvuh3(wkmat2(:,:),nnwf,eval_wk)
+      ! call diagwan(rmat(:,:),eval_wk) !! diagonalization for R
+      ! trmat = sum(eval_wk(1:nnwf))
+      trmat = tr_mat_onsite(rmat)
+      ! call diagcvuh3(rmat(:,:,iw),nnwf,eval_wk)
       if(MPI__task(iq)) then
-        write(ifchipmr_wan,"(3f9.4,i6,E12.4,x,12E12.4)")q,iw,www*2d0,hartree*trmat
+        write(ifchipmr_wan,"(3f9.4,i6,E12.4,x,4E12.4)")q,iw,www*2d0,hartree*trmat, hartree*tr_mat_onsite_diag(rmat)
         if (0d0 < www.and. maximr < -1d0*aimag(trmat)) then !search for MAX(Im[R]) 20180706 (0 - 1500 meV) if (0d0 <www*hartree .and. www*hartree < 1.5)
           maximr=-1d0*aimag(trmat)
           w_maximr=www
