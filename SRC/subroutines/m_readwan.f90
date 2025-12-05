@@ -5,8 +5,10 @@ module m_readwan
   implicit none
   public:: Write_qdata, Wan_readeigen, Wan_readeval, Wan_readeval2, Readscr, &
        Checkorb,Checkorb2, Diagwan, Diagwan_tr, Wan_imat, Writehmat, Writeddmat, Read_wandata, &
-       tr_mat_onsite, tr_mat_onsite_diag
-  integer,protected,public:: nwf,nsp_w,nqtt_w !! read by read_wandata
+       tr_mat_onsite, tr_mat_onsite_diag, set_wan_nnwf, set_wan_scrw
+  integer, protected, public:: nwf, nsp_w, nqtt_w, nnwf !! read by read_wandata
+  complex(8), allocatable, public :: scrw(:,:)
+  integer, allocatable, protected, public :: wan_pair_index(:,:), wan_pair_site(:,:)
   private
   logical:: init=.true.
   logical:: readwan=.false.,lreadhrotr=.false.
@@ -261,6 +263,75 @@ contains
     readwan=.true. !! initialize
   end subroutine read_wandata
   !---------------------------------------
+  subroutine set_wan_nnwf(onsite_approx)
+    logical, intent(in) :: onsite_approx
+    integer :: iwf, jwf, ijwf
+    logical, allocatable :: mask(:)
+    integer, allocatable :: iwf_list(:), jwf_list(:)
+    if ( .not. lreadhrotr) call readhrotr() !get ibaswf
+    iwf_list = [((iwf, iwf=1,nwf), jwf=1,nwf)]
+    jwf_list = [((jwf, iwf=1,nwf), jwf=1,nwf)]
+    if(onsite_approx) then
+      mask = [((ibaswf(iwf)==ibaswf(jwf), iwf=1,nwf), jwf=1,nwf)]  ! only some atomic site
+    else
+      mask = [((.TRUE., iwf=1,nwf), jwf=1,nwf)]  !full pair
+    endif
+    iwf_list = pack(iwf_list, mask)
+    jwf_list = pack(jwf_list, mask)
+    nnwf = size(iwf_list)
+    if (allocated(wan_pair_index)) deallocate(wan_pair_index)
+    allocate(wan_pair_index(nnwf,2))
+    wan_pair_index(:,1) = iwf_list(:)
+    wan_pair_index(:,2) = jwf_list(:)
+    if(allocated(wan_pair_site)) deallocate(wan_pair_site)
+    allocate(wan_pair_site(nnwf,2))
+    do ijwf=1, nnwf
+      wan_pair_site(ijwf,1) = ibaswf(wan_pair_index(ijwf,1))
+      wan_pair_site(ijwf,2) = ibaswf(wan_pair_index(ijwf,2))
+   enddo
+  end subroutine set_wan_nnwf
+  subroutine set_wan_scrw(onsite_approx)
+    logical, intent(in) :: onsite_approx
+    integer:: ifscrwv, ifscrv, iwf, jwf, kwf, lwf
+    character(len=9)::charadummy 
+    real(8)::rws1(3),freq,freq2 !dummy
+    integer::is,iwf1,iwf2,iwf3,iwf4, idummy
+    real(8):: rydberg, hartree
+    integer:: ir1,irws1
+    complex(8),allocatable::scrw4(:,:,:,:), scrv4(:,:,:,:), scrwc4(:,:,:,:)
+    logical(8)::ijklmag
+    hartree  = 2d0*rydberg()
+    call checkorb(1,nwf,idummy)
+    allocate( scrw4(nwf,nwf,nwf,nwf))
+    allocate( scrv4, mold=scrw4)
+    allocate(scrwc4, mold=scrw4)
+    open(newunit=ifscrwv,file="Screening_W-v.UP",form="formatted") !only up
+    open(newunit=ifscrv, file="Coulomb_v.UP",    form="formatted") !only up
+    do iwf=1,nwf
+      do jwf=1,nwf
+        do kwf=1,nwf
+          do lwf=1,nwf
+            read(ifscrv,"(A,2i5, 3f12.6, 5i5,2f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4, scrv4(iwf1,iwf2,iwf3,iwf4) !v
+            read(ifscrwv,"(A,2i5, 3f12.6,5i5,4f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4,freq,freq2,scrwc4(iwf1,iwf2,iwf3,iwf4) !Wc = W -v
+            call checkorb2(iwf,jwf,kwf,lwf,ijklmag)
+            if(ijklmag.and.all(idorb([iwf,jwf,kwf,lwf])==2)) then
+              scrw4(jwf,iwf,lwf,kwf)=scrwc4(iwf1,iwf2,iwf3,iwf4)+ scrv4(iwf1,iwf2,iwf3,iwf4)
+            endif
+          enddo
+        enddo
+      enddo
+    enddo
+    if(allocated(scrw)) deallocate(scrw)
+    allocate(scrw(nnwf,nnwf))
+    if(onsite_approx) then
+      scrw(:,:) = reshape(pack([((((scrw4(iwf1,iwf2,iwf3,iwf4), iwf1=1,nwf), iwf2=1,nwf), iwf3=1,nwf), iwf4=1,nwf)], &
+                            &  [(((((ibaswf(iwf1)==ibaswf(iwf2).and. ibaswf(iwf3)==ibaswf(iwf4)), &
+                            &        iwf1=1,nwf), iwf2=1,nwf), iwf3=1,nwf), iwf4=1,nwf)]), shape=[nnwf,nnwf])
+    else
+      scrw(:,:)=reshape(scrw4, shape=[nnwf,nnwf])
+    endif
+    scrw(:,:)=scrw(:,:)/hartree !! Screening W for magnon
+  end subroutine
   subroutine readscr(nwf,scrw_)
     intent(in)::     nwf
     intent(out)::        scrw_
@@ -472,15 +543,23 @@ contains
     !! threshold
   end subroutine wan_imat
   complex(8) function tr_mat_onsite(mat) result(trmat)
-    complex(8), intent(in) :: mat(nwf,nwf,nwf,nwf)
-    integer :: iwf, jwf
-    trmat = sum(pack([((mat(iwf,iwf,jwf,jwf),     iwf=1,nwf), jwf=1,nwf)], &
-                     [((ibaswf(iwf)==ibaswf(jwf), iwf=1,nwf), jwf=1,nwf)]))
+    complex(8), intent(in) :: mat(nnwf,nnwf)
+    logical, allocatable :: mask(:)
+    integer :: inwf, jnwf
+    mask = [((wan_pair_site(inwf,1) == wan_pair_site(jnwf,1) .and. &   !R1 == R3
+              wan_pair_index(inwf,1) == wan_pair_index(inwf,2) .and. & !n1 == n2 => R1 == R2 is automatically satisfied
+              wan_pair_index(jnwf,1) == wan_pair_index(jnwf,2), &      !n3 == n4 => R3 == R4 is automatically satisfied
+              inwf=1,nnwf), jnwf=1,nnwf)]
+    trmat = sum(pack(reshape(mat, [nnwf*nnwf]), mask))
   end function tr_mat_onsite
   complex(8) function tr_mat_onsite_diag(mat) result(trmat)
-    complex(8), intent(in) :: mat(nwf,nwf,nwf,nwf)
-    integer :: iwf
-    trmat = sum([(mat(iwf,iwf,iwf,iwf),iwf=1,nwf)])
+    complex(8), intent(in) :: mat(nnwf,nnwf)
+    logical, allocatable :: mask(:)
+    integer :: inwf, jnwf
+    mask = [(((wan_pair_index(inwf,1) == wan_pair_index(inwf,2) .and. & 
+               wan_pair_index(inwf,1) == wan_pair_index(jnwf,2)), &
+               inwf=1,nnwf), jnwf=1,nnwf)]
+    trmat = sum(pack(reshape(mat, [nnwf*nnwf]), mask))
   end function tr_mat_onsite_diag
   !---------------------------------------
 !!! extract zmat(ijwf,klwf) ---> eval_o(nnwf)

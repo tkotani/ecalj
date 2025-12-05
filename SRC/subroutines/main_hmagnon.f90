@@ -2,28 +2,22 @@
 module m_hmagnon 
   contains
 subroutine hmagnon() bind(C)
-  use m_readwan,only: write_qdata, wan_readeigen, wan_readeval, wan_readeval2, &
-       readscr, checkorb, checkorb2, diagwan, diagwan_tr, wan_imat, &
-       writehmat, writeddmat, read_wandata, nwf, nsp_w, nqtt_w, tr_mat_onsite, tr_mat_onsite_diag
-  use m_ReadEfermi,only: readefermi,ef_read=>ef, readefermi_kbt,ef_kbt
-  use m_readeigen,only: readeval,init_readeigen,init_readeigen2
-  use m_hamindex,only:qtt,nqtt
-  use m_read_bzdata,only: read_bzdata,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,ginv, &
-       qbz,wbz,qibz,wibz,qbzw, idtetf,ib1bz,idteti,  nstar,irk,nstbz &
-       ,wqt=>wt,q0i,nq0i ,nq0iadd,ixyz,epslgroup,nq0ix,neps
-  use m_genallcf_v3,only: genallcf_v3,natom,nspin,nl,nn, &
-       ndima,nlnmx, nctot,niw_in=>niw, alat, deltaw,esmr, il,in,im,nlnm, plat, pos,ecore
+  use m_readwan,only: write_qdata, wan_readeval2, readscr, read_wandata, nwf, tr_mat_onsite, tr_mat_onsite_diag, &
+                    & set_wan_nnwf, nnwf, set_wan_scrw, scrw, wan_pair_index
+  use m_ReadEfermi,only: readefermi
+  use m_read_bzdata,only: read_bzdata, nqbz, nqibz, ginv, qbz, qibz, wibz, nstbz, wqt=>wt, q0i, nq0i ,nq0iadd, epslgroup, neps
+  use m_genallcf_v3,only: genallcf_v3, nspin, niw_in=>niw, plat
   use m_keyvalue,only: getkeyvalue
-  use m_freq,only: getfreq, frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,wiw 
-  use m_tetwt,only: tetdeallocate,gettetwt, whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb
-  use m_w0w0i,only: w0w0i, w0,w0i ! w0 and w0i (head part at Gamma point)
+  use m_freq,only: getfreq, frhis, freq_r, freq_i, nwhis, nw_i, nw, npm
+  use m_tetwt,only: tetdeallocate, gettetwt, whw, ihw, nhw, jhw, ibjb, nbnbx, nhwtot, n1b, n2b, nbnb
   use m_readgwinput,only: ReadGWinputKeys
-  use m_lgunit,only:m_lgunit_init,stdo
+  use m_lgunit,only: m_lgunit_init, stdo
   use m_dpsion,only: dpsion_init, dpsion_chiq
   use m_mpi,only: MPI__Initialize_magnon, MPI__consoleout_magnon, MPI__AllreduceSum
   use m_mpi,only: MPI__rank=>mpi__rankMG,MPI__size=>mpi__sizeMG, MPI__root ,comm
   use m_blas, only: m_op_C, zmm => zmm_h
   use m_lapack, only: zminv => zminv_h
+  use m_ftox
   implicit none
   !! We calculate chi0 by the follwoing three steps.
   !!  gettetwt: tetrahedron weights
@@ -31,25 +25,23 @@ subroutine hmagnon() bind(C)
   !!  dpsion5: calculate real part by the Hilbert transformation from the Im part
   !!  xxx removed--> eibz means extented irreducible brillowin zone scheme by C.Friedlich. (not so efficient in cases).
   integer, parameter :: ndble=8
-  integer:: imaximr=0
   integer:: iqbz, iqindx, iww, iqq
-  integer:: iwf, jwf, inwf, kwf, lwf, ijwf, klwf, nnwf, ijwf_j
+  integer:: iwf, jwf, inwf, kwf, lwf, ijwf, klwf, ijwf_j, imaximr
   integer:: ifchipmz_wan, ifchipmr_wan
   integer:: niw, ifif, ierr, MPI__MEq
   integer:: iqxini, iqxend, iqxendx, i, ini, ix, is ,iw, iq, nspinmx, kx, isf, ik, ibib, verbose, istat
-  integer:: nqbze, nqibze
-  real(8):: q(3), ua=1d0 ! ua is a dummy.
-  real(8):: omg2max, wemax, rydberg, hartree
-  real(8), parameter:: schi=1d0
-  real(8):: maximr, w_maximr, ef, nms_delta, www
+  integer:: nqbze, nqibze, isdummy
+  real(8):: q(3), omg2max, wemax, rydberg, hartree
+  real(8), parameter:: schi=1d0, ua = 1d0
+  real(8):: maximr, w_maximr, nms_delta, www
   real(8), allocatable:: qbze(:,:), qibze(:,:)
   real(8), allocatable:: rpa_maximr(:),mf_maximr(:) !! for MAX(Im[R])
   complex(8), pointer:: zxq(:,:,:) => null()
   complex(8), allocatable, target :: kmat(:,:,:)
-  complex(8),parameter :: img=(0d0,1d0)
-  complex(8),allocatable:: evc_w1(:,:), evc_w2(:,:), wkmat(:,:), rmat(:,:)
-  complex(8),allocatable:: scrw(:,:) ,scrw_original(:,:) !screening W
-  complex(8),allocatable:: eval_wk(:),eval_k(:),eval_wk2(:),trmat22(:)
+  complex(8), allocatable:: evc_w1(:,:), evc_w2(:,:), wkmat(:,:), rmat(:,:)
+  complex(8), allocatable:: scrw_original(:,:) !screening W
+  complex(8), allocatable:: eval_wk(:), eval_wk2(:),trmat22(:)
+  complex(8), parameter :: img=(0d0,1d0)
   complex(8)::trmat,trmatt,trmat1,trmat2
   complex(8),allocatable::imat(:,:) !unit matrix for 1-WK
   logical:: debug=.false.
@@ -58,8 +50,11 @@ subroutine hmagnon() bind(C)
   logical:: wan=.true., lhm, lsvd, nms 
   logical, allocatable :: mpi__task(:)
   character(4):: charnum4
-  real(8)::qlat(3,3), znorm, eta
-  integer:: it,itp,isdummy,lorb, size_lim=999
+  real(8)::qlat(3,3), eta
+  real(8), parameter :: pi = 4d0*datan(1d0)
+  real(8), parameter :: znorm=-1d0*pi ! normalization of Im[K]:
+  integer, parameter :: size_lim=999
+  logical, parameter :: onsite_approx = .false.
 !!! q on symline
   integer:: nqsym
   logical:: negative_cut, write_hmat, output_ddmat
@@ -67,7 +62,6 @@ subroutine hmagnon() bind(C)
   real(8):: cma_up_shift, cma_dn_shift, cma_wshift
   integer(4):: cma_iwf_s, cma_iwf_e
   complex(8):: sumrpa_maximr(1), summf_maximr(1)
-  real(8),parameter:: pi = 4d0*datan(1d0)
   hartree  = 2d0*rydberg()
   call m_lgunit_init()
   call MPI__Initialize_magnon()
@@ -110,15 +104,7 @@ subroutine hmagnon() bind(C)
     enddo
     write(6,*)' !!nqbz nqibz =',nqbz,nqibz
   endif
-! need for gettetwt; automatically read file(okumura) OK   !! tetrakbt mode (usetetrakbt)
-!  call getkeyvalue("GWinput","tetrakbt",usetetrakbt,default=.false.) !tetrakbt is not yet tested
-!  if (usetetrakbt) then
-!    call readefermi_kbt()  !!! ef_kbt: Fermi energy at finite temperature
-!    ef = ef_kbt
-!  else
-    call readefermi()      !!! ef:     Fermi energy at 0 K
-    ef = ef_read
-!  endif
+  call readefermi() !!! ef:     Fermi energy at 0 K
   write( 6,*) ' num of zero weight q0p=',neps
   write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
   !! Readin q+G. nqbze and nqibze are for adding Q0P related points to nqbz and nqibz.
@@ -138,10 +124,10 @@ subroutine hmagnon() bind(C)
     enddo
   enddo
   call read_wandata()    ! nwf, nsp_w,nqtt_w ! --- okumura Read dimensions of hamiltonian_wannier, spin, nqtt
-  call readscr(nwf,scrw)
-  nnwf=nwf*nwf
+  call set_wan_nnwf(onsite_approx) !set nnwf ~ # of RiRj (onsite_approx = .true.), RiR'j (onsite_approx = .flase. ), wan_pair_index
+  call set_wan_scrw(onsite_approx) !set scrw
+  if(mpi__root) write(stdo,ftox) '# nwf, nnwf:', nwf, nnwf
   !Weight for irreducible q-point (qibz); do iq=1,nqibz; write(6,"('wibz',4f9.4)") wibz(iq),qibz(:,iq); enddo
-  scrw(:,:)=scrw(:,:)/hartree !! Screening W for magnon
   iqxend = nqibz !+ nq0i
   !! Shift W by hand (Oct.02, 2019)
   if (cma_mode) allocate(scrw_original(nnwf,nnwf), source = scrw)
@@ -218,8 +204,9 @@ subroutine hmagnon() bind(C)
   allocate(imat(1:nnwf,1:nnwf),source=(0d0,0d0))
   forall(iwf=1:nnwf) imat(iwf,iwf)=1d0+img*merge(nms_delta,0d0,nms) !identical matrix
   allocate(evc_w1(nwf,nwf),evc_w2(nwf,nwf)) !, zxq_d(nnwf,nnwf) )
-  allocate(eval_wk(nnwf),eval_wk2(nnwf),eval_k(nnwf),trmat22(nw_i:nw))
+  allocate(eval_wk(nnwf),eval_wk2(nnwf),trmat22(nw_i:nw))
   allocate(kmat(1:nnwf,1:nnwf,(1-npm)*nwhis:nwhis))
+  imaximr = 0
   BIGiqqloop: do 1001 iqq = iqxini,iqxend      ! NOTE: q=(0,0,0) is active iqq=iqxini (see autogamma)
 !   if(MPI__rank > size_lim) cycle !reduce mpi-size for test (skip 21-32)
     iq = iqq-iqxini+1 !! start with iq=1 for convenience
@@ -232,7 +219,6 @@ subroutine hmagnon() bind(C)
     GETtet: block
       integer,parameter:: is=1,isf=2
       real(8)::ev_w1(nwf,nqbz),ev_w2(nwf,nqbz)
-      write(6,*) "mpm nctot",npm,nctot
       readeigen: do 5001 kx=1,nqbz      !!! ev_w1, ev_w2 unit: [Ry]
         call wan_readeval2(  qbz(:,kx), is,  ev_w1(1:nwf,kx), evc_w1) !eigenvalue eigenfunciton
         call wan_readeval2(q+qbz(:,kx), isf, ev_w2(1:nwf,kx), evc_w2)
@@ -261,11 +247,10 @@ subroutine hmagnon() bind(C)
       complex(8)::zxqi(1,1,1) !,wanmat(1:nnwf,1:nnwf)
       real(8) ::ev_w1(nwf), ev_w2(nwf) !dummy
       integer, allocatable :: nttp(:),  itw(:,:), itpw(:,:)
-      integer :: nttp_max, ittp, jpm
+      integer :: nttp_max, ittp, jpm, it, itp
       real(8), allocatable :: whwc(:,:)
       complex(8), allocatable :: zw(:,:), wzw(:,:)
       ! zxq=0d0
-      znorm=-1d0*pi ! normalization of Im[K]:
       kmat=0d0
       kxloop:       do 2011 kx=1,nqbz 
         call wan_readeval2(  qbz(:,kx), is,  ev_w1, evc_w1) !eigenvalue eigenfunciton
@@ -318,10 +303,11 @@ subroutine hmagnon() bind(C)
            if (nttp(iw) < 1) cycle
            do ittp = 1, nttp(iw)
              it = itw(ittp,iw); itp = itpw(ittp,iw)
-             do concurrent(lwf=1:nwf,kwf=1:nwf)
-               klwf = (kwf-1)*nwf+lwf 
-               zw(ittp,klwf) = dconjg(evc_w2(kwf,itp))*evc_w1(lwf,it) !a_{Rk alpha}^{(k+q)n'}* a_{Rl beta}^{kn}
-               wzw(ittp,klwf) = whwc(ittp,iw)*zw(ittp,klwf)
+              do inwf =1, nnwf
+               iwf = wan_pair_index(inwf,1)  
+               jwf = wan_pair_index(inwf,2)  
+               zw(ittp, inwf) = dconjg(evc_w2(jwf,itp))*evc_w1(iwf,it) !a_{Rk alpha}^{(k+q)n'}* a_{Rl beta}^{kn}
+               wzw(ittp,inwf) = whwc(ittp,iw)*zw(ittp,inwf)
              enddo
            enddo
            istat = zmm(zw, wzw, kmat(1,1,iw*(3-2*jpm)), nnwf, nnwf, nttp(iw), opA=m_op_C, beta=(1d0,0d0), ldA=nttp_max, ldB=nttp_max)
