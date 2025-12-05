@@ -480,8 +480,7 @@ contains
   complex(8) function tr_mat_onsite_diag(mat) result(trmat)
     complex(8), intent(in) :: mat(nwf,nwf,nwf,nwf)
     integer :: iwf
-    trmat = sum(pack([(mat(iwf,iwf,iwf,iwf),     iwf=1,nwf)], &
-                     [(ibaswf(iwf)==ibaswf(iwf), iwf=1,nwf)]))
+    trmat = sum([(mat(iwf,iwf,iwf,iwf),iwf=1,nwf)])
   end function tr_mat_onsite_diag
   !---------------------------------------
 !!! extract zmat(ijwf,klwf) ---> eval_o(nnwf)
