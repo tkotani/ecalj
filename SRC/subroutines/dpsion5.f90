@@ -161,7 +161,7 @@ contains
     integer :: iw,i,j
     real(8), parameter:: pi  = 4d0*datan(1d0)
     complex(8), parameter :: img = (0d0,1d0)
-    complex(kind=kp) :: zxq_work(1:npr,nw_i:nw_w), cimatt(niwt,nwhis,npm), crmatt(0:nw_w,nwhis,npm)
+    complex(kind=kp) :: zxq_work(1:npr,nw_i:nw_w), cimatt(niwt,nwhis,npm), crmatt(nw_i:nw_w,nwhis,npm)
     complex(kind=kp), allocatable :: rcxq_work(:,:), cgfmat(:,:)
     integer :: ipr_col, ipm, istat, ispx
     real(8) :: wfac,smearx0
@@ -218,6 +218,14 @@ contains
       rcxq(1:npr,1:npr_col,iw)= -wfac/(his_R(iw)-his_L(iw))*rcxq(1:npr,1:npr_col,iw)
       !$acc end kernels
     enddo
+    if(npm==2) then ! 2025-12-05 Bugfix for npm=2 case
+      do iw= -nwhis, -1
+        wfac=merge(exp(-(his_C(iw)/ecut)**2 ),1d0, ecut<1d9)     ! rcxq= Average value of Im chi.    Note rcxq is "negative" (
+        !$acc kernels
+        rcxq(1:npr,1:npr_col,iw)= -wfac/(his_R(iw)-his_L(iw))*rcxq(1:npr,1:npr_col,iw)
+        !$acc end kernels
+      enddo
+    endif
     !$acc end data
     if_IMAGOMEGA: if(imagomega) then !Hilbert Transformation to get real part
       if(debug) write(stdo,ftox)" -- dpsion_chiq: start imagomega"
@@ -239,8 +247,8 @@ contains
         cimatt(:,1:nwhis,1) = cmplx(imattC(:,1:nwhis: 1,1), kind=kp)
         cimatt(:,1:nwhis,2) = cmplx(imattC(:,nwhis:1:-1,2), kind=kp)
         !$acc end kernels
-        istat = gemm(rcxq(1,1,     1), cimatt(1,1,1), zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T)
-        istat = gemm(rcxq(1,1,-nwhis), cimatt(1,1,2), zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T, beta=CONE)
+        istat = gemm(rcxq(1,1,     1), cimatt(:,1,1), zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T)
+        istat = gemm(rcxq(1,1,-nwhis), cimatt(:,1,2), zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T, beta=CONE)
         !$acc end data
       endif
       if(ipr) write(stdo,ftox)" -- dpsion_chiq: end of imagomega"
@@ -284,8 +292,8 @@ contains
         crmatt(:,1:nwhis,2) = cmplx(rmatt(:,nwhis:1:-1,2), kind=kp)
         !$acc end kernels
         do ipr_col = 1, npr_col
-          istat = gemm(rcxq(1,ipr_col,     1), crmatt(1,1,1), zxq_work, npr, (nw_w-nw_i)+1, nwhis, ldA=npr*npr_col, opB=m_op_T)
-          istat = gemm(rcxq(1,ipr_col,-nwhis), crmatt(1,1,2), zxq_work, npr, (nw_w-nw_i)+1, nwhis, ldA=npr*npr_col, opB=m_op_T,&
+          istat = gemm(rcxq(1,ipr_col,     1), crmatt(:,1,1), zxq_work, npr, (nw_w-nw_i)+1, nwhis, ldA=npr*npr_col, opB=m_op_T)
+          istat = gemm(rcxq(1,ipr_col,-nwhis), crmatt(:,1,2), zxq_work, npr, (nw_w-nw_i)+1, nwhis, ldA=npr*npr_col, opB=m_op_T,&
                        beta=CONE)
           !$acc kernels
           rcxq(1:npr,ipr_col,nw_i:nw_w) = rcxq(1:npr,ipr_col,nw_i:nw_w)*img + zxq_work(1:npr,nw_i:nw_w) !override
