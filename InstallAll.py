@@ -23,7 +23,10 @@ def build_and_install_gemmul8(buildir, bindir):
         subprocess.run(["git", "clone", repo_url, clone_dir])
     if not os.path.isfile(libfile):
         subprocess.run(["make", "-j"], cwd=clone_dir)
-    shutil.copy(libfile, bindir)
+    try:
+        shutil.copy(libfile, bindir)
+    except Exception as e:
+        pass
 
 def main():
     if(args.debug):
