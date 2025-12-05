@@ -7,7 +7,7 @@ module m_readwan
        Checkorb,Checkorb2, Diagwan, Diagwan_tr, Wan_imat, Writehmat, Writeddmat, Read_wandata, &
        tr_mat_onsite, tr_mat_onsite_diag, set_wan_nnwf, set_wan_scrw
   integer, protected, public:: nwf, nsp_w, nqtt_w, nnwf !! read by read_wandata
-  complex(8), allocatable, public :: scrw(:,:)
+  complex(8), allocatable, protected, public :: scrw(:,:)
   integer, allocatable, protected, public :: wan_pair_index(:,:), wan_pair_site(:,:)
   private
   logical:: init=.true.
