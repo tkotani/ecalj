@@ -2,6 +2,26 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "InstallAll-ifx (notest)",
+      "type": "shell",
+      "command": "python ./InstallAll.py --fc=ifx --notest"
+    },
+    {
+      "label": "InstallAll-ifx",
+      "type": "shell",
+      "command": "python ./InstallAll.py --fc=ifx"
+    },
+    {
+      "label": "InstallAll-nvfortran CPU & GPU versions (notest)",
+      "type": "shell",
+      "command": "python ./InstallAll.py --fc=nvfortran --gpu --notest"
+    },
+    {
+      "label": "InstallAll-nvfortran CPU & GPU versions",
+      "type": "shell",
+      "command": "python ./InstallAll.py --fc=nvfortran --gpu"
+    },
+    {
       "label": "build-ifx",
       "type": "shell",
       "command": "bash",
@@ -20,19 +40,9 @@
       ]
     },
     {
-      "label": "clean",
+      "label": "clean\n",
       "type": "shell",
       "command": "cmake --build ./SRC/exec/build --target clean"
-    },
-    {
-      "label": "InstallAll-ifx",
-      "type": "shell",
-      "command": "python ./InstallAll.py --fc=ifx --notest"
-    },
-    {
-      "label": "InstallAll-nvfortran CPU & GPU versions",
-      "type": "shell",
-      "command": "python ./InstallAll.py --fc=nvfortran --gpu --notest"
     }
   ]
 }
