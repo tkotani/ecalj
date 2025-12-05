@@ -47,11 +47,6 @@ contains
   ! set product basis M to E basis transformation matrix
   ! 2025-10-10, Setppovlz was changed to set_m2e_prod_basis
   ! In accordance with this change, all matrices related to ppovl (the transformation from M to M~) and its inverse transformation have been removed.
-#ifdef __GPU
-     use m_lapack, only: zminv => zminv_d
-#else
-     use m_lapack, only: zminv => zminv_h
-#endif
     integer, intent(in) :: npr
     if(allocated(m2e_prod_basis)) then
       !$acc exit data delete(m2e_prod_basis)
