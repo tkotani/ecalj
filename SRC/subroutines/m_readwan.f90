@@ -302,7 +302,7 @@ contains
     logical(8)::ijklmag
     hartree  = 2d0*rydberg()
     call checkorb(1,nwf,idummy)
-    allocate( scrw4(nwf,nwf,nwf,nwf))
+    allocate( scrw4(nwf,nwf,nwf,nwf), source = (0d0,0d0))
     allocate( scrv4, mold=scrw4)
     allocate(scrwc4, mold=scrw4)
     open(newunit=ifscrwv,file="Screening_W-v.UP",form="formatted") !only up
@@ -557,7 +557,8 @@ contains
     logical, allocatable :: mask(:)
     integer :: inwf, jnwf
     mask = [(((wan_pair_index(inwf,1) == wan_pair_index(inwf,2) .and. & 
-               wan_pair_index(inwf,1) == wan_pair_index(jnwf,2)), &
+               wan_pair_index(jnwf,1) == wan_pair_index(jnwf,2) .and. &
+               wan_pair_index(inwf,1) == wan_pair_index(jnwf,1)), &
                inwf=1,nnwf), jnwf=1,nnwf)]
     trmat = sum(pack(reshape(mat, [nnwf*nnwf]), mask))
   end function tr_mat_onsite_diag

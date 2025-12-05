@@ -54,7 +54,7 @@ subroutine hmagnon() bind(C)
   real(8), parameter :: pi = 4d0*datan(1d0)
   real(8), parameter :: znorm=-1d0*pi ! normalization of Im[K]:
   integer, parameter :: size_lim=999
-  logical, parameter :: onsite_approx = .false.
+  logical, parameter :: onsite_approx = .true.
 !!! q on symline
   integer:: nqsym
   logical:: negative_cut, write_hmat, output_ddmat
