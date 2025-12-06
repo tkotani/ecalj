@@ -315,49 +315,76 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
       allocate(zmel1(ngb))
       allocate(zmel(ngb, nwf, nwf))
       !        if( .NOT. newansisoW()) allocate(vcoult(1:ngb,1:ngb),z1p(ngb,nwf,nwf))
-      do ir2=1,nrws2
-        !!  (rmelt3,cmelt3)  !rk,ibloch  q-rk,it  q,itp
-        zmel  = dcmplx (rmelt3(:,:,:,ir2),cmelt3(:,:,:,ir2)) !<psi_itp|psi_it B>
-        ! based on E_I basis. See Christoph's paper
-        allocate(zmeltt(nwf,nwf,ngb))
-        do itp= 1,nwf
-          do it = 1,nwf
-            do ivc=1,ngb
-              zmeltt(it,itp,ivc)=sum(zmel(:,it,itp)*ppovlz(:,ivc)) ! <psi_itp|psi_it E_I> (I=ivc)
-            enddo
+      ! do ir2=1,nrws2
+      !   !!  (rmelt3,cmelt3)  !rk,ibloch  q-rk,it  q,itp
+      !   zmel  = dcmplx (rmelt3(:,:,:,ir2),cmelt3(:,:,:,ir2)) !<psi_itp|psi_it B>
+      !   ! based on E_I basis. See Christoph's paper
+      !   allocate(zmeltt(nwf,nwf,ngb))
+      !   do itp= 1,nwf
+      !     do it = 1,nwf
+      !       do ivc=1,ngb
+      !         zmeltt(it,itp,ivc)=sum(zmel(:,it,itp)*ppovlz(:,ivc)) ! <psi_itp|psi_it E_I> (I=ivc)
+      !       enddo
+      !     enddo
+      !   enddo
+      !   do ir3=1,nrws2
+      !     do itp2 = 1,nwf
+      !       do it2  = 1,nwf
+      !         do it   = 1,nwf
+      !           do itp  = 1,nwf
+      !             zmel1(:)=dcmplx(rmelt3(:,it,itp,ir3),cmelt3(:,it,itp,ir3)) ! <psi_itp|psi_it B_I>
+      !             w3p=0d0
+      !             do ivc=1,ngb
+      !               zmeltt1 =  sum( zmel1(:)*ppovlz(:,ivc) ) !<psi_itp|psi_it E_I>
+      !               if(ivc==1 .AND. kx==iqini) then
+      !                 vc= wklm(1)* fpi*sqrt(fpi) /wk(kx) !kx right?
+      !               else
+      !                 vc= vcoud(ivc)
+      !               endif
+      !               w3p=w3p + zmeltt(it2,itp2,ivc)  *vc* dconjg(zmeltt1)
+      !               ! <psi_itp2|psi_it2 E_I> *vc* <E_I psi_it|psi_itp>
+      !             enddo
+      !             ztmp= w3p
+      !             do ir1=1,nrws1
+      !               ir = ir1 + (ir2-1 + (ir3-1)*nrws2)*nrws1
+      !               rw_w(itp2,it2,it,itp,ir,0) = rw_w(itp2,it2,it,itp,ir,0) + dreal(ztmp*weightc(ir1))
+      !               cw_w(itp2,it2,it,itp,ir,0) = cw_w(itp2,it2,it,itp,ir,0) + dimag(ztmp*weightc(ir1))
+      !             enddo ! ir1
+      !           enddo
+      !         enddo
+      !       enddo
+      !     enddo
+      !   enddo ! ir3
+      !   deallocate(zmeltt)
+      !   !endif
+      ! enddo ! ir2
+      v_coulomb:block
+        use m_blas, only: zmm => zmm_h, m_op_C, m_op_T
+        complex(8) :: zvz_ir(nwf,nwf,nwf,nwf), cc(ngb,nwf,nwf)
+        real(8) :: vc_kx(ngb)
+        integer :: istat
+        allocate(zmelc(ngb,nwf,nwf,nrws2))
+        do ir2=1, nrws2
+          zmel = dcmplx (rmelt3(:,:,:,ir2),cmelt3(:,:,:,ir2)) !<psi_itp|psi_it B>   B=M~ basis
+          istat = zmm(ppovlz, zmel, zmelc(:,:,:,ir2), ngb, nwf*nwf, ngb, opA=m_op_T) ! E basis  <psi_itp |psi_it E_I>
+        enddo
+        ! zmelc(:,:,:,:) = dconjg(zmelc(:,:,:,:)) ! <E_I psi_it | psi_itp> ????
+        vc_kx(1:ngb) = vcoud(1:ngb)
+        if(kx==iqini) vc_kx(1)= wklm(1)* fpi*sqrt(fpi) /wk(kx) !kx right?
+        do ir3=1, nrws2
+          do ir2=1, nrws2
+            forall(it=1:nwf, itp=1:nwf) cc(1:ngb,it,itp) = vc_kx(1:ngb)*zmelc(1:ngb,it,itp,ir3) !
+            istat = zmm(zmelc(:,:,:,ir2), cc, zvz_ir, nwf*nwf, nwf*nwf, ngb, opA=m_op_C)  !sum_I <E_I psi_it|psi_itp>_R2 vc_I <psi_itp2|psi_it2 E_I>_R3
+            do ir1=1,nrws1
+              ir = ir1 + (ir2-1 + (ir3-1)*nrws2)*nrws1
+              rw_w(:,:,:,:,ir,0) = rw_w(:,:,:,:,ir,0) + dreal(zvz_ir(:,:,:,:)*weightc(ir1))
+              cw_w(:,:,:,:,ir,0) = cw_w(:,:,:,:,ir,0) + dimag(zvz_ir(:,:,:,:)*weightc(ir1))
+            enddo ! ir1
           enddo
         enddo
-        do ir3=1,nrws2
-          do itp2 = 1,nwf
-            do it2  = 1,nwf
-              do it   = 1,nwf
-                do itp  = 1,nwf
-                  zmel1(:)=dcmplx(rmelt3(:,it,itp,ir3),cmelt3(:,it,itp,ir3)) ! <psi_itp|psi_it B_I>
-                  w3p=0d0
-                  do ivc=1,ngb
-                    zmeltt1 =  sum( zmel1(:)*ppovlz(:,ivc) ) !<psi_itp|psi_it E_I>
-                    if(ivc==1 .AND. kx==iqini) then
-                      vc= wklm(1)* fpi*sqrt(fpi) /wk(kx) !kx right?
-                    else
-                      vc= vcoud(ivc)
-                    endif
-                    w3p=w3p + zmeltt(it2,itp2,ivc)  *vc* dconjg(zmeltt1)
-                    ! <psi_itp2|psi_it2 E_I> *vc* <E_I psi_it|psi_itp>
-                  enddo
-                  ztmp= w3p
-                  do ir1=1,nrws1
-                    ir = ir1 + (ir2-1 + (ir3-1)*nrws2)*nrws1
-                    rw_w(itp2,it2,it,itp,ir,0) = rw_w(itp2,it2,it,itp,ir,0) + dreal(ztmp*weightc(ir1))
-                    cw_w(itp2,it2,it,itp,ir,0) = cw_w(itp2,it2,it,itp,ir,0) + dimag(ztmp*weightc(ir1))
-                  enddo ! ir1
-                enddo
-              enddo
-            enddo
-          enddo
-        enddo ! ir3
-        deallocate(zmeltt)
-        !endif
-      enddo ! ir2
+        deallocate(zmelc)
+      endblock v_coulomb
+
       if(allocated(vcoul)) deallocate(vcoul,vcoult)
       if(allocated(z1p))   deallocate(z1p)
       if(allocated(rmelt3)) deallocate(rmelt3,cmelt3,zmel1, zmel)
@@ -416,18 +443,36 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
         !     &   dconjg(zmel(:,it,itp)),matmul(zw(1:ngb,1:ngb),zmel(:,it,itp)) )
         !        enddo
         !        enddo
-        do ir3=1,nrws2
-          do ir2=1,nrws2
-            call matzwz3( zw(1:ngb,1:ngb), zmelc(:,:,:,ir2), zmelc(:,:,:,ir3), &
-                 nwf,nwf,ngb, &
-                 zw2)
-            do ir1=1,nrws1
-              ir = ir1 + (ir2-1 + (ir3-1)*nrws2)*nrws1
-              rw_iw(:,:,:,:,ir,ix) = rw_iw(:,:,:,:,ir,ix) + dreal(zw2(:,:,:,:) * weightc(ir1))
-              cw_iw(:,:,:,:,ir,ix) = cw_iw(:,:,:,:,ir,ix) + dimag(zw2(:,:,:,:) * weightc(ir1))
-            enddo ! ir1
-          enddo ! ir2
-        enddo ! ir3
+        ! 2025-12-06 MO replaced matzwz3
+        ! do ir3=1,nrws2
+        !   do ir2=1,nrws2
+        !     call matzwz3( zw(1:ngb,1:ngb), zmelc(:,:,:,ir2), zmelc(:,:,:,ir3), &
+        !          nwf,nwf,ngb, &
+        !          zw2)
+        !     do ir1=1,nrws1
+        !       ir = ir1 + (ir2-1 + (ir3-1)*nrws2)*nrws1
+        !       rw_iw(:,:,:,:,ir,ix) = rw_iw(:,:,:,:,ir,ix) + dreal(zw2(:,:,:,:) * weightc(ir1))
+        !       cw_iw(:,:,:,:,ir,ix) = cw_iw(:,:,:,:,ir,ix) + dimag(zw2(:,:,:,:) * weightc(ir1))
+        !     enddo ! ir1
+        !   enddo ! ir2
+        ! enddo ! ir3
+        matzwz3_wvi: block
+          use m_blas, only: zmm => zmm_h, m_op_C
+          complex(8) :: cc(ngb,nwf,nwf)
+          integer :: istat, iwf, jwf
+          do ir3=1,nrws2
+            do ir2=1,nrws2
+              istat = zmm(zw, zmelc(:,:,:,ir3), cc, ngb, nwf*nwf, ngb, lda=nblochpmx)
+              istat = zmm(zmelc(:,:,:,ir2), cc, zw2, nwf*nwf, nwf*nwf, ngb, opA=m_op_C)    !zw2 (it1, itp1, it2, itp2) order
+              forall(iwf=1:nwf, jwf=1:nwf) zw2(:,:,iwf,jwf) = transpose(zw2(:,:,iwf,jwf))  !zw2 (itp1, itp, it2, itp2) order
+              do ir1=1,nrws1
+                ir = ir1 + (ir2-1 + (ir3-1)*nrws2)*nrws1
+                rw_iw(:,:,:,:,ir,ix) = rw_iw(:,:,:,:,ir,ix) + dreal(zw2(:,:,:,:) * weightc(ir1))
+                cw_iw(:,:,:,:,ir,ix) = cw_iw(:,:,:,:,ir,ix) + dimag(zw2(:,:,:,:) * weightc(ir1))
+              enddo
+            enddo
+          enddo
+        endblock matzwz3_wvi
       enddo
       close(ifrcwi)! = iclose('WVI.'//i2char(kx))
 
@@ -446,18 +491,35 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
         read(ifrcw,rec=nrec) zw
         ! cccccccccccccccccccccccc
         ! zwz = S[i,j] <psi(q,t) |psi(q-rk,n) B(rk,i)> Wc(k,iw')(i,j) > <B(rk,j) psi(q-rk,n) |psi(q,t)>
-        do ir3=1,nrws2
-          do ir2=1,nrws2
-            call matzwz3( zw(1:ngb,1:ngb), zmelc(:,:,:,ir2), zmelc(:,:,:,ir3), &
-                 nwf,nwf,ngb, &
-                 zw2)
-            do ir1=1,nrws1
-              ir = ir1 + (ir2-1 + (ir3-1)*nrws2)*nrws1
-              rw_w(:,:,:,:,ir,ix)  = rw_w(:,:,:,:,ir,ix) + dreal(zw2(:,:,:,:) * weightc(ir1))
-              cw_w(:,:,:,:,ir,ix)  = cw_w(:,:,:,:,ir,ix) + dimag(zw2(:,:,:,:) * weightc(ir1))
-            enddo ! ir1
-          enddo ! ir2
-        enddo ! ir3
+      !   do ir3=1,nrws2
+      !     do ir2=1,nrws2
+      !       call matzwz3( zw(1:ngb,1:ngb), zmelc(:,:,:,ir2), zmelc(:,:,:,ir3), &
+      !            nwf,nwf,ngb, &
+      !            zw2)
+      !       do ir1=1,nrws1
+      !         ir = ir1 + (ir2-1 + (ir3-1)*nrws2)*nrws1
+      !         rw_w(:,:,:,:,ir,ix)  = rw_w(:,:,:,:,ir,ix) + dreal(zw2(:,:,:,:) * weightc(ir1))
+      !         cw_w(:,:,:,:,ir,ix)  = cw_w(:,:,:,:,ir,ix) + dimag(zw2(:,:,:,:) * weightc(ir1))
+      !       enddo ! ir1
+      !     enddo ! ir2
+      !   enddo ! ir3
+        matzwz3_wvr: block
+          use m_blas, only: zmm => zmm_h, m_op_C
+          complex(8) :: cc(ngb,nwf,nwf)
+          integer :: istat, iwf, jwf
+          do ir3=1,nrws2
+            do ir2=1,nrws2
+              istat = zmm(zw, zmelc(:,:,:,ir3), cc, ngb, nwf*nwf, ngb, lda=nblochpmx)
+              istat = zmm(zmelc(:,:,:,ir2), cc, zw2, nwf*nwf, nwf*nwf, ngb, opA=m_op_C)   !zw2 (it1, itp1, it2, itp2) order
+              forall(iwf=1:nwf, jwf=1:nwf) zw2(:,:,iwf,jwf) = transpose(zw2(:,:,iwf,jwf)) !zw2 (itp1, itp, it2, itp2) order
+              do ir1=1,nrws1
+                ir = ir1 + (ir2-1 + (ir3-1)*nrws2)*nrws1
+                rw_w(:,:,:,:,ir,ix)  = rw_w(:,:,:,:,ir,ix) + dreal(zw2(:,:,:,:) * weightc(ir1))
+                cw_w(:,:,:,:,ir,ix)  = cw_w(:,:,:,:,ir,ix) + dimag(zw2(:,:,:,:) * weightc(ir1))
+              enddo
+            enddo
+          enddo
+        endblock matzwz3_wvr
       enddo
       close(ifrcw)! = iclose('WVR.'//i2char(kx))
       deallocate(zmelc,zw,zw2)
