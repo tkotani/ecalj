@@ -47,7 +47,7 @@ subroutine hmagnon() bind(C)
   character(4):: charnum4
   real(8)::qlat(3,3), eta
   real(8), parameter :: pi = 4d0*datan(1d0), znorm=-1d0*pi ! normalization of Im[K]:
-  logical :: onsite_approx
+  logical :: onsite_approx, w_onsite_dddd
   complex(8):: sumrpa_maximr(1), summf_maximr(1)
 !!! q on symline
   integer:: nqsym
@@ -81,6 +81,7 @@ subroutine hmagnon() bind(C)
   call ReadGWinputKeys() ! jun2020 new routint to read all inputs
   ! W is enforced as on site regardless onsite_approx, onsite_approx specifies whether nnwf is set as onsite or not.
   call getkeyvalue("GWinput","magnon_onsite_approximation",onsite_approx,default=.true.)
+  call getkeyvalue("GWinput","magnon_w_onsite_dddd",w_onsite_dddd,default=.true.)
   call getkeyvalue("GWinput","lHermite",lhm,default=.false.)
   call getkeyvalue("GWinput","lsvd",lsvd,default=.false.)
   call getkeyvalue("GWinput","nms",nms,default=.false.)  !!! For NiMnSb
@@ -125,7 +126,7 @@ subroutine hmagnon() bind(C)
   enddo
   call read_wandata()    ! nwf, nsp_w,nqtt_w ! --- okumura Read dimensions of hamiltonian_wannier, spin, nqtt
   call set_wan_nnwf(onsite_approx) !set nnwf ~ # of RiRj (onsite_approx = .true.), RiR'j (onsite_approx = .flase. ), wan_pair_index
-  call set_wan_scrw(onsite_approx) !set scrw
+  call set_wan_scrw(onsite_approx, w_onsite_dddd) !set scrw
   if(mpi__root) write(stdo,ftox) '# nwf, nnwf:', nwf, nnwf
   !Weight for irreducible q-point (qibz); do iq=1,nqibz; write(6,"('wibz',4f9.4)") wibz(iq),qibz(:,iq); enddo
   iqxend = nqibz !+ nq0i

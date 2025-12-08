@@ -9,12 +9,14 @@ module m_readwan
   integer, protected, public:: nwf, nsp_w, nqtt_w, nnwf !! read by read_wandata
   complex(8), allocatable, protected, public :: scrw(:,:)
   integer, allocatable, protected, public :: wan_pair_index(:,:), wan_pair_site(:,:)
+  integer, protected, public:: natom
   private
   logical:: init=.true.
   logical:: readwan=.false.,lreadhrotr=.false.
   real(8):: alat,plat(3,3),ef
-  integer:: natom,nrws,n1,n2,n3
+  integer :: nrws,n1,n2,n3
   integer,allocatable:: irws(:),ibaswf(:)
+  integer, allocatable :: wan_pair_lorb(:,:)
   real(8),allocatable:: pos(:,:),rws(:,:),drws(:)
   complex(8),allocatable:: hrotr(:,:,:,:), evecc(:,:)
 !!!!! wannier eigenvalue and eigenvector
@@ -265,14 +267,14 @@ contains
   !---------------------------------------
   subroutine set_wan_nnwf(onsite_approx)
     logical, intent(in) :: onsite_approx
-    integer :: iwf, jwf, ijwf
+    integer :: iwf, jwf, ijwf, idummy
     logical, allocatable :: mask(:)
     integer, allocatable :: iwf_list(:), jwf_list(:)
     if ( .not. lreadhrotr) call readhrotr() !get ibaswf
     iwf_list = [((iwf, iwf=1,nwf), jwf=1,nwf)]
     jwf_list = [((jwf, iwf=1,nwf), jwf=1,nwf)]
     if(onsite_approx) then
-      mask = [((ibaswf(iwf)==ibaswf(jwf), iwf=1,nwf), jwf=1,nwf)]  ! only some atomic site
+      mask = [((ibaswf(iwf)==ibaswf(jwf), iwf=1,nwf), jwf=1,nwf)]  ! only same atomic site
     else
       mask = [((.TRUE., iwf=1,nwf), jwf=1,nwf)]  !full pair
     endif
@@ -284,38 +286,43 @@ contains
     wan_pair_index(:,1) = iwf_list(:)
     wan_pair_index(:,2) = jwf_list(:)
     if(allocated(wan_pair_site)) deallocate(wan_pair_site)
-    allocate(wan_pair_site(nnwf,2))
+    if(allocated(wan_pair_lorb)) deallocate(wan_pair_lorb)
+    allocate(wan_pair_site(nnwf,2), wan_pair_lorb(nnwf,2))
+    call checkorb(1,nwf,idummy) !to get idorb
     do ijwf=1, nnwf
       wan_pair_site(ijwf,1) = ibaswf(wan_pair_index(ijwf,1))
       wan_pair_site(ijwf,2) = ibaswf(wan_pair_index(ijwf,2))
+      wan_pair_lorb(ijwf,1) =  idorb(wan_pair_index(ijwf,1))
+      wan_pair_lorb(ijwf,2) =  idorb(wan_pair_index(ijwf,2))
    enddo
   end subroutine set_wan_nnwf
-  subroutine set_wan_scrw(onsite_approx)
-    logical, intent(in) :: onsite_approx
+  subroutine set_wan_scrw(onsite_approx, w_onsite_dddd)
+    logical, intent(in) :: onsite_approx, w_onsite_dddd
     integer:: ifscrwv, ifscrv, iwf, jwf, kwf, lwf
     character(len=9)::charadummy 
     real(8)::rws1(3),freq,freq2 !dummy
     integer::is,iwf1,iwf2,iwf3,iwf4, idummy
     real(8):: rydberg, hartree
     integer:: ir1,irws1
-    complex(8),allocatable::scrw4(:,:,:,:), scrv4(:,:,:,:), scrwc4(:,:,:,:)
+    complex(8),allocatable::scrw4(:,:,:,:)
+    complex(8):: scrv4, scrwc4
     logical(8)::ijklmag
     hartree  = 2d0*rydberg()
     call checkorb(1,nwf,idummy)
     allocate( scrw4(nwf,nwf,nwf,nwf), source = (0d0,0d0))
-    allocate( scrv4, mold=scrw4)
-    allocate(scrwc4, mold=scrw4)
     open(newunit=ifscrwv,file="Screening_W-v.UP",form="formatted") !only up
     open(newunit=ifscrv, file="Coulomb_v.UP",    form="formatted") !only up
     do iwf=1,nwf
       do jwf=1,nwf
         do kwf=1,nwf
           do lwf=1,nwf
-            read(ifscrv,"(A,2i5, 3f12.6, 5i5,2f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4, scrv4(iwf1,iwf2,iwf3,iwf4) !v
-            read(ifscrwv,"(A,2i5, 3f12.6,5i5,4f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4,freq,freq2,scrwc4(iwf1,iwf2,iwf3,iwf4) !Wc = W -v
+            read(ifscrv,"(A,2i5, 3f12.6, 5i5,2f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4, scrv4 !v
+            read(ifscrwv,"(A,2i5, 3f12.6,5i5,4f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4,freq,freq2,scrwc4 !Wc = W -v
             call checkorb2(iwf,jwf,kwf,lwf,ijklmag)
-            if(ijklmag.and.all(idorb([iwf,jwf,kwf,lwf])==2)) then
-              scrw4(jwf,iwf,lwf,kwf)=scrwc4(iwf1,iwf2,iwf3,iwf4)+ scrv4(iwf1,iwf2,iwf3,iwf4)
+            if(w_onsite_dddd) then
+              if(ijklmag.and.all(idorb([iwf,jwf,kwf,lwf])==2)) scrw4(jwf,iwf,lwf,kwf) = scrwc4 + scrv4
+            else
+              if(ijklmag) scrw4(jwf,iwf,lwf,kwf) = scrwc4 + scrv4
             endif
           enddo
         enddo
@@ -331,6 +338,48 @@ contains
       scrw(:,:)=reshape(scrw4, shape=[nnwf,nnwf])
     endif
     scrw(:,:)=scrw(:,:)/hartree !! Screening W for magnon
+    show_atomic_W: block
+      use m_mpi,only: MPI__root
+      use m_lgunit,only: stdo
+      logical, allocatable :: mask(:), mask_onsite(:), mask_lorb(:), mask_W_diag(:), mask_W_offdiag(:), mask_J(:)
+      integer, parameter :: lmax = 3 ! for output
+      integer :: iatom, lorb, inwf, jnwf
+      complex(8) :: W_diag_ave, W_offdiag_ave, J_ave
+      if(MPI__root) then
+        do iatom = 1, natom
+          !mask for onsitea R1=R2=R3=R4
+          mask_onsite = [(((wan_pair_site(inwf,1)==iatom .and. wan_pair_site(inwf,2)==iatom .and. &
+                         &  wan_pair_site(jnwf,1)==iatom .and. wan_pair_site(jnwf,2)==iatom), inwf=1,nnwf), jnwf=1,nnwf)]
+          do lorb = 0, lmax
+           !mask for orbital combination: all oribitals are lorb
+            mask_lorb = [(((wan_pair_lorb(inwf,1)==lorb .and. wan_pair_lorb(inwf,2)==lorb .and. &
+                          & wan_pair_lorb(jnwf,1)==lorb .and. wan_pair_lorb(jnwf,2)==lorb), inwf=1,nnwf), jnwf=1,nnwf)]
+            mask = mask_onsite .and. mask_lorb
+            if(count(mask)==0) cycle
+           !"Spin Excitations in Solids from Many-Body Perturbation Theory" Eq (62)
+            mask_W_diag = [(((wan_pair_index(inwf,1) == wan_pair_index(inwf,2) .and. &
+                           &  wan_pair_index(inwf,1) == wan_pair_index(jnwf,1) .and. &
+                           &  wan_pair_index(jnwf,1) == wan_pair_index(jnwf,2)), inwf=1,nnwf), jnwf=1,nnwf)]
+           !"Spin Excitations in Solids from Many-Body Perturbation Theory" Eq (63)
+            mask_W_offdiag = [(((wan_pair_index(inwf,1) == wan_pair_index(inwf,2) .and. &
+                              &  wan_pair_index(jnwf,1) == wan_pair_index(jnwf,2) .and. &
+                              &  wan_pair_index(inwf,1) /= wan_pair_index(jnwf,1)), inwf=1,nnwf), jnwf=1,nnwf)]
+           !"Spin Excitations in Solids from Many-Body Perturbation Theory" Eq (64)
+            mask_J = [(((wan_pair_index(inwf,1) == wan_pair_index(jnwf,2) .and. &
+                       & wan_pair_index(inwf,2) == wan_pair_index(jnwf,1) .and. &
+                       & wan_pair_index(inwf,1) /= wan_pair_index(inwf,2)), inwf=1,nnwf), jnwf=1,nnwf)]
+            W_diag_ave = sum(pack(reshape(scrw, [nnwf*nnwf]), mask .and. mask_W_diag))/count(mask .and. mask_W_diag)
+            W_offdiag_ave = sum(pack(reshape(scrw, [nnwf*nnwf]), mask .and. mask_W_offdiag))/count(mask .and. mask_W_offdiag)
+            J_ave = sum(pack(reshape(scrw, [nnwf*nnwf]), mask .and. mask_J))/count(mask .and. mask_J)
+            ! J and offdiagonal W should be zero for s-orbital
+            if(lorb == 0) W_offdiag_ave = 0d0
+            if(lorb == 0) J_ave = 0d0
+            write(stdo, '(A,2I3,3F9.4)') "# site lorb W W' J (eV):", iatom, lorb,
+                 & dble(W_diag_ave)*hartree, dble(W_offdiag_ave)*hartree, dble(J_ave)*hartree
+          enddo
+        enddo
+      endif
+    endblock show_atomic_W
   end subroutine
   subroutine readscr(nwf,scrw_)
     intent(in)::     nwf
@@ -542,17 +591,23 @@ contains
     enddo
     !! threshold
   end subroutine wan_imat
-  complex(8) function tr_mat_onsite(mat) result(trmat)
+  complex(8) function tr_mat_onsite(mat, site) result(trmat)
     complex(8), intent(in) :: mat(nnwf,nnwf)
+    integer, intent(in), optional :: site
     logical, allocatable :: mask(:)
     integer :: inwf, jnwf
     mask = [((wan_pair_site(inwf,1) == wan_pair_site(jnwf,1) .and. &   !R1 == R3
               wan_pair_index(inwf,1) == wan_pair_index(inwf,2) .and. & !n1 == n2 => R1 == R2 is automatically satisfied
               wan_pair_index(jnwf,1) == wan_pair_index(jnwf,2), &      !n3 == n4 => R3 == R4 is automatically satisfied
               inwf=1,nnwf), jnwf=1,nnwf)]
+    if(present(site)) then
+      mask = mask .AND. [((wan_pair_site(inwf,1) == site .and. wan_pair_site(jnwf,1) == site, &
+                          inwf=1,nnwf), jnwf=1,nnwf)]
+    endif
     trmat = sum(pack(reshape(mat, [nnwf*nnwf]), mask))
   end function tr_mat_onsite
-  complex(8) function tr_mat_onsite_diag(mat) result(trmat)
+  complex(8) function tr_mat_onsite_diag(mat, site) result(trmat)
+    integer, intent(in), optional :: site
     complex(8), intent(in) :: mat(nnwf,nnwf)
     logical, allocatable :: mask(:)
     integer :: inwf, jnwf
@@ -560,6 +615,10 @@ contains
                wan_pair_index(jnwf,1) == wan_pair_index(jnwf,2) .and. &
                wan_pair_index(inwf,1) == wan_pair_index(jnwf,1)), &
                inwf=1,nnwf), jnwf=1,nnwf)]
+    if(present(site)) then
+      mask = mask .AND. [((wan_pair_site(inwf,1) == site .and. wan_pair_site(jnwf,1) == site, &
+                          inwf=1,nnwf), jnwf=1,nnwf)]
+    endif
     trmat = sum(pack(reshape(mat, [nnwf*nnwf]), mask))
   end function tr_mat_onsite_diag
   !---------------------------------------
