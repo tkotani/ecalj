@@ -374,7 +374,7 @@ contains
             ! J and offdiagonal W should be zero for s-orbital
             if(lorb == 0) W_offdiag_ave = 0d0
             if(lorb == 0) J_ave = 0d0
-            write(stdo, '(A,2I3,3F9.4)') "# site lorb W W' J (eV):", iatom, lorb,
+            write(stdo, '(A,2I3,3F9.4)') "# site lorb W W' J (eV):", iatom, lorb, &
                  & dble(W_diag_ave)*hartree, dble(W_offdiag_ave)*hartree, dble(J_ave)*hartree
           enddo
         enddo
