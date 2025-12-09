@@ -312,22 +312,32 @@ contains
     allocate( scrw4(nwf,nwf,nwf,nwf), source = (0d0,0d0))
     open(newunit=ifscrwv,file="Screening_W-v.UP",form="formatted") !only up
     open(newunit=ifscrv, file="Coulomb_v.UP",    form="formatted") !only up
-    do iwf=1,nwf
-      do jwf=1,nwf
-        do kwf=1,nwf
-          do lwf=1,nwf
-            read(ifscrv,"(A,2i5, 3f12.6, 5i5,2f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4, scrv4 !v
-            read(ifscrwv,"(A,2i5, 3f12.6,5i5,4f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4,freq,freq2,scrwc4 !Wc = W -v
-            call checkorb2(iwf,jwf,kwf,lwf,ijklmag)
-            if(w_onsite_dddd) then
-              if(ijklmag.and.all(idorb([iwf,jwf,kwf,lwf])==2)) scrw4(jwf,iwf,lwf,kwf) = scrwc4 + scrv4
-            else
-              if(ijklmag) scrw4(jwf,iwf,lwf,kwf) = scrwc4 + scrv4
-            endif
-          enddo
-        enddo
-      enddo
+    do iwf=1, nwf**4
+      read(ifscrv,"(A,2i5, 3f12.6, 5i5,2f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4, scrv4 !v
+      read(ifscrwv,"(A,2i5, 3f12.6,5i5,4f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4,freq,freq2,scrwc4 !Wc = W -v
+      call checkorb2(iwf1,iwf2,iwf3,iwf4,ijklmag)
+      if(w_onsite_dddd) then
+        if(ijklmag.and.all(idorb([iwf1,iwf2,iwf3,iwf4])==2)) scrw4(iwf1,iwf2,iwf3,iwf4) = scrwc4 + scrv4
+       else
+        if(ijklmag) scrw4(iwf1,iwf2,iwf3,iwf4) = scrwc4 + scrv4
+       endif
     enddo
+    ! do iwf=1,nwf
+    !   do jwf=1,nwf
+    !     do kwf=1,nwf
+    !       do lwf=1,nwf
+    !         read(ifscrv,"(A,2i5, 3f12.6, 5i5,2f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4, scrv4 !v
+    !         read(ifscrwv,"(A,2i5, 3f12.6,5i5,4f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4,freq,freq2,scrwc4 !Wc = W -v
+    !         call checkorb2(iwf,jwf,kwf,lwf,ijklmag)
+    !         if(w_onsite_dddd) then
+    !           if(ijklmag.and.all(idorb([iwf,jwf,kwf,lwf])==2)) scrw4(jwf,iwf,lwf,kwf) = scrwc4 + scrv4
+    !         else
+    !           if(ijklmag) scrw4(jwf,iwf,lwf,kwf) = scrwc4 + scrv4
+    !         endif
+    !       enddo
+    !     enddo
+    !   enddo
+    ! enddo
     if(allocated(scrw)) deallocate(scrw)
     allocate(scrw(nnwf,nnwf))
     if(onsite_approx) then
