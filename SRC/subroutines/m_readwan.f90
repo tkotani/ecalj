@@ -3,7 +3,7 @@ module m_readwan
   use m_keyvalue,only: getkeyvalue
   use m_iqindx_wan,only: iqindx2_wan
   implicit none
-  public:: Write_qdata, Wan_readeigen, Wan_readeval, Wan_readeval2, Readscr, &
+  public:: Write_qdata, Wan_readeigen, Wan_readeval, Wan_readeval2, & !Readscr,
        Checkorb,Checkorb2, Diagwan, Diagwan_tr, Wan_imat, Writehmat, Writeddmat, Read_wandata, &
        tr_mat_onsite, tr_mat_onsite_diag, set_wan_nnwf, set_wan_scrw
   integer, protected, public:: nwf, nsp_w, nqtt_w, nnwf !! read by read_wandata
@@ -322,22 +322,6 @@ contains
         if(ijklmag) scrw4(iwf1,iwf2,iwf3,iwf4) = scrwc4 + scrv4
        endif
     enddo
-    ! do iwf=1,nwf
-    !   do jwf=1,nwf
-    !     do kwf=1,nwf
-    !       do lwf=1,nwf
-    !         read(ifscrv,"(A,2i5, 3f12.6, 5i5,2f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4, scrv4 !v
-    !         read(ifscrwv,"(A,2i5, 3f12.6,5i5,4f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4,freq,freq2,scrwc4 !Wc = W -v
-    !         call checkorb2(iwf,jwf,kwf,lwf,ijklmag)
-    !         if(w_onsite_dddd) then
-    !           if(ijklmag.and.all(idorb([iwf,jwf,kwf,lwf])==2)) scrw4(jwf,iwf,lwf,kwf) = scrwc4 + scrv4
-    !         else
-    !           if(ijklmag) scrw4(jwf,iwf,lwf,kwf) = scrwc4 + scrv4
-    !         endif
-    !       enddo
-    !     enddo
-    !   enddo
-    ! enddo
     if(allocated(scrw)) deallocate(scrw)
     allocate(scrw(nnwf,nnwf))
     if(onsite_approx) then
@@ -391,41 +375,41 @@ contains
       endif
     endblock show_atomic_W
   end subroutine
-  subroutine readscr(nwf,scrw_)
-    intent(in)::     nwf
-    intent(out)::        scrw_
-    integer::nwf,ifscrwv,ifscrv,ir1,irws1
-    character(len=9)::charadummy 
-    real(8)::rws1(3),freq,freq2 !dummy
-    integer::is,iwf1,iwf2,iwf3,iwf4,iwf,jwf,kwf,lwf,ijwf,klwf
-    complex(8),allocatable::scrw4(:,:,:,:),scrv4(:,:,:,:),scrw_(:,:)
-    integer::idummy
-    logical(8)::ijklmag
-    call checkorb(1,nwf,idummy)
-    allocate(scrw4(nwf,nwf,nwf,nwf), scrv4(nwf,nwf,nwf,nwf))
-    allocate(scrw_(nwf*nwf,nwf*nwf),source=(0d0,0d0))
-    open(newunit=ifscrwv,file="Screening_W-v.UP",form="formatted") !only up
-    open(newunit=ifscrv, file="Coulomb_v.UP",    form="formatted") !only up
-    write (6,*) "readscr: wan_ijkl index is wrriten ijkl_*.d"
-    do 4001 iwf=1,nwf
-      do 4002 jwf=1,nwf
-        ijwf=(iwf-1)*nwf +jwf
-        do 4003 kwf=1,nwf
-          do 4004 lwf=1,nwf
-            klwf=(kwf-1)*nwf+lwf 
-            read(ifscrv,"(A,2i5, 3f12.6, 5i5,2f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4,           scrv4(iwf1,iwf2,iwf3,iwf4)
-            read(ifscrwv,"(A,2i5, 3f12.6,5i5,4f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4,freq,freq2,scrw4(iwf1,iwf2,iwf3,iwf4)
-            call checkorb2(iwf,jwf,kwf,lwf,ijklmag)
-            scrw_(ijwf,klwf)=0d0 !onsite dd matrix only
-            if(ijklmag.and.all(idorb([iwf,jwf,kwf,lwf])==2)) scrw_(ijwf,klwf)=scrw4(iwf1,iwf2,iwf3,iwf4)+ scrv4(iwf1,iwf2,iwf3,iwf4)
-4004      enddo
-4003    enddo
-4002  enddo
-4001 enddo
-    close(ifscrv)
-    close(ifscrwv)
-    call writescrw(scrw_) !! display matrix element of Wijkl
-  end subroutine readscr
+!   subroutine readscr(nwf,scrw_)
+!     intent(in)::     nwf
+!     intent(out)::        scrw_
+!     integer::nwf,ifscrwv,ifscrv,ir1,irws1
+!     character(len=9)::charadummy 
+!     real(8)::rws1(3),freq,freq2 !dummy
+!     integer::is,iwf1,iwf2,iwf3,iwf4,iwf,jwf,kwf,lwf,ijwf,klwf
+!     complex(8),allocatable::scrw4(:,:,:,:),scrv4(:,:,:,:),scrw_(:,:)
+!     integer::idummy
+!     logical(8)::ijklmag
+!     call checkorb(1,nwf,idummy)
+!     allocate(scrw4(nwf,nwf,nwf,nwf), scrv4(nwf,nwf,nwf,nwf))
+!     allocate(scrw_(nwf*nwf,nwf*nwf),source=(0d0,0d0))
+!     open(newunit=ifscrwv,file="Screening_W-v.UP",form="formatted") !only up
+!     open(newunit=ifscrv, file="Coulomb_v.UP",    form="formatted") !only up
+!     write (6,*) "readscr: wan_ijkl index is wrriten ijkl_*.d"
+!     do 4001 iwf=1,nwf
+!       do 4002 jwf=1,nwf
+!         ijwf=(iwf-1)*nwf +jwf
+!         do 4003 kwf=1,nwf
+!           do 4004 lwf=1,nwf
+!             klwf=(kwf-1)*nwf+lwf 
+!             read(ifscrv,"(A,2i5, 3f12.6, 5i5,2f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4,           scrv4(iwf1,iwf2,iwf3,iwf4)
+!             read(ifscrwv,"(A,2i5, 3f12.6,5i5,4f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4,freq,freq2,scrw4(iwf1,iwf2,iwf3,iwf4)
+!             call checkorb2(iwf,jwf,kwf,lwf,ijklmag)
+!             scrw_(ijwf,klwf)=0d0 !onsite dd matrix only
+!             if(ijklmag.and.all(idorb([iwf,jwf,kwf,lwf])==2)) scrw_(ijwf,klwf)=scrw4(iwf1,iwf2,iwf3,iwf4)+ scrv4(iwf1,iwf2,iwf3,iwf4)
+! 4004      enddo
+! 4003    enddo
+! 4002  enddo
+! 4001 enddo
+!     close(ifscrv)
+!     close(ifscrwv)
+!     call writescrw(scrw_) !! display matrix element of Wijkl
+!   end subroutine readscr
 !!! identify if iwf is d-orbital or not
 !!! checkorb iwf ---> lorb(1:s, 2:p, 3:d, 4:f, 5:g)
   subroutine checkorb(iwf_in,nwf_in,lorb_out)

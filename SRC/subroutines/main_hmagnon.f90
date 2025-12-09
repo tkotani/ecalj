@@ -2,7 +2,7 @@
 module m_hmagnon 
   contains
 subroutine hmagnon() bind(C)
-  use m_readwan,only: write_qdata, wan_readeval2, readscr, read_wandata, nwf, tr_mat_onsite, tr_mat_onsite_diag, &
+  use m_readwan,only: write_qdata, wan_readeval2, read_wandata, nwf, tr_mat_onsite, tr_mat_onsite_diag, &
                     & set_wan_nnwf, nnwf, set_wan_scrw, scrw, wan_pair_index
   use m_ReadEfermi,only: readefermi
   use m_read_bzdata,only: read_bzdata, nqbz, nqibz, ginv, qbz, qibz, wibz, nstbz, wqt=>wt, q0i, nq0i ,nq0iadd, epslgroup, neps
