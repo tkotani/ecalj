@@ -90,7 +90,7 @@ contains
           allocate( q0i(3,nq0i) )
           q0i = qibz
        else
-          write(6,*)'==== Readin <QforEPS>or<QforEPS> in GWinput === '
+          write(6,*)'==== Readin <QforEPS>or<QforEPSL> in GWinput === '
           call getkeyvalue("GWinput","<QforEPS>", unit=ifinin,status=nq0i00,errstop='off')
           nq0i00 =max(nq0i00,0)
           if(nq0i00>0) close(ifinin)
@@ -135,7 +135,7 @@ contains
              ni = nq0i00
              do il=1, nq0i0
                 do i=1, ndiv(il)
-                   q0i(:,i+ni)= qmin(:,il)+ (qmax(:,il)-qmin(:,il))/ndiv(il) * i
+                   q0i(:,i+ni)= qmin(:,il)+ (qmax(:,il)-qmin(:,il))/(ndiv(il)-1)*(i-1)
                 enddo
                 epslgroup(ni+1:ni+ndiv(il)) = il !!group of QforEPSL
                 ni= ni + ndiv(il)
