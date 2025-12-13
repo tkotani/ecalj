@@ -82,7 +82,7 @@ subroutine hmagnon() bind(C)
   ! W is enforced as on site regardless onsite_approx, onsite_approx specifies whether nnwf is set as onsite or not.
   call getkeyvalue("GWinput","magnon_onsite_approximation",onsite_approx,default=.true.)
   call getkeyvalue("GWinput","magnon_w_onsite_dddd",w_onsite_dddd,default=.true.)
-  call getkeyvalue("GWinput","lHermite",lhm,default=.false.)
+  ! call getkeyvalue("GWinput","lHermite",lhm,default=.false.)
   call getkeyvalue("GWinput","lsvd",lsvd,default=.false.)
   call getkeyvalue("GWinput","nms",nms,default=.false.)  !!! For NiMnSb
   call getkeyvalue("GWinput","nms_delta",nms_delta,default=1d-6)
@@ -95,7 +95,7 @@ subroutine hmagnon() bind(C)
   ! call getkeyvalue("GWinput","cma_wshift",cma_wshift,default=1d-6)
   ! call getkeyvalue("GWinput","cma_iwf_start",cma_iwf_s,default=999)
   ! call getkeyvalue("GWinput","cma_iwf_end"  ,cma_iwf_e,default=999)
-  write(6,*) "lsvd, lhm, nms, nms_delta",lsvd,lhm,nms,nms_delta !,cma_mode
+  ! write(6,*) "lsvd, lhm, nms, nms_delta",lsvd,lhm,nms,nms_delta !,cma_mode
   write(6,*) "negative_cut",negative_cut
 !  write(6,*) "reduce mpi_size for saving memory (default =999) ",size_lim
   if(MPI__root) then
@@ -212,7 +212,7 @@ subroutine hmagnon() bind(C)
     imaximr = imaximr+1      !!! imaximr=1,2,...,mpi__MEq
     if(iq==1.and.sum(q**2)>1d-10) call rx( ' hx0fp0: sanity check. |q(iqx)| /= 0')
     write(6,"('===== do 1001: iq wibz(iq) q=',i6,f13.6,3f9.4,' ========')") iq,q !,wibz(iqlist(iq)),qshort !qq
-    if(lhm) cycle
+    ! if(lhm) cycle
     GETtet: block
       integer, parameter :: is=1, isf=2
       real(8) :: ev_w1(nwf,nqbz), ev_w2(nwf,nqbz)
@@ -321,34 +321,34 @@ subroutine hmagnon() bind(C)
     endblock GETzxq
     if(associated(zxq)) nullify(zxq)
     zxq(1:nnwf,1:nnwf,nw_i:nw) => kmat(1:nnwf,1:nnwf,nw_i:nw)
-    if(lhm) then !Enforce zxq Hermitian 
-      ZxqHermitian: block
-      complex(8), allocatable:: zxq2(:,:,:)
-      allocate(zxq2(nnwf,nnwf,nw_i:nw),source=zxq(1:nnwf,1:nnwf,nw_i:nw))
-      if(onsite_approx) call rx('onsite_approx = .true. is not supported in lhm mode yet.')
-      zxq=0d0
-      ijwf=0
-      do 3006 iwf=1,nwf
-        do 3007 jwf=1,nwf
-          ijwf=ijwf+1
-          klwf=0
-          do 3008 kwf=1,nwf
-            do 3009 lwf=1,nwf
-              klwf=klwf+1
-              if (ijwf == klwf) then
-                zxq(ijwf,ijwf,:)= zxq2(ijwf,ijwf,:)
-              elseif(ijwf>klwf) then             !!! ijwf > klwf
-                zxq(ijwf,klwf,:)=( zxq2(ijwf,klwf,:) + dconjg(zxq2(klwf,ijwf,:)) )/2.0
-                zxq(klwf,ijwf,:)=dconjg( zxq(ijwf,klwf,:) )
-              endif
-3009        enddo
-3008      enddo
-3007    enddo
-3006  enddo
-      ijwf=0; klwf=0
-      deallocate(zxq2)
-      endblock ZxqHermitian
-    endif
+!     if(lhm) then !Enforce zxq Hermitian 
+!       ZxqHermitian: block
+!       complex(8), allocatable:: zxq2(:,:,:)
+!       allocate(zxq2(nnwf,nnwf,nw_i:nw),source=zxq(1:nnwf,1:nnwf,nw_i:nw))
+!       if(onsite_approx) call rx('onsite_approx = .true. is not supported in lhm mode yet.')
+!       zxq=0d0
+!       ijwf=0
+!       do 3006 iwf=1,nwf
+!         do 3007 jwf=1,nwf
+!           ijwf=ijwf+1
+!           klwf=0
+!           do 3008 kwf=1,nwf
+!             do 3009 lwf=1,nwf
+!               klwf=klwf+1
+!               if (ijwf == klwf) then
+!                 zxq(ijwf,ijwf,:)= zxq2(ijwf,ijwf,:)
+!               elseif(ijwf>klwf) then             !!! ijwf > klwf
+!                 zxq(ijwf,klwf,:)=( zxq2(ijwf,klwf,:) + dconjg(zxq2(klwf,ijwf,:)) )/2.0
+!                 zxq(klwf,ijwf,:)=dconjg( zxq(ijwf,klwf,:) )
+!               endif
+! 3009        enddo
+! 3008      enddo
+! 3007    enddo
+! 3006  enddo
+!       ijwf=0; klwf=0
+!       deallocate(zxq2)
+!       endblock ZxqHermitian
+!     endif
     where(abs(dimag(zxq))<1d-15) zxq=dreal(zxq) ! threshold for Im[K] (zxq)
     allocate(wkmat(1:nnwf,1:nnwf), rmat(1:nnwf,1:nnwf)) !WKmatrix, WKmatrix_inv
     GetEta: if (iq==1) then ! (1-eta*WK)

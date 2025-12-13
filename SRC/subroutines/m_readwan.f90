@@ -278,8 +278,8 @@ contains
     else
       mask = [((.TRUE., iwf=1,nwf), jwf=1,nwf)]  !full pair
     endif
-    iwf_list = pack(iwf_list, mask)
-    jwf_list = pack(jwf_list, mask)
+    iwf_list = pack(iwf_list, mask=mask)
+    jwf_list = pack(jwf_list, mask=mask)
     nnwf = size(iwf_list)
     if (allocated(wan_pair_index)) deallocate(wan_pair_index)
     allocate(wan_pair_index(nnwf,2))
@@ -326,8 +326,8 @@ contains
     allocate(scrw(nnwf,nnwf))
     if(onsite_approx) then
       scrw(:,:) = reshape(pack([((((scrw4(iwf1,iwf2,iwf3,iwf4), iwf1=1,nwf), iwf2=1,nwf), iwf3=1,nwf), iwf4=1,nwf)], &
-                            &  [(((((ibaswf(iwf1)==ibaswf(iwf2).and. ibaswf(iwf3)==ibaswf(iwf4)), &
-                            &        iwf1=1,nwf), iwf2=1,nwf), iwf3=1,nwf), iwf4=1,nwf)]), shape=[nnwf,nnwf])
+                        & mask=[(((((ibaswf(iwf1)==ibaswf(iwf2).and. ibaswf(iwf3)==ibaswf(iwf4)), &
+                        &             iwf1=1,nwf), iwf2=1,nwf), iwf3=1,nwf), iwf4=1,nwf)]), shape=[nnwf,nnwf])
     else
       scrw(:,:)=reshape(scrw4, shape=[nnwf,nnwf])
     endif
@@ -362,12 +362,15 @@ contains
             mask_J = [(((wan_pair_index(inwf,1) == wan_pair_index(jnwf,2) .and. &
                        & wan_pair_index(inwf,2) == wan_pair_index(jnwf,1) .and. &
                        & wan_pair_index(inwf,1) /= wan_pair_index(inwf,2)), inwf=1,nnwf), jnwf=1,nnwf)]
-            W_diag_ave = sum(pack(reshape(scrw, [nnwf*nnwf]), mask .and. mask_W_diag))/count(mask .and. mask_W_diag)
-            W_offdiag_ave = sum(pack(reshape(scrw, [nnwf*nnwf]), mask .and. mask_W_offdiag))/count(mask .and. mask_W_offdiag)
-            J_ave = sum(pack(reshape(scrw, [nnwf*nnwf]), mask .and. mask_J))/count(mask .and. mask_J)
+            W_offdiag_ave = 0d0
+            J_ave = 0d0
+            if(count(mask .and. mask_W_diag) > 0) W_diag_ave = sum(pack(reshape(scrw, [nnwf*nnwf]), &
+                                                           & mask=(mask .and. mask_W_diag)))/count(mask .and. mask_W_diag)
+            if(count(mask .and. mask_W_offdiag) > 0) W_offdiag_ave = sum(pack(reshape(scrw, [nnwf*nnwf]), &
+                                                           & mask=(mask .and. mask_W_offdiag)))/count(mask .and. mask_W_offdiag)
+            if(count(mask .and. mask_J) > 0) J_ave = sum(pack(reshape(scrw, [nnwf*nnwf]),&
+                                                           & mask=(mask .and. mask_J)))/count(mask .and. mask_J)
             ! J and offdiagonal W should be zero for s-orbital
-            if(lorb == 0) W_offdiag_ave = 0d0
-            if(lorb == 0) J_ave = 0d0
             write(stdo, '(A,2I3,3F9.4)') "# site lorb W W' J (eV):", iatom, lorb, &
                  & dble(W_diag_ave)*hartree, dble(W_offdiag_ave)*hartree, dble(J_ave)*hartree
           enddo
@@ -598,7 +601,7 @@ contains
       mask = mask .AND. [((wan_pair_site(inwf,1) == site .and. wan_pair_site(jnwf,1) == site, &
                           inwf=1,nnwf), jnwf=1,nnwf)]
     endif
-    trmat = sum(pack(reshape(mat, [nnwf*nnwf]), mask))
+    trmat = sum(pack(reshape(mat, [nnwf*nnwf]), mask=mask))
   end function tr_mat_onsite
   complex(8) function tr_mat_onsite_diag(mat, site) result(trmat)
     integer, intent(in), optional :: site
@@ -613,7 +616,7 @@ contains
       mask = mask .AND. [((wan_pair_site(inwf,1) == site .and. wan_pair_site(jnwf,1) == site, &
                           inwf=1,nnwf), jnwf=1,nnwf)]
     endif
-    trmat = sum(pack(reshape(mat, [nnwf*nnwf]), mask))
+    trmat = sum(pack(reshape(mat, [nnwf*nnwf]), mask=mask))
   end function tr_mat_onsite_diag
   !---------------------------------------
 !!! extract zmat(ijwf,klwf) ---> eval_o(nnwf)
