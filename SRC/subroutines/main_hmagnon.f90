@@ -42,6 +42,7 @@ subroutine hmagnon() bind(C)
   logical:: realomega, imagomega, epsmode, wan, nms !, lhm, lsvd
   logical, allocatable :: mpi__task(:)
   character(8):: charext
+  character(len=128) :: msg
   real(8) :: eta
   real(8), parameter :: pi = 4d0*datan(1d0), znorm=-1d0*pi ! normalization of Im[K]:
   logical :: onsite_approx, w_onsite_dddd, geteta, negative_cut, ganmma_only
@@ -59,7 +60,9 @@ subroutine hmagnon() bind(C)
 
   call m_lgunit_init()
   call MPI__Initialize()
-  call MPI__consoleout('hmagnon') ! size_lim for saving memory (avoid swapping)
+  msg ='hmagnon'
+  if(geteta) msg = trim(msg)//'_geteta_mode'
+  call MPI__consoleout(trim(msg))
   call cputid(0)
   realomega = .true.
   imagomega = .false.
@@ -304,10 +307,10 @@ subroutine hmagnon() bind(C)
         istat = zmm(scrw, zxq(:,:,0), wkmat, nnwf, nnwf, nnwf)
         call diagcvuh3(wkmat(:,:),nnwf,eval_wk) !!   eval_wk is complex array because of Non-Hermite WK
         eta = -1d0/maxval(abs(eval_wk))
-        write(6,*) "now eigenvalue abs(WK)",abs(eval_wk(1)),"is inversed"
-        write(6,*) "check eigenvalue Re(WK)",real(eval_wk(1))
-        write(6,*) "check eigenvalue Im(WK)",aimag(eval_wk(1))
-        write(6,*) "wkmat calculated eta:", eta !negative value
+        write(stdo,ftox) "now eigenvalue abs(WK)",abs(eval_wk(1)),"is inversed"
+        write(stdo,ftox) "check eigenvalue Re(WK)",dreal(eval_wk(1))
+        write(stdo,ftox) "check eigenvalue Im(WK)",dimag(eval_wk(1))
+        write(stdo,ftox) "wkmat calculated eta:", eta !negative value
         open(newunit=iunit,file='__EtaMagnon',status='replace',form='formatted',action='write')
         write(iunit,*) eta
         close(iunit)
@@ -384,11 +387,11 @@ subroutine hmagnon() bind(C)
         do iw = nw_i, nw
           www = merge(-freq_r(-iw),freq_r(iw),iw<0)
           omega = www*hartree
-          write(file_tr_kpm_out,"(4f9.5,e14.6,4e17.9)") q(1:3), q_position, omega, k_tr(iw)/hartree, k_diag(iw)/hartree
-          write(file_tr_rpm_out,"(4f9.5,e14.6,4e17.9)") q(1:3), q_position, omega, r_tr(iw)/hartree, r_diag(iw)/hartree
+          write(file_tr_kpm_out, "(4f9.5,e14.6,4e17.9)") q(1:3), q_position, omega, k_tr(iw)/hartree, k_diag(iw)/hartree
+          write(file_tr_rpm_out, "(4f9.5,e14.6,4e17.9)") q(1:3), q_position, omega, r_tr(iw)/hartree, r_diag(iw)/hartree
         enddo
-        write(file_tr_kpm_out,*)
-        write(file_tr_rpm_out,*)
+        write(file_tr_kpm_out, *)
+        write(file_tr_rpm_out, *)
         epslgroup_old = epslgroup(iq)
         q_old = qibze(:,iq)
       enddo
