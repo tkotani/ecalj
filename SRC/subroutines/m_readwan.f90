@@ -331,6 +331,7 @@ contains
     else
       scrw(:,:)=reshape(scrw4, shape=[nnwf,nnwf])
     endif
+    call writescrw(reshape(scrw4, shape=[nwf*nwf,nwf*nwf])) !! display matrix element of Wijkl
     scrw(:,:)=scrw(:,:)/hartree !! Screening W for magnon
     show_atomic_W: block
       use m_mpi,only: MPI__root
@@ -421,7 +422,7 @@ contains
     integer,intent(out) ::lorb_out   ! 2=d-orb
     integer::ifdorb,iiwf,ief,iwf
     if (sw1) then !!initialize
-       print *,"checkorb nwf",nwf_in
+       ! print *,"checkorb nwf",nwf_in
        if ( .NOT. allocated(idorb)) allocate(idorb(nwf_in))
        open(newunit=ifdorb,file="Worb2lorb.d",form="unformatted")
        read(ifdorb) idorb(1:nwf_in)

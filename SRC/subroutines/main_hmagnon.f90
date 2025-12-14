@@ -13,9 +13,9 @@ subroutine hmagnon() bind(C)
   use m_readgwinput, only: ReadGWinputKeys
   use m_lgunit, only: m_lgunit_init, stdo
   use m_dpsion, only: dpsion_init, dpsion_chiq
-  use m_mpi, only: MPI__Initialize, MPI__consoleout, MPI__AllreduceSum
-  use m_mpi, only: MPI__rank, MPI__size, MPI__root ,comm, ipr
-  use m_mpi,only: comm_k, mpi__rank_k, mpi__size_k, mpi__root_k, MPI__SplitXq
+  use m_mpi, only: MPI__Initialize, MPI__consoleout, MPI__SplitXq
+  use m_mpi, only: mpi__rank, mpi__size, mpi__root ,comm, ipr, comm_k, mpi__rank_k, mpi__size_k, mpi__root_k
+  use m_mpiio, only: openm, closem, writem, readm
   use m_blas, only: m_op_C, zmm => zmm_h
   use m_lapack, only: zminv => zminv_h
   use m_mem, only: writemem
@@ -27,22 +27,21 @@ subroutine hmagnon() bind(C)
   !!  dpsion5: calculate real part by the Hilbert transformation from the Im part
   !!  xxx removed--> eibz means extented irreducible brillowin zone scheme by C.Friedlich. (not so efficient in cases).
   integer:: iwf, jwf, inwf, kwf, lwf, ijwf, klwf 
-  integer:: ifchipmz_wan, ifchipmr_wan
-  integer:: iww, iqxini, iqxend, i, iw, iq, kx, ik, istat
+    integer:: file_tr_kpm, file_tr_rpm, file_tr_diag_kpm, file_tr_diag_rpm
+  integer:: iww, iqxini, iqxend, i, iw, iq, kx, ik, istat, nqcalc
   real(8):: q(3), omg2max, wemax, rydberg, hartree
   real(8), parameter:: schi=1d0, ua = 1d0, eta_default =-1d0
   real(8):: nms_delta, www
   real(8), allocatable:: qibze(:,:)
   complex(8), pointer:: zxq(:,:,:) => null()
   complex(8), allocatable, target :: kmat(:,:,:)
-  complex(8), allocatable:: wkmat(:,:), rmat(:,:)
+  complex(8), allocatable:: wkmat(:,:), rmat(:,:), r_tr(:), r_diag(:), k_tr(:), k_diag(:)
   complex(8), parameter :: img=(0d0,1d0)
   complex(8) :: trmat
   complex(8), allocatable::imat(:,:) !unit matrix for 1-WK
   logical:: cmdopt0
-  logical:: realomega, imagomega, epsmode, autogamma, wan, nms !, lhm, lsvd
+  logical:: realomega, imagomega, epsmode, wan, nms !, lhm, lsvd
   logical, allocatable :: mpi__task(:)
-  character(4):: charnum4
   character(8):: charext
   real(8) :: eta
   real(8), parameter :: pi = 4d0*datan(1d0), znorm=-1d0*pi ! normalization of Im[K]:
@@ -67,7 +66,6 @@ subroutine hmagnon() bind(C)
   imagomega = .false.
   epsmode   = .true.
   wan       = .true.
-  autogamma = .true.
   call genallcf_v3(incwfx=0) !!incwfin=0 =>ForX0 for core in GWIN. in module m_genallcf_v3 Readin by genallcf. Set basic data for crystal
   if(nspin < 2) call rx(' hmagnon: nspin<2: not supported. exit.')
   write(6,"(' nqbz nqibz =',2i5)") nqbz,nqibz
@@ -83,11 +81,10 @@ subroutine hmagnon() bind(C)
   call getkeyvalue("GWinput","nms_delta",nms_delta,default=1d-6)
   call getkeyvalue("GWinput","negative_cut",negative_cut,default=.false.)
   write(6,*) "negative_cut",negative_cut
-!  write(6,*) "reduce mpi_size for saving memory (default =999) ",size_lim
 
   SetQvecList: block
     use m_read_bzdata, only: nq0i, q0i, neps
-    if(MPI__root) then
+    if(mpi__root) then
       do i=1,nqbz
         if(i<10 .OR. i>nqbz-10) write(6,"('i qbz=',i8,3f8.4)") i,qbz(:,i)
         if(i==10 .AND. nqbz>18) write(6,"('... ')")
@@ -112,7 +109,7 @@ subroutine hmagnon() bind(C)
   endblock SetQvecList
 
   SetMPI_Rankdivider: block
-    integer :: n_bpara, n_kpara, worker_inQtask, nqcalc
+    integer :: n_bpara, n_kpara, worker_inQtask
     integer, allocatable :: mpi__ranktab(:)
     logical:: cmdopt2
     character(20):: outs
@@ -167,11 +164,17 @@ subroutine hmagnon() bind(C)
     endblock
   endif ReadEta
 
+  SetTemporaryFiles: if(.not. geteta) then
+    istat = openm(newunit=file_tr_kpm, file='__TrKpm', recl=(nw-nw_i+1)*16)
+    istat = openm(newunit=file_tr_rpm, file='__TrRpm', recl=(nw-nw_i+1)*16)
+    istat = openm(newunit=file_tr_diag_kpm, file='__TrDiagKpm', recl=(nw-nw_i+1)*16)
+    istat = openm(newunit=file_tr_diag_rpm, file='__TrDiagRpm', recl=(nw-nw_i+1)*16)
+  endif SetTemporaryFiles
+
   allocate(imat(1:nnwf,1:nnwf),source=(0d0,0d0))
   forall(iwf=1:nnwf) imat(iwf,iwf)=1d0+img*merge(nms_delta,0d0,nms) !identical matrix
   allocate(kmat(1:nnwf,1:nnwf,(1-npm)*nwhis:nwhis))
   BIGiqloop: do iq = iqxini,iqxend
-!   if(MPI__rank > size_lim) cycle !reduce mpi-size for test (skip 21-32)
     if(.NOT. MPI__task(iq)) cycle BIGiqloop
     q = qibze(:,iq)
     write(6,"('===== do : iq wibz(iq) q=',i6,f13.6,3f9.4,' ========')") iq,q !,wibz(iqlist(iq)),qshort !qq
@@ -285,19 +288,19 @@ subroutine hmagnon() bind(C)
         call dpsion_init(realomega, imagomega, .false.)
         call dpsion_chiq(realomega, imagomega, .false., kmat, zxqi, nnwf, nnwf, schi, 1, 1d99) !! Inplace routine: kmat is overwritten by zxq
       endif
-      ! call dpsion5( realomega, imagomega, kmat, nnwf,nnwf, zxq, zxqi,.false., schi,1,1d99,1d99)  !! kmat ---> zxq
     endblock GETzxq
 
     if(geteta .and. (.not. mpi__root_k)) exit BIGiqloop
     if(.not. mpi__root_k) cycle BIGiqloop
-    !Below lines are executed only by root of mpi__rank_k
 
+    !Below lines are executed only by root of mpi__rank_k
     call writemem('hmagnon start getting R')
     if(associated(zxq)) nullify(zxq)
     zxq(1:nnwf,1:nnwf,nw_i:nw) => kmat(1:nnwf,1:nnwf,nw_i:nw)
     where(abs(dimag(zxq))<1d-15) zxq=dreal(zxq) ! threshold for Im[K] (zxq)
     allocate(wkmat(1:nnwf,1:nnwf), rmat(1:nnwf,1:nnwf)) !WKmatrix, WKmatrix_inv
-    IfGetEta: if(geteta) then ! (1-eta*WK)
+
+    IfGetEta: if(geteta) then
       block
         integer :: iunit
         complex(8) ::eval_wk(nnwf)
@@ -312,42 +315,97 @@ subroutine hmagnon() bind(C)
         write(iunit,*) eta
         close(iunit)
         open(newunit=iunit, file='Kpmdiag_q0.dat', status='replace', action='write')
-        write(iunit,ftox) "# iw omega[H] Tr[K]/znorm Tr[K_diag]/znorm"
+        write(iunit,ftox) "# iw omega(eV) Tr K/znorm TrdiagK/znorm"
         do iw = nw_i,nw
           www = merge(-freq_r(-iw),freq_r(iw),iw<0)
-          write(iunit,"(f9.4,2x,4e17.9)") www*2d0, hartree*tr_mat_onsite(zxq(:,:,iw))/znorm, &
-                                                 & hartree*tr_mat_onsite_diag(zxq(:,:,iw))/znorm
+          write(iunit,"(e14.6,4e17.9)") www/hartree, hartree*tr_mat_onsite(zxq(:,:,iw))/znorm, &
+                                      & hartree*tr_mat_onsite_diag(zxq(:,:,iw))/znorm
         enddo
         close(iunit)
       endblock
       exit Bigiqloop
     endif IfGetEta
 
-    open(newunit=ifchipmz_wan,file="wan_ChiPMz.mat"//charnum4(iq))
-    open(newunit=ifchipmr_wan,file="wan_ChiPMr.mat"//charnum4(iq))
-    print *,'ifchipm=',ifchipmz_wan,ifchipmr_wan
-    write(ifchipmz_wan,*) "# syml: ",epslgroup(iq)," "
-    write(ifchipmr_wan,*) "# syml: ",epslgroup(iq)," "
+    allocate(r_tr(nw_i:nw), r_diag(nw_i:nw), k_tr(nw_i:nw), k_diag(nw_i:nw))
     iwloop: do iw = nw_i,nw
       www = merge(-freq_r(-iw),freq_r(iw),iw<0)
       istat = zmm(scrw, zxq(:,:,iw), wkmat, nnwf, nnwf, nnwf, alpha=dcmplx(eta,0d0)) !wkmat = etaWK
       wkmat(1:nnwf,1:nnwf) = imat(1:nnwf,1:nnwf) - wkmat(1:nnwf,1:nnwf) ! wkamt = 1 - etaWK
       istat = zminv(wkmat, n=nnwf) ! wkmat = (1- eta WK)^-1
       istat = zmm(zxq(:,:,iw), wkmat, rmat, nnwf, nnwf, nnwf) !rmat = K (1-eta WK)^-1
-      trmat = tr_mat_onsite(rmat)
-      write(ifchipmz_wan,"(3f9.4,i6,E13.4,2x,4E17.9)") q,iw,www*2d0,hartree*tr_mat_onsite(zxq(:,:,iw))/(znorm), &
-                                                             & hartree*tr_mat_onsite_diag(zxq(:,:,iw))/(znorm)
-      write(ifchipmr_wan,"(3f9.4,i6,E12.4,x,4E12.4)")q,iw,www*2d0,hartree*trmat, hartree*tr_mat_onsite_diag(rmat)
+      k_tr(iw) = tr_mat_onsite(zxq(:,:,iw))/znorm
+      r_tr(iw) = tr_mat_onsite(rmat)
+      k_diag(iw) = tr_mat_onsite_diag(zxq(:,:,iw))/znorm
+      r_diag(iw) = tr_mat_onsite_diag(rmat)
     enddo iwloop
+
+    istat = writem(file_tr_kpm, rec=iq, data=k_tr(nw_i:nw))
+    istat = writem(file_tr_rpm, rec=iq, data=r_tr(nw_i:nw))
+    istat = writem(file_tr_diag_kpm, rec=iq, data=k_diag(nw_i:nw))
+    istat = writem(file_tr_diag_rpm, rec=iq, data=r_diag(nw_i:nw))
     deallocate(rmat, wkmat)
-    write(ifchipmz_wan,*)
-    write(ifchipmr_wan,*)
-    close(ifchipmz_wan)
-    close(ifchipmr_wan)
+    deallocate(r_tr, r_diag, k_tr, k_diag)
     call writemem('hmagnon end iq'//trim(charext(iq)))
   enddo BIGiqloop
-  call cputid(0)   !      call MPI__Finalize
-  write(6,"('eta for 1-eta*WK:',f13.8)") eta
+
+  if(geteta) call rx0( ' OK! hmagnon get eta')
+  call mpi_barrier(comm, istat)
+
+  write(stdo,"('eta for 1-eta*WK:',f13.8)") eta
+  ReformatOutputFiles:if(mpi__root) then
+    block
+      integer :: epslgroup_old, recl, file_tr_kpm_out, file_tr_rpm_out
+      character(128):: filename_kmat, filename_rmat
+      character(3) :: charnum3
+      real(8) :: q_old(3), q_position, dq, omega
+      logical :: opened
+      allocate(r_tr(nw_i:nw), r_diag(nw_i:nw), k_tr(nw_i:nw), k_diag(nw_i:nw))
+      recl = (nw-nw_i+1)*16
+      epslgroup_old = -1 !epslgroup starts from 1
+      q_old(:) = qibze(:,1)
+      q_position = 0d0
+      do iq=1, nqcalc
+        if(epslgroup(iq) /= epslgroup_old) then
+          inquire(unit=file_tr_kpm_out, opened=opened)
+          if(opened) close(file_tr_kpm_out)
+          inquire(unit=file_tr_rpm_out, opened=opened)
+          if(opened) close(file_tr_rpm_out)
+          filename_kmat = 'TrKpm.syml'//charnum3(epslgroup(iq))
+          filename_rmat = 'TrRpm.syml'//charnum3(epslgroup(iq))
+          open(newunit=file_tr_kpm_out, file=filename_kmat, status='replace', form='formatted', action='write')
+          open(newunit=file_tr_rpm_out, file=filename_rmat, status='replace', form='formatted', action='write')
+          write(file_tr_kpm_out, '(A)')' # qx qy qz q_pos omega(eV) Real_Tr_K/eV Imag_Tr_K/eV Real_Tr_Diag K/eV Imag_Tr_Diag K/eV'
+          write(file_tr_rpm_out, '(A)')' # qx qy qz q_pos omega(eV) Real_Tr_R/eV Imag_Tr_R/eV Real_Tr_Diag R/eV Imag_Tr_Diag R/eV'
+        endif
+        q(:) = qibze(:,iq)
+        istat = readm(file_tr_kpm,rec=iq, data=k_tr(:))
+        istat = readm(file_tr_rpm,rec=iq, data=r_tr(:))
+        istat = readm(file_tr_diag_kpm,rec=iq, data=k_diag(:))
+        istat = readm(file_tr_diag_rpm,rec=iq, data=r_diag(:))
+        dq = sqrt(sum((q(:)-q_old(:))**2))
+        q_position = q_position + dq
+        do  iw = nw_i,nw
+          www = merge(-freq_r(-iw),freq_r(iw),iw<0)
+          omega = www/hartree
+          write(file_tr_kpm_out,"(4f9.5,e14.6,4e17.9)") q(1:3), q_position, omega, hartree*k_tr(iw), hartree*k_diag(iw)
+          write(file_tr_rpm_out,"(4f9.5,e14.6,4e17.9)") q(1:3), q_position, omega, hartree*r_tr(iw), hartree*r_diag(iw)
+        enddo
+        write(file_tr_kpm_out,*)
+        write(file_tr_rpm_out,*)
+        epslgroup_old = epslgroup(iq)
+        q_old = qibze(:,iq)
+      enddo
+      inquire(unit=file_tr_kpm_out, opened=opened)
+      if(opened) close(file_tr_kpm_out)
+      inquire(unit=file_tr_rpm_out, opened=opened)
+      if(opened) close(file_tr_rpm_out)
+      deallocate(r_tr, r_diag, k_tr, k_diag)
+    endblock
+  endif ReformatOutputFiles
+  istat = closem(file_tr_kpm)
+  istat = closem(file_tr_rpm)
+  istat = closem(file_tr_diag_kpm)
+  istat = closem(file_tr_diag_rpm)
   call rx0( ' OK! hmagnon mode')
 END subroutine hmagnon
 end module m_hmagnon

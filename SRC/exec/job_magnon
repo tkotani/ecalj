@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+import os
+import argparse
+from run_arg import run_arg
+
+def main(args, extra_args):
+    nfpgw = os.path.dirname(os.path.abspath(__file__))
+    TARGET = args.extension
+    MPI_SIZE = args.np
+    NO_MPI = 1
+    print(f"### START K+- R+-: MPI size= {MPI_SIZE}, TARGET= {TARGET}")
+    run_arg('---', NO_MPI, nfpgw, '/qg4gw', 'lqg4gw02', '--job=40001', *extra_args)
+    run_arg('---', MPI_SIZE, nfpgw, '/hmagnon', 'lhmagnon_eta', '--geteta', *extra_args)
+    run_arg('---', MPI_SIZE, nfpgw, '/hmagnon', 'lhmagnon', *extra_args)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        prog='magnon',
+        description=(
+            'Magnon dispersion calculation using onsite approximation.\n'
+            'genMLWF_vw should be run before this to generate the necessary files.\n'
+            'output files: TrKpm.symlXXX (XXX=001 ~)'
+            '              TrRpm.symlXXX (XXX=001 ~)'
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument("extension", help='Extension of the ctrl file')
+    parser.add_argument("-np",       help='Number of MPI cores for lmf', default=8, type=int)
+    args, extra_args = parser.parse_known_args()
+    main(args, extra_args)
