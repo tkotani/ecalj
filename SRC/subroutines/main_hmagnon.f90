@@ -5,7 +5,7 @@ subroutine hmagnon() bind(C)
   use m_readwan,only: wan_readeval2, read_wandata, nwf, tr_mat_onsite, tr_mat_onsite_diag, &
                     & set_wan_nnwf, nnwf, set_wan_scrw, scrw, wan_pair_index
   use m_ReadEfermi, only: readefermi
-  use m_read_bzdata, only: read_bzdata, nqbz, nqibz, qbz, qibz, wibz, nstbz, wqt=>wt, epslgroup
+  use m_read_bzdata, only: read_bzdata, nqbz, nqibz, qbz, qibz, wqt=>wt, epslgroup
   use m_genallcf_v3, only: genallcf_v3, nspin
   use m_keyvalue, only: getkeyvalue
   use m_freq, only: getfreq, freq_r, nwhis, nw_i, nw, npm
@@ -27,7 +27,7 @@ subroutine hmagnon() bind(C)
   !!  dpsion5: calculate real part by the Hilbert transformation from the Im part
   !!  xxx removed--> eibz means extented irreducible brillowin zone scheme by C.Friedlich. (not so efficient in cases).
   integer:: iwf, jwf, inwf, kwf, lwf, ijwf, klwf 
-    integer:: file_tr_kpm, file_tr_rpm, file_tr_diag_kpm, file_tr_diag_rpm
+  integer:: file_tr_kpm, file_tr_rpm, file_tr_diag_kpm, file_tr_diag_rpm
   integer:: iww, iqxini, iqxend, i, iw, iq, kx, ik, istat, nqcalc
   real(8):: q(3), omg2max, wemax, rydberg, hartree
   real(8), parameter:: schi=1d0, ua = 1d0, eta_default =-1d0
@@ -37,7 +37,6 @@ subroutine hmagnon() bind(C)
   complex(8), allocatable, target :: kmat(:,:,:)
   complex(8), allocatable:: wkmat(:,:), rmat(:,:), r_tr(:), r_diag(:), k_tr(:), k_diag(:)
   complex(8), parameter :: img=(0d0,1d0)
-  complex(8) :: trmat
   complex(8), allocatable::imat(:,:) !unit matrix for 1-WK
   logical:: cmdopt0
   logical:: realomega, imagomega, epsmode, wan, nms !, lhm, lsvd
@@ -276,17 +275,15 @@ subroutine hmagnon() bind(C)
       call writemem('hmagnon start dpsion')
       mpi_k_accumulate: block
         use m_mpi,only: MPI__reduceSum
-        if(mpi__size_k > 1) then
-          do jpm=1, npm
-            do iw=1, nwhis
-              call MPI__reduceSum(0, kmat(1,1,iw*(3-2*jpm)), nnwf*nnwf, communicator = comm_k)
-            enddo
+        do jpm=1, npm
+          do iw=1, nwhis
+            call MPI__reduceSum(0, kmat(1,1,iw*(3-2*jpm)), nnwf*nnwf, communicator=comm_k)
           enddo
-        endif
+        enddo
       end block mpi_k_accumulate
       if(mpi__root_k) then
         call dpsion_init(realomega, imagomega, .false.)
-        call dpsion_chiq(realomega, imagomega, .false., kmat, zxqi, nnwf, nnwf, schi, 1, 1d99) !! Inplace routine: kmat is overwritten by zxq
+        call dpsion_chiq(realomega, imagomega, .false., kmat, zxqi, nnwf, nnwf, schi, 1, 1d99) !Inplace routine: kmat is overwritten by zxq
       endif
     endblock GETzxq
 
@@ -297,7 +294,7 @@ subroutine hmagnon() bind(C)
     call writemem('hmagnon start getting R')
     if(associated(zxq)) nullify(zxq)
     zxq(1:nnwf,1:nnwf,nw_i:nw) => kmat(1:nnwf,1:nnwf,nw_i:nw)
-    where(abs(dimag(zxq))<1d-15) zxq=dreal(zxq) ! threshold for Im[K] (zxq)
+    where(abs(dimag(zxq))<1d-15) zxq = dreal(zxq) ! threshold for Im[K] (zxq)
     allocate(wkmat(1:nnwf,1:nnwf), rmat(1:nnwf,1:nnwf)) !WKmatrix, WKmatrix_inv
 
     IfGetEta: if(geteta) then
@@ -378,13 +375,13 @@ subroutine hmagnon() bind(C)
           write(file_tr_rpm_out, '(A)')' # qx qy qz q_pos omega(eV) Real_Tr_R/eV Imag_Tr_R/eV Real_Tr_Diag R/eV Imag_Tr_Diag R/eV'
         endif
         q(:) = qibze(:,iq)
-        istat = readm(file_tr_kpm,rec=iq, data=k_tr(:))
-        istat = readm(file_tr_rpm,rec=iq, data=r_tr(:))
-        istat = readm(file_tr_diag_kpm,rec=iq, data=k_diag(:))
-        istat = readm(file_tr_diag_rpm,rec=iq, data=r_diag(:))
+        istat = readm(file_tr_kpm, rec=iq, data=k_tr(:))
+        istat = readm(file_tr_rpm, rec=iq, data=r_tr(:))
+        istat = readm(file_tr_diag_kpm, rec=iq, data=k_diag(:))
+        istat = readm(file_tr_diag_rpm, rec=iq, data=r_diag(:))
         dq = sqrt(sum((q(:)-q_old(:))**2))
         q_position = q_position + dq
-        do  iw = nw_i,nw
+        do iw = nw_i, nw
           www = merge(-freq_r(-iw),freq_r(iw),iw<0)
           omega = www*hartree
           write(file_tr_kpm_out,"(4f9.5,e14.6,4e17.9)") q(1:3), q_position, omega, k_tr(iw)/hartree, k_diag(iw)/hartree
