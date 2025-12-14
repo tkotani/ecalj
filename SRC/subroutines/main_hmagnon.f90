@@ -178,7 +178,7 @@ subroutine hmagnon() bind(C)
     if(.NOT. MPI__task(iq)) cycle BIGiqloop
     q = qibze(:,iq)
     write(6,"('===== do : iq wibz(iq) q=',i6,f13.6,3f9.4,' ========')") iq,q !,wibz(iqlist(iq)),qshort !qq
-    call writemem('hmagnon start getting gettetwt')
+    call writemem('hmagnon start gettetwt')
     GETtet: block
       integer, parameter :: is=1, isf=2
       integer:: isdummy
@@ -196,7 +196,7 @@ subroutine hmagnon() bind(C)
       !!     : histogram weights for given ib,jb,kx for histogram sections
       !!     from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
     endblock GETtet
-    call writemem('hmagnon start gettetwt Im kmat')
+    call writemem('hmagnon start Im kmat')
     GETzxq: block ! zxq and zxqi are the main output after Hilbert transformation, ! zxqi is not used in hmagnon (imagomega=.false.)
       integer, parameter:: is=1, isf=2
       real(8) :: ev_w1(nwf), ev_w2(nwf) !dummy
@@ -318,8 +318,8 @@ subroutine hmagnon() bind(C)
         write(iunit,ftox) "# iw omega(eV) Tr K/znorm TrdiagK/znorm"
         do iw = nw_i,nw
           www = merge(-freq_r(-iw),freq_r(iw),iw<0)
-          write(iunit,"(e14.6,4e17.9)") www/hartree, hartree*tr_mat_onsite(zxq(:,:,iw))/znorm, &
-                                      & hartree*tr_mat_onsite_diag(zxq(:,:,iw))/znorm
+          write(iunit,"(e14.6,4e17.9)") www*hartree, tr_mat_onsite(zxq(:,:,iw))/hartree/znorm, &
+                                      & hartree*tr_mat_onsite_diag(zxq(:,:,iw))/hartree/znorm
         enddo
         close(iunit)
       endblock
@@ -386,9 +386,9 @@ subroutine hmagnon() bind(C)
         q_position = q_position + dq
         do  iw = nw_i,nw
           www = merge(-freq_r(-iw),freq_r(iw),iw<0)
-          omega = www/hartree
-          write(file_tr_kpm_out,"(4f9.5,e14.6,4e17.9)") q(1:3), q_position, omega, hartree*k_tr(iw), hartree*k_diag(iw)
-          write(file_tr_rpm_out,"(4f9.5,e14.6,4e17.9)") q(1:3), q_position, omega, hartree*r_tr(iw), hartree*r_diag(iw)
+          omega = www*hartree
+          write(file_tr_kpm_out,"(4f9.5,e14.6,4e17.9)") q(1:3), q_position, omega, k_tr(iw)/hartree, k_diag(iw)/hartree
+          write(file_tr_rpm_out,"(4f9.5,e14.6,4e17.9)") q(1:3), q_position, omega, r_tr(iw)/hartree, r_diag(iw)/hartree
         enddo
         write(file_tr_kpm_out,*)
         write(file_tr_rpm_out,*)
