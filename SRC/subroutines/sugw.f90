@@ -196,7 +196,8 @@ contains
 1150 enddo ibmain
 !    if(wanatom) close(ifigwa)
     call rdata1init(ncores,ndima,ncoremx,konf0,gval,gcore) ! Write refined mesh and indexes to m_rdata1
-    ECOREwrite:block
+    ECOREwrite:if (master_mpi) then
+      block
       real(8),external::rydberg
       write(stdo,ftox)" === Write ECORE === "
       open(newunit=ifec, file='ECORE')
@@ -216,7 +217,8 @@ contains
         enddo
       enddo ibasloopc
       close(ifec)
-    endblock ECOREwrite
+      endblock
+    endif ECOREwrite
     if(cmdopt0('--quitecore')) then
       call tcx('m_sugw_init')
       return
