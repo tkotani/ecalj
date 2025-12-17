@@ -362,7 +362,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
         use m_blas, only: zmm => zmm_h, m_op_C, m_op_T
         complex(8) :: zvz_ir(nwf,nwf,nwf,nwf), cc(ngb,nwf,nwf)
         real(8) :: vc_kx(ngb)
-        integer :: istat
+        integer :: istat, iwf, jwf
         allocate(zmelc(ngb,nwf,nwf,nrws2))
         do ir2=1, nrws2
           zmel = dcmplx (rmelt3(:,:,:,ir2),cmelt3(:,:,:,ir2)) !<psi_itp|psi_it B>   B=M~ basis
@@ -373,8 +373,9 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
         if(kx==iqini) vc_kx(1)= wklm(1)* fpi*sqrt(fpi) /wk(kx) !kx right?
         do ir3=1, nrws2
           do ir2=1, nrws2
-            forall(it=1:nwf, itp=1:nwf) cc(1:ngb,it,itp) = vc_kx(1:ngb)*zmelc(1:ngb,it,itp,ir3) !
-            istat = zmm(zmelc(:,:,:,ir2), cc, zvz_ir, nwf*nwf, nwf*nwf, ngb, opA=m_op_C)  !sum_I <E_I psi_it|psi_itp>_R2 vc_I <psi_itp2|psi_it2 E_I>_R3
+            forall(it=1:nwf, itp=1:nwf) cc(1:ngb,it,itp) = vc_kx(1:ngb)*dconjg(zmelc(1:ngb,it,itp,ir3)) !
+            istat = zmm(zmelc(:,:,:,ir2), cc, zvz_ir, nwf*nwf, nwf*nwf, ngb, opA=m_op_T)  !sum_I <E_I psi_it|psi_itp>_R2 vc_I <psi_itp2|psi_it2 E_I>_R3
+            forall(iwf=1:nwf, jwf=1:nwf) zvz_ir(:,:,iwf,jwf) = transpose(zvz_ir(:,:,iwf,jwf)) !zvz_ir(itp1, it1, it2, itp2) order
             do ir1=1,nrws1
               ir = ir1 + (ir2-1 + (ir3-1)*nrws2)*nrws1
               rw_w(:,:,:,:,ir,0) = rw_w(:,:,:,:,ir,0) + dreal(zvz_ir(:,:,:,:)*weightc(ir1))
@@ -464,7 +465,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
             do ir2=1,nrws2
               istat = zmm(zw, zmelc(:,:,:,ir3), cc, ngb, nwf*nwf, ngb, lda=nblochpmx)
               istat = zmm(zmelc(:,:,:,ir2), cc, zw2, nwf*nwf, nwf*nwf, ngb, opA=m_op_C)    !zw2 (it1, itp1, it2, itp2) order
-              forall(iwf=1:nwf, jwf=1:nwf) zw2(:,:,iwf,jwf) = transpose(zw2(:,:,iwf,jwf))  !zw2 (itp1, itp, it2, itp2) order
+              forall(iwf=1:nwf, jwf=1:nwf) zw2(:,:,iwf,jwf) = transpose(zw2(:,:,iwf,jwf))  !zw2 (itp1, it1, it2, itp2) order
               do ir1=1,nrws1
                 ir = ir1 + (ir2-1 + (ir3-1)*nrws2)*nrws1
                 rw_iw(:,:,:,:,ir,ix) = rw_iw(:,:,:,:,ir,ix) + dreal(zw2(:,:,:,:) * weightc(ir1))

@@ -54,7 +54,7 @@ contains
     integer,allocatable :: ndiv(:)
     real(8),allocatable:: qsave(:,:),   qmin(:,:),qmax(:,:)
     real(8),allocatable:: qany(:,:)
-    logical:: ibzqq,lnq0iadd,unita,cmdopt0
+    logical:: ibzqq,lnq0iadd,unita,cmdopt0,qepsl_inc_left
     integer:: dummyia(1,1),k
     real(8),parameter:: pi=4d0* atan(1d0)
     real(8):: tpioa
@@ -84,6 +84,7 @@ contains
        call getkeyvalue("GWinput","QforEPSunita",unita,default=.false.)
        call getkeyvalue("GWinput","QforEPSau",   unita,default=unita)
        call getkeyvalue("GWinput","QforEPSIBZ",ibzqq,default=.false.)
+       call getkeyvalue("GWinput", "QforEPSLIncLeft", qepsl_inc_left, default=.false.)
        if(ibzqq) then
           write(6,*)'=== Find QforEPSIBZ=on === '
           nq0i= nqibz
@@ -108,7 +109,7 @@ contains
           else
              nq0i = nq0i00
           endif
-          if(nq0i <=0) call rx( 'There are neither <QforEPS> nor <QforEPS>.')
+          if(nq0i <=0) call rx( 'There are neither <QforEPS> nor <QforEPSL>.')
           allocate(epslgroup(nq0i))
           epslgroup=0
           allocate( q0i(3,nq0i) )
@@ -135,7 +136,11 @@ contains
              ni = nq0i00
              do il=1, nq0i0
                 do i=1, ndiv(il)
-                   q0i(:,i+ni)= qmin(:,il)+ (qmax(:,il)-qmin(:,il))/(ndiv(il)-1)*(i-1)
+                  if(qepsl_inc_left) then
+                    q0i(:,i+ni)= qmin(:,il)+ (qmax(:,il)-qmin(:,il))/(ndiv(il)-1)*(i-1)
+                  else
+                    q0i(:,i+ni)= qmin(:,il)+ (qmax(:,il)-qmin(:,il))/(ndiv(il))*(i)
+                  endif
                 enddo
                 epslgroup(ni+1:ni+ndiv(il)) = il !!group of QforEPSL
                 ni= ni + ndiv(il)

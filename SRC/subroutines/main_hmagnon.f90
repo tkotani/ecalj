@@ -5,7 +5,7 @@ subroutine hmagnon() bind(C)
   use m_readwan,only: wan_readeval2, read_wandata, nwf, tr_mat_onsite, tr_mat_onsite_diag, &
                     & set_wan_nnwf, nnwf, set_wan_scrw, scrw, wan_pair_index
   use m_ReadEfermi, only: readefermi
-  use m_read_bzdata, only: read_bzdata, nqbz, nqibz, qbz, qibz, wqt=>wt, epslgroup
+  use m_read_bzdata, only: read_bzdata, nqbz, nqibz, qbz, wqt=>wt, epslgroup, nq0i, q0i, neps
   use m_genallcf_v3, only: genallcf_v3, nspin
   use m_keyvalue, only: getkeyvalue
   use m_freq, only: getfreq, freq_r, nwhis, nw_i, nw, npm
@@ -70,7 +70,6 @@ subroutine hmagnon() bind(C)
   wan       = .true.
   call genallcf_v3(incwfx=0) !!incwfin=0 =>ForX0 for core in GWIN. in module m_genallcf_v3 Readin by genallcf. Set basic data for crystal
   if(nspin < 2) call rx(' hmagnon: nspin<2: not supported. exit.')
-  write(6,"(' nqbz nqibz =',2i5)") nqbz,nqibz
   !! Prof.Naraga said " write(6,*)'Timereversal=',Timereversal()" here caused a stop in ifort ver.1x.x. Why? May be a compilar bug, and fixed now.
   !! Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
   !! Read Bzdata; See use m_read_bzdata,only:... at the beginning of this routine.
@@ -85,13 +84,12 @@ subroutine hmagnon() bind(C)
   write(6,*) "negative_cut",negative_cut
 
   SetQvecList: block
-    use m_read_bzdata, only: nq0i, q0i, neps
     if(mpi__root) then
       do i=1,nqbz
         if(i<10 .OR. i>nqbz-10) write(6,"('i qbz=',i8,3f8.4)") i,qbz(:,i)
         if(i==10 .AND. nqbz>18) write(6,"('... ')")
       enddo
-      write(6,*)' !!nqbz nqibz =',nqbz,nqibz
+      write(6,*)' !!nqbz nqibz =',nqbz, nqibz
     endif
     if(ganmma_only) then
       allocate(qibze(3,1), source = 0d0)
@@ -296,7 +294,7 @@ subroutine hmagnon() bind(C)
     !Below lines are executed only by root of mpi__rank_k
     call writemem('hmagnon start getting R')
     if(associated(zxq)) nullify(zxq)
-    zxq(1:nnwf,1:nnwf,nw_i:nw) => kmat(1:nnwf,1:nnwf,nw_i:nw)
+    zxq(1:,1:,nw_i:) => kmat(1:nnwf,1:nnwf,nw_i:nw)
     where(abs(dimag(zxq))<1d-15) zxq = dreal(zxq) ! threshold for Im[K] (zxq)
     allocate(wkmat(1:nnwf,1:nnwf), rmat(1:nnwf,1:nnwf)) !WKmatrix, WKmatrix_inv
 
@@ -328,7 +326,6 @@ subroutine hmagnon() bind(C)
 
     allocate(r_tr(nw_i:nw), r_diag(nw_i:nw), k_tr(nw_i:nw), k_diag(nw_i:nw))
     iwloop: do iw = nw_i,nw
-      www = merge(-freq_r(-iw),freq_r(iw),iw<0)
       istat = zmm(scrw, zxq(:,:,iw), wkmat, nnwf, nnwf, nnwf, alpha=dcmplx(eta,0d0)) !wkmat = etaWK
       wkmat(1:nnwf,1:nnwf) = imat(1:nnwf,1:nnwf) - wkmat(1:nnwf,1:nnwf) ! wkamt = 1 - etaWK
       istat = zminv(wkmat, n=nnwf) ! wkmat = (1- eta WK)^-1
@@ -354,18 +351,19 @@ subroutine hmagnon() bind(C)
   write(stdo,"('eta for 1-eta*WK:',f13.8)") eta
   ReformatOutputFiles:if(mpi__root) then
     block
-      integer :: epslgroup_old, recl, file_tr_kpm_out, file_tr_rpm_out
+      integer :: epslgroup_old, file_tr_kpm_out, file_tr_rpm_out
       character(128):: filename_kmat, filename_rmat
       character(3) :: charnum3
       real(8) :: q_old(3), q_position, dq, omega
       logical :: opened
       allocate(r_tr(nw_i:nw), r_diag(nw_i:nw), k_tr(nw_i:nw), k_diag(nw_i:nw))
-      recl = (nw-nw_i+1)*16
       epslgroup_old = -1 !epslgroup starts from 1
       q_old(:) = qibze(:,1)
       q_position = 0d0
       do iq=1, nqcalc
+        q(:) = qibze(:,iq)
         if(epslgroup(iq) /= epslgroup_old) then
+          if(any(q_old(:) /= q(:))) q_old(:) = q(:) + ([0.05d0, 0d0, 0d0])
           inquire(unit=file_tr_kpm_out, opened=opened)
           if(opened) close(file_tr_kpm_out)
           inquire(unit=file_tr_rpm_out, opened=opened)
@@ -374,10 +372,9 @@ subroutine hmagnon() bind(C)
           filename_rmat = 'TrRpm.syml'//charnum3(epslgroup(iq))
           open(newunit=file_tr_kpm_out, file=filename_kmat, status='replace', form='formatted', action='write')
           open(newunit=file_tr_rpm_out, file=filename_rmat, status='replace', form='formatted', action='write')
-          write(file_tr_kpm_out, '(A)')' # qx qy qz q_pos omega(eV) Real_Tr_K/eV Imag_Tr_K/eV Real_Tr_Diag K/eV Imag_Tr_Diag K/eV'
-          write(file_tr_rpm_out, '(A)')' # qx qy qz q_pos omega(eV) Real_Tr_R/eV Imag_Tr_R/eV Real_Tr_Diag R/eV Imag_Tr_Diag R/eV'
+          write(file_tr_kpm_out, '(A)')' # qx qy qz q_pos omega(eV) Real_Tr_K/eV Imag_Tr_K/eV Real_Tr_Diag_K/eV Imag_Tr_Diag_K/eV'
+          write(file_tr_rpm_out, '(A)')' # qx qy qz q_pos omega(eV) Real_Tr_R/eV Imag_Tr_R/eV Real_Tr_Diag_R/eV Imag_Tr_Diag_R/eV'
         endif
-        q(:) = qibze(:,iq)
         istat = readm(file_tr_kpm, rec=iq, data=k_tr(:))
         istat = readm(file_tr_rpm, rec=iq, data=r_tr(:))
         istat = readm(file_tr_diag_kpm, rec=iq, data=k_diag(:))
@@ -393,7 +390,7 @@ subroutine hmagnon() bind(C)
         write(file_tr_kpm_out, *)
         write(file_tr_rpm_out, *)
         epslgroup_old = epslgroup(iq)
-        q_old = qibze(:,iq)
+        q_old = q(:)
       enddo
       inquire(unit=file_tr_kpm_out, opened=opened)
       if(opened) close(file_tr_kpm_out)

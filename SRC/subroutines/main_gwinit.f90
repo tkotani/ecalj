@@ -295,10 +295,10 @@ subroutine gwinit_v2() bind(C) !  Generate GWinput.tmp.
   write(ifi,"(a)") ' 0 0 0.00200'
   write(ifi,"(a)") '</QforEPS>'
   
-  !write(ifi,"(a)") '!<QforEPSL>'
-  !write(ifi,"(a)") '! 0d0 0d0 0d0   1d0   0d0  0d0 8'
-  !write(ifi,"(a)") '! 0d0 0d0 0d0  .5d0  .5d0  0d0 8'
-  !write(ifi,"(a)") '!</QforEPSL>'
+  ! write(ifi,"(a)") '!QforEPSLIncLeft on !Include left edge of QforEPSL: default off'
+  ! write(ifi,"(a)") '!<QforEPSL>'
+  ! write(ifi,"(a)") '! 0d0 0d0 0d0   1d0   0d0  0d0 20'
+  ! write(ifi,"(a)") '!</QforEPSL>'
   
   write(ifi,*)
   write(ifi,*)'!######### q for diagonal Sigma=GW mode. gw_lmfh ##############'
