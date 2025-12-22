@@ -2,20 +2,73 @@
 import os
 import argparse
 import glob as glob
+import shutil
 from run_arg import run_arg
 
-def main(args, extra_args):
+def cal_magnon(args, extra_args):
     nfpgw = os.path.dirname(os.path.abspath(__file__))
     TARGET = args.extension
     MPI_SIZE = args.np
     NO_MPI = 1
     print(f"### START K+- R+-: MPI size= {MPI_SIZE}, TARGET= {TARGET}")
     run_arg('---', NO_MPI, nfpgw, '/qg4gw', 'lqg4gw02', '--job=40001', *extra_args)
-    run_arg('---', MPI_SIZE, nfpgw, '/hmagnon', 'lhmagnon_eta', '--geteta', *extra_args)
-    run_arg('---', MPI_SIZE, nfpgw, '/hmagnon', 'lhmagnon', *extra_args)
+    run_arg('---', MPI_SIZE, nfpgw, '/hmagnon', 'lhmagnon_eta', '--geteta', f"--Wtype={args.Wtype}", *extra_args)
+    run_arg('---', MPI_SIZE, nfpgw, '/hmagnon', 'lhmagnon', f"--Wtype={args.Wtype}", *extra_args)
     os.makedirs('STDOUT', exist_ok=True)
     for f in glob.glob('stdout*'):
         os.replace(f, os.path.join('STDOUT', os.path.basename(f)))
+
+def cal_lmf(args, extra_args):
+    nfpgw = os.path.dirname(os.path.abspath(__file__))
+    TARGET = args.extension
+    MPI_SIZE = args.np
+    NO_MPI = 1
+    run_arg('---', NO_MPI, nfpgw, '/lmfa', 'llmfa', TARGET, *extra_args)
+    run_arg('---', MPI_SIZE, nfpgw, '/lmf', 'llmf', TARGET, *extra_args)
+
+def merge_files(pattern, output_file, remove_sources=True):
+    files = sorted(glob.glob(pattern))
+    files = [f for f in files if os.path.abspath(f) != os.path.abspath(output_file)]
+    if not files:
+        return
+    with open(output_file, "wb") as wfd:
+        for f in files:
+            with open(f, "rb") as fd:
+                shutil.copyfileobj(fd, wfd)
+            if remove_sources:
+                os.remove(f)
+
+def cal_MLWFvw(args, extra_args):
+    nfpgw = os.path.dirname(os.path.abspath(__file__))
+    MATERIAL = args.extension
+    MPI_SIZE = args.np
+    NO_MPI = 0
+    run_arg('---', NO_MPI, nfpgw, '/lmf', 'llmfgw00', MATERIAL, '--jobgw=0', *extra_args)
+    run_arg('---', NO_MPI, nfpgw, '/qg4gw', 'lqg4gw', '--job=1', *extra_args)
+    run_arg('---', MPI_SIZE, nfpgw, '/lmf', 'llmfgw01', MATERIAL, '--jobgw=1', *extra_args)
+    run_arg('---', NO_MPI, nfpgw, '/heftet', 'leftet', '--job=1', *extra_args)
+    run_arg('---', NO_MPI, nfpgw, '/hbasfp0', 'lbas', '--job=0', *extra_args)
+    run_arg('1', NO_MPI, nfpgw, '/hmaxloc', 'lmaxloc1', *extra_args)
+    run_arg('1', MPI_SIZE, nfpgw, '/hpsig_MPI', 'lpsig_MPI', *extra_args)
+    # Gather PSIGU
+    merge_files(pattern="PSIGU.????", output_file="PSIGU")
+    merge_files(pattern="PSIGD.????", output_file="PSIGD")
+    run_arg('2', MPI_SIZE, nfpgw, '/huumat_MPI', 'luumat2', *extra_args)
+    # Gather UUU
+    merge_files(pattern="UUU.????", output_file="UUU")
+    merge_files(pattern="UUD.????", output_file="UUD")
+    run_arg('2', NO_MPI, nfpgw, '/hmaxloc', 'lmaxloc2', *extra_args)
+    # UUmatrix for Q0P
+    run_arg('3', MPI_SIZE, nfpgw, '/huumat_MPI', 'luumat3', *extra_args)
+    merge_files(pattern="UUq0U.????", output_file="UUq0U")
+    merge_files(pattern="UUq0D.????", output_file="UUq0D")
+
+    run_arg('10011', NO_MPI, nfpgw, '/hwmatK_MPI', 'lpkm4crpa', *extra_args)
+    run_arg('0', MPI_SIZE, nfpgw, '/hvccfp0', 'lvcc', *extra_args)
+    run_arg('11', MPI_SIZE, nfpgw, '/hwmatK_MPI', 'lwmatK1', '--spinflip', '--getW_up_down', '--getW_down_up', *extra_args)
+    run_arg('111', MPI_SIZE, nfpgw, '/hx0fp0', 'lx0_111', *extra_args)
+    run_arg('12', MPI_SIZE, nfpgw, '/hwmatK_MPI', 'lwmatK2', '--spinflip', '--getW_up_down', '--getW_down_up', *extra_args)
+    print("OK! It's finished well.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -30,6 +83,12 @@ if __name__ == "__main__":
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("extension", help='Extension of the ctrl file') #extension is dummy. just to have similar interface with other scripts
-    parser.add_argument("-np",       help='Number of MPI cores for lmf', default=8, type=int)
+    parser.add_argument("-np",           help='Number of MPI cores for lmf', default=8, type=int)
+    parser.add_argument("--Wtype",       help='Wtype: up, down, up_down, or, down_up', default='down_up', type=str)
+    parser.add_argument("--skip_MLWFvw", help='Skip generation of MLWF and W', default=False, type=bool)
     args, extra_args = parser.parse_known_args()
-    main(args, extra_args)
+    if not args.skip_MLWFvw:
+        cal_lmf(args, extra_args)
+        cal_MLWFvw(args, extra_args)
+
+    cal_magnon(args, extra_args)
