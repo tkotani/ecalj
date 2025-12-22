@@ -2,6 +2,8 @@
 module m_readwan 
   use m_keyvalue,only: getkeyvalue
   use m_iqindx_wan,only: iqindx2_wan
+  use m_lgunit,only: stdo
+  use m_ftox
   implicit none
   public:: Write_qdata, Wan_readeigen, Wan_readeval, Wan_readeval2, & !Readscr,
        Checkorb,Checkorb2, Diagwan, Diagwan_tr, Wan_imat, Writehmat, Writeddmat, Read_wandata, &
@@ -296,8 +298,9 @@ contains
       wan_pair_lorb(ijwf,2) =  idorb(wan_pair_index(ijwf,2))
    enddo
   end subroutine set_wan_nnwf
-  subroutine set_wan_scrw(onsite_approx, w_onsite_dddd)
+  subroutine set_wan_scrw(onsite_approx, w_onsite_dddd, Wtype)
     logical, intent(in) :: onsite_approx, w_onsite_dddd
+    character(len=*), intent(in) :: Wtype
     integer:: ifscrwv, ifscrv, iwf, jwf, kwf, lwf
     character(len=9)::charadummy 
     real(8)::rws1(3),freq,freq2 !dummy
@@ -310,8 +313,26 @@ contains
     hartree  = 2d0*rydberg()
     call checkorb(1,nwf,idummy)
     allocate( scrw4(nwf,nwf,nwf,nwf), source = (0d0,0d0))
-    open(newunit=ifscrwv,file="Screening_W-v.UP",form="formatted") !only up
-    open(newunit=ifscrv, file="Coulomb_v.UP",    form="formatted") !only up
+    select case (trim(adjustl(wtype)))
+      case ("up")
+        write(stdo,ftox) "set_wan_scrw: read Wup"
+        open(newunit=ifscrwv,file="Screening_W-v.UP",form="formatted") !only up
+        open(newunit=ifscrv, file="Coulomb_v.UP",    form="formatted") !only up
+      case ("down")
+        write(stdo,ftox) "set_wan_scrw: read Wdn"
+        open(newunit=ifscrwv,file="Screening_W-v.DN",form="formatted") !only up
+        open(newunit=ifscrv, file="Coulomb_v.DN",    form="formatted") !only up
+      case ("up_down")
+        write(stdo,ftox) "set_wan_scrw: read Wupdn"
+        open(newunit=ifscrwv,file="Screening_W-v.UPDN",form="formatted") !only updw
+        open(newunit=ifscrv, file="Coulomb_v.UPDN",    form="formatted") !only updw
+      case ("down_up")
+        write(stdo,ftox) "set_wan_scrw: read Wdnup"
+        open(newunit=ifscrwv,file="Screening_W-v.DNUP",form="formatted") !only updw
+        open(newunit=ifscrv, file="Coulomb_v.DNUP",    form="formatted") !only updw
+      case default
+        call rx("set_wan_scrw: Unknown Wtype")
+    endselect
     do iwf=1, nwf**4
       read(ifscrv,"(A,2i5, 3f12.6, 5i5,2f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4, scrv4 !v
       read(ifscrwv,"(A,2i5, 3f12.6,5i5,4f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4,freq,freq2,scrwc4 !Wc = W -v
@@ -335,7 +356,6 @@ contains
     scrw(:,:)=scrw(:,:)/hartree !! Screening W for magnon
     show_atomic_W: block
       use m_mpi,only: MPI__root
-      use m_lgunit,only: stdo
       logical, allocatable :: mask(:), mask_onsite(:), mask_lorb(:), mask_W_diag(:), mask_W_offdiag(:), mask_J(:)
       integer, parameter :: lmax = 3 ! for output
       integer :: iatom, lorb, inwf, jnwf

@@ -44,6 +44,7 @@ subroutine hmagnon() bind(C)
   character(8):: charext
   character(len=128) :: msg
   real(8) :: eta
+  integer, parameter :: is=1, isf=2  !K_down up = Kpm
   real(8), parameter :: pi = 4d0*datan(1d0), znorm=-1d0*pi ! normalization of Im[K]:
   logical :: onsite_approx, w_onsite_dddd, geteta, negative_cut, ganmma_only
 !!! q on symline
@@ -141,9 +142,13 @@ subroutine hmagnon() bind(C)
   call readefermi() !!! ef:     Fermi energy at 0 K
 
   SetWannierAndScreendCoulombData: block
+    logical :: cmdopt2
+    character(20):: Wtype, opts
     call read_wandata()    ! nwf, nsp_w,nqtt_w ! --- okumura Read dimensions of hamiltonian_wannier, spin, nqtt
     call set_wan_nnwf(onsite_approx) !set nnwf ~ # of RiRj (onsite_approx = .true.), RiR'j (onsite_approx = .flase. ), wan_pair_index
-    call set_wan_scrw(onsite_approx, w_onsite_dddd) !set scrw
+    Wtype = 'up' !options: up, down, up_down, down_up
+    if(cmdopt2('--Wtype=', opts)) Wtype = trim(opts)
+    call set_wan_scrw(onsite_approx, w_onsite_dddd, Wtype=Wtype) !set scrw
     if(mpi__root) write(stdo,ftox) '# nwf, nnwf:', nwf, nnwf
   endblock SetWannierAndScreendCoulombData
 
@@ -180,7 +185,6 @@ subroutine hmagnon() bind(C)
     write(6,"('===== do : iq wibz(iq) q=',i6,f13.6,3f9.4,' ========')") iq,q !,wibz(iqlist(iq)),qshort !qq
     call writemem('hmagnon start gettetwt')
     GETtet: block
-      integer, parameter :: is=1, isf=2
       integer:: isdummy
       real(8) :: ev_w1(nwf,nqbz), ev_w2(nwf,nqbz)
       complex(8):: evc_w1(nwf,nwf), evc_w2(nwf,nwf)
@@ -198,7 +202,6 @@ subroutine hmagnon() bind(C)
     endblock GETtet
     call writemem('hmagnon start Im kmat')
     GETzxq: block ! zxq and zxqi are the main output after Hilbert transformation, ! zxqi is not used in hmagnon (imagomega=.false.)
-      integer, parameter:: is=1, isf=2
       real(8) :: ev_w1(nwf), ev_w2(nwf) !dummy
       complex(8) :: zxqi(1,1,1), evc_w1(nwf,nwf), evc_w2(nwf,nwf)
       integer, allocatable :: nttp(:),  itw(:,:), itpw(:,:)
