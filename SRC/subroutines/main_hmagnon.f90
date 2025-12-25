@@ -48,6 +48,7 @@ subroutine hmagnon() bind(C)
   real(8), parameter :: pi = 4d0*datan(1d0), znorm=-1d0*pi ! normalization of Im[K]:
   logical, parameter :: nnwf_size_reduction = .true.
   logical :: w_onsite_dddd, geteta, negative_cut, ganmma_only
+  logical :: gettetwt_split
 !!! q on symline
   
   ! MO cma mode is commented out 2025-12-06. cma mode is no longer maintained. For CMA mode, use old version
@@ -117,6 +118,7 @@ subroutine hmagnon() bind(C)
     n_kpara = max(mpi__size/(n_bpara*nqcalc), 1)  !Default setting of parallelization. b-parallel is 1.
     if(cmdopt2('--nk=', outs)) read(outs,*) n_kpara
     worker_inQtask = n_bpara * n_kpara
+    gettetwt_split = n_kpara > 2
     write(stdo,ftox) 'MPI: worker_inQtask', worker_inQtask
     allocate(mpi__ranktab(iqxini:iqxend), source=[(mod(iq-1,mpi__size/worker_inQtask)*worker_inQtask           ,iq=iqxini,iqxend)])
     allocate(mpi__task(iqxini:iqxend),    source=[(mod(iq-1,mpi__size/worker_inQtask)==mpi__rank/worker_inQtask,iq=iqxini,iqxend)])
@@ -181,36 +183,40 @@ subroutine hmagnon() bind(C)
     if(.NOT. MPI__task(iq)) cycle BIGiqloop
     q = qibze(:,iq)
     write(6,"('===== do : iq wibz(iq) q=',i6,f13.6,3f9.4,' ========')") iq,q !,wibz(iqlist(iq)),qshort !qq
-    call writemem('hmagnon start gettetwt')
-    GETtet: block
-      integer:: isdummy
-      real(8) :: ev_w1(nwf,nqbz), ev_w2(nwf,nqbz)
-      complex(8):: evc_w1(nwf,nwf), evc_w2(nwf,nwf)
-      readeigen: do kx=1,nqbz      !!! ev_w1, ev_w2 unit: [Ry]
-        call wan_readeval2(  qbz(:,kx), is,  ev_w1(1:nwf,kx), evc_w1) !eigenvalue eigenfunciton
-        call wan_readeval2(q+qbz(:,kx), isf, ev_w2(1:nwf,kx), evc_w2)
-      enddo readeigen
-      call gettetwt(q,iq,isdummy,isdummy,ev_w1,ev_w2,nwf,wan) !! tetrahedron weight. iq is dummy index
-      !!     ihw(ibjb,kx): omega index, to specify the section of the histogram., ibjb=1,nbnb
-      !!     nhw(ibjb,kx): the number of histogram sections
-      !!     jhw(ibjb,kx): pointer to whw
-      !!     whw( jhw(ibjb,kx) ) \to whw( jhw(ibjb,kx) + nhw(ibjb),kx)-1 ), where ibjb=ibjb(ib,jb,kx)
-      !!     : histogram weights for given ib,jb,kx for histogram sections
-      !!     from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
-    endblock GETtet
-    call writemem('hmagnon start Im kmat')
     GETzxq: block ! zxq and zxqi are the main output after Hilbert transformation, ! zxqi is not used in hmagnon (imagomega=.false.)
-      real(8) :: ev_w1(nwf), ev_w2(nwf) !dummy
+      use m_mpi,only: MPI__AllreduceSumReal
+      real(8) :: evkx_w1(nwf), evkx_w2(nwf) !dummy
       complex(8) :: zxqi(1,1,1), evc_w1(nwf,nwf), evc_w2(nwf,nwf)
       integer, allocatable :: nttp(:),  itw(:,:), itpw(:,:)
       integer :: nttp_max, ittp, jpm, it, itp, ibib
-      real(8), allocatable :: whwc(:,:)
+      real(8), allocatable :: whwc(:,:), ev_w1(:,:), ev_w2(:,:)
       complex(8), allocatable :: zw(:,:), wzw(:,:)
+      integer:: isdummy
+      allocate(ev_w1(nwf,nqbz), ev_w2(nwf,nqbz), source=0d0)
+
+      call writemem('hmagnon start gettetwt')
+      readeigen: do kx=1, nqbz      !!! ev_w1, ev_w2 unit: [Ry]
+        if(mod(kx-1, mpi__size_k) /= mpi__rank_k)  cycle readeigen
+        call wan_readeval2(  qbz(:,kx), is,  ev_w1(1:nwf,kx), evc_w1) !eigenvalue eigenfunciton
+        call wan_readeval2(q+qbz(:,kx), isf, ev_w2(1:nwf,kx), evc_w2)
+      enddo readeigen
+      call MPI__AllreduceSumReal(ev_w1, nwf*nqbz, communicator=comm_k)
+      call MPI__AllreduceSumReal(ev_w2, nwf*nqbz, communicator=comm_k)
+      if(.not.gettetwt_split) call gettetwt(q,iq,isdummy,isdummy,ev_w1,ev_w2,nwf,wan) !! tetrahedron weight. iq is dummy index
+        !!     ihw(ibjb,kx): omega index, to specify the section of the histogram., ibjb=1,nbnb
+        !!     nhw(ibjb,kx): the number of histogram sections
+        !!     jhw(ibjb,kx): pointer to whw
+        !!     whw( jhw(ibjb,kx) ) \to whw( jhw(ibjb,kx) + nhw(ibjb),kx)-1 ), where ibjb=ibjb(ib,jb,kx)
+        !!     : histogram weights for given ib,jb,kx for histogram sections
+        !!     from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
+
+      call writemem('hmagnon start Im kmat')
       kmat(:,:,:) = 0d0
       kxloop: do kx=1, nqbz
         if(mod(kx-1, mpi__size_k) /= mpi__rank_k)  cycle kxloop
-        call wan_readeval2(  qbz(:,kx), is,  ev_w1, evc_w1) !eigenvalue eigenfunciton
-        call wan_readeval2(q+qbz(:,kx), isf, ev_w2, evc_w2)
+        if(gettetwt_split) call gettetwt(q,iq,isdummy,isdummy,ev_w1,ev_w2,nwf,wan,ikbz_in=kx,fkbz_in=kx)
+        call wan_readeval2(  qbz(:,kx), is,  evkx_w1, evc_w1) !eigenvalue eigenfunciton
+        call wan_readeval2(q+qbz(:,kx), isf, evkx_w2, evc_w2)
         jpmloop:do jpm=1, npm ! jpm=2: negative frequency
 !           ibibloop: do 2013 ibib=1,nbnb(kx,jpm) !! n,n' pair band index loop
 !             it=n1b(ibib,kx,jpm)  !index for n  for q   ! n1b(ibib,k,jpm) = n :band index for k (occupied),   
@@ -271,9 +277,10 @@ subroutine hmagnon() bind(C)
          enddo
          deallocate(nttp, itw, itpw, whwc, zw, wzw)
         enddo jpmloop
+        if(gettetwt_split) call tetdeallocate()
       enddo kxloop
-      call tetdeallocate()      ! --> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
-      if (negative_cut) kmat(:,:,-nwhis:-1) = 0d0
+      if(.not.gettetwt_split) call tetdeallocate()      ! --> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
+      if(negative_cut) kmat(:,:,-nwhis:-1) = 0d0
       call writemem('hmagnon start dpsion')
       mpi_k_accumulate: block
         use m_mpi,only: MPI__reduceSum
