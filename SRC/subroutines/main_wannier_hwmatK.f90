@@ -7,7 +7,7 @@ subroutine wwmat (is,nw_i,nw,nwf, &
      alat,rcut1,rcut2, &
      freq, &
      rw_w,cw_w,rv_w,cv_w, &
-     lcrpa, lomega0)
+     lcrpa, lomega0, spinflip)
   implicit real*8(a-h,o-z)
   implicit integer (i-n)
   integer :: irws1(nrws1),irws2(nrws2)
@@ -17,6 +17,7 @@ subroutine wwmat (is,nw_i,nw,nwf, &
   real(8) :: rw_w(nwf,nwf,nwf,nwf,nrws,1:nw), cw_w(nwf,nwf,nwf,nwf,nrws,1:nw)  
   integer:: iwf1, iwf2, iwf3, iwf4, ifreq2
   real(8) :: rv_w(nwf,nwf,nwf,nwf,nrws),cv_w(nwf,nwf,nwf,nwf,nrws)
+  logical, intent(in) :: spinflip
   logical:: lcrpa, lomega0
   hartree=2d0*rydberg()
   freq2 = hartree*freq
@@ -24,15 +25,23 @@ subroutine wwmat (is,nw_i,nw,nwf, &
   cw_w  = hartree*cw_w
 
   write(*,*)'Writing Screened Couloumb interaction (W-v) : Real'
-  if ((is==1) .AND. (lcrpa .eqv. .FALSE. )) then
-     open(newunit=ifscr,file="Screening_W-v.UP")
-  else if ((is==2) .AND. (lcrpa .eqv. .FALSE. )) then
-     open(newunit=ifscr,file="Screening_W-v.DN")
-  else if ((is==1) .AND. (lcrpa .eqv. .TRUE. )) then
-     open(newunit=ifscr,file="Screening_W-v_crpa.UP")
-  else if ((is==2) .AND. (lcrpa .eqv. .TRUE. )) then
-     open(newunit=ifscr,file="Screening_W-v_crpa.DN")
-  end if
+  if(spinflip) then
+    if ((is==1) .AND. (lcrpa .eqv. .FALSE. )) then
+       open(newunit=ifscr,file="Screening_W-v.UPDN")
+    else if ((is==2) .AND. (lcrpa .eqv. .FALSE. )) then
+       open(newunit=ifscr,file="Screening_W-v.DNUP")
+    endif
+  else !non-spinflip
+    if ((is==1) .AND. (lcrpa .eqv. .FALSE. )) then
+       open(newunit=ifscr,file="Screening_W-v.UP")
+    else if ((is==2) .AND. (lcrpa .eqv. .FALSE. )) then
+       open(newunit=ifscr,file="Screening_W-v.DN")
+    else if ((is==1) .AND. (lcrpa .eqv. .TRUE. )) then
+       open(newunit=ifscr,file="Screening_W-v_crpa.UP")
+    else if ((is==2) .AND. (lcrpa .eqv. .TRUE. )) then
+       open(newunit=ifscr,file="Screening_W-v_crpa.DN")
+    end if
+  endif
   if (lomega0) then !only omega=0
      nrws1=1
      nw=1
@@ -58,22 +67,28 @@ subroutine wwmat (is,nw_i,nw,nwf, &
   close(ifscr)
   print *, "lcrpa, lomega0 =", lcrpa, lomega0
   print *, "lueff=", lueff
-  if (lcrpa .eqv. .FALSE. ) then
-     write(*,*) 'See "Screening_W-v.UP" and "Screening_W-v.DN" files'
-  else if (lcrpa .eqv. .TRUE. ) then
-     write(*,*) 'See "Screening_W-v_crpa.UP" and "Screening_W-v_crpa.DN" files'
-  end if
+  if(spinflip) then
+    if(is==1) write(*,*) 'See "Screening_W-v.UPDN" file'
+    if(is==2) write(*,*) 'See "Screening_W-v.DNUP" file'
+  else
+    if (lcrpa .eqv. .FALSE. ) then
+       write(*,*) 'See "Screening_W-v.UP" and "Screening_W-v.DN" files'
+    else if (lcrpa .eqv. .TRUE. ) then
+       write(*,*) 'See "Screening_W-v_crpa.UP" and "Screening_W-v_crpa.DN" files'
+    end if
+  endif
 end subroutine wwmat
 subroutine wvmat (is,nwf, &
      rws1,rws2,irws1,irws2,nrws1,nrws2,nrws, &
      alat,rcut1,rcut2,rw_w,cw_w, &
-     lcrpa, lomega0)
+     lcrpa, lomega0, spinflip)
   implicit real*8(a-h,o-z)
   implicit integer (i-n)
   integer :: irws1(nrws1),irws2(nrws2)
   real(8) :: rydberg,hartree
   real(8) :: rws1(3,nrws1),rws2(3,nrws2)
   real(8) :: rw_w(nwf,nwf,nwf,nwf,nrws),cw_w(nwf,nwf,nwf,nwf,nrws)
+  logical, intent(in) :: spinflip
   integer:: iwf1, iwf2, iwf3, iwf4,ir1
   logical:: lcrpa, lomega0
   write(6,*) 'start wvmat'
@@ -82,9 +97,17 @@ subroutine wvmat (is,nwf, &
   cw_w= hartree*cw_w
   write(*,*)'Coulomb interaction (v) : '
   if (is==1) then
-     open(newunit=ifcou,file="Coulomb_v.UP")
+     if(spinflip) then
+       open(newunit=ifcou,file="Coulomb_v.UPDN")
+     else
+       open(newunit=ifcou,file="Coulomb_v.UP")
+     endif
   else if (is==2) then
-     open(newunit=ifcou,file="Coulomb_v.DN")
+     if(spinflip) then
+       open(newunit=ifcou,file="Coulomb_v.DNUP")
+     else
+       open(newunit=ifcou,file="Coulomb_v.DN")
+     endif
   end if
   if (lomega0) then !only omega=0
      nrws1=1
@@ -305,7 +328,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
        wgt0(:,:), &
        ppbrd (:,:,:,:,:,:,:),cgr(:,:,:,:),eqt(:), &
        ppbrdx(:,:,:,:,:,:,:),aaa(:,:),& ! & symope(:,:,:)=symgg, ! qibz(:,:),
-       ppb(:), eq(:), &! & ,pdb(:),dpb(:),ddb(:)
+       ppb(:,:), eq(:), &! & ,pdb(:),dpb(:),ddb(:)
        eqx(:,:,:),eqx0(:,:,:),ekc(:),coh(:,:) &
        , rw_w(:,:,:,:,:,:),cw_w(:,:,:,:,:,:), &
        rw_iw(:,:,:,:,:,:),cw_iw(:,:,:,:,:,:)
@@ -402,6 +425,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   integer:: ierr,procid,master=0,comm,nrank,irr,iqibz
   integer,allocatable::irkall(:,:),irk(:,:)
   logical:: master_mpi
+  logical :: spinflip, cmdopt0, getW_up_down, getW_down_up
 !  include "mpif.h"
   comm= mpi_comm_world
   call mpi_init(ierr)
@@ -430,6 +454,10 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   nz=input3(2)
   idummy=input3(3)
   lomega0=.false.
+  getW_up_down = cmdopt0('--getW_up_down')
+  getW_down_up = cmdopt0('--getW_down_up')
+  if(getW_up_down.or. getW_down_up) spinflip = .true.
+  if(master_mpi) write(6,*) ' spinflip option =', spinflip
   if (ixc==11) then
      ixc=1
      lomega0=.true.
@@ -687,7 +715,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   allocate( pomatr(nnmx,nomx,nkpo), qrr(3,nkpo),nor(nkpo),nnr(nkpo) )
   nlnx4    = nlnx**4
   niwx     = max0 (nw,niw)
-  allocate( ppb(nlnmx*nlnmx*mdimx*natom),  eq(nband), &
+  allocate( ppb(nlnmx*nlnmx*mdimx*natom,nspin),  eq(nband), &
        kount(nqibz), &
        rw_w(nwf,nwf,nwf,nwf,nrws,0:nrw), &
        cw_w(nwf,nwf,nwf,nwf,nrws,0:nrw), &
@@ -745,6 +773,8 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   if (master_mpi) write(6,*) "RS: loop over spin --"
   ! loop over spin ----------------------------------------------------
   spinloop: do 2000 is = 1,nspinmx
+    if(is == 1 .and. spinflip .and. (.not.getW_up_down) ) cycle
+    if(is == 2 .and. spinflip .and. (.not.getW_down_up) ) cycle
      write(6,*)' ssssss spinloop',is,nspinmx
      ! initialise secq and kount
      kount = 0
@@ -768,7 +798,8 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
         ! rotate atomic positions invrot*R = R' + T         !        invr       = invrot (irot,invg,ngrp)
         invr     = invg(irot)
         ! -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
-        call ppbafp_v2 (irot,ngrp,is,mdimx,lx,nx,nxx,cgr,nl-1,ppbrd, ppb)
+        call ppbafp_v2 (irot,ngrp,is,mdimx,lx,nx,nxx,cgr,nl-1,ppbrd, ppb(1,is))
+        if(spinflip) call ppbafp_v2 (irot,ngrp,3-is,mdimx,lx,nx,nxx,cgr,nl-1,ppbrd, ppb(1,3-is))
         nctot0=0
 !        write(*,*) 'wmatq in',irot_local,nrot_local_rotk
         shtv = matmul(symgg(:,:,irot),shtvg(:,invr))
@@ -783,7 +814,8 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
              nblochpmx,ngpmx,ngcmx, &
              wgt0,wqt,nq0i,q0i, symgg(:,:,irot),alat, &
              shtv,nband, & !ifvcfpout, &
-             exchange, pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, nwf,  rw_w,cw_w,rw_iw,cw_iw) ! acuumulation variable
+             exchange, pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, nwf,  rw_w,cw_w,rw_iw,cw_iw, &
+             spinflip) ! acuumulation variable
         
 !        write(*,*) 'wmatq out',irot_local,nrot_local_rotk
 1000 enddo rotloop
@@ -808,7 +840,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
         if (exchange) then
            call wvmat (is,nwf, &
                 rws1,rws2,irws1,irws2,nrws1,nrws2,nrws, &
-                alat,rcut1,rcut2,rw_w(:,:,:,:,:,0),cw_w(:,:,:,:,:,0), lcrpa, lomega0)
+                alat,rcut1,rcut2,rw_w(:,:,:,:,:,0),cw_w(:,:,:,:,:,0), lcrpa, lomega0, spinflip)
            rv_w = rw_w(:,:,:,:,:,0)
            cv_w = cw_w(:,:,:,:,:,0)
         else
@@ -817,7 +849,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
                 alat,rcut1,rcut2, &
                 freq_r(0:nrw), &
                 rw_w,cw_w,rv_w,cv_w, &
-                lcrpa, lomega0)
+                lcrpa, lomega0, spinflip)
         endif
      endif
 2000 enddo spinloop

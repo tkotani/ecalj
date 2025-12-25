@@ -12,7 +12,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
      nlnmx,mdimx,nbloch,ngrp,nw_i,nw,nrw,niw,niwx,nq, &
      nblochpmx ,ngpmx,ngcmx, &! & ngveccBr,!Jan2004
      wgt0,wqt,nq0i,q0i,symope,alat, shtv,nband, &! ifvcfpout, &
-     exchange, pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, nwf,  rw_w,cw_w,rw_iw,cw_iw)
+     exchange, pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, nwf,  rw_w,cw_w,rw_iw,cw_iw, spinflip)
   use m_zmel_old,only: drvmelp3
   use m_ftox
   use m_readqg,only: readqg0
@@ -39,12 +39,12 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   integer:: ngpmx, ngcmx,  igc, nadd(3)
   real(8) :: wgt0(nq0i,ngrp),wqt(nq0i),qk(3), qbasinv(3,3),qdiff(3),add(3),symope(3,3), &
        qxx(3),q0i(1:3,1:nq0i),shtv(3),alat, & !,ecore(nctot), &
-       ppb(1) !pdb(1),dpb(1),ddb(1)
+       ppb(nlnmx*nlnmx*mdimx*natom,nsp) !pdb(1),dpb(1),ddb(1)
   real(8),allocatable:: rmelt(:,:,:),cmelt(:,:,:), rmelt2(:,:,:),cmelt2(:,:,:), &
-       rmelt3(:,:,:,:),cmelt3(:,:,:,:)
+       rmelt3(:,:,:,:,:),cmelt3(:,:,:,:,:)
   complex(8),allocatable :: zz(:),zmel(:,:,:),zzmel(:,:,:), &
        zw (:,:), zwz(:,:,:), zwz0(:,:),zwzi(:,:),zwz00(:,:), &
-       zmelt(:,:,:),zmelc(:,:,:,:),zmelcc(:,:,:,:)
+       zmelt(:,:,:),zmelc(:,:,:,:,:),zmelcc(:,:,:,:)
   logical :: exchange,screen,cohtest,tote
   real(8),allocatable:: &
        w1p(:,:,:),w2p(:,:,:)
@@ -135,6 +135,8 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   complex(8)::w3p
   integer:: mrecl,nprecx,nwordr,il
   integer :: kx_local
+  logical, intent(in) :: spinflip
+  integer :: is, isp1, isp2
   debug=.false.
   if(verbose()>=90) debug= .TRUE. 
    write(6,ftox)' nnnnnnnnnn wmatqk_mpi: nrws nrws1 nrws2       ',nrws,nrws1,nrws2
@@ -163,6 +165,8 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
        call getkeyvalue("GWinput","NoQ0P",noq0p,default= .FALSE. )
   if(noq0p)write(*,*)'noq0p mode'
   if(noq0p) iqend=nqibz
+  isp1 = isp
+  isp2 = merge(3 - isp, isp, spinflip) !spinflip case, isp2 is opposite spin of isp1
   kxloop: do 1100 kx=1,nqibz !kx_local = 1,nk_local_rotk(irot)
     !     kx = ik_index_rotk(irot,kx_local)
     !     write(6,*) ' kkkkk sxcf: kkkkk goto loop kx=',kx
@@ -238,16 +242,18 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
 
     !! ===================================================================
     write(6,*)'nnnnnnnnnnnn at 735',ngb,nwf,nrws2,sum(abs(expiqR1))
-    allocate( rmelt3(ngb,nwf,nwf,nrws2),cmelt3(ngb,nwf,nwf,nrws2))
+    allocate( rmelt3(ngb,nwf,nwf,nrws2,nsp),cmelt3(ngb,nwf,nwf,nrws2,nsp))
     !     write(6,*)'nnnnnnnnnnnn at ssss'
     rmelt3 = 0d0
     cmelt3 = 0d0
     !! loop over FBZ
+    do is = 1,nsp
+    if(.not. spinflip .and. is/=isp) cycle
     do iq = 1,nqbz
       q(:) = qbz(:,iq)
-      call readcphiW (qbz(:,iq), nlmto,isp, quu, cphiq)
+      call readcphiW (qbz(:,iq), nlmto,is, quu, cphiq)
       qk =  q - qbz_kr          ! qbz(:,kr)
-      call  readcphiW(qk, nlmto,isp, quu, cphikq)
+      call  readcphiW(qk, nlmto,is, quu, cphikq)
       do ia = 1,natom
         expikt(ia) = exp(img*tpi* sum(qibz_k*tr(:,ia)) ) !  write(6,'(" phase ",i3,2d12.4)')ia,expikt(ia)
       end do
@@ -262,7 +268,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
            dreal(expikt(1:natom)),dimag(expikt(1:natom)), &
            cphikq,      &        ! & rbkq,cbkq,rhbkq,chbkq, !  q-rk nko
            cphiq,            &   ! & rbq,cbq,rhbq,chbq,     !  q    nko
-           ppb,              &   ! & pdb,dpb,ddb,
+           ppb(:,is),              &   ! & pdb,dpb,ddb,
            nlnmv,nlnmc,mdim,nctot, &
            imdim,iatomp, &
            mdimx,nlmto,nbloch,nlnmx, nband, nt,ntp0, &
@@ -275,7 +281,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
       call drvmelp3( q,   ntp0, &! &  q in FBZ  q,itp
            q-qbz_kr, nbmax,  &! &  q-rk,it
            qibz_k,           &! &  k in IBZ for e-product basis
-           isp,ginv, &
+           is,ginv, &
            ngc,ngcmx,ngpmx,nband,itq, &
            symope, shtv, qbas, qbasinv,qibz,qbz,nqbz,nqibz, &
            dreal(zzmel), dimag(zzmel), nbloch, nt,nctot, &
@@ -285,10 +291,11 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
       if(debug) write(6,"('sum of rmelt cmelt=',4d23.16)") sum(zmelt)
       do ir2=1,nrws2
         expiqR2 = exp( img*tpi* sum(q(:)*rws2(:,ir2)))
-        rmelt3(:,:,:,ir2) = rmelt3(:,:,:,ir2) + wk(iq) * dreal(zmelt(:,:,:)*expiqR2)
-        cmelt3(:,:,:,ir2) = cmelt3(:,:,:,ir2) + wk(iq) * dimag(zmelt(:,:,:)*expiqR2)
+        rmelt3(:,:,:,ir2,is) = rmelt3(:,:,:,ir2,is) + wk(iq) * dreal(zmelt(:,:,:)*expiqR2)
+        cmelt3(:,:,:,ir2,is) = cmelt3(:,:,:,ir2,is) + wk(iq) * dimag(zmelt(:,:,:)*expiqR2)
       enddo  ! ir2
       deallocate(zmelt)
+    enddo
     enddo
     !! ===================================================================
 
@@ -363,19 +370,23 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
         complex(8) :: zvz_ir(nwf,nwf,nwf,nwf), cc(ngb,nwf,nwf)
         real(8) :: vc_kx(ngb)
         integer :: istat, iwf, jwf
-        allocate(zmelc(ngb,nwf,nwf,nrws2))
+        allocate(zmelc(ngb,nwf,nwf,nrws2,nsp))
+        do is=1, nsp
+        if(.not. spinflip .and. is/=isp) cycle
         do ir2=1, nrws2
-          zmel = dcmplx (rmelt3(:,:,:,ir2),cmelt3(:,:,:,ir2)) !<psi_itp|psi_it B>   B=M~ basis
-          istat = zmm(ppovlz, zmel, zmelc(:,:,:,ir2), ngb, nwf*nwf, ngb, opA=m_op_T) ! E basis  <psi_itp |psi_it E_I>
+          zmel = dcmplx (rmelt3(:,:,:,ir2,is),cmelt3(:,:,:,ir2,is)) !<psi_itp|psi_it B>   B=M~ basis
+          istat = zmm(ppovlz, zmel, zmelc(:,:,:,ir2,is), ngb, nwf*nwf, ngb, opA=m_op_T) ! E basis  <psi_itp |psi_it E_I>
+        enddo
         enddo
         ! zmelc(:,:,:,:) = dconjg(zmelc(:,:,:,:)) ! <E_I psi_it | psi_itp> ????
         vc_kx(1:ngb) = vcoud(1:ngb)
         if(kx==iqini) vc_kx(1)= wklm(1)* fpi*sqrt(fpi) /wk(kx) !kx right?
         do ir3=1, nrws2
           do ir2=1, nrws2
-            forall(it=1:nwf, itp=1:nwf) cc(1:ngb,it,itp) = vc_kx(1:ngb)*dconjg(zmelc(1:ngb,it,itp,ir3)) !
-            istat = zmm(zmelc(:,:,:,ir2), cc, zvz_ir, nwf*nwf, nwf*nwf, ngb, opA=m_op_T)  !sum_I <E_I psi_it|psi_itp>_R2 vc_I <psi_itp2|psi_it2 E_I>_R3
-            forall(iwf=1:nwf, jwf=1:nwf) zvz_ir(:,:,iwf,jwf) = transpose(zvz_ir(:,:,iwf,jwf)) !zvz_ir(itp1, it1, it2, itp2) order
+            forall(it=1:nwf, itp=1:nwf) cc(1:ngb,it,itp) = vc_kx(1:ngb)*dconjg(zmelc(1:ngb,it,itp,ir3,isp2)) !
+            istat = zmm(zmelc(:,:,:,ir2,isp1), cc, zvz_ir, nwf*nwf, nwf*nwf, ngb, opA=m_op_T)  !sum_I <E_I psi_it|psi_itp>_R2 vc_I <psi_itp2|psi_it2 E_I>_R3
+            ! forall(iwf=1:nwf, jwf=1:nwf) zvz_ir(:,:,iwf,jwf) = transpose(zvz_ir(:,:,iwf,jwf)) !zvz_ir(itp1, it1, it2, itp2) order
+            zvz_ir = reshape(zvz_ir, shape(zvz_ir), order=[1,3,2,4])
             do ir1=1,nrws1
               ir = ir1 + (ir2-1 + (ir3-1)*nrws2)*nrws1
               rw_w(:,:,:,:,ir,0) = rw_w(:,:,:,:,ir,0) + dreal(zvz_ir(:,:,:,:)*weightc(ir1))
@@ -403,16 +414,19 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
       !!--- The matrix elements zmelc.
       !! zmelc  = < E(rk,j) psi(q-rk,it) | psi(q,itp) >
       !! E basis is ghe Christoph's basis diagonalize the Coulomb inteaction
-      allocate( zmelc (ngb, nwf, nwf,nrws2),zmelcc (ngb, nwf, nwf,nrws2), &
+      allocate( zmelc (ngb, nwf, nwf,nrws2, nsp),zmelcc (ngb, nwf, nwf,nrws2), &
            zw (nblochpmx,nblochpmx), &
            zw2(nwf,nwf,nwf,nwf) )
-      zmelcc = dcmplx (rmelt3,-cmelt3) !zmelcc = < B(rk,j) psi(q-rk,it) | psi(q,itp) >
+      do is = 1 ,nsp
+      if(.not. spinflip .and. is/=isp) cycle
+      zmelcc = dcmplx (rmelt3(:,:,:,:,is),-cmelt3(:,:,:,:,is)) !zmelcc = < B(rk,j) psi(q-rk,it) | psi(q,itp) >
       do it =1,nwf
         do itp=1,nwf
           do ir2=1,nrws2
-            zmelc(:,it,itp,ir2) =  matmul(zmelcc(:,it,itp,ir2),dconjg(ppovlz(:,:)))
+            zmelc(:,it,itp,ir2,is) =  matmul(zmelcc(:,it,itp,ir2),dconjg(ppovlz(:,:)))
           enddo
         enddo
+      enddo
       enddo
       deallocate(rmelt3,cmelt3,zmelcc)
       if(debug) write(6,*)' end of zmel'
@@ -463,9 +477,10 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
           integer :: istat, iwf, jwf
           do ir3=1,nrws2
             do ir2=1,nrws2
-              istat = zmm(zw, zmelc(:,:,:,ir3), cc, ngb, nwf*nwf, ngb, lda=nblochpmx)
-              istat = zmm(zmelc(:,:,:,ir2), cc, zw2, nwf*nwf, nwf*nwf, ngb, opA=m_op_C)    !zw2 (it1, itp1, it2, itp2) order
-              forall(iwf=1:nwf, jwf=1:nwf) zw2(:,:,iwf,jwf) = transpose(zw2(:,:,iwf,jwf))  !zw2 (itp1, it1, it2, itp2) order
+              istat = zmm(zw, zmelc(:,:,:,ir3,isp2), cc, ngb, nwf*nwf, ngb, lda=nblochpmx)
+              istat = zmm(zmelc(:,:,:,ir2,isp1), cc, zw2, nwf*nwf, nwf*nwf, ngb, opA=m_op_C)    !zw2 (it1, itp1, it2, itp2) order
+              ! forall(iwf=1:nwf, jwf=1:nwf) zw2(:,:,iwf,jwf) = transpose(zw2(:,:,iwf,jwf))  !zw2 (itp1, it1, it2, itp2) order
+              zw2 = reshape(zw2, shape(zw2), order=[1,3,2,4])  !it1 
               do ir1=1,nrws1
                 ir = ir1 + (ir2-1 + (ir3-1)*nrws2)*nrws1
                 rw_iw(:,:,:,:,ir,ix) = rw_iw(:,:,:,:,ir,ix) + dreal(zw2(:,:,:,:) * weightc(ir1))
@@ -510,9 +525,10 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
           integer :: istat, iwf, jwf
           do ir3=1,nrws2
             do ir2=1,nrws2
-              istat = zmm(zw, zmelc(:,:,:,ir3), cc, ngb, nwf*nwf, ngb, lda=nblochpmx)
-              istat = zmm(zmelc(:,:,:,ir2), cc, zw2, nwf*nwf, nwf*nwf, ngb, opA=m_op_C)   !zw2 (it1, itp1, it2, itp2) order
-              forall(iwf=1:nwf, jwf=1:nwf) zw2(:,:,iwf,jwf) = transpose(zw2(:,:,iwf,jwf)) !zw2 (itp1, itp, it2, itp2) order
+              istat = zmm(zw, zmelc(:,:,:,ir3,isp2), cc, ngb, nwf*nwf, ngb, lda=nblochpmx)
+              istat = zmm(zmelc(:,:,:,ir2,isp1), cc, zw2, nwf*nwf, nwf*nwf, ngb, opA=m_op_C)   !zw2 (it1, itp1, it2, itp2) order
+              ! forall(iwf=1:nwf, jwf=1:nwf) zw2(:,:,iwf,jwf) = transpose(zw2(:,:,iwf,jwf)) !zw2 (itp1, itp, it2, itp2) order
+              zw2 = reshape(zw2, shape(zw2), order=[1,3,2,4])
               do ir1=1,nrws1
                 ir = ir1 + (ir2-1 + (ir3-1)*nrws2)*nrws1
                 rw_w(:,:,:,:,ir,ix)  = rw_w(:,:,:,:,ir,ix) + dreal(zw2(:,:,:,:) * weightc(ir1))

@@ -43,6 +43,9 @@ def cal_MLWFvw(args, extra_args):
     MATERIAL = args.extension
     MPI_SIZE = args.np
     NO_MPI = 0
+    option_W = ""
+    if args.Wtype in ['up_down', 'down_up']: option_W = f"--spinflip --getW_{args.Wtype}"
+
     run_arg('---', NO_MPI, nfpgw, '/lmf', 'llmfgw00', MATERIAL, '--jobgw=0', *extra_args)
     run_arg('---', NO_MPI, nfpgw, '/qg4gw', 'lqg4gw', '--job=1', *extra_args)
     run_arg('---', MPI_SIZE, nfpgw, '/lmf', 'llmfgw01', MATERIAL, '--jobgw=1', *extra_args)
@@ -65,9 +68,10 @@ def cal_MLWFvw(args, extra_args):
 
     run_arg('10011', NO_MPI, nfpgw, '/hwmatK_MPI', 'lpkm4crpa', *extra_args)
     run_arg('0', MPI_SIZE, nfpgw, '/hvccfp0', 'lvcc', *extra_args)
-    run_arg('11', MPI_SIZE, nfpgw, '/hwmatK_MPI', 'lwmatK1', '--spinflip', '--getW_up_down', '--getW_down_up', *extra_args)
+    run_arg('11', MPI_SIZE, nfpgw, '/hwmatK_MPI', 'lwmatK1', option_W, *extra_args)
     run_arg('111', MPI_SIZE, nfpgw, '/hx0fp0', 'lx0_111', *extra_args)
-    run_arg('12', MPI_SIZE, nfpgw, '/hwmatK_MPI', 'lwmatK2', '--spinflip', '--getW_up_down', '--getW_down_up', *extra_args)
+    run_arg('12', MPI_SIZE, nfpgw, '/hwmatK_MPI', 'lwmatK2', option_W, *extra_args)
+
     print("OK! It's finished well.")
 
 if __name__ == "__main__":
@@ -85,7 +89,7 @@ if __name__ == "__main__":
     parser.add_argument("extension", help='Extension of the ctrl file') #extension is dummy. just to have similar interface with other scripts
     parser.add_argument("-np",           help='Number of MPI cores for lmf', default=8, type=int)
     parser.add_argument("--Wtype",       help='Wtype: up, down, up_down, or, down_up', default='down_up', type=str)
-    parser.add_argument("--skip_MLWFvw", help='Skip generation of MLWF and W', default=False, type=bool)
+    parser.add_argument("--skip_MLWFvw", help='Skip generation of MLWF and W', action='store_true')
     args, extra_args = parser.parse_known_args()
     if not args.skip_MLWFvw:
         cal_lmf(args, extra_args)
