@@ -91,7 +91,10 @@ def main():
     ]
     print('COPY to BINDIR',executables)
     for exe in executables:
-        shutil.copy(exe, BINDIR)
+        try:
+            shutil.copy(exe, BINDIR)
+        except (OSError, PermissionError) as e:
+            print(f"Skip {exe}: {e}")
     if(args.notest):
         print('No test. Only compile.')
         return
