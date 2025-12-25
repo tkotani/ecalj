@@ -338,9 +338,9 @@ contains
       read(ifscrwv,"(A,2i5, 3f12.6,5i5,4f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4,freq,freq2,scrwc4 !Wc = W -v
       call checkorb2(iwf1,iwf2,iwf3,iwf4,ijklmag)
       if(w_onsite_dddd) then
-        if(ijklmag.and.all(idorb([iwf1,iwf2,iwf3,iwf4])==2)) scrw4(iwf1,iwf2,iwf3,iwf4) = scrwc4 + scrv4 !???
+        if(ijklmag.and.all(idorb([iwf1,iwf2,iwf3,iwf4])==2)) scrw4(iwf2,iwf3,iwf1,iwf4) = scrwc4 + scrv4 !???
        else
-        if(ijklmag) scrw4(iwf1,iwf2,iwf3,iwf4) = scrwc4 + scrv4 !???
+        if(ijklmag) scrw4(iwf2,iwf3,iwf1,iwf4) = scrwc4 + scrv4 !???
        endif
     enddo
     if(allocated(scrw)) deallocate(scrw)

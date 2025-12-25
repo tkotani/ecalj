@@ -386,7 +386,8 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
             forall(it=1:nwf, itp=1:nwf) cc(1:ngb,it,itp) = vc_kx(1:ngb)*dconjg(zmelc(1:ngb,it,itp,ir3,isp2)) !
             istat = zmm(zmelc(:,:,:,ir2,isp1), cc, zvz_ir, nwf*nwf, nwf*nwf, ngb, opA=m_op_T)  !sum_I <E_I psi_it|psi_itp>_R2 vc_I <psi_itp2|psi_it2 E_I>_R3
             ! forall(iwf=1:nwf, jwf=1:nwf) zvz_ir(:,:,iwf,jwf) = transpose(zvz_ir(:,:,iwf,jwf)) !zvz_ir(itp1, it1, it2, itp2) order
-            zvz_ir = reshape(zvz_ir, shape(zvz_ir), order=[1,3,2,4])
+            ! zvz_ir = reshape(zvz_ir, shape(zvz_ir), order=[1,3,2,4])
+            zvz_ir = reshape(zvz_ir, shape(zvz_ir), order=[2,1,3,4])
             do ir1=1,nrws1
               ir = ir1 + (ir2-1 + (ir3-1)*nrws2)*nrws1
               rw_w(:,:,:,:,ir,0) = rw_w(:,:,:,:,ir,0) + dreal(zvz_ir(:,:,:,:)*weightc(ir1))
@@ -480,7 +481,8 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
               istat = zmm(zw, zmelc(:,:,:,ir3,isp2), cc, ngb, nwf*nwf, ngb, lda=nblochpmx)
               istat = zmm(zmelc(:,:,:,ir2,isp1), cc, zw2, nwf*nwf, nwf*nwf, ngb, opA=m_op_C)    !zw2 (it1, itp1, it2, itp2) order
               ! forall(iwf=1:nwf, jwf=1:nwf) zw2(:,:,iwf,jwf) = transpose(zw2(:,:,iwf,jwf))  !zw2 (itp1, it1, it2, itp2) order
-              zw2 = reshape(zw2, shape(zw2), order=[1,3,2,4])  !it1 
+              ! zw2 = reshape(zw2, shape(zw2), order=[1,3,2,4])  !it1 
+              zw2 = reshape(zw2, shape(zw2), order=[2,1,3,4])  !it1 
               do ir1=1,nrws1
                 ir = ir1 + (ir2-1 + (ir3-1)*nrws2)*nrws1
                 rw_iw(:,:,:,:,ir,ix) = rw_iw(:,:,:,:,ir,ix) + dreal(zw2(:,:,:,:) * weightc(ir1))
@@ -528,7 +530,8 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
               istat = zmm(zw, zmelc(:,:,:,ir3,isp2), cc, ngb, nwf*nwf, ngb, lda=nblochpmx)
               istat = zmm(zmelc(:,:,:,ir2,isp1), cc, zw2, nwf*nwf, nwf*nwf, ngb, opA=m_op_C)   !zw2 (it1, itp1, it2, itp2) order
               ! forall(iwf=1:nwf, jwf=1:nwf) zw2(:,:,iwf,jwf) = transpose(zw2(:,:,iwf,jwf)) !zw2 (itp1, itp, it2, itp2) order
-              zw2 = reshape(zw2, shape(zw2), order=[1,3,2,4])
+              ! zw2 = reshape(zw2, shape(zw2), order=[1,3,2,4])
+              zw2 = reshape(zw2, shape(zw2), order=[2,1,3,4])
               do ir1=1,nrws1
                 ir = ir1 + (ir2-1 + (ir3-1)*nrws2)*nrws1
                 rw_w(:,:,:,:,ir,ix)  = rw_w(:,:,:,:,ir,ix) + dreal(zw2(:,:,:,:) * weightc(ir1))
