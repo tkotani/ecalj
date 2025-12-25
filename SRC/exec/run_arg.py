@@ -1,6 +1,7 @@
 # run_arg.py
 import subprocess
 import sys
+import time
 from MachineDependence import mpiRUN
 
 def run_arg(argin, mpi_size, nfpgw, command, output, *target):
@@ -13,7 +14,7 @@ def run_arg(argin, mpi_size, nfpgw, command, output, *target):
 
     if echo_run:
         #改行しない
-        print(f"OK! --> Start", end=' ')
+        print(f"OK! --> Start {time.strftime('%H:%M:%S')}", end=' ')
         #print(f"{argin} > _IN_")
 
     with open('_IN_', 'w') as f:
@@ -21,11 +22,11 @@ def run_arg(argin, mpi_size, nfpgw, command, output, *target):
 
     if mpi_size == '0':
         if echo_run:
-            print(f"echo {argin} | {command_str} > {output}")
+            print(f"echo {argin} | {command_str} > {output}", flush=True)
         result = subprocess.run(f"{command_str} < _IN_ > {output}", shell=True)
     else:
         if echo_run:
-            print(f"echo {argin} | {mpi_run} {command_str} > {output}")
+            print(f"echo {argin} | {mpi_run} {command_str} > {output}", flush=True)
         result = subprocess.run(f"{mpi_run} {command_str} < _IN_ > {output}", shell=True)
 
     if result.returncode != 0:
