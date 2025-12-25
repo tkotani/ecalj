@@ -31,7 +31,7 @@ subroutine hmagnon() bind(C)
   integer:: iww, iqxini, iqxend, i, iw, iq, kx, ik, istat, nqcalc
   real(8):: q(3), omg2max, wemax, rydberg, hartree
   real(8), parameter:: schi=1d0, ua = 1d0, eta_default =-1d0
-  real(8):: nms_delta, www
+  real(8):: delta, www
   real(8), allocatable:: qibze(:,:)
   complex(8), pointer:: zxq(:,:,:) => null()
   complex(8), allocatable, target :: kmat(:,:,:)
@@ -39,14 +39,15 @@ subroutine hmagnon() bind(C)
   complex(8), parameter :: img=(0d0,1d0)
   complex(8), allocatable::imat(:,:) !unit matrix for 1-WK
   logical:: cmdopt0
-  logical:: realomega, imagomega, epsmode, wan, nms !, lhm, lsvd
+  logical:: realomega, imagomega, epsmode, wan !, nms !, lhm, lsvd
   logical, allocatable :: mpi__task(:)
   character(8):: charext
   character(len=128) :: msg
   real(8) :: eta
   integer, parameter :: is=1, isf=2  !K_down up = Kpm
   real(8), parameter :: pi = 4d0*datan(1d0), znorm=-1d0*pi ! normalization of Im[K]:
-  logical :: onsite_approx, w_onsite_dddd, geteta, negative_cut, ganmma_only
+  logical, parameter :: nnwf_size_reduction = .true.
+  logical :: w_onsite_dddd, geteta, negative_cut, ganmma_only
 !!! q on symline
   
   ! MO cma mode is commented out 2025-12-06. cma mode is no longer maintained. For CMA mode, use old version
@@ -76,12 +77,9 @@ subroutine hmagnon() bind(C)
   !! Read Bzdata; See use m_read_bzdata,only:... at the beginning of this routine.
   call read_BZDATA() !  !! Read electron gas mode or not.
   call ReadGWinputKeys() ! jun2020 new routint to read all inputs
-  ! W is enforced as on site regardless onsite_approx, onsite_approx specifies whether nnwf is set as onsite or not.
-  call getkeyvalue("GWinput","magnon_onsite_approximation",onsite_approx,default=.true.)
   call getkeyvalue("GWinput","magnon_w_onsite_dddd",w_onsite_dddd,default=.true.)
-  call getkeyvalue("GWinput","nms",nms,default=.false.)  !!! For NiMnSb
-  call getkeyvalue("GWinput","nms_delta",nms_delta,default=1d-6)
-  call getkeyvalue("GWinput","negative_cut",negative_cut,default=.false.)
+  call getkeyvalue("GWinput","magnon_delta", delta, default=0d0) !1d-6 for Insulator case
+  call getkeyvalue("GWinput","magnon_negative_cut",negative_cut,default=.false.)
   write(6,*) "negative_cut",negative_cut
 
   SetQvecList: block
@@ -145,10 +143,10 @@ subroutine hmagnon() bind(C)
     logical :: cmdopt2
     character(20):: Wtype, opts
     call read_wandata()    ! nwf, nsp_w,nqtt_w ! --- okumura Read dimensions of hamiltonian_wannier, spin, nqtt
-    call set_wan_nnwf(onsite_approx) !set nnwf ~ # of RiRj (onsite_approx = .true.), RiR'j (onsite_approx = .flase. ), wan_pair_index
+    call set_wan_nnwf(nnwf_size_reduction) !set nnwf ~ # of RiRj (onsite_approx = .true.), RiR'j (onsite_approx = .flase. ), wan_pair_index
     Wtype = 'up' !options: up, down, up_down, down_up
     if(cmdopt2('--Wtype=', opts)) Wtype = trim(opts)
-    call set_wan_scrw(onsite_approx, w_onsite_dddd, Wtype=Wtype) !set scrw
+    call set_wan_scrw(nnwf_size_reduction, w_onsite_dddd, Wtype=Wtype) !set scrw
     if(mpi__root) write(stdo,ftox) '# nwf, nnwf:', nwf, nnwf
   endblock SetWannierAndScreendCoulombData
 
@@ -177,7 +175,7 @@ subroutine hmagnon() bind(C)
   endif SetTemporaryFiles
 
   allocate(imat(1:nnwf,1:nnwf),source=(0d0,0d0))
-  forall(iwf=1:nnwf) imat(iwf,iwf)=1d0+img*merge(nms_delta,0d0,nms) !identical matrix
+  forall(iwf=1:nnwf) imat(iwf,iwf) = 1d0 + img*delta
   allocate(kmat(1:nnwf,1:nnwf,(1-npm)*nwhis:nwhis))
   BIGiqloop: do iq = iqxini,iqxend
     if(.NOT. MPI__task(iq)) cycle BIGiqloop

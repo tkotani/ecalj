@@ -267,15 +267,15 @@ contains
     readwan=.true. !! initialize
   end subroutine read_wandata
   !---------------------------------------
-  subroutine set_wan_nnwf(onsite_approx)
-    logical, intent(in) :: onsite_approx
+  subroutine set_wan_nnwf(nnwf_size_reduction)
+    logical, intent(in) :: nnwf_size_reduction
     integer :: iwf, jwf, ijwf, idummy
     logical, allocatable :: mask(:)
     integer, allocatable :: iwf_list(:), jwf_list(:)
     if ( .not. lreadhrotr) call readhrotr() !get ibaswf
     iwf_list = [((iwf, iwf=1,nwf), jwf=1,nwf)]
     jwf_list = [((jwf, iwf=1,nwf), jwf=1,nwf)]
-    if(onsite_approx) then
+    if(nnwf_size_reduction) then
       mask = [((ibaswf(iwf)==ibaswf(jwf), iwf=1,nwf), jwf=1,nwf)]  ! only same atomic site
     else
       mask = [((.TRUE., iwf=1,nwf), jwf=1,nwf)]  !full pair
@@ -298,8 +298,8 @@ contains
       wan_pair_lorb(ijwf,2) =  idorb(wan_pair_index(ijwf,2))
    enddo
   end subroutine set_wan_nnwf
-  subroutine set_wan_scrw(onsite_approx, w_onsite_dddd, Wtype)
-    logical, intent(in) :: onsite_approx, w_onsite_dddd
+  subroutine set_wan_scrw(nnwf_size_reduction, w_onsite_dddd, Wtype)
+    logical, intent(in) :: nnwf_size_reduction, w_onsite_dddd
     character(len=*), intent(in) :: Wtype
     integer:: ifscrwv, ifscrv, iwf, jwf, kwf, lwf
     character(len=9)::charadummy 
@@ -338,14 +338,14 @@ contains
       read(ifscrwv,"(A,2i5, 3f12.6,5i5,4f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4,freq,freq2,scrwc4 !Wc = W -v
       call checkorb2(iwf1,iwf2,iwf3,iwf4,ijklmag)
       if(w_onsite_dddd) then
-        if(ijklmag.and.all(idorb([iwf1,iwf2,iwf3,iwf4])==2)) scrw4(iwf1,iwf2,iwf3,iwf4) = scrwc4 + scrv4
+        if(ijklmag.and.all(idorb([iwf1,iwf2,iwf3,iwf4])==2)) scrw4(iwf1,iwf2,iwf3,iwf4) = scrwc4 + scrv4 !???
        else
-        if(ijklmag) scrw4(iwf1,iwf2,iwf3,iwf4) = scrwc4 + scrv4
+        if(ijklmag) scrw4(iwf1,iwf2,iwf3,iwf4) = scrwc4 + scrv4 !???
        endif
     enddo
     if(allocated(scrw)) deallocate(scrw)
     allocate(scrw(nnwf,nnwf))
-    if(onsite_approx) then
+    if(nnwf_size_reduction) then
       scrw(:,:) = reshape(pack([((((scrw4(iwf1,iwf2,iwf3,iwf4), iwf1=1,nwf), iwf2=1,nwf), iwf3=1,nwf), iwf4=1,nwf)], &
                         & mask=[(((((ibaswf(iwf1)==ibaswf(iwf2).and. ibaswf(iwf3)==ibaswf(iwf4)), &
                         &             iwf1=1,nwf), iwf2=1,nwf), iwf3=1,nwf), iwf4=1,nwf)]), shape=[nnwf,nnwf])
@@ -376,13 +376,19 @@ contains
                            &  wan_pair_index(inwf,1) == wan_pair_index(jnwf,1) .and. &
                            &  wan_pair_index(jnwf,1) == wan_pair_index(jnwf,2)), inwf=1,nnwf), jnwf=1,nnwf)]
            !"Spin Excitations in Solids from Many-Body Perturbation Theory" Eq (63)
-            mask_W_offdiag = [(((wan_pair_index(inwf,1) == wan_pair_index(inwf,2) .and. &
-                              &  wan_pair_index(jnwf,1) == wan_pair_index(jnwf,2) .and. &
-                              &  wan_pair_index(inwf,1) /= wan_pair_index(jnwf,1)), inwf=1,nnwf), jnwf=1,nnwf)]
+            ! mask_W_offdiag = [(((wan_pair_index(inwf,1) == wan_pair_index(inwf,2) .and. &
+            !                   &  wan_pair_index(jnwf,1) == wan_pair_index(jnwf,2) .and. &
+            !                   &  wan_pair_index(inwf,1) /= wan_pair_index(jnwf,1)), inwf=1,nnwf), jnwf=1,nnwf)]
+            mask_W_offdiag = [(((wan_pair_index(inwf,1) == wan_pair_index(jnwf,1) .and. &
+                              &  wan_pair_index(inwf,2) == wan_pair_index(jnwf,2) .and. &
+                              &  wan_pair_index(inwf,1) /= wan_pair_index(inwf,2)), inwf=1,nnwf), jnwf=1,nnwf)]
            !"Spin Excitations in Solids from Many-Body Perturbation Theory" Eq (64)
-            mask_J = [(((wan_pair_index(inwf,1) == wan_pair_index(jnwf,2) .and. &
-                       & wan_pair_index(inwf,2) == wan_pair_index(jnwf,1) .and. &
-                       & wan_pair_index(inwf,1) /= wan_pair_index(inwf,2)), inwf=1,nnwf), jnwf=1,nnwf)]
+            ! mask_J = [(((wan_pair_index(inwf,1) == wan_pair_index(jnwf,2) .and. &
+            !            & wan_pair_index(inwf,2) == wan_pair_index(jnwf,1) .and. &
+            !            & wan_pair_index(inwf,1) /= wan_pair_index(inwf,2)), inwf=1,nnwf), jnwf=1,nnwf)]
+            mask_J = [(((wan_pair_index(inwf,1) == wan_pair_index(inwf,2) .and. &
+                       & wan_pair_index(jnwf,1) == wan_pair_index(jnwf,2) .and. &
+                       & wan_pair_index(inwf,1) /= wan_pair_index(jnwf,1)), inwf=1,nnwf), jnwf=1,nnwf)]
             W_offdiag_ave = 0d0
             J_ave = 0d0
             if(count(mask .and. mask_W_diag) > 0) W_diag_ave = sum(pack(reshape(scrw, [nnwf*nnwf]), &
