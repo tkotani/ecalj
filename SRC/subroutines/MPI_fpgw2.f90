@@ -133,7 +133,7 @@ contains
                   &  mpi_complex16, collector_rank_in, comm_root_k, mpi__info)
     deallocate(data_size, data_disp)
   end subroutine MPI__GatherXqw
-  subroutine MPI__GatherXqw_kind4(xqw, xqw_all, npr, npr_col, collector_rank)
+  subroutine MPI__GatherXqw_c(xqw, xqw_all, npr, npr_col, collector_rank)
     integer, intent(in) :: npr, npr_col
     integer, intent(in), optional :: collector_rank
     complex(4), intent(in) :: xqw(npr,npr_col)
@@ -156,7 +156,7 @@ contains
     call mpi_gatherv(xqw, npr*npr_col, mpi_complex, xqw_all, data_size, data_disp, &
                   &  mpi_complex, collector_rank_in, comm_root_k, mpi__info)
     deallocate(data_size, data_disp)
-  end subroutine MPI__GatherXqw_kind4
+  end subroutine MPI__GatherXqw_c
   integer function get_mpi_size(communicator) result(mpi_size)
     implicit none
     integer, intent(in), optional :: communicator
@@ -308,7 +308,7 @@ contains
     deallocate( mpi__data )
     return
   end subroutine MPI__reduceSum
-  subroutine MPI__reduceSum_kind4( root, data, sizex, communicator)
+  subroutine MPI__reduceSum_c( root, data, sizex, communicator)
     implicit none
     integer, intent(in) :: sizex,root
     complex(4), intent(inout) :: data(sizex)
@@ -325,7 +325,7 @@ contains
     call MPI_reduce( mpi__data, data, sizex, MPI_COMPLEX, MPI_SUM, root, comm_in, mpi__info )
     deallocate( mpi__data )
     return
-  end subroutine MPI__reduceSum_kind4
+  end subroutine MPI__reduceSum_c
   subroutine MPI__AllreduceMax( data, sizex )
     implicit none
     integer, intent(in) :: sizex

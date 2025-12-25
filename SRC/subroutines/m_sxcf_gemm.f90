@@ -123,7 +123,7 @@ module m_sxcf_gemm
 contains
   subroutine reducez(nspinmx)
 #ifdef __MP
-    use m_mpi,only: MPI__reduceSum => MPI__reduceSum_kind4
+    use m_mpi,only: MPI__reduceSum => MPI__reduceSum_c
 #else
     use m_mpi,only: MPI__reduceSum
 #endif

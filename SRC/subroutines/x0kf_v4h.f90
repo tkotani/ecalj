@@ -153,7 +153,7 @@ contains
     use m_mpi,only: comm_k, mpi__rank_k, mpi__size_k, &
                     mpi__ipr_col, mpi__npr_col, mpi__rank_b, mpi__root_k, comm_b
 #ifdef __MP
-    use m_mpi,only: MPI__reduceSum => MPI__reduceSum_kind4
+    use m_mpi,only: MPI__reduceSum => MPI__reduceSum_c
 #else
     use m_mpi,only: MPI__reduceSum
 #endif

@@ -467,7 +467,7 @@ contains
   end subroutine writeepsopen
   subroutine writerealeps()
 #ifdef __MP
-    use m_mpi, only: MPI__GatherXqw => MPI__GatherXqw_kind4
+    use m_mpi, only: MPI__GatherXqw => MPI__GatherXqw_c
 #else
     use m_mpi, only: MPI__GatherXqw
 #endif
