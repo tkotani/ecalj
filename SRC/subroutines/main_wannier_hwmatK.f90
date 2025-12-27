@@ -454,9 +454,10 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   nz=input3(2)
   idummy=input3(3)
   lomega0=.false.
+  spinflip = .false.
   getW_up_down = cmdopt0('--getW_up_down')
   getW_down_up = cmdopt0('--getW_down_up')
-  if(getW_up_down.or. getW_down_up) spinflip = .true.
+  if(getW_up_down .or. getW_down_up) spinflip = .true.
   if(master_mpi) write(6,*) ' spinflip option =', spinflip
   if (ixc==11) then
      ixc=1
