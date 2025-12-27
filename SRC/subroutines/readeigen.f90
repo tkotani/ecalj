@@ -26,7 +26,7 @@ module m_readeigen
   private
   integer:: norbtx,imx,ifcphim,ifgeigm,nqixx  !ifgeigW,ifcphiW,
   real(8),private:: leval, quu(3)
-  logical,private:: init=.true.,init2=.true.,keepeig, Wpkm4crpa=.false.
+  logical,private:: init=.true.,init2=.true.,keepeig, Wpkm4crpa=.false., keepeig_mlw = .true.
   logical,private:: debug=.false.
   character(8),external :: xt
   real(8),allocatable,private:: evud(:,:,:)
@@ -537,7 +537,7 @@ contains
     logical :: keepeigen
     integer:: ikpx,ifi
     character*(8):: fname
-    keepeig = .True. !keepeigen()
+    keepeig_mlw = .True. !keepeigen()
     if(ipr) write(6,*)' init_readeigen_mlw_noeval'
     ! --- Readin MLWU/D, MLWEU/D, and UUq0U/D
     do is = 1,nsp
@@ -657,7 +657,7 @@ contains
     deallocate(dnk,uum)
     mrecb_o = mrecb * nwf / nband
     mrecg_o = mrecg * nwf / nband
-    if(keepeig) then
+    if(keepeig_mlw) then
        if(ipr) write(6,*)' xxx nband=',nband
        allocate(geig2(ngpmx*nspc,nband))  !nqtt -->nqi
        allocate(cphi2(ndima*nspc,nband))
@@ -696,9 +696,11 @@ contains
              !            write(7500,*)cphi(:,:,ikp,is)
           enddo
        enddo
-       deallocate(geig2,cphi2,geig,cphi)
+       deallocate(geig2,cphi2) !,geig,cphi)
+       if(allocated(cphi)) deallocate(cphi)
+       if(allocated(geig)) deallocate(geig)
     else
-       call rx('KeepEigen=F not implemented')
+       call rx('KeepEigen_MLW=F not implemented')
        ! open(newunit=ifcphi_o,file='CPHI.mlw',form='unformatted')
        ! open(newunit=ifgeig_o,file='GEIG.mlw',form='unformatted')
        ! allocate(geig3(ngpmx,nwf))
