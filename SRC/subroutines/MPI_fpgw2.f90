@@ -18,6 +18,9 @@ module m_mpi !MPI utility for fpgw
   integer :: comm_w, mpi__rank_w, mpi__size_w
   logical :: mpi__root_w,ipr=.true.
   integer :: worker_intask = 1 !default used in ixc /= 2
+!Simple split of MPI communicator
+  integer :: comm_s, mpi__rank_s, mpi__size_s, comm_s_idx
+  logical :: mpi__root_s
 
   integer,private :: mpi__info
   integer,private:: ista(MPI_STATUS_SIZE )
@@ -89,6 +92,19 @@ contains
                 mpi__rank, mpi__rank_q, mpi__rank_k, mpi__rank_b, mpi__root_q, mpi__root_k
 
   end subroutine MPI__SplitXq
+  
+  subroutine MPI__Split(n_split)
+    implicit none
+    integer, intent(in) :: n_split
+    integer :: color
+    color = mod(mpi__rank, n_split)
+    comm_s_idx = color
+    call mpi_comm_split(comm, color, mpi__rank, comm_s, mpi__info)
+    call mpi_comm_rank(comm_s, mpi__rank_s, mpi__info)
+    call mpi_comm_size(comm_s, mpi__size_s, mpi__info)
+    mpi__root_s = mpi__rank_s == 0
+    write(06,'(X,A,2I5,L2,I5)') "MPI: rank, rank_s, root_s, comm_s_idx ", mpi__rank, mpi__rank_s, mpi__root_s, comm_s_idx
+  end subroutine MPI__Split
 
   subroutine MPI__Setnpr_col(npr, npr_col)
     integer, intent(in) :: npr

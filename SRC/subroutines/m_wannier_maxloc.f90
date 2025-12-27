@@ -1077,7 +1077,7 @@ contains
       read(ifpsig)((psigread(j1,j2,iqbz),j1=iti2,itf2),j2=1,nwf)
     enddo
     psig(iti:itf,:,:)=psigread(iti:itf,:,:)
-    close(ifu)
+    close(ifpsig)
     !if (is == 1) then
     !   ! = iclose('PSIGU')
     !else
@@ -3052,9 +3052,10 @@ contains
 
     integer(4) :: ifi
 
-    if (is == 1) then
+    ! if (is == 1) then
       !    ifi = iopen('HMLWF',1,-1,0)
-      open(newunit=ifi,file='HMLWF')
+     if(is==1) open(newunit=ifi,file='HMLWF.UP')
+     if(is==2) open(newunit=ifi,file='HMLWF.DN')
       write(ifi,*)nspin,natom,nwf,nqbz,nrws,ef
       write(ifi,*)alat
       write(ifi,*)plat
@@ -3063,7 +3064,7 @@ contains
       write(ifi,*)wbz
       write(ifi,*)rws
       write(ifi,*)irws
-    endif
+    ! endif
 
     write(ifi,*)hrotk
     close(ifi)
@@ -3410,7 +3411,7 @@ subroutine readuu(is,iti,itf,ikbidx, &
         endif
       enddo
     enddo
-    close(ifu)
+    close(ifuu)
     !if (is == 1) then
     !   close(ifu)! = iclose('UUU')
     !else

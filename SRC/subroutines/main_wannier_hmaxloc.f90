@@ -40,7 +40,9 @@ subroutine hmaxloc()
   use m_keyvalue,only: getkeyvalue
   use m_hamindex0,only: readhamindex0,iclasst
   use m_mksym_util,only:mptauof
-  use m_MPItk,only: m_MPItk_init
+  ! use m_MPItk,only: m_MPItk_init
+  use m_mpi, only: MPI__Initialize, MPI__consoleout, MPI__AllreduceSumReal, MPI__AllreduceSum, MPI__Split, MPI__Broadcast
+  use m_mpi, only: mpi__rank, mpi__size, mpi__root, mpi__rank_s, mpi__size_s, mpi__root_s, comm_s, comm_s_idx
   implicit none
   !------------------------------------
   real(8),allocatable:: r0g(:,:), wphi(:,:)
@@ -194,18 +196,19 @@ subroutine hmaxloc()
   complex(8):: cccx(7)
   integer:: ierr
   character(256)::aaac
+  integer :: nsplit_mpi
 !  include 'mpif.h'
-  call mpi_init(ierr)
-  call m_MPItk_init(MPI_COMM_WORLD)
+  call MPI__Initialize()
   hartree=2d0*rydberg()
   iii=verbose()
-  write(6,*)' verbose=',iii
-
-  ! mode switch. --------------
-  write(6,*) ' --- Choose omodes below ----------------'
-  write(6,*) '  bb vectors (1) or Wannier fn. (2) or TB Hamiltonian (3)'
-  write(6,*) ' --- Put number above ! -----------------'
-  call readin5(ixc,nz,idummy)
+  if(mpi__root) then
+    write(6,*)' verbose=',iii
+    write(6,*) ' --- Choose omodes below ----------------'
+    write(6,*) '  bb vectors (1) or Wannier fn. (2) or TB Hamiltonian (3)'
+    write(6,*) ' --- Put number above ! -----------------'
+    call readin5(ixc,nz,idummy)
+  endif
+  call MPI__Broadcast(ixc)
   write(6,*) ' ixc=',ixc
   if(ixc<1 .OR. ixc>3) call rx(' --- ixc=0 --- Choose computational mode!')
 
@@ -220,6 +223,9 @@ subroutine hmaxloc()
   !       integer(4),allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
   !     &    ,nstar(:),irk(:,:),nstbz(:)          !,index_qbz(:,:,:)
   !-----------------------------------------------------------------
+  if(ixc==1 .and. mpi__size > 1) call rx0('Error MPI must be 1 at ixc=1')
+  if(ixc==1) call MPI__consoleout('hmaxloc1')
+  if(ixc==2) call MPI__consoleout('hmaxloc2')
   call read_Bzdata()
   write(6,*)' nqibz ngrp=',nqibz,ngrp
   write(6,*)' nqbz  =',nqbz
@@ -235,12 +241,6 @@ subroutine hmaxloc()
   tpia = 2d0*pi/alat
   call minv33tp(plat,qlat)
   voltot = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
-  open(newunit=ifmlw(1), file='MLWU',form='unformatted')
-  open(newunit=ifmlwe(1),file='MLWEU',form='unformatted')
-  if (nspx == 2) then
-    open(newunit=ifmlw(2), file='MLWD',form='unformatted')
-    open(newunit=ifmlwe(2),file='MLWED',form='unformatted')
-  endif
 
   !>> read dimensions of wc,b,hb
   !      ifhbed     = iopen('hbe.d',1,0,0)
@@ -296,7 +296,7 @@ subroutine hmaxloc()
   iiwf=0
 
   do iclass2=1,nclass_mlwf
-    write(*,*)'output:',iclassin(iclass2), nwf &
+    write(6,*)'output:',iclassin(iclass2), nwf &
       ,trim(classname_mlwf(iclass2)),cbas_mlwf(1:nbasclass_mlwf(iclass2),iclass2)
     ! c okumura
     do iwf=1,nbasclass_mlwf(iclass2)
@@ -316,11 +316,13 @@ subroutine hmaxloc()
     enddo
 
   enddo
-  open(newunit=ifdorb,file="Worb2lorb.d",form="unformatted")
-  write(ifdorb) idorb(1:nwf)
-  write(ifdorb) nclass_mlwf
-  write(ifdorb) nbasclass_mlwf(1:nclass_mlwf)
-  close(ifdorb)
+  if(mpi__root) then 
+    open(newunit=ifdorb,file="Worb2lorb.d",form="unformatted")
+    write(ifdorb) idorb(1:nwf)
+    write(ifdorb) nclass_mlwf
+    write(ifdorb) nbasclass_mlwf(1:nclass_mlwf)
+    close(ifdorb)
+  endif
 
   !$$$      ifdorb=ifile_handle()
   !$$$      open(ifdorb,file="Worb2lorb.d",form="formatted")
@@ -395,7 +397,7 @@ subroutine hmaxloc()
   r_v=rcut
   call getkeyvalue("GWinput",'wan_tbcut_rcut',heps,default=r_v)
   call getkeyvalue("GWinput",'wan_tbcut_heps',heps,default=0.0d0)
-  write(*,*) 'mloc.heps ', heps
+  write(6,*) 'mloc.heps ', heps
   !     ekino
   call getkeyvalue("GWinput","wan_out_emax_auto",leauto,default=.false.)
   call getkeyvalue("GWinput","wan_in_emax_auto",leinauto,default=.false.)
@@ -473,13 +475,13 @@ subroutine hmaxloc()
       iko_ixs,iko_fxs,noxs, &
       nspx,nqbz,nbb) !nspin --> nspx
     ! m, 060923 !!!
-    open(newunit=ifwand,file='wan.d')
     iko_ix = iko_ixs(1)
     iko_fx = iko_fxs(1)
     if (nspx == 2) then
       if (iko_ixs(2) < iko_ix) iko_ix = iko_ixs(2)
       if (iko_fxs(2) > iko_fx) iko_fx = iko_fxs(2)
     endif
+    open(newunit=ifwand,file='wan.d')
     write(ifwand,*)nqbz,nwf,iko_ix,iko_fx
     write(ifwand,*)nspx
     do is = 1,nspx
@@ -489,9 +491,22 @@ subroutine hmaxloc()
     call rx0('hmaxloc: ixc=1 ok')
   endif
 
+  nsplit_mpi = merge(nspx, 1, mod(mpi__size,nspx)==0)
+  if(mpi__size == 1) nsplit_mpi = 1
+  call MPI__Split(nsplit_mpi)
   !! loop over spin -----------------------
-  do 1000 is = 1,nspx
-    write(*,*)'is =',is,'  out of',nspx
+  isloop: do 1000 is = 1,nspx
+    if(mod(is -1, nsplit_mpi)/= comm_s_idx) cycle isloop
+    if(mpi__root_s) then
+      if(is ==1) then
+        open(newunit=ifmlw(1), file='MLWU',form='unformatted')
+        open(newunit=ifmlwe(1),file='MLWEU',form='unformatted')
+      elseif(is == 2)  then
+        open(newunit=ifmlw(2), file='MLWD',form='unformatted')
+        open(newunit=ifmlwe(2),file='MLWED',form='unformatted')
+      endif
+    endif
+    write(6,*)'is =',is,'  out of',nspx
     ! energy window
     call ewindow(is,ieo_swt,iei_swt,itout_i,itout_f,itin_i,itin_f, &
       eomin,eomax,eimin,eimax,ef,qbz,ikbidx, &
@@ -518,7 +533,7 @@ subroutine hmaxloc()
       nqbz,nbb)
 
     !! step 1  -- choose Hilbert space -- determine cnk
-    write(*,*)'Step 1: Hilbert space branch'
+    write(6,*)'Step 1: Hilbert space branch'
     write(6,*)' iko_ix iko_fx=',iko_ix,iko_fx
     allocate (amnk(iko_ix:iko_fx,nwf,nqbz), &
       upu(iko_ix:iko_fx,iko_ix:iko_fx,nbb,nqbz), &
@@ -536,7 +551,10 @@ subroutine hmaxloc()
     !      call chk_cnkweight(qbz,iko_ix,iko_fx,cnk,
     !     &     nqbz,nwf,nband,nlmto)
     do isc = 1,nsc1
-      do iq = 1,nqbz
+      omgik(:) = 0d0
+      cnk2(:,:,:) = 0d0
+      iqloop1: do iq = 1,nqbz
+        if(mod(iq-1, mpi__size_s) /= mpi__rank_s) cycle iqloop1
         call dimz(lein,iko_i(iq),iko_f(iq),iki_i(iq),iki_f(iq), &
           ndz,nin)
         if (nwf > nin) then
@@ -582,16 +600,17 @@ subroutine hmaxloc()
           cnk2(:,:,iq) = cnk(:,:,iq)
           ! end if (ndz>1)
         endif
-        ! end of iq-loop
-      enddo
+      enddo iqloop1
+      call MPI__AllreduceSumReal(omgik, size(omgik), comm_s)
+      call MPI__AllreduceSum(cnk2, size(cnk2), comm_s)
       ! (1-5) w_I(k) > Omaga_I  eq.(11)
       omgi = sum(omgik(:)*wbz(:))
       ! (1-6) check self-consistency
-      write(*,"('#SC-loop, conv.',i5,d13.5)")isc,omgi
+      write(6,"('#SC-loop, conv.',i5,d13.5)")isc,omgi
       if (isc >= 2) then
         domgi = dabs((omgiold - omgi) / omgiold)
         if (domgi < conv1) then
-          write(*,*) 'step1: converged!'
+          write(6,*) 'step1: converged!'
           goto 810
         endif
       endif
@@ -600,7 +619,7 @@ subroutine hmaxloc()
       cnk     = cnk2
       ! end of self-consistent loop
     enddo
-    write(*,*)'step1: not converged'
+    write(6,*)'step1: not converged'
 810 continue
     deallocate(upu,cnk2)
 
@@ -614,7 +633,7 @@ subroutine hmaxloc()
 
 
     !! === step 2 -- localize Wannier fn. ================
-    write(*,*)'Step 2: Wannier fn. branch'
+    write(6,*)'Step 2: Wannier fn. branch'
 
     allocate (mmn(nwf,nwf,nbb,nqbz),mmn0(nwf,nwf,nbb,nqbz), &
       umnk(nwf,nwf,nqbz), &
@@ -673,7 +692,6 @@ subroutine hmaxloc()
     ! cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 
-
     ! ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
     do isc = 1, nsc2
       ! cccccccccccccccccccccc
@@ -687,7 +705,11 @@ subroutine hmaxloc()
       !         do i=1,nwf
       !            write(6,ftox)'wwww: i,i, <wannier i|r|wannier i> ',i,ftof(rn(1:3,i))
       !         enddo
-      do iq = 1,nqbz
+      iqloop2: do iq = 1,nqbz
+        if(mod(iq-1, mpi__size_s) /= mpi__rank_s) then
+          umnk(:,:,iq) = 0d0
+          cycle iqloop2
+        endif
         dwmn = (0d0,0d0)
         do ibb = 1,nbb
           ! cccccccccccccccccccccccccccccccccccccccccccc
@@ -749,8 +771,8 @@ subroutine hmaxloc()
         ! ccccccccccccccccccccccccccccccccccccccccccccccccc
 
         ! end of iq-loop
-      enddo
-
+      enddo iqloop2
+      call MPI__AllreduceSum(umnk, size(umnk), comm_s)
 
 
       ! update Mmn ([1] eq.61)
@@ -765,15 +787,15 @@ subroutine hmaxloc()
         omgi,omgd,omgod,omgdod,omgidod,alat,iprint)
 
       ! check self-consistency
-      !         write(*,*)'#SC-loop, conv.',isc,omgdod
-      !         write(*,950)'Omg: I, OD, D ',omgi,omgod,omgd
-      write(*,"('#SC-loop, spread(bohr**2)',i6,' Omg_I Omg_OD Omg_D=',3f17.10)") &
+      !         write(6,*)'#SC-loop, conv.',isc,omgdod
+      !         write(6,950)'Omg: I, OD, D ',omgi,omgod,omgd
+      write(6,"('#SC-loop, spread(bohr**2)',i6,' Omg_I Omg_OD Omg_D=',3f17.10)") &
       !     &   isc,omgdod,omgi,omgod,omgd
         isc, omgi/tpia**2,omgod/tpia**2,omgd/tpia**2
       if (isc >= 2) then
         domgdod = dabs((omgdodold - omgdod) / omgdodold)
         if (domgdod < conv2) then
-          write(*,*) 'step2: converged!'
+          write(6,*) 'step2: converged!'
           goto 820
         endif
       endif
@@ -781,7 +803,7 @@ subroutine hmaxloc()
 
       ! end of self-consistent loop
     enddo
-    write(*,*)'step2: not converged'
+    write(6,*)'step2: not converged'
 820 continue
     iprint=.true.
     call getOmg(mmn,rn,bb,wbb,wbz, &
@@ -798,7 +820,8 @@ subroutine hmaxloc()
     !     d             nwf,nqbz,nband,nlmto)
 
     ! output
-    write(*,*)"---------- wlaxloc isp =",is
+    OutPutSection: if(mpi__root_s) then
+    write(6,*)"---------- wlaxloc isp =",is
 
     block
       complex(8),allocatable :: dnk(:,:,:)
@@ -859,7 +882,7 @@ subroutine hmaxloc()
 
 
     !! step 3 -- reduced Hamiltonian ------------------------------
-    write(*,*)'Step 3: reduced Hamiltonian branch'
+    write(6,*)'Step 3: reduced Hamiltonian branch'
     ! open file
     if (is == 1) then
 !      ifbnd = iopen('bnds.maxloc.up',1,-1,0)
@@ -890,7 +913,7 @@ subroutine hmaxloc()
     if (lsh) then
       call getkeyvalue("GWinput","wan_nsh1",nsh1, default=1 )
       call getkeyvalue("GWinput","wan_nsh2",nsh2, default=2 )
-      write(*,*)'SmallHam on',nsh1,nsh2
+      write(6,*)'SmallHam on',nsh1,nsh2
       nsh = nsh2 - nsh1 + 1
       if (is == 1) then
         !ifsh = iopen('bnds.sh.up',1,-1,0)
@@ -913,7 +936,7 @@ subroutine hmaxloc()
     call wigner_seitz(alat,plat,n1,n2,n3,nrws,rws,irws,drws)
     if(allocated(hrotr)) deallocate(hrotr)
     allocate(hrotr(nwf,nwf,nrws)) !real space Hamiltonian in Wannier funciton basis
-    !      write(*,*) 'xxxxxxxxxx1'
+    !      write(6,*) 'xxxxxxxxxx1'
     if (ixc == 2) then
       call get_hrotr_ws(hrotk,qbz,wbz, &
         rws,irws,drws, &
@@ -964,7 +987,7 @@ subroutine hmaxloc()
       deallocate(hrotrcut)
       !     ekino
     endif
-    !      write(*,*) 'xxxxxxxxxx2'
+    !      write(6,*) 'xxxxxxxxxx2'
 
     !! ----------------------------------------------------------
     !! k-point mesh
@@ -975,7 +998,7 @@ subroutine hmaxloc()
     write(ifmlw(is))nqbze,nwf
     write(ifmlwe(is))nqbze,nwf
     do iq = 1,nqbze
-      !         write(*,*)'goto get_hrotkp_ws iq=',iq,nqbze
+      !         write(6,*)'goto get_hrotkp_ws iq=',iq,nqbze
       call get_hrotkp_ws(hrotr,rws,drws,irws,qbze(:,iq), nwf,nqbz,nrws, hrotkp)
       call diag_hm(hrotkp,nwf,eval,evecc)
       call wmaxloc_diag(ifmlw(is),ifmlwe(is), &
@@ -986,7 +1009,7 @@ subroutine hmaxloc()
     enddo
     !      write(6,*)'eeeeeeeee'
     !      deallocate(qbze)
-    ! c          write(*,990)'iq =',iq,qbz(1:3,iq)
+    ! c          write(6,990)'iq =',iq,qbz(1:3,iq)
     !c          if (iq.le.nqbz) then
     !c          do iband = 1,nwf
     !c             e1 = (eval(iband)   -ef)*rydberg()
@@ -1038,7 +1061,9 @@ subroutine hmaxloc()
     ! generate eigenvalue and eigenvector of Wannier Hamiltonian
     ! Index:: evecc_w (orbital,band,q-point,spin)
     write(6,*)
-    if (is==1) allocate(eval_w(nwf,nqbz,nspx),evecc_w(nwf,nwf,nqbz,nspx))
+    if(allocated(eval_w)) deallocate(eval_w)
+    if(allocated(evecc_w)) deallocate(evecc_w)
+    allocate(eval_w(nwf,nqbz,nspx),evecc_w(nwf,nwf,nqbz,nspx))
     do iq = 1,nqbz
       if(iq<5 .OR. iq>nqbz-3)write(6,*)' got get_hrotkp_ws iq =',iq
       if(iq==5)write(6,*)' ...'
@@ -1140,7 +1165,8 @@ subroutine hmaxloc()
     close(iftb)
     close(iffb)
     !     end of loop over spin
-1000 enddo
+    endif OutputSection 
+1000 enddo isloop
 950 format(a14,3f23.16)
 990 format(3f12.6)
   call cputid(0)

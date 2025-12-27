@@ -60,7 +60,7 @@ def cal_MLWFvw(args, extra_args):
     # Gather UUU
     merge_files(pattern="UUU.????", output_file="UUU")
     merge_files(pattern="UUD.????", output_file="UUD")
-    run_arg('2', NO_MPI, nfpgw, '/hmaxloc', 'lmaxloc2', *extra_args)
+    run_arg('2', MPI_SIZE, nfpgw, '/hmaxloc', 'lmaxloc2', *extra_args)
     # UUmatrix for Q0P
     run_arg('3', MPI_SIZE, nfpgw, '/huumat_MPI', 'luumat3', *extra_args)
     merge_files(pattern="UUq0U.????", output_file="UUq0U")
