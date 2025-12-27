@@ -42,7 +42,7 @@ def cal_MLWFvw(args, extra_args):
     nfpgw = os.path.dirname(os.path.abspath(__file__))
     MATERIAL = args.extension
     MPI_SIZE = args.np
-    NO_MPI = 0
+    NO_MPI = 1
     option_W = ""
     if args.Wtype in ['up_down', 'down_up']: option_W = f"--spinflip --getW_{args.Wtype}"
 
