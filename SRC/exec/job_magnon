@@ -69,7 +69,7 @@ def cal_MLWFvw(args, extra_args):
     run_arg('10011', NO_MPI, nfpgw, '/hwmatK_MPI', 'lpkm4crpa', *extra_args)
     run_arg('0', MPI_SIZE, nfpgw, '/hvccfp0', 'lvcc', *extra_args)
     run_arg('11', MPI_SIZE, nfpgw, '/hwmatK_MPI', 'lwmatK1', option_W, *extra_args)
-    run_arg('111', MPI_SIZE, nfpgw, '/hx0fp0', 'lx0_111', *extra_args)
+    run_arg('111', MPI_SIZE, nfpgw, '/hx0fp0', 'lx0_111', '--prefer_bpara', *extra_args)
     run_arg('12', MPI_SIZE, nfpgw, '/hwmatK_MPI', 'lwmatK2', option_W, *extra_args)
 
     print("OK! It's finished well.")

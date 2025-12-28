@@ -345,15 +345,24 @@ subroutine hx0fp0()
      enddo
   endif
 
-  n_bpara = 1
-  if(cmdopt2('--nb=', outs)) read(outs,*) n_bpara
-  if(nolfco) n_bpara = 1
-
   nqcalc = iqxend - iqxini + 1
-!  if(cmdopt0('--zmel0')) nqcalc = nqcalc - 1
-!  if(nqcalc < 1) call rx('hx0fp0: sanity check. nqcalc < 1: specify more than 2 q-points in zmel0 mode')
-  n_kpara = max(mpi__size/(n_bpara*nqcalc), 1)  !Default setting of parallelization. b-parallel is 1.
-  if(cmdopt2('--nk=', outs)) read(outs,*) n_kpara
+  n_bpara = 1
+  n_kpara = max(mpi__size/(n_bpara*nqcalc), 1)
+  if(cmdopt0('--prefer_kpara')) then
+    n_bpara = 1
+    n_kpara = max(mpi__size/(n_bpara*nqcalc), 1)
+  elseif(cmdopt0('--prefer_bpara')) then
+    n_kpara = 1
+    n_bpara = max(mpi__size/(n_kpara*nqcalc), 1)
+  endif
+  if(cmdopt2('--nb=', outs)) then
+    read(outs,*) n_bpara
+    n_kpara = max(mpi__size/(n_bpara*nqcalc), 1)
+  elseif(cmdopt2('--nk=', outs)) then
+    read(outs,*) n_kpara
+    n_bpara = max(mpi__size/(n_kpara*nqcalc), 1)
+  endif
+  if(nolfco .and. n_bpara /= 1) call rx('n_bpara must be 1 on noLFC')
   worker_inQtask = n_bpara * n_kpara
   if(ipr) write(stdo,'(1X,A,3I5)') 'MPI: worker_inQtask, n_bpara, n_kpara', worker_inQtask, n_bpara, n_kpara
   call MPI__SplitXq(n_bpara, n_kpara)
