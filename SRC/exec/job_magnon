@@ -61,6 +61,9 @@ def cal_MLWFvw(args, extra_args):
     merge_files(pattern="UUU.????", output_file="UUU")
     merge_files(pattern="UUD.????", output_file="UUD")
     run_arg('2', MPI_SIZE, nfpgw, '/hmaxloc', 'lmaxloc2', *extra_args)
+    if args.stop_MLWF: 
+        print("OK! Generation of MLWF finished.")
+        return
     # UUmatrix for Q0P
     run_arg('3', MPI_SIZE, nfpgw, '/huumat_MPI', 'luumat3', *extra_args)
     merge_files(pattern="UUq0U.????", output_file="UUq0U")
@@ -71,8 +74,7 @@ def cal_MLWFvw(args, extra_args):
     run_arg('11', MPI_SIZE, nfpgw, '/hwmatK_MPI', 'lwmatK1', option_W, *extra_args)
     run_arg('111', MPI_SIZE, nfpgw, '/hx0fp0', 'lx0_111', '--prefer_bpara', *extra_args)
     run_arg('12', MPI_SIZE, nfpgw, '/hwmatK_MPI', 'lwmatK2', option_W, *extra_args)
-
-    print("OK! It's finished well.")
+    print("OK! Generation of MLWF W finished.")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -86,13 +88,16 @@ if __name__ == "__main__":
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.add_argument("extension", help='Extension of the ctrl file') #extension is dummy. just to have similar interface with other scripts
+    parser.add_argument("extension",     help='Extension of the ctrl file') #extension is dummy. just to have similar interface with other scripts
     parser.add_argument("-np",           help='Number of MPI cores for lmf', default=8, type=int)
     parser.add_argument("--Wtype",       help='Wtype: up, down, up_down, or, down_up', default='down_up', type=str)
     parser.add_argument("--skip_MLWFvw", help='Skip generation of MLWF and W', action='store_true')
+    parser.add_argument("--stop_MLWF",   help='Stop at generation of MLWF', action='store_true')
+    parser.add_argument("--stop_MLWFvw", help='Stop at generation of MLWF and W', action='store_true')
     args, extra_args = parser.parse_known_args()
     if not args.skip_MLWFvw:
         cal_lmf(args, extra_args)
         cal_MLWFvw(args, extra_args)
 
-    cal_magnon(args, extra_args)
+    if not args.stop_MLWFvw and not args.stop_MLWF:
+        cal_magnon(args, extra_args)

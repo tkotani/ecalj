@@ -820,7 +820,7 @@ subroutine hmaxloc()
     !     d             nwf,nqbz,nband,nlmto)
 
     ! output
-    OutPutSection: if(mpi__root_s) then
+    OutputSection: if(mpi__root_s) then
     write(6,*)"---------- wlaxloc isp =",is
 
     block
@@ -1146,6 +1146,9 @@ subroutine hmaxloc()
       write(iffb,*)
       write(iffb,*)
     enddo
+    close(ifbnd)
+    close(iftb)
+    close(iffb)
 
     deallocate(eval1,eval3,evecc1)
 
@@ -1158,12 +1161,35 @@ subroutine hmaxloc()
       enddo
     endif
     call writeham(ifham,is,ef,alat,plat,pos,qbz,wbz,rws,irws,hrotk,nspx,natom,nwf,nqbz,nrws)
+
+    DrawWannierBandSyml:block
+      use m_readqplist,only: Readqplistsy, eferm, qplistsy, ndat, xdat
+      logical :: file_exists
+      real(8), allocatable :: eval_syml(:,:)
+      inquire(file='qplist.dat', exist=file_exists)
+      if (.not. file_exists) exit DrawWannierBandSyml
+      call Readqplistsy()
+      allocate(eval_syml(nwf,ndat))
+      do iq = 1, ndat
+        call get_hrotkp_ws(hrotr, rws, drws, irws, qplistsy(:,iq), nwf, nqbz, nrws, hrotkp)
+        call diag_hm(hrotkp, nwf, eval_syml(:,iq), evecc)
+      enddo
+      if(is==1) open(newunit=ifbnd, file="bnds_syml.wan.spin1", status='replace')
+      if(is==2) open(newunit=ifbnd, file="bnds_syml.wan.spin2", status='replace')
+      write(ifbnd,'(A,F12.8)')'# Wannier interpolated band structure: Efermi from qplist.dat is used:', eferm
+      do iband = 1, nwf
+        do iq = 1, ndat
+          write(ifbnd,'(I4,F13.8,F15.8)') iband, xdat(iq), (eval_syml(iband,iq)-eferm)*rydberg()
+        enddo
+        write(ifbnd,*)
+      enddo
+      close(ifbnd)
+      deallocate(eval_syml)
+    endblock DrawWannierBandSyml
+
     deallocate(cnk,umnk,eunk,hrotk,hrotr,hrotkp,evecc,eval,irws,rws,drws, &
       ibasiwf,m_indx,n_indx,l_indx,ibas_indx)
     if (lsh) deallocate(hrotkps,eveccs,evals,evecc2)
-    close(ifbnd)
-    close(iftb)
-    close(iffb)
     !     end of loop over spin
     endif OutputSection 
 1000 enddo isloop
