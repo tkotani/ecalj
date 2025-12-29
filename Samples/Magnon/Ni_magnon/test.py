@@ -5,10 +5,10 @@ def test(args,bindir,testdir,workdir):
     lmfa= f'mpirun -np 1 {bindir}/lmfa '
     lmf = f'mpirun -np {args.np} {bindir}/lmf '
     outfile=f'out.lmf.{MATERIAL}'
-    dat1='wan_ChiPMz.mat.syml1'
-    dat2='wan_ChiPMz.mat.syml2'
-    dat3='wan_ChiPMr.mat.syml1'
-    dat4='wan_ChiPMr.mat.syml2'
+    dat1='TrKpm.syml001'
+    dat2='TrRpm.syml001'
+    dat3='TrRpm.syml002'
+    dat4='TrRpm.syml002'
     tall=''
     
     rmfiles(workdir,[outfile,dat1,dat2,dat3,dat4])
@@ -19,15 +19,12 @@ def test(args,bindir,testdir,workdir):
         lmfa + f" {MATERIAL} > "+ outfile,
         lmf  + f" {MATERIAL} > "+ outfile,
         f"{bindir}/job_band   {MATERIAL} -np {ncore}",
-        f"{bindir}/genMLWF_vw {MATERIAL} -np {ncore}",              # Wannier
-        "echo --- Go into epsPP_magnon. It may take several minutes ---",
         "date",
-        f"{bindir}/epsPP_magnon_chipm_mpi -np {ncore} {MATERIAL}",  # magnon calculation
+        f"{bindir}/job_magnon -np {ncore} {MATERIAL}",  # magnon calculation
         "date",
-        "gnuplot fbplot.glt" ,
-        "gnuplot wanplot.glt",
         "gnuplot mag3d.glt",
-        f"evince {workdir}/magnon3d.pdf &"
+        "gnuplot r_k.glt",
+        "gnuplot wan_bandplot.glt"
     ])
     tol=0.001
     skipcond = lambda line: len(line.split()) >= 5 and all(float(x) == 0.0 for x in line.split()[:5])
@@ -38,10 +35,10 @@ def test(args,bindir,testdir,workdir):
     message1='''
      ======================================================
      Magnon calculation finished                           
-     'wan_ChiPMr.dat' <--- R(q,omega)   
-     'wan_ChiPMz.dat' <--- K(q,omega)
-     '*.eps' are genereted!
-     Compare the results to the prepared eps file in ./eps/
+     'TrRpm.dat' <--- R(q,omega)   
+     'TrKpm.dat' <--- K(q,omega)
+     '*.pdf' are genereted!
+     Compare the results to the prepared eps file in ./ref/
      ======================================================
     '''
     print(message1)

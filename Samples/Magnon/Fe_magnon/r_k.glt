@@ -1,0 +1,21 @@
+set term pdf
+
+set output "r.pdf"
+set xrange[-0.1:0.5]
+set xlabel "{/Symbol w} (eV)"
+set ylabel "R (1/eV)"
+plot \
+"./TrRpm.syml001" u 5:($4==0.1 ? -$7 : NaN) ti 'Im R:q=(0.1,0,0)' w lp ps 0.4 ,\
+"./TrRpm.syml001" u 5:($4==0.3 ? -$7 : NaN) ti 'Im R:q=(0.3,0,0)' w lp ps 0.4 ,\
+"./TrRpm.syml001" u 5:($4==0.1 ? -$6 : NaN) ti 'Re R:q=(0.1,0,0)' w lp ps 0.4 ,\
+"./TrRpm.syml001" u 5:($4==0.3 ? -$6 : NaN) ti 'Re R:q=(0.3,0,0)' w lp ps 0.4 ,\
+
+set output "k.pdf"
+set xrange[-1:4]
+set xlabel "{/Symbol w} (eV)"
+set ylabel "K (1/eV)"
+plot \
+"./TrKpm.syml001" u 5:($4==0.1 ? -$7 : NaN) ti 'Im K:q=(0.1,0,0)' w lp ps 0.4,\
+"./TrKpm.syml001" u 5:($4==0.3 ? -$7 : NaN) ti 'Im K:q=(0.3,0,0)' w lp ps 0.4,\
+"./TrKpm.syml001" u 5:($4==0.1 ? -$6 : NaN) ti 'Re K:q=(0.1,0,0)' w lp ps 0.4,\
+"./TrKpm.syml001" u 5:($4==0.3 ? -$6 : NaN) ti 'Re K:q=(0.3,0,0)' w lp ps 0.4,\

@@ -12,7 +12,7 @@ t_tetrakbt 0
 !Q0Pchoice 1 !1(default):qzerolimit(in practice, See generated Q0P), 2:1/q^2 average in Gamma region
 ! ##### From GWIN0 ################ 
 n1n2n3      4 4 4
-n1n2n3eee   8 8 8
+n1n2n3eps   4 4 4
 QpGcut_psi 4.0  !(See unit_2pioa for unit) |q+G| cutoff for eigenfunction.
 QpGcut_cou 3.0  !(See unit_2pioa for unit) |q+G| cutoff for Coulomb and W.
 unit_2pioa off ! off --> a.u.; on--> unit of QpGcut_* are in 2*pi/alat 
@@ -117,8 +117,9 @@ GaussSmear on ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for
 !  0d0 0d0 0.02d0
 !  0d0 0d0 0.04d0
 ! </QforEPS>
+QforEPSLIncLeft .true. !left edge of QforEPSL is included in the calculation: default .false.
 <QforEPSL>
- 0d0 0d0 0d0   1d0   0d0  0d0 40
+ 0d0 0d0 0d0   1d0   0d0  0d0 11
 </QforEPSL>
 
 ! ##### Maximally localized Wannier function ################ 

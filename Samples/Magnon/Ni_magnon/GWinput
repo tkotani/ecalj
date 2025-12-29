@@ -168,9 +168,10 @@ GaussSmear on ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for
 ! 0d0 0d0 0.02d0
 ! 0d0 0d0 0.04d0
 !</QforEPS>
+QforEPSLIncLeft .true. !left edge of QforEPSL is included in the calculation: default .false.
 <QforEPSL>
- 0d0 0d0 0d0   1d0   0d0  0d0 6
- 0d0 0d0 0d0  .5d0  .5d0  0d0 6
+ 0d0 0d0 0d0   0d0   1d0  0d0 11
+ 0d0 0d0 0d0  .5d0  .5d0 .5d0 8
 </QforEPSL>
  
 !!! ##### Maximally localized Wannier function ################ 
