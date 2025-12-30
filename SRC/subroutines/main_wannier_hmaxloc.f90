@@ -223,7 +223,7 @@ subroutine hmaxloc()
   !       integer(4),allocatable:: idtetf(:,:),ib1bz(:),idteti(:,:)
   !     &    ,nstar(:),irk(:,:),nstbz(:)          !,index_qbz(:,:,:)
   !-----------------------------------------------------------------
-  if(ixc==1 .and. mpi__size > 1) call rx0('Error MPI must be 1 at ixc=1')
+  if(ixc==1 .and. mpi__size > 1) call rx('Error MPI must be 1 at ixc=1')
   if(ixc==1) call MPI__consoleout('hmaxloc1')
   if(ixc==2) call MPI__consoleout('hmaxloc2')
   call read_Bzdata()

@@ -14,9 +14,6 @@ def cal_magnon(args, extra_args):
     run_arg('---', NO_MPI, nfpgw, '/qg4gw', 'lqg4gw02', '--job=40001', *extra_args)
     run_arg('---', MPI_SIZE, nfpgw, '/hmagnon', 'lhmagnon_eta', '--geteta', f"--Wtype={args.Wtype}", *extra_args)
     run_arg('---', MPI_SIZE, nfpgw, '/hmagnon', 'lhmagnon', f"--Wtype={args.Wtype}", *extra_args)
-    os.makedirs('STDOUT', exist_ok=True)
-    for f in glob.glob('stdout*'):
-        os.replace(f, os.path.join('STDOUT', os.path.basename(f)))
 
 def cal_lmf(args, extra_args):
     nfpgw = os.path.dirname(os.path.abspath(__file__))
@@ -25,6 +22,11 @@ def cal_lmf(args, extra_args):
     NO_MPI = 1
     run_arg('---', NO_MPI, nfpgw, '/lmfa', 'llmfa', TARGET, *extra_args)
     run_arg('---', MPI_SIZE, nfpgw, '/lmf', 'llmf', TARGET, *extra_args)
+
+def move_stdout_files_to_dir(file_pattern='stdout*', dest_dir='STDOUT'):
+    os.makedirs(dest_dir, exist_ok=True)
+    for f in glob.glob(file_pattern):
+        os.replace(f, os.path.join(dest_dir, os.path.basename(f)))
 
 def merge_files(pattern, output_file, remove_sources=True):
     files = sorted(glob.glob(pattern))
@@ -98,6 +100,8 @@ if __name__ == "__main__":
     if not args.skip_MLWFvw:
         cal_lmf(args, extra_args)
         cal_MLWFvw(args, extra_args)
+        move_stdout_files_to_dir()
 
     if not args.stop_MLWFvw and not args.stop_MLWF:
         cal_magnon(args, extra_args)
+        move_stdout_files_to_dir()
