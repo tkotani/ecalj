@@ -43,13 +43,14 @@ subroutine hmagnon() bind(C)
   integer, parameter :: is=1, isf=2  !K_down up = Kpm
   real(8), parameter :: pi = 4d0*datan(1d0), znorm=-1d0*pi, eta_default =-1d0
   logical, parameter :: nnwf_size_reduction = .true.
-  logical :: w_onsite_dddd, geteta, negative_cut, ganmma_only, gettetwt_split
+  logical :: w_onsite_dddd, geteta, negative_cut, ganmma_only, gettetwt_split, calcdos
 !!! q on symline
   
   ! cma mode is commented out 2025-12-06. cma mode is no longer maintained. For CMA mode, use old version
 
   hartree = 2d0*rydberg()
   geteta = cmdopt0('--geteta')
+  calcdos  = cmdopt0('--calcdos')
   ganmma_only = geteta  !GammaPoint only calculation
 
   call m_lgunit_init()
@@ -351,7 +352,50 @@ subroutine hmagnon() bind(C)
   call mpi_barrier(comm, istat)
 
   write(stdo,"('eta for 1-eta*WK:',f13.8)") eta
-  ReformatOutputFiles:if(mpi__root) then
+  ReformatOutputFilesForDOS:if(mpi__root .and. calcdos) then
+    block
+      integer :: file_tr_kpm_out, file_tr_rpm_out
+      complex(8), allocatable :: dos_r_tr(:), dos_r_diag(:), dos_k_tr(:), dos_k_diag(:)
+      real(8) ::  www, omega
+      allocate(r_tr(nw_i:nw), r_diag(nw_i:nw), k_tr(nw_i:nw), k_diag(nw_i:nw))
+      allocate(dos_k_tr(nw_i:nw),  source = (0d0,0d0))
+      allocate(dos_r_tr(nw_i:nw),  source = (0d0,0d0))
+      allocate(dos_k_diag(nw_i:nw),  source = (0d0,0d0))
+      allocate(dos_r_diag(nw_i:nw),  source = (0d0,0d0))
+      if( nqcalc /= nqibz) call rx(' ERROR in ReformatOutputFilesForDOS: nqcalc /= nqibz')
+      do iq=1, nqcalc
+        istat = readm(file_tr_kpm, rec=iq, data=k_tr(:))
+        istat = readm(file_tr_rpm, rec=iq, data=r_tr(:))
+        istat = readm(file_tr_diag_kpm, rec=iq, data=k_diag(:))
+        istat = readm(file_tr_diag_rpm, rec=iq, data=r_diag(:))
+        do iw = nw_i, nw
+          dos_k_tr(iw) = dos_k_tr(iw) + k_tr(iw)*wqt(iq)
+          dos_r_tr(iw) = dos_r_tr(iw) + r_tr(iw)*wqt(iq)
+          dos_k_diag(iw) = dos_k_diag(iw) + k_diag(iw)*wqt(iq)
+          dos_r_diag(iw) = dos_r_diag(iw) + r_diag(iw)*wqt(iq)
+        enddo
+      enddo
+      open(newunit=file_tr_kpm_out, file='TrKpm.dos', status='replace', form='formatted', action='write')
+      open(newunit=file_tr_rpm_out, file='TrRpm.dos', status='replace', form='formatted', action='write')
+      write(file_tr_kpm_out, '(A)')' # omega(eV) Real_Tr_K/eV Imag_Tr_K/eV Real_Tr_Diag_K/eV Imag_Tr_Diag_K/eV !omega=0 is commented'
+      write(file_tr_rpm_out, '(A)')' # omega(eV) Real_Tr_R/eV Imag_Tr_R/eV Real_Tr_Diag_R/eV Imag_Tr_Diag_R/eV !omega=0 is commented'
+      do iw = nw_i, nw
+        www = merge(-freq_r(-iw),freq_r(iw),iw<0)
+        omega = www*hartree
+        if(iw==0) then
+          write(file_tr_kpm_out, "(A)", advance = "no") "#"
+          write(file_tr_rpm_out, "(A)", advance = "no") "#"
+        endif
+        write(file_tr_kpm_out, "(e14.6,4e17.9)") omega, dos_k_tr(iw)/hartree, dos_k_diag(iw)/hartree
+        write(file_tr_rpm_out, "(e14.6,4e17.9)") omega, dos_r_tr(iw)/hartree, dos_r_diag(iw)/hartree
+      enddo
+      close(file_tr_kpm_out)
+      close(file_tr_rpm_out)
+      deallocate(r_tr, r_diag, k_tr, k_diag)
+    endblock
+  endif ReformatOutputFilesForDOS
+
+  ReformatOutputFiles:if(mpi__root .and. .not.calcdos) then
     block
       integer :: epslgroup_old, file_tr_kpm_out, file_tr_rpm_out
       character(3) :: charnum3

@@ -24,14 +24,14 @@ module m_q0p
   public:: Getallq0p
   private
 contains
-  subroutine getallq0p(iq0pin,alat,plat,qlat,nnn,alp,alpv,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,lnq0iadd) !! All arguments are input.
+  subroutine getallq0p(iq0pin,alat,plat,qlat,nnn,alp,alpv,nqbz,nqibz,nstbz,qbz,qibz,wibz,symops,ngrp,lnq0iadd) !! All arguments are input.
     use m_keyvalue,only: getkeyvalue
     use m_getqforgw,only: getqonly,qx,nq
     intent(in)         iq0pin,alat,plat,qlat,nnn,alp,alpv,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,lnq0iadd
     integer:: iq0pin !    logical:: newoffsetG
     integer:: nnn(3),nstbz(*),nqbz,nqibz,ngcxx,ngcx(nqbz),ngrp !n1q,n2q,n3q,
     !      integer::ngvect(3,ngcxx,nqbz)
-    real(8):: alat,qlat(3,3),alp,alpv(3),plat(3,3),qbz(3,nqbz),qibz(3,nqibz),symops(3,3,ngrp)
+    real(8):: alat,qlat(3,3),alp,alpv(3),plat(3,3),qbz(3,nqbz),qibz(3,nqibz),symops(3,3,ngrp),wibz(nqibz)
     integer::nq00ix,nx0,nq00i, xyz2lm(3)
     real(8):: xn !,www,wgtq0
     logical:: noq0p,timereversal
@@ -85,11 +85,14 @@ contains
        call getkeyvalue("GWinput","QforEPSau",   unita,default=unita)
        call getkeyvalue("GWinput","QforEPSIBZ",ibzqq,default=.false.)
        call getkeyvalue("GWinput", "QforEPSLIncLeft", qepsl_inc_left, default=.false.)
+       if(cmdopt0('--calcdos')) ibzqq = .true.
        if(ibzqq) then
           write(6,*)'=== Find QforEPSIBZ=on === '
           nq0i= nqibz
           allocate( q0i(3,nq0i) )
           q0i = qibz
+          allocate( wt(nq0i),source = wibz(1:nqibz))
+          allocate(epslgroup(nq0i), source=0) !dummy
        else
           write(6,*)'==== Readin <QforEPS>or<QforEPSL> in GWinput === '
           call getkeyvalue("GWinput","<QforEPS>", unit=ifinin,status=nq0i00,errstop='off')
@@ -147,8 +150,8 @@ contains
              enddo
              deallocate(qmin,qmax,ndiv)
           endif
+         allocate( wt(nq0i),source=0d0 )
        endif
-       allocate( wt(nq0i),source=0d0 )
     elseif(iq0pin==3) then
        nq0i=5
        allocate(epslgroup(nq0i))

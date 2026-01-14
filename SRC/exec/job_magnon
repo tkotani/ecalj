@@ -10,10 +10,12 @@ def cal_magnon(args, extra_args):
     TARGET = args.extension
     MPI_SIZE = args.np
     NO_MPI = 1
+    option_dos = ""
+    if args.dos: option_dos = f"--calcdos"
     print(f"### START K+- R+-: MPI size= {MPI_SIZE}, TARGET= {TARGET}")
-    run_arg('---', NO_MPI, nfpgw, '/qg4gw', 'lqg4gw02', '--job=40001', *extra_args)
-    run_arg('---', MPI_SIZE, nfpgw, '/hmagnon', 'lhmagnon_eta', '--geteta', f"--Wtype={args.Wtype}", *extra_args)
-    run_arg('---', MPI_SIZE, nfpgw, '/hmagnon', 'lhmagnon', f"--Wtype={args.Wtype}", *extra_args)
+    run_arg('---', NO_MPI, nfpgw, '/qg4gw', 'lqg4gw02', '--job=40001', option_dos, *extra_args)
+    run_arg('---', MPI_SIZE, nfpgw, '/hmagnon', 'lhmagnon_eta', '--geteta', f"--Wtype={args.Wtype}", option_dos, *extra_args)
+    run_arg('---', MPI_SIZE, nfpgw, '/hmagnon', 'lhmagnon', f"--Wtype={args.Wtype}", option_dos, *extra_args)
 
 def cal_lmf(args, extra_args):
     nfpgw = os.path.dirname(os.path.abspath(__file__))
@@ -84,8 +86,9 @@ if __name__ == "__main__":
         description=(
             'Magnon dispersion calculation using onsite approximation.\n'
             'genMLWF_vw should be run before this to generate the necessary files.\n'
-            'output files: TrKpm.symlXXX (XXX=001 ~)\n'
-            '              TrRpm.symlXXX (XXX=001 ~)\n'
+            'output files for magnon band: TrKpm.symlXXX (XXX=001 ~)\n'
+            '                              TrRpm.symlXXX (XXX=001 ~)\n'
+            'output files for magnon dos: TrKpm.dos & TrRpm.dos\n'
             'Console output files (stdout.*) are moved to STDOUT directory.'
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter
@@ -94,6 +97,7 @@ if __name__ == "__main__":
     parser.add_argument("-np",           help='Number of MPI cores for lmf', default=8, type=int)
     parser.add_argument("--Wtype",       help='Wtype: up, down, up_down, or, down_up', default='down_up', type=str)
     parser.add_argument("--skip_MLWFvw", help='Skip generation of MLWF and W', action='store_true')
+    parser.add_argument("--dos",         help='carry out dos calculation', action='store_true')
     parser.add_argument("--stop_MLWF",   help='Stop at generation of MLWF', action='store_true')
     parser.add_argument("--stop_MLWFvw", help='Stop at generation of MLWF and W', action='store_true')
     args, extra_args = parser.parse_known_args()

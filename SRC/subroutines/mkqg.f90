@@ -125,7 +125,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
      endif
   endif
   call Getallq0p(iq0pin,alat,plat,qlat,nnn,alp,alpv, &
-       nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,lnq0iadd)
+       nqbz,nqibz,nstbz,qbz,qibz,wibz,symops,ngrp,lnq0iadd)
   do i=nq0i+1,nq0i+nq0iadd
      write(stdo,"('  q0iadd=  ', i3, 3f10.5)") i,q0i(:,i)
   enddo
