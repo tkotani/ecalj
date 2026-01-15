@@ -29,7 +29,7 @@ subroutine hmagnon() bind(C)
   integer:: iwf, jwf, inwf
   integer:: file_tr_kpm, file_tr_rpm, file_tr_diag_kpm, file_tr_diag_rpm
   integer:: iqxini, iqxend, i, iw, iq, kx, istat, nqcalc
-  real(8):: q(3), rydberg, hartree, delta, eta
+  real(8):: q(3), rydberg, hartree, delta, eta, delta_dos
   real(8), allocatable:: qibze(:,:)
   complex(8), pointer:: zxq(:,:,:) => null()
   complex(8), allocatable, target :: kmat(:,:,:)
@@ -71,12 +71,19 @@ subroutine hmagnon() bind(C)
   call ReadGWinputKeys() ! jun2020 new routint to read all inputs
   call getkeyvalue("GWinput","magnon_w_onsite_dddd",w_onsite_dddd,default=.true.)
   call getkeyvalue("GWinput","magnon_delta", delta, default=0d0) !1d-6 for Insulator case
+  call getkeyvalue("GWinput","magnon_delta_dos", delta_dos, default=1d-6)
+
   call getkeyvalue("GWinput","magnon_negative_cut",negative_cut,default=.false.)
   if(mpi__root) then
     write(stdo,ftox) "magnon_w_onsite_dddd", w_onsite_dddd
     write(stdo,ftox) "magnon_geteta", geteta
     write(stdo,ftox) "magnon_delta", delta
+    write(stdo,ftox) "magnon_delta_dos", delta_dos
     write(stdo,ftox) "magnon_negative_cut", negative_cut
+  endif
+  if(calcdos) then
+    delta = delta_dos
+    write(stdo,ftox) "dos calculation: delta_dos is used", delta
   endif
 
   SetQvecList: block
@@ -172,7 +179,7 @@ subroutine hmagnon() bind(C)
   endif SetTemporaryFiles
 
   allocate(imat(1:nnwf,1:nnwf),source=(0d0,0d0))
-  forall(iwf=1:nnwf) imat(iwf,iwf) = 1d0 + img*delta
+  forall(iwf=1:nnwf) imat(iwf,iwf) = 1d0 + img*delta !check the sign
   allocate(kmat(1:nnwf,1:nnwf,(1-npm)*nwhis:nwhis))
   BIGiqloop: do iq = iqxini,iqxend
     if(.NOT. MPI__task(iq)) cycle BIGiqloop
@@ -354,44 +361,43 @@ subroutine hmagnon() bind(C)
   write(stdo,"('eta for 1-eta*WK:',f13.8)") eta
   ReformatOutputFilesForDOS:if(mpi__root .and. calcdos) then
     block
+      use m_read_bzdata, only: idteti, nteti
+      use m_bz_integ, only: ibz_integ
       integer :: file_tr_kpm_out, file_tr_rpm_out
-      complex(8), allocatable :: dos_r_tr(:), dos_r_diag(:), dos_k_tr(:), dos_k_diag(:)
-      real(8) ::  www, omega
-      allocate(r_tr(nw_i:nw), r_diag(nw_i:nw), k_tr(nw_i:nw), k_diag(nw_i:nw))
-      allocate(dos_k_tr(nw_i:nw),  source = (0d0,0d0))
-      allocate(dos_r_tr(nw_i:nw),  source = (0d0,0d0))
-      allocate(dos_k_diag(nw_i:nw),  source = (0d0,0d0))
-      allocate(dos_r_diag(nw_i:nw),  source = (0d0,0d0))
+      complex(8) :: dos_tr_kpm, dos_tr_diag_kpm, dos_tr_rpm, dos_tr_diag_rpm
+      complex(8) :: tr_kpm_ibz(nqibz,nw_i:nw), tr_diag_kpm_ibz(nqibz,nw_i:nw), &
+                    tr_rpm_ibz(nqibz,nw_i:nw), tr_diag_rpm_ibz(nqibz,nw_i:nw)
+      real(8) :: www, omega
+      integer :: tetra_nodes(4,nteti), tetra_weight(nteti)
       if( nqcalc /= nqibz) call rx(' ERROR in ReformatOutputFilesForDOS: nqcalc /= nqibz')
-      do iq=1, nqcalc
-        istat = readm(file_tr_kpm, rec=iq, data=k_tr(:))
-        istat = readm(file_tr_rpm, rec=iq, data=r_tr(:))
-        istat = readm(file_tr_diag_kpm, rec=iq, data=k_diag(:))
-        istat = readm(file_tr_diag_rpm, rec=iq, data=r_diag(:))
-        do iw = nw_i, nw
-          dos_k_tr(iw) = dos_k_tr(iw) + k_tr(iw)*wqt(iq)
-          dos_r_tr(iw) = dos_r_tr(iw) + r_tr(iw)*wqt(iq)
-          dos_k_diag(iw) = dos_k_diag(iw) + k_diag(iw)*wqt(iq)
-          dos_r_diag(iw) = dos_r_diag(iw) + r_diag(iw)*wqt(iq)
-        enddo
-      enddo
-      open(newunit=file_tr_kpm_out, file='TrKpm.dos', status='replace', form='formatted', action='write')
       open(newunit=file_tr_rpm_out, file='TrRpm.dos', status='replace', form='formatted', action='write')
+      open(newunit=file_tr_kpm_out, file='TrKpm.dos', status='replace', form='formatted', action='write')
       write(file_tr_kpm_out, '(A)')' # omega(eV) Real_Tr_K/eV Imag_Tr_K/eV Real_Tr_Diag_K/eV Imag_Tr_Diag_K/eV !omega=0 is commented'
       write(file_tr_rpm_out, '(A)')' # omega(eV) Real_Tr_R/eV Imag_Tr_R/eV Real_Tr_Diag_R/eV Imag_Tr_Diag_R/eV !omega=0 is commented'
+      tetra_nodes(1:4,1:nteti) = idteti(1:4,1:nteti)
+      tetra_weight(1:nteti) = idteti(0,1:nteti)
+      do iq=1, nqcalc
+        istat = readm(file_tr_kpm,      rec=iq, data=tr_kpm_ibz(iq,nw_i:nw))
+        istat = readm(file_tr_rpm,      rec=iq, data=tr_rpm_ibz(iq,nw_i:nw))
+        istat = readm(file_tr_diag_kpm, rec=iq, data=tr_diag_kpm_ibz(iq,nw_i:nw))
+        istat = readm(file_tr_diag_rpm, rec=iq, data=tr_diag_rpm_ibz(iq,nw_i:nw))
+      enddo
       do iw = nw_i, nw
+        dos_tr_kpm   = ibz_integ(nteti, tetra_nodes, tetra_weight, qibze, nqibz, tr_kpm_ibz(:,iw)) 
+        dos_tr_rpm   = ibz_integ(nteti, tetra_nodes, tetra_weight, qibze, nqibz, tr_rpm_ibz(:,iw)) 
+        dos_tr_diag_kpm  = ibz_integ(nteti, tetra_nodes, tetra_weight, qibze, nqibz, tr_diag_kpm_ibz(:,iw)) 
+        dos_tr_diag_rpm  = ibz_integ(nteti, tetra_nodes, tetra_weight, qibze, nqibz, tr_diag_rpm_ibz(:,iw)) 
         www = merge(-freq_r(-iw),freq_r(iw),iw<0)
         omega = www*hartree
         if(iw==0) then
           write(file_tr_kpm_out, "(A)", advance = "no") "#"
           write(file_tr_rpm_out, "(A)", advance = "no") "#"
         endif
-        write(file_tr_kpm_out, "(e14.6,4e17.9)") omega, dos_k_tr(iw)/hartree, dos_k_diag(iw)/hartree
-        write(file_tr_rpm_out, "(e14.6,4e17.9)") omega, dos_r_tr(iw)/hartree, dos_r_diag(iw)/hartree
+        write(file_tr_kpm_out, "(e14.6,4e17.9)") omega, dos_tr_kpm/hartree, dos_tr_diag_kpm/hartree
+        write(file_tr_rpm_out, "(e14.6,4e17.9)") omega, dos_tr_rpm/hartree, dos_tr_diag_rpm/hartree
       enddo
-      close(file_tr_kpm_out)
       close(file_tr_rpm_out)
-      deallocate(r_tr, r_diag, k_tr, k_diag)
+      close(file_tr_kpm_out)
     endblock
   endif ReformatOutputFilesForDOS
 
