@@ -100,7 +100,7 @@ subroutine hmagnon() bind(C)
       iqxend = 1
     else
       write(6,*) ' num of zero weight q0p=',neps
-      write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
+      write(6,"(i6,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
       allocate(qibze(3,nq0i), source = q0i(1:3,1:nq0i))
       iqxini = 1
       iqxend = nq0i
@@ -361,15 +361,15 @@ subroutine hmagnon() bind(C)
   write(stdo,"('eta for 1-eta*WK:',f13.8)") eta
   ReformatOutputFilesForDOS:if(mpi__root .and. calcdos) then
     block
-      use m_read_bzdata, only: idteti, nteti
+      use m_read_bzdata, only: idteti, nteti, ntetf
       use m_bz_integ, only: ibz_integ
       integer :: file_tr_kpm_out, file_tr_rpm_out
       complex(8) :: dos_tr_kpm, dos_tr_diag_kpm, dos_tr_rpm, dos_tr_diag_rpm
       complex(8) :: tr_kpm_ibz(nqibz,nw_i:nw), tr_diag_kpm_ibz(nqibz,nw_i:nw), &
                     tr_rpm_ibz(nqibz,nw_i:nw), tr_diag_rpm_ibz(nqibz,nw_i:nw)
-      real(8) :: www, omega
+      real(8) :: www, omega, tetra_vol
       integer :: tetra_nodes(4,nteti), tetra_weight(nteti)
-      if( nqcalc /= nqibz) call rx(' ERROR in ReformatOutputFilesForDOS: nqcalc /= nqibz')
+      if(nqcalc /= nqibz) call rx(' ERROR in ReformatOutputFilesForDOS: nqcalc /= nqibz')
       open(newunit=file_tr_rpm_out, file='TrRpm.dos', status='replace', form='formatted', action='write')
       open(newunit=file_tr_kpm_out, file='TrKpm.dos', status='replace', form='formatted', action='write')
       write(file_tr_kpm_out, '(A)')' # omega(eV) Real_Tr_K/eV Imag_Tr_K/eV Real_Tr_Diag_K/eV Imag_Tr_Diag_K/eV !omega=0 is commented'
@@ -377,16 +377,17 @@ subroutine hmagnon() bind(C)
       tetra_nodes(1:4,1:nteti) = idteti(1:4,1:nteti)
       tetra_weight(1:nteti) = idteti(0,1:nteti)
       do iq=1, nqcalc
-        istat = readm(file_tr_kpm,      rec=iq, data=tr_kpm_ibz(iq,nw_i:nw))
-        istat = readm(file_tr_rpm,      rec=iq, data=tr_rpm_ibz(iq,nw_i:nw))
+        istat = readm(file_tr_kpm, rec=iq, data=tr_kpm_ibz(iq,nw_i:nw))
+        istat = readm(file_tr_rpm, rec=iq, data=tr_rpm_ibz(iq,nw_i:nw))
         istat = readm(file_tr_diag_kpm, rec=iq, data=tr_diag_kpm_ibz(iq,nw_i:nw))
         istat = readm(file_tr_diag_rpm, rec=iq, data=tr_diag_rpm_ibz(iq,nw_i:nw))
       enddo
+      tetra_vol = 1d0/ntetf ! ntetf was =6*n1*n2*n3
       do iw = nw_i, nw
-        dos_tr_kpm   = ibz_integ(nteti, tetra_nodes, tetra_weight, qibze, nqibz, tr_kpm_ibz(:,iw)) 
-        dos_tr_rpm   = ibz_integ(nteti, tetra_nodes, tetra_weight, qibze, nqibz, tr_rpm_ibz(:,iw)) 
-        dos_tr_diag_kpm  = ibz_integ(nteti, tetra_nodes, tetra_weight, qibze, nqibz, tr_diag_kpm_ibz(:,iw)) 
-        dos_tr_diag_rpm  = ibz_integ(nteti, tetra_nodes, tetra_weight, qibze, nqibz, tr_diag_rpm_ibz(:,iw)) 
+        dos_tr_kpm = ibz_integ(tetra_vol, nteti, tetra_nodes, tetra_weight, qibze, nqibz, tr_kpm_ibz(:,iw)) 
+        dos_tr_rpm = ibz_integ(tetra_vol, nteti, tetra_nodes, tetra_weight, qibze, nqibz, tr_rpm_ibz(:,iw)) 
+        dos_tr_diag_kpm = ibz_integ(tetra_vol, nteti, tetra_nodes, tetra_weight, qibze, nqibz, tr_diag_kpm_ibz(:,iw)) 
+        dos_tr_diag_rpm = ibz_integ(tetra_vol, nteti, tetra_nodes, tetra_weight, qibze, nqibz, tr_diag_rpm_ibz(:,iw)) 
         www = merge(-freq_r(-iw),freq_r(iw),iw<0)
         omega = www*hartree
         if(iw==0) then
