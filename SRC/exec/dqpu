@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
+import os
+import re
 import sys
 import argparse
 import numpy as np
 import pandas as pd
+from collections import defaultdict
 
 def compareqpu_pd(qpu_file1, qpu_file2, print_flag, ecut, etol):
     df_qpu1 = read_df_qpu(qpu_file1)
@@ -37,17 +40,17 @@ def compareqpu_pd(qpu_file1, qpu_file2, print_flag, ecut, etol):
 
     mean_diffs /= len(qlists)
     rms_diffs = np.sqrt(rms_diffs/len(qlists))
+    if print_flag != 'none':
+        print(' === Max differences === ')
+        print_df_diff_qpu(pd.DataFrame([max_diffs]))
 
-    print(' === Max differences === ')
-    print_df_diff_qpu(pd.DataFrame([max_diffs]))
+        print(' === Mean of differences === ')
+        print_df_diff_qpu(pd.DataFrame([mean_diffs]))
 
-    print(' === Mean of differences === ')
-    print_df_diff_qpu(pd.DataFrame([mean_diffs]))
+        print(' === RMS of differences === ')
+        print_df_diff_qpu(pd.DataFrame([rms_diffs]))
 
-    print(' === RMS of differences === ')
-    print_df_diff_qpu(pd.DataFrame([rms_diffs]))
-
-    return max(max_diffs[0:10])
+    return max(max_diffs[0:10]), max(mean_diffs[0:10]), max(rms_diffs[0:10])
 
 def print_df_qpu(df):
     pd.set_option('display.expand_frame_repr', False)
@@ -72,23 +75,62 @@ def read_df_qpu(qpu_file):
         sys.exit()
     return df_qpu
 
-## main ##
-parser = argparse.ArgumentParser()
-parser.add_argument('QPU1', type=str, help='QPU or QPD file')
-parser.add_argument('QPU2', type=str, help='QPU or QPD file')
-parser.add_argument('--ecut', type=float, default=1000, help='energy cutoff from Fermi level')
-parser.add_argument('--etol', type=float, default=0.011, help='eQP difference tolerance')
-parser.add_argument('--print', choices=['none', 'middle', 'all'], default='all', help='print flag middle: print only values with difference > etol')
-args = parser.parse_args()
+def find_qp_files(directory="."):
+    pattern = re.compile(r"(QPU|QPD)\.(\d+)run$")
+    table = defaultdict(dict)
+    for f in os.listdir(directory):
+        m = pattern.match(f)
+        if m:
+            prefix = m.group(1)   # QPU or QPD
+            num = int(m.group(2)) # 1,2,3,...
+            table[num][prefix] = f
+    return dict(sorted(table.items()))
 
-errmax = compareqpu_pd(args.QPU1, args.QPU2, args.print, args.ecut, args.etol)
-print(f'Difference= {errmax:.3f} eV')
+class Formatter(argparse.ArgumentDefaultsHelpFormatter,
+                argparse.RawDescriptionHelpFormatter):
+    pass
 
-if errmax< args.etol:
-    print ('   Comparison OK!  Difference sum=',errmax,' <1.1e-2 between:   ' + args.QPU1+ '   and   ' + args.QPU2)
-    sys.exit()
-else:
-    print ('   Readin two files =  ', args.QPU1, '  ',args.QPU2)
-    print( '   Error! Difference>1.1e-2 between:   ' + args.QPU1 + '   and   ' + args.QPU2, ' :  max(abs(QPU-QPU))=',errmax)
-    print( '   (But small diff can be not a problem. It can be due to a minor machine-depenence.)')
-    sys.exit(-1)
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        prog='dqpu',
+        description=(
+            'Compare QPU/QPD files.\n'
+            'In default mode, eigenvalues below 30 eV are compared.\n'
+            'If two files are not provided, the program automatically searches for QPU/QPD files.\n'
+            'In automatic detection mode, all detected files are compared, and detailed output is omitted.\n'
+        ),
+        formatter_class=Formatter
+    )
+    parser.add_argument('QPU1', nargs='?', type=str, help='QPU or QPD file')
+    parser.add_argument('QPU2', nargs='?', type=str, help='QPU or QPD file')
+    parser.add_argument('--ecut', type=float, default=30, help='energy cutoff from Fermi level')
+    parser.add_argument('--etol', type=float, default=0.011, help='eQP difference tolerance')
+    parser.add_argument('--print', choices=['none', 'summary','middle', 'all'], default='all', help='print flag middle: print only values with difference > etol')
+    args = parser.parse_args()
+
+    if args.QPU1 and args.QPU2:
+        errmax, errmean, errrms = compareqpu_pd(args.QPU1, args.QPU2, args.print, args.ecut, args.etol)
+        print(f'Difference= {errmax:.3f} eV')
+        if errmax < args.etol:
+            print('   Comparison OK!')
+            sys.exit()
+        else:
+            print('   Error! Difference too large.')
+            sys.exit(-1)
+
+    runs = find_qp_files()
+    nums = sorted(runs.keys())
+    for n1, n2 in zip(nums[:-1], nums[1:]):
+        r1 = runs[n1]
+        r2 = runs[n2]
+        errmax = {}
+        errmean = {}
+        errrms = {}
+        for prefix in ("QPU", "QPD"):
+            if prefix in r1 and prefix in r2:
+                errmax[prefix], errmean[prefix], errrms[prefix] = compareqpu_pd(r1[prefix], r2[prefix], 'none', args.ecut, args.etol)
+                print(f"[{prefix}]: {r1[prefix]} vs {r2[prefix]}", end =" ")
+                print(f"Max, Mean, RMS difference = {errmax[prefix]:.3f} eV, {errmean[prefix]:.3f} eV, {errrms[prefix]:.3f} eV")
+        if max(errmax.values()) < args.etol:
+            print("\033[92m Converged !\033[0m")
+    # --- NORMAL MODE ---
