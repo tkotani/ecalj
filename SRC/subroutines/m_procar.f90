@@ -11,7 +11,7 @@ module m_procar
 
  
   private
-  integer::  nchanp=25      !total of s,p,d,f
+  integer::  nchanp=5**2      !total of s,p,d,f
   real(8),allocatable,protected:: dwgtall(:,:,:,:,:),sdendwgtall(:,:,:,:,:)
   logical,private:: isp1init=.true.,isp2init=.true. !,init=.true.
   integer,private:: iprocar1,iprocar2 ,isdenmat
@@ -117,8 +117,8 @@ contains
                 allocate(dlmm_auspp(1:3,-l:l))
                 dlmm_auspp(1:3,-l:l) = matmul(transpose(auspp(ilm+1:ilm+(2*l+1),iband,1:3,isp,ib)), dlmm(-l:l,-l:l,l,ib)) 
                 do  m = -l, l
+                   if(ilm+1>nchanp) goto 1018 !2026-1-23 fix again. 2024-6-22 dwgt segmentation error bugfix
                    ilm = ilm+1 
-                   if(ilm>nchanp) cycle !2024-6-22 dwgt segmentation error bugfix
                    ! auasaz = auspp(ilm,iband,1:3,isp,ib) ! auasaz is for phi,phidot,pz(val=slo=0)
                    auasaz = dlmm_auspp(1:3,m)
                    !Note au,as,az are coefficients for phi1*Ylm phi2*Ylm phi3*Ylm.
@@ -147,10 +147,12 @@ contains
                    EndBlock pdosc
                    dwgt(ilm) = sum(dconjg(auasaz)*matmul( sab_rv(:,:,l+1,isp,ib),auasaz)) 
                 enddo
-             enddo
+              enddo
+1018          continue
+!               write(stdo,ftox)'iiiiiiiiiillllllmmmmmmm ilm=',ilm
              dwgtt(1:ilm) = dwgtt(1:ilm) + dwgt(1:ilm)
              if(ib==1)  write(iprocar,"(a)") trim(ccc)
-             write(iprocar,"(i3,100(x,f8.5))")ib,(dwgt(i),i=1,nchanp),sum(dwgt(1:nchanp))
+              write(iprocar,"(i3,100(x,f8.5))")ib,(dwgt(i),i=1,nchanp),sum(dwgt(1:nchanp))
              if(ib==nbas) write(iprocar,"('tot',100(x,f8.5))")(dwgtt(i),i=1,nchanp),sum(dwgtt(1:nchanp))
              if((.not.idwmode).and.fullmesh) dwgtall(1:nchanp,ib,iband,isp,iq) = dwgt(1:nchanp)
              if(idwmode.and.fullmesh) dwgtk(1:nchanp,ib,iband) = dwgt(1:nchanp) 
