@@ -1,0 +1,36 @@
+set terminal pdf
+set xzeroaxis
+set grid
+set ylabel "Energy-Efermi(eV)"
+set yrange [   -5.00000:    5.00000]
+set xrange [0.0:     4.48735]
+set xtics ('GAMMA'   0.0000000000,\
+'X'   1.0000000000,\
+'U|K'   1.3535533906,\
+'GAMMA'   2.4142135624,\
+'L'   3.2802389662,\
+'W'   3.9873457473,\
+'X'   4.4873457473)
+
+set output "fatband.pdf"
+set title "ni2mnga isp=1 Mn/Ni d orbital"
+plot \
+"bnd001.spin1" u ($2):($3) lt 1 pt 1 w l ti '',\
+"bnd002.spin1" u ($2):($3) lt 1 pt 1 w l ti '',\
+"bnd003.spin1" u ($2):($3) lt 1 pt 1 w l ti '',\
+"bnd004.spin1" u ($2):($3) lt 1 pt 1 w l ti '',\
+"bnd005.spin1" u ($2):($3) lt 1 pt 1 w l ti '',\
+"bnd006.spin1" u ($2):($3) lt 1 pt 1 w l ti '',\
+"bandweight_atom1.spin1" u 1:2:($7+$8+$9+$10+$11) w p lt 2 pt 7 pointsize variable ti 'Mn d' ,\
+"bandweight_atom2.spin1" u 1:2:($7+$8+$9+$10+$11) w p lt 4 pt 7 pointsize variable ti 'Ni d' ,\
+
+set title "ni2mnga isp=2 Mn/Ni d orbital"
+plot \
+"bnd001.spin2" u ($2):($3) lt 1 pt 1 w l ti '',\
+"bnd002.spin2" u ($2):($3) lt 1 pt 1 w l ti '',\
+"bnd003.spin2" u ($2):($3) lt 1 pt 1 w l ti '',\
+"bnd004.spin2" u ($2):($3) lt 1 pt 1 w l ti '',\
+"bnd005.spin2" u ($2):($3) lt 1 pt 1 w l ti '',\
+"bnd006.spin2" u ($2):($3) lt 1 pt 1 w l ti '',\
+"bandweight_atom1.spin2" u 1:2:($7+$8+$9+$10+$11) w p lt 2 pt 7 pointsize variable ti 'Mn d' ,\
+"bandweight_atom2.spin2" u 1:2:($7+$8+$9+$10+$11) w p lt 4 pt 7 pointsize variable ti 'Ni d' ,\
