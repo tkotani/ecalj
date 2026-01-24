@@ -3,8 +3,8 @@
 1. Run lmf and band calculations.
 2. Set model bands in GWinput
 3. Set
-       mlo_method 1 (for GaAs) or
-       mlo_method 2 (for Ni3d and O2p. To extract such narrow bands).
+      mlo_method 0
+      mlo_emax 0 for seimconductor, or 7 for Al2O3_Cr. (above energy eV for localized orbitals relative to Efermi).
 4. Then Run job_mlo. and See gnuplot -p bandplot_MLO.isp1.glt
 
 >job_mlo gaas -np 8

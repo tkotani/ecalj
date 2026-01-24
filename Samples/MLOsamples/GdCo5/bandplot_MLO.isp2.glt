@@ -1,0 +1,34 @@
+set terminal postscript enhanced color eps
+set output "bandplot.isp2.band.eps"
+set xzeroaxis
+set grid
+set ylabel "Energy-Efermi(eV)"
+# This is given written in subroutine writeband in lm7K/fp/bndfp.F
+set title "Band gdco5 isp=2 at /home/takao/people/Liqin/GdCo5"
+set yrange [   -20.00000:    20.00000]
+set xrange [0.0:     1.01319]
+set xtics ('GAMMA'   0.0000000000,\
+'M'   0.1163309047,\
+'K'   0.1834945825,\
+'GAMMA'   0.3178219402,\
+'A'   0.4436714242,\
+'L'   0.5600023288,\
+'H'   0.6271660067,\
+'A|L'   0.7614933643,\
+'M|H'   0.8873428483,\
+'K'   1.0131923324)
+tpia=2*3.1415926/     1.88973
+ef= -0.026254
+plot \
+"band_MLO_spin2.dat" u ($1):(13.605*($2-ef)) pt 2 lc rgb "red",\
+"bnd001.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd002.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd003.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd004.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd005.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd006.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd007.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd008.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd009.spin2" u ($2):($3) lt 1 pt 1 w lp
+set terminal x11
+replot
