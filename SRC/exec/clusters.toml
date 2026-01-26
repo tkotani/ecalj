@@ -1,0 +1,24 @@
+[default]
+launcher = "mpirun"
+launcher_args = ["-np {nprocs}"]
+env = {}
+
+[impi]
+launcher = "mpirun"
+launcher_args = ["-np {nprocs}", "-ppn {npernode}"]
+env = {}
+
+[ohtaka]
+launcher = "srun"
+launcher_args = ["-n {nprocs}"]
+env = {}
+
+[kugui_gpu]
+launcher = "mpirun"
+launcher_args = ["-np {nprocs}", "-npernode {npernode}", "--bind-to none"]
+env = {}
+
+[es_gpu]
+launcher = "mpirun"
+launcher_args = ["-np {nprocs}", "-npernode {npernode}", "--bind-to none", "-x LD_LIBRARY_PATH"]
+env = {}

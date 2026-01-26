@@ -1,115 +1,144 @@
 #!/usr/bin/env python3
-import os, subprocess, sys, shutil,time,argparse,re
+import os
+import sys
+import shutil
+import time
+import argparse
+import subprocess
+from pathlib import Path
 
-parser = argparse.ArgumentParser(prog='InstallAll',description=
-'''
-Install ecalj and run tests. Instead of InstallAll, we will use InstallAll.py
+parser = argparse.ArgumentParser(prog='InstallAll', description='''
+Install ecalj and run tests.
 ''')
-parser.add_argument("-np",    help='number of mpi cores for install test',default=8,type=int)
-parser.add_argument('--clean',help='Clean CMakeCache CMakeFiles before make',action='store_true')
-parser.add_argument('--gpu'  ,help='nvfortran for GPU',action='store_true')
-parser.add_argument('--bindir',help='ecalj binaries and scripts',type=str,default=os.path.join(os.getenv('HOME'), 'bin'))
-parser.add_argument('--fc'   ,help='fortran compilar  gfortran/ifort/ifx/nvfortran',type=str,required=True)
-parser.add_argument('--notest' ,help='no test. only compile',action='store_true')
-parser.add_argument('--verbose' ,help='verbose on for debug',action='store_true')
-parser.add_argument('--debug' ,help='debug',action='store_true')
-args=parser.parse_args()
+parser.add_argument("-np", help='number of mpi cores for install test', default=8, type=int)
+parser.add_argument('--clean', help='Clean CMakeCache CMakeFiles before make', action='store_true')
+parser.add_argument('--gpu', help='nvfortran for GPU', action='store_true')
+parser.add_argument('--bindir', help='ecalj binaries and scripts', type=str, default=str(Path.home() / 'bin'))
+parser.add_argument('--fc', help='fortran compiler gfortran/ifort/ifx/nvfortran', type=str, required=True)
+parser.add_argument('--notest', help='no test. only compile', action='store_true')
+parser.add_argument('--verbose', help='verbose on for debug', action='store_true')
+parser.add_argument('--debug', help='debug', action='store_true')
+args = parser.parse_args()
 
-def build_and_install_gemmul8(buildir, bindir):
-    repo_url = "https://github.com/RIKEN-RCCS/GEMMul8"
-    clone_dir = os.path.join(buildir, "GEMMul8")
-    libfile = os.path.join(clone_dir, "GEMMul8", "lib", "libgemmul8.so")
-    if not os.path.exists(clone_dir):
-        subprocess.run(["git", "clone", repo_url, clone_dir])
-    if not os.path.isfile(libfile):
-        subprocess.run(["make", "-j"], cwd=clone_dir)
+def run_command(command, cwd=None, env=None):
+    """Executes a shell command and exits if it fails."""
     try:
-        shutil.copy(libfile, bindir)
+        # Path objects are automatically converted to strings for subprocess.
+        subprocess.run(command, shell=True, check=True, cwd=cwd, env=env)
+    except subprocess.CalledProcessError as e:
+        print(f"Command failed: {e.cmd}", file=sys.stderr)
+        sys.exit(1)
+
+def build_and_install_gemmul8(build_dir: Path, bin_dir: Path):
+    repo_url = "https://github.com/RIKEN-RCCS/GEMMul8"
+    clone_dir = build_dir / "GEMMul8"
+    libfile = clone_dir / "GEMMul8" / "lib" / "libgemmul8.so"
+
+    if not clone_dir.exists():
+        run_command(f"git clone {repo_url} {clone_dir}")
+
+    if not libfile.is_file():
+        run_command("make -j", cwd=clone_dir)
+
+    try:
+        shutil.copy(libfile, bin_dir)
     except Exception as e:
-        pass
+        print(f"Warning: Failed to copy {libfile} to {bin_dir}: {e}", file=sys.stderr)
 
 def main():
-    if(args.debug):
-        BUILD_TYPE = "Debug"    # = "Debug"
-    else:
-        BUILD_TYPE = "Release"    # = "Debug"
-    CWD =os.getcwd()
-    HOME=os.getenv('HOME')
-    BINDIR = os.path.abspath(os.path.expanduser(args.bindir)) #os.path.join(HOME, 'bin')  # Make directory for ecalj binaries and scripts.
-    ncore=args.np
-    #FC = os.getenv('FC')
-    #if not FC:
-    FC=args.fc
-    verbose=''
-    if(args.verbose): verbose='VERBOSE=1 '
-    #    if(FC==''):
-    #        print('Usage: >FC=gfortran ./InstallAll [options]. Run ./InstallAll -h for help.')
-    #        sys.exit()
-    os.makedirs(BINDIR, exist_ok=True)
-    print(f"Going to install required binaries and scripts to {BINDIR}")
+    BUILD_TYPE = "Debug" if args.debug else "Release"
+    CWD = Path.cwd()
+    BIN_DIR = Path(args.bindir).expanduser().resolve()
+    ncore = args.np
+    FC = args.fc
+    verbose = 'VERBOSE=1 ' if args.verbose else ''
+
+    BIN_DIR.mkdir(parents=True, exist_ok=True)
+    print(f"Going to install required binaries and scripts to {BIN_DIR}")
     start0_time = time.time()
-    # Make links
-    EXECDIR = os.path.join(CWD,'SRC/exec')
-    BUILDIR = os.path.join(CWD,'SRC/exec/build')
-    print(EXECDIR)
-    for scr in ['StructureTool/viewvesta', 'StructureTool/ctrl2vasp', 'StructureTool/vasp2ctrl','GetSyml/getsyml']:
-        src   = os.path.join(CWD, scr+'.py')
-        slink  = os.path.join(BINDIR,  scr.split('/')[-1])
-        slink2 = os.path.join(EXECDIR, scr.split('/')[-1])
-        if os.path.exists(os.path.join(BINDIR, slink)):
-            os.remove(os.path.join(BINDIR,  slink))
-        if os.path.exists(os.path.join(BINDIR, slink2)):
-            os.remove(os.path.join(EXECDIR, slink2))
-        print(f"ln -s {src} {slink}",f"ln -s {src} {slink2}")
-        os.symlink(src, slink)
-        os.symlink(src, slink2)
-    if(args.clean):
-        # Clean CMakeCache & CMakeFiles in exec
-        os.path.exists(f'{EXECDIR}/Makefile') and subprocess.run(["make", "clean"], cwd=EXECDIR)
-        os.path.exists(f'{EXECDIR}/CMakeCache.txt') and os.remove(f'{EXECDIR}/CMakeCache.txt')
-        shutil.rmtree(f'{EXECDIR}/CMakeFiles', ignore_errors=True)
-        shutil.rmtree(f'{BUILDIR}', ignore_errors=True)
-    os.makedirs(f'{BUILDIR}', exist_ok=True)
-    if(args.gpu): #Obata for nvfortran
-        build_and_install_gemmul8(BUILDIR, BINDIR)
-        if os.system(f'FC={FC} cmake -S {EXECDIR} -B {BUILDIR} -DBUILD_MP=ON -DBUILD_GPU=ON -DBUILD_MP_GPU=ON -DCMAKE_BUILD_TYPE={BUILD_TYPE}') != 0:sys.exit(1)
-    elif(FC in ["gfortran", "ifort", "ifx", "nvfortran"]):
-        if os.system(f'FC={FC} cmake -S {EXECDIR} -B {BUILDIR} -DCMAKE_BUILD_TYPE={BUILD_TYPE}') != 0: sys.exit(1)
-    else:
-        print('Check InstallAll')
-        sys.exit(-1)
+
+    # --- Make links ---
+    EXEC_DIR = CWD / 'SRC' / 'exec'
+    BUILD_DIR = EXEC_DIR / 'build'
+
+    scripts_to_link = ['StructureTool/viewvesta', 'StructureTool/ctrl2vasp', 'StructureTool/vasp2ctrl', 'GetSyml/getsyml']
+    for scr_path_str in scripts_to_link:
+        script_path = Path(scr_path_str)
+        src_file = CWD / f"{scr_path_str}.py"
+
+        for dest_dir in [BIN_DIR, EXEC_DIR]:
+            link_path = dest_dir / script_path.name
+            if link_path.exists():
+                link_path.unlink()
+            link_path.symlink_to(src_file)
+    print(f"Symbolic links created in {BIN_DIR} and {EXEC_DIR}")
+
+    # --- Clean up build directories if requested ---
+    if args.clean:
+        print("Cleaning previous build files...")
+        makefile = EXEC_DIR / 'Makefile'
+        if makefile.exists():
+            run_command("make clean", cwd=EXEC_DIR)
+
+        (EXEC_DIR / 'CMakeCache.txt').unlink(missing_ok=True)
+        shutil.rmtree(EXEC_DIR / 'CMakeFiles', ignore_errors=True)
+        shutil.rmtree(BUILD_DIR, ignore_errors=True)
+
+    BUILD_DIR.mkdir(parents=True, exist_ok=True)
+
+    # --- Configure and Build using CMake ---
+    cmake_env = os.environ.copy()
+    cmake_env['FC'] = FC
+
+    cmake_options = f"-S {EXEC_DIR} -B {BUILD_DIR} -DCMAKE_BUILD_TYPE={BUILD_TYPE}"
+    if args.gpu:
+        print("Configuring for GPU build...")
+        build_and_install_gemmul8(BUILD_DIR, BIN_DIR)
+        cmake_options += " -DBUILD_MP=ON -DBUILD_GPU=ON -DBUILD_MP_GPU=ON"
+
+    run_command(f"cmake {cmake_options}", env=cmake_env)
+
     jobs = min(os.cpu_count(), 32)
-    if os.system(f'{verbose}cmake --build {BUILDIR} -j{jobs}') != 0: sys.exit(1)
-    # Copy executables to BINDIR (but not soft link)
-    executables = [
-        os.path.join(d, f)
-        for d in [EXECDIR, BUILDIR]
-        for f in os.listdir(d)
-        if os.path.isfile(os.path.join(d, f))
-        and not os.path.islink(os.path.join(d, f))
-        and os.access(os.path.join(d, f), os.X_OK)
-    ]
-    print('COPY to BINDIR',executables)
-    for exe in executables:
+    print(f"Building with {jobs} parallel jobs...")
+    run_command(f"{verbose}cmake --build {BUILD_DIR} -j{jobs}")
+
+    # --- Copy executables to BIN_DIR ---
+    print(f'Copying executables to {BIN_DIR}')
+    for path_item in BUILD_DIR.iterdir():
+        if path_item.is_file() and os.access(path_item, os.X_OK):
+            try:
+                shutil.copy(path_item, BIN_DIR)
+            except (OSError, PermissionError) as e:
+                print(f"Warning: Skipping {path_item.name}: {e}", file=sys.stderr)
+
+    # Copy clusters.toml from EXEC_DIR to BIN_DIR
+    clusters_toml_src = EXEC_DIR / 'clusters.toml'
+    if clusters_toml_src.exists():
         try:
-            shutil.copy(exe, BINDIR)
+            shutil.copy(clusters_toml_src, BIN_DIR)
+            print(f"Copied {clusters_toml_src} to {BIN_DIR}")
         except (OSError, PermissionError) as e:
-            print(f"Skip {exe}: {e}")
-    if(args.notest):
-        print('No test. Only compile.')
+            print(f"Warning: Failed to copy {clusters_toml_src} to {BIN_DIR}: {e}", file=sys.stderr)
+    else:
+        print(f"Info: {clusters_toml_src} not found, skipping copy.")
+
+    if args.notest:
+        print('Compilation finished. Skipping tests.')
         return
-    
-    # Install test
-    print()
-    print('=== goto test ===')
-    os.chdir(f'{CWD}/Samples/TestInstall')
+
+    # --- Run Install test ---
+    print('\n=== Running installation test ===')
+    test_dir = CWD / 'Samples' / 'TestInstall'
     start_time = time.time()
-    os.system(f'{BINDIR}/testecalj -np {ncore} --all')
+
+    run_command(f"{BIN_DIR / 'testecalj'} -np {ncore} --all", cwd=test_dir)
+
     end_time = time.time()
     elapsed_time = end_time - start_time
-    elapsed0_time = start_time-start0_time
-    print(f"Elapsed time for make        : {elapsed0_time:.0f} seconds")
+    elapsed0_time = end_time - start0_time
+    print(f"\nElapsed time for make        : {elapsed_time:.0f} seconds")
     print(f"Elapsed time for testecalj.py: {elapsed_time:.0f} seconds")
+    print(f"Total elapsed time           : {elapsed0_time:.0f} seconds")
 
 if __name__ == "__main__":
     main()
