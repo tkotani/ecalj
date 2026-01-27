@@ -5,7 +5,7 @@ import shutil
 import glob
 import argparse
 from pathlib import Path
-from gwutil import gen_dir, mv_files, cp_files, rm_files
+from utils import ensure_dir, remove_files, copy_files, move_files
 from run_cmd import run_cmd, run_lmf, MPIParams
 
 EXEC_DIR =Path(__file__).resolve().parent
@@ -17,29 +17,28 @@ parser = argparse.ArgumentParser(prog='gwsc',description='''
 parser.add_argument("nloop",       help='number of QSGW iteration, starting from current result.',default=1,type=int)
 parser.add_argument("extension",   help='extension of ctrl')
 parser.add_argument("-np",         help='number of mpi cores in lmf',default=4,type=int)
-parser.add_argument("-npernode",   help='number of mpi cores per node',default=None,type=int)
+parser.add_argument("-ppn",        help='number of mpi cores per node',default=None,type=int)
 parser.add_argument("-np2", "-npgpu", help='number of mpi cores in GPU calculation', type=int, default=None) 
-parser.add_argument("-npernode2", "-npernodegpu", help='number of mpi cores per node for gpu calculation', type=int, default=None)
+parser.add_argument("-ppn2", "-ppngpu", help='number of mpi cores per node',default=None,type=int)
 parser.add_argument('--phispinsym',help='spin-symmetrized augmentation',action='store_true')
 parser.add_argument('--emptyrun'  ,help='test for gprof for memory',    action='store_true')
 parser.add_argument('--gpu'       ,help='USE GPU version for hsfp0 and hrcxq',    action='store_true')
 parser.add_argument('--gemmul8'   ,help='USE GEMMul8 valid in GPU without MP',    action='store_true')
 parser.add_argument('--mp'        ,help='USE mixed precision version for hsfp0 and hrcxq',    action='store_true')
-parser.add_argument("--cluster", help="", default="default", type=str)
+parser.add_argument("--cluster"   ,help="cluster name", default="default", type=str)
 args,unknown=parser.parse_known_args()
 
 target=''.join(re.split('ctrl.',args.extension)) #to accept ctrl.si and si
 cluster = args.cluster
-nloop=args.nloop
-ncore=args.np
-ncore2=args.np
-npernode=args.npernode
-npernode2=args.npernode
-epath=os.path.dirname(os.path.abspath(__file__))
-if args.np2!=None:
-   ncore2=int(args.np2)
-if args.npernode2!=None:
-   npernode2=int(args.npernode2)
+nloop = args.nloop
+
+#number of MPI process
+ncore = args.np
+ncore2 = args.np2 if args.np2 is not None else args.np
+
+#number of MPI per node
+npernode = args.ppn
+npernode2 = args.ppn2 if args.ppn2 is not None else args.ppn
 
 # Define MPI parameter sets for different parts of the calculation
 mpi_params_lmf = {"nprocs": ncore, "npernode": npernode}
@@ -48,21 +47,15 @@ mpi_params_single = {"nprocs": 1, "npernode": None}
 
 options = []
 exec_type = ""
-
-# existing
 if args.phispinsym:
     options.append("--phispinsym")
-
 if args.emptyrun:
     options.append("--emptyrun")
-
 if args.mp:
     exec_type = "_mp"
-
 if args.gpu:
     exec_type = exec_type + "_gpu"
     options.append("--keepwv")
-
 if args.gemmul8:
     options.append("--use_gemmul8")
     libpath = Path(__file__).resolve().parent / "libgemmul8.so"
@@ -71,9 +64,9 @@ if args.gemmul8:
         raise FileNotFoundError(f"{libpath} does not exist.")
 
 options.extend(unknown)
-
 run_cmd(cluster, MPIParams(command='echo', args=["--- Start gwsc ---"], **mpi_params_single))
 print('option=',options)
+
 try:
     tmp=[int(s.strip('QPU.').strip('run')) for s in os.listdir() if 'QPU.' in s]
     Iter0=max(tmp) if len(tmp)!=0 else 0
@@ -82,24 +75,28 @@ except:
 if(nloop==0):
     nloop=1
     print('WARN: We replace ITERADD=0 with ITERADD=1 because of backward compatibility.')
+
 initxt="### START gwsc: ITERADD= %d, MPI size=  %d, %d TARGET= %s"%(nloop,ncore,ncore2,target)
 print(initxt,flush=True)
-gen_dir('SEBK')
-gen_dir('STDOUT')
+ensure_dir('SEBK')
+ensure_dir('STDOUT')
 sigm_name='sigm.%s'%target
 rst_name ='rst.%s'%target
 
 #  sigm_name is a softlink. sigm contains static self-energy - Vxc
-if (not os.path.islink(sigm_name)) and os.path.isfile(sigm_name):
-    shutil.move(sigm_name,'sigm')
-if not os.path.islink(sigm_name):
-    os.symlink('sigm',sigm_name) # sigm_name is a softlike to sigm
+sigm = Path("sigm")
+sigm_name = Path(sigm_name)
+if sigm_name.exists() and not sigm_name.is_symlink():
+    shutil.move(str(sigm_name), sigm)
+if not sigm_name.is_symlink():
+    sigm_name.unlink(missing_ok=True)
+    sigm_name.symlink_to(sigm)
 
 flist=['ctrl.%s'%target,rst_name,sigm_name,'save.%s'%target,'log.%s'%target,'QPU','QPD','GWinput','lsxC','lsx','lsc','ECORE']
 
 #initial band structre
 print('===== Ititial band structure ====== ',flush=True)
-if os.path.isfile(sigm_name):
+if sigm_name.is_file():
     print("--> We use existing sigm file",flush=True)
     run_lmf(cluster, target,
             MPIParams(command=EXEC_DIR/"lmf", args=[target, *options], **mpi_params_lmf),
@@ -113,10 +110,9 @@ else:
             bmix_reduction=True, stdout="llmf_lda")
     shutil.copy(rst_name,rst_name+'.lda')
     rundir='LDA'
-    gen_dir(rundir)
-    cp_files(flist,rundir)
-    cp_files(glob.glob('atmpnu*'),rundir)
-    rm_files(glob.glob('__mixm*%s*'%target))
+    ensure_dir(rundir)
+    patterns = [*flist, 'atmpnu*']; copy_files(*patterns, dest_dir=rundir)
+    remove_files(f'__mixm*{target}*')
 
 # main iteration ###################################
 if(Iter0!=0): print(f'We found QPU.{Iter0} -->start to generate QPU.{Iter0+1}...')
@@ -135,21 +131,21 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
     run_cmd(cluster, MPIParams(command=EXEC_DIR/"hbasfp0", args=["--job=3", *options], **mpi_params_single), stdout="lbasC")
     run_cmd(cluster, MPIParams(command=EXEC_DIR/f"hvccfp0{exec_type}", args=["--job=3", *options], **mpi_params_gw), stdout="lvccC")
     run_cmd(cluster, MPIParams(command=EXEC_DIR/f"hsfp0_sc{exec_type}", args=["--job=3", *options], **mpi_params_gw), stdout="lsxC")
-    mv_files(glob.glob('stdout*'),'STDOUT')
+    move_files('stdout*', dest_dir='STDOUT')
 
     ## Valence part of the self-energy Sigma ##
     run_cmd(cluster, MPIParams(command=EXEC_DIR/"hbasfp0", args=["--job=0", *options], **mpi_params_single), stdout="lbas")
     run_cmd(cluster, MPIParams(command=EXEC_DIR/f"hvccfp0{exec_type}", args=["--job=0", *options], **mpi_params_gw), stdout="lvcc")
     run_cmd(cluster, MPIParams(command=EXEC_DIR/f"hsfp0_sc{exec_type}", args=["--job=1", *options], **mpi_params_gw), stdout="lsx")
-    mv_files(glob.glob('stdout*'),'STDOUT')
+    move_files('stdout*', dest_dir='STDOUT')
 
     ## Screened interaction W ##
     run_cmd(cluster, MPIParams(command=EXEC_DIR/f"hrcxq{exec_type}", args=["--jobgw=1", *options], **mpi_params_gw), stdout="lrcxq")
-    mv_files(glob.glob('stdout*'),'STDOUT')
+    move_files('stdout*', dest_dir='STDOUT')
 
     ## Correlation self-energy ##
     run_cmd(cluster, MPIParams(command=EXEC_DIR/f"hsfp0_sc{exec_type}", args=["--job=2", *options], **mpi_params_gw), stdout="lsc")
-    mv_files(glob.glob('stdout*'),'STDOUT')
+    move_files('stdout*', dest_dir='STDOUT')
 
     ## Make Vxc^QSGW (sigm file)
     run_cmd(cluster, MPIParams(command=EXEC_DIR/"hqpe_sc", args=[*options], **mpi_params_single), stdout="lqpe")
@@ -158,13 +154,15 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
     run_lmf(cluster, target, MPIParams(command=EXEC_DIR/"lmf", args=[target, *options], **mpi_params_lmf), stdout="llmf")
 
     # final part of iteration loop. Manupulate files
-    mv_files(glob.glob('SEX*')+glob.glob('SEC*')+glob.glob('XC*'),'SEBK')
-    for f in ['QPU','QPD','llmf','atmpnu*']:
-        if os.path.isfile(f): shutil.copy(f,f+'.%drun'%niter)
+    move_files('SEX*', 'SEC*', 'XC*', dest_dir='SEBK')
+    for name in ['QPU', 'QPD', 'llmf']:
+        f = Path(name)
+        if f.is_file():
+            shutil.copy(f, f.with_name(f"{name}.{niter}run"))
+
     rundir='QSGW.%drun'%niter
-    gen_dir(rundir)
-    cp_files(flist,rundir)
-    cp_files(glob.glob('dos*')+glob.glob('atmpnu*'),rundir)
+    ensure_dir(rundir)
+    patterns = [*flist, 'atmpnu*']; copy_files(*patterns, dest_dir=rundir)
 
     print(f'===== QSGW iteration end   iter {niter} ===',flush=True)
 print('OK! ==== All calclation finished for  gwsc ====')

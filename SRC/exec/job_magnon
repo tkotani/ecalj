@@ -1,84 +1,71 @@
 #!/usr/bin/env python3
-import os
 import argparse
-import glob as glob
-import shutil
-from run_arg import run_arg
+from pathlib import Path
+from run_cmd import run_cmd, MPIParams
+from utils import merge_files, move_files
+
+EXEC_DIR = Path(__file__).resolve().parent
 
 def cal_magnon(args, extra_args):
-    nfpgw = os.path.dirname(os.path.abspath(__file__))
-    TARGET = args.extension
-    MPI_SIZE = args.np
-    NO_MPI = 1
-    option_dos = ""
-    if args.dos: option_dos = f"--calcdos"
-    print(f"### START K+- R+-: MPI size= {MPI_SIZE}, TARGET= {TARGET}")
-    run_arg('---', NO_MPI, nfpgw, '/qg4gw', 'lqg4gw02', '--job=40001', option_dos, *extra_args)
-    run_arg('---', MPI_SIZE, nfpgw, '/hmagnon', 'lhmagnon_eta', '--geteta', f"--Wtype={args.Wtype}", option_dos, *extra_args)
-    run_arg('---', MPI_SIZE, nfpgw, '/hmagnon', 'lhmagnon', f"--Wtype={args.Wtype}", option_dos, *extra_args)
+    cluster = args.cluster
+    mpi_size = args.np
+    target = args.extension
+    option_dos = "--calcdos" if args.dos else ""
+
+    print(f"### start k+- r+-: mpi size= {mpi_size}, target= {target}")
+    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"qg4gw",
+                               args=["--job=40001", option_dos, *extra_args]), stdout="lqg4gw02")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hmagnon",
+                               args=["--geteta", f"--Wtype={args.Wtype}", option_dos, *extra_args]), stdout="lhmagnon_eta")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hmagnon",
+                               args=[f"--Wtype={args.Wtype}", option_dos, *extra_args]), stdout="lhmagnon")
 
 def cal_lmf(args, extra_args):
-    nfpgw = os.path.dirname(os.path.abspath(__file__))
-    TARGET = args.extension
-    MPI_SIZE = args.np
-    NO_MPI = 1
-    run_arg('---', NO_MPI, nfpgw, '/lmfa', 'llmfa', TARGET, *extra_args)
-    run_arg('---', MPI_SIZE, nfpgw, '/lmf', 'llmf', TARGET, *extra_args)
+    cluster = args.cluster
+    mpi_size = args.np
+    target = args.extension
+    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"lmfa", args=[target, *extra_args]), stdout="llmfa")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf", args=[target, *extra_args]), stdout="llmf")
 
-def move_stdout_files_to_dir(file_pattern='stdout*', dest_dir='STDOUT'):
-    os.makedirs(dest_dir, exist_ok=True)
-    for f in glob.glob(file_pattern):
-        os.replace(f, os.path.join(dest_dir, os.path.basename(f)))
-
-def merge_files(pattern, output_file, remove_sources=True):
-    files = sorted(glob.glob(pattern))
-    files = [f for f in files if os.path.abspath(f) != os.path.abspath(output_file)]
-    if not files:
-        return
-    with open(output_file, "wb") as wfd:
-        for f in files:
-            with open(f, "rb") as fd:
-                shutil.copyfileobj(fd, wfd)
-            if remove_sources:
-                os.remove(f)
 
 def cal_MLWFvw(args, extra_args):
-    nfpgw = os.path.dirname(os.path.abspath(__file__))
-    MATERIAL = args.extension
-    MPI_SIZE = args.np
-    NO_MPI = 1
-    option_W = ""
-    if args.Wtype in ['up_down', 'down_up']: option_W = f"--spinflip --getW_{args.Wtype}"
+    cluster = args.cluster
+    target = args.extension
+    mpi_size = args.np
+    options = extra_args
+    prefix = "--spinflip" if args.Wtype in ("up_down", "down_up") else ""
+    option_W = f"{prefix} --getW_{args.Wtype}"
 
-    run_arg('---', NO_MPI, nfpgw, '/lmf', 'llmfgw00', MATERIAL, '--jobgw=0', *extra_args)
-    run_arg('---', NO_MPI, nfpgw, '/qg4gw', 'lqg4gw', '--job=1', *extra_args)
-    run_arg('---', MPI_SIZE, nfpgw, '/lmf', 'llmfgw01', MATERIAL, '--jobgw=1', *extra_args)
-    run_arg('---', NO_MPI, nfpgw, '/heftet', 'leftet', '--job=1', *extra_args)
-    run_arg('---', NO_MPI, nfpgw, '/hbasfp0', 'lbas', '--job=0', *extra_args)
-    run_arg('1', NO_MPI, nfpgw, '/hmaxloc', 'lmaxloc1', *extra_args)
-    run_arg('1', MPI_SIZE, nfpgw, '/hpsig_MPI', 'lpsig_MPI', *extra_args)
+    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"lmf", args=[target, "--jobgw=0", *options]), stdout="llmfgw00")
+    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"qg4gw", args=["--job=1", *options]), stdout="lqg4gw")
+    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"lmf", args=[target, "--jobgw=1", *options]), stdout="llmfgw01")
+    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"heftet", args=["--job=1", *options]), stdout="leftet")
+    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"hbasfp0", args=["--job=0", *options]), stdout="lbas")
+    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"hmaxloc", args=[*options]), stdin_str="1", stdout="lmaxloc1")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hpsig_MPI", args=[*options]), stdin_str="1", stdout="lpsig_MPI")
     # Gather PSIGU
     merge_files(pattern="PSIGU.????", output_file="PSIGU")
     merge_files(pattern="PSIGD.????", output_file="PSIGD")
-    run_arg('2', MPI_SIZE, nfpgw, '/huumat_MPI', 'luumat2', *extra_args)
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"huumat_MPI", args=[*options]), stdin_str="2", stdout="luumat2")
     # Gather UUU
     merge_files(pattern="UUU.????", output_file="UUU")
     merge_files(pattern="UUD.????", output_file="UUD")
-    run_arg('2', MPI_SIZE, nfpgw, '/hmaxloc', 'lmaxloc2', *extra_args)
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hmaxloc", args=[*options]), stdin_str="2", stdout="lmaxloc2")
     if args.stop_MLWF: 
         print("OK! Generation of MLWF finished.")
         return
     # UUmatrix for Q0P
-    run_arg('3', MPI_SIZE, nfpgw, '/huumat_MPI', 'luumat3', *extra_args)
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"huumat_MPI", args=[*options]), stdin_str="3", stdout="luumat3")
     merge_files(pattern="UUq0U.????", output_file="UUq0U")
     merge_files(pattern="UUq0D.????", output_file="UUq0D")
 
-    run_arg('10011', NO_MPI, nfpgw, '/hwmatK_MPI', 'lpkm4crpa', *extra_args)
-    run_arg('0', MPI_SIZE, nfpgw, '/hvccfp0', 'lvcc', *extra_args)
-    run_arg('11', MPI_SIZE, nfpgw, '/hwmatK_MPI', 'lwmatK1', option_W, *extra_args)
-    run_arg('111', MPI_SIZE, nfpgw, '/hx0fp0', 'lx0_111', '--prefer_bpara', *extra_args)
-    run_arg('12', MPI_SIZE, nfpgw, '/hwmatK_MPI', 'lwmatK2', option_W, *extra_args)
+    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"hwmatK_MPI", args=[*options]), stdin_str="10011", stdout="lpkm4crpa")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hvccfp0", args=[*options]), stdin_str="0", stdout="lvcc")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hwmatK_MPI", args=[option_W, *options]), stdin_str="11", stdout="lwmatK1")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hx0fp0", args=[*options, '--prefer_bpara']), stdin_str="111", stdout="lx0_111")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hwmatK_MPI", args=[option_W, *options]), stdin_str="12", stdout="lwmatK2")
     print("OK! Generation of MLWF W finished.")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -94,6 +81,7 @@ if __name__ == "__main__":
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("extension",     help='Extension of the ctrl file') #extension is dummy. just to have similar interface with other scripts
+    parser.add_argument("--cluster",     help="cluster name", default="default", type=str)
     parser.add_argument("-np",           help='Number of MPI cores for lmf', default=8, type=int)
     parser.add_argument("--Wtype",       help='Wtype: up, down, up_down, or, down_up', default='down_up', type=str)
     parser.add_argument("--skip_MLWFvw", help='Skip generation of MLWF and W', action='store_true')
@@ -101,11 +89,12 @@ if __name__ == "__main__":
     parser.add_argument("--stop_MLWF",   help='Stop at generation of MLWF', action='store_true')
     parser.add_argument("--stop_MLWFvw", help='Stop at generation of MLWF and W', action='store_true')
     args, extra_args = parser.parse_known_args()
+
     if not args.skip_MLWFvw:
         cal_lmf(args, extra_args)
         cal_MLWFvw(args, extra_args)
-        move_stdout_files_to_dir()
+        move_files('stdout*', dest_dir='STDOUT')
 
     if not args.stop_MLWFvw and not args.stop_MLWF:
         cal_magnon(args, extra_args)
-        move_stdout_files_to_dir()
+        move_files('stdout*', dest_dir='STDOUT')

@@ -59,7 +59,14 @@ def _build_command(cfg, params: MPIParams) -> list[str]:
 
         formatted = arg_template.format(**format_kwargs)
         launcher_args.extend(shlex.split(formatted))
-    return [launcher] + launcher_args + [params.command] + params.args
+    
+    cmd_list = [launcher] + launcher_args
+    if params.command:
+        cmd_list.append(str(params.command))
+
+    for arg in params.args:
+        cmd_list.extend(shlex.split(arg))
+    return cmd_list
 
 
 def _build_env(cfg):
@@ -105,8 +112,9 @@ def run_cmd(cluster: str,
             env = _build_env(cfg)
             dt = datetime.datetime.now() - START_TIME
             # Build the initial command for logging
-            redir = f" > {stdout}" if stdout else ""
-            print(f"{dt}   {' '.join(map(str, cmd))}{redir}", flush=True)
+            stdout_info = f" stdout={stdout!r}" if stdout else ""
+            stdin_info  = f" stdin={stdin_str!r}" if stdin_str else ""
+            print(f"{dt}   {' '.join(map(str, cmd))}{stdout_info}{stdin_info}", flush=True)
             # Execute the command
             rc = _run_mpi(cmd, env, stdin_str=stdin_str, stdout=out_stream)
             if rc == 0:
