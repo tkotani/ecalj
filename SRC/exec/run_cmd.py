@@ -181,6 +181,11 @@ def _prepare_for_lmf_retry(rst_file: str):
             Path(rst_file).unlink()
         shutil.move(rst_bk_file, rst_file)
 
+def _ensure_ctrl(target):
+    filename = f"ctrl.{target}"
+    filepath = Path(filename)
+    if not filepath.is_file():
+        raise RuntimeError("No ctrl file")
 
 const_b = {}
 def run_lmf(cluster: str,
@@ -193,6 +198,7 @@ def run_lmf(cluster: str,
     Executes the 'lmf' command with special handling for convergence.
     Wraps `run_cmd` to automatically reduce `bmix` on convergence failure.
     """
+    _ensure_ctrl(target)
     bval = _read_bmix_from_ctrl(target)
     rst_file = f'rst.{target}'
     save_file = f'save.{target}'
@@ -225,6 +231,7 @@ def run_lmf(cluster: str,
             if not bmix_reduction:
                 raise RuntimeError(f"lmf failed with b={bval} and bmix_reduction is off.") from e
             _prepare_for_lmf_retry(rst_file)
+            remove_files("__mixm")
             bval = round(bval - 0.05, 2)
             if bval < 0.05:
                 raise RuntimeError("lmf failed even after reducing bmix to minimum.") from e

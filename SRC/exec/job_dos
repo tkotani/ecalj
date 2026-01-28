@@ -1,0 +1,197 @@
+#!/usr/bin/env python3
+import argparse
+import textwrap
+import subprocess
+from pathlib import Path
+from run_cmd import run_cmd, MPIParams
+
+EXEC_DIR = Path(__file__).resolve().parent
+
+def plot_dos_with_gnuplot(target, nognuplot):
+    with open(f"dos.tot.{target}") as f:
+        num = len(f.readline().split())
+    spin2 = (num == 3)
+    print("spin=2" if spin2 else "spin=1")
+    # --- common gnuplot header ---
+    header = textwrap.dedent(f"""\
+        #!/usr/bin/gnuplot -persist
+        rydberg = 13.605693
+        set terminal pdf
+        set title "Total DOS"
+        set output "tdos.{target}.pdf"
+        set grid
+        set zeroaxis
+        set xran [-20.0:20.0]
+        set xlabel " eV (zero at the Fermi energy or top of valence)"
+        set ylabel " number of states/(cell eV) : red "
+        set y2tics
+        set y2label " number of electrons : green "
+    """)
+    # --- spin-dependent plot section ---
+    if spin2:
+        plot = textwrap.dedent(f"""\
+            set yrange  [-5:5]
+            set y2range [-50:50]
+            plot "dos.tot.{target}" u ($1*rydberg):($2/rydberg) w l lc rgb "red", \\
+                 "" u ($1*rydberg):(-$3/rydberg) w l lc rgb "red", \\
+                 "dosi.tot.{target}" u ($1*rydberg):2 w l lc rgb "green" axis x1y2, \\
+                 "" u ($1*rydberg):(-$3) w l lc rgb "green" axis x1y2
+        """)
+    else:
+        plot = textwrap.dedent(f"""\
+            set yrange  [0:5]
+            set y2range [0:50]
+            plot "dos.tot.{target}" u ($1*rydberg):($2/rydberg) w l lc rgb "red", \\
+                 "dosi.tot.{target}" u ($1*rydberg):2 w l lc rgb "green" axis x1y2
+        """)
+    # --- footer ---
+    footer = textwrap.dedent("""\
+        set terminal x11
+        replot
+    """)
+    # --- write gnuplot script ---
+    gltfile = f"tdos.{target}.glt"
+    Path(gltfile).write_text(header + plot + footer)
+    # --- run gnuplot unless disabled ---
+    if not nognuplot:
+        subprocess.run(["gnuplot", "-persist", gltfile])
+
+    print(f"To repeat, gnuplot -persist {gltfile}")
+    print("Change BZ_DOS to change plotting range of DOS.")
+
+def plot_pdos_with_gnuplot(target, nognuplot):
+    print(textwrap.dedent("""\
+    ===== PDOS file structure (dos.isp*) =========================
+    (add +1 since, 1st columun is energy in these pdos files.)
+      For s,p,d,f the indices 1-16 correspond to:
+          index   l    m     polynomial
+             1    0    0        1
+        -----------------------------
+             2    1   -1        y
+             3    1    0        z
+             4    1    1        x
+        -----------------------------
+             5    2   -2        xy
+             6    2   -1        yz
+             7    2    0        3z^2-1
+             8    2    1        xz
+             9    2    2        x^2-y^2
+        -----------------------------
+             10   3   -3        y(3x^2-y^2)
+             11   3   -2        xyz
+             12   3   -1        y(5z^2-1)
+             13   3    0        z(5z^2-3)
+             14   3    1        x(5z^2-1)
+             15   3    2        z(x^2-y^2)
+             16   3    3        x(x^2-3y^2)
+       ------------------------
+       higher is lm ordered. See Ylm definition in ecalj doc.
+
+    NOTE: site index --> See SiteInfo.lmchk, and '>lmchk foobar'
+          pdos data stored in dos.isp... are ordered in Ylm (real Harmonics. 1st col is energy in Ry).
+          You may edit pdos.site.foobar.glt files for gnuplot.
+    ==============================================================
+    """))
+    colors = ["red", "green", "blue", "brown", "pink"]
+
+    for path in Path('.').glob(f"dos.isp1.site*.{target}"):
+        ufile = path.name 
+        dfile = path.with_name(ufile.replace("isp1", "isp2"))
+        gltfile = f'pdos.{ufile.replace("dos.isp1.", "")}.glt'
+        pdffile = gltfile.replace(".glt",".pdf")
+        # --- gnuplot header ---
+        header = textwrap.dedent(f"""\
+            #!/usr/bin/gnuplot -persist
+            rydberg = 13.605693
+            set terminal pdf
+            set output "{pdffile}"
+            set title "PDOS s,p,d,f,g division in MuffinTin"
+            set xlabel " eV (zero at the Fermi energy or top of valence)"
+            set ylabel " number of states/(cell eV)"
+            set xzeroaxis
+            set grid
+        """)
+        # --- spin-dependent plot section ---
+        if dfile.exists():
+            plot = textwrap.dedent(f"""\
+                set yrange [-5:5]
+                plot "{ufile}" u ($1*rydberg):($2)/rydberg w l lc rgb "{colors[0]}", \\
+                     "" u ($1*rydberg):($3+$4+$5)/rydberg w l lc rgb "{colors[1]}", \\
+                     "" u ($1*rydberg):($6+$7+$8+$9+$10)/rydberg w l lc rgb "{colors[2]}", \\
+                     "" u ($1*rydberg):($11+$12+$13+$14+$15+$16+$17)/rydberg w l lc rgb "{colors[3]}", \\
+                     "{dfile}" u ($1*rydberg):(-$2)/rydberg w l lc rgb "{colors[0]}", \\
+                     "" u ($1*rydberg):(-$3-$4-$5)/rydberg w l lc rgb "{colors[1]}", \\
+                     "" u ($1*rydberg):(-$6-$7-$8-$9-$10)/rydberg w l lc rgb "{colors[2]}", \\
+                     "" u ($1*rydberg):(-$11-$12-$13-$14-$15-$16-$17)/rydberg w l lc rgb "{colors[3]}"
+            """)
+        else:
+            plot = textwrap.dedent(f"""\
+                set yrange [0:5]
+                plot "{ufile}" u ($1*rydberg):($2)/rydberg w l lc rgb "{colors[0]}", \\
+                     "" u ($1*rydberg):($3+$4+$5)/rydberg w l lc rgb "{colors[1]}", \\
+                     "" u ($1*rydberg):($6+$7+$8+$9+$10)/rydberg w l lc rgb "{colors[2]}", \\
+                     "" u ($1*rydberg):($11+$12+$13+$14+$15+$16+$17)/rydberg w l lc rgb "{colors[3]}"
+            """)
+        # --- footer ---
+        footer = textwrap.dedent("""\
+            set terminal x11
+            replot
+        """)
+        # --- write gnuplot script ---
+        with open(gltfile, "w") as f:
+            f.write(header + plot + footer)
+        # --- run gnuplot unless disabled ---
+        if not nognuplot:
+            try:
+                subprocess.run(["gnuplot", "-persist", gltfile])
+            except FileNotFoundError:
+                print("Skip gnuplot")
+
+def cal_tdos(args, extra_args):
+    target = args.extension
+    mpi_size = args.np
+    cluster = args.cluster
+    # Run the command using run_cmd
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
+                               args=[target, "--tdos", *extra_args]), stdout="llmf_tdos")
+
+def cal_pdos(args, extra_args):
+    target = args.extension
+    mpi_size = args.np
+    cluster = args.cluster
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
+                               args=[target, "--quit=band", *extra_args]), stdout="llmf_ef")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
+                               args=[target, "--mkprocar", "--fullmesh", *extra_args]), stdout="llmf_pdosband")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
+                               args=[target, "--writepdos", f"-emin={args.emin}", f"-emax={args.emax}", f"-ndos={args.ndos}", *extra_args]),
+                    stdout="llmf_pdos")
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        prog='band',
+        description=(
+            'Example:\n'
+            "An example of usage: job_dos si -np 4 [options for lmf]\n"
+            " For example, [options for lmf] is ' -vpwemax=4 -vgmax=15 -vxcfun=103'\n"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument("extension",   help='Extension of the ctrl file') #extension is dummy. just to have similar interface with other scripts
+    parser.add_argument("--cluster",   help="cluster name", default="default", type=str)
+    parser.add_argument("-np",         help='Number of MPI cores for lmf', default=8, type=int)
+    parser.add_argument("--pdos",      help='get pdos', action='store_true')
+    parser.add_argument('--emin',      type=float, default=-20, help='cut off energy')
+    parser.add_argument('--emax',      type=float, default= 20, help='cut off energy')
+    parser.add_argument('--ndos',      type=int, default=4000, help='number of energy meshes')
+    parser.add_argument("--nognuplot", "--NoGnuplot", help="stop without drawing", action="store_true", default=False)
+
+    args, extra_args = parser.parse_known_args()
+
+    cal_tdos(args, extra_args)
+    plot_dos_with_gnuplot(args.extension, args.nognuplot)
+
+    if args.pdos:
+        cal_pdos(args, extra_args)
+        plot_pdos_with_gnuplot(args.extension, args.nognuplot)

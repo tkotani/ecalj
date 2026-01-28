@@ -1,70 +1,78 @@
 #!/usr/bin/env python3
 import argparse
-import glob
-import os
 import re
-import shutil
-from run_arg import run_arg
+from pathlib import Path
+from run_cmd import run_lmf, run_cmd, MPIParams
+
+EXEC_DIR = Path(__file__).resolve().parent
 
 def get_sigm_fbz(args, extra_args):
-    nfpgw = os.path.dirname(os.path.abspath(__file__))
-    TARGET = args.extension
-    MPI_SIZE = args.np
-    NO_MPI = 1
-    run_arg('---', NO_MPI, nfpgw, '/lmf', 'llmf_wsig_fbz', TARGET, '--phispinsym --wsig_fbz', *extra_args)
+    target = args.extension
+    cluster = args.cluster
+    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"lmf",
+                               args=[target, '--phispinsym', '--wsig_fbz', *extra_args]),
+            stdout="llmf_wsig_fbz")
 
-def get_mae_gcft(args, extra_args):
-    nfpgw = os.path.dirname(os.path.abspath(__file__))
-    TARGET = args.extension
-    MPI_SIZE = args.np
-    NO_MPI = 1
-    print(f"### START MAE calculation: MPI size= {MPI_SIZE}, TARGET= {TARGET}")
+def cal_mae(args, extra_args):
+    target = args.extension
+    mpi_size = args.np
+    cluster = args.cluster
+    print(f"### START MAE calculation: MPI size= {mpi_size}, TARGET= {target}")
 
     if not args.skipSCF:
-        run_arg('---', MPI_SIZE, nfpgw, '/lmf', 'llmf_phispinsym', TARGET, '--phispinsym', *extra_args)
-    run_arg('---', MPI_SIZE, nfpgw, '/lmf', 'llmf_nosoi_ef', TARGET, '--phispinsym --quit=band', *extra_args)
+        run_lmf(cluster, target, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
+                                           args=[target, '--phispinsym', *extra_args]),
+                bmix_reduction=True, stdout="llmf_phispinsym")
 
-    if os.path.isfile(f'sigm.{TARGET}'):
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
+                               args=[target, '--phispinsym', '--quit=band', *extra_args]),
+            stdout="llmf_nosoi_ef")
+
+    if Path(f'sigm.{target}').exists():
         get_sigm_fbz(args, extra_args)
 
-    run_arg(
-        '---', MPI_SIZE, nfpgw, '/lmf', 'llmf_so001', TARGET,
-        '--nosym --use_sigm_fbz', '--skipbstruxinit', '--phispinsym', '-vso=1', '--quit=band', '-vsoa1=0 -vsoa2=0 -vsoa3=1',
-        *extra_args
-    )
-    run_arg(
-        '---', MPI_SIZE, nfpgw, '/lmf', 'llmf_so100', TARGET,
-        '--nosym --use_sigm_fbz', '--skipbstruxinit', '--phispinsym', '-vso=1', '--quit=band', '-vsoa1=1 -vsoa2=0 -vsoa3=0',
-        *extra_args
-    )
-    run_arg(
-        '---', MPI_SIZE, nfpgw, '/lmf', 'llmf_so010', TARGET,
-        '--nosym --use_sigm_fbz', '--skipbstruxinit', '--phispinsym', '-vso=1', '--quit=band', '-vsoa1=0 -vsoa2=1 -vsoa3=0',
-        *extra_args
-    )
-    run_arg(
-        '---', MPI_SIZE, nfpgw, '/lmf', 'llmf_so110', TARGET,
-        '--nosym --use_sigm_fbz', '--skipbstruxinit', '--phispinsym', '-vso=1', '--quit=band', '-vsoa1=1 -vsoa2=1 -vsoa3=0',
-        *extra_args
-    )
-    vals = []
-    for suf in ["100", "010", "001", "110"]:
-        with open(f"llmf_so{suf}") as f:
+    so_directions = {
+        "001": ['-vsoa1=0', '-vsoa2=0', '-vsoa3=1'],
+        "100": ['-vsoa1=1', '-vsoa2=0', '-vsoa3=0'],
+        "010": ['-vsoa1=0', '-vsoa2=1', '-vsoa3=0'],
+        "110": ['-vsoa1=1', '-vsoa2=1', '-vsoa3=0'],
+    }
+
+    for direction, so_arg_list in so_directions.items():
+        run_cmd(cluster,
+            MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf", 
+                      args=[ target, '--nosym', '--use_sigm_fbz', '--skipbstruxinit',
+                            '--phispinsym', '-vso=1', '--quit=band',
+                            *so_arg_list, *extra_args]),
+            stdout=f'llmf_so{direction}')
+    vals = {}
+    directions = ["100", "010", "001", "110"]
+    for suf in directions:
+        logfile = Path(f"llmf_so{suf}")
+        if not logfile.is_file():
+            print(f"Warning: {logfile} not found. Skipping.")
+            continue
+        with logfile.open() as f:
             for line in reversed(f.readlines()):
                 m = re.search(r'sev\(eV\)=([-\d\.]+)', line)
                 if m:
-                    vals.append(float(m.group(1)))
+                    vals[suf] = float(m.group(1))
                     break
+    
     if len(vals) == 4:
-        print(f"sev(eV) 100: {vals[0]}")
-        print(f"sev(eV) 010: {vals[1]}")
-        print(f"sev(eV) 001: {vals[2]}")
-        print(f"sev(eV) 110: {vals[3]}")
-        print(f"Difference (100 - 001): {(vals[0] - vals[2]) * 1000} meV")
-        print(f"Difference (010 - 001): {(vals[1] - vals[2]) * 1000} meV")
-        print(f"Difference (110 - 001): {(vals[3] - vals[2]) * 1000} meV")
+        print(f"sev(eV) 100: {vals['100']}")
+        print(f"sev(eV) 010: {vals['010']}")
+        print(f"sev(eV) 001: {vals['001']}")
+        print(f"sev(eV) 110: {vals['110']}")
+        print(f"Difference (100 - 001): {(vals['100'] - vals['001']) * 1000} meV")
+        print(f"Difference (010 - 001): {(vals['010'] - vals['001']) * 1000} meV")
+        print(f"Difference (110 - 001): {(vals['110'] - vals['001']) * 1000} meV")
     else:
-        print("sev(eV) not found.")
+        print("sev(eV) not found in some output files.")
+        for suf in directions:
+            if suf in vals:
+                print(f"sev(eV) {suf}: {vals[suf]}")
+
     print("### MAE calculation finished.")
 
 if __name__ == "__main__":
@@ -78,7 +86,8 @@ if __name__ == "__main__":
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("extension", help='Extension of the ctrl file')
+    parser.add_argument("--cluster", help="cluster name", default="default", type=str)
     parser.add_argument("-np",       help='Number of MPI cores for lmf', default=8, type=int)
     parser.add_argument("--skipSCF", help='SKIP SCF calculation', action='store_true')
     args, extra_args = parser.parse_known_args()
-    get_mae_gcft(args, extra_args)
+    cal_mae(args, extra_args)

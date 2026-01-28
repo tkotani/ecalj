@@ -1,25 +1,22 @@
 #!/usr/bin/env python3
-import os
 import argparse
-from run_arg import run_arg
+from pathlib import Path
+from run_cmd import run_cmd, MPIParams
 
-def main(args, extra_args):
-    if not os.path.isfile("kpoints_eigen.in"):
-        print("Error: 'kpoints_eigen.in' file not found. Please create or provide this file in the current directory.")
-        sys.exit(1)
-    nfpgw = os.path.dirname(os.path.abspath(__file__))
-    TARGET = args.extension
-    MPI_SIZE = args.np
-    run_arg('---', MPI_SIZE, nfpgw, '/lmf', 'llmf_ef', TARGET, '--quit=band', *extra_args)
-    run_arg(
-        '---', MPI_SIZE, nfpgw, '/lmf', 'llmf_eigen', TARGET,
-        '--band',
-        '--eigen-at-k',
-        '--skipbstruxinit',
-        f"-emin={args.emin}",
-        f"-emax={args.emax}",
-        *extra_args
-    )
+EXEC_DIR = Path(__file__).resolve().parent
+
+def cal_eigen(args, extra_args):
+    if not Path("kpoints_eigen.in").is_file():
+        raise SystemExit("Error: 'kpoints_eigen.in' not found.")
+
+    target = args.extension
+    mpi_size = args.np
+    cluster = args.cluster
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
+                               args=[target, "--quit=band", *extra_args]), stdout="llmf_ef")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
+                               args=[target, "--band", "--eigen-at-k", "--skipbstruxinit",
+                                     f"-emin={args.emin}", f"-emax={args.emax}", *extra_args]), stdout="llmf_eigen")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -41,9 +38,10 @@ if __name__ == "__main__":
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
+    parser.add_argument("--cluster",   help="cluster name", default="default", type=str)
     parser.add_argument("extension", help='Extension of the ctrl file')
     parser.add_argument("-np",       help='Number of MPI cores for lmf', default=8, type=int)
     parser.add_argument("-emin",     help='Lower bound of output energy in eV', default=-100, type=float)
     parser.add_argument("-emax",     help='Upper bound of output energy in eV', default=30, type=float)
     args, extra_args = parser.parse_known_args()
-    main(args, extra_args)
+    cal_eigen(args, extra_args)

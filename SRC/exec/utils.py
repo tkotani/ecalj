@@ -27,23 +27,12 @@ def remove_files(*patterns: str):
             print(f"Removing {f}")
             f.unlink()
 
-# def _resolve_files(*sources: str) -> set[Path]:
-#     """Helper to expand file paths and glob patterns into a set of file paths."""
-#     all_files = set()
-#     for source in sources:
-#         # Use glob to expand both patterns and literal paths
-#         matched_files = glob.glob(source)
-#         for f_str in matched_files:
-#             all_files.add(Path(f_str))
-#     return all_files
-#
 def _resolve_files(*sources: str | Path) -> set[Path]:
     """Helper to expand file paths and glob patterns into a set of file paths."""
     files = set()
     for src in sources:
         files.update(Path().glob(str(src)))
     return files
-
 
 def copy_files(*sources: str, dest_dir: str | Path):
     """Copies files to a destination directory.

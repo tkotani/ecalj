@@ -16,7 +16,7 @@ parser = argparse.ArgumentParser(prog='gwsc',description='''
 ''')
 parser.add_argument("nloop",       help='number of QSGW iteration, starting from current result.',default=1,type=int)
 parser.add_argument("extension",   help='extension of ctrl')
-parser.add_argument("-np",         help='number of mpi cores in lmf',default=4,type=int)
+parser.add_argument("-np",         help='number of mpi cores in lmf',default=8,type=int)
 parser.add_argument("-ppn",        help='number of mpi cores per node',default=None,type=int)
 parser.add_argument("-np2", "-npgpu", help='number of mpi cores in GPU calculation', type=int, default=None) 
 parser.add_argument("-ppn2", "-ppngpu", help='number of mpi cores per node',default=None,type=int)
