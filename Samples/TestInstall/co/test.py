@@ -50,7 +50,7 @@ def test(args,bindir,testdir,workdir):
     print(message1)
     runprogs([
                 lmfa+" co -vmet=3 -vlmf=1 -vnk=8 -vnit=1 --pr31 > out.lmf-dos.co",\
-                job_pdos+" co "+ np4 +" -vmet=3 -vlmf=1 -vnk=8 -vnit=1 --pr31 ---NoGnuplot > out.lmf-dos.co"\
+                job_pdos+" co "+ np4 +" -vmet=3 -vlmf=1 -vnk=8 -vnit=1 --pr31 --NoGnuplot > out.lmf-dos.co"\
     ])
     tall+=test2_check(testdir+'/'+out3, workdir+'/'+out3)
     return tall
