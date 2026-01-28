@@ -79,7 +79,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         prog='job_mae',
         description=(
-            'Get magnetic anistoropy energy 110 - 001 direction\n'
+            'Get magnetic anistoropy energy 100/010/011 - 001 direction within force thorem approach.\n'
+            'job_mae uses the "--phispinsym" option, which enforces a spin‑independent MTO basis. \n'
+            'If rst (rst.xxxx) or __mixm files generated *without* the phispinsym option are present, \n'
+            'the calculation may fail. Please remove those files before running job_mae.\n'
             'Example:\n'
             '  job_mae fept -np 8\n'
         ),
