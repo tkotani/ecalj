@@ -101,8 +101,8 @@ contains
         use m_nvfortran,only : findloc
         integer::lmindex(16,nbas),ifmloc,ret,lm
         character(256):: labl,aaa
-        !        call getkeyvalue("GWinput","mlo_method",mlomethod,default=2)
-        mlomethod=-999
+        call getkeyvalue("GWinput","mlo_method",mlomethod,default=0)
+!        mlomethod=-999
         call getkeyvalue("GWinput","<Worb>",unit=ifmloc,status=ret)
         do 
           read(ifmloc,"(a)") aaa
@@ -325,7 +325,7 @@ contains
    end subroutine ReadHamRsMPO
 end module m_HamRsMPO
  
-subroutine Hreduction(mlomethod_dummy,iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,ovlmout, cmpo,qp) !> Reduce H(ndimPMT) to H(ndimMTO)
+subroutine Hreduction(mlomethod,iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,ovlmout, cmpo,qp) !> Reduce H(ndimPMT) to H(ndimMTO)
    use m_zhev,only:zhev_tk4
    use m_readqplist,only: eferm
    use m_HamPMT,only: GramSchmidt!,epsovl
@@ -333,8 +333,8 @@ subroutine Hreduction(mlomethod_dummy,iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, ha
    use m_lmfinit,only:oveps
    use m_keyvalue,only: getkeyvalue
    implicit none
-   integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev,nxx,jj,ndimPMTx,nvpmt,mlomethod_dummy,nskip
-   real(8)::beta,emu,val,wgt(ndimPMT),evlmto(ndimMTO),evl(ndimPMT),evlx(ndimPMT),qp(3),eww
+   integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev,nxx,jj,ndimPMTx,nvpmt,mlomethod,nskip,nskipin
+   real(8)::beta,emu,val,wgt(ndimPMT),evlmto(ndimMTO),evl(ndimPMT),evlx(ndimPMT),qp(3),eww,eadd
    complex(8):: evecmto(ndimMTO,ndimMTO),evecpmt(ndimPMT,ndimPMT)
    complex(8):: ovlmx(ndimPMT,ndimPMT),hammx(ndimPMT,ndimPMT),fac(ndimPMT,ndimMTO),ddd(ndimMTO,ndimMTO)
    complex(8):: hamm(ndimPMT,ndimPMT),ovlm(ndimPMT,ndimPMT)
@@ -361,104 +361,86 @@ subroutine Hreduction(mlomethod_dummy,iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, ha
    enddo
    ModifyMatrixElements :block
       use m_ftox
-      integer:: ie,nidxevlmto,nidxevl,ibx,jx,idxevlmto(ndimMTO),idxevl(ndimPMT),jbx,nval,nnn,imx,nbx
+      integer:: ie,nidxevlmto,nidxevl,ibx,jx,idxevlmto(ndimMTO),idxevl(ndimPMT),jbx,nval,nnn,imx,nbx,ii
       real(8):: eee,fffx,ecut,xxx,rydberg,facww,sss,fff,epscore,emax,alpha,emin,ww(ndimPMTx),dex !,ewcutf
       real(8),allocatable::mulfac(:,:),mulfacw(:,:)
       complex(8):: imag=(0d0,1d0)
-      allocate(Amat(ndimPMTx,ndimMTO))!this is to avoid bug in ifort18.0.5
-!      ewcutf = ecutw+eferm
-!      write(stdo,ftox)'ecutw=',ecutw
-      ! do j=1,ndimMTO !Amat is corrected matrix element of <psi_PMT|psi_MTO>
-      !   do i=1,ndimPMTx
-      !     if(abs(fac(i,j))>.1) write(stdo,ftox)'fac matrix j=',j,'  ',i,ftof(abs(fac(i,j))**2)
-      !   enddo
-      ! enddo
-      
-      ! do j=1,ndimMTO
-      !    do i=1,ndimPMTx
-      !       facww = facw*fermidist((evlmto(j)-ewcutf)/eww)
-      !       Amat(i,j) = fac(i,j)*abs(fac(i,j))**facww !2023-12-5 abs(fac) needed with PWMODE=11 to keep symmetry
-      !    enddo
-      !    if(evlmto(j)-ewcutf<0) then
-      !      Amat(:,j) = 0
-      !      Amat(j,j) = fermidist((evlmto(j)-ewcutf)/eww) !or =1d0
-      !    endif
-      ! enddo
-      ! call GramSchmidt(ndimPMTx,ndimMTO,Amat)
-
-      if(iprx) then
-      do j=1,ndimMTO !Amat is corrected matrix element of <psi_PMT|psi_MTO>
-        do i=1,ndimPMTx
-          if(abs(fac(i,j))**2>.1) write(stdo,ftox)'fac matrix ',j,i,ftof(abs(fac(i,j))**2)
-        enddo
-      enddo
-      endif
-
-      
-      epscore=0.1d0
-      eww=0.2d0 !Ry
-
-      call getkeyvalue("GWinput","mlo_nskip",nskip,default=nskip) !nskip is LO bands. This will be automatic
-
-      
-      ! nskip = findloc( sum(abs(fac(:,:))**2,dim=2)>epscore,value=.true.,dim=1)-1 !semicore level skip by LO. Or skip evec outside of MTO
-      ! do j=1,ndimMTO
-      !   write(stdo,ftox) 'ffffff',j,'wgt=',ftof(abs(fac(1:5,j))**2)
-      ! enddo  
-      ! nskip=2 !for nio
-      ! write(stdo,*)'ccccc nskip',nskip
-      
-      emax  = evl(ndimMTO+nskip)
-      emin  = evl(1+nskip)
-      Amat=0d0
-      call getkeyvalue("GWinput","mlo_emax",eee,default=0d0) !10 eV above fermi energy
-      eee=eee/rydberg()
-      nbx= findloc(evl(:)-eferm>eee,value=.true.,dim=1)-1-nskip !if eee=0d0, this gives index for VBM
-
-      do j=1,ndimMTO         !MTO             ! do i= nskip+1,nskip+ndimMTO !nbx
+      ! Assert block for normalization check
+      do j=1,ndimMTO 
         if(abs(sum(abs(fac(:,j))**2)-1d0)>1d-6) call rxi('normalization error',j)
-        !version 1
-            !   Amat(i,j)= fac(i,j) !* fermidist((evl(i)-emax-eww)/eww) !i in ndimPMT , j in ndimMTO
-            ! enddo
-
-        ! write(stdo,ftox) 'sumcheck=',j,ftof([(abs(fac(i,j))**2,i=1,ndimPMTx)],2)
-        if(j<=nbx) then !for levelx <eee
-          do i=nskip+1,ndimPMTx  !PMT
-            Amat(i,j)= fac(i,j) * fermidist((evl(i)-eferm-eee)/eww) !i in ndimPMT , j in ndimMTO
-            ! Amat(i,j)= fac(i,j) * abs(fac(i,j))**2 *fermidist((evl(i)-emax)/eww) !i in ndimPMT , j in ndimMTO
-            ! Amat(i,j)= fac(i,j) *fermidist((evl(i)-emax)/eww) !i in ndimPMT , j in ndimMTO
-          enddo
-        else  
-          i=j+nskip
-          Amat(i,j)=  fac(i,j) * fermidist((evl(i)-emax-eww)/eww)
-        endif
       enddo
+      if(iprx) then
+        do j=1,ndimMTO !Amat is corrected matrix element of <psi_PMT|psi_MTO>
+          do i=1,ndimPMTx
+            if(abs(fac(i,j))**2>.1) write(stdo,ftox)'fac matrix ',j,i,ftof(abs(fac(i,j))**2)
+          enddo
+        enddo
+      endif
+      
+      ! Determine nskip, eigenfunctions PMT(1:nskip), semicores, are removed.
+      epscore=0.5d0
+      nskipin = findloc( sum(abs(fac(:,:))**2,dim=2) > epscore, value=.true.,dim=1)-1 !semicore level skip by LO. Or skip evec outside of MTOa
+      call getkeyvalue("GWinput","mlo_nskip",nskip,default=nskipin) !nskip is LO bands. This will be automatic
+      write(stdo,ftox) 'nnnnn nskip',nskip !,ftof(sum(abs(fac(:,:))**2,dim=2))
+
+      ! === Usage ===
+      ! Simple version ---> Set mlo_method 0 with mlo_emax for Semiconductor (\lesssim VBM) or Al2O3_Cr (7eV or higher)
+      !                     Not necessary for NiO, Ru2O3.  
+      ! Generally speaking, we need emax for localized bands, while we need mlomethod2 for semiconductors (broad sp bands, smooth cutoff).
+      ! 1. Only localized bands, I think no switch needed.
+      ! 2. For semiconductors, set emax = Efermi (or even -9999) around ( ---> then mlomethod0 is close to mlomethod2).
+      ! 3. For Al2O3_Cr (sp and d bandd), we need to set emax a little about the localized bands.
+      ! --------------------
+      !
+      ! For sp bands smooth cutoff.
+      !  Semiconductors: Si, GaAs,
+      !    + We have to set mlo_emax 0 or something. For Al2O3_Cr, we need to set mlo_emax as 15 eV or so.
+      !    (For Al2O3_Cr, we found mlomethod 1 with emax= 7 eV works well).
+      !    
+      !  NiO, Ru2O3 
+      !    mlo_method 1 auto emax, or mlo_method 0 auto emax. auto emax 
+      ! 
+      !  Extract 3d or 4f bands
+      !     + mlomethod 0 works.
+      !     mlomethod 2 works for 4f extraction. No emax
+      !
+      !  We have to set mlo_emax, up to which we have to include i for fac=<Psi_PMT(i)|Psi_MTO(j)> for semiconductors or broad band included.
+      !
+      !
+      ! P = \sum_i \sum_j |Psi_i><Psi_i|MTO_j><MTO_j|, where range of i is restricted. Amat modified <PsiPMT_n|PsiMTO_m>.
+      ! |MPO_k>=  P| F_k>, where we make take Limited Hilbert space spanned by i for the number of MTOs
+      call getkeyvalue("GWinput","mlo_eww",eww,default=0.2d0) !smoothing cutoff
+      emax = evl(ndimMTO+nskip) - eferm   ! emax is the max of evl at ndimMTO+nskip. This is mainly useful for localized bands range.
+!      emax = evlmto(ndimMTO) - eferm   
+      call getkeyvalue("GWinput","mlo_emax",eee,default=emax*rydberg())  !eV relative to Ef.
+      emax=eee/rydberg()+eferm
+
+      allocate(Amat(ndimPMTx,ndimMTO),source=(0d0,0d0))!this is to avoid bug in ifort18.0.5
+      mloloop : do j=1,ndimMTO 
+        if(mlomethod==0) then          ! Determine ecut for j to determine maxmum i index for PMT.
+          ecut = max(emax, evlmto(j))  !  emax(relative to ef) is the rigid limit for localized MTOs
+        elseif(mlomethod==1) then
+          ecut = emax 
+        elseif(mlomethod==2) then  
+          ecut = evlmto(j)  
+        endif
+        pmtloop: do i=nskip+1,ndimPMTx 
+          Amat(i,j)= fac(i,j) * fermidist( (evl(i) - ecut) /eww)
+        enddo pmtloop
+      enddo mloloop
       Amat(1:nskip,:)=0d0 
       call GramSchmidt(ndimPMTx,ndimMTO,Amat)
-      
-      ! KEYPART!
-      ! P = \sum_i \sum_j |Psi_i><Psi_i|MTO_j><MTO_j|, where range of i is restricted. Amat modified <PsiPMT_n|PsiMTO_m>.
 
-      
-      ! |MPO_k>=  P| F_k>, where we make take Limited Hilbert space spanned by i for the number of MTOs
       nx = ndimPMTx
       cmpo(ndimPMTx+1:ndimPMT,1:ndimMTO)=0d0
       cmpo(1:ndimPMTx,1:ndimMTO) = matmul(Amat(1:ndimPMTx,1:ndimMTO),&   !sum_i sum_j <PsiPMT_i |Psi_MTO j><Psi_MTO j|MTO_k> 
            matmul(transpose(dconjg(evecmto(:,:))),ovlmx(ix(1:ndimMTO),ix(1:ndimMTO)))) !
-      
-!      call GramSchmidt(ndimPMTx,ndimMTO,cmpo(1:ndimPMTx,1:ndimMTO))
-      
-!      do i=1,ndimMTO+nskip !PMTx
-!        ww(i)=fermidist((evl(i)-emax-eww)/eww)
-!      enddo
-      
-       do i=1,ndimMTO
-         do j=1,ndimMTO
-            hammout(i,j)= sum( dconjg(cmpo(1:nx,i))*evl(1:nx)*cmpo(1:nx,j)) !|FMPO_i>=|PsiPMT_j> cmpo(j,i)
-            ovlmout(i,j)= sum( dconjg(cmpo(1:nx,i))*cmpo(1:nx,j) ) !<MPO|MPO>
-         enddo
-       enddo
-
+      do i=1,ndimMTO
+        do j=1,ndimMTO
+          hammout(i,j)= sum( dconjg(cmpo(1:nx,i))*evl(1:nx)*cmpo(1:nx,j)) !|FMPO_i>=|PsiPMT_j> cmpo(j,i)
+          ovlmout(i,j)= sum( dconjg(cmpo(1:nx,i))*cmpo(1:nx,j) ) !<MPO|MPO>
+        enddo
+      enddo
        ! block
        !   real(8):: evlx(ndimMTO),oveps=0d0
        !   complex(8):: zzz(ndimMTO,ndimMTO)
@@ -467,7 +449,6 @@ subroutine Hreduction(mlomethod_dummy,iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, ha
        !     write(stdo,ftox)'eigen111',i,ftof(qp,3),'  ',ftof(evl(i+nskip)),' ',ftof(evlx(i))
        !   enddo
        ! endblock
-
      endblock ModifyMatrixElements
    return
 contains
