@@ -104,12 +104,13 @@ def main():
 
     # --- Copy executables to BIN_DIR ---
     print(f'Copying executables to {BIN_DIR}')
-    for path_item in BUILD_DIR.iterdir():
-        if path_item.is_file() and os.access(path_item, os.X_OK):
-            try:
-                shutil.copy(path_item, BIN_DIR)
-            except (OSError, PermissionError) as e:
-                print(f"Warning: Skipping {path_item.name}: {e}", file=sys.stderr)
+    for d in (EXEC_DIR, BUILD_DIR):
+        for path_item in d.iterdir():
+            if path_item.is_file() and os.access(path_item, os.X_OK):
+                try:
+                    shutil.copy(path_item, BIN_DIR)
+                except (OSError, PermissionError) as e:
+                    print(f"Warning: Skipping {path_item.name}: {e}", file=sys.stderr)
 
     # Copy clusters.toml from EXEC_DIR to BIN_DIR
     clusters_toml_src = EXEC_DIR / 'clusters.toml'
