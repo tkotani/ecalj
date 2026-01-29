@@ -27,19 +27,15 @@ def run_command(command, cwd=None, env=None):
         subprocess.run(command, shell=True, check=True, cwd=cwd, env=env)
     except subprocess.CalledProcessError as e:
         print(f"Command failed: {e.cmd}", file=sys.stderr)
-        sys.exit(1)
 
 def build_and_install_gemmul8(build_dir: Path, bin_dir: Path):
     repo_url = "https://github.com/RIKEN-RCCS/GEMMul8"
     clone_dir = build_dir / "GEMMul8"
     libfile = clone_dir / "GEMMul8" / "lib" / "libgemmul8.so"
-
     if not clone_dir.exists():
         run_command(f"git clone {repo_url} {clone_dir}")
-
     if not libfile.is_file():
-        run_command("make -j", cwd=clone_dir)
-
+        run_command("make -j", cwd=clone_dir / "GEMMul8")
     try:
         shutil.copy(libfile, bin_dir)
     except Exception as e:
@@ -55,7 +51,7 @@ def main():
 
     BIN_DIR.mkdir(parents=True, exist_ok=True)
     print(f"Going to install required binaries and scripts to {BIN_DIR}")
-    start0_time = time.time()
+    start_time = time.time()
 
     # --- Make links ---
     EXEC_DIR = CWD / 'SRC' / 'exec'
@@ -130,16 +126,18 @@ def main():
     # --- Run Install test ---
     print('\n=== Running installation test ===')
     test_dir = CWD / 'Samples' / 'TestInstall'
-    start_time = time.time()
+    end_time_make = time.time()
+    start_time_test = time.time()
 
     run_command(f"{BIN_DIR / 'testecalj'} -np {ncore} --all", cwd=test_dir)
 
     end_time = time.time()
+    elapsed_time_make = end_time_make - start_time
+    elapsed_time_test = end_time - start_time_test
     elapsed_time = end_time - start_time
-    elapsed0_time = end_time - start0_time
-    print(f"\nElapsed time for make        : {elapsed_time:.0f} seconds")
-    print(f"Elapsed time for testecalj.py: {elapsed_time:.0f} seconds")
-    print(f"Total elapsed time           : {elapsed0_time:.0f} seconds")
+    print(f"\nElapsed time for make        : {elapsed_time_make:.0f} seconds")
+    print(f"Elapsed time for testecalj.py: {elapsed_time_test:.0f} seconds")
+    print(f"Total elapsed time           : {elapsed_time:.0f} seconds")
 
 if __name__ == "__main__":
     main()
