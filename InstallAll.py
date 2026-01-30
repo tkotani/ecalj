@@ -18,24 +18,29 @@ parser.add_argument('--fc', help='fortran compiler gfortran/ifort/ifx/nvfortran'
 parser.add_argument('--notest', help='no test. only compile', action='store_true')
 parser.add_argument('--verbose', help='verbose on for debug', action='store_true')
 parser.add_argument('--debug', help='debug', action='store_true')
+parser.add_argument('--skip-on-error', help='If a command fails, skip it instead of stopping.', action='store_true')
 args = parser.parse_args()
 
-def run_command(command, cwd=None, env=None):
-    """Executes a shell command and exits if it fails."""
+def run_command(command, cwd=None, env=None, skip_on_error=False):
+    """Executes a shell command and handles failure based on skip_on_error."""
     try:
         # Path objects are automatically converted to strings for subprocess.
         subprocess.run(command, shell=True, check=True, cwd=cwd, env=env)
     except subprocess.CalledProcessError as e:
         print(f"Command failed: {e.cmd}", file=sys.stderr)
+        if not skip_on_error:
+            sys.exit(1)
+        else:
+            print("Skipping command.", file=sys.stderr)
 
 def build_and_install_gemmul8(build_dir: Path, bin_dir: Path):
     repo_url = "https://github.com/RIKEN-RCCS/GEMMul8"
     clone_dir = build_dir / "GEMMul8"
     libfile = clone_dir / "GEMMul8" / "lib" / "libgemmul8.so"
     if not clone_dir.exists():
-        run_command(f"git clone {repo_url} {clone_dir}")
+        run_command(f"git clone {repo_url} {clone_dir}", skip_on_error=True)
     if not libfile.is_file():
-        run_command("make -j", cwd=clone_dir / "GEMMul8")
+        run_command("make -j", cwd=clone_dir / "GEMMul8", skip_on_error=True)
     try:
         shutil.copy(libfile, bin_dir)
     except Exception as e:
