@@ -2,7 +2,6 @@
 import os
 import re
 import shutil
-import glob
 import argparse
 from pathlib import Path
 from utils import ensure_dir, remove_files, copy_files, move_files
@@ -55,7 +54,6 @@ if args.mp:
     exec_type = "_mp"
 if args.gpu:
     exec_type = exec_type + "_gpu"
-    options.append("--keepwv")
 if args.gemmul8:
     options.append("--use_gemmul8")
     libpath = Path(__file__).resolve().parent / "libgemmul8.so"

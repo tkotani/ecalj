@@ -253,8 +253,10 @@ contains
   endsubroutine sxcf_scz_exchange
 
   subroutine sxcf_scz_correlation(ef, esmr, ixc, nspinmx) 
+    use m_keyvalue,only: getkeyvalue
     use m_mpi, only: comm_w, mpi__size_w, mpi__rank_w,ipr
     use m_blas, only: int_split
+    use m_gpu, only: use_gpu
     implicit none
     integer, intent(in) :: nspinmx, ixc
     real(8), intent(in) :: ef, esmr
@@ -267,7 +269,7 @@ contains
     character(8):: charext
     allocate(ekc(nctot+nband), eq(nband), omega(ntq)) 
     emptyrun = cmdopt0('--emptyrun')
-    keepwv = cmdopt0('--keepwv')
+    call getkeyvalue("GWinput","KeepWV",keepwv,default=use_gpu)
     debug = cmdopt0('--debug')
     if(nw_i/=0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
     LoopScheduleCheck: block
