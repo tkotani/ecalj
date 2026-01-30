@@ -45,6 +45,9 @@ def _load_config(cluster_name):
 
 def _build_command(cfg, params: MPIParams) -> list[str]:
     """Build mpirun/srun command"""
+    import re
+    shell_var_pattern = re.compile(r'^\$\{[A-Za-z0-9_]+\}$')
+
     launcher = cfg["launcher"]
     launcher_args_template = cfg.get("launcher_args", [])
     launcher_args = []
@@ -56,9 +59,11 @@ def _build_command(cfg, params: MPIParams) -> list[str]:
         # if npernode is required but not provided, skip this template
         if "{npernode}" in arg_template and params.npernode is None:
             continue
-
-        formatted = arg_template.format(**format_kwargs)
-        launcher_args.extend(shlex.split(formatted))
+        if shell_var_pattern.match(arg_template):
+            launcher_args.append(arg_template)
+        else:
+            formatted = arg_template.format(**format_kwargs)
+            launcher_args.extend(shlex.split(formatted))
     
     cmd_list = [launcher] + launcher_args
     if params.command:

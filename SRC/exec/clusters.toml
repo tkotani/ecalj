@@ -6,9 +6,14 @@ env = {}
 [impi]
 launcher = "mpirun"
 launcher_args = ["-np {nprocs}", "-ppn {npernode}"]
-env = {}
+env = {"OMPI_MCA_coll_hcoll_enable" = "0"}
 
 [ohtaka]
+launcher = "srun"
+launcher_args = ["-n {nprocs}"]
+env = {}
+
+[mic]
 launcher = "srun"
 launcher_args = ["-n {nprocs}"]
 env = {}
@@ -20,5 +25,5 @@ env = {}
 
 [es_gpu]
 launcher = "mpirun"
-launcher_args = ["-np {nprocs}", "-npernode {npernode}", "--bind-to none", "-x LD_LIBRARY_PATH"]
+launcher_args = ["${NQSV_MPIOPTS}", "-np {nprocs}", "-npernode {npernode}", "--bind-to none", "-x LD_LIBRARY_PATH"]
 env = {}
