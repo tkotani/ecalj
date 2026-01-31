@@ -16,13 +16,13 @@ module m_zmel
   use m_kind, only: kp => kindzmel
   use m_blas, only: m_op_c, m_op_n, m_op_t, int_split
 #if defined(__MP) && defined(__GPU)
-  use m_blas, only: gemm => cmm_d, gemm_batch => cmm_batch_d
+  use m_blas, only: gemm => cmm_d
 #elif defined(__MP)
-  use m_blas, only: gemm => cmm_h, gemm_batch => cmm_batch_h
+  use m_blas, only: gemm => cmm_h
 #elif defined(__GPU)
-  use m_blas, only: gemm => zmm_d, gemm_batch => zmm_batch_d
+  use m_blas, only: gemm => zmm_d
 #else
-  use m_blas, only: gemm => zmm_h, gemm_batch => zmm_batch_h
+  use m_blas, only: gemm => zmm_h
 #endif
 #ifdef __GPU
   use openacc, only: acc_is_present
@@ -220,7 +220,6 @@ contains
       nqmax_rank = nqini + end_index - 1
     endif
     SetWFs :block
-      integer:: i
       qk =  q - rkvec ! qk = q-rk. rk is inside 1st BZ, not restricted to the irreducible BZ
       if(debug) call writemem('mmmmzmel start readcphi')
       if(debug) write(stdo,ftox) 'ntp0, ntq (ntp0 <= ntq):',ntp0, ntq
@@ -308,7 +307,7 @@ contains
       imdim = [( sum(nblocha(iclass(1:ia-1)))+1  ,ia=1,natom)]
       iasx=[(sum(nlnmv(iclass(1:ia-1)))+1,ia=1,natom)]
       icsx=[(sum(ncore(iclass(1:ia-1))),ia=1,natom)]
-    end block SetWFs
+    endblock SetWFs
     if(debug) write(stdo,ftox)'zmel_init gpu',nbloch,ngc,nm1,nm2,nqtot
     ZmelBlock:block
       call writemem('    m_zmel000: zmelsize='//ftof(int(nbloch+ngc,8)*(nm2-nm1+1)*nqtot*16/kk**3)//' GB')
@@ -349,40 +348,33 @@ contains
           cphiq_d(1:nv,1:ntp0) = cphiq(ias:iae,1:ntp0)
           !$acc end kernels
           ValenceValence: if (nm2v>=nm1v) then 
-            allocate(ppbvphiq_d(nv,ntp0,mdim))
-            allocate(    ppbv_d(nv,nv,mdim))
+            allocate(ppbvphiq_d(nv,mdim,nm1v:nm2v), ppbv_d(nv,mdim,nv), zmelt_d(mdim,nm1v:nm2v,ntp0))
             !$acc kernels present(ppb)
-            ppbv_d(1:nv,1:nv,1:mdim) = cmplx(ppb(nc1:ncnv,nc1:ncnv,1:mdim,icp), kind=kp) 
-            !$acc end kernels
-            ierr=gemm_batch(ppbv_d, cphiq_d,ppbvphiq_d,M=nv,N=ntp0,K=nv,         NBATCH=mdim, &
-                 opA=m_op_T, sameB=.true.)
-            deallocate(ppbv_d)
-            allocate(zmelt_d(nm1v:nm2v,ntp0,mdim))
-            ierr=gemm_batch(cphim_d,ppbvphiq_d,zmelt_d,M=nm2v-nm1v+1,N=ntp0,K=nv,NBATCH=mdim,alpha=cmplx(phasea(ia),kind=kp), &
-                 opA=m_op_C, sameA=.true.)
-            !$acc kernels
             do i = 1, mdim
-              zmelt(i-1+ims,nm1v:nm2v,ncc+1:ncc+ntp0) = zmelt_d(nm1v:nm2v,1:ntp0,i)
+              ppbv_d(1:nv,i,1:nv) = cmplx(ppb(nc1:ncnv,nc1:ncnv,i,icp), kind=kp)
             enddo
             !$acc end kernels
-            deallocate(zmelt_d, ppbvphiq_d)
+            ierr = gemm(ppbv_d, cphim_d, ppbvphiq_d, m=nv*mdim, n=nm2v-nm1v+1, k=nv)
+            ierr = gemm(ppbvphiq_d, cphiq_d, zmelt_d, m=mdim*(nm2v-nm1v+1), n=ntp0, k=nv, alpha=cmplx(phasea(ia),kind=kp), opA=m_op_C)
+            !$acc kernels
+            zmelt(ims:ime,nm1v:nm2v,ncc+1:ncc+ntp0) = zmelt_d(1:mdim,nm1v:nm2v,1:ntp0)
+            !$acc end kernels
+            deallocate(ppbvphiq_d, ppbv_d, zmelt_d)
           endif ValenceValence
           nm1cc = max(nm1c,ics+1)        !core index range between [nm1c,nm2c]. This corresponds to  nm1cc:nm2cc for atom ia.
           nm2cc=  min(nm2c,ics+ncorec)  !       write(6,*)'ia nm1cc nm2cc=',ia, nm1cc,nm2cc,ntp0,ncc,mdim
           CoreValence: if(nm2cc>=nm1cc) then 
-            allocate(zmelt_d(mdim,ntp0,nm1cc:nm2cc), ppbc_d(mdim,nv,nm1cc:nm2cc))
+            allocate(zmelt_d(mdim,nm1cc:nm2cc,ntp0), ppbc_d(nv,mdim,nm1cc:nm2cc))
             !$acc kernels present(ppb)
             do i = 1, mdim
-              ppbc_d(i,1:nv,nm1cc:nm2cc) = cmplx(ppb(nc1:ncnv,nm1cc-ics:nm2cc-ics,i,icp),kind=kp)
+              ppbc_d(1:nv,i,nm1cc:nm2cc) = cmplx(ppb(nc1:ncnv,nm1cc-ics:nm2cc-ics,i,icp),kind=kp)
             enddo
             !$acc end kernels
-            ierr = gemm_batch(ppbc_d,cphiq_d,zmelt_d, M=mdim,N=ntp0,K=nv,NBATCH=nm2cc-nm1cc+1, alpha=cmplx(phasea(ia),kind=kp), sameB = .true.)
+            ierr = gemm(ppbc_d, cphiq_d, zmelt_d, m=mdim*(nm2cc-nm1cc+1), n=ntp0, k=nv, alpha=cmplx(phasea(ia),kind=kp), opA=m_op_T)
             !$acc kernels
-            do it = nm1cc,nm2cc
-               zmelt(ims:ime,it,ncc+1:ncc+ntp0) = zmelt_d(1:mdim,1:ntp0,it)
-            enddo
+            zmelt(ims:ime,nm1cc:nm2cc,ncc+1:ncc+ntp0) = zmelt_d(1:mdim,nm1cc:nm2cc,1:ntp0)
             !$acc end kernels
-            deallocate(zmelt_d) ! write(6,*)'xxxxxxx ia nm1cc nm2ccxxx =',ia, nm1cc,nm2cc,sum(abs(zmelt(ims:ime,nm1cc:nm2cc,ncc+1:ncc+ntp0)))
+            deallocate(zmelt_d)
           endif CoreValence
           ! !(MO) valence-core part NOT TESTED
           if(ncc>0) call rx('m_zmel_init: not yet ncc>0')
@@ -581,7 +573,7 @@ contains
           !$acc update device(zmel)
           if(debug) call writemem('mmmmm_zmel after mpi=allgatherv')
           deallocate(zmel_buf, data_size, data_disp)
-        end block
+        endblock
       endif
       if(zmelconjg) then
         !$acc kernels present(zmel)
