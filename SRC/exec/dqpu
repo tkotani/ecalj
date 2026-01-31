@@ -67,8 +67,12 @@ def print_df_diff_qpu(df):
     print()
 
 def read_df_qpu(qpu_file):
+    from io import StringIO
     try:
-        df_qpu = pd.read_csv(qpu_file, sep=r'\s+', skip_blank_lines=True, header=None, skiprows=6)
+        with open(qpu_file, "r") as f:
+            # Add a space before a hyphen for cases like '1.23-4.56' -> '1.23 -4.56'
+            processed_content = re.sub(r'(?<=[0-9\.])-', r' -', f.read())
+        df_qpu = pd.read_csv(StringIO(processed_content), sep=r'\s+', skip_blank_lines=True, header=None, skiprows=6)
         df_qpu.columns = ['qx', 'qy', 'qz', 'state', 'SEx', 'SExcore', 'SEc', 'vxc', '---', 'dSEnoZ', 'eQP_in' , '', '', 'eHF','Z', 'FWHM=2Z*Simg', 'ReS(elda)']
     except:
         print(f'Error reading {qpu_file}')
