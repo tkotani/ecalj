@@ -1,4 +1,4 @@
-!> Get the matrix element zmel =  ZO^-1 <MPB psi|psi> , where ZO is ppovlz(inverse of overlap matrix) !  "call get_zmel_init" return zmel 
+!> Get the matrix element zmel =  ZO^-1 <MPB psi|psi> , where ZO is ppovlz(inverse of overlap matrix) !  "call build_zmel" return zmel 
 !  All dependencies (use foobar below ) are inputs (must be protected).
 module m_zmel
   use m_genallcf_v3,only: natom,nspin,nn,nnv,nnc,nlnmx, niw,nband,ndima
@@ -31,7 +31,7 @@ module m_zmel
   use m_readQG, only: readqg
 #endif
   implicit none
-  public:: get_zmel_init_gemm, Mptauof_zmel, set_m2e_prod_basis, set_m2e_prod_basis_chipm ! Call mptauof_zmel and set_m2e_basis in advance to get_zmel_init
+  public:: build_zmel, Mptauof_zmel, set_m2e_prod_basis, set_m2e_prod_basis_chipm ! Call mptauof_zmel and set_m2e_basis in advance to build_zmel
   complex(kind=kp),allocatable,protected,public :: zmel(:,:,:) ! OUTPUT: zmel(nbb,nmtot, nqtot) ,nbb:mixproductbasis, nmtot:middlestate, nqtot:endstate
   complex(kind=kp),allocatable,protected,public :: m2e_prod_basis(:,:)
   real(8),allocatable,protected,public :: tiat(:,:,:),shtvg(:,:)
@@ -138,15 +138,15 @@ contains
     is_prev = is
     !$acc update device(ppb)
   end subroutine set_ppb
-  subroutine get_zmel_init_gemm(q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc,  & ! get_zmel_init for blas/cuBLAS by M. Obata 2024-05-18
-       iprx,zmelconjg,is_m_basis,comm,maxmem)
+  subroutine build_zmel(q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc,  & ! build_zmel for blas/cuBLAS by M. Obata 2024-05-18
+                        iprx,zmelconjg,is_m_basis,mpi_mode, comm,maxmem)
     use m_readeigen,only: readcphif => readcphif_mpi, readgeigf => readgeigf_mpi
     use m_itq,only: itq, ntq
     implicit none
     include "mpif.h"
     intent(in)::           q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg
     integer, optional, intent(in) :: comm
-    logical, intent(in) :: is_m_basis
+    logical, intent(in) :: is_m_basis, mpi_mode
     complex(8), parameter:: img=(0d0,1d0),tpi= 8d0*datan(1d0)
     integer:: ns1, ns2, nqmax, irot, ispq, ispm, nqini, nctot, ncc, ncnv, ncorec, nccc, mdim, it, ia
     integer:: ngp1, ngp2, ngvecpB1(3,ngpmx),ngvecpB2(3,ngpmx),nadd(3)
@@ -172,6 +172,7 @@ contains
                           ppbvphiq_d, cphim_d, cphiq_d, ppbc_d, ppbv_d, ngvecpB1, ngvecpB2, zmelt, zmelt_d, wfs
 #endif
     debug=cmdopt0('--debugzmel')
+    if(mpi_mode .and. .not. present(comm)) call rx('No communicator in mpi_mode')
     if(allocated(zmel)) then
 #ifdef __GPU
        if(acc_is_present(zmel, size(zmel))) then
@@ -210,7 +211,7 @@ contains
     end_index = ntp0
     nqini_rank = nqini
     nqmax_rank = nqmax
-    if(present(comm)) then
+    if(mpi_mode) then
       call mpi_comm_rank(comm, mpi_rank, mpi_info)
       call mpi_comm_size(comm, mpi_size, mpi_info)
       call int_split(ntp0, mpi_size, mpi_rank, ini_index, end_index, num_index)
@@ -229,7 +230,7 @@ contains
       ! cphim = cmplx(readcphif(qk, ispm),kind=kp)
       allocate(cphiq(ndima,ntp0))
       allocate(wfs(ndima,nband))
-      if(present(comm)) then
+      if(mpi_mode) then
         wfs(:,:) = readcphif(q, ispq, comm=comm)
       else
         wfs(:,:) = readcphif(q, ispq)
@@ -239,7 +240,7 @@ contains
       !$acc end kernels
       if (nm2v>=nm1v) then
         allocate(cphim(ndima,nm1v:nm2v))
-        if(present(comm)) then
+        if(mpi_mode) then
           wfs(:,:) = readcphif(qk, ispm, comm=comm)
         else 
           wfs(:,:) = readcphif(qk, ispm)
@@ -269,7 +270,7 @@ contains
         if(debug) call writemem('mmmmzmel start readgeig')
         allocate(wfs(ngpmx,nband))
         allocate(geigq(ngpmx,ntp0),dgeigqk(ngpmx,nm1v:nm2v))
-        if(present(comm)) then
+        if(mpi_mode) then
           wfs(:,:) = readgeigf(q, ispq, comm=comm)
         else
           wfs(:,:) = readgeigf(q, ispq)
@@ -277,7 +278,7 @@ contains
         !$acc kernels
         geigq(1:ngpmx,1:ntp0) = cmplx(wfs(1:ngpmx,itq(nqini_rank:nqmax_rank)),kind=kp)
         !$acc end kernels
-        if(present(comm)) then
+        if(mpi_mode) then
           wfs(:,:) = readgeigf(qk, ispm, comm=comm)
         else
           wfs(:,:) = readgeigf(qk, ispm)
@@ -333,7 +334,7 @@ contains
           ime   = ims-1+nblocha(icp)
           mdim  = nblocha(icp)
           ncorec= merge(ncore(ic),0,nctot>0)
-          if(ncc/=0) call rx('ncc/=0 get_zmel_init: Not implemented nccc=0 yet')
+          if(ncc/=0) call rx('ncc/=0 build_zmel: Not implemented nccc=0 yet')
 !          nccc  = merge(ncore(ic),0,ncc>0) !ncc is expected to be zero
           ! if (nm2v>=nm1v) allocate(cphim_d(nv,nm1v:nm2v), source= cphim(ias:iae,nm1v:nm2v)) !copy from CPU to GPU
           ! allocate(                cphiq_d(nv,ntp0),      source= cphiq(ias:iae,nqini_rank:nqmax_rank))
@@ -558,7 +559,7 @@ contains
       endblock MToEBasisTransformation
 
       deallocate(zmelt)
-      if (present(comm)) then
+      if (mpi_mode) then
         block
           integer, allocatable :: data_disp(:), data_size(:)
           integer :: ini, num, end
@@ -589,7 +590,7 @@ contains
       endif
       if(present(maxmem)) maxmem=memused() ! MaxUsed memory in GB 
     endblock ZmelBlock
-  end subroutine get_zmel_init_gemm
+  end subroutine build_zmel
 end module m_zmel
 
 

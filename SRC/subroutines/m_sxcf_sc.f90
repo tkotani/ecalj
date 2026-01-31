@@ -75,9 +75,9 @@
 !!    nw_i:nw  = no. frequencies along the real axis. nw_i=0 or -nw.
 !!    zsec(itp,itpp,iq)> = <psi(itp,q(:,iq)) |SEc| psi(iq,q(:,iq)>
 !! \endverbatim
-module m_sxcf_gemm
+module m_sxcf_sc
   use m_readeigen, only: Readeval
-  use m_zmel, only: get_zmel_init_gemm, set_m2e_prod_basis, zmel, nbb !get_zmel_init => 
+  use m_zmel, only: build_zmel, set_m2e_prod_basis, zmel, nbb !get_zmel_init => 
   use m_itq, only: ntq, nbandmx
   use m_genallcf_v3, only: ndima, nspin, nctot, niw, ecore,nband
   use m_read_bzdata, only: qibz, qbz, wk=>wbz, nqibz, nqbz, wklm, lxklm, wqt=>wt
@@ -191,9 +191,9 @@ contains
               izz=izz+1
               call writemem('=== KXloop '//trim(charext(izz))//' iqiqz irot ip isp icount= '//&
                    trim(charli([kx,irot,ip,isp,icount],5)))
-              call get_zmel_init_gemm(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false., &
-                                      is_m_basis=.false.)
-              call writemem('    endof get_zmel_init')
+              call build_zmel(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false., &
+                                      is_m_basis=.false., mpi_mode=.false.)
+              call writemem('    endof build_zmel')
               call stopwatch_pause(t_sw_zmel)
               call stopwatch_start(t_sw_xc)
               associate( zsec=>zsecall(:,:,ip,isp) )
@@ -393,14 +393,9 @@ contains
               call writemem('=== KXloop '//trim(charext(izz))//' iqiqz irot ip isp icount= '//&
                    trim(charli([kx,irot,ip,isp,icount],5)))
               call stopwatch_start(t_sw_zmel)
-#ifdef __GPU
-              call get_zmel_init_gemm(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false., &
-                                      is_m_basis=.true.)
-#else
-              call get_zmel_init_gemm(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false., &
-                                      is_m_basis=.true., comm=comm_w)
-#endif
-              call writemem('    endof get_zmel_init')
+              call build_zmel(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false., &
+                                 is_m_basis=.true., mpi_mode=.not.use_gpu, comm=comm_w)
+              call writemem('    endof build_zmel')
               call stopwatch_pause(t_sw_zmel)
               call stopwatch_reset(t_sw_setwv)
               call stopwatch_start(t_sw_xc)
@@ -676,4 +671,4 @@ contains
     c(2)=a(3)*b(1)-a(1)*b(3)
     c(3)=a(1)*b(2)-a(2)*b(1)
   end function crossf
-endmodule m_sxcf_gemm
+endmodule m_sxcf_sc

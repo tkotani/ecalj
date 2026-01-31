@@ -3,7 +3,7 @@ module m_x0kf
   use m_lgunit,only: stdo
   use m_keyvalue,only : Getkeyvalue
   use m_pkm4crpa,only : Readpkm4crpa
-  use m_zmel,only: get_zmel_init_gemm, zmel !,get_zmel_init1,get_zmel_init2
+  use m_zmel,only: build_zmel, zmel !,get_zmel_init1,get_zmel_init2
   use m_freq,only: npm, nwhis
   use m_genallcf_v3,only:  nsp=>nspin ,ndima,nctot, nband
   use m_read_bzdata,only:  nqbz,ginv,nqibz,  rk=>qbz,wk=>wbz
@@ -244,7 +244,7 @@ contains
             ! nqini= nkqmin(k);      nqmax= nkqmax(k)
             icounkmink= icounkmin(k); icounkmaxk= icounkmax(k)
             debug=cmdopt0('--debugzmel')
-            if(debug.and.ipr) write(stdo,ftox) 'ggggggggg goto get_zmel_init_gemm',k, nkmin(k),nkmax(k),nctot
+            if(debug.and.ipr) write(stdo,ftox) 'ggggggggg goto build_zmel',k, nkmin(k),nkmax(k),nctot
             NMBATCH: BLOCK 
               integer :: nsize, nns, ibatch, nbatch, ns12
               integer, allocatable :: ns1lists(:), ns2lists(:)
@@ -266,17 +266,11 @@ contains
                 if(ns12 == 0) cycle
                 call stopwatch_start(t_sw_zmel)
                 if(ipr) write(stdo,ftox) 'zmel_batch:', ibatch, ns1, ns2, nbatch
-                if(use_gpu) then
-                  !Currently, mpi version of get_zmel_init_gpu which is available by adding comm argument for MPI communicator,
-                  !but, MPI communication is bottle-neck when GPUs are used. Therefore, it is only used in without GPU case.
-                  call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=ns1,ns2=ns2, ispm=isp_k, &
-                       nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
-                       zmelconjg=.true., is_m_basis = is_m_basis)
-                else
-                  call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=ns1,ns2=ns2, ispm=isp_k, &
-                       nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
-                       zmelconjg=.true., comm = comm_b, is_m_basis = is_m_basis)
-                endif
+                !Currently, mpi version of get_zmel_init_gpu which is available by adding comm argument for MPI communicator,
+                !but, MPI communication is bottle-neck when GPUs are used. Therefore, it is only used in without GPU case.
+                call build_zmel(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=ns1,ns2=ns2, ispm=isp_k, &
+                     nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
+                     zmelconjg=.true., is_m_basis = is_m_basis, mpi_mode=.not.use_gpu, comm=comm_b)
                 call stopwatch_pause(t_sw_zmel)
                 call stopwatch_start(t_sw_x0)
                 call x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm, ns1, ns2)

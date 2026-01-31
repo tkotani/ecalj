@@ -226,7 +226,7 @@ subroutine hsfp0_sc()
     !      if(exchange)      call sxcf_scz_exchange_gemm   (ef,esmr,ixc,nspinmx) !main part of job
     !      if(.not.exchange) call sxcf_scz_correlation_gemm(ef,esmr,ixc,nspinmx) !main part of job
     !    endif
-    use m_sxcf_gemm,only: sxcf_scz_correlation, sxcf_scz_exchange
+    use m_sxcf_sc,only: sxcf_scz_correlation, sxcf_scz_exchange
     if(ipr) write(stdo,ftox) 'gemm version'
     if(exchange)      call sxcf_scz_exchange   (ef,esmr,ixc,nspinmx) !main part of job
     if(.not.exchange) call sxcf_scz_correlation(ef,esmr,ixc,nspinmx) !main part of job
@@ -242,7 +242,7 @@ subroutine hsfp0_sc()
 !  EndBlock SymmetrizeZsec
   Finalizesum: block
 !    use m_sxcf_main,only: zsecall
-    use m_sxcf_gemm,only: zsecall,reducez
+    use m_sxcf_sc,only: zsecall,reducez
     call reducez(nspinmx)
     if(MPI__root) then
        do is=1,nspinmx

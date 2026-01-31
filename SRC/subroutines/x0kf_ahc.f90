@@ -3,7 +3,7 @@ module m_x0kf_ahc
   use m_lgunit,only: stdo
   use m_keyvalue,only : Getkeyvalue
   use m_pkm4crpa,only : Readpkm4crpa
-  use m_zmel,only: get_zmel_init_gemm, zmel !,get_zmel_init1,get_zmel_init2
+  use m_zmel,only: build_zmel, zmel !,get_zmel_init1,get_zmel_init2
   use m_freq,only: npm, nwhis
   use m_genallcf_v3,only:  nsp=>nspin,nspx,nspc,ndima,nctot, nband,plat,alat
   use m_read_bzdata,only:  nqbz,ginv,nqibz,qbz,  rk=>qbz,wk=>wbz,wik=>wibz
@@ -370,15 +370,15 @@ contains
 !                   icounkmink= icounkmin(k); icounkmaxk= icounkmax(k)
 !                   call stopwatch_start(t_sw_zmel)
 !                   debug=cmdopt0('--debugzmel')
-!                   if(debug) write(stdo,ftox) 'ggggggggg goto get_zmel_init_gemm',k, nkmin(k),nkmax(k),nctot
+!                   if(debug) write(stdo,ftox) 'ggggggggg goto build_zmel',k, nkmin(k),nkmax(k),nctot
 !                   if(use_gpu) then
 !                      !Currently, mpi version of get_zmel_init_gpu which is available by adding comm argument for MPI communicator,
 !                      !but, MPI communication is significant bottle-neck in the case where GPUs are used. Therefore, it is only used in without GPU case.
-!                      call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
+!                      call build_zmel(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
 !                           nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
 !                           zmelconjg=.true.)
 !                   else
-!                      call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
+!                      call build_zmel(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
 !                           nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
 !                           zmelconjg=.true., comm = comm_b)
 !                   endif
@@ -512,9 +512,10 @@ contains
                         !                      enddo iminloop
                     endblock AHCmatrix
                   else
-                     call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot, &
+                     call build_zmel(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot, &
                           ns2=nkmax(k)+nctot, ispm=isp_k, nqini=nkqmin(k),nqmax=nkqmax(k), &
-                          ispq=isp_kq,nctot=nctot,ncc=merge(0,nctot,npm==1),iprx=.false.,zmelconjg=.true., is_m_basis=.false.)
+                          ispq=isp_kq,nctot=nctot,ncc=merge(0,nctot,npm==1),iprx=.false.,zmelconjg=.true., &
+                          is_m_basis=.false.,mpi_mode=.false.)
                   endif
                   icounloop: do 1000 icoun=icounkmin(k),icounkmax(k)
                      ! call get_zmel_init is equivalent to call x0kf_zmel(q, k, isp_k,isp_kq) 
@@ -732,10 +733,10 @@ contains
 !         nqini=nkqmin(k), nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1), iprx=.false., zmelconjg=.true.)
 !    if (present(GPUTEST)) then
     !      if (GPUTEST) then
-    if(debug) write(stdo,ftox) 'ggggggggg goto get_zmel_init_gemm',k, nkmin(k),nkmax(k),nctot
-    call get_zmel_init_gemm(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
+    if(debug) write(stdo,ftox) 'ggggggggg goto build_zmel',k, nkmin(k),nkmax(k),nctot
+    call build_zmel(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=nkmin(k)+nctot,ns2=nkmax(k)+nctot, ispm=isp_k, &
          nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., zmelconjg=.true., &
-        is_m_basis=.false.)
+        is_m_basis=.false., mpi_mode=.false.)
        !$acc update host(zmel)
 !      endif
 !    else
