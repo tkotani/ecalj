@@ -1,272 +1,225 @@
-# Make libecaljF.so and all binaries. Run > FC=gfortran cmake . for generating make file
-# run >VERBOSE=1 make to see detailed compile options
+# Make libecaljF.so and all binaries.
+#
+# Usage:
+#   FC=<compiler> cmake .
+#   FC=<compiler> cmake . -DCMAKE_BUILD_TYPE=Debug
+#   FC=nvfortran cmake . -DBUILD_GPU=ON -DBUILD_MP=ON -DBUILD_MP_GPU=ON
+#
+# Examples:
+#   FC=gfortran cmake .
+#   FC=ifort cmake .
+#   FC=nvfortran cmake . -DBUILD_GPU=ON
+#
+# To see compile options:
+#   VERBOSE=1 make
+#
+# To start over:
+#   rm -rf CMakeCache.txt CMakeFiles/
+#
 cmake_minimum_required(VERSION 3.18)
 
-if(DEFINED CACHE{FC} OR DEFINED ENV{FC})
-  set(FC $ENV{FC})
-else()
-  message("--- ")
-  message("=== Your choices to run cmake are: ===")
-  message(" >FC=ifort cmake .")
-  message(" >FC=ifort cmake . -DCMAKE_BUILD_TYPE=Debug")
-  message(" >FC=ifx cmake .")
-  message(" >FC=ifx cmake . -DCMAKE_BUILD_TYPE=Debug")
-  message(" >FC=gfortran cmake .")
-  message(" >FC=gfortran cmake . -DCMAKE_BUILD_TYPE=Debug")
-  message(" >FC=nvfortran cmake .")
-  message(" >FC=nvfortran cmake . -DCMAKE_BUILD_TYPE=Debug")
-  message(" >FC=nvfortran cmake . -DBUILD_GPU=ON -DBUILD_MP=ON -DBUILD_MP_GPU=ON")
-  message("You may run >VERBOSE=1 make -j, for detailed make messages.")
-  message("Note that '>rm -rf CMakeCache.txt CMakeFiles' is needed for starting over!")
-  message(FATAL_ERROR "==> FC=foobar is needed! e.g, FC=gfortran cmake .")
+if(NOT DEFINED ENV{FC})
+  message(FATAL_ERROR "Fortran compiler must be set via FC environment variable. e.g., FC=gfortran cmake .")
 endif()
+set(FC $ENV{FC})
 
-set(FCMOD ${FC})
+project(ecalj LANGUAGES Fortran CXX)
 
-Project(ecalj)
+# --- Build Type and Options ---
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Choose the type of build, options are: Debug Release" FORCE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type: Debug or Release" FORCE)
 endif()
-option(BUILD_GPU "Build GPU version" OFF)
-option(BUILD_MP "Build mixed precision CPU version" OFF)
-option(BUILD_MP_GPU "Build mixed precision GPU version" OFF)
-message("CMAKE_BUILD_TYPE is " ${CMAKE_BUILD_TYPE})
-message("BUILD_GPU is " ${BUILD_GPU})
-message("BUILD_MP is " ${BUILD_MP})
-message("BUILD_MP_GPU is " ${BUILD_MP_GPU})
-# SET(CMAKE_VERBOSE_MAKEFILE ON)
-enable_language(Fortran)
+option(BUILD_GPU "Build GPU version (for nvfortran)" OFF)
+option(BUILD_MP "Build mixed-precision CPU version" OFF)
+option(BUILD_MP_GPU "Build mixed-precision GPU version (for nvfortran)" OFF)
 
-file(GLOB SOURCES "${CMAKE_SOURCE_DIR}/../subroutines/*.f90") # existing source files 
+message("CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
+message("BUILD_GPU: ${BUILD_GPU}")
+message("BUILD_MP: ${BUILD_MP}")
+message("BUILD_MP_GPU: ${BUILD_MP_GPU}")
+
+# --- Source Files ---
+file(GLOB SOURCES "${CMAKE_SOURCE_DIR}/../subroutines/*.f90")
 file(GLOB MAINS "${CMAKE_SOURCE_DIR}/../main/*.f90")
-file(GLOB MAINS_GPU
+set(MAINS_GPU
     "${CMAKE_SOURCE_DIR}/../main/hsfp0_sc.f90"
     "${CMAKE_SOURCE_DIR}/../main/hrcxq.f90"
     "${CMAKE_SOURCE_DIR}/../main/hx0fp0.f90"
     "${CMAKE_SOURCE_DIR}/../main/hvccfp0.f90"
     "${CMAKE_SOURCE_DIR}/../main/lmf.f90"
 )
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}) # directory for *.so
-set(CMAKE_Fortran_FLAGS_RELEASE "-O2 -g") # -traceback")
+
+# --- GEMMul8 paths --- 
+set(GEMMUL8_DIR "${CMAKE_BINARY_DIR}/GEMMul8/GEMMul8")
+set(GEMMUL8_LIB "${GEMMUL8_DIR}/lib/libgemmul8.so")
+set(GEMMUL8_INC "${GEMMUL8_DIR}/include")
+set(GEMMUL8_WRAPPER "${CMAKE_SOURCE_DIR}/../subroutines/gemmul8_wrapper.cpp")
+
+# --- Compiler Flags ---
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_Fortran_FLAGS_RELEASE "-O2 -g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 set(FLAGS -cpp)
-# ## compile options ############################################################
+
 if(FC MATCHES "gfortran")
-  set(CMAKE_Fortran_COMPILER mpif90) # compiler
+  set(CMAKE_Fortran_COMPILER mpif90)
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -fbacktrace -fbounds-check")
-  set(CMAKE_Fortran_FLAGS "-g -ffree-line-length-none -fimplicit-none -finit-integer=NaN -finit-real=NaN -fpic") # compile flags
+  set(CMAKE_Fortran_FLAGS "-g -ffree-line-length-none -fimplicit-none -finit-integer=NaN -finit-real=NaN -fpic")
   if(CMAKE_Fortran_COMPILER_VERSION VERSION_GREATER_EQUAL "10.0")
     set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -w -fno-strict-aliasing -fallow-argument-mismatch")
   endif()
-  set(LIBM -lmkl_rt) 
+  set(LIBM -lmkl_rt)
+  set_source_files_properties("../subroutines/mkqp.f90" PROPERTIES COMPILE_FLAGS "-O0")
 elseif(FC MATCHES "ifort")
   set(CMAKE_Fortran_COMPILER mpiifort)
   find_program(MPIIFORT_COMPILER mpiifort)
-  if(NOT MPIIFORT_COMPILER) 
+  if(NOT MPIIFORT_COMPILER)
     set(CMAKE_Fortran_COMPILER mpifort)
-    # set(FLAGS ${FLAGS} -D__MKL_ZMINV_SEQUENTIAL) #use sequental version of zgetri 
   endif()
-  set(CMAKE_Fortran_FLAGS "-init:snan -fpic -assume byterecl -g -traceback") # compile flags
+  set(CMAKE_Fortran_FLAGS "-init:snan -fpic -assume byterecl -g -traceback")
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -traceback")
   set(LIBM -qmkl=parallel -qopenmp)
+  set_source_files_properties("../subroutines/m_qplist.f90" PROPERTIES COMPILE_FLAGS "-O0")
 elseif(FC MATCHES "ifx")
   set(CMAKE_Fortran_COMPILER mpiifx)
-  set(CMAKE_Fortran_FLAGS "-fpic -assume byterecl -g -traceback") # ifx: -init:snan option causes segmentation fault in zhegvx
+  set(CMAKE_Fortran_FLAGS "-fpic -assume byterecl -g -traceback")
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -traceback")
   set(LIBM -qmkl=parallel -qopenmp)
+  set_source_files_properties("../subroutines/m_qplist.f90" PROPERTIES COMPILE_FLAGS "-O0")
 elseif(FC MATCHES "nvfortran")
-  set(CMAKE_Fortran_COMPILER mpifort) # compiler
-  #-Mbackslash is necessary to write backslash without escape character
-  set(CMAKE_Fortran_FLAGS "-fpic -Mbackslash -traceback") # "-Mvect=simd -mcmodel=medium -fpic") # compile flags
+  set(CMAKE_Fortran_COMPILER mpifort)
+  set(CMAKE_Fortran_FLAGS "-fpic -Mbackslash -traceback")
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -traceback")
-  # set(CMAKE_Fortran_FLAGS_DEBUG "-g -O0 -traceback -Mbounds -Mchkptr -Mchkstk")
-  set(LIBM -mp -lmkl_rt) # set(LIBM -mp -lmkl_intel_lp64 -lmkl_pgi_thread -lmkl_core)
+  set(CMAKE_CXX_COMPILER nvcc)
+  set(LIBM -mp -lmkl_rt)
+  set_source_files_properties("../subroutines/pwmat.f90" "../subroutines/rseq.f90" PROPERTIES COMPILE_FLAGS "-O0")
 endif()
 
-## source-dependent compile options
-if(FC MATCHES "gfortran")
-  message(STATUS "===== gfortran release  =======================")
-  foreach(target IN ITEMS ${SOURCES})
-    if(${target} MATCHES "../subroutines/mkqp.f90")
-      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0")
-    endif()
-  endforeach()
-elseif(FC MATCHES "ifort" OR FC MATCHES "ifx")
-  message(STATUS "====== ifort/ifx release =======================")
-  foreach(target IN ITEMS ${SOURCES})
-    if(${target} MATCHES "../subroutines/m_qplist.f90")# OR ${target} MATCHES "../subroutines/m_bzintegration2.f90" )
-      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0")
-    endif()
-  endforeach()
-elseif(FC MATCHES "nvfortran")
-  message(STATUS "====== nvfortran release =======================")
-  foreach(target IN ITEMS ${SOURCES})
-    if(${target} MATCHES "../subroutines/pwmat.f90" OR ${target} MATCHES "../subroutines/rseq.f90")
-      set_source_files_properties(${target} PROPERTIES COMPILE_FLAGS "-O0")
-    endif()
-  endforeach()
-endif()
+# --- Dummy executable to aid linker in finding MKL ---
+add_executable(dummy ./dummy.f90)
+target_link_libraries(dummy ${LIBM})
 
-# makeshow which is always invoked to save the comilation time
-# execute_process(COMMAND uname -orin  OUTPUT_VARIABLE OUTPUT_UNAME OUTPUT_STRIP_TRAILING_WHITESPACE)
-# execute_process(COMMAND bash -c "LANG=us; date"  OUTPUT_VARIABLE OUTPUT_DATE OUTPUT_STRIP_TRAILING_WHITESPACE)
-# execute_process(COMMAND bash -c "${FC} --version |sed '/^$/d' |head -1" OUTPUT_VARIABLE OUTPUT_FCVERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
-# execute_process(COMMAND bash -c "git log |head -1" OUTPUT_VARIABLE OUTPUT_GITCOMMIT1 OUTPUT_STRIP_TRAILING_WHITESPACE)
-# execute_process(COMMAND bash -c "git log |head -2|tail -n 1" OUTPUT_VARIABLE OUTPUT_GITCOMMIT2 OUTPUT_STRIP_TRAILING_WHITESPACE)
-# execute_process(COMMAND bash -c "git log |head -3|tail -n 1" OUTPUT_VARIABLE OUTPUT_GITCOMMIT3 OUTPUT_STRIP_TRAILING_WHITESPACE)
-# execute_process(COMMAND bash -c "grep -v \"^\$\" /etc/issue | head -1 " OUTPUT_VARIABLE OUTPUT_ISSUE OUTPUT_STRIP_TRAILING_WHITESPACE)
-# if(CMAKE_BUILD_TYPE STREQUAL "Release")
-#   string(JOIN " "  FLAGS_ALL ${FLAGS} ${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_RELEASE}) #conbine lists to single variable
-# elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
-#   string(JOIN " "  FLAGS_ALL ${FLAGS} ${CMAKE_Fortran_FLAGS} ${CMAKE_Fortran_FLAGS_DEBUG})
-# endif()
-# add_custom_command(
-#   OUTPUT ../subroutines/show_programinfo.f90
-#   COMMAND cpp -P -D___UNAME_A___=\"${OUTPUT_UNAME}\"
-#               -D___ETC_ISSUE___=\"${OUTPUT_ISSUE}\" 
-#               -D___FFLAGS___=\"${FLAGS_ALL}\"
-#               -D___PLATFORM___=\"${FC}\" 
-#               -D___FC_VERSION___=\"${OUTPUT_FCVERSION}\" 
-#               -D___LIBLOC___=\"${LIB}\" 
-#               -D___LINK_TIME___=\"${OUTPUT_DATE}\" 
-#               -D___GIT_COMMIT1___=\"${OUTPUT_GITCOMMIT1}\" 
-#               -D___GIT_COMMIT2___=\"${OUTPUT_GITCOMMIT2}\" 
-#               -D___GIT_COMMIT3___=\"${OUTPUT_GITCOMMIT3}\"
-#               ../subroutines/show_programinfo.template > ../subroutines/show_programinfo.f90
-#   COMMENT "Generating show_programinfo.f90!!"
-#   VERBATIM
-# )
-# add_custom_target(show_prog ALL
-#   DEPENDS ../subroutines/show_programinfo.f90 #which is generated by custom_command
-# )
-
-# emacs tags
-# add_custom_target(etags ALL COMMAND etags ../subroutines/*.f90 ../main/*.f90
-#   WORKING_DIRECTORY ${CMAKE_BINARY_DIR})
-
-# copy executables etc to ../exec${FCMOD}
-# set(CMAKE_Fortran_BINS ${CMAKE_SOURCE_DIR}/../exec_${FCMOD}) # directory for *.mod
-# file(MAKE_DIRECTORY ${CMAKE_Fortran_BINS})
-# add_custom_target(copyexe ALL 
-#   COMMAND cp `find . -mindepth 1 -maxdepth 1 -executable -type f` ${CMAKE_Fortran_BINS} 
-#   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-# )
-#
-# # cp all executables in build directory using shell
-# add_custom_target(copy_binaries ALL
-#   COMMAND ${CMAKE_COMMAND} -E echo "Copying executables via shell script"
-#   COMMAND bash ${CMAKE_SOURCE_DIR}/cp_execs.sh
-#   DEPENDS copyexe
-# )
-
-# For setting mkl location
-add_executable(dummy ./dummy.f90) # exe
-target_link_libraries(dummy ${BLAS} ${LIBM} ${MPI}) # linked
-
-# make list of files to be delivered to ../exec
-set(DELIVER_FILES
-  ${CMAKE_BINARY_DIR}/libecaljF.so
-  ${CMAKE_BINARY_DIR}/dummy
-)
-
-# library compilation
-set(LIB ecaljF) # ecaljF, ecaljF_gpu ecaljF_mp, or ecaljF_mp_gpu
+# --- Main Library and Executables ---
+set(LIB ecaljF)
 add_library(${LIB} SHARED ${SOURCES})
-set_target_properties(${LIB} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FCMOD}/mod)
-#add_dependencies(${LIB} show_prog)
+set_target_properties(${LIB} PROPERTIES 
+  LINKER_LANGUAGE Fortran
+  Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FC}/mod
+)
 target_link_options(${LIB} PRIVATE ${LIBM})
 target_compile_options(${LIB} PRIVATE ${FLAGS})
+
+set(DELIVER_FILES ${CMAKE_BINARY_DIR}/lib${LIB}.so ${CMAKE_BINARY_DIR}/dummy)
 
 foreach(target IN ITEMS ${MAINS})
   get_filename_component(exename ${target} NAME_WE)
   add_executable(${exename} ${target})
   target_compile_options(${exename} PRIVATE ${FLAGS})
   target_link_libraries(${exename} ${LIB} ${LIBM})
-  #library's path is set to $ORIGIN same with binary's directory
   set_target_properties(${exename} PROPERTIES
-      Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FCMOD}/mod
-      BUILD_RPATH "\$ORIGIN"  
-      INSTALL_RPATH "\$ORIGIN"
-  ) 
-  # add_dependencies(copyexe ${exename})
+    LINKER_LANGUAGE Fortran
+    Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FC}/mod
+    BUILD_RPATH "$ORIGIN"
+    INSTALL_RPATH "$ORIGIN"
+  )
   list(APPEND DELIVER_FILES ${CMAKE_BINARY_DIR}/${exename})
 endforeach()
 
-### GPU or MP version ####
-# 1:MP, 2:GPU, 3:GPU+MP
-# Some of sources are excluded because GPU or MP are not implemented.
-if(BUILD_MP OR BUILD_GPU OR BUILD_MP_GPU)
-  list(FILTER SOURCES EXCLUDE REGEX "main_hmagnon.f90")
-  list(FILTER SOURCES EXCLUDE REGEX "main_hhomogas.f90")
-  list(FILTER SOURCES EXCLUDE REGEX "main_hsfp0.f90")
-  list(FILTER SOURCES EXCLUDE REGEX "sxcf_fal2.f90")
-endif()
-foreach(i RANGE 1 3)
-  if(BUILD_MP AND i EQUAL 1)
-    set(TYPE _mp)
-    set(LIBM2 )
-    set(FLAGS2 )
-    set(CPP_DEFINITIONS -D__MP)
-  elseif(BUILD_GPU AND i EQUAL 2)
-    set(TYPE _gpu)
-    set(LIBM2 -acc=gpu -cuda -cudalib=cufft,cublas,cusolver)
-    set(CPP_DEFINITIONS -D__GPU)
-    set(FLAGS2 -Mfree -cuda -acc=gpu -cudalib=cufft,cublas,cusolver)
-  elseif(BUILD_MP_GPU AND i EQUAL 3)
-    set(TYPE _mp_gpu)
-    set(LIBM2 -acc=gpu -cuda -cudalib=cufft,cublas,cusolver)
-    set(CPP_DEFINITIONS -D__GPU -D__MP)
-    set(FLAGS2 -Mfree -cuda -acc=gpu -cudalib=cufft,cublas,cusolver)
-  else()
-    continue()
+
+function(add_extended_build VARIANT)
+  set(SOURCES_EXT ${SOURCES})
+  # Exclude sources not implemented for GPU or MP
+  if(VARIANT STREQUAL "mp" OR VARIANT STREQUAL "gpu" OR VARIANT STREQUAL "mp_gpu")
+    list(FILTER SOURCES_EXT EXCLUDE REGEX "main_hmagnon.f90")
+    list(FILTER SOURCES_EXT EXCLUDE REGEX "main_hhomogas.f90")
+    list(FILTER SOURCES_EXT EXCLUDE REGEX "main_hsfp0.f90")
+    list(FILTER SOURCES_EXT EXCLUDE REGEX "sxcf_fal2.f90")
   endif()
-  set(LIB2 ecaljF${TYPE})
-  message(STATUS "LIB is " ${LIB2})
-  add_library(${LIB2} SHARED ${SOURCES})
-  add_custom_command(TARGET ${LIB2} PRE_LINK
-    COMMAND ${CMAKE_COMMAND} -E rm -f ${CMAKE_BINARY_DIR}/lib${LIB2}.so
-    COMMENT "Removing old lib${LIB2}.so (NVIDIA compiler workaround)"
+  set(LIB ecaljF_${VARIANT})
+  if(VARIANT STREQUAL "mp")
+    set(CPP_DEFINITIONS -D__MP)
+  elseif(VARIANT STREQUAL "gpu")
+    set(CPP_DEFINITIONS -D__GPU)
+  elseif(VARIANT STREQUAL "mp_gpu")
+    set(CPP_DEFINITIONS -D__GPU -D__MP)
+  endif()
+  set(FLAGS_EXTRA "")
+  set(LINK_EXTRA "")
+  if (VARIANT STREQUAL "gpu" OR VARIANT STREQUAL "mp_gpu")
+    set(FLAGS_EXTRA -Mfree -cuda -acc=gpu -cudalib=cufft,cublas,cusolver)
+    set(LINK_EXTRA -acc=gpu -cuda -cudalib=cufft,cublas,cusolver)
+  endif()
+  message(STATUS "Adding build variant: ${VARIANT}")
+  add_library(${LIB} SHARED ${SOURCES_EXT})
+  # NVIDIA compiler workaround: remove old library before linking
+  add_custom_command(TARGET ${LIB} PRE_LINK
+    COMMAND ${CMAKE_COMMAND} -E rm -f ${CMAKE_BINARY_DIR}/lib${LIB}.so)
+
+  target_link_options(${LIB} PRIVATE ${LIBM} ${LINK_EXTRA})
+  if (VARIANT STREQUAL "gpu" OR VARIANT STREQUAL "mp_gpu")
+    target_link_libraries(${LIB} PUBLIC gemmul8wrap)
+  endif()
+  set_target_properties(${LIB} PROPERTIES 
+      LINKER_LANGUAGE Fortran
+      Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FC}/mod_${VARIANT}
   )
-  set_target_properties(${LIB2} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FCMOD}/mod${TYPE})
-  target_compile_definitions(${LIB2} PRIVATE ${CPP_DEFINITIONS})
-  target_link_options(${LIB2} PRIVATE ${LIBM} ${LIBM2})
-  target_compile_options(${LIB2} PRIVATE ${FLAGS} ${CPP_DEFINITIONS} ${FLAGS2})
+  target_compile_options(${LIB} PRIVATE -cpp ${CPP_DEFINITIONS} ${FLAGS_EXTRA})
+  target_compile_definitions(${LIB} PRIVATE ${CPP_DEFINITIONS})
+  list(APPEND DELIVER_FILES ${CMAKE_BINARY_DIR}/lib${LIB}.so)
 
   foreach(target IN ITEMS ${MAINS_GPU})
     get_filename_component(exename ${target} NAME_WE)
-    set(exename ${exename}${TYPE})
+    set(exename ${exename}_${VARIANT})
     add_executable(${exename} ${target})
-    target_compile_options(${exename} PRIVATE ${FLAGS} ${FLAGS2})
-    target_link_libraries(${exename} ${LIB2} ${LIBM} ${LIBM2})
+    target_compile_options(${exename} PRIVATE -cpp ${CPP_DEFINITIONS} ${FLAGS_EXTRA})
+    target_link_libraries(${exename} ${LIB} ${LIBM} ${LINK_EXTRA})
     set_target_properties(${exename} PROPERTIES
-        Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FCMOD}/mod${TYPE}
-        BUILD_RPATH "\$ORIGIN"
-        INSTALL_RPATH "\$ORIGIN"
-    ) 
-    # add_dependencies(copyexe ${exename})
+        LINKER_LANGUAGE Fortran
+        Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FC}/mod_${VARIANT}
+        BUILD_RPATH "$ORIGIN"
+        INSTALL_RPATH "$ORIGIN"
+    )
     list(APPEND DELIVER_FILES ${CMAKE_BINARY_DIR}/${exename})
   endforeach()
-endforeach()
+endfunction()
 
-# copy executables etc to ../exec${FCMOD} and CMAKE_SOURCE_DIR (exec)
-set(CMAKE_Fortran_BINS ${CMAKE_SOURCE_DIR}/../exec_${FCMOD}) # directory for *.mod
+# --- GEMMul8 Wrapper Library ---
+if(BUILD_GPU OR BUILD_MP_GPU)
+  add_library(gemmul8wrap STATIC ${GEMMUL8_WRAPPER})
+  set_source_files_properties(${GEMMUL8_WRAPPER} PROPERTIES LANGUAGE CXX)
+  target_include_directories(gemmul8wrap PRIVATE ${GEMMUL8_INC})
+  target_link_libraries(gemmul8wrap PRIVATE ${GEMMUL8_LIB} stdc++)
+endif()
+
+if(BUILD_MP)
+  add_extended_build("mp")
+endif()
+if(BUILD_GPU)
+  add_extended_build("gpu")
+endif()
+if(BUILD_MP_GPU)
+  add_extended_build("mp_gpu")
+endif()
+
+# --- Delivery and Cleanup Targets ---
+set(DELIVER_DIR ${CMAKE_SOURCE_DIR}/../exec_${FC})
+
 add_custom_target(deliver ALL
-  COMMAND ${CMAKE_COMMAND} -E echo "Delivering build products to parent directory"
-  COMMAND ${CMAKE_COMMAND} -E make_directory ${CMAKE_Fortran_BINS}
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DELIVER_FILES} ${CMAKE_Fortran_BINS}
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${DELIVER_DIR}
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DELIVER_FILES} ${DELIVER_DIR}
   COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DELIVER_FILES} ${CMAKE_SOURCE_DIR}
   DEPENDS ${DELIVER_FILES}
-  COMMENT "Copying build products to parent directory"
+  COMMENT "Copying build products to ${DELIVER_DIR} and ${CMAKE_SOURCE_DIR}"
 )
 
-# clean delivered files in CMAKE_SOURCE_DIR
+# Create a list of delivered files in the source directory for cleanup
 set(DELIVERED_TARGET_FILES "")
 foreach(f ${DELIVER_FILES})
   get_filename_component(fname ${f} NAME)
   list(APPEND DELIVERED_TARGET_FILES ${CMAKE_SOURCE_DIR}/${fname})
 endforeach()
+
 add_custom_target(clean_delivered
-  COMMAND ${CMAKE_COMMAND} -E echo "Removing delivered files from ${CMAKE_SOURCE_DIR}"
-  COMMAND ${CMAKE_COMMAND} -E echo ${DELIVERED_TARGET_FILES}
   COMMAND ${CMAKE_COMMAND} -E rm -f ${DELIVERED_TARGET_FILES}
-  COMMENT "Cleaning delivered files in ${CMAKE_SOURCE_DIR}"
+  COMMENT "Cleaning delivered files from ${CMAKE_SOURCE_DIR}"
 )

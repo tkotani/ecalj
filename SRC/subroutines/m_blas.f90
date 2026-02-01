@@ -12,10 +12,34 @@ module m_blas !wrapper for BLAS and cuBLAS
 #ifdef __GPU
   public :: cmm_d, cmm_batch_d, zmm_d, zmm_batch_d, dmm_d, dmv_d, zmv_d, zvv_d
   public :: cublas_init, cublas_handle, cublas_finalize
-  type(cublashandle), value :: cublas_handle
+  type(cublashandle), target, value :: cublas_handle
   logical, save :: set_cublas_handle = .false., use_gemmul8 = .false., is_gemmul8_inited = .false.
 #endif
   character, parameter :: m_op_n = 'N', m_op_t = 'T', m_op_c = 'C'
+#ifdef __GPU
+  interface
+    subroutine gemmul8_zgemm(handle, transa, transb, m, n, k, alpha, devA, lda, devB, ldb, beta, devC, ldc, &
+                             num_moduli, fastmode, enable_skip_A, enable_skip_B, skip_scalA, skip_scalB) bind(C, name="gemmul8_zgemm_")
+      use iso_c_binding
+      type(c_ptr), value :: handle
+      integer, value :: transa, transb, m, n, k, lda, ldb, ldc
+      complex(8), value :: alpha, beta
+      type(c_ptr), value :: devA, devB, devC
+      integer, value :: num_moduli
+      integer, value :: fastmode, enable_skip_A, enable_skip_B, skip_scalA, skip_scalB
+    endsubroutine
+    subroutine gemmul8_dgemm(handle, transa, transb, m, n, k, alpha, devA, lda, devB, ldb, beta, devC, ldc, &
+                             num_moduli, fastmode, enable_skip_A, enable_skip_B, skip_scalA, skip_scalB) bind(C, name="gemmul8_dgemm_")
+      use iso_c_binding
+      type(c_ptr), value :: handle
+      integer, value :: transa, transb, m, n, k, lda, ldb, ldc
+      real(8), value :: alpha, beta
+      type(c_ptr), value :: devA, devB, devC
+      integer, value :: num_moduli
+      integer, value :: fastmode, enable_skip_A, enable_skip_B, skip_scalA, skip_scalB
+    endsubroutine
+  endinterface
+#endif
 contains
   integer function cmm_h(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc) result(istat)
     complex(4) :: a(*), b(*), c(*)
@@ -427,7 +451,7 @@ contains
                       & alpha_in, a, lda_in , x, incx_in, beta_in, y, incy_in)
   end function zmv_d
   integer function dmm_d(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc) result(istat)
-    real(8), device :: a(*), b(*), c(*)
+    real(8), device, target :: a(*), b(*), c(*)
     integer, intent(in) :: m, n, k
     character, intent(in), optional :: opa, opb
     real(8), intent(in), optional :: alpha, beta
@@ -454,11 +478,31 @@ contains
     istat = cublas_init()
     opa_in_cublas = get_m_op_cublas(opa_in)
     opb_in_cublas = get_m_op_cublas(opb_in)
-    istat = cublasdgemm(cublas_handle, opa_in_cublas, opb_in_cublas,  m, n, k, &
-                      & alpha_in, a, lda_in , b, ldb_in, beta_in, c, ldc_in)
+    if(use_gemmul8) then
+      block
+        use iso_c_binding
+        type(c_ptr) :: devA, devB, devC, handle_cptr
+        integer :: fastmode_int, enable_skip_A_int, enable_skip_B_int, skip_a_int, skip_b_int
+        fastmode_int = 0
+        enable_skip_A_int = 1
+        enable_skip_B_int = 1
+        skip_a_int = 0
+        skip_b_int = 0
+        handle_cptr = c_loc(cublas_handle)
+        devA = c_loc(a)
+        devB = c_loc(b)
+        devC = c_loc(c)
+        call gemmul8_dgemm(handle_cptr, opa_in_cublas, opb_in_cublas, m, n, k, alpha_in, &
+                          devA, lda_in, devB, ldb_in, beta_in, devC, ldc_in,  &
+                          18, fastmode_int, enable_skip_A_int, enable_skip_B_int, skip_a_int, skip_b_int)
+     endblock
+    else
+      istat = cublasdgemm(cublas_handle, opa_in_cublas, opb_in_cublas,  m, n, k, &
+                        & alpha_in, a, lda_in , b, ldb_in, beta_in, c, ldc_in)
+    endif
   end function dmm_d
   integer function zmm_d(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc) result(istat)
-    complex(8), device :: a(*), b(*), c(*)
+    complex(8), device, target :: a(*), b(*), c(*)
     integer, intent(in) :: m, n, k
     character, intent(in), optional :: opa, opb
     complex(8), intent(in), optional :: alpha, beta
@@ -486,8 +530,23 @@ contains
     opa_in_cublas = get_m_op_cublas(opa_in)
     opb_in_cublas = get_m_op_cublas(opb_in)
     if(use_gemmul8) then
-      istat = cublaszgemm(cublas_handle, opa_in_cublas, opb_in_cublas,  m, n, k, &
-                        & alpha_in, a, lda_in , b, ldb_in, beta_in, c, ldc_in)
+      block
+        use iso_c_binding
+        type(c_ptr) :: devA, devB, devC, handle_cptr
+        integer :: fastmode_int, enable_skip_A_int, enable_skip_B_int, skip_a_int, skip_b_int
+        fastmode_int = 0
+        enable_skip_A_int = 1
+        enable_skip_B_int = 1
+        skip_a_int = 0
+        skip_b_int = 0
+        handle_cptr = c_loc(cublas_handle)
+        devA = c_loc(a)
+        devB = c_loc(b)
+        devC = c_loc(c)
+        call gemmul8_zgemm(handle_cptr, opa_in_cublas, opb_in_cublas, m, n, k, alpha_in, &
+                          devA, lda_in, devB, ldb_in, beta_in, devC, ldc_in,  &
+                          18, fastmode_int, enable_skip_A_int, enable_skip_B_int, skip_a_int, skip_b_int)
+     endblock
     else
       istat = cublaszgemm3m(cublas_handle, opa_in_cublas, opb_in_cublas,  m, n, k, &
                           & alpha_in, a, lda_in , b, ldb_in, beta_in, c, ldc_in)
@@ -535,16 +594,8 @@ contains
     istat = gemmul_init()
     opa_in_cublas = get_m_op_cublas(opa_in)
     opb_in_cublas = get_m_op_cublas(opb_in)
-    if(use_gemmul8) then
-      do i = 1, nbatch
-        istat = cublaszgemm(cublas_handle, opa_in_cublas, opb_in_cublas, m, n, k, &
-                         &  alpha_in, a(stridea*(i-1)+1), lda_in, &
-                         &  b(strideb*(i-1)+1), ldb_in, beta_in, c(stridec*(i-1)+1), ldc_in)
-      enddo
-    else
-      istat = cublaszgemmstridedbatched(cublas_handle, opa_in_cublas, opb_in_cublas,  m, n, k,  &
-                 &  alpha_in, a, lda_in, stridea, b, ldb_in, strideb, beta_in, c, ldc_in, stridec, nbatch)
-    endif
+    istat = cublaszgemmstridedbatched(cublas_handle, opa_in_cublas, opb_in_cublas,  m, n, k,  &
+               &  alpha_in, a, lda_in, stridea, b, ldb_in, strideb, beta_in, c, ldc_in, stridec, nbatch)
   end function zmm_batch_d
 #endif
 
@@ -564,26 +615,9 @@ contains
     endif
   end function cublas_finalize
   integer function gemmul_init() result(istat)
-    use m_env, only: setenv
     logical :: cmdopt0
     if(is_gemmul8_inited) return
     use_gemmul8 = cmdopt0('--use_gemmul8')
-    if(use_gemmul8) then
-      istat = setenv('GEMMUL8_NUM_MOD_D','15')
-      istat = setenv('GEMMUL8_NUM_MOD_S','7')
-      istat = setenv('GEMMUL8_NUM_MOD_Z','15')
-      istat = setenv('GEMMUL8_NUM_MOD_C','7')
-      istat = setenv('GEMMUL8_FASTMODE_D','1')
-      istat = setenv('GEMMUL8_FASTMODE_S','0')
-      istat = setenv('GEMMUL8_FASTMODE_Z','1')
-      istat = setenv('GEMMUL8_FASTMODE_C','0')
-      istat = setenv('GEMMUL8_MAX_M','0')
-      istat = setenv('GEMMUL8_MAX_N','0')
-      istat = setenv('GEMMUL8_MAX_K','0')
-      istat = setenv('GEMMUL8_MAX_NUM_MOD','2')
-      istat = setenv('GEMMUL8_SKIP_SCALE_A','0')
-      istat = setenv('GEMMUL8_SKIP_SCALE_B','0')
-    endif
     is_gemmul8_inited = .true.
   end function gemmul_init
   integer function get_m_op_cublas(m_op_blas) result(m_op_cublas)

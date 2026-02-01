@@ -18,7 +18,6 @@ parser.add_argument('--fc', help='fortran compiler gfortran/ifort/ifx/nvfortran'
 parser.add_argument('--notest', help='no test. only compile', action='store_true')
 parser.add_argument('--verbose', help='verbose on for debug', action='store_true')
 parser.add_argument('--debug', help='debug', action='store_true')
-parser.add_argument('--skip-on-error', help='If a command fails, skip it instead of stopping.', action='store_true')
 args = parser.parse_args()
 
 def run_command(command, cwd=None, env=None, skip_on_error=False):

@@ -13,7 +13,7 @@ module m_lapack
   private
 #ifdef __GPU
   integer :: cuda_runtime_version
-  type(cusolverDnHandle), value :: cusolver_handle 
+  type(cusolverDnHandle), value :: cusolver_handle
   type(cusolverDnParams), value :: cusolver_params
   logical, save :: set_cusolver_handle = .false.
 #endif
