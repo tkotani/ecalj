@@ -42,37 +42,31 @@ def _load_config(cluster_name):
     )
     raise RuntimeError(error_msg)
 
-
 def _build_command(cfg, params: MPIParams) -> list[str]:
-    """Build mpirun/srun command"""
-    import re
-    shell_var_pattern = re.compile(r'^\$\{[A-Za-z0-9_]+\}$')
-
-    launcher = cfg["launcher"]
+    """Build mpirun/srun command with simple placeholder replacement."""
+    launcher = os.path.expandvars(cfg["launcher"])
     launcher_args_template = cfg.get("launcher_args", [])
     launcher_args = []
-    format_kwargs = {"nprocs": params.nprocs}
-    if params.npernode is not None:
-        format_kwargs["npernode"] = params.npernode
 
     for arg_template in launcher_args_template:
-        # if npernode is required but not provided, skip this template
-        if "{npernode}" in arg_template and params.npernode is None:
-            continue
-        if shell_var_pattern.match(arg_template):
-            launcher_args.append(arg_template)
-        else:
-            formatted = arg_template.format(**format_kwargs)
-            launcher_args.extend(shlex.split(formatted))
-    
+        s = arg_template
+        if params.nprocs is not None:
+            s = s.replace("{nprocs}", str(params.nprocs))
+        if "{npernode}" in s:
+            if params.npernode is None:
+                continue
+            s = s.replace("{npernode}", str(params.npernode))
+        s = os.path.expandvars(s)
+        launcher_args.extend(shlex.split(s))
     cmd_list = [launcher] + launcher_args
+
     if params.command:
         cmd_list.append(str(params.command))
 
     for arg in params.args:
-        cmd_list.extend(shlex.split(arg))
-    return cmd_list
+        cmd_list.extend(shlex.split(os.path.expandvars(arg)))
 
+    return cmd_list
 
 def _build_env(cfg):
     """Build environment variables"""

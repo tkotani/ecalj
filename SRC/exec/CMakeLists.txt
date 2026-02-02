@@ -23,7 +23,7 @@ if(NOT DEFINED ENV{FC})
 endif()
 set(FC $ENV{FC})
 
-project(ecalj LANGUAGES Fortran CUDA)
+project(ecalj LANGUAGES Fortran)
 
 # --- Build Type and Options ---
 if(NOT CMAKE_BUILD_TYPE)
@@ -37,6 +37,12 @@ message("CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
 message("BUILD_GPU: ${BUILD_GPU}")
 message("BUILD_MP: ${BUILD_MP}")
 message("BUILD_MP_GPU: ${BUILD_MP_GPU}")
+
+# --- Enable CUDA if needed ---
+if(BUILD_GPU OR BUILD_MP_GPU)
+  enable_language(CUDA)
+  set(CMAKE_CUDA_FLAGS "-O3")
+endif()
 
 # --- Source Files ---
 file(GLOB SOURCES "${CMAKE_SOURCE_DIR}/../subroutines/*.f90")
@@ -58,7 +64,6 @@ set(GEMMUL8_WRAPPER "${CMAKE_SOURCE_DIR}/../subroutines/gemmul8_wrapper.cu")
 # --- Compiler Flags ---
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_Fortran_FLAGS_RELEASE "-O2 -g")
-set(CMAKE_CUDA_FLAGS "-O3")
 set(FLAGS -cpp)
 
 if(FC MATCHES "gfortran")
@@ -124,7 +129,7 @@ foreach(target IN ITEMS ${MAINS})
   list(APPEND DELIVER_FILES ${CMAKE_BINARY_DIR}/${exename})
 endforeach()
 
-
+# --- Extended Builds for MP and GPU ---
 function(add_extended_build VARIANT)
   set(SOURCES_EXT ${SOURCES})
   # Exclude sources not implemented for GPU or MP
