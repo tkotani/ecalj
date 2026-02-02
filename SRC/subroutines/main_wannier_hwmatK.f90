@@ -203,6 +203,7 @@ subroutine super_cell(alat,plat,n1,n2,n3,nrws,rws,irws,drws)
   return
 end subroutine super_cell
 end module util_hwmatK
+
 subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   !! W(w) = <phi(n1,dR) phi(n2,0) |W(w)| phi(n3,R') phi(n4,R'+dR')>
   !! phi(n,R): maximally localized Wannier orbital
@@ -261,6 +262,19 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
 
   use m_mksym_util,only:mptauof
 
+  use m_lmfinit,only:  m_lmfinit_init
+  use m_lattic,only:   m_lattic_init
+  use m_mksym,only:    m_mksym_init
+  use m_ctrl2ctrlp,only: ConvertCtrl2ctrlpBypython
+  use m_cmdpath,only: setcmdpath
+  use m_args,only:    m_setargs
+  use m_ext,only:     m_ext_init
+  use m_lmf,only: lmf
+  use m_mpi,only: setipr
+    use m_lgunit,only:   m_lgunit_init
+    use m_MPItk,only:    m_MPItk_init
+
+  
   ! RS: MPI module
 !  use rsmpi,only: rsmpi_init,mpi_comm_world,mpi_double_precision,mpi_integer,mpi_sum
 !  use rsmpi_rotkindex,only: setup_rotkindex, nrot_local_rotk,irot_index_rotk
@@ -401,13 +415,30 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   logical:: lomega0
   integer:: ierr,procid,master=0,comm,nrank,irr,iqibz
   integer,allocatable::irkall(:,:),irk(:,:)
-  logical:: master_mpi
+  logical:: master_mpi,debug=.false.
 !  include "mpif.h"
   comm= mpi_comm_world
-  call mpi_init(ierr)
+!  call mpi_init(ierr)
   call mpi_comm_size(comm, nrank, ierr)
   call MPI_COMM_RANK(comm, procid, ierr )
   master_mpi = procid == master
+
+! 2026-2-1 for rotMTO
+  ! call MPI_BARRIER( comm, ierr)
+  !  call m_MPItk_init(comm)  ! MPI info
+  !  !call m_ext_init()    ! Get sname, e.g. trim(sname)=si of ctrl.si
+  !  call m_lgunit_init() ! Set file handle of stdo(console) and stdl(log)    !print *, 'len_trim(argall)=',trim(argall),len_trim(argall),master_mpi
+  ! call setipr(comm)
+  ! call setcmdpath()
+  ! call m_setargs()
+  ! call m_ext_init()    ! Get sname, e.g. trim(sname)=si of ctrl.si
+  ! if(procid==master) call ConvertCtrl2CtrlpByPython()
+  call MPI_BARRIER( comm, ierr)
+  call m_lmfinit_init('LMF',comm)! Read ctrlp into module m_lmfinit.
+  call m_lattic_init()       ! lattice setup (for ewald sum)
+  call m_mksym_init()  !symmetry go into m_lattic and m_mksym
+  !----------
+  
 !  call RSMPI_Init()
   hartree=2d0*rydberg()
   iii=verbose()
@@ -493,6 +524,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
      write(6,'("    esmr    =",f13.6)') esmr
      write(6,'("    alat voltot =",2f13.6)') alat, voltot
   endif
+
   call Readhamindex()
   call init_readeigen()!nband,mrece) !initialization of readEigen
   allocate(invgx(ngrp),miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
@@ -578,7 +610,6 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
     write(6,*) ' If you need wmat_all, need to fix this part. or use fixed code with ifort/gfortran'
     call rx('wmat_all is not implemented because of the bug in nvfortran24.1')
   endif
-  print *, "Here!!!!!!!!!!!!!", lfull, lwssc!, nrws
   if (lfull) then
      call getkeyvalue("GWinput","wmat_rcut1",rcut1, default=0.01d0 )
      call getkeyvalue("GWinput","wmat_rcut2",rcut2, default=0.01d0 )
@@ -697,101 +728,57 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
        cv_w(nwf,nwf,nwf,nwf,nrws))
   call MPI_Barrier(MPI_COMM_WORLD,ierr)
   nq0ixxx=0
-  
-
-  
-  if (master_mpi) then ! debug
-     if(nq0i/=0) then
-        write(6,*) ' total number of k-points should be',  nqbz +  1/wgt0(1,1)   - 2 + 1 !bzcase()
-     else
-        write(6,*) ' total number of k-points should be',  nqbz  - 2 + 1 !bzcase()
-     endif
+  if(master_mpi) then ! debug
+    if(nq0i/=0) then
+      write(6,*) ' total number of k-points should be',  nqbz +  1/wgt0(1,1)   - 2 + 1 !bzcase()
+    else
+      write(6,*) ' total number of k-points should be',  nqbz  - 2 + 1 !bzcase()
+    endif
   endif
-  call MPI_Barrier(MPI_COMM_WORLD,ierr)
-  
-  ! ! RS: openlogfile for each process
-  ! if (ixc == 1) then
-  !    ifile_rsmpi = iopen ('lwt_v.MPI'//myrank_id_rsmpi,1,3,0)
-  ! else if (ixc == 2) then
-  !    ifile_rsmpi = iopen ('lwt_wc.MPI'//myrank_id_rsmpi,1,3,0)
-  ! else if (ixc == 3) then
-  !    ifile_rsmpi = iopen ('lwt_u.MPI'//myrank_id_rsmpi,1,3,0)
-  ! else if (ixc == 4) then
-  !    ifile_rsmpi = iopen ('lwt_v_phi.MPI'//myrank_id_rsmpi,1,3,0)
-  ! else if (ixc == 5) then
-  !    ifile_rsmpi = iopen ('lwt_wc_phi.MPI'//myrank_id_rsmpi,1,3,0)
-  ! else if (ixc == 6) then
-  !    ifile_rsmpi = iopen ('lwt_u_phi.MPI'//myrank_id_rsmpi,1,3,0)
-  ! elseif( ixc==10011) then
-  ! else
-  !    call rx("unknown ixc")
-  ! endif
-  
-! RS: print how symmetry operations and k-points are devided ..
-!  write(ifile_rsmpi,*) "rank : ", myrank_id_rsmpi
-!  write(ifile_rsmpi,*) "nrotk_local:",nk_local_qkgroup
-!  write(ifile_rsmpi,*) "nrot_local :",nrot_local_rotk
-!  if (nrot_local_rotk > 0) write(ifile_rsmpi,*) "iiiiii irot_index :",irot_index_rotk(1:nrot_local_rotk)
-!  write(ifile_rsmpi,*) "nk_local(1:ngrp) :"
-!  write(ifile_rsmpi,*) nk_local_rotk(:)
-!  do irot=1,ngrp
-!     if (nk_local_rotk(irot) > 0) then
-!        write(ifile_rsmpi,*) "> irot,nk_local(irot) = ", irot, nk_local_rotk(irot)
-!        write(ifile_rsmpi,*) "   ik_index : ",           ik_index_rotk(irot,1:nk_local_rotk(irot))
-!     endif
-!  enddo
-  
   call MPI_Barrier(MPI_COMM_WORLD,ierr)
   if (master_mpi) write(6,*) "RS: loop over spin --"
   ! loop over spin ----------------------------------------------------
   spinloop: do 2000 is = 1,nspinmx
-     write(6,*)' ssssss spinloop',is,nspinmx
-     ! initialise secq and kount
-     kount = 0
-     rw_w = 0d0
-     cw_w = 0d0
-     rw_iw = 0d0
-     cw_iw = 0d0
-     call chkrot()
-!     do ix=1,nrank
-!        write(6,"('xxxirk=',2i5,' xxx ',255i3)") procid,ix,irk(ix,:),nrot_local_rotk
-!     enddo
-!     write(6,"('mmmxxx=',i5,' xxx ',244i3)") procid, [(irot_index_rotk(irot_local),irot_local = 1,nrot_local_rotk)]
-     rotloop: do 1000 irot=1,ngrp  !irot_local = 1,nrot_local_rotk
-!        irot = irot_index_rotk(irot_local)
-!        if( sum(abs( irk(:,irot) )) ==0 .AND. sum(abs( wgt0(:,irot))) == 0d0 ) then
-!           call rx("hwmatK_RSMPI, cylce occurs in do 1000 -loop!")
-!           cycle
-!        endif
-        write (6,"(i3,'  out of ',i3,'  rotations ',$)") irot,ngrp
+!    write(6,*)' ssssss spinloop',is,nspinmx
+    ! initialise secq and kount
+    kount = 0
+    rw_w = 0d0
+    cw_w = 0d0
+    rw_iw = 0d0
+    cw_iw = 0d0
+    call chkrot()
+    rotloop: do 1000 irot=1,ngrp  !irot_local = 1,nrot_local_rotk
+      if(master_mpi) then
+        write (6,"('is=',i3,': ',i3,'  out of ',i3,'  rotations:  procid=',i3,$)") is,irot,ngrp, procid
         call cputid (0)
-        ! rotate atomic positions invrot*R = R' + T         !        invr       = invrot (irot,invg,ngrp)
-        invr     = invg(irot)
-        ! -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
-        call ppbafp_v2 (irot,ngrp,is,mdimx,lx,nx,nxx,cgr,nl-1,ppbrd, ppb)
-        nctot0=0
-!        write(*,*) 'wmatq in',irot_local,nrot_local_rotk
-        shtv = matmul(symgg(:,:,irot),shtvg(:,invr))
-        call wmatqk_MPI (kount,irot,     1,   1,   1,  tiat(1:3,1:natom,invr),miat(1:natom,invr), &
-             rws1,rws2, nspin,is,  & !ifcphi,ifrb(is),ifcb(is),ifrhb(is),ifchb(is),
-             ifrcw,ifrcwi, qbas,ginv,qibz,qbz,wbz,nstbz, wibz,nstar,irk,  &! & iindxk,
-             nblocha,nlnmv, nlnmc,  icore,ncore, imdim, &
-             ppb,    freq_r,freqx, wwx, expa, ua, dwdummy,  &! & deltaw,
-             ndima,nqibz,nqbz,nctot0, &
-             nl,nnc,natom,natom, &
-             nlnmx,mdimx,nbloch,ngrp,nw_i,nw,nrw,niw,niwx,nq, &
-             nblochpmx,ngpmx,ngcmx, &
-             wgt0,wqt,nq0i,q0i, symgg(:,:,irot),alat, &
-             shtv,nband, & !ifvcfpout, &
-             exchange, pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, nwf,  rw_w,cw_w,rw_iw,cw_iw) ! acuumulation variable
-        
-!        write(*,*) 'wmatq out',irot_local,nrot_local_rotk
+      endif
+      ! rotate atomic positions invrot*R = R' + T         !        invr       = invrot (irot,invg,ngrp)
+      invr     = invg(irot)
+      ! -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
+      call ppbafp_v2 (irot,ngrp,is,mdimx,lx,nx,nxx,cgr,nl-1,ppbrd, ppb)
+      nctot0=0
+      shtv = matmul(symgg(:,:,irot),shtvg(:,invr))
+      if(debug) write(*,*) 'wmatq in',irot,sum(abs(ppb)),sum(abs(shtv))
+      call wmatqk_MPI (kount,irot,     1,   1,   1,  tiat(1:3,1:natom,invr),miat(1:natom,invr), &
+           rws1,rws2, nspin,is,  & !ifcphi,ifrb(is),ifcb(is),ifrhb(is),ifchb(is),
+           ifrcw,ifrcwi, qbas,ginv,qibz,qbz,wbz,nstbz, wibz,nstar,irk,  &! & iindxk,
+           nblocha,nlnmv, nlnmc,  icore,ncore, imdim, &
+           ppb,    freq_r,freqx, wwx, expa, ua, dwdummy,  &! & deltaw,
+           ndima,nqibz,nqbz,nctot0, &
+           nl,nnc,natom,natom, &
+           nlnmx,mdimx,nbloch,ngrp,nw_i,nw,nrw,niw,niwx,nq, &
+           nblochpmx,ngpmx,ngcmx, &
+           wgt0,wqt,nq0i,q0i, symgg(:,:,irot),alat, &
+           shtv,nband, & !ifvcfpout, &
+           exchange, pomatr, qrr,nnr,nor,nnmx,nomx,nkpo, nwf,  rw_w,cw_w,rw_iw,cw_iw) ! acuumulation variable
+      if(debug) write(6,*)'xxxxxxxx rw_w=',sum(abs(rw_w)),sum(rw_w)
 1000 enddo rotloop
-     allocate( rw_w_sum(nwf,nwf,nwf,nwf,nrws,0:nrw), &
-          cw_w_sum(nwf,nwf,nwf,nwf,nrws,0:nrw), &
-          rw_iw_sum(nwf,nwf,nwf,nwf,nrws,niw), &
-          cw_iw_sum(nwf,nwf,nwf,nwf,nrws,niw))
-!     write(6,*)'sssssss sumcheck rw_w... ',procid,sum(rw_w),sum(cw_w)
+    
+      allocate( &
+           rw_w_sum(nwf,nwf,nwf,nwf,nrws,0:nrw), &
+           cw_w_sum(nwf,nwf,nwf,nwf,nrws,0:nrw), &
+           rw_iw_sum(nwf,nwf,nwf,nwf,nrws,niw), &
+           cw_iw_sum(nwf,nwf,nwf,nwf,nrws,niw))
      call MPI_AllReduce(rw_w,rw_w_sum,(nrw+1)*nwf**4*nrws, MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
      rw_w = rw_w_sum
      call MPI_AllReduce(cw_w,cw_w_sum,(nrw+1)*nwf**4*nrws, MPI_DOUBLE_PRECISION,MPI_SUM,MPI_COMM_WORLD,ierr)
@@ -805,38 +792,19 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
      deallocate(rw_w_sum,cw_w_sum,rw_iw_sum,cw_iw_sum)
 2001 continue      ! write <p p | W | p p>
      if (master_mpi) then
-        if (exchange) then
-           call wvmat (is,nwf, &
-                rws1,rws2,irws1,irws2,nrws1,nrws2,nrws, &
-                alat,rcut1,rcut2,rw_w(:,:,:,:,:,0),cw_w(:,:,:,:,:,0), lcrpa, lomega0)
-           rv_w = rw_w(:,:,:,:,:,0)
-           cv_w = cw_w(:,:,:,:,:,0)
-        else
-           call       wwmat (is,nw_i,nrw+1,nwf, &
-                rws1,rws2,irws1,irws2,nrws1,nrws2,nrws, &
-                alat,rcut1,rcut2, &
-                freq_r(0:nrw), &
-                rw_w,cw_w,rv_w,cv_w, &
-                lcrpa, lomega0)
-        endif
+       if (exchange) then
+         call wvmat (is,           nwf, rws1,rws2,irws1,irws2,nrws1,nrws2,nrws, &
+              alat,rcut1,rcut2,                 rw_w(:,:,:,:,:,0),cw_w(:,:,:,:,:,0), lcrpa, lomega0)
+         rv_w = rw_w(:,:,:,:,:,0)
+         cv_w = cw_w(:,:,:,:,:,0)
+       else
+         call wwmat (is,nw_i,nrw+1, nwf, rws1,rws2,irws1,irws2,nrws1,nrws2,nrws, &
+              alat,rcut1,rcut2, freq_r(0:nrw),  rw_w,cw_w,rv_w,cv_w, lcrpa, lomega0)
+       endif
      endif
 2000 enddo spinloop
-  ! isx = iclose ('wc.d')
-  ! isx = iclose ('wci.d')
-  ! isx = iclose ('hbe.d')
-  ! isx = iclose ('RBU')
-  ! isx = iclose ('CBU')
-  ! isx = iclose ('RHBU')
-  ! isx = iclose ('CHBU')
-  ! isx = iclose ('EVU')
-  ! isx = iclose ('RBD')
-  ! isx = iclose ('CBD')
-  ! isx = iclose ('RHBD')
-  ! isx = iclose ('CHBD')
-  ! isx = iclose ('EVD')
-!  call cputid(ifile_rsmpi)
-  call cputid(0)
-  call mpi_finalize(ierr)
-  if (master_mpi) call rx0s(' OK! hwmatK_MPI')
+   call MPI_BARRIER( comm, ierr)
+   call cputid(0)
+   call MPI_BARRIER( comm, ierr)
+   if(master_mpi) write(*,"(a)")"OK! end of hwmatK_MPI"
 end subroutine hwmatK_MPI
-!-----------------------------------------------------------------------

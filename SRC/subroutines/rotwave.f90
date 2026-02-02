@@ -36,6 +36,8 @@ contains
       rotmat= 0d0
       nlmto = ndimh
       phase = [(exp(-img2pi*sum(qtarget*tiat(:,ibas,igg))), ibas=1,nbas)]
+
+!      write(stdo,*) ' nnnn nlmto=',nlmto
       OrbitalBlock: do iorb=1,norbmto
          ibas = ibastab(iorb)
          l   = ltab(iorb)
@@ -44,6 +46,15 @@ contains
          iend1 = offl(iorb)+2*l+1
          init2 = offlrev(miat(ibas,igg),l,k)+1
          iend2 = offlrev(miat(ibas,igg),l,k)+2*l+1
+
+     !   if (init1 < 1 .or. iend1 > nlmto .or. &
+     ! &       init2 < 1 .or. iend2 > nlmto) then
+     !        write(stdo,*) 'BAD index: iorb=',iorb, ' l,igg,ibas=',l,igg,ibas
+     !        write(stdo,*) '  init1,iend1=',init1,iend1,'  init2,iend2=',init2,iend2
+     !        write(stdo,*) '  nlmto=',nlmto
+     !        stop 'rotmatMTO index out of range'
+     !     end if
+         !         write(stdo,ftox)'iiiiiorb ',iorb,' iiiiiiiii ini =',init1,iend1,init2,iend2,' l igg ibas ',l,igg,ibas
          rotmat(init2:iend2,init1:iend1)=dlmm(-l:l,-l:l,l,igg)*phase(ibas)
       enddo OrbitalBlock     ! evecout(init2:iend2,:)= matmul(dlmm(-l:l,-l:l,l,igg),evec(init1:iend1,:))*phase(ibas)
    end subroutine rotmatMTO

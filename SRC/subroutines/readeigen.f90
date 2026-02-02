@@ -8,7 +8,7 @@ module m_readeigen
   use m_mpiio,only: openm,readm,closem
   use m_lgunit,only:stdo
   use m_iqindx_qtt,only: Iqindx2_, Init_iqindx_qtt
-  use m_hamindex,only:   ngpmx, nqtt, nqi, qtt,iqimap, iqmap,igmap,shtvg,qlat,symops
+  use m_hamindex,only:   ngpmx, nqtt, nqi, qtt,iqimap, iqmap,igmap,shtvg,qlat,symops,ngrp
   use m_hamindex,only:   plat,invgx, miat,tiat,dlmm,shtvg,symops,lmxax,nbas
   use m_read_bzdata,only: ginv
   use m_genallcf_v3,only: nsp =>nspin ,ndima,ndimanspc, mrecb,mrece,mrecg,nband,nspc,nspx
@@ -448,8 +448,7 @@ contains
              enddo
           enddo
        enddo
-       if(debug) write(6,*)'init_readeigen:end'
-       ! call rx0('xxxxxxxxxxxxxxxxxx')
+       write(6,*)'init_readeigen:end'
     endif
     leval= minval(evud)
     init=.false.
@@ -457,6 +456,7 @@ contains
   real(8) function lowesteval()
     lowesteval=leval
   end function lowesteval
+  
   subroutine init_readeigen2()    ! this should be called after init_readgeigen
     implicit none
     integer:: iq,is,ifiqg,ikp, isx,ikpisp,verbose,ifoc, i1,i2,i3,i4,i5,iorb,iorbold,i
@@ -519,7 +519,7 @@ contains
     enddo
     close(ifoc)
   end subroutine readmnla_cphi
-! sssssssssssssssssssssssssssssssssssssssssssss
+  
   subroutine init_readeigen_mlw_noeval() ! replace cphi and geig for hwmat ! this should be called after init_readgeigen2
   !xxxxxxxxxxxxxx only for nspc=1. Need fixing for nspc=2  
     implicit none
@@ -534,13 +534,24 @@ contains
          geig3(:,:),cphi3(:,:), &
          geig4(:,:),cphi4(:,:), &
          cbwf(:,:,:,:),uum(:,:,:,:,:)
-    logical :: keepeigen
-    integer:: ikpx,ifi
+    logical :: keepeigen,cmdopt0,mlocase
+    integer:: ikpx,ifi,ndimMTO
     character*(8):: fname
     keepeig = .True. !keepeigen()
     if(ipr) write(6,*)' init_readeigen_mlw_noeval'
     ! --- Readin MLWU/D, MLWEU/D, and UUq0U/D
-    do is = 1,nsp
+    mlocase=cmdopt0('--mlo')
+    
+    if(mlocase) then
+      iko_ix=1
+      iko_fx=nband
+      open(newunit=ifi,file='__cmlo.info',form='unformatted') 
+      read(ifi) ndimMTO,nqbz !,nqirr,nMTO,mrecb
+      read(ifi) !ix(1:ndimMTO),qplistgw(1:3,nqirr)
+      close(ifi)
+      nwf=ndimMTO
+    else
+     do is = 1,nsp
        if (is == 1) then
           open(newunit=ifmlw,file='MLWU',form='unformatted')
           open(newunit=ifmlwe,file='MLWEU', form='unformatted')
@@ -582,79 +593,85 @@ contains
           close(ifmlwe)
           close(ifuu)
        endif
-    enddo
+     enddo
     ! replace evud
-    deallocate(evud)
-    allocate(evud(nwf,nqi,nsp)) !nqtt
-    evud = 0d0
-    ! replace geig and cphi
+     deallocate(evud)
+     allocate(evud(nwf,nqi,nsp)) !nqtt
+     evud = 0d0
+    endif  
     allocate(cbwf(iko_ix:iko_fx,nwf,nqtt,nsp))
     cbwf = 0d0
+    
     if(Wpkm4crpa) then
-       fname='pkm4crpa'
-       open(newunit=ifi,file=fname,form='formatted',status='unknown')
-       write(ifi,"('== p_km^alpha in PRB83,121101 ! weight in l-subspace ==')")
-       write(ifi,"('( = c^sigma_km in book of 45th IFFK by Ersoy)')")
-       write(ifi,"(8i8)") nqtt,nwf,nsp,iko_ix,iko_fx
-       write(ifi,"('       |pkm|**2          ib      iq     is       q(1:3)')")
+      fname='pkm4crpa'
+      open(newunit=ifi,file=fname,form='formatted',status='unknown')
+      write(ifi,"('== p_km^alpha in PRB83,121101 ! weight in l-subspace ==')")
+      write(ifi,"('( = c^sigma_km in book of 45th IFFK by Ersoy)')")
+      write(ifi,"(8i8)") nqtt,nwf,nsp,iko_ix,iko_fx
+      write(ifi,"('       |pkm|**2          ib      iq     is       q(1:3)')")
     endif
+
+    write(stdo,ftox) 'nqbz nqtt=',nqbz,nqtt
     do ikp = 1,nqtt
        iqbz = mod(ikp,nqbz)
        if (iqbz == 0) iqbz = nqbz
        iq0i = (ikp - iqbz)/nqbz
        do is= 1,nsp
-          if (iq0i == 0) then
-             do ib = iko_ix,iko_fx
-                do iwf= 1,nwf
-                   cbwf(ib,iwf,ikp,is) = dnk(ib,iwf,iqbz,is)
-                enddo
+         if(mlocase) then
+           call readcmlo( qtt(:,ikp), is, nspx,nband, ndimMTO, cbwf(:,:,ikp,is))
+           !           write(*,*) 'readcmlo check ---', ikp,is,sum(abs(cbwf(1:nband,1:ndimMTO,ikp,is)))
+           goto 889
+         endif
+         if (iq0i == 0) then !first block without adding Q0P
+           do ib = iko_ix,iko_fx
+             do iwf= 1,nwf
+               cbwf(ib,iwf,ikp,is) = dnk(ib,iwf,iqbz,is)
              enddo
-          else
-             !   <psi(k+q0,n) | psi(k+q0,m)^B>
-             ! = S[l] <psi(k+q0,n) |e^(iq0.r)| psi(k,l)>
-             !      * <psi(k,l) |e^(-iq0.r)| psi(k+q0,m)^B>
-             ! ~ S[l] <psi(k+q0,n) |e^(iq0.r)| psi(k,l)> <psi(k,l) |psi(k,m)^B>
-
-             ! psi^B : bloch fn. corresponding to maxloc Wannier fn.
-             do ib = iko_ix,iko_fx
-                do iwf= 1,nwf
-                   cbwf(ib,iwf,ikp,is) = sum( conjg(uum(iko_ix:iko_fx,ib,iqbz,iq0i,is)) &
-                        *dnk(iko_ix:iko_fx,iwf,iqbz,is) )
-                enddo
+           enddo
+         else  !
+           !2025-11-17. TK think this may be ok?
+           !   <psi(k+q0,n) | psi(k+q0,m)^B>
+           ! = S[l] <psi(k+q0,n) |e^(iq0.r)| psi(k,l)> * <psi(k,l) |e^(-iq0.r)| psi(k+q0,m)^B>
+           ! ~ S[l] <psi(k+q0,n) |e^(iq0.r)| psi(k,l)> * <psi(k,l) |psi(k,m)^B>
+           ! psi^B : bloch fn. corresponding to maxloc Wannier fn.
+           do ib = iko_ix,iko_fx
+             do iwf= 1,nwf
+               cbwf(ib,iwf,ikp,is) = sum( conjg(uum(iko_ix:iko_fx,ib,iqbz,iq0i,is)) *dnk(iko_ix:iko_fx,iwf,iqbz,is) )
              enddo
-          endif
-          !! --- write pkm4crpa
-          if(Wpkm4crpa) then
-             do ib = iko_ix,iko_fx
-                write(ifi,"(f19.15, 3i8, 3f13.6 )") &
-                     sum(abs(cbwf(ib,1:nwf,ikp,is))**2),ib, ikp, is, qtt(1:3,ikp)
-             enddo
-          endif
-          ! m norm check
-          !         do iwf  = 1,nwf
-          !         do iwf2 = 1,nwf
-          !           rnorm = 0d0
-          !           cnorm = 0d0
-          !           do ib = iko_ix,iko_fx
-          !              rnorm = rnorm + dreal(dconjg(cbwf(ib,iwf,ikp,is))*cbwf(ib,iwf2,ikp,is))
-          !              cnorm = cnorm + dimag(dconjg(cbwf(ib,iwf,ikp,is))*cbwf(ib,iwf2,ikp,is))
-          !              rnorm = rnorm + dreal(dconjg(dnk(ib,iwf,iqbz,is))*dnk(ib,iwf2,iqbz,is))
-          !              cnorm = cnorm + dimag(dconjg(dnk(ib,iwf,iqbz,is))*dnk(ib,iwf2,iqbz,is))
-          !           enddo
-          !           do ib = 1,nwf
-          !              rnorm = rnorm + dreal(dconjg(evec(ib,iwf,ikp,is))*evec(ib,iwf2,ikp,is))
-          !              cnorm = cnorm + dimag(dconjg(evec(ib,iwf,ikp,is))*evec(ib,iwf2,ikp,is))
-          !           enddo
-          !           if (iwf.eq.iwf2) rnorm = rnorm - 1d0
-          !           write(7700,"(4i5,2f12.6)")is,ikp,iwf,iwf2,rnorm,cnorm
-          !         enddo
-          !         enddo
-          !         write(7300,"(5i5)")is,ikp,iko_ix,iko_fx,nwf
-          !         write(7300,*)cbwf(:,:,ikp,is)
+           enddo
+         endif
+889      continue
+         !! --- write pkm4crpa
+         if(Wpkm4crpa) then
+           do ib = iko_ix,iko_fx
+             write(ifi,"(f19.15, 3i8, 3f13.6 )") sum(abs(cbwf(ib,1:nwf,ikp,is))**2),ib, ikp, is, qtt(1:3,ikp)
+           enddo
+         endif
+         ! m norm check
+         !         do iwf  = 1,nwf
+         !         do iwf2 = 1,nwf
+         !           rnorm = 0d0
+         !           cnorm = 0d0
+         !           do ib = iko_ix,iko_fx
+         !              rnorm = rnorm + dreal(dconjg(cbwf(ib,iwf,ikp,is))*cbwf(ib,iwf2,ikp,is))
+         !              cnorm = cnorm + dimag(dconjg(cbwf(ib,iwf,ikp,is))*cbwf(ib,iwf2,ikp,is))
+         !              rnorm = rnorm + dreal(dconjg(dnk(ib,iwf,iqbz,is))*dnk(ib,iwf2,iqbz,is))
+         !              cnorm = cnorm + dimag(dconjg(dnk(ib,iwf,iqbz,is))*dnk(ib,iwf2,iqbz,is))
+         !           enddo
+         !           do ib = 1,nwf
+         !              rnorm = rnorm + dreal(dconjg(evec(ib,iwf,ikp,is))*evec(ib,iwf2,ikp,is))
+         !              cnorm = cnorm + dimag(dconjg(evec(ib,iwf,ikp,is))*evec(ib,iwf2,ikp,is))
+         !           enddo
+         !           if (iwf.eq.iwf2) rnorm = rnorm - 1d0
+         !           write(7700,"(4i5,2f12.6)")is,ikp,iwf,iwf2,rnorm,cnorm
+         !         enddo
+         !         enddo
+         !         write(7300,"(5i5)")is,ikp,iko_ix,iko_fx,nwf
+         !         write(7300,*)cbwf(:,:,ikp,is)
        enddo
     enddo
     if(Wpkm4crpa) close(ifi)
-    deallocate(dnk,uum)
+    if(.not.mlocase) deallocate(dnk,uum)
     mrecb_o = mrecb * nwf / nband
     mrecg_o = mrecg * nwf / nband
     if(keepeig) then
@@ -669,97 +686,105 @@ contains
           do is= 1,nsp
              if(debug) write(6,"(' ikp=',i5,3f10.5)") ikp,qtt(:,ikp)
              call readgeig(qtt(:,ikp),is, qu,geig2)
-             if(debug)print *,'qqqqqq1',qu
-             if(debug)print *,'qqqqqq2',qtt(:,ikp)
+             if(debug)print *,'qqqqqq1',qu,'qqqqqq2',qtt(:,ikp)
              if(sum(abs(qtt(:,ikp)-qu))>tolq) call rx('init_readeigen_mlw_noeval 1111')
              call readcphi(qtt(:,ikp),is, qu,cphi2)
              if(sum(abs(qtt(:,ikp)-qu))>tolq) call rx('init_readeigen_mlw_noeval 2222')
              do iwf= 1,nwf
-                do ib= iko_ix,iko_fx
-                   geigW(:,iwf,ikp,is) = geigW(:,iwf,ikp,is) + geig2(:,ib)*cbwf(ib,iwf,ikp,is)
-                   cphiW(:,iwf,ikp,is) = cphiW(:,iwf,ikp,is) + cphi2(:,ib)*cbwf(ib,iwf,ikp,is)
-                enddo
+               do ib= iko_ix,iko_fx !band index
+                 geigW(:,iwf,ikp,is) = geigW(:,iwf,ikp,is) + geig2(:,ib)*cbwf(ib,iwf,ikp,is)
+                 cphiW(:,iwf,ikp,is) = cphiW(:,iwf,ikp,is) + cphi2(:,ib)*cbwf(ib,iwf,ikp,is)
+               enddo
              enddo
-             ! eck write
-             !            do iwf  = 1,nwf
-             !            do iwf2 = 1,nwf
-             !               rnorm = 0d0
-             !               cnorm = 0d0
-             !               do ib = 1,ndimanspc
-             !                  rnorm = rnorm + dreal(dconjg(cphi(ib,iwf,ikp,is))*cphi(ib,iwf2,ikp,is))
-             !               enddo
-             !               if (iwf.eq.iwf2) rnorm = rnorm - 1d0
-             !               write(7600,"(4i5,f12.6)")is,ikp,iwf,iwf2,rnorm
-             !            enddo
-             !            enddo
-             !            write(7500,*)ikp,ndimanspc,nwf
-             !            write(7500,*)cphi(:,:,ikp,is)
           enddo
        enddo
        deallocate(geig2,cphi2,geig,cphi)
     else
        call rx('KeepEigen=F not implemented')
-       ! open(newunit=ifcphi_o,file='CPHI.mlw',form='unformatted')
-       ! open(newunit=ifgeig_o,file='GEIG.mlw',form='unformatted')
-       ! allocate(geig3(ngpmx,nwf))
-       ! allocate(cphi3(ndimanspc,nwf))
-       ! allocate(geig4(ngpmx,nband))
-       ! allocate(cphi4(ndimanspc,nband))
-       ! do ikp= 1,nqtt
-       !    do is= 1,nsp
-       !       ikpisp= is + nsp*(ikp-1)
-       !       read(ifgeig, rec=ikpisp) geig4(1:ngpmx,1:nband)
-       !       read(ifcphi, rec=ikpisp) cphi4(1:ndimanspc,1:nband)
-       !       geig3 = 0d0
-       !       cphi3 = 0d0
-       !       do iwf= 1,nwf
-       !          do ib= iko_ix,iko_fx
-       !             geig3(:,iwf) = geig3(:,iwf) +  geig4(:,ib)*cbwf(ib,iwf,ikp,is)
-       !             cphi3(:,iwf) = cphi3(:,iwf) +  cphi4(:,ib)*cbwf(ib,iwf,ikp,is)
-       !          enddo
-       !       enddo
-       !       write(ifgeig_o, rec=ikpisp) geig3(1:ngpmx,1:nwf)
-       !       write(ifcphi_o, rec=ikpisp) cphi3(1:ndimanspc,1:nwf)
-       !    enddo
-       ! enddo
-       ! deallocate(geig3,geig4,cphi3,cphi4)
-       ! close(ifcphi)
-       ! close(ifgeig)
-       ! close(ifcphi_o)
-       ! close(ifgeig_o)
-       ! open(newunit=ifgeigW,file='GEIG.mlw',form='unformatted')
-       ! open(newunit=ifcphiW,file='CPHI.mlw',form='unformatted')
     endif
     deallocate(cbwf)
   end subroutine init_readeigen_mlw_noeval
   subroutine readgeigW(q,ngp_in,isp, qu,geigen)
-   integer:: isp,iq,iqindx,ngp_in,ikpisp
-   real(8)   :: q(3),qu(3)
-   complex(8):: geigen(ngp_in,nwf)
-   if(init2) call rx( 'readgeig_mlw: modele is not initialized yet')
-   call iqindx2_(q, iq, qu) !qu is used q.  q-qu= G vectors.
-   if(ngp_in < ngp(iq)) then
+    integer:: isp,iq,iqindx,ngp_in,ikpisp
+    real(8)   :: q(3),qu(3)
+    complex(8):: geigen(ngp_in,nwf)
+    if(init2) call rx( 'readgeig_mlw: modele is not initialized yet')
+    call iqindx2_(q, iq, qu) !qu is used q.  q-qu= G vectors.
+    if(ngp_in < ngp(iq)) then
       if(ipr) write(6,*)'readgeig_mlw: ngpmx<ngp(iq)',iq,ngpmx,ngp(iq),q,nspc
       call rx( 'readgeig_mlw: ngpmx<ngp(iq)')
-   endif
-!   if(keepeig) then
-      geigen(1:ngp(iq),1:nwf) = geigW(1:ngp(iq),1:nwf,iq,isp)
-!   else
-!      ikpisp= isp + nsp*(iq-1)
-!      read(ifgeigW) geigen(1:ngpmx,1:nwf)
-!   endif
- end subroutine readgeigW
- subroutine readcphiW(q,ndimanspc_dummy,isp,  qu,cphif)
-   integer:: isp,iq,iqindx,ndimanspc_dummy,ikpisp
-   real(8)   :: q(3),qu(3)
-   complex(8):: cphif(ndima*nspc,nwf)
-   if(init2) call rx( 'readcphi_mlw: modele is not initialized yet')
-   call iqindx2_(q, iq, qu) !qu is used q.  q-qu= G vectors.
-!   if(keepeig) then
-      cphif(1:ndima*nspc,1:nwf) = cphiW(1:ndima*nspc,1:nwf,iq,isp)
-!   else
-!      ikpisp= isp + nsp*(iq-1)
-!      read(ifcphi_mlw) cphif(1:ndimanspc,1:nwf)
-!   endif
- end subroutine readcphiW
+    endif
+    !   if(keepeig) then
+    geigen(1:ngp(iq),1:nwf) = geigW(1:ngp(iq),1:nwf,iq,isp)
+    !   else
+    !      ikpisp= isp + nsp*(iq-1)
+    !      read(ifgeigW) geigen(1:ngpmx,1:nwf)
+    !   endif
+  end subroutine readgeigW
+  subroutine readcphiW(q,ndimanspc_dummy,isp,  qu,cphif)
+    integer:: isp,iq,iqindx,ndimanspc_dummy,ikpisp
+    real(8)   :: q(3),qu(3)
+    complex(8):: cphif(ndima*nspc,nwf)
+    if(init2) call rx( 'readcphi_mlw: modele is not initialized yet')
+    call iqindx2_(q, iq, qu) !qu is used q.  q-qu= G vectors.
+    !   if(keepeig) then
+    cphif(1:ndima*nspc,1:nwf) = cphiW(1:ndima*nspc,1:nwf,iq,isp)
+    !   else
+    !      ikpisp= isp + nsp*(iq-1)
+    !      read(ifcphi_mlw) cphif(1:ndimanspc,1:nwf)
+    !   endif
+  end subroutine readcphiW
+
+  subroutine readcmlo(qtarget,is,nspx,nband,ndimMTO, cmlo)
+    use m_qplist,only: qplist
+    implicit none
+    integer:: is,nspx,ndimPMT,ndimMTO,i,igg,iq,iqqisp,nband,j,ig,iqq,nqbz,mrecbb
+    real(8):: qp(3),qtarget(3),qx(3),qxx(3)
+    complex(8)::  cmlo(nband,ndimMTO)
+    integer,save:: ifizz,niqisp,nqirr,ifihh,ndimMTO_,nMTO
+    logical,save:: init=.True.
+    integer,allocatable,save::iqproc(:),isproc(:),ix(:)
+    real(8),allocatable,save::qplistgw(:,:)
+    real(8),external::tolq !eps=1d-8
+    if(init) then 
+      open(newunit=ifihh,file='__cmlo.info',form='unformatted') 
+      read(ifihh) ndimMTO_,nqbz,nqirr,nMTO,mrecbb
+      if(ndimMTO/=ndimMTO_) call rxii('ndimMTO/=ndimMTO_',ndimMTO,ndimMTO_)
+      !        write(stdo,ftox)'nnnnnnnn ndimMTO nqirr=',ndimMTO,nqirr,nMTO
+      allocate(ix(ndimMTO),qplistgw(3,nqirr))
+      read(ifihh)ix,qplistgw
+      close(ifihh)
+      i = openm(newunit=ifizz, file='__cmlo.data',recl=mrecbb)
+      init=.False.
+    endif
+    ! find iq for given qtarget
+    findiqigg:do iq=1,nqirr
+      qp = qplistgw(:,iq)
+      !        write(stdo,*)' qqqq qp= ',iq,qp
+      do ig=1,ngrp
+        qx= matmul(transpose(plat), qtarget-matmul(symops(:,:,ig),qp))
+        qxx= qx-nint(qx) !qx-ndiff !translation of qx
+        !          write(stdo,*)'iiiiiiiiiiiiii',ig,abs(sum(abs(qxx)))
+        if(sum(abs(qxx))<tolq()) then
+          iqq=iq
+          igg=ig
+          goto 1019
+        endif
+      enddo
+    enddo findiqigg
+    !      write(stdo,*)' qqqq qtarget=',qtarget
+    call rx('readcmlo: can not find ig and iq')
+1019 continue
+    iqqisp= is + nspx*(iqq-1)
+    i = readm(ifizz,rec=iqqisp,data=cmlo)
+    !      write(*,*) 'ccccccccc cmlo1111 iqq is cmlo',is,iqq,iqqisp,sum(abs(cmlo))
+    block
+      use m_rotwave,only: rotmatMTO
+      complex(8)::rotmatt(ndimMTO,ndimMTO),rotmat(nMTO,nMTO) !  write(stdo,*)'igg qp=',iqq,qp,'  ',qtarget
+      call rotmatMTO(igg, qp,qtarget,nMTO, rotmat)
+      forall(i=1:ndimMTO,j=1:ndimMTO) rotmatt(i,j)=rotmat(ix(i),ix(j))
+      cmlo= matmul(cmlo,dconjg(transpose(rotmatt)))
+      !        write(*,*) 'ccccccccc cmlo1222',is,iqq,iqqisp,sum(abs(cmlo))!,sum(abs(rotmatt))
+    endblock
+  endsubroutine readcmlo
 end module m_readeigen

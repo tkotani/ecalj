@@ -49,7 +49,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   real(8),allocatable:: &
        w1p(:,:,:),w2p(:,:,:)
   complex(8),allocatable :: z1p(:,:,:),vcoul(:,:),vcoult(:,:)
-  logical :: debug=.false.
+  logical :: debug=.true.
   integer :: ibl,iii,ivsumxxx,ifexsp 
   integer,save::ifzwz=-999
   integer :: iwini, iwend, ia
@@ -137,7 +137,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   integer :: kx_local
   debug=.false.
   if(verbose()>=90) debug= .TRUE. 
-   write(6,ftox)' nnnnnnnnnn wmatqk_mpi: nrws nrws1 nrws2       ',nrws,nrws1,nrws2
+  if(debug) write(6,ftox)' nnnnnnnnnn wmatqk_mpi: nrws nrws1 nrws2       ',nrws,nrws1,nrws2
   call getkeyvalue("GWinput","nbcutlow_sig",nbcut, default=0 )
   nbcutc=nctot+nbcut
   tpi         = 8d0*datan(1.d0)
@@ -161,7 +161,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   call getkeyvalue("GWinput","TestNoQ0P",noq0p,default=.false.)
   if ( .NOT. noq0p) &
        call getkeyvalue("GWinput","NoQ0P",noq0p,default= .FALSE. )
-  if(noq0p)write(*,*)'noq0p mode'
+  if(noq0p) write(*,*)'noq0p mode'
   if(noq0p) iqend=nqibz
   kxloop: do 1100 kx=1,nqibz !kx_local = 1,nk_local_rotk(irot)
     !     kx = ik_index_rotk(irot,kx_local)
@@ -191,7 +191,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
     do
       read(ifvcoud) ngb0
       read(ifvcoud) qvv
-      write(6,"('readin qvv ngb0=',3f9.4,5i5)")qvv,ngb0,ngc,ngb,nbloch
+      if(debug) write(6,"('readin qvv ngb0=',3f9.4,5i5)")qvv,ngb0,ngc,ngb,nbloch
       !              write(6,"('readin qxx ngb0=',3f9.4,i5)")qxx
       if(allocated(vcoud)) deallocate(vcoud)
       allocate( zcousq(ngb0,ngb0),vcoud(ngb0) )
@@ -237,7 +237,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
     enddo
 
     !! ===================================================================
-    write(6,*)'nnnnnnnnnnnn at 735',ngb,nwf,nrws2,sum(abs(expiqR1))
+!    write(6,*)'nnnnnnnnnnnn at 735',ngb,nwf,nrws2,sum(abs(expiqR1))
     allocate( rmelt3(ngb,nwf,nwf,nrws2),cmelt3(ngb,nwf,nwf,nrws2))
     !     write(6,*)'nnnnnnnnnnnn at ssss'
     rmelt3 = 0d0
@@ -292,8 +292,6 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
     enddo
     !! ===================================================================
 
-
-
     if(kx<= nqibz) then
       wtt = wk(kr)           !         wtx = 1d0
     else
@@ -336,6 +334,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
                   w3p=0d0
                   do ivc=1,ngb
                     zmeltt1 =  sum( zmel1(:)*ppovlz(:,ivc) ) !<psi_itp|psi_it E_I>
+!                    write(*,*) 'zzzzzzzzzmel',abs(zmeltt1),'vc=',abs(vc),'zmeltt(it2,itp2,ivc)',abs(zmeltt(it2,itp2,ivc))
                     if(ivc==1 .AND. kx==iqini) then
                       vc= wklm(1)* fpi*sqrt(fpi) /wk(kx) !kx right?
                     else
@@ -345,6 +344,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
                     ! <psi_itp2|psi_it2 E_I> *vc* <E_I psi_it|psi_itp>
                   enddo
                   ztmp= w3p
+!                  write(*,*) 'ztmp weightc=',abs(ztmp),sum(abs(weightc(1:nrws1)))
                   do ir1=1,nrws1
                     ir = ir1 + (ir2-1 + (ir3-1)*nrws2)*nrws1
                     rw_w(itp2,it2,it,itp,ir,0) = rw_w(itp2,it2,it,itp,ir,0) + dreal(ztmp*weightc(ir1))
