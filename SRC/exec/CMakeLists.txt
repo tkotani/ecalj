@@ -23,7 +23,7 @@ if(NOT DEFINED ENV{FC})
 endif()
 set(FC $ENV{FC})
 
-project(ecalj LANGUAGES Fortran CXX)
+project(ecalj LANGUAGES Fortran CUDA)
 
 # --- Build Type and Options ---
 if(NOT CMAKE_BUILD_TYPE)
@@ -53,12 +53,12 @@ set(MAINS_GPU
 set(GEMMUL8_DIR "${CMAKE_BINARY_DIR}/GEMMul8/GEMMul8")
 set(GEMMUL8_LIB "${GEMMUL8_DIR}/lib/libgemmul8.so")
 set(GEMMUL8_INC "${GEMMUL8_DIR}/include")
-set(GEMMUL8_WRAPPER "${CMAKE_SOURCE_DIR}/../subroutines/gemmul8_wrapper.cpp")
+set(GEMMUL8_WRAPPER "${CMAKE_SOURCE_DIR}/../subroutines/gemmul8_wrapper.cu")
 
 # --- Compiler Flags ---
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_Fortran_FLAGS_RELEASE "-O2 -g")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CUDA_FLAGS "-O3")
 set(FLAGS -cpp)
 
 if(FC MATCHES "gfortran")
@@ -90,7 +90,6 @@ elseif(FC MATCHES "nvfortran")
   set(CMAKE_Fortran_COMPILER mpifort)
   set(CMAKE_Fortran_FLAGS "-fpic -Mbackslash -traceback")
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -traceback")
-  set(CMAKE_CXX_COMPILER nvcc)
   set(LIBM -mp -lmkl_rt)
   set_source_files_properties("../subroutines/pwmat.f90" "../subroutines/rseq.f90" PROPERTIES COMPILE_FLAGS "-O0")
 endif()
@@ -157,11 +156,16 @@ function(add_extended_build VARIANT)
 
   target_link_options(${LIB} PRIVATE ${LIBM} ${LINK_EXTRA})
   if (VARIANT STREQUAL "gpu" OR VARIANT STREQUAL "mp_gpu")
-    target_link_libraries(${LIB} PUBLIC gemmul8wrap)
+    if(EXISTS ${GEMMUL8_LIB})
+      set(CPP_DEFINITIONS ${CPP_DEFINITIONS} -D__GEMMUL8)
+      target_link_libraries(${LIB} PUBLIC gemmul8wrap)
+    endif()
   endif()
   set_target_properties(${LIB} PROPERTIES 
       LINKER_LANGUAGE Fortran
       Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FC}/mod_${VARIANT}
+      BUILD_RPATH "$ORIGIN"
+      INSTALL_RPATH "$ORIGIN"
   )
   target_compile_options(${LIB} PRIVATE -cpp ${CPP_DEFINITIONS} ${FLAGS_EXTRA})
   target_compile_definitions(${LIB} PRIVATE ${CPP_DEFINITIONS})
@@ -185,10 +189,18 @@ endfunction()
 
 # --- GEMMul8 Wrapper Library ---
 if(BUILD_GPU OR BUILD_MP_GPU)
-  add_library(gemmul8wrap STATIC ${GEMMUL8_WRAPPER})
-  set_source_files_properties(${GEMMUL8_WRAPPER} PROPERTIES LANGUAGE CXX)
-  target_include_directories(gemmul8wrap PRIVATE ${GEMMUL8_INC})
-  target_link_libraries(gemmul8wrap PRIVATE ${GEMMUL8_LIB} stdc++)
+  if(EXISTS ${GEMMUL8_LIB})
+    message(STATUS "GEMMul8 library found at ${GEMMUL8_LIB}. Building gemmul8wrap.")
+    add_library(gemmul8wrap SHARED ${GEMMUL8_WRAPPER})
+    set_source_files_properties(${GEMMUL8_WRAPPER} PROPERTIES LANGUAGE CUDA)
+    target_include_directories(gemmul8wrap PRIVATE ${GEMMUL8_INC})
+    target_link_libraries(gemmul8wrap PUBLIC ${GEMMUL8_LIB})
+    set_target_properties(gemmul8wrap PROPERTIES
+        LINKER_LANGUAGE CUDA
+        BUILD_RPATH "$ORIGIN"
+        INSTALL_RPATH "$ORIGIN"
+    )
+  endif()
 endif()
 
 if(BUILD_MP)

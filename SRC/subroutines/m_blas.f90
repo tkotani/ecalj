@@ -16,7 +16,8 @@ module m_blas !wrapper for BLAS and cuBLAS
   logical, save :: set_cublas_handle = .false., use_gemmul8 = .false., is_gemmul8_inited = .false.
 #endif
   character, parameter :: m_op_n = 'N', m_op_t = 'T', m_op_c = 'C'
-#ifdef __GPU
+#ifdef __GEMMUL8
+  integer, parameter :: num_moduli_d = 15, num_moduli_z = 15, num_moduli_c = 7
   interface
     subroutine gemmul8_zgemm(handle, transa, transb, m, n, k, alpha, devA, lda, devB, ldb, beta, devC, ldc, &
                              num_moduli, fastmode, enable_skip_A, enable_skip_B, skip_scalA, skip_scalB) bind(C, name="gemmul8_zgemm_")
@@ -38,6 +39,16 @@ module m_blas !wrapper for BLAS and cuBLAS
       integer, value :: num_moduli
       integer, value :: fastmode, enable_skip_A, enable_skip_B, skip_scalA, skip_scalB
     endsubroutine
+    subroutine gemmul8_cgemm(handle, transa, transb, m, n, k, alpha, devA, lda, devB, ldb, beta, devC, ldc, &
+                             num_moduli, fastmode, enable_skip_A, enable_skip_B, skip_scalA, skip_scalB) bind(C, name="gemmul8_cgemm_")
+      use iso_c_binding
+      type(c_ptr), value :: handle
+      integer, value :: transa, transb, m, n, k, lda, ldb, ldc
+      complex(4), value :: alpha, beta
+      type(c_ptr), value :: devA, devB, devC
+      integer, value :: num_moduli
+      integer, value :: fastmode, enable_skip_A, enable_skip_B, skip_scalA, skip_scalB
+    endsubroutine
   endinterface
 #endif
 contains
@@ -46,7 +57,7 @@ contains
     integer, intent(in) :: m, n, k
     character, intent(in), optional :: opa, opb
     complex(4), intent(in), optional :: alpha, beta
-    integer, optional :: lda, ldb, ldc
+    integer, intent(in), optional :: lda, ldb, ldc
     complex(4) :: alpha_in, beta_in
     integer :: lda_in, ldb_in, ldc_in
     character :: opa_in, opb_in
@@ -72,9 +83,9 @@ contains
     integer, intent(in) :: m, n, k, nbatch
     character, intent(in), optional :: opa, opb
     complex(4), intent(in), optional :: alpha, beta
-    integer, optional :: lda, ldb, ldc
-    logical, optional :: samea, sameb
-    integer, optional :: comm
+    integer, intent(in), optional :: lda, ldb, ldc
+    logical, intent(in), optional :: samea, sameb
+    integer, intent(in), optional :: comm
     integer(8) :: stridea, strideb, stridec
     complex(4) :: alpha_in, beta_in
     integer :: lda_in, ldb_in, ldc_in
@@ -132,7 +143,7 @@ contains
     integer, intent(in) :: m, n
     character, intent(in), optional :: opa
     real(8), intent(in), optional :: alpha, beta
-    integer, optional :: lda, incx, incy
+    integer, intent(in), optional :: lda, incx, incy
     real(8) :: alpha_in, beta_in
     integer :: lda_in, incx_in, incy_in
     character :: opa_in
@@ -157,7 +168,7 @@ contains
     complex(8) :: x(*), y(*)
     complex(8) :: res
     integer, intent(in) :: n
-    integer, optional :: incx, incy
+    integer, intent(in), optional :: incx, incy
     integer :: incx_in, incy_in
     if (n < 1) return
     incx_in = 1; incy_in = 1
@@ -176,7 +187,7 @@ contains
     integer, intent(in) :: m, n
     character, intent(in), optional :: opa
     complex(8), intent(in), optional :: alpha, beta
-    integer, optional :: lda, incx, incy
+    integer, intent(in), optional :: lda, incx, incy
     complex(8) :: alpha_in, beta_in
     integer :: lda_in, incx_in, incy_in
     character :: opa_in
@@ -198,7 +209,7 @@ contains
     integer, intent(in) :: m, n, k
     character, intent(in), optional :: opa, opb
     real(8), intent(in), optional :: alpha, beta
-    integer, optional :: lda, ldb, ldc
+    integer, intent(in), optional :: lda, ldb, ldc
     real(8) :: alpha_in, beta_in
     integer :: lda_in, ldb_in, ldc_in
     character :: opa_in, opb_in
@@ -224,7 +235,7 @@ contains
     integer, intent(in) :: m, n, k
     character, intent(in), optional :: opa, opb
     complex(8), intent(in), optional :: alpha, beta
-    integer, optional :: lda, ldb, ldc
+    integer, intent(in), optional :: lda, ldb, ldc
     complex(8) :: alpha_in, beta_in
     integer :: lda_in, ldb_in, ldc_in
     character :: opa_in, opb_in
@@ -308,11 +319,11 @@ contains
 #ifdef __GPU
   integer function cmm_d(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc) result(istat)
     use cublas_v2, m_type =>CUDA_C_32F, compute_type => CUBLAS_COMPUTE_32F_FAST_TF32, algo => cublas_gemm_default
-    complex(4), device :: a(*), b(*), c(*)
+    complex(4), device, target :: a(*), b(*), c(*)
     integer, intent(in) :: m, n, k
     character, intent(in), optional :: opa, opb
     complex(4), intent(in), optional :: alpha, beta
-    integer, optional :: lda, ldb, ldc
+    integer, intent(in), optional :: lda, ldb, ldc
     complex(4) :: alpha_in, beta_in
     integer :: lda_in, ldb_in, ldc_in
     character :: opa_in, opb_in
@@ -332,11 +343,34 @@ contains
     if(present(ldb)) ldb_in = ldb
     if(present(ldc)) ldc_in = ldc
     istat = cublas_init()
+    istat = gemmul_init()
     opa_in_cublas = get_m_op_cublas(opa_in)
     opb_in_cublas = get_m_op_cublas(opb_in)
-    istat = cublasGemmEX(cublas_handle, opa_in_cublas, opb_in_cublas, m, n, k,  &
-                         alpha_in, a, m_type, lda_in, b, m_type, ldb_in, beta_in, c, m_type, ldc_in,&
-                         compute_type, algo)
+    if(use_gemmul8) then
+#ifdef __GEMMUL8
+      block
+        use iso_c_binding
+        type(c_ptr) :: devA, devB, devC, handle_cptr
+        integer :: fastmode_int, enable_skip_A_int, enable_skip_B_int, skip_a_int, skip_b_int
+        fastmode_int = 0
+        enable_skip_A_int = 1
+        enable_skip_B_int = 1
+        skip_a_int = 0
+        skip_b_int = 0
+        handle_cptr = c_loc(cublas_handle)
+        devA = c_loc(a)
+        devB = c_loc(b)
+        devC = c_loc(c)
+        call gemmul8_cgemm(handle_cptr, opa_in_cublas, opb_in_cublas, m, n, k, alpha_in, &
+                          devA, lda_in, devB, ldb_in, beta_in, devC, ldc_in,  &
+                          num_moduli_c, fastmode_int, enable_skip_A_int, enable_skip_B_int, skip_a_int, skip_b_int)
+     endblock
+#endif
+    else
+      istat = cublasGemmEX(cublas_handle, opa_in_cublas, opb_in_cublas, m, n, k,  &
+                           alpha_in, a, m_type, lda_in, b, m_type, ldb_in, beta_in, c, m_type, ldc_in,&
+                           compute_type, algo)
+    endif
   end function cmm_d
   integer function cmm_batch_d(a, b, c, m, n, k, nbatch, opa, opb, alpha, beta, lda, ldb, ldc, samea, sameb, comm) result(istat)
     use cublas_v2, m_type =>CUDA_C_32F, compute_type => CUBLAS_COMPUTE_32F_FAST_TF32, algo => cublas_gemm_default
@@ -344,9 +378,9 @@ contains
     integer, intent(in) :: m, n, k, nbatch
     character, intent(in), optional :: opa, opb
     complex(4), intent(in), optional :: alpha, beta
-    integer, optional :: lda, ldb, ldc
-    logical, optional :: samea, sameb
-    integer, optional :: comm
+    integer, intent(in), optional :: lda, ldb, ldc
+    logical, intent(in), optional :: samea, sameb
+    integer, intent(in), optional :: comm
     integer(8) :: stridea, strideb, stridec
     complex(4) :: alpha_in, beta_in
     integer :: lda_in, ldb_in, ldc_in
@@ -404,7 +438,7 @@ contains
     !caution: size of matrix a is m x n (not size of op(A))
     character, intent(in), optional :: opa
     real(8), intent(in), optional :: alpha, beta
-    integer, optional :: lda, incx, incy
+    integer, intent(in), optional :: lda, incx, incy
     real(8) :: alpha_in, beta_in
     integer :: lda_in, incx_in, incy_in
     character :: opa_in
@@ -430,7 +464,7 @@ contains
     integer, intent(in) :: m, n
     character, intent(in), optional :: opa
     complex(8), intent(in), optional :: alpha, beta
-    integer, optional :: lda, incx, incy
+    integer, intent(in), optional :: lda, incx, incy
     complex(8) :: alpha_in, beta_in
     integer :: lda_in, incx_in, incy_in
     character :: opa_in
@@ -455,8 +489,7 @@ contains
     integer, intent(in) :: m, n, k
     character, intent(in), optional :: opa, opb
     real(8), intent(in), optional :: alpha, beta
-    integer, optional :: lda, ldb, ldc
-
+    integer, intent(in), optional :: lda, ldb, ldc
     real(8) :: alpha_in, beta_in
     integer :: lda_in, ldb_in, ldc_in
     character :: opa_in, opb_in
@@ -476,9 +509,11 @@ contains
     if(present(ldb)) ldb_in = ldb
     if(present(ldc)) ldc_in = ldc
     istat = cublas_init()
+    istat = gemmul_init()
     opa_in_cublas = get_m_op_cublas(opa_in)
     opb_in_cublas = get_m_op_cublas(opb_in)
     if(use_gemmul8) then
+#ifdef __GEMMUL8
       block
         use iso_c_binding
         type(c_ptr) :: devA, devB, devC, handle_cptr
@@ -494,8 +529,11 @@ contains
         devC = c_loc(c)
         call gemmul8_dgemm(handle_cptr, opa_in_cublas, opb_in_cublas, m, n, k, alpha_in, &
                           devA, lda_in, devB, ldb_in, beta_in, devC, ldc_in,  &
-                          18, fastmode_int, enable_skip_A_int, enable_skip_B_int, skip_a_int, skip_b_int)
+                          num_moduli_d, fastmode_int, enable_skip_A_int, enable_skip_B_int, skip_a_int, skip_b_int)
      endblock
+#else
+      call rx0('Error: gemmul8 library is not linked.')
+#endif
     else
       istat = cublasdgemm(cublas_handle, opa_in_cublas, opb_in_cublas,  m, n, k, &
                         & alpha_in, a, lda_in , b, ldb_in, beta_in, c, ldc_in)
@@ -506,7 +544,7 @@ contains
     integer, intent(in) :: m, n, k
     character, intent(in), optional :: opa, opb
     complex(8), intent(in), optional :: alpha, beta
-    integer, optional :: lda, ldb, ldc
+    integer, intent(in), optional :: lda, ldb, ldc
     complex(8) :: alpha_in, beta_in
     integer :: lda_in, ldb_in, ldc_in
     character :: opa_in, opb_in
@@ -530,6 +568,7 @@ contains
     opa_in_cublas = get_m_op_cublas(opa_in)
     opb_in_cublas = get_m_op_cublas(opb_in)
     if(use_gemmul8) then
+#ifdef __GEMMUL8
       block
         use iso_c_binding
         type(c_ptr) :: devA, devB, devC, handle_cptr
@@ -544,9 +583,10 @@ contains
         devB = c_loc(b)
         devC = c_loc(c)
         call gemmul8_zgemm(handle_cptr, opa_in_cublas, opb_in_cublas, m, n, k, alpha_in, &
-                          devA, lda_in, devB, ldb_in, beta_in, devC, ldc_in,  &
-                          18, fastmode_int, enable_skip_A_int, enable_skip_B_int, skip_a_int, skip_b_int)
-     endblock
+                           devA, lda_in, devB, ldb_in, beta_in, devC, ldc_in,  &
+                           num_moduli_z, fastmode_int, enable_skip_A_int, enable_skip_B_int, skip_a_int, skip_b_int)
+      endblock
+#endif
     else
       istat = cublaszgemm3m(cublas_handle, opa_in_cublas, opb_in_cublas,  m, n, k, &
                           & alpha_in, a, lda_in , b, ldb_in, beta_in, c, ldc_in)
@@ -557,9 +597,9 @@ contains
     integer, intent(in) :: m, n, k, nbatch
     character, intent(in), optional :: opa, opb
     complex(8), intent(in), optional :: alpha, beta
-    integer, optional :: lda, ldb, ldc
-    logical, optional :: samea, sameb
-    integer, optional :: comm
+    integer, intent(in), optional :: lda, ldb, ldc
+    logical, intent(in), optional :: samea, sameb
+    integer, intent(in), optional :: comm
     integer(8) :: stridea, strideb, stridec
     complex(8) :: alpha_in, beta_in
     integer :: lda_in, ldb_in, ldc_in
@@ -591,7 +631,6 @@ contains
       if(sameb) strideb = 0_8
     endif
     istat = cublas_init()
-    istat = gemmul_init()
     opa_in_cublas = get_m_op_cublas(opa_in)
     opb_in_cublas = get_m_op_cublas(opb_in)
     istat = cublaszgemmstridedbatched(cublas_handle, opa_in_cublas, opb_in_cublas,  m, n, k,  &
@@ -615,10 +654,16 @@ contains
     endif
   end function cublas_finalize
   integer function gemmul_init() result(istat)
+    use m_lgunit,only:stdo
+    use m_ftox
     logical :: cmdopt0
     if(is_gemmul8_inited) return
     use_gemmul8 = cmdopt0('--use_gemmul8')
     is_gemmul8_inited = .true.
+    if(use_gemmul8) write(stdo,ftox), 'Using gemmul8 for GPU matrix multiplication'
+#ifndef __GEMMUL8
+    call rx0('Error: gemmul8 library is not linked.')
+#endif
   end function gemmul_init
   integer function get_m_op_cublas(m_op_blas) result(m_op_cublas)
     character, intent(in) :: m_op_blas

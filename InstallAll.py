@@ -18,7 +18,10 @@ parser.add_argument('--fc', help='fortran compiler gfortran/ifort/ifx/nvfortran'
 parser.add_argument('--notest', help='no test. only compile', action='store_true')
 parser.add_argument('--verbose', help='verbose on for debug', action='store_true')
 parser.add_argument('--debug', help='debug', action='store_true')
+parser.add_argument('--gemmul8', help='build and install GEMMul8 library (this option is ignored unless --gpu is set)', 
+                    action='store_true', default=False)
 args = parser.parse_args()
+args.gemmul8 = args.gpu and args.gemmul8
 
 def run_command(command, cwd=None, env=None, skip_on_error=False):
     """Executes a shell command and handles failure based on skip_on_error."""
@@ -91,9 +94,10 @@ def main():
     cmake_env['FC'] = FC
 
     cmake_options = f"-S {EXEC_DIR} -B {BUILD_DIR} -DCMAKE_BUILD_TYPE={BUILD_TYPE}"
+    if args.gemmul8:
+        build_and_install_gemmul8(BUILD_DIR, BIN_DIR)
     if args.gpu:
         print("Configuring for GPU build...")
-        build_and_install_gemmul8(BUILD_DIR, BIN_DIR)
         cmake_options += " -DBUILD_MP=ON -DBUILD_GPU=ON -DBUILD_MP_GPU=ON"
 
     run_command(f"cmake {cmake_options}", env=cmake_env)
