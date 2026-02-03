@@ -16,7 +16,7 @@ subroutine hmagnon() bind(C)
   use m_mpi, only: MPI__Initialize, MPI__consoleout, MPI__SplitXq
   use m_mpi, only: mpi__rank, mpi__size, mpi__root, comm, comm_k, mpi__rank_k, mpi__size_k, mpi__root_k
   use m_mpiio, only: openm, closem, writem, readm
-  use m_blas, only: m_op_C, zmm => zmm_h
+  use m_blas, only: m_op_C, zmm => zmm_h, int_split
   use m_lapack, only: zminv => zminv_h
   use m_mem, only: writemem
   use m_ftox
@@ -189,16 +189,18 @@ subroutine hmagnon() bind(C)
       use m_mpi,only: MPI__AllreduceSumReal
       real(8) :: evkx_w1(nwf), evkx_w2(nwf) !dummy
       complex(8) :: zxqi(1,1,1), evc_w1(nwf,nwf), evc_w2(nwf,nwf)
-      integer, allocatable :: nttp(:),  itw(:,:), itpw(:,:)
-      integer :: nttp_max, ittp, jpm, it, itp, ibib, isdummy
+      complex(8), allocatable :: evc_w1_kx(:,:,:), evc_w2_kx(:,:,:)
+      integer, allocatable :: nttp(:),  itw(:,:), itpw(:,:), ik(:,:)
+      integer :: nttp_max, ittp, jpm, it, itp, ibib, isdummy, kx_ini, kx_fin, kx_num, kx_start,kx_end
       real(8), allocatable :: whwc(:,:), ev_w1(:,:), ev_w2(:,:)
       real(8), parameter:: schi = 1d0
+      integer, parameter:: nkblock = 1024
       complex(8), allocatable :: zw(:,:), wzw(:,:)
       allocate(ev_w1(nwf,nqbz), ev_w2(nwf,nqbz), source=0d0)
 
       call writemem('hmagnon start gettetwt')
-      readeigen: do kx=1, nqbz      !!! ev_w1, ev_w2 unit: [Ry]
-        if(mod(kx-1, mpi__size_k) /= mpi__rank_k)  cycle readeigen
+      call int_split(nqbz, mpi__size_k, mpi__rank_k, kx_ini, kx_fin, kx_num)
+      readeigen: do kx = kx_ini, kx_fin !!! ev_w1, ev_w2 unit: [Ry]
         call wan_readeval2(  qbz(:,kx), is,  ev_w1(1:nwf,kx), evc_w1) !eigenvalue eigenfunciton
         call wan_readeval2(q+qbz(:,kx), isf, ev_w2(1:nwf,kx), evc_w2)
       enddo readeigen
@@ -214,11 +216,15 @@ subroutine hmagnon() bind(C)
 
       call writemem('hmagnon start Im kmat')
       kmat(:,:,:) = 0d0
-      kxloop: do kx=1, nqbz
-        if(mod(kx-1, mpi__size_k) /= mpi__rank_k)  cycle kxloop
-        if(gettetwt_split) call gettetwt(q,iq,isdummy,isdummy,ev_w1,ev_w2,nwf,wan,ikbz_in=kx,fkbz_in=kx)
-        call wan_readeval2(  qbz(:,kx), is,  evkx_w1, evc_w1) !eigenvalue eigenfunciton
-        call wan_readeval2(q+qbz(:,kx), isf, evkx_w2, evc_w2)
+      kxblock_loop: do kx_start = kx_ini, kx_fin, nkblock
+        kx_end = min(kx_fin, kx_start + nkblock -1)
+        allocate(evc_w1_kx(nwf,nwf,kx_start:kx_end), evc_w2_kx(nwf,nwf,kx_start:kx_end))
+
+        if(gettetwt_split) call gettetwt(q,iq,isdummy,isdummy,ev_w1,ev_w2,nwf,wan,ikbz_in=kx_start,fkbz_in=kx_end)
+        do kx = kx_start, kx_end
+          call wan_readeval2(  qbz(:,kx), is,  evkx_w1, evc_w1_kx(1:nwf,1:nwf,kx)) !eigenvalue eigenfunciton
+          call wan_readeval2(q+qbz(:,kx), isf, evkx_w2, evc_w2_kx(1:nwf,1:nwf,kx))
+        enddo
         jpmloop:do jpm=1, npm ! jpm=2: negative frequency
 !           ibibloop: do 2013 ibib=1,nbnb(kx,jpm) !! n,n' pair band index loop
 !             it=n1b(ibib,kx,jpm)  !index for n  for q   ! n1b(ibib,k,jpm) = n :band index for k (occupied),   
@@ -243,44 +249,49 @@ subroutine hmagnon() bind(C)
 ! 2013      enddo ibibloop
          ! 2025-12-02 MO optimize calculation of kmat same as in x0gemm
          allocate(nttp(nwhis), source = 0)
-         do ibib = 1, nbnb(kx,jpm)
-           do iw = ihw(ibib,kx,jpm), ihw(ibib,kx,jpm)+nhw(ibib,kx,jpm)-1
-             nttp(iw) = nttp(iw) + 1
+         do kx = kx_start, kx_end
+           do ibib = 1, nbnb(kx,jpm)
+             do iw = ihw(ibib,kx,jpm), ihw(ibib,kx,jpm)+nhw(ibib,kx,jpm)-1
+               nttp(iw) = nttp(iw) + 1
+             enddo
            enddo
          enddo
          nttp_max = maxval(nttp(1:nwhis))
-         allocate(itw(nttp_max,nwhis), itpw(nttp_max,nwhis), whwc(nttp_max,nwhis))
+         allocate(itw(nttp_max,nwhis), itpw(nttp_max,nwhis), whwc(nttp_max,nwhis), ik(nttp_max,nwhis))
          nttp(:) = 0
-         do ibib = 1, nbnb(kx,jpm) !! n,n' pair band index loop
-           it = n1b(ibib,kx,jpm)  !index for n  for q   ! n1b(ibib,k,jpm) = n :band index for k (occupied),
-           itp = n2b(ibib,kx,jpm) !index for n' for q+k ! n2b(ibib,k,jpm) = n':band index for q+k (unoccupied)
-           do iw = ihw(ibib,kx,jpm), ihw(ibib,kx,jpm)+nhw(ibib,kx,jpm)-1
-             nttp(iw) = nttp(iw) + 1
-             ittp = nttp(iw)
-             itw(ittp,iw) = it
-             itpw(ittp,iw) = itp
-             whwc(ittp,iw) = whw(jhw(ibib,kx,jpm)+iw-ihw(ibib,kx,jpm))
+         do kx = kx_start, kx_end
+           do ibib = 1, nbnb(kx,jpm) !! n,n' pair band index loop
+             it = n1b(ibib,kx,jpm)  !index for n  for q   ! n1b(ibib,k,jpm) = n :band index for k (occupied),
+             itp = n2b(ibib,kx,jpm) !index for n' for q+k ! n2b(ibib,k,jpm) = n':band index for q+k (unoccupied)
+             do iw = ihw(ibib,kx,jpm), ihw(ibib,kx,jpm)+nhw(ibib,kx,jpm)-1
+               nttp(iw) = nttp(iw) + 1
+               ittp = nttp(iw)
+               itw(ittp,iw) = it
+               itpw(ittp,iw) = itp
+               ik(ittp,iw) = kx
+               whwc(ittp,iw) = whw(jhw(ibib,kx,jpm)+iw-ihw(ibib,kx,jpm))
+             enddo
            enddo
          enddo
          allocate(zw(nttp_max,nnwf), wzw(nttp_max,nnwf))
          do iw = 1, nwhis
            if (nttp(iw) < 1) cycle
-           do ittp = 1, nttp(iw)
+           do concurrent(inwf = 1:nnwf, ittp = 1:nttp(iw))
+             iwf = wan_pair_index(inwf,1)
+             jwf = wan_pair_index(inwf,2)
              it = itw(ittp,iw)
              itp = itpw(ittp,iw)
-             do inwf =1, nnwf
-               iwf = wan_pair_index(inwf,1)
-               jwf = wan_pair_index(inwf,2)
-               zw(ittp, inwf) = dconjg(evc_w2(jwf,itp))*evc_w1(iwf,it) !a_{Rk alpha}^{(k+q)n'}* a_{Rl beta}^{kn}
-               wzw(ittp,inwf) = whwc(ittp,iw)*zw(ittp,inwf)
-             enddo
+             kx = ik(ittp,iw)
+             zw(ittp, inwf) = dconjg(evc_w2_kx(jwf,itp,kx))*evc_w1_kx(iwf,it,kx) !a_{Rk alpha}^{(k+q)n'}* a_{Rl beta}^{kn}
+             wzw(ittp,inwf) = whwc(ittp,iw)*zw(ittp,inwf)
            enddo
            istat = zmm(zw, wzw, kmat(1,1,iw*(3-2*jpm)), nnwf, nnwf, nttp(iw), opA=m_op_C, beta=(1d0,0d0), ldA=nttp_max, ldB=nttp_max)
          enddo
-         deallocate(nttp, itw, itpw, whwc, zw, wzw)
+         deallocate(nttp, itw, itpw, whwc, zw, wzw, ik)
         enddo jpmloop
+        deallocate(evc_w1_kx, evc_w2_kx)
         if(gettetwt_split) call tetdeallocate()
-      enddo kxloop
+      enddo kxblock_loop
       if(.not.gettetwt_split) call tetdeallocate()      ! --> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
       if(negative_cut) kmat(:,:,-nwhis:-1) = 0d0
       call writemem('hmagnon start dpsion')
