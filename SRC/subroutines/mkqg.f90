@@ -43,6 +43,9 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
   call readhamindex0()
   call getkeyvalue("GWinput", "n1n2n3", nnn,3)
   if(lmagnon) call getkeyvalue("GWinput", "n1n2n3eps",nnn,3,default=nnn)
+  if(lmagnon .and. cmdopt0('--dos')) then
+    call getkeyvalue("GWinput", "n1n2n3dos",nnn,3,default=nnn)
+  endif
   call getkeyvalue("GWinput", "QpGcut_psi",QpGx2)
   call getkeyvalue("GWinput", "QpGcut_cou",QpGcut_Cou)
   call getkeyvalue("GWinput", "unit_2pioa",unit2)
@@ -131,6 +134,10 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
   enddo
   print *,' Writing BZDATA...'
   open(newunit=ifbz, file='__BZDATA',form='unformatted')
+  if(lmagnon .and. cmdopt0('--dos')) then
+    close(ifbz)
+    open(newunit=ifbz, file='__BZDATA.DOS',form='unformatted')
+  endif
   write(ifbz) nqbz,nqibz, nqbzw, ntetf, nteti,ngrp,nnn ,qlat,ginv
   write(ifbz) qibz(1:3,1:nqibz),wibz(1:nqibz),nstar(1:nqibz),irk(1:nqibz,1:ngrp)
   write(ifbz) qbz(1:3,1:nqbz),wbz(1:nqbz),nstbz(1:nqbz)

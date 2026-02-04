@@ -5,7 +5,7 @@ subroutine hmagnon() bind(C)
   use m_readwan,only: wan_readeval2, read_wandata, nwf, tr_mat_onsite, tr_mat_onsite_diag, &
                     & set_wan_nnwf, nnwf, set_wan_scrw, scrw, wan_pair_index
   use m_ReadEfermi, only: readefermi
-  use m_read_bzdata, only: read_bzdata, nqbz, nqibz, qbz, wqt=>wt, epslgroup, nq0i, q0i, neps
+  use m_read_bzdata, only: nqbz, qbz
   use m_genallcf_v3, only: genallcf_v3, nspin
   use m_keyvalue, only: getkeyvalue
   use m_freq, only: getfreq, freq_r, nwhis, nw_i, nw, npm
@@ -44,13 +44,18 @@ subroutine hmagnon() bind(C)
   real(8), parameter :: pi = 4d0*datan(1d0), znorm=-1d0*pi, eta_default =-1d0
   logical, parameter :: nnwf_size_reduction = .true.
   logical :: w_onsite_dddd, geteta, negative_cut, ganmma_only, gettetwt_split, calcdos
+  !For dos calculation
+  integer :: nqibz_dos, ntetf_dos, nteti_dos
+  integer, allocatable :: idteti_dos(:,:)
+  real(8), allocatable :: qibz_dos(:,:)
+
 !!! q on symline
   
   ! cma mode is commented out 2025-12-06. cma mode is no longer maintained. For CMA mode, use old version
 
   hartree = 2d0*rydberg()
   geteta = cmdopt0('--geteta')
-  calcdos  = cmdopt0('--calcdos')
+  calcdos  = cmdopt0('--dos')
   ganmma_only = geteta  !GammaPoint only calculation
 
   call m_lgunit_init()
@@ -64,10 +69,6 @@ subroutine hmagnon() bind(C)
   wan       = .true.
   call genallcf_v3(incwfx=0) !!incwfin=0 =>ForX0 for core in GWIN. in module m_genallcf_v3 Readin by genallcf. Set basic data for crystal
   if(nspin < 2) call rx(' hmagnon: nspin<2: not supported. exit.')
-  !! Prof.Naraga said " write(6,*)'Timereversal=',Timereversal()" here caused a stop in ifort ver.1x.x. Why? May be a compilar bug, and fixed now.
-  !! Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
-  !! Read Bzdata; See use m_read_bzdata,only:... at the beginning of this routine.
-  call read_BZDATA() !  !! Read electron gas mode or not.
   call ReadGWinputKeys() ! jun2020 new routint to read all inputs
   call getkeyvalue("GWinput","magnon_w_onsite_dddd",w_onsite_dddd,default=.true.)
   call getkeyvalue("GWinput","magnon_delta", delta, default=0d0) !1d-6 for Insulator case
@@ -86,30 +87,42 @@ subroutine hmagnon() bind(C)
     write(stdo,ftox) "dos calculation: delta_dos is used", delta
   endif
 
-  SetQvecList: block
+  SetBZDATAandQveclist: block
+    use m_read_bzdata, only:read_BZDATA, idteti, nteti, ntetf, qibz, nqibz, nq0i, q0i
+    if(calcdos) then
+      call read_BZDATA(dosmesh=.true.) !read __BZDATA.DOS
+      nqibz_dos = nqibz
+      ntetf_dos = ntetf
+      nteti_dos = nteti
+      allocate(qibz_dos(3,nqibz_dos), source=qibz(1:3,1:nqibz_dos))
+      allocate(idteti_dos(0:4,nteti_dos), source=idteti(0:4,1:nteti_dos))
+    endif
+    call read_BZDATA() !overwrite by __BZDATA
     if(mpi__root) then
       do i=1, nqbz
-        if(i<10 .OR. i>nqbz-10) write(6,"('i qbz=',i8,3f8.4)") i,qbz(:,i)
-        if(i==10 .AND. nqbz>18) write(6,"('... ')")
+        if(i<10 .OR. i>nqbz-10) write(stdo,"('i qbz=',i8,3f8.4)") i,qbz(:,i)
+        if(i==10 .AND. nqbz>18) write(stdo,"('... ')")
       enddo
-      write(6,*)' !!nqbz nqibz =',nqbz, nqibz
+      write(stdo,*)' !!nqbz =',nqbz
     endif
     if(ganmma_only) then
       allocate(qibze(3,1), source = 0d0)
       iqxini = 1
       iqxend = 1
+    elseif(calcdos) then
+      allocate(qibze(3,nqibz_dos), source = qibz_dos(1:3,1:nqibz_dos))
+      iqxini = 1
+      iqxend = nqibz_dos
     else
-      write(6,*) ' num of zero weight q0p=',neps
-      write(6,"(i6,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
       allocate(qibze(3,nq0i), source = q0i(1:3,1:nq0i))
       iqxini = 1
       iqxend = nq0i
     endif
-    write(6,"('iqxini,iqxend ',2I8)") iqxini, iqxend
+    write(stdo,"('iqxini,iqxend ',2I8)") iqxini, iqxend
     do iq = iqxini, iqxend
-      write(6,"('iq, qibze:',I8,3f9.4)") iq, qibze(:,iq)
+      write(stdo,"('iq, qibze:',I8,3f9.4)") iq, qibze(:,iq)
     enddo
-  endblock SetQvecList
+  endblock SetBZDATAandQveclist
 
   SetMPI_Rankdivider: block
     integer :: n_bpara, n_kpara, worker_inQtask
@@ -194,7 +207,7 @@ subroutine hmagnon() bind(C)
       integer :: nttp_max, ittp, jpm, it, itp, ibib, isdummy, kx_ini, kx_fin, kx_num, kx_start,kx_end
       real(8), allocatable :: whwc(:,:), ev_w1(:,:), ev_w2(:,:)
       real(8), parameter:: schi = 1d0
-      integer, parameter:: nkblock = 1024
+      integer, parameter:: nkblock = 1024 
       complex(8), allocatable :: zw(:,:), wzw(:,:)
       allocate(ev_w1(nwf,nqbz), ev_w2(nwf,nqbz), source=0d0)
 
@@ -372,33 +385,31 @@ subroutine hmagnon() bind(C)
   write(stdo,"('eta for 1-eta*WK:',f13.8)") eta
   ReformatOutputFilesForDOS:if(mpi__root .and. calcdos) then
     block
-      use m_read_bzdata, only: idteti, nteti, ntetf
       use m_bz_integ, only: ibz_integ
       integer :: file_tr_kpm_out, file_tr_rpm_out
       complex(8) :: dos_tr_kpm, dos_tr_diag_kpm, dos_tr_rpm, dos_tr_diag_rpm
-      complex(8) :: tr_kpm_ibz(nqibz,nw_i:nw), tr_diag_kpm_ibz(nqibz,nw_i:nw), &
-                    tr_rpm_ibz(nqibz,nw_i:nw), tr_diag_rpm_ibz(nqibz,nw_i:nw)
+      complex(8) :: tr_kpm_ibz(nqibz_dos,nw_i:nw), tr_diag_kpm_ibz(nqibz_dos,nw_i:nw), &
+                    tr_rpm_ibz(nqibz_dos,nw_i:nw), tr_diag_rpm_ibz(nqibz_dos,nw_i:nw)
       real(8) :: www, omega, tetra_vol
-      integer :: tetra_nodes(4,nteti), tetra_weight(nteti)
-      if(nqcalc /= nqibz) call rx(' ERROR in ReformatOutputFilesForDOS: nqcalc /= nqibz')
+      integer :: tetra_nodes(4,nteti_dos), tetra_weight(nteti_dos)
       open(newunit=file_tr_rpm_out, file='TrRpm.dos', status='replace', form='formatted', action='write')
       open(newunit=file_tr_kpm_out, file='TrKpm.dos', status='replace', form='formatted', action='write')
       write(file_tr_kpm_out, '(A)')' # omega(eV) Real_Tr_K/eV Imag_Tr_K/eV Real_Tr_Diag_K/eV Imag_Tr_Diag_K/eV !omega=0 is commented'
       write(file_tr_rpm_out, '(A)')' # omega(eV) Real_Tr_R/eV Imag_Tr_R/eV Real_Tr_Diag_R/eV Imag_Tr_Diag_R/eV !omega=0 is commented'
-      tetra_nodes(1:4,1:nteti) = idteti(1:4,1:nteti)
-      tetra_weight(1:nteti) = idteti(0,1:nteti)
+      tetra_nodes(1:4,1:nteti_dos) = idteti_dos(1:4,1:nteti_dos)
+      tetra_weight(1:nteti_dos) = idteti_dos(0,1:nteti_dos)
       do iq=1, nqcalc
         istat = readm(file_tr_kpm, rec=iq, data=tr_kpm_ibz(iq,nw_i:nw))
         istat = readm(file_tr_rpm, rec=iq, data=tr_rpm_ibz(iq,nw_i:nw))
         istat = readm(file_tr_diag_kpm, rec=iq, data=tr_diag_kpm_ibz(iq,nw_i:nw))
         istat = readm(file_tr_diag_rpm, rec=iq, data=tr_diag_rpm_ibz(iq,nw_i:nw))
       enddo
-      tetra_vol = 1d0/ntetf ! ntetf was =6*n1*n2*n3
+      tetra_vol = 1d0/ntetf_dos ! ntetf was =6*n1*n2*n3
       do iw = nw_i, nw
-        dos_tr_kpm = ibz_integ(tetra_vol, nteti, tetra_nodes, tetra_weight, qibze, nqibz, tr_kpm_ibz(:,iw)) 
-        dos_tr_rpm = ibz_integ(tetra_vol, nteti, tetra_nodes, tetra_weight, qibze, nqibz, tr_rpm_ibz(:,iw)) 
-        dos_tr_diag_kpm = ibz_integ(tetra_vol, nteti, tetra_nodes, tetra_weight, qibze, nqibz, tr_diag_kpm_ibz(:,iw)) 
-        dos_tr_diag_rpm = ibz_integ(tetra_vol, nteti, tetra_nodes, tetra_weight, qibze, nqibz, tr_diag_rpm_ibz(:,iw)) 
+        dos_tr_kpm = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, tr_kpm_ibz(:,iw)) 
+        dos_tr_rpm = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, tr_rpm_ibz(:,iw)) 
+        dos_tr_diag_kpm = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, tr_diag_kpm_ibz(:,iw)) 
+        dos_tr_diag_rpm = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, tr_diag_rpm_ibz(:,iw)) 
         www = merge(-freq_r(-iw),freq_r(iw),iw<0)
         omega = www*hartree
         if(iw==0) then
@@ -415,6 +426,7 @@ subroutine hmagnon() bind(C)
 
   ReformatOutputFiles:if(mpi__root .and. .not.calcdos) then
     block
+      use m_read_bzdata, only: epslgroup
       integer :: epslgroup_old, file_tr_kpm_out, file_tr_rpm_out
       character(3) :: charnum3
       real(8) :: q_old(3), q_position, dq, omega, www

@@ -19,15 +19,31 @@ module m_read_bzdata ! read BZDATA
   integer,protected,allocatable,public:: ixyz(:) ! ixyz(1:nq0i+nq0iadd) q0i for x,y,z directions
   private
 contains
-  subroutine read_BZDATA(hx0)
+  subroutine read_BZDATA(hx0, dosmesh)
     intent(in)::           hx0
     !! After you call this, you can access Brillowin Zone datas above ----
     integer :: intq(3),iqbz,ifbz,n,verbose,i
     real(8) :: qout(3),deltaq(3)
-    logical,optional:: hx0
+    logical,optional:: hx0, dosmesh
     logical:: qbzreg
     if(ipr)write(6,*)' ### readin BZDATA ###'
     open(newunit=ifbz, file='__BZDATA',form='unformatted')
+    if(present(dosmesh)) then
+      if(dosmesh) then
+        close(ifbz)
+        open(newunit=ifbz, file='__BZDATA.DOS',form='unformatted')
+      endif
+    endif
+    if(done_read_bzdata) then
+      deallocate( idtetf, ib1bz, idteti, nstar, irk, nstbz)
+      deallocate( qbz, wbz, qibz, wibz, qbzw, dq_, q0i, wt)
+      if(allocated(ixyz)) deallocate(ixyz)
+      if(allocated(dmlx)) deallocate(dmlx)
+      if(allocated(epinv)) deallocate(epinv)
+      if(allocated(epinvq0i)) deallocate(epinvq0i)
+      if(allocated(wklm)) deallocate(wklm)
+      if(allocated(epslgroup)) deallocate(epslgroup)
+    endif
     read(ifbz) nqbz,nqibz, nqbzw, ntetf, nteti, ngrp, n1,n2,n3,qlat,ginv
     allocate( qibz(1:3,1:nqibz),wibz(1:nqibz),nstar(1:nqibz),irk(1:nqibz,1:ngrp))
     read(ifbz)qibz(1:3,1:nqibz),wibz(1:nqibz),nstar(1:nqibz),irk(1:nqibz,1:ngrp)

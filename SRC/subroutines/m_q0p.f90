@@ -85,7 +85,6 @@ contains
        call getkeyvalue("GWinput","QforEPSau",   unita,default=unita)
        call getkeyvalue("GWinput","QforEPSIBZ",ibzqq,default=.false.)
        call getkeyvalue("GWinput", "QforEPSLIncLeft", qepsl_inc_left, default=.false.)
-       if(cmdopt0('--calcdos')) ibzqq = .true.
        if(ibzqq) then
           write(6,*)'=== Find QforEPSIBZ=on === '
           nq0i= nqibz

@@ -10,11 +10,14 @@ def cal_magnon(args, extra_args):
     cluster = args.cluster
     mpi_size = args.np
     target = args.extension
-    option_dos = "--calcdos" if args.dos else ""
+    option_dos = "--cdos" if args.dos else ""
 
     print(f"### start k+- r+-: mpi size= {mpi_size}, target= {target}")
+    if args.dos:
+        run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"qg4gw",
+                                   args=["--job=40001", option_dos, *extra_args]), stdout="lqg4gw02dos") #make __BZDATA.DOS
     run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"qg4gw",
-                               args=["--job=40001", option_dos, *extra_args]), stdout="lqg4gw02")
+                               args=["--job=40001", *extra_args]), stdout="lqg4gw02")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hmagnon",
                                args=["--geteta", f"--Wtype={args.Wtype}", option_dos, *extra_args]), stdout="lhmagnon_eta")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hmagnon",
