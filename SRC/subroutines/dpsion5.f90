@@ -165,7 +165,6 @@ contains
     complex(kind=kp), allocatable :: rcxq_work(:,:), cgfmat(:,:)
     integer :: ipr_col, ipm, istat, ispx
     real(8) :: wfac,smearx0
-    logical :: debug = .true.
 #ifdef __GPU
     attributes(device) :: rcxq, zxqi
 #endif
@@ -228,7 +227,7 @@ contains
     endif
     !$acc end data
     if_IMAGOMEGA: if(imagomega) then !Hilbert Transformation to get real part
-      if(debug) write(stdo,ftox)" -- dpsion_chiq: start imagomega"
+      if(ipr) write(stdo,ftox)" -- dpsion_chiq: start imagomega"
       if(npm==1) then
         !$acc data copyin(imatt) create(cimatt)
         !$acc kernels
@@ -254,7 +253,7 @@ contains
       if(ipr) write(stdo,ftox)" -- dpsion_chiq: end of imagomega"
     endif if_IMAGOMEGA
     if_REALOMEGA: if(realomega) then !Hilbert Transformation to get real part
-      if(debug) write(stdo,ftox)" -- dpsion_chiq: start realomega"
+      if(ipr) write(stdo,ftox)" -- dpsion_chiq: start realomega"
       if(npm == 1 .and. .not.chipm) then
         !$acc data copyin(rmatt) create(crmatt, zxq_work)
         !$acc kernels

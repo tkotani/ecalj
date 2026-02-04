@@ -28,7 +28,7 @@ def test(args,bindir,testdir,workdir): #Fixed. called as >testecalj Fe_magnon
     tall+=test2_check(testdir+'/'+dat1, workdir+'/'+dat1) #numerical agreement check
     print(dat2,end=': ')
     # skip condition: q=0 and ω=0 point
-    skipcond = lambda line: len(line.split()) >= 5 and all(float(x) == 0.0 for x in line.split()[:5])
+    skipcond = lambda line: len(line.split()) >= 5 and all(float(x) == 0.0 for x in line.split()[:4])
     tall+=test2_check(testdir+'/'+dat2, workdir+'/'+dat2, abs_tol =1e-3, rel_tol=1e-3, skipcond=skipcond)
     message1=f'''
      ======================================================

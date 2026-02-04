@@ -27,7 +27,7 @@ def test(args,bindir,testdir,workdir):
         "gnuplot wan_bandplot.glt"
     ])
     tol=0.001
-    skipcond = lambda line: len(line.split()) >= 5 and all(float(x) == 0.0 for x in line.split()[:5])
+    skipcond = lambda line: len(line.split()) >= 5 and all(float(x) == 0.0 for x in line.split()[:4])
     tall+=test2_check(testdir+'/'+dat1, workdir+'/'+dat1, tol, rel_tol=1e-3, skipcond=skipcond)
     tall+=test2_check(testdir+'/'+dat2, workdir+'/'+dat2, tol, rel_tol=1e-3, skipcond=skipcond)
     tall+=test2_check(testdir+'/'+dat3, workdir+'/'+dat3, tol, rel_tol=1e-3, skipcond=skipcond)

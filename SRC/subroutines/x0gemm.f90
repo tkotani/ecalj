@@ -78,10 +78,9 @@ subroutine x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm, ns1, ns2)
       enddo
       !$acc end kernels
       !$acc kernels loop independent collapse(2)
-      do ittp = 1, nttp(iw,jpm)
-        do igb2 = 1, npr_col
-          it  = itw(ittp,iw,jpm); itp = itpw(ittp,iw,jpm)
-          wzw(ittp,igb2) = cmplx(zmel(igb2+ipr_col-1,it,itp)*whw(ittp,iw,jpm),kind=kp)
+      do igb2 = 1, npr_col
+        do ittp = 1, nttp(iw,jpm)
+          wzw(ittp,igb2) = cmplx(zw(ittp,igb2+ipr_col-1)*whw(ittp,iw,jpm),kind=kp)
         enddo
       enddo
       !$acc end kernels
