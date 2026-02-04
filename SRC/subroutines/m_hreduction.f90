@@ -41,7 +41,7 @@ contains
    ModifyMatrixElements :block
       use m_ftox
       integer:: ie,nidxevlmto,nidxevl,ibx,jx,idxevlmto(ndimMTO),idxevl(ndimPMT),jbx,nval,nnn,imx,nbx,ii
-      real(8):: eee,fffx,ecut,xxx,rydberg,facww,sss,fff,epscore,emax,alpha,emin,ww(ndimPMTx),dex !,ewcutf
+      real(8):: eee,fffx,ecut,xxx,rydberg,facww,sss,fff,epscore,emax,alpha,emin,ww(ndimPMTx),dex,ddd !,ewcutf
       real(8),allocatable::mulfac(:,:),mulfacw(:,:)
       complex(8):: imag=(0d0,1d0)
       ! Assert block for normalization check
@@ -119,6 +119,12 @@ contains
       cmlo(ndimPMTx+1:ndimPMT,1:ndimMTO)=0d0
       cmlo(1:ndimPMTx,1:ndimMTO) = matmul(Amat(1:ndimPMTx,1:ndimMTO),&   
            matmul(transpose(dconjg(evecmto(:,:))),ovlmx(ix(1:ndimMTO),ix(1:ndimMTO)))) ! where <Psi_MTO j|MTO_k> = (evecmto*) @ ovlmx
+
+      ! normalized
+      do i=1,ndimMTO
+        ddd = sum( dconjg(cmlo(1:nx,i))*cmlo(1:nx,i) ) !<F^MLO|F^MLO>
+        cmlo(1:nx,i)=cmlo(1:nx,i)/sqrt(ddd)
+      enddo
       
       ! |F^MLO j'>= |F^PMT_i'> z^PMT_i'i cmlo(i,j) 
       do i=1,ndimMTO
