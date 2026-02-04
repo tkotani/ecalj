@@ -34,10 +34,12 @@ contains
     real(8):: xvec(3),xvecc(3),xvecs(3),xvece(3),vv(3),xvv(3),xv(3),diff(3),diff2(3),swgt,v1(3),wfac
     logical,allocatable::usediqig(:,:)
     real(8):: tolw,tolq !function defined in switch.f90
+    logical,external:: cmdopt0
     !! icase=1
     write(6,"('getbzdata1: n1n2n3=',3i5)") nnn(1:3)
     call minv33tp (qlat,plat)  !qlat --> plat
     qbzshift=0d0
+    if(cmdopt0("--avoidgamma")) qbzshift = -([0.5d0/nnn(1),0.5d0/nnn(2),0.5d0/nnn(3)])
     if(gammacellctrl==2) then
        nadd=1  ! nddd=1 give end point of BZ (for gammacell case). See nqbz
        qbzshift=-1d0/2d0 ! gamma centerered.

@@ -70,7 +70,7 @@ contains
     if(iprint) write(6,"(' emin emax omega2max=',3f13.5)") emin, emax, omg2max
   end subroutine getfreq2
   !----------------
-  subroutine Getfreq(epsmode,realomega,imagomega,omg2max,wemax,niw,ua,npmtwo) !,tetra
+  subroutine Getfreq(epsmode,realomega,imagomega,omg2max,wemax,niw,ua,npmtwo,dw,ratio) !,tetra
     use m_keyvalue,only: getkeyvalue
     intent(in)::       epsmode,realomega,imagomega,omg2max,wemax,niw,ua,npmtwo
     integer:: niw !,nw_input
@@ -79,23 +79,27 @@ contains
     real(8),allocatable:: expa(:)
     logical:: timereversal,onceww
     integer:: nw2,iw,ihis
-    real(8)::omg_c,dw,omg2,wemax
+    real(8)::omg_c,omg2,wemax
     real(8), allocatable :: freqr2(:)  ,frhis_tmp(:)
-    real(8)::  pi = 4d0*datan(1d0), aa,bb,ratio,oratio,daa
+    real(8)::  pi = 4d0*datan(1d0), aa,bb,ratio_in,dw_in,daa
     integer::ifif
     logical,optional:: npmtwo !! Added Aug2017 for hmagnon
     logical:: npm2
     logical,save:: done=.false.
+    real(8), intent(in), optional :: ratio, dw
     if(done) call rx('gerfreq is already done') !sanity check
     done =.true.
     nw=-99999 !for sanity check
     !! Histogram bin divisions
     !! We first accumulate Imaginary parts.
     !! Then it is K-K transformed to obtain real part.
-    call getkeyvalue("GWinput","HistBin_ratio",oratio, default=1.03d0)
-    call getkeyvalue("GWinput","HistBin_dw",dw, default=1d-5) !a.u.
-    aa = oratio-1d0
-    bb = dw/aa
+    call getkeyvalue("GWinput","HistBin_ratio",ratio_in, default=1.03d0)
+    call getkeyvalue("GWinput","HistBin_dw",dw_in, default=1d-5) !a.u.
+    !override HistBin_ratio, HistBin_dw
+    if(present(ratio)) ratio_in = ratio
+    if(present(dw)) dw_in = dw
+    aa = ratio_in - 1d0
+    bb = dw_in/aa
     iw = 0d0
     do
        iw=iw+1
@@ -106,7 +110,7 @@ contains
     do iw = 1,nwhis+1
        frhis(iw) = bb*( exp(aa*(iw-1)) - 1d0 )
     enddo
-    if(ipr) write(6,"('dw, omg_ratio, nwhis= ',d9.2,f13.5,i6)") dw, aa,nwhis
+    if(ipr) write(6,"('dw, omg_ratio, nwhis= ',d9.2,f13.5,i6)") dw_in, aa,nwhis
     !! Determine nw. Is this correct?
     do iw=3,nwhis
        omg2 = (frhis(iw-2)+frhis(iw-1))/2d0

@@ -29,7 +29,7 @@ subroutine hmagnon() bind(C)
   integer:: iwf, jwf, inwf
   integer:: file_tr_kpm, file_tr_rpm, file_tr_diag_kpm, file_tr_diag_rpm
   integer:: iqxini, iqxend, i, iw, iq, kx, istat, nqcalc
-  real(8):: q(3), rydberg, hartree, delta, eta, delta_dos
+  real(8):: q(3), rydberg, hartree, delta, eta, delta_dos, freq_ratio, freq_dw
   real(8), allocatable:: qibze(:,:)
   complex(8), pointer:: zxq(:,:,:) => null()
   complex(8), allocatable, target :: kmat(:,:,:)
@@ -73,7 +73,10 @@ subroutine hmagnon() bind(C)
   call getkeyvalue("GWinput","magnon_w_onsite_dddd",w_onsite_dddd,default=.true.)
   call getkeyvalue("GWinput","magnon_delta", delta, default=0d0) !1d-6 for Insulator case
   call getkeyvalue("GWinput","magnon_delta_dos", delta_dos, default=1d-6)
-
+  call getkeyvalue("GWinput","HistBin_ratio",freq_ratio, default=1.03d0)
+  call getkeyvalue("GWinput","HistBin_dw",freq_dw, default=1d-5)
+  call getkeyvalue("GWinput","magnon_HistBin_ratio",freq_ratio, default=freq_ratio)
+  call getkeyvalue("GWinput","magnon_HistBin_dw", freq_dw, default=freq_dw)
   call getkeyvalue("GWinput","magnon_negative_cut",negative_cut,default=.false.)
   if(mpi__root) then
     write(stdo,ftox) "magnon_w_onsite_dddd", w_onsite_dddd
@@ -81,6 +84,7 @@ subroutine hmagnon() bind(C)
     write(stdo,ftox) "magnon_delta", delta
     write(stdo,ftox) "magnon_delta_dos", delta_dos
     write(stdo,ftox) "magnon_negative_cut", negative_cut
+    write(stdo,ftox) "HistBin_ratio/HistBin_dw", freq_ratio, freq_dw
   endif
   if(calcdos) then
     delta = delta_dos
@@ -150,7 +154,7 @@ subroutine hmagnon() bind(C)
     omg2max = wemax*.5d0+.2d0 ! (in Hartree) covers all relevant omega, +.2 for margin
     !! NOTE: npmtwo=T sets npm=2   !! optional npmtwo is added aug2017   !! 20190604 Im[K]
     if( .NOT. imagomega) niw_in=1  !dummy
-    call Getfreq(epsmode,realomega,imagomega,omg2max,wemax,niw_in,ua, npmtwo=.true.)!,tetra
+    call Getfreq(epsmode,realomega,imagomega,omg2max,wemax,niw_in,ua, npmtwo=.true.,dw=freq_dw, ratio=freq_ratio)!,tetra
     if(mpi__root) write(6,"(' nw_i nw niw npm=',4i5)") nw_i,nw,niw,npm
   endblock SetFreqencyMesh
 
