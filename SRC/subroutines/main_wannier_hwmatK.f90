@@ -272,7 +272,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   use m_lmf,only: lmf
   use m_mpi,only: setipr
     use m_lgunit,only:   m_lgunit_init
-    use m_MPItk,only:    m_MPItk_init
+    use m_MPItk,only:    m_MPItk_init,procid,nrank=>nsize
 
   
   ! RS: MPI module
@@ -413,14 +413,15 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   real(8)::ef,shtv(3)   ! For hmagnon (only omega=0 is used)
   integer::nw,nctot0,niw
   logical:: lomega0
-  integer:: ierr,procid,master=0,comm,nrank,irr,iqibz
+  integer:: ierr,master=0,comm,irr,iqibz
   integer,allocatable::irkall(:,:),irk(:,:)
   logical:: master_mpi,debug=.false.
 !  include "mpif.h"
   comm= mpi_comm_world
 !  call mpi_init(ierr)
-  call mpi_comm_size(comm, nrank, ierr)
-  call MPI_COMM_RANK(comm, procid, ierr )
+  call m_MPItk_init(comm)  ! MPI info
+  !call mpi_comm_size(comm, nrank, ierr)
+  !call MPI_COMM_RANK(comm, procid, ierr )
   master_mpi = procid == master
 
 ! 2026-2-1 for rotMTO
