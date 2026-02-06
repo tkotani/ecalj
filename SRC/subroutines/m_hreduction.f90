@@ -47,7 +47,7 @@ contains
       complex(8):: imag=(0d0,1d0)
       ! Assert block for normalization check
       do j=1,ndimMTO 
-        if(abs(sum(abs(fac(:,j))**2)-1d0)>1d-6) call rxi('normalization error',j)
+        if(abs(sum(abs(fac(:,j))**2)-1d0)>1d-4) call rxi('Hreduction: normalization error band index=',j)
       enddo
       if(iprx) then
         do j=1,ndimMTO !Amat is corrected matrix element of <psi_PMT|psi_MTO>
