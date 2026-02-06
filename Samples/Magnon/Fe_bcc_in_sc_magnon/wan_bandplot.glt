@@ -1,0 +1,34 @@
+set terminal pdf
+set output "wan_bandplot.pdf"
+set xzeroaxis
+set grid
+set ylabel "Energy-Efermi(eV)"
+# This is given written in subroutine writeband in lm7K/fp/bndfp.F
+set yrange [   -10.00000:    10.00000]
+set xrange [0.0:     3.78024]
+set xtics ('Gamma'   0.0000000000,\
+'to|H'   1.0000000000,\
+'to|N'   1.7071067812,\
+'to|P'   2.2071067812,\
+'to|Gamma'   3.0731321850,\
+'to'   3.7802389662)
+tpia=2*3.1415926/     5.41690
+set title "isp=1"
+plot \
+"bnd001.spin1" u ($2):($3) lt 1 pt 1 w lp ti '',\
+"bnd002.spin1" u ($2):($3) lt 1 pt 1 w lp ti '',\
+"bnd003.spin1" u ($2):($3) lt 1 pt 1 w lp ti '',\
+"bnd004.spin1" u ($2):($3) lt 1 pt 1 w lp ti '',\
+"bnd005.spin1" u ($2):($3) lt 1 pt 1 w lp ti '',\
+"bnd006.spin1" u ($2):($3) lt 1 pt 1 w lp ti '',\
+"./bnds_syml.wan.spin1" u 2:3 pt 6 ps 0.5      ti 'Wannier'
+
+set title "isp=2"
+plot \
+"bnd001.spin2" u ($2):($3) lt 1 pt 1 w lp ti '',\
+"bnd002.spin2" u ($2):($3) lt 1 pt 1 w lp ti '',\
+"bnd003.spin2" u ($2):($3) lt 1 pt 1 w lp ti '',\
+"bnd004.spin2" u ($2):($3) lt 1 pt 1 w lp ti '',\
+"bnd005.spin2" u ($2):($3) lt 1 pt 1 w lp ti '',\
+"bnd006.spin2" u ($2):($3) lt 1 pt 1 w lp ti '',\
+"./bnds_syml.wan.spin2" u 2:3 pt 6 ps 0.5      ti 'Wannier'
