@@ -36,7 +36,7 @@ contains
       read(ififft) ngrp
       allocate(symops(3,3,ngrp))
       read(ififft) ldim,lso,nsp,symops ! size of Hamiltonian: PMT part
-      allocate(ib_table(ldim),l_table(ldim),m_table(ldim),k_table(ldim),ispec_table(ldim),slabl_table(ldim))
+      allocate(ib_table(ldim),l_table(ldim),k_table(ldim),ispec_table(ldim),slabl_table(ldim))
       read(ififft)ib_table,l_table,k_table,ispec_table,slabl_table
       close(ififft)
       if(master_mpi) write(stdo,"('MHAM: --- MTO part of PMT Hamiltonian index (real-harmonics table is in job_pdos script) --- ')")
@@ -55,8 +55,8 @@ contains
             ioff=i-1
             ibold=ib_table(i)
          endif
-         if(master_mpi) write(stdo,"('MHAM: i i-ioffib ib(atom) l m k(1:EH,2:EH2,3:PZ)=',i4,5i3)")&
-            i,i-ioff,ib_table(i),l_table(i),m_table(i),k_table(i)
+         if(master_mpi) write(stdo,"('MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=',i4,5i3)")&
+            i,i-ioff,ib_table(i),l_table(i),k_table(i)
       enddo
    end subroutine ReadHamPMTInfo
    !c$$$  !! delta fun check for FFT: k --> T --> k
