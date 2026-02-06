@@ -20,7 +20,7 @@ contains
     use m_mkpot,only: smpot=>osmpot, vconst, spotx
     use m_locpot,only: osig, otau, oppi, ohsozz,ohsopm
     use m_locpot,only: oppix
-    use m_MPItk,only: numproc=>nsize,procid,master,master_mpi,comm
+    use m_MPItk,only: numproc=>nsize,procid,master,master_mpi,comm,strprocid
     use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq,ndimhall,nbandmx
     use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
     use m_qplist,only: qplist,ngplist,ngvecp,iqibzmax,niqisp,iqproc,isproc
@@ -73,7 +73,7 @@ contains
          ngpmx,nline,nlinemax,nlmax,nmx,nn1,nn2,nnn, kkk,mmm,n, &
          npqn,nqbz,nqnum,nqnumx,nqtot,nr,iqibz,imx,ifigwb,ifinormchk,ifigw1,ifildima,ifigwn,ifigwbhead,&
          ispSS,ispEE,ispx,iqbk=-999,icore2,icore2o,ic,nmcore,ifnlax,ifigwa,ifgeigm,ifcphim,ixx,ix,nn
-    real(8):: rsml(n0), ehl(n0) ,eferm,qval, vmag,vnow, QpGcut_psi,QpGcut_cou,dum,xx(5),a,z,vshft, qp(3),qpos,q_p(3), epsovl,dq(3),qpx(3)
+    real(8):: rsml(n0), ehl(n0) ,eferm,qval, vmag,vnow, QpGcut_psi,QpGcut_cou,dum,xx(5),a,z,vshft, qp(3),qpos,q_p(3), epsovl,dq(3),qpx(3),xxx
     real(8),allocatable:: rofi(:),rwgt(:) !, cphiw(:,:) 
     real(8),pointer:: pnu(:,:),pnz(:,:)
     integer,allocatable :: konft(:,:,:),iiyf(:),ibidx(:,:),nqq(:), m_indx(:),n_indx(:),l_indx(:),ibas_indx(:)
@@ -87,7 +87,7 @@ contains
     complex(8),allocatable::  geigr(:,:,:), cphix(:,:,:)
     integer:: mrecb,mrece,mrecg,ndble,ifv,iqq,ifev,konfigk,konfz
     real(8),allocatable::evl(:,:,:),vxclda(:,:,:) !,evl(:,:),vxclda(:)!qirr(:,:), !    complex(8),allocatable:: ppj(:,:,:)
-    integer :: istat,ifoc,ldim2,lxx,nl,nrx,ibas,ifec
+    integer :: istat,ifoc,ldim2,lxx,nl,nrx,ibas,ifec,ifihh
 !    logical :: blas_mode = .true.
     logical,optional:: ecoreexit !    real(8):: rmax(nclass)
     type(stopwatch) :: sw
@@ -355,20 +355,28 @@ contains
     endif WriteGWfiles
     if(cmdopt0('--skipCPHI')) goto 1011
     call mpi_barrier(comm,ierr)
+    if(cmdopt0('--mlo')) then
+      open(newunit=ifihh,file='__Hamiltoniangw.'//trim(strprocid),form='unformatted')
+      write(ifihh) niqisp,nqirr,nbandmx,numproc,nqbz
+      write(ifihh) qplist(1:3,1:nqirr),iqproc(1:niqisp),isproc(1:niqisp)
+    endif  
     call m_ppj_init()  !Get ppj(1:ndima,1:ndima,isp): overlap matrix between atomic orbitals within MT. 
     ! CPHI GEIG. We use mpi-io from 2024-9-26
     allocate(cphix(ndima,nspc,nbandmx),geigr(ngpmx,nspc,nbandmx))
     i=openm(newunit=ifcphim,file='__CPHI',recl=mrecb)
     i=openm(newunit=ifgeigm,file='__GEIG',recl=mrecg)
+
     allocate(evl(nbandmx, nqirr, nspx),vxclda(nbandmx, nqirr, nspx),source=0d0)!nqirr: # ofirreducible q points
     iqisploop: do 1001 idat=1,niqisp !iq = iqini,iqend ! iqini:iqend for this procid
       if(debug) call cputid(0)
-      if(debug) write(stdo,ftox) 'do 1001 idat=',idat,procid
       iq  = iqproc(idat) ! iq index
       isp = isproc(idat) ! spin index: Note isp=1:nspx, where nspx=nsp/nspc.  isp=1 nspc=2 only for lso=1 if(debug)write(stdo,ftox)' iqisploop',iq,isp  
       qp  = qplist(:,iq) ! q vector containing nqirr
       ngp = ngplist(iq)  ! number of planewaves for PMT basis
       call m_igv2x_setiq(iq) ! WARN! Set napw ndimh ndimhx, and igv2x !note ndimhx is given here.
+      write(stdo,ftox)'ssssssss do 1001 idat=',idat,procid,iq,isp,ftof(qp(:))
+      
+!      ndimPMT(idat)=ndimh
       allocate(hamm(ndimh,nspc,ndimh,nspc),ovlm(ndimh,nspc,ndimh,nspc)) !Spin-offdiagonal block included since nspc=2 for lso=1.
       allocate(evec(ndimhx,ndimhx),vxc(ndimh,nspc,ndimh,nspc),cphi(ndima,ndimhx,nspc))!,cphiw(ndimhx,nspc))
       if(iqbk==iq) then
@@ -434,6 +442,11 @@ contains
         endif AddExternelMagneticField;            if(debug)write(stdo,ftox)' iqisploop666'
         if(show_time) call stopwatch_init(sw, 'diag ham')
         if(show_time) call stopwatch_start(sw)
+        if(cmdopt0('--mlo')) then ! 2026-1-29
+          write(ifihh) ndimhx
+          write(ifihh) ovlm
+          write(ifihh) hamm
+        endif
         call zhev_tk4(ndimhx,hamm,ovlm,ndimhx,nev,evl(1,iq,isp),evec,epsovl) ! Diagonalization. nev:Calculated number of eigenvec
         if(show_time) call stopwatch_show(sw)
       endblock GetHamiltonianAndDiagonalize;       if(debug)write(stdo,ftox)' iqisploop777 1212'
@@ -635,6 +648,7 @@ contains
       endblock WriteCphiGeig; if(debug)write(stdo,ftox)' writechpigeig 1001'  
       deallocate(hamm,ovlm,evec,vxc,cphi)!,pwz,cphiw)
 1001 enddo iqisploop
+    if(cmdopt0('--mlo')) close(ifihh)
     i=closem(ifcphim) !mpi-io
     i=closem(ifgeigm)
     call mpi_barrier(comm,ierr)

@@ -1,0 +1,46 @@
+#!/usr/bin/env python3
+import sys
+import os
+import subprocess
+
+def main():
+    nfpgw = os.path.dirname(os.path.abspath(__file__))
+    print(f"Script name: {sys.argv[0]}")
+    print(f"Arguments: {sys.argv[1:]}")
+    if len(sys.argv) <= 3 or sys.argv[2] != "-np":
+        print("Usage example: job_ham si -np 4 [options for lmf]")
+        sys.exit(1)
+
+    MPI_SIZE = sys.argv[3]
+    target = sys.argv[1]
+
+    extra_args = sys.argv[4:] if len(sys.argv) > 4 else []
+
+    # HamiltonianPMT.* を削除
+    for f in os.listdir('.'):
+        if f.startswith("HamiltonianPMT."):
+            os.remove(f)
+    print("Running Hamiltonian generation")
+
+    # lmf 実行
+    cmd_writeham = ["mpirun", "-np", MPI_SIZE, os.path.join(nfpgw, "lmf"), target,
+        "--writeham", "--mkprocar", "--noinv", "--mlo"
+    ] + extra_args
+    print("Executing:", " ".join(cmd_writeham))
+    with open("out_writeham", "w") as out:
+        subprocess.run(cmd_writeham, stdout=out, stderr=subprocess.STDOUT)
+    os.system('tail -5 out_writeham')
+    # mlo 実行
+    cmd_mlo = [
+        "mpirun", "-np", MPI_SIZE,
+        os.path.join(nfpgw, "mlo"), 
+        target
+    ] + extra_args
+    print("Executing:", " ".join(cmd_mlo))
+    with open("out_mlo", "w") as out:
+        subprocess.run(cmd_mlo, stdout=out, stderr=subprocess.STDOUT)
+
+    os.system('tail -5 out_mlo')
+    print("OK! end of job_mlo. Run gnuplot -p bandplot_MLO.isp1.glt")
+if __name__ == "__main__":
+    main()
