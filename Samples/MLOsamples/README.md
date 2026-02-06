@@ -18,4 +18,3 @@
 And then see the sum of Coulomb_v.* and Screening_W-v.*
 (we need minor fix for cRPA mode if necessary)
 
-For Fe, we got 3.680190 - 3.4366 =0.263 Ry. for 5 5 5 5 for DN.

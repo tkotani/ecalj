@@ -105,14 +105,14 @@ if [ -e UUq0D.0000 ]; then
 fi
 
 ### pkm4crpa file mode for crpa ###
-argin=10011; run_arg $argin 1 $nfpgw /hwmatK_MPI lpkm4crpa 
+argin=10011; run_arg $argin 1 $nfpgw /hwmatK_MPI lpkm4crpa  $MATERIAL 
 
 ### Main part of v, W-v for Wanniers. ##########################
 ### mode 11 or 12: omega=0 for magnon
 argin=0;  run_arg $argin $MPI_SIZE $nfpgw /hvccfp0 lvcc        # Coulomb matrix v
-argin=11;  run_arg $argin $MPI_SIZE $nfpgw /hwmatK_MPI lwmatK1  # Matrix elements of v for Wannier (omega=0 for magnon)
+argin=11;  run_arg $argin $MPI_SIZE $nfpgw /hwmatK_MPI lwmatK1 $MATERIAL  # Matrix elements of v for Wannier (omega=0 for magnon)
 argin=111; run_arg $argin $MPI_SIZE $nfpgw /hx0fp0 lx0_111     # Screened Coulomb W minus v, W-v
-argin=12;  run_arg $argin $MPI_SIZE $nfpgw /hwmatK_MPI lwmatK2  # Matrix element of W-v (omega=0 for magnon)
+argin=12;  run_arg $argin $MPI_SIZE $nfpgw /hwmatK_MPI lwmatK2 $MATERIAL  # Matrix element of W-v (omega=0 for magnon)
 #$nfpgw/Cal_W.py
 
 #### crpa
