@@ -33,6 +33,7 @@ contains
    call zhev_tk4(ndimPMT,hamm(1:ndimPMT,1:ndimPMT),ovlm(1:ndimPMT,1:ndimPMT), nmx,nev, evl,evecpmt, oveps) !PMT
    ovlm=ovlmx
    ndimPMTx=nev !obtained. oveps may reduce ndimPMT to be ndimPMTx
+   fac = (0d0,0d0)
    do j=1,ndimMTO !Amat is corrected matrix element of fac=<psi_PMT|psi_MTO>
       do i=1,nev
          fac(i,j)= sum(dconjg(evecpmt(:,i))*matmul(ovlmx(:,ix(1:ndimMTO)),evecmto(1:ndimMTO,j))) !<Psi_PMT|Psi_MTO>
