@@ -45,7 +45,7 @@ contains
 !  call getkeyvalue("GWinput","mlo_ecutw",ecutw,default=999*rydberg())
 !  call getkeyvalue("GWinput","mlo_eww",eww,default=.05d0*rydberg()) !size of fixing inner window
 !  if(master_mpi) write(stdo,ftox)'mlo_facw _ecutw (eV)=',ftof(facw),ftof(ecutw/rydberg())!,ftof(eww)
-  ecutw= ecutw/rydberg()
+!  ecutw= ecutw/rydberg()
 !  eww  = eww  /rydberg()
   call readqplistsy()      ! When symlcase=T, read qplist.dat (q points list, see bndfp.F).
   call set_qibz(plat,qplist,nkp,symops,ngrp) ! Setup m_setqibz_lmfham
