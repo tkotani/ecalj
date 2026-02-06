@@ -102,7 +102,6 @@ SRC/exec/vasp2ctrl
 SRC/exec/viewvesta
 SRC/subroutines/show_programinfo.f90
 Samples/**/*_work/
-**/__pycache__/
 work/
 Work/
 SRC/exec/cmake_install.cmake
@@ -153,3 +152,6 @@ SRC/exec/mlo
 SRC/exec/nvfortran
 SRC/exec/qg4gw
 SRC/exec/wanplot
+*.tar.gz
+__*
+nvidia-*
