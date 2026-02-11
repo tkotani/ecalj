@@ -182,7 +182,6 @@ contains
     call MPI_Comm_size(comm_in, mpi_size, ierr)
   end function get_mpi_size
   logical function get_mpi_master(communicator) result(mpi_master)
-    implicit none
     integer, intent(in), optional :: communicator
     integer :: comm_in, ierr, mpi_rank
     comm_in = comm
@@ -202,20 +201,6 @@ contains
     call mpi_comm_size(comm_w, mpi__size_w, mpi__info)
     mpi__root_w = mpi__rank_w == 0
   end subroutine MPI__SplitSc
-  ! subroutine MPI__Initialize_magnon(commin)
-  !   implicit none
-  !   character(1024*4) :: cwd, stdout
-  !   integer,optional:: commin
-  !   comm=MPI_COMM_WORLD
-  !   if(present(commin)) comm= commin
-  !   !comm= merge(commin,MPI_COMM_WORLD,present(commin))
-  !   call getcwd(cwd)          ! get current working directory
-  !   call MPI_Init( mpi__info ) ! current working directory is changed if mpirun is not used
-  !   call MPI_Comm_rank( comm, mpi__rankMG, mpi__info )
-  !   call MPI_Comm_size( comm, mpi__sizeMG, mpi__info )
-  !   mpi__root=  mpi__rankMG == 0 
-  !   if( mpi__root ) call chdir(cwd)        ! recover current working directory
-  ! end subroutine MPI__Initialize_magnon
   subroutine MPI__consoleout(idn)
     use m_lgunit,only:stdo,stdl
     implicit none
@@ -230,24 +215,6 @@ contains
     open(unit=6,file=trim(stdout))
     write(6,"(a,i3)")" ### console output for rank=",mpi__rank
   end subroutine MPI__consoleout
-  ! subroutine MPI__consoleout_magnon(idn,size_lim)
-  !   use m_lgunit,only:stdo,stdl
-  !   implicit none
-  !   character(1024*4) :: cwd, stdout
-  !   character(len=*), intent(in):: idn
-  !   integer , intent(in), optional :: size_lim
-  !   if(present(size_lim)) then
-  !     if(mpi__sizeMG > size_lim) mpi__sizeMG=size_lim !Reduce size for magnon (avoid memory leak)      
-  !   endif
-  !   if( mpi__sizeMG == 1 ) return
-  !   if( mpi__root ) then
-  !     write(6,"(' MPI outputs in each rank are in stdout.{RankId}.',a)")idn
-  !     call flush(stdo)
-  !   end if
-  !   write(stdout,"('stdout.',i4.4,'.',a)") mpi__rankMG,idn
-  !   open(unit=6,file=trim(stdout))
-  !   write(6,"(a,i3)")" ### console output for rank=",mpi__rankMG
-  ! end subroutine MPI__consoleout_magnon
   subroutine MPI__Broadcast( data )
     implicit none
     integer, intent(inout) :: data

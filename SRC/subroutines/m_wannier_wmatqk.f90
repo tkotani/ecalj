@@ -229,10 +229,10 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
     ppovlz(1:nbloch,:) = zcousq(1:nbloch,:)
     ppovlz(nbloch+1:nbloch+ngc,:) = zcousq(nbloch+1:nbloch+ngc,:) !matmul(ppovl,zcousq(nbloch+1:nbloch+ngc,:))
     deallocate(zcousq)!,ppovl)
-    if (kr == 0) cycle
+    if (kr == 0) cycle kxloop
     if(OnlyQ0P .AND. kx<=nqibz) then
       if(exchange) deallocate(vcoul)
-      cycle
+      cycle kxloop
     endif
     !! phase factor for off-site W
     do ir1=1,nrws1

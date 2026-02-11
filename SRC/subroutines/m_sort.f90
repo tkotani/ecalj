@@ -3,7 +3,6 @@ module m_sort
   public :: sort_index, lower_bound, upper_bound
 contains
   function sort_index(array) result(idx)
-    implicit none
     real(8), intent(in) :: array(:)
     integer, allocatable :: idx(:)
     integer :: i, n
@@ -13,7 +12,6 @@ contains
     call quicksort_recursive(array, idx, 1, n)
   end function
   recursive subroutine quicksort_recursive(array, idx, left, right)
-    implicit none
     real(8), intent(in) :: array(:)
     integer, intent(inout) :: idx(:)
     integer, intent(in) :: left, right
@@ -44,7 +42,6 @@ contains
   end subroutine
 
   integer function lower_bound(array, value, idx)
-    implicit none
     real(8), intent(in) :: array(:), value
     integer, intent(in), optional, target :: idx(:)
     integer, pointer :: idx_work(:)
@@ -70,7 +67,6 @@ contains
   end function
 
   integer function upper_bound(array, value, idx)
-    implicit none
     real(8), intent(in) :: array(:)
     real(8), intent(in) :: value
     integer, intent(in), optional, target :: idx(:)

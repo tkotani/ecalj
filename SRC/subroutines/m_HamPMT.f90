@@ -39,8 +39,8 @@ contains
       allocate(ib_table(ldim),l_table(ldim),k_table(ldim),ispec_table(ldim),slabl_table(ldim))
       read(ififft)ib_table,l_table,k_table,ispec_table,slabl_table
       close(ififft)
-      if(master_mpi) write(stdo,"('MHAM: --- MTO part of PMT Hamiltonian index (real-harmonics table is in job_pdos script) --- ')")
-      if(master_mpi) write(stdo,'("MHAM: MTO block dim=",i5)') ldim
+      write(stdo,"('MHAM: --- MTO part of PMT Hamiltonian index (real-harmonics table is in job_pdos script) --- ')")
+      write(stdo,'("MHAM: MTO block dim=",i5)') ldim
       lold=-999
       ibold=-999
       ioff=0
@@ -55,7 +55,7 @@ contains
             ioff=i-1
             ibold=ib_table(i)
          endif
-         if(master_mpi) write(stdo,"('MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=',i4,5i3)")&
+         write(stdo,"('MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=',i4,5i3)")&
             i,i-ioff,ib_table(i),l_table(i),k_table(i)
       enddo
    end subroutine ReadHamPMTInfo

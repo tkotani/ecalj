@@ -788,7 +788,8 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
       ! rotate atomic positions invrot*R = R' + T         !        invr       = invrot (irot,invg,ngrp)
       invr     = invg(irot)
       ! -- ppb= <Phi(SLn,r) Phi(SL'n',r) B(S,i,Rr)>
-      call ppbafp_v2 (irot,ngrp,is,mdimx,lx,nx,nxx,cgr,nl-1,ppbrd, ppb)
+      call ppbafp_v2 (irot,ngrp,is,mdimx,lx,nx,nxx,cgr,nl-1,ppbrd, ppb(1,is))
+      if(spinflip) call ppbafp_v2 (irot,ngrp,3-is,mdimx,lx,nx,nxx,cgr,nl-1,ppbrd, ppb(1,3-is))
       nctot0=0
       shtv = matmul(symgg(:,:,irot),shtvg(:,invr))
       if(debug) write(*,*) 'wmatq in',irot,sum(abs(ppb)),sum(abs(shtv))
