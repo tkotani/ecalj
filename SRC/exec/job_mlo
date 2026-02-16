@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import contextlib
 import subprocess
 from pathlib import Path
 from run_cmd import run_cmd, MPIParams
@@ -35,12 +36,14 @@ if __name__ == "__main__":
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("extension",   help='Extension of the ctrl file') #extension is dummy. just to have similar interface with other scripts
-    parser.add_argument("--cluster",   help="cluster name", default="default", type=str)
+    parser.add_argument("-c", "--cluster", help="cluster name", default="default", type=str)
     parser.add_argument("-np",         help='Number of MPI cores for lmf', default=8, type=int)
     parser.add_argument("--nognuplot", "--NoGnuplot", help="stop without drawing", action="store_true", default=False)
+    parser.add_argument("-d", "--dir", help="execution directory (default: current directory)", default=".", type=str)
 
     args, extra_args = parser.parse_known_args()
-    cal_mlo(args, extra_args)
+    with contextlib.chdir(args.dir):
+        cal_mlo(args, extra_args)
 
 
 # def main():

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import contextlib
 from pathlib import Path
 from run_cmd import run_cmd, MPIParams
 from utils import merge_files, move_files
@@ -84,20 +85,22 @@ if __name__ == "__main__":
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("extension",     help='Extension of the ctrl file') #extension is dummy. just to have similar interface with other scripts
-    parser.add_argument("--cluster",     help="cluster name", default="default", type=str)
+    parser.add_argument("-c", "--cluster", help="cluster name", default="default", type=str)
     parser.add_argument("-np",           help='Number of MPI cores for lmf', default=8, type=int)
     parser.add_argument("--Wtype",       help='Wtype: up, down, up_down, or, down_up', default='down_up', type=str)
     parser.add_argument("--skip_MLWFvw", help='Skip generation of MLWF and W', action='store_true')
     parser.add_argument("--dos",         help='carry out dos calculation', action='store_true')
     parser.add_argument("--stop_MLWF",   help='Stop at generation of MLWF', action='store_true')
     parser.add_argument("--stop_MLWFvw", help='Stop at generation of MLWF and W', action='store_true')
+    parser.add_argument("-d", "--dir", help="execution directory (default: current directory)", default=".", type=str)
     args, extra_args = parser.parse_known_args()
 
-    if not args.skip_MLWFvw:
-        cal_lmf(args, extra_args)
-        cal_MLWFvw(args, extra_args)
-        move_files('stdout*', dest_dir='STDOUT')
+    with contextlib.chdir(args.dir):
+        if not args.skip_MLWFvw:
+            cal_lmf(args, extra_args)
+            cal_MLWFvw(args, extra_args)
+            move_files('stdout*', dest_dir='STDOUT')
 
-    if not args.stop_MLWFvw and not args.stop_MLWF:
-        cal_magnon(args, extra_args)
-        move_files('stdout*', dest_dir='STDOUT')
+        if not args.stop_MLWFvw and not args.stop_MLWF:
+            cal_magnon(args, extra_args)
+            move_files('stdout*', dest_dir='STDOUT')

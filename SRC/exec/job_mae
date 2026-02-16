@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import contextlib
 import re
 from pathlib import Path
 from run_cmd import run_lmf, run_cmd, MPIParams
@@ -89,8 +90,10 @@ if __name__ == "__main__":
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("extension", help='Extension of the ctrl file')
-    parser.add_argument("--cluster", help="cluster name", default="default", type=str)
+    parser.add_argument("-c", "--cluster", help="cluster name", default="default", type=str)
     parser.add_argument("-np",       help='Number of MPI cores for lmf', default=8, type=int)
     parser.add_argument("--skipSCF", help='SKIP SCF calculation', action='store_true')
+    parser.add_argument("-d", "--dir", help="execution directory (default: current directory)", default=".", type=str)
     args, extra_args = parser.parse_known_args()
-    cal_mae(args, extra_args)
+    with contextlib.chdir(args.dir):
+        cal_mae(args, extra_args)

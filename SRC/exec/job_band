@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import contextlib
 import subprocess
 from pathlib import Path
 from run_cmd import run_cmd, MPIParams
@@ -105,31 +106,34 @@ def cal_fatband(args, extra_args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        prog='band',
+        prog='job_band',
         description=(
             'Example:\n'
-            "An example of usage: job_band si -np 4 [options for lmf]\n"
+            "  job_band si -np 4 [options for lmf]\n"
+            "  job_band si -np 4 -d /path/to/workdir [options for lmf]\n"
             " For example, [options for lmf] is ' -vpwemax=4 -vgmax=15 -vxcfun=103'\n"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("extension",   help='Extension of the ctrl file') #extension is dummy. just to have similar interface with other scripts
-    parser.add_argument("--cluster",   help="cluster name", default="default", type=str)
+    parser.add_argument("-c", "--cluster", help="cluster name", default="default", type=str)
     parser.add_argument("-np",         help='Number of MPI cores for lmf', default=8, type=int)
     parser.add_argument("--fatband",   help='get fatband', action='store_true')
     parser.add_argument('--emin',      type=float, default=-40, help='cut off energy')
     parser.add_argument('--emax',      type=float, default= 20, help='cut off energy')
     parser.add_argument("--nognuplot", "--NoGnuplot", help="stop without drawing", action="store_true", default=False)
+    parser.add_argument("-d", "--dir", help="execution directory (default: current directory)", default=".", type=str)
 
     args, extra_args = parser.parse_known_args()
 
-    ensure_syml(args.extension)
-    cal_band(args, extra_args)
+    with contextlib.chdir(args.dir):
+        ensure_syml(args.extension)
+        cal_band(args, extra_args)
 
-    if args.fatband:
-        remove_files("PROCAR.UP.*", "PROCAR.DN.*")
-        cal_fatband(args, extra_args)
-        merge_files(pattern="PROCAR.UP.*", output_file="PROCAR.UP", remove_sources=True)
-        merge_files(pattern="PROCAR.DN.*", output_file="PROCAR.DN", remove_sources=True)
-        process_files("PROCAR.UP", 1, args.emin, args.emax)
-        process_files("PROCAR.DN", 2, args.emin, args.emax)
+        if args.fatband:
+            remove_files("PROCAR.UP.*", "PROCAR.DN.*")
+            cal_fatband(args, extra_args)
+            merge_files(pattern="PROCAR.UP.*", output_file="PROCAR.UP", remove_sources=True)
+            merge_files(pattern="PROCAR.DN.*", output_file="PROCAR.DN", remove_sources=True)
+            process_files("PROCAR.UP", 1, args.emin, args.emax)
+            process_files("PROCAR.DN", 2, args.emin, args.emax)

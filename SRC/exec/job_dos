@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import contextlib
 import textwrap
 import subprocess
 from pathlib import Path
@@ -170,28 +171,31 @@ def cal_pdos(args, extra_args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        prog='band',
+        prog='job_dos',
         description=(
             'Example:\n'
-            "An example of usage: job_dos si -np 4 [options for lmf]\n"
+            "  job_dos si -np 4 [options for lmf]\n"
+            "  job_dos si -np 4 -d /path/to/workdir [options for lmf]\n"
             " For example, [options for lmf] is ' -vpwemax=4 -vgmax=15 -vxcfun=103'\n"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("extension",   help='Extension of the ctrl file') #extension is dummy. just to have similar interface with other scripts
-    parser.add_argument("--cluster",   help="cluster name", default="default", type=str)
+    parser.add_argument("-c", "--cluster", help="cluster name", default="default", type=str)
     parser.add_argument("-np",         help='Number of MPI cores for lmf', default=8, type=int)
     parser.add_argument("--pdos",      help='get pdos', action='store_true')
     parser.add_argument('--emin',      type=float, default=-20, help='cut off energy')
     parser.add_argument('--emax',      type=float, default= 20, help='cut off energy')
     parser.add_argument('--ndos',      type=int, default=4000, help='number of energy meshes')
     parser.add_argument("--nognuplot", "--NoGnuplot", help="stop without drawing", action="store_true", default=False)
+    parser.add_argument("-d", "--dir", help="execution directory (default: current directory)", default=".", type=str)
 
     args, extra_args = parser.parse_known_args()
 
-    cal_tdos(args, extra_args)
-    plot_dos_with_gnuplot(args.extension, args.nognuplot)
+    with contextlib.chdir(args.dir):
+        cal_tdos(args, extra_args)
+        plot_dos_with_gnuplot(args.extension, args.nognuplot)
 
-    if args.pdos:
-        cal_pdos(args, extra_args)
-        plot_pdos_with_gnuplot(args.extension, args.nognuplot)
+        if args.pdos:
+            cal_pdos(args, extra_args)
+            plot_pdos_with_gnuplot(args.extension, args.nognuplot)

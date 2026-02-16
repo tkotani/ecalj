@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import contextlib
 from pathlib import Path
 from run_cmd import run_cmd, MPIParams
 
@@ -29,26 +30,29 @@ def cal_fermisurface(args, extra_args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        prog='band',
+        prog='job_fermisurface',
         description=(
             'Example:\n'
-            "An example of usage: job_fermisurface si -np 4 -vnk1=20 -vnk2=20 -vnk3=20 [options for lmf]\n"
+            "  job_fermisurface si -np 4 -vnk1=20 -vnk2=20 -vnk3=20 [options for lmf]\n"
+            "  job_fermisurface si -np 4 -d /path/to/workdir -vnk1=20 -vnk2=20 -vnk3=20 [options for lmf]\n"
             " For example, [options for lmf] is '-vpwemax=4 -vgmax=15 -vxcfun=103'\n"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("extension",   help='Extension of the ctrl file') #extension is dummy. just to have similar interface with other scripts
-    parser.add_argument("--cluster",   help="cluster name", default="default", type=str)
+    parser.add_argument("-c", "--cluster", help="cluster name", default="default", type=str)
     parser.add_argument("-np",         help='Number of MPI cores for lmf', default=8, type=int)
     parser.add_argument("-vnk1",       help='Number of k-point in 1st dimension', default=12, type=int)
     parser.add_argument("-vnk2",       help='Number of k-point in 2nd dimension', default=12, type=int)
     parser.add_argument("-vnk3",       help='Number of k-point in 3rd dimension', default=12, type=int)
     parser.add_argument('--emin',      type=float, default=-10, help='cut off energy in eV')
     parser.add_argument('--emax',      type=float, default= 10, help='cut off energy in eV')
+    parser.add_argument("-d", "--dir", help="execution directory (default: current directory)", default=".", type=str)
 
     args, extra_args = parser.parse_known_args()
 
-    cal_fermisurface(args, extra_args)
+    with contextlib.chdir(args.dir):
+        cal_fermisurface(args, extra_args)
 
 
 # def main():

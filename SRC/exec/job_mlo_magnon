@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import contextlib
 from pathlib import Path
 from run_cmd import run_cmd, MPIParams
 from utils import move_files
@@ -18,10 +19,10 @@ def cal_mlo_magnon(args, extra_args):
                                    args=["--job=40001", option_dos, "--avoidgamma", *extra_args]), stdout="lqg4gw02dos") #make __BZDATA.DOS
     run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"qg4gw",
                                args=["--job=40001", *extra_args]), stdout="lqg4gw02")
-    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo_hmagnon",
-                               args=["--geteta", f"--Wtype={args.Wtype}", option_dos, *extra_args]), stdout="lhmagnon_eta")
-    run_cmd(cluster, MPIParams(nprocs=mpi_size, command="mlo_hmagnon",
-                               args=[f"--Wtype={args.Wtype}", option_dos, *extra_args]), stdout="lhmagnon")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo_magnon",
+                               args=["--geteta", f"--Wtype={args.Wtype}", option_dos, *extra_args]), stdout="lmlo_magnon_eta")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo_magnon",
+                               args=[f"--Wtype={args.Wtype}", option_dos, *extra_args]), stdout="lmlo_magnon")
 
 def cal_mlo_vw(args, extra_args):
     cluster = args.cluster
@@ -59,18 +60,20 @@ if __name__ == "__main__":
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
     parser.add_argument("extension",  help='Extension of the ctrl file') #extension is dummy. just to have similar interface with other scripts
-    parser.add_argument("--cluster",  help="cluster name", default="default", type=str)
+    parser.add_argument("-c", "--cluster", help="cluster name", default="default", type=str)
     parser.add_argument("-np",        help='Number of MPI cores for lmf', default=8, type=int)
     parser.add_argument("--Wtype",    help='Wtype: up, down, up_down, or, down_up', default='down_up', type=str)
     parser.add_argument("--skip_vw",  help='Skip generation of MLWF and W', action='store_true')
     parser.add_argument("--stop_vw",  help='Stop at generation of MLWF', action='store_true')
     parser.add_argument("--dos",      help='carry out dos calculation', action='store_true')
+    parser.add_argument("-d", "--dir", help="execution directory (default: current directory)", default=".", type=str)
     args, extra_args = parser.parse_known_args()
 
-    if not args.skip_vw:
-        cal_mlo_vw(args, extra_args)
-        move_files('stdout*', dest_dir='STDOUT')
+    with contextlib.chdir(args.dir):
+        if not args.skip_vw:
+            cal_mlo_vw(args, extra_args)
+            move_files('stdout*', dest_dir='STDOUT')
 
-    if not args.stop_vw:
-        cal_mlo_magnon(args, extra_args)
-        move_files('stdout*', dest_dir='STDOUT')
+        if not args.stop_vw:
+            cal_mlo_magnon(args, extra_args)
+            move_files('stdout*', dest_dir='STDOUT')
