@@ -28,14 +28,15 @@ contains
       write(stdo,ftox) 'Atomic sites in the primitive cell for MLO Hamiltonian: ', ib_tableI
    end subroutine ReadHamRsMLO
 
-  subroutine diag_ham(q, isp, ev, evec)
+  subroutine diag_ham(q, isp, ev, evec, ovlp_evec)
     use m_zhev, only: zhev_tk4
     real(8), intent(in) :: q(3)
     integer, intent(in) :: isp
     real(8), intent(out) :: ev(:) !MLO eigenvalue
     complex(8), intent(out) :: evec(:,:) !MLO wavefunction
+    logical, intent(in), optional :: ovlp_evec
     complex(8) :: ovlm(1:ndimMTO,1:ndimMTO), hamm(1:ndimMTO,1:ndimMTO)
-    real(8), parameter :: oveps=0d0, pi=4d0*atan(1d0)
+    real(8), parameter :: oveps=1d-12, pi=4d0*atan(1d0)
     complex(8), parameter :: img=(0d0,1d0)
     complex(8) :: phase
     integer ::i, j, nev, ib1, ib2, it
@@ -53,6 +54,9 @@ contains
       enddo
     enddo FourierTransormationFROMrealspcaeTOqspace
     call zhev_tk4(ndimMTO, hamm, ovlm, ndimMTO, nev, ev, evec, oveps)
+    if(present(ovlp_evec)) then
+      if(ovlp_evec) evec(:,:) = matmul(ovlm, evec(:,:))
+    endif
     if(nev /= ndimMTO) call rx0("Diangonaliz error")
   end subroutine diag_ham 
 

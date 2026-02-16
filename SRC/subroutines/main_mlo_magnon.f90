@@ -221,8 +221,8 @@ subroutine mlo_magnon() bind(C)
       readeigen: do kx = kx_ini, kx_fin !!! ev_w1, ev_w2 unit: [Ry]
         ! call wan_readeval2(  qbz(:,kx), is,  ev_w1(1:nwf,kx), evc_w1) !eigenvalue eigenfunciton
         ! call wan_readeval2(q+qbz(:,kx), isf, ev_w2(1:nwf,kx), evc_w2)
-        call diag_ham(  qbz(:,kx),  is, ev_w1(1:nwf,kx), evc_w1)
-        call diag_ham(q+qbz(:,kx), isf, ev_w2(1:nwf,kx), evc_w2)
+        call diag_ham(  qbz(:,kx),  is, ev_w1(1:nwf,kx), evc_w1) !evc_w1 is dummy
+        call diag_ham(q+qbz(:,kx), isf, ev_w2(1:nwf,kx), evc_w2) !evc_w2 is dummy
       enddo readeigen
       call MPI__AllreduceSumReal(ev_w1, nwf*nqbz, communicator=comm_k)
       call MPI__AllreduceSumReal(ev_w2, nwf*nqbz, communicator=comm_k)
@@ -242,10 +242,8 @@ subroutine mlo_magnon() bind(C)
 
         if(gettetwt_split) call gettetwt(q,iq,isdummy,isdummy,ev_w1,ev_w2,nwf,.true.,ikbz_in=kx_start,fkbz_in=kx_end)
         do kx = kx_start, kx_end
-          ! call wan_readeval2(  qbz(:,kx), is,  evkx_w1, evc_w1_kx(1:nwf,1:nwf,kx)) !eigenvalue eigenfunciton
-          ! call wan_readeval2(q+qbz(:,kx), isf, evkx_w2, evc_w2_kx(1:nwf,1:nwf,kx))
-          call diag_ham(  qbz(:,kx),  is, evkx_w1, evc_w1_kx(1:nwf,1:nwf,kx))
-          call diag_ham(q+qbz(:,kx), isf, evkx_w2, evc_w2_kx(1:nwf,1:nwf,kx))
+          call diag_ham(  qbz(:,kx),  is, evkx_w1, evc_w1_kx(1:nwf,1:nwf,kx), ovlp_evec=.true.)
+          call diag_ham(q+qbz(:,kx), isf, evkx_w2, evc_w2_kx(1:nwf,1:nwf,kx), ovlp_evec=.true.)
         enddo
         jpmloop:do jpm=1, npm ! jpm=2: negative frequency
 !           ibibloop: do 2013 ibib=1,nbnb(kx,jpm) !! n,n' pair band index loop
