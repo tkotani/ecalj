@@ -1,8 +1,8 @@
 !>  Calculate Chi^+-, spin susceptibility. 
-module m_mlo_hmagnon 
-  public :: mlo_hmagnon
+module m_mlo_magnon 
+  public :: mlo_magnon
   contains
-subroutine mlo_hmagnon() bind(C)
+subroutine mlo_magnon() bind(C)
   use m_mlo_utils, only: ReadHamRsMLO, diag_ham, set_nnwf, trace_onsite, trace_onsite_diag, set_scrw, &
                          nwf, nnwf, scrw, mlo_pairs
   use m_HamPMT,only: ReadHamPMTInfo
@@ -62,14 +62,14 @@ subroutine mlo_hmagnon() bind(C)
 
   call m_lgunit_init()
   call MPI__Initialize()
-  msg ='hmagnon'
+  msg ='mlo_magnon'
   if(geteta) msg = trim(msg)//'_geteta_mode'
   call MPI__consoleout(trim(msg))
   realomega = .true.
   imagomega = .false.
   epsmode   = .true.
   call genallcf_v3(incwfx=0) !!incwfin=0 =>ForX0 for core in GWIN. in module m_genallcf_v3 Readin by genallcf. Set basic data for crystal
-  if(nspin < 2) call rx(' hmagnon: nspin<2: not supported. exit.')
+  if(nspin < 2) call rx(' mlo_magnon: nspin<2: not supported. exit.')
   call ReadGWinputKeys() ! jun2020 new routint to read all inputs
   call getkeyvalue("GWinput","magnon_w_onsite_dddd",w_onsite_dddd,default=.true.)
   call getkeyvalue("GWinput","magnon_delta", delta, default=0d0) !1d-6 for Insulator case
@@ -79,12 +79,12 @@ subroutine mlo_hmagnon() bind(C)
   call getkeyvalue("GWinput","magnon_HistBin_ratio",freq_ratio, default=freq_ratio)
   call getkeyvalue("GWinput","magnon_HistBin_dw", freq_dw, default=freq_dw)
   call getkeyvalue("GWinput","magnon_negative_cut",negative_cut,default=.false.)
-  if(ipr)  write(stdo,ftox) "magnon_w_onsite_dddd", w_onsite_dddd
-  if(ipr)  write(stdo,ftox) "magnon_geteta", geteta
-  if(ipr)  write(stdo,ftox) "magnon_delta", delta
-  if(ipr)  write(stdo,ftox) "magnon_delta_dos", delta_dos
-  if(ipr)  write(stdo,ftox) "magnon_negative_cut", negative_cut
-  if(ipr)  write(stdo,ftox) "HistBin_ratio/HistBin_dw", freq_ratio, freq_dw
+  if(ipr) write(stdo,ftox) "magnon_w_onsite_dddd", w_onsite_dddd
+  if(ipr) write(stdo,ftox) "magnon_geteta", geteta
+  if(ipr) write(stdo,ftox) "magnon_delta", delta
+  if(ipr) write(stdo,ftox) "magnon_delta_dos", delta_dos
+  if(ipr) write(stdo,ftox) "magnon_negative_cut", negative_cut
+  if(ipr) write(stdo,ftox) "HistBin_ratio/HistBin_dw", freq_ratio, freq_dw
   if(calcdos) then
     delta = delta_dos
     if(ipr) write(stdo,ftox) "dos calculation: delta_dos is used", delta
@@ -216,7 +216,7 @@ subroutine mlo_hmagnon() bind(C)
       complex(8), allocatable :: zw(:,:), wzw(:,:)
       allocate(ev_w1(nwf,nqbz), ev_w2(nwf,nqbz), source=0d0)
 
-      if(ipr) call writemem('hmagnon start gettetwt')
+      if(ipr) call writemem('mlo_magnon start gettetwt')
       call int_split(nqbz, mpi__size_k, mpi__rank_k, kx_ini, kx_fin, kx_num)
       readeigen: do kx = kx_ini, kx_fin !!! ev_w1, ev_w2 unit: [Ry]
         ! call wan_readeval2(  qbz(:,kx), is,  ev_w1(1:nwf,kx), evc_w1) !eigenvalue eigenfunciton
@@ -234,7 +234,7 @@ subroutine mlo_hmagnon() bind(C)
         !!     : histogram weights for given ib,jb,kx for histogram sections
         !!     from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
 
-      if(ipr) call writemem('hmagnon start Im kmat')
+      if(ipr) call writemem('mlo_magnon start Im kmat')
       kmat(:,:,:) = 0d0
       kxblock_loop: do kx_start = kx_ini, kx_fin, nkblock
         kx_end = min(kx_fin, kx_start + nkblock -1)
@@ -316,7 +316,7 @@ subroutine mlo_hmagnon() bind(C)
       enddo kxblock_loop
       if(.not.gettetwt_split) call tetdeallocate()      ! --> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
       if(negative_cut) kmat(:,:,-nwhis:-1) = 0d0
-      if(ipr) call writemem('hmagnon start dpsion')
+      if(ipr) call writemem('mlo_magnon start dpsion')
       mpi_k_accumulate: block
         use m_mpi,only: MPI__reduceSum
         do jpm=1, npm
@@ -335,7 +335,7 @@ subroutine mlo_hmagnon() bind(C)
     if(.not. mpi__root_k) cycle BIGiqloop
 
     !Below lines are executed only by root of mpi__rank_k
-    if(ipr) call writemem('hmagnon start getting R')
+    if(ipr) call writemem('mlo_magnon start getting R')
     if(associated(zxq)) nullify(zxq)
     zxq(1:,1:,nw_i:) => kmat(1:nnwf,1:nnwf,nw_i:nw)
     where(abs(dimag(zxq))<1d-15) zxq = dreal(zxq) ! threshold for Im[K] (zxq)
@@ -385,10 +385,10 @@ subroutine mlo_hmagnon() bind(C)
     istat = writem(file_tr_diag_kpm, rec=iq, data=k_diag(nw_i:nw))
     istat = writem(file_tr_diag_rpm, rec=iq, data=r_diag(nw_i:nw))
     deallocate(rmat, wkmat, r_tr, r_diag, k_tr, k_diag)
-    if(ipr) call writemem('hmagnon end iq='//trim(charext(iq)))
+    if(ipr) call writemem('mlo_magnon end iq='//trim(charext(iq)))
   enddo BIGiqloop
 
-  if(geteta) call rx0( ' OK! hmagnon get eta')
+  if(geteta) call rx0( ' OK! mlo_magnon get eta')
   call mpi_barrier(comm, istat)
 
   if(ipr) write(stdo,"('eta for 1-eta*WK:',f13.8)") eta
@@ -485,6 +485,6 @@ subroutine mlo_hmagnon() bind(C)
   istat = closem(file_tr_rpm)
   istat = closem(file_tr_diag_kpm)
   istat = closem(file_tr_diag_rpm)
-  call rx0( ' OK! hmagnon mode')
-END subroutine mlo_hmagnon
-end module m_mlo_hmagnon
+  call rx0( ' OK! mlo_magnon mode')
+END subroutine mlo_magnon
+end module m_mlo_magnon
