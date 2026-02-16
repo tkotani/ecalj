@@ -87,7 +87,7 @@ contains
     allocate( his_R(-nwhis:nwhis),source=[-frhis(nwhis  :1  :-1),0d0,frhis(1+1:nwhis+1)])
     allocate( his_C(-nwhis:nwhis),source=(his_L+his_R)/2d0) !bins are [his_Left,his_Right] !his_C(0) is at zero. his_R(0) and his_L(0) are not defined.
     realomegacase: if(realomega)then
-      write(stdo,*) " --- realomega --- "
+      if(ipr) write(stdo,*) " --- realomega --- "
       if(npm==1) then
         allocate(rmat(0:nw_w,-nwhis:nwhis,npm), source=0d0)
         do it =  0, nw_w
@@ -174,7 +174,7 @@ contains
     !$acc data copyin(his_R, his_L)
     call getkeyvalue("GWinput","SmearX0", smearx0, default=0d0 )
     GaussianFilter: if(abs(smearx0)>1d-15) then
-      write(6,'("SmearX0= ",d13.6)') smearx0
+      if(ipr) write(6,'("SmearX0= ",d13.6)') smearx0
       allocate(gfmat(nwhis,nwhis))
       allocate(cgfmat(nwhis,nwhis))
       allocate(rcxq_work(npr,nwhis))
@@ -365,7 +365,7 @@ contains
     call getkeyvalue("GWinput","SmearX0", smearx0, default=0d0 )
     GaussianFilter: if(abs(smearx0)>1d-15) then
        if(eginit) then
-          write(6,'("SmearX0= ",d13.6)') smearx0
+         if(ipr) write(stdo,'("SmearX0= ",d13.6)') smearx0
           allocate(gfmat(nwhis,nwhis))
           gfmat=gaussianfilterhis(smearx0,frhis,nwhis)
           eginit=.false.

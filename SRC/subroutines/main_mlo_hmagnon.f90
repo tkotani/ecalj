@@ -16,7 +16,7 @@ subroutine mlo_hmagnon() bind(C)
   use m_lgunit, only: m_lgunit_init, stdo
   use m_dpsion, only: dpsion_init, dpsion_chiq
   use m_mpi, only: MPI__Initialize, MPI__consoleout, MPI__SplitXq
-  use m_mpi, only: mpi__rank, mpi__size, mpi__root, comm, comm_k, mpi__rank_k, mpi__size_k, mpi__root_k
+  use m_mpi, only: mpi__rank, mpi__size, mpi__root, comm, comm_k, mpi__rank_k, mpi__size_k, mpi__root_k, ipr
   use m_mpiio, only: openm, closem, writem, readm
   use m_blas, only: m_op_C, zmm => zmm_h, int_split
   use m_lapack, only: zminv => zminv_h
@@ -79,17 +79,15 @@ subroutine mlo_hmagnon() bind(C)
   call getkeyvalue("GWinput","magnon_HistBin_ratio",freq_ratio, default=freq_ratio)
   call getkeyvalue("GWinput","magnon_HistBin_dw", freq_dw, default=freq_dw)
   call getkeyvalue("GWinput","magnon_negative_cut",negative_cut,default=.false.)
-  if(mpi__root) then
-    write(stdo,ftox) "magnon_w_onsite_dddd", w_onsite_dddd
-    write(stdo,ftox) "magnon_geteta", geteta
-    write(stdo,ftox) "magnon_delta", delta
-    write(stdo,ftox) "magnon_delta_dos", delta_dos
-    write(stdo,ftox) "magnon_negative_cut", negative_cut
-    write(stdo,ftox) "HistBin_ratio/HistBin_dw", freq_ratio, freq_dw
-  endif
+  if(ipr)  write(stdo,ftox) "magnon_w_onsite_dddd", w_onsite_dddd
+  if(ipr)  write(stdo,ftox) "magnon_geteta", geteta
+  if(ipr)  write(stdo,ftox) "magnon_delta", delta
+  if(ipr)  write(stdo,ftox) "magnon_delta_dos", delta_dos
+  if(ipr)  write(stdo,ftox) "magnon_negative_cut", negative_cut
+  if(ipr)  write(stdo,ftox) "HistBin_ratio/HistBin_dw", freq_ratio, freq_dw
   if(calcdos) then
     delta = delta_dos
-    write(stdo,ftox) "dos calculation: delta_dos is used", delta
+    if(ipr) write(stdo,ftox) "dos calculation: delta_dos is used", delta
   endif
 
   SetBZDATAandQveclist: block
@@ -123,9 +121,9 @@ subroutine mlo_hmagnon() bind(C)
       iqxini = 1
       iqxend = nq0i
     endif
-    write(stdo,"('iqxini,iqxend ',2I8)") iqxini, iqxend
+    if(ipr) write(stdo,"('iqxini,iqxend ',2I8)") iqxini, iqxend
     do iq = iqxini, iqxend
-      write(stdo,"('iq, qibze:',I8,3f9.4)") iq, qibze(:,iq)
+      if(ipr) write(stdo,"('iq, qibze:',I8,3f9.4)") iq, qibze(:,iq)
     enddo
   endblock SetBZDATAandQveclist
 
@@ -138,10 +136,11 @@ subroutine mlo_hmagnon() bind(C)
     n_kpara = max(mpi__size/(n_bpara*nqcalc), 1)  !Default setting of parallelization. b-parallel is 1.
     if(cmdopt2('--nk=', outs)) read(outs,*) n_kpara
     worker_inQtask = n_bpara * n_kpara
-    gettetwt_split = n_kpara > 2
-    write(stdo,ftox) 'MPI: worker_inQtask', worker_inQtask
+    ! gettetwt_split = n_kpara > 2
+    gettetwt_split = .true. ! We always split gettetwt by k to prevent memory exhaustion.
+    if(ipr) write(stdo,ftox) 'MPI: worker_inQtask', worker_inQtask
     allocate(mpi__task(iqxini:iqxend), source=[(mod(iq-1,mpi__size/worker_inQtask)==mpi__rank/worker_inQtask,iq=iqxini,iqxend)])
-    write(stdo,ftox) 'mpi_rank',mpi__rank,'mpi__Qtask=',mpi__task
+    if(ipr) write(stdo,ftox) 'mpi_rank',mpi__rank,'mpi__Qtask=',mpi__task
     call MPI__SplitXq(n_bpara, n_kpara)
   endblock SetMPI_Rankdivider
 
@@ -156,7 +155,7 @@ subroutine mlo_hmagnon() bind(C)
     !! NOTE: npmtwo=T sets npm=2   !! optional npmtwo is added aug2017   !! 20190604 Im[K]
     if( .NOT. imagomega) niw_in=1  !dummy
     call Getfreq(epsmode,realomega,imagomega,omg2max,wemax,niw_in,ua, npmtwo=.true.,dw=freq_dw, ratio=freq_ratio)!,tetra
-    if(mpi__root) write(6,"(' nw_i nw niw npm=',4i5)") nw_i,nw,niw,npm
+    if(ipr) write(6,"(' nw_i nw niw npm=',4i5)") nw_i,nw,niw,npm
   endblock SetFreqencyMesh
 
   call readefermi() !!! ef:     Fermi energy at 0 K
@@ -167,7 +166,7 @@ subroutine mlo_hmagnon() bind(C)
     call ReadHamPMTInfo()  ! Read info from PMTHamiltonianInfo (lattice structures and index of basis).
     call ReadHamRsMLO()
     call set_nnwf(nnwf_size_reduction) !set nnwf ~ # of RiRj (onsite_approx = .true.), RiR'j (onsite_approx = .flase. ), wan_pair_index
-    if(mpi__root) write(stdo,ftox) '# nwf, nnwf:', nwf, nnwf
+    if(ipr) write(stdo,ftox) '# nwf, nnwf:', nwf, nnwf
     Wtype = 'up' !options: up, down, up_down, down_up
     if(cmdopt2('--Wtype=', opts)) Wtype = trim(opts)
     call set_scrw(nnwf_size_reduction, w_onsite_dddd, Wtype=Wtype) !set scrw
@@ -183,10 +182,10 @@ subroutine mlo_hmagnon() bind(C)
         open(newunit=iunit, file='__EtaMagnon',status='old',form='formatted',action='read')
         read(iunit, *, iostat=ios) eta
         close(iunit)
-        if(ios == 0) write(stdo, ftox) "# Read eta from __EtaMagnon"
+        if(ios == 0 .and. ipr) write(stdo, ftox) "# Read eta from __EtaMagnon"
         if(ios /= 0) eta = eta_default
       endif
-      write(stdo, ftox) "# WK is scalled to  eta WK: eta =",eta
+      if(ipr) write(stdo, ftox) "# WK is scalled to  eta WK: eta =",eta
     endblock
   endif ReadEta
 
@@ -203,7 +202,7 @@ subroutine mlo_hmagnon() bind(C)
   BIGiqloop: do iq = iqxini,iqxend
     if(.NOT. MPI__task(iq)) cycle BIGiqloop
     q = qibze(:,iq)
-    write(6,"('===== do : iq wibz(iq) q=',i6,f13.6,3f9.4,' ========')") iq,q !,wibz(iqlist(iq)),qshort !qq
+    if(ipr) write(6,"('===== do : iq wibz(iq) q=',i6,f13.6,3f9.4,' ========')") iq,q !,wibz(iqlist(iq)),qshort !qq
     GETzxq: block ! zxq and zxqi are the main output after Hilbert transformation, ! zxqi is not used in hmagnon (imagomega=.false.)
       use m_mpi,only: MPI__AllreduceSumReal
       real(8) :: evkx_w1(nwf), evkx_w2(nwf) !dummy
@@ -213,11 +212,11 @@ subroutine mlo_hmagnon() bind(C)
       integer :: nttp_max, ittp, jpm, it, itp, ibib, isdummy, kx_ini, kx_fin, kx_num, kx_start,kx_end
       real(8), allocatable :: whwc(:,:), ev_w1(:,:), ev_w2(:,:)
       real(8), parameter:: schi = 1d0
-      integer, parameter:: nkblock = 1024 
+      integer, parameter:: nkblock = 1024
       complex(8), allocatable :: zw(:,:), wzw(:,:)
       allocate(ev_w1(nwf,nqbz), ev_w2(nwf,nqbz), source=0d0)
 
-      call writemem('hmagnon start gettetwt')
+      if(ipr) call writemem('hmagnon start gettetwt')
       call int_split(nqbz, mpi__size_k, mpi__rank_k, kx_ini, kx_fin, kx_num)
       readeigen: do kx = kx_ini, kx_fin !!! ev_w1, ev_w2 unit: [Ry]
         ! call wan_readeval2(  qbz(:,kx), is,  ev_w1(1:nwf,kx), evc_w1) !eigenvalue eigenfunciton
@@ -235,7 +234,7 @@ subroutine mlo_hmagnon() bind(C)
         !!     : histogram weights for given ib,jb,kx for histogram sections
         !!     from ihw(ibjb,kx) to ihw(ibjb,kx)+nhw(ibjb,kx)-1.
 
-      call writemem('hmagnon start Im kmat')
+      if(ipr) call writemem('hmagnon start Im kmat')
       kmat(:,:,:) = 0d0
       kxblock_loop: do kx_start = kx_ini, kx_fin, nkblock
         kx_end = min(kx_fin, kx_start + nkblock -1)
@@ -317,7 +316,7 @@ subroutine mlo_hmagnon() bind(C)
       enddo kxblock_loop
       if(.not.gettetwt_split) call tetdeallocate()      ! --> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
       if(negative_cut) kmat(:,:,-nwhis:-1) = 0d0
-      call writemem('hmagnon start dpsion')
+      if(ipr) call writemem('hmagnon start dpsion')
       mpi_k_accumulate: block
         use m_mpi,only: MPI__reduceSum
         do jpm=1, npm
@@ -336,7 +335,7 @@ subroutine mlo_hmagnon() bind(C)
     if(.not. mpi__root_k) cycle BIGiqloop
 
     !Below lines are executed only by root of mpi__rank_k
-    call writemem('hmagnon start getting R')
+    if(ipr) call writemem('hmagnon start getting R')
     if(associated(zxq)) nullify(zxq)
     zxq(1:,1:,nw_i:) => kmat(1:nnwf,1:nnwf,nw_i:nw)
     where(abs(dimag(zxq))<1d-15) zxq = dreal(zxq) ! threshold for Im[K] (zxq)
@@ -386,13 +385,13 @@ subroutine mlo_hmagnon() bind(C)
     istat = writem(file_tr_diag_kpm, rec=iq, data=k_diag(nw_i:nw))
     istat = writem(file_tr_diag_rpm, rec=iq, data=r_diag(nw_i:nw))
     deallocate(rmat, wkmat, r_tr, r_diag, k_tr, k_diag)
-    call writemem('hmagnon end iq='//trim(charext(iq)))
+    if(ipr) call writemem('hmagnon end iq='//trim(charext(iq)))
   enddo BIGiqloop
 
   if(geteta) call rx0( ' OK! hmagnon get eta')
   call mpi_barrier(comm, istat)
 
-  write(stdo,"('eta for 1-eta*WK:',f13.8)") eta
+  if(ipr) write(stdo,"('eta for 1-eta*WK:',f13.8)") eta
   ReformatOutputFilesForDOS:if(mpi__root .and. calcdos) then
     block
       use m_bz_integ, only: ibz_integ

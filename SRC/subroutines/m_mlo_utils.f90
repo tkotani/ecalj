@@ -1,6 +1,7 @@
 module m_mlo_utils
   use m_HamPMT,only: ReadHamPMTInfo, plat, npair, nlat, nqwgt
   use m_lgunit,only:stdo
+  use m_mpi, only: ipr
   use m_ftox
   implicit none
   integer, protected, target :: ndimMTO, npairmx, nspx  !ndimMTO<ldim if we throw away f MTOs, for example.
@@ -28,12 +29,12 @@ contains
    end subroutine ReadHamRsMLO
 
   subroutine diag_ham(q, isp, ev, evec)
-    use m_zhev,only:   zhev_tk4
+    use m_zhev, only: zhev_tk4
     real(8), intent(in) :: q(3)
     integer, intent(in) :: isp
     real(8), intent(out) :: ev(:) !MLO eigenvalue
     complex(8), intent(out) :: evec(:,:) !MLO wavefunction
-    complex(8):: ovlm(1:ndimMTO,1:ndimMTO), hamm(1:ndimMTO,1:ndimMTO)
+    complex(8) :: ovlm(1:ndimMTO,1:ndimMTO), hamm(1:ndimMTO,1:ndimMTO)
     real(8), parameter :: oveps=0d0, pi=4d0*atan(1d0)
     complex(8), parameter :: img=(0d0,1d0)
     complex(8) :: phase
@@ -77,9 +78,6 @@ contains
     if(allocated(pair_site)) deallocate(pair_site)
     if(allocated(pair_lorb)) deallocate(pair_lorb)
     allocate(pair_site(nnwf,2), pair_lorb(nnwf,2))
-    write(stdo,*) 'pairs',mlo_pairs
-    write(stdo,*) 'ltab',l_tableM
-    write(stdo,*) 'ibtab',ib_tableM
     do ijwf=1, nnwf
       pair_site(ijwf,1) = ib_tableM(mlo_pairs(ijwf,1))
       pair_site(ijwf,2) = ib_tableM(mlo_pairs(ijwf,2))
@@ -136,19 +134,19 @@ contains
     allocate( scrw4(nwf,nwf,nwf,nwf), source = (0d0,0d0))
     select case (trim(adjustl(wtype)))
       case ("up")
-        write(stdo,ftox) "set_scrw: read Wup"
+        if(ipr) write(stdo,ftox) "set_scrw: read Wup"
         open(newunit=ifscrwv,file="Screening_W-v.UP",form="formatted") !only up
         open(newunit=ifscrv, file="Coulomb_v.UP",    form="formatted") !only up
       case ("down")
-        write(stdo,ftox) "set_scrw: read Wdn"
+        if(ipr) write(stdo,ftox) "set_scrw: read Wdn"
         open(newunit=ifscrwv,file="Screening_W-v.DN",form="formatted") !only up
         open(newunit=ifscrv, file="Coulomb_v.DN",    form="formatted") !only up
       case ("up_down")
-        write(stdo,ftox) "set_scrw: read Wupdn"
+        if(ipr) write(stdo,ftox) "set_scrw: read Wupdn"
         open(newunit=ifscrwv,file="Screening_W-v.UPDN",form="formatted") !only updw
         open(newunit=ifscrv, file="Coulomb_v.UPDN",    form="formatted") !only updw
       case ("down_up")
-        write(stdo,ftox) "set_scrw: read Wdnup"
+        if(ipr) write(stdo,ftox) "set_scrw: read Wdnup"
         open(newunit=ifscrwv,file="Screening_W-v.DNUP",form="formatted") !only updw
         open(newunit=ifscrv, file="Coulomb_v.DNUP",    form="formatted") !only updw
       case default

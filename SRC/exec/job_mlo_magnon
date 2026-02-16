@@ -2,7 +2,7 @@
 import argparse
 from pathlib import Path
 from run_cmd import run_cmd, MPIParams
-from utils import merge_files, move_files
+from utils import move_files
 
 EXEC_DIR = Path(__file__).resolve().parent
 
@@ -11,7 +11,6 @@ def cal_mlo_magnon(args, extra_args):
     mpi_size = args.np
     target = args.extension
     option_dos = "--dos" if args.dos else ""
-    exec_which = "mlo_hmagnon"
 
     print(f"### start k+- r+-: mpi size= {mpi_size}, target= {target}")
     if args.dos:
@@ -19,7 +18,7 @@ def cal_mlo_magnon(args, extra_args):
                                    args=["--job=40001", option_dos, "--avoidgamma", *extra_args]), stdout="lqg4gw02dos") #make __BZDATA.DOS
     run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"qg4gw",
                                args=["--job=40001", *extra_args]), stdout="lqg4gw02")
-    run_cmd(cluster, MPIParams(nprocs=mpi_size, command="mlo_hmagnon",
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo_hmagnon",
                                args=["--geteta", f"--Wtype={args.Wtype}", option_dos, *extra_args]), stdout="lhmagnon_eta")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command="mlo_hmagnon",
                                args=[f"--Wtype={args.Wtype}", option_dos, *extra_args]), stdout="lhmagnon")
