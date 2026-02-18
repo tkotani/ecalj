@@ -63,11 +63,11 @@ def cal_MLWFvw(args, extra_args):
     merge_files(pattern="UUq0U.????", output_file="UUq0U")
     merge_files(pattern="UUq0D.????", output_file="UUq0D")
 
-    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"hwmatK_MPI", args=[*options]), stdin_str="10011", stdout="lpkm4crpa")
+    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"hwmatK_MPI", args=[target, *options]), stdin_str="10011", stdout="lpkm4crpa")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hvccfp0", args=[*options]), stdin_str="0", stdout="lvcc")
-    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hwmatK_MPI", args=[option_W, *options]), stdin_str="11", stdout="lwmatK1")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hwmatK_MPI", args=[target, option_W, *options]), stdin_str="11", stdout="lwmatK1")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hx0fp0", args=[*options, '--prefer_bpara']), stdin_str="111", stdout="lx0_111")
-    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hwmatK_MPI", args=[option_W, *options]), stdin_str="12", stdout="lwmatK2")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hwmatK_MPI", args=[target, option_W, *options]), stdin_str="12", stdout="lwmatK2")
     print("OK! Generation of MLWF W finished.")
 
 
