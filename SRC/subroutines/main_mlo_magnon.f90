@@ -3,8 +3,8 @@ module m_mlo_magnon
   public :: mlo_magnon
   contains
 subroutine mlo_magnon() bind(C)
-  use m_mlo_utils, only: ReadHamRsMLO, diag_ham, set_nnwf, trace_onsite, trace_onsite_diag, set_scrw, &
-                         nwf, nnwf, scrw, mlo_pairs
+  use m_mlo_ham, only: read_ham_rs, calc_ham_eigen, nwf
+  use m_mlo_scrw, only: nnwf, scrw, mlo_pairs, trace_onsite, trace_onsite_diag, nnwf_init, scrw_init
   use m_HamPMT,only: ReadHamPMTInfo
   use m_ReadEfermi, only: readefermi
   use m_read_bzdata, only: nqbz, qbz
@@ -164,12 +164,12 @@ subroutine mlo_magnon() bind(C)
     logical :: cmdopt2
     character(20):: Wtype, opts
     call ReadHamPMTInfo()  ! Read info from PMTHamiltonianInfo (lattice structures and index of basis).
-    call ReadHamRsMLO()
-    call set_nnwf(nnwf_size_reduction) !set nnwf ~ # of RiRj (onsite_approx = .true.), RiR'j (onsite_approx = .flase. ), wan_pair_index
+    call read_ham_rs()
+    call nnwf_init(nnwf_size_reduction) !set nnwf ~ # of RiRj (onsite_approx = .true.), RiR'j (onsite_approx = .flase. ), wan_pair_index
     if(ipr) write(stdo,ftox) '# nwf, nnwf:', nwf, nnwf
     Wtype = 'up' !options: up, down, up_down, down_up
     if(cmdopt2('--Wtype=', opts)) Wtype = trim(opts)
-    call set_scrw(nnwf_size_reduction, w_onsite_dddd, Wtype=Wtype) !set scrw
+    call scrw_init(nnwf_size_reduction, w_onsite_dddd, Wtype=Wtype) !set scrw
   endblock SetMLOAndScreendCoulombData
 
   ReadEta: if(.not. geteta) then
@@ -206,7 +206,7 @@ subroutine mlo_magnon() bind(C)
     GETzxq: block ! zxq and zxqi are the main output after Hilbert transformation, ! zxqi is not used in hmagnon (imagomega=.false.)
       use m_mpi,only: MPI__AllreduceSumReal
       real(8) :: evkx_w1(nwf), evkx_w2(nwf) !dummy
-      complex(8) :: zxqi(1,1,1), evc_w1(nwf,nwf), evc_w2(nwf,nwf)
+      complex(8) :: zxqi(1,1,1)
       complex(8), allocatable :: evc_w1_kx(:,:,:), evc_w2_kx(:,:,:)
       integer, allocatable :: nttp(:),  itw(:,:), itpw(:,:), ik(:,:)
       integer :: nttp_max, ittp, jpm, it, itp, ibib, isdummy, kx_ini, kx_fin, kx_num, kx_start,kx_end
@@ -218,12 +218,10 @@ subroutine mlo_magnon() bind(C)
 
       if(ipr) call writemem('mlo_magnon start gettetwt')
       call int_split(nqbz, mpi__size_k, mpi__rank_k, kx_ini, kx_fin, kx_num)
-      readeigen: do kx = kx_ini, kx_fin !!! ev_w1, ev_w2 unit: [Ry]
-        ! call wan_readeval2(  qbz(:,kx), is,  ev_w1(1:nwf,kx), evc_w1) !eigenvalue eigenfunciton
-        ! call wan_readeval2(q+qbz(:,kx), isf, ev_w2(1:nwf,kx), evc_w2)
-        call diag_ham(  qbz(:,kx),  is, ev_w1(1:nwf,kx), evc_w1) !evc_w1 is dummy
-        call diag_ham(q+qbz(:,kx), isf, ev_w2(1:nwf,kx), evc_w2) !evc_w2 is dummy
-      enddo readeigen
+      CalcEigenEnergy: do kx = kx_ini, kx_fin !!! ev_w1, ev_w2 unit: [Ry]
+        call calc_ham_eigen(  qbz(:,kx),  is, ev_w1(:,kx))
+        call calc_ham_eigen(q+qbz(:,kx), isf, ev_w2(:,kx))
+      enddo CalcEigenEnergy
       call MPI__AllreduceSumReal(ev_w1, nwf*nqbz, communicator=comm_k)
       call MPI__AllreduceSumReal(ev_w2, nwf*nqbz, communicator=comm_k)
       if(.not.gettetwt_split) call gettetwt(q,iq,isdummy,isdummy,ev_w1,ev_w2,nwf,.true.) !! tetrahedron weight. iq is dummy index
@@ -241,10 +239,10 @@ subroutine mlo_magnon() bind(C)
         allocate(evc_w1_kx(nwf,nwf,kx_start:kx_end), evc_w2_kx(nwf,nwf,kx_start:kx_end))
 
         if(gettetwt_split) call gettetwt(q,iq,isdummy,isdummy,ev_w1,ev_w2,nwf,.true.,ikbz_in=kx_start,fkbz_in=kx_end)
-        do kx = kx_start, kx_end
-          call diag_ham(  qbz(:,kx),  is, evkx_w1, evc_w1_kx(1:nwf,1:nwf,kx), ovlp_evec=.true.)
-          call diag_ham(q+qbz(:,kx), isf, evkx_w2, evc_w2_kx(1:nwf,1:nwf,kx), ovlp_evec=.true.)
-        enddo
+        CalcEigenFunction: do kx = kx_start, kx_end
+          call calc_ham_eigen(  qbz(:,kx),  is, evkx_w1, evc_w1_kx(:,:,kx), ovlp_evec=.true.) !evkx_w1  is dummy
+          call calc_ham_eigen(q+qbz(:,kx), isf, evkx_w2, evc_w2_kx(:,:,kx), ovlp_evec=.true.) !evkx_w2  is dummy
+        enddo CalcEigenFunction
         jpmloop:do jpm=1, npm ! jpm=2: negative frequency
 !           ibibloop: do 2013 ibib=1,nbnb(kx,jpm) !! n,n' pair band index loop
 !             it=n1b(ibib,kx,jpm)  !index for n  for q   ! n1b(ibib,k,jpm) = n :band index for k (occupied),   

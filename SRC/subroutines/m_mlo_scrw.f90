@@ -1,66 +1,15 @@
-module m_mlo_utils
-  use m_HamPMT,only: ReadHamPMTInfo, plat, npair, nlat, nqwgt
-  use m_lgunit,only:stdo
+module m_mlo_scrw
+  use m_mlo_ham, only: nwf, ib_tableM, ib_tableI, l_tableM
+  use m_lgunit,only: stdo
   use m_mpi, only: ipr
   use m_ftox
   implicit none
-  integer, protected, target :: ndimMTO, npairmx, nspx  !ndimMTO<ldim if we throw away f MTOs, for example.
-  integer, allocatable, protected:: ib_tableM(:), l_tableM(:), k_tableM(:), ib_tableI(:)
-  complex(8),allocatable,protected:: ovlmr(:,:,:,:), hammr(:,:,:,:)
-  complex(8), allocatable, protected, public :: scrw(:,:)
-  integer, protected, pointer, public:: nwf =>  ndimMTO
+  public :: nnwf_init, scrw_init, trace_onsite, trace_onsite_diag
   integer, protected, public :: nnwf
+  complex(8), allocatable, protected, public :: scrw(:,:)
   integer, allocatable, protected, public :: mlo_pairs(:,:), pair_site(:,:), pair_lorb(:,:)
-  public :: ReadHamRsMLO, diag_ham, set_nnwf, trace_onsite, trace_onsite_diag, set_scrw
 contains
-   subroutine ReadHamRsMLO()! read RealSpace MTO Hamiltonian
-      integer:: ifihmto
-      open(newunit=ifihmto,file='HamRsMLO',form='unformatted')
-      read(ifihmto) ndimMTO,npairmx,nspx !    allocate(ix(ndimMTO))
-      write(stdo,ftox)'MTOHamiltonian: ndimMTO,npairmx,nspx=',ndimMTO,npairmx,nspx
-      allocate(ovlmr(1:ndimMTO,1:ndimMTO,npairmx,nspx), hammr(1:ndimMTO,1:ndimMTO,npairmx,nspx))
-      read(ifihmto)hammr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx),ovlmr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx) !,ix(1:ndimMTO)
-      allocate(ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO))
-      read(ifihmto) ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO)
-      close(ifihmto)
-      write(stdo,*)'OK: Read HamRsMLO file! Use i-ioffib for setting <Worb>'
-      ib_tableI = pack(ib_tableM, [.true., ib_tableM(2:ndimMTO) /= ib_tableM(1:ndimMTO-1)]) !uniq list of ib_tableM
-      write(stdo,ftox) 'Atomic sites in the primitive cell for MLO Hamiltonian: ', ib_tableI
-   end subroutine ReadHamRsMLO
-
-  subroutine diag_ham(q, isp, ev, evec, ovlp_evec)
-    use m_zhev, only: zhev_tk4
-    real(8), intent(in) :: q(3)
-    integer, intent(in) :: isp
-    real(8), intent(out) :: ev(:) !MLO eigenvalue
-    complex(8), intent(out) :: evec(:,:) !MLO wavefunction
-    logical, intent(in), optional :: ovlp_evec
-    complex(8) :: ovlm(1:ndimMTO,1:ndimMTO), hamm(1:ndimMTO,1:ndimMTO)
-    real(8), parameter :: oveps=1d-12, pi=4d0*atan(1d0)
-    complex(8), parameter :: img=(0d0,1d0)
-    complex(8) :: phase
-    integer ::i, j, nev, ib1, ib2, it
-    ovlm = 0d0
-    hamm = 0d0
-    FourierTransormationFROMrealspcaeTOqspace: do i=1,ndimMTO !MLO Hamiltonian
-      do   j=1,ndimMTO
-        ib1 = ib_tableM(i) !atomic-site index in the primitive cell
-        ib2 = ib_tableM(j)
-        do it =1,npair(ib1,ib2)
-          phase=1d0/dble(nqwgt(it,ib1,ib2))*exp(-img*2d0*pi* sum(q*matmul(plat,nlat(:,it,ib1,ib2))))
-          hamm(i,j)= hamm(i,j)+ hammr(i,j,it,isp)*phase !MLO Hamiltonian at qp
-          ovlm(i,j)= ovlm(i,j)+ ovlmr(i,j,it,isp)*phase
-        enddo
-      enddo
-    enddo FourierTransormationFROMrealspcaeTOqspace
-    call zhev_tk4(ndimMTO, hamm, ovlm, ndimMTO, nev, ev, evec, oveps)
-    if(present(ovlp_evec)) then
-      if(ovlp_evec) evec(:,:) = matmul(ovlm, evec(:,:))
-    endif
-    if(nev /= ndimMTO) call rx0("Diangonaliz error")
-  end subroutine diag_ham 
-
-  subroutine set_nnwf(nnwf_size_reduction)
+  subroutine nnwf_init(nnwf_size_reduction)
     logical, intent(in) :: nnwf_size_reduction
     integer :: iwf, jwf, ijwf, idummy
     logical, allocatable :: mask(:)
@@ -88,7 +37,7 @@ contains
       pair_lorb(ijwf,1) =  l_tableM(mlo_pairs(ijwf,1))
       pair_lorb(ijwf,2) =  l_tableM(mlo_pairs(ijwf,2))
    enddo
-  end subroutine set_nnwf
+  end subroutine nnwf_init
 
   complex(8) function trace_onsite(mat, site) result(trmat)
     complex(8), intent(in) :: mat(nnwf,nnwf)
@@ -122,7 +71,7 @@ contains
     trmat = sum(pack(reshape(mat, [nnwf*nnwf]), mask=mask))
   end function trace_onsite_diag
 
-  subroutine set_scrw(nnwf_size_reduction, w_onsite_dddd, Wtype)
+  subroutine scrw_init(nnwf_size_reduction, w_onsite_dddd, Wtype)
     logical, intent(in) :: nnwf_size_reduction, w_onsite_dddd
     character(len=*), intent(in) :: Wtype
     integer:: ifscrwv, ifscrv, iwf, jwf, kwf, lwf
@@ -138,23 +87,23 @@ contains
     allocate( scrw4(nwf,nwf,nwf,nwf), source = (0d0,0d0))
     select case (trim(adjustl(wtype)))
       case ("up")
-        if(ipr) write(stdo,ftox) "set_scrw: read Wup"
+        if(ipr) write(stdo,ftox) "scrw_init: read Wup"
         open(newunit=ifscrwv,file="Screening_W-v.UP",form="formatted") !only up
         open(newunit=ifscrv, file="Coulomb_v.UP",    form="formatted") !only up
       case ("down")
-        if(ipr) write(stdo,ftox) "set_scrw: read Wdn"
+        if(ipr) write(stdo,ftox) "scrw_init: read Wdn"
         open(newunit=ifscrwv,file="Screening_W-v.DN",form="formatted") !only up
         open(newunit=ifscrv, file="Coulomb_v.DN",    form="formatted") !only up
       case ("up_down")
-        if(ipr) write(stdo,ftox) "set_scrw: read Wupdn"
+        if(ipr) write(stdo,ftox) "scrw_init: read Wupdn"
         open(newunit=ifscrwv,file="Screening_W-v.UPDN",form="formatted") !only updw
         open(newunit=ifscrv, file="Coulomb_v.UPDN",    form="formatted") !only updw
       case ("down_up")
-        if(ipr) write(stdo,ftox) "set_scrw: read Wdnup"
+        if(ipr) write(stdo,ftox) "scrw_init: read Wdnup"
         open(newunit=ifscrwv,file="Screening_W-v.DNUP",form="formatted") !only updw
         open(newunit=ifscrv, file="Coulomb_v.DNUP",    form="formatted") !only updw
       case default
-        call rx("set_scrw: Unknown Wtype")
+        call rx("scrw_init: Unknown Wtype")
     endselect
     do iwf=1, nwf**4
       read(ifscrv,"(A,2i5, 3f12.6, 5i5,2f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4, scrv4 !v
@@ -217,5 +166,5 @@ contains
         enddo
       endif
     endblock show_atomic_W
-  end subroutine
-end module m_mlo_utils
+  end subroutine scrw_init
+end module m_mlo_scrw

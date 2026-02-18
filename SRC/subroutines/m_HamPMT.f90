@@ -94,6 +94,7 @@ contains
 
       integer:: ib_tableM(ldim),k_tableM(ldim),l_tableM(ldim),ierr,iqibz,iqbz,igg,nMTO,mlomethod,nskip !,procid_in,numprocs_in
       logical:: cmdopt0
+      integer, allocatable:: ib_tableI(:)
       real(8),pointer::qbz(:,:)
       complex(8),allocatable::ovlmi(:,:,:,:),hammi(:,:,:,:),rotmat(:,:)
       integer,allocatable::ndimPMTq(:), iqproc(:),isproc(:)
@@ -156,6 +157,7 @@ contains
       nspx=nsp
       if(lso==1) nspx=1
       ! Readin Hamiltonian only at iqibz
+      ib_tableI = pack(ib_tableM, [(all(ib_tableM(:i-1)/=ib_tableM(i)), i=1,ndimMTO)])
       allocate(ovlmi(1:ndimMTO,1:ndimMTO,nqibz,nspx),hammi(1:ndimMTO,1:ndimMTO,nqibz,nspx),source=(0d0,0d0))
       allocate(rotmat(nMTO,nMTO))
       allocate(ndimPMTq(nqibz),source=0)
@@ -259,7 +261,9 @@ contains
       call mpibc2_complex(ovlmi,size(ovlmi),'m_HamPMT_ovlmi') 
       call mpibc2_int(ndimPMTq,size(ndimPMTq),'m_HamPMT_ndimPMTq')
 ! hammr ovlmr     
-      allocate(ovlmr(1:ndimMTO,1:ndimMTO,npairmx,nspx), hammr(1:ndimMTO,1:ndimMTO,npairmx,nspx),source=(0d0,0d0))
+      ! allocate(ovlmr(1:ndimMTO,1:ndimMTO,npairmx,nspx), hammr(1:ndimMTO,1:ndimMTO,npairmx,nspx),source=(0d0,0d0))
+      allocate(ovlmr(npairmx,ndimMTO,ndimMTO,nspx), source=(0d0,0d0))
+      allocate(hammr(npairmx,ndimMTO,ndimMTO,nspx), source=(0d0,0d0))
       nqbz=nkp
       qbz=>qplist      
       ndiv= nqbz/nsize
@@ -286,17 +290,36 @@ contains
             forall(i=1:ndimMTO,j=1:ndimMTO) rotmatt(i,j)=rotmat(ix(i),ix(j))
             ovlm(1:ndimMTO,1:ndimMTO) = matmul(rotmatt,matmul(ovlmi(:,:,iqibz,jsp),dconjg(transpose(rotmatt))))
             hamm(1:ndimMTO,1:ndimMTO) = matmul(rotmatt,matmul(hammi(:,:,iqibz,jsp),dconjg(transpose(rotmatt))))
-            GETrealspaceHamiltonian: block ! H(k) ->  H(T) FourierTransformation to real space
-              do i=1,ndimMTO; do j=1,ndimMTO
-                ib1 = ib_tableM(i)
-                ib2 = ib_tableM(j)
-                do it =1,npair(ib1,ib2)! hammr_ij (T)= \sum_k hamm(k) exp(ikT). it is the index for T
-                  phase = 1d0/dble(nqbz)* exp(img*2d0*pi* sum(qp*(matmul(plat,nlat(:,it,ib1,ib2)))))
-                  hammr(i,j,it,jsp)= hammr(i,j,it,jsp)+ hamm(i,j)*phase
-                  ovlmr(i,j,it,jsp)= ovlmr(i,j,it,jsp)+ ovlm(i,j)*phase
+            GETrealspaceHamiltonian:block !optimized version
+              integer :: ibt1, ibt2, np, ii, jj
+              integer, allocatable :: idims(:), jdims(:)
+              complex(8) :: phases(npairmx)
+              do ibt1 = 1, size(ib_tableI)
+                do ibt2 = 1, size(ib_tableI)
+                  ib1 = ib_tableI(ibt1)
+                  ib2 = ib_tableI(ibt2)
+                  np = npair(ib1,ib2)
+                  idims = pack([(i,i=1,ndimMTO)], mask=(ib_tableM(:)==ib1))
+                  jdims = pack([(j,j=1,ndimMTO)], mask=(ib_tableM(:)==ib2))
+                  phases(1:np) = [(1d0/dble(nqbz)* exp(img*2d0*pi* sum(qp*(matmul(plat,nlat(:,it,ib1,ib2))))),it=1,np)]
+                  do concurrent(it=1:np, ii=1:size(idims), jj=1:size(jdims))
+                    hammr(it,idims(ii),jdims(jj),jsp) = hammr(it,idims(ii),jdims(jj),jsp) + hamm(idims(ii),jdims(jj))*phases(it)
+                    ovlmr(it,idims(ii),jdims(jj),jsp) = ovlmr(it,idims(ii),jdims(jj),jsp) + ovlm(idims(ii),jdims(jj))*phases(it)
+                 enddo
                 enddo
-              enddo; enddo
-            endblock GETrealspaceHamiltonian
+              enddo
+            endblock GetrealspaceHamiltonian
+            ! GETrealspaceHamiltonian: block ! H(k) ->  H(T) FourierTransformation to real space
+            !   do i=1,ndimMTO; do j=1,ndimMTO
+            !     ib1 = ib_tableM(i)
+            !     ib2 = ib_tableM(j)
+            !     do it =1,npair(ib1,ib2)! hammr_ij (T)= \sum_k hamm(k) exp(ikT). it is the index for T
+            !       phase = 1d0/dble(nqbz)* exp(img*2d0*pi* sum(qp*(matmul(plat,nlat(:,it,ib1,ib2)))))
+            !       hammr(i,j,it,jsp)= hammr(i,j,it,jsp)+ hamm(i,j)*phase
+            !       ovlmr(i,j,it,jsp)= ovlmr(i,j,it,jsp)+ ovlm(i,j)*phase
+            !     enddo
+            !   enddo; enddo
+            ! endblock GETrealspaceHamiltonian
           enddo
         endblock hammovlm
       enddo qploop
@@ -306,7 +329,10 @@ contains
         write(stdo,*)' Writing HamRsMLO... ndimMTO=',ndimMTO
         open(newunit=ifihmto,file='HamRsMLO',form='unformatted')
         write(ifihmto) ndimMTO,npairmx,nspx
-        write(ifihmto) hammr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx),ovlmr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx) !,ix(1:ndimMTO)
+        ! write(ifihmto) hammr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx)
+        ! write(ifihmto) ovlmr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx) !,ix(1:ndimMTO)
+        write(ifihmto) hammr(1:npairmx,1:ndimMTO,1:ndimMTO,1:nspx)
+        write(ifihmto) ovlmr(1:npairmx,1:ndimMTO,1:ndimMTO,1:nspx) !,ix(1:ndimMTO)
         write(ifihmto) ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO)
         close(ifihmto)
         write(stdo,*)" Wrote HamRsMLO file! End of lmfham1"
@@ -329,11 +355,13 @@ contains
       read(ifihmto) ndimMTO,npairmx,nspx !    allocate(ix(ndimMTO))
       if(master_mpi) write(stdo,ftox)'MTOHamiltonian: ndimMTO,npairmx,nspx=',ndimMTO,npairmx,nspx
       allocate(ovlmr(1:ndimMTO,1:ndimMTO,npairmx,nspx), hammr(1:ndimMTO,1:ndimMTO,npairmx,nspx))
-      read(ifihmto)hammr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx),ovlmr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx) !,ix(1:ndimMTO)
+      ! read(ifihmto) hammr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx)
+      ! read(ifihmto) ovlmr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx) !,ix(1:ndimMTO)
+      read(ifihmto) hammr(1:npairmx,1:ndimMTO,1:ndimMTO,1:nspx)
+      read(ifihmto) ovlmr(1:npairmx,1:ndimMTO,1:ndimMTO,1:nspx) !,ix(1:ndimMTO)
       allocate(ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO))
       read(ifihmto) ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO)
       close(ifihmto)
       if(master_mpi) write(stdo,*)'OK: Read HamRsMLO file! Use i-ioffib for setting <Worb>'
    end subroutine ReadHamRsMLO
 end module m_HamRsMLO
-
