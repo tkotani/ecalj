@@ -163,9 +163,9 @@ def cal_pdos(args, extra_args):
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
                                args=[target, "--quit=band", *extra_args]), stdout="llmf_ef")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
-                               args=[target, "--mkprocar", "--fullmesh", *extra_args]), stdout="llmf_pdosband")
+                               args=[target, "--mkprocar", "--fullmesh", "--writedw", *extra_args]), stdout="llmf_pdosband")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
-                               args=[target, "--writepdos", f"-emin={args.emin}", f"-emax={args.emax}", f"-ndos={args.ndos}", *extra_args]),
+                               args=[target, "--writepdos", "--writedw", f"-emin={args.emin}", f"-emax={args.emax}", f"-ndos={args.ndos}", *extra_args]),
                     stdout="llmf_pdos")
 
 
