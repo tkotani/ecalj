@@ -157,7 +157,7 @@ contains
       nspx=nsp
       if(lso==1) nspx=1
       ! Readin Hamiltonian only at iqibz
-      ib_tableI = pack(ib_tableM, [(all(ib_tableM(:i-1)/=ib_tableM(i)), i=1,ndimMTO)])
+      ib_tableI = pack(ib_tableM(1:ndimMTO), [(all(ib_tableM(:i-1)/=ib_tableM(i)), i=1,ndimMTO)])
       allocate(ovlmi(1:ndimMTO,1:ndimMTO,nqibz,nspx),hammi(1:ndimMTO,1:ndimMTO,nqibz,nspx),source=(0d0,0d0))
       allocate(rotmat(nMTO,nMTO))
       allocate(ndimPMTq(nqibz),source=0)
