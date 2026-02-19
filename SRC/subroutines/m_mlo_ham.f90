@@ -1,10 +1,10 @@
 module m_mlo_ham
-  use m_HamPMT,only: plat, npair, nlat, nqwgt
-  use m_lgunit,only: stdo
+  use m_HamPMT, only: plat, npair, nlat, nqwgt
+  use m_lgunit, only: stdo
   use m_mpi, only: ipr
   use m_blas, only: zmm => zmm_h, zmv => zmv_h, m_op_T
-  use m_ftox
-  implicit none
+  use m_ftox, only: ftox
+  implicit none(type, external)
   public :: read_ham_rs, calc_ham_eigen
   integer, protected, pointer :: nwf =>  ndimMTO
   integer, protected, target :: ndimMTO, npairmx, nspx

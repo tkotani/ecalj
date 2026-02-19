@@ -47,14 +47,14 @@ contains
     integer:: nevl,nm,nmout,nevout
     logical:: debug=.false.
 
+    allocate(omat(n,n))
+    omat = s !reserved
     if(epsovl< 1d-14) then
-       call zhev_tk2(n,h,s,nmx,nev, e,z)
+       call zhev_tk2(n,h,omat,nmx,nev, e,z)
        return
     endif
     call tcn('zhev_tk4')
     !! ... eigenvalue of ovarlap matrix
-    allocate(omat(n,n))
-    omat = s !reserved
     jobz = 'V'
     lwork = n*n
     allocate(wk11(lwork),rwork(max(1,3*n-2)))

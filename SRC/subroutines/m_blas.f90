@@ -182,7 +182,6 @@ contains
     istat = 0
   end function zvv_h
   integer function zmv_h(a, x, y, m, n, opa, alpha, beta, lda, incx, incy) result(istat)
-    implicit none
     complex(8) :: a(*), x(*), y(*)
     integer, intent(in) :: m, n
     character, intent(in), optional :: opa

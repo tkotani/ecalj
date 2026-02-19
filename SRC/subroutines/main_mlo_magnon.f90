@@ -21,7 +21,7 @@ subroutine mlo_magnon() bind(C)
   use m_blas, only: m_op_C, zmm => zmm_h, int_split
   use m_lapack, only: zminv => zminv_h
   use m_mem, only: writemem
-  use m_ftox
+  use m_ftox, only: ftox
   implicit none
   !! We calculate chi0 by the follwoing three steps.
   !!  gettetwt: tetrahedron weights
@@ -320,7 +320,7 @@ subroutine mlo_magnon() bind(C)
             call MPI__reduceSum(0, kmat(1,1,iw*(3-2*jpm)), nnwf*nnwf, communicator=comm_k)
           enddo
         enddo
-      end block mpi_k_accumulate
+      endblock mpi_k_accumulate
       if(mpi__root_k) then
         call dpsion_init(realomega, imagomega, .false.)
         call dpsion_chiq(realomega, imagomega, .false., kmat, zxqi, nnwf, nnwf, schi, 1, 1d99) !Inplace routine: kmat is overwritten by zxq
