@@ -62,7 +62,7 @@ if args.gemmul8:
         raise FileNotFoundError(f"{libpath} does not exist.")
 
 options.extend(unknown)
-run_cmd(cluster, MPIParams(command='echo', args=["--- Start gwsc ---"], **mpi_params_single))
+print('--- Start gwsc ---')
 print('option=',options)
 
 try:
