@@ -3,7 +3,7 @@ module m_mlo_magnon
   public :: mlo_magnon
   contains
 subroutine mlo_magnon() bind(C)
-  use m_mlo_ham, only: read_ham_rs, calc_ham_eigen, nwf
+  use m_mlo_ham, only: read_ham_rs, calc_ham_eigen, nwf => ndimMTO
   use m_mlo_scrw, only: nnwf, scrw, mlo_pairs, trace_onsite, trace_onsite_diag, nnwf_init, scrw_init
   use m_HamPMT,only: ReadHamPMTInfo
   use m_ReadEfermi, only: readefermi

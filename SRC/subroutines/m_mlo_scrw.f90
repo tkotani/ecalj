@@ -1,5 +1,5 @@
 module m_mlo_scrw
-  use m_mlo_ham, only: nwf, ib_tableM, ib_tableI, l_tableM
+  use m_mlo_ham, only: nwf => ndimMTO, ib_tableM, ib_tableI, l_tableM
   use m_lgunit,only: stdo
   use m_mpi, only: ipr
   use m_ftox
