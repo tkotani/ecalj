@@ -661,7 +661,7 @@ contains
     is_gemmul8_inited = .true.
     if(use_gemmul8) write(stdo,ftox), 'Using gemmul8 for GPU matrix multiplication'
 #ifndef __GEMMUL8
-    call rx0('Error: gemmul8 library is not linked.')
+    if(use_gemmul8) call rx0('Error: gemmul8 library is not linked.')
 #endif
   end function gemmul_init
   integer function get_m_op_cublas(m_op_blas) result(m_op_cublas)
