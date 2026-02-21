@@ -1,6 +1,0 @@
-#!/bin/bash -v
-pushd .
-cd SRC/exec
-make clean
-rm -rf CMakeFiles* CMakeCache.txt *.mod
-popd

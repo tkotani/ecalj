@@ -121,22 +121,22 @@ def run_cmd(cluster: str,
             t0 = datetime.datetime.now()
             # Execute the command
             rc = _run_mpi(cmd, env, stdin_str=stdin_str, stdout=out_stream)
-            elapsed_time = datetime.datetime.now() - t0
-            sec = elapsed_time.total_seconds()
-            if sec < 1:
-                print(f"  Elap. {sec:.3f}s", flush=True)
-            elif sec < 60:
-                print(f"  Elap. {sec:.1f}s", flush=True)
-            elif sec < 3600:
-                m = int(sec // 60)
-                s = int(sec % 60)
-                print(f"  Elap. {m}:{s:02d}", flush=True)
-            else:
-                h = int(sec // 3600)
-                m = int((sec % 3600) // 60)
-                s = int(sec % 60)
-                print(f"  Elap. {h}:{m:02d}:{s:02d}", flush=True)
             if rc == 0:
+                elapsed_time = datetime.datetime.now() - t0
+                sec = elapsed_time.total_seconds()
+                if sec < 1:
+                    print(f"  Elap. {sec:.3f}s", flush=True)
+                elif sec < 60:
+                    print(f"  Elap. {sec:.1f}s", flush=True)
+                elif sec < 3600:
+                    m = int(sec // 60)
+                    s = int(sec % 60)
+                    print(f"  Elap. {m}:{s:02d}", flush=True)
+                else:
+                    h = int(sec // 3600)
+                    m = int((sec % 3600) // 60)
+                    s = int(sec % 60)
+                    print(f"  Elap. {h}:{m:02d}:{s:02d}", flush=True)
                 return  # Success
             # If retry is disabled, fail immediately
             if not retry:
