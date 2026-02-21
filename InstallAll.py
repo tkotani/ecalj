@@ -7,9 +7,18 @@ import argparse
 import subprocess
 from pathlib import Path
 
-parser = argparse.ArgumentParser(prog='InstallAll', description='''
-Install ecalj and run tests.
-''')
+parser = argparse.ArgumentParser(
+    prog='InstallAll', 
+    description=(
+        "Install ecalj and run tests.\n"
+        "This script will build ecalj, install binaries and scripts to the specified directory, and run installation tests.\n"
+        "Example usage:\n"
+        "InstallAll.py --fc ifx --clean --bindir ~/bin  <-- CPU version\n"
+        "InstallAll.py --fc nvfortran --clean --bindir ~/bin --gpu --gemmul8 <-- GPU version \n"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+
 parser.add_argument("-np", help='number of mpi cores for install test', default=8, type=int)
 parser.add_argument('--clean', help='Clean CMakeCache CMakeFiles before make', action='store_true')
 parser.add_argument('--gpu', help='nvfortran for GPU', action='store_true')
