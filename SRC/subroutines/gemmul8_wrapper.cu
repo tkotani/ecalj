@@ -2,6 +2,7 @@
 #include <cublas_v2.h>
 #include <cuda_runtime.h>
 #include <cuComplex.h>
+#include <type_traits>
 
 template <typename T>
 void gemmul8_gemm_impl(
@@ -39,9 +40,16 @@ void gemmul8_gemm_impl(
 
     bool enable_skip_A_bool = (enable_skip_A != 0);
     bool enable_skip_B_bool = (enable_skip_B != 0);
+    // bool enable_skip_A_bool = false;
+    // bool enable_skip_B_bool = false;
+
+    constexpr bool is_complex =
+        std::is_same<T, cuComplex>::value ||
+        std::is_same<T, cuDoubleComplex>::value;
 
     size_t worksizeA, worksizeB;
-    const size_t worksize = gemmul8::workSize<true, false>(
+
+    const size_t worksize = gemmul8::workSize<is_complex, gemmul8::Backend::INT8>(
         m, n, k, num_moduli,
         enable_skip_A_bool,
         enable_skip_B_bool,
@@ -50,13 +58,21 @@ void gemmul8_gemm_impl(
     );
 
     void* work_total = nullptr;
-    cudaMalloc(&work_total, worksize);
+    // cudaMalloc(&work_total, worksize);
+    cudaError_t err = cudaMalloc(&work_total, worksize);
+    if (err != cudaSuccess || work_total == nullptr) {
+        printf("cudaMalloc failed: %s (requested %zu bytes)\n",
+        cudaGetErrorString(err), worksize);
+        printf("gemmul8 workSize inputs: m=%zu n=%zu k=%zu num_moduli=%u\n",
+               m, n, k, num_moduli);
+        return;
+    }
 
     void* p_workA    = work_total;
     void* p_workB    = static_cast<char*>(p_workA) + worksizeA;
     void* p_work_rem = static_cast<char*>(p_workB) + worksizeB;
 
-    gemmul8::gemm<T, false>(
+    gemmul8::gemm<T, gemmul8::Backend::INT8>(
         cublas_handle, op_a, op_b, m, n, k,
         &alpha,
         static_cast<const T*>(devA), lda,
@@ -191,3 +207,15 @@ void gemmul8_cgemm_(
 }
 
 } // extern "C"
+
+extern "C" void gemmul8_init_handle_(void** handle_out) {
+    auto h = new cublasHandle_t;
+    cublasCreate(h);
+    *handle_out = h;
+}
+
+extern "C" void gemmul8_finalize_handle_(void* handle_ptr) {
+    auto h = reinterpret_cast<cublasHandle_t*>(handle_ptr);
+    cublasDestroy(*h);
+    delete h;
+}

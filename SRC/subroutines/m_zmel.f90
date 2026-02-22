@@ -14,7 +14,7 @@ module m_zmel
   use m_MPItk,only:master_mpi
   use m_mem,only: memused,writemem
   use m_kind, only: kp => kindzmel
-  use m_blas, only: m_op_c, m_op_n, m_op_t, int_split
+  use m_blas, only: m_op_c, m_op_n, m_op_t, int_split, BACKEND_BLAS
 #if defined(__MP) && defined(__GPU)
   use m_blas, only: gemm => cmm_d
 #elif defined(__MP)
@@ -354,8 +354,9 @@ contains
               ppbv_d(1:nv,i,1:nv) = cmplx(ppb(nc1:ncnv,nc1:ncnv,i,icp), kind=kp)
             enddo
             !$acc end kernels
-            ierr = gemm(ppbv_d, cphim_d, ppbvphiq_d, m=nv*mdim, n=nm2v-nm1v+1, k=nv)
-            ierr = gemm(ppbvphiq_d, cphiq_d, zmelt_d, m=mdim*(nm2v-nm1v+1), n=ntp0, k=nv, alpha=cmplx(phasea(ia),kind=kp), opA=m_op_C)
+            ierr = gemm(ppbv_d, cphim_d, ppbvphiq_d, m=nv*mdim, n=nm2v-nm1v+1, k=nv, policy=BACKEND_BLAS)
+            ierr = gemm(ppbvphiq_d, cphiq_d, zmelt_d, m=mdim*(nm2v-nm1v+1), n=ntp0, k=nv, &
+                        alpha=cmplx(phasea(ia),kind=kp), opA=m_op_C, policy=BACKEND_BLAS)
             !$acc kernels
             zmelt(ims:ime,nm1v:nm2v,ncc+1:ncc+ntp0) = zmelt_d(1:mdim,nm1v:nm2v,1:ntp0)
             !$acc end kernels
@@ -370,7 +371,8 @@ contains
               ppbc_d(1:nv,i,nm1cc:nm2cc) = cmplx(ppb(nc1:ncnv,nm1cc-ics:nm2cc-ics,i,icp),kind=kp)
             enddo
             !$acc end kernels
-            ierr = gemm(ppbc_d, cphiq_d, zmelt_d, m=mdim*(nm2cc-nm1cc+1), n=ntp0, k=nv, alpha=cmplx(phasea(ia),kind=kp), opA=m_op_T)
+            ierr = gemm(ppbc_d, cphiq_d, zmelt_d, m=mdim*(nm2cc-nm1cc+1), n=ntp0, k=nv, &
+                        alpha=cmplx(phasea(ia),kind=kp), opA=m_op_T, policy=BACKEND_BLAS)
             !$acc kernels
             zmelt(ims:ime,nm1cc:nm2cc,ncc+1:ncc+ntp0) = zmelt_d(1:mdim,nm1cc:nm2cc,1:ntp0)
             !$acc end kernels
