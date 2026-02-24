@@ -153,7 +153,7 @@ contains
     integer:: i,iap,ias,ib,ic,icp,nc,nc1,nv,ics,itp,iae,ims,ime
     real(8):: quu(3),q(3), kvec(3),rkvec(3),qkt(3),qt(3), qdiff(3)
     ! real(8) :: ppb(nlnmx,nlnmx,mdimx,natom) ! ppb= <Phi(SLn,r-R)_q,isp1 |Phi(SL'n',r-R)_qk,isp2 B_k(S,i,rot^{-1}(r-R))>
-    logical:: iprx,zmelconjg,debug,cmdopt0
+    logical:: iprx, zmelconjg, debug,cmdopt0
     complex(kind=kp),allocatable:: geigq(:,:),dgeigqk(:,:),cphiq(:,:), cphim(:,:)
     integer:: invr,nt0,ntp0,nmtot,nqtot
     integer:: iasx(natom),icsx(natom),iatomp(natom),imdim(natom),iclass(natom)
@@ -163,7 +163,7 @@ contains
     real(8),optional::maxmem
     character(8),external:: charext
     complex(kind=kp), parameter:: CONE = (1_kp, 0_kp), CZERO = (0_kp, 0_kp)
-    complex(kind=kp), allocatable:: zmelp0(:,:,:),ggitp_(:,:), zmel_buf(:,:,:), zmelt_d(:,:,:), zmelt(:,:,:)
+    complex(kind=kp), allocatable:: zmelp0(:,:,:), zmelt_d(:,:,:), zmelt(:,:,:)
     integer,allocatable:: ngveccR(:,:)
     complex(kind=kp), allocatable:: ppbvphiq_d(:,:,:), cphim_d(:,:), cphiq_d(:,:), ppbc_d(:,:,:), ppbv_d(:,:,:)
     complex(8), allocatable:: wfs(:,:)
@@ -260,7 +260,6 @@ contains
         nadd = nint(matmul(transpose(plat), qdiff)) !nadd: difference in the unit of reciprocal lattice vectors.
         block
           use m_read_ppovl,only: getppx2, ngvecc,ngcread
-          integer:: igcgp2,nn(3),iggg,igp1,itp,igc,igp2
           call getppx2(qlat,kvec) ! read and allocate ppovlinv
           if(ngc/=ngcread) call rxii( 'melpln2t: ngc/= ngcx by getppx:PPOVLG',ngc,ngcread)
           allocate(ngveccR(1:3,1:ngc))
@@ -403,6 +402,8 @@ contains
           deallocate(cphiq_d)
         enddo iatomloop
       endblock ZmelWithinMT
+      deallocate(cphiq)
+      if (allocated(cphim)) deallocate(cphim)
       call writemem('    m_zmel111(notildeM) ngc= '//trim(charext(ngc))//' nm1v nm2v= '//trim(charext(nm1v))//' '//trim(charext(nm2v)))
       flush(stdo)
       ZmelIPWif: if(ngc/=0 .and. nm1v<=nm2v) then
@@ -411,11 +412,10 @@ contains
           integer:: igcgp2,nn(3), iggg, igp1, itp, igc, igp2, igcgp2_start, igcgp2_end, igcgp1_start, igcgp1_end, igcgp1
           integer, parameter :: ngcgp_block = 1024
           complex(8):: phase(ngc)
-          complex(8), allocatable :: zmelt_d_dp(:,:,:), zmelp0_dp(:,:,:)
           complex(kind=kp), allocatable:: ggitp(:,:), gggmat(:,:), ggitp_work(:,:), ggit(:,:), ggit_work(:,:)
           integer, allocatable:: igcgp2i_work(:,:), igcgp1i_work(:,:)
 #ifdef __GPU
-          attributes(device) :: zmelt_d_dp, zmelp0_dp, ggitp, gggmat, ggitp_work, igcgp2i_work, igcgp1i_work, ggit, ggit_work
+          attributes(device) :: ggitp, gggmat, ggitp_work, igcgp2i_work, igcgp1i_work, ggit, ggit_work
 #endif
           if(debug) write(stdo,ftox)'goto zmelipwif: ngc,ngpmx,ngp1,ngp2,ngcgp,nm1v,nm2v,ntp0=',ngc,ngpmx,ngp1,ngp2,ngcgp,nm1v,nm2v,ntp0
           phase(:)=[(exp( -img*tpi*sum((matmul(symope,kvec)+matmul(qlat,ngveccR(:,igc)))*shtv) ),igc=1,ngc)]  !prepared by CPU
@@ -514,12 +514,14 @@ contains
             deallocate(ggit_work,ggit,igcgp1i_work)
             if(debug) call writemem('mmmmm_zmel222ddd')
           endif G1G2_Integral
+          deallocate(geigq, dgeigqk)
           ! 2025-10-10: Procedures involving ppovlinv and ppovlz have been removed.
           !$acc kernels
           do igc = 1, ngc
             zmelt(nbloch+igc,nm1v:nm2v,ncc+1:ncc+ntp0) = cmplx(phase(igc),kind=kp)*zmelp0(igc,nm1v:nm2v,1:ntp0)
           enddo
           !$acc end kernels
+          deallocate(zmelp0)
           if(debug) call writemem('mmmmm_zmel111iii')
 
           !$acc end data
@@ -556,6 +558,7 @@ contains
       if (mpi_mode) then
         block
           integer, allocatable :: data_disp(:), data_size(:)
+          complex(kind=kp), allocatable :: zmel_buf(:,:,:)
           integer :: ini, num, end
           integer :: mpi_data_type
           allocate(zmel_buf, mold = zmel)
