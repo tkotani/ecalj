@@ -1,6 +1,20 @@
+import sys
 import glob
 import shutil
+import subprocess
 from pathlib import Path
+
+def run_shell(command: str, cwd=None, env=None, skip_on_error: bool = False):
+    """Executes a shell command and handles failure based on skip_on_error."""
+    try:
+        subprocess.run(command, shell=True, check=True, cwd=cwd, env=env)
+    except subprocess.CalledProcessError as e:
+        print(f"Command failed: {e.cmd}", file=sys.stderr)
+        if not skip_on_error:
+            sys.exit(1)
+        else:
+            print("Skipping command.", file=sys.stderr)
+
 
 def merge_files(pattern: str, output_file: str | Path, remove_sources: bool = True):
     """Merges files matching a pattern into a single output file."""

@@ -32,7 +32,7 @@ parser.add_argument('--gemmul8', help='build and install GEMMul8 library (this o
 args = parser.parse_args()
 args.gemmul8 = args.gpu and args.gemmul8
 
-def run_command(command, cwd=None, env=None, skip_on_error=False):
+def run_shell(command, cwd=None, env=None, skip_on_error=False):
     """Executes a shell command and handles failure based on skip_on_error."""
     try:
         # Path objects are automatically converted to strings for subprocess.
@@ -49,9 +49,9 @@ def build_and_install_gemmul8(build_dir: Path, bin_dir: Path):
     clone_dir = build_dir / "GEMMul8"
     libfile = clone_dir / "GEMMul8" / "lib" / "libgemmul8.so"
     if not clone_dir.exists():
-        run_command(f"git clone {repo_url} {clone_dir}", skip_on_error=True)
+        run_shell(f"git clone {repo_url} {clone_dir}", skip_on_error=True)
     if not libfile.is_file():
-        run_command("make -j", cwd=clone_dir / "GEMMul8", skip_on_error=True)
+        run_shell("make -j", cwd=clone_dir / "GEMMul8", skip_on_error=True)
     try:
         shutil.copy(libfile, bin_dir)
     except Exception as e:
@@ -90,7 +90,7 @@ def main():
         print("Cleaning previous build files...")
         makefile = EXEC_DIR / 'Makefile'
         if makefile.exists():
-            run_command("make clean", cwd=EXEC_DIR)
+            run_shell("make clean", cwd=EXEC_DIR)
 
         (EXEC_DIR / 'CMakeCache.txt').unlink(missing_ok=True)
         shutil.rmtree(EXEC_DIR / 'CMakeFiles', ignore_errors=True)
@@ -109,11 +109,11 @@ def main():
         print("Configuring for GPU build...")
         cmake_options += " -DBUILD_MP=ON -DBUILD_GPU=ON -DBUILD_MP_GPU=ON"
 
-    run_command(f"cmake {cmake_options}", env=cmake_env)
+    run_shell(f"cmake {cmake_options}", env=cmake_env)
 
     jobs = min(os.cpu_count(), 32)
     print(f"Building with {jobs} parallel jobs...")
-    run_command(f"{verbose}cmake --build {BUILD_DIR} -j{jobs}")
+    run_shell(f"{verbose}cmake --build {BUILD_DIR} -j{jobs}")
 
     # --- Copy executables to BIN_DIR ---
     print(f'Copying executables to {BIN_DIR}')
@@ -146,7 +146,7 @@ def main():
     end_time_make = time.time()
     start_time_test = time.time()
 
-    run_command(f"{BIN_DIR / 'testecalj'} -np {ncore} --all", cwd=test_dir)
+    run_shell(f"{BIN_DIR / 'testecalj'} -np {ncore} --all", cwd=test_dir)
 
     end_time = time.time()
     elapsed_time_make = end_time_make - start_time
