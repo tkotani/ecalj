@@ -530,7 +530,7 @@ contains
       endif ZmelIPWif
       if(debug) call writemem('mmmmm_zmel endof ZmelIPWif')
       allocate(zmel(nbb,ns1:ns2,nqtot))
-      if(debug) call writemem('mmmmm_zmel deallocate zmel')
+      if(debug) call writemem('mmmmm_zmel allocate zmel')
 !cccccccccccccccccccccccccccccccccccc
       !$acc enter data create(zmel)
       if(nmtot<=0) return

@@ -220,6 +220,7 @@ contains
         endif
       endblock GETtetrahedronWeight
       x0kf_v4hz_block: block !call x0kf_v4hz(q,isp_k,isp_kq,iq, npr,q00,chipm,nolfco,zzr,nmbas)
+        use m_mem,only: writemem
         integer:: k,jpm, ibib, iw,igb2,igb1,it,itp, nkmax1,nkqmax1, ib1, ib2, ngcx,ix,iy,igb
         integer:: izmel,nmtot,nqtot,iwmax,ifi0,icoucold,icoun, icount, kold
         real(8):: imagweight, wpw_k,wpw_kq,qa,q0a 
@@ -268,12 +269,16 @@ contains
                 if(ipr) write(stdo,ftox) 'zmel_batch:', ibatch, ns1, ns2, nbatch
                 !Currently, mpi version of get_zmel_init_gpu which is available by adding comm argument for MPI communicator,
                 !but, MPI communication is bottle-neck when GPUs are used. Therefore, it is only used in without GPU case.
+                if(debug) call writemem('xxxx start build_zmel')
                 call build_zmel(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=ns1,ns2=ns2, ispm=isp_k, &
                      nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
                      zmelconjg=.true., is_m_basis = is_m_basis, mpi_mode=.not.use_gpu, comm=comm_b)
+                if(debug) call writemem('xxxx end build_zmel')
                 call stopwatch_pause(t_sw_zmel)
                 call stopwatch_start(t_sw_x0)
+                if(debug) call writemem('xxxx start x0gemm')
                 call x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm, ns1, ns2)
+                if(debug) call writemem('xxxx end of x0gemm')
                 call stopwatch_pause(t_sw_x0)
               enddo
               deallocate(ns1lists, ns2lists)
