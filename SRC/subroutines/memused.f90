@@ -7,6 +7,7 @@ contains
     use m_ftox
     use m_lgunit,only:stdo
     use m_mpi,only: MPI__rank
+    use m_gpu, only: mydev
 #ifdef __GPU
     use openacc
     use cudafor
@@ -18,8 +19,8 @@ contains
     integer(8):: total_mem,free_mem, used_mem
     integer :: istat
     istat = cudaDeviceSynchronize()
-    total_mem = acc_get_property(0, acc_device_nvidia, acc_property_memory)
-    free_mem  = acc_get_property(0, acc_device_nvidia, acc_property_free_memory)
+    total_mem = acc_get_property(mydev, acc_device_nvidia, acc_property_memory)
+    free_mem  = acc_get_property(mydev, acc_device_nvidia, acc_property_free_memory)
     used_mem  = total_mem - free_mem
     write(memuse_gpu,ftox,advance="no") ' (GPU)',ftof(dble(used_mem/GG),3),'GB'
 #endif

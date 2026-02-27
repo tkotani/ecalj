@@ -323,7 +323,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
 #ifdef __GPU
       use m_lapack, only: zhgv => zhgv_d
       use openacc
-!      use cudafor
+      use m_gpu, only: mydev
 #else
       use m_lapack, only: zhgv => zhgv_h
 #endif
@@ -342,8 +342,8 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
          ix=ix+1
          rmem=1d20
 #ifdef __GPU
-         total_mem = acc_get_property(0, acc_device_nvidia, acc_property_memory)
-         free_mem  = acc_get_property(0, acc_device_nvidia, acc_property_free_memory)
+         total_mem = acc_get_property(mydev, acc_device_nvidia, acc_property_memory)
+         free_mem  = acc_get_property(mydev, acc_device_nvidia, acc_property_free_memory)
          used_mem  = total_mem - free_mem
          !write(stdo,ftox)"GPU memory used (G bytes):", ftof(used_mem/GG,3)
          gpuid = acc_get_device_num(acc_device_nvidia)
