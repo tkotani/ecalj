@@ -97,12 +97,12 @@ contains
     real(8), allocatable :: rwork(:)
     integer, allocatable :: isuppz(:), iwork(:)
     integer :: m, lwork, lrwork, liwork, info
-    real(8) :: abstol, vl, vu
+    real(8) :: abstol, vl, vu, dlamch
     lda_in = n; if(present(lda)) lda_in = lda
     il_in = 1; iu_in = n
     if(present(il)) il_in = il
     if(present(iu)) iu_in = iu
-    vl = 0d0; vu = 0d0; abstol = 0d0
+    vl = 0d0; vu = 0d0; abstol = 2d0*dlamch('S')
     allocate(z(lda_in*n), isuppz(2*n))
     lwork = -1; lrwork = -1; liwork = -1
     allocate(work(1), rwork(1), iwork(1))
