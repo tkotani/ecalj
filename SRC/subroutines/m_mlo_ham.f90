@@ -6,7 +6,7 @@ module m_mlo_ham
   use m_ftox, only: ftox
   implicit none
   public :: read_ham_rs, calc_ham_eigen
-  integer, protected, target :: ndimMTO, npairmx, nspx
+  integer, protected, target :: ndimMTO, npairmx, nspx, nsite
   integer, allocatable, protected:: ib_tableM(:), l_tableM(:), k_tableM(:), ib_tableI(:)
   complex(8),allocatable, protected:: ovlmr(:,:,:,:), hammr(:,:,:,:) !npairmx, ndimMTO, ndimMTO, nspx order
 contains
@@ -25,6 +25,7 @@ contains
     if(ipr) write(stdo,*)'OK: Read HamRsMLO file! Use i-ioffib for setting <Worb>'
     ib_tableI = pack(ib_tableM(1:ndimMTO), [(all(ib_tableM(:i-1)/=ib_tableM(i)), i=1,ndimMTO)])
     if(ipr) write(stdo,ftox) 'Atomic sites in the primitive cell for MLO Hamiltonian: ', ib_tableI
+    nsite = size(ib_tableI)
   end subroutine read_ham_rs
 
   subroutine calc_ham_eigen(q, isp, ev, evec, ovlp_evec)

@@ -1,10 +1,10 @@
 module m_mlo_scrw
-  use m_mlo_ham, only: nwf => ndimMTO, ib_tableM, ib_tableI, l_tableM
+  use m_mlo_ham, only: nwf => ndimMTO, ib_tableM, ib_tableI, l_tableM, nsite
   use m_lgunit,only: stdo
   use m_mpi, only: ipr
-  use m_ftox
+  use m_ftox, only: ftox
   implicit none
-  public :: nnwf_init, scrw_init, trace_onsite, trace_onsite_diag
+  public :: nnwf_init, scrw_init, trace_onsite, trace_onsite_diag, contract_to_site
   integer, protected, public :: nnwf
   complex(8), allocatable, protected, public :: scrw(:,:)
   integer, allocatable, protected, public :: mlo_pairs(:,:), pair_site(:,:), pair_lorb(:,:)
@@ -39,6 +39,25 @@ contains
    enddo
   end subroutine nnwf_init
 
+  function contract_to_site(mat,lorb) result(cmat)
+    complex(8), intent(in) :: mat(nnwf,nnwf)
+    integer, intent(in), optional :: lorb
+    complex(8) :: cmat(nsite,nsite)
+    logical, allocatable :: mask(:)
+    integer :: site1, site2, inwf, jnwf
+    do concurrent(site1=1:nsite, site2=1:nsite)
+      mask = [((pair_site(inwf,1) == site1 .and. pair_site(jnwf,1) == site2 .and. &   !R1 == site1  R3 == site2
+                mlo_pairs(inwf,1) == mlo_pairs(inwf,2) .and. & !n1 == n2 => R1 == R2 is automatically satisfied
+                mlo_pairs(jnwf,1) == mlo_pairs(jnwf,2), &      !n3 == n4 => R3 == R4 is automatically satisfied
+                inwf=1,nnwf), jnwf=1,nnwf)]
+      if(present(lorb)) then
+        mask = mask .AND. [(((pair_lorb(inwf,1)==lorb .and. pair_lorb(inwf,2)==lorb .and. &
+                            & pair_lorb(jnwf,1)==lorb .and. pair_lorb(jnwf,2)==lorb), inwf=1,nnwf), jnwf=1,nnwf)]
+      endif
+      cmat(site1,site2) = sum(pack(reshape(mat, [nnwf*nnwf]), mask=mask))
+    enddo
+  end function contract_to_site
+
   complex(8) function trace_onsite(mat, site) result(trmat)
     complex(8), intent(in) :: mat(nnwf,nnwf)
     integer, intent(in), optional :: site
@@ -60,7 +79,7 @@ contains
     complex(8), intent(in) :: mat(nnwf,nnwf)
     logical, allocatable :: mask(:)
     integer :: inwf, jnwf
-    mask = [(((mlo_pairs(inwf,1) == mlo_pairs(inwf,2) .and. & 
+    mask = [(((mlo_pairs(inwf,1) == mlo_pairs(inwf,2) .and. &
                mlo_pairs(jnwf,1) == mlo_pairs(jnwf,2) .and. &
                mlo_pairs(inwf,1) == mlo_pairs(jnwf,1)), &
                inwf=1,nnwf), jnwf=1,nnwf)]
