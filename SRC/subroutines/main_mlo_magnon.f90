@@ -151,8 +151,11 @@ subroutine mlo_magnon() bind(C)
     real(8) :: wemax, omg2max
     real(8), parameter :: ua = 1d0
     ! We get frhis,freq_r,freq_i, nwhis,nw,npm,wiw  by getfreq
-    wemax   = 5d0 !max value for plot
-    omg2max = wemax*.5d0+.2d0 ! (in Hartree) covers all relevant omega, +.2 for margin
+    ! wemax   = 5d0 !max value for plot
+    ! omg2max = wemax*.5d0+.2d0 ! (in Hartree) covers all relevant omega, +.2 for margin
+    ! narrow energy range: 2026-03-01
+    wemax   = 2d0 !max value for plot
+    omg2max = wemax*.5d0+.5d0 ! (in Hartree) covers all relevant omega, +.2 for margin
     !! NOTE: npmtwo=T sets npm=2   !! optional npmtwo is added aug2017   !! 20190604 Im[K]
     if( .NOT. imagomega) niw_in=1  !dummy
     call Getfreq(epsmode,realomega,imagomega,omg2max,wemax,niw_in,ua, npmtwo=.true.,dw=freq_dw, ratio=freq_ratio)!,tetra
