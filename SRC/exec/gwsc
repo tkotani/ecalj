@@ -24,7 +24,7 @@ parser.add_argument('--emptyrun'  ,help='test for gprof for memory',    action='
 parser.add_argument('--gpu'       ,help='USE GPU version for hsfp0 and hrcxq',    action='store_true')
 parser.add_argument('--gemmul8'   ,help='USE GEMMul8 valid in GPU without MP',    action='store_true')
 parser.add_argument('--mp'        ,help='USE mixed precision version for hsfp0 and hrcxq',    action='store_true')
-parser.add_argument("--cluster"   ,help="cluster name", default="default", type=str)
+parser.add_argument("-c", "--cluster", help="cluster name", default="default", type=str)
 args,unknown=parser.parse_known_args()
 
 target=''.join(re.split('ctrl.',args.extension)) #to accept ctrl.si and si
