@@ -17,9 +17,9 @@ subroutine mlo_magnon() bind(C)
   use m_dpsion, only: dpsion_init, dpsion_chiq
   use m_mpi, only: MPI__Initialize, MPI__consoleout, MPI__SplitXq
   use m_mpi, only: mpi__rank, mpi__size, mpi__root, comm, comm_k, mpi__rank_k, mpi__size_k, mpi__root_k, ipr
-  use m_mpiio, only: openm, closem, writem, readm, writem_d, readm_d
+  use m_mpiio, only: openm, closem, writem, readm
   use m_blas, only: m_op_C, zmm => zmm_h, int_split
-  use m_lapack, only: zminv => zminv_h, zhev => zhev_h
+  use m_lapack, only: zminv => zminv_h, zhev => zhev_h, zgev => zgev_h
   use m_mem, only: writemem
   use m_ftox, only: ftox
   implicit none
@@ -36,7 +36,7 @@ subroutine mlo_magnon() bind(C)
   complex(8), pointer:: zxq(:,:,:) => null()
   complex(8), allocatable, target :: kmat(:,:,:)
   complex(8), allocatable:: wkmat(:,:), imat(:,:), rmat(:,:), r_tr(:), r_diag(:), k_tr(:), k_diag(:)
-  real(8), allocatable :: jq(:), jq_w(:,:)
+  complex(8), allocatable :: jq(:), jq_w(:,:)
   complex(8), parameter :: img=(0d0,1d0)
   logical:: cmdopt0
   logical:: realomega, imagomega, epsmode
@@ -198,7 +198,7 @@ subroutine mlo_magnon() bind(C)
     istat = openm(newunit=file_tr_rpm, file='__TrRpm', recl=(nw-nw_i+1)*16)
     istat = openm(newunit=file_tr_diag_kpm, file='__TrDiagKpm', recl=(nw-nw_i+1)*16)
     istat = openm(newunit=file_tr_diag_rpm, file='__TrDiagRpm', recl=(nw-nw_i+1)*16)
-    istat = openm(newunit=file_jq, file='__Jq', recl=nnwf*(nw-nw_i+1)*8)
+    istat = openm(newunit=file_jq, file='__Jq', recl=nnwf*(nw-nw_i+1)*16)
   endif SetTemporaryFiles
 
   allocate(imat(1:nnwf,1:nnwf),source=(0d0,0d0))
@@ -346,16 +346,10 @@ subroutine mlo_magnon() bind(C)
       block
         integer :: iunit
         complex(8) ::eval_wk(nnwf)
-        real(8) :: www, evl(nnwf)
+        real(8) :: www
         istat = zmm(scrw, zxq(:,:,0), wkmat, nnwf, nnwf, nnwf)
-        ! call diagcvuh3(wkmat(:,:),nnwf,eval_wk) !!   eval_wk is complex array because of Non-Hermite WK
-        ! eta = -1d0/maxval(abs(eval_wk))
-        wkmat(:,:) = (wkmat(:,:) + transpose(conjg(wkmat(:,:))))*0.5d0 ! Hermite
-        istat = zhev(wkmat, n=nnwf, evl=evl)
-        eta = -1d0/maxval(abs(evl))
-        istat = zminv(rmat, n=nnwf) !rmat = rmat^-1
-        istat = zhev(rmat, n=nnwf, evl=jq)
-
+        istat = zgev(wkmat, n=nnwf, evl=eval_wk)
+        eta = -1d0/maxval(abs(eval_wk))
         write(stdo,ftox) "now eigenvalue abs(WK)",abs(eval_wk(1)),"is inversed"
         write(stdo,ftox) "check eigenvalue Re(WK)",dreal(eval_wk(1))
         write(stdo,ftox) "check eigenvalue Im(WK)",dimag(eval_wk(1))
@@ -385,9 +379,10 @@ subroutine mlo_magnon() bind(C)
       r_tr(iw) = trace_onsite(rmat)
       k_diag(iw) = trace_onsite_diag(zxq(:,:,iw))/znorm
       r_diag(iw) = trace_onsite_diag(rmat)
-      rmat(:,:) = (rmat(:,:) + transpose(conjg(rmat(:,:))))*0.5d0 ! Hermite
+      ! rmat(:,:) = (rmat(:,:) + transpose(conjg(rmat(:,:))))*0.5d0 ! Hermite
       istat = zminv(rmat, n=nnwf) !rmat = rmat^-1
-      istat = zhev(rmat, n=nnwf, evl=jq) !rmat is overwritten
+      ! istat = zhev(rmat, n=nnwf, evl=jq) !rmat is overwritten
+      istat = zgev(rmat, n=nnwf, evl=jq)
       jq_w(iw,1:nnwf) = jq(:)
     enddo iwloop
 
@@ -395,7 +390,7 @@ subroutine mlo_magnon() bind(C)
     istat = writem(file_tr_rpm, rec=iq, data=r_tr(nw_i:nw))
     istat = writem(file_tr_diag_kpm, rec=iq, data=k_diag(nw_i:nw))
     istat = writem(file_tr_diag_rpm, rec=iq, data=r_diag(nw_i:nw))
-    istat = writem_d(file_jq, rec=iq, data=jq_w(nw_i:nw,1:nnwf))
+    istat = writem(file_jq, rec=iq, data=jq_w(nw_i:nw,1:nnwf))
     deallocate(rmat, wkmat, r_tr, r_diag, k_tr, k_diag, jq_w, jq)
     if(ipr) call writemem('mlo_magnon end iq='//trim(charext(iq)))
   enddo BIGiqloop
@@ -479,7 +474,7 @@ subroutine mlo_magnon() bind(C)
         istat = readm(file_tr_rpm, rec=iq, data=r_tr(:))
         istat = readm(file_tr_diag_kpm, rec=iq, data=k_diag(:))
         istat = readm(file_tr_diag_rpm, rec=iq, data=r_diag(:))
-        istat = readm_d(file_jq, rec=iq, data=jq_w(:,:))
+        istat = readm(file_jq, rec=iq, data=jq_w(:,:))
         dq = sqrt(sum((q(:)-q_old(:))**2))
         q_position = q_position + dq
         do iw = nw_i, nw

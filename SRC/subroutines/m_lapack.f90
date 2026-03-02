@@ -66,23 +66,28 @@ contains
     complex(8), intent(out) :: evl(n)
     complex(8), intent(out), optional :: evl_vec(*), evr_vec(*)
     integer, intent(in), optional :: lda
-    integer :: lda_in, ldvl, ldvr, lwork
+    integer :: lda_in, ldvl, ldvr, lwork, ilo, ihi
     complex(8), allocatable :: work(:), vl_loc(:), vr_loc(:)
-    real(8),    allocatable :: rwork(:)
+    real(8),    allocatable :: rwork(:), scale(:), rconde(:), rcondv(:)
+    real(8) :: abnrm
     character :: jobvl, jobvr
     lda_in = n; if(present(lda)) lda_in = lda
     jobvl = 'N'; ldvl = 1
     jobvr = 'N'; ldvr = 1
     if(present(evl_vec)) then; jobvl = 'V'; ldvl = lda_in; endif
     if(present(evr_vec)) then; jobvr = 'V'; ldvr = lda_in; endif
-    allocate(vl_loc(ldvl*n), vr_loc(ldvr*n), rwork(2*n), work(1))
+    allocate(vl_loc(ldvl*n), vr_loc(ldvr*n), rwork(2*n), work(1), scale(n), rconde(n), rcondv(n))
     lwork = -1
-    call zgeev(jobvl, jobvr, n, a, lda_in, evl, vl_loc, ldvl, vr_loc, ldvr, work, lwork, rwork, istat)
+    call zgeevx('B', jobvl, jobvr, 'N', n, a, lda_in, evl, &
+                vl_loc, ldvl, vr_loc, ldvr, ilo, ihi, scale, abnrm, rconde, rcondv, &
+                work, lwork, rwork, istat)
     lwork = int(dble(work(1))); deallocate(work); allocate(work(lwork))
-    call zgeev(jobvl, jobvr, n, a, lda_in, evl, vl_loc, ldvl, vr_loc, ldvr, work, lwork, rwork, istat)
+    call zgeevx('B', jobvl, jobvr, 'N', n, a, lda_in, evl, &
+                vl_loc, ldvl, vr_loc, ldvr, ilo, ihi, scale, abnrm, rconde, rcondv, &
+                work, lwork, rwork, istat)
     if(present(evl_vec)) evl_vec(1:ldvl*n) = vl_loc
     if(present(evr_vec)) evr_vec(1:ldvr*n) = vr_loc
-    deallocate(work, rwork, vl_loc, vr_loc)
+    deallocate(work, rwork, vl_loc, vr_loc, scale, rconde, rcondv)
   end function zgev_h
   integer function zhev_h(A, n, evl, il, iu, lda) result(istat)
   ! Solving the standard eigenvalue problem Az = lambda z, where A is a Hermitian matrix
@@ -253,7 +258,7 @@ contains
     istat = cusolverDnXgetrs(cusolver_handle, cusolver_params, CUBLAS_OP_N, n_8, nrhs_8, cudaDataType(CUDA_C_64F), a, lda_8, &
                              ipiv, cudaDataType(CUDA_C_64F), b, ldb_8, devinfo)
   end function zsv_d
-  integer function zgev_d(a, n, evl, evl_vec, evr_vec, lda) result(istat)
+  integer function zgev_d(a, n, evl, evl_vec, evr_vec, lda) result(istat) !Not tested
     integer, intent(in) :: n
     complex(8), device :: a(*)
     complex(8), device :: evl(n)
@@ -279,7 +284,7 @@ contains
     if(present(evr_vec)) evr_vec(1:ldvr*n) = vr_loc
     deallocate(work, vl_loc, vr_loc)
   end function zgev_d
-  integer function zhev_d(A, n, evl, il, iu, lda) result(istat)
+  integer function zhev_d(A, n, evl, il, iu, lda) result(istat) !Not tested
   ! Solving the standard eigenvalue problem Az = lambda z, where A is a Hermitian matrix (GPU version)
   ! Eigenvalues are stored in evl, eigenvectors are stored in A
   !!! range: 1<=il<=iu<=n
