@@ -19,7 +19,6 @@ module m_lapack
 #endif
 contains
   integer function zminv_h(a, n, lda) result(istat)
-    implicit none
     complex(8) :: a(*)
     integer, intent(in) :: n
     integer, optional :: lda

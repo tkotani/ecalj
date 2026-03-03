@@ -3,6 +3,7 @@ module m_mlo_ham
   use m_lgunit, only: stdo
   use m_mpi, only: ipr
   use m_blas, only: zmm => zmm_h, zmv => zmv_h, m_op_T
+  use m_lapack, only: zhgv => zhgv_h
   use m_ftox, only: ftox
   implicit none
   public :: read_ham_rs, calc_ham_eigen
@@ -29,13 +30,12 @@ contains
   end subroutine read_ham_rs
 
   subroutine calc_ham_eigen(q, isp, ev, evec, ovlp_evec)
-    use m_zhev, only: zhev_tk4
     real(8), intent(in) :: q(3)
     integer, intent(in) :: isp
     real(8), intent(out) :: ev(:) !MLO eigenvalue
     complex(8), optional, intent(out) :: evec(:,:) !MLO wavefunction
     logical, intent(in), optional :: ovlp_evec
-    complex(8) :: ovlm(ndimMTO,ndimMTO), hamm(ndimMTO,ndimMTO), evec_buf(ndimMTO,ndimMTO)
+    complex(8) :: ovlm(ndimMTO,ndimMTO), hamm(ndimMTO,ndimMTO), ovlm_buf(ndimMTO,ndimMTO)
     real(8), parameter :: oveps=1d-15, pi=4d0*atan(1d0)
     complex(8), parameter :: img=(0d0,1d0)
     complex(8) :: phases(npairmx)
@@ -74,10 +74,11 @@ contains
         enddo
       enddo
     enddo FourierTransormationFROMrealspcaeTOqspace
-    call zhev_tk4(ndimMTO, hamm, ovlm, merge(ndimMTO,0,present(evec)), nev, ev, evec_buf, oveps)
-    if(present(evec)) evec(:,:) = evec_buf(:,:)
+    if(present(evec) .and. present(ovlp_evec)) ovlm_buf(:,:) = ovlm(:,:) !keep ovlm
+    istat = zhgv(hamm, ovlm, n=ndimMTO, evl=ev) !in-place
+    if(present(evec)) evec(:,:) = hamm(:,:)
     if(present(evec) .and. present(ovlp_evec)) then
-      if(ovlp_evec) istat = zmm(ovlm, evec_buf, evec, m=ndimMTO, n=ndimMTO, k=ndimMTO)
+      if(ovlp_evec) istat = zmm(ovlm_buf, hamm, evec, m=ndimMTO, n=ndimMTO, k=ndimMTO)
     endif
   end subroutine calc_ham_eigen
 end module m_mlo_ham
