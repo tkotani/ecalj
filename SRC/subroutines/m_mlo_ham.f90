@@ -33,8 +33,7 @@ contains
     real(8), intent(in) :: q(3)
     integer, intent(in) :: isp
     real(8), intent(out) :: ev(:) !MLO eigenvalue
-    complex(8), optional, intent(out) :: evec(:,:) !MLO wavefunction
-    logical, intent(in), optional :: ovlp_evec
+    complex(8), optional, intent(out) :: evec(:,:), ovlp_evec(:,:) !MLO wavefunction
     complex(8) :: ovlm(ndimMTO,ndimMTO), hamm(ndimMTO,ndimMTO), ovlm_buf(ndimMTO,ndimMTO)
     real(8), parameter :: oveps=1d-15, pi=4d0*atan(1d0)
     complex(8), parameter :: img=(0d0,1d0)
@@ -74,11 +73,9 @@ contains
         enddo
       enddo
     enddo FourierTransormationFROMrealspcaeTOqspace
-    if(present(evec) .and. present(ovlp_evec)) ovlm_buf(:,:) = ovlm(:,:) !keep ovlm
+    if(present(ovlp_evec)) ovlm_buf(:,:) = ovlm(:,:) !keep ovlm
     istat = zhgv(hamm, ovlm, n=ndimMTO, evl=ev) !in-place
     if(present(evec)) evec(:,:) = hamm(:,:)
-    if(present(evec) .and. present(ovlp_evec)) then
-      if(ovlp_evec) istat = zmm(ovlm_buf, hamm, evec, m=ndimMTO, n=ndimMTO, k=ndimMTO)
-    endif
+    if(present(ovlp_evec)) istat=zmm(ovlm_buf, hamm, ovlp_evec, m=ndimMTO, n=ndimMTO, k=ndimMTO)
   end subroutine calc_ham_eigen
 end module m_mlo_ham

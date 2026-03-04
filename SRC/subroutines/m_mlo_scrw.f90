@@ -4,7 +4,7 @@ module m_mlo_scrw
   use m_mpi, only: ipr
   use m_ftox, only: ftox
   implicit none
-  public :: nnwf_init, scrw_init, trace_onsite, trace_onsite_diag, contract_to_site
+  public :: nnwf_init, scrw_init, trace_onsite, trace_onsite_diag, contract_to_site, extract_diagonal_channel
   integer, protected, public :: nnwf
   complex(8), allocatable, protected, public :: scrw(:,:)
   integer, allocatable, protected, public :: mlo_pairs(:,:), pair_site(:,:), pair_lorb(:,:)
@@ -50,13 +50,30 @@ contains
                 mlo_pairs(inwf,1) == mlo_pairs(inwf,2) .and. & !n1 == n2 => R1 == R2 is automatically satisfied
                 mlo_pairs(jnwf,1) == mlo_pairs(jnwf,2), &      !n3 == n4 => R3 == R4 is automatically satisfied
                 inwf=1,nnwf), jnwf=1,nnwf)]
+      ! mask = [((pair_site(inwf,1) == site1 .and. pair_site(jnwf,1) == site2 ,&  !R1 == site1  R3 == site2
+      !           inwf=1,nnwf), jnwf=1,nnwf)]
       if(present(lorb)) then
         mask = mask .AND. [(((pair_lorb(inwf,1)==lorb .and. pair_lorb(inwf,2)==lorb .and. &
                             & pair_lorb(jnwf,1)==lorb .and. pair_lorb(jnwf,2)==lorb), inwf=1,nnwf), jnwf=1,nnwf)]
       endif
-      cmat(site1,site2) = sum(pack(reshape(mat, [nnwf*nnwf]), mask=mask))
+      cmat(site1,site2) = sum(pack(reshape(mat, shape=[nnwf*nnwf]), mask=mask))
     enddo
   end function contract_to_site
+
+  function extract_diagonal_channel(mat, lorb) result(cmat)
+    complex(8), intent(in) :: mat(nnwf,nnwf)
+    complex(8) :: cmat(nwf,nwf)
+    integer , optional, intent(in) :: lorb
+    logical, allocatable :: mask(:)
+    integer :: inwf, jnwf, iwf, jwf
+    mask = [((mlo_pairs(inwf,1) == mlo_pairs(inwf,2) .and. & !n1 == n2 => R1 == R2 is automatically satisfied
+              mlo_pairs(jnwf,1) == mlo_pairs(jnwf,2), &      !n3 == n4 => R3 == R4 is automatically satisfied
+              inwf=1,nnwf), jnwf=1,nnwf)]
+    cmat(:,:) = reshape(pack(reshape(mat, shape=[nnwf*nnwf]), mask=mask), shape=[nwf,nwf])
+    if(present(lorb)) then
+      where(reshape([(((l_tableM(iwf)/=lorb .or. l_tableM(jwf)/=lorb), iwf=1,nwf), jwf=1,nwf)], shape=[nwf,nwf])) cmat = (0d0,0d0)
+    endif
+  end function extract_diagonal_channel
 
   complex(8) function trace_onsite(mat, site) result(trmat)
     complex(8), intent(in) :: mat(nnwf,nnwf)
@@ -71,7 +88,7 @@ contains
       mask = mask .AND. [((pair_site(inwf,1) == site .and. pair_site(jnwf,1) == site, &
                           inwf=1,nnwf), jnwf=1,nnwf)]
     endif
-    trmat = sum(pack(reshape(mat, [nnwf*nnwf]), mask=mask))
+    trmat = sum(pack(reshape(mat, shape=[nnwf*nnwf]), mask=mask))
   end function trace_onsite
 
   complex(8) function trace_onsite_diag(mat, site) result(trmat)
@@ -90,8 +107,8 @@ contains
     trmat = sum(pack(reshape(mat, [nnwf*nnwf]), mask=mask))
   end function trace_onsite_diag
 
-  subroutine scrw_init(nnwf_size_reduction, w_onsite_dddd, Wtype)
-    logical, intent(in) :: nnwf_size_reduction, w_onsite_dddd
+  subroutine scrw_init(nnwf_size_reduction, w_onsite_dddd, Wtype, enforce_Hermite)
+    logical, intent(in) :: nnwf_size_reduction, w_onsite_dddd, enforce_Hermite
     character(len=*), intent(in) :: Wtype
     integer:: ifscrwv, ifscrv, iwf, jwf, kwf, lwf
     character(len=9)::charadummy 
@@ -127,7 +144,11 @@ contains
     do iwf=1, nwf**4
       read(ifscrv,"(A,2i5, 3f12.6, 5i5,2f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4, scrv4 !v
       read(ifscrwv,"(A,2i5, 3f12.6,5i5,4f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4,freq,freq2,scrwc4 !Wc = W -v
-      if (all([l_tableM(iwf1), l_tableM(iwf2), l_tableM(iwf3), l_tableM(iwf4)] == 2)) scrw4(iwf2,iwf3,iwf1,iwf4) = scrwc4 + scrv4
+      if(w_onsite_dddd) then
+        if (all([l_tableM(iwf1), l_tableM(iwf2), l_tableM(iwf3), l_tableM(iwf4)] == 2)) scrw4(iwf2,iwf3,iwf1,iwf4) = scrwc4 + scrv4
+      else
+        scrw4(iwf2,iwf3,iwf1,iwf4) = scrwc4 + scrv4
+      endif
     enddo
     if(allocated(scrw)) deallocate(scrw)
     allocate(scrw(nnwf,nnwf))
@@ -138,6 +159,7 @@ contains
     else
       scrw(:,:) = reshape(scrw4, shape=[nnwf,nnwf])
     endif
+    if(enforce_Hermite) scrw(:,:) = (scrw(:,:) + transpose(conjg(scrw(:,:))))*0.5d0
     scrw(:,:) = scrw(:,:)/hartree !! Screening W for magnon
     show_atomic_W: block
       use m_mpi,only: MPI__root
@@ -172,9 +194,9 @@ contains
                        & mlo_pairs(inwf,1) /= mlo_pairs(jnwf,1)), inwf=1,nnwf), jnwf=1,nnwf)]
             W_offdiag_ave = 0d0
             J_ave = 0d0
-            if(count(mask .and. mask_W_diag) > 0) W_diag_ave = sum(pack(reshape(scrw, [nnwf*nnwf]), &
+            if(count(mask .and. mask_W_diag) > 0) W_diag_ave = sum(pack(reshape(scrw, shape=[nnwf*nnwf]), &
                                                            & mask=(mask .and. mask_W_diag)))/count(mask .and. mask_W_diag)
-            if(count(mask .and. mask_W_offdiag) > 0) W_offdiag_ave = sum(pack(reshape(scrw, [nnwf*nnwf]), &
+            if(count(mask .and. mask_W_offdiag) > 0) W_offdiag_ave = sum(pack(reshape(scrw, shape=[nnwf*nnwf]), &
                                                            & mask=(mask .and. mask_W_offdiag)))/count(mask .and. mask_W_offdiag)
             if(count(mask .and. mask_J) > 0) J_ave = sum(pack(reshape(scrw, [nnwf*nnwf]),&
                                                            & mask=(mask .and. mask_J)))/count(mask .and. mask_J)
