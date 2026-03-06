@@ -423,14 +423,13 @@ subroutine mlo_magnon() bind(C)
         rmat_site(:,:) = contract_to_site(rmat)
         istat = zminv(rmat_site, n=nsite)
         do concurrent(site1=1:nsite,site2=1:nsite)
-          rmat_site(site1,site2) = sz_site(site1)*rmat_site(site1,site2)*sz_site(site2)
+          rmat_site(site1,site2) = sz_site(site1)*rmat_site(site1,site2)
         enddo
         istat = zgev(rmat_site, n=nsite, evl=jq_site)
         jq_w_site(iw,1:nsite) = jq_site(1:nsite)
-
         istat = zminv(rmat, n=nnwf)
         istat = zgev(rmat, n=nnwf, evl=jq)
-        jq_w(iw,1:nnwf) = jq(1:nnwf)
+        jq_w(iw,1:nnwf) = jq(1:nnwf) - merge(-freq_r(-iw),freq_r(iw),iw<0)
       endblock CalcJq
     enddo iwloop
 
@@ -454,7 +453,8 @@ subroutine mlo_magnon() bind(C)
       integer :: file_tr_kpm_out, file_tr_rpm_out
       complex(8) :: dos_tr_kpm, dos_tr_diag_kpm, dos_tr_rpm, dos_tr_diag_rpm
       complex(8) :: tr_kpm_ibz(nqibz_dos,nw_i:nw), tr_diag_kpm_ibz(nqibz_dos,nw_i:nw), &
-                    tr_rpm_ibz(nqibz_dos,nw_i:nw), tr_diag_rpm_ibz(nqibz_dos,nw_i:nw)
+                    tr_rpm_ibz(nqibz_dos,nw_i:nw), tr_diag_rpm_ibz(nqibz_dos,nw_i:nw), &
+                    jq_site_ibz(nqibz_dos,nw_i:nw,nsite)
       real(8) :: www, omega, tetra_vol
       integer :: tetra_nodes(4,nteti_dos), tetra_weight(nteti_dos)
       open(newunit=file_tr_rpm_out, file='TrRpm.dos', status='replace', form='formatted', action='write')
@@ -468,7 +468,9 @@ subroutine mlo_magnon() bind(C)
         istat = readm(file_tr_rpm, rec=iq, data=tr_rpm_ibz(iq,nw_i:nw))
         istat = readm(file_tr_diag_kpm, rec=iq, data=tr_diag_kpm_ibz(iq,nw_i:nw))
         istat = readm(file_tr_diag_rpm, rec=iq, data=tr_diag_rpm_ibz(iq,nw_i:nw))
+        istat = readm(file_jq_site, rec=iq, data=jq_site_ibz(iq,nw_i:nw,1:nsite))
       enddo
+
       tetra_vol = 1d0/ntetf_dos ! ntetf was =6*n1*n2*n3
       do iw = nw_i, nw
         dos_tr_kpm = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, tr_kpm_ibz(:,iw))
