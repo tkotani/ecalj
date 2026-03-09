@@ -7,17 +7,19 @@ module m_readwan
   implicit none
   public:: Write_qdata, Wan_readeigen, Wan_readeval, Wan_readeval2, & !Readscr,
        Checkorb,Checkorb2, Diagwan, Diagwan_tr, Wan_imat, Writehmat, Writeddmat, Read_wandata, &
-       tr_mat_onsite, tr_mat_onsite_diag, set_wan_nnwf, set_wan_scrw
+       tr_mat_onsite, tr_mat_onsite_diag, set_wan_nnwf, set_wan_scrw, &
+       wan_contract_to_site, wan_extract_diagonal_channel
   integer, protected, public:: nwf, nsp_w, nqtt_w, nnwf !! read by read_wandata
   complex(8), allocatable, protected, public :: scrw(:,:)
   integer, allocatable, protected, public :: wan_pair_index(:,:), wan_pair_site(:,:)
   integer, protected, public:: natom
+  integer,allocatable, protected, public:: ibaswf(:)
   private
   logical:: init=.true.
   logical:: readwan=.false.,lreadhrotr=.false.
   real(8):: alat,plat(3,3),ef
   integer :: nrws,n1,n2,n3
-  integer,allocatable:: irws(:),ibaswf(:)
+  integer,allocatable:: irws(:)
   integer, allocatable :: wan_pair_lorb(:,:)
   real(8),allocatable:: pos(:,:),rws(:,:),drws(:)
   complex(8),allocatable:: hrotr(:,:,:,:), evecc(:,:)
@@ -298,6 +300,32 @@ contains
       wan_pair_lorb(ijwf,2) =  idorb(wan_pair_index(ijwf,2))
    enddo
   end subroutine set_wan_nnwf
+
+  function wan_contract_to_site(mat) result(cmat)
+    complex(8), intent(in) :: mat(nnwf,nnwf)
+    complex(8) :: cmat(natom,natom)
+    logical, allocatable :: mask(:)
+    integer :: site1, site2, inwf, jnwf
+    do concurrent(site1=1:natom, site2=1:natom)
+      mask = [((wan_pair_site(inwf,1) == site1 .and. wan_pair_site(jnwf,1) == site2 .and. &   !R1 == site1  R3 == site2
+                wan_pair_index(inwf,1) == wan_pair_index(inwf,2) .and. & !n1 == n2 => R1 == R2 is automatically satisfied
+                wan_pair_index(jnwf,1) == wan_pair_index(jnwf,2), &      !n3 == n4 => R3 == R4 is automatically satisfied
+                inwf=1,nnwf), jnwf=1,nnwf)]
+      cmat(site1,site2) = sum(pack(reshape(mat, shape=[nnwf*nnwf]), mask=mask))
+    enddo
+  end function wan_contract_to_site
+
+  function wan_extract_diagonal_channel(mat) result(cmat)
+    complex(8), intent(in) :: mat(nnwf,nnwf)
+    complex(8) :: cmat(nwf,nwf)
+    logical, allocatable :: mask(:)
+    integer :: inwf, jnwf, iwf, jwf
+    mask = [((wan_pair_index(inwf,1) == wan_pair_index(inwf,2) .and. & !n1 == n2 => R1 == R2 is automatically satisfied
+              wan_pair_index(jnwf,1) == wan_pair_index(jnwf,2), &      !n3 == n4 => R3 == R4 is automatically satisfied
+              inwf=1,nnwf), jnwf=1,nnwf)]
+    cmat(:,:) = reshape(pack(reshape(mat, shape=[nnwf*nnwf]), mask=mask), shape=[nwf,nwf])
+  end function wan_extract_diagonal_channel
+
   subroutine set_wan_scrw(nnwf_size_reduction, w_onsite_dddd, Wtype)
     logical, intent(in) :: nnwf_size_reduction, w_onsite_dddd
     character(len=*), intent(in) :: Wtype

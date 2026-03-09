@@ -215,9 +215,11 @@ contains
             endif NormalizationcheckFORspinweightSOC
           endassociate
        endif GetSpinWeightSOC1
+       if(allocated(t_evl(isp,iq)%v)) deallocate(t_evl(isp,iq)%v)
        allocate(t_evl(isp,iq)%v(nbandmx), source = evl(:,isp))
        if(lso==1) allocate(t_spinweight(iq)%v(nbandmx,nsp), source = spinweight)
        if(afsym) then !cmdopt0('--afsym')) then
+          if(allocated(t_evl(2,iq)%v)) deallocate(t_evl(2,iq)%v)
           allocate(t_evl(2,iq)%v(nbandmx), source = evl(:,1))
           nevls(iq,2)  = nev        
           ndimhx_(iq,2)= ndimhx     !Hamiltonian dimension

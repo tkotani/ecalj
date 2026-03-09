@@ -146,6 +146,7 @@ contains
       read(ifscrwv,"(A,2i5, 3f12.6,5i5,4f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4,freq,freq2,scrwc4 !Wc = W -v
       if(w_onsite_dddd) then
         if (all([l_tableM(iwf1), l_tableM(iwf2), l_tableM(iwf3), l_tableM(iwf4)] == 2)) scrw4(iwf2,iwf3,iwf1,iwf4) = scrwc4 + scrv4
+        ! if (all([l_tableM(iwf1), l_tableM(iwf2), l_tableM(iwf3), l_tableM(iwf4)] == 2)) scrw4(iwf1,iwf2,iwf3,iwf4) = scrwc4 + scrv4
       else
         scrw4(iwf2,iwf3,iwf1,iwf4) = scrwc4 + scrv4
       endif
