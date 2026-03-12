@@ -601,7 +601,8 @@ contains
     endif  
     allocate(cbwf(iko_ix:iko_fx,nwf,nqtt,nsp))
     cbwf = 0d0
-    allocate(ovlmW_inv(nwf,nwf,nqtt,nsp))
+    allocate(ovlmW_inv(nwf,nwf,nqtt,nsp), source = (0d0,0d0))
+    forall(iwf=1:nwf) ovlmW_inv(iwf,iwf,1:nqtt,1:nsp) = 1d0
     
     if(Wpkm4crpa) then
       fname='pkm4crpa'
