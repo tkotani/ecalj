@@ -122,10 +122,10 @@ contains
            matmul(transpose(dconjg(evecmto(:,:))),ovlmx(ix(1:ndimMTO),ix(1:ndimMTO)))) ! where <Psi_MTO j|MTO_k> = (evecmto*) @ ovlmx
 
       ! normalized
-      do i=1,ndimMTO
-        ddd = sum( dconjg(cmlo(1:nx,i))*cmlo(1:nx,i) ) !<F^MLO|F^MLO>
-        cmlo(1:nx,i)=cmlo(1:nx,i)/sqrt(ddd)
-      enddo
+      ! do i=1,ndimMTO
+      !   ddd = sum( dconjg(cmlo(1:nx,i))*cmlo(1:nx,i) ) !<F^MLO|F^MLO>
+      !   cmlo(1:nx,i)=cmlo(1:nx,i)/sqrt(ddd)
+      ! enddo
       
       ! |F^MLO j'>= |F^PMT_i'> z^PMT_i'i cmlo(i,j) 
       do i=1,ndimMTO

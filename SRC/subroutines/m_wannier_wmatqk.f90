@@ -251,7 +251,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
     if(.not. spinflip .and. is/=isp) cycle
     do iq = 1,nqbz
       q(:) = qbz(:,iq)
-      call readcphiW (qbz(:,iq), nlmto,is, quu, cphiq)
+      call readcphiW (qbz(:,iq), nlmto,is, quu, cphiq, dual=.true.)
       qk =  q - qbz_kr          ! qbz(:,kr)
       call  readcphiW(qk, nlmto,is, quu, cphikq)
       do ia = 1,natom

@@ -3,7 +3,7 @@ module m_mlo_ham
   use m_lgunit, only: stdo
   use m_mpi, only: ipr
   use m_blas, only: zmm => zmm_h, zmv => zmv_h, m_op_T
-  use m_lapack, only: zhgv => zhgv_h
+  use m_lapack, only: zhgv => zhgv_h, zsv => zsv_h
   use m_ftox, only: ftox
   implicit none
   public :: read_ham_rs, calc_ham_eigen
@@ -29,11 +29,11 @@ contains
     nsite = size(ib_tableI)
   end subroutine read_ham_rs
 
-  subroutine calc_ham_eigen(q, isp, ev, evec, ovlp_evec)
+  subroutine calc_ham_eigen(q, isp, ev, evec, ovlp_evec, dual_evec)
     real(8), intent(in) :: q(3)
     integer, intent(in) :: isp
     real(8), intent(out) :: ev(:) !MLO eigenvalue
-    complex(8), optional, intent(out) :: evec(:,:), ovlp_evec(:,:) !MLO wavefunction
+    complex(8), optional, intent(out) :: evec(:,:), ovlp_evec(:,:), dual_evec(:,:) !MLO wavefunction
     complex(8) :: ovlm(ndimMTO,ndimMTO), hamm(ndimMTO,ndimMTO), ovlm_buf(ndimMTO,ndimMTO)
     real(8), parameter :: oveps=1d-15, pi=4d0*atan(1d0)
     complex(8), parameter :: img=(0d0,1d0)
@@ -73,9 +73,13 @@ contains
         enddo
       enddo
     enddo FourierTransormationFROMrealspcaeTOqspace
-    if(present(ovlp_evec)) ovlm_buf(:,:) = ovlm(:,:) !keep ovlm
-    istat = zhgv(hamm, ovlm, n=ndimMTO, evl=ev) !in-place
+    if(present(ovlp_evec) .or. present(dual_evec)) ovlm_buf(:,:) = ovlm(:,:) !keep ovlm
+    istat = zhgv(hamm, ovlm, n=ndimMTO, evl=ev) !in-place hamm -> evec
     if(present(evec)) evec(:,:) = hamm(:,:)
-    if(present(ovlp_evec)) istat=zmm(ovlm_buf, hamm, ovlp_evec, m=ndimMTO, n=ndimMTO, k=ndimMTO)
+    if(present(ovlp_evec)) istat = zmm(ovlm_buf, hamm, ovlp_evec, m=ndimMTO, n=ndimMTO, k=ndimMTO)
+    if(present(dual_evec)) then
+      dual_evec(:,:) = hamm(:,:)
+      istat = zsv(ovlm_buf, dual_evec, n=ndimMTO, nrhs=ndimMTO)
+    endif
   end subroutine calc_ham_eigen
 end module m_mlo_ham

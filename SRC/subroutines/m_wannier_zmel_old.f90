@@ -157,7 +157,7 @@ contains
     integer::verbose
     call readqg('QGpsi', q,    qt,   ngp1, ngvecpB1)
     call readqg('QGpsi', q_rk, q_rkt,ngp2, ngvecpB2)
-    call readgeigW(q,    ngpmx, isp, qu1, geig1)
+    call readgeigW(q,    ngpmx, isp, qu1, geig1, dual=.true.)
     call readgeigW(q_rk, ngpmx, isp, qu2, geig2)
     if(sum(abs(qt-qu1))>1d-10) stop 'drvmelp3;qu1/=qu1x'
     if(sum(abs(q_rkt-qu2))>1d-10) stop 'drvmelp3;qu2/=qu2x'

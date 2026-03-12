@@ -30,7 +30,7 @@ module m_readeigen
   logical,private:: debug=.false.
   character(8),external :: xt
   real(8),allocatable,private:: evud(:,:,:)
-  complex(8),allocatable:: geigW(:,:,:,:),cphiW(:,:,:,:)
+  complex(8),allocatable:: geigW(:,:,:,:),cphiW(:,:,:,:), ovlmW_inv(:,:,:,:)
   complex(8),allocatable,private:: geig(:,:,:,:),cphi(:,:,:,:)
   integer,allocatable,private:: ngp(:),ngvecp(:,:,:), ngvecprev(:,:,:,:)
   integer,allocatable,private:: l_tbl(:),k_tbl(:),ibas_tbl(:),offset_tbl(:),offset_rev_tbl(:,:,:)
@@ -601,6 +601,7 @@ contains
     endif  
     allocate(cbwf(iko_ix:iko_fx,nwf,nqtt,nsp))
     cbwf = 0d0
+    allocate(ovlmW_inv(nwf,nwf,nqtt,nsp))
     
     if(Wpkm4crpa) then
       fname='pkm4crpa'
@@ -618,7 +619,7 @@ contains
        iq0i = (ikp - iqbz)/nqbz
        do is= 1,nsp
          if(mlocase) then
-           call readcmlo( qtt(:,ikp), is, nspx,nband, ndimMTO, cbwf(:,:,ikp,is))
+           call readcmlo( qtt(:,ikp), is, nspx,nband, ndimMTO, cbwf(:,:,ikp,is), ovlmW_inv(:,:,ikp,is))
            !           write(*,*) 'readcmlo check ---', ikp,is,sum(abs(cbwf(1:nband,1:ndimMTO,ikp,is)))
            goto 889
          endif
@@ -736,10 +737,11 @@ contains
     endif
     deallocate(cbwf)
   end subroutine init_readeigen_mlw_noeval
-  subroutine readgeigW(q,ngp_in,isp, qu,geigen)
+  subroutine readgeigW(q,ngp_in,isp, qu,geigen,dual)
     integer:: isp,iq,iqindx,ngp_in,ikpisp
     real(8)   :: q(3),qu(3)
     complex(8):: geigen(ngp_in,nwf)
+    logical, intent(in), optional :: dual
     if(init2) call rx( 'readgeig_mlw: modele is not initialized yet')
     call iqindx2_(q, iq, qu) !qu is used q.  q-qu= G vectors.
     if(ngp_in < ngp(iq)) then
@@ -748,31 +750,38 @@ contains
     endif
     !   if(keepeig) then
     geigen(1:ngp(iq),1:nwf) = geigW(1:ngp(iq),1:nwf,iq,isp)
+    if(present(dual))then
+      if(dual) geigen(1:ngp(iq),:) = matmul(geigen(1:ngp(iq),:), ovlmW_inv(:,:,iq,isp))
+    endif
     !   else
     !      ikpisp= isp + nsp*(iq-1)
     !      read(ifgeigW) geigen(1:ngpmx,1:nwf)
     !   endif
   end subroutine readgeigW
-  subroutine readcphiW(q,ndimanspc_dummy,isp,  qu,cphif)
+  subroutine readcphiW(q,ndimanspc_dummy,isp,  qu,cphif, dual)
     integer:: isp,iq,iqindx,ndimanspc_dummy,ikpisp
     real(8)   :: q(3),qu(3)
     complex(8):: cphif(ndima*nspc,nwf)
+    logical, intent(in), optional :: dual
     if(init2) call rx( 'readcphi_mlw: modele is not initialized yet')
     call iqindx2_(q, iq, qu) !qu is used q.  q-qu= G vectors.
     !   if(keepeig) then
     cphif(1:ndima*nspc,1:nwf) = cphiW(1:ndima*nspc,1:nwf,iq,isp)
+    if(present(dual))then
+      if(dual) cphif(:,:) = matmul(cphif(:,:), ovlmW_inv(:,:,iq,isp))
+    endif
     !   else
     !      ikpisp= isp + nsp*(iq-1)
     !      read(ifcphi_mlw) cphif(1:ndimanspc,1:nwf)
     !   endif
   end subroutine readcphiW
 
-  subroutine readcmlo(qtarget,is,nspx,nband,ndimMTO, cmlo)
+  subroutine readcmlo(qtarget,is,nspx,nband,ndimMTO, cmlo, ovlm_inv)
     use m_qplist,only: qplist
     implicit none
     integer:: is,nspx,ndimPMT,ndimMTO,i,igg,iq,iqqisp,nband,j,ig,iqq,nqbz,mrecbb
     real(8):: qp(3),qtarget(3),qx(3),qxx(3)
-    complex(8)::  cmlo(nband,ndimMTO)
+    complex(8)::  cmlo(nband,ndimMTO), ovlm_inv(ndimMTO,ndimMTO)
     integer,save:: ifizz,niqisp,nqirr,ifihh,ndimMTO_,nMTO
     logical,save:: init=.True.
     integer,allocatable,save::iqproc(:),isproc(:),ix(:)
@@ -812,10 +821,18 @@ contains
     !      write(*,*) 'ccccccccc cmlo1111 iqq is cmlo',is,iqq,iqqisp,sum(abs(cmlo))
     block
       use m_rotwave,only: rotmatMTO
+      use m_lapack, only: zminv => zminv_h
       complex(8)::rotmatt(ndimMTO,ndimMTO),rotmat(nMTO,nMTO) !  write(stdo,*)'igg qp=',iqq,qp,'  ',qtarget
+      complex(8) :: ovlm(ndimMTO,ndimMTO)
+      integer :: istat
       call rotmatMTO(igg, qp,qtarget,nMTO, rotmat)
       forall(i=1:ndimMTO,j=1:ndimMTO) rotmatt(i,j)=rotmat(ix(i),ix(j))
       cmlo= matmul(cmlo,dconjg(transpose(rotmatt)))
+      do concurrent(i=1:ndimMTO,j=1:ndimMTO)
+        ovlm(i,j) = sum(dconjg(cmlo(:,i))*cmlo(:,j))
+      enddo
+      istat = zminv(ovlm, n=ndimMTO)
+      ovlm_inv = ovlm
       !        write(*,*) 'ccccccccc cmlo1222',is,iqq,iqqisp,sum(abs(cmlo))!,sum(abs(rotmatt))
     endblock
   endsubroutine readcmlo
