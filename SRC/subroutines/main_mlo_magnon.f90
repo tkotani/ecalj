@@ -30,7 +30,7 @@ subroutine mlo_magnon() bind(C)
   !!  dpsion5: calculate real part by the Hilbert transformation from the Im part
   !!  xxx removed--> eibz means extented irreducible brillowin zone scheme by C.Friedlich. (not so efficient in cases).
   integer:: iwf, jwf, inwf, jnwf
-  integer:: file_tr_kpm, file_tr_rpm, file_tr_diag_kpm, file_tr_diag_rpm, file_jq_site
+  integer:: file_tr_kpm, file_tr_rpm, file_tr_diag_kpm, file_tr_diag_rpm, file_jq_site, file_jq_full
   integer:: iqxini, iqxend, i, iw, iq, kx, istat, nqcalc
   real(8):: q(3), rydberg, hartree, delta, eta, delta_dos, freq_ratio, freq_dw
   real(8), allocatable:: qibze(:,:)
@@ -215,6 +215,7 @@ subroutine mlo_magnon() bind(C)
     istat = openm(newunit=file_tr_diag_kpm, file='__TrDiagKpm', recl=(nw-nw_i+1)*16)
     istat = openm(newunit=file_tr_diag_rpm, file='__TrDiagRpm', recl=(nw-nw_i+1)*16)
     istat = openm(newunit=file_jq_site, file='__JqSite', recl=nsite*(nw-nw_i+1)*16)
+    istat = openm(newunit=file_jq_full, file='__JqFull', recl=nnwf*(nw-nw_i+1)*16)
   endif SetTemporaryFiles
 
   allocate(imat(1:nnwf,1:nnwf),source=(0d0,0d0))
@@ -321,6 +322,7 @@ subroutine mlo_magnon() bind(C)
          nttp(:) = 0
          do kx = kx_start, kx_end
            do ibib = 1, nbnb(kx,jpm) !! n,n' pair band index loop
+             ! n1b, n2b has opposite meaning (occ <-> unocc) in jpm =2
              it = n1b(ibib,kx,jpm)  !index for n  for q   ! n1b(ibib,k,jpm) = n :band index for k (occupied),
              itp = n2b(ibib,kx,jpm) !index for n' for q+k ! n2b(ibib,k,jpm) = n':band index for q+k (unoccupied)
              do iw = ihw(ibib,kx,jpm), ihw(ibib,kx,jpm)+nhw(ibib,kx,jpm)-1
@@ -342,8 +344,8 @@ subroutine mlo_magnon() bind(C)
              it = itw(ittp,iw)
              itp = itpw(ittp,iw)
              kx = ik(ittp,iw)
-             wzw(ittp,inwf) = whwc(ittp,iw)*dconjg(ov_evc_w2_kx(jwf,itp,kx))*ov_evc_w1_kx(iwf,it,kx) !a_{Rk alpha}^{(k+q)n'}* a_{Rl beta}^{kn}
-              zw(ittp,inwf) =               dconjg(   evc_w2_kx(jwf,itp,kx))*   evc_w1_kx(iwf,it,kx)
+             wzw(ittp,inwf) = whwc(ittp,iw)*dconjg(ov_evc_w2_kx(iwf,itp,kx))*ov_evc_w1_kx(jwf,it,kx)
+              zw(ittp,inwf) =               dconjg(   evc_w2_kx(iwf,itp,kx))*   evc_w1_kx(jwf,it,kx)
              ! zw(ittp, inwf) = dconjg(evc_w2_kx(jwf,itp,kx))*evc_w1_kx(iwf,it,kx) !a_{Rk alpha}^{(k+q)n'}* a_{Rl beta}^{kn}
              ! wzw(ittp,inwf) = whwc(ittp,iw)*zw(ittp,inwf)
            enddo
@@ -429,8 +431,8 @@ subroutine mlo_magnon() bind(C)
 
 
     OmegaLoop: block
-      complex(8) :: r_tr(nw_i:nw), r_diag(nw_i:nw), k_tr(nw_i:nw), k_diag(nw_i:nw), jq_w(nw_i:nw,1:nnwf), &
-                    jq_w_site(nw_i:nw,1:nsite), jq_w_diag(nw_i:nw,nwf), wkmat(nnwf,nnwf), rmat(nnwf,nnwf), &
+      complex(8) :: r_tr(nw_i:nw), r_diag(nw_i:nw), k_tr(nw_i:nw), k_diag(nw_i:nw), jq_w_full(nw_i:nw,1:nnwf), &
+                    jq_w_site(nw_i:nw,1:nsite),  wkmat(nnwf,nnwf), rmat(nnwf,nnwf), &
                     chi0(nnwf,nnwf), rmat_site(nsite,nsite,nw_i:nw), kmat_site(nsite,nsite,nw_i:nw)
       iwloop: do iw = nw_i, nw
         !kmat, rmat are time ordered
@@ -470,13 +472,21 @@ subroutine mlo_magnon() bind(C)
         k_diag(iw) = trace_onsite_diag(chi0(:,:))/znorm
         r_diag(iw) = trace_onsite_diag(rmat)
 
+        ! rmat(:,:) = (rmat(:,:) + conjg(transpose(rmat(:,:))))*0.5d0
+
         chi0(:,:) = merge(conjg(transpose(chi0(:,:))),chi0,iw <0)
         rmat(:,:) = merge(conjg(transpose(rmat(:,:))),rmat,iw <0)
         kmat_site(:,:,iw) = contract_to_site(chi0)
         rmat_site(:,:,iw) = contract_to_site(rmat)
+
+        istat = zminv(rmat(:,:), n=nnwf)
+        do concurrent(inwf=1:nnwf,jnwf=1:nnwf)
+          rmat(inwf,jnwf) = sz(inwf)*rmat(inwf,jnwf)
+        enddo
+        istat = zgev(rmat(:,:), n=nnwf, evl=jq_w_full(iw,:))
       enddo iwloop
 
-      CalcJq:block
+      CalcJqSite:block
         use m_intg, only: intg_trapezoidal_nonuniform
         real(8) :: sz_kmat(nsite), sz_rmat(nsite), correction_factor
         integer :: isite, isite1, isite2
@@ -485,54 +495,22 @@ subroutine mlo_magnon() bind(C)
           sz_rmat(isite) = -intg_trapezoidal_nonuniform(freq, imag(rmat_site(isite,isite,nw_i:nw)))/pi
           write(stdo,ftox) 'moments:',isite, sz_kmat(isite), sz_rmat(isite)
         enddo
-        ! do isite1 = 1, nsite
-        ! do isite2 = 1, nsite
-        !   write(stdo,ftox)'moments: i,j',isite1,isite2, &
-        !    -intg_trapezoidal_nonuniform(freq, imag(kmat_site(isite1,isite2,nw_i:nw)))/pi, &
-        !    -intg_trapezoidal_nonuniform(freq, imag(rmat_site(isite1,isite2,nw_i:nw)))/pi
-        ! enddo
-        ! enddo
-        ! do iw = nw_i, nw
-        !   istat = zminv(rmat_site(:,:,iw), n=nsite)
-        !   do concurrent(isite1=1:nsite,isite2=1:nsite)
-        !     correction_factor = 1d0
-        !     if(abs(sz_rmat(isite1)) > 1d-5) correction_factor = sz_kmat(isite1)/sz_rmat(isite1) 
-        !     ! rmat_site(isite1,isite2,iw) = correction_factor*sz_kmat(isite1)*rmat_site(isite1,isite2,iw)
-        !     rmat_site(isite1,isite2,iw) = sz_site(isite1)*rmat_site(isite1,isite2,iw)
-        !   enddo
-        !   istat = zgev(rmat_site(:,:,iw), n=nsite, evl=jq_w_site(iw,:))
-        ! enddo
         do iw = nw_i, nw
           istat = zminv(rmat_site(:,:,iw), n=nsite)
-          ! do concurrent(isite1=1:nsite,isite2=1:nsite)
-          !   rmat_site(isite1,isite2,iw) = rmat_site(isite1,isite2,iw)/(rmat_site(isite1,isite1,iw)*rmat_site(isite2,isite2,iw))
-          ! enddo
-
           do concurrent(isite1=1:nsite,isite2=1:nsite)
-            ! correction_factor = 1d0
-            ! if(abs(sz_rmat(isite1)) > 1d-5) correction_factor = sz_kmat(isite1)/sz_rmat(isite1) 
-            ! rmat_site(isite1,isite2,iw) = correction_factor*sz_kmat(isite1)*rmat_site(isite1,isite2,iw)
             rmat_site(isite1,isite2,iw) = sz_site(isite1)*rmat_site(isite1,isite2,iw)
           enddo
           istat = zgev(rmat_site(:,:,iw), n=nsite, evl=jq_w_site(iw,:))
         enddo
-        ! do iw = nw_i, nw
-        !   istat = zminv(rmat_site(:,:,iw), n=2, lda=nsite)
-        !   do concurrent(isite1=1:nsite,isite2=1:nsite)
-        !     correction_factor = 1d0
-        !     if(abs(sz_rmat(isite1)) > 1d-5) correction_factor = sz_kmat(isite1)/sz_rmat(isite1) 
-        !     ! rmat_site(isite1,isite2,iw) = correction_factor*sz_kmat(isite1)*rmat_site(isite1,isite2,iw)
-        !     rmat_site(isite1,isite2,iw) = sz_site(isite1)*rmat_site(isite1,isite2,iw)
-        !   enddo
-        !   jq_w_site(iw,:) = 1d+99
-        !   istat = zgev(rmat_site(:,:,iw), n=2, evl=jq_w_site(iw,:), lda=nsite)
-        ! enddo
-        istat = writem(file_jq_site, rec=iq, data=jq_w_site(nw_i:nw,1:nsite))
-      endblock CalcJq
+      endblock CalcJqSite
+
       istat = writem(file_tr_kpm, rec=iq, data=k_tr(nw_i:nw))
       istat = writem(file_tr_rpm, rec=iq, data=r_tr(nw_i:nw))
       istat = writem(file_tr_diag_kpm, rec=iq, data=k_diag(nw_i:nw))
       istat = writem(file_tr_diag_rpm, rec=iq, data=r_diag(nw_i:nw))
+
+      istat = writem(file_jq_full, rec=iq, data=jq_w_full(nw_i:nw,1:nnwf))
+      istat = writem(file_jq_site, rec=iq, data=jq_w_site(nw_i:nw,1:nsite))
     endblock OmegaLoop
     if(ipr) call writemem('mlo_magnon end iq='//trim(charext(iq)))
   enddo BIGiqloop
@@ -588,13 +566,16 @@ subroutine mlo_magnon() bind(C)
   ReformatOutputFiles:if(mpi__root .and. .not.calcdos) then
     block
       use m_read_bzdata, only: epslgroup
-      use m_sort, only: sort_index
-      integer :: epslgroup_old, file_tr_kpm_out, file_tr_rpm_out, file_jq_out, file_jq_site_out, file_jq_diag_out
+      use m_sort, only: sort_index, lower_bound, upper_bound
+      integer :: epslgroup_old, file_tr_kpm_out, file_tr_rpm_out, file_jq_out, file_jq_site_out, file_jq_diag_out, file_jq_full_out
       character(3) :: charnum3
       real(8) :: q_old(3), q_position, dq, omega, www
+      real(8), parameter :: jq_cut_min =  1d-3, jq_cut_max=1
+      integer :: idx_min, idx_max
       logical :: opened
       integer, allocatable, target :: idx_sort(:)
-      complex(8) :: r_tr(nw_i:nw), r_diag(nw_i:nw), k_tr(nw_i:nw), k_diag(nw_i:nw),  jq_w_site(nw_i:nw,1:nsite)
+      complex(8) :: r_tr(nw_i:nw), r_diag(nw_i:nw), k_tr(nw_i:nw), k_diag(nw_i:nw),  jq_w_site(nw_i:nw,1:nsite), &
+                    jq_w_full(nw_i:nw,1:nnwf)
       epslgroup_old = -1 !epslgroup starts from 1
       q_old(:) = qibze(:,1)
       q_position = 0d0
@@ -615,6 +596,7 @@ subroutine mlo_magnon() bind(C)
           open(newunit=file_tr_kpm_out, file='TrKpm.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
           open(newunit=file_tr_rpm_out, file='TrRpm.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
           open(newunit=file_jq_site_out, file='JqSite.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
+          open(newunit=file_jq_full_out, file='JqFull.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
           write(file_tr_kpm_out, '(A)')' # qx qy qz q_pos omega(eV) Real_Tr_K/eV Imag_Tr_K/eV Real_Tr_Diag_K/eV Imag_Tr_Diag_K/eV'
           write(file_tr_rpm_out, '(A)')' # qx qy qz q_pos omega(eV) Real_Tr_R/eV Imag_Tr_R/eV Real_Tr_Diag_R/eV Imag_Tr_Diag_R/eV'
         endif
@@ -623,6 +605,7 @@ subroutine mlo_magnon() bind(C)
         istat = readm(file_tr_diag_kpm, rec=iq, data=k_diag(:))
         istat = readm(file_tr_diag_rpm, rec=iq, data=r_diag(:))
         istat = readm(file_jq_site, rec=iq, data=jq_w_site(:,:))
+        istat = readm(file_jq_full, rec=iq, data=jq_w_full(:,:))
         dq = sqrt(sum((q(:)-q_old(:))**2))
         q_position = q_position + dq
         do iw = nw_i, nw
@@ -632,10 +615,15 @@ subroutine mlo_magnon() bind(C)
           write(file_tr_rpm_out, "(4f9.5,e14.6,4e17.9)") q(1:3), q_position, omega, r_tr(iw)/hartree, r_diag(iw)/hartree
           idx_sort = sort_index(abs(jq_w_site(iw,:)))
           write(file_jq_site_out, "(4f9.5,e14.6,20e17.9)") q(1:3), q_position, omega, ((jq_w_site(iw,idx_sort(i))*hartree),i=1,nsite)
+          idx_sort = sort_index(abs(jq_w_full(iw,:)))
+          idx_min = lower_bound(abs(jq_w_full(iw,:)), jq_cut_min, idx_sort)
+          idx_max = upper_bound(abs(jq_w_full(iw,:)), jq_cut_max, idx_sort)
+          write(file_jq_full_out, "(4f9.5,e14.6,81e17.9)") q(1:3), q_position, omega, ((dble(jq_w_full(iw,idx_sort(i)))*hartree),i=idx_min,idx_max)
         enddo
         write(file_tr_kpm_out, *)
         write(file_tr_rpm_out, *)
         write(file_jq_site_out, *)
+        write(file_jq_full_out, *)
         epslgroup_old = epslgroup(iq)
         q_old = q(:)
       enddo

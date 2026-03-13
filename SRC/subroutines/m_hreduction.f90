@@ -126,6 +126,28 @@ contains
       !   ddd = sum( dconjg(cmlo(1:nx,i))*cmlo(1:nx,i) ) !<F^MLO|F^MLO>
       !   cmlo(1:nx,i)=cmlo(1:nx,i)/sqrt(ddd)
       ! enddo
+      MLOLowdinOrthogonalization:if(cmdopt0('--mlo_ortho')) then
+         block 
+          use m_lapack, only: zhev => zhev_h
+          complex(8) :: ovlm_mlo(ndimMTO,ndimMTO), evl_ovl_buf(ndimMTO,ndimMTO), sinv_half(ndimMTO, ndimMTO)
+          real(8) :: eval(ndimMTO), einv_half
+          real(8), parameter :: eps = 1d-12, eps_ovl_chk = 1d-8
+          integer :: istat
+          ovlm_mlo = matmul(dconjg(transpose(cmlo)), cmlo)
+          istat = zhev(ovlm_mlo, n=ndimMTO, evl=eval)
+          do i = 1, ndimMTO
+            einv_half = merge(0d0, 1d0/sqrt(eval(i)), eval(i) < eps)
+            evl_ovl_buf(:,i) = ovlm_mlo(:,i)*einv_half
+          enddo
+          sinv_half = matmul(evl_ovl_buf, transpose(dconjg(ovlm_mlo)))
+          cmlo = matmul(cmlo, sinv_half)
+          !check
+          ovlm_mlo = matmul(dconjg(transpose(cmlo)), cmlo)
+          forall(i=1:ndimMTO) ovlm_mlo(i,i) = ovlm_mlo(i,i) - 1d0
+          if (any(abs(ovlm_mlo) > eps_ovl_chk)) call rx('Hreduction: LowdinOrthogonalization FAILD')
+        endblock
+      endif MLOLowdinOrthogonalization
+
       
       ! |F^MLO j'>= |F^PMT_i'> z^PMT_i'i cmlo(i,j) 
       do i=1,ndimMTO

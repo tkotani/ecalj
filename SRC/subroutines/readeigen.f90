@@ -828,13 +828,10 @@ contains
       integer :: istat
       call rotmatMTO(igg, qp,qtarget,nMTO, rotmat)
       forall(i=1:ndimMTO,j=1:ndimMTO) rotmatt(i,j)=rotmat(ix(i),ix(j))
-      cmlo= matmul(cmlo,dconjg(transpose(rotmatt)))
-      do concurrent(i=1:ndimMTO,j=1:ndimMTO)
-        ovlm(i,j) = sum(dconjg(cmlo(:,i))*cmlo(:,j))
-      enddo
+      cmlo = matmul(cmlo,dconjg(transpose(rotmatt)))
+      ovlm = matmul(dconjg(transpose(cmlo)), cmlo)
       istat = zminv(ovlm, n=ndimMTO)
       ovlm_inv = ovlm
-      !        write(*,*) 'ccccccccc cmlo1222',is,iqq,iqqisp,sum(abs(cmlo))!,sum(abs(rotmatt))
     endblock
   endsubroutine readcmlo
 end module m_readeigen
