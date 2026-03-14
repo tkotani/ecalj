@@ -4,7 +4,7 @@ module m_mlo_magnon
   contains
 subroutine mlo_magnon() bind(C)
   use m_mlo_ham, only: read_ham_rs, calc_ham_eigen, nwf => ndimMTO, nsite, ib_tableM
-  use m_mlo_scrw, only: nnwf, scrw, mlo_pairs, trace_onsite, trace_onsite_diag, nnwf_init, scrw_init,  &
+  use m_mlo_scrw, only: nnwf, scrw, mlo_pairs, trace, trace_onsite, trace_onsite_diag, nnwf_init, scrw_init,  &
                         contract_to_site, pair_site, extract_diagonal_channel, pair_lorb
   use m_HamPMT,only: ReadHamPMTInfo
   use m_ReadEfermi, only: readefermi
@@ -344,8 +344,13 @@ subroutine mlo_magnon() bind(C)
              it = itw(ittp,iw)
              itp = itpw(ittp,iw)
              kx = ik(ittp,iw)
+             !12: Dual
              wzw(ittp,inwf) = whwc(ittp,iw)*dconjg(ov_evc_w2_kx(iwf,itp,kx))*ov_evc_w1_kx(jwf,it,kx)
               zw(ittp,inwf) =               dconjg(   evc_w2_kx(iwf,itp,kx))*   evc_w1_kx(jwf,it,kx)
+
+             !13: Dual
+             ! wzw(ittp,inwf) = whwc(ittp,iw)*dconjg(   evc_w2_kx(iwf,itp,kx))*ov_evc_w1_kx(jwf,it,kx)
+             !  zw(ittp,inwf) =               dconjg(ov_evc_w2_kx(iwf,itp,kx))*   evc_w1_kx(jwf,it,kx)
              ! zw(ittp, inwf) = dconjg(evc_w2_kx(jwf,itp,kx))*evc_w1_kx(iwf,it,kx) !a_{Rk alpha}^{(k+q)n'}* a_{Rl beta}^{kn}
              ! wzw(ittp,inwf) = whwc(ittp,iw)*zw(ittp,inwf)
            enddo
@@ -467,8 +472,10 @@ subroutine mlo_magnon() bind(C)
         ! istat = zminv(rmat, n=nnwf) !chi
         ! istat = zminv(chi0, n=nnwf) !chi0
 
-        k_tr(iw) = trace_onsite(chi0(:,:))/znorm
-        r_tr(iw) = trace_onsite(rmat)
+        ! k_tr(iw) = trace_onsite(chi0(:,:))/znorm
+        ! r_tr(iw) = trace_onsite(rmat)
+        k_tr(iw) = trace(chi0(:,:))/znorm
+        r_tr(iw) = trace(rmat)
         k_diag(iw) = trace_onsite_diag(chi0(:,:))/znorm
         r_diag(iw) = trace_onsite_diag(rmat)
 

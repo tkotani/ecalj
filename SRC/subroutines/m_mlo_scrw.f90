@@ -4,7 +4,7 @@ module m_mlo_scrw
   use m_mpi, only: ipr
   use m_ftox, only: ftox
   implicit none
-  public :: nnwf_init, scrw_init, trace_onsite, trace_onsite_diag, contract_to_site, extract_diagonal_channel
+  public :: nnwf_init, scrw_init, trace_onsite, trace_onsite_diag, contract_to_site, extract_diagonal_channel, trace
   integer, protected, public :: nnwf
   complex(8), allocatable, protected, public :: scrw(:,:)
   integer, allocatable, protected, public :: mlo_pairs(:,:), pair_site(:,:), pair_lorb(:,:)
@@ -74,6 +74,16 @@ contains
       where(reshape([(((l_tableM(iwf)/=lorb .or. l_tableM(jwf)/=lorb), iwf=1,nwf), jwf=1,nwf)], shape=[nwf,nwf])) cmat = (0d0,0d0)
     endif
   end function extract_diagonal_channel
+
+  complex(8) function trace(mat) result(trmat)
+    complex(8), intent(in) :: mat(nnwf,nnwf)
+    logical, allocatable :: mask(:)
+    integer :: inwf, jnwf
+    mask = [(( mlo_pairs(inwf,1) == mlo_pairs(inwf,2) .and. & !n1 == n2 => R1 == R2 is automatically satisfied
+               mlo_pairs(jnwf,1) == mlo_pairs(jnwf,2), &      !n3 == n4 => R3 == R4 is automatically satisfied
+               inwf=1,nnwf), jnwf=1,nnwf)]
+    trmat = sum(pack(reshape(mat, shape=[nnwf*nnwf]), mask=mask))
+  end function trace
 
   complex(8) function trace_onsite(mat, site) result(trmat)
     complex(8), intent(in) :: mat(nnwf,nnwf)
