@@ -1,9 +1,27 @@
 module m_mpiio !MPI-IO only for complex(8). Fixed length recl
+  use iso_c_binding
   use m_nvfortran
   use mpi
   implicit none
+  type :: record_item
+    type(c_ptr) :: addr
+    integer     :: count
+    integer     :: mpi_type
+  endtype record_item
   public:: openm,writem,readm,closem, openedm
   public:: writem_c, writem_d, readm_d
+  public:: record_item, record_item_from, writem_struct, readm_struct
+  interface record_item_from
+    module procedure record_item_from_real8_1d
+    module procedure record_item_from_real8_2d
+    module procedure record_item_from_real8_3d
+    module procedure record_item_from_int4_1d
+    module procedure record_item_from_int4_2d
+    module procedure record_item_from_int4_3d
+    module procedure record_item_from_complex8_1d
+    module procedure record_item_from_complex8_2d
+    module procedure record_item_from_complex8_3d
+  endinterface
   private
   integer,parameter::nfmax=1000, nsize=16 !maxsize of opened file by openm
   integer :: ierr,fhl(nfmax)=-9999,iff=0  ! -9999 is used as a missing value indicator (assumed not to occur as a valid value)
@@ -108,4 +126,140 @@ contains
       is_open = .false.
     endif
   end function openedm
+
+  subroutine build_struct_type(items, filetype, record_bytes)
+    type(record_item), intent(in) :: items(:)
+    integer, intent(out) :: filetype
+    integer(kind=MPI_ADDRESS_KIND), intent(out) :: record_bytes
+    integer :: n, i, ierr_local
+    integer, allocatable :: blocklen(:), types(:)
+    integer(kind=MPI_ADDRESS_KIND), allocatable  :: disp(:)
+    n = size(items)
+    allocate(blocklen(n), types(n), disp(n))
+    do i = 1, n
+      blocklen(i) = items(i)%count
+      types(i)    = items(i)%mpi_type
+      disp(i) = transfer(items(i)%addr, 0_MPI_ADDRESS_KIND) ! extract address stored in c_ptr
+    enddo
+    call MPI_Type_create_struct(n, blocklen, disp, types, filetype, ierr_local)
+    call MPI_Type_commit(filetype, ierr_local)
+    record_bytes = 0
+    do i = 1, n
+      select case(types(i))
+      case(MPI_DOUBLE_PRECISION)
+        record_bytes = record_bytes + 8_MPI_ADDRESS_KIND * blocklen(i)
+      case(MPI_INTEGER)
+        record_bytes = record_bytes + 4_MPI_ADDRESS_KIND * blocklen(i)
+      case(MPI_DOUBLE_COMPLEX)
+        record_bytes = record_bytes + 16_MPI_ADDRESS_KIND * blocklen(i)
+      case default
+        call rx('m_mpiio:build_struct_type: unsupported MPI type')
+      endselect
+    enddo
+    deallocate(blocklen, types, disp)
+  end subroutine build_struct_type
+
+  integer function writem_struct(unit, rec, items) result(i)
+    integer, intent(in) :: unit, rec
+    type(record_item), intent(in) :: items(:)
+    integer :: ifx, filetype
+    integer(kind=MPI_ADDRESS_KIND) :: record_bytes
+    integer(kind=MPI_OFFSET_KIND) :: offset
+    integer :: status(MPI_STATUS_SIZE)
+    ifx = findloc(unit == fhl(1:iff), dim=1, value=.true.)
+    if (ifx <= 0) call rx('m_mpiio:writem_struct: unit not opened')
+    call build_struct_type(items, filetype, record_bytes)
+    if (record_bytes /= recll(ifx)) then
+      write(6,*) 'm_mpiio:writem_struct: record_bytes mismatch:', record_bytes, recll(ifx)
+      call rx('m_mpiio:writem_struct: record_bytes /= recll')
+    endif
+    offset = (rec-1)*recll(ifx)
+    call MPI_File_write_at(fhl(ifx), offset, MPI_BOTTOM, 1, filetype, status, ierr)
+    call MPI_Type_free(filetype, ierr)
+    i = 0
+  end function writem_struct
+
+  integer function readm_struct(unit, rec, items) result(i)
+    integer, intent(in) :: unit, rec
+    type(record_item), intent(in) :: items(:)
+    integer :: ifx, filetype
+    integer(kind=MPI_ADDRESS_KIND) :: record_bytes
+    integer(kind=MPI_OFFSET_KIND) :: offset
+    integer :: status(MPI_STATUS_SIZE)
+    ifx = findloc(unit == fhl(1:iff), dim=1, value=.true.)
+    if (ifx <= 0) call rx('m_mpiio:readm_struct: unit not opened')
+    call build_struct_type(items, filetype, record_bytes)
+    if (record_bytes /= recll(ifx)) then
+      write(6,*) 'm_mpiio:readm_struct: record_bytes mismatch:', record_bytes, recll(ifx)
+      call rx('m_mpiio:readm_struct: record_bytes /= recll')
+    endif
+    offset = (rec-1)*recll(ifx)
+    call MPI_File_read_at(fhl(ifx), offset, MPI_BOTTOM, 1, filetype, status, ierr)
+    call MPI_Type_free(filetype, ierr)
+    i = 0
+  end function readm_struct
+
+  function record_item_from_real8_1d(var) result(item)
+    type(record_item) :: item
+    real(8), intent(in), target :: var(:)
+    item%addr     = c_loc(var(1))
+    item%count    = size(var)
+    item%mpi_type = MPI_DOUBLE_PRECISION
+  end function
+  function record_item_from_real8_2d(var) result(item)
+    type(record_item) :: item
+    real(8), intent(in), target :: var(:, :)
+    item%addr     = c_loc(var(1,1))
+    item%count    = size(var)
+    item%mpi_type = MPI_DOUBLE_PRECISION
+  end function
+  function record_item_from_real8_3d(var) result(item)
+    type(record_item) :: item
+    real(8), intent(in), target :: var(:, :, :)
+    item%addr     = c_loc(var(1,1,1))
+    item%count    = size(var)
+    item%mpi_type = MPI_DOUBLE_PRECISION
+  end function
+  function record_item_from_int4_1d(var) result(item)
+    type(record_item) :: item
+    integer(4), intent(in), target :: var(:)
+    item%addr     = c_loc(var(1))
+    item%count    = size(var)
+    item%mpi_type = MPI_INTEGER
+  end function
+  function record_item_from_int4_2d(var) result(item)
+    type(record_item) :: item
+    integer(4), intent(in), target :: var(:, :)
+    item%addr     = c_loc(var(1,1))
+    item%count    = size(var)
+    item%mpi_type = MPI_INTEGER
+  end function
+  function record_item_from_int4_3d(var) result(item)
+    type(record_item) :: item
+    integer(4), intent(in), target :: var(:, :, :)
+    item%addr     = c_loc(var(1,1,1))
+    item%count    = size(var)
+    item%mpi_type = MPI_INTEGER
+  end function
+  function record_item_from_complex8_1d(var) result(item)
+    type(record_item) :: item
+    complex(8), intent(in), target :: var(:)
+    item%addr     = c_loc(var(1))
+    item%count    = size(var)
+    item%mpi_type = MPI_DOUBLE_COMPLEX
+  end function
+  function record_item_from_complex8_2d(var) result(item)
+    type(record_item) :: item
+    complex(8), intent(in), target :: var(:, :)
+    item%addr     = c_loc(var(1,1))
+    item%count    = size(var)
+    item%mpi_type = MPI_DOUBLE_COMPLEX
+  end function
+  function record_item_from_complex8_3d(var) result(item)
+    type(record_item) :: item
+    complex(8), intent(in), target :: var(:, :, :)
+    item%addr     = c_loc(var(1,1,1))
+    item%count    = size(var)
+    item%mpi_type = MPI_DOUBLE_COMPLEX
+  end function
 end module m_mpiio

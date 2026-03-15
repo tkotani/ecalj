@@ -18,7 +18,7 @@ subroutine mlo_magnon() bind(C)
   use m_dpsion, only: dpsion_init, dpsion_chiq
   use m_mpi, only: MPI__Initialize, MPI__consoleout, MPI__SplitXq
   use m_mpi, only: mpi__rank, mpi__size, mpi__root, comm, comm_k, mpi__rank_k, mpi__size_k, mpi__root_k, ipr
-  use m_mpiio, only: openm, closem, writem, readm
+  use m_mpiio, only: openm, closem, writem, readm,  writem_struct, readm_struct, record_item, record_item_from
   use m_blas, only: m_op_C, zmm => zmm_h, int_split
   use m_lapack, only: zminv => zminv_h, zhev => zhev_h, zgev => zgev_h
   use m_mem, only: writemem
@@ -30,7 +30,7 @@ subroutine mlo_magnon() bind(C)
   !!  dpsion5: calculate real part by the Hilbert transformation from the Im part
   !!  xxx removed--> eibz means extented irreducible brillowin zone scheme by C.Friedlich. (not so efficient in cases).
   integer:: iwf, jwf, inwf, jnwf
-  integer:: file_tr_kpm, file_tr_rpm, file_tr_diag_kpm, file_tr_diag_rpm, file_jq_site, file_jq_full
+  integer:: file_tr_kr, file_jq_site, file_jq_full
   integer:: iqxini, iqxend, i, iw, iq, kx, istat, nqcalc
   real(8):: q(3), rydberg, hartree, delta, eta, delta_dos, freq_ratio, freq_dw
   real(8), allocatable:: qibze(:,:)
@@ -210,10 +210,7 @@ subroutine mlo_magnon() bind(C)
   endif ReadEta
 
   SetTemporaryFiles: if(.not. geteta) then
-    istat = openm(newunit=file_tr_kpm, file='__TrKpm', recl=(nw-nw_i+1)*16)
-    istat = openm(newunit=file_tr_rpm, file='__TrRpm', recl=(nw-nw_i+1)*16)
-    istat = openm(newunit=file_tr_diag_kpm, file='__TrDiagKpm', recl=(nw-nw_i+1)*16)
-    istat = openm(newunit=file_tr_diag_rpm, file='__TrDiagRpm', recl=(nw-nw_i+1)*16)
+    istat = openm(newunit=file_tr_kr, file='__TrKR', recl=(nw-nw_i+1)*16*6)
     istat = openm(newunit=file_jq_site, file='__JqSite', recl=nsite*(nw-nw_i+1)*16)
     istat = openm(newunit=file_jq_full, file='__JqFull', recl=nnwf*(nw-nw_i+1)*16)
   endif SetTemporaryFiles
@@ -436,7 +433,8 @@ subroutine mlo_magnon() bind(C)
 
 
     OmegaLoop: block
-      complex(8) :: r_tr(nw_i:nw), r_diag(nw_i:nw), k_tr(nw_i:nw), k_diag(nw_i:nw), jq_w_full(nw_i:nw,1:nnwf), &
+      complex(8) :: r_tr(nw_i:nw), r_tr_diag(nw_i:nw), k_tr(nw_i:nw), k_tr_diag(nw_i:nw), jq_w_full(nw_i:nw,1:nnwf), &
+                    k_tr_onsite(nw_i:nw), r_tr_onsite(nw_i:nw), &
                     jq_w_site(nw_i:nw,1:nsite),  wkmat(nnwf,nnwf), rmat(nnwf,nnwf), &
                     chi0(nnwf,nnwf), rmat_site(nsite,nsite,nw_i:nw), kmat_site(nsite,nsite,nw_i:nw)
       iwloop: do iw = nw_i, nw
@@ -472,12 +470,12 @@ subroutine mlo_magnon() bind(C)
         ! istat = zminv(rmat, n=nnwf) !chi
         ! istat = zminv(chi0, n=nnwf) !chi0
 
-        ! k_tr(iw) = trace_onsite(chi0(:,:))/znorm
-        ! r_tr(iw) = trace_onsite(rmat)
         k_tr(iw) = trace(chi0(:,:))/znorm
         r_tr(iw) = trace(rmat)
-        k_diag(iw) = trace_onsite_diag(chi0(:,:))/znorm
-        r_diag(iw) = trace_onsite_diag(rmat)
+        k_tr_onsite(iw) = trace_onsite(chi0(:,:))/znorm
+        r_tr_onsite(iw) = trace_onsite(rmat)
+        k_tr_diag(iw) = trace_onsite_diag(chi0(:,:))/znorm
+        r_tr_diag(iw) = trace_onsite_diag(rmat)
 
         ! rmat(:,:) = (rmat(:,:) + conjg(transpose(rmat(:,:))))*0.5d0
 
@@ -511,14 +509,20 @@ subroutine mlo_magnon() bind(C)
         enddo
       endblock CalcJqSite
 
-      istat = writem(file_tr_kpm, rec=iq, data=k_tr(nw_i:nw))
-      istat = writem(file_tr_rpm, rec=iq, data=r_tr(nw_i:nw))
-      istat = writem(file_tr_diag_kpm, rec=iq, data=k_diag(nw_i:nw))
-      istat = writem(file_tr_diag_rpm, rec=iq, data=r_diag(nw_i:nw))
-
-      istat = writem(file_jq_full, rec=iq, data=jq_w_full(nw_i:nw,1:nnwf))
-      istat = writem(file_jq_site, rec=iq, data=jq_w_site(nw_i:nw,1:nsite))
+      SaveBufferFile:block
+        type(record_item) :: items(6)
+        items(1) = record_item_from(k_tr)
+        items(2) = record_item_from(k_tr_onsite)
+        items(3) = record_item_from(k_tr_diag)
+        items(4) = record_item_from(r_tr)
+        items(5) = record_item_from(r_tr_onsite)
+        items(6) = record_item_from(r_tr_diag)
+        istat = writem_struct(file_tr_kr, rec=iq, items=items)
+        istat = writem(file_jq_full, rec=iq, data=jq_w_full(nw_i:nw,1:nnwf))
+        istat = writem(file_jq_site, rec=iq, data=jq_w_site(nw_i:nw,1:nsite))
+      endblock SaveBufferFile
     endblock OmegaLoop
+
     if(ipr) call writemem('mlo_magnon end iq='//trim(charext(iq)))
   enddo BIGiqloop
 
@@ -530,9 +534,9 @@ subroutine mlo_magnon() bind(C)
     block
       use m_bz_integ, only: ibz_integ
       integer :: file_tr_kpm_out, file_tr_rpm_out
-      complex(8) :: dos_tr_kpm, dos_tr_diag_kpm, dos_tr_rpm, dos_tr_diag_rpm
-      complex(8) :: tr_kpm_ibz(nqibz_dos,nw_i:nw), tr_diag_kpm_ibz(nqibz_dos,nw_i:nw), &
-                    tr_rpm_ibz(nqibz_dos,nw_i:nw), tr_diag_rpm_ibz(nqibz_dos,nw_i:nw), &
+      complex(8) :: dos_tr_kpm, dos_tr_onsite_kpm, dos_tr_rpm, dos_tr_onsite_rpm
+      complex(8) :: k_tr_ibz(nqibz_dos,nw_i:nw), k_tr_onsite_ibz(nqibz_dos,nw_i:nw), k_tr_diag_ibz(nqibz_dos,nw_i:nw), &
+                    r_tr_ibz(nqibz_dos,nw_i:nw), r_tr_onsite_ibz(nqibz_dos,nw_i:nw), r_tr_diag_ibz(nqibz_dos,nw_i:nw), &
                     jq_site_ibz(nqibz_dos,nw_i:nw,nsite)
       real(8) :: www, omega, tetra_vol
       integer :: tetra_nodes(4,nteti_dos), tetra_weight(nteti_dos)
@@ -543,27 +547,33 @@ subroutine mlo_magnon() bind(C)
       tetra_nodes(1:4,1:nteti_dos) = idteti_dos(1:4,1:nteti_dos)
       tetra_weight(1:nteti_dos) = idteti_dos(0,1:nteti_dos)
       do iq=1, nqcalc
-        istat = readm(file_tr_kpm, rec=iq, data=tr_kpm_ibz(iq,nw_i:nw))
-        istat = readm(file_tr_rpm, rec=iq, data=tr_rpm_ibz(iq,nw_i:nw))
-        istat = readm(file_tr_diag_kpm, rec=iq, data=tr_diag_kpm_ibz(iq,nw_i:nw))
-        istat = readm(file_tr_diag_rpm, rec=iq, data=tr_diag_rpm_ibz(iq,nw_i:nw))
-        istat = readm(file_jq_site, rec=iq, data=jq_site_ibz(iq,nw_i:nw,1:nsite))
+        ReadBufferFileDOS:block
+          type(record_item) :: items(6)
+          items(1) = record_item_from(k_tr_ibz(iq,nw_i:nw))
+          items(2) = record_item_from(k_tr_onsite_ibz(iq,nw_i:nw))
+          items(3) = record_item_from(k_tr_diag_ibz(iq,nw_i:nw))
+          items(4) = record_item_from(r_tr_ibz(iq,nw_i:nw))
+          items(5) = record_item_from(r_tr_onsite_ibz(iq,nw_i:nw))
+          items(6) = record_item_from(r_tr_diag_ibz(iq,nw_i:nw))
+          istat = readm_struct(file_tr_kr, rec=iq, items=items)
+          istat = readm(file_jq_site, rec=iq, data=jq_site_ibz(iq,nw_i:nw,1:nsite))
+        endblock ReadBufferFileDOS
       enddo
 
       tetra_vol = 1d0/ntetf_dos ! ntetf was =6*n1*n2*n3
       do iw = nw_i, nw
-        dos_tr_kpm = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, tr_kpm_ibz(:,iw))
-        dos_tr_rpm = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, tr_rpm_ibz(:,iw))
-        dos_tr_diag_kpm = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, tr_diag_kpm_ibz(:,iw))
-        dos_tr_diag_rpm = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, tr_diag_rpm_ibz(:,iw))
+        dos_tr_kpm = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, k_tr_ibz(:,iw))
+        dos_tr_rpm = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, r_tr_ibz(:,iw))
+        dos_tr_onsite_kpm = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, k_tr_onsite_ibz(:,iw))
+        dos_tr_onsite_rpm = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, r_tr_onsite_ibz(:,iw))
         www = merge(-freq_r(-iw),freq_r(iw),iw<0)
         omega = www*hartree
         if(iw==0) then
           write(file_tr_kpm_out, "(A)", advance = "no") "#"
           write(file_tr_rpm_out, "(A)", advance = "no") "#"
         endif
-        write(file_tr_kpm_out, "(e14.6,4e17.9)") omega, dos_tr_kpm/hartree, dos_tr_diag_kpm/hartree
-        write(file_tr_rpm_out, "(e14.6,4e17.9)") omega, dos_tr_rpm/hartree, dos_tr_diag_rpm/hartree
+        write(file_tr_kpm_out, "(e14.6,4e17.9)") omega, dos_tr_kpm/hartree, dos_tr_onsite_kpm/hartree
+        write(file_tr_rpm_out, "(e14.6,4e17.9)") omega, dos_tr_rpm/hartree, dos_tr_onsite_rpm/hartree
       enddo
       close(file_tr_rpm_out)
       close(file_tr_kpm_out)
@@ -581,8 +591,8 @@ subroutine mlo_magnon() bind(C)
       integer :: idx_min, idx_max
       logical :: opened
       integer, allocatable, target :: idx_sort(:)
-      complex(8) :: r_tr(nw_i:nw), r_diag(nw_i:nw), k_tr(nw_i:nw), k_diag(nw_i:nw),  jq_w_site(nw_i:nw,1:nsite), &
-                    jq_w_full(nw_i:nw,1:nnwf)
+      complex(8) :: r_tr(nw_i:nw), r_tr_diag(nw_i:nw), k_tr(nw_i:nw), k_tr_diag(nw_i:nw),  jq_w_site(nw_i:nw,1:nsite), &
+                    jq_w_full(nw_i:nw,1:nnwf), r_tr_onsite(nw_i:nw), k_tr_onsite(nw_i:nw)
       epslgroup_old = -1 !epslgroup starts from 1
       q_old(:) = qibze(:,1)
       q_position = 0d0
@@ -607,19 +617,25 @@ subroutine mlo_magnon() bind(C)
           write(file_tr_kpm_out, '(A)')' # qx qy qz q_pos omega(eV) Real_Tr_K/eV Imag_Tr_K/eV Real_Tr_Diag_K/eV Imag_Tr_Diag_K/eV'
           write(file_tr_rpm_out, '(A)')' # qx qy qz q_pos omega(eV) Real_Tr_R/eV Imag_Tr_R/eV Real_Tr_Diag_R/eV Imag_Tr_Diag_R/eV'
         endif
-        istat = readm(file_tr_kpm, rec=iq, data=k_tr(:))
-        istat = readm(file_tr_rpm, rec=iq, data=r_tr(:))
-        istat = readm(file_tr_diag_kpm, rec=iq, data=k_diag(:))
-        istat = readm(file_tr_diag_rpm, rec=iq, data=r_diag(:))
-        istat = readm(file_jq_site, rec=iq, data=jq_w_site(:,:))
-        istat = readm(file_jq_full, rec=iq, data=jq_w_full(:,:))
+        ReadBufferFile:block
+          type(record_item) :: items(6)
+          items(1) = record_item_from(k_tr)
+          items(2) = record_item_from(k_tr_onsite)
+          items(3) = record_item_from(k_tr_diag)
+          items(4) = record_item_from(r_tr)
+          items(5) = record_item_from(r_tr_onsite)
+          items(6) = record_item_from(r_tr_diag)
+          istat = readm_struct(file_tr_kr, rec=iq, items=items)
+          istat = readm(file_jq_site, rec=iq, data=jq_w_site(:,:))
+          istat = readm(file_jq_full, rec=iq, data=jq_w_full(:,:))
+        endblock ReadBufferFile
         dq = sqrt(sum((q(:)-q_old(:))**2))
         q_position = q_position + dq
         do iw = nw_i, nw
           www = merge(-freq_r(-iw),freq_r(iw),iw<0)
           omega = www*hartree
-          write(file_tr_kpm_out, "(4f9.5,e14.6,4e17.9)") q(1:3), q_position, omega, k_tr(iw)/hartree, k_diag(iw)/hartree
-          write(file_tr_rpm_out, "(4f9.5,e14.6,4e17.9)") q(1:3), q_position, omega, r_tr(iw)/hartree, r_diag(iw)/hartree
+          write(file_tr_kpm_out, "(4f9.5,e14.6,6e17.9)") q(1:3), q_position, omega, k_tr(iw)/hartree, k_tr_onsite(iw)/hartree, k_tr_diag(iw)/hartree
+          write(file_tr_rpm_out, "(4f9.5,e14.6,6e17.9)") q(1:3), q_position, omega, r_tr(iw)/hartree, r_tr_onsite(iw)/hartree, r_tr_diag(iw)/hartree
           idx_sort = sort_index(abs(jq_w_site(iw,:)))
           write(file_jq_site_out, "(4f9.5,e14.6,20e17.9)") q(1:3), q_position, omega, ((jq_w_site(iw,idx_sort(i))*hartree),i=1,nsite)
           idx_sort = sort_index(abs(jq_w_full(iw,:)))
@@ -640,10 +656,7 @@ subroutine mlo_magnon() bind(C)
       if(opened) close(file_tr_rpm_out)
     endblock
   endif ReformatOutputFiles
-  istat = closem(file_tr_kpm)
-  istat = closem(file_tr_rpm)
-  istat = closem(file_tr_diag_kpm)
-  istat = closem(file_tr_diag_rpm)
+  istat = closem(file_tr_kr)
   istat = closem(file_jq_site)
   call rx0( ' OK! mlo_magnon mode')
 END subroutine mlo_magnon
