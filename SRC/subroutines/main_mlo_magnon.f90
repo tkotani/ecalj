@@ -510,13 +510,9 @@ subroutine mlo_magnon() bind(C)
       endblock CalcJqSite
 
       SaveBufferFile:block
-        type(record_item) :: items(6)
-        items(1) = record_item_from(k_tr)
-        items(2) = record_item_from(k_tr_onsite)
-        items(3) = record_item_from(k_tr_diag)
-        items(4) = record_item_from(r_tr)
-        items(5) = record_item_from(r_tr_onsite)
-        items(6) = record_item_from(r_tr_diag)
+        type(record_item), allocatable :: items(:)
+        items = [record_item_from(k_tr), record_item_from(k_tr_onsite), record_item_from(k_tr_diag), &
+                 record_item_from(r_tr), record_item_from(r_tr_onsite), record_item_from(r_tr_diag) ]
         istat = writem_struct(file_tr_kr, rec=iq, items=items)
         istat = writem(file_jq_full, rec=iq, data=jq_w_full(nw_i:nw,1:nnwf))
         istat = writem(file_jq_site, rec=iq, data=jq_w_site(nw_i:nw,1:nsite))
@@ -548,13 +544,10 @@ subroutine mlo_magnon() bind(C)
       tetra_weight(1:nteti_dos) = idteti_dos(0,1:nteti_dos)
       do iq=1, nqcalc
         ReadBufferFileDOS:block
-          type(record_item) :: items(6)
-          items(1) = record_item_from(k_tr_ibz(iq,nw_i:nw))
-          items(2) = record_item_from(k_tr_onsite_ibz(iq,nw_i:nw))
-          items(3) = record_item_from(k_tr_diag_ibz(iq,nw_i:nw))
-          items(4) = record_item_from(r_tr_ibz(iq,nw_i:nw))
-          items(5) = record_item_from(r_tr_onsite_ibz(iq,nw_i:nw))
-          items(6) = record_item_from(r_tr_diag_ibz(iq,nw_i:nw))
+          type(record_item), allocatable :: items(:)
+          items = [record_item_from(k_tr_ibz(iq,nw_i:nw)),        record_item_from(k_tr_onsite_ibz(iq,nw_i:nw)), &
+                   record_item_from(k_tr_diag_ibz(iq,nw_i:nw)),   record_item_from(r_tr_ibz(iq,nw_i:nw)), &
+                   record_item_from(r_tr_onsite_ibz(iq,nw_i:nw)), record_item_from(r_tr_diag_ibz(iq,nw_i:nw))]
           istat = readm_struct(file_tr_kr, rec=iq, items=items)
           istat = readm(file_jq_site, rec=iq, data=jq_site_ibz(iq,nw_i:nw,1:nsite))
         endblock ReadBufferFileDOS
@@ -618,13 +611,9 @@ subroutine mlo_magnon() bind(C)
           write(file_tr_rpm_out, '(A)')' # qx qy qz q_pos omega(eV) Real_Tr_R/eV Imag_Tr_R/eV Real_Tr_Diag_R/eV Imag_Tr_Diag_R/eV'
         endif
         ReadBufferFile:block
-          type(record_item) :: items(6)
-          items(1) = record_item_from(k_tr)
-          items(2) = record_item_from(k_tr_onsite)
-          items(3) = record_item_from(k_tr_diag)
-          items(4) = record_item_from(r_tr)
-          items(5) = record_item_from(r_tr_onsite)
-          items(6) = record_item_from(r_tr_diag)
+          type(record_item), allocatable :: items(:)
+          items = [ record_item_from(k_tr), record_item_from(k_tr_onsite), record_item_from(k_tr_diag), &
+                    record_item_from(r_tr), record_item_from(r_tr_onsite), record_item_from(r_tr_diag)]
           istat = readm_struct(file_tr_kr, rec=iq, items=items)
           istat = readm(file_jq_site, rec=iq, data=jq_w_site(:,:))
           istat = readm(file_jq_full, rec=iq, data=jq_w_full(:,:))
