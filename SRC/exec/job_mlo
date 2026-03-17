@@ -16,6 +16,8 @@ def cal_mlo(args, extra_args):
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
                                args=[target, "--writeham", "--mkprocar", "--noinv", "--mlo", *extra_args]),
             stdout="lwriteham")
+    merge_files(pattern="PROCAR.UP.*", output_file="PROCAR.UP", remove_sources=True)
+    merge_files(pattern="PROCAR.DN.*", output_file="PROCAR.DN", remove_sources=True)
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo",
                                args=[target, *extra_args]), stdout="lmlo")
     if not args.nognuplot:

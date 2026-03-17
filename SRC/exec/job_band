@@ -83,6 +83,9 @@ def cal_band(args, extra_args):
     target = args.extension
     mpi_size = args.np
     cluster = args.cluster
+    for fname in ['bandplot.isp1.glt', 'bandplot.isp2.glt']:
+        with contextlib.suppress(FileNotFoundError):
+            Path(fname).rename(fname + '.bk')
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
                                args=[target, "--quit=band", *extra_args]), stdout="llmf_ef")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
