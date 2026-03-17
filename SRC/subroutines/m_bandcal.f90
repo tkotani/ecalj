@@ -10,7 +10,7 @@ module m_bandcal
   use m_igv2x,only: m_igv2x_setiq, napw,ndimh,ndimhx,igv2x,nbandmx
   use m_lmfinit,only: lrsig=>ham_lsig, lso,ham_scaledsigma,lmet=>bz_lmet,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce
   use m_lmfinit,only: pwmode=>ham_pwmode,pwemax,nsp,nlibu,lmaxu,lmxax
-  use m_MPItk,only: master_mpi, procid,strprocid, numprocs=>nsize
+  use m_MPItk,only: master_mpi, procid,strprocid, numprocs=>nsize, comm
   use m_subzi, only: nevmx
   use m_supot, only: n1,n2,n3
   use m_rdsigm2,only: senex,sene,getsenex,dsene,ndimsig
@@ -26,7 +26,7 @@ module m_bandcal
   use m_lmfinit,only: ispec,nkaphh,kmxt_i=>kmxt,lmxb_i=>lmxb
   use m_lmfinit,only: nlmax,nspc,n0,lldau,idu
   use m_struc_def,only:s_rv5   !o oqkkl : memory is allocated for qkkl
-  use m_mpiio, only: writem_d, openm, closem, openedm
+  use m_mpiio, only: writem_d, openm, closem, openedm, writem_struct, record_item, record_item_from
   ! outputs ---------------------------
   public m_bandcal_init, m_bandcal_2nd, m_bandcal_clean, m_bandcal_allreduce, m_bandcal_symsmrho
   public :: m_bandcal_gather_evlall, m_bandcal_gather_spinweightall
@@ -37,26 +37,26 @@ module m_bandcal
   type(s_rv1), allocatable, protected, public :: t_evl(:,:)
   type(s_rv2), allocatable, protected, public :: t_spinweight(:)
   !------------------------------------------------
-  logical,private:: debug,sigmamode,call_m_bandcal_2nd,procaron,writeham,dmatuinit=.true.
+  logical,private:: debug,sigmamode,call_m_bandcal_2nd,procaron,dmatuinit=.true.!,writeham
   real(8),private:: sumqv(3,2),sumev(3,2)
   integer,allocatable,private::neviqis(:),ndimhxiqis(:)
   complex(8),allocatable,private:: eveciqis(:,:,:)
   private
 contains
-  subroutine m_bandcal_init(lrout,ef0,vmag,ifih) ! Set up Hamiltonian, diagonalization
+  subroutine m_bandcal_init(lrout,ef0,vmag,writeham) ! Set up Hamiltonian, diagonalization
     implicit none
-    intent(in)::            lrout,ef0,vmag,ifih
+    intent(in)::            lrout,ef0,vmag,writeham
     complex(8),allocatable:: hamm(:,:,:,:),ovlm(:,:,:,:),hammhso(:,:,:),ovlms(:,:,:,:) !Hamiltonian,Overlapmatrix
-    integer:: iq,nmx,ispinit,isp,nev,ifih,lwtkb,lrout,ifig,i,ibas,iwsene,idat,ikp
+    integer:: iq,nmx,ispinit,isp,nev,ifih,lwtkb,lrout,ifig,i,ibas,iwsene,idat,ikp,istat
     real(8):: qp(3),ef0,def=0d0,xv(3),q(3),vmag
     real(8),allocatable    :: evl(:,:), spinweight(:,:)
     complex(8),allocatable :: evec(:,:) !eigenvector( :,nband)
-    logical:: ltet,cmdopt0,dmatuinit=.true.,wsene,magexist
+    logical:: ltet,cmdopt0,dmatuinit=.true.,wsene,magexist,writeham
     character(3):: charnum3  
     call tcn('m_bandcal_init')
     if(master_mpi) write(stdo,ftox)'m_bandcal_init: start'
     sigmamode = mod(lrsig,10)/=0
-    writeham = cmdopt0('--writeham')
+    ! writeham = cmdopt0('--writeham')
     PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
     debug    = cmdopt0('--debugbndfp')
     ltet = ntet>0 !   nspx=nsp/nspc !nspc=1 only for so=1 
@@ -90,6 +90,19 @@ contains
     allocate( evl(nbandmx,nspx), spinweight(nbandmx,nsp))
     sumev = 0d0
     sumqv = 0d0
+    if(writeham) then
+      PrepWriteHamiltonianPMT:block
+      integer :: ifihh_info, mrech
+        mrech = 8*3+4+16*nbandmx*nbandmx*2
+        if(master_mpi) then
+          open(newunit=ifihh_info, file='__HamiltonianPMT.info', form='unformatted')
+          write(ifihh_info) nbandmx, mrech
+          close(ifihh_info)
+        endif
+        istat = openm(newunit=ifih,file='__HamiltonianPMT',recl=mrech, comm=comm)
+        write(stdo,ftox) 'xxxx',nbandmx, mrech, ifih
+      endblock PrepWriteHamiltonianPMT
+    endif
     bandcalculation_q: do 2010 idat=1,niqisp
        iq = iqproc(idat)
        qp = qplist(:,iq) !write(stdo,ftox)'m_bandcal_init: procid iq=',procid,iq,ftof(qp)
@@ -165,9 +178,19 @@ contains
          if(iprint()>=30) write(stdo,'(" bndfp: kpt ",i5," of ",i7, " k=",3f8.4, &
               " ndimh = nmto+napw = ",3i5,f13.5)') iq,nkp,qp,ndimh,ndimh-napw,napw
          if(writeham) then
-            write(ifih) qp,ndimhx,lso,epsovl,isp ! ndimhx=ndimh*nspc 
-            write(ifih) ovlm ! When you read, use ovlm(1:ndimhx, 1:ndimhx)
-            write(ifih) hamm
+           WriteHamiltonianPMT: block
+              type(record_item), allocatable :: items(:)
+              integer :: iqqisp
+              complex(8) :: ovlm_(nbandmx, nbandmx), hamm_(nbandmx, nbandmx)
+              ovlm_(1:ndimhx,1:ndimhx) = reshape(ovlm, shape=[ndimhx,ndimhx])
+              hamm_(1:ndimhx,1:ndimhx) = reshape(hamm, shape=[ndimhx,ndimhx])
+              iqqisp= isp + nspx*(iq-1)
+              items = [record_item_from(qp), record_item_from(ndimhx), record_item_from(ovlm_), record_item_from(hamm_)]
+              istat = writem_struct(ifih, rec=iqqisp, items=items)
+            ! write(ifih) qp,ndimhx,lso,epsovl,isp ! ndimhx=ndimh*nspc 
+            ! write(ifih) ovlm ! When you read, use ovlm(1:ndimhx, 1:ndimhx)
+            ! write(ifih) hamm
+          endblock WriteHamiltonianPMT
          endif
          allocate(evec(ndimhx,nmx))
          if(magexist) then
@@ -232,6 +255,7 @@ contains
        if(allocated(hamm)) deallocate(hamm,ovlm)
        if(allocated(ovlms)) deallocate(ovlms)
 2010 enddo bandcalculation_q
+    if(writeham) istat = closem(ifih)
     if (pwemax>0 .AND. mod(pwmode,10)>0 .AND. lfrce/=0) then
        xv(:)=[(sum(frcband(i,1:nbas))/nbas,i=1,3)]
        forall(ibas= 1:nbas) frcband(:,ibas) = frcband(:,ibas) - xv(:) ! Average forces so net force on system is zero (APW case)

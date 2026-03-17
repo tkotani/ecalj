@@ -1,6 +1,6 @@
 !> Generate all the inputs for GW calculation. Need q+G info from QGpsi and QGcou which are generated a qg4gw.
 module m_sugw
-  use m_mpiio,only: openm,writem,closem
+  use m_mpiio,only: openm,writem,closem, writem_struct, record_item, record_item_from
   real(8),allocatable,public::ecore(:,:,:),gcore(:,:,:,:),gval(:,:,:,:,:)
   integer,public::   ndham, nqirr,nqibz    !ndima, ncoremx,
 !  integer,allocatable,public::  konf0(:,:) !konfig(:,:),ncores(:),
@@ -356,10 +356,21 @@ contains
     if(cmdopt0('--skipCPHI')) goto 1011
     call mpi_barrier(comm,ierr)
     if(cmdopt0('--mlo')) then
-      open(newunit=ifihh,file='__Hamiltoniangw.'//trim(strprocid),form='unformatted')
-      write(ifihh) niqisp,nqirr,nbandmx,numproc,nqbz
-      write(ifihh) qplist(1:3,1:nqirr),iqproc(1:niqisp),isproc(1:niqisp)
-    endif  
+      ! open(newunit=ifihh,file='__Hamiltoniangw.'//trim(strprocid),form='unformatted')
+      ! write(ifihh) niqisp,nqirr,nbandmx,numproc,nqbz
+      ! write(ifihh) qplist(1:3,1:nqirr),iqproc(1:niqisp),isproc(1:niqisp)
+      PrepWriteHamiltonianGW:block
+        integer :: ifihh_info, mrech
+        mrech = 4+2*16*nbandmx*nbandmx
+        if(master_mpi) then
+            open(newunit=ifihh_info, file='__HamiltonianGW.info', form='unformatted')
+            write(ifihh_info) nqirr, nbandmx, nqbz, mrech
+            write(ifihh_info) qplist(1:3,1:nqirr)
+            close(ifihh_info)
+        endif
+        istat = openm(newunit=ifihh,file='__HamiltonianGW',recl=mrech)
+      endblock PrepWriteHamiltonianGW
+    endif
     call m_ppj_init()  !Get ppj(1:ndima,1:ndima,isp): overlap matrix between atomic orbitals within MT. 
     ! CPHI GEIG. We use mpi-io from 2024-9-26
     allocate(cphix(ndima,nspc,nbandmx),geigr(ngpmx,nspc,nbandmx))
@@ -443,9 +454,19 @@ contains
         if(show_time) call stopwatch_init(sw, 'diag ham')
         if(show_time) call stopwatch_start(sw)
         if(cmdopt0('--mlo')) then ! 2026-1-29
-          write(ifihh) ndimhx
-          write(ifihh) ovlm
-          write(ifihh) hamm
+          WriteHamiltonianGW: block
+            type(record_item), allocatable :: items(:)
+            integer :: iqqisp
+            complex(8) :: ovlm_(nbandmx, nbandmx), hamm_(nbandmx, nbandmx)
+            ovlm_(1:ndimhx,1:ndimhx) = reshape(ovlm, shape=[ndimhx,ndimhx])
+            hamm_(1:ndimhx,1:ndimhx) = reshape(hamm, shape=[ndimhx,ndimhx])
+            iqqisp= isp + nspx*(iq-1)
+            items = [record_item_from(ndimhx), record_item_from(ovlm_), record_item_from(hamm_)]
+            istat = writem_struct(ifihh, rec=iqqisp, items=items)
+            ! write(ifihh) ndimhx
+            ! write(ifihh) ovlm
+            ! write(ifihh) hamm
+          endblock WriteHamiltonianGW
         endif
         call zhev_tk4(ndimhx,hamm,ovlm,ndimhx,nev,evl(1,iq,isp),evec,epsovl) ! Diagonalization. nev:Calculated number of eigenvec
         if(show_time) call stopwatch_show(sw)
@@ -651,6 +672,7 @@ contains
     if(cmdopt0('--mlo')) close(ifihh)
     i=closem(ifcphim) !mpi-io
     i=closem(ifgeigm)
+    istat = closem(ifihh)
     call mpi_barrier(comm,ierr)
     call mpibc2_real(evl,   nbandmx*nqirr*nspx,'evl')
     call mpibc2_real(vxclda,nbandmx*nqirr*nspx,'vxclda')
