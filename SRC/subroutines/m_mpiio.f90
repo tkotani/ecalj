@@ -12,12 +12,15 @@ module m_mpiio !MPI-IO only for complex(8). Fixed length recl
   public:: writem_c, writem_d, readm_d
   public:: record_item, record_item_from, writem_struct, readm_struct
   interface record_item_from
+    module procedure record_item_from_real8_0d
     module procedure record_item_from_real8_1d
     module procedure record_item_from_real8_2d
     module procedure record_item_from_real8_3d
+    module procedure record_item_from_int4_0d
     module procedure record_item_from_int4_1d
     module procedure record_item_from_int4_2d
     module procedure record_item_from_int4_3d
+    module procedure record_item_from_complex8_0d
     module procedure record_item_from_complex8_1d
     module procedure record_item_from_complex8_2d
     module procedure record_item_from_complex8_3d
@@ -199,6 +202,13 @@ contains
     i = 0
   end function readm_struct
 
+  function record_item_from_real8_0d(var) result(item)
+    type(record_item) :: item
+    real(8), intent(in), target :: var
+    item%addr     = c_loc(var)
+    item%count    = 1
+    item%mpi_type = MPI_DOUBLE_PRECISION
+  end function
   function record_item_from_real8_1d(var) result(item)
     type(record_item) :: item
     real(8), intent(in), target :: var(:)
@@ -220,6 +230,13 @@ contains
     item%count    = size(var)
     item%mpi_type = MPI_DOUBLE_PRECISION
   end function
+  function record_item_from_int4_0d(var) result(item)
+    type(record_item) :: item
+    integer(4), intent(in), target :: var
+    item%addr     = c_loc(var)
+    item%count    = 1
+    item%mpi_type = MPI_INTEGER
+  end function
   function record_item_from_int4_1d(var) result(item)
     type(record_item) :: item
     integer(4), intent(in), target :: var(:)
@@ -240,6 +257,13 @@ contains
     item%addr     = c_loc(var(1,1,1))
     item%count    = size(var)
     item%mpi_type = MPI_INTEGER
+  end function
+  function record_item_from_complex8_0d(var) result(item)
+    type(record_item) :: item
+    complex(8), intent(in), target :: var
+    item%addr     = c_loc(var)
+    item%count    = 1
+    item%mpi_type = MPI_DOUBLE_COMPLEX
   end function
   function record_item_from_complex8_1d(var) result(item)
     type(record_item) :: item
