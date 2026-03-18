@@ -124,7 +124,7 @@ contains
        elseif(cmdopt0('--eigen-at-k')) then
          ReadEigenAtK:block
            logical :: filexists
-           integer :: iunit
+           integer :: iunit, ios, ios_data
            character(512) :: line, tline
            inquire(file='kpoints_eigen.in', exist=filexists)
            if(.not.filexists) call rx('kpoints_eigen.in not found for --eigen-at-k option')
