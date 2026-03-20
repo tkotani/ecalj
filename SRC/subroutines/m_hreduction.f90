@@ -122,12 +122,12 @@ contains
            matmul(transpose(dconjg(evecmto(:,:))),ovlmx(ix(1:ndimMTO),ix(1:ndimMTO)))) ! where <Psi_MTO j|MTO_k> = (evecmto*) @ ovlmx
 
       ! normalized
-      ! do i=1,ndimMTO
-      !   ddd = sum( dconjg(cmlo(1:nx,i))*cmlo(1:nx,i) ) !<F^MLO|F^MLO>
-      !   cmlo(1:nx,i)=cmlo(1:nx,i)/sqrt(ddd)
-      ! enddo
+      do i=1,ndimMTO
+        ddd = sum( dconjg(cmlo(1:nx,i))*cmlo(1:nx,i) ) !<F^MLO|F^MLO>
+        cmlo(1:nx,i)=cmlo(1:nx,i)/sqrt(ddd)
+      enddo
       MLOLowdinOrthogonalization:if(cmdopt0('--mlo_ortho')) then
-         block 
+         block
           use m_lapack, only: zhev => zhev_h
           complex(8) :: ovlm_mlo(ndimMTO,ndimMTO), evl_ovl_buf(ndimMTO,ndimMTO), sinv_half(ndimMTO, ndimMTO)
           real(8) :: eval(ndimMTO), einv_half
