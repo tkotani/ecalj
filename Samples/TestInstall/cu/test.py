@@ -22,7 +22,7 @@ def test(args,bindir,testdir,workdir):
                  lmf+ " cu -vnk=8 -vbigbas=f >>"+out1,
                  "rm *mixm.cu",
                  lmf+ " cu -vnk=8 -vbigbas=t -vmetal=3 -vrsm2=1.3 -vrsmd1x=1 -vlmx=4 -vpwmode=0 -voveps=0d-7 >>"+out1,
-                 lmf+ " cu -vnk=8 -vbigbas=t -vmetal=3 -vrsm2=1.3 -vrsmd1x=1 -vlmx=4 -vpwmode=0 -voveps=0d-7 --band:fn=syml >>"+out1
+                 lmf+ " cu -vnk=8 -vbigbas=t -vmetal=3 -vrsm2=1.3 -vrsmd1x=1 -vlmx=4 -vpwmode=0 -voveps=0d-7 --band >>"+out1
         ])
         tall+=test1_check(testdir+'/'+out1, workdir+'/'+out1)
         for out in out2:

@@ -16,7 +16,7 @@ def test(args,bindir,testdir,workdir): #Fixed. called as >testecalj Fe_magnon
             lmf  +f"{MATERIAL} > llmf",
             f"{bindir}/job_band {MATERIAL} -np {ncore} > ljob_band",
             "rm -rf PROCAR*",
-            lmf + f"--mkprocar --band:fn=syml mgo >lbandW", # This is for pdos mode
+            lmf + f"--mkprocar --band mgo >lbandW", # This is for pdos mode
             "cat PROCAR.UP.* >>PROCAR.UP",
             "rm PROCAR.UP.*",
             f"{workdir}/BandWeight.py > bw.dat",
