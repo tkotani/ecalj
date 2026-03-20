@@ -100,7 +100,7 @@ contains
           close(ifihh_info)
         endif
         istat = openm(newunit=ifih,file='__HamiltonianPMT',recl=mrech, comm=comm)
-        write(stdo,ftox) 'xxxx',nbandmx, mrech, ifih
+        if(master_mpi) write(stdo,ftox) 'In __HamiltonianPMT.info: nbandmx, nrech, ifih',nbandmx, mrech, ifih
       endblock PrepWriteHamiltonianPMT
     endif
     bandcalculation_q: do 2010 idat=1,niqisp
@@ -179,18 +179,20 @@ contains
               " ndimh = nmto+napw = ",3i5,f13.5)') iq,nkp,qp,ndimh,ndimh-napw,napw
          if(writeham) then
            WriteHamiltonianPMT: block
-              type(record_item), allocatable :: items(:)
-              integer :: iqqisp
-              complex(8) :: ovlm_(nbandmx, nbandmx), hamm_(nbandmx, nbandmx)
-              ovlm_(1:ndimhx,1:ndimhx) = reshape(ovlm, shape=[ndimhx,ndimhx])
-              hamm_(1:ndimhx,1:ndimhx) = reshape(hamm, shape=[ndimhx,ndimhx])
-              iqqisp= isp + nspx*(iq-1)
-              items = [record_item_from(qp), record_item_from(ndimhx), record_item_from(ovlm_), record_item_from(hamm_)]
-              istat = writem_struct(ifih, rec=iqqisp, items=items)
+             type(record_item), allocatable :: items(:)
+             integer :: iqqisp
+             complex(8) :: ovlm_(nbandmx, nbandmx), hamm_(nbandmx, nbandmx)
+             ovlm_(:,:) = 0d0
+             hamm_(:,:) = 0d0
+             ovlm_(1:ndimhx,1:ndimhx) = reshape(ovlm, shape=[ndimhx,ndimhx])
+             hamm_(1:ndimhx,1:ndimhx) = reshape(hamm, shape=[ndimhx,ndimhx])
+             iqqisp= isp + nspx*(iq-1)
+             items = [record_item_from(qp), record_item_from(ndimhx), record_item_from(ovlm_), record_item_from(hamm_)]
+             istat = writem_struct(ifih, rec=iqqisp, items=items)
             ! write(ifih) qp,ndimhx,lso,epsovl,isp ! ndimhx=ndimh*nspc 
             ! write(ifih) ovlm ! When you read, use ovlm(1:ndimhx, 1:ndimhx)
             ! write(ifih) hamm
-          endblock WriteHamiltonianPMT
+           endblock WriteHamiltonianPMT
          endif
          allocate(evec(ndimhx,nmx))
          if(magexist) then

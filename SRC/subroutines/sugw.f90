@@ -458,6 +458,8 @@ contains
             type(record_item), allocatable :: items(:)
             integer :: iqqisp
             complex(8) :: ovlm_(nbandmx, nbandmx), hamm_(nbandmx, nbandmx)
+            ovlm_(:,:) = 0d0
+            hamm_(:,:) = 0d0
             ovlm_(1:ndimhx,1:ndimhx) = reshape(ovlm, shape=[ndimhx,ndimhx])
             hamm_(1:ndimhx,1:ndimhx) = reshape(hamm, shape=[ndimhx,ndimhx])
             iqqisp= isp + nspx*(iq-1)
@@ -669,10 +671,9 @@ contains
       endblock WriteCphiGeig; if(debug)write(stdo,ftox)' writechpigeig 1001'  
       deallocate(hamm,ovlm,evec,vxc,cphi)!,pwz,cphiw)
 1001 enddo iqisploop
-    if(cmdopt0('--mlo')) close(ifihh)
+    if(cmdopt0('--mlo')) istat = closem(ifihh)
     i=closem(ifcphim) !mpi-io
     i=closem(ifgeigm)
-    istat = closem(ifihh)
     call mpi_barrier(comm,ierr)
     call mpibc2_real(evl,   nbandmx*nqirr*nspx,'evl')
     call mpibc2_real(vxclda,nbandmx*nqirr*nspx,'vxclda')
