@@ -181,13 +181,15 @@ contains
            WriteHamiltonianPMT: block
              type(record_item), allocatable :: items(:)
              integer :: iqqisp
+             integer, target :: ndimhx_t
              complex(8) :: ovlm_(nbandmx, nbandmx), hamm_(nbandmx, nbandmx)
              ovlm_(:,:) = 0d0
              hamm_(:,:) = 0d0
              ovlm_(1:ndimhx,1:ndimhx) = reshape(ovlm, shape=[ndimhx,ndimhx])
              hamm_(1:ndimhx,1:ndimhx) = reshape(hamm, shape=[ndimhx,ndimhx])
              iqqisp= isp + nspx*(iq-1)
-             items = [record_item_from(qp), record_item_from(ndimhx), record_item_from(ovlm_), record_item_from(hamm_)]
+             ndimhx_t = ndimhx
+             items = [record_item_from(qp), record_item_from(ndimhx_t), record_item_from(ovlm_), record_item_from(hamm_)]
              istat = writem_struct(ifih, rec=iqqisp, items=items)
             ! write(ifih) qp,ndimhx,lso,epsovl,isp ! ndimhx=ndimh*nspc 
             ! write(ifih) ovlm ! When you read, use ovlm(1:ndimhx, 1:ndimhx)

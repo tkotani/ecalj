@@ -457,13 +457,15 @@ contains
           WriteHamiltonianGW: block
             type(record_item), allocatable :: items(:)
             integer :: iqqisp
-            complex(8) :: ovlm_(nbandmx, nbandmx), hamm_(nbandmx, nbandmx)
+            integer, target :: ndimhx_t
+            complex(8), target :: ovlm_(nbandmx, nbandmx), hamm_(nbandmx, nbandmx)
             ovlm_(:,:) = 0d0
             hamm_(:,:) = 0d0
             ovlm_(1:ndimhx,1:ndimhx) = reshape(ovlm, shape=[ndimhx,ndimhx])
             hamm_(1:ndimhx,1:ndimhx) = reshape(hamm, shape=[ndimhx,ndimhx])
             iqqisp= isp + nspx*(iq-1)
-            items = [record_item_from(ndimhx), record_item_from(ovlm_), record_item_from(hamm_)]
+            ndimhx_t = ndimhx !target attributes variable is required in record_item_from
+            items = [record_item_from(ndimhx_t), record_item_from(ovlm_), record_item_from(hamm_)]
             istat = writem_struct(ifihh, rec=iqqisp, items=items)
             ! write(ifihh) ndimhx
             ! write(ifihh) ovlm
