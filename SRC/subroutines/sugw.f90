@@ -1,6 +1,6 @@
 !> Generate all the inputs for GW calculation. Need q+G info from QGpsi and QGcou which are generated a qg4gw.
 module m_sugw
-  use m_mpiio,only: openm,writem,closem, writem_struct, record_item, record_item_from
+  use m_mpiio,only: openm,writem,closem, writem_struct, record_item, record_item_from,openedm
   real(8),allocatable,public::ecore(:,:,:),gcore(:,:,:,:),gval(:,:,:,:,:)
   integer,public::   ndham, nqirr,nqibz    !ndima, ncoremx,
 !  integer,allocatable,public::  konf0(:,:) !konfig(:,:),ncores(:),
@@ -672,7 +672,7 @@ contains
     if(cmdopt0('--mlo')) close(ifihh)
     i=closem(ifcphim) !mpi-io
     i=closem(ifgeigm)
-    istat = closem(ifihh)
+    if(openedm(ifihh)) istat = closem(ifihh)
     call mpi_barrier(comm,ierr)
     call mpibc2_real(evl,   nbandmx*nqirr*nspx,'evl')
     call mpibc2_real(vxclda,nbandmx*nqirr*nspx,'vxclda')
