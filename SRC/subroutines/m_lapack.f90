@@ -8,7 +8,7 @@ module m_lapack
   implicit none
   public :: zhgv_h, zhev_h, zminv_h, zsv_h, zgev_h
 #ifdef __GPU
-  public :: zhgv_d, zhev_d, zminv_d, zsv_d, zgev_d, cusolver_finalize
+  public :: zhgv_d, zhev_d, zminv_d, zsv_d, cusolver_finalize !, zgev_d
 #endif
   private
 #ifdef __GPU
@@ -257,32 +257,32 @@ contains
     istat = cusolverDnXgetrs(cusolver_handle, cusolver_params, CUBLAS_OP_N, n_8, nrhs_8, cudaDataType(CUDA_C_64F), a, lda_8, &
                              ipiv, cudaDataType(CUDA_C_64F), b, ldb_8, devinfo)
   end function zsv_d
-  integer function zgev_d(a, n, evl, evl_vec, evr_vec, lda) result(istat) !Not tested
-    integer, intent(in) :: n
-    complex(8), device :: a(*)
-    complex(8), device :: evl(n)
-    complex(8), device, optional :: evl_vec(*), evr_vec(*)
-    integer, intent(in), optional :: lda
-    integer :: lda_in, ldvl, ldvr, lwork
-    complex(8), allocatable, device :: work(:), vl_loc(:), vr_loc(:)
-    integer(4), device :: devinfo
-    integer(4) :: jobvl_mode, jobvr_mode
-    lda_in = n; if(present(lda)) lda_in = lda
-    jobvl_mode = CUSOLVER_EIG_MODE_NOVECTOR; ldvl = 1
-    jobvr_mode = CUSOLVER_EIG_MODE_NOVECTOR; ldvr = 1
-    if(present(evl_vec)) then; jobvl_mode = CUSOLVER_EIG_MODE_VECTOR; ldvl = lda_in; endif
-    if(present(evr_vec)) then; jobvr_mode = CUSOLVER_EIG_MODE_VECTOR; ldvr = lda_in; endif
-    istat = cusolver_init()
-    allocate(vl_loc(ldvl*n), vr_loc(ldvr*n))
-    istat = cusolverDnZgeev_bufferSize(cusolver_handle, jobvl_mode, jobvr_mode, n, a, lda_in, &
-                                        evl, vl_loc, ldvl, vr_loc, ldvr, lwork)
-    allocate(work(lwork))
-    istat = cusolverDnZgeev(cusolver_handle, jobvl_mode, jobvr_mode, n, a, lda_in, &
-                             evl, vl_loc, ldvl, vr_loc, ldvr, work, lwork, devinfo)
-    if(present(evl_vec)) evl_vec(1:ldvl*n) = vl_loc
-    if(present(evr_vec)) evr_vec(1:ldvr*n) = vr_loc
-    deallocate(work, vl_loc, vr_loc)
-  end function zgev_d
+  ! integer function zgev_d(a, n, evl, evl_vec, evr_vec, lda) result(istat) !Not tested
+  !   integer, intent(in) :: n
+  !   complex(8), device :: a(*)
+  !   complex(8), device :: evl(n)
+  !   complex(8), device, optional :: evl_vec(*), evr_vec(*)
+  !   integer, intent(in), optional :: lda
+  !   integer :: lda_in, ldvl, ldvr, lwork
+  !   complex(8), allocatable, device :: work(:), vl_loc(:), vr_loc(:)
+  !   integer(4), device :: devinfo
+  !   integer(4) :: jobvl_mode, jobvr_mode
+  !   lda_in = n; if(present(lda)) lda_in = lda
+  !   jobvl_mode = CUSOLVER_EIG_MODE_NOVECTOR; ldvl = 1
+  !   jobvr_mode = CUSOLVER_EIG_MODE_NOVECTOR; ldvr = 1
+  !   if(present(evl_vec)) then; jobvl_mode = CUSOLVER_EIG_MODE_VECTOR; ldvl = lda_in; endif
+  !   if(present(evr_vec)) then; jobvr_mode = CUSOLVER_EIG_MODE_VECTOR; ldvr = lda_in; endif
+  !   istat = cusolver_init()
+  !   allocate(vl_loc(ldvl*n), vr_loc(ldvr*n))
+  !   istat = cusolverDnZgeev_bufferSize(cusolver_handle, jobvl_mode, jobvr_mode, n, a, lda_in, &
+  !                                       evl, vl_loc, ldvl, vr_loc, ldvr, lwork)
+  !   allocate(work(lwork))
+  !   istat = cusolverDnZgeev(cusolver_handle, jobvl_mode, jobvr_mode, n, a, lda_in, &
+  !                            evl, vl_loc, ldvl, vr_loc, ldvr, work, lwork, devinfo)
+  !   if(present(evl_vec)) evl_vec(1:ldvl*n) = vl_loc
+  !   if(present(evr_vec)) evr_vec(1:ldvr*n) = vr_loc
+  !   deallocate(work, vl_loc, vr_loc)
+  ! end function zgev_d
   integer function zhev_d(A, n, evl, il, iu, lda) result(istat) !Not tested
   ! Solving the standard eigenvalue problem Az = lambda z, where A is a Hermitian matrix (GPU version)
   ! Eigenvalues are stored in evl, eigenvectors are stored in A
