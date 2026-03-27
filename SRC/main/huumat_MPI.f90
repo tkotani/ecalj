@@ -1,3 +1,23 @@
 program main !wannier
-    call h_uumatrix()
+  use mpi
+  use m_ctrl2ctrlp,only: ConvertCtrl2ctrlpBypython
+  use m_cmdpath,only: setcmdpath, cmdpath
+  use m_args,only:    m_setargs, argall
+  use m_ext,only:     m_ext_init, sname
+  use m_mpi, only: MPI__Initialize, mpi__root, comm, setipr, mpi__rank
+  integer :: ierr
+
+  call MPI__Initialize()
+  call setipr(comm)
+  call setcmdpath()
+  call m_setargs()
+  call m_ext_init()    ! Get sname, e.g. trim(sname)=si of ctrl.si
+  if(mpi__root) then
+    print *,'cmdpath:', trim(cmdpath)
+    print *,'args:', trim(argall)
+    print *,'ext:', trim(sname)
+    call ConvertCtrl2CtrlpByPython()
+  endif
+  call mpi_barrier(comm, ierr) !wait finishing of ctrl2ctrlp
+  call h_uumatrix()
 end program

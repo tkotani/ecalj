@@ -4,6 +4,7 @@ module m_qplist
   use m_lgunit,only:stdo
   use m_nvfortran,only: findloc
   use m_sort, only: sort_index, lower_bound, upper_bound
+  implicit none
   public :: m_qplist_init,m_qplist_qspdivider,qshortn
   integer,protected,public::   napwmxqp
   integer,allocatable,public:: igv2qp(:,:,:),igv2revqp(:,:,:,:),napwkqp(:)

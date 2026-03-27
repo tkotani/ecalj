@@ -7,6 +7,7 @@ module m_mlo_scrw
   public :: nnwf_init, scrw_init, trace_onsite, trace_onsite_diag, contract_to_site, extract_diagonal_channel, trace
   integer, protected, public :: nnwf
   complex(8), allocatable, protected, public :: scrw(:,:)
+  logical, allocatable, protected, public :: nnwf_mask(:)
   integer, allocatable, protected, public :: mlo_pairs(:,:), pair_site(:,:), pair_lorb(:,:)
 contains
   subroutine nnwf_init(nnwf_size_reduction)
@@ -21,6 +22,8 @@ contains
     else
       mask = [((.TRUE., iwf=1,nwf), jwf=1,nwf)]  !full pair
     endif
+    if(allocated(nnwf_mask)) deallocate(nnwf_mask)
+    allocate(nnwf_mask, source = mask)
     iwf_list = pack(iwf_list, mask=mask)
     jwf_list = pack(jwf_list, mask=mask)
     nnwf = size(iwf_list)
@@ -39,9 +42,10 @@ contains
    enddo
   end subroutine nnwf_init
 
-  function contract_to_site(mat,lorb) result(cmat)
+  function contract_to_site(mat, lorb) result(cmat)
     complex(8), intent(in) :: mat(nnwf,nnwf)
     integer, intent(in), optional :: lorb
+    complex(8), intent(in), optional :: uovlpq(nnwf)
     complex(8) :: cmat(nsite,nsite)
     logical, allocatable :: mask(:)
     integer :: site1, site2, inwf, jnwf

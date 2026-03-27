@@ -44,6 +44,8 @@ def cal_mlo_vw(args, extra_args):
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hx0fp0", args=[*options, '--prefer_bpara']), stdin_str="111", stdout="lx0_111")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hwmatK_MPI", args=[target, "--mlo", option_W, *options]), stdin_str="2", stdout="lwmatK2")
 
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"huumat_MPI", args=[target, "--mlo", *options]), stdin_str="4", stdout="luumat")
+
     print("OK! Generation of W finished.")
 
 if __name__ == "__main__":

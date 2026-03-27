@@ -2,10 +2,12 @@
 subroutine h_uumatrix()
   ! ixc=2: <u(k) | u(k+b)>
   ! ixc=3: <u(k) | u(k+q0)>
+  ! ixc=4: <u(k) | u(k+q)>
   ! Takashi Miyake, Mar 2008, parallelized.  originally written by Takao Kotani, April, 2004
   use m_readqg,only: readngmx,ngcmx,readqg0,readqg
   use m_hamindex,only:   Readhamindex,ngrp,symops
   use m_readeigen,only:init_readeigen,init_readeigen2,readcphif,readgeigf,readeval
+  use m_readeigen, only: init_readeigen_mlw_noeval, readcphiW, readgeigW
   use m_read_bzdata,only: read_bzdata, nqbz,nqibz,nqbzw,nteti,ntetf,qbas=>qlat, ginv, &
     dq_,wbz,qibz,wibz,qbzw, qbz, idtetf,ib1bz,idteti, nstar,irk,nstbz,  nq0i=>nq0ix,q0i
   use m_genallcf_v3,only: genallcf_v3, ncore2=>ncore,nrxx=>nrx, natom,natom,nspin,nl,nn,nnv,nnc, &
@@ -15,10 +17,17 @@ subroutine h_uumatrix()
   use m_pwmat,only: mkppovl2
   use m_ll,only: ll
 !  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-  use m_mpi,only: mpi__broadcast,mpi__root, mpi__size,mpi__rank,mpi__initialize
+  use m_mpi,only: mpi__broadcast,mpi__root, mpi__size,mpi__rank,mpi__initialize, mpi__reducesum, comm, mpi__allreducesum
   use m_lgunit,only: m_lgunit_init,stdo
   use m_setqibz_lmfham,only: set_qibz,irotg
+  use m_mlo_ham, only: mlo_read_hma_rs => read_ham_rs, mlo_nwf => ndimMTO
   use m_ftox
+  use m_mpiio, only: openm, writem, closem
+  use m_lmfinit,only:  m_lmfinit_init
+  use m_lattic,only:   m_lattic_init
+  use m_mksym,only:    m_mksym_init
+  use m_mpitk, only: m_mpitk_init
+  ! use m_mkqp,only:     m_mkqp_init
 !  use m_scg,only: rotcg
   implicit none
   integer:: nw_input, i,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx &
@@ -51,12 +60,20 @@ subroutine h_uumatrix()
   complex(8),allocatable:: geig1(:,:),geig2(:,:),cphi1(:,:),cphi2(:,:) ,uum(:,:,:), ppovl(:,:),ppj(:,:,:,:)
   complex(8):: phaseatom,aaa,bbb
   logical:: qbzreg, lbnds,cmdopt2,cmdopt0
+  logical :: use_bbvec_file, is_mlo, spin_flip
+  complex(8), allocatable :: uumq(:,:,:,:)
+  integer :: istat
   character(8) :: xt,head(2:3,2)
   character(4) charnum4
   character*7:: charnum7
   character(20):: outs=''
-  call MPI__Initialize()
   call M_lgunit_init()
+  call m_MPItk_init(comm)
+  !for rotMTO
+  call m_lmfinit_init('uumat',comm)! Read ctrlp into module m_lmfinit.
+  call m_lattic_init()       ! lattice setup (for ewald sum)
+  call m_mksym_init()  !symmetry go into m_lattic and m_mksym
+
   call date_and_time(values=timevalues)
   write(stdo,"('mpirank=',i5,' YYYY.MM.DD.HH.MM.msec=',9i4)")mpi__rank,timevalues(1:3),timevalues(5:8)
   if(mpi__root) then
@@ -64,14 +81,20 @@ subroutine h_uumatrix()
       read(outs,*) ixc
     else
       write(stdo,*) ' --- Choose modes below -------------------'
-      write(stdo,*) '  (2) (q,q+b), (3) (q,q+q0)'
+      write(stdo,*) '  (2) (q,q+b), (3) (q,q+q0), (4) sum_k (k,k+q) with spinflip'
       write(stdo,*) ' --- Put number above ! ------------'
       read(5,*) ixc
       write(stdo,*) ' ixc=', ixc !computational mode index
     endif
   endif
   call MPI__Broadcast(ixc)
-  if(.not.(ixc == 2.or. ixc==3))call rx('main_huumat_MPI: ixc error')
+  if(.not.(ixc == 2.or. ixc==3 .or. ixc==4))call rx('main_huumat_MPI: ixc error')
+  use_bbvec_file = .true.
+  is_mlo = .false.
+  spin_flip = .false.
+  if(ixc==4) use_bbvec_file = .false.
+  if(ixc==4) is_mlo = .true.
+  if(ixc==4) spin_flip = .true.
   call read_BZDATA()
   if (mpi__root) write(stdo,*)' ======== nqbz nqibz ngrp=',nqbz,nqibz,ngrp
   call genallcf_v3(incwfx=0) !readin condition. use ForX0 for core in GWIN !  call Readhbe()    !Read dimensions of h,hb
@@ -79,6 +102,8 @@ subroutine h_uumatrix()
   call readngmx('QGpsi',ngpmx)
   open(newunit=ifphi,file='__PHIVC',form='unformatted')     ! PHIV+PHIC augmentation wave and core
   read(ifphi) nbas, nradmx, ncoremx,nrx
+  if(ixc ==4 .and. nspin /=2) call rx('ixc == 4 works only nspin=2')
+  if(ixc ==4 .and. mpi__root) write(stdo,ftox) '!!WARNING ixc ==4 requires --phispinsym'
   if(nqbz  /= nqbzt) call rx( ' hx0fp0: nqbz /=nqbzt  in hbe.d')
   if(nbas  /= natom) call rx(' nbas(PHIVC) /= natom ')
   allocate(  ncindx(ncoremx,nbas), lcindx(ncoremx,nbas), &
@@ -123,9 +148,16 @@ subroutine h_uumatrix()
   call Readhamindex()
   call init_readeigen()   !Initialization for readeigen
   call init_readeigen2()
+  if(is_mlo) call mlo_read_hma_rs() !set nwf
+  if(is_mlo) call init_readeigen_mlw_noeval()
   call readngmx('QGpsi',ngpmx) !max number of the set q+G
-  allocate(geig1 (ngpmx*nspc,nband),geig2(ngpmx*nspc,nband),eval1(nband),eval2(nband))
-  allocate(cphi1 (ndima*nspc,nband),cphi2(ndima*nspc,nband) )
+  if(is_mlo) then
+    allocate(geig1(ngpmx*nspc,mlo_nwf),geig2(ngpmx*nspc,mlo_nwf))
+    allocate(cphi1(ndima*nspc,mlo_nwf),cphi2(ndima*nspc,mlo_nwf))
+  else
+    allocate(geig1 (ngpmx*nspc,nband),geig2(ngpmx*nspc,nband),eval1(nband),eval2(nband))
+    allocate(cphi1 (ndima*nspc,nband),cphi2(ndima*nspc,nband) )
+  endif
   open(newunit=ifoc,file='@MNLA_CPHI')
   ldim2 = ndima
   read(ifoc,*)
@@ -139,6 +171,7 @@ subroutine h_uumatrix()
     write(stdo,*) ' Used k number in Q0P =', nq0i
     write(stdo,"(i3,2x, 3f14.6)" )(i,q0i(1:3,i),i=1,nq0i)
   endif
+  if(use_bbvec_file) then
   readbbvec: block
     open(newunit=ifbb,file='BBVEC')
     read(ifbb,*)
@@ -162,8 +195,18 @@ subroutine h_uumatrix()
     enddo
     close(ifbb)
   end block readbbvec
+  else
+    nbb = nqbz
+    allocate(bbv(3,nbb), source = qbz(3,nqbz))
+    iko_ixs(1:nspx) = 1
+    iko_fxs(1:nspx) = mlo_nwf
+  endif
   head(2,1:2)=['UUU.','UUD.']
   head(3,1:2)=['UUq0U.','UUq0D.']
+  if(ixc ==4) then
+    ! istat = openm(newunit=ifuu(1), file='__UUQ.UPDW', recl=mlo_nwf*mlo_nwf*16, comm=comm)
+    ! istat = openm(newunit=ifuu(2), file='__UUQ.DWUP', recl=mlo_nwf*mlo_nwf*16, comm=comm)
+  else
   if(mpi__root) then
     do isp=1,nspx
       if(cmdopt0('--ahc')) then
@@ -181,6 +224,7 @@ subroutine h_uumatrix()
       close(ifuu(isp))
     enddo
   endif
+  endif
   ! --- Set q1(j1range) q2(j2range); Note that the true q when we generate eigenfunctions are q1x and q2x.
   ! q1-q1x should be a G vector.  So you may need to take into account the phase shift to <u|u> vectors.
   j1min = minval(iko_ixs(1:nspx)) !starting band index
@@ -191,6 +235,7 @@ subroutine h_uumatrix()
   if(cmdopt0('--qibzonly')) call set_qibz(plat,qbz,nqbz,symops,ngrp) !If only at qibz, we need to set irotg
   if (ixc == 2) nbbloop = nbb
   if (ixc == 3) nbbloop = nq0i
+  if (ixc == 4) nbbloop = nqbz
   lxx=2*(nl-1)
   allocate(ppj(ndima,ndima,nspin,nbbloop),source=(0d0,0d0)) ! ppj: ovalap matrix within MT
   allocate(ppbrd(0:nl-1,nn,0:nl-1,nn,0:2*(nl-1),nspin,nbas), rprodx(nrx,0:lxx), phij(0:lxx),psij(0:lxx),rphiphi(nrx))
@@ -198,6 +243,7 @@ subroutine h_uumatrix()
   ibbloop0: do ibb = 1,nbbloop
     if(ixc == 2) dq=-bbv(:,ibb)  !q1(:) = qbz(:,iqbz)        !q2(:) = qbz(:,iqbz) + bbv(:,ibb)
     if(ixc == 3) dq=-q0i(:,ibb) !q1(:) = qbz(:,iqbz)         !q2(:) = qbz(:,iqbz) + q0i(:,ibb)
+    if(ixc == 4) dq=-qbz(:,ibb) !q1(:) = qbz(:,iqbz)         !q2(:) = qbz(:,iqbz) + qbz(:,ibb)
     if(sum(abs(dq))<1d-8) dq=(/1d-10,0d0,0d0/)
     if(cmdopt0('--q2q1test')) then
       dq=1d-10
@@ -274,11 +320,13 @@ subroutine h_uumatrix()
     enddo ispinloop02
   enddo ibbloop0
   deallocate(ppbrd, rprodx, phij, psij, rphiphi, cy, yl)
+  if (ixc == 4) allocate(uumq(mlo_nwf,mlo_nwf,nqbz,nspx), source = (0d0,0d0))
   iqbz4uum: do 1070 iqbz = 1,nqbz  !qibzonly need to be improved to balance load in ranks.
     if(mod(iqbz-1,mpi__size)/=mpi__rank) cycle !MPI
     if (cmdopt0('--qibzonly')) then
       if(irotg(iqbz)/=1)  cycle !only irreducible q point
     endif  
+    if(ixc /= 4)  then
     do isp=1,nspx
       if(cmdopt0('--ahc')) then
         open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum7(iqbz),form='unformatted')
@@ -286,8 +334,10 @@ subroutine h_uumatrix()
         open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum4(iqbz),form='unformatted')
       endif
     enddo
+    endif
     if (ixc == 2) nbbloop = nbb
     if (ixc == 3) nbbloop = nq0i
+    if (ixc == 4) nbbloop = nqbz
     ibbloop: do 1080 ibb = 1,nbbloop
       if(ixc == 2) then
         iqb = ikbidx(ibb,iqbz)
@@ -317,8 +367,10 @@ subroutine h_uumatrix()
       elseif (ixc == 3) then
         q1(:) = qbz(:,iqbz)
         q2(:) = qbz(:,iqbz) + q0i(:,ibb)
+      elseif (ixc == 4) then
+        q1(:) = qbz(:,iqbz)
+        q2(:) = qbz(:,iqbz) + qbz(:,ibb)
       endif
-      write(stdo,ftox)' iqbz ibb=',iqbz,ibb,'out of',nqbz,nbb
       call readqg0('QGpsi',q1,  q1x, ngp1) ! write(stdo,"('uuuiq q1 q1x=',3f9.4,3x,3f9.4,i5)") q1,q1x,ngp1
       call readqg0('QGpsi',q2,  q2x, ngp2) ! write(stdo,"('uuuiq q2 q2x=',3f9.4,3x,3f9.4,i5)") q2,q2x,ngp2
       allocate( ngvecpf1(3,ngp1), ngvecpf2(3,ngp2), ppovl(ngp1,ngp2) )
@@ -334,13 +386,27 @@ subroutine h_uumatrix()
       ispinloop2: do 1050 ispin=1,nspx !note that nspx=nsp/nspc where nspc=2 for lso=1 (nspc=1 for lso=0,2)
         ii = iko_ixs(ispin)
         ie = iko_fxs(ispin)
+        if(is_mlo) then
+          block
+            real(8) :: qu(3)
+            integer :: size_dummy, ispin1, ispin2
+            ispin1 = ispin
+            ispin2 = ispin
+            if(spin_flip) ispin2 = 3-ispin !oppsite spin
+            call readcphiW(q1, size_dummy, ispin1, qu, cphi1)
+            call readcphiW(q2, size_dummy, ispin2, qu, cphi2)
+            call readgeigW(q1, ngpmx, ispin1, qu, geig1)
+            call readgeigW(q2, ngpmx, ispin2, qu, geig2)
+          endblock
+        else
         cphi1 = readcphif(q1,ispin) ! MT part of eigenfunctions 
         cphi2 = readcphif(q2,ispin) 
         geig1 = readgeigf(q1,ispin) ! IPW part of eigenfunctions
         geig2 = readgeigf(q2,ispin)
+        endif
         eval1 = readeval(q1,ispin) !eigenvalue at q1
         eval2 = readeval(q2,ispin) 
-        uum=0d0
+        uum(:,:,ispin) =0d0
         do ispc=1,nspc ! For lso=0 or 2,ispin=1,nsp. For lso=1, ispin=1 ispc=1,2 nspc=2 
           ioc=(ispc-1)*ndima
           iog=(ispc-1)*ngpmx
@@ -349,10 +415,12 @@ subroutine h_uumatrix()
                matmul(ppj(1:ndima,1:ndima,ispc,ibb),cphi2(ioc+1:ioc+ndima,ii:ie))) &! MT part
                + matmul(dconjg(transpose(geig1(iog+1:iog+ngp1, ii:ie))), matmul(ppovl,geig2(iog+1:iog+ngp2,ii:ie))) !IPW part
         enddo   
-        write(ifuu(ispin)) -10 !dummy
+        if(ixc/=4) write(ifuu(ispin)) -10 !dummy
         if(ixc==2) write(ifuu(ispin)) iqbz,ibb,ikbidx(ibb,iqbz)
         if(ixc==3) write(ifuu(ispin)) iqbz,ibb
-        write(ifuu(ispin)) ((uum(j1,j2,ispin),j1=ii,ie),j2=ii,ie)
+        if(ixc==2 .or. ixc == 3) write(ifuu(ispin)) ((uum(j1,j2,ispin),j1=ii,ie),j2=ii,ie)
+        if(ixc==4) uumq(:,:,ibb,ispin) = uumq(:,:,ibb,ispin) + uum(:,:,ispin)
+        if(ixc==4) cycle
         checkwirte: block
           do j1=ii,ie
             do j2=ii,ie !; do j2=j2min,j2max !checkwrite  !if(j1==j2)
@@ -363,12 +431,95 @@ subroutine h_uumatrix()
         endblock checkwirte
 1050  enddo ispinloop2
       deallocate(ngvecpf1, ngvecpf2, ppovl)
-      write(stdo,*) !'============ result --- diagonal --- ==============',nspx,j1min,j1max,j2min,j2max
+      ! write(stdo,*) !'============ result --- diagonal --- ==============',nspx,j1min,j1max,j2min,j2max
 1080 enddo ibbloop
+    if(ixc/=4) then
     close(ifuu(1))
     if(nspin==2) close(ifuu(2))
+    endif
 1070 enddo iqbz4uum
   deallocate(uum)
+
+  if(ixc==4) then
+    call mpi__allreducesum(uumq, mlo_nwf*mlo_nwf*nspin*nqbz)
+    uumq(:,:,:,:)  = uumq(:,:,:,:)/dble(nqbz)
+    if(mpi__root) then
+      do ibb=1, nqbz
+        write(stdo,ftox) 'iqbz,qbz, diag sum uumq(updw, dwup)/nwf:', ibb, qbz(:,ibb),  &
+        (sum([(uumq(i,i,ibb,isp),i=1,mlo_nwf)])/dble(mlo_nwf),isp=1,2)
+      enddo
+    endif
+    block
+      use m_gennlat, only: m_gennlat_init, npairmx, npair, nlat, nqwgt
+      use m_keyvalue,only: getkeyvalue
+      use m_lattic,only: plat=>lat_plat
+      use m_lmfinit,only: nbas
+      use m_mlo_ham, only: nsite, ib_tableI, ib_tableM
+      integer :: nnn(3), ii, jj, ib1, ib2, np, ibt1, ibt2, it, isite
+      integer, allocatable :: jdims(:), idims(:)
+      complex(8), allocatable :: uumt(:,:,:), phases(:)
+      complex(8), parameter :: img=(0d0,1d0)
+      real(8), parameter ::pi=4d0*atan(1d0)
+      real(8) :: qp(3)
+      call getkeyvalue("GWinput", "n1n2n3", nnn,3)
+      call m_gennlat_init(nnn) !for interpolation of Hamiltonian
+      if(mpi__root) write(stdo,ftox) 'info about FFT', nnn
+      if(mpi__root) write(stdo,ftox) 'info about FFT', npairmx, npair(:,:)
+      allocate(uumt(npairmx,mlo_nwf,mlo_nwf), phases(npairmx))
+      do isp = 1, nspin
+        if(mpi__root) then
+          if(isp==1) open(newunit=ifuu(1), file='__UOVLPT.UPDN', form='unformatted')
+          if(isp==2) open(newunit=ifuu(2), file='__UOVLPT.DNUP', form='unformatted')
+          write(ifuu(isp)) npairmx, nbas, 1
+          write(ifuu(isp)) plat(1:3,1:3), npair(1:nbas,1:nbas), &
+                           nlat(1:3,1:npairmx,1:nbas,1:nbas), nqwgt(1:npairmx,1:nbas,1:nbas)
+        endif
+        uumt(:,:,:) = (0d0, 0d0)
+        do iqbz = 1, nqbz
+          if(mod(iqbz-1,mpi__size)/=mpi__rank) cycle
+          qp = qbz(:,iqbz)
+          do ibt1 = 1, size(ib_tableI)
+            do ibt2 = 1, size(ib_tableI)
+              ib1 = ib_tableI(ibt1)
+              ib2 = ib_tableI(ibt2)
+              np = npair(ib1,ib2)
+              idims = pack([(i,i=1,mlo_nwf)], mask=(ib_tableM(:)==ib1))
+              jdims = pack([(j,j=1,mlo_nwf)], mask=(ib_tableM(:)==ib2))
+              phases(1:np) = [(1d0/dble(nqbz)* exp(img*2d0*pi* sum(qp*(matmul(plat,nlat(:,it,ib1,ib2))))),it=1,np)]
+              do concurrent(it=1:np, ii=1:size(idims), jj=1:size(jdims))
+                uumt(it,idims(ii),jdims(jj)) = uumt(it,idims(ii),jdims(jj)) + uumq(idims(ii),jdims(jj),iqbz,isp)*phases(it)
+              enddo
+            enddo
+          enddo
+        enddo
+        call mpi__reducesum(0, uumt, size(uumt))
+        if(mpi__root) write(ifuu(isp)) uumt(:,:,:)
+        if(mpi__root) close(ifuu(isp))
+        if(mpi__root) then !check
+          do ibt2 = 1, size(ib_tableI)
+            do ibt1 = 1, size(ib_tableI)
+              ib2 = ib_tableI(ibt2)
+              ib1 = ib_tableI(ibt1)
+              idims = pack([(i,i=1,mlo_nwf)], mask=(ib_tableM(:)==ib1))
+              jdims = pack([(j,j=1,mlo_nwf)], mask=(ib_tableM(:)==ib2))
+              np = npair(ib1,ib2)
+              phases(1:np) = 1d0/dble(nqwgt(1:np,ib1,ib2))
+              do ii = 1, size(idims)
+                do jj = 1, size(jdims)
+                  write(stdo,ftox) 'nwf nwf index, sum uumt:', idims(ii), jdims(jj), sum([(uumt(it,idims(ii),jdims(jj))*phases(it),it=1,np)])
+                enddo
+              enddo
+            enddo
+          enddo
+        endif
+        call mpi_barrier(comm,ierr)
+      enddo
+    endblock
+  endif
+  ! if(ixc==4) then
+  !   istat = closem(ifuu(1))
+  !   istat = closem(ifuu(2))
+  ! endif
   if (mpi__root) write(stdo,*)'====== end ========================================'
   call mpi_finalize(ierr)
 end subroutine h_uumatrix
