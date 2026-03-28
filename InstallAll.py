@@ -27,7 +27,8 @@ parser.add_argument('--fc', help='fortran compiler gfortran/ifort/ifx/nvfortran'
 parser.add_argument('--notest', help='no test. only compile', action='store_true')
 parser.add_argument('--verbose', help='verbose on for debug', action='store_true')
 parser.add_argument('--debug', help='debug', action='store_true')
-parser.add_argument('--gemmul8', help='build and install GEMMul8 library (this option is ignored unless --gpu is set)', 
+parser.add_argument('--mp', help='Use mixed precision for test', action='store_true')
+parser.add_argument('--gemmul8', help='build and install GEMMul8 library (this option is ignored unless --gpu is set)',
                     action='store_true', default=False)
 args = parser.parse_args()
 args.gemmul8 = args.gpu and args.gemmul8
@@ -176,7 +177,10 @@ def main():
     end_time_make = time.time()
     start_time_test = time.time()
 
-    run_shell(f"{BIN_DIR / 'testecalj'} -np {ncore} --all", cwd=test_dir)
+    test_opts = f"-np {ncore} --all"
+    if args.gpu: test_opts += " --gpu"
+    if args.mp:  test_opts += " --mp"
+    run_shell(f"{BIN_DIR / 'testecalj'} {test_opts}", cwd=test_dir)
 
     end_time = time.time()
     elapsed_time_make = end_time_make - start_time
