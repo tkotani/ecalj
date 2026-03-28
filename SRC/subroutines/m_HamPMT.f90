@@ -165,12 +165,12 @@ contains
 !2026-1-27      
       cmlo4GWinput: if(cmdopt0('--mlo')) then !from __Hamiltoniangw to __cmlo.data, __cmlo.info
         HreductionIqibzGWinput: block
-          use m_mpiio, only: openm, writem, closem, readm_struct, record_item, record_item_from
+          use m_mpiio, only: openm, writem, closem, mpiio_buf, buf_get, readm_buf
           integer:: ifi, ifizz, isp, mrecbb, ndble, nbandmx, iqqisp, nqbzgw !, idat
           complex(8):: rotmatt(ndimMTO,ndimMTO), ovlm(1:ndimMTO,1:ndimMTO), hamm(1:ndimMTO,1:ndimMTO)
           real(8),allocatable:: qplistgw(:,:)
           integer :: ifihh_info, mrech, istat
-          type(record_item), allocatable :: items(:)
+          type(mpiio_buf) :: buf
           complex(8), allocatable :: ovlmp(:,:), hammp(:,:), cmlo(:,:) !in PMT basis max size array
           ! complex(8), allocatable :: ovlm_(nbandmx,nbandmx), hamm_(nbandmx,nbandmx), cmlo(nbandmx,ndimMTO)
           !for sugw output for GWinput to get zcplz for q point in qg4gw.
@@ -202,8 +202,8 @@ contains
             write(stdo,ftox)' iqibzloops: m_HamPMT for GWinput=',procid,' iq isp=',iq,isp,' q=',ftof(qp)
             !          if(.not.lqibz(iq) ) cycle ! if qp is not qibz in GWinput
             write(stdo,ftox)'=== Reading Ham for iqibz spin procid q= ', iq,jsp,procid,ftof(qp)
-            items = [record_item_from(ndimPMT), record_item_from(ovlmp), record_item_from(hammp)]
-            istat = readm_struct(ifihh, rec=iqqisp, items=items) !read ndimPMT, ovlm_, hamm_
+            istat = readm_buf(ifihh, rec=iqqisp, buf=buf)
+            call buf_get(buf, ndimPMT); call buf_get(buf, ovlmp); call buf_get(buf, hammp)
             ! read(ifihh) ovlmp
             ! read(ifihh) hammp
             cmlo=0d0 !zero padding for 1:nbandmx in advance
@@ -231,11 +231,11 @@ contains
 ! --- base line for ctrl.foobar
       HreductionIqibz: block
         use m_nvfortran,only : findloc
-        use m_mpiio,only: openm, closem, readm_struct, record_item, record_item_from
+        use m_mpiio,only: openm, closem, mpiio_buf, buf_get, readm_buf
         integer:: i,iqxx,jspxx,idat,isp,ndble, nbandmx
         complex(8):: rotmatt(ndimMTO,ndimMTO), ovlm(1:ndimMTO,1:ndimMTO), hamm(1:ndimMTO,1:ndimMTO)
         integer :: ifih_info, mrech, istat, iqqisp
-        type(record_item), allocatable :: items(:)
+        type(mpiio_buf) :: buf
         complex(8), allocatable :: ovlmp(:,:), hammp(:,:), cmlo(:,:) !in PMT basis !max size
         ! open(newunit=ifih, file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
         open(newunit=ifih_info, file='__HamiltonianPMT.info', form='unformatted')
@@ -253,8 +253,8 @@ contains
               if(debug)write(6,*)' jspxx=',jspxx
               jsp = jspxx
               ! read(ifih,end=2029) qp,ndimPMT,lso,xxx,jsp !jsp for isp; if so=1, jsp=1 only
-              items = [record_item_from(qp), record_item_from(ndimPMT), record_item_from(ovlmp), record_item_from(hammp)]
-              istat = readm_struct(ifih, rec=iqqisp, items=items)
+              istat = readm_buf(ifih, rec=iqqisp, buf=buf)
+              call buf_get(buf, qp); call buf_get(buf, ndimPMT); call buf_get(buf, ovlmp); call buf_get(buf, hammp)
               ! write(06,*) 'xxxx: iq, is', iqxx, jspxx, qp(3), ndimPMT, ndimMTO
               iqibz = findloc( [(sum(abs(qibz(:,i)-qp))<tolq(),i=1,nqibz)],value=.true.,dim=1)
               if(iqibz /= iqxx) then

@@ -19,7 +19,7 @@ subroutine mlo_magnon() bind(C)
   use m_dpsion, only: dpsion_init, dpsion_chiq
   use m_mpi, only: MPI__Initialize, MPI__consoleout, MPI__SplitXq
   use m_mpi, only: mpi__rank, mpi__size, mpi__root, comm, comm_k, mpi__rank_k, mpi__size_k, mpi__root_k, ipr
-  use m_mpiio, only: openm, closem, writem, readm,  writem_struct, readm_struct, record_item, record_item_from
+  use m_mpiio, only: openm, closem, writem, readm, mpiio_buf, buf_put, buf_get, writem_buf, readm_buf
   use m_blas, only: m_op_C, zmm => zmm_h, int_split
   use m_lapack, only: zminv => zminv_h, zhev => zhev_h, zgev => zgev_h
   use m_mem, only: writemem
@@ -445,7 +445,7 @@ subroutine mlo_magnon() bind(C)
                     chi0(nnwf,nnwf), rmat_site(nsite,nsite,nw_i:nw), kmat_site(nsite,nsite,nw_i:nw), &
                     uovlpq(nnwf), r_uovlp(nw_i:nw), k_uovlp(nw_i:nw)
       call calc_uovlpq(q, uovlpq)
-      write(stdo,*) 'xxx sum uovlpq:', sum(uovlpq)
+      if(ipr) write(stdo,ftox) 'sum uovlpq:', sum(uovlpq)
       iwloop: do iw = nw_i, nw
         chi0(:,:) = zxq(:,:,iw)
 
@@ -520,10 +520,12 @@ subroutine mlo_magnon() bind(C)
       endblock CalcJqSite
 
       SaveBufferFile:block
-        type(record_item), allocatable :: items(:)
-        items = [record_item_from(k_uovlp), record_item_from(k_tr), record_item_from(k_tr_onsite), record_item_from(k_tr_diag), &
-                 record_item_from(r_uovlp), record_item_from(r_tr), record_item_from(r_tr_onsite), record_item_from(r_tr_diag) ]
-        istat = writem_struct(file_tr_kr, rec=iq, items=items)
+        type(mpiio_buf) :: buf
+        call buf_put(buf, k_uovlp);     call buf_put(buf, k_tr)
+        call buf_put(buf, k_tr_onsite); call buf_put(buf, k_tr_diag)
+        call buf_put(buf, r_uovlp);     call buf_put(buf, r_tr)
+        call buf_put(buf, r_tr_onsite); call buf_put(buf, r_tr_diag)
+        istat = writem_buf(file_tr_kr, rec=iq, buf=buf)
         istat = writem(file_jq_full, rec=iq, data=jq_w_full(nw_i:nw,1:nnwf))
         istat = writem(file_jq_site, rec=iq, data=jq_w_site(nw_i:nw,1:nsite))
       endblock SaveBufferFile
@@ -554,12 +556,12 @@ subroutine mlo_magnon() bind(C)
       tetra_weight(1:nteti_dos) = idteti_dos(0,1:nteti_dos)
       do iq=1, nqcalc
         ReadBufferFileDOS:block
-          type(record_item), allocatable :: items(:)
-          items = [record_item_from(k_uovlp_ibz(iq,nw_i:nw)),     record_item_from(k_tr_ibz(iq,nw_i:nw)), &
-                   record_item_from(k_tr_onsite_ibz(iq,nw_i:nw)), record_item_from(k_tr_diag_ibz(iq,nw_i:nw)), &
-                   record_item_from(r_uovlp_ibz(iq,nw_i:nw)),     record_item_from(r_tr_ibz(iq,nw_i:nw)), &
-                   record_item_from(r_tr_onsite_ibz(iq,nw_i:nw)), record_item_from(r_tr_diag_ibz(iq,nw_i:nw))]
-          istat = readm_struct(file_tr_kr, rec=iq, items=items)
+          type(mpiio_buf) :: buf
+          istat = readm_buf(file_tr_kr, rec=iq, buf=buf)
+          call buf_get(buf, k_uovlp_ibz(iq,nw_i:nw));     call buf_get(buf, k_tr_ibz(iq,nw_i:nw))
+          call buf_get(buf, k_tr_onsite_ibz(iq,nw_i:nw)); call buf_get(buf, k_tr_diag_ibz(iq,nw_i:nw))
+          call buf_get(buf, r_uovlp_ibz(iq,nw_i:nw));     call buf_get(buf, r_tr_ibz(iq,nw_i:nw))
+          call buf_get(buf, r_tr_onsite_ibz(iq,nw_i:nw)); call buf_get(buf, r_tr_diag_ibz(iq,nw_i:nw))
           istat = readm(file_jq_site, rec=iq, data=jq_site_ibz(iq,nw_i:nw,1:nsite))
         endblock ReadBufferFileDOS
       enddo
@@ -622,10 +624,12 @@ subroutine mlo_magnon() bind(C)
           write(file_tr_rpm_out, '(A)')' # qx qy qz q_pos omega(eV) Real_Tr_R/eV Imag_Tr_R/eV Real_Tr_Diag_R/eV Imag_Tr_Diag_R/eV'
         endif
         ReadBufferFile:block
-          type(record_item), allocatable :: items(:)
-          items = [record_item_from(k_uovlp), record_item_from(k_tr), record_item_from(k_tr_onsite), record_item_from(k_tr_diag), &
-                   record_item_from(r_uovlp), record_item_from(r_tr), record_item_from(r_tr_onsite), record_item_from(r_tr_diag) ]
-          istat = readm_struct(file_tr_kr, rec=iq, items=items)
+          type(mpiio_buf) :: buf
+          istat = readm_buf(file_tr_kr, rec=iq, buf=buf)
+          call buf_get(buf, k_uovlp);     call buf_get(buf, k_tr)
+          call buf_get(buf, k_tr_onsite); call buf_get(buf, k_tr_diag)
+          call buf_get(buf, r_uovlp);     call buf_get(buf, r_tr)
+          call buf_get(buf, r_tr_onsite); call buf_get(buf, r_tr_diag)
           istat = readm(file_jq_site, rec=iq, data=jq_w_site(:,:))
           istat = readm(file_jq_full, rec=iq, data=jq_w_full(:,:))
         endblock ReadBufferFile

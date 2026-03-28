@@ -1,6 +1,6 @@
 !> Generate all the inputs for GW calculation. Need q+G info from QGpsi and QGcou which are generated a qg4gw.
 module m_sugw
-  use m_mpiio,only: openm,writem,closem, writem_struct, record_item, record_item_from
+  use m_mpiio,only: openm,writem,closem, mpiio_buf, buf_put, writem_buf
   real(8),allocatable,public::ecore(:,:,:),gcore(:,:,:,:),gval(:,:,:,:,:)
   integer,public::   ndham, nqirr,nqibz    !ndima, ncoremx,
 !  integer,allocatable,public::  konf0(:,:) !konfig(:,:),ncores(:),
@@ -455,18 +455,16 @@ contains
         if(show_time) call stopwatch_start(sw)
         if(cmdopt0('--mlo')) then ! 2026-1-29
           WriteHamiltonianGW: block
-            type(record_item), allocatable :: items(:)
+            type(mpiio_buf) :: buf
             integer :: iqqisp
-            integer, target :: ndimhx_t
-            complex(8), target :: ovlm_(nbandmx, nbandmx), hamm_(nbandmx, nbandmx)
+            complex(8) :: ovlm_(nbandmx, nbandmx), hamm_(nbandmx, nbandmx)
             ovlm_(:,:) = 0d0
             hamm_(:,:) = 0d0
             ovlm_(1:ndimhx,1:ndimhx) = reshape(ovlm, shape=[ndimhx,ndimhx])
             hamm_(1:ndimhx,1:ndimhx) = reshape(hamm, shape=[ndimhx,ndimhx])
             iqqisp= isp + nspx*(iq-1)
-            ndimhx_t = ndimhx !target attributes variable is required in record_item_from
-            items = [record_item_from(ndimhx_t), record_item_from(ovlm_), record_item_from(hamm_)]
-            istat = writem_struct(ifihh, rec=iqqisp, items=items)
+            call buf_put(buf, int(ndimhx,4)); call buf_put(buf, ovlm_); call buf_put(buf, hamm_)
+            istat = writem_buf(ifihh, rec=iqqisp, buf=buf)
             ! write(ifihh) ndimhx
             ! write(ifihh) ovlm
             ! write(ifihh) hamm

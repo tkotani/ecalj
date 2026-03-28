@@ -26,7 +26,7 @@ module m_bandcal
   use m_lmfinit,only: ispec,nkaphh,kmxt_i=>kmxt,lmxb_i=>lmxb
   use m_lmfinit,only: nlmax,nspc,n0,lldau,idu
   use m_struc_def,only:s_rv5   !o oqkkl : memory is allocated for qkkl
-  use m_mpiio, only: writem_d, openm, closem, openedm, writem_struct, record_item, record_item_from
+  use m_mpiio, only: writem_d, openm, closem, openedm, mpiio_buf, buf_put, writem_buf
   ! outputs ---------------------------
   public m_bandcal_init, m_bandcal_2nd, m_bandcal_clean, m_bandcal_allreduce, m_bandcal_symsmrho
   public :: m_bandcal_gather_evlall, m_bandcal_gather_spinweightall
@@ -179,18 +179,16 @@ contains
               " ndimh = nmto+napw = ",3i5,f13.5)') iq,nkp,qp,ndimh,ndimh-napw,napw
          if(writeham) then
            WriteHamiltonianPMT: block
-             type(record_item), allocatable :: items(:)
+             type(mpiio_buf) :: buf
              integer :: iqqisp
-             integer, target :: ndimhx_t
              complex(8) :: ovlm_(nbandmx, nbandmx), hamm_(nbandmx, nbandmx)
              ovlm_(:,:) = 0d0
              hamm_(:,:) = 0d0
              ovlm_(1:ndimhx,1:ndimhx) = reshape(ovlm, shape=[ndimhx,ndimhx])
              hamm_(1:ndimhx,1:ndimhx) = reshape(hamm, shape=[ndimhx,ndimhx])
              iqqisp= isp + nspx*(iq-1)
-             ndimhx_t = ndimhx
-             items = [record_item_from(qp), record_item_from(ndimhx_t), record_item_from(ovlm_), record_item_from(hamm_)]
-             istat = writem_struct(ifih, rec=iqqisp, items=items)
+             call buf_put(buf, qp); call buf_put(buf, int(ndimhx,4)); call buf_put(buf, ovlm_); call buf_put(buf, hamm_)
+             istat = writem_buf(ifih, rec=iqqisp, buf=buf)
             ! write(ifih) qp,ndimhx,lso,epsovl,isp ! ndimhx=ndimh*nspc 
             ! write(ifih) ovlm ! When you read, use ovlm(1:ndimhx, 1:ndimhx)
             ! write(ifih) hamm
