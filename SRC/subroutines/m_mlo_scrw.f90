@@ -45,7 +45,7 @@ contains
   function contract_to_site(mat, lorb) result(cmat)
     complex(8), intent(in) :: mat(nnwf,nnwf)
     integer, intent(in), optional :: lorb
-    complex(8), intent(in), optional :: uovlpq(nnwf)
+    ! complex(8), intent(in), optional :: uovlpq(nnwf)
     complex(8) :: cmat(nsite,nsite)
     logical, allocatable :: mask(:)
     integer :: site1, site2, inwf, jnwf

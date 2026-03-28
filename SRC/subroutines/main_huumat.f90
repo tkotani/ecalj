@@ -61,7 +61,7 @@ subroutine h_uumatrix()
   complex(8):: phaseatom,aaa,bbb
   logical:: qbzreg, lbnds,cmdopt2,cmdopt0
   logical :: use_bbvec_file, is_mlo, spin_flip
-  complex(8), allocatable :: uumq(:,:,:,:)
+  complex(8), allocatable :: uumq(:,:,:,:), uumq_mt(:,:,:,:), uumq_ipw(:,:,:,:)
   integer :: istat
   character(8) :: xt,head(2:3,2)
   character(4) charnum4
@@ -203,10 +203,7 @@ subroutine h_uumatrix()
   endif
   head(2,1:2)=['UUU.','UUD.']
   head(3,1:2)=['UUq0U.','UUq0D.']
-  if(ixc ==4) then
-    ! istat = openm(newunit=ifuu(1), file='__UUQ.UPDW', recl=mlo_nwf*mlo_nwf*16, comm=comm)
-    ! istat = openm(newunit=ifuu(2), file='__UUQ.DWUP', recl=mlo_nwf*mlo_nwf*16, comm=comm)
-  else
+  if(ixc ==2 .or. ixc == 3) then
   if(mpi__root) then
     do isp=1,nspx
       if(cmdopt0('--ahc')) then
@@ -321,6 +318,8 @@ subroutine h_uumatrix()
   enddo ibbloop0
   deallocate(ppbrd, rprodx, phij, psij, rphiphi, cy, yl)
   if (ixc == 4) allocate(uumq(mlo_nwf,mlo_nwf,nqbz,nspx), source = (0d0,0d0))
+  if (ixc == 4) allocate(uumq_mt(mlo_nwf,mlo_nwf,nqbz,nspx), source = (0d0,0d0))
+  if (ixc == 4) allocate(uumq_ipw(mlo_nwf,mlo_nwf,nqbz,nspx), source = (0d0,0d0))
   iqbz4uum: do 1070 iqbz = 1,nqbz  !qibzonly need to be improved to balance load in ranks.
     if(mod(iqbz-1,mpi__size)/=mpi__rank) cycle !MPI
     if (cmdopt0('--qibzonly')) then
@@ -406,7 +405,7 @@ subroutine h_uumatrix()
         endif
         eval1 = readeval(q1,ispin) !eigenvalue at q1
         eval2 = readeval(q2,ispin) 
-        uum(:,:,ispin) =0d0
+        uum(:,:,ispin) = 0d0
         do ispc=1,nspc ! For lso=0 or 2,ispin=1,nsp. For lso=1, ispin=1 ispc=1,2 nspc=2 
           ioc=(ispc-1)*ndima
           iog=(ispc-1)*ngpmx
@@ -420,6 +419,22 @@ subroutine h_uumatrix()
         if(ixc==3) write(ifuu(ispin)) iqbz,ibb
         if(ixc==2 .or. ixc == 3) write(ifuu(ispin)) ((uum(j1,j2,ispin),j1=ii,ie),j2=ii,ie)
         if(ixc==4) uumq(:,:,ibb,ispin) = uumq(:,:,ibb,ispin) + uum(:,:,ispin)
+        if(ixc==4) then
+          uum(:,:,ispin) = 0d0
+          do ispc=1,nspc ! For lso=0 or 2,ispin=1,nsp. For lso=1, ispin=1 ispc=1,2 nspc=2 
+            ioc=(ispc-1)*ndima
+            iog=(ispc-1)*ngpmx
+            uum(ii:ie,ii:ie,ispin) =uum(ii:ie,ii:ie,ispin) + matmul(transpose(dconjg(cphi1(ioc+1:ioc+ndima,ii:ie))), matmul(ppj(1:ndima,1:ndima,ispc,ibb),cphi2(ioc+1:ioc+ndima,ii:ie)))
+          enddo   
+          uumq_mt(:,:,ibb,ispin) = uumq_mt(:,:,ibb,ispin) + uum(:,:,ispin)
+          uum(:,:,ispin) = 0d0
+          do ispc=1,nspc ! For lso=0 or 2,ispin=1,nsp. For lso=1, ispin=1 ispc=1,2 nspc=2 
+            ioc=(ispc-1)*ndima
+            iog=(ispc-1)*ngpmx
+            uum(ii:ie,ii:ie,ispin) =uum(ii:ie,ii:ie,ispin) + matmul(dconjg(transpose(geig1(iog+1:iog+ngp1, ii:ie))), matmul(ppovl,geig2(iog+1:iog+ngp2,ii:ie))) !IPW part
+          enddo   
+          uumq_ipw(:,:,ibb,ispin) = uumq_ipw(:,:,ibb,ispin) + uum(:,:,ispin)
+        endif
         if(ixc==4) cycle
         checkwirte: block
           do j1=ii,ie
@@ -442,11 +457,17 @@ subroutine h_uumatrix()
 
   if(ixc==4) then
     call mpi__allreducesum(uumq, mlo_nwf*mlo_nwf*nspin*nqbz)
+    call mpi__allreducesum(uumq_mt, mlo_nwf*mlo_nwf*nspin*nqbz)
+    call mpi__allreducesum(uumq_ipw, mlo_nwf*mlo_nwf*nspin*nqbz)
     uumq(:,:,:,:)  = uumq(:,:,:,:)/dble(nqbz)
+    uumq_mt(:,:,:,:)  = uumq_mt(:,:,:,:)/dble(nqbz)
+    uumq_ipw(:,:,:,:)  = uumq_ipw(:,:,:,:)/dble(nqbz)
     if(mpi__root) then
       do ibb=1, nqbz
         write(stdo,ftox) 'iqbz,qbz, diag sum uumq(updw, dwup)/nwf:', ibb, qbz(:,ibb),  &
-        (sum([(uumq(i,i,ibb,isp),i=1,mlo_nwf)])/dble(mlo_nwf),isp=1,2)
+        (sum([(uumq(i,i,ibb,isp),i=1,mlo_nwf)])/dble(mlo_nwf),isp=1,2) , &
+        (sum([(uumq_mt(i,i,ibb,isp),i=1,mlo_nwf)])/dble(mlo_nwf),isp=1,2) , &
+        (sum([(uumq_ipw(i,i,ibb,isp),i=1,mlo_nwf)])/dble(mlo_nwf),isp=1,2)
       enddo
     endif
     block
@@ -467,13 +488,6 @@ subroutine h_uumatrix()
       if(mpi__root) write(stdo,ftox) 'info about FFT', npairmx, npair(:,:)
       allocate(uumt(npairmx,mlo_nwf,mlo_nwf), phases(npairmx))
       do isp = 1, nspin
-        if(mpi__root) then
-          if(isp==1) open(newunit=ifuu(1), file='__UOVLPT.UPDN', form='unformatted')
-          if(isp==2) open(newunit=ifuu(2), file='__UOVLPT.DNUP', form='unformatted')
-          write(ifuu(isp)) npairmx, nbas, 1
-          write(ifuu(isp)) plat(1:3,1:3), npair(1:nbas,1:nbas), &
-                           nlat(1:3,1:npairmx,1:nbas,1:nbas), nqwgt(1:npairmx,1:nbas,1:nbas)
-        endif
         uumt(:,:,:) = (0d0, 0d0)
         do iqbz = 1, nqbz
           if(mod(iqbz-1,mpi__size)/=mpi__rank) cycle
@@ -493,8 +507,15 @@ subroutine h_uumatrix()
           enddo
         enddo
         call mpi__reducesum(0, uumt, size(uumt))
-        if(mpi__root) write(ifuu(isp)) uumt(:,:,:)
-        if(mpi__root) close(ifuu(isp))
+        if(mpi__root) then
+          if(isp==1) open(newunit=ifuu(1), file='__UOVLPT.UPDN', form='unformatted')
+          if(isp==2) open(newunit=ifuu(2), file='__UOVLPT.DNUP', form='unformatted')
+          write(ifuu(isp)) npairmx, nbas, 1
+          write(ifuu(isp)) plat(1:3,1:3), npair(1:nbas,1:nbas), &
+                           nlat(1:3,1:npairmx,1:nbas,1:nbas), nqwgt(1:npairmx,1:nbas,1:nbas)
+          write(ifuu(isp)) uumt(:,:,:)
+          close(ifuu(isp))
+        endif
         if(mpi__root) then !check
           do ibt2 = 1, size(ib_tableI)
             do ibt1 = 1, size(ib_tableI)
