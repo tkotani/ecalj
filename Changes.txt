@@ -21,3 +21,10 @@
   [misc] Job.py: qsub → bash 実行に変更。jobtemplate: pythonbin → python。
   [misc] jobtestSGA.sh: ncore=64, --gpu --mp 追加。
   [misc] ctrlgenM1.py, job_pdos, job_tdos, mkGWinput, getsyml.py: 軽微な修正。
+  [feature] gwsc: lmf --jobgw=1 を常にCPU版で実行するように変更。
+    GPU版lmfはVRAMを浪費するだけでメリットが薄い。
+  [feature] -np2 オプション追加（testecalj, InstallAll.py, ecalj_auto）。
+    GPU用GW実行バイナリのMPIプロセス数を個別に指定可能に。
+    例: -np 64 -np2 2 でCPU部分は64コア、GPU部分は2プロセス。
+  [bugfix] comp.py: compareqpu で QPU の行数が異なる場合の IndexError を修正。
+    max → min に変更して短い方に合わせて比較。
