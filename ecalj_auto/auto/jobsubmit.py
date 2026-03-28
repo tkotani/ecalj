@@ -32,6 +32,8 @@ parser.add_argument('--gw80' , type=bool,    default=False, help='Run QSGW80 or 
 parser.add_argument('--koption', nargs='+', type=int, default=eval(config.get('koption')), help='number of k-points option for QSGW calculation')
 parser.add_argument('--kratio', type=str,   default=get_float(config.get('kratio')), help='ratio of k point for self energy/band calculation')
 parser.add_argument('--kkmesh', type=int, nargs=6, default=None, help='Given k mesh LDA and QSGW 3+3 int numbers ')
+parser.add_argument('--gpu', action='store_true', default=False, help='Use GPU version for GW executables')
+parser.add_argument('--mp', action='store_true', default=False, help='Use mixed precision for GW executables')
 args = parser.parse_args(sys.argv[1:])
 print(args)
 if __name__=="__main__":
