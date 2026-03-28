@@ -77,7 +77,7 @@ if [ -e PSIGD.0000 ]; then
     rm -f PSIGD.*
 fi
 
-argin=2 ;run_arg $argin $MPI_SIZE $nfpgw /huumat_MPI luumat2   # UU (UUmatrix <u_k,i|u_k+b,j>) matrix are caltulated.
+argin=2 ;run_arg $argin $MPI_SIZE $nfpgw /huumat_MPI luumat2 $MATERIAL   # UU (UUmatrix <u_k,i|u_k+b,j>) matrix are caltulated.
 # Gather all UU*.* into a file UUU/UUD.
 cat UUU.* >UUU
 rm -f UUU.*
@@ -95,7 +95,7 @@ argin=2; run_arg $argin $NO_MPI $nfpgw /hmaxloc lmaxloc2  #(band plot data are g
 
 ### Here on, we calculate W (v and W-v) for Wannier.###########
 # -- UUmatrix for Q0P (offset Gamma point) are required calculation v and W at the limit of q \to 0.
-argin=3; run_arg $argin $MPI_SIZE $nfpgw /huumat_MPI luumat3
+argin=3; run_arg $argin $MPI_SIZE $nfpgw /huumat_MPI luumat3 $MATERIAL 
 # Gather all UU*.* into a file UU*, PSIG* as well. (U meand UP isp=1, D means Down spin isp=2)
 if [ -e UUq0U.0000 ]; then 
     cat UUq0U.* > UUq0U

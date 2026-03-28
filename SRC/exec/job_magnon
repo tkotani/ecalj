@@ -50,7 +50,7 @@ def cal_MLWFvw(args, extra_args):
     # Gather PSIGU
     merge_files(pattern="PSIGU.????", output_file="PSIGU")
     merge_files(pattern="PSIGD.????", output_file="PSIGD")
-    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"huumat_MPI", args=[*options]), stdin_str="2", stdout="luumat2")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"huumat_MPI", args=[target, *options]), stdin_str="2", stdout="luumat2")
     # Gather UUU
     merge_files(pattern="UUU.????", output_file="UUU")
     merge_files(pattern="UUD.????", output_file="UUD")
@@ -59,7 +59,7 @@ def cal_MLWFvw(args, extra_args):
         print("OK! Generation of MLWF finished.")
         return
     # UUmatrix for Q0P
-    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"huumat_MPI", args=[*options]), stdin_str="3", stdout="luumat3")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"huumat_MPI", args=[target, *options]), stdin_str="3", stdout="luumat3")
     merge_files(pattern="UUq0U.????", output_file="UUq0U")
     merge_files(pattern="UUq0D.????", output_file="UUq0D")
 
