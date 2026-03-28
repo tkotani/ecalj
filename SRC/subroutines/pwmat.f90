@@ -180,7 +180,11 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
     gblock_loop: do ig_start = 1, ngmx, ngblock
 
       ig_end = min(ngmx, ig_start + ngblock -1)
-      allocate(pwh(ndimh,ig_start:ig_end), ppovlx(ngp,ig_start:ig_end))
+      allocate(pwh(ndimh,ig_start:ig_end), ppovlx(ngp,ig_start:ig_end), stat=istat)
+      if(istat /= 0) then
+        write(06,*) 'pwmat gblock_loop: allocate failed, ig_start=',ig_start,' ndimh=',ndimh,' ngp=',ngp
+        call rx('pwmat: host allocate OOM in gblock_loop')
+      endif
       !$acc data create(pwh, ppovlx)
 
       !$acc kernels
@@ -442,6 +446,7 @@ subroutine set_ppovl(ng1, igv1, ng2, igv2, bas, rmax, nbas, alat, plat, qlat, pp
   real(8), parameter:: pi=4d0*datan(1d0), pi4=4d0*pi
   complex(8):: ppovl,  img = (0d0,1d0)
   complex(8), allocatable :: ppovl_save(:,:,:)
+  integer :: istat_alloc
 #ifdef __GPU
   attributes(device) ppovl_save
 #endif
@@ -451,13 +456,18 @@ subroutine set_ppovl(ng1, igv1, ng2, igv2, bas, rmax, nbas, alat, plat, qlat, pp
   n2m = minval( igv2(2,:)) - maxval( igv1(2,:))
   n3x = maxval( igv2(3,:)) - minval( igv1(3,:))
   n3m = minval( igv2(3,:)) - maxval( igv1(3,:))
-  allocate(ppovl_save(n1m:n1x,n2m:n2x,n3m:n3x))
+  allocate(ppovl_save(n1m:n1x,n2m:n2x,n3m:n3x), stat=istat_alloc)
+  if(istat_alloc /= 0) then
+    write(06,*) 'set_ppovl: GPU allocate failed for ppovl_save, size=', &
+         int(n1x-n1m+1,8)*int(n2x-n2m+1,8)*int(n3x-n3m+1,8)*16, ' bytes'
+    call rx('set_ppovl: GPU OOM')
+  endif
   !$acc kernels
   ppovl_save(:,:,:) = (0d0, 0d0)
   !$acc end kernels
 
   vol = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
-  !$acc data copyin(rmax(1:nbas), alat, nbas, vol, bas(1:3,1:nbas), qlat(1:3,1:3))
+  !$acc data present_or_copyin(rmax(1:nbas), alat, nbas, vol, bas(1:3,1:nbas), qlat(1:3,1:3))
   !$acc kernels loop collapse(3) private(nx, ggvec) independent
   do ig3=n3m, n3x
     do ig2=n2m, n2x

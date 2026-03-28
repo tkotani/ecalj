@@ -338,7 +338,9 @@ contains
                     if(kold/=k) then
                        call x0kf_zmel(q00,k, isp_k,isp_kq)!, GPUTEST=GPUTEST)
                        if(allocated(zmel0)) deallocate(zmel0)
-                       allocate(zmel0,source=zmel)
+                       !allocate(zmel0,mold=zmel)
+                       allocate(zmel0(size(zmel,1), size(zmel,2), size(zmel,3)))
+                       zmel0=zmel
                        call x0kf_zmel(q, k, isp_k,isp_kq)!, GPUTEST=GPUTEST)
                        kold=k
                        write(6,*) 'k, mpi__rank_k', k, mpi__rank_k
