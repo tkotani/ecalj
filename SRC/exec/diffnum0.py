@@ -31,10 +31,10 @@ def comparenum(tol,file1,file2,comparekeys,printsw):
 #	sys.exit()
 
 	ierrl=0
-	for ix in range(max(len(oxx),len(oyy))):
+	for ix in range(min(len(oxx),len(oyy))):
 		try: #check end of oxx or not
 			izz=ix1
-			while izz < len(oxx):
+			while izz < len(oxx)-1:
 				izz = izz+1
 				iline = oxx[izz]
 				iii1 = iline.split()
@@ -42,21 +42,25 @@ def comparenum(tol,file1,file2,comparekeys,printsw):
 		except:
 			break
 
-		while ix1 < len(oxx):
+		while ix1 < len(oxx)-1:
 			ix1 = ix1+1
 			iline= re.sub(r'D\+','e+',oxx[ix1])
 			iline= re.sub(r'D\-','e-',iline)
 			iii1= iline.split()
 			if(not iii1 ==[]): break
+		else:
+			break
 		#print	
 		#print '1=',ix1,iii1
 
-		while ix2 < len(oyy):
+		while ix2 < len(oyy)-1:
 			ix2 = ix2+1
 			ilin2= re.sub(r'D\+','e+',oyy[ix2])
 			ilin2= re.sub(r'D\-','e-',ilin2)
 			iii2= ilin2.split()
 			if(not iii2 ==[]): break
+		else:
+			break
 		#print '2=',ix2,iii2
 
 		#skip lines including these keywords.
