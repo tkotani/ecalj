@@ -113,7 +113,37 @@ def main():
 
     jobs = min(os.cpu_count(), 32)
     print(f"Building with {jobs} parallel jobs...")
-    run_shell(f"{verbose}cmake --build {BUILD_DIR} -j{jobs}")
+
+    # --- nvfortran gaugm.f90 ICE workaround ---
+    # nvfortran crashes on gaugm.f90 with -O2 or -acc flags.
+    # Step 1: Run make (gaugm.f90 will fail but all other .mod files are generated)
+    # Step 2: Manually compile gaugm.f90 with -O1 for each variant
+    # Step 3: Freeze timestamp and re-run make (skips gaugm, links everything)
+    if FC == 'nvfortran':
+        GAUGM_SRC = CWD / 'SRC' / 'subroutines' / 'gaugm.f90'
+        # Step 1: build (will fail on gaugm but generates .mod files)
+        print("=== Phase 1: building (gaugm.f90 will fail, this is expected) ===")
+        run_shell(f"{verbose}cmake --build {BUILD_DIR} -j{jobs}", skip_on_error=True)
+        # Step 2: compile gaugm.f90 manually with -O1
+        variants = [('', '')]
+        if args.gpu:
+            variants += [('_mp', '-D__MP'), ('_gpu', '-D__GPU'), ('_mp_gpu', '-D__GPU -D__MP')]
+        print("=== Phase 2: compiling gaugm.f90 with -O1 ===")
+        for suffix, defs in variants:
+            mod_name = 'mod' if not suffix else f'mod{suffix}'
+            mod_dir = BUILD_DIR / FC / mod_name
+            obj_dir = BUILD_DIR / f'CMakeFiles/ecaljF{suffix}.dir' / str(GAUGM_SRC.parent).lstrip('/')
+            obj_dir.mkdir(parents=True, exist_ok=True)
+            obj_file = obj_dir / f'{GAUGM_SRC.name}.o'
+            cmd = f"mpifort -O1 -fpic -Mbackslash -cpp {defs} -module {mod_dir} -c {GAUGM_SRC} -o {obj_file}"
+            run_shell(cmd)
+        # Step 3: freeze timestamp and rebuild (links only)
+        run_shell(f"touch -t 202001010000 {GAUGM_SRC}")
+        print("=== Phase 3: completing build ===")
+        run_shell(f"{verbose}cmake --build {BUILD_DIR} -j{jobs}")
+        run_shell(f"touch {GAUGM_SRC}")
+    else:
+        run_shell(f"{verbose}cmake --build {BUILD_DIR} -j{jobs}")
 
     # --- Copy executables to BIN_DIR ---
     print(f'Copying executables to {BIN_DIR}')
