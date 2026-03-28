@@ -16,7 +16,7 @@ if len(sys.argv)<2:
 
 ### We have to improve lmchk, so that plinfo and siteinfo are directry written.
 #print('lmchk '+sys.argv[1]+'> outlmchk')
-if os.system('lmchk '+sys.argv[1]+'> outlmchk'):
+if os.system('mpirun -np 1 lmchk '+sys.argv[1]+'> outlmchk'):
     print ('ERROR: lmchk failed. Do you have ctrl.'+sys.argv[1]+'?')
     sys.exit(-1)
 

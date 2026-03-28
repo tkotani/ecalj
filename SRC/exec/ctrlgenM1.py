@@ -580,7 +580,7 @@ rlmchk=0
 if touchingratio>0: rlmchk=1
 # ### Get R= by lmchk ###
 if(rlmchk==1):
-    os.system("lmchk --getwsr tmp > llmchk_getwsr; echo $? >exitcode")
+    os.system("mpirun -np 1 lmchk --getwsr tmp > llmchk_getwsr; echo $? >exitcode")
     f=open("exitcode",'rt')
     iexit=int(f.read())
     f.close()

@@ -7,9 +7,9 @@ echo $nfpgw
 echo $#
 echo $1
 
-$nfpgw/lmfa $1 >llmfa
-$nfpgw/lmf --jobgw=0  $1 > llmfgw00
-$nfpgw/gwinit   #This changes the <QPNT> setting.
+mpirun -np 1 $nfpgw/lmfa $1 >llmfa
+mpirun -np 1 $nfpgw/lmf --jobgw=0  $1 > llmfgw00
+mpirun -np 1 $nfpgw/gwinit   #This changes the <QPNT> setting.
 
 echo "-------------------------------------------------------------------"
 echo "  We use n1n2n3=" 4 4 4 " in GWinput. This is k points mesh for GW mode"
