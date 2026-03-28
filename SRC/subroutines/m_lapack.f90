@@ -257,31 +257,40 @@ contains
     istat = cusolverDnXgetrs(cusolver_handle, cusolver_params, CUBLAS_OP_N, n_8, nrhs_8, cudaDataType(CUDA_C_64F), a, lda_8, &
                              ipiv, cudaDataType(CUDA_C_64F), b, ldb_8, devinfo)
   end function zsv_d
-  integer function zgev_d(a, n, evl, evl_vec, evr_vec, lda) result(istat) !Not tested
+  integer function zgev_d(a, n, evl, evl_vec, evr_vec, lda) result(istat)
+  ! CPU fallback: cusolverDnZgeev was removed from cuSOLVER (CUDA >= 13)
+  ! Device arrays are copied to host, solved via LAPACK zgeevx, then copied back.
     integer, intent(in) :: n
     complex(8), device :: a(*)
     complex(8), device :: evl(n)
     complex(8), device, optional :: evl_vec(*), evr_vec(*)
     integer, intent(in), optional :: lda
-    integer :: lda_in, ldvl, ldvr, lwork
-    complex(8), allocatable, device :: work(:), vl_loc(:), vr_loc(:)
-    integer(4), device :: devinfo
-    integer(4) :: jobvl_mode, jobvr_mode
+    integer :: lda_in, ldvl, ldvr, lwork, ilo, ihi
+    complex(8), allocatable :: a_h(:), evl_h(:), work(:), vl_loc(:), vr_loc(:)
+    real(8),    allocatable :: rwork(:), scale_(:), rconde(:), rcondv(:)
+    real(8) :: abnrm
+    character :: jobvl, jobvr
     lda_in = n; if(present(lda)) lda_in = lda
-    jobvl_mode = CUSOLVER_EIG_MODE_NOVECTOR; ldvl = 1
-    jobvr_mode = CUSOLVER_EIG_MODE_NOVECTOR; ldvr = 1
-    if(present(evl_vec)) then; jobvl_mode = CUSOLVER_EIG_MODE_VECTOR; ldvl = lda_in; endif
-    if(present(evr_vec)) then; jobvr_mode = CUSOLVER_EIG_MODE_VECTOR; ldvr = lda_in; endif
-    istat = cusolver_init()
-    allocate(vl_loc(ldvl*n), vr_loc(ldvr*n))
-    istat = cusolverDnZgeev_bufferSize(cusolver_handle, jobvl_mode, jobvr_mode, n, a, lda_in, &
-                                        evl, vl_loc, ldvl, vr_loc, ldvr, lwork)
-    allocate(work(lwork))
-    istat = cusolverDnZgeev(cusolver_handle, jobvl_mode, jobvr_mode, n, a, lda_in, &
-                             evl, vl_loc, ldvl, vr_loc, ldvr, work, lwork, devinfo)
+    jobvl = 'N'; ldvl = 1
+    jobvr = 'N'; ldvr = 1
+    if(present(evl_vec)) then; jobvl = 'V'; ldvl = lda_in; endif
+    if(present(evr_vec)) then; jobvr = 'V'; ldvr = lda_in; endif
+    allocate(a_h(lda_in*n), evl_h(n))
+    a_h(1:lda_in*n) = a(1:lda_in*n)  ! device -> host
+    allocate(vl_loc(ldvl*n), vr_loc(ldvr*n), rwork(2*n), work(1), scale_(n), rconde(n), rcondv(n))
+    lwork = -1
+    call zgeevx('B', jobvl, jobvr, 'N', n, a_h, lda_in, evl_h, &
+                vl_loc, ldvl, vr_loc, ldvr, ilo, ihi, scale_, abnrm, rconde, rcondv, &
+                work, lwork, rwork, istat)
+    lwork = int(dble(work(1))); deallocate(work); allocate(work(lwork))
+    call zgeevx('B', jobvl, jobvr, 'N', n, a_h, lda_in, evl_h, &
+                vl_loc, ldvl, vr_loc, ldvr, ilo, ihi, scale_, abnrm, rconde, rcondv, &
+                work, lwork, rwork, istat)
+    a(1:lda_in*n) = a_h(1:lda_in*n)  ! host -> device
+    evl(1:n) = evl_h(1:n)            ! host -> device
     if(present(evl_vec)) evl_vec(1:ldvl*n) = vl_loc
     if(present(evr_vec)) evr_vec(1:ldvr*n) = vr_loc
-    deallocate(work, vl_loc, vr_loc)
+    deallocate(a_h, evl_h, work, rwork, vl_loc, vr_loc, scale_, rconde, rcondv)
   end function zgev_d
   integer function zhev_d(A, n, evl, il, iu, lda) result(istat) !Not tested
   ! Solving the standard eigenvalue problem Az = lambda z, where A is a Hermitian matrix (GPU version)
