@@ -1,0 +1,23 @@
+2026-03-28
+  [bugfix] m_llw.f90: WVIllwI else-branch (iq>nqibz) で iw>niw のガードが
+    欠落していたのを修正。mpi__size_b > niw のとき llwI への範囲外書き込みで
+    ヒープ破壊が発生し、hrcxq が munmap_chunk() でクラッシュしていた。
+  [bugfix] creplot.py: efermi.lmf のパースで lines[3] のハードコードをやめ、
+    'number of electrons' を含む行を検索するように変更。efermi.lmf にEfermi-Vesav
+    行が追加されたことでインデックスがずれ、電子数を誤読していた。
+  [bugfix] creplot.py: bndファイル読み込みで skiprows=1 を comment='#' に変更。
+    ヘッダが2行に変わり #base=eferm 行がデータとして読まれていた。
+  [bugfix] creplot.py: lmchk/lmfa の呼び出しに mpirun -np 1 を追加。
+    NoGnuplot オプションの '--NoGnuplot' 修正。
+  [feature] ecalj_auto: --gpu / --mp オプション追加。
+    jobsubmit.py → job_mp.py → creplot.py → gwsc に --gpu/--mp を伝搬。
+    GPU版やMixed Precision版のGW実行バイナリを選択可能に。
+  [refactor] sugw.f90: ppovlLU のallocate/deallocateをループ外に移動。
+    allocate時のstat チェック追加。closem の事前チェック追加。
+  [bugfix] pwmat.f90: allocate stat チェック追加。copyin→present_or_copyin。
+  [bugfix] m_lapack.f90: zgev_d を CPU fallback (LAPACK zgeevx) に変更。
+    cusolverDnZgeev が CUDA>=13 で削除されたため。
+  [bugfix] x0kf_ahc.f90: allocate(zmel0,source=zmel) を明示的コピーに変更。
+  [misc] Job.py: qsub → bash 実行に変更。jobtemplate: pythonbin → python。
+  [misc] jobtestSGA.sh: ncore=64, --gpu --mp 追加。
+  [misc] ctrlgenM1.py, job_pdos, job_tdos, mkGWinput, getsyml.py: 軽微な修正。

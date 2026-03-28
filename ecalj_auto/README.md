@@ -84,6 +84,23 @@ Example (see `jobtestSGA.sh`):
 - `--inpath` : Directory with input data (from query.sh)
 - `--epath`, `--nqsub`, `--niter`, `--ncore`, `--bnd4all` : See above
 
+#### GPU / Mixed Precision Options
+
+To use GPU-accelerated or mixed-precision GW executables, add `--gpu` and/or `--mp`:
+```bash
+# GPU only
+./auto/jobsubmit.py --inpath INPUT/testSGA --epath ~/bin/ --nqsub 2 --ncore 64 --niter 2 --bnd4all True --gpu
+
+# Mixed Precision only
+./auto/jobsubmit.py --inpath INPUT/testSGA --epath ~/bin/ --nqsub 2 --ncore 64 --niter 2 --bnd4all True --mp
+
+# GPU + Mixed Precision
+./auto/jobsubmit.py --inpath INPUT/testSGA --epath ~/bin/ --nqsub 2 --ncore 64 --niter 2 --bnd4all True --gpu --mp
+```
+These flags are passed through to `gwsc`, which selects the appropriate binary variants
+(e.g., `hrcxq_gpu`, `hrcxq_mp_gpu`, `hsfp0_sc_mp_gpu`, etc.).
+The corresponding binaries must be built and installed in the `--epath` directory.
+
 **Notes:**
 - `jobsubmit.py` reads `joblist` in the input directory.
 - Results are written to `OUTPUT/<name>` (mirroring the input directory structure).
