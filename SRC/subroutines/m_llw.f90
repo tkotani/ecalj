@@ -385,7 +385,7 @@ contains
           call stopwatch_start(t_sw_x_gather)
           if(mpi__size_b == 1) then
             !$acc kernels
-            zxqw(:,:) = zxqi(:,:,iw)
+            if(iw <= niw) zxqw(:,:) = zxqi(:,:,iw)
             !$acc end kernels
           else
             do irank = 0, mpi__size_b-1
@@ -398,6 +398,7 @@ contains
           endif
           !$acc update host(zxqw(1,1))
           call stopwatch_pause(t_sw_x_gather)
+          if(iw > niw) cycle
           MToEBasisTransformation2: if(is_x0_m_basis) then
             call stopwatch_start(t_sw_x_m2e_xf)
             !$acc host_data use_device(zxqw, m2e_prod_basis, x_m2e)
