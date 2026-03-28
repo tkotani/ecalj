@@ -78,10 +78,12 @@ def run_with_save(command, out, mode):
 
 class Calc:
 
-    def __init__(self, num, epath, ncore, so=False):
+    def __init__(self, num, epath, ncore, so=False, gpu=False, mp=False):
         self.num = num
         self.epath = Path(epath)
         self.ncore = str(ncore)
+        self.gpu = gpu
+        self.mp = mp
         self.k_points = None
         self.const_b = 0.2
         self.gap_LDA = None
@@ -126,6 +128,8 @@ class Calc:
 
     def run_gwsc(self, niter, mode):
         gwsc_command = [self.epath/'gwsc', niter, '-np', self.ncore, self.num]
+        if self.gpu: gwsc_command.append('--gpu')
+        if self.mp:  gwsc_command.append('--mp')
         run_with_save(gwsc_command, 'osgw.out', mode)
         return check_save('osgw.out')
     
@@ -150,7 +154,7 @@ class Calc:
         if read_gap.Eg is None:
             ## loosen symmetry and calc. again
             if not Path('outlmchk').exists():
-                run_command([self.epath/'lmchk', self.num], out='outlmchk')
+                run_command(['mpirun', '-np', '1', self.epath/'lmchk', self.num], out='outlmchk')
             lines = Path('outlmchk').read_text().splitlines()
             for i,line in enumerate(lines):
                 if 'ig group ops' in line:
@@ -181,7 +185,7 @@ class Calc:
             run_command([ppp, self.epath/'getsyml', self.num, '--nobzview'], out='lgetsyml')
             for job in ['job_band', 'job_tdos', 'job_pdos']:
                 file_out = 'l' + job.replace('_', '')
-                jjob = [self.epath/job, self.num, '-np', self.ncore, 'NoGnuplot'] + self.option_bnd
+                jjob = [self.epath/job, self.num, '-np', self.ncore, '--NoGnuplot'] + self.option_bnd
                 run_command(jjob, out=file_out)
 
     def run_LDA(self, args, key,  koption, ordering, path_poscar, errcode): #lmxa6 need to be given at ctrlgenM1.py
@@ -223,11 +227,11 @@ class Calc:
             #    replace(f'ctrl.{num}', 'LMXA=4', 'LMXA=6')
             
             ### Run lmchk
-            run_command([epath/'lmchk', num], out='llmchk')
+            run_command(['mpirun', '-np', '1', epath/'lmchk', num], out='llmchk')
             run_command(['grep', 'conf', 'llmchk'], sw_print=True, flush=False)
 
             ### Run lmfa
-            run_command([epath/'lmfa', num], out='llmfa')
+            run_command(['mpirun', '-np', '1', epath/'lmfa', num], out='llmfa')
 
         ### Get k_mesh from input koption
         #print('aaaaaaaaaaaa',args)
@@ -404,7 +408,9 @@ class ReadBND:
         conbtm = get_energy(lines[2])
         self.metal = (valtop > efermi) or ((conbtm - valtop) <= 0)
 
-        ele = re.findall(r'\d+\.\w+\+\d+', lines[3])[0]
+        ele_line = next((l for l in lines if 'number of electrons' in l), None)
+        if ele_line is None: return
+        ele = re.findall(r'\d+\.\w+\+\d+', ele_line)[0]
         onsite = round(float(re.sub('D', 'E', ele)) / 2, 3)
         if not onsite.is_integer():
             print('Number of electrons is odd.')
@@ -425,7 +431,7 @@ class ReadBND:
 
     def load_data(self, bnd_file, num):
         try:
-            df = pd.read_csv(bnd_file, header=None, delimiter="\s+", dtype=str, skiprows=1).dropna()
+            df = pd.read_csv(bnd_file, header=None, delimiter=r"\s+", dtype=str, comment='#').dropna()
             df[0] = df[0].astype(int)
             df[1] = df[1].astype(float).round(decimals=5)
             df[2] = df[2].astype(float).round(decimals=5)
