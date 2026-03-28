@@ -126,7 +126,7 @@ def compareqpu(qpu1,qpu2,printsw):
 	oxx= qpu1.split('\n') 
 	oyy= qpu2.split('\n')
 	errmax=0.0
-	for ix in range( max(len(oxx),len(oyy))):
+	for ix in range( min(len(oxx),len(oyy))):
 		iline=oxx[ix]
 		ilin2=oyy[ix]
 		if ix==5:
