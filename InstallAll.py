@@ -28,6 +28,7 @@ parser.add_argument('--notest', help='no test. only compile', action='store_true
 parser.add_argument('--verbose', help='verbose on for debug', action='store_true')
 parser.add_argument('--debug', help='debug', action='store_true')
 parser.add_argument('--mp', help='Use mixed precision for test', action='store_true')
+parser.add_argument('-np2', help='MPI size for GPU GW executables (default: same as -np)', default=None, type=int)
 parser.add_argument('--gemmul8', help='build and install GEMMul8 library (this option is ignored unless --gpu is set)',
                     action='store_true', default=False)
 args = parser.parse_args()
@@ -180,6 +181,7 @@ def main():
     test_opts = f"-np {ncore} --all"
     if args.gpu: test_opts += " --gpu"
     if args.mp:  test_opts += " --mp"
+    if args.np2: test_opts += f" -np2 {args.np2}"
     run_shell(f"{BIN_DIR / 'testecalj'} {test_opts}", cwd=test_dir)
 
     end_time = time.time()

@@ -78,12 +78,13 @@ def run_with_save(command, out, mode):
 
 class Calc:
 
-    def __init__(self, num, epath, ncore, so=False, gpu=False, mp=False):
+    def __init__(self, num, epath, ncore, so=False, gpu=False, mp=False, np2=None):
         self.num = num
         self.epath = Path(epath)
         self.ncore = str(ncore)
         self.gpu = gpu
         self.mp = mp
+        self.np2 = str(np2) if np2 else None
         self.k_points = None
         self.const_b = 0.2
         self.gap_LDA = None
@@ -130,6 +131,7 @@ class Calc:
         gwsc_command = [self.epath/'gwsc', niter, '-np', self.ncore, self.num]
         if self.gpu: gwsc_command.append('--gpu')
         if self.mp:  gwsc_command.append('--mp')
+        if self.np2: gwsc_command.extend(['-np2', self.np2])
         run_with_save(gwsc_command, 'osgw.out', mode)
         return check_save('osgw.out')
     

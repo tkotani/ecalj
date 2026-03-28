@@ -34,6 +34,7 @@ parser.add_argument('--kratio', type=str,   default=get_float(config.get('kratio
 parser.add_argument('--kkmesh', type=int, nargs=6, default=None, help='Given k mesh LDA and QSGW 3+3 int numbers ')
 parser.add_argument('--gpu', action='store_true', default=False, help='Use GPU version for GW executables')
 parser.add_argument('--mp', action='store_true', default=False, help='Use mixed precision for GW executables')
+parser.add_argument('--np2', type=int, default=None, help='MPI size for GPU GW executables (default: same as --ncore)')
 args = parser.parse_args(sys.argv[1:])
 print(args)
 if __name__=="__main__":
