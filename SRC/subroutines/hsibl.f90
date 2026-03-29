@@ -2,6 +2,15 @@ module m_hsibl ! Interstitial matrix elements of smooth Bloch Hankels, smooth po
   use m_ll,only:ll
   public hsibl,hsibl1
   private
+#ifdef __GPU
+  ! Persistent GPU data across site loop (one k-point)
+  use cudafor
+  complex(8), device, allocatable :: hsibl_vsm_d(:,:,:)
+  integer, device, allocatable :: hsibl_kv_d(:,:)
+  integer, allocatable :: hsibl_kv_reshaped(:,:)
+  integer :: hsibl_cufft_plan_cached = -1, hsibl_ndim1_cached = -1
+  logical :: hsibl_gpu_init = .false.
+#endif
 contains
 #ifdef __GPU
   subroutine gvputf_batch_gpu(ng, ndim1, kv, k1, k2, k3, w_oc1, f_batch, ng_ld)
@@ -172,52 +181,41 @@ contains
       fvsm: block ! ... Multiply potential into wave functions for orbitals in ib1
 #ifdef __GPU
         use cufft
-        use cudafor
-        complex(8), device, allocatable :: f_batch_d(:,:,:,:), vsm_d(:,:,:)
+        complex(8), device, allocatable :: f_batch_d(:,:,:,:)
         complex(8), device, allocatable :: w_oc1_d(:,:)
-        integer, device, allocatable :: kv_d(:,:)
         integer :: cufft_plan, cufft_stat, nk123, istat
-        integer, allocatable :: kv_reshaped(:,:)
         real(8) :: scale_fwd
         nk123 = k1*k2*k3
         scale_fwd = 1d0/dble(n1*n2*n3)
-        ! Reshape kv from 1D(ng*3) to 2D(ng,3) on host
-        allocate(kv_reshaped(ng,3))
-        kv_reshaped(1:ng,1:3) = reshape(kv(1:ng*3), [ng,3])
-        ! Allocate device arrays
-        allocate(f_batch_d(k1,k2,k3,ndim1))
-        allocate(vsm_d(k1,k2,k3))
-        allocate(kv_d(ng,3))
-        allocate(w_oc1_d(ng,ndim1))
-        ! Copy data to device
-        vsm_d = vsm(:,:,:,isp)
-        kv_d = kv_reshaped
+        ! First site: copy vsm and kv to GPU (once per k-point, reused across sites)
+        if(.not. hsibl_gpu_init) then
+          allocate(hsibl_kv_reshaped(ng,3))
+          hsibl_kv_reshaped(1:ng,1:3) = reshape(kv(1:ng*3), [ng,3])
+          allocate(hsibl_vsm_d(k1,k2,k3), hsibl_kv_d(ng,3))
+          hsibl_vsm_d = vsm(:,:,:,isp)
+          hsibl_kv_d = hsibl_kv_reshaped
+          hsibl_gpu_init = .true.
+        endif
+        ! Per-site: allocate work, FFT, deallocate
+        allocate(f_batch_d(k1,k2,k3,ndim1), w_oc1_d(ng,ndim1))
         w_oc1_d(1:ng,1:ndim1) = w_oc1(1:ng,1:ndim1)
-        ! Zero f_batch and scatter w_oc1 into 3D grids
         f_batch_d = (0d0,0d0)
-        call gvputf_batch_gpu(ng, ndim1, kv_d, k1, k2, k3, w_oc1_d, f_batch_d, ng)
-        ! Create batched cuFFT plan: ndim1 3D FFTs of size n1 x n2 x n3
-        ! NOTE: cuFFT uses C row-major order (slowest to fastest), but Fortran is column-major.
-        ! For f(k1,k2,k3): k1=fastest, k3=slowest → pass reversed: [n3,n2,n1], [k3,k2,k1]
-        cufft_stat = cufftPlanMany(cufft_plan, 3, [n3,n2,n1], &
-             [k3,k2,k1], 1, nk123, &
-             [k3,k2,k1], 1, nk123, &
-             CUFFT_Z2Z, ndim1)
-        ! G-space → real-space (isig=+1 in fftz3 = FFTW_BACKWARD = CUFFT_INVERSE)
+        call gvputf_batch_gpu(ng, ndim1, hsibl_kv_d, k1, k2, k3, w_oc1_d, f_batch_d, ng)
+        ! cuFFT plan: cache when ndim1 unchanged across sites
+        if(ndim1 /= hsibl_ndim1_cached) then
+          if(hsibl_cufft_plan_cached /= -1) cufft_stat = cufftDestroy(hsibl_cufft_plan_cached)
+          cufft_stat = cufftPlanMany(hsibl_cufft_plan_cached, 3, [n3,n2,n1], &
+               [k3,k2,k1], 1, nk123, [k3,k2,k1], 1, nk123, CUFFT_Z2Z, ndim1)
+          hsibl_ndim1_cached = ndim1
+        endif
+        cufft_plan = hsibl_cufft_plan_cached
         cufft_stat = cufftExecZ2Z(cufft_plan, f_batch_d, f_batch_d, CUFFT_INVERSE)
-        ! Pointwise multiply with potential (treat 4D as 2D contiguous)
-        call vmul_batch_gpu(nk123, ndim1, f_batch_d, vsm_d)
-        ! real-space → G-space (isig=-1 in fftz3 = FFTW_FORWARD = CUFFT_FORWARD)
+        call vmul_batch_gpu(nk123, ndim1, f_batch_d, hsibl_vsm_d)
         cufft_stat = cufftExecZ2Z(cufft_plan, f_batch_d, f_batch_d, CUFFT_FORWARD)
-        ! Apply forward normalization: scale by 1/(n1*n2*n3)
         call scale_batch_gpu(nk123, ndim1, f_batch_d, scale_fwd)
-        ! Gather results back to sparse representation
-        call gvgetf_batch_gpu(ng, ndim1, kv_d, k1, k2, k3, f_batch_d, w_oc1_d, ng)
-        ! Copy result back to host
+        call gvgetf_batch_gpu(ng, ndim1, hsibl_kv_d, k1, k2, k3, f_batch_d, w_oc1_d, ng)
         w_oc1(1:ng,1:ndim1) = w_oc1_d(1:ng,1:ndim1)
-        ! Cleanup
-        cufft_stat = cufftDestroy(cufft_plan)
-        deallocate(f_batch_d, vsm_d, kv_d, w_oc1_d, kv_reshaped)
+        deallocate(f_batch_d, w_oc1_d)
 #else
         complex(8):: f(k1,k2,k3)
         do  i = 1, ndim1
@@ -323,6 +321,22 @@ contains
         enddo
       endblock hsmvsmpw
     enddo ib1loop
+#ifdef __GPU
+    ! Release per-k-point GPU persistent data
+    if(hsibl_gpu_init) then
+      deallocate(hsibl_vsm_d, hsibl_kv_d, hsibl_kv_reshaped)
+      hsibl_gpu_init = .false.
+    endif
+    if(hsibl_cufft_plan_cached /= -1) then
+      block
+        use cufft
+        integer :: cufft_stat
+        cufft_stat = cufftDestroy(hsibl_cufft_plan_cached)
+      endblock
+      hsibl_cufft_plan_cached = -1
+      hsibl_ndim1_cached = -1
+    endif
+#endif
     deallocate(hr, he, g2, yl, gg, iv, kv, gvv, w_oc1,w_ocf1, w_ocf2,ff) 
     deallocate(cwork)
 333 continue

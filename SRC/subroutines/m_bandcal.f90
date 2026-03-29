@@ -19,7 +19,7 @@ module m_bandcal
   use m_addrbl,only: addrbl
   use m_augmbl,only: aughsoc
   use m_makusq,only: makusq
-  use m_zhev,only: zhev_tk4
+  use m_zhev,only: zhev_tk4, zhev_gpu_cleanup
   use m_hambl,only : hambl
   use m_mkpot,only : m_mkpot_init,  osmpot,vconst                !main inputs for potential
   use m_locpot,only:                                   osig,otau,oppi,ohsozz,ohsopm !main inputs
@@ -302,6 +302,16 @@ contains
       write(6,'(a,2f10.1,a)') ' GPU mem after k-loop: free/total(MB)=', &
            free_mem/1d6, total_mem/1d6, ' MB'
     endblock gpumem_after
+    ! Release GPU handles to free memory before bandcal_2nd
+    call zhev_gpu_cleanup()
+    gpumem_freed: block
+      use cudafor
+      integer(8) :: free_mem, total_mem
+      integer :: ierr_mem
+      ierr_mem = cudaMemGetInfo(free_mem, total_mem)
+      write(6,'(a,2f10.1,a)') ' GPU mem after cleanup: free/total(MB)=', &
+           free_mem/1d6, total_mem/1d6, ' MB'
+    endblock gpumem_freed
 #endif
     if(writeham) istat = closem(ifih)
     if (pwemax>0 .AND. mod(pwmode,10)>0 .AND. lfrce/=0) then

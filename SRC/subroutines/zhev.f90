@@ -1,7 +1,26 @@
 module m_zhev
-  public zhev_tk4
+  public zhev_tk4, zhev_gpu_cleanup
   private
 contains
+  subroutine zhev_gpu_cleanup()
+    ! Release GPU handles and workspace after k-loop to free memory
+#ifdef __GPU
+    use cusolverdn
+    use cublas_v2
+    use cudafor
+    use m_zhev_gpu_handles
+#endif
+    implicit none
+#ifdef __GPU
+    integer :: istat
+    if(zhev_gpu_handles_init) then
+      istat = cudaDeviceSynchronize()
+      istat = cusolverDnDestroy(zhev_cusolver_handle)
+      istat = cublasDestroy(zhev_cublas_handle)
+      zhev_gpu_handles_init = .false.
+    endif
+#endif
+  end subroutine
   subroutine zhev_tk4(n,h,s,nmx,nev, e,z, epsovl)
     !!== Eigenvalues and/or some eigenvectors of a Hermitian matrix (weighted for first nlmto basis).==
     !! ----------------------------------------------------------------
@@ -62,29 +81,27 @@ contains
       use cusolverdn
       use cublas_v2
       use cudafor
+      use m_zhev_gpu_handles
       complex(8), device, allocatable :: omat_d(:,:), h_d(:,:), zz_d(:,:), hhm_d(:,:), hh_d(:,:), z_d(:,:)
       real(8), device, allocatable :: eo_d(:), e_d(:)
       complex(8), device, allocatable :: work_d(:)
       complex(8), allocatable :: zz_h(:,:)
       integer, device, allocatable :: devinfo
-      type(cusolverDnHandle), save :: cusolver_handle
-      type(cublasHandle), save :: cublas_handle
-      logical, save :: gpu_handles_init = .false.
       integer :: istat2, lwork2, m_out
-      if(.not. gpu_handles_init) then
-        istat2 = cusolverDnCreate(cusolver_handle)
-        istat2 = cublasCreate(cublas_handle)
-        gpu_handles_init = .true.
+      if(.not. zhev_gpu_handles_init) then
+        istat2 = cusolverDnCreate(zhev_cusolver_handle)
+        istat2 = cublasCreate(zhev_cublas_handle)
+        zhev_gpu_handles_init = .true.
       endif
       allocate(devinfo)
       ! Step 1: Diag overlap on GPU
       allocate(omat_d(n,n), eo_d(n))
       omat_d = omat
-      istat2 = cusolverDnZheevdx_bufferSize(cusolver_handle, CUSOLVER_EIG_MODE_VECTOR, &
+      istat2 = cusolverDnZheevdx_bufferSize(zhev_cusolver_handle, CUSOLVER_EIG_MODE_VECTOR, &
            CUSOLVER_EIG_RANGE_ALL, CUBLAS_FILL_MODE_UPPER, n, omat_d, n, &
            0d0, 0d0, 1, n, m_out, eo_d, lwork2)
       allocate(work_d(lwork2))
-      istat2 = cusolverDnZheevdx(cusolver_handle, CUSOLVER_EIG_MODE_VECTOR, &
+      istat2 = cusolverDnZheevdx(zhev_cusolver_handle, CUSOLVER_EIG_MODE_VECTOR, &
            CUSOLVER_EIG_RANGE_ALL, CUBLAS_FILL_MODE_UPPER, n, omat_d, n, &
            0d0, 0d0, 1, n, m_out, eo_d, work_d, lwork2, devinfo)
       deallocate(work_d)
@@ -106,9 +123,9 @@ contains
       ! Step 3: Project H: hh = zz^H * H * zz
       allocate(h_d(n,n), hhm_d(nm,n), hh_d(nm,nm))
       h_d = h
-      istat2 = cublasZgemm_v2(cublas_handle, CUBLAS_OP_C, CUBLAS_OP_N, nm, n, n, &
+      istat2 = cublasZgemm_v2(zhev_cublas_handle, CUBLAS_OP_C, CUBLAS_OP_N, nm, n, n, &
            (1d0,0d0), zz_d, n, h_d, n, (0d0,0d0), hhm_d, nm)
-      istat2 = cublasZgemm_v2(cublas_handle, CUBLAS_OP_N, CUBLAS_OP_N, nm, nm, n, &
+      istat2 = cublasZgemm_v2(zhev_cublas_handle, CUBLAS_OP_N, CUBLAS_OP_N, nm, nm, n, &
            (1d0,0d0), hhm_d, nm, zz_d, n, (0d0,0d0), hh_d, nm)
       deallocate(hhm_d, h_d)
       ! Step 4: Diag reduced H on GPU
@@ -118,11 +135,11 @@ contains
         nev = min(nmx, nm)
       endif
       allocate(e_d(nm))
-      istat2 = cusolverDnZheevdx_bufferSize(cusolver_handle, CUSOLVER_EIG_MODE_VECTOR, &
+      istat2 = cusolverDnZheevdx_bufferSize(zhev_cusolver_handle, CUSOLVER_EIG_MODE_VECTOR, &
            CUSOLVER_EIG_RANGE_I, CUBLAS_FILL_MODE_UPPER, nm, hh_d, nm, &
            0d0, 0d0, 1, nev, m_out, e_d, lwork2)
       allocate(work_d(lwork2))
-      istat2 = cusolverDnZheevdx(cusolver_handle, CUSOLVER_EIG_MODE_VECTOR, &
+      istat2 = cusolverDnZheevdx(zhev_cusolver_handle, CUSOLVER_EIG_MODE_VECTOR, &
            CUSOLVER_EIG_RANGE_I, CUBLAS_FILL_MODE_UPPER, nm, hh_d, nm, &
            0d0, 0d0, 1, nev, m_out, e_d, work_d, lwork2, devinfo)
       deallocate(work_d)
@@ -132,7 +149,7 @@ contains
       ! Step 5: Back-transform z = zz * hh_d(:,1:nev)
       z = 1d99
       allocate(z_d(n, nev))
-      istat2 = cublasZgemm_v2(cublas_handle, CUBLAS_OP_N, CUBLAS_OP_N, n, nev, nm, &
+      istat2 = cublasZgemm_v2(zhev_cublas_handle, CUBLAS_OP_N, CUBLAS_OP_N, n, nev, nm, &
            (1d0,0d0), zz_d, n, hh_d, nm, (0d0,0d0), z_d, n)
       z(1:n, 1:nev) = z_d
       deallocate(zz_d, hh_d, z_d)
