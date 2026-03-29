@@ -4,7 +4,7 @@ module m_qplist
   use m_lgunit,only:stdo
   use m_nvfortran,only: findloc
   use m_sort, only: sort_index, lower_bound, upper_bound
-  public :: m_qplist_init,m_qplist_qspdivider,qshortn
+  public :: m_qplist_init,m_qplist_qspdivider,m_qplist_redistribute_all,qshortn
   integer,protected,public::   napwmxqp
   integer,allocatable,public:: igv2qp(:,:,:),igv2revqp(:,:,:,:),napwkqp(:)
   
@@ -341,15 +341,33 @@ contains
     use m_lmfinit,only: nsp,afsym,nspx
     use m_ext,only: sname
     use m_dstrbp,only: dstrbp
+    use m_gpu,only: use_gpu, ngpu_ranks
     implicit none
     integer:: iq,isp,ispx,icount,iqs,ncount,iqsi,iqse,iprint,idat,i,nsize,nspxx
+    integer:: ndata
     logical:: cmdopt0
     call tcn('m_qplist_qpsdivider')
-    nspxx=nspx !npsx=nsp,  but nspx=1 for so=1 
+    nspxx=nspx
     if((.not.cmdopt0('--jobgw')).and.(.not.cmdopt0('--writeham')).and.afsym) nspxx=1
+    ndata = nkp*nspxx
     allocate(kpproc(0:numprocs))
-    call dstrbp(nkp*nspxx, numprocs,1,kpproc(0))
-    ! i=1,nkp*nspx is divided into [kpproc(procid),kpporc(procid+1)-1] for each procid.
+    if(ngpu_ranks > 0 .and. ngpu_ranks < numprocs) then
+      ! GPU mode: k-points go to first ngpu_ranks ranks only (rank 0..ngpu_ranks-1)
+      block
+        integer :: ip
+        do ip = 0, ngpu_ranks - 1
+          kpproc(ip) = (ip * ndata) / ngpu_ranks + 1
+        enddo
+        ! CPU ranks and sentinel: no k-points
+        do ip = ngpu_ranks, numprocs
+          kpproc(ip) = ndata + 1
+        enddo
+      endblock
+      if(master_mpi) write(stdo,'(a,i3,a,i5,a)') &
+           ' qspdivider: k-points assigned to ',ngpu_ranks,' GPU ranks (',ndata,' k*sp points)'
+    else
+      call dstrbp(ndata, numprocs,1,kpproc(0))
+    endif
     iqsi = kpproc(procid)
     iqse = kpproc(procid+1)-1
     niqisp=iqse-iqsi+1     ! (iq,isp) is ordered as (1,1),(1,2),(2,1),(2,2),(3,1),(3,2),(4,1),(4,2).....  
@@ -378,6 +396,40 @@ contains
 !    enddo
     call tcx('m_qplist_qpsdivider')
   end subroutine m_qplist_qspdivider
+  subroutine m_qplist_redistribute_all()
+    ! Switch from GPU-only k-point distribution to standard all-rank distribution
+    ! Called after batched diag, before bandcal_2nd
+    use m_MPItk,only: procid, master_mpi, numprocs=>nsize
+    use m_lmfinit,only: nsp, afsym, nspx
+    use m_dstrbp,only: dstrbp
+    implicit none
+    integer :: ndata, nspxx, iqsi, iqse, jdat, iq, isp, i
+    logical :: cmdopt0
+    nspxx = nspx
+    if((.not.cmdopt0('--jobgw')).and.(.not.cmdopt0('--writeham')).and.afsym) nspxx=1
+    ndata = nkp * nspxx
+    ! Standard distribution across ALL ranks
+    call dstrbp(ndata, numprocs, 1, kpproc(0))
+    iqsi = kpproc(procid)
+    iqse = kpproc(procid+1) - 1
+    niqisp = max(0, iqse - iqsi + 1)
+    if(allocated(iqproc)) deallocate(iqproc, isproc)
+    if(niqisp > 0) then
+      allocate(iqproc(niqisp), isproc(niqisp))
+      do jdat = 1, niqisp
+        iqproc(jdat) = (iqsi + jdat - 2) / nspxx + 1
+        isproc(jdat) = mod(iqsi + jdat - 2, nspxx) + 1
+      enddo
+    endif
+    ! Update owner table
+    do i = 1, ndata
+      iq = (i-1)/nspxx + 1
+      isp = mod(i-1, nspxx) + 1
+      owner(isp, iq) = findloc(kpproc(:)>i, value=.true., dim=1) - 2
+      if(afsym) owner(2,iq) = owner(1,iq)
+    enddo
+    if(master_mpi) write(stdo,'(a,i5,a)') ' Redistributed k-points to all ',numprocs,' ranks'
+  end subroutine m_qplist_redistribute_all
 end module m_qplist
 
 module m_readqplist 

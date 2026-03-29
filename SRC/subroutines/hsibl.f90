@@ -1,10 +1,12 @@
 module m_hsibl ! Interstitial matrix elements of smooth Bloch Hankels, smooth potential.
   use m_ll,only:ll
+#ifdef __GPU
+  use cudafor
+#endif
   public hsibl,hsibl1
   private
 #ifdef __GPU
   ! Persistent GPU data across site loop (one k-point)
-  use cudafor
   complex(8), device, allocatable :: hsibl_vsm_d(:,:,:)
   integer, device, allocatable :: hsibl_kv_d(:,:)
   integer, allocatable :: hsibl_kv_reshaped(:,:)

@@ -44,6 +44,7 @@ module m_bandcal
   private
 contains
   subroutine m_bandcal_init(lrout,ef0,vmag,writeham) ! Set up Hamiltonian, diagonalization
+    use m_gpu, only: use_gpu, ngpu_ranks
     implicit none
     intent(in)::            lrout,ef0,vmag,writeham
     complex(8),allocatable:: hamm(:,:,:,:),ovlm(:,:,:,:),hammhso(:,:,:),ovlms(:,:,:,:) !Hamiltonian,Overlapmatrix
@@ -109,6 +110,7 @@ contains
       endblock PrepWriteHamiltonianPMT
     endif
 #ifdef __GPU
+    if(use_gpu) then
     gpumem_before: block
       use cudafor
       integer(8) :: free_mem, total_mem
@@ -117,6 +119,7 @@ contains
       write(6,'(a,2f10.1,a)') ' GPU mem before k-loop: free/total(MB)=', &
            free_mem/1d6, total_mem/1d6, ' MB'
     endblock gpumem_before
+    endif
 #endif
     bandcalculation_q: do 2010 idat=1,niqisp
        iq = iqproc(idat)
@@ -287,6 +290,7 @@ contains
 2010 enddo bandcalculation_q
 #ifdef __GPU
     ! === GPU batched diagonalization: all k-points on GPU ===
+    if(niqisp > 0 .and. use_gpu) then
     BatchDiag: block
       use cusolverdn
       use cublas_v2
@@ -405,6 +409,8 @@ contains
       deallocate(hamm_batch, ovlm_batch, ndimhx_batch, isp_batch, iq_batch, nmx_batch)
       if(allocated(ovlm_save)) deallocate(ovlm_save)
     endblock BatchDiag
+    endif ! niqisp > 0 .and. use_gpu
+    if(use_gpu) then
     gpumem_after: block
       use cudafor
       integer(8) :: free_mem, total_mem
@@ -423,6 +429,102 @@ contains
       write(6,'(a,2f10.1,a)') ' GPU mem after cleanup: free/total(MB)=', &
            free_mem/1d6, total_mem/1d6, ' MB'
     endblock gpumem_freed
+    endif ! use_gpu
+    ! === Redistribute evec from GPU ranks to all ranks for bandcal_2nd ===
+    if(ngpu_ranks > 0 .and. ngpu_ranks < numprocs .and. call_m_bandcal_2nd) then
+    RedistributeEvec: block
+      use mpi
+      use m_dstrbp, only: dstrbp
+      use m_gpu, only: ngpu_ranks
+      use m_qplist, only: m_qplist_redistribute_all, kpproc, owner
+      integer :: ndata_all, ierr_r, nspxx_r
+      integer, allocatable :: kpproc_gpu(:), kpproc_new(:)
+      integer :: niqisp_new, jdat, iq_r, isp_r, itag_r
+      integer :: nev_r, nd_r, src_r, dest_r
+      integer :: mpi_status(mpi_status_size)
+      complex(8), allocatable :: eveciqis_old(:,:,:)
+      integer, allocatable :: neviqis_old(:), ndimhxiqis_old(:)
+      nspxx_r = nspx
+      if((.not.cmdopt0('--jobgw')).and.(.not.cmdopt0('--writeham')).and.afsym) nspxx_r=1
+      ndata_all = nkp * nspxx_r
+      ! Broadcast nevls and ndimhx_ from GPU ranks to all ranks (needed for redistribution)
+      call mpi_bcast(nevls, size(nevls), mpi_integer, 0, comm, ierr_r)
+      call mpi_bcast(ndimhx_, size(ndimhx_), mpi_integer, 0, comm, ierr_r)
+      ! Save GPU distribution
+      allocate(kpproc_gpu(0:numprocs))
+      kpproc_gpu = kpproc
+      ! Save old eveciqis
+      if(niqisp > 0 .and. allocated(eveciqis)) then
+        allocate(eveciqis_old, source=eveciqis)
+        allocate(neviqis_old, source=neviqis)
+        allocate(ndimhxiqis_old, source=ndimhxiqis)
+      endif
+      ! Switch to standard all-rank distribution
+      call m_qplist_redistribute_all()
+      ! Compute new distribution for looking up new owners
+      allocate(kpproc_new(0:numprocs))
+      kpproc_new = kpproc
+      niqisp_new = niqisp
+      ! Reallocate eveciqis for new distribution
+      if(allocated(neviqis)) deallocate(neviqis, ndimhxiqis, eveciqis)
+      allocate(neviqis(max(1,niqisp_new)), ndimhxiqis(max(1,niqisp_new)))
+      allocate(eveciqis(nbandmx, nevmx, max(1,niqisp_new)))
+      ! Transfer: all ranks loop over all k-points; sender sends, receiver recvs
+      do itag_r = 1, ndata_all
+        iq_r = (itag_r - 1) / nspxx_r + 1
+        isp_r = mod(itag_r - 1, nspxx_r) + 1
+        nev_r = nevls(iq_r, isp_r)
+        nd_r = ndimhx_(iq_r, isp_r)
+        ! Old owner (GPU rank)
+        src_r = -1
+        do jdat = 0, numprocs - 1
+          if(itag_r >= kpproc_gpu(jdat) .and. itag_r < kpproc_gpu(jdat+1)) then
+            src_r = jdat; exit
+          endif
+        enddo
+        ! New owner (all-rank distribution)
+        dest_r = owner(isp_r, iq_r)  ! already updated by redistribute_all
+        if(src_r < 0 .or. dest_r < 0) cycle
+        if(src_r == dest_r .and. procid == src_r) then
+          block
+            integer :: old_idx, new_idx
+            old_idx = itag_r - kpproc_gpu(procid) + 1
+            new_idx = itag_r - kpproc_new(procid) + 1
+            neviqis(new_idx) = nev_r
+            ndimhxiqis(new_idx) = nd_r
+            eveciqis(1:nd_r, 1:nev_r, new_idx) = eveciqis_old(1:nd_r, 1:nev_r, old_idx)
+          endblock
+        else
+          if(procid == src_r) then
+            block
+              integer :: old_idx
+              complex(8), allocatable :: sendbuf(:,:)
+              old_idx = itag_r - kpproc_gpu(procid) + 1
+              allocate(sendbuf(nd_r, nev_r))
+              sendbuf = eveciqis_old(1:nd_r, 1:nev_r, old_idx)
+              call mpi_send(sendbuf, nd_r*nev_r, mpi_double_complex, dest_r, itag_r, comm, ierr_r)
+              deallocate(sendbuf)
+            endblock
+          endif
+          if(procid == dest_r) then
+            block
+              integer :: new_idx
+              complex(8), allocatable :: recvbuf(:,:)
+              new_idx = itag_r - kpproc_new(procid) + 1
+              neviqis(new_idx) = nev_r
+              ndimhxiqis(new_idx) = nd_r
+              allocate(recvbuf(nd_r, nev_r))
+              call mpi_recv(recvbuf, nd_r*nev_r, mpi_double_complex, src_r, itag_r, comm, mpi_status, ierr_r)
+              eveciqis(1:nd_r, 1:nev_r, new_idx) = recvbuf
+              deallocate(recvbuf)
+            endblock
+          endif
+        endif
+      enddo
+      if(allocated(eveciqis_old)) deallocate(eveciqis_old, neviqis_old, ndimhxiqis_old)
+      deallocate(kpproc_gpu, kpproc_new)
+    endblock RedistributeEvec
+    endif
 #endif
     if(writeham) istat = closem(ifih)
     if (pwemax>0 .AND. mod(pwmode,10)>0 .AND. lfrce/=0) then

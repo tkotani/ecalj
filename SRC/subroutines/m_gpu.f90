@@ -4,9 +4,10 @@ module m_gpu
   use cudafor
 #endif
   implicit none
-  public :: gpu_init, check_memory_gpu, use_gpu, gpu_finalize !, Amem_gpu
+  public :: gpu_init, check_memory_gpu, use_gpu, gpu_finalize, ngpu_ranks
   integer,public :: mydev
   logical, protected :: use_gpu = .false.
+  integer, protected :: ngpu_ranks = 0  ! number of GPU ranks (= ndevs)
   private
   integer :: procid, nsize
   contains
@@ -43,19 +44,14 @@ module m_gpu
     if(ndevs == 0) return
     mydev = mod(ilocal_rank, ndevs)
 
-    ! Limit GPU usage: only ranks_per_gpu ranks per GPU device use GPU
-    ! Set via --ranks_per_gpu=N (default: all ranks use GPU)
-    block
-      integer :: ranks_per_gpu
-      character(32) :: env_val
-      ranks_per_gpu = nlocal_procs  ! default: all ranks use GPU
-      call get_environment_variable('RANKS_PER_GPU', env_val)
-      if(len_trim(env_val) > 0) read(env_val,*) ranks_per_gpu
-      if(ilocal_rank >= ndevs * ranks_per_gpu) then
-        use_gpu = .false.
-      endif
-      if(procid == 0) write(06,'(a,i3,a,l1)') ' ranks_per_gpu=', ranks_per_gpu, ' use_gpu=', use_gpu
-    endblock
+    ! Automatic GPU assignment: only first ndevs local ranks use GPU
+    ! e.g. 2 GPUs → rank 0=GPU0, rank 1=GPU1, rank 2+=CPU only
+    ngpu_ranks = min(ndevs, nlocal_procs)
+    if(ilocal_rank >= ndevs) then
+      use_gpu = .false.
+    else
+      use_gpu = .true.
+    endif
 
     if(use_gpu) then
       call acc_set_device_num(mydev, acc_device_nvidia)
