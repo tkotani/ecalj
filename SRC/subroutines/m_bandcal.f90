@@ -104,6 +104,16 @@ contains
         write(stdo,ftox) 'xxxx',nbandmx, mrech, ifih
       endblock PrepWriteHamiltonianPMT
     endif
+#ifdef __GPU
+    gpumem_before: block
+      use cudafor
+      integer(8) :: free_mem, total_mem
+      integer :: ierr_mem
+      ierr_mem = cudaMemGetInfo(free_mem, total_mem)
+      write(6,'(a,2f10.1,a)') ' GPU mem before k-loop: free/total(MB)=', &
+           free_mem/1d6, total_mem/1d6, ' MB'
+    endblock gpumem_before
+#endif
     bandcalculation_q: do 2010 idat=1,niqisp
        iq = iqproc(idat)
        qp = qplist(:,iq) !write(stdo,ftox)'m_bandcal_init: procid iq=',procid,iq,ftof(qp)
@@ -283,6 +293,16 @@ contains
        if(allocated(hamm)) deallocate(hamm,ovlm)
        if(allocated(ovlms)) deallocate(ovlms)
 2010 enddo bandcalculation_q
+#ifdef __GPU
+    gpumem_after: block
+      use cudafor
+      integer(8) :: free_mem, total_mem
+      integer :: ierr_mem
+      ierr_mem = cudaMemGetInfo(free_mem, total_mem)
+      write(6,'(a,2f10.1,a)') ' GPU mem after k-loop: free/total(MB)=', &
+           free_mem/1d6, total_mem/1d6, ' MB'
+    endblock gpumem_after
+#endif
     if(writeham) istat = closem(ifih)
     if (pwemax>0 .AND. mod(pwmode,10)>0 .AND. lfrce/=0) then
        xv(:)=[(sum(frcband(i,1:nbas))/nbas,i=1,3)]
