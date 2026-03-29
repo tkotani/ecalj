@@ -52,7 +52,8 @@ contains
     real(8),allocatable    :: evl(:,:), spinweight(:,:)
     complex(8),allocatable :: evec(:,:) !eigenvector( :,nband)
     logical:: ltet,cmdopt0,dmatuinit=.true.,wsene,magexist,writeham
-    character(3):: charnum3  
+    character(3):: charnum3
+    integer:: ii  ! loop variable for GPU path
     call tcn('m_bandcal_init')
     if(master_mpi) write(stdo,ftox)'m_bandcal_init: start'
     sigmamode = mod(lrsig,10)/=0
@@ -174,7 +175,6 @@ contains
             endif
          endif
          if(wsene) close(iwsene)
-         nmx=min(nevmx,ndimhx)! nmx:maximum number of eigenfunctions we will obtain. Smaller is faster.
          if(iprint()>=30) write(stdo,'(" bndfp: kpt ",i5," of ",i7, " k=",3f8.4, &
               " ndimh = nmto+napw = ",3i5,f13.5)') iq,nkp,qp,ndimh,ndimh-napw,napw
          if(writeham) then
@@ -192,7 +192,7 @@ contains
             ! write(ifih) hamm
           endblock WriteHamiltonianPMT
          endif
-         allocate(evec(ndimhx,nmx))
+         nmx=min(nevmx,ndimhx)! nmx:maximum number of eigenfunctions we will obtain. Smaller is faster.
          if(magexist) then
             if(nspc==2) then
                hamm(:,1,:,1)= hamm(:,1,:,1) - vmag/2d0*ovlm(:,1,:,1)
@@ -200,37 +200,64 @@ contains
             else
                if(isp==1) hamm(:,1,:,1)= hamm(:,1,:,1) - vmag/2d0*ovlm(:,1,:,1)
                if(isp==2) hamm(:,1,:,1)= hamm(:,1,:,1) + vmag/2d0*ovlm(:,1,:,1)
-            endif   
+            endif
          endif
-         Diagonalize_hamilatonian: block 
-           !== Diagonalize Hamiltonian ==
-           ! ndimhx: dimension of Hamitonian
-           ! hamm:Hamiltonian, ovlm: overlap matrix
-           ! evec:eigenfunciton. evl: eigenvalue.
-           ! nmx: input, number of requested eigenvalues(functions).
-           !      CAUTION!!! If nmx=0, no eigenfunctions but all eigenvalues. <== WARNNNNNNNNNN!
-           ! nev: out number of obtained eigenfvalues(funcitons)
+#ifdef __GPU
+         ! --- GPU path: zhev_tk4 uses cuSOLVER + cuBLAS internally (hook-able by GEMMul8) ---
+         allocate(evec(ndimhx,nmx))
+         Diagonalize_hamilatonian_gpu: block
            call zhev_tk4(ndimhx, hamm, ovlm, nmx, nev, evl(1, isp ), evec, epsovl)
-         endblock Diagonalize_hamilatonian
-       endblock Setup_hamiltonian_and_diagonalize ! write(6,*) ' endof Setup_hamiltonian_and_diagonalize block'
+         endblock Diagonalize_hamilatonian_gpu
+       endblock Setup_hamiltonian_and_diagonalize
        if(writeham.AND.master_mpi) write(stdo,"(9f8.4)") (evl(i,isp), i=1,nev)
        if(call_m_bandcal_2nd) then
           neviqis(idat)   =nev
           ndimhxiqis(idat)=ndimhx
-          !evliqis(1:nev,idat)=evl(1:nev,isp)
           if(nmx/=0) eveciqis(1:ndimhx,1:nev,idat)=evec(1:ndimhx,1:nev)
-          !write(ifig) nev,ndimhx !nev: number of eigenvalues; write(ifig) evl(1:nev,isp); write(ifig) evec(1:ndimhx,1:nev)
        endif
-       evl(nev+1:nbandmx,isp)=1d99  !padding. flag to skip these data
-       nevls(iq,isp)  = nev        !nov2014 isp and isp is confusing...
-       ndimhx_(iq,isp)= ndimhx     !Hamiltonian dimension
-       GetSpinWeightSOC1: if(lso==1.and.nmx/=0) then !note! nmx=0 lets zhev_tk to calculate only eigenvalues
+       evl(nev+1:nbandmx,isp)=1d99
+       nevls(iq,isp)  = nev
+       ndimhx_(iq,isp)= ndimhx
+       GetSpinWeightSOC1_gpu: if(lso==1.and.nmx/=0) then
+          associate(nd=>ndimh)
+            spinweight(:,:) = 0d0
+            spinweight(1:nev,1)= [(sum(dconjg(evec(1:nd,i))*matmul(ovlm(:,1,:,1),evec(1:nd,i))),i=1,nev)]
+            spinweight(1:nev,2)= [(sum(dconjg(evec(nd+1:nd+nd,i))*matmul(ovlm(:,2,:,2),evec(nd+1:nd+nd,i))),i=1,nev)]
+          endassociate
+       endif GetSpinWeightSOC1_gpu
+       if(allocated(t_evl(isp,iq)%v)) deallocate(t_evl(isp,iq)%v)
+       allocate(t_evl(isp,iq)%v(nbandmx), source = evl(:,isp))
+       if(lso==1) allocate(t_spinweight(iq)%v(nbandmx,nsp), source = spinweight)
+       if(afsym) then
+          if(allocated(t_evl(2,iq)%v)) deallocate(t_evl(2,iq)%v)
+          allocate(t_evl(2,iq)%v(nbandmx), source = evl(:,isp))
+          nevls(iq,2) = nev
+          ndimhx_(iq,2) = ndimhx
+       endif
+       if(PROCARon) call m_procar_add(iq,isp,ef0,evl,qp,nev,evec,ndimhx)
+       if(allocated(evec)) deallocate(evec)
+#else
+         ! --- CPU path: diagonalize immediately ---
+         allocate(evec(ndimhx,nmx))
+         Diagonalize_hamilatonian: block
+           call zhev_tk4(ndimhx, hamm, ovlm, nmx, nev, evl(1, isp ), evec, epsovl)
+         endblock Diagonalize_hamilatonian
+       endblock Setup_hamiltonian_and_diagonalize
+       if(writeham.AND.master_mpi) write(stdo,"(9f8.4)") (evl(i,isp), i=1,nev)
+       if(call_m_bandcal_2nd) then
+          neviqis(idat)   =nev
+          ndimhxiqis(idat)=ndimhx
+          if(nmx/=0) eveciqis(1:ndimhx,1:nev,idat)=evec(1:ndimhx,1:nev)
+       endif
+       evl(nev+1:nbandmx,isp)=1d99
+       nevls(iq,isp)  = nev
+       ndimhx_(iq,isp)= ndimhx
+       GetSpinWeightSOC1: if(lso==1.and.nmx/=0) then
           associate(nd=>ndimh)
             spinweight(:,:) = 0d0
             spinweight(1:nev,1)= [(sum(dconjg(evec(1:nd,i))*matmul(ovlms(:,1,:,1),evec(1:nd,i))),i=1,nev)]
             spinweight(1:nev,2)= [(sum(dconjg(evec(nd+1:nd+nd,i))*matmul(ovlms(:,2,:,2),evec(nd+1:nd+nd,i))),i=1,nev)]
             NormalizationcheckFORspinweightSOC: if(any([(abs(sum(spinweight(i,:))-1d0)>1d-6,i=1,nev-10)])) then
-               !                                                                                      nev-10 to avoid num error of high bands
                do i=1,nev
                   write(stdo,ftox)'spinweightsoc=',i,ftof(spinweight(i,1:2)),sum(spinweight(i,1:2))
                enddo
@@ -241,16 +268,17 @@ contains
        if(allocated(t_evl(isp,iq)%v)) deallocate(t_evl(isp,iq)%v)
        allocate(t_evl(isp,iq)%v(nbandmx), source = evl(:,isp))
        if(lso==1) allocate(t_spinweight(iq)%v(nbandmx,nsp), source = spinweight)
-       if(afsym) then !cmdopt0('--afsym')) then
+       if(afsym) then
           if(allocated(t_evl(2,iq)%v)) deallocate(t_evl(2,iq)%v)
           allocate(t_evl(2,iq)%v(nbandmx), source = evl(:,1))
-          nevls(iq,2)  = nev        
-          ndimhx_(iq,2)= ndimhx     !Hamiltonian dimension
-       endif   
+          nevls(iq,2)  = nev
+          ndimhx_(iq,2)= ndimhx
+       endif
        if(master_mpi.AND.epsovl>=1d-14.AND.plbnd/=0) write(stdo,&
             "(' : ndimhx=',i5,' --> nev=',i5,' by HAM_OVEPS ',d11.2)") ndimhx,nev,epsovl
        if(PROCARon) call m_procar_add(iq,isp,ef0,evl,qp,nev,evec,ndimhx)
        if(allocated(evec)) deallocate(evec)
+#endif
        if(allocated(hammhso)) deallocate(hammhso)
        if(allocated(hamm)) deallocate(hamm,ovlm)
        if(allocated(ovlms)) deallocate(ovlms)
