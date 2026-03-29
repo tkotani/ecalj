@@ -4,6 +4,10 @@ module m_augmbl !Add augmentation part to H and S. aughsoc add SO part to H.
   use m_ll,only:ll
   public augmbl,aughsoc
   private
+#ifdef __GPU
+  ! GPU accumulators for GEMM contributions (kept on GPU across site loop)
+  complex(8), device, allocatable :: augmbl_hgemm_d(:,:), augmbl_sgemm_d(:,:)
+#endif
 contains
   subroutine augmbl(isp,q,osig,otau,oppi,ndimh, h,s)  !Add augmentation part to H and S. 
     use m_lmfinit,only: nsp,nlmto
@@ -106,6 +110,43 @@ contains
          !    s(1:i2,i2) = s(1:i2,i2) + [(sum( dconjg(b(:,:,i1))*g(:,:) ),i1=1,i2)]
          ! enddo
          ! MO The above two loops were placed in the following blas_mode block 2024-11-07, update 2025-10-23
+#ifdef __GPU_AUGMBL_DISABLED
+         blas_mode_gpu: block
+           use m_blas, only: zmm => zmm_d, m_op_C
+           use cudafor
+           complex(8), allocatable :: ppi_isp_h(:,:,:,:)
+           complex(8), device, allocatable :: ppib_d(:,:,:), ppi_isp_d(:,:,:,:)
+           complex(8), device, allocatable :: b_d(:,:,:)
+           complex(8), device, allocatable :: sigb_d(:,:,:), csig_d(:,:)
+           integer :: istat
+           ! First site: allocate GPU accumulators for GEMM contributions
+           if(.not.allocated(augmbl_hgemm_d)) then
+             allocate(augmbl_hgemm_d(ndimh,ndimh), augmbl_sgemm_d(ndimh,ndimh))
+             augmbl_hgemm_d = (0d0, 0d0)
+             augmbl_sgemm_d = (0d0, 0d0)
+           endif
+           ! Prepare ppi_isp on host, copy b to GPU
+           allocate(ppi_isp_h(0:kmax,nlma,0:kmax,nlma))
+           ppi_isp_h = reshape(source=ppi(0:kmax,0:kmax,1:nlma,1:nlma,isp), shape=[kmax+1,nlma,kmax+1,nlma], order=[1,3,2,4])
+           allocate(ppi_isp_d(0:kmax,nlma,0:kmax,nlma), b_d(0:kmax,nlma,ndimh))
+           allocate(ppib_d(0:kmax,nlma,ndimh))
+           ppi_isp_d = ppi_isp_h; deallocate(ppi_isp_h)
+           b_d = b
+           ! H: ppib = ppi @ b, hgemm_d += b^H @ ppib
+           istat = zmm(ppi_isp_d, b_d, ppib_d, m=(kmax+1)*nlma, n=ndimh, k=(kmax+1)*nlma)
+           istat = zmm(b_d, ppib_d, augmbl_hgemm_d, m=ndimh, n=ndimh, k=(kmax+1)*nlma, beta=(1d0,0d0), opA=m_op_C)
+           deallocate(ppib_d, ppi_isp_d)
+           ! S: sigb(:,ilm,:) = sig(:,:,l) @ b(:,ilm,:), then sgemm_d += b^H @ sigb
+           allocate(sigb_d(0:kmax,nlma,ndimh), csig_d(0:kmax,0:kmax))
+           do ilm=1, nlma
+             csig_d(0:kmax,0:kmax) = sig(0:kmax,0:kmax,ll(ilm),isp)
+             istat = zmm(csig_d, b_d(0,ilm,1), sigb_d(0,ilm,1), m=kmax+1, n=ndimh, k=kmax+1, &
+                  ldB=(kmax+1)*nlma, ldC=(kmax+1)*nlma)
+           enddo
+           istat = zmm(b_d, sigb_d, augmbl_sgemm_d, m=ndimh, n=ndimh, k=(kmax+1)*nlma, beta=(1d0,0d0), opA=m_op_C)
+           deallocate(sigb_d, csig_d, b_d)
+         endblock blas_mode_gpu
+#else
          blas_mode: block
            use m_blas, only: zmm => zmm_h, m_op_C
            complex(8), allocatable :: ppib(:,:,:), ppi_isp(:,:,:,:), sigb(:,:,:), csig(:,:)
@@ -123,9 +164,25 @@ contains
            istat = zmm(b, sigb, s, m=ndimh, n=ndimh, k=(kmax+1)*nlma, beta=(1d0,0d0), opA=m_op_C)
            deallocate(sigb, csig)
          endblock blas_mode
+#endif
          endassociate
        endblock addaug
     enddo
+#ifdef __GPU
+    ! Add GPU-accumulated GEMM contributions to host h, s (one transfer at end)
+    add_gpu_result: block
+      use cudafor
+      complex(8), allocatable :: hgemm_h(:,:), sgemm_h(:,:)
+      if(allocated(augmbl_hgemm_d)) then
+        allocate(hgemm_h(ndimh,ndimh), sgemm_h(ndimh,ndimh))
+        hgemm_h = augmbl_hgemm_d
+        sgemm_h = augmbl_sgemm_d
+        h = h + hgemm_h
+        s = s + sgemm_h
+        deallocate(hgemm_h, sgemm_h, augmbl_hgemm_d, augmbl_sgemm_d)
+      endif
+    endblock add_gpu_result
+#endif
     call tcx ('augmbl')
   end subroutine augmbl
   subroutine aughsoc(qp,ohsozz,ohsopm,ndimh, hso) ! Spin-orbit-couping matrix hso

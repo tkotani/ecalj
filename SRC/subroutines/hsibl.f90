@@ -170,7 +170,7 @@ contains
         ndim1 = ndim1 + max(blks1(iorb1),0)
       enddo irob1loop
       fvsm: block ! ... Multiply potential into wave functions for orbitals in ib1
-#ifdef __GPU
+#ifdef __GPU_HSIBL_DISABLED
         use cufft
         use cudafor
         complex(8), device, allocatable :: f_batch_d(:,:,:,:), vsm_d(:,:,:)

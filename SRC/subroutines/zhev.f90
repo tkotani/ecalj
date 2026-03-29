@@ -47,6 +47,7 @@ contains
     integer:: nevl,nm,nmout,nevout
     logical:: debug=.false.
 
+    if(allocated(omat)) deallocate(omat)
     allocate(omat(n,n))
     omat = s !reserved
     !
