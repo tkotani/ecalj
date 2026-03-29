@@ -43,9 +43,24 @@ module m_gpu
     if(ndevs == 0) return
     mydev = mod(ilocal_rank, ndevs)
 
-    use_gpu = .true.
-    call acc_set_device_num(mydev, acc_device_nvidia)
-    call acc_init(acc_device_nvidia)
+    ! Limit GPU usage: only ranks_per_gpu ranks per GPU device use GPU
+    ! Set via --ranks_per_gpu=N (default: all ranks use GPU)
+    block
+      integer :: ranks_per_gpu
+      character(32) :: env_val
+      ranks_per_gpu = nlocal_procs  ! default: all ranks use GPU
+      call get_environment_variable('RANKS_PER_GPU', env_val)
+      if(len_trim(env_val) > 0) read(env_val,*) ranks_per_gpu
+      if(ilocal_rank >= ndevs * ranks_per_gpu) then
+        use_gpu = .false.
+      endif
+      if(procid == 0) write(06,'(a,i3,a,l1)') ' ranks_per_gpu=', ranks_per_gpu, ' use_gpu=', use_gpu
+    endblock
+
+    if(use_gpu) then
+      call acc_set_device_num(mydev, acc_device_nvidia)
+      call acc_init(acc_device_nvidia)
+    endif
     ! call check_memory_gpu("gpu_init")
 
     if (procid == 0) then
@@ -66,7 +81,7 @@ module m_gpu
     enddo
 #endif
   end subroutine
-  
+
   subroutine check_memory_gpu(keyword)
     character(len=*), intent(in) :: keyword
     character(len=1024) :: cmd
