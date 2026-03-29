@@ -82,6 +82,7 @@ contains
       use m_zhev,only:zhev_tk4
       use m_readqplist,only: eferm
       use m_rotwave,only:  rotmatMTO!,rotmatPMT
+      use m_mpiio, only: openm, writem, closem, mpiio_buf, buf_get, readm_buf
       implicit none
       integer:: ifihmto,nqbz
       integer::ikpd,ikp,ib1,ib2,ifih,it,iq,nev,nmx,ifig=-999,i,j,ndimPMT,lold,m,ndimPMTmx
@@ -165,7 +166,6 @@ contains
 !2026-1-27      
       cmlo4GWinput: if(cmdopt0('--mlo')) then !from __Hamiltoniangw to __cmlo.data, __cmlo.info
         HreductionIqibzGWinput: block
-          use m_mpiio, only: openm, writem, closem, mpiio_buf, buf_get, readm_buf
           integer:: ifi, ifizz, isp, mrecbb, ndble, nbandmx, iqqisp, nqbzgw !, idat
           complex(8):: rotmatt(ndimMTO,ndimMTO), ovlm(1:ndimMTO,1:ndimMTO), hamm(1:ndimMTO,1:ndimMTO)
           real(8),allocatable:: qplistgw(:,:)
@@ -231,7 +231,6 @@ contains
 ! --- base line for ctrl.foobar
       HreductionIqibz: block
         use m_nvfortran,only : findloc
-        use m_mpiio,only: openm, closem, mpiio_buf, buf_get, readm_buf
         integer:: i,iqxx,jspxx,idat,isp,ndble, nbandmx
         complex(8):: rotmatt(ndimMTO,ndimMTO), ovlm(1:ndimMTO,1:ndimMTO), hamm(1:ndimMTO,1:ndimMTO)
         integer :: ifih_info, mrech, istat, iqqisp

@@ -473,7 +473,6 @@ subroutine h_uumatrix()
     block
       use m_gennlat, only: m_gennlat_init, npairmx, npair, nlat, nqwgt
       use m_keyvalue,only: getkeyvalue
-      use m_lattic,only: plat=>lat_plat
       use m_lmfinit,only: nbas
       use m_mlo_ham, only: nsite, ib_tableI, ib_tableM
       integer :: nnn(3), ii, jj, ib1, ib2, np, ibt1, ibt2, it, isite
