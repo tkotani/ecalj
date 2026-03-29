@@ -53,7 +53,11 @@ contains
     complex(8),allocatable :: evec(:,:) !eigenvector( :,nband)
     logical:: ltet,cmdopt0,dmatuinit=.true.,wsene,magexist,writeham
     character(3):: charnum3
-    integer:: ii  ! loop variable for GPU path
+#ifdef __GPU
+    ! Batch storage for GPU diagonalization
+    complex(8),allocatable :: hamm_batch(:,:,:), ovlm_batch(:,:,:), ovlm_save(:,:,:,:,:)
+    integer,allocatable :: ndimhx_batch(:), isp_batch(:), iq_batch(:), nmx_batch(:)
+#endif
     call tcn('m_bandcal_init')
     if(master_mpi) write(stdo,ftox)'m_bandcal_init: start'
     sigmamode = mod(lrsig,10)/=0
@@ -213,39 +217,27 @@ contains
             endif
          endif
 #ifdef __GPU
-         ! --- GPU path: zhev_tk4 uses cuSOLVER + cuBLAS internally (hook-able by GEMMul8) ---
-         allocate(evec(ndimhx,nmx))
-         Diagonalize_hamilatonian_gpu: block
-           call zhev_tk4(ndimhx, hamm, ovlm, nmx, nev, evl(1, isp ), evec, epsovl)
-         endblock Diagonalize_hamilatonian_gpu
+         ! --- GPU batched diag: store H, S for batch diagonalization after k-loop ---
+         StoreForBatch: block
+           complex(8), allocatable :: hamm_flat(:,:), ovlm_flat(:,:)
+           if(.not.allocated(hamm_batch)) then
+             allocate(hamm_batch(nbandmx,nbandmx,niqisp), ovlm_batch(nbandmx,nbandmx,niqisp))
+             allocate(ndimhx_batch(niqisp), isp_batch(niqisp), iq_batch(niqisp), nmx_batch(niqisp))
+             if(lso==1) allocate(ovlm_save(ndimh,nspc,ndimh,nspc,niqisp))
+           endif
+           allocate(hamm_flat(ndimhx,ndimhx), ovlm_flat(ndimhx,ndimhx))
+           hamm_flat = reshape(hamm, shape=[ndimhx,ndimhx])
+           ovlm_flat = reshape(ovlm, shape=[ndimhx,ndimhx])
+           hamm_batch(1:ndimhx,1:ndimhx,idat) = hamm_flat
+           ovlm_batch(1:ndimhx,1:ndimhx,idat) = ovlm_flat
+           deallocate(hamm_flat, ovlm_flat)
+           ndimhx_batch(idat) = ndimhx
+           isp_batch(idat) = isp
+           iq_batch(idat) = iq
+           nmx_batch(idat) = nmx
+           if(lso==1) ovlm_save(:,:,:,:,idat) = ovlm
+         endblock StoreForBatch
        endblock Setup_hamiltonian_and_diagonalize
-       if(writeham.AND.master_mpi) write(stdo,"(9f8.4)") (evl(i,isp), i=1,nev)
-       if(call_m_bandcal_2nd) then
-          neviqis(idat)   =nev
-          ndimhxiqis(idat)=ndimhx
-          if(nmx/=0) eveciqis(1:ndimhx,1:nev,idat)=evec(1:ndimhx,1:nev)
-       endif
-       evl(nev+1:nbandmx,isp)=1d99
-       nevls(iq,isp)  = nev
-       ndimhx_(iq,isp)= ndimhx
-       GetSpinWeightSOC1_gpu: if(lso==1.and.nmx/=0) then
-          associate(nd=>ndimh)
-            spinweight(:,:) = 0d0
-            spinweight(1:nev,1)= [(sum(dconjg(evec(1:nd,i))*matmul(ovlm(:,1,:,1),evec(1:nd,i))),i=1,nev)]
-            spinweight(1:nev,2)= [(sum(dconjg(evec(nd+1:nd+nd,i))*matmul(ovlm(:,2,:,2),evec(nd+1:nd+nd,i))),i=1,nev)]
-          endassociate
-       endif GetSpinWeightSOC1_gpu
-       if(allocated(t_evl(isp,iq)%v)) deallocate(t_evl(isp,iq)%v)
-       allocate(t_evl(isp,iq)%v(nbandmx), source = evl(:,isp))
-       if(lso==1) allocate(t_spinweight(iq)%v(nbandmx,nsp), source = spinweight)
-       if(afsym) then
-          if(allocated(t_evl(2,iq)%v)) deallocate(t_evl(2,iq)%v)
-          allocate(t_evl(2,iq)%v(nbandmx), source = evl(:,isp))
-          nevls(iq,2) = nev
-          ndimhx_(iq,2) = ndimhx
-       endif
-       if(PROCARon) call m_procar_add(iq,isp,ef0,evl,qp,nev,evec,ndimhx)
-       if(allocated(evec)) deallocate(evec)
 #else
          ! --- CPU path: diagonalize immediately ---
          allocate(evec(ndimhx,nmx))
@@ -294,6 +286,125 @@ contains
        if(allocated(ovlms)) deallocate(ovlms)
 2010 enddo bandcalculation_q
 #ifdef __GPU
+    ! === GPU batched diagonalization: all k-points on GPU ===
+    BatchDiag: block
+      use cusolverdn
+      use cublas_v2
+      use m_zhev_gpu_handles
+      use cudafor
+      complex(8), device, allocatable :: omat_d(:,:), h_d(:,:), zz_d(:,:), hhm_d(:,:), hh_d(:,:), z_d(:,:)
+      real(8), device, allocatable :: eo_d(:), e_d(:)
+      complex(8), device, allocatable :: work_d(:)
+      integer, device, allocatable :: devinfo
+      complex(8), allocatable :: zz_h(:,:), evec_tmp(:,:)
+      real(8) :: eo(nbandmx)
+      integer :: jdat, nd, nmx_j, nev_j, iq_j, isp_j, ix_j, ni_j, nm_j, lwork_j, m_out, istat_g
+      ! Create handles once for all k-points
+      if(.not. zhev_gpu_handles_init) then
+        istat_g = cusolverDnCreate(zhev_cusolver_handle)
+        istat_g = cublasCreate(zhev_cublas_handle)
+        zhev_gpu_handles_init = .true.
+      endif
+      allocate(devinfo)
+      do jdat = 1, niqisp
+        nd = ndimhx_batch(jdat)
+        nmx_j = nmx_batch(jdat)
+        isp_j = isp_batch(jdat)
+        iq_j = iq_batch(jdat)
+        ! Step 1: Diag overlap on GPU
+        allocate(omat_d(nd,nd), eo_d(nd))
+        omat_d = ovlm_batch(1:nd,1:nd,jdat)
+        istat_g = cusolverDnZheevdx_bufferSize(zhev_cusolver_handle, CUSOLVER_EIG_MODE_VECTOR, &
+             CUSOLVER_EIG_RANGE_ALL, CUBLAS_FILL_MODE_UPPER, nd, omat_d, nd, &
+             0d0, 0d0, 1, nd, m_out, eo_d, lwork_j)
+        allocate(work_d(lwork_j))
+        istat_g = cusolverDnZheevdx(zhev_cusolver_handle, CUSOLVER_EIG_MODE_VECTOR, &
+             CUSOLVER_EIG_RANGE_ALL, CUBLAS_FILL_MODE_UPPER, nd, omat_d, nd, &
+             0d0, 0d0, 1, nd, m_out, eo_d, work_d, lwork_j, devinfo)
+        deallocate(work_d)
+        eo(1:nd) = eo_d(1:nd)
+        ! Step 2: Build projection zz (overlap reduction by epsovl)
+        ni_j = 1
+        do ix_j = 1, nd
+          if(eo(ix_j) > epsovl) then; ni_j = ix_j; exit; endif
+        enddo
+        nm_j = nd - ni_j + 1
+        allocate(zz_h(nd, nm_j))
+        zz_h = omat_d(:, ni_j:nd)  ! copy eigenvectors to host
+        do ix_j = ni_j, nd
+          zz_h(:, ix_j-ni_j+1) = zz_h(:, ix_j-ni_j+1) / sqrt(eo(ix_j))
+        enddo
+        allocate(zz_d(nd, nm_j))
+        zz_d = zz_h
+        deallocate(zz_h, omat_d, eo_d)
+        ! Step 3: Project H: hh = zz^H * H * zz
+        allocate(h_d(nd,nd), hhm_d(nm_j,nd), hh_d(nm_j,nm_j))
+        h_d = hamm_batch(1:nd,1:nd,jdat)
+        istat_g = cublasZgemm_v2(zhev_cublas_handle, CUBLAS_OP_C, CUBLAS_OP_N, nm_j, nd, nd, &
+             (1d0,0d0), zz_d, nd, h_d, nd, (0d0,0d0), hhm_d, nm_j)
+        istat_g = cublasZgemm_v2(zhev_cublas_handle, CUBLAS_OP_N, CUBLAS_OP_N, nm_j, nm_j, nd, &
+             (1d0,0d0), hhm_d, nm_j, zz_d, nd, (0d0,0d0), hh_d, nm_j)
+        deallocate(hhm_d, h_d)
+        ! Step 4: Diag reduced H
+        nev_j = min(nmx_j, nm_j)
+        allocate(e_d(nm_j))
+        istat_g = cusolverDnZheevdx_bufferSize(zhev_cusolver_handle, CUSOLVER_EIG_MODE_VECTOR, &
+             CUSOLVER_EIG_RANGE_I, CUBLAS_FILL_MODE_UPPER, nm_j, hh_d, nm_j, &
+             0d0, 0d0, 1, nev_j, m_out, e_d, lwork_j)
+        allocate(work_d(lwork_j))
+        istat_g = cusolverDnZheevdx(zhev_cusolver_handle, CUSOLVER_EIG_MODE_VECTOR, &
+             CUSOLVER_EIG_RANGE_I, CUBLAS_FILL_MODE_UPPER, nm_j, hh_d, nm_j, &
+             0d0, 0d0, 1, nev_j, m_out, e_d, work_d, lwork_j, devinfo)
+        deallocate(work_d)
+        evl(1:nev_j, isp_j) = e_d(1:nev_j)
+        nev_j = m_out
+        deallocate(e_d)
+        ! Step 5: Back-transform z = zz * hh_d(:,1:nev)
+        allocate(z_d(nd, nev_j))
+        istat_g = cublasZgemm_v2(zhev_cublas_handle, CUBLAS_OP_N, CUBLAS_OP_N, nd, nev_j, nm_j, &
+             (1d0,0d0), zz_d, nd, hh_d, nm_j, (0d0,0d0), z_d, nd)
+        allocate(evec_tmp(nd, nev_j))
+        evec_tmp = z_d
+        deallocate(zz_d, hh_d, z_d)
+        nev = nev_j
+        ! Store results
+        if(writeham.AND.master_mpi) write(stdo,"(9f8.4)") (evl(i,isp_j), i=1,nev)
+        if(call_m_bandcal_2nd) then
+          neviqis(jdat) = nev
+          ndimhxiqis(jdat) = nd
+          if(nmx_j/=0) eveciqis(1:nd,1:nev,jdat) = evec_tmp(1:nd,1:nev)
+        endif
+        evl(nev+1:nbandmx,isp_j) = 1d99
+        nevls(iq_j,isp_j) = nev
+        ndimhx_(iq_j,isp_j) = nd
+        if(lso==1 .and. nmx_j/=0) then
+          associate(ndd => nd/nspc)
+            spinweight(:,:) = 0d0
+            spinweight(1:nev,1) = [(sum(dconjg(evec_tmp(1:ndd,i))*matmul(ovlm_save(:,1,:,1,jdat),evec_tmp(1:ndd,i))),i=1,nev)]
+            spinweight(1:nev,2) = [(sum(dconjg(evec_tmp(ndd+1:ndd+ndd,i))*matmul(ovlm_save(:,2,:,2,jdat),evec_tmp(ndd+1:ndd+ndd,i))),i=1,nev)]
+          endassociate
+        endif
+        if(allocated(t_evl(isp_j,iq_j)%v)) deallocate(t_evl(isp_j,iq_j)%v)
+        allocate(t_evl(isp_j,iq_j)%v(nbandmx), source = evl(:,isp_j))
+        if(lso==1) allocate(t_spinweight(iq_j)%v(nbandmx,nsp), source = spinweight)
+        if(afsym) then
+          if(allocated(t_evl(2,iq_j)%v)) deallocate(t_evl(2,iq_j)%v)
+          allocate(t_evl(2,iq_j)%v(nbandmx), source = evl(:,isp_j))
+          nevls(iq_j,2) = nev
+          ndimhx_(iq_j,2) = nd
+        endif
+        if(PROCARon) then
+          allocate(evec(nd,nev))
+          evec(1:nd,1:nev) = evec_tmp(1:nd,1:nev)
+          call m_procar_add(iq_j,isp_j,ef0,evl,qplist(:,iq_j),nev,evec,nd)
+          deallocate(evec)
+        endif
+        deallocate(evec_tmp)
+      enddo
+      deallocate(devinfo)
+      deallocate(hamm_batch, ovlm_batch, ndimhx_batch, isp_batch, iq_batch, nmx_batch)
+      if(allocated(ovlm_save)) deallocate(ovlm_save)
+    endblock BatchDiag
     gpumem_after: block
       use cudafor
       integer(8) :: free_mem, total_mem
