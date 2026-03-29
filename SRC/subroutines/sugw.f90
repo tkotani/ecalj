@@ -376,6 +376,16 @@ contains
     allocate(cphix(ndima,nspc,nbandmx),geigr(ngpmx,nspc,nbandmx))
     i=openm(newunit=ifcphim,file='__CPHI',recl=mrecb)
     i=openm(newunit=ifgeigm,file='__GEIG',recl=mrecg)
+    PrepWriteVxcevec: block
+      integer :: mrecv, ifvxcevec_info
+      mrecv = 32 + nbandmx*(32*nbandmx + 8)
+      if(master_mpi) then
+        open(newunit=ifvxcevec_info, file='__VxcEvec.info', form='unformatted')
+        write(ifvxcevec_info) nqirr, nspx, nbandmx, mrecv
+        close(ifvxcevec_info)
+      endif
+      istat = openm(newunit=ifvxcevec, file='__VxcEvec', recl=mrecv)
+    endblock PrepWriteVxcevec
 
     allocate(evl(nbandmx, nqirr, nspx),vxclda(nbandmx, nqirr, nspx),source=0d0)!nqirr: # ofirreducible q points
     iqisploop: do 1001 idat=1,niqisp !iq = iqini,iqend ! iqini:iqend for this procid
@@ -476,12 +486,32 @@ contains
 1212  continue
       lwvxc = (socmatrix .or. iq<=iqibzmax).and.(.not.cmdopt0('--novxc'))
       if(lwvxc) then
-        open(newunit=ifvxcevec, file= '__vxcevec'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
-        write(ifvxcevec) qp,ndimhx,nev
-        write(ifvxcevec) vxc(:,1:nspc,:,1:nspc)
-        write(ifvxcevec) evec(1:ndimhx,1:ndimhx),evl(1:ndimhx,iq,isp)
-!        if(lso/=0.or.socmatrix) write(ifvxcevec) hammhso 
-        close(ifvxcevec)
+!         open(newunit=ifvxcevec, file= '__vxcevec'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
+!         write(ifvxcevec) qp,ndimhx,nev
+!         write(ifvxcevec) vxc(:,1:nspc,:,1:nspc)
+!         write(ifvxcevec) evec(1:ndimhx,1:ndimhx),evl(1:ndimhx,iq,isp)
+! !        if(lso/=0.or.socmatrix) write(ifvxcevec) hammhso 
+!         close(ifvxcevec)
+        WriteVxcevec: block
+          type(mpiio_buf) :: buf
+          integer :: iqqisp_v
+          complex(8) :: vxc_(nbandmx,nbandmx), evec_(nbandmx,nbandmx)
+          real(8) :: evl_(nbandmx)
+          vxc_  = (0d0,0d0)
+          evec_ = (0d0,0d0)
+          evl_  = 0d0
+          vxc_ (1:ndimhx,1:ndimhx) = reshape(vxc,  shape=[ndimhx,ndimhx])
+          evec_(1:ndimhx,1:ndimhx) = evec(1:ndimhx,1:ndimhx)
+          evl_ (1:ndimhx)          = evl(1:ndimhx,iq,isp)
+          iqqisp_v = isp + nspx*(iq-1)
+          call buf_put(buf, qp)
+          call buf_put(buf, int(ndimhx,4))
+          call buf_put(buf, int(nev,4))
+          call buf_put(buf, vxc_)
+          call buf_put(buf, evec_)
+          call buf_put(buf, evl_)
+          istat = writem_buf(ifvxcevec, rec=iqqisp_v, buf=buf)
+        endblock WriteVxcevec
       endif
       if(emptyrun) then
         ! allocate(pwz(ngp*nspc,ndimh)) !dummy
@@ -672,6 +702,7 @@ contains
       deallocate(hamm,ovlm,evec,vxc,cphi)!,pwz,cphiw)
 1001 enddo iqisploop
     if(cmdopt0('--mlo')) istat = closem(ifihh)
+    istat = closem(ifvxcevec)
     i=closem(ifcphim) !mpi-io
     i=closem(ifgeigm)
     call mpi_barrier(comm,ierr)
