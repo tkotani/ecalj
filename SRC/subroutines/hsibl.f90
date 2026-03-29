@@ -3,6 +3,70 @@ module m_hsibl ! Interstitial matrix elements of smooth Bloch Hankels, smooth po
   public hsibl,hsibl1
   private
 contains
+#ifdef __GPU
+  subroutine gvputf_batch_gpu(ng, ndim1, kv, k1, k2, k3, w_oc1, f_batch, ng_ld)
+    ! Scatter w_oc1(1:ng, 1:ndim1) into f_batch(k1,k2,k3, 1:ndim1) on GPU
+    use cudafor
+    implicit none
+    integer, value :: ng, ndim1, k1, k2, k3, ng_ld
+    integer, device :: kv(ng,3)
+    complex(8), device :: w_oc1(ng_ld, ndim1), f_batch(k1,k2,k3, ndim1)
+    integer :: ig, i
+    !$cuf kernel do(2) <<<*,*>>>
+    do i = 1, ndim1
+      do ig = 1, ng
+        f_batch(kv(ig,1), kv(ig,2), kv(ig,3), i) = w_oc1(ig, i)
+      enddo
+    enddo
+  end subroutine gvputf_batch_gpu
+
+  subroutine gvgetf_batch_gpu(ng, ndim1, kv, k1, k2, k3, f_batch, w_oc1, ng_ld)
+    ! Gather f_batch(k1,k2,k3, 1:ndim1) into w_oc1(1:ng, 1:ndim1) on GPU
+    use cudafor
+    implicit none
+    integer, value :: ng, ndim1, k1, k2, k3, ng_ld
+    integer, device :: kv(ng,3)
+    complex(8), device :: w_oc1(ng_ld, ndim1), f_batch(k1,k2,k3, ndim1)
+    integer :: ig, i
+    !$cuf kernel do(2) <<<*,*>>>
+    do i = 1, ndim1
+      do ig = 1, ng
+        w_oc1(ig, i) = f_batch(kv(ig,1), kv(ig,2), kv(ig,3), i)
+      enddo
+    enddo
+  end subroutine gvgetf_batch_gpu
+
+  subroutine vmul_batch_gpu(nk123, ndim1, f_batch, vsm_d)
+    ! Pointwise multiply f_batch(:,i) = f_batch(:,i) * vsm_d(:) for all i
+    use cudafor
+    implicit none
+    integer, value :: nk123, ndim1
+    complex(8), device :: f_batch(nk123, ndim1), vsm_d(nk123)
+    integer :: ik, i
+    !$cuf kernel do(2) <<<*,*>>>
+    do i = 1, ndim1
+      do ik = 1, nk123
+        f_batch(ik, i) = f_batch(ik, i) * vsm_d(ik)
+      enddo
+    enddo
+  end subroutine vmul_batch_gpu
+
+  subroutine scale_batch_gpu(nk123, ndim1, f_batch, scale)
+    ! Scale f_batch by a constant factor
+    use cudafor
+    implicit none
+    integer, value :: nk123, ndim1
+    complex(8), device :: f_batch(nk123, ndim1)
+    real(8), value :: scale
+    integer :: ik, i
+    !$cuf kernel do(2) <<<*,*>>>
+    do i = 1, ndim1
+      do ik = 1, nk123
+        f_batch(ik, i) = f_batch(ik, i) * scale
+      enddo
+    enddo
+  end subroutine scale_batch_gpu
+#endif
   subroutine hsibl(k1,k2,k3,vsm,isp,q,ndimh,napw,igapw, h)
     use m_lmfinit,only: alat=>lat_alat,nspec,nbas,ispec
     use m_lattic,only: qlat=>lat_qlat,vol=>lat_vol,rv_a_opos
@@ -106,6 +170,54 @@ contains
         ndim1 = ndim1 + max(blks1(iorb1),0)
       enddo irob1loop
       fvsm: block ! ... Multiply potential into wave functions for orbitals in ib1
+#ifdef __GPU
+        use cufft
+        use cudafor
+        complex(8), device, allocatable :: f_batch_d(:,:,:,:), vsm_d(:,:,:)
+        complex(8), device, allocatable :: w_oc1_d(:,:)
+        integer, device, allocatable :: kv_d(:,:)
+        integer :: cufft_plan, cufft_stat, nk123, istat
+        integer, allocatable :: kv_reshaped(:,:)
+        real(8) :: scale_fwd
+        nk123 = k1*k2*k3
+        scale_fwd = 1d0/dble(n1*n2*n3)
+        ! Reshape kv from 1D(ng*3) to 2D(ng,3) on host
+        allocate(kv_reshaped(ng,3))
+        kv_reshaped(1:ng,1:3) = reshape(kv(1:ng*3), [ng,3])
+        ! Allocate device arrays
+        allocate(f_batch_d(k1,k2,k3,ndim1))
+        allocate(vsm_d(k1,k2,k3))
+        allocate(kv_d(ng,3))
+        allocate(w_oc1_d(ng,ndim1))
+        ! Copy data to device
+        vsm_d = vsm(:,:,:,isp)
+        kv_d = kv_reshaped
+        w_oc1_d(1:ng,1:ndim1) = w_oc1(1:ng,1:ndim1)
+        ! Zero f_batch and scatter w_oc1 into 3D grids
+        f_batch_d = (0d0,0d0)
+        call gvputf_batch_gpu(ng, ndim1, kv_d, k1, k2, k3, w_oc1_d, f_batch_d, ng)
+        ! Create batched cuFFT plan: ndim1 3D FFTs of size n1 x n2 x n3
+        ! embed=[k1,k2,k3] since data is stored in k1 x k2 x k3 arrays
+        cufft_stat = cufftPlanMany(cufft_plan, 3, [n1,n2,n3], &
+             [k1,k2,k3], 1, nk123, &
+             [k1,k2,k3], 1, nk123, &
+             CUFFT_Z2Z, ndim1)
+        ! G-space → real-space (isig=+1 in fftz3 = FFTW_BACKWARD = CUFFT_INVERSE)
+        cufft_stat = cufftExecZ2Z(cufft_plan, f_batch_d, f_batch_d, CUFFT_INVERSE)
+        ! Pointwise multiply with potential (treat 4D as 2D contiguous)
+        call vmul_batch_gpu(nk123, ndim1, f_batch_d, vsm_d)
+        ! real-space → G-space (isig=-1 in fftz3 = FFTW_FORWARD = CUFFT_FORWARD)
+        cufft_stat = cufftExecZ2Z(cufft_plan, f_batch_d, f_batch_d, CUFFT_FORWARD)
+        ! Apply forward normalization: scale by 1/(n1*n2*n3)
+        call scale_batch_gpu(nk123, ndim1, f_batch_d, scale_fwd)
+        ! Gather results back to sparse representation
+        call gvgetf_batch_gpu(ng, ndim1, kv_d, k1, k2, k3, f_batch_d, w_oc1_d, ng)
+        ! Copy result back to host
+        w_oc1(1:ng,1:ndim1) = w_oc1_d(1:ng,1:ndim1)
+        ! Cleanup
+        cufft_stat = cufftDestroy(cufft_plan)
+        deallocate(f_batch_d, vsm_d, kv_d, w_oc1_d, kv_reshaped)
+#else
         complex(8):: f(k1,k2,k3)
         do  i = 1, ndim1
           call gvputf(ng,1,kv,k1,k2,k3,w_oc1(1,i),f)
@@ -114,6 +226,7 @@ contains
           call fftz3(f,n1,n2,n3,k1,k2,k3,1,0,-1)
           call gvgetf(ng,1,kv,k1,k2,k3,f,w_oc1(1,i)) !w_oc1(ipw,i) = <MTO(i)|vsm for ith pw
         enddo
+#endif
       endblock fvsm
       ib2loop: do 1010 ib2 = ib1, nbas ! Loop over second of (ib1,ib2) site pairs
         is2 =ispec(ib2)
