@@ -170,7 +170,7 @@ contains
         ndim1 = ndim1 + max(blks1(iorb1),0)
       enddo irob1loop
       fvsm: block ! ... Multiply potential into wave functions for orbitals in ib1
-#ifdef __GPU_HSIBL_DISABLED
+#ifdef __GPU
         use cufft
         use cudafor
         complex(8), device, allocatable :: f_batch_d(:,:,:,:), vsm_d(:,:,:)
@@ -197,10 +197,11 @@ contains
         f_batch_d = (0d0,0d0)
         call gvputf_batch_gpu(ng, ndim1, kv_d, k1, k2, k3, w_oc1_d, f_batch_d, ng)
         ! Create batched cuFFT plan: ndim1 3D FFTs of size n1 x n2 x n3
-        ! embed=[k1,k2,k3] since data is stored in k1 x k2 x k3 arrays
-        cufft_stat = cufftPlanMany(cufft_plan, 3, [n1,n2,n3], &
-             [k1,k2,k3], 1, nk123, &
-             [k1,k2,k3], 1, nk123, &
+        ! NOTE: cuFFT uses C row-major order (slowest to fastest), but Fortran is column-major.
+        ! For f(k1,k2,k3): k1=fastest, k3=slowest → pass reversed: [n3,n2,n1], [k3,k2,k1]
+        cufft_stat = cufftPlanMany(cufft_plan, 3, [n3,n2,n1], &
+             [k3,k2,k1], 1, nk123, &
+             [k3,k2,k1], 1, nk123, &
              CUFFT_Z2Z, ndim1)
         ! G-space → real-space (isig=+1 in fftz3 = FFTW_BACKWARD = CUFFT_INVERSE)
         cufft_stat = cufftExecZ2Z(cufft_plan, f_batch_d, f_batch_d, CUFFT_INVERSE)
