@@ -110,7 +110,7 @@ contains
          !    s(1:i2,i2) = s(1:i2,i2) + [(sum( dconjg(b(:,:,i1))*g(:,:) ),i1=1,i2)]
          ! enddo
          ! MO The above two loops were placed in the following blas_mode block 2024-11-07, update 2025-10-23
-#ifdef __GPU_AUGMBL_DISABLED
+#ifdef __GPU
          blas_mode_gpu: block
            use m_blas, only: zmm => zmm_d, m_op_C
            use cudafor
