@@ -359,7 +359,7 @@ contains
       ! Create cuSOLVER handle (for eigensolve only, GEMM uses Ozaki)
       istat_g = cusolverDnCreate(cs_h)
       allocate(devinfo)
-      if(cmdopt0('--chefsi') .or. cmdopt0('--tridiag') .or. cmdopt0('--qdwh')) then
+      if(cmdopt0('--diag=chefsi') .or. cmdopt0('--diag=tridiag')) then
         ! === Alternative eigensolver path ===
         alt_diag: block
           use mpi, only: MPI_WTIME
@@ -371,14 +371,7 @@ contains
             nd_j = ndimhx_batch(jd); nmx_jj = nmx_batch(jd)
             isp_jj = isp_batch(jd); iq_jj = iq_batch(jd)
             allocate(evecs_dd(nd_j, nmx_jj))
-            if(cmdopt0('--qdwh')) then
-              use_qdwh: block
-                use m_qdwh_eigensolver, only: qdwh_batched_zhegv
-                ! QDWH: process single k-point (batch=1 for now, full batch later)
-                call qdwh_batched_zhegv(nd_j, nmx_jj, 1, hamm_batch(1,1,jd), ovlm_batch(1,1,jd), &
-                     nbandmx, evl(1,isp_jj), evecs_dd, info_cf)
-              endblock use_qdwh
-            elseif(cmdopt0('--tridiag')) then
+            if(cmdopt0('--diag=tridiag')) then
               use_tridiag: block
                 use m_ozaki_tridiag, only: ozaki_tridiag_zhegv
                 call ozaki_tridiag_zhegv(nd_j, nmx_jj, hamm_batch(1,1,jd), nbandmx, &
@@ -412,7 +405,7 @@ contains
         endblock alt_diag
         deallocate(hamm_batch, ovlm_batch, ndimhx_batch, isp_batch, iq_batch, nmx_batch)
         if(allocated(ovlm_save)) deallocate(ovlm_save)
-      elseif(cmdopt0('--batch')) then
+      elseif(cmdopt0('--diag=batch')) then
       ! === Batched cuSOLVER+Ozaki with CUDA streams (epsovl=0, padded) ===
       ! === Batched cuSOLVER+Ozaki: fully pipelined CUDA streams ===
       ! === Batched cuSOLVER+Ozaki: all-GPU pipelined ===
