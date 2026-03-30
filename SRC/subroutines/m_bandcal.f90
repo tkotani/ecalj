@@ -359,7 +359,7 @@ contains
       ! Create cuSOLVER handle (for eigensolve only, GEMM uses Ozaki)
       istat_g = cusolverDnCreate(cs_h)
       allocate(devinfo)
-      if(cmdopt0('--diag=chefsi') .or. cmdopt0('--diag=tridiag')) then
+      if(cmdopt0('--diag=chefsi') .or. cmdopt0('--diag=tridiag')) then  ! explicit alt solver
         ! === Alternative eigensolver path ===
         alt_diag: block
           use mpi, only: MPI_WTIME
@@ -405,10 +405,8 @@ contains
         endblock alt_diag
         deallocate(hamm_batch, ovlm_batch, ndimhx_batch, isp_batch, iq_batch, nmx_batch)
         if(allocated(ovlm_save)) deallocate(ovlm_save)
-      elseif(cmdopt0('--diag=batch')) then
-      ! === Batched cuSOLVER+Ozaki with CUDA streams (epsovl=0, padded) ===
-      ! === Batched cuSOLVER+Ozaki: fully pipelined CUDA streams ===
-      ! === Batched cuSOLVER+Ozaki: all-GPU pipelined ===
+      elseif(.not. cmdopt0('--diag=default')) then
+      ! === Batched cuSOLVER+Ozaki: all-GPU pipelined (DEFAULT for GPU builds) ===
       batched_diag: block
         use mpi, only: MPI_WTIME
         use m_gpu, only: ngpu_ranks
