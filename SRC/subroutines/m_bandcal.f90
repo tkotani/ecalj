@@ -7,7 +7,7 @@ module m_bandcal
   use m_qplist, only: nkp
   use m_mkqp,only: ntet=> bz_ntet, bz_nabc
   use m_qplist,only: qplist,niqisp,iqproc,isproc
-  use m_igv2x,only: m_igv2x_setiq, napw,ndimh,ndimhx,igv2x,nbandmx
+  use m_igv2x,only: m_igv2x_setiq, m_igv2x_getiq, t_igv2x_data, napw,ndimh,ndimhx,igv2x,nbandmx
   use m_lmfinit,only: lrsig=>ham_lsig, lso,ham_scaledsigma,lmet=>bz_lmet,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce
   use m_lmfinit,only: pwmode=>ham_pwmode,pwemax,nsp,nlibu,lmaxu,lmxax
   use m_MPItk,only: master_mpi, procid,strprocid, numprocs=>nsize, comm
@@ -228,15 +228,14 @@ contains
                if(isp==2) hamm(:,1,:,1)= hamm(:,1,:,1) + vmag/2d0*ovlm(:,1,:,1)
             endif
          endif
-         ! --- Store H, S for batch diagonalization after k-loop (all ranks) ---
+         ! --- Store H, S for batch diagonalization after k-loop ---
+#ifdef __GPU
          StoreForBatch: block
            complex(8), allocatable :: hamm_flat(:,:), ovlm_flat(:,:)
            if(.not.allocated(hamm_batch)) then
              allocate(hamm_batch(nbandmx,nbandmx,niqisp), ovlm_batch(nbandmx,nbandmx,niqisp))
              allocate(ndimhx_batch(niqisp), isp_batch(niqisp), iq_batch(niqisp), nmx_batch(niqisp))
-#ifdef __GPU
              if(lso==1) allocate(ovlm_save(ndimh,nspc,ndimh,nspc,niqisp))
-#endif
            endif
            allocate(hamm_flat(ndimhx,ndimhx), ovlm_flat(ndimhx,ndimhx))
            hamm_flat = reshape(hamm, shape=[ndimhx,ndimhx])
@@ -248,10 +247,40 @@ contains
            isp_batch(idat) = isp
            iq_batch(idat) = iq
            nmx_batch(idat) = nmx
-#ifdef __GPU
            if(lso==1) ovlm_save(:,:,:,:,idat) = ovlm
-#endif
          endblock StoreForBatch
+#else
+         ! --- Non-GPU: diagonalize immediately inside k-loop (same as master2) ---
+         allocate(evec(ndimhx,nmx))
+         Diagonalize_hamilatonian: block
+           call zhev_tk4(ndimhx, hamm, ovlm, nmx, nev, evl(1,isp), evec, epsovl)
+         endblock Diagonalize_hamilatonian
+         if(call_m_bandcal_2nd) then
+           neviqis(idat) = nev; ndimhxiqis(idat) = ndimhx
+           if(nmx/=0) eveciqis(1:ndimhx,1:nev,idat) = evec(1:ndimhx,1:nev)
+         endif
+         evl(nev+1:nbandmx,isp) = 1d99
+         nevls(iq,isp) = nev; ndimhx_(iq,isp) = ndimhx
+         if(lso==1 .and. nmx/=0) then
+           associate(nd=>ndimh)
+             spinweight(:,:) = 0d0
+             spinweight(1:nev,1)= [(sum(dconjg(evec(1:nd,i))*matmul(ovlms(:,1,:,1),evec(1:nd,i))),i=1,nev)]
+             spinweight(1:nev,2)= [(sum(dconjg(evec(nd+1:nd+nd,i))*matmul(ovlms(:,2,:,2),evec(nd+1:nd+nd,i))),i=1,nev)]
+           end associate
+           allocate(t_spinweight(iq)%v(nbandmx,nsp), source = spinweight)
+         endif
+         if(allocated(t_evl(isp,iq)%v)) deallocate(t_evl(isp,iq)%v)
+         allocate(t_evl(isp,iq)%v(nbandmx), source = evl(:,isp))
+         if(afsym) then
+           if(allocated(t_evl(2,iq)%v)) deallocate(t_evl(2,iq)%v)
+           allocate(t_evl(2,iq)%v(nbandmx), source = evl(:,1))
+           nevls(iq,2) = nev; ndimhx_(iq,2) = ndimhx
+         endif
+         if(master_mpi .AND. epsovl>=1d-14 .AND. plbnd/=0) write(stdo, &
+              "(' : ndimhx=',i5,' --> nev=',i5,' by HAM_OVEPS ',d11.2)") ndimhx,nev,epsovl
+         if(PROCARon) call m_procar_add(iq,isp,ef0,evl,qp,nev,evec,ndimhx)
+         if(allocated(evec)) deallocate(evec)
+#endif
        endblock Setup_hamiltonian_and_diagonalize
        if(allocated(hammhso)) deallocate(hammhso)
        if(allocated(hamm)) deallocate(hamm,ovlm)
@@ -741,6 +770,7 @@ contains
     real(8):: qp(3),def=0d0,xv(3)
     real(8),allocatable:: evl(:,:)
     complex(8),allocatable :: evec(:,:)!,evecbackup(:,:)
+    type(t_igv2x_data):: kdat
     logical:: cmdopt0
     call tcn('m_bandcal_2nd')
     if(master_mpi) write(stdo,ftox)'m_bandcal_2nd: to fill eigenfunctions**2 up to Efermi'
@@ -767,17 +797,16 @@ contains
         qp = qplist(:,iq)
         isp = gpu_isp_list(idat)
         if(afsym.and.isp==2) cycle
-        call m_Igv2x_setiq(iq)
+        call m_Igv2x_getiq(iq, kdat)
         nev = gpu_nev_list(idat)
-        ndimhx = gpu_nd_list(idat)
-        write(6,'(a,i3,a,4i6)') '  idat=',idat,' iq,ndimhx,nev,ndimh=',iq,ndimhx,nev,ndimh
-        allocate(evec(ndimhx, nev))
-        evec(1:ndimhx, 1:nev) = gpu_evecs_all(1:ndimhx, 1:nev, idat)
+        write(6,'(a,i3,a,4i6)') '  idat=',idat,' iq,ndimhx,nev,ndimh=',iq,kdat%ndimhx,nev,kdat%ndimh
+        allocate(evec(kdat%ndimhx, nev))
+        evec(1:kdat%ndimhx, 1:nev) = gpu_evecs_all(1:kdat%ndimhx, 1:nev, idat)
         evl(1:nev,isp) = t_evl(isp,iq)%v(1:nev)
         evl(nev+1:nbandmx,isp) = 1d99
         if(lso/=0)              call mkorbm(isp, nev, iq, qp, evec, orbtm_rv)
         if(nlibu>0 .AND. nev>0) call mkdmtu(isp, iq, qp, nev, evec, dmatu)
-        call addrbl(isp,qp,iq, osmpot,vconst,osig,otau,oppi,evec,evl,nev, smrho_out, sumqv, sumev, oqkkl,oeqkkl, frcband)
+        call addrbl(isp,qp,iq, kdat%napw,kdat%ndimh,kdat%ndimhx,kdat%igv2x, osmpot,vconst,osig,otau,oppi,evec,evl,nev, smrho_out, sumqv, sumev, oqkkl,oeqkkl, frcband)
         deallocate(evec)
       enddo gpu_band2nd_loop
       deallocate(gpu_evecs_all, gpu_iq_list, gpu_isp_list, gpu_nev_list, gpu_nd_list)
@@ -790,18 +819,16 @@ contains
        qp = qplist(:,iq)  !write(stdo,ftox)'m_bandcal_init: procid iq=',procid,iq,ftof(qp)
        isp= isproc(idat)
        if(afsym.and.isp==2) cycle !cmdopt0('--afsym').and.isp==2) cycle
-       call m_Igv2x_setiq(iq) ! Get napw and so on for given qp
+       call m_Igv2x_getiq(iq, kdat) ! Get napw, ndimh, ndimhx, igv2x for given iq (explicit, no state change)
        nev   = neviqis(idat)
-       !write(6,*)'nnnnnnnnnn iq nev=',iq,nev
-       ndimhx= ndimhxiqis(idat)
-       allocate(evec(ndimhx,nev))
+       allocate(evec(kdat%ndimhx,nev))
        evl(1:nev,isp)= t_evl(isp,iq)%v(1:nev)
-       evl(nev+1:nbandmx,isp)=1d99 !padding 
-       evec(1:ndimhx,1:nev)=eveciqis(1:ndimhx,1:nev,idat)
+       evl(nev+1:nbandmx,isp)=1d99 !padding
+       evec(1:kdat%ndimhx,1:nev)=eveciqis(1:kdat%ndimhx,1:nev,idat)
        if(lso/=0)              call mkorbm(isp, nev, iq,qp, evec,  orbtm_rv)
        if(nlibu>0 .AND. nev>0) call mkdmtu(isp, iq,qp, nev, evec,  dmatu)
        if(cmdopt0('--cls'))    call m_clsmode_set1(nev,isp,iq,qp,nev,evec) !all inputs
-       call addrbl(isp,qp,iq, osmpot,vconst,osig,otau,oppi,evec,evl,nev, smrho_out, sumqv, sumev, oqkkl,oeqkkl, frcband)
+       call addrbl(isp,qp,iq, kdat%napw,kdat%ndimh,kdat%ndimhx,kdat%igv2x, osmpot,vconst,osig,otau,oppi,evec,evl,nev, smrho_out, sumqv, sumev, oqkkl,oeqkkl, frcband)
        afsymGETevecFROMisponeANDaccumulate:  if(afsym) then !cmdopt0('--afsym')) then
           if(idat==1.and.master_mpi) write(stdo,ftox)'m_bandcal: afsymblock'
           afsymblock: block !isp2 is given by isp=1
@@ -814,7 +841,7 @@ contains
             logical:: cmdopt0
             integer:: igrp,isp2,ikp,iev,ndeltaG(3),ikpx
             real(8):: qtarget(3),platt(3,3),diffq(3),tol=1d-4,qpr(3)
-            complex(8):: evecrot(ndimhx,nev)
+            complex(8):: evecrot(kdat%ndimhx,nev)
             platt=transpose(plat)
             evl(1:nev,2)=evl(1:nev,1)
             do igrp = ngrp + 1, ngrp+ngrpAF !AF symmetry
@@ -832,13 +859,16 @@ contains
 1018        continue!write(stdo,ftox)'ikp qp=',ikp,ftof(qp,3),'is mapped to',ftof(matmul(symops(:,:,igrp),qp),3),' by symops igp=',igrp
             qpr = qplist(:,ikp)
             isp2 = 2
-            call m_Igv2x_setiq(ikp) ! Get napw and so on for given qp !Bug fix at 2023-10-29. This set igv.
-            call rotevec(igrp,qp, qpr,ndimhx,napw,nev,evec(:,1:nev), evecrot(:,1:nev))! evec at qp is roteted to be evecrot at qpr by symops(:,:,igrp)
-            call m_subzi_copy_wtkb(isp, iq, isp2, ikp) !copy t_wtkb(isp,iq)%v to t_wtkb(isp2,ikp)%v
-            if( lso/=0)              call mkorbm(isp2, nev, ikp,qpr, evecrot,  orbtm_rv)
-            if( nlibu>0 .AND. nev>0) call mkdmtu(isp2,      ikp,qpr, nev, evecrot,  dmatu)
-            if( cmdopt0('--cls'))    call m_clsmode_set1(nev,isp2,ikp,qpr,nev,evecrot) 
-            call addrbl(isp2,qpr,ikp, osmpot,vconst,osig,otau,oppi,evecrot,evl,nev, smrho_out, sumqv, sumev, oqkkl,oeqkkl, frcband)
+            block
+              type(t_igv2x_data):: kdat2
+              call m_Igv2x_getiq(ikp, kdat2) ! Get napw, ndimh, ndimhx, igv2x for ikp (explicit)
+              call rotevec(igrp,qp, qpr,kdat2%ndimhx,kdat2%napw,nev,evec(:,1:nev), evecrot(:,1:nev))
+              call m_subzi_copy_wtkb(isp, iq, isp2, ikp)
+              if( lso/=0)              call mkorbm(isp2, nev, ikp,qpr, evecrot,  orbtm_rv)
+              if( nlibu>0 .AND. nev>0) call mkdmtu(isp2,      ikp,qpr, nev, evecrot,  dmatu)
+              if( cmdopt0('--cls'))    call m_clsmode_set1(nev,isp2,ikp,qpr,nev,evecrot)
+              call addrbl(isp2,qpr,ikp, kdat2%napw,kdat2%ndimh,kdat2%ndimhx,kdat2%igv2x, osmpot,vconst,osig,otau,oppi,evecrot,evl,nev, smrho_out, sumqv, sumev, oqkkl,oeqkkl, frcband)
+            endblock
           endblock afsymblock
        endif afsymGETevecFROMisponeANDaccumulate
        deallocate(evec)

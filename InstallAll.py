@@ -142,20 +142,29 @@ def main():
         # Step 3: freeze timestamp and rebuild (links only)
         run_shell(f"touch -t 202001010000 {GAUGM_SRC}")
         print("=== Phase 3: completing build ===")
-        run_shell(f"{verbose}cmake --build {BUILD_DIR} -j{jobs}")
+        run_shell(f"{verbose}cmake --build {BUILD_DIR} -j{jobs}", skip_on_error=True)
         run_shell(f"touch {GAUGM_SRC}")
     else:
         run_shell(f"{verbose}cmake --build {BUILD_DIR} -j{jobs}")
 
-    # --- Copy executables to BIN_DIR ---
+    # --- Copy executables and libraries to BIN_DIR ---
     print(f'Copying executables to {BIN_DIR}')
-    for d in (EXEC_DIR, BUILD_DIR):
-        for path_item in d.iterdir():
-            if path_item.is_file() and os.access(path_item, os.X_OK):
-                try:
-                    shutil.copy(path_item, BIN_DIR)
-                except (OSError, PermissionError) as e:
-                    print(f"Warning: Skipping {path_item.name}: {e}", file=sys.stderr)
+    import glob as _glob
+    for so_file in _glob.glob(str(BUILD_DIR / 'lib*.so')):
+        print(f'  Copying {so_file} -> {BIN_DIR}')
+        shutil.copy2(so_file, BIN_DIR)
+    for path_item in BUILD_DIR.iterdir():
+        if path_item.is_file() and path_item.suffix != '.so' and os.access(path_item, os.X_OK):
+            try:
+                shutil.copy2(path_item, BIN_DIR)
+            except (OSError, PermissionError) as e:
+                print(f"Warning: Skipping {path_item.name}: {e}", file=sys.stderr)
+    for path_item in EXEC_DIR.iterdir():
+        if path_item.is_file() and path_item.suffix != '.so' and os.access(path_item, os.X_OK):
+            try:
+                shutil.copy2(path_item, BIN_DIR)
+            except (OSError, PermissionError) as e:
+                print(f"Warning: Skipping {path_item.name}: {e}", file=sys.stderr)
 
     # Copy clusters.toml from EXEC_DIR to BIN_DIR
     clusters_toml_src = EXEC_DIR / 'clusters.toml'

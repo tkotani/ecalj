@@ -3,14 +3,13 @@ module m_addrbl
   public:: addrbl 
   private
 contains
-  subroutine addrbl(isp,q,iq,smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,evec,evl,nevl, smrho,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl,f)
+  subroutine addrbl(isp,q,iq, napw,ndimh,ndimhx,igapw, smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,evec,evl,nevl, smrho,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl,f)
 !Adds to the smooth and local output density and to eigval sum
     use m_struc_def
     use m_lmfinit,only:alat=>lat_alat,nbas, ispec,nsp,nspc,lmet=>bz_lmet, zbak ,lfrce,lmxa_i=>lmxa
     !zbak is added positive bg charge.
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol
     use m_supot,only: n1,n2,n3
-    use m_igv2x,only: napw,ndimh,ndimhx,igapw=>igv2x
     use m_subzi, only: t_wtkb
     use m_mkqp,only: wtkp=>rv_a_owtkp
     use m_mkpot,only: qval_=>qval
@@ -18,6 +17,8 @@ contains
     use m_rsibl,only:rsibl
     use m_rlocbl,only: rlocbl
     implicit none
+    integer, intent(in) :: napw, ndimh, ndimhx
+    integer, intent(in), target :: igapw(3,*)
     intent(in) ::   isp,q,iq,smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,evec,evl,nevl
     !i   isp   :current spin channel
     !i   nsp   :2 for spin-polarized case, otherwise 1
