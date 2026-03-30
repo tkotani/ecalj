@@ -130,9 +130,13 @@ contains
     endblock gpumem_before
     endif
 #endif
+    hambl_timing: block
+      use mpi, only: MPI_WTIME
+      real(8) :: t_hambl_total, t_hambl0
+      t_hambl_total = 0d0
     bandcalculation_q: do 2010 idat=1,niqisp
        iq = iqproc(idat)
-       qp = qplist(:,iq) !write(stdo,ftox)'m_bandcal_init: procid iq=',procid,iq,ftof(qp)
+       qp = qplist(:,iq)
        isp= isproc(idat) !NOTE: isp=1:nspx=nsp/nspc
        if((.not.writeham).and.(afsym.and.isp==2)) cycle 
        call m_Igv2x_setiq(iq) ! NOTE: we get napw,ndimh,ndimhx, and igv2x here.
@@ -167,6 +171,7 @@ contains
             if(iq==1 .AND. isp==1) write(iwsene) nsp,ndimsig,bz_nabc,nkp,0,0,0
          endif
          ovlm=0d0
+         t_hambl0 = MPI_WTIME()
          if(lso==1) then !L.S case nspc=2
             do ispc=1,2  ! nspc==2
                call hambl(ispc,qp,osmpot,vconst,osig,otau,oppi, hamm(:,ispc,:,ispc),ovlm(:,ispc,:,ispc))
@@ -200,6 +205,7 @@ contains
                call dsene()
             endif
          endif
+         t_hambl_total = t_hambl_total + MPI_WTIME() - t_hambl0
          if(wsene) close(iwsene)
          if(iprint()>=30) write(stdo,'(" bndfp: kpt ",i5," of ",i7, " k=",3f8.4, &
               " ndimh = nmto+napw = ",3i5,f13.5)') iq,nkp,qp,ndimh,ndimh-napw,napw
@@ -286,6 +292,8 @@ contains
        if(allocated(hamm)) deallocate(hamm,ovlm)
        if(allocated(ovlms)) deallocate(ovlms)
 2010 enddo bandcalculation_q
+    write(6,'(a,i3,a,i3,a,f8.2,a)') ' hambl timing: rank',procid,' nkpt=',niqisp,' t=',t_hambl_total,' s'
+    endblock hambl_timing
 #ifdef __GPU
     ! === Phase 2: Gather hamm/ovlm from CPU ranks to GPU ranks ===
     GatherToGPU: block

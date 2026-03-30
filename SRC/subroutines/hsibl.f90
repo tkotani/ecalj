@@ -4,6 +4,9 @@ module m_hsibl ! Interstitial matrix elements of smooth Bloch Hankels, smooth po
   use cudafor
 #endif
   public hsibl,hsibl1
+#ifdef __GPU
+  public hsibl_set_stream
+#endif
   private
 #ifdef __GPU
   ! Persistent GPU data across site loop (one k-point)
@@ -12,8 +15,16 @@ module m_hsibl ! Interstitial matrix elements of smooth Bloch Hankels, smooth po
   integer, allocatable :: hsibl_kv_reshaped(:,:)
   integer :: hsibl_cufft_plan_cached = -1, hsibl_ndim1_cached = -1
   logical :: hsibl_gpu_init = .false.
+  integer(cuda_stream_kind) :: hsibl_stream = 0  ! 0 = default stream
 #endif
 contains
+#ifdef __GPU
+  subroutine hsibl_set_stream(stream)
+    implicit none
+    integer(cuda_stream_kind), intent(in) :: stream
+    hsibl_stream = stream
+  end subroutine
+#endif
 #ifdef __GPU
   subroutine gvputf_batch_gpu(ng, ndim1, kv, k1, k2, k3, w_oc1, f_batch, ng_ld)
     ! Scatter w_oc1(1:ng, 1:ndim1) into f_batch(k1,k2,k3, 1:ndim1) on GPU
@@ -212,6 +223,7 @@ contains
           hsibl_ndim1_cached = ndim1
         endif
         cufft_plan = hsibl_cufft_plan_cached
+        if(hsibl_stream /= 0) cufft_stat = cufftSetStream(cufft_plan, hsibl_stream)
         cufft_stat = cufftExecZ2Z(cufft_plan, f_batch_d, f_batch_d, CUFFT_INVERSE)
         call vmul_batch_gpu(nk123, ndim1, f_batch_d, hsibl_vsm_d)
         cufft_stat = cufftExecZ2Z(cufft_plan, f_batch_d, f_batch_d, CUFFT_FORWARD)

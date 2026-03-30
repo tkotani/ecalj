@@ -12,7 +12,7 @@ module m_blas !wrapper for BLAS and cuBLAS
   public :: cmm_h, cmm_batch_h, zmm_h, zmm_batch_h, dmm_h, dmv_h, zmv_h, zvv_h
 #ifdef __GPU
   public :: cmm_d, cmm_batch_d, zmm_d, zmm_batch_d, dmm_d, dmv_d, zmv_d, zvv_d
-  public :: cublas_init, cublas_handle, cublas_finalize
+  public :: cublas_init, cublas_handle, cublas_finalize, cublas_set_stream
   type(cublashandle), target :: cublas_handle
   logical, save :: set_cublas_handle = .false.
 #endif
@@ -617,6 +617,14 @@ contains
       set_cublas_handle = .true.
     endif
   end function cublas_init
+  subroutine cublas_set_stream(stream)
+    use cudafor
+    implicit none
+    integer(cuda_stream_kind), intent(in) :: stream
+    integer :: istat
+    istat = cublas_init()
+    istat = cublasSetStream(cublas_handle, stream)
+  end subroutine
   integer function cublas_finalize() result(istat)
     istat = 0
     if(set_cublas_handle) then
