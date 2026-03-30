@@ -410,129 +410,38 @@ contains
       batched_diag: block
         use mpi, only: MPI_WTIME
         use m_gpu, only: ngpu_ranks
-        integer :: NSTR
-        integer(kind=8), allocatable :: strms(:)
-        type(cusolverDnHandle), allocatable :: cs_str(:)
-        complex(8), device, allocatable :: omat_all(:,:,:), Linv_all(:,:,:)
-        real(8), device, allocatable :: eo_all(:,:)
-        complex(8), device, allocatable :: S_d(:,:), work_dpf(:)
-        complex(8), allocatable :: Lh(:,:)
-        real(8), allocatable :: eo_h(:,:)
-        real(8) :: t0b, t1b, t2b, t3b
-        integer :: is, jd2, nd2, lw_pf, lw_ev, info_l2, jj2
+        use m_batched_diag, only: batched_diag_gpu
+        real(8) :: t0b
+        real(8), allocatable :: evals_all(:,:)
+        complex(8), allocatable :: evecs_all(:,:,:)
+        integer :: jd2, nd2, info_bd, nev_max
         t0b = MPI_WTIME()
         nd2 = nd_max
-        NSTR = min(max(1, numprocs / max(1,ngpu_ranks)), ndiag_total)
-        allocate(strms(NSTR), cs_str(NSTR))
-        if(master_mpi) write(stdo,'(a,i3,a,i5)') ' Batched diag: NSTR=',NSTR,' ndiag=',ndiag_total
-        do is = 1, NSTR
-          istat_g = cudaStreamCreate(strms(is))
-          istat_g = cusolverDnCreate(cs_str(is))
-          istat_g = cusolverDnSetStream(cs_str(is), strms(is))
-        enddo
-        allocate(omat_all(nd2,nd2,ndiag_total), Linv_all(nd2,nd2,ndiag_total))
-        allocate(eo_all(nd2,ndiag_total))
-        ! === Phase A1: GPU zpotrf on streams (pipelined) ===
-        allocate(S_d(nd2,nd2))  ! temp for bufferSize
-        block; real(8),device,allocatable::ed(:); allocate(ed(1))
-        istat_g = cusolverDnZpotrf_bufferSize(cs_str(1), CUBLAS_FILL_MODE_LOWER, nd2, S_d, nd2, lw_pf)
-        deallocate(ed); endblock
-        deallocate(S_d)
-        allocate(work_dpf(lw_pf * NSTR))
-        do jd2 = 1, ndiag_total
-          is = mod(jd2-1, NSTR) + 1
-          allocate(S_d(nd2,nd2))
-          S_d = ovlm_batch(1:nd2, 1:nd2, jd2)
-          omat_all(:,:,jd2) = S_d  ! save S for zpotrf result
-          deallocate(S_d)
-          istat_g = cusolverDnZpotrf(cs_str(is), CUBLAS_FILL_MODE_LOWER, nd2, &
-               omat_all(1,1,jd2), nd2, work_dpf((is-1)*lw_pf+1), lw_pf, devinfo)
-        enddo
-        do is = 1, NSTR; istat_g = cudaStreamSynchronize(strms(is)); enddo
-        deallocate(work_dpf)
-        t1b = MPI_WTIME()
-        ! === Phase A2a: L^{-1} via blocked Ozaki GEMM ===
-        allocate(Lh(nd2,nd2))
-        do jd2 = 1, ndiag_total
-          Lh = omat_all(:,:,jd2)
-          do jj2 = 1, nd2-1; Lh(1:jj2, jj2+1) = (0d0,0d0); enddo
-          call blocked_ztrtri_ozaki(nd2, Lh, 64)
-          Linv_all(:,:,jd2) = Lh
-        enddo
-        deallocate(Lh)
-        ! === Phase A2b: All H' projection on GPU (pipelined on streams) ===
-        do jd2 = 1, ndiag_total
-          is = mod(jd2-1, NSTR) + 1
-          block
-            complex(8), device, allocatable :: Li_d(:,:), H_d2(:,:), T_d2(:,:), Hp_d2(:,:)
-            allocate(Li_d(nd2,nd2), H_d2(nd2,nd2), T_d2(nd2,nd2), Hp_d2(nd2,nd2))
-            Li_d = Linv_all(:,:,jd2)
-            H_d2 = hamm_batch(1:nd2, 1:nd2, jd2)
-            istat_g = zmm(Li_d, H_d2, T_d2, m=nd2, n=nd2, k=nd2)
-            istat_g = zmm(T_d2, Li_d, Hp_d2, m=nd2, n=nd2, k=nd2, opB=m_op_C)
-            omat_all(:,:,jd2) = Hp_d2
-            deallocate(Li_d, H_d2, T_d2, Hp_d2)
-          endblock
-        enddo
-        t2b = MPI_WTIME()
-        ! === Phase B: ALL Zheevd on streams (NO per-k sync) ===
-        ! === Phase B: cuSOLVER Zheevd on streams (all GPU) ===
-        block
-          complex(8), device, allocatable :: dummy_d(:,:)
-          real(8), device, allocatable :: dummy_e(:)
-          allocate(dummy_d(nd2,nd2), dummy_e(nd2))
-          istat_g = cusolverDnZheevd_bufferSize(cs_str(1), CUSOLVER_EIG_MODE_VECTOR, &
-               CUBLAS_FILL_MODE_UPPER, nd2, dummy_d, nd2, dummy_e, lw_ev)
-          deallocate(dummy_d, dummy_e)
-        endblock
-        allocate(work_dpf(lw_ev * NSTR))
-        do jd2 = 1, ndiag_total
-          is = mod(jd2-1, NSTR) + 1
-          istat_g = cusolverDnZheevd(cs_str(is), CUSOLVER_EIG_MODE_VECTOR, &
-               CUBLAS_FILL_MODE_UPPER, nd2, omat_all(1,1,jd2), nd2, eo_all(1,jd2), &
-               work_dpf((is-1)*lw_ev+1), lw_ev, devinfo)
-        enddo
-        do is = 1, NSTR; istat_g = cudaStreamSynchronize(strms(is)); enddo
-        deallocate(work_dpf)
-        t3b = MPI_WTIME()
-        ! === Phase D: D2H eigenvalues + Ozaki back-transform + store ===
-        allocate(eo_h(nd2, ndiag_total)); eo_h = eo_all; deallocate(eo_all)
+        nev_max = maxval(nmx_batch(1:ndiag_total))
+        allocate(evals_all(nbandmx, ndiag_total))
+        allocate(evecs_all(nd2, nev_max, ndiag_total))
+        call batched_diag_gpu(nd2, ndiag_total, nbandmx, nmx_batch, &
+             hamm_batch, ovlm_batch, evals_all, evecs_all, numprocs, ngpu_ranks, info_bd)
         do jd2 = 1, ndiag_total
           nd = ndimhx_batch(jd2); nev = nmx_batch(jd2)
-          evl(1:nev, isp_batch(jd2)) = eo_h(1:nev, jd2)
-          evl(nev+1:nbandmx, isp_batch(jd2)) = 1d99
-          block
-            complex(8), device, allocatable :: Y_d2(:,:), evec_d2(:,:), Li_d(:,:)
-            allocate(Li_d(nd2,nd2), Y_d2(nd2,nev), evec_d2(nd2,nev))
-            Li_d = Linv_all(:,:,jd2)
-            Y_d2 = omat_all(1:nd2, 1:nev, jd2)
-            istat_g = zmm(Li_d, Y_d2, evec_d2, m=nd2, n=nev, k=nd2, opA=m_op_C)
-            if(call_m_bandcal_2nd .and. jd2 <= niqisp) then
-              neviqis(jd2) = nev; ndimhxiqis(jd2) = nd
-              block; complex(8),allocatable::et(:,:); allocate(et(nd,nev))
-              et = evec_d2(1:nd,1:nev); eveciqis(1:nd,1:nev,jd2) = et; deallocate(et); endblock
-            endif
-            deallocate(Li_d, Y_d2, evec_d2)
-          endblock
-          nevls(iq_batch(jd2),isp_batch(jd2)) = nev
-          ndimhx_(iq_batch(jd2),isp_batch(jd2)) = nd
+          evl(1:nbandmx, isp_batch(jd2)) = evals_all(:, jd2)
+          if(call_m_bandcal_2nd .and. jd2 <= niqisp) then
+            neviqis(jd2) = nev; ndimhxiqis(jd2) = nd
+            eveciqis(1:nd, 1:nev, jd2) = evecs_all(1:nd, 1:nev, jd2)
+          endif
+          nevls(iq_batch(jd2), isp_batch(jd2)) = nev
+          ndimhx_(iq_batch(jd2), isp_batch(jd2)) = nd
           if(allocated(t_evl(isp_batch(jd2),iq_batch(jd2))%v)) &
                deallocate(t_evl(isp_batch(jd2),iq_batch(jd2))%v)
-          allocate(t_evl(isp_batch(jd2),iq_batch(jd2))%v(nbandmx), source=evl(:,isp_batch(jd2)))
+          allocate(t_evl(isp_batch(jd2),iq_batch(jd2))%v(nbandmx), source=evals_all(:,jd2))
           if(afsym) then
             if(allocated(t_evl(2,iq_batch(jd2))%v)) deallocate(t_evl(2,iq_batch(jd2))%v)
-            allocate(t_evl(2,iq_batch(jd2))%v(nbandmx), source=evl(:,isp_batch(jd2)))
+            allocate(t_evl(2,iq_batch(jd2))%v(nbandmx), source=evals_all(:,jd2))
             nevls(iq_batch(jd2),2) = nev; ndimhx_(iq_batch(jd2),2) = nd
           endif
         enddo
-        deallocate(eo_h, omat_all, Linv_all)
-        do is = 1, NSTR
-          istat_g = cusolverDnDestroy(cs_str(is))
-          istat_g = cudaStreamDestroy(strms(is))
-        enddo
-        deallocate(strms, cs_str)
-        if(master_mpi) write(stdo,'(a,f8.3,a,3(a,f6.3))') ' Batched diag: ',MPI_WTIME()-t0b,' s', &
-             ' zpotrf=',t1b-t0b,' proj+inv=',t2b-t1b,' zheevd=',t3b-t2b
+        deallocate(evals_all, evecs_all)
+        if(master_mpi) write(stdo,'(a,f8.3,a)') ' Batched diag: ',MPI_WTIME()-t0b,' s'
         deallocate(hamm_batch, ovlm_batch, ndimhx_batch, isp_batch, iq_batch, nmx_batch)
         if(allocated(ovlm_save)) deallocate(ovlm_save)
       endblock batched_diag
