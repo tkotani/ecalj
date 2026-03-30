@@ -22,29 +22,9 @@ contains
 #endif
   end subroutine
   subroutine zhev_tk4(n,h,s,nmx,nev, e,z, epsovl)
-    !!== Eigenvalues and/or some eigenvectors of a Hermitian matrix (weighted for first nlmto basis).==
-    !! ----------------------------------------------------------------
-    !! Inputs:
-    !!   nlmto:dimension of MTO space of 1:nlmto i respected when diagonalization.
-    !!     n:    dimension of h
-    !!   h,n:  hermitian matrix, dimensioned h(n,n)
-    !!   s:    hermitian overlap matrix,
-    !!   nmx:  requested number of eigenvectors to be found (and eigenvalues). If nmx>n, nmx is taken to be n.
-    !!         if nmx=0, nev=n (see NOTE below).
-    !!   ipr :print switch
-    !!   ifig,savez,getz: dummy
-    !!   epsovl: cutoff to remove Hlbert space.
-    !! Outputs:
-    !!   e:    eigenvalues
-    !!   nev:  number of eigenvectors (=(min(nm,nmx)) or (=nm if nmx=0)
-    !!   z:    eigenvectors (1..nev)  (declared as z(n,*)
-    !!   h and s are destroyed on exit.
-    !!   july2012takao
-    !! nm is the matrix dimension of the reduced space by epsovl
-    !!   If nmx==0, all eigenvalues are returned but without eigenfunctions.
-    !!
-    !! Essentially similar with zhevo
-    !! -----------------------------------------------------------------------
+#ifdef __GPU
+    use m_gpu, only: use_gpu
+#endif
     implicit none
     integer :: n,nev,nmx,ltime,ngv,ncut
     !      logical ipr
@@ -76,7 +56,7 @@ contains
     endif
     call tcn('zhev_tk4')
 #ifdef __GPU
-    !! ====== GPU path: cuSOLVER + cuBLAS directly (hook-able by GEMMul8) ======
+    if(use_gpu) then
     gpudiag: block
       use cusolverdn
       use cublas_v2
@@ -156,7 +136,8 @@ contains
       deallocate(devinfo)
       istat2 = cudaDeviceSynchronize()
     endblock gpudiag
-#else
+    else
+#endif
     !! ====== CPU path: LAPACK ======
     !! ... eigenvalue of ovarlap matrix
     jobz = 'V'
@@ -207,6 +188,8 @@ contains
     deallocate(work,iwork,rwork)
     z=1d99
     call zgemm('N','N',n, min(nmx,nm),nm,(1d0,0d0),zz,n,znm,nm,(0d0,0d0),z,n)
+#ifdef __GPU
+    endif
 #endif
     if(allocated(znm)) deallocate(znm)
     if(allocated(zz)) deallocate(zz)

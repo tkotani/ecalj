@@ -351,23 +351,10 @@ contains
     if((.not.cmdopt0('--jobgw')).and.(.not.cmdopt0('--writeham')).and.afsym) nspxx=1
     ndata = nkp*nspxx
     allocate(kpproc(0:numprocs))
-    if(ngpu_ranks > 0 .and. ngpu_ranks < numprocs) then
-      ! GPU mode: k-points go to first ngpu_ranks ranks only (rank 0..ngpu_ranks-1)
-      block
-        integer :: ip
-        do ip = 0, ngpu_ranks - 1
-          kpproc(ip) = (ip * ndata) / ngpu_ranks + 1
-        enddo
-        ! CPU ranks and sentinel: no k-points
-        do ip = ngpu_ranks, numprocs
-          kpproc(ip) = ndata + 1
-        enddo
-      endblock
-      if(master_mpi) write(stdo,'(a,i3,a,i5,a)') &
-           ' qspdivider: k-points assigned to ',ngpu_ranks,' GPU ranks (',ndata,' k*sp points)'
-    else
-      call dstrbp(ndata, numprocs,1,kpproc(0))
-    endif
+    ! Distribute k-points to ALL ranks (all ranks do hambl, GPU ranks do batched diag)
+    call dstrbp(ndata, numprocs,1,kpproc(0))
+    if(master_mpi) write(stdo,'(a,i3,a,i5,a)') &
+         ' qspdivider: k-points distributed to all ',numprocs,' ranks (',ndata,' k*sp points)'
     iqsi = kpproc(procid)
     iqse = kpproc(procid+1)-1
     niqisp=iqse-iqsi+1     ! (iq,isp) is ordered as (1,1),(1,2),(2,1),(2,2),(3,1),(3,2),(4,1),(4,2).....  

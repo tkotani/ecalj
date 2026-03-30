@@ -87,6 +87,9 @@ contains
     use m_orbl,only: Orblib1,Orblib2,ktab1,ltab1,offl1,norb1,ktab2,ltab2,offl2,norb2
     use m_ftox
     use m_sugcut,only: ngcut
+#ifdef __GPU
+    use m_gpu, only: use_gpu
+#endif
     use m_lmfinit,only: ndimx
     use m_shortn3,only:gvlst2
     !i Inputs
@@ -187,9 +190,9 @@ contains
         complex(8), device, allocatable :: w_oc1_d(:,:)
         integer :: cufft_plan, cufft_stat, nk123, istat
         real(8) :: scale_fwd
+        if(use_gpu) then
         nk123 = k1*k2*k3
         scale_fwd = 1d0/dble(n1*n2*n3)
-        ! First site: copy vsm and kv to GPU (once per k-point, reused across sites)
         if(.not. hsibl_gpu_init) then
           allocate(hsibl_kv_reshaped(ng,3))
           hsibl_kv_reshaped(1:ng,1:3) = reshape(kv(1:ng*3), [ng,3])
@@ -198,12 +201,10 @@ contains
           hsibl_kv_d = hsibl_kv_reshaped
           hsibl_gpu_init = .true.
         endif
-        ! Per-site: allocate work, FFT, deallocate
         allocate(f_batch_d(k1,k2,k3,ndim1), w_oc1_d(ng,ndim1))
         w_oc1_d(1:ng,1:ndim1) = w_oc1(1:ng,1:ndim1)
         f_batch_d = (0d0,0d0)
         call gvputf_batch_gpu(ng, ndim1, hsibl_kv_d, k1, k2, k3, w_oc1_d, f_batch_d, ng)
-        ! cuFFT plan: cache when ndim1 unchanged across sites
         if(ndim1 /= hsibl_ndim1_cached) then
           if(hsibl_cufft_plan_cached /= -1) cufft_stat = cufftDestroy(hsibl_cufft_plan_cached)
           cufft_stat = cufftPlanMany(hsibl_cufft_plan_cached, 3, [n3,n2,n1], &
@@ -218,15 +219,20 @@ contains
         call gvgetf_batch_gpu(ng, ndim1, hsibl_kv_d, k1, k2, k3, f_batch_d, w_oc1_d, ng)
         w_oc1(1:ng,1:ndim1) = w_oc1_d(1:ng,1:ndim1)
         deallocate(f_batch_d, w_oc1_d)
-#else
+        else
+#endif
+        fvsm_cpu: block
         complex(8):: f(k1,k2,k3)
         do  i = 1, ndim1
           call gvputf(ng,1,kv,k1,k2,k3,w_oc1(1,i),f)
           call fftz3(f,n1,n2,n3,k1,k2,k3,1,0,1)
           f = f*vsm(:,:,:,isp)
           call fftz3(f,n1,n2,n3,k1,k2,k3,1,0,-1)
-          call gvgetf(ng,1,kv,k1,k2,k3,f,w_oc1(1,i)) !w_oc1(ipw,i) = <MTO(i)|vsm for ith pw
+          call gvgetf(ng,1,kv,k1,k2,k3,f,w_oc1(1,i))
         enddo
+        endblock fvsm_cpu
+#ifdef __GPU
+        endif
 #endif
       endblock fvsm
       ib2loop: do 1010 ib2 = ib1, nbas ! Loop over second of (ib1,ib2) site pairs
@@ -324,19 +330,20 @@ contains
       endblock hsmvsmpw
     enddo ib1loop
 #ifdef __GPU
-    ! Release per-k-point GPU persistent data
-    if(hsibl_gpu_init) then
-      deallocate(hsibl_vsm_d, hsibl_kv_d, hsibl_kv_reshaped)
-      hsibl_gpu_init = .false.
-    endif
-    if(hsibl_cufft_plan_cached /= -1) then
-      block
-        use cufft
-        integer :: cufft_stat
-        cufft_stat = cufftDestroy(hsibl_cufft_plan_cached)
-      endblock
-      hsibl_cufft_plan_cached = -1
-      hsibl_ndim1_cached = -1
+    if(use_gpu) then
+      if(hsibl_gpu_init) then
+        deallocate(hsibl_vsm_d, hsibl_kv_d, hsibl_kv_reshaped)
+        hsibl_gpu_init = .false.
+      endif
+      if(hsibl_cufft_plan_cached /= -1) then
+        block
+          use cufft
+          integer :: cufft_stat
+          cufft_stat = cufftDestroy(hsibl_cufft_plan_cached)
+        endblock
+        hsibl_cufft_plan_cached = -1
+        hsibl_ndim1_cached = -1
+      endif
     endif
 #endif
     deallocate(hr, he, g2, yl, gg, iv, kv, gvv, w_oc1,w_ocf1, w_ocf2,ff) 
