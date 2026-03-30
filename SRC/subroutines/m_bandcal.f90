@@ -418,9 +418,10 @@ contains
       ! === Batched cuSOLVER+Ozaki: all-GPU pipelined ===
       batched_diag: block
         use mpi, only: MPI_WTIME
-        integer, parameter :: NSTR = 4
-        integer(kind=8) :: strms(NSTR)
-        type(cusolverDnHandle) :: cs_str(NSTR)
+        use m_gpu, only: ngpu_ranks
+        integer :: NSTR
+        integer(kind=8), allocatable :: strms(:)
+        type(cusolverDnHandle), allocatable :: cs_str(:)
         complex(8), device, allocatable :: omat_all(:,:,:), Linv_all(:,:,:)
         real(8), device, allocatable :: eo_all(:,:)
         complex(8), device, allocatable :: S_d(:,:), work_dpf(:)
@@ -430,6 +431,9 @@ contains
         integer :: is, jd2, nd2, lw_pf, lw_ev, info_l2, jj2
         t0b = MPI_WTIME()
         nd2 = nd_max
+        NSTR = min(max(1, numprocs / max(1,ngpu_ranks)), ndiag_total)
+        allocate(strms(NSTR), cs_str(NSTR))
+        if(master_mpi) write(stdo,'(a,i3,a,i5)') ' Batched diag: NSTR=',NSTR,' ndiag=',ndiag_total
         do is = 1, NSTR
           istat_g = cudaStreamCreate(strms(is))
           istat_g = cusolverDnCreate(cs_str(is))
@@ -456,38 +460,15 @@ contains
         do is = 1, NSTR; istat_g = cudaStreamSynchronize(strms(is)); enddo
         deallocate(work_dpf)
         t1b = MPI_WTIME()
-        ! === Phase A2a: L^{-1} via GPU cuBLAS ztrsm on streams ===
-        ! Solve L * X = I → X = L^{-1} for each k-point
-        block
-          use cublas_v2
-          type(cublasHandle) :: cb_str(NSTR)
-          complex(8), device, allocatable :: L_dk(:,:), I_dk(:,:)
-          complex(8), allocatable :: Ih(:,:)
-          integer :: is2
-          ! Create per-stream cuBLAS handles
-          do is2 = 1, NSTR
-            istat_g = cublasCreate(cb_str(is2))
-            istat_g = cublasSetStream(cb_str(is2), strms(is2))
-          enddo
-          ! Prepare identity on host (reuse)
-          allocate(Ih(nd2,nd2)); Ih = (0d0,0d0)
-          do jj2 = 1, nd2; Ih(jj2,jj2) = (1d0,0d0); enddo
-          ! Submit all ztrsm on streams (pipelined, no sync between k-points)
-          do jd2 = 1, ndiag_total
-            is2 = mod(jd2-1, NSTR) + 1
-            allocate(L_dk(nd2,nd2), I_dk(nd2,nd2))
-            L_dk = omat_all(:,:,jd2)  ! L from zpotrf (lower triangle)
-            I_dk = Ih                  ! identity
-            istat_g = cublasZtrsm_v2(cb_str(is2), CUBLAS_SIDE_LEFT, CUBLAS_FILL_MODE_LOWER, &
-                 CUBLAS_OP_N, CUBLAS_DIAG_NON_UNIT, nd2, nd2, (1d0,0d0), L_dk, nd2, I_dk, nd2)
-            Linv_all(:,:,jd2) = I_dk  ! L^{-1} (will sync via device-to-device copy)
-            deallocate(L_dk, I_dk)
-          enddo
-          ! Sync all streams
-          do is2 = 1, NSTR; istat_g = cudaStreamSynchronize(strms(is2)); enddo
-          do is2 = 1, NSTR; istat_g = cublasDestroy(cb_str(is2)); enddo
-          deallocate(Ih)
-        endblock
+        ! === Phase A2a: L^{-1} via blocked Ozaki GEMM ===
+        allocate(Lh(nd2,nd2))
+        do jd2 = 1, ndiag_total
+          Lh = omat_all(:,:,jd2)
+          do jj2 = 1, nd2-1; Lh(1:jj2, jj2+1) = (0d0,0d0); enddo
+          call blocked_ztrtri_ozaki(nd2, Lh, 64)
+          Linv_all(:,:,jd2) = Lh
+        enddo
+        deallocate(Lh)
         ! === Phase A2b: All H' projection on GPU (pipelined on streams) ===
         do jd2 = 1, ndiag_total
           is = mod(jd2-1, NSTR) + 1
@@ -504,6 +485,7 @@ contains
         enddo
         t2b = MPI_WTIME()
         ! === Phase B: ALL Zheevd on streams (NO per-k sync) ===
+        ! === Phase B: cuSOLVER Zheevd on streams (all GPU) ===
         block
           complex(8), device, allocatable :: dummy_d(:,:)
           real(8), device, allocatable :: dummy_e(:)
@@ -522,7 +504,7 @@ contains
         do is = 1, NSTR; istat_g = cudaStreamSynchronize(strms(is)); enddo
         deallocate(work_dpf)
         t3b = MPI_WTIME()
-        ! === Phase D: D2H eigenvalues + back-transform + store ===
+        ! === Phase D: D2H eigenvalues + Ozaki back-transform + store ===
         allocate(eo_h(nd2, ndiag_total)); eo_h = eo_all; deallocate(eo_all)
         do jd2 = 1, ndiag_total
           nd = ndimhx_batch(jd2); nev = nmx_batch(jd2)
@@ -557,6 +539,7 @@ contains
           istat_g = cusolverDnDestroy(cs_str(is))
           istat_g = cudaStreamDestroy(strms(is))
         enddo
+        deallocate(strms, cs_str)
         if(master_mpi) write(stdo,'(a,f8.3,a,3(a,f6.3))') ' Batched diag: ',MPI_WTIME()-t0b,' s', &
              ' zpotrf=',t1b-t0b,' proj+inv=',t2b-t1b,' zheevd=',t3b-t2b
         deallocate(hamm_batch, ovlm_batch, ndimhx_batch, isp_batch, iq_batch, nmx_batch)
@@ -1174,41 +1157,83 @@ contains
     enddo
   end subroutine dfqkkl
 #ifdef __GPU
+  subroutine ozaki_zhetrd(n, A, nb, diag, subdiag, tau, W, cb_h)
+    !! Blocked Householder tridiagonalization with Ozaki GEMM trailing update.
+    use cublas_v2
+    integer, intent(in) :: n, nb
+    complex(8), intent(inout) :: A(n, n)
+    real(8), intent(out) :: diag(n), subdiag(max(1,n-1))
+    complex(8), intent(out) :: tau(max(1,n-1)), W(n, nb)
+    type(cublasHandle), intent(in) :: cb_h
+    integer :: j, jb, nn, mt, istat2
+    do j = 1, n-1, nb
+      jb = min(nb, n - j)
+      nn = n - j - jb
+      call zlatrd('L', n-j+1, jb, A(j,j), n, subdiag(j), tau(j), W(j,1), n)
+      if(nn > 0) then
+        mt = nn + 1
+        block
+          complex(8), device, allocatable :: V_d(:,:), W_d(:,:), T_d(:,:)
+          complex(8), allocatable :: Ah(:,:), Th(:,:)
+          allocate(V_d(mt,jb), W_d(mt,jb), T_d(mt,mt))
+          V_d = A(j+jb:n, j:j+jb-1)
+          W_d = W(j+jb:n, 1:jb)
+          istat2 = cublasZgemm_v2(cb_h, CUBLAS_OP_N, CUBLAS_OP_C, mt, mt, jb, &
+               (1d0,0d0), V_d, mt, W_d, mt, (0d0,0d0), T_d, mt)
+          allocate(Ah(mt,mt), Th(mt,mt))
+          Ah = A(j+jb:n, j+jb:n); Th = T_d
+          Ah = Ah - Th - conjg(transpose(Th))
+          A(j+jb:n, j+jb:n) = Ah
+          deallocate(Ah, Th, V_d, W_d, T_d)
+        endblock
+      endif
+    enddo
+    do j = 1, n; diag(j) = dble(A(j,j)); enddo
+  end subroutine
+
   subroutine blocked_ztrtri_ozaki(n, L, nb)
-    !! Blocked lower-triangular inversion. Off-diagonal updates via Ozaki GEMM.
-    !! LAPACK ztrtri algorithm: ztrmm→Ozaki GEMM, ztrsm→small_inv+Ozaki GEMM.
-    use m_blas, only: zmm_oz => zmm_d, m_op_C_oz => m_op_C
+    !! Blocked lower-triangular inversion via Ozaki GEMM.
+    !! Loop bottom→top (LAPACK order for lower triangular).
+    use m_blas, only: zmm_oz => zmm_d
     integer, intent(in) :: n, nb
     complex(8), intent(inout) :: L(n, n)
     complex(8), device, allocatable :: Lblk_d(:,:), B_d(:,:), T_d(:,:), Dinv_d(:,:)
     complex(8), allocatable :: Dinv_h(:,:)
-    integer :: j, jb, nn, istat_oz, info_oz, k2
-    do j = 1, n, nb
+    integer :: j, jb, nn, jstart, istat_oz, info_oz, jz
+    jstart = ((n-1)/nb)*nb + 1
+    do j = jstart, 1, -nb
       jb = min(nb, n - j + 1)
       nn = n - j - jb + 1
       if(nn > 0) then
-        ! Step 1: T = -L(j+jb:n, j+jb:n) * L(j+jb:n, j:j+jb-1)  [Ozaki GEMM]
-        ! L(j+jb:n, j+jb:n) is already inverted from previous iterations
+        ! Step 1: T = -Linv_below * B  [Ozaki GEMM]
+        ! Linv_below = L(j+jb:n, j+jb:n) already inverted (bottom→top)
         allocate(Lblk_d(nn,nn), B_d(nn,jb), T_d(nn,jb))
         Lblk_d = L(j+jb:n, j+jb:n)
         B_d = L(j+jb:n, j:j+jb-1)
         istat_oz = zmm_oz(Lblk_d, B_d, T_d, m=nn, n=jb, k=nn)
-        ! Negate
-        block; complex(8),allocatable::th(:,:); allocate(th(nn,jb)); th=T_d; th=-th; T_d=th; deallocate(th); endblock
-        ! Step 2: Invert diagonal block jb×jb on CPU
+        ! Negate via host
+        block; complex(8),allocatable::th(:,:)
+        allocate(th(nn,jb)); th=T_d; th=-th; T_d=th; deallocate(th); endblock
+        ! Step 2: Invert diagonal block on CPU
         allocate(Dinv_h(jb,jb))
         Dinv_h = L(j:j+jb-1, j:j+jb-1)
         call ztrtri('L', 'N', jb, Dinv_h, jb, info_oz)
-        L(j:j+jb-1, j:j+jb-1) = Dinv_h
-        ! Step 3: T = T * Dinv  [Ozaki GEMM]
-        allocate(Dinv_d(jb,jb))
-        Dinv_d = Dinv_h
+        do jz = 1, jb-1; Dinv_h(1:jz, jz+1) = (0d0,0d0); enddo
+        ! Step 3: B = T * Dinv  [Ozaki GEMM]
+        allocate(Dinv_d(jb,jb)); Dinv_d = Dinv_h
         istat_oz = zmm_oz(T_d, Dinv_d, B_d, m=nn, n=jb, k=jb)
+        ! Write back
         L(j+jb:n, j:j+jb-1) = B_d
+        L(j:j+jb-1, j:j+jb-1) = Dinv_h
         deallocate(Lblk_d, B_d, T_d, Dinv_d, Dinv_h)
       else
-        ! Last block: invert on CPU
-        call ztrtri('L', 'N', jb, L(j,j), n, info_oz)
+        ! Bottom-most block: just invert on CPU
+        allocate(Dinv_h(jb,jb))
+        Dinv_h = L(j:j+jb-1, j:j+jb-1)
+        call ztrtri('L', 'N', jb, Dinv_h, jb, info_oz)
+        do jz = 1, jb-1; Dinv_h(1:jz, jz+1) = (0d0,0d0); enddo
+        L(j:j+jb-1, j:j+jb-1) = Dinv_h
+        deallocate(Dinv_h)
       endif
     enddo
   end subroutine
