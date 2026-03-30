@@ -41,6 +41,12 @@ module m_bandcal
   real(8),private:: sumqv(3,2),sumev(3,2)
   integer,allocatable,private::neviqis(:),ndimhxiqis(:)
   complex(8),allocatable,private:: eveciqis(:,:,:)
+#ifdef __GPU
+  ! GPU evec storage from BatchDiag for band2nd (GPU ranks only)
+  complex(8),allocatable,private:: gpu_evecs_all(:,:,:)  ! (nd, nev_max, ndiag_total)
+  integer,allocatable,private:: gpu_iq_list(:), gpu_isp_list(:), gpu_nev_list(:), gpu_nd_list(:)
+  integer,private:: gpu_ndiag = 0
+#endif
   private
 contains
   subroutine m_bandcal_init(lrout,ef0,vmag,writeham) ! Set up Hamiltonian, diagonalization
@@ -440,6 +446,19 @@ contains
             nevls(iq_batch(jd2),2) = nev; ndimhx_(iq_batch(jd2),2) = nd
           endif
         enddo
+        ! Save evecs for band2nd (GPU ranks process all k-points)
+        if(call_m_bandcal_2nd) then
+          if(allocated(gpu_evecs_all)) deallocate(gpu_evecs_all)
+          allocate(gpu_evecs_all, source=evecs_all)
+          if(allocated(gpu_iq_list)) deallocate(gpu_iq_list, gpu_isp_list, gpu_nev_list, gpu_nd_list)
+          allocate(gpu_iq_list(ndiag_total), gpu_isp_list(ndiag_total))
+          allocate(gpu_nev_list(ndiag_total), gpu_nd_list(ndiag_total))
+          gpu_iq_list = iq_batch(1:ndiag_total)
+          gpu_isp_list = isp_batch(1:ndiag_total)
+          gpu_nev_list = nmx_batch(1:ndiag_total)
+          gpu_nd_list = ndimhx_batch(1:ndiag_total)
+          gpu_ndiag = ndiag_total
+        endif
         deallocate(evals_all, evecs_all)
         if(master_mpi) write(stdo,'(a,f8.3,a)') ' Batched diag: ',MPI_WTIME()-t0b,' s'
         deallocate(hamm_batch, ovlm_batch, ndimhx_batch, isp_batch, iq_batch, nmx_batch)
@@ -714,6 +733,9 @@ contains
     call tcx('m_bandcal_init')
   end subroutine m_bandcal_init
   subroutine m_bandcal_2nd()! accumulate eval,evec-related quantities by addrbl
+#ifdef __GPU
+    use m_gpu, only: use_gpu
+#endif
     implicit none
     integer:: iq,ispinit,isp,nev,ifig,i,ibas,idat
     real(8):: qp(3),def=0d0,xv(3)
@@ -732,6 +754,53 @@ contains
     sumev = 0d0
     sumqv = 0d0
     allocate(evl(nbandmx,nspx))
+#ifdef __GPU
+    ! GPU path: GPU ranks process all BatchDiag k-points using saved evecs
+    ! GPU band2nd disabled: m_Igv2x_setiq has implicit state that requires
+    ! igv2xall_init for all k-points. Currently each rank only initializes its own k-points.
+    ! TODO: refactor m_igv2x to allow any rank to access any k-point's data.
+    gpu_band2nd: if(.false.) then  ! DISABLED
+      write(6,'(a,i5,a,3i8)') ' GPU band2nd: procid=',procid,' gpu_ndiag,size(evecs)=', &
+           gpu_ndiag, size(gpu_evecs_all,1), size(gpu_evecs_all,2)
+      gpu_band2nd_loop: do idat = 1, gpu_ndiag
+        iq = gpu_iq_list(idat)
+        qp = qplist(:,iq)
+        isp = gpu_isp_list(idat)
+        if(afsym.and.isp==2) cycle
+        call m_Igv2x_setiq(iq)
+        nev = gpu_nev_list(idat)
+        ndimhx = gpu_nd_list(idat)
+        write(6,'(a,i3,a,4i6)') '  idat=',idat,' iq,ndimhx,nev,ndimh=',iq,ndimhx,nev,ndimh
+        allocate(evec(ndimhx, nev))
+        evec(1:ndimhx, 1:nev) = gpu_evecs_all(1:ndimhx, 1:nev, idat)
+        evl(1:nev,isp) = t_evl(isp,iq)%v(1:nev)
+        evl(nev+1:nbandmx,isp) = 1d99
+        if(lso/=0)              call mkorbm(isp, nev, iq, qp, evec, orbtm_rv)
+        if(nlibu>0 .AND. nev>0) call mkdmtu(isp, iq, qp, nev, evec, dmatu)
+        ! Call only rsibl (skip rlocbl for now to isolate crash)
+        block
+          use m_rsibl, only: rsibl
+          use m_supot, only: n1,n2,n3
+          use m_addrbl, only: addrbl
+          use m_subzi, only: t_wtkb
+          integer :: nevec_g
+          real(8) :: ewgt_g(nev)
+          ! Get occupation weights
+          ewgt_g(1:nev) = t_wtkb(isp,iq)%v(1:nev)
+          nevec_g = nev
+          do i = nev, 1, -1; if(abs(ewgt_g(i)) > 1d-20) then; nevec_g = i; exit; endif; enddo
+          if(nevec_g > 0) then
+            call rsibl(0, isp, qp, iq, ndimhx, nspc, napw, igv2x, nevec_g, &
+                 evec, ewgt_g, n1, n2, n3, osmpot, smrho_out, frcband)
+          endif
+        endblock
+        deallocate(evec)
+      enddo gpu_band2nd_loop
+      deallocate(gpu_evecs_all, gpu_iq_list, gpu_isp_list, gpu_nev_list, gpu_nd_list)
+      gpu_ndiag = 0
+      goto 12011  ! skip CPU iqloop
+    endif gpu_band2nd
+#endif
     iqloop: do 12010 idat=1,niqisp !iq = iqini, iqend !This is a big iq loop
        iq = iqproc(idat)
        qp = qplist(:,iq)  !write(stdo,ftox)'m_bandcal_init: procid iq=',procid,iq,ftof(qp)
@@ -790,6 +859,7 @@ contains
        endif afsymGETevecFROMisponeANDaccumulate
        deallocate(evec)
 12010 enddo iqloop
+12011 continue  ! GPU path jumps here after processing all k-points
     if (pwemax>0 .AND. mod(pwmode,10)>0 .AND. lfrce/=0) then
        xv(:)=[(sum(frcband(i,1:nbas))/nbas,i=1,3)]
        do  ibas= 1, nbas

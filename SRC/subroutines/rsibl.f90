@@ -14,6 +14,11 @@ contains
     use m_sugcut,only:ngcut
     use m_hsibl,only: hsibl,hsibl1
     use m_blas, only: gemm => zmm_h
+#ifdef __GPU
+    use m_blas, only: gemm_d => zmm_d
+    use m_gpu, only: use_gpu
+    use cudafor
+#endif
     !i   lfrce :if nonzero, accumulate contribution to force
     !i   nbas  :size of basis
     !i   lfrce :1 calculate contribution to forces
@@ -104,8 +109,16 @@ contains
       integer :: ngmin, istat, ngmin_ib, ngmax_ib
       complex(8) :: cfac, beta
       complex(8), allocatable :: cwork(:,:),psi_ib(:,:,:)
+#ifdef __GPU
+      complex(8), device, allocatable :: evec_d(:,:,:), cwork_d(:,:), psi_ib_d(:,:,:)
+      complex(8), device :: beta_d
+      if(use_gpu) then
+        allocate(evec_d(ndimh, nspc, nevec))
+        evec_d = evec
+      endif
+#endif
       do ib = 1, nbas
-         is=ispec(ib) 
+         is=ispec(ib)
          ncut=ngcut(:,:,is)
          phase = [(exp(-img*tpi*sum(pos(:,ib)*(q+matmul(qlat,igv(ig,:))))),ig=1,ng)]
          call orblib(ib) !Return norb,ltab,ktab,offl
@@ -116,6 +129,12 @@ contains
          allocate(psi_ib(ngmax_ib,nspc,nevec))
          psi_ib(ngmin_ib+1:ngmax_ib,:,:) = (0d0, 0d0)
          beta = (0d0, 0d0)
+#ifdef __GPU
+         if(use_gpu) then
+           allocate(psi_ib_d(ngmax_ib, nspc, nevec))
+           psi_ib_d = (0d0, 0d0)
+         endif
+#endif
          do io = 1, norb
             if (blks(io) == 0) cycle
             jo = ntab(io)
@@ -129,7 +148,7 @@ contains
             nlm2 = nlm1 + blks(io)-1
             rsm = rtab(ir)
             e   = etab(ie)
-            ncutt=ncut(lt+1,kp) 
+            ncutt=ncut(lt+1,kp)
             fac = 4d0*pi*dexp(e*rsm*rsm*0.25d0)/vol
             ngmin = min(ng,ncutt)
             if(ngmin > ngmax) call rx0('ERROR rsibl: ngmin > ngmax')
@@ -143,8 +162,20 @@ contains
                cfac = fac*(0d0,-1d0)**(l+2)
                cwork(1:ngmin,ilm) = he(1:ngmin,ie)*hr(1:ngmin,ir)*yl(1:ngmin,ilm)*phase(1:ngmin)*cfac
             enddo
+#ifdef __GPU
+            if(use_gpu) then
+              allocate(cwork_d(ngmin, blks(io)))
+              cwork_d = cwork(1:ngmin, nlm1:nlm2)
+              istat = gemm_d(cwork_d, evec_d(ioff+1,1,1), psi_ib_d, m=ngmin, n=nspc*nevec, k=blks(io), &
+                        &  beta=beta, ldB=ndimh, ldC=ngmax_ib)
+              deallocate(cwork_d)
+            else
+#endif
             istat = gemm(cwork(1,nlm1), evec(ioff+1,1,1), psi_ib, m=ngmin, n=nspc*nevec, k=blks(io), &
                       &  beta=beta, ldB=ndimh, ldC=ngmax_ib)
+#ifdef __GPU
+            endif
+#endif
             beta = (1d0, 0d0)
             deallocate(cwork)
             ! MO replased the above gemm version 2024-11-07
@@ -156,10 +187,19 @@ contains
             !    enddo
             ! enddo
          enddo
+#ifdef __GPU
+         if(use_gpu) then
+           psi_ib = psi_ib_d  ! D2H
+           deallocate(psi_ib_d)
+         endif
+#endif
          psi(1:ngmax_ib,1:nspc,1:nevec) = psi(1:ngmax_ib,1:nspc,1:nevec) + psi_ib(1:ngmax_ib,1:nspc,1:nevec)
          if(lfrce /= 0) psi0(1:ngmax_ib,1:nspc,1:nevec,ib) = psi_ib(1:ngmax_ib,1:nspc,1:nevec)
          deallocate(psi_ib)
       enddo
+#ifdef __GPU
+      if(use_gpu) deallocate(evec_d)
+#endif
     endblock rsibl1
     ! psi(:,:,:) = sum(psi0(:,:,:,1:nbas),dim=4)
     if(napw>0) psi(ivp(:),:,1:nevec) = psi(ivp(:),:,1:nevec) + evec(nlmto+1:nlmto+napw,:,1:nevec)/vol**.5 !add PW(G) to psi

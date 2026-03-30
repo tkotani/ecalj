@@ -147,11 +147,16 @@ contains
     writeham= cmdopt0('--writeham') ! Write out Hamiltonian HamiltonianPMT.*
     ! if(writeham) open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
     ! if(writeham) write(ifih)procid,numprocs
+    bndfp_timing: block
+    use mpi, only: MPI_WTIME
+    real(8) :: t_mkpot1, t_band, t_fermi, t_band2nd, t_mkpot2, t_start
+    t_start = MPI_WTIME()
     GetPotentialFromDensity: block
       if(llmfgw) call m_mkpot_novxc(smrho,orhoat) !Get osigx,otaux oppix spotx, which are onsite integrals without XC part for GWdriver: lmfgw mode
       call m_mkpot_init(smrho,orhoat)! From smrho and rhoat, get one-particle potential and related quantities. mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
       if(cmdopt0('--quit=mkpot')) call rx0('--quit=mkpot')
     endblock GetPotentialFromDensity
+    t_mkpot1 = MPI_WTIME() - t_start
     call m_subzi_init() ! Setup weight wtkb for BZ integration.  ! NOTE: if (wkp.* exists).and.lmet==2, wkp is used for wkkb.
     if(lpztail) call sugcut(2) ! lpztail: if T, local orbital of 2nd type(hankel tail). Hankel's e of local orbital of PZ>10 (hankel tail mode) is changing. ==>T.K think current version of PZ>10 might not give so useful advantages.
     CorelevelSpectroscopyINIT: if(cmdopt0('--cls')) then
@@ -184,8 +189,10 @@ contains
     sttime = MPI_WTIME() ! if(nspc==2) call m_addrbl_allocate_swtk(ndham,nsp,nkp)
     if(cmdopt0('--mkprocar')) call m_procar_init()
     GetHamiltonianAndDiagonalize: block
+      t_band = MPI_WTIME()
       call m_bandcal_init(lrout,eferm,vmag,writeham) ! Get Hamiltonian and diagonalization resulting evl,evec,evlall.
-      entime = MPI_WTIME()                
+      entime = MPI_WTIME()
+      t_band = entime - t_band
       if(master_mpi) write(stdo,"(a,f9.4)") ' ... Done MPI k-loop: elapsed time=',entime-sttime
       ! if(writeham) close(ifih)
       if(writeham) call rx0('Done --writeham: --fullmesh may be needed. HamiltonianMTO* genereted')
@@ -242,6 +249,7 @@ contains
          endif Writebandmode
       endif
     endblock BandPLOTmode
+    t_fermi = MPI_WTIME()
     GetFermiEnergy:block
       use m_subzi,only: m_subzi_bcast_wtkb
       if(master_mpi) then
@@ -324,10 +332,13 @@ contains
         enddo
       enddo
     endif WRITEeigenvaluesConsole
-    GetDensity: if(lrout>0) then 
+    t_fermi = MPI_WTIME() - t_fermi
+    GetDensity: if(lrout>0) then
+      t_band2nd = MPI_WTIME()
       call mpi_barrier(comm,ierr)
       call m_bandcal_2nd()  !accumulate products of eigenfunctions to obtian smooth density smrho_out, and so on.
       call m_bandcal_allreduce() 
+      t_band2nd = MPI_WTIME() - t_band2nd
     endif GetDensity
     CorelevelSpectroscopy2: if(cmdopt0('--cls')) then !m_clsmode_set1 is called in m_bandcal
       dosw(1)= emin  - 0.5d0     ! lowest energy limit to plot dos
@@ -363,6 +374,7 @@ contains
     endif WRITEsmrhoTOxsf
     call m_mkrout_init() !Get force frcbandsym, symmetrized atomic densities orhoat_out, and weights hbyl,qbyl
     if(.not.pnufix) call pnunew(eferm)   !pnuall are revised. !  New boundary conditions pnu for phi and phidot
+    t_mkpot2 = MPI_WTIME()
     call m_mkehkf_etot1(sev, eharris) !Evaluate_HarrisFoukner_energy (note: we now use NonMagneticCORE mode as default)
     eksham = 0d0
     if(lrout/=0) then
@@ -403,6 +415,10 @@ contains
     endif
     ham_ehf= eharris  !Harris total energy
     ham_ehk= eksham   !Hohenberg-Kohn-Sham total energy
+    t_mkpot2 = MPI_WTIME() - t_mkpot2
+    if(master_mpi) write(stdo,'(a,5(a,f8.2))') ' BNDFP timing(s):', &
+         ' mkpot1=',t_mkpot1,' band=',t_band,' fermi=',t_fermi,' band2nd=',t_band2nd,' mkpot2=',t_mkpot2
+    endblock bndfp_timing
     call m_mkpot_deallocate()
     call m_bandcal_clean()
     call tcx('bndfp')
