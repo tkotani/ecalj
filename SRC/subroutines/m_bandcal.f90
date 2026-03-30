@@ -774,6 +774,12 @@ contains
     logical:: cmdopt0
     call tcn('m_bandcal_2nd')
     if(master_mpi) write(stdo,ftox)'m_bandcal_2nd: to fill eigenfunctions**2 up to Efermi'
+    ! Pre-compute rsibl setup data in shared memory (all ranks, parallel)
+    rsibl_setup_block: block
+      use m_rsibl_setup, only: rsibl_setup_all, rsibl_setup_done
+      if(.not. rsibl_setup_done) &
+        call rsibl_setup_all(nkp, iqproc, isproc, niqisp)
+    endblock rsibl_setup_block
     call dfqkkl( oqkkl ) !zero clear
     call dfqkkl( oeqkkl ) !zero clear if(lekkl==1) 
     if (lfrce>0)  frcband  = 0d0
