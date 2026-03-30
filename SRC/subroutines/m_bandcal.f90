@@ -759,7 +759,7 @@ contains
     ! GPU band2nd disabled: m_Igv2x_setiq has implicit state that requires
     ! igv2xall_init for all k-points. Currently each rank only initializes its own k-points.
     ! TODO: refactor m_igv2x to allow any rank to access any k-point's data.
-    gpu_band2nd: if(.false.) then  ! DISABLED
+    gpu_band2nd: if(.false.) then  ! TEMP disabled
       write(6,'(a,i5,a,3i8)') ' GPU band2nd: procid=',procid,' gpu_ndiag,size(evecs)=', &
            gpu_ndiag, size(gpu_evecs_all,1), size(gpu_evecs_all,2)
       gpu_band2nd_loop: do idat = 1, gpu_ndiag
@@ -777,23 +777,7 @@ contains
         evl(nev+1:nbandmx,isp) = 1d99
         if(lso/=0)              call mkorbm(isp, nev, iq, qp, evec, orbtm_rv)
         if(nlibu>0 .AND. nev>0) call mkdmtu(isp, iq, qp, nev, evec, dmatu)
-        ! Call only rsibl (skip rlocbl for now to isolate crash)
-        block
-          use m_rsibl, only: rsibl
-          use m_supot, only: n1,n2,n3
-          use m_addrbl, only: addrbl
-          use m_subzi, only: t_wtkb
-          integer :: nevec_g
-          real(8) :: ewgt_g(nev)
-          ! Get occupation weights
-          ewgt_g(1:nev) = t_wtkb(isp,iq)%v(1:nev)
-          nevec_g = nev
-          do i = nev, 1, -1; if(abs(ewgt_g(i)) > 1d-20) then; nevec_g = i; exit; endif; enddo
-          if(nevec_g > 0) then
-            call rsibl(0, isp, qp, iq, ndimhx, nspc, napw, igv2x, nevec_g, &
-                 evec, ewgt_g, n1, n2, n3, osmpot, smrho_out, frcband)
-          endif
-        endblock
+        call addrbl(isp,qp,iq, osmpot,vconst,osig,otau,oppi,evec,evl,nev, smrho_out, sumqv, sumev, oqkkl,oeqkkl, frcband)
         deallocate(evec)
       enddo gpu_band2nd_loop
       deallocate(gpu_evecs_all, gpu_iq_list, gpu_isp_list, gpu_nev_list, gpu_nd_list)
