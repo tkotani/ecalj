@@ -1,7 +1,7 @@
 module m_mpi !MPI utility (unified from m_mpi + m_MPItk)
+  use mpi
   use m_lgunit, only: stdo, stdl
   implicit none
-  include "mpif.h"
   integer :: mpi__size
   integer :: mpi__rank
   logical :: mpi__root
