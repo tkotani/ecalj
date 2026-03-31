@@ -52,7 +52,7 @@ contains
     logical:: irpos,hsign,iatom
     character(256):: strn,strn2
     real(8):: hess(natrlx,natrlx),p_rv(natrlx,10),pos0(3,nbas),poss(3,nbas)
-    include "mpif.h"
+    use mpi
     call tcn('lmfp')
     ipr = iprint()
     poss = rv_a_opos ! Use atomic positon in m_lattic

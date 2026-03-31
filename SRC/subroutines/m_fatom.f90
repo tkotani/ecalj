@@ -19,7 +19,7 @@ module m_fatom
 contains
   subroutine mpibc1_s_spec(ssp)
     implicit none
-    include 'mpif.h'
+    use mpi
     type(s_spec):: ssp
     integer :: master=0,ierr
     call mpi_bcast(ssp%ctail, 1,MPI_REAL8 , master, comm,ierr)

@@ -83,7 +83,7 @@ contains
     character(1):: lorb(1:3)=['p','d','l'],dig(1:9)=['1','2','3','4','5','6','7','8','9']
     character(1):: lsym(0:n0-1)=['s','p','d','f','g','5','6','7','8','9']
     character(256)::aaa
-    include 'mpif.h'
+
     call tcn('m_hamindex_init')
     ndham=ndhamx/nspc
     if(.not.master_mpi) goto 9999

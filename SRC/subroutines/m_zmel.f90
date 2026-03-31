@@ -143,7 +143,7 @@ contains
     use m_readeigen,only: readcphif => readcphif_mpi, readgeigf => readgeigf_mpi
     use m_itq,only: itq, ntq
     implicit none
-    include "mpif.h"
+    use mpi
     intent(in)::           q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc, iprx,zmelconjg
     integer, optional, intent(in) :: comm
     logical, intent(in) :: is_m_basis, mpi_mode

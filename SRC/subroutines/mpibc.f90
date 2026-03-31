@@ -76,7 +76,7 @@ subroutine mpibc1(vec,n,cast,mlog,funnam,label)  !- Broadcasts a vector from mas
   !i   funnam:string used in writing message (function name)
   !i   label :string used in writing message (variable name)
   implicit none
-  include "mpif.h"
+  use mpi
   integer :: ierr
   integer :: MAX_PROCS
   parameter (MAX_PROCS = 100)
@@ -121,7 +121,7 @@ subroutine mpibc2(vec,n,cast,mlog,funnam,label) !Performs MPI_ALLREDUCE on a vec
   !r Remarks
   !r   ALLREDUCE sums the contributions from all the individual threads
   implicit none
-  include "mpif.h"
+  use mpi
   integer ::ierr
   integer :: MAX_PROCS
   parameter (MAX_PROCS = 100)

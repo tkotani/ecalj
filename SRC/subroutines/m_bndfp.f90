@@ -109,7 +109,7 @@ contains
     
     !See history github ecalj after 2009.
     implicit none
-    include "mpif.h"
+    use mpi
     character(10) :: head
     integer:: plbnd,nk1,nk2,nk3,nx,ny, iter,i,ifi,ipr,iq,isp,jsp,iprint,ipts,ierr
     integer:: ifih,ifii,ib,ix,ifimag,nevmin,nnn,ikp

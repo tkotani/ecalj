@@ -23,7 +23,7 @@ contains
     character*100 ext
     integer :: i, fopn, i1mach, fhndl,ierr,procid
     integer,save:: lgunit1=0,lgunit2=0,lgunit3=0
-    include 'mpif.h'
+
     lgunit = 6
     if (i .eq. 1) return
     if (i .eq. 2) then

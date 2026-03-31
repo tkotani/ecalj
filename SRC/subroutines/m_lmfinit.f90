@@ -106,7 +106,7 @@ contains
     !   rdhessr: T read hessian matrix, xtolr: relaxation x-tolerance, gtolr: relaxation g-tolerance, stepr: step length
     !   nkillr: Remove hessian after this many steps
     implicit none
-    include "mpif.h" 
+    use mpi
     character,intent(in)::  prgnam*(*)
     integer,parameter:: recln=512
     character:: strn*(recln),strn2*(recln)

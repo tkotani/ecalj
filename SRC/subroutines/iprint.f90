@@ -4,7 +4,7 @@ integer function iprint()!print verbose setting
   integer :: mpipid,procid,ierr,comm
   integer:: verbose_in,setprint,ix,set0,setprint0,vb
   integer,save:: verbose0=30,verbose=30
-  include "mpif.h"
+  use mpi
   comm=MPI_COMM_WORLD
   call MPI_COMM_RANK(comm, procid, ierr )
   iprint = verbose

@@ -92,7 +92,7 @@ contains
     logical,optional:: ecoreexit !    real(8):: rmax(nclass)
     type(stopwatch) :: sw
     logical :: show_time = .false.
-    include "mpif.h"
+
     call tcn ('m_sugw_init')
     debug=cmdopt0('--debugsugw')
     show_time = cmdopt0('--show_time')

@@ -103,7 +103,7 @@ contains
     real(8),allocatable:: w_oqkl(:), w_oa(:,:,:,:),w_oaa(:), cn_rv(:,:,:,:),rho1bk(:),rho2bk(:)
     complex(8):: smrnew(n1,n2,n3,nsp),smrho(n1,n2,n3,nsp)
     complex(8),allocatable :: cg1_zv(:), cg2_zv(:),fkl_zv(:), smrnewbk(:,:,:,:),w_owk(:),cn_rvc(:),co_rvc(:)
-    include "mpif.h"
+    use mpi
     call tcn('mixrho')
     call MPI_COMM_RANK( comm, procid, ierr )
     call getpr(ipr)
@@ -359,7 +359,7 @@ contains
     !r                                             w/ l=0 part zeroed out
     !r     ... nda = 2*ng0 + 2*nr + (1+kmxr)*nlml
     implicit none
-    include "mpif.h"
+    use mpi
     integer :: procid, master, numprocs, ierr
     character(20) :: ext
     logical :: readerror!,lddump

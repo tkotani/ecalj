@@ -43,7 +43,7 @@ contains
     complex(8) ,allocatable :: cv_zv(:)
     character msg*23, strn*120
     logical :: lfail, l_dummy_isanrg,isanrg,mlog
-    include 'mpif.h'
+    use mpi
     call tcn('rdovfa')
     ipr   = iprint()
     msg   = '         File mismatch:'
