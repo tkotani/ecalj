@@ -112,12 +112,6 @@ endif()
 add_executable(dummy ./dummy.f90)
 target_link_libraries(dummy ${LIBM})
 
-# --- gaugm.f90 ICE workaround for nvfortran ---
-# nvfortran ICE on gaugm.f90 with -O2 or -acc. The workaround is handled
-# by InstallAll.py which compiles gaugm.f90 separately with -O1 and
-# freezes its timestamp so CMake skips recompilation.
-# See also: build_nvfortran.sh for the manual equivalent.
-
 # --- Main Library and Executables ---
 set(LIB ecaljF)
 add_library(${LIB} SHARED ${SOURCES})

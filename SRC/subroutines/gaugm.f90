@@ -53,7 +53,7 @@ contains
           vd2xx(:,l,i2)= merge([0d0,0d0,1d0],[v2(l,i2),d2(l,i2),0d0], i2> nf2s)
        enddo
     enddo
-    isploop: do concurrent (i=1:nsp)
+    isploop: do i=1,nsp !do concurrent triggers nvfortran 26.1 ICE with -O2
        vsms=y0*vsm(1:nr,1,i)!Spherical part of the smooth potential
        ppi0=0d0
        qm=0d0
