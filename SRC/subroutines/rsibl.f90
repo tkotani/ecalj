@@ -7,10 +7,10 @@ module  m_rsibl
 
   ! k-independent tbhsi tables
   integer, parameter :: nermx = 100
-  integer, protected, public, save :: rsibl_net, rsibl_nrt, rsibl_ltop, rsibl_nlmtop
-  real(8), public, save :: etab_s(nermx), rtab_s(nermx)
-  integer, public, save :: ipet_s(10,5,nermx), iprt_s(10,5,nermx)
-  logical, save :: tbhsi_done = .false.
+  integer,        protected, public, save :: rsibl_net, rsibl_nrt, rsibl_ltop, rsibl_nlmtop
+  real(8), public,protected,save :: etab_s(nermx), rtab_s(nermx)
+  integer, public,protected,save :: ipet_s(10,5,nermx), iprt_s(10,5,nermx)
+  logical,        protected,save :: tbhsi_done = .false.
 
   ! Shared memory arrays for all k-points (padded to ng_max)
   integer, protected, public, save :: rsibl_ng_max = 0

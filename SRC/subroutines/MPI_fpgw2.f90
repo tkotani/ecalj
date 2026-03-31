@@ -1,12 +1,15 @@
-module m_mpi !MPI utility for fpgw
+module m_mpi !MPI utility (unified from m_mpi + m_MPItk)
+  use m_lgunit, only: stdo, stdl
   implicit none
   include "mpif.h"
   integer :: mpi__size
   integer :: mpi__rank
   logical :: mpi__root
   integer :: comm
-  ! integer :: mpi__sizeMG 
-  ! integer :: mpi__rankMG
+!-- m_MPItk compatible variables
+  integer, protected :: procid, master = 0, nsize
+  logical, protected :: master_mpi, readtk = .false.
+  character(8), protected :: strprocid
 !MPI for hrcxq
   integer :: comm_q, mpi__rank_q, mpi__size_q
   integer :: comm_k, mpi__rank_k, mpi__size_k
@@ -36,19 +39,28 @@ contains
   subroutine MPI__Initialize(commin)
     implicit none
     character(1024*4) :: cwd, stdout
+    character(10):: i2char
     integer,optional:: commin
     logical,external:: cmdopt0
+    logical :: initialized
     comm=MPI_COMM_WORLD
     if(present(commin)) comm= commin 
     !merge(commin,MPI_COMM_WORLD,present(commin))
     call getcwd(cwd)           ! get current working directory
-    call MPI_Init( mpi__info ) ! current working directory is changed if mpirun is not used
+    call MPI_Initialized(initialized, mpi__info)
+    if(.not. initialized) call MPI_Init( mpi__info ) ! current working directory is changed if mpirun is not used
     call MPI_Comm_rank( comm, mpi__rank, mpi__info )
     call MPI_Comm_size( comm, mpi__size, mpi__info )
     mpi__root= mpi__rank==0
     if( mpi__root ) call chdir(cwd)        ! recover current working directory
     ipr=mpi__root
     if(cmdopt0('--fullstdo')) ipr=.true.
+    !-- m_MPItk compatible
+    procid = mpi__rank
+    nsize = mpi__size
+    master_mpi = mpi__root
+    readtk = .true.
+    strprocid = trim(i2char(procid))
   end subroutine MPI__Initialize
 
 !  MPI__SplitXq is only used in hrcxq for q-points, k-points, and MPB parallel.
@@ -309,17 +321,17 @@ contains
     deallocate( mpi__data )
     return
   end subroutine MPI__reduceSum_c
-  subroutine MPI__AllreduceMax( data, sizex )
-    implicit none
-    integer, intent(in) :: sizex
-    integer, intent(inout) :: data(sizex)
-    integer, allocatable   :: mpi__data(:) 
-    if( mpi__size == 1 ) return
-    allocate(mpi__data(sizex))
-    mpi__data = data
-    call MPI_Allreduce( mpi__data, data, sizex, MPI_INTEGER, MPI_MAX, comm, mpi__info )
-    deallocate( mpi__data )
-  end subroutine MPI__AllreduceMax
+!  subroutine MPI__AllreduceMax( data, sizex ) !currently unused
+!    implicit none
+!    integer, intent(in) :: sizex
+!    integer, intent(inout) :: data(sizex)
+!    integer, allocatable   :: mpi__data(:)
+!    if( mpi__size == 1 ) return
+!    allocate(mpi__data(sizex))
+!    mpi__data = data
+!    call MPI_Allreduce( mpi__data, data, sizex, MPI_INTEGER, MPI_MAX, comm, mpi__info )
+!    deallocate( mpi__data )
+!  end subroutine MPI__AllreduceMax
 !MO Addtional subroutines for MPI 2024/12/28
   subroutine MPI__AllreduceAND(data, communicator)
     implicit none
@@ -377,26 +389,51 @@ contains
     call MPI_Allreduce( mpi__data, data, 1, MPI_DOUBLE_PRECISION, MPI_SUM, comm_in, mpi__info )
   end subroutine MPI__AllreduceSumRealSca
 
-#ifdef __GPU
-  subroutine MPI__zBcast_d(data_d, sizex, communicator, sender)
-    use cudafor
+!#ifdef __GPU
+!  subroutine MPI__zBcast_d(data_d, sizex, communicator, sender) !currently unused
+!    use cudafor
+!    implicit none
+!    integer, intent(in) :: sizex
+!    complex(8), intent(inout), device :: data_d(sizex)
+!    complex(8) :: data_h(sizex) !Host data for MPI communication
+!    integer, intent(in), optional :: communicator, sender
+!    integer :: comm_in, sender_in, mpi_size_comm_in
+!    comm_in = comm
+!    sender_in = 0
+!    if(present(communicator)) comm_in = communicator
+!    if(present(sender)) sender_in = sender
+!    mpi_size_comm_in = get_mpi_size(comm_in)
+!    if(mpi_size_comm_in == 1) return
+!    data_h(:) = data_d(:) ! copy to host
+!    call MPI_Bcast(data_h, sizex, MPI_DOUBLE_COMPLEX, sender_in, comm_in, mpi__info)
+!    data_d(:) = data_h(:) !copy to device
+!  end subroutine MPI__zBcast_d
+!#endif
+
+  subroutine xmpbnd2(kpproc, ndham, ndat, eb)  !- Collect eb from various processors (MPI)
     implicit none
-    integer, intent(in) :: sizex
-    complex(8), intent(inout), device :: data_d(sizex)
-    complex(8) :: data_h(sizex) !Host data for MPI communication
-    integer, intent(in), optional :: communicator, sender
-    integer :: comm_in, sender_in, mpi_size_comm_in
-    comm_in = comm
-    sender_in = 0
-    if(present(communicator)) comm_in = communicator
-    if(present(sender)) sender_in = sender
-    mpi_size_comm_in = get_mpi_size(comm_in)
-    if(mpi_size_comm_in == 1) return
-    data_h(:) = data_d(:) ! copy to host
-    call MPI_Bcast(data_h, sizex, MPI_DOUBLE_COMPLEX, sender_in, comm_in, mpi__info)
-    data_d(:) = data_h(:) !copy to device
-  end subroutine MPI__zBcast_d
-#endif
+    integer:: kpproc(0:*), ndham, ndat
+    double precision :: eb(ndham, ndat)
+    integer :: i, ista, iend, ierr
+    integer, dimension(:), allocatable :: offset, length
+    real(8), allocatable :: buf_rv(:, :)
+    allocate (offset(0:nsize), length(0:nsize))
+    offset(0) = 0
+    do i = 0, nsize - 1
+      ista = kpproc(i)
+      iend = kpproc(i + 1) - 1
+      length(i) = (iend - ista + 1)*ndham
+      offset(i + 1) = offset(i) + length(i)
+    end do
+    ista = kpproc(procid)
+    iend = kpproc(procid + 1) - 1
+    allocate (buf_rv(ndham, ndat))
+    call mpi_allgatherv(eb(1:ndham, ista:iend), length(procid), mpi_double_precision, buf_rv, length, offset, mpi_double_precision,&
+      comm, ierr)
+    eb = buf_rv
+    deallocate (buf_rv, offset, length)
+  end subroutine xmpbnd2
+
 end module m_mpi
 
 subroutine MPI__sxcf_rankdivider(irkip_all,nspinmx,nqibz,ngrp,nq,irkip)
