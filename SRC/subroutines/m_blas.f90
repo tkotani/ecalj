@@ -1,6 +1,5 @@
 module m_blas !wrapper for BLAS and cuBLAS
   !$use omp_lib
-  use m_mpi
   use m_gemmul8, only: use_gemmul8, gemmul8_init, num_moduli_d, num_moduli_z, num_moduli_c
 #ifdef __GPU
   use cublas_v2
@@ -48,6 +47,7 @@ contains
     istat = 0
   end function cmm_h
   integer function cmm_batch_h(a, b, c, m, n, k, nbatch, opa, opb, alpha, beta, lda, ldb, ldc, samea, sameb, comm) result(istat)
+    include "mpif.h"
     complex(4) :: a(*), b(*), c(*)
     integer, intent(in) :: m, n, k, nbatch
     character, intent(in), optional :: opa, opb
@@ -225,6 +225,7 @@ contains
     istat = 0
   end function zmm_h
   integer function zmm_batch_h(a, b, c, m, n, k, nbatch, opa, opb, alpha, beta, lda, ldb, ldc, samea, sameb, comm) result(istat)
+    include "mpif.h"
     complex(8) :: a(*), b(*), c(*)
     integer, intent(in) :: m, n, k, nbatch
     character, intent(in), optional :: opa, opb

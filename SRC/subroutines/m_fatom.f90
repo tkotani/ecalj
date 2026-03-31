@@ -18,8 +18,8 @@ module m_fatom
   type(s_spec),allocatable:: sspec(:) !just allocated for iors and rdovfa. Not touched.
 contains
   subroutine mpibc1_s_spec(ssp)
-    implicit none
     use mpi
+    implicit none
     type(s_spec):: ssp
     integer :: master=0,ierr
     call mpi_bcast(ssp%ctail, 1,MPI_REAL8 , master, comm,ierr)

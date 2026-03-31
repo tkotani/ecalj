@@ -108,8 +108,8 @@ contains
     !r   (5) mixrho the output density to make a new input density.
     
     !See history github ecalj after 2009.
-    implicit none
     use mpi
+    implicit none
     character(10) :: head
     integer:: plbnd,nk1,nk2,nk3,nx,ny, iter,i,ifi,ipr,iq,isp,jsp,iprint,ipts,ierr
     integer:: ifih,ifii,ib,ix,ifimag,nevmin,nnn,ikp

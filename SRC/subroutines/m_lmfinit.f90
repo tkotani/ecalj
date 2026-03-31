@@ -105,8 +105,8 @@ contains
     !   lrlxr: 0 no relaxation or dynamics, 4 relax with conjugate gradients, 5 relax with variable metric, 6 relax with Broyden
     !   rdhessr: T read hessian matrix, xtolr: relaxation x-tolerance, gtolr: relaxation g-tolerance, stepr: step length
     !   nkillr: Remove hessian after this many steps
-    implicit none
     use mpi
+    implicit none
     character,intent(in)::  prgnam*(*)
     integer,parameter:: recln=512
     character:: strn*(recln),strn2*(recln)

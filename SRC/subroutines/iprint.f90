@@ -1,10 +1,9 @@
 integer function iprint()!print verbose setting
-!  use m_MPItk,only: master_mpi
+  use mpi
   implicit none
   integer :: mpipid,procid,ierr,comm
   integer:: verbose_in,setprint,ix,set0,setprint0,vb
   integer,save:: verbose0=30,verbose=30
-  use mpi
   comm=MPI_COMM_WORLD
   call MPI_COMM_RANK(comm, procid, ierr )
   iprint = verbose
