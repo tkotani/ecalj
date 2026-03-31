@@ -5,5 +5,7 @@ subroutine sopen(output) bind(c)
   open(6,file=trim(convcchar(output)))
 end subroutine sopen
 subroutine sclose() bind(c)
+  use m_lgunit, only: m_lgunit_reset
   close(6)
+  call m_lgunit_reset()
 end subroutine sclose
