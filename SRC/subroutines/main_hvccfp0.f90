@@ -277,19 +277,32 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     qdependentRadialIntegrals:block
       use m_vcoulq, only: ajr
       logical :: hasBessel
+      integer :: ibas_order(nbas), ib_prev, isrt, jsrt, ktmp
       allocate( rojp(ngc, nlxx, nbas), sgpb(ngc, nxx, nlxx, nbas), fouvb(ngc, nxx, nlxx, nbas))
-      do ibas = 1,nbas
+      ! Sort atoms by (nr, lx) to maximize Bessel function reuse (hasBessel=T)
+      do isrt = 1, nbas; ibas_order(isrt) = isrt; enddo
+      do isrt = 1, nbas-1
+        do jsrt = 1, nbas-isrt
+          if(nr(ibas_order(jsrt)) > nr(ibas_order(jsrt+1)) .or. &
+             (nr(ibas_order(jsrt)) == nr(ibas_order(jsrt+1)) .and. lx(ibas_order(jsrt)) > lx(ibas_order(jsrt+1)))) then
+            ktmp = ibas_order(jsrt); ibas_order(jsrt) = ibas_order(jsrt+1); ibas_order(jsrt+1) = ktmp
+          endif
+        enddo
+      enddo
+      do isrt = 1, nbas
+        ibas = ibas_order(isrt)
         hasBessel = .false.
-        if(ibas > 1) then
-          if(nr(ibas) == nr(ibas-1)) then
-            if( all(abs(rofi(1:nr(ibas),ibas) - rofi(1:nr(ibas-1),ibas-1)) < 1d-10) .and. lx(ibas) == lx(ibas-1) ) hasBessel = .true.
+        if(isrt > 1) then
+          ib_prev = ibas_order(isrt-1)
+          if(nr(ibas) == nr(ib_prev)) then
+            if( all(abs(rofi(1:nr(ibas),ibas) - rofi(1:nr(ib_prev),ib_prev)) < 1d-10) .and. lx(ibas) == lx(ib_prev) ) hasBessel = .true.
           endif
         endif
         write(aaaw,ftox)'mkjp_4 ibas, hasBessel=',ibas, hasBessel
         call cputm(stdo,aaaw)
         call mkjp_4(q,ngc, ngvecc, alat, qlat, lxx, lx(ibas),nxx, nx(0:lxx,ibas), bas(1,ibas),aa(ibas),bb(ibas),rmax(ibas), &
              nr(ibas), nrx, rprodx(1,1,0,ibas), eee, rofi(1,ibas), rkpr(1,0,ibas), rkmr(1,0,ibas), &
-             rojp(1,1,ibas),               sgpb(1,1,1,ibas),                   fouvb(1,1,1,ibas), hasBessel) 
+             rojp(1,1,ibas),               sgpb(1,1,1,ibas),                   fouvb(1,1,1,ibas), hasBessel)
       enddo! rojp=<j(e=0)_L|exp(i(q+G)r)>, sgpb=<exp(i(q+G)r)|v(onsite)|B_nL>, fouvb=<exp(i(q+G)r)|v|B_nL>
       if(allocated(ajr)) then
         !$acc exit data delete(ajr)
