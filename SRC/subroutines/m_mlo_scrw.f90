@@ -7,7 +7,7 @@ module m_mlo_scrw
   public :: nnwf_init, scrw_init, trace_onsite, trace_onsite_diag, contract_to_site, extract_diagonal_channel, trace
   integer, protected, public :: nnwf
   complex(8), allocatable, protected, public :: scrw(:,:)
-  logical, allocatable, protected, public :: nnwf_mask(:)
+  logical, allocatable, protected, public :: nnwf_mask(:), nnwf2_mask(:)
   integer, allocatable, protected, public :: mlo_pairs(:,:), pair_site(:,:), pair_lorb(:,:)
 contains
   subroutine nnwf_init(nnwf_size_reduction)
@@ -42,25 +42,27 @@ contains
    enddo
   end subroutine nnwf_init
 
-  function contract_to_site(mat, lorb) result(cmat)
+  function contract_to_site(mat, lorb, ovlp) result(cmat)
     complex(8), intent(in) :: mat(nnwf,nnwf)
+    complex(8), intent(in), optional :: ovlp(nnwf,nnwf)
     integer, intent(in), optional :: lorb
     ! complex(8), intent(in), optional :: uovlpq(nnwf)
-    complex(8) :: cmat(nsite,nsite)
+    complex(8) :: cmat(nsite,nsite), ovlp_in(nnwf,nnwf)
     logical, allocatable :: mask(:)
     integer :: site1, site2, inwf, jnwf
+    ovlp_in(:,:) = 0d0
+    forall(inwf=1:nnwf) ovlp_in(inwf,inwf) = 1d0
+    if(present(ovlp)) ovlp_in = ovlp
     do concurrent(site1=1:nsite, site2=1:nsite)
       mask = [((pair_site(inwf,1) == site1 .and. pair_site(jnwf,1) == site2 .and. &   !R1 == site1  R3 == site2
                 mlo_pairs(inwf,1) == mlo_pairs(inwf,2) .and. & !n1 == n2 => R1 == R2 is automatically satisfied
                 mlo_pairs(jnwf,1) == mlo_pairs(jnwf,2), &      !n3 == n4 => R3 == R4 is automatically satisfied
                 inwf=1,nnwf), jnwf=1,nnwf)]
-      ! mask = [((pair_site(inwf,1) == site1 .and. pair_site(jnwf,1) == site2 ,&  !R1 == site1  R3 == site2
-      !           inwf=1,nnwf), jnwf=1,nnwf)]
       if(present(lorb)) then
         mask = mask .AND. [(((pair_lorb(inwf,1)==lorb .and. pair_lorb(inwf,2)==lorb .and. &
                             & pair_lorb(jnwf,1)==lorb .and. pair_lorb(jnwf,2)==lorb), inwf=1,nnwf), jnwf=1,nnwf)]
       endif
-      cmat(site1,site2) = sum(pack(reshape(mat, shape=[nnwf*nnwf]), mask=mask))
+      cmat(site1,site2) = sum(pack(reshape(mat(:,:)*ovlp_in(:,:), shape=[nnwf*nnwf]), mask=mask))
     enddo
   end function contract_to_site
 
@@ -168,12 +170,11 @@ contains
     if(allocated(scrw)) deallocate(scrw)
     allocate(scrw(nnwf,nnwf))
     if(nnwf_size_reduction) then
-      scrw(:,:) = reshape(pack([((((scrw4(iwf1,iwf2,iwf3,iwf4), iwf1=1,nwf), iwf2=1,nwf), iwf3=1,nwf), iwf4=1,nwf)], &
-                        & mask=[(((((ib_tableM(iwf1)==ib_tableM(iwf2).and. ib_tableM(iwf3)==ib_tableM(iwf4)), &
-                        &             iwf1=1,nwf), iwf2=1,nwf), iwf3=1,nwf), iwf4=1,nwf)]), shape=[nnwf,nnwf])
+      nnwf2_mask = [(((((ib_tableM(iwf1)==ib_tableM(iwf2).and. ib_tableM(iwf3)==ib_tableM(iwf4)), iwf1=1,nwf), iwf2=1,nwf), iwf3=1,nwf), iwf4=1,nwf)]
     else
-      scrw(:,:) = reshape(scrw4, shape=[nnwf,nnwf])
+      nnwf2_mask = [((((.TRUE., iwf1=1,nwf), iwf2=1,nwf), iwf3=1,nwf), iwf4=1,nwf)]
     endif
+    scrw(:,:) = reshape(pack(reshape(scrw4, shape=[nwf**4]), mask=nnwf2_mask), shape=[nnwf,nnwf])
     if(enforce_Hermite) scrw(:,:) = (scrw(:,:) + transpose(conjg(scrw(:,:))))*0.5d0
     scrw(:,:) = scrw(:,:)/hartree !! Screening W for magnon
     show_atomic_W: block

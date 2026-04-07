@@ -5,6 +5,7 @@ program main !wannier
   use m_args,only:    m_setargs, argall
   use m_ext,only:     m_ext_init, sname
   use m_mpi, only: MPI__Initialize, mpi__root, comm, setipr, mpi__rank
+  use m_uumat, only: uumatrix
   integer :: ierr
 
   call MPI__Initialize()
@@ -19,5 +20,5 @@ program main !wannier
     call ConvertCtrl2CtrlpByPython()
   endif
   call mpi_barrier(comm, ierr) !wait finishing of ctrl2ctrlp
-  call h_uumatrix()
+  call uumatrix()
 end program

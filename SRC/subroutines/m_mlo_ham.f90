@@ -29,11 +29,11 @@ contains
     nsite = size(ib_tableI)
   end subroutine read_ham_rs
 
-  subroutine calc_ham_eigen(q, isp, ev, evec, ovlp_evec, dual_evec)
+  subroutine calc_ham_eigen(q, isp, ev, evec, ovlp, ovlp_evec, dual_evec)
     real(8), intent(in) :: q(3)
     integer, intent(in) :: isp
     real(8), intent(out) :: ev(:) !MLO eigenvalue
-    complex(8), optional, intent(out) :: evec(:,:), ovlp_evec(:,:), dual_evec(:,:) !MLO wavefunction
+    complex(8), optional, intent(out) :: evec(:,:), ovlp(:,:), ovlp_evec(:,:), dual_evec(:,:) !MLO wavefunction
     complex(8) :: ovlm(ndimMTO,ndimMTO), hamm(ndimMTO,ndimMTO), ovlm_buf(ndimMTO,ndimMTO)
     real(8), parameter :: oveps=1d-15, pi=4d0*atan(1d0)
     complex(8), parameter :: img=(0d0,1d0)
@@ -73,6 +73,7 @@ contains
         enddo
       enddo
     enddo FourierTransormationFROMrealspcaeTOqspace
+    if(present(ovlp)) ovlp = ovlm(:,:)
     if(present(ovlp_evec) .or. present(dual_evec)) ovlm_buf(:,:) = ovlm(:,:) !keep ovlm
     istat = zhgv(hamm, ovlm, n=ndimMTO, evl=ev) !in-place hamm -> evec
     if(present(evec)) evec(:,:) = hamm(:,:)

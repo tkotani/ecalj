@@ -5,8 +5,9 @@ module m_mlo_magnon
 subroutine mlo_magnon() bind(C)
   use m_mlo_ham, only: read_ham_rs, calc_ham_eigen, nwf => ndimMTO, nsite, ib_tableM
   use m_mlo_scrw, only: nnwf, scrw, mlo_pairs, trace, trace_onsite, trace_onsite_diag, nnwf_init, scrw_init,  &
-                        contract_to_site, pair_site, extract_diagonal_channel, pair_lorb
-  use m_mlo_uovlp, only: read_uovlpt, calc_uovlpq
+                        contract_to_site, pair_site, extract_diagonal_channel, pair_lorb, nnwf_mask, nnwf2_mask
+! use m_mlo_uovlp, only: read_uovlpt, calc_uovlpq  ! uovlpt is theoretically incorrect; disabled
+  use m_mlo_uovlp, only: read_formfactor, get_formfactor
   use m_HamPMT,only: ReadHamPMTInfo
   use m_ReadEfermi, only: readefermi
   use m_read_bzdata, only: nqbz, qbz
@@ -21,7 +22,7 @@ subroutine mlo_magnon() bind(C)
   use m_mpi, only: mpi__rank, mpi__size, mpi__root, comm, comm_k, mpi__rank_k, mpi__size_k, mpi__root_k, ipr
   use m_mpiio, only: openm, closem, writem, readm, mpiio_buf, buf_put, buf_get, writem_buf, readm_buf
   use m_blas, only: m_op_C, zmm => zmm_h, int_split
-  use m_lapack, only: zminv => zminv_h, zhev => zhev_h, zgev => zgev_h
+  use m_lapack, only: zminv => zminv_h, zhev => zhev_h, zgev => zgev_h, zhgv => zhgv_h, zggv => zggv_h
   use m_mem, only: writemem
   use m_ftox, only: ftox
   implicit none
@@ -37,6 +38,7 @@ subroutine mlo_magnon() bind(C)
   real(8), allocatable:: qibze(:,:)
   complex(8), pointer:: zxq(:,:,:) => null()
   complex(8), allocatable, target :: kmat(:,:,:)
+  complex(8), allocatable:: oovlp(:,:), oovlp_inv(:,:)
   complex(8), allocatable:: imat(:,:)
   complex(8), parameter :: img=(0d0,1d0)
   logical:: cmdopt0
@@ -45,7 +47,7 @@ subroutine mlo_magnon() bind(C)
   character(8):: charext
   character(len=128) :: msg
   integer, parameter :: is=1, isf=2  !K_down up = Kpm
-  real(8), parameter :: pi = 4d0*datan(1d0), znorm=-1d0*pi, eta_default =-1d0
+  real(8), parameter :: pi = 4d0*datan(1d0), eta_default =-1d0
   logical, parameter :: nnwf_size_reduction = .true.
   logical :: w_onsite_dddd, geteta, negative_cut, ganmma_only, gettetwt_split, calcdos
   !For dos calculation
@@ -53,10 +55,6 @@ subroutine mlo_magnon() bind(C)
   integer, allocatable :: idteti_dos(:,:)
   real(8), allocatable :: qibz_dos(:,:), rho(:,:,:), sz(:), sz_site(:)
   real(8), allocatable :: freq(:)
-
-!!! q on symline
-  
-  ! cma mode is commented out 2025-12-06. cma mode is no longer maintained. For CMA mode, use old version
 
   hartree = 2d0*rydberg()
   geteta = cmdopt0('--geteta')
@@ -173,7 +171,7 @@ subroutine mlo_magnon() bind(C)
     character(20):: Wtype, opts
     call ReadHamPMTInfo()  ! Read info from PMTHamiltonianInfo (lattice structures and index of basis).
     call read_ham_rs()
-    call read_uovlpt(isp=isf, spin_flip=.true.) !DNUP
+    call read_formfactor(isp=isf, spin_flip=.true.) !DNUP
     call nnwf_init(nnwf_size_reduction) !set nnwf ~ # of RiRj (onsite_approx = .true.), RiR'j (onsite_approx = .flase. ), wan_pair_index
     if(ipr) write(stdo,ftox) '# nwf, nnwf:', nwf, nnwf
     Wtype = 'up' !options: up, down, up_down, down_up
@@ -221,18 +219,21 @@ subroutine mlo_magnon() bind(C)
   allocate(imat(1:nnwf,1:nnwf),source=(0d0,0d0))
   forall(iwf=1:nnwf) imat(iwf,iwf) = 1d0 + img*delta !check the sign
   allocate(kmat(1:nnwf,1:nnwf,(1-npm)*nwhis:nwhis))
+  allocate(oovlp(nnwf,nnwf), oovlp_inv(nnwf,nnwf))
   BIGiqloop: do iq = iqxini,iqxend
     if(.NOT. MPI__task(iq)) cycle BIGiqloop
     q = qibze(:,iq)
     if(ipr) write(6,"('===== do : iq wibz(iq) q=',i6,f13.6,3f9.4,' ========')") iq,q !,wibz(iqlist(iq)),qshort !qq
     GETzxq: block ! zxq and zxqi are the main output after Hilbert transformation, ! zxqi is not used in hmagnon (imagomega=.false.)
-      use m_mpi,only: MPI__AllreduceSumReal
+      use m_mpi,only: MPI__AllreduceSumReal, MPI__AllreduceSum
       real(8) :: evkx_w1(nwf), evkx_w2(nwf) !dummy
       complex(8) :: zxqi(1,1,1), evc_w1(nwf,nwf), evc_w2(nwf,nwf)
       complex(8) :: ov_evc_w1(nwf,nwf), ov_evc_w2(nwf,nwf)
-      complex(8), allocatable :: evc_w1_kx(:,:,:), evc_w2_kx(:,:,:), ov_evc_w1_kx(:,:,:), ov_evc_w2_kx(:,:,:)
+      complex(8) :: ovlp_w1(nwf,nwf), ovlp_w2(nwf,nwf), oovlp4(nwf,nwf,nwf,nwf)
+      complex(8), allocatable :: evc_w1_kx(:,:,:), evc_w2_kx(:,:,:)
       integer, allocatable :: nttp(:),  itw(:,:), itpw(:,:), ik(:,:)
       integer :: nttp_max, ittp, jpm, it, itp, ibib, isdummy, kx_ini, kx_fin, kx_num, kx_start,kx_end
+      integer :: kwf, lwf
       real(8), allocatable :: whwc(:,:), ev_w1(:,:), ev_w2(:,:)
       real(8), parameter:: schi = 1d0
       integer, parameter:: nkblock = 1024
@@ -241,9 +242,15 @@ subroutine mlo_magnon() bind(C)
 
       if(ipr) call writemem('mlo_magnon start gettetwt')
       call int_split(nqbz, mpi__size_k, mpi__rank_k, kx_ini, kx_fin, kx_num)
+      oovlp(:,:) = (0d0, 0d0)
       CalcEigenEnergy: do kx = kx_ini, kx_fin !!! ev_w1, ev_w2 unit: [Ry]
-        call calc_ham_eigen(  qbz(:,kx),  is, ev_w1(:,kx), evec=evc_w1, ovlp_evec=ov_evc_w1)
-        call calc_ham_eigen(q+qbz(:,kx), isf, ev_w2(:,kx), evec=evc_w2, ovlp_evec=ov_evc_w2)
+        call calc_ham_eigen(  qbz(:,kx),  is, ev_w1(:,kx), evec=evc_w1, ovlp_evec=ov_evc_w1, ovlp=ovlp_w1)
+        call calc_ham_eigen(q+qbz(:,kx), isf, ev_w2(:,kx), evec=evc_w2, ovlp_evec=ov_evc_w2, ovlp=ovlp_w2)
+        do concurrent(iwf=1:nwf, jwf=1:nwf, kwf=1:nwf, lwf=1:nwf)
+          oovlp4(iwf,jwf,kwf,lwf) = dconjg(ovlp_w1(iwf,kwf))*ovlp_w2(jwf,lwf)
+          ! oovlp4(iwf,jwf,kwf,lwf) = ovlp_w2(iwf,kwf)*dconjg(ovlp_w1(jwf,lwf))
+        enddo
+        oovlp(:,:) = oovlp(:,:) + reshape(pack(reshape(oovlp4, shape=[nwf**4]),mask=nnwf2_mask), shape=[nnwf,nnwf])/dble(nqbz)
         if(ganmma_only) then
           block
           use m_ReadEfermi,only: ef
@@ -264,6 +271,10 @@ subroutine mlo_magnon() bind(C)
       enddo CalcEigenEnergy
       call MPI__AllreduceSumReal(ev_w1, nwf*nqbz, communicator=comm_k)
       call MPI__AllreduceSumReal(ev_w2, nwf*nqbz, communicator=comm_k)
+      call MPI__AllreduceSum(oovlp, nnwf*nnwf, communicator=comm_k)
+      oovlp_inv(:,:) = oovlp(:,:)
+      istat = zminv(oovlp_inv, n=nnwf)
+      forall(iwf=1:nnwf) oovlp(iwf,iwf) = oovlp(iwf,iwf) + img*delta !check the sign
       if(ganmma_only) call MPI__AllreduceSumReal(rho, nwf*nwf*nspin, communicator=comm_k)
       if(.not.gettetwt_split) call gettetwt(q,iq,isdummy,isdummy,ev_w1,ev_w2,nwf,.true.) !! tetrahedron weight. iq is dummy index
         !!     ihw(ibjb,kx): omega index, to specify the section of the histogram., ibjb=1,nbnb
@@ -278,12 +289,8 @@ subroutine mlo_magnon() bind(C)
       kxblock_loop: do kx_start = kx_ini, kx_fin, nkblock
         kx_end = min(kx_fin, kx_start + nkblock -1)
         allocate(evc_w1_kx(nwf,nwf,kx_start:kx_end), evc_w2_kx(nwf,nwf,kx_start:kx_end))
-        allocate(ov_evc_w1_kx(nwf,nwf,kx_start:kx_end), ov_evc_w2_kx(nwf,nwf,kx_start:kx_end))
-
         if(gettetwt_split) call gettetwt(q,iq,isdummy,isdummy,ev_w1,ev_w2,nwf,.true.,ikbz_in=kx_start,fkbz_in=kx_end)
         CalcEigenFunction: do kx = kx_start, kx_end
-          ! call calc_ham_eigen(  qbz(:,kx),  is, evkx_w1, evec=evc_w1_kx(:,:,kx), ovlp_evec=ov_evc_w1_kx(:,:,kx)) !evkx_w1  is dummy
-          ! call calc_ham_eigen(q+qbz(:,kx), isf, evkx_w2, evec=evc_w2_kx(:,:,kx), ovlp_evec=ov_evc_w2_kx(:,:,kx)) !evkx_w2  is dummy
           call calc_ham_eigen(  qbz(:,kx),  is, evkx_w1, evec=evc_w1_kx(:,:,kx)) !evkx_w1  is dummy
           call calc_ham_eigen(q+qbz(:,kx), isf, evkx_w2, evec=evc_w2_kx(:,:,kx)) !evkx_w2  is dummy
         enddo CalcEigenFunction
@@ -349,11 +356,9 @@ subroutine mlo_magnon() bind(C)
              !12: Dual
              ! wzw(ittp,inwf) = whwc(ittp,iw)*dconjg(ov_evc_w2_kx(iwf,itp,kx))*ov_evc_w1_kx(jwf,it,kx)
              !  zw(ittp,inwf) =               dconjg(   evc_w2_kx(iwf,itp,kx))*   evc_w1_kx(jwf,it,kx)
-
              !13: Dual
              ! wzw(ittp,inwf) = whwc(ittp,iw)*dconjg(   evc_w2_kx(iwf,itp,kx))*ov_evc_w1_kx(jwf,it,kx)
              !  zw(ittp,inwf) =               dconjg(ov_evc_w2_kx(iwf,itp,kx))*   evc_w1_kx(jwf,it,kx)
-
              zw(ittp, inwf) = dconjg(evc_w2_kx(iwf,itp,kx))*evc_w1_kx(jwf,it,kx)
              wzw(ittp,inwf) = whwc(ittp,iw)*zw(ittp,inwf)
            enddo
@@ -361,7 +366,7 @@ subroutine mlo_magnon() bind(C)
          enddo
          deallocate(nttp, itw, itpw, whwc, zw, wzw, ik)
         enddo jpmloop
-        deallocate(evc_w1_kx, evc_w2_kx, ov_evc_w1_kx, ov_evc_w2_kx)
+        deallocate(evc_w1_kx, evc_w2_kx)
         if(gettetwt_split) call tetdeallocate()
       enddo kxblock_loop
       if(.not.gettetwt_split) call tetdeallocate()      ! --> deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b)
@@ -393,40 +398,32 @@ subroutine mlo_magnon() bind(C)
     IfGetEta: if(geteta) then
       block
         integer :: iunit
-        complex(8) ::eval_wk(nnwf), wkmat(1:nnwf,1:nnwf), chi0(nnwf,nnwf)
-        real(8) :: www
-
+        complex(8) ::wkmat(1:nnwf,1:nnwf), chi0(nnwf,nnwf), eval(nnwf), uovlpq(nnwf)
+        real(8) :: www, evl(nnwf)
         chi0(:,:) = zxq(:,:,0)
-        ! do inwf = 1, nnwf
-        !   do jnwf=1, nnwf
-        !     if(pair_lorb(inwf,1) /= 2 .or. &
-        !        pair_lorb(inwf,2) /= 2 .or. &
-        !        pair_lorb(jnwf,1) /= 2 .or. &
-        !        pair_lorb(jnwf,2) /= 2) then
-        !          chi0(inwf,jnwf) = 0d0
-        !     endif
-        !   enddo
-        !   ! if(pair_lorb(inwf,1) /= 2 .or. pair_lorb(inwf,2) /= 2) then
-        !   !   chi0(inwf,inwf) = 1d10
-        !   ! endif
-        ! enddo
         istat = zmm(scrw, chi0(:,:), wkmat, nnwf, nnwf, nnwf)
-        istat = zgev(wkmat, n=nnwf, evl=eval_wk)
-        eta = -1d0/maxval(abs(eval_wk))
-        write(stdo,ftox) "now eigenvalue abs(WK)",abs(eval_wk(1)),"is inversed"
-        write(stdo,ftox) "check eigenvalue Re(WK)",dreal(eval_wk(1))
-        write(stdo,ftox) "check eigenvalue Im(WK)",dimag(eval_wk(1))
+        write(stdo,ftox) 'sum wkmat, sum oovlp',sum(wkmat), sum(oovlp)
+        istat = zgev(wkmat, n=nnwf, evl=eval)
+        eta = -1d0/maxval(abs(eval))
+        write(stdo,ftox) 'sum evl', sum(eval)
+        write(stdo,ftox) "now eigenvalue WK",eval(1),"is inversed"
         write(stdo,ftox) "wkmat calculated eta:", eta !negative value
         open(newunit=iunit,file='__EtaMagnon',status='replace',form='unformatted',action='write')
         write(iunit) eta
         write(iunit) rho(:,:,:)
         close(iunit)
         open(newunit=iunit, file='Kpmdiag_q0.dat', status='replace', action='write')
-        write(iunit,ftox) "# iw omega(eV) Tr K/znorm TrdiagK/znorm"
+        write(iunit,ftox) "# iw omega(eV) Tr K TrdiagK"
+        call get_formfactor(q, uovlpq)
+        do inwf=1,nnwf
+          write(stdo,*) 'uovlpg', inwf, uovlpq(inwf)
+        enddo
         do iw = nw_i,nw
           www = merge(-freq_r(-iw),freq_r(iw),iw<0)
-          write(iunit,"(e14.6,4e17.9)") www*hartree, trace_onsite(zxq(:,:,iw))/hartree/znorm, &
-                                      & hartree*trace_onsite_diag(zxq(:,:,iw))/hartree/znorm
+          chi0(:,:) = zxq(:,:,iw)
+          write(iunit,"(e14.6,30e17.9)") www*hartree,  dot_product(uovlpq, matmul(chi0(:,:), uovlpq)), &
+                                        trace_onsite(chi0(:,:))/hartree, &
+                                        hartree*trace_onsite_diag(chi0(:,:))/hartree
         enddo
         close(iunit)
         write(stdo,*) sum(rho(:,:,1)), sum(rho(:,:,2)), sum(rho(:,:,1) -rho(:,:,2))
@@ -444,53 +441,27 @@ subroutine mlo_magnon() bind(C)
                     jq_w_site(nw_i:nw,1:nsite),  wkmat(nnwf,nnwf), rmat(nnwf,nnwf), &
                     chi0(nnwf,nnwf), rmat_site(nsite,nsite,nw_i:nw), kmat_site(nsite,nsite,nw_i:nw), &
                     uovlpq(nnwf), r_uovlp(nw_i:nw), k_uovlp(nw_i:nw)
-      call calc_uovlpq(q, uovlpq)
-      if(ipr) write(stdo,ftox) 'sum uovlpq:', sum(uovlpq)
+      real(8) :: evl(nnwf)
+      call get_formfactor(q, uovlpq)
       iwloop: do iw = nw_i, nw
         chi0(:,:) = zxq(:,:,iw)
-
-        ! do inwf = 1, nnwf
-        !   do jnwf=1, nnwf
-        !     if(pair_lorb(inwf,1) /= 2 .or. &
-        !        pair_lorb(inwf,2) /= 2 .or. &
-        !        pair_lorb(jnwf,1) /= 2 .or. &
-        !        pair_lorb(jnwf,2) /= 2) then
-        !          chi0(inwf,jnwf) = 0d0
-        !     endif
-        !   enddo
-          ! if(pair_lorb(inwf,1) /= 2 .or. pair_lorb(inwf,2) /= 2) then
-          !   chi0(inwf,inwf) = 1d10
-          ! endif
-        ! enddo
-
         istat = zmm(scrw, chi0(:,:), wkmat, nnwf, nnwf, nnwf, alpha=dcmplx(eta,0d0)) !wkmat = etaWK
         wkmat(1:nnwf,1:nnwf) = imat(1:nnwf,1:nnwf) - wkmat(1:nnwf,1:nnwf) ! wkamt = 1 - etaWK
         istat = zminv(wkmat, n=nnwf) ! wkmat = (1- eta WK)^-1
-        istat = zmm(chi0(:,:), wkmat, rmat, nnwf, nnwf, nnwf) !rmat = K (1-eta WK)^-1
+        istat = zmm(chi0, wkmat, rmat, nnwf, nnwf, nnwf) !rmat = K (1-eta WK)^-1
 
-        !kmat=chi0, rmat are retarted for rmat_site/kmat_site
-        ! do concurrent(inwf=1:nnwf,jnwf=1:nnwf)
-        !   chi0(inwf,jnwf) = chi0(inwf,jnwf)/(chi0(inwf,inwf)*chi0(jnwf,jnwf)) !chi_0^-1 app
-        ! enddo
-        ! istat = zminv(chi0, n=nnwf) !chi0
-        ! rmat(:,:) = chi0(:,:) - eta*scrw(:,:) !chi^-1 
-        ! forall(inwf=1:nnwf) rmat(inwf,inwf) = rmat(inwf,inwf) + img*delta
-        ! istat = zminv(rmat, n=nnwf) !chi
-        ! istat = zminv(chi0, n=nnwf) !chi0
-
-        k_tr(iw) = trace(chi0(:,:))/znorm
+        k_tr(iw) = trace(chi0)
         r_tr(iw) = trace(rmat)
-        k_tr_onsite(iw) = trace_onsite(chi0(:,:))/znorm
+
+        k_tr_onsite(iw) = trace_onsite(chi0)
         r_tr_onsite(iw) = trace_onsite(rmat)
-        k_tr_diag(iw) = trace_onsite_diag(chi0(:,:))/znorm
+        k_tr_diag(iw) = trace_onsite_diag(chi0)
         r_tr_diag(iw) = trace_onsite_diag(rmat)
 
-        ! rmat(:,:) = (rmat(:,:) + conjg(transpose(rmat(:,:))))*0.5d0
-
-        k_uovlp(iw) = dot_product(uovlpq, matmul(chi0(:,:), uovlpq))
-        r_uovlp(iw) = dot_product(uovlpq, matmul(rmat(:,:), uovlpq))
-        chi0(:,:) = merge(conjg(transpose(chi0(:,:))),chi0,iw <0)
-        rmat(:,:) = merge(conjg(transpose(rmat(:,:))),rmat,iw <0)
+        k_uovlp(iw) = dot_product(uovlpq, matmul(chi0, uovlpq))
+        r_uovlp(iw) = dot_product(uovlpq, matmul(rmat, uovlpq))
+        chi0(:,:) = merge(conjg(transpose(chi0)),chi0,iw <0)
+        rmat(:,:) = merge(conjg(transpose(rmat)),rmat,iw <0)
         kmat_site(:,:,iw) = contract_to_site(chi0)
         rmat_site(:,:,iw) = contract_to_site(rmat)
 
@@ -503,12 +474,13 @@ subroutine mlo_magnon() bind(C)
 
       CalcJqSite:block
         use m_intg, only: intg_trapezoidal_nonuniform
+        use m_intg, only: intg_pade_nonuniform
         real(8) :: sz_kmat(nsite), sz_rmat(nsite), correction_factor
         integer :: isite, isite1, isite2
         do isite = 1, nsite
-          sz_kmat(isite) = -intg_trapezoidal_nonuniform(freq, imag(kmat_site(isite,isite,nw_i:nw)))/pi
-          sz_rmat(isite) = -intg_trapezoidal_nonuniform(freq, imag(rmat_site(isite,isite,nw_i:nw)))/pi
-          write(stdo,ftox) 'moments:',isite, sz_kmat(isite), sz_rmat(isite)
+          sz_kmat(isite) = -intg_pade_nonuniform(freq, imag(kmat_site(isite,isite,nw_i:nw)))/pi
+          sz_rmat(isite) = -intg_pade_nonuniform(freq, imag(rmat_site(isite,isite,nw_i:nw)))/pi
+          write(stdo,ftox) 'q Int K/pi, Int R/pi:',q, isite, sz_kmat(isite), sz_rmat(isite)
         enddo
         do iw = nw_i, nw
           istat = zminv(rmat_site(:,:,iw), n=nsite)

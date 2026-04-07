@@ -6,7 +6,7 @@ module m_lapack
 #endif
   use m_blas
   implicit none
-  public :: zhgv_h, zhev_h, zminv_h, zsv_h, zgev_h
+  public :: zhgv_h, zhev_h, zminv_h, zsv_h, zgev_h, zggv_h
 #ifdef __GPU
   public :: zhgv_d, zhev_d, zminv_d, zsv_d, cusolver_finalize !, zgev_d
 #endif
@@ -88,6 +88,46 @@ contains
     if(present(evr_vec)) evr_vec(1:ldvr*n) = vr_loc
     deallocate(work, rwork, vl_loc, vr_loc, scale, rconde, rcondv)
   end function zgev_h
+  integer function zggv_h(a, b, n, evl, evl_vec, evr_vec, lda, ldb, alpha, beta) result(istat)
+  ! Solving the generalized eigenvalue problem Az = lambda Bz for general matrices
+  ! Eigenvalues lambda(i) = alpha(i)/beta(i) are stored in evl
+  ! Left eigenvectors stored in evl_vec (optional), right eigenvectors in evr_vec (optional)
+  ! alpha, beta are available as optional outputs (e.g. to detect infinite eigenvalues where beta=0)
+    integer, intent(in) :: n
+    complex(8) :: a(*), b(*)
+    complex(8), intent(out) :: evl(n)
+    complex(8), intent(out), optional :: evl_vec(*), evr_vec(*), alpha(n), beta(n)
+    integer, intent(in), optional :: lda, ldb
+    integer :: lda_in, ldb_in, ldvl, ldvr, lwork, i
+    complex(8), allocatable :: work(:), vl_loc(:), vr_loc(:), alpha_loc(:), beta_loc(:)
+    real(8), allocatable :: rwork(:)
+    character :: jobvl, jobvr
+    lda_in = n; if(present(lda)) lda_in = lda
+    ldb_in = n; if(present(ldb)) ldb_in = ldb
+    jobvl = 'N'; ldvl = 1
+    jobvr = 'N'; ldvr = 1
+    if(present(evl_vec)) then; jobvl = 'V'; ldvl = lda_in; endif
+    if(present(evr_vec)) then; jobvr = 'V'; ldvr = lda_in; endif
+    allocate(vl_loc(ldvl*n), vr_loc(ldvr*n), rwork(8*n), work(1), alpha_loc(n), beta_loc(n))
+    lwork = -1
+    call zggev(jobvl, jobvr, n, a, lda_in, b, ldb_in, alpha_loc, beta_loc, &
+               vl_loc, ldvl, vr_loc, ldvr, work, lwork, rwork, istat)
+    lwork = int(dble(work(1))); deallocate(work); allocate(work(lwork))
+    call zggev(jobvl, jobvr, n, a, lda_in, b, ldb_in, alpha_loc, beta_loc, &
+               vl_loc, ldvl, vr_loc, ldvr, work, lwork, rwork, istat)
+    do i = 1, n
+      if(abs(beta_loc(i)) == 0d0) then
+        evl(i) = cmplx(huge(1d0), 0d0, 8)
+      else
+        evl(i) = alpha_loc(i) / beta_loc(i)
+      endif
+    enddo
+    if(present(evl_vec)) evl_vec(1:ldvl*n) = vl_loc
+    if(present(evr_vec)) evr_vec(1:ldvr*n) = vr_loc
+    if(present(alpha)) alpha(1:n) = alpha_loc
+    if(present(beta))  beta(1:n)  = beta_loc
+    deallocate(work, rwork, vl_loc, vr_loc, alpha_loc, beta_loc)
+  end function zggv_h
   integer function zhev_h(A, n, evl, il, iu, lda) result(istat)
   ! Solving the standard eigenvalue problem Az = lambda z, where A is a Hermitian matrix
   ! Eigenvalues are stored in evl, eigenvectors are stored in A
@@ -132,8 +172,7 @@ contains
     integer :: lda_in, ldb_in, il_in, iu_in
     integer, parameter :: nb = 64
     complex(8), allocatable:: work(:), z(:)
-    complex(8) :: dummy(1)
-    integer, allocatable:: ifail(:), iwork(:)
+integer, allocatable:: ifail(:), iwork(:)
     real(8), allocatable:: rwork(:)
     integer :: m, lwork, info
     real(8) :: dlamch, abstol, vl = 0d0, vu = 0d0
@@ -151,7 +190,7 @@ contains
     call zhegvx( 1, 'V', 'I', 'U', n, a, lda_in, b, ldb_in, &
        vl, vu, il_in, iu_in, abstol, m, evl, z, lda_in, &
        work, lwork, rwork, iwork, ifail, info )
-    lwork = max((nb+1)*n, nint(dble(dummy(1))))
+    lwork = max((nb+1)*n, nint(dble(work(1))))
     deallocate(work)
     allocate(work(lwork))
     call zhegvx( 1, 'V', 'I', 'U', n, a, lda_in, b, ldb_in, &

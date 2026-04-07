@@ -9,8 +9,9 @@ EXEC_DIR = Path(__file__).resolve().parent
 
 def cal_mlo_magnon(args, extra_args):
     cluster = args.cluster
-    mpi_size = args.np
     target = args.extension
+    mpi_size = args.np
+    options = extra_args
     option_dos = "--dos" if args.dos else ""
 
     print(f"### start k+- r+-: mpi size= {mpi_size}, target= {target}")
@@ -23,6 +24,16 @@ def cal_mlo_magnon(args, extra_args):
                                args=["--geteta", f"--Wtype={args.Wtype}", option_dos, *extra_args]), stdout="lmlo_magnon_eta")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo_magnon",
                                args=[f"--Wtype={args.Wtype}", option_dos, *extra_args]), stdout="lmlo_magnon")
+
+def calc_mlo_uovlpq(args, extra_args):
+    cluster = args.cluster
+    target = args.extension
+    mpi_size = args.np
+    options = extra_args
+    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"qg4gw", args=["--job=2", *extra_args]), stdout="lqg4gw02_uovlp") #make __BZDATA.DOS
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf", args=[target, "--jobgw=1", "--skipbstruxinit", "--mlo", *options]), stdout="llmfgw01_uovlp")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo", args=[target, "--mlo", *options]), stdout="lmlo")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"huumat_MPI", args=[target, "--mlo", *options]), stdin_str="4", stdout="luumat")
 
 def cal_mlo_vw(args, extra_args):
     cluster = args.cluster
@@ -43,8 +54,6 @@ def cal_mlo_vw(args, extra_args):
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hwmatK_MPI", args=[target, "--mlo", option_W, *options]), stdin_str="1", stdout="lwmatK1")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hx0fp0", args=[*options, '--prefer_bpara']), stdin_str="111", stdout="lx0_111")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hwmatK_MPI", args=[target, "--mlo", option_W, *options]), stdin_str="2", stdout="lwmatK2")
-
-    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"huumat_MPI", args=[target, "--mlo", *options]), stdin_str="4", stdout="luumat")
 
     print("OK! Generation of W finished.")
 
@@ -77,5 +86,6 @@ if __name__ == "__main__":
             move_files('stdout*', dest_dir='STDOUT')
 
         if not args.stop_vw:
+            calc_mlo_uovlpq(args, extra_args)
             cal_mlo_magnon(args, extra_args)
             move_files('stdout*', dest_dir='STDOUT')

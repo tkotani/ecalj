@@ -123,10 +123,12 @@ contains
            matmul(transpose(dconjg(evecmto(:,:))),ovlmx(ix(1:ndimMTO),ix(1:ndimMTO)))) ! where <Psi_MTO j|MTO_k> = (evecmto*) @ ovlmx
 
       ! normalized
+      if(.not.cmdopt0('--mlo_no_normalization')) then
       do i=1,ndimMTO
         ddd = sum( dconjg(cmlo(1:nx,i))*cmlo(1:nx,i) ) !<F^MLO|F^MLO>
         cmlo(1:nx,i)=cmlo(1:nx,i)/sqrt(ddd)
       enddo
+      endif
       MLOLowdinOrthogonalization:if(cmdopt0('--mlo_ortho')) then
          block
           use m_lapack, only: zhev => zhev_h
