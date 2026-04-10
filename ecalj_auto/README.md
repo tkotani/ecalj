@@ -154,3 +154,31 @@ To extract only important files from your results:
 
 
 
+
+---
+
+## Changelog
+
+### 2026-04-04: GW1500 mass production fixes (commit 6ade0a8c)
+
+Bug fixes found during GW1500 (1546 materials, QSGW80) mass production on kt1:
+
+1. **gwsc (SRC/exec/gwsc line 152)**: QSGW中のlmfにbmix_reduction=Trueを追加。
+   以前はLDA部分のみbmix自動低減が有効で、QSGW iterationではb=0.2固定のため
+   アルカリ土類カーバイド/ペルオキシド等で収束せず失敗していた。
+
+2. **run_cmd.py (SRC/exec/run_cmd.py line 1)**: `from utils import remove_files`を追加。
+   bmixリトライ時に`remove_files("__mixm")`を呼んでいたが、importが欠けていたため
+   NameErrorで落ちていた。
+
+3. **ctrlgenM1.py (SRC/exec/ctrlgenM1.py line 643付近)**: R上限のバグ修正と追加。
+   - Na/MgとK/Caの制限が1行に結合されてK/Ca側が無効だった → 分離して修正
+   - Rb/Sr (z=37,38): R上限 2.8 追加
+   - Cs/Ba (z=55,56): R上限 2.8 追加
+   - R=3.0(lmchkデフォルト上限)はアルカリ・アルカリ土類では大きすぎてQSGWで収束しにくい
+
+#### GW1500 実行環境
+- サーバー: kt1 (Threadripper PRO 9985WX 64コア, RTX 5090 x2)
+- 2ワーカー並列 (GPU0+30コア, GPU1+30コア)
+- パラメータ: gwsc 5iter --gpu --mp -vssig=0.8
+- 開始: 2026-04-03, キュー: 原子数昇順(1→8原子)
