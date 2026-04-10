@@ -149,7 +149,7 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
     run_cmd(cluster, MPIParams(command=EXEC_DIR/"hqpe_sc", args=[*options], **mpi_params_single), stdout="lqpe")
 
     ## lmf with Vxc^QSGW
-    run_lmf(cluster, target, MPIParams(command=EXEC_DIR/"lmf", args=[target, *options], **mpi_params_lmf), stdout="llmf")
+    run_lmf(cluster, target, MPIParams(command=EXEC_DIR/"lmf", args=[target, *options], **mpi_params_lmf), bmix_reduction=True, stdout="llmf")
 
     # final part of iteration loop. Manupulate files
     move_files('SEX*', 'SEC*', 'XC*', dest_dir='SEBK')
