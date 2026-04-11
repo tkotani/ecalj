@@ -16,6 +16,13 @@ contains
     ntq = nband
     allocate(itq,source=[(i,i=1,ntq)])
   end subroutine setitq
+  subroutine setitq_mlo(nmlo)
+    integer, intent(in) :: nmlo
+    integer :: i
+    if(allocated(itq)) deallocate(itq)
+    ntq = nmlo
+    allocate(itq,source=[(i,i=1,nmlo)])
+  end subroutine setitq_mlo
   subroutine setitq_hsfp0sc(nbmx_sig,ebmx_sig,eftrue,nspinmx)
     use m_read_bzdata,only:qibz,nqibz
     use m_nvfortran,only: findloc
