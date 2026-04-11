@@ -42,17 +42,12 @@ contains
    enddo
   end subroutine nnwf_init
 
-  function contract_to_site(mat, lorb, ovlp) result(cmat)
+  function contract_to_site(mat, lorb) result(cmat)
     complex(8), intent(in) :: mat(nnwf,nnwf)
-    complex(8), intent(in), optional :: ovlp(nnwf,nnwf)
+    complex(8) :: cmat(nsite,nsite)
     integer, intent(in), optional :: lorb
-    ! complex(8), intent(in), optional :: uovlpq(nnwf)
-    complex(8) :: cmat(nsite,nsite), ovlp_in(nnwf,nnwf)
     logical, allocatable :: mask(:)
     integer :: site1, site2, inwf, jnwf
-    ovlp_in(:,:) = 0d0
-    forall(inwf=1:nnwf) ovlp_in(inwf,inwf) = 1d0
-    if(present(ovlp)) ovlp_in = ovlp
     do concurrent(site1=1:nsite, site2=1:nsite)
       mask = [((pair_site(inwf,1) == site1 .and. pair_site(jnwf,1) == site2 .and. &   !R1 == site1  R3 == site2
                 mlo_pairs(inwf,1) == mlo_pairs(inwf,2) .and. & !n1 == n2 => R1 == R2 is automatically satisfied
@@ -62,7 +57,7 @@ contains
         mask = mask .AND. [(((pair_lorb(inwf,1)==lorb .and. pair_lorb(inwf,2)==lorb .and. &
                             & pair_lorb(jnwf,1)==lorb .and. pair_lorb(jnwf,2)==lorb), inwf=1,nnwf), jnwf=1,nnwf)]
       endif
-      cmat(site1,site2) = sum(pack(reshape(mat(:,:)*ovlp_in(:,:), shape=[nnwf*nnwf]), mask=mask))
+      cmat(site1,site2) = sum(pack(reshape(mat(:,:), shape=[nnwf*nnwf]), mask=mask))
     enddo
   end function contract_to_site
 

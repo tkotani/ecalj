@@ -276,7 +276,8 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   use m_read_bzdata,only: Read_bzdata,qibz,irkin=>irk,ginv,n1,n2,n3,nqbz,nqibz,nstar,nstbz,qbas=>qlat,qbz,wibz,wbz &
        ,nq0i=>nq0ix,wqt=>wt,q0i
   use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen,init_readeigen2, &
-       init_readeigen_mlw_noeval,  nwf !,init_readeigen_phi_noeval
+       init_readeigen_mlw_noeval,  nwf_wannier => nwf !,init_readeigen_phi_noeval
+  use m_mlo_wfs, only : cmlo_init, nwf_mlo => nmlo
   use m_genallcf_v3,only:niwg=>niw,alat,deltaw,esmr,icore,natom,nl,nlnmc,nlnmv,nlnmc,nlnmx,nlnx,laf
   use m_genallcf_v3,only: genallcf_v3,ncore,nn,nnc,nspin,pos,plat, nprecb,mrecb,mrece,nqbzt,nband,mrecg,ndima
   use m_keyvalue,only: getkeyvalue
@@ -439,7 +440,8 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   integer:: ierr,master=0,comm,irr,iqibz
   integer,allocatable::irkall(:,:),irk(:,:)
   logical:: master_mpi, debug = .false.
-  logical :: spinflip, cmdopt0, getW_up_down, getW_down_up
+  logical :: spinflip, cmdopt0, getW_up_down, getW_down_up, mlo_mode
+  integer :: nwf
 !  include "mpif.h"
   comm= mpi_comm_world
 !  call mpi_init(ierr)
@@ -489,6 +491,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   spinflip = .false.
   getW_up_down = cmdopt0('--getW_up_down')
   getW_down_up = cmdopt0('--getW_down_up')
+  mlo_mode = cmdopt0('--mlo')
   if(getW_up_down .or. getW_down_up) spinflip = .true.
   if(master_mpi) write(6,*) ' spinflip option =', spinflip
   if (ixc==11) then
@@ -617,7 +620,13 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   lll=.false.
   if(ixc==10011 .AND. master_mpi) lll= .TRUE. 
   call onoff_write_pkm4crpa(lll)
-  call init_readeigen_mlw_noeval()!nwf,nband,mrecb,mrecg)
+  if(mlo_mode) then
+    call cmlo_init()
+    nwf = nwf_mlo
+  else
+    call init_readeigen_mlw_noeval()!nwf,nband,mrecb,mrecg)
+    nwf = nwf_wannier
+  endif
   if (master_mpi) then
      write(*,*)'Caution! evals are zero hereafter.'
      write(*,*)'nwf =',nwf

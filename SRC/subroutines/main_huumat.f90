@@ -10,8 +10,7 @@ subroutine uumatrix()
   ! Takashi Miyake, Mar 2008, parallelized.  originally written by Takao Kotani, April, 2004
   use m_readqg,only: readngmx, readqg0, readqg
   use m_hamindex,only: Readhamindex, ngrp, symops
-  use m_readeigen,only: init_readeigen, init_readeigen2, readcphif, readgeigf, readeval, &
-                        init_readeigen_mlw_noeval, readcphiW, readgeigW
+  use m_readeigen,only: init_readeigen, init_readeigen2, readcphif, readgeigf, readeval
   use m_read_bzdata,only: read_bzdata, nqbz, nqibz, qbas=>qlat, qibz, qbz, nq0i_=> nq0i, nq0i=>nq0ix, q0i
   use m_genallcf_v3,only: genallcf_v3, natom, nspin, nl, nn, plat, pos, alat, nindx, ndima, nqbzt, nband, nspc, nspx, lmxa
   use m_keyvalue,only: getkeyvalue
@@ -22,6 +21,7 @@ subroutine uumatrix()
   use m_setqibz_lmfham,only: set_qibz, irotg
   use m_mlo_ham, only: mlo_read_hma_rs => read_ham_rs, mlo_nwf => ndimMTO
   use m_mlo_scrw, only: mlo_nnwf_init => nnwf_init, mlo_nnwf => nnwf
+  use m_mlo_wfs, only: cmlo_init, get_geig_cmlo, get_cphi_cmlo
   use m_mpiio, only: openm, writem, closem
   use m_lmfinit,only: m_lmfinit_init
   use m_lattic,only: m_lattic_init
@@ -48,7 +48,7 @@ subroutine uumatrix()
   complex(8),allocatable :: geig1(:,:),geig2(:,:),cphi1(:,:),cphi2(:,:), uum(:,:,:), ppovl(:,:), ppj(:,:,:,:)
   complex(8) :: phaseatom
   logical :: cmdopt2, cmdopt0
-  logical :: use_bbvec_file, is_mlo, spin_flip
+  logical :: use_bbvec_file, use_mlo, spinflip
   complex(8), allocatable :: uumq(:,:,:,:)
   character(8) :: head(2:3,2)
   character(4) charnum4
@@ -77,8 +77,8 @@ subroutine uumatrix()
   call MPI__Broadcast(ixc)
   if(.not.(ixc == 2.or. ixc==3 .or. ixc==4))call rx('main_huumat_MPI: ixc error')
   use_bbvec_file = (ixc /= 4)
-  is_mlo         = (ixc == 4)
-  spin_flip      = (ixc == 4)
+  use_mlo         = (ixc == 4)
+  spinflip      = (ixc == 4)
   call read_BZDATA()
   if (mpi__root) write(stdo,*)' ======== nqbz nqibz ngrp, nq0i, nq0i_=',nqbz,nqibz,ngrp, nq0i, nq0i_
   call genallcf_v3(incwfx=0) !readin condition. use ForX0 for core in GWIN !  call Readhbe()    !Read dimensions of h,hb
@@ -136,11 +136,10 @@ subroutine uumatrix()
   call Readhamindex()
   call init_readeigen()   !Initialization for readeigen
   call init_readeigen2()
-  if(is_mlo) call mlo_read_hma_rs() !set nwf
-  if(is_mlo) call mlo_nnwf_init(nnwf_size_reduction=.true.)
-  if(is_mlo) call init_readeigen_mlw_noeval()
+  if(use_mlo) call mlo_read_hma_rs() !set nwf
+  if(use_mlo) call mlo_nnwf_init(nnwf_size_reduction=.true.)
   call readngmx('QGpsi',ngpmx) !max number of the set q+G
-  if(is_mlo) then
+  if(use_mlo) then
     allocate(geig1(ngpmx*nspc,mlo_nwf),geig2(ngpmx*nspc,mlo_nwf))
     allocate(cphi1(ndima*nspc,mlo_nwf),cphi2(ndima*nspc,mlo_nwf))
   else
@@ -361,17 +360,16 @@ subroutine uumatrix()
       ispinloop2: do 1050 ispin=1,nspx !note that nspx=nsp/nspc where nspc=2 for lso=1 (nspc=1 for lso=0,2)
         ii = iko_ixs(ispin)
         ie = iko_fxs(ispin)
-        if(is_mlo) then
+        if(use_mlo) then
           block
-            real(8) :: qu(3)
-            integer :: size_dummy, ispin1, ispin2
+            integer :: ispin1, ispin2
             ispin1 = ispin
             ispin2 = ispin
-            if(spin_flip) ispin2 = 3-ispin !oppsite spin
-            call readcphiW(q1, size_dummy, ispin1, qu, cphi1)
-            call readcphiW(q2, size_dummy, ispin2, qu, cphi2)
-            call readgeigW(q1, ngpmx, ispin1, qu, geig1)
-            call readgeigW(q2, ngpmx, ispin2, qu, geig2)
+            if(spinflip) ispin2 = 3-ispin !oppsite spin
+            cphi1 = get_cphi_cmlo(q1, ispin1)
+            cphi2 = get_cphi_cmlo(q2, ispin2)
+            geig1 = get_geig_cmlo(q1, ispin1)
+            geig2 = get_geig_cmlo(q2, ispin2)
           endblock
         else
           cphi1 = readcphif(q1,ispin) ! MT part of eigenfunctions 
@@ -419,30 +417,30 @@ subroutine uumatrix()
     uumq(:,:,:,:)  = uumq(:,:,:,:)/dble(nqbz)
     if(mpi__root) then
       block
-        character(20) :: datfile
+        character(64) :: datfile
         integer :: ifile(2), iq, ifile_handle
         do iq=1, nq0i_
           write(stdo,ftox) 'q, diag sum uumq(updw,dwup)/nwf:', q0i(:,iq), &
           (sum([(uumq(i,i,iq,isp),i=1,mlo_nwf)])/dble(mlo_nwf),isp=1,nspin)
         enddo
         ! Info file (sequential): header + q-point list
-        open(newunit=ifile_handle, file='__MLOFormFactor.info', form='unformatted', status='replace')
+        open(newunit=ifile_handle, file='__MLOFormFactorQ.info', form='unformatted', status='replace')
         write(ifile_handle) mlo_nwf, nqbz, nspin, nq0i_
         write(ifile_handle) q0i(:,1:nq0i_)
         close(ifile_handle)
         ! Data files (direct-access): one record per q-point
         do isp=1, nspin
-          if(isp==1 .and. (.not.spin_flip)) datfile = '__MLOFormFactor.UP'
-          if(isp==2 .and. (.not.spin_flip)) datfile = '__MLOFormFactor.DN'
-          if(isp==1 .and. spin_flip) datfile = '__MLOFormFactor.UPDN'
-          if(isp==2 .and. spin_flip) datfile = '__MLOFormFactor.DNUP'
+          if(isp==1 .and. (.not.spinflip)) datfile = '__MLOFormFactorQ.UP'
+          if(isp==2 .and. (.not.spinflip)) datfile = '__MLOFormFactorQ.DN'
+          if(isp==1 .and. spinflip) datfile = '__MLOFormFactorQ.UPDN'
+          if(isp==2 .and. spinflip) datfile = '__MLOFormFactorQ.DNUP'
           open(newunit=ifile_handle, file=trim(datfile), form='unformatted', access='direct', recl=mlo_nwf*mlo_nwf*16, status='replace')
           do iq=1, nq0i_
             write(ifile_handle, rec=iq) uumq(:,:,iq,isp)
           enddo
           close(ifile_handle)
         enddo
-        write(stdo,*) 'uumq written to __Uovlpq.info / .UP / .DN'
+        write(stdo,ftox) 'uumq written to __MLOFormFactor.info / __MLOFormFactorQ.UP / .DN'
       endblock
     endif
   endif
