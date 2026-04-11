@@ -731,14 +731,16 @@ contains
         integer:: nggg,ngcgp, ifiqg,ifiqgc,irrq, nqtt, nqnum,ngpmx,nqnumc,ngcmx!,nqbz
         integer:: ippovl0, nqnumt,iqx,nqini,iqtt
         real(8):: qpgcut_psi2,qx(3),dQpG,dQQ,QpGcut_psi,QpGcut_cou,qxx(3), QpGcutggg,QpGcutgcgp, tolq=1d-8
-        logical:: ppovl0l=.true.
-        character(3) :: charnum3
+        ! logical:: ppovl0l=.true.
+        ! character(3) :: charnum3
         real(8),allocatable ::qibze(:,:),qsave(:,:),qtt(:,:),rmax(:) 
         integer,allocatable:: nvggg(:,:),nvgcgp(:,:), ngveccB(:,:)
         integer,allocatable,target:: ngvecptt(:,:,:),ngvecctt(:,:,:),ngptt(:),ngctt(:),iqindex(:)
-        complex(8),allocatable :: ppx(:,:),ggg(:) !, ppovl(:,:) !,ppovlinv(:,:)
+        complex(8),allocatable :: ppx(:,:),ggg(:), ppovl(:,:), ppovl_buf(:,:) !,ppovlinv(:,:)
         integer,pointer:: ngvecc(:,:) !ngvecp(:,:),
-        character(5):: txx='.tmpp'
+        integer, allocatable :: ngvecc_buf(:,:)
+        ! character(5):: txx='.tmpp'
+        integer :: ippovlp_info, ippovlp, ippovlpg, ngcmax
         ! Reading q+G and bzdata
         open(newunit=ifiqg ,file='__QGpsi',form='unformatted')
         open(newunit=ifiqgc,file='__QGcou',form='unformatted')
@@ -806,7 +808,7 @@ contains
         !Write PPOVLGG === make <Gc-Gp1+Gp2> matrix ===
         write(stdo,ftox)' === Write PPOVLGG PPOVLG PPOVLI ==='
         write(stdo,ftox)' nggg ngcgp=',nggg,ngcgp,'nqnumt nqini nqtt',nqnumt,nqini,nqtt
-        open(newunit=ippovlgg,file= "__PPOVLGG",form='unformatted')
+        open(newunit=ippovlgg,file= "__PPOvlpGG",form='unformatted')
         write(ippovlgg) nggg, ngcgp, nqnumt-nqini+1,nqini,nqnumt
         write(ippovlgg) nvgcgp(1:3,1:ngcgp)
         write(ippovlgg) nvggg(1:3,1:nggg)
@@ -816,8 +818,17 @@ contains
         !Write PPOVL0,PPOVLG, PPOVLI
         !2025-10-10 PPOVI and PPOVL0 have been removed.
         ! if(ppovl0l) open(newunit=ippovl0,form='unformatted',file='__PPOVL0')
+        !2026-04-11 Add output of ppovl to constract tilde M representation
+
+        ngcmax = maxval(ngctt)
+        allocate(ppovl_buf(ngcmax, ngcmax), ngvecc_buf(3,ngcmax))
+        open(newunit=ippovlp_info,  file='__PPOvlp.info',  form='unformatted')
+        write(ippovlp_info) ngcmax, nqini, nqnumt !No. of saved q-vectors,  max size of G vector
+        open(newunit=ippovlp,  file='__PPOvlp',  form='unformatted', access='direct',recl=16*ngcmax**2)
+        open(newunit=ippovlpg, file='__PPOvlpG', form='unformatted', access='direct',recl=4*ngcmax*3)
+
         iqiloop: do iqi = nqini, nqnumt    !nqibz + nq0i !+ iadd
-          open(newunit=ippovlg,file= "__PPOVLG."//charnum3(iqi),form='unformatted')
+          ! open(newunit=ippovlg,file= "__PPOVLG."//charnum3(iqi),form='unformatted')
           ! open(newunit=ippovli,file= "__PPOVLI."//charnum3(iqi),form='unformatted')
           qx  = qibze(1:3,iqi)
           iqx= findloc([(sum(abs(qx(:)-qtt(:,iqtt)))<tolq,iqtt=1,nqtt)],dim=1,value=.true.)
@@ -826,23 +837,32 @@ contains
           ngp=ngptt(iqx)
           ngc=ngctt(iqx)
           ! write(ippovli) qx,ngc
-          write(ippovlg) qx,ngc
+          ! write(ippovlg) qx,ngc
           write(stdo,"(' iqi qx iqx=',i5,3f8.4,i5,' ngc ngp=',4i5)")iqi,qx,iqx,ngc,ngp !sum(abs(ngvecp)),sum(abs(ngvecc))
           ! if(ppovl0l) write(ippovl0)   qx,ngc
           if(ngc==0) cycle
-          ! allocate(ppovl(ngc,ngc))!,ppovlinv(ngc,ngc)) !This is necessary for matcinv
-          ! call mkppovl2(alat,plat,qlat, ngc,ngvecc, ngc,ngvecc, nbas,rmax,pos, ppovl)
+          allocate(ppovl(ngc,ngc))!,ppovlinv(ngc,ngc)) !This is necessary for matcinv
+          call mkppovl2(alat,plat,qlat, ngc,ngvecc, ngc,ngvecc, nbas,rmax,pos, ppovl)
+          write(ippovlp_info) qx, ngc
+          ppovl_buf(1:ngc,1:ngc) = ppovl(1:ngc,1:ngc)
+          ngvecc_buf(1:3,1:ngc) = ngvecc(1:3,1:ngc)
+          write(ippovlp,  rec=iqi-nqini+1) ppovl_buf
+          write(ippovlpg, rec=iqi-nqini+1) ngvecc_buf
+          deallocate(ppovl)
           ! if(ppovl0l)  write(ippovl0) ppovl(1:ngc,1:ngc)
           ! ppovlinv = ppovl
           ! call matcinv(ngc,ppovlinv)
           ! deallocate(ppovl)
           !! ggg= < exp(i G r) > integral in the interstitial region.
-          if(ngc/=0) write(ippovlg) ngvecc(1:3,1:ngc)
+          ! if(ngc/=0) write(ippovlg) ngvecc(1:3,1:ngc)
           ! if(ngc/=0) write(ippovli) ppovlinv(1:ngc,1:ngc)
           ! deallocate(ppovlinv)
-          close(ippovlg)
+          ! close(ippovlg)
           ! close(ippovli)
         enddo iqiloop
+        close(ippovlp_info)
+        close(ippovlp)
+        close(ippovlpg)
         ! if(ppovl0l) close(ippovl0)
         write(stdo,*)" end of rdata4gw "
       endblock rdata4gwblock

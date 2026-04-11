@@ -500,7 +500,7 @@ subroutine sxcf_fal3z(&
            ntqxx= ntp0
            !! Get matrix element zmelt= rmelt + img*cmelt, defined in m_zmel.F---
 !          call      Get_zmel_init(q,qibz_k,irot,qbz_kr,1,nbmax+nctot,isp,1,ntqxx,isp,nctot,ncc=0,iprx=.false.,zmelconjg=.false.)
-           call build_zmel(q,qibz_k,irot,qbz_kr,1,nbmax+nctot,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug, &
+           call build_zmel(q,qibz_k,irot,qbz_kr,1,nbmax+nctot,isp,1,ntqxx,isp,nctot,ncc=0, &
                            zmelconjg=.false., is_m_basis=.false., mpi_mode=.false.)!2024-8-20
           !$acc update host(zmel)
            

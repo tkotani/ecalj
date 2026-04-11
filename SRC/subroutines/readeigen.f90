@@ -14,7 +14,12 @@ module m_readeigen
   use m_genallcf_v3,only: nsp =>nspin ,ndima,ndimanspc, mrecb,mrece,mrecg,nband,nspc,nspx
   use m_keyvalue,only: getkeyvalue
   use m_keep_wfs,only: keep_wfs_init, update_keep_geig, update_keep_cphi, set_geig_from_keep, set_cphi_from_keep
-  use m_mpi,only:ipr
+  use m_mpi, only: ipr, MPI__AllreduceAND, MPI__zBcast => MPI__zBcast_h, get_mpi_master
+#ifdef __GPU
+  use m_blas, only : zmm => zmm_d
+#else
+  use m_blas, only : zmm => zmm_h
+#endif
   !! qtt(1:3, nqtt)  :q-vector in full BZ (no symmetry) in QGpsi, QGcou
   !! qtti(1:3,nqi)   :eivenvalues, eigenvectors are calculated only for irr=1 in QGpsi (See lqg4gw).
   implicit none
@@ -180,23 +185,24 @@ contains
      enddo
   end subroutine readcphi
 
-  function readgeigf_mpi(q, isp, comm) result(geigen)
-    use m_ftox
-    use m_mpi, only: MPI__AllreduceAND, MPI__zBcast => MPI__zBcast_h, get_mpi_master
-    implicit none
+  function readgeigf_mpi(q, isp, mpi_mode, comm) result(geigen)
     real(8), intent(in) :: q(3)
     integer, intent(in) :: isp
+    logical, intent(in), optional :: mpi_mode
     integer, intent(in), optional :: comm
     complex(8) :: geigen(ngpmx*nspc,nband), geigenr(ngpmx*nspc,nband)
-    integer :: iq, ikpisp, iqq, igg, iqi, igxt, i, ioff, ispc, ifiqg
+    integer :: i, iq, ikpisp, iqq, igg, iqi, igxt, ioff, ispc, ifiqg
     real(8) :: platt(3,3), qtarget(3), qu(3)
-    logical :: has_geig, mpi_master
+    logical :: has_geig, mpi_master, mpi_mode_in
     integer, save :: iqq_prev = -99999, iq_prev = -99999
 #ifdef __GPU
     attributes(device) :: geigen
 #endif
     mpi_master = .true.
-    if(present(comm)) mpi_master = get_mpi_master(comm)
+    mpi_mode_in = .false.
+    if(present(mpi_mode)) mpi_mode_in = mpi_mode
+    if(mpi_mode_in .and. .not. present(comm)) call rx( 'readgeigf_mpi: mpi_mode requires comm')
+    if(mpi_mode_in) mpi_master = get_mpi_master(comm)
     !$acc kernels
     geigen(:,:) = (0d0, 0d0) !2024-5-17 for ifort NaN initialization
     !$acc end kernels
@@ -204,16 +210,16 @@ contains
     if(init2) call rx( 'readgeig: modele is not initialized yet')
     call iqindx2_(q, iq, qu) !qu is used q. q-qu is a G vector.
     quu = qu
-    if(debug) write(6,*)' readgeig:xxx iq=',iq
+    if(debug) write(stdo,*)' readgeig:xxx iq=',iq
     iqq=iqmap(iq)
     iqi=iqimap(iq)
     igg=igmap(iq)
     qtarget=qtt(:,iq) ! iqq is mapped to qtarget=qu=qtt(:,iq)
     if(ngp(iq)==0) return
     if(ngp(iq)/=ngp(iqq)) then
-       if(ipr) write(6,*)' ddddd readgeig: iq iqq igg=',iq,iqq,igg,q,qu
-       if(ipr) write(6,*)' ddddd qtarget=',qtarget,' ddddd q (iqq)=',qtt(:,iqq)
-       if(ipr) write(6,"(a,3i5,3f10.4,2i5)")' ngp(iq) ngp(iqq)=',iq,iqq,igg,q,ngp(iq),ngp(iqq)
+       if(ipr) write(stdo,*)' ddddd readgeig: iq iqq igg=',iq,iqq,igg,q,qu
+       if(ipr) write(stdo,*)' ddddd qtarget=',qtarget,' ddddd q (iqq)=',qtt(:,iqq)
+       if(ipr) write(stdo,"(a,3i5,3f10.4,2i5)")' ngp(iq) ngp(iqq)=',iq,iqq,igg,q,ngp(iq),ngp(iqq)
        call rx( 'readgeig:x2 ngp(iq)/=ngp(iqq)')
     endif
     !$acc enter data create(geigenr)
@@ -225,11 +231,11 @@ contains
       !$acc host_data use_device(geigenr)
       has_geig = set_geig_from_keep(iqi,isp,geigenr) !set geigenr if it is stored
       !$acc end host_data
-      if(present(comm)) call MPI__AllreduceAND(has_geig, communicator=comm)
+      if(mpi_mode_in) call MPI__AllreduceAND(has_geig, communicator=comm)
       if(.not.has_geig) then
         ikpisp= isp + nsp*(iqi-1)
         if(mpi_master) i=readm(ifgeigm,rec=ikpisp, data=geigenr(1:ngpmx*nspc,1:nband))
-        if(present(comm)) call MPI__zBcast(geigenr, ngpmx*nspc*nband, communicator=comm)
+        if(mpi_mode_in) call MPI__zBcast(geigenr, ngpmx*nspc*nband, communicator=comm)
         !$acc update device(geigenr)
         !$acc host_data use_device(geigenr)
         call update_keep_geig(iqi,isp,geigenr)
@@ -256,8 +262,8 @@ contains
             !$acc exit data delete(ngvecprev)
             deallocate(ngvecprev)
           endif
-          allocate( ngvecprev(-imx:imx,-imx:imx,-imx:imx,iq:iq))
-          read(ifiqg, rec=iq)  ngvecp_tmp(1:3,1:ngpmx),ngvecprev(-imx:imx,-imx:imx,-imx:imx,iq)
+          allocate(ngvecprev(-imx:imx,-imx:imx,-imx:imx,iq:iq))
+          read(ifiqg, rec=iq) ngvecp_tmp(1:3,1:ngpmx),ngvecprev(-imx:imx,-imx:imx,-imx:imx,iq)
           !$acc enter data copyin(ngvecprev)
           iq_prev = iq
         endif
@@ -268,13 +274,13 @@ contains
       ioff=(ispc-1)*ngpmx
       rotipw: block
         complex(8), parameter :: img=(0d0,1d0), img2pi = 2d0*4d0*datan(1d0)*img
-        integer :: ig, ig2, i, iband, nnn(3)
+        integer :: ig, ig2, iband, nnn(3)
         complex(8) :: cphase
         real(8) :: qpg(3), qpgr(3), qin(3)
         qin(:) = qtt(:,iqq)
         !$acc data copyin(shtvg(1:3,igg), qin, qtarget, qlat, symops(1:3,1:3,igg), platt) &
         !$acc      present(ngvecp, ngvecprev, geigenr)
-        !$acc parallel 
+        !$acc parallel
         !$acc loop gang independent private(nnn, qpgr, qpg)
         do ig = 1,ngp(iqq)
           !$acc loop vector
@@ -285,7 +291,7 @@ contains
           do i = 1, 3
             qpgr(i) = sum(symops(i,:,igg)*qpg(:))
           enddo
-          if(igxt==-1) qpgr(:) =-qpgr(:)                               ! xxxxxxxx need to check!
+          if(igxt==-1) qpgr(:) = -qpgr(:)                               ! xxxxxxxx need to check!
           !$acc loop vector
           do i = 1, 3
             nnn(i) = nint(sum(platt(i,:)*(qpgr(:)-qtarget(:))))
@@ -304,24 +310,23 @@ contains
     !$acc exit data delete(geigenr)
   end function readgeigf_mpi
 
-  function readcphif_mpi(q, isp, comm) result(cphif)
-    use m_mpi, only: MPI__AllreduceAND, MPI__zBcast => MPI__zBcast_h, get_mpi_master
-    implicit none
+  function readcphif_mpi(q, isp, mpi_mode, comm) result(cphif)
     real(8), intent(in) :: q(3)
     integer, intent(in) :: isp
+    logical, intent(in), optional :: mpi_mode
     integer, intent(in), optional :: comm
     complex(8) :: cphif(ndima*nspc,nband), cphifr(ndima*nspc,nband)
     integer:: i, iq, ikpisp, iqq, igg, iqi, igxt, ioff, ispc
     real(8) ::  qu(3)
-    complex(8):: phase
-    complex(8), parameter:: img=(0d0,1d0) ! MIZUHO-IR
-    complex(8):: img2pi = 2d0*4d0*datan(1d0)*img ! MIZUHO-IR
-    logical :: has_cphi, mpi_master
+    logical :: has_cphi, mpi_master, mpi_mode_in
 #ifdef __GPU
     attributes(device) :: cphif
 #endif
     mpi_master = .true.
-    if(present(comm)) mpi_master = get_mpi_master(comm)
+    mpi_mode_in = .false.
+    if(present(mpi_mode)) mpi_mode_in = mpi_mode
+    if(mpi_mode_in .and. .not. present(comm)) call rx( 'readcphif_mpi: mpi_mode requires comm')
+    if(mpi_mode_in) mpi_master = get_mpi_master(comm)
     if(init2) call rx( 'readcphi: modele is not initialized yet')
     call iqindx2_(q, iq, qu) !for given q, get iq. qu is used q. q-qu= G vectors. qu=qtt(:,iq)
     igg=igmap(iq)  ! qtt(:,iq)= matmul(sympos(  ,igg),qtt(:,iqq))
@@ -336,34 +341,29 @@ contains
       !$acc kernels present(cphi)
       cphifr(1:ndima*nspc,1:nband) = cphi(1:ndima*nspc,1:nband,iqi,isp)
       !$acc end kernels
-    else 
+    else
       !$acc host_data use_device(cphifr)
       has_cphi = set_cphi_from_keep(iqi,isp,cphifr)
       !$acc end host_data
-      if(present(comm)) call MPI__AllreduceAND(has_cphi, communicator=comm)
+      if(mpi_mode_in) call MPI__AllreduceAND(has_cphi, communicator=comm)
       if(.not.has_cphi)then
         ikpisp= isp + nsp*(iqi-1)
-        if(mpi_master) i=readm(ifcphim,rec=ikpisp, data=cphifr(1:ndima*nspc,1:nband)) ! , rec=ikpisp
-        if(present(comm)) call MPI__zBcast(cphifr, ndima*nspc*nband, communicator=comm)
+        if(mpi_master) i=readm(ifcphim,rec=ikpisp, data=cphifr(1:ndima*nspc,1:nband))
+        if(mpi_mode_in) call MPI__zBcast(cphifr, ndima*nspc*nband, communicator=comm)
         !$acc update device(cphifr)
         !$acc host_data use_device(cphifr)
         call update_keep_cphi(iqi,isp,cphifr)
         !$acc end host_data
       endif
     endif
-    if(debug) write(6,"('readcphi:: xxx sum of cphifr=',3i4,4d23.16)")ndimanspc,ndimanspc,norbtx, &
+    if(debug) write(stdo,"('readcphi:: xxx sum of cphifr=',3i4,4d23.16)")ndimanspc,ndimanspc,norbtx, &
          sum(cphifr(1:ndimanspc,1:nband)),sum(abs(cphifr(1:ndimanspc,1:nband)))
     call flush(6)
     igxt=1 !not timereversal (for future)
     do ispc=1,nspc
        ioff=ndima*(ispc-1)
        rotmto: block
-#ifdef __GPU
-         use m_blas, only : zmm => zmm_d
-#else
-         use m_blas, only : zmm => zmm_h
-#endif
-         real(8) :: qrot(3),  qin(3)
+         real(8) :: qrot(3), qin(3)
          complex(8) :: phase(nbas), dlmm_tmp(-lmxax:lmxax,-lmxax:lmxax, 0:lmxax)
          complex(8), parameter :: img=(0d0,1d0), img2pi = 2d0*4d0*datan(1d0)*img
          integer :: iorb, ibas, l, k, ini1, ini2, ierr
@@ -376,7 +376,7 @@ contains
          if(igxt==-1) qrot=-qrot !july2012takao
          phase = [(exp(-img2pi*sum(qrot*tiat(:,ibas, igg))),ibas=1,nbas)]
          !$acc host_data use_device(cphifr)
-         do iorb=1, norbtx !orbital-blocks
+         do iorb=1, norbtx
            ibas = ibas_tbl(iorb)
            l = l_tbl(iorb)
            k = k_tbl(iorb)
@@ -389,7 +389,7 @@ contains
        endblock rotmto
     enddo
     !$acc exit data delete(cphifr)
-    if(debug) write(6,*) 'end of readcphif_d'; call flush(6)
+    if(debug) write(stdo,*) 'end of readcphif_d'; call flush(6)
   end function readcphif_mpi
 
   subroutine init_readeigen() ! initialization. Save QpGpsi EVU EVD to arrays.--
@@ -519,7 +519,6 @@ contains
     enddo
     close(ifoc)
   end subroutine readmnla_cphi
-  
   subroutine init_readeigen_mlw_noeval() ! replace cphi and geig for hwmat ! this should be called after init_readgeigen2
   !xxxxxxxxxxxxxx only for nspc=1. Need fixing for nspc=2  
     implicit none
@@ -542,15 +541,15 @@ contains
     ! --- Readin MLWU/D, MLWEU/D, and UUq0U/D
     mlocase=cmdopt0('--mlo')
     
-    if(mlocase) then
-      iko_ix=1
-      iko_fx=nband
-      open(newunit=ifi,file='__cmlo.info',form='unformatted') 
-      read(ifi) ndimMTO,nqbz !,nqirr,nMTO,mrecb
-      read(ifi) !ix(1:ndimMTO),qplistgw(1:3,nqirr)
-      close(ifi)
-      nwf=ndimMTO
-    else
+    ! if(mlocase) then
+    !   iko_ix=1
+    !   iko_fx=nband
+    !   open(newunit=ifi,file='__cmlo.info',form='unformatted') 
+    !   read(ifi) ndimMTO,nqbz !,nqirr,nMTO,mrecb
+    !   read(ifi) !ix(1:ndimMTO),qplistgw(1:3,nqirr)
+    !   close(ifi)
+    !   nwf=ndimMTO
+    ! else
      do is = 1,nsp
        if (is == 1) then
           open(newunit=ifmlw,file='MLWU',form='unformatted')
@@ -598,11 +597,11 @@ contains
      deallocate(evud)
      allocate(evud(nwf,nqi,nsp)) !nqtt
      evud = 0d0
-    endif  
+    ! endif  
     allocate(cbwf(iko_ix:iko_fx,nwf,nqtt,nsp))
     cbwf = 0d0
-    allocate(ovlmW_inv(nwf,nwf,nqtt,nsp), source = (0d0,0d0))
-    forall(iwf=1:nwf) ovlmW_inv(iwf,iwf,1:nqtt,1:nsp) = 1d0
+    ! allocate(ovlmW_inv(nwf,nwf,nqtt,nsp), source = (0d0,0d0))
+    ! forall(iwf=1:nwf) ovlmW_inv(iwf,iwf,1:nqtt,1:nsp) = 1d0
     
     if(Wpkm4crpa) then
       fname='pkm4crpa'
@@ -619,11 +618,11 @@ contains
        if (iqbz == 0) iqbz = nqbz
        iq0i = (ikp - iqbz)/nqbz
        do is= 1,nsp
-         if(mlocase) then
-           call readcmlo( qtt(:,ikp), is, nspx,nband, ndimMTO, cbwf(:,:,ikp,is), ovlmW_inv(:,:,ikp,is))
-           !           write(*,*) 'readcmlo check ---', ikp,is,sum(abs(cbwf(1:nband,1:ndimMTO,ikp,is)))
-           goto 889
-         endif
+         ! if(mlocase) then
+         !   call readcmlo( qtt(:,ikp), is, nspx,nband, ndimMTO, cbwf(:,:,ikp,is), ovlmW_inv(:,:,ikp,is))
+         !   !           write(*,*) 'readcmlo check ---', ikp,is,sum(abs(cbwf(1:nband,1:ndimMTO,ikp,is)))
+         !   goto 889
+         ! endif
          if (iq0i == 0) then !first block without adding Q0P
            do ib = iko_ix,iko_fx
              do iwf= 1,nwf
@@ -673,7 +672,8 @@ contains
        enddo
     enddo
     if(Wpkm4crpa) close(ifi)
-    if(.not.mlocase) deallocate(dnk,uum)
+    ! if(.not.mlocase) deallocate(dnk,uum)
+    deallocate(dnk,uum)
     mrecb_o = mrecb * nwf / nband
     mrecg_o = mrecg * nwf / nband
     if(keepeig_mlw) then
@@ -738,11 +738,11 @@ contains
     endif
     deallocate(cbwf)
   end subroutine init_readeigen_mlw_noeval
-  subroutine readgeigW(q,ngp_in,isp, qu,geigen,dual)
+  subroutine readgeigW(q,ngp_in,isp, qu,geigen)
     integer:: isp,iq,iqindx,ngp_in,ikpisp
     real(8)   :: q(3),qu(3)
     complex(8):: geigen(ngp_in,nwf)
-    logical, intent(in), optional :: dual
+    ! logical, intent(in), optional :: dual
     if(init2) call rx( 'readgeig_mlw: modele is not initialized yet')
     call iqindx2_(q, iq, qu) !qu is used q.  q-qu= G vectors.
     if(ngp_in < ngp(iq)) then
@@ -751,87 +751,23 @@ contains
     endif
     !   if(keepeig) then
     geigen(1:ngp(iq),1:nwf) = geigW(1:ngp(iq),1:nwf,iq,isp)
-    if(present(dual))then
-      if(dual) geigen(1:ngp(iq),:) = matmul(geigen(1:ngp(iq),:), ovlmW_inv(:,:,iq,isp))
-    endif
     !   else
     !      ikpisp= isp + nsp*(iq-1)
     !      read(ifgeigW) geigen(1:ngpmx,1:nwf)
     !   endif
   end subroutine readgeigW
-  subroutine readcphiW(q,ndimanspc_dummy,isp,  qu,cphif, dual)
+  subroutine readcphiW(q,ndimanspc_dummy,isp,  qu,cphif)
     integer:: isp,iq,iqindx,ndimanspc_dummy,ikpisp
     real(8)   :: q(3),qu(3)
     complex(8):: cphif(ndima*nspc,nwf)
-    logical, intent(in), optional :: dual
     if(init2) call rx( 'readcphi_mlw: modele is not initialized yet')
     call iqindx2_(q, iq, qu) !qu is used q.  q-qu= G vectors.
     !   if(keepeig) then
     cphif(1:ndima*nspc,1:nwf) = cphiW(1:ndima*nspc,1:nwf,iq,isp)
-    if(present(dual))then
-      if(dual) cphif(:,:) = matmul(cphif(:,:), ovlmW_inv(:,:,iq,isp))
-    endif
     !   else
     !      ikpisp= isp + nsp*(iq-1)
     !      read(ifcphi_mlw) cphif(1:ndimanspc,1:nwf)
     !   endif
   end subroutine readcphiW
-
-  subroutine readcmlo(qtarget,is,nspx,nband,ndimMTO, cmlo, ovlm_inv)
-    use m_qplist,only: qplist
-    implicit none
-    integer:: is,nspx,ndimPMT,ndimMTO,i,igg,iq,iqqisp,nband,j,ig,iqq,nqbz,mrecbb
-    real(8):: qp(3),qtarget(3),qx(3),qxx(3)
-    complex(8)::  cmlo(nband,ndimMTO), ovlm_inv(ndimMTO,ndimMTO)
-    integer,save:: ifizz,niqisp,nqirr,ifihh,ndimMTO_,nMTO
-    logical,save:: init=.True.
-    integer,allocatable,save::iqproc(:),isproc(:),ix(:)
-    real(8),allocatable,save::qplistgw(:,:)
-    real(8),external::tolq !eps=1d-8
-    if(init) then 
-      open(newunit=ifihh,file='__cmlo.info',form='unformatted') 
-      read(ifihh) ndimMTO_,nqbz,nqirr,nMTO,mrecbb
-      if(ndimMTO/=ndimMTO_) call rxii('ndimMTO/=ndimMTO_',ndimMTO,ndimMTO_)
-      !        write(stdo,ftox)'nnnnnnnn ndimMTO nqirr=',ndimMTO,nqirr,nMTO
-      allocate(ix(ndimMTO),qplistgw(3,nqirr))
-      read(ifihh)ix,qplistgw
-      close(ifihh)
-      i = openm(newunit=ifizz, file='__cmlo.data',recl=mrecbb)
-      init=.False.
-    endif
-    ! find iq for given qtarget
-    findiqigg:do iq=1,nqirr
-      qp = qplistgw(:,iq)
-      !        write(stdo,*)' qqqq qp= ',iq,qp
-      do ig=1,ngrp
-        qx= matmul(transpose(plat), qtarget-matmul(symops(:,:,ig),qp))
-        qxx= qx-nint(qx) !qx-ndiff !translation of qx
-        !          write(stdo,*)'iiiiiiiiiiiiii',ig,abs(sum(abs(qxx)))
-        if(sum(abs(qxx))<tolq()) then
-          iqq=iq
-          igg=ig
-          goto 1019
-        endif
-      enddo
-    enddo findiqigg
-    !      write(stdo,*)' qqqq qtarget=',qtarget
-    call rx('readcmlo: can not find ig and iq')
-1019 continue
-    iqqisp= is + nspx*(iqq-1)
-    i = readm(ifizz,rec=iqqisp,data=cmlo)
-    !      write(*,*) 'ccccccccc cmlo1111 iqq is cmlo',is,iqq,iqqisp,sum(abs(cmlo))
-    block
-      use m_rotwave,only: rotmatMTO
-      use m_lapack, only: zminv => zminv_h
-      complex(8)::rotmatt(ndimMTO,ndimMTO),rotmat(nMTO,nMTO) !  write(stdo,*)'igg qp=',iqq,qp,'  ',qtarget
-      complex(8) :: ovlm(ndimMTO,ndimMTO)
-      integer :: istat
-      call rotmatMTO(igg, qp,qtarget,nMTO, rotmat)
-      forall(i=1:ndimMTO,j=1:ndimMTO) rotmatt(i,j)=rotmat(ix(i),ix(j))
-      cmlo = matmul(cmlo,dconjg(transpose(rotmatt)))
-      ovlm = matmul(dconjg(transpose(cmlo)), cmlo)
-      istat = zminv(ovlm, n=ndimMTO)
-      ovlm_inv = ovlm
-    endblock
-  endsubroutine readcmlo
+  !reaadcmlo moved to m_mlo_wfs
 end module m_readeigen

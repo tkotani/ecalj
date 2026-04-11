@@ -271,7 +271,7 @@ contains
                 !but, MPI communication is bottle-neck when GPUs are used. Therefore, it is only used in without GPU case.
                 if(debug) call writemem('xxxx start build_zmel')
                 call build_zmel(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=ns1,ns2=ns2, ispm=isp_k, &
-                     nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1),iprx=.false., &
+                     nqini=nkqmin(k),nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1), &
                      zmelconjg=.true., is_m_basis = is_m_basis, mpi_mode=.not.use_gpu, comm=comm_b)
                 if(debug) call writemem('xxxx end build_zmel')
                 call stopwatch_pause(t_sw_zmel)
