@@ -5,8 +5,9 @@ module m_lapack
   use cusolverdn
 #endif
   use m_blas
+  use m_lgunit,      only: stdo
   implicit none
-  public :: zhgv_h, zhev_h, zminv_h, zsv_h, zgev_h, zggv_h
+  public :: zhgv_h, zhgv_lindep_h, zhev_h, zminv_h, zsv_h, zgev_h, zggv_h
 #ifdef __GPU
   public :: zhgv_d, zhev_d, zminv_d, zsv_d, cusolver_finalize !, zgev_d
 #endif
@@ -161,45 +162,185 @@ contains
     a(1:lda_in*n) = z(1:lda_in*n)
     deallocate(work, rwork, iwork, z, isuppz)
   end function zhev_h
-  integer function zhgv_h(A, B, n, evl, il, iu, lda, ldb) result(istat)
+  integer function zhgv_h(A, B, n, evl, il, iu, lda, ldb, keep_ab, evec) result(istat)
   ! Solving the generalized eigenvalue problem Az = lambda Bz, where A, B are Hermitian matrixes, z is eigenfunction
-  ! Eigenvalues are stores in evl, eigenvectors are stored in A
+  ! Eigenvalues are stores in evl, eigenvectors are stored in A (or evec if present)
+  ! keep_ab=.true.: A and B are not overwritten (internal copies used for LAPACK call)
+  ! evec present: eigenvectors are stored in evec instead of A
+  ! Use keep_ab=.true. with evec to make the call fully non-destructive
   !!! that range is 1<=IL <= IU <= N
     integer, intent(in) :: n !size of matrix
     real(8), intent(out) :: evl(n) !eigenvalues
     complex(8) :: A(*), B(*)
     integer, intent(in), optional :: lda, ldb, il, iu
+    logical, intent(in), optional :: keep_ab
+    complex(8), intent(out), optional :: evec(*)
     integer :: lda_in, ldb_in, il_in, iu_in
     integer, parameter :: nb = 64
-    complex(8), allocatable:: work(:), z(:)
-integer, allocatable:: ifail(:), iwork(:)
+    complex(8), allocatable:: work(:), z(:), a_work(:), b_work(:)
+    integer, allocatable:: ifail(:), iwork(:)
     real(8), allocatable:: rwork(:)
     integer :: m, lwork, info
     real(8) :: dlamch, abstol, vl = 0d0, vu = 0d0
+    logical :: keep_ab_in
     lda_in = n; ldb_in = n
     if(present(lda)) lda_in = lda
     if(present(ldb)) ldb_in = ldb
     il_in = 1; iu_in = n
     if(present(il)) il_in = il
     if(present(iu)) iu_in = iu
+    keep_ab_in = .false.; if(present(keep_ab)) keep_ab_in = keep_ab
     abstol = 2d0*dlamch('S')
     allocate(z(lda_in*n), source = (0d0, 0d0))
     allocate(work(1))
     allocate(rwork(7*n), ifail(n), iwork(5*n))
-    lwork = -1
-    call zhegvx( 1, 'V', 'I', 'U', n, a, lda_in, b, ldb_in, &
-       vl, vu, il_in, iu_in, abstol, m, evl, z, lda_in, &
-       work, lwork, rwork, iwork, ifail, info )
-    lwork = max((nb+1)*n, nint(dble(work(1))))
-    deallocate(work)
-    allocate(work(lwork))
-    call zhegvx( 1, 'V', 'I', 'U', n, a, lda_in, b, ldb_in, &
-       vl, vu, il_in, iu_in, abstol, m, evl, z, lda_in, &
-       work, lwork, rwork, iwork, ifail, info)
+    if(keep_ab_in) then
+      allocate(a_work(lda_in*n), b_work(ldb_in*n))
+      a_work(1:lda_in*n) = a(1:lda_in*n)
+      b_work(1:ldb_in*n) = b(1:ldb_in*n)
+      lwork = -1
+      call zhegvx( 1, 'V', 'I', 'U', n, a_work, lda_in, b_work, ldb_in, &
+         vl, vu, il_in, iu_in, abstol, m, evl, z, lda_in, &
+         work, lwork, rwork, iwork, ifail, info )
+      lwork = max((nb+1)*n, nint(dble(work(1))))
+      deallocate(work); allocate(work(lwork))
+      call zhegvx( 1, 'V', 'I', 'U', n, a_work, lda_in, b_work, ldb_in, &
+         vl, vu, il_in, iu_in, abstol, m, evl, z, lda_in, &
+         work, lwork, rwork, iwork, ifail, info)
+      deallocate(a_work, b_work)
+    else
+      lwork = -1
+      call zhegvx( 1, 'V', 'I', 'U', n, a, lda_in, b, ldb_in, &
+         vl, vu, il_in, iu_in, abstol, m, evl, z, lda_in, &
+         work, lwork, rwork, iwork, ifail, info )
+      lwork = max((nb+1)*n, nint(dble(work(1))))
+      deallocate(work); allocate(work(lwork))
+      call zhegvx( 1, 'V', 'I', 'U', n, a, lda_in, b, ldb_in, &
+         vl, vu, il_in, iu_in, abstol, m, evl, z, lda_in, &
+         work, lwork, rwork, iwork, ifail, info)
+    endif
     istat = info
-    a(1:lda_in*n) = z(1:lda_in*n)
-    deallocate(work,rwork,iwork,ifail)
+    if(info < 0) then
+      write(*,'(a,i0,a)') 'zhgv_h: zhegvx error: illegal value in argument ', -info, '. Aborting.'
+      ! stop
+    elseif(info > n) then
+      write(*,'(a,i0,a)') 'zhgv_h: zhegvx error: B is not positive definite (Cholesky failed at minor ', info-n, '). Aborting.'
+      ! stop
+    elseif(info > 0) then
+      write(*,'(a,i0,a)') 'zhgv_h: zhegvx warning: ', info, ' eigenvector(s) failed to converge (see ifail).'
+    endif
+    if(present(evec)) then
+      evec(1:lda_in*n) = z(1:lda_in*n)
+    else
+      a(1:lda_in*n) = z(1:lda_in*n)
+    endif
+    deallocate(work,rwork,iwork,ifail,z)
   end function zhgv_h
+  integer function zhgv_lindep_h(A, B, n, evl, il, iu, lda, ldb, evec, thr_lo, nev, nkeep) result(istat)
+  ! Solving the generalized eigenvalue problem Az = lambda Bz for Hermitian A, B
+  ! Handles near-singular/indefinite B via canonical orthogonalization:
+  !   1. Diagonalize B: eigenvectors V, eigenvalues b_evl (ascending)
+  !   2. Discard eigenvectors with b_evl <= thr_lo  (linear dependencies)
+  !   3. Form reduced basis X(:,j) = V(:,j) / sqrt(b_evl(j))  for kept vectors
+  !   4. Solve reduced standard eigenvalue problem (X^H A X) y = lambda y
+  !   5. Back-transform eigenvectors: z = X * y
+  ! A and B are never overwritten (copies used internally)
+  ! evec (optional out): eigenvectors; if absent, stored in A
+  ! thr_lo (optional in): threshold for linear dependence (default 1e-1)
+  ! nev (optional out): number of eigenvalues found (may be < iu-il+1 after reduction)
+  ! nkeep (optional in): if present, keep only the nkeep largest B eigenvalues.
+  !   When both thr_lo and nkeep are given, the stricter criterion (fewer vectors) is applied.
+    integer, intent(in) :: n
+    real(8), intent(out) :: evl(n)
+    complex(8) :: A(*), B(*)
+    integer, intent(in), optional :: lda, ldb, il, iu, nkeep
+    complex(8), intent(out), optional :: evec(*)
+    real(8), intent(in), optional :: thr_lo
+    integer, intent(out), optional :: nev
+    integer :: lda_in, ldb_in, il_in, iu_in, il_lo, iu_lo, n_lo, n_ev, i, j, i0
+    real(8) :: thr_lo_in
+    complex(8), allocatable :: b_evec(:), x(:), tmp(:), a_lo(:), z_out(:)
+    real(8), allocatable :: b_evl(:), evl_lo(:)
+    lda_in = n; ldb_in = n
+    if(present(lda)) lda_in = lda
+    if(present(ldb)) ldb_in = ldb
+    il_in = 1; iu_in = n
+    if(present(il)) il_in = il
+    if(present(iu)) iu_in = iu
+    thr_lo_in = 1d-8; if(present(thr_lo)) thr_lo_in = thr_lo
+    ! Step 1: Diagonalize B (copy so B is not modified)
+    allocate(b_evec(ldb_in*n), b_evl(n))
+    b_evec(1:ldb_in*n) = b(1:ldb_in*n)
+    istat = zhev_h(b_evec, n, b_evl, lda=ldb_in)
+    if(istat /= 0) then
+      write(*,'(a,i0)') 'zhgv_lindep_h: diagonalization of B failed, info=', istat
+      return
+    endif
+    ! Step 2: Count linearly independent vectors (b_evl in ascending order)
+    ! 2a: threshold criterion
+    i0 = n + 1
+    do i = 1, n
+      if(b_evl(i) > thr_lo_in) then; i0 = i; exit; endif
+    enddo
+    ! 2b: nkeep criterion — keep at most nkeep largest eigenvalues
+    if(present(nkeep)) i0 = max(i0, n - nkeep + 1)
+    n_lo = n - i0 + 1
+    if(n_lo == 0) then
+      write(stdo,'(a,es10.3)') 'zhgv_lindep_h: no B eigenvalue above thr_lo=', thr_lo_in
+      istat = n + 1
+      if(present(nev)) nev = 0
+      deallocate(b_evec, b_evl)
+      return
+    endif
+    ! if(n_lo < n) write(stdo,'(a,i0,a,i0,a,es10.3)') &
+    !   'zhgv_lindep_h: ', n-n_lo, ' linear dependence(s) removed, n_lo=', n_lo, ', thr=', thr_lo_in
+    ! Step 3: Form X(n x n_lo): column j = b_evec_col(i0+j-1) / sqrt(b_evl(i0+j-1))
+    allocate(x(n*n_lo))
+    do j = 1, n_lo
+      x((j-1)*n+1:(j-1)*n+n) = b_evec(ldb_in*(i0+j-2)+1:ldb_in*(i0+j-2)+n) / sqrt(b_evl(i0+j-1))
+    enddo
+    deallocate(b_evec, b_evl)
+    ! Step 4: Form a_lo(n_lo x n_lo) = X^H * A * X
+    ! tmp(n x n_lo) = A * X  (A is Hermitian, upper triangle used)
+    allocate(tmp(n*n_lo))
+    call zhemm('L', 'U', n, n_lo, (1d0,0d0), a(1), lda_in, x(1), n, (0d0,0d0), tmp(1), n)
+    allocate(a_lo(n_lo*n_lo))
+    call zgemm('C', 'N', n_lo, n_lo, n, (1d0,0d0), x(1), n, tmp(1), n, (0d0,0d0), a_lo(1), n_lo)
+    deallocate(tmp)
+    ! Step 5: Solve reduced standard eigenvalue problem, mapping il/iu to reduced size
+    il_lo = il_in
+    iu_lo = min(iu_in, n_lo)
+    if(il_lo > iu_lo) then
+      if(present(nev)) nev = 0
+      istat = 0; deallocate(x, a_lo); return
+    endif
+    n_ev = iu_lo - il_lo + 1
+    allocate(evl_lo(n_lo))
+    istat = zhev_h(a_lo, n_lo, evl_lo, il=il_lo, iu=iu_lo)
+    if(istat /= 0) then
+      write(stdo,'(a,i0)') 'zhgv_lindep_h: diagonalization of reduced A failed, info=', istat
+      deallocate(x, a_lo, evl_lo); return
+    endif
+    evl(1:n_ev) = evl_lo(1:n_ev)
+    if(present(nev)) nev = n_ev
+    deallocate(evl_lo)
+    ! Step 6: Back-transform: z_out(n x n_ev) = X(n x n_lo) * a_lo_evec(n_lo x n_ev)
+    ! After zhev_h, a_lo columns 1..n_ev hold the eigenvectors (leading dim n_lo)
+    allocate(z_out(n*n_ev))
+    call zgemm('N', 'N', n, n_ev, n_lo, (1d0,0d0), x(1), n, a_lo(1), n_lo, (0d0,0d0), z_out(1), n)
+    deallocate(x, a_lo)
+    ! Step 7: Output eigenvectors to evec or A (with proper lda stride)
+    if(present(evec)) then
+      do j = 1, n_ev
+        evec(lda_in*(j-1)+1:lda_in*(j-1)+n) = z_out((j-1)*n+1:(j-1)*n+n)
+      enddo
+    else
+      do j = 1, n_ev
+        a(lda_in*(j-1)+1:lda_in*(j-1)+n) = z_out((j-1)*n+1:(j-1)*n+n)
+      enddo
+    endif
+    deallocate(z_out)
+  end function zhgv_lindep_h
 #ifdef __GPU
   !cusolverDnXtrtri used in zminv has internal compiler bug before cuda 12.5
   !https://docs.nvidia.com/cuda/cuda-toolkit-release-notes/index.html
