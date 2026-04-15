@@ -6,7 +6,7 @@ module m_read_ppovl
   use m_ftox
   implicit none
   integer, public, protected :: nggg, ngcgp, ngcread, nxi, nxe, nyi, nye, nzi, nze, ngc2
-  complex(8), public, protected, allocatable :: ppx(:,:), ggg(:), ppovlinv(:,:)
+  complex(8), public, protected, allocatable :: ppx(:,:), ggg(:), ppovlp(:,:)
   integer, public, protected, allocatable :: ngvecc2(:,:), nvggg(:,:), nvgcgp2(:,:), ngvecc(:,:), igggi(:,:,:), igcgp2i(:,:,:)
   integer, public, protected :: nnxi, nnxe, nnyi, nnye, nnzi, nnze
   public :: getppx2
@@ -19,22 +19,22 @@ module m_read_ppovl
   integer :: ngcmax, ippovl, ippovlg, ippovlp_info
   integer, allocatable :: ngctable(:)
 contains
-  subroutine getppx2(qi, getngcgp) ! This return nvggg, nvgcgp2, ngvecc,  nggg, ngcgp, ngcread, ggg, ppovlinv
+  subroutine getppx2(qi, get_ngcgp, get_ppovlp) ! This return nvggg, nvgcgp2, ngvecc,  nggg, ngcgp, ngcread, ggg, ppovlinv
     real(8), intent(in) :: qi(3)
+    logical, intent(in), optional :: get_ngcgp, get_ppovlp
     integer :: iqi, ippovlgg
     integer :: verbose
     integer :: iqi0, igcgp2, iggg
     integer :: istat
-    logical, optional :: getngcgp
     if(verbose() >= 100) debug = .TRUE.
-    if(present(getngcgp)) then
-       open(newunit=ippovlgg, file="__PPOvlpGG", form='unformatted')
+    if(present(get_ngcgp)) then
+       open(newunit=ippovlgg, file="__PPOvlpGG", form='unformatted', action='read')
        read(ippovlgg) nggg, ngcgp, nqq, nqini, nqnumt
        close(ippovlgg)
        return
     endif
     if(ippovlggooo) then !!  Make igggi inversion table
-       open(newunit=ippovlgg, file="__PPOvlpGG", form='unformatted')
+       open(newunit=ippovlgg, file="__PPOvlpGG", form='unformatted', action='read')
        read(ippovlgg) nggg, ngcgp, nqq, nqini, nqnumt
        if(debug) write(stdo, "('Readin getppx2: nggg ngcgp nqq=',3i10)") nggg, ngcgp, nqq
        allocate(nvggg(1:3,1:nggg), ggg(1:nggg), nvgcgp2(1:3,ngcgp))
@@ -60,14 +60,14 @@ contains
        forall(igcgp2=1:ngcgp) igcgp2i(nvgcgp2(1,igcgp2), nvgcgp2(2,igcgp2), nvgcgp2(3,igcgp2)) = igcgp2 ! inversion table for nvgcgp2
        ippovlggooo = .false.
        allocate(qxtable(3,nqini:nqnumt), ngctable(nqini:nqnumt))
-       open(newunit=ippovlp_info, file="__PPOvlp.info", form='unformatted')
+       open(newunit=ippovlp_info, file="__PPOvlp.info", form='unformatted', action='read')
        read(ippovlp_info) ngcmax
        do iqi = nqini, nqnumt
          read(ippovlp_info) qxtable(:, iqi), ngctable(iqi)
        enddo
        close(ippovlp_info)
-       open(newunit=ippovl,  file="__PPOvlp",  access='direct', recl=16*ngcmax*ngcmax)
-       open(newunit=ippovlg, file="__PPOvlpG", access='direct', recl=4*3*ngcmax)
+       open(newunit=ippovl,  file="__PPOvlp",  access='direct', action='read', recl=16*ngcmax**2)
+       open(newunit=ippovlg, file="__PPOvlpG", access='direct', action='read', recl=4*3*ngcmax)
        if(debug) write(stdo, "('init ok!:should be done only once')")
     endif
     ReadPPovlpData: block
@@ -78,6 +78,16 @@ contains
       read(ippovlg, rec=iqi-nqini+1) ngvecc_buf
       if(allocated(ngvecc)) deallocate(ngvecc)
       allocate(ngvecc, source=ngvecc_buf(1:3,1:ngcread))
+      if(present(get_ppovlp)) then
+        if(get_ppovlp) then
+          block
+            complex(8) :: ppovlp_buf(ngcmax,ngcmax)
+            read(ippovl, rec=iqi-nqini+1) ppovlp_buf
+            if(allocated(ppovlp)) deallocate(ppovlp)
+            allocate(ppovlp, source=ppovlp_buf(1:ngcread,1:ngcread))
+          endblock
+        endif
+      endif
     endblock ReadPPovlpData
   end subroutine getppx2
 end module m_read_ppovl

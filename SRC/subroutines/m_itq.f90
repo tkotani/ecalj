@@ -5,7 +5,7 @@ module m_itq
   use m_genallcf_v3,only: nband
   use m_lgunit,only: stdo
   implicit none
-  public itq,ntq,setitq_hsfp0sc,setitq,nbandmx,setitq_hsfp0
+  public itq,ntq,setitq_hsfp0sc,setitq,nbandmx,setitq_hsfp0, setitq_mlo
   integer,allocatable,protected :: itq(:),nbandmx(:,:)
   integer,protected  :: ntq
   logical,private:: rntq=.false.
