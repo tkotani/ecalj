@@ -32,18 +32,22 @@ module m_zmel
   use m_readQG, only: readqg
 #endif
   implicit none
-  public:: build_zmel, Mptauof_zmel, set_m2e_prod_basis, set_m2e_prod_basis_chipm ! Call mptauof_zmel and set_m2e_basis in advance to build_zmel
+  public:: build_zmel, Mptauof_zmel, set_m2e_prod_basis, set_m2e_prod_basis_chipm, set_nbb_zmel ! Call mptauof_zmel and set_m2e_basis in advance to build_zmel
   complex(kind=kp),allocatable,protected,public :: zmel(:,:,:) ! OUTPUT: zmel(nbb,nmtot, nqtot) ,nbb:mixproductbasis, nmtot:middlestate, nqtot:endstate
   complex(kind=kp),allocatable,protected,public :: m2e_prod_basis(:,:)
   real(8),allocatable,protected,public :: tiat(:,:,:),shtvg(:,:)
   real(8), allocatable, protected, private :: ppb(:,:,:,:),ppbir(:,:,:,:,:,:)
-  integer,protected,public:: nbb 
+  integer,protected,public:: nbb
   integer,allocatable,protected,public :: miat(:,:)
   private
   real(8),parameter:: kk=1000
   integer :: irot_prev = -1, is_prev = -1
   logical :: keep_ppbir = .false., has_ppbir = .false.
 contains
+  subroutine set_nbb_zmel(npr)
+    integer, intent(in) :: npr
+    nbb = npr
+  end subroutine set_nbb_zmel
   subroutine set_m2e_prod_basis(npr)
   ! set product basis M to E basis transformation matrix
   ! 2025-10-10, Setppovlz was changed to set_m2e_prod_basis
@@ -60,7 +64,7 @@ contains
     m2e_prod_basis(1:nbloch+ngc,1:npr) = cmplx(zcousq(1:nbloch+ngc,1:npr),kind=kp)
     !$acc end kernels
     !$acc end data
-    nbb=npr
+    call set_nbb_zmel(npr)
   end subroutine set_m2e_prod_basis
   subroutine set_m2e_prod_basis_chipm(zzr,nmbas1) !Set ppovlz for chipm case
     intent(in)::             zzr,nmbas1
@@ -141,8 +145,8 @@ contains
   end subroutine set_ppb
   subroutine build_zmel(q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc,  & ! build_zmel for blas/cuBLAS by M. Obata 2024-05-18
                         zmelconjg, is_m_basis, mpi_mode, comm, mlo_mode)
-    use m_readeigen, only: readcphif => readcphif_mpi, readgeigf => readgeigf_mpi
-    use m_mlo_wfs, only: get_geig_cmlo, get_cphi_cmlo
+    use m_readeigen, only: readcphif_mpi, readgeigf_mpi
+    use m_mlo_wfs, only: get_geig_cmlo, get_cphi_cmlo, cmlo_init
     use m_itq,only: itq, ntq
     implicit none
     include "mpif.h"
@@ -150,7 +154,6 @@ contains
     integer, optional, intent(in) :: comm
     logical, intent(in) :: is_m_basis, mpi_mode
     logical, intent(in), optional :: mlo_mode
-    logical :: mlo_mode_in
     complex(8), parameter:: img=(0d0,1d0),tpi= 8d0*datan(1d0)
     integer:: ns1, ns2, nqmax, irot, ispq, ispm, nqini, nctot, ncc, ncnv, ncorec, nccc, mdim, it, ia
     integer:: ngp1, ngp2, ngvecpB1(3,ngpmx),ngvecpB2(3,ngpmx),nadd(3)
@@ -169,13 +172,20 @@ contains
     integer,allocatable:: ngveccR(:,:)
     complex(kind=kp), allocatable:: ppbvphiq_d(:,:,:), cphim_d(:,:), cphiq_d(:,:), ppbc_d(:,:,:), ppbv_d(:,:,:)
     complex(8), allocatable:: wfs(:,:)
+    procedure(readgeigf_mpi), pointer :: get_geig => readgeigf_mpi
+    procedure(readcphif_mpi), pointer :: get_cphi => readcphif_mpi
 #ifdef __GPU
     attributes(device) :: zmelp0, cphiq, cphim, geigq, dgeigqk, &
                           ppbvphiq_d, cphim_d, cphiq_d, ppbc_d, ppbv_d, ngvecpB1, ngvecpB2, zmelt, zmelt_d, wfs
 #endif
     debug = cmdopt0('--debugzmel')
-    mlo_mode_in = .false.
-    if(present(mlo_mode)) mlo_mode_in = mlo_mode
+    if(present(mlo_mode)) then
+      if(mlo_mode) then
+        get_geig => get_geig_cmlo
+        get_cphi => get_cphi_cmlo
+        call cmlo_init()
+      endif
+    endif
     if(mpi_mode .and. .not. present(comm)) call rx('No communicator in mpi_mode')
     if(allocated(zmel)) then
 #ifdef __GPU
@@ -232,21 +242,19 @@ contains
       ! endassociate
       ! cphim = cmplx(readcphif(qk, ispm),kind=kp)
       allocate(cphiq(ndima,ntp0))
-      allocate(wfs(ndima,nband))
-      wfs(:,:) = readcphif(q, ispq, mpi_mode, comm)
-      if(mlo_mode_in) wfs(:,:) = get_cphi_cmlo(q, ispq, mpi_mode, comm)
+      ! allocate(wfs(ndima,nband))
+      wfs = get_cphi(q, ispq, mpi_mode, comm)
       !$acc kernels
       cphiq(1:ndima,1:ntp0) = cmplx(wfs(1:ndima,itq(nqini_rank:nqmax_rank)),kind=kp)
       !$acc end kernels
       if (nm2v>=nm1v) then
         allocate(cphim(ndima,nm1v:nm2v))
-        wfs(:,:) = readcphif(qk, ispm, mpi_mode, comm)
-        if(mlo_mode_in) wfs(:,:) = get_cphi_cmlo(qk, ispm, mpi_mode, comm)
+        wfs = get_cphi(qk, ispm, mpi_mode, comm)
         !$acc kernels
         cphim(1:ndima,nm1v:nm2v) = cmplx(wfs(1:ndima,nm1v:nm2v),kind=kp)
         !$acc end kernels
       endif
-      deallocate(wfs)
+      if(allocated(wfs)) deallocate(wfs)
       if(debug) call writemem('mmmmzmel endof readcphi')
 
       symope= symgg(:,:,irot)
@@ -264,19 +272,17 @@ contains
           call rotgvec(symope, 1, ngc, [ngc], qlat, ngvecc, ngveccR)
         endblock
         if(debug) call writemem('mmmmzmel start readgeig')
-        allocate(wfs(ngpmx,nband))
         allocate(geigq(ngpmx,ntp0),dgeigqk(ngpmx,nm1v:nm2v))
-        wfs(:,:) = readgeigf(q, ispq, mpi_mode, comm)
-        if(mlo_mode_in) wfs(:,:) = get_geig_cmlo(q, ispq, mpi_mode, comm)
+        ! allocate(wfs(ngpmx,nband))
+        wfs = get_geig(q, ispq, mpi_mode, comm)
         !$acc kernels
         geigq(1:ngpmx,1:ntp0) = cmplx(wfs(1:ngpmx,itq(nqini_rank:nqmax_rank)),kind=kp)
         !$acc end kernels
-        wfs(:,:) = readgeigf(qk, ispm, mpi_mode, comm)
-        if(mlo_mode_in) wfs(:,:) = get_geig_cmlo(qk, ispm, mpi_mode, comm)
+        wfs = get_geig(qk, ispm, mpi_mode, comm)
         !$acc kernels
         dgeigqk(1:ngpmx,nm1v:nm2v) = conjg(cmplx(wfs(1:ngpmx,nm1v:nm2v),kind=kp))
         !$acc end kernels
-        deallocate(wfs)
+        if(allocated(wfs)) deallocate(wfs)
         if(debug) call writemem('mmmmzmel endof readgeig')
         ! geigq   = cmplx(readgeigf(q, ispq),kind=kp) !read IPW part at q   !G1 for ngp1
         ! dgeigqk = cmplx(readgeigf(qk,ispm),kind=kp) !read IPW part at qk  !G2 for ngp2

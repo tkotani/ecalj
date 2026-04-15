@@ -10,7 +10,8 @@ subroutine uumatrix()
   ! Takashi Miyake, Mar 2008, parallelized.  originally written by Takao Kotani, April, 2004
   use m_readqg,only: readngmx, readqg0, readqg
   use m_hamindex,only: Readhamindex, ngrp, symops
-  use m_readeigen,only: init_readeigen, init_readeigen2, readcphif, readgeigf, readeval
+  use m_readeigen,only: init_readeigen, init_readeigen2, readeval
+  use m_readeigen, only: readcphif_mpi, readgeigf_mpi
   use m_read_bzdata,only: read_bzdata, nqbz, nqibz, qbas=>qlat, qibz, qbz, nq0i_=> nq0i, nq0i=>nq0ix, q0i
   use m_genallcf_v3,only: genallcf_v3, natom, nspin, nl, nn, plat, pos, alat, nindx, ndima, nqbzt, nband, nspc, nspx, lmxa
   use m_keyvalue,only: getkeyvalue
@@ -27,6 +28,7 @@ subroutine uumatrix()
   use m_lattic,only: m_lattic_init
   use m_mksym,only: m_mksym_init
   use m_mpitk, only: m_mpitk_init
+  use,intrinsic :: ieee_arithmetic
   use m_ftox
   implicit none
   integer:: i,ix,ngrpx ,is, nxx ,ibas ,ibas1, ngpmx, ifphi, nbas, nradmx, ncoremx, &
@@ -54,6 +56,8 @@ subroutine uumatrix()
   character(4) charnum4
   character*7:: charnum7
   character(20):: outs=''
+  procedure(readgeigf_mpi), pointer :: get_geig => readgeigf_mpi
+  procedure(readcphif_mpi), pointer :: get_cphi => readcphif_mpi
   call M_lgunit_init()
   call m_MPItk_init(comm)
   !for rotMTO
@@ -136,8 +140,13 @@ subroutine uumatrix()
   call Readhamindex()
   call init_readeigen()   !Initialization for readeigen
   call init_readeigen2()
-  if(use_mlo) call mlo_read_hma_rs() !set nwf
-  if(use_mlo) call mlo_nnwf_init(nnwf_size_reduction=.true.)
+  if(use_mlo) then
+    call mlo_read_hma_rs() !set nwf
+    call mlo_nnwf_init(nnwf_size_reduction=.true.)
+    get_geig => get_geig_cmlo
+    get_cphi => get_cphi_cmlo
+    call cmlo_init()
+  endif
   call readngmx('QGpsi',ngpmx) !max number of the set q+G
   if(use_mlo) then
     allocate(geig1(ngpmx*nspc,mlo_nwf),geig2(ngpmx*nspc,mlo_nwf))
@@ -360,23 +369,10 @@ subroutine uumatrix()
       ispinloop2: do 1050 ispin=1,nspx !note that nspx=nsp/nspc where nspc=2 for lso=1 (nspc=1 for lso=0,2)
         ii = iko_ixs(ispin)
         ie = iko_fxs(ispin)
-        if(use_mlo) then
-          block
-            integer :: ispin1, ispin2
-            ispin1 = ispin
-            ispin2 = ispin
-            if(spinflip) ispin2 = 3-ispin !oppsite spin
-            cphi1 = get_cphi_cmlo(q1, ispin1)
-            cphi2 = get_cphi_cmlo(q2, ispin2)
-            geig1 = get_geig_cmlo(q1, ispin1)
-            geig2 = get_geig_cmlo(q2, ispin2)
-          endblock
-        else
-          cphi1 = readcphif(q1,ispin) ! MT part of eigenfunctions 
-          cphi2 = readcphif(q2,ispin)
-          geig1 = readgeigf(q1,ispin) ! IPW part of eigenfunctions
-          geig2 = readgeigf(q2,ispin)
-        endif
+        cphi1 = get_cphi(q1,ispin) ! MT part of eigenfunctions
+        cphi2 = get_cphi(q2, merge(3-ispin, ispin, spinflip))
+        geig1 = get_geig(q1,ispin) ! IPW part of eigenfunctions
+        geig2 = get_geig(q2, merge(3-ispin, ispin, spinflip))
         eval1 = readeval(q1,ispin) !eigenvalue at q1
         eval2 = readeval(q2,ispin)
         uum(:,:,ispin) = 0d0
@@ -397,9 +393,10 @@ subroutine uumatrix()
         checkwirte: block
           do j1=ii,ie
             do j2=ii,ie !; do j2=j2min,j2max !checkwrite  !if(j1==j2)
-            if(eval1(j1)>1d10.or.eval2(j2)>1d10) cycle ! see sugw.f90. padding by huge number
+              if(eval1(j1)>1d10.or.eval2(j2)>1d10) cycle ! see sugw.f90. padding by huge number
 !            write(stdo,ftox)'uumatrix: iq isp j1 j2 q1 q2 <uu>= ',iqbz,ispin,j1,j2,ftof(q1,4),ftof(q1-q2,4),ftof(uum(j1,j2),4),ftof(abs(uum(j1,j2)))
-            write(stdo,ftox)'uumatrix: iq isp j1 j2 q1 q2 <uu>= ',iqbz,ispin,j1,j2,ftof(q1,4),ftof(q1-q2,4),ftof(uum(j1,j2,ispin),4),'abs',ftof(abs(uum(j1,j2,ispin)))
+            ! write(stdo,ftox)'uumatrix: iq isp j1 j2 q1 q2 <uu>= ',iqbz,ispin,j1,j2,ftof(q1,4),ftof(q1-q2,4),ftof(uum(j1,j2,ispin),4),'abs',ftof(abs(uum(j1,j2,ispin)))
+            write(stdo,ftox)'uumatrix: iq isp j1 j2 q1 q2 <uu>= ',iqbz,ispin,j1,j2,ftof(q1,4),ftof(q1-q2,4),uum(j1,j2,ispin),'abs',abs(uum(j1,j2,ispin))
           enddo ; enddo
         endblock checkwirte
 1050  enddo ispinloop2
@@ -418,7 +415,8 @@ subroutine uumatrix()
     if(mpi__root) then
       block
         character(64) :: datfile
-        integer :: ifile(2), iq, ifile_handle
+        integer :: ifile(2), iq, ifile_handle, recl
+        recl = 16*mlo_nwf**2
         do iq=1, nq0i_
           write(stdo,ftox) 'q, diag sum uumq(updw,dwup)/nwf:', q0i(:,iq), &
           (sum([(uumq(i,i,iq,isp),i=1,mlo_nwf)])/dble(mlo_nwf),isp=1,nspin)
@@ -434,7 +432,7 @@ subroutine uumatrix()
           if(isp==2 .and. (.not.spinflip)) datfile = '__MLOFormFactorQ.DN'
           if(isp==1 .and. spinflip) datfile = '__MLOFormFactorQ.UPDN'
           if(isp==2 .and. spinflip) datfile = '__MLOFormFactorQ.DNUP'
-          open(newunit=ifile_handle, file=trim(datfile), form='unformatted', access='direct', recl=mlo_nwf*mlo_nwf*16, status='replace')
+          open(newunit=ifile_handle, file=trim(datfile), form='unformatted', access='direct', recl=recl, status='replace')
           do iq=1, nq0i_
             write(ifile_handle, rec=iq) uumq(:,:,iq,isp)
           enddo

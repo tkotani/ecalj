@@ -1,12 +1,12 @@
 ! MLO version of readeigenW and readcphiW in readeigen.f90
 module m_mlo_wfs
-  use m_mpiio,       only: openm, readm
   use m_lgunit,      only: stdo
   use m_iqindx_qtt,  only: iqindx2_
   use m_hamindex,    only: ngpmx, nqtt, qtt, symops, ngrp, plat
   use m_genallcf_v3, only: nsp => nspin, ndima, nband, nspc, nspx
   use m_readeigen,   only: readgeigf => readgeigf_mpi, readcphif => readcphif_mpi
   use m_keyvalue,    only: getkeyvalue
+  use,intrinsic :: ieee_arithmetic
   use m_ftox
   implicit none
   public :: cmlo_init, get_geig_cmlo, get_cphi_cmlo
@@ -21,13 +21,13 @@ contains
   subroutine cmlo_init()
     integer :: ifihh, nqbz, mrecbb, istat
     if(.not.init) return
-    call getkeyvalue("GWinput","KeepMLO",keep_mlo,default=.true.)
+    call getkeyvalue("GWinput","KeepCMLO",keep_mlo,default=.true.)
     open(newunit=ifihh, file='__cmlo.info', form='unformatted')
     read(ifihh) nmlo, nqbz, nqirr, nMTO, mrecbb
     allocate(ix(nmlo), qplistgw(3,nqirr))
     read(ifihh) ix, qplistgw
     close(ifihh)
-    istat = openm(newunit=ifile_cmlo, file='__cmlo.data', recl=mrecbb)
+    open(newunit=ifile_cmlo,file='__cmlo.data',action='read',form='unformatted',access='direct',recl=mrecbb)
     init = .false.
   end subroutine cmlo_init
 
@@ -36,18 +36,18 @@ contains
     integer, intent(in) :: isp
     complex(8) :: cmlo_q_isp(nband,nmlo)
     integer :: iq, ikp, is
-    call cmlo_init()
     if(keep_mlo .and. .not.allocated(cmlo)) then
       allocate(cmlo(nband,nmlo,nqtt,nsp))
-      if(debug) write(stdo,ftox) 'xxx nqtt:', nqtt
-      do ikp = 1,nqtt
-        do is = 1,nsp
+      if(debug) write(stdo,ftox) 'xxx nqtt:', nqtt, nband
+      do ikp = 1, nqtt
+        do is = 1, nsp
           call read_cmlo(qtt(:,ikp), is, cmlo(:,:,ikp,is))
         enddo
       enddo
     endif
     if(keep_mlo) then
       call iqindx2_(q, iq)
+      if(debug) write(stdo,ftox) 'xxx set cmlo', q, iq
       cmlo_q_isp = cmlo(:,:,iq,isp)
     else
       call read_cmlo(q, isp, cmlo_q_isp)
@@ -59,9 +59,19 @@ contains
     integer, intent(in) :: isp
     logical, intent(in), optional :: mpi_mode
     integer, intent(in), optional :: comm
+    logical :: time_reversal_search
+    integer :: iq
     complex(8) :: geig_cmlo(ngpmx*nspc,nmlo), geig(ngpmx*nspc,nband), cmlo_ik_is(nband,nmlo)
-    geig = readgeigf(q, isp, mpi_mode, comm)
-    cmlo_ik_is = get_cmlo(q, isp)
+    time_reversal_search = .false.
+    call iqindx2_(q, iq)
+    if(iq == 0) time_reversal_search = .true.
+    if(time_reversal_search) then
+      geig = conjg(readgeigf(-q, isp, mpi_mode, comm))
+      cmlo_ik_is = conjg(get_cmlo(-q, isp))
+    else
+      geig = readgeigf(q, isp, mpi_mode, comm)
+      cmlo_ik_is = get_cmlo(q, isp)
+    endif
     geig_cmlo = matmul(geig, cmlo_ik_is)
   end function get_geig_cmlo
 
@@ -70,9 +80,19 @@ contains
     integer, intent(in) :: isp
     logical, intent(in), optional :: mpi_mode
     integer, intent(in), optional :: comm
+    logical :: time_reversal_search
+    integer :: iq
     complex(8) :: cphi_cmlo(ndima*nspc,nmlo), cphi(ndima*nspc,nband), cmlo_ik_is(nband,nmlo)
-    cphi = readcphif(q, isp, mpi_mode, comm)
-    cmlo_ik_is = get_cmlo(q, isp)
+    time_reversal_search = .false.
+    call iqindx2_(q, iq)
+    if(iq == 0) time_reversal_search = .true.
+    if(time_reversal_search) then
+      cphi = conjg(readcphif(-q, isp, mpi_mode, comm))
+      cmlo_ik_is = conjg(get_cmlo(-q, isp))
+    else
+      cphi = readcphif(q, isp, mpi_mode, comm)
+      cmlo_ik_is = get_cmlo(q, isp)
+    endif
     cphi_cmlo = matmul(cphi, cmlo_ik_is)
   end function get_cphi_cmlo
 
@@ -93,16 +113,16 @@ contains
         qx = matmul(transpose(plat), qtarget-matmul(symops(:,:,ig),qp))
         qxx = qx-nint(qx) !qx-ndiff !translation of qx
         if(sum(abs(qxx))<tolq()) then
-          iqq=iq
-          igg=ig
+          iqq = iq
+          igg = ig
           found = .true.
           exit FindIqIgg
         endif
       enddo
     enddo FindIqIgg
-    if(.not.found) call rx('readcmlo: can not find ig and iq')
+    if(.not.found) call rx('read_cmlo: can not find ig and iq')
     iqqisp = isp + nspx*(iqq-1)
-    istat = readm(ifile_cmlo, rec=iqqisp, data=cmlo_out)
+    read(ifile_cmlo, rec=iqqisp) cmlo_out
     RotCMLO: block
       use m_rotwave, only: rotmatMTO
       use m_lapack, only: zminv => zminv_h

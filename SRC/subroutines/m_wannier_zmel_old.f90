@@ -136,7 +136,7 @@ contains
        zmelt)
     use m_readqg,only: readqg
     use m_readeigen,only:readgeigw
-    use m_mlo_wfs, only: get_geig_cmlo
+    use m_mlo_wfs, only: get_geig_cmlo, cmlo_init
     ! this is for Wanner (readeigW, drvmelp3)
     implicit none
     real(8):: q(3),q_rk(3),qik(3),ginv(3,3)
@@ -158,6 +158,7 @@ contains
     integer::verbose
     logical :: mlo_mode, cmdopt0
     mlo_mode = cmdopt0('--mlo')
+    if(mlo_mode) call cmlo_init()
     call readqg('QGpsi', q,    qt,   ngp1, ngvecpB1)
     call readqg('QGpsi', q_rk, q_rkt,ngp2, ngvecpB2)
     if(mlo_mode) then

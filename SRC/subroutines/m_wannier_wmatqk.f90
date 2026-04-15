@@ -19,7 +19,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   use m_readeigen,only:readcphiw
   use m_keyvalue,only: getkeyvalue
   use m_read_bzdata,only: wklm
-  use m_mlo_wfs, only: get_cphi_cmlo
+  use m_mlo_wfs, only: get_cphi_cmlo, cmlo_init
 !  use rsmpi_rotkindex,only:nk_local_rotk,ik_index_rotk
   implicit none
   integer :: ntq, natom,nqbz,nqibz,ngrp,nq,nw_i,nw,niw, natomx,&
@@ -141,6 +141,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   logical :: mlo_mode, cmdopt0
   debug=.false.
   mlo_mode = cmdopt0('--mlo')
+  if(mlo_mode) call cmlo_init()
   if(verbose()>=90) debug= .TRUE. 
   if(debug) write(6,ftox)' nnnnnnnnnn wmatqk_mpi: nrws nrws1 nrws2       ',nrws,nrws1,nrws2
   call getkeyvalue("GWinput","nbcutlow_sig",nbcut, default=0 )
