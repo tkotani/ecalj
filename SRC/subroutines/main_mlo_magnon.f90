@@ -224,7 +224,7 @@ subroutine mlo_magnon() bind(C)
     if(ipr) write(6,"('===== do : iq wibz(iq) q=',i6,f13.6,3f9.4,' ========')") iq,q !,wibz(iqlist(iq)),qshort !qq
     GETzxq: block ! zxq and zxqi are the main output after Hilbert transformation, ! zxqi is not used in hmagnon (imagomega=.false.)
       use m_mpi,only: MPI__AllreduceSumReal
-      real(8) :: evkx_w1(nwf), evkx_w2(nwf) !dummy
+      real(8) :: evkx_w1(nwf,1), evkx_w2(nwf,1) !dummy
       complex(8) :: zxqi(1,1,1), evc_w1(nwf,nwf), evc_w2(nwf,nwf)
       complex(8) :: ov_evc_w1(nwf,nwf), ov_evc_w2(nwf,nwf)
       complex(8), allocatable :: evc_w1_kx(:,:,:), evc_w2_kx(:,:,:), ov_evc_w1_kx(:,:,:), ov_evc_w2_kx(:,:,:)
@@ -239,8 +239,8 @@ subroutine mlo_magnon() bind(C)
       if(ipr) call writemem('mlo_magnon start gettetwt')
       call int_split(nqbz, mpi__size_k, mpi__rank_k, kx_ini, kx_fin, kx_num)
       CalcEigenEnergy: do kx = kx_ini, kx_fin !!! ev_w1, ev_w2 unit: [Ry]
-        call calc_ham_eigen(  qbz(:,kx),  is, ev_w1(:,kx), evec=evc_w1, ovlp_evec=ov_evc_w1)
-        call calc_ham_eigen(q+qbz(:,kx), isf, ev_w2(:,kx), evec=evc_w2, ovlp_evec=ov_evc_w2)
+        call calc_ham_eigen(is,is,    qbz(:,kx),  ev_w1(:,kx:kx), evec=evc_w1, ovlp_evec=ov_evc_w1)
+        call calc_ham_eigen(isf,isf,q+qbz(:,kx),  ev_w2(:,kx:kx), evec=evc_w2, ovlp_evec=ov_evc_w2)
         if(ganmma_only) then
           block
           use m_ReadEfermi,only: ef
@@ -279,8 +279,8 @@ subroutine mlo_magnon() bind(C)
 
         if(gettetwt_split) call gettetwt(q,iq,isdummy,isdummy,ev_w1,ev_w2,nwf,.true.,ikbz_in=kx_start,fkbz_in=kx_end)
         CalcEigenFunction: do kx = kx_start, kx_end
-          call calc_ham_eigen(  qbz(:,kx),  is, evkx_w1, evec=evc_w1_kx(:,:,kx), ovlp_evec=ov_evc_w1_kx(:,:,kx)) !evkx_w1  is dummy
-          call calc_ham_eigen(q+qbz(:,kx), isf, evkx_w2, evec=evc_w2_kx(:,:,kx), ovlp_evec=ov_evc_w2_kx(:,:,kx)) !evkx_w2  is dummy
+          call calc_ham_eigen(is, is,   qbz(:,kx),  evkx_w1, evec=evc_w1_kx(:,:,kx), ovlp_evec=ov_evc_w1_kx(:,:,kx)) !evkx_w1  is dummy
+          call calc_ham_eigen(isf,isf,q+qbz(:,kx),  evkx_w2, evec=evc_w2_kx(:,:,kx), ovlp_evec=ov_evc_w2_kx(:,:,kx)) !evkx_w2  is dummy
         enddo CalcEigenFunction
 
         jpmloop:do jpm=1, npm ! jpm=2: negative frequency

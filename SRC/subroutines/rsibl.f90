@@ -14,18 +14,18 @@ module  m_rsibl
 
   ! Shared memory arrays for all k-points (padded to ng_max)
   integer, protected, public, save :: rsibl_ng_max = 0
-  integer, pointer, public, save :: rsibl_ng_all(:) => null()
-  integer, pointer, public, save :: rsibl_nlmto_all(:) => null()
-  integer, pointer, public, save :: rsibl_napw_all(:) => null()
-  integer, pointer, public, save :: rsibl_ngmax_all(:) => null()
-  real(8), pointer, public, save :: rsibl_he_all(:,:,:) => null()
-  real(8), pointer, public, save :: rsibl_hr_all(:,:,:) => null()
-  real(8), pointer, public, save :: rsibl_yl_all(:,:,:) => null()
-  real(8), pointer, public, save :: rsibl_ogv_all(:,:,:) => null()
-  real(8), pointer, public, save :: rsibl_wogq_all(:,:,:) => null()
-  integer, pointer, public, save :: rsibl_iv_all(:,:) => null()
-  integer, pointer, public, save :: rsibl_igv_all(:,:,:) => null()
-  integer, pointer, public, save :: rsibl_ivp_all(:,:) => null()
+  integer, pointer, contiguous, public, save :: rsibl_ng_all(:) => null()
+  integer, pointer, contiguous, public, save :: rsibl_nlmto_all(:) => null()
+  integer, pointer, contiguous, public, save :: rsibl_napw_all(:) => null()
+  integer, pointer, contiguous, public, save :: rsibl_ngmax_all(:) => null()
+  real(8), pointer, contiguous, public, save :: rsibl_he_all(:,:,:) => null()
+  real(8), pointer, contiguous, public, save :: rsibl_hr_all(:,:,:) => null()
+  real(8), pointer, contiguous, public, save :: rsibl_yl_all(:,:,:) => null()
+  real(8), pointer, contiguous, public, save :: rsibl_ogv_all(:,:,:) => null()
+  real(8), pointer, contiguous, public, save :: rsibl_wogq_all(:,:,:) => null()
+  integer, pointer, contiguous, public, save :: rsibl_iv_all(:,:) => null()
+  integer, pointer, contiguous, public, save :: rsibl_igv_all(:,:,:) => null()
+  integer, pointer, contiguous, public, save :: rsibl_ivp_all(:,:) => null()
   integer, save :: nwin_s = 0, win_ids_s(20) = 0
   logical, public, save :: rsibl_setup_done = .false.
 
@@ -98,7 +98,7 @@ contains
       rsibl_nlmto_all(iq) = kdat%ndimh - kdat%napw
       rsibl_napw_all(iq) = kdat%napw
       call gvlst2(alat, plat, q, n1, n2, n3, 0d0, gmax, [0], 509, ng, ng, &
-           rsibl_iv_all(1,iq), rsibl_ogv_all(1,1,iq), rsibl_igv_all(1,1,iq))
+           rsibl_iv_all(:,iq), rsibl_ogv_all(:,:,iq), rsibl_igv_all(:,:,iq))
       call poppr
       if(kdat%napw > 0) then
         do ig = 1, kdat%napw
@@ -109,8 +109,8 @@ contains
       allocate(w_og2(ng)); q0=0d0
       if(rsibl_nlmto_all(iq)>0) &
         call hsibl1(rsibl_net, etab_s, rsibl_nrt, rtab_s, rsibl_ltop, alat, q0, ng, &
-             rsibl_ogv_all(1,1,iq), rsibl_wogq_all(1,1,iq), w_og2, &
-             rsibl_yl_all(1,1,iq), rsibl_he_all(1,1,iq), rsibl_hr_all(1,1,iq))
+             rsibl_ogv_all(:,:,iq), rsibl_wogq_all(:,:,iq), w_og2, &
+             rsibl_yl_all(:,:,iq), rsibl_he_all(:,:,iq), rsibl_hr_all(:,:,iq))
       deallocate(w_og2)
       rsibl_ngmax_all(iq) = min(maxval(ngcut), ng)
     enddo

@@ -165,40 +165,92 @@ contains
   integer function writem_struct(unit, rec, items) result(i)
     integer, intent(in) :: unit, rec
     type(record_item), intent(in) :: items(:)
-    integer :: ifx, filetype
+    integer :: ifx, k, item_bytes
     integer(kind=MPI_ADDRESS_KIND) :: record_bytes
     integer(kind=MPI_OFFSET_KIND) :: offset
     integer :: status(MPI_STATUS_SIZE)
+    real(8),    pointer :: pr8(:)
+    integer(4), pointer :: pi4(:)
+    complex(8), pointer :: pc8(:)
     ifx = findloc(unit == fhl(1:iff), dim=1, value=.true.)
     if (ifx <= 0) call rx('m_mpiio:writem_struct: unit not opened')
-    call build_struct_type(items, filetype, record_bytes)
+    record_bytes = 0
+    do k = 1, size(items)
+      select case(items(k)%mpi_type)
+      case(MPI_DOUBLE_PRECISION); record_bytes = record_bytes + 8_MPI_ADDRESS_KIND*items(k)%count
+      case(MPI_INTEGER);          record_bytes = record_bytes + 4_MPI_ADDRESS_KIND*items(k)%count
+      case(MPI_DOUBLE_COMPLEX);   record_bytes = record_bytes + 16_MPI_ADDRESS_KIND*items(k)%count
+      case default; call rx('m_mpiio:writem_struct: unsupported MPI type')
+      end select
+    enddo
     if (record_bytes /= recll(ifx)) then
       write(6,*) 'm_mpiio:writem_struct: record_bytes mismatch:', record_bytes, recll(ifx)
       call rx('m_mpiio:writem_struct: record_bytes /= recll')
     endif
     offset = (rec-1)*recll(ifx)
-    call MPI_File_write_at(fhl(ifx), offset, MPI_BOTTOM, 1, filetype, status, ierr)
-    call MPI_Type_free(filetype, ierr)
+    do k = 1, size(items)
+      select case(items(k)%mpi_type)
+      case(MPI_DOUBLE_PRECISION)
+        call c_f_pointer(items(k)%addr, pr8, [items(k)%count])
+        call MPI_File_write_at(fhl(ifx), offset, pr8, items(k)%count, MPI_DOUBLE_PRECISION, status, ierr)
+        item_bytes = 8*items(k)%count
+      case(MPI_INTEGER)
+        call c_f_pointer(items(k)%addr, pi4, [items(k)%count])
+        call MPI_File_write_at(fhl(ifx), offset, pi4, items(k)%count, MPI_INTEGER, status, ierr)
+        item_bytes = 4*items(k)%count
+      case(MPI_DOUBLE_COMPLEX)
+        call c_f_pointer(items(k)%addr, pc8, [items(k)%count])
+        call MPI_File_write_at(fhl(ifx), offset, pc8, items(k)%count, MPI_DOUBLE_COMPLEX, status, ierr)
+        item_bytes = 16*items(k)%count
+      end select
+      offset = offset + item_bytes
+    enddo
     i = 0
   end function writem_struct
 
   integer function readm_struct(unit, rec, items) result(i)
     integer, intent(in) :: unit, rec
     type(record_item), intent(in) :: items(:)
-    integer :: ifx, filetype
+    integer :: ifx, k, item_bytes
     integer(kind=MPI_ADDRESS_KIND) :: record_bytes
     integer(kind=MPI_OFFSET_KIND) :: offset
     integer :: status(MPI_STATUS_SIZE)
+    real(8),    pointer :: pr8(:)
+    integer(4), pointer :: pi4(:)
+    complex(8), pointer :: pc8(:)
     ifx = findloc(unit == fhl(1:iff), dim=1, value=.true.)
     if (ifx <= 0) call rx('m_mpiio:readm_struct: unit not opened')
-    call build_struct_type(items, filetype, record_bytes)
+    record_bytes = 0
+    do k = 1, size(items)
+      select case(items(k)%mpi_type)
+      case(MPI_DOUBLE_PRECISION); record_bytes = record_bytes + 8_MPI_ADDRESS_KIND*items(k)%count
+      case(MPI_INTEGER);          record_bytes = record_bytes + 4_MPI_ADDRESS_KIND*items(k)%count
+      case(MPI_DOUBLE_COMPLEX);   record_bytes = record_bytes + 16_MPI_ADDRESS_KIND*items(k)%count
+      case default; call rx('m_mpiio:readm_struct: unsupported MPI type')
+      end select
+    enddo
     if (record_bytes /= recll(ifx)) then
       write(6,*) 'm_mpiio:readm_struct: record_bytes mismatch:', record_bytes, recll(ifx)
       call rx('m_mpiio:readm_struct: record_bytes /= recll')
     endif
     offset = (rec-1)*recll(ifx)
-    call MPI_File_read_at(fhl(ifx), offset, MPI_BOTTOM, 1, filetype, status, ierr)
-    call MPI_Type_free(filetype, ierr)
+    do k = 1, size(items)
+      select case(items(k)%mpi_type)
+      case(MPI_DOUBLE_PRECISION)
+        call c_f_pointer(items(k)%addr, pr8, [items(k)%count])
+        call MPI_File_read_at(fhl(ifx), offset, pr8, items(k)%count, MPI_DOUBLE_PRECISION, status, ierr)
+        item_bytes = 8*items(k)%count
+      case(MPI_INTEGER)
+        call c_f_pointer(items(k)%addr, pi4, [items(k)%count])
+        call MPI_File_read_at(fhl(ifx), offset, pi4, items(k)%count, MPI_INTEGER, status, ierr)
+        item_bytes = 4*items(k)%count
+      case(MPI_DOUBLE_COMPLEX)
+        call c_f_pointer(items(k)%addr, pc8, [items(k)%count])
+        call MPI_File_read_at(fhl(ifx), offset, pc8, items(k)%count, MPI_DOUBLE_COMPLEX, status, ierr)
+        item_bytes = 16*items(k)%count
+      end select
+      offset = offset + item_bytes
+    enddo
     i = 0
   end function readm_struct
 

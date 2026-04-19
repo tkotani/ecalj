@@ -56,7 +56,7 @@ contains
     implicit none
     intent(in)::            lrout,ef0,vmag,writeham
     complex(8),allocatable:: hamm(:,:,:,:),ovlm(:,:,:,:),hammhso(:,:,:),ovlms(:,:,:,:) !Hamiltonian,Overlapmatrix
-    integer:: iq,nmx,ispinit,isp,nev,ifih,lwtkb,lrout,ifig,i,ibas,iwsene,idat,ikp,istat
+    integer:: iq,nmx,ispinit,isp,nev,ifih,ifihsoc,lwtkb,lrout,ifig,i,ibas,iwsene,idat,ikp,istat
     real(8):: qp(3),ef0,def=0d0,xv(3),q(3),vmag
     real(8),allocatable    :: evl(:,:), spinweight(:,:)
     complex(8),allocatable :: evec(:,:) !eigenvector( :,nband)
@@ -68,7 +68,10 @@ contains
 #ifdef __GPU
     complex(8),allocatable :: ovlm_save(:,:,:,:,:)
 #endif
+    logical:: socmatrix, skiphammsoc
     call tcn('m_bandcal_init')
+    socmatrix=cmdopt0('--socmatrix')
+    skiphammsoc=cmdopt0('--skiphammsoc') !skip adding SOC to hamm (for SOC-as-perturbation post-processing)
     if(master_mpi) write(stdo,ftox)'m_bandcal_init: start'
     sigmamode = mod(lrsig,10)/=0
     ! writeham = cmdopt0('--writeham')
@@ -107,15 +110,20 @@ contains
     sumqv = 0d0
     if(writeham) then
       PrepWriteHamiltonianPMT:block
-      integer :: ifihh_info, mrech
+      integer :: ifihh_info, mrech,mrechsoc
         mrech = 8*3+4+16*nbandmx*nbandmx*2
+        mrechsoc =    16*(nbandmx/nspc)*(nbandmx/nspc)*3 !hammhso is per-orbital (no spinor doubling)
         if(master_mpi) then
           open(newunit=ifihh_info, file='__HamiltonianPMT.info', form='unformatted')
-          write(ifihh_info) nbandmx, mrech
+          write(ifihh_info) nbandmx, mrech,mrechsoc
           close(ifihh_info)
         endif
         istat = openm(newunit=ifih,file='__HamiltonianPMT',recl=mrech, comm=comm)
         write(stdo,ftox) 'xxxx',nbandmx, mrech, ifih
+        if(socmatrix) then
+          istat = openm(newunit=ifihsoc,file='__HamiltonianPMTsoc',recl=mrechsoc, comm=comm)
+          write(stdo,ftox) 'xxxx',nbandmx, mrechsoc, ifihsoc
+        endif
       endblock PrepWriteHamiltonianPMT
     endif
 #ifdef __GPU
@@ -161,7 +169,7 @@ contains
 
          !! See Eq.(36) and appendix in http://dx.doi.org/10.7566/JPSJ.84.034702
          !! Hamm and ovlm are made from smooth part and augmentation part.
-         if(lso/=0 .AND. ( .NOT. allocated(hammhso))) then
+         if((lso/=0 .AND. ( .NOT. allocated(hammhso))).or.socmatrix) then
             allocate(hammhso(ndimh,ndimh,3))
             call aughsoc(qp, ohsozz,ohsopm,ndimh, hammhso)! SOC part of Hamiltonian hammhso is calculated.
          endif
@@ -175,15 +183,15 @@ contains
          if(lso==1) then !L.S case nspc=2
             do ispc=1,2  ! nspc==2
                call hambl(ispc,qp,osmpot,vconst,osig,otau,oppi, hamm(:,ispc,:,ispc),ovlm(:,ispc,:,ispc))
-               hamm(:,ispc,:,ispc)= hamm(:,ispc,:,ispc) + hammhso(:,:,ispc) !spin-diag SOC elements (1,1), (2,2) added
+               if(.not.skiphammsoc) hamm(:,ispc,:,ispc)= hamm(:,ispc,:,ispc) + hammhso(:,:,ispc) !spin-diag SOC elements (1,1), (2,2) added
             enddo
-            if (cmdopt0('--testso')) then !this is for AHC test
+            if (cmdopt0('--testso').or.skiphammsoc) then !this is for AHC test, or SOC-as-perturbation mode
                hamm(:,1,:,2) = 0d0
                hamm(:,2,:,1) = 0d0
             else
               hamm(:,1,:,2)= hammhso(:,:,3)                    !spin-offdiagonal SOC elements (1,2) added
               hamm(:,2,:,1)= transpose(dconjg(hammhso(:,:,3)))
-            endif   
+            endif
             if(sigmamode) then
                do ispc=1,nspc
                   call getsenex(qp, ispc, ndimh, ovlm(:,ispc,:,ispc)) !bugfix at 2024-4-24 obata: ispc was 1 when 2023-9-20
@@ -212,16 +220,22 @@ contains
          if(writeham) then
            WriteHamiltonianPMT: block
               type(record_item), allocatable :: items(:)
-              integer :: iqqisp
+              integer :: iqqisp, nbandh
               complex(8) :: ovlm_(nbandmx, nbandmx), hamm_(nbandmx, nbandmx)
+              complex(8), allocatable :: hammhso_(:,:,:)
               ovlm_(1:ndimhx,1:ndimhx) = reshape(ovlm, shape=[ndimhx,ndimhx])
               hamm_(1:ndimhx,1:ndimhx) = reshape(hamm, shape=[ndimhx,ndimhx])
               iqqisp= isp + nspx*(iq-1)
+              if(socmatrix.and.isp==nspx) then
+                nbandh = nbandmx/nspc !hammhso is per-orbital (no spinor doubling)
+                allocate(hammhso_(nbandh,nbandh,3), source=(0d0,0d0))
+                hammhso_(1:ndimh,1:ndimh,1:3) = hammhso(1:ndimh,1:ndimh,1:3)
+                items = [record_item_from(hammhso_)]
+                istat = writem_struct(ifihsoc, rec=iqqisp, items=items)
+                deallocate(hammhso_)
+              endif
               items = [record_item_from(qp), record_item_from(ndimhx), record_item_from(ovlm_), record_item_from(hamm_)]
               istat = writem_struct(ifih, rec=iqqisp, items=items)
-            ! write(ifih) qp,ndimhx,lso,epsovl,isp ! ndimhx=ndimh*nspc 
-            ! write(ifih) ovlm ! When you read, use ovlm(1:ndimhx, 1:ndimhx)
-            ! write(ifih) hamm
           endblock WriteHamiltonianPMT
          endif
          nmx=min(nevmx,ndimhx)! nmx:maximum number of eigenfunctions we will obtain. Smaller is faster.
@@ -759,6 +773,7 @@ contains
     endif
 #endif
     if(writeham) istat = closem(ifih)
+    if(writeham.and.socmatrix) istat = closem(ifihsoc)
     if (pwemax>0 .AND. mod(pwmode,10)>0 .AND. lfrce/=0) then
        xv(:)=[(sum(frcband(i,1:nbas))/nbas,i=1,3)]
        forall(ibas= 1:nbas) frcband(:,ibas) = frcband(:,ibas) - xv(:) ! Average forces so net force on system is zero (APW case)

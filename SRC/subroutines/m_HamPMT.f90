@@ -11,9 +11,9 @@ module m_HamPMT
    real(8),allocatable,protected,target:: qplist(:,:)
    integer,allocatable,protected:: nlat(:,:,:,:),npair(:,:),ib_table(:),l_table(:),k_table(:),ispec_table(:),nqwgt(:,:,:),m_table(:)
    character(8),allocatable,protected:: slabl_table(:)
-   integer,protected:: nkk1,nkk2,nkk3,nbas,nkp,npairmx,ldim,jsp,lso,nsp,nspx,ngrp !ldim is number of MTOs
+   integer,protected:: nkk1,nkk2,nkk3,nbas,nkp,npairmx,ldim,jsp,lso,nsp,nspx,nspc,ngrp !ldim is number of MTOs
    real(8),protected:: alat
-   complex(8),allocatable,protected:: ovlmr(:,:,:,:),hammr(:,:,:,:)
+   complex(8),allocatable,protected:: ovlmr(:,:,:,:),hammr(:,:,:,:),hammhsor(:,:,:,:)
    integer:: ndimMTO
 contains
    subroutine ReadHamPMTInfo() ! read information for crystal strucre, k points, neighbor pairs.
@@ -96,11 +96,13 @@ contains
       logical:: cmdopt0
       integer, allocatable:: ib_tableI(:)
       real(8),pointer::qbz(:,:)
-      complex(8),allocatable::ovlmi(:,:,:,:),hammi(:,:,:,:),rotmat(:,:)
+      complex(8),allocatable::ovlmi(:,:,:,:),hammi(:,:,:,:),rotmat(:,:),hammhsoi(:,:,:,:)
       integer,allocatable::ndimPMTq(:), iqproc(:),isproc(:)
       logical,allocatable:: lqibz(:)
       logical::debug=.true.
-      
+      logical:: socmatrix
+      integer:: io
+      socmatrix=cmdopt0('--socmatrix')
       ReadInfoFromGWinput: block ! Input orbital index for MLO, stored into idmto (s,p,d=1,2,3,4,5,6,7,8,9)
         use m_nvfortran,only : findloc
         integer::lmindex(16,nbas),ifmloc,ret,lm
@@ -156,9 +158,12 @@ contains
       nMTO=ldim
       nspx=nsp
       if(lso==1) nspx=1
+      nspc=1
+      if(lso==1) nspc= 2
       ! Readin Hamiltonian only at iqibz
       ib_tableI = pack(ib_tableM(1:ndimMTO), [(all(ib_tableM(:i-1)/=ib_tableM(i)), i=1,ndimMTO)])
       allocate(ovlmi(1:ndimMTO,1:ndimMTO,nqibz,nspx),hammi(1:ndimMTO,1:ndimMTO,nqibz,nspx),source=(0d0,0d0))
+      if(socmatrix) allocate(hammhsoi(1:ndimMTO,1:ndimMTO,nqibz,3),source=(0d0,0d0))
       allocate(rotmat(nMTO,nMTO))
       allocate(ndimPMTq(nqibz),source=0)
 
@@ -211,7 +216,7 @@ contains
               ! read(ifihh) ovlmp
               ! read(ifihh) hammp
               cmlo=0d0 !zero padding for 1:nbandmx in advance
-              call Hreduction(mlomethod,.false.,ndimPMT,hammp,ovlmp, ndimMTO,ix,fff1, hamm,ovlm,qp,cmlo(1:ndimPMT,1:ndimMTO))
+              call Hreduction(mlomethod,.false.,ndimPMT,hammp,ovlmp, ndimMTO,ix,fff1, hamm,ovlm,qp,cmlo(1:ndimPMT,1:ndimMTO),nev)
               !                                                                          Get reduced Hamitonian for ndimMTO
               ! if(cmdopt0('--mlo')) then  !at qibz only
                 ! iqqisp= isp + nspx*(iq-1)
@@ -247,12 +252,20 @@ contains
         type(record_item), allocatable :: items(:)
         complex(8), allocatable :: ovlmp(:,:), hammp(:,:), cmlo(:,:) !in PMT basis
         complex(8), allocatable :: ovlm_(:,:), hamm_(:,:) !max size of PMT basis
+        integer :: ifihsoc, mrechsoc
+        complex(8), allocatable :: hammhsop_(:,:,:), hammhsop(:,:,:), hammhso(:,:,:), zMLO(:,:)
         ! open(newunit=ifih, file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
         open(newunit=ifih_info, file='__HamiltonianPMT.info', form='unformatted')
-        read(ifih_info) nbandmx, mrech
+        read(ifih_info) nbandmx, mrech, mrechsoc
         close(ifih_info)
         allocate(ovlm_(nbandmx,nbandmx), hamm_(nbandmx,nbandmx))
+
         istat = openm(newunit=ifih,file='__HamiltonianPMT',recl=mrech)
+        if(socmatrix) then
+          istat = openm(newunit=ifihsoc,file='__HamiltonianPMTsoc',recl=mrechsoc)
+          allocate(hammhsop_(nbandmx/nspc,nbandmx/nspc,3)) !hammhso is per-orbital (no spinor doubling)
+        endif
+          
         ! read(ifih)  !procid_in,numprocs_in
         iqiloop: do iqxx=1,nqibz !nqibz !xx=1,nqibz !iqini,iqend !iqxx=1,nqibz 
            if(debug)write(6,*)' start iqiloop=',iqxx,nqibz
@@ -264,33 +277,56 @@ contains
               ! read(ifih,end=2029) qp,ndimPMT,lso,xxx,jsp !jsp for isp; if so=1, jsp=1 only
               items = [record_item_from(qp), record_item_from(ndimPMT), record_item_from(ovlm_), record_item_from(hamm_)]
               istat = readm_struct(ifih, rec=iqqisp, items=items)
+              
+              if(socmatrix.and.jspxx==nspx) then
+                items = [record_item_from(hammhsop_)]
+                istat = readm_struct(ifihsoc, rec=iqqisp, items=items)
+              endif
+
               allocate(ovlmp(ndimPMT,ndimPMT), source = ovlm_(1:ndimPMT,1:ndimPMT))
               allocate(hammp(ndimPMT,ndimPMT), source = hamm_(1:ndimPMT,1:ndimPMT))
+              if(socmatrix.and.jspxx==nspx) then
+                allocate(hammhsop(ndimPMT/nspc,ndimPMT/nspc,3), source = hammhsop_(1:ndimPMT/nspc,1:ndimPMT/nspc,1:3))
+                allocate(zMLO(ndimPMT,ndimMTO))
+              endif
               allocate(cmlo(ndimPMT,ndimMTO))
               ! write(06,*) 'xxxx: iq, is', iqxx, jspxx, qp(3), ndimPMT, ndimMTO
               iqibz = findloc( [(sum(abs(qibz(:,i)-qp))<tolq(),i=1,nqibz)],value=.true.,dim=1)
               if(iqibz /= iqxx) call rxii('m_HamPMT:k-points mismatch:', iqibz,iqxx)
               write(stdo,ftox)'=== Reading Ham for iqibz spin procid q= ', iqibz,jsp,procid,ftof(qp)
               allocate(ovlm(1:ndimMTO,1:ndimMTO),hamm(1:ndimMTO,1:ndimMTO))
-              ! readingovlmp2: block
-              !   character(8):: xt
-              !   logical:: cmdopt0
-              !   complex(8):: ovlmp(1:ndimPMT,1:ndimPMT),hammp(1:ndimPMT,1:ndimPMT),cmlo(ndimPMT,ndimMTO)
-              !   read(ifih) ovlmp
-              !   read(ifih) hammp
-              call Hreduction(mlomethod,.false.,ndimPMT,hammp,ovlmp, ndimMTO,ix,fff1, hamm,ovlm,qp,cmlo) !Get reduced Hamitonian for ndimMTO
+              if(socmatrix.and.jspxx==nspx) then
+                call Hreduction(mlomethod,.false.,ndimPMT,hammp,ovlmp, ndimMTO,ix,fff1, hamm,ovlm,qp,cmlo,nx, zMLO=zMLO)
+              else
+                call Hreduction(mlomethod,.false.,ndimPMT,hammp,ovlmp, ndimMTO,ix,fff1, hamm,ovlm,qp,cmlo,nx)
+              endif
+
+              if(socmatrix.and.jspxx==nspx) then
+                allocate(hammhso(1:ndimMTO,1:ndimMTO,3))
+                do i=1,ndimMTO
+                  do j=1,ndimMTO
+                    forall(io=1:3) hammhso(i,j,io)= sum(dconjg(zMLO(:,i))*matmul(hammhsop(:,:,io),zMLO(:,j)))
+                  enddo
+                enddo
+              endif
+              
               ! endblock readingovlmp2
               ndimPMTq(iqibz)=ndimPMT
               do igg=1,ngx(iqibz) !symmetrized for rotations keeping qibz
                  call rotmatMTO(igg=igx(igg,iqibz),q=qibz(:,iqibz),qtarget=qibz(:,iqibz),ndimh=nMTO,rotmat=rotmat)
-                 !associate( rotmatt=>rotmat(ix(1:ndimMTO),ix(1:ndimMTO)))
-                   forall(i=1:ndimMTO,j=1:ndimMTO) rotmatt(i,j)=rotmat(ix(i),ix(j))
-                   ovlmi(:,:,iqibz,jsp)=ovlmi(:,:,iqibz,jsp) +matmul(rotmatt,matmul(ovlm,dconjg(transpose(rotmatt))))
-                   hammi(:,:,iqibz,jsp)=hammi(:,:,iqibz,jsp) +matmul(rotmatt,matmul(hamm,dconjg(transpose(rotmatt))))
-                 !endassociate
+                 forall(i=1:ndimMTO,j=1:ndimMTO) rotmatt(i,j)=rotmat(ix(i),ix(j))
+                 ovlmi(:,:,iqibz,jsp)=ovlmi(:,:,iqibz,jsp) +matmul(rotmatt,matmul(ovlm,dconjg(transpose(rotmatt))))
+                 hammi(:,:,iqibz,jsp)=hammi(:,:,iqibz,jsp) +matmul(rotmatt,matmul(hamm,dconjg(transpose(rotmatt))))
+                 !NOTE: hammhso (3 spin-components) should rotate as a 2N spinor, not as 3 scalar components.
+                 !Simple orbital-only rotation averages out SOC for non-trivial spin rotations. Skip for now.
               enddo
+              if(socmatrix.and.jspxx==nspx) then !no symmetrization of SOC (igg=1 identity only)
+                forall(io=1:3) hammhsoi(:,:,iqibz,io) = hammhso(:,:,io) * ngx(iqibz) !will be /ngx below; net effect unchanged
+              endif
               hammi(:,:,iqibz,jsp)=hammi(:,:,iqibz,jsp) /ngx(iqibz)  
               ovlmi(:,:,iqibz,jsp)=ovlmi(:,:,iqibz,jsp) /ngx(iqibz)
+              if(socmatrix.and.jspxx==nspx) forall(io=1:3) hammhsoi(:,:,iqibz,io)=hammhsoi(:,:,iqibz,io)/ngx(iqibz)
+              if(socmatrix.and.jspxx==nspx) deallocate(hammhso,hammhsop,zMLO)
               deallocate(ovlm,hamm)
               deallocate(ovlmp, hammp, cmlo)
            enddo
@@ -299,14 +335,18 @@ contains
 2029    continue
         ! close(ifih)
         istat = closem(ifih)
+        istat = closem(ifihsoc)
       endblock HreductionIqibz
       call mpibc2_complex(hammi,size(hammi),'m_HamPMT_hammi') 
       call mpibc2_complex(ovlmi,size(ovlmi),'m_HamPMT_ovlmi') 
+      if(socmatrix) call mpibc2_complex(hammhsoi,size(hammhsoi),'m_HamPMT_hammhsoi') 
+
       call mpibc2_int(ndimPMTq,size(ndimPMTq),'m_HamPMT_ndimPMTq')
 ! hammr ovlmr     
       ! allocate(ovlmr(1:ndimMTO,1:ndimMTO,npairmx,nspx), hammr(1:ndimMTO,1:ndimMTO,npairmx,nspx),source=(0d0,0d0))
       allocate(ovlmr(npairmx,ndimMTO,ndimMTO,nspx), source=(0d0,0d0))
       allocate(hammr(npairmx,ndimMTO,ndimMTO,nspx), source=(0d0,0d0))
+      if(socmatrix) allocate(hammhsor(npairmx,ndimMTO,ndimMTO,3), source=(0d0,0d0))
       nqbz=nkp
       qbz=>qplist      
       ndiv= nqbz/nsize
@@ -327,12 +367,17 @@ contains
         ndimPMT= ndimPMTq(iqibz)
         hammovlm: block
           complex(8):: ovlm(1:ndimPMT,1:ndimPMT),hamm(1:ndimPMT,1:ndimPMT),rotmatt(ndimMTO,ndimMTO)
+          complex(8), allocatable :: hammhso(:,:,:)
+          if(socmatrix) allocate(hammhso(ndimMTO,ndimMTO,3), source=(0d0,0d0))
+          if(master_mpi) write(stdo,ftox)'=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q=',iqibz,iqbz,jsp,'q ig=',ftof(qp,4),irotg(iqbz)
+          call rotmatMTO(igg=irotg(iqbz),q=qibz(:,iqibz),qtarget=qp+matmul(qlat,ndiff(:,iqibz)),ndimh=nMTO,rotmat=rotmat)
+          forall(i=1:ndimMTO,j=1:ndimMTO) rotmatt(i,j)=rotmat(ix(i),ix(j))
           do jsp=1,nspx
-            if(master_mpi) write(stdo,ftox)'=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q=',iqibz,iqbz,jsp,'q ig=',ftof(qp,4),irotg(iqbz)
-            call rotmatMTO(igg=irotg(iqbz),q=qibz(:,iqibz),qtarget=qp+matmul(qlat,ndiff(:,iqibz)),ndimh=nMTO,rotmat=rotmat)
-            forall(i=1:ndimMTO,j=1:ndimMTO) rotmatt(i,j)=rotmat(ix(i),ix(j))
             ovlm(1:ndimMTO,1:ndimMTO) = matmul(rotmatt,matmul(ovlmi(:,:,iqibz,jsp),dconjg(transpose(rotmatt))))
             hamm(1:ndimMTO,1:ndimMTO) = matmul(rotmatt,matmul(hammi(:,:,iqibz,jsp),dconjg(transpose(rotmatt))))
+            if(socmatrix.and.jsp==nspx) &
+                 forall(io=1:3) &
+                 hammhso(1:ndimMTO,1:ndimMTO,io)= matmul(rotmatt,matmul(hammhsoi(:,:,iqibz,io),dconjg(transpose(rotmatt))))
             GETrealspaceHamiltonian:block !optimized version
               integer :: ibt1, ibt2, np, ii, jj
               integer, allocatable :: idims(:), jdims(:)
@@ -348,7 +393,13 @@ contains
                   do concurrent(it=1:np, ii=1:size(idims), jj=1:size(jdims))
                     hammr(it,idims(ii),jdims(jj),jsp) = hammr(it,idims(ii),jdims(jj),jsp) + hamm(idims(ii),jdims(jj))*phases(it)
                     ovlmr(it,idims(ii),jdims(jj),jsp) = ovlmr(it,idims(ii),jdims(jj),jsp) + ovlm(idims(ii),jdims(jj))*phases(it)
-                 enddo
+                  enddo
+                  if(socmatrix.and.jsp==nspx) then
+                    do concurrent(it=1:np, ii=1:size(idims), jj=1:size(jdims))
+                      forall(io=1:3) &
+                           hammhsor(it,idims(ii),jdims(jj),io)=  hammhsor(it,idims(ii),jdims(jj),io) + hammhso(idims(ii),jdims(jj),io)*phases(it)
+                    enddo
+                  endif
                 enddo
               enddo
             endblock GetrealspaceHamiltonian
@@ -366,8 +417,9 @@ contains
           enddo
         endblock hammovlm
       enddo qploop
-      call mpibc2_complex(hammr,size(hammr),'m_HamPMT_hammr') !to master
+      call mpibc2_complex(hammr,size(hammr),'m_HamPMT_hammr') !to masterx
       call mpibc2_complex(ovlmr,size(ovlmr),'m_HamPMT_ovlmr') !to master
+      if(socmatrix) call mpibc2_complex(hammhsor,size(hammhsor),'m_HamPMT_hammhsor') !to master
       if(master_mpi) then ! write RealSpace MTO Hamiltonian          !ix(1:ndimMTO)=ix1(1:ndimMTO) !for atom idex
         write(stdo,*)' Writing HamRsMLO... ndimMTO=',ndimMTO
         open(newunit=ifihmto,file='HamRsMLO',form='unformatted')
@@ -375,6 +427,7 @@ contains
         ! write(ifihmto) hammr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx)
         ! write(ifihmto) ovlmr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx) !,ix(1:ndimMTO)
         write(ifihmto) hammr(1:npairmx,1:ndimMTO,1:ndimMTO,1:nspx)
+        if(socmatrix) write(ifihmto) hammhsor(1:npairmx,1:ndimMTO,1:ndimMTO,1:3)
         write(ifihmto) ovlmr(1:npairmx,1:ndimMTO,1:ndimMTO,1:nspx) !,ix(1:ndimMTO)
         write(ifihmto) ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO)
         close(ifihmto)

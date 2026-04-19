@@ -1,0 +1,70 @@
+#!/usr/bin/env python3
+# job_mlo_soc: MLO Hamiltonian generation with SOC as perturbation.
+#   Runs lmf (scalar-relativistic, spin-polarized) and writes SOC matrix separately,
+#   then mlo builds HamRsMLO and SOC-included MLO bands.
+#
+# Settings baked in (cannot be overridden via extra_args without care):
+#   -vnspin=2 -vso=0 --socmatrix --phispinsym
+#
+# Notes:
+#   * nspin=2 is required for --socmatrix (see m_bandcal.f90 / aughsoc).
+#   * so=0 keeps the DFT Hamiltonian scalar-relativistic; SOC goes to __HamiltonianPMTsoc
+#     and is applied as a perturbation in MLO basis by mlo.
+#   * --phispinsym forces identical up/dn radial functions (standard for SOC-as-perturbation).
+#   * Band eigenvalues are written as 2N spinor states to band_MLO_spin1.dat.
+#
+# Usage: job_mlo_soc gaas -np 8 [extra lmf/mlo flags]
+
+import argparse
+import contextlib
+import subprocess
+from pathlib import Path
+from run_cmd import run_cmd, MPIParams
+from utils import merge_files, remove_files
+
+EXEC_DIR = Path(__file__).resolve().parent
+
+SOC_LMF_FLAGS = ["-vnspin=2", "-vso=0", "--socmatrix", "--phispinsym"]
+SOC_MLO_FLAGS = ["--socmatrix"]
+
+def cal_mlo_soc(args, extra_args):
+    target = args.extension
+    mpi_size = args.np
+    cluster = args.cluster
+    remove_files("HamiltonianPMT.*")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
+                               args=[target, "--writeham", "--mkprocar", "--noinv", "--mlo",
+                                     *SOC_LMF_FLAGS, *extra_args]),
+            stdout="lwriteham")
+    merge_files(pattern="PROCAR.UP.*", output_file="PROCAR.UP", remove_sources=True)
+    merge_files(pattern="PROCAR.DN.*", output_file="PROCAR.DN", remove_sources=True)
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo",
+                               args=[target, *SOC_MLO_FLAGS, *extra_args]),
+            stdout="lmlo")
+    if not args.nognuplot:
+        for fname in ['bandplot_MLO.isp1.glt']:
+            if Path(fname).exists():
+                try:
+                    subprocess.run(["gnuplot", "-persist", fname], check=True)
+                except FileNotFoundError:
+                    print("Skip gnuplot")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        prog='job_mlo_soc',
+        description=(
+            'Example:\n'
+            "  job_mlo_soc gaas -np 8 [extra options]\n"
+            "Bakes in: -vnspin=2 -vso=0 --socmatrix --phispinsym\n"
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument("extension",   help='Extension of the ctrl file')
+    parser.add_argument("-c", "--cluster", help="cluster name", default="default", type=str)
+    parser.add_argument("-np",         help='Number of MPI cores', default=8, type=int)
+    parser.add_argument("--nognuplot", "--NoGnuplot", help="stop without drawing", action="store_true", default=False)
+    parser.add_argument("-d", "--dir", help="execution directory (default: current directory)", default=".", type=str)
+
+    args, extra_args = parser.parse_known_args()
+    with contextlib.chdir(args.dir):
+        cal_mlo_soc(args, extra_args)

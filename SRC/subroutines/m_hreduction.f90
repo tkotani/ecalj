@@ -1,6 +1,6 @@
 module m_hreduction
 contains
-  subroutine Hreduction(mlomethod,iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,ovlmout, qp, cmlo) !,qp) !> Reduce H(ndimPMT) to H(ndimMTO)
+  subroutine Hreduction(mlomethod,iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,ovlmout, qp, cmlo,nev, zMLO) !> Reduce H(ndimPMT) to H(ndimMTO)
     ! cmlo= <Psi^MPT i|F^MLO j>
    use m_zhev,only:zhev_tk4
    use m_readqplist,only: eferm
@@ -15,6 +15,7 @@ contains
    complex(8):: ovlmx(ndimPMT,ndimPMT),hammx(ndimPMT,ndimPMT),fac(ndimPMT,ndimMTO),ddd(ndimMTO,ndimMTO)
    complex(8):: hamm(ndimPMT,ndimPMT),ovlm(ndimPMT,ndimPMT)
    complex(8):: hammout(ndimMTO,ndimMTO),ovlmout(ndimMTO,ndimMTO) , cmlo(ndimPMT,ndimMTO)
+   complex(8),optional,intent(out):: zMLO(ndimPMT,ndimMTO) !|F_MLO_k> = sum_m |chi^PMT_m> zMLO(m,k)
 !   complex(8),optional:: zcplz(ndimPMT,ndimMTO)
    complex(8),allocatable :: Amat(:,:)
    real(8):: fff1,fff !epsovl=1d-8 epsovlm=0d0 ,
@@ -149,13 +150,16 @@ contains
       endif MLOLowdinOrthogonalization
 
       
-      ! |F^MLO j'>= |F^PMT_i'> z^PMT_i'i cmlo(i,j) 
+      ! |F^MLO j'>= |F^PMT_i'> z^PMT_i'i cmlo(i,j)
       do i=1,ndimMTO
         do j=1,ndimMTO
           hammout(i,j)= sum( dconjg(cmlo(1:nx,i))*evl(1:nx)*cmlo(1:nx,j)) !|F^MLO_i> = |Psi^PMT_j> cmlo(j,i)
           ovlmout(i,j)= sum( dconjg(cmlo(1:nx,i))*cmlo(1:nx,j) ) !<F^MLO|F^MLO>
         enddo
       enddo
+      if(present(zMLO)) then !zMLO(m,k) = sum_i evecpmt(m,i)*cmlo(i,k): expansion of |F_MLO_k> in PMT basis functions
+        zMLO = matmul(evecpmt(:,1:nx), cmlo(1:nx,:))
+      endif
 
 !       GetZCZ: if(present(zcplz)) then ! This is for k mesh of GWinput. zcplz(ndimPMT, ndimMLO), ndimMLO=ndimMTO
 !         diagonalizeMTO: block         !  |F^MLO j> = |Psi^PMT i> zcplz(i,j)  !MLO eigenfunctions constructed from the PMT basis.
