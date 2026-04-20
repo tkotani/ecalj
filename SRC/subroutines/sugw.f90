@@ -723,7 +723,7 @@ contains
     if(master_mpi) then
       rdata4gwblock: block
         use m_nvfortran,only:findloc
-        use m_read_bzdata,only: Read_bzdata, nqibz,qibz, nq0i,nq0iadd,q0i,iq0pin
+        use m_read_bzdata,only: Read_bzdata, nqibz,qibz, nq0i,nq0iadd,q0i,iq0pin,ginv
         use m_pwmat,only: mkppovl2
         use m_qplist,only: qirr=>qplist
         real(8),parameter:: pi = 4d0*datan(1d0)
@@ -831,7 +831,15 @@ contains
           ! open(newunit=ippovlg,file= "__PPOVLG."//charnum3(iqi),form='unformatted')
           ! open(newunit=ippovli,file= "__PPOVLI."//charnum3(iqi),form='unformatted')
           qx = qibze(1:3,iqi)
-          iqx = findloc([(sum(abs(qx(:)-qtt(:,iqtt)))<tolq,iqtt=1,nqtt)],dim=1,value=.true.)
+          ! iqx = findloc([(sum(abs(qx(:)-qtt(:,iqtt)))<tolq,iqtt=1,nqtt)],dim=1,value=.true.)
+          FoldAndFind: block
+            real(8) :: dqr(3)
+            iqx = 0
+            do iqtt = 1, nqtt
+              call rangedq(matmul(ginv, qx(:) - qtt(:,iqtt)), dqr)
+              if(sum(abs(dqr)) < tolq) then; iqx = iqtt; exit; endif
+            enddo
+          endblock FoldAndFind
           ! ngvecp =>ngvecptt(1:3,1:ngptt(iqx),iqx)
           ngvecc =>ngvecctt(1:3,1:ngctt(iqx),iqx)
           ngp=ngptt(iqx)
