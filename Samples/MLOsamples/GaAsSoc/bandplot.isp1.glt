@@ -4,8 +4,8 @@ set xzeroaxis
 set grid
 set ylabel "Energy-Efermi(eV)"
 # This is given written in subroutine writeband in lm7K/fp/bndfp.F
-set title "Band gaas at /home/takao/ecalj/Samples/MLOsamples/GaAsgwsc"
-set yrange [   -2.00000:    2.00000]
+set title "Band gaas at /home/takao/ecalj/Samples/MLOsamples/GaAsSoc"
+set yrange [-2.0:2.0]
 set xrange [0.0:     4.48735]
 set xtics ('GAMMA'   0.0000000000,\
 'X'   1.0000000000,\
