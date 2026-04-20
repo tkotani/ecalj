@@ -7,7 +7,7 @@ module m_sugw
   private
   public:: m_sugw_init
 contains
-  subroutine m_sugw_init (socmatrix,eferm,vmag,qval,ecoreexit) !Driver for GW calculation
+  subroutine m_sugw_init (eferm,vmag,qval,ecoreexit) !Driver for GW calculation socmatrix,
     use m_lgunit,only:stdo
     use m_lmfinit,only: zz=>z,nris=>nr,lmxa,rmt,spec_a, konfig,ncores,ndimaa,ncoremx,ndima,konf0
     use m_ext,only:   sname
@@ -46,7 +46,7 @@ contains
     use m_ppj,only: m_ppj_init,ppj
     use m_stopwatch
     implicit none
-    intent(in)::          socmatrix,eferm,vmag,qval
+    intent(in)::          eferm,vmag,qval !socmatrix,
     !  qval: valence charge
     !  osig,otau,oppi  augmentation matrices, s_rv1
     !  senex: real space Sigma_vxc
@@ -81,7 +81,7 @@ contains
     complex(8),allocatable:: evec(:,:),evec0(:,:),vxc(:,:,:,:),ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:),pzovl(:,:,:), pwz0(:,:),&
          testcc(:,:),testc(:,:,:),testcd(:,:),ppovld(:),cphi(:,:,:),cphi0(:,:,:),cphi_p(:,:,:),geig(:,:,:),geig_p(:,:,:),sene(:,:),ppovli(:,:)
     logical :: lwvxc,cmdopt0, emptyrun, magexist, debug=.false.,sigmamode,wanatom=.false.,once=.true.
-    logical,optional:: socmatrix 
+!    logical,optional:: socmatrix 
     character(8) :: xt
     character(256):: ext,sprocid,extn
     complex(8),allocatable::  geigr(:,:,:), cphix(:,:,:)
@@ -392,7 +392,7 @@ contains
       allocate(evec(ndimhx,ndimhx),vxc(ndimh,nspc,ndimh,nspc),cphi(ndima,ndimhx,nspc))!,cphiw(ndimhx,nspc))
       if(iqbk==iq) then
         continue
-      elseif( lso/=0 .OR. socmatrix) then
+      elseif( lso/=0) then ! .OR. socmatrix) then
         if(allocated(hammhso)) deallocate(hammhso)
         allocate(hammhso(ndimh,ndimh,3))
         call aughsoc(qp, ohsozz,ohsopm, ndimh, hammhso)
@@ -472,7 +472,8 @@ contains
         if(show_time) call stopwatch_show(sw)
       endblock GetHamiltonianAndDiagonalize;       if(debug)write(stdo,ftox)' iqisploop777 1212'
 1212  continue
-      lwvxc = (socmatrix .or. iq<=iqibzmax).and.(.not.cmdopt0('--novxc'))
+!      lwvxc = (socmatrix .or. iq<=iqibzmax).and.(.not.cmdopt0('--novxc'))
+      lwvxc = (iq<=iqibzmax).and.(.not.cmdopt0('--novxc'))
       if(lwvxc) then
         open(newunit=ifvxcevec, file= '__vxcevec'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
         write(ifvxcevec) qp,ndimhx,nev
