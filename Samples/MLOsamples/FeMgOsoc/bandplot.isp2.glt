@@ -1,0 +1,32 @@
+set terminal postscript enhanced color eps
+set output "bandplot.isp2.band.eps"
+set xzeroaxis
+set grid
+set ylabel "Energy-Efermi(eV)"
+# This is given written in subroutine writeband in lm7K/fp/bndfp.F
+set title "Band femgo isp=2 at /home/takao/ecalj/Samples/MLOsamples/FeMgO"
+set yrange [   -20.00000:    20.00000]
+set xrange [0.0:     3.59073]
+set xtics ('GAMMA'   0.0000000000,\
+'X'   0.5000000000,\
+'M'   1.0000000000,\
+'GAMMA'   1.7071067812,\
+'Z'   1.7659472497,\
+'R'   2.2659472497,\
+'A'   2.7659472497,\
+'Z|X'   3.4730540309,\
+'R|M'   3.5318944995,\
+'A'   3.5907349680)
+tpia=2*3.1415926/     5.62682
+plot \
+"bnd001.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd002.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd003.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd004.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd005.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd006.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd007.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd008.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd009.spin2" u ($2):($3) lt 1 pt 1 w lp
+set terminal x11
+replot
