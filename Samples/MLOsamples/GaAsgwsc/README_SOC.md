@@ -38,19 +38,23 @@ band 5-8:    0.14419   (j=3/2, 4重縮退)
    - SOC を MLO に射影: `hammhso^MLO_ij = sum(dconjg(zMLO[:,i]) * hammhsop * zMLO[:,j])`
    - 実空間 `hammhsor` → 最終的に MLO バンド生成時に 2N スピノル Hamiltonian を組み立てて対角化
 
+## 対称化の実装 (対処B)
+
+spatial symmetry operation R の下で、SOC (L·S) の変換は軌道と同時にスピンも回す必要がある:
+
+$$V_{SO}' = (R_{\text{orb}} \otimes D^{1/2}(R)) \cdot V_{SO} \cdot (R_{\text{orb}} \otimes D^{1/2}(R))^\dagger$$
+
+- [m_HamPMT.f90](../../../SRC/subroutines/m_HamPMT.f90) の `so3_to_su2` で SO(3)→SU(2) 変換を実装
+- `spinor_rotate` で 2N×2N スピノル行列として変換
+- `HreductionIqibz` の little-group symmetrization、および `qploop` の iqibz→iqbz 変換の両方で使用
+- 反転 (inversion) は spin には作用しないので `det R` で proper part を抽出
+
 ## 既知の限界 / WIP
 
-1. **hammhso の symmetrization をスキップ**
-   [m_HamPMT.f90](../../../SRC/subroutines/m_HamPMT.f90) で、spatial symmetry operation の一部は
-   スピン軸を回すため、hammhso 3 成分 (up-up, dn-dn, up-dn) を独立にスカラー rotation
-   すると symmetry 平均で SOC が相殺されてしまう。現状は identity (igg=1) のみ使用。
-   正式には spin rotation matrix `D^(1/2)(R)` を含めた 2N×2N スピノル行列として
-   symmetrize する必要あり。
+1. **`--skiphammsoc` flag 追加済み**（[m_bandcal.f90](../../../SRC/subroutines/m_bandcal.f90)）
+   lso=1 で hamm への SOC 加算をスキップする用。まだ lso=1 経路の完全動作確認は未実施。
 
-2. **`--skiphammsoc` flag 追加済み**（[m_bandcal.f90](../../../SRC/subroutines/m_bandcal.f90)）
-   lso=1 で hamm への SOC 加算をスキップする用。まだ lso=1 経路の完全動作確認は未実施
-   （mrechsoc サイズや hammhsop の spinor 次元対応が必要）。
-
-3. **テスト範囲**
-   - GaAs Γ点 Δ_SO が実験値と一致することを確認
-   - 他の k 点、他材料での妥当性検証はまだ
+2. **テスト範囲**
+   - GaAs Γ点 Δ_SO が実験値 (0.34 eV) と一致することを確認
+   - 非Γ点 (k=0.47619) で Kramers 縮退と Dresselhaus 微小分裂 (~0.5 meV) が出ることを確認
+   - 他材料 (Si, InAs など) での妥当性検証はまだ

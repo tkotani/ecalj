@@ -317,12 +317,15 @@ contains
                  forall(i=1:ndimMTO,j=1:ndimMTO) rotmatt(i,j)=rotmat(ix(i),ix(j))
                  ovlmi(:,:,iqibz,jsp)=ovlmi(:,:,iqibz,jsp) +matmul(rotmatt,matmul(ovlm,dconjg(transpose(rotmatt))))
                  hammi(:,:,iqibz,jsp)=hammi(:,:,iqibz,jsp) +matmul(rotmatt,matmul(hamm,dconjg(transpose(rotmatt))))
-                 !NOTE: hammhso (3 spin-components) should rotate as a 2N spinor, not as 3 scalar components.
-                 !Simple orbital-only rotation averages out SOC for non-trivial spin rotations. Skip for now.
+                 if(socmatrix.and.jspxx==nspx) then !V_SO rotates as spinor (orbital ⊗ SU(2))
+                   SymSOC: block
+                     complex(8):: Dspin(2,2), V_out(ndimMTO,ndimMTO,3)
+                     call so3_to_su2(symops(:,:,igx(igg,iqibz)), Dspin)
+                     call spinor_rotate(ndimMTO, rotmatt, Dspin, hammhso, V_out)
+                     forall(io=1:3) hammhsoi(:,:,iqibz,io) = hammhsoi(:,:,iqibz,io) + V_out(:,:,io)
+                   endblock SymSOC
+                 endif
               enddo
-              if(socmatrix.and.jspxx==nspx) then !no symmetrization of SOC (igg=1 identity only)
-                forall(io=1:3) hammhsoi(:,:,iqibz,io) = hammhso(:,:,io) * ngx(iqibz) !will be /ngx below; net effect unchanged
-              endif
               hammi(:,:,iqibz,jsp)=hammi(:,:,iqibz,jsp) /ngx(iqibz)  
               ovlmi(:,:,iqibz,jsp)=ovlmi(:,:,iqibz,jsp) /ngx(iqibz)
               if(socmatrix.and.jspxx==nspx) forall(io=1:3) hammhsoi(:,:,iqibz,io)=hammhsoi(:,:,iqibz,io)/ngx(iqibz)
@@ -375,9 +378,13 @@ contains
           do jsp=1,nspx
             ovlm(1:ndimMTO,1:ndimMTO) = matmul(rotmatt,matmul(ovlmi(:,:,iqibz,jsp),dconjg(transpose(rotmatt))))
             hamm(1:ndimMTO,1:ndimMTO) = matmul(rotmatt,matmul(hammi(:,:,iqibz,jsp),dconjg(transpose(rotmatt))))
-            if(socmatrix.and.jsp==nspx) &
-                 forall(io=1:3) &
-                 hammhso(1:ndimMTO,1:ndimMTO,io)= matmul(rotmatt,matmul(hammhsoi(:,:,iqibz,io),dconjg(transpose(rotmatt))))
+            if(socmatrix.and.jsp==nspx) then !V_SO rotates as spinor (orbital ⊗ SU(2))
+              RotSOC: block
+                complex(8):: Dspin(2,2)
+                call so3_to_su2(symops(:,:,irotg(iqbz)), Dspin)
+                call spinor_rotate(ndimMTO, rotmatt, Dspin, hammhsoi(:,:,iqibz,:), hammhso)
+              endblock RotSOC
+            endif
             GETrealspaceHamiltonian:block !optimized version
               integer :: ibt1, ibt2, np, ii, jj
               integer, allocatable :: idims(:), jdims(:)
@@ -434,6 +441,64 @@ contains
         write(stdo,*)" Wrote HamRsMLO file! End of lmfham1"
       endif
    end subroutine HamPMTtoHamRsMLO
+
+   subroutine so3_to_su2(R3, D) !Convert SO(3) rotation matrix to SU(2) for spinor rotation.
+      !Improper part (inversion) does not act on spin; take its proper part.
+      real(8), intent(in) :: R3(3,3)
+      complex(8), intent(out) :: D(2,2)
+      complex(8), parameter :: img=(0d0,1d0)
+      real(8) :: Rp(3,3), det, tr, theta, ax(3), cs, sn, s, v(3)
+      integer :: imax
+      det = R3(1,1)*(R3(2,2)*R3(3,3)-R3(2,3)*R3(3,2)) &
+          - R3(1,2)*(R3(2,1)*R3(3,3)-R3(2,3)*R3(3,1)) &
+          + R3(1,3)*(R3(2,1)*R3(3,2)-R3(2,2)*R3(3,1))
+      Rp = R3 / det !take proper part (det=+1). Inversion/mirror->rotation by R*det.
+      tr = Rp(1,1) + Rp(2,2) + Rp(3,3)
+      if (tr >= 3d0 - 1d-10) then !identity
+        D = reshape([(1d0,0d0),(0d0,0d0),(0d0,0d0),(1d0,0d0)], [2,2])
+        return
+      elseif (tr <= -1d0 + 1d-10) then !theta = pi: Rp = 2 n n^T - I
+        v = 0.5d0*[Rp(1,1)+1d0, Rp(2,2)+1d0, Rp(3,3)+1d0]
+        imax = maxloc(v, dim=1)
+        ax = 0d0
+        ax(imax) = sqrt(max(v(imax),0d0))
+        s = Rp(imax, mod(imax,3)+1)*0.5d0/ax(imax); ax(mod(imax,3)+1) = s
+        s = Rp(imax, mod(imax+1,3)+1)*0.5d0/ax(imax); ax(mod(imax+1,3)+1) = s
+        theta = 4d0*atan(1d0)
+      else
+        theta = acos(0.5d0*(tr - 1d0))
+        s = 2d0*sin(theta)
+        ax(1) = (Rp(3,2)-Rp(2,3))/s
+        ax(2) = (Rp(1,3)-Rp(3,1))/s
+        ax(3) = (Rp(2,1)-Rp(1,2))/s
+      endif
+      cs = cos(theta*0.5d0); sn = sin(theta*0.5d0)
+      D(1,1) = cs - img*sn*ax(3)
+      D(1,2) = -sn*ax(2) - img*sn*ax(1)
+      D(2,1) =  sn*ax(2) - img*sn*ax(1)
+      D(2,2) = cs + img*sn*ax(3)
+   end subroutine so3_to_su2
+
+   subroutine spinor_rotate(N, Uorb, D, Vin, Vout) !V' = (Uorb⊗D) V (Uorb⊗D)^†
+      integer, intent(in) :: N
+      complex(8), intent(in) :: Uorb(N,N), D(2,2), Vin(N,N,3)
+      complex(8), intent(out) :: Vout(N,N,3)
+      complex(8) :: U(2*N,2*N), Vf(2*N,2*N), Vfr(2*N,2*N)
+      integer :: i,j
+      U(1:N,     1:N    ) = D(1,1)*Uorb
+      U(1:N,   N+1:2*N  ) = D(1,2)*Uorb
+      U(N+1:2*N, 1:N    ) = D(2,1)*Uorb
+      U(N+1:2*N,N+1:2*N ) = D(2,2)*Uorb
+      Vf = 0d0
+      Vf(1:N,     1:N    ) = Vin(:,:,1)
+      Vf(N+1:2*N,N+1:2*N ) = Vin(:,:,2)
+      Vf(1:N,   N+1:2*N  ) = Vin(:,:,3)
+      Vf(N+1:2*N, 1:N    ) = dconjg(transpose(Vin(:,:,3)))
+      Vfr = matmul(U, matmul(Vf, dconjg(transpose(U))))
+      Vout(:,:,1) = Vfr(1:N,     1:N    )
+      Vout(:,:,2) = Vfr(N+1:2*N,N+1:2*N )
+      Vout(:,:,3) = Vfr(1:N,   N+1:2*N  )
+   end subroutine spinor_rotate
 end module m_HamPMT
 
 
