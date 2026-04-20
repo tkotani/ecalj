@@ -711,7 +711,7 @@ f.write(xcfun_val+'\n')
 f.close()
 
 ### check lmfa works OK or not #############################
-os.system("lmfa tmp2 > llmfa.tmp2; echo $? >exitcode")
+os.system("mpirun -np 1 lmfa tmp2 > llmfa.tmp2; echo $? >exitcode")
 f=open("exitcode",'rt')
 iexit=int(f.read())
 f.close()
