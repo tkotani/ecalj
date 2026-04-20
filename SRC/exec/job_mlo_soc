@@ -1,22 +1,26 @@
 #!/usr/bin/env python3
 # job_mlo_soc: MLO Hamiltonian generation with SOC as perturbation.
-#   Runs lmf (scalar-relativistic, spin-polarized) and writes SOC matrix separately,
-#   then mlo builds HamRsMLO and SOC-included MLO bands.
+#   Steps:
+#     1. lmf --quit=band (with -vso=1 full LS) to determine SOC-corrected Ef
+#        -> save as 'efermi_soc'.
+#     2. lmf --writeham ... --socmatrix (with -vso=0 scalar-rel) to write
+#        __HamiltonianPMT + __HamiltonianPMTsoc.
+#     3. mlo --socmatrix to build HamRsMLO + SOC-included MLO bands on symmetry line.
+#     4. Rewrite ef= in bandplot_MLO.isp1.glt using efermi_soc.
 #
-# Settings baked in (cannot be overridden via extra_args without care):
-#   -vnspin=2 -vso=0 --socmatrix --phispinsym
-#
-# Notes:
-#   * nspin=2 is required for --socmatrix (see m_bandcal.f90 / aughsoc).
-#   * so=0 keeps the DFT Hamiltonian scalar-relativistic; SOC goes to __HamiltonianPMTsoc
-#     and is applied as a perturbation in MLO basis by mlo.
-#   * --phispinsym forces identical up/dn radial functions (standard for SOC-as-perturbation).
-#   * Band eigenvalues are written as 2N spinor states to band_MLO_spin1.dat.
+# Common settings:
+#   -vnspin=2 --phispinsym
+# Step-specific:
+#   Step 1: -vso=1 (full LS, for Ef determination)
+#   Step 2: -vso=0 --socmatrix (scalar-rel DFT, SOC matrix written separately)
+#   Step 3: --socmatrix (tells mlo to read hammhso and apply as perturbation)
 #
 # Usage: job_mlo_soc gaas -np 8 [extra lmf/mlo flags]
 
 import argparse
 import contextlib
+import re
+import shutil
 import subprocess
 from pathlib import Path
 from run_cmd import run_cmd, MPIParams
@@ -24,23 +28,63 @@ from utils import merge_files, remove_files
 
 EXEC_DIR = Path(__file__).resolve().parent
 
-SOC_LMF_FLAGS = ["-vnspin=2", "-vso=0", "--socmatrix", "--phispinsym"]
-SOC_MLO_FLAGS = ["--socmatrix"]
+COMMON_FLAGS = ["-vnspin=2", "--phispinsym"]
+EF_FLAGS    = ["-vso=1"]
+WRITE_FLAGS = ["-vso=0", "--socmatrix"]
+MLO_FLAGS   = ["--socmatrix"]
+
+def read_eferm(fname):
+    # efermi.lmf first line: <Ef(Ry)> <vmag> # ...
+    with open(fname) as f:
+        first = f.readline().split()
+    # Fortran D-format -> Python float
+    return float(first[0].replace('D', 'E').replace('d', 'e'))
+
+def update_glt_ef(glt_path, ef_ry):
+    path = Path(glt_path)
+    if not path.exists():
+        return
+    text = path.read_text()
+    new_text = re.sub(r'ef\s*=\s*[-+\deE.DdPp]+', f'ef={ef_ry}', text, count=1)
+    path.write_text(new_text)
+    print(f"Updated ef={ef_ry} in {glt_path}")
 
 def cal_mlo_soc(args, extra_args):
     target = args.extension
     mpi_size = args.np
     cluster = args.cluster
     remove_files("HamiltonianPMT.*")
+
+    # Step 1: SOC-corrected Fermi energy via full LS lmf --quit=band
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
+                               args=[target, "--quit=band",
+                                     *COMMON_FLAGS, *EF_FLAGS, *extra_args]),
+            stdout="llmf_ef_soc")
+    if Path("efermi.lmf").exists():
+        shutil.copy("efermi.lmf", "efermi_soc")
+        ef_soc = read_eferm("efermi_soc")
+        print(f"SOC Fermi energy = {ef_soc} Ry (saved to efermi_soc)")
+    else:
+        print("Warning: efermi.lmf not created in Step 1; Ef update skipped.")
+        ef_soc = None
+
+    # Step 2: write scalar-rel H + SOC matrix
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
                                args=[target, "--writeham", "--mkprocar", "--noinv", "--mlo",
-                                     *SOC_LMF_FLAGS, *extra_args]),
+                                     *COMMON_FLAGS, *WRITE_FLAGS, *extra_args]),
             stdout="lwriteham")
     merge_files(pattern="PROCAR.UP.*", output_file="PROCAR.UP", remove_sources=True)
     merge_files(pattern="PROCAR.DN.*", output_file="PROCAR.DN", remove_sources=True)
+
+    # Step 3: MLO + SOC-as-perturbation bands on symmetry line
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo",
-                               args=[target, *SOC_MLO_FLAGS, *extra_args]),
+                               args=[target, *MLO_FLAGS, *extra_args]),
             stdout="lmlo")
+
+    # Step 4: rewrite ef= in bandplot glt with SOC Ef
+    if ef_soc is not None:
+        update_glt_ef("bandplot_MLO.isp1.glt", ef_soc)
+
     if not args.nognuplot:
         for fname in ['bandplot_MLO.isp1.glt']:
             if Path(fname).exists():
@@ -55,7 +99,10 @@ if __name__ == "__main__":
         description=(
             'Example:\n'
             "  job_mlo_soc gaas -np 8 [extra options]\n"
-            "Bakes in: -vnspin=2 -vso=0 --socmatrix --phispinsym\n"
+            "Common flags: -vnspin=2 --phispinsym\n"
+            "Step 1 (Ef):      lmf --quit=band -vso=1  -> efermi_soc\n"
+            "Step 2 (writeham): lmf --writeham ... -vso=0 --socmatrix\n"
+            "Step 3 (mlo):     mlo --socmatrix\n"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter
     )
