@@ -29,4 +29,13 @@ def test(args, bindir, testdir, workdir):
     tall += test2_check(os.path.join(testdir, 'band_MLO_spin1.soc.dat'),
                         os.path.join(workdir, 'band_MLO_spin1.dat'),
                         abs_tol=7.4e-5)
+
+    print()
+    print('=' * 70)
+    print(f'To view the SOC band plot (last run is job_mlo_soc, 2N=36 spinor):')
+    print(f'  cd {workdir}')
+    print(f'  gnuplot -p bandplot_MLO.isp1.glt')
+    print('  (red points = MLO-SOC bands, black lines = non-SOC DFT bands)')
+    print(f'SOC Fermi energy saved in: {workdir}/efermi_soc')
+    print('=' * 70)
     return tall
