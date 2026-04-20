@@ -1,45 +1,35 @@
 module m_mlo_ovlppair
-  use m_zmel,     only: build_zmel, zmel, Mptauof_zmel, set_nbb_zmel
-  use m_mlo_scrw, only: nnmlo_init => nnwf_init, nnmlo => nnwf, nnmlo2_mask => nnwf2_mask, trace
-  use m_mlo_ham,  only: read_ham_rs
-  use m_mlo_ham,  only: nmlo => ndimMTO
-  use m_mpi,      only: MPI__root, MPI__rank, MPI__size, MPI__reduceSum, comm
-  use m_lgunit,   only: m_lgunit_init, stdo
-  use m_genallcf_v3, only: Genallcf_v3, nspin
-  use m_read_bzdata, only: Read_BZDATA, nqbz, qbz, nqibz, qibz, nq0i, q0i, wbz, irk, ngrp
-  use m_readgwinput, only: ReadGWinputKeys
-  use m_readqg,      only: Readngmx2
-  use m_hamindex,    only: Readhamindex
-  use m_readeigen,   only: Init_readeigen, Init_readeigen2
-  use m_itq,         only: Setitq_mlo
-  use m_blas,        only: zmm => zmm_h, zmv => zmv_h, m_op_C, m_op_T
-  use m_lattic,   only: plat=>lat_plat
-  use m_mpiio, only: openm, readm, writem, openedm, closem
-
-  use m_rdpp, only: nbloch
-  use m_readVcoud, only: ReadVcoud, ngc, npr=>ngb
+  use m_mpi,        only: MPI__root, MPI__rank, MPI__size, MPI__reduceSum, comm
+  use m_lgunit,     only: m_lgunit_init, stdo
+  use m_mpiio,      only: openm, writem, openedm, closem
+  use m_lmfinit,    only: m_lmfinit_init
+  use m_lattic,     only: m_lattic_init, plat=>lat_plat
+  use m_mksym,      only: m_mksym_init
+  use m_mpitk,      only: m_mpitk_init
+  use m_genallcf_v3,only: Genallcf_v3, nspin
+  use m_read_bzdata,only: Read_BZDATA, nqbz, qbz, nqibz, qibz, nq0i, q0i, wbz, irk, ngrp
+  use m_readgwinput,only: ReadGWinputKeys
+  use m_readqg,     only: Readngmx2
+  use m_hamindex,   only: Readhamindex
+  use m_readeigen,  only: Init_readeigen, Init_readeigen2
+  use m_itq,        only: Setitq_mlo
+  use m_mlo_ham,    only: read_ham_rs, nmlo => ndimMTO, ib_tableI
+  use m_mlo_scrw,   only: nnmlo_init => nnwf_init, nnmlo => nnwf, nnmlo2_mask => nnwf2_mask, trace, pair_site
+  use m_zmel,       only: build_zmel, zmel, Mptauof_zmel, set_nbb_zmel
+  use m_blas,       only: zmm => zmm_h, zmv => zmv_h, m_op_C, m_op_T
+  use m_lapack,     only: zminv => zminv_h, zhev => zhev_h
+  use m_rdpp,       only: nbloch
+  use m_readVcoud,  only: ReadVcoud, ngc, npr=>ngb
   use m_read_ppovl, only: ppovlp, getppx2, ngcread
-  use m_lapack, only: zminv => zminv_h, zhev => zhev_h
-
-  use m_mlo_ham, only: ib_tableI
-  use m_mlo_scrw, only: pair_site
   use m_ftox
-
-  use m_lmfinit,only: m_lmfinit_init
-  use m_lattic,only: m_lattic_init
-  use m_mksym,only: m_mksym_init
-  use m_mpitk, only: m_mpitk_init
   implicit none
-  !! ovlppair_t and geometric data alongside it. Populated by read_ovlppair_t.
   complex(8), allocatable :: ovlppair_t(:,:,:)   !! (npairmx_f, nnmlo, nnmlo) real-space overlap pairs
   integer :: npairmx_f = 0, nbas_f = 0
   real(8) :: plat_f(3,3)
   integer, allocatable :: npair_f(:,:)            !! (nbas_f, nbas_f)
   integer, allocatable :: nqwgt_f(:,:,:)          !! (npairmx_f, nbas_f, nbas_f)
   integer, allocatable :: nlat_f(:,:,:,:)         !! (3, npairmx_f, nbas_f, nbas_f)
-  public :: init_build_ovlppair
-  public :: build_ovlppair_q, get_ovlppair_q
-  ! public :: build_ovlppair_t
+  public :: init_build_ovlppair, build_ovlppair_q, get_ovlppair_q
 contains
   subroutine init_build_ovlppair(comm_in)
     integer, intent(in) :: comm_in
@@ -64,6 +54,115 @@ contains
     call Setitq_mlo(nmlo) ! Set itq in m_zmel
     ! call set_qibz(plat, qbz, nqbz, symops, ngrp)
   end subroutine init_build_ovlppair
+
+  subroutine build_ovlppair_q(spinflip)
+    logical, intent(in) :: spinflip
+    integer :: isp, kx, istat, mrecl, iq0i, i, ispin1, ispin2
+    real(8) :: q(3)
+    complex(8), allocatable :: pbmovlp_inv(:,:), oinv_zmel(:,:,:), ovlppair4(:,:,:,:)
+    complex(8), allocatable :: zmelk(:,:,:)
+    integer :: ifile, ifile_info
+    mrecl = 16*nmlo**4
+    if(mpi__root) then
+      open(newunit=ifile_info, file='__MLOOvlpPairQ.info', form='unformatted', action='write')
+      write(ifile_info) mrecl, nq0i
+      write(ifile_info) q0i
+    endif
+    IspLoop: do isp = 1, nspin
+      ispin1 = isp
+      ispin2 = isp
+      if(spinflip) ispin2 = 3-isp !oppsite spin
+
+      if(openedm(ifile)) istat = closem(ifile)
+      istat = openm(newunit=ifile, file=ovlppair_q_fname(isp,logical(spinflip)), recl=mrecl)
+
+      IqLoop: do iq0i = 1, nq0i
+        if(mod(iq0i-1, mpi__size)/=mpi__rank) cycle IqLoop
+        q = q0i(:,iq0i)
+        call ReadVcoud(q, iq0i, NoVcou=.true.) !set ngc, ngb (=npr) used in zmel
+        call set_nbb_zmel(npr)                 !set npr for zmel, E basis is not used for q=0
+        call getppx2(q, get_ppovlp=.true.)     !set ppovlp
+        if(ngc /= ngcread) call rx('ngc /= ngcread')
+        write(stdo,ftox) 'nbloch, ngc, npr', nbloch, ngc, npr, nbloch + ngc
+
+        allocate(pbmovlp_inv(npr,npr), source=(0d0,0d0))
+        forall(i=1:nbloch) pbmovlp_inv(i,i) = (1d0,0d0)
+        pbmovlp_inv(nbloch+1:npr,nbloch+1:npr) = ppovlp(1:ngc,1:ngc)
+        istat = zminv(pbmovlp_inv(nbloch+1,nbloch+1), n=ngc, lda=npr)
+
+        allocate(zmelk(npr,nmlo,nmlo), source = (0d0, 0d0))
+        allocate(ovlppair4(nmlo,nmlo,nmlo,nmlo), source=(0d0,0d0))
+        IkLoop: do kx=1, nqbz
+          call build_zmel(q=qbz(:,kx), kvec=q, irot=1, rkvec=q, ns1=1, ns2=nmlo, ispm=ispin1, &
+                          nqini=1, nqmax=nmlo, ispq=ispin2, nctot=0, ncc=0, zmelconjg=.false., &
+                          is_m_basis=.true., mpi_mode=.false., mlo_mode=.true.)
+          zmelk(:,:,:) = zmelk(:,:,:) + zmel(:,:,:)/dble(nqbz)
+        enddo IkLoop
+        allocate(oinv_zmel(npr,nmlo,nmlo))
+        istat = zmm(pbmovlp_inv, zmelk, oinv_zmel, npr, nmlo**2, npr)
+        istat = zmm(zmelk, oinv_zmel, ovlppair4, nmlo**2, nmlo**2, npr, opA=m_op_C)
+
+        ovlppair4 = reshape(ovlppair4, shape(ovlppair4), order=[3,4,2,1])
+        istat = writem(ifile, rec=iq0i, data=ovlppair4(:,:,:,:))
+        CheckOvlppairEigenvalue:block
+          real(8) :: evl(nmlo**2)
+          istat = zhev(ovlppair4, n=nmlo**2, evl=evl)
+          write(stdo,*) 'ovlpp at q max/min eigenvalue:', q, maxval(evl), minval(evl)
+          write(stdo,*)  evl
+        endblock CheckOvlppairEigenvalue
+        deallocate(zmelk, ovlppair4, oinv_zmel, pbmovlp_inv)
+      enddo IqLoop
+      istat = closem(ifile)
+    enddo IspLoop
+  end subroutine build_ovlppair_q
+
+  function get_ovlppair_q(q, isp, spinflip) result(ovlppair_q)
+    real(8), intent(in) :: q(3)
+    integer, intent(in) :: isp
+    logical, intent(in) :: spinflip
+    complex(8) :: ovlppair_q(nnmlo, nnmlo)
+    complex(8) :: ovlppair4(nmlo,nmlo,nmlo,nmlo)
+    integer, save :: ifile = -1, isp_prev = -1
+    logical, save :: spinflip_prev = .false.
+    integer, save :: mrecl_f, nq0i_f
+    real(8), save, allocatable :: q0i_f(:,:)
+    logical :: opened
+    integer :: iq, istat, ifile_info
+    if(isp /= isp_prev .or. spinflip .neqv. spinflip_prev) then
+      open(newunit=ifile_info, file='__MLOOvlpPairQ.info', form='unformatted', action='read')
+      read(ifile_info) mrecl_f, nq0i_f
+      if(allocated(q0i_f)) deallocate(q0i_f)
+      allocate(q0i_f(3,nq0i_f))
+      read(ifile_info) q0i_f
+      close(ifile_info)
+      inquire(unit=ifile, opened=opened)
+      if(opened) close(ifile)
+      open(newunit=ifile, file=ovlppair_q_fname(isp, spinflip), &
+           form='unformatted', access='direct', recl=mrecl_f, action='read')
+      isp_prev = isp
+      spinflip_prev = spinflip
+    endif
+    do iq = 1, nq0i_f
+      if(all(abs(q0i_f(:,iq) - q) < 1d-8)) then
+        read(ifile, rec=iq) ovlppair4
+        ovlppair_q = reshape(pack(reshape(ovlppair4, [size(ovlppair4)]), mask=nnmlo2_mask), [nnmlo, nnmlo])
+        return
+      endif
+    enddo
+    call rx('get_ovlppair_q: q not found in q0i')
+  end function get_ovlppair_q
+
+  pure function ovlppair_q_fname(isp, spinflip) result(fname)
+    integer, intent(in) :: isp
+    logical, intent(in) :: spinflip
+    character(:), allocatable :: fname
+    if(isp==1 .and. .not.spinflip) fname = '__MLOOvlpPairQ.UP'
+    if(isp==2 .and. .not.spinflip) fname = '__MLOOvlpPairQ.DN'
+    if(isp==1 .and. spinflip)      fname = '__MLOOvlpPairQ.UPDN'
+    if(isp==2 .and. spinflip)      fname = '__MLOOvlpPairQ.DNUP'
+  end function ovlppair_q_fname
+
+end module m_mlo_ovlppair
   !
   ! subroutine build_ovlppair_t(spinflip)
   !   logical, intent(in) :: spinflip
@@ -249,113 +348,3 @@ contains
   !   if(isp==1 .and. spinflip)      fname = '__MLOOvlpPairT.UPDN'
   !   if(isp==2 .and. spinflip)      fname = '__MLOOvlpPairT.DNUP'
   ! end function ovlppair_t_fname
-
-  subroutine build_ovlppair_q(spinflip)
-    logical, intent(in) :: spinflip
-    integer :: isp, kx, ipr, istat, mrecl, iq0i, i, ispin1, ispin2, irot, kr
-    real(8) :: q(3), quu(3), qibz_k(3), qbz_kr(3)
-    complex(8), allocatable :: pbmovlp_inv(:,:), oinv_zmel(:,:,:), ovlppair4(:,:,:,:)
-    complex(8), allocatable :: zmelk(:,:,:)
-    integer :: ifile, ifile_info
-    mrecl = 16*nmlo**4
-    if(mpi__root) then
-      open(newunit=ifile_info, file='__MLOOvlpPairQ.info', form='unformatted', action='write')
-      write(ifile_info) mrecl, nq0i
-      write(ifile_info) q0i
-    endif
-    IspLoop: do isp = 1, nspin
-      ispin1 = isp
-      ispin2 = isp
-      if(spinflip) ispin2 = 3-isp !oppsite spin
-
-      if(openedm(ifile)) istat = closem(ifile)
-      istat = openm(newunit=ifile, file=ovlppair_q_fname(isp,logical(spinflip)), recl=mrecl)
-
-      IqLoop: do iq0i = 1, nq0i
-        if(mod(iq0i-1, mpi__size)/=mpi__rank) cycle IqLoop
-        q = q0i(:,iq0i)
-        call ReadVcoud(q, iq0i, NoVcou=.true.) !set ngc, ngb (=npr) used in zmel
-        call set_nbb_zmel(npr)                 !set npr for zmel, E basis is not used for q=0
-        call getppx2(q, get_ppovlp=.true.)     !set ppovlp
-        if(ngc /= ngcread) call rx('ngc /= ngcread')
-        write(stdo,ftox) 'nbloch, ngc, npr', nbloch, ngc, npr, nbloch + ngc
-
-        allocate(pbmovlp_inv(npr,npr), source=(0d0,0d0))
-        forall(i=1:nbloch) pbmovlp_inv(i,i) = (1d0,0d0)
-        pbmovlp_inv(nbloch+1:npr,nbloch+1:npr) = ppovlp(1:ngc,1:ngc)
-        istat = zminv(pbmovlp_inv(nbloch+1,nbloch+1), n=ngc, lda=npr)
-
-        allocate(zmelk(npr,nmlo,nmlo), source = (0d0, 0d0))
-        allocate(ovlppair4(nmlo,nmlo,nmlo,nmlo), source=(0d0,0d0))
-        IkLoop: do kx=1, nqbz
-          call build_zmel(q=-qbz(:,kx), kvec=q, irot=1, rkvec=q, ns1=1, ns2=nmlo, ispm=ispin1, &
-                          nqini=1, nqmax=nmlo, ispq=ispin2, nctot=0, ncc=0, zmelconjg=.false., &
-                          is_m_basis=.true., mpi_mode=.false., mlo_mode=.true.)
-          zmelk(:,:,:) = zmelk(:,:,:) + zmel(:,:,:)/dble(nqbz)
-        enddo IkLoop
-        allocate(oinv_zmel(npr,nmlo,nmlo))
-        istat = zmm(pbmovlp_inv, zmelk, oinv_zmel, npr, nmlo**2, npr)
-        istat = zmm(zmelk, oinv_zmel, ovlppair4, nmlo**2, nmlo**2, npr, opA=m_op_C)
-
-        ! ovlppair4 = reshape(ovlppair4, shape(ovlppair4), order=[1,2,3,4])
-        istat = writem(ifile, rec=iq0i, data=ovlppair4(:,:,:,:))
-        CheckOvlppairEigenvalue:block
-          real(8) :: evl(nmlo**2)
-          istat = zhev(ovlppair4, n=nmlo**2, evl=evl)
-          write(stdo,*) 'ovlpp at q max/min eigenvalue:', q, maxval(evl), minval(evl)
-          write(stdo,*)  evl
-        endblock CheckOvlppairEigenvalue
-        deallocate(zmelk, ovlppair4, oinv_zmel, pbmovlp_inv)
-      enddo IqLoop
-      istat = closem(ifile)
-    enddo IspLoop
-  end subroutine build_ovlppair_q
-
-  function get_ovlppair_q(q, isp, spinflip) result(ovlppair_q)
-    real(8), intent(in) :: q(3)
-    integer, intent(in) :: isp
-    logical, intent(in) :: spinflip
-    complex(8) :: ovlppair_q(nnmlo, nnmlo)
-    complex(8) :: ovlppair4(nmlo,nmlo,nmlo,nmlo)
-    integer, save :: ifile = -1, isp_prev = -1
-    logical, save :: spinflip_prev = .false.
-    integer, save :: mrecl_f, nq0i_f
-    real(8), save, allocatable :: q0i_f(:,:)
-    logical :: opened
-    integer :: iq, istat, ifile_info
-    if(isp /= isp_prev .or. spinflip .neqv. spinflip_prev) then
-      open(newunit=ifile_info, file='__MLOOvlpPairQ.info', form='unformatted', action='read')
-      read(ifile_info) mrecl_f, nq0i_f
-      if(allocated(q0i_f)) deallocate(q0i_f)
-      allocate(q0i_f(3,nq0i_f))
-      read(ifile_info) q0i_f
-      close(ifile_info)
-      inquire(unit=ifile, opened=opened)
-      if(opened) close(ifile)
-      open(newunit=ifile, file=ovlppair_q_fname(isp, spinflip), &
-           form='unformatted', access='direct', recl=mrecl_f, action='read')
-      isp_prev = isp
-      spinflip_prev = spinflip
-    endif
-    do iq = 1, nq0i_f
-      if(all(abs(q0i_f(:,iq) - q) < 1d-8)) then
-        read(ifile, rec=iq) ovlppair4
-        ovlppair_q = reshape(pack(reshape(reshape(ovlppair4, shape(ovlppair4), order=[1,2,3,4]), &
-                             [size(ovlppair4)]), mask=nnmlo2_mask), shape = [nnmlo, nnmlo])
-        return
-      endif
-    enddo
-    call rx('get_ovlppair_q: q not found in q0i')
-  end function get_ovlppair_q
-
-  pure function ovlppair_q_fname(isp, spinflip) result(fname)
-    integer, intent(in) :: isp
-    logical, intent(in) :: spinflip
-    character(:), allocatable :: fname
-    if(isp==1 .and. .not.spinflip) fname = '__MLOOvlpPairQ.UP'
-    if(isp==2 .and. .not.spinflip) fname = '__MLOOvlpPairQ.DN'
-    if(isp==1 .and. spinflip)      fname = '__MLOOvlpPairQ.UPDN'
-    if(isp==2 .and. spinflip)      fname = '__MLOOvlpPairQ.DNUP'
-  end function ovlppair_q_fname
-
-end module m_mlo_ovlppair

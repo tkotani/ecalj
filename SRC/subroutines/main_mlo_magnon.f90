@@ -387,7 +387,7 @@ subroutine mlo_magnon() bind(C)
     where(abs(dimag(zxq))<1d-15) zxq = dreal(zxq) ! threshold for Im[K] (zxq)
 
     formfactor = get_formfactor_q(q, isf, spinflip=.true.)
-    ovlppair = get_ovlppair_q(q, isf, spinflip=.true., minus_q=.false.)
+    ovlppair = get_ovlppair_q(q, isf, spinflip=.true.)
     ovlppair_inv = ovlppair
     istat = zminv(ovlppair_inv, n=nnwf)
 
@@ -454,32 +454,26 @@ subroutine mlo_magnon() bind(C)
         chi0(:,:) = merge(conjg(transpose(chi0)), chi0, iw <0)
         rmat(:,:) = merge(conjg(transpose(rmat)), rmat, iw <0)
 
-        ! chiH = -(chi0 - transpose(conjg(chi0)))*0.5d0*img
-        ! istat = zhgv_lindep(chiH, ovlppair, n=nnwf, evl=evl, nev=nev, nkeep=nwf)
-        ! spectrum_k(iw) = sum(evl(1:nev))
-        OchiH = matmul(chi0, transpose(ovlppair))
-        OchiH = -(OchiH- transpose(conjg(OchiH)))*0.5d0*img
-        istat = zhev(OchiH, n=nnwf, evl=evl)
-        spectrum_k(iw) = sum(evl(1:nnwf))
+        chiH = -(chi0 - transpose(conjg(chi0)))*0.5d0*img
+        istat = zhgv_lindep(chiH, ovlppair, n=nnwf, evl=evl, nev=nev, nkeep=nwf)
+        spectrum_k(iw) = sum(evl(1:nev))
 
-        ! chiH = -(rmat- transpose(conjg(rmat)))*0.5d0*img
-        ! istat = zhgv_lindep(chiH, ovlppair, n=nnwf, evl=evl, nev=nev, nkeep=nwf)
-        ! spectrum_r(iw) = sum(evl(1:nev))
-        OchiH = matmul(rmat, transpose(ovlppair))
-        OchiH = -(OchiH- transpose(conjg(OchiH)))*0.5d0*img
-        istat = zhev(OchiH, n=nnwf, evl=evl)
-        spectrum_r(iw) = sum(evl(1:nnwf))
+        ! OchiH = matmul(chi0, transpose(ovlppair))
+        ! OchiH = -(OchiH- transpose(conjg(OchiH)))*0.5d0*img
+        ! istat = zhev(OchiH, n=nnwf, evl=evl)
+        ! spectrum_k(iw) = sum(evl(1:nnwf))
+
+        chiH = -(rmat- transpose(conjg(rmat)))*0.5d0*img
+        istat = zhgv_lindep(chiH, ovlppair, n=nnwf, evl=evl, nev=nev, nkeep=nwf)
+        spectrum_r(iw) = sum(evl(1:nev))
+
+        ! OchiH = matmul(rmat, transpose(ovlppair))
+        ! OchiH = -(OchiH- transpose(conjg(OchiH)))*0.5d0*img
+        ! istat = zhev(OchiH, n=nnwf, evl=evl)
+        ! spectrum_r(iw) = sum(evl(1:nnwf))
 
         k_tr(iw) = trace2(matmul(ovlppair,chi0))
         r_tr(iw) = trace2(matmul(ovlppair,rmat))
-
-        ! k_tr(iw) = trace(matmul(ovlppair_inv, chi0))
-        ! r_tr(iw) = trace(matmul(ovlppair_inv, rmat))
-
-        ! tmp = matmul(ovlppair_inv, chi0)
-        ! k_tr(iw) = sum([(tmp(i,i),i=1,nnwf)])
-        ! tmp = matmul(ovlppair_inv, rmat)
-        ! r_tr(iw) = sum([(tmp(i,i),i=1,nnwf)])
 
         k_tr_onsite(iw) = trace_onsite(chi0)
         r_tr_onsite(iw) = trace_onsite(rmat)
