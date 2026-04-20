@@ -4,7 +4,7 @@ module m_mlo_scrw
   use m_mpi, only: ipr
   use m_ftox, only: ftox
   implicit none
-  public :: nnwf_init, scrw_init, trace_onsite, trace_onsite_diag, contract_to_site, extract_diagonal_channel, trace
+  public :: nnwf_init, scrw_init, trace_onsite, trace_onsite_diag, contract_to_site, extract_diagonal_channel, trace, trace2
   integer, protected, public :: nnwf
   complex(8), allocatable, protected, public :: scrw(:,:)
   logical, allocatable, protected, public :: nnwf_mask(:), nnwf2_mask(:)
@@ -12,20 +12,19 @@ module m_mlo_scrw
 contains
   subroutine nnwf_init(nnwf_size_reduction)
     logical, intent(in) :: nnwf_size_reduction
-    integer :: iwf, jwf, ijwf, idummy
-    logical, allocatable :: mask(:)
+    integer :: iwf, jwf, ijwf, iwf1, iwf2, iwf3, iwf4
     integer, allocatable :: iwf_list(:), jwf_list(:)
     iwf_list = [((iwf, iwf=1,nwf), jwf=1,nwf)]
     jwf_list = [((jwf, iwf=1,nwf), jwf=1,nwf)]
     if(nnwf_size_reduction) then
-      mask = [((ib_tableM(iwf)==ib_tableM(jwf), iwf=1,nwf), jwf=1,nwf)]  ! only same atomic site
+      nnwf_mask = [((ib_tableM(iwf)==ib_tableM(jwf), iwf=1,nwf), jwf=1,nwf)]  ! only same atomic site
+      nnwf2_mask = [(((((ib_tableM(iwf1)==ib_tableM(iwf2) .and. ib_tableM(iwf3)==ib_tableM(iwf4)), iwf1=1,nwf), iwf2=1,nwf), iwf3=1,nwf), iwf4=1,nwf)]
     else
-      mask = [((.TRUE., iwf=1,nwf), jwf=1,nwf)]  !full pair
+      nnwf_mask = [((.TRUE., iwf=1,nwf), jwf=1,nwf)]  !full pair
+      nnwf2_mask = [((((.TRUE., iwf1=1,nwf), iwf2=1,nwf), iwf3=1,nwf), iwf4=1,nwf)]
     endif
-    if(allocated(nnwf_mask)) deallocate(nnwf_mask)
-    allocate(nnwf_mask, source = mask)
-    iwf_list = pack(iwf_list, mask=mask)
-    jwf_list = pack(jwf_list, mask=mask)
+    iwf_list = pack(iwf_list, mask=nnwf_mask)
+    jwf_list = pack(jwf_list, mask=nnwf_mask)
     nnwf = size(iwf_list)
     if (allocated(mlo_pairs)) deallocate(mlo_pairs)
     allocate(mlo_pairs(nnwf,2))
@@ -60,6 +59,12 @@ contains
       cmat(site1,site2) = sum(pack(reshape(mat(:,:), shape=[nnwf*nnwf]), mask=mask))
     enddo
   end function contract_to_site
+
+  complex(8) function trace2(mat) result(res)
+    complex(8), intent(in) :: mat(nnwf,nnwf)
+    integer :: i
+    res = sum([(mat(i,i),i=1,nnwf)])
+  end function trace2
 
   function extract_diagonal_channel(mat, lorb) result(cmat)
     complex(8), intent(in) :: mat(nnwf,nnwf)
@@ -118,8 +123,8 @@ contains
     trmat = sum(pack(reshape(mat, [nnwf*nnwf]), mask=mask))
   end function trace_onsite_diag
 
-  subroutine scrw_init(nnwf_size_reduction, w_onsite_dddd, Wtype, enforce_Hermite)
-    logical, intent(in) :: nnwf_size_reduction, w_onsite_dddd, enforce_Hermite
+  subroutine scrw_init(w_onsite_dddd, Wtype, enforce_Hermite)
+    logical, intent(in) :: w_onsite_dddd, enforce_Hermite
     character(len=*), intent(in) :: Wtype
     integer:: ifscrwv, ifscrv, iwf, jwf, kwf, lwf
     character(len=9)::charadummy 
@@ -164,11 +169,6 @@ contains
     enddo
     if(allocated(scrw)) deallocate(scrw)
     allocate(scrw(nnwf,nnwf))
-    if(nnwf_size_reduction) then
-      nnwf2_mask = [(((((ib_tableM(iwf1)==ib_tableM(iwf2).and. ib_tableM(iwf3)==ib_tableM(iwf4)), iwf1=1,nwf), iwf2=1,nwf), iwf3=1,nwf), iwf4=1,nwf)]
-    else
-      nnwf2_mask = [((((.TRUE., iwf1=1,nwf), iwf2=1,nwf), iwf3=1,nwf), iwf4=1,nwf)]
-    endif
     scrw(:,:) = reshape(pack(reshape(scrw4, shape=[nwf**4]), mask=nnwf2_mask), shape=[nnwf,nnwf])
     if(enforce_Hermite) scrw(:,:) = (scrw(:,:) + transpose(conjg(scrw(:,:))))*0.5d0
     scrw(:,:) = scrw(:,:)/hartree !! Screening W for magnon

@@ -17,7 +17,7 @@ contains
     logical, save :: spinflip_prev = .false.
     real(8), save, allocatable :: q0i_f(:,:)
     complex(8) :: formfactor_f(nmlo, nmlo)
-    integer :: iq, ifile_info, nmlo_f, nqbz_f, nspin_f
+    integer :: iq, ifile_info, nmlo_f, nqbz_f, nspin_f, recl
     logical :: opened
     if(isp /= isp_prev .or. spinflip .neqv. spinflip_prev) then
       open(newunit=ifile_info, file='__MLOFormFactorQ.info', form='unformatted', action='read')
@@ -29,8 +29,8 @@ contains
       close(ifile_info)
       inquire(unit=ifile, opened=opened)
       if(opened) close(ifile)
-      open(newunit=ifile, file=formfactor_q_fname(isp, spinflip), &
-           form='unformatted', access='direct', recl=nmlo*nmlo*16, action='read')
+      recl = nmlo*nmlo*16
+      open(newunit=ifile, file=formfactor_q_fname(isp, spinflip), form='unformatted', access='direct', recl=recl, action='read')
       isp_prev = isp
       spinflip_prev = spinflip
     endif

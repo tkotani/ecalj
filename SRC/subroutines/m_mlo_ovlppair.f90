@@ -1,7 +1,8 @@
 module m_mlo_ovlppair
   use m_zmel,     only: build_zmel, zmel, Mptauof_zmel, set_nbb_zmel
   use m_mlo_scrw, only: nnmlo_init => nnwf_init, nnmlo => nnwf, nnmlo2_mask => nnwf2_mask, trace
-  use m_mlo_ham,  only: read_ham_rs, nmlo => ndimMTO
+  use m_mlo_ham,  only: read_ham_rs
+  use m_mlo_ham,  only: nmlo => ndimMTO
   use m_mpi,      only: MPI__root, MPI__rank, MPI__size, MPI__reduceSum, comm
   use m_lgunit,   only: m_lgunit_init, stdo
   use m_genallcf_v3, only: Genallcf_v3, nspin
@@ -15,10 +16,10 @@ module m_mlo_ovlppair
   use m_lattic,   only: plat=>lat_plat
   use m_mpiio, only: openm, readm, writem, openedm, closem
 
-    use m_rdpp, only: nbloch
-    use m_readVcoud, only: ReadVcoud, ngc, npr=>ngb
-    use m_read_ppovl, only: ppovlp, getppx2, ngcread
-    use m_lapack, only: zminv => zminv_h, zhev => zhev_h
+  use m_rdpp, only: nbloch
+  use m_readVcoud, only: ReadVcoud, ngc, npr=>ngb
+  use m_read_ppovl, only: ppovlp, getppx2, ngcread
+  use m_lapack, only: zminv => zminv_h, zhev => zhev_h
 
   use m_mlo_ham, only: ib_tableI
   use m_mlo_scrw, only: pair_site
@@ -250,21 +251,17 @@ contains
   ! end function ovlppair_t_fname
 
   subroutine build_ovlppair_q(spinflip)
-   use,intrinsic :: ieee_arithmetic
     logical, intent(in) :: spinflip
     integer :: isp, kx, ipr, istat, mrecl, iq0i, i, ispin1, ispin2, irot, kr
-    real(8) :: q(3), quu(3), evl(nnmlo), qibz_k(3), qbz_kr(3)
-    complex(8), allocatable :: ovlppair_q(:,:), pbmovlp_inv(:,:), oinv_zmel(:,:,:), ovlppair4(:,:,:,:)
+    real(8) :: q(3), quu(3), qibz_k(3), qbz_kr(3)
+    complex(8), allocatable :: pbmovlp_inv(:,:), oinv_zmel(:,:,:), ovlppair4(:,:,:,:)
     complex(8), allocatable :: zmelk(:,:,:)
     integer :: ifile, ifile_info
-    mrecl = nnmlo*nnmlo*16
     mrecl = 16*nmlo**4
     if(mpi__root) then
       open(newunit=ifile_info, file='__MLOOvlpPairQ.info', form='unformatted', action='write')
       write(ifile_info) mrecl, nq0i
       write(ifile_info) q0i
-      ! write(stdo,ftox) mrecl, nq0i
-      ! write(stdo,ftox) q0i
     endif
     IspLoop: do isp = 1, nspin
       ispin1 = isp
@@ -281,84 +278,43 @@ contains
         call set_nbb_zmel(npr)                 !set npr for zmel, E basis is not used for q=0
         call getppx2(q, get_ppovlp=.true.)     !set ppovlp
         if(ngc /= ngcread) call rx('ngc /= ngcread')
-
         write(stdo,ftox) 'nbloch, ngc, npr', nbloch, ngc, npr, nbloch + ngc
-        ! block
-        !   complex(8), allocatable :: ppovlp_check(:,:)
-        !   real(8), allocatable :: evl_check(:)
-        !   allocate(ppovlp_check, source=ppovlp)
-        !   allocate(evl_check(ngc))
-        !   istat = zhev(ppovlp_check, n=ngc, evl=evl_check)
-        !   write(*,*) 'ppovlp max eigenvalue:', maxval(evl_check)
-        !   write(*,*) 'ppovlp min eigenvalue:', minval(evl_check)
-        ! endblock
 
         allocate(pbmovlp_inv(npr,npr), source=(0d0,0d0))
         forall(i=1:nbloch) pbmovlp_inv(i,i) = (1d0,0d0)
         pbmovlp_inv(nbloch+1:npr,nbloch+1:npr) = ppovlp(1:ngc,1:ngc)
-        istat = zminv(pbmovlp_inv, n=npr)
+        istat = zminv(pbmovlp_inv(nbloch+1,nbloch+1), n=ngc, lda=npr)
 
         allocate(zmelk(npr,nmlo,nmlo), source = (0d0, 0d0))
+        allocate(ovlppair4(nmlo,nmlo,nmlo,nmlo), source=(0d0,0d0))
         IkLoop: do kx=1, nqbz
-          call build_zmel(q=qbz(:,kx), kvec=q, irot=1, rkvec=q, ns1=1, ns2=nmlo, ispm=ispin1, &
+          call build_zmel(q=-qbz(:,kx), kvec=q, irot=1, rkvec=q, ns1=1, ns2=nmlo, ispm=ispin1, &
                           nqini=1, nqmax=nmlo, ispq=ispin2, nctot=0, ncc=0, zmelconjg=.false., &
                           is_m_basis=.true., mpi_mode=.false., mlo_mode=.true.)
-          ! call build_zmel(q=q+qbz(:,kx), kvec=q, irot=1, rkvec=q, ns1=1, ns2=nmlo, ispm=ispin1, &
-          !                 nqini=1, nqmax=nmlo, ispq=ispin2, nctot=0, ncc=0, zmelconjg=.false., &
-          !                 is_m_basis=.true., mpi_mode=.false., mlo_mode=.true.)
-          if(any(ieee_is_nan(dble(zmel)))) write(stdo,ftox) "NaN in Real zmel", iq0i, kx, q, npr, nmlo
-          if(any(ieee_is_nan(imag(zmel)))) write(stdo,ftox) "NaN in Imag zmel", iq0i, kx, q, npr, nmlo
-          zmelk(:,:,:) = zmelk(:,:,:) + zmel(:,:,:)
-          ! istat = zmm(pbmovlp_inv, zmel, oinv_zmel, npr, nmlo**2, npr)
-          ! istat = zmm(zmel, oinv_zmel, ovlppair4, nmlo**2, nmlo**2, npr, opA=m_op_C)
-          ! ovlppair_q = ovlppair_q + wbz(kx)*reshape(pack(reshape(reshape(ovlppair4, shape(ovlppair4), order=[1,2,3,4]), &
-          !                                                [size(ovlppair4)]), mask=nnmlo2_mask), shape = [nnmlo, nnmlo])
+          zmelk(:,:,:) = zmelk(:,:,:) + zmel(:,:,:)/dble(nqbz)
         enddo IkLoop
-        zmelk = zmelk/dble(nqbz)
-        allocate(ovlppair4(nmlo,nmlo,nmlo,nmlo), oinv_zmel(npr,nmlo,nmlo))
-        allocate(ovlppair_q(nnmlo,nnmlo), source=(0d0,0d0))
-
+        allocate(oinv_zmel(npr,nmlo,nmlo))
         istat = zmm(pbmovlp_inv, zmelk, oinv_zmel, npr, nmlo**2, npr)
         istat = zmm(zmelk, oinv_zmel, ovlppair4, nmlo**2, nmlo**2, npr, opA=m_op_C)
 
-        ! istat = zmm(zmelk, zmelk, ovlppair4, nmlo**2, nmlo**2, npr, opA=m_op_C)
-
-        ! ovlppair_q = reshape(pack(reshape(reshape(ovlppair4, shape(ovlppair4), order=[1,2,3,4]), &
-        !                      [size(ovlppair4)]), mask=nnmlo2_mask), shape = [nnmlo, nnmlo])
-        ! istat = writem(ifile, rec=iq0i, data=ovlppair_q(:,:))
-        ovlppair4 = reshape(ovlppair4, shape(ovlppair4), order=[2,1,4,3])
+        ! ovlppair4 = reshape(ovlppair4, shape(ovlppair4), order=[1,2,3,4])
         istat = writem(ifile, rec=iq0i, data=ovlppair4(:,:,:,:))
-        block
-          complex(8) :: ovlpp_trace
-          integer :: i, j
-          ovlpp_trace = 0d0
-          do i =1,  nmlo
-            do j =1, nmlo
-             ovlpp_trace = ovlpp_trace + ovlppair4(i,j,i,j)
-            enddo
-          enddo
-          write(stdo,ftox) 'ovlpp_trace:', q, ovlpp_trace
-       endblock
-       block
-         real(8) :: evl(nmlo**2)
-        ! ovlppair4 = (ovlppair4 + conjg(transpose(ovlppair4)))*0.5d0
-        istat = zhev(ovlppair4, n=nmlo**2, evl=evl)
-        write(*,*) 'max eigenvalue:', maxval(evl)
-        write(*,*) 'min eigenvalue:', minval(evl)
-        write(*,*) 'condition number:', maxval(evl)/minval(evl)
-        write(*,*)  evl
-      endblock
-        deallocate(zmelk, ovlppair_q, ovlppair4, oinv_zmel, pbmovlp_inv)
+        CheckOvlppairEigenvalue:block
+          real(8) :: evl(nmlo**2)
+          istat = zhev(ovlppair4, n=nmlo**2, evl=evl)
+          write(stdo,*) 'ovlpp at q max/min eigenvalue:', q, maxval(evl), minval(evl)
+          write(stdo,*)  evl
+        endblock CheckOvlppairEigenvalue
+        deallocate(zmelk, ovlppair4, oinv_zmel, pbmovlp_inv)
       enddo IqLoop
       istat = closem(ifile)
     enddo IspLoop
   end subroutine build_ovlppair_q
 
-  function get_ovlppair_q(q, isp, spinflip, minus_q) result(ovlppair_q)
+  function get_ovlppair_q(q, isp, spinflip) result(ovlppair_q)
     real(8), intent(in) :: q(3)
     integer, intent(in) :: isp
     logical, intent(in) :: spinflip
-    logical, intent(in), optional :: minus_q
     complex(8) :: ovlppair_q(nnmlo, nnmlo)
     complex(8) :: ovlppair4(nmlo,nmlo,nmlo,nmlo)
     integer, save :: ifile = -1, isp_prev = -1
@@ -374,7 +330,6 @@ contains
       allocate(q0i_f(3,nq0i_f))
       read(ifile_info) q0i_f
       close(ifile_info)
-
       inquire(unit=ifile, opened=opened)
       if(opened) close(ifile)
       open(newunit=ifile, file=ovlppair_q_fname(isp, spinflip), &
@@ -384,12 +339,8 @@ contains
     endif
     do iq = 1, nq0i_f
       if(all(abs(q0i_f(:,iq) - q) < 1d-8)) then
-        ! read(ifile, rec=iq) ovlppair_q(:,:)
         read(ifile, rec=iq) ovlppair4
-        if(present(minus_q)) then
-          if(minus_q) ovlppair4 = conjg(reshape(ovlppair4, shape=[nmlo,nmlo,nmlo,nmlo], order=[2,1,4,3]))
-        endif
-        ovlppair_q = reshape(pack(reshape(reshape(ovlppair4, shape(ovlppair4), order=[1,2,4,3]), &
+        ovlppair_q = reshape(pack(reshape(reshape(ovlppair4, shape(ovlppair4), order=[1,2,3,4]), &
                              [size(ovlppair4)]), mask=nnmlo2_mask), shape = [nnmlo, nnmlo])
         return
       endif

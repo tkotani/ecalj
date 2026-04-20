@@ -20,6 +20,7 @@ module m_readeigen
 #else
   use m_blas, only : zmm => zmm_h
 #endif
+  use,intrinsic :: ieee_arithmetic
   !! qtt(1:3, nqtt)  :q-vector in full BZ (no symmetry) in QGpsi, QGcou
   !! qtti(1:3,nqi)   :eivenvalues, eigenvectors are calculated only for irr=1 in QGpsi (See lqg4gw).
   implicit none
@@ -308,6 +309,10 @@ contains
       endblock rotipw
     enddo
     !$acc exit data delete(geigenr)
+     if(debug) then
+       if(any(ieee_is_nan(dble(geigen)))) write(stdo,ftox) "xxx NaN in Real geig"
+       if(any(ieee_is_nan(imag(geigen)))) write(stdo,ftox) "xxx NaN in Imag "
+     endif
   end function readgeigf_mpi
 
   function readcphif_mpi(q, isp, mpi_mode, comm) result(cphif)
@@ -389,6 +394,10 @@ contains
        endblock rotmto
     enddo
     !$acc exit data delete(cphifr)
+     if(debug) then
+       if(any(ieee_is_nan(dble(cphif)))) write(stdo,ftox) "xxx NaN in Real cphi"
+       if(any(ieee_is_nan(imag(cphif)))) write(stdo,ftox) "xxx NaN in Imag cphi"
+     endif
     if(debug) write(stdo,*) 'end of readcphif_d'; call flush(6)
   end function readcphif_mpi
 

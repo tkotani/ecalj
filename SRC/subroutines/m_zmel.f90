@@ -304,9 +304,9 @@ contains
     ZmelBlock:block
       if(ipr) call writemem('    m_zmel000: zmelsize='//ftof(int(nbloch+ngc,8)*(nm2-nm1+1)*nqtot*16/kk**3)//' GB')
       allocate(zmelt(1:nbloch+ngc,nm1:nm2,1:nqtot))
-!$acc kernels
+      !$acc kernels
       zmelt(1:nbloch+ngc,nm1:nm2,1:nqtot) = czero
-!$acc end kernels
+      !$acc end kernels
       ZmelWithinMT: block !- Calculates <psi_q(itp) |psi_qk(it) B_k(rot(r-R))> 
         complex(8):: phasea(natom) 
         phasea = [(exp(-img *tpi* sum(kvec*tr(:,ia))),ia=1,natom)]

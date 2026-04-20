@@ -830,8 +830,8 @@ contains
         iqiloop: do iqi = nqini, nqnumt    !nqibz + nq0i !+ iadd
           ! open(newunit=ippovlg,file= "__PPOVLG."//charnum3(iqi),form='unformatted')
           ! open(newunit=ippovli,file= "__PPOVLI."//charnum3(iqi),form='unformatted')
-          qx  = qibze(1:3,iqi)
-          iqx= findloc([(sum(abs(qx(:)-qtt(:,iqtt)))<tolq,iqtt=1,nqtt)],dim=1,value=.true.)
+          qx = qibze(1:3,iqi)
+          iqx = findloc([(sum(abs(qx(:)-qtt(:,iqtt)))<tolq,iqtt=1,nqtt)],dim=1,value=.true.)
           ! ngvecp =>ngvecptt(1:3,1:ngptt(iqx),iqx)
           ngvecc =>ngvecctt(1:3,1:ngctt(iqx),iqx)
           ngp=ngptt(iqx)
@@ -842,7 +842,7 @@ contains
           ! if(ppovl0l) write(ippovl0)   qx,ngc
           if(ngc==0) cycle
           allocate(ppovl(ngc,ngc))!,ppovlinv(ngc,ngc)) !This is necessary for matcinv
-          call mkppovl2(alat,plat,qlat, ngc,ngvecc, ngc,ngvecc, nbas,rmax,pos, ppovl)
+          call mkppovl2(alat, plat, qlat, ngc, ngvecc, ngc, ngvecc, nbas, rmax, pos, ppovl)
           write(ippovlp_info) qx, ngc
           ppovl_buf(1:ngc,1:ngc) = ppovl(1:ngc,1:ngc)
           ngvecc_buf(1:3,1:ngc) = ngvecc(1:3,1:ngc)

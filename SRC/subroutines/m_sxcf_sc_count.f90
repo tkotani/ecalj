@@ -123,7 +123,7 @@ contains
       real(8):: mmax  ! GByte. Size of memory per rank to determine nmbatch
       real(8):: mmm
       call getkeyvalue("GWinput","MEMnmbatch",mmax,default=2d0)
-      call getppx2([(0d0,i=1,3)],getngcgp=.true.)
+      call getppx2([(0d0,i=1,3)],get_ngcgp=.true.)
       open(newunit=ifiqg, file='__QGcou',form='unformatted')
       read(ifiqg) iiixxx, ngcmx
       close(ifiqg)
