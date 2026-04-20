@@ -169,7 +169,7 @@ contains
            lmxb(nspec),nmcore(nspec),rs3(nspec),eh3(nspec),&
            lpz(nspec),lpzex(nspec),nkapii(nspec),nkaphh(nspec),slabl(nspec),&
            pos(3,nbas),ispec(nbas),ifrlx(3,nbas),iantiferro(nbas))
-      idu=0; uh=0d0; jh=0d0; rs3=0.5d0; eh3=0.5d0; pnusp=0d0; pzsp=0d0; qnu=0d0; lpz=0; lpzex=0; cstrmx=F 
+      idu=0; uh=0d0; jh=0d0; rs3=0.5d0; eh3=0.5d0; pnusp=0d0; pzsp=0d0; qnu=0d0; lpz=0; lpzex=0; cstrmx=F; rmt=0d0
       nkapii=1; nkapi=1; rsmh1 = 0d0; rsmh2 = 0d0; eh1  = 0d0; eh2 = 0d0; idmod=0; rfoca = 0d0; rg=0d0
       call rval2('IO_VERBOS' , rr=rr, defa=[real(8)::  30]); verbos=nint(rr)
       call rval2('IO_TIM'    , rr=rr, defa=[real(8)::  1 ]); io_tim=nint(rr)
