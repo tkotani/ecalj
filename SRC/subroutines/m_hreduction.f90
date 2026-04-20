@@ -14,8 +14,10 @@ contains
    complex(8):: evecmto(ndimMTO,ndimMTO),evecpmt(ndimPMT,ndimPMT)
    complex(8):: ovlmx(ndimPMT,ndimPMT),hammx(ndimPMT,ndimPMT),fac(ndimPMT,ndimMTO),ddd(ndimMTO,ndimMTO)
    complex(8):: hamm(ndimPMT,ndimPMT),ovlm(ndimPMT,ndimPMT)
-   complex(8):: hammout(ndimMTO,ndimMTO),ovlmout(ndimMTO,ndimMTO) , cmlo(ndimPMT,ndimMTO)
+   complex(8):: hammout(ndimMTO,ndimMTO),ovlmout(ndimMTO,ndimMTO)
+   complex(8),optional,intent(out):: cmlo(ndimPMT,ndimMTO) !<Psi^PMT_i|F^MLO_k>, PMT-eigenstate-basis coefficients
    complex(8),optional,intent(out):: zMLO(ndimPMT,ndimMTO) !|F_MLO_k> = sum_m |chi^PMT_m> zMLO(m,k)
+   complex(8):: cmlo_loc(ndimPMT,ndimMTO) !internal working array
 !   complex(8),optional:: zcplz(ndimPMT,ndimMTO)
    complex(8),allocatable :: Amat(:,:)
    real(8):: fff1,fff !epsovl=1d-8 epsovlm=0d0 ,
@@ -118,8 +120,8 @@ contains
       ! |F^MLO_k> = P |F_MTO_k> = (\sum_{i,j} |Psi_PMT_i> ¥bar{<Psi_PMT_i |Psi_MTO j>} <Psi_MTO j|) |F_MTO k>=  |Psi_PMT> C * zMTO 
       ! Here P is a projector-like (probably not a projector because of GramSchmidt).
       nx = ndimPMTx
-      cmlo(ndimPMTx+1:ndimPMT,1:ndimMTO)=0d0
-      cmlo(1:ndimPMTx,1:ndimMTO) = matmul(Amat(1:ndimPMTx,1:ndimMTO),&   
+      cmlo_loc(ndimPMTx+1:ndimPMT,1:ndimMTO)=0d0
+      cmlo_loc(1:ndimPMTx,1:ndimMTO) = matmul(Amat(1:ndimPMTx,1:ndimMTO),&
            matmul(transpose(dconjg(evecmto(:,:))),ovlmx(ix(1:ndimMTO),ix(1:ndimMTO)))) ! where <Psi_MTO j|MTO_k> = (evecmto*) @ ovlmx
 
       ! normalized
@@ -134,16 +136,16 @@ contains
           real(8) :: eval(ndimMTO), einv_half
           real(8), parameter :: eps = 1d-12, eps_ovl_chk = 1d-8
           integer :: istat
-          ovlm_mlo = matmul(dconjg(transpose(cmlo)), cmlo)
+          ovlm_mlo = matmul(dconjg(transpose(cmlo_loc)), cmlo_loc)
           istat = zhev(ovlm_mlo, n=ndimMTO, evl=eval)
           do i = 1, ndimMTO
             einv_half = merge(0d0, 1d0/sqrt(eval(i)), eval(i) < eps)
             evl_ovl_buf(:,i) = ovlm_mlo(:,i)*einv_half
           enddo
           sinv_half = matmul(evl_ovl_buf, transpose(dconjg(ovlm_mlo)))
-          cmlo = matmul(cmlo, sinv_half)
+          cmlo_loc = matmul(cmlo_loc, sinv_half)
           !check
-          ovlm_mlo = matmul(dconjg(transpose(cmlo)), cmlo)
+          ovlm_mlo = matmul(dconjg(transpose(cmlo_loc)), cmlo_loc)
           forall(i=1:ndimMTO) ovlm_mlo(i,i) = ovlm_mlo(i,i) - 1d0
           if (any(abs(ovlm_mlo) > eps_ovl_chk)) call rx('Hreduction: LowdinOrthogonalization FAILD')
         endblock
@@ -153,13 +155,12 @@ contains
       ! |F^MLO j'>= |F^PMT_i'> z^PMT_i'i cmlo(i,j)
       do i=1,ndimMTO
         do j=1,ndimMTO
-          hammout(i,j)= sum( dconjg(cmlo(1:nx,i))*evl(1:nx)*cmlo(1:nx,j)) !|F^MLO_i> = |Psi^PMT_j> cmlo(j,i)
-          ovlmout(i,j)= sum( dconjg(cmlo(1:nx,i))*cmlo(1:nx,j) ) !<F^MLO|F^MLO>
+          hammout(i,j)= sum( dconjg(cmlo_loc(1:nx,i))*evl(1:nx)*cmlo_loc(1:nx,j)) !|F^MLO_i> = |Psi^PMT_j> cmlo(j,i)
+          ovlmout(i,j)= sum( dconjg(cmlo_loc(1:nx,i))*cmlo_loc(1:nx,j) ) !<F^MLO|F^MLO>
         enddo
       enddo
-      if(present(zMLO)) then !zMLO(m,k) = sum_i evecpmt(m,i)*cmlo(i,k): expansion of |F_MLO_k> in PMT basis functions
-        zMLO = matmul(evecpmt(:,1:nx), cmlo(1:nx,:))
-      endif
+      if(present(cmlo)) cmlo = cmlo_loc
+      if(present(zMLO)) zMLO = matmul(evecpmt(:,1:nx), cmlo_loc(1:nx,:)) !PMT-basis-function coefficients
 
 !       GetZCZ: if(present(zcplz)) then ! This is for k mesh of GWinput. zcplz(ndimPMT, ndimMLO), ndimMLO=ndimMTO
 !         diagonalizeMTO: block         !  |F^MLO j> = |Psi^PMT i> zcplz(i,j)  !MLO eigenfunctions constructed from the PMT basis.

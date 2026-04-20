@@ -216,7 +216,7 @@ contains
               ! read(ifihh) ovlmp
               ! read(ifihh) hammp
               cmlo=0d0 !zero padding for 1:nbandmx in advance
-              call Hreduction(mlomethod,.false.,ndimPMT,hammp,ovlmp, ndimMTO,ix,fff1, hamm,ovlm,qp,cmlo(1:ndimPMT,1:ndimMTO),nev)
+              call Hreduction(mlomethod,.false.,ndimPMT,hammp,ovlmp, ndimMTO,ix,fff1, hamm,ovlm,qp,cmlo=cmlo(1:ndimPMT,1:ndimMTO),nev=nev)
               !                                                                          Get reduced Hamitonian for ndimMTO
               ! if(cmdopt0('--mlo')) then  !at qibz only
                 ! iqqisp= isp + nspx*(iq-1)
@@ -250,7 +250,7 @@ contains
         integer :: ifih_info, mrech, istat
         integer :: iqqisp
         type(record_item), allocatable :: items(:)
-        complex(8), allocatable :: ovlmp(:,:), hammp(:,:), cmlo(:,:) !in PMT basis
+        complex(8), allocatable :: ovlmp(:,:), hammp(:,:) !in PMT basis
         complex(8), allocatable :: ovlm_(:,:), hamm_(:,:) !max size of PMT basis
         integer :: ifihsoc, mrechsoc
         complex(8), allocatable :: hammhsop_(:,:,:), hammhsop(:,:,:), hammhso(:,:,:), zMLO(:,:)
@@ -289,16 +289,15 @@ contains
                 allocate(hammhsop(ndimPMT/nspc,ndimPMT/nspc,3), source = hammhsop_(1:ndimPMT/nspc,1:ndimPMT/nspc,1:3))
                 allocate(zMLO(ndimPMT,ndimMTO))
               endif
-              allocate(cmlo(ndimPMT,ndimMTO))
               ! write(06,*) 'xxxx: iq, is', iqxx, jspxx, qp(3), ndimPMT, ndimMTO
               iqibz = findloc( [(sum(abs(qibz(:,i)-qp))<tolq(),i=1,nqibz)],value=.true.,dim=1)
               if(iqibz /= iqxx) call rxii('m_HamPMT:k-points mismatch:', iqibz,iqxx)
               write(stdo,ftox)'=== Reading Ham for iqibz spin procid q= ', iqibz,jsp,procid,ftof(qp)
               allocate(ovlm(1:ndimMTO,1:ndimMTO),hamm(1:ndimMTO,1:ndimMTO))
               if(socmatrix.and.jspxx==nspx) then
-                call Hreduction(mlomethod,.false.,ndimPMT,hammp,ovlmp, ndimMTO,ix,fff1, hamm,ovlm,qp,cmlo,nx, zMLO=zMLO)
+                call Hreduction(mlomethod,.false.,ndimPMT,hammp,ovlmp, ndimMTO,ix,fff1, hamm,ovlm,qp,nev=nx, zMLO=zMLO)
               else
-                call Hreduction(mlomethod,.false.,ndimPMT,hammp,ovlmp, ndimMTO,ix,fff1, hamm,ovlm,qp,cmlo,nx)
+                call Hreduction(mlomethod,.false.,ndimPMT,hammp,ovlmp, ndimMTO,ix,fff1, hamm,ovlm,qp,nev=nx)
               endif
 
               if(socmatrix.and.jspxx==nspx) then
@@ -331,7 +330,7 @@ contains
               if(socmatrix.and.jspxx==nspx) forall(io=1:3) hammhsoi(:,:,iqibz,io)=hammhsoi(:,:,iqibz,io)/ngx(iqibz)
               if(socmatrix.and.jspxx==nspx) deallocate(hammhso,hammhsop,zMLO)
               deallocate(ovlm,hamm)
-              deallocate(ovlmp, hammp, cmlo)
+              deallocate(ovlmp, hammp)
            enddo
            if(debug)write(6,*)' end of iqiloop=',iqxx,nqibz
         enddo iqiloop
