@@ -28,6 +28,7 @@ contains
     ! rsmfa:  smoothing radius for tails of free-atom charge density. Irrelevant except first iteration only (non-self-consistent harris). A large radius produces smoother interstitial charge, but somewhat less accurate fit.
 !Default: R/2, with R=augmentation (muffin-tin) radius. 
     ! ----------------------------------------------------------------------
+    use mpi
     implicit none
     integer :: nrmx, n0,i_spec
     parameter ( nrmx=1501, n0=10 )
@@ -43,7 +44,6 @@ contains
     complex(8) ,allocatable :: cv_zv(:)
     character msg*23, strn*120
     logical :: lfail, l_dummy_isanrg,isanrg,mlog
-    include 'mpif.h'
     call tcn('rdovfa')
     ipr   = iprint()
     msg   = '         File mismatch:'

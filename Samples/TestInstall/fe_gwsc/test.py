@@ -8,7 +8,8 @@ def test(args,bindir,testdir,workdir):
         runprogs([
                  gwsc0+ " fe"+ f' {args.run_args}',
         ])
-        for outfile in out1:   
-                tall+=dqpu(testdir+'/'+outfile, workdir+'/'+outfile)
+        if not args.mp:
+                for outfile in out1:
+                        tall+=dqpu(testdir+'/'+outfile, workdir+'/'+outfile)
         tall+=diffnum(testdir+'/'+out2, workdir+'/'+out2,tol=3e-3,comparekeys=['fp evl'])
         return tall

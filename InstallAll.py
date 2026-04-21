@@ -27,7 +27,9 @@ parser.add_argument('--fc', help='fortran compiler gfortran/ifort/ifx/nvfortran'
 parser.add_argument('--notest', help='no test. only compile', action='store_true')
 parser.add_argument('--verbose', help='verbose on for debug', action='store_true')
 parser.add_argument('--debug', help='debug', action='store_true')
-parser.add_argument('--gemmul8', help='build and install GEMMul8 library (this option is ignored unless --gpu is set)', 
+parser.add_argument('--mp', help='Use mixed precision for test', action='store_true')
+parser.add_argument('-np2', help='MPI size for GPU GW executables (default: same as -np)', default=None, type=int)
+parser.add_argument('--gemmul8', help='build and install GEMMul8 library (this option is ignored unless --gpu is set)',
                     action='store_true', default=False)
 args = parser.parse_args()
 args.gemmul8 = args.gpu and args.gemmul8
@@ -58,6 +60,14 @@ def build_and_install_gemmul8(build_dir: Path, bin_dir: Path):
         print(f"Warning: Failed to copy {libfile} to {bin_dir}: {e}", file=sys.stderr)
 
 def main():
+    import fcntl
+    lockfile = open('/tmp/gpu.lock', 'w')
+    try:
+        fcntl.flock(lockfile, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except BlockingIOError:
+        print("ERROR: GPU is locked by another job (see /tmp/gpu.lock). Wait or kill the other job.")
+        sys.exit(1)
+
     BUILD_TYPE = "Debug" if args.debug else "Release"
     CWD = Path.cwd()
     BIN_DIR = Path(args.bindir).expanduser().resolve()
@@ -111,19 +121,29 @@ def main():
 
     run_shell(f"cmake {cmake_options}", env=cmake_env)
 
-    jobs = min(os.cpu_count(), 32)
+    jobs = min(os.cpu_count(), 8)  # nvfortran ICE with high parallelism
     print(f"Building with {jobs} parallel jobs...")
+
     run_shell(f"{verbose}cmake --build {BUILD_DIR} -j{jobs}")
 
-    # --- Copy executables to BIN_DIR ---
+    # --- Copy executables and libraries to BIN_DIR ---
     print(f'Copying executables to {BIN_DIR}')
-    for d in (EXEC_DIR, BUILD_DIR):
-        for path_item in d.iterdir():
-            if path_item.is_file() and os.access(path_item, os.X_OK):
-                try:
-                    shutil.copy(path_item, BIN_DIR)
-                except (OSError, PermissionError) as e:
-                    print(f"Warning: Skipping {path_item.name}: {e}", file=sys.stderr)
+    import glob as _glob
+    for so_file in _glob.glob(str(BUILD_DIR / 'lib*.so')):
+        print(f'  Copying {so_file} -> {BIN_DIR}')
+        shutil.copy2(so_file, BIN_DIR)
+    for path_item in BUILD_DIR.iterdir():
+        if path_item.is_file() and path_item.suffix != '.so' and os.access(path_item, os.X_OK):
+            try:
+                shutil.copy2(path_item, BIN_DIR)
+            except (OSError, PermissionError) as e:
+                print(f"Warning: Skipping {path_item.name}: {e}", file=sys.stderr)
+    for path_item in EXEC_DIR.iterdir():
+        if path_item.is_file() and path_item.suffix != '.so' and os.access(path_item, os.X_OK):
+            try:
+                shutil.copy2(path_item, BIN_DIR)
+            except (OSError, PermissionError) as e:
+                print(f"Warning: Skipping {path_item.name}: {e}", file=sys.stderr)
 
     # Copy clusters.toml from EXEC_DIR to BIN_DIR
     clusters_toml_src = EXEC_DIR / 'clusters.toml'
@@ -146,7 +166,11 @@ def main():
     end_time_make = time.time()
     start_time_test = time.time()
 
-    run_shell(f"{BIN_DIR / 'testecalj'} -np {ncore} --all", cwd=test_dir)
+    test_opts = f"-np {ncore} --all"
+    if args.gpu: test_opts += " --gpu"
+    if args.mp:  test_opts += " --mp"
+    if args.np2: test_opts += f" -np2 {args.np2}"
+    run_shell(f"{BIN_DIR / 'testecalj'} {test_opts}", cwd=test_dir)
 
     end_time = time.time()
     elapsed_time_make = end_time_make - start_time

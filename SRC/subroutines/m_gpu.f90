@@ -4,9 +4,10 @@ module m_gpu
   use cudafor
 #endif
   implicit none
-  public :: gpu_init, check_memory_gpu, use_gpu, gpu_finalize !, Amem_gpu
+  public :: gpu_init, check_memory_gpu, use_gpu, gpu_finalize, ngpu_ranks
   integer,public :: mydev
   logical, protected :: use_gpu = .false.
+  integer, protected :: ngpu_ranks = 0  ! number of GPU ranks (= ndevs)
   private
   integer :: procid, nsize
   contains
@@ -43,9 +44,19 @@ module m_gpu
     if(ndevs == 0) return
     mydev = mod(ilocal_rank, ndevs)
 
-    use_gpu = .true.
-    call acc_set_device_num(mydev, acc_device_nvidia)
-    call acc_init(acc_device_nvidia)
+    ! Automatic GPU assignment: only first ndevs local ranks use GPU
+    ! e.g. 2 GPUs → rank 0=GPU0, rank 1=GPU1, rank 2+=CPU only
+    ngpu_ranks = min(ndevs, nlocal_procs)
+    if(ilocal_rank >= ndevs) then
+      use_gpu = .false.
+    else
+      use_gpu = .true.
+    endif
+
+    if(use_gpu) then
+      call acc_set_device_num(mydev, acc_device_nvidia)
+      call acc_init(acc_device_nvidia)
+    endif
     ! call check_memory_gpu("gpu_init")
 
     if (procid == 0) then
@@ -66,7 +77,7 @@ module m_gpu
     enddo
 #endif
   end subroutine
-  
+
   subroutine check_memory_gpu(keyword)
     character(len=*), intent(in) :: keyword
     character(len=1024) :: cmd

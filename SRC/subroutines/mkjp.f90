@@ -166,6 +166,9 @@ contains
       real(8), allocatable ::  keep_fjj(:,:), keep_sigx(:,:), sigx_tmp(:,:)
       integer, allocatable :: iggtable(:,:)
       integer :: nggc, igg
+      integer :: ibas_order(nbas), ib_prev, isrt, jsrt, ktmp, itype_start, itype_end, ib_next
+      complex(8) :: cPhi
+      complex(8), allocatable :: vcoul_termA(:,:)
       ! Get integral coefficients of int (a*b) G_1(ir) G_2(ir) exp(a*r))
       ! simpson rule is used. nr(ibas) was set as odd number
       !   sigx_tmp(ig1,ig2,l) is int dr (aa(ibas)*bb(ibas)) a1g(r,g1)* ajr(r,l,ibas,g2) exp(aa(ibas)*r))
@@ -185,129 +188,159 @@ contains
         enddo
       enddo
 
-      !$acc data create(rojpstrx,pjyl_p) copyin(rofi, rkpr, rkmr, aa, bb, nr, absqg2, pjyl_, phase, iggtable)
+      lm2x= (lxx+1)**2
+
+      ! Sort atoms by (nr, lx) to maximize Bessel/wronkj reuse
+      do isrt = 1, nbas; ibas_order(isrt) = isrt; enddo
+      do isrt = 1, nbas-1
+        do jsrt = 1, nbas-isrt
+          if(nr(ibas_order(jsrt)) > nr(ibas_order(jsrt+1)) .or. &
+             (nr(ibas_order(jsrt)) == nr(ibas_order(jsrt+1)) .and. lx(ibas_order(jsrt)) > lx(ibas_order(jsrt+1)))) then
+            ktmp = ibas_order(jsrt); ibas_order(jsrt) = ibas_order(jsrt+1); ibas_order(jsrt+1) = ktmp
+          endif
+        enddo
+      enddo
+
+      !$acc data create(rojpstrx,pjyl_p) copyin(rofi, rkpr, rkmr, aa, bb, nr, absqg2, pjyl_, phase, iggtable, ibas_order)
 
       !$acc host_data use_device(strx, rojp)
       istat = zmm(strx, rojp, rojpstrx, m=nbas*(lxx+1)**2, n=ngc, k=nbas*(lxx+1)**2, opA=m_op_T, opB=m_op_C)
       !$acc end host_data
 
-      write(aaaw,ftox) " vcoulq_4: goto igig loop", mpi__rank
-      call cputm(stdo,aaaw)
-      lm2x= (lxx+1)**2
-
-      igigLoopSlow: do ibas= 1, nbas
-        !$acc kernels loop collapse(2)
-        do ig1 = 1,ngc
-          do lm2=1,(lx(ibas)+1)**2
-            pjyl_p(lm2,ig1)=pjyl_(lm2,ig1)*phase(ig1,ibas)
-          enddo
+      ! --- Term A: sum over all atoms via single BLAS call ---
+      ! vcoul_A(ig1,ig2) = sum_{lm,ibas} rojpstrx(lm,ibas,ig1)*rojp(ig2,lm,ibas)
+      allocate(vcoul_termA(ngc, ngc))
+      !$acc data create(vcoul_termA)
+      !$acc host_data use_device(rojpstrx, rojp, vcoul_termA)
+      istat = zmm(rojpstrx, rojp, vcoul_termA, m=ngc, n=ngc, k=lm2x*nbas, opA=m_op_T, opB=m_op_T)
+      !$acc end host_data
+      !$acc kernels
+      do ig1 = 1, ngc
+        do ig2 = 1, ig1
+          vcoul(nbloch+ig1, nbloch+ig2) = vcoul(nbloch+ig1, nbloch+ig2) + vcoul_termA(ig1, ig2)
         enddo
-        !$acc end kernels
+      enddo
+      !$acc end kernels
+      !$acc end data
+      deallocate(vcoul_termA)
+
+      write(aaaw,ftox) " vcoulq_4: goto igig loop (type-batched)", mpi__rank
+      call cputm(stdo,aaaw)
+
+      ! --- Term B: type-batched computation ---
+      ! Same-type atoms share Bessel/wronkj/sigx; use phase sum (Phi) instead of per-atom loop
+      itype_start = 1
+      do while(itype_start <= nbas)
+        ibas = ibas_order(itype_start)
+        ! Find end of this atom type (same nr, lx, rofi)
+        itype_end = itype_start
+        do while(itype_end < nbas)
+          ib_next = ibas_order(itype_end + 1)
+          if(nr(ib_next) /= nr(ibas) .or. lx(ib_next) /= lx(ibas)) exit
+          if(.not. all(abs(rofi(1:nr(ibas),ibas) - rofi(1:nr(ib_next),ib_next)) < 1d-10)) exit
+          itype_end = itype_end + 1
+        enddo
+        write(aaaw,ftox) " vcoulq_4: type atoms", itype_start, '-', itype_end, 'nr=', nr(ibas), 'lx=', lx(ibas), 'procid=', mpi__rank
+        call cputm(stdo,aaaw)
 
         if(eee==0d0) then
-          !copy GPU -> CPU 
-          !$acc update self(pjyl_p, rojpstrx(1:(lxx+1)**2,ibas,1:ngc), vcoul)
-          do ig1 = 1,ngc !this loop is slow for large system, but maybe vcoulq_4 is rather the critical step 
-            do ig2 = 1,ig1
-              call wronkj( absqg2(ig1), absqg2(ig2), rmax(ibas),lx(ibas), fkk,fkj,fjk,fjj)
-              call sigintpp( absqg2(ig1)**.5, absqg2(ig2)**.5, lx(ibas), rmax(ibas), sigx)
-              radsig(0:lxx) = 0d0 
+          ! CPU path: wronkj + sigintpp once per type, multiply by Phi_type
+          !$acc update self(vcoul)
+          do ig1 = 1, ngc
+            do ig2 = 1, ig1
+              call wronkj( absqg2(ig1), absqg2(ig2), rmax(ibas), lx(ibas), fkk, fkj, fjk, fjj)
+              call sigintpp( absqg2(ig1)**.5d0, absqg2(ig2)**.5d0, lx(ibas), rmax(ibas), sigx)
+              radsig(0:lxx) = 0d0
               forall(l = 0:lx(ibas)) radsig(l) = fpi/(2*l+1) * sigx(l)
-              vcoul(nbloch+ig1,nbloch+ig2) =  vcoul(nbloch+ig1,nbloch+ig2) + sum( rojpstrx(1:lm2x,ibas,ig1)*rojp(ig2, 1:lm2x, ibas) &
-                   + dconjg(pjyl_p(1:lm2x,ig1))*pjyl_p(1:lm2x,ig2)* &
-                   ( (fpi/(absqg2(ig1)-eee)+fpi/(absqg2(ig2)-eee)) *fjj(llx(1:lm2x)) + radsig(llx(1:lm2x)) )   )
+              cPhi = (0d0, 0d0)
+              do jsrt = itype_start, itype_end
+                cPhi = cPhi + dconjg(phase(ig1, ibas_order(jsrt))) * phase(ig2, ibas_order(jsrt))
+              enddo
+              vcoul(nbloch+ig1,nbloch+ig2) = vcoul(nbloch+ig1,nbloch+ig2) &
+                + cPhi * sum( dconjg(pjyl_(1:lm2x,ig1)) * pjyl_(1:lm2x,ig2) &
+                  * ((fpi/(absqg2(ig1)-eee)+fpi/(absqg2(ig2)-eee))*fjj(llx(1:lm2x)) + radsig(llx(1:lm2x))) )
             enddo
           enddo
           !$acc update device(vcoul)
-        else !eee is nonzero
 
-          hasBessel = .false.
-          if(ibas > 1) then
-            if(nr(ibas) == nr(ibas-1)) then
-              if( all(abs(rofi(1:nr(ibas),ibas) - rofi(1:nr(ibas-1),ibas-1)) < 1d-10) .and. lx(ibas) == lx(ibas-1) ) hasBessel = .true.
+        else ! eee is nonzero
+          ! setBessel once per type (first atom)
+          allocate(phi_rg(nr(ibas), ngc, 0:lx(ibas)))
+          allocate(rofi_tmp(1:nr(ibas)), fac_integral(1:nr(ibas)), a1g(nr(ibas),ngc), ajr_tmp(nr(ibas),ngc))
+          allocate(sigx_tmp(ngc,ngc))
+          !$acc data create(phi_rg, ajr_tmp, a1g, rofi_tmp, fac_integral, sigx_tmp)
+
+          !$acc parallel loop collapse(2) private(phi(0:lxx), psi(0:lxx))
+          do ig = 1, ngc
+            do ir = 1, nr(ibas)
+              call bessl2(absqg2(ig)*rofi(ir,ibas)**2,lx(ibas),phi, psi)
+              phi_rg(ir,ig,0:lx(ibas)) = phi(0:lx(ibas))
+            enddo
+          enddo
+          !$acc end parallel
+
+          if(keepWronkj) then
+            if(allocated(keep_fjj)) then
+              !$acc exit data delete(keep_fjj)
+               deallocate(keep_fjj)
             endif
-          endif
-
-          setBessel: if(.not.hasBessel) then
-            allocate(phi_rg(nr(ibas), ngc, 0:lx(ibas)))
-            allocate(rofi_tmp(1:nr(ibas)), fac_integral(1:nr(ibas)), a1g(nr(ibas),ngc), ajr_tmp(nr(ibas),ngc))
-            allocate(sigx_tmp(ngc,ngc))
-            !$acc data create(phi_rg, ajr_tmp, a1g, rofi_tmp, fac_integral, sigx_tmp)
-
-            !$acc parallel loop collapse(2) private(phi(0:lxx), psi(0:lxx))
-            do ig = 1, ngc
-              do ir = 1, nr(ibas)
-                call bessl2(absqg2(ig)*rofi(ir,ibas)**2,lx(ibas),phi, psi)
-                phi_rg(ir,ig,0:lx(ibas)) = phi(0:lx(ibas))
-              enddo
+            allocate(keep_fjj(0:lx(ibas),nggc))
+            !$acc enter data create(keep_fjj)
+            !$acc parallel loop private(fkk(0:lxx), fkj(0:lxx), fjk(0:lxx), fjj(0:lxx))
+            do igg = 1, nggc
+              ig1 = iggtable(1,igg)
+              ig2 = iggtable(2,igg)
+              call wronkj2( absqg2(ig1), absqg2(ig2), rmax(ibas),lx(ibas), fkk,fkj,fjk,fjj)
+              keep_fjj(0:lx(ibas),igg) = fjj(0:lx(ibas))
             enddo
             !$acc end parallel
+          endif
 
-            if(keepWronkj) then
-              if(allocated(keep_fjj)) then
-                !$acc exit data delete(keep_fjj)
-                 deallocate(keep_fjj)
-              endif
-              allocate(keep_fjj(0:lx(ibas),nggc))
-              !$acc enter data create(keep_fjj)
-              !$acc parallel loop private(fkk(0:lxx), fkj(0:lxx), fjk(0:lxx), fjj(0:lxx))
-              do igg = 1, nggc
-                ig1 = iggtable(1,igg)
-                ig2 = iggtable(2,igg)
-                call wronkj2( absqg2(ig1), absqg2(ig2), rmax(ibas),lx(ibas), fkk,fkj,fjk,fjj)
-                keep_fjj(0:lx(ibas),igg) = fjj(0:lx(ibas))
-              enddo
-              !$acc end parallel
-            endif
+          if(allocated(keep_sigx)) then
+            !$acc exit data delete(keep_sigx)
+            deallocate(keep_sigx)
+          endif
+          allocate(keep_sigx(0:lx(ibas),nggc))
+          !$acc enter data create(keep_sigx)
 
-            if(allocated(keep_sigx)) then
-              !$acc exit data delete(keep_sigx)
-              deallocate(keep_sigx)
-            endif
-            allocate(keep_sigx(0:lx(ibas),nggc))
-            !$acc enter data create(keep_sigx)
-
+          !$acc kernels
+          do ir = 1, nr(ibas)
+            fac_integral(ir) = aa(ibas)*bb(ibas)*dexp(aa(ibas)*(ir-1))/3d0
+            if( ir /= 1 .and. ir /= nr(ibas)) fac_integral(ir) = fac_integral(ir)*merge(4d0,2d0,mod(ir,2)==0)
+          enddo
+          !$acc end kernels
+          do l = 0, lx(ibas)
             !$acc kernels
-            do ir = 1, nr(ibas)
-              fac_integral(ir) = aa(ibas)*bb(ibas)*dexp(aa(ibas)*(ir-1))/3d0
-              if( ir /= 1 .and. ir /= nr(ibas)) fac_integral(ir) = fac_integral(ir)*merge(4d0,2d0,mod(ir,2)==0)
+            rofi_tmp(1:nr(ibas)) = rofi(1:nr(ibas),ibas)**(l+1)
+            !$acc end kernels
+            !$acc kernels loop independent private(int1x, int2x)
+            do ig = 1, ngc
+              ajr_tmp(1:nr(ibas),ig) = phi_rg(1:nr(ibas),ig,l)*rofi_tmp(1:nr(ibas))
+              call intn_smpxxx( rkpr(1,l,ibas), ajr_tmp(1,ig),int1x,aa(ibas),bb(ibas),rofi(1,ibas),nr(ibas))
+              call intn_smpxxx( rkmr(1,l,ibas), ajr_tmp(1,ig),int2x,aa(ibas),bb(ibas),rofi(1,ibas),nr(ibas))
+              a1g(1,ig) = 0d0
+              do ir = 2, nr(ibas)
+                a1g(ir,ig) = (rkmr(ir,l,ibas) * (int1x(1) - int1x(ir)) + rkpr(ir,l,ibas) * int2x(ir)) * fac_integral(ir)
+              enddo
             enddo
             !$acc end kernels
-            do l = 0, lx(ibas)
-              !$acc kernels
-              rofi_tmp(1:nr(ibas)) = rofi(1:nr(ibas),ibas)**(l+1)
-              !$acc end kernels
-              !$acc kernels loop independent private(int1x, int2x)
-              do ig = 1, ngc
-                ajr_tmp(1:nr(ibas),ig) = phi_rg(1:nr(ibas),ig,l)*rofi_tmp(1:nr(ibas))
-                call intn_smpxxx( rkpr(1,l,ibas), ajr_tmp(1,ig),int1x,aa(ibas),bb(ibas),rofi(1,ibas),nr(ibas))
-                call intn_smpxxx( rkmr(1,l,ibas), ajr_tmp(1,ig),int2x,aa(ibas),bb(ibas),rofi(1,ibas),nr(ibas))
-                ! a1g(1:nr(ibas),ig) = [0d0,(rkmr(2:nr(ibas),l,ibas) *( int1x(1)-int1x(2:nr(ibas)) ) &
-                !                          + rkpr(2:nr(ibas),l,ibas) *  int2x(2:nr(ibas)))* fac_integral(2:nr(ibas))]  ! error in GPU version 08/18/2025
-                a1g(1,ig) = 0d0
-                do ir = 2, nr(ibas)
-                  a1g(ir,ig) = (rkmr(ir,l,ibas) * (int1x(1) - int1x(ir)) + rkpr(ir,l,ibas) * int2x(ir)) * fac_integral(ir)
-                enddo
-              enddo
-              !$acc end kernels
-              istat = dmm(a1g, ajr_tmp, sigx_tmp, m=ngc, n=ngc, k=nr(ibas), opA=m_op_T)
-              !$acc kernels
-              do igg = 1, nggc
-                ig1 = iggtable(1,igg)
-                ig2 = iggtable(2,igg)
-                keep_sigx(l,igg) = sigx_tmp(ig1,ig2)
-              enddo
-              !$acc end kernels
+            istat = dmm(a1g, ajr_tmp, sigx_tmp, m=ngc, n=ngc, k=nr(ibas), opA=m_op_T)
+            !$acc kernels
+            do igg = 1, nggc
+              ig1 = iggtable(1,igg)
+              ig2 = iggtable(2,igg)
+              keep_sigx(l,igg) = sigx_tmp(ig1,ig2)
             enddo
+            !$acc end kernels
+          enddo
 
-            !$acc end data
-            deallocate(ajr_tmp, a1g, rofi_tmp, fac_integral, phi_rg, sigx_tmp)
-          endif setBessel
+          !$acc end data
+          deallocate(ajr_tmp, a1g, rofi_tmp, fac_integral, phi_rg, sigx_tmp)
 
-          write(aaaw,ftox) " vcoulq_4:  igig loop procid ibas nr lx, hasBessel=", mpi__rank,ibas, nr(ibas), lx(ibas), hasBessel
+          ! igg kernel: Term B with Phi_type (phase sum over atoms of this type)
+          write(aaaw,ftox) " vcoulq_4:  igig type kernel procid=", mpi__rank, 'natom_type=', itype_end-itype_start+1
           call cputm(stdo,aaaw)
-
-          !$acc parallel loop private(fkk(0:lxx), fkj(0:lxx), fjk(0:lxx), fjj(0:lxx), sigx(0:lxx), radsig(0:lxx)) present(keep_sigx)
+          !$acc parallel loop private(fkk(0:lxx), fkj(0:lxx), fjk(0:lxx), fjj(0:lxx), sigx(0:lxx), radsig(0:lxx), cPhi) present(keep_sigx)
           do igg = 1, nggc
             ig1 = iggtable(1,igg)
             ig2 = iggtable(2,igg)
@@ -317,16 +350,21 @@ contains
               call wronkj2( absqg2(ig1), absqg2(ig2), rmax(ibas),lx(ibas), fkk,fkj,fjk,fjj)
             endif
             sigx(0:lx(ibas)) = keep_sigx(0:lx(ibas),igg)
-            radsig(0:lxx) = 0d0 
+            radsig(0:lxx) = 0d0
             forall(l = 0:lx(ibas)) radsig(l) = fpi/(2*l+1) * sigx(l)
-            vcoul(nbloch+ig1,nbloch+ig2) =  vcoul(nbloch+ig1,nbloch+ig2) + sum( rojpstrx(1:lm2x,ibas,ig1)*rojp(ig2, 1:lm2x, ibas) &
-                 + dconjg(pjyl_p(1:lm2x,ig1))*pjyl_p(1:lm2x,ig2)* &
-                 ( (fpi/(absqg2(ig1)-eee)+fpi/(absqg2(ig2)-eee)) *fjj(llx(1:lm2x)) + radsig(llx(1:lm2x)) )   )
+            cPhi = (0d0, 0d0)
+            do jsrt = itype_start, itype_end
+              cPhi = cPhi + dconjg(phase(ig1, ibas_order(jsrt))) * phase(ig2, ibas_order(jsrt))
+            enddo
+            vcoul(nbloch+ig1,nbloch+ig2) = vcoul(nbloch+ig1,nbloch+ig2) &
+              + cPhi * sum( dconjg(pjyl_(1:lm2x,ig1)) * pjyl_(1:lm2x,ig2) &
+                * ((fpi/(absqg2(ig1)-eee)+fpi/(absqg2(ig2)-eee))*fjj(llx(1:lm2x)) + radsig(llx(1:lm2x))) )
           enddo
           !$acc end parallel
 
         endif
-      enddo igigLoopSlow
+        itype_start = itype_end + 1
+      enddo ! type loop
       if(allocated(keep_fjj)) then
         !$acc exit data delete(keep_fjj)
         deallocate(keep_fjj)

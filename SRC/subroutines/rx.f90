@@ -118,7 +118,7 @@ subroutine rx0(strng)! Normal exit
   logical :: isopen,master_mpi
   integer :: master,ierr,comm,procid,mpi__info
   parameter (master = 0)
-  include "mpif.h"
+
   comm=merge(comm2,comm1,readtk)
   call MPI_Comm_rank( comm, procid, mpi__info )
   master_mpi= procid==0

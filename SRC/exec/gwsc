@@ -118,9 +118,9 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
     niter=i+Iter0
     print(f'===== QSGW iteration start iter {niter} ===',flush=True)
     #gw initialize
-    run_cmd(cluster, MPIParams(command=EXEC_DIR/"lmf", args=[target, "--jobgw=0", *options], **mpi_params_single), stdout="llmfgw00")
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/"lmf", args=[target, "--jobgw=0", *options], **mpi_params_lmf), stdout="llmfgw00")
     run_cmd(cluster, MPIParams(command=EXEC_DIR/"qg4gw", args=[target, "--job=1", *options], **mpi_params_single), stdout="lqg4gw")
-    run_cmd(cluster, MPIParams(command=EXEC_DIR/f"lmf{exec_type}", args=[target, "--jobgw=1", *options], **mpi_params_lmf), stdout="llmfgw01")
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/"lmf", args=[target, "--jobgw=1", *options], **mpi_params_lmf), stdout="llmfgw01")
 
     #main stage of gw #
     run_cmd(cluster, MPIParams(command=EXEC_DIR/"heftet", args=["--job=1", *options], **mpi_params_single), stdout="leftet")
@@ -149,7 +149,7 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
     run_cmd(cluster, MPIParams(command=EXEC_DIR/"hqpe_sc", args=[*options], **mpi_params_single), stdout="lqpe")
 
     ## lmf with Vxc^QSGW
-    run_lmf(cluster, target, MPIParams(command=EXEC_DIR/"lmf", args=[target, *options], **mpi_params_lmf), stdout="llmf")
+    run_lmf(cluster, target, MPIParams(command=EXEC_DIR/"lmf", args=[target, *options], **mpi_params_lmf), bmix_reduction=True, stdout="llmf")
 
     # final part of iteration loop. Manupulate files
     move_files('SEX*', 'SEC*', 'XC*', dest_dir='SEBK')

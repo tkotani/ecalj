@@ -1,12 +1,17 @@
 !>Return G vectors (integer sets) for given q points specifiec by qplist(:,iq)
-module m_igv2x 
+module m_igv2x
   use m_lgunit,only:stdo
   use m_struc_def,only: s_nv2
-  public:: m_igv2xall_init, m_igv2x_setiq
+  public:: m_igv2xall_init, m_igv2x_setiq, m_igv2x_getiq, t_igv2x_data
   integer,protected,public:: nbandmx
   integer,protected,pointer,public :: igv2x(:,:)
   integer,protected,pointer,public :: napw,ndimh,ndimhx
   integer,allocatable,target,protected,public:: ndimhall(:)
+  !> Explicit k-point data (new API: no implicit state change)
+  type, public :: t_igv2x_data
+    integer :: napw, ndimh, ndimhx
+    integer, pointer :: igv2x(:,:) => null()
+  end type
   private
   integer,protected,private,target ::napw_z,ndimh_z,ndimhx_z
   type(s_nv2),allocatable,target,protected,private:: igv2xall(:)
@@ -20,6 +25,16 @@ contains
     ndimhx=> ndimhxall(iq) !nlmto+napw (but x2 when SO=1)
     igv2x => igv2xall(iq)%nv2
   end subroutine m_Igv2x_setiq
+  subroutine m_Igv2x_getiq(iq, dat)
+    !! Explicit API: return k-point data without changing module state.
+    !! Safe for multi-k-point processing (GPU band2nd etc.)
+    integer, intent(in) :: iq
+    type(t_igv2x_data), intent(out) :: dat
+    dat%napw   = napwall(iq)
+    dat%ndimh  = ndimhall(iq)
+    dat%ndimhx = ndimhxall(iq)
+    dat%igv2x  => igv2xall(iq)%nv2
+  end subroutine m_Igv2x_getiq
   subroutine m_igv2xall_init(iqini,iqend) !initialization for qplist(iqini:iqend)  
     use m_qplist,only: qplist 
     use m_MPItk,only: master_mpi,procid,master

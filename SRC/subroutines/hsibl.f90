@@ -1,8 +1,94 @@
 module m_hsibl ! Interstitial matrix elements of smooth Bloch Hankels, smooth potential.
   use m_ll,only:ll
+#ifdef __GPU
+  use cudafor
+#endif
   public hsibl,hsibl1
+#ifdef __GPU
+  public hsibl_set_stream
+#endif
   private
+#ifdef __GPU
+  ! Persistent GPU data across site loop (one k-point)
+  complex(8), device, allocatable :: hsibl_vsm_d(:,:,:)
+  integer, device, allocatable :: hsibl_kv_d(:,:)
+  integer, allocatable :: hsibl_kv_reshaped(:,:)
+  integer :: hsibl_cufft_plan_cached = -1, hsibl_ndim1_cached = -1
+  logical :: hsibl_gpu_init = .false.
+  integer(cuda_stream_kind) :: hsibl_stream = 0  ! 0 = default stream
+#endif
 contains
+#ifdef __GPU
+  subroutine hsibl_set_stream(stream)
+    implicit none
+    integer(cuda_stream_kind), intent(in) :: stream
+    hsibl_stream = stream
+  end subroutine
+#endif
+#ifdef __GPU
+  subroutine gvputf_batch_gpu(ng, ndim1, kv, k1, k2, k3, w_oc1, f_batch, ng_ld)
+    ! Scatter w_oc1(1:ng, 1:ndim1) into f_batch(k1,k2,k3, 1:ndim1) on GPU
+    use cudafor
+    implicit none
+    integer, value :: ng, ndim1, k1, k2, k3, ng_ld
+    integer, device :: kv(ng,3)
+    complex(8), device :: w_oc1(ng_ld, ndim1), f_batch(k1,k2,k3, ndim1)
+    integer :: ig, i
+    !$cuf kernel do(2) <<<*,*>>>
+    do i = 1, ndim1
+      do ig = 1, ng
+        f_batch(kv(ig,1), kv(ig,2), kv(ig,3), i) = w_oc1(ig, i)
+      enddo
+    enddo
+  end subroutine gvputf_batch_gpu
+
+  subroutine gvgetf_batch_gpu(ng, ndim1, kv, k1, k2, k3, f_batch, w_oc1, ng_ld)
+    ! Gather f_batch(k1,k2,k3, 1:ndim1) into w_oc1(1:ng, 1:ndim1) on GPU
+    use cudafor
+    implicit none
+    integer, value :: ng, ndim1, k1, k2, k3, ng_ld
+    integer, device :: kv(ng,3)
+    complex(8), device :: w_oc1(ng_ld, ndim1), f_batch(k1,k2,k3, ndim1)
+    integer :: ig, i
+    !$cuf kernel do(2) <<<*,*>>>
+    do i = 1, ndim1
+      do ig = 1, ng
+        w_oc1(ig, i) = f_batch(kv(ig,1), kv(ig,2), kv(ig,3), i)
+      enddo
+    enddo
+  end subroutine gvgetf_batch_gpu
+
+  subroutine vmul_batch_gpu(nk123, ndim1, f_batch, vsm_d)
+    ! Pointwise multiply f_batch(:,i) = f_batch(:,i) * vsm_d(:) for all i
+    use cudafor
+    implicit none
+    integer, value :: nk123, ndim1
+    complex(8), device :: f_batch(nk123, ndim1), vsm_d(nk123)
+    integer :: ik, i
+    !$cuf kernel do(2) <<<*,*>>>
+    do i = 1, ndim1
+      do ik = 1, nk123
+        f_batch(ik, i) = f_batch(ik, i) * vsm_d(ik)
+      enddo
+    enddo
+  end subroutine vmul_batch_gpu
+
+  subroutine scale_batch_gpu(nk123, ndim1, f_batch, scale)
+    ! Scale f_batch by a constant factor
+    use cudafor
+    implicit none
+    integer, value :: nk123, ndim1
+    complex(8), device :: f_batch(nk123, ndim1)
+    real(8), value :: scale
+    integer :: ik, i
+    !$cuf kernel do(2) <<<*,*>>>
+    do i = 1, ndim1
+      do ik = 1, nk123
+        f_batch(ik, i) = f_batch(ik, i) * scale
+      enddo
+    enddo
+  end subroutine scale_batch_gpu
+#endif
   subroutine hsibl(k1,k2,k3,vsm,isp,q,ndimh,napw,igapw, h)
     use m_lmfinit,only: alat=>lat_alat,nspec,nbas,ispec
     use m_lattic,only: qlat=>lat_qlat,vol=>lat_vol,rv_a_opos
@@ -12,6 +98,9 @@ contains
     use m_orbl,only: Orblib1,Orblib2,ktab1,ltab1,offl1,norb1,ktab2,ltab2,offl2,norb2
     use m_ftox
     use m_sugcut,only: ngcut
+#ifdef __GPU
+    use m_gpu, only: use_gpu
+#endif
     use m_lmfinit,only: ndimx
     use m_shortn3,only:gvlst2
     !i Inputs
@@ -106,14 +195,57 @@ contains
         ndim1 = ndim1 + max(blks1(iorb1),0)
       enddo irob1loop
       fvsm: block ! ... Multiply potential into wave functions for orbitals in ib1
+#ifdef __GPU
+        use cufft
+        complex(8), device, allocatable :: f_batch_d(:,:,:,:)
+        complex(8), device, allocatable :: w_oc1_d(:,:)
+        integer :: cufft_plan, cufft_stat, nk123, istat
+        real(8) :: scale_fwd
+        if(use_gpu) then
+        nk123 = k1*k2*k3
+        scale_fwd = 1d0/dble(n1*n2*n3)
+        if(.not. hsibl_gpu_init) then
+          allocate(hsibl_kv_reshaped(ng,3))
+          hsibl_kv_reshaped(1:ng,1:3) = reshape(kv(1:ng*3), [ng,3])
+          allocate(hsibl_vsm_d(k1,k2,k3), hsibl_kv_d(ng,3))
+          hsibl_vsm_d = vsm(:,:,:,isp)
+          hsibl_kv_d = hsibl_kv_reshaped
+          hsibl_gpu_init = .true.
+        endif
+        allocate(f_batch_d(k1,k2,k3,ndim1), w_oc1_d(ng,ndim1))
+        w_oc1_d(1:ng,1:ndim1) = w_oc1(1:ng,1:ndim1)
+        f_batch_d = (0d0,0d0)
+        call gvputf_batch_gpu(ng, ndim1, hsibl_kv_d, k1, k2, k3, w_oc1_d, f_batch_d, ng)
+        if(ndim1 /= hsibl_ndim1_cached) then
+          if(hsibl_cufft_plan_cached /= -1) cufft_stat = cufftDestroy(hsibl_cufft_plan_cached)
+          cufft_stat = cufftPlanMany(hsibl_cufft_plan_cached, 3, [n3,n2,n1], &
+               [k3,k2,k1], 1, nk123, [k3,k2,k1], 1, nk123, CUFFT_Z2Z, ndim1)
+          hsibl_ndim1_cached = ndim1
+        endif
+        cufft_plan = hsibl_cufft_plan_cached
+        if(hsibl_stream /= 0) cufft_stat = cufftSetStream(cufft_plan, hsibl_stream)
+        cufft_stat = cufftExecZ2Z(cufft_plan, f_batch_d, f_batch_d, CUFFT_INVERSE)
+        call vmul_batch_gpu(nk123, ndim1, f_batch_d, hsibl_vsm_d)
+        cufft_stat = cufftExecZ2Z(cufft_plan, f_batch_d, f_batch_d, CUFFT_FORWARD)
+        call scale_batch_gpu(nk123, ndim1, f_batch_d, scale_fwd)
+        call gvgetf_batch_gpu(ng, ndim1, hsibl_kv_d, k1, k2, k3, f_batch_d, w_oc1_d, ng)
+        w_oc1(1:ng,1:ndim1) = w_oc1_d(1:ng,1:ndim1)
+        deallocate(f_batch_d, w_oc1_d)
+        else
+#endif
+        fvsm_cpu: block
         complex(8):: f(k1,k2,k3)
         do  i = 1, ndim1
           call gvputf(ng,1,kv,k1,k2,k3,w_oc1(1,i),f)
           call fftz3(f,n1,n2,n3,k1,k2,k3,1,0,1)
           f = f*vsm(:,:,:,isp)
           call fftz3(f,n1,n2,n3,k1,k2,k3,1,0,-1)
-          call gvgetf(ng,1,kv,k1,k2,k3,f,w_oc1(1,i)) !w_oc1(ipw,i) = <MTO(i)|vsm for ith pw
+          call gvgetf(ng,1,kv,k1,k2,k3,f,w_oc1(1,i))
         enddo
+        endblock fvsm_cpu
+#ifdef __GPU
+        endif
+#endif
       endblock fvsm
       ib2loop: do 1010 ib2 = ib1, nbas ! Loop over second of (ib1,ib2) site pairs
         is2 =ispec(ib2)
@@ -209,6 +341,23 @@ contains
         enddo
       endblock hsmvsmpw
     enddo ib1loop
+#ifdef __GPU
+    if(use_gpu) then
+      if(hsibl_gpu_init) then
+        deallocate(hsibl_vsm_d, hsibl_kv_d, hsibl_kv_reshaped)
+        hsibl_gpu_init = .false.
+      endif
+      if(hsibl_cufft_plan_cached /= -1) then
+        block
+          use cufft
+          integer :: cufft_stat
+          cufft_stat = cufftDestroy(hsibl_cufft_plan_cached)
+        endblock
+        hsibl_cufft_plan_cached = -1
+        hsibl_ndim1_cached = -1
+      endif
+    endif
+#endif
     deallocate(hr, he, g2, yl, gg, iv, kv, gvv, w_oc1,w_ocf1, w_ocf2,ff) 
     deallocate(cwork)
 333 continue

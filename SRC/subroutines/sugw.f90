@@ -1,13 +1,13 @@
 !> Generate all the inputs for GW calculation. Need q+G info from QGpsi and QGcou which are generated a qg4gw.
 module m_sugw
-  use m_mpiio,only: openm,writem,closem, mpiio_buf, buf_put, writem_buf
+  use m_mpiio,only: openm,writem,closem, mpiio_buf, buf_put, writem_buf, openedm
   real(8),allocatable,public::ecore(:,:,:),gcore(:,:,:,:),gval(:,:,:,:,:)
   integer,public::   ndham, nqirr,nqibz    !ndima, ncoremx,
 !  integer,allocatable,public::  konf0(:,:) !konfig(:,:),ncores(:),
   private
   public:: m_sugw_init
 contains
-  subroutine m_sugw_init (socmatrix,eferm,vmag,qval,ecoreexit) !Driver for GW calculation
+  subroutine m_sugw_init (eferm,vmag,qval,ecoreexit) !Driver for GW calculation socmatrix,
     use m_lgunit,only:stdo
     use m_lmfinit,only: zz=>z,nris=>nr,lmxa,rmt,spec_a, konfig,ncores,ndimaa,ncoremx,ndima,konf0
     use m_ext,only:   sname
@@ -46,7 +46,7 @@ contains
     use m_ppj,only: m_ppj_init,ppj
     use m_stopwatch
     implicit none
-    intent(in)::          socmatrix,eferm,vmag,qval
+    intent(in)::          eferm,vmag,qval !socmatrix,
     !  qval: valence charge
     !  osig,otau,oppi  augmentation matrices, s_rv1
     !  senex: real space Sigma_vxc
@@ -81,7 +81,7 @@ contains
     complex(8),allocatable:: evec(:,:),evec0(:,:),vxc(:,:,:,:),ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:),pzovl(:,:,:), pwz0(:,:),&
          testcc(:,:),testc(:,:,:),testcd(:,:),ppovld(:),cphi(:,:,:),cphi0(:,:,:),cphi_p(:,:,:),geig(:,:,:),geig_p(:,:,:),sene(:,:),ppovli(:,:)
     logical :: lwvxc,cmdopt0, emptyrun, magexist, debug=.false.,sigmamode,wanatom=.false.,once=.true.
-    logical,optional:: socmatrix 
+!    logical,optional:: socmatrix 
     character(8) :: xt
     character(256):: ext,sprocid,extn
     complex(8),allocatable::  geigr(:,:,:), cphix(:,:,:)
@@ -92,7 +92,7 @@ contains
     logical,optional:: ecoreexit !    real(8):: rmax(nclass)
     type(stopwatch) :: sw
     logical :: show_time = .false.
-    include "mpif.h"
+
     call tcn ('m_sugw_init')
     debug=cmdopt0('--debugsugw')
     show_time = cmdopt0('--show_time')
@@ -402,7 +402,7 @@ contains
       allocate(evec(ndimhx,ndimhx),vxc(ndimh,nspc,ndimh,nspc),cphi(ndima,ndimhx,nspc))!,cphiw(ndimhx,nspc))
       if(iqbk==iq) then
         continue
-      elseif( lso/=0 .OR. socmatrix) then
+      elseif( lso/=0) then ! .OR. socmatrix) then
         if(allocated(hammhso)) deallocate(hammhso)
         allocate(hammhso(ndimh,ndimh,3))
         call aughsoc(qp, ohsozz,ohsopm, ndimh, hammhso)
@@ -484,7 +484,8 @@ contains
         if(show_time) call stopwatch_show(sw)
       endblock GetHamiltonianAndDiagonalize;       if(debug)write(stdo,ftox)' iqisploop777 1212'
 1212  continue
-      lwvxc = (socmatrix .or. iq<=iqibzmax).and.(.not.cmdopt0('--novxc'))
+!      lwvxc = (socmatrix .or. iq<=iqibzmax).and.(.not.cmdopt0('--novxc'))
+      lwvxc = (iq<=iqibzmax).and.(.not.cmdopt0('--novxc'))
       if(lwvxc) then
 !         open(newunit=ifvxcevec, file= '__vxcevec'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
 !         write(ifvxcevec) qp,ndimhx,nev
@@ -585,7 +586,8 @@ contains
         !  ppovl: = O_{G1,G2} = <IPW_G1 | IPW_G2>
         !  phovl: <IPW_G1 | basis function = smooth Hankel or APW >   
         !    pwz:  IPW expansion of eigen function
-        allocate(ppovl(ngp,ngp),phovl(ngp,ndimh)) !pwz(ngp*nspc,ndimhx),
+        allocate(ppovl(ngp,ngp),phovl(ngp,ndimh),stat=istat) !pwz(ngp*nspc,ndimhx),
+        if(istat /= 0) call rx('sugw GEIGpart: allocate failed for ppovl/phovl')
         if(show_time) call stopwatch_init(sw, 'geig_part:pwmat')
         if(show_time) call stopwatch_start(sw)
         call pwmat(nbas,ndimh,napw,igv2x,qp,ngp,nlmax,ngvecp(1,1,iq),gmax, ppovl, phovl)
@@ -597,26 +599,18 @@ contains
         !$acc kernels
         geigr(:,:,:) = (0d0, 0d0)
         !$acc end kernels
+        allocate(ppovlLU(ngp,ngp), stat=istat)
+        if(istat /= 0) call rx('sugw GEIGpart: GPU allocate failed for ppovlLU')
         do ispc=1, nspc
           !$acc host_data use_device(phovl, evec, geigr)
           istat = zmm(phovl, evec(ndimh*(ispc-1)+1,1), geigr(1,ispc,1), m=ngp, n=ndimhx, k=ndimh, ldb=ndimhx, ldc=ngpmx*nspc)
           !$acc end host_data
-          allocate(ppovlLU(ngp,ngp))
-          !$acc kernels
-          ppovlLU(:,:) = ppovl(:,:) !copy to GPU from CPU
-          !$acc end kernels
-        ! enddo
-        ! deallocate(phovl)
-        ! block ! MO added blas_mode to replaced matmul by a BLAS call 2024-11-09.         ! if(blas_mode) then
-        !   complex(8) :: ppovlLU(ngp,ngp) !ppovl_pwz(ngp,ndimhx),
-        !   ppovlLU=ppovl
-          ! do ispc=1, nspc ! ppovlLU @ pwz(output) = pwz(input)
-            ! call zgesv(ngp, ndimhx, ppovlLU, ngp, ipiv, pwz(1+ngp*(ispc-1),1),ngp,info) !ppovl_pwz, ngb, info) ?? 2025-07-09 MO ldb may be ngp*nspc
+          ppovlLU(:,:) = ppovl(:,:) !host-to-device copy (CUDA Fortran); re-copy needed since zsv destroys LU factor
           !$acc host_data use_device(geigr)
-          istat = zsv(ppovlLU, geigr(1,ispc,1), n=ngp, nrhs=ndimhx, ldb=ngpmx*nspc) !ppovl_pwz, ngb, info) !giegr is now wavefunction's coefficients on IPW
+          istat = zsv(ppovlLU, geigr(1,ispc,1), n=ngp, nrhs=ndimhx, ldb=ngpmx*nspc) !giegr is now wavefunction's coefficients on IPW
           !$acc end host_data
-          deallocate(ppovlLU)
         enddo
+        deallocate(ppovlLU)
         !$acc end data
         deallocate(phovl) 
         if(debug) call cputid(0)
@@ -692,7 +686,7 @@ contains
             !endif
           endif
         endblock GramSchmidtCphiGeig
-        deallocate(ppovl) !bugfix in --skipGS
+        if(allocated(ppovl)) deallocate(ppovl) !bugfix: ppovl not allocated in emptyrun path
         cphix(1:ndima,1:nspc,nev+1:nbandmx)=1d20 !padding 
         iqqisp= isp + nsp*(iq-1)
         i=writem(ifcphim,rec=iqqisp,data=cphix(1:ndima,1:nspc,1:nbandmx)) 
@@ -705,6 +699,7 @@ contains
     istat = closem(ifvxcevec)
     i=closem(ifcphim) !mpi-io
     i=closem(ifgeigm)
+    if(openedm(ifihh)) istat = closem(ifihh)
     call mpi_barrier(comm,ierr)
     call mpibc2_real(evl,   nbandmx*nqirr*nspx,'evl')
     call mpibc2_real(vxclda,nbandmx*nqirr*nspx,'vxclda')

@@ -10,8 +10,8 @@ contains
     use m_lgunit,only:stdo
     use m_supot,only:n1,n2,n3
     use m_vesgcm,only: vesgcm
+    use mpi
     implicit none
-    include "mpif.h"
     integer, intent(in) :: ng, kv(ng,3)
     real(8), intent(in) :: gv(ng,3),    qmom(nlmxlx,nbas), qbg
     real(8), intent(out) :: f(3,nbas), gpot0(nlmxlx,nbas), hpot0(nbas), vrmt(nbas)

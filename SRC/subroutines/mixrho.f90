@@ -16,6 +16,7 @@ contains
     use m_lattic,only: vol=>lat_vol
     use m_supot,only:  ng=>lat_ng,n1,n2,n3
     use m_ext,only:    sname
+    use mpi
     use m_ftox
     use m_struc_def
     implicit none
@@ -103,7 +104,6 @@ contains
     real(8),allocatable:: w_oqkl(:), w_oa(:,:,:,:),w_oaa(:), cn_rv(:,:,:,:),rho1bk(:),rho2bk(:)
     complex(8):: smrnew(n1,n2,n3,nsp),smrho(n1,n2,n3,nsp)
     complex(8),allocatable :: cg1_zv(:), cg2_zv(:),fkl_zv(:), smrnewbk(:,:,:,:),w_owk(:),cn_rvc(:),co_rvc(:)
-    include "mpif.h"
     call tcn('mixrho')
     call MPI_COMM_RANK( comm, procid, ierr )
     call getpr(ipr)
@@ -358,8 +358,8 @@ contains
     !r     a(1+k:2*ng0:2*ng0+2*nr+(1+kmxr)*nlml) = P_kL exp. of rho1-rho2
     !r                                             w/ l=0 part zeroed out
     !r     ... nda = 2*ng0 + 2*nr + (1+kmxr)*nlml
+    use mpi
     implicit none
-    include "mpif.h"
     integer :: procid, master, numprocs, ierr
     character(20) :: ext
     logical :: readerror!,lddump

@@ -12,7 +12,7 @@ module m_mpiio !MPI-IO. Fixed length recl
   end type mpiio_buf
   public :: openm, writem, readm, closem, openedm
   public :: writem_c, writem_d, readm_d
-  public :: mpiio_buf, buf_put, buf_get, writem_buf, readm_buf
+  public :: mpiio_buf, buf_put, buf_get, buf_reset, writem_buf, readm_buf
   interface buf_put
     module procedure buf_put_real8_0d,    buf_put_real8_1d,    buf_put_real8_2d,    buf_put_real8_3d
     module procedure buf_put_int4_0d,     buf_put_int4_1d,     buf_put_int4_2d,     buf_put_int4_3d
@@ -123,6 +123,11 @@ contains
     ifx = findloc(unit==fhl(1:iff), dim=1, value=.True.)
     is_open = ifx > 0
   end function openedm
+
+  subroutine buf_reset(buf)
+    type(mpiio_buf), intent(inout) :: buf
+    buf%pos = 1
+  end subroutine buf_reset
 
   subroutine buf_grow(buf, needed)
     type(mpiio_buf), intent(inout) :: buf

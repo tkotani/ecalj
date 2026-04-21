@@ -10,7 +10,7 @@
 
 # do not need to touch followings ##
 export OMP_NUM_THREADS=1
-py=pythonbin
+py=python
 job=job_mp
 fin=infile
 out=dir_out

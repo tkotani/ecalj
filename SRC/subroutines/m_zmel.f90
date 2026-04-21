@@ -148,8 +148,8 @@ contains
     use m_readeigen, only: readcphif_mpi, readgeigf_mpi
     use m_mlo_wfs, only: get_geig_cmlo, get_cphi_cmlo, cmlo_init
     use m_itq,only: itq, ntq
+    use mpi
     implicit none
-    include "mpif.h"
     intent(in)::           q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc, zmelconjg
     integer, optional, intent(in) :: comm
     logical, intent(in) :: is_m_basis, mpi_mode
@@ -165,7 +165,7 @@ contains
     integer:: iasx(natom),icsx(natom),iatomp(natom),imdim(natom),iclass(natom)
     real(8)::tr(3,natom),qk(3),symope(3,3),shtv(3)
     integer :: ierr, nqini_rank, nqmax_rank, ntp0_rank ,nm1,nm2,nm1c,nm2c,nm1v,nm2v,nm1cc,nm2cc
-    integer :: mpi_rank, mpi_size, ini_index, end_index, num_index, mpi_info, irank
+    integer :: mpi_rank, mpi_size, ini_index, end_index, num_index, info, irank
     character(8),external:: charext
     complex(kind=kp), parameter:: CONE = (1_kp, 0_kp), CZERO = (0_kp, 0_kp)
     complex(kind=kp), allocatable:: zmelp0(:,:,:), zmelt_d(:,:,:), zmelt(:,:,:)
@@ -226,8 +226,8 @@ contains
     nqini_rank = nqini
     nqmax_rank = nqmax
     if(mpi_mode) then
-      call mpi_comm_rank(comm, mpi_rank, mpi_info)
-      call mpi_comm_size(comm, mpi_size, mpi_info)
+      call mpi_comm_rank(comm, mpi_rank, info)
+      call mpi_comm_size(comm, mpi_size, info)
       call int_split(ntp0, mpi_size, mpi_rank, ini_index, end_index, num_index)
       ntp0 = num_index
       nqini_rank = nqini + ini_index - 1
@@ -566,7 +566,7 @@ contains
           if(kp == 4) mpi_data_type = MPI_COMPLEX8
           !$acc update host(zmel)
           call mpi_allgatherv(zmel(1,nm1,ncc+ini_index), data_size(mpi_rank), mpi_data_type, zmel_buf, data_size, data_disp, &
-                              mpi_data_type, comm, mpi_info) !this takes time
+                              mpi_data_type, comm, info) !this takes time
           zmel(1:nbb,ns1:ns2,ncc+1:nqtot) = zmel_buf(1:nbb,ns1:ns2,ncc+1:nqtot)
           !$acc update device(zmel)
           if(debug) call writemem('mmmmm_zmel after mpi=allgatherv')

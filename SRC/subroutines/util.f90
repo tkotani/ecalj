@@ -3,9 +3,10 @@ module m_lgunit ! file handles for standard output log, and mpilog
   !  stdo: file handle for standard output
   !  stdl: handle for log
   !  stml: mpilog
-  public:: m_lgunit_init,ipr
+  public:: m_lgunit_init,m_lgunit_reset,ipr
   integer,public :: stdl,stdo=6,stml
   logical:: ipr
+  integer,save:: lgunit2_=0
   private
 contains
   subroutine M_lgunit_init()
@@ -15,6 +16,10 @@ contains
     stdl= lgunit(2)
 !    if(cmdopt0('--mlog')) stml=lgunit(3)
   end subroutine M_lgunit_init
+  subroutine m_lgunit_reset()
+    if(lgunit2_ /= 0) close(lgunit2_, status='keep')
+    lgunit2_ = 0; stdl = 6
+  end subroutine m_lgunit_reset
   integer function lgunit(i)
     ! Returns stdout for i=1, log for i=2, mlog for i=3 (MPI logfile)
     use m_ext,only: sname
@@ -22,15 +27,14 @@ contains
     character(10):: i2char
     character*100 ext
     integer :: i, fopn, i1mach, fhndl,ierr,procid
-    integer,save:: lgunit1=0,lgunit2=0,lgunit3=0
-    include 'mpif.h'
+
     lgunit = 6
     if (i .eq. 1) return
     if (i .eq. 2) then
-       if(lgunit2==0) then
-          open(newunit=lgunit2,file='log.'//trim(sname),position='append')
+       if(lgunit2_==0) then
+          open(newunit=lgunit2_,file='log.'//trim(sname),position='append')
        endif
-       lgunit = lgunit2
+       lgunit = lgunit2_
     elseif (i .eq. 3) then
       return
 !       if(lgunit3==0) then

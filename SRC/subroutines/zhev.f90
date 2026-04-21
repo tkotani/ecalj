@@ -1,31 +1,30 @@
 module m_zhev
-  public zhev_tk4
+  public zhev_tk4, zhev_gpu_cleanup
   private
 contains
+  subroutine zhev_gpu_cleanup()
+    ! Release GPU handles and workspace after k-loop to free memory
+#ifdef __GPU
+    use cusolverdn
+    use cublas_v2
+    use cudafor
+    use m_zhev_gpu_handles
+#endif
+    implicit none
+#ifdef __GPU
+    integer :: istat
+    if(zhev_gpu_handles_init) then
+      istat = cudaDeviceSynchronize()
+      istat = cusolverDnDestroy(zhev_cusolver_handle)
+      istat = cublasDestroy(zhev_cublas_handle)
+      zhev_gpu_handles_init = .false.
+    endif
+#endif
+  end subroutine
   subroutine zhev_tk4(n,h,s,nmx,nev, e,z, epsovl)
-    !!== Eigenvalues and/or some eigenvectors of a Hermitian matrix (weighted for first nlmto basis).==
-    !! ----------------------------------------------------------------
-    !! Inputs:
-    !!   nlmto:dimension of MTO space of 1:nlmto i respected when diagonalization.
-    !!     n:    dimension of h
-    !!   h,n:  hermitian matrix, dimensioned h(n,n)
-    !!   s:    hermitian overlap matrix,
-    !!   nmx:  requested number of eigenvectors to be found (and eigenvalues). If nmx>n, nmx is taken to be n.
-    !!         if nmx=0, nev=n (see NOTE below).
-    !!   ipr :print switch
-    !!   ifig,savez,getz: dummy
-    !!   epsovl: cutoff to remove Hlbert space.
-    !! Outputs:
-    !!   e:    eigenvalues
-    !!   nev:  number of eigenvectors (=(min(nm,nmx)) or (=nm if nmx=0)
-    !!   z:    eigenvectors (1..nev)  (declared as z(n,*)
-    !!   h and s are destroyed on exit.
-    !!   july2012takao
-    !! nm is the matrix dimension of the reduced space by epsovl
-    !!   If nmx==0, all eigenvalues are returned but without eigenfunctions.
-    !!
-    !! Essentially similar with zhevo
-    !! -----------------------------------------------------------------------
+#ifdef __GPU
+    use m_gpu, only: use_gpu
+#endif
     implicit none
     integer :: n,nev,nmx,ltime,ngv,ncut
     !      logical ipr
@@ -47,13 +46,99 @@ contains
     integer:: nevl,nm,nmout,nevout
     logical:: debug=.false.
 
+    if(allocated(omat)) deallocate(omat)
     allocate(omat(n,n))
     omat = s !reserved
+    !
     if(epsovl< 1d-14) then
        call zhev_tk2(n,h,omat,nmx,nev, e,z)
        return
     endif
     call tcn('zhev_tk4')
+#ifdef __GPU
+    if(use_gpu) then
+    gpudiag: block
+      use cusolverdn
+      use cublas_v2
+      use cudafor
+      use m_zhev_gpu_handles
+      complex(8), device, allocatable :: omat_d(:,:), h_d(:,:), zz_d(:,:), hhm_d(:,:), hh_d(:,:), z_d(:,:)
+      real(8), device, allocatable :: eo_d(:), e_d(:)
+      complex(8), device, allocatable :: work_d(:)
+      complex(8), allocatable :: zz_h(:,:)
+      integer, device, allocatable :: devinfo
+      integer :: istat2, lwork2, m_out
+      if(.not. zhev_gpu_handles_init) then
+        istat2 = cusolverDnCreate(zhev_cusolver_handle)
+        istat2 = cublasCreate(zhev_cublas_handle)
+        zhev_gpu_handles_init = .true.
+      endif
+      allocate(devinfo)
+      ! Step 1: Diag overlap on GPU
+      allocate(omat_d(n,n), eo_d(n))
+      omat_d = omat
+      istat2 = cusolverDnZheevdx_bufferSize(zhev_cusolver_handle, CUSOLVER_EIG_MODE_VECTOR, &
+           CUSOLVER_EIG_RANGE_ALL, CUBLAS_FILL_MODE_UPPER, n, omat_d, n, &
+           0d0, 0d0, 1, n, m_out, eo_d, lwork2)
+      allocate(work_d(lwork2))
+      istat2 = cusolverDnZheevdx(zhev_cusolver_handle, CUSOLVER_EIG_MODE_VECTOR, &
+           CUSOLVER_EIG_RANGE_ALL, CUBLAS_FILL_MODE_UPPER, n, omat_d, n, &
+           0d0, 0d0, 1, n, m_out, eo_d, work_d, lwork2, devinfo)
+      deallocate(work_d)
+      eo = eo_d
+      do ix = 1, n
+        if(eo(ix) > epsovl) then; ni = ix; exit; endif
+      enddo
+      nm = n - ni + 1
+      nevl = nm
+      ! Step 2: Build projection zz (host, then copy to GPU)
+      allocate(zz_h(n, nm))
+      omat = omat_d
+      do ix = ni, n
+        zz_h(:, ix-ni+1) = omat(:, ix) / sqrt(eo(ix))
+      enddo
+      allocate(zz_d(n, nm))
+      zz_d = zz_h
+      deallocate(zz_h, omat_d, eo_d)
+      ! Step 3: Project H: hh = zz^H * H * zz
+      allocate(h_d(n,n), hhm_d(nm,n), hh_d(nm,nm))
+      h_d = h
+      istat2 = cublasZgemm_v2(zhev_cublas_handle, CUBLAS_OP_C, CUBLAS_OP_N, nm, n, n, &
+           (1d0,0d0), zz_d, n, h_d, n, (0d0,0d0), hhm_d, nm)
+      istat2 = cublasZgemm_v2(zhev_cublas_handle, CUBLAS_OP_N, CUBLAS_OP_N, nm, nm, n, &
+           (1d0,0d0), hhm_d, nm, zz_d, n, (0d0,0d0), hh_d, nm)
+      deallocate(hhm_d, h_d)
+      ! Step 4: Diag reduced H on GPU
+      if(nmx==0) then
+        nev = nm
+      else
+        nev = min(nmx, nm)
+      endif
+      allocate(e_d(nm))
+      istat2 = cusolverDnZheevdx_bufferSize(zhev_cusolver_handle, CUSOLVER_EIG_MODE_VECTOR, &
+           CUSOLVER_EIG_RANGE_I, CUBLAS_FILL_MODE_UPPER, nm, hh_d, nm, &
+           0d0, 0d0, 1, nev, m_out, e_d, lwork2)
+      allocate(work_d(lwork2))
+      istat2 = cusolverDnZheevdx(zhev_cusolver_handle, CUSOLVER_EIG_MODE_VECTOR, &
+           CUSOLVER_EIG_RANGE_I, CUBLAS_FILL_MODE_UPPER, nm, hh_d, nm, &
+           0d0, 0d0, 1, nev, m_out, e_d, work_d, lwork2, devinfo)
+      deallocate(work_d)
+      e(1:nev) = e_d(1:nev)
+      nev = m_out
+      deallocate(e_d)
+      ! Step 5: Back-transform z = zz * hh_d(:,1:nev)
+      z = 1d99
+      allocate(z_d(n, nev))
+      istat2 = cublasZgemm_v2(zhev_cublas_handle, CUBLAS_OP_N, CUBLAS_OP_N, n, nev, nm, &
+           (1d0,0d0), zz_d, n, hh_d, nm, (0d0,0d0), z_d, n)
+      z(1:n, 1:nev) = z_d
+      deallocate(zz_d, hh_d, z_d)
+      deallocate(devinfo)
+      istat2 = cudaDeviceSynchronize()
+    endblock gpudiag
+    else
+#endif
+    !! ====== CPU path: LAPACK ======
     !! ... eigenvalue of ovarlap matrix
     jobz = 'V'
     lwork = n*n
@@ -83,9 +168,6 @@ contains
     endif
     !! Hamiltonian  <zz|H|zz>
     allocate(hh(nm,nm),hhm(nm,n))
-    ! This failed in ifort when hm >600 or so.-->maybe need ulimit -s unlimited.
-    !      hh = matmul(dconjg(transpose(zz)),matmul(h,zz))
-    ! In anyway, blas will be better.
     call zgemm('C','N',nm,n,n,(1d0,0d0),zz,n,h,n,(0d0,0d0),hhm,nm)
     call zgemm('N','N',nm,nm,n,(1d0,0d0),hhm,nm,zz,n,(0d0,0d0),hh,nm)
     deallocate(hhm)
@@ -96,25 +178,21 @@ contains
        jobz = 'V'
        nev = min(nmx,nm)
     endif
-    !! note nev: number of output eigenvalues (and eigenfunctions when jobz=V).
-    abstol= 1d-10 ! OK?
-    lwork = max(1,2*nm,lworksave) !OK? efficient?
+    abstol= 1d-10
+    lwork = max(1,2*nm,lworksave)
     allocate(work(lwork),rwork(7*nm),iwork(5*nm),znm(nm,max(1,nev)))
     call zheevx(jobz,'I','U',nm,hh,nm,vldummy,vudummy,1,nev,abstol,nevout,e,znm,nm,work,lwork,rwork,iwork,ifail,ier)
-    lworksave= WORK(1)  !this is optimum lwork right?
+    lworksave= WORK(1)
     call rxx(nev/=nevout,'zhev_tk4: nev /=nevout something wrong. ')
     call rxx(ier.ne.0, 'zhev_tk4: zheev for hh cause error.')
     deallocate(work,iwork,rwork)
     z=1d99
-    ! do i=1,min(nmx,nm)
-    !    do j=1,n
-    !       z(j,i) = sum(zz(j,:)*znm(:,i)) !this is eigenfunction for original problem.
-    !    enddo
-    ! enddo
-    ! MO 2024-11-07 replace to zgemm
     call zgemm('N','N',n, min(nmx,nm),nm,(1d0,0d0),zz,n,znm,nm,(0d0,0d0),z,n)
-    deallocate(znm)
-    deallocate(zz)
+#ifdef __GPU
+    endif
+#endif
+    if(allocated(znm)) deallocate(znm)
+    if(allocated(zz)) deallocate(zz)
     if( .FALSE. ) then !! === diagonalize === (this part is in zhev_tk2), Kept here for debug purpose
        if(nmx==0) then
           jobz='N'
@@ -141,6 +219,7 @@ contains
        forall(iev=1:nev) z(:,iev)=z(:,iev)*exp(-img*dimag(log(sum(z0*z(:,iev)))))
        endblock phaselock
     endif
+    !
     call tcx('zhev_tk4')
   end subroutine zhev_tk4
   subroutine zhev_tk2(n,h,s,nmx,nev, e,z)

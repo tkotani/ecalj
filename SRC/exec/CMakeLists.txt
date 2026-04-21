@@ -46,6 +46,15 @@ endif()
 
 # --- Source Files ---
 file(GLOB SOURCES "${CMAKE_SOURCE_DIR}/../subroutines/*.f90")
+# Exclude GPU-only modules from base SOURCES (added back for GPU variants)
+set(GPU_ONLY_SOURCES
+    "${CMAKE_SOURCE_DIR}/../subroutines/m_batched_diag.f90"
+    "${CMAKE_SOURCE_DIR}/../subroutines/m_chefsi.f90"
+    "${CMAKE_SOURCE_DIR}/../subroutines/m_ozaki_tridiag.f90"
+    "${CMAKE_SOURCE_DIR}/../subroutines/m_qdwh_eigensolver.f90"
+    "${CMAKE_SOURCE_DIR}/../subroutines/m_zhev_gpu_handles.f90"
+)
+list(REMOVE_ITEM SOURCES ${GPU_ONLY_SOURCES})
 file(GLOB MAINS "${CMAKE_SOURCE_DIR}/../main/*.f90")
 set(MAINS_GPU
     "${CMAKE_SOURCE_DIR}/../main/hsfp0_sc.f90"
@@ -106,7 +115,7 @@ target_link_libraries(dummy ${LIBM})
 # --- Main Library and Executables ---
 set(LIB ecaljF)
 add_library(${LIB} SHARED ${SOURCES})
-set_target_properties(${LIB} PROPERTIES 
+set_target_properties(${LIB} PROPERTIES
   LINKER_LANGUAGE Fortran
   Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FC}/mod
 )
@@ -132,6 +141,10 @@ endforeach()
 # --- Extended Builds for MP and GPU ---
 function(add_extended_build VARIANT)
   set(SOURCES_EXT ${SOURCES})
+  # Add GPU-only sources back for GPU variants
+  if(VARIANT STREQUAL "gpu" OR VARIANT STREQUAL "mp_gpu")
+    list(APPEND SOURCES_EXT ${GPU_ONLY_SOURCES})
+  endif()
   # Exclude sources not implemented for GPU or MP
   if(VARIANT STREQUAL "mp" OR VARIANT STREQUAL "gpu" OR VARIANT STREQUAL "mp_gpu")
     list(FILTER SOURCES_EXT EXCLUDE REGEX "main_hmagnon.f90")

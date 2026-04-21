@@ -39,6 +39,9 @@ parser.add_argument('--gw80', type=bool, default=config.getboolean('gw80'))
 parser.add_argument('--koption', nargs='+', type=int, default=eval(config.get('koption')))
 parser.add_argument('--kratio', type=float, default=get_float(config.get('kratio')))
 parser.add_argument('--kkmesh', type=int, nargs=6, default=kkmesh)
+parser.add_argument('--gpu', type=bool, default=config.getboolean('gpu', fallback=False), help='Use GPU version for GW executables')
+parser.add_argument('--mp', type=bool, default=config.getboolean('mp', fallback=False), help='Use mixed precision for GW executables')
+parser.add_argument('--np2', type=int, default=config.getint('np2', fallback=None), help='MPI size for GPU GW executables')
 #parser.add_argument('--mpid', type=str, nargs='+', default=config.getint('mpid'))
 #parser.add_argument('--lmxa6', type=bool, default=False)
 args = parser.parse_args(sys.argv[1:]) #read auto directory.
@@ -135,7 +138,7 @@ for i in joblist:
     kitmx=3
     for kadd in range(3): # k point choices. Need fixing.
         k= kinit+ kadd*2
-        calc = creplot.Calc(num,args.epath,args.ncore)
+        calc = creplot.Calc(num,args.epath,args.ncore,gpu=args.gpu,mp=args.mp,np2=args.np2)
         if k == kinit: kkoption = [40, k] #40 is number of max iterations
         else:          kkoption = [20, k] #20 is number of max iterations
         #if kadd == 2: kkoption += ['-vtetra=F']

@@ -385,7 +385,6 @@ contains
     logical :: cmdopt0, idwmode
     real(8), allocatable :: dwgt4(:,:,:,:,:)
     integer :: iq, idt, idw, ifile_dw, istat
-    include "mpif.h"
     idwmode = cmdopt0('--writedw')
     if(idwmode) print *, 'writedw mode ON'
     print *,' pdosdata file=','pdosdata.'//trim(ext)
@@ -513,7 +512,6 @@ contains
     integer, dimension(:),allocatable :: kpproc
     complex(8),allocatable:: ham(:,:,:)
     integer::numprocs,procid,ierr,itete,iteti,ikp
-    include "mpif.h"
     open(newunit=ifip,form='unformatted',file='tetraf.dat')
     read(ifip) ndhamx,nkp,ntete
     allocate(idtete(0:4,6*nkp))

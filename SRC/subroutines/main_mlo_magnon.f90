@@ -3,7 +3,7 @@ module m_mlo_magnon
   public :: mlo_magnon
   contains
 subroutine mlo_magnon() bind(C)
-  use m_mlo_ham, only: read_ham_rs, calc_ham_eigen, nwf => ndimMTO, nsite, ib_tableM
+  use m_mlo_ham, only: read_ham_rs, calc_ham_eigen, nwf => ndimMTO, nsite, ib_tableM, nspx
   use m_mlo_scrw, only: nnwf, scrw, mlo_pairs, trace, trace_onsite, nnwf_init, scrw_init,  &
                         contract_to_site, pair_site, pair_lorb, nnwf_mask, nnwf2_mask, trace2
   use m_mlo_formfactor, only: get_formfactor_q
@@ -154,7 +154,7 @@ subroutine mlo_magnon() bind(C)
     ! wemax   = 5d0 !max value for plot
     ! omg2max = wemax*.5d0+.2d0 ! (in Hartree) covers all relevant omega, +.2 for margin
     ! narrow energy range: 2026-03-01
-    wemax   = 2d0 !max value for plot
+    wemax = 2d0 !max value for plot
     omg2max = wemax*.5d0+.5d0 ! (in Hartree) covers all relevant omega, +.2 for margin
     !! NOTE: npmtwo=T sets npm=2   !! optional npmtwo is added aug2017   !! 20190604 Im[K]
     if( .NOT. imagomega) niw_in=1  !dummy
@@ -223,7 +223,7 @@ subroutine mlo_magnon() bind(C)
     if(ipr) write(6,"('===== do : iq wibz(iq) q=',i6,f13.6,3f9.4,' ========')") iq,q !,wibz(iqlist(iq)),qshort !qq
     GETzxq: block ! zxq and zxqi are the main output after Hilbert transformation, ! zxqi is not used in hmagnon (imagomega=.false.)
       use m_mpi,only: MPI__AllreduceSumReal, MPI__AllreduceSum
-      real(8) :: evkx_w1(nwf), evkx_w2(nwf) !dummy
+      real(8) :: evkx_w1(nwf,nspx), evkx_w2(nwf,nspx) !dummy
       complex(8) :: zxqi(1,1,1), evc_w1(nwf,nwf), evc_w2(nwf,nwf)
       complex(8) :: ov_evc_w1(nwf,nwf), ov_evc_w2(nwf,nwf)
       complex(8) :: ovlp_w1(nwf,nwf), ovlp_w2(nwf,nwf), oovlp4(nwf,nwf,nwf,nwf)
@@ -240,12 +240,10 @@ subroutine mlo_magnon() bind(C)
       if(ipr) call writemem('mlo_magnon start gettetwt')
       call int_split(nqbz, mpi__size_k, mpi__rank_k, kx_ini, kx_fin, kx_num)
       CalcEigenEnergy: do kx = kx_ini, kx_fin !!! ev_w1, ev_w2 unit: [Ry]
-        call calc_ham_eigen(  qbz(:,kx),  is, ev_w1(:,kx), evec=evc_w1, ovlp_evec=ov_evc_w1, ovlp=ovlp_w1)
-        call calc_ham_eigen(q+qbz(:,kx), isf, ev_w2(:,kx), evec=evc_w2, ovlp_evec=ov_evc_w2, ovlp=ovlp_w2)
-        do concurrent(iwf=1:nwf, jwf=1:nwf, kwf=1:nwf, lwf=1:nwf)
-          oovlp4(iwf,jwf,kwf,lwf) = dconjg(ovlp_w1(iwf,kwf))*ovlp_w2(jwf,lwf)
-          ! oovlp4(iwf,jwf,kwf,lwf) = ovlp_w2(iwf,kwf)*dconjg(ovlp_w1(jwf,lwf))
-        enddo
+        call calc_ham_eigen( is,  is,   qbz(:,kx), evkx_w1(:,:), evec=evc_w1, ovlp_evec=ov_evc_w1)
+        call calc_ham_eigen(isf, isf, q+qbz(:,kx), evkx_w2(:,:), evec=evc_w2, ovlp_evec=ov_evc_w2)
+        ev_w1(:,kx) = evkx_w1(:, is)
+        ev_w2(:,kx) = evkx_w2(:,isf)
         if(ganmma_only) then
           block
           use m_ReadEfermi,only: ef
@@ -282,8 +280,8 @@ subroutine mlo_magnon() bind(C)
         allocate(evc_w1_kx(nwf,nwf,kx_start:kx_end), evc_w2_kx(nwf,nwf,kx_start:kx_end))
         if(gettetwt_split) call gettetwt(q,iq,isdummy,isdummy,ev_w1,ev_w2,nwf,.true.,ikbz_in=kx_start,fkbz_in=kx_end)
         CalcEigenFunction: do kx = kx_start, kx_end
-          call calc_ham_eigen(  qbz(:,kx),  is, evkx_w1, evec=evc_w1_kx(:,:,kx)) !evkx_w1  is dummy
-          call calc_ham_eigen(q+qbz(:,kx), isf, evkx_w2, evec=evc_w2_kx(:,:,kx)) !evkx_w2  is dummy
+        call calc_ham_eigen( is, is,  qbz(:,kx), evkx_w1(:,:), evec=evc_w1_kx(:,:,kx)) !evkx_w1  is dummy
+        call calc_ham_eigen(isf,isf,q+qbz(:,kx), evkx_w2(:,:), evec=evc_w2_kx(:,:,kx)) !evkx_w2  is dummy
         enddo CalcEigenFunction
 
         jpmloop:do jpm=1, npm ! jpm=2: negative frequency

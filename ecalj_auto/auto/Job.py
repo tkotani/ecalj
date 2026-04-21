@@ -110,7 +110,7 @@ class Job:
             print(f, 'ncore=', config.ncore)
             print(f' >>>  {jobx}')
             os.system(ccc)  #jobx.* is created
-            os.system(f'qsub {jobx}')
+            os.system(f'bash {jobx} &')
             
     def replace_all(self,ffile, dic):
         text = Path(ffile).read_text().splitlines()

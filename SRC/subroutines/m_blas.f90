@@ -1,6 +1,5 @@
 module m_blas !wrapper for BLAS and cuBLAS
   !$use omp_lib
-  use m_mpi
   use m_gemmul8, only: use_gemmul8, gemmul8_init, num_moduli_d, num_moduli_z, num_moduli_c
 #ifdef __GPU
   use cublas_v2
@@ -12,7 +11,7 @@ module m_blas !wrapper for BLAS and cuBLAS
   public :: cmm_h, cmm_batch_h, zmm_h, zmm_batch_h, dmm_h, dmv_h, zmv_h, zvv_h
 #ifdef __GPU
   public :: cmm_d, cmm_batch_d, zmm_d, zmm_batch_d, dmm_d, dmv_d, zmv_d, zvv_d
-  public :: cublas_init, cublas_handle, cublas_finalize
+  public :: cublas_init, cublas_handle, cublas_finalize, cublas_set_stream
   type(cublashandle), target :: cublas_handle
   logical, save :: set_cublas_handle = .false.
 #endif
@@ -48,6 +47,7 @@ contains
     istat = 0
   end function cmm_h
   integer function cmm_batch_h(a, b, c, m, n, k, nbatch, opa, opb, alpha, beta, lda, ldb, ldc, samea, sameb, comm) result(istat)
+    include "mpif.h"
     complex(4) :: a(*), b(*), c(*)
     integer, intent(in) :: m, n, k, nbatch
     character, intent(in), optional :: opa, opb
@@ -225,6 +225,7 @@ contains
     istat = 0
   end function zmm_h
   integer function zmm_batch_h(a, b, c, m, n, k, nbatch, opa, opb, alpha, beta, lda, ldb, ldc, samea, sameb, comm) result(istat)
+    include "mpif.h"
     complex(8) :: a(*), b(*), c(*)
     integer, intent(in) :: m, n, k, nbatch
     character, intent(in), optional :: opa, opb
@@ -617,6 +618,14 @@ contains
       set_cublas_handle = .true.
     endif
   end function cublas_init
+  subroutine cublas_set_stream(stream)
+    use cudafor
+    implicit none
+    integer(cuda_stream_kind), intent(in) :: stream
+    integer :: istat
+    istat = cublas_init()
+    istat = cublasSetStream(cublas_handle, stream)
+  end subroutine
   integer function cublas_finalize() result(istat)
     istat = 0
     if(set_cublas_handle) then
