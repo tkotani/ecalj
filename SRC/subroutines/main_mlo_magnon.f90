@@ -240,9 +240,9 @@ subroutine mlo_magnon() bind(C)
       if(ipr) call writemem('mlo_magnon start gettetwt')
       call int_split(nqbz, mpi__size_k, mpi__rank_k, kx_ini, kx_fin, kx_num)
       CalcEigenEnergy: do kx = kx_ini, kx_fin !!! ev_w1, ev_w2 unit: [Ry]
-        call calc_ham_eigen( is,  is,   qbz(:,kx), evkx_w1(:,:), evec=evc_w1, ovlp_evec=ov_evc_w1)
-        call calc_ham_eigen(isf, isf, q+qbz(:,kx), evkx_w2(:,:), evec=evc_w2, ovlp_evec=ov_evc_w2)
-        ev_w1(:,kx) = evkx_w1(:, is)
+        call calc_ham_eigen( is,  is,   qbz(:,kx), evkx_w1(:, is: is), evec=evc_w1, ovlp_evec=ov_evc_w1)
+        call calc_ham_eigen(isf, isf, q+qbz(:,kx), evkx_w2(:,isf:isf), evec=evc_w2, ovlp_evec=ov_evc_w2)
+        ev_w1(:,kx) = evkx_w1(: ,is)
         ev_w2(:,kx) = evkx_w2(:,isf)
         if(ganmma_only) then
           block
@@ -280,8 +280,8 @@ subroutine mlo_magnon() bind(C)
         allocate(evc_w1_kx(nwf,nwf,kx_start:kx_end), evc_w2_kx(nwf,nwf,kx_start:kx_end))
         if(gettetwt_split) call gettetwt(q,iq,isdummy,isdummy,ev_w1,ev_w2,nwf,.true.,ikbz_in=kx_start,fkbz_in=kx_end)
         CalcEigenFunction: do kx = kx_start, kx_end
-        call calc_ham_eigen( is, is,  qbz(:,kx), evkx_w1(:,:), evec=evc_w1_kx(:,:,kx)) !evkx_w1  is dummy
-        call calc_ham_eigen(isf,isf,q+qbz(:,kx), evkx_w2(:,:), evec=evc_w2_kx(:,:,kx)) !evkx_w2  is dummy
+          call calc_ham_eigen( is, is,  qbz(:,kx), evkx_w1(:,:), evec=evc_w1_kx(:,:,kx)) !evkx_w1  is dummy
+          call calc_ham_eigen(isf,isf,q+qbz(:,kx), evkx_w2(:,:), evec=evc_w2_kx(:,:,kx)) !evkx_w2  is dummy
         enddo CalcEigenFunction
 
         jpmloop:do jpm=1, npm ! jpm=2: negative frequency

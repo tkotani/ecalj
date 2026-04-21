@@ -310,15 +310,14 @@ contains
               hammi(:,:,iqibz,jsp)=hammi(:,:,iqibz,jsp) /ngx(iqibz)
               ovlmi(:,:,iqibz,jsp)=ovlmi(:,:,iqibz,jsp) /ngx(iqibz)
               if(socmatrix.and.jspxx==nspx) forall(io=1:3) hammhsoi(:,:,iqibz,io)=hammhsoi(:,:,iqibz,io)/ngx(iqibz)
-              if(socmatrix.and.jspxx==nspx) deallocate(hammhso,hammhsop,zMLO)
-              deallocate(ovlmp, hammp)
+              if(socmatrix.and.jspxx==nspx) deallocate(hammhso,zMLO)
            enddo
            if(debug)write(6,*)' end of iqiloop=',iqxx,nqibz
         enddo iqiloop
 2029    continue
         ! close(ifih)
         istat = closem(ifih)
-        istat = closem(ifihsoc)
+        if(socmatrix) istat = closem(ifihsoc)
       endblock HreductionIqibz
       call mpibc2_complex(hammi,size(hammi),'m_HamPMT_hammi') 
       call mpibc2_complex(ovlmi,size(ovlmi),'m_HamPMT_ovlmi') 
