@@ -14,11 +14,17 @@ def test(args,bindir,testdir,workdir): #Fixed. called as >testecalj Fe_magnon
     runprogs([
             lmfa +f"{MATERIAL} >llmfa",
             lmf  +f"{MATERIAL} > llmf",
-            f"{bindir}/job_band {MATERIAL} -np {ncore} --fatband --emin=-5 --emax=5 > ljob_band",
-            "gnuplot fatband.glt",
-            f"evince {workdir}/fatband.pdf &"
+            f"{bindir}/job_band {MATERIAL} -np {ncore} --fatband --emin=-5 --emax=5 --NoGnuplot > ljob_band",
+            "gnuplot fatband.glt"
     ])
     for dat in dats:
         print(dat, end=': ')
         tall+=test2_check(testdir+'/'+dat, workdir+'/'+dat, abs_tol=0.0001) #numerical agreement check
+    message1=f'''
+    ==========================================================================
+    Fat band PDF: {workdir}/fatband.pdf
+    To view: evince {workdir}/fatband.pdf
+    ==========================================================================
+    '''
+    print(message1)
     return tall
