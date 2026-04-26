@@ -275,8 +275,8 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   use m_hamindex,only:   Readhamindex,symgg=>symops,ngrp,invg=>invgx
   use m_read_bzdata,only: Read_bzdata,qibz,irkin=>irk,ginv,n1,n2,n3,nqbz,nqibz,nstar,nstbz,qbas=>qlat,qbz,wibz,wbz &
        ,nq0i=>nq0ix,wqt=>wt,q0i
-  use m_readeigen,only: onoff_write_pkm4crpa,init_readeigen,init_readeigen2, &
-       init_readeigen_mlw_noeval,  nwf_wannier => nwf !,init_readeigen_phi_noeval
+  use m_readeigen,only: init_readeigen,init_readeigen2
+  use m_wan_wfs,only: onoff_write_pkm4crpa, init_readeigen_mlw_noeval,  nwf_wannier => nwf, get_geig_wan, get_cphi_wan
   use m_mlo_wfs, only : cmlo_init, nwf_mlo => nmlo
   use m_genallcf_v3,only:niwg=>niw,alat,deltaw,esmr,icore,natom,nl,nlnmc,nlnmv,nlnmc,nlnmx,nlnx,laf
   use m_genallcf_v3,only: genallcf_v3,ncore,nn,nnc,nspin,pos,plat, nprecb,mrecb,mrece,nqbzt,nband,mrecg,ndima

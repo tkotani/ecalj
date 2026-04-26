@@ -1,11 +1,12 @@
 !>  Calculate Chi^+-, spin susceptibility. 
 module m_mlo_magnon 
+  implicit none
   public :: mlo_magnon
   contains
 subroutine mlo_magnon() bind(C)
   use m_mlo_ham, only: read_ham_rs, calc_ham_eigen, nwf => ndimMTO, nsite, ib_tableM, nspx
-  use m_mlo_scrw, only: nnwf, scrw, mlo_pairs, trace, trace_onsite, nnwf_init, scrw_init,  &
-                        contract_to_site, pair_site, pair_lorb, nnwf_mask, nnwf2_mask, trace2
+  use m_mlo_scrw, only: nnwf, scrw, mlo_pairs, trace, nnwf_init, scrw_init,  &
+                        pair_site, pair_lorb, nnwf_mask, nnwf2_mask, trace2
   use m_mlo_formfactor, only: get_formfactor_q
   use m_mlo_ovlppair, only: get_ovlppair_q
   use m_HamPMT,only: ReadHamPMTInfo
@@ -20,19 +21,20 @@ subroutine mlo_magnon() bind(C)
   use m_dpsion, only: dpsion_init, dpsion_chiq
   use m_mpi, only: MPI__Initialize, MPI__consoleout, MPI__SplitXq
   use m_mpi, only: mpi__rank, mpi__size, mpi__root, comm, comm_k, mpi__rank_k, mpi__size_k, mpi__root_k, ipr
-  use m_mpiio, only: openm, closem, writem, readm, mpiio_buf, buf_put, buf_get, writem_buf, readm_buf
+  use m_mpiio, only: openm, closem, writem, readm, mpiio_buf, buf_put, buf_get, writem_buf, readm_buf, buf_reset
   use m_blas, only: m_op_C, zmm => zmm_h, int_split
-  use m_lapack, only: zminv => zminv_h, zhev => zhev_h, zgev => zgev_h, zhgv_lindep => zhgv_lindep_h, zggv => zggv_h
+  use m_lapack, only: zminv => zminv_h, zhev => zhev_h, zgev => zgev_h,  zggv => zggv_h
   use m_mem, only: writemem
+  use m_sort, only: sort_index, lower_bound, upper_bound
   use m_ftox, only: ftox
-  implicit none
   !! We calculate chi0 by the follwoing three steps.
   !!  gettetwt: tetrahedron weights
   !!  x0kf_v4h: Accumlate Im part of the Lindhard function. Im(chi0) or Im(chi0^+-)
   !!  dpsion5: calculate real part by the Hilbert transformation from the Im part
   !!  xxx removed--> eibz means extented irreducible brillowin zone scheme by C.Friedlich. (not so efficient in cases).
   integer:: iwf, jwf, inwf, jnwf
-  integer:: file_tr_kr, file_jq_site, file_jq_full
+  ! integer:: file_jq_site, file_jq_full
+  integer :: file_spec, file_spec_site, file_dms
   integer:: iqxini, iqxend, i, iw, iq, kx, istat, nqcalc
   real(8):: q(3), rydberg, hartree, delta, eta, delta_dos, freq_ratio, freq_dw
   real(8), allocatable:: qibze(:,:)
@@ -46,7 +48,7 @@ subroutine mlo_magnon() bind(C)
   character(8):: charext
   character(len=128) :: msg
   integer, parameter :: is=1, isf=2  !K_down up = Kpm
-  real(8), parameter :: pi = 4d0*datan(1d0), eta_default =-1d0
+  real(8), parameter :: pi = 4d0*datan(1d0), eta_default =1d0
   logical, parameter :: nnwf_size_reduction = .true.
   logical :: w_onsite_dddd, geteta, negative_cut, ganmma_only, gettetwt_split, calcdos
   !For dos calculation
@@ -54,11 +56,12 @@ subroutine mlo_magnon() bind(C)
   integer, allocatable :: idteti_dos(:,:)
   real(8), allocatable :: qibz_dos(:,:), rho(:,:,:), sz(:), sz_site(:)
   real(8), allocatable :: freq(:)
-  complex(8), allocatable :: ovlppair(:,:), formfactor(:), ovlppair_inv(:,:)
+  complex(8), allocatable :: ovlppair(:,:), formfactor(:)
+  integer :: nmode
 
   hartree = 2d0*rydberg()
   geteta = cmdopt0('--geteta')
-  calcdos  = cmdopt0('--dos')
+  calcdos = cmdopt0('--dos')
   ganmma_only = geteta  !GammaPoint only calculation
 
   call m_lgunit_init()
@@ -207,16 +210,19 @@ subroutine mlo_magnon() bind(C)
     endblock
   endif ReadEta
 
+  nmode = nwf/2
   SetTemporaryFiles: if(.not. geteta) then
-    istat = openm(newunit=file_tr_kr, file='__TrKR', recl=(nw-nw_i+1)*16*7)
-    istat = openm(newunit=file_jq_site, file='__JqSite', recl=nsite*(nw-nw_i+1)*16)
-    istat = openm(newunit=file_jq_full, file='__JqFull', recl=nnwf*(nw-nw_i+1)*16)
+    istat = openm(newunit=file_spec, file='__MagSpec',     recl=(nw-nw_i+1)*8*(nmode*2+1)*2) !real
+    istat = openm(newunit=file_spec_site, file='__MagSpecSite', recl=(nw-nw_i+1)*16*nsite**2*2) !complex
+    istat = openm(newunit=file_dms, file='__DynMagSuscep', recl=(nw-nw_i+1)*16*2) !complex
+    ! istat = openm(newunit=file_jq_site, file='__JqSite', recl=nsite*(nw-nw_i+1)*16)
+    ! istat = openm(newunit=file_jq_full, file='__JqFull', recl=nnwf*(nw-nw_i+1)*16)
   endif SetTemporaryFiles
 
   allocate(imat(1:nnwf,1:nnwf),source=(0d0,0d0))
   forall(iwf=1:nnwf) imat(iwf,iwf) = 1d0 + img*delta !check the sign
   allocate(kmat(1:nnwf,1:nnwf,(1-npm)*nwhis:nwhis))
-  allocate(ovlppair(nnwf,nnwf), formfactor(nnwf), ovlppair_inv(nnwf,nnwf))
+  allocate(ovlppair(nnwf,nnwf), formfactor(nnwf))
   BIGiqloop: do iq = iqxini,iqxend
     if(.NOT. MPI__task(iq)) cycle BIGiqloop
     q = qibze(:,iq)
@@ -226,13 +232,10 @@ subroutine mlo_magnon() bind(C)
       real(8) :: evkx_w1(nwf,nspx), evkx_w2(nwf,nspx) !dummy
       complex(8) :: zxqi(1,1,1), evc_w1(nwf,nwf), evc_w2(nwf,nwf)
       complex(8) :: ov_evc_w1(nwf,nwf), ov_evc_w2(nwf,nwf)
-      complex(8) :: ovlp_w1(nwf,nwf), ovlp_w2(nwf,nwf), oovlp4(nwf,nwf,nwf,nwf)
       complex(8), allocatable :: evc_w1_kx(:,:,:), evc_w2_kx(:,:,:)
       integer, allocatable :: nttp(:),  itw(:,:), itpw(:,:), ik(:,:)
-      integer :: nttp_max, ittp, jpm, it, itp, ibib, isdummy, kx_ini, kx_fin, kx_num, kx_start,kx_end
-      integer :: kwf, lwf
+      integer :: nttp_max, ittp, jpm, it, itp, ibib, isdummy, kx_ini, kx_fin, kx_start,kx_end, kx_num
       real(8), allocatable :: whwc(:,:), ev_w1(:,:), ev_w2(:,:)
-      real(8), parameter:: schi = 1d0
       integer, parameter:: nkblock = 1024
       complex(8), allocatable :: zw(:,:), wzw(:,:)
       allocate(ev_w1(nwf,nqbz), ev_w2(nwf,nqbz), source=0d0)
@@ -240,8 +243,8 @@ subroutine mlo_magnon() bind(C)
       if(ipr) call writemem('mlo_magnon start gettetwt')
       call int_split(nqbz, mpi__size_k, mpi__rank_k, kx_ini, kx_fin, kx_num)
       CalcEigenEnergy: do kx = kx_ini, kx_fin !!! ev_w1, ev_w2 unit: [Ry]
-        call calc_ham_eigen( is,  is,   qbz(:,kx), evkx_w1(:, is: is), evec=evc_w1, ovlp_evec=ov_evc_w1)
-        call calc_ham_eigen(isf, isf, q+qbz(:,kx), evkx_w2(:,isf:isf), evec=evc_w2, ovlp_evec=ov_evc_w2)
+        call calc_ham_eigen( is,   qbz(:,kx), evkx_w1(:, is), evec=evc_w1, ovlp_evec=ov_evc_w1)
+        call calc_ham_eigen(isf, q+qbz(:,kx), evkx_w2(:,isf), evec=evc_w2, ovlp_evec=ov_evc_w2)
         ev_w1(:,kx) = evkx_w1(: ,is)
         ev_w2(:,kx) = evkx_w2(:,isf)
         if(ganmma_only) then
@@ -280,8 +283,8 @@ subroutine mlo_magnon() bind(C)
         allocate(evc_w1_kx(nwf,nwf,kx_start:kx_end), evc_w2_kx(nwf,nwf,kx_start:kx_end))
         if(gettetwt_split) call gettetwt(q,iq,isdummy,isdummy,ev_w1,ev_w2,nwf,.true.,ikbz_in=kx_start,fkbz_in=kx_end)
         CalcEigenFunction: do kx = kx_start, kx_end
-          call calc_ham_eigen( is, is,  qbz(:,kx), evkx_w1(:,:), evec=evc_w1_kx(:,:,kx)) !evkx_w1  is dummy
-          call calc_ham_eigen(isf,isf,q+qbz(:,kx), evkx_w2(:,:), evec=evc_w2_kx(:,:,kx)) !evkx_w2  is dummy
+          call calc_ham_eigen( is,   qbz(:,kx), evkx_w1(:, is), evec=evc_w1_kx(:,:,kx)) !evkx_w1  is dummy
+          call calc_ham_eigen(isf, q+qbz(:,kx), evkx_w2(:,isf), evec=evc_w2_kx(:,:,kx)) !evkx_w2  is dummy
         enddo CalcEigenFunction
 
         jpmloop:do jpm=1, npm ! jpm=2: negative frequency
@@ -342,12 +345,6 @@ subroutine mlo_magnon() bind(C)
              it = itw(ittp,iw)
              itp = itpw(ittp,iw)
              kx = ik(ittp,iw)
-             !12: Dual
-             ! wzw(ittp,inwf) = whwc(ittp,iw)*dconjg(ov_evc_w2_kx(iwf,itp,kx))*ov_evc_w1_kx(jwf,it,kx)
-             !  zw(ittp,inwf) =               dconjg(   evc_w2_kx(iwf,itp,kx))*   evc_w1_kx(jwf,it,kx)
-             !13: Dual
-             ! wzw(ittp,inwf) = whwc(ittp,iw)*dconjg(   evc_w2_kx(iwf,itp,kx))*ov_evc_w1_kx(jwf,it,kx)
-             !  zw(ittp,inwf) =               dconjg(ov_evc_w2_kx(iwf,itp,kx))*   evc_w1_kx(jwf,it,kx)
              zw(ittp, inwf) = dconjg(evc_w2_kx(iwf,itp,kx))*evc_w1_kx(jwf,it,kx)
              wzw(ittp,inwf) = whwc(ittp,iw)*zw(ittp,inwf)
            enddo
@@ -371,7 +368,7 @@ subroutine mlo_magnon() bind(C)
       endblock mpi_k_accumulate
       if(mpi__root_k) then
         call dpsion_init(realomega, imagomega, .false.)
-        call dpsion_chiq(realomega, imagomega, .false., kmat, zxqi, nnwf, nnwf, schi, 1, 1d99) !Inplace routine: kmat is overwritten by zxq
+        call dpsion_chiq(realomega, imagomega, .false., kmat, zxqi, nnwf, nnwf, 1d0, 1, 1d99) !Inplace routine: kmat is overwritten by zxq
       endif
     endblock GETzxq
 
@@ -382,24 +379,18 @@ subroutine mlo_magnon() bind(C)
     if(ipr) call writemem('mlo_magnon start getting R')
     if(associated(zxq)) nullify(zxq)
     zxq(1:,1:,nw_i:) => kmat(1:nnwf,1:nnwf,nw_i:nw)
+    zxq(:,:,:) = -zxq(:,:,:)
     where(abs(dimag(zxq))<1d-15) zxq = dreal(zxq) ! threshold for Im[K] (zxq)
-
-    formfactor = get_formfactor_q(q, isf, spinflip=.true.)
-    ovlppair = get_ovlppair_q(q, isf, spinflip=.true.)
-    ovlppair_inv = ovlppair
-    istat = zminv(ovlppair_inv, n=nnwf)
 
     IfGetEta: if(geteta) then
       block
-        use m_intg, only: intg_trapezoidal_nonuniform
-        integer :: iunit, nev
-        complex(8) ::wkmat(1:nnwf,1:nnwf), chi0(nnwf,nnwf), eval(nnwf), chiH(nnwf,nnwf)
-        real(8) :: www, evl(nnwf), evlw(nw_i:nw)
+        integer :: iunit
+        complex(8) :: wkmat(1:nnwf,1:nnwf), chi0(nnwf,nnwf), eval(nnwf)
         chi0(:,:) = zxq(:,:,0)
         istat = zmm(scrw, chi0(:,:), wkmat, nnwf, nnwf, nnwf)
         write(stdo,ftox) 'sum wkmat', sum(wkmat)
         istat = zgev(wkmat, n=nnwf, evl=eval)
-        eta = -1d0/maxval(abs(eval))
+        eta = 1d0/maxval(abs(eval))
         write(stdo,ftox) 'sum evl', sum(eval)
         write(stdo,ftox) "now eigenvalue WK",eval(1),"is inversed"
         write(stdo,ftox) "wkmat calculated eta:", eta !negative value
@@ -407,40 +398,23 @@ subroutine mlo_magnon() bind(C)
         write(iunit) eta
         write(iunit) rho(:,:,:)
         close(iunit)
-        open(newunit=iunit, file='Kpmdiag_q0.dat', status='replace', action='write')
-        write(iunit,ftox) "# iw omega(eV) Tr K TrdiagK"
-        do inwf=1,nnwf
-          write(stdo,ftox) 'inwf, formfactor, diag_ovlppair', inwf, formfactor(inwf), ovlppair(inwf,inwf)
-        enddo
-        do iw = nw_i,nw
-          www = merge(-freq_r(-iw),freq_r(iw),iw<0)
-          chi0(:,:) = zxq(:,:,iw)
-          chiH = (chi0 - transpose(dconjg(chi0)))*0.5d0/img
-          istat = zhgv_lindep(chiH, ovlppair, n=nnwf, evl=evl, nev=nev)
-          evlw(iw) = sum(evl(1:nev))
-          write(iunit,"(e14.6,30e17.9)") www*hartree,  dot_product(formfactor, matmul(chi0(:,:), formfactor)), &
-                                        trace_onsite(matmul(ovlppair_inv, chi0(:,:)))/hartree, evlw(iw)
-        enddo
-        close(iunit)
-        write(stdo,ftox) 'Int dw sum of evl: Im K', intg_trapezoidal_nonuniform(freq, evlw(nw_i:nw))
-        write(stdo,*) sum(rho(:,:,1)), sum(rho(:,:,2)), sum(rho(:,:,1) -rho(:,:,2))
+        write(stdo,ftox) sum(rho(:,:,1)), sum(rho(:,:,2)), sum(rho(:,:,1) -rho(:,:,2))
         do i = 1, nwf
-          write(stdo,*) rho(i,i,1), rho(i,i,2), rho(i,i,1) - rho(i,i,2)
+          write(stdo,ftox) rho(i,i,1), rho(i,i,2), rho(i,i,1) - rho(i,i,2)
         enddo
       endblock
       exit Bigiqloop
     endif IfGetEta
 
+    formfactor = get_formfactor_q(q, isf, spinflip=.true.)
+    ovlppair = get_ovlppair_q(q, isf, spinflip=.true.)
     OmegaLoop: block
-      complex(8) :: r_tr(nw_i:nw), k_tr(nw_i:nw), jq_w_full(nw_i:nw,1:nnwf), &
-                    k_tr_onsite(nw_i:nw), r_tr_onsite(nw_i:nw), &
-                    jq_w_site(nw_i:nw,1:nsite),  wkmat(nnwf,nnwf), rmat(nnwf,nnwf), &
-                    chi0(nnwf,nnwf), rmat_site(nsite,nsite,nw_i:nw), kmat_site(nsite,nsite,nw_i:nw), &
-                    r_uovlp(nw_i:nw), k_uovlp(nw_i:nw), chiH(nnwf,nnwf), OchiH(nnwf,nnwf)
-      real(8) :: evl(nnwf)
-      real(8) :: spectrum_k(nw_i:nw), spectrum_r(nw_i:nw)
-      integer :: nev
-      complex(8) :: tmp(nnwf,nnwf)
+      complex(8) :: wkmat(nnwf,nnwf), rmat(nnwf,nnwf), &
+                    chi0(nnwf,nnwf), r_dms(nw_i:nw), k_dms(nw_i:nw), OchiH(nnwf,nnwf), &
+                    weight_site(nnwf,nsite), k_spec_site(nw_i:nw,nsite,nsite), r_spec_site(nw_i:nw,nsite,nsite) !,jq_w_site(nw_i:nw,1:nsite),  
+      real(8) :: evl(nnwf), k_spec(nw_i:nw), r_spec(nw_i:nw), k_spec_mode(nmode,2,nw_i:nw), r_spec_mode(nmode,2,nw_i:nw)
+      integer, allocatable, target :: idx_sort(:)
+      integer :: inwf, isite, jsite
       iwloop: do iw = nw_i, nw
         chi0(:,:) = zxq(:,:,iw)
         istat = zmm(scrw, chi0(:,:), wkmat, nnwf, nnwf, nnwf, alpha=dcmplx(eta,0d0)) !wkmat = etaWK
@@ -450,88 +424,91 @@ subroutine mlo_magnon() bind(C)
 
         !Retarted
         chi0(:,:) = merge(conjg(transpose(chi0)), chi0, iw <0)
-        rmat(:,:) = merge(conjg(transpose(rmat)), rmat, iw <0)
-
-        chiH = -(chi0 - transpose(conjg(chi0)))*0.5d0*img
-        istat = zhgv_lindep(chiH, ovlppair, n=nnwf, evl=evl, nev=nev, nkeep=nwf)
-        spectrum_k(iw) = sum(evl(1:nev))
-
-        ! OchiH = matmul(chi0, transpose(ovlppair))
-        ! OchiH = -(OchiH- transpose(conjg(OchiH)))*0.5d0*img
-        ! istat = zhev(OchiH, n=nnwf, evl=evl)
-        ! spectrum_k(iw) = sum(evl(1:nnwf))
-
-        chiH = -(rmat- transpose(conjg(rmat)))*0.5d0*img
-        istat = zhgv_lindep(chiH, ovlppair, n=nnwf, evl=evl, nev=nev, nkeep=nwf)
-        spectrum_r(iw) = sum(evl(1:nev))
-
-        ! OchiH = matmul(rmat, transpose(ovlppair))
-        ! OchiH = -(OchiH- transpose(conjg(OchiH)))*0.5d0*img
-        ! istat = zhev(OchiH, n=nnwf, evl=evl)
-        ! spectrum_r(iw) = sum(evl(1:nnwf))
-
-        k_tr(iw) = trace2(matmul(ovlppair,chi0))
-        r_tr(iw) = trace2(matmul(ovlppair,rmat))
-
-        k_tr_onsite(iw) = trace_onsite(chi0)
-        r_tr_onsite(iw) = trace_onsite(rmat)
-
-        k_uovlp(iw) = dot_product(formfactor, matmul(chi0, formfactor))
-        r_uovlp(iw) = dot_product(formfactor, matmul(rmat, formfactor))
-        ! kmat_site(1,1,iw) = sum(ovlppair*chi0)
-        ! rmat_site(1,1,iw) = sum(ovlppair*rmat)
-        kmat_site(:,:,iw) = contract_to_site(chi0)
-        rmat_site(:,:,iw) = contract_to_site(rmat)
-
-        istat = zminv(rmat(:,:), n=nnwf)
-        do concurrent(inwf=1:nnwf,jnwf=1:nnwf)
-          rmat(inwf,jnwf) = sz(inwf)*rmat(inwf,jnwf)
+        OchiH = matmul(chi0, transpose(ovlppair))
+        OchiH = -(OchiH- transpose(conjg(OchiH)))*0.5d0*img
+        istat = zhev(OchiH, n=nnwf, evl=evl)
+        k_spec(iw) = sum(evl(1:nnwf))
+        idx_sort = sort_index(evl)
+        k_spec_mode(1:nmode,1,iw) = [(evl(idx_sort(i)), i=1, nmode)]
+        k_spec_mode(1:nmode,2,iw) = [(evl(idx_sort(i)), i=nnwf-nmode+1,nnwf)]
+        do concurrent(i=1:nnwf, isite=1:nsite)
+          weight_site(i,isite) = sum(pack(OchiH(:,i), mask=(pair_site(:,1)==isite)))
         enddo
-        istat = zgev(rmat(:,:), n=nnwf, evl=jq_w_full(iw,:))
+        do concurrent(isite=1:nsite, jsite=1:nsite)
+          k_spec_site(iw,isite,jsite) = sum(weight_site(:,isite)*evl(:)*conjg(weight_site(:,jsite)))
+        enddo
+
+        rmat(:,:) = merge(conjg(transpose(rmat)), rmat, iw <0)
+        OchiH = matmul(rmat, transpose(ovlppair))
+        OchiH = -(OchiH- transpose(conjg(OchiH)))*0.5d0*img
+        istat = zhev(OchiH, n=nnwf, evl=evl)
+        r_spec(iw) = sum(evl(1:nnwf))
+        idx_sort = sort_index(evl)
+        r_spec_mode(1:nmode,1,iw) = [(evl(idx_sort(i)), i=1, nmode)]
+        r_spec_mode(1:nmode,2,iw) = [(evl(idx_sort(i)), i=nnwf-nmode+1,nnwf)]
+        do concurrent(i=1:nnwf, isite=1:nsite)
+          weight_site(i,isite) = sum(pack(OchiH(:,i), mask=(pair_site(:,1)==isite)))
+        enddo
+        do concurrent(isite=1:nsite, jsite=1:nsite)
+          r_spec_site(iw,isite,jsite) = sum(weight_site(:,isite)*evl(:)*conjg(weight_site(:,jsite)))
+        enddo
+
+        ! k_tr(iw) = trace2(matmul(chi0, transpose(ovlppair)))
+        ! r_tr(iw) = trace2(matmul(rmat, transpose(ovlppair)))
+
+        k_dms(iw) = dot_product(formfactor, matmul(chi0, formfactor))
+        r_dms(iw) = dot_product(formfactor, matmul(rmat, formfactor))
+
+        ! istat = zminv(rmat(:,:), n=nnwf)
+        ! do concurrent(inwf=1:nnwf,jnwf=1:nnwf)
+        !   rmat(inwf,jnwf) = sz(inwf)*rmat(inwf,jnwf)
+        ! enddo
+        ! istat = zgev(rmat(:,:), n=nnwf, evl=jq_w_full(iw,:))
       enddo iwloop
 
       CalcJqSite:block
-        use m_intg, only: intg_trapezoidal_nonuniform
         use m_intg, only: intg_pade_nonuniform
-        real(8) :: sz_kmat(nsite), sz_rmat(nsite), correction_factor
-        integer :: isite, isite1, isite2
-        write(stdo,ftox) '     q Int ev SK/pi, Int ev SR/pi:',q, &
-           -intg_pade_nonuniform(freq, spectrum_k(nw_i:nw))/pi, -intg_pade_nonuniform(freq, spectrum_r(nw_i:nw))/pi
-        write(stdo,ftox) '     q Int tr SK/pi, Int tr SR/pi:',q, &
-           -intg_pade_nonuniform(freq, imag(k_tr(nw_i:nw)))/pi, -intg_pade_nonuniform(freq, imag(r_tr(nw_i:nw)))/pi
-        write(stdo,ftox) '     q Int ff K/pi, Int  ff R/pi:',q, &
-           -intg_pade_nonuniform(freq, imag(k_uovlp(nw_i:nw)))/pi, -intg_pade_nonuniform(freq, imag(r_uovlp(nw_i:nw)))/pi
-        do isite = 1, nsite
-          sz_kmat(isite) = -intg_pade_nonuniform(freq, imag(kmat_site(isite,isite,nw_i:nw)))/pi
-          sz_rmat(isite) = -intg_pade_nonuniform(freq, imag(rmat_site(isite,isite,nw_i:nw)))/pi
-          write(stdo,ftox) 'Site q Int K/pi, Int R/pi:',q, isite, sz_kmat(isite), sz_rmat(isite), trace(ovlppair)
-        enddo
-        do iw = nw_i, nw
-          istat = zminv(rmat_site(:,:,iw), n=nsite)
-          do concurrent(isite1=1:nsite,isite2=1:nsite)
-            rmat_site(isite1,isite2,iw) = sz_site(isite1)*rmat_site(isite1,isite2,iw)
-          enddo
-          istat = zgev(rmat_site(:,:,iw), n=nsite, evl=jq_w_site(iw,:))
-        enddo
+        ! real(8) :: sz_kmat(nsite), sz_rmat(nsite), correction_factor
+        ! integer :: isite, isite1, isite2
+        write(stdo,ftox) 'q Int ev SK/pi, Int ev SR/pi:',q, &
+           intg_pade_nonuniform(freq, k_spec(nw_i:nw))/pi, intg_pade_nonuniform(freq, r_spec(nw_i:nw))/pi ,&
+           ! intg_pade_nonuniform(freq, imag(k_tr(nw_i:nw)))/pi, intg_pade_nonuniform(freq, imag(r_tr(nw_i:nw)))/pi, &
+           intg_pade_nonuniform(freq, imag(k_dms(nw_i:nw)))/pi, intg_pade_nonuniform(freq, imag(r_dms(nw_i:nw)))/pi
+        ! do isite = 1, nsite
+        !   sz_kmat(isite) = -intg_pade_nonuniform(freq, imag(kmat_site(isite,isite,nw_i:nw)))/pi
+        !   sz_rmat(isite) = -intg_pade_nonuniform(freq, imag(rmat_site(isite,isite,nw_i:nw)))/pi
+        !   write(stdo,ftox) 'Site q Int K/pi, Int R/pi:',q, isite, sz_kmat(isite), sz_rmat(isite), trace(ovlppair)
+        ! enddo
+        ! do iw = nw_i, nw
+        !   istat = zminv(rmat_site(:,:,iw), n=nsite)
+        !   do concurrent(isite1=1:nsite,isite2=1:nsite)
+        !     rmat_site(isite1,isite2,iw) = sz_site(isite1)*rmat_site(isite1,isite2,iw)
+        !   enddo
+        !   istat = zgev(rmat_site(:,:,iw), n=nsite, evl=jq_w_site(iw,:))
+        ! enddo
       endblock CalcJqSite
 
       SaveBufferFile:block
-        type(mpiio_buf) :: buf
-        call buf_put(buf, k_uovlp);     call buf_put(buf, k_tr)
-        call buf_put(buf, k_tr_onsite)
-        call buf_put(buf, r_uovlp);     call buf_put(buf, r_tr)
-        call buf_put(buf, r_tr_onsite)
-        call buf_put(buf, spectrum_k)
-        call buf_put(buf, spectrum_r)
-        istat = writem_buf(file_tr_kr, rec=iq, buf=buf)
-        istat = writem(file_jq_full, rec=iq, data=jq_w_full(nw_i:nw,1:nnwf))
-        istat = writem(file_jq_site, rec=iq, data=jq_w_site(nw_i:nw,1:nsite))
+        type(mpiio_buf) :: buf_dms, buf_spec,buf_spec_site
+        ! istat = writem(file_jq_full, rec=iq, data=jq_w_full(nw_i:nw,1:nnwf))
+        ! istat = writem(file_jq_site, rec=iq, data=jq_w_site(nw_i:nw,1:nsite))
+        call buf_put(buf_dms, k_dms)
+        call buf_put(buf_dms, r_dms)
+        istat = writem_buf(file_dms, rec=iq, buf=buf_dms)
+        call buf_put(buf_spec, k_spec)
+        call buf_put(buf_spec, k_spec_mode)
+        call buf_put(buf_spec, r_spec)
+        call buf_put(buf_spec, r_spec_mode)
+        istat = writem_buf(file_spec, rec=iq, buf=buf_spec)
+        call buf_put(buf_spec_site, k_spec_site)
+        call buf_put(buf_spec_site, r_spec_site)
+        istat = writem_buf(file_spec_site, rec=iq, buf=buf_spec_site)
       endblock SaveBufferFile
     endblock OmegaLoop
 
     if(ipr) call writemem('mlo_magnon end iq='//trim(charext(iq)))
   enddo BIGiqloop
-  deallocate(formfactor, ovlppair, ovlppair_inv)
+  deallocate(formfactor, ovlppair)
 
   if(geteta) call rx0( ' OK! mlo_magnon get eta')
   call mpi_barrier(comm, istat)
@@ -540,66 +517,58 @@ subroutine mlo_magnon() bind(C)
   ReformatOutputFilesForDOS:if(mpi__root .and. calcdos) then
     block
       use m_bz_integ, only: ibz_integ
-      integer :: file_tr_kpm_out, file_tr_rpm_out
-      complex(8) :: dos_tr_kpm, dos_tr_onsite_kpm, dos_tr_rpm, dos_tr_onsite_rpm
-      complex(8) :: k_uovlp_ibz(nqibz_dos,nw_i:nw), k_tr_ibz(nqibz_dos,nw_i:nw), k_tr_onsite_ibz(nqibz_dos,nw_i:nw), &
-                    r_uovlp_ibz(nqibz_dos,nw_i:nw), r_tr_ibz(nqibz_dos,nw_i:nw), r_tr_onsite_ibz(nqibz_dos,nw_i:nw), &
-                    jq_site_ibz(nqibz_dos,nw_i:nw,nsite)
+      integer :: file_dos_out
+      real(8) :: dos_k_spec, dos_r_spec, dos_k_dms, dos_r_dms
+      real(8) :: k_dms_ibz(nqibz_dos,nw_i:nw), k_spec_ibz(nqibz_dos,nw_i:nw), &
+                 r_dms_ibz(nqibz_dos,nw_i:nw), r_spec_ibz(nqibz_dos,nw_i:nw)
       real(8) :: www, omega, tetra_vol
       integer :: tetra_nodes(4,nteti_dos), tetra_weight(nteti_dos)
-      open(newunit=file_tr_rpm_out, file='TrRpm.dos', status='replace', form='formatted', action='write')
-      open(newunit=file_tr_kpm_out, file='TrKpm.dos', status='replace', form='formatted', action='write')
-      write(file_tr_kpm_out, '(A)')' # omega(eV) Real_Tr_K/eV Imag_Tr_K/eV !omega=0 is commented'
-      write(file_tr_rpm_out, '(A)')' # omega(eV) Real_Tr_R/eV Imag_Tr_R/eV !omega=0 is commented'
+      open(newunit=file_dos_out, file='MagSpecDMS.dos', status='replace', form='formatted', action='write')
+      write(file_dos_out, '(A)')' # omega(eV) Real_Tr_R/eV Imag_Tr_R/eV !omega=0 is commented'
       tetra_nodes(1:4,1:nteti_dos) = idteti_dos(1:4,1:nteti_dos)
       tetra_weight(1:nteti_dos) = idteti_dos(0,1:nteti_dos)
       do iq=1, nqcalc
         ReadBufferFileDOS:block
           type(mpiio_buf) :: buf
-          istat = readm_buf(file_tr_kr, rec=iq, buf=buf)
-          call buf_get(buf, k_uovlp_ibz(iq,nw_i:nw));     call buf_get(buf, k_tr_ibz(iq,nw_i:nw))
-          call buf_get(buf, k_tr_onsite_ibz(iq,nw_i:nw))
-          call buf_get(buf, r_uovlp_ibz(iq,nw_i:nw));     call buf_get(buf, r_tr_ibz(iq,nw_i:nw))
-          call buf_get(buf, r_tr_onsite_ibz(iq,nw_i:nw))
-          istat = readm(file_jq_site, rec=iq, data=jq_site_ibz(iq,nw_i:nw,1:nsite))
+          istat = readm_buf(file_spec, rec=iq, buf=buf)
+          call buf_get(buf, k_spec_ibz(iq,nw_i:nw))
+          call buf_get(buf, r_spec_ibz(iq,nw_i:nw))
+          istat = readm_buf(file_dms, rec=iq, buf=buf)
+          call buf_get(buf, k_dms_ibz(iq,nw_i:nw))
+          call buf_get(buf, r_dms_ibz(iq,nw_i:nw))
         endblock ReadBufferFileDOS
       enddo
 
       tetra_vol = 1d0/ntetf_dos ! ntetf was =6*n1*n2*n3
       do iw = nw_i, nw
-        dos_tr_kpm = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, k_tr_ibz(:,iw))
-        dos_tr_rpm = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, r_tr_ibz(:,iw))
-        dos_tr_onsite_kpm = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, k_tr_onsite_ibz(:,iw))
-        dos_tr_onsite_rpm = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, r_tr_onsite_ibz(:,iw))
+        dos_k_spec = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, k_spec_ibz(:,iw))
+        dos_r_spec = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, r_spec_ibz(:,iw))
+        dos_k_dms = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, k_dms_ibz(:,iw))
+        dos_r_dms = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, r_dms_ibz(:,iw))
         www = merge(-freq_r(-iw),freq_r(iw),iw<0)
         omega = www*hartree
         if(iw==0) then
-          write(file_tr_kpm_out, "(A)", advance = "no") "#"
-          write(file_tr_rpm_out, "(A)", advance = "no") "#"
+          write(file_dos_out, "(A)", advance = "no") "#"
         endif
-        write(file_tr_kpm_out, "(e14.6,4e17.9)") omega, dos_tr_kpm/hartree, dos_tr_onsite_kpm/hartree
-        write(file_tr_rpm_out, "(e14.6,4e17.9)") omega, dos_tr_rpm/hartree, dos_tr_onsite_rpm/hartree
+        write(file_dos_out, "(e14.6,4e17.9)") omega, dos_k_spec/hartree, dos_r_spec/hartree, dos_r_dms/hartree, dos_r_dms/hartree
       enddo
-      close(file_tr_rpm_out)
-      close(file_tr_kpm_out)
+      close(file_dos_out)
     endblock
   endif ReformatOutputFilesForDOS
 
   ReformatOutputFiles:if(mpi__root .and. .not.calcdos) then
     block
       use m_read_bzdata, only: epslgroup
-      use m_sort, only: sort_index, lower_bound, upper_bound
-      integer :: epslgroup_old, file_tr_kpm_out, file_tr_rpm_out, file_jq_out, file_jq_site_out, file_jq_full_out
-      integer :: file_spec_out
+      integer :: epslgroup_old
+      integer :: file_spec_out, file_spec_site_out, file_k_spec_mode_out, file_r_spec_mode_out
       character(3) :: charnum3
       real(8) :: q_old(3), q_position, dq, omega, www
       real(8), parameter :: jq_cut_min =  1d-3, jq_cut_max=1
-      integer :: idx_min, idx_max
-      logical :: opened
+      integer :: idx_min, idx_max, isite, jsite
       integer, allocatable, target :: idx_sort(:)
-      complex(8) :: r_tr(nw_i:nw), k_tr(nw_i:nw), jq_w_site(nw_i:nw,1:nsite), &
-                    jq_w_full(nw_i:nw,1:nnwf), r_tr_onsite(nw_i:nw), k_tr_onsite(nw_i:nw), r_uovlp(nw_i:nw), k_uovlp(nw_i:nw)
-      real(8) :: k_spec(nw_i:nw), r_spec(nw_i:nw)
+      complex(8) :: r_dms(nw_i:nw), k_dms(nw_i:nw), &
+                    k_spec_site(nw_i:nw,nsite,nsite), r_spec_site(nw_i:nw,nsite,nsite)
+      real(8) :: k_spec(nw_i:nw), r_spec(nw_i:nw), k_spec_mode(nmode,2,nw_i:nw), r_spec_mode(nmode,2,nw_i:nw)
       epslgroup_old = -1 !epslgroup starts from 1
       q_old(:) = qibze(:,1)
       q_position = 0d0
@@ -607,65 +576,66 @@ subroutine mlo_magnon() bind(C)
         q(:) = qibze(:,iq)
         if(epslgroup(iq) /= epslgroup_old) then
           if(any(q_old(:) /= q(:))) q_old(:) = q(:) + ([0.05d0, 0d0, 0d0])
-          inquire(unit=file_tr_kpm_out, opened=opened)
-          if(opened) close(file_tr_kpm_out)
-          inquire(unit=file_tr_rpm_out, opened=opened)
-          if(opened) close(file_tr_rpm_out)
-          inquire(unit=file_jq_out, opened=opened)
-          if(opened) close(file_jq_out)
-          inquire(unit=file_jq_site_out, opened=opened)
-          if(opened) close(file_jq_site_out)
-          open(newunit=file_tr_kpm_out, file='TrKpm.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
-          open(newunit=file_tr_rpm_out, file='TrRpm.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
-          open(newunit=file_spec_out, file='Spec.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
-          open(newunit=file_jq_site_out, file='JqSite.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
-          open(newunit=file_jq_full_out, file='JqFull.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
-          write(file_tr_kpm_out, '(A)')' # qx qy qz q_pos omega(eV) Real_Tr_K/eV Imag_Tr_K/eV'
-          write(file_tr_rpm_out, '(A)')' # qx qy qz q_pos omega(eV) Real_Tr_R/eV Imag_Tr_R/eV'
+          open(newunit=file_spec_out, file='MagSpec.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
+          open(newunit=file_spec_site_out, file='MagSpecSite.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
+          open(newunit=file_k_spec_mode_out, file='MagSpecKMode.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
+          open(newunit=file_r_spec_mode_out, file='MagSpecRMode.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
+          ! open(newunit=file_jq_site_out, file='JqSite.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
         endif
         ReadBufferFile:block
           type(mpiio_buf) :: buf
-          istat = readm_buf(file_tr_kr, rec=iq, buf=buf)
-          call buf_get(buf, k_uovlp);     call buf_get(buf, k_tr)
-          call buf_get(buf, k_tr_onsite)
-          call buf_get(buf, r_uovlp);     call buf_get(buf, r_tr)
-          call buf_get(buf, r_tr_onsite)
+          ! istat = readm(file_jq_site, rec=iq, data=jq_w_site(:,:))
+          ! istat = readm(file_jq_full, rec=iq, data=jq_w_full(:,:))
+          istat = readm_buf(file_spec, rec=iq, buf=buf)
           call buf_get(buf, k_spec)
+          call buf_get(buf, k_spec_mode)
           call buf_get(buf, r_spec)
-          istat = readm(file_jq_site, rec=iq, data=jq_w_site(:,:))
-          istat = readm(file_jq_full, rec=iq, data=jq_w_full(:,:))
+          call buf_get(buf, r_spec_mode)
+          istat = readm_buf(file_spec_site, rec=iq, buf=buf)
+          call buf_get(buf, k_spec_site)
+          call buf_get(buf, r_spec_site)
+          istat = readm_buf(file_dms, rec=iq, buf=buf)
+          call buf_get(buf, k_dms)
+          call buf_get(buf, r_dms)
         endblock ReadBufferFile
         dq = sqrt(sum((q(:)-q_old(:))**2))
         q_position = q_position + dq
+        k_spec = k_spec/hartree
+        r_spec = r_spec/hartree
+        k_spec_mode = k_spec_mode/hartree
+        r_spec_mode = r_spec_mode/hartree
+        k_spec_site = k_spec_site/hartree
+        r_spec_site = r_spec_site/hartree
+        k_dms = k_dms/hartree
+        r_dms = r_dms/hartree
         do iw = nw_i, nw
           www = merge(-freq_r(-iw),freq_r(iw),iw<0)
           omega = www*hartree
-          write(file_tr_kpm_out, "(4f9.5,e14.6,8e17.9)") q(1:3), q_position, omega, k_uovlp(iw)/hartree, k_tr(iw)/hartree, k_tr_onsite(iw)/hartree
-          write(file_tr_rpm_out, "(4f9.5,e14.6,8e17.9)") q(1:3), q_position, omega, r_uovlp(iw)/hartree, r_tr(iw)/hartree, r_tr_onsite(iw)/hartree
-          write(file_spec_out, "(4f9.5,e14.6,2e17.9)") q(1:3), q_position, omega, k_spec(iw)/hartree, r_spec(iw)/hartree
-          idx_sort = sort_index(abs(jq_w_site(iw,:)))
-          write(file_jq_site_out, "(4f9.5,e14.6,20e17.9)") q(1:3), q_position, omega, ((jq_w_site(iw,idx_sort(i))*hartree),i=1,nsite)
-          idx_sort = sort_index(abs(jq_w_full(iw,:)))
-          idx_min = lower_bound(abs(jq_w_full(iw,:)), jq_cut_min, idx_sort)
-          idx_max = upper_bound(abs(jq_w_full(iw,:)), jq_cut_max, idx_sort)
-          write(file_jq_full_out, "(4f9.5,e14.6,81e17.9)") q(1:3), q_position, omega, ((dble(jq_w_full(iw,idx_sort(i)))*hartree),i=idx_min,idx_max)
+          write(file_spec_out, "(4f9.5,e14.6,8e17.9)") q(1:3), q_position, omega, k_spec(iw), r_spec(iw), k_dms(iw), r_dms(iw)
+          ! write(file_jq_site_out, "(4f9.5,e14.6,20e17.9)") q(1:3), q_position, omega, ((jq_w_site(iw,idx_sort(i))*hartree),i=1,nsite)
+          ! idx_sort = sort_index(abs(jq_w_full(iw,:)))
+          ! idx_min = lower_bound(abs(jq_w_full(iw,:)), jq_cut_min, idx_sort)
+          ! idx_max = upper_bound(abs(jq_w_full(iw,:)), jq_cut_max, idx_sort)
+          write(file_k_spec_mode_out, "(4f9.5,e14.6,81e17.9)") q(1:3), q_position, omega, k_spec(iw), k_spec_mode(:,:,iw)
+          write(file_r_spec_mode_out, "(4f9.5,e14.6,81e17.9)") q(1:3), q_position, omega, r_spec(iw), r_spec_mode(:,:,iw)
         enddo
-        write(file_tr_kpm_out, *)
-        write(file_tr_rpm_out, *)
-        write(file_jq_site_out, *)
-        write(file_jq_full_out, *)
+        do isite = 1, nsite
+          do jsite = 1, nsite
+            do iw = nw_i, nw
+              write(file_spec_site_out, "(2I4,4f9.5,e14.6,4e17.9)") isite, jsite, q(1:3), q_position, omega, k_spec_site(iw,isite,jsite), r_spec_site(iw,isite,jsite)
+            enddo
+          enddo
+        enddo
+        ! write(file_jq_site_out, *)
         write(file_spec_out, *)
+        write(file_k_spec_mode_out, *)
+        write(file_r_spec_mode_out, *)
+        write(file_spec_site_out, *)
         epslgroup_old = epslgroup(iq)
         q_old = q(:)
       enddo
-      inquire(unit=file_tr_kpm_out, opened=opened)
-      if(opened) close(file_tr_kpm_out)
-      inquire(unit=file_tr_rpm_out, opened=opened)
-      if(opened) close(file_tr_rpm_out)
     endblock
   endif ReformatOutputFiles
-  istat = closem(file_tr_kr)
-  istat = closem(file_jq_site)
   call rx0( ' OK! mlo_magnon mode')
 END subroutine mlo_magnon
 end module m_mlo_magnon

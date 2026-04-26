@@ -16,7 +16,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   use m_zmel_old,only: drvmelp3
   use m_ftox
   use m_readqg,only: readqg0
-  use m_readeigen,only:readcphiw
+  use m_wan_wfs,only:readcphiw
   use m_keyvalue,only: getkeyvalue
   use m_read_bzdata,only: wklm
   use m_mlo_wfs, only: get_cphi_cmlo, cmlo_init

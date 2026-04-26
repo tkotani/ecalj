@@ -27,6 +27,7 @@ module m_mpiio !MPI-IO. Fixed length recl
   integer, parameter :: nfmax=1000, nsize=16 !maxsize of opened file by openm
   integer :: ierr, fhl(nfmax)=-9999, iff=0   ! -9999 is used as a missing value indicator
   integer(kind=mpi_offset_kind) :: recll(nfmax)
+  character(len=256) :: fnames(nfmax) = ''
 contains
   function openm(newunit, file, recl, comm) result(i) !recl=16*size
     integer ::      newunit,      recl, info, comm_in
@@ -41,6 +42,7 @@ contains
     if (iff > nfmax) call rx('m_mpiio:iff>nfmax')
     fhl(iff)   = newunit
     recll(iff) = recl !in byte
+    fnames(iff) = trim(file)
     i = 0
   end function openm
   function writem(unit, rec, data) result(i)
@@ -113,6 +115,7 @@ contains
     integer :: i, ifx
     ifx = findloc(unit==fhl(1:iff), dim=1, value=.True.)
     fhl(ifx) = -9999
+    fnames(ifx) = ''
     call mpi_file_close(unit, ierr)
     i = 0
   end function closem
@@ -156,8 +159,8 @@ contains
     if (ifx <= 0) call rx('m_mpiio:writem_buf: unit not opened')
     nbytes = buf%pos - 1
     if (nbytes /= recll(ifx)) then
-      write(6,*) 'm_mpiio:writem_buf: buffer size mismatch:', nbytes, recll(ifx)
-      call rx('m_mpiio:writem_buf: buffer size /= recll')
+      write(6,*) 'm_mpiio:writem_buf: buffer size mismatch (file='//trim(fnames(ifx))//'):', nbytes, recll(ifx)
+      call rx('m_mpiio:writem_buf: buffer size /= recll (file='//trim(fnames(ifx))//')')
     end if
     offset = (rec-1)*recll(ifx)
     call MPI_File_write_at(fhl(ifx), offset, buf%bytes(1), nbytes, MPI_BYTE, status, ierr)
@@ -171,7 +174,10 @@ contains
     integer(mpi_offset_kind) :: offset
     integer :: status(MPI_STATUS_SIZE)
     ifx = findloc(unit == fhl(1:iff), dim=1, value=.true.)
-    if (ifx <= 0) call rx('m_mpiio:readm_buf: unit not opened')
+    if (ifx <= 0) then
+      write(6,*) 'm_mpiio:readm_buf: unit not opened, unit=', unit
+      call rx('m_mpiio:readm_buf: unit not opened')
+    end if
     nbytes = int(recll(ifx))
     if (.not. allocated(buf%bytes) .or. size(buf%bytes) /= nbytes) then
       if (allocated(buf%bytes)) deallocate(buf%bytes)

@@ -23,13 +23,15 @@ module m_mlo_ovlppair
   use m_read_ppovl, only: ppovlp, getppx2, ngcread
   use m_ftox
   implicit none
+  public :: init_build_ovlppair, build_ovlppair_q, get_ovlppair_q
+  private
   complex(8), allocatable :: ovlppair_t(:,:,:)   !! (npairmx_f, nnmlo, nnmlo) real-space overlap pairs
   integer :: npairmx_f = 0, nbas_f = 0
   real(8) :: plat_f(3,3)
   integer, allocatable :: npair_f(:,:)            !! (nbas_f, nbas_f)
   integer, allocatable :: nqwgt_f(:,:,:)          !! (npairmx_f, nbas_f, nbas_f)
   integer, allocatable :: nlat_f(:,:,:,:)         !! (3, npairmx_f, nbas_f, nbas_f)
-  public :: init_build_ovlppair, build_ovlppair_q, get_ovlppair_q
+  logical :: debug = .false.
 contains
   subroutine init_build_ovlppair(comm_in)
     integer, intent(in) :: comm_in
@@ -83,7 +85,7 @@ contains
         call set_nbb_zmel(npr)                 !set npr for zmel, E basis is not used for q=0
         call getppx2(q, get_ppovlp=.true.)     !set ppovlp
         if(ngc /= ngcread) call rx('ngc /= ngcread')
-        write(stdo,ftox) 'nbloch, ngc, npr', nbloch, ngc, npr, nbloch + ngc
+        if(debug) write(stdo,ftox) 'nbloch, ngc, npr', nbloch, ngc, npr, nbloch + ngc
 
         allocate(pbmovlp_inv(npr,npr), source=(0d0,0d0))
         forall(i=1:nbloch) pbmovlp_inv(i,i) = (1d0,0d0)
@@ -102,13 +104,15 @@ contains
         istat = zmm(pbmovlp_inv, zmelk, oinv_zmel, npr, nmlo**2, npr)
         istat = zmm(zmelk, oinv_zmel, ovlppair4, nmlo**2, nmlo**2, npr, opA=m_op_C)
 
-        ovlppair4 = reshape(ovlppair4, shape(ovlppair4), order=[3,4,2,1])
+        ! ovlppair4 = reshape(ovlppair4, shape(ovlppair4), order=[3,4,2,1]) !wrong evel < 0 
+        ovlppair4 = reshape(ovlppair4, shape(ovlppair4), order=[3,4,1,2])
+        ! ovlppair4 = reshape(ovlppair4, shape(ovlppair4), order=[1,2,3,4])
         istat = writem(ifile, rec=iq0i, data=ovlppair4(:,:,:,:))
         CheckOvlppairEigenvalue:block
           real(8) :: evl(nmlo**2)
           istat = zhev(ovlppair4, n=nmlo**2, evl=evl)
-          write(stdo,*) 'ovlpp at q max/min eigenvalue:', q, maxval(evl), minval(evl)
-          write(stdo,*)  evl
+          write(stdo,'(A,I4,3F8.4,3F12.6)') 'ovlpp at isp, q max/min/sum eigenvalue:', isp, q, maxval(evl), minval(evl), sum(evl)
+          ! write(stdo,*)  evl
         endblock CheckOvlppairEigenvalue
         deallocate(zmelk, ovlppair4, oinv_zmel, pbmovlp_inv)
       enddo IqLoop

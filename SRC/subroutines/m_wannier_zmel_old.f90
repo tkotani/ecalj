@@ -135,7 +135,7 @@ contains
        rmel, cmel, nbloch,noccx,nctot, &
        zmelt)
     use m_readqg,only: readqg
-    use m_readeigen,only:readgeigw
+    use m_wan_wfs, only:readgeigw
     use m_mlo_wfs, only: get_geig_cmlo, cmlo_init
     ! this is for Wanner (readeigW, drvmelp3)
     implicit none

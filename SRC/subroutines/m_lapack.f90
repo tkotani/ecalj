@@ -267,7 +267,7 @@ contains
     il_in = 1; iu_in = n
     if(present(il)) il_in = il
     if(present(iu)) iu_in = iu
-    thr_lo_in = 1d-8; if(present(thr_lo)) thr_lo_in = thr_lo
+    thr_lo_in = 1d-6; if(present(thr_lo)) thr_lo_in = thr_lo
     ! Step 1: Diagonalize B (copy so B is not modified)
     allocate(b_evec(ldb_in*n), b_evl(n))
     b_evec(1:ldb_in*n) = b(1:ldb_in*n)

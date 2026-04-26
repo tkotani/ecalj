@@ -133,7 +133,7 @@ contains
       ! enddo
       ! endif
       MLOLowdinOrthogonalization:if(cmdopt0('--mlo_ortho')) then
-         block
+        block
           use m_lapack, only: zhev => zhev_h
           complex(8) :: ovlm_mlo(ndimMTO,ndimMTO), evl_ovl_buf(ndimMTO,ndimMTO), sinv_half(ndimMTO, ndimMTO)
           real(8) :: eval(ndimMTO), einv_half

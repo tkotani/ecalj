@@ -20,15 +20,14 @@ subroutine uumatrix()
   use m_mpi,only: mpi__broadcast, mpi__root, mpi__size, mpi__rank, comm, mpi__allreducesum, mpi__reducesum
   use m_lgunit,only: m_lgunit_init, stdo
   use m_setqibz_lmfham,only: set_qibz, irotg
-  use m_mlo_ham, only: mlo_read_hma_rs => read_ham_rs, mlo_nwf => ndimMTO
-  use m_mlo_scrw, only: mlo_nnwf_init => nnwf_init, mlo_nnwf => nnwf
+  use m_mlo_ham, only: mlo_read_hma_rs => read_ham_rs, nmlo => ndimMTO
   use m_mlo_wfs, only: cmlo_init, get_geig_cmlo, get_cphi_cmlo
+  use m_wan_wfs, only: get_geig_wan, get_cphi_wan, Init_readeigen_mlw_noeval, nwf
   use m_mpiio, only: openm, writem, closem
   use m_lmfinit,only: m_lmfinit_init
   use m_lattic,only: m_lattic_init
   use m_mksym,only: m_mksym_init
   use m_mpitk, only: m_mpitk_init
-  use,intrinsic :: ieee_arithmetic
   use m_ftox
   implicit none
   integer:: i,ix,ngrpx ,is, nxx ,ibas ,ibas1, ngpmx, ifphi, nbas, nradmx, ncoremx, &
@@ -50,7 +49,8 @@ subroutine uumatrix()
   complex(8),allocatable :: geig1(:,:),geig2(:,:),cphi1(:,:),cphi2(:,:), uum(:,:,:), ppovl(:,:), ppj(:,:,:,:)
   complex(8) :: phaseatom
   logical :: cmdopt2, cmdopt0
-  logical :: use_bbvec_file, use_mlo, spinflip
+  logical :: use_bbvec_file, spinflip
+  integer :: nbasis
   complex(8), allocatable :: uumq(:,:,:,:)
   character(8) :: head(2:3,2)
   character(4) charnum4
@@ -81,7 +81,6 @@ subroutine uumatrix()
   call MPI__Broadcast(ixc)
   if(.not.(ixc == 2.or. ixc==3 .or. ixc==4))call rx('main_huumat_MPI: ixc error')
   use_bbvec_file = (ixc /= 4)
-  use_mlo         = (ixc == 4)
   spinflip      = (ixc == 4)
   call read_BZDATA()
   if (mpi__root) write(stdo,*)' ======== nqbz nqibz ngrp, nq0i, nq0i_=',nqbz,nqibz,ngrp, nq0i, nq0i_
@@ -140,21 +139,23 @@ subroutine uumatrix()
   call Readhamindex()
   call init_readeigen()   !Initialization for readeigen
   call init_readeigen2()
-  if(use_mlo) then
-    call mlo_read_hma_rs() !set nwf
-    call mlo_nnwf_init(nnwf_size_reduction=.true.)
+  nbasis = nband
+  if(cmdopt0('--dwnb=wan')) then
+    call Init_readeigen_mlw_noeval()
+    get_geig => get_geig_wan
+    get_cphi => get_cphi_wan
+    nbasis = nwf
+  elseif(cmdopt0('--dwnb=mlo')) then
+    call mlo_read_hma_rs() !set ndimMTO -> nmlo
     get_geig => get_geig_cmlo
     get_cphi => get_cphi_cmlo
     call cmlo_init()
+    nbasis = nmlo
   endif
   call readngmx('QGpsi',ngpmx) !max number of the set q+G
-  if(use_mlo) then
-    allocate(geig1(ngpmx*nspc,mlo_nwf),geig2(ngpmx*nspc,mlo_nwf))
-    allocate(cphi1(ndima*nspc,mlo_nwf),cphi2(ndima*nspc,mlo_nwf))
-  else
-    allocate(geig1 (ngpmx*nspc,nband),geig2(ngpmx*nspc,nband),eval1(nband),eval2(nband))
-    allocate(cphi1 (ndima*nspc,nband),cphi2(ndima*nspc,nband) )
-  endif
+  allocate(geig1(ngpmx*nspc,nbasis), geig2(ngpmx*nspc,nbasis))
+  allocate(cphi1(ndima*nspc,nbasis), cphi2(ndima*nspc,nbasis))
+  allocate(eval1(nband), eval2(nband))
 
   open(newunit=ifoc,file='@MNLA_CPHI')
   ldim2 = ndima
@@ -202,7 +203,7 @@ subroutine uumatrix()
     endblock Readbbvec
   else !bbv and nbb are not used
     iko_ixs(1:nspx) = 1
-    iko_fxs(1:nspx) = mlo_nwf
+    iko_fxs(1:nspx) = nbasis
   endif
 
   if(ixc ==2 .or. ixc == 3) then
@@ -308,7 +309,7 @@ subroutine uumatrix()
   deallocate(ppbrd, rprodx, phij, psij, rphiphi, cy, yl)
 
   if(allocated(uumq)) deallocate(uumq)
-  if(ixc == 4) allocate(uumq(mlo_nwf,mlo_nwf,nq0i_,nspx), source = (0d0,0d0))
+  if(ixc == 4) allocate(uumq(nbasis,nbasis,nq0i_,nspx), source = (0d0,0d0))
 
   iqbz4uum: do 1070 iqbz = 1,nqbz  !qibzonly need to be improved to balance load in ranks.
     if(mod(iqbz-1,mpi__size)/=mpi__rank) cycle !MPI
@@ -366,15 +367,13 @@ subroutine uumatrix()
         ngvecpf2(i,1:ngp2) = ngvecpf2(i,1:ngp2) + ndg2(i)
       enddo
       call mkppovl2(alat,plat,qbas, ngp1,ngvecpf1, ngp2,ngvecpf2, nbas,rmax,pos, ppovl) !--- ppovl= <P_{q1+G1}|P_{q2+G2}>
-      ispinloop2: do 1050 ispin=1,nspx !note that nspx=nsp/nspc where nspc=2 for lso=1 (nspc=1 for lso=0,2)
+      ispinloop2: do 1050 ispin=1, nspx !note that nspx=nsp/nspc where nspc=2 for lso=1 (nspc=1 for lso=0,2)
         ii = iko_ixs(ispin)
         ie = iko_fxs(ispin)
         cphi1 = get_cphi(q1,ispin) ! MT part of eigenfunctions
         cphi2 = get_cphi(q2, merge(3-ispin, ispin, spinflip))
         geig1 = get_geig(q1,ispin) ! IPW part of eigenfunctions
         geig2 = get_geig(q2, merge(3-ispin, ispin, spinflip))
-        eval1 = readeval(q1,ispin) !eigenvalue at q1
-        eval2 = readeval(q2,ispin)
         uum(:,:,ispin) = 0d0
         do ispc=1,nspc ! For lso=0 or 2,ispin=1,nsp. For lso=1, ispin=1 ispc=1,2 nspc=2 
           ioc=(ispc-1)*ndima
@@ -391,6 +390,8 @@ subroutine uumatrix()
         if(ixc==4) uumq(:,:,ibb,ispin) = uumq(:,:,ibb,ispin) + uum(:,:,ispin)
         if(ixc==4) cycle
         checkwirte: block
+          eval1 = readeval(q1,ispin) !eigenvalue at q1
+          eval2 = readeval(q2,ispin)
           do j1=ii,ie
             do j2=ii,ie !; do j2=j2min,j2max !checkwrite  !if(j1==j2)
               if(eval1(j1)>1d10.or.eval2(j2)>1d10) cycle ! see sugw.f90. padding by huge number
@@ -416,14 +417,17 @@ subroutine uumatrix()
       block
         character(64) :: datfile
         integer :: ifile(2), iq, ifile_handle, recl
-        recl = 16*mlo_nwf**2
+        complex(8) :: uumq_1d(nbasis*nbasis,nspin)
+        recl = 16*nbasis**2
         do iq=1, nq0i_
-          write(stdo,ftox) 'q, diag sum uumq(updw,dwup)/nwf:', q0i(:,iq), &
-          (sum([(uumq(i,i,iq,isp),i=1,mlo_nwf)])/dble(mlo_nwf),isp=1,nspin)
+          forall(isp=1:nspin) uumq_1d(:,isp) = reshape(uumq(1:nbasis,1:nbasis,iq,isp), shape=[nbasis*nbasis])
+          write(stdo,'(A,3f10.6,3x,8f12.6)') 'q, diag sum uumq(updw,dwup)/nwf:', q0i(:,iq), &
+          (sum([(uumq(i,i,iq,isp),i=1,nbasis)])/dble(nbasis),isp=1,nspin), &
+          dble(dot_product(uumq_1d(:,1),uumq_1d(:,1))), dble(dot_product(uumq_1d(:,2),uumq_1d(:,2)))
         enddo
         ! Info file (sequential): header + q-point list
         open(newunit=ifile_handle, file='__MLOFormFactorQ.info', form='unformatted', status='replace')
-        write(ifile_handle) mlo_nwf, nqbz, nspin, nq0i_
+        write(ifile_handle) nbasis, nqbz, nspin, nq0i_
         write(ifile_handle) q0i(:,1:nq0i_)
         close(ifile_handle)
         ! Data files (direct-access): one record per q-point

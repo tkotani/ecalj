@@ -302,7 +302,7 @@ contains
     endblock SetWFs
     if(debug) write(stdo,ftox)'zmel_init gpu',nbloch,ngc,nm1,nm2,nqtot
     ZmelBlock:block
-      if(ipr) call writemem('    m_zmel000: zmelsize='//ftof(int(nbloch+ngc,8)*(nm2-nm1+1)*nqtot*16/kk**3)//' GB')
+      if(debug) call writemem('    m_zmel000: zmelsize='//ftof(int(nbloch+ngc,8)*(nm2-nm1+1)*nqtot*16/kk**3)//' GB')
       allocate(zmelt(1:nbloch+ngc,nm1:nm2,1:nqtot))
       !$acc kernels
       zmelt(1:nbloch+ngc,nm1:nm2,1:nqtot) = czero
@@ -397,7 +397,7 @@ contains
       endblock ZmelWithinMT
       deallocate(cphiq)
       if (allocated(cphim)) deallocate(cphim)
-      if(ipr) call writemem('    m_zmel111(notildeM) ngc= '//trim(charext(ngc))//' nm1v nm2v= '//trim(charext(nm1v))//' '//trim(charext(nm2v)))
+      if(debug) call writemem('    m_zmel111(notildeM) ngc= '//trim(charext(ngc))//' nm1v nm2v= '//trim(charext(nm1v))//' '//trim(charext(nm2v)))
       flush(stdo)
       ZmelIPWif: if(ngc/=0 .and. nm1v<=nm2v) then
         ZmelIPW:block  !> Mattrix elements <Plane psi |psi> from interstitial plane wave.
