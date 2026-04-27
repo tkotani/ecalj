@@ -57,7 +57,6 @@ subroutine mlo_magnon() bind(C)
   real(8), allocatable :: qibz_dos(:,:), rho(:,:,:), sz(:), sz_site(:)
   real(8), allocatable :: freq(:)
   complex(8), allocatable :: ovlppair(:,:), formfactor(:)
-  integer :: nmode
 
   hartree = 2d0*rydberg()
   geteta = cmdopt0('--geteta')
@@ -210,10 +209,8 @@ subroutine mlo_magnon() bind(C)
     endblock
   endif ReadEta
 
-  nmode = nwf/2
   SetTemporaryFiles: if(.not. geteta) then
-    istat = openm(newunit=file_spec, file='__MagSpec',     recl=(nw-nw_i+1)*8*(nmode*2+1)*2) !real
-    istat = openm(newunit=file_spec_site, file='__MagSpecSite', recl=(nw-nw_i+1)*16*nsite**2*2) !complex
+    istat = openm(newunit=file_spec, file='__MagSpec',     recl=(nw-nw_i+1)*8*(nsite+1)*2) !real
     istat = openm(newunit=file_dms, file='__DynMagSuscep', recl=(nw-nw_i+1)*16*2) !complex
     ! istat = openm(newunit=file_jq_site, file='__JqSite', recl=nsite*(nw-nw_i+1)*16)
     ! istat = openm(newunit=file_jq_full, file='__JqFull', recl=nnwf*(nw-nw_i+1)*16)
@@ -410,9 +407,8 @@ subroutine mlo_magnon() bind(C)
     ovlppair = get_ovlppair_q(q, isf, spinflip=.true.)
     OmegaLoop: block
       complex(8) :: wkmat(nnwf,nnwf), rmat(nnwf,nnwf), &
-                    chi0(nnwf,nnwf), r_dms(nw_i:nw), k_dms(nw_i:nw), OchiH(nnwf,nnwf), &
-                    weight_site(nnwf,nsite), k_spec_site(nw_i:nw,nsite,nsite), r_spec_site(nw_i:nw,nsite,nsite) !,jq_w_site(nw_i:nw,1:nsite),  
-      real(8) :: evl(nnwf), k_spec(nw_i:nw), r_spec(nw_i:nw), k_spec_mode(nmode,2,nw_i:nw), r_spec_mode(nmode,2,nw_i:nw)
+                    chi0(nnwf,nnwf), r_dms(nw_i:nw), k_dms(nw_i:nw), OchiH(nnwf,nnwf), weight_site(nnwf,nsite)
+      real(8) :: evl(nnwf), k_spec(nw_i:nw), r_spec(nw_i:nw), k_spec_site(nw_i:nw,nsite), r_spec_site(nw_i:nw,nsite)
       integer, allocatable, target :: idx_sort(:)
       integer :: inwf, isite, jsite
       iwloop: do iw = nw_i, nw
@@ -424,37 +420,31 @@ subroutine mlo_magnon() bind(C)
 
         !Retarted
         chi0(:,:) = merge(conjg(transpose(chi0)), chi0, iw <0)
+        rmat(:,:) = merge(conjg(transpose(rmat)), rmat, iw <0)
+
+        ! k_tr(iw) = trace2(matmul(chi0, transpose(ovlppair)))
+        ! r_tr(iw) = trace2(matmul(rmat, transpose(ovlppair)))
         OchiH = matmul(chi0, transpose(ovlppair))
         OchiH = -(OchiH- transpose(conjg(OchiH)))*0.5d0*img
         istat = zhev(OchiH, n=nnwf, evl=evl)
         k_spec(iw) = sum(evl(1:nnwf))
-        idx_sort = sort_index(evl)
-        k_spec_mode(1:nmode,1,iw) = [(evl(idx_sort(i)), i=1, nmode)]
-        k_spec_mode(1:nmode,2,iw) = [(evl(idx_sort(i)), i=nnwf-nmode+1,nnwf)]
         do concurrent(i=1:nnwf, isite=1:nsite)
           weight_site(i,isite) = sum(pack(OchiH(:,i), mask=(pair_site(:,1)==isite)))
         enddo
-        do concurrent(isite=1:nsite, jsite=1:nsite)
-          k_spec_site(iw,isite,jsite) = sum(weight_site(:,isite)*evl(:)*conjg(weight_site(:,jsite)))
+        do concurrent(isite=1:nsite)
+          k_spec_site(iw,isite) = dble(sum(weight_site(:,isite)*evl(:)*conjg(weight_site(:,isite))))
         enddo
 
-        rmat(:,:) = merge(conjg(transpose(rmat)), rmat, iw <0)
         OchiH = matmul(rmat, transpose(ovlppair))
         OchiH = -(OchiH- transpose(conjg(OchiH)))*0.5d0*img
         istat = zhev(OchiH, n=nnwf, evl=evl)
         r_spec(iw) = sum(evl(1:nnwf))
-        idx_sort = sort_index(evl)
-        r_spec_mode(1:nmode,1,iw) = [(evl(idx_sort(i)), i=1, nmode)]
-        r_spec_mode(1:nmode,2,iw) = [(evl(idx_sort(i)), i=nnwf-nmode+1,nnwf)]
         do concurrent(i=1:nnwf, isite=1:nsite)
           weight_site(i,isite) = sum(pack(OchiH(:,i), mask=(pair_site(:,1)==isite)))
         enddo
-        do concurrent(isite=1:nsite, jsite=1:nsite)
-          r_spec_site(iw,isite,jsite) = sum(weight_site(:,isite)*evl(:)*conjg(weight_site(:,jsite)))
+        do concurrent(isite=1:nsite)
+          r_spec_site(iw,isite) = dble(sum(weight_site(:,isite)*evl(:)*conjg(weight_site(:,isite))))
         enddo
-
-        ! k_tr(iw) = trace2(matmul(chi0, transpose(ovlppair)))
-        ! r_tr(iw) = trace2(matmul(rmat, transpose(ovlppair)))
 
         k_dms(iw) = dot_product(formfactor, matmul(chi0, formfactor))
         r_dms(iw) = dot_product(formfactor, matmul(rmat, formfactor))
@@ -468,17 +458,9 @@ subroutine mlo_magnon() bind(C)
 
       CalcJqSite:block
         use m_intg, only: intg_pade_nonuniform
-        ! real(8) :: sz_kmat(nsite), sz_rmat(nsite), correction_factor
-        ! integer :: isite, isite1, isite2
         write(stdo,ftox) 'q Int ev SK/pi, Int ev SR/pi:',q, &
            intg_pade_nonuniform(freq, k_spec(nw_i:nw))/pi, intg_pade_nonuniform(freq, r_spec(nw_i:nw))/pi ,&
-           ! intg_pade_nonuniform(freq, imag(k_tr(nw_i:nw)))/pi, intg_pade_nonuniform(freq, imag(r_tr(nw_i:nw)))/pi, &
            intg_pade_nonuniform(freq, imag(k_dms(nw_i:nw)))/pi, intg_pade_nonuniform(freq, imag(r_dms(nw_i:nw)))/pi
-        ! do isite = 1, nsite
-        !   sz_kmat(isite) = -intg_pade_nonuniform(freq, imag(kmat_site(isite,isite,nw_i:nw)))/pi
-        !   sz_rmat(isite) = -intg_pade_nonuniform(freq, imag(rmat_site(isite,isite,nw_i:nw)))/pi
-        !   write(stdo,ftox) 'Site q Int K/pi, Int R/pi:',q, isite, sz_kmat(isite), sz_rmat(isite), trace(ovlppair)
-        ! enddo
         ! do iw = nw_i, nw
         !   istat = zminv(rmat_site(:,:,iw), n=nsite)
         !   do concurrent(isite1=1:nsite,isite2=1:nsite)
@@ -490,19 +472,14 @@ subroutine mlo_magnon() bind(C)
 
       SaveBufferFile:block
         type(mpiio_buf) :: buf_dms, buf_spec,buf_spec_site
-        ! istat = writem(file_jq_full, rec=iq, data=jq_w_full(nw_i:nw,1:nnwf))
-        ! istat = writem(file_jq_site, rec=iq, data=jq_w_site(nw_i:nw,1:nsite))
         call buf_put(buf_dms, k_dms)
         call buf_put(buf_dms, r_dms)
         istat = writem_buf(file_dms, rec=iq, buf=buf_dms)
         call buf_put(buf_spec, k_spec)
-        call buf_put(buf_spec, k_spec_mode)
         call buf_put(buf_spec, r_spec)
-        call buf_put(buf_spec, r_spec_mode)
+        call buf_put(buf_spec, k_spec_site)
+        call buf_put(buf_spec, r_spec_site)
         istat = writem_buf(file_spec, rec=iq, buf=buf_spec)
-        call buf_put(buf_spec_site, k_spec_site)
-        call buf_put(buf_spec_site, r_spec_site)
-        istat = writem_buf(file_spec_site, rec=iq, buf=buf_spec_site)
       endblock SaveBufferFile
     endblock OmegaLoop
 
@@ -560,15 +537,14 @@ subroutine mlo_magnon() bind(C)
     block
       use m_read_bzdata, only: epslgroup
       integer :: epslgroup_old
-      integer :: file_spec_out, file_spec_site_out, file_k_spec_mode_out, file_r_spec_mode_out
+      integer :: file_spec_out, file_spec_site_out
       character(3) :: charnum3
       real(8) :: q_old(3), q_position, dq, omega, www
       real(8), parameter :: jq_cut_min =  1d-3, jq_cut_max=1
       integer :: idx_min, idx_max, isite, jsite
       integer, allocatable, target :: idx_sort(:)
-      complex(8) :: r_dms(nw_i:nw), k_dms(nw_i:nw), &
-                    k_spec_site(nw_i:nw,nsite,nsite), r_spec_site(nw_i:nw,nsite,nsite)
-      real(8) :: k_spec(nw_i:nw), r_spec(nw_i:nw), k_spec_mode(nmode,2,nw_i:nw), r_spec_mode(nmode,2,nw_i:nw)
+      complex(8) :: r_dms(nw_i:nw), k_dms(nw_i:nw)
+      real(8) :: k_spec(nw_i:nw), r_spec(nw_i:nw), k_spec_site(nw_i:nw,nsite), r_spec_site(nw_i:nw,nsite)
       epslgroup_old = -1 !epslgroup starts from 1
       q_old(:) = qibze(:,1)
       q_position = 0d0
@@ -578,20 +554,12 @@ subroutine mlo_magnon() bind(C)
           if(any(q_old(:) /= q(:))) q_old(:) = q(:) + ([0.05d0, 0d0, 0d0])
           open(newunit=file_spec_out, file='MagSpec.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
           open(newunit=file_spec_site_out, file='MagSpecSite.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
-          open(newunit=file_k_spec_mode_out, file='MagSpecKMode.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
-          open(newunit=file_r_spec_mode_out, file='MagSpecRMode.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
-          ! open(newunit=file_jq_site_out, file='JqSite.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
         endif
         ReadBufferFile:block
           type(mpiio_buf) :: buf
-          ! istat = readm(file_jq_site, rec=iq, data=jq_w_site(:,:))
-          ! istat = readm(file_jq_full, rec=iq, data=jq_w_full(:,:))
           istat = readm_buf(file_spec, rec=iq, buf=buf)
           call buf_get(buf, k_spec)
-          call buf_get(buf, k_spec_mode)
           call buf_get(buf, r_spec)
-          call buf_get(buf, r_spec_mode)
-          istat = readm_buf(file_spec_site, rec=iq, buf=buf)
           call buf_get(buf, k_spec_site)
           call buf_get(buf, r_spec_site)
           istat = readm_buf(file_dms, rec=iq, buf=buf)
@@ -602,8 +570,6 @@ subroutine mlo_magnon() bind(C)
         q_position = q_position + dq
         k_spec = k_spec/hartree
         r_spec = r_spec/hartree
-        k_spec_mode = k_spec_mode/hartree
-        r_spec_mode = r_spec_mode/hartree
         k_spec_site = k_spec_site/hartree
         r_spec_site = r_spec_site/hartree
         k_dms = k_dms/hartree
@@ -612,24 +578,15 @@ subroutine mlo_magnon() bind(C)
           www = merge(-freq_r(-iw),freq_r(iw),iw<0)
           omega = www*hartree
           write(file_spec_out, "(4f9.5,e14.6,8e17.9)") q(1:3), q_position, omega, k_spec(iw), r_spec(iw), k_dms(iw), r_dms(iw)
-          ! write(file_jq_site_out, "(4f9.5,e14.6,20e17.9)") q(1:3), q_position, omega, ((jq_w_site(iw,idx_sort(i))*hartree),i=1,nsite)
-          ! idx_sort = sort_index(abs(jq_w_full(iw,:)))
-          ! idx_min = lower_bound(abs(jq_w_full(iw,:)), jq_cut_min, idx_sort)
-          ! idx_max = upper_bound(abs(jq_w_full(iw,:)), jq_cut_max, idx_sort)
-          write(file_k_spec_mode_out, "(4f9.5,e14.6,81e17.9)") q(1:3), q_position, omega, k_spec(iw), k_spec_mode(:,:,iw)
-          write(file_r_spec_mode_out, "(4f9.5,e14.6,81e17.9)") q(1:3), q_position, omega, r_spec(iw), r_spec_mode(:,:,iw)
         enddo
         do isite = 1, nsite
-          do jsite = 1, nsite
-            do iw = nw_i, nw
-              write(file_spec_site_out, "(2I4,4f9.5,e14.6,4e17.9)") isite, jsite, q(1:3), q_position, omega, k_spec_site(iw,isite,jsite), r_spec_site(iw,isite,jsite)
-            enddo
+          do iw = nw_i, nw
+            www = merge(-freq_r(-iw),freq_r(iw),iw<0)
+            omega = www*hartree
+            write(file_spec_site_out, "(I4,4f9.5,e14.6,2e17.9)") isite, q(1:3), q_position, omega, k_spec_site(iw,isite), r_spec_site(iw,isite)
           enddo
         enddo
-        ! write(file_jq_site_out, *)
         write(file_spec_out, *)
-        write(file_k_spec_mode_out, *)
-        write(file_r_spec_mode_out, *)
         write(file_spec_site_out, *)
         epslgroup_old = epslgroup(iq)
         q_old = q(:)

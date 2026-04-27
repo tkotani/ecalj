@@ -64,7 +64,7 @@ contains
     complex(8) :: geig_cmlo(ngpmx*nspc,nmlo), geig(ngpmx*nspc,nband), cmlo_ik_is(nband,nmlo)
     time_reversal_search = .false.
     call iqindx2_(q, iq)
-    if(iq == 0) time_reversal_search = .true.
+    if(iq < 1) time_reversal_search = .true.
     if(time_reversal_search) then
       geig = conjg(readgeigf(-q, isp, mpi_mode, comm))
       cmlo_ik_is = conjg(get_cmlo(-q, isp))
@@ -85,7 +85,7 @@ contains
     complex(8) :: cphi_cmlo(ndima*nspc,nmlo), cphi(ndima*nspc,nband), cmlo_ik_is(nband,nmlo)
     time_reversal_search = .false.
     call iqindx2_(q, iq)
-    if(iq == 0) time_reversal_search = .true.
+    if(iq < 1) time_reversal_search = .true.
     if(time_reversal_search) then
       cphi = conjg(readcphif(-q, isp, mpi_mode, comm))
       cmlo_ik_is = conjg(get_cmlo(-q, isp))

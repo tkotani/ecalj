@@ -33,7 +33,10 @@ def calc_mlo_uovlpq(args, extra_args):
     run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"qg4gw", args=["--job=2", *extra_args]), stdout="lqg4gw02_uovlp") #make __BZDATA.DOS
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf", args=[target, "--jobgw=1", "--skipbstruxinit", "--mlo", *options]), stdout="llmfgw01_uovlp")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo", args=[target, "--mlo", *options]), stdout="lmlo")
-    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"huumat_MPI", args=[target, "--mlo", *options]), stdin_str="4", stdout="luumat")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"huumat_MPI", args=[target, "--dwnb=mlo", *options]), stdin_str="4", stdout="luumat")
+
+    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"hbasfp0", args=["--job=0", *options]), stdout="lbas")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hmlo_ovlppair", args=[target,  *options]), stdout="lovlppair")
 
 def cal_mlo_vw(args, extra_args):
     cluster = args.cluster
@@ -57,7 +60,7 @@ def cal_mlo_vw(args, extra_args):
 
     print("OK! Generation of W finished.")
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(
         prog='magnon',
         description=(
@@ -74,8 +77,10 @@ if __name__ == "__main__":
     parser.add_argument("-c", "--cluster", help="cluster name", default="default", type=str)
     parser.add_argument("-np",        help='Number of MPI cores for lmf', default=8, type=int)
     parser.add_argument("--Wtype",    help='Wtype: up, down, up_down, or, down_up', default='down_up', type=str)
-    parser.add_argument("--skip_vw",  help='Skip generation of MLWF and W', action='store_true')
-    parser.add_argument("--stop_vw",  help='Stop at generation of MLWF', action='store_true')
+    parser.add_argument("--skip_vw",   help='Skip generation of MLWF and W', action='store_true')
+    parser.add_argument("--stop_vw",   help='Stop after generation of MLWF and W', action='store_true')
+    parser.add_argument("--skip_ovlp", help='Skip uovlpq calculation', action='store_true')
+    parser.add_argument("--stop_ovlp", help='Stop after uovlpq calculation', action='store_true')
     parser.add_argument("--dos",      help='carry out dos calculation', action='store_true')
     parser.add_argument("-d", "--dir", help="execution directory (default: current directory)", default=".", type=str)
     args, extra_args = parser.parse_known_args()
@@ -84,8 +89,14 @@ if __name__ == "__main__":
         if not args.skip_vw:
             cal_mlo_vw(args, extra_args)
             move_files('stdout*', dest_dir='STDOUT')
-
-        if not args.stop_vw:
+        if args.stop_vw:
+            return
+        if not args.skip_ovlp:
             calc_mlo_uovlpq(args, extra_args)
-            cal_mlo_magnon(args, extra_args)
-            move_files('stdout*', dest_dir='STDOUT')
+        if args.stop_ovlp:
+            return
+        cal_mlo_magnon(args, extra_args)
+        move_files('stdout*', dest_dir='STDOUT')
+
+if __name__ == "__main__":
+    main()

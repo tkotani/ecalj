@@ -103,10 +103,20 @@ contains
         allocate(oinv_zmel(npr,nmlo,nmlo))
         istat = zmm(pbmovlp_inv, zmelk, oinv_zmel, npr, nmlo**2, npr)
         istat = zmm(zmelk, oinv_zmel, ovlppair4, nmlo**2, nmlo**2, npr, opA=m_op_C)
-
-        ! ovlppair4 = reshape(ovlppair4, shape(ovlppair4), order=[3,4,2,1]) !wrong evel < 0 
-        ovlppair4 = reshape(ovlppair4, shape(ovlppair4), order=[3,4,1,2])
-        ! ovlppair4 = reshape(ovlppair4, shape(ovlppair4), order=[1,2,3,4])
+        ReformOvlpPairOrder:block
+          integer :: j, k, l
+          complex(8) :: ovlppair4_buf(nmlo,nmlo,nmlo,nmlo)
+          ovlppair4_buf = ovlppair4
+          do i = 1, nmlo
+            do j = 1, nmlo
+              do k = 1, nmlo
+                do l = 1, nmlo
+                  ovlppair4(i,j,k,l) = ovlppair4_buf(j,i,l,k)
+                enddo
+              enddo
+            enddo 
+          enddo
+        endblock ReformOvlpPairOrder
         istat = writem(ifile, rec=iq0i, data=ovlppair4(:,:,:,:))
         CheckOvlppairEigenvalue:block
           real(8) :: evl(nmlo**2)

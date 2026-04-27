@@ -12,7 +12,7 @@ def cal_mlo(args, extra_args):
     target = args.extension
     mpi_size = args.np
     cluster = args.cluster
-    remove_files("HamiltonianPMT.*")
+    remove_files("__HamiltonianPMT")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
                                args=[target, "--writeham", "--mkprocar", "--noinv", "--mlo", *extra_args]),
             stdout="lwriteham")
