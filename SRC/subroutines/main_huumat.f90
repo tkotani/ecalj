@@ -81,7 +81,7 @@ subroutine uumatrix()
   call MPI__Broadcast(ixc)
   if(.not.(ixc == 2.or. ixc==3 .or. ixc==4))call rx('main_huumat_MPI: ixc error')
   use_bbvec_file = (ixc /= 4)
-  spinflip      = (ixc == 4)
+  spinflip       = (ixc == 4)
   call read_BZDATA()
   if (mpi__root) write(stdo,*)' ======== nqbz nqibz ngrp, nq0i, nq0i_=',nqbz,nqibz,ngrp, nq0i, nq0i_
   call genallcf_v3(incwfx=0) !readin condition. use ForX0 for core in GWIN !  call Readhbe()    !Read dimensions of h,hb
@@ -168,11 +168,11 @@ subroutine uumatrix()
   close(ifoc)
   if(mpi__root) then
     if(ixc==4) then
-    write(stdo,*) ' Used k number in Q0P =', nq0i_
-    write(stdo,"(i3,2x, 3f14.6)" )(i,q0i(1:3,i),i=1,nq0i_)
+      write(stdo,*) ' Used k number in Q0P =', nq0i_
+      write(stdo,"(i3,2x, 3f14.6)" )(i,q0i(1:3,i),i=1,nq0i_)
     else
-    write(stdo,*) ' Used k number in Q0P =', nq0i
-    write(stdo,"(i3,2x, 3f14.6)" )(i,q0i(1:3,i),i=1,nq0i)
+      write(stdo,*) ' Used k number in Q0P =', nq0i
+      write(stdo,"(i3,2x, 3f14.6)" )(i,q0i(1:3,i),i=1,nq0i)
     endif
   endif
 
@@ -202,6 +202,16 @@ subroutine uumatrix()
       close(ifbb)
     endblock Readbbvec
   else !bbv and nbb are not used
+    block
+      logical :: has_gamma
+      has_gamma = any(all(q0i(:,:)==0d0, dim=1))
+      nbb = nq0i_
+      allocate(bbv, source=q0i(1:3,1:nq0i_))
+      if(.not.has_gamma) then
+        nbb = nq0i_ + 1
+        bbv = reshape(bbv, shape=[3,nbb], pad=[0d0])
+      endif
+    endblock
     iko_ixs(1:nspx) = 1
     iko_fxs(1:nspx) = nbasis
   endif
@@ -245,7 +255,7 @@ subroutine uumatrix()
   ibbloop0: do ibb = 1,nbbloop
     if(ixc == 2) dq=-bbv(:,ibb)  !q1(:) = qbz(:,iqbz)        !q2(:) = qbz(:,iqbz) + bbv(:,ibb)
     if(ixc == 3) dq=-q0i(:,ibb) !q1(:) = qbz(:,iqbz)         !q2(:) = qbz(:,iqbz) + q0i(:,ibb)
-    if(ixc == 4) dq=-q0i(:,ibb) !q1(:) = qbz(:,iqbz)         !q2(:) = qbz(:,iqbz) + qbz(:,ibb)
+    if(ixc == 4) dq=-bbv(:,ibb) !q1(:) = qbz(:,iqbz)         !q2(:) = qbz(:,iqbz) + qbz(:,ibb)
     if(sum(abs(dq))<1d-8) dq=(/1d-10,0d0,0d0/)
     if(cmdopt0('--q2q1test')) dq=1d-10
     absdq = sqrt(sum(dq**2))
@@ -309,7 +319,7 @@ subroutine uumatrix()
   deallocate(ppbrd, rprodx, phij, psij, rphiphi, cy, yl)
 
   if(allocated(uumq)) deallocate(uumq)
-  if(ixc == 4) allocate(uumq(nbasis,nbasis,nq0i_,nspx), source = (0d0,0d0))
+  if(ixc == 4) allocate(uumq(nbasis,nbasis,nbb,nspx), source = (0d0,0d0))
 
   iqbz4uum: do 1070 iqbz = 1,nqbz  !qibzonly need to be improved to balance load in ranks.
     if(mod(iqbz-1,mpi__size)/=mpi__rank) cycle !MPI
@@ -351,9 +361,12 @@ subroutine uumatrix()
           enddo
           cycle !we may quit ibbloop here
         endif
-      elseif (ixc == 3 .or. ixc == 4) then
+      elseif (ixc == 3) then
         q1(:) = qbz(:,iqbz)
         q2(:) = qbz(:,iqbz) + q0i(:,ibb)
+      elseif (ixc == 4) then
+        q1(:) = qbz(:,iqbz)
+        q2(:) = qbz(:,iqbz) + bbv(:,ibb)
       endif
       call readqg0('QGpsi',q1,  q1x, ngp1) ! write(stdo,"('uuuiq q1 q1x=',3f9.4,3x,3f9.4,i5)") q1,q1x,ngp1
       call readqg0('QGpsi',q2,  q2x, ngp2) ! write(stdo,"('uuuiq q2 q2x=',3f9.4,3x,3f9.4,i5)") q2,q2x,ngp2
@@ -419,7 +432,7 @@ subroutine uumatrix()
         integer :: ifile(2), iq, ifile_handle, recl
         complex(8) :: uumq_1d(nbasis*nbasis,nspin)
         recl = 16*nbasis**2
-        do iq=1, nq0i_
+        do iq=1, nbb
           forall(isp=1:nspin) uumq_1d(:,isp) = reshape(uumq(1:nbasis,1:nbasis,iq,isp), shape=[nbasis*nbasis])
           write(stdo,'(A,3f10.6,3x,8f12.6)') 'q, diag sum uumq(updw,dwup)/nwf:', q0i(:,iq), &
           (sum([(uumq(i,i,iq,isp),i=1,nbasis)])/dble(nbasis),isp=1,nspin), &
@@ -427,8 +440,8 @@ subroutine uumatrix()
         enddo
         ! Info file (sequential): header + q-point list
         open(newunit=ifile_handle, file='__MLOFormFactorQ.info', form='unformatted', status='replace')
-        write(ifile_handle) nbasis, nqbz, nspin, nq0i_
-        write(ifile_handle) q0i(:,1:nq0i_)
+        write(ifile_handle) nbasis, nqbz, nspin, nbb
+        write(ifile_handle) bbv(:,1:nbb)
         close(ifile_handle)
         ! Data files (direct-access): one record per q-point
         do isp=1, nspin
@@ -437,7 +450,7 @@ subroutine uumatrix()
           if(isp==1 .and. spinflip) datfile = '__MLOFormFactorQ.UPDN'
           if(isp==2 .and. spinflip) datfile = '__MLOFormFactorQ.DNUP'
           open(newunit=ifile_handle, file=trim(datfile), form='unformatted', access='direct', recl=recl, status='replace')
-          do iq=1, nq0i_
+          do iq=1, nbb
             write(ifile_handle, rec=iq) uumq(:,:,iq,isp)
           enddo
           close(ifile_handle)

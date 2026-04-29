@@ -3,7 +3,7 @@ import argparse
 import contextlib
 from pathlib import Path
 from run_cmd import run_cmd, MPIParams
-from utils import move_files
+from utils import move_files, remove_files
 
 EXEC_DIR = Path(__file__).resolve().parent
 
@@ -20,8 +20,10 @@ def cal_mlo_magnon(args, extra_args):
                                    args=["--job=40001", option_dos, "--avoidgamma", *extra_args]), stdout="lqg4gw02dos") #make __BZDATA.DOS
     run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"qg4gw",
                                args=["--job=40001", *extra_args]), stdout="lqg4gw02")
-    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo_magnon",
-                               args=["--geteta", f"--Wtype={args.Wtype}", option_dos, *extra_args]), stdout="lmlo_magnon_eta")
+    remove_files("__EtaMagnon*")
+    if not args.skip_geteta:
+        run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo_magnon",
+                                   args=["--geteta", f"--Wtype={args.Wtype}", option_dos, *extra_args]), stdout="lmlo_magnon_eta")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo_magnon",
                                args=[f"--Wtype={args.Wtype}", option_dos, *extra_args]), stdout="lmlo_magnon")
 
@@ -33,8 +35,7 @@ def calc_mlo_uovlpq(args, extra_args):
     run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"qg4gw", args=["--job=2", *extra_args]), stdout="lqg4gw02_uovlp") #make __BZDATA.DOS
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf", args=[target, "--jobgw=1", "--skipbstruxinit", "--mlo", *options]), stdout="llmfgw01_uovlp")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo", args=[target, "--mlo", *options]), stdout="lmlo")
-    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"huumat_MPI", args=[target, "--dwnb=mlo", *options]), stdin_str="4", stdout="luumat")
-
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"huumat_MPI", args=[target, "--dwnb=mlo", *options]), stdin_str="4", stdout="lformfactor")
     run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"hbasfp0", args=["--job=0", *options]), stdout="lbas")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hmlo_ovlppair", args=[target,  *options]), stdout="lovlppair")
 
@@ -80,6 +81,7 @@ def main():
     parser.add_argument("--skip_vw",   help='Skip generation of MLWF and W', action='store_true')
     parser.add_argument("--stop_vw",   help='Stop after generation of MLWF and W', action='store_true')
     parser.add_argument("--skip_ovlp", help='Skip uovlpq calculation', action='store_true')
+    parser.add_argument("--skip_geteta", help='Skip uovlpq calculation', action='store_true', default=False)
     parser.add_argument("--stop_ovlp", help='Stop after uovlpq calculation', action='store_true')
     parser.add_argument("--dos",      help='carry out dos calculation', action='store_true')
     parser.add_argument("-d", "--dir", help="execution directory (default: current directory)", default=".", type=str)

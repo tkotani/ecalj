@@ -33,8 +33,7 @@ subroutine mlo_magnon() bind(C)
   !!  dpsion5: calculate real part by the Hilbert transformation from the Im part
   !!  xxx removed--> eibz means extented irreducible brillowin zone scheme by C.Friedlich. (not so efficient in cases).
   integer:: iwf, jwf, inwf, jnwf
-  ! integer:: file_jq_site, file_jq_full
-  integer :: file_spec, file_spec_site, file_dms
+  integer :: file_magnon
   integer:: iqxini, iqxend, i, iw, iq, kx, istat, nqcalc
   real(8):: q(3), rydberg, hartree, delta, eta, delta_dos, freq_ratio, freq_dw
   real(8), allocatable:: qibze(:,:)
@@ -56,7 +55,6 @@ subroutine mlo_magnon() bind(C)
   integer, allocatable :: idteti_dos(:,:)
   real(8), allocatable :: qibz_dos(:,:), rho(:,:,:), sz(:), sz_site(:)
   real(8), allocatable :: freq(:)
-  complex(8), allocatable :: ovlppair(:,:), formfactor(:)
 
   hartree = 2d0*rydberg()
   geteta = cmdopt0('--geteta')
@@ -175,7 +173,7 @@ subroutine mlo_magnon() bind(C)
     call read_ham_rs()
     call nnwf_init(nnwf_size_reduction) !set nnwf ~ # of RiRj (onsite_approx = .true.), RiR'j (onsite_approx = .flase. ), wan_pair_index
     if(ipr) write(stdo,ftox) '# nwf, nnwf:', nwf, nnwf
-    Wtype = 'up' !options: up, down, up_down, down_up
+    Wtype = 'down_up' !options: up, down, up_down, down_up
     if(cmdopt2('--Wtype=', opts)) Wtype = trim(opts)
     call scrw_init(w_onsite_dddd, Wtype=Wtype, enforce_Hermite=.false.) !set scrw
   endblock SetMLOAndScreendCoulombData
@@ -210,16 +208,12 @@ subroutine mlo_magnon() bind(C)
   endif ReadEta
 
   SetTemporaryFiles: if(.not. geteta) then
-    istat = openm(newunit=file_spec, file='__MagSpec',     recl=(nw-nw_i+1)*8*(nsite+1)*2) !real
-    istat = openm(newunit=file_dms, file='__DynMagSuscep', recl=(nw-nw_i+1)*16*2) !complex
-    ! istat = openm(newunit=file_jq_site, file='__JqSite', recl=nsite*(nw-nw_i+1)*16)
-    ! istat = openm(newunit=file_jq_full, file='__JqFull', recl=nnwf*(nw-nw_i+1)*16)
+    istat = openm(newunit=file_magnon, file='__MagnonData', recl=(nw-nw_i+1)*(16*(nsite*nsite+1)*2*2 + 8*(nsite+1)*2))
   endif SetTemporaryFiles
 
   allocate(imat(1:nnwf,1:nnwf),source=(0d0,0d0))
   forall(iwf=1:nnwf) imat(iwf,iwf) = 1d0 + img*delta !check the sign
   allocate(kmat(1:nnwf,1:nnwf,(1-npm)*nwhis:nwhis))
-  allocate(ovlppair(nnwf,nnwf), formfactor(nnwf))
   BIGiqloop: do iq = iqxini,iqxend
     if(.NOT. MPI__task(iq)) cycle BIGiqloop
     q = qibze(:,iq)
@@ -403,14 +397,22 @@ subroutine mlo_magnon() bind(C)
       exit Bigiqloop
     endif IfGetEta
 
-    formfactor = get_formfactor_q(q, isf, spinflip=.true.)
-    ovlppair = get_ovlppair_q(q, isf, spinflip=.true.)
     OmegaLoop: block
-      complex(8) :: wkmat(nnwf,nnwf), rmat(nnwf,nnwf), &
-                    chi0(nnwf,nnwf), r_dms(nw_i:nw), k_dms(nw_i:nw), OchiH(nnwf,nnwf), weight_site(nnwf,nsite)
+      complex(8) :: wkmat(nnwf,nnwf), rmat(nnwf,nnwf), chi0(nnwf,nnwf), OchiH(nnwf,nnwf), weight_site(nnwf,nsite)
       real(8) :: evl(nnwf), k_spec(nw_i:nw), r_spec(nw_i:nw), k_spec_site(nw_i:nw,nsite), r_spec_site(nw_i:nw,nsite)
+      complex(8) :: k_chi(nw_i:nw), r_chi(nw_i:nw), k_chi_site(nw_i:nw,nsite,nsite), r_chi_site(nw_i:nw,nsite,nsite)
+      complex(8) :: k_dms(nw_i:nw), r_dms(nw_i:nw), k_dms_site(nw_i:nw,nsite,nsite), r_dms_site(nw_i:nw,nsite,nsite)
+      complex(8) :: ovlppair(nnwf,nnwf), formfactor(nnwf), ovlp(nnwf), ovlp_site(nnwf, nsite), formfactor_site(nnwf, nsite)
       integer, allocatable, target :: idx_sort(:)
-      integer :: inwf, isite, jsite
+      integer :: isite, jsite
+
+      formfactor = conjg(get_formfactor_q(q, isf, spinflip=.true.))
+      ovlp = conjg(get_formfactor_q([0d0,0d0,0d0], isf, spinflip=.true.))
+      ovlppair = get_ovlppair_q(q, isf, spinflip=.true.)
+      do isite=1, nsite
+        ovlp_site(:,isite) = merge(ovlp, (0d0,0d0), pair_site(:,1) == isite)
+        formfactor_site(:,isite) = merge(formfactor, (0d0,0d0), pair_site(:,1) == isite)
+      enddo
       iwloop: do iw = nw_i, nw
         chi0(:,:) = zxq(:,:,iw)
         istat = zmm(scrw, chi0(:,:), wkmat, nnwf, nnwf, nnwf, alpha=dcmplx(eta,0d0)) !wkmat = etaWK
@@ -422,172 +424,202 @@ subroutine mlo_magnon() bind(C)
         chi0(:,:) = merge(conjg(transpose(chi0)), chi0, iw <0)
         rmat(:,:) = merge(conjg(transpose(rmat)), rmat, iw <0)
 
-        ! k_tr(iw) = trace2(matmul(chi0, transpose(ovlppair)))
-        ! r_tr(iw) = trace2(matmul(rmat, transpose(ovlppair)))
-        OchiH = matmul(chi0, transpose(ovlppair))
+        !overlap
+        k_chi(iw) = dot_product(ovlp, matmul(chi0, ovlp))
+        r_chi(iw) = dot_product(ovlp, matmul(rmat, ovlp))
+        do concurrent(isite=1:nsite, jsite=1:nsite)
+          k_chi_site(iw,isite,jsite) = dot_product(ovlp_site(:,isite), matmul(chi0, ovlp_site(:,jsite)))
+          r_chi_site(iw,isite,jsite) = dot_product(ovlp_site(:,isite), matmul(rmat, ovlp_site(:,jsite)))
+        enddo
+
+        !formfactor
+        k_dms(iw) = dot_product(formfactor, matmul(chi0, formfactor))
+        r_dms(iw) = dot_product(formfactor, matmul(rmat, formfactor))
+        do concurrent(isite=1:nsite, jsite=1:nsite)
+          k_dms_site(iw,isite,jsite) = dot_product(formfactor_site(:,isite), matmul(chi0, formfactor_site(:,jsite)))
+          r_dms_site(iw,isite,jsite) = dot_product(formfactor_site(:,isite), matmul(rmat, formfactor_site(:,jsite)))
+        enddo
+
+        !mode
+        OchiH = matmul(chi0, ovlppair)
         OchiH = -(OchiH- transpose(conjg(OchiH)))*0.5d0*img
         istat = zhev(OchiH, n=nnwf, evl=evl)
         k_spec(iw) = sum(evl(1:nnwf))
         do concurrent(i=1:nnwf, isite=1:nsite)
           weight_site(i,isite) = sum(pack(OchiH(:,i), mask=(pair_site(:,1)==isite)))
         enddo
-        do concurrent(isite=1:nsite)
-          k_spec_site(iw,isite) = dble(sum(weight_site(:,isite)*evl(:)*conjg(weight_site(:,isite))))
+        do isite = 1, nsite
+          do i = 1, nnwf
+            k_spec_site(iw,isite) = k_spec_site(iw,isite) + evl(i)*sum(abs(OchiH(:,i))**2, mask=(pair_site(:,1)==isite))
+          enddo
         enddo
 
-        OchiH = matmul(rmat, transpose(ovlppair))
+        OchiH = matmul(rmat, ovlppair)
         OchiH = -(OchiH- transpose(conjg(OchiH)))*0.5d0*img
         istat = zhev(OchiH, n=nnwf, evl=evl)
         r_spec(iw) = sum(evl(1:nnwf))
         do concurrent(i=1:nnwf, isite=1:nsite)
           weight_site(i,isite) = sum(pack(OchiH(:,i), mask=(pair_site(:,1)==isite)))
         enddo
-        do concurrent(isite=1:nsite)
-          r_spec_site(iw,isite) = dble(sum(weight_site(:,isite)*evl(:)*conjg(weight_site(:,isite))))
+        do isite = 1, nsite
+          do i = 1, nnwf
+            r_spec_site(iw,isite) = r_spec_site(iw,isite) + evl(i)*sum(abs(OchiH(:,i))**2, mask=(pair_site(:,1)==isite))
+          enddo
         enddo
-
-        k_dms(iw) = dot_product(formfactor, matmul(chi0, formfactor))
-        r_dms(iw) = dot_product(formfactor, matmul(rmat, formfactor))
-
-        ! istat = zminv(rmat(:,:), n=nnwf)
-        ! do concurrent(inwf=1:nnwf,jnwf=1:nnwf)
-        !   rmat(inwf,jnwf) = sz(inwf)*rmat(inwf,jnwf)
-        ! enddo
-        ! istat = zgev(rmat(:,:), n=nnwf, evl=jq_w_full(iw,:))
       enddo iwloop
 
-      CalcJqSite:block
-        use m_intg, only: intg_pade_nonuniform
-        write(stdo,ftox) 'q Int ev SK/pi, Int ev SR/pi:',q, &
-           intg_pade_nonuniform(freq, k_spec(nw_i:nw))/pi, intg_pade_nonuniform(freq, r_spec(nw_i:nw))/pi ,&
-           intg_pade_nonuniform(freq, imag(k_dms(nw_i:nw)))/pi, intg_pade_nonuniform(freq, imag(r_dms(nw_i:nw)))/pi
-        ! do iw = nw_i, nw
-        !   istat = zminv(rmat_site(:,:,iw), n=nsite)
-        !   do concurrent(isite1=1:nsite,isite2=1:nsite)
-        !     rmat_site(isite1,isite2,iw) = sz_site(isite1)*rmat_site(isite1,isite2,iw)
-        !   enddo
-        !   istat = zgev(rmat_site(:,:,iw), n=nsite, evl=jq_w_site(iw,:))
-        ! enddo
-      endblock CalcJqSite
-
       SaveBufferFile:block
-        type(mpiio_buf) :: buf_dms, buf_spec,buf_spec_site
-        call buf_put(buf_dms, k_dms)
-        call buf_put(buf_dms, r_dms)
-        istat = writem_buf(file_dms, rec=iq, buf=buf_dms)
-        call buf_put(buf_spec, k_spec)
-        call buf_put(buf_spec, r_spec)
-        call buf_put(buf_spec, k_spec_site)
-        call buf_put(buf_spec, r_spec_site)
-        istat = writem_buf(file_spec, rec=iq, buf=buf_spec)
+        type(mpiio_buf) :: buf
+        call buf_put(buf, k_chi);      call buf_put(buf, r_chi)
+        call buf_put(buf, k_chi_site); call buf_put(buf, r_chi_site)
+        call buf_put(buf, k_dms);      call buf_put(buf, r_dms)
+        call buf_put(buf, k_dms_site); call buf_put(buf, r_dms_site)
+        call buf_put(buf, k_spec);     call buf_put(buf, r_spec)
+        call buf_put(buf, k_spec_site); call buf_put(buf, r_spec_site)
+        istat = writem_buf(file_magnon, rec=iq, buf=buf)
       endblock SaveBufferFile
     endblock OmegaLoop
 
     if(ipr) call writemem('mlo_magnon end iq='//trim(charext(iq)))
   enddo BIGiqloop
-  deallocate(formfactor, ovlppair)
 
   if(geteta) call rx0( ' OK! mlo_magnon get eta')
   call mpi_barrier(comm, istat)
 
   if(ipr) write(stdo,"('eta for 1-eta*WK:',f13.8)") eta
-  ReformatOutputFilesForDOS:if(mpi__root .and. calcdos) then
-    block
-      use m_bz_integ, only: ibz_integ
-      integer :: file_dos_out
-      real(8) :: dos_k_spec, dos_r_spec, dos_k_dms, dos_r_dms
-      real(8) :: k_dms_ibz(nqibz_dos,nw_i:nw), k_spec_ibz(nqibz_dos,nw_i:nw), &
-                 r_dms_ibz(nqibz_dos,nw_i:nw), r_spec_ibz(nqibz_dos,nw_i:nw)
-      real(8) :: www, omega, tetra_vol
-      integer :: tetra_nodes(4,nteti_dos), tetra_weight(nteti_dos)
-      open(newunit=file_dos_out, file='MagSpecDMS.dos', status='replace', form='formatted', action='write')
-      write(file_dos_out, '(A)')' # omega(eV) Real_Tr_R/eV Imag_Tr_R/eV !omega=0 is commented'
-      tetra_nodes(1:4,1:nteti_dos) = idteti_dos(1:4,1:nteti_dos)
-      tetra_weight(1:nteti_dos) = idteti_dos(0,1:nteti_dos)
-      do iq=1, nqcalc
-        ReadBufferFileDOS:block
-          type(mpiio_buf) :: buf
-          istat = readm_buf(file_spec, rec=iq, buf=buf)
-          call buf_get(buf, k_spec_ibz(iq,nw_i:nw))
-          call buf_get(buf, r_spec_ibz(iq,nw_i:nw))
-          istat = readm_buf(file_dms, rec=iq, buf=buf)
-          call buf_get(buf, k_dms_ibz(iq,nw_i:nw))
-          call buf_get(buf, r_dms_ibz(iq,nw_i:nw))
-        endblock ReadBufferFileDOS
-      enddo
-
-      tetra_vol = 1d0/ntetf_dos ! ntetf was =6*n1*n2*n3
-      do iw = nw_i, nw
-        dos_k_spec = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, k_spec_ibz(:,iw))
-        dos_r_spec = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, r_spec_ibz(:,iw))
-        dos_k_dms = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, k_dms_ibz(:,iw))
-        dos_r_dms = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, r_dms_ibz(:,iw))
-        www = merge(-freq_r(-iw),freq_r(iw),iw<0)
-        omega = www*hartree
-        if(iw==0) then
-          write(file_dos_out, "(A)", advance = "no") "#"
-        endif
-        write(file_dos_out, "(e14.6,4e17.9)") omega, dos_k_spec/hartree, dos_r_spec/hartree, dos_r_dms/hartree, dos_r_dms/hartree
-      enddo
-      close(file_dos_out)
-    endblock
-  endif ReformatOutputFilesForDOS
+  ! ReformatOutputFilesForDOS:if(mpi__root .and. calcdos) then
+  !   block
+  !     use m_bz_integ, only: ibz_integ
+  !     integer :: file_dos_out
+  !     real(8) :: dos_k_spec, dos_r_spec, dos_k_dms, dos_r_dms
+  !     ! real(8) :: k_dms_ibz(nqibz_dos,nw_i:nw), k_spec_ibz(nqibz_dos,nw_i:nw), &
+  !     !            r_dms_ibz(nqibz_dos,nw_i:nw), r_spec_ibz(nqibz_dos,nw_i:nw)
+  !     complex(8) :: k_dms_ibz(nqibz_dos,nw_i:nw), k_spec_ibz(nqibz_dos,nw_i:nw), &
+  !                r_dms_ibz(nqibz_dos,nw_i:nw), r_spec_ibz(nqibz_dos,nw_i:nw)
+  !     real(8) :: www, omega, tetra_vol
+  !     integer :: tetra_nodes(4,nteti_dos), tetra_weight(nteti_dos)
+  !     open(newunit=file_dos_out, file='MagSpecDMS.dos', status='replace', form='formatted', action='write')
+  !     write(file_dos_out, '(A)')' # omega(eV) Real_Tr_R/eV Imag_Tr_R/eV !omega=0 is commented'
+  !     tetra_nodes(1:4,1:nteti_dos) = idteti_dos(1:4,1:nteti_dos)
+  !     tetra_weight(1:nteti_dos) = idteti_dos(0,1:nteti_dos)
+  !     do iq=1, nqcalc
+  !       ReadBufferFileDOS:block
+  !         type(mpiio_buf) :: buf
+  !         istat = readm_buf(file_spec, rec=iq, buf=buf)
+  !         call buf_get(buf, k_spec_ibz(iq,nw_i:nw))
+  !         call buf_get(buf, r_spec_ibz(iq,nw_i:nw))
+  !         istat = readm_buf(file_dms, rec=iq, buf=buf)
+  !         call buf_get(buf, k_dms_ibz(iq,nw_i:nw))
+  !         call buf_get(buf, r_dms_ibz(iq,nw_i:nw))
+  !       endblock ReadBufferFileDOS
+  !     enddo
+  !
+  !     tetra_vol = 1d0/ntetf_dos ! ntetf was =6*n1*n2*n3
+  !     do iw = nw_i, nw
+  !       dos_k_spec = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, k_spec_ibz(:,iw))
+  !       dos_r_spec = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, r_spec_ibz(:,iw))
+  !       dos_k_dms = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, k_dms_ibz(:,iw))
+  !       dos_r_dms = ibz_integ(tetra_vol, nteti_dos, tetra_nodes, tetra_weight, qibz_dos, nqibz_dos, r_dms_ibz(:,iw))
+  !       www = merge(-freq_r(-iw),freq_r(iw),iw<0)
+  !       omega = www*hartree
+  !       if(iw==0) then
+  !         write(file_dos_out, "(A)", advance = "no") "#"
+  !       endif
+  !       write(file_dos_out, "(e14.6,4e17.9)") omega, dos_k_spec/hartree, dos_r_spec/hartree, dos_r_dms/hartree, dos_r_dms/hartree
+  !     enddo
+  !     close(file_dos_out)
+  !   endblock
+  ! endif ReformatOutputFilesForDOS
 
   ReformatOutputFiles:if(mpi__root .and. .not.calcdos) then
     block
       use m_read_bzdata, only: epslgroup
+      use m_intg, only: intg_pade_nonuniform
       integer :: epslgroup_old
-      integer :: file_spec_out, file_spec_site_out
+      integer :: out_file_spec, out_file_chi, out_file_dms, out_file_spec_site(nsite), out_file_chi_site(nsite), out_file_dms_site(nsite), out_file_inv_chi
       character(3) :: charnum3
       real(8) :: q_old(3), q_position, dq, omega, www
-      real(8), parameter :: jq_cut_min =  1d-3, jq_cut_max=1
       integer :: idx_min, idx_max, isite, jsite
       integer, allocatable, target :: idx_sort(:)
-      complex(8) :: r_dms(nw_i:nw), k_dms(nw_i:nw)
+      complex(8) :: r_dms(nw_i:nw), k_dms(nw_i:nw), k_dms_site(nw_i:nw,nsite,nsite), r_dms_site(nw_i:nw,nsite,nsite)
+      complex(8) :: k_chi(nw_i:nw), r_chi(nw_i:nw), k_chi_site(nw_i:nw,nsite,nsite), r_chi_site(nw_i:nw,nsite,nsite)
       real(8) :: k_spec(nw_i:nw), r_spec(nw_i:nw), k_spec_site(nw_i:nw,nsite), r_spec_site(nw_i:nw,nsite)
       epslgroup_old = -1 !epslgroup starts from 1
       q_old(:) = qibze(:,1)
       q_position = 0d0
+      write(stdo,'(A)') 'sum-check q: chi_k, chi_r, mds_k, mds_r, mode_k, mode_r'
       do iq=1, nqcalc
         q(:) = qibze(:,iq)
-        if(epslgroup(iq) /= epslgroup_old) then
+
+        OpenOutFiles:if(epslgroup(iq) /= epslgroup_old) then
           if(any(q_old(:) /= q(:))) q_old(:) = q(:) + ([0.05d0, 0d0, 0d0])
-          open(newunit=file_spec_out, file='MagSpec.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
-          open(newunit=file_spec_site_out, file='MagSpecSite.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
-        endif
+          open(newunit=out_file_spec, file='MagSpec.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
+          open(newunit=out_file_chi, file='MagSuscep.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
+          open(newunit=out_file_dms, file='DynMagSuscep.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
+          open(newunit=out_file_inv_chi, file='InvMagSuscep.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
+          do isite = 1, nsite
+            open(newunit=out_file_spec_site(isite), file='MagSpecSite'//charnum3(isite)//'.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
+            open(newunit=out_file_chi_site(isite), file='MagSuscepSite'//charnum3(isite)//'.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
+            open(newunit=out_file_dms_site(isite), file='DynMagSuscepSite'//charnum3(isite)//'.syml'//charnum3(epslgroup(iq)), status='replace', form='formatted', action='write')
+          enddo
+        endif OpenOutFiles
+
         ReadBufferFile:block
           type(mpiio_buf) :: buf
-          istat = readm_buf(file_spec, rec=iq, buf=buf)
-          call buf_get(buf, k_spec)
-          call buf_get(buf, r_spec)
-          call buf_get(buf, k_spec_site)
-          call buf_get(buf, r_spec_site)
-          istat = readm_buf(file_dms, rec=iq, buf=buf)
-          call buf_get(buf, k_dms)
-          call buf_get(buf, r_dms)
+          istat = readm_buf(file_magnon, rec=iq, buf=buf)
+          call buf_get(buf, k_chi);      call buf_get(buf, r_chi)
+          call buf_get(buf, k_chi_site); call buf_get(buf, r_chi_site)
+          call buf_get(buf, k_dms);      call buf_get(buf, r_dms)
+          call buf_get(buf, k_dms_site); call buf_get(buf, r_dms_site)
+          call buf_get(buf, k_spec);     call buf_get(buf, r_spec)
+          call buf_get(buf, k_spec_site); call buf_get(buf, r_spec_site)
         endblock ReadBufferFile
+
         dq = sqrt(sum((q(:)-q_old(:))**2))
         q_position = q_position + dq
-        k_spec = k_spec/hartree
-        r_spec = r_spec/hartree
-        k_spec_site = k_spec_site/hartree
-        r_spec_site = r_spec_site/hartree
-        k_dms = k_dms/hartree
-        r_dms = r_dms/hartree
-        do iw = nw_i, nw
-          www = merge(-freq_r(-iw),freq_r(iw),iw<0)
-          omega = www*hartree
-          write(file_spec_out, "(4f9.5,e14.6,8e17.9)") q(1:3), q_position, omega, k_spec(iw), r_spec(iw), k_dms(iw), r_dms(iw)
-        enddo
-        do isite = 1, nsite
+        write(stdo,'(3f8.5,6f18.5)') q,&
+           intg_pade_nonuniform(freq, imag(k_chi(nw_i:nw)))/pi, intg_pade_nonuniform(freq, imag(r_chi(nw_i:nw)))/pi ,&
+           intg_pade_nonuniform(freq, imag(k_dms(nw_i:nw)))/pi, intg_pade_nonuniform(freq, imag(r_dms(nw_i:nw)))/pi ,&
+           intg_pade_nonuniform(freq, k_spec(nw_i:nw))/pi, intg_pade_nonuniform(freq, r_spec(nw_i:nw))/pi
+
+        GetLLGparameters:block
+          complex(8) :: r_inv_site(nsite,nsite)
+          do iw = nw_i, nw
+            r_inv_site(:,:) = r_chi_site(iw,:,:)
+            istat = zminv(r_inv_site, n=nsite)
+            www = merge(-freq_r(-iw),freq_r(iw),iw<0)
+            omega = www*hartree
+            write(out_file_inv_chi, "(4f9.5,e14.6,8e17.9)") q(1:3), q_position, omega, r_inv_site(:,:)
+          enddo
+          write(out_file_inv_chi, *)
+        endblock GetLLGparameters
+
+        WriteOutFiles:block
           do iw = nw_i, nw
             www = merge(-freq_r(-iw),freq_r(iw),iw<0)
             omega = www*hartree
-            write(file_spec_site_out, "(I4,4f9.5,e14.6,2e17.9)") isite, q(1:3), q_position, omega, k_spec_site(iw,isite), r_spec_site(iw,isite)
+            write(out_file_spec, "(4f9.5,e14.6,2e17.9)") q(1:3), q_position, omega, k_spec(iw)/hartree, r_spec(iw)/hartree
+            write(out_file_chi,  "(4f9.5,e14.6,4e17.9)") q(1:3), q_position, omega, k_chi(iw)/hartree,  r_chi(iw)/hartree
+            write(out_file_dms,  "(4f9.5,e14.6,4e17.9)") q(1:3), q_position, omega, k_dms(iw)/hartree,  r_dms(iw)/hartree
+            do isite = 1, nsite
+              write(out_file_spec_site(isite), "(4f9.5,e14.6,2e17.9)") q(1:3), q_position, omega, &
+                k_spec_site(iw,isite)/hartree, r_spec_site(iw,isite)/hartree
+              write(out_file_chi_site(isite),  "(4f9.5,e14.6,4e17.9)") q(1:3), q_position, omega, &
+                k_chi_site(iw,isite,isite)/hartree, r_chi_site(iw,isite,isite)/hartree
+              write(out_file_dms_site(isite),  "(4f9.5,e14.6,4e17.9)") q(1:3), q_position, omega, &
+                k_dms_site(iw,isite,isite)/hartree, r_dms_site(iw,isite,isite)/hartree
+            enddo
           enddo
-        enddo
-        write(file_spec_out, *)
-        write(file_spec_site_out, *)
+          write(out_file_spec, *)
+          write(out_file_chi, *)
+          write(out_file_dms, *)
+          do isite = 1, nsite
+            write(out_file_spec_site(isite), *)
+            write(out_file_chi_site(isite), *)
+            write(out_file_dms_site(isite), *)
+          enddo
+        endblock WriteOutFiles
+
         epslgroup_old = epslgroup(iq)
         q_old = q(:)
       enddo
