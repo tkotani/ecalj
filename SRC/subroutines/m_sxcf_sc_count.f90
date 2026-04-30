@@ -60,6 +60,18 @@ contains
     integer,allocatable::ndiv(:),nstatei(:,:),nstatee(:,:)
     integer:: job
     if(npm==2) call rx('sxcf_fal2_sc: npm=2 need to be examined')
+    ! Re-runnable: in combined mode (hgw_combined) sxcf_scz_count is invoked
+    ! twice (ixc=1 for Sx, ixc=2 for Sc). Dealloc all module arrays first.
+    if(allocated(irkip))      deallocate(irkip)
+    if(allocated(kxc))        deallocate(kxc)
+    if(allocated(nstateMax))  deallocate(nstateMax)
+    if(allocated(nstti))      deallocate(nstti)
+    if(allocated(nstte))      deallocate(nstte)
+    if(allocated(nstte2))     deallocate(nstte2)
+    if(allocated(nwxic))      deallocate(nwxic)
+    if(allocated(nwxc))       deallocate(nwxc)
+    if(allocated(icountini))  deallocate(icountini)
+    if(allocated(icountend))  deallocate(icountend)
     if(ixc==3.and.nctot==0)then
        allocate( irkip(nspinmx,nqibz,ngrp,nqibz),source=0 ) ! nrkip is weight correspoinding to irkip for a node.
        return

@@ -163,6 +163,10 @@ contains
     izz=0
     call stopwatch_init(t_sw_zmel, 'zmel')
     call stopwatch_init(t_sw_xc, 'ex')
+    if (allocated(zsecall)) then
+       !$acc exit data delete(zsecall)
+       deallocate(zsecall)
+    endif
     allocate(zsecall(ntq,ntq,nqibz,nspinmx))
     !$acc enter data create(zsecall)
     !$acc kernels
@@ -300,6 +304,10 @@ contains
     call stopwatch_init(t_sw_cr, 'ec realaxis integral')
     call stopwatch_init(t_sw_ci, 'ec imagaxis integral')
     call stopwatch_init(t_sw_setwv, 'read wv')
+    if (allocated(zsecall)) then
+       !$acc exit data delete(zsecall)
+       deallocate(zsecall)
+    endif
     allocate(zsecall(ntq,ntq,nqibz,nspinmx))
     !$acc enter data create(zsecall)
     !$acc kernels

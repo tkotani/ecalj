@@ -1,11 +1,13 @@
 !> Calculate Im(chi0) and do Hilbert transformation.
 module m_hrcxq
   contains
-subroutine hrcxq(do_correlation)
-  !  Output: rxcq.iq files. (and SEC files if do_correlation=.true.)
+subroutine hrcxq(do_correlation, do_exchange)
+  !  Output: rxcq.iq files. (and SEX/SEC files when do_exchange/do_correlation=.true.)
   !  If do_correlation is present and .true., after the WV phase, we run the
   !  hsfp0_sc(--job=2) correlation phase in-process. This eliminates the need
   !  for separate hsfp0_sc invocation reading WV files from disk.
+  !  If do_exchange is also true, we run hsfp0_sc(--job=1) for the valence
+  !  exchange Sx in the same process, saving another MPI bootstrap.
   !   After set up a kind of enviromental variables, by calling module functions,
   !   we read tetrahedron weight via 'call X0kf_v4hz_init_read(iq,is)'.
   !   Then we calculate Im(chi0) by x0kf_v4hz.
@@ -42,7 +44,7 @@ subroutine hrcxq(do_correlation)
   use m_hsfp0_sc,only: hsfp0_sc
 !  use m_dpsion,only: dpsion5
   implicit none
-  logical, intent(in), optional :: do_correlation
+  logical, intent(in), optional :: do_correlation, do_exchange
   real(8),parameter:: pi = 4d0*datan(1d0),fourpi = 4d0*pi,sqfourpi= sqrt(fourpi)
   integer:: iq,kx,ixc,iqxini,iqxend,is,iw,ifwd,ngrpx,verbose,npr,nmbas,ifif
   integer:: i_red_npm,i_red_nwhis,ierr,ircxq,npmx
@@ -149,6 +151,12 @@ subroutine hrcxq(do_correlation)
   endblock GetEffectiveWVatGammaCell
   if(ipr) write(stdo,ftox) '--- end of hrcxq --- irank=',MPI__rank
   call cputid(0)
+  if(present(do_exchange)) then
+     if(do_exchange) then
+        if(ipr) write(stdo,ftox) ' hrcxq: starting in-process hsfp0_sc(--job=1) exchange phase'
+        call hsfp0_sc(skip_init=.true., skip_rx0=.true., ixc_in=1)
+     endif
+  endif
   if(present(do_correlation)) then
      if(do_correlation) then
         if(ipr) write(stdo,ftox) ' hrcxq: starting in-process hsfp0_sc(--job=2) correlation phase'
