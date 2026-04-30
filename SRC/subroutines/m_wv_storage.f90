@@ -56,6 +56,12 @@ module m_wv_storage
   public :: wv_close_iq_for_write
   public :: wv_open_iq_for_read, wv_close_iq_for_read
   public :: wv_put_real, wv_put_imag, wv_get_real, wv_get_imag
+  ! Modify mode: rank 0 only (e.g. m_w0w0i:modifyWV0). Plain Fortran read/write
+  ! on a status='old' unit, no MPI coordination.
+  public :: wv_open_iq_real_for_modify, wv_open_iq_imag_for_modify
+  public :: wv_modify_get_real, wv_modify_put_real
+  public :: wv_modify_get_imag, wv_modify_put_imag
+  public :: wv_close_iq_for_modify
 
 contains
 
@@ -167,5 +173,58 @@ contains
     complex(kp),      intent(out) :: zw(:,:)
     read(self%ifrcwi_unit, rec=iw) zw
   end subroutine wv_get_imag
+
+  ! ---- modify mode (rank-0 read+write, no MPI coordination) ----
+  subroutine wv_open_iq_real_for_modify(self, iq)
+    type(wv_storage), intent(inout) :: self
+    integer, intent(in) :: iq
+    character(10) :: i2char
+    self%cur_iq = iq
+    open(newunit=self%ifrcw_unit, file='__WVR.'//i2char(iq), &
+         form='unformatted', status='old', access='direct', recl=self%mreclx)
+  end subroutine wv_open_iq_real_for_modify
+
+  subroutine wv_open_iq_imag_for_modify(self, iq)
+    type(wv_storage), intent(inout) :: self
+    integer, intent(in) :: iq
+    character(10) :: i2char
+    self%cur_iq = iq
+    open(newunit=self%ifrcwi_unit, file='__WVI.'//i2char(iq), &
+         form='unformatted', status='old', access='direct', recl=self%mreclx)
+  end subroutine wv_open_iq_imag_for_modify
+
+  subroutine wv_modify_get_real(self, iw, zw)
+    type(wv_storage), intent(in) :: self
+    integer, intent(in) :: iw
+    complex(kp), intent(out) :: zw(:,:)
+    read(self%ifrcw_unit, rec=iw - self%nw_i + 1) zw
+  end subroutine wv_modify_get_real
+
+  subroutine wv_modify_put_real(self, iw, zw)
+    type(wv_storage), intent(in) :: self
+    integer, intent(in) :: iw
+    complex(kp), intent(in) :: zw(:,:)
+    write(self%ifrcw_unit, rec=iw - self%nw_i + 1) zw
+  end subroutine wv_modify_put_real
+
+  subroutine wv_modify_get_imag(self, iw, zw)
+    type(wv_storage), intent(in) :: self
+    integer, intent(in) :: iw
+    complex(kp), intent(out) :: zw(:,:)
+    read(self%ifrcwi_unit, rec=iw) zw
+  end subroutine wv_modify_get_imag
+
+  subroutine wv_modify_put_imag(self, iw, zw)
+    type(wv_storage), intent(in) :: self
+    integer, intent(in) :: iw
+    complex(kp), intent(in) :: zw(:,:)
+    write(self%ifrcwi_unit, rec=iw) zw
+  end subroutine wv_modify_put_imag
+
+  subroutine wv_close_iq_for_modify(self)
+    type(wv_storage), intent(inout) :: self
+    if (self%ifrcw_unit  > 0) then; close(self%ifrcw_unit);  self%ifrcw_unit  = -1; endif
+    if (self%ifrcwi_unit > 0) then; close(self%ifrcwi_unit); self%ifrcwi_unit = -1; endif
+  end subroutine wv_close_iq_for_modify
 
 end module m_wv_storage
