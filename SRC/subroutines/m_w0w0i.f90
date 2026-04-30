@@ -79,7 +79,6 @@ contains
     use m_freq,only: niw ,nw,nw_i
     use m_kind, only: kp => kindrcxq
     use m_readVcoud,only: Readvcoud, ngb, ReleaseZcousq, zcousq
-    use m_llw, only: wv_in_memory, wv_real_buf, wv_imag_buf
     ! Step WA2: file I/O on __WVR.1 / __WVI.1 (rank 0 read+modify+write) goes
     ! through m_wv_storage instead of bare open/read/write/close.
     use m_wv_storage, only: wv_storage, wv_init_file, &
@@ -121,23 +120,18 @@ contains
       call ReleaseZcousq()                  !Release zcousq used in set_m2e_prod_basis
       !$acc enter data create(x_m2e) copyin(m2e)
     endif
-    if (.not. wv_in_memory) call wv_init_file(wvs, mreclx=mreclx, comm=-1, nw_i=nw_i)
+    call wv_init_file(wvs, mreclx=mreclx, comm=-1, nw_i=nw_i)
     do ircw=1,2
        if (ircw==1) then
           nini=nw_i
           nend=nw
-          if (.not. wv_in_memory) call wv_open_iq_real_for_modify(wvs, iq)
+          call wv_open_iq_real_for_modify(wvs, iq)
        elseif(ircw==2) then;  nini=1;      nend=niw;
-          if (.not. wv_in_memory) call wv_open_iq_imag_for_modify(wvs, iq)
+          call wv_open_iq_imag_for_modify(wvs, iq)
        endif
        do iw=nini,nend
-          if (wv_in_memory) then
-             if (ircw==1) zw(:,:) = wv_real_buf(:,:,iw,iq)
-             if (ircw==2) zw(:,:) = wv_imag_buf(:,:,iw,iq)
-          else
-             if (ircw==1) call wv_modify_get_real(wvs, iw, zw)
-             if (ircw==2) call wv_modify_get_imag(wvs, iw, zw)
-          endif
+          if (ircw==1) call wv_modify_get_real(wvs, iw, zw)
+          if (ircw==2) call wv_modify_get_imag(wvs, iw, zw)
           if( iq==1 ) then
             if(ircw==1) zw(1,1) = cmplx(w0(iw),kind=kp)
             if(ircw==2) zw(1,1) = cmplx(w0i(iw),kind=kp)
@@ -148,15 +142,10 @@ contains
               !$acc end data
             endif
           endif
-          if (wv_in_memory) then
-             if (ircw==1) wv_real_buf(:,:,iw,iq) = zw(:,:)
-             if (ircw==2) wv_imag_buf(:,:,iw,iq) = zw(:,:)
-          else
-             if (ircw==1) call wv_modify_put_real(wvs, iw, zw)
-             if (ircw==2) call wv_modify_put_imag(wvs, iw, zw)
-          endif
+          if (ircw==1) call wv_modify_put_real(wvs, iw, zw)
+          if (ircw==2) call wv_modify_put_imag(wvs, iw, zw)
        enddo
-       if (.not. wv_in_memory) call wv_close_iq_for_modify(wvs)
+       call wv_close_iq_for_modify(wvs)
     enddo
     if(is_wc_m_basis) then
       !$acc exit data delete(x_m2e,m2e)

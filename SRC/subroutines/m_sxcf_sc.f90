@@ -77,7 +77,6 @@
 !! \endverbatim
 module m_sxcf_sc
   use m_readeigen, only: Readeval
-  use m_llw, only: wv_in_memory, wv_real_buf, wv_imag_buf
   ! Step WA3: file I/O on __WVR.<kx> / __WVI.<kx> for reading goes through m_wv_storage.
   use m_wv_storage, only: wv_storage, wv_init_file, &
        wv_open_iq_for_read, wv_close_iq_for_read, wv_get_real, wv_get_imag
@@ -306,7 +305,7 @@ contains
     integer :: kx
     type(sxcf_state) :: state
     type(wv_storage) :: wvs
-    if (.not. wv_in_memory) call wv_init_file(wvs, mreclx=mrecl, comm=-1, nw_i=nw_i)
+    call wv_init_file(wvs, mreclx=mrecl, comm=-1, nw_i=nw_i)
     call sxcf_correlation_init(state, ef, esmr, nspinmx)
     do kx = 1, nqibz
       call sxcf_correlation_step_kx(state, wvs, kx, ef, esmr, nspinmx)
@@ -395,7 +394,7 @@ contains
       complex(kind=kp), allocatable :: wv(:,:)
       real(8), parameter :: gb = 1000*1000*1000
       if (any(kx == kxc(:))) then
-        if (.not. wv_in_memory) call wv_open_iq_for_read(wvs, kx, want_real=.true., want_imag=.true.)
+        call wv_open_iq_for_read(wvs, kx, want_real=.true., want_imag=.true.)
         if (state%cws%keepwv) then
           if (ipr) write(stdo,ftox) 'save WVI and WVR on CPU and GPU (if GPU is used) memory. This requires sufficient memory'
           ! (MO) wvi & wvr are also allocated in CPU memory and are note needed for GPU calcualtion. but allocation of huge
@@ -417,18 +416,10 @@ contains
           allocate(wvi_upper(ngb*(ngb+1)/2, state%cws%wi_ini:state%cws%wi_fin))
           allocate(wvr_upper(ngb*(ngb+1)/2, state%cws%wr_ini:state%cws%wr_fin))
           do iw = state%cws%wi_ini, state%cws%wi_fin
-            if (wv_in_memory) then
-              if (iw == 0) then
-                wv(:,:) = wv_real_buf(:,:,iw,kx)
-              else
-                wv(:,:) = wv_imag_buf(:,:,iw,kx)
-              endif
+            if (iw == 0) then
+              call wv_get_real(wvs, iw, wv)
             else
-              if (iw == 0) then
-                call wv_get_real(wvs, iw, wv)
-              else
-                call wv_get_imag(wvs, iw, wv)
-              endif
+              call wv_get_imag(wvs, iw, wv)
             endif
             do tri_idx = 1, ngb*(ngb+1)/2
               i = idx_i(tri_idx)
@@ -437,11 +428,7 @@ contains
             enddo
           enddo
           do iw = state%cws%wr_ini, state%cws%wr_fin
-            if (wv_in_memory) then
-              wv(:,:) = wv_real_buf(:,:,iw,kx)
-            else
-              call wv_get_real(wvs, iw, wv)
-            endif
+            call wv_get_real(wvs, iw, wv)
             do tri_idx = 1, ngb*(ngb+1)/2
               i = idx_i(tri_idx)
               j = idx_j(tri_idx)
@@ -560,13 +547,8 @@ contains
                       enddo
                       !$acc end kernels
                     else
-                      if (wv_in_memory) then
-                        if (iw == 0) wv(:,:) = wv_real_buf(:,:,0,kx)
-                        if (iw > 0)  wv(:,:) = wv_imag_buf(:,:,iw,kx)
-                      else
-                        if (iw == 0) call wv_get_real(wvs, iw, wv)
-                        if (iw > 0)  call wv_get_imag(wvs, iw, wv)
-                      endif
+                      if (iw == 0) call wv_get_real(wvs, iw, wv)
+                      if (iw > 0)  call wv_get_imag(wvs, iw, wv)
                       wc(1:ngb,1:ngb) = wv(1:ngb,1:ngb)  !copy to GPU
                     endif
                     call stopwatch_pause(state%sw%setwv)
@@ -658,11 +640,7 @@ contains
                       enddo
                       !$acc end kernels
                     else
-                      if (wv_in_memory) then
-                        wv(:,:) = wv_real_buf(:,:,iw,kx)
-                      else
-                        call wv_get_real(wvs, iw, wv)
-                      endif
+                      call wv_get_real(wvs, iw, wv)
                       wc(1:ngb,1:ngb) = wv(1:ngb,1:ngb)  !copy to GPU
                       !$acc kernels
                       wc(:,:) = (wc(:,:) + transpose(conjg(wc(:,:))))*0.5_kp
@@ -738,7 +716,7 @@ contains
           !$acc exit data delete(idx_j)
           deallocate(idx_j)
         endif
-        if (.not. wv_in_memory) call wv_close_iq_for_read(wvs)
+        call wv_close_iq_for_read(wvs)
       endif
     end block ReleaseWV !  end subroutine releasewv
   end subroutine sxcf_correlation_step_kx
