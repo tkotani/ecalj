@@ -18,9 +18,10 @@ module m_llw
 #else
   use m_mpi, only: MPI__GatherXqw => MPI__GatherXqw
 #endif
-  ! Step WA1: file I/O for __WVR.<iq> / __WVI.<iq> goes through m_wv_storage.
-  ! The abstraction hides the openm/writem/closem (MPI-coordinated) calls.
-  use m_wv_storage, only: wv_storage, wv_init_file, &
+  ! Step WA1/WB.3a: file I/O for __WVR.<iq> / __WVI.<iq> goes through the
+  ! m_wv_storage singleton. The abstraction hides the openm/writem/closem
+  ! (MPI-coordinated) calls. comm is a per-open arg.
+  use m_wv_storage, only: wv_init_file, &
        wv_open_iq_real_for_write, wv_open_iq_imag_for_write, &
        wv_put_real, wv_put_imag, wv_close_iq_for_write
   use m_kind,only: kp => kindrcxq
@@ -59,7 +60,6 @@ contains
     logical::  localfieldcorrectionllw,cmdopt0
     logical,save:: init=.true.
     type(stopwatch) :: t_sw_matinv, t_sw_x_gather, t_sw_x_m2e_xf
-    type(wv_storage) :: wvs   ! Step WA1: encapsulates file I/O (openm/writem/closem)
     integer :: istat
 !    complex(8):: zxq(nmbas1,nmbas2,nw_i:nw)
     character(10):: i2char
@@ -99,8 +99,8 @@ contains
     if(ipr)write(stdo,ftox) 'size of zxq:',size(zxq,1), size(zxq,2), size(zxq,3)
     call flush(stdo)
     if(iq<=nqibz) then        !for mmmw
-      call wv_init_file(wvs, mreclx=mreclx, comm=comm_root_k, nw_i=nw_i)
-      call wv_open_iq_real_for_write(wvs, iq)
+      call wv_init_file(mreclx=mreclx, nw_i=nw_i)
+      call wv_open_iq_real_for_write(iq, comm=comm_root_k)
       ix = merge(1, 0, iq == 1)
       iwloop: do 1015 iwblock = nwmin, nwmax, mpi__size_b
          iw = iwblock + mpi__rank_b
@@ -174,12 +174,12 @@ contains
         endif EtoMBasisTransformation
         !$acc update host(zw)
         ! write(ifrcw, rec= iw-nw_i+1 ) zw !  WP = vsc-v
-        call wv_put_real(wvs, iw, zw(1:nblochpmx, 1:nblochpmx))
+        call wv_put_real(iw, zw(1:nblochpmx, 1:nblochpmx))
         frr= dsign(freq_r(abs(iw)),dble(iw))
         call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
 1015  enddo iwloop
       ! if(mpi__root_q) close(ifrcw)
-      call wv_close_iq_for_write(wvs)
+      call wv_close_iq_for_write()
     else  ! llw, Wing elements of W. See PRB81 125102
       iq0 = iq - nqibz
       vcou1 = fourpi/sum(q**2*tpioa**2) ! --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
@@ -266,7 +266,6 @@ contains
     intent(in)::       q,iq,     nmbas1,nmbas2 !zxqi can be twiced when nspin=2
     integer:: nmbas1,nmbas2,mreclx
     integer:: iq,iq0,nwmax,nwmin,iw,imode,ix,igb1,igb2,ifllwi
-    type(wv_storage) :: wvs   ! Step WA1: encapsulates file I/O for the imag axis
     real(8):: frr,q(3),vcou1
     logical::  localfieldcorrectionllw,cmdopt0
     logical, intent(in) :: is_x0_m_basis, is_wc_m_basis
@@ -302,8 +301,8 @@ contains
       !$acc end kernels
     endif
     if( iq<=nqibz ) then
-       call wv_init_file(wvs, mreclx=mreclx, comm=comm_root_k, nw_i=nw_i)
-       call wv_open_iq_imag_for_write(wvs, iq)
+       call wv_init_file(mreclx=mreclx, nw_i=nw_i)
+       call wv_open_iq_imag_for_write(iq, comm=comm_root_k)
        ix = merge(1, 0, iq == 1)
        do 1016 iwblock  = 1, niw, mpi__size_b
           iw = iwblock + mpi__rank_b
@@ -367,10 +366,10 @@ contains
           endif EtoMBasisTransformation
           !$acc update host(zw)
           ! write(ifrcwi, rec= iw)  zw !  WP = vsc-v
-          call wv_put_imag(wvs, iw, zw(1:nblochpmx, 1:nblochpmx))
+          call wv_put_imag(iw, zw(1:nblochpmx, 1:nblochpmx))
           call tr_chkwrite("freq_i iq iw imgomg trwv=",zw,iw,freq_i(iw),nblochpmx,nbloch,ngb,iq)
 1016   enddo
-       call wv_close_iq_for_write(wvs)
+       call wv_close_iq_for_write()
     else
        !! Full inversion to calculalte eps with LFC.
        iq0 = iq - nqibz

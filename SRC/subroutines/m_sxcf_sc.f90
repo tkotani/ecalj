@@ -77,8 +77,9 @@
 !! \endverbatim
 module m_sxcf_sc
   use m_readeigen, only: Readeval
-  ! Step WA3: file I/O on __WVR.<kx> / __WVI.<kx> for reading goes through m_wv_storage.
-  use m_wv_storage, only: wv_storage, wv_init_file, &
+  ! Step WA3/WB.3a: file I/O on __WVR.<kx> / __WVI.<kx> for reading goes through
+  ! the m_wv_storage singleton.
+  use m_wv_storage, only: wv_init_file, &
        wv_open_iq_for_read, wv_close_iq_for_read, wv_get_real, wv_get_imag
   use m_zmel, only: build_zmel, set_m2e_prod_basis, zmel, nbb !get_zmel_init =>
   use m_itq, only: ntq, nbandmx
@@ -292,7 +293,7 @@ contains
   ! Step WB.2a: sxcf_scz_correlation is now a thin wrapper around the
   ! _init / _step_kx / _finalize triple. The original behavior is preserved
   ! exactly: caller-side iteration over kx is identical to the old internal
-  ! kxloop, and state/wvs lifetimes match the old subroutine-local lifetimes.
+  ! kxloop, and state lifetime matches the old subroutine-local lifetime.
   !
   ! The split exists so that streaming flows (Phase 1-C) can interleave
   ! per-iq W(0,kx) production with sxcf consumption: caller produces W at kx,
@@ -304,11 +305,10 @@ contains
     real(8), intent(in) :: ef, esmr
     integer :: kx
     type(sxcf_state) :: state
-    type(wv_storage) :: wvs
-    call wv_init_file(wvs, mreclx=mrecl, comm=-1, nw_i=nw_i)
+    call wv_init_file(mreclx=mrecl, nw_i=nw_i)
     call sxcf_correlation_init(state, ef, esmr, nspinmx)
     do kx = 1, nqibz
-      call sxcf_correlation_step_kx(state, wvs, kx, ef, esmr, nspinmx)
+      call sxcf_correlation_step_kx(state, kx, ef, esmr, nspinmx)
     enddo
     call sxcf_correlation_finalize(state)
   end subroutine sxcf_scz_correlation
@@ -368,11 +368,10 @@ contains
 
   ! One iteration of the kxloop: read/load W(kx), then accumulate the
   ! correlation contribution into zsecall(:,:,ip,isp) for all (irot, ip, isp).
-  subroutine sxcf_correlation_step_kx(state, wvs, kx, ef, esmr, nspinmx)
+  subroutine sxcf_correlation_step_kx(state, kx, ef, esmr, nspinmx)
     use m_mpi, only: comm_w, ipr
     use m_gpu, only: use_gpu
     type(sxcf_state), intent(inout) :: state
-    type(wv_storage), intent(inout) :: wvs
     integer, intent(in) :: kx, nspinmx
     real(8), intent(in) :: ef, esmr
     integer :: icount, ns1, ns2, kr, nwxi, ns2r, nwx, izz, n_nttp, tri_idx
@@ -394,7 +393,7 @@ contains
       complex(kind=kp), allocatable :: wv(:,:)
       real(8), parameter :: gb = 1000*1000*1000
       if (any(kx == kxc(:))) then
-        call wv_open_iq_for_read(wvs, kx, want_real=.true., want_imag=.true.)
+        call wv_open_iq_for_read(kx, want_real=.true., want_imag=.true.)
         if (state%cws%keepwv) then
           if (ipr) write(stdo,ftox) 'save WVI and WVR on CPU and GPU (if GPU is used) memory. This requires sufficient memory'
           ! (MO) wvi & wvr are also allocated in CPU memory and are note needed for GPU calcualtion. but allocation of huge
@@ -417,9 +416,9 @@ contains
           allocate(wvr_upper(ngb*(ngb+1)/2, state%cws%wr_ini:state%cws%wr_fin))
           do iw = state%cws%wi_ini, state%cws%wi_fin
             if (iw == 0) then
-              call wv_get_real(wvs, iw, wv)
+              call wv_get_real(iw, wv)
             else
-              call wv_get_imag(wvs, iw, wv)
+              call wv_get_imag(iw, wv)
             endif
             do tri_idx = 1, ngb*(ngb+1)/2
               i = idx_i(tri_idx)
@@ -428,7 +427,7 @@ contains
             enddo
           enddo
           do iw = state%cws%wr_ini, state%cws%wr_fin
-            call wv_get_real(wvs, iw, wv)
+            call wv_get_real(iw, wv)
             do tri_idx = 1, ngb*(ngb+1)/2
               i = idx_i(tri_idx)
               j = idx_j(tri_idx)
@@ -547,8 +546,8 @@ contains
                       enddo
                       !$acc end kernels
                     else
-                      if (iw == 0) call wv_get_real(wvs, iw, wv)
-                      if (iw > 0)  call wv_get_imag(wvs, iw, wv)
+                      if (iw == 0) call wv_get_real(iw, wv)
+                      if (iw > 0)  call wv_get_imag(iw, wv)
                       wc(1:ngb,1:ngb) = wv(1:ngb,1:ngb)  !copy to GPU
                     endif
                     call stopwatch_pause(state%sw%setwv)
@@ -640,7 +639,7 @@ contains
                       enddo
                       !$acc end kernels
                     else
-                      call wv_get_real(wvs, iw, wv)
+                      call wv_get_real(iw, wv)
                       wc(1:ngb,1:ngb) = wv(1:ngb,1:ngb)  !copy to GPU
                       !$acc kernels
                       wc(:,:) = (wc(:,:) + transpose(conjg(wc(:,:))))*0.5_kp
@@ -716,7 +715,7 @@ contains
           !$acc exit data delete(idx_j)
           deallocate(idx_j)
         endif
-        call wv_close_iq_for_read(wvs)
+        call wv_close_iq_for_read()
       endif
     end block ReleaseWV !  end subroutine releasewv
   end subroutine sxcf_correlation_step_kx

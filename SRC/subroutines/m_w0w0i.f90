@@ -81,7 +81,7 @@ contains
     use m_readVcoud,only: Readvcoud, ngb, ReleaseZcousq, zcousq
     ! Step WA2: file I/O on __WVR.1 / __WVI.1 (rank 0 read+modify+write) goes
     ! through m_wv_storage instead of bare open/read/write/close.
-    use m_wv_storage, only: wv_storage, wv_init_file, &
+    use m_wv_storage, only: wv_init_file, &
          wv_open_iq_real_for_modify, wv_open_iq_imag_for_modify, &
          wv_modify_get_real, wv_modify_put_real, &
          wv_modify_get_imag, wv_modify_put_imag, &
@@ -102,7 +102,6 @@ contains
     complex(kind=kp),allocatable:: zw(:,:), x_m2e(:,:), m2e(:,:)
     character(10):: i2char
     integer :: istat
-    type(wv_storage) :: wvs   ! Step WA2: encapsulates file I/O for modifyWV0
     mreclx=mrecl
     !! Read WVR and WVI at Gamma point, and give correct W(0) (averaged in the Gamma cell, where
     !! Gamma cell) is the micro cell of BZ including Gamma point).
@@ -120,18 +119,18 @@ contains
       call ReleaseZcousq()                  !Release zcousq used in set_m2e_prod_basis
       !$acc enter data create(x_m2e) copyin(m2e)
     endif
-    call wv_init_file(wvs, mreclx=mreclx, comm=-1, nw_i=nw_i)
+    call wv_init_file(mreclx=mreclx, nw_i=nw_i)
     do ircw=1,2
        if (ircw==1) then
           nini=nw_i
           nend=nw
-          call wv_open_iq_real_for_modify(wvs, iq)
+          call wv_open_iq_real_for_modify(iq)
        elseif(ircw==2) then;  nini=1;      nend=niw;
-          call wv_open_iq_imag_for_modify(wvs, iq)
+          call wv_open_iq_imag_for_modify(iq)
        endif
        do iw=nini,nend
-          if (ircw==1) call wv_modify_get_real(wvs, iw, zw)
-          if (ircw==2) call wv_modify_get_imag(wvs, iw, zw)
+          if (ircw==1) call wv_modify_get_real(iw, zw)
+          if (ircw==2) call wv_modify_get_imag(iw, zw)
           if( iq==1 ) then
             if(ircw==1) zw(1,1) = cmplx(w0(iw),kind=kp)
             if(ircw==2) zw(1,1) = cmplx(w0i(iw),kind=kp)
@@ -142,10 +141,10 @@ contains
               !$acc end data
             endif
           endif
-          if (ircw==1) call wv_modify_put_real(wvs, iw, zw)
-          if (ircw==2) call wv_modify_put_imag(wvs, iw, zw)
+          if (ircw==1) call wv_modify_put_real(iw, zw)
+          if (ircw==2) call wv_modify_put_imag(iw, zw)
        enddo
-       call wv_close_iq_for_modify(wvs)
+       call wv_close_iq_for_modify()
     enddo
     if(is_wc_m_basis) then
       !$acc exit data delete(x_m2e,m2e)
