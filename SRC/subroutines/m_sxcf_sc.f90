@@ -78,6 +78,9 @@
 module m_sxcf_sc
   use m_readeigen, only: Readeval
   use m_llw, only: wv_in_memory, wv_real_buf, wv_imag_buf
+  ! Step WA3: file I/O on __WVR.<kx> / __WVI.<kx> for reading goes through m_wv_storage.
+  use m_wv_storage, only: wv_storage, wv_init_file, &
+       wv_open_iq_for_read, wv_close_iq_for_read, wv_get_real, wv_get_imag
   use m_zmel, only: build_zmel, set_m2e_prod_basis, zmel, nbb !get_zmel_init =>
   use m_itq, only: ntq, nbandmx
   use m_genallcf_v3, only: ndima, nspin, nctot, niw, ecore,nband
@@ -130,7 +133,8 @@ module m_sxcf_sc
     ! correlation-only, lifetime: alloc/init at top of sxcf_scz_correlation, dealloc at end
     real(8), allocatable :: omega(:)
     logical :: keepwv
-    integer :: nt0p, nt0m, ifrcw, ifrcwi
+    integer :: nt0p, nt0m
+    ! Step WA3: ifrcw / ifrcwi removed; m_wv_storage owns the file units.
   end type sxcf_correlation_workspace
   type :: sxcf_stopwatches
     type(stopwatch) :: zmel, xc, cr, ci, setwv
@@ -300,6 +304,8 @@ contains
     character(64):: charli
     character(8):: charext
     type(sxcf_state) :: state  ! Step 2.5: stopwatches + workspace as composite local
+    type(wv_storage) :: wvs    ! Step WA3: encapsulates file reads for __WVR.<kx> / __WVI.<kx>
+    if (.not. wv_in_memory) call wv_init_file(wvs, mreclx=mrecl, comm=-1, nw_i=nw_i)
     allocate(state%sws%ekc(nctot+nband), state%sws%eq(nband), state%cws%omega(ntq))
     state%sws%emptyrun = cmdopt0('--emptyrun')
     call getkeyvalue("GWinput","KeepWV",state%cws%keepwv,default=use_gpu)
@@ -353,10 +359,7 @@ contains
         complex(kind=kp), allocatable :: wv(:,:)
         real(8), parameter :: gb = 1000*1000*1000
         if(any(kx==kxc(:))) then
-          if (.not. wv_in_memory) then
-            open(newunit=state%cws%ifrcwi,file='__WVI.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
-            open(newunit=state%cws%ifrcw, file='__WVR.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
-          endif
+          if (.not. wv_in_memory) call wv_open_iq_for_read(wvs, kx, want_real=.true., want_imag=.true.)
           if(state%cws%keepwv) then
             if(ipr)write(stdo, ftox) 'save WVI and WVR on CPU and GPU (if GPU is used) memory. This requires sufficient memory'
            ! (MO) wvi & wvr are also allocated in CPU memory and are note needed for GPU calcualtion. but allocation of huge
@@ -386,9 +389,9 @@ contains
                 endif
               else
                 if(iw == 0) then
-                  read(state%cws%ifrcw,rec=iw-nw_i+1) wv(:,:)
+                  call wv_get_real(wvs, iw, wv)
                 else
-                  read(state%cws%ifrcwi,rec=iw) wv(:,:)
+                  call wv_get_imag(wvs, iw, wv)
                 endif
               endif
               do tri_idx = 1, ngb*(ngb+1)/2
@@ -401,7 +404,7 @@ contains
               if (wv_in_memory) then
                 wv(:,:) = wv_real_buf(:,:,iw,kx)
               else
-                read(state%cws%ifrcw,rec=iw-nw_i+1) wv(:,:)
+                call wv_get_real(wvs, iw, wv)
               endif
               do tri_idx = 1, ngb*(ngb+1)/2
                 i = idx_i(tri_idx)
@@ -526,8 +529,8 @@ contains
                           if(iw == 0) wv(:,:) = wv_real_buf(:,:,0,kx)
                           if(iw > 0)  wv(:,:) = wv_imag_buf(:,:,iw,kx)
                         else
-                          if(iw == 0) read(state%cws%ifrcw,rec=1+(0-nw_i)) wv!direct access Wc(0) = W(0)-v ! nw_i=0 (Time reversal) or nw_i =-nw
-                          if(iw > 0) read(state%cws%ifrcwi,rec=iw) wv ! direct access read Wc(i*state%cws%omega)=W(i*state%cws%omega)-v
+                          if(iw == 0) call wv_get_real(wvs, iw, wv)
+                          if(iw > 0)  call wv_get_imag(wvs, iw, wv)
                         endif
                         wc(1:ngb,1:ngb) = wv(1:ngb,1:ngb)  !copy to GPU
                       endif
@@ -623,7 +626,7 @@ contains
                         if (wv_in_memory) then
                           wv(:,:) = wv_real_buf(:,:,iw,kx)
                         else
-                          read(state%cws%ifrcw,rec=iw-nw_i+1) wv
+                          call wv_get_real(wvs, iw, wv)
                         endif
                         wc(1:ngb,1:ngb) = wv(1:ngb,1:ngb)  !copy to GPU
                         !$acc kernels
@@ -700,10 +703,7 @@ contains
             !$acc exit data delete(idx_j)
             deallocate(idx_j)
           endif
-          if (.not. wv_in_memory) then
-             close(state%cws%ifrcwi)
-             close(state%cws%ifrcw)
-          endif
+          if (.not. wv_in_memory) call wv_close_iq_for_read(wvs)
         endif
       endblock ReleaseWV !  end subroutine releasewv
     enddo kxloop
