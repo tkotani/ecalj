@@ -116,12 +116,20 @@ module m_sxcf_sc
   ! sxcf_scz_exchange / sxcf_correlation_init / sxcf_correlation_step_kx) so
   ! that no time-dependent module state leaks across subroutine boundaries.
   ! Removed from module scope in Step 2.1 of m_sxcf_sc cleanup.
-  integer :: ntqxx, nt0p, nt0m, ifrcw, ifrcwi
+  integer :: ntqxx
   real(8) :: wkkr
   integer, allocatable :: ndiv(:), nstatei(:,:), nstatee(:,:)
-  real(8), allocatable :: ekc(:), eq(:), omega(:)
-  logical :: emptyrun, keepwv
+  real(8), allocatable :: ekc(:), eq(:)
+  logical :: emptyrun
   complex(kind=kp), allocatable :: wvr_upper(:,:), wvi_upper(:,:)
+  ! Step 2.3: correlation-only working state, no OpenACC dependencies.
+  ! Lifetime: alloc/init at top of sxcf_scz_correlation, dealloc at end.
+  type :: sxcf_correlation_workspace
+    real(8), allocatable :: omega(:)
+    logical :: keepwv
+    integer :: nt0p, nt0m, ifrcw, ifrcwi
+  end type sxcf_correlation_workspace
+  type(sxcf_correlation_workspace), save :: cws
   real(8), parameter:: rmax=2d0
   logical,external :: cmdopt0 !we need external here
   ! Step 2.2: group five stopwatches into a struct so the per-pass timing surface
@@ -284,9 +292,9 @@ contains
     integer, allocatable :: idx_i(:), idx_j(:)
     character(64):: charli
     character(8):: charext
-    allocate(ekc(nctot+nband), eq(nband), omega(ntq)) 
+    allocate(ekc(nctot+nband), eq(nband), cws%omega(ntq)) 
     emptyrun = cmdopt0('--emptyrun')
-    call getkeyvalue("GWinput","KeepWV",keepwv,default=use_gpu)
+    call getkeyvalue("GWinput","KeepWV",cws%keepwv,default=use_gpu)
     debug = cmdopt0('--debug')
     if(nw_i/=0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
     LoopScheduleCheck: block
@@ -308,7 +316,7 @@ contains
     end block LoopScheduleCheck
     call int_split(    niw+1, mpi__size_w, mpi__rank_w, wi_ini, wi_fin, wi_num, start_index=0)
     call int_split(nw-nw_i+1, mpi__size_w, mpi__rank_w, wr_ini, wr_fin, wr_num, start_index=nw_i)
-    if(ipr)write(stdo,ftox) 'Imag omega mesh split:', wi_ini, wi_fin, wi_num, 'Real omega mesh split:', wr_ini, wr_fin, wr_num
+    if(ipr)write(stdo,ftox) 'Imag cws%omega mesh split:', wi_ini, wi_fin, wi_num, 'Real cws%omega mesh split:', wr_ini, wr_fin, wr_num
     if(ipr)write(stdo,ftox) '# of tasks:', izz
     call flush(stdo)
     call stopwatch_init(sw%zmel, 'zmel')
@@ -338,10 +346,10 @@ contains
         real(8), parameter :: gb = 1000*1000*1000
         if(any(kx==kxc(:))) then
           if (.not. wv_in_memory) then
-            open(newunit=ifrcwi,file='__WVI.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
-            open(newunit=ifrcw, file='__WVR.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
+            open(newunit=cws%ifrcwi,file='__WVI.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
+            open(newunit=cws%ifrcw, file='__WVR.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
           endif
-          if(keepwv) then
+          if(cws%keepwv) then
             if(ipr)write(stdo, ftox) 'save WVI and WVR on CPU and GPU (if GPU is used) memory. This requires sufficient memory'
            ! (MO) wvi & wvr are also allocated in CPU memory and are note needed for GPU calcualtion. but allocation of huge
            ! device memory made a error (I don't know the reason). therefore, we used openacc data copyin procedure
@@ -370,9 +378,9 @@ contains
                 endif
               else
                 if(iw == 0) then
-                  read(ifrcw,rec=iw-nw_i+1) wv(:,:)
+                  read(cws%ifrcw,rec=iw-nw_i+1) wv(:,:)
                 else
-                  read(ifrcwi,rec=iw) wv(:,:)
+                  read(cws%ifrcwi,rec=iw) wv(:,:)
                 endif
               endif
               do tri_idx = 1, ngb*(ngb+1)/2
@@ -385,7 +393,7 @@ contains
               if (wv_in_memory) then
                 wv(:,:) = wv_real_buf(:,:,iw,kx)
               else
-                read(ifrcw,rec=iw-nw_i+1) wv(:,:)
+                read(cws%ifrcw,rec=iw-nw_i+1) wv(:,:)
               endif
               do tri_idx = 1, ngb*(ngb+1)/2
                 i = idx_i(tri_idx)
@@ -415,14 +423,14 @@ contains
             wkkr = wk(kr)
             ekc(1:nctot+nband) = [ecore(1:nctot,isp),readeval(qk, isp)]
             ntqxx = nbandmx(ip,isp) ! ntqxx is number of bands for <i|sigma|j>.
-            omega(1:ntq) = eq(1:ntq)  
-            nt0p = count(ekc<ef+ddw*esmr)  
-            nt0m = count(ekc<ef-ddw*esmr) 
+            cws%omega(1:ntq) = eq(1:ntq)  
+            cws%nt0p = count(ekc<ef+ddw*esmr)  
+            cws%nt0m = count(ekc<ef-ddw*esmr) 
             NMBATCHloop: do icount = icountini(isp,ip,irot,kx), icountend(isp,ip,irot,kx) !batch of middle states.
               ns1 = nstti(icount)  !Range of middle states is [ns1:ns2] for given icount
               ns2 = nstte(icount)  ! 
-              nwxi = nwxic(icount)  !minimum omega for W
-              nwx = nwxc(icount)   !max omega for W
+              nwxi = nwxic(icount)  !minimum cws%omega for W
+              nwx = nwxc(icount)   !max cws%omega for W
               ns2r = nstte2(icount) !Range of middle states [ns1:ns2r] for CorrelationSelfEnergyRealAxis
               izz=izz+1
               call writemem('=== KXloop '//trim(charext(izz))//' iqiqz irot ip isp icount= '//&
@@ -452,7 +460,7 @@ contains
                   allocate(wc(ngb,ngb))
                   allocate(czmelwc, mold = zmel)
                   call stopwatch_start(sw%ci)
-                  CorrelationSelfEnergyImagAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)! Integration along ImAxis for zwz(omega) 
+                  CorrelationSelfEnergyImagAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)! Integration along ImAxis for zwz(cws%omega) 
                     use m_readfreq_r, only: wt=>wwx, x=>freqx
                     real(8):: wgtim_(0:npm*niw), wgtim(0:npm*niw,ns1:ns2,ntqxx), we, cons(niw), omd(niw), omd2w(niw)
                     real(8):: sig, sig2, aw, aw2
@@ -465,7 +473,7 @@ contains
                     sig2 = 2d0*(.5d0*esmr)**2
                     itpdo: do itp = 1, ntqxx
                      itpo: do it = ns1, ns2
-                        we = .5d0*(omega(itp)-ekc(it)) !we in hartree unit (atomic unit)
+                        we = .5d0*(cws%omega(itp)-ekc(it)) !we in hartree unit (atomic unit)
                         aw = abs(ua_*we)
                         aw2 = aw*aw
                         if(it<=nctot) then ! if w = e the integral = -v(0)/2 ! frequency integral
@@ -492,11 +500,11 @@ contains
                     if(debug) call writemem('    Goto iwimag')
                     if(debug) write(stdo,ftox) 'mmmmSc size of mm in imagaxis', (ns2-ns1+1)*ntqxx, ngb, ngb
                     !$acc data copyin(wgtim)
-                    iwimag:do iw = wi_ini, wi_fin ! iwimag:do iw = 0, niw !niw is ~10. ixx=0 is for omega=0 nw_i=0 (Time reversal) or nw_i =-nw
+                    iwimag:do iw = wi_ini, wi_fin ! iwimag:do iw = 0, niw !niw is ~10. ixx=0 is for cws%omega=0 nw_i=0 (Time reversal) or nw_i =-nw
                       if(iw < 0 .or. iw > niw) cycle
                       if(emptyrun) cycle
                       call stopwatch_start(sw%setwv)
-                      if(keepwv) then
+                      if(cws%keepwv) then
                         !$acc kernels loop independent present(wvi_upper, idx_i, idx_j)
                         do tri_idx = 1, ngb*(ngb+1)/2
                           i = idx_i(tri_idx)
@@ -510,8 +518,8 @@ contains
                           if(iw == 0) wv(:,:) = wv_real_buf(:,:,0,kx)
                           if(iw > 0)  wv(:,:) = wv_imag_buf(:,:,iw,kx)
                         else
-                          if(iw == 0) read(ifrcw,rec=1+(0-nw_i)) wv!direct access Wc(0) = W(0)-v ! nw_i=0 (Time reversal) or nw_i =-nw
-                          if(iw > 0) read(ifrcwi,rec=iw) wv ! direct access read Wc(i*omega)=W(i*omega)-v
+                          if(iw == 0) read(cws%ifrcw,rec=1+(0-nw_i)) wv!direct access Wc(0) = W(0)-v ! nw_i=0 (Time reversal) or nw_i =-nw
+                          if(iw > 0) read(cws%ifrcwi,rec=iw) wv ! direct access read Wc(i*cws%omega)=W(i*cws%omega)-v
                         endif
                         wc(1:ngb,1:ngb) = wv(1:ngb,1:ngb)  !copy to GPU
                       endif
@@ -547,9 +555,9 @@ contains
 #endif
                     nttp = 0
                     itploop: do itp = 1, ntqxx
-                      omg  = omega(itp)
-                      itini = merge(max(ns1,nt0m+1),  ns1, mask= omg>=ef)
-                      itend = merge(ns2r,  min(nt0p,ns2r), mask= omg>=ef)
+                      omg  = cws%omega(itp)
+                      itini = merge(max(ns1,cws%nt0m+1),  ns1, mask= omg>=ef)
+                      itend = merge(ns2r,  min(cws%nt0p,ns2r), mask= omg>=ef)
                       do it = itini, itend
                         wfac_(it,itp) = wfacx2(omg, ef, ekc(it), merge(0d0,esmr,mask=it<=nctot))
                         if(wfac_(it,itp) < wfaccut) cycle 
@@ -565,10 +573,10 @@ contains
                     allocate (wgtiw(nttp_max,0:nw), source = 0d0)
                     nttp = 0
                     itploopFORwgtiw: do itp = 1, ntqxx
-                      omg  = omega(itp)
-                      itini = merge(max(ns1,nt0m+1),  ns1, mask= omg>=ef)
-                      itend = merge(ns2r,  min(nt0p,ns2r), mask= omg>=ef)
-                      do it = itini, itend     ! nt0p corresponds to efp
+                      omg  = cws%omega(itp)
+                      itini = merge(max(ns1,cws%nt0m+1),  ns1, mask= omg>=ef)
+                      itend = merge(ns2r,  min(cws%nt0p,ns2r), mask= omg>=ef)
+                      do it = itini, itend     ! cws%nt0p corresponds to efp
                         wfac_(it,itp) = wfacx2(omg, ef, ekc(it), merge(0d0,esmr,mask=it<=nctot)) !Gaussian smearing 
                         if(wfac_(it,itp)<wfaccut) cycle 
                         wfac_(it,itp)=  wfac_(it,itp)*wkkr*dsign(1d0,omg-ef) !wfac_ = $w$ weight (smeared thus truncated by ef). See the sentences.
@@ -594,7 +602,7 @@ contains
                       if(iw < nwxi .or. iw > nwx) cycle
                       if(nttp(iw) < 1) cycle
                       call stopwatch_start(sw%setwv)
-                      if(keepwv) then
+                      if(cws%keepwv) then
                         !$acc kernels loop independent present(wvr_upper, idx_i, idx_j)
                         do tri_idx = 1, ngb*(ngb+1)/2
                           i = idx_i(tri_idx)
@@ -607,7 +615,7 @@ contains
                         if (wv_in_memory) then
                           wv(:,:) = wv_real_buf(:,:,iw,kx)
                         else
-                          read(ifrcw,rec=iw-nw_i+1) wv
+                          read(cws%ifrcw,rec=iw-nw_i+1) wv
                         endif
                         wc(1:ngb,1:ngb) = wv(1:ngb,1:ngb)  !copy to GPU
                         !$acc kernels
@@ -660,7 +668,7 @@ contains
                    'ec(raxis):', ftof(stopwatch_lap_time(sw%cr),4),  '(sec)', &
                    'ec:', ftof(stopwatch_lap_time(sw%xc),4),         '(sec)', &
                    'setwv:', ftof(stopwatch_elapsed_time(sw%setwv),4), '(sec)'
-                   ! '# of computed real omega bin:', n_nttp
+                   ! '# of computed real cws%omega bin:', n_nttp
               call flush(stdo)
             enddo NMBATCHloop
           enddo isploopexternal
@@ -685,14 +693,14 @@ contains
             deallocate(idx_j)
           endif
           if (.not. wv_in_memory) then
-             close(ifrcwi)
-             close(ifrcw)
+             close(cws%ifrcwi)
+             close(cws%ifrcw)
           endif
         endif
       endblock ReleaseWV !  end subroutine releasewv
     enddo kxloop
     !$acc exit data copyout (zsecall)
-    deallocate(ekc, eq, omega)
+    deallocate(ekc, eq, cws%omega)
     call stopwatch_show(sw%zmel)
     call stopwatch_show(sw%ci)
     call stopwatch_show(sw%cr)
