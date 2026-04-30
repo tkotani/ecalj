@@ -44,7 +44,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   complex(8),allocatable:: geig(:,:),strx(:,:,:,:),sgpb(:,:,:,:),sgpp(:,:,:,:), fouvb(:,:,:,:),fouvp(:,:,:,:),&
        vcoul0(:,:), s(:,:),sd(:,:),rojp(:,:,:) , vcoulnn(:,:), gbvec(:), vcoul_org(:,:),&
        matp(:),matp2(:),ppmt(:,:,:,:),pmat(:,:),pomat(:,:),zzr(:)
-  logical :: checkeig, besseltest=.false.,smbb, wvcc, cmdopt2,cmdopt0,debug=.false. !emptyrun,
+  logical :: checkeig, besseltest=.false.,smbb, wvcc, cmdopt2,cmdopt0,debug=.false.
   character(20) :: xxt,outs=''
   character(3) :: charnum3
   character(10) :: i2char
@@ -57,7 +57,6 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   call MPI__Initialize()
   call gpu_init(comm) 
   call M_lgunit_init()
-!  emptyrun=cmdopt0('--emptyrun')
   if( mpi__root) write(6,"(' mode=0,3,202 (0 and 3 give the same results for given bas)' )")
   if(cmdopt2('--job=',outs)) then; read(outs,*) imode
   elseif( mpi__root ) then       ; read(5,*) imode;   endif

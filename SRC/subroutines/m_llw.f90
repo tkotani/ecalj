@@ -120,7 +120,7 @@ contains
     integer:: iq,iq0,nwmax,nwmin,iw,imode,ix,igb1,igb2,ifllw
     integer:: nmbas1,nmbas2,ngc0,ifw4p,mreclx
     real(8):: frr,q(3),vcou1,quu(3),eee
-    logical::  localfieldcorrectionllw,cmdopt0,emptyrun
+    logical::  localfieldcorrectionllw,cmdopt0
     logical,save:: init=.true.
     type(stopwatch) :: t_sw_matinv, t_sw_x_gather, t_sw_x_m2e_xf
     type(wv_storage) :: wvs   ! Step WA1: encapsulates file I/O (openm/writem/closem)
@@ -135,7 +135,6 @@ contains
     attributes(device) :: epstinv, epstilde
 #endif
     mreclx=mrecl
-    emptyrun=.false. !cmdopt0('--emptyrun')
     if(init) then !initialization related to w4pmode, zw, tpioa...
        allocate( llw(nw_i:nw,nq0i),source=(0d0,0d0) )
        if(sum(ixyz)/=0) w4pmode= .TRUE. 
@@ -182,7 +181,6 @@ contains
       endif
       ix = merge(1, 0, iq == 1)
       iwloop: do 1015 iwblock = nwmin, nwmax, mpi__size_b
-         if(emptyrun) exit
          iw = iwblock + mpi__rank_b
         !$acc kernels
           zw(:,:) = (0_kp, 0_kp)
@@ -363,7 +361,7 @@ contains
     integer:: iq,iq0,nwmax,nwmin,iw,imode,ix,igb1,igb2,ifllwi
     type(wv_storage) :: wvs   ! Step WA1: encapsulates file I/O for the imag axis
     real(8):: frr,q(3),vcou1
-    logical::  localfieldcorrectionllw,cmdopt0,emptyrun
+    logical::  localfieldcorrectionllw,cmdopt0
     logical, intent(in) :: is_x0_m_basis, is_wc_m_basis
     logical,save:: init=.true.
 !    complex(8):: zxqi(nmbas1,nmbas2,niw)
@@ -383,7 +381,6 @@ contains
     allocate(zw(nblochpmx,nblochpmx))
     !$acc enter data create(zxqw, x_m2e, zw) copyin(vcousq)
     mreclx=mrecl
-    emptyrun=.false. !cmdopt0('--emptyrun')
     if(init) then
        allocate(llwI(niw,nq0i), source=(0d0,0d0))
        init=.false.
@@ -416,7 +413,6 @@ contains
        endif
        ix = merge(1, 0, iq == 1)
        do 1016 iwblock  = 1, niw, mpi__size_b
-          if(emptyrun) exit
           iw = iwblock + mpi__rank_b
           !!  Eqs.(37),(38) in PRB81 125102
           !$acc kernels
@@ -495,7 +491,6 @@ contains
        iq0 = iq - nqibz
        vcou1 = fourpi/sum(q**2*tpioa**2) ! --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
        do 1116 iwblock  = 1, niw, mpi__size_b
-          if(emptyrun) exit
           iw = iwblock + mpi__rank_b
           !if(localfieldcorrectionllw()) then
           call stopwatch_start(t_sw_x_gather)

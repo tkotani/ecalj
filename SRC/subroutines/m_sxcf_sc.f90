@@ -127,7 +127,6 @@ module m_sxcf_sc
     real(8), allocatable :: ekc(:), eq(:)
     integer :: ntqxx
     real(8) :: wkkr
-    logical :: emptyrun
   end type sxcf_shared_workspace
   type :: sxcf_correlation_workspace
     ! correlation-only, lifetime: alloc/init at top of sxcf_scz_correlation, dealloc at end
@@ -171,7 +170,6 @@ contains
     character(8):: charext
     type(sxcf_state) :: state  ! Step 2.5: stopwatches + workspace as composite local
     allocate(state%sws%ekc(nctot+nband), state%sws%eq(nband))
-    state%sws%emptyrun = cmdopt0('--emptyrun')
     if(nw_i/=0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
     LoopScheduleCheck: block
       izz=0
@@ -307,7 +305,6 @@ contains
     type(wv_storage) :: wvs    ! Step WA3: encapsulates file reads for __WVR.<kx> / __WVI.<kx>
     if (.not. wv_in_memory) call wv_init_file(wvs, mreclx=mrecl, comm=-1, nw_i=nw_i)
     allocate(state%sws%ekc(nctot+nband), state%sws%eq(nband), state%cws%omega(ntq))
-    state%sws%emptyrun = cmdopt0('--emptyrun')
     call getkeyvalue("GWinput","KeepWV",state%cws%keepwv,default=use_gpu)
     debug = cmdopt0('--debug')
     if(nw_i/=0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
@@ -513,7 +510,6 @@ contains
                     !$acc data copyin(wgtim)
                     iwimag:do iw = wi_ini, wi_fin ! iwimag:do iw = 0, niw !niw is ~10. ixx=0 is for state%cws%omega=0 nw_i=0 (Time reversal) or nw_i =-nw
                       if(iw < 0 .or. iw > niw) cycle
-                      if(state%sws%emptyrun) cycle
                       call stopwatch_start(state%sw%setwv)
                       if(state%cws%keepwv) then
                         !$acc kernels loop independent present(wvi_upper, idx_i, idx_j)

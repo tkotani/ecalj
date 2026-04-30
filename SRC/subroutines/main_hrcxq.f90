@@ -52,7 +52,7 @@ subroutine hrcxq(do_correlation, do_exchange)
   real(8):: ua=1d0,qp(3),quu(3),hartree,rydberg,schi=-9999,q00(3)
   logical :: debug=.false. ,realomega,imagomega !,nolfco=.false.,crpa=.false.
   logical :: hx0,iprintx=.false.,chipm=.false.,localfieldcorrectionllw   !eibzmode,eibz4x0,
-  logical:: cmdopt2,emptyrun,cmdopt0
+  logical:: cmdopt2,cmdopt0
   character(10) :: i2char
   character(20):: outs=''
   real(8),allocatable :: symope(:,:),ekxx1(:,:),ekxx2(:,:)
@@ -63,7 +63,6 @@ subroutine hrcxq(do_correlation, do_exchange)
   call MPI__Initialize()
   call gpu_init(comm) 
   call M_lgunit_init()
-  emptyrun=cmdopt0('--emptyrun')
   call MPI__consoleout('hrcxq')
   call cputid (0)
   if(verbose()>=100) debug= .TRUE. 
@@ -131,9 +130,9 @@ subroutine hrcxq(do_correlation, do_exchange)
     call x0kf_zxq(realomega,imagomega,qp,iq,npr,schi, crpa=.false.,chipm=.false.,nolfco=.false.,is_m_basis=.true.) !Get zxq,zxqi in m_x0kf
     if(debug) print *,'sumchk zxq=',sum(zxq),sum(abs(zxq)),' zxqi=',sum(zxqi),sum(abs(zxqi))
     if(mpi__root_k) then
-      call WVRllwR(qp,iq,npr,npr_col,is_x0_m_basis=.true.,is_wc_m_basis=.true.) !WV=W-v in RandomPhaseApproximation along realaxis. Write big files WVR.  --emptyrun in it
+      call WVRllwR(qp,iq,npr,npr_col,is_x0_m_basis=.true.,is_wc_m_basis=.true.) !WV=W-v in RandomPhaseApproximation along realaxis. Write big files WVR.
       call deallocatezxq()
-      call WVIllwI(qp,iq,npr,npr_col,is_x0_m_basis=.true.,is_wc_m_basis=.true.) !WV=W-v along imagaxis Write WVI --emptyrun in it 
+      call WVIllwI(qp,iq,npr,npr_col,is_x0_m_basis=.true.,is_wc_m_basis=.true.) !WV=W-v along imagaxis Write WVI 
       call deallocatezxqi()
     endif
     call mpi_barrier(comm_k, ierr)

@@ -80,8 +80,8 @@ contains
     complex(8),allocatable :: aus_zv(:,:,:,:,:), hamm(:,:,:,:),ovlm(:,:,:,:),ovlmtoi(:,:),ovliovl(:,:) ,hammhso(:,:,:)
     complex(8),allocatable:: evec(:,:),evec0(:,:),vxc(:,:,:,:),ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:),pzovl(:,:,:), pwz0(:,:),&
          testcc(:,:),testc(:,:,:),testcd(:,:),ppovld(:),cphi(:,:,:),cphi0(:,:,:),cphi_p(:,:,:),geig(:,:,:),geig_p(:,:,:),sene(:,:),ppovli(:,:)
-    logical :: lwvxc,cmdopt0, emptyrun, magexist, debug=.false.,sigmamode,wanatom=.false.,once=.true.
-!    logical,optional:: socmatrix 
+    logical :: lwvxc,cmdopt0, magexist, debug=.false.,sigmamode,wanatom=.false.,once=.true.
+!    logical,optional:: socmatrix
     character(8) :: xt
     character(256):: ext,sprocid,extn
     complex(8),allocatable::  geigr(:,:,:), cphix(:,:,:)
@@ -98,7 +98,6 @@ contains
     show_time = cmdopt0('--show_time')
     call getpr(ipr)
     if(lmxax<=0) call rx('sugw: lmxax>0 for gw mode')
-    emptyrun  = cmdopt0('--emptyrun')
     sigmamode = mod(lrsig,10) .ne. 0
     magexist  = abs(vmag)>1d-6
     if(master_mpi) write(stdo,"(a)") 'm_sugw_init: start'
@@ -398,12 +397,7 @@ contains
         call aughsoc(qp, ohsozz,ohsopm, ndimh, hammhso)
         iqbk=iq !q index for hammhso
       endif
-      if(emptyrun) then !set dummy to avoid error exit
-        evec=1d0 
-        evl(:,iq,isp)=[(i*0.1,i=1,ndimhx)]
-        nev=ndimh
-        goto 1212
-      endif;       if(debug)write(stdo,ftox)' iqisploop333'
+      if(debug)write(stdo,ftox)' iqisploop333'
       GetHamiltonianAndDiagonalize: block
         integer:: iprint
         if(show_time) call stopwatch_init(sw, 'getham')
@@ -481,10 +475,6 @@ contains
         write(ifvxcevec) evec(1:ndimhx,1:ndimhx),evl(1:ndimhx,iq,isp)
 !        if(lso/=0.or.socmatrix) write(ifvxcevec) hammhso 
         close(ifvxcevec)
-      endif
-      if(emptyrun) then
-        ! allocate(pwz(ngp*nspc,ndimh)) !dummy
-        goto 1214
       endif
       write(stdo,ftox)'sugw: kpt isp=',iq,isp,'of',nqnum,'k=',ftof(qp,5),'ndimh=',ndimh,'irank=',procid,'lwvxc=',lwvxc,'nev=',nev,' nspc=',nspc
       write(stdo,"(9f8.4)",advance='no') (evl(i,iq,isp),i=1,min(18,nev))
@@ -654,7 +644,7 @@ contains
             !endif
           endif
         endblock GramSchmidtCphiGeig
-        if(allocated(ppovl)) deallocate(ppovl) !bugfix: ppovl not allocated in emptyrun path
+        if(allocated(ppovl)) deallocate(ppovl)
         cphix(1:ndima,1:nspc,nev+1:nbandmx)=1d20 !padding 
         iqqisp= isp + nsp*(iq-1)
         i=writem(ifcphim,rec=iqqisp,data=cphix(1:ndima,1:nspc,1:nbandmx)) 

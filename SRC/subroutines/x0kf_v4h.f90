@@ -175,7 +175,6 @@ contains
     npr_col = mpi__npr_col(mpi__rank_b) ! number of columns on xq
 
     if(cmdopt0('--tetwtk'))  tetwtk=.true.
-    if(cmdopt0('--emptyrun'))  return
     call getkeyvalue("GWinput","zmel_max_size",zmel_max_size,default=1d0) !in GB
     if(zmel_max_size < 0.001d0) zmel_max_size = 1d0
     if(chipm .AND. nolfco) then; call set_m2e_prod_basis_chipm(zzr,npr)
@@ -225,7 +224,6 @@ contains
         integer:: izmel,nmtot,nqtot,iwmax,ifi0,icoucold,icoun, icount, kold
         real(8):: imagweight, wpw_k,wpw_kq,qa,q0a 
         complex(8):: img=(0d0,1d0)
-        if(cmdopt0('--emptyrun')) goto 1590
         call cputid (0)
 !        if(GPUTEST) then
           ! rcxq(ibg1,igb2,iw) = \sum_ibib wwk(iw,ibib)* <M_ibg1(q) psi_it(k)| psi_itp(q+k)> < psi_itp | psi_it M_ibg2 > at q

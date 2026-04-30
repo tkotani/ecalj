@@ -150,7 +150,6 @@ contains
       if(realomega) allocate(zxq(npr,npr_col,nw_i:nw),source=(0d0,0d0))
       if(imagomega) allocate(zxqi(npr,npr_col,niw),source=(0d0,0d0))
     endif
-    if(cmdopt0('--emptyrun'))  return
     if(chipm .AND. nolfco) then; call set_m2e_prod_basis_chipm(zzr,npr)
     else;                        call set_m2e_prod_basis(npr=npr) !bugfix 2024-5-23 mobata. Set npr=1 for EPSPP0 mode(no lfc)
     endif
@@ -357,7 +356,6 @@ contains
                endblock zmel0block
                goto 2000 
             endif zmel0mode
-            if(cmdopt0('--emptyrun')) goto 1590
 !             GPUTEST=.false.
 !             if(GPUTEST) then
 !                ! rcxq(ibg1,igb2,iw) = \sum_ibib wwk(iw,ibib)* <M_ibg1(q) psi_it(k)| psi_itp(q+k)> < psi_itp | psi_it M_ibg2 > at q
@@ -396,7 +394,6 @@ contains
                !where(abs(uumat_k)>1d6) uumat_k=0d0 !zeroclear padding part (no data region)
               kloop10:do 1510 k=1,nqbz !6,6 !1,nqbz !6,8 !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
                 if(mod(k-1, mpi__size_k) /= mpi__rank_k)  cycle
-                if(cmdopt0('--emptyrun')) cycle
                 if(cmdopt0('--x0test')) then
                   continue
                 elseif (cmdopt0('--ahc')) then
