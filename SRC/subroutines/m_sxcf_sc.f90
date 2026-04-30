@@ -55,7 +55,7 @@
 !!     q      = q-vector in SEc(q,t). 
 !!    itq     = ends states for SE
 !!    ntq     = # of states t
-!!    eq      = eigenvalues at q
+!!    sws%eq      = eigenvalues at q
 !!     ef     = fermi level in Rydberg
 !!   WVI, WVR: direct access files for W. along im axis (WVI) or along real axis (WVR)
 !!   freq_r(nw_i:nw)   = frequencies along real axis. freq_r(0)=0d0
@@ -116,12 +116,20 @@ module m_sxcf_sc
   ! sxcf_scz_exchange / sxcf_correlation_init / sxcf_correlation_step_kx) so
   ! that no time-dependent module state leaks across subroutine boundaries.
   ! Removed from module scope in Step 2.1 of m_sxcf_sc cleanup.
-  integer :: ntqxx
-  real(8) :: wkkr
   integer, allocatable :: ndiv(:), nstatei(:,:), nstatee(:,:)
-  real(8), allocatable :: ekc(:), eq(:)
-  logical :: emptyrun
   complex(kind=kp), allocatable :: wvr_upper(:,:), wvi_upper(:,:)
+  ! Step 2.4: working state shared between sxcf_scz_exchange and sxcf_scz_correlation.
+  ! Both subroutines fill sws%ekc, sws%eq from readeval/ecore at each (ip,isp);
+  ! sws%ntqxx is set per-(ip,isp) to nbandmx(ip,isp); sws%wkkr is set per-kr;
+  ! sws%emptyrun is the --emptyrun flag captured once at subroutine entry.
+  ! No OpenACC dependencies on these fields.
+  type :: sxcf_shared_workspace
+    real(8), allocatable :: ekc(:), eq(:)
+    integer :: ntqxx
+    real(8) :: wkkr
+    logical :: emptyrun
+  end type sxcf_shared_workspace
+  type(sxcf_shared_workspace), save :: sws
   ! Step 2.3: correlation-only working state, no OpenACC dependencies.
   ! Lifetime: alloc/init at top of sxcf_scz_correlation, dealloc at end.
   type :: sxcf_correlation_workspace
@@ -159,8 +167,8 @@ contains
     real(8) :: q(3), qibz_k(3), qbz_kr(3), qk(3)
     character(64):: charli
     character(8):: charext
-    allocate(ekc(nctot+nband), eq(nband)) 
-    emptyrun = cmdopt0('--emptyrun')
+    allocate(sws%ekc(nctot+nband), sws%eq(nband)) 
+    sws%emptyrun = cmdopt0('--sws%emptyrun')
     if(nw_i/=0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
     LoopScheduleCheck: block
       izz=0
@@ -204,10 +212,10 @@ contains
             q = qibz(:,ip)
             qbz_kr = qbz (:,kr)   !rotated qbz vector.
             qk = q - qbz_kr       !<M(qbz_kr) phi(q-qbz_kr)|phi(q)>
-            eq = readeval(q,isp)  !readin eigenvalue
-            ekc(1:nctot+nband) = [ecore(1:nctot,isp),readeval(qk, isp)]
-            ntqxx = nbandmx(ip,isp) ! ntqxx is number of bands for <i|sigma|j>.
-            wkkr = wk(kr)
+            sws%eq = readeval(q,isp)  !readin eigenvalue
+            sws%ekc(1:nctot+nband) = [ecore(1:nctot,isp),readeval(qk, isp)]
+            sws%ntqxx = nbandmx(ip,isp) ! sws%ntqxx is number of bands for <i|sigma|j>.
+            sws%wkkr = wk(kr)
             NMBATCHloop:   do icount = icountini(isp,ip,irot,kx), icountend(isp,ip,irot,kx) !batch of middle states.
               ns1 = nstti(icount)  !Range of middle states is [ns1:ns2] for given icount
               ns2 = nstte(icount)  ! 
@@ -215,7 +223,7 @@ contains
               izz=izz+1
               call writemem('=== KXloop '//trim(charext(izz))//' iqiqz irot ip isp icount= '//&
                    trim(charli([kx,irot,ip,isp,icount],5)))
-              call build_zmel(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false., &
+              call build_zmel(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,sws%ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false., &
                                       is_m_basis=.false., mpi_mode=.false.)
               call writemem('    endof build_zmel')
               call stopwatch_pause(sw%zmel)
@@ -232,7 +240,7 @@ contains
                   if(ns1 > ns2) goto 1110 !instead of return. Use guard clause coding.
                   do is1=ns1,ns2
                     if(is1<=nctot) then; wtff(is1) = 1d0 !these are for nvfortran24.1
-                    else;                wtff(is1) = wfacx(-1d99, ef, ekc(is1+nctot), esmr)
+                    else;                wtff(is1) = wfacx(-1d99, ef, sws%ekc(is1+nctot), esmr)
                     endif
                   enddo
                   if(corehole) wtff(ns1:nctot) = wtff(ns1:nctot) * wcorehole(ns1:nctot,isp)
@@ -242,17 +250,17 @@ contains
                   vcoud_buf(1:ngb) = vcoud(1:ngb)
                   !$acc end kernels
                   if(kx == 1) vcoud_buf(1) = wklm(1)*fpi*sqrt(fpi)/wk(1) ! voud_buf(1) is effective v(q=0) in the Gamma cell.
-                  allocate(vzmel(1:nbb,ns1:ns2,1:ntqxx))
+                  allocate(vzmel(1:nbb,ns1:ns2,1:sws%ntqxx))
                   !$acc kernels loop independent collapse(2)
-                  do itpp = 1, ntqxx
+                  do itpp = 1, sws%ntqxx
                     do it = ns1, ns2 
                       vzmel(1:ngb,it,itpp) = cmplx(wtff(it)*vcoud_buf(1:ngb)*zmel(1:ngb,it,itpp),kind=kp)
                     enddo
                   enddo
                   !$acc end kernels
                   !$acc host_data use_device(zmel, zsec)
-                  ierr = gemm(zmel, vzmel, zsec, ntqxx, ntqxx, (ns2-ns1+1)*nbb, opA = m_op_c, &
-                       alpha = cmplx(-wkkr,0_kp,kind=kp), beta = CONE, ldC = ntq)
+                  ierr = gemm(zmel, vzmel, zsec, sws%ntqxx, sws%ntqxx, (ns2-ns1+1)*nbb, opA = m_op_c, &
+                       alpha = cmplx(-sws%wkkr,0_kp,kind=kp), beta = CONE, ldC = ntq)
                   !$acc end host_data
                   !$acc end data
                   deallocate(vzmel, vcoud_buf)!, wtff)
@@ -271,7 +279,7 @@ contains
       enddo irotloop
     enddo kxloop
     !$acc exit data copyout (zsecall)
-    deallocate(ekc, eq)
+    deallocate(sws%ekc, sws%eq)
     call stopwatch_show(sw%zmel)
     call stopwatch_show(sw%xc)
   endsubroutine sxcf_scz_exchange
@@ -292,8 +300,8 @@ contains
     integer, allocatable :: idx_i(:), idx_j(:)
     character(64):: charli
     character(8):: charext
-    allocate(ekc(nctot+nband), eq(nband), cws%omega(ntq)) 
-    emptyrun = cmdopt0('--emptyrun')
+    allocate(sws%ekc(nctot+nband), sws%eq(nband), cws%omega(ntq)) 
+    sws%emptyrun = cmdopt0('--sws%emptyrun')
     call getkeyvalue("GWinput","KeepWV",cws%keepwv,default=use_gpu)
     debug = cmdopt0('--debug')
     if(nw_i/=0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
@@ -419,13 +427,13 @@ contains
             q = qibz(:,ip)
             qbz_kr = qbz (:,kr)   !rotated qbz vector.
             qk = q - qbz_kr       !<M(qbz_kr) phi(q-qbz_kr)|phi(q)>
-            eq = readeval(q,isp)  !readin eigenvalue
-            wkkr = wk(kr)
-            ekc(1:nctot+nband) = [ecore(1:nctot,isp),readeval(qk, isp)]
-            ntqxx = nbandmx(ip,isp) ! ntqxx is number of bands for <i|sigma|j>.
-            cws%omega(1:ntq) = eq(1:ntq)  
-            cws%nt0p = count(ekc<ef+ddw*esmr)  
-            cws%nt0m = count(ekc<ef-ddw*esmr) 
+            sws%eq = readeval(q,isp)  !readin eigenvalue
+            sws%wkkr = wk(kr)
+            sws%ekc(1:nctot+nband) = [ecore(1:nctot,isp),readeval(qk, isp)]
+            sws%ntqxx = nbandmx(ip,isp) ! sws%ntqxx is number of bands for <i|sigma|j>.
+            cws%omega(1:ntq) = sws%eq(1:ntq)  
+            cws%nt0p = count(sws%ekc<ef+ddw*esmr)  
+            cws%nt0m = count(sws%ekc<ef-ddw*esmr) 
             NMBATCHloop: do icount = icountini(isp,ip,irot,kx), icountend(isp,ip,irot,kx) !batch of middle states.
               ns1 = nstti(icount)  !Range of middle states is [ns1:ns2] for given icount
               ns2 = nstte(icount)  ! 
@@ -436,7 +444,7 @@ contains
               call writemem('=== KXloop '//trim(charext(izz))//' iqiqz irot ip isp icount= '//&
                    trim(charli([kx,irot,ip,isp,icount],5)))
               call stopwatch_start(sw%zmel)
-              call build_zmel(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false., &
+              call build_zmel(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,sws%ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false., &
                                  is_m_basis=.true., mpi_mode=.not.use_gpu, comm=comm_w)
               call writemem('    endof build_zmel')
               call stopwatch_pause(sw%zmel)
@@ -462,7 +470,7 @@ contains
                   call stopwatch_start(sw%ci)
                   CorrelationSelfEnergyImagAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)! Integration along ImAxis for zwz(cws%omega) 
                     use m_readfreq_r, only: wt=>wwx, x=>freqx
-                    real(8):: wgtim_(0:npm*niw), wgtim(0:npm*niw,ns1:ns2,ntqxx), we, cons(niw), omd(niw), omd2w(niw)
+                    real(8):: wgtim_(0:npm*niw), wgtim(0:npm*niw,ns1:ns2,sws%ntqxx), we, cons(niw), omd(niw), omd2w(niw)
                     real(8):: sig, sig2, aw, aw2
                     integer :: igb
                     complex(kind=kp), allocatable :: wzmel(:,:,:)
@@ -471,9 +479,9 @@ contains
 #endif
                     sig = .5d0*esmr
                     sig2 = 2d0*(.5d0*esmr)**2
-                    itpdo: do itp = 1, ntqxx
+                    itpdo: do itp = 1, sws%ntqxx
                      itpo: do it = ns1, ns2
-                        we = .5d0*(cws%omega(itp)-ekc(it)) !we in hartree unit (atomic unit)
+                        we = .5d0*(cws%omega(itp)-sws%ekc(it)) !we in hartree unit (atomic unit)
                         aw = abs(ua_*we)
                         aw2 = aw*aw
                         if(it<=nctot) then ! if w = e the integral = -v(0)/2 ! frequency integral
@@ -493,16 +501,16 @@ contains
                                + dsign(1d0,we)*.5d0*exp(aw2)*( erfc(sqrt(aw2 + we**2/sig2)) -erfc(aw) ) !See Eq.(57) in PRB165106
                           if(npm==2) wgtim_(niw+1:2*niw) = cons*omd*wt/(x**2)/pi !Asymmetric contribution need check
                         endif
-                        wgtim(:,it,itp)= wkkr*wgtim_ !! Integration weight wgtim along im axis for zwz(0:niw*npm)
+                        wgtim(:,it,itp)= sws%wkkr*wgtim_ !! Integration weight wgtim along im axis for zwz(0:niw*npm)
                       enddo itpo
                     enddo itpdo
-                    allocate(wzmel(1:ngb,ns1:ns2,1:ntqxx))
+                    allocate(wzmel(1:ngb,ns1:ns2,1:sws%ntqxx))
                     if(debug) call writemem('    Goto iwimag')
-                    if(debug) write(stdo,ftox) 'mmmmSc size of mm in imagaxis', (ns2-ns1+1)*ntqxx, ngb, ngb
+                    if(debug) write(stdo,ftox) 'mmmmSc size of mm in imagaxis', (ns2-ns1+1)*sws%ntqxx, ngb, ngb
                     !$acc data copyin(wgtim)
                     iwimag:do iw = wi_ini, wi_fin ! iwimag:do iw = 0, niw !niw is ~10. ixx=0 is for cws%omega=0 nw_i=0 (Time reversal) or nw_i =-nw
                       if(iw < 0 .or. iw > niw) cycle
-                      if(emptyrun) cycle
+                      if(sws%emptyrun) cycle
                       call stopwatch_start(sw%setwv)
                       if(cws%keepwv) then
                         !$acc kernels loop independent present(wvi_upper, idx_i, idx_j)
@@ -525,7 +533,7 @@ contains
                       endif
                       call stopwatch_pause(sw%setwv)
                       !$acc kernels loop independent collapse(2) present(zmel)
-                      do itp = 1, ntqxx
+                      do itp = 1, sws%ntqxx
                         do it = ns1, ns2
                           wzmel(1:ngb,it,itp) = cmplx(wgtim(iw,it,itp)*zmel(1:ngb,it,itp),kind=kp)
                         enddo
@@ -534,7 +542,7 @@ contains
                       !the most time-consuming part in the correlation part
                       beta = CONE
                       if(iw == wi_ini) beta = CZERO
-                      ierr = gemm(wc, wzmel, czmelwc, ngb, (ns2-ns1+1)*ntqxx, ngb, beta = beta, opA = m_op_C)
+                      ierr = gemm(wc, wzmel, czmelwc, ngb, (ns2-ns1+1)*sws%ntqxx, ngb, beta = beta, opA = m_op_C)
                     enddo iwimag
                     !$acc end data
                     deallocate(wzmel)
@@ -546,7 +554,7 @@ contains
                   CorrelationSelfEnergyRealAxis: Block !Real Axis integral. Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
                     use m_wfac, only: wfacx2, weavx2
                     integer :: itini, itend, ittp, ittp3(3), ixs, nttp_max, nttp(0:nw), i, j
-                    real(8) :: we_(ns1:ns2r,ntqxx), wfac_(ns1:ns2r,ntqxx), omg, amat(3,3), wgt3ititp(3)
+                    real(8) :: we_(ns1:ns2r,sws%ntqxx), wfac_(ns1:ns2r,sws%ntqxx), omg, amat(3,3), wgt3ititp(3)
                     complex(kind=kp), allocatable :: wz_iw(:,:), czwc_iw(:,:)
                     real(8), allocatable :: wgtiw(:,:)
                     integer, allocatable :: itw(:,:), itpw(:,:)
@@ -554,14 +562,14 @@ contains
                     attributes(device) :: wz_iw, czwc_iw
 #endif
                     nttp = 0
-                    itploop: do itp = 1, ntqxx
+                    itploop: do itp = 1, sws%ntqxx
                       omg  = cws%omega(itp)
                       itini = merge(max(ns1,cws%nt0m+1),  ns1, mask= omg>=ef)
                       itend = merge(ns2r,  min(cws%nt0p,ns2r), mask= omg>=ef)
                       do it = itini, itend
-                        wfac_(it,itp) = wfacx2(omg, ef, ekc(it), merge(0d0,esmr,mask=it<=nctot))
+                        wfac_(it,itp) = wfacx2(omg, ef, sws%ekc(it), merge(0d0,esmr,mask=it<=nctot))
                         if(wfac_(it,itp) < wfaccut) cycle 
-                        we_(it,itp)  = .5d0*abs(omg-weavx2(omg,ef, ekc(it),esmr))
+                        we_(it,itp)  = .5d0*abs(omg-weavx2(omg,ef, sws%ekc(it),esmr))
                         ixs = findloc(freq_r(1:nw)>we_(it,itp),value=.true.,dim=1)
                         nttp(ixs-1:ixs+1) = nttp(ixs-1:ixs+1) + 1
                       enddo
@@ -572,15 +580,15 @@ contains
                     allocate (itpw(nttp_max,0:nw), source = 0)
                     allocate (wgtiw(nttp_max,0:nw), source = 0d0)
                     nttp = 0
-                    itploopFORwgtiw: do itp = 1, ntqxx
+                    itploopFORwgtiw: do itp = 1, sws%ntqxx
                       omg  = cws%omega(itp)
                       itini = merge(max(ns1,cws%nt0m+1),  ns1, mask= omg>=ef)
                       itend = merge(ns2r,  min(cws%nt0p,ns2r), mask= omg>=ef)
                       do it = itini, itend     ! cws%nt0p corresponds to efp
-                        wfac_(it,itp) = wfacx2(omg, ef, ekc(it), merge(0d0,esmr,mask=it<=nctot)) !Gaussian smearing 
+                        wfac_(it,itp) = wfacx2(omg, ef, sws%ekc(it), merge(0d0,esmr,mask=it<=nctot)) !Gaussian smearing 
                         if(wfac_(it,itp)<wfaccut) cycle 
-                        wfac_(it,itp)=  wfac_(it,itp)*wkkr*dsign(1d0,omg-ef) !wfac_ = $w$ weight (smeared thus truncated by ef). See the sentences.
-                        we_(it,itp)  = .5d0*abs(omg-weavx2(omg,ef, ekc(it),esmr)) !we_= \bar{\omega_\epsilon} in sentences next to Eq.58 in PRB76,165106 (2007)
+                        wfac_(it,itp)=  wfac_(it,itp)*sws%wkkr*dsign(1d0,omg-ef) !wfac_ = $w$ weight (smeared thus truncated by ef). See the sentences.
+                        we_(it,itp)  = .5d0*abs(omg-weavx2(omg,ef, sws%ekc(it),esmr)) !we_= \bar{\omega_\epsilon} in sentences next to Eq.58 in PRB76,165106 (2007)
                         ixs = findloc(freq_r(1:nw)>we_(it,itp),value=.true.,dim=1)
                         associate(x=>we_(it,itp),xi=>freq_r(ixs-1:ixs+1))!x=>we_ is \omega_\epsilon in Eq.(55). 
                           amat(1:3,1)= 1d0                 !old version: call alagr3z2wgt(we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
@@ -645,10 +653,10 @@ contains
                   call stopwatch_pause(sw%cr)
 
                   !$acc host_data use_device(zmel, zsec)
-                  ierr = gemm(czmelwc, zmel, zsec, ntqxx, ntqxx, nbb*(ns2-ns1+1), opA = m_op_C, beta = CONE, ldC = ntq)
+                  ierr = gemm(czmelwc, zmel, zsec, sws%ntqxx, sws%ntqxx, nbb*(ns2-ns1+1), opA = m_op_C, beta = CONE, ldC = ntq)
                   !$acc end host_data
                   !$acc kernels loop independent
-                  do itp = 1, ntqxx
+                  do itp = 1, sws%ntqxx
                     ! zsec(itp,itp) = real(zsec(itp,itp),kind=kp)+img*min(-real((img*zsec(itp,itp)),kind=kp),0_kp) !enforce Imzsec<0 !does not work in intel
                     zsec_img = -real((img*zsec(itp,itp)),kind=kp)
                     if(zsec_img > 0_kp) zsec_img = 0_kp 
@@ -700,7 +708,7 @@ contains
       endblock ReleaseWV !  end subroutine releasewv
     enddo kxloop
     !$acc exit data copyout (zsecall)
-    deallocate(ekc, eq, cws%omega)
+    deallocate(sws%ekc, sws%eq, cws%omega)
     call stopwatch_show(sw%zmel)
     call stopwatch_show(sw%ci)
     call stopwatch_show(sw%cr)
