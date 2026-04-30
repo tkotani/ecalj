@@ -112,7 +112,11 @@ module m_sxcf_sc
   real(8), parameter :: pi = 4d0*datan(1d0), fpi = 4d0*pi
   logical, parameter :: timemix = .true.
   complex(kind=kp), parameter :: CONE = (1_kp, 0_kp), CZERO = (0_kp, 0_kp)
-  integer :: kx, irot, ip, isp, ntqxx, nt0p, nt0m, ifrcw, ifrcwi 
+  ! Loop iterators kx, irot, ip, isp are now subroutine-local (declared inside
+  ! sxcf_scz_exchange / sxcf_correlation_init / sxcf_correlation_step_kx) so
+  ! that no time-dependent module state leaks across subroutine boundaries.
+  ! Removed from module scope in Step 2.1 of m_sxcf_sc cleanup.
+  integer :: ntqxx, nt0p, nt0m, ifrcw, ifrcwi
   real(8) :: wkkr
   integer, allocatable :: ndiv(:), nstatei(:,:), nstatee(:,:)
   real(8), allocatable :: ekc(:), eq(:), omega(:)
@@ -133,7 +137,8 @@ contains
   end subroutine reducez
   subroutine sxcf_scz_exchange(ef, esmr, ixc, nspinmx) !ixc is dummy
     implicit none
-    integer :: icount, ns1, ns2, kr,izz
+    integer :: icount, ns1, ns2, kr, izz
+    integer :: kx, irot, ip, isp  ! Step 2.1: localized from module scope
     logical, parameter :: debug=.false.
     integer, intent(in) :: nspinmx, ixc
     real(8), intent(in) :: ef, esmr
@@ -257,7 +262,7 @@ contains
     call stopwatch_show(t_sw_xc)
   endsubroutine sxcf_scz_exchange
 
-  subroutine sxcf_scz_correlation(ef, esmr, ixc, nspinmx) 
+  subroutine sxcf_scz_correlation(ef, esmr, ixc, nspinmx)
     use m_keyvalue,only: getkeyvalue
     use m_mpi, only: comm_w, mpi__size_w, mpi__rank_w,ipr
     use m_blas, only: int_split
@@ -265,7 +270,8 @@ contains
     implicit none
     integer, intent(in) :: nspinmx, ixc
     real(8), intent(in) :: ef, esmr
-    integer :: icount, ns1, ns2, kr, nwxi, nws, ns2r, nwx,izz, n_nttp, wi_ini, wi_fin, wi_num, wr_ini, wr_fin, wr_num, tri_idx
+    integer :: icount, ns1, ns2, kr, nwxi, nws, ns2r, nwx, izz, n_nttp, wi_ini, wi_fin, wi_num, wr_ini, wr_fin, wr_num, tri_idx
+    integer :: kx, irot, ip, isp  ! Step 2.1: localized from module scope
     real(8) :: q(3), qibz_k(3), qbz_kr(3), qk(3)
     logical :: debug=.false.
     real(8),parameter :: ddw=10d0
