@@ -32,40 +32,32 @@ subroutine hrcxq(do_correlation, do_exchange)
   use m_w0w0i,only: W0w0i 
   use m_readgwinput,only: ReadGwinputKeys 
   use m_qbze,only:  Setqbze,nqbze,nqibze,qbze,qibze
-  use m_x0kf,only: x0kf_zxq,deallocatezxq,deallocatezxqi
-  use m_llw,only: WVRllwR,WVIllwI,w4pmode,MPI__sendllw
+  use m_llw,only: w4pmode,MPI__sendllw
   use m_mpi,only: MPI__Initialize,MPI__root,MPI__rank,MPI__size,MPI__consoleout,comm, &
-                & MPI__SplitXq, MPI__Setnpr_col, comm_b, comm_k, mpi__root_k, mpi__root_q,ipr
+                & MPI__SplitXq, mpi__root_q, ipr
   use m_lgunit,only: m_lgunit_init,stdo
   use m_ftox
-  use m_readVcoud,only: Readvcoud,ngb
   use m_gpu,only: gpu_init
   use m_hsfp0_sc,only: hsfp0_sc
+  use m_hgw_iq_loop,only: run_iq_loop  ! Step WB.3d
 !  use m_dpsion,only: dpsion5
   implicit none
   logical, intent(in), optional :: do_correlation, do_exchange
-  real(8),parameter:: pi = 4d0*datan(1d0),fourpi = 4d0*pi,sqfourpi= sqrt(fourpi)
-  integer:: iq,kx,ixc,iqxini,iqxend,is,iw,ifwd,ngrpx,verbose,npr,nmbas,ifif
-  integer:: i_red_npm,i_red_nwhis,ierr,ircxq,npmx
-  integer:: ipart,iwhis,igb1,imb,igb2,isf
-  real(8):: ua=1d0,qp(3),quu(3),hartree,rydberg,schi=-9999,q00(3)
-  logical :: debug=.false. ,realomega,imagomega !,nolfco=.false.,crpa=.false.
-  logical :: hx0,iprintx=.false.,chipm=.false.,localfieldcorrectionllw   !eibzmode,eibz4x0,
-  logical:: cmdopt2,cmdopt0
-  character(10) :: i2char
-  character(20):: outs=''
-  real(8),allocatable :: symope(:,:),ekxx1(:,:),ekxx2(:,:)
-  complex(8),allocatable:: zxq(:,:,:),zxqi(:,:,:),zzr(:,:)!,rcxq(:,:,:,:)
-  logical,allocatable::   mpi__Qtask(:)
-  integer,allocatable::   mpi__Qrank(:)
-  integer :: n_kpara = 1, n_bpara = 1, npr_col, worker_inQtask
+  integer :: iq, iqxini, iqxend, iw, ifwd, verbose, ifif, ierr
+  real(8) :: ua=1d0
+  logical :: debug=.false., realomega, imagomega
+  logical :: hx0, iprintx=.false.
+  logical :: cmdopt2
+  character(20) :: outs=''
+  logical, allocatable :: mpi__Qtask(:)
+  integer, allocatable :: mpi__Qrank(:)
+  integer :: n_kpara = 1, n_bpara = 1, worker_inQtask
   call MPI__Initialize()
   call gpu_init(comm) 
   call M_lgunit_init()
   call MPI__consoleout('hrcxq')
   call cputid (0)
-  if(verbose()>=100) debug= .TRUE. 
-  hartree= 2d0*rydberg()
+  if(verbose()>=100) debug= .TRUE.
   call Genallcf_v3(incwfx=-1) !ALIGN with hsfp0_sc: ncwf=ncwf2 (ForSxc for core)
   call Read_BZDATA(hx0)      !Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
   call Readefermi() !Readin EFERMI
@@ -109,26 +101,8 @@ subroutine hrcxq(do_correlation, do_exchange)
   if(ipr) write(stdo,ftox) 'mpi_qrank', mpi__qrank
   call flush(stdo)
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
-  MainLoopToObtainZxq: do 1001 iq = iqxini,iqxend
-    if( .NOT. MPI__Qtask(iq) ) cycle
-    if(ipr) write(stdo,*)'mpi_rank in IQ loop:', iq, mpi__rank
-    call cputid (0)
-    qp = qibze(:,iq)
-    if(ipr) write(stdo,ftox)'do 1001: iq q=',iq,ftof(qp,4),' of nq=',iqxend !4 means four digits below decimal point (optional).
-    call Readvcoud(qp, iq,NoVcou=chipm) !Readin vcousq,zcousq ngb ngc for the Coulomb matrix
-    npr=ngb
-    call MPI__Setnpr_col(npr, npr_col) ! set the npr_col : split of npr(column) for MPI color_b
-    call x0kf_zxq(realomega,imagomega,qp,iq,npr,schi, crpa=.false.,chipm=.false.,nolfco=.false.,is_m_basis=.true.) !Get zxq,zxqi in m_x0kf
-    if(debug) print *,'sumchk zxq=',sum(zxq),sum(abs(zxq)),' zxqi=',sum(zxqi),sum(abs(zxqi))
-    if(mpi__root_k) then
-      call WVRllwR(qp,iq,npr,npr_col,is_x0_m_basis=.true.,is_wc_m_basis=.true.) !WV=W-v in RandomPhaseApproximation along realaxis. Write big files WVR.
-      call deallocatezxq()
-      call WVIllwI(qp,iq,npr,npr_col,is_x0_m_basis=.true.,is_wc_m_basis=.true.) !WV=W-v along imagaxis Write WVI 
-      call deallocatezxqi()
-    endif
-    call mpi_barrier(comm_k, ierr)
-    call mpi_barrier(comm_b, ierr)
-1001 enddo MainLoopToObtainZxq
+  ! Step WB.3d: iq loop (chi0 → WV per iq) extracted to m_hgw_iq_loop.
+  call run_iq_loop(iqxini, iqxend, mpi__Qtask, realomega, imagomega)
    GetEffectiveWVatGammaCell: block !Get W-v(q=0): Divergent part and non-analytic constant part of W(0) calculated from llw
     ! we have wing elemments: llw, llwi LLWR, LLWI
     call MPI_barrier(comm,ierr)
