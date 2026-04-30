@@ -20,7 +20,7 @@ subroutine hrcxq(do_correlation, do_exchange)
   !    (4) Do now write long fortran program. One MPI loop and one OpenMP loop.
   use m_ReadEfermi,only: Readefermi !,ef
   use m_readqg,only: Readngmx2!,ngpmx,ngcmx
-  use m_hamindex,only: Readhamindex
+  use m_hamindex,only: Readhamindex, symgg=>symops, ngrp
   use m_readeigen,only: Init_readeigen,Init_readeigen2,Readeval
   use m_read_bzdata,only:Read_bzdata, nq0i,nq0iadd,nqibz,q0i 
   use m_genallcf_v3,only: Genallcf_v3
@@ -78,10 +78,15 @@ subroutine hrcxq(do_correlation, do_exchange)
   !  write(stdo,*)' ngcmx ngpmx=',ngcmx,ngpmx !ngcmx: max of PWs for W,ngpmx: max of PWs for phi
   !! Get space-group transformation information. See header of mptaouof.
   !! But we only use symops=E in hx0fp0 mode. c.f. hsfp0.sc
-  call Mptauof_zmel(symops=reshape([1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0],[3,3]),ng=1)
+  ! Phase 1-C Step 0: Use full (symgg, ngrp) up-front so the same Mptauof state
+  ! is valid for both the WV main loop and the later in-process hsfp0_sc(--job=2)
+  ! correlation phase. The earlier call Mptauof_zmel(identity, 1) was a minimal
+  ! setup; (symgg, ngrp) is a superset and per the existing comment, hrcxq does
+  ! not actually depend on the symop list (only uses symop 1 = identity).
+  call Readhamindex()                  ! moved before Mptauof_zmel (provides symgg, ngrp)
+  call Mptauof_zmel(symgg, ngrp)       ! full setup; smart re-alloc keeps it across hsfp0 phase
   !! Rdpp gives ppbrd: radial integrals and cgr = rotated cg coeffecients. --> call Rdpp(ngrpx,symope) is moved to Mptauof_zmel \in m_zmel
   call Setitq()         ! Set itq in m_zmel
-  call Readhamindex()
   call Init_readeigen() ! Initialization of readEigen !readin m_hamindex
   call Init_readeigen2()
   realomega = .true.
