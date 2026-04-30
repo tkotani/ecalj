@@ -18,10 +18,11 @@ module m_llw
 #else
   use m_mpi, only: MPI__GatherXqw => MPI__GatherXqw
 #endif
-  ! Step WA1/WB.3a: file I/O for __WVR.<iq> / __WVI.<iq> goes through the
-  ! m_wv_storage singleton. The abstraction hides the openm/writem/closem
-  ! (MPI-coordinated) calls. comm is a per-open arg.
-  use m_wv_storage, only: wv_init_file, &
+  ! Step WA1/WB.3a/WB.3e: I/O for __WVR.<iq>/__WVI.<iq> (FILE backend) or
+  ! the in-memory current-iq buffer (MEMORY_3D backend) goes through the
+  ! m_wv_storage singleton. Caller is responsible for calling wv_init_file
+  ! or wv_init_memory_3d before the first WVRllwR/WVIllwI invocation.
+  use m_wv_storage, only: &
        wv_open_iq_real_for_write, wv_open_iq_imag_for_write, &
        wv_put_real, wv_put_imag, wv_close_iq_for_write
   use m_kind,only: kp => kindrcxq
@@ -55,7 +56,7 @@ contains
     intent(in)::       q,iq,    nmbas1,nmbas2 !zxq can be twiced when nspin=2
     logical, intent(in) :: is_x0_m_basis, is_wc_m_basis
     integer:: iq,iq0,nwmax,nwmin,iw,imode,ix,igb1,igb2,ifllw
-    integer:: nmbas1,nmbas2,ngc0,ifw4p,mreclx
+    integer:: nmbas1,nmbas2,ngc0,ifw4p
     real(8):: frr,q(3),vcou1,quu(3),eee
     logical::  localfieldcorrectionllw,cmdopt0
     logical,save:: init=.true.
@@ -70,7 +71,6 @@ contains
 #ifdef __GPU
     attributes(device) :: epstinv, epstilde
 #endif
-    mreclx=mrecl
     if(init) then !initialization related to w4pmode, zw, tpioa...
        allocate( llw(nw_i:nw,nq0i),source=(0d0,0d0) )
        if(sum(ixyz)/=0) w4pmode= .TRUE. 
@@ -99,7 +99,6 @@ contains
     if(ipr)write(stdo,ftox) 'size of zxq:',size(zxq,1), size(zxq,2), size(zxq,3)
     call flush(stdo)
     if(iq<=nqibz) then        !for mmmw
-      call wv_init_file(mreclx=mreclx, nw_i=nw_i)
       call wv_open_iq_real_for_write(iq, comm=comm_root_k)
       ix = merge(1, 0, iq == 1)
       iwloop: do 1015 iwblock = nwmin, nwmax, mpi__size_b
@@ -264,7 +263,7 @@ contains
   end subroutine WVRllwR
   subroutine WVIllwI(q,iq,nmbas1,nmbas2,is_x0_m_basis,is_wc_m_basis)
     intent(in)::       q,iq,     nmbas1,nmbas2 !zxqi can be twiced when nspin=2
-    integer:: nmbas1,nmbas2,mreclx
+    integer:: nmbas1,nmbas2
     integer:: iq,iq0,nwmax,nwmin,iw,imode,ix,igb1,igb2,ifllwi
     real(8):: frr,q(3),vcou1
     logical::  localfieldcorrectionllw,cmdopt0
@@ -286,7 +285,6 @@ contains
     allocate(x_m2e(ngb,ngb))
     allocate(zw(nblochpmx,nblochpmx))
     !$acc enter data create(zxqw, x_m2e, zw) copyin(vcousq)
-    mreclx=mrecl
     if(init) then
        allocate(llwI(niw,nq0i), source=(0d0,0d0))
        init=.false.
@@ -301,7 +299,6 @@ contains
       !$acc end kernels
     endif
     if( iq<=nqibz ) then
-       call wv_init_file(mreclx=mreclx, nw_i=nw_i)
        call wv_open_iq_imag_for_write(iq, comm=comm_root_k)
        ix = merge(1, 0, iq == 1)
        do 1016 iwblock  = 1, niw, mpi__size_b

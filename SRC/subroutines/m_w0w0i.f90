@@ -79,9 +79,10 @@ contains
     use m_freq,only: niw ,nw,nw_i
     use m_kind, only: kp => kindrcxq
     use m_readVcoud,only: Readvcoud, ngb, ReleaseZcousq, zcousq
-    ! Step WA2: file I/O on __WVR.1 / __WVI.1 (rank 0 read+modify+write) goes
-    ! through m_wv_storage instead of bare open/read/write/close.
-    use m_wv_storage, only: wv_init_file, &
+    ! Step WA2/WB.3e: read+modify+write of W(iq=1) (FILE: __WVR.1/__WVI.1, or
+    ! MEMORY_3D: in-memory iq=1 saved slot) goes through the m_wv_storage
+    ! singleton. Caller must initialize the backend before invoking modifyWV0.
+    use m_wv_storage, only: &
          wv_open_iq_real_for_modify, wv_open_iq_imag_for_modify, &
          wv_modify_get_real, wv_modify_put_real, &
          wv_modify_get_imag, wv_modify_put_imag, &
@@ -96,13 +97,12 @@ contains
 #else
     use m_blas, only: gemm => zmm_h
 #endif
-    integer:: iq,ircw,iw,nini,nend,mreclx
+    integer:: iq,ircw,iw,nini,nend
     real(8)::q(3)
     logical:: is_wc_m_basis
     complex(kind=kp),allocatable:: zw(:,:), x_m2e(:,:), m2e(:,:)
     character(10):: i2char
     integer :: istat
-    mreclx=mrecl
     !! Read WVR and WVI at Gamma point, and give correct W(0) (averaged in the Gamma cell, where
     !! Gamma cell) is the micro cell of BZ including Gamma point).
     !! === w0,w0i are stored to zw for q=0 ===
@@ -119,7 +119,6 @@ contains
       call ReleaseZcousq()                  !Release zcousq used in set_m2e_prod_basis
       !$acc enter data create(x_m2e) copyin(m2e)
     endif
-    call wv_init_file(mreclx=mreclx, nw_i=nw_i)
     do ircw=1,2
        if (ircw==1) then
           nini=nw_i

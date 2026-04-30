@@ -1,46 +1,41 @@
-!> Calculate Im(chi0) and do Hilbert transformation.
+!> Calculate Im(chi0), do Hilbert transformation, and (in streaming mode)
+!> consume the resulting W in-process for correlation self-energy.
 module m_hrcxq
   contains
 subroutine hrcxq(do_correlation, do_exchange)
-  !  Output: rxcq.iq files. (and SEX/SEC files when do_exchange/do_correlation=.true.)
-  !  If do_correlation is present and .true., after the WV phase, we run the
-  !  hsfp0_sc(--job=2) correlation phase in-process. This eliminates the need
-  !  for separate hsfp0_sc invocation reading WV files from disk.
-  !  If do_exchange is also true, we run hsfp0_sc(--job=1) for the valence
-  !  exchange Sx in the same process, saving another MPI bootstrap.
-  !   After set up a kind of enviromental variables, by calling module functions,
-  !   we read tetrahedron weight via 'call X0kf_v4hz_init_read(iq,is)'.
-  !   Then we calculate Im(chi0) by x0kf_v4hz.
-  !  Module coding rule:
-  !    (1) Read files and readin data are stored in modules. All data in modules are protected.
-  !    (2) To set Enviromental variables before main loop (for exaple, do 1001 in this code),
-  !        we call module funcitons one by one. It is a bootstrap sequence of calling modules.
-  !    (3) During the main loop, a few of module variables are rewritten by module functions
-  !        (tetrahedron weight, matrix elements ...). Be careful, and clarify it.
-  !    (4) Do now write long fortran program. One MPI loop and one OpenMP loop.
-  use m_ReadEfermi,only: Readefermi !,ef
-  use m_readqg,only: Readngmx2!,ngpmx,ngcmx
+  !> When do_correlation=.true. we run Phase 1-C streaming: per-iq W is held
+  !> only in the m_wv_storage MEMORY_3D singleton, sxcf step_kx consumes it
+  !> immediately (iq>1) or after W0w0i correction (iq=1), and SECU/SEC2U
+  !> are written via hsfp0_sc_writeout. No __WVR/__WVI files written.
+  !> When do_correlation is absent or .false., we run the legacy FILE flow:
+  !> WVRllwR/WVIllwI emit __WVR.<iq>/__WVI.<iq>, W0w0i edits __WVR.1/__WVI.1
+  !> in place, then (optionally) hsfp0_sc(--job=1) writes SEXU/SEX2U.
+  use m_ReadEfermi,only: Readefermi
+  use m_readqg,only: Readngmx2
   use m_hamindex,only: Readhamindex, symgg=>symops, ngrp
-  use m_readeigen,only: Init_readeigen,Init_readeigen2,Readeval
-  use m_read_bzdata,only:Read_bzdata, nq0i,nq0iadd,nqibz,q0i 
+  use m_readeigen,only: Init_readeigen,Init_readeigen2
+  use m_read_bzdata,only:Read_bzdata, nq0i,nq0iadd,nqibz,q0i
   use m_genallcf_v3,only: Genallcf_v3
-  use m_rdpp,only: Rdpp, mrecl,nblochpmx,nprecx ! Base data to generate matrix elements zmel*. Used in "call get_zmelt".
-  use m_zmel,only: Mptauof_zmel !Set data for "call get_zmelt" zmelt= matrix element <phi |phi MPB>.
-  use m_itq,only:  Setitq 
-  use m_freq,only: Getfreq2,frhis,freq_r,freq_i,nw_i,nw,npm,niw ! Frequency !output of getfreq
-  use m_tetwt,only: Tetdeallocate,Gettetwt 
-  use m_w0w0i,only: W0w0i 
-  use m_readgwinput,only: ReadGwinputKeys 
-  use m_qbze,only:  Setqbze,nqbze,nqibze,qbze,qibze
-  use m_llw,only: w4pmode,MPI__sendllw
+  use m_rdpp,only: mrecl,nblochpmx,nprecx
+  use m_zmel,only: Mptauof_zmel
+  use m_itq,only:  Setitq
+  use m_freq,only: Getfreq2,freq_r,nw_i,nw,niw
+  use m_w0w0i,only: W0w0i
+  use m_readgwinput,only: ReadGwinputKeys
+  use m_qbze,only:  Setqbze,qibze
+  use m_llw,only: MPI__sendllw
   use m_mpi,only: MPI__Initialize,MPI__root,MPI__rank,MPI__size,MPI__consoleout,comm, &
-                & MPI__SplitXq, mpi__root_q, ipr
+                & MPI__SplitXq, ipr
   use m_lgunit,only: m_lgunit_init,stdo
   use m_ftox
   use m_gpu,only: gpu_init
-  use m_hsfp0_sc,only: hsfp0_sc
-  use m_hgw_iq_loop,only: run_iq_loop  ! Step WB.3d
-!  use m_dpsion,only: dpsion5
+  use m_hsfp0_sc,only: hsfp0_sc, hsfp0_sc_setup, hsfp0_sc_writeout, &
+                       hs_ef, hs_esmr, hs_nspinmx
+  use m_hgw_iq_loop,only: run_iq_loop
+  use m_wv_storage,only: wv_init_file, wv_init_memory_3d, wv_dealloc, &
+                         wv_bcast_iq1, wv_restore_iq1
+  use m_sxcf_sc,only: sxcf_correlation_init, sxcf_correlation_step_kx, &
+                      sxcf_correlation_finalize
   implicit none
   logical, intent(in), optional :: do_correlation, do_exchange
   integer :: iq, iqxini, iqxend, iw, ifwd, verbose, ifif, ierr
@@ -48,99 +43,114 @@ subroutine hrcxq(do_correlation, do_exchange)
   logical :: debug=.false., realomega, imagomega
   logical :: hx0, iprintx=.false.
   logical :: cmdopt2
+  logical :: streaming
   character(20) :: outs=''
   logical, allocatable :: mpi__Qtask(:)
   integer, allocatable :: mpi__Qrank(:)
   integer :: n_kpara = 1, n_bpara = 1, worker_inQtask
   call MPI__Initialize()
-  call gpu_init(comm) 
+  call gpu_init(comm)
   call M_lgunit_init()
   call MPI__consoleout('hrcxq')
   call cputid (0)
   if(verbose()>=100) debug= .TRUE.
-  call Genallcf_v3(incwfx=-1) !ALIGN with hsfp0_sc: ncwf=ncwf2 (ForSxc for core)
-  call Read_BZDATA(hx0)      !Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
-  call Readefermi() !Readin EFERMI
-!  call Readhbe()    !Read dimensions
-  call ReadGWinputKeys() !Readin dataset in GWinput   !      call Readq0p()    !Readin Offset Gamma
-  call Readngmx2()  !Get ngpmx and ngcmx in m_readqg
-  call Setqbze()    ! extented BZ points list
-  !  write(stdo,*)' ngcmx ngpmx=',ngcmx,ngpmx !ngcmx: max of PWs for W,ngpmx: max of PWs for phi
-  !! Get space-group transformation information. See header of mptaouof.
-  !! But we only use symops=E in hx0fp0 mode. c.f. hsfp0.sc
-  ! Phase 1-C Step 0: Use full (symgg, ngrp) up-front so the same Mptauof state
-  ! is valid for both the WV main loop and the later in-process hsfp0_sc(--job=2)
-  ! correlation phase. The earlier call Mptauof_zmel(identity, 1) was a minimal
-  ! setup; (symgg, ngrp) is a superset and per the existing comment, hrcxq does
-  ! not actually depend on the symop list (only uses symop 1 = identity).
-  call Readhamindex()                  ! moved before Mptauof_zmel (provides symgg, ngrp)
-  call Mptauof_zmel(symgg, ngrp)       ! full setup; smart re-alloc keeps it across hsfp0 phase
-  !! Rdpp gives ppbrd: radial integrals and cgr = rotated cg coeffecients. --> call Rdpp(ngrpx,symope) is moved to Mptauof_zmel \in m_zmel
-  call Setitq()         ! Set itq in m_zmel
-  call Init_readeigen() ! Initialization of readEigen !readin m_hamindex
+  call Genallcf_v3(incwfx=-1)
+  call Read_BZDATA(hx0)
+  call Readefermi()
+  call ReadGWinputKeys()
+  call Readngmx2()
+  call Setqbze()
+  ! (symgg, ngrp) is a superset of identity-only setup; hrcxq only uses symop 1.
+  call Readhamindex()
+  call Mptauof_zmel(symgg, ngrp)
+  call Setitq()
+  call Init_readeigen()
   call Init_readeigen2()
   realomega = .true.
   imagomega = .true.
-  call Getfreq2(.false.,realomega,imagomega,ua,iprintx) ! Getfreq gives frhis,freq_r,freq_i, nwhis,nw,npm
-  if(MPI__root) call writewvfreq() 
-  ! nblochpmx = nbloch + ngcmx ! Maximum of MPB = PBpart +  IPWpartforMPB
+  call Getfreq2(.false.,realomega,imagomega,ua,iprintx)
+  if(MPI__root) call writewvfreq()
   iqxini = 1
-  iqxend = nqibz + nq0i + nq0iadd ! [iqxini:iqxend] range of q points.
-
+  iqxend = nqibz + nq0i + nq0iadd
   if(cmdopt2('--nk=', outs)) read(outs,*) n_kpara
-  n_bpara = max(mpi__size/(n_kpara*(iqxend - iqxini + 1)), 1) !Default setting of parallelization. k-parallel is 1.
+  n_bpara = max(mpi__size/(n_kpara*(iqxend - iqxini + 1)), 1)
   if(cmdopt2('--nb=', outs)) read(outs,*) n_bpara
   worker_inQtask = n_bpara * n_kpara
   if(ipr) write(stdo,'(1X,A,3I5)') 'MPI: worker_inQtask:(n_bpara,n_kpara)', worker_inQtask, n_bpara, n_kpara
   call MPI__SplitXq(n_bpara, n_kpara)
-  ! allocate( mpi__Qrank(iqxini:iqxend), source=[(mod(iq-1,mpi__size)           ,iq=iqxini,iqxend)])
-  ! allocate( mpi__Qtask(iqxini:iqxend), source=[(mod(iq-1,mpi__size)==mpi__rank,iq=iqxini,iqxend)])
   allocate( mpi__Qrank(iqxini:iqxend), source=[(mod(iq-1,mpi__size/worker_inQtask)*worker_inQtask           ,iq=iqxini,iqxend)])
   allocate( mpi__Qtask(iqxini:iqxend), source=[(mod(iq-1,mpi__size/worker_inQtask)==mpi__rank/worker_inQtask,iq=iqxini,iqxend)])
   if(ipr) write(stdo,ftox)'mpi_rank',mpi__rank,'mpi__Qtask=',mpi__Qtask
   if(ipr) write(stdo,ftox) 'mpi_qrank', mpi__qrank
   call flush(stdo)
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
-  ! Step WB.3d: iq loop (chi0 → WV per iq) extracted to m_hgw_iq_loop.
-  call run_iq_loop(iqxini, iqxend, mpi__Qtask, realomega, imagomega)
-   GetEffectiveWVatGammaCell: block !Get W-v(q=0): Divergent part and non-analytic constant part of W(0) calculated from llw
-    ! we have wing elemments: llw, llwi LLWR, LLWI
-    call MPI_barrier(comm,ierr)
-    call MPI__sendllw(iqxend,MPI__Qrank) ! Send all LLW data to mpi_root.
-    ! Get effective W0,W0i, and L(omega=0) matrix. Modify WVR WVI with w0 and w0. Files WVI and WVR are modified.
-    if(MPI__rank==0) call W0w0i(nw_i,nw,nq0i,niw,q0i,is_wc_m_basis=.true.)
-  endblock GetEffectiveWVatGammaCell
-  if(ipr) write(stdo,ftox) '--- end of hrcxq --- irank=',MPI__rank
-  call cputid(0)
-  if(present(do_exchange)) then
-     if(do_exchange) then
+
+  streaming = .false.
+  if (present(do_correlation)) streaming = do_correlation
+
+  ! Optional exchange phase first. sxcf_scz_exchange does not read W, so this
+  ! works in either streaming or FILE mode without buffer juggling.
+  if (present(do_exchange)) then
+     if (do_exchange) then
         if(ipr) write(stdo,ftox) ' hrcxq: starting in-process hsfp0_sc(--job=1) exchange phase'
         call hsfp0_sc(skip_init=.true., skip_rx0=.true., ixc_in=1)
      endif
   endif
-  if(present(do_correlation)) then
-     if(do_correlation) then
-        if(ipr) write(stdo,ftox) ' hrcxq: starting in-process hsfp0_sc(--job=2) correlation phase'
-        call hsfp0_sc(skip_init=.true., skip_rx0=.true., ixc_in=2)
-        if(ipr) write(stdo,ftox) ' hrcxq+hsfp0_sc combined: finished'
-     endif
-  endif
+
+  StreamingOrFile: if (streaming) then
+     ! ---- Phase 1-C streaming (do_correlation=.true.) ----
+     ! Set up sxcf parameters via hsfp0_sc_setup (its outputs flow through
+     ! the m_hsfp0_sc module: hs_ef, hs_esmr, hs_nspinmx, hs_eqx, ...).
+     call hsfp0_sc_setup(skip_init=.true., ixc_in=2)
+     ! Configure the WV singleton for in-memory streaming.
+     call wv_init_memory_3d(nblochpmx, nw_i, nw, niw)
+     ! Allocate sxcf workspace; zero zsecall.
+     call sxcf_correlation_init(hs_ef, hs_esmr, hs_nspinmx)
+     ! Per-iq production interleaved with per-kx consumption (kx=iq>1) or
+     ! save (iq=1, deferred).
+     call run_iq_loop(iqxini, iqxend, mpi__Qtask, realomega, imagomega, &
+                       streaming_consume=.true.)
+     ! Effective W(0) at Gamma: collect llw on rank 0, run W0w0i which
+     ! modifies the iq=1 saved slot (read+write via wv_modify_*).
+     call MPI_barrier(comm, ierr)
+     call MPI__sendllw(iqxend, MPI__Qrank)
+     if (MPI__rank == 0) call W0w0i(nw_i, nw, nq0i, niw, q0i, is_wc_m_basis=.true.)
+     ! Broadcast the corrected iq=1 saved slot, restore to current, consume.
+     call wv_bcast_iq1(0, comm)
+     call wv_restore_iq1()
+     call sxcf_correlation_step_kx(1, hs_ef, hs_esmr, hs_nspinmx)
+     call sxcf_correlation_finalize()
+     call wv_dealloc()
+     ! Reduce zsecall to root + write SECU/SEC2U.
+     call hsfp0_sc_writeout(skip_rx0=.true.)
+     if(ipr) write(stdo,ftox) ' hrcxq+hsfp0_sc combined: finished (streaming)'
+  else StreamingOrFile
+     ! ---- Legacy FILE mode (no in-process correlation consume) ----
+     call wv_init_file(mreclx=mrecl, nw_i=nw_i)
+     call run_iq_loop(iqxini, iqxend, mpi__Qtask, realomega, imagomega)
+     call MPI_barrier(comm, ierr)
+     call MPI__sendllw(iqxend, MPI__Qrank)
+     if (MPI__rank == 0) call W0w0i(nw_i, nw, nq0i, niw, q0i, is_wc_m_basis=.true.)
+  endif StreamingOrFile
+
+  if(ipr) write(stdo,ftox) '--- end of hrcxq --- irank=',MPI__rank
+  call cputid(0)
   call rx0( ' OK! hrcxq WV generated')
-  
+
   contains
   subroutine writewvfreq() !writeonly
      open(newunit=ifwd, file='__WV.d')
      write(ifwd,"(1x,10i14)") nprecx, mrecl, nblochpmx, nw+1,niw, nqibz + nq0i-1, nw_i
      close(ifwd)
-     open(newunit=ifif,file='freq_r') ! Write number of frequency points nwp and frequensies
+     open(newunit=ifif,file='freq_r')
      write(ifif,"(2i8,'  !(a.u.=2Ry)')") nw+1, nw_i
      do iw= nw_i,-1
-        write(ifif,"(d23.15,2x,i6)") -freq_r(-iw),iw !negative frequecncies for x0
+        write(ifif,"(d23.15,2x,i6)") -freq_r(-iw),iw
      enddo
      do iw= 0,nw
-        write(ifif,"(d23.15,2x,i6)") freq_r(iw),iw    !positive frequecncies for x0
+        write(ifif,"(d23.15,2x,i6)") freq_r(iw),iw
      enddo
      close(ifif)
-   end subroutine writewvfreq
+  end subroutine writewvfreq
 end subroutine hrcxq
 end module m_hrcxq
