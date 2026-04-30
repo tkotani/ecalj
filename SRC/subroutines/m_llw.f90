@@ -15,11 +15,14 @@ module m_llw
   use m_zmel, only: m2e_prod_basis
 #ifdef __MP
   use m_mpi, only: MPI__GatherXqw => MPI__GatherXqw_c
-  use m_mpiio, only: openm, closem, writem => writem_c
 #else
   use m_mpi, only: MPI__GatherXqw => MPI__GatherXqw
-  use m_mpiio, only: openm, closem, writem
 #endif
+  ! Step WA1: file I/O for __WVR.<iq> / __WVI.<iq> goes through m_wv_storage.
+  ! The abstraction hides the openm/writem/closem (MPI-coordinated) calls.
+  use m_wv_storage, only: wv_storage, wv_init_file, &
+       wv_open_iq_real_for_write, wv_open_iq_imag_for_write, &
+       wv_put_real, wv_put_imag, wv_close_iq_for_write
   use m_kind,only: kp => kindrcxq
   use m_stopwatch
   use m_blas, only: m_op_c, m_op_t
@@ -115,11 +118,12 @@ contains
     character(8) :: out_mode
     logical :: write_to_memory
     integer:: iq,iq0,nwmax,nwmin,iw,imode,ix,igb1,igb2,ifllw
-    integer:: nmbas1,nmbas2,ngc0,ifw4p,ifrcw,mreclx
+    integer:: nmbas1,nmbas2,ngc0,ifw4p,mreclx
     real(8):: frr,q(3),vcou1,quu(3),eee
     logical::  localfieldcorrectionllw,cmdopt0,emptyrun
     logical,save:: init=.true.
     type(stopwatch) :: t_sw_matinv, t_sw_x_gather, t_sw_x_m2e_xf
+    type(wv_storage) :: wvs   ! Step WA1: encapsulates file I/O (openm/writem/closem)
     integer :: istat
 !    complex(8):: zxq(nmbas1,nmbas2,nw_i:nw)
     character(10):: i2char
@@ -173,7 +177,8 @@ contains
       !   open(newunit=ifrcw, file='__WVR.'//i2char(iq),form='unformatted',access='direct',recl=mreclx)
       ! endif
       if (.not. write_to_memory) then
-         istat = openm(newunit=ifrcw, file='__WVR.'//i2char(iq), recl=mreclx, comm=comm_root_k)
+         call wv_init_file(wvs, mreclx=mreclx, comm=comm_root_k, nw_i=nw_i)
+         call wv_open_iq_real_for_write(wvs, iq)
       endif
       ix = merge(1, 0, iq == 1)
       iwloop: do 1015 iwblock = nwmin, nwmax, mpi__size_b
@@ -256,13 +261,13 @@ contains
               wv_real_buf(1:nblochpmx, 1:nblochpmx, iw, iq) = zw(1:nblochpmx, 1:nblochpmx)
            endif
         else
-           istat = writem(ifrcw,rec=iw-nw_i+1,data=zw(1:nblochpmx,1:nblochpmx))
+           call wv_put_real(wvs, iw, zw(1:nblochpmx, 1:nblochpmx))
         endif
         frr= dsign(freq_r(abs(iw)),dble(iw))
         call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
 1015  enddo iwloop
       ! if(mpi__root_q) close(ifrcw)
-      if (.not. write_to_memory) istat = closem(ifrcw)
+      if (.not. write_to_memory) call wv_close_iq_for_write(wvs)
     else  ! llw, Wing elements of W. See PRB81 125102
       iq0 = iq - nqibz
       vcou1 = fourpi/sum(q**2*tpioa**2) ! --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
@@ -355,7 +360,8 @@ contains
     character(8) :: out_mode
     logical :: write_to_memory
     integer:: nmbas1,nmbas2,mreclx
-    integer:: iq,iq0,nwmax,nwmin,iw,imode,ix,igb1,igb2,ifllwi,ifrcwi
+    integer:: iq,iq0,nwmax,nwmin,iw,imode,ix,igb1,igb2,ifllwi
+    type(wv_storage) :: wvs   ! Step WA1: encapsulates file I/O for the imag axis
     real(8):: frr,q(3),vcou1
     logical::  localfieldcorrectionllw,cmdopt0,emptyrun
     logical, intent(in) :: is_x0_m_basis, is_wc_m_basis
@@ -405,7 +411,8 @@ contains
        !   open(newunit=ifrcwi,file='__WVI.'//i2char(iq),form='unformatted',access='direct',recl=mreclx)
        ! endif
        if (.not. write_to_memory) then
-          istat = openm(newunit=ifrcwi, file='__WVI.'//i2char(iq), recl=mreclx, comm=comm_root_k)
+          call wv_init_file(wvs, mreclx=mreclx, comm=comm_root_k, nw_i=nw_i)
+          call wv_open_iq_imag_for_write(wvs, iq)
        endif
        ix = merge(1, 0, iq == 1)
        do 1016 iwblock  = 1, niw, mpi__size_b
@@ -478,11 +485,11 @@ contains
                 wv_imag_buf(1:nblochpmx, 1:nblochpmx, iw, iq) = zw(1:nblochpmx, 1:nblochpmx)
              endif
           else
-             istat = writem(ifrcwi,rec=iw,data=zw(1:nblochpmx,1:nblochpmx))
+             call wv_put_imag(wvs, iw, zw(1:nblochpmx, 1:nblochpmx))
           endif
           call tr_chkwrite("freq_i iq iw imgomg trwv=",zw,iw,freq_i(iw),nblochpmx,nbloch,ngb,iq)
 1016   enddo
-       if (.not. write_to_memory) istat = closem(ifrcwi)
+       if (.not. write_to_memory) call wv_close_iq_for_write(wvs)
     else
        !! Full inversion to calculalte eps with LFC.
        iq0 = iq - nqibz
