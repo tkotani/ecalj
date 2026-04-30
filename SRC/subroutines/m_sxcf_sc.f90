@@ -77,7 +77,8 @@
 !! \endverbatim
 module m_sxcf_sc
   use m_readeigen, only: Readeval
-  use m_zmel, only: build_zmel, set_m2e_prod_basis, zmel, nbb !get_zmel_init => 
+  use m_llw, only: wv_in_memory, wv_real_buf, wv_imag_buf
+  use m_zmel, only: build_zmel, set_m2e_prod_basis, zmel, nbb !get_zmel_init =>
   use m_itq, only: ntq, nbandmx
   use m_genallcf_v3, only: ndima, nspin, nctot, niw, ecore,nband
   use m_read_bzdata, only: qibz, qbz, wk=>wbz, nqibz, nqbz, wklm, lxklm, wqt=>wt
@@ -316,8 +317,10 @@ contains
         complex(kind=kp), allocatable :: wv(:,:)
         real(8), parameter :: gb = 1000*1000*1000
         if(any(kx==kxc(:))) then
-          open(newunit=ifrcwi,file='__WVI.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
-          open(newunit=ifrcw, file='__WVR.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
+          if (.not. wv_in_memory) then
+            open(newunit=ifrcwi,file='__WVI.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
+            open(newunit=ifrcw, file='__WVR.'//i2char(kx),action='read',form='unformatted',access='direct',recl=mrecl)
+          endif
           if(keepwv) then
             if(ipr)write(stdo, ftox) 'save WVI and WVR on CPU and GPU (if GPU is used) memory. This requires sufficient memory'
            ! (MO) wvi & wvr are also allocated in CPU memory and are note needed for GPU calcualtion. but allocation of huge
@@ -339,10 +342,18 @@ contains
             allocate(wvi_upper(ngb*(ngb+1)/2,wi_ini:wi_fin))
             allocate(wvr_upper(ngb*(ngb+1)/2,wr_ini:wr_fin))
             do iw = wi_ini, wi_fin
-              if(iw == 0) then
-                read(ifrcw,rec=iw-nw_i+1) wv(:,:)
+              if (wv_in_memory) then
+                if(iw == 0) then
+                  wv(:,:) = wv_real_buf(:,:,iw,kx)
+                else
+                  wv(:,:) = wv_imag_buf(:,:,iw,kx)
+                endif
               else
-                read(ifrcwi,rec=iw) wv(:,:)
+                if(iw == 0) then
+                  read(ifrcw,rec=iw-nw_i+1) wv(:,:)
+                else
+                  read(ifrcwi,rec=iw) wv(:,:)
+                endif
               endif
               do tri_idx = 1, ngb*(ngb+1)/2
                 i = idx_i(tri_idx)
@@ -351,7 +362,11 @@ contains
               enddo
             enddo
             do iw = wr_ini, wr_fin
-              read(ifrcw,rec=iw-nw_i+1) wv(:,:)
+              if (wv_in_memory) then
+                wv(:,:) = wv_real_buf(:,:,iw,kx)
+              else
+                read(ifrcw,rec=iw-nw_i+1) wv(:,:)
+              endif
               do tri_idx = 1, ngb*(ngb+1)/2
                 i = idx_i(tri_idx)
                 j = idx_j(tri_idx)
@@ -471,8 +486,13 @@ contains
                         enddo
                         !$acc end kernels
                       else
-                        if(iw == 0) read(ifrcw,rec=1+(0-nw_i)) wv!direct access Wc(0) = W(0)-v ! nw_i=0 (Time reversal) or nw_i =-nw
-                        if(iw > 0) read(ifrcwi,rec=iw) wv ! direct access read Wc(i*omega)=W(i*omega)-v
+                        if (wv_in_memory) then
+                          if(iw == 0) wv(:,:) = wv_real_buf(:,:,0,kx)
+                          if(iw > 0)  wv(:,:) = wv_imag_buf(:,:,iw,kx)
+                        else
+                          if(iw == 0) read(ifrcw,rec=1+(0-nw_i)) wv!direct access Wc(0) = W(0)-v ! nw_i=0 (Time reversal) or nw_i =-nw
+                          if(iw > 0) read(ifrcwi,rec=iw) wv ! direct access read Wc(i*omega)=W(i*omega)-v
+                        endif
                         wc(1:ngb,1:ngb) = wv(1:ngb,1:ngb)  !copy to GPU
                       endif
                       call stopwatch_pause(t_sw_setwv)
@@ -564,7 +584,11 @@ contains
                         enddo
                         !$acc end kernels
                       else
-                        read(ifrcw,rec=iw-nw_i+1) wv
+                        if (wv_in_memory) then
+                          wv(:,:) = wv_real_buf(:,:,iw,kx)
+                        else
+                          read(ifrcw,rec=iw-nw_i+1) wv
+                        endif
                         wc(1:ngb,1:ngb) = wv(1:ngb,1:ngb)  !copy to GPU
                         !$acc kernels
                         wc(:,:) = (wc(:,:) + transpose(conjg(wc(:,:))))*0.5_kp
@@ -640,8 +664,10 @@ contains
             !$acc exit data delete(idx_j)
             deallocate(idx_j)
           endif
-          close(ifrcwi)
-          close(ifrcw)
+          if (.not. wv_in_memory) then
+             close(ifrcwi)
+             close(ifrcw)
+          endif
         endif
       endblock ReleaseWV !  end subroutine releasewv
     enddo kxloop

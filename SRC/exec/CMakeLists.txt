@@ -59,6 +59,7 @@ file(GLOB MAINS "${CMAKE_SOURCE_DIR}/../main/*.f90")
 set(MAINS_GPU
     "${CMAKE_SOURCE_DIR}/../main/hsfp0_sc.f90"
     "${CMAKE_SOURCE_DIR}/../main/hrcxq.f90"
+    "${CMAKE_SOURCE_DIR}/../main/hgw_combined.f90"
     "${CMAKE_SOURCE_DIR}/../main/hx0fp0.f90"
     "${CMAKE_SOURCE_DIR}/../main/hvccfp0.f90"
     "${CMAKE_SOURCE_DIR}/../main/lmf.f90"

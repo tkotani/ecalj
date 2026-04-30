@@ -18,7 +18,14 @@ contains
     real(8) ::  symope(3,3,ngrp),  pi
     nl=lmxax+1
     if(ipr) write(6,*)" rdpp: natom=",natom
-    if(done_rdpp) call rx('rdpp is already called')
+    if(done_rdpp) then ! Re-runnable: dealloc and rebuild for new ngrp (combined hrcxq+hsfp0)
+       if(allocated(nblocha)) deallocate(nblocha)
+       if(allocated(lx)) deallocate(lx)
+       if(allocated(nx)) deallocate(nx)
+       if(allocated(ppbrd)) deallocate(ppbrd)
+       if(allocated(cgr)) deallocate(cgr)
+       done_rdpp=.false.
+    endif
     allocate( nblocha(natom) ,lx(natom), nx(0:2*(nl-1),natom),source=0)
     do ic = 1,natom
        open(newunit=ifppb(ic),file='__PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10)),form='unformatted')

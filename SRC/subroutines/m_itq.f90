@@ -28,6 +28,9 @@ contains
     real(8),allocatable:: eqt(:)
     logical:: cmdopt0,readntqxx
     if(rntq) return
+    ! In combined hrcxq+hsfp0_sc mode, itq may have been allocated by setitq().
+    if(allocated(itq))     deallocate(itq)
+    if(allocated(nbandmx)) deallocate(nbandmx)
     allocate(nbandmx(nqibz,nspinmx),eqt(nband))
     readntqxx=.false.
     if(cmdopt0('--ntqxx')) then !NTQXX is to keep the same number of bands for Sigma for each k during iteration.

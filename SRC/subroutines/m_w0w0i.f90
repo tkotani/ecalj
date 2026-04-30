@@ -79,6 +79,7 @@ contains
     use m_freq,only: niw ,nw,nw_i
     use m_kind, only: kp => kindrcxq
     use m_readVcoud,only: Readvcoud, ngb, ReleaseZcousq, zcousq
+    use m_llw, only: wv_in_memory, wv_real_buf, wv_imag_buf
     use m_blas, only: m_op_C
 #if defined(__MP) && defined(__GPU)
     use m_blas, only: gemm => cmm_d
@@ -116,14 +117,23 @@ contains
        if (ircw==1) then
           nini=nw_i
           nend=nw
-          open(newunit=ifrcwx,  file='__WVR.'//i2char(iq), form='unformatted', &
-               status='old',access='direct',recl=mreclx)
+          if (.not. wv_in_memory) then
+             open(newunit=ifrcwx,  file='__WVR.'//i2char(iq), form='unformatted', &
+                  status='old',access='direct',recl=mreclx)
+          endif
        elseif(ircw==2) then;  nini=1;      nend=niw;
-          open(newunit=ifrcwx,  file='__WVI.'//i2char(iq), form='unformatted', &
-               status='old',access='direct',recl=mreclx)
+          if (.not. wv_in_memory) then
+             open(newunit=ifrcwx,  file='__WVI.'//i2char(iq), form='unformatted', &
+                  status='old',access='direct',recl=mreclx)
+          endif
        endif
        do iw=nini,nend
-          read(ifrcwx, rec= iw-nini+1 ) zw !(1:ngb,1:ngb)
+          if (wv_in_memory) then
+             if (ircw==1) zw(:,:) = wv_real_buf(:,:,iw,iq)
+             if (ircw==2) zw(:,:) = wv_imag_buf(:,:,iw,iq)
+          else
+             read(ifrcwx, rec= iw-nini+1 ) zw !(1:ngb,1:ngb)
+          endif
           if( iq==1 ) then
             if(ircw==1) zw(1,1) = cmplx(w0(iw),kind=kp)
             if(ircw==2) zw(1,1) = cmplx(w0i(iw),kind=kp)
@@ -134,9 +144,14 @@ contains
               !$acc end data
             endif
           endif
-          write(ifrcwx,rec=iw-nini+1) zw !(1:ngb,1:ngb)
+          if (wv_in_memory) then
+             if (ircw==1) wv_real_buf(:,:,iw,iq) = zw(:,:)
+             if (ircw==2) wv_imag_buf(:,:,iw,iq) = zw(:,:)
+          else
+             write(ifrcwx,rec=iw-nini+1) zw !(1:ngb,1:ngb)
+          endif
        enddo
-       close(ifrcwx)
+       if (.not. wv_in_memory) close(ifrcwx)
     enddo
     if(is_wc_m_basis) then
       !$acc exit data delete(x_m2e,m2e)

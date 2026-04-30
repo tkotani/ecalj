@@ -1,8 +1,11 @@
 !> Calculate Im(chi0) and do Hilbert transformation.
 module m_hrcxq
   contains
-subroutine hrcxq() bind(C)
-  !  Output: rxcq.iq files.
+subroutine hrcxq(do_correlation)
+  !  Output: rxcq.iq files. (and SEC files if do_correlation=.true.)
+  !  If do_correlation is present and .true., after the WV phase, we run the
+  !  hsfp0_sc(--job=2) correlation phase in-process. This eliminates the need
+  !  for separate hsfp0_sc invocation reading WV files from disk.
   !   After set up a kind of enviromental variables, by calling module functions,
   !   we read tetrahedron weight via 'call X0kf_v4hz_init_read(iq,is)'.
   !   Then we calculate Im(chi0) by x0kf_v4hz.
@@ -28,15 +31,18 @@ subroutine hrcxq() bind(C)
   use m_readgwinput,only: ReadGwinputKeys 
   use m_qbze,only:  Setqbze,nqbze,nqibze,qbze,qibze
   use m_x0kf,only: x0kf_zxq,deallocatezxq,deallocatezxqi
-  use m_llw,only: WVRllwR,WVIllwI,w4pmode,MPI__sendllw
+  use m_llw,only: WVRllwR,WVIllwI,w4pmode,MPI__sendllw, &
+       alloc_wv_buf,dealloc_wv_buf,sync_wv_buf_allreduce,bcast_wv_buf_iq1
   use m_mpi,only: MPI__Initialize,MPI__root,MPI__rank,MPI__size,MPI__consoleout,comm, &
                 & MPI__SplitXq, MPI__Setnpr_col, comm_b, comm_k, mpi__root_k, mpi__root_q,ipr
   use m_lgunit,only: m_lgunit_init,stdo
   use m_ftox
   use m_readVcoud,only: Readvcoud,ngb
   use m_gpu,only: gpu_init
+  use m_hsfp0_sc,only: hsfp0_sc
 !  use m_dpsion,only: dpsion5
   implicit none
+  logical, intent(in), optional :: do_correlation
   real(8),parameter:: pi = 4d0*datan(1d0),fourpi = 4d0*pi,sqfourpi= sqrt(fourpi)
   integer:: iq,kx,ixc,iqxini,iqxend,is,iw,ifwd,ngrpx,verbose,npr,nmbas,ifif
   integer:: i_red_npm,i_red_nwhis,ierr,ircxq,npmx
@@ -60,7 +66,7 @@ subroutine hrcxq() bind(C)
   call cputid (0)
   if(verbose()>=100) debug= .TRUE. 
   hartree= 2d0*rydberg()
-  call Genallcf_v3(incwfx=0) !Basic data. incwfin= 0 takes 'ForX0 for core' in GWinput
+  call Genallcf_v3(incwfx=-1) !ALIGN with hsfp0_sc: ncwf=ncwf2 (ForSxc for core)
   call Read_BZDATA(hx0)      !Readin BZDATA. See m_read_bzdata in gwsrc/rwbzdata.f
   call Readefermi() !Readin EFERMI
 !  call Readhbe()    !Read dimensions
@@ -98,6 +104,14 @@ subroutine hrcxq() bind(C)
   if(ipr) write(stdo,ftox) 'mpi_qrank', mpi__qrank
   call flush(stdo)
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
+  ! Phase 1-B: when running combined hrcxq+hsfp0_sc, allocate in-memory WV buffers
+  ! so that WVRllwR/WVIllwI/W0w0i/sxcf_scz_correlation can pass WV without going via __WVR/__WVI files.
+  if(present(do_correlation)) then
+     if(do_correlation) then
+        if(ipr) write(stdo,ftox) ' hrcxq: enabling in-memory WV transfer (Phase 1-B)'
+        call alloc_wv_buf(nblochpmx, nw_i, nw, niw, iqxini, iqxend)
+     endif
+  endif
   MainLoopToObtainZxq: do 1001 iq = iqxini,iqxend
     if( .NOT. MPI__Qtask(iq) ) cycle
     if(ipr) write(stdo,*)'mpi_rank in IQ loop:', iq, mpi__rank
@@ -121,12 +135,28 @@ subroutine hrcxq() bind(C)
    GetEffectiveWVatGammaCell: block !Get W-v(q=0): Divergent part and non-analytic constant part of W(0) calculated from llw
     ! we have wing elemments: llw, llwi LLWR, LLWI
     call MPI_barrier(comm,ierr)
+    ! Phase 1-B: each rank only filled its own iq slots in the WV buffers; share them across all ranks.
+    if(present(do_correlation)) then
+       if(do_correlation) call sync_wv_buf_allreduce(comm)
+    endif
     call MPI__sendllw(iqxend,MPI__Qrank) ! Send all LLW data to mpi_root.
     ! Get effective W0,W0i, and L(omega=0) matrix. Modify WVR WVI with w0 and w0. Files WVI and WVR are modified.
     if(MPI__rank==0) call W0w0i(nw_i,nw,nq0i,niw,q0i,is_wc_m_basis=.true.)
+    ! Phase 1-B: rank 0 modified iq=1 slot of the buffer in W0w0i. Broadcast to all ranks.
+    if(present(do_correlation)) then
+       if(do_correlation) call bcast_wv_buf_iq1(0, comm)
+    endif
   endblock GetEffectiveWVatGammaCell
   if(ipr) write(stdo,ftox) '--- end of hrcxq --- irank=',MPI__rank
   call cputid(0)
+  if(present(do_correlation)) then
+     if(do_correlation) then
+        if(ipr) write(stdo,ftox) ' hrcxq: starting in-process hsfp0_sc(--job=2) correlation phase'
+        call hsfp0_sc(skip_init=.true., skip_rx0=.true., ixc_in=2)
+        if(ipr) write(stdo,ftox) ' hrcxq+hsfp0_sc combined: finished'
+        call dealloc_wv_buf()
+     endif
+  endif
   call rx0( ' OK! hrcxq WV generated')
   
   contains

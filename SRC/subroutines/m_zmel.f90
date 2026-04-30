@@ -71,6 +71,11 @@ contains
     nbb   = nmbas1
   end subroutine set_m2e_prod_basis_chipm
   subroutine mptauof_zmel(symops,ng)! Set miat,tiat,invgx,shtvg
+    !> Smart re-allocation: if a previous call already set up state for ng' >= ng,
+    !> the existing setup covers the new request and we return early. Otherwise we
+    !> deallocate any existing state and rebuild for the new ng. This supports
+    !> combined-program flow where hrcxq calls with (identity, ng=1) and hsfp0_sc
+    !> calls with (full symgg, ng=ngrp): the larger setup subsumes the smaller.
     use m_mksym_util,only:mptauof
     use m_hamindex0,only: Readhamindex0,iclasst
     use m_keyvalue,only: getkeyvalue
@@ -78,6 +83,17 @@ contains
     integer:: ng
     real(8):: symops(9,ng)
     integer,allocatable ::  invgx(:)
+    integer, save :: ng_done = 0
+    if (ng_done >= ng) return ! Existing setup is sufficient
+    ! New or larger ng requested: rebuild
+    if (allocated(miat))  deallocate(miat)
+    if (allocated(tiat))  deallocate(tiat)
+    if (allocated(shtvg)) deallocate(shtvg)
+    if (allocated(ppbir)) then
+      !$acc exit data delete(ppbir)
+      deallocate(ppbir)
+      has_ppbir = .false.
+    endif
     call readhamindex0()
     allocate(invgx(ng),miat(natom,ng),tiat(3,natom,ng),shtvg(3,ng))
     call mptauof(symops,ng,plat,natom,pos,iclasst,miat,tiat,invgx,shtvg ) !Set miat,tiat,shtvg for space group.
@@ -87,9 +103,10 @@ contains
     ! ppb for given irot is obtained using set_ppb
     ! In case of KeepPpb is .false. (default), only ppb for given irot is saved
     call getkeyvalue("GWinput","KeepPpb",keep_ppbir,default=.false.)
+    ng_done = ng
     if(.not.keep_ppbir) return
     if(keep_ppbir) write(stdo,ftox) 'keep_ppbir:True'
-    ppbafp_v2_zmel: block 
+    ppbafp_v2_zmel: block
       integer :: is,irot, ic, i,lb,nb,mb,lmb,i1,ibas,i2, np,lp,mp,lmp,n,l,m,lm
       allocate(ppbir(nlnmx,nlnmx,mdimx,natom,ng,nspin)) ! ppbir is rotated <Phi(SLn,r) Phi(SL'n',r) B(S,i,rot^{-1}(r))> by rotated cg coefficients cgr
       do is= 1,nspin

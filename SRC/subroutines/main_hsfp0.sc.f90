@@ -1,4 +1,6 @@
-subroutine hsfp0_sc()
+module m_hsfp0_sc
+contains
+subroutine hsfp0_sc(skip_init, skip_rx0, ixc_in)
   !> Calculates the self-energy \Sigma in GW approximation,  checked 2020jul
   !!  including Off-diagonal components.
   !!  (hsfp0.F is for diagonal part only).
@@ -71,6 +73,9 @@ subroutine hsfp0_sc()
   use m_ftox
   use m_gpu,only: gpu_init
   implicit none
+  logical, intent(in), optional :: skip_init, skip_rx0
+  integer, intent(in), optional :: ixc_in
+  logical :: do_init, do_rx0
   ! real(8),parameter :: ua  = 1d0 ! constant in w(0)exp(-ua^2*w'^2) to take care of peak around w'=0
   !
   !\Sigma = \Sigma_{sx} + \Sigma_{coh} + \Sigma_{img axis} + \Sigma_{pole} by Hedin PR(1965)A785
@@ -95,33 +100,44 @@ subroutine hsfp0_sc()
     logical:: cmdopt2
     character(20):: outs=''
     character(3) :: charnum3
-    call MPI__Initialize()
-    call gpu_init(comm)
-    call M_lgunit_init()
-    call writemem('Start hsfp0: TotalRAM per node='//ftof(totalram(),3)//' GB')
-    if(MPI__root) then
-       if(cmdopt2('--job=',outs)) then
-          read(outs,*) ixc
-       else
-          if(ipr) write(stdo,*) ' --- Choose modes below ------------'
-          if(ipr) write(stdo,*) '  Sx(1) Sc(2) ScoreX(3) '
-          if(ipr) write(stdo,*) ' --- Put number above ! ------------'
-          read(5,*) ixc
-          if(ipr) write(stdo,*) ' ixc=', ixc !computational mode index
-       endif
-    endif
-    call MPI__Broadcast(ixc)
+    do_init = .true.
+    if(present(skip_init)) do_init = .not. skip_init
+    do_rx0 = .true.
+    if(present(skip_rx0))  do_rx0  = .not. skip_rx0
+    InitOnce: if(do_init) then
+      call MPI__Initialize()
+      call gpu_init(comm)
+      call M_lgunit_init()
+      call writemem('Start hsfp0: TotalRAM per node='//ftof(totalram(),3)//' GB')
+      if(MPI__root) then
+         if(cmdopt2('--job=',outs)) then
+            read(outs,*) ixc
+         else
+            if(ipr) write(stdo,*) ' --- Choose modes below ------------'
+            if(ipr) write(stdo,*) '  Sx(1) Sc(2) ScoreX(3) '
+            if(ipr) write(stdo,*) ' --- Put number above ! ------------'
+            read(5,*) ixc
+            if(ipr) write(stdo,*) ' ixc=', ixc !computational mode index
+         endif
+      endif
+      call MPI__Broadcast(ixc)
+    else
+      ixc = 2
+      if(present(ixc_in)) ixc = ixc_in
+    endif InitOnce
 !    write(ixcname,"('.mode=',i4.4)")ixc
     call MPI__consoleout('hsfp0_sc.mode'//charnum3(ixc)) !trim(ixcname)) !Open console output stdout.irank.hsfp0_sc.mode
     call pshpr(60)
     if(ixc==3) then; incwfin= -2 !core exchange mode
     else           ; incwfin= -1 !use 7th colmn for core at the end section of GWIN
     endif
-    call GENALLCF_V3(incwfin)    ! readin basic data
-    call READ_BZDATA() ! Readin BZ data. See gwsrc/rwbzdata.f ===
-!    if(nclass /= natom ) call rx('hsfp0_sc: sanitiy check nclass /= natom ')! CAUTION. ASSUME iclass(iatom)= iatom (because of historical reason)
-    !  if(ipr) write(stdo,"(' nqbz nqibz ngrp=',3i12)") nqbz,nqibz,ngrp
-    call ReadGwinputKeys()
+    InitGenallcf: if(do_init) then
+      call GENALLCF_V3(incwfin)    ! readin basic data
+      call READ_BZDATA() ! Readin BZ data. See gwsrc/rwbzdata.f ===
+!     if(nclass /= natom ) call rx('hsfp0_sc: sanitiy check nclass /= natom ')! CAUTION. ASSUME iclass(iatom)= iatom (because of historical reason)
+      !  if(ipr) write(stdo,"(' nqbz nqibz ngrp=',3i12)") nqbz,nqibz,ngrp
+      call ReadGwinputKeys()
+    endif InitGenallcf
     call pshpr(30)
     esmref= esmr_in
     if(ixc==1) then
@@ -152,11 +168,13 @@ subroutine hsfp0_sc()
     endblock Wparallelization
     call setesmr(esmr_in=esmr) !set esmr back in genalloc_v3
 !    call Readhbe()        ! Read dimensions in m_readhbe
-    call Readhamindex()
-    call INIT_READEIGEN() ! initialization for readeigen readcphi readgeig.
-    call INIT_READEIGEN2()! initialize m_readeigen
-    call Mptauof_zmel(symgg,ngrp) ! Put space-group transformation information to m_zmel,call rdpp in this
-    call Readngmx2() !return ngpmx and ngcmx in m_readqg
+    InitReadEigen: if(do_init) then
+      call Readhamindex()
+      call INIT_READEIGEN() ! initialization for readeigen readcphi readgeig.
+      call INIT_READEIGEN2()! initialize m_readeigen
+    endif InitReadEigen
+    call Mptauof_zmel(symgg,ngrp) ! Put space-group transformation information to m_zmel,call rdpp in this. Smart re-alloc if ng grew.
+    if(do_init) call Readngmx2() !return ngpmx and ngcmx in m_readqg
     if(ipr) write(stdo,"(*(g0))")' max number of G for QGpsi and QGcou: ngcmx ngpmx=',ngcmx,ngpmx
     call pshpr(60)
     if(.NOT.exchange) call readfreq_r()  !Readin WV.d and freq_r
@@ -252,10 +270,15 @@ subroutine hsfp0_sc()
        enddo
     endif
     call cputid(0)
-    if(ixc==1 ) call rx0( ' OK! hsfp0_sc: Exchange mode')
-    if(ixc==2 ) call rx0( ' OK! hsfp0_sc: Correlation mode')
-    if(ixc==3 ) call rx0( ' OK! hsfp0_sc: Core-exchange mode')
+    if(do_rx0) then
+       if(ixc==1 ) call rx0( ' OK! hsfp0_sc: Exchange mode')
+       if(ixc==2 ) call rx0( ' OK! hsfp0_sc: Correlation mode')
+       if(ixc==3 ) call rx0( ' OK! hsfp0_sc: Core-exchange mode')
+    else
+       if(MPI__root .and. ipr) write(stdo,'(a,i0)') ' OK! hsfp0_sc returning (no rx0), ixc=',ixc
+    endif
   endblock Finalizesum
+  if(.not.do_rx0) return
   stop
 contains 
   subroutine Hswriteinit() !contained in hsfp0_sc. Only write out files, no side effect
@@ -403,3 +426,4 @@ subroutine rsexx (nspin, q, ntq,nq,ginv, vxco)
      vxco(1:ntq,iq,1:nspin)=rydberg()*vxcfpx(1:ntq,ikpx,1:nspin)
   enddo
 end subroutine rsexx
+end module m_hsfp0_sc

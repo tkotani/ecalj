@@ -39,17 +39,81 @@ module m_llw
 #endif
   implicit none
   public:: WVRllwR,WVIllwI,  MPI__sendllw,MPI__sendllw2
+  public:: wv_in_memory, wv_real_buf, wv_imag_buf
+  public:: alloc_wv_buf, dealloc_wv_buf, sync_wv_buf_allreduce, bcast_wv_buf_iq1
   complex(8),allocatable,protected,public:: llw(:,:), llwI(:,:)
   complex(8),allocatable,protected,public:: wmuk(:,:)
   logical,protected,public:: w4pmode
   integer,protected,public:: ngbq0
+  ! In-memory WV transfer (combined hrcxq+hsfp0_sc mode)
+  ! When wv_in_memory=.true., WVRllwR/WVIllwI write into wv_real_buf/wv_imag_buf
+  ! instead of __WVR.<iq> / __WVI.<iq> files. m_w0w0i:modifyWV0 and
+  ! m_sxcf_sc:sxcf_scz_correlation also consult this flag.
+  ! Buffers: shape (nblochpmx, nblochpmx, freq_dim, iqxini:iqxend).
+  logical, save, public :: wv_in_memory = .false.
+  complex(kp), allocatable, public :: wv_real_buf(:,:,:,:)
+  complex(kp), allocatable, public :: wv_imag_buf(:,:,:,:)
   private
   real(8),parameter:: pi=4d0*datan(1d0),fourpi = 4d0*pi
 contains
-  subroutine WVRllwR(q,iq,nmbas1,nmbas2,is_x0_m_basis,is_wc_m_basis)
+  subroutine alloc_wv_buf(nbpmx, nw_lo, nw_hi, niwx, iqlo, iqhi)
+    !> Caller initialization for in-memory WV mode. Allocates module buffers and
+    !> sets wv_in_memory=.true. Caller must invoke dealloc_wv_buf afterwards.
+    integer, intent(in) :: nbpmx, nw_lo, nw_hi, niwx, iqlo, iqhi
+    if(allocated(wv_real_buf)) deallocate(wv_real_buf)
+    if(allocated(wv_imag_buf)) deallocate(wv_imag_buf)
+    allocate(wv_real_buf(nbpmx, nbpmx, nw_lo:nw_hi, iqlo:iqhi), source=cmplx(0,0,kp))
+    allocate(wv_imag_buf(nbpmx, nbpmx, 1:niwx,      iqlo:iqhi), source=cmplx(0,0,kp))
+    wv_in_memory = .true.
+  end subroutine alloc_wv_buf
+  subroutine dealloc_wv_buf()
+    if(allocated(wv_real_buf)) deallocate(wv_real_buf)
+    if(allocated(wv_imag_buf)) deallocate(wv_imag_buf)
+    wv_in_memory = .false.
+  end subroutine dealloc_wv_buf
+  subroutine sync_wv_buf_allreduce(comm)
+    !> Allreduce(SUM) the WV buffers across all ranks. Each iq slot is filled by
+    !> exactly one rank (mpi__root_k of the q-group owning iq) and zero on others,
+    !> so SUM is the correct sharing operation.
+    use mpi
+    integer, intent(in) :: comm
+    integer :: ierr, mpi_type
+#ifdef __MP
+    mpi_type = MPI_COMPLEX
+#else
+    mpi_type = MPI_DOUBLE_COMPLEX
+#endif
+    call MPI_Allreduce(MPI_IN_PLACE, wv_real_buf, size(wv_real_buf), mpi_type, MPI_SUM, comm, ierr)
+    call MPI_Allreduce(MPI_IN_PLACE, wv_imag_buf, size(wv_imag_buf), mpi_type, MPI_SUM, comm, ierr)
+  end subroutine sync_wv_buf_allreduce
+  subroutine bcast_wv_buf_iq1(root, comm)
+    !> Broadcast the iq=1 slice (modified by W0w0i on root) from root to all ranks.
+    use mpi
+    integer, intent(in) :: root, comm
+    integer :: ierr, mpi_type, n_real, n_imag, iq1
+#ifdef __MP
+    mpi_type = MPI_COMPLEX
+#else
+    mpi_type = MPI_DOUBLE_COMPLEX
+#endif
+    iq1 = lbound(wv_real_buf, 4) ! caller convention: first slot is iq=1
+    n_real = size(wv_real_buf, 1) * size(wv_real_buf, 2) * size(wv_real_buf, 3)
+    n_imag = size(wv_imag_buf, 1) * size(wv_imag_buf, 2) * size(wv_imag_buf, 3)
+    call MPI_Bcast(wv_real_buf(:,:,:,iq1), n_real, mpi_type, root, comm, ierr)
+    call MPI_Bcast(wv_imag_buf(:,:,:,iq1), n_imag, mpi_type, root, comm, ierr)
+  end subroutine bcast_wv_buf_iq1
+  subroutine WVRllwR(q,iq,nmbas1,nmbas2,is_x0_m_basis,is_wc_m_basis, &
+                     output_target, wv_buf)
     use m_readqg,only: Readqg0
     intent(in)::       q,iq,    nmbas1,nmbas2 !zxq can be twiced when nspin=2
     logical, intent(in) :: is_x0_m_basis, is_wc_m_basis
+    ! Optional: select output target for the W-v matrices
+    !   default (or 'file'): write to __WVR.<iq> (existing behavior)
+    !   'memory': write to wv_buf(:,:,iw-nw_i+1) (caller-supplied buffer)
+    character(*), intent(in), optional :: output_target
+    complex(kp), intent(inout), optional :: wv_buf(:,:,:)
+    character(8) :: out_mode
+    logical :: write_to_memory
     integer:: iq,iq0,nwmax,nwmin,iw,imode,ix,igb1,igb2,ifllw
     integer:: nmbas1,nmbas2,ngc0,ifw4p,ifrcw,mreclx
     real(8):: frr,q(3),vcou1,quu(3),eee
@@ -95,11 +159,22 @@ contains
     if(ipr)write(stdo,ftox)" === trace check for W-V === nqibz nwmin nwmax=",nqibz,nwmin,nwmax, 'iq q=',iq,ftof(q)
     if(ipr)write(stdo,ftox) 'size of zxq:',size(zxq,1), size(zxq,2), size(zxq,3)
     call flush(stdo)
+    out_mode = 'file'
+    if (present(output_target)) out_mode = trim(output_target)
+    write_to_memory = (out_mode == 'memory') .or. wv_in_memory
+    if ((out_mode == 'memory') .and. .not. present(wv_buf)) then
+       call rx('WVRllwR: output_target=memory but wv_buf not provided')
+    endif
+    if (write_to_memory .and. .not. (present(wv_buf) .or. allocated(wv_real_buf))) then
+       call rx('WVRllwR: memory mode but neither wv_buf nor module wv_real_buf is available')
+    endif
     if(iq<=nqibz) then        !for mmmw
       ! if(mpi__root_q) then
       !   open(newunit=ifrcw, file='__WVR.'//i2char(iq),form='unformatted',access='direct',recl=mreclx)
       ! endif
-      istat = openm(newunit=ifrcw, file='__WVR.'//i2char(iq), recl=mreclx, comm=comm_root_k)
+      if (.not. write_to_memory) then
+         istat = openm(newunit=ifrcw, file='__WVR.'//i2char(iq), recl=mreclx, comm=comm_root_k)
+      endif
       ix = merge(1, 0, iq == 1)
       iwloop: do 1015 iwblock = nwmin, nwmax, mpi__size_b
          if(emptyrun) exit
@@ -174,12 +249,20 @@ contains
         endif EtoMBasisTransformation
         !$acc update host(zw)
         ! write(ifrcw, rec= iw-nw_i+1 ) zw !  WP = vsc-v
-        istat = writem(ifrcw,rec=iw-nw_i+1,data=zw(1:nblochpmx,1:nblochpmx))
+        if (write_to_memory) then
+           if (present(wv_buf)) then
+              wv_buf(1:nblochpmx, 1:nblochpmx, iw-nw_i+1) = zw(1:nblochpmx, 1:nblochpmx)
+           else
+              wv_real_buf(1:nblochpmx, 1:nblochpmx, iw, iq) = zw(1:nblochpmx, 1:nblochpmx)
+           endif
+        else
+           istat = writem(ifrcw,rec=iw-nw_i+1,data=zw(1:nblochpmx,1:nblochpmx))
+        endif
         frr= dsign(freq_r(abs(iw)),dble(iw))
         call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
 1015  enddo iwloop
       ! if(mpi__root_q) close(ifrcw)
-      istat = closem(ifrcw)
+      if (.not. write_to_memory) istat = closem(ifrcw)
     else  ! llw, Wing elements of W. See PRB81 125102
       iq0 = iq - nqibz
       vcou1 = fourpi/sum(q**2*tpioa**2) ! --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
@@ -262,8 +345,15 @@ contains
       if(is_x0_m_basis .or. is_wc_m_basis) call stopwatch_show(t_sw_x_m2e_xf)
     endif
   end subroutine WVRllwR
-  subroutine WVIllwI(q,iq,nmbas1,nmbas2,is_x0_m_basis,is_wc_m_basis)
+  subroutine WVIllwI(q,iq,nmbas1,nmbas2,is_x0_m_basis,is_wc_m_basis, &
+                     output_target, wv_buf)
     intent(in)::       q,iq,     nmbas1,nmbas2 !zxqi can be twiced when nspin=2
+    ! Optional: select output target. Default 'file' (write __WVI.<iq>).
+    !          'memory': write to wv_buf(:,:,iw) supplied by caller.
+    character(*), intent(in), optional :: output_target
+    complex(kp), intent(inout), optional :: wv_buf(:,:,:)
+    character(8) :: out_mode
+    logical :: write_to_memory
     integer:: nmbas1,nmbas2,mreclx
     integer:: iq,iq0,nwmax,nwmin,iw,imode,ix,igb1,igb2,ifllwi,ifrcwi
     real(8):: frr,q(3),vcou1
@@ -301,11 +391,22 @@ contains
       zxqi(:,:,:) = 2d0*zxqi(:,:,:) ! if paramagnetic, multiply x0 by 2
       !$acc end kernels
     endif
+    out_mode = 'file'
+    if (present(output_target)) out_mode = trim(output_target)
+    write_to_memory = (out_mode == 'memory') .or. wv_in_memory
+    if ((out_mode == 'memory') .and. .not. present(wv_buf)) then
+       call rx('WVIllwI: output_target=memory but wv_buf not provided')
+    endif
+    if (write_to_memory .and. .not. (present(wv_buf) .or. allocated(wv_imag_buf))) then
+       call rx('WVIllwI: memory mode but neither wv_buf nor module wv_imag_buf is available')
+    endif
     if( iq<=nqibz ) then
        ! if(mpi__root_q) then
        !   open(newunit=ifrcwi,file='__WVI.'//i2char(iq),form='unformatted',access='direct',recl=mreclx)
        ! endif
-       istat = openm(newunit=ifrcwi, file='__WVI.'//i2char(iq), recl=mreclx, comm=comm_root_k)
+       if (.not. write_to_memory) then
+          istat = openm(newunit=ifrcwi, file='__WVI.'//i2char(iq), recl=mreclx, comm=comm_root_k)
+       endif
        ix = merge(1, 0, iq == 1)
        do 1016 iwblock  = 1, niw, mpi__size_b
           if(emptyrun) exit
@@ -370,10 +471,18 @@ contains
           endif EtoMBasisTransformation
           !$acc update host(zw)
           ! write(ifrcwi, rec= iw)  zw !  WP = vsc-v
-          istat = writem(ifrcwi,rec=iw,data=zw(1:nblochpmx,1:nblochpmx))
+          if (write_to_memory) then
+             if (present(wv_buf)) then
+                wv_buf(1:nblochpmx, 1:nblochpmx, iw) = zw(1:nblochpmx, 1:nblochpmx)
+             else
+                wv_imag_buf(1:nblochpmx, 1:nblochpmx, iw, iq) = zw(1:nblochpmx, 1:nblochpmx)
+             endif
+          else
+             istat = writem(ifrcwi,rec=iw,data=zw(1:nblochpmx,1:nblochpmx))
+          endif
           call tr_chkwrite("freq_i iq iw imgomg trwv=",zw,iw,freq_i(iw),nblochpmx,nbloch,ngb,iq)
 1016   enddo
-       istat = closem(ifrcwi)
+       if (.not. write_to_memory) istat = closem(ifrcwi)
     else
        !! Full inversion to calculalte eps with LFC.
        iq0 = iq - nqibz

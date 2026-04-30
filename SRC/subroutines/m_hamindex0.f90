@@ -141,6 +141,7 @@ contains
   subroutine readhamindex0()
     implicit none
     integer:: ifi,ibas,i
+    if(readhamindex0_init) return ! idempotent: re-entrant guard
     readhamindex0_init=.true.
     open(newunit=ifi,file='__HAMindex0',form='unformatted')
     read(ifi) alat,plat,qlat,nbas,lmxax,nsp,ngrp,ndima,norb,npqn,nclass,nphimx
