@@ -104,6 +104,11 @@ module m_sxcf_sc
 #else
   use m_blas, only: gemm => zmm_h
 #endif
+#ifdef __GPU
+  use m_blas, only: cublas_set_stream
+  use openacc
+  use cudafor, only: cuda_stream_kind
+#endif
   use m_kind, only: kp => kindgw
   !  use m_sxcf_main,only: zsecall
   use m_stopwatch
@@ -365,6 +370,9 @@ contains
     integer, allocatable :: idx_i(:), idx_j(:)
     character(64) :: charli
     character(8)  :: charext
+#ifdef __GPU
+    integer(cuda_stream_kind) :: sxcf_async_stream
+#endif
     debug = cmdopt0('--debug')
     qibz_k = qibz(:,kx)
     call Readvcoud(qibz_k, kx, NoVcou=.false.)   !Readin ngc,ngb,vcoud ! Coulomb matrix
@@ -426,6 +434,10 @@ contains
       endif
       !end subroutine setwv
     end block SetWVblock
+#ifdef __GPU
+    sxcf_async_stream = acc_get_cuda_stream(1)
+    call cublas_set_stream(sxcf_async_stream)
+#endif
     izz = 0
     irotloop:            do irot = 1, ngrp    ! (kx,irot) determines qbz(:,kr), which is in FBZ. W(kx) is rotated to be W(g(kx))
       iploopexternal:    do ip   = 1, nqibz   !external index for q of \Sigma(q,isp)
@@ -465,11 +477,12 @@ contains
                 complex(kind=kp), parameter :: img=(0_kp,1_kp)
                 complex(kind=kp) :: beta
                 complex(kind=kp), allocatable :: czmelwc(:,:,:)
+                complex(kind=kp), allocatable :: wzmel(:,:,:)
                 integer :: it, itp, iw, ierr, i, j
                 complex(kind=kp), allocatable :: wv(:,:), wc(:,:)
                 real(kind=kp) :: zsec_img
 #ifdef __GPU
-                attributes(device) :: czmelwc, wc
+                attributes(device) :: czmelwc, wc, wzmel
 #endif
                 if (ns1 > ns2) goto 1114 !instead of return
                 allocate(wv(nblochpmx,nblochpmx))
@@ -481,10 +494,7 @@ contains
                   real(8):: wgtim_(0:npm*niw), wgtim(0:npm*niw,ns1:ns2,sxs_ntqxx), we, cons(niw), omd(niw), omd2w(niw)
                   real(8):: sig, sig2, aw, aw2
                   integer :: igb
-                  complex(kind=kp), allocatable :: wzmel(:,:,:)
-#ifdef __GPU
-                  attributes(device) :: wzmel
-#endif
+                  ! wzmel declared at get_correlation_block scope
                   sig = .5d0*esmr
                   sig2 = 2d0*(.5d0*esmr)**2
                   itpdo: do itp = 1, sxs_ntqxx
@@ -515,12 +525,12 @@ contains
                   allocate(wzmel(1:ngb,ns1:ns2,1:sxs_ntqxx))
                   if (debug) call writemem('    Goto iwimag')
                   if (debug) write(stdo,ftox) 'mmmmSc size of mm in imagaxis', (ns2-ns1+1)*sxs_ntqxx, ngb, ngb
-                  !$acc data copyin(wgtim)
+                  !$acc enter data copyin(wgtim)
                   iwimag: do iw = sxs_wi_ini, sxs_wi_fin ! iwimag:do iw = 0, niw !niw is ~10. ixx=0 is for sxs_omega=0 nw_i=0 (Time reversal) or nw_i =-nw
                     if (iw < 0 .or. iw > niw) cycle
                     call stopwatch_start(sxs_setwv)
                     if (sxs_keepwv) then
-                      !$acc kernels loop independent present(wvi_upper, idx_i, idx_j)
+                      !$acc kernels loop independent present(wvi_upper, idx_i, idx_j) async(1)
                       do tri_idx = 1, ngb*(ngb+1)/2
                         i = idx_i(tri_idx)
                         j = idx_j(tri_idx)
@@ -534,7 +544,7 @@ contains
                       wc(1:ngb,1:ngb) = wv(1:ngb,1:ngb)  !copy to GPU
                     endif
                     call stopwatch_pause(sxs_setwv)
-                    !$acc kernels loop independent collapse(2) present(zmel)
+                    !$acc kernels loop independent collapse(2) present(zmel) async(1)
                     do itp = 1, sxs_ntqxx
                       do it = ns1, ns2
                         wzmel(1:ngb,it,itp) = cmplx(wgtim(iw,it,itp)*zmel(1:ngb,it,itp), kind=kp)
@@ -546,8 +556,7 @@ contains
                     if (iw == sxs_wi_ini) beta = CZERO
                     ierr = gemm(wc, wzmel, czmelwc, ngb, (ns2-ns1+1)*sxs_ntqxx, ngb, beta = beta, opA = m_op_C)
                   enddo iwimag
-                  !$acc end data
-                  deallocate(wzmel)
+                  !$acc exit data delete(wgtim) async(1)
                 EndBlock CorrelationSelfEnergyImagAxis
                 if (debug) call writemem('    endof CorrelationSelfEnergyImagAxis')
                 call stopwatch_pause(sxs_ci)
@@ -607,13 +616,14 @@ contains
                   enddo itploopFORwgtiw
                   n_nttp = count(nttp(sxs_wr_ini:sxs_wr_fin) > 0)
                   allocate(wz_iw(ngb,nttp_max), czwc_iw(ngb,nttp_max))
+                  !$acc wait(1)
                   !$acc data copyin(wgtiw, nttp, itw, itpw)
                   iwreal: do iw = sxs_wr_ini, sxs_wr_fin
                     if (iw < nwxi .or. iw > nwx) cycle
                     if (nttp(iw) < 1) cycle
                     call stopwatch_start(sxs_setwv)
                     if (sxs_keepwv) then
-                      !$acc kernels loop independent present(wvr_upper, idx_i, idx_j)
+                      !$acc kernels loop independent present(wvr_upper, idx_i, idx_j) async(1)
                       do tri_idx = 1, ngb*(ngb+1)/2
                         i = idx_i(tri_idx)
                         j = idx_j(tri_idx)
@@ -624,35 +634,39 @@ contains
                     else
                       call wv_get_real(iw, wv)
                       wc(1:ngb,1:ngb) = wv(1:ngb,1:ngb)  !copy to GPU
-                      !$acc kernels
+                      !$acc kernels async(1)
                       wc(:,:) = (wc(:,:) + transpose(conjg(wc(:,:))))*0.5_kp
                       !$acc end kernels
                     endif
                     call stopwatch_pause(sxs_setwv)
-                    !$acc kernels loop independent present(zmel)
+                    !$acc kernels loop independent present(zmel) async(1)
                     do ittp = 1, nttp(iw)
                       it = itw(ittp,iw); itp = itpw(ittp,iw)
                       wz_iw(1:ngb,ittp) = cmplx(wgtiw(ittp,iw)*zmel(1:ngb,it,itp), kind=kp)
                     enddo
                     !$acc end kernels
                     ierr = gemm(wc, wz_iw, czwc_iw, ngb, nttp(iw), ngb, opA=m_op_C)
-                    !$acc kernels loop independent
+                    !$acc kernels loop independent async(1)
                     do ittp = 1, nttp(iw)
                       it = itw(ittp,iw); itp = itpw(ittp,iw)
                       czmelwc(1:ngb,it,itp) = czmelwc(1:ngb,it,itp) + czwc_iw(1:ngb,ittp)
                     enddo
                     !$acc end kernels
                   enddo iwreal
+                  !$acc wait(1)
                   !$acc end data
                   deallocate(wz_iw, czwc_iw)
 1113              continue !endif
                 EndBlock CorrelationSelfEnergyRealAxis
                 if (debug) call writemem('    endof CorrelationSelfEnergyRealAxis')
                 call stopwatch_pause(sxs_cr)
+                !$acc wait(1)
+                deallocate(wzmel)
 
                 !$acc host_data use_device(zmel, zsec)
                 ierr = gemm(czmelwc, zmel, zsec, sxs_ntqxx, sxs_ntqxx, nbb*(ns2-ns1+1), opA = m_op_C, beta = CONE, ldC = ntq)
                 !$acc end host_data
+                !$acc wait(1)
                 !$acc kernels loop independent
                 do itp = 1, sxs_ntqxx
                   ! zsec(itp,itp) = real(zsec(itp,itp),kind=kp)+img*min(-real((img*zsec(itp,itp)),kind=kp),0_kp) !enforce Imzsec<0 !does not work in intel
@@ -680,6 +694,9 @@ contains
         enddo isploopexternal
       enddo iploopexternal
     enddo irotloop
+#ifdef __GPU
+    call cublas_set_stream(int(0, cuda_stream_kind))
+#endif
     ReleaseWV: block !subroutine releasewv()
       if (any(kx == kxc(:))) then
         if (allocated(wvi_upper)) then
