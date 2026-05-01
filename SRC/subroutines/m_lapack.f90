@@ -132,36 +132,74 @@ contains
   integer function zhev_h(A, n, evl, il, iu, lda) result(istat)
   ! Solving the standard eigenvalue problem Az = lambda z, where A is a Hermitian matrix
   ! Eigenvalues are stored in evl, eigenvectors are stored in A
+  ! Uses zheevd (divide-and-conquer) to avoid MKL MRRR divide-by-zero on older compilers
   !!! range: 1<=il<=iu<=n
     integer, intent(in) :: n
     real(8), intent(out) :: evl(n)
     complex(8) :: A(*)
     integer, intent(in), optional :: lda, il, iu
-    integer :: lda_in, il_in, iu_in
+    integer :: lda_in, il_in, iu_in, nev
     complex(8), allocatable :: work(:), z(:)
-    real(8), allocatable :: rwork(:)
-    integer, allocatable :: isuppz(:), iwork(:)
-    integer :: m, lwork, lrwork, liwork, info
-    real(8) :: abstol, vl, vu, dlamch
+    real(8), allocatable :: rwork(:), evl_all(:)
+    integer, allocatable :: iwork(:)
+    integer :: lwork, lrwork, liwork, info
     lda_in = n; if(present(lda)) lda_in = lda
     il_in = 1; iu_in = n
     if(present(il)) il_in = il
     if(present(iu)) iu_in = iu
-    vl = 0d0; vu = 0d0; abstol = 2d0*dlamch('S')
-    allocate(z(lda_in*n), isuppz(2*n))
+    nev = iu_in - il_in + 1
+    allocate(evl_all(n))
     lwork = -1; lrwork = -1; liwork = -1
     allocate(work(1), rwork(1), iwork(1))
-    call zheevr('V', 'I', 'U', n, a, lda_in, vl, vu, il_in, iu_in, abstol, m, evl, z, lda_in, isuppz, &
-                work, lwork, rwork, lrwork, iwork, liwork, info)
+    call zheevd('V', 'U', n, a, lda_in, evl_all, work, lwork, rwork, lrwork, iwork, liwork, info)
     lwork = int(dble(work(1))); lrwork = int(rwork(1)); liwork = iwork(1)
     deallocate(work, rwork, iwork)
     allocate(work(lwork), rwork(lrwork), iwork(liwork))
-    call zheevr('V', 'I', 'U', n, a, lda_in, vl, vu, il_in, iu_in, abstol, m, evl, z, lda_in, isuppz, &
-                work, lwork, rwork, lrwork, iwork, liwork, info)
+    call zheevd('V', 'U', n, a, lda_in, evl_all, work, lwork, rwork, lrwork, iwork, liwork, info)
     istat = info
-    a(1:lda_in*n) = z(1:lda_in*n)
-    deallocate(work, rwork, iwork, z, isuppz)
+    evl(1:nev) = evl_all(il_in:iu_in)
+    if(il_in > 1) then
+      allocate(z(lda_in*nev))
+      z = a(lda_in*(il_in-1)+1 : lda_in*iu_in)
+      a(1:lda_in*nev) = z
+      deallocate(z)
+    endif
+    deallocate(work, rwork, iwork, evl_all)
   end function zhev_h
+! --- zheevr version (kept for reference; causes FPE in older MKL via MRRR) ---
+!  integer function zhev_h(A, n, evl, il, iu, lda) result(istat)
+!  ! Solving the standard eigenvalue problem Az = lambda z, where A is a Hermitian matrix
+!  ! Eigenvalues are stored in evl, eigenvectors are stored in A
+!  !!! range: 1<=il<=iu<=n
+!    integer, intent(in) :: n
+!    real(8), intent(out) :: evl(n)
+!    complex(8) :: A(*)
+!    integer, intent(in), optional :: lda, il, iu
+!    integer :: lda_in, il_in, iu_in
+!    complex(8), allocatable :: work(:), z(:)
+!    real(8), allocatable :: rwork(:)
+!    integer, allocatable :: isuppz(:), iwork(:)
+!    integer :: m, lwork, lrwork, liwork, info
+!    real(8) :: abstol, vl, vu, dlamch
+!    lda_in = n; if(present(lda)) lda_in = lda
+!    il_in = 1; iu_in = n
+!    if(present(il)) il_in = il
+!    if(present(iu)) iu_in = iu
+!    vl = 0d0; vu = 0d0; abstol = 2d0*dlamch('S')
+!    allocate(z(lda_in*n), isuppz(2*n))
+!    lwork = -1; lrwork = -1; liwork = -1
+!    allocate(work(1), rwork(1), iwork(1))
+!    call zheevr('V', 'I', 'U', n, a, lda_in, vl, vu, il_in, iu_in, abstol, m, evl, z, lda_in, isuppz, &
+!                work, lwork, rwork, lrwork, iwork, liwork, info)
+!    lwork = int(dble(work(1))); lrwork = int(rwork(1)); liwork = iwork(1)
+!    deallocate(work, rwork, iwork)
+!    allocate(work(lwork), rwork(lrwork), iwork(liwork))
+!    call zheevr('V', 'I', 'U', n, a, lda_in, vl, vu, il_in, iu_in, abstol, m, evl, z, lda_in, isuppz, &
+!                work, lwork, rwork, lrwork, iwork, liwork, info)
+!    istat = info
+!    a(1:lda_in*n) = z(1:lda_in*n)
+!    deallocate(work, rwork, iwork, z, isuppz)
+!  end function zhev_h
   integer function zhgv_h(A, B, n, evl, il, iu, lda, ldb, keep_ab, evec) result(istat)
   ! Solving the generalized eigenvalue problem Az = lambda Bz, where A, B are Hermitian matrixes, z is eigenfunction
   ! Eigenvalues are stores in evl, eigenvectors are stored in A (or evec if present)
