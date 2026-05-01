@@ -39,7 +39,8 @@ subroutine hmagnon() bind(C)
   complex(8), allocatable:: wkmat(:,:), imat(:,:), rmat(:,:), r_tr(:), r_diag(:), k_tr(:), k_diag(:), rmat_site(:,:), rmat_diag(:,:)
   complex(8), allocatable :: jq(:), jq_w(:,:), jq_site(:), jq_w_site(:,:), jq_diag(:), jq_w_diag(:,:)
   complex(8), parameter :: img=(0d0,1d0)
-  logical:: cmdopt0
+  logical:: cmdopt0, cmdopt2
+  integer :: isp1, isp2
   logical:: realomega, imagomega, epsmode, wan !, nms !, lhm, lsvd
   logical, allocatable :: mpi__task(:)
   character(8):: charext
@@ -58,6 +59,12 @@ subroutine hmagnon() bind(C)
   ! cma mode is commented out 2025-12-06. cma mode is no longer maintained. For CMA mode, use old version
 
   hartree = 2d0*rydberg()
+  isp1 = 2; isp2 = 1  ! default DNUP
+  block
+    character(20) :: outs
+    if(cmdopt2('--sp1=', outs)) read(outs,*) isp1
+    if(cmdopt2('--sp2=', outs)) read(outs,*) isp2
+  endblock
   geteta = cmdopt0('--geteta')
   calcdos  = cmdopt0('--dos')
   ganmma_only = geteta  !GammaPoint only calculation
@@ -132,7 +139,6 @@ subroutine hmagnon() bind(C)
 
   SetMPI_Rankdivider: block
     integer :: n_bpara, n_kpara, worker_inQtask
-    logical:: cmdopt2
     character(20):: outs
     nqcalc = iqxend-iqxini+1
     n_bpara = 1
@@ -167,11 +173,16 @@ subroutine hmagnon() bind(C)
   call readefermi() !!! ef:     Fermi energy at 0 K
 
   SetWannierAndScreendCoulombData: block
-    logical :: cmdopt2
     character(20):: Wtype, opts
     call read_wandata()    ! nwf, nsp_w,nqtt_w ! --- okumura Read dimensions of hamiltonian_wannier, spin, nqtt
     call set_wan_nnwf(nnwf_size_reduction) !set nnwf ~ # of RiRj (onsite_approx = .true.), RiR'j (onsite_approx = .flase. ), wan_pair_index
-    Wtype = 'up' !options: up, down, up_down, down_up
+    select case(isp1*10+isp2)
+      case(11); Wtype = 'up'
+      case(22); Wtype = 'down'
+      case(12); Wtype = 'up_down'
+      case(21); Wtype = 'down_up'
+      case default; call rx('hmagnon: invalid isp1/isp2 for Wtype')
+    end select
     if(cmdopt2('--Wtype=', opts)) Wtype = trim(opts)
     call set_wan_scrw(nnwf_size_reduction, w_onsite_dddd, Wtype=Wtype) !set scrw
     if(mpi__root) write(stdo,ftox) '# nwf, nnwf:', nwf, nnwf

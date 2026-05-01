@@ -41,12 +41,12 @@ subroutine mlo_magnon() bind(C)
   complex(8), allocatable, target :: kmat(:,:,:)
   complex(8), allocatable:: imat(:,:)
   complex(8), parameter :: img=(0d0,1d0)
-  logical:: cmdopt0
+  logical:: cmdopt0, cmdopt2
+  integer :: isp1, isp2, is, isf
   logical:: realomega, imagomega, epsmode
   logical, allocatable :: mpi__task(:)
   character(8):: charext
   character(len=128) :: msg
-  integer, parameter :: is=1, isf=2  !K_down up = Kpm
   real(8), parameter :: pi = 4d0*datan(1d0), eta_default =1d0
   logical, parameter :: nnwf_size_reduction = .true.
   logical :: w_onsite_dddd, geteta, negative_cut, ganmma_only, gettetwt_split, calcdos
@@ -57,6 +57,13 @@ subroutine mlo_magnon() bind(C)
   real(8), allocatable :: freq(:)
 
   hartree = 2d0*rydberg()
+  isp1 = 2; isp2 = 1  ! default DNUP
+  block
+    character(20) :: outs
+    if(cmdopt2('--sp1=', outs)) read(outs,*) isp1
+    if(cmdopt2('--sp2=', outs)) read(outs,*) isp2
+  endblock
+  is = isp2; isf = isp1
   geteta = cmdopt0('--geteta')
   calcdos = cmdopt0('--dos')
   ganmma_only = geteta  !GammaPoint only calculation
@@ -130,7 +137,6 @@ subroutine mlo_magnon() bind(C)
 
   SetMPI_Rankdivider: block
     integer :: n_bpara, n_kpara, worker_inQtask
-    logical:: cmdopt2
     character(20):: outs
     nqcalc = iqxend-iqxini+1
     n_bpara = 1
@@ -167,15 +173,11 @@ subroutine mlo_magnon() bind(C)
   call readefermi() !!! ef:     Fermi energy at 0 K
 
   SetMLOAndScreendCoulombData: block
-    logical :: cmdopt2
-    character(20):: Wtype, opts
     call ReadHamPMTInfo()  ! Read info from PMTHamiltonianInfo (lattice structures and index of basis).
     call read_ham_rs()
     call nnwf_init(nnwf_size_reduction) !set nnwf ~ # of RiRj (onsite_approx = .true.), RiR'j (onsite_approx = .flase. ), wan_pair_index
     if(ipr) write(stdo,ftox) '# nwf, nnwf:', nwf, nnwf
-    Wtype = 'down_up' !options: up, down, up_down, down_up
-    if(cmdopt2('--Wtype=', opts)) Wtype = trim(opts)
-    call scrw_init(w_onsite_dddd, Wtype=Wtype, enforce_Hermite=.false.) !set scrw
+    call scrw_init(w_onsite_dddd, isp1, isp2, enforce_Hermite=.false.) !set scrw
   endblock SetMLOAndScreendCoulombData
 
   allocate(rho(nwf,nwf,nspin), source = 0d0)
@@ -406,9 +408,9 @@ subroutine mlo_magnon() bind(C)
       integer, allocatable, target :: idx_sort(:)
       integer :: isite, jsite
 
-      formfactor = conjg(get_formfactor_q(q, isf, spinflip=.true.))
-      ovlp = conjg(get_formfactor_q([0d0,0d0,0d0], isf, spinflip=.true.))
-      ovlppair = get_ovlppair_q(q, isf, spinflip=.true.)
+      formfactor = get_formfactor_q(q, isp1, isp2)
+      ovlp = get_formfactor_q([0d0,0d0,0d0], isp1, isp2)
+      ovlppair = get_ovlppair_q(q, isp1, isp2)
       do isite=1, nsite
         ovlp_site(:,isite) = merge(ovlp, (0d0,0d0), pair_site(:,1) == isite)
         formfactor_site(:,isite) = merge(formfactor, (0d0,0d0), pair_site(:,1) == isite)
@@ -584,12 +586,14 @@ subroutine mlo_magnon() bind(C)
 
         GetLLGparameters:block
           complex(8) :: r_inv_site(nsite,nsite)
+          character(40) :: fmt_inv
+          write(fmt_inv,'("(4f9.5,e14.6,",I0,"e17.9)")') 2*nsite
           do iw = nw_i, nw
             r_inv_site(:,:) = r_chi_site(iw,:,:)
             istat = zminv(r_inv_site, n=nsite)
             www = merge(-freq_r(-iw),freq_r(iw),iw<0)
             omega = www*hartree
-            write(out_file_inv_chi, "(4f9.5,e14.6,8e17.9)") q(1:3), q_position, omega, r_inv_site(:,:)
+            write(out_file_inv_chi, fmt_inv) q(1:3), q_position, omega, (r_inv_site(isite,isite)*hartree, isite=1,nsite)
           enddo
           write(out_file_inv_chi, *)
         endblock GetLLGparameters

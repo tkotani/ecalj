@@ -7,6 +7,7 @@ subroutine uumatrix()
   ! ixc=2: <u(k) | u(k+b)>
   ! ixc=3: <u(k) | u(k+q0)>
   ! ixc=4: <u(k) | u(k+q)>
+  ! ixc=5: sum_k <phi(k) | phi(k+q)>??
   ! Takashi Miyake, Mar 2008, parallelized.  originally written by Takao Kotani, April, 2004
   use m_readqg,only: readngmx, readqg0, readqg
   use m_hamindex,only: Readhamindex, ngrp, symops
@@ -15,7 +16,7 @@ subroutine uumatrix()
   use m_read_bzdata,only: read_bzdata, nqbz, nqibz, qbas=>qlat, qibz, qbz, nq0i_=> nq0i, nq0i=>nq0ix, q0i
   use m_genallcf_v3,only: genallcf_v3, natom, nspin, nl, nn, plat, pos, alat, nindx, ndima, nqbzt, nband, nspc, nspx, lmxa
   use m_keyvalue,only: getkeyvalue
-  use m_pwmat,only: mkppovl2
+  use m_pwmat,only: mkppovl2, set_ppovl
   use m_ll,only: ll
   use m_mpi,only: mpi__broadcast, mpi__root, mpi__size, mpi__rank, comm, mpi__allreducesum, mpi__reducesum
   use m_lgunit,only: m_lgunit_init, stdo
@@ -35,7 +36,7 @@ subroutine uumatrix()
             ixc, nbbloop, ifuu(2), ifbb, nbb, iko_ixs(2), iko_fxs(2), &
             iqbz, ibb, itmp, iqb, ibb2, iqtmp, ibbtmp, ndg1(3),ndg2(3), &
             j1, j2, j1max, j1min, ispin ,l1, l2, lm1, lm2, ibas2, lm3, ir, ia1, ia2, m2, l3, m1, lxx, &
-            ico, lx, ierr, n1, n2, ii, timevalues(8), ib,  ie, ioc, iog, ispc
+            ico, lx, ierr, n1, n2, ii, timevalues(8), ib,  ie, ioc, iog, ispc, ibb_
   integer, allocatable :: ngvecpB(:,:,:),ngveccB(:,:), ngvecpf1(:,:), ngvecpf2(:,:),nx(:,:),nblocha(:),ifppb(:)
   integer, allocatable :: ncindx(:,:), lcindx(:,:), nrad(:), nindx_r(:,:), lindx_r(:,:), nc_max(:,:), &
                           m_indx(:),n_indx(:),l_indx(:),ibas_indx(:), nrofi(:), ikbidx(:,:), ncore(:)
@@ -49,8 +50,8 @@ subroutine uumatrix()
   complex(8),allocatable :: geig1(:,:),geig2(:,:),cphi1(:,:),cphi2(:,:), uum(:,:,:), ppovl(:,:), ppj(:,:,:,:)
   complex(8) :: phaseatom
   logical :: cmdopt2, cmdopt0
-  logical :: use_bbvec_file, spinflip
-  integer :: nbasis
+  logical :: use_bbvec_file
+  integer :: nbasis, isp1, isp2
   complex(8), allocatable :: uumq(:,:,:,:)
   character(8) :: head(2:3,2)
   character(4) charnum4
@@ -72,16 +73,24 @@ subroutine uumatrix()
       read(outs,*) ixc
     else
       write(stdo,*) ' --- Choose modes below -------------------'
-      write(stdo,*) '  (2) (q,q+b), (3) (q,q+q0), (4) sum_k (k,k+q) with spinflip'
+      write(stdo,*) '  (2) (q,q+b), (3) (q,q+q0), (4) sum_k (k,k+q) with specified sp1, sp2'
       write(stdo,*) ' --- Put number above ! ------------'
       read(5,*) ixc
       write(stdo,*) ' ixc=', ixc !computational mode index
     endif
   endif
   call MPI__Broadcast(ixc)
-  if(.not.(ixc == 2.or. ixc==3 .or. ixc==4))call rx('main_huumat_MPI: ixc error')
-  use_bbvec_file = (ixc /= 4)
-  spinflip       = (ixc == 4)
+  if(.not.(ixc == 2.or. ixc==3 .or. ixc==4 .or. ixc==5))call rx('main_huumat_MPI: ixc error')
+  use_bbvec_file = (ixc /= 4 .and. ixc /= 5)
+  isp1 = 2; isp2 = 1  ! default UPDN
+  if(ixc == 4 .or. ixc == 5) then
+    if(mpi__root) then
+      if(cmdopt2('--sp1=', outs)) read(outs,*) isp1
+      if(cmdopt2('--sp2=', outs)) read(outs,*) isp2
+    endif
+    call MPI__Broadcast(isp1)
+    call MPI__Broadcast(isp2)
+  endif
   call read_BZDATA()
   if (mpi__root) write(stdo,*)' ======== nqbz nqibz ngrp, nq0i, nq0i_=',nqbz,nqibz,ngrp, nq0i, nq0i_
   call genallcf_v3(incwfx=0) !readin condition. use ForX0 for core in GWIN !  call Readhbe()    !Read dimensions of h,hb
@@ -167,7 +176,7 @@ subroutine uumatrix()
   enddo
   close(ifoc)
   if(mpi__root) then
-    if(ixc==4) then
+    if(ixc==4 .or. ixc==5) then
       write(stdo,*) ' Used k number in Q0P =', nq0i_
       write(stdo,"(i3,2x, 3f14.6)" )(i,q0i(1:3,i),i=1,nq0i_)
     else
@@ -246,6 +255,7 @@ subroutine uumatrix()
   if (ixc == 2) nbbloop = nbb
   if (ixc == 3) nbbloop = nq0i
   if (ixc == 4) nbbloop = nq0i_ ! same with nq0i
+  if (ixc == 5) nbbloop = 1 ! same with nq0i
 
   lxx=2*(nl-1)
   allocate(ppj(ndima,ndima,nspin,nbbloop), source = (0d0,0d0))
@@ -256,6 +266,7 @@ subroutine uumatrix()
     if(ixc == 2) dq=-bbv(:,ibb)  !q1(:) = qbz(:,iqbz)        !q2(:) = qbz(:,iqbz) + bbv(:,ibb)
     if(ixc == 3) dq=-q0i(:,ibb) !q1(:) = qbz(:,iqbz)         !q2(:) = qbz(:,iqbz) + q0i(:,ibb)
     if(ixc == 4) dq=-bbv(:,ibb) !q1(:) = qbz(:,iqbz)         !q2(:) = qbz(:,iqbz) + qbz(:,ibb)
+    if(ixc == 5) dq = 0d0
     if(sum(abs(dq))<1d-8) dq=(/1d-10,0d0,0d0/)
     if(cmdopt0('--q2q1test')) dq=1d-10
     absdq = sqrt(sum(dq**2))
@@ -319,7 +330,8 @@ subroutine uumatrix()
   deallocate(ppbrd, rprodx, phij, psij, rphiphi, cy, yl)
 
   if(allocated(uumq)) deallocate(uumq)
-  if(ixc == 4) allocate(uumq(nbasis,nbasis,nbb,nspx), source = (0d0,0d0))
+  if(ixc == 4 .or. ixc == 5) allocate(uumq(nbasis,nbasis,nbb,nspx), source = (0d0,0d0))
+  if(ixc == 5) nbbloop = nbb ! same with nq0i
 
   iqbz4uum: do 1070 iqbz = 1,nqbz  !qibzonly need to be improved to balance load in ranks.
     if(mod(iqbz-1,mpi__size)/=mpi__rank) cycle !MPI
@@ -364,7 +376,7 @@ subroutine uumatrix()
       elseif (ixc == 3) then
         q1(:) = qbz(:,iqbz)
         q2(:) = qbz(:,iqbz) + q0i(:,ibb)
-      elseif (ixc == 4) then
+      elseif (ixc == 4 .or. ixc == 5) then
         q1(:) = qbz(:,iqbz)
         q2(:) = qbz(:,iqbz) + bbv(:,ibb)
       endif
@@ -379,29 +391,52 @@ subroutine uumatrix()
         ngvecpf1(i,1:ngp1) = ngvecpf1(i,1:ngp1) + ndg1(i)
         ngvecpf2(i,1:ngp2) = ngvecpf2(i,1:ngp2) + ndg2(i)
       enddo
-      call mkppovl2(alat,plat,qbas, ngp1,ngvecpf1, ngp2,ngvecpf2, nbas,rmax,pos, ppovl) !--- ppovl= <P_{q1+G1}|P_{q2+G2}>
+      if(ixc == 5) then
+        block
+        complex(8), allocatable:: ppovl_save(:,:,:)
+        integer :: nx(3), ig1, ig2
+        real(8) :: qvec(3)
+        qvec(1:3) = bbv(:,ibb)
+        call set_ppovl(ngp1, ngvecpf1, ngp2, ngvecpf2, pos, rmax, nbas, alat, plat, qbas, ppovl_save, qvec)
+        do ig2 = 1, ngp2
+          do ig1 = 1, ngp1
+            nx(1:3) = ngvecpf2(1:3,ig2) -ngvecpf1(1:3,ig1) ! G2-G1
+            ppovl(ig1,ig2) = ppovl_save(nx(1),nx(2),nx(3))
+          enddo
+        enddo
+        endblock
+      else
+        call mkppovl2(alat,plat,qbas, ngp1,ngvecpf1, ngp2,ngvecpf2, nbas,rmax,pos, ppovl) !--- ppovl= <P_{q1+G1}|P_{q2+G2}>
+      endif
       ispinloop2: do 1050 ispin=1, nspx !note that nspx=nsp/nspc where nspc=2 for lso=1 (nspc=1 for lso=0,2)
+        if(ixc==4 .and. ispin /= isp1) cycle ispinloop2
+        if(ixc==5 .and. ispin /= isp1) cycle ispinloop2
         ii = iko_ixs(ispin)
         ie = iko_fxs(ispin)
-        cphi1 = get_cphi(q1,ispin) ! MT part of eigenfunctions
-        cphi2 = get_cphi(q2, merge(3-ispin, ispin, spinflip))
-        geig1 = get_geig(q1,ispin) ! IPW part of eigenfunctions
-        geig2 = get_geig(q2, merge(3-ispin, ispin, spinflip))
+        cphi1 = get_cphi(q1, merge(isp1, ispin, (ixc==4 .or. ixc==5))) ! MT part of eigenfunctions
+        cphi2 = get_cphi(q2, merge(isp2, ispin, (ixc==4 .or. ixc==5)))
+        geig1 = get_geig(q1, merge(isp1, ispin, (ixc==4 .or. ixc==5))) ! IPW part of eigenfunctions
+        geig2 = get_geig(q2, merge(isp2, ispin, (ixc==4 .or. ixc==5)))
         uum(:,:,ispin) = 0d0
         do ispc=1,nspc ! For lso=0 or 2,ispin=1,nsp. For lso=1, ispin=1 ispc=1,2 nspc=2 
           ioc=(ispc-1)*ndima
           iog=(ispc-1)*ngpmx
+          if(ixc == 5) then
+            ibb_ = 1
+          else
+            ibb_ = ibb
+          endif
           uum(ii:ie,ii:ie,ispin) =uum(ii:ie,ii:ie,ispin) &
                + matmul(transpose(dconjg(cphi1(ioc+1:ioc+ndima,ii:ie))),&
-               matmul(ppj(1:ndima,1:ndima,ispc,ibb),cphi2(ioc+1:ioc+ndima,ii:ie))) &! MT part
+               matmul(ppj(1:ndima,1:ndima,ispc,ibb_),cphi2(ioc+1:ioc+ndima,ii:ie))) &! MT part
                + matmul(dconjg(transpose(geig1(iog+1:iog+ngp1, ii:ie))), matmul(ppovl,geig2(iog+1:iog+ngp2,ii:ie))) !IPW part
         enddo
-        if(ixc/=4) write(ifuu(ispin)) -10 !dummy
+        if(ixc/=4 .and. ixc /=5) write(ifuu(ispin)) -10 !dummy
         if(ixc==2) write(ifuu(ispin)) iqbz,ibb,ikbidx(ibb,iqbz)
         if(ixc==3) write(ifuu(ispin)) iqbz,ibb
-        if(ixc==2 .or. ixc == 3) write(ifuu(ispin)) ((uum(j1,j2,ispin),j1=ii,ie),j2=ii,ie)
-        if(ixc==4) uumq(:,:,ibb,ispin) = uumq(:,:,ibb,ispin) + uum(:,:,ispin)
-        if(ixc==4) cycle
+        if(ixc==2 .or. ixc==3) write(ifuu(ispin)) ((uum(j1,j2,ispin),j1=ii,ie),j2=ii,ie)
+        if(ixc==4 .or. ixc==5) uumq(:,:,ibb,ispin) = uumq(:,:,ibb,ispin) + uum(:,:,ispin)
+        if(ixc==4 .or. ixc==5) cycle
         checkwirte: block
           eval1 = readeval(q1,ispin) !eigenvalue at q1
           eval2 = readeval(q2,ispin)
@@ -417,45 +452,56 @@ subroutine uumatrix()
       deallocate(ngvecpf1, ngvecpf2, ppovl)
       ! write(stdo,*) !'============ result --- diagonal --- ==============',nspx,j1min,j1max,j2min,j2max
 1080 enddo ibbloop
-    if(ixc/=4) then
+    if(ixc/=4 .or. ixc /= 5) then
     close(ifuu(1))
     if(nspin==2) close(ifuu(2))
     endif
 1070 enddo iqbz4uum
 
-  if(ixc==4) then
+  if(ixc==4 .or. ixc == 5) then
     call mpi__allreducesum(uumq, size(uumq))
     uumq(:,:,:,:)  = uumq(:,:,:,:)/dble(nqbz)
     if(mpi__root) then
       block
-        character(64) :: datfile
-        integer :: ifile(2), iq, ifile_handle, recl
-        complex(8) :: uumq_1d(nbasis*nbasis,nspin)
+        integer :: iq, ifile_handle, recl, sidx
+        logical :: computed(4), info_exists
+        complex(8) :: uumq_1d(nbasis*nbasis)
+        character(20) :: suffix
         recl = 16*nbasis**2
         do iq=1, nbb
-          forall(isp=1:nspin) uumq_1d(:,isp) = reshape(uumq(1:nbasis,1:nbasis,iq,isp), shape=[nbasis*nbasis])
-          write(stdo,'(A,3f10.6,3x,8f12.6)') 'q, diag sum uumq(updw,dwup)/nwf:', q0i(:,iq), &
-          (sum([(uumq(i,i,iq,isp),i=1,nbasis)])/dble(nbasis),isp=1,nspin), &
-          dble(dot_product(uumq_1d(:,1),uumq_1d(:,1))), dble(dot_product(uumq_1d(:,2),uumq_1d(:,2)))
+          uumq_1d(:) = reshape(uumq(1:nbasis,1:nbasis,iq,isp1), shape=[nbasis*nbasis])
+          write(stdo,'(A,2I3,3f10.6,3x,4f12.6)') 'ispin1,ispin2, q, diag/nwf, |uumq|^2:', isp1, isp2, bbv(:,iq), &
+            sum([(uumq(i,i,iq,isp1),i=1,nbasis)])/dble(nbasis), dble(dot_product(uumq_1d, uumq_1d))
         enddo
-        ! Info file (sequential): header + q-point list
-        open(newunit=ifile_handle, file='__MLOFormFactorQ.info', form='unformatted', status='replace')
+        sidx = 0
+        if(isp1==1 .and. isp2==1) sidx = 1
+        if(isp1==2 .and. isp2==2) sidx = 2
+        if(isp1==1 .and. isp2==2) sidx = 3
+        if(isp1==2 .and. isp2==1) sidx = 4
+        ! Read existing computed flags if info file exists
+        computed(:) = .false.
+        if(ixc == 4) suffix = 'OvlpQ'
+        if(ixc == 5) suffix = 'FormFactorQ'
+        inquire(file='__MLO'//trim(suffix)//'.info', exist=info_exists)
+        if(info_exists) then
+          open(newunit=ifile_handle, file='__MLO'//trim(suffix)//'.info', form='unformatted', action='read')
+          read(ifile_handle) computed
+          close(ifile_handle)
+        endif
+        computed(sidx) = .true.
+        ! Info file (sequential)
+        open(newunit=ifile_handle, file='__.MLO'//trim(suffix)//'.info', form='unformatted', status='replace')
+        write(ifile_handle) computed
         write(ifile_handle) nbasis, nqbz, nspin, nbb
         write(ifile_handle) bbv(:,1:nbb)
         close(ifile_handle)
-        ! Data files (direct-access): one record per q-point
-        do isp=1, nspin
-          if(isp==1 .and. (.not.spinflip)) datfile = '__MLOFormFactorQ.UP'
-          if(isp==2 .and. (.not.spinflip)) datfile = '__MLOFormFactorQ.DN'
-          if(isp==1 .and. spinflip) datfile = '__MLOFormFactorQ.UPDN'
-          if(isp==2 .and. spinflip) datfile = '__MLOFormFactorQ.DNUP'
-          open(newunit=ifile_handle, file=trim(datfile), form='unformatted', access='direct', recl=recl, status='replace')
-          do iq=1, nbb
-            write(ifile_handle, rec=iq) uumq(:,:,iq,isp)
-          enddo
-          close(ifile_handle)
+        ! Data file (direct-access, single file, record=(sidx-1)*nbb+iq)
+        open(newunit=ifile_handle, file='___MLO'//trim(suffix), form='unformatted', access='direct', recl=recl, status='unknown')
+        do iq=1, nbb
+          write(ifile_handle, rec=(sidx-1)*nbb+iq) uumq(:,:,iq,isp1)
         enddo
-        write(stdo,ftox) 'uumq written to __MLOFormFactor.info / __MLOFormFactorQ.UP / .DN'
+        close(ifile_handle)
+        write(stdo,ftox) 'uumq written to __MLOFormFactorQ.info / __MLOFormFactorQ'
       endblock
     endif
   endif

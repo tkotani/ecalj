@@ -123,11 +123,11 @@ contains
     trmat = sum(pack(reshape(mat, [nnwf*nnwf]), mask=mask))
   end function trace_onsite_diag
 
-  subroutine scrw_init(w_onsite_dddd, Wtype, enforce_Hermite)
+  subroutine scrw_init(w_onsite_dddd, isp1, isp2, enforce_Hermite)
     logical, intent(in) :: w_onsite_dddd, enforce_Hermite
-    character(len=*), intent(in) :: Wtype
+    integer, intent(in) :: isp1, isp2
     integer:: ifscrwv, ifscrv, iwf, jwf, kwf, lwf
-    character(len=9)::charadummy 
+    character(len=9)::charadummy
     real(8)::rws1(3),freq,freq2 !dummy
     integer::is,iwf1,iwf2,iwf3,iwf4, idummy
     real(8):: rydberg, hartree
@@ -137,25 +137,25 @@ contains
     logical(8)::ijklmag
     hartree = 2d0*rydberg()
     allocate( scrw4(nwf,nwf,nwf,nwf), source = (0d0,0d0))
-    select case (trim(adjustl(wtype)))
-      case ("up")
+    select case(isp1*10+isp2)
+      case(11)
         if(ipr) write(stdo,ftox) "scrw_init: read Wup"
-        open(newunit=ifscrwv,file="Screening_W-v.UP",form="formatted") !only up
-        open(newunit=ifscrv, file="Coulomb_v.UP",    form="formatted") !only up
-      case ("down")
+        open(newunit=ifscrwv,file="Screening_W-v.UP",form="formatted")
+        open(newunit=ifscrv, file="Coulomb_v.UP",    form="formatted")
+      case(22)
         if(ipr) write(stdo,ftox) "scrw_init: read Wdn"
-        open(newunit=ifscrwv,file="Screening_W-v.DN",form="formatted") !only up
-        open(newunit=ifscrv, file="Coulomb_v.DN",    form="formatted") !only up
-      case ("up_down")
+        open(newunit=ifscrwv,file="Screening_W-v.DN",form="formatted")
+        open(newunit=ifscrv, file="Coulomb_v.DN",    form="formatted")
+      case(12)
         if(ipr) write(stdo,ftox) "scrw_init: read Wupdn"
-        open(newunit=ifscrwv,file="Screening_W-v.UPDN",form="formatted") !only updw
-        open(newunit=ifscrv, file="Coulomb_v.UPDN",    form="formatted") !only updw
-      case ("down_up")
+        open(newunit=ifscrwv,file="Screening_W-v.UPDN",form="formatted")
+        open(newunit=ifscrv, file="Coulomb_v.UPDN",    form="formatted")
+      case(21)
         if(ipr) write(stdo,ftox) "scrw_init: read Wdnup"
-        open(newunit=ifscrwv,file="Screening_W-v.DNUP",form="formatted") !only updw
-        open(newunit=ifscrv, file="Coulomb_v.DNUP",    form="formatted") !only updw
+        open(newunit=ifscrwv,file="Screening_W-v.DNUP",form="formatted")
+        open(newunit=ifscrv, file="Coulomb_v.DNUP",    form="formatted")
       case default
-        call rx("scrw_init: Unknown Wtype")
+        call rx("scrw_init: invalid isp1/isp2")
     endselect
     do iwf=1, nwf**4
       read(ifscrv,"(A,2i5, 3f12.6, 5i5,2f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4, scrv4 !v

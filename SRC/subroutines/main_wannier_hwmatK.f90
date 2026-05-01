@@ -440,8 +440,8 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   integer:: ierr,master=0,comm,irr,iqibz
   integer,allocatable::irkall(:,:),irk(:,:)
   logical:: master_mpi, debug = .false.
-  logical :: spinflip, cmdopt0, getW_up_down, getW_down_up, mlo_mode
-  integer :: nwf
+  logical :: spinflip, cmdopt0, cmdopt2, mlo_mode
+  integer :: nwf, isp1, isp2
 !  include "mpif.h"
   comm= mpi_comm_world
 !  call mpi_init(ierr)
@@ -488,12 +488,15 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   nz=input3(2)
   idummy=input3(3)
   lomega0=.false.
-  spinflip = .false.
-  getW_up_down = cmdopt0('--getW_up_down')
-  getW_down_up = cmdopt0('--getW_down_up')
   mlo_mode = cmdopt0('--mlo')
-  if(getW_up_down .or. getW_down_up) spinflip = .true.
-  if(master_mpi) write(6,*) ' spinflip option =', spinflip
+  isp1 = 0; isp2 = 0
+  block
+    character(20) :: outs
+    if(cmdopt2('--sp1=', outs)) read(outs,*) isp1
+    if(cmdopt2('--sp2=', outs)) read(outs,*) isp2
+  endblock
+  spinflip = (isp1 /= 0 .and. isp2 /= 0 .and. isp1 /= isp2)
+  if(master_mpi) write(6,'(A,2I3,A,L2)') ' sp1,sp2=', isp1, isp2, ' spinflip=', spinflip
   if (ixc==11) then
      ixc=1
      lomega0=.true.
@@ -780,8 +783,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   spinloop: do 2000 is = 1,nspinmx
 !    write(6,*)' ssssss spinloop',is,nspinmx
     ! initialise secq and kount
-    if(is == 1 .and. spinflip .and. (.not.getW_up_down) ) cycle
-    if(is == 2 .and. spinflip .and. (.not.getW_down_up) ) cycle
+    if(spinflip .and. is /= isp1) cycle
      write(6,*)' ssssss spinloop',is,nspinmx
     kount = 0
     rw_w = 0d0
