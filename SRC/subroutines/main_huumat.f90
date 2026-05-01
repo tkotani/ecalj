@@ -490,13 +490,13 @@ subroutine uumatrix()
         endif
         computed(sidx) = .true.
         ! Info file (sequential)
-        open(newunit=ifile_handle, file='__.MLO'//trim(suffix)//'.info', form='unformatted', status='replace')
+        open(newunit=ifile_handle, file='__MLO'//trim(suffix)//'.info', form='unformatted', status='replace')
         write(ifile_handle) computed
         write(ifile_handle) nbasis, nqbz, nspin, nbb
         write(ifile_handle) bbv(:,1:nbb)
         close(ifile_handle)
         ! Data file (direct-access, single file, record=(sidx-1)*nbb+iq)
-        open(newunit=ifile_handle, file='___MLO'//trim(suffix), form='unformatted', access='direct', recl=recl, status='unknown')
+        open(newunit=ifile_handle, file='__MLO'//trim(suffix), form='unformatted', access='direct', recl=recl, status='unknown')
         do iq=1, nbb
           write(ifile_handle, rec=(sidx-1)*nbb+iq) uumq(:,:,iq,isp1)
         enddo
