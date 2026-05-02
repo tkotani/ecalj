@@ -2,7 +2,9 @@
 import sys
 import os
 import subprocess
+from pathlib import Path
 from run_arg import run_arg
+from gwinput_prepare import ensure_gwinput_toml
 
 def main():
     if len(sys.argv) != 4 or sys.argv[1] != "-np":
@@ -15,6 +17,9 @@ def main():
     TARGET = sys.argv[3]
     MPI_SIZE = sys.argv[2]
     NO_MPI = 1
+
+    if not ensure_gwinput_toml(exec_dir=Path(nfpgw)):
+        raise SystemExit('gw_lmfh: cannot proceed without GWinput.toml')
 
     if os.path.exists('NoCore'):
         os.remove('NoCore')

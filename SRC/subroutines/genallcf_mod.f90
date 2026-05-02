@@ -43,36 +43,30 @@ module m_gw_user_config
   private
 contains
   subroutine gw_user_config_init()
-    !> Read niw / deltaw / esmr. If GWinput.toml exists, load via m_GWinput
-    !  (single source of truth); else fall back to legacy getkeyvalue.
-    use m_keyvalue, only: getkeyvalue
-    use m_GWinput,  only: gwinput_load, gwinput_loaded, &
+    !> Read niw / deltaw / esmr from m_GWinput (TOML-only mode).
+    use m_GWinput,  only: gwinput_init, gwinput_loaded, &
                           mg_niw    => niw, &
                           mg_deltaw => deltaw, &
                           mg_esmr   => esmr
-    logical :: have_toml
-    character(len=:), allocatable :: errmsg
-    inquire(file='GWinput.toml', exist=have_toml)
-    if (have_toml) then
-       call gwinput_load(error=errmsg)
-       if (gwinput_loaded) then
-          niw    = mg_niw
-          deltaw = mg_deltaw
-          esmr   = mg_esmr
-       else
-          call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
-!          call getkeyvalue("GWinput", "niw",    niw)
-!          call getkeyvalue("GWinput", "deltaw", deltaw)
-!          call getkeyvalue("GWinput", "esmr",   esmr)
-       endif
-    else
-       call getkeyvalue("GWinput", "niw",    niw)
-       call getkeyvalue("GWinput", "deltaw", deltaw)
-       call getkeyvalue("GWinput", "esmr",   esmr)
-    endif
+    call gwinput_init()
+    if (.not. gwinput_loaded) call rx('gw_user_config_init: GWinput.toml is required.')
+    niw    = mg_niw
+    deltaw = mg_deltaw
+    esmr   = mg_esmr
     if(ipr) write(stdo,*) ' --- Freq ---'
     if(ipr) write(stdo,"(a,i6)")   '    niw  =', niw
     if(ipr) write(stdo,"(a,f12.6)")'    esmr =', esmr
+
+!   ---- Legacy GWinput reader (disabled 2026-05-02 -- TOML only) ----
+!   use m_keyvalue, only: getkeyvalue
+!   logical :: have_toml
+!   character(len=:), allocatable :: errmsg
+!   inquire(file='GWinput.toml', exist=have_toml)
+!   if (.not. have_toml) then
+!      call getkeyvalue("GWinput", "niw",    niw)
+!      call getkeyvalue("GWinput", "deltaw", deltaw)
+!      call getkeyvalue("GWinput", "esmr",   esmr)
+!   endif
   end subroutine gw_user_config_init
   subroutine set_esmr(esmr_in)
     real(8), intent(in) :: esmr_in
