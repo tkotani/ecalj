@@ -70,12 +70,13 @@ module m_GWinput
   logical, protected, public :: KeepPositiveCou = .true.
 
   ! Wannier-related
-  integer, protected, public :: mlo_emax     = 0
+  ! mlo_emax: legacy reads as REAL (m_hreduction default=emax*rydberg).
+  real(8), protected, public :: mlo_emax     = 0.0d0
   integer, protected, public :: mlo_method   = 0
-  integer, protected, public :: wan_maxit_1st = 0
-  integer, protected, public :: wan_maxit_2nd = 0
-  integer, protected, public :: wan_tb_cut   = 0
-  real(8), protected, public :: wan_conv_1st = 1.0d-7
+  integer, protected, public :: wan_maxit_1st = 100
+  integer, protected, public :: wan_maxit_2nd = 100
+  real(8), protected, public :: wan_tb_cut   = 1.01d0
+  real(8), protected, public :: wan_conv_1st = 1.0d-5
   real(8), protected, public :: wan_conv_end = 1.0d-8
   real(8), protected, public :: wan_max_1st  = 0.1d0
   real(8), protected, public :: wan_max_2nd  = 0.3d0
@@ -84,6 +85,107 @@ module m_GWinput
   real(8), protected, public :: wan_out_emin = -1.05d0
   real(8), protected, public :: wan_out_emax = 2.4d0
   logical, protected, public :: wan_in_ewin  = .false.
+
+  !-----------------------------------------------------------------
+  ! Additional keys (batch 2 -- 2026-05-02 migration of remaining callers)
+  ! Defaults reflect the most common legacy `default=` value at the
+  ! callsite. Where the legacy default is non-constant (e.g., default=nnn),
+  ! the value is set to a sentinel and the caller emulates the fallback.
+  !-----------------------------------------------------------------
+
+  ! Reals
+  real(8), protected, public :: BZadiv             = 1.0d0
+  real(8), protected, public :: ene_sppola         = 0.0d0
+  real(8), protected, public :: mlo_eww            = 0.2d0
+  real(8), protected, public :: mixbeta            = 1.0d0
+  real(8), protected, public :: mixtj              = 0.0d0
+  real(8), protected, public :: TFscreen           = 1.0d-5**0.5d0
+  real(8), protected, public :: removed_r0c        = 1.0d60
+  real(8), protected, public :: q0scale            = 0.8d0
+  real(8), protected, public :: shift_majority     = 0.0d0
+  real(8), protected, public :: output_ddmat_atom  = 1.0d0
+  real(8), protected, public :: dRdIatRmax         = 0.003d0
+  real(8), protected, public :: zmel_max_size      = 1.0d0
+  real(8), protected, public :: MEMnmbatch         = 2.0d0
+  real(8), protected, public :: magnon_delta       = 0.0d0
+  real(8), protected, public :: magnon_delta_dos   = 1.0d-6
+  real(8), protected, public :: magnon_HistBin_ratio = 1.03d0
+  real(8), protected, public :: magnon_HistBin_dw  = 1.0d-5
+  ! mlo
+  real(8), protected, public :: mlo_conv           = 1.0d-6
+  real(8), protected, public :: mlo_mix            = 0.5d0
+  real(8), protected, public :: mlo_EUinner        = 1.0d8
+  real(8), protected, public :: mlo_CUouter        = 0.0d0
+  real(8), protected, public :: mlo_CUinner        = 0.9d0
+  real(8), protected, public :: mlo_WTinner        = 2048.0d0
+  real(8), protected, public :: mlo_WTband         = 64.0d0
+  real(8), protected, public :: mlo_WTseed         = 32.0d0
+  real(8), protected, public :: mlo_ELinner        = -1.0d8
+  real(8), protected, public :: mlo_ewid           = 1.0d0
+  real(8), protected, public :: mlo_WTouter        = 32768.0d0
+  real(8), protected, public :: mlo_CLhard         = 0.33d0
+  real(8), protected, public :: mlo_ELhard         = -1.0d8
+  ! wmat
+  real(8), protected, public :: wmat_rcut1         = 0.01d0
+  real(8), protected, public :: wmat_rcut2         = 0.01d0
+  ! wan
+  real(8), protected, public :: wan_mix_1st        = 0.1d0
+  real(8), protected, public :: wan_mix_2nd        = 0.1d0
+  real(8), protected, public :: wan_conv_2nd       = 1.0d-5
+
+  ! Integers
+  integer, protected, public :: ngcell             = 1
+  integer, protected, public :: nkeep_wfs          = 2
+  integer, protected, public :: mlo_nskip          = 0
+  integer, protected, public :: nbcutlow_sig       = 0
+  integer, protected, public :: mlo_maxit          = 100
+  integer, protected, public :: wan_nb_below       = 0
+  integer, protected, public :: wan_nb_above       = 0
+  integer, protected, public :: wan_out_bmin       = 999
+  integer, protected, public :: wan_out_bmax       = -999
+  integer, protected, public :: wan_in_bmin        = 999
+  integer, protected, public :: wan_in_bmax        = -999
+  integer, protected, public :: mixpriorit         = 3
+  integer, protected, public :: Q0Pchoice          = 1
+  integer, protected, public :: Verbose            = 0
+  integer, protected, public :: Q0P_Choice         = 0
+  ! NormChk_int: switch.f90 reads NormChk as integer (default=1) — keep
+  ! both forms (logical NormChk above for default=.false. callsite,
+  ! plus integer NormChk_int derived from the same TOML key).
+  integer, protected, public :: NormChk_int        = 1
+
+  ! Logicals
+  logical, protected, public :: EIBZmode           = .true.
+  logical, protected, public :: QforEPSIBZ         = .false.
+  logical, protected, public :: QforGWIBZ          = .false.
+  logical, protected, public :: TestOnlyQ0P        = .false.
+  logical, protected, public :: TestNoQ0P          = .false.
+  logical, protected, public :: NoQ0P              = .false.
+  logical, protected, public :: KeepPpb            = .false.
+  logical, protected, public :: KeepWV             = .false.
+  logical, protected, public :: KeepQG             = .true.
+  logical, protected, public :: KeepWronkj         = .true.
+  logical, protected, public :: TimeReversal       = .true.
+  logical, protected, public :: rmeshrefine        = .true.
+  logical, protected, public :: chi_RegQbz         = .true.
+  logical, protected, public :: tetrahedron_matrix_linear = .false.
+  logical, protected, public :: magnon_w_onsite_dddd = .true.
+  logical, protected, public :: magnon_negative_cut = .false.
+  logical, protected, public :: allq0i             = .false.
+  logical, protected, public :: wan_out_ewin       = .true.
+  logical, protected, public :: wan_in_bwin        = .false.
+  logical, protected, public :: wmat_static        = .false.
+  logical, protected, public :: wmat_all           = .false.
+  logical, protected, public :: wmat_WSsuper       = .true.
+  logical, protected, public :: wan_gauss_head     = .false.
+  logical, protected, public :: wan_truncate       = .false.
+  logical, protected, public :: mlo_EUinnerAUTOsp  = .false.
+
+  ! Vectors of 3
+  integer, protected, public :: n1n2n3dos(3)       = [0, 0, 0]
+  integer, protected, public :: GammaDivn1n2n3(3)  = [0, 0, 0]
+  real(8), protected, public :: alpha_OffG_vec(3)  = [-1.0d50, 0.0d0, 0.0d0]
+  real(8), protected, public :: wmat_rsite(3)      = [0.0d0, 0.0d0, 0.0d0]
 
   !-----------------------------------------------------------------
   ! [product_basis]: structured data
@@ -180,11 +282,11 @@ contains
     call gv_i(gw, 'EMAXforGW',     EMAXforGW)
     call gv_i(gw, 'BZmesh',        BZmesh)
     call gv_i(gw, 't_tetrakbt',    t_tetrakbt)
-    call gv_i(gw, 'mlo_emax',      mlo_emax)
+    call gv_r(gw, 'mlo_emax',      mlo_emax)        ! legacy reads as REAL
     call gv_i(gw, 'mlo_method',    mlo_method)
     call gv_i(gw, 'wan_maxit_1st', wan_maxit_1st)
     call gv_i(gw, 'wan_maxit_2nd', wan_maxit_2nd)
-    call gv_i(gw, 'wan_tb_cut',    wan_tb_cut)
+    call gv_r(gw, 'wan_tb_cut',    wan_tb_cut)      ! legacy reads as REAL (default 1.01)
     ! nband_sigm: legacy reads as integer; TOML may have list[float] -- take first as int
     call gv_iv_first(gw, 'nband_sigm', nband_sigm)
     ! MagAtom: VLA -- accept scalar or vector
@@ -221,6 +323,61 @@ contains
     call gv_r(gw, 'ecuts_p',         ecuts_p)
     call gv_r(gw, 'gauss_img',       gauss_img)
 
+    ! Batch 2 reals
+    call gv_r(gw, 'BZadiv',             BZadiv)
+    call gv_r(gw, 'ene_sppola',         ene_sppola)
+    call gv_r(gw, 'mlo_eww',            mlo_eww)
+    call gv_r(gw, 'mixbeta',            mixbeta)
+    call gv_r(gw, 'mixtj',              mixtj)
+    call gv_r(gw, 'TFscreen',           TFscreen)
+    call gv_r(gw, 'removed_r0c',        removed_r0c)
+    call gv_r(gw, 'q0scale',            q0scale)
+    call gv_r(gw, 'shift_majority',     shift_majority)
+    call gv_r(gw, 'output_ddmat_atom',  output_ddmat_atom)
+    call gv_r(gw, 'dRdIatRmax',         dRdIatRmax)
+    call gv_r(gw, 'zmel_max_size',      zmel_max_size)
+    call gv_r(gw, 'MEMnmbatch',         MEMnmbatch)
+    call gv_r(gw, 'magnon_delta',       magnon_delta)
+    call gv_r(gw, 'magnon_delta_dos',   magnon_delta_dos)
+    call gv_r(gw, 'magnon_HistBin_ratio', magnon_HistBin_ratio)
+    call gv_r(gw, 'magnon_HistBin_dw',  magnon_HistBin_dw)
+    call gv_r(gw, 'mlo_conv',           mlo_conv)
+    call gv_r(gw, 'mlo_mix',            mlo_mix)
+    call gv_r(gw, 'mlo_EUinner',        mlo_EUinner)
+    call gv_r(gw, 'mlo_CUouter',        mlo_CUouter)
+    call gv_r(gw, 'mlo_CUinner',        mlo_CUinner)
+    call gv_r(gw, 'mlo_WTinner',        mlo_WTinner)
+    call gv_r(gw, 'mlo_WTband',         mlo_WTband)
+    call gv_r(gw, 'mlo_WTseed',         mlo_WTseed)
+    call gv_r(gw, 'mlo_ELinner',        mlo_ELinner)
+    call gv_r(gw, 'mlo_ewid',           mlo_ewid)
+    call gv_r(gw, 'mlo_WTouter',        mlo_WTouter)
+    call gv_r(gw, 'mlo_CLhard',         mlo_CLhard)
+    call gv_r(gw, 'mlo_ELhard',         mlo_ELhard)
+    call gv_r(gw, 'wmat_rcut1',         wmat_rcut1)
+    call gv_r(gw, 'wmat_rcut2',         wmat_rcut2)
+    call gv_r(gw, 'wan_mix_1st',        wan_mix_1st)
+    call gv_r(gw, 'wan_mix_2nd',        wan_mix_2nd)
+    call gv_r(gw, 'wan_conv_2nd',       wan_conv_2nd)
+
+    ! Batch 2 integers
+    call gv_i(gw, 'ngcell',             ngcell)
+    call gv_i(gw, 'nkeep_wfs',          nkeep_wfs)
+    call gv_i(gw, 'mlo_nskip',          mlo_nskip)
+    call gv_i(gw, 'nbcutlow_sig',       nbcutlow_sig)
+    call gv_i(gw, 'mlo_maxit',          mlo_maxit)
+    call gv_i(gw, 'wan_nb_below',       wan_nb_below)
+    call gv_i(gw, 'wan_nb_above',       wan_nb_above)
+    call gv_i(gw, 'wan_out_bmin',       wan_out_bmin)
+    call gv_i(gw, 'wan_out_bmax',       wan_out_bmax)
+    call gv_i(gw, 'wan_in_bmin',        wan_in_bmin)
+    call gv_i(gw, 'wan_in_bmax',        wan_in_bmax)
+    call gv_i(gw, 'mixpriorit',         mixpriorit)
+    call gv_i(gw, 'Q0Pchoice',          Q0Pchoice)
+    call gv_i(gw, 'Verbose',            Verbose)
+    call gv_i(gw, 'Q0P_Choice',         Q0P_Choice)
+    call gv_i(gw, 'NormChk',            NormChk_int)  ! integer form (switch.f90)
+
     ! Boolean flags
     call gv_l(gw, 'GaussSmear',      GaussSmear)
     call gv_l(gw, 'KeepEigen',       KeepEigen)
@@ -235,10 +392,43 @@ contains
     call gv_l(gw, 'wan_in_ewin',     wan_in_ewin)
     call gv_l(gw, 'KeepPositiveCou', KeepPositiveCou)
 
+    ! Batch 2 logicals
+    call gv_l(gw, 'EIBZmode',                  EIBZmode)
+    call gv_l(gw, 'QforEPSIBZ',                QforEPSIBZ)
+    call gv_l(gw, 'QforGWIBZ',                 QforGWIBZ)
+    call gv_l(gw, 'TestOnlyQ0P',               TestOnlyQ0P)
+    call gv_l(gw, 'TestNoQ0P',                 TestNoQ0P)
+    call gv_l(gw, 'NoQ0P',                     NoQ0P)
+    call gv_l(gw, 'KeepPpb',                   KeepPpb)
+    call gv_l(gw, 'KeepWV',                    KeepWV)
+    call gv_l(gw, 'KeepQG',                    KeepQG)
+    call gv_l(gw, 'KeepWronkj',                KeepWronkj)
+    call gv_l(gw, 'TimeReversal',              TimeReversal)
+    call gv_l(gw, 'rmeshrefine',               rmeshrefine)
+    call gv_l(gw, 'chi_RegQbz',                chi_RegQbz)
+    call gv_l(gw, 'tetrahedron_matrix_linear', tetrahedron_matrix_linear)
+    call gv_l(gw, 'magnon_w_onsite_dddd',      magnon_w_onsite_dddd)
+    call gv_l(gw, 'magnon_negative_cut',       magnon_negative_cut)
+    call gv_l(gw, 'allq0i',                    allq0i)
+    call gv_l(gw, 'wan_out_ewin',              wan_out_ewin)
+    call gv_l(gw, 'wan_in_bwin',               wan_in_bwin)
+    call gv_l(gw, 'wmat_static',               wmat_static)
+    call gv_l(gw, 'wmat_all',                  wmat_all)
+    call gv_l(gw, 'wmat_WSsuper',              wmat_WSsuper)
+    call gv_l(gw, 'wan_gauss_head',            wan_gauss_head)
+    call gv_l(gw, 'wan_truncate',              wan_truncate)
+    call gv_l(gw, 'mlo_EUinnerAUTOsp',         mlo_EUinnerAUTOsp)
+
     ! Integer vectors
-    call gv_iv3(gw, 'n1n2n3',    n1n2n3)
-    call gv_iv3(gw, 'n1n2n3eps', n1n2n3eps)
-    call gv_iv3(gw, 'multitet',  multitet)
+    call gv_iv3(gw, 'n1n2n3',         n1n2n3)
+    call gv_iv3(gw, 'n1n2n3eps',      n1n2n3eps)
+    call gv_iv3(gw, 'multitet',       multitet)
+    call gv_iv3(gw, 'n1n2n3dos',      n1n2n3dos)
+    call gv_iv3(gw, 'GammaDivn1n2n3', GammaDivn1n2n3)
+
+    ! Real 3-vectors
+    call gv_rv3(gw, 'alpha_OffG_vec', alpha_OffG_vec)
+    call gv_rv3(gw, 'wmat_rsite',     wmat_rsite)
   end subroutine load_gw_section
 
 
@@ -342,6 +532,19 @@ contains
     type(toml_table), pointer, intent(in)    :: tbl
     character(*),              intent(in)    :: key
     integer,                   intent(inout) :: var(3)
+    type(toml_array), pointer :: arr
+    integer :: i
+    call get_value(tbl, key, arr, requested=.false.)
+    if (.not. associated(arr)) return
+    do i = 1, min(3, len(arr))
+       call get_value(arr, i, var(i))
+    enddo
+  end subroutine
+
+  subroutine gv_rv3(tbl, key, var)
+    type(toml_table), pointer, intent(in)    :: tbl
+    character(*),              intent(in)    :: key
+    real(8),                   intent(inout) :: var(3)
     type(toml_array), pointer :: arr
     integer :: i
     call get_value(tbl, key, arr, requested=.false.)
