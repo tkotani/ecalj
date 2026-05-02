@@ -134,26 +134,27 @@ contains
             enddo
          enddo
       else
-         call getkeyvalue("GWinput","<Worb>",unit=ifmloc,status=ret)
-         do
-           read(ifmloc,"(a)") aaa
-           if(aaa(1:1) == '!') then
-             read(aaa,*)
-             cycle
-           endif
-           aaa=trim(aaa)//repeat(' -999 ',16)
-           read(aaa,*,end=1201,err=1201) ib,a,lmindex(1:16)
-           lmx= findloc(lmindex,value=-999,dim=1)-1
-           write(6,*) ib,lmx,lmindex(1:lmx)
-           do i1 =1,lmx
-             nMLO=nMLO+1
-             imto= sum(nmtoi(1:ib-1)) + lmindex(i1) !MTO index. We use EH channel only.
-             idmtox(nMLO) = imto
-             lindexx(nMLO)= l_tableM(imto)
-           enddo
-         enddo
-1201     continue
-         close(ifmloc)
+         call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!         call getkeyvalue("GWinput","<Worb>",unit=ifmloc,status=ret)
+!         do
+!           read(ifmloc,"(a)") aaa
+!           if(aaa(1:1) == '!') then
+!             read(aaa,*)
+!             cycle
+!           endif
+!           aaa=trim(aaa)//repeat(' -999 ',16)
+!           read(aaa,*,end=1201,err=1201) ib,a,lmindex(1:16)
+!           lmx= findloc(lmindex,value=-999,dim=1)-1
+!           write(6,*) ib,lmx,lmindex(1:lmx)
+!           do i1 =1,lmx
+!             nMLO=nMLO+1
+!             imto= sum(nmtoi(1:ib-1)) + lmindex(i1) !MTO index. We use EH channel only.
+!             idmtox(nMLO) = imto
+!             lindexx(nMLO)= l_tableM(imto)
+!           enddo
+!         enddo
+!1201     continue
+!         close(ifmloc)
       endif
       allocate(idmto, source=idmtox(1:nMLO))
       allocate(lindex,source=lindexx(1:nMLO))
@@ -179,21 +180,22 @@ contains
          ELhardeV  = tg_mlo_ELhard
          EUautosp  = tg_mlo_EUinnerAUTOsp
       else
-         call getkeyvalue("GWinput","mlo_maxit",nsc1,default=100)
-         call getkeyvalue("GWinput","mlo_conv",conv1,default=1d-6)
-         call getkeyvalue("GWinput","mlo_mix",alpha1,default=.5d0)
-         call getkeyvalue("GWinput","mlo_EUinner", eUinnereV,default= 1d8) ! inner energy windowU eV relative to VBM
-         call getkeyvalue("GWinput","mlo_CUouter", CUouter,default=0d0) !0.1d0)
-         call getkeyvalue("GWinput","mlo_CUinner", CUinner,default=0.9d0)
-         call getkeyvalue("GWinput","mlo_WTinner", WTinner,default=2048d0) ! inner energy window WeighTing
-         call getkeyvalue("GWinput","mlo_WTband" , WTband,default=WTbanddefault)  ! Weight to minimize band energies. 64 or less for Cu.
-         call getkeyvalue("GWinput",'mlo_WTseed' , WTseed,default=32d0) !0d0)    ! Weight for seed.
-         call getkeyvalue("GWinput","mlo_ELinner", eLinnereV,default=-1d8) ! inner energy windowL eV relative to VBM
-         call getkeyvalue("GWinput","mlo_ewid",    ewideV, default=1d0)    ! inner energy window softing eV
-         call getkeyvalue("GWinput","mlo_WTouter", WTouter,default=2048d0*16d0) ! inner energy window WeighTing
-         call getkeyvalue("GWinput","mlo_CLhard",CLhard,default=0.33d0)
-         call getkeyvalue("GWinput","mlo_ELhard",ELhardeV,default=-1d8)
-         call getkeyvalue("GWinput","mlo_EUinnerAUTOsp",EUautosp,default=.false.) !only test
+         call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!         call getkeyvalue("GWinput","mlo_maxit",nsc1,default=100)
+!         call getkeyvalue("GWinput","mlo_conv",conv1,default=1d-6)
+!         call getkeyvalue("GWinput","mlo_mix",alpha1,default=.5d0)
+!         call getkeyvalue("GWinput","mlo_EUinner", eUinnereV,default= 1d8) ! inner energy windowU eV relative to VBM
+!         call getkeyvalue("GWinput","mlo_CUouter", CUouter,default=0d0) !0.1d0)
+!         call getkeyvalue("GWinput","mlo_CUinner", CUinner,default=0.9d0)
+!         call getkeyvalue("GWinput","mlo_WTinner", WTinner,default=2048d0) ! inner energy window WeighTing
+!         call getkeyvalue("GWinput","mlo_WTband" , WTband,default=WTbanddefault)  ! Weight to minimize band energies. 64 or less for Cu.
+!         call getkeyvalue("GWinput",'mlo_WTseed' , WTseed,default=32d0) !0d0)    ! Weight for seed.
+!         call getkeyvalue("GWinput","mlo_ELinner", eLinnereV,default=-1d8) ! inner energy windowL eV relative to VBM
+!         call getkeyvalue("GWinput","mlo_ewid",    ewideV, default=1d0)    ! inner energy window softing eV
+!         call getkeyvalue("GWinput","mlo_WTouter", WTouter,default=2048d0*16d0) ! inner energy window WeighTing
+!         call getkeyvalue("GWinput","mlo_CLhard",CLhard,default=0.33d0)
+!         call getkeyvalue("GWinput","mlo_ELhard",ELhardeV,default=-1d8)
+!         call getkeyvalue("GWinput","mlo_EUinnerAUTOsp",EUautosp,default=.false.) !only test
       endif
       ELhardauto=.true.
       if(ELhardeV>-1d7) ELhardauto=.false.

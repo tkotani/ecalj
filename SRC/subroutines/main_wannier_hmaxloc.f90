@@ -416,43 +416,44 @@ subroutine hmaxloc()
      if (heps == -1d50) heps = r_v   ! sentinel: default=rcut
      heps   = tg_wan_tbcut_heps
   else
-     call getkeyvalue("GWinput","wan_out_ewin",leout,default=.true.)
-     call getkeyvalue("GWinput","wan_in_ewin",lein,default=.false.)
-     call getkeyvalue("GWinput","wan_in_bwin",lbin,default=.false.)
-     if (leout) then
-       call getkeyvalue("GWinput","wan_out_emin",eomin,default=999d0 )
-       call getkeyvalue("GWinput","wan_out_emax",eomax,default=-999d0 )
-       if (eomin > eomax) call rx('hmaxloc: eomin > eomax')
-       ieo_swt = 1
-     else
-       call getkeyvalue("GWinput","wan_out_bmin",itout_i,default=999 )
-       call getkeyvalue("GWinput","wan_out_bmax",itout_f,default=-999 )
-       if (itout_i > itout_f) call rx('hmaxloc: itout_i > itout_f')
-     endif
-     if (lein) then
-       call getkeyvalue("GWinput","wan_in_emin",eimin,default=999d0 )
-       call getkeyvalue("GWinput","wan_in_emax",eimax,default=-999d0 )
-       if (eimin > eimax) call rx('hmaxloc: eimin > eimax')
-       iei_swt = 1
-     endif
-     if (lbin) then
-       call getkeyvalue("GWinput","wan_in_bmin",itin_i,default=999 )
-       call getkeyvalue("GWinput","wan_in_bmax",itin_f,default=-999 )
-       if (itin_i > itin_f) call rx('hmaxloc: itin_i > itin_f')
-       iei_swt = 2
-     endif
-     call getkeyvalue("GWinput","wan_maxit_1st",nsc1,default=100)
-     call getkeyvalue("GWinput","wan_conv_1st",conv1,default=1d-5)
-     call getkeyvalue("GWinput","wan_mix_1st",alpha1,default=0.1d0)
-     call getkeyvalue("GWinput","wan_maxit_2nd",nsc2,default=100)
-     call getkeyvalue("GWinput","wan_conv_2nd",conv2,default=1d-5)
-     call getkeyvalue("GWinput","wan_mix_2nd",alpha2,default=0.1d0)
-     call getkeyvalue("GWinput","wan_tb_cut",rcut,default=1.01d0)
-     call getkeyvalue("GWinput","wan_nb_below",nbbelow,default=0)
-     call getkeyvalue("GWinput","wan_nb_above",nbabove,default=0)
-     r_v=rcut
-     call getkeyvalue("GWinput",'wan_tbcut_rcut',heps,default=r_v)
-     call getkeyvalue("GWinput",'wan_tbcut_heps',heps,default=0.0d0)
+     call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!     call getkeyvalue("GWinput","wan_out_ewin",leout,default=.true.)
+!     call getkeyvalue("GWinput","wan_in_ewin",lein,default=.false.)
+!     call getkeyvalue("GWinput","wan_in_bwin",lbin,default=.false.)
+!     if (leout) then
+!       call getkeyvalue("GWinput","wan_out_emin",eomin,default=999d0 )
+!       call getkeyvalue("GWinput","wan_out_emax",eomax,default=-999d0 )
+!       if (eomin > eomax) call rx('hmaxloc: eomin > eomax')
+!       ieo_swt = 1
+!     else
+!       call getkeyvalue("GWinput","wan_out_bmin",itout_i,default=999 )
+!       call getkeyvalue("GWinput","wan_out_bmax",itout_f,default=-999 )
+!       if (itout_i > itout_f) call rx('hmaxloc: itout_i > itout_f')
+!     endif
+!     if (lein) then
+!       call getkeyvalue("GWinput","wan_in_emin",eimin,default=999d0 )
+!       call getkeyvalue("GWinput","wan_in_emax",eimax,default=-999d0 )
+!       if (eimin > eimax) call rx('hmaxloc: eimin > eimax')
+!       iei_swt = 1
+!     endif
+!     if (lbin) then
+!       call getkeyvalue("GWinput","wan_in_bmin",itin_i,default=999 )
+!       call getkeyvalue("GWinput","wan_in_bmax",itin_f,default=-999 )
+!       if (itin_i > itin_f) call rx('hmaxloc: itin_i > itin_f')
+!       iei_swt = 2
+!     endif
+!     call getkeyvalue("GWinput","wan_maxit_1st",nsc1,default=100)
+!     call getkeyvalue("GWinput","wan_conv_1st",conv1,default=1d-5)
+!     call getkeyvalue("GWinput","wan_mix_1st",alpha1,default=0.1d0)
+!     call getkeyvalue("GWinput","wan_maxit_2nd",nsc2,default=100)
+!     call getkeyvalue("GWinput","wan_conv_2nd",conv2,default=1d-5)
+!     call getkeyvalue("GWinput","wan_mix_2nd",alpha2,default=0.1d0)
+!     call getkeyvalue("GWinput","wan_tb_cut",rcut,default=1.01d0)
+!     call getkeyvalue("GWinput","wan_nb_below",nbbelow,default=0)
+!     call getkeyvalue("GWinput","wan_nb_above",nbabove,default=0)
+!     r_v=rcut
+!     call getkeyvalue("GWinput",'wan_tbcut_rcut',heps,default=r_v)
+!     call getkeyvalue("GWinput",'wan_tbcut_heps',heps,default=0.0d0)
   endif
   write(6,*) 'mloc.heps ', heps
   !     ekino
@@ -460,8 +461,9 @@ subroutine hmaxloc()
      leauto   = tg_wan_out_emax_auto
      leinauto = tg_wan_in_emax_auto
   else
-     call getkeyvalue("GWinput","wan_out_emax_auto",leauto,default=.false.)
-     call getkeyvalue("GWinput","wan_in_emax_auto",leinauto,default=.false.)
+     call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!     call getkeyvalue("GWinput","wan_out_emax_auto",leauto,default=.false.)
+!     call getkeyvalue("GWinput","wan_in_emax_auto",leinauto,default=.false.)
   endif
 
 
@@ -974,15 +976,17 @@ subroutine hmaxloc()
     if (gwinput_loaded) then
        lsh = tg_wan_small_ham
     else
-       call getkeyvalue("GWinput","wan_small_ham",lsh,default=.false.)
+       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!       call getkeyvalue("GWinput","wan_small_ham",lsh,default=.false.)
     endif
     if (lsh) then
       if (gwinput_loaded) then
          nsh1 = tg_wan_nsh1
          nsh2 = tg_wan_nsh2
       else
-         call getkeyvalue("GWinput","wan_nsh1",nsh1, default=1 )
-         call getkeyvalue("GWinput","wan_nsh2",nsh2, default=2 )
+         call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!         call getkeyvalue("GWinput","wan_nsh1",nsh1, default=1 )
+!         call getkeyvalue("GWinput","wan_nsh2",nsh2, default=2 )
       endif
       write(6,*)'SmallHam on',nsh1,nsh2
       nsh = nsh2 - nsh1 + 1

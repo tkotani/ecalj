@@ -95,14 +95,15 @@ subroutine hmagnon() bind(C)
      if (tg_magnon_HistBin_dw    /= 1d-5)   freq_dw    = tg_magnon_HistBin_dw
      negative_cut  = tg_magnon_negative_cut
   else
-     call getkeyvalue("GWinput","magnon_w_onsite_dddd",w_onsite_dddd,default=.true.)
-     call getkeyvalue("GWinput","magnon_delta", delta, default=0d0) !1d-6 for Insulator case
-     call getkeyvalue("GWinput","magnon_delta_dos", delta_dos, default=1d-6)
-     call getkeyvalue("GWinput","HistBin_ratio",freq_ratio, default=1.03d0)
-     call getkeyvalue("GWinput","HistBin_dw",freq_dw, default=1d-5)
-     call getkeyvalue("GWinput","magnon_HistBin_ratio",freq_ratio, default=freq_ratio)
-     call getkeyvalue("GWinput","magnon_HistBin_dw", freq_dw, default=freq_dw)
-     call getkeyvalue("GWinput","magnon_negative_cut",negative_cut,default=.false.)
+     call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!     call getkeyvalue("GWinput","magnon_w_onsite_dddd",w_onsite_dddd,default=.true.)
+!     call getkeyvalue("GWinput","magnon_delta", delta, default=0d0) !1d-6 for Insulator case
+!     call getkeyvalue("GWinput","magnon_delta_dos", delta_dos, default=1d-6)
+!     call getkeyvalue("GWinput","HistBin_ratio",freq_ratio, default=1.03d0)
+!     call getkeyvalue("GWinput","HistBin_dw",freq_dw, default=1d-5)
+!     call getkeyvalue("GWinput","magnon_HistBin_ratio",freq_ratio, default=freq_ratio)
+!     call getkeyvalue("GWinput","magnon_HistBin_dw", freq_dw, default=freq_dw)
+!     call getkeyvalue("GWinput","magnon_negative_cut",negative_cut,default=.false.)
   endif
   if(ipr) write(stdo,ftox) "magnon_w_onsite_dddd", w_onsite_dddd
   if(ipr) write(stdo,ftox) "magnon_geteta", geteta

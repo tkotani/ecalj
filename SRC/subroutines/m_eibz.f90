@@ -54,7 +54,8 @@ contains
        if (gwinput_loaded) then
           eibzmode = tg_EIBZmode
        else
-          call getkeyvalue("GWinput","EIBZmode",eibzmode,default=.true.)
+          call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!          call getkeyvalue("GWinput","EIBZmode",eibzmode,default=.true.)
        endif
        if( .NOT. qbzreg()) eibzmode= .FALSE.  !=F (no symmetrization when we use mesh without Gamma).
        init=.false.

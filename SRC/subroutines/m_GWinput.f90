@@ -260,16 +260,19 @@ module m_GWinput
 
 contains
 
-  !> Idempotent helper for callers: if GWinput.toml is present and not yet
-  !  loaded, call gwinput_load. Sets gwinput_loaded=.true. on success.
-  !  Callers can then branch on `gwinput_loaded` to choose TOML vs legacy.
+  !> Idempotent helper for callers: ensure GWinput.toml has been loaded.
+  !  GWinput.toml MUST be present (driver scripts auto-convert from
+  !  legacy GWinput before launching the binary). Aborts via rx() if
+  !  the file is missing or fails to parse.
   subroutine gwinput_init()
     logical :: have_toml
     character(len=:), allocatable :: errmsg
     if (gwinput_loaded) return
     inquire(file='GWinput.toml', exist=have_toml)
-    if (.not. have_toml) return
+    if (.not. have_toml) call rx('m_GWinput: GWinput.toml not found in cwd '// &
+         '(expected; driver scripts should auto-convert from legacy GWinput).')
     call gwinput_load(error=errmsg)
+    if (.not. gwinput_loaded) call rx('m_GWinput: failed to load GWinput.toml')
   end subroutine gwinput_init
 
   subroutine gwinput_load(filename, error)

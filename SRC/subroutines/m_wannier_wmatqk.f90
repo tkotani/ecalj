@@ -149,7 +149,8 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   if (gwinput_loaded) then
      nbcut = tg_nbcutlow_sig
   else
-     call getkeyvalue("GWinput","nbcutlow_sig",nbcut, default=0 )
+     call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!     call getkeyvalue("GWinput","nbcutlow_sig",nbcut, default=0 )
   endif
   nbcutc=nctot+nbcut
   tpi         = 8d0*datan(1.d0)
@@ -174,10 +175,11 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
      noq0p   = tg_TestNoQ0P
      if (.not. noq0p) noq0p = tg_NoQ0P
   else
-     call getkeyvalue("GWinput","TestOnlyQ0P",onlyq0p,default=.false.)
-     call getkeyvalue("GWinput","TestNoQ0P",noq0p,default=.false.)
-     if ( .NOT. noq0p) &
-          call getkeyvalue("GWinput","NoQ0P",noq0p,default= .FALSE. )
+     call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!     call getkeyvalue("GWinput","TestOnlyQ0P",onlyq0p,default=.false.)
+!     call getkeyvalue("GWinput","TestNoQ0P",noq0p,default=.false.)
+!     if ( .NOT. noq0p) &
+!          call getkeyvalue("GWinput","NoQ0P",noq0p,default= .FALSE. )
   endif
   if(noq0p) write(*,*)'noq0p mode'
   if(noq0p) iqend=nqibz

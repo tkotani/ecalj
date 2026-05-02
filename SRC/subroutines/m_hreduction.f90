@@ -71,7 +71,8 @@ contains
          nskip = tg_mlo_nskip
          if (nskip == 0) nskip = nskipin   ! emulate legacy default=nskipin
       else
-         call getkeyvalue("GWinput","mlo_nskip",nskip,default=nskipin) !nskip is LO bands. This will be automatic
+         call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!         call getkeyvalue("GWinput","mlo_nskip",nskip,default=nskipin) !nskip is LO bands. This will be automatic
       endif
       write(stdo,ftox) 'nnnnn nskip',nskip !,ftof(sum(abs(fac(:,:))**2,dim=2))
 
@@ -104,7 +105,8 @@ contains
       if (gwinput_loaded) then
          eww = tg_mlo_eww
       else
-         call getkeyvalue("GWinput","mlo_eww",eww,default=0.2d0) !smoothing cutoff
+         call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!         call getkeyvalue("GWinput","mlo_eww",eww,default=0.2d0) !smoothing cutoff
       endif
       emax = evl(ndimMTO+nskip) - eferm   ! emax is the max of evl at ndimMTO+nskip. This is mainly useful for localized bands range.
 !      emax = evlmto(ndimMTO) - eferm
@@ -112,7 +114,8 @@ contains
          eee = tg_mlo_emax
          if (eee == 0d0) eee = emax*rydberg()  ! emulate legacy default=emax*rydberg
       else
-         call getkeyvalue("GWinput","mlo_emax",eee,default=emax*rydberg())  !eV relative to Ef.
+         call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!         call getkeyvalue("GWinput","mlo_emax",eee,default=emax*rydberg())  !eV relative to Ef.
       endif
       emax=eee/rydberg()+eferm
 

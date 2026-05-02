@@ -352,8 +352,9 @@ subroutine hpsig_MPI()
         ghead = tg_wan_gauss_head
         tailt = tg_wan_truncate
      else
-        call getkeyvalue("GWinput","wan_gauss_head",ghead,default=.false.)
-        call getkeyvalue("GWinput","wan_truncate",tailt,default=.false.)
+        call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!        call getkeyvalue("GWinput","wan_gauss_head",ghead,default=.false.)
+!        call getkeyvalue("GWinput","wan_truncate",tailt,default=.false.)
      endif
   endif ! myproc
   call MPI_Bcast(ghead,1,MPI_LOGICAL,0, &

@@ -22,7 +22,8 @@ contains
     if (gwinput_loaded) then
        nkeep_wfs = tg_nkeep_wfs
     else
-       call getkeyvalue("GWinput", "nkeep_wfs", nkeep_wfs, default=2)
+       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!       call getkeyvalue("GWinput", "nkeep_wfs", nkeep_wfs, default=2)
     endif
     if(nkeep_wfs < 1) return
     allocate(keep_cphi(ndima*nspc,nband,nkeep_wfs))

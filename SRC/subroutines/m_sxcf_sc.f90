@@ -320,7 +320,8 @@ contains
     if (gwinput_loaded) then
        sxs_keepwv = tg_KeepWV
     else
-       call getkeyvalue("GWinput","KeepWV", sxs_keepwv, default=use_gpu)
+       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!       call getkeyvalue("GWinput","KeepWV", sxs_keepwv, default=use_gpu)
     endif
     LoopScheduleCheck: block
       izz = 0

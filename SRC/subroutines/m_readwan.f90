@@ -181,7 +181,8 @@ contains
     if (gwinput_loaded) then
        shift_ev = tg_shift_majority
     else
-       call getkeyvalue("GWinput","shift_majority",shift_ev,default=0d0)
+       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!       call getkeyvalue("GWinput","shift_majority",shift_ev,default=0d0)
     endif
     if (shift_ev /= 0d0) write(6,*) "shift_ev [eV]: ",shift_ev
 !!! return wannier eigenvalue : ev_w
@@ -217,7 +218,8 @@ contains
     if (gwinput_loaded) then
        shift_ev = tg_shift_majority
     else
-       call getkeyvalue("GWinput","shift_majority",shift_ev,default=0d0)
+       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!       call getkeyvalue("GWinput","shift_majority",shift_ev,default=0d0)
     endif
     if (shift_ev /= 0d0) write(6,*) "shift_ev [eV]: ",shift_ev
     ev_w(1:nwf) = eval(1:nwf) + shift_ev/13.605693009
@@ -778,7 +780,8 @@ contains
     if (gwinput_loaded) then
        iddmat_in = tg_output_ddmat_atom
     else
-       call getkeyvalue("GWinput","output_ddmat_atom",iddmat_in,default=1d0)
+       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!       call getkeyvalue("GWinput","output_ddmat_atom",iddmat_in,default=1d0)
     endif
     iddmat=int(iddmat_in)
     write(6,"('output_ddmat_atom =',i5)") iddmat

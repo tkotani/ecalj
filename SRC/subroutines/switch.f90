@@ -73,7 +73,8 @@ real(8) function deltaq_scale()
      if (gwinput_loaded) then
         ttt = tg_Q0Pchoice
      else
-        call getkeyvalue("GWinput","Q0Pchoice",ttt,default=1)
+        call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!        call getkeyvalue("GWinput","Q0Pchoice",ttt,default=1)
      endif
      write(6,"('  Q0Pchoice=',i3)") ttt
      init=.false.
@@ -119,7 +120,8 @@ real(8) function screenfac()
      if (gwinput_loaded) then
         tss = tg_TFscreen
      else
-        call getkeyvalue("GWinput","TFscreen",tss, default=1d-5**.5)
+        call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!        call getkeyvalue("GWinput","TFscreen",tss, default=1d-5**.5)
      endif
      ! 1d-5**.5 is just given by rough test.
      ! Results should not depend on this value as long as default is small enough.
@@ -148,7 +150,8 @@ logical function TimeReversal()
      if (gwinput_loaded) then
         trevc = tg_TimeReversal
      else
-        call getkeyvalue("GWinput","TimeReversal",trevc,default=.true.)
+        call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!        call getkeyvalue("GWinput","TimeReversal",trevc,default=.true.)
      endif
      init=.false.
   endif
@@ -193,7 +196,8 @@ logical function rmeshrefine()
   if (gwinput_loaded) then
      rmeshrefine = tg_rmeshrefine
   else
-     call getkeyvalue("GWinput","rmeshrefine",rmeshrefine,default=.true.)
+     call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!     call getkeyvalue("GWinput","rmeshrefine",rmeshrefine,default=.true.)
   endif
 end function rmeshrefine
 real(8) function delrset()
@@ -204,7 +208,8 @@ real(8) function delrset()
   if (gwinput_loaded) then
      delrset = tg_dRdIatRmax
   else
-     call getkeyvalue("GWinput","dRdIatRmax",delrset,default=0.003d0)
+     call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!     call getkeyvalue("GWinput","dRdIatRmax",delrset,default=0.003d0)
   endif
 END function delrset
 logical function qbzreg()
@@ -216,7 +221,8 @@ logical function qbzreg()
      if (gwinput_loaded) then
         ccrq = tg_chi_RegQbz
      else
-        call getkeyvalue("GWinput","chi_RegQbz",ccrq,default=.true.)
+        call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!        call getkeyvalue("GWinput","chi_RegQbz",ccrq,default=.true.)
      endif
      init=.false.
   endif
@@ -263,7 +269,8 @@ real(8) function eees()
      if (gwinput_loaded) then
         r0cs = tg_removed_r0c
      else
-        call getkeyvalue("GWinput","removed_r0c",r0cs,default=1d60)
+        call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!        call getkeyvalue("GWinput","removed_r0c",r0cs,default=1d60)
      endif
      eee = -1d0/r0cs**2
      if(r0cs>1d10) eee=0d0
@@ -304,7 +311,8 @@ logical function matrix_linear()
      if (gwinput_loaded) then
         matrix_linear0 = tg_tetrahedron_matrix_linear
      else
-        call getkeyvalue("GWinput","tetrahedron_matrix_linear",matrix_linear0,default=.false.)
+        call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!        call getkeyvalue("GWinput","tetrahedron_matrix_linear",matrix_linear0,default=.false.)
      endif
      init=.false.
   endif
@@ -322,7 +330,8 @@ logical function KeepEigen()
      if (gwinput_loaded) then
         KeepEigen0 = tg_KeepEigen
      else
-        call getkeyvalue("GWinput","KeepEigen",KeepEigen0,default=.true.)
+        call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!        call getkeyvalue("GWinput","KeepEigen",KeepEigen0,default=.true.)
      endif
      init=.false.
   endif
@@ -357,7 +366,8 @@ integer(4) function verbose()
         if (gwinput_loaded) then
            verbosex = tg_Verbose
         else
-           call getkeyvalue("GWinput","Verbose",verbosex,default=0 )
+           call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!           call getkeyvalue("GWinput","Verbose",verbosex,default=0 )
         endif
      else
         verbosex=0
@@ -380,7 +390,8 @@ integer function q0pchoice()
      if (gwinput_loaded) then
         q0pchoicex = tg_Q0P_Choice
      else
-        call getkeyvalue("GWinput","Q0P_Choice",q0pchoicex,default=0) !,status=ret )
+        call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!        call getkeyvalue("GWinput","Q0P_Choice",q0pchoicex,default=0) !,status=ret )
      endif
      init=.false.
   endif
@@ -403,7 +414,8 @@ real(8) function escale()
   if (gwinput_loaded) then
      escale = tg_q0scale
   else
-     call getkeyvalue("GWinput","q0scale",escale,default=0.8d0)
+     call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!     call getkeyvalue("GWinput","q0scale",escale,default=0.8d0)
   endif
 END function escale
 integer(4) function normcheck()
@@ -420,7 +432,8 @@ integer(4) function normcheck()
      if (gwinput_loaded) then
         nnn = tg_NormChk_int
      else
-        call getkeyvalue("GWinput","NormChk",nnn,default=1)
+        call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!        call getkeyvalue("GWinput","NormChk",nnn,default=1)
      endif
      init=.false.
      !        write(6,"('NormChk mode=',i3)")nnn

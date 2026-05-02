@@ -249,7 +249,8 @@ contains
        if (gwinput_loaded) then
           ngcell = tg_ngcell
        else
-          call getkeyvalue("GWinput","ngcell",ngcell,default=1)
+          call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!          call getkeyvalue("GWinput","ngcell",ngcell,default=1)
        endif
        ntetf = 6*nqbz
        allocate( idtetf(0:3,ntetf))
@@ -598,7 +599,8 @@ contains
           if (gwinput_loaded) then
              adiv = tg_BZadiv
           else
-             call getkeyvalue("GWinput","BZadiv",adiv,default=1d0)
+             call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!             call getkeyvalue("GWinput","BZadiv",adiv,default=1d0)
           endif
        endif
        write(6,"('  BZadiv= ',f6.3)") adiv

@@ -35,8 +35,9 @@ contains
        ecut = tg_EMAXforGW
        emin = tg_EMINforGW
     else
-       call getkeyvalue("GWinput","EMAXforGW",ecut,default= 99999d0)
-       call getkeyvalue("GWinput","EMINforGW",emin,default=-99999d0)
+       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!       call getkeyvalue("GWinput","EMAXforGW",ecut,default= 99999d0)
+!       call getkeyvalue("GWinput","EMINforGW",emin,default=-99999d0)
     endif
     allocate(eqt(nband))
     nnx=-999999
@@ -73,32 +74,33 @@ contains
           allocate(qx(3, nq), source = tg_q_qgw)
        endif
     else
-       call getkeyvalue("GWinput","<QforGW>",unit=ifqpnt,errstop='off',status=ret)
-       nq=0
-       if(ret>0) then !read <QforGW> section
-          k=0
-          do
-             k=k+1
-             read(ifqpnt,*,end=1012,err=1012) qq(1:3)
-             write(6,*)k,qq
-          enddo
-1012      continue
-          nq=k-1
-          close(ifqpnt)
-       endif
-       write(6,*)' Readin from QforGW :nq=',nq
-       call getkeyvalue("GWinput","QforGWIBZ",ibzqq,default=.false.)
-       if(nq==0.or.ibzqq) then
-          nq=nqibz
-          allocate(qx(3,nq),source= qibz(1:3,1:nq))
-       else
-          call getkeyvalue("GWinput","<QforGW>",unit=ifqpnt,errstop='OFF',status=ret)
-          allocate(qx(3,nq))
-          do k=1,nq
-             read(ifqpnt,*) qx(1:3,k)
-          enddo
-          if(ret>0) close(ifqpnt)
-       endif
+       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!       call getkeyvalue("GWinput","<QforGW>",unit=ifqpnt,errstop='off',status=ret)
+!       nq=0
+!       if(ret>0) then !read <QforGW> section
+!          k=0
+!          do
+!             k=k+1
+!             read(ifqpnt,*,end=1012,err=1012) qq(1:3)
+!             write(6,*)k,qq
+!          enddo
+!1012      continue
+!          nq=k-1
+!          close(ifqpnt)
+!       endif
+!       write(6,*)' Readin from QforGW :nq=',nq
+!       call getkeyvalue("GWinput","QforGWIBZ",ibzqq,default=.false.)
+!       if(nq==0.or.ibzqq) then
+!          nq=nqibz
+!          allocate(qx(3,nq),source= qibz(1:3,1:nq))
+!       else
+!          call getkeyvalue("GWinput","<QforGW>",unit=ifqpnt,errstop='OFF',status=ret)
+!          allocate(qx(3,nq))
+!          do k=1,nq
+!             read(ifqpnt,*) qx(1:3,k)
+!          enddo
+!          if(ret>0) close(ifqpnt)
+!       endif
     endif
   end subroutine getqonly
 endmodule m_getQforGW

@@ -5,6 +5,7 @@ import subprocess
 from pathlib import Path
 from run_cmd import run_cmd, MPIParams
 from utils import merge_files, remove_files
+from gwinput_prepare import ensure_gwinput_toml
 
 EXEC_DIR = Path(__file__).resolve().parent
 
@@ -12,6 +13,8 @@ def cal_mlo(args, extra_args):
     target = args.extension
     mpi_size = args.np
     cluster = args.cluster
+    if not ensure_gwinput_toml(exec_dir=EXEC_DIR):
+        raise SystemExit('job_mlo: cannot proceed without GWinput.toml')
     remove_files("HamiltonianPMT.*")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
                                args=[target, "--writeham", "--mkprocar", "--noinv", "--mlo", *extra_args]),

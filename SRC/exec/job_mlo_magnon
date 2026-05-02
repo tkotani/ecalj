@@ -4,6 +4,7 @@ import contextlib
 from pathlib import Path
 from run_cmd import run_cmd, MPIParams
 from utils import move_files
+from gwinput_prepare import ensure_gwinput_toml
 
 EXEC_DIR = Path(__file__).resolve().parent
 
@@ -12,6 +13,9 @@ def cal_mlo_magnon(args, extra_args):
     mpi_size = args.np
     target = args.extension
     option_dos = "--dos" if args.dos else ""
+
+    if not ensure_gwinput_toml(exec_dir=EXEC_DIR):
+        raise SystemExit('job_mlo_magnon: cannot proceed without GWinput.toml')
 
     print(f"### start k+- r+-: mpi size= {mpi_size}, target= {target}")
     if args.dos:

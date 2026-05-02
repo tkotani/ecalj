@@ -180,7 +180,8 @@ contains
     if (gwinput_loaded) then
        zmel_max_size = tg_zmel_max_size
     else
-       call getkeyvalue("GWinput","zmel_max_size",zmel_max_size,default=1d0) !in GB
+       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!       call getkeyvalue("GWinput","zmel_max_size",zmel_max_size,default=1d0) !in GB
     endif
     if(zmel_max_size < 0.001d0) zmel_max_size = 1d0
     if(chipm .AND. nolfco) then; call set_m2e_prod_basis_chipm(zzr,npr)

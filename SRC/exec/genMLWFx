@@ -26,6 +26,15 @@ fi
 ### Read funcitons run_arg and run_arg_tee defined in a file run_arg ###
 source $nfpgw/run_arg
 
+######## auto-convert legacy GWinput -> GWinput.toml if needed ##########
+if [ ! -f GWinput.toml ] && [ -f GWinput ]; then
+    echo "genMLWF: auto-generating GWinput.toml from GWinput"
+    python3 $nfpgw/gwinput2toml.py GWinput || { echo "genMLWF: gwinput2toml.py failed"; exit 1; }
+fi
+if [ ! -f GWinput.toml ]; then
+    echo "genMLWF: ERROR -- GWinput.toml is required (and no legacy GWinput to auto-convert)" >&2
+    exit 1
+fi
 
 ######## start here ##########
 $echo_run echo "### START genMLWF: MPI size= " $MPI_SIZE, "MATERIAL= "$MATERIAL

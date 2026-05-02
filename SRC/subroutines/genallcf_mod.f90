@@ -60,9 +60,10 @@ contains
           deltaw = mg_deltaw
           esmr   = mg_esmr
        else
-          call getkeyvalue("GWinput", "niw",    niw)
-          call getkeyvalue("GWinput", "deltaw", deltaw)
-          call getkeyvalue("GWinput", "esmr",   esmr)
+          call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!          call getkeyvalue("GWinput", "niw",    niw)
+!          call getkeyvalue("GWinput", "deltaw", deltaw)
+!          call getkeyvalue("GWinput", "esmr",   esmr)
        endif
     else
        call getkeyvalue("GWinput", "niw",    niw)
@@ -186,65 +187,66 @@ contains
                                           ncwf(lt+1,nt,iatomt), ncwf2(lt+1,nt,iatomt)
        enddo
     else
-       call getkeyvalue("GWinput","<PRODUCT_BASIS>", unit=ifi, status=ret)
-       read(ifi,*)
-       read(ifi,"(a)") tolchar
-       readon = .false.
-       lx = 0
-       do ix = 1, 1000
-          if(.NOT. readon .AND. tolchar(ix:ix) /= ' ') then
-             readon = .true.
-             ixoff  = ix
-          endif
-          if(readon .AND. tolchar(ix:ix) == ' ') then
-             read(tolchar(ixoff:ix), *, err=1097) cutbase(lx)
-             if(lx == 2*(nl-1)) goto 1098
-             readon = .false.
-             lx = lx + 1
-          endif
-       enddo
-1097   continue
-       cutbase(lx:) = cutbase(lx-1)
-1098   continue
-       do lx = 0, 2*(nl-1)
-          if(ipr) write(stdo,"(' lx=',i3,' readin tolerance=',d11.3)") lx, cutbase(lx)
-       enddo
-       read(ifi,*)
-       allocate(lcutmxa(natom))
-       read(ifi,*) lcutmxa(1:natom)
-       lcutmx = lcutmxa(1)
-       if(ipr) write(stdo,'(20i3)') lcutmxa(1:natom)
-       if(ipr) write(stdo,"(' --- prod section: lcutmx cutbase='i3,100d11.3)") lcutmx, cutbase
-       read(ifi,*)
-       do iatom = 1, natom
-          do l = 0, lmxa(iatom)
-             read(ifi,*) iatomt, lt, nindxv(l+1,iatom), nindxc(l+1,iatom)
-             if(ipr) write(stdo,*) iatomt, lt, nindxv(l+1,iatom), nindxc(l+1,iatom)
-          enddo
-       enddo
-       if(ipr) write(stdo,*) ' --- valence product basis section'
-       occv   = 0
-       unoccv = 0
-       read(ifi,*)
-       do iatom = 1, natom
-          do l = 0, lmxa(iatom)
-             do n = 1, nindxv(l+1,iatom)
-                read(ifi,*)                 iatomt, lt, nt, occv(l+1,n,iatom), unoccv(l+1,n,iatom)
-                if(ipr) write(stdo,"(100i3)") iatomt, lt, nt, occv(l+1,n,iatom), unoccv(l+1,n,iatom)
-             enddo
-          enddo
-       enddo
-       if(ipr) write(stdo,*) ' --- core product basis section'
-       read(ifi,*)
-       do iatom = 1, natom
-          do l = 0, lmxa(iatom)
-             do n = 1, nindxc(l+1,iatom)
-                read(ifi,*)                 iatomt, lt, nt, occc(l+1,n,iatom), unoccc(l+1,n,iatom), ncwf(l+1,n,iatom), ncwf2(l+1,n,iatom)
-                if(ipr) write(stdo,"(100i3)") iatomt, lt, nt, occc(l+1,n,iatom), unoccc(l+1,n,iatom), ncwf(l+1,n,iatom), ncwf2(l+1,n,iatom)
-             enddo
-          enddo
-       enddo
-       close(ifi)
+       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!       call getkeyvalue("GWinput","<PRODUCT_BASIS>", unit=ifi, status=ret)
+!       read(ifi,*)
+!       read(ifi,"(a)") tolchar
+!       readon = .false.
+!       lx = 0
+!       do ix = 1, 1000
+!          if(.NOT. readon .AND. tolchar(ix:ix) /= ' ') then
+!             readon = .true.
+!             ixoff  = ix
+!          endif
+!          if(readon .AND. tolchar(ix:ix) == ' ') then
+!             read(tolchar(ixoff:ix), *, err=1097) cutbase(lx)
+!             if(lx == 2*(nl-1)) goto 1098
+!             readon = .false.
+!             lx = lx + 1
+!          endif
+!       enddo
+!1097   continue
+!       cutbase(lx:) = cutbase(lx-1)
+!1098   continue
+!       do lx = 0, 2*(nl-1)
+!          if(ipr) write(stdo,"(' lx=',i3,' readin tolerance=',d11.3)") lx, cutbase(lx)
+!       enddo
+!       read(ifi,*)
+!       allocate(lcutmxa(natom))
+!       read(ifi,*) lcutmxa(1:natom)
+!       lcutmx = lcutmxa(1)
+!       if(ipr) write(stdo,'(20i3)') lcutmxa(1:natom)
+!       if(ipr) write(stdo,"(' --- prod section: lcutmx cutbase='i3,100d11.3)") lcutmx, cutbase
+!       read(ifi,*)
+!       do iatom = 1, natom
+!          do l = 0, lmxa(iatom)
+!             read(ifi,*) iatomt, lt, nindxv(l+1,iatom), nindxc(l+1,iatom)
+!             if(ipr) write(stdo,*) iatomt, lt, nindxv(l+1,iatom), nindxc(l+1,iatom)
+!          enddo
+!       enddo
+!       if(ipr) write(stdo,*) ' --- valence product basis section'
+!       occv   = 0
+!       unoccv = 0
+!       read(ifi,*)
+!       do iatom = 1, natom
+!          do l = 0, lmxa(iatom)
+!             do n = 1, nindxv(l+1,iatom)
+!                read(ifi,*)                 iatomt, lt, nt, occv(l+1,n,iatom), unoccv(l+1,n,iatom)
+!                if(ipr) write(stdo,"(100i3)") iatomt, lt, nt, occv(l+1,n,iatom), unoccv(l+1,n,iatom)
+!             enddo
+!          enddo
+!       enddo
+!       if(ipr) write(stdo,*) ' --- core product basis section'
+!       read(ifi,*)
+!       do iatom = 1, natom
+!          do l = 0, lmxa(iatom)
+!             do n = 1, nindxc(l+1,iatom)
+!                read(ifi,*)                 iatomt, lt, nt, occc(l+1,n,iatom), unoccc(l+1,n,iatom), ncwf(l+1,n,iatom), ncwf2(l+1,n,iatom)
+!                if(ipr) write(stdo,"(100i3)") iatomt, lt, nt, occc(l+1,n,iatom), unoccc(l+1,n,iatom), ncwf(l+1,n,iatom), ncwf2(l+1,n,iatom)
+!             enddo
+!          enddo
+!       enddo
+!       close(ifi)
     endif
     if(incwfx == -1) then
        if(ipr) write(stdo,*) ' ### incwf=-1 Use ForSxc for core'

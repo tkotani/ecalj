@@ -50,49 +50,50 @@ contains
                tg_worb_lm(1:nbasclass_mlwf(iclass), iclass)
        enddo
     else
-       call getkeyvalue("GWinput","<Worb>",unit=ifmloc,status=ret)
-       iline = 0
-       nline = 0
-       nclass_mlwf = 0
-       do
-          iline = iline + 1
-          read(ifmloc,"(a)") aaa
-          if (aaa(1:1) == '!') cycle
-          if(aaa(1:7) == "</Worb>") then
-             exit
-          else
-             nclass_mlwf = nclass_mlwf+1
-          end if
-       end do
-       close(ifmloc)
-       nline = iline-1
-       allocate(iclassin(nclass_mlwf),cbastemp(maxdat,nclass_mlwf), &
-            nbasclass_mlwf(nclass_mlwf),classname_mlwf(nclass_mlwf))
-       call getkeyvalue("GWinput","<Worb>",unit=ifmloc,status=ret)
-       cbastemp=-999
-       iclass = 0
-       do 1001 iline=1,nline
-          read(ifmloc,"(a)") aaa
-          if (aaa(1:1) == '!') then
-             read(aaa,*)
-             cycle
-          end if
-          iclass = iclass + 1
-          read(aaa,*,end=1201) iclassin(iclass),a,(cbastemp(i,iclass),i=1,maxdat)
-1201      continue
-          classname_mlwf(iclass) = trim(a)
-          do i=1,maxdat
-             if(cbastemp(i,iclass)==-999) then
-                nbasclass_mlwf(iclass)=i-1
-                exit
-             endif
-          enddo
-1001   enddo
-       nbasclassMax = maxval(nbasclass_mlwf(1:nclass_mlwf))
-       allocate(cbas_mlwf(nbasclassMax,nclass_mlwf))
-       cbas_mlwf = cbastemp(1:nbasclassMax,1:nclass_mlwf)
-       deallocate(cbastemp)
-       close(ifmloc)
+       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!       call getkeyvalue("GWinput","<Worb>",unit=ifmloc,status=ret)
+!       iline = 0
+!       nline = 0
+!       nclass_mlwf = 0
+!       do
+!          iline = iline + 1
+!          read(ifmloc,"(a)") aaa
+!          if (aaa(1:1) == '!') cycle
+!          if(aaa(1:7) == "</Worb>") then
+!             exit
+!          else
+!             nclass_mlwf = nclass_mlwf+1
+!          end if
+!       end do
+!       close(ifmloc)
+!       nline = iline-1
+!       allocate(iclassin(nclass_mlwf),cbastemp(maxdat,nclass_mlwf), &
+!            nbasclass_mlwf(nclass_mlwf),classname_mlwf(nclass_mlwf))
+!       call getkeyvalue("GWinput","<Worb>",unit=ifmloc,status=ret)
+!       cbastemp=-999
+!       iclass = 0
+!       do 1001 iline=1,nline
+!          read(ifmloc,"(a)") aaa
+!          if (aaa(1:1) == '!') then
+!             read(aaa,*)
+!             cycle
+!          end if
+!          iclass = iclass + 1
+!          read(aaa,*,end=1201) iclassin(iclass),a,(cbastemp(i,iclass),i=1,maxdat)
+!1201      continue
+!          classname_mlwf(iclass) = trim(a)
+!          do i=1,maxdat
+!             if(cbastemp(i,iclass)==-999) then
+!                nbasclass_mlwf(iclass)=i-1
+!                exit
+!             endif
+!          enddo
+!1001   enddo
+!       nbasclassMax = maxval(nbasclass_mlwf(1:nclass_mlwf))
+!       allocate(cbas_mlwf(nbasclassMax,nclass_mlwf))
+!       cbas_mlwf = cbastemp(1:nbasclassMax,1:nclass_mlwf)
+!       deallocate(cbastemp)
+!       close(ifmloc)
     endif
     nwf = 0
     do iclass=1,nclass_mlwf
@@ -124,20 +125,21 @@ contains
           ioffadd = ioffadd + nnvv * (2*il + 1)
        enddo
     else
-       call getkeyvalue("GWinput","<PRODUCT_BASIS>",unit=ifmloc,status=ret)
-       read(ifmloc,*)
-       read(ifmloc,*)
-       read(ifmloc,*)
-       read(ifmloc,*)
-       read(ifmloc,*)
-       ioffadd = 0
-       do
-          read(ifmloc,*,err=888)ixatom,il,nnvv
-          ioffset(il,ixatom) = ioffadd
-          ioffadd = ioffadd + nnvv * (2*il+1)
-       end do
-888    continue
-       close(ifmloc)
+       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!       call getkeyvalue("GWinput","<PRODUCT_BASIS>",unit=ifmloc,status=ret)
+!       read(ifmloc,*)
+!       read(ifmloc,*)
+!       read(ifmloc,*)
+!       read(ifmloc,*)
+!       read(ifmloc,*)
+!       ioffadd = 0
+!       do
+!          read(ifmloc,*,err=888)ixatom,il,nnvv
+!          ioffset(il,ixatom) = ioffadd
+!          ioffadd = ioffadd + nnvv * (2*il+1)
+!       end do
+!888    continue
+!       close(ifmloc)
     endif
     !! real harmonics case
     allocate (nphi(nwf)) ! number of radial waves for each iwf.

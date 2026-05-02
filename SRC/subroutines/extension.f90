@@ -20,7 +20,8 @@ subroutine readd_iSigma_en(ifinin,iSigma_en)
   if (gwinput_loaded) then
      iSigma_en = tg_iSigMode
   else
-     call getkeyvalue("GWinput","iSigMode",iSigma_en )
+     call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!     call getkeyvalue("GWinput","iSigMode",iSigma_en )
   endif
   write(6,*)' iSigma_en=',iSigma_en
 end subroutine readd_iSigma_en
@@ -43,13 +44,14 @@ subroutine getnemx(nbmx,ebmx,im,ipr) !- Readin nbmx ebmx for hxofp0 hscfp0
         ebmx = tg_emax_chi0
      endif
   else
-     if    (im==8) then
-        call getkeyvalue("GWinput","nband_sigm",nbmx, default=99999 )
-        call getkeyvalue("GWinput","emax_sigm", ebmx, default=1d10  )
-     elseif(im==7) then
-        call getkeyvalue("GWinput","nband_chi0",nbmx, default=99999 )
-        call getkeyvalue("GWinput","emax_chi0", ebmx, default=1d10  )
-     endif
+     call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!     if    (im==8) then
+!        call getkeyvalue("GWinput","nband_sigm",nbmx, default=99999 )
+!        call getkeyvalue("GWinput","emax_sigm", ebmx, default=1d10  )
+!     elseif(im==7) then
+!        call getkeyvalue("GWinput","nband_chi0",nbmx, default=99999 )
+!        call getkeyvalue("GWinput","emax_chi0", ebmx, default=1d10  )
+!     endif
   endif
   if(ipr) write(6,"('  nbmx ebmx from GWinput=',i10,d13.6)") nbmx,ebmx
   return
@@ -67,10 +69,11 @@ subroutine getnemx8(nbmx,ebmx)  !- Readin nbmx ebmx for hscfp0
      ebmx = tg_emax_sigm
      ret = 1
   else
-     call getkeyvalue("GWinput","nband_sigm",nbmx,1, default=(/9999999/),status=ret)
-     write(6,*)' status 1=',ret
-     call getkeyvalue("GWinput","emax_sigm", ebmx,1, default=(/1d10/),status=ret)
-     write(6,*)' status 2=',ret
+     call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!     call getkeyvalue("GWinput","nband_sigm",nbmx,1, default=(/9999999/),status=ret)
+!     write(6,*)' status 1=',ret
+!     call getkeyvalue("GWinput","emax_sigm", ebmx,1, default=(/1d10/),status=ret)
+!     write(6,*)' status 2=',ret
   endif
   return
 end subroutine getnemx8

@@ -139,7 +139,8 @@ contains
       if (gwinput_loaded) then
          mmax = tg_MEMnmbatch
       else
-         call getkeyvalue("GWinput","MEMnmbatch",mmax,default=2d0)
+         call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!         call getkeyvalue("GWinput","MEMnmbatch",mmax,default=2d0)
       endif
       call getppx2([(0d0,i=1,9)],[(0d0,i=1,3)],getngcgp=.true.)
       open(newunit=ifiqg, file='__QGcou',form='unformatted')

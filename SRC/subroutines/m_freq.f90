@@ -101,8 +101,9 @@ contains
        ratio_in = tg_HistBin_ratio
        dw_in    = tg_HistBin_dw
     else
-       call getkeyvalue("GWinput","HistBin_ratio",ratio_in, default=1.03d0)
-       call getkeyvalue("GWinput","HistBin_dw",dw_in, default=1d-5) !a.u.
+       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!       call getkeyvalue("GWinput","HistBin_ratio",ratio_in, default=1.03d0)
+!       call getkeyvalue("GWinput","HistBin_dw",dw_in, default=1d-5) !a.u.
     endif
     !override HistBin_ratio, HistBin_dw
     if(present(ratio)) ratio_in = ratio

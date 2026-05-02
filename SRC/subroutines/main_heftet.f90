@@ -164,7 +164,8 @@ contains
       if (gwinput_loaded) then
         usetetrakbt = tg_tetrakbt
       else
-        call getkeyvalue("GWinput","tetrakbt",usetetrakbt,default=.false.)
+         call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!        call getkeyvalue("GWinput","tetrakbt",usetetrakbt,default=.false.)
       endif
       if (imode==5 .AND. usetetrakbt) then
         call tetrakbt_init() !! read kbt

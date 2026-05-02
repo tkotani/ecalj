@@ -96,10 +96,11 @@ contains
           ibzqq = tg_QforEPSIBZ
           qepsl_inc_left = tg_QforEPSLIncLeft
        else
-          call getkeyvalue("GWinput","QforEPSunita",unita,default=.false.)
-          call getkeyvalue("GWinput","QforEPSau",   unita,default=unita)
-          call getkeyvalue("GWinput","QforEPSIBZ",ibzqq,default=.false.)
-          call getkeyvalue("GWinput", "QforEPSLIncLeft", qepsl_inc_left, default=.false.)
+          call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!          call getkeyvalue("GWinput","QforEPSunita",unita,default=.false.)
+!          call getkeyvalue("GWinput","QforEPSau",   unita,default=unita)
+!          call getkeyvalue("GWinput","QforEPSIBZ",ibzqq,default=.false.)
+!          call getkeyvalue("GWinput", "QforEPSLIncLeft", qepsl_inc_left, default=.false.)
        endif
        if(ibzqq) then
           write(6,*)'=== Find QforEPSIBZ=on === '
@@ -121,23 +122,24 @@ contains
                 nq0i = nq0i00
              endif
           else
-             call getkeyvalue("GWinput","<QforEPS>", unit=ifinin,status=nq0i00,errstop='off')
-             nq0i00 =max(nq0i00,0)
-             if(nq0i00>0) close(ifinin)
-             print *,' end of reaing QforEPS nq0i00',nq0i00,ifinin
-             call getkeyvalue("GWinput","<QforEPSL>",unit=ifinin,status=nq0i0,errstop='off')
-             nq0i0  =max(nq0i0,0)
-             print *,' end of reaing QforEPSL nq0i0',nq0i0,ifinin
-             if(nq0i0>0) then
-                allocate( ndiv(nq0i0) )
-                do i=1,nq0i0
-                   read(ifinin,*) qdum(1:6), ndiv(i)
-                enddo
-                nq0i = nq0i00 + sum(ndiv)
-                close(ifinin)
-             else
-                nq0i = nq0i00
-             endif
+             call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!             call getkeyvalue("GWinput","<QforEPS>", unit=ifinin,status=nq0i00,errstop='off')
+!             nq0i00 =max(nq0i00,0)
+!             if(nq0i00>0) close(ifinin)
+!             print *,' end of reaing QforEPS nq0i00',nq0i00,ifinin
+!             call getkeyvalue("GWinput","<QforEPSL>",unit=ifinin,status=nq0i0,errstop='off')
+!             nq0i0  =max(nq0i0,0)
+!             print *,' end of reaing QforEPSL nq0i0',nq0i0,ifinin
+!             if(nq0i0>0) then
+!                allocate( ndiv(nq0i0) )
+!                do i=1,nq0i0
+!                   read(ifinin,*) qdum(1:6), ndiv(i)
+!                enddo
+!                nq0i = nq0i00 + sum(ndiv)
+!                close(ifinin)
+!             else
+!                nq0i = nq0i00
+!             endif
           endif
           if(nq0i <=0) call rx( 'There are neither <QforEPS> nor <QforEPSL>.')
           allocate(epslgroup(nq0i))
@@ -161,26 +163,27 @@ contains
                 enddo
              endif
           else
-          if(nq0i00>0) then
-             call getkeyvalue("GWinput","<QforEPS>",unit=ifinin,status=nq0i00)
-             do i=1,nq0i00
-                read (ifinin,*) q0i(1:3,i)
-                if(unita) q0i(:,i)=q0i(:,i)/tpioa !2023-5-19fixed
-                write (6,"('<QforEPS> ' 3f12.8)") q0i(:,i)
-             enddo
-             close(ifinin)    !25jan2006
-          endif
-          if(nq0i0>0) then
-             call getkeyvalue("GWinput","<QforEPSL>",unit=ifinin,status=nq0i0)
-             allocate( qmin(3,nq0i0), qmax(3,nq0i0) )
-             do i=1, nq0i0
-                read(ifinin,*)qmin(:,i), qmax(:,i), ndiv(i)
-                if(unita) qmin(:,i)=qmin(:,i)/tpioa
-                if(unita) qmax(:,i)=qmax(:,i)/tpioa
-                write(6,"('<QforEPSL>',3f12.8,2x,3f12.8,i5)")qmin(:,i),qmax(:,i),ndiv(i)
-             enddo
-             close(ifinin)
-          endif
+             call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!          if(nq0i00>0) then
+!             call getkeyvalue("GWinput","<QforEPS>",unit=ifinin,status=nq0i00)
+!             do i=1,nq0i00
+!                read (ifinin,*) q0i(1:3,i)
+!                if(unita) q0i(:,i)=q0i(:,i)/tpioa !2023-5-19fixed
+!                write (6,"('<QforEPS> ' 3f12.8)") q0i(:,i)
+!             enddo
+!             close(ifinin)    !25jan2006
+!          endif
+!          if(nq0i0>0) then
+!             call getkeyvalue("GWinput","<QforEPSL>",unit=ifinin,status=nq0i0)
+!             allocate( qmin(3,nq0i0), qmax(3,nq0i0) )
+!             do i=1, nq0i0
+!                read(ifinin,*)qmin(:,i), qmax(:,i), ndiv(i)
+!                if(unita) qmin(:,i)=qmin(:,i)/tpioa
+!                if(unita) qmax(:,i)=qmax(:,i)/tpioa
+!                write(6,"('<QforEPSL>',3f12.8,2x,3f12.8,i5)")qmin(:,i),qmax(:,i),ndiv(i)
+!             enddo
+!             close(ifinin)
+!          endif
           endif    ! end of (gwinput_loaded) vs legacy
           ! Shared: interpolate q0i from QforEPSL (qmin, qmax, ndiv).
           if (nq0i0 > 0) then

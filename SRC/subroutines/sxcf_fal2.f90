@@ -335,7 +335,8 @@ subroutine sxcf_fal3z(&
      if (gwinput_loaded) then
         ua_ = tg_gauss_img
      else
-        call getkeyvalue("GWinput","gauss_img",ua_,default=1d0)
+        call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!        call getkeyvalue("GWinput","gauss_img",ua_,default=1d0)
      endif
      do ix = 1,niw           !! Energy mesh; along im axis.
         freqw     = (1d0 - freqx(ix))/ freqx(ix)

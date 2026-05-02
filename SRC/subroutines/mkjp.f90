@@ -177,7 +177,8 @@ contains
       if (gwinput_loaded) then
          keepWronkj = tg_KeepWronkj
       else
-         call getkeyvalue("GWinput","KeepWronkj",keepWronkj,default=.true.)
+         call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!         call getkeyvalue("GWinput","KeepWronkj",keepWronkj,default=.true.)
       endif
       write(aaaw,ftox) " vcoulq_4: goto PvP procid ngc lxx nrx=", mpi__rank,ngc,lxx,nrx
       call cputm(stdo,aaaw)

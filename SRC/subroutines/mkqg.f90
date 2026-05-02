@@ -62,15 +62,16 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
      unit2     = tg_unit_2pioa
      keepqg    = tg_KeepQG
   else
-     call getkeyvalue("GWinput", "n1n2n3", nnn,3)
-     if(lmagnon) call getkeyvalue("GWinput", "n1n2n3eps",nnn,3,default=nnn)
-     if(lmagnon .and. cmdopt0('--dos')) then
-       call getkeyvalue("GWinput", "n1n2n3dos",nnn,3,default=nnn)
-     endif
-     call getkeyvalue("GWinput", "QpGcut_psi",QpGx2)
-     call getkeyvalue("GWinput", "QpGcut_cou",QpGcut_Cou)
-     call getkeyvalue("GWinput", "unit_2pioa",unit2)
-     call getkeyvalue("GWinput", "KeepQG",keepqg,default=.true.)
+     call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!     call getkeyvalue("GWinput", "n1n2n3", nnn,3)
+!     if(lmagnon) call getkeyvalue("GWinput", "n1n2n3eps",nnn,3,default=nnn)
+!     if(lmagnon .and. cmdopt0('--dos')) then
+!       call getkeyvalue("GWinput", "n1n2n3dos",nnn,3,default=nnn)
+!     endif
+!     call getkeyvalue("GWinput", "QpGcut_psi",QpGx2)
+!     call getkeyvalue("GWinput", "QpGcut_cou",QpGcut_Cou)
+!     call getkeyvalue("GWinput", "unit_2pioa",unit2)
+!     call getkeyvalue("GWinput", "KeepQG",keepqg,default=.true.)
   endif
   if(unit2) then
      unit = 2d0*pi/alat
@@ -105,7 +106,8 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
      if (gwinput_loaded) then
         nnng = tg_GammaDivn1n2n3
      else
-        call getkeyvalue("GWinput","GammaDivn1n2n3",nnng,3)
+        call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!        call getkeyvalue("GWinput","GammaDivn1n2n3",nnng,3)
      endif
      nnn = nnng          !division of Gamma cell
      dq_ = -matmul(qlatbz(1:3,1:3),(/.5d0,.5d0,.5d0/))
@@ -153,14 +155,15 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
         if (alpv(1) == -1d50) call rx(' mkqg: No alpha_offG nor alpha_offG_vec given in GWinput')
      endif
   else
-     call getkeyvalue("GWinput","alpha_OffG",alp,default=-1d60)
-     alpv(:)=alp
-     if(alp==-1d60) then
-        call getkeyvalue("GWinput","alpha_OffG_vec",alpv,3,default=(/-1d50,0d0,0d0/))
-        if(alpv(1)==-1d50) then
-           call rx( ' mkqg: No alpha_offG nor alpha_offG_vec given in GWinput')
-        endif
-     endif
+     call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!     call getkeyvalue("GWinput","alpha_OffG",alp,default=-1d60)
+!     alpv(:)=alp
+!     if(alp==-1d60) then
+!        call getkeyvalue("GWinput","alpha_OffG_vec",alpv,3,default=(/-1d50,0d0,0d0/))
+!        if(alpv(1)==-1d50) then
+!           call rx( ' mkqg: No alpha_offG nor alpha_offG_vec given in GWinput')
+!        endif
+!     endif
   endif
   call Getallq0p(iq0pin,alat,plat,qlat,nnn,alp,alpv, &
        nqbz,nqibz,nstbz,qbz,qibz,wibz,symops,ngrp,lnq0iadd)

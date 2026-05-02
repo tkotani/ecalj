@@ -6,6 +6,7 @@ import argparse
 from pathlib import Path
 from utils import ensure_dir, remove_files, copy_files, move_files
 from run_cmd import run_cmd, run_lmf, MPIParams
+from gwinput_prepare import ensure_gwinput_toml
 
 EXEC_DIR = Path(__file__).resolve().parent
 
@@ -64,6 +65,12 @@ if args.gemmul8:
 options.extend(unknown)
 print('--- Start gwsc ---')
 print('option=',options)
+
+# Ensure GWinput.toml exists before launching any ecalj binary.
+# (Driver scripts auto-convert from legacy GWinput; binaries themselves
+#  refuse to start without GWinput.toml -- see m_GWinput::gwinput_init.)
+if not ensure_gwinput_toml(exec_dir=EXEC_DIR):
+    raise SystemExit('gwsc: cannot proceed without GWinput.toml')
 
 try:
     tmp=[int(s.strip('QPU.').strip('run')) for s in os.listdir() if 'QPU.' in s]

@@ -30,7 +30,8 @@ contains
     if (gwinput_loaded) then
        spene = tg_ene_sppola
     else
-       call getkeyvalue("GWinput","ene_sppola",spene, default=0d0 )
+       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!       call getkeyvalue("GWinput","ene_sppola",spene, default=0d0 )
     endif
 ! q+G
     allocate(qgw(1:3))
@@ -65,7 +66,8 @@ contains
     if (gwinput_loaded) then
        spene = tg_ene_sppola
     else
-       call getkeyvalue("GWinput","ene_sppola",spene, default=0d0 )
+       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+!       call getkeyvalue("GWinput","ene_sppola",spene, default=0d0 )
     endif
     efz=(ntot*3*pi**2/voltot)**(2d0/3d0) - spene**2*3/8d0  !ef is calculated from ntot.
     qfermi= dsqrt(efz)
