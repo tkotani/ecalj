@@ -4,6 +4,7 @@ import contextlib
 import subprocess
 from pathlib import Path
 from run_cmd import run_cmd, MPIParams
+from dft import cal_dft
 from utils import merge_files, remove_files
 
 EXEC_DIR = Path(__file__).resolve().parent

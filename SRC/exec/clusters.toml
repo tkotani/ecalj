@@ -1,6 +1,6 @@
 [default]
 launcher = "mpirun"
-launcher_args = ["-np {nprocs}"]
+launcher_args = ["-np {nprocs}", "--bind-to core"]
 env = {}
 
 [impi]

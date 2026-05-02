@@ -27,7 +27,7 @@ def cal_mlo_magnon(args, extra_args):
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo_magnon",
                                args=[f"--sp1={args.sp1}", f"--sp2={args.sp2}", option_dos, *extra_args]), stdout="lmlo_magnon")
 
-def calc_mlo_uovlpq(args, extra_args):
+def cal_mlo_uovlpq(args, extra_args):
     cluster = args.cluster
     target = args.extension
     mpi_size = args.np
@@ -94,7 +94,7 @@ def main():
         if args.stop_vw:
             return
         if not args.skip_ovlp:
-            calc_mlo_uovlpq(args, extra_args)
+            cal_mlo_uovlpq(args, extra_args)
         if args.stop_ovlp:
             return
         cal_mlo_magnon(args, extra_args)
