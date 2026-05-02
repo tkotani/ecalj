@@ -6,7 +6,7 @@ subroutine hsocmat()
   !      use m_DATA4GW,only: read_data4gw,set_mnla,iclass,nclass,zz,alat,nbas,nsp,plat,ldim2,bas
   !     use m_QG,only: read_qg,ngp
   !      use m_readhbe,only:Readhbe,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-  use m_genallcf_v3,only: genallcf_v3,plat,nsp=>nspin
+  use m_genallcf_v3,only: genallcf_v3; use m_struct_from_lmf,only: plat, nsp=>nspin
   use m_read_bzdata,only: read_bzdata,qibz, nqbz,nqibz,irk,n1,n2,n3,ginv,qbz,wbz
   use m_hamindex,only: readhamindex,symops,ngrp,napwmx,ndham
   use m_ftox

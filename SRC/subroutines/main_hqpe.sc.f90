@@ -22,7 +22,7 @@ contains
     use m_read_bzdata, only: Read_bzdata, nstar, nqibz2=>nqibz, nqbz,nqibz,  n1,n2,n3
     use m_hamindex,only: Readhamindex, nhq=>ndham
     use m_mpi,only: MPI__Initialize, mpi__rank
-    use m_genallcf_v3,only: genallcf_v3,laf,nmto=>nlmto ,nspin
+    use m_genallcf_v3,only: genallcf_v3; use m_struct_from_lmf,only: laf, nmto=>nlmto, nspin
     !    use m_readefermi,only: readefermi,ef
     implicit none
     integer:: ifsex(2),ifsexcore(2),ifxc(2),ifsec(2),ifqpe(2),ifsex2(2),ifsexcore2(2),ifsec2(2) !,iftote(2),iftote2(2)

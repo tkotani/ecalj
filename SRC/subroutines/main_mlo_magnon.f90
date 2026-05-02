@@ -9,7 +9,7 @@ subroutine mlo_magnon() bind(C)
   use m_HamPMT,only: ReadHamPMTInfo
   use m_ReadEfermi, only: readefermi
   use m_read_bzdata, only: nqbz, qbz
-  use m_genallcf_v3, only: genallcf_v3, nspin
+  use m_genallcf_v3, only: genallcf_v3; use m_struct_from_lmf, only: nspin
   use m_keyvalue, only: getkeyvalue
   use m_freq, only: getfreq, freq_r, nwhis, nw_i, nw, npm
   use m_tetwt, only: tetdeallocate, gettetwt, whw, ihw, nhw, jhw, n1b, n2b, nbnb
