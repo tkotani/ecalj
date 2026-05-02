@@ -1,6 +1,6 @@
 program main
   use mpi
-  use m_ctrl2ctrlp,only: ConvertCtrl2ctrlpBypython
+  use m_ctrl2ctrltoml,only: ConvertCtrl2CtrltomlByPython
   use m_cmdpath,only: setcmdpath
   use m_args,only:    m_setargs
   use m_ext,only:     m_ext_init
@@ -15,7 +15,7 @@ program main
   call setcmdpath()
   call m_setargs()
   call m_ext_init()    ! Get sname, e.g. trim(sname)=si of ctrl.si
-  if(procid==0) call ConvertCtrl2CtrlpByPython()
+  if(procid==0) call ConvertCtrl2CtrltomlByPython()
   call hwmatK_MPI() !  call lmf()
   call mpi_finalize(ierr)
   call exit(0)

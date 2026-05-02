@@ -79,7 +79,7 @@ contains
        write(ifi,"(a)")'Start '//trim(prgnam)//trim(argall)
        close(ifi)
     endif   
-!    if(master_mpi) call ConvertCtrl2CtrlpByPython() !convert ctrl file to ctrlp.
+!    if(master_mpi) call ConvertCtrl2CtrltomlByPython() !convert ctrl file to ctrlp.
     if(cmdopt0('--quit=ctrlp')) call rx0('--quit=ctrlp')
     call MPI_BARRIER( comm, ierr)
     call m_lmfinit_init(prgnam,comm)! Read ctrlp into module m_lmfinit.

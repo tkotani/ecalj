@@ -63,8 +63,8 @@ contains
     ! Outputs
     !    All the module variables. Only several components of v_sspec are added by iors/rdovfa (readining atomic or previous results).
     !MEMO:2023-sep
-    ! Note our block coding: Search ConvertCtrl2CtrlpByPython ReadCtrlp Stage1 Stage2 Stage3.
-    !   At ConvertCtrl2CtrlpByPython, we convert ctrl.foobar to ctrlp.foobar by invoking a python script.
+    ! Note our block coding: Search ConvertCtrl2CtrltomlByPython ReadCtrlp Stage1 Stage2 Stage3.
+    !   At ConvertCtrl2CtrltomlByPython, we convert ctrl.foobar to ctrlp.foobar by invoking a python script.
     !   BZ_  : Brillouin Zone related
     !   HAM_ :  Hamiltonian related
     !   SITE_: site information
@@ -131,26 +131,29 @@ contains
     comm=MPI_COMM_WORLD
     if(present(commin)) comm= commin !call MPI_Comm_size( comm, nsizex, info ); write(*,*) 'mmmmmmmyyyy 1111 mpisizexxxxxx=',nsizex
     if(master_mpi) write(stdo,"(a)")'m_lmfinit: '//trim(prgnam)
-    ReadCtrlp: block ! Readin ctrlp
-      character(10000):: recrdx=''
-      integer::ixx,lenmax
-      open(newunit=ifi,file='ctrlp.'//trim(sname))       !read(ifi,*) nrecs2,reclnr !nrecs,
-      lenmax=-9999
-      ixx=0
-      do 
-         read(ifi,"(a)",end=1011)recrdx
-         ixx=ixx+1
-         lenmax=max(len_trim(recrdx),lenmax)
+    ReadCtrlp: block ! Readin ctrl.<sname>.toml and reformat to recrd(:) for rval2.
+      use tomlf, only: toml_table, toml_load, toml_error, toml_key, get_value, len
+      type(toml_table), allocatable, target :: root_toml
+      type(toml_error), allocatable :: terr
+      type(toml_key), allocatable :: keylist(:)
+      character(len=:), allocatable :: vstr
+      integer :: k, ll, lenmax
+      call toml_load(root_toml, 'ctrl.'//trim(sname)//'.toml', error=terr)
+      if (allocated(terr)) call rx('m_lmfinit: ctrl TOML parse error: '//terr%message)
+      call root_toml%get_keys(keylist)
+      nrecs2 = size(keylist)
+      lenmax = 0
+      do k = 1, nrecs2
+         call get_value(root_toml, keylist(k)%key, vstr)
+         ll = len(keylist(k)%key) + 1 + len_trim(vstr)
+         if (ll > lenmax) lenmax = ll
       enddo
-1011  continue
-      reclnr=lenmax !max record size
-      nrecs2=ixx    !number of records
-      rewind ifi
+      reclnr = lenmax
       allocate(character(reclnr):: recrd(nrecs2))
-      do i = 1, nrecs2
-         read(ifi,"(a)") recrd(i)
+      do k = 1, nrecs2
+         call get_value(root_toml, keylist(k)%key, vstr)
+         recrd(k) = keylist(k)%key//' '//trim(vstr)
       enddo
-      close(ifi)
     endblock ReadCtrlp
     Stage1GetCatok: block ! Readin Category-Token-Subtoken from recrd by rval2
       logical:: cmdopt0,cmdopt2,parmxp

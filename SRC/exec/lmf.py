@@ -26,7 +26,7 @@ if(rankw in group):
     callF(fl. m_setargsc,  arglist,master_mpi)     #Set args at m_args
     callF(fl. m_ext_init )
     callF(fl. sopen,  stdout) #standard output
-    callF(fl. convertctrl2ctrlpbypython)
+    callF(fl. convertctrl2ctrltomlbypython)
     callF(fl. lmfa, comm)
     callF(fl. sclose )
     if(master_mpi): print('=== end of lmfa ===')
@@ -44,7 +44,7 @@ if(rankw in group):
     callF(fl. m_setargsc,  arglist,   master_mpi)  # Set args at m_args
     callF(fl. m_ext_init )
     callF(fl. sopen,  stdout) #standard output
-    callF(fl. convertctrl2ctrlpbypython)
+    callF(fl. convertctrl2ctrltomlbypython)
     callF(fl. lmf,  comm)    #main part
     callF(fl. sclose) 
     unload_library(fl)
