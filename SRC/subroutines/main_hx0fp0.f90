@@ -27,6 +27,7 @@ subroutine hx0fp0()
   use m_tetwt,only: Tetdeallocate,Gettetwt, &! & followings are output of 'L871:call gettetwt')
        whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb
   use m_w0w0i,only: W0w0i, w0,w0i ! w0 and w0i (head part at Gamma point)
+  use m_wv_storage, only: wv_init_file ! Step WA2/WB.3e: initialize backend before w0w0i->modifyWV0
   use m_ll,only: ll
   use m_readgwinput,only: ReadGwinputKeys, ecut,ecuts,mtet,ebmx,nbmx,nmbas,imbas,egauss !nmbas is number of magnetic atoms
   use m_qbze,only: Setqbze, nqbze,nqibze,qbze,qibze
@@ -380,6 +381,9 @@ subroutine hx0fp0()
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
   if(ipr) write(stdo,*)" chi_+- mode nolfc=",nolfco
   if(.NOT.chipm) allocate(zzr(1,1),source=(0d0,0d0)) !dummy
+  ! Step WA2/WB.3e: m_wv_storage backend init (FILE) required before WVRllwR/WVIllwI in iqloop
+  ! and modifyWV0 in w0w0i below. Caller responsibility per m_llw and m_w0w0i contracts.
+  call wv_init_file(mreclx=mrecl, nw_i=nw_i)
   iqloop: do 1001 iq = iqxini,iqxend  ! NOTE: qp=(0,0,0) is omitted when iqxini=2
 !    if(cmdopt0('--zmel0').and.iq==iqxini) cycle
     if( .NOT. MPI__task(iq) ) cycle
