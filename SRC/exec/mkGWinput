@@ -1,18 +1,22 @@
 #!/bin/bash
-# --------------------------------
-# Get GWinpt.tmp
-n=$0
-nfpgw=`dirname $0`
-echo $nfpgw
-echo $#
-echo $1
+# Generate GWinput.toml.tmp -- a TOML template for GWinput.
+# Steps: lmfa -> lmf --jobgw=0 -> gwinit
+# Output: GWinput.toml.tmp (rename to GWinput.toml after editing)
+set -e
+nfpgw=$(dirname "$0")
 
-mpirun -np 1 $nfpgw/lmfa $1 >llmfa
-mpirun -np 1 $nfpgw/lmf --jobgw=0  $1 > llmfgw00
-mpirun -np 1 $nfpgw/gwinit   #This changes the <QPNT> setting.
+if [ $# -lt 1 ]; then
+    echo "usage: mkGWinput <target>     (e.g. mkGWinput si)"
+    exit 1
+fi
 
-echo "-------------------------------------------------------------------"
-echo "  We use n1n2n3=" 4 4 4 " in GWinput. This is k points mesh for GW mode"
-echo "  You can change it by hand (not need to repeat this). =="
-echo 'OK! GWinpt.tmp is generated!'
- 
+target=$1
+mpirun -np 1 "$nfpgw/lmfa" "$target"  > llmfa
+mpirun -np 1 "$nfpgw/lmf"  --jobgw=0  "$target" > llmfgw00
+mpirun -np 1 "$nfpgw/gwinit"
+
+echo
+echo '-------------------------------------------------------------------'
+echo '  Default n1n2n3 = 4 4 4 (BZ mesh for GW). Edit GWinput.toml.tmp by hand if needed.'
+echo '  Then:    mv GWinput.toml.tmp GWinput.toml'
+echo 'OK! GWinput.toml.tmp generated.'
