@@ -65,10 +65,16 @@ real(8) function deltaq_scale()
   ! Q0Pchoice=1: qzerolimit. (not too small because of numerical reason.)
   ! Q0Pchoice=2: =1d0/3.0**.5d0/Q is the mean value of \int_{|q|<Q} d^3 q <1/q^2> for a sphere.
   use m_keyvalue,only: getkeyvalue
+  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_Q0Pchoice => Q0Pchoice
   integer,save :: ttt=1
   logical,save:: init=.true.
   if(init) then
-     call getkeyvalue("GWinput","Q0Pchoice",ttt,default=1)
+     call gwinput_init()
+     if (gwinput_loaded) then
+        ttt = tg_Q0Pchoice
+     else
+        call getkeyvalue("GWinput","Q0Pchoice",ttt,default=1)
+     endif
      write(6,"('  Q0Pchoice=',i3)") ttt
      init=.false.
   endif
@@ -104,11 +110,17 @@ real(8) function screenfac()
   ! in out current implementation. For example,
   ! screenfac=-1d-8 gives NaN for GaAs222 test-->This gives negative eigenvalue of Vcoul for q=0
   use m_keyvalue,only: getkeyvalue
+  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_TFscreen => TFscreen
   real(8):: ddd
   real(8),save :: tss
   logical,save:: init=.true.
   if(init) then
-     call getkeyvalue("GWinput","TFscreen",tss, default=1d-5**.5)
+     call gwinput_init()
+     if (gwinput_loaded) then
+        tss = tg_TFscreen
+     else
+        call getkeyvalue("GWinput","TFscreen",tss, default=1d-5**.5)
+     endif
      ! 1d-5**.5 is just given by rough test.
      ! Results should not depend on this value as long as default is small enough.
      ! write(6,*)'TFscreen=',tss
@@ -129,9 +141,15 @@ logical function evaltest()
 end function evaltest
 logical function TimeReversal()
   use m_keyvalue,only: getkeyvalue
+  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_TimeReversal => TimeReversal
   logical,save:: init=.true.,trevc
   if(init) then
-     call getkeyvalue("GWinput","TimeReversal",trevc,default=.true.)
+     call gwinput_init()
+     if (gwinput_loaded) then
+        trevc = tg_TimeReversal
+     else
+        call getkeyvalue("GWinput","TimeReversal",trevc,default=.true.)
+     endif
      init=.false.
   endif
   timereversal= trevc
@@ -170,18 +188,36 @@ complex(8) function NaNcmpx()
 END function NaNcmpx
 logical function rmeshrefine()
   use m_keyvalue,only: getkeyvalue
-  call getkeyvalue("GWinput","rmeshrefine",rmeshrefine,default=.true.)
+  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_rmeshrefine => rmeshrefine
+  call gwinput_init()
+  if (gwinput_loaded) then
+     rmeshrefine = tg_rmeshrefine
+  else
+     call getkeyvalue("GWinput","rmeshrefine",rmeshrefine,default=.true.)
+  endif
 end function rmeshrefine
 real(8) function delrset()
   ! dr/dI at rmat. used for rmeshrefin=T case
   use m_keyvalue,only: getkeyvalue
-  call getkeyvalue("GWinput","dRdIatRmax",delrset,default=0.003d0)
+  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_dRdIatRmax => dRdIatRmax
+  call gwinput_init()
+  if (gwinput_loaded) then
+     delrset = tg_dRdIatRmax
+  else
+     call getkeyvalue("GWinput","dRdIatRmax",delrset,default=0.003d0)
+  endif
 END function delrset
 logical function qbzreg()
   use m_keyvalue,only: getkeyvalue
+  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_chi_RegQbz => chi_RegQbz
   logical,save:: init=.true.,ccrq
   if(init) then
-     call getkeyvalue("GWinput","chi_RegQbz",ccrq,default=.true.)
+     call gwinput_init()
+     if (gwinput_loaded) then
+        ccrq = tg_chi_RegQbz
+     else
+        call getkeyvalue("GWinput","chi_RegQbz",ccrq,default=.true.)
+     endif
      init=.false.
   endif
   qbzreg= ccrq
@@ -218,11 +254,17 @@ end function qreduce                !(But I think true is OK---not tested comple
 ! Long-range-only Coulomb interaction
 real(8) function eees()
   use m_keyvalue,only: getkeyvalue
+  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_removed_r0c => removed_r0c
   logical,save:: init=.true.
   real(8),save:: eee
   real(8):: r0cs
   if(init) then
-     call getkeyvalue("GWinput","removed_r0c",r0cs,default=1d60)
+     call gwinput_init()
+     if (gwinput_loaded) then
+        r0cs = tg_removed_r0c
+     else
+        call getkeyvalue("GWinput","removed_r0c",r0cs,default=1d60)
+     endif
      eee = -1d0/r0cs**2
      if(r0cs>1d10) eee=0d0
   endif
@@ -252,23 +294,36 @@ integer(4) function zvztest()
 END function zvztest
 logical function matrix_linear()
   use m_keyvalue,only: getkeyvalue
+  use m_GWinput, only: gwinput_init, gwinput_loaded, &
+                       tg_tetrahedron_matrix_linear => tetrahedron_matrix_linear
   ! Use linear interpolation for matrix elements (numerator) in tetrahdron-weight's calculation.
   ! matrix_linear=T seems to give little improvements.
   logical,save::init=.true.,matrix_linear0
   if(init) then
-     call getkeyvalue("GWinput","tetrahedron_matrix_linear",matrix_linear0,default=.false.)
+     call gwinput_init()
+     if (gwinput_loaded) then
+        matrix_linear0 = tg_tetrahedron_matrix_linear
+     else
+        call getkeyvalue("GWinput","tetrahedron_matrix_linear",matrix_linear0,default=.false.)
+     endif
      init=.false.
   endif
   matrix_linear=matrix_linear0
 end function matrix_linear
 logical function KeepEigen()
   use m_keyvalue,only: getkeyvalue
+  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_KeepEigen => KeepEigen
   !! Keep data from CPHI and GEIG in memory or not; in readeigen
   ! KeepEigen=T : speed up
   ! KeepEigen=F : efficient memory usage
   logical,save::init=.true.,keepeigen0
   if(init) then
-     call getkeyvalue("GWinput","KeepEigen",KeepEigen0,default=.true.)
+     call gwinput_init()
+     if (gwinput_loaded) then
+        KeepEigen0 = tg_KeepEigen
+     else
+        call getkeyvalue("GWinput","KeepEigen",KeepEigen0,default=.true.)
+     endif
      init=.false.
   endif
   keepeigen = keepeigen0
@@ -285,6 +340,7 @@ end function KeepEigen
 !$$$  end
 integer(4) function verbose()
   use m_keyvalue,only: getkeyvalue
+  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_Verbose => Verbose
   logical,save ::init=.true.,ggg
   !      logical:: readgwinput
   integer(4):: ret
@@ -292,7 +348,12 @@ integer(4) function verbose()
   if(init) then
      inquire(file='GWinput',exist=ggg)
      if(ggg) then
-        call getkeyvalue("GWinput","Verbose",verbosex,default=0 )
+        call gwinput_init()
+        if (gwinput_loaded) then
+           verbosex = tg_Verbose
+        else
+           call getkeyvalue("GWinput","Verbose",verbosex,default=0 )
+        endif
      else
         verbosex=0
      endif
@@ -303,13 +364,19 @@ integer(4) function verbose()
 END function verbose
 integer function q0pchoice()
   use m_keyvalue,only: getkeyvalue
+  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_Q0P_Choice => Q0P_Choice
   !- Switch whether you use new seeting Q0P (offsetted Gamma).
   ! q0pchoice=0: old---along plat
   ! q0pchoice=1: new---along Ex Ey Ez.
   logical,save ::init=.true.
   integer(4),save:: ret,q0pchoicex
   if(init) then
-     call getkeyvalue("GWinput","Q0P_Choice",q0pchoicex,default=0) !,status=ret )
+     call gwinput_init()
+     if (gwinput_loaded) then
+        q0pchoicex = tg_Q0P_Choice
+     else
+        call getkeyvalue("GWinput","Q0P_Choice",q0pchoicex,default=0) !,status=ret )
+     endif
      init=.false.
   endif
   q0pchoice=q0pchoicex
@@ -326,10 +393,17 @@ real(8) function wgtq0p() !essentially dummy
 END function wgtq0p
 real(8) function escale()
   use m_keyvalue,only: getkeyvalue   !c--- used q0pchoice<0 mode -------
-  call getkeyvalue("GWinput","q0scale",escale,default=0.8d0)
+  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_q0scale => q0scale
+  call gwinput_init()
+  if (gwinput_loaded) then
+     escale = tg_q0scale
+  else
+     call getkeyvalue("GWinput","q0scale",escale,default=0.8d0)
+  endif
 END function escale
 integer(4) function normcheck()
   use m_keyvalue,only: getkeyvalue
+  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_NormChk_int => NormChk_int
   ! write normcheck files or not
   ! normcheck=0: not
   ! normcheck=1: only dia
@@ -337,7 +411,12 @@ integer(4) function normcheck()
   integer(4),save::nnn
   logical,save ::init=.true.
   if(init) then
-     call getkeyvalue("GWinput","NormChk",nnn,default=1)
+     call gwinput_init()
+     if (gwinput_loaded) then
+        nnn = tg_NormChk_int
+     else
+        call getkeyvalue("GWinput","NormChk",nnn,default=1)
+     endif
      init=.false.
      !        write(6,"('NormChk mode=',i3)")nnn
   endif

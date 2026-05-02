@@ -46,10 +46,16 @@ contains
     !! T: EIBZ symmetrization in hx0fp0->x0kf_v4h
     !! F: no EIBZ symmetrization
     use m_keyvalue,only: getkeyvalue
+    use m_GWinput, only: gwinput_init, gwinput_loaded, tg_EIBZmode => EIBZmode
     logical,save:: init=.true.,eibzmode
     logical ::qbzreg
     if(init) then
-       call getkeyvalue("GWinput","EIBZmode",eibzmode,default=.true.)
+       call gwinput_init()
+       if (gwinput_loaded) then
+          eibzmode = tg_EIBZmode
+       else
+          call getkeyvalue("GWinput","EIBZmode",eibzmode,default=.true.)
+       endif
        if( .NOT. qbzreg()) eibzmode= .FALSE.  !=F (no symmetrization when we use mesh without Gamma).
        init=.false.
     endif

@@ -1,6 +1,7 @@
 !>homogenious electron gas module
 module m_homoelectron
   use m_keyvalue,only: getkeyvalue
+  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_ene_sppola => ene_sppola
   implicit none
   public:: Read_qgband,Efermi_egas
   private
@@ -25,7 +26,12 @@ contains
     integer:: iout !nlatout(3,48),noutmx,nout,
     pi=4d0*datan(1d0)
     tpioa=2d0*pi/alat
-    call getkeyvalue("GWinput","ene_sppola",spene, default=0d0 )
+    call gwinput_init()
+    if (gwinput_loaded) then
+       spene = tg_ene_sppola
+    else
+       call getkeyvalue("GWinput","ene_sppola",spene, default=0d0 )
+    endif
 ! q+G
     allocate(qgw(1:3))
     call minv33tp(plat,qlat)
@@ -55,7 +61,12 @@ contains
     pi=4d0*datan(1d0)
     voltot = abs(alat**3*det33(plat))
     alpha=(9*pi/4d0)**(1d0/3d0)
-    call getkeyvalue("GWinput","ene_sppola",spene, default=0d0 )
+    call gwinput_init()
+    if (gwinput_loaded) then
+       spene = tg_ene_sppola
+    else
+       call getkeyvalue("GWinput","ene_sppola",spene, default=0d0 )
+    endif
     efz=(ntot*3*pi**2/voltot)**(2d0/3d0) - spene**2*3/8d0  !ef is calculated from ntot.
     qfermi= dsqrt(efz)
     rs    = alpha/qfermi

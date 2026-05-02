@@ -14,8 +14,14 @@ module m_tetrakbt
 contains
   !-----------------------------------------------------
   subroutine tetrakbt_init()
+    use m_GWinput, only: gwinput_init, gwinput_loaded, tg_t_tetrakbt => t_tetrakbt
     real(8):: temperature, rydberg
-    call getkeyvalue("GWinput","t_tetrakbt",temperature,default=3d+2)
+    call gwinput_init()
+    if (gwinput_loaded) then
+       temperature = tg_t_tetrakbt
+    else
+       call getkeyvalue("GWinput","t_tetrakbt",temperature,default=3d+2)
+    endif
     tt = temperature+1d-12 !avoid 0
     kbt=kb*tt/rydberg()
     if (init) then

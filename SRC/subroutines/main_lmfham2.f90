@@ -104,6 +104,16 @@ contains
     if(nmtosum/= nmto) call rxii('lmfham2: nmtosum/= nmto',nmtosum,nmto)
     ReadInfoFromGWinput: block ! Input orbital index for MLO, stored into idmto (s,p,d=1,2,3,4,5,6,7,8,9)
       use m_nvfortran,only : findloc
+      use m_GWinput, only: gwinput_init, gwinput_loaded, &
+                           tg_mlo_maxit  => mlo_maxit, tg_mlo_conv => mlo_conv, &
+                           tg_mlo_mix    => mlo_mix, &
+                           tg_mlo_EUinner => mlo_EUinner, tg_mlo_CUouter => mlo_CUouter, &
+                           tg_mlo_CUinner => mlo_CUinner, tg_mlo_WTinner => mlo_WTinner, &
+                           tg_mlo_WTband  => mlo_WTband, tg_mlo_WTseed => mlo_WTseed, &
+                           tg_mlo_ELinner => mlo_ELinner, tg_mlo_ewid   => mlo_ewid, &
+                           tg_mlo_WTouter => mlo_WTouter, tg_mlo_CLhard => mlo_CLhard, &
+                           tg_mlo_ELhard  => mlo_ELhard, &
+                           tg_mlo_EUinnerAUTOsp => mlo_EUinnerAUTOsp
       integer::lmindex(16),ifmloc,ret,imto,lmx,ib,idmtox(nmtosum),lindexx(nmtosum)
       call getkeyvalue("GWinput","<Worb>",unit=ifmloc,status=ret)
       nMLO=0
@@ -131,21 +141,41 @@ contains
       WTbanddefault=0d0
       if(minval(lindex(1:nMLO))<=1) WTbanddefault=512d0 !if s and/or p bands included in the MLO, default WTband=512
       write(stdo,ftox)' nMLO,idmto=',nMLO,'  ',idmto
-      call getkeyvalue("GWinput","mlo_maxit",nsc1,default=100)
-      call getkeyvalue("GWinput","mlo_conv",conv1,default=1d-6)
-      call getkeyvalue("GWinput","mlo_mix",alpha1,default=.5d0)
-      call getkeyvalue("GWinput","mlo_EUinner", eUinnereV,default= 1d8) ! inner energy windowU eV relative to VBM
-      call getkeyvalue("GWinput","mlo_CUouter", CUouter,default=0d0) !0.1d0)
-      call getkeyvalue("GWinput","mlo_CUinner", CUinner,default=0.9d0)
-      call getkeyvalue("GWinput","mlo_WTinner", WTinner,default=2048d0) ! inner energy window WeighTing
-      call getkeyvalue("GWinput","mlo_WTband" , WTband,default=WTbanddefault)  ! Weight to minimize band energies. 64 or less for Cu.
-      call getkeyvalue("GWinput",'mlo_WTseed' , WTseed,default=32d0) !0d0)    ! Weight for seed.
-      call getkeyvalue("GWinput","mlo_ELinner", eLinnereV,default=-1d8) ! inner energy windowL eV relative to VBM
-      call getkeyvalue("GWinput","mlo_ewid",    ewideV, default=1d0)    ! inner energy window softing eV
-      call getkeyvalue("GWinput","mlo_WTouter", WTouter,default=2048d0*16d0) ! inner energy window WeighTing
-      call getkeyvalue("GWinput","mlo_CLhard",CLhard,default=0.33d0)
-      call getkeyvalue("GWinput","mlo_ELhard",ELhardeV,default=-1d8)
-      call getkeyvalue("GWinput","mlo_EUinnerAUTOsp",EUautosp,default=.false.) !only test
+      call gwinput_init()
+      if (gwinput_loaded) then
+         nsc1      = tg_mlo_maxit
+         conv1     = tg_mlo_conv
+         alpha1    = tg_mlo_mix
+         eUinnereV = tg_mlo_EUinner
+         CUouter   = tg_mlo_CUouter
+         CUinner   = tg_mlo_CUinner
+         WTinner   = tg_mlo_WTinner
+         WTband    = tg_mlo_WTband
+         if (WTband == 64d0) WTband = WTbanddefault   ! emulate default=WTbanddefault
+         WTseed    = tg_mlo_WTseed
+         eLinnereV = tg_mlo_ELinner
+         ewideV    = tg_mlo_ewid
+         WTouter   = tg_mlo_WTouter
+         CLhard    = tg_mlo_CLhard
+         ELhardeV  = tg_mlo_ELhard
+         EUautosp  = tg_mlo_EUinnerAUTOsp
+      else
+         call getkeyvalue("GWinput","mlo_maxit",nsc1,default=100)
+         call getkeyvalue("GWinput","mlo_conv",conv1,default=1d-6)
+         call getkeyvalue("GWinput","mlo_mix",alpha1,default=.5d0)
+         call getkeyvalue("GWinput","mlo_EUinner", eUinnereV,default= 1d8) ! inner energy windowU eV relative to VBM
+         call getkeyvalue("GWinput","mlo_CUouter", CUouter,default=0d0) !0.1d0)
+         call getkeyvalue("GWinput","mlo_CUinner", CUinner,default=0.9d0)
+         call getkeyvalue("GWinput","mlo_WTinner", WTinner,default=2048d0) ! inner energy window WeighTing
+         call getkeyvalue("GWinput","mlo_WTband" , WTband,default=WTbanddefault)  ! Weight to minimize band energies. 64 or less for Cu.
+         call getkeyvalue("GWinput",'mlo_WTseed' , WTseed,default=32d0) !0d0)    ! Weight for seed.
+         call getkeyvalue("GWinput","mlo_ELinner", eLinnereV,default=-1d8) ! inner energy windowL eV relative to VBM
+         call getkeyvalue("GWinput","mlo_ewid",    ewideV, default=1d0)    ! inner energy window softing eV
+         call getkeyvalue("GWinput","mlo_WTouter", WTouter,default=2048d0*16d0) ! inner energy window WeighTing
+         call getkeyvalue("GWinput","mlo_CLhard",CLhard,default=0.33d0)
+         call getkeyvalue("GWinput","mlo_ELhard",ELhardeV,default=-1d8)
+         call getkeyvalue("GWinput","mlo_EUinnerAUTOsp",EUautosp,default=.false.) !only test
+      endif
       ELhardauto=.true.
       if(ELhardeV>-1d7) ELhardauto=.false.
       do iii=1,2

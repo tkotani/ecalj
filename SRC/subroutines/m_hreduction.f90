@@ -8,6 +8,9 @@ contains
    use m_lgunit,only:stdo
    use m_lmfinit,only:oveps
    use m_keyvalue,only: getkeyvalue
+   use m_GWinput, only: gwinput_init, gwinput_loaded, &
+                        tg_mlo_nskip => mlo_nskip, tg_mlo_eww => mlo_eww, &
+                        tg_mlo_emax => mlo_emax
    implicit none
    integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev,nxx,jj,ndimPMTx,nvpmt,mlomethod,nskip,nskipin
    real(8)::beta,emu,val,wgt(ndimPMT),evlmto(ndimMTO),evl(ndimPMT),evlx(ndimPMT),qp(3),eww,eadd
@@ -63,7 +66,13 @@ contains
       ! Determine nskip, eigenfunctions PMT(1:nskip), semicores, are removed.
       epscore=0.5d0
       nskipin = findloc( sum(abs(fac(:,:))**2,dim=2) > epscore, value=.true.,dim=1)-1 !semicore level skip by LO. Or skip evec outside of MTOa
-      call getkeyvalue("GWinput","mlo_nskip",nskip,default=nskipin) !nskip is LO bands. This will be automatic
+      call gwinput_init()
+      if (gwinput_loaded) then
+         nskip = tg_mlo_nskip
+         if (nskip == 0) nskip = nskipin   ! emulate legacy default=nskipin
+      else
+         call getkeyvalue("GWinput","mlo_nskip",nskip,default=nskipin) !nskip is LO bands. This will be automatic
+      endif
       write(stdo,ftox) 'nnnnn nskip',nskip !,ftof(sum(abs(fac(:,:))**2,dim=2))
 
       ! === Usage ===
@@ -92,10 +101,19 @@ contains
 
       ! When P = \sum_i \sum_j |Psi^PMT_i> <Psi^PMT_i|Psi^MTO_j> <Psi^MTO_j|, we have |F^MTO_k>=  P| F^MTO_k>. That is P is identical operator.
       ! Instead of <Psi^PMT_i|Psi^MTO_j>, we use Amat which is a modified version.
-      call getkeyvalue("GWinput","mlo_eww",eww,default=0.2d0) !smoothing cutoff
+      if (gwinput_loaded) then
+         eww = tg_mlo_eww
+      else
+         call getkeyvalue("GWinput","mlo_eww",eww,default=0.2d0) !smoothing cutoff
+      endif
       emax = evl(ndimMTO+nskip) - eferm   ! emax is the max of evl at ndimMTO+nskip. This is mainly useful for localized bands range.
-!      emax = evlmto(ndimMTO) - eferm   
-      call getkeyvalue("GWinput","mlo_emax",eee,default=emax*rydberg())  !eV relative to Ef.
+!      emax = evlmto(ndimMTO) - eferm
+      if (gwinput_loaded) then
+         eee = tg_mlo_emax
+         if (eee == 0d0) eee = emax*rydberg()  ! emulate legacy default=emax*rydberg
+      else
+         call getkeyvalue("GWinput","mlo_emax",eee,default=emax*rydberg())  !eV relative to Ef.
+      endif
       emax=eee/rydberg()+eferm
 
       !Amat is a modification of fac(ndimPMTx,ndimMTO), which is <Psi_PMT_i |Psi_MTO j>. Psi are eigenfunctions.

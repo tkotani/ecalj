@@ -18,9 +18,10 @@ DUMP = ECALJ / 'SRC/exec/build/gwinput_dump'
 SAMPLES = ECALJ / 'Samples'
 
 # Keys we cross-check (subset of [gw] section that has an exact 1:1 mapping)
-CHECK_INT  = ['BZmesh', 'iSigMode', 'niw', 'nband_chi0', 'EMINforGW', 'EMAXforGW', 'nband_sigm']
+CHECK_INT  = ['BZmesh', 'iSigMode', 'niw', 'nband_chi0', 'nband_sigm']
 CHECK_REAL = ['QpGcut_psi', 'QpGcut_cou', 'alpha_OffG', 'emax_sigm', 'esmr', 'delta',
-              'deltaw', 'HistBin_ratio', 'HistBin_dw', 'ecut_p', 'ecuts_p', 'gauss_img']
+              'deltaw', 'HistBin_ratio', 'HistBin_dw', 'ecut_p', 'ecuts_p', 'gauss_img',
+              'EMINforGW', 'EMAXforGW']
 CHECK_BOOL = ['unit_2pioa', 'GaussSmear', 'KeepPositiveCou']
 CHECK_IVEC3 = ['n1n2n3', 'n1n2n3eps', 'multitet']
 

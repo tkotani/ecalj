@@ -13,6 +13,7 @@ module m_readeigen
   use m_read_bzdata,only: ginv
   use m_struct_from_lmf,only: nsp=>nspin, mrecb,mrece,mrecg,nband,nspc; use m_gw_product_basis,only: ndima,ndimanspc,nspx
   use m_keyvalue,only: getkeyvalue
+  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_KeepQG => KeepQG
   use m_keep_wfs,only: keep_wfs_init, update_keep_geig, update_keep_cphi, set_geig_from_keep, set_cphi_from_keep
   use m_mpi,only:ipr
   !! qtt(1:3, nqtt)  :q-vector in full BZ (no symmetry) in QGpsi, QGcou
@@ -408,7 +409,12 @@ contains
     if(nqtt/=  nqtt_) call rx( 'init_readeigen:nqtt/=nqtt_ 11111')
     if(ngpmx_/=ngpmx) call rx('ngpmx error: 1111111 readeigen')
     allocate( qtt_(3,nqtt),ngp(nqtt) )
-    call getkeyvalue("GWinput","KeepQG",keepqg,default=.true.)
+    call gwinput_init()
+    if (gwinput_loaded) then
+       keepqg = tg_KeepQG
+    else
+       call getkeyvalue("GWinput","KeepQG",keepqg,default=.true.)
+    endif
     if((.not.keepqg).and.ipr) write(6,*) 'keepQG = .false. in readeigen'
     if(keepqg) then
       allocate( ngvecp(3,ngpmx,nqtt))

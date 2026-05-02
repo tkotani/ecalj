@@ -5,6 +5,7 @@ module m_readQG
   use NaNum,only:NaN
   use m_nvfortran,only:findloc
   use m_keyvalue,only: getkeyvalue
+  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_KeepQG => KeepQG
   implicit none
   !--------------------------------------------
   public:: readqg, readqg0, readngmx, readngmx2
@@ -225,7 +226,12 @@ contains
     integer:: isig,i,ix,kkk,kkk3(3),ik1(1),ik2(1),ik3(1),ik
     integer,allocatable:: ieord(:),key(:,:)
     if(ipr) write(6,*)' init_readqg ifi=',ifi
-    call getkeyvalue("GWinput","KeepQG",keepqg,default=.true.)
+    call gwinput_init()
+    if (gwinput_loaded) then
+       keepqg = tg_KeepQG
+    else
+       call getkeyvalue("GWinput","KeepQG",keepqg,default=.true.)
+    endif
     if(.not.keepqg) write(6,*) 'keepQG = .false. in readqg'
     if(ifi==1) then
        open(newunit=ifiqg, file='__QGpsi',form='unformatted')

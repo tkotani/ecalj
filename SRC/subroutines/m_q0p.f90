@@ -26,6 +26,11 @@ module m_q0p
 contains
   subroutine getallq0p(iq0pin,alat,plat,qlat,nnn,alp,alpv,nqbz,nqibz,nstbz,qbz,qibz,wibz,symops,ngrp,lnq0iadd) !! All arguments are input.
     use m_keyvalue,only: getkeyvalue
+    use m_GWinput, only: gwinput_init, gwinput_loaded, &
+                         tg_QforEPSunita => QforEPSunita, &
+                         tg_QforEPSau    => QforEPSau, &
+                         tg_QforEPSIBZ   => QforEPSIBZ, &
+                         tg_QforEPSLIncLeft => QforEPSLIncLeft
     use m_getqforgw,only: getqonly,qx,nq
     intent(in)         iq0pin,alat,plat,qlat,nnn,alp,alpv,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,lnq0iadd
     integer:: iq0pin !    logical:: newoffsetG
@@ -81,10 +86,18 @@ contains
        ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect,lnq0iadd)
        !! Get Q0P from GWinput
     elseif(iq0pin==2) then
-       call getkeyvalue("GWinput","QforEPSunita",unita,default=.false.)
-       call getkeyvalue("GWinput","QforEPSau",   unita,default=unita)
-       call getkeyvalue("GWinput","QforEPSIBZ",ibzqq,default=.false.)
-       call getkeyvalue("GWinput", "QforEPSLIncLeft", qepsl_inc_left, default=.false.)
+       call gwinput_init()
+       if (gwinput_loaded) then
+          unita = tg_QforEPSunita
+          if (tg_QforEPSau) unita = .true.   ! emulate default=unita chain
+          ibzqq = tg_QforEPSIBZ
+          qepsl_inc_left = tg_QforEPSLIncLeft
+       else
+          call getkeyvalue("GWinput","QforEPSunita",unita,default=.false.)
+          call getkeyvalue("GWinput","QforEPSau",   unita,default=unita)
+          call getkeyvalue("GWinput","QforEPSIBZ",ibzqq,default=.false.)
+          call getkeyvalue("GWinput", "QforEPSLIncLeft", qepsl_inc_left, default=.false.)
+       endif
        if(ibzqq) then
           write(6,*)'=== Find QforEPSIBZ=on === '
           nq0i= nqibz

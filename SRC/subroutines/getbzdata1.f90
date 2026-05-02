@@ -9,6 +9,7 @@ module m_get_bzdata1 ! bzmesh data, tetra are included in this routine.
 contains
   subroutine getbzdata1(qlat,nnn, symops,ngrp,tetrai,tetraf,gammacellctrl) !mtet
     use m_keyvalue,only: getkeyvalue
+    use m_GWinput, only: gwinput_init, gwinput_loaded, tg_ngcell => ngcell
     use m_tetirr,only: ccutup
     implicit none
     intent(in)::        qlat,nnn, symops,ngrp,tetrai,tetraf,gammacellctrl
@@ -244,7 +245,12 @@ contains
        skipgammacell=.false.
        if(gammacellctrl==1) skipgammacell= .TRUE. 
        write(6,"('  tetfbzf ntetf =',2i8, ' -----')") ntetf
-       call getkeyvalue("GWinput","ngcell",ngcell,default=1)
+       call gwinput_init()
+       if (gwinput_loaded) then
+          ngcell = tg_ngcell
+       else
+          call getkeyvalue("GWinput","ngcell",ngcell,default=1)
+       endif
        ntetf = 6*nqbz
        allocate( idtetf(0:3,ntetf))
        ntetf = 0
@@ -572,6 +578,7 @@ contains
     !! x is [0,1] --> xqcon = [0,1]
     !! x can be -1 <= x =< 1
     use m_keyvalue,only: getkeyvalue
+    use m_GWinput, only: gwinput_init, gwinput_loaded, tg_BZadiv => BZadiv
     real(8),intent(in)::x
     real(8),parameter:: pi=4d0*atan(1d0) !3.1415926535897932d0
     real(8),save:: adiv,bdiv
@@ -582,7 +589,12 @@ contains
        if(.not.ggg) then
           adiv=1d0
        else
-          call getkeyvalue("GWinput","BZadiv",adiv,default=1d0)
+          call gwinput_init()
+          if (gwinput_loaded) then
+             adiv = tg_BZadiv
+          else
+             call getkeyvalue("GWinput","BZadiv",adiv,default=1d0)
+          endif
        endif
        write(6,"('  BZadiv= ',f6.3)") adiv
        bdiv = (1d0 -adiv)/2d0

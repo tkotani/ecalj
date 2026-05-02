@@ -20,6 +20,9 @@ subroutine hpsig_MPI()
   use m_read_bzdata,only: read_bzdata,qbz,nqbz,nqibz,nqbz,qbas=>qlat,nq0i,q0i
   use m_genallcf_v3, ncore2=>ncore,nrxx=>nrx !, nprecb,mrecb,mrece,ndimat,nqbzt,nband,mrecg
   use m_keyvalue,only: getkeyvalue
+  use m_GWinput, only: gwinput_init, gwinput_loaded, &
+                       tg_wan_gauss_head => wan_gauss_head, &
+                       tg_wan_truncate   => wan_truncate
   use m_read_Worb,only: s_read_Worb, s_cal_Worb, &
        nwf, nclass_mlwf, cbas_mlwf, nbasclass_mlwf, &
        classname_mlwf, iclassin, &
@@ -344,8 +347,14 @@ subroutine hpsig_MPI()
 
   ! 061004
   if (myproc == 0) then
-     call getkeyvalue("GWinput","wan_gauss_head",ghead,default=.false.)
-     call getkeyvalue("GWinput","wan_truncate",tailt,default=.false.)
+     call gwinput_init()
+     if (gwinput_loaded) then
+        ghead = tg_wan_gauss_head
+        tailt = tg_wan_truncate
+     else
+        call getkeyvalue("GWinput","wan_gauss_head",ghead,default=.false.)
+        call getkeyvalue("GWinput","wan_truncate",tailt,default=.false.)
+     endif
   endif ! myproc
   call MPI_Bcast(ghead,1,MPI_LOGICAL,0, &
        MPI_COMM_WORLD,ierr)

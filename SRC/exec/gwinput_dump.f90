@@ -39,8 +39,8 @@ program gwinput_dump
   write(*,'(a,f10.5)') 'deltaw       = ', deltaw
   write(*,'(a,l1)')    'GaussSmear   = ', GaussSmear
   write(*,'(a,i0)')    'nband_chi0   = ', nband_chi0
-  write(*,'(a,i0)')    'EMINforGW    = ', EMINforGW
-  write(*,'(a,i0)')    'EMAXforGW    = ', EMAXforGW
+  write(*,'(a,f12.3)') 'EMINforGW    = ', EMINforGW
+  write(*,'(a,f12.3)') 'EMAXforGW    = ', EMAXforGW
   write(*,'(a,f10.5)') 'HistBin_ratio= ', HistBin_ratio
   write(*,'(a,es12.4)')'HistBin_dw   = ', HistBin_dw
   write(*,'(a,i0)')    'nband_sigm   = ', nband_sigm

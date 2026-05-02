@@ -158,6 +158,7 @@ contains
     PvP_dev_mo: block
       use m_bessl, only: bessl2 => bessl, wronkj2 => wronkj
       use m_keyvalue,only: getkeyvalue
+      use m_GWinput, only: gwinput_init, gwinput_loaded, tg_KeepWronkj => KeepWronkj
       ! real(8), allocatable :: sigx_tmp(ngc,ngc,0:lxx), a1g(nrx,ngc), aabb_by3
       ! real(8) :: ajr_tmp(nrx,ngc), phi_rg(nrx,ngc,0:lxx), rofi_tmp(1:nrx) !  complex(8) :: crojp((lxx+1)**2,nbas,ngc)
       real(8), allocatable :: fac_integral(:), a1g(:,:), ajr_tmp(:,:), phi_rg(:,:,:), rofi_tmp(:)
@@ -172,7 +173,12 @@ contains
       ! Get integral coefficients of int (a*b) G_1(ir) G_2(ir) exp(a*r))
       ! simpson rule is used. nr(ibas) was set as odd number
       !   sigx_tmp(ig1,ig2,l) is int dr (aa(ibas)*bb(ibas)) a1g(r,g1)* ajr(r,l,ibas,g2) exp(aa(ibas)*r))
-      call getkeyvalue("GWinput","KeepWronkj",keepWronkj,default=.true.)
+      call gwinput_init()
+      if (gwinput_loaded) then
+         keepWronkj = tg_KeepWronkj
+      else
+         call getkeyvalue("GWinput","KeepWronkj",keepWronkj,default=.true.)
+      endif
       write(aaaw,ftox) " vcoulq_4: goto PvP procid ngc lxx nrx=", mpi__rank,ngc,lxx,nrx
       call cputm(stdo,aaaw)
 

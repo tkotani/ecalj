@@ -2,6 +2,9 @@
 module m_getQforGW 
   use m_read_bzdata,only:  nqibz,qibz
   use m_keyvalue,only: getkeyvalue
+  use m_GWinput, only: gwinput_init, gwinput_loaded, &
+                       tg_EMAXforGW => EMAXforGW, tg_EMINforGW => EMINforGW, &
+                       tg_QforGWIBZ => QforGWIBZ
   use m_ftox
   use m_nvfortran
   integer,public,protected :: nbmin,nbmax,nq
@@ -26,8 +29,14 @@ contains
     endif
     call getqonly() !Set qx(1:3,nq)
     call readefermi()
-    call getkeyvalue("GWinput","EMAXforGW",ecut,default= 99999d0)
-    call getkeyvalue("GWinput","EMINforGW",emin,default=-99999d0)
+    call gwinput_init()
+    if (gwinput_loaded) then
+       ecut = tg_EMAXforGW
+       emin = tg_EMINforGW
+    else
+       call getkeyvalue("GWinput","EMAXforGW",ecut,default= 99999d0)
+       call getkeyvalue("GWinput","EMINforGW",emin,default=-99999d0)
+    endif
     allocate(eqt(nband))
     nnx=-999999
     nnm= 999999
@@ -62,7 +71,12 @@ contains
        close(ifqpnt)
     endif
     write(6,*)' Readin from QforGW :nq=',nq
-    call getkeyvalue("GWinput","QforGWIBZ",ibzqq,default=.false.)
+    call gwinput_init()
+    if (gwinput_loaded) then
+       ibzqq = tg_QforGWIBZ
+    else
+       call getkeyvalue("GWinput","QforGWIBZ",ibzqq,default=.false.)
+    endif
     if(nq==0.or.ibzqq) then
        nq=nqibz
        allocate(qx(3,nq),source= qibz(1:3,1:nq))

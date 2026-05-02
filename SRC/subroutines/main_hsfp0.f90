@@ -14,6 +14,7 @@ subroutine hsfp0() bind(C)
        alat,deltaw,esmr_in=>esmr, il,in,im,nlnm, &
        plat, pos,z,ecore,  konf,nlnx,laf,ncore
   use m_keyvalue,only: Getkeyvalue
+  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_allq0i => allq0i
   use m_rdpp,only: Rdpp, nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
   use m_zmel,only: Mptauof_zmel
   use m_itq,only: itq,ntq,setitq_hsfp0
@@ -544,7 +545,12 @@ subroutine hsfp0() bind(C)
   if(ipr) write(6,*) ' Used k number in Q0P =', nq0i
   if(ipr) write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
   allocate( wgt0(nq0i,ngrp) )
-  call getkeyvalue("GWinput","allq0i",allq0i,default=.false.) 
+  call gwinput_init()
+  if (gwinput_loaded) then
+     allq0i = tg_allq0i
+  else
+     call getkeyvalue("GWinput","allq0i",allq0i,default=.false.)
+  endif
   call q0iwgt3(allq0i,symgg,ngrp,wqt,q0i,nq0i, wgt0)   
   !--------------------------
   if(nq0i/=0.and.ipr) write(6,*) ' *** tot num of q near 0   =', 1/wgt0(1,1)

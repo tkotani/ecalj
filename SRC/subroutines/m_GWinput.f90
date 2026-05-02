@@ -23,15 +23,17 @@ module m_GWinput
   integer, protected, public :: BZmesh       = 1
   real(8), protected, public :: QpGcut_psi   = 4.0d0
   real(8), protected, public :: QpGcut_cou   = 3.0d0
-  real(8), protected, public :: alpha_OffG   = 1.0d0
+  ! alpha_OffG: legacy default -1d60 (sentinel "not given" -> fall through to alpha_OffG_vec)
+  real(8), protected, public :: alpha_OffG   = -1.0d60
   logical, protected, public :: unit_2pioa   = .false.
 
   ! Sigma / chi0 mode
   integer, protected, public :: iSigMode     = 3
   integer, protected, public :: niw          = 10
   integer, protected, public :: nband_chi0   = 999
-  integer, protected, public :: EMINforGW    = -9999
-  integer, protected, public :: EMAXforGW    = 9999
+  ! EMINforGW/EMAXforGW: legacy reads as REAL with default ±99999d0
+  real(8), protected, public :: EMINforGW    = -99999.0d0
+  real(8), protected, public :: EMAXforGW    = 99999.0d0
   real(8), protected, public :: emax_sigm    = 3.0d0
   real(8), protected, public :: emax_chi0    = 999.0d0
   real(8), protected, public :: HistBin_ratio = 1.03d0
@@ -47,7 +49,7 @@ module m_GWinput
   logical, protected, public :: GaussSmear   = .false.
 
   ! Optional flags
-  logical, protected, public :: KeepEigen    = .false.
+  logical, protected, public :: KeepEigen    = .true.
   logical, protected, public :: KeepPPOVL    = .false.
   logical, protected, public :: NormChk      = .false.
   logical, protected, public :: AnyQ         = .false.
@@ -55,7 +57,8 @@ module m_GWinput
   logical, protected, public :: QforEPSunita = .false.
   logical, protected, public :: QforEPSLIncLeft = .false.
   logical, protected, public :: tetrakbt     = .false.
-  integer, protected, public :: t_tetrakbt   = 0
+  ! t_tetrakbt: temperature in Kelvin, real (legacy default 300d0)
+  real(8), protected, public :: t_tetrakbt   = 300.0d0
   ! MagAtom: variable-length integer array of magnetic-atom site indices.
   ! Allocated to size(>=1) on load; consumers use size(MagAtom) for count.
   integer, protected, public, allocatable :: MagAtom(:)
@@ -132,6 +135,8 @@ module m_GWinput
   real(8), protected, public :: wan_mix_1st        = 0.1d0
   real(8), protected, public :: wan_mix_2nd        = 0.1d0
   real(8), protected, public :: wan_conv_2nd       = 1.0d-5
+  real(8), protected, public :: wan_tbcut_rcut     = -1.0d50  ! sentinel; default=rcut
+  real(8), protected, public :: wan_tbcut_heps     = 0.0d0
 
   ! Integers
   integer, protected, public :: ngcell             = 1
@@ -278,10 +283,10 @@ contains
     call gv_i(gw, 'iSigMode',      iSigMode)
     call gv_i(gw, 'niw',           niw)
     call gv_i(gw, 'nband_chi0',    nband_chi0)
-    call gv_i(gw, 'EMINforGW',     EMINforGW)
-    call gv_i(gw, 'EMAXforGW',     EMAXforGW)
+    call gv_r(gw, 'EMINforGW',     EMINforGW)
+    call gv_r(gw, 'EMAXforGW',     EMAXforGW)
     call gv_i(gw, 'BZmesh',        BZmesh)
-    call gv_i(gw, 't_tetrakbt',    t_tetrakbt)
+    call gv_r(gw, 't_tetrakbt',    t_tetrakbt)
     call gv_r(gw, 'mlo_emax',      mlo_emax)        ! legacy reads as REAL
     call gv_i(gw, 'mlo_method',    mlo_method)
     call gv_i(gw, 'wan_maxit_1st', wan_maxit_1st)
@@ -359,6 +364,8 @@ contains
     call gv_r(gw, 'wan_mix_1st',        wan_mix_1st)
     call gv_r(gw, 'wan_mix_2nd',        wan_mix_2nd)
     call gv_r(gw, 'wan_conv_2nd',       wan_conv_2nd)
+    call gv_r(gw, 'wan_tbcut_rcut',     wan_tbcut_rcut)
+    call gv_r(gw, 'wan_tbcut_heps',     wan_tbcut_heps)
 
     ! Batch 2 integers
     call gv_i(gw, 'ngcell',             ngcell)

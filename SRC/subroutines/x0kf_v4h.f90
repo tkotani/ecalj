@@ -2,6 +2,7 @@
 module m_x0kf
   use m_lgunit,only: stdo
   use m_keyvalue,only : Getkeyvalue
+  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_zmel_max_size => zmel_max_size
   use m_pkm4crpa,only : Readpkm4crpa
   use m_zmel,only: build_zmel, zmel !,get_zmel_init1,get_zmel_init2
   use m_freq,only: npm, nwhis
@@ -175,7 +176,12 @@ contains
     npr_col = mpi__npr_col(mpi__rank_b) ! number of columns on xq
 
     if(cmdopt0('--tetwtk'))  tetwtk=.true.
-    call getkeyvalue("GWinput","zmel_max_size",zmel_max_size,default=1d0) !in GB
+    call gwinput_init()
+    if (gwinput_loaded) then
+       zmel_max_size = tg_zmel_max_size
+    else
+       call getkeyvalue("GWinput","zmel_max_size",zmel_max_size,default=1d0) !in GB
+    endif
     if(zmel_max_size < 0.001d0) zmel_max_size = 1d0
     if(chipm .AND. nolfco) then; call set_m2e_prod_basis_chipm(zzr,npr)
     else;                        call set_m2e_prod_basis(npr=npr) !bugfix 2024-5-23 mobata. Set npr=1 for EPSPP0 mode(no lfc)

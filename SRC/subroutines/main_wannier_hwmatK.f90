@@ -280,6 +280,11 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   use m_genallcf_v3,only:niwg=>niw,alat,deltaw,esmr,icore,natom,nl,nlnmc,nlnmv,nlnmc,nlnmx,nlnx,laf
   use m_genallcf_v3,only: genallcf_v3,ncore,nn,nnc,nspin,pos,plat, nprecb,mrecb,mrece,nqbzt,nband,mrecg,ndima
   use m_keyvalue,only: getkeyvalue
+  use m_GWinput, only: gwinput_init, gwinput_loaded, &
+                       tg_wmat_static => wmat_static, tg_wmat_all => wmat_all, &
+                       tg_wmat_rcut1  => wmat_rcut1, tg_wmat_rcut2 => wmat_rcut2, &
+                       tg_wmat_WSsuper => wmat_WSsuper, &
+                       tg_wmat_rsite  => wmat_rsite, tg_allq0i => allq0i
   use m_zmel_old,only: ppbafp_v2
   use m_hamindex0,only: readhamindex0,iclasst
 
@@ -609,7 +614,12 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
      nw = 0
   endif
   nrw = nw
-  call getkeyvalue("GWinput","wmat_static",lstatic,default= .FALSE. )
+  call gwinput_init()
+  if (gwinput_loaded) then
+     lstatic = tg_wmat_static
+  else
+     call getkeyvalue("GWinput","wmat_static",lstatic,default= .FALSE. )
+  endif
   if (lstatic) nrw = 0
 1018 continue
   call init_readeigen2()!mrecb,nlmto,mrecg) !initialize m_readeigen
@@ -632,7 +642,11 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   call dcopy   (3*nqibz,qibz,1,q,1)
   nspinmx = nspin
   if (laf) nspinmx =1
-  call getkeyvalue("GWinput","wmat_all",lfull,default= .FALSE. )
+  if (gwinput_loaded) then
+     lfull = tg_wmat_all
+  else
+     call getkeyvalue("GWinput","wmat_all",lfull,default= .FALSE. )
+  endif
   if(lfull)then
     write(6,*) 'NEEDtoExamin code main_hwmatK_MPI again ! '
     write(6,*) ' Because of the bug in nvfortran24.1 we can not pass nrws2 to wmatqk_MPI (kount,irot,nrws1,nrws2,nrws.'
@@ -641,9 +655,15 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
     call rx('wmat_all is not implemented because of the bug in nvfortran24.1')
   endif
   if (lfull) then
-     call getkeyvalue("GWinput","wmat_rcut1",rcut1, default=0.01d0 )
-     call getkeyvalue("GWinput","wmat_rcut2",rcut2, default=0.01d0 )
-     call getkeyvalue("GWinput","wmat_WSsuper",lwssc,default=.true.)
+     if (gwinput_loaded) then
+        rcut1 = tg_wmat_rcut1
+        rcut2 = tg_wmat_rcut2
+        lwssc = tg_wmat_WSsuper
+     else
+        call getkeyvalue("GWinput","wmat_rcut1",rcut1, default=0.01d0 )
+        call getkeyvalue("GWinput","wmat_rcut2",rcut2, default=0.01d0 )
+        call getkeyvalue("GWinput","wmat_WSsuper",lwssc,default=.true.)
+     endif
      if (lwssc) then
         allocate(irws(n1*n2*n3*8),rws(3,n1*n2*n3*8),drws(n1*n2*n3*8))
         call wigner_seitz(alat,plat,n1,n2,n3,nrws,rws,irws,drws)
@@ -680,7 +700,12 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
      nrws = nrws1*nrws2*nrws2
      deallocate(irws,rws,drws)
   else
-     call getkeyvalue("GWinput","wmat_rsite", rsite,3, default=(/0.0d0,0.0d0,0.0d0/),status=ret)
+     if (gwinput_loaded) then
+        rsite = tg_wmat_rsite
+        ret = 1
+     else
+        call getkeyvalue("GWinput","wmat_rsite", rsite,3, default=(/0.0d0,0.0d0,0.0d0/),status=ret)
+     endif
      rcut1 = 0.0d0
      rcut2 = 0.0d0
      nrws1 = 1
@@ -699,7 +724,11 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   write(6,*) ' Used k number in Q0P =', nq0i
   write(6,"(i3,f14.6,2x, 3f14.6)" )(i, wqt(i),q0i(1:3,i),i=1,nq0i)
   allocate( wgt0(nq0i,ngrp) )
-  call getkeyvalue("GWinput","allq0i",allq0i,default= .FALSE. )!S.F.Jan06
+  if (gwinput_loaded) then
+     allq0i = tg_allq0i
+  else
+     call getkeyvalue("GWinput","allq0i",allq0i,default= .FALSE. )!S.F.Jan06
+  endif
   call q0iwgt3(allq0i,symgg,ngrp,wqt,q0i,nq0i,     wgt0)                   ! added allq0i argument
   if (master_mpi) then
      if(nq0i/=0) write(6,*) ' *** tot num of q near 0   =', 1/wgt0(1,1)

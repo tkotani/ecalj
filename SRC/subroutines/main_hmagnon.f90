@@ -11,6 +11,15 @@ subroutine hmagnon() bind(C)
   use m_read_bzdata, only: nqbz, qbz
   use m_genallcf_v3, only: genallcf_v3; use m_struct_from_lmf, only: nspin
   use m_keyvalue, only: getkeyvalue
+  use m_GWinput, only: gwinput_init, gwinput_loaded, &
+                       tg_magnon_w_onsite_dddd => magnon_w_onsite_dddd, &
+                       tg_magnon_delta         => magnon_delta, &
+                       tg_magnon_delta_dos     => magnon_delta_dos, &
+                       tg_HistBin_ratio        => HistBin_ratio, &
+                       tg_HistBin_dw           => HistBin_dw, &
+                       tg_magnon_HistBin_ratio => magnon_HistBin_ratio, &
+                       tg_magnon_HistBin_dw    => magnon_HistBin_dw, &
+                       tg_magnon_negative_cut  => magnon_negative_cut
   use m_freq, only: getfreq, freq_r, nwhis, nw_i, nw, npm
   use m_tetwt, only: tetdeallocate, gettetwt, whw, ihw, nhw, jhw, n1b, n2b, nbnb
   use m_readgwinput, only: ReadGWinputKeys
@@ -74,14 +83,27 @@ subroutine hmagnon() bind(C)
   call genallcf_v3(incwfx=0) !!incwfin=0 =>ForX0 for core in GWIN. in module m_genallcf_v3 Readin by genallcf. Set basic data for crystal
   if(nspin < 2) call rx(' hmagnon: nspin<2: not supported. exit.')
   call ReadGWinputKeys() ! jun2020 new routint to read all inputs
-  call getkeyvalue("GWinput","magnon_w_onsite_dddd",w_onsite_dddd,default=.true.)
-  call getkeyvalue("GWinput","magnon_delta", delta, default=0d0) !1d-6 for Insulator case
-  call getkeyvalue("GWinput","magnon_delta_dos", delta_dos, default=1d-6)
-  call getkeyvalue("GWinput","HistBin_ratio",freq_ratio, default=1.03d0)
-  call getkeyvalue("GWinput","HistBin_dw",freq_dw, default=1d-5)
-  call getkeyvalue("GWinput","magnon_HistBin_ratio",freq_ratio, default=freq_ratio)
-  call getkeyvalue("GWinput","magnon_HistBin_dw", freq_dw, default=freq_dw)
-  call getkeyvalue("GWinput","magnon_negative_cut",negative_cut,default=.false.)
+  call gwinput_init()
+  if (gwinput_loaded) then
+     w_onsite_dddd = tg_magnon_w_onsite_dddd
+     delta         = tg_magnon_delta
+     delta_dos     = tg_magnon_delta_dos
+     freq_ratio    = tg_HistBin_ratio
+     freq_dw       = tg_HistBin_dw
+     ! magnon_HistBin_* override base if specified (default=base)
+     if (tg_magnon_HistBin_ratio /= 1.03d0) freq_ratio = tg_magnon_HistBin_ratio
+     if (tg_magnon_HistBin_dw    /= 1d-5)   freq_dw    = tg_magnon_HistBin_dw
+     negative_cut  = tg_magnon_negative_cut
+  else
+     call getkeyvalue("GWinput","magnon_w_onsite_dddd",w_onsite_dddd,default=.true.)
+     call getkeyvalue("GWinput","magnon_delta", delta, default=0d0) !1d-6 for Insulator case
+     call getkeyvalue("GWinput","magnon_delta_dos", delta_dos, default=1d-6)
+     call getkeyvalue("GWinput","HistBin_ratio",freq_ratio, default=1.03d0)
+     call getkeyvalue("GWinput","HistBin_dw",freq_dw, default=1d-5)
+     call getkeyvalue("GWinput","magnon_HistBin_ratio",freq_ratio, default=freq_ratio)
+     call getkeyvalue("GWinput","magnon_HistBin_dw", freq_dw, default=freq_dw)
+     call getkeyvalue("GWinput","magnon_negative_cut",negative_cut,default=.false.)
+  endif
   if(ipr) write(stdo,ftox) "magnon_w_onsite_dddd", w_onsite_dddd
   if(ipr) write(stdo,ftox) "magnon_geteta", geteta
   if(ipr) write(stdo,ftox) "magnon_delta", delta

@@ -4,6 +4,13 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
   use m_get_bzdata1,only: qbz,wbz,qibz,wibz, qbzw, idtetf, ib1bz, idteti, irk, nstar, nstbz 
   use m_q0p,only: Getallq0p, nq0i,nq0iadd,  q0i,wt, epslgroup, lxklm, epinv,wklm, dmlx, epinvq0i,ixyz,nany
   use m_keyvalue,only: getkeyvalue
+  use m_GWinput, only: gwinput_init, gwinput_loaded, &
+                       tg_n1n2n3 => n1n2n3, tg_n1n2n3eps => n1n2n3eps, &
+                       tg_n1n2n3dos => n1n2n3dos, &
+                       tg_QpGcut_psi => QpGcut_psi, tg_QpGcut_cou => QpGcut_cou, &
+                       tg_unit_2pioa => unit_2pioa, tg_KeepQG => KeepQG, &
+                       tg_GammaDivn1n2n3 => GammaDivn1n2n3, &
+                       tg_alpha_OffG => alpha_OffG, tg_alpha_OffG_vec => alpha_OffG_vec
   use m_hamindex0,only: Readhamindex0, symops,ngrp,alat,plat,qlat
   use m_lgunit,only: stdo
   implicit none
@@ -41,15 +48,30 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
   character*99:: q0pf        !nov2012
   write(stdo,"('mkqg2: ')")
   call readhamindex0()
-  call getkeyvalue("GWinput", "n1n2n3", nnn,3)
-  if(lmagnon) call getkeyvalue("GWinput", "n1n2n3eps",nnn,3,default=nnn)
-  if(lmagnon .and. cmdopt0('--dos')) then
-    call getkeyvalue("GWinput", "n1n2n3dos",nnn,3,default=nnn)
+  call gwinput_init()
+  if (gwinput_loaded) then
+     nnn = tg_n1n2n3
+     if (lmagnon) then
+        if (any(tg_n1n2n3eps /= 0)) nnn = tg_n1n2n3eps   ! else default = n1n2n3
+     endif
+     if (lmagnon .and. cmdopt0('--dos')) then
+        if (any(tg_n1n2n3dos /= 0)) nnn = tg_n1n2n3dos
+     endif
+     QpGx2     = tg_QpGcut_psi
+     QpGcut_Cou = tg_QpGcut_cou
+     unit2     = tg_unit_2pioa
+     keepqg    = tg_KeepQG
+  else
+     call getkeyvalue("GWinput", "n1n2n3", nnn,3)
+     if(lmagnon) call getkeyvalue("GWinput", "n1n2n3eps",nnn,3,default=nnn)
+     if(lmagnon .and. cmdopt0('--dos')) then
+       call getkeyvalue("GWinput", "n1n2n3dos",nnn,3,default=nnn)
+     endif
+     call getkeyvalue("GWinput", "QpGcut_psi",QpGx2)
+     call getkeyvalue("GWinput", "QpGcut_cou",QpGcut_Cou)
+     call getkeyvalue("GWinput", "unit_2pioa",unit2)
+     call getkeyvalue("GWinput", "KeepQG",keepqg,default=.true.)
   endif
-  call getkeyvalue("GWinput", "QpGcut_psi",QpGx2)
-  call getkeyvalue("GWinput", "QpGcut_cou",QpGcut_Cou)
-  call getkeyvalue("GWinput", "unit_2pioa",unit2)
-  call getkeyvalue("GWinput", "KeepQG",keepqg,default=.true.)
   if(unit2) then
      unit = 2d0*pi/alat
      QpGx2     = QpGx2      *unit
@@ -80,7 +102,11 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
      do i=1,3
         qlatbz(:,i) = qlat(:,i)/nnn(i) !qlat for Gamma cell
      enddo
-     call getkeyvalue("GWinput","GammaDivn1n2n3",nnng,3)
+     if (gwinput_loaded) then
+        nnng = tg_GammaDivn1n2n3
+     else
+        call getkeyvalue("GWinput","GammaDivn1n2n3",nnng,3)
+     endif
      nnn = nnng          !division of Gamma cell
      dq_ = -matmul(qlatbz(1:3,1:3),(/.5d0,.5d0,.5d0/))
      ! his shift vector is to make the Gamma point centered in the Gamma cell.
@@ -119,12 +145,21 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
   write(stdo,'("  qibz = ",i6,3f12.5)')(i,qibz(1:3,i),i=1,min(10,nqibz))
   write(stdo,*)" ... QIBZ is written in QIBZ file ..."
   write(stdo,*)
-  call getkeyvalue("GWinput","alpha_OffG",alp,default=-1d60)
-  alpv(:)=alp
-  if(alp==-1d60) then
-     call getkeyvalue("GWinput","alpha_OffG_vec",alpv,3,default=(/-1d50,0d0,0d0/))
-     if(alpv(1)==-1d50) then
-        call rx( ' mkqg: No alpha_offG nor alpha_offG_vec given in GWinput')
+  if (gwinput_loaded) then
+     alp = tg_alpha_OffG
+     alpv(:) = alp
+     if (alp == -1d60) then  ! sentinel "not given" -> use vec
+        alpv = tg_alpha_OffG_vec
+        if (alpv(1) == -1d50) call rx(' mkqg: No alpha_offG nor alpha_offG_vec given in GWinput')
+     endif
+  else
+     call getkeyvalue("GWinput","alpha_OffG",alp,default=-1d60)
+     alpv(:)=alp
+     if(alp==-1d60) then
+        call getkeyvalue("GWinput","alpha_OffG_vec",alpv,3,default=(/-1d50,0d0,0d0/))
+        if(alpv(1)==-1d50) then
+           call rx( ' mkqg: No alpha_offG nor alpha_offG_vec given in GWinput')
+        endif
      endif
   endif
   call Getallq0p(iq0pin,alat,plat,qlat,nnn,alp,alpv, &

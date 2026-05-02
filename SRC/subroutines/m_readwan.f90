@@ -1,6 +1,9 @@
 !>read Wannier orbital things.
-module m_readwan 
+module m_readwan
   use m_keyvalue,only: getkeyvalue
+  use m_GWinput, only: gwinput_init, gwinput_loaded, &
+                       tg_shift_majority => shift_majority, &
+                       tg_output_ddmat_atom => output_ddmat_atom
   use m_iqindx_wan,only: iqindx2_wan
   use m_lgunit,only: stdo
   use m_ftox
@@ -174,7 +177,12 @@ contains
     if(init) call rx('wan_readeval: wan_readeigen should be called')
     call iqindx2_wan(q, iq, qu) !qu is used q. q-qu is a G vector.
     !! shift: ev_w --> ev_w + shift_ev (change exchnage splitting by hand for test)
-    call getkeyvalue("GWinput","shift_majority",shift_ev,default=0d0)
+    call gwinput_init()
+    if (gwinput_loaded) then
+       shift_ev = tg_shift_majority
+    else
+       call getkeyvalue("GWinput","shift_majority",shift_ev,default=0d0)
+    endif
     if (shift_ev /= 0d0) write(6,*) "shift_ev [eV]: ",shift_ev
 !!! return wannier eigenvalue : ev_w
     ev_w(1:nwf)  = eval_w(1:nwf,iq,isp) + shift_ev/13.605693009
@@ -205,7 +213,12 @@ contains
     enddo
     call diag_hm2(hrotkp,nwf,eval,evecc)
     !! shift: ev_w --> ev_w + shift_ev (change exchnage splitting by hand for test)
-    call getkeyvalue("GWinput","shift_majority",shift_ev,default=0d0)
+    call gwinput_init()
+    if (gwinput_loaded) then
+       shift_ev = tg_shift_majority
+    else
+       call getkeyvalue("GWinput","shift_majority",shift_ev,default=0d0)
+    endif
     if (shift_ev /= 0d0) write(6,*) "shift_ev [eV]: ",shift_ev
     ev_w(1:nwf) = eval(1:nwf) + shift_ev/13.605693009
     evc_w(1:nwf,1:nwf) = evecc(1:nwf,1:nwf)
@@ -761,7 +774,12 @@ contains
     integer:: iddmat
     open(newunit=iffile,file=filename(:len_trim(filename)))
 !!! diagonal
-    call getkeyvalue("GWinput","output_ddmat_atom",iddmat_in,default=1d0)
+    call gwinput_init()
+    if (gwinput_loaded) then
+       iddmat_in = tg_output_ddmat_atom
+    else
+       call getkeyvalue("GWinput","output_ddmat_atom",iddmat_in,default=1d0)
+    endif
     iddmat=int(iddmat_in)
     write(6,"('output_ddmat_atom =',i5)") iddmat
     ijwf=0; klwf=0; zmat_o=(0d0,0d0)

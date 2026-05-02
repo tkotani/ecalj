@@ -18,6 +18,11 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   use m_readqg,only: readqg0
   use m_readeigen,only:readcphiw
   use m_keyvalue,only: getkeyvalue
+  use m_GWinput, only: gwinput_init, gwinput_loaded, &
+                       tg_nbcutlow_sig => nbcutlow_sig, &
+                       tg_TestOnlyQ0P  => TestOnlyQ0P, &
+                       tg_TestNoQ0P    => TestNoQ0P, &
+                       tg_NoQ0P        => NoQ0P
   use m_read_bzdata,only: wklm
 !  use rsmpi_rotkindex,only:nk_local_rotk,ik_index_rotk
   implicit none
@@ -140,7 +145,12 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   debug=.false.
   if(verbose()>=90) debug= .TRUE. 
   if(debug) write(6,ftox)' nnnnnnnnnn wmatqk_mpi: nrws nrws1 nrws2       ',nrws,nrws1,nrws2
-  call getkeyvalue("GWinput","nbcutlow_sig",nbcut, default=0 )
+  call gwinput_init()
+  if (gwinput_loaded) then
+     nbcut = tg_nbcutlow_sig
+  else
+     call getkeyvalue("GWinput","nbcutlow_sig",nbcut, default=0 )
+  endif
   nbcutc=nctot+nbcut
   tpi         = 8d0*datan(1.d0)
   nlmtobnd    = nlmto*nband
@@ -159,10 +169,16 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   iqend=nqibz+nq0i
   iqini=1
   iqend=nqibz            !no sum for offset-Gamma points.
-  call getkeyvalue("GWinput","TestOnlyQ0P",onlyq0p,default=.false.)
-  call getkeyvalue("GWinput","TestNoQ0P",noq0p,default=.false.)
-  if ( .NOT. noq0p) &
-       call getkeyvalue("GWinput","NoQ0P",noq0p,default= .FALSE. )
+  if (gwinput_loaded) then
+     onlyq0p = tg_TestOnlyQ0P
+     noq0p   = tg_TestNoQ0P
+     if (.not. noq0p) noq0p = tg_NoQ0P
+  else
+     call getkeyvalue("GWinput","TestOnlyQ0P",onlyq0p,default=.false.)
+     call getkeyvalue("GWinput","TestNoQ0P",noq0p,default=.false.)
+     if ( .NOT. noq0p) &
+          call getkeyvalue("GWinput","NoQ0P",noq0p,default= .FALSE. )
+  endif
   if(noq0p) write(*,*)'noq0p mode'
   if(noq0p) iqend=nqibz
   isp1 = isp

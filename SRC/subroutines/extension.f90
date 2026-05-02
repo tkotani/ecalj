@@ -14,36 +14,64 @@ subroutine qqsave (qi,nmax,ginv, qsave,imx) !---accumulate q into qsave imx
 end subroutine qqsave
 subroutine readd_iSigma_en(ifinin,iSigma_en)
   use m_keyvalue,only:getkeyvalue
+  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_iSigMode => iSigMode
   integer(4):: iSigma_en,ifinin
-  call getkeyvalue("GWinput","iSigMode",iSigma_en )
+  call gwinput_init()
+  if (gwinput_loaded) then
+     iSigma_en = tg_iSigMode
+  else
+     call getkeyvalue("GWinput","iSigMode",iSigma_en )
+  endif
   write(6,*)' iSigma_en=',iSigma_en
 end subroutine readd_iSigma_en
 subroutine getnemx(nbmx,ebmx,im,ipr) !- Readin nbmx ebmx for hxofp0 hscfp0
   use m_keyvalue,only: getkeyvalue
+  use m_GWinput, only: gwinput_init, gwinput_loaded, &
+                       tg_nband_sigm => nband_sigm, tg_emax_sigm => emax_sigm, &
+                       tg_nband_chi0 => nband_chi0, tg_emax_chi0 => emax_chi0
   real(8)::ebmx
   integer :: nbmx,ret,im!,ifinin
   character(len=100):: recxxx=' '
   logical :: ipr !,readgwinput
-  !      if(readgwinput()) then
-  if    (im==8) then
-     call getkeyvalue("GWinput","nband_sigm",nbmx, default=99999 )
-     call getkeyvalue("GWinput","emax_sigm", ebmx, default=1d10  )
-  elseif(im==7) then
-     call getkeyvalue("GWinput","nband_chi0",nbmx, default=99999 )
-     call getkeyvalue("GWinput","emax_chi0", ebmx, default=1d10  )
+  call gwinput_init()
+  if (gwinput_loaded) then
+     if (im==8) then
+        nbmx = tg_nband_sigm
+        ebmx = tg_emax_sigm
+     elseif (im==7) then
+        nbmx = tg_nband_chi0
+        ebmx = tg_emax_chi0
+     endif
+  else
+     if    (im==8) then
+        call getkeyvalue("GWinput","nband_sigm",nbmx, default=99999 )
+        call getkeyvalue("GWinput","emax_sigm", ebmx, default=1d10  )
+     elseif(im==7) then
+        call getkeyvalue("GWinput","nband_chi0",nbmx, default=99999 )
+        call getkeyvalue("GWinput","emax_chi0", ebmx, default=1d10  )
+     endif
   endif
   if(ipr) write(6,"('  nbmx ebmx from GWinput=',i10,d13.6)") nbmx,ebmx
   return
 end subroutine getnemx
 subroutine getnemx8(nbmx,ebmx)  !- Readin nbmx ebmx for hscfp0
   use m_keyvalue,only: getkeyvalue
+  use m_GWinput, only: gwinput_init, gwinput_loaded, &
+                       tg_nband_sigm => nband_sigm, tg_emax_sigm => emax_sigm
   integer :: ret
   real(8)::ebmx(2)
   integer :: nbmx(2)
-  call getkeyvalue("GWinput","nband_sigm",nbmx,1, default=(/9999999/),status=ret)
-  write(6,*)' status 1=',ret
-  call getkeyvalue("GWinput","emax_sigm", ebmx,1, default=(/1d10/),status=ret)
-  write(6,*)' status 2=',ret
+  call gwinput_init()
+  if (gwinput_loaded) then
+     nbmx = tg_nband_sigm
+     ebmx = tg_emax_sigm
+     ret = 1
+  else
+     call getkeyvalue("GWinput","nband_sigm",nbmx,1, default=(/9999999/),status=ret)
+     write(6,*)' status 1=',ret
+     call getkeyvalue("GWinput","emax_sigm", ebmx,1, default=(/1d10/),status=ret)
+     write(6,*)' status 2=',ret
+  endif
   return
 end subroutine getnemx8
 subroutine readin5(i0,i1,i2) ! readin i0,i1,i2; these defaults value are 0 0 0 if these are not given.

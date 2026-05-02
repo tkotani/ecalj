@@ -130,11 +130,17 @@ contains
       GetNmbatch: block !nmbatch is the Batch size of sum for middle states. !Get zmel(MPB,middle ,external)
       use m_read_ppovl,only: getppx2,ngcgp
       use m_mem,only:memused
+      use m_GWinput, only: gwinput_init, gwinput_loaded, tg_MEMnmbatch => MEMnmbatch
       integer:: nbloch,ifiqg,iiixxx,ngcmx,filename(natom),ic,nblocha(natom),ifp
       real(8),parameter:: k=1000 !Note GB is over integer(4)
       real(8):: mmax  ! GByte. Size of memory per rank to determine nmbatch
       real(8):: mmm
-      call getkeyvalue("GWinput","MEMnmbatch",mmax,default=2d0)
+      call gwinput_init()
+      if (gwinput_loaded) then
+         mmax = tg_MEMnmbatch
+      else
+         call getkeyvalue("GWinput","MEMnmbatch",mmax,default=2d0)
+      endif
       call getppx2([(0d0,i=1,9)],[(0d0,i=1,3)],getngcgp=.true.)
       open(newunit=ifiqg, file='__QGcou',form='unformatted')
       read(ifiqg) iiixxx, ngcmx

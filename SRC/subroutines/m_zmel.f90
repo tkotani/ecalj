@@ -79,6 +79,7 @@ contains
     use m_mksym_util,only:mptauof
     use m_hamindex0,only: Readhamindex0,iclasst
     use m_keyvalue,only: getkeyvalue
+    use m_GWinput, only: gwinput_init, gwinput_loaded, tg_KeepPpb => KeepPpb
     intent(in)::          symops,ng
     integer:: ng
     real(8):: symops(9,ng)
@@ -102,7 +103,12 @@ contains
     ! MO 2024-12-03 ppbir is set in when KeepPpb is .true.
     ! ppb for given irot is obtained using set_ppb
     ! In case of KeepPpb is .false. (default), only ppb for given irot is saved
-    call getkeyvalue("GWinput","KeepPpb",keep_ppbir,default=.false.)
+    call gwinput_init()
+    if (gwinput_loaded) then
+       keep_ppbir = tg_KeepPpb
+    else
+       call getkeyvalue("GWinput","KeepPpb",keep_ppbir,default=.false.)
+    endif
     ng_done = ng
     if(.not.keep_ppbir) return
     if(keep_ppbir) write(stdo,ftox) 'keep_ppbir:True'

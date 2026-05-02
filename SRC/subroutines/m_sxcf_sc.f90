@@ -307,6 +307,7 @@ contains
   ! partition omega-mesh across MPI w-ranks, allocate + zero zsecall.
   subroutine sxcf_correlation_init(ef, esmr, nspinmx)
     use m_keyvalue, only: getkeyvalue
+    use m_GWinput, only: gwinput_init, gwinput_loaded, tg_KeepWV => KeepWV
     use m_mpi, only: mpi__size_w, mpi__rank_w, ipr
     use m_blas, only: int_split
     use m_gpu, only: use_gpu
@@ -315,7 +316,12 @@ contains
     integer :: kx, irot, ip, isp, kr, izz, icount
     if (nw_i /= 0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
     allocate(sxs_ekc(nctot+nband), sxs_eq(nband), sxs_omega(ntq))
-    call getkeyvalue("GWinput","KeepWV", sxs_keepwv, default=use_gpu)
+    call gwinput_init()
+    if (gwinput_loaded) then
+       sxs_keepwv = tg_KeepWV
+    else
+       call getkeyvalue("GWinput","KeepWV", sxs_keepwv, default=use_gpu)
+    endif
     LoopScheduleCheck: block
       izz = 0
       kxloopX:                do kx   = 1, nqibz

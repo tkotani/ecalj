@@ -259,6 +259,9 @@ contains
     print *
   end subroutine rwsigma
   subroutine mixsigma(sss, lsigin, sigin, nda) !sigma file mixing
+    use m_GWinput, only: gwinput_init, gwinput_loaded, &
+                         tg_mixbeta => mixbeta, tg_mixpriorit => mixpriorit, &
+                         tg_mixtj => mixtj
     use m_amix,only: amix
     !- Anderson mixing of a vector
     !i  mmix: number of iterates available to mix
@@ -285,7 +288,12 @@ contains
     integer:: ido
     iprintxx = 30
     beta=1d0
-    call getkeyvalue("GWinput","mixbeta",beta,default=1d0,status=ret)
+    call gwinput_init()
+    if (gwinput_loaded) then
+       beta = tg_mixbeta
+    else
+       call getkeyvalue("GWinput","mixbeta",beta,default=1d0,status=ret)
+    endif
     write(stdo,ftox)' mixsigma: Anderson mixing sigma with mixing beta =',ftof(beta)
     allocate ( a(2*nda,0:mxsav+1,2) )
     fff="__mixsigma"
@@ -313,10 +321,18 @@ contains
       a(1:nda,0,2)       = dreal(sigin)        !input
       a(nda+1:2*nda,0,2) = dimag(sigin)  !input
     endif
-    call getkeyvalue("GWinput","mixpriorit",imix,default=3,status=ret) !  Restrict maximum number of prior iterations
+    if (gwinput_loaded) then
+       imix = tg_mixpriorit
+    else
+       call getkeyvalue("GWinput","mixpriorit",imix,default=3,status=ret) !  Restrict maximum number of prior iterations
+    endif
     mmix = min(max(nitr-1,0),imix)
     if (mmix > mxsav) mmix = mxsav
-    call getkeyvalue("GWinput","mixtj",acc,default=0d0,status=ret)
+    if (gwinput_loaded) then
+       acc = tg_mixtj
+    else
+       call getkeyvalue("GWinput","mixtj",acc,default=0d0,status=ret)
+    endif
     if(acc/=0d0) then
       write(stdo,ftox)' readin mixtj from GWinput: mixtj=',acc
       tjmax=abs(acc)+1d-3
