@@ -17,14 +17,16 @@ import sys
 import argparse
 from pathlib import Path
 
-# Keys that take on/off (boolean)
+# Keys that take on/off (boolean) or .true./.false.
 BOOL_KEYS = {
     "GaussSmear", "KeepEigen", "KeepPPOVL", "NormChk",
     "unit_2pioa", "CoreOrth", "LFC@Gamma",
+    "AnyQ", "QforEPSau", "QforEPSunita", "QforEPSLIncLeft",
+    "tetrakbt", "wan_in_ewin",
 }
 
 # Keys that are vectors of integers (BZ mesh etc.)
-INT_VEC_KEYS = {"n1n2n3", "BZmesh", "multitet"}
+INT_VEC_KEYS = {"n1n2n3", "BZmesh", "multitet", "n1n2n3eps"}
 
 
 def fortran_num_to_python(s: str) -> str:
@@ -44,8 +46,18 @@ def strip_comment(line: str) -> str:
     return line[:min(cuts)]
 
 
+def _try_int(t: str):
+    try: return int(t)
+    except ValueError: return None
+
+def _try_float(t: str):
+    try: return float(fortran_num_to_python(t))
+    except ValueError: return None
+
 def parse_value(tokens: list[str], key: str) -> object:
-    """Parse a value (or vector) from whitespace-separated tokens. Returns int, float, bool, str, or list."""
+    """Parse value(s) from whitespace tokens. Strips trailing non-numeric
+    annotations (e.g., 'HistBin_dw 0.01 (a.u.)' -> 0.01). Returns int,
+    float, bool, str, or homogeneous numeric list."""
     if key in BOOL_KEYS:
         v = tokens[0].lower()
         return v in ("on", "true", "yes", "1", ".true.")
@@ -53,34 +65,35 @@ def parse_value(tokens: list[str], key: str) -> object:
     if not tokens:
         return None
 
-    # Try multi-value: integer vector
+    # Take only the leading run of numeric tokens. Drop trailing annotations.
+    numeric_run = []
+    for t in tokens:
+        if _try_float(t) is not None:
+            numeric_run.append(t)
+        else:
+            break
+
+    if not numeric_run:
+        # Pure string scalar
+        return tokens[0]
+
     if key in INT_VEC_KEYS:
-        try:
-            return [int(t) for t in tokens]
-        except ValueError:
-            pass
+        ints = [_try_int(t) for t in numeric_run]
+        if all(v is not None for v in ints):
+            return ints
 
-    # Single value: try int, then float, then string
-    if len(tokens) == 1:
-        t = tokens[0]
-        try:
-            return int(t)
-        except ValueError:
-            pass
-        try:
-            return float(fortran_num_to_python(t))
-        except ValueError:
-            pass
-        return t
+    if len(numeric_run) == 1:
+        t = numeric_run[0]
+        iv = _try_int(t)
+        if iv is not None and "." not in t and "d" not in t.lower() and "e" not in t.lower():
+            return iv
+        return _try_float(t)
 
-    # Multi-token: try float vector
-    try:
-        return [float(fortran_num_to_python(t)) for t in tokens]
-    except ValueError:
-        pass
-
-    # Fallback: list of strings
-    return tokens
+    # multi-numeric: prefer ints if all integral
+    ints = [_try_int(t) for t in numeric_run]
+    if all(v is not None for v in ints):
+        return ints
+    return [_try_float(t) for t in numeric_run]
 
 
 def parse_product_basis(block_lines: list[str]) -> dict:

@@ -194,8 +194,9 @@ contains
     call gv_r(gw, 'QpGcut_psi',    QpGcut_psi)
     call gv_r(gw, 'QpGcut_cou',    QpGcut_cou)
     call gv_r(gw, 'alpha_OffG',    alpha_OffG)
-    call gv_r(gw, 'emax_sigm',     emax_sigm)
-    call gv_r(gw, 'emax_chi0',     emax_chi0)
+    ! emax_sigm/emax_chi0: legacy reads as scalar; TOML may have list -- take first.
+    call gv_rv_first(gw, 'emax_sigm',  emax_sigm)
+    call gv_rv_first(gw, 'emax_chi0',  emax_chi0)
     call gv_r(gw, 'HistBin_ratio', HistBin_ratio)
     call gv_r(gw, 'HistBin_dw',    HistBin_dw)
     call gv_r(gw, 'deltaw',        deltaw)
@@ -363,6 +364,23 @@ contains
     do i = 1, n
        call get_value(arr, i, var(i))
     enddo
+  end subroutine
+
+  !> Read a real that may be stored as scalar or as the first element of an array.
+  !  Used for keys like 'emax_sigm' where TOML may have list[float] but legacy
+  !  reads it as a scalar (first element).
+  subroutine gv_rv_first(tbl, key, var)
+    type(toml_table), pointer, intent(in)    :: tbl
+    character(*),              intent(in)    :: key
+    real(8),                   intent(inout) :: var
+    type(toml_array), pointer :: arr
+    integer :: stat
+    call get_value(tbl, key, var, stat=stat)
+    if (stat == 0) return
+    call get_value(tbl, key, arr, requested=.false.)
+    if (.not. associated(arr)) return
+    if (len(arr) < 1) return
+    call get_value(arr, 1, var, stat=stat)
   end subroutine
 
   !> Read an int that may be stored as scalar or as the first element of an array.
