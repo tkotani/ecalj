@@ -3,7 +3,8 @@ module m_heftet
   use m_lgunit,only: stdo
   public heftet
 contains
-  subroutine heftet() bind(C)! Calculates the Fermi energy by tetrahedron method. 
+  subroutine heftet() bind(C)! Calculates the Fermi energy by tetrahedron method.
+    use m_GWinput, only: gwinput_init, gwinput_loaded, tg_tetrakbt => tetrakbt
     use m_read_bzdata,only: read_bzdata, idteti,qbz,qibz,dq_,nqibz,ntetf,nteti,ginv,nqbz
     use m_genallcf_v3,only: genallcf_v3,natom,nspin,nl,nn,nnv,nnc,nlnmx, nctot,niw,nspx
     use m_genallcf_v3,only: alat, deltaw,esmr, plat, pos,z,ecore, konf,nlnx,valn=>qval
@@ -159,7 +160,12 @@ contains
       call rx( 'heftet:bug in fermi level finder or tol too small')
 444   continue
       ! Fermi energy at finite temperature (EFERMI_kbt); Okumura (Feb.2020)
-      call getkeyvalue("GWinput","tetrakbt",usetetrakbt,default=.false.)
+      call gwinput_init()
+      if (gwinput_loaded) then
+        usetetrakbt = tg_tetrakbt
+      else
+        call getkeyvalue("GWinput","tetrakbt",usetetrakbt,default=.false.)
+      endif
       if (imode==5 .AND. usetetrakbt) then
         call tetrakbt_init() !! read kbt
         e11 = efermi - 10*kbt

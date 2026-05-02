@@ -110,9 +110,21 @@ module m_GWinput
   !-----------------------------------------------------------------
   logical, protected, public :: gwinput_loaded = .false.
 
-  public :: gwinput_load
+  public :: gwinput_load, gwinput_init
 
 contains
+
+  !> Idempotent helper for callers: if GWinput.toml is present and not yet
+  !  loaded, call gwinput_load. Sets gwinput_loaded=.true. on success.
+  !  Callers can then branch on `gwinput_loaded` to choose TOML vs legacy.
+  subroutine gwinput_init()
+    logical :: have_toml
+    character(len=:), allocatable :: errmsg
+    if (gwinput_loaded) return
+    inquire(file='GWinput.toml', exist=have_toml)
+    if (.not. have_toml) return
+    call gwinput_load(error=errmsg)
+  end subroutine gwinput_init
 
   subroutine gwinput_load(filename, error)
     !> Load GWinput.toml. Idempotent: returns immediately if already loaded.

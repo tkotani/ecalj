@@ -137,6 +137,7 @@ contains
   end subroutine dpsion_init
   subroutine dpsion_chiq(realomega, imagomega, chipm, rcxq, zxqi, npr, npr_col, schi, isp, ecut)
     use m_keyvalue,only: getkeyvalue
+    use m_GWinput, only: gwinput_init, gwinput_loaded, tg_SmearX0 => SmearX0
     use m_freq, only: frhis, freqr=>freq_r,freqi=>freq_i, nwhis, npm, nw_i, nw_w=>nw, niwt=>niw
 !    use m_readgwinput, only: egauss
     use m_ftox
@@ -172,7 +173,12 @@ contains
     call flush(stdo)
     if(chipm.and.npm==2) call rx( 'x0kf_v4h:npm==2 .AND. chipm is not meaningful probably')  ! Note rcxq here is negative 
     !$acc data copyin(his_R, his_L)
-    call getkeyvalue("GWinput","SmearX0", smearx0, default=0d0 )
+    call gwinput_init()
+    if (gwinput_loaded) then
+       smearx0 = tg_SmearX0
+    else
+       call getkeyvalue("GWinput","SmearX0", smearx0, default=0d0 )
+    endif
     GaussianFilter: if(abs(smearx0)>1d-15) then
       if(ipr) write(6,'("SmearX0= ",d13.6)') smearx0
       allocate(gfmat(nwhis,nwhis))
@@ -324,7 +330,7 @@ contains
     endif
   end subroutine dpsion_setup_rcxq
 
-  subroutine dpsion5(realomega,imagomega,rcxq,nmbas1,nmbas2, zxq,zxqi, chipm,schi,isp,ecut,ecuts) 
+  subroutine dpsion5(realomega,imagomega,rcxq,nmbas1,nmbas2, zxq,zxqi, chipm,schi,isp,ecut,ecuts)
     use m_freq,only:  frhis, freqr=>freq_r,freqi=>freq_i, nwhis, npm, nw_i, nw_w=>nw, niwt=>niw
 !    use m_readgwinput,only: egauss
 !    use m_GaussianFilter,only: GaussianFilter
@@ -332,6 +338,7 @@ contains
     use m_lgunit,only:stdo
     use m_kind,only:kindrcxq
     use m_keyvalue,only: getkeyvalue
+    use m_GWinput, only: gwinput_init, gwinput_loaded, tg_SmearX0 => SmearX0
     implicit none
     intent(in)::     realomega,imagomega,     nmbas1,nmbas2,           chipm,schi,isp,ecut,ecuts
     intent(out)::                        rcxq,                zxq,zxqi
@@ -362,7 +369,12 @@ contains
     if(ipr) write(stdo,ftox)" -- dpsion5: start... nw_w nwhis=",nw_w,nwhis
     if(chipm.and.npm==2) call rx( 'x0kf_v4h:npm==2 .AND. chipm is not meaningful probably')  ! Note rcxq here is negative 
     call cputid(0)
-    call getkeyvalue("GWinput","SmearX0", smearx0, default=0d0 )
+    call gwinput_init()
+    if (gwinput_loaded) then
+       smearx0 = tg_SmearX0
+    else
+       call getkeyvalue("GWinput","SmearX0", smearx0, default=0d0 )
+    endif
     GaussianFilter: if(abs(smearx0)>1d-15) then
        if(eginit) then
          if(ipr) write(stdo,'("SmearX0= ",d13.6)') smearx0

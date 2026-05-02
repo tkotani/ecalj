@@ -5,6 +5,7 @@ module m_HamPMT
    use m_ftox
    use m_lmfinit,only: oveps
    use m_keyvalue,only: getkeyvalue
+   use m_GWinput, only: gwinput_init, gwinput_loaded, tg_mlo_method => mlo_method
    use m_hreduction,only: hreduction
    real(8),external::tolq !eps=1d-8
    real(8),allocatable,protected:: plat(:,:),pos(:,:),qlat(:,:),symops(:,:,:)
@@ -107,7 +108,12 @@ contains
         use m_nvfortran,only : findloc
         integer::lmindex(16,nbas),ifmloc,ret,lm
         character(256):: labl,aaa
-        call getkeyvalue("GWinput","mlo_method",mlomethod,default=0)
+        call gwinput_init()
+        if (gwinput_loaded) then
+          mlomethod = tg_mlo_method
+        else
+          call getkeyvalue("GWinput","mlo_method",mlomethod,default=0)
+        endif
 !        mlomethod=-999
         call getkeyvalue("GWinput","<Worb>",unit=ifmloc,status=ret)
         do 

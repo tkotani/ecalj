@@ -12,6 +12,7 @@ subroutine sxcf_fal3z(&
   use m_readqg,only:readqg0
   use m_readeigen,only: readeval
   use m_keyvalue,only: getkeyvalue
+  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_gauss_img => gauss_img
   use m_zmel,only: build_zmel, set_m2e_prod_basis, zmel
   use m_readVcoud,only:   Readvcoud, vcoud,vcousq,zcousq,ngb,ngc
   use m_wfac,only:wfacx2,weavx2
@@ -330,7 +331,12 @@ subroutine sxcf_fal3z(&
      !$$$          expa_(ix) = exp(-(ua_*freqw)**2)
      !$$$        enddo
      !$$$      endif
-     call getkeyvalue("GWinput","gauss_img",ua_,default=1d0)
+     call gwinput_init()
+     if (gwinput_loaded) then
+        ua_ = tg_gauss_img
+     else
+        call getkeyvalue("GWinput","gauss_img",ua_,default=1d0)
+     endif
      do ix = 1,niw           !! Energy mesh; along im axis.
         freqw     = (1d0 - freqx(ix))/ freqx(ix)
         expa_(ix) = exp(-(ua_*freqw)**2)

@@ -72,6 +72,9 @@ contains
   !----------------
   subroutine Getfreq(epsmode,realomega,imagomega,omg2max,wemax,niw,ua,npmtwo,dw,ratio) !,tetra
     use m_keyvalue,only: getkeyvalue
+    use m_GWinput, only: gwinput_init, gwinput_loaded, &
+                         tg_HistBin_ratio => HistBin_ratio, &
+                         tg_HistBin_dw    => HistBin_dw
     intent(in)::       epsmode,realomega,imagomega,omg2max,wemax,niw,ua,npmtwo
     integer:: niw !,nw_input
     logical:: realomega,imagomega,epsmode
@@ -93,8 +96,14 @@ contains
     !! Histogram bin divisions
     !! We first accumulate Imaginary parts.
     !! Then it is K-K transformed to obtain real part.
-    call getkeyvalue("GWinput","HistBin_ratio",ratio_in, default=1.03d0)
-    call getkeyvalue("GWinput","HistBin_dw",dw_in, default=1d-5) !a.u.
+    call gwinput_init()
+    if (gwinput_loaded) then
+       ratio_in = tg_HistBin_ratio
+       dw_in    = tg_HistBin_dw
+    else
+       call getkeyvalue("GWinput","HistBin_ratio",ratio_in, default=1.03d0)
+       call getkeyvalue("GWinput","HistBin_dw",dw_in, default=1d-5) !a.u.
+    endif
     !override HistBin_ratio, HistBin_dw
     if(present(ratio)) ratio_in = ratio
     if(present(dw)) dw_in = dw
