@@ -92,5 +92,36 @@ program gwinput_dump
   if (allocated(block_QforGW))   write(*,'(a,i0,a)') 'QforGW   (', len(block_QforGW),   ' bytes)'
   if (allocated(block_Worb))     write(*,'(a,i0,a)') 'Worb     (', len(block_Worb),     ' bytes)'
 
+  write(*,'(/a)') '===== [blocks] (structured) ====='
+  write(*,'(a,i0)') 'n_eps  = ', n_eps
+  do i = 1, n_eps
+     write(*,'(2x,3f12.6)') q_eps(:,i)
+  enddo
+  write(*,'(a,i0)') 'n_qgw  = ', n_qgw
+  do i = 1, n_qgw
+     write(*,'(2x,3f12.6)') q_qgw(:,i)
+  enddo
+  write(*,'(a,i0)') 'n_epsl = ', n_epsl
+  do i = 1, n_epsl
+     write(*,'(2x,3f10.5,3f10.5,i4)') q_epsl(:,i), qend_epsl(:,i), idx_epsl(i)
+  enddo
+  if (qpnt_nq > 0) then
+     write(*,'(a,2i4)') 'QPNT allq spinonly = ', qpnt_allq, qpnt_spinonly
+     write(*,'(a,i0)')  'QPNT nstates = ', qpnt_nstates
+     if (allocated(qpnt_bands)) then
+        write(*,'(a,10i4)') 'QPNT bands = ', qpnt_bands
+     endif
+     write(*,'(a,i0)')  'QPNT nq = ', qpnt_nq
+     do i = 1, qpnt_nq
+        write(*,'(2x,3f12.6)') qpnt_q(:,i)
+     enddo
+  endif
+  if (n_worb > 0) then
+     write(*,'(a,i0)') 'n_worb = ', n_worb
+     do i = 1, n_worb
+        write(*,'(2x,i3,1x,a8,16i4)') worb_iatom(i), worb_label(i), worb_lm(1:worb_nlm(i),i)
+     enddo
+  endif
+
   write(*,'(/a)') 'OK!'
 end program

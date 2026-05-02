@@ -213,6 +213,40 @@ module m_GWinput
   character(len=:), protected, public, allocatable :: block_hrotr
 
   !-----------------------------------------------------------------
+  ! [blocks] structured form -- parsed from raw text in load_blocks_section.
+  ! Callers read these directly instead of opening a unit on raw text.
+  !-----------------------------------------------------------------
+
+  ! QforEPS: list of q-vectors, 3 reals per line.
+  real(8), protected, public, allocatable :: q_eps(:,:)         ! (3, n_eps)
+  integer, protected, public               :: n_eps = 0
+
+  ! QforEPSL: 7 fields per line -- q(3), qend(3), idx(int).
+  real(8), protected, public, allocatable :: q_epsl(:,:)        ! (3, n_epsl)
+  real(8), protected, public, allocatable :: qend_epsl(:,:)     ! (3, n_epsl)
+  integer, protected, public, allocatable :: idx_epsl(:)        ! (n_epsl)
+  integer, protected, public               :: n_epsl = 0
+
+  ! QforGW: list of q-vectors, 3 reals per line.
+  real(8), protected, public, allocatable :: q_qgw(:,:)         ! (3, n_qgw)
+  integer, protected, public               :: n_qgw = 0
+
+  ! QPNT: structured.
+  integer, protected, public               :: qpnt_allq      = 0
+  integer, protected, public               :: qpnt_spinonly  = 0
+  integer, protected, public               :: qpnt_nstates   = 0
+  integer, protected, public, allocatable  :: qpnt_bands(:)
+  integer, protected, public               :: qpnt_nq        = 0
+  real(8), protected, public, allocatable  :: qpnt_q(:,:)        ! (3, qpnt_nq)
+
+  ! Worb: list of records: iatom, label(8), lm(1..nlm).
+  integer, protected, public               :: n_worb         = 0
+  integer, protected, public, allocatable  :: worb_iatom(:)
+  character(8), protected, public, allocatable :: worb_label(:)
+  integer, protected, public, allocatable  :: worb_lm(:,:)       ! (16, n_worb), -999 for unused slots
+  integer, protected, public, allocatable  :: worb_nlm(:)        ! actual count per row
+
+  !-----------------------------------------------------------------
   ! State
   !-----------------------------------------------------------------
   logical, protected, public :: gwinput_loaded = .false.
@@ -506,7 +540,293 @@ contains
     call gv_c_alloc(blocks, 'QforGW',   block_QforGW)
     call gv_c_alloc(blocks, 'Worb',     block_Worb)
     call gv_c_alloc(blocks, 'hrotr',    block_hrotr)
+
+    ! Parse raw text into structured arrays (caller-friendly).
+    if (allocated(block_QforEPS))  call parse_qvec_list(block_QforEPS,  q_eps,  n_eps)
+    if (allocated(block_QforGW))   call parse_qvec_list(block_QforGW,   q_qgw,  n_qgw)
+    if (allocated(block_QforEPSL)) call parse_QforEPSL(block_QforEPSL, q_epsl, qend_epsl, idx_epsl, n_epsl)
+    if (allocated(block_QPNT))     call parse_QPNT(block_QPNT)
+    if (allocated(block_Worb))     call parse_Worb(block_Worb)
   end subroutine load_blocks_section
+
+
+  !> Open a scratch unit pre-loaded with the raw block text split into records.
+  !  The unit is positioned at the start. Caller is responsible for closing.
+  subroutine open_block_unit(text, unit)
+    character(len=:), allocatable, intent(in)  :: text
+    integer,                       intent(out) :: unit
+    integer :: i, j, n
+    open(newunit=unit, status='scratch', form='formatted')
+    i = 1
+    n = len(text)
+    do while (i <= n)
+       j = index(text(i:n), char(10))
+       if (j == 0) then
+          write(unit,'(a)') text(i:n)
+          exit
+       endif
+       if (j == 1) then
+          write(unit,'(a)') ''
+       else
+          write(unit,'(a)') text(i:i+j-2)
+       endif
+       i = i + j
+    enddo
+    rewind(unit)
+  end subroutine open_block_unit
+
+
+  !> Parse list of q-vectors (3 reals per line) from block text.
+  !  Skips blank/comment lines (starting with '!' or '#').
+  subroutine parse_qvec_list(text, qvec, nq)
+    character(len=:), allocatable, intent(in)    :: text
+    real(8), allocatable,          intent(inout) :: qvec(:,:)
+    integer,                       intent(out)   :: nq
+    integer :: u, ios, n, i
+    real(8) :: q(3)
+    character(256) :: line
+    nq = 0
+    if (.not. allocated(text)) return
+    if (len(text) == 0) return
+    call open_block_unit(text, u)
+    n = 0
+    do
+       read(u,'(a)',iostat=ios) line
+       if (ios /= 0) exit
+       if (len_trim(line) == 0) cycle
+       if (line(1:1) == '!' .or. line(1:1) == '#') cycle
+       read(line,*,iostat=ios) q
+       if (ios == 0) n = n + 1
+    enddo
+    if (n == 0) then
+       close(u); return
+    endif
+    if (allocated(qvec)) deallocate(qvec)
+    allocate(qvec(3, n))
+    rewind(u)
+    i = 0
+    do
+       read(u,'(a)',iostat=ios) line
+       if (ios /= 0) exit
+       if (len_trim(line) == 0) cycle
+       if (line(1:1) == '!' .or. line(1:1) == '#') cycle
+       read(line,*,iostat=ios) q
+       if (ios /= 0) cycle
+       i = i + 1
+       qvec(:,i) = q
+    enddo
+    close(u)
+    nq = n
+  end subroutine parse_qvec_list
+
+
+  !> Parse QforEPSL: q(3), qend(3), idx(int) per line.
+  subroutine parse_QforEPSL(text, qv, qe, idx, nq)
+    character(len=:), allocatable, intent(in)    :: text
+    real(8), allocatable,          intent(inout) :: qv(:,:), qe(:,:)
+    integer, allocatable,          intent(inout) :: idx(:)
+    integer,                       intent(out)   :: nq
+    integer :: u, ios, n, i, ii
+    real(8) :: q(3), qq(3)
+    character(256) :: line
+    nq = 0
+    if (.not. allocated(text)) return
+    if (len(text) == 0) return
+    call open_block_unit(text, u)
+    n = 0
+    do
+       read(u,'(a)',iostat=ios) line
+       if (ios /= 0) exit
+       if (len_trim(line) == 0) cycle
+       if (line(1:1) == '!' .or. line(1:1) == '#') cycle
+       read(line,*,iostat=ios) q, qq, ii
+       if (ios == 0) n = n + 1
+    enddo
+    if (n == 0) then
+       close(u); return
+    endif
+    if (allocated(qv))  deallocate(qv)
+    if (allocated(qe))  deallocate(qe)
+    if (allocated(idx)) deallocate(idx)
+    allocate(qv(3,n), qe(3,n), idx(n))
+    rewind(u)
+    i = 0
+    do
+       read(u,'(a)',iostat=ios) line
+       if (ios /= 0) exit
+       if (len_trim(line) == 0) cycle
+       if (line(1:1) == '!' .or. line(1:1) == '#') cycle
+       read(line,*,iostat=ios) q, qq, ii
+       if (ios /= 0) cycle
+       i = i + 1
+       qv(:,i)  = q
+       qe(:,i)  = qq
+       idx(i)   = ii
+    enddo
+    close(u)
+    nq = n
+  end subroutine parse_QforEPSL
+
+
+  !> Parse QPNT: multi-section format mirroring legacy block.
+  !    line: allq spinonly       (2 ints)
+  !    --- comment lines (start with *** or ! or other non-numeric) skipped ---
+  !    line: nstates             (1 int)
+  !    line: bands               (nstates ints)
+  !    line: nq                  (1 int)
+  !    nq lines: id qx qy qz    (1 int + 3 reals)
+  subroutine parse_QPNT(text)
+    character(len=:), allocatable, intent(in) :: text
+    integer :: u, ios, ii, jj, idummy
+    real(8) :: qq(3)
+    character(256) :: line
+    integer, allocatable :: bands(:)
+    real(8), allocatable :: qs(:,:)
+    if (.not. allocated(text)) return
+    if (len(text) == 0) return
+    call open_block_unit(text, u)
+    ! 1) Find first non-comment line: allq spinonly
+    do
+       read(u,'(a)',iostat=ios) line
+       if (ios /= 0) goto 999
+       if (skip_line(line)) cycle
+       read(line,*,iostat=ios) ii, jj
+       if (ios == 0) then
+          qpnt_allq = ii; qpnt_spinonly = jj
+          exit
+       endif
+    enddo
+    ! 2) Next data line: nstates
+    do
+       read(u,'(a)',iostat=ios) line
+       if (ios /= 0) goto 999
+       if (skip_line(line)) cycle
+       read(line,*,iostat=ios) ii
+       if (ios == 0) then
+          qpnt_nstates = ii
+          exit
+       endif
+    enddo
+    ! 3) Next data line: bands(1:nstates)
+    if (qpnt_nstates > 0) then
+       allocate(bands(qpnt_nstates))
+       do
+          read(u,'(a)',iostat=ios) line
+          if (ios /= 0) goto 999
+          if (skip_line(line)) cycle
+          read(line,*,iostat=ios) bands(1:qpnt_nstates)
+          if (ios == 0) exit
+       enddo
+       if (allocated(qpnt_bands)) deallocate(qpnt_bands)
+       call move_alloc(bands, qpnt_bands)
+    endif
+    ! 4) Next data line: nq
+    do
+       read(u,'(a)',iostat=ios) line
+       if (ios /= 0) goto 999
+       if (skip_line(line)) cycle
+       read(line,*,iostat=ios) ii
+       if (ios == 0) then
+          qpnt_nq = ii
+          exit
+       endif
+    enddo
+    ! 5) qpnt_nq lines: idummy qx qy qz
+    if (qpnt_nq > 0) then
+       allocate(qs(3, qpnt_nq))
+       ii = 0
+       do
+          if (ii >= qpnt_nq) exit
+          read(u,'(a)',iostat=ios) line
+          if (ios /= 0) exit
+          if (skip_line(line)) cycle
+          read(line,*,iostat=ios) idummy, qq
+          if (ios /= 0) cycle
+          ii = ii + 1
+          qs(:, ii) = qq
+       enddo
+       if (allocated(qpnt_q)) deallocate(qpnt_q)
+       call move_alloc(qs, qpnt_q)
+       qpnt_nq = ii
+    endif
+999 close(u)
+  end subroutine parse_QPNT
+
+
+  !> Worb: each non-comment line is "iatom label lm1 lm2 ... lmN".
+  subroutine parse_Worb(text)
+    character(len=:), allocatable, intent(in) :: text
+    integer :: u, ios, n, i, ib, lmtmp(16), nlm, k
+    character(256) :: line
+    character(8)   :: lab
+    if (.not. allocated(text)) return
+    if (len(text) == 0) return
+    call open_block_unit(text, u)
+    n = 0
+    do
+       read(u,'(a)',iostat=ios) line
+       if (ios /= 0) exit
+       if (skip_line(line)) cycle
+       n = n + 1
+    enddo
+    if (n == 0) then
+       close(u); return
+    endif
+    if (allocated(worb_iatom)) deallocate(worb_iatom)
+    if (allocated(worb_label)) deallocate(worb_label)
+    if (allocated(worb_lm))    deallocate(worb_lm)
+    if (allocated(worb_nlm))   deallocate(worb_nlm)
+    allocate(worb_iatom(n), worb_label(n), worb_lm(16,n), worb_nlm(n))
+    worb_lm = -999
+    rewind(u)
+    i = 0
+    do
+       read(u,'(a)',iostat=ios) line
+       if (ios /= 0) exit
+       if (skip_line(line)) cycle
+       lmtmp = -999
+       read(line,*,iostat=ios) ib, lab, lmtmp(1:16)
+       ! ios may be nonzero when fewer than 16 lm tokens present; that's OK
+       if (ios /= 0 .and. ios > 0) then
+          ! Try minimal: ib + lab + at least one lm
+          read(line,*,iostat=ios) ib, lab, lmtmp(1)
+          if (ios /= 0) cycle
+       endif
+       i = i + 1
+       worb_iatom(i) = ib
+       worb_label(i) = lab
+       worb_lm(:,i)  = lmtmp
+       nlm = 0
+       do k = 1, 16
+          if (lmtmp(k) /= -999) nlm = k
+       enddo
+       worb_nlm(i) = nlm
+    enddo
+    close(u)
+    n_worb = i
+  end subroutine parse_Worb
+
+
+  pure logical function skip_line(line)
+    character(*), intent(in) :: line
+    character(:), allocatable :: t
+    skip_line = .false.
+    t = adjustl(line)
+    if (len_trim(t) == 0) then
+       skip_line = .true.; return
+    endif
+    if (t(1:1) == '!' .or. t(1:1) == '#') then
+       skip_line = .true.; return
+    endif
+    if (len(t) >= 3) then
+       if (t(1:3) == '***') then
+          skip_line = .true.; return
+       endif
+       if (t(1:3) == '---') then
+          skip_line = .true.; return
+       endif
+    endif
+  end function skip_line
 
 
   ! ===== Helper getters (silently keep default on miss) =====
