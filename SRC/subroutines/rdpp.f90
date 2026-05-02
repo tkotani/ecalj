@@ -1,6 +1,6 @@
 module m_rdpp !Read PPBRDV2_*, radial integerals <p|p b> and rotated cg coefficients cgr.
   !note nbloch is the total number of ProductBasis (within MTs).
-  use m_genallcf_v3,only: lmxax,nn,natom,nspin 
+  use m_struct_from_lmf,only: lmxax,natom,nspin; use m_gw_product_basis,only: nn 
   use m_readqg,only: ngcmx
   use m_kind, only: kp => kindrcxq
   use m_mpi,only:ipr

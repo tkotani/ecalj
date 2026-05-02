@@ -1,6 +1,6 @@
 !> Read values from GWinput
 module m_readgwinput 
-  use m_genallcf_v3,only: nspin,nctot
+  use m_struct_from_lmf,only: nspin; use m_core_state,only: nctot
   implicit none
   real(8),protected:: egauss,ecut,ecuts,ebmx ,ebmx_sig,ua_
   integer,protected:: nbmx,nbmx_sig,iSigmode !,nbcutlow_sig !nbcut,nbcut2,
@@ -16,7 +16,7 @@ contains
   end subroutine SetIsigmode
   subroutine ReadGWinputKeys() ! Read values from GWinput
     use m_keyvalue,only: Getkeyvalue
-    use m_genallcf_v3,only: natom,nband
+    use m_struct_from_lmf,only: natom,nband
     !use m_readhbe,only: nband
     logical:: cmdopt0
     !     use NaNum,only: NaN

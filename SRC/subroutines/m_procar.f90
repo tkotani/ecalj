@@ -383,7 +383,7 @@ contains
   end subroutine m_sden_add
 !!--------------------------------------------------------
   subroutine read_sdenmat()
-    use m_genallcf_v3,only: nband,ndima
+    use m_struct_from_lmf,only: nband; use m_gw_product_basis,only: ndima
     use m_read_bzdata,only: nqbz
     implicit none
     integer::ifisden,iq,iband,ib,ic,ixyz,ibb,isp

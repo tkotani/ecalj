@@ -11,7 +11,7 @@ module m_getQforGW
 contains
   subroutine getqforgw(lqall)
     use m_readefermi,only: readefermi,ef
-    use m_genallcf_v3,only: nspin, nband
+    use m_struct_from_lmf,only: nspin, nband
     use m_readeigen,only: readeval !init* is alreaday called.
     logical:: lqall
     integer:: ret,nnx,ip,is,k,ifqpnt,nnm

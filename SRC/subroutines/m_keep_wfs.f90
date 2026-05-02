@@ -1,6 +1,6 @@
 module m_keep_wfs
   use m_lmfinit,only: nspec
-  use m_genallcf_v3,only: nband, ndima, nspc
+  use m_struct_from_lmf,only: nband, nspc; use m_gw_product_basis,only: ndima
   use m_hamindex,only: ngpmx
   implicit none
   public :: keep_wfs_init, keep_wfs_finalize, set_cphi_from_keep, set_geig_from_keep, update_keep_cphi, update_keep_geig

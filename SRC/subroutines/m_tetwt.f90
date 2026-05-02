@@ -34,7 +34,7 @@ contains
     deallocate(ihw,nhw,jhw, whw,ibjb,n1b,n2b,nbnb)
   end subroutine Tetdeallocate
   subroutine Gettetwt(q,iq,is,isf,ekxx1,ekxx2,nband,wan,ikbz_in,fkbz_in)
-    use m_genallcf_v3,only: niw_in=>niw,ecore,nctot,nspin
+    use m_gw_user_config,only: niw_in=>niw; use m_core_state,only: ecore,nctot; use m_struct_from_lmf,only: nspin
     use m_freq,only: Getfreq2, frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,niw !output of getfreq
     use m_read_bzdata,only: qlat,ginv, ntetf,idtetf,ib1bz,nqibz_mtet=>nqibz,nqbz,qbz,nqbzw,qbzw, idtetf,ib1bz, qbzw,nqbzw !for tetrahedron
     use m_ReadEfermi,only: ef
