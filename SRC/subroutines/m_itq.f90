@@ -41,7 +41,7 @@
 !!                                   + set_nbandmx_for_sigma(...).
 !!   setitq_hsfp0(...)             — backward-compat wrapper for set_itq_range.
 module m_itq
-  use m_genallcf_v3, only: nband
+  use m_struct_from_lmf, only: nband
   use m_lgunit, only: stdo
   implicit none
   integer, allocatable, protected, public :: itq(:)

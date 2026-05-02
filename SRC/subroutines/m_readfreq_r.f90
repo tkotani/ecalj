@@ -1,6 +1,6 @@
 !>read freq_r ! Readin WV.d (dimension file)  direct access files WVR and WVI which include W-V.
 module m_readfreq_r
-  use m_genallcf_v3,only: niw
+  use m_gw_user_config,only: niw
   use m_readgwinput,only: ua_
   use m_mpi,only: ipr
   implicit none

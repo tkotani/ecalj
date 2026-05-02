@@ -3,7 +3,7 @@ subroutine basnfp_v2(nocc,nunocc,nindx, lmxax,nn,nrx,nrofi,r,aa,bb,ic, & !Genera
   use m_keyvalue,only:getkeyvalue
   use m_ll,only: ll
   use m_read_bzdata,only: Read_bzdata, q0i,nq0i,wqt=>wt
-  use m_genallcf_v3,only: lmxa
+  use m_struct_from_lmf,only: lmxa
   !i phitotr: atomic radial functions. raw
   !r       This is avereged as for spin (stored in phiav) and used in the construction of product basis.
   !i phitoto: atomic radial functions. ortogonalized

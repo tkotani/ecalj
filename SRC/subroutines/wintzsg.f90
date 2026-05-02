@@ -4,7 +4,7 @@ contains
   pure subroutine wintzsg_npm_wgtim(npm,ua_,expa_,we,esmr, wgtim) !Gaussian integral along im omg axis
     !     loop over w' = (1-x)/x, frequencies in Wc(k,w')
     !     {x} are gaussian-integration points between (0,1)
-    use m_genallcf_v3,only: niw
+    use m_gw_user_config,only: niw
     use m_readfreq_r,only: wt=>wwx,x=>freqx
     implicit none
     integer,intent(in)::            npm
@@ -46,7 +46,7 @@ subroutine wintzsg_npm_wgtim(npm,a,expa,we,esmr, wgtim) !Gaussian integral along
 !     loop over w' = (1-x)/x, frequencies in Wc(k,w')
 !     {x} are gaussian-integration points between (0,1)
 !---------------------------------------------------------------------
-  use m_genallcf_v3,only: nx=>niw
+  use m_gw_user_config,only: nx=>niw
   use m_readfreq_r,only: wt=>wwx,x=>freqx
   implicit none
   integer,intent(in):: npm!,nx

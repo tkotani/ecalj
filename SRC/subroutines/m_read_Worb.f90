@@ -86,7 +86,7 @@ contains
   subroutine s_cal_Worb()
     use m_ll,only:ll
     use m_keyvalue,only: getkeyvalue
-    use m_genallcf_v3, only : natom !    use m_HamPMT,  only: natom=>nbas !NOT 2023-8-4
+    use m_struct_from_lmf, only: natom !    use m_HamPMT,  only: natom=>nbas !NOT 2023-8-4
     implicit none
     integer:: iclass, iclass2, iphidot_plus, ifmloc, iphi_tmp
     integer :: i, j, l_number, correction

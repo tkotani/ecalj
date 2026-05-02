@@ -2,7 +2,7 @@
 ! For GaAs 4x4x4 (with timereversal), we have IBZxBZ=10x640 is reduced to be IBZxEBZ=286.
 subroutine eibzgen(nqibz,symgg,ngrp,qibze,iqxini,iqxend,qbz,nqbz,timereversal,ginv,iprintx, &
      nwgt,igx,igxt,eibzsym,timerout)
-  use m_genallcf_v3,only:  plat
+  use m_struct_from_lmf,only: plat
   use m_hamindex,only: pwmode
   use m_nvfortran,only: findloc
   implicit none
