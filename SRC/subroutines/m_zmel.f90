@@ -1,8 +1,8 @@
 !> Get the matrix element zmel =  ZO^-1 <MPB psi|psi> , where ZO is ppovlz(inverse of overlap matrix) !  "call build_zmel" return zmel 
 !  All dependencies (use foobar below ) are inputs (must be protected).
 module m_zmel
-  use m_genallcf_v3,only: natom,nspin,nn,nnv,nnc,nlnmx, niw,nband,ndima
-  use m_genallcf_v3,only: alat,esmr,nlnmv,nlnmc,icore,ncore,plat,pos,z,ecore,mnl=>nlnm,nn,il,in,im
+  use m_struct_from_lmf,only: natom,nspin,nnv,nnc,nband; use m_gw_product_basis,only: nn,nlnmx,ndima; use m_gw_user_config,only: niw
+  use m_struct_from_lmf,only: alat,plat,pos,z; use m_gw_user_config,only: esmr; use m_gw_product_basis,only: nlnmv,nlnmc,mnl=>nlnm,nn,il,in,im; use m_core_state,only: icore,ncore,ecore
   use m_hamindex,only: ngrp, symgg=>symops,invg=>invgx
   use m_rdpp,only: Rdpp, nxx,lx,nx,mdimx,nbloch,cgr,ppbrd,nblocha,done_rdpp
   use m_read_bzdata,only: nqbz,nqibz,  qlat,ginv,qbz,qibz,wbz, done_read_bzdata

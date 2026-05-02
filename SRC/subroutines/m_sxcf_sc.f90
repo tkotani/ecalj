@@ -83,7 +83,7 @@ module m_sxcf_sc
        wv_open_iq_for_read, wv_close_iq_for_read, wv_get_real, wv_get_imag
   use m_zmel, only: build_zmel, set_m2e_prod_basis, zmel, nbb !get_zmel_init =>
   use m_itq, only: ntq, nbandmx
-  use m_genallcf_v3, only: ndima, nspin, nctot, niw, ecore,nband
+  use m_struct_from_lmf,only: nspin,nband; use m_gw_product_basis,only: ndima; use m_core_state,only: nctot,ecore; use m_gw_user_config,only: niw
   use m_read_bzdata, only: qibz, qbz, wk=>wbz, nqibz, nqbz, wklm, lxklm, wqt=>wt
   use m_readVcoud, only: Readvcoud, ReleaseZcousq, vcoud, ngb, ngc
   use m_readfreq_r, only: freq_r, nw_i, nw, freqx, wx=>wwx, nblochpmx, mrecl, expa_, npm

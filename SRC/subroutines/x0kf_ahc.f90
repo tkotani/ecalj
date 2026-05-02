@@ -5,7 +5,7 @@ module m_x0kf_ahc
   use m_pkm4crpa,only : Readpkm4crpa
   use m_zmel,only: build_zmel, zmel !,get_zmel_init1,get_zmel_init2
   use m_freq,only: npm, nwhis
-  use m_genallcf_v3,only:  nsp=>nspin,nspx,nspc,ndima,nctot, nband,plat,alat
+  use m_struct_from_lmf,only: nsp=>nspin,nspc,plat,alat,nband; use m_gw_product_basis,only: nspx,ndima; use m_core_state,only: nctot
   use m_read_bzdata,only:  nqbz,ginv,nqibz,qbz,  rk=>qbz,wk=>wbz,wik=>wibz
   use m_rdpp,only: nbloch
   use m_readqg,only: ngpmx,ngcmx

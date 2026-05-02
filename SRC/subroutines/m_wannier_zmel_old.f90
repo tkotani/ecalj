@@ -1,6 +1,6 @@
 module m_zmel_old !for wannier part This will be removed soon. 
-  use m_genallcf_v3,only: natom,nspin,nn,nnv,nnc,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc, niw, nband
-  use m_genallcf_v3,only: alat,esmr,nlnmv,nlnmc,icore,ncore,plat,pos,z,ecore,mnl=>nlnm,nl,nn,nlnmx,il,in,im
+  use m_struct_from_lmf,only: natom,nspin,nnv,nnc,nband; use m_gw_product_basis,only: nn,nlnx,nlnxv,nlnxc,nlnmx,nlnmxv,nlnmxc; use m_gw_user_config,only: niw
+  use m_struct_from_lmf,only: alat,plat,pos,z,nl; use m_gw_user_config,only: esmr; use m_gw_product_basis,only: nlnmv,nlnmc,mnl=>nlnm,nn,nlnmx,il,in,im; use m_core_state,only: icore,ncore,ecore
   use m_hamindex,only: ngrp, symgg=>symops,invg=>invgx
   use m_rdpp,only: Rdpp, nxx,lx,nx,mdimx,nbloch,cgr,ppbrd,nblocha,done_rdpp
   use m_readeigen,only: Readcphif 

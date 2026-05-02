@@ -1,7 +1,7 @@
 module m_sxcf_count !job scheduler for self-energy calculation. icount mechanism
   use m_readeigen,only: Readeval
   use m_itq,only: ntq,nbandmx
-  use m_genallcf_v3,only: nspin,nctot,niw,ecore, nband,mrecg,natom
+  use m_struct_from_lmf,only: nspin,nband,mrecg,natom; use m_core_state,only: nctot,ecore; use m_gw_user_config,only: niw
   use m_read_bzdata,only: qibz,qbz,wk=>wbz,nqibz,nqbz,wklm,lxklm,nq0i, wqt=>wt,q0i, irk
   use m_readfreq_r,only: freq_r, nw_i,nw,freqx,wx=>wwx,nblochpmx,mrecl,expa_,npm,nprecx
 !  use m_readhbe,only: nband,mrecg
