@@ -185,6 +185,11 @@ module m_GWinput
   logical, protected, public :: wan_gauss_head     = .false.
   logical, protected, public :: wan_truncate       = .false.
   logical, protected, public :: mlo_EUinnerAUTOsp  = .false.
+  logical, protected, public :: wan_out_emax_auto  = .false.
+  logical, protected, public :: wan_in_emax_auto   = .false.
+  logical, protected, public :: wan_small_ham      = .false.
+  integer, protected, public :: wan_nsh1           = 1
+  integer, protected, public :: wan_nsh2           = 2
 
   ! Vectors of 3
   integer, protected, public :: n1n2n3dos(3)       = [0, 0, 0]
@@ -459,6 +464,11 @@ contains
     call gv_l(gw, 'wan_gauss_head',            wan_gauss_head)
     call gv_l(gw, 'wan_truncate',              wan_truncate)
     call gv_l(gw, 'mlo_EUinnerAUTOsp',         mlo_EUinnerAUTOsp)
+    call gv_l(gw, 'wan_out_emax_auto',         wan_out_emax_auto)
+    call gv_l(gw, 'wan_in_emax_auto',          wan_in_emax_auto)
+    call gv_l(gw, 'wan_small_ham',             wan_small_ham)
+    call gv_i(gw, 'wan_nsh1',                  wan_nsh1)
+    call gv_i(gw, 'wan_nsh2',                  wan_nsh2)
 
     ! Integer vectors
     call gv_iv3(gw, 'n1n2n3',         n1n2n3)

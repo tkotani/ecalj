@@ -51,7 +51,11 @@ subroutine hmaxloc()
                        tg_wan_mix_2nd  => wan_mix_2nd, &
                        tg_wan_tb_cut   => wan_tb_cut, &
                        tg_wan_nb_below => wan_nb_below, tg_wan_nb_above => wan_nb_above, &
-                       tg_wan_tbcut_rcut => wan_tbcut_rcut, tg_wan_tbcut_heps => wan_tbcut_heps
+                       tg_wan_tbcut_rcut => wan_tbcut_rcut, tg_wan_tbcut_heps => wan_tbcut_heps, &
+                       tg_wan_out_emax_auto => wan_out_emax_auto, &
+                       tg_wan_in_emax_auto => wan_in_emax_auto, &
+                       tg_wan_small_ham => wan_small_ham, &
+                       tg_wan_nsh1 => wan_nsh1, tg_wan_nsh2 => wan_nsh2
   use m_hamindex0,only: readhamindex0,iclasst
   use m_mksym_util,only:mptauof
   ! use m_MPItk,only: m_MPItk_init
@@ -452,8 +456,13 @@ subroutine hmaxloc()
   endif
   write(6,*) 'mloc.heps ', heps
   !     ekino
-  call getkeyvalue("GWinput","wan_out_emax_auto",leauto,default=.false.)
-  call getkeyvalue("GWinput","wan_in_emax_auto",leinauto,default=.false.)
+  if (gwinput_loaded) then
+     leauto   = tg_wan_out_emax_auto
+     leinauto = tg_wan_in_emax_auto
+  else
+     call getkeyvalue("GWinput","wan_out_emax_auto",leauto,default=.false.)
+     call getkeyvalue("GWinput","wan_in_emax_auto",leinauto,default=.false.)
+  endif
 
 
   !c --- read LDA eigenvalues
@@ -962,10 +971,19 @@ subroutine hmaxloc()
     if(allocated(hrotk)) deallocate(hrotk,hrotkp,evecc,eval)
     allocate (hrotk(nwf,nwf,nqbz),hrotkp(nwf,nwf),evecc(nwf,nwf),eval(nwf))
     ! for small Hamiltonian
-    call getkeyvalue("GWinput","wan_small_ham",lsh,default=.false.)
+    if (gwinput_loaded) then
+       lsh = tg_wan_small_ham
+    else
+       call getkeyvalue("GWinput","wan_small_ham",lsh,default=.false.)
+    endif
     if (lsh) then
-      call getkeyvalue("GWinput","wan_nsh1",nsh1, default=1 )
-      call getkeyvalue("GWinput","wan_nsh2",nsh2, default=2 )
+      if (gwinput_loaded) then
+         nsh1 = tg_wan_nsh1
+         nsh2 = tg_wan_nsh2
+      else
+         call getkeyvalue("GWinput","wan_nsh1",nsh1, default=1 )
+         call getkeyvalue("GWinput","wan_nsh2",nsh2, default=2 )
+      endif
       write(6,*)'SmallHam on',nsh1,nsh2
       nsh = nsh2 - nsh1 + 1
       if (is == 1) then
