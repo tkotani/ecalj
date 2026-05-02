@@ -30,7 +30,7 @@ module m_GWinput
   ! Sigma / chi0 mode
   integer, protected, public :: iSigMode     = 3
   integer, protected, public :: niw          = 10
-  integer, protected, public :: nband_chi0   = 999
+  integer, protected, public :: nband_chi0   = 99999  ! legacy extension.f90 default; effectively "all bands"
   ! EMINforGW/EMAXforGW: legacy reads as REAL with default ±99999d0
   real(8), protected, public :: EMINforGW    = -99999.0d0
   real(8), protected, public :: EMAXforGW    = 99999.0d0
@@ -83,10 +83,11 @@ module m_GWinput
   real(8), protected, public :: wan_conv_end = 1.0d-8
   real(8), protected, public :: wan_max_1st  = 0.1d0
   real(8), protected, public :: wan_max_2nd  = 0.3d0
-  real(8), protected, public :: wan_in_emin  = -10.0d0
-  real(8), protected, public :: wan_in_emax  = 4.0d0
-  real(8), protected, public :: wan_out_emin = -1.05d0
-  real(8), protected, public :: wan_out_emax = 2.4d0
+  ! wan_*_emin/emax sentinels: legacy uses 999/-999 to force user spec via leout/lein gate.
+  real(8), protected, public :: wan_in_emin  = 999.0d0
+  real(8), protected, public :: wan_in_emax  = -999.0d0
+  real(8), protected, public :: wan_out_emin = 999.0d0
+  real(8), protected, public :: wan_out_emax = -999.0d0
   logical, protected, public :: wan_in_ewin  = .false.
 
   !-----------------------------------------------------------------
