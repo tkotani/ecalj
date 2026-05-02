@@ -346,7 +346,12 @@ integer(4) function verbose()
   integer(4):: ret
   integer(4),save::verbosex
   if(init) then
-     inquire(file='GWinput',exist=ggg)
+     block
+       logical :: have_toml
+       inquire(file='GWinput',exist=ggg)
+       inquire(file='GWinput.toml',exist=have_toml)
+       ggg = ggg .or. have_toml
+     end block
      if(ggg) then
         call gwinput_init()
         if (gwinput_loaded) then

@@ -30,7 +30,10 @@ contains
                          tg_QforEPSunita => QforEPSunita, &
                          tg_QforEPSau    => QforEPSau, &
                          tg_QforEPSIBZ   => QforEPSIBZ, &
-                         tg_QforEPSLIncLeft => QforEPSLIncLeft
+                         tg_QforEPSLIncLeft => QforEPSLIncLeft, &
+                         tg_q_eps   => q_eps,   tg_n_eps   => n_eps, &
+                         tg_q_epsl  => q_epsl,  tg_qend_epsl => qend_epsl, &
+                         tg_idx_epsl => idx_epsl, tg_n_epsl => n_epsl
     use m_getqforgw,only: getqonly,qx,nq
     intent(in)         iq0pin,alat,plat,qlat,nnn,alp,alpv,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,lnq0iadd
     integer:: iq0pin !    logical:: newoffsetG
@@ -107,28 +110,57 @@ contains
           allocate(epslgroup(nq0i), source=0) !dummy
        else
           write(6,*)'==== Readin <QforEPS>or<QforEPSL> in GWinput === '
-          call getkeyvalue("GWinput","<QforEPS>", unit=ifinin,status=nq0i00,errstop='off')
-          nq0i00 =max(nq0i00,0)
-          if(nq0i00>0) close(ifinin)
-          print *,' end of reaing QforEPS nq0i00',nq0i00,ifinin
-          call getkeyvalue("GWinput","<QforEPSL>",unit=ifinin,status=nq0i0,errstop='off')
-          nq0i0  =max(nq0i0,0)
-          print *,' end of reaing QforEPSL nq0i0',nq0i0,ifinin
-          if(nq0i0>0) then
-             allocate( ndiv(nq0i0) )
-             do i=1,nq0i0
-                read(ifinin,*) qdum(1:6), ndiv(i)
-             enddo
-             nq0i = nq0i00 + sum(ndiv)
-             close(ifinin)
+          if (gwinput_loaded) then
+             nq0i00 = tg_n_eps
+             nq0i0  = tg_n_epsl
+             if (nq0i0 > 0) then
+                allocate(ndiv(nq0i0))
+                ndiv = tg_idx_epsl
+                nq0i = nq0i00 + sum(ndiv)
+             else
+                nq0i = nq0i00
+             endif
           else
-             nq0i = nq0i00
+             call getkeyvalue("GWinput","<QforEPS>", unit=ifinin,status=nq0i00,errstop='off')
+             nq0i00 =max(nq0i00,0)
+             if(nq0i00>0) close(ifinin)
+             print *,' end of reaing QforEPS nq0i00',nq0i00,ifinin
+             call getkeyvalue("GWinput","<QforEPSL>",unit=ifinin,status=nq0i0,errstop='off')
+             nq0i0  =max(nq0i0,0)
+             print *,' end of reaing QforEPSL nq0i0',nq0i0,ifinin
+             if(nq0i0>0) then
+                allocate( ndiv(nq0i0) )
+                do i=1,nq0i0
+                   read(ifinin,*) qdum(1:6), ndiv(i)
+                enddo
+                nq0i = nq0i00 + sum(ndiv)
+                close(ifinin)
+             else
+                nq0i = nq0i00
+             endif
           endif
           if(nq0i <=0) call rx( 'There are neither <QforEPS> nor <QforEPSL>.')
           allocate(epslgroup(nq0i))
           epslgroup=0
           allocate( q0i(3,nq0i) )
           print *,' nq0i=',nq0i
+          if (gwinput_loaded) then
+             do i = 1, nq0i00
+                q0i(1:3,i) = tg_q_eps(:,i)
+                if (unita) q0i(:,i) = q0i(:,i)/tpioa
+                write(6,"('<QforEPS> ' 3f12.8)") q0i(:,i)
+             enddo
+             if (nq0i0 > 0) then
+                allocate(qmin(3,nq0i0), qmax(3,nq0i0))
+                do i = 1, nq0i0
+                   qmin(:,i) = tg_q_epsl(:,i)
+                   qmax(:,i) = tg_qend_epsl(:,i)
+                   if (unita) qmin(:,i) = qmin(:,i)/tpioa
+                   if (unita) qmax(:,i) = qmax(:,i)/tpioa
+                   write(6,"('<QforEPSL>',3f12.8,2x,3f12.8,i5)") qmin(:,i),qmax(:,i),ndiv(i)
+                enddo
+             endif
+          else
           if(nq0i00>0) then
              call getkeyvalue("GWinput","<QforEPS>",unit=ifinin,status=nq0i00)
              do i=1,nq0i00
@@ -148,6 +180,10 @@ contains
                 write(6,"('<QforEPSL>',3f12.8,2x,3f12.8,i5)")qmin(:,i),qmax(:,i),ndiv(i)
              enddo
              close(ifinin)
+          endif
+          endif    ! end of (gwinput_loaded) vs legacy
+          ! Shared: interpolate q0i from QforEPSL (qmin, qmax, ndiv).
+          if (nq0i0 > 0) then
              ni = nq0i00
              do il=1, nq0i0
                 do i=1, ndiv(il)

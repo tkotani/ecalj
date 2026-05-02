@@ -4,7 +4,8 @@ module m_getQforGW
   use m_keyvalue,only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, &
                        tg_EMAXforGW => EMAXforGW, tg_EMINforGW => EMINforGW, &
-                       tg_QforGWIBZ => QforGWIBZ
+                       tg_QforGWIBZ => QforGWIBZ, &
+                       tg_q_qgw => q_qgw, tg_n_qgw => n_qgw
   use m_ftox
   use m_nvfortran
   integer,public,protected :: nbmin,nbmax,nq
@@ -57,36 +58,47 @@ contains
     logical:: ibzqq
     real(8),allocatable::eqt(:)
     real(8)::qq(3)
-    call getkeyvalue("GWinput","<QforGW>",unit=ifqpnt,errstop='off',status=ret)
-    nq=0
-    if(ret>0) then !read <QforGW> section
-       k=0
-       do 
-          k=k+1
-          read(ifqpnt,*,end=1012,err=1012) qq(1:3)
-          write(6,*)k,qq
-       enddo
-1012   continue
-       nq=k-1
-       close(ifqpnt)
-    endif
-    write(6,*)' Readin from QforGW :nq=',nq
     call gwinput_init()
     if (gwinput_loaded) then
-       ibzqq = tg_QforGWIBZ
-    else
-       call getkeyvalue("GWinput","QforGWIBZ",ibzqq,default=.false.)
-    endif
-    if(nq==0.or.ibzqq) then
-       nq=nqibz
-       allocate(qx(3,nq),source= qibz(1:3,1:nq))
-    else    
-       call getkeyvalue("GWinput","<QforGW>",unit=ifqpnt,errstop='OFF',status=ret)
-       allocate(qx(3,nq))
-       do k=1,nq
-          read(ifqpnt,*) qx(1:3,k)
+       nq = tg_n_qgw
+       do k = 1, nq
+          write(6,*) k, tg_q_qgw(:,k)
        enddo
-       if(ret>0) close(ifqpnt)
+       ibzqq = tg_QforGWIBZ
+       write(6,*)' Readin from QforGW :nq=',nq
+       if (nq == 0 .or. ibzqq) then
+          nq = nqibz
+          allocate(qx(3, nq), source = qibz(1:3, 1:nq))
+       else
+          allocate(qx(3, nq), source = tg_q_qgw)
+       endif
+    else
+       call getkeyvalue("GWinput","<QforGW>",unit=ifqpnt,errstop='off',status=ret)
+       nq=0
+       if(ret>0) then !read <QforGW> section
+          k=0
+          do
+             k=k+1
+             read(ifqpnt,*,end=1012,err=1012) qq(1:3)
+             write(6,*)k,qq
+          enddo
+1012      continue
+          nq=k-1
+          close(ifqpnt)
+       endif
+       write(6,*)' Readin from QforGW :nq=',nq
+       call getkeyvalue("GWinput","QforGWIBZ",ibzqq,default=.false.)
+       if(nq==0.or.ibzqq) then
+          nq=nqibz
+          allocate(qx(3,nq),source= qibz(1:3,1:nq))
+       else
+          call getkeyvalue("GWinput","<QforGW>",unit=ifqpnt,errstop='OFF',status=ret)
+          allocate(qx(3,nq))
+          do k=1,nq
+             read(ifqpnt,*) qx(1:3,k)
+          enddo
+          if(ret>0) close(ifqpnt)
+       endif
     endif
   end subroutine getqonly
 endmodule m_getQforGW

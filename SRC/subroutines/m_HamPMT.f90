@@ -5,7 +5,9 @@ module m_HamPMT
    use m_ftox
    use m_lmfinit,only: oveps
    use m_keyvalue,only: getkeyvalue
-   use m_GWinput, only: gwinput_init, gwinput_loaded, tg_mlo_method => mlo_method
+   use m_GWinput, only: gwinput_init, gwinput_loaded, tg_mlo_method => mlo_method, &
+                        tg_n_worb => n_worb, tg_worb_iatom => worb_iatom, &
+                        tg_worb_lm => worb_lm, tg_worb_nlm => worb_nlm
    use m_hreduction,only: hreduction
    real(8),external::tolq !eps=1d-8
    real(8),allocatable,protected:: plat(:,:),pos(:,:),qlat(:,:),symops(:,:,:)
@@ -106,7 +108,7 @@ contains
       socmatrix=cmdopt0('--socmatrix')
       ReadInfoFromGWinput: block ! Input orbital index for MLO, stored into idmto (s,p,d=1,2,3,4,5,6,7,8,9)
         use m_nvfortran,only : findloc
-        integer::lmindex(16,nbas),ifmloc,ret,lm
+        integer::lmindex(16,nbas),ifmloc,ret,lm,iw,ibw,nlmw
         character(256):: labl,aaa
         call gwinput_init()
         if (gwinput_loaded) then
@@ -115,18 +117,29 @@ contains
           call getkeyvalue("GWinput","mlo_method",mlomethod,default=0)
         endif
 !        mlomethod=-999
-        call getkeyvalue("GWinput","<Worb>",unit=ifmloc,status=ret)
-        do 
-          read(ifmloc,"(a)") aaa
-          if(aaa(1:1) == '!') then
-            read(aaa,*)
-            cycle
-          endif
-          aaa=trim(aaa)//repeat(' -999 ',16)
-          read(aaa,*,end=1201,err=1201) ib,labl,lmindex(1:16,ib)
-        enddo
-1201    continue
-        close(ifmloc)
+        lmindex = -999
+        if (gwinput_loaded) then
+           ! Reconstruct lmindex(:,ib) from structured Worb data
+           do iw = 1, tg_n_worb
+              ibw  = tg_worb_iatom(iw)
+              nlmw = tg_worb_nlm(iw)
+              if (ibw < 1 .or. ibw > nbas) cycle
+              lmindex(1:nlmw, ibw) = tg_worb_lm(1:nlmw, iw)
+           enddo
+        else
+           call getkeyvalue("GWinput","<Worb>",unit=ifmloc,status=ret)
+           do
+             read(ifmloc,"(a)") aaa
+             if(aaa(1:1) == '!') then
+               read(aaa,*)
+               cycle
+             endif
+             aaa=trim(aaa)//repeat(' -999 ',16)
+             read(aaa,*,end=1201,err=1201) ib,labl,lmindex(1:16,ib)
+           enddo
+1201       continue
+           close(ifmloc)
+        endif
         nn=0
         lold=-999
 !        nskip=0

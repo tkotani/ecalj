@@ -100,6 +100,11 @@ module m_gw_product_basis
 contains
   subroutine gw_product_basis_init(incwfx)
     use m_keyvalue, only: getkeyvalue
+    use m_GWinput, only: gwinput_init, gwinput_loaded, &
+                         tg_pb_tolerance => pb_tolerance, tg_pb_lcutmx => pb_lcutmx, &
+                         tg_pb_nlx => pb_nlx, tg_pb_n_nlx => pb_n_nlx, &
+                         tg_pb_valence => pb_valence, tg_pb_n_val => pb_n_val, &
+                         tg_pb_core => pb_core, tg_pb_n_core => pb_n_core
     use m_struct_from_lmf, only: nspin, nspc
     integer, intent(in) :: incwfx
     integer :: ifi, ret, ix, ixoff, lx, iatom, iatomt, lt, n, nt, ind, ncorex, l, m, lm, nlx
@@ -108,6 +113,7 @@ contains
     integer, allocatable :: nindxv(:,:), occv(:,:,:), unoccv(:,:,:), occc(:,:,:), unoccc(:,:,:), ncwf2(:,:,:)
     character(1000) :: tolchar
     logical :: readon
+    integer :: ntol
 
     !---- ReadProductBasis ----
     allocate(nindxv(nl,natom), nindxc(nl,natom), &
@@ -118,65 +124,128 @@ contains
     ncwf  = 99
     ncwf2 = 99
     if(ipr) write(stdo,*) ' reading <PRODUCT_BASIS> section'
-    call getkeyvalue("GWinput","<PRODUCT_BASIS>", unit=ifi, status=ret)
-    read(ifi,*)
-    read(ifi,"(a)") tolchar
-    readon = .false.
-    lx = 0
-    do ix = 1, 1000
-       if(.NOT. readon .AND. tolchar(ix:ix) /= ' ') then
-          readon = .true.
-          ixoff  = ix
-       endif
-       if(readon .AND. tolchar(ix:ix) == ' ') then
-          read(tolchar(ixoff:ix), *, err=1097) cutbase(lx)
-          if(lx == 2*(nl-1)) goto 1098
-          readon = .false.
-          lx = lx + 1
-       endif
-    enddo
-1097 continue
-    cutbase(lx:) = cutbase(lx-1)
-1098 continue
-    do lx = 0, 2*(nl-1)
-       if(ipr) write(stdo,"(' lx=',i3,' readin tolerance=',d11.3)") lx, cutbase(lx)
-    enddo
-    read(ifi,*)
-    allocate(lcutmxa(natom))
-    read(ifi,*) lcutmxa(1:natom)
-    lcutmx = lcutmxa(1)
-    if(ipr) write(stdo,'(20i3)') lcutmxa(1:natom)
-    if(ipr) write(stdo,"(' --- prod section: lcutmx cutbase='i3,100d11.3)") lcutmx, cutbase
-    read(ifi,*)
-    do iatom = 1, natom
-       do l = 0, lmxa(iatom)
-          read(ifi,*) iatomt, lt, nindxv(l+1,iatom), nindxc(l+1,iatom)
-          if(ipr) write(stdo,*) iatomt, lt, nindxv(l+1,iatom), nindxc(l+1,iatom)
+    call gwinput_init()
+    if (gwinput_loaded) then
+       ! Tolerance: pad/truncate to 0..2*(nl-1)
+       ntol = 0
+       if (allocated(tg_pb_tolerance)) ntol = size(tg_pb_tolerance)
+       do lx = 0, 2*(nl-1)
+          if (lx + 1 <= ntol) then
+             cutbase(lx) = tg_pb_tolerance(lx+1)
+          else if (ntol > 0) then
+             cutbase(lx) = tg_pb_tolerance(ntol)
+          endif
        enddo
-    enddo
-    if(ipr) write(stdo,*) ' --- valence product basis section'
-    occv   = 0
-    unoccv = 0
-    read(ifi,*)
-    do iatom = 1, natom
-       do l = 0, lmxa(iatom)
-          do n = 1, nindxv(l+1,iatom)
-             read(ifi,*)                 iatomt, lt, nt, occv(l+1,n,iatom), unoccv(l+1,n,iatom)
-             if(ipr) write(stdo,"(100i3)") iatomt, lt, nt, occv(l+1,n,iatom), unoccv(l+1,n,iatom)
+       do lx = 0, 2*(nl-1)
+          if(ipr) write(stdo,"(' lx=',i3,' readin tolerance=',d11.3)") lx, cutbase(lx)
+       enddo
+       allocate(lcutmxa(natom))
+       if (allocated(tg_pb_lcutmx) .and. size(tg_pb_lcutmx) >= natom) then
+          lcutmxa(1:natom) = tg_pb_lcutmx(1:natom)
+       else if (allocated(tg_pb_lcutmx) .and. size(tg_pb_lcutmx) > 0) then
+          lcutmxa(:) = tg_pb_lcutmx(1)
+       else
+          lcutmxa(:) = 0
+       endif
+       lcutmx = lcutmxa(1)
+       if(ipr) write(stdo,'(20i3)') lcutmxa(1:natom)
+       ! nlx: [iatom, l, nnvv, nnc]
+       do ix = 1, tg_pb_n_nlx
+          iatomt = tg_pb_nlx(1, ix); lt = tg_pb_nlx(2, ix)
+          if (iatomt < 1 .or. iatomt > natom) cycle
+          if (lt+1 < 1 .or. lt+1 > nl) cycle
+          nindxv(lt+1, iatomt) = tg_pb_nlx(3, ix)
+          nindxc(lt+1, iatomt) = tg_pb_nlx(4, ix)
+          if(ipr) write(stdo,*) iatomt, lt, nindxv(lt+1,iatomt), nindxc(lt+1,iatomt)
+       enddo
+       ! valence: [iatom, l, n, occ, unocc] -- per-(iatom,l,n) row
+       if(ipr) write(stdo,*) ' --- valence product basis section'
+       occv   = 0
+       unoccv = 0
+       do ix = 1, tg_pb_n_val
+          iatomt = tg_pb_valence(1, ix); lt = tg_pb_valence(2, ix); nt = tg_pb_valence(3, ix)
+          if (iatomt < 1 .or. iatomt > natom) cycle
+          if (lt+1 < 1 .or. lt+1 > nl) cycle
+          if (nt < 1 .or. nt > nnv) cycle
+          occv  (lt+1, nt, iatomt) = tg_pb_valence(4, ix)
+          unoccv(lt+1, nt, iatomt) = tg_pb_valence(5, ix)
+          if(ipr) write(stdo,"(100i3)") iatomt, lt, nt, occv(lt+1,nt,iatomt), unoccv(lt+1,nt,iatomt)
+       enddo
+       ! core: [iatom, l, n, occ, unocc, forX0, forSxc]
+       if(ipr) write(stdo,*) ' --- core product basis section'
+       do ix = 1, tg_pb_n_core
+          iatomt = tg_pb_core(1, ix); lt = tg_pb_core(2, ix); nt = tg_pb_core(3, ix)
+          if (iatomt < 1 .or. iatomt > natom) cycle
+          if (lt+1 < 1 .or. lt+1 > nl) cycle
+          if (nt < 1 .or. nt > nnc) cycle
+          occc  (lt+1, nt, iatomt) = tg_pb_core(4, ix)
+          unoccc(lt+1, nt, iatomt) = tg_pb_core(5, ix)
+          ncwf  (lt+1, nt, iatomt) = tg_pb_core(6, ix)
+          ncwf2 (lt+1, nt, iatomt) = tg_pb_core(7, ix)
+          if(ipr) write(stdo,"(100i3)") iatomt, lt, nt, occc(lt+1,nt,iatomt), unoccc(lt+1,nt,iatomt), &
+                                          ncwf(lt+1,nt,iatomt), ncwf2(lt+1,nt,iatomt)
+       enddo
+    else
+       call getkeyvalue("GWinput","<PRODUCT_BASIS>", unit=ifi, status=ret)
+       read(ifi,*)
+       read(ifi,"(a)") tolchar
+       readon = .false.
+       lx = 0
+       do ix = 1, 1000
+          if(.NOT. readon .AND. tolchar(ix:ix) /= ' ') then
+             readon = .true.
+             ixoff  = ix
+          endif
+          if(readon .AND. tolchar(ix:ix) == ' ') then
+             read(tolchar(ixoff:ix), *, err=1097) cutbase(lx)
+             if(lx == 2*(nl-1)) goto 1098
+             readon = .false.
+             lx = lx + 1
+          endif
+       enddo
+1097   continue
+       cutbase(lx:) = cutbase(lx-1)
+1098   continue
+       do lx = 0, 2*(nl-1)
+          if(ipr) write(stdo,"(' lx=',i3,' readin tolerance=',d11.3)") lx, cutbase(lx)
+       enddo
+       read(ifi,*)
+       allocate(lcutmxa(natom))
+       read(ifi,*) lcutmxa(1:natom)
+       lcutmx = lcutmxa(1)
+       if(ipr) write(stdo,'(20i3)') lcutmxa(1:natom)
+       if(ipr) write(stdo,"(' --- prod section: lcutmx cutbase='i3,100d11.3)") lcutmx, cutbase
+       read(ifi,*)
+       do iatom = 1, natom
+          do l = 0, lmxa(iatom)
+             read(ifi,*) iatomt, lt, nindxv(l+1,iatom), nindxc(l+1,iatom)
+             if(ipr) write(stdo,*) iatomt, lt, nindxv(l+1,iatom), nindxc(l+1,iatom)
           enddo
        enddo
-    enddo
-    if(ipr) write(stdo,*) ' --- core product basis section'
-    read(ifi,*)
-    do iatom = 1, natom
-       do l = 0, lmxa(iatom)
-          do n = 1, nindxc(l+1,iatom)
-             read(ifi,*)                 iatomt, lt, nt, occc(l+1,n,iatom), unoccc(l+1,n,iatom), ncwf(l+1,n,iatom), ncwf2(l+1,n,iatom)
-             if(ipr) write(stdo,"(100i3)") iatomt, lt, nt, occc(l+1,n,iatom), unoccc(l+1,n,iatom), ncwf(l+1,n,iatom), ncwf2(l+1,n,iatom)
+       if(ipr) write(stdo,*) ' --- valence product basis section'
+       occv   = 0
+       unoccv = 0
+       read(ifi,*)
+       do iatom = 1, natom
+          do l = 0, lmxa(iatom)
+             do n = 1, nindxv(l+1,iatom)
+                read(ifi,*)                 iatomt, lt, nt, occv(l+1,n,iatom), unoccv(l+1,n,iatom)
+                if(ipr) write(stdo,"(100i3)") iatomt, lt, nt, occv(l+1,n,iatom), unoccv(l+1,n,iatom)
+             enddo
           enddo
        enddo
-    enddo
-    close(ifi)
+       if(ipr) write(stdo,*) ' --- core product basis section'
+       read(ifi,*)
+       do iatom = 1, natom
+          do l = 0, lmxa(iatom)
+             do n = 1, nindxc(l+1,iatom)
+                read(ifi,*)                 iatomt, lt, nt, occc(l+1,n,iatom), unoccc(l+1,n,iatom), ncwf(l+1,n,iatom), ncwf2(l+1,n,iatom)
+                if(ipr) write(stdo,"(100i3)") iatomt, lt, nt, occc(l+1,n,iatom), unoccc(l+1,n,iatom), ncwf(l+1,n,iatom), ncwf2(l+1,n,iatom)
+             enddo
+          enddo
+       enddo
+       close(ifi)
+    endif
     if(incwfx == -1) then
        if(ipr) write(stdo,*) ' ### incwf=-1 Use ForSxc for core'
        ncwf = ncwf2

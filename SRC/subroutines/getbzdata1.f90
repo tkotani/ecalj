@@ -585,7 +585,12 @@ contains
     logical,save:: oncew=.true.
     logical:: ggg
     if(oncew) then ! BZ division setting.
-       inquire(file='GWinput',exist=ggg)
+       block
+         logical :: have_toml
+         inquire(file='GWinput',exist=ggg)
+         inquire(file='GWinput.toml',exist=have_toml)
+         ggg = ggg .or. have_toml
+       end block
        if(.not.ggg) then
           adiv=1d0
        else

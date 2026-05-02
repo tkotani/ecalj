@@ -113,29 +113,48 @@ contains
                            tg_mlo_ELinner => mlo_ELinner, tg_mlo_ewid   => mlo_ewid, &
                            tg_mlo_WTouter => mlo_WTouter, tg_mlo_CLhard => mlo_CLhard, &
                            tg_mlo_ELhard  => mlo_ELhard, &
-                           tg_mlo_EUinnerAUTOsp => mlo_EUinnerAUTOsp
-      integer::lmindex(16),ifmloc,ret,imto,lmx,ib,idmtox(nmtosum),lindexx(nmtosum)
-      call getkeyvalue("GWinput","<Worb>",unit=ifmloc,status=ret)
+                           tg_mlo_EUinnerAUTOsp => mlo_EUinnerAUTOsp, &
+                           tg_n_worb => n_worb, tg_worb_iatom => worb_iatom, &
+                           tg_worb_lm => worb_lm, tg_worb_nlm => worb_nlm
+      integer::lmindex(16),ifmloc,ret,imto,lmx,ib,idmtox(nmtosum),lindexx(nmtosum),iw
+      call gwinput_init()
       nMLO=0
-      do 
-        read(ifmloc,"(a)") aaa
-        if(aaa(1:1) == '!') then
-          read(aaa,*)
-          cycle
-        endif
-        aaa=trim(aaa)//repeat(' -999 ',16)
-        read(aaa,*,end=1201,err=1201) ib,a,lmindex(1:16)
-        lmx= findloc(lmindex,value=-999,dim=1)-1
-        write(6,*) ib,lmx,lmindex(1:lmx)
-        do i1 =1,lmx
-          nMLO=nMLO+1
-          imto= sum(nmtoi(1:ib-1)) + lmindex(i1) !MTO index. We use EH channel only.
-          idmtox(nMLO) = imto
-          lindexx(nMLO)= l_tableM(imto)
-        enddo
-      enddo
-1201  continue
-      close(ifmloc)
+      if (gwinput_loaded) then
+         do iw = 1, tg_n_worb
+            ib  = tg_worb_iatom(iw)
+            lmx = tg_worb_nlm(iw)
+            lmindex = -999
+            lmindex(1:lmx) = tg_worb_lm(1:lmx, iw)
+            write(6,*) ib, lmx, lmindex(1:lmx)
+            do i1 = 1, lmx
+               nMLO = nMLO + 1
+               imto = sum(nmtoi(1:ib-1)) + lmindex(i1)
+               idmtox(nMLO) = imto
+               lindexx(nMLO) = l_tableM(imto)
+            enddo
+         enddo
+      else
+         call getkeyvalue("GWinput","<Worb>",unit=ifmloc,status=ret)
+         do
+           read(ifmloc,"(a)") aaa
+           if(aaa(1:1) == '!') then
+             read(aaa,*)
+             cycle
+           endif
+           aaa=trim(aaa)//repeat(' -999 ',16)
+           read(aaa,*,end=1201,err=1201) ib,a,lmindex(1:16)
+           lmx= findloc(lmindex,value=-999,dim=1)-1
+           write(6,*) ib,lmx,lmindex(1:lmx)
+           do i1 =1,lmx
+             nMLO=nMLO+1
+             imto= sum(nmtoi(1:ib-1)) + lmindex(i1) !MTO index. We use EH channel only.
+             idmtox(nMLO) = imto
+             lindexx(nMLO)= l_tableM(imto)
+           enddo
+         enddo
+1201     continue
+         close(ifmloc)
+      endif
       allocate(idmto, source=idmtox(1:nMLO))
       allocate(lindex,source=lindexx(1:nMLO))
       WTbanddefault=0d0
