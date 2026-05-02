@@ -37,7 +37,7 @@ module m_GWinput
   real(8), protected, public :: emax_sigm    = 3.0d0
   real(8), protected, public :: emax_chi0    = 999.0d0
   real(8), protected, public :: HistBin_ratio = 1.03d0
-  real(8), protected, public :: HistBin_dw   = 1.0d-6
+  real(8), protected, public :: HistBin_dw   = 1.0d-5  ! legacy m_freq default
   real(8), protected, public :: deltaw       = 0.02d0
   real(8), protected, public :: esmr         = 0.003d0
   real(8), protected, public :: delta        = -1.0d-6
