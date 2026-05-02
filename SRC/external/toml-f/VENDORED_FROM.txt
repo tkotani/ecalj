@@ -1,0 +1,17 @@
+toml-f Fortran TOML parser library
+Vendored from: https://github.com/toml-f/toml-f
+Tag/version:   v0.5.0 (commit d5e9270)
+License:       Apache-2.0 OR MIT (dual licensed; see LICENSE-Apache and LICENSE-MIT)
+Author:        Sebastian Ehlert and contributors
+
+Local modifications (minimal):
+  1. CMakeLists.txt: skip enable_testing()/test/ subdir when used as
+     subproject (is-subproject from get_directory_property)
+  2. src/tomlf/ser.f90: removed default initializer
+       type(toml_ser_config) :: config = toml_ser_config()
+     to
+       type(toml_ser_config) :: config
+     to work around nvfortran 26.x ICE
+     (size_of: deferred-size character)
+
+Both files have .orig backups in this directory.

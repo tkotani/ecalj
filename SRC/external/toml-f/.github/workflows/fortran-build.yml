@@ -1,0 +1,202 @@
+name: CI
+
+on: [push, pull_request]
+
+env:
+  BUILD_DIR: _build
+  PIP_PACKAGES: >-
+    meson!=1.8.0
+    cmake
+    ninja
+    gcovr
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        build-type: [debug]
+        toolchain:
+          - {compiler: gcc, version: '12', build: meson}
+          - {compiler: gcc, version: '12', build: cmake}
+
+        include:
+        - os: ubuntu-latest
+          build-type: coverage
+          toolchain: {compiler: gcc, version: '10', build: meson}
+
+        - os: ubuntu-latest
+          build-type: debug
+          toolchain: {compiler: gcc, version: '11', build: meson}
+
+        - os: ubuntu-latest
+          build-type: debug
+          toolchain: {compiler: gcc, version: '13', build: meson}
+
+        - os: ubuntu-latest
+          build-type: debug
+          toolchain: {compiler: gcc, version: '14', build: meson}
+
+        - os: ubuntu-latest
+          build-type: debug
+          toolchain: {compiler: gcc, version: '12', build: fpm}
+
+        # - os: windows-latest
+        #   build: meson
+        #   build-type: debug
+        #   compiler: gcc
+        #   shell: msys2 {0}
+
+    defaults:
+      run:
+        shell: bash
+
+    env:
+      PYTHON_V: 3.9
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_V }}
+
+    - name: Install fpm
+      if: ${{ matrix.toolchain.build == 'fpm' }}
+      uses: fortran-lang/setup-fpm@v7  # fpm 0.11.0
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Prepare for cache restore
+      if: ${{ contains(matrix.toolchain.compiler, 'intel') }}
+      run: |
+        sudo mkdir -p /opt/intel
+        sudo chown $USER /opt/intel
+
+    - name: Cache Intel installation
+      if: ${{ contains(matrix.toolchain.compiler, 'intel') }}
+      id: cache-install
+      uses: actions/cache@v4
+      with:
+        path: /opt/intel/oneapi
+        key: install-${{ matrix.toolchain.compiler }}-${{ matrix.toolchain.version }}-${{ matrix.os }}
+
+    - name: Install GCC Compiler
+      if: ${{ contains(matrix.toolchain.compiler, 'gcc') }}
+      uses: fortran-lang/setup-fortran@v1
+      with:
+        compiler: ${{ matrix.toolchain.compiler }}
+        version: ${{ matrix.toolchain.version }}
+
+    - name: Install Intel Compiler (Linux)
+      if: ${{ contains(matrix.os, 'ubuntu') && contains(matrix.toolchain.compiler, 'intel') && steps.cache-install.outputs.cache-hit != 'true' }}
+      uses: fortran-lang/setup-fortran@v1
+      with:
+        compiler: ${{ matrix.toolchain.compiler }}
+        version: ${{ matrix.toolchain.version }}
+
+    - name: Setup Intel oneAPI environment
+      if: ${{ contains(matrix.toolchain.compiler, 'intel') }}
+      run: |
+        source /opt/intel/oneapi/setvars.sh --force
+        printenv >> $GITHUB_ENV
+
+    - name: Setup environment for Fortran and C compilers
+      run: |
+        if [ ! -n "$FC" ]; then
+          if [ "${{ matrix.toolchain.compiler }}" = "gcc" ]; then
+            FC="gfortran"
+            CC="gcc"
+          elif [ "${{ matrix.toolchain.compiler }}" = "intel" ]; then
+            FC="ifx"
+            CC="icx"
+          elif [ "${{ matrix.toolchain.compiler }}" = "intel-classic" ]; then
+            FC="ifort"
+            CC="icc"
+          fi
+          echo "FC=$FC" >> $GITHUB_ENV
+          echo "CC=$CC" >> $GITHUB_ENV
+        fi
+
+    - name: Install build and test dependencies
+      if: ${{ ! contains(matrix.os, 'windows') }}
+      run: pip3 install ${{ env.PIP_PACKAGES }} ${{ env.PIP_EXTRAS }}
+
+    - name: Configure build (meson)
+      if: ${{ matrix.toolchain.build == 'meson' }}
+      run: >-
+        meson setup ${{ env.BUILD_DIR }}
+        --buildtype=debug
+        --prefix=$PWD/_dist
+        --libdir=lib
+        --warnlevel=0
+        -Db_coverage=${{ env.COVERAGE }}
+        ${{ env.MESON_ARGS }}
+      env:
+        COVERAGE: ${{ matrix.build-type == 'coverage' }}
+        MESON_ARGS: >-
+          ${{ contains(matrix.os, 'windows') && '-Dfortran_link_args=-Wl,--allow-multiple-definition' || '' }}
+
+    - name: Configure build (CMake)
+      if: ${{ matrix.toolchain.build == 'cmake' }}
+      run: >-
+        cmake -B${{ env.BUILD_DIR }}
+        -GNinja
+        -DCMAKE_BUILD_TYPE=Debug
+        -DCMAKE_INSTALL_PREFIX=$PWD/_dist
+        -DCMAKE_INSTALL_LIBDIR=lib
+
+    - name: Build library (fpm)
+      if: ${{ matrix.toolchain.build == 'fpm' }}
+      run: |
+        fpm --version
+        fpm build
+
+    - name: Build library
+      if: ${{ matrix.toolchain.build != 'fpm' }}
+      run: ninja -C ${{ env.BUILD_DIR }}
+
+    - name: Run unit tests (fpm)
+      if: ${{ matrix.toolchain.build == 'fpm' }}
+      run: fpm test
+
+    - name: Run unit tests (meson)
+      if: ${{ matrix.toolchain.build == 'meson' }}
+      run: >-
+         meson test
+         -C ${{ env.BUILD_DIR }}
+         --print-errorlogs
+         --no-rebuild
+         --num-processes 1
+         --suite toml-f
+         -t 2
+      env:
+        OMP_NUM_THREADS: 1,2,1
+
+    - name: Run unit tests (ctest)
+      if: ${{ matrix.toolchain.build == 'cmake' }}
+      run: |
+         ctest --output-on-failure --parallel 2 -R '^toml-f/'
+      working-directory: ${{ env.BUILD_DIR }}
+      env:
+        OMP_NUM_THREADS: 1,2,1
+
+    - name: Create coverage report
+      if: ${{ matrix.toolchain.build == 'meson' && matrix.build-type == 'coverage' }}
+      run:
+         ninja -C ${{ env.BUILD_DIR }} coverage
+
+    - name: Install project
+      if: ${{ matrix.toolchain.build != 'fpm' }}
+      run: |
+        ninja -C ${{ env.BUILD_DIR }} install
+        echo "TOMLF_PREFIX=$PWD/_dist" >> $GITHUB_ENV
+
+    - name: Upload coverage report
+      if: ${{ matrix.toolchain.build == 'meson' && matrix.build-type == 'coverage' }}
+      uses: codecov/codecov-action@v4
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}

@@ -23,6 +23,20 @@ if(NOT DEFINED ENV{FC})
 endif()
 set(FC $ENV{FC})
 
+# Resolve compiler to a full path BEFORE project() so toml-f subproject inherits it cleanly
+if(FC MATCHES "nvfortran")
+  find_program(_FC_FULL mpifort REQUIRED)
+elseif(FC MATCHES "gfortran")
+  find_program(_FC_FULL mpif90 REQUIRED)
+elseif(FC MATCHES "ifort")
+  find_program(_FC_FULL NAMES mpiifort mpifort REQUIRED)
+elseif(FC MATCHES "ifx")
+  find_program(_FC_FULL mpiifx REQUIRED)
+endif()
+if(_FC_FULL)
+  set(CMAKE_Fortran_COMPILER ${_FC_FULL} CACHE FILEPATH "MPI Fortran wrapper" FORCE)
+endif()
+
 project(ecalj LANGUAGES Fortran)
 
 # --- Build Type and Options ---
@@ -102,7 +116,6 @@ elseif(FC MATCHES "ifx")
   set(LIBM -qmkl=parallel -qopenmp)
   set_source_files_properties("../subroutines/m_qplist.f90" PROPERTIES COMPILE_FLAGS "-O0")
 elseif(FC MATCHES "nvfortran")
-  set(CMAKE_Fortran_COMPILER mpifort)
   set(CMAKE_Fortran_FLAGS "-fpic -Mbackslash -traceback")
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -traceback")
   set(LIBM -mp -lmkl_rt)
@@ -113,6 +126,11 @@ endif()
 add_executable(dummy ./dummy.f90)
 target_link_libraries(dummy ${LIBM})
 
+# --- Vendored toml-f (TOML parser, Apache-2.0/MIT). See SRC/external/toml-f/ ---
+# Disable toml-f's test suite (test-drive Fortran source-runs check fails on nvfortran).
+set(BUILD_TESTING OFF CACHE BOOL "Disable toml-f tests" FORCE)
+add_subdirectory(${CMAKE_SOURCE_DIR}/../external/toml-f ${CMAKE_BINARY_DIR}/toml-f)
+
 # --- Main Library and Executables ---
 set(LIB ecaljF)
 add_library(${LIB} SHARED ${SOURCES})
@@ -122,6 +140,7 @@ set_target_properties(${LIB} PROPERTIES
 )
 target_link_options(${LIB} PRIVATE ${LIBM})
 target_compile_options(${LIB} PRIVATE ${FLAGS})
+target_link_libraries(${LIB} PRIVATE toml-f)
 
 set(DELIVER_FILES ${CMAKE_BINARY_DIR}/lib${LIB}.so ${CMAKE_BINARY_DIR}/dummy)
 
@@ -175,6 +194,7 @@ function(add_extended_build VARIANT)
     COMMAND ${CMAKE_COMMAND} -E rm -f ${CMAKE_BINARY_DIR}/lib${LIB}.so)
 
   target_link_options(${LIB} PRIVATE ${LIBM} ${LINK_EXTRA})
+  target_link_libraries(${LIB} PRIVATE toml-f)
   if (VARIANT STREQUAL "gpu" OR VARIANT STREQUAL "mp_gpu")
     if(EXISTS ${GEMMUL8_LIB})
       set(CPP_DEFINITIONS ${CPP_DEFINITIONS} -D__GEMMUL8)
