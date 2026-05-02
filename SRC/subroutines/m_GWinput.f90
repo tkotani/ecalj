@@ -56,8 +56,18 @@ module m_GWinput
   logical, protected, public :: QforEPSLIncLeft = .false.
   logical, protected, public :: tetrakbt     = .false.
   integer, protected, public :: t_tetrakbt   = 0
-  integer, protected, public :: MagAtom      = 0
-  real(8), protected, public, allocatable :: nband_sigm(:)
+  ! MagAtom: variable-length integer array of magnetic-atom site indices.
+  ! Allocated to size(>=1) on load; consumers use size(MagAtom) for count.
+  integer, protected, public, allocatable :: MagAtom(:)
+  ! nband_sigm: legacy reads as a single integer (first token if vector).
+  integer, protected, public :: nband_sigm = 9999999
+
+  ! Additional GW config (added 2026-05-02 for m_readgwinput migration)
+  real(8), protected, public :: ecut_p          = 1.0d10
+  real(8), protected, public :: ecuts_p         = 1.0d10
+  integer, protected, public :: multitet(3)     = [1, 1, 1]
+  real(8), protected, public :: gauss_img       = 1.0d0
+  logical, protected, public :: KeepPositiveCou = .true.
 
   ! Wannier-related
   integer, protected, public :: mlo_emax     = 0
@@ -157,13 +167,16 @@ contains
     call gv_i(gw, 'EMINforGW',     EMINforGW)
     call gv_i(gw, 'EMAXforGW',     EMAXforGW)
     call gv_i(gw, 'BZmesh',        BZmesh)
-    call gv_i(gw, 'MagAtom',       MagAtom)
     call gv_i(gw, 't_tetrakbt',    t_tetrakbt)
     call gv_i(gw, 'mlo_emax',      mlo_emax)
     call gv_i(gw, 'mlo_method',    mlo_method)
     call gv_i(gw, 'wan_maxit_1st', wan_maxit_1st)
     call gv_i(gw, 'wan_maxit_2nd', wan_maxit_2nd)
     call gv_i(gw, 'wan_tb_cut',    wan_tb_cut)
+    ! nband_sigm: legacy reads as integer; TOML may have list[float] -- take first as int
+    call gv_iv_first(gw, 'nband_sigm', nband_sigm)
+    ! MagAtom: VLA -- accept scalar or vector
+    call gv_iv_alloc(gw, 'MagAtom', MagAtom)
 
     ! Real scalars
     call gv_r(gw, 'QpGcut_psi',    QpGcut_psi)
@@ -190,6 +203,11 @@ contains
     call gv_r(gw, 'wan_out_emin',  wan_out_emin)
     call gv_r(gw, 'wan_out_emax',  wan_out_emax)
 
+    ! Newly added (m_readgwinput migration)
+    call gv_r(gw, 'ecut_p',          ecut_p)
+    call gv_r(gw, 'ecuts_p',         ecuts_p)
+    call gv_r(gw, 'gauss_img',       gauss_img)
+
     ! Boolean flags
     call gv_l(gw, 'GaussSmear',      GaussSmear)
     call gv_l(gw, 'KeepEigen',       KeepEigen)
@@ -202,13 +220,12 @@ contains
     call gv_l(gw, 'QforEPSLIncLeft', QforEPSLIncLeft)
     call gv_l(gw, 'tetrakbt',        tetrakbt)
     call gv_l(gw, 'wan_in_ewin',     wan_in_ewin)
+    call gv_l(gw, 'KeepPositiveCou', KeepPositiveCou)
 
     ! Integer vectors
     call gv_iv3(gw, 'n1n2n3',    n1n2n3)
     call gv_iv3(gw, 'n1n2n3eps', n1n2n3eps)
-
-    ! Variable-length real vector
-    call gv_rv_alloc(gw, 'nband_sigm', nband_sigm)
+    call gv_iv3(gw, 'multitet',  multitet)
   end subroutine load_gw_section
 
 
@@ -327,6 +344,55 @@ contains
     real(8), allocatable,      intent(out) :: var(:)
     type(toml_array), pointer :: arr
     integer :: i, n
+    call get_value(tbl, key, arr, requested=.false.)
+    if (.not. associated(arr)) return
+    n = len(arr)
+    allocate(var(n))
+    do i = 1, n
+       call get_value(arr, i, var(i))
+    enddo
+  end subroutine
+
+  !> Read an int that may be stored as scalar or as the first element of an array.
+  !  Used for keys like 'nband_sigm' where TOML may have list[float] but legacy
+  !  consumes a single int.
+  subroutine gv_iv_first(tbl, key, var)
+    type(toml_table), pointer, intent(in)    :: tbl
+    character(*),              intent(in)    :: key
+    integer,                   intent(inout) :: var
+    type(toml_array), pointer :: arr
+    integer :: stat
+    real(8) :: rval
+    ! Try scalar integer first
+    call get_value(tbl, key, var, stat=stat)
+    if (stat == 0) return
+    ! Try scalar real (truncate to int)
+    call get_value(tbl, key, rval, stat=stat)
+    if (stat == 0) then
+       var = int(rval)
+       return
+    endif
+    ! Try array, take first element
+    call get_value(tbl, key, arr, requested=.false.)
+    if (.not. associated(arr)) return
+    if (len(arr) < 1) return
+    call get_value(arr, 1, rval, stat=stat)
+    if (stat == 0) var = int(rval)
+  end subroutine
+
+  !> Allocate and fill integer array. If TOML key absent, leaves var unallocated.
+  subroutine gv_iv_alloc(tbl, key, var)
+    type(toml_table), pointer, intent(in)  :: tbl
+    character(*),              intent(in)  :: key
+    integer, allocatable,      intent(out) :: var(:)
+    type(toml_array), pointer :: arr
+    integer :: i, n, stat, scal
+    ! Scalar form 'MagAtom 1' is common; try scalar first
+    call get_value(tbl, key, scal, stat=stat)
+    if (stat == 0) then
+       allocate(var(1)); var(1) = scal
+       return
+    endif
     call get_value(tbl, key, arr, requested=.false.)
     if (.not. associated(arr)) return
     n = len(arr)
