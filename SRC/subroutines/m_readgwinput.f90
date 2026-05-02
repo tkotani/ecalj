@@ -3,17 +3,21 @@ module m_readgwinput
   use m_struct_from_lmf,only: nspin; use m_core_state,only: nctot
   implicit none
   real(8),protected:: egauss,ecut,ecuts,ebmx ,ebmx_sig,ua_
-  integer,protected:: nbmx,nbmx_sig,iSigmode !,nbcutlow_sig !nbcut,nbcut2,
+  integer,protected:: nbmx,nbmx_sig !,nbcutlow_sig !nbcut,nbcut2,
+  ! iSigmode: declared but no external user; commented out 2026-05-02 (dead)
+  !integer,protected:: iSigmode
   integer,protected:: mtet(3),nmbas
   integer,protected,allocatable:: imbas(:)
   logical,protected:: keeppositivecou
   logical,protected,public:: corehole
   real(8),allocatable:: wcorehole(:,:)
 contains
-  subroutine SetIsigmode(ism)
-    integer :: ism
-    isigmode=ism
-  end subroutine SetIsigmode
+  ! SetIsigmode: only callsite was inside this module; with iSigmode dead,
+  ! this routine has no purpose. Commented out 2026-05-02.
+  !subroutine SetIsigmode(ism)
+  !  integer :: ism
+  !  isigmode=ism
+  !end subroutine SetIsigmode
   subroutine ReadGWinputKeys() ! Read values from GWinput
     use m_keyvalue,only: Getkeyvalue
     use m_struct_from_lmf,only: natom,nband
@@ -37,7 +41,7 @@ contains
 !    call getkeyvalue("GWinput","GaussianFilterX0", egauss, default=0d0 )
     !      call getkeyvalue("GWinput","nbcutlow_sig",nbcutlow_sig, default=0 )
 
-    call getkeyvalue("GWinput","iSigMode"  ,iSigMode, default=3 )
+    !call getkeyvalue("GWinput","iSigMode"  ,iSigMode, default=3 )  !iSigmode dead
     call getkeyvalue("GWinput","nband_sigm",nbmx_sig, default=9999999)
     call getkeyvalue("GWinput","emax_sigm", ebmx_sig, default=1d10)
 
