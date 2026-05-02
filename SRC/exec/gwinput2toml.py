@@ -33,9 +33,15 @@ def fortran_num_to_python(s: str) -> str:
 
 
 def strip_comment(line: str) -> str:
-    """Remove trailing comment after '!' (preserve leading whitespace before any '!')."""
-    idx = line.find("!")
-    return line[:idx] if idx >= 0 else line
+    """Remove trailing comment after '!' or '#' (whichever comes first).
+
+    GWinput uses '!' as the documented comment marker but some files also
+    use '#' inline (e.g. '2 2 2 2  #4 4 3 3' on the lcutmx line). Strip both.
+    """
+    cuts = [i for i in (line.find("!"), line.find("#")) if i >= 0]
+    if not cuts:
+        return line
+    return line[:min(cuts)]
 
 
 def parse_value(tokens: list[str], key: str) -> object:
@@ -105,35 +111,43 @@ def parse_product_basis(block_lines: list[str]) -> dict:
         pb["lcutmx"] = [int(t) for t in clean[idx].split()]
         idx += 1
 
-    # nlx table: "atom l nnvv nnc"
-    # Skip header, collect rows of 4 ints
-    while idx < len(clean) and not re.match(r"^\d+\s+\d+\s+\d+\s+\d+\s*$", clean[idx]):
+    def line_starts_with_n_ints(line: str, n: int) -> bool:
+        """Return True iff line begins with at least n whitespace-separated ints."""
+        toks = line.split()
+        if len(toks) < n:
+            return False
+        for t in toks[:n]:
+            try:
+                int(t)
+            except ValueError:
+                return False
+        return True
+
+    # nlx table: "atom l nnvv nnc" — at least 4 ints (some files have trailing fields)
+    while idx < len(clean) and not line_starts_with_n_ints(clean[idx], 4):
         idx += 1
     nlx = []
-    while idx < len(clean) and re.match(r"^\d+\s+\d+\s+\d+\s+\d+\s*$", clean[idx]):
-        nlx.append([int(t) for t in clean[idx].split()])
+    while idx < len(clean) and line_starts_with_n_ints(clean[idx], 4):
+        nlx.append([int(t) for t in clean[idx].split()[:4]])
         idx += 1
     pb["nlx"] = nlx
 
-    # Valence table: "atom l n occ unocc" (5 ints)
-    while idx < len(clean) and not re.match(r"^\d+\s+\d+\s+\d+\s+\d+\s+\d+\s*$", clean[idx]):
+    # Valence table: "atom l n occ unocc" — at least 5 ints
+    while idx < len(clean) and not line_starts_with_n_ints(clean[idx], 5):
         idx += 1
     valence = []
-    while idx < len(clean) and re.match(r"^\d+\s+\d+\s+\d+\s+\d+\s+\d+\s*$", clean[idx]):
-        valence.append([int(t) for t in clean[idx].split()])
+    while idx < len(clean) and line_starts_with_n_ints(clean[idx], 5):
+        valence.append([int(t) for t in clean[idx].split()[:5]])
         idx += 1
     pb["valence"] = valence
 
-    # Core table: "atom l n occ unocc forX0 forSxc" (7 ints)
-    while idx < len(clean) and not re.match(
-        r"^\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s*$", clean[idx]
-    ):
+    # Core table: "atom l n occ unocc forX0 forSxc" — at least 7 ints
+    # (some files have extra fields like "1 0 3  0 0 0 0   1 0  1 1")
+    while idx < len(clean) and not line_starts_with_n_ints(clean[idx], 7):
         idx += 1
     core = []
-    while idx < len(clean) and re.match(
-        r"^\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s+\d+\s*$", clean[idx]
-    ):
-        core.append([int(t) for t in clean[idx].split()])
+    while idx < len(clean) and line_starts_with_n_ints(clean[idx], 7):
+        core.append([int(t) for t in clean[idx].split()[:7]])
         idx += 1
     pb["core"] = core
 
@@ -171,19 +185,27 @@ def parse_gwinput(text: str) -> dict:
 
             if tag == "PRODUCT_BASIS":
                 out["product_basis"] = parse_product_basis(block_lines)
+                # DEBUG: also keep raw for legacy parser fallback
+                out["blocks"][tag] = "\n".join(block_lines)
             else:
-                # Pass through as raw
                 out["blocks"][tag] = "\n".join(block_lines)
             continue
 
-        # Simple key value
+        # Simple key value. Some files use 'key=value' form with no space
+        # (e.g. wan_conv_1st=1d-7). Normalize: replace first '=' with space.
+        if "=" in s and not s.split()[0].replace("=", "").replace(".", "").replace("-", "").isdigit():
+            # Heuristic: if first token has '=', split it
+            first = s.split()[0]
+            if "=" in first:
+                eq = first.index("=")
+                rest = s[s.index(first) + len(first):]
+                s = first[:eq] + " " + first[eq+1:] + rest
         toks = s.split()
         if len(toks) >= 2:
             key = toks[0]
             val = parse_value(toks[1:], key)
             out["gw"][key] = val
         elif len(toks) == 1:
-            # Bare keyword (rare, e.g. flag-only)
             out["gw"][toks[0]] = True
 
         i += 1
