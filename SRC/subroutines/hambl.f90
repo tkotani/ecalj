@@ -5,7 +5,7 @@ contains
     use m_lmfinit,only: nbas , nsp
     use m_igv2x,only: napw, igvapwin=>igv2x, ndimh
     use m_supot,only: n1,n2,n3
-    use m_struc_def,only: s_rv1,s_cv1,s_rv4,s_cv5
+    use m_struc_def,only: s_rv1,s_rv4,s_cv5
     use m_lattic,only:plat=>lat_plat,qlat=>lat_qlat
     use m_augmbl,only: augmbl
     use m_hsibl,only:hsibl
