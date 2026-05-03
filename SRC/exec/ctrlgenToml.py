@@ -559,7 +559,16 @@ def main():
     out.append('hf = false')
     out.append('')
 
-    out_path = 'ctrl.' + ext + '.toml'
+    out_path = 'ctrlG.' + ext + '.toml'
+
+    # Backup any pre-existing ctrlG.<ext>.toml / PB.toml to *.bakup before
+    # we write fresh ones. One-generation backup (we overwrite previous .bakup).
+    import shutil
+    for p in (out_path, 'PB.toml'):
+        if os.path.exists(p):
+            shutil.move(p, p + '.bakup')
+            print(f'ctrlgenToml: backed up existing {p} -> {p}.bakup')
+
     with open(out_path, 'wt') as f:
         f.write('\n'.join(out))
     print(f'ctrlgenToml: wrote {out_path} ({len(specnames)} spec, {len(sitenames)} sites)')
@@ -568,6 +577,28 @@ def main():
     for p in ('ctrl.tmp', 'rmt.tmp', 'llmchk_getwsr', 'exitcode'):
         try: os.unlink(p)
         except OSError: pass
+
+    # ---------------------------------------------------------------------
+    # Append [gw] / [product_basis] / [blocks] sections + emit PB.toml
+    # by running the standard pipeline:   lmfa -> lmf --jobgw=0 -> gwinit
+    # ---------------------------------------------------------------------
+    import subprocess
+    here = os.path.dirname(os.path.realpath(__file__))
+    print(f'ctrlgenToml: running lmfa -> lmf --jobgw=0 -> gwinit  to fill GW sections')
+    rc = subprocess.run(['mpirun', '-np', '1', os.path.join(here, 'lmfa'), ext],
+                        stdout=open('llmfa', 'wt'), stderr=subprocess.STDOUT).returncode
+    if rc != 0:
+        sys.exit(f'ctrlgenToml: lmfa failed (rc={rc}); see llmfa')
+    rc = subprocess.run(['mpirun', '-np', '1', os.path.join(here, 'lmf'),
+                         '--jobgw=0', ext],
+                        stdout=open('llmfgw00', 'wt'), stderr=subprocess.STDOUT).returncode
+    if rc != 0:
+        sys.exit(f'ctrlgenToml: lmf --jobgw=0 failed (rc={rc}); see llmfgw00')
+    rc = subprocess.run(['mpirun', '-np', '1', os.path.join(here, 'gwinit'), ext]).returncode
+    if rc != 0:
+        sys.exit(f'ctrlgenToml: gwinit failed (rc={rc})')
+    print(f'ctrlgenToml: done. {out_path} has [io]/[struc]/[[site]]/[[spec]]/...')
+    print(f'             plus [gw]/[product_basis]/[blocks].  PB.toml has nlx/valence/core.')
 
 if __name__ == '__main__':
     main()
