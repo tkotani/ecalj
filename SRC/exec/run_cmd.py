@@ -155,21 +155,17 @@ def run_cmd(cluster: str,
 
 
 def _read_bmix_from_ctrl(target: str) -> float:
-    """Reads BMIX/b value from ctrl.{target} file."""
-    import re
-    ctrl_file = f'ctrl.{target}'
-    if not Path(ctrl_file).is_file():
-        raise FileNotFoundError(f"Control file not found: {ctrl_file}")
-    with open(ctrl_file, 'r') as f:
-        text = f.read()
-    # Search for BMIX or b value
-    bval_search = re.search(r'BMIX\s*=\s*([0-9.]+)', text, re.I)
-    if not bval_search:
-        bval_search = re.search(r'\bb\s*=\s*([0-9.]+)', text, re.I)
-    if not bval_search:
-        raise ValueError(f"Cannot find BMIX or b value in {ctrl_file}")
-
-    return float(bval_search.group(1))
+    """Reads bmix (b) value from ctrlG.{target}.toml [iter] section."""
+    toml_file = f'ctrlG.{target}.toml'
+    if not Path(toml_file).is_file():
+        raise FileNotFoundError(f"Control file not found: {toml_file}")
+    import tomllib
+    with open(toml_file, 'rb') as f:
+        cfg = tomllib.load(f)
+    try:
+        return float(cfg['iter']['b'])
+    except (KeyError, TypeError):
+        raise ValueError(f"Cannot find [iter].b value in {toml_file}")
 
 
 def _check_lmf_convergence(save_file: str) -> tuple[bool, str]:
@@ -202,10 +198,9 @@ def _prepare_for_lmf_retry(rst_file: str):
         shutil.move(rst_bk_file, rst_file)
 
 def _ensure_ctrl(target):
-    filename = f"ctrl.{target}"
-    filepath = Path(filename)
+    filepath = Path(f"ctrlG.{target}.toml")
     if not filepath.is_file():
-        raise RuntimeError("No ctrl file")
+        raise RuntimeError(f"No ctrlG.{target}.toml file")
 
 const_b = {}
 def run_lmf(cluster: str,
@@ -234,7 +229,7 @@ def run_lmf(cluster: str,
             nprocs=params.nprocs,
             npernode=params.npernode,
             command=params.command,
-            args=params.args + [f'-vb={bval}']
+            args=params.args + [f'-v[iter.b]={bval}']
         )
         try:
             run_cmd(cluster, current_params, retry=False, stdin_str=stdin_str, stdout=stdout)

@@ -222,7 +222,17 @@ def eval_consts_and_substitute(text, extra_vars=None):
             continue
         toks = re.split(r'([=, ])', line)
         new = []
-        for t in toks:
+        skip_next = False
+        for i, t in enumerate(toks):
+            # Don't eval the token right after ATOM= (element name like F, N, etc.)
+            if skip_next:
+                new.append(t)
+                skip_next = False
+                continue
+            if t == '=' and i > 0 and toks[i-1].rstrip().upper().endswith('ATOM'):
+                new.append(t)
+                skip_next = True
+                continue
             v = t
             try:
                 v = eval(t, {"__builtins__": {}}, _math_env)
@@ -366,10 +376,41 @@ def main():
         glist = lambda L: '\n'.join(L) + '\n'
         no_categories = [l for l in flow_lines
                          if not re.match(r'^(SITE|SPEC|STRUC)(\s|\Z)', l)]
-        tmp_ctrl = (head + glist(no_categories) + glist(liststruc)
-                    + glist(listsite) + specsec0)
-        with open('ctrl.tmp', 'wt') as f:
-            f.write(tmp_ctrl)
+        # Build a minimal ctrlG.tmp.toml for the new TOML-only lmchk
+        _alat = None; _plat = None
+        for ln in liststruc + flow_lines:
+            if 'ALAT=' in ln and _alat is None:
+                try: _alat = float(ln.split('ALAT=', 1)[1].split()[0])
+                except (ValueError, IndexError): pass
+            if 'PLAT=' in ln and _plat is None:
+                tail = ln.split('PLAT=', 1)[1].split('#', 1)[0]
+                nums = re.findall(r'[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?', tail)
+                if len(nums) >= 9:
+                    vals = [float(x) for x in nums[:9]]
+                    _plat = [vals[0:3], vals[3:6], vals[6:9]]
+        tmp_toml = 'symgrp = "find"\n\n[io]\nverbos = 35\n\n'
+        tmp_toml += f'[struc]\nnspec = {len(specnames)}\nnbas = {len(sitenames)}\n'
+        tmp_toml += f'alat = {fmt_real(_alat)}\n'
+        tmp_toml += f'plat = {fmt_mat3x3(_plat)}\n\n'
+        _si = 0
+        for ln in listsite:
+            for atomtok in ln.split('ATOM=')[1:]:
+                _si += 1
+                _name = atomtok.split()[0]
+                _pos = None
+                _mpos = re.search(r'POS\s*=\s*([^A-Z]*?)(?=[A-Z]|$)', atomtok)
+                if _mpos:
+                    _nums = re.findall(r'[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?', _mpos.group(1))
+                    if len(_nums) >= 3:
+                        _pos = [float(x) for x in _nums[:3]]
+                tmp_toml += f'[[site]]\natom = "{_name}"\n'
+                if _pos: tmp_toml += f'pos = [{fmt_real(_pos[0])}, {fmt_real(_pos[1])}, {fmt_real(_pos[2])}]\n'
+                tmp_toml += '\n'
+        for sym in specnames:
+            z = spec2z.get(sym, '?')
+            tmp_toml += f'[[spec]]\natom = "{sym}"\nz = {z}\n\n'
+        with open('ctrlG.tmp.toml', 'wt') as f:
+            f.write(tmp_toml)
         os.system('mpirun -np 1 lmchk --getwsr tmp > llmchk_getwsr 2>&1')
         try:
             for ln in open('rmt.tmp'):
@@ -579,7 +620,7 @@ def main():
     print(f'ctrlgenToml: wrote {out_path} ({len(specnames)} spec, {len(sitenames)} sites)')
 
     # cleanup tmp
-    for p in ('ctrl.tmp', 'rmt.tmp', 'llmchk_getwsr', 'exitcode'):
+    for p in ('ctrl.tmp', 'ctrlG.tmp.toml', 'rmt.tmp', 'llmchk_getwsr', 'exitcode'):
         try: os.unlink(p)
         except OSError: pass
 

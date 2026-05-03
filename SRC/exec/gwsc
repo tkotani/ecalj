@@ -105,7 +105,7 @@ if not sigm_name.is_symlink():
     sigm_name.unlink(missing_ok=True)
     sigm_name.symlink_to(sigm)
 
-flist=['ctrl.%s'%target,rst_name,sigm_name,'save.%s'%target,'log.%s'%target,'QPU','QPD','GWinput',  'GWinput.toml','lsxC','lsx','lsc','ECORE']
+flist=['ctrlG.%s.toml'%target,'PB.toml',rst_name,sigm_name,'save.%s'%target,'log.%s'%target,'QPU','QPD','lsxC','lsx','lsc','ECORE']
 
 #initial band structre
 print('===== Ititial band structure ====== ',flush=True)
