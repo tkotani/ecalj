@@ -61,7 +61,15 @@ contains
     master_mpi = mpi__root
     readtk = .true.
     strprocid = trim(i2char(procid))
+    call m_setargs_init()  ! ensures arglist / sname are populated for any Fortran binary
   end subroutine MPI__Initialize
+
+  subroutine m_setargs_init()
+    use m_args, only: m_setargs
+    use m_ext,  only: m_ext_init
+    call m_setargs()
+    call m_ext_init()
+  end subroutine m_setargs_init
 
 !  MPI__SplitXq is only used in hrcxq for q-points, k-points, and MPB parallel.
 ! example in case of n_bpara = 2 and n_kpara  = 3

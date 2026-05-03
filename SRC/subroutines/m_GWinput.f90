@@ -261,30 +261,38 @@ module m_GWinput
 
 contains
 
-  !> Idempotent helper for callers: ensure GWinput.toml has been loaded.
-  !  GWinput.toml MUST be present (driver scripts auto-convert from
-  !  legacy GWinput before launching the binary). Aborts via rx() if
-  !  the file is missing or fails to parse.
+  !> Idempotent helper for callers: ensure GW input has been loaded.
+  !  Reads ctrlG.<sname>.toml (carries [gw], [product_basis] scalars,
+  !  [blocks]) plus PB.toml (per-atom product-basis arrays). Both files
+  !  are mandatory; legacy ctrl/GWinput must be pre-converted to TOML
+  !  via Legacy2toml.py before launching the Fortran binary.
   subroutine gwinput_init()
-    logical :: have_toml
+    use m_ext, only: sname
+    logical :: have_ctrlg, have_pb
     character(len=:), allocatable :: errmsg
     if (gwinput_loaded) return
-    inquire(file='GWinput.toml', exist=have_toml)
-    if (.not. have_toml) call rx('m_GWinput: GWinput.toml not found in cwd '// &
-         '(expected; driver scripts should auto-convert from legacy GWinput).')
+    inquire(file='ctrlG.'//trim(sname)//'.toml', exist=have_ctrlg)
+    if (.not. have_ctrlg) call rx('m_GWinput: ctrlG.'//trim(sname)// &
+         '.toml not found in cwd (run Legacy2toml.py to convert legacy inputs).')
+    inquire(file='PB.toml', exist=have_pb)
+    if (.not. have_pb) call rx('m_GWinput: PB.toml not found in cwd '// &
+         '(run Legacy2toml.py / mkGWinput to generate it).')
     call gwinput_load(error=errmsg)
-    if (.not. gwinput_loaded) call rx('m_GWinput: failed to load GWinput.toml')
+    if (.not. gwinput_loaded) call rx('m_GWinput: failed to load ctrlG/PB toml')
   end subroutine gwinput_init
 
   subroutine gwinput_load(filename, error)
-    !> Load GWinput.toml. Idempotent: returns immediately if already loaded.
-    !  filename defaults to 'GWinput.toml' if absent.
-    !  On parse failure, sets allocatable error message and returns
-    !  without setting gwinput_loaded=.true.
+    !> Load ctrlG.<sname>.toml + PB.toml. Idempotent.
+    !  filename defaults to 'ctrlG.<sname>.toml' if absent.
     !
-    !  After GWinput.toml, also loads PB.<sname>.toml if present (the
-    !  authoritative source for per-atom product-basis tables nlx /
-    !  valence / core; pb_tolerance / pb_lcutmx remain in GWinput.toml).
+    !  Sections consumed from ctrlG.<sname>.toml:
+    !    [gw]              -- run-level scalars (n1n2n3, QpGcut_*, etc.)
+    !    [product_basis]   -- pb_tolerance, pb_lcutmx (slim scalars)
+    !    [blocks]          -- raw text blocks (QforEPS, QforGW, Worb, ...)
+    !
+    !  PB.toml carries the per-atom product-basis tables nlx / valence /
+    !  core in its own [product_basis] section; loaded after ctrlG so
+    !  it overrides anything pb_nlx etc. may inadvertently have.
     use m_ext, only: sname
     character(*),               intent(in),  optional :: filename
     character(len=:), allocatable, intent(out), optional :: error
@@ -300,12 +308,12 @@ contains
     if (present(filename)) then
        fname = trim(filename)
     else
-       fname = 'GWinput.toml'
+       fname = 'ctrlG.'//trim(sname)//'.toml'
     endif
 
     call toml_load(root, fname, error=terr)
     if (allocated(terr)) then
-       if (present(error)) error = "m_GWinput: parse error: " // terr%message
+       if (present(error)) error = "m_GWinput: parse error in "//fname//": " // terr%message
        return
     endif
 
@@ -313,17 +321,12 @@ contains
     call get_value(root, 'gw', gw)
     if (associated(gw)) call load_gw_section(gw)
 
-    !---- [product_basis] (in GWinput.toml: pb_tolerance, pb_lcutmx; per-atom
-    !     arrays here are accepted as legacy fallback, overridden by PB.<sname>.toml)
+    !---- [product_basis] (slim: pb_tolerance, pb_lcutmx scalars only) ----
     call get_value(root, 'product_basis', pb)
     if (associated(pb)) call load_pb_section(pb)
 
-    !---- PB.<sname>.toml (authoritative per-atom product-basis tables) ----
-    !  Try PB.<sname>.toml first; fall back to any PB.*.toml in cwd
-    !  (so GW utilities like hbasfp0 / hsfp0_sc that don't init sname
-    !  still find the file).
-    call load_pb_file('PB.'//trim(sname)//'.toml')
-    if (pb_n_nlx == 0) call load_pb_glob()
+    !---- PB.toml (authoritative per-atom product-basis tables) ----
+    call load_pb_file('PB.toml')
 
     !---- [blocks] ----
     call get_value(root, 'blocks', blocks)
@@ -501,17 +504,14 @@ contains
 
 
   subroutine load_pb_section(pb)
-    !> Read [product_basis] from GWinput.toml. Accepts pb_tolerance /
-    !  pb_lcutmx (NEW post-split) and the legacy tolerance / lcutmx names.
-    !  Per-atom arrays (nlx / valence / core) here are a backward-compat
-    !  fallback; the authoritative location is PB.<sname>.toml.
+    !> Read scalar [product_basis] entries (pb_tolerance, pb_lcutmx) from
+    !  ctrlG.<sname>.toml. Per-atom arrays (nlx / valence / core) live in
+    !  PB.toml and are loaded by load_pb_file; we do not look for them here.
     type(toml_table), pointer, intent(in) :: pb
     type(toml_array), pointer :: arr
     integer :: i, n
 
-    ! pb_tolerance (preferred) or tolerance (legacy)
     call get_value(pb, 'pb_tolerance', arr, requested=.false.)
-    if (.not. associated(arr)) call get_value(pb, 'tolerance', arr, requested=.false.)
     if (associated(arr)) then
        n = len(arr)
        if (allocated(pb_tolerance)) deallocate(pb_tolerance)
@@ -521,9 +521,7 @@ contains
        enddo
     endif
 
-    ! pb_lcutmx (preferred) or lcutmx (legacy)
     call get_value(pb, 'pb_lcutmx', arr, requested=.false.)
-    if (.not. associated(arr)) call get_value(pb, 'lcutmx', arr, requested=.false.)
     if (associated(arr)) then
        n = len(arr)
        if (allocated(pb_lcutmx)) deallocate(pb_lcutmx)
@@ -532,44 +530,10 @@ contains
           call get_value(arr, i, pb_lcutmx(i))
        enddo
     endif
-
-    ! Per-atom arrays: legacy fallback location.
-    call load_int_2darray(pb, 'nlx',     4, pb_nlx,     pb_n_nlx)
-    call load_int_2darray(pb, 'valence', 5, pb_valence, pb_n_val)
-    call load_int_2darray(pb, 'core',    7, pb_core,    pb_n_core)
   end subroutine load_pb_section
 
 
-  !> Find a single PB.*.toml in cwd (helper for utilities that don't init
-  !  sname themselves). Calls load_pb_file on the match. Silent no-op if
-  !  no match or multiple matches.
-  subroutine load_pb_glob()
-    integer :: u, ios, n_match, pid
-    character(len=256) :: line, found
-    character(len=64)  :: tmplist
-    integer, external :: getpid
-    pid = getpid()
-    write(tmplist,'(a,i0,a)') '__pb_glob.', pid, '.list'
-    call execute_command_line('ls PB.*.toml > '//trim(tmplist)//' 2>/dev/null', wait=.true.)
-    open(newunit=u, file=trim(tmplist), status='old', action='read', iostat=ios)
-    if (ios /= 0) return
-    n_match = 0
-    found = ''
-    do
-       read(u,'(a)',iostat=ios) line
-       if (ios /= 0) exit
-       if (len_trim(line) == 0) cycle
-       n_match = n_match + 1
-       if (n_match == 1) found = adjustl(line)
-    enddo
-    close(u, status='delete')
-    if (n_match == 1) call load_pb_file(trim(found))
-  end subroutine load_pb_glob
-
-
-  !> Load per-atom product-basis tables from PB.<sname>.toml. Overrides
-  !  pb_nlx / pb_valence / pb_core if they were already set from
-  !  GWinput.toml. Silently skipped if file absent.
+  !> Load per-atom product-basis tables from PB.toml.
   subroutine load_pb_file(filename)
     character(*), intent(in) :: filename
     type(toml_table), allocatable, target :: root

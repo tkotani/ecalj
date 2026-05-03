@@ -293,7 +293,6 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   use m_lmfinit,only:  m_lmfinit_init
   use m_lattic,only:   m_lattic_init
   use m_mksym,only:    m_mksym_init
-  use m_ctrl2ctrltoml,only: ConvertCtrl2CtrltomlByPython
   use m_cmdpath,only: setcmdpath
   use m_args,only:    m_setargs
   use m_ext,only:     m_ext_init
@@ -462,7 +461,6 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   ! call setcmdpath()
   ! call m_setargs()
   ! call m_ext_init()    ! Get sname, e.g. trim(sname)=si of ctrl.si
-  ! if(procid==master) call ConvertCtrl2CtrltomlByPython()
   call MPI_BARRIER( comm, ierr)
   call m_lmfinit_init('LMF',comm)! Read ctrlp into module m_lmfinit.
   call m_lattic_init()       ! lattice setup (for ewald sum)

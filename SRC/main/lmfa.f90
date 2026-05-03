@@ -4,7 +4,6 @@ program main
   use m_args,only:    m_setargs
   use m_ext,only:     m_ext_init
   use m_lmfa,only:lmfa
-  use m_ctrl2ctrltoml,only: ConvertCtrl2CtrltomlByPython
   implicit none
   integer:: ierr,procid,comm
   call mpi_init(ierr)
@@ -13,7 +12,6 @@ program main
   call setcmdpath()
   call m_setargs()
   call m_ext_init()    ! Get sname, e.g. trim(sname)=si of ctrl.si
-  if(procid==0) call ConvertCtrl2CtrltomlByPython()
   call lmfa()
   call mpi_finalize(ierr)
   call exit(0)

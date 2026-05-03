@@ -74,6 +74,9 @@ contains
           goto 999
        endif
     enddo
+    ! No positional arg supplied; leave sname at default ('tempext').
+    ! Callers that need a real sname must check and abort themselves.
+    return
     write(6,"( &
          /'Usage: lmf,lmfa,lmchk [--OPTION] [-vfoobar] [extension]'&
          /' Some options:'&

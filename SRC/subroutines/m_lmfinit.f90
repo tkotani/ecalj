@@ -133,7 +133,7 @@ contains
     if(master_mpi) write(stdo,"(a)")'m_lmfinit: '//trim(prgnam)
     ReadCtrlp: block ! Readin ctrl.<sname>.toml via m_ctrl_toml_loader -> recrd(:) for rval2.
       use m_ctrl_toml_loader, only: load_ctrl_toml
-      call load_ctrl_toml('ctrl.'//trim(sname)//'.toml', recrd, reclnr, nrecs2)
+      call load_ctrl_toml('ctrlG.'//trim(sname)//'.toml', recrd, reclnr, nrecs2)
     endblock ReadCtrlp
     Stage1GetCatok: block ! Readin Category-Token-Subtoken from recrd by rval2
       logical:: cmdopt0,cmdopt2,parmxp

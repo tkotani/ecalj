@@ -66,11 +66,19 @@ options.extend(unknown)
 print('--- Start gwsc ---')
 print('option=',options)
 
-# Ensure GWinput.toml exists before launching any ecalj binary.
-# (Driver scripts auto-convert from legacy GWinput; binaries themselves
-#  refuse to start without GWinput.toml -- see m_GWinput::gwinput_init.)
-if not ensure_gwinput_toml(exec_dir=EXEC_DIR):
-    raise SystemExit('gwsc: cannot proceed without GWinput.toml')
+# Ensure ctrlG.<target>.toml + PB.toml exist before launching any binary.
+# Fortran binaries are TOML-only (no auto-conversion). Use --legacy on the
+# wrapper scripts to invoke Legacy2toml.py beforehand.
+import os.path as _op
+_ctrlg = f'ctrlG.{target}.toml'
+_pb    = 'PB.toml'
+_have_ctrlg = _op.isfile(_ctrlg)
+_have_pb    = _op.isfile(_pb)
+if not _have_ctrlg or not _have_pb:
+    print(f'gwsc: missing {_ctrlg if not _have_ctrlg else _pb} in cwd.', file=sys.stderr)
+    print('       Run Legacy2toml.py to convert legacy ctrl+GWinput to TOML form.', file=sys.stderr)
+    raise SystemExit(2)
+print(f'gwsc: using {_ctrlg} + {_pb} (TOML mode)')
 
 try:
     tmp=[int(s.strip('QPU.').strip('run')) for s in os.listdir() if 'QPU.' in s]
@@ -130,30 +138,30 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
     run_cmd(cluster, MPIParams(command=EXEC_DIR/"lmf", args=[target, "--jobgw=1", *options], **mpi_params_lmf), stdout="llmfgw01")
 
     #main stage of gw #
-    run_cmd(cluster, MPIParams(command=EXEC_DIR/"heftet", args=["--job=1", *options], **mpi_params_single), stdout="leftet")
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/"heftet", args=[target, "--job=1", *options], **mpi_params_single), stdout="leftet")
 
     ## Core part of the self-energy (exchange only) ##
-    run_cmd(cluster, MPIParams(command=EXEC_DIR/"hbasfp0", args=["--job=3", *options], **mpi_params_single), stdout="lbasC")
-    run_cmd(cluster, MPIParams(command=EXEC_DIR/f"hvccfp0{exec_type}", args=["--job=3", *options], **mpi_params_gw), stdout="lvccC")
-    run_cmd(cluster, MPIParams(command=EXEC_DIR/f"hsfp0_sc{exec_type}", args=["--job=3", *options], **mpi_params_gw), stdout="lsxC")
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/"hbasfp0", args=[target, "--job=3", *options], **mpi_params_single), stdout="lbasC")
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/f"hvccfp0{exec_type}", args=[target, "--job=3", *options], **mpi_params_gw), stdout="lvccC")
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/f"hsfp0_sc{exec_type}", args=[target, "--job=3", *options], **mpi_params_gw), stdout="lsxC")
     move_files('stdout*', dest_dir='STDOUT')
 
     ## Valence part of the self-energy Sigma ##
-    run_cmd(cluster, MPIParams(command=EXEC_DIR/"hbasfp0", args=["--job=0", *options], **mpi_params_single), stdout="lbas")
-    run_cmd(cluster, MPIParams(command=EXEC_DIR/f"hvccfp0{exec_type}", args=["--job=0", *options], **mpi_params_gw), stdout="lvcc")
-    run_cmd(cluster, MPIParams(command=EXEC_DIR/f"hsfp0_sc{exec_type}", args=["--job=1", *options], **mpi_params_gw), stdout="lsx")
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/"hbasfp0", args=[target, "--job=0", *options], **mpi_params_single), stdout="lbas")
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/f"hvccfp0{exec_type}", args=[target, "--job=0", *options], **mpi_params_gw), stdout="lvcc")
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/f"hsfp0_sc{exec_type}", args=[target, "--job=1", *options], **mpi_params_gw), stdout="lsx")
     move_files('stdout*', dest_dir='STDOUT')
 
     ## Screened interaction W ##
-    run_cmd(cluster, MPIParams(command=EXEC_DIR/f"hrcxq{exec_type}", args=["--jobgw=1", *options], **mpi_params_gw), stdout="lrcxq")
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/f"hrcxq{exec_type}", args=[target, "--jobgw=1", *options], **mpi_params_gw), stdout="lrcxq")
     move_files('stdout*', dest_dir='STDOUT')
 
     ## Correlation self-energy ##
-    run_cmd(cluster, MPIParams(command=EXEC_DIR/f"hsfp0_sc{exec_type}", args=["--job=2", *options], **mpi_params_gw), stdout="lsc")
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/f"hsfp0_sc{exec_type}", args=[target, "--job=2", *options], **mpi_params_gw), stdout="lsc")
     move_files('stdout*', dest_dir='STDOUT')
 
     ## Make Vxc^QSGW (sigm file)
-    run_cmd(cluster, MPIParams(command=EXEC_DIR/"hqpe_sc", args=[*options], **mpi_params_single), stdout="lqpe")
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/"hqpe_sc", args=[target, *options], **mpi_params_single), stdout="lqpe")
 
     ## lmf with Vxc^QSGW
     run_lmf(cluster, target, MPIParams(command=EXEC_DIR/"lmf", args=[target, *options], **mpi_params_lmf), bmix_reduction=True, stdout="llmf")

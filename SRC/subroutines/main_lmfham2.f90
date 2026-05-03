@@ -18,7 +18,6 @@ contains
     ! not by the overlap of periodic part of eigenfunctions, but by the coefficients on |MLO>.
     !
     use mpi
-    use m_ctrl2ctrltoml,only: ConvertCtrl2CtrltomlByPython
     use m_maxloc0,only: kbbindx,getbb,writebb2,amnk2unk,diag_hm
     use m_setqibz_lmfham,only: set_qibz,qibz,irotq,irotg,ndiff,iqbzrep,qbzii,igiqibz,nqibz,iqii,wiqibz,igx,ngx
     use m_ftox
@@ -82,7 +81,6 @@ contains
     call m_MPItk_init(comm) ! mpi initialization
     call m_ext_init()            ! Get sname, e.g. trim(sname)=si of ctrl.si
     call m_lgunit_init() !set stdo,stdl
-    if(master_mpi) call ConvertCtrl2CtrltomlByPython() !convert ctrl file to ctrlp.
     call MPI_BARRIER( comm, ierr)
     call m_lmfinit_init('LMF',comm)! Read ctrlp into module m_lmfinit.
     call m_lattic_init()      ! lattice setup (for ewald sum)
