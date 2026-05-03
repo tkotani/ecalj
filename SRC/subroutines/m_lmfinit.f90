@@ -1,4 +1,4 @@
-!> Ititial data for lmf lmchk lmfa read from ctrlp file
+!> Initial data for lmf lmchk lmfa read from ctrlG.<sname>.toml
 !> pos can be from AtomPos (see lmfp.f90)
 
 module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are processed and stored in m_lmfinit_init.
@@ -54,17 +54,17 @@ module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are pro
   integer,public,protected:: ncoremx,ndima
   private
 contains
-  subroutine m_lmfinit_init(prgnam,commin) ! All the initial data are set in module variables from ctrlp.*
+  subroutine m_lmfinit_init(prgnam,commin) ! All the initial data are set in module variables from ctrlG.<sname>.toml
     use m_gtv2,only: gtv2_setrcd,rval2
     use m_defpq,only:defpq
     ! Inputs
-    !   file  : read ctrl.sname
+    !   file  : read ctrlG.<sname>.toml
     !   prgnam: name of main program
     ! Outputs
     !    All the module variables. Only several components of v_sspec are added by iors/rdovfa (readining atomic or previous results).
     !MEMO:2023-sep
-    ! Note our block coding: Search ConvertCtrl2CtrltomlByPython ReadCtrlp Stage1 Stage2 Stage3.
-    !   At ConvertCtrl2CtrltomlByPython, we convert ctrl.foobar to ctrlp.foobar by invoking a python script.
+    ! Note our block coding: Search ReadCtrlToml Stage1 Stage2 Stage3.
+    !   ReadCtrlToml reads ctrlG.<sname>.toml directly via toml-f (m_ctrl_toml_loader).
     !   BZ_  : Brillouin Zone related
     !   HAM_ :  Hamiltonian related
     !   SITE_: site information
@@ -131,10 +131,10 @@ contains
     comm=MPI_COMM_WORLD
     if(present(commin)) comm= commin !call MPI_Comm_size( comm, nsizex, info ); write(*,*) 'mmmmmmmyyyy 1111 mpisizexxxxxx=',nsizex
     if(master_mpi) write(stdo,"(a)")'m_lmfinit: '//trim(prgnam)
-    ReadCtrlp: block ! Readin ctrl.<sname>.toml via m_ctrl_toml_loader -> recrd(:) for rval2.
+    ReadCtrlToml: block ! Read ctrlG.<sname>.toml via m_ctrl_toml_loader -> recrd(:) for rval2.
       use m_ctrl_toml_loader, only: load_ctrl_toml
       call load_ctrl_toml('ctrlG.'//trim(sname)//'.toml', recrd, reclnr, nrecs2)
-    endblock ReadCtrlp
+    endblock ReadCtrlToml
     Stage1GetCatok: block ! Readin Category-Token-Subtoken from recrd by rval2
       logical:: cmdopt0,cmdopt2,parmxp
       integer:: iprint,isw,ncp,nmix,broy,n,n1,n2,n3
@@ -188,7 +188,7 @@ contains
         pnufix=.true.
       endif  
       avw = avwsr(plat,alat,vol,nbas) !vol cell volume
-      specloop: do j=1,nspec !SPEC_ATOM j is spec index. In SPEC category, we do j=j+1 after we find ATOM=xx. See ctrl2ctrlp.py
+      specloop: do j=1,nspec !SPEC_ATOM j is spec index. In SPEC category, we do j=j+1 after we find ATOM=xx. See ctrl_schema.py
          if(master_mpi) write(stdo,"(a,g0)")'=== SPEC =',j
          call rval2('SPEC_ATOM@'//xn(j),ch=ch); slabl(j)=trim(adjustl(ch))
          call rval2('SPEC_Z@'   //xn(j),rr=rr); z(j)=rr

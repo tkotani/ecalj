@@ -396,7 +396,7 @@ contains
     !r   of indices specifying the axis of operation.   (nx,ny,nz) is one of (1,0,0), (0,1,0), (0,0,1) and (1,1,1),
     !r   it can be abbreviated as x,X, y,Y, z,Z and d,D, respectively.  Also permissible are products, eg I*R4X.
     !r   The translation is also of the form (n1,n2,n3) :
-    !r  CAUTION!: 2023: we do not allowe math operations in parenthesis. Give numerical number 6digits (if you like to recover, touch ctrl2ctrlp.py)
+    !r  CAUTION!: 2023: we do not allowe math operations in parenthesis. Give numerical number 6digits (if you like to recover, touch ctrl2ctrltoml.py)
     implicit none
     character(*):: tin
     real(8) :: plat(3,3),g(3,3,*),h(3,3),hh(3,3),ag(3,*),vec(3)
@@ -776,7 +776,7 @@ contains
     !o  v       vector
     !o  parsvc  T if parse was successful; F if not.
     !r  The following shorthand notations are allowed: 'D'(1,1,1), 'X', 'Y', 'Z' for (1,0,0), (0,1,0), (0,0,1).
-    !note: 2023 we removed math operation. If you need to recover, touch ctrlp2ctrl.py.
+    !note: 2023 we removed math operation. If you need to recover, touch ctrl2ctrltoml.py.
     implicit none
     integer :: itrm,ix(3),ich,iopt,m,i,iz,id,mx,ip,mmm
     real(8) :: v(3)

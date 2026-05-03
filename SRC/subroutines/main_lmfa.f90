@@ -34,8 +34,6 @@ contains
     open(newunit=ifi,file='save.'//trim(sname),position='append')
     write(ifi,"(a)")'Start '//trim(prgnam)//trim(argall)
     close(ifi)
-!    if(master_mpi) call ConvertCtrl2CtrltomlByPython()
-    if(cmdopt0('--quit=ctrlp')) call rx0('--quit=ctrlp')
     call MPI_BARRIER( comm, ierr)
     call m_lmfinit_init(prgnam,comm) ! Computational settings.
     call Freeat()  !Spherical atom calculation

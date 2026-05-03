@@ -79,10 +79,8 @@ contains
        write(ifi,"(a)")'Start '//trim(prgnam)//trim(argall)
        close(ifi)
     endif   
-!    if(master_mpi) call ConvertCtrl2CtrltomlByPython() !convert ctrl file to ctrlp.
-    if(cmdopt0('--quit=ctrlp')) call rx0('--quit=ctrlp')
     call MPI_BARRIER( comm, ierr)
-    call m_lmfinit_init(prgnam,comm)! Read ctrlp into module m_lmfinit.
+    call m_lmfinit_init(prgnam,comm)! Read ctrlG.<sname>.toml into module m_lmfinit.
     call m_lattic_init()       ! lattice setup (for ewald sum)
     call m_mksym_init()  !symmetry go into m_lattic and m_mksym
     if(trim(prgnam)=='LMF') call m_mkqp_init() ! data of BZ go into m_mkqp
