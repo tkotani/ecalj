@@ -191,7 +191,7 @@ def main():
         print(f"Info: {clusters_toml_src} not found, skipping copy.")
 
     # Copy non-executable helpers (bash completion + shared toml-comment dict)
-    for non_exec in ('ecalj_complete.bash', 'toml_comments.py'):
+    for non_exec in ('ecalj_complete.bash', 'toml_comments.py', 'gwinput_prepare.py'):
         src = EXEC_DIR / non_exec
         if src.exists():
             try:

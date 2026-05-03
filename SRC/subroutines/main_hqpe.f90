@@ -12,6 +12,7 @@ subroutine hqpe() bind(C)  ! Jul,2000 t.kotani started from hqpe by Ferdi.Aryase
   ! SEc is in file SEC
   use m_genallcf_v3,only: genallcf_v3; use m_struct_from_lmf,only: laf
   use m_keyvalue,only: getkeyvalue
+  use m_mpi,only: MPI__Initialize
   implicit real*8 (a-h,o-z)
   implicit integer(i-n)
   dimension ifsex(2),ifsexcore(2),ifxc(2),ifsec(2),ifqpe(2),iftote(2)
@@ -21,7 +22,8 @@ subroutine hqpe() bind(C)  ! Jul,2000 t.kotani started from hqpe by Ferdi.Aryase
        qx(:,:,:),eldax(:,:),rsec(:,:,:),csec(:,:,:),zfac(:,:)
   integer:: ret,iix
   logical :: nozmode=.false.
-  call Genallcf_v3(0) 
+  call MPI__Initialize()    ! populate sname from argv so m_GWinput can locate ctrlG.<sname>.toml
+  call Genallcf_v3(0)
   jin=0
   open(newunit=ifsex(1)   ,file='SEXU')
   open(newunit=ifsexcore(1) ,file='SEXcoreU')
@@ -145,6 +147,7 @@ subroutine hqpe() bind(C)  ! Jul,2000 t.kotani started from hqpe by Ferdi.Aryase
      if (laf) exit
      if (jin > 0) jin = 999999
   end do
+  call mpi_finalize(ret)
   call rx0s( ' OK! hqpe ')
 end subroutine hqpe
 end module m_hqpe
