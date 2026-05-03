@@ -7,8 +7,8 @@ symgrp = "find"
 verbos = 30
 
 [struc]
-nspec = 1
-nbas  = 3
+nspec = 2
+nbas  = 12
 alat  = 8.234
 plat  = [[ 1.0,               0.0,   0.0],
          [-0.5, 0.866025403784439,   0.0],

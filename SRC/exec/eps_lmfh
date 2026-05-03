@@ -21,17 +21,17 @@ def main():
 
     # Run the commands using run_arg
     run_arg('---', NO_MPI, nfpgw, '/lmf', 'llmfgw00', TARGET, '--novxc', '--jobgw=0')
-    run_arg('---', NO_MPI, nfpgw, '/qg4gw', 'lqg4gw02', '--job=2')
+    run_arg('---', NO_MPI, nfpgw, '/qg4gw', 'lqg4gw02', TARGET, '--job=2')
     run_arg('---', MPI_SIZE, nfpgw, '/lmf', 'llmfgw01', TARGET, '--jobgw=1')
     # run_arg('---', NO_MPI, nfpgw, '/rdata4gw_v2', 'lrdata4gw_v2')
     # os.remove('gwa')
     # for file in os.listdir('.'):
     #     if file.startswith('gwb.'):
     #         os.remove(file)
-    run_arg('---', NO_MPI, nfpgw, '/heftet', 'leftet', '--job=1')
-    run_arg('---', NO_MPI, nfpgw, '/hbasfp0', 'lbas', '--job=0')
-    run_arg('---', MPI_SIZE, nfpgw, '/hvccfp0', 'lvcc', '--job=202')
-    run_arg('---', MPI_SIZE, nfpgw, '/hx0fp0', 'lx0', lx0_para_option, '--job=203')
+    run_arg('---', NO_MPI, nfpgw, '/heftet', 'leftet', TARGET, '--job=1')
+    run_arg('---', NO_MPI, nfpgw, '/hbasfp0', 'lbas', TARGET, '--job=0')
+    run_arg('---', MPI_SIZE, nfpgw, '/hvccfp0', 'lvcc', TARGET, '--job=202')
+    run_arg('---', MPI_SIZE, nfpgw, '/hx0fp0', 'lx0', TARGET, lx0_para_option, '--job=203')
 
     #if echo_run:
     print(f"OK! ==== All calculation finished for epsPP_lmfh {sys.argv} ====")

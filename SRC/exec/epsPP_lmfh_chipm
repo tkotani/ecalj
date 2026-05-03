@@ -24,16 +24,16 @@ def main():
 
     # Run the commands using run_arg
     run_arg('---', NO_MPI, nfpgw, '/lmf', 'llmfgw00', TARGET, '--novxc', '--jobgw=0')
-    run_arg('---', NO_MPI, nfpgw, '/qg4gw', 'lqg4gw04', '--job=4')
+    run_arg('---', NO_MPI, nfpgw, '/qg4gw', 'lqg4gw04', TARGET, '--job=4')
     run_arg('---', MPI_SIZE, nfpgw, '/lmf', 'llmfgw01', TARGET, '--jobgw=1', '--wrhomt')
     # run_arg('---', NO_MPI, nfpgw, '/rdata4gw_v2', 'lrdata4gw_v2')
     # os.remove('gwa')
     # for file in os.listdir('.'):
     #     if file.startswith('gwb.'):
     #         os.remove(file)
-    run_arg('---', NO_MPI, nfpgw, '/heftet', 'leftet', '--job=1')
-    run_arg('---', NO_MPI, nfpgw, '/hbasfp0', 'lbas', '--job=8')
-    run_arg('---', MPI_SIZE, nfpgw, '/hx0fp0', 'lx0', '--job=222')
+    run_arg('---', NO_MPI, nfpgw, '/heftet', 'leftet', TARGET, '--job=1')
+    run_arg('---', NO_MPI, nfpgw, '/hbasfp0', 'lbas', TARGET, '--job=8')
+    run_arg('---', MPI_SIZE, nfpgw, '/hx0fp0', 'lx0', TARGET, '--job=222')
 
 if __name__ == "__main__":
     main()

@@ -31,25 +31,25 @@ def main():
         os.rename('QPD', 'QPD.backup.by_gw_lmfh')
 
     run_arg('---', NO_MPI, nfpgw, '/lmf', 'llmfgw00', TARGET, '--jobgw=0')
-    run_arg('---', NO_MPI, nfpgw, '/qg4gw', 'lqg4gw', '--readQforGW', '--job=1')
+    run_arg('---', NO_MPI, nfpgw, '/qg4gw', 'lqg4gw', TARGET, '--readQforGW', '--job=1')
     run_arg('---', MPI_SIZE, nfpgw, '/lmf', 'llmfgw01', TARGET, '--jobgw=1')
     # run_arg('---', NO_MPI, nfpgw, '/rdata4gw_v2', 'lrdata4gw_v2')
-    run_arg('---', NO_MPI, nfpgw, '/heftet', 'leftet', '--job=1')
-    run_arg('---', NO_MPI, nfpgw, '/hbasfp0', 'lbasC', '--job=3')
-    run_arg('---', MPI_SIZE, nfpgw, '/hvccfp0', 'lvccC', '--job=3')
-    run_arg('---', MPI_SIZE, nfpgw, '/hsfp0', 'lsxC', '--job=3')
-    run_arg('---', NO_MPI, nfpgw, '/hbasfp0', 'lbas', '--job=0')
-    run_arg('---', MPI_SIZE, nfpgw, '/hvccfp0', 'lvcc', '--job=0')
-    run_arg('---', MPI_SIZE, nfpgw, '/hsfp0', 'lsx_sf', '--job=11')
+    run_arg('---', NO_MPI, nfpgw, '/heftet', 'leftet', TARGET, '--job=1')
+    run_arg('---', NO_MPI, nfpgw, '/hbasfp0', 'lbasC', TARGET, '--job=3')
+    run_arg('---', MPI_SIZE, nfpgw, '/hvccfp0', 'lvccC', TARGET, '--job=3')
+    run_arg('---', MPI_SIZE, nfpgw, '/hsfp0', 'lsxC', TARGET, '--job=3')
+    run_arg('---', NO_MPI, nfpgw, '/hbasfp0', 'lbas', TARGET, '--job=0')
+    run_arg('---', MPI_SIZE, nfpgw, '/hvccfp0', 'lvcc', TARGET, '--job=0')
+    run_arg('---', MPI_SIZE, nfpgw, '/hsfp0', 'lsx_sf', TARGET, '--job=11')
 
     if os.path.exists('WV.d'):
         for file in os.listdir('.'):
             if file.startswith('WV'):
                 os.remove(file)
 
-    run_arg('---', MPI_SIZE, nfpgw, '/hx0fp0', 'lx0_sf', '--job=11')
-    run_arg('---', MPI_SIZE, nfpgw, '/hsfp0', 'lsc_sf', '--job=12')
-    run_arg('---', NO_MPI, nfpgw, '/hqpe', 'lqpe', '--job=0')
+    run_arg('---', MPI_SIZE, nfpgw, '/hx0fp0', 'lx0_sf', TARGET, '--job=11')
+    run_arg('---', MPI_SIZE, nfpgw, '/hsfp0', 'lsc_sf', TARGET, '--job=12')
+    run_arg('---', NO_MPI, nfpgw, '/hqpe', 'lqpe', TARGET, '--job=0')
 
     print(f"OK! ==== All calculation finished for gw_lmfh {sys.argv} ====")
 

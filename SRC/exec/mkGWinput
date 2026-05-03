@@ -34,8 +34,8 @@ done
 # upsert (it expects a ctrlG.<target>.toml in cwd).
 cp "${ctrlg}.bakup" "$ctrlg"
 
-mpirun -np 1 "$nfpgw/lmfa_main" "$target"  > llmfa
-mpirun -np 1 "$nfpgw/lmf_main"  --jobgw=0  "$target" > llmfgw00
+mpirun -np 1 "$nfpgw/lmfa" "$target"  > llmfa
+mpirun -np 1 "$nfpgw/lmf"  --jobgw=0  "$target" > llmfgw00
 mpirun -np 1 "$nfpgw/gwinit" "$target"
 
 echo

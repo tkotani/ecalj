@@ -123,12 +123,3 @@ pwemax = 3.0
 [options]
 hf = false
 
-[dyn]
-mode  = 6
-nit   = 10
-hess  = true
-xtol  = 0.001
-gtol  = 0.0
-step  = 0.015
-nkill = 0
-
