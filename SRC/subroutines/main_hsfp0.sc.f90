@@ -51,7 +51,8 @@ contains
     integer, intent(in), optional :: ixc_in
     logical :: do_init
     integer :: incwfin, ip, is, ix, ierr
-    real(8) :: voltot, valn, eftrue, esmref, esmr, ef, hartree, tripl, rydberg
+    real(8) :: voltot, valn, eftrue, esmref, esmr, ef
+    real(8), external :: tripl, rydberg
     real(8) :: qreal(3), wgtq0p, quu(3)
     real(8), allocatable :: eqt(:)
     integer :: ixc, nspinmx

@@ -31,7 +31,7 @@ def main():
     run_arg('---', NO_MPI, nfpgw, '/heftet', 'leftet', TARGET, '--job=1')
     run_arg('---', NO_MPI, nfpgw, '/hbasfp0', 'lbas', TARGET, '--job=4')
     run_arg('---', MPI_SIZE, nfpgw, '/hvccfp0', 'lvcc', TARGET, '--job=202')
-    run_arg('---', MPI_SIZE, nfpgw, '/hx0fp0', 'lx0', lx0_para_option, '--job=202')
+    run_arg('---', MPI_SIZE, nfpgw, '/hx0fp0', 'lx0', TARGET, lx0_para_option, '--job=202')
 
     print(f"OK! ==== All calculation finished for epsPP_lmfh {sys.argv} ====")
 
