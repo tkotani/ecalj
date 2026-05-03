@@ -8,8 +8,9 @@
 !! 2026-05-03 T.K. + Claude
 module m_ctrl_toml_loader
   use tomlf, only: toml_table, toml_array, toml_keyval, toml_value, &
-                   toml_load, toml_error, toml_key, get_value, len, &
+                   toml_load, toml_loads, toml_error, toml_key, get_value, len, &
                    is_array_of_tables
+  use m_toml_override, only: load_toml_with_overrides
   implicit none
   private
   public :: load_ctrl_toml
@@ -18,7 +19,7 @@ module m_ctrl_toml_loader
 
 contains
 
-  !> Load ctrl.<sname>.toml and produce recrd(:) for rval2.
+  !> Load ctrlG.<sname>.toml and produce recrd(:) for rval2.
   subroutine load_ctrl_toml(filename, recrd, reclnr, nrecs)
     character(*), intent(in) :: filename
     character(len=:), allocatable, intent(out) :: recrd(:)
@@ -26,9 +27,11 @@ contains
     type(toml_table), allocatable, target :: root
     type(toml_error), allocatable :: terr
     character(len=LMAX), allocatable :: lines(:)
+    character(len=:),    allocatable :: text
     integer :: nl, i, lenmax
 
-    call toml_load(root, filename, error=terr)
+    call load_toml_with_overrides(filename, text)
+    call toml_loads(root, text, error=terr)
     if (allocated(terr)) call rx('m_ctrl_toml_loader: '//trim(filename)// &
          ' parse error: '//terr%message)
 

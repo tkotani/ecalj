@@ -36,6 +36,7 @@ for linei in instrl:
     if len(line) == 0: continue
     if line[0] != '%': continue
     if line[0] == '#': continue
+    if 'const' not in line: continue  # skip %show etc.
     line = re.sub(r'=\s+', '=', line)
     constdata0 = (line.split('const')[1]).split('#')[0].split(' ')
     for ix in constdata0:

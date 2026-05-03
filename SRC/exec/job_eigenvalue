@@ -13,9 +13,9 @@ def cal_eigen(args, extra_args):
     target = args.extension
     mpi_size = args.np
     cluster = args.cluster
-    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf_main",
                                args=[target, "--quit=band", *extra_args]), stdout="llmf_ef")
-    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf_main",
                                args=[target, "--band", "--eigen-at-k", "--skipbstruxinit",
                                      f"-emin={args.emin}", f"-emax={args.emax}", *extra_args]), stdout="llmf_eigen")
 

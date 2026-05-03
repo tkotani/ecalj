@@ -311,7 +311,13 @@ contains
        fname = 'ctrlG.'//trim(sname)//'.toml'
     endif
 
-    call toml_load(root, fname, error=terr)
+    block
+      use m_toml_override, only: load_toml_with_overrides
+      use tomlf, only: toml_loads
+      character(len=:), allocatable :: text
+      call load_toml_with_overrides(fname, text)
+      call toml_loads(root, text, error=terr)
+    end block
     if (allocated(terr)) then
        if (present(error)) error = "m_GWinput: parse error in "//fname//": " // terr%message
        return
@@ -325,7 +331,7 @@ contains
     call get_value(root, 'product_basis', pb)
     if (associated(pb)) call load_pb_section(pb)
 
-    !---- PB.toml (authoritative per-atom product-basis tables) ----
+    !---- PB.toml (per-atom product-basis tables; mandatory for GW) ----
     call load_pb_file('PB.toml')
 
     !---- [blocks] ----
