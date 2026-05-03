@@ -15,8 +15,8 @@ def test(args,bindir,testdir,workdir):
         rmfiles(workdir,[outfile])
         runprogs([
                  lmfa+" eras  > "+outfile,
-                 lmf+" -vnit=1 --pr51 eras >> "+outfile,
-                 lmf+" -vnit=3 eras        >> "+outfile 
+                 lmf+" -v[iter.nit]=1 --pr51 eras >> "+outfile,
+                 lmf+" -v[iter.nit]=3 eras        >> "+outfile 
         ])
         tall=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
         return tall

@@ -81,7 +81,7 @@ w     = 0.005
 npts  = 1001
 
 [iter]
-nit = 1
+nit = 2
 mix = "A2"
 b   = 0.5
 k   = 4

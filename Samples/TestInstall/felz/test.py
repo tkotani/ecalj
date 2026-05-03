@@ -16,8 +16,8 @@ def test(args,bindir,testdir,workdir):
         out3='out.lmf.ls.felz'
         rmfiles(workdir,[out1,out2,out3])
         runprogs([
-                 lmfa+ " -vrel=1 -vso=0 felz > "+out1,
-                 lmf + " -vrel=1 -vnit=3 -vso=2 felz -vfsmom=-2 >> "+out1 ,
+                 lmfa+ "  -v[ham.so]=0 felz > "+out1,
+                 lmf + "  -v[iter.nit]=3 -v[ham.so]=2 felz -v[bz.fsmom]=-2 >> "+out1 ,
 	         "rm -f atm.* fs.* moms.* *mixm.* rst.* save.* log.* *hssn.* wkp.* bsmv.* syml.* bnds.*"
         ])
         tall+=test1_check(testdir+'/'+out1, workdir+'/'+out1)
@@ -32,14 +32,14 @@ def test(args,bindir,testdir,workdir):
            * Only 4x4x4 k points are used in this test.
         '''
         runprogs([
-                 lmfa + " -vrel=1 -vnit=1 -vso=0 felz > "+ out2,
-                 lmf  + " -vrel=1 -vnit=1 -vso=2 felz -vpwmode=11 >> "+out2,
+                 lmfa + "  -v[iter.nit]=1 -v[ham.so]=0 felz > "+ out2,
+                 lmf  + "  -v[iter.nit]=1 -v[ham.so]=2 felz -v[ham.pwmode]=11 >> "+out2,
                  "rm -f *mixm.felz",
-                 lmf  + " -vrel=1 -vnit=1 -vso=2 felz >> "+out2 
+                 lmf  + "  -v[iter.nit]=1 -v[ham.so]=2 felz >> "+out2 
         ])
         tall+=test1_check(testdir+'/'+out2, workdir+'/'+out2)
         runprogs([
-                 lmf+" -vrel=1 -vnit=1 -vso=1 felz > "+out3 
+                 lmf+"  -v[iter.nit]=1 -v[ham.so]=1 felz > "+out3 
         ])
         tall+=test1_check(testdir+'/'+out3, workdir+'/'+out3)
         return tall
