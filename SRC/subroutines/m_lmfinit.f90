@@ -131,29 +131,9 @@ contains
     comm=MPI_COMM_WORLD
     if(present(commin)) comm= commin !call MPI_Comm_size( comm, nsizex, info ); write(*,*) 'mmmmmmmyyyy 1111 mpisizexxxxxx=',nsizex
     if(master_mpi) write(stdo,"(a)")'m_lmfinit: '//trim(prgnam)
-    ReadCtrlp: block ! Readin ctrl.<sname>.toml and reformat to recrd(:) for rval2.
-      use tomlf, only: toml_table, toml_load, toml_error, toml_key, get_value, len
-      type(toml_table), allocatable, target :: root_toml
-      type(toml_error), allocatable :: terr
-      type(toml_key), allocatable :: keylist(:)
-      character(len=:), allocatable :: vstr
-      integer :: k, ll, lenmax
-      call toml_load(root_toml, 'ctrl.'//trim(sname)//'.toml', error=terr)
-      if (allocated(terr)) call rx('m_lmfinit: ctrl TOML parse error: '//terr%message)
-      call root_toml%get_keys(keylist)
-      nrecs2 = size(keylist)
-      lenmax = 0
-      do k = 1, nrecs2
-         call get_value(root_toml, keylist(k)%key, vstr)
-         ll = len(keylist(k)%key) + 1 + len_trim(vstr)
-         if (ll > lenmax) lenmax = ll
-      enddo
-      reclnr = lenmax
-      allocate(character(reclnr):: recrd(nrecs2))
-      do k = 1, nrecs2
-         call get_value(root_toml, keylist(k)%key, vstr)
-         recrd(k) = keylist(k)%key//' '//trim(vstr)
-      enddo
+    ReadCtrlp: block ! Readin ctrl.<sname>.toml via m_ctrl_toml_loader -> recrd(:) for rval2.
+      use m_ctrl_toml_loader, only: load_ctrl_toml
+      call load_ctrl_toml('ctrl.'//trim(sname)//'.toml', recrd, reclnr, nrecs2)
     endblock ReadCtrlp
     Stage1GetCatok: block ! Readin Category-Token-Subtoken from recrd by rval2
       logical:: cmdopt0,cmdopt2,parmxp

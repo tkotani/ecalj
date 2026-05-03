@@ -32,7 +32,7 @@ contains
       ncat=len(trim(cattok))
       if(present(ch)) then
          do i=1,nrecs
-            if( recrd(i)(1:ncat+1)==trim(cattok)//' ' ) then
+            if( eq_ci(recrd(i)(1:ncat+1), trim(cattok)//' ') ) then
                read(recrd(i)(ncat+1:),"(a)") ch
                goto 1012
             endif
@@ -53,7 +53,7 @@ contains
       if(debug) write(stdo,*)'cccccccc2 goto nrecloop'
       ncount=0
       do i=1,nrecs
-         if( recrd(i)(1:ncat+1)==trim(cattok)//' ' ) then
+         if( eq_ci(recrd(i)(1:ncat+1), trim(cattok)//' ') ) then
             if(debug) write(6,*)'goto getdval',trim(recrd(i)(ncat+2:))//'@@@',ncount
             call getdval(trim(recrd(i)(ncat+2:)),ncount,arr) !Read undefinit number of real(8) array
             exit
@@ -103,4 +103,18 @@ contains
       lx=len_trim(outx)
       if(master_mpi) write(stdo,ftox) trim(outx)//repeat(' ',30-lx),trim(modec),'n=',ncount,'val=',ftof(rvx(1:ncount),8)
  end subroutine
+
+  pure function eq_ci(a, b) result(eq)
+    character(*), intent(in) :: a, b
+    logical :: eq
+    integer :: i, ca, cb
+    if (len(a) /= len(b)) then; eq=.false.; return; endif
+    do i = 1, len(a)
+       ca = iachar(a(i:i)); cb = iachar(b(i:i))
+       if (ca >= iachar('a') .and. ca <= iachar('z')) ca = ca - 32
+       if (cb >= iachar('a') .and. cb <= iachar('z')) cb = cb - 32
+       if (ca /= cb) then; eq=.false.; return; endif
+    enddo
+    eq = .true.
+  end function eq_ci
 end module

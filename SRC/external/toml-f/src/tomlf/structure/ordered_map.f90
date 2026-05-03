@@ -59,7 +59,7 @@ module tomlf_structure_ordered_map
 
 
    !> Initial storage capacity of the datastructure
-   integer, parameter :: initial_size = 16
+   integer, parameter :: initial_size = 256
 
 
 contains

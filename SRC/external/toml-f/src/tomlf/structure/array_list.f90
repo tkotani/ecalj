@@ -59,7 +59,7 @@ module tomlf_structure_array_list
 
 
    !> Initial storage capacity of the datastructure
-   integer, parameter :: initial_size = 16
+   integer, parameter :: initial_size = 256
 
 
 contains
