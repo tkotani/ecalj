@@ -83,7 +83,7 @@ savdos = false
 npts   = 1001
 
 [iter]
-nit   = 100
+nit   = 1
 mix   = "A1"
 conv  = 0.001
 convc = 0.01
@@ -93,7 +93,7 @@ b     = 1.0
 ftmesh = [24, 24, 24]
 tol    = 1e-08
 xcfun  = 2
-forces = 0
+forces = 1
 oveps  = 0.0
 pwmode = 0
 pwemax = 3.0

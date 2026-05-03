@@ -15,9 +15,9 @@ def test(args,bindir,testdir,workdir):
         print(message1)
         rmfiles(workdir,[outfile])
         runprogs([
-                        lmfa+" -vfp=1 zrt --no-iactiv > out.lmf.zrt > "+outfile,
-                        lmf+"  -vnitq=1 -vforce=1 -vfp=1 zrt >> "+outfile,
-                        lmf+"  -vnitq=1 -vforce=1 -vfp=1 zrt >> "+outfile 
+                        lmfa+"  zrt --no-iactiv > out.lmf.zrt > "+outfile,
+                        lmf+"  -v[iter.nit]=1 -v[ham.forces]=1  zrt >> "+outfile,
+                        lmf+"  -v[iter.nit]=1 -v[ham.forces]=1  zrt >> "+outfile 
         ])
         tall=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
         return tall

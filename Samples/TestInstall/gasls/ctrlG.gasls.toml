@@ -104,6 +104,7 @@ k     = 5
 [ham]
 nspin  = 2
 rel    = true
+so     = 1
 ftmesh = [24, 24, 24]
 tol    = 1e-06
 xcfun  = 2

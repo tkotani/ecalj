@@ -27,13 +27,13 @@ def test(args,bindir,testdir,workdir):
     tall=''
     rmfiles(workdir,[out1,out3]+out2)
     runprogs([
-                lmfa+" co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 --pr31 > "+ out1,
-                lmf+ " co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw2=0 --pr31 >> "+out1,
+                lmfa+" co -v[bz.metal]=3 -v[bz.nkabc]=[8,8,8] -v[iter.nit]=3 --pr31 > "+ out1,
+                lmf+ " co -v[bz.metal]=3 -v[bz.nkabc]=[8,8,8] -v[iter.nit]=3 -v[iter.w]=[1,0] --pr31 >> "+out1,
                 "rm *mixm.co",
-                lmf+ " co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 -vw1=0 --pr31 >> "+out1,
+                lmf+ " co -v[bz.metal]=3 -v[bz.nkabc]=[8,8,8] -v[iter.nit]=3 -v[iter.w]=[0,1] --pr31 >> "+out1,
                 "rm *mixm.co",
-                lmf+ " co -vmet=3 -vlmf=1 -vnk=8 -vnit=3 --pr31 --time=5 >> "+out1,
-                lmf+ " co -vmet=3 -vnk=8 -vnit=3 --pr31  -vso=t --band:fn=syml >> "+out1,
+                lmf+ " co -v[bz.metal]=3 -v[bz.nkabc]=[8,8,8] -v[iter.nit]=3 --pr31 --time=5 >> "+out1,
+                lmf+ " co -v[bz.metal]=3 -v[bz.nkabc]=[8,8,8] -v[iter.nit]=3 --pr31  -v[ham.so]=1 --band:fn=syml >> "+out1,
                 "rm -f atm.* *mixm.* rst.* save.* log.* *hssn.* wkp.* dos.* tdos.* pdos.* dos-mull.* qpp.* out.lmf-dos*"
     ])
     tall+=test1_check(testdir+'/'+out1, workdir+'/'+out1)
@@ -49,8 +49,8 @@ def test(args,bindir,testdir,workdir):
     '''
     print(message1)
     runprogs([
-                lmfa+" co -vmet=3 -vlmf=1 -vnk=8 -vnit=1 --pr31 > out.lmf-dos.co",\
-                job_pdos+" co "+ np4 +" -vmet=3 -vlmf=1 -vnk=8 -vnit=1 --pr31 --NoGnuplot > out.lmf-dos.co"\
+                lmfa+" co -v[bz.metal]=3 -v[bz.nkabc]=[8,8,8] -v[iter.nit]=1 --pr31 > out.lmf-dos.co",\
+                job_pdos+" co "+ np4 +" -v[bz.metal]=3 -v[bz.nkabc]=[8,8,8] -v[iter.nit]=1 --pr31 --NoGnuplot > out.lmf-dos.co"\
     ])
     tall+=test2_check(testdir+'/'+out3, workdir+'/'+out3)
     return tall

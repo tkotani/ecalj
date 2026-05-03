@@ -11,8 +11,8 @@ def test(args,bindir,testdir,workdir):
     lmf = f'mpirun -np {args.np} {bindir}/lmf '
     rmfiles(workdir,[outfile])
     runprogs([
-        lmfa+'copt -vnsp=2 -cstrx=l12 --pr41 -vmet=3 -vtetra=0 -vnk1=2 -vlfrce=12 -vdist=1 -vnit=3 --time=5 > '+outfile,
-        lmf +'copt -vnsp=2 -cstrx=l12 --pr41 -vmet=3 -vtetra=0 -vnk1=2 -vlfrce=12 -vdist=1 -vnit=3 --time=5 > '+outfile 
+        lmfa+'copt -v[ham.nspin]=2 -cstrx=l12 --pr41 -v[bz.metal]=3 -v[bz.tetra]=0 -v[bz.nkabc]=[2,2,2] -v[ham.forces]=12  -v[iter.nit]=3 --time=5 > '+outfile,
+        lmf +'copt -v[ham.nspin]=2 -cstrx=l12 --pr41 -v[bz.metal]=3 -v[bz.tetra]=0 -v[bz.nkabc]=[2,2,2] -v[ham.forces]=12  -v[iter.nit]=3 --time=5 > '+outfile 
     ])
     result= test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
     return result
