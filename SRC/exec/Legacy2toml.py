@@ -1,29 +1,83 @@
 #!/usr/bin/env python3
 """
-Legacy2toml.py — one-shot converter from legacy ecalj inputs to TOML.
+Legacy2toml.py — one-shot migration tool: legacy ecalj input -> TOML.
 
-Reads:
-    ctrl.<sname>      (legacy ctrl text)
-    GWinput           (legacy GWinput; optional, only needed for GW jobs)
+==============================================================================
+  IMPORTANT for users of ecalj prior to 2026-05
+==============================================================================
+  As of 2026-05, the Fortran binaries (lmf / lmfa / lmchk / gwsc / hsfp0 ...)
+  read ONLY structured TOML:
+      ctrlG.<sname>.toml   (merged ctrl + GW driver sections + PB cut-offs)
+      PB.toml              (per-atom product basis tables, sname-free)
+  Legacy text inputs (ctrl.<sname>, GWinput) are NO LONGER read by Fortran.
 
-Writes:
-    ctrlG.<sname>.toml    [ctrl sections + [gw], [product_basis] scalars, [blocks]]
-    PB.toml               [per-atom product-basis tables: nlx, valence, core]
+  To migrate an existing working directory:
+      $ cd <your-old-dir>          # contains ctrl.<sname> and GWinput
+      $ Legacy2toml.py <sname>     # produces ctrlG.<sname>.toml + PB.toml
+      # then resume your normal workflow (lmf, gwsc, ...) unchanged.
 
-Usage:
-    Legacy2toml.py <sname> [-vfoo=bar ...]
+  Run-time tunables (-v) have moved from %const to TOML-path syntax:
+      OLD:  lmf si -vnk=8 -vmetal=3
+      NEW:  lmf si -v[bz.nkabc]=[8,8,8] -v[bz.metal]=3
+  The -v[<path>]=val form is processed in-memory by m_toml_override.f90;
+  it never rewrites the .toml file on disk.
 
-Internally it invokes the existing ctrl2ctrltoml.py and gwinput2toml.py,
-then post-processes their output:
-  1. ctrl.<sname>.toml -> ctrlG.<sname>.toml (rename)
-  2. GWinput.toml -> append [gw], [product_basis] (slim), [blocks] sections
-     to ctrlG.<sname>.toml; move per-atom arrays to PB.toml.
+==============================================================================
+  Inputs (read in cwd)
+==============================================================================
+    ctrl.<sname>      legacy ctrl text  (required)
+    GWinput           legacy GWinput    (optional; only for GW workflows)
 
-Verbose: each step is echoed with a banner so the user knows exactly
-which legacy file was consumed and which TOML files were written.
+==============================================================================
+  Outputs (written / overwritten in cwd; .bakup of any prior file is kept)
+==============================================================================
+    ctrlG.<sname>.toml    [io]/[struc]/[[site]]/[[spec]]/[bz]/[iter]/[ham]/...
+                          plus [gw]/[product_basis] (scalars only)/[blocks]
+    PB.toml               [product_basis] per-atom: nlx, valence, core
+
+  Both files include human-readable inline comments (units / role of each
+  key); see toml_comments.py to update the wording in one place.
+
+==============================================================================
+  Usage
+==============================================================================
+    Legacy2toml.py <sname>                    # one-shot conversion
+    Legacy2toml.py <sname> -vfoo=bar -vbaz=2  # bake %const overrides
+    Legacy2toml.py -h | --help                # show this help
+
+  -v handling (only useful when generating ctrlG variants):
+    Each "-vNAME=VAL" overrides %const NAME=... before {NAME} substitution
+    in the legacy ctrl, baking the resulting numbers into ctrlG.<sname>.toml.
+
+    A 3-level diagnostic warns about each -v BEFORE conversion:
+      [WARN]  NAME not in %const         -- the override is a no-op
+      [INFO]  NAME maps to a TOML path   -- prefer runtime -v[<path>]=val
+                                           (no reconversion needed)
+      [ERROR] NAME affects topology      -- variant required:
+              save the result as ctrlG.<sname>.<tag>.toml and switch via
+              "cp" before each lmf invocation.  See Samples/TestInstall/te
+              for a worked example.
+
+==============================================================================
+  Pipeline (internal)
+==============================================================================
+  1. ctrl2ctrltoml.py  : ctrl.<sname>  -> ctrlG.<sname>.toml (sections from
+                                          ctrl_schema.py, typed)
+  2. gwinput2toml.py   : GWinput       -> intermediate GWinput.toml.tmp
+  3. split + append    : [gw] + [product_basis] (pb_tolerance / pb_lcutmx)
+                         + [blocks] are appended to ctrlG.<sname>.toml;
+                         per-atom nlx / valence / core go to PB.toml.
+  4. apply annotations : toml_comments.py inserts SECTION_HEADER blocks and
+                         unit-bearing inline comments (idempotent).
+
+  Each step is echoed with a "=== Legacy2toml.py: ..." banner so failures
+  point you straight at the offending file.
 """
 import os, sys, re, shutil, subprocess
 from pathlib import Path
+import sys as _sys, os as _os
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from toml_comments import apply_toml_annotations
 
 def banner(msg):
     print(f'=== Legacy2toml.py: {msg}', flush=True)
@@ -295,7 +349,12 @@ def main():
             if blk:
                 f.write(blk.rstrip() + '\n\n')
 
-    banner(f'wrote ctrlG.{sname}.toml + PB.toml')
+    # Annotate output with help comments from toml_comments.py
+    for fname in (str(out_path), 'PB.toml'):
+        if Path(fname).exists():
+            txt = Path(fname).read_text()
+            Path(fname).write_text(apply_toml_annotations(txt))
+    banner(f'wrote ctrlG.{sname}.toml + PB.toml (annotated)')
 
 if __name__ == '__main__':
     main()

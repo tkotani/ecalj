@@ -28,6 +28,8 @@ present; otherwise it falls back to the legacy path.
 2026-05-03 T.K. + Claude.
 """
 import os, sys, re
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from toml_comments import fmt_section_header, fmt_key_inline, apply_toml_annotations
 
 # ---------------------------------------------------------------------------
 # Atomlist — extracted at runtime from ctrlgenM1.py so there's a single
@@ -90,6 +92,7 @@ def parse_args(argv):
         fsmom=0.0, ssig=1.0,
         touchingratio=0.97,
         eh1set=1,
+        skipgw=False,
     )
     pos_args = []
     for a in argv[1:]:
@@ -107,6 +110,7 @@ def parse_args(argv):
         elif a.startswith('--ssig='):      opts['ssig'] = float(a.split('=',1)[1])
         elif a.startswith('--tratio='):    opts['touchingratio'] = float(a.split('=',1)[1])
         elif a == '--ehmol':               opts['eh1set'] = 0
+        elif a == '--skipgw':             opts['skipgw'] = True
         elif a.startswith('-'):
             sys.exit('ctrlgenToml: unknown option ' + a)
         else:
@@ -569,8 +573,9 @@ def main():
             shutil.move(p, p + '.bakup')
             print(f'ctrlgenToml: backed up existing {p} -> {p}.bakup')
 
+    text = apply_toml_annotations('\n'.join(out))
     with open(out_path, 'wt') as f:
-        f.write('\n'.join(out))
+        f.write(text)
     print(f'ctrlgenToml: wrote {out_path} ({len(specnames)} spec, {len(sitenames)} sites)')
 
     # cleanup tmp
@@ -582,6 +587,9 @@ def main():
     # Append [gw] / [product_basis] / [blocks] sections + emit PB.toml
     # by running the standard pipeline:   lmfa -> lmf --jobgw=0 -> gwinit
     # ---------------------------------------------------------------------
+    if opts.get('skipgw'):
+        print(f'ctrlgenToml: --skipgw, leaving ctrlG.{ext}.toml without [gw]/[product_basis]/[blocks].  PB.toml not generated.')
+        return
     import subprocess
     here = os.path.dirname(os.path.realpath(__file__))
     print(f'ctrlgenToml: running lmfa -> lmf --jobgw=0 -> gwinit  to fill GW sections')
@@ -597,6 +605,12 @@ def main():
     rc = subprocess.run(['mpirun', '-np', '1', os.path.join(here, 'gwinit'), ext]).returncode
     if rc != 0:
         sys.exit(f'ctrlgenToml: gwinit failed (rc={rc})')
+    # Re-apply annotations: gwinit appended raw [gw]/[product_basis]/[blocks];
+    # also wrote PB.toml. Both need section headers from toml_comments.
+    for fname in (out_path, 'PB.toml'):
+        if os.path.exists(fname):
+            txt = open(fname).read()
+            open(fname, 'w').write(apply_toml_annotations(txt))
     print(f'ctrlgenToml: done. {out_path} has [io]/[struc]/[[site]]/[[spec]]/...')
     print(f'             plus [gw]/[product_basis]/[blocks].  PB.toml has nlx/valence/core.')
 

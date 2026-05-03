@@ -2,6 +2,7 @@
 import os
 import sys
 import shutil
+import pathlib
 import time
 import argparse
 import subprocess
@@ -25,6 +26,7 @@ parser.add_argument('--gpu', help='nvfortran for GPU', action='store_true')
 parser.add_argument('--bindir', help='ecalj binaries and scripts', type=str, default=str(Path.home() / 'bin'))
 parser.add_argument('--fc', help='fortran compiler gfortran/ifort/ifx/nvfortran', type=str, required=True)
 parser.add_argument('--notest', help='no test. only compile', action='store_true')
+parser.add_argument('--no-bashrc', help='do not append source line to ~/.bashrc', action='store_true')
 parser.add_argument('--verbose', help='verbose on for debug', action='store_true')
 parser.add_argument('--debug', help='debug', action='store_true')
 parser.add_argument('--mp', help='Use mixed precision for test', action='store_true')
@@ -58,6 +60,38 @@ def build_and_install_gemmul8(build_dir: Path, bin_dir: Path):
         shutil.copy(libfile, bin_dir)
     except Exception as e:
         print(f"Warning: Failed to copy {libfile} to {bin_dir}: {e}", file=sys.stderr)
+
+ECALJ_BASHRC_MARKER = "# >>> ecalj bash completion (auto-installed by InstallAll.py) >>>"
+ECALJ_BASHRC_END    = "# <<< ecalj bash completion <<<"
+
+
+def install_bash_completion(bin_dir):
+    """Append a guarded source line to ~/.bashrc so tab-completion for
+    Legacy2toml.py, lmf, lmfa, lmchk, gwsc, ... is available in new shells.
+
+    Idempotent: if the marker is already present (any earlier install),
+    the bashrc is left untouched.
+    """
+    bashrc = pathlib.Path.home() / ".bashrc"
+    snippet = bin_dir / "ecalj_complete.bash"
+    if not snippet.exists():
+        print(f"Skipping bash completion: {snippet} not found.")
+        return
+    if bashrc.exists() and ECALJ_BASHRC_MARKER in bashrc.read_text():
+        print(f"Bash completion already registered in {bashrc} (marker found).")
+        return
+    block = (
+        f"\n{ECALJ_BASHRC_MARKER}\n"
+        "# Tab-complete <sname> for ecalj scripts based on cwd contents.\n"
+        "# Remove this block (and the matching end marker) to disable.\n"
+        f"[ -f {snippet} ] && source {snippet}\n"
+        f"{ECALJ_BASHRC_END}\n"
+    )
+    with open(bashrc, "a") as f:
+        f.write(block)
+    print(f"Appended ecalj bash-completion source line to {bashrc}")
+    print(f"  -> open a NEW shell, or run:  source {snippet}")
+
 
 def main():
     import fcntl
@@ -155,6 +189,22 @@ def main():
             print(f"Warning: Failed to copy {clusters_toml_src} to {BIN_DIR}: {e}", file=sys.stderr)
     else:
         print(f"Info: {clusters_toml_src} not found, skipping copy.")
+
+    # Copy non-executable helpers (bash completion + shared toml-comment dict)
+    for non_exec in ('ecalj_complete.bash', 'toml_comments.py'):
+        src = EXEC_DIR / non_exec
+        if src.exists():
+            try:
+                shutil.copy2(src, BIN_DIR)
+                print(f"Copied {src.name} to {BIN_DIR}")
+            except (OSError, PermissionError) as e:
+                print(f"Warning: Failed to copy {src.name}: {e}", file=sys.stderr)
+        else:
+            print(f"Info: {src} not found, skipping copy.")
+
+    # Install per-user bash completion (one-shot append to ~/.bashrc).
+    if not args.no_bashrc:
+        install_bash_completion(BIN_DIR)
 
     if args.notest:
         print('Compilation finished. Skipping tests.')
