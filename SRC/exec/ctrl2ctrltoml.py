@@ -150,7 +150,8 @@ def warn(msg):
 
 def parse_value(val_str: str, typ: str):
     """Parse a whitespace-separated raw value string per type."""
-    raw = val_str.strip()
+    # Accept Fortran D-notation (1d-8 -> 1e-8) so legacy ctrl files round-trip.
+    raw = re.sub(r'(\d)[dD]([-+]?\d)', r'\1e\2', val_str.strip())
     toks = raw.split()
     if typ == 'str':
         return raw
