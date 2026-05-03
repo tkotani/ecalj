@@ -1,0 +1,105 @@
+# GWinput.toml — auto-generated from legacy GWinput by gwinput2toml.py
+
+[gw]
+n1n2n3 = [2, 2, 2]
+QpGcut_psi = 3.0
+QpGcut_cou = 2.0
+unit_2pioa = false
+alpha_OffG = 1.0
+emax_sigm = 2.0
+HistBin_ratio = 1.03
+HistBin_dw = 0.01
+iSigMode = 3
+niw = 10
+delta = -1e-06
+deltaw = 0.02
+esmr = 0.003
+GaussSmear = true
+EMINforGW = -1
+EMAXforGW = 3
+
+[product_basis]
+pb_tolerance = [0.1]
+pb_lcutmx = [2, 2]
+
+
+# Per-atom product-basis tables (nlx / valence / core) live in PB.si.toml
+
+[blocks]
+PRODUCT_BASIS = """
+ tolerance to remove products due to poor linear-independency
+  0.1 ! =tolopt; larger gives smaller num. of product basis. See lbas and lbasC, which are output of hbasfp0.
+ lcutmx(atom) = maximum l-cutoff for the product basis.  =4 is required for atoms with valence d, like Ni Ga
+  2 2
+  atom   l  nnvv  nnc ! nnvv: num. of radial functions (valence) on the augmentation-waves, nnc: num. for core.
+    1    0    2    2
+    1    1    2    1
+    1    2    2    0
+    1    3    2    0
+    1    4    2    0
+    2    0    2    2
+    2    1    2    1
+    2    2    2    0
+    2    3    2    0
+    2    4    2    0
+  atom   l    n  occ unocc  ! Valence(1=yes,0=no)
+    1    0    1    1    1   ! 3S_p  -----
+    1    0    2    0    0   ! 3S_d
+    1    1    1    1    1   ! 3p_p
+    1    1    2    0    0   ! 3p_d
+    1    2    1    1    1   ! 3d_p
+    1    2    2    0    0   ! 3d_d
+    1    3    1    0    1   ! 4f_p
+    1    3    2    0    0   ! 4f_d
+    1    4    1    0    0   ! 5g_p
+    1    4    2    0    0   ! 5g_d
+    2    0    1    1    1   ! 3S_p  -----
+    2    0    2    0    0   ! 3S_d
+    2    1    1    1    1   ! 3p_p
+    2    1    2    0    0   ! 3p_d
+    2    2    1    1    1   ! 3d_p
+    2    2    2    0    0   ! 3d_d
+    2    3    1    0    1   ! 4f_p
+    2    3    2    0    0   ! 4f_d
+    2    4    1    0    0   ! 5g_p
+    2    4    2    0    0   ! 5g_d
+  atom   l    n  occ unocc  ForX0 ForSxc ! Core (1=yes, 0=no)
+    1    0    1    0    0      0    0    ! 1S -----
+    1    0    2    0    0      0    0    ! 2S
+    1    1    1    0    0      0    0    ! 2P
+    2    0    1    0    0      0    0    ! 1S -----
+    2    0    2    0    0      0    0    ! 2S
+    2    1    1    0    0      0    0    ! 2P
+"""
+
+QPNT = """
+ --- Specify the q and band indeces for which we evaluate the self-energy ---
+
+*** all q -->1, otherwise 0;  up only -->1, otherwise 0
+           0           0
+*** no. states and band index for calculation.
+           2
+  4  5
+*** q-points, which shoud be in qbz.,See KPNTin1BZ.
+           3
+  1     0.0000000000000000     0.0000000000000000     0.0000000000000000
+  2    -0.5000000000000000     0.5000000000000000     0.5000000000000000
+  3     0.0000000000000000     0.0000000000000000     1.0000000000000000
+"""
+
+QforEPS = """
+ 0d0 0d0 0.01d0
+ 0d0 0d0 0.02d0
+ 0d0 0d0 0.04d0
+"""
+
+QforEPSL = """
+ 0d0 0d0 0d0   1d0   0d0  0d0 8
+ 0d0 0d0 0d0  .5d0  .5d0  0d0 8
+"""
+
+QforGW = """
+  0.0000  0.00000  0.00000
+  0.8  0.00000  0.00000
+  1.0000  0.00000  0.00000
+"""

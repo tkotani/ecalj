@@ -1,7 +1,10 @@
 #!/bin/bash
-# Generate GWinput.toml.tmp -- a TOML template for GWinput.
+# Generate GWinput.toml.tmp + PB.<target>.toml.tmp -- TOML templates for GW.
 # Steps: lmfa -> lmf --jobgw=0 -> gwinit
-# Output: GWinput.toml.tmp (rename to GWinput.toml after editing)
+# Outputs:
+#   GWinput.toml.tmp        (slim: [gw], [product_basis] pb_tolerance/pb_lcutmx, [blocks])
+#   PB.<target>.toml.tmp    (per-atom product-basis tables: nlx / valence / core)
+# Rename both .toml.tmp -> .toml after editing.
 set -e
 nfpgw=$(dirname "$0")
 
@@ -13,10 +16,12 @@ fi
 target=$1
 mpirun -np 1 "$nfpgw/lmfa" "$target"  > llmfa
 mpirun -np 1 "$nfpgw/lmf"  --jobgw=0  "$target" > llmfgw00
-mpirun -np 1 "$nfpgw/gwinit"
+mpirun -np 1 "$nfpgw/gwinit" "$target"
 
 echo
 echo '-------------------------------------------------------------------'
-echo '  Default n1n2n3 = 4 4 4 (BZ mesh for GW). Edit GWinput.toml.tmp by hand if needed.'
-echo '  Then:    mv GWinput.toml.tmp GWinput.toml'
-echo 'OK! GWinput.toml.tmp generated.'
+echo "  GWinput.toml.tmp + PB.${target}.toml.tmp generated."
+echo '  Default n1n2n3 = 4 4 4. Edit by hand if needed, then:'
+echo "      mv GWinput.toml.tmp        GWinput.toml"
+echo "      mv PB.${target}.toml.tmp   PB.${target}.toml"
+echo 'OK!'
