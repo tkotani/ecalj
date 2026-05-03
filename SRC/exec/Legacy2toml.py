@@ -28,6 +28,161 @@ from pathlib import Path
 def banner(msg):
     print(f'=== Legacy2toml.py: {msg}', flush=True)
 
+
+# ----- -v override analyzer (3-level diagnostic) ----------------------------
+# Tokens that inherently change schema topology / structure of TOML;
+# overriding them via -v[<path>]=val cannot be expressed in default TOML mode.
+TOPOLOGY_TOKENS = {
+    ('STRUC', 'NBAS'),
+    ('STRUC', 'NSPEC'),
+    ('STRUC', 'NL'),
+    ('STRUC', 'NCLASS'),
+    ('STRUC', 'NLFIT'),
+    ('STRUC', 'SHEAR'),
+    ('STRUC', 'TET'),
+    ('STRUC', 'SLAT'),
+    ('STRUC', 'FILE'),
+}
+
+def _load_schema():
+    """Lazy import ctrl_schema (used to look up legacy_cattok -> TOML path)."""
+    here = os.path.dirname(os.path.realpath(__file__))
+    sys.path.insert(0, here)
+    try:
+        from ctrl_schema import SCHEMA
+        return SCHEMA
+    except Exception:
+        return {}
+
+def _v_pairs_from_args(args):
+    """Yield (name, val) for each '-vNAME=VAL' style argv token."""
+    for a in args:
+        m = re.match(r'^-v([A-Za-z_][A-Za-z0-9_-]*)=(.*)$', a)
+        if m:
+            yield m.group(1), m.group(2)
+
+def _const_defs(ctrl_text):
+    """Map %const VAR -> source line of definition. Picks last-wins."""
+    out = {}
+    for line in ctrl_text.splitlines():
+        if not line.strip().startswith('%') or 'const' not in line:
+            continue
+        body = line.split('const', 1)[1].split('#', 1)[0]
+        body = re.sub(r'=\s+', '=', body)
+        for tok in body.split():
+            if '=' in tok:
+                name = tok.split('=', 1)[0].strip()
+                if name:
+                    out[name] = line.strip()
+    return out
+
+def _find_var_refs(ctrl_text, name):
+    """Find each ctrl line where {name} is referenced, returning a list of
+    (cat, tok, line_no, line) tuples. cat is the most recent category line
+    starting at column 0; tok is the most recent KEY= token before {name}."""
+    refs = []
+    cat = None
+    needle = '{' + name + '}'
+    for i, line in enumerate(ctrl_text.splitlines(), start=1):
+        # category lines start at column 0 with an upper-case word
+        m = re.match(r'^([A-Z][A-Z_]+)\b', line)
+        if m:
+            cat = m.group(1)
+        if needle in line:
+            # find which TOK= (= sub-token name) precedes the reference
+            before = line.split(needle, 1)[0]
+            tk_matches = re.findall(r'([A-Z][A-Z0-9_]*)\s*=', before)
+            tok = tk_matches[-1] if tk_matches else None
+            # special-case: line begins with a sole {name} (e.g. "{dyn}     MODE=...")
+            if line.lstrip().startswith(needle):
+                tok = '<SECTION_HEADER>'
+            refs.append((cat, tok, i, line.rstrip()))
+    return refs
+
+def _toml_path_for(cat, tok, schema):
+    """Look up TOML path for (CAT, TOK). Returns string like 'ham.gmax' or
+    None if not in schema."""
+    if cat is None or tok is None:
+        return None
+    spec = schema.get(f'{cat}_{tok}')
+    if spec is None:
+        return None
+    section, key, _typ, _legacy_sub = spec
+    if section is None:
+        return key
+    if section in ('site', 'spec'):
+        return f'{section}.<idx>.{key}'   # caller picks index
+    return f'{section}.{key}'
+
+def analyze_v_overrides(ctrl_path, v_args):
+    """Walk every -v argument and emit one of three diagnostic levels:
+
+      1. WARN if the var is not defined in any %const     (no-op override)
+      2. ERROR if any reference site is structural/topology (cannot be
+         expressed as -v[<path>]=val in default TOML mode -- requires a
+         pre-generated ctrlG.<sname>.<tag>.toml variant).
+      3. INFO otherwise: suggest the equivalent -v[<toml-path>]=val that
+         can be used in default TOML mode without going through Legacy2toml.
+
+    Returns the count of ERRORs (caller decides whether to abort).
+    """
+    ctrl_text = open(ctrl_path).read()
+    consts = _const_defs(ctrl_text)
+    schema = _load_schema()
+    n_err = 0
+    pairs = list(_v_pairs_from_args(v_args))
+    if not pairs:
+        return 0
+    print('--- Legacy2toml.py: analyzing -v overrides ---')
+    for name, val in pairs:
+        if name not in consts:
+            print(f'  [WARN] -v{name}={val}: '
+                  f"'{name}' is not defined in any %const of {ctrl_path}; "
+                  f"override has no effect.")
+            continue
+        refs = _find_var_refs(ctrl_text, name)
+        if not refs:
+            print(f'  [WARN] -v{name}={val}: defined in %const but never '
+                  f"referenced as {{{name}}}; no-op.")
+            continue
+        any_topology = False
+        info_paths = []
+        for cat, tok, _ln, src in refs:
+            if tok == '<SECTION_HEADER>':
+                print(f'  [ERROR] -v{name}={val}: '
+                      f"used as section header line ({src.lstrip()[:60]}...). "
+                      f"Toggles a TOML section (e.g. enabling [DYN]); "
+                      f"cannot be expressed as -v[<path>]=val. "
+                      f"Use a ctrlG.<sname>.<tag>.toml variant.")
+                n_err += 1
+                any_topology = True
+                continue
+            if (cat, tok) in TOPOLOGY_TOKENS:
+                print(f'  [ERROR] -v{name}={val}: '
+                      f"changes topology ({cat}_{tok}={val}). "
+                      f"TOML schema fixes [[site]]/[[spec]] count; "
+                      f"cannot be expressed as -v[<path>]=val. "
+                      f"Generate a ctrlG.<sname>.<tag>.toml variant via:\n"
+                      f"      Legacy2toml.py <sname> -v{name}={val} ...   # save output\n"
+                      f"      mv ctrlG.<sname>.toml ctrlG.<sname>.<tag>.toml")
+                n_err += 1
+                any_topology = True
+                continue
+            tp = _toml_path_for(cat, tok, schema)
+            info_paths.append((cat, tok, tp))
+        if not any_topology and info_paths:
+            for cat, tok, tp in info_paths:
+                if tp is None:
+                    print(f'  [INFO] -v{name}={val}: '
+                          f"used at {cat}_{tok}; legacy-only key "
+                          f"(no TOML path in schema).")
+                else:
+                    print(f'  [INFO] -v{name}={val}: '
+                          f"used at {cat}_{tok} -> TOML path '{tp}'. "
+                          f"Equivalent: -v[{tp}]={val}")
+    print('---')
+    return n_err
+
 def main():
     if len(sys.argv) < 2 or sys.argv[1] in ('-h', '--help'):
         sys.exit(__doc__.strip())
@@ -39,6 +194,19 @@ def main():
     ctrl_legacy = Path(f'ctrl.{sname}')
     if not ctrl_legacy.exists():
         sys.exit(f'Legacy2toml.py: {ctrl_legacy} not found')
+
+    # Analyze -v overrides BEFORE invoking the converters, so the user can
+    # see which overrides are well-defined, which need a variant, and which
+    # already have an equivalent TOML-path form.
+    n_err = analyze_v_overrides(str(ctrl_legacy), extra_args)
+    if n_err > 0:
+        print(f'Legacy2toml.py: {n_err} -v override(s) cannot be expressed '
+              f'as -v[<path>]=val in default TOML mode.', flush=True)
+        print('  Proceeding with conversion anyway -- the resulting '
+              'ctrlG.{0}.toml reflects these overrides; save it with a '
+              'descriptive suffix (e.g. ctrlG.{0}.<tag>.toml) and switch '
+              'between variants via cp in your test.py.'.format(sname),
+              flush=True)
 
     # ------------------------------------------------------------------
     # 1. ctrl.<sname>  ->  ctrlG.<sname>.toml  (via ctrl2ctrltoml.py)
