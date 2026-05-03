@@ -60,7 +60,7 @@ rm -f ewindow.${MATERIAL}* qbyl.${MATERIAL}* eigze*.${MATERIAL}* # remove tempor
 
 ##### preparation of required inputs for GW (mainly prepare required eigenfuncitons) ######
 argin=0; run_arg $argin $NO_MPI   $nfpgw /lmf      llmfgw00 $MATERIAL --jobgw=0
-argin=1; run_arg $argin $NO_MPI   $nfpgw /qg4gw      lqg4gw   #Generate requied q+G vectors.
+argin=1; run_arg $argin $NO_MPI   $nfpgw /qg4gw lqg4gw $MATERIAL   #Generate requied q+G vectors.
 argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmf llmfgw01 $MATERIAL --jobgw=1
 #run_arg  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
 
@@ -71,13 +71,13 @@ if [ -e ANFcond ];then # This is for ANFcond. Unused recently
     $echo_run echo "Not maintained recently" 
     exit 10
 fi
-argin=1; run_arg $argin $NO_MPI $nfpgw /heftet leftet # A file EFERMI for hx0fp0
+argin=1; run_arg $argin $NO_MPI $nfpgw /heftet leftet $MATERIAL # A file EFERMI for hx0fp0
 #argin=1; run_arg $argin $NO_MPI $nfpgw /hchknw lchknw # A file NW, containing nw for given QPNT (probably only for one-shot GW).
-argin=0; run_arg $argin $NO_MPI $nfpgw /hbasfp0 lbas  # Product basis generation 
+argin=0; run_arg $argin $NO_MPI $nfpgw /hbasfp0 lbas $MATERIAL  # Product basis generation 
 
 ##### maxloc start here #########################
-argin=1 ;run_arg $argin $NO_MPI $nfpgw   /hmaxloc lmaxloc1     # b-vector BBVEC
-argin=1 ;run_arg $argin $MPI_SIZE $nfpgw /hpsig_MPI lpsig_MPI # PSIG* =<Psi|Gaussian>.
+argin=1 ;run_arg $argin $NO_MPI $nfpgw   /hmaxloc lmaxloc1 $MATERIAL     # b-vector BBVEC
+argin=1 ;run_arg $argin $MPI_SIZE $nfpgw /hpsig_MPI lpsig_MPI $MATERIAL # PSIG* =<Psi|Gaussian>.
 # Gather all PSIG* into a file. (U meand UP isp=1, D means Down spin isp=2)
 cat PSIGU.* >PSIGU
 rm -f PSIGU.*
@@ -86,7 +86,7 @@ if [ -e PSIGD.0000 ]; then
     rm -f PSIGD.*
 fi
 
-argin=2 ;run_arg $argin $MPI_SIZE $nfpgw /huumat_MPI luumat2   # UU (UUmatrix <u_k,i|u_k+b,j>) matrix are caltulated.
+argin=2 ;run_arg $argin $MPI_SIZE $nfpgw /huumat_MPI luumat2 $MATERIAL   # UU (UUmatrix <u_k,i|u_k+b,j>) matrix are caltulated.
 # Gather all UU*.* into a file UUU/UUD.
 cat UUU.* >UUU
 rm -f UUU.*
@@ -95,7 +95,7 @@ if [ -e UUD.0000 ]; then
     rm -f UUD.*
 fi
 # -- Main part of Wannier (Both of Souza's and Marzari's and procedures sucessively).
-argin=2; run_arg $argin $NO_MPI $nfpgw /hmaxloc lmaxloc2  #(band plot data are generated.)
+argin=2; run_arg $argin $NO_MPI $nfpgw /hmaxloc lmaxloc2 $MATERIAL  #(band plot data are generated.)
 
 
 ############## Wannier function plot. *.xsf for Xcrysden. ############
@@ -104,7 +104,7 @@ argin=2; run_arg $argin $NO_MPI $nfpgw /hmaxloc lmaxloc2  #(band plot data are g
 
 ### Here on, we calculate W (v and W-v) for Wannier.###########
 # -- UUmatrix for Q0P (offset Gamma point) are required calculation v and W at the limit of q \to 0.
-argin=3; run_arg $argin $MPI_SIZE $nfpgw /huumat_MPI luumat3
+argin=3; run_arg $argin $MPI_SIZE $nfpgw /huumat_MPI luumat3 $MATERIAL
 # Gather all UU*.* into a file UU*, PSIG* as well. (U meand UP isp=1, D means Down spin isp=2)
 if [ -e UUq0U.0000 ]; then 
     cat UUq0U.* > UUq0U
@@ -119,16 +119,16 @@ fi
 argin=10011; run_arg $argin 1 $nfpgw /hwmatK_MPI lpkm4crpa  $MATERIAL
 
 ### Main part of v, W-v for Wanniers. ##########################
-argin=0;  run_arg $argin $MPI_SIZE $nfpgw /hvccfp0 lvcc        # Coulomb matrix v
+argin=0;  run_arg $argin $MPI_SIZE $nfpgw /hvccfp0 lvcc $MATERIAL # Coulomb matrix v
 argin=1;  run_arg $argin $MPI_SIZE $nfpgw /hwmatK_MPI lwmatK1 $MATERIAL # Matrix elements of v for Wannier
 grep "Wannier" lwmatK1 > Coulomb_v 
-argin=111; run_arg $argin $MPI_SIZE $nfpgw /hx0fp0 lx0_111     # Screened Coulomb W minus v, W-v
+argin=111; run_arg $argin $MPI_SIZE $nfpgw /hx0fp0 lx0_111 $MATERIAL # Screened Coulomb W minus v, W-v
 argin=2;  run_arg $argin $MPI_SIZE $nfpgw /hwmatK_MPI lwmatK2 $MATERIAL # Matrix element of W-v
 #grep "Wannier" lwmatK2 > Screening_W-v
 #$nfpgw/Cal_W.py
 
 #### crpa
-argin=10011; run_arg $argin $MPI_SIZE $nfpgw /hx0fp0 lx0_10011    # cRPA Screened Coulomb W minus v, W-v
+argin=10011; run_arg $argin $MPI_SIZE $nfpgw /hx0fp0 lx0_10011 $MATERIAL # cRPA Screened Coulomb W minus v, W-v
 argin=100;  run_arg $argin $MPI_SIZE $nfpgw /hwmatK_MPI lwmatK2crpa $MATERIAL # Matrix element of W-v
 #grep "Wannier" lwmatK2crpa > Screening_W-v_crpa
 #$nfpgw/Cal_W.py
