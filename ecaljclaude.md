@@ -112,6 +112,11 @@ subroutine calc_sigma(ef, qp, isp)  ! 指示値のみ引数
 - サイズ不整合が原理的に起きない
 - 引数リストが短い (指示値のみ) ので caller-callee の対応ミスが起きない
 
+**深い呼び出し階層での追加データ問題**: 5段の call 階層の末端で `natom` が1つ必要になった場合:
+- **引数渡し**: 途中の全 subroutine (5箇所) の引数リストに `natom` を追加。大量の変更、リグレッションリスク
+- **type**: `state%natom` として渡すと、データが本来の出自 (生成元 module) から切り離されコピーが増える。複数の type が `natom` を持ち始め、どれが正しいかわからなくなる — **データの唯一性が簡単に消失する**
+- **singleton use**: `use m_struct_from_lmf, only: natom` を末端の1箇所に追加するだけ。途中の subroutine は変更不要、データの出自は `m_struct_from_lmf` と明確
+
 ### 弱点と対策
 
 - **subroutine の出力がシグネチャに現れない**: 出力は module 変数に書かれるため、関数定義だけ見ても「何を返すか」がわからない。ただし caller 側の `use m_foo, only: bar` を見れば出力は特定でき、LLM なら module 宣言部と caller の use only を同時に見て追跡できるため、実質的な問題は小さい
