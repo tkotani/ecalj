@@ -196,6 +196,12 @@ OpenACC の `!$acc` ディレクティブと構造が対応する。
   プログラムの構成。各 main (lmf, hsfp0_sc, hgw_combined 等) は数十行で、
   singleton module の subroutine を呼ぶだけ。Python から `ctypes` / `f2py` で
   `libecaljF.so` を直接呼べるため、main を Python で書き直すのは容易
+- **gwsc のライブラリ直接呼び出し化**: 現在の gwsc は subprocess で Fortran バイナリ
+  を起動しているが、将来は `libecaljF.so` の subroutine を Python から直接呼ぶ構成に
+  移行可能。プロセス起動オーバーヘッド (MPI_Init, 入力ファイル再読み込み、共有ライブラリ
+  再ロード) が消え、singleton module 変数がプロセス内で共有されるため、ステップ間の
+  状態受け渡しがゼロコストになる。hgw_combined が hrcxq + hsfp0_sc を 1 プロセスに
+  統合したのと同じ原理を、gwsc 全体に拡張するもの
 
 ## ビルド環境 (kt1)
 
