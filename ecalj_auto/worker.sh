@@ -11,7 +11,7 @@ QUEUE=$WORKDIR/queue.txt
 LOCKFILE=$WORKDIR/queue.lock
 NCORE=30
 NP2=1
-NITER=5
+NITER_DEFAULT=5
 LOG=$WORKDIR/worker${WORKER_ID}.log
 
 # CUDA_VISIBLE_DEVICES is set per-subprocess inside run_cmd.py (dynamic GPU slot binding)
@@ -19,20 +19,21 @@ LOG=$WORKDIR/worker${WORKER_ID}.log
 echo "$(date '+%Y-%m-%d %H:%M:%S') Worker$WORKER_ID started GPU=$GPU_ID" | tee -a $LOG
 
 pick_next() {
-    # Atomically pick next material from queue using flock
-    local mpid=""
+    # Atomically pick next entry "mpid [niter]" from queue using flock
+    local line=""
     exec 9>$LOCKFILE
     flock 9
-    mpid=$(head -1 $QUEUE)
-    if [ -n "$mpid" ]; then
+    line=$(head -1 $QUEUE)
+    if [ -n "$line" ]; then
         sed -i '1d' $QUEUE
     fi
     exec 9>&-
-    echo "$mpid"
+    echo "$line"
 }
 
 run_material() {
     local mpid=$1
+    local niter=$2
     local dir=$WORKDIR/$mpid
     local t0=$(date +%s)
     # Disk safety: exit if <20GB free
@@ -52,35 +53,16 @@ run_material() {
     # --- LDA ---
     if [ ! -f rst.$mpid.lda ]; then
         # Setup
-        if [ ! -f atm.$mpid ]; then
+        if [ ! -f ctrlG.$mpid.toml ]; then
             cp $POSCAR_DIR/POSCAR.$mpid POSCAR || return 1
             $EPATH/vasp2ctrl POSCAR > lvasp2ctrl 2>&1 || { echo "ERROR vasp2ctrl"; return 1; }
             cp ctrls.POSCAR.vasp2ctrl ctrls.$mpid
-            $EPATH/ctrlgenM1.py $mpid > lctrlgen 2>&1 || { echo "ERROR ctrlgen"; return 1; }
-            if [ ! -f ctrlgenM1.ctrl.$mpid ]; then echo "ERROR no ctrl"; return 1; fi
-            cp ctrlgenM1.ctrl.$mpid ctrl.$mpid
-            mpirun -np 1 $EPATH/lmchk $mpid > llmchk 2>&1
-            mpirun -np 1 $EPATH/lmfa $mpid > llmfa 2>&1 || { echo "ERROR lmfa"; return 1; }
+            $EPATH/ctrlgenToml.py $mpid > lctrlgen 2>&1 || { echo "ERROR ctrlgen"; return 1; }
+            if [ ! -f ctrlG.$mpid.toml ]; then echo "ERROR no ctrlG toml"; return 1; fi
         fi
-        # LDA SCF: acquire one of 2 CPU slots
-        (
-            t0=$(date +%s)
-            while true; do
-                for i in 0 1; do
-                    exec 7>/tmp/cpu_slot_$i.lock
-                    if flock -nx 7; then
-                        wait_s=$(( $(date +%s) - t0 ))
-                        echo "$(date '+%Y-%m-%d %H:%M:%S') $WORKER_ID $mpid cpu acquire slot=$i bin=lmf_lda wait=${wait_s}s" >> ~/DATA/gw1500/slot_history.log
-                        mpirun -np $NCORE $EPATH/lmf $mpid -vnit=80 > llmf_lda 2>&1
-                        rc=$?
-                        echo "$(date '+%Y-%m-%d %H:%M:%S') $WORKER_ID $mpid cpu release slot=$i bin=lmf_lda" >> ~/DATA/gw1500/slot_history.log
-                        exit $rc
-                    fi
-                    exec 7>&-
-                done
-                sleep 1
-            done
-        )
+        # LDA SCF: acquire CPU slot via daemon, run lmf, release on exit
+        echo "$(date '+%Y-%m-%d %H:%M:%S') $WORKER_ID $mpid cpu request bin=lmf_lda" >> ~/DATA/gw1500/slot_history.log
+        ~/bin2/slot_run.py cpu "$WORKER_ID" lmf_lda "$mpid" -- mpirun -np $NCORE $EPATH/lmf $mpid '-v[iter.nit]=80' > llmf_lda 2>&1
         local lda_status=$(tail -1 save.$mpid 2>/dev/null | awk '{print $1}')
         if [ "$lda_status" != "c" ] && [ "$lda_status" != "x" ]; then
             echo "ERROR lda_conv=$lda_status"
@@ -93,11 +75,15 @@ run_material() {
     fi
 
     # --- QSGW ---
-    $EPATH/mkGWinput $mpid > lgwin 2>&1 || { echo "ERROR mkGWinput"; return 1; }
-    cp GWinput.tmp GWinput
-
+    if [ "$niter" -le 0 ]; then
+        echo "$(date '+%Y-%m-%d %H:%M:%S') QSGW_SKIP $mpid (niter=0)" | tee -a $LOG
+        # band plot below assumes sigm exists; bail if missing
+        if [ ! -f sigm ] && [ ! -f sigm.$mpid ]; then
+            echo "ERROR niter=0 but no sigm"; return 1
+        fi
+    else
     # In-flight watchdog: NaN check every 5min, 8h hard timeout
-    $EPATH/gwsc $NITER -np $NCORE -np2 $NP2 --gpu --mp $mpid -vssig=0.8 > osgw.out 2>&1 &
+    $EPATH/gwsc $niter -np $NCORE -np2 $NP2 --gpu --mp $mpid '-v[ham.scaledsigma]=0.8' > osgw.out 2>&1 &
     local gwsc_pid=$!
     local kill_reason=""
     while kill -0 $gwsc_pid 2>/dev/null; do
@@ -138,31 +124,18 @@ run_material() {
         echo "ERROR gwsc: $gwsc_last"
         return 1
     fi
+    fi  # niter>0 block
 
     # --- Band plot ---
     mkdir -p PlotBand
-    cp rst.$mpid ctrl.$mpid atmpnu.*.$mpid PlotBand/ 2>/dev/null || true
+    cp rst.$mpid ctrlG.$mpid.toml PB.toml atmpnu.*.$mpid PlotBand/ 2>/dev/null || true
     cp sigm sigm.$mpid PlotBand/ 2>/dev/null || true
     cd PlotBand
     python3 $EPATH/getsyml $mpid --nobzview > lgetsyml 2>&1
-    (
-        t0=$(date +%s)
-        while true; do
-            for i in 0 1; do
-                exec 7>/tmp/cpu_slot_$i.lock
-                if flock -nx 7; then
-                    wait_s=$(( $(date +%s) - t0 ))
-                    echo "$(date '+%Y-%m-%d %H:%M:%S') $WORKER_ID $mpid cpu acquire slot=$i bin=job_band wait=${wait_s}s" >> ~/DATA/gw1500/slot_history.log
-                    $EPATH/job_band $mpid -np $NCORE --NoGnuplot -vssig=0.8 > ljobband 2>&1
-                    rc=$?
-                    echo "$(date '+%Y-%m-%d %H:%M:%S') $WORKER_ID $mpid cpu release slot=$i bin=job_band" >> ~/DATA/gw1500/slot_history.log
-                    exit $rc
-                fi
-                exec 7>&-
-            done
-            sleep 1
-        done
-    )
+    # job_band invokes lmf via run_cmd.py which acquires its own CPU slot per call.
+    # Wrapping job_band itself in slot_run would reserve a 2nd outer slot and deadlock
+    # against the inner lmf request when both CPU slots are held by job_band parents.
+    $EPATH/job_band $mpid -np $NCORE --NoGnuplot '-v[ham.scaledsigma]=0.8' > ljobband 2>&1
     cd $dir
 
     # --- Cleanup large GW temp files ---
@@ -171,7 +144,7 @@ run_material() {
     # --- Cleanup intermediate files (keep rst/sigm in QSGW.Xrun) ---
     rm -rf SEBK LDA STDOUT __*
     rm -f QPU.*run llmf.*run lsx lsc lsxC lrcxq
-    rm -f GWinput GWinput.tmp *.chk ctrlgenM1.* ctrls.* ctrlp.*
+    rm -f GWinput GWinput.tmp *.chk ctrlgenM1.* ctrls.* ctrlp.* ctrl.tmp ctrlG.tmp.toml
     rm -f lbas lbasC leftet llmfgw00 llmfgw01 lvcc lvccC EFERMI
     rm -f SiteInfo.* @MNLA_* NLAindx.* PlatQlat.* QPLIST.* QBZ.* hbe.* freq_r estaticpot.dat efermi.lmf
     for run in QSGW.*run; do
@@ -187,13 +160,21 @@ run_material() {
 
 # Main loop
 while true; do
-    mpid=$(pick_next)
-    if [ -z "$mpid" ]; then
+    line=$(pick_next)
+    if [ -z "$line" ]; then
         echo "$(date '+%Y-%m-%d %H:%M:%S') Worker$WORKER_ID: queue empty, exiting" | tee -a $LOG
         break
     fi
+    # Parse "mpid [niter]"; default niter to NITER_DEFAULT
+    mpid=$(echo "$line" | awk '{print $1}')
+    niter=$(echo "$line" | awk '{print $2}')
+    [ -z "$niter" ] && niter=$NITER_DEFAULT
+    if ! [[ "$niter" =~ ^[0-9]+$ ]]; then
+        echo "$(date '+%Y-%m-%d %H:%M:%S') Worker$WORKER_ID: bad niter '$niter' for '$mpid', skip" | tee -a $LOG
+        continue
+    fi
 
-    errmsg=$(run_material "$mpid" 2>&1)
+    errmsg=$(run_material "$mpid" "$niter" 2>&1)
     rc=$?
 
     if [ $rc -eq 0 ]; then

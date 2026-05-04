@@ -6,8 +6,20 @@ N_WORKERS=6
 
 echo "=== GW1500 QSGW80 slot-scheduler started at $(date) ===" | tee $WORKDIR/run.log
 
-# Cleanup stale MPI semaphores and slot locks
-rm -f /dev/shm/sem.OMPIO* /tmp/cpu_slot_*.lock /tmp/gpu_slot_*.lock 2>/dev/null
+# Cleanup stale MPI semaphores, slot locks, and stale scheduler socket
+rm -f /dev/shm/sem.OMPIO* /tmp/cpu_slot_*.lock /tmp/gpu_slot_*.lock /tmp/slot_scheduler.sock /tmp/worker_*.state 2>/dev/null
+
+# Start slot scheduler daemon (FIFO ordered slot allocation)
+nohup python3 ~/bin2/slot_scheduler_daemon.py > /tmp/slot_scheduler.log 2>&1 &
+SCHED_PID=$!
+echo "slot_scheduler_daemon PID=$SCHED_PID" | tee -a $WORKDIR/run.log
+# wait for socket to appear
+for i in $(seq 1 30); do
+    [ -S /tmp/slot_scheduler.sock ] && break
+    sleep 0.2
+done
+[ -S /tmp/slot_scheduler.sock ] || { echo "FATAL: scheduler socket not created"; exit 1; }
+trap "kill $SCHED_PID 2>/dev/null; rm -f /tmp/slot_scheduler.sock" EXIT
 
 PIDS=()
 for i in $(seq 1 $N_WORKERS); do
