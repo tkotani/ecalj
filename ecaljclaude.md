@@ -59,15 +59,32 @@ main_hrcxq / hgw_combined (メインプログラム)
 - `grep 'use m_foo' SRC/subroutines/*.f90` で依存関係を即座にトレースできる
 - module の差し替え (例: FILE → MEMORY backend) が caller に影響しない
 
-### なぜ type を避けるのか — singleton の方が優れる場面
+### なぜ Fortran OOP (type-bound procedure, class) を使わないか
 
-`type` でオブジェクト指向的に書く方法もあるが、ecalj の文脈では singleton module の方が実用的:
+Fortran 2003 で `class`, `type-bound procedure`, `select type`, inheritance が導入されたが、
+これらは C++/Java のために設計された OOP 概念を配列計算特化言語に後付けしたもので、
+実用上の問題が多い:
+
+- `select type` による polymorphism は冗長で可読性が低い
+- `type-bound procedure` は module procedure への syntax sugar に過ぎない
+- inheritance は Fortran のメモリモデル (allocatable component) と相性が悪い
+- コンパイラのバグが多い (特に nvfortran + OpenACC + derived type の組み合わせ)
+
+ecalj の singleton + 階層 use は、Fortran の元々の強み (module, allocatable, 配列操作) だけで
+設計を完結させる **言語に逆らわない** アプローチ。
+
+### singleton の利点
 
 1. **OpenACC/GPU との相性**: device 変数の管理が単純。module 変数は全 subroutine から直接アクセスでき、`!$acc` ディレクティブで素直に扱える。type のメンバを device に置くと nvfortran の制約に次々ぶつかる
 2. **データフローが grep で追える**: `use m_foo, only: bar` を grep すれば誰が何を使っているか一目瞭然。type だと `state%bar` を追う必要があり、複数の type が絡むとトレースが困難
 3. **re-entrant 化が楽**: module 変数を dealloc-realloc すればいい。type のネストした copy semantics を考えなくていい
 4. **backend 切替が caller 透過**: module 内部で FILE / MEMORY_3D 等の実装を切り替えても、caller は同じ module 変数を `use` するだけ
 5. **LLM にも優しい**: module のヘッダ (変数宣言部) を見れば状態が全部わかる。type の定義を辿って中身を理解する必要がない
+
+### 弱点と対策
+
+- **subroutine の出力がシグネチャに現れない**: 出力は module 変数に書かれるため、関数定義だけ見ても「何を返すか」がわからない。ただし caller 側の `use m_foo, only: bar` を見れば出力は特定でき、LLM なら module 宣言部と caller の use only を同時に見て追跡できるため、実質的な問題は小さい
+- **module 状態の一括クリーンが面倒**: type なら `deallocate(state)` で一発だが、module 変数は個別に deallocate する subroutine が必要。ただし LLM は module ヘッダの変数宣言を見て漏れなく dealloc subroutine を書けるため、LLM 時代にはこの弱点の実害が縮小している
 
 ### 実例: WB.3 リファクタ
 
