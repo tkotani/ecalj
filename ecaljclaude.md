@@ -51,6 +51,28 @@ Fortran では module 自体がそれを提供する。ecalj はこの言語特�
 - **hgw_combined 統合が容易に**: hrcxq + hsfp0_sc の状態が module 変数として共有できるため、2つのプログラムを1プロセスに統合する際の状態受け渡しが自然
 - `comm` のような caller ごとに異なる値は subroutine 引数の optional として直交化
 
+### 例外: m_struc_def のポインタ配列型
+
+Fortran には「allocatable 配列の配列」(ragged array) を直接書く構文がない。
+`real(8), allocatable :: a(:)` の配列 `a(n)` は作れない。
+
+`m_struc_def.f90` はこの言語制約を回避するための最小限の wrapper type を定義している:
+```fortran
+type s_rv1
+   real(8),allocatable:: v(:)
+end type s_rv1
+type s_rv2
+   real(8),allocatable:: v(:,:)
+end type s_rv2
+! ... s_rv4, s_rv5, s_cv3, s_cv4, s_cv5, s_nv2, s_sblock
+```
+
+使用例: `type(s_rv2) :: basis(natom)` で、`basis(1)%v` は (10,5)、`basis(2)%v` は (8,3) のように各原子で異なるサイズの配列を持てる (C の `double **a` に相当)。
+
+これは singleton 規約の例外ではなく、**状態を持たない純粋なコンテナ型**。
+振る舞い (subroutine) を持たず、module 間のデータフローを隠蔽しない。
+singleton が禁じている「状態管理 type」とは明確に区別される。
+
 ### 適用ガイドライン
 新規モジュールを設計する時:
 - まず module 変数 (state) と公開する subroutine を決める
@@ -58,6 +80,7 @@ Fortran では module 自体がそれを提供する。ecalj はこの言語特�
 - caller に `type(...) :: x` を持たせるくらいなら module-level singleton にする
 - subroutine 引数は scalar/array of intrinsic types に限定 (state は use で渡す)
 - comm のような「caller ごとに異なる値」は subroutine 引数の optional として直交化
+- ポインタ配列 (ragged array) が必要な場合のみ m_struc_def のコンテナ型を使用
 
 ## ビルド環境 (kt1)
 
