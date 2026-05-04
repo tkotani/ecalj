@@ -190,8 +190,12 @@ OpenACC の `!$acc` ディレクティブと構造が対応する。
   外部 (ユーザー、ワークフロー管理、機械学習パイプライン) には Python インターフェースを見せる。
   Fortran は module 内部の高速計算カーネルを担う
 - **段階的移行**: module 単位で Fortran → Python/PyTorch に置換可能。
-  singleton 間の依存が `use only` / `import` で明示されているため、
+  singleton 間の依存が `use only` / `import` で明示されてい���ため、
   1 module ずつ差し替えても全体が壊れない
+- **既にライブラリ化済み**: ecalj は `libecaljF.so` (共有ライブラリ) + 薄い main
+  プログラムの構成。各 main (lmf, hsfp0_sc, hgw_combined 等) は数十行で、
+  singleton module の subroutine を呼ぶだけ。Python から `ctypes` / `f2py` で
+  `libecaljF.so` を直接呼べるため、main を Python で書き直すのは容易
 
 ## ビルド環境 (kt1)
 
