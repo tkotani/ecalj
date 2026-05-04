@@ -1,24 +1,62 @@
-# GW1500 Slot Scheduler
+# GW1500 QSGW80 Production
 
-## 構成
+## 概要
 
-- 2 CPU slots + 2 GPU slots (グローバル)
-- 6 worker.sh 並列、GPU 固定割当なし
-- 動的 CUDA_VISIBLE_DEVICES 設定
+1546物質の QSGW80 (scaledsigma=0.8) を kt1 (Dell G15, 64 cores, 2×RTX5090) で量産。
+TOML 入力 (ctrlG.<sname>.toml + PB.toml) + hgw_combined (in-memory W) で実行。
 
-## ロック
+## ディレクトリ構成
 
-| Lock | 対象 | 数 |
-|---|---|---|
-| /tmp/cpu_slot_{0,1}.lock | lmf | 2 |
-| /tmp/gpu_slot_{0,1}.lock | hsfp0_sc_mp_gpu, hrcxq_mp_gpu, hvccfp0_mp_gpu | 2 |
+```
+~/DATA/gw1500/              作業ディレクトリ
+  queue_all.txt             全1546物質リスト
+  queue.txt                 残りキュー (mpid niter)
+  done.log                  完了ログ
+  failed.log                失敗ログ
+  worker.sh                 ワーカースクリプト
+  run_gw1500.sh             起動スクリプト (daemon + 6 workers)
+  slot_history.log          スロット acquire/release 全記録
+  mp-XXXX/                  各物質の作業ディレクトリ
 
-## ファイル
+~/ecaljdeveloper/ecalj_auto/INPUT/gw1500/POSCARALL/
+  POSCAR.mp-XXXX            入力 POSCAR (1546ファイル)
 
-- `~/bin2/run_cmd.py` — _run_mpi で flock + slot 取得
-- `~/DATA/gw1500/worker.sh` — LDA SCF と job_band も flock CPU slot
-- `~/DATA/gw1500/run_gw1500.sh` — N_WORKERS=6 起動
-- `~/DATA/gw1500/slot_history.log` — acquire/release 全記録
+~/bin2/                     実行バイナリ + スクリプト
+  slot_scheduler_daemon.py  スロットスケジューラ (Unix socket)
+  run_cmd.py                MPI 実行 (スロット自動取得)
+  gwsc                      QSGW ドライバ (hgw_combined 使用)
+  ctrlgenToml.py            POSCAR → ctrlG.toml + PB.toml 生成
+  clusters.toml             MPI launcher 設定
+```
+
+## スロット構成
+
+| Slot | 対象バイナリ | 数 | 備考 |
+|------|-------------|---|------|
+| CPU  | lmf (np=30) | 2 | 30×2=60 cores ≤ 64 |
+| GPU  | hgw_combined_mp_gpu, hvccfp0_mp_gpu, hsfp0_sc_mp_gpu | 2 | GPU0, GPU1 |
+
+6 workers が daemon 経由で FIFO 順にスロットを取得。
+その他のバイナリ (qg4gw, hbasfp0, heftet, hqpe_sc, lmfa) はスロット不要。
+
+## ワークフロー (worker.sh, 1物質あたり)
+
+```
+1. POSCAR → vasp2ctrl → ctrls.<mpid>
+2. ctrlgenToml.py <mpid>  → ctrlG.<mpid>.toml + PB.toml
+   (内部で lmchk + lmfa + lmf --jobgw=0 + gwinit を実行)
+3. lmf <mpid> -v[iter.nit]=80  (LDA SCF, CPU slot)
+4. gwsc 5 -np 30 -np2 1 --gpu --mp <mpid> -v[ham.scaledsigma]=0.8
+   gwsc 内部:
+     lmf --jobgw=0 → qg4gw → lmf --jobgw=1
+     heftet → hbasfp0 --job=3 → hvccfp0 --job=3 → hsfp0_sc --job=3 (core Sx)
+     hbasfp0 --job=0 → hvccfp0 --job=0 (valence basis)
+     hgw_combined --jobgw=1  (Sx + W + Sc, in-memory, GPU)
+     hqpe_sc → lmf (QSGW SCF, CPU slot)
+   × 5 iterations
+5. job_band (バンドプロット)
+6. cleargw (中間ファイル削除)
+```
 
 ## 起動
 
@@ -27,77 +65,65 @@ cd ~/DATA/gw1500
 nohup bash run_gw1500.sh > run_$(date +%Y%m%d-%H%M).log 2>&1 &
 ```
 
-## 停止 + 再起動 (clean)
+run_gw1500.sh が自動で:
+- stale semaphore/lock/socket を掃除
+- slot_scheduler_daemon を起動
+- 6 workers (W1-W6) を起動
+
+## 停止 (graceful)
 
 ```bash
-# Kill
-ps -ef | grep -E "worker.sh|run_gw1500" | grep -v grep | awk "{print \$2}" | xargs -r kill
-sleep 3
-pkill -9 -f "lmf mp-|mpirun.*mp-|gwsc.*mp-"
-pkill -9 -f "hsfp0_sc|hrcxq|hvccfp0|hbasfp0|hqpe_sc|qg4gw|heftet"
-sleep 3
+# 全プロセス kill
+pkill -9 -f run_gw1500.sh
+pkill -9 -f 'worker\.sh'
+pkill -9 -f slot_scheduler_daemon
+pkill -9 -f 'gwsc.*mp-'
+pkill -9 -f 'mpirun.*bin2'
+sleep 2
 
-# Cleanup locks/sems
-rm -f /dev/shm/sem.OMPIO* /tmp/cpu_slot_*.lock /tmp/gpu_slot_*.lock /tmp/worker_*.state
+# Stale lock/socket 掃除
+rm -f /tmp/slot_scheduler.sock /dev/shm/sem.OMPIO* \
+      /tmp/cpu_slot_*.lock /tmp/gpu_slot_*.lock /tmp/worker_*.state
+```
 
-# Cleanup half-done dirs (重要: QPU.*run も消すこと)
-for mpid in <list>; do
-  cd ~/DATA/gw1500/$mpid 2>/dev/null && {
-    rm -f __WV* __PP* __BASFP* __atm.* __mixm* __mixsig __vxcevec* __GEIG __VXCFP \
-          __BZDATA __CPHI __EValue __HAMindex* __MTOindex __PHIVC __QGcou __QGpsi \
-          __Vcoud.* __PPOVLG* __PPBRD* __PPOVLGG SEX2U SEXcore2U SEC2U sigm \
-          QPU.*run llmf.*run
-    rm -rf QSGW.*run
-    cd ~/DATA/gw1500
-  }
-done
+## キュー管理
 
-# Restart
-nohup bash run_gw1500.sh > run_$(date +%Y%m%d-%H%M).log 2>&1 &
+```bash
+# 状態確認
+cd ~/DATA/gw1500
+wc -l done.log queue.txt failed.log
+
+# キュー再構築 (done/failed 以外を全てキューに)
+awk '{print $1}' queue_all.txt | sort -u > /tmp/all.txt
+awk '{print $1}' done.log | sort -u > /tmp/done.txt
+awk '{print $1}' failed.log | sort -u > /tmp/fail.txt
+comm -23 /tmp/all.txt /tmp/done.txt | comm -23 - /tmp/fail.txt | \
+  awk '{print $1, 5}' > queue.txt
+
+# 中断物質のディレクトリ削除 (再起動前)
+while read mpid niter; do rm -rf "$mpid"; done < queue.txt
 ```
 
 ## 監視
 
-### スロット使用状況
+ワーカー状態表:
 ```bash
-for f in cpu_slot_0 cpu_slot_1 gpu_slot_0 gpu_slot_1; do
-  pid=$(lsof "/tmp/${f}.lock" 2>/dev/null | tail -n +2 | awk "{print \$2}" | head -1)
-  if [ -n "$pid" ]; then
-    cwd=$(readlink /proc/$pid/cwd 2>/dev/null | xargs -I{} basename {})
-    wid=$(cat /proc/$pid/environ 2>/dev/null | tr "\0" "\n" | grep ^WORKER_ID= | cut -d= -f2)
-    echo "$f: $wid mpid=$cwd"
-  else
-    echo "$f: (free)"
+cd ~/DATA/gw1500
+for w in W1 W2 W3 W4 W5 W6; do
+  mpid=$(tail -1 worker${w}.log | grep -oP 'mp-\d+')
+  if [ -f "$mpid/osgw.out" ]; then
+    iter=$(grep -c 'iteration end' "$mpid/osgw.out")
+    phase=$(tail -1 "$mpid/osgw.out" | grep -oP "bin2?/\K[^ ]+" | head -1)
   fi
+  echo "$w $mpid iter=$iter $phase"
 done
 ```
 
-### スロットヒストリの overlap audit
-```bash
-python3 -c "
-import sys
-slots={}; ov=[]
-for line in open(\"slot_history.log\"):
-    p = line.split()
-    if len(p)<7 or p[4] not in (\"cpu\",\"gpu\"): continue
-    k=(p[4], p[6].split(\"=\")[1])
-    if p[5]==\"acquire\":
-        if k in slots: ov.append((line.strip(), slots[k]))
-        slots[k]=line.strip()
-    elif p[5]==\"release\":
-        slots.pop(k, None)
-print(f\"overlaps={len(ov)}\")
-"
-```
-
-## 性能上限
-
-- CPU: 2 lmf × 30 cores = 60 cores 使用 (64 中)
-- GPU: 2 GPUs フル稼働
-- 期待スループット: 1物質あたり約 0.5-1h (8原子)、6ワーカーで 6-12 物質/h 理論値、実効 4物質/h 程度
-
 ## 既知の罠
 
-- **QPU.\*run 残骸**: 再起動時に消さないと gwsc が iter 番号オフセット (label のみ、計算は valid)
-- **NCORE x 同時 lmf 数 ≤ 64**: スロット 2 で守られる
-- **Python プロセス kill**: fd 自動 close で flock 自動解放
+- **QPU.\*run 残骸**: 再起動前に消す。残すと gwsc の iter 番号がオフセット
+- **CPU oversubscription**: NCORE×同時lmf数 ≤ 64。CPU slot 2 で保証
+- **GPU async 禁止**: WB.4 async(1) が sigm 破壊 (005ba221 で revert 済み)
+- **nvfortran signal 11**: BUILD_MP=OFF にする。ビルド時 -j4 リトライ必要
+- **/dev/shm/sem.OMPIO\* 残骸**: kill 後に必ず掃除。残ると hrcxq がハング
+- **disk 監視**: worker.sh が 20GB 未満で自動停止。__WV* 残骸は cleargw で削除
