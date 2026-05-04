@@ -269,7 +269,7 @@ NEW:  lmf si -v[bz.nkabc]=[8,8,8] -v[bz.metal]=3
 
 ## hgw_combined (in-memory W)
 
-hrcxq (screened interaction W) + hsfp0_sc --job=2 (correlation Sc) を 1 MPI プロセスに統合。
+hrcxq (screened interaction W) + hsfp0_sc (exchange Sx + correlation Sc) を 1 MPI プロセスに統合。
 `__WVR/__WVI` ファイル中継 (30-90 GB/物質) を排除し、module-level buffer で in-memory 受け渡し。
 
 gwsc での呼び出し:
@@ -282,6 +282,56 @@ hsfp0_sc --job=2   # Sc ←  __WVR/__WVI 読み込み
 # 新 (1ステップ、in-memory)
 hgw_combined --jobgw=1   # Sx + W + Sc (メモリ内)
 ```
+
+### 開発の経緯 (WB.1 → WB.3e)
+
+段階的に singleton リファクタ + ストレージ抽象化 + streaming 統合を進めた:
+
+| Step | 内容 | 主要ファイル |
+|------|------|-------------|
+| WB.1 | m_wv_storage: FILE/MEMORY_3D 両 backend のストレージ抽象化 | m_wv_storage.f90 |
+| WB.2a | m_sxcf_sc: sxcf_scz_correlation を init/step_kx/finalize に分割 | m_sxcf_sc.f90 |
+| WB.2b | Phase 1-B 4D in-memory モード削除 (WB.1 の MEMORY_3D に統一) | m_llw, m_w0w0i, main_hrcxq |
+| WB.3a | m_wv_storage: type(wv_storage) → module-level singleton 化 | m_wv_storage.f90 |
+| WB.3b | m_sxcf_sc: type(sxcf_state) → module-level singleton 化 | m_sxcf_sc.f90 |
+| WB.3c | m_hsfp0_sc: hsfp0_sc を setup/consume/writeout 三相に分割 | main_hsfp0.sc.f90 |
+| WB.3d | m_hgw_iq_loop: iq production loop を main_hrcxq から抽出 | m_hgw_iq_loop.f90 |
+| WB.3e | streaming 統合: per-iq W 生成と per-kx sxcf 消費をインターリーブ | main_hrcxq.f90 |
+
+### アーキテクチャ
+
+```
+main_hrcxq.f90 (= hgw_combined のエントリポイント)
+  │
+  ├── m_hgw_iq_loop: iq ループ (W の生成、各 iq で)
+  │     ├── m_llw: W(iq) を計算 → m_wv_storage に書く
+  │     └── m_w0w0i: W(iq=1) の修正 (effective W(0))
+  │
+  ├── m_sxcf_sc: kx ループ (self-energy の消費、各 kx で)
+  │     ├── sxcf_correlation_init()
+  │     ├── sxcf_correlation_step_kx(kx)  ← m_wv_storage から W を読む
+  │     └── sxcf_correlation_finalize()
+  │
+  └── m_hsfp0_sc: writeout (SEC/SEX ファイル書き出し)
+
+m_wv_storage: W データの橋渡し
+  ├── FILE backend: __WVR/__WVI ファイル (旧方式、fallback)
+  └── MEMORY_3D backend: module-level 3D buffer (hgw_combined 用)
+```
+
+### singleton が可能にしたこと
+
+この統合は singleton 設計なしには困難だった:
+- **m_wv_storage が singleton** だから、hrcxq (producer) と sxcf (consumer) が同じ module 変数を共有できる。type で渡すなら巨大な W バッファの所有権管理が必要
+- **m_sxcf_sc が singleton** だから、init/step_kx/finalize の3相に分割しても状態が module 変数に保持される。type なら caller が state を管理しなければならない
+- **m_hsfp0_sc が singleton** だから、hrcxq の後に skip_init で呼べる。独立バイナリだった hsfp0_sc を「関数呼び出し」に変換できた
+- **backend 切替が caller 透過**: m_wv_storage 内部で FILE → MEMORY_3D に切り替えても、m_sxcf_sc と main_hrcxq のコードは変更不要
+
+### WB.4 (async) の失敗と教訓
+
+WB.3e の上に GPU async overlap (stream 1 で imagaxis を非同期実行) を追加した WB.4 は、
+testecalj では PASS したが実物質で sigm を破壊した。詳細は「GPU 開発の教訓」セクション参照。
+現在は WB.3e ベース (同期実行) に戻して production 稼働中。
 
 ## GW1500 量産インフラ
 
