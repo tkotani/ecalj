@@ -114,7 +114,7 @@ subroutine calc_sigma(ef, qp, isp)  ! 指示値のみ引数
 
 **深い呼び出し階層での追加データ問題**: 5段の call 階層の末端で `natom` が1つ必要になった場合:
 - **引数渡し**: 途中の全 subroutine (5箇所) の引数リストに `natom` を追加。大量の変更、リグレッションリスク
-- **type**: `state%natom` として渡すと、データが本来の出自 (生成元 module) から切り離されコピーが増える。複数の type が `natom` を持ち始め、どれが正しいかわからなくなる — **データの唯一性が簡単に消失する**
+- **type**: `state%natom` として渡すと、データが本来の出自 (生成元 module) から切り離されコピーが増える。実際に起きるのは、たまたま 5 段目まで通っている type に `nbas` を便乗で放り込んでしまうこと。やがて `crystal_state%nbas`、`gw_state%nbas`、`basis_state%nbas` と複数の type に同じ値のコピーが散在し、どれが正でいつ同期されるか誰にもわからなくなる — **データの唯一性が簡単に消失する**
 - **singleton use**: `use m_struct_from_lmf, only: natom` を末端の1箇所に追加するだけ。途中の subroutine は変更不要、データの出自は `m_struct_from_lmf` と明確
 
 ### 弱点と対策
