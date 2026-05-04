@@ -81,6 +81,37 @@ ecalj の singleton + 階層 use は、Fortran の元々の強み (module, alloc
 4. **backend 切替が caller 透過**: module 内部で FILE / MEMORY_3D 等の実装を切り替えても、caller は同じ module 変数を `use` するだけ
 5. **LLM にも優しい**: module のヘッダ (変数宣言部) を見れば状態が全部わかる。type の定義を辿って中身を理解する必要がない
 
+### 核心的利点: 変数宣言の唯一性
+
+従来の subroutine 引数渡し方式では、同じ変数を caller と callee の両方で宣言する
+必要がある (二重記述):
+
+```fortran
+! 呼ぶ側
+call calc_sigma(ndim, nqibz, nspinmx, qibz, wk, ekc, ...)
+
+! 呼ばれる側 — 同じ変数を再宣言、サイズも再指定
+subroutine calc_sigma(ndim, nqibz, nspinmx, qibz, wk, ekc, ...)
+  integer, intent(in) :: ndim, nqibz, nspinmx
+  real(8), intent(in) :: qibz(3,nqibz), wk(nqibz), ekc(ndim)
+```
+
+引数が 10〜20 個になると caller と callee の対応がずれてバグになる。
+配列サイズの整合性も人間が保証しなければならない。二重記述は百害あって一利なし。
+
+singleton + `use only` なら変数宣言は module 内の一箇所だけ:
+
+```fortran
+! 呼ばれる側 — use で取るだけ、再宣言不要
+subroutine calc_sigma(ef, qp, isp)  ! 指示値のみ引数
+  use m_read_bzdata, only: qibz, wk, nqibz
+  use m_struct_from_lmf, only: nspinmx
+```
+
+- 変数の生成元が唯一 — 二重記述ゼロ
+- サイズ不整合が原理的に起きない
+- 引数リストが短い (指示値のみ) ので caller-callee の対応ミスが起きない
+
 ### 弱点と対策
 
 - **subroutine の出力がシグネチャに現れない**: 出力は module 変数に書かれるため、関数定義だけ見ても「何を返すか」がわからない。ただし caller 側の `use m_foo, only: bar` を見れば出力は特定でき、LLM なら module 宣言部と caller の use only を同時に見て追跡できるため、実質的な問題は小さい
