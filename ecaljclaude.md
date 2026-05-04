@@ -6,9 +6,16 @@ ecalj を Claude (LLM) で開発する際のガイドライン。
 ## コーディング規約: Fortran Singleton Pattern (kotani 設計)
 
 ecalj は **Fortran module を singleton class として使う** 設計パターンを採用している。
-OOP の GoF singleton pattern を Fortran module の言語特性で自然に実現したもので、
-科学計算コードにおいて `type` (derived type) を避けつつ、状態管理・データフロー明示・
-GPU (OpenACC) 互換性を同時に達成する実践的手法。
+長年の Fortran 開発で type (derived type) ベースの設計が引き起こす問題
+(データ多重化、サイズ不整合、OpenACC 非互換、可読性劣化) と格闘した経験から、
+module の言語特性を活かした引き算の設計に到達したもの。
+
+Fortran 2003/2008 の機能は選択的に取り込む:
+- **使う**: `allocatable`, `module`, `protected`, `use only`, `associate`, `block`
+- **使わない**: `class`, `type-bound procedure`, `select type`, `inheritance`
+
+判断基準は「Fortran の配列計算言語としての強みを活かすか、OOP の後付け機能で
+複雑さを持ち込むか」。前者を取り、後者を捨てる。
 
 ### なぜ singleton か
 
