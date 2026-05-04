@@ -3,26 +3,61 @@
 ecalj を Claude (LLM) で開発する際のガイドライン。
 コーディング規約、ビルドの罠、GPU 開発の教訓、アーキテクチャ方針をまとめる。
 
-## コーディング規約: module = singleton (kotani 設計)
+## コーディング規約: Fortran Singleton Pattern (kotani 設計)
 
-ecalj の Fortran コードは **module-as-singleton-class** パターンで書く。
+ecalj は **Fortran module を singleton class として使う** 設計パターンを採用している。
+OOP の GoF singleton pattern を Fortran module の言語特性で自然に実現したもので、
+科学計算コードにおいて `type` (derived type) を避けつつ、状態管理・データフロー明示・
+GPU (OpenACC) 互換性を同時に達成する実践的手法。
 
-### 原則
+### なぜ singleton か
+
+Fortran の module は言語仕様上、プログラム内で唯一のインスタンスを持つ。
+これは OOP の singleton と同じ性質であり、科学計算の多くのサブシステム
+(ハミルトニアン、波動関数ストレージ、自己エネルギー計算器など) は
+複数インスタンスが不要なため、module = singleton が自然に適合する。
+
+C++ や Python では singleton pattern を「わざわざ」実装する必要があるが、
+Fortran では module 自体がそれを提供する。ecalj はこの言語特性を
+意識的・体系的に活用している。
+
+### 設計原則
 - **1 module = 1 責務 = 1 状態セット**: 複数インスタンス不要なら `type` を被せない
 - **状態は module 変数で公開**: `protected, public` で読み取り公開、書き換えは module 内 subroutine 経由のみ
 - **import は明示**: 必ず `use m_foo, only: bar, baz` で必要な symbol だけ取る
 - **subroutine 規約**: 入力=引数、出力=module 変数で返す
-- **`type` (derived type) は避ける**: Fortran の type には以下の罠がある
+- **`type` (derived type) は積極的に避ける**: Fortran の type には以下の罠がある
   - `intent(out)` で allocatable components が暗黙に deallocate される
   - `present(state%alloc_member)` が nvfortran + OpenACC で silent fail
   - 合成 type の copy semantics が不明瞭
-  - `use only` でデータフローが見えない
+  - `use only` でデータフローが見えない (type の中身は呼出側から不透明)
 
-### 実例
-WB.3 リファクタで `type(wv_storage)` / `type(sxcf_state)` を捨て、module-level singleton 化:
-- 行数減、OpenACC 制約回避
-- FILE ↔ MEMORY_3D backend 切替が caller 透過に
-- `comm` のような caller ごとに異なる値は subroutine 引数の optional で直交化
+### なぜ type を避けるのか — singleton の方が優れる場面
+
+`type` でオブジェクト指向的に書く方法もあるが、ecalj の文脈では singleton module の方が実用的:
+
+1. **OpenACC/GPU との相性**: device 変数の管理が単純。module 変数は全 subroutine から直接アクセスでき、`!$acc` ディレクティブで素直に扱える。type のメンバを device に置くと nvfortran の制約に次々ぶつかる
+2. **データフローが grep で追える**: `use m_foo, only: bar` を grep すれば誰が何を使っているか一目瞭然。type だと `state%bar` を追う必要があり、複数の type が絡むとトレースが困難
+3. **re-entrant 化が楽**: module 変数を dealloc-realloc すればいい。type のネストした copy semantics を考えなくていい
+4. **backend 切替が caller 透過**: module 内部で FILE / MEMORY_3D 等の実装を切り替えても、caller は同じ module 変数を `use` するだけ
+5. **LLM にも優しい**: module のヘッダ (変数宣言部) を見れば状態が全部わかる。type の定義を辿って中身を理解する必要がない
+
+### 実例: WB.3 リファクタ
+
+`type(wv_storage)` / `type(sxcf_state)` を捨て、module-level singleton 化した結果:
+- **行数減**: type 定義、constructor、accessor が不要に
+- **OpenACC 制約回避**: structured data region 内の BLOCK 禁止等を自然に回避
+- **FILE ↔ MEMORY_3D backend 切替が caller 透過に**: m_wv_storage 内部のフラグ切替だけで、m_sxcf_sc や main_hrcxq は変更不要
+- **hgw_combined 統合が容易に**: hrcxq + hsfp0_sc の状態が module 変数として共有できるため、2つのプログラムを1プロセスに統合する際の状態受け渡しが自然
+- `comm` のような caller ごとに異なる値は subroutine 引数の optional として直交化
+
+### 適用ガイドライン
+新規モジュールを設計する時:
+- まず module 変数 (state) と公開する subroutine を決める
+- `type` を導入したくなったら一度立ち止まる — 本当に複数インスタンス必要か?
+- caller に `type(...) :: x` を持たせるくらいなら module-level singleton にする
+- subroutine 引数は scalar/array of intrinsic types に限定 (state は use で渡す)
+- comm のような「caller ごとに異なる値」は subroutine 引数の optional として直交化
 
 ## ビルド環境 (kt1)
 
