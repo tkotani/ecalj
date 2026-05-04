@@ -32,6 +32,33 @@ Fortran では module 自体がそれを提供する。ecalj はこの言語特�
   - 合成 type の copy semantics が不明瞭
   - `use only` でデータフローが見えない (type の中身は呼出側から不透明)
 
+### 階層化設計: module が module を use する DAG
+
+singleton module 間のデータ受け渡しは `use` の階層で表現する。
+各 module は自分より下位の module だけを `use` し、循環依存を禁止する。
+これにより依存関係が DAG (有向非巡回グラフ) になり、データの流れが一方向に追える。
+
+```
+m_struct_from_lmf (構造: plat, alat, pos, z)
+    ↑ use
+m_gw_product_basis (積基底: ndima, nlnx)
+    ↑ use
+m_sxcf_sc (自己エネルギー計算)
+    ↑ use
+main_hrcxq / hgw_combined (メインプログラム)
+```
+
+**データフローの規約:**
+- **大量データの入力**: `use m_foo, only: bar` で下位 module の `protected` 変数を読む。subroutine 引数では渡さない
+- **subroutine 引数**: フェルミエネルギー `ef`、q 点 `qp`、スピン `isp`、反復回数 `niter` など、**指示的・局所的な値に限る**。配列データを引数で渡し回さない
+- **出力**: subroutine が計算した結果は module 変数に格納し `protected` で公開。caller は `use only` で読む
+
+この規約により:
+- `type(state)` を引数で渡し回す必要がない (type を避けられる)
+- どの module がどのデータを提供し、誰が消費するかが `use only` で完全に見える
+- `grep 'use m_foo' SRC/subroutines/*.f90` で依存関係を即座にトレースできる
+- module の差し替え (例: FILE → MEMORY backend) が caller に影響しない
+
 ### なぜ type を避けるのか — singleton の方が優れる場面
 
 `type` でオブジェクト指向的に書く方法もあるが、ecalj の文脈では singleton module の方が実用的:
