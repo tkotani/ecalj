@@ -169,6 +169,30 @@ singleton が禁じている「状態管理 type」とは明確に区別され�
 - comm のような「caller ごとに異なる値」は subroutine 引数の optional として直交化
 - ポインタ配列 (ragged array) が必要な場合のみ m_struc_def のコンテナ型を使用
 
+### Python/PyTorch への移植性
+
+singleton module 設計は Python module と 1:1 対応する:
+
+| Fortran | Python |
+|---------|--------|
+| `module m_foo` | `m_foo.py` |
+| `use m_foo, only: bar` | `from m_foo import bar` |
+| `protected :: bar` | module-level 変数 (慣習的に `_` prefix や getter) |
+| `subroutine init(ef)` | `def init(ef):` + `global bar` |
+
+type ベースの設計を Python に移植すると class 設計をゼロから考え直す必要があるが、
+singleton なら Fortran module → Python module にほぼ機械的に変換できる。
+GPU 計算も `torch.tensor` + `.cuda()` で module 変数を device に置けるため、
+OpenACC の `!$acc` ディレクティブと構造が対応する。
+
+将来的に考えている方向:
+- **Python ラッパー**: 各 Fortran singleton module を Python module でラップし、
+  外部 (ユーザー、ワークフロー管理、機械学習パイプライン) には Python インターフェースを見せる。
+  Fortran は module 内部の高速計算カーネルを担う
+- **段階的移行**: module 単位で Fortran → Python/PyTorch に置換可能。
+  singleton 間の依存が `use only` / `import` で明示されているため、
+  1 module ずつ差し替えても全体が壊れない
+
 ## ビルド環境 (kt1)
 
 ### コンパイラ
