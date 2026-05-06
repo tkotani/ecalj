@@ -9,6 +9,7 @@ module m_HamPMT
                         tg_n_worb => n_worb, tg_worb_iatom => worb_iatom, &
                         tg_worb_lm => worb_lm, tg_worb_nlm => worb_nlm
    use m_hreduction,only: hreduction
+   use m_nvfortran, only: findloc
    real(8),external::tolq !eps=1d-8
    real(8),allocatable,protected:: plat(:,:),pos(:,:),qlat(:,:),symops(:,:,:)
    real(8),allocatable,protected,target:: qplist(:,:)
@@ -353,7 +354,7 @@ contains
 2029    continue
         ! close(ifih)
         istat = closem(ifih)
-        istat = closem(ifihsoc)
+        if(socmatrix) istat = closem(ifihsoc)
       endblock HreductionIqibz
       call mpibc2_complex(hammi,size(hammi),'m_HamPMT_hammi') 
       call mpibc2_complex(ovlmi,size(ovlmi),'m_HamPMT_ovlmi') 

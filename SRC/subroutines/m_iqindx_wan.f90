@@ -1,5 +1,6 @@
 ! inverse mapping, q to 'integer index' for wan (okumura)
 module m_iqindx_wan
+  use m_nvfortran, only: findloc
   implicit none
   !
   !! we prepare integer index of q, its resolution is given by epsd.

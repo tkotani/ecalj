@@ -6,6 +6,7 @@ contains
   subroutine addrbl(isp,q,iq, napw,ndimh,ndimhx,igapw, smpot,vconst,sv_p_osig,sv_p_otau,sv_p_oppi,evec,evl,nevl, smrho,sumqv,sumev,sv_p_oqkkl,sv_p_oeqkkl,f)
 !Adds to the smooth and local output density and to eigval sum
     use m_struc_def
+   use m_nvfortran, only: findloc
     use m_lmfinit,only:alat=>lat_alat,nbas, ispec,nsp,nspc,lmet=>bz_lmet, zbak ,lfrce,lmxa_i=>lmxa
     !zbak is added positive bg charge.
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol

@@ -2,6 +2,7 @@ module m_hsfp0
   contains
 subroutine hsfp0() bind(C)
   use m_ReadEfermi,only: Readefermi,ef_read=>ef
+   use m_nvfortran, only: findloc
   use m_readqg,only: Readqg0,Readngmx2,ngpmx,ngcmx
   use m_hamindex,only:   Readhamindex
   use m_readeigen,only: Init_readeigen,Readeval,Lowesteval,Init_readeigen2
@@ -611,8 +612,11 @@ subroutine hsfp0() bind(C)
      !!     -- ibzx denote the index of k{FBZ for given k{1BZ.
      allocate(ibzx(nqbz))
      do iqx  = 1,nqbz
-        ixx = findloc(irk(:,:)-iqx,value=0)
-        ibzx(iqx)= ixx(1)
+        ibzx(iqx) = 0
+        do iii=1,size(irk,2); do ib=1,size(irk,1)
+          if(irk(ib,iii)==iqx) then; ibzx(iqx)=ib; goto 6151; endif
+        enddo; enddo
+6151    continue
      enddo
      if (tote) then
         do i=1,nband

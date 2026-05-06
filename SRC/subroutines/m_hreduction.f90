@@ -3,6 +3,7 @@ contains
   subroutine Hreduction(mlomethod,iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,ovlmout, qp, cmlo,nev, zMLO) !> Reduce H(ndimPMT) to H(ndimMTO)
     ! cmlo= <Psi^MPT i|F^MLO j>
    use m_zhev,only:zhev_tk4
+   use m_nvfortran, only: findloc
    use m_readqplist,only: eferm
 !   use m_HamPMT,only: GramSchmidt!,epsovl
    use m_lgunit,only:stdo

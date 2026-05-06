@@ -1,6 +1,7 @@
 module m_gpu
 #ifdef __GPU
   use openacc
+   use m_nvfortran, only: findloc
   use cudafor
 #endif
   implicit none

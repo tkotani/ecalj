@@ -23,6 +23,7 @@ contains
   integer function lgunit(i)
     ! Returns stdout for i=1, log for i=2, mlog for i=3 (MPI logfile)
     use m_ext,only: sname
+   use m_nvfortran, only: findloc
     implicit none
     character(10):: i2char
     character*100 ext
