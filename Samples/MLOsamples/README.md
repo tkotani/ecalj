@@ -64,6 +64,38 @@ For `Si666gwsc` the MLO test was added on top of an existing `job_band`
 DFT-band check, so testecalj runs both. `Al2O3_Cr` is the canonical
 example for `mlo_emax > 0` (Cr 3d states sit ~7 eV above E_F).
 
+## Plots
+
+All plots are `bandplot_MLO.isp1.glt` rendered after `testecalj`
+finishes. Red dots = MLO bands, lines = full DFT bands. SOC samples
+show the 2N-spinor MLO overlay (post-`job_mlo_soc`).
+
+### Semiconductors / insulators
+
+| GaAsSoc (SOC) | Si666gwsc | C (diamond) | C.sp | SrTiO3 |
+|---|---|---|---|---|
+| ![](plots/GaAsSoc.png) | ![](plots/Si666gwsc.png) | ![](plots/C.png) | ![](plots/C.sp.png) | ![](plots/SrTiO3.png) |
+
+| Al2O3_Cr (mlo_emax=7) | GdION | SmP |
+|---|---|---|
+| ![](plots/Al2O3_Cr.png) | ![](plots/GdION.png) | ![](plots/SmP.png) |
+
+### Magnetic metals
+
+| Fe | FeCo | FeSoc (SOC) | Cu |
+|---|---|---|---|
+| ![](plots/Fe.png) | ![](plots/FeCo.png) | ![](plots/FeSoc.png) | ![](plots/Cu.png) |
+
+| GdCo5 | NiO666lda | RuO2 |
+|---|---|---|
+| ![](plots/GdCo5.png) | ![](plots/NiO666lda.png) | ![](plots/RuO2.png) |
+
+### Multilayers
+
+| FeMgO | FeMgOSoc (SOC) |
+|---|---|
+| ![](plots/FeMgO.png) | ![](plots/FeMgOSoc.png) |
+
 ## Manual run
 
 ```bash
