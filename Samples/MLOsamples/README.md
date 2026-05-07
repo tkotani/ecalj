@@ -9,11 +9,26 @@ documented separately in [README_SOC.md](README_SOC.md).
 
 ```bash
 cd ~/ecalj/Samples/MLOsamples
+# SOC test set (job_mlo + job_mlo_soc)
 testecalj -np 8 GaAsSoc       # semiconductor, with SOC
 testecalj -np 8 FeSoc         # ferromagnetic Fe (nspin=2), with SOC
 testecalj -np 8 FeMgOSoc      # FeMgO multilayer (nspin=2), with SOC
+
+# Plain MLO non-SOC
 testecalj -np 8 Si666gwsc     # Si QSGW, non-magnetic, MLO + DFT band check
 testecalj -np 8 Al2O3_Cr      # Cr-doped Al2O3 QSGW80, mlo_emax=7 example
+testecalj -np 8 C             # diamond C
+testecalj -np 8 C.sp          # graphite-like C (sp-only)
+testecalj -np 8 Cu            # fcc Cu
+testecalj -np 8 SrTiO3        # perovskite, non-magnetic
+testecalj -np 8 Fe            # bcc Fe (nspin=2, no SOC)
+testecalj -np 8 FeCo          # FeCo alloy (nspin=2)
+testecalj -np 8 FeMgO         # FeMgO multilayer (nspin=2, no SOC)
+testecalj -np 8 GdCo5         # GdCo5 (Gd 4f, nspin=2)
+testecalj -np 8 GdION         # Gd ion QSGW
+testecalj -np 8 NiO666lda     # NiO LDA AFM
+testecalj -np 8 RuO2          # RuO2 QSGW
+testecalj -np 8 SmP           # SmP (Sm 4f + so=2)
 ```
 
 Each test runs the full pipeline (lmf → mlo, plus the 4-step
@@ -32,6 +47,18 @@ Each test runs the full pipeline (lmf → mlo, plus the 4-step
 | `FeSoc`      | bcc Fe DFT             | 2 | ✓ | `band_MLO_spin{1,2}.dat`, `band_MLO_spin1.soc.dat` |
 | `FeMgOSoc`   | FeMgO multilayer DFT   | 2 | ✓ | `band_MLO_spin{1,2}.dat`, `band_MLO_spin1.soc.dat` |
 | `Al2O3_Cr`   | Cr-doped Al2O3 QSGW80  | 2 | – | `band_MLO_spin{1,2}.dat` (mlo_emax=7) |
+| `C`          | diamond C              | 1 | – | `band_MLO_spin1.dat` |
+| `C.sp`       | C graphite-like (sp)   | 1 | – | `band_MLO_spin1.dat` |
+| `Cu`         | fcc Cu                 | 1 | – | `band_MLO_spin1.dat` |
+| `SrTiO3`     | SrTiO3 perovskite      | 1 | – | `band_MLO_spin1.dat` |
+| `Fe`         | bcc Fe DFT (no SOC)    | 2 | – | `band_MLO_spin{1,2}.dat` |
+| `FeCo`       | FeCo alloy             | 2 | – | `band_MLO_spin{1,2}.dat` |
+| `FeMgO`      | FeMgO multilayer       | 2 | – | `band_MLO_spin{1,2}.dat` |
+| `GdCo5`      | GdCo5 (4f magnetic)    | 2 | – | `band_MLO_spin{1,2}.dat` |
+| `GdION`      | Gd ion QSGW            | 2 | – | `band_MLO_spin{1,2}.dat` |
+| `NiO666lda`  | NiO LDA AFM            | 2 | – | `band_MLO_spin{1,2}.dat` |
+| `RuO2`       | RuO2 QSGW              | 2 | – | `band_MLO_spin{1,2}.dat` |
+| `SmP`        | SmP (4f, so=2 Lz·Sz)   | 2 | – | `band_MLO_spin{1,2}.dat` |
 
 For `Si666gwsc` the MLO test was added on top of an existing `job_band`
 DFT-band check, so testecalj runs both. `Al2O3_Cr` is the canonical
