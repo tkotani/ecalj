@@ -13,6 +13,7 @@ testecalj -np 8 GaAsSoc       # semiconductor, with SOC
 testecalj -np 8 FeSoc         # ferromagnetic Fe (nspin=2), with SOC
 testecalj -np 8 FeMgOSoc      # FeMgO multilayer (nspin=2), with SOC
 testecalj -np 8 Si666gwsc     # Si QSGW, non-magnetic, MLO + DFT band check
+testecalj -np 8 Al2O3_Cr      # Cr-doped Al2O3 QSGW80, mlo_emax=7 example
 ```
 
 Each test runs the full pipeline (lmf → mlo, plus the 4-step
@@ -30,9 +31,11 @@ Each test runs the full pipeline (lmf → mlo, plus the 4-step
 | `GaAsSoc`    | GaAs QSGW              | 1 | ✓ | `band_MLO_spin1.dat`, `band_MLO_spin1.soc.dat` |
 | `FeSoc`      | bcc Fe DFT             | 2 | ✓ | `band_MLO_spin{1,2}.dat`, `band_MLO_spin1.soc.dat` |
 | `FeMgOSoc`   | FeMgO multilayer DFT   | 2 | ✓ | `band_MLO_spin{1,2}.dat`, `band_MLO_spin1.soc.dat` |
+| `Al2O3_Cr`   | Cr-doped Al2O3 QSGW80  | 2 | – | `band_MLO_spin{1,2}.dat` (mlo_emax=7) |
 
 For `Si666gwsc` the MLO test was added on top of an existing `job_band`
-DFT-band check, so testecalj runs both.
+DFT-band check, so testecalj runs both. `Al2O3_Cr` is the canonical
+example for `mlo_emax > 0` (Cr 3d states sit ~7 eV above E_F).
 
 ## Manual run
 
