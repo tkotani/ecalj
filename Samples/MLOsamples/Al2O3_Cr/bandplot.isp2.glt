@@ -1,0 +1,28 @@
+set terminal postscript enhanced color eps
+set output "bandplot.isp2.band.eps"
+set xzeroaxis
+set grid
+set ylabel "Energy-Efermi(eV)"
+# This is given written in subroutine writeband in lm7K/fp/bndfp.F
+set title "Band al2o3_cr isp=2 at /home/takao/people/saito/Al2O3_Cr"
+set yrange [   -20.00000:    20.00000]
+set xrange [0.0:     0.80088]
+set xtics ('GAMMA'   0.0000000000,\
+'T'   0.1152894272,\
+'H_2|H_0'   0.2257990175,\
+'L'   0.3235931587,\
+'GAMMA'   0.4498481609,\
+'S_0|S_2'   0.6028970839,\
+'F'   0.6581518801,\
+'GAMMA'   0.8008784713)
+tpia=2*3.1415926/     1.88973
+plot \
+"bnd001.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd002.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd003.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd004.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd005.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd006.spin2" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd007.spin2" u ($2):($3) lt 1 pt 1 w lp
+set terminal x11
+replot
