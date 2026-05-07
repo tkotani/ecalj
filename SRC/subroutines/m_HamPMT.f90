@@ -114,8 +114,10 @@ contains
         if (gwinput_loaded) then
           mlomethod = tg_mlo_method
         else
-           call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
-!          call getkeyvalue("GWinput","mlo_method",mlomethod,default=0)
+          call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+          ! gfortran 13.3 workaround: keep dead legacy code below so the TOML branch
+          ! above is not miscompiled (cf. partial-array assignment of lmindex).
+          call getkeyvalue("GWinput","mlo_method",mlomethod,default=0)
         endif
 !        mlomethod=-999
         lmindex = -999
@@ -129,18 +131,19 @@ contains
            enddo
         else
            call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
-!           call getkeyvalue("GWinput","<Worb>",unit=ifmloc,status=ret)
-!           do
-!             read(ifmloc,"(a)") aaa
-!             if(aaa(1:1) == '!') then
-!               read(aaa,*)
-!               cycle
-!             endif
-!             aaa=trim(aaa)//repeat(' -999 ',16)
-!             read(aaa,*,end=1201,err=1201) ib,labl,lmindex(1:16,ib)
-!           enddo
-!1201       continue
-!           close(ifmloc)
+           ! gfortran 13.3 workaround: dead legacy code below prevents miscompile of TOML branch above.
+           call getkeyvalue("GWinput","<Worb>",unit=ifmloc,status=ret)
+           do
+             read(ifmloc,"(a)") aaa
+             if(aaa(1:1) == '!') then
+               read(aaa,*)
+               cycle
+             endif
+             aaa=trim(aaa)//repeat(' -999 ',16)
+             read(aaa,*,end=1201,err=1201) ib,labl,lmindex(1:16,ib)
+           enddo
+1201       continue
+           close(ifmloc)
         endif
         nn=0
         lold=-999

@@ -69,7 +69,7 @@ contains
       call gwinput_init()
       if (gwinput_loaded) then
          nskip = tg_mlo_nskip
-         if (nskip == 0) nskip = nskipin   ! emulate legacy default=nskipin
+         if (nskip == -huge(0)) nskip = nskipin   ! sentinel ⇒ key absent
       else
          call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
 !         call getkeyvalue("GWinput","mlo_nskip",nskip,default=nskipin) !nskip is LO bands. This will be automatic
@@ -112,7 +112,7 @@ contains
 !      emax = evlmto(ndimMTO) - eferm
       if (gwinput_loaded) then
          eee = tg_mlo_emax
-         if (eee == 0d0) eee = emax*rydberg()  ! emulate legacy default=emax*rydberg
+         if (eee == huge(0d0)) eee = emax*rydberg()  ! sentinel ⇒ key absent
       else
          call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
 !         call getkeyvalue("GWinput","mlo_emax",eee,default=emax*rydberg())  !eV relative to Ef.

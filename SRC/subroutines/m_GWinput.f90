@@ -74,7 +74,7 @@ module m_GWinput
 
   ! Wannier-related
   ! mlo_emax: legacy reads as REAL (m_hreduction default=emax*rydberg).
-  real(8), protected, public :: mlo_emax     = 0.0d0
+  real(8), protected, public :: mlo_emax     = huge(0d0)  ! sentinel: key absent ⇒ runtime default
   integer, protected, public :: mlo_method   = 0
   integer, protected, public :: wan_maxit_1st = 100
   integer, protected, public :: wan_maxit_2nd = 100
@@ -142,7 +142,7 @@ module m_GWinput
   ! Integers
   integer, protected, public :: ngcell             = 1
   integer, protected, public :: nkeep_wfs          = 2
-  integer, protected, public :: mlo_nskip          = 0
+  integer, protected, public :: mlo_nskip          = -huge(0)  ! sentinel
   integer, protected, public :: nbcutlow_sig       = 0
   integer, protected, public :: mlo_maxit          = 100
   integer, protected, public :: wan_nb_below       = 0

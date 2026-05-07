@@ -199,9 +199,15 @@ def parse_gwinput(text: str) -> dict:
             if tag == "PRODUCT_BASIS":
                 out["product_basis"] = parse_product_basis(block_lines)
                 # DEBUG: also keep raw for legacy parser fallback
-                out["blocks"][tag] = "\n".join(block_lines)
+                if tag not in out["blocks"]:
+                    out["blocks"][tag] = "\n".join(block_lines)
             else:
-                out["blocks"][tag] = "\n".join(block_lines)
+                # Keep the FIRST occurrence of duplicate tags (e.g. <Worb>):
+                # legacy GWinput files often have a real first block plus a
+                # commented-out example block at the end as documentation.
+                # Last-write-wins would silently drop the real data.
+                if tag not in out["blocks"]:
+                    out["blocks"][tag] = "\n".join(block_lines)
             continue
 
         # Simple key value. Some files use 'key=value' form with no space
