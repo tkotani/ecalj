@@ -1,0 +1,32 @@
+set terminal postscript enhanced color eps
+set output "bandplot.isp1.band.eps"
+set xzeroaxis
+set grid
+set ylabel "Energy-Efermi(eV)"
+# This is given written in subroutine writeband in lm7K/fp/bndfp.F
+set title "Band feco isp=1 at /home/takao/ecalj/Samples/MLOsamples/FeCo"
+set yrange [   -20.00000:    20.00000]
+set xrange [0.0:     4.74165]
+set xtics ('GAMMA'   0.0000000000,\
+'X'   0.5000000000,\
+'M'   1.0000000000,\
+'GAMMA'   1.7071067812,\
+'Z'   2.1495846573,\
+'R'   2.6495846573,\
+'A'   3.1495846573,\
+'Z|X'   3.8566914385,\
+'R|M'   4.2991693146,\
+'A'   4.7416471907)
+tpia=2*3.1415926/     5.19675
+plot \
+"bnd001.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd002.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd003.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd004.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd005.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd006.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd007.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd008.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd009.spin1" u ($2):($3) lt 1 pt 1 w lp
+set terminal x11
+replot
