@@ -28,10 +28,12 @@ from utils import merge_files, remove_files
 
 EXEC_DIR = Path(__file__).resolve().parent
 
-COMMON_FLAGS = ["-vnspin=2", "--phispinsym"]
-EF_FLAGS    = ["-vso=1"]
-WRITE_FLAGS = ["-vso=0", "--socmatrix"]
-MLO_FLAGS   = ["--socmatrix"]
+# TOML-only mode: use -v[<toml-path>]=<value> syntax (m_toml_override).
+# Old -vnspin=2 / -vso=0 forms are silently ignored at HEAD.
+COMMON_FLAGS = ["-v[ham.nspin]=2", "--phispinsym"]
+EF_FLAGS    = ["-v[ham.so]=1"]
+WRITE_FLAGS = ["-v[ham.so]=0", "--socmatrix"]
+MLO_FLAGS   = ["-v[ham.nspin]=2", "--phispinsym", "--socmatrix"]
 
 def read_eferm(fname):
     # efermi.lmf first line: <Ef(Ry)> <vmag> # ...
