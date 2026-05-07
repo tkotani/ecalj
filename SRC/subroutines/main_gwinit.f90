@@ -62,6 +62,8 @@ contains
     !! ----- [gw] -----
     write(ifi,'(a)') '[gw]'
     write(ifi,'(a,3(i0,a),a)') 'n1n2n3 = [', n1q, ', ', n2q, ', ', n3q, ']', '   # BZ mesh'
+    write(ifi,'(a)') '# n1n2n3eps = [8, 8, 8]   # MAGNON-ONLY (lmagnon=T): separate finer mesh for'
+    write(ifi,'(a)') '#                          # epsilon(q,omega). Silently ignored by GW / job_mloW etc.'
     write(ifi,'(a)') 'QpGcut_psi = 4.0    # |q+G| cutoff for eigenfunctions  (a.u. unless unit_2pioa=true)'
     write(ifi,'(a)') 'QpGcut_cou = 3.0    # |q+G| cutoff for Coulomb / W'
     write(ifi,'(a)') 'unit_2pioa = false  # false: a.u.; true: 2*pi/alat'

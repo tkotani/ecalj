@@ -90,7 +90,18 @@ The `<Worb>` indices map to `(l, m)`: `1 → s; 2..4 → p; 5..9 → d; 10..16 �
 job_mloW fe -np 8
 ```
 
-Produces `Coulomb_v.*` (bare) and `Screening_W-v.*` (cRPA-screened). cRPA
+Produces:
+- `Coulomb_v.*` — bare V on MLO basis
+- `Screening_W-v.*` — cRPA-screened W − V on MLO basis
+
+What actually matters for downstream analysis:
+- **On-site (one-atom) blocks** of V and W − V (the U/J parameters in
+  Hubbard-style models live here).
+- **W at ω = 0** (static screened interaction).
+
+The full ω-dependence is stored on disk (frequency mesh from
+`HistBin_dw` / `HistBin_ratio`), but for typical use cases only the
+ω = 0 slice and the on-site sub-block need post-processing. cRPA
 mode may need minor follow-up; flag if problems show up.
 
 ## Recent fixes (2026-05)
