@@ -60,8 +60,9 @@ module m_ext
 contains
   subroutine m_ext_init() bind(C)
     logical :: master
-    integer:: ifi,ipos,i,na,getcwd
-    character*256:: sss,s222,argv
+    integer:: ifi,ipos,i,na,getcwd,ios,nmatch,dotpos,getpid
+    character*256:: sss,s222,argv,line,fname,candidate,tmpfile
+    character*32 :: pidstr
     i = getcwd(dirname)
     do i = 1, narg
        !write(*,*)'m_ext_init=',i, trim(arglist(i))
@@ -74,7 +75,35 @@ contains
           goto 999
        endif
     enddo
-    ! No positional arg supplied; leave sname at default ('tempext').
+    ! No positional arg supplied. GW-side programs (qg4gw, heftet, hbasfp0,
+    ! hvccfp0, hx0fp0, hwmatK_MPI, ...) don't take sname on the command line.
+    ! Auto-detect: if cwd has exactly one ctrlG.<x>.toml, use that <x>.
+    ! Per-rank tmp file (PID-suffixed) to avoid races across MPI ranks.
+    write(pidstr,'(i0)') getpid()
+    tmpfile = '.ext_glob_'//trim(pidstr)
+    call execute_command_line('ls -1 ctrlG.*.toml 2>/dev/null > '//trim(tmpfile), wait=.true.)
+    open(newunit=ifi, file=trim(tmpfile), status='old', action='read', iostat=ios)
+    if (ios == 0) then
+       nmatch = 0
+       candidate = ''
+       do
+          read(ifi, '(a)', iostat=ios) line
+          if (ios /= 0) exit
+          if (len_trim(line) == 0) cycle
+          nmatch = nmatch + 1
+          candidate = trim(line)
+       enddo
+       close(ifi, status='delete')
+       if (nmatch == 1) then
+          fname = trim(candidate)
+          dotpos = index(fname, '.toml', back=.true.)
+          if (fname(1:6) == 'ctrlG.' .and. dotpos > 7) then
+             sname = fname(7:dotpos-1)   ! chars between "ctrlG." and ".toml"
+             goto 999
+          endif
+       endif
+    endif
+    ! Couldn't auto-detect; leave sname at default ('tempext').
     ! Callers that need a real sname must check and abort themselves.
     return
     write(6,"( &

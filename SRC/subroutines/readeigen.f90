@@ -833,12 +833,24 @@ contains
       complex(8)::rotmatt(ndimMTO,ndimMTO),rotmat(nMTO,nMTO) !  write(stdo,*)'igg qp=',iqq,qp,'  ',qtarget
       complex(8) :: ovlm(ndimMTO,ndimMTO)
       integer :: istat
+      logical :: cmdopt0
       call rotmatMTO(igg, qp,qtarget,nMTO, rotmat)
       forall(i=1:ndimMTO,j=1:ndimMTO) rotmatt(i,j)=rotmat(ix(i),ix(j))
       cmlo = matmul(cmlo,dconjg(transpose(rotmatt)))
-      ovlm = matmul(dconjg(transpose(cmlo)), cmlo)
-      istat = zminv(ovlm, n=ndimMTO)
-      ovlm_inv = ovlm
+      if (cmdopt0('--mlo_feb4')) then
+        ! Feb 2026 (commit 464a2d510) behavior: V = <F F | V | F F> with the
+        ! non-orthogonal MLO basis as is; no dual-basis transformation. Set
+        ! ovlm_inv = identity so the downstream `cphif * ovlm_inv` (when
+        ! readcphiW is called with dual=.true.) becomes a no-op.
+        ovlm_inv = (0d0, 0d0)
+        forall(i=1:ndimMTO) ovlm_inv(i,i) = (1d0, 0d0)
+      else
+        ! Default (Today): dual basis. ovlm_inv = <F|F>^{-1}, so that
+        ! cphif * ovlm_inv represents <F̃| with <F̃_i|F_j> = δ_ij.
+        ovlm = matmul(dconjg(transpose(cmlo)), cmlo)
+        istat = zminv(ovlm, n=ndimMTO)
+        ovlm_inv = ovlm
+      endif
     endblock
   endsubroutine readcmlo
 end module m_readeigen

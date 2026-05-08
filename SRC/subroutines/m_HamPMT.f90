@@ -107,22 +107,26 @@ contains
       integer:: io
       socmatrix=cmdopt0('--socmatrix')
       ReadInfoFromGWinput: block ! Input orbital index for MLO, stored into idmto (s,p,d=1,2,3,4,5,6,7,8,9)
+        ! gwinput_init() aborts if GWinput.toml is missing, so gwinput_loaded
+        ! is always .true. below; the else branches are unreachable.
+        !
+        ! gfortran 13.3 / 14.2 codegen bug: a "naked" else with only call rx
+        ! on the second if (the lmindex/Worb path) miscompiles the live path,
+        ! corrupting lmindex and surfacing later as "zhev_tk2: nev /=nevx ...".
+        ! The empirically minimal bait that prevents the miscompile is one
+        ! string-trim+concat statement; trim() alone or // alone do NOT work.
+        ! The first if (mlomethod scalar) is unaffected.
         use m_nvfortran,only : findloc
-        integer::lmindex(16,nbas),ifmloc,ret,lm,iw,ibw,nlmw
-        character(256):: labl,aaa
+        integer::lmindex(16,nbas),lm,iw,ibw,nlmw
+        character(256):: aaa
         call gwinput_init()
         if (gwinput_loaded) then
           mlomethod = tg_mlo_method
         else
           call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
-          ! gfortran 13.3 workaround: keep dead legacy code below so the TOML branch
-          ! above is not miscompiled (cf. partial-array assignment of lmindex).
-          call getkeyvalue("GWinput","mlo_method",mlomethod,default=0)
         endif
-!        mlomethod=-999
         lmindex = -999
         if (gwinput_loaded) then
-           ! Reconstruct lmindex(:,ib) from structured Worb data
            do iw = 1, tg_n_worb
               ibw  = tg_worb_iatom(iw)
               nlmw = tg_worb_nlm(iw)
@@ -131,19 +135,7 @@ contains
            enddo
         else
            call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
-           ! gfortran 13.3 workaround: dead legacy code below prevents miscompile of TOML branch above.
-           call getkeyvalue("GWinput","<Worb>",unit=ifmloc,status=ret)
-           do
-             read(ifmloc,"(a)") aaa
-             if(aaa(1:1) == '!') then
-               read(aaa,*)
-               cycle
-             endif
-             aaa=trim(aaa)//repeat(' -999 ',16)
-             read(aaa,*,end=1201,err=1201) ib,labl,lmindex(1:16,ib)
-           enddo
-1201       continue
-           close(ifmloc)
+           aaa = trim(aaa) // ' '   ! compiler bait, unreachable -- see block header
         endif
         nn=0
         lold=-999
@@ -195,7 +187,7 @@ contains
       cmlo4GWinput: if(cmdopt0('--mlo')) then !from __Hamiltoniangw to __cmlo.data, __cmlo.info
         HreductionIqibzGWinput: block
           use m_mpiio,only: openm,writem,closem, readm_struct, record_item, record_item_from
-          integer:: i,iqxx,jspxx,idat,ifizz,isp,mrecbb,ndble,ifi,nbandmx,nqbzgw, iqqisp
+          integer:: i,iqxx,jspxx,idat,ifizz,isp,mrecbb,ndble,ifi,nbandmx, iqqisp
           complex(8)::rotmatt(ndimMTO,ndimMTO)
           real(8),allocatable:: qplistgw(:,:)
           integer :: ifihh_info, mrech, istat
@@ -258,7 +250,7 @@ contains
           istat = closem(ifihh)
           if(master_mpi) then
             open(newunit=ifi,file='__cmlo.info',form='unformatted') 
-            write(ifi) ndimMTO,nqbzgw,nqirr,nMTO,mrecbb
+            write(ifi) ndimMTO,nqbz,nqirr,nMTO,mrecbb
             write(stdo,ftox)'nnnnn ndimMTO nqirr=',ndimMTO,nqirr
             write(ifi) ix(1:ndimMTO),qplistgw(1:3,1:nqirr)
             close(ifi)

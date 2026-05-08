@@ -145,11 +145,16 @@ contains
       cmlo_loc(1:ndimPMTx,1:ndimMTO) = matmul(Amat(1:ndimPMTx,1:ndimMTO),&
            matmul(transpose(dconjg(evecmto(:,:))),ovlmx(ix(1:ndimMTO),ix(1:ndimMTO)))) ! where <Psi_MTO j|MTO_k> = (evecmto*) @ ovlmx
 
-      ! normalized
-      ! do i=1,ndimMTO
-      !   ddd = sum( dconjg(cmlo(1:nx,i))*cmlo(1:nx,i) ) !<F^MLO|F^MLO>
-      !   cmlo(1:nx,i)=cmlo(1:nx,i)/sqrt(ddd)
-      ! enddo
+      ! Per-orbital diagonal normalization: |F^MLO_i> -> |F^MLO_i>/sqrt(<F^MLO_i|F^MLO_i>).
+      ! Diagonal-only; off-diagonal overlap is left untouched. Use --mlo_diagnormalization
+      ! to enable. Matches Feb 2026 commit 464a2d510 behavior when on.
+      ! (--mlo_ortho below performs full Lowdin orthogonalization.)
+      MLODiagonalNormalize: if (cmdopt0('--mlo_feb4')) then
+         do i = 1, ndimMTO
+            ddd = sum(dconjg(cmlo_loc(1:nx,i))*cmlo_loc(1:nx,i)) !<F^MLO|F^MLO>
+            cmlo_loc(1:nx,i) = cmlo_loc(1:nx,i)/sqrt(ddd)
+         enddo
+      endif MLODiagonalNormalize
       MLOLowdinOrthogonalization:if(cmdopt0('--mlo_ortho')) then
          block 
           use m_lapack, only: zhev => zhev_h
