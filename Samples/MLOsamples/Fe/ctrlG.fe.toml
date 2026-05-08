@@ -117,7 +117,7 @@ pwemax = 3.0  # APW cutoff (Ry)
 # Touch only if you know what you are doing -- defaults are sensible.
 [gw]
 mlo_method = 0
-n1n2n3 = [6, 6, 6, 4, 4, 4]  # BZ mesh for GW
+n1n2n3 = [4, 4, 4]  # BZ mesh for GW
 QpGcut_psi = 4.0  # |q+G| cutoff for eigenfunctions (a.u. unless unit_2pioa=true)
 QpGcut_cou = 3.0  # |q+G| cutoff for Coulomb / W
 unit_2pioa = false  # false: a.u.;  true: 2*pi/alat
