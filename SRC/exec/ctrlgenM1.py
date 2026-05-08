@@ -16,8 +16,23 @@
 # ---- end here ------
 # (HEADER and so are at the begining of lines)
 # take Kino's change.
+#
+# DEPRECATED 2026-May: this script previously generated a legacy
+# ctrl.<ext> text file as input to lmf/lmfa.  Since 2026-May the
+# Fortran reads ctrlG.<ext>.toml + PB.toml only; use ctrlgenToml.py
+# (which goes ctrls.<ext> -> ctrlG.<ext>.toml directly).
+# The atomlist below is still consumed by ctrlgenToml.py via runtime
+# regex-extraction of this file, so the source body is preserved.
 #########################################################################
 import os, sys, string, re, locale
+
+# Early exit when invoked as a script.  Importing the module (or
+# regex-reading its source for the atomlist from ctrlgenToml.py) is
+# unaffected.
+if __name__ == '__main__':
+    print('Use ctrlgenToml.py instead from 2026-May! '
+          'The structure of ctrls.foobar unchanged.')
+    sys.exit(0)
 
 atomlist="""
 
