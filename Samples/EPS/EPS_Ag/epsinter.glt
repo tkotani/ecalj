@@ -1,0 +1,18 @@
+#!/usr/bin/gnuplot -persist
+rydberg=13.605
+set title "Ag eps chi0. no LFC 12x12x12 LDA low energy part: scaling check"
+set xlabel " eV (zero at the Fermi energy or top of valence)"
+set ylabel " eps"
+set xzeroaxis
+set grid
+set datafile fortran
+#set xrange [0:0.3]
+#plot "EPS0001.nlfc.dat" u ($4*rydberg):($6)  w lp,\
+#     "EPS0002.nlfc.dat" u ($4*rydberg):($6)  w lp
+set xrange [0:120]
+set yrange [0:10] 
+plot "EPS0001.nlfc.dat.interbandonly" u ($4*rydberg):($6)  w l,\
+     "EPS0002.nlfc.dat.interbandonly" u ($4*rydberg):($6)  w l,\
+     "EPS0003.nlfc.dat.interbandonly" u ($4*rydberg):($6)  w l, \
+     "EPS0004.nlfc.dat.interbandonly" u ($4*rydberg):($6)  w l, \
+     "EPS0005.nlfc.dat.interbandonly" u ($4*rydberg):($6)  w l

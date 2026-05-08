@@ -4,7 +4,7 @@ set xzeroaxis
 set grid
 set ylabel "Energy-Efermi(eV)"
 # This is given written in subroutine writeband in lm7K/fp/bndfp.F
-set title "Band cu at /home/takao/ecalj/Samples/CuepsPP0"
+set title "Band cu at Samples/EPS/EPS_Cu"
 set yrange [   -20.00000:    20.00000]
 set xrange [0.0:     4.48735]
 set xtics ('GAMMA'   0.0000000000,\
