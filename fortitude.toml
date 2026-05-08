@@ -1,4 +1,0 @@
-[check]
-select = ["C", "E", "S"]
-ignore = ["S102"]
-line-length = 132
