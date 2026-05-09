@@ -1,4 +1,18 @@
 2026-05-09
+  [feature] SRC/exec/CMakeLists.txt + InstallAll.py: cmake --build で lib と
+    メインバイナリを必ず一括 (atomic) で BIN_DIR にデプロイする仕組みに
+    変更。CMakeLists.txt の `deliver` ターゲットの宛先リストに
+    `-DECALJ_BIN_DIR=<path>` を渡したときだけ <path> を追加する形に
+    して、`${DELIVER_FILES}` (libecaljF*.so + 全 main 実行ファイル) を
+    一回の copy_if_different でまとめて配るようにした。InstallAll.py 側は
+    cmake configure 時に -DECALJ_BIN_DIR=${BIN_DIR} を渡し、従来の
+    BUILD_DIR からの lib*.so / 実行ファイル個別コピー処理を削除。
+    これで `cmake --build` 後に `cp build/lmf ~/bin/` だけして
+    libecaljF.so を忘れて古い lib が残る事故が起きなくなる。
+    EXEC_DIR 配下のヘルパースクリプトは引き続き InstallAll.py が個別
+    コピーする (cmake build graph に乗っていないため)。
+
+2026-05-09
   [misc] SRC/exec/{utils,run_cmd,gwinput_prepare}.py: 先頭に
     `from __future__ import annotations` を追加。PEP 604 の `str | Path`
     と PEP 585 の `set[Path]` 等を使った型注釈の評価を遅延させ、Python

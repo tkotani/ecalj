@@ -146,7 +146,13 @@ def main():
     cmake_env = os.environ.copy()
     cmake_env['FC'] = FC
 
-    cmake_options = f"-S {EXEC_DIR} -B {BUILD_DIR} -DCMAKE_BUILD_TYPE={BUILD_TYPE}"
+    # Pass BIN_DIR to CMake so the `deliver` target auto-deploys
+    # libecaljF*.so + every main exe to BIN_DIR on every build, atomically.
+    cmake_options = (
+        f"-S {EXEC_DIR} -B {BUILD_DIR}"
+        f" -DCMAKE_BUILD_TYPE={BUILD_TYPE}"
+        f" -DECALJ_BIN_DIR={BIN_DIR}"
+    )
     if args.gemmul8:
         build_and_install_gemmul8(BUILD_DIR, BIN_DIR)
     if args.gpu:
@@ -160,18 +166,12 @@ def main():
 
     run_shell(f"{verbose}cmake --build {BUILD_DIR} -j{jobs}")
 
-    # --- Copy executables and libraries to BIN_DIR ---
-    print(f'Copying executables to {BIN_DIR}')
-    import glob as _glob
-    for so_file in _glob.glob(str(BUILD_DIR / 'lib*.so')):
-        print(f'  Copying {so_file} -> {BIN_DIR}')
-        shutil.copy2(so_file, BIN_DIR)
-    for path_item in BUILD_DIR.iterdir():
-        if path_item.is_file() and path_item.suffix != '.so' and os.access(path_item, os.X_OK):
-            try:
-                shutil.copy2(path_item, BIN_DIR)
-            except (OSError, PermissionError) as e:
-                print(f"Warning: Skipping {path_item.name}: {e}", file=sys.stderr)
+    # --- Copy non-build executables (scripts) from EXEC_DIR to BIN_DIR ---
+    # libecaljF*.so + every main binary from BUILD_DIR are deployed atomically
+    # by the CMake `deliver` target (driven by -DECALJ_BIN_DIR above), so they
+    # never go out of sync.  Here we only handle the in-tree helper scripts
+    # under SRC/exec/ that are not part of the CMake build graph.
+    print(f'Copying helper scripts to {BIN_DIR}')
     for path_item in EXEC_DIR.iterdir():
         if path_item.is_file() and path_item.suffix != '.so' and os.access(path_item, os.X_OK):
             try:

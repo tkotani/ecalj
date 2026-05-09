@@ -247,14 +247,27 @@ if(BUILD_MP_GPU)
 endif()
 
 # --- Delivery and Cleanup Targets ---
+# DELIVER_FILES bundles libecaljF*.so + every main executable.  We always
+# copy them as a single set (one cmake -E copy_if_different invocation),
+# so the deployed copy of any main binary is never left without its
+# matching libecaljF.so on disk.  Pass -DECALJ_BIN_DIR=<path> at configure
+# time to also auto-deploy into ~/bin (or wherever) on every cmake --build.
 set(DELIVER_DIR ${CMAKE_SOURCE_DIR}/../exec_${FC})
 
+set(_DELIVER_DESTS ${DELIVER_DIR} ${CMAKE_SOURCE_DIR})
+if(DEFINED ECALJ_BIN_DIR AND NOT ECALJ_BIN_DIR STREQUAL "")
+  list(APPEND _DELIVER_DESTS "${ECALJ_BIN_DIR}")
+endif()
+set(_DELIVER_COMMANDS "")
+foreach(_dest IN LISTS _DELIVER_DESTS)
+  list(APPEND _DELIVER_COMMANDS COMMAND ${CMAKE_COMMAND} -E make_directory ${_dest})
+  list(APPEND _DELIVER_COMMANDS COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DELIVER_FILES} ${_dest})
+endforeach()
+
 add_custom_target(deliver ALL
-  COMMAND ${CMAKE_COMMAND} -E make_directory ${DELIVER_DIR}
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DELIVER_FILES} ${DELIVER_DIR}
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DELIVER_FILES} ${CMAKE_SOURCE_DIR}
+  ${_DELIVER_COMMANDS}
   DEPENDS ${DELIVER_FILES}
-  COMMENT "Copying build products to ${DELIVER_DIR} and ${CMAKE_SOURCE_DIR}"
+  COMMENT "Copying build products to ${_DELIVER_DESTS}"
 )
 
 # Create a list of delivered files in the source directory for cleanup
