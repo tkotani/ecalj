@@ -1,4 +1,14 @@
 2026-05-09
+  [bugfix] m_igv2x.f90: t_igv2x_data を public:: リストから外す。
+    L11 で `type, public :: t_igv2x_data` と宣言済みのため、L5 の
+    `public:: ..., t_igv2x_data` と二重 PUBLIC 化されていた。
+    gfortran は黙認するが ifort は #6251 でエラー。
+  [bugfix] m_zmel.f90: build_zmel ローカル変数 mpi_info を mpi_ierr に
+    リネーム。Intel MPI の `use mpi` が `MPI_INFO` 派生型を公開しており
+    名前衝突で ifort #6401/#6478。実態は MPI 呼び出しの ierror なので
+    mpi_ierr の方が意味的にも正確。
+
+2026-05-09
   [bugfix] iors.f90: readrho の領域ゼロクリアでオフバイ-typo を修正。
     `aout(:,nlmx+1:nlm0,:)=0d0` を `aout(:,nlmx+1:nlm,:)=0d0` に変更。
     nlmx=min(nlm,nlm0) なので新基底拡張時(nlm>nlm0)に新領域 nlm0+1:nlm が

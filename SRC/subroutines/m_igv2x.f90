@@ -2,7 +2,7 @@
 module m_igv2x
   use m_lgunit,only:stdo
   use m_struc_def,only: s_nv2
-  public:: m_igv2xall_init, m_igv2x_setiq, m_igv2x_getiq, t_igv2x_data
+  public:: m_igv2xall_init, m_igv2x_setiq, m_igv2x_getiq
   integer,protected,public:: nbandmx
   integer,protected,pointer,public :: igv2x(:,:)
   integer,protected,pointer,public :: napw,ndimh,ndimhx

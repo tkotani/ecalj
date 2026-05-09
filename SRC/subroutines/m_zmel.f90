@@ -183,7 +183,7 @@ contains
     integer:: iasx(natom),icsx(natom),iatomp(natom),imdim(natom),iclass(natom)
     real(8)::tr(3,natom),qk(3),symope(3,3),shtv(3)
     integer :: ierr, nqini_rank, nqmax_rank, ntp0_rank ,nm1,nm2,nm1c,nm2c,nm1v,nm2v,nm1cc,nm2cc
-    integer :: mpi_rank, mpi_size, ini_index, end_index, num_index, mpi_info, irank
+    integer :: mpi_rank, mpi_size, ini_index, end_index, num_index, mpi_ierr, irank
     real(8),optional::maxmem
     character(8),external:: charext
     complex(kind=kp), parameter:: CONE = (1_kp, 0_kp), CZERO = (0_kp, 0_kp)
@@ -236,8 +236,8 @@ contains
     nqini_rank = nqini
     nqmax_rank = nqmax
     if(mpi_mode) then
-      call mpi_comm_rank(comm, mpi_rank, mpi_info)
-      call mpi_comm_size(comm, mpi_size, mpi_info)
+      call mpi_comm_rank(comm, mpi_rank, mpi_ierr)
+      call mpi_comm_size(comm, mpi_size, mpi_ierr)
       call int_split(ntp0, mpi_size, mpi_rank, ini_index, end_index, num_index)
       ntp0 = num_index
       nqini_rank = nqini + ini_index - 1
@@ -597,7 +597,7 @@ contains
           if(kp == 4) mpi_data_type = MPI_COMPLEX8
           !$acc update host(zmel)
           call mpi_allgatherv(zmel(1,nm1,ncc+ini_index), data_size(mpi_rank), mpi_data_type, zmel_buf, data_size, data_disp, &
-                              mpi_data_type, comm, mpi_info) !this takes time
+                              mpi_data_type, comm, mpi_ierr) !this takes time
           zmel(1:nbb,ns1:ns2,ncc+1:nqtot) = zmel_buf(1:nbb,ns1:ns2,ncc+1:nqtot)
           !$acc update device(zmel)
           if(debug) call writemem('mmmmm_zmel after mpi=allgatherv')
