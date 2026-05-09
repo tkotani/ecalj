@@ -111,6 +111,14 @@ def parse_args(argv):
         elif a.startswith('--tratio='):    opts['touchingratio'] = float(a.split('=',1)[1])
         elif a == '--ehmol':               opts['eh1set'] = 0
         elif a == '--skipgw':             opts['skipgw'] = True
+        elif a == '--showatomlist':
+            # Print the atomlist (periodic-table defaults) and exit;
+            # no <ext> required.  The atomlist is shared with the
+            # legacy ctrlgenM1.py via runtime regex extraction.
+            print(atomlist)
+            sys.exit(0)
+        elif a in ('-h', '--help'):
+            sys.exit(__doc__.strip())
         elif a.startswith('-'):
             sys.exit('ctrlgenToml: unknown option ' + a)
         else:
