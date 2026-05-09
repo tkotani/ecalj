@@ -218,6 +218,7 @@ function(add_extended_build VARIANT)
     )
     list(APPEND DELIVER_FILES ${CMAKE_BINARY_DIR}/${exename})
   endforeach()
+  set(DELIVER_FILES ${DELIVER_FILES} PARENT_SCOPE)
 endfunction()
 
 # --- GEMMul8 Wrapper Library ---

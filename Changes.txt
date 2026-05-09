@@ -1,4 +1,18 @@
 2026-05-09
+  [bugfix] SRC/exec/CMakeLists.txt: add_extended_build 関数末尾に
+    `set(DELIVER_FILES ${DELIVER_FILES} PARENT_SCOPE)` を追加。
+    関数内での `list(APPEND DELIVER_FILES ...)` は function scope に
+    閉じるため、mp / gpu / mp_gpu の libecaljF_*.so と *_gpu / *_mp_gpu
+    の各 main 実行体が外側の DELIVER_FILES に伝播せず、deliver target
+    に登録されていなかった。symlink 化以前 (copy_if_different) は旧
+    bash Makeinstall が SRC/exec の executable 全部を find -exec で
+    拾って ~/bin にコピーしていたため隠れていたが、6611117c で
+    deliver = create_symlink のみになって表面化:
+    ~/bin/lmf, libecaljF.so だけ symlink・残りの GPU/MP variants は
+    古い実体ファイルのまま、という inconsistent 状態が発生。
+    PARENT_SCOPE で関数外まで伝播させて全 variant を symlink 化。
+
+2026-05-09
   [refactor] SRC/exec/CMakeLists.txt: deliver ターゲットの実装を
     `cmake -E copy_if_different` から `cmake -E create_symlink` に
     変更。~/bin/lmf や ~/bin/libecaljF.so 等は build/ 配下へのシンボ
