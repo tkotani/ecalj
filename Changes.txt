@@ -1,4 +1,14 @@
 2026-05-09
+  [refactor] SRC/exec/CMakeLists.txt: deliver ターゲットの実装を
+    `cmake -E copy_if_different` から `cmake -E create_symlink` に
+    変更。~/bin/lmf や ~/bin/libecaljF.so 等は build/ 配下へのシンボ
+    リックリンクとなり、`cmake --build` で build/ が更新されればその
+    瞬間にデプロイ先にも反映される。コピーずれによる stale の心配が
+    完全になくなる (513cc59ee の atomic deploy 方針の延長)。SRC/exec
+    と SRC/exec_<FC>/ も同様に symlink。既存の copy が残っているケース
+    に備えて symlink 作成前に rm -f しておく。
+
+2026-05-09
   [bugfix] SRC/exec/CMakeLists.txt: GPU+GEMMul8 ビルド時に
     libgemmul8wrap.so を DELIVER_FILES に追加。これがないと cmake
     --build で build/ には更新されるが ~/bin に同期されず、

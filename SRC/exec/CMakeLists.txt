@@ -251,11 +251,12 @@ if(BUILD_MP_GPU)
 endif()
 
 # --- Delivery and Cleanup Targets ---
-# DELIVER_FILES bundles libecaljF*.so + every main executable.  We always
-# copy them as a single set (one cmake -E copy_if_different invocation),
-# so the deployed copy of any main binary is never left without its
-# matching libecaljF.so on disk.  Pass -DECALJ_BIN_DIR=<path> at configure
-# time to also auto-deploy into ~/bin (or wherever) on every cmake --build.
+# DELIVER_FILES bundles libecaljF*.so + every main executable.  We deploy
+# them as symlinks pointing back to the build tree, so any rebuild
+# (cmake --build) is reflected immediately at the deployed paths without
+# a separate copy step — main binaries and their matching libraries can
+# never go out of sync.  Pass -DECALJ_BIN_DIR=<path> at configure time to
+# also place symlinks under ~/bin (or wherever).
 set(DELIVER_DIR ${CMAKE_SOURCE_DIR}/../exec_${FC})
 
 set(_DELIVER_DESTS ${DELIVER_DIR} ${CMAKE_SOURCE_DIR})
@@ -265,13 +266,19 @@ endif()
 set(_DELIVER_COMMANDS "")
 foreach(_dest IN LISTS _DELIVER_DESTS)
   list(APPEND _DELIVER_COMMANDS COMMAND ${CMAKE_COMMAND} -E make_directory ${_dest})
-  list(APPEND _DELIVER_COMMANDS COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DELIVER_FILES} ${_dest})
+  foreach(_f IN LISTS DELIVER_FILES)
+    get_filename_component(_fname ${_f} NAME)
+    # rm first because `cmake -E create_symlink` errors out if the target
+    # already exists (e.g. an old plain copy from a previous install).
+    list(APPEND _DELIVER_COMMANDS COMMAND ${CMAKE_COMMAND} -E rm -f ${_dest}/${_fname})
+    list(APPEND _DELIVER_COMMANDS COMMAND ${CMAKE_COMMAND} -E create_symlink ${_f} ${_dest}/${_fname})
+  endforeach()
 endforeach()
 
 add_custom_target(deliver ALL
   ${_DELIVER_COMMANDS}
   DEPENDS ${DELIVER_FILES}
-  COMMENT "Copying build products to ${_DELIVER_DESTS}"
+  COMMENT "Linking build products into ${_DELIVER_DESTS}"
 )
 
 # Create a list of delivered files in the source directory for cleanup
