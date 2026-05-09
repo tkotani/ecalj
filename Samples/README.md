@@ -15,6 +15,7 @@ working dir to convert before invoking `lmf`/`gwsc`/etc.
 
 | dir | role | what's inside |
 |---|---|---|
+| [GetStarted/](GetStarted/) | minimal seeds for the [ecaljdoc tutorial](https://ecalj.github.io/ecaljdoc/manual/README_tutorial#getstarted) | `GaAs/` ships `ctrls.gaas` + `ctrlG.gaas.toml` + `PB.toml`. See [GetStarted/README.md](GetStarted/README.md). |
 | [MLOsamples/](MLOsamples/) | MuffinTin Localized Orbitals (Wannier replacement) | 17 samples — semiconductors, magnetic metals, multilayers, 4f systems. See [MLOsamples/README.md](MLOsamples/README.md). |
 | [TestInstall/](TestInstall/) | install validation suite | 23 samples — ground-state, GW (gwsc), eps (eps_lmfh, epsPP_lmfh), magnetic susceptibility (chipm), cRPA. Driven by `testecalj --all`. |
 | [EPS/](EPS/) | dielectric function ε(q,ω) | 3 samples — `EPS_Cu`, `EPS_GaAs`, `EPS_Ag`. epsPP0 with no LFC; small q probe + intra/inter band split. |
