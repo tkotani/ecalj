@@ -9,10 +9,7 @@ import datetime
 from pathlib import Path
 from dataclasses import dataclass, field
 
-try:
-    import tomllib  # Python 3.11+ stdlib
-except ModuleNotFoundError:
-    import tomli as tomllib  # Python <=3.10: pip install tomli
+import tomllib
 
 START_TIME = datetime.datetime.now()
 # Base directory of this module
@@ -163,6 +160,7 @@ def _read_bmix_from_ctrl(target: str) -> float:
     toml_file = f'ctrlG.{target}.toml'
     if not Path(toml_file).is_file():
         raise FileNotFoundError(f"Control file not found: {toml_file}")
+    import tomllib
     with open(toml_file, 'rb') as f:
         cfg = tomllib.load(f)
     try:
