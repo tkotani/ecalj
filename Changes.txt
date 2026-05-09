@@ -1,4 +1,14 @@
 2026-05-09
+  [validation] master tip (この commit 群を含む) を 5 環境で testecalj
+    --all = ALL PASSED! 確認:
+      - local (Ubuntu 24.04 / gfortran 14    / Python 3.13)
+      - local (Ubuntu 24.04 / ifx 2025.3.3   / Python 3.13)
+      - kt1   (Ubuntu 24.04 / nvfortran 26.1 / Python 3.12, GPU + CUDA 13)
+      - mic   (RHEL 8.7    / ifort 2023.0.0 / Python 3.12 via uv)
+      - ucgw  (RHEL 8.8    / ifx 2024.2     / Python 3.12 via pyenv)
+    gfortran / nvfortran / ifort / ifx の主要 4 系統で同時に回帰なし。
+
+2026-05-09
   [feature] InstallAll.py: 先頭に Python 3.11+ 必須チェックを追加。
     未満のバージョンで起動した場合は pyenv / uv によるローカル
     インストール手順を案内して即 exit する。tomllib / contextlib.chdir
