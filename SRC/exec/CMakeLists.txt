@@ -274,6 +274,13 @@ foreach(_dest IN LISTS _DELIVER_DESTS)
     list(APPEND _DELIVER_COMMANDS COMMAND ${CMAKE_COMMAND} -E create_symlink ${_f} ${_dest}/${_fname})
   endforeach()
 endforeach()
+# Note: ~/bin/lib*.so (symlinks to build/) are kept on purpose.  At
+# runtime they are not the resolution path — the kernel canonicalizes
+# the ~/bin/lmf -> build/lmf symlink, so $ORIGIN = build/ and lmf
+# loads build/libecaljF.so directly.  But `ldd ~/bin/lmf`,
+# `LD_LIBRARY_PATH=~/bin`, and `ctypes.CDLL("libecaljF.so")` all expect
+# to find the library in ~/bin; the symlink keeps those tools happy
+# at zero runtime cost.
 
 add_custom_target(deliver ALL
   ${_DELIVER_COMMANDS}
