@@ -1,4 +1,16 @@
 2026-05-09
+  [feature] InstallAll.py: 先頭に Python 3.11+ 必須チェックを追加。
+    未満のバージョンで起動した場合は pyenv / uv によるローカル
+    インストール手順を案内して即 exit する。tomllib / contextlib.chdir
+    が 3.11+ stdlib なので、testecalj 周辺スクリプトが古い Python では
+    そもそも動かない（mic / ucgw でハマったことが動機）。コード側に
+    互換シムを入れるより「3.11+ をホストに入れろ」と一発で返した方が
+    クリーンという方針。
+  [revert] SRC/exec/run_cmd.py: 直前の tomllib → tomli フォールバック
+    コミット (3d7a88d5d) を revert。InstallAll.py の Python チェックで
+    弾く方針なので、コード側の互換シムは不要。
+
+2026-05-09
   [bugfix] InstallAll.py: /tmp/gpu.lock の取得を --gpu 指定時のみに限定。
     GPU を持たないマシン (mic / ucgw) で他ユーザ所有の /tmp/gpu.lock が
     残っていると無条件 open('w') が PermissionError で死んでいた。

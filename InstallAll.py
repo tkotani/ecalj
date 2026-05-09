@@ -1,6 +1,25 @@
 #!/usr/bin/env python3
 import os
 import sys
+
+if sys.version_info < (3, 11):
+    sys.stderr.write(
+        "ERROR: ecalj requires Python 3.11 or newer (found {}.{}.{}).\n"
+        "       The build helper and the testecalj scripts use stdlib `tomllib`\n"
+        "       and `contextlib.chdir`, both added in Python 3.11.\n"
+        "\n"
+        "       Install a recent Python locally and re-run this script. Examples:\n"
+        "         pyenv install 3.12.13 && pyenv global 3.12.13\n"
+        "         curl -LsSf https://astral.sh/uv/install.sh | sh \\\n"
+        "             && uv python install 3.12 \\\n"
+        "             && ln -sf \"$(uv python find 3.12)\" ~/.local/bin/python3\n"
+        "\n"
+        "       Then make sure `python3 -V` shows 3.11+ before running\n"
+        "       `python3 InstallAll.py ...` again.\n"
+        .format(*sys.version_info[:3])
+    )
+    sys.exit(1)
+
 import shutil
 import pathlib
 import time
