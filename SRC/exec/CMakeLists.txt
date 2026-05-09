@@ -233,6 +233,10 @@ if(BUILD_GPU OR BUILD_MP_GPU)
         BUILD_RPATH "$ORIGIN"
         INSTALL_RPATH "$ORIGIN"
     )
+    # m_gemmul8.f90 calls C symbols (gemmul8_*gemm_) defined in this lib;
+    # ship it together with libecaljF_gpu.so so the deployed copies stay
+    # in sync — same atomicity guarantee as the rest of DELIVER_FILES.
+    list(APPEND DELIVER_FILES ${CMAKE_BINARY_DIR}/libgemmul8wrap.so)
   endif()
 endif()
 

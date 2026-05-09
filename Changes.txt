@@ -1,4 +1,13 @@
 2026-05-09
+  [bugfix] SRC/exec/CMakeLists.txt: GPU+GEMMul8 ビルド時に
+    libgemmul8wrap.so を DELIVER_FILES に追加。これがないと cmake
+    --build で build/ には更新されるが ~/bin に同期されず、
+    libecaljF_gpu.so と version skew を起こして m_gemmul8.f90 から
+    呼ぶ C ABI シンボル (gemmul8_zgemm_ 等) が古い版にバインドされ
+    かねない。先日の libecaljF.so atomic deploy 修正 (513cc59ee)
+    と同じ趣旨で gemmul8wrap も束ねる。
+
+2026-05-09
   [validation] master tip (この commit 群を含む) を 5 環境で testecalj
     --all = ALL PASSED! 確認:
       - local (Ubuntu 24.04 / gfortran 14    / Python 3.13)
