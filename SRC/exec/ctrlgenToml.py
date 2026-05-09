@@ -34,6 +34,14 @@ Optional flags (all bake into ctrlG.<ext>.toml):
     --skipgw             generate ctrlG.<ext>.toml only (no [gw] /
                          [product_basis] / [blocks]; no PB.toml).
                          Use for DFT-only / no-GW workflows.
+    --addgw              append [gw] / [product_basis] / [blocks] (and
+                         emit PB.toml) to an *existing* ctrlG.<ext>.toml
+                         WITHOUT regenerating the ctrl-side keys —
+                         preserves any hand-edits you made to [bz] /
+                         [ham] / [[spec]] etc.  Errors out if [gw] is
+                         already present (delete the GW tables and
+                         PB.toml first, or omit --addgw to fully
+                         regenerate from ctrls.<ext>).
     --showatomlist       print the periodic-table defaults table and exit
     -h, --help           show this docstring
 
@@ -118,6 +126,7 @@ def parse_args(argv):
         touchingratio=0.97,
         eh1set=1,
         skipgw=False,
+        addgw=False,
     )
     pos_args = []
     for a in argv[1:]:
@@ -136,6 +145,7 @@ def parse_args(argv):
         elif a.startswith('--tratio='):    opts['touchingratio'] = float(a.split('=',1)[1])
         elif a == '--ehmol':               opts['eh1set'] = 0
         elif a == '--skipgw':             opts['skipgw'] = True
+        elif a == '--addgw':              opts['addgw'] = True
         elif a == '--showatomlist':
             # Print the atomlist (periodic-table defaults) and exit;
             # no <ext> required.  The atomlist is shared with the
@@ -347,6 +357,31 @@ def lmxa_for_z(z):
 def main():
     opts = parse_args(sys.argv)
     ext = opts['ext']
+
+    if opts.get('skipgw') and opts.get('addgw'):
+        sys.exit('ctrlgenToml: --skipgw and --addgw are mutually exclusive')
+
+    # --- --addgw: append [gw]/[product_basis]/[blocks] to an existing
+    # ctrlG.<ext>.toml without regenerating the ctrl-side keys. ---
+    if opts.get('addgw'):
+        out_path = 'ctrlG.' + ext + '.toml'
+        if not os.path.exists(out_path):
+            sys.exit(f'ctrlgenToml --addgw: {out_path} does not exist; run '
+                     f'`ctrlgenToml.py {ext}` first to generate it.')
+        existing = open(out_path).read()
+        # Match a top-level [gw] section header (ignore [[gw]] arrays;
+        # ignore in-string accidental occurrences only loosely — TOML
+        # does not allow [gw] inside a multiline string at column 0
+        # in well-formed input).
+        if re.search(r'(?m)^\s*\[gw\]\s*$', existing):
+            sys.exit(f'ctrlgenToml --addgw: {out_path} already has a [gw] '
+                     f'section.  Refusing to append (delete the existing '
+                     f'[gw]/[product_basis]/[blocks] tables and PB.toml '
+                     f'first, or just re-run `ctrlgenToml.py {ext}` '
+                     f'without --addgw to regenerate from ctrls.{ext}).')
+        _run_gw_append(ext, out_path)
+        return
+
     ctrls_path = 'ctrls.' + ext
     if not os.path.exists(ctrls_path):
         sys.exit('ctrlgenToml: ' + ctrls_path + ' not found')
@@ -664,6 +699,13 @@ def main():
     if opts.get('skipgw'):
         print(f'ctrlgenToml: --skipgw, leaving ctrlG.{ext}.toml without [gw]/[product_basis]/[blocks].  PB.toml not generated.')
         return
+    _run_gw_append(ext, out_path)
+
+
+def _run_gw_append(ext, out_path):
+    """Run lmfa -> lmf --jobgw=0 -> gwinit to append [gw] / [product_basis]
+    / [blocks] to ctrlG.<ext>.toml (in place) and write PB.toml.  Used by
+    the default flow and by --addgw."""
     import subprocess
     here = os.path.dirname(os.path.realpath(__file__))
     print(f'ctrlgenToml: running lmfa -> lmf --jobgw=0 -> gwinit  to fill GW sections')
@@ -687,6 +729,7 @@ def main():
             open(fname, 'w').write(apply_toml_annotations(txt))
     print(f'ctrlgenToml: done. {out_path} has [io]/[struc]/[[site]]/[[spec]]/...')
     print(f'             plus [gw]/[product_basis]/[blocks].  PB.toml has nlx/valence/core.')
+
 
 if __name__ == '__main__':
     main()
