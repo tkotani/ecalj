@@ -1,29 +1,54 @@
 #!/usr/bin/env python3
 """
-ctrlgenToml.py — generate ctrl.<ext>.toml directly from ctrls.<ext>.
+ctrlgenToml.py — generate ctrlG.<ext>.toml + PB.toml from ctrls.<ext>.
 
 Companion to ctrlgenM1.py (which generates a legacy ctrl template).
-This script consumes the same ctrls.<ext> input and the same atomlist
-defaults, but emits structured TOML matching ctrl_schema.py — so the
-output is consumed directly by m_lmfinit's TOML loader and the
-ctrl→TOML conversion step (ctrl2ctrltoml.py) can be skipped entirely
-for systems generated this way.
+Same ctrls.<ext> input and the same periodic-table atomlist defaults,
+but emits the structured TOML pair that today's Fortran reads directly
+(ctrlG.<ext>.toml via m_ctrl_toml_loader; PB.toml has the per-atom
+product-basis tables — GW path only, normally not edited by hand).
 
-Usage:
-    ctrlgenToml.py <ext> [--nspin=N] [--so=N] [--xcfun=vwn|bh|pbe]
-                          [--mmom='MMOM=...'] [--nk1=N] [--nk2=N] [--nk3=N]
-                          [--insulator] [--systype=bulk|molecule]
-                          [--fsmom=F] [--ssig=F] [--tratio=F] [--ehmol]
+Recommended usage (no flags):
+
+    ctrlgenToml.py <ext>
+
+Just run with the sname; everything else is sensible defaults baked
+into ctrlG.<ext>.toml. The file is fully commented and TOML-typed —
+**you are expected to edit ctrlG.<ext>.toml afterwards** (k-mesh,
+nspin, so, xcfun, scaledsigma, [[spec]] U/J, ...). The CLI flags
+below are bake-in equivalents of those edits, useful for scripting
+or batch generation; for normal interactive use, leave them off.
+
+Optional flags (all bake into ctrlG.<ext>.toml):
+    --nspin=N            1 nonmag, 2 spin-polarized
+    --so=N               0 none, 1 L.S, 2 Lz.Sz (forces nspin=2)
+    --xcfun=vwn|bh|pbe   exchange-correlation
+    --mmom='MMOM=...'    initial magnetic moments
+    --nk1=N --nk2=N --nk3=N   LDA k-mesh (default 8 8 8)
+    --insulator          metal=0 (default 3 with tetra)
+    --systype=bulk|molecule    molecule disables tetra, biases FSMOM
+    --fsmom=F            fixed-spin moment
+    --ssig=F             ScaledSigma (1.0 = full QSGW, 0.8 = QSGW80)
+    --tratio=F           sphere-touching ratio (default 0.97)
+    --ehmol              EH=-1 group only (smaller basis for molecules)
+    --skipgw             generate ctrlG.<ext>.toml only (no [gw] /
+                         [product_basis] / [blocks]; no PB.toml).
+                         Use for DFT-only / no-GW workflows.
+    --showatomlist       print the periodic-table defaults table and exit
+    -h, --help           show this docstring
 
 Inputs:
     ctrls.<ext> — STRUC + SITE [+ optional SPEC] skeleton
 
 Outputs:
-    ctrl.<ext>.toml — schema-typed TOML, ready for lmfa/lmf
+    ctrlG.<ext>.toml — schema-typed TOML, ready for lmfa/lmf/gwsc.
+    PB.toml          — per-atom product-basis tables (GW only;
+                       normally not edited by hand).
 
 Compatibility note: ctrlgenM1.py + ctrl2ctrltoml.py is preserved as
-the legacy path. m_lmfinit will read ctrl.<ext>.toml directly when
-present; otherwise it falls back to the legacy path.
+the legacy path. As of 2026-05 the Fortran reads ctrlG.<ext>.toml +
+PB.toml only; ctrlgenM1.py exits immediately with a pointer to this
+script.
 
 2026-05-03 T.K. + Claude.
 """
