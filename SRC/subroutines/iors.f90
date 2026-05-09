@@ -487,7 +487,7 @@ contains
     else
        call rx('readrho nsp wrong')
     endif
-    aout(1:nr,nlmx+1:nlm0,1:nsp)=0d0
+    aout(1:nr,nlmx+1:nlm,1:nsp)=0d0
   end subroutine readrho
 
   subroutine readrhos(ifi,nr,nsp0,nsp,aout)

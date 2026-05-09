@@ -1,3 +1,12 @@
+2026-05-09
+  [bugfix] iors.f90: readrho の領域ゼロクリアでオフバイ-typo を修正。
+    `aout(:,nlmx+1:nlm0,:)=0d0` を `aout(:,nlmx+1:nlm,:)=0d0` に変更。
+    nlmx=min(nlm,nlm0) なので新基底拡張時(nlm>nlm0)に新領域 nlm0+1:nlm が
+    未初期化のまま残っていた。gfortran は allocatable をデフォルト 0 に
+    初期化するため発症せず、ifort/ifx は heap garbage が読まれて vxcnsp
+    に -1.32e124 の負密度が入り rseq が `bad nodes` で発散。cu Test 1
+    stage 3 (lmxa=4 拡張) で再現。
+
 2026-03-28
   [bugfix] m_llw.f90: WVIllwI else-branch (iq>nqibz) で iw>niw のガードが
     欠落していたのを修正。mpi__size_b > niw のとき llwI への範囲外書き込みで
