@@ -1,4 +1,11 @@
 2026-05-09
+  [bugfix] InstallAll.py: /tmp/gpu.lock の取得を --gpu 指定時のみに限定。
+    GPU を持たないマシン (mic / ucgw) で他ユーザ所有の /tmp/gpu.lock が
+    残っていると無条件 open('w') が PermissionError で死んでいた。
+    PermissionError 自体も握って分かるエラーメッセージで exit するよう
+    にした。
+
+2026-05-09
   [feature] SRC/exec/CMakeLists.txt + InstallAll.py: cmake --build で lib と
     メインバイナリを必ず一括 (atomic) で BIN_DIR にデプロイする仕組みに
     変更。CMakeLists.txt の `deliver` ターゲットの宛先リストに

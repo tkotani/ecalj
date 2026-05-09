@@ -94,13 +94,18 @@ def install_bash_completion(bin_dir):
 
 
 def main():
-    import fcntl
-    lockfile = open('/tmp/gpu.lock', 'w')
-    try:
-        fcntl.flock(lockfile, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    except BlockingIOError:
-        print("ERROR: GPU is locked by another job (see /tmp/gpu.lock). Wait or kill the other job.")
-        sys.exit(1)
+    if args.gpu:
+        import fcntl
+        try:
+            lockfile = open('/tmp/gpu.lock', 'w')
+        except PermissionError:
+            print("ERROR: cannot open /tmp/gpu.lock for writing (probably owned by another user).")
+            sys.exit(1)
+        try:
+            fcntl.flock(lockfile, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            print("ERROR: GPU is locked by another job (see /tmp/gpu.lock). Wait or kill the other job.")
+            sys.exit(1)
 
     BUILD_TYPE = "Debug" if args.debug else "Release"
     CWD = Path.cwd()
