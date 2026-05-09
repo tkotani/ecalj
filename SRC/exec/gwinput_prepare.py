@@ -11,6 +11,7 @@ Behavior:
 This is the script-side counterpart of m_GWinput::gwinput_init,
 which now refuses to start without GWinput.toml.
 """
+from __future__ import annotations
 import os
 import sys
 import subprocess

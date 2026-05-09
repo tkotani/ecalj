@@ -1,4 +1,12 @@
 2026-05-09
+  [misc] SRC/exec/{utils,run_cmd,gwinput_prepare}.py: 先頭に
+    `from __future__ import annotations` を追加。PEP 604 の `str | Path`
+    と PEP 585 の `set[Path]` 等を使った型注釈の評価を遅延させ、Python
+    3.7-3.9 でも import 時にエラーにならないようにする。Python 3.10+ では
+    挙動に差は出ない。古い RHEL/CentOS 系ホストで testecalj 周辺スクリプト
+    が `TypeError: unsupported operand type(s) for |` で死ぬ問題に対応。
+
+2026-05-09
   [bugfix] m_igv2x.f90: t_igv2x_data を public:: リストから外す。
     L11 で `type, public :: t_igv2x_data` と宣言済みのため、L5 の
     `public:: ..., t_igv2x_data` と二重 PUBLIC 化されていた。
