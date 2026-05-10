@@ -153,6 +153,21 @@ def main():
             link_path.symlink_to(src_file)
     print(f"Symbolic links created in {BIN_DIR} and {EXEC_DIR}")
 
+    # ecalj_auto/ helper scripts: keep .py extension in BIN_DIR symlink so callers can
+    # `~/bin/slot_run.py` directly (matches how worker.sh / run_gw1500.sh invoke them).
+    ecalj_auto_scripts = ['slot_run.py', 'slot_scheduler_daemon.py']
+    auto_dir = CWD / 'ecalj_auto'
+    for fname in ecalj_auto_scripts:
+        src_file = auto_dir / fname
+        if not src_file.exists():
+            print(f"Warning: ecalj_auto/{fname} not found, skipping symlink", file=sys.stderr)
+            continue
+        link_path = BIN_DIR / fname
+        if link_path.exists() or link_path.is_symlink():
+            link_path.unlink()
+        link_path.symlink_to(src_file)
+    print(f"ecalj_auto helper symlinks created in {BIN_DIR}")
+
     # --- Clean up build directories if requested ---
     if args.clean:
         print("Cleaning previous build files...")

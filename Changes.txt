@@ -1,3 +1,26 @@
+2026-05-11
+  [new+bugfix] SRC/exec/gwscconv: gwsc を 1 iter ずつ呼んで last-3 gap
+    swing < tol で停止する収束ラッパ。argparse の parse_known_args で
+    残った rest を gwsc に転送する際、最初の "非オプションかつ数字" を
+    nloop と見なして 1 に置換していたが、`-np 30` の "30" を nloop と
+    誤認するバグを修正。VALUE_FLAGS = {-np, -np2, -ppn, -ppn2, -c,
+    --cluster} の直後トークンは skip_next で素通しさせる。GW1500
+    addrun_conv バッチで顕在化 (gwsc が即異常終了、Phase A 空振り、
+    Phase B/C だけ動作し OK ログが残る無音故障だった)。
+
+  [new] ecalj_auto/run_gw1500_addrun.sh: 既存 done 物質に対して
+    QSGW iter を NADD 回追加実行する。production worker.sh の cleanup
+    で QPU.{n}run が消されているため、QSGW.{n}run/ から最大 n を割り
+    出して QPU.{n}run sentinel を復元、gwsc に Iter0=n を伝える。
+
+  [new] ecalj_auto/run_gw1500_addrun_conv.sh: addrun の収束版。
+    (A) gwscconv → (B) 新規 LDA band (PlotBand_LDA/) → (C) QSGW80
+    band 再走の 3 phase。 production 時に LDA band を計算してなかった
+    のを補える。Legacy 物質 (ctrlG.toml/PB.toml が無い) は POSCAR から
+    vasp2ctrl + ctrlgenToml.py で再生成する。Phase A の gwscconv 終了
+    コードを wait $pid; $? で拾って非 0 なら FAIL を log に残す
+    (sleep 300 watchdog より早く落ちた場合の検出)。
+
 2026-05-09
   [bugfix] SRC/exec/CMakeLists.txt: add_extended_build 関数末尾に
     `set(DELIVER_FILES ${DELIVER_FILES} PARENT_SCOPE)` を追加。

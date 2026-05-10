@@ -21,12 +21,18 @@ TOML 入力 (ctrlG.<sname>.toml + PB.toml) + hgw_combined (in-memory W) で実�
 ~/ecaljdeveloper/ecalj_auto/INPUT/gw1500/POSCARALL/
   POSCAR.mp-XXXX            入力 POSCAR (1546ファイル)
 
-~/bin2/                     実行バイナリ + スクリプト
-  slot_scheduler_daemon.py  スロットスケジューラ (Unix socket)
+~/bin/                      ecalj 本体は build/ への symlink (InstallAll.py 経由)
+  slot_scheduler_daemon.py  スロットスケジューラ (Unix socket、 ecalj_auto/ への symlink)
+  slot_run.py               スロット取得 → 子プロセス exec (ecalj_auto/ への symlink)
   run_cmd.py                MPI 実行 (スロット自動取得)
   gwsc                      QSGW ドライバ (hgw_combined 使用)
   ctrlgenToml.py            POSCAR → ctrlG.toml + PB.toml 生成
   clusters.toml             MPI launcher 設定
+
+~/ecaljdeveloper/ecalj_auto/  GW1500 専用ヘルパの実体 (ecalj 本体ではない)
+  slot_scheduler_daemon.py    (~/bin から symlink される)
+  slot_run.py                 (同上)
+  worker.sh / run_gw1500.sh   起動・ワーカースクリプトの canonical コピー
 ```
 
 ## スロット構成
@@ -78,7 +84,7 @@ pkill -9 -f run_gw1500.sh
 pkill -9 -f 'worker\.sh'
 pkill -9 -f slot_scheduler_daemon
 pkill -9 -f 'gwsc.*mp-'
-pkill -9 -f 'mpirun.*bin2'
+pkill -9 -f 'mpirun.*/bin/'
 sleep 2
 
 # Stale lock/socket 掃除
@@ -113,7 +119,7 @@ for w in W1 W2 W3 W4 W5 W6; do
   mpid=$(tail -1 worker${w}.log | grep -oP 'mp-\d+')
   if [ -f "$mpid/osgw.out" ]; then
     iter=$(grep -c 'iteration end' "$mpid/osgw.out")
-    phase=$(tail -1 "$mpid/osgw.out" | grep -oP "bin2?/\K[^ ]+" | head -1)
+    phase=$(tail -1 "$mpid/osgw.out" | grep -oP "bin/\K[^ ]+" | head -1)
   fi
   echo "$w $mpid iter=$iter $phase"
 done

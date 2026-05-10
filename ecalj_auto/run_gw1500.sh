@@ -10,7 +10,7 @@ echo "=== GW1500 QSGW80 slot-scheduler started at $(date) ===" | tee $WORKDIR/ru
 rm -f /dev/shm/sem.OMPIO* /tmp/cpu_slot_*.lock /tmp/gpu_slot_*.lock /tmp/slot_scheduler.sock /tmp/worker_*.state 2>/dev/null
 
 # Start slot scheduler daemon (FIFO ordered slot allocation)
-nohup python3 ~/bin2/slot_scheduler_daemon.py > /tmp/slot_scheduler.log 2>&1 &
+nohup python3 ~/bin/slot_scheduler_daemon.py > /tmp/slot_scheduler.log 2>&1 &
 SCHED_PID=$!
 echo "slot_scheduler_daemon PID=$SCHED_PID" | tee -a $WORKDIR/run.log
 # wait for socket to appear
