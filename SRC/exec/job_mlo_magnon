@@ -3,15 +3,16 @@ import argparse
 import contextlib
 from pathlib import Path
 from run_cmd import run_cmd, MPIParams
-from utils import move_files
+from utils import move_files, remove_files
 from gwinput_prepare import ensure_gwinput_toml
 
 EXEC_DIR = Path(__file__).resolve().parent
 
 def cal_mlo_magnon(args, extra_args):
     cluster = args.cluster
-    mpi_size = args.np
     target = args.extension
+    mpi_size = args.np
+    options = extra_args
     option_dos = "--dos" if args.dos else ""
 
     if not ensure_gwinput_toml(exec_dir=EXEC_DIR):
@@ -23,18 +24,31 @@ def cal_mlo_magnon(args, extra_args):
                                    args=["--job=40001", option_dos, "--avoidgamma", *extra_args]), stdout="lqg4gw02dos") #make __BZDATA.DOS
     run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"qg4gw",
                                args=["--job=40001", *extra_args]), stdout="lqg4gw02")
+    remove_files("__EtaMagnon*")
+    if not args.skip_geteta:
+        run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo_magnon",
+                                   args=["--geteta", f"--sp1={args.sp1}", f"--sp2={args.sp2}", option_dos, *extra_args]), stdout="lmlo_magnon_eta")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo_magnon",
-                               args=["--geteta", f"--Wtype={args.Wtype}", option_dos, *extra_args]), stdout="lmlo_magnon_eta")
-    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo_magnon",
-                               args=[f"--Wtype={args.Wtype}", option_dos, *extra_args]), stdout="lmlo_magnon")
+                               args=[f"--sp1={args.sp1}", f"--sp2={args.sp2}", option_dos, *extra_args]), stdout="lmlo_magnon")
+
+def cal_mlo_uovlpq(args, extra_args):
+    cluster = args.cluster
+    target = args.extension
+    mpi_size = args.np
+    options = extra_args
+    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"qg4gw", args=["--job=2", *extra_args]), stdout="lqg4gw02_uovlp") #make __BZDATA.DOS
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf", args=[target, "--jobgw=1", "--skipbstruxinit", "--mlo", *options]), stdout="llmfgw01_uovlp")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo", args=[target, "--mlo", *options]), stdout="lmlo")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"huumat_MPI", args=[target, "--dwnb=mlo", f"--sp1={args.sp1}", f"--sp2={args.sp2}", *options]), stdin_str="4", stdout="lformfactor")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"huumat_MPI", args=[target, "--dwnb=mlo", f"--sp1={args.sp1}", f"--sp2={args.sp2}", *options]), stdin_str="5", stdout="lovlp")
+    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"hbasfp0", args=["--job=0", *options]), stdout="lbas")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hmlo_ovlppair", args=[target, f"--sp1={args.sp1}", f"--sp2={args.sp2}", *options]), stdout="lovlppair")
 
 def cal_mlo_vw(args, extra_args):
     cluster = args.cluster
     target = args.extension
     mpi_size = args.np
     options = extra_args
-    prefix = "--spinflip" if args.Wtype in ("up_down", "down_up") else ""
-    option_W = f"{prefix} --getW_{args.Wtype}"
 
     run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"lmf", args=[target, "--jobgw=0", *options]), stdout="llmfgw00")
     run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"qg4gw", args=["--job=1", *options]), stdout="lqg4gw")
@@ -44,13 +58,13 @@ def cal_mlo_vw(args, extra_args):
 
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo", args=[target, "--mlo", *options]), stdout="lmlo")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hvccfp0", args=[*options]), stdin_str="0", stdout="lvcc")
-    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hwmatK_MPI", args=[target, "--mlo", option_W, *options]), stdin_str="1", stdout="lwmatK1")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hwmatK_MPI", args=[target, "--mlo", f"--sp1={args.sp1}", f"--sp2={args.sp2}", *options]), stdin_str="1", stdout="lwmatK1")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hx0fp0", args=[*options, '--prefer_bpara']), stdin_str="111", stdout="lx0_111")
-    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hwmatK_MPI", args=[target, "--mlo", option_W, *options]), stdin_str="2", stdout="lwmatK2")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hwmatK_MPI", args=[target, "--mlo", f"--sp1={args.sp1}", f"--sp2={args.sp2}", *options]), stdin_str="2", stdout="lwmatK2")
 
     print("OK! Generation of W finished.")
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(
         prog='magnon',
         description=(
@@ -66,9 +80,13 @@ if __name__ == "__main__":
     parser.add_argument("extension",  help='Extension of the ctrl file') #extension is dummy. just to have similar interface with other scripts
     parser.add_argument("-c", "--cluster", help="cluster name", default="default", type=str)
     parser.add_argument("-np",        help='Number of MPI cores for lmf', default=8, type=int)
-    parser.add_argument("--Wtype",    help='Wtype: up, down, up_down, or, down_up', default='down_up', type=str)
-    parser.add_argument("--skip_vw",  help='Skip generation of MLWF and W', action='store_true')
-    parser.add_argument("--stop_vw",  help='Stop at generation of MLWF', action='store_true')
+    parser.add_argument("--sp1",      help='Spin index 1 (1=up, 2=down)', default=2, type=int)
+    parser.add_argument("--sp2",      help='Spin index 2 (1=up, 2=down)', default=1, type=int)
+    parser.add_argument("--skip_vw",   help='Skip generation of MLWF and W', action='store_true')
+    parser.add_argument("--stop_vw",   help='Stop after generation of MLWF and W', action='store_true')
+    parser.add_argument("--skip_ovlp", help='Skip uovlpq calculation', action='store_true')
+    parser.add_argument("--skip_geteta", help='Skip uovlpq calculation', action='store_true', default=False)
+    parser.add_argument("--stop_ovlp", help='Stop after uovlpq calculation', action='store_true')
     parser.add_argument("--dos",      help='carry out dos calculation', action='store_true')
     parser.add_argument("-d", "--dir", help="execution directory (default: current directory)", default=".", type=str)
     args, extra_args = parser.parse_known_args()
@@ -77,7 +95,14 @@ if __name__ == "__main__":
         if not args.skip_vw:
             cal_mlo_vw(args, extra_args)
             move_files('stdout*', dest_dir='STDOUT')
+        if args.stop_vw:
+            return
+        if not args.skip_ovlp:
+            cal_mlo_uovlpq(args, extra_args)
+        if args.stop_ovlp:
+            return
+        cal_mlo_magnon(args, extra_args)
+        move_files('stdout*', dest_dir='STDOUT')
 
-        if not args.stop_vw:
-            cal_mlo_magnon(args, extra_args)
-            move_files('stdout*', dest_dir='STDOUT')
+if __name__ == "__main__":
+    main()

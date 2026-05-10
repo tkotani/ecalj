@@ -128,15 +128,11 @@ logical function cmdopt0(argstr)! Check a command-line argument exist.
   !o Outputs cmdopt: T if argument found, else F
   implicit none
   character(*):: argstr
-  integer ::     nargs,strln !dummy
-  logical :: lsequ
-  integer :: iarg,nargf,idum,nxarg,strlnx
-  character(120) :: strn
+  integer :: iarg
   cmdopt0 = .false.
   call m_setargs()
   do iarg=1,narg
-     strlnx = len_trim(argstr) !override input strln
-     if(arglist(iarg)(1:strlnx)==trim(argstr)) then
+     if(trim(arglist(iarg)) == trim(argstr)) then
         cmdopt0 = .true.
         return
      endif

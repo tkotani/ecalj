@@ -123,7 +123,13 @@ contains
           !     enddo
           !   enddo FourierTransormationFROMrealspcaeTOqspace
             ! call zhev_tk4(ndimMTO,hamm,ovlm,0,nev, evl(:,ikp,jsp),t_zv, oveps)!nmx=0 means only eigenvalue. Diangonalize (hamm- evl ovlm) z=0
-      call calc_ham_eigen(1,nspx, qp, evl(:,:,ikp))
+      if(socmatrix) then
+        call calc_ham_eigen(1, qp, evl(:,1,ikp))
+      else
+        do jsp = 1, nspx
+          call calc_ham_eigen(jsp, qp, evl(:,jsp,ikp))
+        enddo
+      endif
             !cbwf t_zv(:,ib)
 
             !            write(stdo,ftox) 'eigen  evl   =',nev,ftof(evl(1:10,ikp,jsp)*rydberg())
@@ -142,7 +148,7 @@ contains
        do ikp=1,ndatx
           if(socmatrix) then !2N spinor eigenvalues written to spin1 file
              do i=1, 2*ndimMTO
-                write(ifsy1,"(f15.5,f15.5,2i4)") xdat(ikp),evl(i,nspx,ikp),1,i
+                write(ifsy1,"(f15.5,f15.5,2i4)") xdat(ikp),evl(i,1,ikp),1,i
              enddo
           else
              do jsp=1,nspx

@@ -23,9 +23,10 @@ contains
   end subroutine rangedq
   pure subroutine iqindx2_(q, iqindx,qu) !Find index for q=qq(:,iqindx).Modulo of premitive vector.
     intent(in)::           q
-    intent(out)::             iqindx,qu ! qu(i) = q(i) + matmul(qlat(i,:)* nxx(:))
+    intent(out)::             iqindx
+    real(8), intent(out), optional :: qu(3)
     !! ginv is the inverse of plat (premitive translation vector).
-    real(8) :: q(3),qu(3),qx(3),qzz(3)
+    real(8) :: q(3),qx(3),qzz(3)
     integer :: iqindx, kkk3(3), ik1(1),ik2(1),ik3(1)
     call rangedq(matmul(ginv,q), qzz) ! we generate qzz integer index for qzz
     kkk3 = (qzz+0.5d0*epsd)/epsd
@@ -33,7 +34,7 @@ contains
     ik2= findloc(kk2,value=kkk3(2))
     ik3= findloc(kk3,value=kkk3(3))
     iqindx = iqkkk(ik1(1),ik2(1),ik3(1))
-    qu =qtt(:,iqindx)
+    if(present(qu)) qu =qtt(:,iqindx)
   end subroutine iqindx2_
   subroutine init_iqindx_qtt()
     !! === mapping of qtt ===

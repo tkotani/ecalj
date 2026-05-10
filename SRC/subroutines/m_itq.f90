@@ -48,7 +48,7 @@ module m_itq
   integer,             protected, public :: ntq
   integer, allocatable, protected, public :: nbandmx(:,:)
   public :: setitq, set_itq_range, set_nbandmx_for_sigma
-  public :: setitq_hsfp0sc, setitq_hsfp0
+  public :: setitq_hsfp0sc, setitq_hsfp0, setitq_mlo
   logical, save, private :: nbandmx_loaded_from_NTQXX = .false.
   private
 contains
@@ -59,6 +59,13 @@ contains
     ntq = nband
     allocate(itq, source=[(i, i=1, ntq)])
   end subroutine setitq
+  subroutine setitq_mlo(nmlo)
+    integer, intent(in) :: nmlo
+    integer :: i
+    if(allocated(itq)) deallocate(itq)
+    ntq = nmlo
+    allocate(itq,source=[(i,i=1,nmlo)])
+  end subroutine setitq_mlo
   subroutine set_itq_range(nbmin, nbmax)
     !> Set itq=[nbmin..nbmax], ntq=nbmax-nbmin+1. Used by single-pass non-sc hsfp0.
     integer, intent(in) :: nbmin, nbmax

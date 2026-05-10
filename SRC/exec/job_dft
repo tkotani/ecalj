@@ -1,0 +1,29 @@
+#!/usr/bin/env python3
+import argparse
+import contextlib
+from dft import cal_dft
+from utils import move_files
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        prog='job_dft',
+        description=(
+            'Standard DFT self-consistent calculation (lmfa + lmf).\n'
+            'Example:\n'
+            '  job_dft si -np 8 [options for lmf]\n'
+            '  job_dft si -np 8 -d /path/to/workdir [options for lmf]\n'
+        ),
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    parser.add_argument("extension", help='Extension of the ctrl file')
+    parser.add_argument("-c", "--cluster", help="cluster name", default="default", type=str)
+    parser.add_argument("-np",        help='Number of MPI cores for lmf', default=8, type=int)
+    parser.add_argument("-d", "--dir", help="execution directory (default: current directory)", default=".", type=str)
+    args, extra_args = parser.parse_known_args()
+
+    with contextlib.chdir(args.dir):
+        cal_dft(args.cluster, args.extension, args.np, extra_args)
+
+if __name__ == "__main__":
+    main()

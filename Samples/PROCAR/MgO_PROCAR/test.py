@@ -16,7 +16,7 @@ def test(args, bindir, testdir, workdir):
             lmf  + f"{MATERIAL} > llmf",
             f"{bindir}/job_band {MATERIAL} -np {ncore} --NoGnuplot > ljob_band",
             "rm -rf PROCAR*",
-            lmf + f"--mkprocar --band:fn=syml {MATERIAL} > lbandW",
+            lmf + f"--mkprocar --band {MATERIAL} > lbandW",
             "cat PROCAR.UP.* >> PROCAR.UP",
             "rm PROCAR.UP.*",
             f"{workdir}/BandWeight.py > bw.dat",

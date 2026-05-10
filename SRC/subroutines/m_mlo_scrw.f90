@@ -4,25 +4,27 @@ module m_mlo_scrw
   use m_mpi, only: ipr
   use m_ftox, only: ftox
   implicit none
-  public :: nnwf_init, scrw_init, trace_onsite, trace_onsite_diag, contract_to_site, extract_diagonal_channel, trace
+  public :: nnwf_init, scrw_init, trace_onsite, trace_onsite_diag, contract_to_site, extract_diagonal_channel, trace, trace2
   integer, protected, public :: nnwf
   complex(8), allocatable, protected, public :: scrw(:,:)
+  logical, allocatable, protected, public :: nnwf_mask(:), nnwf2_mask(:)
   integer, allocatable, protected, public :: mlo_pairs(:,:), pair_site(:,:), pair_lorb(:,:)
 contains
   subroutine nnwf_init(nnwf_size_reduction)
     logical, intent(in) :: nnwf_size_reduction
-    integer :: iwf, jwf, ijwf, idummy
-    logical, allocatable :: mask(:)
+    integer :: iwf, jwf, ijwf, iwf1, iwf2, iwf3, iwf4
     integer, allocatable :: iwf_list(:), jwf_list(:)
     iwf_list = [((iwf, iwf=1,nwf), jwf=1,nwf)]
     jwf_list = [((jwf, iwf=1,nwf), jwf=1,nwf)]
     if(nnwf_size_reduction) then
-      mask = [((ib_tableM(iwf)==ib_tableM(jwf), iwf=1,nwf), jwf=1,nwf)]  ! only same atomic site
+      nnwf_mask = [((ib_tableM(iwf)==ib_tableM(jwf), iwf=1,nwf), jwf=1,nwf)]  ! only same atomic site
+      nnwf2_mask = [(((((ib_tableM(iwf1)==ib_tableM(iwf2) .and. ib_tableM(iwf3)==ib_tableM(iwf4)), iwf1=1,nwf), iwf2=1,nwf), iwf3=1,nwf), iwf4=1,nwf)]
     else
-      mask = [((.TRUE., iwf=1,nwf), jwf=1,nwf)]  !full pair
+      nnwf_mask = [((.TRUE., iwf=1,nwf), jwf=1,nwf)]  !full pair
+      nnwf2_mask = [((((.TRUE., iwf1=1,nwf), iwf2=1,nwf), iwf3=1,nwf), iwf4=1,nwf)]
     endif
-    iwf_list = pack(iwf_list, mask=mask)
-    jwf_list = pack(jwf_list, mask=mask)
+    iwf_list = pack(iwf_list, mask=nnwf_mask)
+    jwf_list = pack(jwf_list, mask=nnwf_mask)
     nnwf = size(iwf_list)
     if (allocated(mlo_pairs)) deallocate(mlo_pairs)
     allocate(mlo_pairs(nnwf,2))
@@ -39,10 +41,10 @@ contains
    enddo
   end subroutine nnwf_init
 
-  function contract_to_site(mat,lorb) result(cmat)
+  function contract_to_site(mat, lorb) result(cmat)
     complex(8), intent(in) :: mat(nnwf,nnwf)
-    integer, intent(in), optional :: lorb
     complex(8) :: cmat(nsite,nsite)
+    integer, intent(in), optional :: lorb
     logical, allocatable :: mask(:)
     integer :: site1, site2, inwf, jnwf
     do concurrent(site1=1:nsite, site2=1:nsite)
@@ -50,15 +52,19 @@ contains
                 mlo_pairs(inwf,1) == mlo_pairs(inwf,2) .and. & !n1 == n2 => R1 == R2 is automatically satisfied
                 mlo_pairs(jnwf,1) == mlo_pairs(jnwf,2), &      !n3 == n4 => R3 == R4 is automatically satisfied
                 inwf=1,nnwf), jnwf=1,nnwf)]
-      ! mask = [((pair_site(inwf,1) == site1 .and. pair_site(jnwf,1) == site2 ,&  !R1 == site1  R3 == site2
-      !           inwf=1,nnwf), jnwf=1,nnwf)]
       if(present(lorb)) then
         mask = mask .AND. [(((pair_lorb(inwf,1)==lorb .and. pair_lorb(inwf,2)==lorb .and. &
                             & pair_lorb(jnwf,1)==lorb .and. pair_lorb(jnwf,2)==lorb), inwf=1,nnwf), jnwf=1,nnwf)]
       endif
-      cmat(site1,site2) = sum(pack(reshape(mat, shape=[nnwf*nnwf]), mask=mask))
+      cmat(site1,site2) = sum(pack(reshape(mat(:,:), shape=[nnwf*nnwf]), mask=mask))
     enddo
   end function contract_to_site
+
+  complex(8) function trace2(mat) result(res)
+    complex(8), intent(in) :: mat(nnwf,nnwf)
+    integer :: i
+    res = sum([(mat(i,i),i=1,nnwf)])
+  end function trace2
 
   function extract_diagonal_channel(mat, lorb) result(cmat)
     complex(8), intent(in) :: mat(nnwf,nnwf)
@@ -117,11 +123,11 @@ contains
     trmat = sum(pack(reshape(mat, [nnwf*nnwf]), mask=mask))
   end function trace_onsite_diag
 
-  subroutine scrw_init(nnwf_size_reduction, w_onsite_dddd, Wtype, enforce_Hermite)
-    logical, intent(in) :: nnwf_size_reduction, w_onsite_dddd, enforce_Hermite
-    character(len=*), intent(in) :: Wtype
+  subroutine scrw_init(w_onsite_dddd, isp1, isp2, enforce_Hermite)
+    logical, intent(in) :: w_onsite_dddd, enforce_Hermite
+    integer, intent(in) :: isp1, isp2
     integer:: ifscrwv, ifscrv, iwf, jwf, kwf, lwf
-    character(len=9)::charadummy 
+    character(len=9)::charadummy
     real(8)::rws1(3),freq,freq2 !dummy
     integer::is,iwf1,iwf2,iwf3,iwf4, idummy
     real(8):: rydberg, hartree
@@ -131,25 +137,25 @@ contains
     logical(8)::ijklmag
     hartree = 2d0*rydberg()
     allocate( scrw4(nwf,nwf,nwf,nwf), source = (0d0,0d0))
-    select case (trim(adjustl(wtype)))
-      case ("up")
+    select case(isp1*10+isp2)
+      case(11)
         if(ipr) write(stdo,ftox) "scrw_init: read Wup"
-        open(newunit=ifscrwv,file="Screening_W-v.UP",form="formatted") !only up
-        open(newunit=ifscrv, file="Coulomb_v.UP",    form="formatted") !only up
-      case ("down")
+        open(newunit=ifscrwv,file="Screening_W-v.UP",form="formatted")
+        open(newunit=ifscrv, file="Coulomb_v.UP",    form="formatted")
+      case(22)
         if(ipr) write(stdo,ftox) "scrw_init: read Wdn"
-        open(newunit=ifscrwv,file="Screening_W-v.DN",form="formatted") !only up
-        open(newunit=ifscrv, file="Coulomb_v.DN",    form="formatted") !only up
-      case ("up_down")
+        open(newunit=ifscrwv,file="Screening_W-v.DN",form="formatted")
+        open(newunit=ifscrv, file="Coulomb_v.DN",    form="formatted")
+      case(12)
         if(ipr) write(stdo,ftox) "scrw_init: read Wupdn"
-        open(newunit=ifscrwv,file="Screening_W-v.UPDN",form="formatted") !only updw
-        open(newunit=ifscrv, file="Coulomb_v.UPDN",    form="formatted") !only updw
-      case ("down_up")
+        open(newunit=ifscrwv,file="Screening_W-v.UPDN",form="formatted")
+        open(newunit=ifscrv, file="Coulomb_v.UPDN",    form="formatted")
+      case(21)
         if(ipr) write(stdo,ftox) "scrw_init: read Wdnup"
-        open(newunit=ifscrwv,file="Screening_W-v.DNUP",form="formatted") !only updw
-        open(newunit=ifscrv, file="Coulomb_v.DNUP",    form="formatted") !only updw
+        open(newunit=ifscrwv,file="Screening_W-v.DNUP",form="formatted")
+        open(newunit=ifscrv, file="Coulomb_v.DNUP",    form="formatted")
       case default
-        call rx("scrw_init: Unknown Wtype")
+        call rx("scrw_init: invalid isp1/isp2")
     endselect
     do iwf=1, nwf**4
       read(ifscrv,"(A,2i5, 3f12.6, 5i5,2f12.6)")charadummy,ir1,irws1,rws1,is,iwf1,iwf2,iwf3,iwf4, scrv4 !v
@@ -163,13 +169,7 @@ contains
     enddo
     if(allocated(scrw)) deallocate(scrw)
     allocate(scrw(nnwf,nnwf))
-    if(nnwf_size_reduction) then
-      scrw(:,:) = reshape(pack([((((scrw4(iwf1,iwf2,iwf3,iwf4), iwf1=1,nwf), iwf2=1,nwf), iwf3=1,nwf), iwf4=1,nwf)], &
-                        & mask=[(((((ib_tableM(iwf1)==ib_tableM(iwf2).and. ib_tableM(iwf3)==ib_tableM(iwf4)), &
-                        &             iwf1=1,nwf), iwf2=1,nwf), iwf3=1,nwf), iwf4=1,nwf)]), shape=[nnwf,nnwf])
-    else
-      scrw(:,:) = reshape(scrw4, shape=[nnwf,nnwf])
-    endif
+    scrw(:,:) = reshape(pack(reshape(scrw4, shape=[nwf**4]), mask=nnwf2_mask), shape=[nnwf,nnwf])
     if(enforce_Hermite) scrw(:,:) = (scrw(:,:) + transpose(conjg(scrw(:,:))))*0.5d0
     scrw(:,:) = scrw(:,:)/hartree !! Screening W for magnon
     show_atomic_W: block

@@ -47,6 +47,7 @@ contains
       enddo
    enddo
    ModifyMatrixElements :block
+      use m_nvfortran,only : findloc
       use m_ftox
       integer:: ie,nidxevlmto,nidxevl,ibx,jx,idxevlmto(ndimMTO),idxevl(ndimPMT),jbx,nval,nnn,imx,nbx,ii
       real(8):: eee,fffx,ecut,xxx,rydberg,facww,sss,fff,epscore,emax,alpha,emin,ww(ndimPMTx),dex,ddd !,ewcutf
@@ -157,7 +158,7 @@ contains
          enddo
       endif MLODiagonalNormalize
       MLOLowdinOrthogonalization:if(cmdopt0('--mlo_ortho')) then
-         block 
+        block
           use m_lapack, only: zhev => zhev_h
           complex(8) :: ovlm_mlo(ndimMTO,ndimMTO), evl_ovl_buf(ndimMTO,ndimMTO), sinv_half(ndimMTO, ndimMTO)
           real(8) :: eval(ndimMTO), einv_half
@@ -178,7 +179,7 @@ contains
         endblock
       endif MLOLowdinOrthogonalization
 
-      
+
       ! |F^MLO j'>= |F^PMT_i'> z^PMT_i'i cmlo(i,j)
       do i=1,ndimMTO
         do j=1,ndimMTO

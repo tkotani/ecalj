@@ -24,14 +24,6 @@ def cal_magnon(args, extra_args):
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hmagnon",
                                args=[f"--Wtype={args.Wtype}", option_dos, *extra_args]), stdout="lhmagnon")
 
-def cal_lmf(args, extra_args):
-    cluster = args.cluster
-    mpi_size = args.np
-    target = args.extension
-    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"lmfa", args=[target, *extra_args]), stdout="llmfa")
-    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf", args=[target, *extra_args]), stdout="llmf")
-
-
 def cal_MLWFvw(args, extra_args):
     cluster = args.cluster
     target = args.extension
@@ -50,7 +42,7 @@ def cal_MLWFvw(args, extra_args):
     # Gather PSIGU
     merge_files(pattern="PSIGU.????", output_file="PSIGU")
     merge_files(pattern="PSIGD.????", output_file="PSIGD")
-    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"huumat_MPI", args=[*options]), stdin_str="2", stdout="luumat2")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"huumat_MPI", args=[target, *options]), stdin_str="2", stdout="luumat2")
     # Gather UUU
     merge_files(pattern="UUU.????", output_file="UUU")
     merge_files(pattern="UUD.????", output_file="UUD")
@@ -59,7 +51,7 @@ def cal_MLWFvw(args, extra_args):
         print("OK! Generation of MLWF finished.")
         return
     # UUmatrix for Q0P
-    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"huumat_MPI", args=[*options]), stdin_str="3", stdout="luumat3")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"huumat_MPI", args=[target, *options]), stdin_str="3", stdout="luumat3")
     merge_files(pattern="UUq0U.????", output_file="UUq0U")
     merge_files(pattern="UUq0D.????", output_file="UUq0D")
 
@@ -97,7 +89,6 @@ if __name__ == "__main__":
 
     with contextlib.chdir(args.dir):
         if not args.skip_MLWFvw:
-            cal_lmf(args, extra_args)
             cal_MLWFvw(args, extra_args)
             move_files('stdout*', dest_dir='STDOUT')
 

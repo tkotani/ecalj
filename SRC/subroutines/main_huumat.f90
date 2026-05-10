@@ -1,62 +1,71 @@
 !>  Calculate <u|u> matrix . u_kj(r) is the perodic part of eigencuntion.
-subroutine h_uumatrix()
+module m_uumat
+  public uumatrix
+  private
+contains
+subroutine uumatrix()
   ! ixc=2: <u(k) | u(k+b)>
   ! ixc=3: <u(k) | u(k+q0)>
+  ! ixc=4: <u(k) | u(k+q)>
+  ! ixc=5: sum_k <phi(k) | phi(k+q)>??
   ! Takashi Miyake, Mar 2008, parallelized.  originally written by Takao Kotani, April, 2004
-  use m_readqg,only: readngmx,ngcmx,readqg0,readqg
-  use m_hamindex,only:   Readhamindex,ngrp,symops
-  use m_readeigen,only:init_readeigen,init_readeigen2,readcphif,readgeigf,readeval
-  use m_read_bzdata,only: read_bzdata, nqbz,nqibz,nqbzw,nteti,ntetf,qbas=>qlat, ginv, &
-    dq_,wbz,qibz,wibz,qbzw, qbz, idtetf,ib1bz,idteti, nstar,irk,nstbz,  nq0i=>nq0ix,q0i
-  use m_genallcf_v3,only: genallcf_v3, ncore2=>ncore,nrxx=>nrx, natom,natom,nspin,nl,nn,nnv,nnc, &
-       nlnmx,nlnmxv,nlnmxc, nctot,plat,pos,alat,nindx,& !nlmto,
-       nprecb,mrecb,mrece,ndima,nqbzt,nband,mrecg,nspc,nspx,lmxa
+  use m_readqg,only: readngmx, readqg0, readqg
+  use m_hamindex,only: Readhamindex, ngrp, symops
+  use m_readeigen,only: init_readeigen, init_readeigen2, readeval
+  use m_readeigen, only: readcphif_mpi, readgeigf_mpi
+  use m_read_bzdata,only: read_bzdata, nqbz, nqibz, qbas=>qlat, qibz, qbz, nq0i_=> nq0i, nq0i=>nq0ix, q0i
+  use m_genallcf_v3,only: genallcf_v3, natom, nspin, nl, nn, plat, pos, alat, nindx, ndima, nqbzt, nband, nspc, nspx, lmxa
   use m_keyvalue,only: getkeyvalue
-  use m_pwmat,only: mkppovl2
+  use m_pwmat,only: mkppovl2, set_ppovl
   use m_ll,only: ll
-!  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-  use m_mpi,only: mpi__broadcast,mpi__root, mpi__size,mpi__rank,mpi__initialize
-  use m_lgunit,only: m_lgunit_init,stdo
-  use m_setqibz_lmfham,only: set_qibz,irotg
+  use m_mpi,only: mpi__broadcast, mpi__root, mpi__size, mpi__rank, comm, mpi__allreducesum, mpi__reducesum
+  use m_lgunit,only: m_lgunit_init, stdo
+  use m_setqibz_lmfham,only: set_qibz, irotg
+  use m_mlo_ham, only: mlo_read_hma_rs => read_ham_rs, nmlo => ndimMTO
+  use m_mlo_wfs, only: cmlo_init, get_geig_cmlo, get_cphi_cmlo
+  use m_wan_wfs, only: get_geig_wan, get_cphi_wan, Init_readeigen_mlw_noeval, nwf
+  use m_mpiio, only: openm, writem, closem
+  use m_lmfinit,only: m_lmfinit_init
+  use m_lattic,only: m_lattic_init
+  use m_mksym,only: m_mksym_init
+  use m_mpitk, only: m_mpitk_init
   use m_ftox
-!  use m_scg,only: rotcg
   implicit none
-  integer:: nw_input, i,ngrpmx,mxx,nqbze,nqibze,ini,ix,ngrpx &
-    ,mdimx,nbloch,nblochpmx,ifvcfpout,ndummy1,ndummy2,ifcphi,is,nwp, &
-    ifepscond,nxx,ifvxcpout,ifgb0vec,nw0,iw,nwhis,ifinin,nw2,iw0,ifwwk,noccxv,noccx &
-    ,ifemesh,nprecx,mrecl,ifwd,ifrcwi,ifrcw,nspinmx,ifianf,ibas &
-    ,ibas1,irot,ngb,iqixc2,ifepsdatnolfc,ifepsdat,ngbin,igc0 &
-    ,kx,isf,kqxx,kp,job,nbnbx,nhwtot,noccxvx,nwmax,ihis,jhwtot,ik,ibib,ib1,ib2,ichkhis,ihww,j,imode,ngpmx
-  integer:: nwin,incwfin,verbose,ifphi,nbas,nradmx,ncoremx,nrx,ic,icx,isp,l,n,irad,ifoc, ldim2,ixx,ngp1,ngp2,nq0it
-  integer:: iqindx,nqbandx,nqband,j1min_c(2),j1max_c(2),nbmin,nbmax, nmin,nmax,iq2,ntmp,if99,ifile_handle
-  integer:: ixc,idummy,idummy2,i1,i2,i3,nbbloop, ifq0p,ifuu(2), ifbb,nbb,iko_ixs(2),iko_fxs(2), &
-    iqibz,iqbz,ibb,itmp,itmp2,nqibz2,nqbz2,iqb,ibb2,iqtmp,ibbtmp,ndg(3),ndg1(3),ndg2(3), &
-    nb1d,iq0i,j1,j2,j1max,j2max,j1min,j2min,ispin ,l1,l2,lm1,lm2,ibas2,lm3,ig1,ig2,ir,ia1,ma,ia2,m2,l3,m1,lxx &
-    ,ico,lxd,lx, ierr,iclose,input3(3),n1,n2,ig, nproc1,nproc2,nq_proc,ii,jj,kk,iftmp,if101,&
-    timevalues(8),ib,nspin2,ie,ioc,iog,ispc
-  integer,allocatable :: ngvecpB(:,:,:),ngveccB(:,:), ngvecpf1(:,:), ngvecpf2(:,:),nx(:,:),nblocha(:),ifppb(:)
-  integer,allocatable:: ncindx(:,:), lcindx(:,:), nrad(:), nindx_r(:,:), lindx_r(:,:), nc_max(:,:), &
-    m_indx(:),n_indx(:),l_indx(:),ibas_indx(:), nrofi(:)
-  integer,allocatable:: ikidx(:),ikbidx(:,:), ibidx(:,:),ibidxs(:,:),ibidx0(:,:,:), ij1idx(:),ij2idx(:)
-  integer,allocatable:: ncore(:),iq_proc(:)
-  real(8),allocatable :: ppbrd (:,:,:,:,:,:,:),cg(:,:,:),symope(:,:), phij(:),psij(:),rprodx(:,:),rphiphi(:)
-  real(8):: q1(3),q2(3),dq(3),absqg2,absdq,r2s,absqg, ylk
-  real(8):: dum1,dum2,dum3,wqtsum,epsrng,dnorm,dini, dwry,dwh,omg_c,omg2,xxx
-  real(8):: ef,q(3),  qgbin(3),qx(3), qq(3),quu(3), deltaq(3),q1x(3),q2x(3)
-  real(8):: uunorm,dqx(3),dqx0(3),dq0(3),dg(3),dqmin(3),adq0, q0wf(3),wgt, emin,emax,rydberg
-  real(8),parameter::  pi = 4d0*atan(1d0),fpi =    4d0*pi
-  real(8),allocatable:: phitoto(:,:,:,:,:), aa(:),rr(:,:) ,phitotr(:,:,:,:,:), bb(:),zz(:),rmax(:),cy(:),yl(:)
-  real(8),allocatable :: bbv(:,:), qbandx(:,:),qband(:,:),eband(:),eval1(:),eval2(:)
-  complex(8),parameter:: img=(0d0,1d0)
-  complex(8),allocatable:: geig1(:,:),geig2(:,:),cphi1(:,:),cphi2(:,:) ,uum(:,:,:), ppovl(:,:),ppj(:,:,:,:)
-  complex(8):: phaseatom,aaa,bbb
-  logical:: qbzreg, lbnds,cmdopt2,cmdopt0
-  character(8) :: xt,head(2:3,2)
+  integer:: i,ix,ngrpx ,is, nxx ,ibas ,ibas1, ngpmx, ifphi, nbas, nradmx, ncoremx, &
+            nrx, ic, icx, isp, l, n, irad, ifoc, ldim2, ixx, ngp1, ngp2, &
+            ixc, nbbloop, ifuu(2), ifbb, nbb, iko_ixs(2), iko_fxs(2), &
+            iqbz, ibb, itmp, iqb, ibb2, iqtmp, ibbtmp, ndg1(3),ndg2(3), &
+            j1, j2, j1max, j1min, ispin ,l1, l2, lm1, lm2, ibas2, lm3, ir, ia1, ia2, m2, l3, m1, lxx, &
+            ico, lx, ierr, n1, n2, ii, timevalues(8), ib,  ie, ioc, iog, ispc, ibb_
+  integer, allocatable :: ngvecpB(:,:,:),ngveccB(:,:), ngvecpf1(:,:), ngvecpf2(:,:),nx(:,:),nblocha(:),ifppb(:)
+  integer, allocatable :: ncindx(:,:), lcindx(:,:), nrad(:), nindx_r(:,:), lindx_r(:,:), nc_max(:,:), &
+                          m_indx(:),n_indx(:),l_indx(:),ibas_indx(:), nrofi(:), ikbidx(:,:), ncore(:)
+  real(8), allocatable :: ppbrd (:,:,:,:,:,:,:), cg(:,:,:), symope(:,:), phij(:), psij(:), rprodx(:,:), rphiphi(:)
+  real(8), allocatable :: phitoto(:,:,:,:,:), aa(:), rr(:,:), phitotr(:,:,:,:,:), bb(:), zz(:), rmax(:), cy(:), yl(:)
+  real(8), allocatable :: bbv(:,:), eval1(:), eval2(:)
+  real(8) :: q1(3), q2(3), dq(3), absqg2, absdq, r2s, absqg, ylk
+  real(8) :: ef, q(3), q1x(3),q2x(3)
+  real(8),parameter ::  pi = 4d0*atan(1d0),fpi = 4d0*pi
+  complex(8),parameter :: img=(0d0,1d0)
+  complex(8),allocatable :: geig1(:,:),geig2(:,:),cphi1(:,:),cphi2(:,:), uum(:,:,:), ppovl(:,:), ppj(:,:,:,:)
+  complex(8) :: phaseatom
+  logical :: cmdopt2, cmdopt0
+  logical :: use_bbvec_file
+  integer :: nbasis, isp1, isp2
+  complex(8), allocatable :: uumq(:,:,:,:)
+  character(8) :: head(2:3,2)
   character(4) charnum4
   character*7:: charnum7
   character(20):: outs=''
-  call MPI__Initialize()
+  procedure(readgeigf_mpi), pointer :: get_geig => readgeigf_mpi
+  procedure(readcphif_mpi), pointer :: get_cphi => readcphif_mpi
   call M_lgunit_init()
+  call m_MPItk_init(comm)
+  !for rotMTO
+  call m_lmfinit_init('uumat',comm)! Read ctrlp into module m_lmfinit.
+  call m_lattic_init()       ! lattice setup (for ewald sum)
+  call m_mksym_init()  !symmetry go into m_lattic and m_mksym
+
   call date_and_time(values=timevalues)
   write(stdo,"('mpirank=',i5,' YYYY.MM.DD.HH.MM.msec=',9i4)")mpi__rank,timevalues(1:3),timevalues(5:8)
   if(mpi__root) then
@@ -64,58 +73,74 @@ subroutine h_uumatrix()
       read(outs,*) ixc
     else
       write(stdo,*) ' --- Choose modes below -------------------'
-      write(stdo,*) '  (2) (q,q+b), (3) (q,q+q0)'
+      write(stdo,*) '  (2) (q,q+b), (3) (q,q+q0), (4) sum_k (k,k+q) with specified sp1, sp2'
       write(stdo,*) ' --- Put number above ! ------------'
       read(5,*) ixc
       write(stdo,*) ' ixc=', ixc !computational mode index
     endif
   endif
   call MPI__Broadcast(ixc)
-  if(.not.(ixc == 2.or. ixc==3))call rx('main_huumat_MPI: ixc error')
+  if(.not.(ixc == 2.or. ixc==3 .or. ixc==4 .or. ixc==5))call rx('main_huumat_MPI: ixc error')
+  use_bbvec_file = (ixc /= 4 .and. ixc /= 5)
+  isp1 = 2; isp2 = 1  ! default UPDN
+  if(ixc == 4 .or. ixc == 5) then
+    if(mpi__root) then
+      if(cmdopt2('--sp1=', outs)) read(outs,*) isp1
+      if(cmdopt2('--sp2=', outs)) read(outs,*) isp2
+    endif
+    call MPI__Broadcast(isp1)
+    call MPI__Broadcast(isp2)
+  endif
   call read_BZDATA()
-  if (mpi__root) write(stdo,*)' ======== nqbz nqibz ngrp=',nqbz,nqibz,ngrp
+  if (mpi__root) write(stdo,*)' ======== nqbz nqibz ngrp, nq0i, nq0i_=',nqbz,nqibz,ngrp, nq0i, nq0i_
   call genallcf_v3(incwfx=0) !readin condition. use ForX0 for core in GWIN !  call Readhbe()    !Read dimensions of h,hb
   call getsrdpp2(natom,nl,nxx)    ! --- read by rdpp ; Radial integrals ppbrd and plane wave part
   call readngmx('QGpsi',ngpmx)
-  open(newunit=ifphi,file='__PHIVC',form='unformatted')     ! PHIV+PHIC augmentation wave and core
-  read(ifphi) nbas, nradmx, ncoremx,nrx
-  if(nqbz  /= nqbzt) call rx( ' hx0fp0: nqbz /=nqbzt  in hbe.d')
-  if(nbas  /= natom) call rx(' nbas(PHIVC) /= natom ')
-  allocate(  ncindx(ncoremx,nbas), lcindx(ncoremx,nbas), &
-    nrad(nbas), nindx_r(1:nradmx,1:nbas), lindx_r(1:nradmx,1:nbas), &
-    aa(nbas),bb(nbas),zz(nbas), rr(nrx,nbas), nrofi(nbas) , &
-    phitoto(nrx,0:nl-1,nn,nbas,nspin), &
-    phitotr(nrx,0:nl-1,nn,nbas,nspin), &
-    nc_max(0:nl-1,nbas),ncore(nbas),rmax(nbas) )
-  read(ifphi) nrad(1:nbas)
-  read(ifphi) nindx_r(1:nradmx,1:nbas),lindx_r(1:nradmx,1:nbas)
-  nc_max=0
-  do ibas=1,nbas
-    ic = ibas
-    read(ifphi) ncore(ic), ncoremx                            !core
-    read(ifphi) ncindx(1:ncoremx,ibas),lcindx(1:ncoremx,ibas) !core
-    read(ifphi) icx,zz(ic),nrofi(ic),aa(ic),bb(ic)
-    if(ic/=icx) call rx(' h_uu: ic/=icx')
-    read(ifphi) rr(1:nrofi(ic),ic)
-    rmax(ic) = rr(nrofi(ic),ic)
-    do isp = 1, nspin
-      if (mpi__root)  write(stdo,*)'          ---  isp nrad ncore(ic)=',isp, nrad(ic),ncore(ic)
-      do ico = 1, ncore(ic) !core
-        l =  lcindx(ico,ic)
-        n =  ncindx(ico,ic)
-        read(ifphi) phitoto(1:nrofi(ic),l,n, ic,isp)   !core orthogonal
-        phitotr(1:nrofi(ic),l,n, ic,isp)=  phitoto(1:nrofi(ic),l,n, ic,isp) ! core raw= core orthgonal
-        if(n>nc_max(l,ic)) nc_max(l,ic)=n
-      enddo
-      do irad = 1, nrad(ic)   !valence
-        l = lindx_r (irad,ic)
-        n = nindx_r (irad,ic) + nc_max(l,ic)
-        read(ifphi) phitoto(1:nrofi(ic),l,n, ic,isp) !valence orthogonal
-        read(ifphi) phitotr(1:nrofi(ic),l,n, ic,isp) !valence raw
+
+  ReadPHIVC: block
+    open(newunit=ifphi,file='__PHIVC',form='unformatted')     ! PHIV+PHIC augmentation wave and core
+    read(ifphi) nbas, nradmx, ncoremx,nrx
+    if(ixc == 4 .and. nspin /=2) call rx('ixc == 4 works only nspin=2')
+    if(ixc == 4 .and. mpi__root) write(stdo,ftox) '!!WARNING ixc ==4 requires --phispinsym'
+    if(nqbz  /= nqbzt) call rx( ' hx0fp0: nqbz /=nqbzt  in hbe.d')
+    if(nbas  /= natom) call rx(' nbas(PHIVC) /= natom ')
+    allocate(  ncindx(ncoremx,nbas), lcindx(ncoremx,nbas), &
+      nrad(nbas), nindx_r(1:nradmx,1:nbas), lindx_r(1:nradmx,1:nbas), &
+      aa(nbas),bb(nbas),zz(nbas), rr(nrx,nbas), nrofi(nbas) , &
+      phitoto(nrx,0:nl-1,nn,nbas,nspin), &
+      phitotr(nrx,0:nl-1,nn,nbas,nspin), &
+      nc_max(0:nl-1,nbas),ncore(nbas),rmax(nbas) )
+    read(ifphi) nrad(1:nbas)
+    read(ifphi) nindx_r(1:nradmx,1:nbas),lindx_r(1:nradmx,1:nbas)
+    nc_max=0
+    do ibas=1,nbas
+      ic = ibas
+      read(ifphi) ncore(ic), ncoremx                            !core
+      read(ifphi) ncindx(1:ncoremx,ibas),lcindx(1:ncoremx,ibas) !core
+      read(ifphi) icx,zz(ic),nrofi(ic),aa(ic),bb(ic)
+      if(ic/=icx) call rx(' h_uu: ic/=icx')
+      read(ifphi) rr(1:nrofi(ic),ic)
+      rmax(ic) = rr(nrofi(ic),ic)
+      do isp = 1, nspin
+        if (mpi__root)  write(stdo,*)'          ---  isp nrad ncore(ic)=',isp, nrad(ic),ncore(ic)
+        do ico = 1, ncore(ic) !core
+          l =  lcindx(ico,ic)
+          n =  ncindx(ico,ic)
+          read(ifphi) phitoto(1:nrofi(ic),l,n, ic,isp)   !core orthogonal
+          phitotr(1:nrofi(ic),l,n, ic,isp)=  phitoto(1:nrofi(ic),l,n, ic,isp) ! core raw= core orthgonal
+          if(n>nc_max(l,ic)) nc_max(l,ic)=n
+        enddo
+        do irad = 1, nrad(ic)   !valence
+          l = lindx_r (irad,ic)
+          n = nindx_r (irad,ic) + nc_max(l,ic)
+          read(ifphi) phitoto(1:nrofi(ic),l,n, ic,isp) !valence orthogonal
+          read(ifphi) phitotr(1:nrofi(ic),l,n, ic,isp) !valence raw
+        enddo
       enddo
     enddo
-  enddo
-  close(ifphi)
+    close(ifphi)
+  endblock ReadPHIVC
+
   ngrpx=1
   allocate( cg(nl**2,nl**2,(2*nl-1)**2),source=0d0)
   allocate( symope(3,3),source=reshape([1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0],shape=[3,3])) !symops identicay matrix with ng=1
@@ -123,9 +148,24 @@ subroutine h_uumatrix()
   call Readhamindex()
   call init_readeigen()   !Initialization for readeigen
   call init_readeigen2()
+  nbasis = nband
+  if(cmdopt0('--dwnb=wan')) then
+    call Init_readeigen_mlw_noeval()
+    get_geig => get_geig_wan
+    get_cphi => get_cphi_wan
+    nbasis = nwf
+  elseif(cmdopt0('--dwnb=mlo')) then
+    call mlo_read_hma_rs() !set ndimMTO -> nmlo
+    get_geig => get_geig_cmlo
+    get_cphi => get_cphi_cmlo
+    call cmlo_init()
+    nbasis = nmlo
+  endif
   call readngmx('QGpsi',ngpmx) !max number of the set q+G
-  allocate(geig1 (ngpmx*nspc,nband),geig2(ngpmx*nspc,nband),eval1(nband),eval2(nband))
-  allocate(cphi1 (ndima*nspc,nband),cphi2(ndima*nspc,nband) )
+  allocate(geig1(ngpmx*nspc,nbasis), geig2(ngpmx*nspc,nbasis))
+  allocate(cphi1(ndima*nspc,nbasis), cphi2(ndima*nspc,nbasis))
+  allocate(eval1(nband), eval2(nband))
+
   open(newunit=ifoc,file='@MNLA_CPHI')
   ldim2 = ndima
   read(ifoc,*)
@@ -136,77 +176,105 @@ subroutine h_uumatrix()
   enddo
   close(ifoc)
   if(mpi__root) then
-    write(stdo,*) ' Used k number in Q0P =', nq0i
-    write(stdo,"(i3,2x, 3f14.6)" )(i,q0i(1:3,i),i=1,nq0i)
+    if(ixc==4 .or. ixc==5) then
+      write(stdo,*) ' Used k number in Q0P =', nq0i_
+      write(stdo,"(i3,2x, 3f14.6)" )(i,q0i(1:3,i),i=1,nq0i_)
+    else
+      write(stdo,*) ' Used k number in Q0P =', nq0i
+      write(stdo,"(i3,2x, 3f14.6)" )(i,q0i(1:3,i),i=1,nq0i)
+    endif
   endif
-  readbbvec: block
-    open(newunit=ifbb,file='BBVEC')
-    read(ifbb,*)
-    read(ifbb,*)nbb,nqbz2
-    if (nqbz /= nqbz2) call rx('readbb: nqbz is wrong!')
-    allocate(bbv(3,nbb),ikbidx(nbb,nqbz))    !call readbb(ifbb,nqbz,nspin,nbb, bbv, ikbidx, iko_ixs,iko_fxs,noxs)
-    do i = 1,nbb
-      read(ifbb,*) bbv(1:3,i)
-    enddo
-    do iqbz = 1,nqbz
-      read(ifbb,*) !itmp,u(1:3)
-      do ib = 1,nbb
-        read(ifbb,*)itmp,itmp2,ikbidx(ib,iqbz) !,u(1:3)
+
+  if(use_bbvec_file) then
+    Readbbvec: block
+      integer :: nspin2, nqbz2, itmp2
+      open(newunit=ifbb,file='BBVEC')
+      read(ifbb,*)
+      read(ifbb,*)nbb, nqbz2
+      if (nqbz /= nqbz2) call rx('readbb: nqbz is wrong!')
+      allocate(bbv(3,nbb),ikbidx(nbb,nqbz))    !call readbb(ifbb,nqbz,nspin,nbb, bbv, ikbidx, iko_ixs,iko_fxs,noxs)
+      do i = 1,nbb
+        read(ifbb,*) bbv(1:3,i)
       enddo
-    enddo
-    read(ifbb,*)
-    read(ifbb,*)nspin2
-    if(nspx /= nspin2) call rx('nspin is wrong!')
-    do is = 1,nspx
-      read(ifbb,*)iko_ixs(is),iko_fxs(is)
-    enddo
-    close(ifbb)
-  end block readbbvec
-  head(2,1:2)=['UUU.','UUD.']
-  head(3,1:2)=['UUq0U.','UUq0D.']
-  if(mpi__root) then
-    do isp=1,nspx
-      if(cmdopt0('--ahc')) then
-        open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum7(0),form='unformatted')
-      else
-        open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum4(0),form='unformatted')
+      do iqbz = 1,nqbz
+        read(ifbb,*) !itmp,u(1:3)
+        do ib = 1,nbb
+          read(ifbb,*)itmp,itmp2,ikbidx(ib,iqbz) !,u(1:3)
+        enddo
+      enddo
+      read(ifbb,*)
+      read(ifbb,*)nspin2
+      if(nspx /= nspin2) call rx('nspin is wrong!')
+      do is = 1,nspx
+        read(ifbb,*)iko_ixs(is),iko_fxs(is)
+      enddo
+      close(ifbb)
+    endblock Readbbvec
+  else !bbv and nbb are not used
+    block
+      logical :: has_gamma
+      has_gamma = any(all(q0i(:,:)==0d0, dim=1))
+      nbb = nq0i_
+      allocate(bbv, source=q0i(1:3,1:nq0i_))
+      if(.not.has_gamma) then
+        nbb = nq0i_ + 1
+        bbv = reshape(bbv, shape=[3,nbb], pad=[0d0])
       endif
-      if(ixc==2)then
-        write(ifuu(isp))'nqbz,nbb,iko_ixs(isp),iko_fxs(isp)',isp
-        write(ifuu(isp))nqbz,nbb,iko_ixs(isp),iko_fxs(isp)
-      elseif(ixc==3) then
-        write(ifuu(isp))'nqbz,nq0i,iko_ixs(isp),iko_fxs(isp)',isp
-        write(ifuu(isp))nqbz,nq0i,iko_ixs(isp),iko_fxs(isp)
-      endif
-      close(ifuu(isp))
-    enddo
+    endblock
+    iko_ixs(1:nspx) = 1
+    iko_fxs(1:nspx) = nbasis
+  endif
+
+  if(ixc ==2 .or. ixc == 3) then
+    head(2,1:2)=['UUU.','UUD.']
+    head(3,1:2)=['UUq0U.','UUq0D.']
+    if(mpi__root) then
+      do isp=1,nspx
+        if(cmdopt0('--ahc')) then
+          open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum7(0),form='unformatted')
+        else
+          open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum4(0),form='unformatted')
+        endif
+        if(ixc==2)then
+          write(ifuu(isp))'nqbz,nbb,iko_ixs(isp),iko_fxs(isp)',isp
+          write(ifuu(isp))nqbz,nbb,iko_ixs(isp),iko_fxs(isp)
+        elseif(ixc==3) then
+          write(ifuu(isp))'nqbz,nq0i,iko_ixs(isp),iko_fxs(isp)',isp
+          write(ifuu(isp))nqbz,nq0i,iko_ixs(isp),iko_fxs(isp)
+        endif
+        close(ifuu(isp))
+      enddo
+    endif
   endif
   ! --- Set q1(j1range) q2(j2range); Note that the true q when we generate eigenfunctions are q1x and q2x.
   ! q1-q1x should be a G vector.  So you may need to take into account the phase shift to <u|u> vectors.
   j1min = minval(iko_ixs(1:nspx)) !starting band index
   j1max = maxval(iko_fxs(1:nspx))
-  j2min = j1min
-  j2max = j1max
-  allocate( uum(j1min:j1max, j2min:j2max,nspx) ) ! uumatrix allocated
+  allocate( uum(j1min:j1max, j1min:j1max,nspx) ) ! uumatrix allocated
   if(cmdopt0('--qibzonly')) call set_qibz(plat,qbz,nqbz,symops,ngrp) !If only at qibz, we need to set irotg
   if (ixc == 2) nbbloop = nbb
   if (ixc == 3) nbbloop = nq0i
+  if (ixc == 4) nbbloop = nq0i_ ! same with nq0i
+  if (ixc == 5) nbbloop = 1 ! same with nq0i
+
   lxx=2*(nl-1)
-  allocate(ppj(ndima,ndima,nspin,nbbloop),source=(0d0,0d0)) ! ppj: ovalap matrix within MT
-  allocate(ppbrd(0:nl-1,nn,0:nl-1,nn,0:2*(nl-1),nspin,nbas), rprodx(nrx,0:lxx), phij(0:lxx),psij(0:lxx),rphiphi(nrx))
+  allocate(ppj(ndima,ndima,nspin,nbbloop), source = (0d0,0d0))
+  allocate(ppbrd(0:nl-1,nn,0:nl-1,nn,0:2*(nl-1),nspin,nbas), rprodx(nrx,0:lxx), phij(0:lxx), psij(0:lxx), rphiphi(nrx))
   allocate(cy((lxx+1)**2),yl((lxx+1)**2))
+
   ibbloop0: do ibb = 1,nbbloop
     if(ixc == 2) dq=-bbv(:,ibb)  !q1(:) = qbz(:,iqbz)        !q2(:) = qbz(:,iqbz) + bbv(:,ibb)
     if(ixc == 3) dq=-q0i(:,ibb) !q1(:) = qbz(:,iqbz)         !q2(:) = qbz(:,iqbz) + q0i(:,ibb)
+    if(ixc == 4) dq=-bbv(:,ibb) !q1(:) = qbz(:,iqbz)         !q2(:) = qbz(:,iqbz) + qbz(:,ibb)
+    if(ixc == 5) dq = 0d0
     if(sum(abs(dq))<1d-8) dq=(/1d-10,0d0,0d0/)
-    if(cmdopt0('--q2q1test')) then
-      dq=1d-10
-    endif  
+    if(cmdopt0('--q2q1test')) dq=1d-10
     absdq = sqrt(sum(dq**2))
     absqg2 = (2*pi/alat)**2 *sum(dq**2)
     absqg =sqrt(absqg2)
     call sylmnc(cy,lxx)
     call sylm(dq/absdq,yl,lxx,r2s) !spherical factor Y(dq)
+
     ppbrd=0d0
     ibasloop0: do ibas = 1,nbas ! radial integral  ppbrd = <phi phi j_l>
       ic = ibas
@@ -234,16 +302,11 @@ subroutine h_uumatrix()
         enddo
       enddo ispinloop00
    enddo ibasloop0
-!!!!!!!!!!!!!!!!
-!   ppbrd(4,:, :,:, :, :, 3:4)=0d0
-!   ppbrd(:,:, 4,:, :, :, 3:4)=0d0
-   
+ 
     ! Calcuate <u{q1x j1} | u_{q2x j2}> = < psi^*{q1x j1} exp(i(q1x-q2x)r) psi_{q2x j2} >
     ! Note that exp(i(q1x-q2x)r) is expanded in the spherical bessel function within MT.
     ! MT part ldim2=ndima; n_indx(1;ldim2):n(phi=1 phidot=2 localorbital=3); l_indx(1:ldim2):l index ; ibas_indx(1:ldim2):ibas index.
     ispinloop02: do ispin=1,nspin
-!      ii = iko_ixs(ispin)
-!      ie = iko_fxs(ispin)
       ia1loop: do 10201 ia1 = 1,ndima
         ibas1= ibas_indx(ia1)
         ia2loop: do 10101 ia2 = 1,ndima
@@ -260,25 +323,22 @@ subroutine h_uumatrix()
             ! cg(lm1,lm2,lm3)= \int Y_lm3(\hat(r)) Y_lm2(\hat(r)) Y_lm1(\hat(r)) \frac{d \Omega}{4\pi}.
             ! This is based on inverse expansion. See the book of angular momentum book of Rose.Eq.3.8.
          enddo
-         
-!!!!!!!!!!!!!!!!!!!            
-!         if((l1>3.or.l2>3).and.ibas1>2) then
-!             ppj(ia1,ia2,ispin,ibb)=0d0
-!          elseif(ibb==1.and.abs(ppj(ia1,ia2,ispin,ibb))>1d-8) then
-!             write(stdo,ftox)'pppppjjj',ia1,ia2,l1,l2,m1,m2,ibas1,ftof(ppj(ia1,ia2,ispin,ibb))
-!          endif
-!!!!!!!!!!!!!!!!!!
-          
 10101    enddo ia2loop
-10201  enddo ia1loop !              !if(cmdopt0('--fpmt')) then; geig1 = readgeigf0(q1,ispin); geig2 = readgeigf0(q2,ispin);else
+10201  enddo ia1loop
     enddo ispinloop02
   enddo ibbloop0
   deallocate(ppbrd, rprodx, phij, psij, rphiphi, cy, yl)
+
+  if(allocated(uumq)) deallocate(uumq)
+  if(ixc == 4 .or. ixc == 5) allocate(uumq(nbasis,nbasis,nbb,nspx), source = (0d0,0d0))
+  if(ixc == 5) nbbloop = nbb ! same with nq0i
+
   iqbz4uum: do 1070 iqbz = 1,nqbz  !qibzonly need to be improved to balance load in ranks.
     if(mod(iqbz-1,mpi__size)/=mpi__rank) cycle !MPI
     if (cmdopt0('--qibzonly')) then
       if(irotg(iqbz)/=1)  cycle !only irreducible q point
-    endif  
+    endif
+    if(ixc == 2 .or. ixc == 3)  then
     do isp=1,nspx
       if(cmdopt0('--ahc')) then
         open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum7(iqbz),form='unformatted')
@@ -286,17 +346,16 @@ subroutine h_uumatrix()
         open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum4(iqbz),form='unformatted')
       endif
     enddo
-    if (ixc == 2) nbbloop = nbb
-    if (ixc == 3) nbbloop = nq0i
+    endif
     ibbloop: do 1080 ibb = 1,nbbloop
       if(ixc == 2) then
         iqb = ikbidx(ibb,iqbz)
         q1(:) = qbz(:,iqbz)
         if(cmdopt0('--q2q1test')) then
           q2(:) = qbz(:,iqbz)
-        else  
+        else
           q2(:) = qbz(:,iqbz) + bbv(:,ibb)
-        endif  
+        endif
         if (iqb < iqbz) then
           iqtmp = iqb
           do ibb2 = 1,nbb
@@ -317,8 +376,10 @@ subroutine h_uumatrix()
       elseif (ixc == 3) then
         q1(:) = qbz(:,iqbz)
         q2(:) = qbz(:,iqbz) + q0i(:,ibb)
+      elseif (ixc == 4 .or. ixc == 5) then
+        q1(:) = qbz(:,iqbz)
+        q2(:) = qbz(:,iqbz) + bbv(:,ibb)
       endif
-      write(stdo,ftox)' iqbz ibb=',iqbz,ibb,'out of',nqbz,nbb
       call readqg0('QGpsi',q1,  q1x, ngp1) ! write(stdo,"('uuuiq q1 q1x=',3f9.4,3x,3f9.4,i5)") q1,q1x,ngp1
       call readqg0('QGpsi',q2,  q2x, ngp2) ! write(stdo,"('uuuiq q2 q2x=',3f9.4,3x,3f9.4,i5)") q2,q2x,ngp2
       allocate( ngvecpf1(3,ngp1), ngvecpf2(3,ngp2), ppovl(ngp1,ngp2) )
@@ -330,45 +391,123 @@ subroutine h_uumatrix()
         ngvecpf1(i,1:ngp1) = ngvecpf1(i,1:ngp1) + ndg1(i)
         ngvecpf2(i,1:ngp2) = ngvecpf2(i,1:ngp2) + ndg2(i)
       enddo
-      call mkppovl2(alat,plat,qbas, ngp1,ngvecpf1, ngp2,ngvecpf2, nbas,rmax,pos, ppovl) !--- ppovl= <P_{q1+G1}|P_{q2+G2}>
-      ispinloop2: do 1050 ispin=1,nspx !note that nspx=nsp/nspc where nspc=2 for lso=1 (nspc=1 for lso=0,2)
+      if(ixc == 5) then
+        block
+        complex(8), allocatable:: ppovl_save(:,:,:)
+        integer :: nx(3), ig1, ig2
+        real(8) :: qvec(3)
+        qvec(1:3) = bbv(:,ibb)
+        call set_ppovl(ngp1, ngvecpf1, ngp2, ngvecpf2, pos, rmax, nbas, alat, plat, qbas, ppovl_save, qvec)
+        do ig2 = 1, ngp2
+          do ig1 = 1, ngp1
+            nx(1:3) = ngvecpf2(1:3,ig2) -ngvecpf1(1:3,ig1) ! G2-G1
+            ppovl(ig1,ig2) = ppovl_save(nx(1),nx(2),nx(3))
+          enddo
+        enddo
+        endblock
+      else
+        call mkppovl2(alat,plat,qbas, ngp1,ngvecpf1, ngp2,ngvecpf2, nbas,rmax,pos, ppovl) !--- ppovl= <P_{q1+G1}|P_{q2+G2}>
+      endif
+      ispinloop2: do 1050 ispin=1, nspx !note that nspx=nsp/nspc where nspc=2 for lso=1 (nspc=1 for lso=0,2)
+        if(ixc==4 .and. ispin /= isp1) cycle ispinloop2
+        if(ixc==5 .and. ispin /= isp1) cycle ispinloop2
         ii = iko_ixs(ispin)
         ie = iko_fxs(ispin)
-        cphi1 = readcphif(q1,ispin) ! MT part of eigenfunctions 
-        cphi2 = readcphif(q2,ispin) 
-        geig1 = readgeigf(q1,ispin) ! IPW part of eigenfunctions
-        geig2 = readgeigf(q2,ispin)
-        eval1 = readeval(q1,ispin) !eigenvalue at q1
-        eval2 = readeval(q2,ispin) 
-        uum=0d0
+        cphi1 = get_cphi(q1, merge(isp1, ispin, (ixc==4 .or. ixc==5))) ! MT part of eigenfunctions
+        cphi2 = get_cphi(q2, merge(isp2, ispin, (ixc==4 .or. ixc==5)))
+        geig1 = get_geig(q1, merge(isp1, ispin, (ixc==4 .or. ixc==5))) ! IPW part of eigenfunctions
+        geig2 = get_geig(q2, merge(isp2, ispin, (ixc==4 .or. ixc==5)))
+        uum(:,:,ispin) = 0d0
         do ispc=1,nspc ! For lso=0 or 2,ispin=1,nsp. For lso=1, ispin=1 ispc=1,2 nspc=2 
           ioc=(ispc-1)*ndima
           iog=(ispc-1)*ngpmx
+          if(ixc == 5) then
+            ibb_ = 1
+          else
+            ibb_ = ibb
+          endif
           uum(ii:ie,ii:ie,ispin) =uum(ii:ie,ii:ie,ispin) &
                + matmul(transpose(dconjg(cphi1(ioc+1:ioc+ndima,ii:ie))),&
-               matmul(ppj(1:ndima,1:ndima,ispc,ibb),cphi2(ioc+1:ioc+ndima,ii:ie))) &! MT part
+               matmul(ppj(1:ndima,1:ndima,ispc,ibb_),cphi2(ioc+1:ioc+ndima,ii:ie))) &! MT part
                + matmul(dconjg(transpose(geig1(iog+1:iog+ngp1, ii:ie))), matmul(ppovl,geig2(iog+1:iog+ngp2,ii:ie))) !IPW part
-        enddo   
-        write(ifuu(ispin)) -10 !dummy
+        enddo
+        if(ixc/=4 .and. ixc /=5) write(ifuu(ispin)) -10 !dummy
         if(ixc==2) write(ifuu(ispin)) iqbz,ibb,ikbidx(ibb,iqbz)
         if(ixc==3) write(ifuu(ispin)) iqbz,ibb
-        write(ifuu(ispin)) ((uum(j1,j2,ispin),j1=ii,ie),j2=ii,ie)
+        if(ixc==2 .or. ixc==3) write(ifuu(ispin)) ((uum(j1,j2,ispin),j1=ii,ie),j2=ii,ie)
+        if(ixc==4 .or. ixc==5) uumq(:,:,ibb,ispin) = uumq(:,:,ibb,ispin) + uum(:,:,ispin)
+        if(ixc==4 .or. ixc==5) cycle
         checkwirte: block
+          eval1 = readeval(q1,ispin) !eigenvalue at q1
+          eval2 = readeval(q2,ispin)
           do j1=ii,ie
             do j2=ii,ie !; do j2=j2min,j2max !checkwrite  !if(j1==j2)
-            if(eval1(j1)>1d10.or.eval2(j2)>1d10) cycle ! see sugw.f90. padding by huge number
+              if(eval1(j1)>1d10.or.eval2(j2)>1d10) cycle ! see sugw.f90. padding by huge number
 !            write(stdo,ftox)'uumatrix: iq isp j1 j2 q1 q2 <uu>= ',iqbz,ispin,j1,j2,ftof(q1,4),ftof(q1-q2,4),ftof(uum(j1,j2),4),ftof(abs(uum(j1,j2)))
-            write(stdo,ftox)'uumatrix: iq isp j1 j2 q1 q2 <uu>= ',iqbz,ispin,j1,j2,ftof(q1,4),ftof(q1-q2,4),ftof(uum(j1,j2,ispin),4),'abs',ftof(abs(uum(j1,j2,ispin)))
+            ! write(stdo,ftox)'uumatrix: iq isp j1 j2 q1 q2 <uu>= ',iqbz,ispin,j1,j2,ftof(q1,4),ftof(q1-q2,4),ftof(uum(j1,j2,ispin),4),'abs',ftof(abs(uum(j1,j2,ispin)))
+            write(stdo,ftox)'uumatrix: iq isp j1 j2 q1 q2 <uu>= ',iqbz,ispin,j1,j2,ftof(q1,4),ftof(q1-q2,4),uum(j1,j2,ispin),'abs',abs(uum(j1,j2,ispin))
           enddo ; enddo
         endblock checkwirte
 1050  enddo ispinloop2
       deallocate(ngvecpf1, ngvecpf2, ppovl)
-      write(stdo,*) !'============ result --- diagonal --- ==============',nspx,j1min,j1max,j2min,j2max
+      ! write(stdo,*) !'============ result --- diagonal --- ==============',nspx,j1min,j1max,j2min,j2max
 1080 enddo ibbloop
+    if(ixc/=4 .or. ixc /= 5) then
     close(ifuu(1))
     if(nspin==2) close(ifuu(2))
+    endif
 1070 enddo iqbz4uum
+
+  if(ixc==4 .or. ixc == 5) then
+    call mpi__allreducesum(uumq, size(uumq))
+    uumq(:,:,:,:)  = uumq(:,:,:,:)/dble(nqbz)
+    if(mpi__root) then
+      block
+        integer :: iq, ifile_handle, recl, sidx
+        logical :: computed(4), info_exists
+        complex(8) :: uumq_1d(nbasis*nbasis)
+        character(20) :: suffix
+        recl = 16*nbasis**2
+        do iq=1, nbb
+          uumq_1d(:) = reshape(uumq(1:nbasis,1:nbasis,iq,isp1), shape=[nbasis*nbasis])
+          write(stdo,'(A,2I3,3f10.6,3x,4f12.6)') 'ispin1,ispin2, q, diag/nwf, |uumq|^2:', isp1, isp2, bbv(:,iq), &
+            sum([(uumq(i,i,iq,isp1),i=1,nbasis)])/dble(nbasis), dble(dot_product(uumq_1d, uumq_1d))
+        enddo
+        sidx = 0
+        if(isp1==1 .and. isp2==1) sidx = 1
+        if(isp1==2 .and. isp2==2) sidx = 2
+        if(isp1==1 .and. isp2==2) sidx = 3
+        if(isp1==2 .and. isp2==1) sidx = 4
+        ! Read existing computed flags if info file exists
+        computed(:) = .false.
+        if(ixc == 4) suffix = 'OvlpQ'
+        if(ixc == 5) suffix = 'FormFactorQ'
+        inquire(file='__MLO'//trim(suffix)//'.info', exist=info_exists)
+        if(info_exists) then
+          open(newunit=ifile_handle, file='__MLO'//trim(suffix)//'.info', form='unformatted', action='read')
+          read(ifile_handle) computed
+          close(ifile_handle)
+        endif
+        computed(sidx) = .true.
+        ! Info file (sequential)
+        open(newunit=ifile_handle, file='__MLO'//trim(suffix)//'.info', form='unformatted', status='replace')
+        write(ifile_handle) computed
+        write(ifile_handle) nbasis, nqbz, nspin, nbb
+        write(ifile_handle) bbv(:,1:nbb)
+        close(ifile_handle)
+        ! Data file (direct-access, single file, record=(sidx-1)*nbb+iq)
+        open(newunit=ifile_handle, file='__MLO'//trim(suffix), form='unformatted', access='direct', recl=recl, status='unknown')
+        do iq=1, nbb
+          write(ifile_handle, rec=(sidx-1)*nbb+iq) uumq(:,:,iq,isp1)
+        enddo
+        close(ifile_handle)
+        write(stdo,ftox) 'uumq written to __MLOFormFactorQ.info / __MLOFormFactorQ'
+      endblock
+    endif
+  endif
   deallocate(uum)
   if (mpi__root) write(stdo,*)'====== end ========================================'
   call mpi_finalize(ierr)
-end subroutine h_uumatrix
+end subroutine uumatrix
+
+end module m_uumat

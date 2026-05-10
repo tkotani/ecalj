@@ -33,7 +33,7 @@ def test(args,bindir,testdir,workdir):
                 lmf+ " co -v[bz.metal]=3 -v[bz.nkabc]=[8,8,8] -v[iter.nit]=3 -v[iter.w]=[0,1] --pr31 >> "+out1,
                 "rm *mixm.co",
                 lmf+ " co -v[bz.metal]=3 -v[bz.nkabc]=[8,8,8] -v[iter.nit]=3 --pr31 --time=5 >> "+out1,
-                lmf+ " co -v[bz.metal]=3 -v[bz.nkabc]=[8,8,8] -v[iter.nit]=3 --pr31  -v[ham.so]=1 --band:fn=syml >> "+out1,
+                lmf+ " co -v[bz.metal]=3 -v[bz.nkabc]=[8,8,8] -v[iter.nit]=3 --pr31  -v[ham.so]=1 --band >> "+out1,
                 "rm -f atm.* *mixm.* rst.* save.* log.* *hssn.* wkp.* dos.* tdos.* pdos.* dos-mull.* qpp.* out.lmf-dos*"
     ])
     tall+=test1_check(testdir+'/'+out1, workdir+'/'+out1)

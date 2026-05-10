@@ -1,6 +1,6 @@
 !> Generate all the inputs for GW calculation. Need q+G info from QGpsi and QGcou which are generated a qg4gw.
 module m_sugw
-  use m_mpiio,only: openm,writem,closem, writem_struct, record_item, record_item_from,openedm
+  use m_mpiio,only: openm,writem,closem, mpiio_buf, buf_put, writem_buf, openedm
   real(8),allocatable,public::ecore(:,:,:),gcore(:,:,:,:),gval(:,:,:,:,:)
   integer,public::   ndham, nqirr,nqibz    !ndima, ncoremx,
 !  integer,allocatable,public::  konf0(:,:) !konfig(:,:),ncores(:),
@@ -375,6 +375,16 @@ contains
     allocate(cphix(ndima,nspc,nbandmx),geigr(ngpmx,nspc,nbandmx))
     i=openm(newunit=ifcphim,file='__CPHI',recl=mrecb)
     i=openm(newunit=ifgeigm,file='__GEIG',recl=mrecg)
+    PrepWriteVxcevec: block
+      integer :: mrecv, ifvxcevec_info
+      mrecv = 32 + nbandmx*(32*nbandmx + 8)
+      if(master_mpi) then
+        open(newunit=ifvxcevec_info, file='__VxcEvec.info', form='unformatted')
+        write(ifvxcevec_info) nqirr, nspx, nbandmx, mrecv
+        close(ifvxcevec_info)
+      endif
+      istat = openm(newunit=ifvxcevec, file='__VxcEvec', recl=mrecv)
+    endblock PrepWriteVxcevec
 
     allocate(evl(nbandmx, nqirr, nspx),vxclda(nbandmx, nqirr, nspx),source=0d0)!nqirr: # ofirreducible q points
     iqisploop: do 1001 idat=1,niqisp !iq = iqini,iqend ! iqini:iqend for this procid
@@ -449,14 +459,16 @@ contains
         if(show_time) call stopwatch_start(sw)
         if(cmdopt0('--mlo')) then ! 2026-1-29
           WriteHamiltonianGW: block
-            type(record_item), allocatable :: items(:)
+            type(mpiio_buf) :: buf
             integer :: iqqisp
             complex(8) :: ovlm_(nbandmx, nbandmx), hamm_(nbandmx, nbandmx)
+            ovlm_(:,:) = 0d0
+            hamm_(:,:) = 0d0
             ovlm_(1:ndimhx,1:ndimhx) = reshape(ovlm, shape=[ndimhx,ndimhx])
             hamm_(1:ndimhx,1:ndimhx) = reshape(hamm, shape=[ndimhx,ndimhx])
             iqqisp= isp + nspx*(iq-1)
-            items = [record_item_from(ndimhx), record_item_from(ovlm_), record_item_from(hamm_)]
-            istat = writem_struct(ifihh, rec=iqqisp, items=items)
+            call buf_put(buf, int(ndimhx,4)); call buf_put(buf, ovlm_); call buf_put(buf, hamm_)
+            istat = writem_buf(ifihh, rec=iqqisp, buf=buf)
             ! write(ifihh) ndimhx
             ! write(ifihh) ovlm
             ! write(ifihh) hamm
@@ -469,12 +481,32 @@ contains
 !      lwvxc = (socmatrix .or. iq<=iqibzmax).and.(.not.cmdopt0('--novxc'))
       lwvxc = (iq<=iqibzmax).and.(.not.cmdopt0('--novxc'))
       if(lwvxc) then
-        open(newunit=ifvxcevec, file= '__vxcevec'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
-        write(ifvxcevec) qp,ndimhx,nev
-        write(ifvxcevec) vxc(:,1:nspc,:,1:nspc)
-        write(ifvxcevec) evec(1:ndimhx,1:ndimhx),evl(1:ndimhx,iq,isp)
-!        if(lso/=0.or.socmatrix) write(ifvxcevec) hammhso 
-        close(ifvxcevec)
+!         open(newunit=ifvxcevec, file= '__vxcevec'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
+!         write(ifvxcevec) qp,ndimhx,nev
+!         write(ifvxcevec) vxc(:,1:nspc,:,1:nspc)
+!         write(ifvxcevec) evec(1:ndimhx,1:ndimhx),evl(1:ndimhx,iq,isp)
+! !        if(lso/=0.or.socmatrix) write(ifvxcevec) hammhso 
+!         close(ifvxcevec)
+        WriteVxcevec: block
+          type(mpiio_buf) :: buf
+          integer :: iqqisp_v
+          complex(8) :: vxc_(nbandmx,nbandmx), evec_(nbandmx,nbandmx)
+          real(8) :: evl_(nbandmx)
+          vxc_  = (0d0,0d0)
+          evec_ = (0d0,0d0)
+          evl_  = 0d0
+          vxc_ (1:ndimhx,1:ndimhx) = reshape(vxc,  shape=[ndimhx,ndimhx])
+          evec_(1:ndimhx,1:ndimhx) = evec(1:ndimhx,1:ndimhx)
+          evl_ (1:ndimhx)          = evl(1:ndimhx,iq,isp)
+          iqqisp_v = isp + nspx*(iq-1)
+          call buf_put(buf, qp)
+          call buf_put(buf, int(ndimhx,4))
+          call buf_put(buf, int(nev,4))
+          call buf_put(buf, vxc_)
+          call buf_put(buf, evec_)
+          call buf_put(buf, evl_)
+          istat = writem_buf(ifvxcevec, rec=iqqisp_v, buf=buf)
+        endblock WriteVxcevec
       endif
       write(stdo,ftox)'sugw: kpt isp=',iq,isp,'of',nqnum,'k=',ftof(qp,5),'ndimh=',ndimh,'irank=',procid,'lwvxc=',lwvxc,'nev=',nev,' nspc=',nspc
       write(stdo,"(9f8.4)",advance='no') (evl(i,iq,isp),i=1,min(18,nev))
@@ -653,7 +685,8 @@ contains
       endblock WriteCphiGeig; if(debug)write(stdo,ftox)' writechpigeig 1001'  
       deallocate(hamm,ovlm,evec,vxc,cphi)!,pwz,cphiw)
 1001 enddo iqisploop
-    if(cmdopt0('--mlo')) close(ifihh)
+    if(cmdopt0('--mlo')) istat = closem(ifihh)
+    istat = closem(ifvxcevec)
     i=closem(ifcphim) !mpi-io
     i=closem(ifgeigm)
     if(openedm(ifihh)) istat = closem(ifihh)
@@ -675,7 +708,7 @@ contains
     if(master_mpi) then
       rdata4gwblock: block
         use m_nvfortran,only:findloc
-        use m_read_bzdata,only: Read_bzdata, nqibz,qibz, nq0i,nq0iadd,q0i,iq0pin
+        use m_read_bzdata,only: Read_bzdata, nqibz,qibz, nq0i,nq0iadd,q0i,iq0pin,ginv
         use m_pwmat,only: mkppovl2
         use m_qplist,only: qirr=>qplist
         real(8),parameter:: pi = 4d0*datan(1d0)
@@ -683,14 +716,16 @@ contains
         integer:: nggg,ngcgp, ifiqg,ifiqgc,irrq, nqtt, nqnum,ngpmx,nqnumc,ngcmx!,nqbz
         integer:: ippovl0, nqnumt,iqx,nqini,iqtt
         real(8):: qpgcut_psi2,qx(3),dQpG,dQQ,QpGcut_psi,QpGcut_cou,qxx(3), QpGcutggg,QpGcutgcgp, tolq=1d-8
-        logical:: ppovl0l=.true.
-        character(3) :: charnum3
+        ! logical:: ppovl0l=.true.
+        ! character(3) :: charnum3
         real(8),allocatable ::qibze(:,:),qsave(:,:),qtt(:,:),rmax(:) 
         integer,allocatable:: nvggg(:,:),nvgcgp(:,:), ngveccB(:,:)
         integer,allocatable,target:: ngvecptt(:,:,:),ngvecctt(:,:,:),ngptt(:),ngctt(:),iqindex(:)
-        complex(8),allocatable :: ppx(:,:),ggg(:) !, ppovl(:,:) !,ppovlinv(:,:)
+        complex(8),allocatable :: ppx(:,:),ggg(:), ppovl(:,:), ppovl_buf(:,:) !,ppovlinv(:,:)
         integer,pointer:: ngvecc(:,:) !ngvecp(:,:),
-        character(5):: txx='.tmpp'
+        integer, allocatable :: ngvecc_buf(:,:)
+        ! character(5):: txx='.tmpp'
+        integer :: ippovlp_info, ippovlp, ippovlpg, ngcmax
         ! Reading q+G and bzdata
         open(newunit=ifiqg ,file='__QGpsi',form='unformatted')
         open(newunit=ifiqgc,file='__QGcou',form='unformatted')
@@ -758,7 +793,7 @@ contains
         !Write PPOVLGG === make <Gc-Gp1+Gp2> matrix ===
         write(stdo,ftox)' === Write PPOVLGG PPOVLG PPOVLI ==='
         write(stdo,ftox)' nggg ngcgp=',nggg,ngcgp,'nqnumt nqini nqtt',nqnumt,nqini,nqtt
-        open(newunit=ippovlgg,file= "__PPOVLGG",form='unformatted')
+        open(newunit=ippovlgg,file= "__PPOvlpGG",form='unformatted')
         write(ippovlgg) nggg, ngcgp, nqnumt-nqini+1,nqini,nqnumt
         write(ippovlgg) nvgcgp(1:3,1:ngcgp)
         write(ippovlgg) nvggg(1:3,1:nggg)
@@ -768,33 +803,59 @@ contains
         !Write PPOVL0,PPOVLG, PPOVLI
         !2025-10-10 PPOVI and PPOVL0 have been removed.
         ! if(ppovl0l) open(newunit=ippovl0,form='unformatted',file='__PPOVL0')
+        !2026-04-11 Add output of ppovl to constract tilde M representation
+
+        ngcmax = maxval(ngctt)
+        allocate(ppovl_buf(ngcmax, ngcmax), ngvecc_buf(3,ngcmax))
+        open(newunit=ippovlp_info,  file='__PPOvlp.info',  form='unformatted')
+        write(ippovlp_info) ngcmax, nqini, nqnumt !No. of saved q-vectors,  max size of G vector
+        open(newunit=ippovlp,  file='__PPOvlp',  form='unformatted', access='direct',recl=16*ngcmax**2)
+        open(newunit=ippovlpg, file='__PPOvlpG', form='unformatted', access='direct',recl=4*ngcmax*3)
+
         iqiloop: do iqi = nqini, nqnumt    !nqibz + nq0i !+ iadd
-          open(newunit=ippovlg,file= "__PPOVLG."//charnum3(iqi),form='unformatted')
+          ! open(newunit=ippovlg,file= "__PPOVLG."//charnum3(iqi),form='unformatted')
           ! open(newunit=ippovli,file= "__PPOVLI."//charnum3(iqi),form='unformatted')
-          qx  = qibze(1:3,iqi)
-          iqx= findloc([(sum(abs(qx(:)-qtt(:,iqtt)))<tolq,iqtt=1,nqtt)],dim=1,value=.true.)
+          qx = qibze(1:3,iqi)
+          ! iqx = findloc([(sum(abs(qx(:)-qtt(:,iqtt)))<tolq,iqtt=1,nqtt)],dim=1,value=.true.)
+          FoldAndFind: block
+            real(8) :: dqr(3)
+            iqx = 0
+            do iqtt = 1, nqtt
+              call rangedq(matmul(ginv, qx(:) - qtt(:,iqtt)), dqr)
+              if(sum(abs(dqr)) < tolq) then; iqx = iqtt; exit; endif
+            enddo
+          endblock FoldAndFind
           ! ngvecp =>ngvecptt(1:3,1:ngptt(iqx),iqx)
           ngvecc =>ngvecctt(1:3,1:ngctt(iqx),iqx)
           ngp=ngptt(iqx)
           ngc=ngctt(iqx)
           ! write(ippovli) qx,ngc
-          write(ippovlg) qx,ngc
+          ! write(ippovlg) qx,ngc
           write(stdo,"(' iqi qx iqx=',i5,3f8.4,i5,' ngc ngp=',4i5)")iqi,qx,iqx,ngc,ngp !sum(abs(ngvecp)),sum(abs(ngvecc))
           ! if(ppovl0l) write(ippovl0)   qx,ngc
           if(ngc==0) cycle
-          ! allocate(ppovl(ngc,ngc))!,ppovlinv(ngc,ngc)) !This is necessary for matcinv
-          ! call mkppovl2(alat,plat,qlat, ngc,ngvecc, ngc,ngvecc, nbas,rmax,pos, ppovl)
+          allocate(ppovl(ngc,ngc))!,ppovlinv(ngc,ngc)) !This is necessary for matcinv
+          call mkppovl2(alat, plat, qlat, ngc, ngvecc, ngc, ngvecc, nbas, rmax, pos, ppovl)
+          write(ippovlp_info) qx, ngc
+          ppovl_buf(1:ngc,1:ngc) = ppovl(1:ngc,1:ngc)
+          ngvecc_buf(1:3,1:ngc) = ngvecc(1:3,1:ngc)
+          write(ippovlp,  rec=iqi-nqini+1) ppovl_buf
+          write(ippovlpg, rec=iqi-nqini+1) ngvecc_buf
+          deallocate(ppovl)
           ! if(ppovl0l)  write(ippovl0) ppovl(1:ngc,1:ngc)
           ! ppovlinv = ppovl
           ! call matcinv(ngc,ppovlinv)
           ! deallocate(ppovl)
           !! ggg= < exp(i G r) > integral in the interstitial region.
-          if(ngc/=0) write(ippovlg) ngvecc(1:3,1:ngc)
+          ! if(ngc/=0) write(ippovlg) ngvecc(1:3,1:ngc)
           ! if(ngc/=0) write(ippovli) ppovlinv(1:ngc,1:ngc)
           ! deallocate(ppovlinv)
-          close(ippovlg)
+          ! close(ippovlg)
           ! close(ippovli)
         enddo iqiloop
+        close(ippovlp_info)
+        close(ippovlp)
+        close(ippovlpg)
         ! if(ppovl0l) close(ippovl0)
         write(stdo,*)" end of rdata4gw "
       endblock rdata4gwblock

@@ -214,7 +214,7 @@ contains
               izz=izz+1
               call writemem('=== KXloop '//trim(charext(izz))//' iqiqz irot ip isp icount= '//&
                    trim(charli([kx,irot,ip,isp,icount],5)))
-              call build_zmel(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,sxs_ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false., &
+              call build_zmel(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,sxs_ntqxx,isp,nctot,ncc=0,zmelconjg=.false., &
                                       is_m_basis=.false., mpi_mode=.false.)
               call writemem('    endof build_zmel')
               call stopwatch_pause(sxs_zmel)
@@ -458,7 +458,7 @@ contains
             call writemem('=== KXloop '//trim(charext(izz))//' iqiqz irot ip isp icount= '//&
                  trim(charli([kx,irot,ip,isp,icount],5)))
             call stopwatch_start(sxs_zmel)
-            call build_zmel(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,sxs_ntqxx,isp,nctot,ncc=0,iprx=debug,zmelconjg=.false., &
+            call build_zmel(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,sxs_ntqxx,isp,nctot,ncc=0,zmelconjg=.false., &
                                  is_m_basis=.true., mpi_mode=.not.use_gpu, comm=comm_w)
             call writemem('    endof build_zmel')
             call stopwatch_pause(sxs_zmel)

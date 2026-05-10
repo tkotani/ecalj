@@ -98,7 +98,7 @@ contains
     complex(8):: zmelp0(ngc,nt0,ntp0),ggitp_(ngp2,ngc),phase(ngc)!,ggitp(ntp0,ngcgp)
     if(ngc==0) return
     if(verbose()>=90) debug= .TRUE. 
-    call getppx2(qlat,qi) ! read and allocate PPOVL*
+    call getppx2(qi) ! read and allocate PPOVL*
     if(ngc/=ngcread)call rx( 'melpln2t: ngc/= ngcx by getppx:PPOVLG')!  write(6,*)qi,ngcread,ngc
     ngcs(1) = ngc
     call rotgvec(symope, 1, ngc, ngcs, qlat, ngvecc, ngveccR)
@@ -135,7 +135,8 @@ contains
        rmel, cmel, nbloch,noccx,nctot, &
        zmelt)
     use m_readqg,only: readqg
-    use m_readeigen,only:readgeigw
+    use m_wan_wfs, only:readgeigw
+    use m_mlo_wfs, only: get_geig_cmlo, cmlo_init
     ! this is for Wanner (readeigW, drvmelp3)
     implicit none
     real(8):: q(3),q_rk(3),qik(3),ginv(3,3)
@@ -155,12 +156,20 @@ contains
          ,zmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
     real(8):: q_rkt(3),qt(3),qu1(3),qu2(3)
     integer::verbose
+    logical :: mlo_mode, cmdopt0
+    mlo_mode = cmdopt0('--mlo')
+    if(mlo_mode) call cmlo_init()
     call readqg('QGpsi', q,    qt,   ngp1, ngvecpB1)
     call readqg('QGpsi', q_rk, q_rkt,ngp2, ngvecpB2)
-    call readgeigW(q,    ngpmx, isp, qu1, geig1, dual=.true.)
-    call readgeigW(q_rk, ngpmx, isp, qu2, geig2)
-    if(sum(abs(qt-qu1))>1d-10) stop 'drvmelp3;qu1/=qu1x'
-    if(sum(abs(q_rkt-qu2))>1d-10) stop 'drvmelp3;qu2/=qu2x'
+    if(mlo_mode) then
+      geig1 = get_geig_cmlo(q   , isp)
+      geig2 = get_geig_cmlo(q_rk, isp)
+    else
+      call readgeigW(q,    ngpmx, isp, qu1, geig1)
+      call readgeigW(q_rk, ngpmx, isp, qu2, geig2)
+      if(sum(abs(qt-qu1))>1d-10) stop 'drvmelp3;qu1/=qu1x'
+      if(sum(abs(q_rkt-qu2))>1d-10) stop 'drvmelp3;qu2/=qu2x'
+    endif
     if(verbose()>=100) write(6,*)' end of read geig '
     qdiff = matmul(symope,qik)  - qt + q_rkt ! rk    -q  +(q-rk) is not zero.
     nadd  = nint(matmul(qlatinv,qdiff))

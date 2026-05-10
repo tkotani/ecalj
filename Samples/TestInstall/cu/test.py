@@ -22,7 +22,7 @@ def test(args,bindir,testdir,workdir):
                  lmf+ " cu -v[bz.nkabc]=[8,8,8] >>"+out1,
                  "rm *mixm.cu",
                  lmf+ " cu -v[bz.nkabc]=[8,8,8] -v[spec.1.rsmh2]=[1.3,0.0,1.0,1.3,0.0] -v[spec.1.lmxa]=4 >>"+out1,
-                 lmf+ " cu -v[bz.nkabc]=[8,8,8] -v[spec.1.rsmh2]=[1.3,0.0,1.0,1.3,0.0] -v[spec.1.lmxa]=4 --band:fn=syml >>"+out1
+                 lmf+ " cu -v[bz.nkabc]=[8,8,8] -v[spec.1.rsmh2]=[1.3,0.0,1.0,1.3,0.0] -v[spec.1.lmxa]=4 --band >>"+out1
         ])
         tall+=test1_check(testdir+'/'+out1, workdir+'/'+out1)
         for out in out2:

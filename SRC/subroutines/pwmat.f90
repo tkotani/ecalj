@@ -1,7 +1,7 @@
 module m_pwmat
   use m_ll,only:ll
   use m_nvfortran,only:findloc
-  public pwmat,mkppovl2
+  public pwmat,mkppovl2, set_ppovl
   private
   real(8):: vol_ppovl
   contains
@@ -435,12 +435,14 @@ subroutine mkppovl2(alat,plat,qlat,ng1,ngvec1,ng2,ngvec2,nbas,rmax,bas, ppovl)
 end subroutine mkppovl2
 !2024-11-28 MO added the set of get_ppovl interfaces
 !2025-07-05 MO updated for the GPU version. it is basically same with mkppovl2
-subroutine set_ppovl(ng1, igv1, ng2, igv2, bas, rmax, nbas, alat, plat, qlat, ppovl_save)
+subroutine set_ppovl(ng1, igv1, ng2, igv2, bas, rmax, nbas, alat, plat, qlat, ppovl_save, qvec)
   implicit none
   integer, intent(in) :: ng1, ng2, igv1(3,ng1), igv2(3,ng2)
+  real(8), intent(in) :: alat, plat(3,3), qlat(3,3), rmax(nbas), bas(3,nbas)
+  real(8), intent(in), optional :: qvec(3)
   integer :: nx(3), n1x, n1m, n2x, n2m, n3x, n3m
   integer :: ig1, ig2, ig3, nbas
-  real(8) :: alat, plat(3,3), qlat(3,3), rmax(nbas), bas(3,nbas), vol, tripl
+  real(8) :: vol, tripl, qvec_in(3)
   integer:: ibas, i
   real(8):: absg,ggvec(3),grmx
   real(8), parameter:: pi=4d0*datan(1d0), pi4=4d0*pi
@@ -462,12 +464,15 @@ subroutine set_ppovl(ng1, igv1, ng2, igv2, bas, rmax, nbas, alat, plat, qlat, pp
          int(n1x-n1m+1,8)*int(n2x-n2m+1,8)*int(n3x-n3m+1,8)*16, ' bytes'
     call rx('set_ppovl: GPU OOM')
   endif
+  qvec_in = 0d0
+  if(present(qvec)) qvec_in = qvec
+
   !$acc kernels
   ppovl_save(:,:,:) = (0d0, 0d0)
   !$acc end kernels
 
   vol = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
-  !$acc data present_or_copyin(rmax(1:nbas), alat, nbas, vol, bas(1:3,1:nbas), qlat(1:3,1:3))
+  !$acc data present_or_copyin(rmax(1:nbas), alat, nbas, vol, bas(1:3,1:nbas), qlat(1:3,1:3), qvec_in(1:3))
   !$acc kernels loop collapse(3) private(nx, ggvec) independent
   do ig3=n3m, n3x
     do ig2=n2m, n2x
@@ -475,7 +480,7 @@ subroutine set_ppovl(ng1, igv1, ng2, igv2, bas, rmax, nbas, alat, plat, qlat, pp
         !following is inlined matgg2
         nx(1:3) = [ig1, ig2, ig3]
         do i = 1, 3
-          ggvec(i) = 2*pi*sum(qlat(i,:)*nx(:))/alat
+          ggvec(i) = 2*pi*(sum(qlat(i,:)*(nx(:)) + qvec_in(:)))/alat
         enddo
         absg  =  sqrt(sum(ggvec(1:3)**2))
         ppovl = 0d0

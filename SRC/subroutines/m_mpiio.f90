@@ -1,341 +1,369 @@
-module m_mpiio !MPI-IO only for complex(8). Fixed length recl
-  use iso_c_binding
+module m_mpiio !MPI-IO. Fixed length recl
   use m_nvfortran
   use mpi
   implicit none
-  type :: record_item
-    type(c_ptr) :: addr
-    integer     :: count
-    integer     :: mpi_type
-  endtype record_item
-  public:: openm,writem,readm,closem, openedm
-  public:: writem_c, writem_d, readm_d
-  public:: record_item, record_item_from, writem_struct, readm_struct
-  interface record_item_from
-    module procedure record_item_from_real8_0d
-    module procedure record_item_from_real8_1d
-    module procedure record_item_from_real8_2d
-    module procedure record_item_from_real8_3d
-    module procedure record_item_from_int4_0d
-    module procedure record_item_from_int4_1d
-    module procedure record_item_from_int4_2d
-    module procedure record_item_from_int4_3d
-    module procedure record_item_from_complex8_0d
-    module procedure record_item_from_complex8_1d
-    module procedure record_item_from_complex8_2d
-    module procedure record_item_from_complex8_3d
-  endinterface
+  ! mpiio_buf: byte buffer for packing (write) and unpacking (read) heterogeneous data.
+  ! buf_put appends data to the buffer; buf_get extracts data sequentially.
+  ! writem_buf writes the buffer to file; readm_buf reads a record into the buffer.
+  ! This avoids c_loc/c_ptr, so TARGET attributes and contiguous arrays are not required.
+  type :: mpiio_buf
+    integer(1), allocatable :: bytes(:)
+    integer :: pos = 1
+  end type mpiio_buf
+  public :: openm, writem, readm, closem, openedm
+  public :: writem_c, writem_d, readm_d
+  public :: mpiio_buf, buf_put, buf_get, buf_reset, writem_buf, readm_buf
+  interface buf_put
+    module procedure buf_put_real8_0d,    buf_put_real8_1d,    buf_put_real8_2d,    buf_put_real8_3d
+    module procedure buf_put_int4_0d,     buf_put_int4_1d,     buf_put_int4_2d,     buf_put_int4_3d
+    module procedure buf_put_complex8_0d, buf_put_complex8_1d, buf_put_complex8_2d, buf_put_complex8_3d
+  end interface buf_put
+  interface buf_get
+    module procedure buf_get_real8_0d,    buf_get_real8_1d,    buf_get_real8_2d,    buf_get_real8_3d
+    module procedure buf_get_int4_0d,     buf_get_int4_1d,     buf_get_int4_2d,     buf_get_int4_3d
+    module procedure buf_get_complex8_0d, buf_get_complex8_1d, buf_get_complex8_2d, buf_get_complex8_3d
+  end interface buf_get
   private
-  integer,parameter::nfmax=1000, nsize=16 !maxsize of opened file by openm
-  integer :: ierr,fhl(nfmax)=-9999,iff=0  ! -9999 is used as a missing value indicator (assumed not to occur as a valid value)
-  integer(kind=mpi_offset_kind)::recll(nfmax)
+  integer, parameter :: nfmax=1000, nsize=16 !maxsize of opened file by openm
+  integer :: ierr, fhl(nfmax)=-9999, iff=0   ! -9999 is used as a missing value indicator
+  integer(kind=mpi_offset_kind) :: recll(nfmax)
+  character(len=256) :: fnames(nfmax) = ''
 contains
-  function openm(newunit,file,recl,comm) result(i) !recl=16*size
-    integer::    newunit,     recl,info,amode,comm_in
-    character(*)::     file
+  function openm(newunit, file, recl, comm) result(i) !recl=16*size
+    integer ::      newunit,      recl, info, comm_in
+    character(*) ::       file
     integer, intent(in), optional :: comm
-    integer:: i
+    integer :: i
     info = mpi_info_null
     comm_in = MPI_COMM_WORLD
-    if(present(comm)) comm_in=comm
-    call mpi_file_open(comm_in, trim(file), mpi_mode_rdwr + mpi_mode_create,MPI_INFO_NULL, newunit,ierr)
-    iff=iff+1
-    if(iff>nfmax) call rx('m_mpiio:iff>nfmax')
+    if (present(comm)) comm_in = comm
+    call mpi_file_open(comm_in, trim(file), mpi_mode_rdwr + mpi_mode_create, MPI_INFO_NULL, newunit, ierr)
+    iff = iff + 1
+    if (iff > nfmax) call rx('m_mpiio:iff>nfmax')
     fhl(iff)   = newunit
     recll(iff) = recl !in byte
-    i=0
+    fnames(iff) = trim(file)
+    i = 0
   end function openm
-  function writem(unit,rec,data) result(i)
-    integer::unit
+  function writem(unit, rec, data) result(i)
+    integer :: unit
     integer(mpi_offset_kind) :: offset
-    integer::rec,count
-    complex(8):: data(1)
-    integer:: i,ifx
-    integer:: status(MPI_Status_size)
-    ifx = findloc(unit==fhl(1:iff),dim=1,value=.True.)
-    offset= (rec-1)*recll(ifx)
-    count = recll(ifx)/nsize     !    write(6,*)'writemmmmm',ifx,offset,count 
+    integer :: rec, count
+    complex(8) :: data(1)
+    integer :: i, ifx
+    integer :: status(MPI_Status_size)
+    ifx = findloc(unit==fhl(1:iff), dim=1, value=.True.)
+    offset = (rec-1)*recll(ifx)
+    count  = recll(ifx)/nsize
     call mpi_file_write_at(fhl(ifx), offset, data, count, MPI_DOUBLE_COMPLEX, status, ierr)
-    i=0
+    i = 0
   end function writem
-  function writem_c(unit,rec,data) result(i)
-    integer::unit
+  function writem_c(unit, rec, data) result(i)
+    integer :: unit
     integer(mpi_offset_kind) :: offset
-    integer::rec,count
-    complex(4):: data(1)
-    integer:: i,ifx
-    integer:: status(MPI_Status_size)
-    ifx = findloc(unit==fhl(1:iff),dim=1,value=.True.)
-    offset= (rec-1)*recll(ifx)
-    count = recll(ifx)/8 !    write(6,*)'writemmmmm',ifx,offset,count 
+    integer :: rec, count
+    complex(4) :: data(1)
+    integer :: i, ifx
+    integer :: status(MPI_Status_size)
+    ifx = findloc(unit==fhl(1:iff), dim=1, value=.True.)
+    offset = (rec-1)*recll(ifx)
+    count  = recll(ifx)/8
     call mpi_file_write_at(fhl(ifx), offset, data, count, MPI_COMPLEX, status, ierr)
-    i=0
+    i = 0
   end function writem_c
-  function writem_d(unit,rec,data) result(i)
-    integer::unit
+  function writem_d(unit, rec, data) result(i)
+    integer :: unit
     integer(mpi_offset_kind) :: offset
-    integer::rec,count
-    real(8):: data(1)
-    integer:: i,ifx
-    integer:: status(MPI_Status_size)
-    ifx = findloc(unit==fhl(1:iff),dim=1,value=.True.)
-    offset= (rec-1)*recll(ifx)
-    count = recll(ifx)/8 !    write(6,*)'writemmmmm',ifx,offset,count 
+    integer :: rec, count
+    real(8) :: data(1)
+    integer :: i, ifx
+    integer :: status(MPI_Status_size)
+    ifx = findloc(unit==fhl(1:iff), dim=1, value=.True.)
+    offset = (rec-1)*recll(ifx)
+    count  = recll(ifx)/8
     call mpi_file_write_at(fhl(ifx), offset, data, count, MPI_DOUBLE_PRECISION, status, ierr)
-    i=0
+    i = 0
   end function writem_d
-  function readm(unit,rec,data) result(i)
-    integer::unit
-    integer::rec,count
+  function readm(unit, rec, data) result(i)
+    integer :: unit
+    integer :: rec, count
     integer(mpi_offset_kind) :: offset
-    integer::  status(MPI_STATUS_SIZE)
-    complex(8):: data(1)
-    integer:: i,ifx
-    ifx = findloc(unit==fhl,dim=1,value=.True.)
-    offset=(rec-1)*recll(ifx)
-    count=recll(ifx)/nsize
+    integer :: status(MPI_STATUS_SIZE)
+    complex(8) :: data(1)
+    integer :: i, ifx
+    ifx = findloc(unit==fhl, dim=1, value=.True.)
+    offset = (rec-1)*recll(ifx)
+    count  = recll(ifx)/nsize
     call mpi_file_read_at(fhl(ifx), offset, data, count, MPI_DOUBLE_COMPLEX, status, ierr)
-    i=0
+    i = 0
   end function readm
-  function readm_d(unit,rec,data) result(i)
-    integer::unit
-    integer::rec,count
+  function readm_d(unit, rec, data) result(i)
+    integer :: unit
+    integer :: rec, count
     integer(mpi_offset_kind) :: offset
-    integer::  status(MPI_STATUS_SIZE)
-    real(8):: data(1)
-    integer:: i,ifx
-    ifx = findloc(unit==fhl,dim=1,value=.True.)
-    offset=(rec-1)*recll(ifx)
-    count=recll(ifx)/8
+    integer :: status(MPI_STATUS_SIZE)
+    real(8) :: data(1)
+    integer :: i, ifx
+    ifx = findloc(unit==fhl, dim=1, value=.True.)
+    offset = (rec-1)*recll(ifx)
+    count  = recll(ifx)/8
     call mpi_file_read_at(fhl(ifx), offset, data, count, MPI_DOUBLE_PRECISION, status, ierr)
-    i=0
+    i = 0
   end function readm_d
   function closem(unit) result(i)
-    integer::unit
-    integer:: i, ifx
-    ifx = findloc(unit==fhl(1:iff),dim=1,value=.True.)
-    fhl(ifx)=-9999
+    integer :: unit
+    integer :: i, ifx
+    ifx = findloc(unit==fhl(1:iff), dim=1, value=.True.)
+    fhl(ifx) = -9999
+    fnames(ifx) = ''
     call mpi_file_close(unit, ierr)
-    i=0
+    i = 0
   end function closem
   function openedm(unit) result(is_open)
-    integer::unit
-    logical:: is_open
-    integer:: ifx
-    ifx = findloc(unit==fhl(1:iff),dim=1,value=.True.)
-    if(ifx>0) then
-      is_open = .true.
-    else
-      is_open = .false.
-    endif
+    integer :: unit
+    logical :: is_open
+    integer :: ifx
+    ifx = findloc(unit==fhl(1:iff), dim=1, value=.True.)
+    is_open = ifx > 0
   end function openedm
 
-  subroutine build_struct_type(items, filetype, record_bytes)
-    type(record_item), intent(in) :: items(:)
-    integer, intent(out) :: filetype
-    integer(kind=MPI_ADDRESS_KIND), intent(out) :: record_bytes
-    integer :: n, i, ierr_local
-    integer, allocatable :: blocklen(:), types(:)
-    integer(kind=MPI_ADDRESS_KIND), allocatable  :: disp(:)
-    n = size(items)
-    allocate(blocklen(n), types(n), disp(n))
-    do i = 1, n
-      blocklen(i) = items(i)%count
-      types(i)    = items(i)%mpi_type
-      disp(i) = transfer(items(i)%addr, 0_MPI_ADDRESS_KIND) ! extract address stored in c_ptr
-    enddo
-    call MPI_Type_create_struct(n, blocklen, disp, types, filetype, ierr_local)
-    call MPI_Type_commit(filetype, ierr_local)
-    record_bytes = 0
-    do i = 1, n
-      select case(types(i))
-      case(MPI_DOUBLE_PRECISION)
-        record_bytes = record_bytes + 8_MPI_ADDRESS_KIND * blocklen(i)
-      case(MPI_INTEGER)
-        record_bytes = record_bytes + 4_MPI_ADDRESS_KIND * blocklen(i)
-      case(MPI_DOUBLE_COMPLEX)
-        record_bytes = record_bytes + 16_MPI_ADDRESS_KIND * blocklen(i)
-      case default
-        call rx('m_mpiio:build_struct_type: unsupported MPI type')
-      endselect
-    enddo
-    deallocate(blocklen, types, disp)
-  end subroutine build_struct_type
+  subroutine buf_reset(buf)
+    type(mpiio_buf), intent(inout) :: buf
+    buf%pos = 1
+  end subroutine buf_reset
 
-  integer function writem_struct(unit, rec, items) result(i)
+  subroutine buf_grow(buf, needed)
+    type(mpiio_buf), intent(inout) :: buf
+    integer, intent(in) :: needed
+    integer :: new_size
+    integer(1), allocatable :: tmp(:)
+    if (.not. allocated(buf%bytes)) then
+      allocate(buf%bytes(max(needed, 1024)))
+      return
+    end if
+    if (buf%pos + needed - 1 > size(buf%bytes)) then
+      new_size = max(size(buf%bytes)*2, buf%pos + needed - 1)
+      allocate(tmp(new_size))
+      tmp(1:buf%pos-1) = buf%bytes(1:buf%pos-1)
+      call move_alloc(tmp, buf%bytes)
+    end if
+  end subroutine buf_grow
+
+  integer function writem_buf(unit, rec, buf) result(i)
     integer, intent(in) :: unit, rec
-    type(record_item), intent(in) :: items(:)
-    integer :: ifx, k, item_bytes
-    integer(kind=MPI_ADDRESS_KIND) :: record_bytes
-    integer(kind=MPI_OFFSET_KIND) :: offset
+    type(mpiio_buf), intent(in) :: buf
+    integer :: ifx, nbytes
+    integer(mpi_offset_kind) :: offset
     integer :: status(MPI_STATUS_SIZE)
-    real(8),    pointer :: pr8(:)
-    integer(4), pointer :: pi4(:)
-    complex(8), pointer :: pc8(:)
     ifx = findloc(unit == fhl(1:iff), dim=1, value=.true.)
-    if (ifx <= 0) call rx('m_mpiio:writem_struct: unit not opened')
-    record_bytes = 0
-    do k = 1, size(items)
-      select case(items(k)%mpi_type)
-      case(MPI_DOUBLE_PRECISION); record_bytes = record_bytes + 8_MPI_ADDRESS_KIND*items(k)%count
-      case(MPI_INTEGER);          record_bytes = record_bytes + 4_MPI_ADDRESS_KIND*items(k)%count
-      case(MPI_DOUBLE_COMPLEX);   record_bytes = record_bytes + 16_MPI_ADDRESS_KIND*items(k)%count
-      case default; call rx('m_mpiio:writem_struct: unsupported MPI type')
-      end select
-    enddo
-    if (record_bytes /= recll(ifx)) then
-      write(6,*) 'm_mpiio:writem_struct: record_bytes mismatch:', record_bytes, recll(ifx)
-      call rx('m_mpiio:writem_struct: record_bytes /= recll')
-    endif
+    if (ifx <= 0) call rx('m_mpiio:writem_buf: unit not opened')
+    nbytes = buf%pos - 1
+    if (nbytes /= recll(ifx)) then
+      write(6,*) 'm_mpiio:writem_buf: buffer size mismatch (file='//trim(fnames(ifx))//'):', nbytes, recll(ifx)
+      call rx('m_mpiio:writem_buf: buffer size /= recll (file='//trim(fnames(ifx))//')')
+    end if
     offset = (rec-1)*recll(ifx)
-    do k = 1, size(items)
-      select case(items(k)%mpi_type)
-      case(MPI_DOUBLE_PRECISION)
-        call c_f_pointer(items(k)%addr, pr8, [items(k)%count])
-        call MPI_File_write_at(fhl(ifx), offset, pr8, items(k)%count, MPI_DOUBLE_PRECISION, status, ierr)
-        item_bytes = 8*items(k)%count
-      case(MPI_INTEGER)
-        call c_f_pointer(items(k)%addr, pi4, [items(k)%count])
-        call MPI_File_write_at(fhl(ifx), offset, pi4, items(k)%count, MPI_INTEGER, status, ierr)
-        item_bytes = 4*items(k)%count
-      case(MPI_DOUBLE_COMPLEX)
-        call c_f_pointer(items(k)%addr, pc8, [items(k)%count])
-        call MPI_File_write_at(fhl(ifx), offset, pc8, items(k)%count, MPI_DOUBLE_COMPLEX, status, ierr)
-        item_bytes = 16*items(k)%count
-      end select
-      offset = offset + item_bytes
-    enddo
-    i = 0
-  end function writem_struct
+    call MPI_File_write_at(fhl(ifx), offset, buf%bytes(1), nbytes, MPI_BYTE, status, ierr)
+    i = ierr
+  end function writem_buf
 
-  integer function readm_struct(unit, rec, items) result(i)
+  integer function readm_buf(unit, rec, buf) result(i)
     integer, intent(in) :: unit, rec
-    type(record_item), intent(in) :: items(:)
-    integer :: ifx, k, item_bytes
-    integer(kind=MPI_ADDRESS_KIND) :: record_bytes
-    integer(kind=MPI_OFFSET_KIND) :: offset
+    type(mpiio_buf), intent(inout) :: buf
+    integer :: ifx, nbytes
+    integer(mpi_offset_kind) :: offset
     integer :: status(MPI_STATUS_SIZE)
-    real(8),    pointer :: pr8(:)
-    integer(4), pointer :: pi4(:)
-    complex(8), pointer :: pc8(:)
     ifx = findloc(unit == fhl(1:iff), dim=1, value=.true.)
-    if (ifx <= 0) call rx('m_mpiio:readm_struct: unit not opened')
-    record_bytes = 0
-    do k = 1, size(items)
-      select case(items(k)%mpi_type)
-      case(MPI_DOUBLE_PRECISION); record_bytes = record_bytes + 8_MPI_ADDRESS_KIND*items(k)%count
-      case(MPI_INTEGER);          record_bytes = record_bytes + 4_MPI_ADDRESS_KIND*items(k)%count
-      case(MPI_DOUBLE_COMPLEX);   record_bytes = record_bytes + 16_MPI_ADDRESS_KIND*items(k)%count
-      case default; call rx('m_mpiio:readm_struct: unsupported MPI type')
-      end select
-    enddo
-    if (record_bytes /= recll(ifx)) then
-      write(6,*) 'm_mpiio:readm_struct: record_bytes mismatch:', record_bytes, recll(ifx)
-      call rx('m_mpiio:readm_struct: record_bytes /= recll')
-    endif
+    if (ifx <= 0) then
+      write(6,*) 'm_mpiio:readm_buf: unit not opened, unit=', unit
+      call rx('m_mpiio:readm_buf: unit not opened')
+    end if
+    nbytes = int(recll(ifx))
+    if (.not. allocated(buf%bytes) .or. size(buf%bytes) /= nbytes) then
+      if (allocated(buf%bytes)) deallocate(buf%bytes)
+      allocate(buf%bytes(nbytes))
+    end if
+    buf%pos = 1
     offset = (rec-1)*recll(ifx)
-    do k = 1, size(items)
-      select case(items(k)%mpi_type)
-      case(MPI_DOUBLE_PRECISION)
-        call c_f_pointer(items(k)%addr, pr8, [items(k)%count])
-        call MPI_File_read_at(fhl(ifx), offset, pr8, items(k)%count, MPI_DOUBLE_PRECISION, status, ierr)
-        item_bytes = 8*items(k)%count
-      case(MPI_INTEGER)
-        call c_f_pointer(items(k)%addr, pi4, [items(k)%count])
-        call MPI_File_read_at(fhl(ifx), offset, pi4, items(k)%count, MPI_INTEGER, status, ierr)
-        item_bytes = 4*items(k)%count
-      case(MPI_DOUBLE_COMPLEX)
-        call c_f_pointer(items(k)%addr, pc8, [items(k)%count])
-        call MPI_File_read_at(fhl(ifx), offset, pc8, items(k)%count, MPI_DOUBLE_COMPLEX, status, ierr)
-        item_bytes = 16*items(k)%count
-      end select
-      offset = offset + item_bytes
-    enddo
-    i = 0
-  end function readm_struct
+    call MPI_File_read_at(fhl(ifx), offset, buf%bytes(1), nbytes, MPI_BYTE, status, ierr)
+    i = ierr
+  end function readm_buf
 
-  function record_item_from_real8_0d(var) result(item)
-    type(record_item) :: item
-    real(8), intent(in), target :: var
-    item%addr     = c_loc(var)
-    item%count    = 1
-    item%mpi_type = MPI_DOUBLE_PRECISION
-  end function
-  function record_item_from_real8_1d(var) result(item)
-    type(record_item) :: item
-    real(8), intent(in), target :: var(:)
-    item%addr     = c_loc(var(1))
-    item%count    = size(var)
-    item%mpi_type = MPI_DOUBLE_PRECISION
-  end function
-  function record_item_from_real8_2d(var) result(item)
-    type(record_item) :: item
-    real(8), intent(in), target :: var(:, :)
-    item%addr     = c_loc(var(1,1))
-    item%count    = size(var)
-    item%mpi_type = MPI_DOUBLE_PRECISION
-  end function
-  function record_item_from_real8_3d(var) result(item)
-    type(record_item) :: item
-    real(8), intent(in), target :: var(:, :, :)
-    item%addr     = c_loc(var(1,1,1))
-    item%count    = size(var)
-    item%mpi_type = MPI_DOUBLE_PRECISION
-  end function
-  function record_item_from_int4_0d(var) result(item)
-    type(record_item) :: item
-    integer(4), intent(in), target :: var
-    item%addr     = c_loc(var)
-    item%count    = 1
-    item%mpi_type = MPI_INTEGER
-  end function
-  function record_item_from_int4_1d(var) result(item)
-    type(record_item) :: item
-    integer(4), intent(in), target :: var(:)
-    item%addr     = c_loc(var(1))
-    item%count    = size(var)
-    item%mpi_type = MPI_INTEGER
-  end function
-  function record_item_from_int4_2d(var) result(item)
-    type(record_item) :: item
-    integer(4), intent(in), target :: var(:, :)
-    item%addr     = c_loc(var(1,1))
-    item%count    = size(var)
-    item%mpi_type = MPI_INTEGER
-  end function
-  function record_item_from_int4_3d(var) result(item)
-    type(record_item) :: item
-    integer(4), intent(in), target :: var(:, :, :)
-    item%addr     = c_loc(var(1,1,1))
-    item%count    = size(var)
-    item%mpi_type = MPI_INTEGER
-  end function
-  function record_item_from_complex8_0d(var) result(item)
-    type(record_item) :: item
-    complex(8), intent(in), target :: var
-    item%addr     = c_loc(var)
-    item%count    = 1
-    item%mpi_type = MPI_DOUBLE_COMPLEX
-  end function
-  function record_item_from_complex8_1d(var) result(item)
-    type(record_item) :: item
-    complex(8), intent(in), target :: var(:)
-    item%addr     = c_loc(var(1))
-    item%count    = size(var)
-    item%mpi_type = MPI_DOUBLE_COMPLEX
-  end function
-  function record_item_from_complex8_2d(var) result(item)
-    type(record_item) :: item
-    complex(8), intent(in), target :: var(:, :)
-    item%addr     = c_loc(var(1,1))
-    item%count    = size(var)
-    item%mpi_type = MPI_DOUBLE_COMPLEX
-  end function
-  function record_item_from_complex8_3d(var) result(item)
-    type(record_item) :: item
-    complex(8), intent(in), target :: var(:, :, :)
-    item%addr     = c_loc(var(1,1,1))
-    item%count    = size(var)
-    item%mpi_type = MPI_DOUBLE_COMPLEX
-  end function
+  ! ===== buf_put =====
+  subroutine buf_put_real8_0d(buf, var)
+    type(mpiio_buf), intent(inout) :: buf; real(8), intent(in) :: var
+    integer, parameter :: nb = 8
+    call buf_grow(buf, nb)
+    buf%bytes(buf%pos:buf%pos+nb-1) = transfer(var, buf%bytes(buf%pos:buf%pos+nb-1))
+    buf%pos = buf%pos + nb
+  end subroutine
+  subroutine buf_put_real8_1d(buf, var)
+    type(mpiio_buf), intent(inout) :: buf; real(8), intent(in) :: var(:)
+    integer :: nb
+    nb = size(var)*8
+    call buf_grow(buf, nb)
+    buf%bytes(buf%pos:buf%pos+nb-1) = transfer(var, buf%bytes(buf%pos:buf%pos+nb-1))
+    buf%pos = buf%pos + nb
+  end subroutine
+  subroutine buf_put_real8_2d(buf, var)
+    type(mpiio_buf), intent(inout) :: buf; real(8), intent(in) :: var(:,:)
+    integer :: nb
+    nb = size(var)*8
+    call buf_grow(buf, nb)
+    buf%bytes(buf%pos:buf%pos+nb-1) = transfer(var, buf%bytes(buf%pos:buf%pos+nb-1))
+    buf%pos = buf%pos + nb
+  end subroutine
+  subroutine buf_put_real8_3d(buf, var)
+    type(mpiio_buf), intent(inout) :: buf; real(8), intent(in) :: var(:,:,:)
+    integer :: nb
+    nb = size(var)*8
+    call buf_grow(buf, nb)
+    buf%bytes(buf%pos:buf%pos+nb-1) = transfer(var, buf%bytes(buf%pos:buf%pos+nb-1))
+    buf%pos = buf%pos + nb
+  end subroutine
+  subroutine buf_put_int4_0d(buf, var)
+    type(mpiio_buf), intent(inout) :: buf; integer(4), intent(in) :: var
+    integer, parameter :: nb = 4
+    call buf_grow(buf, nb)
+    buf%bytes(buf%pos:buf%pos+nb-1) = transfer(var, buf%bytes(buf%pos:buf%pos+nb-1))
+    buf%pos = buf%pos + nb
+  end subroutine
+  subroutine buf_put_int4_1d(buf, var)
+    type(mpiio_buf), intent(inout) :: buf; integer(4), intent(in) :: var(:)
+    integer :: nb
+    nb = size(var)*4
+    call buf_grow(buf, nb)
+    buf%bytes(buf%pos:buf%pos+nb-1) = transfer(var, buf%bytes(buf%pos:buf%pos+nb-1))
+    buf%pos = buf%pos + nb
+  end subroutine
+  subroutine buf_put_int4_2d(buf, var)
+    type(mpiio_buf), intent(inout) :: buf; integer(4), intent(in) :: var(:,:)
+    integer :: nb
+    nb = size(var)*4
+    call buf_grow(buf, nb)
+    buf%bytes(buf%pos:buf%pos+nb-1) = transfer(var, buf%bytes(buf%pos:buf%pos+nb-1))
+    buf%pos = buf%pos + nb
+  end subroutine
+  subroutine buf_put_int4_3d(buf, var)
+    type(mpiio_buf), intent(inout) :: buf; integer(4), intent(in) :: var(:,:,:)
+    integer :: nb
+    nb = size(var)*4
+    call buf_grow(buf, nb)
+    buf%bytes(buf%pos:buf%pos+nb-1) = transfer(var, buf%bytes(buf%pos:buf%pos+nb-1))
+    buf%pos = buf%pos + nb
+  end subroutine
+  subroutine buf_put_complex8_0d(buf, var)
+    type(mpiio_buf), intent(inout) :: buf; complex(8), intent(in) :: var
+    integer, parameter :: nb = 16
+    call buf_grow(buf, nb)
+    buf%bytes(buf%pos:buf%pos+nb-1) = transfer(var, buf%bytes(buf%pos:buf%pos+nb-1))
+    buf%pos = buf%pos + nb
+  end subroutine
+  subroutine buf_put_complex8_1d(buf, var)
+    type(mpiio_buf), intent(inout) :: buf; complex(8), intent(in) :: var(:)
+    integer :: nb
+    nb = size(var)*16
+    call buf_grow(buf, nb)
+    buf%bytes(buf%pos:buf%pos+nb-1) = transfer(var, buf%bytes(buf%pos:buf%pos+nb-1))
+    buf%pos = buf%pos + nb
+  end subroutine
+  subroutine buf_put_complex8_2d(buf, var)
+    type(mpiio_buf), intent(inout) :: buf; complex(8), intent(in) :: var(:,:)
+    integer :: nb
+    nb = size(var)*16
+    call buf_grow(buf, nb)
+    buf%bytes(buf%pos:buf%pos+nb-1) = transfer(var, buf%bytes(buf%pos:buf%pos+nb-1))
+    buf%pos = buf%pos + nb
+  end subroutine
+  subroutine buf_put_complex8_3d(buf, var)
+    type(mpiio_buf), intent(inout) :: buf; complex(8), intent(in) :: var(:,:,:)
+    integer :: nb
+    nb = size(var)*16
+    call buf_grow(buf, nb)
+    buf%bytes(buf%pos:buf%pos+nb-1) = transfer(var, buf%bytes(buf%pos:buf%pos+nb-1))
+    buf%pos = buf%pos + nb
+  end subroutine
+
+  ! ===== buf_get =====
+  subroutine buf_get_real8_0d(buf, var)
+    type(mpiio_buf), intent(inout) :: buf; real(8), intent(out) :: var
+    integer, parameter :: nb = 8
+    var = transfer(buf%bytes(buf%pos:buf%pos+nb-1), var)
+    buf%pos = buf%pos + nb
+  end subroutine
+  subroutine buf_get_real8_1d(buf, var)
+    type(mpiio_buf), intent(inout) :: buf; real(8), intent(out) :: var(:)
+    integer :: nb
+    nb = size(var)*8
+    var = transfer(buf%bytes(buf%pos:buf%pos+nb-1), var)
+    buf%pos = buf%pos + nb
+  end subroutine
+  subroutine buf_get_real8_2d(buf, var)
+    type(mpiio_buf), intent(inout) :: buf; real(8), intent(out) :: var(:,:)
+    integer :: nb
+    nb = size(var)*8
+    var = reshape(transfer(buf%bytes(buf%pos:buf%pos+nb-1), [0d0]), shape(var))
+    buf%pos = buf%pos + nb
+  end subroutine
+  subroutine buf_get_real8_3d(buf, var)
+    type(mpiio_buf), intent(inout) :: buf; real(8), intent(out) :: var(:,:,:)
+    integer :: nb
+    nb = size(var)*8
+    var = reshape(transfer(buf%bytes(buf%pos:buf%pos+nb-1), [0d0]), shape(var))
+    buf%pos = buf%pos + nb
+  end subroutine
+  subroutine buf_get_int4_0d(buf, var)
+    type(mpiio_buf), intent(inout) :: buf; integer(4), intent(out) :: var
+    integer, parameter :: nb = 4
+    var = transfer(buf%bytes(buf%pos:buf%pos+nb-1), var)
+    buf%pos = buf%pos + nb
+  end subroutine
+  subroutine buf_get_int4_1d(buf, var)
+    type(mpiio_buf), intent(inout) :: buf; integer(4), intent(out) :: var(:)
+    integer :: nb
+    nb = size(var)*4
+    var = transfer(buf%bytes(buf%pos:buf%pos+nb-1), var)
+    buf%pos = buf%pos + nb
+  end subroutine
+  subroutine buf_get_int4_2d(buf, var)
+    type(mpiio_buf), intent(inout) :: buf; integer(4), intent(out) :: var(:,:)
+    integer :: nb
+    nb = size(var)*4
+    var = reshape(transfer(buf%bytes(buf%pos:buf%pos+nb-1), [0_4]), shape(var))
+    buf%pos = buf%pos + nb
+  end subroutine
+  subroutine buf_get_int4_3d(buf, var)
+    type(mpiio_buf), intent(inout) :: buf; integer(4), intent(out) :: var(:,:,:)
+    integer :: nb
+    nb = size(var)*4
+    var = reshape(transfer(buf%bytes(buf%pos:buf%pos+nb-1), [0_4]), shape(var))
+    buf%pos = buf%pos + nb
+  end subroutine
+  subroutine buf_get_complex8_0d(buf, var)
+    type(mpiio_buf), intent(inout) :: buf; complex(8), intent(out) :: var
+    integer, parameter :: nb = 16
+    var = transfer(buf%bytes(buf%pos:buf%pos+nb-1), var)
+    buf%pos = buf%pos + nb
+  end subroutine
+  subroutine buf_get_complex8_1d(buf, var)
+    type(mpiio_buf), intent(inout) :: buf; complex(8), intent(out) :: var(:)
+    integer :: nb
+    nb = size(var)*16
+    var = transfer(buf%bytes(buf%pos:buf%pos+nb-1), var)
+    buf%pos = buf%pos + nb
+  end subroutine
+  subroutine buf_get_complex8_2d(buf, var)
+    type(mpiio_buf), intent(inout) :: buf; complex(8), intent(out) :: var(:,:)
+    integer :: nb
+    nb = size(var)*16
+    var = reshape(transfer(buf%bytes(buf%pos:buf%pos+nb-1), [(cmplx(0d0,0d0,8))]), shape(var))
+    buf%pos = buf%pos + nb
+  end subroutine
+  subroutine buf_get_complex8_3d(buf, var)
+    type(mpiio_buf), intent(inout) :: buf; complex(8), intent(out) :: var(:,:,:)
+    integer :: nb
+    nb = size(var)*16
+    var = reshape(transfer(buf%bytes(buf%pos:buf%pos+nb-1), [(cmplx(0d0,0d0,8))]), shape(var))
+    buf%pos = buf%pos + nb
+  end subroutine
 end module m_mpiio

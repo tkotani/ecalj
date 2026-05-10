@@ -142,7 +142,7 @@ contains
          call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
 !         call getkeyvalue("GWinput","MEMnmbatch",mmax,default=2d0)
       endif
-      call getppx2([(0d0,i=1,9)],[(0d0,i=1,3)],getngcgp=.true.)
+      call getppx2([(0d0,i=1,3)],get_ngcgp=.true.)
       open(newunit=ifiqg, file='__QGcou',form='unformatted')
       read(ifiqg) iiixxx, ngcmx
       close(ifiqg)

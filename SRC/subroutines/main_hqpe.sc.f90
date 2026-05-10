@@ -23,6 +23,7 @@ contains
     use m_hamindex,only: Readhamindex, nhq=>ndham
     use m_mpi,only: MPI__Initialize, mpi__rank
     use m_genallcf_v3,only: genallcf_v3; use m_struct_from_lmf,only: laf, nmto=>nlmto, nspin
+    use m_mpiio, only: openm, closem, mpiio_buf, buf_get, readm_buf
     !    use m_readefermi,only: readefermi,ef
     implicit none
     integer:: ifsex(2),ifsexcore(2),ifxc(2),ifsec(2),ifqpe(2),ifsex2(2),ifsexcore2(2),ifsec2(2) !,iftote(2),iftote2(2)
@@ -103,17 +104,44 @@ contains
     write(stdo,ftox)' ndimh ntq nsp nqibz =',nhq,ntq,nspin,nqibz !NOTE this ndimh is the maximum dimention of Hamiltonian.
     allocate(qqq(3,nqibz,nspin),v_xc(nhq,nhq,nqibz,nspin),evec(nhq,nhq,nqibz,nspin),evl(nhq,nqibz,nspin),nev(nqibz,nspin))
     allocate(nhqx(nqibz,nspin))
-    Readvxcever: do iq=1,nqibz               !now nqibz is not necessary to be nqbz !nqibz=nqbz
-      do is=1,nspin
-        open(newunit=ifvxcevec, file='__vxcevec'//trim(xt(iq))//trim(xt(is)),form='unformatted')
-        read(ifvxcevec) qqq(1:3,iq,is),nz, nev(iq,is)
-        read(ifvxcevec) v_xc(1:nz,1:nz,iq,is)
-        read(ifvxcevec) evec(1:nz,1:nz,iq,is) !,evl(1:nz,iq,is)
-        close(ifvxcevec)
-        nhqx(iq,is) = nz   !nz is introduced instead of nhq
-        write(stdo,ftox) ' reading vxcevec ... iq is nz=',iq,is,nz
+    ReadVxcEvec: block
+        ! open(newunit=ifvxcevec, file='__vxcevec'//trim(xt(iq))//trim(xt(is)),form='unformatted')
+        ! read(ifvxcevec) qqq(1:3,iq,is),nz, nev(iq,is)
+        ! read(ifvxcevec) v_xc(1:nz,1:nz,iq,is)
+        ! read(ifvxcevec) evec(1:nz,1:nz,iq,is) !,evl(1:nz,iq,is)
+        ! close(ifvxcevec)
+        ! nhqx(iq,is) = nz   !nz is introduced instead of nhq
+        ! write(stdo,ftox) ' reading vxcevec ... iq is nz=',iq,is,nz
+      integer :: nqirr_f, nspx_f, nbandmx_f, mrecv_f, ifinf, rec, istat
+      complex(8), allocatable :: vxc_buf(:,:), evec_buf(:,:)
+      real(8), allocatable :: evl_buf(:)
+      real(8) :: qp_tmp(3)
+      type(mpiio_buf) :: buf
+      open(newunit=ifinf, file='__VxcEvec.info', form='unformatted')
+      read(ifinf) nqirr_f, nspx_f, nbandmx_f, mrecv_f
+      close(ifinf)
+      allocate(vxc_buf(nbandmx_f,nbandmx_f), evec_buf(nbandmx_f,nbandmx_f), evl_buf(nbandmx_f))
+      istat = openm(newunit=ifvxcevec, file='__VxcEvec', recl=mrecv_f)
+      do iq=1,nqibz               !now nqibz is not necessary to be nqbz !nqibz=nqbz
+        do is=1,nspin
+          rec = is + nspx_f*(iq-1)
+          istat = readm_buf(ifvxcevec, rec=rec, buf=buf)
+          call buf_get(buf, qp_tmp)
+          call buf_get(buf, nz)
+          call buf_get(buf, nev(iq,is))
+          call buf_get(buf, vxc_buf)
+          call buf_get(buf, evec_buf)
+          call buf_get(buf, evl_buf)
+          qqq(1:3,iq,is)        = qp_tmp
+          v_xc(1:nz,1:nz,iq,is) = vxc_buf(1:nz,1:nz)
+          evec(1:nz,1:nz,iq,is) = evec_buf(1:nz,1:nz)
+          evl(1:nz,iq,is)       = evl_buf(1:nz)
+          nhqx(iq,is) = nz
+          write(stdo,ftox) ' reading vxcevec ... iq is nz=',iq,is,nz
+        enddo
       enddo
-    enddo Readvxcever
+      istat = closem(ifvxcevec)
+    endblock ReadVxcEvec
     if(sum(nstar(:))/= nqbz ) call rx( ' nstarsum/= nqbz')
     HeaderQPU: do is=1,nspin
       write(ifqpe(is),*) '==============================================================='

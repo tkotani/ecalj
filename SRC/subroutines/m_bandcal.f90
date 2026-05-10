@@ -26,7 +26,7 @@ module m_bandcal
   use m_lmfinit,only: ispec,nkaphh,kmxt_i=>kmxt,lmxb_i=>lmxb
   use m_lmfinit,only: nlmax,nspc,n0,lldau,idu
   use m_struc_def,only:s_rv5   !o oqkkl : memory is allocated for qkkl
-  use m_mpiio, only: writem_d, openm, closem, openedm, writem_struct, record_item, record_item_from
+  use m_mpiio, only: writem_d, openm, closem, openedm, mpiio_buf, buf_put, writem_buf
   ! outputs ---------------------------
   public m_bandcal_init, m_bandcal_2nd, m_bandcal_clean, m_bandcal_allreduce, m_bandcal_symsmrho
   public :: m_bandcal_gather_evlall, m_bandcal_gather_spinweightall
@@ -110,12 +110,12 @@ contains
     sumqv = 0d0
     if(writeham) then
       PrepWriteHamiltonianPMT:block
-      integer :: ifihh_info, mrech,mrechsoc
+      integer :: ifihh_info, mrech, mrechsoc
         mrech = 8*3+4+16*nbandmx*nbandmx*2
         mrechsoc =    16*(nbandmx/nspc)*(nbandmx/nspc)*3 !hammhso is per-orbital (no spinor doubling)
         if(master_mpi) then
-          open(newunit=ifihh_info, file='__HamiltonianPMT.info', form='unformatted')
-          write(ifihh_info) nbandmx, mrech,mrechsoc
+          open(newunit=ifihh_info, file='__HamiltonianPMT.info', form='unformatted', action='write')
+          write(ifihh_info) nbandmx, mrech, mrechsoc
           close(ifihh_info)
         endif
         istat = openm(newunit=ifih,file='__HamiltonianPMT',recl=mrech, comm=comm)
@@ -219,23 +219,25 @@ contains
               " ndimh = nmto+napw = ",3i5,f13.5)') iq,nkp,qp,ndimh,ndimh-napw,napw
          if(writeham) then
            WriteHamiltonianPMT: block
-              type(record_item), allocatable :: items(:)
-              integer :: iqqisp, nbandh
-              complex(8) :: ovlm_(nbandmx, nbandmx), hamm_(nbandmx, nbandmx)
-              complex(8), allocatable :: hammhso_(:,:,:)
-              ovlm_(1:ndimhx,1:ndimhx) = reshape(ovlm, shape=[ndimhx,ndimhx])
-              hamm_(1:ndimhx,1:ndimhx) = reshape(hamm, shape=[ndimhx,ndimhx])
-              iqqisp= isp + nspx*(iq-1)
-              if(socmatrix.and.isp==nspx) then
-                nbandh = nbandmx/nspc !hammhso is per-orbital (no spinor doubling)
-                allocate(hammhso_(nbandh,nbandh,3), source=(0d0,0d0))
-                hammhso_(1:ndimh,1:ndimh,1:3) = hammhso(1:ndimh,1:ndimh,1:3)
-                items = [record_item_from(hammhso_)]
-                istat = writem_struct(ifihsoc, rec=iqqisp, items=items)
-                deallocate(hammhso_)
-              endif
-              items = [record_item_from(qp), record_item_from(ndimhx), record_item_from(ovlm_), record_item_from(hamm_)]
-              istat = writem_struct(ifih, rec=iqqisp, items=items)
+             type(mpiio_buf) :: buf, buf_so
+             integer :: iqqisp, nbandh
+             complex(8) :: ovlm_(nbandmx, nbandmx), hamm_(nbandmx, nbandmx)
+             complex(8), allocatable :: hammhso_(:,:,:)
+             ovlm_(:,:) = 0d0
+             hamm_(:,:) = 0d0
+             ovlm_(1:ndimhx,1:ndimhx) = reshape(ovlm, shape=[ndimhx,ndimhx])
+             hamm_(1:ndimhx,1:ndimhx) = reshape(hamm, shape=[ndimhx,ndimhx])
+             iqqisp= isp + nspx*(iq-1)
+             call buf_put(buf, qp); call buf_put(buf, int(ndimhx,4)); call buf_put(buf, ovlm_); call buf_put(buf, hamm_)
+             istat = writem_buf(ifih, rec=iqqisp, buf=buf)
+             if(socmatrix.and.isp==nspx) then
+               nbandh = nbandmx/nspc !hammhso is per-orbital (no spinor doubling)
+               allocate(hammhso_(nbandh,nbandh,3), source=(0d0,0d0))
+               hammhso_(1:ndimh,1:ndimh,1:3) = hammhso(1:ndimh,1:ndimh,1:3)
+               call buf_put(buf_so, hammhso_)
+               istat = writem_buf(ifihsoc, rec=iqqisp, buf=buf_so)
+               deallocate(hammhso_)
+             endif
           endblock WriteHamiltonianPMT
          endif
          nmx=min(nevmx,ndimhx)! nmx:maximum number of eigenfunctions we will obtain. Smaller is faster.

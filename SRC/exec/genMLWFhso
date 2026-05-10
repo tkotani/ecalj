@@ -66,7 +66,7 @@ if [ -e PSIGD.0000 ]; then
     cat PSIGD.* >PSIGD
     rm -f PSIGD.*
 fi
-argin=2 ;run_arg $argin $MPI_SIZE $nfpgw /huumat_MPI luumat2   # UU (UUmatrix <u_k,i|u_k+b,j>) matrix are caltulated.
+argin=2 ;run_arg $argin $MPI_SIZE $nfpgw /huumat_MPI luumat2 $MATERIAL  # UU (UUmatrix <u_k,i|u_k+b,j>) matrix are caltulated.
 # Gather all UU*.* into a file UUU/UUD.
 cat UUU.* >UUU
 rm -f UUU.*

@@ -16,7 +16,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   use m_zmel_old,only: drvmelp3
   use m_ftox
   use m_readqg,only: readqg0
-  use m_readeigen,only:readcphiw
+  use m_wan_wfs,only:readcphiw
   use m_keyvalue,only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, &
                        tg_nbcutlow_sig => nbcutlow_sig, &
@@ -24,6 +24,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
                        tg_TestNoQ0P    => TestNoQ0P, &
                        tg_NoQ0P        => NoQ0P
   use m_read_bzdata,only: wklm
+  use m_mlo_wfs, only: get_cphi_cmlo, cmlo_init
 !  use rsmpi_rotkindex,only:nk_local_rotk,ik_index_rotk
   implicit none
   integer :: ntq, natom,nqbz,nqibz,ngrp,nq,nw_i,nw,niw, natomx,&
@@ -142,7 +143,10 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   integer :: kx_local
   logical, intent(in) :: spinflip
   integer :: is, isp1, isp2
+  logical :: mlo_mode, cmdopt0
   debug=.false.
+  mlo_mode = cmdopt0('--mlo')
+  if(mlo_mode) call cmlo_init()
   if(verbose()>=90) debug= .TRUE. 
   if(debug) write(6,ftox)' nnnnnnnnnn wmatqk_mpi: nrws nrws1 nrws2       ',nrws,nrws1,nrws2
   call gwinput_init()
@@ -269,9 +273,14 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
     if(.not. spinflip .and. is/=isp) cycle
     do iq = 1,nqbz
       q(:) = qbz(:,iq)
-      call readcphiW (qbz(:,iq), nlmto,is, quu, cphiq, dual=.true.)
       qk =  q - qbz_kr          ! qbz(:,kr)
-      call  readcphiW(qk, nlmto,is, quu, cphikq)
+      if(mlo_mode) then
+        cphiq = get_cphi_cmlo(qbz(:,iq), is)
+        cphikq = get_cphi_cmlo(qk, is)
+      else
+        call readcphiW(qbz(:,iq), nlmto,is, quu, cphiq)
+        call readcphiW(qk,        nlmto,is, quu, cphikq)
+      endif
       do ia = 1,natom
         expikt(ia) = exp(img*tpi* sum(qibz_k*tr(:,ia)) ) !  write(6,'(" phase ",i3,2d12.4)')ia,expikt(ia)
       end do
