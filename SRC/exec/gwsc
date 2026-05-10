@@ -7,7 +7,6 @@ from pathlib import Path
 from utils import ensure_dir, remove_files, copy_files, move_files
 from run_cmd import run_cmd, MPIParams
 from dft import run_lmf
-from gwinput_prepare import ensure_gwinput_toml
 
 EXEC_DIR = Path(__file__).resolve().parent
 

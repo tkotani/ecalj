@@ -50,6 +50,7 @@ module m_GWinput
 
   ! Optional flags
   logical, protected, public :: KeepEigen    = .true.
+  logical, protected, public :: KeepCMLO     = .true.
   logical, protected, public :: KeepPPOVL    = .false.
   logical, protected, public :: NormChk      = .false.
   logical, protected, public :: AnyQ         = .false.
@@ -453,6 +454,7 @@ contains
     ! Boolean flags
     call gv_l(gw, 'GaussSmear',      GaussSmear)
     call gv_l(gw, 'KeepEigen',       KeepEigen)
+    call gv_l(gw, 'KeepCMLO',        KeepCMLO)
     call gv_l(gw, 'KeepPPOVL',       KeepPPOVL)
     call gv_l(gw, 'NormChk',         NormChk)
     call gv_l(gw, 'unit_2pioa',      unit_2pioa)

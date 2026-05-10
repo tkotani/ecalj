@@ -4,7 +4,6 @@ import contextlib
 from pathlib import Path
 from run_cmd import run_cmd, MPIParams
 from utils import move_files, remove_files
-from gwinput_prepare import ensure_gwinput_toml
 
 EXEC_DIR = Path(__file__).resolve().parent
 
@@ -15,33 +14,30 @@ def cal_mlo_magnon(args, extra_args):
     options = extra_args
     option_dos = "--dos" if args.dos else ""
 
-    if not ensure_gwinput_toml(exec_dir=EXEC_DIR):
-        raise SystemExit('job_mlo_magnon: cannot proceed without GWinput.toml')
-
     print(f"### start k+- r+-: mpi size= {mpi_size}, target= {target}")
     if args.dos:
         run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"qg4gw",
-                                   args=["--job=40001", option_dos, "--avoidgamma", *extra_args]), stdout="lqg4gw02dos") #make __BZDATA.DOS
+                                   args=[target, "--job=40001", option_dos, "--avoidgamma", *extra_args]), stdout="lqg4gw02dos") #make __BZDATA.DOS
     run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"qg4gw",
-                               args=["--job=40001", *extra_args]), stdout="lqg4gw02")
+                               args=[target, "--job=40001", *extra_args]), stdout="lqg4gw02")
     remove_files("__EtaMagnon*")
     if not args.skip_geteta:
         run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo_magnon",
-                                   args=["--geteta", f"--sp1={args.sp1}", f"--sp2={args.sp2}", option_dos, *extra_args]), stdout="lmlo_magnon_eta")
+                                   args=[target, "--geteta", f"--sp1={args.sp1}", f"--sp2={args.sp2}", option_dos, *extra_args]), stdout="lmlo_magnon_eta")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo_magnon",
-                               args=[f"--sp1={args.sp1}", f"--sp2={args.sp2}", option_dos, *extra_args]), stdout="lmlo_magnon")
+                               args=[target, f"--sp1={args.sp1}", f"--sp2={args.sp2}", option_dos, *extra_args]), stdout="lmlo_magnon")
 
 def cal_mlo_uovlpq(args, extra_args):
     cluster = args.cluster
     target = args.extension
     mpi_size = args.np
     options = extra_args
-    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"qg4gw", args=["--job=2", *extra_args]), stdout="lqg4gw02_uovlp") #make __BZDATA.DOS
+    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"qg4gw", args=[target, "--job=2", *extra_args]), stdout="lqg4gw02_uovlp") #make __BZDATA.DOS
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf", args=[target, "--jobgw=1", "--skipbstruxinit", "--mlo", *options]), stdout="llmfgw01_uovlp")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo", args=[target, "--mlo", *options]), stdout="lmlo")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"huumat_MPI", args=[target, "--dwnb=mlo", f"--sp1={args.sp1}", f"--sp2={args.sp2}", *options]), stdin_str="4", stdout="lformfactor")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"huumat_MPI", args=[target, "--dwnb=mlo", f"--sp1={args.sp1}", f"--sp2={args.sp2}", *options]), stdin_str="5", stdout="lovlp")
-    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"hbasfp0", args=["--job=0", *options]), stdout="lbas")
+    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"hbasfp0", args=[target, "--job=0", *options]), stdout="lbas")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hmlo_ovlppair", args=[target, f"--sp1={args.sp1}", f"--sp2={args.sp2}", *options]), stdout="lovlppair")
 
 def cal_mlo_vw(args, extra_args):
@@ -51,15 +47,15 @@ def cal_mlo_vw(args, extra_args):
     options = extra_args
 
     run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"lmf", args=[target, "--jobgw=0", *options]), stdout="llmfgw00")
-    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"qg4gw", args=["--job=1", *options]), stdout="lqg4gw")
+    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"qg4gw", args=[target, "--job=1", *options]), stdout="lqg4gw")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf", args=[target, "--jobgw=1", "--mlo", *options]), stdout="llmfgw01")
-    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"heftet", args=["--job=1", *options]), stdout="leftet")
-    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"hbasfp0", args=["--job=0", *options]), stdout="lbas")
+    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"heftet", args=[target, "--job=1", *options]), stdout="leftet")
+    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"hbasfp0", args=[target, "--job=0", *options]), stdout="lbas")
 
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo", args=[target, "--mlo", *options]), stdout="lmlo")
-    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hvccfp0", args=[*options]), stdin_str="0", stdout="lvcc")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hvccfp0", args=[target, *options]), stdin_str="0", stdout="lvcc")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hwmatK_MPI", args=[target, "--mlo", f"--sp1={args.sp1}", f"--sp2={args.sp2}", *options]), stdin_str="1", stdout="lwmatK1")
-    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hx0fp0", args=[*options, '--prefer_bpara']), stdin_str="111", stdout="lx0_111")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hx0fp0", args=[target, *options, '--prefer_bpara']), stdin_str="111", stdout="lx0_111")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hwmatK_MPI", args=[target, "--mlo", f"--sp1={args.sp1}", f"--sp2={args.sp2}", *options]), stdin_str="2", stdout="lwmatK2")
 
     print("OK! Generation of W finished.")

@@ -5,7 +5,7 @@ module m_mlo_wfs
   use m_hamindex,    only: ngpmx, nqtt, qtt, symops, ngrp, plat
   use m_genallcf_v3, only: nsp => nspin, ndima, nband, nspc, nspx
   use m_readeigen,   only: readgeigf => readgeigf_mpi, readcphif => readcphif_mpi
-  use m_keyvalue,    only: getkeyvalue
+  use m_GWinput,     only: gwinput_init, gwinput_loaded,  tg_KeepCMLO => KeepCMLO
   use,intrinsic :: ieee_arithmetic
   use m_ftox
   implicit none
@@ -21,7 +21,12 @@ contains
   subroutine cmlo_init()
     integer :: ifihh, nqbz, mrecbb, istat
     if(.not.init) return
-    call getkeyvalue("GWinput","KeepCMLO",keep_mlo,default=.true.)
+    call gwinput_init()
+    if (gwinput_loaded) then
+      keep_mlo = tg_KeepCMLO
+    else
+      call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+    endif
     open(newunit=ifihh, file='__cmlo.info', form='unformatted')
     read(ifihh) nmlo, nqbz, nqirr, nMTO, mrecbb
     allocate(ix(nmlo), qplistgw(3,nqirr))
