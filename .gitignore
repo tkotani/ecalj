@@ -92,6 +92,7 @@ SRC/TestInstall/work
 */*/*duledepend*
 */*/*/*duledepend*
 SRC/exec/build
+SRC/exec/build*
 SRC/TAGS
 chk
 bin
@@ -111,7 +112,12 @@ SRC/exec/hahc
 SRC/exec/hbasfp0
 SRC/exec/heftet
 SRC/exec/hhomogas
+SRC/exec/hgw_combined
+SRC/exec/hgw_combined_gpu
+SRC/exec/hgw_combined_mp
+SRC/exec/hgw_combined_mp_gpu
 SRC/exec/hmagnon
+SRC/exec/hmlo_ovlppair
 SRC/exec/hmaxloc
 SRC/exec/hpsig_MPI
 SRC/exec/hqpe
@@ -149,9 +155,11 @@ SRC/exec/lmf_mp
 SRC/exec/lmf_mp_gpu
 SRC/exec/Makefile
 SRC/exec/mlo
+SRC/exec/mlo_magnon
 SRC/exec/nvfortran
 SRC/exec/qg4gw
 SRC/exec/wanplot
+SRC/exec/hhomogas
 *.tar.gz
 __*
 nvidia-*
