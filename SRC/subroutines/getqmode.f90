@@ -2,7 +2,7 @@
 subroutine getqmode()  !no output. getq mode just output. Not return variables.
   use m_lmfinit, only: nspec,ispec,nbas,lmxax
   use m_lgunit,only:stdo
-  use m_ext,only:sname   ! read veswavatm.* and qbyl.*
+  use m_ext,only:sname,dirname ! nvfortran ICE workaround: dirname added (need 2+ symbols when m_lmfinit+m_lgunit present)
   implicit none
   logical:: debug,cmdopt0
   integer:: lmxa,is,ifiwv,il,isp,ifiqb,ib,ibas,idummy,npri

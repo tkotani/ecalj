@@ -5,11 +5,9 @@ module m_relax
   private
 contains
   subroutine relax(it,indrlx,natrlx,force, p,w,basin,bas,icom)
-    use m_lmfinit,only: nbas,nitrlx,slabl,ifrlx,ispec
-    use m_lmfinit,only: lrlxr,rdhessr,nkillr,xtolr,gtolr,stepr
-    use m_ext,only:     sname
-    use m_MPItk,only: master_mpi
+    use m_lmfinit,only: nbas,nitrlx,slabl,ifrlx,ispec,lrlxr,rdhessr,nkillr,xtolr,gtolr,stepr ! nvfortran ICE workaround: merged
     use m_struc_def
+    ! nvfortran ICE workaround: m_ext+m_MPItk moved to BLOCK below to avoid 5-module trigger
     !- Relax atomic positions and volume using variable metric algorithm
     ! ----------------------------------------------------------------------
     !i Inputs:
@@ -56,6 +54,14 @@ contains
     save ir,wkg
     data wkg /28*0d0/
     character(256)::lll=''
+    logical :: master_mpi
+    character(512) :: sname
+    block ! nvfortran ICE workaround: copy m_ext+m_MPItk vars into locals
+      use m_ext,only: sname_=>sname
+      use m_MPItk,only: master_mpi_=>master_mpi
+      sname = sname_
+      master_mpi = master_mpi_
+    end block
     if (master_mpi) call pshpr(iprint()+30)
     call tcn('relax')
     bas=basin

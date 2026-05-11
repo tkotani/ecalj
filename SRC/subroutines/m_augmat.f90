@@ -1,12 +1,12 @@
 !> Make augmentation matrices sig,tau,pi for one site
-module m_augmat 
-  use m_ll,only: ll
-  use m_lmfinit,only: n0
+module m_augmat
+  ! nvfortran ICE workaround: m_ll+m_lmfinit moved from module level to each subroutine
   public vlm2us,momusl
   private
 contains
   subroutine momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp,rofi,rwgt,v0,v1,qum,vum)!Moments of ul*ul,ul*sl,sl*sl and their integrals with true pot.
     use m_makusp,only: makusp
+    use m_lmfinit,only: n0
     !i   z     :nuclear charge
     !i   rmt   :augmentation radius, in a.u.
     !i   lmxa  :augmentation l-cutoff
@@ -126,9 +126,7 @@ contains
     call tcx('momusl')
   end subroutine momusl
   subroutine vlm2us(lmaxu,rmt,idu,lmxa,iblu,vorb,phzdphz,rotp,vumm)!- Rotate vorb from (phi,phidot) to (u,s) and store in vumm
-    use m_lmfinit,only: nppn
-    use m_lgunit,only:stdo
-    use m_ftox
+    use m_lmfinit,only: nppn,n0 ! nvfortran ICE workaround: n0 added (m_ll+m_lmfinit moved from module level)
     !i   lmaxu :dimensioning parameter for U matrix
     !i   lmxa  :augmentation l-cutoff
     !i   vorb  :orbital-dependent potential matrices

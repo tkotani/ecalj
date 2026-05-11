@@ -133,7 +133,7 @@ set_target_properties(${LIB} PROPERTIES
 )
 target_link_options(${LIB} PRIVATE ${LIBM})
 target_compile_options(${LIB} PRIVATE ${FLAGS})
-target_link_libraries(${LIB} PRIVATE toml-f)
+target_link_libraries(${LIB} PUBLIC toml-f) # PUBLIC: propagates toml-f mod paths to executables
 
 set(DELIVER_FILES ${CMAKE_BINARY_DIR}/lib${LIB}.so ${CMAKE_BINARY_DIR}/dummy)
 

@@ -1,6 +1,6 @@
 subroutine gtpcor(is, kcore,lcore,qcore)! paraemters for partial core occpation
   use m_struc_def 
-  use m_lmfinit,only: coreq,coreh
+  use m_lmfinit,only: coreq,coreh,nbas,nspec ! nvfortran ICE workaround: need 4+ symbols with allocatable protected pair
   !i is,coreq,coreh
   !o Outputs
   !o   kcore  :p.q.n for occupation

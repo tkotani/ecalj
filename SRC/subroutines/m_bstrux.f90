@@ -2,7 +2,7 @@
 module m_bstrux 
   ! bstr are stored in p_bstr(ia,iq)%cv3(ndimh,nlma,0:kmax) by m_bstrx_init
   ! "call bstrux_set(ia,iq)" rerurns  bstr(ndimh,nlma,0:kmax) and dbstr.
-  use m_lmfinit,only: lmxa_i=>lmxa, kmxt_i=>kmxt,afsym,lfrce
+  use m_lmfinit,only: lmxa_i=>lmxa, kmxt_i=>kmxt ! nvfortran ICE workaround: afsym,lfrce moved to each subroutine
   use m_struc_def,only: s_cv3,s_cv4
   use m_lgunit,only:stdo
   use m_MPItk,only:procid
@@ -21,6 +21,7 @@ contains
   subroutine bstrux_set(ia,qin)!set bstr and dbstr for given ibas and q
     use m_qplist,only: qplist,iqini,iqend,nkp
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat
+    use m_lmfinit,only: lfrce
     implicit none
     real(8):: qin(3),q(3),eps=1d-10
     integer:: iq,iqx,ia !!!!! 2023-04-25 obatadebug    q=qin !    call shorbz(qin,q,qlat,plat) !Get q. Is this fine?
@@ -42,7 +43,7 @@ contains
   end subroutine bstrux_set
   subroutine m_bstrux_init(rangeS,rangeE) ! Add optional rangeS and rangeE to avoid memory problem for epsmode. 2024-5-21
     use m_qplist,only: qplist,iqini,iqend,nkp
-    use m_lmfinit,only: nlmax,kmxt,nspec,nbas,ispec,rsma
+    use m_lmfinit,only: nlmax,kmxt,nspec,nbas,ispec,rsma,afsym,lfrce
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat,rv_a_opos
     use m_igv2x,only: napw, igvapw=>igv2x, ndimh,m_Igv2x_setiq !igvapwin=>igv2x,
     integer,optional:: rangeS,rangeE
@@ -89,7 +90,7 @@ contains
   end subroutine m_bstrux_init
   subroutine bstrux(ia,pa,rsma,q,kmax,nlma,ndimh,napw,igapw,  b, db) !Structure constants for P_kL expansion of Bloch lmto + PW around site ia
     use m_smhankel,only: hxpbl,hxpgbl
-    use m_lmfinit,only:alat=>lat_alat,lhh,nkaphh,nkapii,ispec,nbas,n0,nkap0
+    use m_lmfinit,only:alat=>lat_alat,lhh,nkaphh,nkapii,ispec,nbas,n0,nkap0,lfrce
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol,rv_a_opos
     use m_uspecb,only: uspecb
     use m_orbl,only: Orblib, norb,ltab,ktab,offl

@@ -188,7 +188,7 @@ def main():
     jobs = min(os.cpu_count(), 8)  # nvfortran ICE with high parallelism
     print(f"Building with {jobs} parallel jobs...")
 
-    run_shell(f"{verbose}cmake --build {BUILD_DIR} -j{jobs}")
+    run_shell(f"{verbose}cmake --build {BUILD_DIR} -j{jobs}", env=cmake_env)
 
     # --- Copy non-build executables (scripts) from EXEC_DIR to BIN_DIR ---
     # libecaljF*.so + every main binary from BUILD_DIR are deployed atomically
