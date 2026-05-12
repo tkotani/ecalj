@@ -109,7 +109,7 @@ subroutine hrcxq(do_correlation, do_exchange)
      ! Phase 1: iq=2,...,nqibz — build W-v and consume immediately per-iq.
      do iq = 2, nqibz
        qp = qibze(:,iq)
-       call build_screened_coulomb_step_kx(iq, qp, mpi__Qtask(iq), realomega, imagomega)
+       if (mpi__Qtask(iq)) call build_screened_coulomb_step_kx(iq, qp, realomega, imagomega)
        ! Sync W-v across all ranks, then consume.
        ngb_cur = merge(ngb, 0, mpi__Qtask(iq))
        call MPI_Allreduce(MPI_IN_PLACE, ngb_cur, 1, MPI_INTEGER, MPI_MAX, comm, ierr2)
@@ -131,7 +131,7 @@ subroutine hrcxq(do_correlation, do_exchange)
        mpi__Qrank(nqibz+1:iqxend) = 0
        do iq = nqibz+1, iqxend
          qp = qibze(:,iq)
-         call build_screened_coulomb_step_kx(iq, qp, mpi__Qtask(iq), realomega, imagomega)
+         call build_screened_coulomb_step_kx(iq, qp, realomega, imagomega)
        enddo
        call MPI_barrier(comm, ierr)
      endif
@@ -140,7 +140,7 @@ subroutine hrcxq(do_correlation, do_exchange)
      mpi__Qtask(1) = .true.
      mpi__Qrank(1) = 0
      qp = qibze(:,1)
-     call build_screened_coulomb_step_kx(1, qp, mpi__Qtask(1), realomega, imagomega)
+     call build_screened_coulomb_step_kx(1, qp, realomega, imagomega)
      ngb_cur = merge(ngb, 0, mpi__Qtask(1))
      call MPI_Allreduce(MPI_IN_PLACE, ngb_cur, 1, MPI_INTEGER, MPI_MAX, comm, ierr2)
      if (.not. (mpi__Qtask(1) .and. mpi__root_k) .and. wv_backend == WV_BACKEND_MEMORY_3D) &
@@ -164,10 +164,10 @@ subroutine hrcxq(do_correlation, do_exchange)
      call wv_init_file(mreclx=mrecl, nw_i=nw_i)
      do iq = 2, iqxend
        qp = qibze(:,iq)
-       call build_screened_coulomb_step_kx(iq, qp, mpi__Qtask(iq), realomega, imagomega)
+       if (mpi__Qtask(iq)) call build_screened_coulomb_step_kx(iq, qp, realomega, imagomega)
      enddo
      qp = qibze(:,1)
-     call build_screened_coulomb_step_kx(1, qp, mpi__Qtask(1), realomega, imagomega)
+     if (mpi__Qtask(1)) call build_screened_coulomb_step_kx(1, qp, realomega, imagomega)
      call MPI_barrier(comm, ierr)
      call MPI__sendllw(iqxend, MPI__Qrank)
      if (MPI__rank == 0) call W0w0i(nw_i, nw, nq0i, niw, q0i, is_wc_m_basis=.true.)
