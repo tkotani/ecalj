@@ -43,7 +43,7 @@ module m_llw
   use m_blas, only: gemm => zmm_h
 #endif
   implicit none
-  public:: WVRllwR,WVIllwI,  MPI__sendllw,MPI__sendllw2
+  public:: WVRllwR,WVIllwI,  MPI__sendllw,MPI__sendllw2,MPI__sendllw_q
   complex(8),allocatable,protected,public:: llw(:,:), llwI(:,:)
   complex(8),allocatable,protected,public:: wmuk(:,:)
   logical,protected,public:: w4pmode
@@ -477,6 +477,28 @@ contains
       endif
     enddo
   end subroutine MPI__sendllw
+
+  subroutine MPI__sendllw_q(iq0, src, dest)
+    ! Send/recv llw/llwI/wmuk for one auxiliary q-point iq0 (1-based).
+    ! src: rank that computed iq0; dest: rank to deliver to (typically 0).
+    ! Only src and dest participate; all other ranks return immediately.
+    use m_mpi,only: MPI__DbleCOMPLEXsendQ,MPI__DbleCOMPLEXrecvQ,MPI__size,MPI__rank
+    integer, intent(in) :: iq0, src, dest
+    if(MPI__size==1 .or. src==dest) return
+    if(MPI__rank == src) then
+      if(iq0 <= nq0i) then
+        call MPI__DbleCOMPLEXsendQ(llw(nw_i,iq0),(nw-nw_i+1),dest)
+        call MPI__DbleCOMPLEXsendQ(llwI(1,iq0),niw,dest)
+      endif
+      if(ixyz(iq0)/=0) call MPI__DbleCOMPLEXsendQ(wmuk(2:ngbq0,ixyz(iq0)),ngbq0-1,dest)
+    elseif(MPI__rank == dest) then
+      if(iq0 <= nq0i) then
+        call MPI__DbleCOMPLEXrecvQ(llw(nw_i,iq0),(nw-nw_i+1),src)
+        call MPI__DbleCOMPLEXrecvQ(llwI(1,iq0),niw,src)
+      endif
+      if(ixyz(iq0)/=0) call MPI__DbleCOMPLEXrecvQ(wmuk(2:ngbq0,ixyz(iq0)),ngbq0-1,src)
+    endif
+  end subroutine MPI__sendllw_q
 end module m_llw
 !===================================================================
 subroutine tr_chkwrite(tagname,zw,iw,freqq,nblochpmx,nbloch,ngb,iq)

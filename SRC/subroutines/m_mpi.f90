@@ -52,6 +52,10 @@ contains
     call MPI_Comm_rank( comm, mpi__rank, mpi__info )
     call MPI_Comm_size( comm, mpi__size, mpi__info )
     mpi__root= mpi__rank==0
+    ! Default k-group = all ranks. MPI__SplitXq / MPI__SplitSc override these.
+    mpi__size_k = mpi__size
+    mpi__rank_k = mpi__rank
+    mpi__root_k = mpi__rank == 0
     if( mpi__root ) call chdir(cwd)        ! recover current working directory
     ipr=mpi__root
     if(cmdopt0('--fullstdo')) ipr=.true.
@@ -229,6 +233,10 @@ contains
     call mpi_comm_rank(comm_w, mpi__rank_w, mpi__info)
     call mpi_comm_size(comm_w, mpi__size_w, mpi__info)
     mpi__root_w = .true.
+    ! mpi__size_k/mpi__rank_k are NOT updated here.
+    ! In standalone hsfp0_sc (worker_intask=1): MPI__Initialize set mpi__size_k=mpi__size.
+    ! In streaming hgw_combined: MPI__SplitXq already set the correct q-group-local values
+    ! and must not be overridden.
   end subroutine MPI__SplitSc
   subroutine MPI__consoleout(idn)
     use m_lgunit,only:stdo,stdl
@@ -454,8 +462,8 @@ contains
 end module m_mpi
 
 subroutine MPI__sxcf_rankdivider(irkip_all,nspinmx,nqibz,ngrp,nq,irkip)
-  use m_mpi,only: mpi__rank,mpi__size
-  use m_mpi, only: ipr,worker_intask !set as 1 in the case of without omega parallelization
+  use m_mpi,only: mpi__rank_k, mpi__size_k
+  use m_mpi, only: ipr
   implicit none
   integer, intent(out) :: irkip    (nspinmx,nqibz,ngrp,nq)
   integer, intent(in)  :: irkip_all(nspinmx,nqibz,ngrp,nq)
@@ -465,24 +473,23 @@ subroutine MPI__sxcf_rankdivider(irkip_all,nspinmx,nqibz,ngrp,nq,irkip)
   integer, allocatable :: vtotal(:)
   integer :: indexi, indexe
   integer :: p, ngroup
-  if( mpi__size == 1 ) then
+  if( mpi__size_k == 1 ) then
      irkip = irkip_all
      return
   end if
   total = count(irkip_all>0)
-  ngroup = mpi__size/worker_intask
+  ngroup = mpi__size_k
   if(ipr)write(6,"('MPI__sxcf_rankdivider:$')")
   if(ipr)write(6,"('nspinmx,nqibz,ngrp,nq,total=',5i6)") nspinmx,nqibz,ngrp,nq,total
-  if(ipr)write(6,'(A,2I5)') 'MPI: Worker in Task, # of groups', worker_intask, ngroup
-  allocate( vtotal(0:mpi__size-1) )
-  ! vtotal(:) = total/mpi__size
+  if(ipr)write(6,'(A,2I5)') 'MPI: k-group size, rank_k', ngroup, mpi__rank_k
+  allocate( vtotal(0:mpi__size_k-1) )
   vtotal(:) = total/ngroup
   do p=1, mod(total, ngroup)
      vtotal(p-1) = vtotal(p-1) + 1
   end do
   indexe=0
   indexi=-999999
-  do p=0, mpi__rank/worker_intask !same definition with color in SplitSc
+  do p=0, mpi__rank_k
      indexi = indexe+1
      indexe = indexi+vtotal(p)-1
   end do

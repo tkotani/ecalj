@@ -23,9 +23,9 @@ subroutine hrcxq(do_correlation, do_exchange)
   use m_w0w0i,only: W0w0i
   use m_readgwinput,only: ReadGwinputKeys
   use m_qbze,only:  Setqbze,qibze
-  use m_llw,only: MPI__sendllw
+  use m_llw,only: MPI__sendllw, MPI__sendllw_q
   use m_mpi,only: MPI__Initialize,MPI__root,MPI__rank,MPI__size,MPI__consoleout,comm, &
-                & MPI__SplitXq, MPI__FreeSplitXq, mpi__root_k, ipr
+                & MPI__SplitXq, MPI__FreeSplitXq, mpi__root_k, ipr, comm_q, mpi__rank_q
   use m_lgunit,only: m_lgunit_init,stdo
   use m_ftox
   use m_gpu,only: gpu_init
@@ -38,11 +38,11 @@ subroutine hrcxq(do_correlation, do_exchange)
                          wv_backend, WV_BACKEND_MEMORY_3D
   use m_sxcf_sc,only: sxcf_correlation_init, sxcf_correlation_step_kx, &
                       sxcf_correlation_finalize
+  use m_sxcf_count,only: sxcf_scz_count, mpi_assign_qtask_lpt
   use mpi
   implicit none
   logical, intent(in), optional :: do_correlation, do_exchange
-  integer :: iq, iqxini, iqxend, iw, ifwd, verbose, ifif, ierr, ierr2
-  integer :: ngb_cur
+  integer :: iq, iqxini, iqxend, iw, ifwd, verbose, ifif, ierr
   real(8) :: ua=1d0, qp(3)
   logical :: debug=.false., realomega, imagomega
   logical :: hx0, iprintx=.false.
@@ -52,6 +52,7 @@ subroutine hrcxq(do_correlation, do_exchange)
   logical, allocatable :: mpi__Qtask(:)
   integer, allocatable :: mpi__Qrank(:)
   integer :: n_kpara = 1, n_bpara = 1, worker_inQtask
+  integer :: n_kpara_2, n_bpara_2, n_kpara_3, n_bpara_3
   call MPI__Initialize()
   call gpu_init(comm)
   call M_lgunit_init()
@@ -76,23 +77,21 @@ subroutine hrcxq(do_correlation, do_exchange)
   if(MPI__root) call writewvfreq()
   iqxini = 1
   iqxend = nqibz + nq0i + nq0iadd
+  ! Phase 1 parallelism: --nk= / --nb= (defaults: 1 rank per q-group)
   if(cmdopt2('--nk=', outs)) read(outs,*) n_kpara
-  n_bpara = 1  ! hrcxq always uses n_bpara=1 (streaming per-iq; no basis column distribution)
-  worker_inQtask = n_kpara
-  if(ipr) write(stdo,'(1X,A,2I5)') 'MPI: worker_inQtask:(n_kpara)', worker_inQtask, n_kpara
-  call MPI__SplitXq(n_bpara, n_kpara)
-  allocate( mpi__Qrank(iqxini:iqxend), source=[(mod(iq-1,mpi__size/worker_inQtask)*worker_inQtask           ,iq=iqxini,iqxend)])
-  allocate( mpi__Qtask(iqxini:iqxend), source=[(mod(iq-1,mpi__size/worker_inQtask)==mpi__rank/worker_inQtask,iq=iqxini,iqxend)])
-  if(ipr) write(stdo,ftox)'mpi_rank',mpi__rank,'mpi__Qtask=',mpi__Qtask
-  if(ipr) write(stdo,ftox) 'mpi_qrank', mpi__qrank
-  call flush(stdo)
-  if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
+  if(cmdopt2('--nb=', outs)) read(outs,*) n_bpara
+  ! Phase 2 parallelism: --nk2= / --nb2= (default: all ranks in one q-group)
+  n_kpara_2 = mpi__size ; n_bpara_2 = 1
+  if(cmdopt2('--nk2=', outs)) read(outs,*) n_kpara_2
+  if(cmdopt2('--nb2=', outs)) read(outs,*) n_bpara_2
+  ! Phase 3 parallelism: --nk3= / --nb3= (default: all ranks in one q-group)
+  n_kpara_3 = mpi__size ; n_bpara_3 = 1
+  if(cmdopt2('--nk3=', outs)) read(outs,*) n_kpara_3
+  if(cmdopt2('--nb3=', outs)) read(outs,*) n_bpara_3
+  if(ipr) write(stdo,'(1X,A,6I5)') 'MPI: n_bpara,n_kpara / n_bpara_2,n_kpara_2 / n_bpara_3,n_kpara_3:', &
+                                     n_bpara, n_kpara, n_bpara_2, n_kpara_2, n_bpara_3, n_kpara_3
 
-  streaming = .false.
-  if (present(do_correlation)) streaming = do_correlation
-
-  ! Optional exchange phase first. sxcf_scz_exchange does not read W, so this
-  ! works in either streaming or FILE mode without buffer juggling.
+  ! Exchange runs before any SplitXq so mpi__size_k=mpi__size (global k-distribution).
   if (present(do_exchange)) then
      if (do_exchange) then
         if(ipr) write(stdo,ftox) ' hrcxq: starting in-process hsfp0_sc(--job=1) exchange phase'
@@ -100,59 +99,73 @@ subroutine hrcxq(do_correlation, do_exchange)
      endif
   endif
 
+  if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
+
+  streaming = .false.
+  if (present(do_correlation)) streaming = do_correlation
+
   StreamingOrFile: if (streaming) then
-     ! ---- Phase 1-C streaming (do_correlation=.true.) ----
+     ! Phase 1: iq=2..nqibz — build W-v and consume immediately per-iq.
+     ! SplitXq before hsfp0_sc_setup so rankdivider uses q-group-local mpi__rank_k/mpi__size_k.
+     call MPI__SplitXq(n_bpara, n_kpara)
      call hsfp0_sc_setup(skip_init=.true., ixc_in=2)
      call wv_init_memory_3d(nw_i, nw)
      call sxcf_correlation_init(hs_ef, hs_esmr, hs_nspinmx)
-
-     ! Phase 1: iq=2,...,nqibz — build W-v and consume immediately per-iq.
-     ! All ranks participate in sync+consume so each rank computes its share
-     ! of k-points (per MPI__sxcf_rankdivider global distribution).
-     ! TODO: switch to per-q-group cycle+comm_q once sxcf_rankdivider uses
-     ! q-group-local rank for k-point distribution.
+     worker_inQtask = n_bpara * n_kpara
+     allocate( mpi__Qtask(2:nqibz), mpi__Qrank(2:nqibz) )
+     call mpi_assign_qtask_lpt(2, nqibz, hs_nspinmx, mpi__size/worker_inQtask, &
+                                mpi__rank/worker_inQtask, worker_inQtask, mpi__Qtask, mpi__Qrank)
+     deallocate(mpi__Qrank)
+     if(ipr) write(stdo,ftox) 'Phase1: mpi_rank',mpi__rank,'worker_inQtask',worker_inQtask,'mpi__Qtask=',mpi__Qtask
+     call flush(stdo)
      do iq = 2, nqibz
+       if (.not. mpi__Qtask(iq)) cycle
        qp = qibze(:,iq)
-       if (mpi__Qtask(iq)) call build_screened_coulomb_step_kx(iq, qp, realomega, imagomega)
-       ngb_cur = merge(ngb, 0, mpi__Qtask(iq))
-       call MPI_Allreduce(MPI_IN_PLACE, ngb_cur, 1, MPI_INTEGER, MPI_MAX, comm, ierr2)
-       if (.not. (mpi__Qtask(iq) .and. mpi__root_k) .and. wv_backend == WV_BACKEND_MEMORY_3D) &
-         call wv_alloc_zero_bufs(ngb_cur, niw, nw_i, nw)
-       call wv_sync_current(comm)
+       call build_screened_coulomb_step_kx(iq, qp, realomega, imagomega)
+       if (.not. mpi__root_k .and. wv_backend == WV_BACKEND_MEMORY_3D) &
+         call wv_alloc_zero_bufs(ngb, niw, nw_i, nw)
+       call wv_sync_current(comm_q)
        call sxcf_correlation_step_kx(iq, hs_ef, hs_esmr, hs_nspinmx)
      enddo
      call MPI_barrier(comm, ierr)
-
-     ! Re-split: all ranks join a single q-group (n_kpara=mpi__size) so the
-     ! k-sum for the few remaining q-points uses maximum parallelism.
+     deallocate(mpi__Qtask)
      call MPI__FreeSplitXq()
-     call MPI__SplitXq(1, mpi__size)
 
      ! Phase 2: auxiliary q0 points (iq > nqibz) — W/llw only, no consumption.
+     call MPI__SplitXq(n_bpara_2, n_kpara_2)
+     worker_inQtask = n_bpara_2 * n_kpara_2
+     allocate( mpi__Qtask(nqibz+1:iqxend), source=[(mod(iq-nqibz-1,mpi__size/worker_inQtask)==mpi__rank/worker_inQtask,iq=nqibz+1,iqxend)])
+     if(ipr) write(stdo,ftox) 'Phase2: mpi_rank',mpi__rank,'worker_inQtask',worker_inQtask,'mpi__Qtask=',mpi__Qtask
+     call flush(stdo)
      if (nqibz < iqxend) then
-       mpi__Qtask(nqibz+1:iqxend) = .true.
-       mpi__Qrank(nqibz+1:iqxend) = 0
+       ! Pass 1: each q-group builds its assigned iq points.
        do iq = nqibz+1, iqxend
+         if (.not. mpi__Qtask(iq)) cycle
          qp = qibze(:,iq)
          call build_screened_coulomb_step_kx(iq, qp, realomega, imagomega)
        enddo
        call MPI_barrier(comm, ierr)
+       ! Pass 2: gather llw to rank 0 (blocking send/recv safe after barrier).
+       ! src = global rank of mpi__root_k in the owning q-group = first rank of that group.
+       ! Valid for n_bpara_2=1; for n_bpara_2>1 only the first k-subgroup sends.
+       do iq = nqibz+1, iqxend
+         call MPI__sendllw_q(iq-nqibz, mod(iq-nqibz-1,mpi__size/worker_inQtask)*worker_inQtask, 0)
+       enddo
      endif
+     deallocate(mpi__Qtask)
+     call MPI__FreeSplitXq()
 
-     ! Phase 3: iq=1/Gamma last — build W-v, sync, then W0w0i + consume.
-     mpi__Qtask(1) = .true.
-     mpi__Qrank(1) = 0
+     ! Phase 3: iq=1/Gamma — all ranks collaborate; build W-v, apply W0w0i, consume.
+     call MPI__SplitXq(n_bpara_3, n_kpara_3)
+     if(ipr) write(stdo,ftox) 'Phase3: mpi_rank',mpi__rank,'n_bpara_3',n_bpara_3,'n_kpara_3',n_kpara_3
+     call flush(stdo)
+     call sxcf_scz_count(hs_ef, hs_esmr, .false., 2, hs_nspinmx)
      qp = qibze(:,1)
      call build_screened_coulomb_step_kx(1, qp, realomega, imagomega)
-     ngb_cur = merge(ngb, 0, mpi__Qtask(1))
-     call MPI_Allreduce(MPI_IN_PLACE, ngb_cur, 1, MPI_INTEGER, MPI_MAX, comm, ierr2)
-     if (.not. (mpi__Qtask(1) .and. mpi__root_k) .and. wv_backend == WV_BACKEND_MEMORY_3D) &
-       call wv_alloc_zero_bufs(ngb_cur, niw, nw_i, nw)
-     call wv_sync_current(comm)
+     if (.not. mpi__root_k .and. wv_backend == WV_BACKEND_MEMORY_3D) &
+       call wv_alloc_zero_bufs(ngb, niw, nw_i, nw)
+     call wv_sync_current(comm_q)
      call MPI_barrier(comm, ierr)
-
-     ! Collect auxiliary-q llw to rank 0, apply W0w0i on current buffer.
-     call MPI__sendllw(iqxend, MPI__Qrank)
      if (MPI__rank == 0) call W0w0i(nw_i, nw, nq0i, niw, q0i, is_wc_m_basis=.true.)
      ! Broadcast the corrected current buffer to all ranks, then consume.
      call wv_bcast_current(0, comm)
@@ -160,10 +173,17 @@ subroutine hrcxq(do_correlation, do_exchange)
      call sxcf_correlation_finalize()
      call wv_dealloc()
      call hsfp0_sc_writeout(skip_rx0=.true.)
+     call MPI__FreeSplitXq()
      if(ipr) write(stdo,ftox) ' hrcxq+hsfp0_sc combined: finished (streaming)'
   else StreamingOrFile
      ! ---- Legacy FILE mode (no in-process correlation consume) ----
      ! Process iq=2,...,iqxend first, then iq=1 last (same ordering as streaming).
+     call MPI__SplitXq(n_bpara, n_kpara)
+     worker_inQtask = n_bpara * n_kpara
+     allocate( mpi__Qrank(iqxini:iqxend), source=[(mod(iq-1,mpi__size/worker_inQtask)*worker_inQtask           ,iq=iqxini,iqxend)])
+     allocate( mpi__Qtask(iqxini:iqxend), source=[(mod(iq-1,mpi__size/worker_inQtask)==mpi__rank/worker_inQtask,iq=iqxini,iqxend)])
+     if(ipr) write(stdo,ftox) 'FileMode: mpi_rank',mpi__rank,'worker_inQtask',worker_inQtask,'mpi__Qtask=',mpi__Qtask
+     call flush(stdo)
      call wv_init_file(mreclx=mrecl, nw_i=nw_i)
      do iq = 2, iqxend
        qp = qibze(:,iq)
@@ -174,6 +194,7 @@ subroutine hrcxq(do_correlation, do_exchange)
      call MPI_barrier(comm, ierr)
      call MPI__sendllw(iqxend, MPI__Qrank)
      if (MPI__rank == 0) call W0w0i(nw_i, nw, nq0i, niw, q0i, is_wc_m_basis=.true.)
+     call MPI__FreeSplitXq()
   endif StreamingOrFile
 
   if(ipr) write(stdo,ftox) '--- end of hrcxq --- irank=',MPI__rank

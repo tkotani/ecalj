@@ -12,7 +12,7 @@ module m_sxcf_count !job scheduler for self-energy calculation. icount mechanism
   use m_ftox
   use m_lgunit,only:stdo
   implicit none
-  public sxcf_scz_count
+  public sxcf_scz_count, mpi_assign_qtask_lpt
   !=== Job scheduler ==============
   integer,public:: ncount 
   integer,allocatable,public:: kxc(:),nstateMax(:),nstti(:),nstte(:),nstte2(:) !ispc(:),irotc(:),ipc(:),krc(:),
@@ -315,5 +315,64 @@ contains
        endif
 401 enddo            
   end subroutine get_nwx
+
+  subroutine mpi_assign_qtask_lpt(iq_ini, iq_end, nspinmx, n_groups, group_rank, &
+                                    worker_inQtask, qtask, qrank)
+    ! Assign q-points [iq_ini:iq_end] to q-groups using LPT greedy algorithm.
+    ! workload(kx) = count(irk(kx,:)>0)*nspinmx — proxy for correlation cost per kx.
+    ! LPT: sort by workload descending, assign each kx to the least-loaded group.
+    use m_read_bzdata, only: irk, ngrp
+    integer, intent(in)  :: iq_ini, iq_end, nspinmx, n_groups, group_rank, worker_inQtask
+    logical, intent(out) :: qtask(iq_ini:iq_end)
+    integer, intent(out) :: qrank(iq_ini:iq_end)
+    integer :: niq, i, j, g, iq, tmp
+    integer :: wl(iq_ini:iq_end)          ! workload per iq
+    integer :: sorted_iq(iq_end-iq_ini+1) ! iq indices sorted by workload desc
+    integer :: sorted_wl(iq_end-iq_ini+1)
+    integer :: grp_assign(iq_ini:iq_end)  ! group index (0-based) for each iq
+    integer :: group_load(0:n_groups-1)
+
+    niq = iq_end - iq_ini + 1
+
+    ! Compute workload per kx
+    do iq = iq_ini, iq_end
+      wl(iq) = count(irk(iq,:) > 0) * nspinmx
+    enddo
+
+    ! Build sorted index array (selection sort descending by workload)
+    do i = 1, niq
+      sorted_iq(i) = iq_ini + i - 1
+      sorted_wl(i) = wl(iq_ini + i - 1)
+    enddo
+    do i = 1, niq-1
+      j = maxloc(sorted_wl(i:niq), 1) + i - 1
+      if (j /= i) then
+        tmp = sorted_iq(i); sorted_iq(i) = sorted_iq(j); sorted_iq(j) = tmp
+        tmp = sorted_wl(i); sorted_wl(i) = sorted_wl(j); sorted_wl(j) = tmp
+      endif
+    enddo
+
+    ! LPT greedy: assign each kx (in workload-desc order) to least-loaded group
+    group_load = 0
+    do i = 1, niq
+      iq = sorted_iq(i)
+      g = minloc(group_load, 1) - 1  ! 0-based group index
+      grp_assign(iq) = g
+      group_load(g) = group_load(g) + wl(iq)
+    enddo
+
+    ! Build qtask / qrank
+    do iq = iq_ini, iq_end
+      qtask(iq) = (grp_assign(iq) == group_rank)
+      qrank(iq) = grp_assign(iq) * worker_inQtask
+    enddo
+
+    if(ipr) then
+      write(stdo,'(1X,A,2I5)') 'mpi_assign_qtask_lpt: n_groups, group_rank=', n_groups, group_rank
+      write(stdo,'(1X,A,*(I6))') '  workload per iq =', (wl(iq), iq=iq_ini,iq_end)
+      write(stdo,'(1X,A,*(I6))') '  assigned group  =', (grp_assign(iq), iq=iq_ini,iq_end)
+      write(stdo,'(1X,A,*(I6))') '  group_load      =', group_load
+    endif
+  end subroutine mpi_assign_qtask_lpt
 end module m_sxcf_count
 
