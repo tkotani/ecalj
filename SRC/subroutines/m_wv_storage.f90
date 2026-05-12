@@ -296,9 +296,9 @@ contains
   end subroutine wv_zero_current
 
   subroutine wv_sync_current(comm)
-    !> Allreduce(SUM) the current 3D buffers across all ranks. Qtask rank has
-    !> data in wv_real_buf (=> rcxq) and wv_imag_buf; non-Qtask ranks have
-    !> zero-filled buffers of the same (ngb,ngb,...) shape.
+    !> Bcast the current 3D buffers from mpi__root_k (rank 0 in comm) to all
+    !> ranks. Non-root_k ranks must have buffers allocated (via wv_alloc_zero_bufs)
+    !> before calling so MPI_Bcast has a valid receive buffer.
     use mpi
     integer, intent(in) :: comm
     integer :: ierr, mpi_type
@@ -309,9 +309,9 @@ contains
     mpi_type = MPI_DOUBLE_COMPLEX
 #endif
     if (associated(wv_real_buf)) &
-      call MPI_Allreduce(MPI_IN_PLACE, wv_real_buf, size(wv_real_buf), mpi_type, MPI_SUM, comm, ierr)
+      call MPI_Bcast(wv_real_buf, size(wv_real_buf), mpi_type, 0, comm, ierr)
     if (allocated(wv_imag_buf)) &
-      call MPI_Allreduce(MPI_IN_PLACE, wv_imag_buf, size(wv_imag_buf), mpi_type, MPI_SUM, comm, ierr)
+      call MPI_Bcast(wv_imag_buf, size(wv_imag_buf), mpi_type, 0, comm, ierr)
   end subroutine wv_sync_current
 
   subroutine wv_bcast_current(root, comm)
