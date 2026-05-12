@@ -9,6 +9,7 @@ contains
     use m_llw,         only: WVRllwR, WVIllwI
     use m_readVcoud,   only: Readvcoud, ngb
     use m_mpi,         only: mpi__root_k, mpi__rank, comm_k, comm_b, MPI__Setnpr_col, ipr
+    use m_wv_storage,  only: wv_backend, WV_BACKEND_MEMORY_3D
     use m_lgunit,      only: stdo
     use m_ftox
     use mpi
@@ -27,9 +28,9 @@ contains
                   crpa=.false., chipm=.false., nolfco=.false., is_m_basis=.true.)
     if (mpi__root_k) then
       call WVRllwR(qp, iq, npr, npr_col, is_x0_m_basis=.true., is_wc_m_basis=.true.)
-      call deallocatezxq()
+      if (wv_backend /= WV_BACKEND_MEMORY_3D) call deallocatezxq()
       call WVIllwI(qp, iq, npr, npr_col, is_x0_m_basis=.true., is_wc_m_basis=.true.)
-      call deallocatezxqi()
+      if (wv_backend /= WV_BACKEND_MEMORY_3D) call deallocatezxqi()
     endif
     call mpi_barrier(comm_k, ierr)
     call mpi_barrier(comm_b, ierr)

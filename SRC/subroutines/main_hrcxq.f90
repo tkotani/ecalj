@@ -32,6 +32,7 @@ subroutine hrcxq(do_correlation, do_exchange)
   use m_hsfp0_sc,only: hsfp0_sc, hsfp0_sc_setup, hsfp0_sc_writeout, &
                        hs_ef, hs_esmr, hs_nspinmx
   use m_hgw_iq_loop,only: build_screened_coulomb_step_kx
+  use m_x0kf,only: deallocatezxq, deallocatezxqi
   use m_readVcoud,only: ngb
   use m_wv_storage,only: wv_init_file, wv_init_memory_3d, wv_dealloc, &
                          wv_bcast_current, wv_sync_current, wv_alloc_zero_bufs, &
@@ -113,6 +114,10 @@ subroutine hrcxq(do_correlation, do_exchange)
        if (.not. mpi__root_k .and. wv_backend == WV_BACKEND_MEMORY_3D) call wv_alloc_zero_bufs(ngb, niw, nw_i, nw)
        call wv_sync_current(comm_q)
        call sxcf_correlation_step_kx(iq, hs_ef, hs_esmr, hs_nspinmx)
+       if (mpi__root_k) then
+         call deallocatezxq()
+         call deallocatezxqi()
+       endif
      enddo
      call MPI_barrier(comm, ierr)
      deallocate(mpi__Qtask)
@@ -130,6 +135,10 @@ subroutine hrcxq(do_correlation, do_exchange)
          if (.not. mpi__Qtask(iq)) cycle
          qp = qibze(:,iq)
          call build_screened_coulomb_step_kx(iq, qp, realomega, imagomega)
+         if (mpi__root_k) then
+           call deallocatezxq()
+           call deallocatezxqi()
+         endif
        enddo
        call MPI_barrier(comm, ierr)
        ! Pass 2: gather llw to rank 0 (blocking send/recv safe after barrier).
@@ -157,6 +166,10 @@ subroutine hrcxq(do_correlation, do_exchange)
      ! Broadcast the corrected current buffer to all ranks, then consume.
      call wv_bcast_current(0, comm)
      call sxcf_correlation_step_kx(1, hs_ef, hs_esmr, hs_nspinmx)
+     if (mpi__root_k) then
+       call deallocatezxq()
+       call deallocatezxqi()
+     endif
      call sxcf_correlation_finalize()
      call wv_dealloc()
      call hsfp0_sc_writeout(skip_rx0=.true.)

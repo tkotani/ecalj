@@ -17,7 +17,7 @@ module m_x0kf
   use m_readVcoud,only:   vcousq,zcousq,ngb,ngc
   use m_kind,only: kp => kindrcxq
   use m_mpi,only: ipr
-  use m_wv_storage, only: WV_BACKEND_MEMORY_3D, wv_backend, wv_assoc_real_buf, wv_init_imag_buf
+  use m_wv_storage, only: WV_BACKEND_MEMORY_3D, wv_backend, wv_assoc_real_buf, wv_assoc_imag_buf
 #if defined(__MP) && defined(__GPU)
   use m_blas, only: gemm => cmm_d
 #elif defined(__MP)
@@ -29,7 +29,7 @@ module m_x0kf
 #endif
   implicit none
   public:: x0kf_zxq, deallocatezxq, deallocatezxqi
-  complex(kind=kp), public, allocatable:: zxqi(:,:,:)   !Not yet protected because of main_hx0fp0
+  complex(kind=kp), public, allocatable, target:: zxqi(:,:,:)   !Not yet protected because of main_hx0fp0
   complex(kind=kp), public, pointer:: zxq(:,:,:) => null()
   complex(kind=kp), allocatable, target:: rcxq(:,:,:)
   integer,public::npr
@@ -212,12 +212,12 @@ contains
     !$acc kernels
     rcxq(:,:,:) = (0d0,0d0)
     !$acc end kernels
-    ! MEMORY_3D: share rcxq memory with wv_real_buf (all ranks); alloc wv_imag_buf per-iq.
+    ! MEMORY_3D: point wv_real_buf => rcxq, wv_imag_buf => zxqi (zero-copy; W written in-place).
     ! Only expose the nw_i:nw_w slice so size(wv_real_buf) matches wv_alloc_zero_bufs
     ! (which allocates nw_hi-nw_lo+1 elements), regardless of nwhis > nw.
     if (wv_backend == WV_BACKEND_MEMORY_3D) then
       call wv_assoc_real_buf(rcxq(:,:,nw_i:nw_w))
-      if (imagomega) call wv_init_imag_buf(npr, niw)
+      if (imagomega .and. mpi__root_k) call wv_assoc_imag_buf(zxqi)
     endif
     isloop: do 1103 isp_k = 1,nsp
       GETtetrahedronWeight:block
