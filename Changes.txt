@@ -1,3 +1,21 @@
+2026-05-12
+  [bugfix] SRC/exec/run_cmd.py: GPU バイナリ (*_gpu) 実行時に
+    slot_scheduler_daemon から GPU slot を取得し CUDA_VISIBLE_DEVICES=
+    <slot_idx> を子プロセスに設定するようにした。 これまで gwsc は
+    hvccfp0_mp_gpu / hgw_combined_mp_gpu / hsfp0_sc_mp_gpu / hrcxq_mp_gpu
+    を run_cmd 経由で直接起動しており、 GPU slot も CUDA_VISIBLE_DEVICES
+    も設定していなかった。 → N 並列 worker (GW1500 量産で 6) の GPU
+    バイナリが全部 GPU 0 に殺到し、 GPU 0 メモリ枯渇で
+    CUDA_ERROR_OUT_OF_MEMORY (vcoulq_4 at mkjp.f90:296) が確率的に発生。
+    slot_scheduler の "2 GPU slot" 設計は存在したが CPU slot しか
+    使われておらず (worker.sh が lmf を slot_run.py で wrap、 gwsc 内部の
+    GPU 呼び出しはノーガード)、 この経路に配線されていなかった。
+    実装: _GpuSlot コンテキスト (REQUEST/ASSIGN プロトコル、 disconnect で
+    解放)、 _needs_gpu_slot(command)=command.endswith("_gpu")。
+    daemon が無ければ no-op フォールバックなので standalone 実行は不変。
+    検証: 6 worker × gwscconv ループの stress test で修正前 49% FAIL →
+    修正後 84 ループ (252 iter) で 0 FAIL、 GPU 0/1 均等分散を確認。
+
 2026-05-11
   [new+bugfix] SRC/exec/gwscconv: gwsc を 1 iter ずつ呼んで last-3 gap
     swing < tol で停止する収束ラッパ。argparse の parse_known_args で

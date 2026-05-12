@@ -78,6 +78,68 @@ def _build_env(cfg):
     return env
 
 
+# --- GPU slot coordination -------------------------------------------------
+# gwsc runs *_gpu binaries (hvccfp0_mp_gpu, hgw_combined_mp_gpu, hsfp0_sc_mp_gpu,
+# hrcxq_mp_gpu) directly via run_cmd. Without coordination, N parallel gwsc
+# workers all pile onto GPU 0 -> CUDA_ERROR_OUT_OF_MEMORY (vcoulq_4 mkjp.f90:296).
+# When a slot_scheduler_daemon is running we acquire a GPU slot here: it caps
+# concurrency at the number of GPU slots and pins CUDA_VISIBLE_DEVICES to the
+# slot index, so two GPU jobs land on GPU 0 and GPU 1 rather than colliding.
+# No daemon -> no-op, so standalone use is unaffected.
+_SLOT_SOCKET = "/tmp/slot_scheduler.sock"
+
+
+class _GpuSlot:
+    """Hold a GPU slot from slot_scheduler_daemon for the `with` block.
+    slot_idx is None when no daemon is running (graceful fallback)."""
+
+    def __init__(self, label="gwsc-gpu"):
+        self.label = label
+        self.sock = None
+        self.slot_idx = None
+
+    def __enter__(self):
+        if not os.path.exists(_SLOT_SOCKET):
+            return self
+        try:
+            import socket as _socket
+            import json as _json
+            s = _socket.socket(_socket.AF_UNIX, _socket.SOCK_STREAM)
+            s.connect(_SLOT_SOCKET)
+            fp = s.makefile("rwb")
+            req = {"op": "REQUEST", "kind": "gpu",
+                   "wid": self.label, "bin": self.label, "mpid": self.label}
+            fp.write((_json.dumps(req) + "\n").encode())
+            fp.flush()
+            line = fp.readline()
+            if not line:
+                s.close()
+                return self
+            resp = _json.loads(line.decode())
+            if resp.get("op") != "ASSIGN":
+                s.close()
+                return self
+            self.sock = s
+            self.slot_idx = resp.get("slot")
+        except Exception:
+            self.sock = None
+            self.slot_idx = None
+        return self
+
+    def __exit__(self, *exc):
+        if self.sock is not None:
+            try:
+                self.sock.close()  # daemon releases slot on disconnect
+            except Exception:
+                pass
+            self.sock = None
+        return False
+
+
+def _needs_gpu_slot(command) -> bool:
+    return command is not None and str(command).endswith("_gpu")
+
+
 def _run_mpi(cmd, env, stdin_str=None, stdout=None):
     """Execute MPI command"""
     kwargs = dict(env=env, stdout=stdout, text=True)
@@ -96,6 +158,10 @@ def run_cmd(cluster: str,
     cluster = cluster or "default"
     cfg = _load_config(cluster)
     out_stream = open(stdout, "w") if stdout else None
+    gpu_ctx = _GpuSlot(label=f"runcmd:{Path(str(params.command)).name}") \
+        if _needs_gpu_slot(params.command) else None
+    if gpu_ctx is not None:
+        gpu_ctx.__enter__()
     try:
         n = params.nprocs
         pnode = params.npernode
@@ -111,6 +177,8 @@ def run_cmd(cluster: str,
             cmd = _build_command(cfg, p)
             cmd = [str(x) for x in cmd]
             env = _build_env(cfg)
+            if gpu_ctx is not None and gpu_ctx.slot_idx is not None:
+                env["CUDA_VISIBLE_DEVICES"] = str(gpu_ctx.slot_idx)
             dt = datetime.datetime.now() - START_TIME
             # Build the initial command for logging
             sec = dt.total_seconds()
@@ -151,6 +219,8 @@ def run_cmd(cluster: str,
                 pnode = max(1, pnode // 2)
             print(f"Retrying with nprocs={n}, npernode={pnode}")
     finally:
+        if gpu_ctx is not None:
+            gpu_ctx.__exit__(None, None, None)
         if out_stream:
             out_stream.close()
 
