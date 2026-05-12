@@ -84,8 +84,8 @@ contains
     ! singleton. Caller must initialize the backend before invoking modifyWV0.
     use m_wv_storage, only: &
          wv_open_iq_real_for_modify, wv_open_iq_imag_for_modify, &
-         wv_modify_get_real, wv_modify_put_real, &
-         wv_modify_get_imag, wv_modify_put_imag, &
+         wv_get_real, wv_put_real, &
+         wv_get_imag, wv_put_imag, &
          wv_close_iq_for_modify
     use m_blas, only: m_op_C
 #if defined(__MP) && defined(__GPU)
@@ -128,8 +128,8 @@ contains
           call wv_open_iq_imag_for_modify(iq)
        endif
        do iw=nini,nend
-          if (ircw==1) call wv_modify_get_real(iw, zw)
-          if (ircw==2) call wv_modify_get_imag(iw, zw)
+          if (ircw==1) call wv_get_real(iw, zw)
+          if (ircw==2) call wv_get_imag(iw, zw)
           if( iq==1 ) then
             if(ircw==1) zw(1,1) = cmplx(w0(iw),kind=kp)
             if(ircw==2) zw(1,1) = cmplx(w0i(iw),kind=kp)
@@ -140,8 +140,8 @@ contains
               !$acc end data
             endif
           endif
-          if (ircw==1) call wv_modify_put_real(iw, zw)
-          if (ircw==2) call wv_modify_put_imag(iw, zw)
+          if (ircw==1) call wv_put_real(iw, zw)
+          if (ircw==2) call wv_put_imag(iw, zw)
        enddo
        call wv_close_iq_for_modify()
     enddo

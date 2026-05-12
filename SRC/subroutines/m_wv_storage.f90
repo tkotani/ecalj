@@ -58,6 +58,7 @@ module m_wv_storage
   integer :: wv_nw_i   = 0
   integer :: wv_real_unit = -1
   integer :: wv_imag_unit = -1
+  logical :: wv_in_modify_mode = .false.  ! FILE: use standard write (not MPI-IO) in wv_put_*
   ! MEMORY_3D backend buffers — per-iq, sized (ngb, ngb, ...) not (nblochpmx, nblochpmx, ...).
   !   wv_real_buf  => rcxq (Qtask ranks) or wv_real_zero (non-Qtask, zero-filled)
   !   wv_imag_buf  (ngb, ngb, 1:niw) allocated per-iq (all ranks)
@@ -73,8 +74,6 @@ module m_wv_storage
   public :: wv_open_iq_for_read, wv_close_iq_for_read
   public :: wv_put_real, wv_put_imag, wv_get_real, wv_get_imag
   public :: wv_open_iq_real_for_modify, wv_open_iq_imag_for_modify
-  public :: wv_modify_get_real, wv_modify_put_real
-  public :: wv_modify_get_imag, wv_modify_put_imag
   public :: wv_close_iq_for_modify
   public :: wv_zero_current
   public :: wv_sync_current, wv_bcast_current
@@ -184,7 +183,11 @@ contains
     complex(kp), intent(in) :: zw(:,:)
     integer :: istat, n
     if (wv_backend == WV_BACKEND_FILE) then
-       istat = writem(wv_real_unit, rec=iw - wv_nw_i + 1, data=zw)
+       if (wv_in_modify_mode) then
+          write(wv_real_unit, rec=iw - wv_nw_i + 1) zw  ! rank-0 only, standard Fortran write
+       else
+          istat = writem(wv_real_unit, rec=iw - wv_nw_i + 1, data=zw)
+       endif
     else
        n = size(wv_real_buf, 1)
        wv_real_buf(1:n, 1:n, iw - wv_nw_i + 1) = zw(1:n, 1:n)
@@ -196,7 +199,11 @@ contains
     complex(kp), intent(in) :: zw(:,:)
     integer :: istat, n
     if (wv_backend == WV_BACKEND_FILE) then
-       istat = writem(wv_imag_unit, rec=iw, data=zw)
+       if (wv_in_modify_mode) then
+          write(wv_imag_unit, rec=iw) zw  ! rank-0 only, standard Fortran write
+       else
+          istat = writem(wv_imag_unit, rec=iw, data=zw)
+       endif
     else
        n = size(wv_imag_buf, 1)
        wv_imag_buf(1:n, 1:n, iw) = zw(1:n, 1:n)
@@ -256,6 +263,7 @@ contains
     integer, intent(in) :: iq
     character(10) :: i2char
     wv_cur_iq = iq
+    wv_in_modify_mode = .true.
     if (wv_backend /= WV_BACKEND_FILE) return
     open(newunit=wv_real_unit, file='__WVR.'//i2char(iq), &
          form='unformatted', status='old', access='direct', recl=wv_mreclx)
@@ -265,60 +273,14 @@ contains
     integer, intent(in) :: iq
     character(10) :: i2char
     wv_cur_iq = iq
+    wv_in_modify_mode = .true.
     if (wv_backend /= WV_BACKEND_FILE) return
     open(newunit=wv_imag_unit, file='__WVI.'//i2char(iq), &
          form='unformatted', status='old', access='direct', recl=wv_mreclx)
   end subroutine wv_open_iq_imag_for_modify
 
-  subroutine wv_modify_get_real(iw, zw)
-    integer,     intent(in)  :: iw
-    complex(kp), intent(out) :: zw(:,:)
-    integer :: n
-    if (wv_backend == WV_BACKEND_FILE) then
-       read(wv_real_unit, rec=iw - wv_nw_i + 1) zw
-    else
-       n = size(wv_real_buf, 1)
-       zw(1:n, 1:n) = wv_real_buf(1:n, 1:n, iw - wv_nw_i + 1)
-    endif
-  end subroutine wv_modify_get_real
-
-  subroutine wv_modify_put_real(iw, zw)
-    integer,     intent(in) :: iw
-    complex(kp), intent(in) :: zw(:,:)
-    integer :: n
-    if (wv_backend == WV_BACKEND_FILE) then
-       write(wv_real_unit, rec=iw - wv_nw_i + 1) zw
-    else
-       n = size(wv_real_buf, 1)
-       wv_real_buf(1:n, 1:n, iw - wv_nw_i + 1) = zw(1:n, 1:n)
-    endif
-  end subroutine wv_modify_put_real
-
-  subroutine wv_modify_get_imag(iw, zw)
-    integer,     intent(in)  :: iw
-    complex(kp), intent(out) :: zw(:,:)
-    integer :: n
-    if (wv_backend == WV_BACKEND_FILE) then
-       read(wv_imag_unit, rec=iw) zw
-    else
-       n = size(wv_imag_buf, 1)
-       zw(1:n, 1:n) = wv_imag_buf(1:n, 1:n, iw)
-    endif
-  end subroutine wv_modify_get_imag
-
-  subroutine wv_modify_put_imag(iw, zw)
-    integer,     intent(in) :: iw
-    complex(kp), intent(in) :: zw(:,:)
-    integer :: n
-    if (wv_backend == WV_BACKEND_FILE) then
-       write(wv_imag_unit, rec=iw) zw
-    else
-       n = size(wv_imag_buf, 1)
-       wv_imag_buf(1:n, 1:n, iw) = zw(1:n, 1:n)
-    endif
-  end subroutine wv_modify_put_imag
-
   subroutine wv_close_iq_for_modify()
+    wv_in_modify_mode = .false.
     if (wv_backend /= WV_BACKEND_FILE) return
     if (wv_real_unit > 0) then; close(wv_real_unit); wv_real_unit = -1; endif
     if (wv_imag_unit > 0) then; close(wv_imag_unit); wv_imag_unit = -1; endif
