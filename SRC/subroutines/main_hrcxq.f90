@@ -160,11 +160,10 @@ subroutine hrcxq(do_correlation, do_exchange)
      qp = qibze(:,1)
      call build_screened_coulomb_step_kx(1, qp, realomega, imagomega)
      if (.not. mpi__root_k .and. wv_backend == WV_BACKEND_MEMORY_3D) call wv_alloc_recv_bufs(ngb, niw, nw_i, nw)
-     call wv_bcast_current(0, comm_q)
      call MPI_barrier(comm, ierr)
      if (MPI__rank == 0) call W0w0i(nw_i, nw, nq0i, niw, q0i, is_wc_m_basis=.true.)
-     ! Broadcast the corrected current buffer to all ranks, then consume.
-     call wv_bcast_current(0, comm)
+     ! Broadcast the W0w0i-corrected buffer to all ranks, then consume.
+     call wv_bcast_current(0, comm_q)
      call sxcf_correlation_step_kx(1, hs_ef, hs_esmr, hs_nspinmx)
      if (mpi__root_k) then
        call deallocatezxq()
