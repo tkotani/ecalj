@@ -25,21 +25,25 @@ subroutine hrcxq(do_correlation, do_exchange)
   use m_qbze,only:  Setqbze,qibze
   use m_llw,only: MPI__sendllw
   use m_mpi,only: MPI__Initialize,MPI__root,MPI__rank,MPI__size,MPI__consoleout,comm, &
-                & MPI__SplitXq, MPI__FreeSplitXq, ipr
+                & MPI__SplitXq, MPI__FreeSplitXq, mpi__root_k, ipr
   use m_lgunit,only: m_lgunit_init,stdo
   use m_ftox
   use m_gpu,only: gpu_init
   use m_hsfp0_sc,only: hsfp0_sc, hsfp0_sc_setup, hsfp0_sc_writeout, &
                        hs_ef, hs_esmr, hs_nspinmx
-  use m_hgw_iq_loop,only: run_iq_loop
+  use m_hgw_iq_loop,only: build_screened_coulomb_step_kx
+  use m_readVcoud,only: ngb
   use m_wv_storage,only: wv_init_file, wv_init_memory_3d, wv_dealloc, &
-                         wv_bcast_current
+                         wv_bcast_current, wv_sync_current, wv_alloc_zero_bufs, &
+                         wv_backend, WV_BACKEND_MEMORY_3D
   use m_sxcf_sc,only: sxcf_correlation_init, sxcf_correlation_step_kx, &
                       sxcf_correlation_finalize
+  use mpi
   implicit none
   logical, intent(in), optional :: do_correlation, do_exchange
-  integer :: iq, iqxini, iqxend, iw, ifwd, verbose, ifif, ierr
-  real(8) :: ua=1d0
+  integer :: iq, iqxini, iqxend, iw, ifwd, verbose, ifif, ierr, ierr2
+  integer :: ngb_cur
+  real(8) :: ua=1d0, qp(3)
   logical :: debug=.false., realomega, imagomega
   logical :: hx0, iprintx=.false.
   logical :: cmdopt2
@@ -102,32 +106,46 @@ subroutine hrcxq(do_correlation, do_exchange)
      call wv_init_memory_3d(nw_i, nw)
      call sxcf_correlation_init(hs_ef, hs_esmr, hs_nspinmx)
 
-     ! Phase 1: iq=2,...,nqibz — initial n_bpara/n_kpara split already active.
-     ! Per-kx sxcf consumption is interleaved immediately after each iq.
-     call run_iq_loop(2, nqibz, mpi__Qtask(2:nqibz), realomega, imagomega, &
-                      streaming_consume=.true.)
+     ! Phase 1: iq=2,...,nqibz — build W-v and consume immediately per-iq.
+     do iq = 2, nqibz
+       qp = qibze(:,iq)
+       call build_screened_coulomb_step_kx(iq, qp, mpi__Qtask(iq), realomega, imagomega)
+       ! Sync W-v across all ranks, then consume.
+       ngb_cur = merge(ngb, 0, mpi__Qtask(iq))
+       call MPI_Allreduce(MPI_IN_PLACE, ngb_cur, 1, MPI_INTEGER, MPI_MAX, comm, ierr2)
+       if (.not. (mpi__Qtask(iq) .and. mpi__root_k) .and. wv_backend == WV_BACKEND_MEMORY_3D) &
+         call wv_alloc_zero_bufs(ngb_cur, niw, nw_i, nw)
+       call wv_sync_current(comm)
+       call sxcf_correlation_step_kx(iq, hs_ef, hs_esmr, hs_nspinmx)
+     enddo
      call MPI_barrier(comm, ierr)
 
      ! Re-split: all ranks join a single q-group (n_kpara=mpi__size) so the
      ! k-sum for the few remaining q-points uses maximum parallelism.
      call MPI__FreeSplitXq()
      call MPI__SplitXq(1, mpi__size)
-     ! Phase 2: iq=nqibz+1,...,iqxend (auxiliary q0 points, only W/llw needed;
-     ! no sxcf consumption — guarded by iq<=nqibz inside run_iq_loop).
+
+     ! Phase 2: auxiliary q0 points (iq > nqibz) — W/llw only, no consumption.
      if (nqibz < iqxend) then
        mpi__Qtask(nqibz+1:iqxend) = .true.
        mpi__Qrank(nqibz+1:iqxend) = 0
-       call run_iq_loop(nqibz+1, iqxend, mpi__Qtask(nqibz+1:iqxend), &
-                        realomega, imagomega, streaming_consume=.true.)
+       do iq = nqibz+1, iqxend
+         qp = qibze(:,iq)
+         call build_screened_coulomb_step_kx(iq, qp, mpi__Qtask(iq), realomega, imagomega)
+       enddo
        call MPI_barrier(comm, ierr)
      endif
 
-     ! Phase 3: iq=1/Gamma last — all ranks compute, current buffer left with
-     ! WV(iq=1) for W0w0i to modify directly.
+     ! Phase 3: iq=1/Gamma last — build W-v, sync, then W0w0i + consume.
      mpi__Qtask(1) = .true.
      mpi__Qrank(1) = 0
-     call run_iq_loop(1, 1, mpi__Qtask(1:1), realomega, imagomega, &
-                      streaming_consume=.true.)
+     qp = qibze(:,1)
+     call build_screened_coulomb_step_kx(1, qp, mpi__Qtask(1), realomega, imagomega)
+     ngb_cur = merge(ngb, 0, mpi__Qtask(1))
+     call MPI_Allreduce(MPI_IN_PLACE, ngb_cur, 1, MPI_INTEGER, MPI_MAX, comm, ierr2)
+     if (.not. (mpi__Qtask(1) .and. mpi__root_k) .and. wv_backend == WV_BACKEND_MEMORY_3D) &
+       call wv_alloc_zero_bufs(ngb_cur, niw, nw_i, nw)
+     call wv_sync_current(comm)
      call MPI_barrier(comm, ierr)
 
      ! Collect auxiliary-q llw to rank 0, apply W0w0i on current buffer.
@@ -142,8 +160,14 @@ subroutine hrcxq(do_correlation, do_exchange)
      if(ipr) write(stdo,ftox) ' hrcxq+hsfp0_sc combined: finished (streaming)'
   else StreamingOrFile
      ! ---- Legacy FILE mode (no in-process correlation consume) ----
+     ! Process iq=2,...,iqxend first, then iq=1 last (same ordering as streaming).
      call wv_init_file(mreclx=mrecl, nw_i=nw_i)
-     call run_iq_loop(iqxini, iqxend, mpi__Qtask, realomega, imagomega)
+     do iq = 2, iqxend
+       qp = qibze(:,iq)
+       call build_screened_coulomb_step_kx(iq, qp, mpi__Qtask(iq), realomega, imagomega)
+     enddo
+     qp = qibze(:,1)
+     call build_screened_coulomb_step_kx(1, qp, mpi__Qtask(1), realomega, imagomega)
      call MPI_barrier(comm, ierr)
      call MPI__sendllw(iqxend, MPI__Qrank)
      if (MPI__rank == 0) call W0w0i(nw_i, nw, nq0i, niw, q0i, is_wc_m_basis=.true.)
