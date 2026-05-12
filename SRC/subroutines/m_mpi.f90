@@ -81,23 +81,24 @@ contains
 ! color = mod(mpi__rank_q,n_bpara)    : 0,1,0,1,0,1  0,1,0,1, 0, 1
 
   subroutine MPI__SplitXq(n_bpara, n_kpara)
+    ! n_bpara is ignored; comm_b is abolished (always size=1, role moves to comm_w).
     implicit none
     integer, intent(in) :: n_bpara, n_kpara
     integer :: color
 
-    color = mpi__rank/(n_bpara*n_kpara)
+    color = mpi__rank/n_kpara
     call mpi_comm_split(comm, color, mpi__rank, comm_q, mpi__info)
     call mpi_comm_rank(comm_q, mpi__rank_q, mpi__info)
     call mpi_comm_size(comm_q, mpi__size_q, mpi__info)
     mpi__root_q = mpi__rank_q == 0
 
-    color = mpi__rank_q/n_bpara
-    call mpi_comm_split(comm_q, color, mpi__rank, comm_b, mpi__info)
-    call mpi_comm_rank(comm_b, mpi__rank_b, mpi__info)
-    call mpi_comm_size(comm_b, mpi__size_b, mpi__info)
+    ! comm_b: trivial singleton per rank (W-basis distribution abolished).
+    call mpi_comm_split(comm_q, mpi__rank_q, mpi__rank, comm_b, mpi__info)
+    mpi__rank_b = 0
+    mpi__size_b = 1
 
-    color = mod(mpi__rank_q,n_bpara)
-    call mpi_comm_split(comm_q, color, mpi__rank, comm_k, mpi__info)
+    ! comm_k: all ranks within comm_q (n_bpara fixed to 1).
+    call mpi_comm_split(comm_q, 0, mpi__rank, comm_k, mpi__info)
     call mpi_comm_rank(comm_k, mpi__rank_k, mpi__info)
     call mpi_comm_size(comm_k, mpi__size_k, mpi__info)
 
@@ -113,6 +114,18 @@ contains
 
   end subroutine MPI__SplitXq
   
+  subroutine MPI__FreeSplitXq()
+    !> Free comm_q/comm_b/comm_k/comm_root_k and their NPR arrays so
+    !> MPI__SplitXq can be called again with different parameters.
+    implicit none
+    call mpi_comm_free(comm_k, mpi__info)
+    call mpi_comm_free(comm_b, mpi__info)
+    if (comm_root_k /= MPI_COMM_NULL) call mpi_comm_free(comm_root_k, mpi__info)
+    call mpi_comm_free(comm_q, mpi__info)
+    if (allocated(mpi__npr_col)) deallocate(mpi__npr_col)
+    if (allocated(mpi__ipr_col)) deallocate(mpi__ipr_col)
+  end subroutine MPI__FreeSplitXq
+
   subroutine MPI__Split(n_split)
     implicit none
     integer, intent(in) :: n_split
@@ -210,16 +223,13 @@ contains
     mpi_master = (mpi_rank == 0)
   end function get_mpi_master
   subroutine MPI__SplitSc(n_wpara)
+    ! freq parallelism fixed at 1 pending shared-memory W migration; n_wpara ignored
     implicit none
     integer, intent(in) :: n_wpara
-    integer :: color
-    if(n_wpara < 1) call rx("MPI__SplitSc: n_wpara < 1")
-    if(n_wpara > mpi__size) call rx("MPI__SplitSc: n_wpara > mpi__size")
-    color = mpi__rank/n_wpara
-    call mpi_comm_split(comm, color, mpi__rank, comm_w, mpi__info)
+    call mpi_comm_split(comm, mpi__rank, mpi__rank, comm_w, mpi__info)
     call mpi_comm_rank(comm_w, mpi__rank_w, mpi__info)
     call mpi_comm_size(comm_w, mpi__size_w, mpi__info)
-    mpi__root_w = mpi__rank_w == 0
+    mpi__root_w = .true.
   end subroutine MPI__SplitSc
   subroutine MPI__consoleout(idn)
     use m_lgunit,only:stdo,stdl

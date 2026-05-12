@@ -5,8 +5,8 @@ module m_hrcxq
 subroutine hrcxq(do_correlation, do_exchange)
   !> When do_correlation=.true. we run Phase 1-C streaming: per-iq W is held
   !> only in the m_wv_storage MEMORY_3D singleton, sxcf step_kx consumes it
-  !> immediately (iq>1) or after W0w0i correction (iq=1), and SECU/SEC2U
-  !> are written via hsfp0_sc_writeout. No __WVR/__WVI files written.
+  !> immediately (iq>1); iq=1/Gamma is processed last and consumed after W0w0i
+  !> correction. SECU/SEC2U are written via hsfp0_sc_writeout. No __WVR/__WVI.
   !> When do_correlation is absent or .false., we run the legacy FILE flow:
   !> WVRllwR/WVIllwI emit __WVR.<iq>/__WVI.<iq>, W0w0i edits __WVR.1/__WVI.1
   !> in place, then (optionally) hsfp0_sc(--job=1) writes SEXU/SEX2U.
@@ -25,7 +25,7 @@ subroutine hrcxq(do_correlation, do_exchange)
   use m_qbze,only:  Setqbze,qibze
   use m_llw,only: MPI__sendllw
   use m_mpi,only: MPI__Initialize,MPI__root,MPI__rank,MPI__size,MPI__consoleout,comm, &
-                & MPI__SplitXq, ipr
+                & MPI__SplitXq, MPI__FreeSplitXq, ipr
   use m_lgunit,only: m_lgunit_init,stdo
   use m_ftox
   use m_gpu,only: gpu_init
@@ -33,7 +33,7 @@ subroutine hrcxq(do_correlation, do_exchange)
                        hs_ef, hs_esmr, hs_nspinmx
   use m_hgw_iq_loop,only: run_iq_loop
   use m_wv_storage,only: wv_init_file, wv_init_memory_3d, wv_dealloc, &
-                         wv_bcast_iq1, wv_restore_iq1
+                         wv_bcast_current
   use m_sxcf_sc,only: sxcf_correlation_init, sxcf_correlation_step_kx, &
                       sxcf_correlation_finalize
   implicit none
@@ -73,10 +73,9 @@ subroutine hrcxq(do_correlation, do_exchange)
   iqxini = 1
   iqxend = nqibz + nq0i + nq0iadd
   if(cmdopt2('--nk=', outs)) read(outs,*) n_kpara
-  n_bpara = max(mpi__size/(n_kpara*(iqxend - iqxini + 1)), 1)
-  if(cmdopt2('--nb=', outs)) read(outs,*) n_bpara
-  worker_inQtask = n_bpara * n_kpara
-  if(ipr) write(stdo,'(1X,A,3I5)') 'MPI: worker_inQtask:(n_bpara,n_kpara)', worker_inQtask, n_bpara, n_kpara
+  n_bpara = 1  ! comm_b abolished; --nb= ignored
+  worker_inQtask = n_kpara
+  if(ipr) write(stdo,'(1X,A,2I5)') 'MPI: worker_inQtask:(n_kpara)', worker_inQtask, n_kpara
   call MPI__SplitXq(n_bpara, n_kpara)
   allocate( mpi__Qrank(iqxini:iqxend), source=[(mod(iq-1,mpi__size/worker_inQtask)*worker_inQtask           ,iq=iqxini,iqxend)])
   allocate( mpi__Qtask(iqxini:iqxend), source=[(mod(iq-1,mpi__size/worker_inQtask)==mpi__rank/worker_inQtask,iq=iqxini,iqxend)])
@@ -99,29 +98,46 @@ subroutine hrcxq(do_correlation, do_exchange)
 
   StreamingOrFile: if (streaming) then
      ! ---- Phase 1-C streaming (do_correlation=.true.) ----
-     ! Set up sxcf parameters via hsfp0_sc_setup (its outputs flow through
-     ! the m_hsfp0_sc module: hs_ef, hs_esmr, hs_nspinmx, hs_eqx, ...).
      call hsfp0_sc_setup(skip_init=.true., ixc_in=2)
-     ! Configure the WV singleton for in-memory streaming.
-     call wv_init_memory_3d(nblochpmx, nw_i, nw, niw)
-     ! Allocate sxcf workspace; zero zsecall.
+     call wv_init_memory_3d(nw_i, nw)
      call sxcf_correlation_init(hs_ef, hs_esmr, hs_nspinmx)
-     ! Per-iq production interleaved with per-kx consumption (kx=iq>1) or
-     ! save (iq=1, deferred).
-     call run_iq_loop(iqxini, iqxend, mpi__Qtask, realomega, imagomega, &
-                       streaming_consume=.true.)
-     ! Effective W(0) at Gamma: collect llw on rank 0, run W0w0i which
-     ! modifies the iq=1 saved slot (read+write via wv_modify_*).
+
+     ! Phase 1: iq=2,...,nqibz — initial n_bpara/n_kpara split already active.
+     ! Per-kx sxcf consumption is interleaved immediately after each iq.
+     call run_iq_loop(2, nqibz, mpi__Qtask(2:nqibz), realomega, imagomega, &
+                      streaming_consume=.true.)
      call MPI_barrier(comm, ierr)
+
+     ! Re-split: all ranks join a single q-group (n_kpara=mpi__size) so the
+     ! k-sum for the few remaining q-points uses maximum parallelism.
+     call MPI__FreeSplitXq()
+     call MPI__SplitXq(1, mpi__size)
+     ! Phase 2: iq=nqibz+1,...,iqxend (auxiliary q0 points, only W/llw needed;
+     ! no sxcf consumption — guarded by iq<=nqibz inside run_iq_loop).
+     if (nqibz < iqxend) then
+       mpi__Qtask(nqibz+1:iqxend) = .true.
+       mpi__Qrank(nqibz+1:iqxend) = 0
+       call run_iq_loop(nqibz+1, iqxend, mpi__Qtask(nqibz+1:iqxend), &
+                        realomega, imagomega, streaming_consume=.true.)
+       call MPI_barrier(comm, ierr)
+     endif
+
+     ! Phase 3: iq=1/Gamma last — all ranks compute, current buffer left with
+     ! WV(iq=1) for W0w0i to modify directly.
+     mpi__Qtask(1) = .true.
+     mpi__Qrank(1) = 0
+     call run_iq_loop(1, 1, mpi__Qtask(1:1), realomega, imagomega, &
+                      streaming_consume=.true.)
+     call MPI_barrier(comm, ierr)
+
+     ! Collect auxiliary-q llw to rank 0, apply W0w0i on current buffer.
      call MPI__sendllw(iqxend, MPI__Qrank)
      if (MPI__rank == 0) call W0w0i(nw_i, nw, nq0i, niw, q0i, is_wc_m_basis=.true.)
-     ! Broadcast the corrected iq=1 saved slot, restore to current, consume.
-     call wv_bcast_iq1(0, comm)
-     call wv_restore_iq1()
+     ! Broadcast the corrected current buffer to all ranks, then consume.
+     call wv_bcast_current(0, comm)
      call sxcf_correlation_step_kx(1, hs_ef, hs_esmr, hs_nspinmx)
      call sxcf_correlation_finalize()
      call wv_dealloc()
-     ! Reduce zsecall to root + write SECU/SEC2U.
      call hsfp0_sc_writeout(skip_rx0=.true.)
      if(ipr) write(stdo,ftox) ' hrcxq+hsfp0_sc combined: finished (streaming)'
   else StreamingOrFile

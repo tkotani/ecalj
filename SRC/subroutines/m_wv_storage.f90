@@ -4,7 +4,8 @@
 !! iq=1 by m_w0w0i:modifyWV0 (Gamma-cell W(0) correction), and consumed per-kx by
 !! m_sxcf_sc (correlation self-energy). Three modules share access; the data may
 !! live on disk (__WVR.<iq> / __WVI.<iq> files) or in memory (Phase 1-C 3D
-!! streaming buffer with current iq + saved iq=1 slot).
+!! streaming buffer; iq=1/Gamma is produced last so W0w0i can operate on current
+!! buffer directly without a separate iq=1 saved slot).
 !!
 !! Per ecalj convention this module exposes a singleton: subroutines take inputs
 !! by argument and operate on module-level state ("output" via module variables).
@@ -13,7 +14,12 @@
 !!   WV_BACKEND_MEMORY_3D  store/load via the module-level 3D buffers
 !!
 !! API conventions:
-!!   - call wv_init_file(mreclx, nw_i)  or  wv_init_memory_3d(nbpmx, nw_lo, nw_hi, niwx)
+!!   - call wv_init_file(mreclx, nw_i)  or  wv_init_memory_3d(nw_lo, nw_hi)
+!!   - MEMORY_3D per-iq setup (called from x0kf_zxq on Qtask ranks):
+!!       wv_assoc_real_buf(rcxq)          — wv_real_buf => rcxq (no alloc)
+!!       wv_init_imag_buf(ngbx, niwx)     — allocate wv_imag_buf(ngbx,ngbx,niwx) zeroed
+!!   - MEMORY_3D per-iq setup (called on non-Qtask ranks, after ngb broadcast):
+!!       wv_alloc_zero_bufs(ngbx, niwx)   — alloc zero-filled real+imag bufs for AllreduceSum
 !!   - Writer side per iq:
 !!       wv_open_iq_real_for_write(iq, comm=...);   wv_open_iq_imag_for_write(iq, comm=...)
 !!       wv_put_real(iw, zw);                       wv_put_imag(iw, zw)
@@ -29,8 +35,8 @@
 !!       wv_close_iq_for_modify()
 !!   - call wv_dealloc() at the end.
 !!   - MEMORY_3D streaming helpers:
-!!       wv_zero_current(); wv_save_iq1(); wv_restore_iq1()
-!!       wv_sync_current(comm); wv_bcast_iq1(root, comm)
+!!       wv_zero_current() — no-op (zeroing now handled by x0kf_zxq / wv_alloc_zero_bufs)
+!!       wv_sync_current(comm); wv_bcast_current(root, comm)
 module m_wv_storage
   use m_kind, only: kp => kindrcxq
   use m_mpiio, only: openm, closem
@@ -52,17 +58,16 @@ module m_wv_storage
   integer :: wv_nw_i   = 0
   integer :: wv_real_unit = -1
   integer :: wv_imag_unit = -1
-  ! MEMORY_3D backend buffers. Shape:
-  !   wv_real_buf  (nblochpmx, nblochpmx, nw_i:nw)
-  !   wv_imag_buf  (nblochpmx, nblochpmx, 1:niw)
-  ! The "current" buffer is overwritten as iq advances; the iq1 slot is saved
-  ! by wv_save_iq1 before W0w0i and restored after wv_bcast_iq1.
-  complex(kp), allocatable :: wv_real_buf(:,:,:)
+  ! MEMORY_3D backend buffers — per-iq, sized (ngb, ngb, ...) not (nblochpmx, nblochpmx, ...).
+  !   wv_real_buf  => rcxq (Qtask ranks) or wv_real_zero (non-Qtask, zero-filled)
+  !   wv_imag_buf  (ngb, ngb, 1:niw) allocated per-iq (all ranks)
+  ! Lifetime: wv_real_buf is valid from x0kf_zxq / wv_alloc_zero_bufs until wv_dealloc.
+  complex(kp), pointer     :: wv_real_buf(:,:,:) => null()
+  complex(kp), allocatable, target :: wv_real_zero(:,:,:)  ! backing store for non-Qtask zero buf
   complex(kp), allocatable :: wv_imag_buf(:,:,:)
-  complex(kp), allocatable :: wv_real_buf_iq1(:,:,:)
-  complex(kp), allocatable :: wv_imag_buf_iq1(:,:,:)
 
   public :: wv_init_file, wv_init_memory_3d, wv_dealloc
+  public :: wv_assoc_real_buf, wv_init_imag_buf, wv_alloc_zero_bufs
   public :: wv_open_iq_real_for_write, wv_open_iq_imag_for_write
   public :: wv_close_iq_for_write
   public :: wv_open_iq_for_read, wv_close_iq_for_read
@@ -72,8 +77,7 @@ module m_wv_storage
   public :: wv_modify_get_imag, wv_modify_put_imag
   public :: wv_close_iq_for_modify
   public :: wv_zero_current
-  public :: wv_save_iq1, wv_restore_iq1
-  public :: wv_sync_current, wv_bcast_iq1
+  public :: wv_sync_current, wv_bcast_current
 
 contains
 
@@ -89,34 +93,55 @@ contains
     wv_imag_unit = -1
   end subroutine wv_init_file
 
-  subroutine wv_init_memory_3d(nbpmx, nw_lo, nw_hi, niwx)
-    !> Configure singleton for MEMORY_3D streaming. Allocates 3D current buffer
-    !> and 3D iq=1 saved buffer, both initialized to zero.
-    integer, intent(in) :: nbpmx, nw_lo, nw_hi, niwx
+  subroutine wv_init_memory_3d(nw_lo, nw_hi)
+    !> Configure singleton for MEMORY_3D streaming. Mode setter only — buffers
+    !> are set up per-iq via wv_assoc_real_buf / wv_init_imag_buf / wv_alloc_zero_bufs.
+    integer, intent(in) :: nw_lo, nw_hi
     wv_backend = WV_BACKEND_MEMORY_3D
     wv_nw_i    = nw_lo
     wv_cur_iq  = 0
-    if (allocated(wv_real_buf))     deallocate(wv_real_buf)
-    if (allocated(wv_imag_buf))     deallocate(wv_imag_buf)
-    if (allocated(wv_real_buf_iq1)) deallocate(wv_real_buf_iq1)
-    if (allocated(wv_imag_buf_iq1)) deallocate(wv_imag_buf_iq1)
-    allocate(wv_real_buf(nbpmx, nbpmx, nw_lo:nw_hi),     source=cmplx(0,0,kp))
-    allocate(wv_imag_buf(nbpmx, nbpmx, 1:niwx),          source=cmplx(0,0,kp))
-    allocate(wv_real_buf_iq1(nbpmx, nbpmx, nw_lo:nw_hi), source=cmplx(0,0,kp))
-    allocate(wv_imag_buf_iq1(nbpmx, nbpmx, 1:niwx),      source=cmplx(0,0,kp))
+    nullify(wv_real_buf)
+    if (allocated(wv_real_zero)) deallocate(wv_real_zero)
+    if (allocated(wv_imag_buf))  deallocate(wv_imag_buf)
   end subroutine wv_init_memory_3d
 
+  subroutine wv_assoc_real_buf(rcxq_target)
+    !> Qtask ranks: associate wv_real_buf with rcxq (no allocation).
+    !> rcxq covers (ngb, ngb, nw_i:nwhis*npm) — wv_put/get_real use iw in nw_i:nw.
+    complex(kp), intent(in), target :: rcxq_target(:,:,:)
+    wv_real_buf => rcxq_target
+  end subroutine wv_assoc_real_buf
+
+  subroutine wv_init_imag_buf(ngbx, niwx)
+    !> Qtask ranks: (re)allocate wv_imag_buf(ngbx, ngbx, niwx) zeroed per-iq.
+    integer, intent(in) :: ngbx, niwx
+    if (allocated(wv_imag_buf)) deallocate(wv_imag_buf)
+    allocate(wv_imag_buf(ngbx, ngbx, niwx), source=cmplx(0,0,kp))
+  end subroutine wv_init_imag_buf
+
+  subroutine wv_alloc_zero_bufs(ngbx, niwx, nw_lo, nw_hi)
+    !> Non-Qtask ranks: allocate zero-filled real+imag buffers so they
+    !> contribute 0 to the AllreduceSum while sharing the same size as Qtask.
+    !> 1-based 3rd dim matches the pointer-from-dummy lower bound on Qtask ranks.
+    !> ngb is broadcast from the Qtask rank before calling this.
+    integer, intent(in) :: ngbx, niwx, nw_lo, nw_hi
+    if (allocated(wv_real_zero)) deallocate(wv_real_zero)
+    allocate(wv_real_zero(ngbx, ngbx, nw_hi - nw_lo + 1), source=cmplx(0,0,kp))
+    wv_real_buf => wv_real_zero
+    if (allocated(wv_imag_buf)) deallocate(wv_imag_buf)
+    allocate(wv_imag_buf(ngbx, ngbx, niwx),               source=cmplx(0,0,kp))
+  end subroutine wv_alloc_zero_bufs
+
   subroutine wv_dealloc()
-    !> Close any lingering file units (FILE) and free 3D buffers (MEMORY_3D).
+    !> Close any lingering file units (FILE) and release 3D buffers (MEMORY_3D).
     integer :: istat
     if (wv_backend == WV_BACKEND_FILE) then
        if (wv_real_unit > 0) then; istat = closem(wv_real_unit); wv_real_unit = -1; endif
        if (wv_imag_unit > 0) then; istat = closem(wv_imag_unit); wv_imag_unit = -1; endif
     else if (wv_backend == WV_BACKEND_MEMORY_3D) then
-       if (allocated(wv_real_buf))     deallocate(wv_real_buf)
-       if (allocated(wv_imag_buf))     deallocate(wv_imag_buf)
-       if (allocated(wv_real_buf_iq1)) deallocate(wv_real_buf_iq1)
-       if (allocated(wv_imag_buf_iq1)) deallocate(wv_imag_buf_iq1)
+       nullify(wv_real_buf)                                  ! owned by rcxq in m_x0kf
+       if (allocated(wv_real_zero)) deallocate(wv_real_zero) ! non-Qtask backing store
+       if (allocated(wv_imag_buf))  deallocate(wv_imag_buf)
     endif
   end subroutine wv_dealloc
 
@@ -162,7 +187,7 @@ contains
        istat = writem(wv_real_unit, rec=iw - wv_nw_i + 1, data=zw)
     else
        n = size(wv_real_buf, 1)
-       wv_real_buf(1:n, 1:n, iw) = zw(1:n, 1:n)
+       wv_real_buf(1:n, 1:n, iw - wv_nw_i + 1) = zw(1:n, 1:n)
     endif
   end subroutine wv_put_real
 
@@ -209,7 +234,7 @@ contains
        read(wv_real_unit, rec=iw - wv_nw_i + 1) zw
     else
        n = size(wv_real_buf, 1)
-       zw(1:n, 1:n) = wv_real_buf(1:n, 1:n, iw)
+       zw(1:n, 1:n) = wv_real_buf(1:n, 1:n, iw - wv_nw_i + 1)
     endif
   end subroutine wv_get_real
 
@@ -252,8 +277,8 @@ contains
     if (wv_backend == WV_BACKEND_FILE) then
        read(wv_real_unit, rec=iw - wv_nw_i + 1) zw
     else
-       n = size(wv_real_buf_iq1, 1)
-       zw(1:n, 1:n) = wv_real_buf_iq1(1:n, 1:n, iw)
+       n = size(wv_real_buf, 1)
+       zw(1:n, 1:n) = wv_real_buf(1:n, 1:n, iw - wv_nw_i + 1)
     endif
   end subroutine wv_modify_get_real
 
@@ -264,8 +289,8 @@ contains
     if (wv_backend == WV_BACKEND_FILE) then
        write(wv_real_unit, rec=iw - wv_nw_i + 1) zw
     else
-       n = size(wv_real_buf_iq1, 1)
-       wv_real_buf_iq1(1:n, 1:n, iw) = zw(1:n, 1:n)
+       n = size(wv_real_buf, 1)
+       wv_real_buf(1:n, 1:n, iw - wv_nw_i + 1) = zw(1:n, 1:n)
     endif
   end subroutine wv_modify_put_real
 
@@ -276,8 +301,8 @@ contains
     if (wv_backend == WV_BACKEND_FILE) then
        read(wv_imag_unit, rec=iw) zw
     else
-       n = size(wv_imag_buf_iq1, 1)
-       zw(1:n, 1:n) = wv_imag_buf_iq1(1:n, 1:n, iw)
+       n = size(wv_imag_buf, 1)
+       zw(1:n, 1:n) = wv_imag_buf(1:n, 1:n, iw)
     endif
   end subroutine wv_modify_get_imag
 
@@ -288,8 +313,8 @@ contains
     if (wv_backend == WV_BACKEND_FILE) then
        write(wv_imag_unit, rec=iw) zw
     else
-       n = size(wv_imag_buf_iq1, 1)
-       wv_imag_buf_iq1(1:n, 1:n, iw) = zw(1:n, 1:n)
+       n = size(wv_imag_buf, 1)
+       wv_imag_buf(1:n, 1:n, iw) = zw(1:n, 1:n)
     endif
   end subroutine wv_modify_put_imag
 
@@ -303,32 +328,15 @@ contains
   ! MEMORY_3D streaming-specific helpers
   ! =============================================================
   subroutine wv_zero_current()
-    !> Zero the current (per-iq) buffers. Caller invokes before each iq's WV
-    !> computation so non-owner ranks contribute 0 to the subsequent Allreduce.
+    !> No-op in MEMORY_3D mode: zeroing is now handled per-iq by
+    !> x0kf_zxq (rcxq) and wv_init_imag_buf / wv_alloc_zero_bufs.
     if (wv_backend /= WV_BACKEND_MEMORY_3D) return
-    wv_real_buf = cmplx(0, 0, kp)
-    wv_imag_buf = cmplx(0, 0, kp)
   end subroutine wv_zero_current
 
-  subroutine wv_save_iq1()
-    !> Copy the current buffer into the iq=1 saved slot. Called once after the
-    !> iq=1 main-loop iteration, before W0w0i runs.
-    if (wv_backend /= WV_BACKEND_MEMORY_3D) return
-    wv_real_buf_iq1 = wv_real_buf
-    wv_imag_buf_iq1 = wv_imag_buf
-  end subroutine wv_save_iq1
-
-  subroutine wv_restore_iq1()
-    !> Copy iq=1 saved (W0w0i-corrected) data back into the current buffer so
-    !> step_kx(kx=1) can read it via wv_get_real / wv_get_imag.
-    if (wv_backend /= WV_BACKEND_MEMORY_3D) return
-    wv_real_buf = wv_real_buf_iq1
-    wv_imag_buf = wv_imag_buf_iq1
-  end subroutine wv_restore_iq1
-
   subroutine wv_sync_current(comm)
-    !> Allreduce(SUM) the current 3D buffers across all ranks. Owner has data,
-    !> others have 0 (after zero_current), so SUM correctly distributes.
+    !> Allreduce(SUM) the current 3D buffers across all ranks. Qtask rank has
+    !> data in wv_real_buf (=> rcxq) and wv_imag_buf; non-Qtask ranks have
+    !> zero-filled buffers of the same (ngb,ngb,...) shape.
     use mpi
     integer, intent(in) :: comm
     integer :: ierr, mpi_type
@@ -338,12 +346,14 @@ contains
 #else
     mpi_type = MPI_DOUBLE_COMPLEX
 #endif
-    call MPI_Allreduce(MPI_IN_PLACE, wv_real_buf, size(wv_real_buf), mpi_type, MPI_SUM, comm, ierr)
-    call MPI_Allreduce(MPI_IN_PLACE, wv_imag_buf, size(wv_imag_buf), mpi_type, MPI_SUM, comm, ierr)
+    if (associated(wv_real_buf)) &
+      call MPI_Allreduce(MPI_IN_PLACE, wv_real_buf, size(wv_real_buf), mpi_type, MPI_SUM, comm, ierr)
+    if (allocated(wv_imag_buf)) &
+      call MPI_Allreduce(MPI_IN_PLACE, wv_imag_buf, size(wv_imag_buf), mpi_type, MPI_SUM, comm, ierr)
   end subroutine wv_sync_current
 
-  subroutine wv_bcast_iq1(root, comm)
-    !> Broadcast the iq=1 saved slot (W0w0i-corrected on root) to all ranks.
+  subroutine wv_bcast_current(root, comm)
+    !> Broadcast the current buffer (W0w0i-corrected on root) to all ranks.
     use mpi
     integer, intent(in) :: root, comm
     integer :: ierr, mpi_type
@@ -353,8 +363,10 @@ contains
 #else
     mpi_type = MPI_DOUBLE_COMPLEX
 #endif
-    call MPI_Bcast(wv_real_buf_iq1, size(wv_real_buf_iq1), mpi_type, root, comm, ierr)
-    call MPI_Bcast(wv_imag_buf_iq1, size(wv_imag_buf_iq1), mpi_type, root, comm, ierr)
-  end subroutine wv_bcast_iq1
+    if (associated(wv_real_buf)) &
+      call MPI_Bcast(wv_real_buf, size(wv_real_buf), mpi_type, root, comm, ierr)
+    if (allocated(wv_imag_buf)) &
+      call MPI_Bcast(wv_imag_buf, size(wv_imag_buf), mpi_type, root, comm, ierr)
+  end subroutine wv_bcast_current
 
 end module m_wv_storage

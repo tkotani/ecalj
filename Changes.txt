@@ -1,3 +1,59 @@
+2026-05-12
+  [bugfix] x0kf_v4h.f90: streaming MEMORY_3D で nwhis > nw の場合に
+    MPI_Allreduce カウント不一致によるデッドロックを修正。
+    wv_assoc_real_buf に rcxq 全体を渡していたため、Qtask ランクの
+    size(wv_real_buf) = npr*npr_col*(nwhis+1) が非 Qtask ランクの
+    wv_alloc_zero_bufs が確保する size = ngb*ngb*(nw-nw_i+1) と不一致。
+    nio_gwsc では nwhis=102, nw=96 のため 103 vs 97 でカウントがずれ、
+    wv_sync_current の MPI_Allreduce が全ランク無限スピン待ちになっていた。
+    fix: wv_assoc_real_buf(rcxq) → wv_assoc_real_buf(rcxq(:,:,nw_i:nw_w))
+    で WVRllwR が書く実周波数スライスのみ共有。両側のサイズが
+    nw_hi-nw_lo+1 で一致し Allreduce が正常完了する。
+    nvfortran で testecalj --all ALL PASSED (si_gwsc / gas_gwsc / nio_gwsc
+    / fe_gwsc 等すべて) 確認。
+
+2026-05-11
+  [refactor] m_mpi.f90, m_llw.f90, main_hrcxq.f90:
+    comm_b 廃止。MPI__SplitXq で n_bpara を無視し comm_b を trivial singleton
+    (mpi__size_b=1, mpi__rank_b=0) に固定。WVRllwR/WVIllwI から
+    MPI__GatherXqw 分岐とストライドループ (mpi__size_b ステップ) を削除。
+    iw ループを単純な `do iw = nwmin, nwmax / do iw = 1, niw` に整理。
+    ローカル変数 iwblock/jw/irank および t_sw_x_gather stopwatch を削除。
+    main_hrcxq.f90 で --nb= オプションを無視 (n_bpara=1 固定、
+    worker_inQtask = n_kpara に変更)。ifx で --all ALL PASSED 確認。
+
+  [refactor] m_mpi.f90, main_hrcxq.f90:
+    hrcxq streaming 分岐にフェーズ別 MPI 再分割を導入。
+    フェーズ 1 (iq=2,...,nqibz): 従来通り --nk/--nb 指定の n_kpara/n_bpara
+    分割で複数 q 点を並列処理。フェーズ 2 (iq=nqibz+1,...,iqxend): 補助
+    q0 点に全ランクを投入 (n_bpara=1, n_kpara=mpi__size の 1 グループ)。
+    フェーズ 3 (iq=1/Gamma): 同じ全ランク 1 グループで Gamma 点を最大
+    k 並列で計算。m_mpi.f90 に MPI__FreeSplitXq を追加して comm_q/comm_b/
+    comm_k/comm_root_k と mpi__npr_col/mpi__ipr_col を解放 → SplitXq を
+    再呼び出し可能にした。フェーズ 2/3 は mpi__Qrank=0 に上書きするため
+    MPI__sendllw が rank 0 からの送信をスキップする設計と整合。
+    ifx で --all ALL PASSED 確認。
+
+  [refactor] m_mpi.f90, m_hsfp0_sc.f90 (前セッション):
+    MPI__SplitSc を修正: freq 並列 (comm_w) を mpi__size_w=1 に固定。
+    将来の MPI 共有メモリ移行まで n_wpara 引数を無視し、各ランクが独立の
+    comm_w を持つ。
+
+  [refactor] m_wv_storage.f90, m_hgw_iq_loop.f90, main_hrcxq.f90:
+    MEMORY_3D backend の iq=1 保存スロット (wv_real_buf_iq1 /
+    wv_imag_buf_iq1) を削除し、メモリ使用量を半減 (4配列→2配列)。
+    W0w0i は offset-G 補正のために全 iq の llw を必要とするため、
+    iq=1/Gamma の step_kx 消費は iq ループ完了後に後回しされていた
+    (save_iq1 → W0w0i → restore_iq1 の3ステップ)。iq=1 を iq ループ
+    の最後に処理する順序に変更することで、ループ終了時点で current
+    buffer に WV(iq=1) が残り、W0w0i が直接 current を修正できる。
+    結果として save_iq1 / restore_iq1 / wv_bcast_iq1 が不要になり
+    wv_bcast_current に一本化。m_hgw_iq_loop の run_iq_loop は
+    do_one_iq 内部サブルーチンを導入して iq=2,...,nq → iq=1 の
+    2パス構成に整理。ifx で InstallAll.py --all (si_gwsc / gas_gwsc /
+    nio_gwsc / fe_gwsc 含む) ALL PASSED 確認。nvfortran はコンパイル
+    通過のみ確認。
+
 2026-05-09
   [bugfix] SRC/exec/CMakeLists.txt: add_extended_build 関数末尾に
     `set(DELIVER_FILES ${DELIVER_FILES} PARENT_SCOPE)` を追加。

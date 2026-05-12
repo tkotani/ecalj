@@ -17,6 +17,7 @@ module m_x0kf
   use m_readVcoud,only:   vcousq,zcousq,ngb,ngc
   use m_kind,only: kp => kindrcxq
   use m_mpi,only: ipr
+  use m_wv_storage, only: WV_BACKEND_MEMORY_3D, wv_backend, wv_assoc_real_buf, wv_init_imag_buf
 #if defined(__MP) && defined(__GPU)
   use m_blas, only: gemm => cmm_d
 #elif defined(__MP)
@@ -211,6 +212,13 @@ contains
     !$acc kernels
     rcxq(:,:,:) = (0d0,0d0)
     !$acc end kernels
+    ! MEMORY_3D: share rcxq memory with wv_real_buf (all ranks); alloc wv_imag_buf per-iq.
+    ! Only expose the nw_i:nw_w slice so size(wv_real_buf) matches wv_alloc_zero_bufs
+    ! (which allocates nw_hi-nw_lo+1 elements), regardless of nwhis > nw.
+    if (wv_backend == WV_BACKEND_MEMORY_3D) then
+      call wv_assoc_real_buf(rcxq(:,:,nw_i:nw_w))
+      if (imagomega) call wv_init_imag_buf(npr, niw)
+    endif
     isloop: do 1103 isp_k = 1,nsp
       GETtetrahedronWeight:block
         isp_kq = merge(3-isp_k,isp_k,chipm) 

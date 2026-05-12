@@ -11,13 +11,8 @@ module m_llw
   use m_readVcoud,only: vcousq, ngb
   use m_rdpp,only: nbloch,mrecl
   use m_x0kf,only: zxq,zxqi
-  use m_mpi, only: mpi__root_k, mpi__root_q, mpi__size_b,ipr, comm_root_k, mpi__rank_b, MPI__AllreduceSum
+  use m_mpi, only: mpi__root_k, mpi__root_q, ipr, comm_root_k, MPI__AllreduceSum
   use m_zmel, only: m2e_prod_basis
-#ifdef __MP
-  use m_mpi, only: MPI__GatherXqw => MPI__GatherXqw_c
-#else
-  use m_mpi, only: MPI__GatherXqw => MPI__GatherXqw
-#endif
   ! Step WA1/WB.3a/WB.3e: I/O for __WVR.<iq>/__WVI.<iq> (FILE backend) or
   ! the in-memory current-iq buffer (MEMORY_3D backend) goes through the
   ! m_wv_storage singleton. Caller is responsible for calling wv_init_file
@@ -60,14 +55,12 @@ contains
     real(8):: frr,q(3),vcou1,quu(3),eee
     logical::  localfieldcorrectionllw,cmdopt0
     logical,save:: init=.true.
-    type(stopwatch) :: t_sw_matinv, t_sw_x_gather, t_sw_x_m2e_xf
+    type(stopwatch) :: t_sw_matinv, t_sw_x_m2e_xf
     integer :: istat
-!    complex(8):: zxq(nmbas1,nmbas2,nw_i:nw)
     character(10):: i2char
     complex(kind=kp), allocatable :: zw(:,:), zxqw(:,:), x_m2e(:,:)
     complex(8), allocatable, target :: epstilde(:,:)
     complex(8), pointer :: epstinv(:,:) => null()
-    integer :: iwblock, jw, irank
 #ifdef __GPU
     attributes(device) :: epstinv, epstilde
 #endif
@@ -78,7 +71,6 @@ contains
        init=.false.
     endif
     call stopwatch_init(t_sw_matinv, 'matinv')
-    call stopwatch_init(t_sw_x_gather, 'gather')
     call stopwatch_init(t_sw_x_m2e_xf, 'xf chi/W: M2E/E2M')
     call readqg0('QGcou', (/0d0,0d0,0d0/),  quu,ngc0) ! ngb is q-dependent. released at the end of WVIllwi
     ngbq0 = nbloch+ngc0
@@ -101,27 +93,11 @@ contains
     if(iq<=nqibz) then        !for mmmw
       call wv_open_iq_real_for_write(iq, comm=comm_root_k)
       ix = merge(1, 0, iq == 1)
-      iwloop: do 1015 iwblock = nwmin, nwmax, mpi__size_b
-         iw = iwblock + mpi__rank_b
+      do iw = nwmin, nwmax
         !$acc kernels
-          zw(:,:) = (0_kp, 0_kp)
+        zw(:,:) = (0_kp, 0_kp)
+        zxqw(:,:) = zxq(:,:,iw)
         !$acc end kernels
-        call stopwatch_start(t_sw_x_gather)
-        if(mpi__size_b == 1) then
-          !$acc kernels
-          zxqw(:,:) = zxq(:,:,iw)
-          !$acc end kernels
-        else
-          do irank = 0, mpi__size_b-1
-            jw = iwblock + irank
-            if(jw > nwmax) exit
-            !$acc update host(zxq(1:nmbas1,1:nmbas2,jw))
-            call MPI__GatherXqw(zxq(:,:,jw), zxqw, nmbas1, nmbas2, collector_rank=irank)
-            !$acc update device(zxqw)
-          enddo
-        endif
-        call stopwatch_pause(t_sw_x_gather)
-        if(iw > nwmax) cycle
         MToEBasisTransformation1: if(is_x0_m_basis) then
           call stopwatch_start(t_sw_x_m2e_xf)
           !$acc host_data use_device(zxqw, m2e_prod_basis, x_m2e)
@@ -176,34 +152,15 @@ contains
         call wv_put_real(iw, zw(1:nblochpmx, 1:nblochpmx))
         frr= dsign(freq_r(abs(iw)),dble(iw))
         call tr_chkwrite("freq_r iq iw realomg trwv=", zw, iw, frr,nblochpmx, nbloch,ngb,iq)
-1015  enddo iwloop
-      ! if(mpi__root_q) close(ifrcw)
+      enddo
       call wv_close_iq_for_write()
     else  ! llw, Wing elements of W. See PRB81 125102
       iq0 = iq - nqibz
       vcou1 = fourpi/sum(q**2*tpioa**2) ! --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
-      do 1115 iwblock  = nwmin,nwmax, mpi__size_b
-        iw = iwblock + mpi__rank_b
-        !! Full inversion to calculalte eps with LFC.
-        !if(localfieldcorrectionllw()) then
-        call stopwatch_start(t_sw_x_gather)
-        if(mpi__size_b == 1) then
-          !$acc kernels
-          zxqw(:,:) = zxq(:,:,iw)
-          !$acc end kernels
-        else
-          do irank = 0 ,mpi__size_b-1
-            jw = iwblock + irank
-            if(jw > nwmax) exit
-            !$acc update host(zxq(1:nmbas1,1:nmbas2,jw))
-            call MPI__GatherXqw(zxq(:,:,jw), zxqw, nmbas1, nmbas2, collector_rank=irank)
-            !$acc update device(zxqw)
-          enddo
-        endif
-        !for log output 
-        !$acc update host(zxqw(1,1))
-        call stopwatch_pause(t_sw_x_gather)
-        if(iw > nwmax) cycle
+      do iw = nwmin, nwmax
+        !$acc kernels
+        zxqw(:,:) = zxq(:,:,iw)
+        !$acc end kernels
         MToEBasisTransformation2: if(is_x0_m_basis) then
           call stopwatch_start(t_sw_x_m2e_xf)
           !$acc host_data use_device(zxqw, m2e_prod_basis, x_m2e)
@@ -241,22 +198,16 @@ contains
           wmuk(2:ngb,ixyz(iq0))=epstinv(1,2:ngb)/epstinv(1,1) ! this is dot(q(:)*w_mu(:,igb)). See PRB125102(2016) eq.(36)
         endif
         nullify(epstinv)
-        !else
-        !   if(iq0<=nq0i) llw(iw,iq0)= 1d0 - vcou1*zxq(1,1,iw)
-        !endif
         if(iq0<=nq0i) write(stdo,"('epsWVR: iq iw_R omg(iw) eps(wFC) eps(woLFC) ', &
              2i5,x,10(d13.6,2x,d13.6,x,d13.6,2x,d13.6,x,d13.6))") &
              iq,iw,freq_r(iw),llw(iw,iq0),1d0-vcou1*zxqw(1,1)
-             ! iq,iw,freq_r(iw),llw(iw,iq0),1d0-vcou1*zxq(1,1,iw)
-        continue               !iw
-1115  enddo
+      enddo
       if(iq0 <=nq0i) call MPI__AllreduceSum(llw(nwmin,iq0), nwmax-nwmin+1, communicator=comm_root_k)
       if(ixyz(iq0)/=0) call MPI__AllreduceSum(wmuk(2,ixyz(iq0)), ngb-1, communicator=comm_root_k)
     endif
     !$acc exit data delete(zxqw, zw, vcousq, x_m2e)
     deallocate(zw, zxqw, epstilde, x_m2e)
-    if(mpi__root_q) then 
-      call stopwatch_show(t_sw_x_gather)
+    if(mpi__root_q) then
       call stopwatch_show(t_sw_matinv)
       if(is_x0_m_basis .or. is_wc_m_basis) call stopwatch_show(t_sw_x_m2e_xf)
     endif
@@ -272,11 +223,11 @@ contains
 !    complex(8):: zxqi(nmbas1,nmbas2,niw)
     character(10):: i2char
     integer :: istat
-    type(stopwatch) :: t_sw_matinv, t_sw_x_gather, t_sw_x_m2e_xf
+    type(stopwatch) :: t_sw_matinv, t_sw_x_m2e_xf
     complex(kind=kp), allocatable :: zw(:,:), zxqw(:,:), x_m2e(:,:)
     complex(8), allocatable, target :: epstilde(:,:)
     complex(8), pointer :: epstinv(:,:) => null()
-    integer :: iwblock, jw, irank
+
 #ifdef __GPU
     attributes(device) :: epstinv, epstilde
 #endif
@@ -290,7 +241,6 @@ contains
        init=.false.
     endif
     call stopwatch_init(t_sw_matinv, 'matinv')
-    call stopwatch_init(t_sw_x_gather, 'gather')
     call stopwatch_init(t_sw_x_m2e_xf, 'xf chi: M2E')
     if(ipr)write(6,*)'WVRllwI: init'
     if (nspin == 1) then
@@ -301,28 +251,11 @@ contains
     if( iq<=nqibz ) then
        call wv_open_iq_imag_for_write(iq, comm=comm_root_k)
        ix = merge(1, 0, iq == 1)
-       do 1016 iwblock  = 1, niw, mpi__size_b
-          iw = iwblock + mpi__rank_b
-          !!  Eqs.(37),(38) in PRB81 125102
+       do iw = 1, niw
           !$acc kernels
           zw(:,:) = (0_kp, 0_kp)
+          zxqw(:,:) = zxqi(:,:,iw)
           !$acc end kernels
-          call stopwatch_start(t_sw_x_gather)
-          if(mpi__size_b == 1) then
-            !$acc kernels
-            zxqw(:,:) = zxqi(:,:,iw)
-            !$acc end kernels
-          else
-            do irank = 0, mpi__size_b-1
-              jw = iwblock + irank
-              if(jw > niw) exit
-              !$acc update host(zxqi(1:nmbas1,1:nmbas2,jw))
-              call MPI__GatherXqw(zxqi(:,:,jw), zxqw, nmbas1, nmbas2, collector_rank=irank)
-              !$acc update device(zxqw)
-            enddo
-          endif
-          call stopwatch_pause(t_sw_x_gather)
-          if(iw > niw) cycle
           MToEBasisTransformation1: if(is_x0_m_basis) then
             call stopwatch_start(t_sw_x_m2e_xf)
             !$acc host_data use_device(zxqw, m2e_prod_basis, x_m2e)
@@ -365,32 +298,16 @@ contains
           ! write(ifrcwi, rec= iw)  zw !  WP = vsc-v
           call wv_put_imag(iw, zw(1:nblochpmx, 1:nblochpmx))
           call tr_chkwrite("freq_i iq iw imgomg trwv=",zw,iw,freq_i(iw),nblochpmx,nbloch,ngb,iq)
-1016   enddo
+       enddo
        call wv_close_iq_for_write()
     else
        !! Full inversion to calculalte eps with LFC.
        iq0 = iq - nqibz
        vcou1 = fourpi/sum(q**2*tpioa**2) ! --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
-       do 1116 iwblock  = 1, niw, mpi__size_b
-          iw = iwblock + mpi__rank_b
-          !if(localfieldcorrectionllw()) then
-          call stopwatch_start(t_sw_x_gather)
-          if(mpi__size_b == 1) then
-            !$acc kernels
-            if(iw <= niw) zxqw(:,:) = zxqi(:,:,iw)
-            !$acc end kernels
-          else
-            do irank = 0, mpi__size_b-1
-              jw = iwblock + irank
-              if(jw > niw) exit
-              !$acc update host(zxqi(1:nmbas1,1:nmbas2,jw))
-              call MPI__GatherXqw(zxqi(:,:,jw), zxqw, nmbas1, nmbas2, collector_rank=irank)
-              !$acc update device(zxqw)
-            enddo
-          endif
-          !$acc update host(zxqw(1,1))
-          call stopwatch_pause(t_sw_x_gather)
-          if(iw > niw) cycle
+       do iw = 1, niw
+          !$acc kernels
+          zxqw(:,:) = zxqi(:,:,iw)
+          !$acc end kernels
           MToEBasisTransformation2: if(is_x0_m_basis) then
             call stopwatch_start(t_sw_x_m2e_xf)
             !$acc host_data use_device(zxqw, m2e_prod_basis, x_m2e)
@@ -429,13 +346,12 @@ contains
            if(iq0<=nq0i) write(stdo,"('iq iw_img eps(wLFC) eps(noLFC)',i4,i4,2f10.4,2x,2f10.4)") &
                 iq,iw,llwI(iw,iq0),1d0-vcou1*zxqw(1,1)
            nullify(epstinv)
-1116   enddo
+       enddo
        if(iq0 <=nq0i) call MPI__AllreduceSum(llwI(1,iq0), niw, communicator=comm_root_k)
     endif
     !$acc exit data delete(zxqw, zw, vcousq, x_m2e) 
     deallocate(zxqw, zw, epstilde, x_m2e)
-    if(mpi__root_q) then 
-      call stopwatch_show(t_sw_x_gather)
+    if(mpi__root_q) then
       call stopwatch_show(t_sw_matinv)
       if(is_x0_m_basis .or. is_wc_m_basis) call stopwatch_show(t_sw_x_m2e_xf)
     endif
