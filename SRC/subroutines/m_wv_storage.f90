@@ -36,7 +36,7 @@
 !!   - call wv_dealloc() at the end.
 !!   - MEMORY_3D streaming helpers:
 !!       wv_zero_current() — no-op (zeroing now handled by x0kf_zxq / wv_alloc_zero_bufs)
-!!       wv_sync_current(comm); wv_bcast_current(root, comm)
+!!       wv_bcast_current(sender, comm)
 module m_wv_storage
   use m_kind, only: kp => kindrcxq
   use m_mpiio, only: openm, closem
@@ -77,7 +77,7 @@ module m_wv_storage
   public :: wv_open_iq_real_for_modify, wv_open_iq_imag_for_modify
   public :: wv_close_iq_for_modify
   public :: wv_zero_current
-  public :: wv_sync_current, wv_bcast_current
+  public :: wv_bcast_current
 
 contains
 
@@ -299,12 +299,12 @@ contains
     if (wv_backend /= WV_BACKEND_MEMORY_3D) return
   end subroutine wv_zero_current
 
-  subroutine wv_sync_current(comm)
-    !> Bcast the current 3D buffers from mpi__root_k (rank 0 in comm) to all
-    !> ranks. Non-root_k ranks must have buffers allocated (via wv_alloc_zero_bufs)
+  subroutine wv_bcast_current(sender, comm)
+    !> Broadcast the current W buffers from `sender` to all ranks in `comm`.
+    !> Non-sender ranks must have buffers associated (via wv_alloc_zero_bufs)
     !> before calling so MPI_Bcast has a valid receive buffer.
     use mpi
-    integer, intent(in) :: comm
+    integer, intent(in) :: sender, comm
     integer :: ierr, mpi_type
     if (wv_backend /= WV_BACKEND_MEMORY_3D) return
 #ifdef __MP
@@ -313,26 +313,9 @@ contains
     mpi_type = MPI_DOUBLE_COMPLEX
 #endif
     if (associated(wv_real_buf)) &
-      call MPI_Bcast(wv_real_buf, size(wv_real_buf), mpi_type, 0, comm, ierr)
+      call MPI_Bcast(wv_real_buf, size(wv_real_buf), mpi_type, sender, comm, ierr)
     if (associated(wv_imag_buf)) &
-      call MPI_Bcast(wv_imag_buf, size(wv_imag_buf), mpi_type, 0, comm, ierr)
-  end subroutine wv_sync_current
-
-  subroutine wv_bcast_current(root, comm)
-    !> Broadcast the current buffer (W0w0i-corrected on root) to all ranks.
-    use mpi
-    integer, intent(in) :: root, comm
-    integer :: ierr, mpi_type
-    if (wv_backend /= WV_BACKEND_MEMORY_3D) return
-#ifdef __MP
-    mpi_type = MPI_COMPLEX
-#else
-    mpi_type = MPI_DOUBLE_COMPLEX
-#endif
-    if (associated(wv_real_buf)) &
-      call MPI_Bcast(wv_real_buf, size(wv_real_buf), mpi_type, root, comm, ierr)
-    if (associated(wv_imag_buf)) &
-      call MPI_Bcast(wv_imag_buf, size(wv_imag_buf), mpi_type, root, comm, ierr)
+      call MPI_Bcast(wv_imag_buf, size(wv_imag_buf), mpi_type, sender, comm, ierr)
   end subroutine wv_bcast_current
 
 end module m_wv_storage
