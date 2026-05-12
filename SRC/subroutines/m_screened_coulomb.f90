@@ -1,5 +1,5 @@
 !> Screened-Coulomb building primitive: compute W-v(iq) for a single q-point.
-module m_hgw_iq_loop
+module m_screened_coulomb
 contains
 
   !> Compute W-v for a single iq: Readvcoud -> x0kf_zxq -> WVRllwR/WVIllwI.
@@ -36,4 +36,4 @@ contains
     call mpi_barrier(comm_b, ierr)
   end subroutine build_screened_coulomb_step_kx
 
-end module m_hgw_iq_loop
+end module m_screened_coulomb

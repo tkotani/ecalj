@@ -31,7 +31,7 @@ subroutine hrcxq(do_correlation, do_exchange)
   use m_gpu,only: gpu_init
   use m_hsfp0_sc,only: hsfp0_sc, hsfp0_sc_setup, hsfp0_sc_writeout, &
                        hs_ef, hs_esmr, hs_nspinmx
-  use m_hgw_iq_loop,only: build_screened_coulomb_step_kx
+  use m_screened_coulomb,only: build_screened_coulomb_step_kx
   use m_x0kf,only: deallocatezxq, deallocatezxqi
   use m_readVcoud,only: ngb
   use m_wv_storage,only: wv_init_file, wv_init_memory_3d, wv_dealloc, &
