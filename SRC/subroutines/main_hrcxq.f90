@@ -107,10 +107,13 @@ subroutine hrcxq(do_correlation, do_exchange)
      call sxcf_correlation_init(hs_ef, hs_esmr, hs_nspinmx)
 
      ! Phase 1: iq=2,...,nqibz — build W-v and consume immediately per-iq.
+     ! All ranks participate in sync+consume so each rank computes its share
+     ! of k-points (per MPI__sxcf_rankdivider global distribution).
+     ! TODO: switch to per-q-group cycle+comm_q once sxcf_rankdivider uses
+     ! q-group-local rank for k-point distribution.
      do iq = 2, nqibz
        qp = qibze(:,iq)
        if (mpi__Qtask(iq)) call build_screened_coulomb_step_kx(iq, qp, realomega, imagomega)
-       ! Sync W-v across all ranks, then consume.
        ngb_cur = merge(ngb, 0, mpi__Qtask(iq))
        call MPI_Allreduce(MPI_IN_PLACE, ngb_cur, 1, MPI_INTEGER, MPI_MAX, comm, ierr2)
        if (.not. (mpi__Qtask(iq) .and. mpi__root_k) .and. wv_backend == WV_BACKEND_MEMORY_3D) &
