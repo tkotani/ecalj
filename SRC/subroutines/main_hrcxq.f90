@@ -52,7 +52,6 @@ subroutine hrcxq(do_correlation, do_exchange)
   logical, allocatable :: mpi__Qtask(:)
   integer, allocatable :: mpi__Qrank(:)
   integer :: n_kpara = 1, n_bpara = 1, worker_inQtask
-  integer :: n_kpara_2, n_bpara_2, n_kpara_3, n_bpara_3
   call MPI__Initialize()
   call gpu_init(comm)
   call M_lgunit_init()
@@ -77,19 +76,8 @@ subroutine hrcxq(do_correlation, do_exchange)
   if(MPI__root) call writewvfreq()
   iqxini = 1
   iqxend = nqibz + nq0i + nq0iadd
-  ! Phase 1 parallelism: --nk= / --nb= (defaults: 1 rank per q-group)
-  if(cmdopt2('--nk=', outs)) read(outs,*) n_kpara
-  if(cmdopt2('--nb=', outs)) read(outs,*) n_bpara
-  ! Phase 2 parallelism: --nk2= / --nb2= (default: all ranks in one q-group)
-  n_kpara_2 = mpi__size ; n_bpara_2 = 1
-  if(cmdopt2('--nk2=', outs)) read(outs,*) n_kpara_2
-  if(cmdopt2('--nb2=', outs)) read(outs,*) n_bpara_2
-  ! Phase 3 parallelism: --nk3= / --nb3= (default: all ranks in one q-group)
-  n_kpara_3 = mpi__size ; n_bpara_3 = 1
-  if(cmdopt2('--nk3=', outs)) read(outs,*) n_kpara_3
-  if(cmdopt2('--nb3=', outs)) read(outs,*) n_bpara_3
-  if(ipr) write(stdo,'(1X,A,6I5)') 'MPI: n_bpara,n_kpara / n_bpara_2,n_kpara_2 / n_bpara_3,n_kpara_3:', &
-                                     n_bpara, n_kpara, n_bpara_2, n_kpara_2, n_bpara_3, n_kpara_3
+  n_kpara = mpi__size
+  if(ipr) write(stdo,'(1X,A,2I5)') 'MPI: n_bpara, n_kpara:', n_bpara, n_kpara
 
   ! Exchange runs before any SplitXq so mpi__size_k=mpi__size (global k-distribution).
   if (present(do_exchange)) then
@@ -122,8 +110,7 @@ subroutine hrcxq(do_correlation, do_exchange)
        if (.not. mpi__Qtask(iq)) cycle
        qp = qibze(:,iq)
        call build_screened_coulomb_step_kx(iq, qp, realomega, imagomega)
-       if (.not. mpi__root_k .and. wv_backend == WV_BACKEND_MEMORY_3D) &
-         call wv_alloc_zero_bufs(ngb, niw, nw_i, nw)
+       if (.not. mpi__root_k .and. wv_backend == WV_BACKEND_MEMORY_3D) call wv_alloc_zero_bufs(ngb, niw, nw_i, nw)
        call wv_sync_current(comm_q)
        call sxcf_correlation_step_kx(iq, hs_ef, hs_esmr, hs_nspinmx)
      enddo
@@ -132,8 +119,8 @@ subroutine hrcxq(do_correlation, do_exchange)
      call MPI__FreeSplitXq()
 
      ! Phase 2: auxiliary q0 points (iq > nqibz) — W/llw only, no consumption.
-     call MPI__SplitXq(n_bpara_2, n_kpara_2)
-     worker_inQtask = n_bpara_2 * n_kpara_2
+     worker_inQtask = mpi__size
+     call MPI__SplitXq(1, worker_inQtask)
      allocate( mpi__Qtask(nqibz+1:iqxend), source=[(mod(iq-nqibz-1,mpi__size/worker_inQtask)==mpi__rank/worker_inQtask,iq=nqibz+1,iqxend)])
      if(ipr) write(stdo,ftox) 'Phase2: mpi_rank',mpi__rank,'worker_inQtask',worker_inQtask,'mpi__Qtask=',mpi__Qtask
      call flush(stdo)
@@ -147,7 +134,7 @@ subroutine hrcxq(do_correlation, do_exchange)
        call MPI_barrier(comm, ierr)
        ! Pass 2: gather llw to rank 0 (blocking send/recv safe after barrier).
        ! src = global rank of mpi__root_k in the owning q-group = first rank of that group.
-       ! Valid for n_bpara_2=1; for n_bpara_2>1 only the first k-subgroup sends.
+       ! src = first rank of the owning q-group (valid for n_bpara=1).
        do iq = nqibz+1, iqxend
          call MPI__sendllw_q(iq-nqibz, mod(iq-nqibz-1,mpi__size/worker_inQtask)*worker_inQtask, 0)
        enddo
@@ -156,14 +143,14 @@ subroutine hrcxq(do_correlation, do_exchange)
      call MPI__FreeSplitXq()
 
      ! Phase 3: iq=1/Gamma — all ranks collaborate; build W-v, apply W0w0i, consume.
-     call MPI__SplitXq(n_bpara_3, n_kpara_3)
-     if(ipr) write(stdo,ftox) 'Phase3: mpi_rank',mpi__rank,'n_bpara_3',n_bpara_3,'n_kpara_3',n_kpara_3
+     worker_inQtask = mpi__size
+     call MPI__SplitXq(1, worker_inQtask)
+     if(ipr) write(stdo,ftox) 'Phase3: mpi_rank',mpi__rank
      call flush(stdo)
      call sxcf_scz_count(hs_ef, hs_esmr, .false., 2, hs_nspinmx)
      qp = qibze(:,1)
      call build_screened_coulomb_step_kx(1, qp, realomega, imagomega)
-     if (.not. mpi__root_k .and. wv_backend == WV_BACKEND_MEMORY_3D) &
-       call wv_alloc_zero_bufs(ngb, niw, nw_i, nw)
+     if (.not. mpi__root_k .and. wv_backend == WV_BACKEND_MEMORY_3D) call wv_alloc_zero_bufs(ngb, niw, nw_i, nw)
      call wv_sync_current(comm_q)
      call MPI_barrier(comm, ierr)
      if (MPI__rank == 0) call W0w0i(nw_i, nw, nq0i, niw, q0i, is_wc_m_basis=.true.)
