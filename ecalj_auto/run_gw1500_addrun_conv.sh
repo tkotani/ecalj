@@ -21,6 +21,7 @@ MAX_ITER=${4:-10}
 
 EPATH=~/bin
 WORKDIR=~/DATA/gw1500
+POSCAR_DIR=~/ecaljdeveloper/ecalj_auto/INPUT/gw1500/POSCARALL
 NCORE=30
 NP2=1
 LOG=$WORKDIR/addrun_conv.log
@@ -54,9 +55,16 @@ run_one() {
     local dir=$WORKDIR/$mpid
     local t0=$(date +%s)
 
+    # Create dir from POSCARALL if not present (scratch entry, e.g. REDO_FAIL
+    # mids whose dir was wiped while FAILBACKUP preserves the original).
     if [ ! -d "$dir" ]; then
-        echo "$(date '+%F %T') $wid $mpid SKIP: dir missing" | tee -a $LOG
-        return 1
+        local poscar=$POSCAR_DIR/POSCAR.$mpid
+        if [ ! -e "$poscar" ]; then
+            echo "$(date '+%F %T') $wid $mpid SKIP: no dir + no POSCAR.$mpid" | tee -a $LOG
+            return 1
+        fi
+        mkdir -p "$dir"
+        cp "$poscar" "$dir/POSCAR"
     fi
     cd "$dir"
 
@@ -85,19 +93,30 @@ run_one() {
     fi
 
     # sanity
-    local f
-    for f in PB.toml rst.$mpid; do
-        if [ ! -e "$f" ]; then
-            echo "$(date '+%F %T') $wid $mpid SKIP: $f missing" | tee -a $LOG
-            return 1
-        fi
-    done
-    if [ ! -e "sigm.$mpid" ] && [ ! -e "sigm" ]; then
-        echo "$(date '+%F %T') $wid $mpid SKIP: no sigm" | tee -a $LOG
+    if [ ! -e "PB.toml" ]; then
+        echo "$(date '+%F %T') $wid $mpid SKIP: PB.toml missing" | tee -a $LOG
         return 1
     fi
 
-    # Restore QPU sentinels for gwscconv Iter0 detection
+    # If rst.<mid> missing → scratch material: run LDA SCF first.
+    # (This covers REDO_FAIL mids whose mp-XXXX/ was reset to bare POSCAR+TOML,
+    # plus any future scratch addition.)
+    if [ ! -e "rst.$mpid" ]; then
+        mpirun -np 1 $EPATH/lmfa $mpid > llmfa.scratch 2>&1
+        if [ $? -ne 0 ]; then
+            echo "$(date '+%F %T') $wid $mpid SKIP: lmfa scratch failed" | tee -a $LOG
+            return 1
+        fi
+        $EPATH/slot_run.py cpu "$wid" lmf_lda_init "$mpid" -- \
+            mpirun -np $NCORE $EPATH/lmf $mpid '-v[iter.nit]=80' > llmf_lda.scratch 2>&1
+        local ldac=$(tail -1 save.$mpid 2>/dev/null | awk '{print $1}')
+        if [ "$ldac" != "c" ] && [ "$ldac" != "x" ]; then
+            echo "$(date '+%F %T') $wid $mpid SKIP: LDA-SCF not converged (status=$ldac)" | tee -a $LOG
+            return 1
+        fi
+    fi
+
+    # Restore QPU sentinels for gwscconv Iter0 detection (only if QSGW.*run/ exists)
     local maxn=0 d n
     for d in QSGW.*run; do
         [ -d "$d" ] || continue
@@ -107,10 +126,7 @@ run_one() {
             (( n > maxn )) && maxn=$n
         fi
     done
-    if [ "$maxn" -eq 0 ]; then
-        echo "$(date '+%F %T') $wid $mpid SKIP: no QSGW.*run/" | tee -a $LOG
-        return 1
-    fi
+    # maxn=0 (Iter0=0) is OK for scratch processing — gwscconv handles it.
 
     echo "$(date '+%F %T') $wid $mpid START Iter0=$maxn" | tee -a $LOG
 

@@ -1,4 +1,13 @@
 2026-05-12
+  [enhance] ecalj_auto/run_gw1500_addrun_conv.sh: スクラッチ処理対応。
+    mp-XXXX/ が無ければ POSCARALL から POSCAR をコピーして作成、 rst.<mid>
+    が無ければ LDA SCF (lmfa + lmf) を先に実行、 QSGW.*run/ が無くても
+    Iter0=0 で gwscconv を回せるようにした。 これで REDO_FAIL 物質を
+    mp-XXXX_FAILBACKUP/ に退避してスクラッチからやり直すフローが
+    addrun_conv バッチ単体で完結する。 Phase A の gwscconv 終了コードを
+    wait $pid; $? で捕捉し非0なら PHASE-A FAIL を log するようにも修正
+    (sleep 300 watchdog より早く落ちる即時エラーの検出)。
+
   [bugfix] SRC/exec/run_cmd.py: GPU バイナリ (*_gpu) 実行時に
     slot_scheduler_daemon から GPU slot を取得し CUDA_VISIBLE_DEVICES=
     <slot_idx> を子プロセスに設定するようにした。 これまで gwsc は
