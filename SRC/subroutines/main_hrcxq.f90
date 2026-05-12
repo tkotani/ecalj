@@ -35,7 +35,7 @@ subroutine hrcxq(do_correlation, do_exchange)
   use m_x0kf,only: deallocatezxq, deallocatezxqi
   use m_readVcoud,only: ngb
   use m_wv_storage,only: wv_init_file, wv_init_memory_3d, wv_dealloc, &
-                         wv_bcast_current, wv_alloc_zero_bufs, &
+                         wv_bcast_current, wv_alloc_recv_bufs, &
                          wv_backend, WV_BACKEND_MEMORY_3D
   use m_sxcf_sc,only: sxcf_correlation_init, sxcf_correlation_step_kx, &
                       sxcf_correlation_finalize
@@ -111,7 +111,7 @@ subroutine hrcxq(do_correlation, do_exchange)
        if (.not. mpi__Qtask(iq)) cycle
        qp = qibze(:,iq)
        call build_screened_coulomb_step_kx(iq, qp, realomega, imagomega)
-       if (.not. mpi__root_k .and. wv_backend == WV_BACKEND_MEMORY_3D) call wv_alloc_zero_bufs(ngb, niw, nw_i, nw)
+       if (.not. mpi__root_k .and. wv_backend == WV_BACKEND_MEMORY_3D) call wv_alloc_recv_bufs(ngb, niw, nw_i, nw)
        call wv_bcast_current(0, comm_q)
        call sxcf_correlation_step_kx(iq, hs_ef, hs_esmr, hs_nspinmx)
        if (mpi__root_k) then
@@ -159,7 +159,7 @@ subroutine hrcxq(do_correlation, do_exchange)
      call sxcf_scz_count(hs_ef, hs_esmr, .false., 2, hs_nspinmx)
      qp = qibze(:,1)
      call build_screened_coulomb_step_kx(1, qp, realomega, imagomega)
-     if (.not. mpi__root_k .and. wv_backend == WV_BACKEND_MEMORY_3D) call wv_alloc_zero_bufs(ngb, niw, nw_i, nw)
+     if (.not. mpi__root_k .and. wv_backend == WV_BACKEND_MEMORY_3D) call wv_alloc_recv_bufs(ngb, niw, nw_i, nw)
      call wv_bcast_current(0, comm_q)
      call MPI_barrier(comm, ierr)
      if (MPI__rank == 0) call W0w0i(nw_i, nw, nq0i, niw, q0i, is_wc_m_basis=.true.)

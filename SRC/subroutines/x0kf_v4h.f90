@@ -213,7 +213,7 @@ contains
     rcxq(:,:,:) = (0d0,0d0)
     !$acc end kernels
     ! MEMORY_3D: point wv_real_buf => rcxq, wv_imag_buf => zxqi (zero-copy; W written in-place).
-    ! Only expose the nw_i:nw_w slice so size(wv_real_buf) matches wv_alloc_zero_bufs
+    ! Only expose the nw_i:nw_w slice so size(wv_real_buf) matches wv_alloc_recv_bufs
     ! (which allocates nw_hi-nw_lo+1 elements), regardless of nwhis > nw.
     if (wv_backend == WV_BACKEND_MEMORY_3D) then
       call wv_assoc_real_buf(rcxq(:,:,nw_i:nw_w))

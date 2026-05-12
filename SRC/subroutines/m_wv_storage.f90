@@ -19,7 +19,7 @@
 !!       wv_assoc_real_buf(rcxq)          — wv_real_buf => rcxq (no alloc)
 !!       wv_assoc_imag_buf(zxqi)          — wv_imag_buf => zxqi (no alloc; W written in-place)
 !!   - MEMORY_3D per-iq setup (called on non-root_k ranks, after ngb broadcast):
-!!       wv_alloc_zero_bufs(ngbx, niwx)   — alloc zero-filled real+imag bufs for Bcast receive
+!!       wv_alloc_recv_bufs(ngbx, niwx)   — alloc zero-filled real+imag bufs for Bcast receive
 !!   - Writer side per iq:
 !!       wv_open_iq_real_for_write(iq, comm=...);   wv_open_iq_imag_for_write(iq, comm=...)
 !!       wv_put_real(iw, zw);                       wv_put_imag(iw, zw)
@@ -35,7 +35,7 @@
 !!       wv_close_iq_for_modify()
 !!   - call wv_dealloc() at the end.
 !!   - MEMORY_3D streaming helpers:
-!!       wv_zero_current() — no-op (zeroing now handled by x0kf_zxq / wv_alloc_zero_bufs)
+!!       wv_zero_current() — no-op (zeroing now handled by x0kf_zxq / wv_alloc_recv_bufs)
 !!       wv_bcast_current(sender, comm)
 module m_wv_storage
   use m_kind, only: kp => kindrcxq
@@ -62,14 +62,14 @@ module m_wv_storage
   ! MEMORY_3D backend buffers — per-iq, sized (ngb, ngb, ...) not (nblochpmx, nblochpmx, ...).
   !   wv_real_buf  => rcxq (Qtask ranks) or wv_real_zero (non-Qtask, zero-filled)
   !   wv_imag_buf  => zxqi (Qtask/root_k) or wv_imag_zero (non-root_k, zero-filled)
-  ! Lifetime: wv_real_buf/wv_imag_buf valid from x0kf_zxq/wv_alloc_zero_bufs until caller deallocs.
+  ! Lifetime: wv_real_buf/wv_imag_buf valid from x0kf_zxq/wv_alloc_recv_bufs until caller deallocs.
   complex(kp), pointer     :: wv_real_buf(:,:,:) => null()
   complex(kp), allocatable, target :: wv_real_zero(:,:,:)  ! backing store for non-Qtask zero buf
   complex(kp), pointer     :: wv_imag_buf(:,:,:) => null()
   complex(kp), allocatable, target :: wv_imag_zero(:,:,:)  ! backing store for non-root_k zero buf
 
   public :: wv_init_file, wv_init_memory_3d, wv_dealloc
-  public :: wv_assoc_real_buf, wv_assoc_imag_buf, wv_alloc_zero_bufs
+  public :: wv_assoc_real_buf, wv_assoc_imag_buf, wv_alloc_recv_bufs
   public :: wv_open_iq_real_for_write, wv_open_iq_imag_for_write
   public :: wv_close_iq_for_write
   public :: wv_open_iq_for_read, wv_close_iq_for_read
@@ -95,7 +95,7 @@ contains
 
   subroutine wv_init_memory_3d(nw_lo, nw_hi)
     !> Configure singleton for MEMORY_3D streaming. Mode setter only — buffers
-    !> are set up per-iq via wv_assoc_real_buf / wv_assoc_imag_buf / wv_alloc_zero_bufs.
+    !> are set up per-iq via wv_assoc_real_buf / wv_assoc_imag_buf / wv_alloc_recv_bufs.
     integer, intent(in) :: nw_lo, nw_hi
     wv_backend = WV_BACKEND_MEMORY_3D
     wv_nw_i    = nw_lo
@@ -120,7 +120,7 @@ contains
     wv_imag_buf => zxqi_target
   end subroutine wv_assoc_imag_buf
 
-  subroutine wv_alloc_zero_bufs(ngbx, niwx, nw_lo, nw_hi)
+  subroutine wv_alloc_recv_bufs(ngbx, niwx, nw_lo, nw_hi)
     !> Non-Qtask ranks: allocate zero-filled real+imag buffers so they
     !> contribute 0 to the AllreduceSum while sharing the same size as Qtask.
     !> 1-based 3rd dim matches the pointer-from-dummy lower bound on Qtask ranks.
@@ -132,7 +132,7 @@ contains
     if (allocated(wv_imag_zero)) deallocate(wv_imag_zero)
     allocate(wv_imag_zero(ngbx, ngbx, niwx),               source=cmplx(0,0,kp))
     wv_imag_buf => wv_imag_zero
-  end subroutine wv_alloc_zero_bufs
+  end subroutine wv_alloc_recv_bufs
 
   subroutine wv_dealloc()
     !> Close any lingering file units (FILE) and release 3D buffers (MEMORY_3D).
@@ -295,13 +295,13 @@ contains
   ! =============================================================
   subroutine wv_zero_current()
     !> No-op in MEMORY_3D mode: zeroing is now handled per-iq by
-    !> x0kf_zxq (rcxq/zxqi) and wv_alloc_zero_bufs.
+    !> x0kf_zxq (rcxq/zxqi) and wv_alloc_recv_bufs.
     if (wv_backend /= WV_BACKEND_MEMORY_3D) return
   end subroutine wv_zero_current
 
   subroutine wv_bcast_current(sender, comm)
     !> Broadcast the current W buffers from `sender` to all ranks in `comm`.
-    !> Non-sender ranks must have buffers associated (via wv_alloc_zero_bufs)
+    !> Non-sender ranks must have buffers associated (via wv_alloc_recv_bufs)
     !> before calling so MPI_Bcast has a valid receive buffer.
     use mpi
     integer, intent(in) :: sender, comm
