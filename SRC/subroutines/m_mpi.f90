@@ -81,24 +81,23 @@ contains
 ! color = mod(mpi__rank_q,n_bpara)    : 0,1,0,1,0,1  0,1,0,1, 0, 1
 
   subroutine MPI__SplitXq(n_bpara, n_kpara)
-    ! n_bpara is ignored; comm_b is abolished (always size=1, role moves to comm_w).
     implicit none
     integer, intent(in) :: n_bpara, n_kpara
     integer :: color
 
-    color = mpi__rank/n_kpara
+    color = mpi__rank/(n_bpara*n_kpara)
     call mpi_comm_split(comm, color, mpi__rank, comm_q, mpi__info)
     call mpi_comm_rank(comm_q, mpi__rank_q, mpi__info)
     call mpi_comm_size(comm_q, mpi__size_q, mpi__info)
     mpi__root_q = mpi__rank_q == 0
 
-    ! comm_b: trivial singleton per rank (W-basis distribution abolished).
-    call mpi_comm_split(comm_q, mpi__rank_q, mpi__rank, comm_b, mpi__info)
-    mpi__rank_b = 0
-    mpi__size_b = 1
+    color = mpi__rank_q/n_bpara
+    call mpi_comm_split(comm_q, color, mpi__rank, comm_b, mpi__info)
+    call mpi_comm_rank(comm_b, mpi__rank_b, mpi__info)
+    call mpi_comm_size(comm_b, mpi__size_b, mpi__info)
 
-    ! comm_k: all ranks within comm_q (n_bpara fixed to 1).
-    call mpi_comm_split(comm_q, 0, mpi__rank, comm_k, mpi__info)
+    color = mod(mpi__rank_q,n_bpara)
+    call mpi_comm_split(comm_q, color, mpi__rank, comm_k, mpi__info)
     call mpi_comm_rank(comm_k, mpi__rank_k, mpi__info)
     call mpi_comm_size(comm_k, mpi__size_k, mpi__info)
 

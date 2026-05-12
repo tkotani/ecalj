@@ -73,7 +73,7 @@ subroutine hrcxq(do_correlation, do_exchange)
   iqxini = 1
   iqxend = nqibz + nq0i + nq0iadd
   if(cmdopt2('--nk=', outs)) read(outs,*) n_kpara
-  n_bpara = 1  ! comm_b abolished; --nb= ignored
+  n_bpara = 1  ! hrcxq always uses n_bpara=1 (streaming per-iq; no basis column distribution)
   worker_inQtask = n_kpara
   if(ipr) write(stdo,'(1X,A,2I5)') 'MPI: worker_inQtask:(n_kpara)', worker_inQtask, n_kpara
   call MPI__SplitXq(n_bpara, n_kpara)
