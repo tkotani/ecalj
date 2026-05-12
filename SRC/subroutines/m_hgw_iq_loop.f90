@@ -12,17 +12,49 @@
 !>   wv_alloc_zero_bufs(ngb, ...) before wv_sync_current.
 module m_hgw_iq_loop
 contains
-  subroutine run_iq_loop(iqxini, iqxend, mpi__Qtask, realomega, imagomega, &
-                          streaming_consume)
-    use m_qbze,        only: qibze
+
+  !> Compute W-v for a single iq: Readvcoud -> x0kf_zxq -> WVRllwR/WVIllwI.
+  !> Analog of sxcf_correlation_step_kx for the screened-Coulomb building phase.
+  subroutine build_screened_coulomb_step_kx(iq, qp, is_qtask, realomega, imagomega)
     use m_x0kf,        only: x0kf_zxq, deallocatezxq, deallocatezxqi
     use m_llw,         only: WVRllwR, WVIllwI
     use m_readVcoud,   only: Readvcoud, ngb
-    use m_read_bzdata, only: nqibz
-    use m_mpi,         only: mpi__root_k, comm_k, comm_b, comm, mpi__rank, &
-                              MPI__Setnpr_col, ipr
+    use m_mpi,         only: mpi__root_k, mpi__rank, comm_k, comm_b, MPI__Setnpr_col, ipr
     use m_lgunit,      only: stdo
     use m_ftox
+    use mpi
+    integer, intent(in) :: iq
+    real(8), intent(in) :: qp(3)
+    logical, intent(in) :: is_qtask, realomega, imagomega
+    integer :: npr, npr_col, ierr
+    real(8), parameter :: schi = -9999d0
+    if (is_qtask) then
+      if (ipr) write(stdo,*) 'mpi_rank in IQ loop:', iq, mpi__rank
+      call cputid(0)
+      if (ipr) write(stdo,ftox) 'do 1001: iq q=', iq, ftof(qp,4)
+      call Readvcoud(qp, iq, NoVcou=.false.)
+      npr = ngb
+      call MPI__Setnpr_col(npr, npr_col)
+      call x0kf_zxq(realomega, imagomega, qp, iq, npr, schi, &
+                    crpa=.false., chipm=.false., nolfco=.false., is_m_basis=.true.)
+      if (mpi__root_k) then
+        call WVRllwR(qp, iq, npr, npr_col, is_x0_m_basis=.true., is_wc_m_basis=.true.)
+        call deallocatezxq()
+        call WVIllwI(qp, iq, npr, npr_col, is_x0_m_basis=.true., is_wc_m_basis=.true.)
+        call deallocatezxqi()
+      endif
+      call mpi_barrier(comm_k, ierr)
+      call mpi_barrier(comm_b, ierr)
+    endif
+  end subroutine build_screened_coulomb_step_kx
+
+  subroutine run_iq_loop(iqxini, iqxend, mpi__Qtask, realomega, imagomega, &
+                          streaming_consume)
+    use m_qbze,        only: qibze
+    use m_readVcoud,   only: ngb
+    use m_read_bzdata, only: nqibz
+    use m_mpi,         only: mpi__root_k, comm, ipr
+    use m_lgunit,      only: stdo
     use m_wv_storage,  only: wv_sync_current, wv_alloc_zero_bufs, &
                               wv_backend, WV_BACKEND_MEMORY_3D
     use m_sxcf_sc,     only: sxcf_correlation_step_kx
@@ -34,33 +66,15 @@ contains
     logical, intent(in) :: realomega, imagomega
     logical, intent(in), optional :: streaming_consume
     logical :: stream
-    integer :: iq, npr, npr_col, ierr, ngb_cur, ierr2
+    integer :: iq, ierr2, ngb_cur
     real(8) :: qp(3)
-    real(8), parameter :: schi = -9999d0
     stream = .false.
     if (present(streaming_consume)) stream = streaming_consume
 
     ! iq=2,...,iqxend first (including auxiliary q0 points beyond nqibz).
     do iq = max(iqxini, 2), iqxend
       qp = qibze(:,iq)
-      if (mpi__Qtask(iq)) then
-        if (ipr) write(stdo,*) 'mpi_rank in IQ loop:', iq, mpi__rank
-        call cputid(0)
-        if (ipr) write(stdo,ftox) 'do 1001: iq q=', iq, ftof(qp,4), ' of nq=', iqxend
-        call Readvcoud(qp, iq, NoVcou=.false.)
-        npr = ngb
-        call MPI__Setnpr_col(npr, npr_col)
-        call x0kf_zxq(realomega, imagomega, qp, iq, npr, schi, &
-                      crpa=.false., chipm=.false., nolfco=.false., is_m_basis=.true.)
-        if (mpi__root_k) then
-          call WVRllwR(qp, iq, npr, npr_col, is_x0_m_basis=.true., is_wc_m_basis=.true.)
-          call deallocatezxq()
-          call WVIllwI(qp, iq, npr, npr_col, is_x0_m_basis=.true., is_wc_m_basis=.true.)
-          call deallocatezxqi()
-        endif
-        call mpi_barrier(comm_k, ierr)
-        call mpi_barrier(comm_b, ierr)
-      endif
+      call build_screened_coulomb_step_kx(iq, qp, mpi__Qtask(iq), realomega, imagomega)
       if (stream .and. iq <= nqibz) then
         ! Only root_k within the Qtask group wrote W-v; all other ranks need
         ! zero-filled buffers for AllreduceSum (non-root_k Qtask ranks hold
@@ -77,25 +91,8 @@ contains
     ! iq=1 (Gamma) last: after this, current holds WV(iq=1) ready for
     ! W0w0i correction in the caller (no save/restore needed).
     if (iqxini <= 1 .and. 1 <= iqxend) then
-      iq = 1; qp = qibze(:,1)
-      if (mpi__Qtask(1)) then
-        if (ipr) write(stdo,*) 'mpi_rank in IQ loop:', 1, mpi__rank
-        call cputid(0)
-        if (ipr) write(stdo,ftox) 'do 1001: iq q=', 1, ftof(qp,4), ' of nq=', iqxend
-        call Readvcoud(qp, 1, NoVcou=.false.)
-        npr = ngb
-        call MPI__Setnpr_col(npr, npr_col)
-        call x0kf_zxq(realomega, imagomega, qp, 1, npr, schi, &
-                      crpa=.false., chipm=.false., nolfco=.false., is_m_basis=.true.)
-        if (mpi__root_k) then
-          call WVRllwR(qp, 1, npr, npr_col, is_x0_m_basis=.true., is_wc_m_basis=.true.)
-          call deallocatezxq()
-          call WVIllwI(qp, 1, npr, npr_col, is_x0_m_basis=.true., is_wc_m_basis=.true.)
-          call deallocatezxqi()
-        endif
-        call mpi_barrier(comm_k, ierr)
-        call mpi_barrier(comm_b, ierr)
-      endif
+      qp = qibze(:,1)
+      call build_screened_coulomb_step_kx(1, qp, mpi__Qtask(1), realomega, imagomega)
       ! For iq=1 in Phase 3 all ranks are Qtask; only root_k wrote W-v via
       ! WVRllwR. Non-root_k ranks must contribute zero to AllreduceSum.
       if (stream) then
