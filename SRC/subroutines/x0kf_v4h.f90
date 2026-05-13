@@ -180,8 +180,9 @@ contains
     ipr_col = mpi__ipr_col(mpi__rank_b) ! start index of column on xq for product basis set
     npr_col = mpi__npr_col(mpi__rank_b) ! number of columns on xq
     if (wv_backend == WV_BACKEND_SHM) then
-      if (chipm)     call rx('x0kf_zxq SHM backend: chipm not supported')
+      if (chipm)        call rx('x0kf_zxq SHM backend: chipm not supported')
       if (npr_col /= npr) call rx('x0kf_zxq SHM backend: n_bpara>1 not supported')
+      if (wv_ngb /= npr)  call rx('x0kf_zxq SHM backend: wv_ngb /= npr (shm_wvr size mismatch)')
     endif
 
     if(cmdopt0('--tetwtk'))  tetwtk=.true.
@@ -210,7 +211,7 @@ contains
     if(nw_w > nwhis) call rx('nwhis is smaller than nw_w')
     if (wv_backend == WV_BACKEND_SHM .and. mpi__root_k) then
       ! Root_k: remap rcxq directly into shm_wvr with custom lower bounds — no separate allocation.
-      rcxq(1:wv_ngb, 1:wv_ngb, (1-npm)*nwhis:nwhis) => shm_wvr
+      rcxq(1:npr, 1:npr, (1-npm)*nwhis:nwhis) => shm_wvr
       rcxq_owned = .false.
     else
       allocate(rcxq(1:npr,1:npr_col,(1-npm)*nwhis:nwhis)) ! rcxq(:,:,0) is empty until Hilbert transformation.
@@ -377,7 +378,7 @@ contains
           ! SHM: rcxq IS shm_wvr — dpsion_chiq transformed chi0 in-place; no copy needed.
           if (wv_backend == WV_BACKEND_SHM) then
             ! Remap zxq into the real-axis slice of rcxq (= shm_wvr) for WVRllwR.
-            if (realomega) zxq(1:,1:,nw_i:) => rcxq(1:wv_ngb, 1:wv_ngb, nw_i:nw_w)
+            if (realomega) zxq(1:,1:,nw_i:) => rcxq(1:npr, 1:npr, nw_i:nw_w)
             nullify(rcxq)
             rcxq_owned = .false.
             !$acc update device(zxqi)
