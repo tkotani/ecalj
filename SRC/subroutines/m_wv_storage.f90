@@ -57,8 +57,8 @@ module m_wv_storage
   integer :: wv_shm_win_real = -1
   integer :: wv_shm_win_imag = -1
   integer, public :: wv_ngb = 0
-  complex(kp), public, pointer :: shm_wvr(:,:,:) => null()
-  complex(kp), public, pointer :: shm_wvi(:,:,:) => null()
+  complex(kp), public, pointer, contiguous :: shm_wvr(:,:,:) => null()
+  complex(kp), public, pointer, contiguous :: shm_wvi(:,:,:) => null()
 
   public :: wv_init_file, wv_init_shm, wv_dealloc
   public :: wv_open_iq_real_for_write, wv_open_iq_imag_for_write

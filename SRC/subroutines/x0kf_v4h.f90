@@ -31,9 +31,12 @@ module m_x0kf
   public:: x0kf_zxq, deallocatezxq, deallocatezxqi, rcxq_shm
   complex(kind=kp), public, allocatable, target:: zxqi(:,:,:)   !Not yet protected because of main_hx0fp0
   complex(kind=kp), public, pointer:: zxq(:,:,:) => null()
-  complex(kind=kp), allocatable, target:: rcxq(:,:,:)
+  ! SHM root_k: pointer into shm_wvr (no separate allocation). Non-root_k and FILE: allocate.
+  ! CONTIGUOUS is required so elements can be sequence-associated (e.g. MPI reduce, gemm).
+  complex(kind=kp), pointer, contiguous :: rcxq(:,:,:) => null()
+  logical :: rcxq_owned = .false.   ! .true. iff rcxq was allocated (needs deallocate, not nullify)
   ! SHM backend: bounds-remapped view of shm_wvr with rcxq lower bounds (persists for WVRllwR).
-  complex(kind=kp), pointer :: rcxq_shm(:,:,:) => null()
+  complex(kind=kp), pointer, contiguous :: rcxq_shm(:,:,:) => null()
   integer,public::npr
   private
   
@@ -196,17 +199,34 @@ contains
     endif
     call ReleaseZcousq() !Release zcousq used in set_m2e_prod_basis
     if(associated(zxq)) nullify(zxq)
-    if(allocated(rcxq)) then
-      !$acc exit data delete(rcxq)
-      deallocate(rcxq)
+    if(associated(rcxq)) then
+      if (rcxq_owned) then
+        !$acc exit data delete(rcxq)
+        deallocate(rcxq)
+      else
+        nullify(rcxq)
+      endif
+      rcxq_owned = .false.
     endif
-    allocate(rcxq(1:npr,1:npr_col,(1-npm)*nwhis:nwhis)) ! rcxq(:,:,0) is empty until Helbert transformation.
-    !$acc enter data create(rcxq)
     if(nw_w > nwhis) call rx('nwhis is smaller than nw_w')
+    if (wv_backend == WV_BACKEND_SHM .and. mpi__root_k) then
+      ! Root_k: alias rcxq directly into shm_wvr — avoids a separate ~600MB allocation.
+      ! rcxq_shm holds the custom lower bounds; rcxq remaps into rcxq_shm.
+      rcxq_shm(1:wv_ngb, 1:wv_ngb, (1-npm)*nwhis:nwhis) => shm_wvr
+      rcxq(1:,1:,(1-npm)*nwhis:) => rcxq_shm(1:wv_ngb, 1:wv_ngb, (1-npm)*nwhis:nwhis)
+      rcxq_owned = .false.
+    else
+      allocate(rcxq(1:npr,1:npr_col,(1-npm)*nwhis:nwhis)) ! rcxq(:,:,0) is empty until Hilbert transformation.
+      !$acc enter data create(rcxq)
+      rcxq_owned = .true.
+    endif
     if(mpi__root_k) then
-      if(realomega) then
-        zxq(1:,1:,nw_i:) => rcxq(1:npr,1:npr_col,nw_i:nw_w) !nw_i = 0 (npm=1) nw_i = -nw_w (npm=2)
-        !$acc enter data create(zxq)
+      if (wv_backend /= WV_BACKEND_SHM) then
+        ! FILE mode: zxq remaps into rcxq for WVRllwR (stays device-resident through Dyson solve).
+        if(realomega) then
+          zxq(1:,1:,nw_i:) => rcxq(1:npr,1:npr_col,nw_i:nw_w) !nw_i = 0 (npm=1) nw_i = -nw_w (npm=2)
+          !$acc enter data create(zxq)
+        endif
       endif
       if(imagomega) then
         allocate(zxqi(npr,npr_col,niw))
@@ -215,9 +235,13 @@ contains
     endif
     if(ipr) write(stdo,ftox)' size of rcxq:', npr, npr_col, nwhis*npm+1
     call flush(stdo)
-    !$acc kernels
-    rcxq(:,:,:) = (0d0,0d0)
-    !$acc end kernels
+    if (wv_backend == WV_BACKEND_SHM .and. mpi__root_k) then
+      rcxq(:,:,:) = (0d0, 0d0)   ! host init: rcxq IS shm_wvr, no device entry
+    else
+      !$acc kernels
+      rcxq(:,:,:) = (0d0,0d0)
+      !$acc end kernels
+    endif
     isloop: do 1103 isp_k = 1,nsp
       GETtetrahedronWeight:block
         isp_kq = merge(3-isp_k,isp_k,chipm) 
@@ -316,10 +340,17 @@ contains
             !$acc update host(rcxq)
             do jpm=1, npm
               do iw=1, nwhis
-                call MPI__reduceSum(0, rcxq(1,1,iw*(3-2*jpm)), npr*npr_col, communicator = comm_k)
+                ! rcxq is a POINTER: nvfortran forbids pointer-element sequence association.
+                ! Use a local automatic array (stack) which is sequence-associable.
+                block
+                  complex(kp) :: iw_slice(npr, npr_col)
+                  iw_slice = rcxq(:,:,iw*(3-2*jpm))
+                  call MPI__reduceSum(0, iw_slice(1,1), npr*npr_col, communicator = comm_k)
+                  rcxq(:,:,iw*(3-2*jpm)) = iw_slice
+                end block
               enddo
             enddo
-            ! SHM: keep reduced data on host (copied to shm_wvr below); other backends put back on device.
+            ! SHM root_k: rcxq IS shm_wvr — reduced data is already in shm_wvr; other backends put back on device.
             if (wv_backend /= WV_BACKEND_SHM) then
               !$acc update device(rcxq)
             endif
@@ -329,6 +360,8 @@ contains
         if (wv_backend == WV_BACKEND_SHM .and. .not. mpi__root_k) then
           !$acc exit data delete(rcxq)
           deallocate(rcxq)
+          nullify(rcxq)
+          rcxq_owned = .false.
         endif
         if(mpi__root_k) then
           call stopwatch_init(t_sw_dpsion, 'dpsion') !merge('gpu','ori',mask = GPUTEST))
@@ -344,29 +377,15 @@ contains
           endif
           call stopwatch_pause(t_sw_dpsion)
           call stopwatch_show(t_sw_dpsion)
-          ! SHM: copy chi0 from host rcxq → shm_wvr, remap zxq, free private rcxq.
+          ! SHM: rcxq IS shm_wvr (aliased via rcxq_shm) — dpsion_chiq has transformed
+          ! chi0 spectral weight in-place into chi0_real directly in shm_wvr; no copy needed.
           if (wv_backend == WV_BACKEND_SHM) then
-            block
-              integer :: iw_shm, rcxq_lo_shm
-              rcxq_lo_shm = (1-npm)*nwhis
-              do iw_shm = rcxq_lo_shm, nwhis
-                shm_wvr(1:wv_ngb, 1:wv_ngb, iw_shm - rcxq_lo_shm + 1) = &
-                  rcxq(1:wv_ngb, 1:wv_ngb, iw_shm)
-              enddo
-              ! Release old zxq device entry before remapping to host shm_wvr.
-              if (realomega) then
-                !$acc exit data delete(zxq)
-                nullify(zxq)
-              endif
-              rcxq_shm(1:wv_ngb, 1:wv_ngb, rcxq_lo_shm:nwhis) => shm_wvr
-              if (realomega) zxq(1:,1:,nw_i:) => rcxq_shm(1:wv_ngb, 1:wv_ngb, nw_i:nw_w)
-              !$acc exit data delete(rcxq)
-              deallocate(rcxq)
-              ! Sync host zxqi (filled by dpsion_chiq on host) to device for WVIllwI GPU path.
-              !$acc update device(zxqi)
-            end block
-            ! shm_wvr visibility is guaranteed by mpi_barrier(comm_k) below (for n_bpara=1,
-            ! comm_k has the same members as comm_q, so the barrier covers all q-group ranks).
+            ! Map zxq into shm_wvr for WVRllwR (Dyson solve on real-axis chi0).
+            if (realomega) zxq(1:,1:,nw_i:) => rcxq_shm(1:wv_ngb, 1:wv_ngb, nw_i:nw_w)
+            nullify(rcxq)
+            rcxq_owned = .false.
+            ! Sync host zxqi (filled by dpsion_chiq on host) to device for WVIllwI GPU path.
+            !$acc update device(zxqi)
           endif
         endif
         !set zero (if isp_k == 1) or chi+- in rcxq (if isp_k == 2)
