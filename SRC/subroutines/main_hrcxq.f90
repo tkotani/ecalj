@@ -34,9 +34,9 @@ subroutine hrcxq(do_correlation, do_exchange)
   use m_screened_coulomb,only: build_screened_coulomb_step_kx
   use m_x0kf,only: deallocatezxq, deallocatezxqi
   use m_readVcoud,only: ngb
-  use m_wv_storage,only: wv_init_file, wv_init_memory_3d, wv_dealloc, &
+  use m_wv_storage,only: wv_init_file, wv_init_memory_3d, wv_set_shm_backend, wv_dealloc, &
                          wv_bcast_current, wv_alloc_recv_bufs, &
-                         wv_backend, WV_BACKEND_MEMORY_3D
+                         wv_backend, WV_BACKEND_MEMORY_3D, WV_BACKEND_SHM
   use m_sxcf_sc,only: sxcf_correlation_init, sxcf_correlation_step_kx, &
                       sxcf_correlation_finalize
   use m_sxcf_count,only: sxcf_scz_count, mpi_assign_qtask_lpt
@@ -48,6 +48,7 @@ subroutine hrcxq(do_correlation, do_exchange)
   logical :: debug=.false., realomega, imagomega
   logical :: hx0, iprintx=.false.
   logical :: cmdopt2
+  logical, external :: cmdopt0
   logical :: streaming
   character(20) :: outs=''
   logical, allocatable :: mpi__Qtask(:)
@@ -98,7 +99,11 @@ subroutine hrcxq(do_correlation, do_exchange)
      ! SplitXq before hsfp0_sc_setup so rankdivider uses q-group-local mpi__rank_k/mpi__size_k.
      call MPI__SplitXq(n_bpara, n_kpara)
      call hsfp0_sc_setup(skip_init=.true., ixc_in=2)
-     call wv_init_memory_3d(nw_i, nw)
+     if (cmdopt0('--shm')) then
+       call wv_set_shm_backend()
+     else
+       call wv_init_memory_3d(nw_i, nw)
+     endif
      call sxcf_correlation_init(hs_ef, hs_esmr, hs_nspinmx)
      worker_inQtask = n_bpara * n_kpara
      allocate( mpi__Qtask(2:nqibz), mpi__Qrank(2:nqibz) )
@@ -114,7 +119,14 @@ subroutine hrcxq(do_correlation, do_exchange)
        if (.not. mpi__root_k .and. wv_backend == WV_BACKEND_MEMORY_3D) call wv_alloc_recv_bufs(ngb, niw, nw_i, nw)
        call wv_bcast_current(0, comm_q)
        call sxcf_correlation_step_kx(iq, hs_ef, hs_esmr, hs_nspinmx)
-       if (mpi__root_k) then
+       ! SHM: wv_init_shm for the next iq calls MPI_Win_free (collective on comm_q).
+       ! sxcf_correlation_step_kx distributes tasks across ranks with no end barrier,
+       ! so ranks finish at different times. Barrier here ensures all ranks complete
+       ! sxcf(iq) before any rank reaches wv_init_shm for iq+1.
+       call MPI_barrier(comm_q, ierr)
+       ! MEMORY_3D: build_screened_coulomb skips dealloc (wv_backend==MEMORY_3D guard there);
+       ! do it here. SHM/FILE: already done inside build_screened_coulomb_step_kx.
+       if (mpi__root_k .and. wv_backend == WV_BACKEND_MEMORY_3D) then
          call deallocatezxq()
          call deallocatezxqi()
        endif
@@ -135,7 +147,7 @@ subroutine hrcxq(do_correlation, do_exchange)
          if (.not. mpi__Qtask(iq)) cycle
          qp = qibze(:,iq)
          call build_screened_coulomb_step_kx(iq, qp, realomega, imagomega)
-         if (mpi__root_k) then
+         if (mpi__root_k .and. wv_backend == WV_BACKEND_MEMORY_3D) then
            call deallocatezxq()
            call deallocatezxqi()
          endif
@@ -165,7 +177,7 @@ subroutine hrcxq(do_correlation, do_exchange)
      ! Broadcast the W0w0i-corrected buffer to all ranks, then consume.
      call wv_bcast_current(0, comm_q)
      call sxcf_correlation_step_kx(1, hs_ef, hs_esmr, hs_nspinmx)
-     if (mpi__root_k) then
+     if (mpi__root_k .and. wv_backend == WV_BACKEND_MEMORY_3D) then
        call deallocatezxq()
        call deallocatezxqi()
      endif

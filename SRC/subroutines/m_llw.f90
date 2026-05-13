@@ -24,7 +24,8 @@ module m_llw
   ! or wv_init_memory_3d before the first WVRllwR/WVIllwI invocation.
   use m_wv_storage, only: &
        wv_open_iq_real_for_write, wv_open_iq_imag_for_write, &
-       wv_put_real, wv_put_imag, wv_close_iq_for_write
+       wv_put_real, wv_put_imag, wv_close_iq_for_write, &
+       wv_backend, WV_BACKEND_SHM
   use m_kind,only: kp => kindrcxq
   use m_stopwatch
   use m_blas, only: m_op_c, m_op_t
@@ -88,9 +89,13 @@ contains
 
     !$acc enter data create(zxqw, zw, x_m2e) copyin(vcousq)
     if(nspin == 1) then
-      !$acc kernels present(zxq)
-      zxq(:,:,:) = 2d0*zxq(:,:,:)
-      !$acc end kernels
+      if (wv_backend /= WV_BACKEND_SHM) then
+        !$acc kernels present(zxq)
+        zxq(:,:,:) = 2d0*zxq(:,:,:)
+        !$acc end kernels
+      else
+        zxq(:,:,:) = 2d0*zxq(:,:,:)   ! SHM: zxq→shm_wvr on host
+      endif
     endif
     nwmax = nw
     nwmin = nw_i
@@ -107,9 +112,14 @@ contains
         !$acc end kernels
         call stopwatch_start(t_sw_x_gather)
         if(mpi__size_b == 1) then
-          !$acc kernels
-          zxqw(:,:) = zxq(:,:,iw)
-          !$acc end kernels
+          if (wv_backend /= WV_BACKEND_SHM) then
+            !$acc kernels
+            zxqw(:,:) = zxq(:,:,iw)
+            !$acc end kernels
+          else
+            zxqw(:,:) = zxq(:,:,iw)    ! SHM: zxq→shm_wvr (host); push to device for GPU ops
+            !$acc update device(zxqw)
+          endif
         else
           do irank = 0, mpi__size_b-1
             jw = iwblock + irank
@@ -184,9 +194,14 @@ contains
         iw = iwblock + mpi__rank_b
         call stopwatch_start(t_sw_x_gather)
         if(mpi__size_b == 1) then
-          !$acc kernels
-          zxqw(:,:) = zxq(:,:,iw)
-          !$acc end kernels
+          if (wv_backend /= WV_BACKEND_SHM) then
+            !$acc kernels
+            zxqw(:,:) = zxq(:,:,iw)
+            !$acc end kernels
+          else
+            zxqw(:,:) = zxq(:,:,iw)    ! SHM: zxq→shm_wvr (host); push to device for GPU ops
+            !$acc update device(zxqw)
+          endif
         else
           do irank = 0, mpi__size_b-1
             jw = iwblock + irank

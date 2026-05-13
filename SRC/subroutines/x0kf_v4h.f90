@@ -17,7 +17,7 @@ module m_x0kf
   use m_readVcoud,only:   vcousq,zcousq,ngb,ngc
   use m_kind,only: kp => kindrcxq
   use m_mpi,only: ipr
-  use m_wv_storage, only: WV_BACKEND_MEMORY_3D, wv_backend, wv_assoc_real_buf, wv_assoc_imag_buf
+  use m_wv_storage, only: WV_BACKEND_MEMORY_3D, WV_BACKEND_SHM, wv_backend, shm_wvr, wv_ngb
 #if defined(__MP) && defined(__GPU)
   use m_blas, only: gemm => cmm_d
 #elif defined(__MP)
@@ -28,10 +28,12 @@ module m_x0kf
   use m_blas, only: gemm => zmm_h
 #endif
   implicit none
-  public:: x0kf_zxq, deallocatezxq, deallocatezxqi
+  public:: x0kf_zxq, deallocatezxq, deallocatezxqi, rcxq_shm
   complex(kind=kp), public, allocatable, target:: zxqi(:,:,:)   !Not yet protected because of main_hx0fp0
   complex(kind=kp), public, pointer:: zxq(:,:,:) => null()
   complex(kind=kp), allocatable, target:: rcxq(:,:,:)
+  ! SHM backend: bounds-remapped view of shm_wvr with rcxq lower bounds (persists for WVRllwR).
+  complex(kind=kp), pointer :: rcxq_shm(:,:,:) => null()
   integer,public::npr
   private
   
@@ -153,7 +155,7 @@ contains
     use m_stopwatch
     use m_readVcoud, only: ReleaseZcousq
     use m_mpi,only: comm_k, mpi__rank_k, mpi__size_k, &
-                    mpi__ipr_col, mpi__npr_col, mpi__rank_b, mpi__root_k, comm_b
+                    mpi__ipr_col, mpi__npr_col, mpi__rank_b, mpi__root_k, comm_b, comm_q
 #ifdef __MP
     use m_mpi,only: MPI__reduceSum => MPI__reduceSum_c
 #else
@@ -175,6 +177,10 @@ contains
 
     ipr_col = mpi__ipr_col(mpi__rank_b) ! start index of column on xq for product basis set
     npr_col = mpi__npr_col(mpi__rank_b) ! number of columns on xq
+    if (wv_backend == WV_BACKEND_SHM) then
+      if (chipm)     call rx('x0kf_zxq SHM backend: chipm not supported')
+      if (npr_col /= npr) call rx('x0kf_zxq SHM backend: n_bpara>1 not supported')
+    endif
 
     if(cmdopt0('--tetwtk'))  tetwtk=.true.
     call gwinput_init()
@@ -212,13 +218,6 @@ contains
     !$acc kernels
     rcxq(:,:,:) = (0d0,0d0)
     !$acc end kernels
-    ! MEMORY_3D: point wv_real_buf => rcxq, wv_imag_buf => zxqi (zero-copy; W written in-place).
-    ! Only expose the nw_i:nw_w slice so size(wv_real_buf) matches wv_alloc_recv_bufs
-    ! (which allocates nw_hi-nw_lo+1 elements), regardless of nwhis > nw.
-    if (wv_backend == WV_BACKEND_MEMORY_3D) then
-      call wv_assoc_real_buf(rcxq(:,:,nw_i:nw_w))
-      if (imagomega .and. mpi__root_k) call wv_assoc_imag_buf(zxqi)
-    endif
     isloop: do 1103 isp_k = 1,nsp
       GETtetrahedronWeight:block
         isp_kq = merge(3-isp_k,isp_k,chipm) 
@@ -317,21 +316,58 @@ contains
             !$acc update host(rcxq)
             do jpm=1, npm
               do iw=1, nwhis
-                call MPI__reduceSum(0, rcxq(1,1,iw*(3-2*jpm)), npr*npr_col, communicator = comm_k) 
+                call MPI__reduceSum(0, rcxq(1,1,iw*(3-2*jpm)), npr*npr_col, communicator = comm_k)
               enddo
             enddo
-            !$acc update device(rcxq)
+            ! SHM: keep reduced data on host (copied to shm_wvr below); other backends put back on device.
+            if (wv_backend /= WV_BACKEND_SHM) then
+              !$acc update device(rcxq)
+            endif
           endif
         end block mpi_k_accumulate
+        ! SHM: non-root k-ranks' private rcxq no longer needed after reduce.
+        if (wv_backend == WV_BACKEND_SHM .and. .not. mpi__root_k) then
+          !$acc exit data delete(rcxq)
+          deallocate(rcxq)
+        endif
         if(mpi__root_k) then
           call stopwatch_init(t_sw_dpsion, 'dpsion') !merge('gpu','ori',mask = GPUTEST))
           call stopwatch_start(t_sw_dpsion)
           call dpsion_init(realomega, imagomega, chipm)
-          !$acc host_data use_device(rcxq, zxqi)
+          ! SHM: rcxq is on host (device update was skipped); run dpsion without GPU wrapper.
+          if (wv_backend /= WV_BACKEND_SHM) then
+            !$acc host_data use_device(rcxq, zxqi)
+          endif
           call dpsion_chiq(realomega, imagomega, chipm, rcxq, zxqi, npr, npr_col, schi, isp_k, ecut)
-          !$acc end host_data
+          if (wv_backend /= WV_BACKEND_SHM) then
+            !$acc end host_data
+          endif
           call stopwatch_pause(t_sw_dpsion)
           call stopwatch_show(t_sw_dpsion)
+          ! SHM: copy chi0 from host rcxq → shm_wvr, remap zxq, free private rcxq.
+          if (wv_backend == WV_BACKEND_SHM) then
+            block
+              integer :: iw_shm, rcxq_lo_shm
+              rcxq_lo_shm = (1-npm)*nwhis
+              do iw_shm = rcxq_lo_shm, nwhis
+                shm_wvr(1:wv_ngb, 1:wv_ngb, iw_shm - rcxq_lo_shm + 1) = &
+                  rcxq(1:wv_ngb, 1:wv_ngb, iw_shm)
+              enddo
+              ! Release old zxq device entry before remapping to host shm_wvr.
+              if (realomega) then
+                !$acc exit data delete(zxq)
+                nullify(zxq)
+              endif
+              rcxq_shm(1:wv_ngb, 1:wv_ngb, rcxq_lo_shm:nwhis) => shm_wvr
+              if (realomega) zxq(1:,1:,nw_i:) => rcxq_shm(1:wv_ngb, 1:wv_ngb, nw_i:nw_w)
+              !$acc exit data delete(rcxq)
+              deallocate(rcxq)
+              ! Sync host zxqi (filled by dpsion_chiq on host) to device for WVIllwI GPU path.
+              !$acc update device(zxqi)
+            end block
+            ! shm_wvr visibility is guaranteed by mpi_barrier(comm_k) below (for n_bpara=1,
+            ! comm_k has the same members as comm_q, so the barrier covers all q-group ranks).
+          endif
         endif
         !set zero (if isp_k == 1) or chi+- in rcxq (if isp_k == 2)
         if(chipm) call dpsion_setup_rcxq(rcxq, npr, npr_col, isp_k)
@@ -339,8 +375,12 @@ contains
 1103 enddo isloop
   end subroutine x0kf_zxq
   subroutine deallocatezxq()
-    !$acc exit data delete(zxq)
+    ! SHM: zxq points into shm_wvr (host); skip device delete and clear rcxq_shm too.
+    if (wv_backend /= WV_BACKEND_SHM) then
+      !$acc exit data delete(zxq)
+    endif
     nullify(zxq)
+    if (associated(rcxq_shm)) nullify(rcxq_shm)
   end subroutine deallocatezxq
   subroutine deallocatezxqi()
     !$acc exit data delete(zxqi)

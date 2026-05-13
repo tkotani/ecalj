@@ -15,9 +15,6 @@
 !!
 !! API conventions:
 !!   - call wv_init_file(mreclx, nw_i)  or  wv_init_memory_3d(nw_lo, nw_hi)
-!!   - MEMORY_3D per-iq setup (called from x0kf_zxq on Qtask/root_k ranks):
-!!       wv_assoc_real_buf(rcxq)          — wv_real_buf => rcxq (no alloc)
-!!       wv_assoc_imag_buf(zxqi)          — wv_imag_buf => zxqi (no alloc; W written in-place)
 !!   - MEMORY_3D per-iq setup (called on non-root_k ranks, after ngb broadcast):
 !!       wv_alloc_recv_bufs(ngbx, niwx)   — alloc zero-filled real+imag bufs for Bcast receive
 !!   - Writer side per iq:
@@ -50,6 +47,7 @@ module m_wv_storage
 
   integer, parameter, public :: WV_BACKEND_FILE      = 1
   integer, parameter, public :: WV_BACKEND_MEMORY_3D = 2  !> per-iq streaming buffer + iq=1 saved
+  integer, parameter, public :: WV_BACKEND_SHM       = 3  !> MPI shared memory window on comm_q node
 
   ! ---- module-level singleton state ----
   integer, protected, public :: wv_backend = WV_BACKEND_FILE
@@ -60,16 +58,23 @@ module m_wv_storage
   integer :: wv_imag_unit = -1
   logical :: wv_in_modify_mode = .false.  ! FILE: use standard write (not MPI-IO) in wv_put_*
   ! MEMORY_3D backend buffers — per-iq, sized (ngb, ngb, ...) not (nblochpmx, nblochpmx, ...).
-  !   wv_real_buf  => rcxq (Qtask ranks) or wv_real_zero (non-Qtask, zero-filled)
-  !   wv_imag_buf  => zxqi (Qtask/root_k) or wv_imag_zero (non-root_k, zero-filled)
-  ! Lifetime: wv_real_buf/wv_imag_buf valid from x0kf_zxq/wv_alloc_recv_bufs until caller deallocs.
+  !   wv_real_buf / wv_imag_buf: allocated by wv_alloc_recv_bufs (non-root_k zero-filled recv bufs).
+  !   On root_k: buffers allocated separately in x0kf_zxq_omega_par and passed to wv_put_real/imag.
   complex(kp), pointer     :: wv_real_buf(:,:,:) => null()
-  complex(kp), allocatable, target :: wv_real_zero(:,:,:)  ! backing store for non-Qtask zero buf
+  complex(kp), allocatable, target :: wv_real_zero(:,:,:)
   complex(kp), pointer     :: wv_imag_buf(:,:,:) => null()
-  complex(kp), allocatable, target :: wv_imag_zero(:,:,:)  ! backing store for non-root_k zero buf
+  complex(kp), allocatable, target :: wv_imag_zero(:,:,:)
+  ! SHM backend: Wc-only buffers in shared memory (one copy per node via MPI_Win_allocate_shared).
+  ! shm_wvr holds W-V real axis (Wc_real); shm_wvi holds W-V imag axis (Wc_imag).
+  ! rcxq (chi0 spectral weight) stays private in x0kf_zxq; only the Wc output goes here.
+  integer :: wv_shm_win_real = -1
+  integer :: wv_shm_win_imag = -1
+  integer, public :: wv_ngb = 0
+  complex(kp), public, pointer :: shm_wvr(:,:,:) => null()
+  complex(kp), public, pointer :: shm_wvi(:,:,:) => null()
 
-  public :: wv_init_file, wv_init_memory_3d, wv_dealloc
-  public :: wv_assoc_real_buf, wv_assoc_imag_buf, wv_alloc_recv_bufs
+  public :: wv_init_file, wv_init_memory_3d, wv_init_shm, wv_set_shm_backend, wv_dealloc
+  public :: wv_alloc_recv_bufs
   public :: wv_open_iq_real_for_write, wv_open_iq_imag_for_write
   public :: wv_close_iq_for_write
   public :: wv_open_iq_for_read, wv_close_iq_for_read
@@ -80,6 +85,13 @@ module m_wv_storage
   public :: wv_bcast_current
 
 contains
+
+  subroutine wv_set_shm_backend()
+    !> Declare SHM mode without allocating: wv_init_shm is called per-iq inside
+    !> build_screened_coulomb_step_kx after ngb is known (from Readvcoud).
+    wv_backend = WV_BACKEND_SHM
+    wv_cur_iq  = 0
+  end subroutine wv_set_shm_backend
 
   subroutine wv_init_file(mreclx, nw_i)
     !> Configure singleton for FILE backend. No I/O yet — actual openm happens
@@ -95,7 +107,7 @@ contains
 
   subroutine wv_init_memory_3d(nw_lo, nw_hi)
     !> Configure singleton for MEMORY_3D streaming. Mode setter only — buffers
-    !> are set up per-iq via wv_assoc_real_buf / wv_assoc_imag_buf / wv_alloc_recv_bufs.
+    !> are set up per-iq via wv_alloc_recv_bufs.
     integer, intent(in) :: nw_lo, nw_hi
     wv_backend = WV_BACKEND_MEMORY_3D
     wv_nw_i    = nw_lo
@@ -106,19 +118,48 @@ contains
     if (allocated(wv_imag_zero)) deallocate(wv_imag_zero)
   end subroutine wv_init_memory_3d
 
-  subroutine wv_assoc_real_buf(rcxq_target)
-    !> Qtask ranks: associate wv_real_buf with rcxq (no allocation).
-    !> rcxq covers (ngb, ngb, nw_i:nwhis*npm) — wv_put/get_real use iw in nw_i:nw.
-    complex(kp), intent(in), target :: rcxq_target(:,:,:)
-    wv_real_buf => rcxq_target
-  end subroutine wv_assoc_real_buf
+  subroutine wv_init_shm(ngbx, niwx, rcxq_lo, rcxq_hi, comm)
+    !> Configure singleton for SHM backend.
+    !> shm_wvr(ngbx, ngbx, rcxq_lo:rcxq_hi) is the shared rcxq:
+    !>   phase 1 — spectral bins (x0 accumulation, k-loop)
+    !>   phase 2 — chi0_real (after KK, dpsion_chiq in-place)
+    !>   phase 3 — Wc real   (after Dyson, WVRllwR in-place)
+    !> shm_wvi(ngbx, ngbx, niwx) mirrors zxqi (chi0_imag → Wc_imag).
+    !> rcxq_lo = (1-npm)*nwhis,  rcxq_hi = nwhis.
+    !> Rank 0 in comm contributes the allocation; all ranks get a Fortran pointer
+    !> to the same physical memory via MPI_Win_shared_query.
+    use iso_c_binding, only: c_ptr, c_f_pointer
+    use mpi
+    integer, intent(in) :: ngbx, niwx, rcxq_lo, rcxq_hi, comm
+    integer(MPI_ADDRESS_KIND) :: nbytes, sz
+    integer :: disp_unit, ierr, my_rank, nrcxq
+    type(c_ptr) :: baseptr
+    complex(kp) :: tmp_c
 
-  subroutine wv_assoc_imag_buf(zxqi_target)
-    !> Qtask root_k ranks: associate wv_imag_buf with zxqi (no allocation).
-    !> WVIllwI writes W(iw) in-place into zxqi(:,:,iw) via wv_put_imag.
-    complex(kp), intent(in), target :: zxqi_target(:,:,:)
-    wv_imag_buf => zxqi_target
-  end subroutine wv_assoc_imag_buf
+    wv_backend = WV_BACKEND_SHM
+    wv_nw_i    = rcxq_lo   ! lower bound of shm_wvr 3rd dim; wv_put/get_real uses iw-wv_nw_i+1
+    wv_ngb     = ngbx
+    wv_cur_iq  = 0
+    nrcxq      = rcxq_hi - rcxq_lo + 1
+    call MPI_Comm_rank(comm, my_rank, ierr)
+    disp_unit = 1
+
+    if (wv_shm_win_real /= -1) call MPI_Win_free(wv_shm_win_real, ierr)
+    nbytes = merge(int(ngbx,MPI_ADDRESS_KIND)**2 * int(nrcxq,MPI_ADDRESS_KIND) &
+                   * int(storage_size(tmp_c)/8,MPI_ADDRESS_KIND), &
+                   0_MPI_ADDRESS_KIND, my_rank == 0)
+    call MPI_Win_allocate_shared(nbytes, disp_unit, MPI_INFO_NULL, comm, baseptr, wv_shm_win_real, ierr)
+    call MPI_Win_shared_query(wv_shm_win_real, 0, sz, disp_unit, baseptr, ierr)
+    call c_f_pointer(baseptr, shm_wvr, [ngbx, ngbx, nrcxq])
+
+    if (wv_shm_win_imag /= -1) call MPI_Win_free(wv_shm_win_imag, ierr)
+    nbytes = merge(int(ngbx,MPI_ADDRESS_KIND)**2 * int(niwx,MPI_ADDRESS_KIND) &
+                   * int(storage_size(tmp_c)/8,MPI_ADDRESS_KIND), &
+                   0_MPI_ADDRESS_KIND, my_rank == 0)
+    call MPI_Win_allocate_shared(nbytes, disp_unit, MPI_INFO_NULL, comm, baseptr, wv_shm_win_imag, ierr)
+    call MPI_Win_shared_query(wv_shm_win_imag, 0, sz, disp_unit, baseptr, ierr)
+    call c_f_pointer(baseptr, shm_wvi, [ngbx, ngbx, niwx])
+  end subroutine wv_init_shm
 
   subroutine wv_alloc_recv_bufs(ngbx, niwx, nw_lo, nw_hi)
     !> Non-Qtask ranks: allocate zero-filled real+imag buffers so they
@@ -135,16 +176,26 @@ contains
   end subroutine wv_alloc_recv_bufs
 
   subroutine wv_dealloc()
-    !> Close any lingering file units (FILE) and release 3D buffers (MEMORY_3D).
-    integer :: istat
+    !> Close any lingering file units (FILE) and release buffers (MEMORY_3D/SHM).
+    use mpi
+    integer :: istat, ierr
     if (wv_backend == WV_BACKEND_FILE) then
        if (wv_real_unit > 0) then; istat = closem(wv_real_unit); wv_real_unit = -1; endif
        if (wv_imag_unit > 0) then; istat = closem(wv_imag_unit); wv_imag_unit = -1; endif
     else if (wv_backend == WV_BACKEND_MEMORY_3D) then
-       nullify(wv_real_buf)                                    ! owned by rcxq in m_x0kf
-       if (allocated(wv_real_zero)) deallocate(wv_real_zero)  ! non-Qtask backing store
-       nullify(wv_imag_buf)                                    ! owned by zxqi in m_x0kf
-       if (allocated(wv_imag_zero)) deallocate(wv_imag_zero)  ! non-root_k backing store
+       nullify(wv_real_buf)
+       if (allocated(wv_real_zero)) deallocate(wv_real_zero)
+       nullify(wv_imag_buf)
+       if (allocated(wv_imag_zero)) deallocate(wv_imag_zero)
+    else if (wv_backend == WV_BACKEND_SHM) then
+       nullify(shm_wvr)
+       nullify(shm_wvi)
+       if (wv_shm_win_real /= -1) then
+         call MPI_Win_free(wv_shm_win_real, ierr); wv_shm_win_real = -1
+       endif
+       if (wv_shm_win_imag /= -1) then
+         call MPI_Win_free(wv_shm_win_imag, ierr); wv_shm_win_imag = -1
+       endif
     endif
   end subroutine wv_dealloc
 
@@ -192,9 +243,11 @@ contains
        else
           istat = writem(wv_real_unit, rec=iw - wv_nw_i + 1, data=zw)
        endif
-    else
+    else if (wv_backend == WV_BACKEND_MEMORY_3D) then
        n = size(wv_real_buf, 1)
        wv_real_buf(1:n, 1:n, iw - wv_nw_i + 1) = zw(1:n, 1:n)
+    else
+       shm_wvr(1:wv_ngb, 1:wv_ngb, iw - wv_nw_i + 1) = zw(1:wv_ngb, 1:wv_ngb)
     endif
   end subroutine wv_put_real
 
@@ -208,9 +261,11 @@ contains
        else
           istat = writem(wv_imag_unit, rec=iw, data=zw)
        endif
-    else
+    else if (wv_backend == WV_BACKEND_MEMORY_3D) then
        n = size(wv_imag_buf, 1)
        wv_imag_buf(1:n, 1:n, iw) = zw(1:n, 1:n)
+    else
+       shm_wvi(1:wv_ngb, 1:wv_ngb, iw) = zw(1:wv_ngb, 1:wv_ngb)
     endif
   end subroutine wv_put_imag
 
@@ -243,9 +298,11 @@ contains
     integer :: n
     if (wv_backend == WV_BACKEND_FILE) then
        read(wv_real_unit, rec=iw - wv_nw_i + 1) zw
-    else
+    else if (wv_backend == WV_BACKEND_MEMORY_3D) then
        n = size(wv_real_buf, 1)
        zw(1:n, 1:n) = wv_real_buf(1:n, 1:n, iw - wv_nw_i + 1)
+    else
+       zw(1:wv_ngb, 1:wv_ngb) = shm_wvr(1:wv_ngb, 1:wv_ngb, iw - wv_nw_i + 1)
     endif
   end subroutine wv_get_real
 
@@ -255,9 +312,11 @@ contains
     integer :: n
     if (wv_backend == WV_BACKEND_FILE) then
        read(wv_imag_unit, rec=iw) zw
-    else
+    else if (wv_backend == WV_BACKEND_MEMORY_3D) then
        n = size(wv_imag_buf, 1)
        zw(1:n, 1:n) = wv_imag_buf(1:n, 1:n, iw)
+    else
+       zw(1:wv_ngb, 1:wv_ngb) = shm_wvi(1:wv_ngb, 1:wv_ngb, iw)
     endif
   end subroutine wv_get_imag
 
@@ -300,22 +359,24 @@ contains
   end subroutine wv_zero_current
 
   subroutine wv_bcast_current(sender, comm)
-    !> Broadcast the current W buffers from `sender` to all ranks in `comm`.
-    !> Non-sender ranks must have buffers associated (via wv_alloc_recv_bufs)
-    !> before calling so MPI_Bcast has a valid receive buffer.
+    !> MEMORY_3D: broadcast W buffers from `sender` to all ranks in `comm`.
+    !> SHM: barrier only — data already in shared memory, just ensure visibility.
     use mpi
     integer, intent(in) :: sender, comm
     integer :: ierr, mpi_type
-    if (wv_backend /= WV_BACKEND_MEMORY_3D) return
+    if (wv_backend == WV_BACKEND_MEMORY_3D) then
 #ifdef __MP
-    mpi_type = MPI_COMPLEX
+      mpi_type = MPI_COMPLEX
 #else
-    mpi_type = MPI_DOUBLE_COMPLEX
+      mpi_type = MPI_DOUBLE_COMPLEX
 #endif
-    if (associated(wv_real_buf)) &
-      call MPI_Bcast(wv_real_buf, size(wv_real_buf), mpi_type, sender, comm, ierr)
-    if (associated(wv_imag_buf)) &
-      call MPI_Bcast(wv_imag_buf, size(wv_imag_buf), mpi_type, sender, comm, ierr)
+      if (associated(wv_real_buf)) &
+        call MPI_Bcast(wv_real_buf, size(wv_real_buf), mpi_type, sender, comm, ierr)
+      if (associated(wv_imag_buf)) &
+        call MPI_Bcast(wv_imag_buf, size(wv_imag_buf), mpi_type, sender, comm, ierr)
+    else if (wv_backend == WV_BACKEND_SHM) then
+      call MPI_Barrier(comm, ierr)
+    endif
   end subroutine wv_bcast_current
 
 end module m_wv_storage

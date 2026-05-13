@@ -8,8 +8,10 @@ contains
     use m_x0kf,        only: x0kf_zxq, deallocatezxq, deallocatezxqi
     use m_llw,         only: WVRllwR, WVIllwI
     use m_readVcoud,   only: Readvcoud, ngb
-    use m_mpi,         only: mpi__root_k, mpi__rank, comm_k, comm_b, MPI__Setnpr_col, ipr
-    use m_wv_storage,  only: wv_backend, WV_BACKEND_MEMORY_3D
+    use m_mpi,         only: mpi__root_k, mpi__rank, comm_k, comm_b, comm_q, MPI__Setnpr_col, ipr
+    use m_wv_storage,  only: wv_backend, WV_BACKEND_MEMORY_3D, WV_BACKEND_SHM, &
+                             wv_init_shm, wv_alloc_recv_bufs
+    use m_freq,        only: npm, nwhis, wv_niw => niw, nw_i, nw
     use m_lgunit,      only: stdo
     use m_ftox
     use mpi
@@ -22,6 +24,10 @@ contains
     call cputid(0)
     if (ipr) write(stdo,ftox) 'do 1001: iq q=', iq, ftof(qp,4)
     call Readvcoud(qp, iq, NoVcou=.false.)
+    if (wv_backend == WV_BACKEND_SHM) &
+      call wv_init_shm(ngb, wv_niw, (1-npm)*nwhis, nwhis, comm_q)
+    if (mpi__root_k .and. wv_backend == WV_BACKEND_MEMORY_3D) &
+      call wv_alloc_recv_bufs(ngb, wv_niw, nw_i, nw)
     npr = ngb
     call MPI__Setnpr_col(npr, npr_col)
     call x0kf_zxq(realomega, imagomega, qp, iq, npr, schi, &
