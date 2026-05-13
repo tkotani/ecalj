@@ -17,7 +17,7 @@ module m_x0kf
   use m_readVcoud,only:   vcousq,zcousq,ngb,ngc
   use m_kind,only: kp => kindrcxq
   use m_mpi,only: ipr
-  use m_wv_storage, only: WV_BACKEND_MEMORY_3D, WV_BACKEND_SHM, wv_backend, shm_wvr, wv_ngb
+  use m_wv_storage, only: WV_BACKEND_SHM, wv_backend, shm_wvr, wv_ngb
 #if defined(__MP) && defined(__GPU)
   use m_blas, only: gemm => cmm_d
 #elif defined(__MP)

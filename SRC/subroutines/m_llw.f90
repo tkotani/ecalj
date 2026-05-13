@@ -18,10 +18,8 @@ module m_llw
 #else
   use m_mpi, only: MPI__GatherXqw => MPI__GatherXqw
 #endif
-  ! Step WA1/WB.3a/WB.3e: I/O for __WVR.<iq>/__WVI.<iq> (FILE backend) or
-  ! the in-memory current-iq buffer (MEMORY_3D backend) goes through the
-  ! m_wv_storage singleton. Caller is responsible for calling wv_init_file
-  ! or wv_init_memory_3d before the first WVRllwR/WVIllwI invocation.
+  ! Step WA1/WB.3a/WB.3e: W data goes through the m_wv_storage singleton
+  ! via wv_put_real / wv_put_imag (FILE: __WVR/<iq>, SHM: shm_wvr window).
   use m_wv_storage, only: &
        wv_open_iq_real_for_write, wv_open_iq_imag_for_write, &
        wv_put_real, wv_put_imag, wv_close_iq_for_write, &
