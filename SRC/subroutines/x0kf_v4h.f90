@@ -16,7 +16,7 @@ module m_x0kf
   use m_ftox
   use m_readVcoud,only:   vcousq,zcousq,ngb,ngc
   use m_kind,only: kp => kindrcxq
-  use m_mpi,only: ipr
+  use m_mpi,only: ipr, mpi__root_k
   use m_wv_storage, only: WV_BACKEND_SHM, wv_backend, shm_wvr, shm_wvi, wv_ngb
 #if defined(__MP) && defined(__GPU)
   use m_blas, only: gemm => cmm_d
@@ -34,9 +34,7 @@ module m_x0kf
   ! Non-root_k and FILE mode: allocate normally.
   ! CONTIGUOUS required so elements can be sequence-associated (MPI reduce, gemm).
   complex(kind=kp), public, pointer, contiguous :: zxqi(:,:,:) => null()
-  logical :: zxqi_owned = .false.  ! .true. iff zxqi was allocated (needs deallocate, not nullify)
   complex(kind=kp), pointer, contiguous :: rcxq(:,:,:) => null()
-  logical :: rcxq_owned = .false.  ! .true. iff rcxq was allocated (needs deallocate, not nullify)
   integer,public::npr
   private
   
@@ -201,47 +199,38 @@ contains
     call ReleaseZcousq() !Release zcousq used in set_m2e_prod_basis
     if(associated(zxq)) nullify(zxq)
     if(associated(rcxq)) then
-      if (rcxq_owned) then
+      if (wv_backend == WV_BACKEND_SHM .and. mpi__root_k) then
+        nullify(rcxq)
+      else
         !$acc exit data delete(rcxq)
         deallocate(rcxq)
-      else
-        nullify(rcxq)
       endif
-      rcxq_owned = .false.
     endif
     if(nw_w > nwhis) call rx('nwhis is smaller than nw_w')
     if (wv_backend == WV_BACKEND_SHM .and. mpi__root_k) then
-      ! Root_k: remap rcxq directly into shm_wvr with custom lower bounds — no separate allocation.
       rcxq(1:npr, 1:npr, (1-npm)*nwhis:nwhis) => shm_wvr
-      rcxq_owned = .false.
     else
-      allocate(rcxq(1:npr,1:npr_col,(1-npm)*nwhis:nwhis)) ! rcxq(:,:,0) is empty until Hilbert transformation.
+      allocate(rcxq(1:npr,1:npr_col,(1-npm)*nwhis:nwhis))
       !$acc enter data create(rcxq)
-      rcxq_owned = .true.
     endif
     if(mpi__root_k) then
-      if (wv_backend /= WV_BACKEND_SHM) then
-        ! FILE mode: zxq remaps into rcxq for WVRllwR (stays device-resident through Dyson solve).
-        if(realomega) then
-          zxq(1:,1:,nw_i:) => rcxq(1:npr,1:npr_col,nw_i:nw_w) !nw_i = 0 (npm=1) nw_i = -nw_w (npm=2)
-          !$acc enter data create(zxq)
-        endif
+      if (wv_backend /= WV_BACKEND_SHM .and. realomega) then
+        zxq(1:,1:,nw_i:) => rcxq(1:npr,1:npr_col,nw_i:nw_w)
+        !$acc enter data create(zxq)
       endif
       if(imagomega) then
         if (wv_backend == WV_BACKEND_SHM) then
           zxqi(1:npr, 1:npr, 1:niw) => shm_wvi
-          zxqi_owned = .false.
         else
           allocate(zxqi(npr,npr_col,niw))
           !$acc enter data create(zxqi)
-          zxqi_owned = .true.
         endif
       endif
     endif
     if(ipr) write(stdo,ftox)' size of rcxq:', npr, npr_col, nwhis*npm+1
     call flush(stdo)
     if (wv_backend == WV_BACKEND_SHM .and. mpi__root_k) then
-      rcxq(:,:,:) = (0d0, 0d0)   ! host init: rcxq IS shm_wvr, no device entry
+      rcxq(:,:,:) = (0d0, 0d0)
     else
       !$acc kernels
       rcxq(:,:,:) = (0d0,0d0)
@@ -366,7 +355,6 @@ contains
           !$acc exit data delete(rcxq)
           deallocate(rcxq)
           nullify(rcxq)
-          rcxq_owned = .false.
         endif
         if(mpi__root_k) then
           call stopwatch_init(t_sw_dpsion, 'dpsion') !merge('gpu','ori',mask = GPUTEST))
@@ -387,7 +375,6 @@ contains
             ! Remap zxq into the real-axis slice of rcxq (= shm_wvr) for WVRllwR.
             if (realomega) zxq(1:,1:,nw_i:) => rcxq(1:npr, 1:npr, nw_i:nw_w)
             nullify(rcxq)
-            rcxq_owned = .false.
             !$acc update device(zxqi)
           endif
         endif
@@ -405,13 +392,12 @@ contains
   end subroutine deallocatezxq
   subroutine deallocatezxqi()
     if (.not. associated(zxqi)) return
-    if (zxqi_owned) then
+    if (wv_backend == WV_BACKEND_SHM .and. mpi__root_k) then
+      nullify(zxqi)
+    else
       !$acc exit data delete(zxqi)
       deallocate(zxqi)
-    else
-      nullify(zxqi)
     endif
-    zxqi_owned = .false.
   end subroutine deallocatezxqi
   ! MO 2025-10-13  Due to the discontinuation of --zmel0 mode, x0kf_zmel is no longer necessary.
   ! subroutine x0kf_zmel( q,k, isp_k,isp_kq)!, GPUTEST) ! Return zmel= <phi phi |M_I> in m_zmel
