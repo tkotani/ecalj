@@ -28,15 +28,14 @@ module m_x0kf
   use m_blas, only: gemm => zmm_h
 #endif
   implicit none
-  public:: x0kf_zxq, deallocatezxq, deallocatezxqi, rcxq_shm
+  public:: x0kf_zxq, deallocatezxq, deallocatezxqi
   complex(kind=kp), public, allocatable, target:: zxqi(:,:,:)   !Not yet protected because of main_hx0fp0
   complex(kind=kp), public, pointer:: zxq(:,:,:) => null()
-  ! SHM root_k: pointer into shm_wvr (no separate allocation). Non-root_k and FILE: allocate.
-  ! CONTIGUOUS is required so elements can be sequence-associated (e.g. MPI reduce, gemm).
+  ! SHM root_k: bounds-remapped pointer directly into shm_wvr (no separate allocation).
+  ! Non-root_k and FILE mode: allocate normally.
+  ! CONTIGUOUS required so elements can be sequence-associated (MPI reduce, gemm).
   complex(kind=kp), pointer, contiguous :: rcxq(:,:,:) => null()
   logical :: rcxq_owned = .false.   ! .true. iff rcxq was allocated (needs deallocate, not nullify)
-  ! SHM backend: bounds-remapped view of shm_wvr with rcxq lower bounds (persists for WVRllwR).
-  complex(kind=kp), pointer, contiguous :: rcxq_shm(:,:,:) => null()
   integer,public::npr
   private
   
@@ -210,10 +209,8 @@ contains
     endif
     if(nw_w > nwhis) call rx('nwhis is smaller than nw_w')
     if (wv_backend == WV_BACKEND_SHM .and. mpi__root_k) then
-      ! Root_k: alias rcxq directly into shm_wvr — avoids a separate ~600MB allocation.
-      ! rcxq_shm holds the custom lower bounds; rcxq remaps into rcxq_shm.
-      rcxq_shm(1:wv_ngb, 1:wv_ngb, (1-npm)*nwhis:nwhis) => shm_wvr
-      rcxq(1:,1:,(1-npm)*nwhis:) => rcxq_shm(1:wv_ngb, 1:wv_ngb, (1-npm)*nwhis:nwhis)
+      ! Root_k: remap rcxq directly into shm_wvr with custom lower bounds — no separate allocation.
+      rcxq(1:wv_ngb, 1:wv_ngb, (1-npm)*nwhis:nwhis) => shm_wvr
       rcxq_owned = .false.
     else
       allocate(rcxq(1:npr,1:npr_col,(1-npm)*nwhis:nwhis)) ! rcxq(:,:,0) is empty until Hilbert transformation.
@@ -377,14 +374,12 @@ contains
           endif
           call stopwatch_pause(t_sw_dpsion)
           call stopwatch_show(t_sw_dpsion)
-          ! SHM: rcxq IS shm_wvr (aliased via rcxq_shm) — dpsion_chiq has transformed
-          ! chi0 spectral weight in-place into chi0_real directly in shm_wvr; no copy needed.
+          ! SHM: rcxq IS shm_wvr — dpsion_chiq transformed chi0 in-place; no copy needed.
           if (wv_backend == WV_BACKEND_SHM) then
-            ! Map zxq into shm_wvr for WVRllwR (Dyson solve on real-axis chi0).
-            if (realomega) zxq(1:,1:,nw_i:) => rcxq_shm(1:wv_ngb, 1:wv_ngb, nw_i:nw_w)
+            ! Remap zxq into the real-axis slice of rcxq (= shm_wvr) for WVRllwR.
+            if (realomega) zxq(1:,1:,nw_i:) => rcxq(1:wv_ngb, 1:wv_ngb, nw_i:nw_w)
             nullify(rcxq)
             rcxq_owned = .false.
-            ! Sync host zxqi (filled by dpsion_chiq on host) to device for WVIllwI GPU path.
             !$acc update device(zxqi)
           endif
         endif
@@ -394,12 +389,11 @@ contains
 1103 enddo isloop
   end subroutine x0kf_zxq
   subroutine deallocatezxq()
-    ! SHM: zxq points into shm_wvr (host); skip device delete and clear rcxq_shm too.
+    ! SHM: zxq points into shm_wvr (via rcxq, host); skip device delete.
     if (wv_backend /= WV_BACKEND_SHM) then
       !$acc exit data delete(zxq)
     endif
     nullify(zxq)
-    if (associated(rcxq_shm)) nullify(rcxq_shm)
   end subroutine deallocatezxq
   subroutine deallocatezxqi()
     !$acc exit data delete(zxqi)

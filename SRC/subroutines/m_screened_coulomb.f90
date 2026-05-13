@@ -9,7 +9,7 @@ contains
     use m_llw,         only: WVRllwR, WVIllwI
     use m_readVcoud,   only: Readvcoud, ngb
     use m_mpi,         only: mpi__root_k, mpi__rank, comm_k, comm_b, comm_q, MPI__Setnpr_col, ipr
-    use m_wv_storage,  only: wv_backend, WV_BACKEND_SHM, wv_init_shm
+    use m_wv_storage,  only: wv_init_shm
     use m_freq,        only: npm, nwhis, wv_niw => niw, nw_i, nw
     use m_lgunit,      only: stdo
     use m_ftox
