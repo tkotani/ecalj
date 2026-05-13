@@ -17,7 +17,7 @@ module m_x0kf
   use m_readVcoud,only:   vcousq,zcousq,ngb,ngc
   use m_kind,only: kp => kindrcxq
   use m_mpi,only: ipr
-  use m_wv_storage, only: WV_BACKEND_SHM, wv_backend, shm_wvr, wv_ngb
+  use m_wv_storage, only: WV_BACKEND_SHM, wv_backend, shm_wvr, shm_wvi, wv_ngb
 #if defined(__MP) && defined(__GPU)
   use m_blas, only: gemm => cmm_d
 #elif defined(__MP)
@@ -29,13 +29,14 @@ module m_x0kf
 #endif
   implicit none
   public:: x0kf_zxq, deallocatezxq, deallocatezxqi
-  complex(kind=kp), public, allocatable, target:: zxqi(:,:,:)   !Not yet protected because of main_hx0fp0
   complex(kind=kp), public, pointer:: zxq(:,:,:) => null()
-  ! SHM root_k: bounds-remapped pointer directly into shm_wvr (no separate allocation).
+  ! SHM root_k: zxqi/rcxq are bounds-remapped pointers into shm_wvi/shm_wvr (no separate alloc).
   ! Non-root_k and FILE mode: allocate normally.
   ! CONTIGUOUS required so elements can be sequence-associated (MPI reduce, gemm).
+  complex(kind=kp), public, pointer, contiguous :: zxqi(:,:,:) => null()
+  logical :: zxqi_owned = .false.  ! .true. iff zxqi was allocated (needs deallocate, not nullify)
   complex(kind=kp), pointer, contiguous :: rcxq(:,:,:) => null()
-  logical :: rcxq_owned = .false.   ! .true. iff rcxq was allocated (needs deallocate, not nullify)
+  logical :: rcxq_owned = .false.  ! .true. iff rcxq was allocated (needs deallocate, not nullify)
   integer,public::npr
   private
   
@@ -227,8 +228,14 @@ contains
         endif
       endif
       if(imagomega) then
-        allocate(zxqi(npr,npr_col,niw))
-        !$acc enter data create(zxqi)
+        if (wv_backend == WV_BACKEND_SHM) then
+          zxqi(1:npr, 1:npr, 1:niw) => shm_wvi
+          zxqi_owned = .false.
+        else
+          allocate(zxqi(npr,npr_col,niw))
+          !$acc enter data create(zxqi)
+          zxqi_owned = .true.
+        endif
       endif
     endif
     if(ipr) write(stdo,ftox)' size of rcxq:', npr, npr_col, nwhis*npm+1
@@ -397,8 +404,14 @@ contains
     nullify(zxq)
   end subroutine deallocatezxq
   subroutine deallocatezxqi()
-    !$acc exit data delete(zxqi)
-    deallocate(zxqi)
+    if (.not. associated(zxqi)) return
+    if (zxqi_owned) then
+      !$acc exit data delete(zxqi)
+      deallocate(zxqi)
+    else
+      nullify(zxqi)
+    endif
+    zxqi_owned = .false.
   end subroutine deallocatezxqi
   ! MO 2025-10-13  Due to the discontinuation of --zmel0 mode, x0kf_zmel is no longer necessary.
   ! subroutine x0kf_zmel( q,k, isp_k,isp_kq)!, GPUTEST) ! Return zmel= <phi phi |M_I> in m_zmel
