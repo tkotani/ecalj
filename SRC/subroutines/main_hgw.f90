@@ -6,9 +6,12 @@ subroutine hgw(do_correlation, do_exchange)
   !> Streaming flow (SHM backend), unified loop iq = iqxend → 1:
   !>   iq > nqibz: auxiliary q0 — build W/llw; only q-group 0 processes these.
   !>   iq <= nqibz: regular — build W, consume for Sc (W0w0i at iq=1).
-  !> MPI layout: mpi__size = n_qgroup × n_kpara × n_bpara (q × k × ω).
-  !>   Exchange runs with SplitXq(1, mpi__size) for full k-parallel; then
-  !>   FreeSplitXq/SplitXq(n_bpara, n_kpara) for the correlation q-loop.
+  !> MPI layout: mpi__size = n_qgroup × worker_inQtask (q × per-q-group).
+  !>   Per-q-group, two sub-splits alternate each iq:
+  !>     Screened Coulomb: SplitXq(1, worker) — k-priority, mpi__size_k=worker.
+  !>     Correlation:      SplitXq(worker, 1) — ω-priority, mpi__size_b=worker.
+  !>   hsfp0_sc_setup uses the correlation split (mpi__size_k=1 → all ranks see
+  !>   all k-tasks in KXloop; ω split by mpi__size_b=worker across ranks).
   !> mpi__Qtask(iq) gates which q-group processes each iq; auxiliary iq's
   !>   are always assigned to q-group 0 so rank 0 (root_k) holds llw.
   use m_ReadEfermi,only: Readefermi
@@ -42,7 +45,7 @@ subroutine hgw(do_correlation, do_exchange)
   implicit none
   logical, intent(in) :: do_correlation, do_exchange
   integer :: iq, iqxend, iw, ifwd, verbose, ifif, ierr
-  integer :: n_bpara, n_kpara, worker_inQtask, n_qgroup, iq_qgroup
+  integer :: worker_inQtask, n_qgroup, iq_qgroup
   logical, allocatable :: mpi__Qtask(:)
   real(8) :: ua=1d0, qp(3)
   logical :: debug=.false., realomega, imagomega
@@ -85,35 +88,35 @@ subroutine hgw(do_correlation, do_exchange)
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hgw: sanity check. |q(iq=1)| /= 0')
 
   ! Correlation: q × k × ω 3-way parallel.
-  ! n_bpara (ω), n_kpara (k), n_qgroup = mpi__size/(n_bpara*n_kpara) (q).
-  ! Default n_bpara=1, n_kpara=mpi__size → 1 q-group (backward compatible).
-  n_bpara = 1
-  n_kpara = mpi__size
-  worker_inQtask = n_bpara * n_kpara
+  ! worker_inQtask ranks per q-group; n_qgroup q-groups.
+  ! Default: worker_inQtask=mpi__size → 1 q-group (backward compatible).
+  worker_inQtask = mpi__size
   n_qgroup = mpi__size / worker_inQtask
   iq_qgroup = mpi__rank / worker_inQtask
-  if(ipr) write(stdo,'(1X,A,4I5)') 'hgw: n_bpara n_kpara n_qgroup iqxend:', &
-                                     n_bpara, n_kpara, n_qgroup, iqxend
-  call MPI__SplitXq(n_bpara, n_kpara)
+  if(ipr) write(stdo,'(1X,A,3I5)') 'hgw: worker_inQtask n_qgroup iqxend:', &
+                                     worker_inQtask, n_qgroup, iqxend
 
   ! mpi__Qtask(iq): true if this rank's q-group should process iq.
   !   Regular iq (1..nqibz): round-robin among q-groups.
   !   Auxiliary iq (nqibz+1..iqxend): q-group 0 only; rank 0 (root_k) writes
   !   llw into WVRllwR/WVIllwI directly — no MPI transfer needed.
   allocate(mpi__Qtask(1:iqxend))
-  mpi__Qtask(1:nqibz)       = [(mod(iq-1, n_qgroup) == iq_qgroup, iq=1,nqibz)]
+  mpi__Qtask(1:nqibz)        = [(mod(iq-1, n_qgroup) == iq_qgroup, iq=1,nqibz)]
   mpi__Qtask(nqibz+1:iqxend) = (iq_qgroup == 0)
   if(ipr) write(stdo,ftox) 'hgw: mpi_rank iq_qgroup mpi__Qtask=', &
                              mpi__rank, iq_qgroup, mpi__Qtask
 
+  ! hsfp0_sc_setup with ω-priority split: mpi__size_b=worker, mpi__size_k=1.
+  ! mpi__rank_k=0 for all ranks → KXloop assigns all k-tasks to all ranks.
+  ! ω is then split by mpi__size_b=worker in sxcf_correlation_step_kx.
+  call MPI__SplitXq(worker_inQtask, 1)
   call hsfp0_sc_setup(skip_init=.true., ixc_in=2)
   call sxcf_correlation_init(hs_ef, hs_esmr, hs_nspinmx)
+  call MPI__FreeSplitXq()
   if(ipr) write(stdo,ftox) 'hgw: unified loop iqxend→1, mpi_rank=',MPI__rank
   call flush(stdo)
 
-  ! Pre-post Irecvs for auxiliary llw on rank 0.
-  ! Auxiliary iq's processed by q-group 0; rank 0 is always root_k of q-group 0,
-  ! so src=dest=0 → all calls are no-ops (llw already on rank 0).
+  ! Pre-post Irecvs for auxiliary llw (all no-ops: src=dest=0).
   do iq = nqibz+1, iqxend
     call MPI__irecvllw_q(iq-nqibz, 0, 0)
   enddo
@@ -121,25 +124,32 @@ subroutine hgw(do_correlation, do_exchange)
   do iq = iqxend, 1, -1
     if (.not. mpi__Qtask(iq)) cycle
     qp = qibze(:,iq)
+    ! Screened Coulomb: k-priority split (mpi__size_k=worker, mpi__size_b=1).
+    call MPI__SplitXq(1, worker_inQtask)
     call build_screened_coulomb_step_kx(iq, qp, realomega, imagomega)
+    ! build_screened_coulomb_step_kx ends with MPI_barrier(comm_q). All synced.
+    call MPI__FreeSplitXq()
     if (iq > nqibz) then
       ! Auxiliary q-point: llw written by rank 0 directly; send is a no-op.
       call MPI__isendllw_q(iq-nqibz, 0, 0)
     else
-      ! Regular q-point: barrier so all ranks in q-group see W in SHM, then consume.
-      call MPI_barrier(comm_q, ierr)
       if (iq == 1) then
         ! iq=1 always in q-group 0 (round-robin: mod(0,n_qgroup)=0).
         ! Wait for all auxiliary llw, then apply W0w0i correction on rank 0.
+        ! comm_q is freed; use global comm for the post-W0w0i sync.
         call MPI__waitllw()
         if (MPI__rank == 0) call W0w0i(nw_i, nw, nq0i, niw, q0i, is_wc_m_basis=.true.)
-        call MPI_barrier(comm_q, ierr)
+        call MPI_barrier(comm, ierr)
       end if
+      ! Correlation: ω-priority split (mpi__size_b=worker, mpi__size_k=1).
+      call MPI__SplitXq(worker_inQtask, 1)
       call sxcf_correlation_step_kx(iq, hs_ef, hs_esmr, hs_nspinmx)
-      call MPI_barrier(comm_q, ierr)
+      call MPI__FreeSplitXq()
     end if
   enddo
 
+  ! Finalize with the ω-priority split active (same state as sxcf_correlation_step_kx).
+  call MPI__SplitXq(worker_inQtask, 1)
   call sxcf_correlation_finalize()
   call wv_dealloc()
   call hsfp0_sc_writeout(skip_rx0=.true.)
