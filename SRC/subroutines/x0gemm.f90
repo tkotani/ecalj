@@ -1,5 +1,5 @@
 !>Accumulating rxcq
-subroutine x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm, ns1, ns2) 
+subroutine x0gemm(rcxq, npr, nwhis, npm, ns1, ns2, iw_lo_in, iw_hi_in)
   use m_kind, only: kp => kindrcxq
   use m_mpi, only: comm_b, mpi__rank_b, mpi__size_b
   use m_x0kf, only: icounkmink, icounkmaxk, iwini, iwend, itc, itpc, jpmc, icouini, whwc
@@ -23,9 +23,12 @@ subroutine x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm, ns1, ns2)
   use, intrinsic :: ieee_arithmetic
   !$ use omp_lib
   implicit none
-  integer, intent(in) :: npr, ipr_col, npr_col, nwhis, npm, ns1, ns2
-  complex(kind=kp), intent(inout) :: rcxq(npr,npr_col,((1-npm)*nwhis):nwhis)
-  integer :: icoun, igb1, igb2, iw, jpm, it, itp, ittp, nttp_max, ierr
+  integer, intent(in) :: npr, nwhis, npm, ns1, ns2
+  integer, intent(in), optional :: iw_lo_in, iw_hi_in
+  complex(kind=kp), intent(inout) :: rcxq(npr,npr,((1-npm)*nwhis):nwhis)
+  integer :: icoun, igb1, igb2, iw, jpm, iw_pos, it, itp, ittp, nttp_max, ierr
+  integer :: iw_lo, iw_hi
+  integer :: pos_lo(2), pos_hi(2)
   integer, allocatable :: nttp(:,:),  itw(:,:,:), itpw(:,:,:)
   complex(kind=kp), allocatable :: zw(:,:), wzw(:,:)
   complex(kind=kp), parameter :: CONE = (1_kp, 0_kp)
@@ -34,10 +37,19 @@ subroutine x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm, ns1, ns2)
 #ifdef __GPU
   attributes(device) :: zw, wzw
 #endif
+  iw_lo = (1-npm)*nwhis; if (present(iw_lo_in)) iw_lo = iw_lo_in
+  iw_hi = nwhis;         if (present(iw_hi_in)) iw_hi = iw_hi_in
+
+  ! Owned positive-iw_pos ranges derived from flat iw_lo:iw_hi.
+  ! jpm=1: flat iw = +iw_pos → owned when iw_lo <= iw_pos <= iw_hi (positive part)
+  ! jpm=2: flat iw = -iw_pos → owned when iw_lo <= -iw_pos <= iw_hi (negative part)
+  pos_lo(1) = max(iw_lo, 1);      pos_hi(1) = min(iw_hi, nwhis)
+  pos_lo(2) = max(1, -iw_hi);     pos_hi(2) = min(nwhis, -iw_lo)
+
   allocate(nttp(nwhis,npm), source = 0)
   do icoun = icounkmink, icounkmaxk
     jpm = jpmc(icoun)
-    do iw = iwini(icoun), iwend(icoun)
+    do iw = max(iwini(icoun), pos_lo(jpm)), min(iwend(icoun), pos_hi(jpm))
       nttp(iw,jpm) = nttp(iw,jpm) + 1
     enddo
   enddo
@@ -54,7 +66,7 @@ subroutine x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm, ns1, ns2)
     it  = itc (icoun)
     itp = itpc(icoun)
     if(it  < ns1 .or. it > ns2) cycle
-    do iw = iwini(icoun), iwend(icoun)
+    do iw = max(iwini(icoun), pos_lo(jpm)), min(iwend(icoun), pos_hi(jpm))
       nttp(iw,jpm) = nttp(iw,jpm) + 1
       ittp = nttp(iw,jpm)
       itw(ittp,iw,jpm) = it
@@ -63,30 +75,32 @@ subroutine x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm, ns1, ns2)
     enddo
   enddo
 
-  allocate(zw(nttp_max,npr), wzw(nttp_max,npr_col))
+  allocate(zw(nttp_max,npr), wzw(nttp_max,npr))
   !$acc host_data use_device(rcxq)
   !$acc data copyin(whw, itw, itpw, zmel)
-  do jpm = 1, npm
-    do iw = 1, nwhis
-      if (nttp(iw,jpm) < 1) cycle
-      !$acc kernels loop independent collapse(2)
-      do ittp = 1, nttp(iw,jpm)
-        do igb1 = 1, npr
-          it  = itw(ittp,iw,jpm); itp = itpw(ittp,iw,jpm)
-          zw(ittp,igb1) = cmplx(zmel(igb1,it,itp),kind=kp)
-        enddo
+  do iw = iw_lo, iw_hi
+    if (iw == 0) cycle
+    if (iw > 0) then; jpm = 1; iw_pos = iw
+    else;             jpm = 2; iw_pos = -iw
+    endif
+    if (nttp(iw_pos,jpm) < 1) cycle
+    !$acc kernels loop independent collapse(2)
+    do ittp = 1, nttp(iw_pos,jpm)
+      do igb1 = 1, npr
+        it  = itw(ittp,iw_pos,jpm); itp = itpw(ittp,iw_pos,jpm)
+        zw(ittp,igb1) = cmplx(zmel(igb1,it,itp),kind=kp)
       enddo
-      !$acc end kernels
-      !$acc kernels loop independent collapse(2)
-      do igb2 = 1, npr_col
-        do ittp = 1, nttp(iw,jpm)
-          wzw(ittp,igb2) = cmplx(zw(ittp,igb2+ipr_col-1)*whw(ittp,iw,jpm),kind=kp)
-        enddo
-      enddo
-      !$acc end kernels
-      ierr = gemm(zw, wzw, rcxq(1,1,iw*(3-2*jpm)), npr, npr_col, nttp(iw,jpm), &
-              &  opA = m_op_C, beta = CONE, ldA = nttp_max, ldB = nttp_max)
     enddo
+    !$acc end kernels
+    !$acc kernels loop independent collapse(2)
+    do igb2 = 1, npr
+      do ittp = 1, nttp(iw_pos,jpm)
+        wzw(ittp,igb2) = cmplx(zw(ittp,igb2)*whw(ittp,iw_pos,jpm),kind=kp)
+      enddo
+    enddo
+    !$acc end kernels
+    ierr = gemm(zw, wzw, rcxq(1,1,iw), npr, npr, nttp(iw_pos,jpm), &
+            &  opA = m_op_C, beta = CONE, ldA = nttp_max, ldB = nttp_max)
   enddo
   !$acc end data
   !$acc end host_data

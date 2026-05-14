@@ -155,18 +155,20 @@ contains
     use m_zmel,only: set_m2e_prod_basis, set_m2e_prod_basis_chipm
     use m_stopwatch
     use m_readVcoud, only: ReleaseZcousq
-    use m_mpi,only: comm_k, mpi__rank_k, mpi__size_k, &
-                    mpi__ipr_col, mpi__npr_col, mpi__rank_b, mpi__root_k, comm_b, comm_q
+    use m_mpi,only: mpi__rank_b, mpi__size_b, mpi__root_b, comm_b, comm_q, &
+                    mpi__rank_k, mpi__size_k, mpi__root_k, mpi__rank_root_k, comm_k, comm_root_k
 #ifdef __MP
     use m_mpi,only: MPI__reduceSum => MPI__reduceSum_c
 #else
     use m_mpi,only: MPI__reduceSum
 #endif
     use m_gpu, only: use_gpu
+    use mpi
     implicit none
     intent(in)::      realomega,imagomega, q,iq,npr,schi,crpa,chipm,nolfco,q00,zzr
     logical:: realomega,imagomega,crpa,chipm,nolfco, is_m_basis
-    integer:: iq, isp_k,isp_kq,ix0,is,isf,kx,ierr,npr,k, ipr_col, npr_col
+    integer:: iq, isp_k,isp_kq,ix0,is,isf,kx,ierr,npr,k,k_lo,k_hi
+    integer:: iw_lo, iw_hi, iw_chunk
     real(8),optional:: q00(3)
     complex(8),optional:: zzr(:,:)
     real(8):: q(3),schi,ekxx1(nband,nqbz),ekxx2(nband,nqbz)
@@ -176,12 +178,18 @@ contains
     type(stopwatch) :: t_sw_zmel, t_sw_x0, t_sw_dpsion
     qq=q
 
-    ipr_col = mpi__ipr_col(mpi__rank_b) ! start index of column on xq for product basis set
-    npr_col = mpi__npr_col(mpi__rank_b) ! number of columns on xq
+    ! Omega parallelism: split flat range (1-npm)*nwhis:nwhis across comm_b ranks.
+    iw_chunk = (npm*nwhis + 1 + mpi__size_b - 1) / mpi__size_b
+    iw_lo = (1-npm)*nwhis + mpi__rank_b * iw_chunk
+    iw_hi = min(iw_lo + iw_chunk - 1, nwhis)
+    ! k-point parallelism: split nqbz across comm_k ranks.
+    k_lo = mpi__rank_k * ((nqbz + mpi__size_k - 1) / mpi__size_k) + 1
+    k_hi = min(k_lo + (nqbz + mpi__size_k - 1) / mpi__size_k - 1, nqbz)
+    write(stdo,*) 'x0kf_zxq: k_lo, k_hi, nwhis, nw_i, nw, iw_lo, iw_hi', k_lo, k_hi, nwhis, nw_i, nw, iw_lo, iw_hi
     if (wv_backend == WV_BACKEND_SHM) then
-      if (chipm)        call rx('x0kf_zxq SHM backend: chipm not supported')
-      if (npr_col /= npr) call rx('x0kf_zxq SHM backend: n_bpara>1 not supported')
-      if (wv_ngb /= npr)  call rx('x0kf_zxq SHM backend: wv_ngb /= npr (shm_wvr size mismatch)')
+      if (chipm)         call rx('x0kf_zxq SHM backend: chipm not supported')
+      if (npm /= 1)      call rx('x0kf_zxq SHM backend: npm/=1 not supported')
+      if (wv_ngb /= npr) call rx('x0kf_zxq SHM backend: wv_ngb /= npr (shm_wvr size mismatch)')
     endif
 
     if(cmdopt0('--tetwtk'))  tetwtk=.true.
@@ -197,9 +205,14 @@ contains
     else;                        call set_m2e_prod_basis(npr=npr) !bugfix 2024-5-23 mobata. Set npr=1 for EPSPP0 mode(no lfc)
     endif
     call ReleaseZcousq() !Release zcousq used in set_m2e_prod_basis
-    if(associated(zxq)) nullify(zxq)
+    if(associated(zxq)) then
+      if (wv_backend /= WV_BACKEND_SHM) then
+        !$acc exit data delete(zxq)
+      endif
+      nullify(zxq)
+    endif
     if(associated(rcxq)) then
-      if (wv_backend == WV_BACKEND_SHM .and. mpi__root_k) then
+      if (wv_backend == WV_BACKEND_SHM) then
         nullify(rcxq)
       else
         !$acc exit data delete(rcxq)
@@ -208,29 +221,29 @@ contains
     endif
     if(nw_w > nwhis) call rx('nwhis is smaller than nw_w')
     if (wv_backend == WV_BACKEND_SHM .and. mpi__root_k) then
-      rcxq(1:npr, 1:npr, (1-npm)*nwhis:nwhis) => shm_wvr
+      rcxq(1:npr, 1:npr, (1-npm)*nwhis:nwhis) => shm_wvr  ! all ranks alias shm_wvr
     else
-      allocate(rcxq(1:npr,1:npr_col,(1-npm)*nwhis:nwhis))
+      allocate(rcxq(1:npr,1:npr,(1-npm)*nwhis:nwhis))
       !$acc enter data create(rcxq)
     endif
     if(mpi__root_k) then
       if (wv_backend /= WV_BACKEND_SHM .and. realomega) then
-        zxq(1:,1:,nw_i:) => rcxq(1:npr,1:npr_col,nw_i:nw_w)
+        zxq(1:,1:,nw_i:) => rcxq(1:npr,1:npr,nw_i:nw_w)
         !$acc enter data create(zxq)
       endif
-      if(imagomega) then
+      if(imagomega .and. mpi__rank_root_k == 0) then
         if (wv_backend == WV_BACKEND_SHM) then
           zxqi(1:npr, 1:npr, 1:niw) => shm_wvi
         else
-          allocate(zxqi(npr,npr_col,niw))
+          allocate(zxqi(npr,npr,niw))
           !$acc enter data create(zxqi)
         endif
       endif
     endif
-    if(ipr) write(stdo,ftox)' size of rcxq:', npr, npr_col, nwhis*npm+1
+    if(ipr) write(stdo,ftox)' size of rcxq:', npr, nwhis*npm+1
     call flush(stdo)
-    if (wv_backend == WV_BACKEND_SHM .and. mpi__root_k) then
-      rcxq(:,:,:) = (0d0, 0d0)
+    if (wv_backend == WV_BACKEND_SHM .and. mpi__size_k == 1) then
+      rcxq(:,:,iw_lo:iw_hi) = (0d0, 0d0)  ! zero only owned iw slice
     else
       !$acc kernels
       rcxq(:,:,:) = (0d0,0d0)
@@ -261,8 +274,8 @@ contains
           ! rcxq(ibg1,igb2,iw) = \sum_ibib wwk(iw,ibib)* <M_ibg1(q) psi_it(k)| psi_itp(q+k)> < psi_itp | psi_it M_ibg2 > at q
           call stopwatch_init(t_sw_zmel, 'zmel_'//'gemm') !merge('gpu','ori',mask = GPUTEST))
           call stopwatch_init(t_sw_x0, 'x0_'//'gemm') !merge('gpu','ori',mask = GPUTEST))
-          kloop:do 1500 k=1,nqbz !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
-            if(mod(k-1, mpi__size_k) /= mpi__rank_k)  cycle
+          kloop:do 1500 k=k_lo,k_hi !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
+            ! Omega+k parallelism: iw restricted to iw_lo:iw_hi; k restricted to k_lo:k_hi.
             if(tetwtk) then
               call gettetwt(q,iq,isp_k,isp_kq,ekxx1,ekxx2,nband=nband, ikbz_in = k, fkbz_in = k) ! tetrahedron weight
               ierr=x0kf_v4hz_init(0,q,isp_k,isp_kq,iq, crpa, ikbz_in = k, fkbz_in = k)
@@ -307,7 +320,7 @@ contains
                 call stopwatch_pause(t_sw_zmel)
                 call stopwatch_start(t_sw_x0)
                 if(debug) call writemem('xxxx start x0gemm')
-                call x0gemm(rcxq, npr, ipr_col, npr_col, nwhis, npm, ns1, ns2)
+                call x0gemm(rcxq, npr, nwhis, npm, ns1, ns2, iw_lo, iw_hi)
                 if(debug) call writemem('xxxx end of x0gemm')
                 call stopwatch_pause(t_sw_x0)
               enddo
@@ -328,58 +341,104 @@ contains
       HilbertTransformation:if(isp_k==nsp .OR. chipm) then
         !Get real part. When chipm=T, do dpsion5 for every isp_k; When =F, do dpsion5 after rxcq accumulated for spins
         mpi_k_accumulate: block
-          !To reduce memory allocation size in MPI__reduceSUM, mpi_reduce operation has been split for each iw and jpm
-          integer :: jpm, iw
-          if(mpi__size_k > 1) then
+          integer :: iw
+          if (wv_backend == WV_BACKEND_SHM .and. mpi__size_k == 1) then
+            ! n_kpara=1: all ranks wrote exclusively to iw_lo:iw_hi of shm_wvr.
+            ! Barrier ensures all omega slices are written before rank_root_k=0 reads all.
+            call MPI_barrier(comm_q, ierr)
+            if (mpi__rank_root_k /= 0) nullify(rcxq)
+          else if (wv_backend == WV_BACKEND_SHM) then
+            ! n_kpara>1 SHM: private rcxq; k-reduce via comm_k, copy flat slice to shm_wvr.
             !$acc update host(rcxq)
-            do jpm=1, npm
-              do iw=1, nwhis
-                ! rcxq is a POINTER: nvfortran forbids pointer-element sequence association.
-                ! Use a local automatic array (stack) which is sequence-associable.
+            do iw = iw_lo, iw_hi
+              if (iw == 0) cycle
+              block
+                complex(kp) :: iw_slice(npr, npr)
+                iw_slice = rcxq(:,:,iw)
+                call MPI__reduceSum(0, iw_slice(1,1), npr*npr, communicator=comm_k)
+                if (mpi__root_k) rcxq(:,:,iw) = iw_slice
+              end block
+            enddo
+            ! root_k copies its flat omega slice into shm_wvr (host, shared memory).
+            if (mpi__root_k) then
+              do iw = iw_lo, iw_hi
+                if (iw == 0) cycle
+                shm_wvr(:,:, iw - (1-npm)*nwhis + 1) = rcxq(:,:, iw)
+              enddo
+            endif
+            if (mpi__root_k) then
+              nullify(rcxq)
+            else
+              !$acc exit data delete(rcxq)
+              deallocate(rcxq)
+            endif
+            call MPI_barrier(comm_q, ierr)
+            if (mpi__rank_root_k == 0) rcxq(1:npr, 1:npr, (1-npm)*nwhis:nwhis) => shm_wvr
+          else
+            ! FILE: k-reduce via comm_k, then omega gather via comm_root_k.
+            if (mpi__size_k > 1) then
+              !$acc update host(rcxq)
+              do iw = (1-npm)*nwhis, nwhis
+                if (iw == 0) cycle
                 block
-                  complex(kp) :: iw_slice(npr, npr_col)
-                  iw_slice = rcxq(:,:,iw*(3-2*jpm))
-                  call MPI__reduceSum(0, iw_slice(1,1), npr*npr_col, communicator = comm_k)
-                  rcxq(:,:,iw*(3-2*jpm)) = iw_slice
+                  complex(kp) :: iw_slice(npr, npr)
+                  iw_slice = rcxq(:,:,iw)
+                  call MPI__reduceSum(0, iw_slice(1,1), npr*npr, communicator=comm_k)
+                  if (mpi__root_k) rcxq(:,:,iw) = iw_slice
                 end block
               enddo
-            enddo
-            ! SHM root_k: rcxq IS shm_wvr — reduced data is already in shm_wvr; other backends put back on device.
-            if (wv_backend /= WV_BACKEND_SHM) then
+              !$acc update device(rcxq)
+            endif
+            if (mpi__root_k .and. mpi__size_b > 1) then
+              !$acc update host(rcxq)
+              do iw = (1-npm)*nwhis, nwhis
+                if (iw == 0) cycle
+                block
+                  complex(kp) :: iw_slice(npr, npr)
+                  iw_slice = rcxq(:,:,iw)
+                  call MPI__reduceSum(0, iw_slice(1,1), npr*npr, communicator=comm_root_k)
+                  if (mpi__rank_root_k == 0) rcxq(:,:,iw) = iw_slice
+                end block
+              enddo
               !$acc update device(rcxq)
             endif
           endif
         end block mpi_k_accumulate
-        ! SHM: non-root k-ranks' private rcxq no longer needed after reduce.
-        if (wv_backend == WV_BACKEND_SHM .and. .not. mpi__root_k) then
-          !$acc exit data delete(rcxq)
-          deallocate(rcxq)
-          nullify(rcxq)
-        endif
         if(mpi__root_k) then
-          call stopwatch_init(t_sw_dpsion, 'dpsion') !merge('gpu','ori',mask = GPUTEST))
-          call stopwatch_start(t_sw_dpsion)
-          call dpsion_init(realomega, imagomega, chipm)
-          ! SHM: rcxq is on host (device update was skipped); run dpsion without GPU wrapper.
-          if (wv_backend /= WV_BACKEND_SHM) then
-            !$acc host_data use_device(rcxq, zxqi)
+          if(mpi__rank_root_k == 0) then
+            call stopwatch_init(t_sw_dpsion, 'dpsion')
+            call stopwatch_start(t_sw_dpsion)
+            call dpsion_init(realomega, imagomega, chipm)
+            ! SHM: rcxq is on host (device update was skipped); run dpsion without GPU wrapper.
+            if (wv_backend /= WV_BACKEND_SHM) then
+              !$acc host_data use_device(rcxq, zxqi)
+            endif
+            call dpsion_chiq(realomega, imagomega, chipm, rcxq, zxqi, npr, npr, schi, isp_k, ecut)
+            if (wv_backend /= WV_BACKEND_SHM) then
+              !$acc end host_data
+            endif
+            call stopwatch_pause(t_sw_dpsion)
+            call stopwatch_show(t_sw_dpsion)
+            if (wv_backend /= WV_BACKEND_SHM) then
+              ! FILE: remap zxq; keep rcxq associated for cleanup on next x0kf_zxq call.
+              if (realomega) zxq(1:,1:,nw_i:) => rcxq(1:npr, 1:npr, nw_i:nw_w)
+              !$acc update device(zxqi)
+            else
+              ! SHM: dpsion wrote chi0 into shm_wvr/shm_wvi; nullify rcxq (not allocated).
+              nullify(rcxq)
+            endif
           endif
-          call dpsion_chiq(realomega, imagomega, chipm, rcxq, zxqi, npr, npr_col, schi, isp_k, ecut)
-          if (wv_backend /= WV_BACKEND_SHM) then
-            !$acc end host_data
-          endif
-          call stopwatch_pause(t_sw_dpsion)
-          call stopwatch_show(t_sw_dpsion)
-          ! SHM: rcxq IS shm_wvr — dpsion_chiq transformed chi0 in-place; no copy needed.
+          ! SHM: barrier ensures dpsion (rank 0) is done; all root_k ranks map zxq/zxqi.
           if (wv_backend == WV_BACKEND_SHM) then
-            ! Remap zxq into the real-axis slice of rcxq (= shm_wvr) for WVRllwR.
+            call MPI_barrier(comm_root_k, ierr)
+            rcxq(1:npr, 1:npr, (1-npm)*nwhis:nwhis) => shm_wvr
             if (realomega) zxq(1:,1:,nw_i:) => rcxq(1:npr, 1:npr, nw_i:nw_w)
             nullify(rcxq)
-            !$acc update device(zxqi)
+            if (imagomega) zxqi(1:npr, 1:npr, 1:niw) => shm_wvi
           endif
         endif
         !set zero (if isp_k == 1) or chi+- in rcxq (if isp_k == 2)
-        if(chipm) call dpsion_setup_rcxq(rcxq, npr, npr_col, isp_k)
+        if(chipm) call dpsion_setup_rcxq(rcxq, npr, npr, isp_k)
       endif HilbertTransformation 
 1103 enddo isloop
   end subroutine x0kf_zxq
@@ -392,7 +451,7 @@ contains
   end subroutine deallocatezxq
   subroutine deallocatezxqi()
     if (.not. associated(zxqi)) return
-    if (wv_backend == WV_BACKEND_SHM .and. mpi__root_k) then
+    if (wv_backend == WV_BACKEND_SHM) then
       nullify(zxqi)
     else
       !$acc exit data delete(zxqi)

@@ -29,13 +29,15 @@ contains
     !> Phase 1 of hsfp0_sc: read inputs (ixc, GW data, eigenvalues), determine
     !> ef/esmr/nspinmx/eqx, run sxcf_scz_count, emit XCU/XCD if exchange mode.
     !> Outputs flow through module variables hs_*.
+    !> Standalone (do_init=.true.): calls MPI__SplitXq(1, mpi__size) to set up
+    !> comm_k/comm_b. Streaming callers (hgw) call SplitXq themselves before setup.
     use m_readqg,only: READQG0,READNGMX2, ngpmx,ngcmx
     use m_READ_BZDATA,only: READ_BZDATA, nqbz,nqibz,n1,n2,n3,ginv,qbz,wbz,qibz
     use m_genallcf_v3,only: GENALLCF_V3,Setesmr, natom,nspin,plat,alat,deltaw,esmr_in=>esmr,nctot,ecore,nband, laf
     use m_itq,only: setitq_hsfp0sc,nbandmx, ntq
     use m_mpi,only: &
          MPI__Initialize,MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum, &
-         MPI__consoleout,  MPI__reduceSum,comm, MPI__SplitSc, worker_intask,ipr
+         MPI__consoleout, MPI__reduceSum, MPI__SplitXq, comm, ipr
     use m_lgunit,only:m_lgunit_init,stdo
     use m_ftox
     use m_gpu,only: gpu_init
@@ -63,6 +65,7 @@ contains
     if(present(skip_init)) do_init = .not. skip_init
     InitOnce: if(do_init) then
       call MPI__Initialize()
+      call MPI__SplitXq(1, mpi__size)  ! k-parallel; sets comm_k, comm_b for sxcf
       call gpu_init(comm)
       call M_lgunit_init()
       call writemem('Start hsfp0: TotalRAM per node='//ftof(totalram(),3)//' GB')
@@ -109,16 +112,6 @@ contains
     else
        call rx(' hsfp0_sc: Need input (std input) 1(Sx) 2(Sc) or 3(ScoreX)!')
     endif
-    Wparallelization: block
-      integer:: n_wpara = 1
-      character(20):: outs2=''
-      if(ixc == 2) then
-        if(cmdopt2('--nwpara=', outs2)) read(outs2,*) n_wpara
-        worker_intask = min(n_wpara, mpi__size)
-        if(ipr) write(stdo,'(1X,A,3I5)') 'MPI: worker_intask ', worker_intask
-        call MPI__SplitSc(n_wpara)
-      endif
-    endblock Wparallelization
     call setesmr(esmr_in=esmr)
     InitReadEigen: if(do_init) then
       call Readhamindex()

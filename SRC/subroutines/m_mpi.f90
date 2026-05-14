@@ -10,17 +10,14 @@ module m_mpi !MPI utility (unified from m_mpi + m_MPItk)
   integer, protected :: procid, master = 0, nsize
   logical, protected :: master_mpi, readtk = .false.
   character(8), protected :: strprocid
-!MPI for hrcxq
+!MPI communicator hierarchy for q-loop (hgw) and standalone (hsfp0_sc)
   integer :: comm_q, mpi__rank_q, mpi__size_q
   integer :: comm_k, mpi__rank_k, mpi__size_k
   integer :: comm_b, mpi__rank_b, mpi__size_b
   integer :: comm_root_k, mpi__rank_root_k, mpi__size_root_k
-  logical :: mpi__root_q, mpi__root_k
+  logical :: mpi__root_q, mpi__root_k, mpi__root_b
   integer, allocatable :: mpi__npr_col(:), mpi__ipr_col(:)
-!MPI for Sc (hsfp0_sc --job=2)
-  integer :: comm_w, mpi__rank_w, mpi__size_w
-  logical :: mpi__root_w,ipr=.true.
-  integer :: worker_intask = 1 !default used in ixc /= 2
+  logical :: ipr=.true.
 !Simple split of MPI communicator
   integer :: comm_s, mpi__rank_s, mpi__size_s, comm_s_idx
   logical :: mpi__root_s
@@ -52,10 +49,10 @@ contains
     call MPI_Comm_rank( comm, mpi__rank, mpi__info )
     call MPI_Comm_size( comm, mpi__size, mpi__info )
     mpi__root= mpi__rank==0
-    ! Default k-group = all ranks. MPI__SplitXq / MPI__SplitSc override these.
-    mpi__size_k = mpi__size
-    mpi__rank_k = mpi__rank
-    mpi__root_k = mpi__rank == 0
+    ! Default: no split — all ranks in one group. MPI__SplitXq overrides these.
+    mpi__size_b = mpi__size; mpi__rank_b = mpi__rank; mpi__root_b = mpi__rank == 0
+    mpi__size_k = mpi__size; mpi__rank_k = mpi__rank; mpi__root_k = mpi__rank == 0
+    mpi__rank_root_k = 0;    mpi__size_root_k = 1
     if( mpi__root ) call chdir(cwd)        ! recover current working directory
     ipr=mpi__root
     if(cmdopt0('--fullstdo')) ipr=.true.
@@ -75,7 +72,7 @@ contains
     call m_ext_init()
   end subroutine m_setargs_init
 
-!  MPI__SplitXq is only used in hrcxq for q-points, k-points, and MPB parallel.
+!  MPI__SplitXq is used in hgw for q-points, k-points, and MPB parallel.
 ! example in case of n_bpara = 2 and n_kpara  = 3
 ! mpi__rank                           : 0,1,2,3,4,5, 6,7,8,9,10,11
 ! color = mpi__rank/(n_bpara*n_kpara) : 0,0,0,0,0,0, 1,1,1,1, 1, 1,
@@ -105,6 +102,7 @@ contains
     call mpi_comm_rank(comm_k, mpi__rank_k, mpi__info)
     call mpi_comm_size(comm_k, mpi__size_k, mpi__info)
 
+    mpi__root_b = mpi__rank_b == 0
     color = merge(0, MPI_UNDEFINED, mpi__rank_k == 0)
     mpi__root_k = mpi__rank_k == 0
     call mpi_comm_split(comm_q, color, mpi__rank, comm_root_k, mpi__info)
@@ -112,8 +110,8 @@ contains
       call mpi_comm_rank(comm_root_k, mpi__rank_root_k, mpi__info)
       call mpi_comm_size(comm_root_k, mpi__size_root_k, mpi__info)
     endif
-    if(ipr)write(06,'(X,A,4I5,2L2)') "MPI: rank, rank_q, rank_k, rank_b, root_q, root_k ", &
-                mpi__rank, mpi__rank_q, mpi__rank_k, mpi__rank_b, mpi__root_q, mpi__root_k
+    if(ipr)write(06,'(X,A,4I5,3L2)') "MPI: rank, rank_q, rank_k, rank_b, root_q, root_k, root_b ", &
+                mpi__rank, mpi__rank_q, mpi__rank_k, mpi__rank_b, mpi__root_q, mpi__root_k, mpi__root_b
 
   end subroutine MPI__SplitXq
   
@@ -225,19 +223,6 @@ contains
     call mpi_comm_rank(comm_in, mpi_rank, ierr)
     mpi_master = (mpi_rank == 0)
   end function get_mpi_master
-  subroutine MPI__SplitSc(n_wpara)
-    ! freq parallelism fixed at 1 pending shared-memory W migration; n_wpara ignored
-    implicit none
-    integer, intent(in) :: n_wpara
-    call mpi_comm_split(comm, mpi__rank, mpi__rank, comm_w, mpi__info)
-    call mpi_comm_rank(comm_w, mpi__rank_w, mpi__info)
-    call mpi_comm_size(comm_w, mpi__size_w, mpi__info)
-    mpi__root_w = .true.
-    ! mpi__size_k/mpi__rank_k are NOT updated here.
-    ! In standalone hsfp0_sc (worker_intask=1): MPI__Initialize set mpi__size_k=mpi__size.
-    ! In streaming hgw_combined: MPI__SplitXq already set the correct q-group-local values
-    ! and must not be overridden.
-  end subroutine MPI__SplitSc
   subroutine MPI__consoleout(idn)
     use m_lgunit,only:stdo,stdl
     implicit none
@@ -460,54 +445,3 @@ contains
   end subroutine xmpbnd2
 
 end module m_mpi
-
-subroutine MPI__sxcf_rankdivider(irkip_all,nspinmx,nqibz,ngrp,nq,irkip)
-  use m_mpi,only: mpi__rank_k, mpi__size_k
-  use m_mpi, only: ipr
-  implicit none
-  integer, intent(out) :: irkip    (nspinmx,nqibz,ngrp,nq)
-  integer, intent(in)  :: irkip_all(nspinmx,nqibz,ngrp,nq)
-  integer, intent(in)  :: nspinmx,nqibz,ngrp,nq
-  integer :: ispinmx,iqibz,igrp,iq
-  integer :: total
-  integer, allocatable :: vtotal(:)
-  integer :: indexi, indexe
-  integer :: p, ngroup
-  if( mpi__size_k == 1 ) then
-     irkip = irkip_all
-     return
-  end if
-  total = count(irkip_all>0)
-  ngroup = mpi__size_k
-  if(ipr)write(6,"('MPI__sxcf_rankdivider:$')")
-  if(ipr)write(6,"('nspinmx,nqibz,ngrp,nq,total=',5i6)") nspinmx,nqibz,ngrp,nq,total
-  if(ipr)write(6,'(A,2I5)') 'MPI: k-group size, rank_k', ngroup, mpi__rank_k
-  allocate( vtotal(0:mpi__size_k-1) )
-  vtotal(:) = total/ngroup
-  do p=1, mod(total, ngroup)
-     vtotal(p-1) = vtotal(p-1) + 1
-  end do
-  indexe=0
-  indexi=-999999
-  do p=0, mpi__rank_k
-     indexi = indexe+1
-     indexe = indexi+vtotal(p)-1
-  end do
-  deallocate(vtotal)
-  total = 0
-  irkip(:,:,:,:) = 0
-  do iq=1, nq
-     do ispinmx=1, nspinmx
-        do iqibz=1, nqibz
-           do igrp=1, ngrp
-              if( irkip_all(ispinmx,iqibz,igrp,iq) >0 ) then
-                 total = total + 1
-                 if( indexi<=total .and. total<=indexe ) then
-                    irkip(ispinmx,iqibz,igrp,iq) = irkip_all(ispinmx,iqibz,igrp,iq)
-                 endif
-              endif
-           enddo
-        enddo
-     enddo
-  enddo
-end subroutine MPI__sxcf_rankdivider

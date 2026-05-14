@@ -303,7 +303,7 @@ contains
   subroutine sxcf_correlation_init(ef, esmr, nspinmx)
     use m_keyvalue, only: getkeyvalue
     use m_GWinput, only: gwinput_init, gwinput_loaded, tg_KeepWV => KeepWV
-    use m_mpi, only: mpi__size_w, mpi__rank_w, ipr
+    use m_mpi, only: mpi__size_b, mpi__rank_b, ipr
     use m_blas, only: int_split
     use m_gpu, only: use_gpu
     real(8), intent(in) :: ef, esmr
@@ -334,8 +334,8 @@ contains
         enddo irotloopX
       enddo kxloopX
     end block LoopScheduleCheck
-    call int_split(    niw+1, mpi__size_w, mpi__rank_w, sxs_wi_ini, sxs_wi_fin, sxs_wi_num, start_index=0)
-    call int_split(nw-nw_i+1, mpi__size_w, mpi__rank_w, sxs_wr_ini, sxs_wr_fin, sxs_wr_num, start_index=nw_i)
+    call int_split(    niw+1, mpi__size_b, mpi__rank_b, sxs_wi_ini, sxs_wi_fin, sxs_wi_num, start_index=0)
+    call int_split(nw-nw_i+1, mpi__size_b, mpi__rank_b, sxs_wr_ini, sxs_wr_fin, sxs_wr_num, start_index=nw_i)
     if (ipr) write(stdo,ftox) 'Imag sxs_omega mesh split:', sxs_wi_ini, sxs_wi_fin, sxs_wi_num, &
          'Real sxs_omega mesh split:', sxs_wr_ini, sxs_wr_fin, sxs_wr_num
     if (ipr) write(stdo,ftox) '# of tasks:', izz
@@ -359,7 +359,7 @@ contains
   ! One iteration of the kxloop: read/load W(kx), then accumulate the
   ! correlation contribution into zsecall(:,:,ip,isp) for all (irot, ip, isp).
   subroutine sxcf_correlation_step_kx(kx, ef, esmr, nspinmx)
-    use m_mpi, only: comm_w, ipr
+    use m_mpi, only: comm_b, ipr
     use m_gpu, only: use_gpu
     integer, intent(in) :: kx, nspinmx
     real(8), intent(in) :: ef, esmr
@@ -459,7 +459,7 @@ contains
                  trim(charli([kx,irot,ip,isp,icount],5)))
             call stopwatch_start(sxs_zmel)
             call build_zmel(q,qibz_k,irot,qbz_kr,ns1,ns2,isp,1,sxs_ntqxx,isp,nctot,ncc=0,zmelconjg=.false., &
-                                 is_m_basis=.true., mpi_mode=.not.use_gpu, comm=comm_w)
+                                 is_m_basis=.true., mpi_mode=.not.use_gpu, comm=comm_b)
             call writemem('    endof build_zmel')
             call stopwatch_pause(sxs_zmel)
             call stopwatch_reset(sxs_setwv)

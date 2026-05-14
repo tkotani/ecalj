@@ -12,7 +12,7 @@ module m_sxcf_count !job scheduler for self-energy calculation. icount mechanism
   use m_ftox
   use m_lgunit,only:stdo
   implicit none
-  public sxcf_scz_count, mpi_assign_qtask_lpt
+  public sxcf_scz_count, mpi_assign_qtask_lpt, lpt_assign
   !=== Job scheduler ==============
   integer,public:: ncount 
   integer,allocatable,public:: kxc(:),nstateMax(:),nstti(:),nstte(:),nstte2(:) !ispc(:),irotc(:),ipc(:),krc(:),
@@ -77,17 +77,29 @@ contains
        return
     endif   
     !NOTE: We have to sum up all isp,kx,irot,ip for irkip(isp,kx,irot,ip)/=0.
-    rankdivider: block !  We divide irkip_all into irkip for nodes. irkip is dependent on rank.
-      ! Total number of none zero irkip for all ranks is the number of nonzero irkip_all
-      integer:: irkip_all(nspinmx,nqibz,ngrp,nqibz),iqq,is,nq
-      do is = 1,nspinmx
-         do iqq=1,nqibz
-            irkip_all(is,:,:,iqq)=irk
-         enddo
+    rankdivider: block ! Distribute k-points (kx) across k-group ranks using LPT.
+      use m_mpi, only: mpi__rank_k, mpi__size_k
+      integer :: kx, is, igrp
+      integer :: wl(nqibz)
+      logical :: kx_assigned(nqibz)
+      do kx = 1, nqibz
+        wl(kx) = count(irk(kx,:) > 0) * nspinmx
       enddo
-      allocate( irkip(nspinmx,nqibz,ngrp,nqibz) ) ! nrkip is weight correspoinding to irkip for a node.
-      nq=nqibz
-      call MPI__sxcf_rankdivider(irkip_all,nspinmx,nqibz,ngrp,nq,  irkip)
+      call lpt_assign(nqibz, wl, mpi__size_k, mpi__rank_k, kx_assigned)
+      allocate( irkip(nspinmx,nqibz,ngrp,nqibz), source=0 )
+      do kx = 1, nqibz
+        if (.not. kx_assigned(kx)) cycle
+        do is = 1, nspinmx
+          do igrp = 1, ngrp
+            irkip(is, kx, igrp, :) = irk(kx, igrp)
+          enddo
+        enddo
+      enddo
+      if(ipr) then
+        write(stdo,'(1X,A,2I5)') 'rankdivider(kx-LPT): mpi__size_k, mpi__rank_k=', mpi__size_k, mpi__rank_k
+        write(stdo,'(1X,A,*(I5))') '  workload per kx =', wl
+        write(stdo,'(1X,A,*(L2))') '  assigned kx     =', kx_assigned
+      endif
     endblock rankdivider
     PreIcountBlock: Block!Get Size: nstateMax(ncount),ndiv(icount),nstatei(j,icount),nstatee(j,icount)
       use m_keyvalue,only: getkeyvalue
@@ -318,61 +330,63 @@ contains
 
   subroutine mpi_assign_qtask_lpt(iq_ini, iq_end, nspinmx, n_groups, group_rank, &
                                     worker_inQtask, qtask, qrank)
-    ! Assign q-points [iq_ini:iq_end] to q-groups using LPT greedy algorithm.
-    ! workload(kx) = count(irk(kx,:)>0)*nspinmx — proxy for correlation cost per kx.
-    ! LPT: sort by workload descending, assign each kx to the least-loaded group.
+    ! Assign q-points [iq_ini:iq_end] to q-groups using lpt_assign.
     use m_read_bzdata, only: irk, ngrp
-    integer, intent(in)  :: iq_ini, iq_end, nspinmx, n_groups, group_rank, worker_inQtask
-    logical, intent(out) :: qtask(iq_ini:iq_end)
-    integer, intent(out) :: qrank(iq_ini:iq_end)
-    integer :: niq, i, j, g, iq, tmp
-    integer :: wl(iq_ini:iq_end)          ! workload per iq
-    integer :: sorted_iq(iq_end-iq_ini+1) ! iq indices sorted by workload desc
-    integer :: sorted_wl(iq_end-iq_ini+1)
-    integer :: grp_assign(iq_ini:iq_end)  ! group index (0-based) for each iq
-    integer :: group_load(0:n_groups-1)
-
+    integer, intent(in)           :: iq_ini, iq_end, nspinmx, n_groups, group_rank, worker_inQtask
+    logical, intent(out)          :: qtask(iq_ini:iq_end)
+    integer, intent(out), optional:: qrank(iq_ini:iq_end)
+    integer :: niq, iq
+    integer :: wl(iq_end-iq_ini+1)
+    logical :: assigned(iq_end-iq_ini+1)
+    integer :: ga(iq_end-iq_ini+1)
     niq = iq_end - iq_ini + 1
-
-    ! Compute workload per kx
     do iq = iq_ini, iq_end
-      wl(iq) = count(irk(iq,:) > 0) * nspinmx
+      wl(iq-iq_ini+1) = count(irk(iq,:) > 0) * nspinmx
     enddo
-
-    ! Build sorted index array (selection sort descending by workload)
-    do i = 1, niq
-      sorted_iq(i) = iq_ini + i - 1
-      sorted_wl(i) = wl(iq_ini + i - 1)
-    enddo
-    do i = 1, niq-1
-      j = maxloc(sorted_wl(i:niq), 1) + i - 1
-      if (j /= i) then
-        tmp = sorted_iq(i); sorted_iq(i) = sorted_iq(j); sorted_iq(j) = tmp
-        tmp = sorted_wl(i); sorted_wl(i) = sorted_wl(j); sorted_wl(j) = tmp
-      endif
-    enddo
-
-    ! LPT greedy: assign each kx (in workload-desc order) to least-loaded group
-    group_load = 0
-    do i = 1, niq
-      iq = sorted_iq(i)
-      g = minloc(group_load, 1) - 1  ! 0-based group index
-      grp_assign(iq) = g
-      group_load(g) = group_load(g) + wl(iq)
-    enddo
-
-    ! Build qtask / qrank
+    call lpt_assign(niq, wl, n_groups, group_rank, assigned, ga)
     do iq = iq_ini, iq_end
-      qtask(iq) = (grp_assign(iq) == group_rank)
-      qrank(iq) = grp_assign(iq) * worker_inQtask
+      qtask(iq) = assigned(iq-iq_ini+1)
+      if (present(qrank)) qrank(iq) = ga(iq-iq_ini+1) * worker_inQtask
     enddo
-
     if(ipr) then
       write(stdo,'(1X,A,2I5)') 'mpi_assign_qtask_lpt: n_groups, group_rank=', n_groups, group_rank
-      write(stdo,'(1X,A,*(I6))') '  workload per iq =', (wl(iq), iq=iq_ini,iq_end)
-      write(stdo,'(1X,A,*(I6))') '  assigned group  =', (grp_assign(iq), iq=iq_ini,iq_end)
-      write(stdo,'(1X,A,*(I6))') '  group_load      =', group_load
+      write(stdo,'(1X,A,*(I6))') '  workload per iq =', wl
+      write(stdo,'(1X,A,*(I6))') '  assigned group  =', ga
     endif
   end subroutine mpi_assign_qtask_lpt
+
+  subroutine lpt_assign(n_items, workload, n_groups, group_rank, assigned, grp_assign_out)
+    ! LPT (Longest Processing Time) greedy load balancing.
+    ! Sorts items by workload descending, assigns each to the least-loaded group.
+    integer, intent(in)            :: n_items, n_groups, group_rank
+    integer, intent(in)            :: workload(n_items)
+    logical, intent(out)           :: assigned(n_items)
+    integer, intent(out), optional :: grp_assign_out(n_items)
+    integer :: i, j, g, tmp
+    integer :: sorted_idx(n_items), sorted_wl(n_items)
+    integer :: grp_assign(n_items), group_load(0:n_groups-1)
+    do i = 1, n_items
+      sorted_idx(i) = i
+      sorted_wl(i)  = workload(i)
+    enddo
+    do i = 1, n_items-1
+      j = maxloc(sorted_wl(i:n_items), 1) + i - 1
+      if (j /= i) then
+        tmp = sorted_idx(i); sorted_idx(i) = sorted_idx(j); sorted_idx(j) = tmp
+        tmp = sorted_wl(i);  sorted_wl(i)  = sorted_wl(j);  sorted_wl(j)  = tmp
+      endif
+    enddo
+    group_load = 0
+    do i = 1, n_items
+      g = minloc(group_load, 1) - 1
+      grp_assign(sorted_idx(i)) = g
+      group_load(g) = group_load(g) + sorted_wl(i)
+    enddo
+    do i = 1, n_items
+      assigned(i) = (grp_assign(i) == group_rank)
+    enddo
+    if (present(grp_assign_out)) grp_assign_out = grp_assign
+  end subroutine lpt_assign
+
 end module m_sxcf_count
 

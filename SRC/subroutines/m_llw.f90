@@ -11,7 +11,9 @@ module m_llw
   use m_readVcoud,only: vcousq, ngb
   use m_rdpp,only: nbloch,mrecl
   use m_x0kf,only: zxq,zxqi
-  use m_mpi, only: mpi__root_k, mpi__root_q, mpi__size_b,ipr, comm_root_k, mpi__rank_b, MPI__AllreduceSum
+  use m_mpi, only: mpi__root_k, mpi__root_q, mpi__size_b,ipr, comm_root_k, mpi__rank_b, &
+                   mpi__rank_root_k, MPI__AllreduceSum
+  use mpi
   use m_zmel, only: m2e_prod_basis
 #ifdef __MP
   use m_mpi, only: MPI__GatherXqw => MPI__GatherXqw_c
@@ -65,7 +67,7 @@ contains
     complex(kind=kp), allocatable :: zw(:,:), zxqw(:,:), x_m2e(:,:)
     complex(8), allocatable, target :: epstilde(:,:)
     complex(8), pointer :: epstinv(:,:) => null()
-    integer :: iwblock, jw, irank
+    integer :: iwblock, jw, irank, ierr
 #ifdef __GPU
     attributes(device) :: epstinv, epstilde
 #endif
@@ -92,7 +94,9 @@ contains
         zxq(:,:,:) = 2d0*zxq(:,:,:)
         !$acc end kernels
       else
-        zxq(:,:,:) = 2d0*zxq(:,:,:)   ! SHM: zxq→shm_wvr on host
+        ! SHM: only rank 0 scales shared memory; barrier ensures others see the result.
+        if (mpi__rank_root_k == 0) zxq(:,:,:) = 2d0*zxq(:,:,:)
+        call MPI_barrier(comm_root_k, ierr)
       endif
     endif
     nwmax = nw
@@ -109,13 +113,13 @@ contains
           zw(:,:) = (0_kp, 0_kp)
         !$acc end kernels
         call stopwatch_start(t_sw_x_gather)
-        if(mpi__size_b == 1) then
+        if(mpi__size_b == 1 .or. wv_backend == WV_BACKEND_SHM) then
           if (wv_backend /= WV_BACKEND_SHM) then
             !$acc kernels
             zxqw(:,:) = zxq(:,:,iw)
             !$acc end kernels
           else
-            zxqw(:,:) = zxq(:,:,iw)    ! SHM: zxq→shm_wvr (host); push to device for GPU ops
+            zxqw(:,:) = zxq(:,:,iw)    ! SHM: all root_k have full shm_wvr; direct copy
             !$acc update device(zxqw)
           endif
         else
@@ -191,13 +195,13 @@ contains
       do 1115 iwblock = nwmin, nwmax, mpi__size_b
         iw = iwblock + mpi__rank_b
         call stopwatch_start(t_sw_x_gather)
-        if(mpi__size_b == 1) then
+        if(mpi__size_b == 1 .or. wv_backend == WV_BACKEND_SHM) then
           if (wv_backend /= WV_BACKEND_SHM) then
             !$acc kernels
             zxqw(:,:) = zxq(:,:,iw)
             !$acc end kernels
           else
-            zxqw(:,:) = zxq(:,:,iw)    ! SHM: zxq→shm_wvr (host); push to device for GPU ops
+            zxqw(:,:) = zxq(:,:,iw)    ! SHM: all root_k have full shm_wvr; direct copy
             !$acc update device(zxqw)
           endif
         else
@@ -280,7 +284,7 @@ contains
     complex(kind=kp), allocatable :: zw(:,:), zxqw(:,:), x_m2e(:,:)
     complex(8), allocatable, target :: epstilde(:,:)
     complex(8), pointer :: epstinv(:,:) => null()
-    integer :: iwblock, jw, irank
+    integer :: iwblock, jw, irank, ierr
 #ifdef __GPU
     attributes(device) :: epstinv, epstilde
 #endif
@@ -298,9 +302,15 @@ contains
     call stopwatch_init(t_sw_x_m2e_xf, 'xf chi: M2E')
     if(ipr)write(6,*)'WVRllwI: init'
     if (nspin == 1) then
-      !$acc kernels present(zxqi)
-      zxqi(:,:,:) = 2d0*zxqi(:,:,:) ! if paramagnetic, multiply x0 by 2
-      !$acc end kernels
+      if (wv_backend /= WV_BACKEND_SHM) then
+        !$acc kernels present(zxqi)
+        zxqi(:,:,:) = 2d0*zxqi(:,:,:)
+        !$acc end kernels
+      else
+        ! SHM: only rank 0 scales shared memory; barrier ensures others see the result.
+        if (mpi__rank_root_k == 0) zxqi(:,:,:) = 2d0*zxqi(:,:,:)
+        call MPI_barrier(comm_root_k, ierr)
+      endif
     endif
     if( iq<=nqibz ) then
        call wv_open_iq_imag_for_write(iq, comm=comm_root_k)
@@ -312,10 +322,14 @@ contains
           zw(:,:) = (0_kp, 0_kp)
           !$acc end kernels
           call stopwatch_start(t_sw_x_gather)
-          if(mpi__size_b == 1) then
-            !$acc kernels
-            zxqw(:,:) = zxqi(:,:,iw)
-            !$acc end kernels
+          if(mpi__size_b == 1 .or. wv_backend == WV_BACKEND_SHM) then
+            if (wv_backend /= WV_BACKEND_SHM) then
+              !$acc kernels
+              zxqw(:,:) = zxqi(:,:,iw)
+              !$acc end kernels
+            else
+              zxqw(:,:) = zxqi(:,:,iw)  ! SHM: all root_k have full shm_wvi; direct copy
+            endif
           else
             do irank = 0, mpi__size_b-1
               jw = iwblock + irank
@@ -379,10 +393,14 @@ contains
           iw = iwblock + mpi__rank_b
           !if(localfieldcorrectionllw()) then
           call stopwatch_start(t_sw_x_gather)
-          if(mpi__size_b == 1) then
-            !$acc kernels
-            if(iw <= niw) zxqw(:,:) = zxqi(:,:,iw)
-            !$acc end kernels
+          if(mpi__size_b == 1 .or. wv_backend == WV_BACKEND_SHM) then
+            if (wv_backend /= WV_BACKEND_SHM) then
+              !$acc kernels
+              if(iw <= niw) zxqw(:,:) = zxqi(:,:,iw)
+              !$acc end kernels
+            else
+              if(iw <= niw) zxqw(:,:) = zxqi(:,:,iw)  ! SHM: direct copy from shm_wvi
+            endif
           else
             do irank = 0, mpi__size_b-1
               jw = iwblock + irank

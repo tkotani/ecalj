@@ -69,7 +69,7 @@ if __name__ == "__main__":
     parser.add_argument("extension",   help='extension of ctrl')
     parser.add_argument("-c", "--cluster", help="cluster name", default="default", type=str)
     parser.add_argument("-np",        help='number of mpi cores in lmf',default=8,type=int)
-    parser.add_argument('--gpu' ,help='USE GPU version for hsfp0 and hrcxq',    action='store_true')
+    parser.add_argument('--gpu' ,help='USE GPU version for hsfp0 and hgw',    action='store_true')
     parser.add_argument('--lcf' ,help='local field correction', action='store_true')
     parser.add_argument("--nognuplot", "--NoGnuplot", help="stop without drawing", action="store_true", default=False)
     parser.add_argument("-d", "--dir", help="execution directory (default: current directory)", default=".", type=str)
