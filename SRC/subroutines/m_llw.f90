@@ -44,13 +44,17 @@ module m_llw
   use m_blas, only: gemm => zmm_h
 #endif
   implicit none
-  public:: WVRllwR,WVIllwI,  MPI__sendllw,MPI__sendllw2,MPI__sendllw_q
+  public:: WVRllwR,WVIllwI,  MPI__sendllw,MPI__sendllw2,MPI__sendllw_q, &
+           MPI__irecvllw_q, MPI__isendllw_q, MPI__waitllw
   complex(8),allocatable,protected,public:: llw(:,:), llwI(:,:)
   complex(8),allocatable,protected,public:: wmuk(:,:)
   logical,protected,public:: w4pmode
   integer,protected,public:: ngbq0
   private
   real(8),parameter:: pi=4d0*datan(1d0),fourpi = 4d0*pi
+  ! Non-blocking llw transfer: request list shared across irecv/isend/wait calls.
+  integer, save :: llw_nreqs = 0
+  integer, save :: llw_reqs(60)   ! generous upper bound (3 msgs × ~20 aux q-pts)
 contains
   subroutine WVRllwR(q,iq,nmbas1,nmbas2,is_x0_m_basis,is_wc_m_basis)
     use m_readqg,only: Readqg0
@@ -508,6 +512,55 @@ contains
       endif
     enddo
   end subroutine MPI__sendllw
+
+  subroutine llw_add_req(req)
+    integer, intent(in) :: req
+    llw_nreqs = llw_nreqs + 1
+    if (llw_nreqs > size(llw_reqs)) call rx('MPI__llw: llw_reqs overflow — increase llw_reqs size')
+    llw_reqs(llw_nreqs) = req
+  end subroutine llw_add_req
+
+  subroutine MPI__irecvllw_q(iq0, src, dest)
+    ! Post non-blocking Irecv(s) for llw/llwI/wmuk of auxiliary q-point iq0.
+    ! Only dest rank participates; all others return immediately.
+    use m_mpi, only: MPI__rank, MPI__size, comm
+    integer, intent(in) :: iq0, src, dest
+    integer :: ierr, req, tag
+    if (MPI__size == 1 .or. src == dest .or. MPI__rank /= dest) return
+    tag = iq0 * 4
+    if (iq0 <= nq0i) then
+      call MPI_Irecv(llw(nw_i,iq0),  nw-nw_i+1, MPI_COMPLEX16, src, tag,   comm, req, ierr); call llw_add_req(req)
+      call MPI_Irecv(llwI(1,iq0),    niw,        MPI_COMPLEX16, src, tag+1, comm, req, ierr); call llw_add_req(req)
+    end if
+    if (ixyz(iq0) /= 0) then
+      call MPI_Irecv(wmuk(2,ixyz(iq0)), ngbq0-1, MPI_COMPLEX16, src, tag+2, comm, req, ierr); call llw_add_req(req)
+    end if
+  end subroutine MPI__irecvllw_q
+
+  subroutine MPI__isendllw_q(iq0, src, dest)
+    ! Post non-blocking Isend(s) for llw/llwI/wmuk of auxiliary q-point iq0.
+    ! Only src rank participates; all others return immediately.
+    use m_mpi, only: MPI__rank, MPI__size, comm
+    integer, intent(in) :: iq0, src, dest
+    integer :: ierr, req, tag
+    if (MPI__size == 1 .or. src == dest .or. MPI__rank /= src) return
+    tag = iq0 * 4
+    if (iq0 <= nq0i) then
+      call MPI_Isend(llw(nw_i,iq0),  nw-nw_i+1, MPI_COMPLEX16, dest, tag,   comm, req, ierr); call llw_add_req(req)
+      call MPI_Isend(llwI(1,iq0),    niw,        MPI_COMPLEX16, dest, tag+1, comm, req, ierr); call llw_add_req(req)
+    end if
+    if (ixyz(iq0) /= 0) then
+      call MPI_Isend(wmuk(2,ixyz(iq0)), ngbq0-1, MPI_COMPLEX16, dest, tag+2, comm, req, ierr); call llw_add_req(req)
+    end if
+  end subroutine MPI__isendllw_q
+
+  subroutine MPI__waitllw()
+    ! Wait for all pending non-blocking llw transfers to complete.
+    integer :: ierr
+    if (llw_nreqs == 0) return
+    call MPI_Waitall(llw_nreqs, llw_reqs, MPI_STATUSES_IGNORE, ierr)
+    llw_nreqs = 0
+  end subroutine MPI__waitllw
 
   subroutine MPI__sendllw_q(iq0, src, dest)
     ! Send/recv llw/llwI/wmuk for one auxiliary q-point iq0 (1-based).
