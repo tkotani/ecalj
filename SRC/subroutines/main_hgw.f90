@@ -67,7 +67,10 @@ subroutine hgw(do_correlation, do_exchange)
   iqxend = nqibz + nq0i + nq0iadd
   if(ipr) write(stdo,'(1X,A,I5)') 'MPI: nranks (omega-parallel):', mpi__size
 
-  ! Exchange runs before any SplitXq so mpi__size_k=mpi__size (global k-distribution).
+  ! SplitXq must precede exchange: comm_b and comm_k are uninitialized otherwise,
+  ! and sxcf_scz_exchange silently fails on invalid communicators.
+  call MPI__SplitXq(1, mpi__size)
+
   if (do_exchange) then
      if(ipr) write(stdo,ftox) ' hgw: starting in-process hsfp0_sc(--job=1) exchange phase'
      call hsfp0_sc(skip_init=.true., skip_rx0=.true., ixc_in=1)
@@ -75,25 +78,26 @@ subroutine hgw(do_correlation, do_exchange)
 
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hgw: sanity check. |q(iq=1)| /= 0')
 
-  ! Unified correlation loop: single SplitXq, all ranks, iq = iqxend → 1.
+  ! Unified correlation loop: iq = iqxend → 1 (SplitXq already called above).
   ! Auxiliary q-pts (iq > nqibz) build W/llw only; rank 0 pre-posts Irecvs.
   ! Regular q-pts (iq <= nqibz) build W then consume for Sc.
   ! W0w0i applied at iq=1 after all auxiliary llw arrive.
-  call MPI__SplitXq(1, mpi__size)
   call hsfp0_sc_setup(skip_init=.true., ixc_in=2)
   call sxcf_correlation_init(hs_ef, hs_esmr, hs_nspinmx)
   if(ipr) write(stdo,ftox) 'hgw: unified loop iqxend→1, mpi_rank=',MPI__rank
   call flush(stdo)
   ! Pre-post Irecvs for auxiliary llw on rank 0 before the main loop.
+  ! llw is written only by root_k (rank 0) in WVRllwR/WVIllwI.
+  ! With single q-group, root_k==0==dest so all calls are no-ops.
   do iq = nqibz+1, iqxend
-    call MPI__irecvllw_q(iq-nqibz, mod(iq-nqibz-1, mpi__size), 0)
+    call MPI__irecvllw_q(iq-nqibz, 0, 0)
   enddo
   do iq = iqxend, 1, -1
     qp = qibze(:,iq)
     call build_screened_coulomb_step_kx(iq, qp, realomega, imagomega)
     if (iq > nqibz) then
       ! Auxiliary q-point: post non-blocking send of llw to rank 0.
-      call MPI__isendllw_q(iq-nqibz, mod(iq-nqibz-1, mpi__size), 0)
+      call MPI__isendllw_q(iq-nqibz, 0, 0)
     else
       ! Regular q-point: barrier so all ranks see W in SHM, then consume.
       call MPI_barrier(comm_q, ierr)
