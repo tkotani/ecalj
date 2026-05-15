@@ -358,33 +358,21 @@ contains
   subroutine lpt_assign(n_items, workload, n_groups, group_rank, assigned, grp_assign_out)
     ! LPT (Longest Processing Time) greedy load balancing.
     ! Sorts items by workload descending, assigns each to the least-loaded group.
+    use m_sort, only: sort_index
     integer, intent(in)            :: n_items, n_groups, group_rank
     integer, intent(in)            :: workload(n_items)
     logical, intent(out)           :: assigned(n_items)
     integer, intent(out), optional :: grp_assign_out(n_items)
-    integer :: i, j, g, tmp
-    integer :: sorted_idx(n_items), sorted_wl(n_items)
-    integer :: grp_assign(n_items), group_load(0:n_groups-1)
-    do i = 1, n_items
-      sorted_idx(i) = i
-      sorted_wl(i)  = workload(i)
-    enddo
-    do i = 1, n_items-1
-      j = maxloc(sorted_wl(i:n_items), 1) + i - 1
-      if (j /= i) then
-        tmp = sorted_idx(i); sorted_idx(i) = sorted_idx(j); sorted_idx(j) = tmp
-        tmp = sorted_wl(i);  sorted_wl(i)  = sorted_wl(j);  sorted_wl(j)  = tmp
-      endif
-    enddo
+    integer :: i, g
+    integer :: idx(n_items), grp_assign(n_items), group_load(0:n_groups-1)
+    idx = sort_index(real(workload, 8))  ! ascending; iterate in reverse for LPT descending
     group_load = 0
-    do i = 1, n_items
+    do i = n_items, 1, -1
       g = minloc(group_load, 1) - 1
-      grp_assign(sorted_idx(i)) = g
-      group_load(g) = group_load(g) + sorted_wl(i)
+      grp_assign(idx(i)) = g
+      group_load(g) = group_load(g) + workload(idx(i))
     enddo
-    do i = 1, n_items
-      assigned(i) = (grp_assign(i) == group_rank)
-    enddo
+    assigned = (grp_assign == group_rank)
     if (present(grp_assign_out)) grp_assign_out = grp_assign
   end subroutine lpt_assign
 
