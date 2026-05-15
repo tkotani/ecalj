@@ -116,8 +116,10 @@ contains
     use m_freq,only: nw_i,nw,niw 
     use m_zmel,only: set_m2e_prod_basis, set_m2e_prod_basis_chipm
     use m_stopwatch
-    use m_mpi,only: comm_k, mpi__rank_k, mpi__size_k, MPI__reduceSum, &
-         mpi__ipr_col, mpi__npr_col, mpi__rank_b, mpi__root_k, comm_b,&
+    use m_mpi,only: comm_k => comm_k_xq, mpi__rank_k => mpi__rank_k_xq, &
+         mpi__size_k => mpi__size_k_xq, MPI__reduceSum, &
+         mpi__ipr_col, mpi__npr_col, mpi__rank_b => mpi__rank_b_xq, &
+         mpi__root_k => mpi__root_k_xq, comm_b => comm_b_xq, &
          MPI__AllreduceSumReal, MPI__AllreduceSumRealSca
     use m_gpu, only: use_gpu
 !    use m_data_gpu, only: SetDataGPU_inkx, ExitDataGPU_inkx
@@ -722,7 +724,7 @@ contains
     deallocate(zxqi)
   end subroutine deallocatezxqi
   subroutine x0kf_zmel( q,k, isp_k,isp_kq)!, GPUTEST) ! Return zmel= <phi phi |M_I> in m_zmel
-    use m_mpi, only: comm_b
+    use m_mpi, only: comm_b => comm_b_xq
     intent(in)   ::     q,k, isp_k,isp_kq   
     integer::              k,isp_k,isp_kq 
     real(8)::           q(3)

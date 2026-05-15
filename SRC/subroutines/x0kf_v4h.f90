@@ -16,7 +16,7 @@ module m_x0kf
   use m_ftox
   use m_readVcoud,only:   vcousq,zcousq,ngb,ngc
   use m_kind,only: kp => kindrcxq
-  use m_mpi,only: ipr, mpi__root_k
+  use m_mpi,only: ipr, mpi__root_k => mpi__root_k_xq
   use m_wv_storage, only: WV_BACKEND_SHM, wv_backend, shm_wvr, shm_wvi, wv_ngb
 #if defined(__MP) && defined(__GPU)
   use m_blas, only: gemm => cmm_d
@@ -155,8 +155,11 @@ contains
     use m_zmel,only: set_m2e_prod_basis, set_m2e_prod_basis_chipm
     use m_stopwatch
     use m_readVcoud, only: ReleaseZcousq
-    use m_mpi,only: mpi__rank_b, mpi__size_b, mpi__root_b, comm_b, comm_q, &
-                    mpi__rank_k, mpi__size_k, mpi__root_k, mpi__rank_root_k, comm_k, comm_root_k
+    use m_mpi,only: mpi__rank_b => mpi__rank_b_xq, mpi__size_b => mpi__size_b_xq, &
+                    mpi__root_b => mpi__root_b_xq, comm_b => comm_b_xq, comm_q, &
+                    mpi__rank_k => mpi__rank_k_xq, mpi__size_k => mpi__size_k_xq, &
+                    mpi__root_k => mpi__root_k_xq, mpi__rank_root_k => mpi__rank_root_k_xq, &
+                    comm_k => comm_k_xq, comm_root_k => comm_root_k_xq
 #ifdef __MP
     use m_mpi,only: MPI__reduceSum => MPI__reduceSum_c
 #else

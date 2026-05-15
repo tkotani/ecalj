@@ -303,7 +303,7 @@ contains
   subroutine sxcf_correlation_init(ef, esmr, nspinmx)
     use m_keyvalue, only: getkeyvalue
     use m_GWinput, only: gwinput_init, gwinput_loaded, tg_KeepWV => KeepWV
-    use m_mpi, only: mpi__size_b, mpi__rank_b, ipr
+    use m_mpi, only: mpi__size_b => mpi__size_b_sxc, mpi__rank_b => mpi__rank_b_sxc, ipr
     use m_blas, only: int_split
     use m_gpu, only: use_gpu
     real(8), intent(in) :: ef, esmr
@@ -359,7 +359,7 @@ contains
   ! One iteration of the kxloop: read/load W(kx), then accumulate the
   ! correlation contribution into zsecall(:,:,ip,isp) for all (irot, ip, isp).
   subroutine sxcf_correlation_step_kx(kx, ef, esmr, nspinmx)
-    use m_mpi, only: comm_b, ipr
+    use m_mpi, only: comm_b => comm_b_sxc, ipr
     use m_gpu, only: use_gpu
     integer, intent(in) :: kx, nspinmx
     real(8), intent(in) :: ef, esmr

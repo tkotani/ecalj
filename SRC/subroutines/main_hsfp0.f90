@@ -647,7 +647,7 @@ subroutine hsfp0() bind(C)
   allocate(irkip(nspinmx,nqibz,ngrp,nq), source=0) !local
   rankdivider: block
     use m_sxcf_count, only: lpt_assign
-    use m_mpi, only: mpi__rank_k, mpi__size_k
+    use m_mpi, only: mpi__rank_k => mpi__rank_k_xq, mpi__size_k => mpi__size_k_xq
     integer :: kx, ig, isp, wl(nqibz)
     logical :: kx_assigned(nqibz)
     do kx = 1, nqibz

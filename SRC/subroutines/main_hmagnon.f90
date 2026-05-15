@@ -25,8 +25,10 @@ subroutine hmagnon() bind(C)
   use m_readgwinput, only: ReadGWinputKeys
   use m_lgunit, only: m_lgunit_init, stdo
   use m_dpsion, only: dpsion_init, dpsion_chiq
-  use m_mpi, only: MPI__Initialize, MPI__consoleout, MPI__SplitXq
-  use m_mpi, only: mpi__rank, mpi__size, mpi__root, comm, comm_k, mpi__rank_k, mpi__size_k, mpi__root_k, ipr
+  use m_mpi, only: MPI__Initialize, MPI__consoleout, MPI__InitQgroups, MPI__SplitXq
+  use m_mpi, only: mpi__rank, mpi__size, mpi__root, comm, comm_k => comm_k_xq, &
+                   mpi__rank_k => mpi__rank_k_xq, mpi__size_k => mpi__size_k_xq, &
+                   mpi__root_k => mpi__root_k_xq, ipr
   use m_mpiio, only: openm, closem, writem, readm
   use m_blas, only: m_op_C, zmm => zmm_h, int_split
   use m_lapack, only: zminv => zminv_h, zhev => zhev_h, zgev => zgev_h
@@ -173,6 +175,7 @@ subroutine hmagnon() bind(C)
     if(ipr) write(stdo,ftox) 'MPI: worker_inQtask', worker_inQtask
     allocate(mpi__task(iqxini:iqxend), source=[(mod(iq-1,mpi__size/worker_inQtask)==mpi__rank/worker_inQtask,iq=iqxini,iqxend)])
     if(ipr) write(stdo,ftox) 'mpi_rank',mpi__rank,'mpi__Qtask=',mpi__task
+    call MPI__InitQgroups(worker_inQtask)
     call MPI__SplitXq(n_bpara, n_kpara)
   endblock SetMPI_Rankdivider
 

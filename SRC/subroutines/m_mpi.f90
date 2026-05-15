@@ -10,12 +10,24 @@ module m_mpi !MPI utility (unified from m_mpi + m_MPItk)
   integer, protected :: procid, master = 0, nsize
   logical, protected :: master_mpi, readtk = .false.
   character(8), protected :: strprocid
-!MPI communicator hierarchy for q-loop (hgw) and standalone (hsfp0_sc)
+!MPI communicator hierarchy: q-group layer (comm_q) + two persistent intra-group splits
   integer :: comm_q, mpi__rank_q, mpi__size_q
-  integer :: comm_k, mpi__rank_k, mpi__size_k
-  integer :: comm_b, mpi__rank_b, mpi__size_b
-  integer :: comm_root_k, mpi__rank_root_k, mpi__size_root_k
-  logical :: mpi__root_q, mpi__root_k, mpi__root_b
+  logical, protected :: mpi__root_q
+  integer, protected :: iq_qgroup=0, n_qgroup=1, worker_inQtask=2
+
+!-- Xq split (k-priority): used by build_screened_coulomb and exchange
+!   comm_k_xq: all worker ranks (k-parallel);  comm_b_xq: ω-parallel (size=n_bpara)
+  integer, protected :: comm_k_xq, mpi__rank_k_xq, mpi__size_k_xq
+  integer, protected :: comm_b_xq, mpi__rank_b_xq, mpi__size_b_xq
+  logical, protected :: mpi__root_k_xq, mpi__root_b_xq
+  integer, protected :: comm_root_k_xq, mpi__rank_root_k_xq, mpi__size_root_k_xq
+
+!-- Sxc split (k-priority): used by sxcf_correlation
+!   comm_k_sxc: all worker ranks (k-parallel);  comm_b_sxc: ω-parallel (size=n_bpara)
+  integer, protected :: comm_k_sxc, mpi__rank_k_sxc, mpi__size_k_sxc
+  integer, protected :: comm_b_sxc, mpi__rank_b_sxc, mpi__size_b_sxc
+  logical, protected :: mpi__root_k_sxc, mpi__root_b_sxc
+
   integer, allocatable :: mpi__npr_col(:), mpi__ipr_col(:)
   logical :: ipr=.true.
 !Simple split of MPI communicator
@@ -25,7 +37,6 @@ module m_mpi !MPI utility (unified from m_mpi + m_MPItk)
   integer,private :: mpi__info
   integer,private:: ista(MPI_STATUS_SIZE )
 
-  integer, protected :: iq_qgroup=0, n_qgroup=1, worker_inQtask=2
 contains
   subroutine setipr(comm)
     integer:: comm
@@ -43,19 +54,14 @@ contains
     logical,external:: cmdopt0
     logical :: initialized
     comm=MPI_COMM_WORLD
-    if(present(commin)) comm= commin 
-    !merge(commin,MPI_COMM_WORLD,present(commin))
-    call getcwd(cwd)           ! get current working directory
+    if(present(commin)) comm= commin
+    call getcwd(cwd)
     call MPI_Initialized(initialized, mpi__info)
-    if(.not. initialized) call MPI_Init( mpi__info ) ! current working directory is changed if mpirun is not used
+    if(.not. initialized) call MPI_Init( mpi__info )
     call MPI_Comm_rank( comm, mpi__rank, mpi__info )
     call MPI_Comm_size( comm, mpi__size, mpi__info )
     mpi__root= mpi__rank==0
-    ! Default: treat all ranks as one group. MPI__SplitXq/SplitGW override these.
-    mpi__size_b = mpi__size; mpi__rank_b = mpi__rank; mpi__root_b = mpi__rank == 0
-    mpi__size_k = mpi__size; mpi__rank_k = mpi__rank; mpi__root_k = mpi__rank == 0
-    mpi__rank_root_k = 0;    mpi__size_root_k = 1
-    if( mpi__root ) call chdir(cwd)        ! recover current working directory
+    if( mpi__root ) call chdir(cwd)
     ipr=mpi__root
     if(cmdopt0('--fullstdo')) ipr=.true.
     !-- m_MPItk compatible
@@ -64,7 +70,7 @@ contains
     master_mpi = mpi__root
     readtk = .true.
     strprocid = trim(i2char(procid))
-    call m_setargs_init()  ! ensures arglist / sname are populated for any Fortran binary
+    call m_setargs_init()
   end subroutine MPI__Initialize
 
   subroutine m_setargs_init()
@@ -74,110 +80,103 @@ contains
     call m_ext_init()
   end subroutine m_setargs_init
 
-!  MPI__SplitXq is used in hgw for q-points, k-points, and MPB parallel.
-! example in case of n_bpara = 2 and n_kpara  = 3
-! mpi__rank                           : 0,1,2,3,4,5, 6,7,8,9,10,11
-! color = mpi__rank/(n_bpara*n_kpara) : 0,0,0,0,0,0, 1,1,1,1, 1, 1,
-! mpi__rank_q                         : 0,1,2,3,4,5, 0,1,2,3, 4, 5
-! mpi__root_q                         : T,F,F,F,F,F, T,F,F,F, F, F
-! color = mpi__rank_q/n_bpara         : 0,0,1,1,2,2  0,0,1,1, 2, 2
-! color = mod(mpi__rank_q,n_bpara)    : 0,1,0,1,0,1  0,1,0,1, 0, 1
-
-  subroutine MPI__SplitXq(n_bpara, n_kpara)
-    implicit none
-    integer, intent(in) :: n_bpara, n_kpara
+  subroutine MPI__InitQgroups(worker_in)
+    !> Set up intra-group communicator comm_q and derived variables.
+    !> No arg: detect node topology via MPI_COMM_TYPE_SHARED.
+    !> With worker_in: count-based split using the given worker_inQtask value.
+    !> Call after MPI__Initialize; pair with MPI__FreeQgroups.
+    integer, intent(in), optional :: worker_in
     integer :: color
-
-    color = mpi__rank/(n_bpara*n_kpara)
-    call mpi_comm_split(comm, color, mpi__rank, comm_q, mpi__info)
-    call mpi_comm_rank(comm_q, mpi__rank_q, mpi__info)
-    call mpi_comm_size(comm_q, mpi__size_q, mpi__info)
-    mpi__root_q = mpi__rank_q == 0
-
-    color = mpi__rank_q/n_bpara
-    call mpi_comm_split(comm_q, color, mpi__rank, comm_b, mpi__info)
-    call mpi_comm_rank(comm_b, mpi__rank_b, mpi__info)
-    call mpi_comm_size(comm_b, mpi__size_b, mpi__info)
-
-    color = mod(mpi__rank_q,n_bpara)
-    call mpi_comm_split(comm_q, color, mpi__rank, comm_k, mpi__info)
-    call mpi_comm_rank(comm_k, mpi__rank_k, mpi__info)
-    call mpi_comm_size(comm_k, mpi__size_k, mpi__info)
-
-    mpi__root_b = mpi__rank_b == 0
-    color = merge(0, MPI_UNDEFINED, mpi__rank_k == 0)
-    mpi__root_k = mpi__rank_k == 0
-    call mpi_comm_split(comm_q, color, mpi__rank, comm_root_k, mpi__info)
-    if (comm_root_k /= MPI_COMM_NULL) then
-      call mpi_comm_rank(comm_root_k, mpi__rank_root_k, mpi__info)
-      call mpi_comm_size(comm_root_k, mpi__size_root_k, mpi__info)
+    if (present(worker_in)) then
+      worker_inQtask = worker_in
+      color = mpi__rank / worker_inQtask
+      call mpi_comm_split(comm, color, mpi__rank, comm_q, mpi__info)
+    else
+      call MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, mpi__rank, MPI_INFO_NULL, comm_q, mpi__info)
+      call MPI_Comm_size(comm_q, worker_inQtask, mpi__info)
     endif
-    if(ipr)write(06,'(X,A,4I5,3L2)') "MPI: rank, rank_q, rank_k, rank_b, root_q, root_k, root_b ", &
-                mpi__rank, mpi__rank_q, mpi__rank_k, mpi__rank_b, mpi__root_q, mpi__root_k, mpi__root_b
-  end subroutine MPI__SplitXq
-  
-  subroutine MPI__FreeSplitXq()
-    !> Free comm_q/comm_b/comm_k/comm_root_k and their NPR arrays so
-    !> MPI__SplitXq can be called again with different parameters.
-    implicit none
-    call mpi_comm_free(comm_k, mpi__info)
-    call mpi_comm_free(comm_b, mpi__info)
-    if (comm_root_k /= MPI_COMM_NULL) call mpi_comm_free(comm_root_k, mpi__info)
-    call mpi_comm_free(comm_q, mpi__info)
-    if (allocated(mpi__npr_col)) deallocate(mpi__npr_col)
-    if (allocated(mpi__ipr_col)) deallocate(mpi__ipr_col)
-  end subroutine MPI__FreeSplitXq
-
-  subroutine MPI__InitQgroups()
-    !> Detect node topology via MPI_COMM_TYPE_SHARED.
-    !> Sets comm_q = intra-node communicator (kept alive until MPI__FreeQgroups).
-    !> worker_inQtask = ppn ensures comm_q stays intra-node (SHM constraint).
-    !> Call from hgw after MPI__Initialize.
-    call MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, mpi__rank, MPI_INFO_NULL, comm_q, mpi__info)
-    call MPI_Comm_size(comm_q, worker_inQtask, mpi__info)
-    call MPI_Comm_rank(comm_q, mpi__rank_q,    mpi__info)
+    call MPI_Comm_rank(comm_q, mpi__rank_q, mpi__info)
     mpi__size_q = worker_inQtask
     mpi__root_q = mpi__rank_q == 0
     n_qgroup  = mpi__size / worker_inQtask
     iq_qgroup = mpi__rank / worker_inQtask
   end subroutine MPI__InitQgroups
 
-  subroutine MPI__SplitGW(n_bpara, n_kpara)
-    !> Split comm_q (pre-set by MPI__InitQgroups) into comm_b and comm_k.
-    !> All collectives are intra-node (comm_q), so ranks in other q-groups
-    !> that skip the current iq do not participate — no deadlock.
-    implicit none
+  subroutine MPI__SplitXq(n_bpara, n_kpara)
+    !> k-priority split of comm_q into comm_k_xq (size=n_kpara) and comm_b_xq (size=n_bpara).
+    !> Layout: rank_q = rank_b*n_kpara + rank_k → color_k=rank_q/n_kpara, color_b=mod(rank_q,n_kpara).
+    !> Special cases: n_bpara=1 → all-k (full k-parallel); n_kpara=1 → all-b (full ω-parallel).
+    !> Sets backward-compat aliases comm_k/b, rank_k/b, size_k/b, root_k/b.
+    !> Pair with MPI__FreeXq.
     integer, intent(in) :: n_bpara, n_kpara
     integer :: color
-    color = mpi__rank_q / n_bpara
-    call mpi_comm_split(comm_q, color, mpi__rank_q, comm_b, mpi__info)
-    call mpi_comm_rank(comm_b, mpi__rank_b, mpi__info)
-    call mpi_comm_size(comm_b, mpi__size_b, mpi__info)
-    color = mod(mpi__rank_q, n_bpara)
-    call mpi_comm_split(comm_q, color, mpi__rank_q, comm_k, mpi__info)
-    call mpi_comm_rank(comm_k, mpi__rank_k, mpi__info)
-    call mpi_comm_size(comm_k, mpi__size_k, mpi__info)
-    mpi__root_b = mpi__rank_b == 0
-    mpi__root_k = mpi__rank_k == 0
-    color = merge(0, MPI_UNDEFINED, mpi__rank_k == 0)
-    call mpi_comm_split(comm_q, color, mpi__rank_q, comm_root_k, mpi__info)
-    if (comm_root_k /= MPI_COMM_NULL) then
-      call mpi_comm_rank(comm_root_k, mpi__rank_root_k, mpi__info)
-      call mpi_comm_size(comm_root_k, mpi__size_root_k, mpi__info)
+    ! comm_b_xq: ranks sharing the same rank_k index → same b-group (size = n_bpara)
+    color = mod(mpi__rank_q, n_kpara)
+    call mpi_comm_split(comm_q, color, mpi__rank_q, comm_b_xq, mpi__info)
+    call mpi_comm_rank(comm_b_xq, mpi__rank_b_xq, mpi__info)
+    call mpi_comm_size(comm_b_xq, mpi__size_b_xq, mpi__info)
+    mpi__root_b_xq = mpi__rank_b_xq == 0
+    ! comm_k_xq: ranks sharing the same rank_b index → same k-group (size = n_kpara)
+    color = mpi__rank_q / n_kpara
+    call mpi_comm_split(comm_q, color, mpi__rank_q, comm_k_xq, mpi__info)
+    call mpi_comm_rank(comm_k_xq, mpi__rank_k_xq, mpi__info)
+    call mpi_comm_size(comm_k_xq, mpi__size_k_xq, mpi__info)
+    mpi__root_k_xq = mpi__rank_k_xq == 0
+    ! comm_root_k_xq: k-roots across b-groups (for GatherXqw)
+    color = merge(0, MPI_UNDEFINED, mpi__rank_k_xq == 0)
+    call mpi_comm_split(comm_q, color, mpi__rank_q, comm_root_k_xq, mpi__info)
+    if (comm_root_k_xq /= MPI_COMM_NULL) then
+      call mpi_comm_rank(comm_root_k_xq, mpi__rank_root_k_xq, mpi__info)
+      call mpi_comm_size(comm_root_k_xq, mpi__size_root_k_xq, mpi__info)
     endif
-    if(ipr) write(06,'(X,A,4I5,3L2)') "MPI(GW): rank rank_q rank_k rank_b root_q root_k root_b", &
-                mpi__rank, mpi__rank_q, mpi__rank_k, mpi__rank_b, mpi__root_q, mpi__root_k, mpi__root_b
-  end subroutine MPI__SplitGW
+    if(ipr) write(06,'(X,A,5I5,3L2)') &
+      "MPI(Xq): rank rank_q rank_k_xq rank_b_xq n_bpara n_kpara root_q root_k root_b", &
+      mpi__rank, mpi__rank_q, mpi__rank_k_xq, mpi__rank_b_xq, n_bpara, n_kpara, &
+      mpi__root_q, mpi__root_k_xq, mpi__root_b_xq
+  end subroutine MPI__SplitXq
 
-  subroutine MPI__FreeGW()
-    !> Free comm_b/comm_k/comm_root_k. comm_q is managed by MPI__FreeQgroups.
+  subroutine MPI__FreeXq()
+    !> Free comm_k_xq, comm_b_xq, comm_root_k_xq created by MPI__SplitXq.
     implicit none
-    call mpi_comm_free(comm_k, mpi__info)
-    call mpi_comm_free(comm_b, mpi__info)
-    if (comm_root_k /= MPI_COMM_NULL) call mpi_comm_free(comm_root_k, mpi__info)
+    call mpi_comm_free(comm_k_xq, mpi__info)
+    call mpi_comm_free(comm_b_xq, mpi__info)
+    if (comm_root_k_xq /= MPI_COMM_NULL) call mpi_comm_free(comm_root_k_xq, mpi__info)
     if (allocated(mpi__npr_col)) deallocate(mpi__npr_col)
     if (allocated(mpi__ipr_col)) deallocate(mpi__ipr_col)
-  end subroutine MPI__FreeGW
+  end subroutine MPI__FreeXq
+
+  subroutine MPI__SplitSxc(n_bpara, n_kpara)
+    !> k-priority split of comm_q into comm_k_sxc (size=n_kpara) and comm_b_sxc (size=n_bpara).
+    !> Same layout as SplitXq: rank_q = rank_b*n_kpara + rank_k.
+    !> Special cases: n_bpara=1 → all-k (full k-parallel); n_kpara=1 → all-b.
+    !> Sets backward-compat alias comm_k/rank_k/size_k/root_k to Sxc k-versions.
+    !> Pair with MPI__FreeSxc.
+    integer, intent(in) :: n_bpara, n_kpara
+    integer :: color
+    ! comm_b_sxc: ranks sharing the same rank_k → same b-group (size = n_bpara)
+    color = mod(mpi__rank_q, n_kpara)
+    call mpi_comm_split(comm_q, color, mpi__rank_q, comm_b_sxc, mpi__info)
+    call mpi_comm_rank(comm_b_sxc, mpi__rank_b_sxc, mpi__info)
+    call mpi_comm_size(comm_b_sxc, mpi__size_b_sxc, mpi__info)
+    mpi__root_b_sxc = mpi__rank_b_sxc == 0
+    ! comm_k_sxc: ranks sharing the same rank_b → same k-group (size = n_kpara)
+    color = mpi__rank_q / n_kpara
+    call mpi_comm_split(comm_q, color, mpi__rank_q, comm_k_sxc, mpi__info)
+    call mpi_comm_rank(comm_k_sxc, mpi__rank_k_sxc, mpi__info)
+    call mpi_comm_size(comm_k_sxc, mpi__size_k_sxc, mpi__info)
+    mpi__root_k_sxc = mpi__rank_k_sxc == 0
+    if(ipr) write(06,'(X,A,5I5,3L2)') &
+      "MPI(Sxc): rank rank_q rank_k_sxc rank_b_sxc n_bpara n_kpara root_q root_k root_b", &
+      mpi__rank, mpi__rank_q, mpi__rank_k_sxc, mpi__rank_b_sxc, n_bpara, n_kpara, &
+      mpi__root_q, mpi__root_k_sxc, mpi__root_b_sxc
+  end subroutine MPI__SplitSxc
+
+  subroutine MPI__FreeSxc()
+    !> Free comm_k_sxc, comm_b_sxc created by MPI__SplitSxc.
+    implicit none
+    call mpi_comm_free(comm_k_sxc, mpi__info)
+    call mpi_comm_free(comm_b_sxc, mpi__info)
+  end subroutine MPI__FreeSxc
 
   subroutine MPI__FreeQgroups()
     !> Free comm_q created by MPI__InitQgroups. Call once at end of hgw.
@@ -202,67 +201,63 @@ contains
     integer, intent(in) :: npr
     integer, intent(out) :: npr_col
     integer :: irank_b, ipr_col
-    if(.not.allocated(mpi__npr_col)) allocate(mpi__npr_col(0:mpi__size_b-1))
-    if(.not.allocated(mpi__ipr_col)) allocate(mpi__ipr_col(0:mpi__size_b-1))
+    if(.not.allocated(mpi__npr_col)) allocate(mpi__npr_col(0:mpi__size_b_xq-1))
+    if(.not.allocated(mpi__ipr_col)) allocate(mpi__ipr_col(0:mpi__size_b_xq-1))
     ipr_col = 1
-    do irank_b = 0, mpi__size_b - 1
-      npr_col = (npr + irank_b)/mpi__size_b
+    do irank_b = 0, mpi__size_b_xq - 1
+      npr_col = (npr + irank_b)/mpi__size_b_xq
       mpi__npr_col(irank_b) = npr_col
       mpi__ipr_col(irank_b) = ipr_col
       ipr_col = ipr_col + npr_col
       if (npr_col == 0) call rx("MPI__Setnpr_col: use small parallelization")
     enddo
-    npr_col = mpi__npr_col(mpi__rank_b)
-    ipr_col = mpi__ipr_col(mpi__rank_b)
-    if(ipr)write(06,'(X,A,I5,2I7)') "mpi__rank_b, ipr_col, npr_col=", mpi__rank_b, ipr_col, npr_col
+    npr_col = mpi__npr_col(mpi__rank_b_xq)
+    ipr_col = mpi__ipr_col(mpi__rank_b_xq)
+    if(ipr)write(06,'(X,A,I5,2I7)') "mpi__rank_b_xq, ipr_col, npr_col=", mpi__rank_b_xq, ipr_col, npr_col
   end subroutine MPI__Setnpr_col
 
   subroutine MPI__GatherXqw(xqw, xqw_all, npr, npr_col, collector_rank)
     integer, intent(in) :: npr, npr_col
     integer, intent(in), optional :: collector_rank
     complex(8), intent(in) :: xqw(npr,npr_col)
-    complex(8), intent(inout) :: xqw_all(npr,npr)  ! we suppose only column was split
+    complex(8), intent(inout) :: xqw_all(npr,npr)
     integer, allocatable :: data_disp(:), data_size(:)
     integer :: irank_b, collector_rank_in
-    if(mpi__size_b == 1 .and. npr == npr_col) then
+    if(mpi__size_b_xq == 1 .and. npr == npr_col) then
       xqw_all(:,:) = xqw(:,:)
       return
     endif
-    allocate(data_size(0:mpi__size_b-1), data_disp(0:mpi__size_b-1))
-    do irank_b = 0, mpi__size_b -1
+    allocate(data_size(0:mpi__size_b_xq-1), data_disp(0:mpi__size_b_xq-1))
+    do irank_b = 0, mpi__size_b_xq -1
       data_size(irank_b) = npr*mpi__npr_col(irank_b)
       data_disp(irank_b) = npr*(mpi__ipr_col(irank_b)-1)
     enddo
-    ! call mpi_allgatherv(xqw, npr*npr_col, mpi_complex16, xqw_all, data_size, data_disp, &
-    !               &  mpi_complex16, comm_root_k, mpi__info)
     collector_rank_in = 0
     if(present(collector_rank)) collector_rank_in = collector_rank
     call mpi_gatherv(xqw, npr*npr_col, mpi_complex16, xqw_all, data_size, data_disp, &
-                  &  mpi_complex16, collector_rank_in, comm_root_k, mpi__info)
+                  &  mpi_complex16, collector_rank_in, comm_root_k_xq, mpi__info)
     deallocate(data_size, data_disp)
   end subroutine MPI__GatherXqw
   subroutine MPI__GatherXqw_c(xqw, xqw_all, npr, npr_col, collector_rank)
     integer, intent(in) :: npr, npr_col
     integer, intent(in), optional :: collector_rank
     complex(4), intent(in) :: xqw(npr,npr_col)
-    complex(4), intent(out) :: xqw_all(npr,npr)  ! we suppose only column was split
+    complex(4), intent(out) :: xqw_all(npr,npr)
     integer, allocatable :: data_disp(:), data_size(:)
     integer :: irank_b, collector_rank_in
-    if(mpi__size_b == 1 .and. npr == npr_col) then
+    if(mpi__size_b_xq == 1 .and. npr == npr_col) then
       xqw_all(:,:) = xqw(:,:)
       return
     endif
-    allocate(data_size(0:mpi__size_b-1), data_disp(0:mpi__size_b-1))
-    do irank_b = 0, mpi__size_b -1
+    allocate(data_size(0:mpi__size_b_xq-1), data_disp(0:mpi__size_b_xq-1))
+    do irank_b = 0, mpi__size_b_xq -1
       data_size(irank_b) = npr*mpi__npr_col(irank_b)
       data_disp(irank_b) = npr*(mpi__ipr_col(irank_b)-1)
     enddo
-    ! call mpi_allgatherv(xqw, npr*npr_col, mpi_complex, xqw_all, data_size, data_disp, &
-    !               &  mpi_complex, comm_root_k, mpi__info)
     collector_rank_in = 0
     if(present(collector_rank)) collector_rank_in = collector_rank
     call mpi_gatherv(xqw, npr*npr_col, mpi_complex, xqw_all, data_size, data_disp, &
-                  &  mpi_complex, collector_rank_in, comm_root_k, mpi__info)
+                  &  mpi_complex, collector_rank_in, comm_root_k_xq, mpi__info)
     deallocate(data_size, data_disp)
   end subroutine MPI__GatherXqw_c
   integer function get_mpi_size(communicator) result(mpi_size)
@@ -342,7 +337,7 @@ contains
     implicit none
     integer, intent(in) :: sizex
     complex(8), intent(inout) :: data(sizex)
-    complex(8), allocatable   :: mpi__data(:) 
+    complex(8), allocatable   :: mpi__data(:)
     integer, intent(in), optional :: communicator
     integer :: comm_in, mpi_size_comm_in, ierr
     if(mpi__size == 1) return
@@ -359,7 +354,7 @@ contains
     implicit none
     integer, intent(in) :: sizex,root
     complex(8), intent(inout) :: data(sizex)
-    complex(8), allocatable   :: mpi__data(:) 
+    complex(8), allocatable   :: mpi__data(:)
     integer, intent(in), optional :: communicator
     integer :: comm_in, mpi_size_comm_in, ierr
     if(mpi__size == 1) return
@@ -377,7 +372,7 @@ contains
     implicit none
     integer, intent(in) :: sizex,root
     complex(4), intent(inout) :: data(sizex)
-    complex(4), allocatable   :: mpi__data(:) 
+    complex(4), allocatable   :: mpi__data(:)
     integer, intent(in), optional :: communicator
     integer :: comm_in, mpi_size_comm_in, ierr
     if( mpi__size == 1 ) return
@@ -391,18 +386,6 @@ contains
     deallocate( mpi__data )
     return
   end subroutine MPI__reduceSum_c
-!  subroutine MPI__AllreduceMax( data, sizex ) !currently unused
-!    implicit none
-!    integer, intent(in) :: sizex
-!    integer, intent(inout) :: data(sizex)
-!    integer, allocatable   :: mpi__data(:)
-!    if( mpi__size == 1 ) return
-!    allocate(mpi__data(sizex))
-!    mpi__data = data
-!    call MPI_Allreduce( mpi__data, data, sizex, MPI_INTEGER, MPI_MAX, comm, mpi__info )
-!    deallocate( mpi__data )
-!  end subroutine MPI__AllreduceMax
-!MO Addtional subroutines for MPI 2024/12/28
   subroutine MPI__AllreduceAND(data, communicator)
     implicit none
     logical, intent(inout) :: data
@@ -415,7 +398,6 @@ contains
     mpi__data =  data
     call MPI_Allreduce(mpi__data, data, 1, MPI_LOGICAL, MPI_LAND, comm_in, mpi__info)
   end subroutine MPI__AllreduceAND
-!MO Following subroutines are for CPU(host) and GPU(device) implementations 2024/12/27
   subroutine MPI__zBcast_h(data, sizex, communicator, sender)
     implicit none
     integer, intent(in) :: sizex
@@ -435,7 +417,7 @@ contains
     implicit none
     integer, intent(in) :: sizex
     real(8), intent(inout) :: data(sizex)
-    real(8), allocatable   :: mpi__data(:) 
+    real(8), allocatable   :: mpi__data(:)
     integer, intent(in), optional :: communicator
     integer :: comm_in
     if( mpi__size == 1 ) return
@@ -459,28 +441,7 @@ contains
     call MPI_Allreduce( mpi__data, data, 1, MPI_DOUBLE_PRECISION, MPI_SUM, comm_in, mpi__info )
   end subroutine MPI__AllreduceSumRealSca
 
-!#ifdef __GPU
-!  subroutine MPI__zBcast_d(data_d, sizex, communicator, sender) !currently unused
-!    use cudafor
-!    implicit none
-!    integer, intent(in) :: sizex
-!    complex(8), intent(inout), device :: data_d(sizex)
-!    complex(8) :: data_h(sizex) !Host data for MPI communication
-!    integer, intent(in), optional :: communicator, sender
-!    integer :: comm_in, sender_in, mpi_size_comm_in
-!    comm_in = comm
-!    sender_in = 0
-!    if(present(communicator)) comm_in = communicator
-!    if(present(sender)) sender_in = sender
-!    mpi_size_comm_in = get_mpi_size(comm_in)
-!    if(mpi_size_comm_in == 1) return
-!    data_h(:) = data_d(:) ! copy to host
-!    call MPI_Bcast(data_h, sizex, MPI_DOUBLE_COMPLEX, sender_in, comm_in, mpi__info)
-!    data_d(:) = data_h(:) !copy to device
-!  end subroutine MPI__zBcast_d
-!#endif
-
-  subroutine xmpbnd2(kpproc, ndham, ndat, eb)  !- Collect eb from various processors (MPI)
+  subroutine xmpbnd2(kpproc, ndham, ndat, eb)
     implicit none
     integer:: kpproc(0:*), ndham, ndat
     double precision :: eb(ndham, ndat)

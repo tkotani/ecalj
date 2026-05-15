@@ -1,7 +1,7 @@
 !>Accumulating rxcq
 subroutine x0gemm(rcxq, npr, nwhis, npm, ns1, ns2, iw_lo_in, iw_hi_in)
   use m_kind, only: kp => kindrcxq
-  use m_mpi, only: comm_b, mpi__rank_b, mpi__size_b
+  use m_mpi, only: comm_b => comm_b_xq, mpi__rank_b => mpi__rank_b_xq, mpi__size_b => mpi__size_b_xq
   use m_x0kf, only: icounkmink, icounkmaxk, iwini, iwend, itc, itpc, jpmc, icouini, whwc
   use m_blas, only: m_op_c, m_op_n, m_op_t
   use m_zmel, only: zmel

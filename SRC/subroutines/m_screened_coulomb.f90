@@ -8,7 +8,8 @@ contains
     use m_x0kf,        only: x0kf_zxq, deallocatezxq, deallocatezxqi
     use m_llw,         only: WVRllwR, WVIllwI
     use m_readVcoud,   only: Readvcoud, ngb
-    use m_mpi,         only: mpi__root_k, mpi__rank_root_k, mpi__rank, comm_q, ipr
+    use m_mpi,         only: mpi__root_k => mpi__root_k_xq, mpi__rank_root_k => mpi__rank_root_k_xq, &
+                             mpi__rank, comm_q, ipr
     use m_wv_storage,  only: wv_init_shm
     use m_freq,        only: npm, nwhis, wv_niw => niw, nw_i, nw
     use m_lgunit,      only: stdo

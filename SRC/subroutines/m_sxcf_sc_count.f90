@@ -78,7 +78,7 @@ contains
     endif   
     !NOTE: We have to sum up all isp,kx,irot,ip for irkip(isp,kx,irot,ip)/=0.
     rankdivider: block ! Two-level: kx by n_qgroup (LPT); (igrp,ip) by mpi__size_k (round-robin).
-      use m_mpi, only: iq_qgroup, n_qgroup, mpi__rank_k, mpi__size_k
+      use m_mpi, only: iq_qgroup, n_qgroup, mpi__rank_k_sxc, mpi__size_k_sxc
       integer :: kx, ip, is, igrp, idx
       integer :: wl(nqibz)
       logical :: kx_assigned(nqibz)
@@ -97,7 +97,7 @@ contains
           ! Skip (igrp,ip) where irk=0 for all assigned kx (no computation).
           if (.not. any(irk(:,igrp) > 0 .and. kx_assigned)) cycle
           do is = 1, nspinmx
-            if (mod(idx, mpi__size_k) == mpi__rank_k) then
+            if (mod(idx, mpi__size_k_sxc) == mpi__rank_k_sxc) then
               do kx = 1, nqibz
                 if (.not. kx_assigned(kx)) cycle
                 irkip(is, kx, igrp, ip) = irk(kx, igrp)
@@ -108,8 +108,8 @@ contains
         enddo
       enddo
       if(ipr) then
-        write(stdo,'(1X,A,4I5)') 'rankdivider(kx-LPT/igrp-ip-rr): n_qgroup,iq_qgroup,mpi__size_k,mpi__rank_k=', &
-                                   n_qgroup, iq_qgroup, mpi__size_k, mpi__rank_k
+        write(stdo,'(1X,A,4I5)') 'rankdivider(kx-LPT/igrp-ip-rr): n_qgroup,iq_qgroup,mpi__size_k_sxc,mpi__rank_k_sxc=', &
+                                   n_qgroup, iq_qgroup, mpi__size_k_sxc, mpi__rank_k_sxc
         write(stdo,'(1X,A,*(L2))') '  kx_assigned =', kx_assigned
       endif
     endblock rankdivider

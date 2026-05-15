@@ -11,8 +11,10 @@ module m_llw
   use m_readVcoud,only: vcousq, ngb
   use m_rdpp,only: nbloch,mrecl
   use m_x0kf,only: zxq,zxqi
-  use m_mpi, only: mpi__root_k, mpi__root_q, mpi__size_b,ipr, comm_root_k, mpi__rank_b, &
-                   mpi__rank_root_k, MPI__AllreduceSum
+  use m_mpi, only: mpi__root_k => mpi__root_k_xq, mpi__root_q, &
+                   mpi__size_b => mpi__size_b_xq, ipr, comm_root_k => comm_root_k_xq, &
+                   mpi__rank_b => mpi__rank_b_xq, mpi__rank_root_k => mpi__rank_root_k_xq, &
+                   MPI__AllreduceSum
   use mpi
   use m_zmel, only: m2e_prod_basis
 #ifdef __MP

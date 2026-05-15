@@ -17,7 +17,8 @@ subroutine hx0fp0()
   use m_readqgcou,only: readqgcou
   use m_mpi,only: MPI__Initialize,MPI__root, &
        MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size, MPI__consoleout,comm, &
-     & MPI__SplitXq, MPI__Setnpr_col, comm_b, comm_k, mpi__root_k, mpi__root_q,ipr
+     & MPI__InitQgroups, MPI__SplitXq, MPI__Setnpr_col, comm_b => comm_b_xq, comm_k => comm_k_xq, &
+     & mpi__root_k => mpi__root_k_xq, mpi__root_q, ipr
   use m_rdpp,only: Rdpp, &   ! & NOTE: "call rdpp" generate following data.
        nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx,nprecx,mrecl,nblochpmx
   use m_zmel,only: Mptauof_zmel!, Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
@@ -366,6 +367,7 @@ subroutine hx0fp0()
   if(nolfco .and. n_bpara /= 1) call rx('n_bpara must be 1 on noLFC')
   worker_inQtask = n_bpara * n_kpara
   if(ipr) write(stdo,'(1X,A,3I5)') 'MPI: worker_inQtask, n_bpara, n_kpara', worker_inQtask, n_bpara, n_kpara
+  call MPI__InitQgroups(worker_inQtask)
   call MPI__SplitXq(n_bpara, n_kpara)
 
   allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz))

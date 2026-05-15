@@ -11,37 +11,29 @@ module m_hsfp0_sc
 contains
   subroutine hsfp0_sc(skip_init, skip_rx0, ixc_in)
     !> Drives setup → exchange/correlation → writeout sequentially.
-    !> SplitXq responsibility: standalone callers get SplitXq(1,mpi__size) here;
-    !> streaming callers (hgw) call SplitXq themselves before invoking _setup.
-    use m_mpi, only: MPI__SplitGW, mpi__size, ipr
+    !> Standalone: InitQgroups/SplitXq/SplitSxc done inside hsfp0_sc_setup (InitOnce block).
+    !> Streaming (hgw with skip_init=.true.): hgw owns the split; InitOnce is skipped.
     use m_sxcf_sc, only: sxcf_scz_correlation, sxcf_scz_exchange
-    use m_lgunit, only: stdo
-    use m_ftox
     logical, intent(in), optional :: skip_init, skip_rx0
     integer, intent(in), optional :: ixc_in
-    logical :: do_init
-    do_init = .true.
-    if(present(skip_init)) do_init = .not. skip_init
     call hsfp0_sc_setup(skip_init=skip_init, ixc_in=ixc_in)
-    if(do_init) call MPI__SplitGW(n_bpara=1, n_kpara=mpi__size)
     if(hs_exchange)      call sxcf_scz_exchange   (hs_ef, hs_esmr, hs_ixc, hs_nspinmx)
     if(.not.hs_exchange) call sxcf_scz_correlation(hs_ef, hs_esmr, hs_ixc, hs_nspinmx)
     call hsfp0_sc_writeout(skip_rx0=skip_rx0)
   end subroutine hsfp0_sc
 
   subroutine hsfp0_sc_setup(skip_init, ixc_in)
-    !> Phase 1 of hsfp0_sc: read inputs (ixc, GW data, eigenvalues), determine
-    !> ef/esmr/nspinmx/eqx, run sxcf_scz_count, emit XCU/XCD if exchange mode.
-    !> Outputs flow through module variables hs_*.
-    !> MPI split is NOT set up here; callers own that responsibility
-    !> (hsfp0_sc wrapper for standalone; hgw for streaming).
+    !> Phase 1 of hsfp0_sc: read inputs, run sxcf_scz_count, emit XCU/XCD.
+    !> Standalone (do_init=.true.): InitQgroups/SplitXq/SplitSxc called in InitOnce before count.
+    !> Streaming (hgw, skip_init=.true.): InitOnce skipped; hgw owns the MPI split.
     use m_readqg,only: READQG0,READNGMX2, ngpmx,ngcmx
     use m_READ_BZDATA,only: READ_BZDATA, nqbz,nqibz,n1,n2,n3,ginv,qbz,wbz,qibz
     use m_genallcf_v3,only: GENALLCF_V3,Setesmr, natom,nspin,plat,alat,deltaw,esmr_in=>esmr,nctot,ecore,nband, laf
     use m_itq,only: setitq_hsfp0sc,nbandmx, ntq
     use m_mpi,only: &
          MPI__Initialize,MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum, &
-         MPI__consoleout, MPI__reduceSum, comm, ipr, MPI__InitQgroups
+         MPI__consoleout, MPI__reduceSum, comm, ipr, MPI__InitQgroups, &
+         MPI__SplitXq, MPI__SplitSxc, worker_inQtask
     use m_lgunit,only:m_lgunit_init,stdo
     use m_ftox
     use m_gpu,only: gpu_init
@@ -70,6 +62,8 @@ contains
     InitOnce: if(do_init) then
       call MPI__Initialize()
       call MPI__InitQgroups()
+      call MPI__SplitXq(1, worker_inQtask)
+      call MPI__SplitSxc(1, worker_inQtask)
       call gpu_init(comm)
       call M_lgunit_init()
       call writemem('Start hsfp0: TotalRAM per node='//ftof(totalram(),3)//' GB')
