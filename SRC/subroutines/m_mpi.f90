@@ -87,19 +87,32 @@ contains
     !> Call after MPI__Initialize; pair with MPI__FreeQgroups.
     integer, intent(in), optional :: worker_in
     integer :: color
+    integer :: comm_inter
     if (present(worker_in)) then
       worker_inQtask = worker_in
       color = mpi__rank / worker_inQtask
       call mpi_comm_split(comm, color, mpi__rank, comm_q, mpi__info)
+      call MPI_Comm_rank(comm_q, mpi__rank_q, mpi__info)
+      n_qgroup  = mpi__size / worker_inQtask
+      iq_qgroup = mpi__rank / worker_inQtask
     else
+      ! Node-topology split: ppn may differ across nodes → use inter-node communicator
+      ! to derive iq_qgroup/n_qgroup correctly instead of arithmetic.
       call MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, mpi__rank, MPI_INFO_NULL, comm_q, mpi__info)
       call MPI_Comm_size(comm_q, worker_inQtask, mpi__info)
+      call MPI_Comm_rank(comm_q, mpi__rank_q, mpi__info)
+      color = merge(0, MPI_UNDEFINED, mpi__rank_q == 0)
+      call mpi_comm_split(comm, color, mpi__rank, comm_inter, mpi__info)
+      if (mpi__rank_q == 0) then
+        call mpi_comm_rank(comm_inter, iq_qgroup, mpi__info)
+        call mpi_comm_size(comm_inter, n_qgroup,  mpi__info)
+        call mpi_comm_free(comm_inter, mpi__info)
+      endif
+      call mpi_bcast(iq_qgroup, 1, MPI_INTEGER, 0, comm_q, mpi__info)
+      call mpi_bcast(n_qgroup,  1, MPI_INTEGER, 0, comm_q, mpi__info)
     endif
-    call MPI_Comm_rank(comm_q, mpi__rank_q, mpi__info)
     mpi__size_q = worker_inQtask
     mpi__root_q = mpi__rank_q == 0
-    n_qgroup  = mpi__size / worker_inQtask
-    iq_qgroup = mpi__rank / worker_inQtask
   end subroutine MPI__InitQgroups
 
   subroutine MPI__SplitXq(n_bpara, n_kpara)
