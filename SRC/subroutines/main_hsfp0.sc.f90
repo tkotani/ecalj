@@ -18,9 +18,16 @@ contains
     !> three phases sequentially. Streaming callers (main_hrcxq) call
     !> _setup / _consume-equivalent / _writeout themselves so the iq-loop W
     !> production and the kx-loop sxcf consumption can interleave.
+    !> SplitXq responsibility: standalone callers get SplitXq(1,mpi__size) here;
+    !> streaming callers (hgw) call SplitXq themselves before invoking _setup.
+    use m_mpi, only: MPI__SplitXq, mpi__size
     logical, intent(in), optional :: skip_init, skip_rx0
     integer, intent(in), optional :: ixc_in
+    logical :: do_init
+    do_init = .true.
+    if(present(skip_init)) do_init = .not. skip_init
     call hsfp0_sc_setup(skip_init=skip_init, ixc_in=ixc_in)
+    if(do_init) call MPI__SplitXq(1, mpi__size)
     call hsfp0_sc_consume()
     call hsfp0_sc_writeout(skip_rx0=skip_rx0)
   end subroutine hsfp0_sc
@@ -29,15 +36,15 @@ contains
     !> Phase 1 of hsfp0_sc: read inputs (ixc, GW data, eigenvalues), determine
     !> ef/esmr/nspinmx/eqx, run sxcf_scz_count, emit XCU/XCD if exchange mode.
     !> Outputs flow through module variables hs_*.
-    !> Standalone (do_init=.true.): calls MPI__SplitXq(1, mpi__size) to set up
-    !> comm_k/comm_b. Streaming callers (hgw) call SplitXq themselves before setup.
+    !> MPI split is NOT set up here; callers own that responsibility
+    !> (hsfp0_sc wrapper for standalone; hgw for streaming).
     use m_readqg,only: READQG0,READNGMX2, ngpmx,ngcmx
     use m_READ_BZDATA,only: READ_BZDATA, nqbz,nqibz,n1,n2,n3,ginv,qbz,wbz,qibz
     use m_genallcf_v3,only: GENALLCF_V3,Setesmr, natom,nspin,plat,alat,deltaw,esmr_in=>esmr,nctot,ecore,nband, laf
     use m_itq,only: setitq_hsfp0sc,nbandmx, ntq
     use m_mpi,only: &
          MPI__Initialize,MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum, &
-         MPI__consoleout, MPI__reduceSum, MPI__SplitXq, comm, ipr
+         MPI__consoleout, MPI__reduceSum, comm, ipr
     use m_lgunit,only:m_lgunit_init,stdo
     use m_ftox
     use m_gpu,only: gpu_init
@@ -65,7 +72,6 @@ contains
     if(present(skip_init)) do_init = .not. skip_init
     InitOnce: if(do_init) then
       call MPI__Initialize()
-      call MPI__SplitXq(1, mpi__size)  ! k-parallel; sets comm_k, comm_b for sxcf
       call gpu_init(comm)
       call M_lgunit_init()
       call writemem('Start hsfp0: TotalRAM per node='//ftof(totalram(),3)//' GB')
