@@ -78,14 +78,14 @@ contains
     endif   
     !NOTE: We have to sum up all isp,kx,irot,ip for irkip(isp,kx,irot,ip)/=0.
     rankdivider: block ! Distribute k-points (kx) across k-group ranks using LPT.
-      use m_mpi, only: mpi__rank_k, mpi__size_k
+      use m_mpi, only: iq_qgroup, n_qgroup
       integer :: kx, is, igrp
       integer :: wl(nqibz)
       logical :: kx_assigned(nqibz)
       do kx = 1, nqibz
         wl(kx) = count(irk(kx,:) > 0) * nspinmx
       enddo
-      call lpt_assign(nqibz, wl, mpi__size_k, mpi__rank_k, kx_assigned)
+      call lpt_assign(nqibz, wl, n_qgroup, iq_qgroup, kx_assigned)
       allocate( irkip(nspinmx,nqibz,ngrp,nqibz), source=0 )
       do kx = 1, nqibz
         if (.not. kx_assigned(kx)) cycle
@@ -96,7 +96,7 @@ contains
         enddo
       enddo
       if(ipr) then
-        write(stdo,'(1X,A,2I5)') 'rankdivider(kx-LPT): mpi__size_k, mpi__rank_k=', mpi__size_k, mpi__rank_k
+        write(stdo,'(1X,A,2I5)') 'rankdivider(kx-LPT): n_qgroup, iq_qgroup=', n_qgroup, iq_qgroup
         write(stdo,'(1X,A,*(I5))') '  workload per kx =', wl
         write(stdo,'(1X,A,*(L2))') '  assigned kx     =', kx_assigned
       endif

@@ -24,6 +24,8 @@ module m_mpi !MPI utility (unified from m_mpi + m_MPItk)
 
   integer,private :: mpi__info
   integer,private:: ista(MPI_STATUS_SIZE )
+
+  integer :: iq_qgroup, n_qgroup, worker_inQtask
 contains
   subroutine setipr(comm)
     integer:: comm
@@ -112,7 +114,6 @@ contains
     endif
     if(ipr)write(06,'(X,A,4I5,3L2)') "MPI: rank, rank_q, rank_k, rank_b, root_q, root_k, root_b ", &
                 mpi__rank, mpi__rank_q, mpi__rank_k, mpi__rank_b, mpi__root_q, mpi__root_k, mpi__root_b
-
   end subroutine MPI__SplitXq
   
   subroutine MPI__FreeSplitXq()
@@ -126,6 +127,20 @@ contains
     if (allocated(mpi__npr_col)) deallocate(mpi__npr_col)
     if (allocated(mpi__ipr_col)) deallocate(mpi__ipr_col)
   end subroutine MPI__FreeSplitXq
+
+  subroutine MPI__InitQgroups()
+    !> Detect node topology via MPI_COMM_TYPE_SHARED and set worker_inQtask,
+    !> n_qgroup, iq_qgroup. worker_inQtask = ppn ensures comm_q is intra-node
+    !> so shared-memory windows remain accessible within each q-group.
+    !> Call from hgw after MPI__Initialize; do NOT call from MPI__Initialize
+    !> because other binaries (hsfp0_sc etc.) do not need q-group layout.
+    integer :: comm_node
+    call MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, mpi__rank, MPI_INFO_NULL, comm_node, mpi__info)
+    call MPI_Comm_size(comm_node, worker_inQtask, mpi__info)
+    call MPI_Comm_free(comm_node, mpi__info)
+    n_qgroup  = mpi__size / worker_inQtask
+    iq_qgroup = mpi__rank / worker_inQtask
+  end subroutine MPI__InitQgroups
 
   subroutine MPI__Split(n_split)
     implicit none

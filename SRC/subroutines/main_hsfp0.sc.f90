@@ -24,7 +24,6 @@ contains
     if(present(skip_init)) do_init = .not. skip_init
     call hsfp0_sc_setup(skip_init=skip_init, ixc_in=ixc_in)
     if(do_init) call MPI__SplitXq(1, mpi__size)
-    if(ipr) write(stdo,ftox) 'gemm version'
     if(hs_exchange)      call sxcf_scz_exchange   (hs_ef, hs_esmr, hs_ixc, hs_nspinmx)
     if(.not.hs_exchange) call sxcf_scz_correlation(hs_ef, hs_esmr, hs_ixc, hs_nspinmx)
     call hsfp0_sc_writeout(skip_rx0=skip_rx0)

@@ -28,9 +28,10 @@ subroutine hgw(do_correlation, do_exchange)
   use m_readgwinput,only: ReadGwinputKeys
   use m_qbze,only:  Setqbze,qibze
   use m_llw,only: MPI__irecvllw_q, MPI__isendllw_q, MPI__waitllw
-  use m_mpi,only: MPI__Initialize,MPI__root,MPI__rank,MPI__size,MPI__consoleout,comm, &
+  use m_mpi,only: MPI__Initialize,MPI__InitQgroups,MPI__root,MPI__rank,MPI__size,MPI__consoleout,comm, &
                 & MPI__SplitXq, MPI__FreeSplitXq, &
-                & mpi__root_k, ipr, comm_q, mpi__rank_q
+                & mpi__root_k, ipr, comm_q, mpi__rank_q, &
+                & worker_inQtask, n_qgroup, iq_qgroup
   use m_lgunit,only: m_lgunit_init,stdo
   use m_ftox
   use m_gpu,only: gpu_init
@@ -45,12 +46,12 @@ subroutine hgw(do_correlation, do_exchange)
   implicit none
   logical, intent(in) :: do_correlation, do_exchange
   integer :: iq, iqxend, iw, ifwd, verbose, ifif, ierr
-  integer :: worker_inQtask, n_qgroup, iq_qgroup
   logical, allocatable :: mpi__Qtask(:)
   real(8) :: ua=1d0, qp(3)
   logical :: debug=.false., realomega, imagomega
   logical :: hx0, iprintx=.false.
   call MPI__Initialize()
+  call MPI__InitQgroups()
   call gpu_init(comm)
   call M_lgunit_init()
   call MPI__consoleout('hgw')
@@ -82,22 +83,12 @@ subroutine hgw(do_correlation, do_exchange)
 
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hgw: sanity check. |q(iq=1)| /= 0')
 
-  ! Correlation: q × k × ω 3-way parallel.
-  ! worker_inQtask ranks per q-group; n_qgroup q-groups.
-  ! Default: worker_inQtask=mpi__size → 1 q-group (backward compatible).
-  worker_inQtask = mpi__size
-  n_qgroup = mpi__size / worker_inQtask
-  iq_qgroup = mpi__rank / worker_inQtask
-  if(ipr) write(stdo,'(1X,A,3I5)') 'hgw: worker_inQtask n_qgroup iqxend:', &
-                                     worker_inQtask, n_qgroup, iqxend
-
   ! mpi__Qtask(iq): true if this rank's q-group should process iq.
   !   Regular iq (1..nqibz): round-robin among q-groups.
   !   Auxiliary iq (nqibz+1..iqxend): q-group 0 only; rank 0 (root_k) writes
   !   llw into WVRllwR/WVIllwI directly — no MPI transfer needed.
   allocate(mpi__Qtask(1:iqxend))
-  mpi__Qtask(1:nqibz)        = [(mod(iq-1, n_qgroup) == iq_qgroup, iq=1,nqibz)]
-  mpi__Qtask(nqibz+1:iqxend) = (iq_qgroup == 0)
+  mpi__Qtask(1:iqxend) = [(mod(iq-1, n_qgroup) == iq_qgroup, iq=1,iqxend)]
   if(ipr) write(stdo,ftox) 'hgw: mpi_rank iq_qgroup mpi__Qtask=', &
                              mpi__rank, iq_qgroup, mpi__Qtask
 
