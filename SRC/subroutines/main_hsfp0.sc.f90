@@ -1,26 +1,22 @@
 module m_hsfp0_sc
-  ! Step WB.3c: state shared across hsfp0_sc_setup / _consume / _writeout phases.
-  ! These module variables are populated by _setup and consumed by _consume and
-  ! _writeout. The split exists so a streaming caller (main_hrcxq Phase 1-C)
-  ! can interleave its own iq-loop W production with the per-kx sxcf consume,
-  ! while still reusing _setup for parameter prep and _writeout for SECU/SEX
-  ! file emission.
+  ! Step WB.3c: state shared across hsfp0_sc_setup / _writeout phases.
+  ! These module variables are populated by _setup and consumed by _writeout.
   integer :: hs_ixc
   logical :: hs_exchange
   real(8) :: hs_ef, hs_esmr, hs_eftrue
   integer :: hs_nspinmx, hs_nq, hs_ngpn1, hs_ngcn1
   real(8), allocatable :: hs_eqx(:,:,:)
-  public :: hsfp0_sc, hsfp0_sc_setup, hsfp0_sc_consume, hsfp0_sc_writeout
+  public :: hsfp0_sc, hsfp0_sc_setup, hsfp0_sc_writeout
   private :: Hswriteinit, HsWriteResult
 contains
   subroutine hsfp0_sc(skip_init, skip_rx0, ixc_in)
-    !> Thin wrapper preserving the original entry-point signature. Drives the
-    !> three phases sequentially. Streaming callers (main_hrcxq) call
-    !> _setup / _consume-equivalent / _writeout themselves so the iq-loop W
-    !> production and the kx-loop sxcf consumption can interleave.
+    !> Drives setup → exchange/correlation → writeout sequentially.
     !> SplitXq responsibility: standalone callers get SplitXq(1,mpi__size) here;
     !> streaming callers (hgw) call SplitXq themselves before invoking _setup.
-    use m_mpi, only: MPI__SplitXq, mpi__size
+    use m_mpi, only: MPI__SplitXq, mpi__size, ipr
+    use m_sxcf_sc, only: sxcf_scz_correlation, sxcf_scz_exchange
+    use m_lgunit, only: stdo
+    use m_ftox
     logical, intent(in), optional :: skip_init, skip_rx0
     integer, intent(in), optional :: ixc_in
     logical :: do_init
@@ -28,7 +24,9 @@ contains
     if(present(skip_init)) do_init = .not. skip_init
     call hsfp0_sc_setup(skip_init=skip_init, ixc_in=ixc_in)
     if(do_init) call MPI__SplitXq(1, mpi__size)
-    call hsfp0_sc_consume()
+    if(ipr) write(stdo,ftox) 'gemm version'
+    if(hs_exchange)      call sxcf_scz_exchange   (hs_ef, hs_esmr, hs_ixc, hs_nspinmx)
+    if(.not.hs_exchange) call sxcf_scz_correlation(hs_ef, hs_esmr, hs_ixc, hs_nspinmx)
     call hsfp0_sc_writeout(skip_rx0=skip_rx0)
   end subroutine hsfp0_sc
 
@@ -177,19 +175,6 @@ contains
     hs_nq       = nqibz
     call Hswriteinit()  ! prints summary, emits XCU/XCD for exchange mode.
   end subroutine hsfp0_sc_setup
-
-  subroutine hsfp0_sc_consume()
-    !> Phase 2 of hsfp0_sc: invoke sxcf_scz_correlation/_exchange to fill
-    !> zsecall in m_sxcf_sc. Streaming callers replace this phase with
-    !> their own per-iq production + per-kx step_kx interleaving.
-    use m_sxcf_sc,only: sxcf_scz_correlation, sxcf_scz_exchange
-    use m_mpi,only: ipr
-    use m_lgunit,only:stdo
-    use m_ftox
-    if(ipr) write(stdo,ftox) 'gemm version'
-    if(hs_exchange)      call sxcf_scz_exchange   (hs_ef, hs_esmr, hs_ixc, hs_nspinmx)
-    if(.not.hs_exchange) call sxcf_scz_correlation(hs_ef, hs_esmr, hs_ixc, hs_nspinmx)
-  end subroutine hsfp0_sc_consume
 
   subroutine hsfp0_sc_writeout(skip_rx0)
     !> Phase 3 of hsfp0_sc: reduce zsecall to root, write SECU/SEC2U or
