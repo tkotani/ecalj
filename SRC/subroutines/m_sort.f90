@@ -1,17 +1,29 @@
 module m_sort
   implicit none
   public :: sort_index, lower_bound, upper_bound
+  interface sort_index
+    module procedure sort_index_r8, sort_index_i4
+  end interface
 contains
-  function sort_index(array) result(idx)
+  function sort_index_r8(array) result(idx)
     real(8), intent(in) :: array(:)
     integer, allocatable :: idx(:)
     integer :: i, n
     n = size(array)
-    if(.not. allocated(idx)) allocate(idx(n))
+    allocate(idx(n))
     idx(1:n) = [(i,i=1,n)]
-    call quicksort_recursive(array, idx, 1, n)
+    call quicksort_r8(array, idx, 1, n)
   end function
-  recursive subroutine quicksort_recursive(array, idx, left, right)
+  function sort_index_i4(array) result(idx)
+    integer, intent(in) :: array(:)
+    integer, allocatable :: idx(:)
+    integer :: i, n
+    n = size(array)
+    allocate(idx(n))
+    idx(1:n) = [(i,i=1,n)]
+    call quicksort_i4(array, idx, 1, n)
+  end function
+  recursive subroutine quicksort_r8(array, idx, left, right)
     real(8), intent(in) :: array(:)
     integer, intent(inout) :: idx(:)
     integer, intent(in) :: left, right
@@ -21,23 +33,38 @@ contains
       i = left
       j = right
       do
-        do while (array(idx(i)) < array(pivot))
-          i = i + 1
-        end do
-        do while (array(idx(j)) > array(pivot))
-          j = j - 1
-        enddo
+        do while (array(idx(i)) < array(pivot)); i = i + 1; end do
+        do while (array(idx(j)) > array(pivot)); j = j - 1; end do
         if(i <= j) then
-          temp = idx(i)
-          idx(i) = idx(j)
-          idx(j) = temp
-          i = i + 1
-          j = j - 1
+          temp = idx(i); idx(i) = idx(j); idx(j) = temp
+          i = i + 1; j = j - 1
         end if
         if(i > j) exit
       enddo
-      call quicksort_recursive(array, idx, left, j)
-      call quicksort_recursive(array, idx, i, right)
+      call quicksort_r8(array, idx, left, j)
+      call quicksort_r8(array, idx, i, right)
+    end if
+  end subroutine
+  recursive subroutine quicksort_i4(array, idx, left, right)
+    integer, intent(in) :: array(:)
+    integer, intent(inout) :: idx(:)
+    integer, intent(in) :: left, right
+    integer :: i, j, pivot, temp
+    if(left < right) then
+      pivot = idx((left + right) / 2)
+      i = left
+      j = right
+      do
+        do while (array(idx(i)) < array(pivot)); i = i + 1; end do
+        do while (array(idx(j)) > array(pivot)); j = j - 1; end do
+        if(i <= j) then
+          temp = idx(i); idx(i) = idx(j); idx(j) = temp
+          i = i + 1; j = j - 1
+        end if
+        if(i > j) exit
+      enddo
+      call quicksort_i4(array, idx, left, j)
+      call quicksort_i4(array, idx, i, right)
     end if
   end subroutine
 

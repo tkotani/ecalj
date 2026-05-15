@@ -365,7 +365,7 @@ contains
     integer, intent(out), optional :: grp_assign_out(n_items)
     integer :: i, g
     integer :: idx(n_items), grp_assign(n_items), group_load(0:n_groups-1)
-    idx = sort_index(real(workload, 8))  ! ascending; iterate in reverse for LPT descending
+    idx = sort_index(workload)  ! ascending; iterate in reverse for LPT descending
     group_load = 0
     do i = n_items, 1, -1
       g = minloc(group_load, 1) - 1
