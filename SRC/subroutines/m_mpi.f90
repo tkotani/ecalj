@@ -25,7 +25,7 @@ module m_mpi !MPI utility (unified from m_mpi + m_MPItk)
   integer,private :: mpi__info
   integer,private:: ista(MPI_STATUS_SIZE )
 
-  integer, protected :: iq_qgroup, n_qgroup, worker_inQtask=2
+  integer, protected :: iq_qgroup=0, n_qgroup=1, worker_inQtask=2
 contains
   subroutine setipr(comm)
     integer:: comm
@@ -51,7 +51,7 @@ contains
     call MPI_Comm_rank( comm, mpi__rank, mpi__info )
     call MPI_Comm_size( comm, mpi__size, mpi__info )
     mpi__root= mpi__rank==0
-    ! Default: no split — all ranks in one group. MPI__SplitXq overrides these.
+    ! Default: treat all ranks as one group. MPI__SplitXq/SplitGW override these.
     mpi__size_b = mpi__size; mpi__rank_b = mpi__rank; mpi__root_b = mpi__rank == 0
     mpi__size_k = mpi__size; mpi__rank_k = mpi__rank; mpi__root_k = mpi__rank == 0
     mpi__rank_root_k = 0;    mpi__size_root_k = 1
@@ -283,9 +283,11 @@ contains
   end function get_mpi_master
   subroutine MPI__consoleout(idn)
     use m_lgunit,only:stdo,stdl
-    implicit none
+    logical, save :: init = .false.
     character(1024*4) :: cwd, stdout
     character*(*):: idn
+    if(init) return
+    init = .true.
     if( mpi__size == 1 ) return
     if( mpi__root ) then
       write(6,"(' MPI outputs in each rank are in stdout.{RankId}.',a)")idn

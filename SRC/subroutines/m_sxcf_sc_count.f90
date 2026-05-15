@@ -77,28 +77,40 @@ contains
        return
     endif   
     !NOTE: We have to sum up all isp,kx,irot,ip for irkip(isp,kx,irot,ip)/=0.
-    rankdivider: block ! Distribute k-points (kx) across k-group ranks using LPT.
-      use m_mpi, only: iq_qgroup, n_qgroup
-      integer :: kx, is, igrp
+    rankdivider: block ! Two-level: kx by n_qgroup (LPT); (igrp,ip) by mpi__size_k (round-robin).
+      use m_mpi, only: iq_qgroup, n_qgroup, mpi__rank_k, mpi__size_k
+      integer :: kx, ip, is, igrp, idx
       integer :: wl(nqibz)
       logical :: kx_assigned(nqibz)
+      ! Level 1: distribute kx (2nd index) by n_qgroup via LPT.
       do kx = 1, nqibz
         wl(kx) = count(irk(kx,:) > 0) * nspinmx
       enddo
       call lpt_assign(nqibz, wl, n_qgroup, iq_qgroup, kx_assigned)
+      ! Level 2: distribute (igrp,ip) pairs (3rd×4th, full BZ) by mpi__size_k via round-robin.
+      ! exchange (no SplitGW): mpi__size_k=mpi__size → pairs divided among all ranks.
+      ! correlation (SplitGW(worker,1)): mpi__size_k=1 → all pairs assigned; ω-split handles parallelism.
       allocate( irkip(nspinmx,nqibz,ngrp,nqibz), source=0 )
-      do kx = 1, nqibz
-        if (.not. kx_assigned(kx)) cycle
-        do is = 1, nspinmx
-          do igrp = 1, ngrp
-            irkip(is, kx, igrp, :) = irk(kx, igrp)
+      idx = 0
+      do ip = 1, nqibz
+        do igrp = 1, ngrp
+          ! Skip (igrp,ip) where irk=0 for all assigned kx (no computation).
+          if (.not. any(irk(:,igrp) > 0 .and. kx_assigned)) cycle
+          do is = 1, nspinmx
+            if (mod(idx, mpi__size_k) == mpi__rank_k) then
+              do kx = 1, nqibz
+                if (.not. kx_assigned(kx)) cycle
+                irkip(is, kx, igrp, ip) = irk(kx, igrp)
+              enddo
+            endif
+            idx = idx + 1
           enddo
         enddo
       enddo
       if(ipr) then
-        write(stdo,'(1X,A,2I5)') 'rankdivider(kx-LPT): n_qgroup, iq_qgroup=', n_qgroup, iq_qgroup
-        write(stdo,'(1X,A,*(I5))') '  workload per kx =', wl
-        write(stdo,'(1X,A,*(L2))') '  assigned kx     =', kx_assigned
+        write(stdo,'(1X,A,4I5)') 'rankdivider(kx-LPT/igrp-ip-rr): n_qgroup,iq_qgroup,mpi__size_k,mpi__rank_k=', &
+                                   n_qgroup, iq_qgroup, mpi__size_k, mpi__rank_k
+        write(stdo,'(1X,A,*(L2))') '  kx_assigned =', kx_assigned
       endif
     endblock rankdivider
     PreIcountBlock: Block!Get Size: nstateMax(ncount),ndiv(icount),nstatei(j,icount),nstatee(j,icount)

@@ -13,7 +13,7 @@ contains
     !> Drives setup → exchange/correlation → writeout sequentially.
     !> SplitXq responsibility: standalone callers get SplitXq(1,mpi__size) here;
     !> streaming callers (hgw) call SplitXq themselves before invoking _setup.
-    use m_mpi, only: MPI__SplitXq, mpi__size, ipr
+    use m_mpi, only: MPI__SplitGW, mpi__size, ipr
     use m_sxcf_sc, only: sxcf_scz_correlation, sxcf_scz_exchange
     use m_lgunit, only: stdo
     use m_ftox
@@ -23,7 +23,7 @@ contains
     do_init = .true.
     if(present(skip_init)) do_init = .not. skip_init
     call hsfp0_sc_setup(skip_init=skip_init, ixc_in=ixc_in)
-    if(do_init) call MPI__SplitXq(1, mpi__size)
+    if(do_init) call MPI__SplitGW(n_bpara=1, n_kpara=mpi__size)
     if(hs_exchange)      call sxcf_scz_exchange   (hs_ef, hs_esmr, hs_ixc, hs_nspinmx)
     if(.not.hs_exchange) call sxcf_scz_correlation(hs_ef, hs_esmr, hs_ixc, hs_nspinmx)
     call hsfp0_sc_writeout(skip_rx0=skip_rx0)
@@ -41,7 +41,7 @@ contains
     use m_itq,only: setitq_hsfp0sc,nbandmx, ntq
     use m_mpi,only: &
          MPI__Initialize,MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum, &
-         MPI__consoleout, MPI__reduceSum, comm, ipr
+         MPI__consoleout, MPI__reduceSum, comm, ipr, MPI__InitQgroups
     use m_lgunit,only:m_lgunit_init,stdo
     use m_ftox
     use m_gpu,only: gpu_init
@@ -69,6 +69,7 @@ contains
     if(present(skip_init)) do_init = .not. skip_init
     InitOnce: if(do_init) then
       call MPI__Initialize()
+      call MPI__InitQgroups()
       call gpu_init(comm)
       call M_lgunit_init()
       call writemem('Start hsfp0: TotalRAM per node='//ftof(totalram(),3)//' GB')
