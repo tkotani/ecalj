@@ -78,7 +78,7 @@ contains
     endif   
     !NOTE: We have to sum up all isp,kx,irot,ip for irkip(isp,kx,irot,ip)/=0.
     rankdivider: block ! Two-level: kx by n_qgroup (LPT); (igrp,ip) by mpi__size_k (round-robin).
-      use m_mpi, only: iq_qgroup, n_qgroup, mpi__rank_k_sxc, mpi__size_k_sxc
+      use m_mpi, only: iq_qgroup, n_qgroup, mpi__rank_k_sxc, mpi__size_k_sxc, qgroup_ppn
       integer :: kx, ip, is, igrp, idx
       integer :: wl(nqibz)
       logical :: kx_assigned(nqibz)
@@ -86,7 +86,7 @@ contains
       do kx = 1, nqibz
         wl(kx) = count(irk(kx,:) > 0) * nspinmx
       enddo
-      call lpt_assign(nqibz, wl, n_qgroup, iq_qgroup, kx_assigned)
+      call lpt_assign(nqibz, wl, n_qgroup, iq_qgroup, kx_assigned, capacity=qgroup_ppn)
       ! Level 2: distribute (igrp,ip) pairs (3rd×4th, full BZ) by mpi__size_k via round-robin.
       ! exchange (no SplitGW): mpi__size_k=mpi__size → pairs divided among all ranks.
       ! correlation (SplitGW(worker,1)): mpi__size_k=1 → all pairs assigned; ω-split handles parallelism.
@@ -367,20 +367,25 @@ contains
     endif
   end subroutine mpi_assign_qtask_lpt
 
-  subroutine lpt_assign(n_items, workload, n_groups, group_rank, assigned, grp_assign_out)
+  subroutine lpt_assign(n_items, workload, n_groups, group_rank, assigned, grp_assign_out, capacity)
     ! LPT (Longest Processing Time) greedy load balancing.
     ! Sorts items by workload descending, assigns each to the least-loaded group.
+    ! capacity(0:n_groups-1): worker count per group; effective load = group_load/capacity.
     use m_sort, only: sort_index
     integer, intent(in)            :: n_items, n_groups, group_rank
     integer, intent(in)            :: workload(n_items)
     logical, intent(out)           :: assigned(n_items)
     integer, intent(out), optional :: grp_assign_out(n_items)
+    integer, intent(in),  optional :: capacity(0:n_groups-1)
     integer :: i, g
     integer :: idx(n_items), grp_assign(n_items), group_load(0:n_groups-1)
+    real(8) :: cap(0:n_groups-1)
+    cap = 1d0
+    if (present(capacity)) cap = real(capacity, 8)
     idx = sort_index(workload)  ! ascending; iterate in reverse for LPT descending
     group_load = 0
     do i = n_items, 1, -1
-      g = minloc(group_load, 1) - 1
+      g = minloc(real(group_load, 8) / cap, 1) - 1
       grp_assign(idx(i)) = g
       group_load(g) = group_load(g) + workload(idx(i))
     enddo
