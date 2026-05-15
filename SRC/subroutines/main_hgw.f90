@@ -77,9 +77,7 @@ subroutine hgw(do_correlation, do_exchange)
 
   if (do_exchange) then
      if(ipr) write(stdo,ftox) ' hgw: starting in-process hsfp0_sc(--job=1) exchange phase'
-     call MPI__SplitXq(1, mpi__size)
      call hsfp0_sc(skip_init=.true., skip_rx0=.true., ixc_in=1)
-     call MPI__FreeSplitXq()
   endif
 
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hgw: sanity check. |q(iq=1)| /= 0')
