@@ -25,7 +25,7 @@ module m_mpi !MPI utility (unified from m_mpi + m_MPItk)
   integer,private :: mpi__info
   integer,private:: ista(MPI_STATUS_SIZE )
 
-  integer :: iq_qgroup, n_qgroup, worker_inQtask
+  integer, protected :: iq_qgroup, n_qgroup, worker_inQtask=2
 contains
   subroutine setipr(comm)
     integer:: comm
@@ -129,18 +129,61 @@ contains
   end subroutine MPI__FreeSplitXq
 
   subroutine MPI__InitQgroups()
-    !> Detect node topology via MPI_COMM_TYPE_SHARED and set worker_inQtask,
-    !> n_qgroup, iq_qgroup. worker_inQtask = ppn ensures comm_q is intra-node
-    !> so shared-memory windows remain accessible within each q-group.
-    !> Call from hgw after MPI__Initialize; do NOT call from MPI__Initialize
-    !> because other binaries (hsfp0_sc etc.) do not need q-group layout.
-    integer :: comm_node
-    call MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, mpi__rank, MPI_INFO_NULL, comm_node, mpi__info)
-    call MPI_Comm_size(comm_node, worker_inQtask, mpi__info)
-    call MPI_Comm_free(comm_node, mpi__info)
+    !> Detect node topology via MPI_COMM_TYPE_SHARED.
+    !> Sets comm_q = intra-node communicator (kept alive until MPI__FreeQgroups).
+    !> worker_inQtask = ppn ensures comm_q stays intra-node (SHM constraint).
+    !> Call from hgw after MPI__Initialize.
+    call MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, mpi__rank, MPI_INFO_NULL, comm_q, mpi__info)
+    call MPI_Comm_size(comm_q, worker_inQtask, mpi__info)
+    call MPI_Comm_rank(comm_q, mpi__rank_q,    mpi__info)
+    mpi__size_q = worker_inQtask
+    mpi__root_q = mpi__rank_q == 0
     n_qgroup  = mpi__size / worker_inQtask
     iq_qgroup = mpi__rank / worker_inQtask
   end subroutine MPI__InitQgroups
+
+  subroutine MPI__SplitGW(n_bpara, n_kpara)
+    !> Split comm_q (pre-set by MPI__InitQgroups) into comm_b and comm_k.
+    !> All collectives are intra-node (comm_q), so ranks in other q-groups
+    !> that skip the current iq do not participate — no deadlock.
+    implicit none
+    integer, intent(in) :: n_bpara, n_kpara
+    integer :: color
+    color = mpi__rank_q / n_bpara
+    call mpi_comm_split(comm_q, color, mpi__rank_q, comm_b, mpi__info)
+    call mpi_comm_rank(comm_b, mpi__rank_b, mpi__info)
+    call mpi_comm_size(comm_b, mpi__size_b, mpi__info)
+    color = mod(mpi__rank_q, n_bpara)
+    call mpi_comm_split(comm_q, color, mpi__rank_q, comm_k, mpi__info)
+    call mpi_comm_rank(comm_k, mpi__rank_k, mpi__info)
+    call mpi_comm_size(comm_k, mpi__size_k, mpi__info)
+    mpi__root_b = mpi__rank_b == 0
+    mpi__root_k = mpi__rank_k == 0
+    color = merge(0, MPI_UNDEFINED, mpi__rank_k == 0)
+    call mpi_comm_split(comm_q, color, mpi__rank_q, comm_root_k, mpi__info)
+    if (comm_root_k /= MPI_COMM_NULL) then
+      call mpi_comm_rank(comm_root_k, mpi__rank_root_k, mpi__info)
+      call mpi_comm_size(comm_root_k, mpi__size_root_k, mpi__info)
+    endif
+    if(ipr) write(06,'(X,A,4I5,3L2)') "MPI(GW): rank rank_q rank_k rank_b root_q root_k root_b", &
+                mpi__rank, mpi__rank_q, mpi__rank_k, mpi__rank_b, mpi__root_q, mpi__root_k, mpi__root_b
+  end subroutine MPI__SplitGW
+
+  subroutine MPI__FreeGW()
+    !> Free comm_b/comm_k/comm_root_k. comm_q is managed by MPI__FreeQgroups.
+    implicit none
+    call mpi_comm_free(comm_k, mpi__info)
+    call mpi_comm_free(comm_b, mpi__info)
+    if (comm_root_k /= MPI_COMM_NULL) call mpi_comm_free(comm_root_k, mpi__info)
+    if (allocated(mpi__npr_col)) deallocate(mpi__npr_col)
+    if (allocated(mpi__ipr_col)) deallocate(mpi__ipr_col)
+  end subroutine MPI__FreeGW
+
+  subroutine MPI__FreeQgroups()
+    !> Free comm_q created by MPI__InitQgroups. Call once at end of hgw.
+    implicit none
+    call mpi_comm_free(comm_q, mpi__info)
+  end subroutine MPI__FreeQgroups
 
   subroutine MPI__Split(n_split)
     implicit none
