@@ -75,15 +75,12 @@ subroutine hgw(do_correlation, do_exchange)
   iqxend = nqibz + nq0i + nq0iadd
   if(ipr) write(stdo,'(1X,A,I5)') 'MPI: nranks (omega-parallel):', mpi__size
 
-  ! Exchange: SplitXq(1, mpi__size) gives full k-parallel (mpi__size_k=mpi__size).
-  ! comm_b/comm_k must be initialized before hsfp0_sc; skip_init=.true. omits the
-  ! internal SplitXq call, so we do it explicitly here.
-  call MPI__SplitXq(1, mpi__size)
   if (do_exchange) then
      if(ipr) write(stdo,ftox) ' hgw: starting in-process hsfp0_sc(--job=1) exchange phase'
+     call MPI__SplitXq(1, mpi__size)
      call hsfp0_sc(skip_init=.true., skip_rx0=.true., ixc_in=1)
+     call MPI__FreeSplitXq()
   endif
-  call MPI__FreeSplitXq()
 
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hgw: sanity check. |q(iq=1)| /= 0')
 
