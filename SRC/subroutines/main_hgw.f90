@@ -48,6 +48,7 @@ subroutine hgw(do_correlation, do_exchange)
   logical, intent(in) :: do_correlation, do_exchange
   integer :: iq, iqxend, iw, ifwd, verbose, ifif, ierr
   integer :: n_bpara_xq, n_kpara_xq, n_bpara_sxc, n_kpara_sxc, worker_auto, worker_exch
+  integer :: src_group
   real(8) :: ua=1d0, qp(3)
   logical :: debug=.false., realomega, imagomega
   logical :: hx0, iprintx=.false.
@@ -117,21 +118,24 @@ subroutine hgw(do_correlation, do_exchange)
   if(ipr) write(stdo,ftox) 'hgw: unified loop iqxend→1, mpi_rank=',MPI__rank
   call flush(stdo)
 
-  ! Pre-post Irecvs for auxiliary llw (q-group 0 only; all are no-ops: src=dest=0).
+  ! Pre-post Irecvs for auxiliary llw: round-robin across q-groups.
+  ! Aux iq assigned to group g = mod(iq-nqibz-1, n_qgroup).
+  ! src = rank 0 of group g = g*worker_inQtask; dest = 0 (global rank 0).
   if (iq_qgroup == 0) then
     do iq = nqibz+1, iqxend
-      call MPI__irecvllw_q(iq-nqibz, 0, 0)
+      src_group = mod(iq-nqibz-1, n_qgroup)
+      call MPI__irecvllw_q(iq-nqibz, src_group*worker_inQtask, 0)
     enddo
   endif
 
   do iq = iqxend, 1, -1
-    if (iq > nqibz .and. iq_qgroup /= 0) cycle
+    if (iq > nqibz .and. mod(iq-nqibz-1, n_qgroup) /= iq_qgroup) cycle
     if (iq <= nqibz .and. mod(iq-1, n_qgroup) /= iq_qgroup) cycle
     qp = qibze(:,iq)
     call build_screened_coulomb_step_kx(iq, qp, realomega, imagomega)
     if (iq > nqibz) then
-      ! Auxiliary q-point: llw written by rank 0 directly; send is a no-op.
-      call MPI__isendllw_q(iq-nqibz, 0, 0)
+      ! Auxiliary q-point: send llw from this group's rank 0 to global rank 0.
+      call MPI__isendllw_q(iq-nqibz, iq_qgroup*worker_inQtask, 0)
     else
       if (iq == 1) then
         ! iq=1 is always in q-group 0 (mod(0, n_qgroup)=0).
@@ -142,6 +146,7 @@ subroutine hgw(do_correlation, do_exchange)
       call sxcf_correlation_step_kx(iq, hs_ef, hs_esmr, hs_nspinmx)
     end if
   enddo
+  call MPI__waitllw()  ! ensure pending Isends from non-group-0 complete
 
   call sxcf_correlation_finalize()
   call wv_dealloc()
