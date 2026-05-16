@@ -82,16 +82,19 @@ contains
     !NOTE: We have to sum up all isp,kx,irot,ip for irkip(isp,kx,irot,ip)/=0.
     rankdivider: block ! Two-level: kx by n_qgroup (LPT); (igrp,ip) by mpi__size_k (round-robin).
       use m_mpi, only: iq_qgroup, n_qgroup, mpi__rank_k_sxc, mpi__size_k_sxc, &
-                       worker_inQtask, qgroup_ppn
-      integer :: kx, ip, is, igrp, idx
+                       worker_inQtask, qgroup_ppn, MPI__rank, mpi__root_q, comm
+      use mpi, only: MPI_INTEGER, MPI_MAX, MPI_IN_PLACE
+      integer :: kx, ip, is, igrp, idx, ierr_rk
       logical :: kx_assigned(nqibz)
-      integer :: qrank_all(nqibz)
-      ! Level 1: distribute kx by LPT. qrank_all(1) gives qroot rank for the group assigned iq=1.
+      ! Level 1: distribute kx by LPT.
       allocate(q_ownedby_me(nqibz))
       call mpi_assign_qtask_lpt(1, nqibz, nspinmx, n_qgroup, iq_qgroup, &
-                                 worker_inQtask, q_ownedby_me, qrank=qrank_all, &
-                                 capacity=qgroup_ppn)
-      iq1_dest = qrank_all(1)  ! global rank of qroot for the group that processes iq=1
+                                 worker_inQtask, q_ownedby_me, capacity=qgroup_ppn)
+      ! iq1_dest: global rank of comm_q root for the group assigned iq=1.
+      ! Derived via Allreduce so it is correct for any topology (not just count-based split).
+      iq1_dest = 0
+      if (q_ownedby_me(1) .and. mpi__root_q) iq1_dest = MPI__rank
+      call MPI_Allreduce(MPI_IN_PLACE, iq1_dest, 1, MPI_INTEGER, MPI_MAX, comm, ierr_rk)
       kx_assigned = q_ownedby_me
       ! Level 2: distribute (igrp,ip) pairs (3rd×4th, full BZ) by mpi__size_k via round-robin.
       ! exchange (no SplitGW): mpi__size_k=mpi__size → pairs divided among all ranks.
