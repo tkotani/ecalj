@@ -503,18 +503,19 @@ contains
     integer :: n_bpara_xq, n_kpara_xq, n_bpara_sxc, n_kpara_sxc
     real(8) :: avail_gb, shm_gb, rcxq_gb, priv_gb, need_bpara
     real(8), parameter :: safety = 0.7d0
-    integer :: funit, ios
-    character(len=80) :: line
-    character(len=20) :: memkey
-    integer(8) :: val_kb
+    integer :: funit, ios, c1, c2
+    character(len=256) :: line, limitfile
+    character(len=20)  :: memkey
+    integer(8) :: val_kb, lim_bytes
+    real(8) :: mem_avail, cg_lim
 
     ! ppn: ranks per node from shared-memory topology
     call MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, mpi__rank, MPI_INFO_NULL, comm_node, ierr)
     call MPI_Comm_size(comm_node, ppn, ierr)
     call MPI_Comm_free(comm_node, ierr)
 
-    ! MemAvailable from /proc/meminfo (includes reclaimable page cache; sysinfo freeram+bufferram misses it)
-    avail_gb = 0d0
+    ! MemAvailable from /proc/meminfo (no swap, includes reclaimable page cache)
+    mem_avail = 0d0
     open(newunit=funit, file='/proc/meminfo', status='old', iostat=ios)
     if (ios == 0) then
       do
@@ -523,12 +524,50 @@ contains
         read(line, *, iostat=ios) memkey, val_kb
         if (ios /= 0) cycle
         if (trim(memkey) == 'MemAvailable:') then
-          avail_gb = real(val_kb, 8) / 1d6 * safety
+          mem_avail = real(val_kb, 8) / 1d6  ! kB → GB
           exit
         endif
       enddo
       close(funit)
     endif
+
+    ! cgroup memory limit (SLURM/PBS enforce HPC job quotas via cgroups)
+    cg_lim   = huge(1d0)
+    limitfile = ''
+    open(newunit=funit, file='/proc/self/cgroup', status='old', iostat=ios)
+    if (ios == 0) then
+      do
+        read(funit, '(A)', iostat=ios) line
+        if (ios /= 0) exit
+        if (line(1:3) == '0::') then
+          limitfile = '/sys/fs/cgroup' // trim(line(4:)) // '/memory.max'
+          exit
+        endif
+        c1 = index(line, ':')
+        c2 = index(line(c1+1:), ':') + c1
+        if (c1 > 0 .and. c2 > c1 .and. index(line(c1+1:c2-1), 'memory') > 0) then
+          limitfile = '/sys/fs/cgroup/memory' // trim(line(c2+1:)) &
+                    // '/memory.limit_in_bytes'
+          exit
+        endif
+      enddo
+      close(funit)
+    endif
+    if (len_trim(limitfile) > 0) then
+      open(newunit=funit, file=trim(limitfile), status='old', iostat=ios)
+      if (ios == 0) then
+        read(funit, '(A)', iostat=ios) line
+        close(funit)
+        line = adjustl(line)
+        if (trim(line) /= 'max') then
+          read(line, *, iostat=ios) lim_bytes
+          if (ios == 0 .and. lim_bytes > 0 .and. lim_bytes < 2_8**60) &
+            cg_lim = real(lim_bytes, 8) / 1d9
+        endif
+      endif
+    endif
+
+    avail_gb = min(mem_avail, cg_lim) * safety
 
     ! SHM per q-group: wvr(ngb²×(nwhis*npm+1)) + wvi(ngb²×niw), complex(8)=16 bytes
     shm_gb  = real(nblochpmx,8)**2 * real(nwhis*npm + 1 + niw, 8) * 16d0 / 1d9

@@ -1,5 +1,5 @@
 module m_mem
-  public writemem,memused,datetime,totalram,freeram
+  public writemem,memused,datetime,totalram,freeram,mem_avail_node_gb
   private
   real(8) :: mempeak=0d0
 contains
@@ -89,26 +89,79 @@ contains
     totalram = t
   end function totalram
 
-  real(8) function freeram() !GB  MemAvailable from /proc/meminfo (includes reclaimable page cache)
-    integer :: unit, ios
-    character(len=80) :: line
-    character(len=20) :: key
-    integer(8) :: val_kb
-    freeram = 0d0
-    open(newunit=unit, file='/proc/meminfo', status='old', iostat=ios)
-    if (ios /= 0) return
-    do
-      read(unit, '(A)', iostat=ios) line
-      if (ios /= 0) exit
-      read(line, *, iostat=ios) key, val_kb
-      if (ios /= 0) cycle
-      if (trim(key) == 'MemAvailable:') then
-        freeram = real(val_kb, 8) / 1d6  ! kB → GB
-        exit
-      endif
-    enddo
-    close(unit)
+  real(8) function freeram() !GB  min(MemAvailable, cgroup memory limit)
+    freeram = mem_avail_node_gb()
   end function freeram
+
+  ! Returns available node memory in GB: min(MemAvailable, cgroup limit).
+  ! cgroup limit covers SLURM/PBS job memory quotas on HPC systems.
+  real(8) function mem_avail_node_gb()
+    integer :: funit, ios, c1, c2
+    character(len=256) :: line, limitfile
+    character(len=20)  :: key
+    integer(8) :: val_kb, lim_bytes
+    real(8) :: mem_avail, cg_lim
+
+    ! MemAvailable from /proc/meminfo (reclaimable page cache included; no swap)
+    mem_avail = 0d0
+    open(newunit=funit, file='/proc/meminfo', status='old', iostat=ios)
+    if (ios == 0) then
+      do
+        read(funit, '(A)', iostat=ios) line
+        if (ios /= 0) exit
+        read(line, *, iostat=ios) key, val_kb
+        if (ios /= 0) cycle
+        if (trim(key) == 'MemAvailable:') then
+          mem_avail = real(val_kb, 8) / 1d6  ! kB → GB
+          exit
+        endif
+      enddo
+      close(funit)
+    endif
+
+    ! cgroup memory limit (SLURM/PBS enforce job quotas via cgroups)
+    cg_lim  = huge(1d0)
+    limitfile = ''
+    open(newunit=funit, file='/proc/self/cgroup', status='old', iostat=ios)
+    if (ios == 0) then
+      do
+        read(funit, '(A)', iostat=ios) line
+        if (ios /= 0) exit
+        if (line(1:3) == '0::') then
+          ! cgroups v2: "0::/<path>" → /sys/fs/cgroup/<path>/memory.max
+          limitfile = '/sys/fs/cgroup' // trim(line(4:)) // '/memory.max'
+          exit
+        endif
+        ! cgroups v1: find line whose subsystem list contains "memory"
+        c1 = index(line, ':')
+        c2 = index(line(c1+1:), ':') + c1
+        if (c1 > 0 .and. c2 > c1 .and. &
+            index(line(c1+1:c2-1), 'memory') > 0) then
+          limitfile = '/sys/fs/cgroup/memory' // trim(line(c2+1:)) &
+                    // '/memory.limit_in_bytes'
+          exit
+        endif
+      enddo
+      close(funit)
+    endif
+    if (len_trim(limitfile) > 0) then
+      open(newunit=funit, file=trim(limitfile), status='old', iostat=ios)
+      if (ios == 0) then
+        read(funit, '(A)', iostat=ios) line
+        close(funit)
+        line = adjustl(line)
+        if (trim(line) /= 'max') then   ! 'max' = no cgroup limit
+          read(line, *, iostat=ios) lim_bytes
+          ! cgroups v1 "no limit" sentinel: value near INT64_MAX
+          if (ios == 0 .and. lim_bytes > 0 .and. lim_bytes < 2_8**60) then
+            cg_lim = real(lim_bytes, 8) / 1d9  ! bytes → GB
+          endif
+        endif
+      endif
+    endif
+
+    mem_avail_node_gb = min(mem_avail, cg_lim)
+  end function mem_avail_node_gb
 
   subroutine sysinfo_gb(total_gb, free_gb)
     use iso_c_binding
