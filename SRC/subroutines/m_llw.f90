@@ -282,10 +282,10 @@ contains
           !$acc kernels
           zw(:,:) = (0_kp, 0_kp)
           !$acc end kernels
+          if(iw > niw) cycle
           call stopwatch_start(t_sw_x_gather)
           zxqw(:,:) = zxqi(:,:,iw)    ! all root_k have full shm_wvi; direct copy
           call stopwatch_pause(t_sw_x_gather)
-          if(iw > niw) cycle
           MToEBasisTransformation1: if(is_x0_m_basis) then
             call stopwatch_start(t_sw_x_m2e_xf)
             !$acc host_data use_device(zxqw, m2e_prod_basis, x_m2e)
