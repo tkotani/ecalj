@@ -31,7 +31,7 @@ subroutine hgw(do_correlation, do_exchange)
                 & MPI__SplitXq, MPI__FreeXq, MPI__SplitSxc, MPI__FreeSxc, &
                 & MPI__AutoSetup, &
                 & MPI__root, MPI__rank, MPI__size, MPI__consoleout, comm, &
-                & ipr, comm_q, mpi__rank_q, &
+                & ipr, comm_q, mpi__rank_q, mpi__root_q, &
                 & worker_inQtask, n_qgroup, iq_qgroup
   use m_lgunit,only: m_lgunit_init,stdo
   use m_ftox
@@ -142,7 +142,7 @@ subroutine hgw(do_correlation, do_exchange)
       if (iq == 1) then
         ! Group assigned iq=1 collects all aux llw then calls W0w0i.
         call MPI__waitllw()
-        if (MPI__rank == iq1_dest) call W0w0i(nw_i, nw, nq0i, niw, q0i, is_wc_m_basis=.true.)
+        if (mpi__root_q) call W0w0i(nw_i, nw, nq0i, niw, q0i, is_wc_m_basis=.true.)
         call MPI_barrier(comm_q, ierr)
       end if
       call sxcf_correlation_step_kx(iq, hs_ef, hs_esmr, hs_nspinmx)
