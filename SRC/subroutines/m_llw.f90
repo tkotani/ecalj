@@ -330,7 +330,7 @@ contains
           !if(localfieldcorrectionllw()) then
           call stopwatch_start(t_sw_x_gather)
           zxqw(:,:) = zxqi(:,:,iw)    ! all root_k have full shm_wvi; direct copy
-          !$acc update host(zxqw(1,1))
+          !$acc update device(zxqw)
           call stopwatch_pause(t_sw_x_gather)
           MToEBasisTransformation2: if(is_x0_m_basis) then
             call stopwatch_start(t_sw_x_m2e_xf)
@@ -340,6 +340,7 @@ contains
             !$acc end host_data
           call stopwatch_pause(t_sw_x_m2e_xf)
           endif MToEBasisTransformation2
+          !$acc update host(zxqw(1,1))
            ix=0
            !$acc kernels loop independent collapse(2)
            do igb2=ix+1,ngb
