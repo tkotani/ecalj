@@ -149,7 +149,7 @@ contains
 
   subroutine x0kf_zxq(realomega, imagomega, q, iq, npr, schi, crpa, chipm, nolfco, q00, zzr, is_m_basis)
     use m_readgwinput,only: ecut, ecuts
-    use m_dpsion,only: dpsion5, dpsion_init, dpsion_chiq, dpsion_setup_rcxq
+    use m_dpsion,only: dpsion5, dpsion_init, dpsion_chiq_h, dpsion_setup_rcxq_h
     use m_freq,only: nw_i, nw_w=>nw, niwt=>niw
     use m_freq,only: nw, niw
     use m_readeigen,only:readeval
@@ -344,8 +344,8 @@ contains
             call stopwatch_init(t_sw_dpsion, 'dpsion')
             call stopwatch_start(t_sw_dpsion)
             call dpsion_init(realomega, imagomega, chipm)
-            ! rcxq is on host (shm_wvr); run dpsion without GPU wrapper.
-            call dpsion_chiq(realomega, imagomega, chipm, rcxq, zxqi, npr, npr, schi, isp_k, ecut)
+            ! rcxq is on host (shm_wvr); use CPU-only dpsion_chiq_h.
+            call dpsion_chiq_h(realomega, imagomega, chipm, rcxq, zxqi, npr, npr, schi, isp_k, ecut)
             call stopwatch_pause(t_sw_dpsion)
             call stopwatch_show(t_sw_dpsion)
             ! dpsion wrote chi0 into shm_wvr/shm_wvi; nullify rcxq (not allocated).
@@ -359,7 +359,7 @@ contains
             nullify(rcxq)
           else
             ! chipm: rank 0 writes zxq_chipm (or zeros) into shm_wvr via dpsion_setup_rcxq, then barrier.
-            if (mpi__rank_root_k == 0) call dpsion_setup_rcxq(rcxq, npr, npr, isp_k)
+            if (mpi__rank_root_k == 0) call dpsion_setup_rcxq_h(rcxq, npr, npr, isp_k)
             call MPI_barrier(comm_root_k, ierr)
             ! Only nullify on the last spin; for isp_k<nsp, re-link to owned slice.
             if (isp_k == nsp) then
