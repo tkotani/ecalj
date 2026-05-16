@@ -30,8 +30,9 @@ module m_x0kf
   implicit none
   public:: x0kf_zxq, deallocatezxq, deallocatezxqi
   complex(kind=kp), public, pointer:: zxq(:,:,:) => null()
-  ! SHM root_k: zxqi/rcxq are bounds-remapped pointers into shm_wvi/shm_wvr (no separate alloc).
-  ! Non-root_k and FILE mode: allocate normally.
+  ! SHM root_k:   rcxq => shm_wvr (full bounds, no alloc).
+  ! SHM non-root_k: rcxq allocated as (1:npr,1:npr,iw_lo:iw_hi) — own omega slice only.
+  ! FILE mode: allocate full (1-npm)*nwhis:nwhis range.
   ! CONTIGUOUS required so elements can be sequence-associated (MPI reduce, gemm).
   complex(kind=kp), public, pointer, contiguous :: zxqi(:,:,:) => null()
   complex(kind=kp), pointer, contiguous :: rcxq(:,:,:) => null()
@@ -224,7 +225,10 @@ contains
     endif
     if(nw_w > nwhis) call rx('nwhis is smaller than nw_w')
     if (wv_backend == WV_BACKEND_SHM .and. mpi__root_k) then
-      rcxq(1:npr, 1:npr, (1-npm)*nwhis:nwhis) => shm_wvr  ! all ranks alias shm_wvr
+      rcxq(1:npr, 1:npr, (1-npm)*nwhis:nwhis) => shm_wvr
+    else if (wv_backend == WV_BACKEND_SHM) then
+      allocate(rcxq(1:npr, 1:npr, iw_lo:iw_hi))  ! non-root_k: own omega slice only
+      !$acc enter data create(rcxq)
     else
       allocate(rcxq(1:npr,1:npr,(1-npm)*nwhis:nwhis))
       !$acc enter data create(rcxq)
