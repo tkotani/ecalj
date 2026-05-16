@@ -89,10 +89,25 @@ contains
     totalram = t
   end function totalram
 
-  real(8) function freeram() !GB  free+buffer RAM available on this node
-    real(8) :: t, f
-    call sysinfo_gb(t, f)
-    freeram = f
+  real(8) function freeram() !GB  MemAvailable from /proc/meminfo (includes reclaimable page cache)
+    integer :: unit, ios
+    character(len=80) :: line
+    character(len=20) :: key
+    integer(8) :: val_kb
+    freeram = 0d0
+    open(newunit=unit, file='/proc/meminfo', status='old', iostat=ios)
+    if (ios /= 0) return
+    do
+      read(unit, '(A)', iostat=ios) line
+      if (ios /= 0) exit
+      read(line, *, iostat=ios) key, val_kb
+      if (ios /= 0) cycle
+      if (trim(key) == 'MemAvailable:') then
+        freeram = real(val_kb, 8) / 1d6  ! kB → GB
+        exit
+      endif
+    enddo
+    close(unit)
   end function freeram
 
   subroutine sysinfo_gb(total_gb, free_gb)
@@ -125,9 +140,8 @@ contains
     real(8) :: unit_gb
     ret = fsysinfo(info)
     unit_gb = real(info%mem_unit, 8) / 1d9
-    total_gb = real(info%totalram,  8) * unit_gb
-    free_gb  = real(info%freeram,   8) * unit_gb &
-             + real(info%bufferram, 8) * unit_gb   ! buffers are reclaimable
+    total_gb = real(info%totalram, 8) * unit_gb
+    free_gb  = freeram()  ! delegate to MemAvailable reader
   end subroutine sysinfo_gb
 endmodule m_mem
 

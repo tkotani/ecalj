@@ -493,7 +493,6 @@ contains
                              n_bpara_sxc_out, n_kpara_sxc_out)
     use m_lgunit, only: stdo
     use m_ftox
-    use iso_c_binding
     use mpi
     implicit none
     integer, intent(in)  :: nblochpmx, nwhis, npm, niw, nqibz, n_bpara_sxc_hint
@@ -504,32 +503,32 @@ contains
     integer :: n_bpara_xq, n_kpara_xq, n_bpara_sxc, n_kpara_sxc
     real(8) :: avail_gb, shm_gb, rcxq_gb, priv_gb, need_bpara
     real(8), parameter :: safety = 0.7d0
-    ! sysinfo for node free RAM (avoids circular dep with m_mem which uses m_mpi)
-    type, bind(C) :: t_sysinfo
-      integer(c_long) :: uptime, loads(3), totalram, freeram, sharedram, bufferram
-      integer(c_long) :: totalswap, freeswap
-      integer(c_short) :: procs
-      integer(c_long) :: totalhigh, freehigh
-      integer(c_int)  :: mem_unit
-      character(c_char) :: pad(20-2*sizeof(c_long)-sizeof(c_int))
-    end type t_sysinfo
-    interface
-      integer function fsysinfo(info) bind(C, name="sysinfo")
-        import :: t_sysinfo
-        type(t_sysinfo), intent(out) :: info
-      end function fsysinfo
-    end interface
-    type(t_sysinfo) :: sysinfo
-    integer :: ret
+    integer :: funit, ios
+    character(len=80) :: line
+    character(len=20) :: memkey
+    integer(8) :: val_kb
 
     ! ppn: ranks per node from shared-memory topology
     call MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, mpi__rank, MPI_INFO_NULL, comm_node, ierr)
     call MPI_Comm_size(comm_node, ppn, ierr)
     call MPI_Comm_free(comm_node, ierr)
 
-    ret = fsysinfo(sysinfo)
-    avail_gb = (real(sysinfo%freeram,8) + real(sysinfo%bufferram,8)) &
-             * real(sysinfo%mem_unit,8) / 1d9 * safety
+    ! MemAvailable from /proc/meminfo (includes reclaimable page cache; sysinfo freeram+bufferram misses it)
+    avail_gb = 0d0
+    open(newunit=funit, file='/proc/meminfo', status='old', iostat=ios)
+    if (ios == 0) then
+      do
+        read(funit, '(A)', iostat=ios) line
+        if (ios /= 0) exit
+        read(line, *, iostat=ios) memkey, val_kb
+        if (ios /= 0) cycle
+        if (trim(memkey) == 'MemAvailable:') then
+          avail_gb = real(val_kb, 8) / 1d6 * safety
+          exit
+        endif
+      enddo
+      close(funit)
+    endif
 
     ! SHM per q-group: wvr(ngb²×(nwhis*npm+1)) + wvi(ngb²×niw), complex(8)=16 bytes
     shm_gb  = real(nblochpmx,8)**2 * real(nwhis*npm + 1 + niw, 8) * 16d0 / 1d9
