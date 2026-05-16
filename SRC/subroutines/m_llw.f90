@@ -108,6 +108,7 @@ contains
       ix = merge(1, 0, iq == 1)
       iwloop: do 1015 iwblock = nwmin, nwmax, mpi__size_b
          iw = iwblock + mpi__rank_b
+         if(iw > nwmax) cycle
         !$acc kernels
           zw(:,:) = (0_kp, 0_kp)
         !$acc end kernels
@@ -115,7 +116,6 @@ contains
         zxqw(:,:) = zxq(:,:,iw)    ! all root_k have full shm_wvr; direct copy
         !$acc update device(zxqw)
         call stopwatch_pause(t_sw_x_gather)
-        if(iw > nwmax) cycle
         MToEBasisTransformation1: if(is_x0_m_basis) then
           call stopwatch_start(t_sw_x_m2e_xf)
           !$acc host_data use_device(zxqw, m2e_prod_basis, x_m2e)
@@ -177,12 +177,12 @@ contains
       vcou1 = fourpi/sum(q**2*tpioa**2) ! --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
       do 1115 iwblock = nwmin, nwmax, mpi__size_b
         iw = iwblock + mpi__rank_b
+        if(iw > nwmax) cycle
         call stopwatch_start(t_sw_x_gather)
         zxqw(:,:) = zxq(:,:,iw)    ! all root_k have full shm_wvr; direct copy
         !$acc update device(zxqw)
         !$acc update host(zxqw(1,1))
         call stopwatch_pause(t_sw_x_gather)
-        if(iw > nwmax) cycle
         MToEBasisTransformation2: if(is_x0_m_basis) then
           call stopwatch_start(t_sw_x_m2e_xf)
           !$acc host_data use_device(zxqw, m2e_prod_basis, x_m2e)
@@ -336,12 +336,12 @@ contains
        vcou1 = fourpi/sum(q**2*tpioa**2) ! --> vcousq(1)**2!  !fourpi/sum(q**2*tpioa**2-eee)
        do 1116 iwblock = 1, niw, mpi__size_b
           iw = iwblock + mpi__rank_b
+          if(iw > niw) cycle
           !if(localfieldcorrectionllw()) then
           call stopwatch_start(t_sw_x_gather)
-          if(iw <= niw) zxqw(:,:) = zxqi(:,:,iw)    ! all root_k have full shm_wvi; direct copy
+          zxqw(:,:) = zxqi(:,:,iw)    ! all root_k have full shm_wvi; direct copy
           !$acc update host(zxqw(1,1))
           call stopwatch_pause(t_sw_x_gather)
-          if(iw > niw) cycle
           MToEBasisTransformation2: if(is_x0_m_basis) then
             call stopwatch_start(t_sw_x_m2e_xf)
             !$acc host_data use_device(zxqw, m2e_prod_basis, x_m2e)
