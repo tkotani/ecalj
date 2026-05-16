@@ -13,6 +13,7 @@ module m_sxcf_count !job scheduler for self-energy calculation. icount mechanism
   use m_lgunit,only:stdo
   implicit none
   public sxcf_scz_count, mpi_assign_qtask_lpt, lpt_assign
+  logical, allocatable, public :: q_ownedby_me(:)  ! LPT q-group assignment (size nqibz)
   !=== Job scheduler ==============
   integer,public:: ncount 
   integer,allocatable,public:: kxc(:),nstateMax(:),nstti(:),nstte(:),nstte2(:) !ispc(:),irotc(:),ipc(:),krc(:),
@@ -72,19 +73,23 @@ contains
     if(allocated(nwxc))       deallocate(nwxc)
     if(allocated(icountini))  deallocate(icountini)
     if(allocated(icountend))  deallocate(icountend)
+    if(allocated(q_ownedby_me)) deallocate(q_ownedby_me)
     if(ixc==3.and.nctot==0)then
        allocate( irkip(nspinmx,nqibz,ngrp,nqibz),source=0 ) ! nrkip is weight correspoinding to irkip for a node.
        return
     endif   
     !NOTE: We have to sum up all isp,kx,irot,ip for irkip(isp,kx,irot,ip)/=0.
-    rankdivider: block ! Two-level: kx by n_qgroup (round-robin); (igrp,ip) by mpi__size_k (round-robin).
-      use m_mpi, only: iq_qgroup, n_qgroup, mpi__rank_k_sxc, mpi__size_k_sxc
+    rankdivider: block ! Two-level: kx by n_qgroup (LPT); (igrp,ip) by mpi__size_k (round-robin).
+      use m_mpi, only: iq_qgroup, n_qgroup, mpi__rank_k_sxc, mpi__size_k_sxc, &
+                       worker_inQtask, qgroup_ppn
       integer :: kx, ip, is, igrp, idx
       logical :: kx_assigned(nqibz)
-      ! Level 1: distribute kx by round-robin, consistent with hgw main loop gate mod(iq-1,n_qgroup)==iq_qgroup.
-      do kx = 1, nqibz
-        kx_assigned(kx) = (mod(kx-1, n_qgroup) == iq_qgroup)
-      enddo
+      ! Level 1: distribute kx by LPT. iq=1 forced to group 0 (W0w0i constraint in hgw).
+      allocate(q_ownedby_me(nqibz))
+      call mpi_assign_qtask_lpt(1, nqibz, nspinmx, n_qgroup, iq_qgroup, &
+                                 worker_inQtask, q_ownedby_me, capacity=qgroup_ppn)
+      q_ownedby_me(1) = (iq_qgroup == 0)  ! iq=1 must be in group 0 (W0w0i in hgw main loop)
+      kx_assigned = q_ownedby_me
       ! Level 2: distribute (igrp,ip) pairs (3rd×4th, full BZ) by mpi__size_k via round-robin.
       ! exchange (no SplitGW): mpi__size_k=mpi__size → pairs divided among all ranks.
       ! correlation (SplitGW(worker,1)): mpi__size_k=1 → all pairs assigned; ω-split handles parallelism.
@@ -106,7 +111,7 @@ contains
         enddo
       enddo
       if(ipr) then
-        write(stdo,'(1X,A,4I5)') 'rankdivider(kx-rr/igrp-ip-rr): n_qgroup,iq_qgroup,mpi__size_k_sxc,mpi__rank_k_sxc=', &
+        write(stdo,'(1X,A,4I5)') 'rankdivider(kx-lpt/igrp-ip-rr): n_qgroup,iq_qgroup,mpi__size_k_sxc,mpi__rank_k_sxc=', &
                                    n_qgroup, iq_qgroup, mpi__size_k_sxc, mpi__rank_k_sxc
         write(stdo,'(1X,A,*(L2))') '  kx_assigned =', kx_assigned
       endif
@@ -339,10 +344,11 @@ contains
   end subroutine get_nwx
 
   subroutine mpi_assign_qtask_lpt(iq_ini, iq_end, nspinmx, n_groups, group_rank, &
-                                    worker_inQtask, qtask, qrank)
+                                    worker_inQtask, qtask, qrank, capacity)
     ! Assign q-points [iq_ini:iq_end] to q-groups using lpt_assign.
     use m_read_bzdata, only: irk, ngrp
     integer, intent(in)           :: iq_ini, iq_end, nspinmx, n_groups, group_rank, worker_inQtask
+    integer, intent(in),  optional:: capacity(0:n_groups-1)
     logical, intent(out)          :: qtask(iq_ini:iq_end)
     integer, intent(out), optional:: qrank(iq_ini:iq_end)
     integer :: niq, iq
@@ -353,7 +359,7 @@ contains
     do iq = iq_ini, iq_end
       wl(iq-iq_ini+1) = count(irk(iq,:) > 0) * nspinmx
     enddo
-    call lpt_assign(niq, wl, n_groups, group_rank, assigned, ga)
+    call lpt_assign(niq, wl, n_groups, group_rank, assigned, ga, capacity)
     do iq = iq_ini, iq_end
       qtask(iq) = assigned(iq-iq_ini+1)
       if (present(qrank)) qrank(iq) = ga(iq-iq_ini+1) * worker_inQtask

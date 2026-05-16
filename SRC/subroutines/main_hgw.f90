@@ -43,6 +43,7 @@ subroutine hgw(do_correlation, do_exchange)
   use m_wv_storage,only: wv_dealloc
   use m_sxcf_sc,only: sxcf_correlation_init, sxcf_correlation_step_kx, &
                       sxcf_correlation_finalize
+  use m_sxcf_count,only: q_ownedby_me
   use mpi
   implicit none
   logical, intent(in) :: do_correlation, do_exchange
@@ -130,7 +131,7 @@ subroutine hgw(do_correlation, do_exchange)
 
   do iq = iqxend, 1, -1
     if (iq > nqibz .and. mod(iq-nqibz-1, n_qgroup) /= iq_qgroup) cycle
-    if (iq <= nqibz .and. mod(iq-1, n_qgroup) /= iq_qgroup) cycle
+    if (iq <= nqibz .and. .not. q_ownedby_me(iq)) cycle
     qp = qibze(:,iq)
     call build_screened_coulomb_step_kx(iq, qp, realomega, imagomega)
     if (iq > nqibz) then
