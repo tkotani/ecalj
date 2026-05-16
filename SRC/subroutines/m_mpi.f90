@@ -489,7 +489,8 @@ contains
   !> Call after MPI__Initialize and after nblochpmx/nwhis/npm/niw/nqibz are known.
   !> Queries node RAM via freeram(); determines parameters to fit SHM + rcxq in memory.
   subroutine MPI__AutoSetup(nblochpmx, nwhis, npm, niw, nqibz, n_bpara_sxc_hint, &
-                             worker_out, n_bpara_xq_out, n_kpara_xq_out, &
+                             worker_out, worker_exch_out, &
+                             n_bpara_xq_out, n_kpara_xq_out, &
                              n_bpara_sxc_out, n_kpara_sxc_out)
     use m_lgunit, only: stdo
     use m_ftox
@@ -497,10 +498,12 @@ contains
     use mpi
     implicit none
     integer, intent(in)  :: nblochpmx, nwhis, npm, niw, nqibz, n_bpara_sxc_hint
-    integer, intent(out) :: worker_out, n_bpara_xq_out, n_kpara_xq_out
+    integer, intent(out) :: worker_out, worker_exch_out
+    integer, intent(out) :: n_bpara_xq_out, n_kpara_xq_out
     integer, intent(out) :: n_bpara_sxc_out, n_kpara_sxc_out
     integer :: ppn, comm_node, ierr
     integer :: max_qg, target_w, worker, n_qg
+    integer :: worker_exch, max_qg_exch, target_w_exch
     integer :: n_bpara_xq, n_kpara_xq, n_bpara_sxc, n_kpara_sxc
     real(8) :: avail_gb, shm_gb, rcxq_gb, priv_gb, need_bpara
     real(8), parameter :: safety = 0.7d0
@@ -517,6 +520,13 @@ contains
     ! rcxq per non-root rank = wvr size only
     rcxq_gb = real(nblochpmx,8)**2 * real(nwhis*npm + 1, 8)       * 16d0 / 1d9
 
+    ! Exchange worker: no SHM constraint; maximize q-groups up to nqibz.
+    max_qg_exch  = min(ppn, nqibz)
+    target_w_exch = (ppn + max_qg_exch - 1) / max_qg_exch
+    worker_exch  = find_div_geq(mpi__size, target_w_exch)
+    worker_exch  = min(worker_exch, ppn)
+
+    ! Correlation worker: SHM-constrained.
     ! Step 1: worker_inQtask — maximize q-groups within memory
     max_qg = max(1, int(avail_gb / shm_gb))
     max_qg = min(max_qg, ppn, nqibz)  ! no point in more q-groups than q-points
@@ -541,16 +551,19 @@ contains
 
     if (ipr) then
       write(stdo,'(1X,A)')        'MPI__AutoSetup:'
-      write(stdo,'(2X,A,F6.2,A)') 'node freeram (avail×0.7)=', avail_gb, ' GB'
+      write(stdo,'(2X,A,F6.2,A)') 'node freeram (avail x 0.7)=', avail_gb, ' GB'
       write(stdo,'(2X,A,F8.4,A)') 'SHM/q-group=', shm_gb,  ' GB'
       write(stdo,'(2X,A,F8.4,A)') 'rcxq/rank  =', rcxq_gb, ' GB'
-      write(stdo,'(2X,A,5I5)')    'ppn nqibz worker n_bpara_xq n_bpara_sxc:', &
-                                    ppn, nqibz, worker, n_bpara_xq, n_bpara_sxc
-      write(stdo,'(2X,A,5I5)')    'n_qgroup n_kpara_xq n_kpara_sxc:', &
-                                    mpi__size/worker, n_kpara_xq, n_kpara_sxc
+      write(stdo,'(2X,A,4I5)')    'ppn nqibz worker_exch worker_corr:', &
+                                    ppn, nqibz, worker_exch, worker
+      write(stdo,'(2X,A,2I5)')    'n_qgroup_exch n_qgroup_corr:', &
+                                    mpi__size/worker_exch, mpi__size/worker
+      write(stdo,'(2X,A,4I5)')    'n_bpara_xq n_kpara_xq n_bpara_sxc n_kpara_sxc:', &
+                                    n_bpara_xq, n_kpara_xq, n_bpara_sxc, n_kpara_sxc
     endif
 
     worker_out      = worker
+    worker_exch_out = worker_exch
     n_bpara_xq_out  = n_bpara_xq
     n_kpara_xq_out  = n_kpara_xq
     n_bpara_sxc_out = n_bpara_sxc

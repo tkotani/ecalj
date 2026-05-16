@@ -46,7 +46,7 @@ subroutine hgw(do_correlation, do_exchange)
   implicit none
   logical, intent(in) :: do_correlation, do_exchange
   integer :: iq, iqxend, iw, ifwd, verbose, ifif, ierr
-  integer :: n_bpara_xq, n_kpara_xq, n_bpara_sxc, n_kpara_sxc, worker_auto
+  integer :: n_bpara_xq, n_kpara_xq, n_bpara_sxc, n_kpara_sxc, worker_auto, worker_exch
   real(8) :: ua=1d0, qp(3)
   logical :: debug=.false., realomega, imagomega
   logical :: hx0, iprintx=.false.
@@ -74,25 +74,29 @@ subroutine hgw(do_correlation, do_exchange)
 
   call MPI__AutoSetup(nblochpmx, nwhis_hgw, npm_hgw, niw, nqibz, &
                       n_bpara_sxc_hint=1, &
-                      worker_out=worker_auto, &
+                      worker_out=worker_auto, worker_exch_out=worker_exch, &
                       n_bpara_xq_out=n_bpara_xq, n_kpara_xq_out=n_kpara_xq, &
                       n_bpara_sxc_out=n_bpara_sxc, n_kpara_sxc_out=n_kpara_sxc)
-  call MPI__InitQgroups(worker_in=worker_auto)
 
   if(MPI__root) call writewvfreq()
   iqxend = nqibz + nq0i + nq0iadd
-  if(ipr) write(stdo,'(1X,A,3I5)') 'hgw: worker_inQtask n_qgroup iqxend:', &
-                                     worker_inQtask, n_qgroup, iqxend
 
   if (do_exchange) then
-     call MPI__SplitSxc(1, worker_inQtask)  ! exchange: n_bpara=1, full k-parallel
+     call MPI__InitQgroups(worker_in=worker_exch)
+     if(ipr) write(stdo,'(1X,A,3I5)') 'hgw(exch): worker_inQtask n_qgroup iqxend:', &
+                                        worker_inQtask, n_qgroup, iqxend
+     call MPI__SplitSxc(1, worker_inQtask)
      if(ipr) write(stdo,ftox) ' hgw: starting in-process hsfp0_sc(--job=1) exchange phase'
      call hsfp0_sc(skip_init=.true., skip_rx0=.true., ixc_in=1)
      call MPI__FreeSxc()
+     call MPI__FreeQgroups()
   endif
 
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hgw: sanity check. |q(iq=1)| /= 0')
 
+  call MPI__InitQgroups(worker_in=worker_auto)
+  if(ipr) write(stdo,'(1X,A,3I5)') 'hgw(corr): worker_inQtask n_qgroup iqxend:', &
+                                     worker_inQtask, n_qgroup, iqxend
   call MPI__SplitXq(n_bpara_xq, n_kpara_xq)
   call MPI__SplitSxc(n_bpara_sxc, n_kpara_sxc)
 
