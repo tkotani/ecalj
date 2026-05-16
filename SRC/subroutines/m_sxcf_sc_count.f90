@@ -59,7 +59,7 @@ contains
     complex(8),allocatable:: zmelc(:,:,:)
     integer,allocatable::ndiv(:),nstatei(:,:),nstatee(:,:)
     integer:: job
-    if(npm==2) call rx('sxcf_fal2_sc: npm=2 need to be examined')
+    if(npm==2) call rx('sxcf_sxc: npm=2 need to be examined')
     ! Re-runnable: in combined mode (hgw_combined) sxcf_scz_count is invoked
     ! twice (ixc=1 for Sx, ixc=2 for Sc). Dealloc all module arrays first.
     if(allocated(irkip))      deallocate(irkip)
@@ -77,16 +77,14 @@ contains
        return
     endif   
     !NOTE: We have to sum up all isp,kx,irot,ip for irkip(isp,kx,irot,ip)/=0.
-    rankdivider: block ! Two-level: kx by n_qgroup (LPT); (igrp,ip) by mpi__size_k (round-robin).
-      use m_mpi, only: iq_qgroup, n_qgroup, mpi__rank_k_sxc, mpi__size_k_sxc, qgroup_ppn
+    rankdivider: block ! Two-level: kx by n_qgroup (round-robin); (igrp,ip) by mpi__size_k (round-robin).
+      use m_mpi, only: iq_qgroup, n_qgroup, mpi__rank_k_sxc, mpi__size_k_sxc
       integer :: kx, ip, is, igrp, idx
-      integer :: wl(nqibz)
       logical :: kx_assigned(nqibz)
-      ! Level 1: distribute kx (2nd index) by n_qgroup via LPT.
+      ! Level 1: distribute kx by round-robin, consistent with hgw main loop gate mod(iq-1,n_qgroup)==iq_qgroup.
       do kx = 1, nqibz
-        wl(kx) = count(irk(kx,:) > 0) * nspinmx
+        kx_assigned(kx) = (mod(kx-1, n_qgroup) == iq_qgroup)
       enddo
-      call lpt_assign(nqibz, wl, n_qgroup, iq_qgroup, kx_assigned, capacity=qgroup_ppn)
       ! Level 2: distribute (igrp,ip) pairs (3rd×4th, full BZ) by mpi__size_k via round-robin.
       ! exchange (no SplitGW): mpi__size_k=mpi__size → pairs divided among all ranks.
       ! correlation (SplitGW(worker,1)): mpi__size_k=1 → all pairs assigned; ω-split handles parallelism.
@@ -108,7 +106,7 @@ contains
         enddo
       enddo
       if(ipr) then
-        write(stdo,'(1X,A,4I5)') 'rankdivider(kx-LPT/igrp-ip-rr): n_qgroup,iq_qgroup,mpi__size_k_sxc,mpi__rank_k_sxc=', &
+        write(stdo,'(1X,A,4I5)') 'rankdivider(kx-rr/igrp-ip-rr): n_qgroup,iq_qgroup,mpi__size_k_sxc,mpi__rank_k_sxc=', &
                                    n_qgroup, iq_qgroup, mpi__size_k_sxc, mpi__rank_k_sxc
         write(stdo,'(1X,A,*(L2))') '  kx_assigned =', kx_assigned
       endif

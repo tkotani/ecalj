@@ -20,7 +20,7 @@ subroutine hsfp0() bind(C)
   use m_zmel,only: Mptauof_zmel
   use m_itq,only: itq,ntq,setitq_hsfp0
   use m_mpi,only: &
-       MPI__Initialize,MPI__real8send,MPI__real8recv, & !MPI__sxcf_rankdivider,
+       MPI__Initialize,MPI__real8send,MPI__real8recv, &
        MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum, &
        MPI__consoleout,ipr,comm
 !  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,ndimat,nqbzt,nband,mrecg
@@ -644,25 +644,15 @@ subroutine hsfp0() bind(C)
   !! (for given zsec(iq,isp), we take sum on zsec for (iqibz,igrp) by all_reduce.)
   !! ---
   !! NOTE: in future, we will further extend irkip for itp and itpp
-  allocate(irkip(nspinmx,nqibz,ngrp,nq), source=0) !local
-  rankdivider: block
-    use m_sxcf_count, only: lpt_assign
-    use m_mpi, only: mpi__rank_k => mpi__rank_k_xq, mpi__size_k => mpi__size_k_xq
-    integer :: kx, ig, isp, wl(nqibz)
-    logical :: kx_assigned(nqibz)
-    do kx = 1, nqibz
-      wl(kx) = count(irk(kx,:) > 0) * nspinmx
-    enddo
-    call lpt_assign(nqibz, wl, mpi__size_k, mpi__rank_k, kx_assigned)
-    do kx = 1, nqibz
-      if (.not. kx_assigned(kx)) cycle
-      do isp = 1, nspinmx
-        do ig = 1, ngrp
-          irkip(isp, kx, ig, :) = irk(kx, ig)
-        enddo
-      enddo
-    enddo
-  endblock rankdivider
+  allocate(irkip_all(nspinmx,nqibz,ngrp,nq)) !this is global
+  do is = 1,nspinmx
+     do iqq=1,nq
+        irkip_all(is,:,:,iqq)=irk
+     enddo
+  enddo
+  !! == job divider for MPI ==
+  allocate(irkip(nspinmx,nqibz,ngrp,nq)) !local
+  call MPI__sxcf_rankdivider(irkip_all,nspinmx,nqibz,ngrp,nq, irkip)
   !nrkip = nrkip_all !we don't need to change this for MPI case. It just need to distribute non-zero irkip.
   !! ----------------------------------------
   niwx     = max0 (nw+1,niw)

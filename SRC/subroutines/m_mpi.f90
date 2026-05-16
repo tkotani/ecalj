@@ -485,4 +485,157 @@ contains
     deallocate (buf_rv, offset, length)
   end subroutine xmpbnd2
 
+  !> Determine worker_inQtask, n_bpara/n_kpara for SplitXq and SplitSxc from memory.
+  !> Call after MPI__Initialize and after nblochpmx/nwhis/npm/niw/nqibz are known.
+  !> Queries node RAM via freeram(); determines parameters to fit SHM + rcxq in memory.
+  subroutine MPI__AutoSetup(nblochpmx, nwhis, npm, niw, nqibz, n_bpara_sxc_hint, &
+                             worker_out, n_bpara_xq_out, n_kpara_xq_out, &
+                             n_bpara_sxc_out, n_kpara_sxc_out)
+    use m_lgunit, only: stdo
+    use m_ftox
+    use iso_c_binding
+    use mpi
+    implicit none
+    integer, intent(in)  :: nblochpmx, nwhis, npm, niw, nqibz, n_bpara_sxc_hint
+    integer, intent(out) :: worker_out, n_bpara_xq_out, n_kpara_xq_out
+    integer, intent(out) :: n_bpara_sxc_out, n_kpara_sxc_out
+    integer :: ppn, comm_node, ierr
+    integer :: max_qg, target_w, worker, n_qg
+    integer :: n_bpara_xq, n_kpara_xq, n_bpara_sxc, n_kpara_sxc
+    real(8) :: avail_gb, shm_gb, rcxq_gb, priv_gb, need_bpara
+    real(8), parameter :: safety = 0.7d0
+    ! sysinfo for node free RAM (avoids circular dep with m_mem which uses m_mpi)
+    type, bind(C) :: t_sysinfo
+      integer(c_long) :: uptime, loads(3), totalram, freeram, sharedram, bufferram
+      integer(c_long) :: totalswap, freeswap
+      integer(c_short) :: procs
+      integer(c_long) :: totalhigh, freehigh
+      integer(c_int)  :: mem_unit
+      character(c_char) :: pad(20-2*sizeof(c_long)-sizeof(c_int))
+    end type t_sysinfo
+    interface
+      integer function fsysinfo(info) bind(C, name="sysinfo")
+        import :: t_sysinfo
+        type(t_sysinfo), intent(out) :: info
+      end function fsysinfo
+    end interface
+    type(t_sysinfo) :: sysinfo
+    integer :: ret
+
+    ! ppn: ranks per node from shared-memory topology
+    call MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, mpi__rank, MPI_INFO_NULL, comm_node, ierr)
+    call MPI_Comm_size(comm_node, ppn, ierr)
+    call MPI_Comm_free(comm_node, ierr)
+
+    ret = fsysinfo(sysinfo)
+    avail_gb = (real(sysinfo%freeram,8) + real(sysinfo%bufferram,8)) &
+             * real(sysinfo%mem_unit,8) / 1d9 * safety
+
+    ! SHM per q-group: wvr(ngb²×(nwhis*npm+1)) + wvi(ngb²×niw), complex(8)=16 bytes
+    shm_gb  = real(nblochpmx,8)**2 * real(nwhis*npm + 1 + niw, 8) * 16d0 / 1d9
+    ! rcxq per non-root rank = wvr size only
+    rcxq_gb = real(nblochpmx,8)**2 * real(nwhis*npm + 1, 8)       * 16d0 / 1d9
+
+    ! Step 1: worker_inQtask — maximize q-groups within memory
+    max_qg = max(1, int(avail_gb / shm_gb))
+    max_qg = min(max_qg, ppn, nqibz)  ! no point in more q-groups than q-points
+    target_w = (ppn + max_qg - 1) / max_qg  ! ceiling division: ensures n_qgroup <= nqibz
+    worker = find_div_geq(mpi__size, target_w)
+    worker = min(worker, ppn)
+
+    ! Step 2: n_bpara_xq — ensure rcxq fits in per-rank private budget
+    n_qg    = ppn / worker
+    priv_gb = avail_gb - n_qg * shm_gb              ! private budget for entire node
+    ! total rcxq per node = n_qg*(worker-n_bpara_xq)*rcxq_gb ≤ priv_gb
+    ! → n_bpara_xq ≥ worker - priv_gb/(n_qg*rcxq_gb)
+    need_bpara = worker - priv_gb / (real(n_qg,8) * rcxq_gb)
+    n_bpara_xq = max(1, ceiling(need_bpara))
+    n_bpara_xq = find_div_geq(worker, n_bpara_xq)
+    n_kpara_xq = worker / n_bpara_xq
+
+    ! Step 3: n_bpara_sxc — user hint or default 1
+    n_bpara_sxc = merge(n_bpara_sxc_hint, 1, n_bpara_sxc_hint > 0)
+    n_bpara_sxc = find_div_geq(worker, n_bpara_sxc)
+    n_kpara_sxc = worker / n_bpara_sxc
+
+    if (ipr) then
+      write(stdo,'(1X,A)')        'MPI__AutoSetup:'
+      write(stdo,'(2X,A,F6.2,A)') 'node freeram (avail×0.7)=', avail_gb, ' GB'
+      write(stdo,'(2X,A,F8.4,A)') 'SHM/q-group=', shm_gb,  ' GB'
+      write(stdo,'(2X,A,F8.4,A)') 'rcxq/rank  =', rcxq_gb, ' GB'
+      write(stdo,'(2X,A,5I5)')    'ppn nqibz worker n_bpara_xq n_bpara_sxc:', &
+                                    ppn, nqibz, worker, n_bpara_xq, n_bpara_sxc
+      write(stdo,'(2X,A,5I5)')    'n_qgroup n_kpara_xq n_kpara_sxc:', &
+                                    mpi__size/worker, n_kpara_xq, n_kpara_sxc
+    endif
+
+    worker_out      = worker
+    n_bpara_xq_out  = n_bpara_xq
+    n_kpara_xq_out  = n_kpara_xq
+    n_bpara_sxc_out = n_bpara_sxc
+    n_kpara_sxc_out = n_kpara_sxc
+
+  contains
+    integer function find_div_geq(n, target)
+      integer, intent(in) :: n, target
+      integer :: d
+      do d = max(1,target), n
+        if (mod(n, d) == 0) then; find_div_geq = d; return; endif
+      enddo
+      find_div_geq = n
+    end function find_div_geq
+
+  end subroutine MPI__AutoSetup
+
 end module m_mpi
+
+subroutine MPI__sxcf_rankdivider(irkip_all,nspinmx,nqibz,ngrp,nq,irkip)
+  use m_mpi,only: mpi__rank, mpi__size
+  use m_mpi, only: ipr
+  implicit none
+  integer, intent(in)  :: nspinmx,nqibz,ngrp,nq
+  integer, intent(in)  :: irkip_all(nspinmx,nqibz,ngrp,nq)
+  integer, intent(out) :: irkip    (nspinmx,nqibz,ngrp,nq)
+  integer :: ispinmx,iqibz,igrp,iq
+  integer :: total
+  integer, allocatable :: vtotal(:)
+  integer :: indexi, indexe
+  integer :: p, ngroup
+  if( mpi__size == 1 ) then
+     irkip = irkip_all
+     return
+  end if
+  total = count(irkip_all>0)
+  ngroup = mpi__size
+  if(ipr)write(6,"('MPI__sxcf_rankdivider:$')")
+  if(ipr)write(6,"('nspinmx,nqibz,ngrp,nq,total=',5i6)") nspinmx,nqibz,ngrp,nq,total
+  if(ipr)write(6,'(A,2I5)') 'MPI: k-group size, rank_k', ngroup, mpi__rank
+  allocate( vtotal(0:mpi__size-1) )
+  vtotal(:) = total/ngroup
+  do p=1, mod(total, ngroup)
+     vtotal(p-1) = vtotal(p-1) + 1
+  end do
+  indexe=0
+  indexi=-999999
+  do p=0, mpi__rank
+     indexi = indexe+1
+     indexe = indexi+vtotal(p)-1
+  end do
+  deallocate(vtotal)
+  total = 0
+  irkip(:,:,:,:) = 0
+  do iq=1, nq
+     do ispinmx=1, nspinmx
+        do iqibz=1, nqibz
+           do igrp=1, ngrp
+              if( irkip_all(ispinmx,iqibz,igrp,iq) >0 ) then
+                 total = total + 1
+                 if( indexi<=total .and. total<=indexe ) then
+                    irkip(ispinmx,iqibz,igrp,iq) = irkip_all(ispinmx,iqibz,igrp,iq)
+                 endif
+              endif
+           enddo
+        enddo
+     enddo
+  enddo
+end subroutine MPI__sxcf_rankdivider

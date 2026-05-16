@@ -8,8 +8,8 @@ subroutine hgw(do_correlation, do_exchange)
   !>   iq <= nqibz: regular — build W, consume for Sc (W0w0i at iq=1).
   !> MPI layout: mpi__size = n_qgroup × worker_inQtask (q × per-q-group).
   !>   MPI__InitQgroups sets comm_q = intra-node communicator (ppn ranks).
-  !>   MPI__SplitXq/SplitSxc create persistent intra-node comm_k_xq/comm_k_sxc (both k-priority).
-  !>   build_screened_coulomb uses comm_k_xq; sxcf_correlation uses comm_k_sxc.
+  !>   MPI__SplitXq creates comm_k_xq for build_screened_coulomb (called just before main loop).
+  !>   MPI__SplitSxc creates comm_k_sxc for exchange (n_bpara=1) and correlation (n_bpara>=1).
   !> Loop gate: regular iq by q-group round-robin (mod(iq-1,n_qgroup)==iq_qgroup).
   !>            auxiliary iq (nqibz+1..) skipped unless iq_qgroup==0.
   use m_ReadEfermi,only: Readefermi
@@ -21,13 +21,14 @@ subroutine hgw(do_correlation, do_exchange)
   use m_rdpp,only: mrecl,nblochpmx,nprecx
   use m_zmel,only: Mptauof_zmel
   use m_itq,only:  Setitq
-  use m_freq,only: Getfreq2,freq_r,nw_i,nw,niw
+  use m_freq,only: Getfreq2,freq_r,nw_i,nw,niw, nwhis_hgw=>nwhis, npm_hgw=>npm
   use m_w0w0i,only: W0w0i
   use m_readgwinput,only: ReadGwinputKeys
   use m_qbze,only:  Setqbze,qibze
   use m_llw,only: MPI__irecvllw_q, MPI__isendllw_q, MPI__waitllw
   use m_mpi,only: MPI__Initialize, MPI__InitQgroups, MPI__FreeQgroups, &
                 & MPI__SplitXq, MPI__FreeXq, MPI__SplitSxc, MPI__FreeSxc, &
+                & MPI__AutoSetup, &
                 & MPI__root, MPI__rank, MPI__size, MPI__consoleout, comm, &
                 & ipr, comm_q, mpi__rank_q, &
                 & worker_inQtask, n_qgroup, iq_qgroup
@@ -45,13 +46,11 @@ subroutine hgw(do_correlation, do_exchange)
   implicit none
   logical, intent(in) :: do_correlation, do_exchange
   integer :: iq, iqxend, iw, ifwd, verbose, ifif, ierr
+  integer :: n_bpara_xq, n_kpara_xq, n_bpara_sxc, n_kpara_sxc, worker_auto
   real(8) :: ua=1d0, qp(3)
   logical :: debug=.false., realomega, imagomega
   logical :: hx0, iprintx=.false.
   call MPI__Initialize()
-  call MPI__InitQgroups()
-  call MPI__SplitXq(1, worker_inQtask)   ! persistent k-priority split: comm_k_xq for screened Coulomb/exchange
-  call MPI__SplitSxc(1, worker_inQtask)  ! persistent k-priority split: comm_k_sxc for correlation
   call gpu_init(comm)
   call M_lgunit_init()
   call MPI__consoleout('hgw')
@@ -72,20 +71,31 @@ subroutine hgw(do_correlation, do_exchange)
   realomega = .true.
   imagomega = .true.
   call Getfreq2(.false.,realomega,imagomega,ua,iprintx)
+
+  call MPI__AutoSetup(nblochpmx, nwhis_hgw, npm_hgw, niw, nqibz, &
+                      n_bpara_sxc_hint=1, &
+                      worker_out=worker_auto, &
+                      n_bpara_xq_out=n_bpara_xq, n_kpara_xq_out=n_kpara_xq, &
+                      n_bpara_sxc_out=n_bpara_sxc, n_kpara_sxc_out=n_kpara_sxc)
+  call MPI__InitQgroups(worker_in=worker_auto)
+
   if(MPI__root) call writewvfreq()
   iqxend = nqibz + nq0i + nq0iadd
   if(ipr) write(stdo,'(1X,A,3I5)') 'hgw: worker_inQtask n_qgroup iqxend:', &
                                      worker_inQtask, n_qgroup, iqxend
 
   if (do_exchange) then
+     call MPI__SplitSxc(1, worker_inQtask)  ! exchange: n_bpara=1, full k-parallel
      if(ipr) write(stdo,ftox) ' hgw: starting in-process hsfp0_sc(--job=1) exchange phase'
      call hsfp0_sc(skip_init=.true., skip_rx0=.true., ixc_in=1)
+     call MPI__FreeSxc()
   endif
 
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hgw: sanity check. |q(iq=1)| /= 0')
 
-  ! setup: k-priority (comm_k_sxc = worker_inQtask); rankdivider in sxcf_sc_count uses
-  ! mpi__size_k_sxc = worker_inQtask → tuples distributed across all ranks (k-parallel).
+  call MPI__SplitXq(n_bpara_xq, n_kpara_xq)
+  call MPI__SplitSxc(n_bpara_sxc, n_kpara_sxc)
+
   call hsfp0_sc_setup(skip_init=.true., ixc_in=2)
   call sxcf_correlation_init(hs_ef, hs_esmr, hs_nspinmx)
 

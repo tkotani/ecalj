@@ -1,5 +1,5 @@
 module m_mem
-  public writemem,memused,datetime,totalram
+  public writemem,memused,datetime,totalram,freeram
   private
   real(8) :: mempeak=0d0
 contains
@@ -83,10 +83,22 @@ contains
     datetime=date(1:4)//sp//date(5:6)//sp//date(7:8)//'T'//time(1:2)//':'//time(3:4)//':'//trim(time(5:10)) !isoformat
   end function datetime
 
-  real(8) function totalram() !GB  Show the size of memory at which a rank included.
+  real(8) function totalram() !GB
+    real(8) :: t, f
+    call sysinfo_gb(t, f)
+    totalram = t
+  end function totalram
+
+  real(8) function freeram() !GB  free+buffer RAM available on this node
+    real(8) :: t, f
+    call sysinfo_gb(t, f)
+    freeram = f
+  end function freeram
+
+  subroutine sysinfo_gb(total_gb, free_gb)
     use iso_c_binding
     implicit none
-    type, bind(C) :: sysinfo
+    type, bind(C) :: t_sysinfo
        integer(c_long) :: uptime
        integer(c_long) :: loads(3)
        integer(c_long) :: totalram
@@ -99,20 +111,24 @@ contains
        integer(c_long) :: totalhigh
        integer(c_long) :: freehigh
        integer(c_int) :: mem_unit
-       character(c_char)::f(20-2*sizeof(c_long)-sizeof(c_int))
-    end type sysinfo
+       character(c_char) :: f(20-2*sizeof(c_long)-sizeof(c_int))
+    end type t_sysinfo
     interface
        integer function fsysinfo(info) bind(C, name="sysinfo")
-         import :: sysinfo
-         type(sysinfo), intent(out) :: info
+         import :: t_sysinfo
+         type(t_sysinfo), intent(out) :: info
        end function fsysinfo
     end interface
-    type(sysinfo) :: info
+    real(8), intent(out) :: total_gb, free_gb
+    type(t_sysinfo) :: info
     integer :: ret
-    real(8)::k=1000
+    real(8) :: unit_gb
     ret = fsysinfo(info)
-    totalram=info%totalram/k**3
-  end function totalram
+    unit_gb = real(info%mem_unit, 8) / 1d9
+    total_gb = real(info%totalram,  8) * unit_gb
+    free_gb  = real(info%freeram,   8) * unit_gb &
+             + real(info%bufferram, 8) * unit_gb   ! buffers are reclaimable
+  end subroutine sysinfo_gb
 endmodule m_mem
 
   ! print *, 'ret=', ret
