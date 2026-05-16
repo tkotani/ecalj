@@ -148,7 +148,7 @@ contains
       call mpi_comm_rank(comm_root_k_xq, mpi__rank_root_k_xq, mpi__info)
       call mpi_comm_size(comm_root_k_xq, mpi__size_root_k_xq, mpi__info)
     endif
-    if(ipr) write(06,'(X,A,5I5,3L2)') &
+    if(ipr) write(06,'(X,A,6I5,3L2)') &
       "MPI(Xq): rank rank_q rank_k_xq rank_b_xq n_bpara n_kpara root_q root_k root_b", &
       mpi__rank, mpi__rank_q, mpi__rank_k_xq, mpi__rank_b_xq, n_bpara, n_kpara, &
       mpi__root_q, mpi__root_k_xq, mpi__root_b_xq
@@ -184,7 +184,7 @@ contains
     call mpi_comm_rank(comm_k_sxc, mpi__rank_k_sxc, mpi__info)
     call mpi_comm_size(comm_k_sxc, mpi__size_k_sxc, mpi__info)
     mpi__root_k_sxc = mpi__rank_k_sxc == 0
-    if(ipr) write(06,'(X,A,5I5,3L2)') &
+    if(ipr) write(06,'(X,A,6I5,3L2)') &
       "MPI(Sxc): rank rank_q rank_k_sxc rank_b_sxc n_bpara n_kpara root_q root_k root_b", &
       mpi__rank, mpi__rank_q, mpi__rank_k_sxc, mpi__rank_b_sxc, n_bpara, n_kpara, &
       mpi__root_q, mpi__root_k_sxc, mpi__root_b_sxc
