@@ -501,6 +501,7 @@ contains
     use m_lgunit, only: stdo
     use m_ftox
     use m_mem_node, only: mem_avail_node_gb
+    use m_kind, only: kindrcxq
     use mpi
     implicit none
     integer, intent(in)  :: nblochpmx, nwhis, npm, niw, nqibz, n_bpara_sxc_hint
@@ -512,6 +513,7 @@ contains
     integer :: worker_exch, max_qg_exch, target_w_exch
     integer :: n_bpara_xq, n_kpara_xq, n_bpara_sxc, n_kpara_sxc
     real(8) :: avail_gb, shm_gb, rcxq_gb, priv_gb, need_bpara
+    real(8) :: bytes_per_elem  ! 2*kindrcxq: 8 (single) or 16 (double)
     real(8), parameter :: safety = 0.7d0
 
     ! ppn: ranks per node from shared-memory topology
@@ -521,10 +523,11 @@ contains
 
     avail_gb = mem_avail_node_gb() * safety
 
-    ! SHM per q-group: wvr(ngb²×(nwhis*npm+1)) + wvi(ngb²×niw), complex(8)=16 bytes
-    shm_gb  = real(nblochpmx,8)**2 * real(nwhis*npm + 1 + niw, 8) * 16d0 / 1d9
+    bytes_per_elem = real(2 * kindrcxq, 8)  ! complex(kindrcxq): 8 or 16 bytes
+    ! SHM per q-group: wvr(ngb²×(nwhis*npm+1)) + wvi(ngb²×niw)
+    shm_gb  = real(nblochpmx,8)**2 * real(nwhis*npm + 1 + niw, 8) * bytes_per_elem / 1d9
     ! rcxq per non-root rank = wvr size only
-    rcxq_gb = real(nblochpmx,8)**2 * real(nwhis*npm + 1, 8)       * 16d0 / 1d9
+    rcxq_gb = real(nblochpmx,8)**2 * real(nwhis*npm + 1, 8)       * bytes_per_elem / 1d9
 
     ! Exchange worker: no SHM constraint; maximize q-groups up to nqibz.
     max_qg_exch  = min(ppn, nqibz)
