@@ -214,9 +214,7 @@ contains
     if (ipr) write(stdo,ftox)' size of rcxq:', npr, nwhis*npm+1
     call flush(stdo)
     allocate(rcxq(1:npr, 1:npr, iw_lo:iw_hi))
-    !$acc kernels
     rcxq = (0_kp, 0_kp)
-    !$acc end kernels
     debug = cmdopt0('--debugzmel')
     isloop: do isp_k = 1, nsp
       GETtetrahedronWeight: block
@@ -343,9 +341,7 @@ contains
         endif
         if (chipm .and. isp_k /= nsp) then
           allocate(rcxq(1:npr, 1:npr, iw_lo:iw_hi))
-          !$acc kernels
           rcxq = (0_kp, 0_kp)
-          !$acc end kernels
         endif
       endif HilbertTransformation
     enddo isloop
