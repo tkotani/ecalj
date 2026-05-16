@@ -31,12 +31,9 @@ module m_x0kf
   public:: x0kf_zxq, deallocatezxq, deallocatezxqi
   complex(kind=kp), public, pointer:: zxq(:,:,:) => null()
   complex(kind=kp), public, pointer, contiguous :: zxqi(:,:,:) => null()
+  complex(kind=kp), allocatable :: rcxq(:,:,:)
 #ifdef __GPU
-  ! GPU: pure device array; host shm_wvr holds result after k-reduce. zxq => shm_wvr.
-  complex(kind=kp), device, allocatable :: rcxq(:,:,:)
-#else
-  ! CPU: root_k aliases shm_wvr; non-root_k allocated privately.
-  complex(kind=kp), pointer, contiguous :: rcxq(:,:,:) => null()
+  attributes(device) :: rcxq
 #endif
   integer,public::npr
   private
@@ -211,28 +208,13 @@ contains
       call set_m2e_prod_basis(npr=npr)
     endif
     call ReleaseZcousq()
-    if (associated(zxq))  nullify(zxq)
-#ifdef __GPU
+    if (associated(zxq)) nullify(zxq)
     if (allocated(rcxq)) deallocate(rcxq)
-#else
-    if (associated(rcxq)) nullify(rcxq)
-#endif
     if (nw_w > nwhis) call rx('nwhis is smaller than nw_w')
     if (ipr) write(stdo,ftox)' size of rcxq:', npr, nwhis*npm+1
     call flush(stdo)
-#ifdef __GPU
-    ! GPU: device-only; no host allocation. x0gemm uses rcxq via attributes(device).
-    ! After k-loop, implicit device→host in iw_slice=rcxq(:,:,iw) feeds shm_wvr for dpsion.
     allocate(rcxq(1:npr, 1:npr, iw_lo:iw_hi))
     rcxq = (0_kp, 0_kp)
-#else
-    if (mpi__root_k) then
-      rcxq(1:,1:,iw_lo:) => shm_wvr(1:npr,1:npr,iw_lo-(1-npm)*nwhis+1:iw_hi-(1-npm)*nwhis+1)
-    else
-      allocate(rcxq(1:npr, 1:npr, iw_lo:iw_hi))
-    endif
-    rcxq(:,:,iw_lo:iw_hi) = (0d0, 0d0)
-#endif
     debug = cmdopt0('--debugzmel')
     isloop: do isp_k = 1, nsp
       GETtetrahedronWeight: block
@@ -316,64 +298,20 @@ contains
       HilbertTransformation: if (isp_k==nsp .OR. chipm) then
         !Get real part. When chipm=T, do dpsion5 for every isp_k; When =F, do dpsion5 after rxcq accumulated for spins
         mpi_k_accumulate: block
+          ! Unified: n_kpara=1 uses single-rank comm_k (reduce is no-op); GPU implicit device→host.
           integer :: iw
-          if (mpi__size_k == 1) then
-#ifdef __GPU
-            ! GPU n_kpara=1: implicit device→host in slice assignment fills shm_wvr.
-            do iw = iw_lo, iw_hi
-              if (iw == 0) cycle
-              shm_wvr(:,:, iw - (1-npm)*nwhis + 1) = rcxq(:,:, iw)
-            enddo
-            deallocate(rcxq)
-            call MPI_barrier(comm_q, ierr)
-#else
-            ! n_kpara=1: all ranks wrote exclusively to iw_lo:iw_hi of shm_wvr.
-            ! Barrier ensures all omega slices are written before rank_root_k=0 reads all.
-            call MPI_barrier(comm_q, ierr)
-            if (mpi__rank_root_k /= 0) nullify(rcxq)
-            if (mpi__rank_root_k == 0) rcxq(1:npr, 1:npr, (1-npm)*nwhis:nwhis) => shm_wvr
-#endif
-          else
-            ! n_kpara>1: private rcxq; k-reduce via comm_k, copy reduced slice to shm_wvr.
-#ifdef __GPU
-            ! GPU: implicit device→host in iw_slice=rcxq(:,:,iw); reduced result goes directly to shm_wvr.
-            do iw = iw_lo, iw_hi
-              if (iw == 0) cycle
-              block
-                complex(kp) :: iw_slice(npr, npr)
-                iw_slice = rcxq(:,:,iw)
-                call MPI__reduceSum(0, iw_slice(1,1), npr*npr, communicator=comm_k)
-                if (mpi__root_k) shm_wvr(:,:, iw - (1-npm)*nwhis + 1) = iw_slice
-              end block
-            enddo
-            deallocate(rcxq)
-#else
-            do iw = iw_lo, iw_hi
-              if (iw == 0) cycle
-              block
-                complex(kp) :: iw_slice(npr, npr)
-                iw_slice = rcxq(:,:,iw)
-                call MPI__reduceSum(0, iw_slice(1,1), npr*npr, communicator=comm_k)
-                if (mpi__root_k) rcxq(:,:,iw) = iw_slice
-              end block
-            enddo
-            if (mpi__root_k) then
-              do iw = iw_lo, iw_hi
-                if (iw == 0) cycle
-                shm_wvr(:,:, iw - (1-npm)*nwhis + 1) = rcxq(:,:, iw)
-              enddo
-              nullify(rcxq)
-            else
-              deallocate(rcxq)
-            endif
-#endif
-            call MPI_barrier(comm_q, ierr)
-            if (mpi__rank_root_k == 0) rcxq(1:npr, 1:npr, (1-npm)*nwhis:nwhis) => shm_wvr
-          endif
+          do iw = iw_lo, iw_hi
+            if (iw == 0) cycle
+            block
+              complex(kp) :: iw_slice(npr, npr)
+              iw_slice = rcxq(:,:,iw)
+              call MPI__reduceSum(0, iw_slice(1,1), npr*npr, communicator=comm_k)
+              if (mpi__root_k) shm_wvr(:,:, iw - (1-npm)*nwhis + 1) = iw_slice
+            end block
+          enddo
+          deallocate(rcxq)
+          call MPI_barrier(comm_q, ierr)
         end block mpi_k_accumulate
-#ifdef __GPU
-        ! GPU: rcxq is device-only; use local chi0 pointer to shm_wvr for dpsion.
-        ! zxq => shm_wvr[nw_i:nw_w] directly (no rcxq host presence needed).
         if (mpi__root_k) then
           block
             complex(kp), pointer, contiguous :: chi0(:,:,:)
@@ -388,7 +326,7 @@ contains
               call stopwatch_show(t_sw_dpsion)
             endif
             call MPI_barrier(comm_root_k, ierr)
-            if (realomega) zxq(1:,1:,nw_i:) => shm_wvr(1:npr, 1:npr, nw_i - (1-npm)*nwhis + 1 : nw_w - (1-npm)*nwhis + 1)
+            if (realomega) zxq(1:,1:,nw_i:) => shm_wvr(1:npr, 1:npr, nw_i-(1-npm)*nwhis+1 : nw_w-(1-npm)*nwhis+1)
             if (chipm) then
               if (mpi__rank_root_k == 0) call dpsion_setup_rcxq(chi0, npr, npr, isp_k)
               call MPI_barrier(comm_root_k, ierr)
@@ -400,41 +338,6 @@ contains
           allocate(rcxq(1:npr, 1:npr, iw_lo:iw_hi))
           rcxq = (0_kp, 0_kp)
         endif
-#else
-        if (mpi__root_k) then
-          if (mpi__rank_root_k == 0) then
-            if (imagomega) zxqi(1:npr, 1:npr, 1:niw) => shm_wvi
-            call stopwatch_init(t_sw_dpsion, 'dpsion')
-            call stopwatch_start(t_sw_dpsion)
-            call dpsion_init(realomega, imagomega, chipm)
-            call dpsion_chiq(realomega, imagomega, chipm, rcxq, zxqi, npr, npr, schi, isp_k, ecut)
-            call stopwatch_pause(t_sw_dpsion)
-            call stopwatch_show(t_sw_dpsion)
-            nullify(rcxq)
-          endif
-          ! barrier ensures dpsion (rank 0) is done; all root_k ranks map zxq/zxqi.
-          call MPI_barrier(comm_root_k, ierr)
-          rcxq(1:npr, 1:npr, (1-npm)*nwhis:nwhis) => shm_wvr
-          if (realomega) zxq(1:,1:,nw_i:) => rcxq(1:npr, 1:npr, nw_i:nw_w)
-          if (.not. chipm) then
-            nullify(rcxq)
-          else
-            if (mpi__rank_root_k == 0) call dpsion_setup_rcxq(rcxq, npr, npr, isp_k)
-            call MPI_barrier(comm_root_k, ierr)
-            if (isp_k == nsp) then
-              nullify(rcxq)
-            else
-              rcxq(1:,1:,iw_lo:) => shm_wvr(1:npr,1:npr,iw_lo-(1-npm)*nwhis+1:iw_hi-(1-npm)*nwhis+1)
-            endif
-          endif
-          if (imagomega) zxqi(1:npr, 1:npr, 1:niw) => shm_wvi
-        endif
-        ! chipm, n_kpara>1: non-root_k was deallocated in mpi_k_accumulate; re-allocate for next spin.
-        if (chipm .and. isp_k /= nsp .and. .not. mpi__root_k) then
-          allocate(rcxq(1:npr, 1:npr, iw_lo:iw_hi))
-          rcxq(:,:,:) = (0d0, 0d0)
-        endif
-#endif
       endif HilbertTransformation
     enddo isloop
   end subroutine x0kf_zxq
