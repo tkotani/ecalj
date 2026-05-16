@@ -24,6 +24,7 @@ subroutine hgw(do_correlation, do_exchange)
   use m_freq,only: Getfreq2,freq_r,nw_i,nw,niw, nwhis_hgw=>nwhis, npm_hgw=>npm
   use m_w0w0i,only: W0w0i
   use m_readgwinput,only: ReadGwinputKeys
+  use m_GWinput,only: mpi_worker_exch, mpi_worker_corr
   use m_qbze,only:  Setqbze,qibze
   use m_llw,only: MPI__irecvllw_q, MPI__isendllw_q, MPI__waitllw
   use m_mpi,only: MPI__Initialize, MPI__InitQgroups, MPI__FreeQgroups, &
@@ -77,6 +78,8 @@ subroutine hgw(do_correlation, do_exchange)
                       worker_out=worker_auto, worker_exch_out=worker_exch, &
                       n_bpara_xq_out=n_bpara_xq, n_kpara_xq_out=n_kpara_xq, &
                       n_bpara_sxc_out=n_bpara_sxc, n_kpara_sxc_out=n_kpara_sxc)
+  if (mpi_worker_exch > 0) worker_exch = mpi_worker_exch
+  if (mpi_worker_corr > 0) worker_auto = mpi_worker_corr
 
   if(MPI__root) call writewvfreq()
   iqxend = nqibz + nq0i + nq0iadd
