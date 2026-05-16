@@ -396,7 +396,6 @@ subroutine hx0fp0()
     call Readvcoud(qp,iq,NoVcou=chipm) !Readin vcousq,zcousq ngb ngc for the Coulomb matrix
     ngb = ngc+nbloch
     if(ipr) write(stdo,"('  nbloch ngb ngc=',3i10)") nbloch,ngb,ngc
-    call wv_init_shm(ngb, niw, (1-npm)*nwhis, nwhis, comm_q)
     if(chipm) then !npr is the dimension of zxq(npr,npr)
       npr = nmbas
     elseif(nolfco) then
@@ -405,6 +404,7 @@ subroutine hx0fp0()
       npr = ngb
     endif
     call MPI__Setnpr_col(npr, npr_col) ! set the npr_col : split of npr(column) for MPI color_b
+    call wv_init_shm(npr, niw, (1-npm)*nwhis, nwhis, comm_q)
     if(epsmode) call writeepsopen()
     if(ipr) write(stdo,"(' ##### ',2i4,' out of nqibz+n0qi nsp=',2i4,' ##### ')")iq, nqibz + nq0i, nspin
     call x0kf_zxq(realomega,imagomega,qp,iq,npr,schi,crpa,chipm,nolfco, q00,zzr,is_m_basis=.false.)
