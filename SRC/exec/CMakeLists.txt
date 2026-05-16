@@ -195,7 +195,7 @@ function(add_extended_build VARIANT)
       target_link_libraries(${LIB} PUBLIC gemmul8wrap)
     endif()
   endif()
-  set_target_properties(${LIB} PROPERTIES 
+  set_target_properties(${LIB} PROPERTIES
       LINKER_LANGUAGE Fortran
       Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/${FC}/mod_${VARIANT}
       BUILD_RPATH "$ORIGIN"
@@ -203,6 +203,15 @@ function(add_extended_build VARIANT)
   )
   target_compile_options(${LIB} PRIVATE -cpp ${CPP_DEFINITIONS} ${FLAGS_EXTRA})
   target_compile_definitions(${LIB} PRIVATE ${CPP_DEFINITIONS})
+  if(VARIANT STREQUAL "gpu" OR VARIANT STREQUAL "mp_gpu")
+    # Ensure the base ecaljF is fully built before the GPU variant starts.
+    # CMake's Fortran scanner misses some use-dependencies (e.g. m_gemmul8 → m_mpi),
+    # causing "Unable to open MODULE file" in parallel builds.
+    # With this dependency the base mod/ directory is populated first;
+    # the -I below lets GPU sources fall back to those modules when mod_gpu lags.
+    add_dependencies(${LIB} ecaljF)
+    target_include_directories(${LIB} PRIVATE ${CMAKE_BINARY_DIR}/${FC}/mod)
+  endif()
   list(APPEND DELIVER_FILES ${CMAKE_BINARY_DIR}/lib${LIB}.so)
 
   foreach(target IN ITEMS ${MAINS_GPU})
