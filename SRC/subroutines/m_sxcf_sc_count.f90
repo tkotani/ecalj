@@ -14,6 +14,7 @@ module m_sxcf_count !job scheduler for self-energy calculation. icount mechanism
   implicit none
   public sxcf_scz_count, mpi_assign_qtask_lpt, lpt_assign
   logical, allocatable, public :: q_ownedby_me(:)  ! LPT q-group assignment (size nqibz)
+  integer, public :: iq1_dest = 0  ! global rank of qroot for group processing iq=1
   !=== Job scheduler ==============
   integer,public:: ncount 
   integer,allocatable,public:: kxc(:),nstateMax(:),nstti(:),nstte(:),nstte2(:) !ispc(:),irotc(:),ipc(:),krc(:),
@@ -84,11 +85,13 @@ contains
                        worker_inQtask, qgroup_ppn
       integer :: kx, ip, is, igrp, idx
       logical :: kx_assigned(nqibz)
-      ! Level 1: distribute kx by LPT. iq=1 forced to group 0 (W0w0i constraint in hgw).
+      integer :: qrank_all(nqibz)
+      ! Level 1: distribute kx by LPT. qrank_all(1) gives qroot rank for the group assigned iq=1.
       allocate(q_ownedby_me(nqibz))
       call mpi_assign_qtask_lpt(1, nqibz, nspinmx, n_qgroup, iq_qgroup, &
-                                 worker_inQtask, q_ownedby_me, capacity=qgroup_ppn)
-      q_ownedby_me(1) = (iq_qgroup == 0)  ! iq=1 must be in group 0 (W0w0i in hgw main loop)
+                                 worker_inQtask, q_ownedby_me, qrank=qrank_all, &
+                                 capacity=qgroup_ppn)
+      iq1_dest = qrank_all(1)  ! global rank of qroot for the group that processes iq=1
       kx_assigned = q_ownedby_me
       ! Level 2: distribute (igrp,ip) pairs (3rd×4th, full BZ) by mpi__size_k via round-robin.
       ! exchange (no SplitGW): mpi__size_k=mpi__size → pairs divided among all ranks.

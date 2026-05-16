@@ -43,7 +43,7 @@ subroutine hgw(do_correlation, do_exchange)
   use m_wv_storage,only: wv_dealloc
   use m_sxcf_sc,only: sxcf_correlation_init, sxcf_correlation_step_kx, &
                       sxcf_correlation_finalize
-  use m_sxcf_count,only: q_ownedby_me
+  use m_sxcf_count,only: q_ownedby_me, iq1_dest
   use mpi
   implicit none
   logical, intent(in) :: do_correlation, do_exchange
@@ -122,15 +122,13 @@ subroutine hgw(do_correlation, do_exchange)
   ! Ensure llw/llwI/wmuk are allocated before pre-posting Irecvs.
   call MPI__llw_alloc_bufs()
 
-  ! Pre-post Irecvs for auxiliary llw: round-robin across q-groups.
-  ! Aux iq assigned to group g = mod(iq-nqibz-1, n_qgroup).
-  ! src = rank 0 of group g = g*worker_inQtask; dest = 0 (global rank 0).
-  if (iq_qgroup == 0) then
-    do iq = nqibz+1, iqxend
-      src_group = mod(iq-nqibz-1, n_qgroup)
-      call MPI__irecvllw_q(iq-nqibz, src_group*worker_inQtask, 0)
-    enddo
-  endif
+  ! Pre-post Irecvs for auxiliary llw at iq1_dest (qroot of the group assigned iq=1 by LPT).
+  ! Aux iq assigned to group g = mod(iq-nqibz-1, n_qgroup); src = g*worker_inQtask.
+  ! MPI__irecvllw_q is a no-op on all ranks except dest (iq1_dest).
+  do iq = nqibz+1, iqxend
+    src_group = mod(iq-nqibz-1, n_qgroup)
+    call MPI__irecvllw_q(iq-nqibz, src_group*worker_inQtask, iq1_dest)
+  enddo
 
   do iq = iqxend, 1, -1
     if (iq > nqibz .and. mod(iq-nqibz-1, n_qgroup) /= iq_qgroup) cycle
@@ -138,19 +136,19 @@ subroutine hgw(do_correlation, do_exchange)
     qp = qibze(:,iq)
     call build_screened_coulomb_step_kx(iq, qp, realomega, imagomega)
     if (iq > nqibz) then
-      ! Auxiliary q-point: send llw from this group's rank 0 to global rank 0.
-      call MPI__isendllw_q(iq-nqibz, iq_qgroup*worker_inQtask, 0)
+      ! Auxiliary q-point: send llw to iq1_dest (qroot of group assigned iq=1).
+      call MPI__isendllw_q(iq-nqibz, iq_qgroup*worker_inQtask, iq1_dest)
     else
       if (iq == 1) then
-        ! iq=1 is always in q-group 0 (mod(0, n_qgroup)=0).
+        ! Group assigned iq=1 collects all aux llw then calls W0w0i.
         call MPI__waitllw()
-        if (MPI__rank == 0) call W0w0i(nw_i, nw, nq0i, niw, q0i, is_wc_m_basis=.true.)
+        if (MPI__rank == iq1_dest) call W0w0i(nw_i, nw, nq0i, niw, q0i, is_wc_m_basis=.true.)
         call MPI_barrier(comm_q, ierr)
       end if
       call sxcf_correlation_step_kx(iq, hs_ef, hs_esmr, hs_nspinmx)
     end if
   enddo
-  call MPI__waitllw()  ! ensure pending Isends from non-group-0 complete
+  call MPI__waitllw()  ! ensure pending Isends complete
 
   call sxcf_correlation_finalize()
   call wv_dealloc()
