@@ -24,8 +24,8 @@ subroutine x0gemm(rcxq, npr, nwhis, npm, ns1, ns2, iw_lo_in, iw_hi_in)
   !$ use omp_lib
   implicit none
   integer, intent(in) :: npr, nwhis, npm, ns1, ns2
-  integer, intent(in), optional :: iw_lo_in, iw_hi_in
-  complex(kind=kp), intent(inout) :: rcxq(npr,npr,((1-npm)*nwhis):nwhis)
+  integer, intent(in) :: iw_lo_in, iw_hi_in
+  complex(kind=kp), intent(inout) :: rcxq(npr,npr,iw_lo_in:iw_hi_in)
   integer :: icoun, igb1, igb2, iw, jpm, iw_pos, it, itp, ittp, nttp_max, ierr
   integer :: iw_lo, iw_hi
   integer :: pos_lo(2), pos_hi(2)
@@ -37,8 +37,8 @@ subroutine x0gemm(rcxq, npr, nwhis, npm, ns1, ns2, iw_lo_in, iw_hi_in)
 #ifdef __GPU
   attributes(device) :: zw, wzw
 #endif
-  iw_lo = (1-npm)*nwhis; if (present(iw_lo_in)) iw_lo = iw_lo_in
-  iw_hi = nwhis;         if (present(iw_hi_in)) iw_hi = iw_hi_in
+  iw_lo = iw_lo_in
+  iw_hi = iw_hi_in
 
   ! Owned positive-iw_pos ranges derived from flat iw_lo:iw_hi.
   ! jpm=1: flat iw = +iw_pos → owned when iw_lo <= iw_pos <= iw_hi (positive part)

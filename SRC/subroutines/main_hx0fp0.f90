@@ -404,7 +404,7 @@ subroutine hx0fp0()
       npr = ngb
     endif
     call MPI__Setnpr_col(npr, npr_col) ! set the npr_col : split of npr(column) for MPI color_b
-    call wv_init_shm(npr, niw, (1-npm)*nwhis, nwhis, comm_q)
+    call wv_init_shm(npr, niw, (1-npm)*nwhis, nwhis, comm_q, mreclx=mrecl)
     if(epsmode) call writeepsopen()
     if(ipr) write(stdo,"(' ##### ',2i4,' out of nqibz+n0qi nsp=',2i4,' ##### ')")iq, nqibz + nq0i, nspin
     call x0kf_zxq(realomega,imagomega,qp,iq,npr,schi,crpa,chipm,nolfco, q00,zzr,is_m_basis=.false.)

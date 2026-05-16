@@ -30,8 +30,9 @@ module m_x0kf
   implicit none
   public:: x0kf_zxq, deallocatezxq, deallocatezxqi
   complex(kind=kp), public, pointer:: zxq(:,:,:) => null()
-  ! SHM root_k:   rcxq => shm_wvr (full bounds, no alloc).
+  ! SHM root_k:   rcxq(1:npr,1:npr,iw_lo:iw_hi) => shm_wvr(:,:,slice) (no alloc).
   ! SHM non-root_k: rcxq allocated as (1:npr,1:npr,iw_lo:iw_hi) — own omega slice only.
+  ! Both cases iw_lo:iw_hi so x0gemm sequence-association is correct for all b-ranks.
   ! CONTIGUOUS required so elements can be sequence-associated (MPI reduce, gemm).
   complex(kind=kp), public, pointer, contiguous :: zxqi(:,:,:) => null()
   complex(kind=kp), pointer, contiguous :: rcxq(:,:,:) => null()
@@ -189,7 +190,7 @@ contains
     k_lo = mpi__rank_k * ((nqbz + mpi__size_k - 1) / mpi__size_k) + 1
     k_hi = min(k_lo + (nqbz + mpi__size_k - 1) / mpi__size_k - 1, nqbz)
     write(stdo,*) 'x0kf_zxq: k_lo, k_hi, nwhis, nw_i, nw, iw_lo, iw_hi', k_lo, k_hi, nwhis, nw_i, nw, iw_lo, iw_hi
-    if (chipm)         call rx('x0kf_zxq: chipm not supported')
+    !if (chipm)         call rx('x0kf_zxq: chipm not supported')
     if (npm /= 1)      call rx('x0kf_zxq: npm/=1 not supported')
     if (wv_ngb /= npr) call rx('x0kf_zxq: wv_ngb /= npr (shm_wvr size mismatch)')
 
@@ -210,7 +211,7 @@ contains
     if(associated(rcxq)) nullify(rcxq)
     if(nw_w > nwhis) call rx('nwhis is smaller than nw_w')
     if (mpi__root_k) then
-      rcxq(1:npr, 1:npr, (1-npm)*nwhis:nwhis) => shm_wvr
+      rcxq(1:,1:,iw_lo:) => shm_wvr(1:npr,1:npr,iw_lo-(1-npm)*nwhis+1:iw_hi-(1-npm)*nwhis+1)
     else
       allocate(rcxq(1:npr, 1:npr, iw_lo:iw_hi))
       !$acc enter data create(rcxq)
@@ -321,6 +322,7 @@ contains
             ! Barrier ensures all omega slices are written before rank_root_k=0 reads all.
             call MPI_barrier(comm_q, ierr)
             if (mpi__rank_root_k /= 0) nullify(rcxq)
+            if (mpi__rank_root_k == 0) rcxq(1:npr, 1:npr, (1-npm)*nwhis:nwhis) => shm_wvr
           else
             ! n_kpara>1: private rcxq; k-reduce via comm_k, copy flat slice to shm_wvr.
             !$acc update host(rcxq)
@@ -366,11 +368,27 @@ contains
           call MPI_barrier(comm_root_k, ierr)
           rcxq(1:npr, 1:npr, (1-npm)*nwhis:nwhis) => shm_wvr
           if (realomega) zxq(1:,1:,nw_i:) => rcxq(1:npr, 1:npr, nw_i:nw_w)
-          nullify(rcxq)
+          if (.not. chipm) then
+            nullify(rcxq)
+          else
+            ! chipm: rank 0 writes zxq_chipm (or zeros) into shm_wvr via dpsion_setup_rcxq, then barrier.
+            if (mpi__rank_root_k == 0) call dpsion_setup_rcxq(rcxq, npr, npr, isp_k)
+            call MPI_barrier(comm_root_k, ierr)
+            ! Only nullify on the last spin; for isp_k<nsp, re-link to owned slice.
+            if (isp_k == nsp) then
+              nullify(rcxq)
+            else
+              rcxq(1:,1:,iw_lo:) => shm_wvr(1:npr,1:npr,iw_lo-(1-npm)*nwhis+1:iw_hi-(1-npm)*nwhis+1)
+            endif
+          endif
           if (imagomega) zxqi(1:npr, 1:npr, 1:niw) => shm_wvi
         endif
-        !set zero (if isp_k == 1) or chi+- in rcxq (if isp_k == 2)
-        if(chipm) call dpsion_setup_rcxq(rcxq, npr, npr, isp_k)
+        ! chipm, n_kpara>1: non-root_k was deallocated in mpi_k_accumulate; re-allocate for next spin.
+        if (chipm .and. isp_k /= nsp .and. .not. mpi__root_k) then
+          allocate(rcxq(1:npr, 1:npr, iw_lo:iw_hi))
+          !$acc enter data create(rcxq)
+          rcxq(:,:,:) = (0d0, 0d0)
+        endif
       endif HilbertTransformation 
 1103 enddo isloop
   end subroutine x0kf_zxq

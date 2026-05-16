@@ -109,7 +109,7 @@ contains
   subroutine writemem(message)
     use m_ftox
     use m_lgunit,only:stdo
-    use m_mpi,only: MPI__rank
+    use mpi
     use m_gpu, only: mydev
 #ifdef __GPU
     use openacc
@@ -117,10 +117,14 @@ contains
 #endif
     character(*)  :: message
     character(len=128) :: memuse_gpu = ''
+    integer :: myrank, ierr
 #ifdef __GPU
     real(8),parameter:: kk=1024,GG=kk**3 !afac for workspace of zhgv
     integer(8):: total_mem,free_mem, used_mem
     integer :: istat
+#endif
+    call MPI_Comm_rank(MPI_COMM_WORLD, myrank, ierr)
+#ifdef __GPU
     istat = cudaDeviceSynchronize()
     total_mem = acc_get_property(mydev, acc_device_nvidia, acc_property_memory)
     free_mem  = acc_get_property(mydev, acc_device_nvidia, acc_property_free_memory)
@@ -128,7 +132,7 @@ contains
     write(memuse_gpu,ftox,advance="no") ' (GPU)',ftof(dble(used_mem/GG),3),'GB'
 #endif
     write(stdo,ftox)trim(message)//repeat(' ',mod(1000-len_trim(message),55))//&
-         ' rank=',MPI__rank,'Memused (CPU)',ftof(memused(),3),'GB'//trim(memuse_gpu),datetime()
+         ' rank=',myrank,'Memused (CPU)',ftof(memused(),3),'GB'//trim(memuse_gpu),datetime()
 
     flush(stdo)
     if(mempeak>memused()) mempeak=memused()

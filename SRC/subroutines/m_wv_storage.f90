@@ -82,7 +82,7 @@ contains
     wv_imag_unit = -1
   end subroutine wv_init_file
 
-  subroutine wv_init_shm(ngbx, niwx, rcxq_lo, rcxq_hi, comm)
+  subroutine wv_init_shm(ngbx, niwx, rcxq_lo, rcxq_hi, comm, mreclx)
     !> Configure singleton for SHM backend.
     !> shm_wvr(ngbx, ngbx, rcxq_lo:rcxq_hi) is the shared rcxq:
     !>   phase 1 — spectral bins (x0 accumulation, k-loop)
@@ -95,13 +95,15 @@ contains
     use iso_c_binding, only: c_ptr, c_f_pointer
     use mpi
     integer, intent(in) :: ngbx, niwx, rcxq_lo, rcxq_hi, comm
+    integer, intent(in), optional :: mreclx
     integer(MPI_ADDRESS_KIND) :: nbytes, sz
     integer :: disp_unit, ierr, my_rank, nrcxq
     type(c_ptr) :: baseptr
     complex(kp) :: tmp_c
 
     wv_backend = WV_BACKEND_SHM
-    wv_nw_i    = rcxq_lo   ! lower bound of shm_wvr 3rd dim; wv_put/get_real uses iw-wv_nw_i+1
+    wv_nw_i    = rcxq_lo
+    if (present(mreclx)) wv_mreclx = mreclx   ! lower bound of shm_wvr 3rd dim; wv_put/get_real uses iw-wv_nw_i+1
     wv_ngb     = ngbx
     wv_cur_iq  = 0
     nrcxq      = rcxq_hi - rcxq_lo + 1
@@ -182,14 +184,12 @@ contains
     integer,     intent(in) :: iw
     complex(kp), intent(in) :: zw(:,:)
     integer :: istat
-    if (wv_backend == WV_BACKEND_FILE) then
-       if (wv_in_modify_mode) then
-          write(wv_real_unit, rec=iw - wv_nw_i + 1) zw  ! rank-0 only, standard Fortran write
-       else
-          istat = writem(wv_real_unit, rec=iw - wv_nw_i + 1, data=zw)
-       endif
-    else
+    if (wv_backend == WV_BACKEND_SHM .and. associated(shm_wvr)) then
        shm_wvr(1:wv_ngb, 1:wv_ngb, iw - wv_nw_i + 1) = zw(1:wv_ngb, 1:wv_ngb)
+    elseif (wv_in_modify_mode) then
+       write(wv_real_unit, rec=iw - wv_nw_i + 1) zw  ! rank-0 only, standard Fortran write
+    else
+       istat = writem(wv_real_unit, rec=iw - wv_nw_i + 1, data=zw)
     endif
   end subroutine wv_put_real
 
@@ -197,14 +197,12 @@ contains
     integer,     intent(in) :: iw
     complex(kp), intent(in) :: zw(:,:)
     integer :: istat
-    if (wv_backend == WV_BACKEND_FILE) then
-       if (wv_in_modify_mode) then
-          write(wv_imag_unit, rec=iw) zw  ! rank-0 only, standard Fortran write
-       else
-          istat = writem(wv_imag_unit, rec=iw, data=zw)
-       endif
-    else
+    if (wv_backend == WV_BACKEND_SHM .and. associated(shm_wvi)) then
        shm_wvi(1:wv_ngb, 1:wv_ngb, iw) = zw(1:wv_ngb, 1:wv_ngb)
+    elseif (wv_in_modify_mode) then
+       write(wv_imag_unit, rec=iw) zw  ! rank-0 only, standard Fortran write
+    else
+       istat = writem(wv_imag_unit, rec=iw, data=zw)
     endif
   end subroutine wv_put_imag
 
@@ -234,20 +232,20 @@ contains
   subroutine wv_get_real(iw, zw)
     integer,     intent(in)  :: iw
     complex(kp), intent(out) :: zw(:,:)
-    if (wv_backend == WV_BACKEND_FILE) then
-       read(wv_real_unit, rec=iw - wv_nw_i + 1) zw
-    else
+    if (wv_backend == WV_BACKEND_SHM .and. associated(shm_wvr)) then
        zw(1:wv_ngb, 1:wv_ngb) = shm_wvr(1:wv_ngb, 1:wv_ngb, iw - wv_nw_i + 1)
+    else
+       read(wv_real_unit, rec=iw - wv_nw_i + 1) zw
     endif
   end subroutine wv_get_real
 
   subroutine wv_get_imag(iw, zw)
     integer,     intent(in)  :: iw
     complex(kp), intent(out) :: zw(:,:)
-    if (wv_backend == WV_BACKEND_FILE) then
-       read(wv_imag_unit, rec=iw) zw
-    else
+    if (wv_backend == WV_BACKEND_SHM .and. associated(shm_wvi)) then
        zw(1:wv_ngb, 1:wv_ngb) = shm_wvi(1:wv_ngb, 1:wv_ngb, iw)
+    else
+       read(wv_imag_unit, rec=iw) zw
     endif
   end subroutine wv_get_imag
 
@@ -257,7 +255,7 @@ contains
     character(10) :: i2char
     wv_cur_iq = iq
     wv_in_modify_mode = .true.
-    if (wv_backend /= WV_BACKEND_FILE) return
+    if (wv_backend == WV_BACKEND_SHM .and. associated(shm_wvr)) return  ! use SHM directly
     open(newunit=wv_real_unit, file='__WVR.'//i2char(iq), &
          form='unformatted', status='old', access='direct', recl=wv_mreclx)
   end subroutine wv_open_iq_real_for_modify
@@ -267,14 +265,13 @@ contains
     character(10) :: i2char
     wv_cur_iq = iq
     wv_in_modify_mode = .true.
-    if (wv_backend /= WV_BACKEND_FILE) return
+    if (wv_backend == WV_BACKEND_SHM .and. associated(shm_wvi)) return  ! use SHM directly
     open(newunit=wv_imag_unit, file='__WVI.'//i2char(iq), &
          form='unformatted', status='old', access='direct', recl=wv_mreclx)
   end subroutine wv_open_iq_imag_for_modify
 
   subroutine wv_close_iq_for_modify()
     wv_in_modify_mode = .false.
-    if (wv_backend /= WV_BACKEND_FILE) return
     if (wv_real_unit > 0) then; close(wv_real_unit); wv_real_unit = -1; endif
     if (wv_imag_unit > 0) then; close(wv_imag_unit); wv_imag_unit = -1; endif
   end subroutine wv_close_iq_for_modify
