@@ -278,11 +278,11 @@ contains
        ix = merge(1, 0, iq == 1)
        do 1016 iwblock = 1, niw, mpi__size_b
           iw = iwblock + mpi__rank_b
+          if(iw > niw) cycle
           !!  Eqs.(37),(38) in PRB81 125102
           !$acc kernels
           zw(:,:) = (0_kp, 0_kp)
           !$acc end kernels
-          if(iw > niw) cycle
           call stopwatch_start(t_sw_x_gather)
           zxqw(:,:) = zxqi(:,:,iw)    ! all root_k have full shm_wvi; direct copy
           call stopwatch_pause(t_sw_x_gather)
