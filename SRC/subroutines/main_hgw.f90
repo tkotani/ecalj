@@ -54,7 +54,7 @@ subroutine hgw(do_correlation, do_exchange)
   logical :: debug=.false., realomega, imagomega
   logical :: hx0, iprintx=.false.
   call MPI__Initialize()
-  call gpu_init(comm)
+  call gpu_init(comm, share_gpu=.true.)
   call M_lgunit_init()
   call MPI__consoleout('hgw')
   call cputid (0)

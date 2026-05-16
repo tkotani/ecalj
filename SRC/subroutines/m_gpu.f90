@@ -13,11 +13,14 @@ module m_gpu
   integer :: procid, nsize
   contains
   
-  subroutine gpu_init(comm)
+  subroutine gpu_init(comm, share_gpu)
     use iso_c_binding
     use mpi
     implicit none
     integer, intent(in) :: comm
+    !> share_gpu=.true.: all local ranks share GPUs (round-robin); default .false. = only first ndevs ranks use GPU.
+    logical, intent(in), optional :: share_gpu
+    logical :: share_gpu_
     integer :: status(mpi_status_size)
     integer :: ierr, ndevs, ndevs_tmp, mydev_tmp, hostid_tmp, i, hostid, nlocal_procs, ilocal_rank
     integer, allocatable :: hostids(:), rankids(:)
@@ -28,6 +31,9 @@ module m_gpu
         integer (c_int) :: gethostid
       end function gethostid
     end interface
+
+    share_gpu_ = .false.
+    if (present(share_gpu)) share_gpu_ = share_gpu
 
 #ifdef __GPU
     call mpi_comm_rank(comm, procid, ierr)
@@ -45,13 +51,14 @@ module m_gpu
     if(ndevs == 0) return
     mydev = mod(ilocal_rank, ndevs)
 
-    ! Automatic GPU assignment: only first ndevs local ranks use GPU
-    ! e.g. 2 GPUs → rank 0=GPU0, rank 1=GPU1, rank 2+=CPU only
-    ngpu_ranks = min(ndevs, nlocal_procs)
-    if(ilocal_rank >= ndevs) then
-      use_gpu = .false.
-    else
+    if (share_gpu_) then
+      ! All local ranks share GPUs (round-robin); each initializes its assigned device.
+      ngpu_ranks = nlocal_procs
       use_gpu = .true.
+    else
+      ! Only first ndevs local ranks use GPU (one rank per GPU).
+      ngpu_ranks = min(ndevs, nlocal_procs)
+      use_gpu = (ilocal_rank < ndevs)
     endif
 
     if(use_gpu) then
