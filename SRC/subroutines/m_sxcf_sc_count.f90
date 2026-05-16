@@ -82,19 +82,18 @@ contains
     !NOTE: We have to sum up all isp,kx,irot,ip for irkip(isp,kx,irot,ip)/=0.
     rankdivider: block ! Two-level: kx by n_qgroup (LPT); (igrp,ip) by mpi__size_k (round-robin).
       use m_mpi, only: iq_qgroup, n_qgroup, mpi__rank_k_sxc, mpi__size_k_sxc, &
-                       worker_inQtask, qgroup_ppn, MPI__rank, mpi__root_q, comm
-      use mpi, only: MPI_INTEGER, MPI_MAX, MPI_IN_PLACE
-      integer :: kx, ip, is, igrp, idx, ierr_rk
+                       worker_inQtask, qgroup_ppn, qgroup_root
+      integer :: kx, ip, is, igrp, idx
       logical :: kx_assigned(nqibz)
+      integer :: ga(nqibz)
       ! Level 1: distribute kx by LPT.
       allocate(q_ownedby_me(nqibz))
       call mpi_assign_qtask_lpt(1, nqibz, nspinmx, n_qgroup, iq_qgroup, &
-                                 worker_inQtask, q_ownedby_me, capacity=qgroup_ppn)
+                                 worker_inQtask, q_ownedby_me, capacity=qgroup_ppn, &
+                                 grp_assign=ga)
       ! iq1_dest: global rank of comm_q root for the group assigned iq=1.
-      ! Derived via Allreduce so it is correct for any topology (not just count-based split).
-      iq1_dest = 0
-      if (q_ownedby_me(1) .and. mpi__root_q) iq1_dest = MPI__rank
-      call MPI_Allreduce(MPI_IN_PLACE, iq1_dest, 1, MPI_INTEGER, MPI_MAX, comm, ierr_rk)
+      ! qgroup_root is computed in MPI__InitQgroups via Allreduce — correct for any topology.
+      iq1_dest = qgroup_root(ga(1))
       kx_assigned = q_ownedby_me
       ! Level 2: distribute (igrp,ip) pairs (3rd×4th, full BZ) by mpi__size_k via round-robin.
       ! exchange (no SplitGW): mpi__size_k=mpi__size → pairs divided among all ranks.
@@ -350,13 +349,14 @@ contains
   end subroutine get_nwx
 
   subroutine mpi_assign_qtask_lpt(iq_ini, iq_end, nspinmx, n_groups, group_rank, &
-                                    worker_inQtask, qtask, qrank, capacity)
+                                    worker_inQtask, qtask, qrank, capacity, grp_assign)
     ! Assign q-points [iq_ini:iq_end] to q-groups using lpt_assign.
     use m_read_bzdata, only: irk, ngrp
     integer, intent(in)           :: iq_ini, iq_end, nspinmx, n_groups, group_rank, worker_inQtask
     integer, intent(in),  optional:: capacity(0:n_groups-1)
     logical, intent(out)          :: qtask(iq_ini:iq_end)
-    integer, intent(out), optional:: qrank(iq_ini:iq_end)
+    integer, intent(out), optional:: qrank(iq_ini:iq_end)      ! kept for back-compat; not reliable for non-uniform topology
+    integer, intent(out), optional:: grp_assign(iq_ini:iq_end) ! group index (0-based) assigned to each iq
     integer :: niq, iq
     integer :: wl(iq_end-iq_ini+1)
     logical :: assigned(iq_end-iq_ini+1)
@@ -368,7 +368,8 @@ contains
     call lpt_assign(niq, wl, n_groups, group_rank, assigned, ga, capacity)
     do iq = iq_ini, iq_end
       qtask(iq) = assigned(iq-iq_ini+1)
-      if (present(qrank)) qrank(iq) = ga(iq-iq_ini+1) * worker_inQtask
+      if (present(qrank))      qrank(iq)      = ga(iq-iq_ini+1) * worker_inQtask
+      if (present(grp_assign)) grp_assign(iq) = ga(iq-iq_ini+1)
     enddo
     if(ipr) then
       write(stdo,'(1X,A,2I5)') 'mpi_assign_qtask_lpt: n_groups, group_rank=', n_groups, group_rank

@@ -32,7 +32,7 @@ subroutine hgw(do_correlation, do_exchange)
                 & MPI__AutoSetup, &
                 & MPI__root, MPI__rank, MPI__size, MPI__consoleout, comm, &
                 & ipr, comm_q, mpi__rank_q, mpi__root_q, &
-                & worker_inQtask, n_qgroup, iq_qgroup
+                & worker_inQtask, n_qgroup, iq_qgroup, qgroup_root
   use m_lgunit,only: m_lgunit_init,stdo
   use m_ftox
   use m_gpu,only: gpu_init
@@ -123,11 +123,11 @@ subroutine hgw(do_correlation, do_exchange)
   call MPI__llw_alloc_bufs()
 
   ! Pre-post Irecvs for auxiliary llw at iq1_dest (qroot of the group assigned iq=1 by LPT).
-  ! Aux iq assigned to group g = mod(iq-nqibz-1, n_qgroup); src = g*worker_inQtask.
+  ! Aux iq assigned to group g = mod(iq-nqibz-1, n_qgroup); src = qgroup_root(g).
   ! MPI__irecvllw_q is a no-op on all ranks except dest (iq1_dest).
   do iq = nqibz+1, iqxend
     src_group = mod(iq-nqibz-1, n_qgroup)
-    call MPI__irecvllw_q(iq-nqibz, src_group*worker_inQtask, iq1_dest)
+    call MPI__irecvllw_q(iq-nqibz, qgroup_root(src_group), iq1_dest)
   enddo
 
   do iq = iqxend, 1, -1
@@ -137,7 +137,7 @@ subroutine hgw(do_correlation, do_exchange)
     call build_screened_coulomb_step_kx(iq, qp, realomega, imagomega)
     if (iq > nqibz) then
       ! Auxiliary q-point: send llw to iq1_dest (qroot of group assigned iq=1).
-      call MPI__isendllw_q(iq-nqibz, iq_qgroup*worker_inQtask, iq1_dest)
+      call MPI__isendllw_q(iq-nqibz, qgroup_root(iq_qgroup), iq1_dest)
     else
       if (iq == 1) then
         ! Group assigned iq=1 collects all aux llw then calls W0w0i.

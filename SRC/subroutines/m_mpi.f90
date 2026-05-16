@@ -14,7 +14,8 @@ module m_mpi !MPI utility (unified from m_mpi + m_MPItk)
   integer :: comm_q, mpi__rank_q, mpi__size_q
   logical, protected :: mpi__root_q
   integer, protected :: iq_qgroup=0, n_qgroup=1, worker_inQtask=2
-  integer, allocatable, protected :: qgroup_ppn(:)  ! ppn for each q-group (size=n_qgroup)
+  integer, allocatable, protected :: qgroup_ppn(:)   ! ppn for each q-group (size=n_qgroup)
+  integer, allocatable, protected :: qgroup_root(:)  ! global rank of comm_q root per group
 
 !-- Xq split (k-priority): used by build_screened_coulomb and exchange
 !   comm_k_xq: all worker ranks (k-parallel);  comm_b_xq: ω-parallel (size=n_bpara)
@@ -114,11 +115,15 @@ contains
     endif
     mpi__size_q = worker_inQtask
     mpi__root_q = mpi__rank_q == 0
-    ! Collect ppn for each q-group; used by LPT to balance across unequal nodes.
-    if (allocated(qgroup_ppn)) deallocate(qgroup_ppn)
-    allocate(qgroup_ppn(0:n_qgroup-1), source=0)
+    ! Collect ppn and comm_q root rank for each q-group.
+    if (allocated(qgroup_ppn))  deallocate(qgroup_ppn)
+    if (allocated(qgroup_root)) deallocate(qgroup_root)
+    allocate(qgroup_ppn(0:n_qgroup-1),  source=0)
+    allocate(qgroup_root(0:n_qgroup-1), source=0)
     qgroup_ppn(iq_qgroup) = worker_inQtask
-    call MPI_Allreduce(MPI_IN_PLACE, qgroup_ppn, n_qgroup, MPI_INTEGER, MPI_SUM, comm, mpi__info)
+    if (mpi__root_q) qgroup_root(iq_qgroup) = mpi__rank
+    call MPI_Allreduce(MPI_IN_PLACE, qgroup_ppn,  n_qgroup, MPI_INTEGER, MPI_SUM, comm, mpi__info)
+    call MPI_Allreduce(MPI_IN_PLACE, qgroup_root, n_qgroup, MPI_INTEGER, MPI_SUM, comm, mpi__info)
   end subroutine MPI__InitQgroups
 
   subroutine MPI__SplitXq(n_bpara, n_kpara)
@@ -201,7 +206,8 @@ contains
     !> Free comm_q created by MPI__InitQgroups. Call once at end of hgw.
     implicit none
     call mpi_comm_free(comm_q, mpi__info)
-    if (allocated(qgroup_ppn)) deallocate(qgroup_ppn)
+    if (allocated(qgroup_ppn))  deallocate(qgroup_ppn)
+    if (allocated(qgroup_root)) deallocate(qgroup_root)
   end subroutine MPI__FreeQgroups
 
   subroutine MPI__Split(n_split)
