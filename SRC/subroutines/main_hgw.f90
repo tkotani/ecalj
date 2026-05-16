@@ -78,8 +78,16 @@ subroutine hgw(do_correlation, do_exchange)
                       worker_out=worker_auto, worker_exch_out=worker_exch, &
                       n_bpara_xq_out=n_bpara_xq, n_kpara_xq_out=n_kpara_xq, &
                       n_bpara_sxc_out=n_bpara_sxc, n_kpara_sxc_out=n_kpara_sxc)
-  if (mpi_worker_exch > 0) worker_exch = mpi_worker_exch
-  if (mpi_worker_corr > 0) worker_auto = mpi_worker_corr
+  if (mpi_worker_exch > 0) then
+    if (mod(MPI__size, mpi_worker_exch) /= 0) &
+      call rx('mpi_worker_exch must divide mpi__size')
+    worker_exch = mpi_worker_exch
+  endif
+  if (mpi_worker_corr > 0) then
+    if (mod(MPI__size, mpi_worker_corr) /= 0) &
+      call rx('mpi_worker_corr must divide mpi__size')
+    worker_auto = mpi_worker_corr
+  endif
 
   if(MPI__root) call writewvfreq()
   iqxend = nqibz + nq0i + nq0iadd
