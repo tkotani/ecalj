@@ -76,9 +76,6 @@ subroutine x0gemm(rcxq, npr, nwhis, npm, ns1, ns2, iw_lo_in, iw_hi_in)
   enddo
 
   allocate(zw(nttp_max,npr), wzw(nttp_max,npr))
-#ifndef __GPU
-  !$acc host_data use_device(rcxq)
-#endif
   !$acc data copyin(whw, itw, itpw, zmel)
   do iw = iw_lo, iw_hi
     if (iw == 0) cycle
@@ -105,9 +102,6 @@ subroutine x0gemm(rcxq, npr, nwhis, npm, ns1, ns2, iw_lo_in, iw_hi_in)
             &  opA = m_op_C, beta = CONE, ldA = nttp_max, ldB = nttp_max)
   enddo
   !$acc end data
-#ifndef __GPU
-  !$acc end host_data
-#endif
 
   deallocate(itw, itpw, whw, wzw, zw, nttp)
 
