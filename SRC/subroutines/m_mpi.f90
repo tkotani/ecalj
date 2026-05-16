@@ -540,12 +540,14 @@ contains
     worker = find_div_geq(mpi__size, target_w)
     worker = min(worker, ppn)
 
-    ! Step 2: n_bpara_xq — ensure rcxq fits in per-rank private budget
+    ! Step 2: n_bpara_xq — ensure rcxq fits in private budget.
+    ! Each non-root_k rank allocates rcxq for its iw_lo:iw_hi slice (= rcxq_gb/n_bpara).
+    ! n_bpara*(n_kpara-1) non-root_k ranks per q-group → total = (n_kpara-1)*rcxq_gb per q-group.
+    ! Constraint: n_qg*(n_kpara-1)*rcxq_gb ≤ priv_gb
+    ! → n_bpara ≥ worker / (1 + priv_gb/(n_qg*rcxq_gb))
     n_qg    = ppn / worker
-    priv_gb = avail_gb - n_qg * shm_gb              ! private budget for entire node
-    ! total rcxq per node = n_qg*(worker-n_bpara_xq)*rcxq_gb ≤ priv_gb
-    ! → n_bpara_xq ≥ worker - priv_gb/(n_qg*rcxq_gb)
-    need_bpara = worker - priv_gb / (real(n_qg,8) * rcxq_gb)
+    priv_gb = avail_gb - n_qg * shm_gb
+    need_bpara = real(worker,8) / (1d0 + priv_gb / (real(n_qg,8) * rcxq_gb))
     n_bpara_xq = max(1, ceiling(need_bpara))
     n_bpara_xq = find_div_geq(worker, n_bpara_xq)
     n_kpara_xq = worker / n_bpara_xq
