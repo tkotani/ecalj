@@ -46,7 +46,7 @@ module m_llw
 #endif
   implicit none
   public:: WVRllwR,WVIllwI,  MPI__sendllw,MPI__sendllw2,MPI__sendllw_q, &
-           MPI__irecvllw_q, MPI__isendllw_q, MPI__waitllw
+           MPI__irecvllw_q, MPI__isendllw_q, MPI__waitllw, MPI__llw_alloc_bufs
   complex(8),allocatable,protected,public:: llw(:,:), llwI(:,:)
   complex(8),allocatable,protected,public:: wmuk(:,:)
   logical,protected,public:: w4pmode
@@ -65,7 +65,6 @@ contains
     integer:: nmbas1,nmbas2,ngc0,ifw4p
     real(8):: frr,q(3),vcou1,quu(3),eee
     logical::  localfieldcorrectionllw,cmdopt0
-    logical,save:: init=.true.
     type(stopwatch) :: t_sw_matinv, t_sw_x_gather, t_sw_x_m2e_xf
     integer :: istat
     character(10):: i2char
@@ -76,12 +75,7 @@ contains
 #ifdef __GPU
     attributes(device) :: epstinv, epstilde
 #endif
-    if(init) then !initialization related to w4pmode, zw, tpioa...
-       allocate( llw(nw_i:nw,nq0i),source=(0d0,0d0) )
-       if(sum(ixyz)/=0) w4pmode= .TRUE. 
-       if(w4pmode) allocate( wmuk(2:nblochpmx,3),source=(0d0,0d0))
-       init=.false.
-    endif
+    if(.not. allocated(llw)) call MPI__llw_alloc_bufs()
     call stopwatch_init(t_sw_matinv, 'matinv')
     call stopwatch_init(t_sw_x_gather, 'gather')
     call stopwatch_init(t_sw_x_m2e_xf, 'xf chi/W: M2E/E2M')
@@ -243,7 +237,6 @@ contains
     real(8):: frr,q(3),vcou1
     logical::  localfieldcorrectionllw,cmdopt0
     logical, intent(in) :: is_x0_m_basis, is_wc_m_basis
-    logical,save:: init=.true.
 !    complex(8):: zxqi(nmbas1,nmbas2,niw)
     character(10):: i2char
     integer :: istat
@@ -260,10 +253,7 @@ contains
     allocate(x_m2e(ngb,ngb))
     allocate(zw(nblochpmx,nblochpmx))
     !$acc enter data create(zxqw, x_m2e, zw) copyin(vcousq)
-    if(init) then
-       allocate(llwI(niw,nq0i), source=(0d0,0d0))
-       init=.false.
-    endif
+    if(.not. allocated(llwI)) call MPI__llw_alloc_bufs()
     call stopwatch_init(t_sw_matinv, 'matinv')
     call stopwatch_init(t_sw_x_gather, 'gather')
     call stopwatch_init(t_sw_x_m2e_xf, 'xf chi: M2E')
@@ -444,6 +434,24 @@ contains
     if (llw_nreqs > size(llw_reqs)) call rx('MPI__llw: llw_reqs overflow — increase llw_reqs size')
     llw_reqs(llw_nreqs) = req
   end subroutine llw_add_req
+
+  subroutine MPI__llw_alloc_bufs()
+    ! Allocate llw/llwI/wmuk and set ngbq0/w4pmode if not already done.
+    ! Must be called before MPI__irecvllw_q pre-posting (before WVRllwR/WVIllwI).
+    use m_readqg, only: readqg0
+    real(8) :: quu(3)
+    integer :: ngc0
+    if (.not. allocated(llw))  allocate(llw(nw_i:nw, nq0i), source=(0d0, 0d0))
+    if (.not. allocated(llwI)) allocate(llwI(niw, nq0i),     source=(0d0, 0d0))
+    if (.not. allocated(wmuk)) then
+      w4pmode = (sum(ixyz) /= 0)
+      if (w4pmode) then
+        call readqg0('QGcou', (/0d0, 0d0, 0d0/), quu, ngc0)
+        ngbq0 = nbloch + ngc0
+        allocate(wmuk(2:nblochpmx, 3), source=(0d0, 0d0))
+      endif
+    endif
+  end subroutine MPI__llw_alloc_bufs
 
   subroutine MPI__irecvllw_q(iq0, src, dest)
     ! Post non-blocking Irecv(s) for llw/llwI/wmuk of auxiliary q-point iq0.

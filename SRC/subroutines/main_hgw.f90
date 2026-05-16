@@ -26,7 +26,7 @@ subroutine hgw(do_correlation, do_exchange)
   use m_readgwinput,only: ReadGwinputKeys
   use m_GWinput,only: mpi_worker_exch, mpi_worker_corr
   use m_qbze,only:  Setqbze,qibze
-  use m_llw,only: MPI__irecvllw_q, MPI__isendllw_q, MPI__waitllw
+  use m_llw,only: MPI__irecvllw_q, MPI__isendllw_q, MPI__waitllw, MPI__llw_alloc_bufs
   use m_mpi,only: MPI__Initialize, MPI__InitQgroups, MPI__FreeQgroups, &
                 & MPI__SplitXq, MPI__FreeXq, MPI__SplitSxc, MPI__FreeSxc, &
                 & MPI__AutoSetup, &
@@ -118,6 +118,9 @@ subroutine hgw(do_correlation, do_exchange)
 
   if(ipr) write(stdo,ftox) 'hgw: unified loop iqxend→1, mpi_rank=',MPI__rank
   call flush(stdo)
+
+  ! Ensure llw/llwI/wmuk are allocated before pre-posting Irecvs.
+  call MPI__llw_alloc_bufs()
 
   ! Pre-post Irecvs for auxiliary llw: round-robin across q-groups.
   ! Aux iq assigned to group g = mod(iq-nqibz-1, n_qgroup).
