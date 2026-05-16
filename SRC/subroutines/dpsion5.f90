@@ -62,8 +62,9 @@
 module m_dpsion
   use m_kind, only: kp => kindrcxq
   use m_mpi,only: ipr
-  public dpsion5, dpsion_init, dpsion_chiq, dpsion_setup_rcxq
-  public dpsion_chiq_h, dpsion_setup_rcxq_h
+  public dpsion5, dpsion_init
+  public dpsion_chiq_d, dpsion_chiq_h
+  public dpsion_setup_rcxq_d, dpsion_setup_rcxq_h
   ! private
   real(8),allocatable :: his_L(:),his_R(:),his_C(:),rmat(:,:,:),rmatt(:,:,:),rmattx(:,:,:,:),imatt(:,:,:)
   complex(8),allocatable :: imattC(:,:,:)
@@ -137,7 +138,7 @@ contains
     endif imagomecacase
     init=.false.
   end subroutine dpsion_init
-  subroutine dpsion_chiq(realomega, imagomega, chipm, rcxq, zxqi, npr, npr_col, schi, isp, ecut)
+  subroutine dpsion_chiq_d(realomega, imagomega, chipm, rcxq, zxqi, npr, npr_col, schi, isp, ecut)
     use m_keyvalue,only: getkeyvalue
     use m_GWinput, only: gwinput_init, gwinput_loaded, tg_SmearX0 => SmearX0
     use m_freq, only: frhis, freqr=>freq_r,freqi=>freq_i, nwhis, npm, nw_i, nw_w=>nw, niwt=>niw
@@ -171,7 +172,7 @@ contains
 #ifdef __GPU
     attributes(device) :: rcxq, zxqi
 #endif
-    if(ipr) write(stdo,ftox)" -- dpsion_chiq: start... nw_w nwhis=",nw_w,nwhis
+    if(ipr) write(stdo,ftox)" -- dpsion_chiq_d:start... nw_w nwhis=",nw_w,nwhis
     call flush(stdo)
     if(chipm.and.npm==2) call rx( 'x0kf_v4h:npm==2 .AND. chipm is not meaningful probably')  ! Note rcxq here is negative 
     !$acc data copyin(his_R, his_L)
@@ -236,7 +237,7 @@ contains
     endif
     !$acc end data
     if_IMAGOMEGA: if(imagomega) then !Hilbert Transformation to get real part
-      if(ipr) write(stdo,ftox)" -- dpsion_chiq: start imagomega"
+      if(ipr) write(stdo,ftox)" -- dpsion_chiq_d:start imagomega"
       if(npm==1) then
         !$acc data copyin(imatt) create(cimatt)
         !$acc kernels
@@ -259,10 +260,10 @@ contains
         istat = gemm(rcxq(1,1,-nwhis), cimatt(:,1,2), zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T, beta=CONE)
         !$acc end data
       endif
-      if(ipr) write(stdo,ftox)" -- dpsion_chiq: end of imagomega"
+      if(ipr) write(stdo,ftox)" -- dpsion_chiq_d:end of imagomega"
     endif if_IMAGOMEGA
     if_REALOMEGA: if(realomega) then !Hilbert Transformation to get real part
-      if(ipr) write(stdo,ftox)" -- dpsion_chiq: start realomega"
+      if(ipr) write(stdo,ftox)" -- dpsion_chiq_d:start realomega"
       if(npm == 1 .and. .not.chipm) then
         !$acc data copyin(rmatt) create(crmatt, zxq_work)
         !$acc kernels
@@ -309,12 +310,12 @@ contains
         enddo
         !$acc end data
       endif
-      if(ipr) write(stdo,ftox)" -- dpsion_chiq: end of realomega"
+      if(ipr) write(stdo,ftox)" -- dpsion_chiq_d:end of realomega"
     endif if_REALOMEGA
     call flush(stdo)
-  end subroutine dpsion_chiq
+  end subroutine dpsion_chiq_d
 
-  subroutine dpsion_setup_rcxq(rcxq, npr, npr_col, isp)
+  subroutine dpsion_setup_rcxq_d(rcxq, npr, npr_col, isp)
     use m_freq, only:nwhis, npm, nw_i, nw_w => nw
     implicit none
     integer, intent(in) :: npr, npr_col, isp
@@ -331,7 +332,7 @@ contains
         deallocate(zxq_chipm)
       endif
     endif
-  end subroutine dpsion_setup_rcxq
+  end subroutine dpsion_setup_rcxq_d
 
   !> Host (CPU) version of dpsion_setup_rcxq: uses zxq_chipm_h, no OpenACC.
   subroutine dpsion_setup_rcxq_h(rcxq, npr, npr_col, isp)

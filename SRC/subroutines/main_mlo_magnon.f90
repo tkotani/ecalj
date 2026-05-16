@@ -27,7 +27,7 @@ subroutine mlo_magnon() bind(C)
   use m_tetwt, only: tetdeallocate, gettetwt, whw, ihw, nhw, jhw, n1b, n2b, nbnb
   use m_readgwinput, only: ReadGWinputKeys
   use m_lgunit, only: m_lgunit_init, stdo
-  use m_dpsion, only: dpsion_init, dpsion_chiq
+  use m_dpsion, only: dpsion_init, dpsion_chiq => dpsion_chiq_d
   use m_mpi, only: MPI__Initialize, MPI__consoleout, MPI__InitQgroups, MPI__SplitXq
   use m_mpi, only: mpi__rank, mpi__size, mpi__root, comm, comm_k => comm_k_xq, &
                    mpi__rank_k => mpi__rank_k_xq, mpi__size_k => mpi__size_k_xq, &
