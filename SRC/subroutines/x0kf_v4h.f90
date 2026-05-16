@@ -214,9 +214,7 @@ contains
     if (ipr) write(stdo,ftox)' size of rcxq:', npr, nwhis*npm+1
     call flush(stdo)
     allocate(rcxq(1:npr, 1:npr, iw_lo:iw_hi))
-    !$acc kernels
     rcxq = (0_kp, 0_kp)
-    !$acc end kernels
     debug = cmdopt0('--debugzmel')
     isloop: do isp_k = 1, nsp
       GETtetrahedronWeight: block
@@ -303,7 +301,12 @@ contains
           ! Unified: n_kpara=1 uses single-rank comm_k (reduce is no-op); GPU implicit device→host.
           integer :: iw
           do iw = iw_lo, iw_hi
-            if (iw == 0) cycle
+            if (iw == 0) then
+              ! iw=0 is never accumulated (x0gemm skips it) but dpsion reads chi0(:,:,0).
+              ! Zero shm_wvr to avoid stale W from the previous q-point.
+              if (mpi__root_k) shm_wvr(:,:, iw - (1-npm)*nwhis + 1) = (0_kp, 0_kp)
+              cycle
+            end if
             block
               complex(kp) :: iw_slice(npr, npr)
               iw_slice = rcxq(:,:,iw)
