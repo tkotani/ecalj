@@ -18,7 +18,8 @@ subroutine hx0fp0()
   use m_mpi,only: MPI__Initialize,MPI__root, &
        MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size, MPI__consoleout,comm, &
      & MPI__InitQgroups, MPI__SplitXq, MPI__Setnpr_col, comm_b => comm_b_xq, comm_k => comm_k_xq, &
-     & mpi__root_k => mpi__root_k_xq, mpi__root_q, ipr
+     & mpi__root_k => mpi__root_k_xq, mpi__root_q, ipr, &
+     & comm_q, comm_root_k => comm_root_k_xq, mpi__rank_root_k => mpi__rank_root_k_xq
   use m_rdpp,only: Rdpp, &   ! & NOTE: "call rdpp" generate following data.
        nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx,nprecx,mrecl,nblochpmx
   use m_zmel,only: Mptauof_zmel!, Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
@@ -28,7 +29,7 @@ subroutine hx0fp0()
   use m_tetwt,only: Tetdeallocate,Gettetwt, &! & followings are output of 'L871:call gettetwt')
        whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb
   use m_w0w0i,only: W0w0i, w0,w0i ! w0 and w0i (head part at Gamma point)
-  use m_wv_storage, only: wv_init_file ! Step WA2/WB.3e: initialize backend before w0w0i->modifyWV0
+  use m_wv_storage, only: wv_init_shm, wv_dump_shm_to_file, wv_dealloc
   use m_ll,only: ll
   use m_readgwinput,only: ReadGwinputKeys, ecut,ecuts,mtet,ebmx,nbmx,nmbas,imbas,egauss !nmbas is number of magnetic atoms
   use m_qbze,only: Setqbze, nqbze,nqibze,qbze,qibze
@@ -383,9 +384,6 @@ subroutine hx0fp0()
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
   if(ipr) write(stdo,*)" chi_+- mode nolfc=",nolfco
   if(.NOT.chipm) allocate(zzr(1,1),source=(0d0,0d0)) !dummy
-  ! Step WA2/WB.3e: m_wv_storage backend init (FILE) required before WVRllwR/WVIllwI in iqloop
-  ! and modifyWV0 in w0w0i below. Caller responsibility per m_llw and m_w0w0i contracts.
-  call wv_init_file(mreclx=mrecl, nw_i=nw_i)
   iqloop: do 1001 iq = iqxini,iqxend  ! NOTE: qp=(0,0,0) is omitted when iqxini=2
 !    if(cmdopt0('--zmel0').and.iq==iqxini) cycle
     if( .NOT. MPI__task(iq) ) cycle
@@ -398,6 +396,7 @@ subroutine hx0fp0()
     call Readvcoud(qp,iq,NoVcou=chipm) !Readin vcousq,zcousq ngb ngc for the Coulomb matrix
     ngb = ngc+nbloch
     if(ipr) write(stdo,"('  nbloch ngb ngc=',3i10)") nbloch,ngb,ngc
+    call wv_init_shm(ngb, niw, (1-npm)*nwhis, nwhis, comm_q)
     if(chipm) then !npr is the dimension of zxq(npr,npr)
       npr = nmbas
     elseif(nolfco) then
@@ -414,6 +413,10 @@ subroutine hx0fp0()
       if(mpi__root_k) then
         if(     epsmode) call writerealeps() !write eps file and close
         if(.NOT.epsmode) call WVRllwR(qp,iq,npr,npr_col,is_x0_m_basis=.false.,is_wc_m_basis=.false.)
+        if(.NOT.epsmode) then
+          call MPI_barrier(comm_root_k, ierr)
+          if (mpi__rank_root_k == 0) call wv_dump_shm_to_file(iq, mrecl, nblochpmx, .true., .false.)
+        endif
         call deallocatezxq()
       endif
     endif realomegamode
@@ -421,6 +424,10 @@ subroutine hx0fp0()
       if(mpi__root_k) then
         if(     epsmode) call rx('hx0fp0: imagoemga=T and epsmod=T is not implemented')
         if(.NOT.epsmode) call WVIllwI(qp,iq,npr,npr_col,is_x0_m_basis=.false.,is_wc_m_basis=.false.)
+        if(.NOT.epsmode) then
+          call MPI_barrier(comm_root_k, ierr)
+          if (mpi__rank_root_k == 0) call wv_dump_shm_to_file(iq, mrecl, nblochpmx, .false., .true.)
+        endif
         call deallocatezxqi()
       endif
     endif imagomegamode
@@ -428,6 +435,7 @@ subroutine hx0fp0()
     call mpi_barrier(comm_k, ierr)
     call mpi_barrier(comm_b, ierr)
 1001 enddo iqloop
+  call wv_dealloc()
   call MPI_barrier(comm,ierr)
   if( .NOT. epsmode) call MPI__sendllw2(iqxend,MPI__ranktab) !!! mpi send LLW to root.
   !! == W(0) divergent part and W(0) non-analytic constant part.== Note that this is only for qp=0 -->iq=1

@@ -60,7 +60,7 @@ module m_wv_storage
   complex(kp), public, pointer, contiguous :: shm_wvr(:,:,:) => null()
   complex(kp), public, pointer, contiguous :: shm_wvi(:,:,:) => null()
 
-  public :: wv_init_file, wv_init_shm, wv_dealloc
+  public :: wv_init_file, wv_init_shm, wv_dealloc, wv_dump_shm_to_file
   public :: wv_open_iq_real_for_write, wv_open_iq_imag_for_write
   public :: wv_close_iq_for_write
   public :: wv_open_iq_for_read, wv_close_iq_for_read
@@ -278,5 +278,36 @@ contains
     if (wv_real_unit > 0) then; close(wv_real_unit); wv_real_unit = -1; endif
     if (wv_imag_unit > 0) then; close(wv_imag_unit); wv_imag_unit = -1; endif
   end subroutine wv_close_iq_for_modify
+
+  subroutine wv_dump_shm_to_file(iq, mreclx, nblochpmx_in, want_real, want_imag)
+    !> Dump SHM backend buffers shm_wvr/shm_wvi to __WVR.<iq>/__WVI.<iq> files.
+    !> Must be called by rank 0 only; records match FILE-mode wv_put_real format:
+    !> nblochpmx_in × nblochpmx_in complex(kp) per record, ngb block in top-left corner.
+    integer, intent(in) :: iq, mreclx, nblochpmx_in
+    logical, intent(in) :: want_real, want_imag
+    integer :: irec, fu
+    character(10) :: i2char
+    complex(kp) :: buf(nblochpmx_in, nblochpmx_in)
+    if (want_real) then
+      open(newunit=fu, file='__WVR.'//i2char(iq), form='unformatted', &
+           status='replace', access='direct', recl=mreclx)
+      buf = (0_kp, 0_kp)
+      do irec = 1, size(shm_wvr, 3)
+        buf(1:wv_ngb, 1:wv_ngb) = shm_wvr(1:wv_ngb, 1:wv_ngb, irec)
+        write(fu, rec=irec) buf
+      enddo
+      close(fu)
+    endif
+    if (want_imag) then
+      open(newunit=fu, file='__WVI.'//i2char(iq), form='unformatted', &
+           status='replace', access='direct', recl=mreclx)
+      buf = (0_kp, 0_kp)
+      do irec = 1, size(shm_wvi, 3)
+        buf(1:wv_ngb, 1:wv_ngb) = shm_wvi(1:wv_ngb, 1:wv_ngb, irec)
+        write(fu, rec=irec) buf
+      enddo
+      close(fu)
+    endif
+  end subroutine wv_dump_shm_to_file
 
 end module m_wv_storage

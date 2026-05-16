@@ -23,11 +23,10 @@ module m_llw
   use m_mpi, only: MPI__GatherXqw => MPI__GatherXqw
 #endif
   ! Step WA1/WB.3a/WB.3e: W data goes through the m_wv_storage singleton
-  ! via wv_put_real / wv_put_imag (FILE: __WVR/<iq>, SHM: shm_wvr window).
+  ! via wv_put_real / wv_put_imag (SHM backend: shm_wvr/shm_wvi windows).
   use m_wv_storage, only: &
        wv_open_iq_real_for_write, wv_open_iq_imag_for_write, &
-       wv_put_real, wv_put_imag, wv_close_iq_for_write, &
-       wv_backend, WV_BACKEND_SHM
+       wv_put_real, wv_put_imag, wv_close_iq_for_write
   use m_kind,only: kp => kindrcxq
   use m_stopwatch
   use m_blas, only: m_op_c, m_op_t
@@ -95,15 +94,9 @@ contains
 
     !$acc enter data create(zxqw, zw, x_m2e) copyin(vcousq)
     if(nspin == 1) then
-      if (wv_backend /= WV_BACKEND_SHM) then
-        !$acc kernels present(zxq)
-        zxq(:,:,:) = 2d0*zxq(:,:,:)
-        !$acc end kernels
-      else
-        ! SHM: only rank 0 scales shared memory; barrier ensures others see the result.
-        if (mpi__rank_root_k == 0) zxq(:,:,:) = 2d0*zxq(:,:,:)
-        call MPI_barrier(comm_root_k, ierr)
-      endif
+      ! SHM: only rank 0 scales shared memory; barrier ensures others see the result.
+      if (mpi__rank_root_k == 0) zxq(:,:,:) = 2d0*zxq(:,:,:)
+      call MPI_barrier(comm_root_k, ierr)
     endif
     nwmax = nw
     nwmin = nw_i
@@ -119,24 +112,8 @@ contains
           zw(:,:) = (0_kp, 0_kp)
         !$acc end kernels
         call stopwatch_start(t_sw_x_gather)
-        if(mpi__size_b == 1 .or. wv_backend == WV_BACKEND_SHM) then
-          if (wv_backend /= WV_BACKEND_SHM) then
-            !$acc kernels
-            zxqw(:,:) = zxq(:,:,iw)
-            !$acc end kernels
-          else
-            zxqw(:,:) = zxq(:,:,iw)    ! SHM: all root_k have full shm_wvr; direct copy
-            !$acc update device(zxqw)
-          endif
-        else
-          do irank = 0, mpi__size_b-1
-            jw = iwblock + irank
-            if(jw > nwmax) exit
-            !$acc update host(zxq(1:nmbas1,1:nmbas2,jw))
-            call MPI__GatherXqw(zxq(:,:,jw), zxqw, nmbas1, nmbas2, collector_rank=irank)
-            !$acc update device(zxqw)
-          enddo
-        endif
+        zxqw(:,:) = zxq(:,:,iw)    ! all root_k have full shm_wvr; direct copy
+        !$acc update device(zxqw)
         call stopwatch_pause(t_sw_x_gather)
         if(iw > nwmax) cycle
         MToEBasisTransformation1: if(is_x0_m_basis) then
@@ -201,24 +178,8 @@ contains
       do 1115 iwblock = nwmin, nwmax, mpi__size_b
         iw = iwblock + mpi__rank_b
         call stopwatch_start(t_sw_x_gather)
-        if(mpi__size_b == 1 .or. wv_backend == WV_BACKEND_SHM) then
-          if (wv_backend /= WV_BACKEND_SHM) then
-            !$acc kernels
-            zxqw(:,:) = zxq(:,:,iw)
-            !$acc end kernels
-          else
-            zxqw(:,:) = zxq(:,:,iw)    ! SHM: all root_k have full shm_wvr; direct copy
-            !$acc update device(zxqw)
-          endif
-        else
-          do irank = 0, mpi__size_b-1
-            jw = iwblock + irank
-            if(jw > nwmax) exit
-            !$acc update host(zxq(1:nmbas1,1:nmbas2,jw))
-            call MPI__GatherXqw(zxq(:,:,jw), zxqw, nmbas1, nmbas2, collector_rank=irank)
-            !$acc update device(zxqw)
-          enddo
-        endif
+        zxqw(:,:) = zxq(:,:,iw)    ! all root_k have full shm_wvr; direct copy
+        !$acc update device(zxqw)
         !$acc update host(zxqw(1,1))
         call stopwatch_pause(t_sw_x_gather)
         if(iw > nwmax) cycle
@@ -308,15 +269,9 @@ contains
     call stopwatch_init(t_sw_x_m2e_xf, 'xf chi: M2E')
     if(ipr)write(6,*)'WVRllwI: init'
     if (nspin == 1) then
-      if (wv_backend /= WV_BACKEND_SHM) then
-        !$acc kernels present(zxqi)
-        zxqi(:,:,:) = 2d0*zxqi(:,:,:)
-        !$acc end kernels
-      else
-        ! SHM: only rank 0 scales shared memory; barrier ensures others see the result.
-        if (mpi__rank_root_k == 0) zxqi(:,:,:) = 2d0*zxqi(:,:,:)
-        call MPI_barrier(comm_root_k, ierr)
-      endif
+      ! SHM: only rank 0 scales shared memory; barrier ensures others see the result.
+      if (mpi__rank_root_k == 0) zxqi(:,:,:) = 2d0*zxqi(:,:,:)
+      call MPI_barrier(comm_root_k, ierr)
     endif
     if( iq<=nqibz ) then
        call wv_open_iq_imag_for_write(iq, comm=comm_root_k)
@@ -328,23 +283,7 @@ contains
           zw(:,:) = (0_kp, 0_kp)
           !$acc end kernels
           call stopwatch_start(t_sw_x_gather)
-          if(mpi__size_b == 1 .or. wv_backend == WV_BACKEND_SHM) then
-            if (wv_backend /= WV_BACKEND_SHM) then
-              !$acc kernels
-              zxqw(:,:) = zxqi(:,:,iw)
-              !$acc end kernels
-            else
-              zxqw(:,:) = zxqi(:,:,iw)  ! SHM: all root_k have full shm_wvi; direct copy
-            endif
-          else
-            do irank = 0, mpi__size_b-1
-              jw = iwblock + irank
-              if(jw > niw) exit
-              !$acc update host(zxqi(1:nmbas1,1:nmbas2,jw))
-              call MPI__GatherXqw(zxqi(:,:,jw), zxqw, nmbas1, nmbas2, collector_rank=irank)
-              !$acc update device(zxqw)
-            enddo
-          endif
+          zxqw(:,:) = zxqi(:,:,iw)    ! all root_k have full shm_wvi; direct copy
           call stopwatch_pause(t_sw_x_gather)
           if(iw > niw) cycle
           MToEBasisTransformation1: if(is_x0_m_basis) then
@@ -399,23 +338,7 @@ contains
           iw = iwblock + mpi__rank_b
           !if(localfieldcorrectionllw()) then
           call stopwatch_start(t_sw_x_gather)
-          if(mpi__size_b == 1 .or. wv_backend == WV_BACKEND_SHM) then
-            if (wv_backend /= WV_BACKEND_SHM) then
-              !$acc kernels
-              if(iw <= niw) zxqw(:,:) = zxqi(:,:,iw)
-              !$acc end kernels
-            else
-              if(iw <= niw) zxqw(:,:) = zxqi(:,:,iw)  ! SHM: direct copy from shm_wvi
-            endif
-          else
-            do irank = 0, mpi__size_b-1
-              jw = iwblock + irank
-              if(jw > niw) exit
-              !$acc update host(zxqi(1:nmbas1,1:nmbas2,jw))
-              call MPI__GatherXqw(zxqi(:,:,jw), zxqw, nmbas1, nmbas2, collector_rank=irank)
-              !$acc update device(zxqw)
-            enddo
-          endif
+          if(iw <= niw) zxqw(:,:) = zxqi(:,:,iw)    ! all root_k have full shm_wvi; direct copy
           !$acc update host(zxqw(1,1))
           call stopwatch_pause(t_sw_x_gather)
           if(iw > niw) cycle
