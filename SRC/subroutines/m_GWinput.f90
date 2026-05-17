@@ -169,7 +169,11 @@ module m_GWinput
   logical, protected, public :: TestNoQ0P          = .false.
   logical, protected, public :: NoQ0P              = .false.
   logical, protected, public :: KeepPpb            = .false.
+#ifdef __GPU
+  logical, protected, public :: KeepWV             = .true.
+#else
   logical, protected, public :: KeepWV             = .false.
+#endif
   logical, protected, public :: KeepQG             = .true.
   logical, protected, public :: KeepWronkj         = .true.
   logical, protected, public :: TimeReversal       = .true.
