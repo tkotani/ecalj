@@ -112,10 +112,10 @@ SRC/exec/hahc
 SRC/exec/hbasfp0
 SRC/exec/heftet
 SRC/exec/hhomogas
-SRC/exec/hgw_combined
-SRC/exec/hgw_combined_gpu
-SRC/exec/hgw_combined_mp
-SRC/exec/hgw_combined_mp_gpu
+SRC/exec/hgw
+SRC/exec/hgw_gpu
+SRC/exec/hgw_mp
+SRC/exec/hgw_mp_gpu
 SRC/exec/hmagnon
 SRC/exec/hmlo_ovlppair
 SRC/exec/hmaxloc

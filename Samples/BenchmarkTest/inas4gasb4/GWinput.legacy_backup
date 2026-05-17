@@ -1,0 +1,499 @@
+!!! Starting from ! (or nonkeyword) is comment line !!! 
+!!! Each lines consists of "keyword value(s)"  !!! 
+!!! Each tag section in <...>... </...> has its own format. !!! 
+
+!EIBZmode off  !no symmetrization for hx0fp0* (default on);Only affects comp. effort. off may faster.
+!chi_RegQbz off !Use no Gamma mesh for dielectric function. This automaticall set EIBZmode off.
+!Verbose    0  ! 0-->default; 100--->debug 
+!LFC@Gamma off !(on is default) if on, eps with Local field correction is used at Gamma point
+!Q0Pchoice 1 !1(default):qzerolimit(in practice, See generated Q0P), 2:1/q^2 average in Gamma region
+! ##### From GWIN0 ################ 
+n1n2n3   4   4   1 ! for BZ meshing in GW, Wannier function and cRPA
+QpGcut_psi 3.0  !(See unit_2pioa for unit) |q+G| cutoff for eigenfunction.
+QpGcut_cou 2.5  !(See unit_2pioa for unit) |q+G| cutoff for Coulomb and W.
+unit_2pioa off ! off --> a.u.; on--> unit of QpGcut_* are in 2*pi/alat 
+alpha_OffG 1.0 !(a.u.) Used in auxially function in the offset-Gamma method.
+!emax_chi0  999 !(Ry) emax cutoff for chi0  (Optional)
+emax_sigm  2.0  !(Ry)  emax cutoff for Sigma
+ 
+! ##### FREQUENCIES from GWIN_V2 ################ 
+HistBin_dw    2d-3 ! 1d-5 is fine mesh (good for metal?) !(a.u.) BinWidth along real axis at omega=0.
+HistBin_ratio 1.08 ! 1.03 maybe safer. frhis(iw)= b*(exp(a*(iw-1))-1), where a=ratio-1.0 and dw=b*a
+                   ! This "ba mesh" is from 9Mar2016
+                   ! See fpgw/gwsrc/m_freq.F
+iSigMode  3   ! QSGW mode switch for gwsc. use =3.
+niw      10   ! Number of frequencies along Im axis. Used for integration to get Sigma_c
+              ! To test, try niw=6 and niw=12
+delta  -1d-6  !(a.u.)  Broadening of x0. negative means tetrahedron method.
+              ! used by hx0fp0. You get smeard x0 witth abs(delta).
+deltaw  0.02  !(a.u.) Mesh for numerical derivative to get the Z factor
+esmr   0.003  !(Ry) used by hsfp0. Keep esmr smaller than band gap for insulators
+              ! Poles of G^LDA are treated as if they have width esmr in hsfp0. 
+              ! Change esmr for metals.  See DOSACC*---especailly around Ef.
+GaussSmear on ! Gaussian or Rectangular smearing for Pole of G^LDA with esmr for hsfp0.
+!GaussianFilterX0 0.0001 !(a.u.) Gaussian smearing for the polarization function x0. 
+                         ! This stabilize convergence for metallic systems
+                         ! This can be a default setting in the future
+keepEigen .false.
+zmel_max_size 4
+MEMnmbatch 4
+! ################################################# 
+<PRODUCT_BASIS> 
+ tolerance to remove products due to poor linear-independency
+ 1d-3 ! =tolopt; larger gives smaller num. of product basis. See lbas and lbasC, which are output of hbasfp0.
+ lcutmx(atom) = maximum l-cutoff for the product basis.  =4 is required for atoms with valence d, like Ni Ga
+  4  4  4  4  4  4  4  4  4  4  4  4  4  4  4  4
+  atom   l  nnvv  nnc ! nnvv: num. of radial functions (valence) on the augmentation-waves, nnc: num. for core.
+    1    0    2    4
+    1    1    2    3
+    1    2    3    1
+    1    3    2    0
+    1    4    2    0
+    2    0    2    3
+    2    1    2    2
+    2    2    2    1
+    2    3    2    0
+    2    4    2    0
+    3    0    2    4
+    3    1    2    3
+    3    2    3    1
+    3    3    2    0
+    3    4    2    0
+    4    0    2    3
+    4    1    2    2
+    4    2    2    1
+    4    3    2    0
+    4    4    2    0
+    5    0    2    4
+    5    1    2    3
+    5    2    3    1
+    5    3    2    0
+    5    4    2    0
+    6    0    2    3
+    6    1    2    2
+    6    2    2    1
+    6    3    2    0
+    6    4    2    0
+    7    0    2    4
+    7    1    2    3
+    7    2    3    1
+    7    3    2    0
+    7    4    2    0
+    8    0    2    3
+    8    1    2    2
+    8    2    2    1
+    8    3    2    0
+    8    4    2    0
+    9    0    2    3
+    9    1    2    2
+    9    2    3    0
+    9    3    2    0
+    9    4    2    0
+   10    0    2    4
+   10    1    2    3
+   10    2    3    1
+   10    3    2    0
+   10    4    2    0
+   11    0    2    3
+   11    1    2    2
+   11    2    3    0
+   11    3    2    0
+   11    4    2    0
+   12    0    2    4
+   12    1    2    3
+   12    2    3    1
+   12    3    2    0
+   12    4    2    0
+   13    0    2    3
+   13    1    2    2
+   13    2    3    0
+   13    3    2    0
+   13    4    2    0
+   14    0    2    4
+   14    1    2    3
+   14    2    3    1
+   14    3    2    0
+   14    4    2    0
+   15    0    2    3
+   15    1    2    2
+   15    2    3    0
+   15    3    2    0
+   15    4    2    0
+   16    0    2    4
+   16    1    2    3
+   16    2    3    1
+   16    3    2    0
+   16    4    2    0
+  atom   l    n  occ unocc  ! Valence(1=yes,0=no) 
+    1    0    1    1    1   ! 5s_phi    -----
+    1    0    2    0    0   ! 5s_phidot
+    1    1    1    1    1   ! 5p_phi   
+    1    1    2    0    0   ! 5p_phidot
+    1    2    1    0    1   ! 5d_phi   
+    1    2    2    0    0   ! 5d_phidot
+    1    2    3    1    0   ! 4d_phiz  
+    1    3    1    0    1   ! 4f_phi   
+    1    3    2    0    0   ! 4f_phidot
+    1    4    1    0    0   ! 5g_phi   
+    1    4    2    0    0   ! 5g_phidot
+    2    0    1    1    1   ! 4s_phi    -----
+    2    0    2    0    0   ! 4s_phidot
+    2    1    1    1    1   ! 4p_phi   
+    2    1    2    0    0   ! 4p_phidot
+    2    2    1    0    1   ! 4d_phi   
+    2    2    2    0    0   ! 4d_phidot
+    2    3    1    0    1   ! 4f_phi   
+    2    3    2    0    0   ! 4f_phidot
+    2    4    1    0    0   ! 5g_phi   
+    2    4    2    0    0   ! 5g_phidot
+    3    0    1    1    1   ! 5s_phi    -----
+    3    0    2    0    0   ! 5s_phidot
+    3    1    1    1    1   ! 5p_phi   
+    3    1    2    0    0   ! 5p_phidot
+    3    2    1    0    1   ! 5d_phi   
+    3    2    2    0    0   ! 5d_phidot
+    3    2    3    1    0   ! 4d_phiz  
+    3    3    1    0    1   ! 4f_phi   
+    3    3    2    0    0   ! 4f_phidot
+    3    4    1    0    0   ! 5g_phi   
+    3    4    2    0    0   ! 5g_phidot
+    4    0    1    1    1   ! 4s_phi    -----
+    4    0    2    0    0   ! 4s_phidot
+    4    1    1    1    1   ! 4p_phi   
+    4    1    2    0    0   ! 4p_phidot
+    4    2    1    0    1   ! 4d_phi   
+    4    2    2    0    0   ! 4d_phidot
+    4    3    1    0    1   ! 4f_phi   
+    4    3    2    0    0   ! 4f_phidot
+    4    4    1    0    0   ! 5g_phi   
+    4    4    2    0    0   ! 5g_phidot
+    5    0    1    1    1   ! 5s_phi    -----
+    5    0    2    0    0   ! 5s_phidot
+    5    1    1    1    1   ! 5p_phi   
+    5    1    2    0    0   ! 5p_phidot
+    5    2    1    0    1   ! 5d_phi   
+    5    2    2    0    0   ! 5d_phidot
+    5    2    3    1    0   ! 4d_phiz  
+    5    3    1    0    1   ! 4f_phi   
+    5    3    2    0    0   ! 4f_phidot
+    5    4    1    0    0   ! 5g_phi   
+    5    4    2    0    0   ! 5g_phidot
+    6    0    1    1    1   ! 4s_phi    -----
+    6    0    2    0    0   ! 4s_phidot
+    6    1    1    1    1   ! 4p_phi   
+    6    1    2    0    0   ! 4p_phidot
+    6    2    1    0    1   ! 4d_phi   
+    6    2    2    0    0   ! 4d_phidot
+    6    3    1    0    1   ! 4f_phi   
+    6    3    2    0    0   ! 4f_phidot
+    6    4    1    0    0   ! 5g_phi   
+    6    4    2    0    0   ! 5g_phidot
+    7    0    1    1    1   ! 5s_phi    -----
+    7    0    2    0    0   ! 5s_phidot
+    7    1    1    1    1   ! 5p_phi   
+    7    1    2    0    0   ! 5p_phidot
+    7    2    1    0    1   ! 5d_phi   
+    7    2    2    0    0   ! 5d_phidot
+    7    2    3    1    0   ! 4d_phiz  
+    7    3    1    0    1   ! 4f_phi   
+    7    3    2    0    0   ! 4f_phidot
+    7    4    1    0    0   ! 5g_phi   
+    7    4    2    0    0   ! 5g_phidot
+    8    0    1    1    1   ! 4s_phi    -----
+    8    0    2    0    0   ! 4s_phidot
+    8    1    1    1    1   ! 4p_phi   
+    8    1    2    0    0   ! 4p_phidot
+    8    2    1    0    1   ! 4d_phi   
+    8    2    2    0    0   ! 4d_phidot
+    8    3    1    0    1   ! 4f_phi   
+    8    3    2    0    0   ! 4f_phidot
+    8    4    1    0    0   ! 5g_phi   
+    8    4    2    0    0   ! 5g_phidot
+    9    0    1    1    1   ! 4s_phi    -----
+    9    0    2    0    0   ! 4s_phidot
+    9    1    1    1    1   ! 4p_phi   
+    9    1    2    0    0   ! 4p_phidot
+    9    2    1    0    1   ! 4d_phi   
+    9    2    2    0    0   ! 4d_phidot
+    9    2    3    1    0   ! 3d_phiz  
+    9    3    1    0    1   ! 4f_phi   
+    9    3    2    0    0   ! 4f_phidot
+    9    4    1    0    0   ! 5g_phi   
+    9    4    2    0    0   ! 5g_phidot
+   10    0    1    1    1   ! 5s_phi    -----
+   10    0    2    0    0   ! 5s_phidot
+   10    1    1    1    1   ! 5p_phi   
+   10    1    2    0    0   ! 5p_phidot
+   10    2    1    0    1   ! 5d_phi   
+   10    2    2    0    0   ! 5d_phidot
+   10    2    3    1    0   ! 4d_phiz  
+   10    3    1    0    1   ! 4f_phi   
+   10    3    2    0    0   ! 4f_phidot
+   10    4    1    0    0   ! 5g_phi   
+   10    4    2    0    0   ! 5g_phidot
+   11    0    1    1    1   ! 4s_phi    -----
+   11    0    2    0    0   ! 4s_phidot
+   11    1    1    1    1   ! 4p_phi   
+   11    1    2    0    0   ! 4p_phidot
+   11    2    1    0    1   ! 4d_phi   
+   11    2    2    0    0   ! 4d_phidot
+   11    2    3    1    0   ! 3d_phiz  
+   11    3    1    0    1   ! 4f_phi   
+   11    3    2    0    0   ! 4f_phidot
+   11    4    1    0    0   ! 5g_phi   
+   11    4    2    0    0   ! 5g_phidot
+   12    0    1    1    1   ! 5s_phi    -----
+   12    0    2    0    0   ! 5s_phidot
+   12    1    1    1    1   ! 5p_phi   
+   12    1    2    0    0   ! 5p_phidot
+   12    2    1    0    1   ! 5d_phi   
+   12    2    2    0    0   ! 5d_phidot
+   12    2    3    1    0   ! 4d_phiz  
+   12    3    1    0    1   ! 4f_phi   
+   12    3    2    0    0   ! 4f_phidot
+   12    4    1    0    0   ! 5g_phi   
+   12    4    2    0    0   ! 5g_phidot
+   13    0    1    1    1   ! 4s_phi    -----
+   13    0    2    0    0   ! 4s_phidot
+   13    1    1    1    1   ! 4p_phi   
+   13    1    2    0    0   ! 4p_phidot
+   13    2    1    0    1   ! 4d_phi   
+   13    2    2    0    0   ! 4d_phidot
+   13    2    3    1    0   ! 3d_phiz  
+   13    3    1    0    1   ! 4f_phi   
+   13    3    2    0    0   ! 4f_phidot
+   13    4    1    0    0   ! 5g_phi   
+   13    4    2    0    0   ! 5g_phidot
+   14    0    1    1    1   ! 5s_phi    -----
+   14    0    2    0    0   ! 5s_phidot
+   14    1    1    1    1   ! 5p_phi   
+   14    1    2    0    0   ! 5p_phidot
+   14    2    1    0    1   ! 5d_phi   
+   14    2    2    0    0   ! 5d_phidot
+   14    2    3    1    0   ! 4d_phiz  
+   14    3    1    0    1   ! 4f_phi   
+   14    3    2    0    0   ! 4f_phidot
+   14    4    1    0    0   ! 5g_phi   
+   14    4    2    0    0   ! 5g_phidot
+   15    0    1    1    1   ! 4s_phi    -----
+   15    0    2    0    0   ! 4s_phidot
+   15    1    1    1    1   ! 4p_phi   
+   15    1    2    0    0   ! 4p_phidot
+   15    2    1    0    1   ! 4d_phi   
+   15    2    2    0    0   ! 4d_phidot
+   15    2    3    1    0   ! 3d_phiz  
+   15    3    1    0    1   ! 4f_phi   
+   15    3    2    0    0   ! 4f_phidot
+   15    4    1    0    0   ! 5g_phi   
+   15    4    2    0    0   ! 5g_phidot
+   16    0    1    1    1   ! 5s_phi    -----
+   16    0    2    0    0   ! 5s_phidot
+   16    1    1    1    1   ! 5p_phi   
+   16    1    2    0    0   ! 5p_phidot
+   16    2    1    0    1   ! 5d_phi   
+   16    2    2    0    0   ! 5d_phidot
+   16    2    3    1    0   ! 4d_phiz  
+   16    3    1    0    1   ! 4f_phi   
+   16    3    2    0    0   ! 4f_phidot
+   16    4    1    0    0   ! 5g_phi   
+   16    4    2    0    0   ! 5g_phidot
+  atom   l    n  occ unocc  ForX0 ForSxc ! Core (1=yes, 0=no)
+    1    0    1    0    0      0    0    ! 1S -----
+    1    0    2    0    0      0    0    ! 2S
+    1    0    3    0    0      0    0    ! 3S
+    1    0    4    0    0      0    0    ! 4S
+    1    1    1    0    0      0    0    ! 2P
+    1    1    2    0    0      0    0    ! 3P
+    1    1    3    0    0      0    0    ! 4P
+    1    2    1    0    0      0    0    ! 3D
+    2    0    1    0    0      0    0    ! 1S -----
+    2    0    2    0    0      0    0    ! 2S
+    2    0    3    0    0      0    0    ! 3S
+    2    1    1    0    0      0    0    ! 2P
+    2    1    2    0    0      0    0    ! 3P
+    2    2    1    0    0      0    0    ! 3D
+    3    0    1    0    0      0    0    ! 1S -----
+    3    0    2    0    0      0    0    ! 2S
+    3    0    3    0    0      0    0    ! 3S
+    3    0    4    0    0      0    0    ! 4S
+    3    1    1    0    0      0    0    ! 2P
+    3    1    2    0    0      0    0    ! 3P
+    3    1    3    0    0      0    0    ! 4P
+    3    2    1    0    0      0    0    ! 3D
+    4    0    1    0    0      0    0    ! 1S -----
+    4    0    2    0    0      0    0    ! 2S
+    4    0    3    0    0      0    0    ! 3S
+    4    1    1    0    0      0    0    ! 2P
+    4    1    2    0    0      0    0    ! 3P
+    4    2    1    0    0      0    0    ! 3D
+    5    0    1    0    0      0    0    ! 1S -----
+    5    0    2    0    0      0    0    ! 2S
+    5    0    3    0    0      0    0    ! 3S
+    5    0    4    0    0      0    0    ! 4S
+    5    1    1    0    0      0    0    ! 2P
+    5    1    2    0    0      0    0    ! 3P
+    5    1    3    0    0      0    0    ! 4P
+    5    2    1    0    0      0    0    ! 3D
+    6    0    1    0    0      0    0    ! 1S -----
+    6    0    2    0    0      0    0    ! 2S
+    6    0    3    0    0      0    0    ! 3S
+    6    1    1    0    0      0    0    ! 2P
+    6    1    2    0    0      0    0    ! 3P
+    6    2    1    0    0      0    0    ! 3D
+    7    0    1    0    0      0    0    ! 1S -----
+    7    0    2    0    0      0    0    ! 2S
+    7    0    3    0    0      0    0    ! 3S
+    7    0    4    0    0      0    0    ! 4S
+    7    1    1    0    0      0    0    ! 2P
+    7    1    2    0    0      0    0    ! 3P
+    7    1    3    0    0      0    0    ! 4P
+    7    2    1    0    0      0    0    ! 3D
+    8    0    1    0    0      0    0    ! 1S -----
+    8    0    2    0    0      0    0    ! 2S
+    8    0    3    0    0      0    0    ! 3S
+    8    1    1    0    0      0    0    ! 2P
+    8    1    2    0    0      0    0    ! 3P
+    8    2    1    0    0      0    0    ! 3D
+    9    0    1    0    0      0    0    ! 1S -----
+    9    0    2    0    0      0    0    ! 2S
+    9    0    3    0    0      0    0    ! 3S
+    9    1    1    0    0      0    0    ! 2P
+    9    1    2    0    0      0    0    ! 3P
+   10    0    1    0    0      0    0    ! 1S -----
+   10    0    2    0    0      0    0    ! 2S
+   10    0    3    0    0      0    0    ! 3S
+   10    0    4    0    0      0    0    ! 4S
+   10    1    1    0    0      0    0    ! 2P
+   10    1    2    0    0      0    0    ! 3P
+   10    1    3    0    0      0    0    ! 4P
+   10    2    1    0    0      0    0    ! 3D
+   11    0    1    0    0      0    0    ! 1S -----
+   11    0    2    0    0      0    0    ! 2S
+   11    0    3    0    0      0    0    ! 3S
+   11    1    1    0    0      0    0    ! 2P
+   11    1    2    0    0      0    0    ! 3P
+   12    0    1    0    0      0    0    ! 1S -----
+   12    0    2    0    0      0    0    ! 2S
+   12    0    3    0    0      0    0    ! 3S
+   12    0    4    0    0      0    0    ! 4S
+   12    1    1    0    0      0    0    ! 2P
+   12    1    2    0    0      0    0    ! 3P
+   12    1    3    0    0      0    0    ! 4P
+   12    2    1    0    0      0    0    ! 3D
+   13    0    1    0    0      0    0    ! 1S -----
+   13    0    2    0    0      0    0    ! 2S
+   13    0    3    0    0      0    0    ! 3S
+   13    1    1    0    0      0    0    ! 2P
+   13    1    2    0    0      0    0    ! 3P
+   14    0    1    0    0      0    0    ! 1S -----
+   14    0    2    0    0      0    0    ! 2S
+   14    0    3    0    0      0    0    ! 3S
+   14    0    4    0    0      0    0    ! 4S
+   14    1    1    0    0      0    0    ! 2P
+   14    1    2    0    0      0    0    ! 3P
+   14    1    3    0    0      0    0    ! 4P
+   14    2    1    0    0      0    0    ! 3D
+   15    0    1    0    0      0    0    ! 1S -----
+   15    0    2    0    0      0    0    ! 2S
+   15    0    3    0    0      0    0    ! 3S
+   15    1    1    0    0      0    0    ! 2P
+   15    1    2    0    0      0    0    ! 3P
+   16    0    1    0    0      0    0    ! 1S -----
+   16    0    2    0    0      0    0    ! 2S
+   16    0    3    0    0      0    0    ! 3S
+   16    0    4    0    0      0    0    ! 4S
+   16    1    1    0    0      0    0    ! 2P
+   16    1    2    0    0      0    0    ! 3P
+   16    1    3    0    0      0    0    ! 4P
+   16    2    1    0    0      0    0    ! 3D
+</PRODUCT_BASIS>
+ 
+!QforEPSIBZ on ! Use all q in IBZ for the calculation of eps mode.
+QforEPSunita on
+<QforEPS>
+ 0 0 0.00001   
+ 0 0 0.001     
+ 0 0 0.0014142 
+ 0 0 0.002     
+ 0 0 0.0028284 
+ 0 0 0.004
+</QforEPS>
+EMAXforGW 5  !eV(above Efermi)
+<QforGW>  !Set q for GW calculation. 
+ 0.0 0.0 0.0
+ 0.1 0.0 0.0
+ 0.2 0.0 0.0
+ 0.3 0.0 0.0
+</QforGW>
+ 
+!!! ##### Maximally localized Wannier function ################ 
+!!! For s,p,d,f the indices 1-16 correspond to: 
+!!! index l m polynomial 
+!!! 1 0 0 1 
+!!! -----------------------------  
+!!! 2 1 -1 y 
+!!! 3 1 0 z  
+!!! 4 1 1 x  
+!!! -----------------------------  
+!!! 5 2 -2 xy 
+!!! 6 2 -1 yz  
+!!! 7 2 0 3z^2-1 
+!!! 8 2 1 xz  
+!!! 9 2 2 x^2-y^2 
+!!! -----------------------------  
+!!! 10 3 -3 y(3x^2-y^2) 
+!!! 11 3 -2 xyz 
+!!! 12 3 -1 y(5z^2-1) 
+!!! 13 3 0 z(5z^2-3) 
+!!! 14 3 1 x(5z^2-1) 
+!!! 15 3 2 z(x^2-y^2) 
+!!! ------------------------ 
+!!! higher is lm ordered. See Ylm definition in lmto/fpgw doc.
+
+<Worb> Site 
+!  1 In   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+!  2 As   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+!  3 In   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+!  4 As   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+!  5 In   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+!  6 As   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+!  7 In   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+!  8 As   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+!  9 Ga   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+! 10 Sb   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+! 11 Ga   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+! 12 Sb   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+! 13 Ga   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+! 14 Sb   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+! 15 Ga   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+! 16 Sb   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+</Worb> 
+
+!wan_out_ewin off
+!wan_out_bmin 16  !band index for outer window
+!wan_out_bmax 18  !band index for outer window
+wan_out_emin  -1.05  !eV relative to Efermi
+wan_out_emax  2.4  !eV relative to Efermi
+!wan_in_ewin on 
+!wan_in_emin  -1.0  !eV relative to Efermi
+!wan_in_emax  -0.3  !eV relative to Efermi
+
+wan_tb_cut 15
+wan_maxit_1st 300
+wan_conv_1st 1d-7
+wan_max_1st   0.1
+wan_maxit_2nd 1500
+wan_max_2nd   0.3
+wan_conv_end  1d-8
+!wmat_all .true.
+!wmat_rcut1 8
+!wmat_rcut2 0.01
+
+!vis_wan_band_n 3
+!vis_wan_band_id 1 2 3  !integer x vis_wan_band_n, this is index for hmaxloc, as you like.
+!vis_wan_tvec 0 0 0 !1 1 1   !integer x 3, tlat(R)
+!vis_wan_mesh 5 5 5          !integer x 3, # of mesh
+!vis_wan_lbound -1.2  -1.2 -1.2 !real x 3, lower bound in alat unit or abc unit
+!vis_wan_ubound 1.2  1.2 1.2    !real x 3, upper bound in alat or abc unit
+!vis_wan_outputformat xsf       ! opendx, cube, xsf , default=xsf
+! ################################################# 
