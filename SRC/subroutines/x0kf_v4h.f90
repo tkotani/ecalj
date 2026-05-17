@@ -279,9 +279,9 @@ contains
               if (debug) call writemem('xxxx end build_zmel')
               call stopwatch_pause(t_sw_zmel)
               call stopwatch_start(t_sw_x0)
-              if (debug) call writemem('xxxx start x0gemm')
-              call x0gemm(rcxq, npr, nwhis, npm, ns1, ns2, iw_lo, iw_hi)
-              if (debug) call writemem('xxxx end of x0gemm')
+              if (debug) call writemem('xxxx start accumulate_chi0')
+              call accumulate_chi0(ns1, ns2, iw_lo, iw_hi)
+              if (debug) call writemem('xxxx end of accumulate_chi0')
               call stopwatch_pause(t_sw_x0)
             enddo
             deallocate(ns1lists, ns2lists)
@@ -359,6 +359,87 @@ contains
     if (.not. associated(zxqi)) return
     nullify(zxqi)
   end subroutine deallocatezxqi
+
+  subroutine accumulate_chi0(ns1, ns2, iw_lo, iw_hi)
+    use m_blas, only: m_op_c
+#ifdef __GPU
+    use openacc
+    use cudafor
+#endif
+    use, intrinsic :: ieee_arithmetic
+    implicit none
+    integer, intent(in) :: ns1, ns2, iw_lo, iw_hi
+    integer :: icoun, igb1, igb2, iw, jpm, iw_pos, it, itp, ittp, nttp_max, ierr
+    integer :: pos_lo(2), pos_hi(2)
+    integer, allocatable :: nttp(:,:), itw(:,:,:), itpw(:,:,:)
+    complex(kind=kp), allocatable :: zw(:,:), wzw(:,:)
+    complex(kind=kp), parameter :: CONE = (1_kp, 0_kp)
+    real(8), allocatable :: hilbert_w(:,:,:)
+#ifdef __GPU
+    attributes(device) :: zw, wzw
+#endif
+    pos_lo(1) = max(iw_lo, 1);    pos_hi(1) = min(iw_hi, nwhis)
+    pos_lo(2) = max(1, -iw_hi);   pos_hi(2) = min(nwhis, -iw_lo)
+
+    allocate(nttp(nwhis,npm), source = 0)
+    do icoun = icounkmink, icounkmaxk
+      jpm = jpmc(icoun)
+      do iw = max(iwini(icoun), pos_lo(jpm)), min(iwend(icoun), pos_hi(jpm))
+        nttp(iw,jpm) = nttp(iw,jpm) + 1
+      enddo
+    enddo
+
+    nttp_max = maxval(nttp(1:nwhis,1:npm))
+    if(debug) write(stdo, ftox)'nttp_max = ', nttp_max
+    allocate(itw(nttp_max,nwhis,npm), source = 0)
+    allocate(itpw(nttp_max,nwhis,npm), source = 0)
+    allocate(hilbert_w(nttp_max,nwhis,npm), source = 0d0)
+
+    nttp(1:nwhis,1:npm) = 0
+    do icoun = icounkmink, icounkmaxk
+      jpm = jpmc(icoun)
+      it  = itc(icoun)
+      itp = itpc(icoun)
+      if(it < ns1 .or. it > ns2) cycle
+      do iw = max(iwini(icoun), pos_lo(jpm)), min(iwend(icoun), pos_hi(jpm))
+        nttp(iw,jpm) = nttp(iw,jpm) + 1
+        ittp = nttp(iw,jpm)
+        itw(ittp,iw,jpm)       = it
+        itpw(ittp,iw,jpm)      = itp
+        hilbert_w(ittp,iw,jpm) = whwc(iw-iwini(icoun)+icouini(icoun))
+      enddo
+    enddo
+
+    allocate(zw(nttp_max,npr), wzw(nttp_max,npr))
+    !$acc data copyin(hilbert_w, itw, itpw, zmel)
+    do iw = iw_lo, iw_hi
+      if (iw == 0) cycle
+      if (iw > 0) then; jpm = 1; iw_pos = iw
+      else;             jpm = 2; iw_pos = -iw
+      endif
+      if (nttp(iw_pos,jpm) < 1) cycle
+      !$acc kernels loop independent collapse(2)
+      do ittp = 1, nttp(iw_pos,jpm)
+        do igb1 = 1, npr
+          it  = itw(ittp,iw_pos,jpm); itp = itpw(ittp,iw_pos,jpm)
+          zw(ittp,igb1) = cmplx(zmel(igb1,it,itp),kind=kp)
+        enddo
+      enddo
+      !$acc end kernels
+      !$acc kernels loop independent collapse(2)
+      do igb2 = 1, npr
+        do ittp = 1, nttp(iw_pos,jpm)
+          wzw(ittp,igb2) = cmplx(zw(ittp,igb2)*hilbert_w(ittp,iw_pos,jpm),kind=kp)
+        enddo
+      enddo
+      !$acc end kernels
+      ierr = gemm(zw, wzw, rcxq(1,1,iw), npr, npr, nttp(iw_pos,jpm), &
+              &  opA = m_op_C, beta = CONE, ldA = nttp_max, ldB = nttp_max)
+    enddo
+    !$acc end data
+
+    deallocate(itw, itpw, hilbert_w, wzw, zw, nttp)
+  end subroutine accumulate_chi0
 
 end module m_x0kf
 

@@ -101,10 +101,10 @@ contains
       call wv_open_iq_real_for_write(iq, comm=comm_root_k)
       ix = merge(1, 0, iq == 1)
       iwloop: do 1015 iwblock = nwmin, nwmax, mpi__size_b
-         iw = iwblock + mpi__rank_b
-         if(iw > nwmax) cycle
+        iw = iwblock + mpi__rank_b
+        if(iw > nwmax) cycle
         !$acc kernels
-          zw(:,:) = (0_kp, 0_kp)
+        zw(:,:) = (0_kp, 0_kp)
         !$acc end kernels
         call stopwatch_start(t_sw_x_gather)
         zxqw(:,:) = zxq(:,:,iw)    ! all root_k have full shm_wvr; direct copy
