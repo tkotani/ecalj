@@ -45,7 +45,7 @@ module m_x0kf
   real(8),public,allocatable:: whwc(:)
   integer,allocatable,public:: iwini(:),iwend(:),itc(:),itpc(:),jpmc(:),icouini(:)
 
-  real(8),public::qrk(3),qq(3)
+
   integer,public::ns1,ns2,ispm,ispq,nqini,nqmax,icounkmink,icounkmaxk
   logical,external:: cmdopt0
   logical:: debug = .false.
@@ -181,7 +181,6 @@ contains
     logical :: tetwtk = .false.
     real(8) :: zmel_max_size
     type(stopwatch) :: t_sw_zmel, t_sw_x0, t_sw_dpsion
-    qq = q
 
     ! Omega parallelism: split flat range (1-npm)*nwhis:nwhis across comm_b ranks.
     iw_chunk = (npm*nwhis + 1 + mpi__size_b - 1) / mpi__size_b
