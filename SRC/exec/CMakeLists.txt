@@ -179,7 +179,12 @@ function(add_extended_build VARIANT)
   set(LINK_EXTRA "")
   if (VARIANT STREQUAL "gpu" OR VARIANT STREQUAL "mp_gpu")
     set(FLAGS_EXTRA -Mfree -cuda -acc=gpu -cudalib=cufft,cublas,cusolver)
-    set(LINK_EXTRA -acc=gpu -cuda -cudalib=cufft,cublas,cusolver)
+    # Derive nvhpc compilers/lib from the Fortran compiler path.
+    # Handles both nvfortran (.../compilers/bin/nvfortran) and
+    # mpifort wrappers (.../comm_libs/.../ompi/bin/mpifort).
+    string(REGEX MATCH ".*Linux_x86_64/[0-9]+\\.[0-9]+" _NVHPC_ROOT "${CMAKE_Fortran_COMPILER}")
+    set(LINK_EXTRA -acc=gpu -cuda -cudalib=cufft,cublas,cusolver -pgf90libs
+        -L${_NVHPC_ROOT}/compilers/lib -lnvcpumath)
   endif()
   message(STATUS "Adding build variant: ${VARIANT}")
   add_library(${LIB} SHARED ${SOURCES_EXT})
