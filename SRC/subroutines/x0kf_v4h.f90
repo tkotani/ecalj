@@ -46,7 +46,7 @@ module m_x0kf
   integer,allocatable,public:: iwini(:),iwend(:),itc(:),itpc(:),jpmc(:),icouini(:)
 
 
-  integer::ispm,ispq,nqini,nqmax
+
   integer,public::icounkmink,icounkmaxk
   logical,external:: cmdopt0
   logical:: debug = .false.
