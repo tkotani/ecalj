@@ -35,21 +35,15 @@ module m_x0kf
 #ifdef __GPU
   attributes(device) :: rcxq
 #endif
-  integer,public::npr
   private
-
-  integer:: ncount,ncoun
-  integer,allocatable:: nkmin(:), nkmax(:),nkqmin(:),nkqmax(:),kc(:)
-  integer,allocatable:: icounkmin(:),icounkmax(:)
-
-  real(8),public,allocatable:: whwc(:)
-  integer,allocatable,public:: iwini(:),iwend(:),itc(:),itpc(:),jpmc(:),icouini(:)
-
-
-
-  integer,public::icounkmink,icounkmaxk
-  logical,external:: cmdopt0
-  logical:: debug = .false.
+  integer :: ncount, ncoun
+  integer, allocatable :: nkmin(:), nkmax(:),nkqmin(:),nkqmax(:),kc(:)
+  integer, allocatable :: icounkmin(:), icounkmax(:)
+  real(8), allocatable :: whwc(:)
+  integer, allocatable :: iwini(:),iwend(:),itc(:),itpc(:),jpmc(:),icouini(:)
+  integer :: icounkmink, icounkmaxk
+  logical, external :: cmdopt0
+  logical :: debug = .false.
 contains
 
   function X0kf_v4hz_init(job, q, isp_k, isp_kq, iq, crpa, ikbz_in, fkbz_in) result(ierr)
@@ -270,26 +264,28 @@ contains
               ns2  = ns2lists(ibatch)
               ns12 = ns2 - ns1 + 1
               if (ns12 == 0) cycle
-              call stopwatch_start(t_sw_zmel)
               if (ipr) write(stdo,ftox) 'zmel_batch:', ibatch, ns1, ns2, nbatch
+
               if (debug) call writemem('xxxx start build_zmel')
+              call stopwatch_start(t_sw_zmel)
               call build_zmel(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=ns1, ns2=ns2, ispm=isp_k, &
                    nqini=nkqmin(k), nqmax=nkqmax(k), ispq=isp_kq, nctot=nctot, ncc=merge(0,nctot,npm==1), &
                    zmelconjg=.true., is_m_basis=is_m_basis, mpi_mode=.not.use_gpu, comm=comm_b)
-              if (debug) call writemem('xxxx end build_zmel')
               call stopwatch_pause(t_sw_zmel)
-              call stopwatch_start(t_sw_x0)
+              if (debug) call writemem('xxxx end build_zmel')
+
               if (debug) call writemem('xxxx start accumulate_chi0')
-              call accumulate_chi0(ns1, ns2, iw_lo, iw_hi)
-              if (debug) call writemem('xxxx end of accumulate_chi0')
+              call stopwatch_start(t_sw_x0)
+              call accumulate_chi0(ns1, ns2, iw_lo, iw_hi, npr)
               call stopwatch_pause(t_sw_x0)
+              if (debug) call writemem('xxxx end of accumulate_chi0')
             enddo
             deallocate(ns1lists, ns2lists)
           end block NMBATCH
           if (ipr) write(stdo,ftox) 'end of k:', k, ' of:', nqbz, &
               'zmel:', ftof(stopwatch_lap_time(t_sw_zmel),4), '(sec)', &
               ' x0:', ftof(stopwatch_lap_time(t_sw_x0),4), '(sec)'
-          call flush(6)
+          if(ipr) call flush(stdo)
         enddo kloop
         call stopwatch_show(t_sw_zmel)
         call stopwatch_show(t_sw_x0)
@@ -360,15 +356,14 @@ contains
     nullify(zxqi)
   end subroutine deallocatezxqi
 
-  subroutine accumulate_chi0(ns1, ns2, iw_lo, iw_hi)
+  subroutine accumulate_chi0(ns1, ns2, iw_lo, iw_hi, npr)
     use m_blas, only: m_op_c
 #ifdef __GPU
     use openacc
     use cudafor
 #endif
-    use, intrinsic :: ieee_arithmetic
     implicit none
-    integer, intent(in) :: ns1, ns2, iw_lo, iw_hi
+    integer, intent(in) :: ns1, ns2, iw_lo, iw_hi, npr
     integer :: icoun, igb1, igb2, iw, jpm, iw_pos, it, itp, ittp, nttp_max, ierr
     integer :: pos_lo(2), pos_hi(2)
     integer, allocatable :: nttp(:,:), itw(:,:,:), itpw(:,:,:)
