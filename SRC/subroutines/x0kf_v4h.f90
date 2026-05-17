@@ -46,7 +46,7 @@ module m_x0kf
   integer,allocatable,public:: iwini(:),iwend(:),itc(:),itpc(:),jpmc(:),icouini(:)
 
 
-  integer::ns1,ns2,ispm,ispq,nqini,nqmax
+  integer::ispm,ispq,nqini,nqmax
   integer,public::icounkmink,icounkmaxk
   logical,external:: cmdopt0
   logical:: debug = .false.
@@ -252,7 +252,7 @@ contains
           icounkmaxk = icounkmax(k)
           if (debug.and.ipr) write(stdo,ftox) 'ggggggggg goto build_zmel', k, nkmin(k), nkmax(k), nctot
           NMBATCH: block
-            integer :: nsize, nns, ibatch, nbatch, ns12
+            integer :: nsize, nns, ibatch, nbatch, ns12, ns1, ns2
             integer, allocatable :: ns1lists(:), ns2lists(:)
             nsize = (nkqmax(k)-nkqmin(k))*npr
             nns   = (nkmax(k) - nkmin(k) + 1)
