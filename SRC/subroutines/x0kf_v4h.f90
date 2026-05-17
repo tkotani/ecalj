@@ -41,7 +41,6 @@ module m_x0kf
   integer, allocatable :: icounkmin(:), icounkmax(:)
   real(8), allocatable :: whwc(:)
   integer, allocatable :: iwini(:),iwend(:),itc(:),itpc(:),jpmc(:),icouini(:)
-  integer :: icounkmink, icounkmaxk
   logical, external :: cmdopt0
   logical :: debug = .false.
 contains
@@ -242,8 +241,6 @@ contains
             ierr = x0kf_v4hz_init(1, q, isp_k, isp_kq, iq, crpa, ikbz_in=k, fkbz_in=k)
             call tetdeallocate()
           endif
-          icounkmink = icounkmin(k)
-          icounkmaxk = icounkmax(k)
           if (debug.and.ipr) write(stdo,ftox) 'ggggggggg goto build_zmel', k, nkmin(k), nkmax(k), nctot
           NMBATCH: block
             integer :: nsize, nns, ibatch, nbatch, ns12, ns1, ns2
@@ -276,7 +273,7 @@ contains
 
               if (debug) call writemem('xxxx start accumulate_chi0')
               call stopwatch_start(t_sw_x0)
-              call accumulate_chi0(ns1, ns2, iw_lo, iw_hi, npr)
+              call accumulate_chi0(ns1, ns2, iw_lo, iw_hi, npr, icounkmin(k), icounkmax(k))
               call stopwatch_pause(t_sw_x0)
               if (debug) call writemem('xxxx end of accumulate_chi0')
             enddo
@@ -356,14 +353,14 @@ contains
     nullify(zxqi)
   end subroutine deallocatezxqi
 
-  subroutine accumulate_chi0(ns1, ns2, iw_lo, iw_hi, npr)
+  subroutine accumulate_chi0(ns1, ns2, iw_lo, iw_hi, npr, icounkmink, icounkmaxk)
     use m_blas, only: m_op_c
 #ifdef __GPU
     use openacc
     use cudafor
 #endif
     implicit none
-    integer, intent(in) :: ns1, ns2, iw_lo, iw_hi, npr
+    integer, intent(in) :: ns1, ns2, iw_lo, iw_hi, npr, icounkmink, icounkmaxk
     integer :: icoun, igb1, igb2, iw, jpm, iw_pos, it, itp, ittp, nttp_max, ierr
     integer :: pos_lo(2), pos_hi(2)
     integer, allocatable :: nttp(:,:), itw(:,:,:), itpw(:,:,:)
