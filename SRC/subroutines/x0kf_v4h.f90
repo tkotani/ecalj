@@ -46,7 +46,8 @@ module m_x0kf
   integer,allocatable,public:: iwini(:),iwend(:),itc(:),itpc(:),jpmc(:),icouini(:)
 
 
-  integer,public::ns1,ns2,ispm,ispq,nqini,nqmax,icounkmink,icounkmaxk
+  integer::ns1,ns2,ispm,ispq,nqini,nqmax
+  integer,public::icounkmink,icounkmaxk
   logical,external:: cmdopt0
   logical:: debug = .false.
 contains
