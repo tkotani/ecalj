@@ -40,12 +40,12 @@ module m_wv_storage
   implicit none
   private
 
-  integer, parameter, public :: WV_BACKEND_FILE = 1
-  integer, parameter, public :: WV_BACKEND_SHM  = 2  !> MPI shared memory window on comm_q node
+  integer, parameter :: WV_BACKEND_FILE = 1
+  integer, parameter :: WV_BACKEND_SHM  = 2  !> MPI shared memory window on comm_q node
 
   ! ---- module-level singleton state ----
-  integer, protected, public :: wv_backend = WV_BACKEND_FILE
-  integer, protected, public :: wv_cur_iq  = 0
+  integer, protected :: wv_backend = WV_BACKEND_FILE
+  integer, protected :: wv_cur_iq  = 0
   integer :: wv_mreclx = 0
   integer :: wv_nw_i   = 0
   integer :: wv_real_unit = -1
