@@ -70,9 +70,17 @@ contains
     intent(in)::             zzr,nmbas1
     integer::nmbas1
     complex(8):: zzr(ngb,nmbas1)
-    if(allocated(m2e_prod_basis)) deallocate(m2e_prod_basis)
+    if(allocated(m2e_prod_basis)) then
+#ifdef __GPU
+      !$acc exit data delete(m2e_prod_basis)
+#endif
+      deallocate(m2e_prod_basis)
+    endif
     allocate(m2e_prod_basis(ngb,nmbas1))
     m2e_prod_basis = cmplx(zzr,kind=kp)
+#ifdef __GPU
+    !$acc enter data copyin(m2e_prod_basis)
+#endif
     nbb   = nmbas1
   end subroutine set_m2e_prod_basis_chipm
   subroutine mptauof_zmel(symops,ng)! Set miat,tiat,invgx,shtvg

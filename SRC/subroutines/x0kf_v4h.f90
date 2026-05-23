@@ -287,7 +287,15 @@ contains
         call stopwatch_show(t_sw_zmel)
         call stopwatch_show(t_sw_x0)
         call cputid(0)
-        if (debug.and.ipr) write(stdo,ftox)"--- x0kf_v4hz: end: sumcheck abs(rcxq)=", sum(abs(rcxq(:,:,:)))
+        if (debug.and.ipr) then
+          block
+            real(kp) :: sumcheck
+            !$acc kernels
+            sumcheck = sum(abs(rcxq(:,:,:)))
+            !$acc end kernels
+            write(stdo,ftox)"--- x0kf_v4hz: end: sumcheck abs(rcxq)=", sumcheck
+          end block
+        endif
       end block x0kf_v4hz_block
       deallocate(whwc, kc, iwini, iwend, itc, itpc, jpmc, icouini, nkmin, nkmax, nkqmin, nkqmax, icounkmin, icounkmax)
       HilbertTransformation: if (isp_k==nsp .OR. chipm) then
@@ -403,7 +411,7 @@ contains
     enddo
 
     allocate(zw(nttp_max,npr), wzw(nttp_max,npr))
-    !$acc data copyin(hilbert_w, itw, itpw, zmel)
+    !$acc data copyin(hilbert_w, itw, itpw) present(zmel)
     do iw = iw_lo, iw_hi
       if (iw == 0) cycle
       if (iw > 0) then; jpm = 1; iw_pos = iw

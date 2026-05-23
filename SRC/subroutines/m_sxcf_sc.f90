@@ -236,7 +236,7 @@ contains
                   enddo
                   if(corehole) wtff(ns1:nctot) = wtff(ns1:nctot) * wcorehole(ns1:nctot,isp)
                   allocate(vcoud_buf(ngb))
-                  !$acc data copyin(vcoud, wklm(1), wk(1), wtff, zmel)
+                  !$acc data copyin(vcoud, wklm(1), wk(1), wtff) present(zmel)
                   !$acc kernels
                   vcoud_buf(1:ngb) = vcoud(1:ngb)
                   !$acc end kernels
