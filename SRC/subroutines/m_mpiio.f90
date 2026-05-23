@@ -24,108 +24,118 @@ module m_mpiio !MPI-IO. Fixed length recl
     module procedure buf_get_complex8_0d, buf_get_complex8_1d, buf_get_complex8_2d, buf_get_complex8_3d
   end interface buf_get
   private
-  integer, parameter :: nfmax=1000, nsize=16 !maxsize of opened file by openm
-  integer :: ierr, fhl(nfmax)=-9999, iff=0   ! -9999 is used as a missing value indicator
-  integer(kind=mpi_offset_kind) :: recll(nfmax)
-  character(len=256) :: fnames(nfmax) = ''
+
+  ! Entry in the open-file table: MPI_FILE_NULL fh means the slot is free.
+  type :: mpiio_entry
+    integer                        :: fh    = MPI_FILE_NULL
+    integer(kind=mpi_offset_kind)  :: recl  = 0
+    character(256)                 :: fname = ''
+  end type mpiio_entry
+
+  integer, parameter        :: nfmax = 32   ! max simultaneously open MPI-IO files
+  integer, parameter        :: nsize = 16   ! sizeof(complex(8)) in bytes
+  type(mpiio_entry)         :: fh_table(nfmax)
+  integer                   :: ierr
+
 contains
-  function openm(newunit, file, recl, comm) result(i) !recl=16*size
-    integer ::      newunit,      recl, info, comm_in
-    character(*) ::       file
-    integer, intent(in), optional :: comm
-    integer :: i
-    info = mpi_info_null
+  function openm(newunit, file, recl, comm) result(i)
+    integer,      intent(out) :: newunit
+    character(*), intent(in)  :: file
+    integer,      intent(in)  :: recl
+    integer,      intent(in), optional :: comm
+    integer :: i, ifx, comm_in
     comm_in = MPI_COMM_WORLD
     if (present(comm)) comm_in = comm
     call mpi_file_open(comm_in, trim(file), mpi_mode_rdwr + mpi_mode_create, MPI_INFO_NULL, newunit, ierr)
-    iff = iff + 1
-    if (iff > nfmax) call rx('m_mpiio:iff>nfmax')
-    fhl(iff)   = newunit
-    recll(iff) = recl !in byte
-    fnames(iff) = trim(file)
+    ifx = findloc(fh_table%fh == MPI_FILE_NULL, dim=1, value=.True.)
+    if (ifx <= 0) call rx('m_mpiio:openm: too many simultaneously open files')
+    fh_table(ifx)%fh    = newunit
+    fh_table(ifx)%recl  = recl
+    fh_table(ifx)%fname = trim(file)
     i = 0
   end function openm
+
   function writem(unit, rec, data) result(i)
-    integer :: unit
-    integer(mpi_offset_kind) :: offset
-    integer :: rec, count
-    complex(8) :: data(1)
+    integer,     intent(in) :: unit, rec
+    complex(8),  intent(in) :: data(1)
     integer :: i, ifx
     integer :: status(MPI_Status_size)
-    ifx = findloc(unit==fhl(1:iff), dim=1, value=.True.)
-    offset = (rec-1)*recll(ifx)
-    count  = recll(ifx)/nsize
-    call mpi_file_write_at(fhl(ifx), offset, data, count, MPI_DOUBLE_COMPLEX, status, ierr)
+    integer(mpi_offset_kind) :: offset
+    ifx = find_slot(unit)
+    offset = (rec-1) * fh_table(ifx)%recl
+    call mpi_file_write_at(fh_table(ifx)%fh, offset, data, int(fh_table(ifx)%recl/nsize), MPI_DOUBLE_COMPLEX, status, ierr)
     i = 0
   end function writem
+
   function writem_c(unit, rec, data) result(i)
-    integer :: unit
-    integer(mpi_offset_kind) :: offset
-    integer :: rec, count
-    complex(4) :: data(1)
+    integer,    intent(in) :: unit, rec
+    complex(4), intent(in) :: data(1)
     integer :: i, ifx
     integer :: status(MPI_Status_size)
-    ifx = findloc(unit==fhl(1:iff), dim=1, value=.True.)
-    offset = (rec-1)*recll(ifx)
-    count  = recll(ifx)/8
-    call mpi_file_write_at(fhl(ifx), offset, data, count, MPI_COMPLEX, status, ierr)
+    integer(mpi_offset_kind) :: offset
+    ifx = find_slot(unit)
+    offset = (rec-1) * fh_table(ifx)%recl
+    call mpi_file_write_at(fh_table(ifx)%fh, offset, data, int(fh_table(ifx)%recl/8), MPI_COMPLEX, status, ierr)
     i = 0
   end function writem_c
+
   function writem_d(unit, rec, data) result(i)
-    integer :: unit
-    integer(mpi_offset_kind) :: offset
-    integer :: rec, count
-    real(8) :: data(1)
+    integer, intent(in) :: unit, rec
+    real(8), intent(in) :: data(1)
     integer :: i, ifx
     integer :: status(MPI_Status_size)
-    ifx = findloc(unit==fhl(1:iff), dim=1, value=.True.)
-    offset = (rec-1)*recll(ifx)
-    count  = recll(ifx)/8
-    call mpi_file_write_at(fhl(ifx), offset, data, count, MPI_DOUBLE_PRECISION, status, ierr)
+    integer(mpi_offset_kind) :: offset
+    ifx = find_slot(unit)
+    offset = (rec-1) * fh_table(ifx)%recl
+    call mpi_file_write_at(fh_table(ifx)%fh, offset, data, int(fh_table(ifx)%recl/8), MPI_DOUBLE_PRECISION, status, ierr)
     i = 0
   end function writem_d
+
   function readm(unit, rec, data) result(i)
-    integer :: unit
-    integer :: rec, count
-    integer(mpi_offset_kind) :: offset
-    integer :: status(MPI_STATUS_SIZE)
-    complex(8) :: data(1)
+    integer,    intent(in)  :: unit, rec
+    complex(8), intent(out) :: data(1)
     integer :: i, ifx
-    ifx = findloc(unit==fhl, dim=1, value=.True.)
-    offset = (rec-1)*recll(ifx)
-    count  = recll(ifx)/nsize
-    call mpi_file_read_at(fhl(ifx), offset, data, count, MPI_DOUBLE_COMPLEX, status, ierr)
+    integer :: status(MPI_STATUS_SIZE)
+    integer(mpi_offset_kind) :: offset
+    ifx = find_slot(unit)
+    offset = (rec-1) * fh_table(ifx)%recl
+    call mpi_file_read_at(fh_table(ifx)%fh, offset, data, int(fh_table(ifx)%recl/nsize), MPI_DOUBLE_COMPLEX, status, ierr)
     i = 0
   end function readm
+
   function readm_d(unit, rec, data) result(i)
-    integer :: unit
-    integer :: rec, count
-    integer(mpi_offset_kind) :: offset
-    integer :: status(MPI_STATUS_SIZE)
-    real(8) :: data(1)
+    integer, intent(in)  :: unit, rec
+    real(8), intent(out) :: data(1)
     integer :: i, ifx
-    ifx = findloc(unit==fhl, dim=1, value=.True.)
-    offset = (rec-1)*recll(ifx)
-    count  = recll(ifx)/8
-    call mpi_file_read_at(fhl(ifx), offset, data, count, MPI_DOUBLE_PRECISION, status, ierr)
+    integer :: status(MPI_STATUS_SIZE)
+    integer(mpi_offset_kind) :: offset
+    ifx = find_slot(unit)
+    offset = (rec-1) * fh_table(ifx)%recl
+    call mpi_file_read_at(fh_table(ifx)%fh, offset, data, int(fh_table(ifx)%recl/8), MPI_DOUBLE_PRECISION, status, ierr)
     i = 0
   end function readm_d
+
   function closem(unit) result(i)
-    integer :: unit
+    integer, intent(in) :: unit
     integer :: i, ifx
-    ifx = findloc(unit==fhl(1:iff), dim=1, value=.True.)
-    fhl(ifx) = -9999
-    fnames(ifx) = ''
-    call mpi_file_close(unit, ierr)
+    ifx = find_slot(unit)
+    call mpi_file_close(fh_table(ifx)%fh, ierr)
+    fh_table(ifx)%fh    = MPI_FILE_NULL
+    fh_table(ifx)%fname = ''
     i = 0
   end function closem
+
   function openedm(unit) result(is_open)
-    integer :: unit
+    integer, intent(in) :: unit
     logical :: is_open
-    integer :: ifx
-    ifx = findloc(unit==fhl(1:iff), dim=1, value=.True.)
-    is_open = ifx > 0
+    is_open = findloc(fh_table%fh == unit, dim=1, value=.True.) > 0
   end function openedm
+
+  integer function find_slot(unit) result(ifx)
+    integer, intent(in) :: unit
+    ifx = findloc(fh_table%fh == unit, dim=1, value=.True.)
+    if (ifx <= 0) call rx('m_mpiio: MPI file handle not in table')
+  end function find_slot
 
   subroutine buf_reset(buf)
     type(mpiio_buf), intent(inout) :: buf
@@ -150,42 +160,37 @@ contains
   end subroutine buf_grow
 
   integer function writem_buf(unit, rec, buf) result(i)
-    integer, intent(in) :: unit, rec
+    integer,         intent(in) :: unit, rec
     type(mpiio_buf), intent(in) :: buf
     integer :: ifx, nbytes
     integer(mpi_offset_kind) :: offset
     integer :: status(MPI_STATUS_SIZE)
-    ifx = findloc(unit == fhl(1:iff), dim=1, value=.true.)
-    if (ifx <= 0) call rx('m_mpiio:writem_buf: unit not opened')
+    ifx = find_slot(unit)
     nbytes = buf%pos - 1
-    if (nbytes /= recll(ifx)) then
-      write(6,*) 'm_mpiio:writem_buf: buffer size mismatch (file='//trim(fnames(ifx))//'):', nbytes, recll(ifx)
-      call rx('m_mpiio:writem_buf: buffer size /= recll (file='//trim(fnames(ifx))//')')
+    if (nbytes /= fh_table(ifx)%recl) then
+      write(6,*) 'm_mpiio:writem_buf: buffer size mismatch (file='//trim(fh_table(ifx)%fname)//'):', nbytes, fh_table(ifx)%recl
+      call rx('m_mpiio:writem_buf: buffer size /= recl (file='//trim(fh_table(ifx)%fname)//')')
     end if
-    offset = (rec-1)*recll(ifx)
-    call MPI_File_write_at(fhl(ifx), offset, buf%bytes(1), nbytes, MPI_BYTE, status, ierr)
+    offset = (rec-1) * fh_table(ifx)%recl
+    call MPI_File_write_at(fh_table(ifx)%fh, offset, buf%bytes(1), nbytes, MPI_BYTE, status, ierr)
     i = ierr
   end function writem_buf
 
   integer function readm_buf(unit, rec, buf) result(i)
-    integer, intent(in) :: unit, rec
+    integer,         intent(in)    :: unit, rec
     type(mpiio_buf), intent(inout) :: buf
     integer :: ifx, nbytes
     integer(mpi_offset_kind) :: offset
     integer :: status(MPI_STATUS_SIZE)
-    ifx = findloc(unit == fhl(1:iff), dim=1, value=.true.)
-    if (ifx <= 0) then
-      write(6,*) 'm_mpiio:readm_buf: unit not opened, unit=', unit
-      call rx('m_mpiio:readm_buf: unit not opened')
-    end if
-    nbytes = int(recll(ifx))
+    ifx = find_slot(unit)
+    nbytes = int(fh_table(ifx)%recl)
     if (.not. allocated(buf%bytes) .or. size(buf%bytes) /= nbytes) then
       if (allocated(buf%bytes)) deallocate(buf%bytes)
       allocate(buf%bytes(nbytes))
     end if
     buf%pos = 1
-    offset = (rec-1)*recll(ifx)
-    call MPI_File_read_at(fhl(ifx), offset, buf%bytes(1), nbytes, MPI_BYTE, status, ierr)
+    offset = (rec-1) * fh_table(ifx)%recl
+    call MPI_File_read_at(fh_table(ifx)%fh, offset, buf%bytes(1), nbytes, MPI_BYTE, status, ierr)
     i = ierr
   end function readm_buf
 
