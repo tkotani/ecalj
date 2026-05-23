@@ -2,9 +2,8 @@ from comp import runprogs,diffnum,dqpu,rmfiles
 def test(args,bindir,testdir,workdir):
         gwsc0= bindir + f'/gwsc 0 -np {args.np} '
         tall=''
-        out1=["QPU"]
-        out2='log.inas2gasb2'
-        rmfiles(workdir,out1+[out2])
+        out1=["QPU.1run"]
+        rmfiles(workdir,out1)
         runprogs([
                  gwsc0+ " inas2gasb2" + f' {args.run_args}',
         ])
