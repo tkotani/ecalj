@@ -33,7 +33,6 @@ module m_mpiio !MPI-IO. Fixed length recl
   end type mpiio_entry
 
   integer, parameter        :: nfmax = 64   ! max simultaneously open MPI-IO files
-  integer, parameter        :: nsize = 16   ! sizeof(complex(8)) in bytes
   type(mpiio_entry)         :: fh_table(nfmax)
   integer                   :: ierr
 
@@ -63,7 +62,7 @@ contains
     integer(mpi_offset_kind) :: offset
     ifx = find_slot(unit)
     offset = (rec-1) * fh_table(ifx)%recl
-    call mpi_file_write_at(fh_table(ifx)%fh, offset, data, int(fh_table(ifx)%recl/nsize), MPI_DOUBLE_COMPLEX, status, ierr)
+    call mpi_file_write_at(fh_table(ifx)%fh, offset, data, int(fh_table(ifx)%recl/(storage_size(data(1))/8)), MPI_DOUBLE_COMPLEX, status, ierr)
     i = 0
   end function writem
 
@@ -75,7 +74,7 @@ contains
     integer(mpi_offset_kind) :: offset
     ifx = find_slot(unit)
     offset = (rec-1) * fh_table(ifx)%recl
-    call mpi_file_write_at(fh_table(ifx)%fh, offset, data, int(fh_table(ifx)%recl/8), MPI_COMPLEX, status, ierr)
+    call mpi_file_write_at(fh_table(ifx)%fh, offset, data, int(fh_table(ifx)%recl/(storage_size(data(1))/8)), MPI_COMPLEX, status, ierr)
     i = 0
   end function writem_c
 
@@ -87,7 +86,7 @@ contains
     integer(mpi_offset_kind) :: offset
     ifx = find_slot(unit)
     offset = (rec-1) * fh_table(ifx)%recl
-    call mpi_file_write_at(fh_table(ifx)%fh, offset, data, int(fh_table(ifx)%recl/8), MPI_DOUBLE_PRECISION, status, ierr)
+    call mpi_file_write_at(fh_table(ifx)%fh, offset, data, int(fh_table(ifx)%recl/(storage_size(data(1))/8)), MPI_DOUBLE_PRECISION, status, ierr)
     i = 0
   end function writem_d
 
@@ -99,7 +98,7 @@ contains
     integer(mpi_offset_kind) :: offset
     ifx = find_slot(unit)
     offset = (rec-1) * fh_table(ifx)%recl
-    call mpi_file_read_at(fh_table(ifx)%fh, offset, data, int(fh_table(ifx)%recl/nsize), MPI_DOUBLE_COMPLEX, status, ierr)
+    call mpi_file_read_at(fh_table(ifx)%fh, offset, data, int(fh_table(ifx)%recl/(storage_size(data(1))/8)), MPI_DOUBLE_COMPLEX, status, ierr)
     i = 0
   end function readm
 
@@ -111,7 +110,7 @@ contains
     integer(mpi_offset_kind) :: offset
     ifx = find_slot(unit)
     offset = (rec-1) * fh_table(ifx)%recl
-    call mpi_file_read_at(fh_table(ifx)%fh, offset, data, int(fh_table(ifx)%recl/8), MPI_DOUBLE_PRECISION, status, ierr)
+    call mpi_file_read_at(fh_table(ifx)%fh, offset, data, int(fh_table(ifx)%recl/(storage_size(data(1))/8)), MPI_DOUBLE_PRECISION, status, ierr)
     i = 0
   end function readm_d
 
