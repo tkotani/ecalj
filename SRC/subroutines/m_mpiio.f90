@@ -62,7 +62,7 @@ contains
     integer(mpi_offset_kind) :: offset
     ifx = find_slot(unit)
     offset = (rec-1) * fh_table(ifx)%recl
-    call mpi_file_write_at(fh_table(ifx)%fh, offset, data, int(fh_table(ifx)%recl/(storage_size(data(1))/8)), MPI_DOUBLE_COMPLEX, status, ierr)
+    call mpi_file_write_at(fh_table(ifx)%fh, offset, data, int(fh_table(ifx)%recl/16), MPI_DOUBLE_COMPLEX, status, ierr)
     i = 0
   end function writem
 
@@ -74,7 +74,7 @@ contains
     integer(mpi_offset_kind) :: offset
     ifx = find_slot(unit)
     offset = (rec-1) * fh_table(ifx)%recl
-    call mpi_file_write_at(fh_table(ifx)%fh, offset, data, int(fh_table(ifx)%recl/(storage_size(data(1))/8)), MPI_COMPLEX, status, ierr)
+    call mpi_file_write_at(fh_table(ifx)%fh, offset, data, int(fh_table(ifx)%recl/8), MPI_COMPLEX, status, ierr)
     i = 0
   end function writem_c
 
@@ -86,7 +86,7 @@ contains
     integer(mpi_offset_kind) :: offset
     ifx = find_slot(unit)
     offset = (rec-1) * fh_table(ifx)%recl
-    call mpi_file_write_at(fh_table(ifx)%fh, offset, data, int(fh_table(ifx)%recl/(storage_size(data(1))/8)), MPI_DOUBLE_PRECISION, status, ierr)
+    call mpi_file_write_at(fh_table(ifx)%fh, offset, data, int(fh_table(ifx)%recl/8), MPI_DOUBLE_PRECISION, status, ierr)
     i = 0
   end function writem_d
 
@@ -98,7 +98,7 @@ contains
     integer(mpi_offset_kind) :: offset
     ifx = find_slot(unit)
     offset = (rec-1) * fh_table(ifx)%recl
-    call mpi_file_read_at(fh_table(ifx)%fh, offset, data, int(fh_table(ifx)%recl/(storage_size(data(1))/8)), MPI_DOUBLE_COMPLEX, status, ierr)
+    call mpi_file_read_at(fh_table(ifx)%fh, offset, data, int(fh_table(ifx)%recl/16), MPI_DOUBLE_COMPLEX, status, ierr)
     i = 0
   end function readm
 
@@ -110,7 +110,7 @@ contains
     integer(mpi_offset_kind) :: offset
     ifx = find_slot(unit)
     offset = (rec-1) * fh_table(ifx)%recl
-    call mpi_file_read_at(fh_table(ifx)%fh, offset, data, int(fh_table(ifx)%recl/(storage_size(data(1))/8)), MPI_DOUBLE_PRECISION, status, ierr)
+    call mpi_file_read_at(fh_table(ifx)%fh, offset, data, int(fh_table(ifx)%recl/8), MPI_DOUBLE_PRECISION, status, ierr)
     i = 0
   end function readm_d
 
