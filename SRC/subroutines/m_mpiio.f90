@@ -32,7 +32,7 @@ module m_mpiio !MPI-IO. Fixed length recl
     character(256)                 :: fname = ''
   end type mpiio_entry
 
-  integer, parameter        :: nfmax = 32   ! max simultaneously open MPI-IO files
+  integer, parameter        :: nfmax = 64   ! max simultaneously open MPI-IO files
   integer, parameter        :: nsize = 16   ! sizeof(complex(8)) in bytes
   type(mpiio_entry)         :: fh_table(nfmax)
   integer                   :: ierr
