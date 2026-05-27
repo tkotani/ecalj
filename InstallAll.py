@@ -156,12 +156,16 @@ def main():
     # --- Clean up build directories if requested ---
     if args.clean:
         print("Cleaning previous build files...")
-        makefile = EXEC_DIR / 'Makefile'
-        if makefile.exists():
-            run_shell("make clean", cwd=EXEC_DIR)
-
-        (EXEC_DIR / 'CMakeCache.txt').unlink(missing_ok=True)
-        shutil.rmtree(EXEC_DIR / 'CMakeFiles', ignore_errors=True)
+        # Out-of-tree build lives in BUILD_DIR; wiping it is the real clean.
+        # Also remove stale in-tree CMake artifacts left over from before the
+        # out-of-tree migration (513cc59e) — their presence breaks `make clean`
+        # once CMakeCache/CMakeFiles are gone.
+        for stale in ('CMakeCache.txt', 'CMakeFiles', 'Makefile', 'cmake_install.cmake'):
+            p = EXEC_DIR / stale
+            if p.is_dir():
+                shutil.rmtree(p, ignore_errors=True)
+            else:
+                p.unlink(missing_ok=True)
         shutil.rmtree(BUILD_DIR, ignore_errors=True)
 
     BUILD_DIR.mkdir(parents=True, exist_ok=True)
