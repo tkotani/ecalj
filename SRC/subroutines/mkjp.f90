@@ -159,7 +159,9 @@ contains
       use m_bessl, only: bessl2 => bessl, wronkj2 => wronkj
       use m_keyvalue,only: getkeyvalue
       use m_GWinput, only: gwinput_init, gwinput_loaded, tg_KeepWronkj => KeepWronkj
+#ifdef __GPU
       use openacc
+#endif
       ! real(8), allocatable :: sigx_tmp(ngc,ngc,0:lxx), a1g(nrx,ngc), aabb_by3
       ! real(8) :: ajr_tmp(nrx,ngc), phi_rg(nrx,ngc,0:lxx), rofi_tmp(1:nrx) !  complex(8) :: crojp((lxx+1)**2,nbas,ngc)
       real(8), allocatable :: fac_integral(:), a1g(:,:), ajr_tmp(:,:), phi_rg(:,:,:), rofi_tmp(:)
@@ -295,7 +297,9 @@ contains
                deallocate(keep_fjj)
             endif
             allocate(keep_fjj(0:lx(ibas),nggc))
+#ifdef __GPU
             call acc_clear_freelists()
+#endif
             !$acc enter data create(keep_fjj)
             !$acc parallel loop private(fkk(0:lxx), fkj(0:lxx), fjk(0:lxx), fjj(0:lxx))
             do igg = 1, nggc
