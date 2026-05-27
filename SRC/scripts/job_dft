@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 import argparse
 import contextlib
-from dft import cal_dft
-from utils import move_files
+from pathlib import Path
+from pylib.dft import cal_dft
+from pylib.utils import move_files
+
+EXEC_DIR = Path(__file__).resolve().parent
 
 
 def main():
@@ -23,7 +26,7 @@ def main():
     args, extra_args = parser.parse_known_args()
 
     with contextlib.chdir(args.dir):
-        cal_dft(args.cluster, args.extension, args.np, extra_args)
+        cal_dft(args.cluster, args.extension, args.np, EXEC_DIR, extra_args)
 
 if __name__ == "__main__":
     main()

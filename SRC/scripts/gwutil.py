@@ -1,4 +1,4 @@
-from MachineDependence import mpiRUN
+from pylib.MachineDependence import mpiRUN
 import os,shutil
 '''
 util for QSGW scripts

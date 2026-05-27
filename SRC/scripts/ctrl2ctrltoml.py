@@ -18,11 +18,11 @@ or obsolete blocks. They are skipped with a warning to stderr.
 """
 import sys, re, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from toml_comments import fmt_section_header, fmt_key_inline
+from pylib.toml_comments import fmt_section_header, fmt_key_inline
 from math import sin, cos, tan, log, exp, sqrt, pi
 
 sys.path.insert(0, os.path.dirname(os.path.realpath(__file__)))  # follow symlink
-from ctrl_schema import SCHEMA, SECTION_ORDER, ARRAY_SECTIONS
+from pylib.ctrl_schema import SCHEMA, SECTION_ORDER, ARRAY_SECTIONS
 
 # ---------------- Steps 1-5 (verbatim from v1, comments trimmed) -------------
 

@@ -77,7 +77,7 @@ import os, sys, re, shutil, subprocess
 from pathlib import Path
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
-from toml_comments import apply_toml_annotations
+from pylib.toml_comments import apply_toml_annotations
 
 def banner(msg):
     print(f'=== Legacy2toml.py: {msg}', flush=True)

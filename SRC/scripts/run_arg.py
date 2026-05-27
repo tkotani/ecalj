@@ -2,7 +2,7 @@
 import subprocess
 import sys
 import time
-from MachineDependence import mpiRUN
+from pylib.MachineDependence import mpiRUN
 
 def run_arg(argin, mpi_size, nfpgw, command, output, *target):
     echo_run = True  # standard

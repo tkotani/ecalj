@@ -5,9 +5,9 @@ import shutil
 import argparse
 import sys
 from pathlib import Path
-from utils import ensure_dir, remove_files, copy_files, move_files
-from run_cmd import run_cmd, MPIParams
-from dft import run_lmf
+from pylib.utils import ensure_dir, remove_files, copy_files, move_files
+from pylib.run_cmd import run_cmd, MPIParams
+from pylib.dft import run_lmf
 
 EXEC_DIR = Path(__file__).resolve().parent
 

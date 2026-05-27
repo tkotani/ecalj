@@ -59,30 +59,30 @@ if(BUILD_GPU OR BUILD_MP_GPU)
 endif()
 
 # --- Source Files ---
-file(GLOB SOURCES "${CMAKE_SOURCE_DIR}/../subroutines/*.f90")
+file(GLOB SOURCES "${CMAKE_SOURCE_DIR}/subroutines/*.f90")
 # Exclude GPU-only modules from base SOURCES (added back for GPU variants)
 set(GPU_ONLY_SOURCES
-    "${CMAKE_SOURCE_DIR}/../subroutines/m_batched_diag.f90"
-    "${CMAKE_SOURCE_DIR}/../subroutines/m_chefsi.f90"
-    "${CMAKE_SOURCE_DIR}/../subroutines/m_ozaki_tridiag.f90"
-    "${CMAKE_SOURCE_DIR}/../subroutines/m_qdwh_eigensolver.f90"
-    "${CMAKE_SOURCE_DIR}/../subroutines/m_zhev_gpu_handles.f90"
+    "${CMAKE_SOURCE_DIR}/subroutines/m_batched_diag.f90"
+    "${CMAKE_SOURCE_DIR}/subroutines/m_chefsi.f90"
+    "${CMAKE_SOURCE_DIR}/subroutines/m_ozaki_tridiag.f90"
+    "${CMAKE_SOURCE_DIR}/subroutines/m_qdwh_eigensolver.f90"
+    "${CMAKE_SOURCE_DIR}/subroutines/m_zhev_gpu_handles.f90"
 )
 list(REMOVE_ITEM SOURCES ${GPU_ONLY_SOURCES})
-file(GLOB MAINS "${CMAKE_SOURCE_DIR}/../main/*.f90")
+file(GLOB MAINS "${CMAKE_SOURCE_DIR}/main/*.f90")
 set(MAINS_GPU
-    "${CMAKE_SOURCE_DIR}/../main/hsfp0_sc.f90"
-    "${CMAKE_SOURCE_DIR}/../main/hgw.f90"
-    "${CMAKE_SOURCE_DIR}/../main/hx0fp0.f90"
-    "${CMAKE_SOURCE_DIR}/../main/hvccfp0.f90"
-    "${CMAKE_SOURCE_DIR}/../main/lmf.f90"
+    "${CMAKE_SOURCE_DIR}/main/hsfp0_sc.f90"
+    "${CMAKE_SOURCE_DIR}/main/hgw.f90"
+    "${CMAKE_SOURCE_DIR}/main/hx0fp0.f90"
+    "${CMAKE_SOURCE_DIR}/main/hvccfp0.f90"
+    "${CMAKE_SOURCE_DIR}/main/lmf.f90"
 )
 
 # --- GEMMul8 paths --- 
 set(GEMMUL8_DIR "${CMAKE_BINARY_DIR}/GEMMul8/GEMMul8")
 set(GEMMUL8_LIB "${GEMMUL8_DIR}/lib/libgemmul8.so")
 set(GEMMUL8_INC "${GEMMUL8_DIR}/include")
-set(GEMMUL8_WRAPPER "${CMAKE_SOURCE_DIR}/../subroutines/gemmul8_wrapper.cu")
+set(GEMMUL8_WRAPPER "${CMAKE_SOURCE_DIR}/subroutines/gemmul8_wrapper.cu")
 
 # --- Compiler Flags ---
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
@@ -96,22 +96,22 @@ if(FC MATCHES "gfortran")
     set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} -w -fno-strict-aliasing -fallow-argument-mismatch")
   endif()
   set(LIBM -lmkl_rt)
-  set_source_files_properties("../subroutines/mkqp.f90" PROPERTIES COMPILE_FLAGS "-O0")
+  set_source_files_properties("${CMAKE_SOURCE_DIR}/subroutines/mkqp.f90" PROPERTIES COMPILE_FLAGS "-O0")
 elseif(FC MATCHES "ifort")
   set(CMAKE_Fortran_FLAGS "-init:snan -fpic -assume byterecl -g -traceback")
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -traceback")
   set(LIBM -qmkl=parallel -qopenmp)
-  set_source_files_properties("../subroutines/m_qplist.f90" PROPERTIES COMPILE_FLAGS "-O0")
+  set_source_files_properties("${CMAKE_SOURCE_DIR}/subroutines/m_qplist.f90" PROPERTIES COMPILE_FLAGS "-O0")
 elseif(FC MATCHES "ifx")
   set(CMAKE_Fortran_FLAGS "-fpic -assume byterecl -g -traceback")
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -traceback")
   set(LIBM -qmkl=parallel -qopenmp)
-  set_source_files_properties("../subroutines/m_qplist.f90" PROPERTIES COMPILE_FLAGS "-O0")
+  set_source_files_properties("${CMAKE_SOURCE_DIR}/subroutines/m_qplist.f90" PROPERTIES COMPILE_FLAGS "-O0")
 elseif(FC MATCHES "nvfortran")
   set(CMAKE_Fortran_FLAGS "-fpic -Mbackslash -traceback")
   set(CMAKE_Fortran_FLAGS_DEBUG "-O0 -g -traceback")
   set(LIBM -mp -lmkl_rt)
-  set_source_files_properties("../subroutines/pwmat.f90" "../subroutines/rseq.f90" PROPERTIES COMPILE_FLAGS "-O0")
+  set_source_files_properties("${CMAKE_SOURCE_DIR}/subroutines/pwmat.f90" "${CMAKE_SOURCE_DIR}/subroutines/rseq.f90" PROPERTIES COMPILE_FLAGS "-O0")
 endif()
 
 # --- Dummy executable to aid linker in finding MKL ---
@@ -121,7 +121,7 @@ target_link_libraries(dummy ${LIBM})
 # --- Vendored toml-f (TOML parser, Apache-2.0/MIT). See SRC/external/toml-f/ ---
 # Disable toml-f's test suite (test-drive Fortran source-runs check fails on nvfortran).
 set(BUILD_TESTING OFF CACHE BOOL "Disable toml-f tests" FORCE)
-add_subdirectory(${CMAKE_SOURCE_DIR}/../external/toml-f ${CMAKE_BINARY_DIR}/toml-f)
+add_subdirectory(${CMAKE_SOURCE_DIR}/external/toml-f ${CMAKE_BINARY_DIR}/toml-f)
 
 # --- Main Library and Executables ---
 set(LIB ecaljF)
@@ -273,9 +273,9 @@ endif()
 # a separate copy step — main binaries and their matching libraries can
 # never go out of sync.  Pass -DECALJ_BIN_DIR=<path> at configure time to
 # also place symlinks under ~/bin (or wherever).
-set(DELIVER_DIR ${CMAKE_SOURCE_DIR}/../exec_${FC})
+set(DELIVER_DIR ${CMAKE_SOURCE_DIR}/exec_${FC})
 
-set(_DELIVER_DESTS ${DELIVER_DIR} ${CMAKE_SOURCE_DIR})
+set(_DELIVER_DESTS ${DELIVER_DIR} ${CMAKE_SOURCE_DIR}/exec)
 if(DEFINED ECALJ_BIN_DIR AND NOT ECALJ_BIN_DIR STREQUAL "")
   list(APPEND _DELIVER_DESTS "${ECALJ_BIN_DIR}")
 endif()
@@ -308,10 +308,10 @@ add_custom_target(deliver ALL
 set(DELIVERED_TARGET_FILES "")
 foreach(f ${DELIVER_FILES})
   get_filename_component(fname ${f} NAME)
-  list(APPEND DELIVERED_TARGET_FILES ${CMAKE_SOURCE_DIR}/${fname})
+  list(APPEND DELIVERED_TARGET_FILES ${CMAKE_SOURCE_DIR}/exec/${fname})
 endforeach()
 
 add_custom_target(clean_delivered
   COMMAND ${CMAKE_COMMAND} -E rm -f ${DELIVERED_TARGET_FILES}
-  COMMENT "Cleaning delivered files from ${CMAKE_SOURCE_DIR}"
+  COMMENT "Cleaning delivered files from ${CMAKE_SOURCE_DIR}/exec"
 )

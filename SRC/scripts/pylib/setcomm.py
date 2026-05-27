@@ -24,7 +24,7 @@ class readflib:
     import sys
     def __init__(self,fortranso,prt):
         ''' Get fortran library flib callable from python. mkl is taken from mklloc.txt '''
-        scriptpath = os.path.dirname(os.path.realpath(__file__))+'/'
+        scriptpath = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))+'/'
         mkl=[]
         with open(scriptpath+'./mklloc.txt') as f:
             for line in f:

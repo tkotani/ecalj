@@ -3,8 +3,8 @@ import argparse
 import contextlib
 import re
 from pathlib import Path
-from run_cmd import run_cmd, MPIParams
-from dft import run_lmf
+from pylib.run_cmd import run_cmd, MPIParams
+from pylib.dft import run_lmf
 
 EXEC_DIR = Path(__file__).resolve().parent
 

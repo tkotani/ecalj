@@ -27,7 +27,7 @@ def ensure_gwinput_toml(exec_dir=None, cwd=None):
         Working directory to operate in. Defaults to os.getcwd().
     """
     if exec_dir is None:
-        exec_dir = Path(__file__).resolve().parent
+        exec_dir = Path(__file__).resolve().parent.parent
     else:
         exec_dir = Path(exec_dir)
     if cwd is None:

@@ -62,7 +62,7 @@ script.
 """
 import os, sys, re
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from toml_comments import fmt_section_header, fmt_key_inline, apply_toml_annotations
+from pylib.toml_comments import fmt_section_header, fmt_key_inline, apply_toml_annotations
 
 # ---------------------------------------------------------------------------
 # Atomlist — extracted at runtime from ctrlgenM1.py so there's a single

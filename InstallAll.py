@@ -137,35 +137,36 @@ def main():
     print(f"Going to install required binaries and scripts to {BIN_DIR}")
     start_time = time.time()
 
-    # --- Make links ---
-    EXEC_DIR = CWD / 'SRC' / 'exec'
-    BUILD_DIR = EXEC_DIR / 'build'
+    # --- Directories ---
+    SCRIPTS_DIR = CWD / 'SRC' / 'scripts'   # Python/shell scripts source
+    EXEC_DIR    = CWD / 'SRC' / 'exec'      # assembled runtime (scripts + binary symlinks)
+    BUILD_DIR   = CWD / 'SRC' / f'build_{FC}'
 
+    # --- Assemble exec/: symlink every file/dir in scripts/ into exec/ ---
+    EXEC_DIR.mkdir(parents=True, exist_ok=True)
+    for item in SCRIPTS_DIR.iterdir():
+        link = EXEC_DIR / item.name
+        if link.is_symlink() or (link.exists() and link.is_file()):
+            link.unlink()
+        elif link.is_dir() and not link.is_symlink():
+            shutil.rmtree(link)
+        link.symlink_to(item.resolve())
+
+    # --- Extra symlinks into exec/ and ~/bin from other repo dirs ---
     scripts_to_link = ['StructureTool/viewvesta', 'StructureTool/ctrl2vasp', 'StructureTool/vasp2ctrl', 'GetSyml/getsyml']
     for scr_path_str in scripts_to_link:
         script_path = Path(scr_path_str)
         src_file = CWD / f"{scr_path_str}.py"
-
         for dest_dir in [BIN_DIR, EXEC_DIR]:
             link_path = dest_dir / script_path.name
-            if link_path.exists():
+            if link_path.exists() or link_path.is_symlink():
                 link_path.unlink()
             link_path.symlink_to(src_file)
-    print(f"Symbolic links created in {BIN_DIR} and {EXEC_DIR}")
+    print(f"Assembled exec/ and created links in {BIN_DIR}")
 
-    # --- Clean up build directories if requested ---
+    # --- Clean up build directory if requested ---
     if args.clean:
         print("Cleaning previous build files...")
-        # Out-of-tree build lives in BUILD_DIR; wiping it is the real clean.
-        # Also remove stale in-tree CMake artifacts left over from before the
-        # out-of-tree migration (513cc59e) — their presence breaks `make clean`
-        # once CMakeCache/CMakeFiles are gone.
-        for stale in ('CMakeCache.txt', 'CMakeFiles', 'Makefile', 'cmake_install.cmake'):
-            p = EXEC_DIR / stale
-            if p.is_dir():
-                shutil.rmtree(p, ignore_errors=True)
-            else:
-                p.unlink(missing_ok=True)
         shutil.rmtree(BUILD_DIR, ignore_errors=True)
 
     BUILD_DIR.mkdir(parents=True, exist_ok=True)
@@ -177,7 +178,7 @@ def main():
     # Pass BIN_DIR to CMake so the `deliver` target auto-deploys
     # libecaljF*.so + every main exe to BIN_DIR on every build, atomically.
     cmake_options = (
-        f"-S {EXEC_DIR} -B {BUILD_DIR}"
+        f"-S {CWD / 'SRC'} -B {BUILD_DIR}"
         f" -DCMAKE_BUILD_TYPE={BUILD_TYPE}"
         f" -DECALJ_BIN_DIR={BIN_DIR}"
     )
@@ -194,41 +195,31 @@ def main():
 
     run_shell(f"{verbose}cmake --build {BUILD_DIR} -j{jobs}", env=cmake_env)
 
-    # --- Copy non-build executables (scripts) from EXEC_DIR to BIN_DIR ---
-    # libecaljF*.so + every main binary from BUILD_DIR are deployed atomically
-    # by the CMake `deliver` target (driven by -DECALJ_BIN_DIR above), so they
-    # never go out of sync.  Here we only handle the in-tree helper scripts
-    # under SRC/exec/ that are not part of the CMake build graph.
+    # --- Copy scripts from SCRIPTS_DIR to BIN_DIR ---
+    # libecaljF*.so + every main binary are deployed atomically by cmake deliver.
+    # Here we copy the Python/shell scripts from scripts/.
     print(f'Copying helper scripts to {BIN_DIR}')
-    for path_item in EXEC_DIR.iterdir():
+    for path_item in SCRIPTS_DIR.iterdir():
+        if path_item.name == 'pylib':
+            continue
         if path_item.is_file() and path_item.suffix != '.so' and os.access(path_item, os.X_OK):
             try:
                 shutil.copy2(path_item, BIN_DIR)
             except (OSError, PermissionError) as e:
                 print(f"Warning: Skipping {path_item.name}: {e}", file=sys.stderr)
 
-    # Copy clusters.toml from EXEC_DIR to BIN_DIR
-    clusters_toml_src = EXEC_DIR / 'clusters.toml'
-    if clusters_toml_src.exists():
-        try:
-            shutil.copy(clusters_toml_src, BIN_DIR)
-            print(f"Copied {clusters_toml_src} to {BIN_DIR}")
-        except (OSError, PermissionError) as e:
-            print(f"Warning: Failed to copy {clusters_toml_src} to {BIN_DIR}: {e}", file=sys.stderr)
-    else:
-        print(f"Info: {clusters_toml_src} not found, skipping copy.")
-
-    # Copy non-executable helpers (bash completion + shared toml-comment dict)
-    for non_exec in ('ecalj_complete.bash', 'toml_comments.py', 'gwinput_prepare.py'):
-        src = EXEC_DIR / non_exec
+    # Copy clusters.toml
+    for data_file in ('clusters.toml', 'ecalj_complete.bash'):
+        src = SCRIPTS_DIR / data_file
         if src.exists():
-            try:
-                shutil.copy2(src, BIN_DIR)
-                print(f"Copied {src.name} to {BIN_DIR}")
-            except (OSError, PermissionError) as e:
-                print(f"Warning: Failed to copy {src.name}: {e}", file=sys.stderr)
-        else:
-            print(f"Info: {src} not found, skipping copy.")
+            shutil.copy2(src, BIN_DIR)
+            print(f"Copied {data_file} to {BIN_DIR}")
+
+    # Copy pylib/ package
+    pylib_src = SCRIPTS_DIR / 'pylib'
+    if pylib_src.is_dir():
+        shutil.copytree(pylib_src, BIN_DIR / 'pylib', dirs_exist_ok=True)
+        print(f'Copied pylib/ to {BIN_DIR}')
 
     # Install per-user bash completion (one-shot append to ~/.bashrc).
     if not args.no_bashrc:

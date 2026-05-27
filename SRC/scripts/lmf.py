@@ -1,5 +1,5 @@
 # >mpirun -np 4 python lmf.py si
-from setcomm import callF,setcommF,getlibF,unload_library,readflib
+from pylib.setcomm import callF,setcommF,getlibF,unload_library,readflib
 from mpi4py import MPI
 import sys,os,glob
 import functools

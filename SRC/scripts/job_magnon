@@ -2,8 +2,8 @@
 import argparse
 import contextlib
 from pathlib import Path
-from run_cmd import run_cmd, MPIParams
-from utils import merge_files, move_files
+from pylib.run_cmd import run_cmd, MPIParams
+from pylib.utils import merge_files, move_files
 
 EXEC_DIR = Path(__file__).resolve().parent
 

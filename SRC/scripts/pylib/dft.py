@@ -3,10 +3,8 @@ import glob
 import shutil
 from pathlib import Path
 
-from utils import remove_files
-from run_cmd import run_cmd, MPIParams
-
-EXEC_DIR = Path(__file__).resolve().parent
+from .utils import remove_files
+from .run_cmd import run_cmd, MPIParams
 
 
 def _read_bmix_from_ctrl(target: str) -> float:
@@ -101,11 +99,11 @@ def run_lmf(cluster: str,
             print(f'Retrying with b={bval}', flush=True)
 
 
-def cal_dft(cluster: str, target: str, mpi_size: int, extra_args: list | None = None) -> None:
+def cal_dft(cluster: str, target: str, mpi_size: int, exec_dir: Path, extra_args: list | None = None) -> None:
     """Run standard DFT: lmfa (atomic SCF) then lmf self-consistent field."""
     extra = extra_args or []
-    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR / "lmfa",
+    run_cmd(cluster, MPIParams(nprocs=1, command=exec_dir / "lmfa",
                                args=[target, *extra]), stdout="llmfa")
-    run_lmf(cluster, target, MPIParams(nprocs=mpi_size, command=EXEC_DIR / "lmf",
+    run_lmf(cluster, target, MPIParams(nprocs=mpi_size, command=exec_dir / "lmf",
                                        args=[target, *extra]),
             bmix_reduction=True, stdout="llmf")

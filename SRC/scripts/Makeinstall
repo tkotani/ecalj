@@ -1,0 +1,24 @@
+#! /bin/bash
+# Install ecalj binaries + Python/shell drivers to ${HOME}/bin.
+# Run from SRC/exec/ after `make` (or `make <target>`) in build/.
+#
+# Run from SRC/exec/ after building.
+BINDIR=${HOME}/bin
+mkdir -p "${BINDIR}"
+
+# 1) Install executables from SRC/exec/ (incl. libecaljF.so symlinks)
+files=$(find . -mindepth 1 -maxdepth 1 -executable -type f -printf '%f\n')
+for f in ${files}; do
+  src="$(realpath "${f}" 2>/dev/null)"
+  dst="$(realpath -m "${BINDIR}/${f}" 2>/dev/null)"
+  [ "${src}" = "${dst}" ] && continue
+  cp -f "${f}" "${BINDIR}/"
+done
+
+# 2) Install pylib/ package (internal Python modules)
+cp -r pylib/ "${BINDIR}/"
+
+# 3) Install non-executable helpers
+for f in mklloc.txt clusters.toml ecalj_complete.bash; do
+  [ -f "${f}" ] && cp -f "${f}" "${BINDIR}/"
+done

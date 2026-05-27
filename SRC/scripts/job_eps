@@ -4,7 +4,7 @@ import contextlib
 import textwrap
 import subprocess
 from pathlib import Path
-from run_cmd import run_cmd, MPIParams
+from pylib.run_cmd import run_cmd, MPIParams
 
 EXEC_DIR = Path(__file__).resolve().parent
 

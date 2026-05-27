@@ -1,5 +1,5 @@
 from __future__ import annotations
-from utils import remove_files
+from .utils import remove_files
 import os
 import shlex
 import subprocess
@@ -11,7 +11,7 @@ import tomllib
 
 START_TIME = datetime.datetime.now()
 # Base directory of this module
-CONFIG_DIR = Path(__file__).resolve().parent
+CONFIG_DIR = Path(__file__).resolve().parent.parent
 
 # MPI execution parameters
 @dataclass

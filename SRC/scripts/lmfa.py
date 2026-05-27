@@ -1,5 +1,5 @@
 #!/usr/bin/env python3 
-from setcomm import callF,setcommF,getlibF
+from pylib.setcomm import callF,setcommF,getlibF
 from mpi4py import MPI
 import sys,os
 #import numpy as np
