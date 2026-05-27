@@ -1,101 +1,59 @@
 #!/usr/bin/env python3
-import sys
-import os
-import subprocess
+import argparse
 from pathlib import Path
-from run_arg import run_arg
+from run_cmd import run_cmd, MPIParams
 from gwinput_prepare import ensure_gwinput_toml
 
-def main():
-    if len(sys.argv) != 4 or sys.argv[1] != "-np":
-        print("   --- One-shot GW calculation to get QP energies ---")
-        print("   An example of usage: gw_lmfh -np 4 si")
-        print("   for ctrl.si rst.si and GWinput")
-        sys.exit(-1)
+EXEC_DIR = Path(__file__).resolve().parent
 
-    nfpgw = os.path.dirname(sys.argv[0])
-    TARGET = sys.argv[3]
-    MPI_SIZE = sys.argv[2]
-    NO_MPI = 1
+parser = argparse.ArgumentParser(prog='gw_lmfh', description='''
+  One-shot GW calculation to get QP energies.
+  Example: gw_lmfh si -np 4
+  for ctrl.si, rst.si and GWinput
+''')
+parser.add_argument("extension",   help='extension of ctrl file')
+parser.add_argument("-np",         help='number of MPI cores', default=8, type=int)
+parser.add_argument("-c", "--cluster", help="cluster name", default="default", type=str)
+args, extra_args = parser.parse_known_args()
 
-    if not ensure_gwinput_toml(exec_dir=Path(nfpgw)):
-        raise SystemExit('gw_lmfh: cannot proceed without GWinput.toml')
-
-    if os.path.exists('NoCore'):
-        os.remove('NoCore')
-
-    if os.path.exists('QPU'):
-        os.rename('QPU', 'QPU.backup.by_gw_lmfh')
-
-    if os.path.exists('QPD'):
-        os.rename('QPD', 'QPD.backup.by_gw_lmfh')
-
-    run_arg('---', NO_MPI, nfpgw, '/lmf', 'llmfgw00', TARGET, '--jobgw=0')
-    run_arg('---', NO_MPI, nfpgw, '/qg4gw', 'lqg4gw', TARGET, '--readQforGW', '--job=1')
-    run_arg('---', MPI_SIZE, nfpgw, '/lmf', 'llmfgw01', TARGET, '--jobgw=1')
-    # run_arg('---', NO_MPI, nfpgw, '/rdata4gw_v2', 'lrdata4gw_v2')
-    run_arg('---', NO_MPI, nfpgw, '/heftet', 'leftet', TARGET, '--job=1')
-    run_arg('---', NO_MPI, nfpgw, '/hbasfp0', 'lbasC', TARGET, '--job=3')
-    run_arg('---', MPI_SIZE, nfpgw, '/hvccfp0', 'lvccC', TARGET, '--job=3')
-    run_arg('---', MPI_SIZE, nfpgw, '/hsfp0', 'lsxC', TARGET, '--job=3')
-    run_arg('---', NO_MPI, nfpgw, '/hbasfp0', 'lbas', TARGET, '--job=0')
-    run_arg('---', MPI_SIZE, nfpgw, '/hvccfp0', 'lvcc', TARGET, '--job=0')
-    run_arg('---', MPI_SIZE, nfpgw, '/hsfp0', 'lsx_sf', TARGET, '--job=11')
-
-    if os.path.exists('WV.d'):
-        for file in os.listdir('.'):
-            if file.startswith('WV'):
-                os.remove(file)
-
-    run_arg('---', MPI_SIZE, nfpgw, '/hx0fp0', 'lx0_sf', TARGET, '--job=11')
-    run_arg('---', MPI_SIZE, nfpgw, '/hsfp0', 'lsc_sf', TARGET, '--job=12')
-    run_arg('---', NO_MPI, nfpgw, '/hqpe', 'lqpe', TARGET, '--job=0')
-
-    print(f"OK! ==== All calculation finished for gw_lmfh {sys.argv} ====")
+target  = args.extension
+cluster = args.cluster
+s1  = {"nprocs": 1}
+smpi = {"nprocs": args.np}
 
 if __name__ == "__main__":
-    main()
+    if not ensure_gwinput_toml(exec_dir=EXEC_DIR):
+        raise SystemExit('gw_lmfh: cannot proceed without GWinput.toml')
 
-# #!/bin/bash
-# if [ $# -ne 3 ] || [ $1 != "-np" ] ; then
-#     $echo_run echo '   --- One-shot GW calculation to get QP energies ---'
-#     $echo_run echo "   An example of usage: gw_lmfh -np 4 si"
-#     $echo_run echo '   for ctrl.si rst.si and GWinput'
-#     exit -1
-# fi
-# n=$0
-# nfpgw=`dirname $0`
-# TARGET=$3
-# MPI_SIZE=$2
-# NO_MPI=1
-# source $nfpgw/run_arg
-# ##### rm and mkdir ##############
-# if [ -e NoCore ]; then #backword compatibility not so meaningful now.
-#   rm -f NoCore 
-# fi
-# if [ -e QPU ]; then
-#  mv QPU QPU.backup.by_gw_lmfh
-# fi
-# if [ -e QPD ]; then
-#  mv QPD QPD.backup.by_gw_lmfh
-# fi
-# run_arg '---' $NO_MPI  $nfpgw  /lmf llmfgw00 $TARGET --jobgw=0 
-# run_arg '---' $NO_MPI  $nfpgw  /qg4gw lqg4gw  --readQforGW --job=1 #Generate requied q+G v
-# run_arg '---' $MPI_SIZE $nfpgw /lmf llmfgw01 $TARGET --jobgw=1
-# #run_arg '---' $NO_MPI   $nfpgw /rdata4gw_v2 lrdata4gw_v2 #prepare files
-# run_arg '---' $NO_MPI $nfpgw   /heftet leftet --job=1 # A file EFERMI for hx0fp0
-# ### Core part of the self-energy (exchange only) ###
-# run_arg '---' $NO_MPI $nfpgw   /hbasfp0 lbasC --job=3 # Product basis generation 
-# run_arg '---' $MPI_SIZE $nfpgw /hvccfp0 lvccC --job=3 # Coulomb matrix for lbasC 
-# run_arg '---' $MPI_SIZE $nfpgw /hsfp0   lsxC  --job=3 # Sigma from core1
-# ### Valence part of the self-energy Sigma ###
-# run_arg '---' $NO_MPI $nfpgw   /hbasfp0 lbas  --job=0 # Product basis generation 
-# run_arg '---' $MPI_SIZE $nfpgw /hvccfp0 lvcc  --job=0 # Coulomb matrix for lbas 
-# run_arg '---' $MPI_SIZE $nfpgw /hsfp0  lsx_sf  --job=11 # Exchange Sigma
-# if [ -e WV.d ]; then
-#     rm -f WV* 
-# fi
-# run_arg '---' $MPI_SIZE $nfpgw /hx0fp0 lx0_sf --job=11 #x0 part
-# run_arg '---' $MPI_SIZE $nfpgw /hsfp0 lsc_sf --job=12 #correlation Sigma
-# run_arg '---' $NO_MPI $nfpgw   /hqpe lqpe --job=0 #all Sigma are combined.
-# $echo_run echo OK! ==== All calclation finished for gw_lmfh $argv ====
+    for name in ['NoCore', 'QPU', 'QPD']:
+        p = Path(name)
+        if p.exists():
+            if name == 'NoCore':
+                p.unlink()
+            else:
+                p.rename(f'{name}.backup.by_gw_lmfh')
+
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/"lmf",   args=[target, "--jobgw=0", *extra_args], **s1),  stdout="llmfgw00")
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/"qg4gw", args=[target, "--readQforGW", "--job=1", *extra_args], **s1), stdout="lqg4gw")
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/"lmf",   args=[target, "--jobgw=1", *extra_args], **smpi), stdout="llmfgw01")
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/"heftet",args=[target, "--job=1", *extra_args],   **s1),  stdout="leftet")
+
+    ## Core part of the self-energy (exchange only) ##
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/"hbasfp0", args=[target, "--job=3", *extra_args], **s1),   stdout="lbasC")
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/"hvccfp0", args=[target, "--job=3", *extra_args], **smpi), stdout="lvccC")
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/"hsfp0",   args=[target, "--job=3", *extra_args], **smpi), stdout="lsxC")
+
+    ## Valence part of the self-energy Sigma ##
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/"hbasfp0", args=[target, "--job=0", *extra_args],  **s1),  stdout="lbas")
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/"hvccfp0", args=[target, "--job=0", *extra_args],  **smpi), stdout="lvcc")
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/"hsfp0",   args=[target, "--job=11", *extra_args], **smpi), stdout="lsx_sf")
+
+    if Path('WV.d').exists():
+        for f in Path('.').glob('WV*'):
+            f.unlink()
+
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/"hx0fp0", args=[target, "--job=11", *extra_args], **smpi), stdout="lx0_sf")
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/"hsfp0",  args=[target, "--job=12", *extra_args], **smpi), stdout="lsc_sf")
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/"hqpe",   args=[target, "--job=0",  *extra_args], **s1),  stdout="lqpe")
+
+    print('OK! ==== All calculation finished for gw_lmfh ====')

@@ -689,7 +689,7 @@ contains
     istat = closem(ifvxcevec)
     i=closem(ifcphim) !mpi-io
     i=closem(ifgeigm)
-    if(openedm(ifihh)) istat = closem(ifihh)
+    if(cmdopt0('--mlo') .and. openedm(ifihh)) istat = closem(ifihh)
     call mpi_barrier(comm,ierr)
     call mpibc2_real(evl,   nbandmx*nqirr*nspx,'evl')
     call mpibc2_real(vxclda,nbandmx*nqirr*nspx,'vxclda')

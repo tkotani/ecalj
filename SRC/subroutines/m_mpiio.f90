@@ -127,11 +127,16 @@ contains
   function openedm(unit) result(is_open)
     integer, intent(in) :: unit
     logical :: is_open
+    if (unit == MPI_FILE_NULL) then
+      is_open = .false.
+      return
+    end if
     is_open = findloc(fh_table%fh == unit, dim=1, value=.True.) > 0
   end function openedm
 
   integer function find_slot(unit) result(ifx)
     integer, intent(in) :: unit
+    if (unit == MPI_FILE_NULL) call rx('m_mpiio: find_slot called with MPI_FILE_NULL')
     ifx = findloc(fh_table%fh == unit, dim=1, value=.True.)
     if (ifx <= 0) call rx('m_mpiio: MPI file handle not in table')
   end function find_slot
