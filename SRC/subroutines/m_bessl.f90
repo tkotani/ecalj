@@ -117,8 +117,9 @@ subroutine wronkj(e1,e2,r,lmax,fkk,fkj,fjk,fjj)! Wronskians for hankels and bess
   !  fkk,fjj are symmetric in e1,e2.  fkj(e1,e2)=fjk(e2,e1).
   implicit real*8 (a-h,p-z), integer(o)
   integer:: lmax,lp1,l
-  dimension fkk(*),fkj(*),fjk(*),fjj(*),ak1(200),aj1(200), &
-  ak2(200),aj2(200),dk2(200),dj2(200),dk1(200),dj1(200)
+  dimension fkk(*),fkj(*),fjk(*),fjj(*)
+  real(8) :: ak1(lmax+2),aj1(lmax+2),ak2(lmax+2),aj2(lmax+2), &
+             dk2(lmax+2),dj2(lmax+2),dk1(lmax+2),dj1(lmax+2)
   ! ------ first: special case e1=e2=0 -------------
   if(dabs(e1) <= 1.d-6 .AND. dabs(e2) <= 1.d-6) then
      r3=r*r*r
@@ -166,7 +167,8 @@ subroutine radkj(e,r,lmax,ak,aj,dk,dj,job)
   !  job=0: makes values and slopes. job=1: makes energy derivatives.
   implicit real*8 (a-h,p-z), integer(o)
   integer:: lmax,l,lp1,job
-  dimension ak(*),aj(*),dk(*),dj(*),phi(200),psi(200),php(200),psp(200) ! MIZUHO-IR
+  dimension ak(*),aj(*),dk(*),dj(*)
+  real(8) :: phi(lmax+3),psi(lmax+3),php(lmax+3),psp(lmax+3)
   er2=e*r*r
   if(job == 0) then
      call bessl(er2,lmax+1,phi,psi)

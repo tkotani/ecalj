@@ -159,6 +159,7 @@ contains
       use m_bessl, only: bessl2 => bessl, wronkj2 => wronkj
       use m_keyvalue,only: getkeyvalue
       use m_GWinput, only: gwinput_init, gwinput_loaded, tg_KeepWronkj => KeepWronkj
+      use openacc
       ! real(8), allocatable :: sigx_tmp(ngc,ngc,0:lxx), a1g(nrx,ngc), aabb_by3
       ! real(8) :: ajr_tmp(nrx,ngc), phi_rg(nrx,ngc,0:lxx), rofi_tmp(1:nrx) !  complex(8) :: crojp((lxx+1)**2,nbas,ngc)
       real(8), allocatable :: fac_integral(:), a1g(:,:), ajr_tmp(:,:), phi_rg(:,:,:), rofi_tmp(:)
@@ -213,6 +214,7 @@ contains
       !$acc host_data use_device(strx, rojp)
       istat = zmm(strx, rojp, rojpstrx, m=nbas*(lxx+1)**2, n=ngc, k=nbas*(lxx+1)**2, opA=m_op_T, opB=m_op_C)
       !$acc end host_data
+      !$acc exit data delete(strx)
 
       ! --- Term A: sum over all atoms via single BLAS call ---
       ! vcoul_A(ig1,ig2) = sum_{lm,ibas} rojpstrx(lm,ibas,ig1)*rojp(ig2,lm,ibas)
@@ -230,6 +232,7 @@ contains
       !$acc end kernels
       !$acc end data
       deallocate(vcoul_termA)
+      !$acc exit data delete(rojp)
 
       write(aaaw,ftox) " vcoulq_4: goto igig loop (type-batched)", mpi__rank
       call cputm(stdo,aaaw)
@@ -292,6 +295,7 @@ contains
                deallocate(keep_fjj)
             endif
             allocate(keep_fjj(0:lx(ibas),nggc))
+            call acc_clear_freelists()
             !$acc enter data create(keep_fjj)
             !$acc parallel loop private(fkk(0:lxx), fkj(0:lxx), fjk(0:lxx), fjj(0:lxx))
             do igg = 1, nggc
@@ -391,7 +395,7 @@ contains
       !$acc end data
     endblock PvP_dev_mo
 
-    !$acc exit data copyout(vcoul) delete(strx, rojp)
+    !$acc exit data copyout(vcoul)
 
     RightUpperPartOFvcoul: do ipl1=1, nbloch+ngc
       do ipl2=1, ipl1-1
