@@ -273,9 +273,7 @@ endif()
 # a separate copy step — main binaries and their matching libraries can
 # never go out of sync.  Pass -DECALJ_BIN_DIR=<path> at configure time to
 # also place symlinks under ~/bin (or wherever).
-set(DELIVER_DIR ${CMAKE_SOURCE_DIR}/exec_${FC})
-
-set(_DELIVER_DESTS ${DELIVER_DIR})
+set(_DELIVER_DESTS "")
 if(DEFINED ECALJ_BIN_DIR AND NOT ECALJ_BIN_DIR STREQUAL "")
   list(APPEND _DELIVER_DESTS "${ECALJ_BIN_DIR}")
 endif()
@@ -304,14 +302,6 @@ add_custom_target(deliver ALL
   COMMENT "Linking build products into ${_DELIVER_DESTS}"
 )
 
-# Create a list of delivered files in exec_{FC} for cleanup
-set(DELIVERED_TARGET_FILES "")
-foreach(f ${DELIVER_FILES})
-  get_filename_component(fname ${f} NAME)
-  list(APPEND DELIVERED_TARGET_FILES ${DELIVER_DIR}/${fname})
-endforeach()
-
 add_custom_target(clean_delivered
-  COMMAND ${CMAKE_COMMAND} -E rm -f ${DELIVERED_TARGET_FILES}
-  COMMENT "Cleaning delivered files from ${DELIVER_DIR}"
+  COMMENT "No extra deliver directories to clean"
 )
