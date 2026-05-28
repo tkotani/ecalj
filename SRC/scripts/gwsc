@@ -9,7 +9,7 @@ from pylib.utils import ensure_dir, remove_files, copy_files, move_files
 from pylib.run_cmd import run_cmd, MPIParams
 from pylib.dft import run_lmf
 
-EXEC_DIR = Path(__file__).resolve().parent
+EXEC_DIR = Path(__file__).parent
 
 parser = argparse.ArgumentParser(prog='gwsc',description='''
   QSGW calculation with MPI.
@@ -58,7 +58,7 @@ if args.gpu:
     exec_type = exec_type + "_gpu"
 if args.gemmul8:
     options.append("--use_gemmul8")
-    libpath = Path(__file__).resolve().parent / "libgemmul8.so"
+    libpath = Path(__file__).parent / "libgemmul8.so"
     os.environ["LD_PRELOAD"] = str(libpath)
     if not libpath.is_file():
         raise FileNotFoundError(f"{libpath} does not exist.")

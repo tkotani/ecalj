@@ -5,7 +5,7 @@ from pathlib import Path
 from pylib.run_cmd import run_cmd, MPIParams
 from pylib.utils import move_files, remove_files
 
-EXEC_DIR = Path(__file__).resolve().parent
+EXEC_DIR = Path(__file__).parent
 
 def cal_mlo_magnon(args, extra_args):
     cluster = args.cluster

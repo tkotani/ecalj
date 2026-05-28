@@ -6,7 +6,7 @@ import subprocess
 from pathlib import Path
 from pylib.run_cmd import run_cmd, MPIParams
 
-EXEC_DIR = Path(__file__).resolve().parent
+EXEC_DIR = Path(__file__).parent
 
 def plot_eps_with_gnuplot(target, lcf, nognuplot):
     lcf_str = "with_lcf" if lcf else "without_lcf"

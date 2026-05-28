@@ -7,7 +7,7 @@ from pathlib import Path
 from pylib.run_cmd import run_cmd, MPIParams
 from pylib.dft import cal_dft
 
-EXEC_DIR = Path(__file__).resolve().parent
+EXEC_DIR = Path(__file__).parent
 
 def plot_dos_with_gnuplot(target, nognuplot):
     with open(f"dos.tot.{target}") as f:

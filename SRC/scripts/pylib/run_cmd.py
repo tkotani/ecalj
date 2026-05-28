@@ -11,7 +11,7 @@ import tomllib
 
 START_TIME = datetime.datetime.now()
 # Base directory of this module
-CONFIG_DIR = Path(__file__).resolve().parent.parent
+CONFIG_DIR = Path(__file__).parent.parent
 
 # MPI execution parameters
 @dataclass

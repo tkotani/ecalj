@@ -4,7 +4,7 @@ from pathlib import Path
 from pylib.run_cmd import run_cmd, MPIParams
 from pylib.gwinput_prepare import ensure_gwinput_toml
 
-EXEC_DIR = Path(__file__).resolve().parent
+EXEC_DIR = Path(__file__).parent
 
 parser = argparse.ArgumentParser(prog='gw_lmfh', description='''
   One-shot GW calculation to get QP energies.

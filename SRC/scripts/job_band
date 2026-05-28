@@ -7,7 +7,7 @@ from pylib.run_cmd import run_cmd, MPIParams
 from pylib.dft import cal_dft
 from pylib.utils import merge_files, remove_files
 
-EXEC_DIR = Path(__file__).resolve().parent
+EXEC_DIR = Path(__file__).parent
 
 def get_number_of_ions(fin):
     nions = 0

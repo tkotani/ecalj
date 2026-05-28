@@ -4,7 +4,7 @@ import contextlib
 from pathlib import Path
 from pylib.run_cmd import run_cmd, MPIParams
 
-EXEC_DIR = Path(__file__).resolve().parent
+EXEC_DIR = Path(__file__).parent
 
 def cal_eigen(args, extra_args):
     if not Path("kpoints_eigen.in").is_file():

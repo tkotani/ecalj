@@ -6,7 +6,7 @@ from pathlib import Path
 from pylib.run_cmd import run_cmd, MPIParams
 from pylib.dft import run_lmf
 
-EXEC_DIR = Path(__file__).resolve().parent
+EXEC_DIR = Path(__file__).parent
 
 def get_sigm_fbz(args, extra_args):
     target = args.extension

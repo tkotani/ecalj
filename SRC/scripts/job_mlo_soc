@@ -26,7 +26,7 @@ from pathlib import Path
 from pylib.run_cmd import run_cmd, MPIParams
 from pylib.utils import merge_files, remove_files
 
-EXEC_DIR = Path(__file__).resolve().parent
+EXEC_DIR = Path(__file__).parent
 
 # TOML-only mode: use -v[<toml-path>]=<value> syntax (m_toml_override).
 # Old -vnspin=2 / -vso=0 forms are silently ignored at HEAD.

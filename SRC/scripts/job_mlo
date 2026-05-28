@@ -6,7 +6,7 @@ from pathlib import Path
 from pylib.run_cmd import run_cmd, MPIParams
 from pylib.utils import merge_files, remove_files
 
-EXEC_DIR = Path(__file__).resolve().parent
+EXEC_DIR = Path(__file__).parent
 
 def cal_mlo(args, extra_args):
     target = args.extension

@@ -5,7 +5,7 @@ from pathlib import Path
 from pylib.dft import cal_dft
 from pylib.utils import move_files
 
-EXEC_DIR = Path(__file__).resolve().parent
+EXEC_DIR = Path(__file__).parent
 
 
 def main():
