@@ -275,7 +275,7 @@ endif()
 # also place symlinks under ~/bin (or wherever).
 set(DELIVER_DIR ${CMAKE_SOURCE_DIR}/exec_${FC})
 
-set(_DELIVER_DESTS ${DELIVER_DIR} ${CMAKE_SOURCE_DIR}/exec)
+set(_DELIVER_DESTS ${DELIVER_DIR})
 if(DEFINED ECALJ_BIN_DIR AND NOT ECALJ_BIN_DIR STREQUAL "")
   list(APPEND _DELIVER_DESTS "${ECALJ_BIN_DIR}")
 endif()
@@ -304,14 +304,14 @@ add_custom_target(deliver ALL
   COMMENT "Linking build products into ${_DELIVER_DESTS}"
 )
 
-# Create a list of delivered files in the source directory for cleanup
+# Create a list of delivered files in exec_{FC} for cleanup
 set(DELIVERED_TARGET_FILES "")
 foreach(f ${DELIVER_FILES})
   get_filename_component(fname ${f} NAME)
-  list(APPEND DELIVERED_TARGET_FILES ${CMAKE_SOURCE_DIR}/exec/${fname})
+  list(APPEND DELIVERED_TARGET_FILES ${DELIVER_DIR}/${fname})
 endforeach()
 
 add_custom_target(clean_delivered
   COMMAND ${CMAKE_COMMAND} -E rm -f ${DELIVERED_TARGET_FILES}
-  COMMENT "Cleaning delivered files from ${CMAKE_SOURCE_DIR}/exec"
+  COMMENT "Cleaning delivered files from ${DELIVER_DIR}"
 )

@@ -94,7 +94,6 @@ SRC/TestInstall/work
 SRC/TAGS
 chk
 bin
-SRC/exec/
 SRC/exec_*
 SRC/subroutines/show_programinfo.f90
 Samples/**/*_work/

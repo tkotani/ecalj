@@ -139,30 +139,27 @@ def main():
 
     # --- Directories ---
     SCRIPTS_DIR = CWD / 'SRC' / 'scripts'   # Python/shell scripts source
-    EXEC_DIR    = CWD / 'SRC' / 'exec'      # assembled runtime (scripts + binary symlinks)
     BUILD_DIR   = CWD / 'SRC' / f'build_{FC}'
 
-    # --- Assemble exec/: symlink every file/dir in scripts/ into exec/ ---
-    EXEC_DIR.mkdir(parents=True, exist_ok=True)
+    # --- Symlink everything in scripts/ into ~/bin ---
     for item in SCRIPTS_DIR.iterdir():
-        link = EXEC_DIR / item.name
+        link = BIN_DIR / item.name
         if link.is_symlink() or (link.exists() and link.is_file()):
             link.unlink()
         elif link.is_dir() and not link.is_symlink():
             shutil.rmtree(link)
         link.symlink_to(item.resolve())
 
-    # --- Extra symlinks into exec/ and ~/bin from other repo dirs ---
+    # --- Extra symlinks into ~/bin from other repo dirs ---
     scripts_to_link = ['StructureTool/viewvesta', 'StructureTool/ctrl2vasp', 'StructureTool/vasp2ctrl', 'GetSyml/getsyml']
     for scr_path_str in scripts_to_link:
         script_path = Path(scr_path_str)
         src_file = CWD / f"{scr_path_str}.py"
-        for dest_dir in [BIN_DIR, EXEC_DIR]:
-            link_path = dest_dir / script_path.name
-            if link_path.exists() or link_path.is_symlink():
-                link_path.unlink()
-            link_path.symlink_to(src_file)
-    print(f"Assembled exec/ and created links in {BIN_DIR}")
+        link_path = BIN_DIR / script_path.name
+        if link_path.exists() or link_path.is_symlink():
+            link_path.unlink()
+        link_path.symlink_to(src_file)
+    print(f"Linked scripts into {BIN_DIR}")
 
     # --- Clean up build directory if requested ---
     if args.clean:
@@ -194,32 +191,6 @@ def main():
     print(f"Building with {jobs} parallel jobs...")
 
     run_shell(f"{verbose}cmake --build {BUILD_DIR} -j{jobs}", env=cmake_env)
-
-    # --- Copy scripts from SCRIPTS_DIR to BIN_DIR ---
-    # libecaljF*.so + every main binary are deployed atomically by cmake deliver.
-    # Here we copy the Python/shell scripts from scripts/.
-    print(f'Copying helper scripts to {BIN_DIR}')
-    for path_item in SCRIPTS_DIR.iterdir():
-        if path_item.name == 'pylib':
-            continue
-        if path_item.is_file() and path_item.suffix != '.so' and os.access(path_item, os.X_OK):
-            try:
-                shutil.copy2(path_item, BIN_DIR)
-            except (OSError, PermissionError) as e:
-                print(f"Warning: Skipping {path_item.name}: {e}", file=sys.stderr)
-
-    # Copy clusters.toml
-    for data_file in ('clusters.toml', 'ecalj_complete.bash'):
-        src = SCRIPTS_DIR / data_file
-        if src.exists():
-            shutil.copy2(src, BIN_DIR)
-            print(f"Copied {data_file} to {BIN_DIR}")
-
-    # Copy pylib/ package
-    pylib_src = SCRIPTS_DIR / 'pylib'
-    if pylib_src.is_dir():
-        shutil.copytree(pylib_src, BIN_DIR / 'pylib', dirs_exist_ok=True)
-        print(f'Copied pylib/ to {BIN_DIR}')
 
     # Install per-user bash completion (one-shot append to ~/.bashrc).
     if not args.no_bashrc:
