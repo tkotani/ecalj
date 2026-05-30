@@ -245,45 +245,55 @@ contains
   subroutine MPI__GatherXqw(xqw, xqw_all, npr, npr_col, collector_rank)
     integer, intent(in) :: npr, npr_col
     integer, intent(in), optional :: collector_rank
-    complex(8), intent(in) :: xqw(npr,npr_col)
-    complex(8), intent(inout) :: xqw_all(npr,npr)
+    complex(8), intent(in)    :: xqw(npr, npr_col)
+    complex(8), intent(inout) :: xqw_all(npr, npr)
     integer, allocatable :: data_disp(:), data_size(:)
     integer :: irank_b, collector_rank_in
-    if(mpi__size_b_xq == 1 .and. npr == npr_col) then
+    collector_rank_in = merge(collector_rank, 0, present(collector_rank))
+    if (mpi__size_b_xq == 1) then          ! n_bpara=1: trivial copy
       xqw_all(:,:) = xqw(:,:)
       return
     endif
+    if (npr == npr_col) then               ! ω-parallel: each b-rank owns a freq slice (others zero)
+      call mpi_reduce(xqw, xqw_all, npr*npr, mpi_complex16, MPI_SUM, &
+                      collector_rank_in, comm_root_k_xq, mpi__info)
+      return
+    endif
+    ! column-split (legacy: main_hahc uses MPI__Setnpr_col → npr_col < npr)
     allocate(data_size(0:mpi__size_b_xq-1), data_disp(0:mpi__size_b_xq-1))
-    do irank_b = 0, mpi__size_b_xq -1
-      data_size(irank_b) = npr*mpi__npr_col(irank_b)
-      data_disp(irank_b) = npr*(mpi__ipr_col(irank_b)-1)
+    do irank_b = 0, mpi__size_b_xq-1
+      data_size(irank_b) = npr * mpi__npr_col(irank_b)
+      data_disp(irank_b) = npr * (mpi__ipr_col(irank_b)-1)
     enddo
-    collector_rank_in = 0
-    if(present(collector_rank)) collector_rank_in = collector_rank
     call mpi_gatherv(xqw, npr*npr_col, mpi_complex16, xqw_all, data_size, data_disp, &
-                  &  mpi_complex16, collector_rank_in, comm_root_k_xq, mpi__info)
+                     mpi_complex16, collector_rank_in, comm_root_k_xq, mpi__info)
     deallocate(data_size, data_disp)
   end subroutine MPI__GatherXqw
+
   subroutine MPI__GatherXqw_c(xqw, xqw_all, npr, npr_col, collector_rank)
     integer, intent(in) :: npr, npr_col
     integer, intent(in), optional :: collector_rank
-    complex(4), intent(in) :: xqw(npr,npr_col)
-    complex(4), intent(out) :: xqw_all(npr,npr)
+    complex(4), intent(in)  :: xqw(npr, npr_col)
+    complex(4), intent(out) :: xqw_all(npr, npr)
     integer, allocatable :: data_disp(:), data_size(:)
     integer :: irank_b, collector_rank_in
-    if(mpi__size_b_xq == 1 .and. npr == npr_col) then
+    collector_rank_in = merge(collector_rank, 0, present(collector_rank))
+    if (mpi__size_b_xq == 1) then
       xqw_all(:,:) = xqw(:,:)
       return
     endif
+    if (npr == npr_col) then
+      call mpi_reduce(xqw, xqw_all, npr*npr, mpi_complex, MPI_SUM, &
+                      collector_rank_in, comm_root_k_xq, mpi__info)
+      return
+    endif
     allocate(data_size(0:mpi__size_b_xq-1), data_disp(0:mpi__size_b_xq-1))
-    do irank_b = 0, mpi__size_b_xq -1
-      data_size(irank_b) = npr*mpi__npr_col(irank_b)
-      data_disp(irank_b) = npr*(mpi__ipr_col(irank_b)-1)
+    do irank_b = 0, mpi__size_b_xq-1
+      data_size(irank_b) = npr * mpi__npr_col(irank_b)
+      data_disp(irank_b) = npr * (mpi__ipr_col(irank_b)-1)
     enddo
-    collector_rank_in = 0
-    if(present(collector_rank)) collector_rank_in = collector_rank
     call mpi_gatherv(xqw, npr*npr_col, mpi_complex, xqw_all, data_size, data_disp, &
-                  &  mpi_complex, collector_rank_in, comm_root_k_xq, mpi__info)
+                     mpi_complex, collector_rank_in, comm_root_k_xq, mpi__info)
     deallocate(data_size, data_disp)
   end subroutine MPI__GatherXqw_c
   integer function get_mpi_size(communicator) result(mpi_size)
@@ -492,11 +502,12 @@ contains
   end subroutine xmpbnd2
 
   !> Determine worker_inQtask, n_bpara/n_kpara for SplitXq and SplitSxc from memory.
-  !> Call after MPI__Initialize and after nblochpmx/nwhis/npm/niw/nqibz are known.
+  !> ngb_max:  max npr across q-points (nblochpmx for normal, 1 for nolfco, nmbas for chipm).
+  !> nq_calc:  number of q-points actually computed (nqibz for hgw; nq0i for hx0fp0 epsmode).
   !> Queries node RAM via freeram(); determines parameters to fit SHM + rcxq in memory.
-  subroutine MPI__AutoSetup(nblochpmx, nwhis, npm, niw, nqibz, n_bpara_sxc_hint, &
-                             worker_out, worker_exch_out, &
-                             n_bpara_xq_out, n_kpara_xq_out, &
+  subroutine MPI__AutoSetup(ngb_max, nwhis, npm, niw, nq_calc, &
+                             worker_out, n_bpara_xq_out, n_kpara_xq_out, &
+                             n_bpara_sxc_hint, worker_exch_out, &
                              n_bpara_sxc_out, n_kpara_sxc_out)
     use m_lgunit, only: stdo
     use m_ftox
@@ -504,10 +515,12 @@ contains
     use m_kind, only: kindrcxq
     use mpi
     implicit none
-    integer, intent(in)  :: nblochpmx, nwhis, npm, niw, nqibz, n_bpara_sxc_hint
-    integer, intent(out) :: worker_out, worker_exch_out
-    integer, intent(out) :: n_bpara_xq_out, n_kpara_xq_out
-    integer, intent(out) :: n_bpara_sxc_out, n_kpara_sxc_out
+    integer, intent(in)            :: ngb_max, nwhis, npm, niw, nq_calc
+    integer, intent(out)           :: worker_out
+    integer, intent(out), optional :: n_bpara_xq_out, n_kpara_xq_out
+    integer, intent(in),  optional :: n_bpara_sxc_hint
+    integer, intent(out), optional :: worker_exch_out
+    integer, intent(out), optional :: n_bpara_sxc_out, n_kpara_sxc_out
     integer :: ppn, comm_node, ierr
     integer :: max_qg, target_w, worker, n_qg
     integer :: worker_exch, max_qg_exch, target_w_exch
@@ -524,13 +537,13 @@ contains
     avail_gb = mem_avail_node_gb() * safety
 
     bytes_per_elem = real(2 * kindrcxq, 8)  ! complex(kindrcxq): 8 or 16 bytes
-    ! SHM per q-group: wvr(ngb²×(nwhis*npm+1)) + wvi(ngb²×niw)
-    shm_gb  = real(nblochpmx,8)**2 * real(nwhis*npm + 1 + niw, 8) * bytes_per_elem / 1d9
+    ! SHM per q-group: wvr(ngb_max²×(nwhis*npm+1)) + wvi(ngb_max²×niw)
+    shm_gb  = real(ngb_max,8)**2 * real(nwhis*npm + 1 + niw, 8) * bytes_per_elem / 1d9
     ! rcxq per non-root rank = wvr size only
-    rcxq_gb = real(nblochpmx,8)**2 * real(nwhis*npm + 1, 8)       * bytes_per_elem / 1d9
+    rcxq_gb = real(ngb_max,8)**2 * real(nwhis*npm + 1, 8)       * bytes_per_elem / 1d9
 
-    ! Exchange worker: no SHM constraint; maximize q-groups up to nqibz.
-    max_qg_exch  = min(ppn, nqibz)
+    ! Exchange worker: no SHM constraint; maximize q-groups up to nq_calc.
+    max_qg_exch  = min(ppn, nq_calc)
     target_w_exch = (ppn + max_qg_exch - 1) / max_qg_exch
     worker_exch  = find_div_geq(mpi__size, target_w_exch)
     worker_exch  = min(worker_exch, ppn)
@@ -538,8 +551,8 @@ contains
     ! Correlation worker: SHM-constrained.
     ! Step 1: worker_inQtask — maximize q-groups within memory
     max_qg = max(1, int(avail_gb / shm_gb))
-    max_qg = min(max_qg, ppn, nqibz)  ! no point in more q-groups than q-points
-    target_w = (ppn + max_qg - 1) / max_qg  ! ceiling division: ensures n_qgroup <= nqibz
+    max_qg = min(max_qg, ppn, nq_calc)  ! no point in more q-groups than q-points
+    target_w = (ppn + max_qg - 1) / max_qg  ! ceiling division: ensures n_qgroup <= nq_calc
     worker = find_div_geq(mpi__size, target_w)
     worker = min(worker, ppn)
 
@@ -555,8 +568,9 @@ contains
     n_bpara_xq = find_div_geq(worker, n_bpara_xq)
     n_kpara_xq = worker / n_bpara_xq
 
-    ! Step 3: n_bpara_sxc — user hint or default 1
-    n_bpara_sxc = merge(n_bpara_sxc_hint, 1, n_bpara_sxc_hint > 0)
+    ! Step 3: n_bpara_sxc — user hint or default 1 (only meaningful when sxc outputs requested)
+    n_bpara_sxc = 1
+    if (present(n_bpara_sxc_hint)) n_bpara_sxc = merge(n_bpara_sxc_hint, 1, n_bpara_sxc_hint > 0)
     n_bpara_sxc = find_div_geq(worker, n_bpara_sxc)
     n_kpara_sxc = worker / n_bpara_sxc
 
@@ -565,20 +579,19 @@ contains
       write(stdo,'(2X,A,F6.2,A)') 'node freeram (avail x 0.7)=', avail_gb, ' GB'
       write(stdo,'(2X,A,F8.4,A)') 'SHM/q-group=', shm_gb,  ' GB'
       write(stdo,'(2X,A,F8.4,A)') 'rcxq/rank  =', rcxq_gb, ' GB'
-      write(stdo,'(2X,A,4I5)')    'ppn nqibz worker_exch worker_corr:', &
-                                    ppn, nqibz, worker_exch, worker
-      write(stdo,'(2X,A,2I5)')    'n_qgroup_exch n_qgroup_corr:', &
-                                    mpi__size/worker_exch, mpi__size/worker
-      write(stdo,'(2X,A,4I5)')    'n_bpara_xq n_kpara_xq n_bpara_sxc n_kpara_sxc:', &
-                                    n_bpara_xq, n_kpara_xq, n_bpara_sxc, n_kpara_sxc
+      write(stdo,'(2X,A,3I5)')    'ppn nq_calc worker_corr:', ppn, nq_calc, worker
+      write(stdo,'(2X,A,2I5)')    'n_bpara_xq n_kpara_xq:', n_bpara_xq, n_kpara_xq
+      if (present(worker_exch_out)) &
+        write(stdo,'(2X,A,4I5)')  'worker_exch n_bpara_sxc n_kpara_sxc:', &
+                                    worker_exch, n_bpara_sxc, n_kpara_sxc
     endif
 
-    worker_out      = worker
-    worker_exch_out = worker_exch
-    n_bpara_xq_out  = n_bpara_xq
-    n_kpara_xq_out  = n_kpara_xq
-    n_bpara_sxc_out = n_bpara_sxc
-    n_kpara_sxc_out = n_kpara_sxc
+    worker_out = worker
+    if (present(n_bpara_xq_out))  n_bpara_xq_out  = n_bpara_xq
+    if (present(n_kpara_xq_out))  n_kpara_xq_out  = n_kpara_xq
+    if (present(worker_exch_out)) worker_exch_out  = worker_exch
+    if (present(n_bpara_sxc_out)) n_bpara_sxc_out  = n_bpara_sxc
+    if (present(n_kpara_sxc_out)) n_kpara_sxc_out  = n_kpara_sxc
 
   contains
     integer function find_div_geq(n, target)

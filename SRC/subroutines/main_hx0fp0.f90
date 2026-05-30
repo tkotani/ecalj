@@ -16,10 +16,12 @@ subroutine hx0fp0()
   use m_pbindex,only: PBindex !,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
   use m_readqgcou,only: readqgcou
   use m_mpi,only: MPI__Initialize,MPI__root, &
-       MPI__Broadcast,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size, MPI__consoleout,comm, &
-     & MPI__InitQgroups, MPI__SplitXq, MPI__Setnpr_col, comm_b => comm_b_xq, comm_k => comm_k_xq, &
+       MPI__Broadcast,MPI__rank,MPI__size, MPI__consoleout,comm, &
+     & MPI__InitQgroups, MPI__SplitXq, MPI__AutoSetup, &
+     & comm_b => comm_b_xq, comm_k => comm_k_xq, &
      & mpi__root_k => mpi__root_k_xq, mpi__root_q, ipr, &
-     & comm_q, comm_root_k => comm_root_k_xq, mpi__rank_root_k => mpi__rank_root_k_xq
+     & comm_q, comm_root_k => comm_root_k_xq, mpi__rank_root_k => mpi__rank_root_k_xq, &
+     & iq_qgroup, n_qgroup, qgroup_root
   use m_rdpp,only: Rdpp, &   ! & NOTE: "call rdpp" generate following data.
        nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx,nprecx,mrecl,nblochpmx
   use m_zmel,only: Mptauof_zmel!, Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
@@ -58,144 +60,36 @@ subroutine hx0fp0()
   !r      The total number of the wave are mnl(ic)= mnlc(ic) + mnlv(ic).
   !r      The indexing starts with core first and then valence on top of core
   !r      So n-index in "in" for valence electron is different from "inv".
-  real(8):: qp(3),  qgbin(3),qx(3), ua=1d0 ! ua is a dummy.
-  integer:: ifrb(2),ifcb(2),ifrhb(2),ifchb(2) ,icount,kold,isold, ndble=8, ngb,ngc !,nmbas
-  real(8),allocatable:: vxcfp(:,:), wgt0(:,:)
-  integer,allocatable :: ngvecpB(:,:,:),ngveccB(:,:), ngvecp(:,:), ngvecc(:,:)
-  complex(8),allocatable:: geigB(:,:,:,:) ,geig(:,:), zw(:,:),zw0(:,:) 
-  real(8),allocatable :: eqt(:), ppbrdx(:,:,:,:,:,:,:),aaa(:,:),symope(:,:), ppb(:,:),pdb(:,:),dpb(:,:),ddb(:,:)
-  complex(8),allocatable :: trwv(:),trwv2(:) !,rcxq(:,:,:,:)
-  complex(8) :: fff,img=(0d0,1d0)
-  complex(8),allocatable :: wwk(:,:,:)
-  integer,allocatable :: noccxvv(:) !n1b(:,:,:),n2b(:,:,:),nbnb(:,:),nbnbtt(:,:),
-  real(8) ::qbzx(3),anfvec(3)
-  logical :: debug=.false.
-  integer,allocatable:: ibasf(:)
-  real(8),allocatable :: transaf(:,:)
-  logical :: realomega=.true., imagomega=.true.
-  complex(8),allocatable:: epsi(:,:),gbvec(:),zzr(:,:),x0mean(:,:,:),zzr0(:)
-  complex(8) :: epxxx,vcmean, vcmmmm
-  complex(8),allocatable:: vcmmm(:)
-  character(11) :: fileps,fileps23,filele
-  character(16) :: filepsnolfc
-  character(10) :: i2char
-  character(20):: xxt
-  real(8) :: Emin, Emax,emin2,emax2
-  real(8) :: omg2max,omg1max,wemax
-  real(8), allocatable :: freqr2(:)  , ekxxx(:,:,:)   !      logical::imagonly=.false.,realonly=.false. !,readgwinput
-  integer::maxocc2, &
-       ixc,iqxini,iqxend,iqxendx, &
-                                !     &   ifhbe,    &   nprecb,mrecb,mrece,nlmtot,nqbzt,nband,
-       i,ngrpmx,mxx,ini,ix,ngrpx,&! & ngcmx,ngpmx nq0i,nq0ix,
-       ndummy1,ndummy2,ifcphi,is,nwp, &! & ifvcfpout,,mdimx,nbloch
-       ifepscond ,nw0,iw,ifinin,iw0,ifwwk,noccxv,noccx &
-       ,ifwd,ifrcwi,ifrcw,ifianf,ibas &! & ,nprecx
-       ,ibas1,irot,iq,iqixc2,ifepsdatnolfc,ifepsdat,ngbin,igc0dummy &
-       ,kx,isf,kqxx,kp,job,noccxvx(2)=-9999,nwmax & ! & ,ifev1,ifev2 nbnbx,nhwtot,
-       ,ihis,jhwtot,ik,ibib,ib1,ib2,ichkhis,ihww,j   !     &   ,ngpmx !,  ifchipmlog
-  real(8):: dum1,dum2,dum3,wqtsum,epsrng,dnorm, dwry,dwh,omg_c,omg2
-  integer:: incwfin,  verbose
-  real(8):: quu(3), deltaq(3)!,qq(3) !,qqq(3)=0d0
-  logical:: omitqbz=.false., noq0p
-  logical,allocatable :: iwgt(:,:,:,:)
-  complex(8),allocatable:: wgt(:,:,:)
-  real(8),allocatable:: qbz2(:,:)
-  logical :: qbzreg !if true, we use off-gamma mesh.
-  integer,allocatable:: nstibz(:) !Nov2004 Miyake's tote
-  real(8),allocatable:: ecqw(:,:) !,wiw(:)
-  real(8) :: erpaqw, trpvqw, trlogqw,rydberg,hartree,pi,efz,qfermi,alpha,rs,voltot,ecelgas,efx,valn
-  integer:: iqbz,iqindx,iflegas,nmx,ifcor,nqitot,isx,ntot,ieclog,iww,iqq,ieceig,ecorr_on=-1
-  real(8) :: wk4ec,faca !eclda_bh,eclda_pz,
-  real(8),allocatable::    evall(:)
-  complex(8),allocatable:: ovlpc(:,:),evecc(:,:)
-  integer:: nev !,  ifdpin
-  real(8),allocatable:: totexc(:), trpv(:),trlog(:) 
-  integer:: necut,iecut
-  integer:: ifv,lxx,ibasx,ilmx,ilm_r,nx_r,lb,nb,mb
-  integer,allocatable:: nxx_r(:)
-  real(8),allocatable:: svec(:,:),spinvec(:,:),consvec(:,:),cvec(:,:)
-  character*3:: charnum3
-  real(8)::chg1,chg2,spinmom,schi=1d0
-  complex(8),allocatable:: ovlp(:,:),evec(:,:),ovlpi(:,:)
-  real(8),allocatable::eval(:)
-  integer:: new,nmxx,ii,iy,ipl1,ixx
-  complex(8),allocatable :: ppovl(:,:),oo(:,:),x0inv(:,:),ppovlzinv(:,:)
-  real(8)::qxx(3),ssm
-  real(8),allocatable::SS(:),rwork(:),ss0(:)
-  complex(8),allocatable:: UU(:,:),VT(:,:),work(:),zw0bk(:,:),ddd(:,:),vtt(:,:),zzz(:,:),sqsvec(:),ooo(:,:),ppo(:,:) 
-  complex(8)::x0mx
-  complex(8),allocatable:: UU0(:,:),VT0(:,:)
-  logical ::  chipm=.false.,nolfco=.false.,epsmode=.false.,normalm=.false., crpa=.false. ,epsPPmode=.false.
-  integer::  ife, idum4 
-  real(8):: qs,qt,ww,muu, ddq(3)
-  character(11) :: ttt
-  integer:: nnmx,nomx
-  ! Feb2006 time-reversal=off case
-  logical :: timereversal, testtimer,onceww
-  integer:: jpm,ncc
-  real(8):: frr
-  integer:: ipm,nrecoff
-  real(8),allocatable:: ebb(:)
-  logical :: evaltest 
-  character*300:: aline
-  integer:: imb,imb1,imb2!,nmbas_in 
-  integer,allocatable:: aimbas(:), iibas(:) 
-  complex(8),allocatable:: am1(:),am2(:),mmat(:,:), &
-       x0mat(:,:),x0matinv(:,:),eiqrm(:)
-  integer:: ifchipmn_mat !, ifchipm_fmat !,ifchipm_mat
-  integer::ifstoner,ifx,i1
-  real(8):: Istoner,zz1,zz2,zz3,zz4,Istoner0,jzero2,dumm1,dumm2
-  complex(8):: trr,trr0,trr1     , zzzx(4,4), zzzy(4,4),trrx,mmatx(4,4),denom(4,4)
-  real(8),allocatable:: eee(:),mmnorm(:), asvec(:,:),ssv(:,:),sproj(:,:),sprojx(:,:), momsite(:)
-  real(8):: eex(4),eey(4),qvv(3)
-  !      logical :: newaniso,newaniso2,newanisox !,z1offd
-  integer :: ngb0,ifvcoud,idummy,ifepstinv,igb1,igb2,ngb_in,iq0,ifisk,iqx,ig,ifiss,iq0x
-  complex(8),allocatable:: epstinv(:,:),epstilde(:,:),zcousqrsum(:,:,:),zcousqr(:,:)!zcousq(:,:),
-  !      real(8),allocatable:: vcousq(:)
-  real(8):: fourpi,sqfourpi,absq,vcou1,vcou1sq
-
-  !! Eq.(40) in PRB81 125102
-  !      complex(8),allocatable::sk(:,:,:),sks(:,:,:),skI(:,:,:),sksI(:,:,:),
-  !     &  w_k(:,:,:),w_ks(:,:,:),w_kI(:,:,:),w_ksI(:,:,:), llw(:,:), llwI(:,:),
-  complex(8),allocatable::sk(:),sks(:),skI(:),sksI(:), &
-       w_k(:),w_ks(:),w_kI(:), w_ksI(:), s_vc(:),vw_k(:),vw_ks(:)
-  integer:: lxklm,nlxklm,ifrcwx,iq0xx,ircw,nini,nend,iwxx,nw_ixxx,nwxxx,iwx,icc1,icc2!,niw,niwxxx,
-  complex(8):: vc1vc2   !      integer,allocatable:: neibz(:),nwgt(:,:),ngrpt(:),igx(:,:,:),igxt(:,:,:),eibzsym(:,:,:)
-  integer,allocatable:: nwgt(:,:)
-  real(8),allocatable:: aik(:,:,:,:)
-  integer,allocatable:: aiktimer(:,:)
-  integer:: l2nl
-  logical:: tiii,iprintx=.false.,symmetrize,eibzmode !,eibz4x0
-  real(8):: qread(3),imagweight,q00(3),rfac00,q1a,q2a
-  character(128):: vcoudfile,aaax,itag
-  integer:: src,dest
-  logical:: lqall
-  integer,allocatable ::  invgx(:) 
-  integer:: k
-  complex(8),allocatable:: ppovl_(:,:)
-  logical:: readw0w0itest=.false.,hx0
-  logical,external::cmdopt0
-  integer:: ifq0p,ifwc,ifif,ierr,iqxx,ifi0,npr
-  real(8),allocatable:: ekxx1(:,:),ekxx2(:,:)
-  logical:: cmdopt2
-!,zmel0mode
-  character(20):: outs=''
-!  logical,save:: initzmel0=.true.
-  real(8):: q0a,qa
-!  complex(8),allocatable:: rcxq0(:,:,:,:)
-  logical,allocatable::   mpi__task(:)
-  integer,allocatable::   mpi__ranktab(:)
-  integer :: n_kpara = 1, n_bpara = 1, npr_col, worker_inQtask, nqcalc
+  real(8)    :: qp(3), quu(3), ua=1d0, vcmean, frr
+  real(8)    :: schi=1d0, chg1, chg2, dumm1, dumm2
+  logical    :: debug=.false., hx0, lqall
+  logical    :: realomega=.true., imagomega=.true.
+  logical    :: omitqbz=.false., chipm=.false., nolfco=.false., epsmode=.false., crpa=.false.
+  integer    :: ixc, iqxini, iqxend, nwp, noccxv, ngb, ngc, ngrpx
+  integer    :: i, is, iq, iw, ix, ibas, imb, ibasx, lxx
+  integer    :: ilmx, lb, nb, mb, ixx, ilm_r, nx_r
+  integer    :: npr, ifif, ifwd, ifv, ierr
+  integer    :: iqixc2, igb1, igb2, imb1, imb2
+  integer    :: ifepsdatnolfc, ifepsdat, ifchipmn_mat
+  integer    :: n_bpara, n_kpara, worker_inQtask, worker_auto
+  character(11)  :: ttt
+  character(128) :: itag, outs=''
+  character*3    :: charnum3
+  logical, external  :: cmdopt0
+  logical            :: cmdopt2
+  integer, external  :: verbose
+  real(8),    allocatable :: symope(:,:)
+  integer,    allocatable :: nxx_r(:), aimbas(:)
+  real(8),    allocatable :: svec(:,:), cvec(:,:), spinvec(:,:), consvec(:,:)
+  real(8),    allocatable :: mmnorm(:), momsite(:)
+  complex(8), allocatable :: zzr(:,:), epsi(:,:), x0mean(:,:,:)
+  complex(8), allocatable :: epstinv(:,:), epstilde(:,:)
   call MPI__Initialize()
   call gpu_init(comm)
   call M_lgunit_init()
   call MPI__consoleout('hx0fp0')
   call cputid (0)
-  if(verbose()>=100) debug= .TRUE. 
-  hartree  = 2d0*rydberg()
-  pi       = 4d0*datan(1d0)
-  fourpi   = 4d0*pi
-  sqfourpi = sqrt(fourpi)
+  if(verbose()>=100) debug= .TRUE.
   !! computational mode select ! takao keeps only the Sergey mode.
   if(ipr) write(stdo,"(a)") '--- Type numbers #1 #2 #3 [#2 and #3 are options] ---'
   if(ipr) write(stdo,"(a)") ' #1:run mode= 11: normal! 111: normal fullband! 10111 : normal  crpa!'
@@ -246,17 +140,9 @@ subroutine hx0fp0()
   !! Here we use ngrpx=1 ==> "no symmetry operation in hx0fp0", c.f. hsfp0.sc.m.F case.
   !! ngrpx=1 (no symmetry operation in hx0fp0), whereas we use ngrp in eibzmode=T.
   ngrpx = 1
-  l2nl=2*(nl-1)
   allocate(symope(3,3),source=reshape([1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0],[3,3]))
-  call Mptauof_zmel(symope,ngrpx) !we set thing in m_zmel for matrix elemenets generator
-  !! ppbrd = radial integrals, cgr = rotated cg coeffecients (no rotatio here since nrgpx=1 for identity matrix)
-  !! Rdpp gives ppbrd: radial integrals and cgr = rotated cg coeffecients.
-  !!       --> call Rdpp(ngrpx,symope) is moved to Mptauof_zmel \in m_zmel
-  !! Set nband, ngcmx, nqpmx and itq in m_zmel
+  call Mptauof_zmel(symope,ngrpx) !no symmetry (ngrpx=1) for hx0fp0; use ngrp only in eibzmode
   call Setitq()
-  !! Pointer to optimal product basis
-  !     nblochpmx = nbloch + ngcmx !rdpp \in mptauof_zmel \in m_zmel
-  allocate(ngveccB(3,ngcmx)) 
   iqxend = nqibz + nq0i
   write(stdo,ftox) ' nqibze nqibz nq0i=',nqibze,nqibz,nq0i
   call Readhamindex() ! Initialization of readEigen
@@ -289,13 +175,11 @@ subroutine hx0fp0()
     noccxv = maxval(count(ekt(1:nband,1:nqbze,1:nspin)<ef,1)) ! maximum no. occupied valence states
   endblock Tetrahedroninitialization
   if(noccxv>nband) call rx( 'hx0fp0: all the bands filled! too large Ef')
-  noccx  = noccxv + nctot
   if (MPI__root) then
      open(newunit=ifwd,file='__WV.d')
      write (ifwd,"(1x,10i14)") nprecx,mrecl,nblochpmx,nwp,niw,nqibz + nq0i-1,nw_i
      close(ifwd)
   endif
-  allocate( zw(nblochpmx,nblochpmx) )
   if(omitqbz) then !! Set iqxini !omitqbz means skip loopf for iq=1,nqibz
      iqxini= nqibz + 1
   else
@@ -348,48 +232,25 @@ subroutine hx0fp0()
      enddo
   endif
 
-  nqcalc = iqxend - iqxini + 1
-  n_bpara = 1
-  n_kpara = max(mpi__size/(n_bpara*nqcalc), 1)
-  if(cmdopt0('--prefer_kpara')) then
-    n_bpara = 1
-    n_kpara = max(mpi__size/(n_bpara*nqcalc), 1)
-  elseif(cmdopt0('--prefer_bpara')) then
-    n_kpara = 1
-    n_bpara = max(mpi__size/(n_kpara*nqcalc), 1)
-  endif
-  if(cmdopt2('--nb=', outs)) then
-    read(outs,*) n_bpara
-    n_kpara = max(mpi__size/(n_bpara*nqcalc), 1)
-  elseif(cmdopt2('--nk=', outs)) then
-    read(outs,*) n_kpara
-    n_bpara = max(mpi__size/(n_kpara*nqcalc), 1)
-  endif
-  if(nolfco .and. n_bpara /= 1) call rx('n_bpara must be 1 on noLFC')
-  worker_inQtask = n_bpara * n_kpara
-  if(ipr) write(stdo,'(1X,A,3I5)') 'MPI: worker_inQtask, n_bpara, n_kpara', worker_inQtask, n_bpara, n_kpara
+  ! ngb_max: max SHM size per q-point (nolfco→1, chipm→nmbas, normal→nblochpmx)
+  ! nq_calc: actual q-points computed (epsmode→nq0i, normal→nqibz+nq0i)
+  call MPI__AutoSetup(merge(1, merge(nmbas, nblochpmx, chipm), nolfco), &
+                      nwhis, npm, niw, merge(nq0i, nqibz+nq0i, omitqbz), &
+                      worker_out=worker_auto, &
+                      n_bpara_xq_out=n_bpara, n_kpara_xq_out=n_kpara)
+  worker_inQtask = worker_auto
+  if(ipr) write(stdo,'(1X,A,3I5)') 'MPI: worker_inQtask n_bpara n_kpara', worker_inQtask, n_bpara, n_kpara
   call MPI__InitQgroups(worker_inQtask)
-  call MPI__SplitXq(n_bpara, n_kpara)
-
-  allocate(ekxx1(nband,nqbz),ekxx2(nband,nqbz))
-  allocate( nwgt(1,iqxini:iqxend))
-  ! allocate( mpi__ranktab(iqxini:iqxend), source=[(mod(iq-1,mpi__size)           ,iq=iqxini,iqxend)])
-  ! allocate( mpi__task(iqxini:iqxend),    source=[(mod(iq-1,mpi__size)==mpi__rank,iq=iqxini,iqxend)])
-  allocate( mpi__ranktab(iqxini:iqxend), source=[(mod(iq-1,mpi__size/worker_inQtask)*worker_inQtask           ,iq=iqxini,iqxend)])
-  allocate( mpi__task(iqxini:iqxend),    source=[(mod(iq-1,mpi__size/worker_inQtask)==mpi__rank/worker_inQtask,iq=iqxini,iqxend)])
-  if(ipr) write(stdo,ftox)'mpi_rank',mpi__rank,'mpi__Qtask=',mpi__task
-  if(ipr) write(stdo,ftox) 'mpi_qrank', mpi__ranktab
-  !! llw, and llwI are for L(omega) for Q0P in PRB81,125102
-!  allocate( llw(nw_i:nw,nq0i), llwI(niw,nq0i) )
-  if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0.sc: sanity check. |q(iqx)| /= 0')
+  call MPI__SplitXq(n_bpara, n_kpara)  ! n_bpara>1: ω-parallel (comm_b splits freq range)
+  if(ipr) write(stdo,ftox)'mpi_rank',mpi__rank,'iq_qgroup=',iq_qgroup,'n_qgroup=',n_qgroup
+  if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0: sanity check. |q(iq=1)| /= 0')
   if(ipr) write(stdo,*)" chi_+- mode nolfc=",nolfco
   if(.NOT.chipm) allocate(zzr(1,1),source=(0d0,0d0)) !dummy
   iqloop: do 1001 iq = iqxini,iqxend  ! NOTE: qp=(0,0,0) is omitted when iqxini=2
 !    if(cmdopt0('--zmel0').and.iq==iqxini) cycle
-    if( .NOT. MPI__task(iq) ) cycle
+    if( mod(iq-1, n_qgroup) /= iq_qgroup ) cycle
     call cputid (0)
     qp  = qibze(:,iq)
-    q00= qibze(:,iqxini)
     ! Readin diagonalized Coulomb interaction zcousq: E(\nu,I), Enu basis is given in PRB81,125102; vcousq: sqrt(v), as well.
     if(ipr) write(stdo,*); if(ipr) write(stdo,"('===== do 1001: iq qp=',i7,3f9.4,' ========')")iq,qp
     call Readqg0('QGcou',qp,   quu,ngc) ! ngc: the number of IPW for the interaction matrix (in QGcou),
@@ -403,16 +264,16 @@ subroutine hx0fp0()
     else
       npr = ngb
     endif
-    call MPI__Setnpr_col(npr, npr_col) ! set the npr_col : split of npr(column) for MPI color_b
+
     call wv_init_shm(npr, niw, (1-npm)*nwhis, nwhis, comm_q, mreclx=mrecl)
     if(epsmode) call writeepsopen()
     if(ipr) write(stdo,"(' ##### ',2i4,' out of nqibz+n0qi nsp=',2i4,' ##### ')")iq, nqibz + nq0i, nspin
-    call x0kf_zxq(realomega,imagomega,qp,iq,npr,schi,crpa,chipm,nolfco, q00,zzr,is_m_basis=.false.)
+    call x0kf_zxq(realomega,imagomega,qp,iq,npr,schi,crpa,chipm,nolfco,zzr,is_m_basis=.false.)
     if(mpi__root_k) then
     realomegamode: if(realomega) then !===RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR,LLWI
       if(mpi__root_k) then
         if(     epsmode) call writerealeps() !write eps file and close
-        if(.NOT.epsmode) call WVRllwR(qp,iq,npr,npr_col,is_x0_m_basis=.false.,is_wc_m_basis=.false.)
+        if(.NOT.epsmode) call WVRllwR(qp,iq,npr,npr,is_x0_m_basis=.false.,is_wc_m_basis=.false.)
         if(.NOT.epsmode) then
           call MPI_barrier(comm_root_k, ierr)
           if (mpi__rank_root_k == 0) call wv_dump_shm_to_file(iq, mrecl, nblochpmx, .true., .false.)
@@ -423,7 +284,7 @@ subroutine hx0fp0()
     imagomegamode: if(imagomega) then ! ImagOmega start ============================
       if(mpi__root_k) then
         if(     epsmode) call rx('hx0fp0: imagoemga=T and epsmod=T is not implemented')
-        if(.NOT.epsmode) call WVIllwI(qp,iq,npr,npr_col,is_x0_m_basis=.false.,is_wc_m_basis=.false.)
+        if(.NOT.epsmode) call WVIllwI(qp,iq,npr,npr,is_x0_m_basis=.false.,is_wc_m_basis=.false.)
         if(.NOT.epsmode) then
           call MPI_barrier(comm_root_k, ierr)
           if (mpi__rank_root_k == 0) call wv_dump_shm_to_file(iq, mrecl, nblochpmx, .false., .true.)
@@ -437,7 +298,7 @@ subroutine hx0fp0()
 1001 enddo iqloop
   call wv_dealloc()
   call MPI_barrier(comm,ierr)
-  if( .NOT. epsmode) call MPI__sendllw2(iqxend,MPI__ranktab) !!! mpi send LLW to root.
+  if( .NOT. epsmode) call MPI__sendllw2(iqxend, n_qgroup, qgroup_root)
   !! == W(0) divergent part and W(0) non-analytic constant part.== Note that this is only for qp=0 -->iq=1
   !! get w0 and w0i (diagonal element at Gamma point.   !! This return w0, and w0i
   if(( .NOT. epsmode) .AND. MPI__rank==0) call w0w0i(nw_i,nw,nq0i,niw,q0i,is_wc_m_basis=.false.) !llw,llwI,
@@ -474,7 +335,7 @@ contains
     endif
     if(chipm) then ! zzr is only for chipm.and.nolfco mode
       if( allocated(zzr)) deallocate(zzr,x0mean)
-      allocate(zzr(ngb,nmbas),x0mean(nw_i:nw,nmbas,npr_col),source=(0d0,0d0))
+      allocate(zzr(ngb,nmbas),x0mean(nw_i:nw,nmbas,npr),source=(0d0,0d0))
       zzr(1:nbloch,1:nmbas) = svec(1:nbloch,1:nmbas)
     endif
     if(mpi__root_q) then
@@ -516,12 +377,11 @@ contains
       if(ipr) write(stdo,*) '--- dielectric constant --- '//ttt
       if(ipr) write(stdo, *)" trace check for W-V"
     endif
-    iq0 = iq - nqibz
     if(allocated(epstilde)) deallocate(epstilde,epstinv)
     allocate(epstilde(npr,npr),epstinv(npr,npr))
     iwloop: do 1015 iw  = nw_i,nw
       frr= dsign(freq_r(abs(iw)),dble(iw))
-      call MPI__GatherXqw(zxq(:,:,iw), zxqw, npr, npr_col)
+      call MPI__GatherXqw(zxq(:,:,iw), zxqw, npr, npr)
       if( .NOT. chipm) then
         if(debug) write(stdo,*) 'xxx2 epsmode iq,iw=',iq,iw
         vcmean=vcousq(1)**2 !fourpi/sum(qp**2*tpioa**2) !aug2012
@@ -558,7 +418,7 @@ contains
         endif
       elseif(chipm) then ! ChiPM mode without LFC
         allocate( x0meanx(npr,npr) )
-        call MPI__GatherXqw(cmplx(x0mean(iw,:,:),kind=kp), x0meanx, npr, npr_col)
+        call MPI__GatherXqw(cmplx(x0mean(iw,:,:),kind=kp), x0meanx, npr, npr)
         x0meanx = x0meanx/2d0 !in Ry unit.
         do imb1=1,npr
           do imb2=1,npr
@@ -569,7 +429,6 @@ contains
         deallocate(x0meanx)
       endif
 1015 enddo iwloop
-    if( allocated(gbvec) ) deallocate(gbvec)
     if(chipm) then
       close(ifchipmn_mat) 
     else

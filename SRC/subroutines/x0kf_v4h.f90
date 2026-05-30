@@ -140,7 +140,7 @@ contains
     ierr = 0
   end function x0kf_v4hz_init
 
-  subroutine x0kf_zxq(realomega, imagomega, q, iq, npr, schi, crpa, chipm, nolfco, q00, zzr, is_m_basis)
+  subroutine x0kf_zxq(realomega, imagomega, q, iq, npr, schi, crpa, chipm, nolfco, zzr, is_m_basis)
     use m_readgwinput,only: ecut, ecuts
     use m_dpsion,only: dpsion5, dpsion_init, &
                       dpsion_chiq        => dpsion_chiq_h, &
@@ -164,11 +164,10 @@ contains
     use m_gpu, only: use_gpu
     use mpi
     implicit none
-    intent(in)::      realomega, imagomega, q, iq, npr, schi, crpa, chipm, nolfco, q00, zzr
+    intent(in)::      realomega, imagomega, q, iq, npr, schi, crpa, chipm, nolfco, zzr
     logical:: realomega, imagomega, crpa, chipm, nolfco, is_m_basis
     integer:: iq, isp_k, isp_kq, ix0, is, isf, kx, ierr, npr, k, k_lo, k_hi
     integer:: iw_lo, iw_hi, iw_chunk
-    real(8),optional:: q00(3)
     complex(8),optional:: zzr(:,:)
     real(8):: q(3), schi, ekxx1(nband,nqbz), ekxx2(nband,nqbz)
     character(10) :: i2char

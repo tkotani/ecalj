@@ -95,6 +95,7 @@ SRC/TAGS
 chk
 bin
 SRC/exec_*/
+SRC/build_*/
 SRC/subroutines/show_programinfo.f90
 Samples/**/*_work/
 work/

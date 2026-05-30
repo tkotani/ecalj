@@ -383,21 +383,22 @@ contains
       if(is_x0_m_basis .or. is_wc_m_basis) call stopwatch_show(t_sw_x_m2e_xf)
     endif
   end subroutine WVIllWI
-  subroutine MPI__sendllw2(iqxend,MPI__ranktab) !for hx0fp0
+  subroutine MPI__sendllw2(iqxend, n_qgroup, qgroup_root) !for hx0fp0
     use m_mpi,only: MPI__root,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size
-    intent(in)::             iqxend
-    integer:: iq0,dest,src,iq,iqxend,MPI__ranktab(:)
-    !! === Recieve llw and llwI at node 0, where q=0(iq=1) is calculated. ===
+    implicit none
+    integer, intent(in) :: iqxend, n_qgroup, qgroup_root(0:)
+    integer :: iq0, dest, src, iq, owner
     if(MPI__size==1) return
     do iq=nqibz+1,iqxend
-      iq0 = iq - nqibz
-      if(MPI__ranktab(iq)==0) cycle 
-      if(MPI__ranktab(iq) == MPI__rank) then
+      iq0    = iq - nqibz
+      owner  = qgroup_root(mod(iq-1, n_qgroup))
+      if(owner==0) cycle
+      if(owner == MPI__rank) then
         dest=0
         call MPI__DbleCOMPLEXsend(llw(nw_i,iq0),(nw-nw_i+1),dest)
         call MPI__DbleCOMPLEXsend(llwI(1,iq0),niw,dest)
       elseif(MPI__root) then
-        src=MPI__ranktab(iq)
+        src=owner
         call MPI__DbleCOMPLEXrecv(llw(nw_i,iq0),(nw-nw_i+1),src)
         call MPI__DbleCOMPLEXrecv(llwI(1,iq0),niw,src)
       endif
