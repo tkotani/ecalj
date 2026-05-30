@@ -138,11 +138,11 @@ def main():
     start_time = time.time()
 
     # --- Directories ---
-    SCRIPTS_DIR = CWD / 'SRC' / 'scripts'   # Python/shell scripts source
+    EXEC_DIR = CWD / 'SRC' / 'exec'   # workflow scripts (job_xxx etc.) + pylib
     BUILD_DIR   = CWD / 'SRC' / f'build_{FC}'
 
-    # --- Symlink everything in scripts/ into ~/bin ---
-    for item in SCRIPTS_DIR.iterdir():
+    # --- Symlink everything in exec/ into ~/bin ---
+    for item in EXEC_DIR.iterdir():
         link = BIN_DIR / item.name
         if link.is_symlink() or (link.exists() and link.is_file()):
             link.unlink()
