@@ -11,9 +11,7 @@ def test(args,bindir,testdir,workdir):
     else: runprogs([
         lmfa + f" {MATERIAL} > "+ outfile,
         lmf  + f" {MATERIAL} > "+ outfile,
-        f"{bindir}/epsPP0 {MATERIAL} -np {ncore}",
-        "gnuplot -p epsinter.glt",
-        "gnuplot -p epsintra.glt",
+        f"{bindir}/job_eps {MATERIAL} -np {ncore} --decompose",
     ])
     skipcond = lambda line: any( abs(float(tok)) >= 1e4
                                  for tok in re.split(r'\s+', line.strip())[4:]
@@ -25,11 +23,12 @@ def test(args,bindir,testdir,workdir):
         dat= file+'.nlfc.dat.intrabandonly'
         print(dat,end=': ')
         tall+=test2_check(testdir+'/'+dat, workdir+'/'+dat,skipcond=skipcond)
-    print('''
+    print(f'''
      ======================================================
      See plots
-        "gnuplot -p epsinter.glt"  interband
-        "gnuplot -p epsintra.glt"  intraband
+        "gnuplot -p eps_interbandonly_{MATERIAL}.glt"  interband
+        "gnuplot -p eps_intrabandonly_{MATERIAL}.glt"  intraband
+        "gnuplot -p eps_total_{MATERIAL}.glt"          total
      ======================================================
     ''')
     return tall
