@@ -1,87 +1,69 @@
 #!/usr/bin/env python3
 import argparse
 import contextlib
-import textwrap
 import subprocess
 from pathlib import Path
 from pylib.run_cmd import run_cmd, MPIParams
 
 EXEC_DIR = Path(__file__).parent
+RY = 13.605693  # Rydberg in eV
 
-def plot_eps_with_gnuplot(target, lcf, nognuplot):
-    lcf_str = "with_lcf" if lcf else "without_lcf"
-    header = textwrap.dedent(f"""\
-        #!/usr/bin/gnuplot -persist
-        rydberg = 13.605693
-        set terminal pdf
-        set title "EPS"
-        set output "eps_{lcf_str}_{target}.pdf"
-        set grid
-        set zeroaxis
-        set xrange [0:20.0]
-        set xlabel "Energy (eV)"
-        set ylabel "dielectric function: Real part : red, Imag part : green"
-    """)
-    base_pat = "EPS????.dat" if lcf else "EPS????.nlfc.dat"
-    plots = []
-    for path in sorted(Path('.').glob(base_pat)):
-        eps_file = path.name
-        plots.append(textwrap.dedent(f"""\
-            plot "{eps_file}" u ($4*rydberg):5 w l lc rgb "red", \\
-                 "{eps_file}" u ($4*rydberg):6 w l lc rgb "green"
-        """))
-    gltfile = f"eps_{lcf_str}_{target}.glt"
-    Path(gltfile).write_text(header + "\n".join(plots))
+def _glt_header(title, output):
+    return (f'set terminal pdf\n'
+            f'set output "{output}"\n'
+            f'set title "{title}"\n'
+            f'set xlabel "Energy (eV)"\n'
+            f'set ylabel "Re(eps): red, Im(eps): green"\n'
+            f'set xrange [0:20.0]\n'
+            f'set grid\n'
+            f'set zeroaxis\n')
+
+def _run_gnuplot(glt, nognuplot):
     if not nognuplot:
         try:
-            subprocess.run(["gnuplot", gltfile], check=True)
+            subprocess.run(["gnuplot", glt], check=True)
         except FileNotFoundError:
             print("Skip gnuplot")
 
+def _write_glt(glt, title, output, plot_lines, nognuplot):
+    Path(glt).write_text(_glt_header(title, output) + '\n'.join(plot_lines) + '\n')
+    _run_gnuplot(glt, nognuplot)
+
+def plot_eps(target, lcf, nognuplot):
+    lcf_str = "with_lcf" if lcf else "without_lcf"
+    base_pat = "EPS????.dat" if lcf else "EPS????.nlfc.dat"
+    plots = [
+        f'plot "{p.name}" u ($4*{RY}):5 w l lc rgb "red", '
+        f'"{p.name}" u ($4*{RY}):6 w l lc rgb "green"'
+        for p in sorted(Path('.').glob(base_pat))
+    ]
+    _write_glt(f'eps_{lcf_str}_{target}.glt', 'EPS', f'eps_{lcf_str}_{target}.pdf', plots, nognuplot)
+
 def plot_eps_decompose(target, lcf, nognuplot):
-    rydberg = 13.605693
     base_pat = "EPS????.dat" if lcf else "EPS????.nlfc.dat"
     for suffix, title in [('interbandonly', 'InterBand'), ('intrabandonly', 'IntraBand')]:
         files = sorted(Path('.').glob(f'{base_pat}.{suffix}'))
         if not files:
             continue
-        plots = '\n'.join(
-            f'plot "{p.name}" u ($4*{rydberg}):5 w l lc rgb "red" title "Re", '
-            f'"{p.name}" u ($4*{rydberg}):6 w l lc rgb "green" title "Im"'
+        plots = [
+            f'plot "{p.name}" u ($4*{RY}):5 w l lc rgb "red" title "Re", '
+            f'"{p.name}" u ($4*{RY}):6 w l lc rgb "green" title "Im"'
             for p in files
-        )
-        glt = f'eps_{suffix}_{target}.glt'
-        Path(glt).write_text(
-            f'set terminal pdf\nset output "eps_{suffix}_{target}.pdf"\n'
-            f'set title "EPS {title}"\nset xlabel "Energy (eV)"\n'
-            f'set xrange [0:20.0]\nset grid\nset zeroaxis\n' + plots + '\n'
-        )
-        if not nognuplot:
-            try:
-                subprocess.run(["gnuplot", glt], check=True)
-            except FileNotFoundError:
-                print("Skip gnuplot")
+        ]
+        _write_glt(f'eps_{suffix}_{target}.glt', f'EPS {title}',
+                   f'eps_{suffix}_{target}.pdf', plots, nognuplot)
 
     # sum: eps1_total = eps1_inter + eps1_intra - 1, eps2_total = eps2_inter + eps2_intra
     inter_files = sorted(Path('.').glob(f'{base_pat}.interbandonly'))
     intra_files = sorted(Path('.').glob(f'{base_pat}.intrabandonly'))
     if inter_files and intra_files:
-        plots = '\n'.join(
-            f'plot "< paste {a} {b}" u ($4*{rydberg}):($5+$11-1) w l lc rgb "red" title "Re", '
-            f'"< paste {a} {b}" u ($4*{rydberg}):($6+$12) w l lc rgb "green" title "Im"'
+        plots = [
+            f'plot "< paste {a} {b}" u ($4*{RY}):($5+$11-1) w l lc rgb "red" title "Re", '
+            f'"< paste {a} {b}" u ($4*{RY}):($6+$12) w l lc rgb "green" title "Im"'
             for a, b in zip(inter_files, intra_files)
-        )
-        glt = f'eps_total_{target}.glt'
-        Path(glt).write_text(
-            f'set terminal pdf\nset output "eps_total_{target}.pdf"\n'
-            f'set title "EPS total (inter+intra)"\nset xlabel "Energy (eV)"\n'
-            f'set xrange [0:20.0]\nset grid\nset zeroaxis\n' + plots + '\n'
-        )
-        if not nognuplot:
-            try:
-                subprocess.run(["gnuplot", glt], check=True)
-            except FileNotFoundError:
-                print("Skip gnuplot")
+        ]
+        _write_glt(f'eps_total_{target}.glt', 'EPS total (inter+intra)',
+                   f'eps_total_{target}.pdf', plots, nognuplot)
 
 def cal_eps(args, extra_args):
     cluster = args.cluster
@@ -132,4 +114,4 @@ if __name__ == "__main__":
         if args.decompose:
             plot_eps_decompose(args.extension, args.lcf, args.nognuplot)
         else:
-            plot_eps_with_gnuplot(args.extension, args.lcf, args.nognuplot)
+            plot_eps(args.extension, args.lcf, args.nognuplot)
