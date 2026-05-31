@@ -162,7 +162,7 @@ contains
           enddo ibloop
        enddo ibandloop
     enddo isploop
-    istat = writem_d(ifile_dw, rec=iq, data=dwgtk)
+    if(allocated(dwgtk)) istat = writem_d(ifile_dw, rec=iq, data=dwgtk)
     deallocate( evlm,auspp )
   end subroutine m_procar_add
   
