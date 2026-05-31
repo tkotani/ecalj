@@ -34,7 +34,7 @@ contains
     fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface')
     debug    = cmdopt0('--debugbndfp')
     PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
-    idwmode  = cmdopt0('--writedw')
+    idwmode  = .not. cmdopt0('--nowritedw')
     if(procaron .AND. fullmesh ) then
        if(.not.idwmode) allocate(dwgtall(nchanp,nbas,ndhamx,nsp,nkp),source=0d0)
        if(idwmode) then
