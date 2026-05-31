@@ -8,9 +8,18 @@ from .run_cmd import run_cmd, MPIParams
 
 
 def _read_bmix_from_ctrl(target: str) -> float:
+    toml_file = f'ctrlG.{target}.toml'
+    if Path(toml_file).is_file():
+        import tomllib
+        with open(toml_file, 'rb') as f:
+            data = tomllib.load(f)
+        b = data.get('iter', {}).get('b')
+        if b is not None:
+            return float(b)
+        raise ValueError(f"Cannot find [iter] b in {toml_file}")
     ctrl_file = f'ctrl.{target}'
     if not Path(ctrl_file).is_file():
-        raise FileNotFoundError(f"Control file not found: {ctrl_file}")
+        raise FileNotFoundError(f"Control file not found: neither {toml_file} nor {ctrl_file}")
     with open(ctrl_file, 'r') as f:
         text = f.read()
     bval_search = re.search(r'BMIX\s*=\s*([0-9.]+)', text, re.I)
@@ -45,8 +54,8 @@ def _prepare_for_lmf_retry(rst_file: str):
 
 
 def _ensure_ctrl(target):
-    if not Path(f"ctrl.{target}").is_file():
-        raise RuntimeError("No ctrl file")
+    if not Path(f"ctrlG.{target}.toml").is_file() and not Path(f"ctrl.{target}").is_file():
+        raise RuntimeError(f"No ctrl file (neither ctrlG.{target}.toml nor ctrl.{target})")
 
 
 _const_b: dict = {}
