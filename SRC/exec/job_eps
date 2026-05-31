@@ -38,10 +38,11 @@ def plot_eps_with_gnuplot(target, lcf, nognuplot):
         except FileNotFoundError:
             print("Skip gnuplot")
 
-def plot_eps_decompose(target, nognuplot):
+def plot_eps_decompose(target, lcf, nognuplot):
     rydberg = 13.605693
+    base_pat = "EPS????.dat" if lcf else "EPS????.nlfc.dat"
     for suffix, title in [('interbandonly', 'InterBand'), ('intrabandonly', 'IntraBand')]:
-        files = sorted(Path('.').glob(f'EPS????.nlfc.dat.{suffix}'))
+        files = sorted(Path('.').glob(f'{base_pat}.{suffix}'))
         if not files:
             continue
         plots = '\n'.join(
@@ -62,8 +63,8 @@ def plot_eps_decompose(target, nognuplot):
                 print("Skip gnuplot")
 
     # sum: eps1_total = eps1_inter + eps1_intra - 1, eps2_total = eps2_inter + eps2_intra
-    inter_files = sorted(Path('.').glob('EPS????.nlfc.dat.interbandonly'))
-    intra_files = sorted(Path('.').glob('EPS????.nlfc.dat.intrabandonly'))
+    inter_files = sorted(Path('.').glob(f'{base_pat}.interbandonly'))
+    intra_files = sorted(Path('.').glob(f'{base_pat}.intrabandonly'))
     if inter_files and intra_files:
         plots = '\n'.join(
             f'plot "< paste {a} {b}" u ($4*{rydberg}):($5+$11-1) w l lc rgb "red" title "Re", '
@@ -102,10 +103,11 @@ def cal_eps(args, extra_args):
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hvccfp0", args=["--job=202", *options]), stdout="lvcc")
 
     if args.decompose:
+        job = "--job=203" if args.lcf else "--job=202"
         run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hx0fp0",
-                                   args=["--job=202", "--interbandonly", *options]), stdout="lx0_interband")
+                                   args=[job, "--interbandonly", *options]), stdout="lx0_interband")
         run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hx0fp0",
-                                   args=["--job=202", "--intrabandonly", *options]), stdout="lx0_intraband")
+                                   args=[job, "--intrabandonly", *options]), stdout="lx0_intraband")
     else:
         job = "--job=203" if args.lcf else "--job=202"
         run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hx0fp0",
@@ -129,6 +131,6 @@ if __name__ == "__main__":
     with contextlib.chdir(args.dir):
         cal_eps(args, extra_args)
         if args.decompose:
-            plot_eps_decompose(args.extension, args.nognuplot)
+            plot_eps_decompose(args.extension, args.lcf, args.nognuplot)
         else:
             plot_eps_with_gnuplot(args.extension, args.lcf, args.nognuplot)
