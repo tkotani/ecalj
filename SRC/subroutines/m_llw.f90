@@ -17,11 +17,6 @@ module m_llw
                    MPI__AllreduceSum
   use mpi
   use m_zmel, only: m2e_prod_basis
-#ifdef __MP
-  use m_mpi, only: MPI__GatherXqw => MPI__GatherXqw_c
-#else
-  use m_mpi, only: MPI__GatherXqw => MPI__GatherXqw
-#endif
   ! Step WA1/WB.3a/WB.3e: W data goes through the m_wv_storage singleton
   ! via wv_put_real / wv_put_imag (SHM backend: shm_wvr/shm_wvi windows).
   use m_wv_storage, only: &

@@ -347,14 +347,8 @@ contains
     endif
   end subroutine writeepsopen
   subroutine writerealeps()
-#ifdef __MP
-    use m_mpi, only: MPI__GatherXqw => MPI__GatherXqw_c
-#else
-    use m_mpi, only: MPI__GatherXqw
-#endif
-    use m_kind,only: kp => kindrcxq
-    complex(kind=kp), allocatable :: zxqw(:,:), x0meanx(:,:)
-    allocate (zxqw(npr, npr))
+    use m_kind, only: kp => kindrcxq
+    complex(kind=kp), allocatable :: x0meanx(:,:)
     !$acc update host (zxq)
     if(nolfco) forall(iw=nw_i:nw) x0mean(iw,:,:)=zxq(:,:,iw) !1x1
     if(nolfco .AND. ( .NOT. chipm)) then
@@ -378,16 +372,14 @@ contains
     allocate(epstilde(npr,npr),epstinv(npr,npr))
     iwloop: do iw = nw_i,nw
       frr= dsign(freq_r(abs(iw)),dble(iw))
-      call MPI__GatherXqw(zxq(:,:,iw), zxqw, npr, npr)
       if( .NOT. chipm) then
         if(debug) write(stdo,*) 'xxx2 epsmode iq,iw=',iq,iw
-        vcmean=vcousq(1)**2 !fourpi/sum(qp**2*tpioa**2) !aug2012
-        ! epsi(iw,iqixc2)= 1d0/(1d0 - vcmean*zxq(1,1,iw))
-        epsi(iw,iqixc2)= 1d0/(1d0 - vcmean*zxqw(1,1))
+        vcmean=vcousq(1)**2
+        epsi(iw,iqixc2)= 1d0/(1d0 - vcmean*zxq(1,1,iw))
         if(mpi__root_q) then
           if(ipr) write(stdo,'(" iq iw omega eps epsi noLFC=",2i6,f8.3,2e23.15,3x, 2e23.15, &
                " vcmean x0mean =", 2e23.15,3x, 2e23.15)') iqixc2,iw,2*frr, &
-               1d0/epsi(iw,iqixc2),epsi(iw,iqixc2),vcmean, zxqw(1,1) !x0mean(iw,1,1)
+               1d0/epsi(iw,iqixc2),epsi(iw,iqixc2),vcmean, zxq(1,1,iw)
           write(ifepsdatnolfc,'(3f12.8,2x,e12.4,2e23.15,2x,2e23.15)') &
                qp, 2*frr, 1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
         endif
@@ -395,9 +387,9 @@ contains
           do igb1=1,npr
             do igb2=1,npr
               if(igb1==1 .AND. igb2==1) then
-                epstilde(igb1,igb2)= -vcmean*zxqw(igb1,igb2) !aug2012
+                epstilde(igb1,igb2)= -vcmean*zxq(igb1,igb2,iw)
               else
-                epstilde(igb1,igb2)= -vcousq(igb1)*zxqw(igb1,igb2)*vcousq(igb2)
+                epstilde(igb1,igb2)= -vcousq(igb1)*zxq(igb1,igb2,iw)*vcousq(igb2)
               endif
               if(igb1==igb2) epstilde(igb1,igb2)=1+epstilde(igb1,igb2)
             enddo
@@ -414,8 +406,7 @@ contains
         endif
       elseif(chipm) then ! ChiPM mode without LFC
         allocate( x0meanx(npr,npr) )
-        call MPI__GatherXqw(cmplx(x0mean(iw,:,:),kind=kp), x0meanx, npr, npr)
-        x0meanx = x0meanx/2d0 !in Ry unit.
+        x0meanx = cmplx(x0mean(iw,:,:), kind=kp) / 2d0 !in Ry unit.
         do imb1=1,npr
           do imb2=1,npr
             x0meanx(imb1,imb2) = x0meanx(imb1,imb2)/mmnorm(imb1)/mmnorm(imb2)
