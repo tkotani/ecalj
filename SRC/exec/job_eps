@@ -102,14 +102,13 @@ def cal_eps(args, extra_args):
         run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"hbasfp0", args=["--job=4", *options]), stdout="lbas")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hvccfp0", args=["--job=202", *options]), stdout="lvcc")
 
+    job = "--job=203" if args.lcf else "--job=202"
     if args.decompose:
-        job = "--job=203" if args.lcf else "--job=202"
         run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hx0fp0",
                                    args=[job, "--interbandonly", *options]), stdout="lx0_interband")
         run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hx0fp0",
                                    args=[job, "--intrabandonly", *options]), stdout="lx0_intraband")
     else:
-        job = "--job=203" if args.lcf else "--job=202"
         run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hx0fp0",
                                    args=[job, *options]), stdout="lx0")
 
