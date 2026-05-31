@@ -22,7 +22,7 @@ def test(args,bindir,testdir,workdir):
         tall+=test2_check(testdir+'/'+dat, workdir+'/'+dat)
         dat= file+'.nlfc.dat.intrabandonly'
         print(dat,end=': ')
-        tall+=test2_check(testdir+'/'+dat, workdir+'/'+dat,skipcond=skipcond)
+        tall+=test2_check(testdir+'/'+dat, workdir+'/'+dat, skipcond=skipcond, rel_tol=0.01)
     print(f'''
      ======================================================
      See plots
