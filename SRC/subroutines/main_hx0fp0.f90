@@ -1,64 +1,38 @@
-!> Calculate x0, \epsilon, spin susceptibility.
+!> χ₀ / ε / χ⁺⁻ calculator (hx0fp0).
 !!
-!! eps_lmf_cphipm mode is now commented out; you may need to recover this if necessary
-!! (only epsPP_lmf_chipm mode works).
+!! eps_lmf_cphipm mode is commented out; only epsPP_lmf_chipm works.
 module m_hx0fp0
   contains
 subroutine hx0fp0()
-  use m_ReadEfermi,only: Readefermi,ef
-  use m_readqg,only:     Readqg,Readngmx2,ngpmx,ngcmx
-  use m_hamindex,only:   Readhamindex
-  use m_readeigen,only:  Readeval,Init_readeigen,Init_readeigen2
-  use m_read_bzdata,only: Read_bzdata, nqbz,nqibz,qbz, wqt=>wt,q0i,nq0i,nq0ix,neps
-  use m_genallcf_v3,only: Genallcf_v3,natom,nspin,nl,nn,nlnmx, nctot, alat, esmr, il,in,im,nlnm, plat, pos,ecore, tpioa
-  use m_hamindex,only: ngrp
-  use m_pbindex,only: PBindex !,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
-  use m_readqgcou,only: readqgcou
-  use m_mpi,only: MPI__Initialize,MPI__root, &
-       MPI__Broadcast,MPI__rank,MPI__size, MPI__consoleout,comm, &
-     & MPI__InitQgroups, MPI__SplitXq, MPI__AutoSetup, &
-     & comm_b => comm_b_xq, comm_k => comm_k_xq, &
-     & mpi__root_k => mpi__root_k_xq, mpi__root_q, ipr, &
-     & comm_q, comm_root_k => comm_root_k_xq, mpi__rank_root_k => mpi__rank_root_k_xq, &
-     & iq_qgroup, n_qgroup, qgroup_root
-  use m_rdpp,only: Rdpp, &   ! & NOTE: "call rdpp" generate following data.
-       nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx,nprecx,mrecl,nblochpmx
-  use m_zmel,only: Mptauof_zmel!, Setppovlz,Setppovlz_chipm   ! & NOTE: these data set are stored in this module, and used
-  use m_itq,only: Setitq !set itq,ntq,nband,ngcmx,ngpmx to m_itq
-  use m_freq,only: Getfreq3, getfreq2, &! & NOTE: call getfreq generate following data.
-       frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,wiw,niw !, frhis0,nwhis0 !output of getfreq
-  use m_tetwt,only: Tetdeallocate,Gettetwt, &! & followings are output of 'L871:call gettetwt')
-       whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb
-  use m_w0w0i,only: W0w0i, w0,w0i ! w0 and w0i (head part at Gamma point)
-  use m_wv_storage, only: wv_init_shm, wv_init_file, wv_dump_shm_to_file, wv_dealloc
-  use m_ll,only: ll
-  use m_readgwinput,only: ReadGwinputKeys, ecut,ecuts,mtet,ebmx,nbmx,nmbas,imbas,egauss !nmbas is number of magnetic atoms
-  use m_qbze,only: Setqbze, nqbze,nqibze,qbze,qibze
-!  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
-  use m_genallcf_v3,only: nprecb,mrecb,mrece,nqbzt,nband,mrecg
-  use m_readVcoud,only: Readvcoud,vcousq,zcousq !,ngb,ngc
-  use m_x0kf,only: x0kf_zxq,deallocatezxq,deallocatezxqi,zxqi,zxq
-  use m_llw,only: WVRllwR,WVIllwI, MPI__llw_alloc_bufs, MPI__irecvllw_q, MPI__isendllw_q, MPI__waitllw
-  use m_w0w0i,only: w0w0i
-  use m_lgunit,only:m_lgunit_init,stdo
-  use m_readqg,only: Readqg0
-!  use m_dpsion,only: dpsion5
-  use m_gpu,only: gpu_init
+  use m_ReadEfermi,   only: Readefermi, ef
+  use m_readqg,       only: Readngmx2, Readqg0, ngpmx, ngcmx
+  use m_hamindex,     only: Readhamindex, ngrp
+  use m_readeigen,    only: Readeval, Init_readeigen, Init_readeigen2
+  use m_read_bzdata,  only: Read_bzdata, nqbz, nqibz, qbz, wqt=>wt, q0i, nq0i, nq0ix, neps
+  use m_genallcf_v3,  only: Genallcf_v3, nspin, nqbzt, nband
+  use m_mpi,          only: MPI__Initialize, MPI__root, MPI__Broadcast, MPI__rank, MPI__size, &
+                             MPI__consoleout, comm, MPI__InitQgroups, MPI__SplitXq, MPI__AutoSetup, &
+                             comm_b => comm_b_xq, comm_k => comm_k_xq, &
+                             mpi__root_k => mpi__root_k_xq, mpi__root_q, ipr, &
+                             comm_q, comm_root_k => comm_root_k_xq, &
+                             mpi__rank_root_k => mpi__rank_root_k_xq, &
+                             iq_qgroup, n_qgroup, qgroup_root
+  use m_rdpp,         only: nblocha, lx, nx, nbloch, nprecx, mrecl, nblochpmx
+  use m_zmel,         only: Mptauof_zmel
+  use m_itq,          only: Setitq
+  use m_freq,         only: Getfreq3, nwhis, nw_i, nw, npm, niw, freq_r
+  use m_w0w0i,        only: w0w0i
+  use m_wv_storage,   only: wv_init_shm, wv_init_file, wv_dump_shm_to_file, wv_dealloc
+  use m_ll,           only: ll
+  use m_readgwinput,  only: ReadGwinputKeys, nmbas, imbas
+  use m_qbze,         only: Setqbze, nqbze, nqibze, qbze, qibze
+  use m_readVcoud,    only: Readvcoud, vcousq
+  use m_x0kf,         only: x0kf_zxq, deallocatezxq, deallocatezxqi, zxqi, zxq
+  use m_llw,          only: WVRllwR, WVIllwI, MPI__llw_alloc_bufs, MPI__irecvllw_q, MPI__isendllw_q, MPI__waitllw
+  use m_lgunit,       only: m_lgunit_init, stdo
+  use m_gpu,          only: gpu_init
   use m_ftox
   implicit none
-  !! We calculate chi0 by the follwoing three steps.
-  !!  gettetwt: tetrahedron weights
-  !!  x0kf_v4h: Accumlate Im part of the Lindhard function. Im(chi0) or Im(chi0^+-)
-  !!  dpsion5: calculate real part by the Hilbert transformation from the Im part
-  !!  note: eibz means extented irreducible brillowin zone scheme by C.Friedlich. (not so efficient in cases).
-  !!-------------------------------------------------
-  ! cccc this may be wrong or correct cccccccccc
-  !r Be careful for the indexing...
-  !r      A routine idxlnmc(nindxv,nindxc,...  in index.f
-  !r      specifies the order of the  (Core wave)+(Argumentation wave) in each MT.
-  !r      The total number of the wave are mnl(ic)= mnlc(ic) + mnlv(ic).
-  !r      The indexing starts with core first and then valence on top of core
-  !r      So n-index in "in" for valence electron is different from "inv".
   real(8)    :: qp(3), quu(3), ua=1d0, vcmean, frr
   real(8)    :: schi=1d0, chg1, chg2, dumm1, dumm2
   logical    :: debug=.false., hx0, lqall
@@ -88,7 +62,6 @@ subroutine hx0fp0()
   call MPI__consoleout('hx0fp0')
   call cputid (0)
   if(verbose()>=100) debug= .TRUE.
-  !! computational mode select ! takao keeps only the Sergey mode.
   if(ipr) write(stdo,"(a)") '--- Type numbers #1 #2 #3 [#2 and #3 are options] ---'
   if(ipr) write(stdo,"(a)") ' #1:run mode= 11: normal! 111: normal fullband! 10111 : normal  crpa!'
   if(ipr) write(stdo,"(a)") '             202: epsNoLFC! 203: eps!  222: chi^+- NoLFC'
@@ -108,7 +81,7 @@ subroutine hx0fp0()
   elseif(ixc==202) then; if(ipr) write(stdo,*)"OK ixc=202 eps NoLFC";       epsmode =.true. ; imagomega=.false.; omitqbz=.true.;nolfco=.true.
   elseif(ixc==203) then; if(ipr) write(stdo,*)"OK ixc=203 eps wLFC";        epsmode = .true.; imagomega=.false.; omitqbz=.true.
   elseif(ixc==222) then; if(ipr) write(stdo,*)"OK ixc=222 chipm noLFC";     epsmode = .true.; imagomega=.false.; omitqbz=.true.;nolfco=.true.
-     chipm=.true.    !  elseif(ixc==12) realomega=.false.; ecorr_on=901; then ! Total energy test mode --> need fixing
+     chipm=.true.
   else; call rx( ' hx0fp0: given mode ixc is not appropriate')
   endif
   call Read_BZDATA(hx0)
