@@ -30,7 +30,7 @@ subroutine hx0fp0()
   use m_tetwt,only: Tetdeallocate,Gettetwt, &! & followings are output of 'L871:call gettetwt')
        whw,ihw,nhw,jhw,ibjb,nbnbx,nhwtot,n1b,n2b,nbnb
   use m_w0w0i,only: W0w0i, w0,w0i ! w0 and w0i (head part at Gamma point)
-  use m_wv_storage, only: wv_init_shm, wv_dump_shm_to_file, wv_dealloc
+  use m_wv_storage, only: wv_init_shm, wv_init_file, wv_dump_shm_to_file, wv_dealloc
   use m_ll,only: ll
   use m_readgwinput,only: ReadGwinputKeys, ecut,ecuts,mtet,ebmx,nbmx,nmbas,imbas,egauss !nmbas is number of magnetic atoms
   use m_qbze,only: Setqbze, nqbze,nqibze,qbze,qibze
@@ -269,7 +269,7 @@ subroutine hx0fp0()
       npr = ngb
     endif
 
-    call wv_init_shm(npr, niw, (1-npm)*nwhis, nwhis, comm_q, mreclx=mrecl)
+    call wv_init_shm(npr, niw, (1-npm)*nwhis, nwhis, comm_q)
     if(epsmode) call writeepsopen()
     if(ipr) write(stdo,"(' ##### ',2i4,' out of nqibz+n0qi nsp=',2i4,' ##### ')")iq, nqibz + nq0i, nspin
     call x0kf_zxq(realomega,imagomega,qp,iq,npr,schi,crpa,chipm,nolfco,zzr,is_m_basis=.false.)
@@ -298,7 +298,10 @@ subroutine hx0fp0()
   call MPI_barrier(comm,ierr)
   if(.NOT.epsmode) then
     call MPI__waitllw()
-    if(MPI__rank == iq1_dest) call w0w0i(nw_i, nw, nq0i, niw, q0i, is_wc_m_basis=.false.)
+    if(MPI__rank == iq1_dest) then
+      call wv_init_file(mrecl, nw_i)
+      call w0w0i(nw_i, nw, nq0i, niw, q0i, is_wc_m_basis=.false.)
+    endif
   endif
   ! === w0,w0i are stored to zw for qp=0 ===    !! === w_ks*wk are stored to zw for iq >nqibz ===
   call cputid(0)
