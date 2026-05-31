@@ -707,18 +707,19 @@ def _run_gw_append(ext, out_path):
     / [blocks] to ctrlG.<ext>.toml (in place) and write PB.toml.  Used by
     the default flow and by --addgw."""
     import subprocess
-    here = os.path.dirname(os.path.realpath(__file__))
+    from pathlib import Path
+    here = Path(__file__).parent  # do NOT resolve symlinks; ~/bin/lmfa etc. live here
     print(f'ctrlgenToml: running lmfa -> lmf --jobgw=0 -> gwinit  to fill GW sections')
-    rc = subprocess.run(['mpirun', '-np', '1', os.path.join(here, 'lmfa'), ext],
+    rc = subprocess.run(['mpirun', '-np', '1', str(here / 'lmfa'), ext],
                         stdout=open('llmfa', 'wt'), stderr=subprocess.STDOUT).returncode
     if rc != 0:
         sys.exit(f'ctrlgenToml: lmfa failed (rc={rc}); see llmfa')
-    rc = subprocess.run(['mpirun', '-np', '1', os.path.join(here, 'lmf'),
+    rc = subprocess.run(['mpirun', '-np', '1', str(here / 'lmf'),
                          '--jobgw=0', ext],
                         stdout=open('llmfgw00', 'wt'), stderr=subprocess.STDOUT).returncode
     if rc != 0:
         sys.exit(f'ctrlgenToml: lmf --jobgw=0 failed (rc={rc}); see llmfgw00')
-    rc = subprocess.run(['mpirun', '-np', '1', os.path.join(here, 'gwinit'), ext]).returncode
+    rc = subprocess.run(['mpirun', '-np', '1', str(here / 'gwinit'), ext]).returncode
     if rc != 0:
         sys.exit(f'ctrlgenToml: gwinit failed (rc={rc})')
     # Re-apply annotations: gwinit appended raw [gw]/[product_basis]/[blocks];
