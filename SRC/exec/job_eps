@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import argparse
 import contextlib
+import glob
+import re
 import textwrap
 import subprocess
 from pathlib import Path
@@ -10,7 +12,6 @@ EXEC_DIR = Path(__file__).parent
 
 def plot_eps_with_gnuplot(target, lcf, nognuplot, itag=''):
     lcf_str = "with_lcf" if lcf else "without_lcf"
-    # --- common gnuplot header ---
     header = textwrap.dedent(f"""\
         #!/usr/bin/gnuplot -persist
         rydberg = 13.605693
@@ -35,25 +36,90 @@ def plot_eps_with_gnuplot(target, lcf, nognuplot, itag=''):
     plot = "\n".join(plots)
     gltfile = f"eps_{lcf_str}_{target}{itag}.glt"
     Path(gltfile).write_text(header + plot)
-    # --- run gnuplot unless disabled ---
     if not nognuplot:
         try:
             subprocess.run(["gnuplot", gltfile], check=True)
         except FileNotFoundError:
             print("Skip gnuplot")
 
+def _cleanl(iline):
+    return [float(re.sub(r'D', r'e', x)) for x in re.split(r'\s+', iline) if x]
+
+def _read_eps_files(pattern):
+    files = sorted(glob.glob(pattern))
+    data = []
+    for f in files:
+        lines = [_cleanl(l) for l in open(f).read().split('\n')[1:] if _cleanl(l)]
+        data.append(lines)
+    return files, data
+
+def combine_eps(nognuplot):
+    """Combine interbandonly and intrabandonly EPS files into epsinter/epsintra/epsall."""
+    inter_files, inter_data = _read_eps_files('EPS*.nlfc.dat.interbandonly')
+    intra_files, intra_data = _read_eps_files('EPS*.nlfc.dat.intrabandonly')
+    nfile = len(inter_files)
+    print(f'combine_eps: nfile={nfile}')
+
+    # epsinter.dat
+    with open('epsinter.dat', 'w') as f:
+        for i, fn in enumerate(inter_files):
+            print(f'# {i} {inter_data[i][0][:4]} {fn}', file=f)
+        print('# recid omega eps1.... eps2...', file=f)
+        for idat in range(len(inter_data[0])):
+            omega = inter_data[0][idat][3]
+            eps1 = [inter_data[i][idat][4] for i in range(nfile)]
+            eps2 = [inter_data[i][idat][5] for i in range(nfile)]
+            print(idat, omega, *eps1, *eps2, file=f)
+
+    # epsintra.dat
+    with open('epsintra.dat', 'w') as f:
+        for i, fn in enumerate(intra_files):
+            print(f'# {i} {intra_data[i][0][:4]} {fn}', file=f)
+        print('# recid omega eps1.... eps2...', file=f)
+        for idat in range(len(intra_data[0])):
+            omega = intra_data[0][idat][3]
+            eps1 = [intra_data[i][idat][4] for i in range(nfile)]
+            eps2 = [intra_data[i][idat][5] for i in range(nfile)]
+            print(idat, omega, *eps1, *eps2, file=f)
+
+    # epsall.dat = epsinter + epsintra
+    with open('epsall.dat', 'w') as f:
+        for idat in range(len(intra_data[0])):
+            id_, omega = idat, inter_data[0][idat][3]
+            eps1 = inter_data[0][idat][4] + intra_data[0][idat][4] - 1
+            eps2 = inter_data[0][idat][5] + intra_data[0][idat][5]
+            print(id_, omega, eps1, eps2, file=f)
+
+    # gnuplot files
+    def _glt(fname, title, files, nf):
+        fdata = ''
+        for i in range(nf):
+            fdata += f' "{fname}.dat" using ($2)*13.605:(${ i+3}) w l title "RealPart:{files[i]}",\\\n'
+        for i in range(nf):
+            fdata += f' "{fname}.dat" using ($2)*13.605:(${i+3+nf}) w l title "ImagPart:{files[i]}",\\\n'
+        return (f'set title "{title}"\nset xlabel "(eV)"\nset datafile fortran\n'
+                f'set xran[0:30]\nset yran[-30:30]\nplot\\\n' + fdata)
+    Path('epsinter.glt').write_text(_glt('epsinter', 'InterBand part of Epsilon', inter_files, nfile))
+    Path('epsintra.glt').write_text(_glt('epsintra', 'IntraBand part of Epsilon', intra_files, nfile))
+    Path('epsall.glt').write_text(
+        'set title "Epsilon(omega(eV))"\nset xlabel "(eV)"\nset datafile fortran\n'
+        'set xran[0:30]\nset yran[-30:30]\n'
+        'plot\\\n "epsall.dat" using ($2)*13.605:($3) w l title "RealPart",'
+        '"" using ($2*13.605):($4) w l title "ImagPart"'
+    )
+    if not nognuplot:
+        for glt in ('epsinter.glt', 'epsintra.glt', 'epsall.glt'):
+            try:
+                subprocess.run(["gnuplot", glt], check=True)
+            except FileNotFoundError:
+                print("Skip gnuplot")
+    print('OK! Generated epsinter.dat, epsintra.dat, epsall.dat (and *.glt files)')
+
 def cal_eps(args, extra_args):
     cluster = args.cluster
     target = args.extension
     mpi_size = args.np
     options = extra_args
-
-    # --interbandonly / --intrabandonly: passed only to hx0fp0 (affect tetrahedron weights + filename tag)
-    hx0_extra = list(options)
-    if args.interbandonly:
-        hx0_extra.append('--interbandonly')
-    elif args.intrabandonly:
-        hx0_extra.append('--intrabandonly')
 
     print(f"### start eps with/without lcf: mpi size= {mpi_size}, target= {target}")
     run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"lmf", args=[target, "--jobgw=0", '--novxc', *options]), stdout="llmfgw00")
@@ -62,26 +128,40 @@ def cal_eps(args, extra_args):
                                args=[target, "--jobgw=1", "--skipbstruxinit", *options]), stdout="llmfgw01")
     run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"heftet", args=["--job=1", *options]), stdout="leftet")
 
-    if args.lcf: # with local field correction
+    if args.lcf:
         run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"hbasfp0", args=["--job=0", *options]), stdout="lbas")
-        run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hvccfp0", args=["--job=202", *options]), stdout="lvcc")
-        run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hx0fp0", args=["--job=203", *hx0_extra]), stdout="lx0")
-    else: # without local field correction
+    else:
         run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"hbasfp0", args=["--job=4", *options]), stdout="lbas")
-        run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hvccfp0", args=["--job=202", *options]), stdout="lvcc")
-        run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hx0fp0", args=["--job=202", *hx0_extra]), stdout="lx0")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hvccfp0", args=["--job=202", *options]), stdout="lvcc")
+
+    if args.decompose:
+        run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hx0fp0",
+                                   args=["--job=202", "--interbandonly", *options]), stdout="lx0_interband")
+        run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hx0fp0",
+                                   args=["--job=202", "--intrabandonly", *options]), stdout="lx0_intraband")
+    else:
+        hx0_extra = list(options)
+        if args.interbandonly:
+            hx0_extra.append('--interbandonly')
+        elif args.intrabandonly:
+            hx0_extra.append('--intrabandonly')
+        job = "--job=203" if args.lcf else "--job=202"
+        run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hx0fp0",
+                                   args=[job, *hx0_extra]), stdout="lx0")
 
     print(f"OK! ==== All calculation finished for eps ====")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(prog='eps',description='dielectric function calculation')
-    parser.add_argument("extension",   help='extension of ctrl')
+    parser = argparse.ArgumentParser(prog='eps', description='dielectric function calculation')
+    parser.add_argument("extension",    help='extension of ctrl')
     parser.add_argument("-c", "--cluster", help="cluster name", default="default", type=str)
-    parser.add_argument("-np",        help='number of mpi cores in lmf',default=8,type=int)
-    parser.add_argument('--gpu' ,help='USE GPU version for hsfp0 and hgw',    action='store_true')
-    parser.add_argument('--lcf' ,help='local field correction', action='store_true')
-    parser.add_argument("--nognuplot", "--NoGnuplot", help="stop without drawing", action="store_true", default=False)
-    parser.add_argument("-d", "--dir", help="execution directory (default: current directory)", default=".", type=str)
+    parser.add_argument("-np",          help='number of mpi cores in lmf', default=8, type=int)
+    parser.add_argument('--gpu',        help='USE GPU version for hsfp0 and hgw', action='store_true')
+    parser.add_argument('--lcf',        help='local field correction', action='store_true')
+    parser.add_argument("--nognuplot",  help="stop without drawing", action="store_true", default=False)
+    parser.add_argument("-d", "--dir",  help="execution directory (default: current directory)", default=".", type=str)
+    parser.add_argument('--decompose',  help='run both --interbandonly and --intrabandonly, then combine into epsall',
+                        action='store_true')
     bgroup = parser.add_mutually_exclusive_group()
     bgroup.add_argument('--interbandonly', action='store_true',
                         help='hx0fp0: include only interband transitions (Drude-free eps)')
@@ -89,7 +169,10 @@ if __name__ == "__main__":
                         help='hx0fp0: include only intraband transitions (Drude term only)')
 
     args, extra_args = parser.parse_known_args()
-    itag = '.interbandonly' if args.interbandonly else '.intrabandonly' if args.intrabandonly else ''
     with contextlib.chdir(args.dir):
         cal_eps(args, extra_args)
-        plot_eps_with_gnuplot(args.extension, args.lcf, args.nognuplot, itag)
+        if args.decompose:
+            combine_eps(args.nognuplot)
+        else:
+            itag = '.interbandonly' if args.interbandonly else '.intrabandonly' if args.intrabandonly else ''
+            plot_eps_with_gnuplot(args.extension, args.lcf, args.nognuplot, itag)
