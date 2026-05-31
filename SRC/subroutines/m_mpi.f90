@@ -249,7 +249,8 @@ contains
     complex(8), intent(inout) :: xqw_all(npr, npr)
     integer, allocatable :: data_disp(:), data_size(:)
     integer :: irank_b, collector_rank_in
-    collector_rank_in = merge(collector_rank, 0, present(collector_rank))
+    collector_rank_in = 0
+    if (present(collector_rank)) collector_rank_in = collector_rank
     if (mpi__size_b_xq == 1) then          ! n_bpara=1: trivial copy
       xqw_all(:,:) = xqw(:,:)
       return
@@ -277,7 +278,8 @@ contains
     complex(4), intent(out) :: xqw_all(npr, npr)
     integer, allocatable :: data_disp(:), data_size(:)
     integer :: irank_b, collector_rank_in
-    collector_rank_in = merge(collector_rank, 0, present(collector_rank))
+    collector_rank_in = 0
+    if (present(collector_rank)) collector_rank_in = collector_rank
     if (mpi__size_b_xq == 1) then
       xqw_all(:,:) = xqw(:,:)
       return
