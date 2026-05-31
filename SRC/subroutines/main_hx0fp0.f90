@@ -231,9 +231,9 @@ subroutine hx0fp0()
   endif
 
   ! ngb_max: max SHM size per q-point (nolfco→1, chipm→nmbas, normal→nblochpmx)
-  ! nq_calc: actual q-points computed (epsmode→nq0i, normal→nqibz+nq0i)
+  ! nq_calc: number of q-points actually computed = iqxend-iqxini+1
   call MPI__AutoSetup(merge(1, merge(nmbas, nblochpmx, chipm), nolfco), &
-                      nwhis, npm, niw, merge(nq0i, nqibz+nq0i, omitqbz), &
+                      nwhis, npm, niw, iqxend - iqxini + 1, &
                       worker_out=worker_auto, &
                       n_bpara_xq_out=n_bpara, n_kpara_xq_out=n_kpara)
   worker_inQtask = worker_auto
@@ -245,8 +245,7 @@ subroutine hx0fp0()
   if(ipr) write(stdo,*)" chi_+- mode nolfc=",nolfco
   if(.NOT.chipm) allocate(zzr(1,1),source=(0d0,0d0)) !dummy
   iqloop: do iq = iqxini, iqxend  ! NOTE: qp=(0,0,0) is omitted when iqxini=2
-!    if(cmdopt0('--zmel0').and.iq==iqxini) cycle
-    if( mod(iq-1, n_qgroup) /= iq_qgroup ) cycle
+    if( mod(iq - iqxini, n_qgroup) /= iq_qgroup ) cycle
     call cputid (0)
     qp  = qibze(:,iq)
     ! Readin diagonalized Coulomb interaction zcousq: E(\nu,I), Enu basis is given in PRB81,125102; vcousq: sqrt(v), as well.
