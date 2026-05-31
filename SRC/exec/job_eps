@@ -38,6 +38,50 @@ def plot_eps_with_gnuplot(target, lcf, nognuplot):
         except FileNotFoundError:
             print("Skip gnuplot")
 
+def plot_eps_decompose(target, nognuplot):
+    rydberg = 13.605693
+    for suffix, title in [('interbandonly', 'InterBand'), ('intrabandonly', 'IntraBand')]:
+        files = sorted(Path('.').glob(f'EPS????.nlfc.dat.{suffix}'))
+        if not files:
+            continue
+        plots = '\n'.join(
+            f'plot "{p.name}" u ($4*{rydberg}):5 w l lc rgb "red" title "Re", '
+            f'"{p.name}" u ($4*{rydberg}):6 w l lc rgb "green" title "Im"'
+            for p in files
+        )
+        glt = f'eps_{suffix}_{target}.glt'
+        Path(glt).write_text(
+            f'set terminal pdf\nset output "eps_{suffix}_{target}.pdf"\n'
+            f'set title "EPS {title}"\nset xlabel "Energy (eV)"\n'
+            f'set xrange [0:20.0]\nset grid\nset zeroaxis\n' + plots + '\n'
+        )
+        if not nognuplot:
+            try:
+                subprocess.run(["gnuplot", glt], check=True)
+            except FileNotFoundError:
+                print("Skip gnuplot")
+
+    # sum: eps1_total = eps1_inter + eps1_intra - 1, eps2_total = eps2_inter + eps2_intra
+    inter_files = sorted(Path('.').glob('EPS????.nlfc.dat.interbandonly'))
+    intra_files = sorted(Path('.').glob('EPS????.nlfc.dat.intrabandonly'))
+    if inter_files and intra_files:
+        plots = '\n'.join(
+            f'plot "< paste {a} {b}" u ($4*{rydberg}):($5+$11-1) w l lc rgb "red" title "Re", '
+            f'"< paste {a} {b}" u ($4*{rydberg}):($6+$12) w l lc rgb "green" title "Im"'
+            for a, b in zip(inter_files, intra_files)
+        )
+        glt = f'eps_total_{target}.glt'
+        Path(glt).write_text(
+            f'set terminal pdf\nset output "eps_total_{target}.pdf"\n'
+            f'set title "EPS total (inter+intra)"\nset xlabel "Energy (eV)"\n'
+            f'set xrange [0:20.0]\nset grid\nset zeroaxis\n' + plots + '\n'
+        )
+        if not nognuplot:
+            try:
+                subprocess.run(["gnuplot", glt], check=True)
+            except FileNotFoundError:
+                print("Skip gnuplot")
+
 def cal_eps(args, extra_args):
     cluster = args.cluster
     target = args.extension
@@ -84,5 +128,7 @@ if __name__ == "__main__":
     args, extra_args = parser.parse_known_args()
     with contextlib.chdir(args.dir):
         cal_eps(args, extra_args)
-        if not args.decompose:
+        if args.decompose:
+            plot_eps_decompose(args.extension, args.nognuplot)
+        else:
             plot_eps_with_gnuplot(args.extension, args.lcf, args.nognuplot)
