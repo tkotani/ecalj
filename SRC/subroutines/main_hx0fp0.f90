@@ -15,7 +15,6 @@ subroutine hx0fp0()
                              comm_b => comm_b_xq, comm_k => comm_k_xq, &
                              mpi__root_k => mpi__root_k_xq, mpi__root_q, ipr, &
                              comm_q, comm_root_k => comm_root_k_xq, &
-                             mpi__rank_root_k => mpi__rank_root_k_xq, &
                              iq_qgroup, n_qgroup, qgroup_root
   use m_rdpp,         only: nblocha, lx, nx, nbloch, nprecx, mrecl, nblochpmx
   use m_zmel,         only: Mptauof_zmel
@@ -259,7 +258,7 @@ subroutine hx0fp0()
       endif
       if(.NOT.epsmode) then
         call MPI_barrier(comm_root_k, ierr)
-        if (mpi__rank_root_k == 0) call wv_dump_shm_to_file(iq, mrecl, nblochpmx, realomega, imagomega)
+        if (mpi__root_q) call wv_dump_shm_to_file(iq, mrecl, nblochpmx, realomega, imagomega)
       endif
     endif
     if(.NOT.epsmode .AND. iq > nqibz) &
