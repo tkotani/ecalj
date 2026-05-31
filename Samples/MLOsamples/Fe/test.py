@@ -54,8 +54,11 @@ def test(args, bindir, testdir, workdir):
                       'PROCAR.UP', 'PROCAR.DN', 'lwriteham', 'lmlo',
                       'bandplot_MLO.isp1.glt', 'bandplot_MLO.isp2.glt'])
 
+    cmd = [f'{bindir}/job_mlo', 'fe', '-np', str(args.np), '--mlo_diagnorm']
+    print('### exec:', ' '.join(cmd), flush=True)
+    proc = subprocess.run(cmd, cwd=workdir)
     # Run job_mloW with live-streamed stdout/stderr to terminal
-    cmd = [f'{bindir}/job_mloW', 'fe', '-np', str(args.np)]
+    cmd = [f'{bindir}/job_mloW', 'fe', '-np', str(args.np), '--mlo_diagnorm']
     print('### exec:', ' '.join(cmd), flush=True)
     proc = subprocess.run(cmd, cwd=workdir)
     if proc.returncode != 0:

@@ -261,8 +261,7 @@ subroutine hx0fp0()
         if (mpi__root_q) call wv_dump_shm_to_file(iq, mrecl, nblochpmx, realomega, imagomega)
       endif
     endif
-    if(.NOT.epsmode .AND. iq > nqibz) &
-      call MPI__isendllw_q(iq-nqibz, qgroup_root(iq_qgroup), iq1_dest)
+    if(.NOT.epsmode .AND. iq > nqibz) call MPI__isendllw_q(iq-nqibz, qgroup_root(iq_qgroup), iq1_dest)
     call mpi_barrier(comm_k, ierr)
     call mpi_barrier(comm_b, ierr)
     call wv_dealloc()

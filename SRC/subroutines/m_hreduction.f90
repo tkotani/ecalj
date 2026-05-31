@@ -151,13 +151,13 @@ contains
       ! Diagonal-only; off-diagonal overlap is left untouched. Use --mlo_diagnormalization
       ! to enable. Matches Feb 2026 commit 464a2d510 behavior when on.
       ! (--mlo_ortho below performs full Lowdin orthogonalization.)
-      MLODiagonalNormalize: if (cmdopt0('--mlo_feb4')) then
+      MLODiagonalNormalize: if (cmdopt0('--mlo_diagnorm') .or. cmdopt0('--mlo_feb4')) then
          do i = 1, ndimMTO
             ddd = sum(dconjg(cmlo_loc(1:nx,i))*cmlo_loc(1:nx,i)) !<F^MLO|F^MLO>
             cmlo_loc(1:nx,i) = cmlo_loc(1:nx,i)/sqrt(ddd)
          enddo
       endif MLODiagonalNormalize
-      MLOLowdinOrthogonalization:if(cmdopt0('--mlo_ortho')) then
+      MLOLowdinOrthogonalization:if(cmdopt0('--mlo_orthonorm') .or. cmdopt0('--mlo_ortho')) then
         block
           use m_lapack, only: zhev => zhev_h
           complex(8) :: ovlm_mlo(ndimMTO,ndimMTO), evl_ovl_buf(ndimMTO,ndimMTO), sinv_half(ndimMTO, ndimMTO)
