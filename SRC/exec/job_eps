@@ -10,7 +10,6 @@ EXEC_DIR = Path(__file__).parent
 
 def plot_eps_with_gnuplot(target, lcf, nognuplot, itag=''):
     lcf_str = "with_lcf" if lcf else "without_lcf"
-    # --- common gnuplot header ---
     header = textwrap.dedent(f"""\
         #!/usr/bin/gnuplot -persist
         rydberg = 13.605693
@@ -35,7 +34,6 @@ def plot_eps_with_gnuplot(target, lcf, nognuplot, itag=''):
     plot = "\n".join(plots)
     gltfile = f"eps_{lcf_str}_{target}{itag}.glt"
     Path(gltfile).write_text(header + plot)
-    # --- run gnuplot unless disabled ---
     if not nognuplot:
         try:
             subprocess.run(["gnuplot", gltfile], check=True)
@@ -48,13 +46,6 @@ def cal_eps(args, extra_args):
     mpi_size = args.np
     options = extra_args
 
-    # --interbandonly / --intrabandonly: passed only to hx0fp0 (affect tetrahedron weights + filename tag)
-    hx0_extra = list(options)
-    if args.interbandonly:
-        hx0_extra.append('--interbandonly')
-    elif args.intrabandonly:
-        hx0_extra.append('--intrabandonly')
-
     print(f"### start eps with/without lcf: mpi size= {mpi_size}, target= {target}")
     run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"lmf", args=[target, "--jobgw=0", '--novxc', *options]), stdout="llmfgw00")
     run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"qg4gw", args=["--job=2", *options]), stdout="lqg4gw02")
@@ -62,26 +53,41 @@ def cal_eps(args, extra_args):
                                args=[target, "--jobgw=1", "--skipbstruxinit", *options]), stdout="llmfgw01")
     run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"heftet", args=["--job=1", *options]), stdout="leftet")
 
-    if args.lcf: # with local field correction
+    if args.lcf:
         run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"hbasfp0", args=["--job=0", *options]), stdout="lbas")
-        run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hvccfp0", args=["--job=202", *options]), stdout="lvcc")
-        run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hx0fp0", args=["--job=203", *hx0_extra]), stdout="lx0")
-    else: # without local field correction
+    else:
         run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"hbasfp0", args=["--job=4", *options]), stdout="lbas")
-        run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hvccfp0", args=["--job=202", *options]), stdout="lvcc")
-        run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hx0fp0", args=["--job=202", *hx0_extra]), stdout="lx0")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hvccfp0", args=["--job=202", *options]), stdout="lvcc")
+
+    if args.decompose:
+        run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hx0fp0",
+                                   args=["--job=202", "--interbandonly", *options]), stdout="lx0_interband")
+        run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hx0fp0",
+                                   args=["--job=202", "--intrabandonly", *options]), stdout="lx0_intraband")
+        run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"readeps.py", args=[]), stdout="lreadeps")
+    else:
+        hx0_extra = list(options)
+        if args.interbandonly:
+            hx0_extra.append('--interbandonly')
+        elif args.intrabandonly:
+            hx0_extra.append('--intrabandonly')
+        job = "--job=203" if args.lcf else "--job=202"
+        run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hx0fp0",
+                                   args=[job, *hx0_extra]), stdout="lx0")
 
     print(f"OK! ==== All calculation finished for eps ====")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(prog='eps',description='dielectric function calculation')
-    parser.add_argument("extension",   help='extension of ctrl')
+    parser = argparse.ArgumentParser(prog='eps', description='dielectric function calculation')
+    parser.add_argument("extension",    help='extension of ctrl')
     parser.add_argument("-c", "--cluster", help="cluster name", default="default", type=str)
-    parser.add_argument("-np",        help='number of mpi cores in lmf',default=8,type=int)
-    parser.add_argument('--gpu' ,help='USE GPU version for hsfp0 and hgw',    action='store_true')
-    parser.add_argument('--lcf' ,help='local field correction', action='store_true')
-    parser.add_argument("--nognuplot", "--NoGnuplot", help="stop without drawing", action="store_true", default=False)
-    parser.add_argument("-d", "--dir", help="execution directory (default: current directory)", default=".", type=str)
+    parser.add_argument("-np",          help='number of mpi cores in lmf', default=8, type=int)
+    parser.add_argument('--gpu',        help='USE GPU version for hsfp0 and hgw', action='store_true')
+    parser.add_argument('--lcf',        help='local field correction', action='store_true')
+    parser.add_argument("--nognuplot",  help="stop without drawing", action="store_true", default=False)
+    parser.add_argument("-d", "--dir",  help="execution directory (default: current directory)", default=".", type=str)
+    parser.add_argument('--decompose',  help='run both --interbandonly and --intrabandonly, then combine via readeps.py',
+                        action='store_true')
     bgroup = parser.add_mutually_exclusive_group()
     bgroup.add_argument('--interbandonly', action='store_true',
                         help='hx0fp0: include only interband transitions (Drude-free eps)')
@@ -89,7 +95,8 @@ if __name__ == "__main__":
                         help='hx0fp0: include only intraband transitions (Drude term only)')
 
     args, extra_args = parser.parse_known_args()
-    itag = '.interbandonly' if args.interbandonly else '.intrabandonly' if args.intrabandonly else ''
     with contextlib.chdir(args.dir):
         cal_eps(args, extra_args)
-        plot_eps_with_gnuplot(args.extension, args.lcf, args.nognuplot, itag)
+        if not args.decompose:
+            itag = '.interbandonly' if args.interbandonly else '.intrabandonly' if args.intrabandonly else ''
+            plot_eps_with_gnuplot(args.extension, args.lcf, args.nognuplot, itag)
