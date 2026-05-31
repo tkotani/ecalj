@@ -267,28 +267,20 @@ subroutine hx0fp0()
     if(ipr) write(stdo,"(' ##### ',2i4,' out of nqibz+n0qi nsp=',2i4,' ##### ')")iq, nqibz + nq0i, nspin
     call x0kf_zxq(realomega,imagomega,qp,iq,npr,schi,crpa,chipm,nolfco,zzr,is_m_basis=.false.)
     if(mpi__root_k) then
-    realomegamode: if(realomega) then !===RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR,LLWI
-      if(mpi__root_k) then
-        if(     epsmode) call writerealeps() !write eps file and close
+      if(realomega) then
+        if(     epsmode) call writerealeps()
         if(.NOT.epsmode) call WVRllwR(qp,iq,npr,npr,is_x0_m_basis=.false.,is_wc_m_basis=.false.)
-        if(.NOT.epsmode) then
-          call MPI_barrier(comm_root_k, ierr)
-          if (mpi__rank_root_k == 0) call wv_dump_shm_to_file(iq, mrecl, nblochpmx, .true., .false.)
-        endif
         call deallocatezxq()
       endif
-    endif realomegamode
-    imagomegamode: if(imagomega) then ! ImagOmega start ============================
-      if(mpi__root_k) then
-        if(     epsmode) call rx('hx0fp0: imagoemga=T and epsmod=T is not implemented')
+      if(imagomega) then
+        if(     epsmode) call rx('hx0fp0: imagomega=T and epsmode=T is not implemented')
         if(.NOT.epsmode) call WVIllwI(qp,iq,npr,npr,is_x0_m_basis=.false.,is_wc_m_basis=.false.)
-        if(.NOT.epsmode) then
-          call MPI_barrier(comm_root_k, ierr)
-          if (mpi__rank_root_k == 0) call wv_dump_shm_to_file(iq, mrecl, nblochpmx, .false., .true.)
-        endif
         call deallocatezxqi()
       endif
-    endif imagomegamode
+      if(.NOT.epsmode) then
+        call MPI_barrier(comm_root_k, ierr)
+        if (mpi__rank_root_k == 0) call wv_dump_shm_to_file(iq, mrecl, nblochpmx, realomega, imagomega)
+      endif
     endif
     call mpi_barrier(comm_k, ierr)
     call mpi_barrier(comm_b, ierr)
