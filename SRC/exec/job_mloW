@@ -1,76 +1,74 @@
-#!/bin/bash
-# generate MLO ### all input arguments are processed ###
-if [ $# -ne 3 ] || [ $2 != "-np" ] ; then
-    echo "An example of usage: job_mloW cu -np 4"
-    echo "Do job_band_* in advance to genMLO"
-    exit 101
-fi
-nfpgw=`dirname $0`
-MATERIAL=$1
-MPI_SIZE=$3
-NO_MPI=0
-### end of processing input arguments ###
-if [ ! -e bnd001.spin1 ];then 
-    $echo_run echo "!!! Perform job_band in advance!" 
-    exit
-fi
+#!/usr/bin/env python3
+"""job_mloW: DFT + MLO Wannier function + screened Coulomb W calculation.
 
-### Read funcitons run_arg and run_arg_tee defined in a file run_arg ###
-source $nfpgw/run_arg
+Runs: lmfa → lmf → lmf(GW prep) → qg4gw → lmf(--jobgw=1 --mlo) →
+      heftet → hbasfp0 → mlo → hvccfp0 → hwmatK_MPI(v) → hx0fp0 → hwmatK_MPI(W-v)
 
-######## auto-convert legacy GWinput -> GWinput.toml if needed ##########
-if [ ! -f GWinput.toml ] && [ -f GWinput ]; then
-    echo "job_mloW: auto-generating GWinput.toml from GWinput"
-    python3 $nfpgw/gwinput2toml.py GWinput || { echo "job_mloW: gwinput2toml.py failed"; exit 1; }
-fi
-if [ ! -f GWinput.toml ]; then
-    echo "job_mloW: ERROR -- GWinput.toml is required" >&2
-    exit 1
-fi
+Requires bnd001.spin1 (run job_band first) and GWinput.toml (or GWinput).
+"""
+import argparse
+import contextlib
+import sys
+from pathlib import Path
+from pylib.run_cmd import run_cmd, MPIParams
+from pylib.gwinput_prepare import ensure_gwinput_toml
 
-######## start here ##########
-$echo_run echo "### START genMLWF: MPI size= " $MPI_SIZE, "MATERIAL= "$MATERIAL
-## If sigm and sigm.$MATERIAL coexist, sigm.$MATERIAL is moved to sigm.$MATERIAL.backup in advance.
-if [ -e sigm ]; then 
-    if [ -e sigm.$MATERIAL ]; then
-	mv sigm.$MATERIAL sigm.$MATERIAL.bakup 
-  	ln -s -f sigm sigm.$MATERIAL 
-  	$echo_run echo '--- sigm is used. sigm.$MATERIAL is softlink to it  ---'
-    fi
-else
-    $echo_run echo '--- Neither sigm nor sigm.$MATERIAL exists. ==> LDA '
-fi 
+EXEC_DIR = Path(__file__).parent
 
 
-######## lmf part #########################################
-run_arg '---' $NO_MPI   $nfpgw /lmfa  llmfa $MATERIAL # if lmfa is not yet.
-run_arg '---' $MPI_SIZE $nfpgw /lmf llmf_start $MATERIAL
+def cal_mloW(args, extra_args):
+    cluster  = args.cluster
+    target   = args.extension
+    mpi_size = args.np
+    options  = extra_args
 
-##### preparation of required inputs for GW (mainly prepare required eigenfuncitons) ######
-argin=0; run_arg $argin $NO_MPI   $nfpgw /lmf llmfgw00 $MATERIAL --jobgw=0
-argin=1; run_arg $argin $NO_MPI   $nfpgw /qg4gw      lqg4gw   #Generate requied q+G vectors.
-argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmf llmfgw01 $MATERIAL --jobgw=1 --mlo
-#--wanatom
+    if not Path('bnd001.spin1').exists():
+        sys.exit('job_mloW: bnd001.spin1 not found — run job_band first')
 
-argin=1; run_arg $argin $NO_MPI $nfpgw /heftet leftet # A file EFERMI for hx0fp0
-argin=0; run_arg $argin $NO_MPI $nfpgw /hbasfp0 lbas  # Product basis generation 
+    if not ensure_gwinput_toml(exec_dir=EXEC_DIR):
+        sys.exit('job_mloW: GWinput.toml is required')
 
-### pkm4crpa file mode for crpa ###
-#argin=10011; run_arg $argin 1 $nfpgw /hwmatK_MPI lpkm4crpa 
+    # If sigm exists alongside sigm.<target>, symlink sigm.<target> → sigm (GW mode).
+    sigm     = Path('sigm')
+    sigm_mat = Path(f'sigm.{target}')
+    if sigm.exists():
+        if sigm_mat.exists():
+            sigm_mat.rename(f'sigm.{target}.bakup')
+            sigm_mat.symlink_to('sigm')
+            print(f'--- sigm is used; sigm.{target} symlinked to it ---')
+    else:
+        print(f'--- sigm not found => LDA ---')
 
-### Main part of v, W-v for Wanniers. ##########################
-run_arg '---' $MPI_SIZE  $nfpgw /mlo lmlo $MATERIAL --mlo
-argin=0;  run_arg $argin $MPI_SIZE $nfpgw /hvccfp0 lvcc        # Coulomb matrix v
-argin=1;  run_arg $argin $MPI_SIZE $nfpgw /hwmatK_MPI lwmatK1 $MATERIAL --mlo # Matrix elements of v for Wannier
-argin=111; run_arg $argin $MPI_SIZE $nfpgw /hx0fp0 lx0_111     # Screened Coulomb W minus v, W-v
-argin=2;  run_arg $argin $MPI_SIZE $nfpgw /hwmatK_MPI lwmatK2 $MATERIAL --mlo # Matrix element of W-v
+    # --- DFT self-consistency ---
+    run_cmd(cluster, MPIParams(nprocs=1,        command=EXEC_DIR/'lmfa', args=[target, *options]), stdout='llmfa')
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/'lmf',  args=[target, *options]), stdout='llmf_start')
 
-#$nfpgw/Cal_W.py
+    # --- GW prerequisites ---
+    run_cmd(cluster, MPIParams(nprocs=1,        command=EXEC_DIR/'lmf',    args=[target, '--jobgw=0', *options]),           stdout='llmfgw00')
+    run_cmd(cluster, MPIParams(nprocs=1,        command=EXEC_DIR/'qg4gw',  args=[target, '--job=1',   *options]),           stdout='lqg4gw')
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/'lmf',    args=[target, '--jobgw=1', '--mlo', *options]),  stdout='llmfgw01')
+    run_cmd(cluster, MPIParams(nprocs=1,        command=EXEC_DIR/'heftet', args=[target, '--job=1',   *options]),           stdout='leftet')
+    run_cmd(cluster, MPIParams(nprocs=1,        command=EXEC_DIR/'hbasfp0',args=[target, '--job=0',   *options]),           stdout='lbas')
 
-# #### crpa
-# argin=10011; run_arg $argin $MPI_SIZE $nfpgw /hx0fp0 lx0_10011    # cRPA Screened Coulomb W minus v, W-v
-# argin=100;  run_arg $argin $MPI_SIZE $nfpgw /hwmatK_MPI lwmatK2crpa # Matrix element of W-v
-# #$nfpgw/Cal_W.py
+    # --- MLO + screened Coulomb ---
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/'mlo',        args=[target, '--mlo', *options]), stdout='lmlo')
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/'hvccfp0',    args=[target, *options]), stdin_str='0',   stdout='lvcc')
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/'hwmatK_MPI', args=[target, '--mlo', *options]), stdin_str='1',   stdout='lwmatK1')
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/'hx0fp0',     args=[target, *options]), stdin_str='111', stdout='lx0_111')
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/'hwmatK_MPI', args=[target, '--mlo', *options]), stdin_str='2',   stdout='lwmatK2')
 
-$echo_run echo "OK! It's finished well."
-exit 0
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        prog='job_mloW',
+        description='DFT + MLO Wannier + screened Coulomb W. Requires bnd001.spin1.',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument('extension',      help='ctrl file extension (material name)')
+    parser.add_argument('-np',            help='MPI cores', default=8, type=int)
+    parser.add_argument('-c', '--cluster',help='cluster name', default='default')
+    parser.add_argument('-d', '--dir',    help='working directory (default: current)', default='.')
+
+    args, extra_args = parser.parse_known_args()
+    with contextlib.chdir(args.dir):
+        cal_mloW(args, extra_args)
