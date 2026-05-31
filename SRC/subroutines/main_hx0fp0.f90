@@ -9,8 +9,7 @@ subroutine hx0fp0()
   use m_readqg,only:     Readqg,Readngmx2,ngpmx,ngcmx
   use m_hamindex,only:   Readhamindex
   use m_readeigen,only:  Readeval,Init_readeigen,Init_readeigen2
-  use m_read_bzdata,only: Read_bzdata, ngrp2=>ngrp,nqbz,nqibz,nqbzw,nteti,ntetf,n1,n2,n3,ginv, &
-       dq_,qbz,wbz,qibz,wibz,qbzw, idtetf,ib1bz,idteti, nstar,irk,nstbz, wqt=>wt,q0i,nq0i ,nq0iadd,ixyz,nq0ix,neps
+  use m_read_bzdata,only: Read_bzdata, nqbz,nqibz,qbz, wqt=>wt,q0i,nq0i,nq0ix,neps
   use m_genallcf_v3,only: Genallcf_v3,natom,nspin,nl,nn,nlnmx, nctot, alat, esmr, il,in,im,nlnm, plat, pos,ecore, tpioa
   use m_hamindex,only: ngrp
   use m_pbindex,only: PBindex !,norbt,l_tbl,k_tbl,ibas_tbl,offset_tbl,offset_rev_tbl
@@ -66,18 +65,17 @@ subroutine hx0fp0()
   logical    :: realomega=.true., imagomega=.true.
   logical    :: omitqbz=.false., chipm=.false., nolfco=.false., epsmode=.false., crpa=.false.
   integer    :: ixc, iqxini, iqxend, nwp, noccxv, ngb, ngc, ngrpx
-  integer    :: i, is, iq, iw, ix, ibas, imb, ibasx, lxx
+  integer    :: i, is, iq, iw, ibas, imb, ibasx, lxx
   integer    :: ilmx, lb, nb, mb, ixx, ilm_r, nx_r
   integer    :: npr, ifif, ifwd, ifv, ierr
   integer    :: iqixc2, igb1, igb2, imb1, imb2
   integer    :: ifepsdatnolfc, ifepsdat, ifchipmn_mat
   integer    :: n_bpara, n_kpara, worker_inQtask, worker_auto
-  character(11)  :: ttt
-  character(128) :: itag, outs=''
-  character*3    :: charnum3
-  logical, external  :: cmdopt0
-  logical            :: cmdopt2
-  integer, external  :: verbose
+  character(11)       :: ttt
+  character(128)      :: itag, outs=''
+  character(3),  external :: charnum3
+  logical,       external :: cmdopt0, cmdopt2
+  integer,       external :: verbose
   real(8),    allocatable :: symope(:,:)
   integer,    allocatable :: nxx_r(:), aimbas(:)
   real(8),    allocatable :: svec(:,:), cvec(:,:), spinvec(:,:), consvec(:,:)
@@ -105,12 +103,12 @@ subroutine hx0fp0()
   !!  chipm: \Chi_pm mode (nspin=2) !  nolfco: no local field correction
   lqall=.true.
   if(ixc==11) then;      if(ipr) write(stdo,*)"OK ixc=11  normal ";         epsmode=.false. ; lqall=.true.
-  elseif(ixc==111) then; if(ipr) write(stdo,*)"OK ixc=111 normal fullband"; epsmode=.false. 
+  elseif(ixc==111) then; if(ipr) write(stdo,*)"OK ixc=111 normal fullband"; epsmode=.false.
   elseif(ixc==10011)then;if(ipr) write(stdo,*)"OK ixc=10011 crpa ";         epsmode=.false. ; crpa=.true.
   elseif(ixc==202) then; if(ipr) write(stdo,*)"OK ixc=202 eps NoLFC";       epsmode =.true. ; imagomega=.false.; omitqbz=.true.;nolfco=.true.
-  elseif(ixc==203) then; if(ipr) write(stdo,*)"OK ixc=203 eps wLFC";        epsmode = .true.; imagomega=.false.; omitqbz=.true.   
+  elseif(ixc==203) then; if(ipr) write(stdo,*)"OK ixc=203 eps wLFC";        epsmode = .true.; imagomega=.false.; omitqbz=.true.
   elseif(ixc==222) then; if(ipr) write(stdo,*)"OK ixc=222 chipm noLFC";     epsmode = .true.; imagomega=.false.; omitqbz=.true.;nolfco=.true.
-     chipm=.true.    !  elseif(ixc==12) realomega=.false.; ecorr_on=901; then ! Total energy test mode --> need fixing 
+     chipm=.true.    !  elseif(ixc==12) realomega=.false.; ecorr_on=901; then ! Total energy test mode --> need fixing
   else; call rx( ' hx0fp0: given mode ixc is not appropriate')
   endif
   call Read_BZDATA(hx0)
@@ -150,7 +148,7 @@ subroutine hx0fp0()
   call init_readeigen2()
   if(verbose()>50) print *,'eeee exit of init_readeigen2'
   call Getfreq3(lqall,epsmode,realomega,imagomega,ua,mpi__root)
-  writefreq_r: if(realomega .AND. mpi__root) then  
+  writefreq_r: if(realomega .AND. mpi__root) then
      open(newunit=ifif,file='freq_r') !write number of frequency points nwp and frequensies in 'freq_r' file
      write(ifif,"(2i8,'  !(a.u.=2Ry)')") nw+1, nw_i
      do iw= nw_i,-1
@@ -187,7 +185,7 @@ subroutine hx0fp0()
   endif
   if(chipm ) then !transverse spin susceptibility
      allocate(aimbas(nmbas),source=abs(imbas(1:nmbas)))
-     allocate( svec(nbloch,nmbas),source=0d0 ) 
+     allocate( svec(nbloch,nmbas),source=0d0 )
      allocate( cvec(nbloch,nmbas),momsite(nmbas), mmnorm(nmbas)) !May2007
      cvec=0d0
      do imb=1,nmbas
@@ -246,7 +244,7 @@ subroutine hx0fp0()
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0: sanity check. |q(iq=1)| /= 0')
   if(ipr) write(stdo,*)" chi_+- mode nolfc=",nolfco
   if(.NOT.chipm) allocate(zzr(1,1),source=(0d0,0d0)) !dummy
-  iqloop: do 1001 iq = iqxini,iqxend  ! NOTE: qp=(0,0,0) is omitted when iqxini=2
+  iqloop: do iq = iqxini, iqxend  ! NOTE: qp=(0,0,0) is omitted when iqxini=2
 !    if(cmdopt0('--zmel0').and.iq==iqxini) cycle
     if( mod(iq-1, n_qgroup) /= iq_qgroup ) cycle
     call cputid (0)
@@ -295,7 +293,7 @@ subroutine hx0fp0()
     endif
     call mpi_barrier(comm_k, ierr)
     call mpi_barrier(comm_b, ierr)
-1001 enddo iqloop
+  end do iqloop
   call wv_dealloc()
   call MPI_barrier(comm,ierr)
   if( .NOT. epsmode) call MPI__sendllw2(iqxend, n_qgroup, qgroup_root)
@@ -313,7 +311,7 @@ subroutine hx0fp0()
 !  if(ixc==12)   call rx0( ' OK! hx0fp0 mode=12    Ecor mode')
 contains
   subroutine writeepsopen()
-    character*4:: charnum4
+    character(4), external :: charnum4
     itag=''
     if(cmdopt0('--interbandonly')) itag='.interbandonly'
     if(cmdopt0('--intrabandonly')) itag='.intrabandonly'
@@ -379,7 +377,7 @@ contains
     endif
     if(allocated(epstilde)) deallocate(epstilde,epstinv)
     allocate(epstilde(npr,npr),epstinv(npr,npr))
-    iwloop: do 1015 iw  = nw_i,nw
+    iwloop: do iw = nw_i,nw
       frr= dsign(freq_r(abs(iw)),dble(iw))
       call MPI__GatherXqw(zxq(:,:,iw), zxqw, npr, npr)
       if( .NOT. chipm) then
@@ -395,9 +393,8 @@ contains
                qp, 2*frr, 1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
         endif
         if( .NOT. nolfco) then
-          ix=0
-          do igb1=ix+1,npr
-            do igb2=ix+1,npr
+          do igb1=1,npr
+            do igb2=1,npr
               if(igb1==1 .AND. igb2==1) then
                 epstilde(igb1,igb2)= -vcmean*zxqw(igb1,igb2) !aug2012
               else
@@ -406,8 +403,8 @@ contains
               if(igb1==igb2) epstilde(igb1,igb2)=1+epstilde(igb1,igb2)
             enddo
           enddo
-          epstinv(ix+1:npr,ix+1:npr)=epstilde(ix+1:npr,ix+1:npr)
-          call matcinv(npr-ix,epstinv(ix+1:npr,ix+1:npr))
+          epstinv(1:npr,1:npr)=epstilde(1:npr,1:npr)
+          call matcinv(npr,epstinv(1:npr,1:npr))
           epsi(iw,iqixc2)= epstinv(1,1)
           if(mpi__root_q) then
             if(ipr) write(stdo,'( " iq iw omega eps epsi  wLFC=",2i6,f8.3,2e23.15,3x, 2e23.15)') &
@@ -428,9 +425,9 @@ contains
         if(mpi__root_q) write(ifchipmn_mat,'(3f12.8,2x,f20.15,2x,255e23.15)')qp, 2*schi*frr, x0meanx(:,:)
         deallocate(x0meanx)
       endif
-1015 enddo iwloop
+    end do iwloop
     if(chipm) then
-      close(ifchipmn_mat) 
+      close(ifchipmn_mat)
     else
       close(ifepsdatnolfc) ! = iclose( filepsnolfc)
       if( .NOT. nolfco) close(ifepsdat) !  = iclose(fileps)
@@ -438,165 +435,3 @@ contains
   end subroutine writerealeps
 endsubroutine hx0fp0
 end module m_hx0fp0
-
-  !$$$!! --- legas mode is not working now. Need fixing... voltot ntot are not given.
-  !$$$      if(epsmode.and.legas) then
-  !$$$        call rx( ' LEGAS mode is not maintained well. Need some fixing.')
-  !$$$        voltot=0d0
-  !$$$        ntot=0d0
-  !$$$        if(ipr) write(stdo,*)' Find LEGAS. legas =',legas
-  !$$$        iflegas = 2101
-  !$$$        open (iflegas,file='LEGAS')
-  !$$$        read(iflegas,*)rs
-  !$$$        close(iflegas)
-  !$$$        alpha  = (9*pi/4d0)**(1d0/3d0)
-  !$$$        qfermi = alpha/rs
-  !$$$        efx  = qfermi**2
-  !$$$        valn = efx**1.5d0*voltot/3d0/pi**2
-  !$$$        write (6,*)'  #### egas test mode  legas=T #### given rs =',rs
-  !$$$        write (6,*)'     Exact Fermi momentum  qf  =', qfermi
-  !$$$        write (6,*)'     Exact Fermi energy    Ef  =', efx
-  !$$$        do iq = iqxini,iqxend ! q=(0,0,0) is omitted!
-  !$$$          if(iq<=nqibz) cycle
-  !$$$          if(ipr) write(stdo,*)' iq=',iq
-  !$$$          iqixc2 = iq- (nqibz+nq0ix)
-  !$$$          filele ='EPSEG'//charnum4(iqixc2)//'.dat'
-  !$$$          ife = iopen ( filele,1,3,0)
-  !$$$          write(ife,"(a)")
-  !$$$     &          ' q(1:3)   w(Ry)   eps    epsi  --- NO LFC'
-  !$$$          q = qibze(:,iq)
-  !$$$          qt= sqrt(sum(qibze(1:,iq)**2))*2d0*pi/alat
-  !$$$          qs= qt/qfermi
-  !$$$          if(ipr) write(stdo,"(' qs qfermi=',2d13.5)"    ) qs,qfermi
-  !$$$          if(ipr) write(stdo,"(' q-q^2/2 q+q^2=',2d13.5)") qs-qs**2/2d0,qs+qs**2/2d0
-  !$$$          do iw  = nw_i,nw
-  !$$$            ww  = freq_r(iw)
-  !$$$            muu = ww/qfermi**2
-  !$$$            if(     qs<2d0 .and. muu < qs-qs**2/2d0) then
-  !$$$              x0mx= -img*qfermi/(4*pi*qs)*2*muu
-  !$$$            elseif( qs<2d0 .and. muu < qs+qs**2/2d0) then
-  !$$$              x0mx= -img*qfermi/(4*pi*qs)*( 1d0-(muu/qs-.5d0*qs)**2 )
-  !$$$            else
-  !$$$              x0mx=0d0
-  !$$$            endif
-  !$$$            vcmmmm= 4*pi/qt**2
-  !$$$            epsi(iw,iqixc2) = 1d0/(1- vcmmmm * x0mx)
-  !$$$c            epsi(iw,iqixc2) = 1d0/(1- vcmmm(iq) * x0meanx)
-  !$$$            write(ife,'(3f12.8,2x,d12.4,2e23.15,2x,2e23.15)')
-  !$$$     &        q, 2*ww,1d0/epsi(iw,iqixc2),epsi(iw,iqixc2)
-  !$$$          enddo
-  !$$$        enddo
-  !$$$        if(ipr) write(stdo,*)' ----------legas end--------'
-  !$$$      endif
-
-  !$$$!! Write TEECOR ecorr_on mode
-  !$$$      if(imagomega.and.ecorr_on>0) then
-  !$$$        hartree=2d0*rydberg()
-  !$$$        ifcor   = iopen('TEECORR2',1,-1,0) ! output files
-  !$$$        do iecut=1,necut
-  !$$$          if(ipr) write(stdo,"( ' RPA Ec =' 3f23.15,'   ecut ecuts (Ry)=',2d12.4)")
-  !$$$     &   totexc(iecut)*hartree,trpv(iecut)*hartree, trlog(iecut)*hartree
-  !$$$     &    ,ecut(iecut),ecuts(iecut)
-  !$$$          write(ifcor,*) '============================'
-  !$$$          write(ifcor,*) 'Correlation energy Erpa (eV)'
-  !$$$          write(ifcor,*) '============================'
-  !$$$          write(ifcor,*)' ### '
-  !$$$          write(ifcor,"(5e23.15)")
-  !$$$     &     totexc(iecut)*hartree,trpv(iecut)*hartree,trlog(iecut)*hartree
-  !$$$     &    ,ecut(iecut),ecuts(iecut)
-  !$$$        enddo
-  !$$$!! output ecqw !    write(ifcor,*)'### ecqw(q,w) ###'
-  !$$$        write(ifcor,*)' nqibz =',nqibz
-  !$$$        write(ifcor,*)' nq0i  =',nq0i
-  !$$$        write(ifcor,*)' niw   =',niw
-  !$$$        write(ifcor,*)' --- See details of Ec in ecor.chk ---'
-  !$$$C... Write electron gas correlation energy
-  !$$$c$$$        legas = .false.
-  !$$$c$$$        INQUIRE (FILE = 'LEGAS', EXIST = legas)
-  !$$$c$$$        if(legas) then !!! test for electron gas case.
-  !$$$c$$$          call rx( ' LEGAS mode is not maintained well. Need some fixing.')
-  !$$$c$$$          voltot=0d0
-  !$$$c$$$          ntot=0d0
-  !$$$c$$$          if(ipr) write(stdo,*)' find LEGAS. legas =',legas
-  !$$$c$$$          iflegas = 2101
-  !$$$c$$$          open (iflegas,file='LEGAS')
-  !$$$c$$$          read(iflegas,*)rs
-  !$$$c$$$          close(iflegas)
-  !$$$c$$$          alpha = (9*pi/4d0)**(1d0/3d0)
-  !$$$c$$$          qfermi = alpha/rs
-  !$$$c$$$          efx  = qfermi**2
-  !$$$c$$$          valn = efx**1.5d0*voltot/3d0/pi**2
-  !$$$c$$$          write (6,*)'  #### egas test mode  legas=T #### given rs =',rs
-  !$$$c$$$          write (6,*)' egas  Exact Fermi momentum  qf  =', qfermi
-  !$$$c$$$          write (6,*)' egas  Exact Fermi energy    Ef  =', efx
-  !$$$c$$$          if(tetra) call rx( 'legas You have to give ef of  tetrahedron')
-  !$$$c$$$          efz=(ntot*3*pi**2/voltot)**(2d0/3d0) ! ef is calculated from ntot.
-  !$$$c$$$          qfermi= dsqrt(efz)
-  !$$$c$$$          alpha = (9*pi/4d0)**(1d0/3d0)
-  !$$$c$$$          rs    = alpha/qfermi
-  !$$$c$$$          write (ifcor,*)' --- electron gas ---'
-  !$$$c$$$          write (ifcor,*)' density parameter rs= ', rs
-  !$$$c$$$          write (ifcor,*)' kf= ',qfermi
-  !$$$c$$$          write (ifcor,*)' ### Barth-Hedin formula'
-  !$$$c$$$          ecelgas = eclda_bh(rs) * hartree * ntot
-  !$$$c$$$          write (ifcor,*)ecelgas
-  !$$$c$$$          write (ifcor,*)' ### Perdew-Zunger formula'
-  !$$$c$$$          ecelgas = eclda_pz(rs) * hartree * ntot
-  !$$$c$$$          write (ifcor,*)ecelgas
-  !$$$c$$$          write (ifcor,*)' ### Gell-Mann and Brueckner formula'
-  !$$$c$$$          ecelgas = (-0.0311d0 * dlog(rs) -0.048d0) * hartree * ntot
-  !$$$c$$$          write (ifcor,*)ecelgas
-  !$$$c$$$        endif
-  !$$$      endif
-
-! !--------------------------------------------------------------------
-! real*8 function eclda_bh(rs)
-!   real(8) :: rs,cp,rp,z
-!   cp       = 0.0504d0*0.5d0 ! 0.5 changes unit from Ry to Hartree
-!   rp       = 30.d0
-!   z        = rs / rp
-!   eclda_bh = -cp * ( (1.d0+z**3)*dlog(1.d0+1.d0/z) &
-!        + 0.5d0*z - z**2 - 0.33333333d0 )
-! END function eclda_bh
-! !--------------------------------------------------------------------
-! real*8 function eclda_pz(rs)
-!   real(8) :: rs
-!   if (rs >= 1.d0) then
-!      eclda_pz = -0.1423d0 / (1.d0 + 1.0529d0*dsqrt(rs) + 0.334d0*rs)
-!   else
-!      eclda_pz = -0.0480d0 + 0.0311d0*dlog(rs) - 0.0116d0 * rs &
-!           + 0.0020d0*rs*dlog(rs)
-!   endif
-! END function eclda_pz
-! !--------------------------------------------------------------------
-! subroutine wecqw(ifcor, &
-!      nqibz,nqbz,nq0i,nqitot,niw, &
-!      wibz,wqt,wx,freqx,ecqw)
-
-!   implicit double precision (a-h,o-z)
-!   dimension   wibz(nqibz),wqt(nq0i),wx(niw), &
-!        freqx(niw),ecqw(nqitot,niw)
-!   integer:: ifcor,nqibz,nqbz,nq0i,nqitot,ip,ix,niw
-!   real(8):: rydberg
-!   write(ifcor,*)'### ecqw(q,w) ###'
-!   write(ifcor,*)'nqibz =',nqibz
-!   write(ifcor,*)'nq0i  =',nq0i
-!   write(ifcor,*)'niw   =',niw
-!   do ip = 2,nqitot
-!      if (ip <= nqibz) then
-!         wk = wibz(ip)*0.5d0 ! 0.5 for the normalization of wibz
-!      else
-!         !        wk = wqt(ip-nqibz)*wibz(1)*0.5d0 ! 0.5 for the normalization of wibz
-!         wk = wqt(ip-nqibz)* 1d0/dble(nqbz)
-!      endif
-!      write(ifcor,*)'### iq,wq = ',ip,wk
-!      sume=0d0
-!      do ix = 1,niw
-!         write(ifcor,*)freqx(ix),ecqw(ip,ix),wx(ix)
-!         sume=sume+  wx(ix)/(freqx(ix)*freqx(ix)) * ecqw(ip,ix)
-!      enddo
-!      write(ifcor,*) '  sum ecqw*wx=', wk*sume*2d0*rydberg()
-!      ! end of ip-loop
-!   enddo
-!   return
-! end subroutine wecqw

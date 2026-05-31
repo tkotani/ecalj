@@ -550,7 +550,8 @@ contains
 
     ! Correlation worker: SHM-constrained.
     ! Step 1: worker_inQtask — maximize q-groups within memory
-    max_qg = max(1, int(avail_gb / shm_gb))
+    ! Clamp before int() to avoid 32-bit overflow when shm_gb is tiny (e.g. nolfco: ngb_max=1).
+    max_qg = max(1, int(min(avail_gb / shm_gb, real(ppn, 8))))
     max_qg = min(max_qg, ppn, nq_calc)  ! no point in more q-groups than q-points
     target_w = (ppn + max_qg - 1) / max_qg  ! ceiling division: ensures n_qgroup <= nq_calc
     worker = find_div_geq(mpi__size, target_w)
