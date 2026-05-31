@@ -58,7 +58,7 @@ subroutine qg4gw() bind(C)
   integer(4)::nnn(3),ret,verbose,q0pchoice,wgtq0p,iq0pinxxx,n1,n2,n3
   logical:: GaussSmear,KeepEigen,core_orth,ldummy, lnq0iadd=.false. !keepppovl,
   integer:: gammacellctrl=0
-  logical:: lmagnon = .false., cmdopt2
+  logical:: lmagnon = .false., ln1n2n3eps = .false., cmdopt2, cmdopt0
   character(20):: outs=''
   call MPI__Initialize()
 !  if(.not.MPI__root) goto 9999
@@ -93,7 +93,8 @@ subroutine qg4gw() bind(C)
   else
      call rx( 'Not allowed iq0pin')
   endif
-  call mkQG2(iq0pinxxx, gammacellctrl,lnq0iadd,lmagnon)
+  if(cmdopt0('--n1n2n3eps')) ln1n2n3eps=.true.
+  call mkQG2(iq0pinxxx, gammacellctrl,lnq0iadd,lmagnon,ln1n2n3eps)
   write(6,*) ' OK! End of qg4gw '
   if(iq0pin ==1)     call rx0( ' OK! qg4gw mode=1 normal mode')
   if(iq0pin ==2)     call rx0( ' OK! qg4gw mode=2 Readin Q0P mode')

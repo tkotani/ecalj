@@ -1,4 +1,4 @@
-subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G to expand eigenfunctions for GW.
+subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon,ln1n2n3eps)! Make required q and G to expand eigenfunctions for GW.
   use m_ftox
   use m_get_bzdata1,only: Getbzdata1, nqbz, nqibz, nqbzw,ntetf,nteti,nqbzm
   use m_get_bzdata1,only: qbz,wbz,qibz,wibz, qbzw, idtetf, ib1bz, idteti, irk, nstar, nstbz 
@@ -14,7 +14,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
   use m_hamindex0,only: Readhamindex0, symops,ngrp,alat,plat,qlat
   use m_lgunit,only: stdo
   implicit none
-  intent(in)::   iq0pin, gammacellctrl,lnq0iadd,lmagnon
+  intent(in)::   iq0pin, gammacellctrl,lnq0iadd,lmagnon,ln1n2n3eps
   !!     |q+G| < QpGcut_psi for eigenfunction psi.
   !!     |q+G| < QpGcut_Cou for coulomb interaction
   !!
@@ -41,7 +41,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
   logical :: regmesh=.false. ,regmeshg=.false. ,  timereversal
   logical :: caca,debug=.false. !,newaniso
   logical :: newoffsetG !july2014
-  logical :: lnq0iadd, lmagnon, unit2=.false. ,cmdopt0
+  logical :: lnq0iadd, lmagnon, ln1n2n3eps, unit2=.false. ,cmdopt0
   logical :: keepqg
   integer :: ifiqg2,ifiqgc2
   integer, allocatable :: ngvecp_tmp(:,:),ngvecc_tmp(:,:)
@@ -51,7 +51,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
   call gwinput_init()
   if (gwinput_loaded) then
      nnn = tg_n1n2n3
-     if (lmagnon .or. iq0pin==2) then
+     if (lmagnon .or. ln1n2n3eps) then
         if (any(tg_n1n2n3eps /= 0)) nnn = tg_n1n2n3eps   ! else default = n1n2n3
      endif
      if (lmagnon .and. cmdopt0('--dos')) then

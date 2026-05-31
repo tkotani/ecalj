@@ -73,7 +73,7 @@ def cal_eps(args, extra_args):
 
     print(f"### start eps with/without lcf: mpi size= {mpi_size}, target= {target}")
     run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"lmf", args=[target, "--jobgw=0", '--novxc', *options]), stdout="llmfgw00")
-    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"qg4gw", args=["--job=2", *options]), stdout="lqg4gw02")
+    run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"qg4gw", args=["--job=2", "--n1n2n3eps", *options]), stdout="lqg4gw02")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
                                args=[target, "--jobgw=1", "--skipbstruxinit", *options]), stdout="llmfgw01")
     run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"heftet", args=["--job=1", *options]), stdout="leftet")
