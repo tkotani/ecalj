@@ -36,7 +36,7 @@ subroutine hahc() bind(C)
   use m_genallcf_v3,only: nprecb,mrecb,mrece,nqbzt,nband,mrecg
   use m_readVcoud,only: Readvcoud,vcousq,zcousq !,ngb,ngc
   use m_x0kf_ahc,only: x0kf_ahc,deallocatezxq,deallocatezxqi,zxqi,zxq
-  use m_llw,only: WVRllwR,WVIllwI,MPI__sendllw2
+  use m_llw,only: WVRllwR,WVIllwI
   use m_w0w0i,only: w0w0i
   use m_lgunit,only:m_lgunit_init
   use m_readqg,only: Readqg0

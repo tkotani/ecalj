@@ -38,7 +38,7 @@ subroutine hx0fp0()
   use m_genallcf_v3,only: nprecb,mrecb,mrece,nqbzt,nband,mrecg
   use m_readVcoud,only: Readvcoud,vcousq,zcousq !,ngb,ngc
   use m_x0kf,only: x0kf_zxq,deallocatezxq,deallocatezxqi,zxqi,zxq
-  use m_llw,only: WVRllwR,WVIllwI,MPI__sendllw2
+  use m_llw,only: WVRllwR,WVIllwI, MPI__llw_alloc_bufs, MPI__irecvllw_q, MPI__isendllw_q, MPI__waitllw
   use m_w0w0i,only: w0w0i
   use m_lgunit,only:m_lgunit_init,stdo
   use m_readqg,only: Readqg0
@@ -70,7 +70,7 @@ subroutine hx0fp0()
   integer    :: npr, ifif, ifwd, ifv, ierr
   integer    :: iqixc2, igb1, igb2, imb1, imb2
   integer    :: ifepsdatnolfc, ifepsdat, ifchipmn_mat
-  integer    :: n_bpara, n_kpara, worker_inQtask, worker_auto
+  integer    :: n_bpara, n_kpara, worker_inQtask, worker_auto, iq1_dest
   character(11)       :: ttt
   character(128)      :: itag, outs=''
   character(3),  external :: charnum3
@@ -244,6 +244,13 @@ subroutine hx0fp0()
   if(sum(qibze(:,1)**2)>1d-10) call rx(' hx0fp0: sanity check. |q(iq=1)| /= 0')
   if(ipr) write(stdo,*)" chi_+- mode nolfc=",nolfco
   if(.NOT.chipm) allocate(zzr(1,1),source=(0d0,0d0)) !dummy
+  if(.NOT.epsmode) then
+    call MPI__llw_alloc_bufs()
+    iq1_dest = qgroup_root(0)
+    do iq = nqibz+1, iqxend
+      call MPI__irecvllw_q(iq-nqibz, qgroup_root(mod(iq-1, n_qgroup)), iq1_dest)
+    enddo
+  endif
   iqloop: do iq = iqxini, iqxend  ! NOTE: qp=(0,0,0) is omitted when iqxini=2
     if( mod(iq - iqxini, n_qgroup) /= iq_qgroup ) cycle
     call cputid (0)
@@ -282,15 +289,17 @@ subroutine hx0fp0()
         if (mpi__rank_root_k == 0) call wv_dump_shm_to_file(iq, mrecl, nblochpmx, realomega, imagomega)
       endif
     endif
+    if(.NOT.epsmode .AND. iq > nqibz) &
+      call MPI__isendllw_q(iq-nqibz, qgroup_root(iq_qgroup), iq1_dest)
     call mpi_barrier(comm_k, ierr)
     call mpi_barrier(comm_b, ierr)
   end do iqloop
   call wv_dealloc()
   call MPI_barrier(comm,ierr)
-  if( .NOT. epsmode) call MPI__sendllw2(iqxend, n_qgroup, qgroup_root)
-  !! == W(0) divergent part and W(0) non-analytic constant part.== Note that this is only for qp=0 -->iq=1
-  !! get w0 and w0i (diagonal element at Gamma point.   !! This return w0, and w0i
-  if(( .NOT. epsmode) .AND. MPI__rank==0) call w0w0i(nw_i,nw,nq0i,niw,q0i,is_wc_m_basis=.false.) !llw,llwI,
+  if(.NOT.epsmode) then
+    call MPI__waitllw()
+    if(MPI__rank == iq1_dest) call w0w0i(nw_i, nw, nq0i, niw, q0i, is_wc_m_basis=.false.)
+  endif
   ! === w0,w0i are stored to zw for qp=0 ===    !! === w_ks*wk are stored to zw for iq >nqibz ===
   call cputid(0)
   if(ixc==11)   call rx0( ' OK! hx0fp0 mode=11    read <Q0P> normal')

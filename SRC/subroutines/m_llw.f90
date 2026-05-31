@@ -40,7 +40,7 @@ module m_llw
   use m_blas, only: gemm => zmm_h
 #endif
   implicit none
-  public:: WVRllwR,WVIllwI,  MPI__sendllw,MPI__sendllw2, &
+  public:: WVRllwR,WVIllwI,  MPI__sendllw, &
            MPI__irecvllw_q, MPI__isendllw_q, MPI__waitllw, MPI__llw_alloc_bufs
   complex(8),allocatable,protected,public:: llw(:,:), llwI(:,:)
   complex(8),allocatable,protected,public:: wmuk(:,:)
@@ -378,27 +378,6 @@ contains
       if(is_x0_m_basis .or. is_wc_m_basis) call stopwatch_show(t_sw_x_m2e_xf)
     endif
   end subroutine WVIllWI
-  subroutine MPI__sendllw2(iqxend, n_qgroup, qgroup_root) !for hx0fp0
-    use m_mpi,only: MPI__root,MPI__DbleCOMPLEXsend,MPI__DbleCOMPLEXrecv,MPI__rank,MPI__size
-    implicit none
-    integer, intent(in) :: iqxend, n_qgroup, qgroup_root(0:)
-    integer :: iq0, dest, src, iq, owner
-    if(MPI__size==1) return
-    do iq=nqibz+1,iqxend
-      iq0    = iq - nqibz
-      owner  = qgroup_root(mod(iq-1, n_qgroup))
-      if(owner==0) cycle
-      if(owner == MPI__rank) then
-        dest=0
-        call MPI__DbleCOMPLEXsend(llw(nw_i,iq0),(nw-nw_i+1),dest)
-        call MPI__DbleCOMPLEXsend(llwI(1,iq0),niw,dest)
-      elseif(MPI__root) then
-        src=owner
-        call MPI__DbleCOMPLEXrecv(llw(nw_i,iq0),(nw-nw_i+1),src)
-        call MPI__DbleCOMPLEXrecv(llwI(1,iq0),niw,src)
-      endif
-    enddo
-  end subroutine MPI__sendllw2
   subroutine MPI__sendllw(iqxend,MPI__Qranktab) !for hx0fp0_sc
     use m_mpi,only: MPI__DbleCOMPLEXsendQ,MPI__DbleCOMPLEXrecvQ,MPI__size,MPI__rank,MPI__root
     ! === Recieve llw and llwI at node 0, where q=0(iq=1) is calculated. ===
