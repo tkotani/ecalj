@@ -64,7 +64,6 @@ def cal_eps(args, extra_args):
                                    args=["--job=202", "--interbandonly", *options]), stdout="lx0_interband")
         run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hx0fp0",
                                    args=["--job=202", "--intrabandonly", *options]), stdout="lx0_intraband")
-        run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"readeps.py", args=[]), stdout="lreadeps")
     else:
         hx0_extra = list(options)
         if args.interbandonly:
@@ -86,7 +85,7 @@ if __name__ == "__main__":
     parser.add_argument('--lcf',        help='local field correction', action='store_true')
     parser.add_argument("--nognuplot",  help="stop without drawing", action="store_true", default=False)
     parser.add_argument("-d", "--dir",  help="execution directory (default: current directory)", default=".", type=str)
-    parser.add_argument('--decompose',  help='run both --interbandonly and --intrabandonly, then combine via readeps.py',
+    parser.add_argument('--decompose',  help='run both --interbandonly and --intrabandonly',
                         action='store_true')
     bgroup = parser.add_mutually_exclusive_group()
     bgroup.add_argument('--interbandonly', action='store_true',
