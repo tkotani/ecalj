@@ -390,8 +390,8 @@ contains
                   ib1 = ib_tableI(ibt1)
                   ib2 = ib_tableI(ibt2)
                   np = npair(ib1,ib2)
-                  idims = pack([(i,i=1,ndimMTO)], mask=(ib_tableM(:)==ib1))
-                  jdims = pack([(j,j=1,ndimMTO)], mask=(ib_tableM(:)==ib2))
+                  idims = pack([(i,i=1,ndimMTO)], mask=(ib_tableM(1:ndimMTO)==ib1))
+                  jdims = pack([(j,j=1,ndimMTO)], mask=(ib_tableM(1:ndimMTO)==ib2))
                   phases(1:np) = [(1d0/dble(nqbz)* exp(img*2d0*pi* sum(qp*(matmul(plat,nlat(:,it,ib1,ib2))))),it=1,np)]
                   do concurrent(it=1:np, ii=1:size(idims), jj=1:size(jdims))
                     hammr(it,idims(ii),jdims(jj),jsp) = hammr(it,idims(ii),jdims(jj),jsp) + hamm(idims(ii),jdims(jj))*phases(it)
