@@ -8,14 +8,14 @@ from pylib.run_cmd import run_cmd, MPIParams
 
 EXEC_DIR = Path(__file__).parent
 
-def plot_eps_with_gnuplot(target, lcf, nognuplot, itag=''):
+def plot_eps_with_gnuplot(target, lcf, nognuplot):
     lcf_str = "with_lcf" if lcf else "without_lcf"
     header = textwrap.dedent(f"""\
         #!/usr/bin/gnuplot -persist
         rydberg = 13.605693
         set terminal pdf
         set title "EPS"
-        set output "eps_{lcf_str}_{target}{itag}.pdf"
+        set output "eps_{lcf_str}_{target}.pdf"
         set grid
         set zeroaxis
         set xrange [0:20.0]
@@ -23,17 +23,15 @@ def plot_eps_with_gnuplot(target, lcf, nognuplot, itag=''):
         set ylabel "dielectric function: Real part : red, Imag part : green"
     """)
     base_pat = "EPS????.dat" if lcf else "EPS????.nlfc.dat"
-    eps_file_pattern = base_pat + itag
     plots = []
-    for path in sorted(Path('.').glob(eps_file_pattern)):
+    for path in sorted(Path('.').glob(base_pat)):
         eps_file = path.name
         plots.append(textwrap.dedent(f"""\
             plot "{eps_file}" u ($4*rydberg):5 w l lc rgb "red", \\
                  "{eps_file}" u ($4*rydberg):6 w l lc rgb "green"
         """))
-    plot = "\n".join(plots)
-    gltfile = f"eps_{lcf_str}_{target}{itag}.glt"
-    Path(gltfile).write_text(header + plot)
+    gltfile = f"eps_{lcf_str}_{target}.glt"
+    Path(gltfile).write_text(header + "\n".join(plots))
     if not nognuplot:
         try:
             subprocess.run(["gnuplot", gltfile], check=True)
@@ -65,14 +63,9 @@ def cal_eps(args, extra_args):
         run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hx0fp0",
                                    args=["--job=202", "--intrabandonly", *options]), stdout="lx0_intraband")
     else:
-        hx0_extra = list(options)
-        if args.interbandonly:
-            hx0_extra.append('--interbandonly')
-        elif args.intrabandonly:
-            hx0_extra.append('--intrabandonly')
         job = "--job=203" if args.lcf else "--job=202"
         run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"hx0fp0",
-                                   args=[job, *hx0_extra]), stdout="lx0")
+                                   args=[job, *options]), stdout="lx0")
 
     print(f"OK! ==== All calculation finished for eps ====")
 
@@ -87,15 +80,9 @@ if __name__ == "__main__":
     parser.add_argument("-d", "--dir",  help="execution directory (default: current directory)", default=".", type=str)
     parser.add_argument('--decompose',  help='run both --interbandonly and --intrabandonly',
                         action='store_true')
-    bgroup = parser.add_mutually_exclusive_group()
-    bgroup.add_argument('--interbandonly', action='store_true',
-                        help='hx0fp0: include only interband transitions (Drude-free eps)')
-    bgroup.add_argument('--intrabandonly', action='store_true',
-                        help='hx0fp0: include only intraband transitions (Drude term only)')
 
     args, extra_args = parser.parse_known_args()
     with contextlib.chdir(args.dir):
         cal_eps(args, extra_args)
         if not args.decompose:
-            itag = '.interbandonly' if args.interbandonly else '.intrabandonly' if args.intrabandonly else ''
-            plot_eps_with_gnuplot(args.extension, args.lcf, args.nognuplot, itag)
+            plot_eps_with_gnuplot(args.extension, args.lcf, args.nognuplot)
