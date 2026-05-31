@@ -293,8 +293,8 @@ subroutine hx0fp0()
       call MPI__isendllw_q(iq-nqibz, qgroup_root(iq_qgroup), iq1_dest)
     call mpi_barrier(comm_k, ierr)
     call mpi_barrier(comm_b, ierr)
+    call wv_dealloc()
   end do iqloop
-  call wv_dealloc()
   call MPI_barrier(comm,ierr)
   if(.NOT.epsmode) then
     call MPI__waitllw()
