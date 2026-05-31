@@ -103,7 +103,7 @@ contains
 
     wv_backend = WV_BACKEND_SHM
     wv_nw_i    = rcxq_lo
-    if (present(mreclx)) wv_mreclx = mreclx   ! lower bound of shm_wvr 3rd dim; wv_put/get_real uses iw-wv_nw_i+1
+    if (present(mreclx)) wv_mreclx = mreclx   ! record length for file I/O after wv_dealloc (e.g. w0w0i reads WV files)
     wv_ngb     = ngbx
     wv_cur_iq  = 0
     nrcxq      = rcxq_hi - rcxq_lo + 1
