@@ -41,7 +41,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
   logical :: regmesh=.false. ,regmeshg=.false. ,  timereversal
   logical :: caca,debug=.false. !,newaniso
   logical :: newoffsetG !july2014
-  logical :: lnq0iadd, lmagnon,unit2=.false. ,cmdopt0
+  logical :: lnq0iadd, lmagnon, unit2=.false. ,cmdopt0
   logical :: keepqg
   integer :: ifiqg2,ifiqgc2
   integer, allocatable :: ngvecp_tmp(:,:),ngvecc_tmp(:,:)
@@ -51,7 +51,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon)! Make required q and G t
   call gwinput_init()
   if (gwinput_loaded) then
      nnn = tg_n1n2n3
-     if (lmagnon) then
+     if (lmagnon .or. iq0pin==2) then
         if (any(tg_n1n2n3eps /= 0)) nnn = tg_n1n2n3eps   ! else default = n1n2n3
      endif
      if (lmagnon .and. cmdopt0('--dos')) then
