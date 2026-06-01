@@ -457,8 +457,9 @@ def main():
                     vals = [float(x) for x in nums[:9]]
                     _plat = [vals[0:3], vals[3:6], vals[6:9]]
         tmp_toml = 'symgrp = "find"\n\n[io]\nverbos = 35\n\n'
-        tmp_toml += f'[struc]\nnspec = {len(specnames)}\nnbas = {len(sitenames)}\n'
-        tmp_toml += f'alat = {fmt_real(_alat)}\n'
+        # nspec/nbas omitted: synthesized by the TOML loader from
+        # [[spec]] / [[site]] array lengths (m_ctrl_toml_loader.f90).
+        tmp_toml += f'[struc]\nalat = {fmt_real(_alat)}\n'
         tmp_toml += f'plat = {fmt_mat3x3(_plat)}\n\n'
         _si = 0
         for ln in listsite:
@@ -514,8 +515,8 @@ def main():
     if alat is None: sys.exit('ctrlgenToml: STRUC ALAT not found')
     if plat is None: sys.exit('ctrlgenToml: STRUC PLAT not found')
     out.append('[struc]')
-    out.append(f'nspec = {len(specnames)}')
-    out.append(f'nbas  = {len(sitenames)}')
+    # nspec/nbas omitted: synthesized by the TOML loader from
+    # [[spec]] / [[site]] array lengths (m_ctrl_toml_loader.f90).
     out.append(f'alat  = {fmt_real(alat)}')
     out.append(f'plat  = {fmt_mat3x3(plat)}')
     out.append('')

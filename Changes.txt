@@ -1,4 +1,13 @@
 2026-06-02
+  [feat] m_ctrl_toml_loader.f90 + ctrlgenToml.py: [struc] nspec / nbas を
+    TOML に書かなくても loader が [[spec]] / [[site]] の配列長から
+    合成 (STRUC_NSPEC / STRUC_NBAS) するように。append は walk_table の
+    後段なので、ユーザが意図的に subset を絞った値 (例:
+    Samples/TestInstall/te は 12 サイト + 2 スペック格納だが
+    lmfa/mto/pw variant は nbas=3 nspec=1 でサブセット指定) は rval2 の
+    first-match で従来通り尊重される。ctrlgenToml.py からは無条件で
+    削除。testecalj --all (gfortran-14, CPU) で全 PASS 確認。
+
   [bugfix] SRC/exec/pylib/dft.py + gwutil.py: 内部で組み立てる
     `-vb={bval}` (Anderson 混合 β の override) が legacy `-v` 形式で、
     `m_toml_override.f90` の新 abort に引っかかって gwsc が即落ちしていた。

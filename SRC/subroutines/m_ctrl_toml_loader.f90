@@ -38,6 +38,15 @@ contains
     allocate(lines(0))
     nl = 0
     call walk_table(root, '', '', lines, nl)
+    ! Fallback STRUC_NSPEC / STRUC_NBAS from the [[spec]] / [[site]]
+    ! array lengths so the TOML doesn't have to repeat the count itself.
+    ! Appended AFTER walk_table so any user-written [struc] nspec/nbas
+    ! (intentional subset selector -- e.g. Samples/TestInstall/te has 12
+    ! sites in the arrays but nbas=3 in three of the four variants) still
+    ! wins via rval2's first-match. If the user omitted them, our count
+    ! becomes the value rval2 sees.
+    call emit_array_count(root, 'spec', 'STRUC_NSPEC', lines, nl)
+    call emit_array_count(root, 'site', 'STRUC_NBAS',  lines, nl)
 
     if (nl == 0) call rx('m_ctrl_toml_loader: empty ctrl TOML?')
     lenmax = 0
@@ -102,6 +111,32 @@ contains
        end select
     enddo
   end subroutine walk_table
+
+  !> Count an array-of-tables at the root and emit one synthetic
+  !! "<rec_key> <count>" record. No-op if the key is absent or empty.
+  subroutine emit_array_count(root, toml_key_lc, rec_key, lines, nlines)
+    type(toml_table), pointer,        intent(in)    :: root
+    character(*),                     intent(in)    :: toml_key_lc, rec_key
+    character(len=LMAX), allocatable, intent(inout) :: lines(:)
+    integer,                          intent(inout) :: nlines
+    class(toml_value), pointer :: node
+    type(toml_array),  pointer :: arr
+    integer :: n
+
+    if (.not.associated(root)) return
+    call root%get(toml_key_lc, node)
+    if (.not.associated(node)) return
+    select type (m => node)
+    type is (toml_array)
+       arr => m
+    class default
+       return
+    end select
+    if (.not.is_array_of_tables(arr)) return
+    n = len(arr)
+    if (n <= 0) return
+    call append_line(rec_key//' '//int2str(n), lines, nlines)
+  end subroutine emit_array_count
 
   !> Stringify a scalar TOML key-value into Fortran string.
   subroutine kv_to_string(kv, out)
