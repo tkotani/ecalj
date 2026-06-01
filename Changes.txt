@@ -1,4 +1,14 @@
 2026-06-02
+  [bugfix] SRC/exec/pylib/dft.py + gwutil.py: 内部で組み立てる
+    `-vb={bval}` (Anderson 混合 β の override) が legacy `-v` 形式で、
+    `m_toml_override.f90` の新 abort に引っかかって gwsc が即落ちしていた。
+    `-v[iter.b]={bval}` (TOML path 形式) に修正。NiO QSGW で確認。
+
+  [tweak] Samples/TestInstall/nio_gwsc/test.py: --mp (mixed precision)
+    指定時のみ log.nio 比較 tol を 3e-3 → 5e-3 に緩和。kt1
+    nvfortran + GPU + MP で fp evl 収束が ~3.2e-3 ずれて閾値超過していた
+    のに対応。CPU パスは引き続き 3e-3 を維持する。
+
   [feat] m_toml_override.f90: legacy `-v<name>=<value>` 形式
     (ctrl `%const` 旧書式) を黙って無視する代わりに、明示的に rx で
     abort するようにした。エラー時には `-v[<toml-path>]=<value>` の
