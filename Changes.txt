@@ -12,6 +12,32 @@
     nvfortran で testecalj --all ALL PASSED (si_gwsc / gas_gwsc / nio_gwsc
     / fe_gwsc 等すべて) 確認。
 
+  [enhance] ecalj_auto/run_gw1500_addrun_conv.sh: スクラッチ処理対応。
+    mp-XXXX/ が無ければ POSCARALL から POSCAR をコピーして作成、 rst.<mid>
+    が無ければ LDA SCF (lmfa + lmf) を先に実行、 QSGW.*run/ が無くても
+    Iter0=0 で gwscconv を回せるようにした。 これで REDO_FAIL 物質を
+    mp-XXXX_FAILBACKUP/ に退避してスクラッチからやり直すフローが
+    addrun_conv バッチ単体で完結する。 Phase A の gwscconv 終了コードを
+    wait $pid; $? で捕捉し非0なら PHASE-A FAIL を log するようにも修正
+    (sleep 300 watchdog より早く落ちる即時エラーの検出)。
+
+  [bugfix] SRC/exec/run_cmd.py: GPU バイナリ (*_gpu) 実行時に
+    slot_scheduler_daemon から GPU slot を取得し CUDA_VISIBLE_DEVICES=
+    <slot_idx> を子プロセスに設定するようにした。 これまで gwsc は
+    hvccfp0_mp_gpu / hgw_combined_mp_gpu / hsfp0_sc_mp_gpu / hrcxq_mp_gpu
+    を run_cmd 経由で直接起動しており、 GPU slot も CUDA_VISIBLE_DEVICES
+    も設定していなかった。 → N 並列 worker (GW1500 量産で 6) の GPU
+    バイナリが全部 GPU 0 に殺到し、 GPU 0 メモリ枯渇で
+    CUDA_ERROR_OUT_OF_MEMORY (vcoulq_4 at mkjp.f90:296) が確率的に発生。
+    slot_scheduler の "2 GPU slot" 設計は存在したが CPU slot しか
+    使われておらず (worker.sh が lmf を slot_run.py で wrap、 gwsc 内部の
+    GPU 呼び出しはノーガード)、 この経路に配線されていなかった。
+    実装: _GpuSlot コンテキスト (REQUEST/ASSIGN プロトコル、 disconnect で
+    解放)、 _needs_gpu_slot(command)=command.endswith("_gpu")。
+    daemon が無ければ no-op フォールバックなので standalone 実行は不変。
+    検証: 6 worker × gwscconv ループの stress test で修正前 49% FAIL →
+    修正後 84 ループ (252 iter) で 0 FAIL、 GPU 0/1 均等分散を確認。
+
 2026-05-11
   [refactor] m_mpi.f90, m_llw.f90, main_hrcxq.f90:
     comm_b 廃止。MPI__SplitXq で n_bpara を無視し comm_b を trivial singleton
@@ -53,6 +79,28 @@
     2パス構成に整理。ifx で InstallAll.py --all (si_gwsc / gas_gwsc /
     nio_gwsc / fe_gwsc 含む) ALL PASSED 確認。nvfortran はコンパイル
     通過のみ確認。
+
+  [new+bugfix] SRC/exec/gwscconv: gwsc を 1 iter ずつ呼んで last-3 gap
+    swing < tol で停止する収束ラッパ。argparse の parse_known_args で
+    残った rest を gwsc に転送する際、最初の "非オプションかつ数字" を
+    nloop と見なして 1 に置換していたが、`-np 30` の "30" を nloop と
+    誤認するバグを修正。VALUE_FLAGS = {-np, -np2, -ppn, -ppn2, -c,
+    --cluster} の直後トークンは skip_next で素通しさせる。GW1500
+    addrun_conv バッチで顕在化 (gwsc が即異常終了、Phase A 空振り、
+    Phase B/C だけ動作し OK ログが残る無音故障だった)。
+
+  [new] ecalj_auto/run_gw1500_addrun.sh: 既存 done 物質に対して
+    QSGW iter を NADD 回追加実行する。production worker.sh の cleanup
+    で QPU.{n}run が消されているため、QSGW.{n}run/ から最大 n を割り
+    出して QPU.{n}run sentinel を復元、gwsc に Iter0=n を伝える。
+
+  [new] ecalj_auto/run_gw1500_addrun_conv.sh: addrun の収束版。
+    (A) gwscconv → (B) 新規 LDA band (PlotBand_LDA/) → (C) QSGW80
+    band 再走の 3 phase。 production 時に LDA band を計算してなかった
+    のを補える。Legacy 物質 (ctrlG.toml/PB.toml が無い) は POSCAR から
+    vasp2ctrl + ctrlgenToml.py で再生成する。Phase A の gwscconv 終了
+    コードを wait $pid; $? で拾って非 0 なら FAIL を log に残す
+    (sleep 300 watchdog より早く落ちた場合の検出)。
 
 2026-05-09
   [bugfix] SRC/exec/CMakeLists.txt: add_extended_build 関数末尾に

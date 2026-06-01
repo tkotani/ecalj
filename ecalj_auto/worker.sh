@@ -4,7 +4,7 @@
 
 GPU_ID=$1
 WORKER_ID=$2
-EPATH=~/bin2
+EPATH=~/bin
 WORKDIR=~/DATA/gw1500
 POSCAR_DIR=~/ecaljdeveloper/ecalj_auto/INPUT/gw1500/POSCARALL
 QUEUE=$WORKDIR/queue.txt
@@ -62,7 +62,7 @@ run_material() {
         fi
         # LDA SCF: acquire CPU slot via daemon, run lmf, release on exit
         echo "$(date '+%Y-%m-%d %H:%M:%S') $WORKER_ID $mpid cpu request bin=lmf_lda" >> ~/DATA/gw1500/slot_history.log
-        ~/bin2/slot_run.py cpu "$WORKER_ID" lmf_lda "$mpid" -- mpirun -np $NCORE $EPATH/lmf $mpid '-v[iter.nit]=80' > llmf_lda 2>&1
+        $EPATH/slot_run.py cpu "$WORKER_ID" lmf_lda "$mpid" -- mpirun -np $NCORE $EPATH/lmf $mpid '-v[iter.nit]=80' > llmf_lda 2>&1
         local lda_status=$(tail -1 save.$mpid 2>/dev/null | awk '{print $1}')
         if [ "$lda_status" != "c" ] && [ "$lda_status" != "x" ]; then
             echo "ERROR lda_conv=$lda_status"

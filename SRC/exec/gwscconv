@@ -1,0 +1,157 @@
+#!/usr/bin/env python3
+"""
+gwscconv: convergence-aware wrapper around gwsc.
+
+Repeatedly runs `gwsc 1 ...` until the band gap of the last 3 QSGW iterations
+agrees within `--conv-tol` (eV), or `--max-iter` total QSGW iters is reached.
+
+Usage:
+    gwscconv [gwsc-args...] [--conv-tol TOL] [--max-iter N]
+
+The args after the wrapper's own options are forwarded to gwsc verbatim,
+except that any `nloop` positional is overridden to 1 (gwscconv controls
+the loop). The script auto-detects pre-existing QPU.<n>run snapshots so
+it can resume from a partially converged state.
+
+Convergence check uses the eV value from llmf's
+"gap = X Ry = Y eV" line (the labeled-eV value, not the Ry-mislabeled
+egap line in log.<target>).
+
+Exit codes:
+    0  converged or max-iter reached normally
+    2  bad CLI
+    3  cannot read gap from llmf after a gwsc run
+    >  whatever gwsc exited with on failure
+"""
+import argparse
+import os
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+GAP_RE = re.compile(r"gap =\s*[-\d.]+\s*Ry =\s*([-\d.]+)\s*eV")
+EXEC_DIR = Path(__file__).resolve().parent
+GWSC = EXEC_DIR / "gwsc"
+
+
+def existing_iter() -> int:
+    """Max n from QPU.<n>run files in cwd (same logic as gwsc)."""
+    nums = []
+    try:
+        for s in os.listdir():
+            if s.startswith("QPU.") and s.endswith("run"):
+                core = s[4:-3]
+                if core.isdigit():
+                    nums.append(int(core))
+    except FileNotFoundError:
+        pass
+    return max(nums) if nums else 0
+
+
+def latest_gap_eV():
+    """Return last 'gap = X Ry = Y eV' from llmf, or None."""
+    try:
+        last = None
+        with open("llmf") as f:
+            for line in f:
+                m = GAP_RE.search(line)
+                if m:
+                    last = float(m.group(1))
+        return last
+    except FileNotFoundError:
+        return None
+
+
+def main():
+    ap = argparse.ArgumentParser(
+        prog="gwscconv",
+        allow_abbrev=False,
+        add_help=False,
+        description="Run gwsc until last-3 gap swing < tol or max-iter reached.",
+    )
+    ap.add_argument("--conv-tol", type=float, default=0.1,
+                    help="convergence tol on max-min of last 3 iter gaps in eV (default 0.1)")
+    ap.add_argument("--max-iter", type=int, default=10,
+                    help="absolute max QSGW iter incl. pre-existing (default 10)")
+    ap.add_argument("--help-conv", action="store_true",
+                    help="show gwscconv help and exit (gwsc --help is also forwarded)")
+    args, rest = ap.parse_known_args()
+
+    if args.help_conv:
+        ap.print_help()
+        sys.exit(0)
+
+    # Strip user-supplied nloop (first non-option positional digit token), force to 1.
+    # gwsc has value-taking options (-np N, -np2 N, -ppn N, -ppn2 N, -c CLUSTER);
+    # their value-arguments must NOT be mistaken for nloop.
+    VALUE_FLAGS = {"-np", "-np2", "-ppn", "-ppn2", "-c", "--cluster"}
+    fwd = []
+    replaced_nloop = False
+    skip_next = False
+    for tok in rest:
+        if skip_next:
+            fwd.append(tok)
+            skip_next = False
+            continue
+        if tok in VALUE_FLAGS:
+            fwd.append(tok)
+            skip_next = True
+            continue
+        if not replaced_nloop and not tok.startswith("-") and tok.isdigit():
+            print(f"gwscconv: ignoring user-supplied nloop={tok} (gwscconv loops 1-by-1)",
+                  flush=True)
+            fwd.append("1")
+            replaced_nloop = True
+        else:
+            fwd.append(tok)
+    if not replaced_nloop:
+        # Prepend nloop=1 so gwsc's required positional is satisfied.
+        fwd = ["1"] + fwd
+
+    n0 = existing_iter()
+    total_iter = n0
+    history = []  # gaps observed in this run (eV)
+    print(f"=== gwscconv start: cwd={os.getcwd()} ===", flush=True)
+    print(f"=== gwscconv: conv_tol={args.conv_tol} eV  max_iter={args.max_iter}  Iter0={n0} ===",
+          flush=True)
+
+    if total_iter >= args.max_iter:
+        print(f"gwscconv: pre-existing iter {n0} already >= max_iter {args.max_iter}, nothing to do",
+              flush=True)
+        sys.exit(0)
+
+    while total_iter < args.max_iter:
+        print(f"\n--- gwscconv: launching gwsc (next iter -> {total_iter + 1}) ---", flush=True)
+        cmd = [str(GWSC)] + fwd
+        rc = subprocess.run(cmd).returncode
+        if rc != 0:
+            print(f"gwscconv: gwsc exited {rc}, abort", file=sys.stderr)
+            sys.exit(rc)
+        total_iter += 1
+        g = latest_gap_eV()
+        if g is None:
+            print("gwscconv: cannot read gap from llmf after gwsc, abort", file=sys.stderr)
+            sys.exit(3)
+        history.append(g)
+        tail = ", ".join(f"{x:.4f}" for x in history[-5:])
+        print(f"gwscconv: iter {total_iter} gap = {g:.4f} eV  (recent: {tail})", flush=True)
+        if len(history) >= 3:
+            last3 = history[-3:]
+            swing = max(last3) - min(last3)
+            print(f"gwscconv: last-3 swing = {swing:.4f} eV (tol {args.conv_tol})", flush=True)
+            if swing < args.conv_tol:
+                print(f"=== gwscconv: CONVERGED at iter {total_iter} "
+                      f"(swing {swing:.4f} < {args.conv_tol}) ===", flush=True)
+                break
+
+    if total_iter >= args.max_iter:
+        print(f"=== gwscconv: max_iter {args.max_iter} reached without convergence ===",
+              flush=True)
+
+    print(f"gwscconv: final iter = {total_iter}, history (eV) = "
+          + ", ".join(f"{x:.4f}" for x in history), flush=True)
+
+
+if __name__ == "__main__":
+    main()
