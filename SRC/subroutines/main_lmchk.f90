@@ -6,7 +6,7 @@ contains
   subroutine lmchk(commin) bind(C)
     use mpi
     use m_args,only: argall,m_setargs
-    use m_ext,only:     m_Ext_init,sname
+    use m_ext,only:     m_Ext_init,sname, print_usage_and_quit
     use m_MPItk,only:   m_MPItk_init,nsize,master_mpi
     use m_lgunit,only:  m_lgunit_init, stdo,stdl
     use m_cmdpath,only: setcmdpath
@@ -32,10 +32,7 @@ contains
     if(master_mpi) write(stdo,*) 'mpisize=',nsize
     if(master_mpi) write(stdl,*) 'mpisize=',nsize
     if(master_mpi) call setcmdpath() !set self-command path
-    if(cmdopt0('--help')) then  !help and quit
-      call m_lmfinit_init(prgnam) ! show help and quit for --input
-      call rx0('end of help mode')
-    endif
+    if(cmdopt0('--help')) call print_usage_and_quit('lmchk')
     call MPI_BARRIER( comm, ierr)
     call m_lmfinit_init(prgnam,comm) ! Computational settings.
     if(cmdopt2('--pr=',outs)) then

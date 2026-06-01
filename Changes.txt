@@ -1,4 +1,13 @@
 2026-06-02
+  [feat] m_ext.f90 / main_lmf|lmfa|lmchk.f90: lmf|lmfa|lmchk --help が
+    入力ファイル一覧、`-v[<toml-path>]=<value>` override 書式、よく使う
+    --foo subset、ecaljdoc へのリンク (manual/lmf, manual/cmdopts,
+    manual/toml_migration) を出すように刷新。m_ext.f90 に
+    print_usage_and_quit を新設し、各 main の `--help` 分岐から呼ぶ
+    (旧実装は m_lmfinit_init を呼んで ctrl 解釈ダンプを出していた)。
+    rx0 は MPI 初期化後でないと使えないので `exit(0)` で抜ける。
+    全 ~135 個の --foo の網羅は ecaljdoc/manual/cmdopts (新規) に集約。
+
   [docs] -v override 表記を新形式 `-v[<toml-path>]=<value>` に統一。
     legacy `-v<name>=<expr>` (ctrl `%const` substitution) は parser が
     既に廃止済 (m_toml_override.f90 は `arg(1:3) == '-v['` のみ受付) で

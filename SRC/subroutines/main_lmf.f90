@@ -10,7 +10,7 @@ contains
   subroutine lmf(commin) bind(C)
     use mpi
     use m_args,only:     argall
-    use m_ext,only:      sname !m_ext_init,
+    use m_ext,only:      sname, print_usage_and_quit !m_ext_init,
     use m_MPItk,only:    m_MPItk_init, nsize, master_mpi
     use m_lgunit,only:   m_lgunit_init, stdo,stdl
     use m_cmdpath,only:  setcmdpath
@@ -43,7 +43,8 @@ contains
     integer:: comm
 !    include "mpif.h" 
     comm = MPI_COMM_WORLD
-    if(present(commin)) comm= commin  
+    if(present(commin)) comm= commin
+    if(cmdopt0('--help')) call print_usage_and_quit('lmf')
     if(cmdopt2('--jobgw=',outs))then
        prgnam='LMFGWD' !GW set up mode
        read(outs,*) jobgw

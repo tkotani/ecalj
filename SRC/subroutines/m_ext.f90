@@ -56,7 +56,7 @@ end module m_args
 module m_ext
   use m_args,only: m_setargs,arglist,narg
   character(512),public,protected::sname='tempext',dirname
-  public:: m_ext_init
+  public:: m_ext_init, print_usage_and_quit
 contains
   subroutine m_ext_init() bind(C)
     logical :: master
@@ -106,21 +106,57 @@ contains
     ! Couldn't auto-detect; leave sname at default ('tempext').
     ! Callers that need a real sname must check and abort themselves.
     return
-    write(6,"( &
-         /'Usage: lmf,lmfa,lmchk [--OPTION] [-vfoobar] [extension]'&
-         /' Some options:'&
-         /'  --help',      t17,'Show this document'&
-         /'  --pr=#1',     t17,'Set the verbosity (stack) to values #1' &
-         /'  -vfoobar=expr',  t17,'Define numerical variable foobar' &
-         /'  --time=#1,#2',t17,'Print timing info to # levels (#1=summary; #2=on-the-fly,e.g. --time=5,5)' &
-         /'  --jobgw=0 or --jobgw=1  lmf-MPIK works as the GW driver (previous lmfgw-MPIK)' &
-         /'  --quit=band, --quit=mkpot or --quit=dmat: Stop points. Surpress writing rst' &
-         /'  NOTE: For description of ctrl file, see ecalj/Document/help_lmf.org and so on!' &
-         /'  NOTE: lmf read rst.* prior to atm.* file (Removed --rs options at 2022-6-20)' &
-         /'  NOTE: Other command-line-options => Search call cmdopt in SRC/*/*.f90'  )")
-    call rx0('no args: Need to set foobar for ctrl.foobar ')
 999 continue
   end subroutine m_ext_init
+
+  !> Print a short usage banner and exit. Called from main_lmf / main_lmfa /
+  !  main_lmchk when --help is passed; the full option catalogue lives in
+  !  ecaljdoc (manual/cmdopts) because the source has ~135 cmdopt sites
+  !  scattered across SRC/, and keeping a copy in sync here is hopeless.
+  subroutine print_usage_and_quit(prgnam)
+    character(*), intent(in) :: prgnam
+    write(6,'(a)') ''
+    write(6,'(a)') 'Usage: '//trim(prgnam)//' <sname> [--option ...] [-v[<toml-path>]=<value> ...]'
+    write(6,'(a)') ''
+    write(6,'(a)') '  <sname> is the extension of the control file (ctrlG.<sname>.toml).'
+    write(6,'(a)') '  GW-side utilities (qg4gw, heftet, hbasfp0, hvccfp0, hx0fp0, ...) take no'
+    write(6,'(a)') '  positional <sname>; they auto-detect from the unique ctrlG.*.toml in cwd.'
+    write(6,'(a)') ''
+    write(6,'(a)') 'Inputs (lmf / lmfa / lmchk, only files actually read):'
+    write(6,'(a)') '  ctrlG.<sname>.toml          main control file (TOML schema)'
+    write(6,'(a)') '  PB.toml                     product-basis table (GW path only)'
+    write(6,'(a)') '  syml.<sname>                k-line for --band'
+    write(6,'(a)') '  atmpnu.{1,2,3}.<sname>      atomic radial wfns (from lmfa)'
+    write(6,'(a)') '  rst.<sname>                 density restart (carries from previous SCF)'
+    write(6,'(a)') '  sigm.<sname>                self-energy (QSGW)'
+    write(6,'(a)') ''
+    write(6,'(a)') 'Run-time TOML override:'
+    write(6,'(a)') '  -v[<dotted.path>]=<value>   override a key in ctrlG.<sname>.toml.'
+    write(6,'(a)') '    Examples: -v[bz.nkabc]=[8,8,8]   -v[ham.scaledsigma]=0.8'
+    write(6,'(a)') '              -v[ham.so]=1 -v[ham.nspin]=2   -v[spec.1.r]=2.5'
+    write(6,'(a)') '    Applied to the in-memory TOML before parsing; the file is untouched.'
+    write(6,'(a)') '    Each applied override is logged on rank 0.'
+    write(6,'(a)') ''
+    write(6,'(a)') '    Legacy -v<name>=<value> (ctrl %const substitution) has no parser and'
+    write(6,'(a)') '    is silently ignored. Use the bracketed form above.'
+    write(6,'(a)') ''
+    write(6,'(a)') 'Full documentation:'
+    write(6,'(a)') '  manual:           https://ecalj.github.io/ecaljdoc/manual/lmf'
+    write(6,'(a)') '  --foo catalogue:  https://ecalj.github.io/ecaljdoc/manual/cmdopts'
+    write(6,'(a)') '  TOML override:    https://ecalj.github.io/ecaljdoc/manual/toml_migration'
+    write(6,'(a)') ''
+    write(6,'(a)') 'Most-asked subset:'
+    write(6,'(a)') '  --help                this banner'
+    write(6,'(a)') '  --band                band plot along syml.<sname>'
+    write(6,'(a)') '  --jobgw={0,1}         run as GW driver (replaces lmfgw-MPIK)'
+    write(6,'(a)') '  --quit={show,ham,mkpot,dmat,band}   staged stop points'
+    write(6,'(a)') '  --writeham            emit HamiltonianPMT.* for downstream tools'
+    write(6,'(a)') '  --mkprocar --fullmesh PROCAR / Fermi-surface mesh'
+    write(6,'(a)') '  --gpu                 GPU path (grabs /tmp/gpu.lock)'
+    write(6,'(a)') ''
+    flush(6)
+    call exit(0)   ! bypass rx0 because MPI may not be initialized yet
+  end subroutine print_usage_and_quit
 end module m_ext
 logical function cmdopt0(argstr)! Check a command-line argument exist. 
   use m_args,only: m_setargs,arglist,narg
