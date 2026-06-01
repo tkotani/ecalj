@@ -1,4 +1,13 @@
 2026-06-02
+  [bugfix] ctrlgenToml.py: 各 [[spec]] の rsmh / rsmh2 が表示上の r の
+    厳密な 1/2 になるよう修正。従来は raw r を `round(r, 2)` で表示し、
+    rh も独立に `round(rh, 2)` 表示していたため、例えば raw r=4.10... が
+    r=4.10 と表示される一方で rh=2.05 (= raw_r/2 を 2 桁丸め) と
+    表示され、表示上の 2*rsmh != r のずれが起きていた。今は
+    `r_upper_limit` 直後で `r = round(r, 2)` を確定し、rh は確定済 r
+    から計算 → `fmt_real` の .15g で精度保持して書き出す。NiO で
+    Ni(r=2.12,rsmh=1.06), O(r=1.7,rsmh=0.85) を確認。
+
   [bugfix] ctrlgenToml.py: ctrls SPEC でカスタム原子名 (例: Niup, Nidn) を
     `Z=` 明示で指定したとき、`{sym} not in atomlist` で異常終了していた
     バグを修正。atomlist (周期表 dict) に直接該当キーが無くても、SPEC で

@@ -563,7 +563,8 @@ def main():
             r_ang = float(get_field(body, 'R=').split('*')[0].strip().rstrip().replace('?', '0'))
             r = r_ang / 0.529177  # Angstrom -> a.u.
         r = r_upper_limit(z, r)
-        rh = max(0.5, r / 2.0)
+        r = round(r, 2)
+        rh = max(0.5, r / 2.0)  # rsmh = (displayed r) / 2 exactly
 
         eh_data = get_field(body, 'eh=').strip()
         eh_val = float(eh_data.split('*')[0])
@@ -579,11 +580,11 @@ def main():
         out.append(f'[[spec]]   # @{spec_idx}')
         out.append(f'atom   = {fmt_str(sym)}')
         out.append(f'z      = {fmt_int(z)}')
-        out.append(f'r      = {fmt_real(round(r, 2))}')
+        out.append(f'r      = {fmt_real(r)}')
         out.append(f'eh     = {fmt_real_vec([eh_val]*eh_count)}')
-        out.append(f'rsmh   = {fmt_real_vec([round(rh, 2)]*eh_count)}')
+        out.append(f'rsmh   = {fmt_real_vec([rh]*eh_count)}')
         out.append(f'eh2    = {fmt_real_vec([eh2_val]*eh2_count)}')
-        out.append(f'rsmh2  = {fmt_real_vec([round(rh, 2)]*eh2_count)}')
+        out.append(f'rsmh2  = {fmt_real_vec([rh]*eh2_count)}')
         out.append(f'lmxa   = {lmxa}')
         out.append(f'kmxa   = 5')
         out.append(f'nmcore = 1')
