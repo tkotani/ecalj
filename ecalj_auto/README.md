@@ -180,5 +180,5 @@ Bug fixes found during GW1500 (1546 materials, QSGW80) mass production on kt1:
 #### GW1500 実行環境
 - サーバー: kt1 (Threadripper PRO 9985WX 64コア, RTX 5090 x2)
 - 2ワーカー並列 (GPU0+30コア, GPU1+30コア)
-- パラメータ: gwsc 5iter --gpu --mp -vssig=0.8
+- パラメータ: gwsc 5iter --gpu --mp -v[ham.scaledsigma]=0.8
 - 開始: 2026-04-03, キュー: 原子数昇順(1→8原子)

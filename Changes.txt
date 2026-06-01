@@ -1,4 +1,13 @@
 2026-06-02
+  [docs] -v override 表記を新形式 `-v[<toml-path>]=<value>` に統一。
+    legacy `-v<name>=<expr>` (ctrl `%const` substitution) は parser が
+    既に廃止済 (m_toml_override.f90 は `arg(1:3) == '-v['` のみ受付) で
+    黙って無視される状態。ecalj_auto/README.md (`-vssig=0.8` →
+    `-v[ham.scaledsigma]=0.8`) と Samples/MLOsamples/README_SOC.md
+    (`-vnspin=2 -vso=1` 等 → `-v[ham.nspin]=2 -v[ham.so]=1`) を修正。
+    ecaljdoc/manual/ 側も並行修正 (lmf.md, UsageDetailed.md,
+    README_tutorial.md, toml_migration.md, gwsc.md)。
+
   [bugfix] ctrlgenToml.py: 各 [[spec]] の rsmh / rsmh2 が表示上の r の
     厳密な 1/2 になるよう修正。従来は raw r を `round(r, 2)` で表示し、
     rh も独立に `round(rh, 2)` 表示していたため、例えば raw r=4.10... が
