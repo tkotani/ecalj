@@ -31,6 +31,25 @@ contains
     did_log_header = .false.
     do i = 1, narg
        arg = arglist(i)
+       ! Catch the legacy ctrl %const form `-v<name>=<value>` (no `[`).
+       ! Silently ignoring it was a footgun: users would set -vnspin=2 and
+       ! lmf would run with the TOML default. Abort with a hint instead.
+       if (len_trim(arg) >= 4 .and. arg(1:2) == '-v' .and. arg(3:3) /= '[') then
+          if (index(arg(3:), '=') > 0) then
+             if (master_mpi) then
+                write(stdo,'(a)') ' '
+                write(stdo,'(a)') 'ERROR: legacy `-v<name>=<value>` syntax is no longer supported.'
+                write(stdo,'(a)') '       Offending argument: '//trim(arg)
+                write(stdo,'(a)') '       Use the TOML-path form `-v[<dotted.path>]=<value>` instead.'
+                write(stdo,'(a)') '       Examples:'
+                write(stdo,'(a)') '         -v[bz.nkabc]=[8,8,8]   (was -vnk=8)'
+                write(stdo,'(a)') '         -v[ham.so]=1            (was -vso=1)'
+                write(stdo,'(a)') '         -v[ham.scaledsigma]=0.8 (was -vssig=0.8)'
+                write(stdo,'(a)') '       See https://ecalj.github.io/ecaljdoc/manual/toml_migration'
+             endif
+             call rx('legacy -v<name>=<value> override: use -v[<toml-path>]=<value>')
+          endif
+       endif
        if (.not. is_v_override(arg, path, val)) cycle
        if (master_mpi .and. .not. did_log_header) then
           write(stdo,'(a)') ' --- TOML overrides applied (-v[<path>]=<value>) ---'

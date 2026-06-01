@@ -1,4 +1,12 @@
 2026-06-02
+  [feat] m_toml_override.f90: legacy `-v<name>=<value>` 形式
+    (ctrl `%const` 旧書式) を黙って無視する代わりに、明示的に rx で
+    abort するようにした。エラー時には `-v[<toml-path>]=<value>` の
+    書き換え例 (`-vnk=8` → `-v[bz.nkabc]=[8,8,8]` 等) と
+    https://ecalj.github.io/ecaljdoc/manual/toml_migration を表示。
+    silent ignore は「設定したつもりがデフォルトで走る」事故の元。
+    `-v[...]` 形式は変わらず通り抜ける。
+
   [feat] m_ext.f90 / main_lmf|lmfa|lmchk.f90: lmf|lmfa|lmchk --help が
     入力ファイル一覧、`-v[<toml-path>]=<value>` override 書式、よく使う
     --foo subset、ecaljdoc へのリンク (manual/lmf, manual/cmdopts,
