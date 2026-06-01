@@ -546,9 +546,14 @@ def main():
     # [[spec]] entries
     rsma_factor = None  # not set; default (rval2 default 0.4*rmt)
     for spec_idx, sym in enumerate(specnames, 1):
-        if sym not in dicatom:
+        if sym in dicatom:
+            body = dicatom[sym]
+        elif sym in spec2z and spec2z[sym] in z2sym:
+            # Custom name (e.g. Niup, Nidn) with explicit Z= in ctrls SPEC:
+            # fall back to the periodic-table entry for that Z.
+            body = dicatom[z2sym[spec2z[sym]]]
+        else:
             sys.exit(f'ctrlgenToml: {sym} not in atomlist; add it or set ctrls SPEC explicitly')
-        body = dicatom[sym]
         z = spec2z.get(sym, body.split('atomz=')[1].split('@')[0].strip())
         # R: from lmchk --getwsr × touchingratio, or atomlist R=
         if opts['touchingratio'] > 0 and sym in rdic:

@@ -1,3 +1,11 @@
+2026-06-02
+  [bugfix] ctrlgenToml.py: ctrls SPEC でカスタム原子名 (例: Niup, Nidn) を
+    `Z=` 明示で指定したとき、`{sym} not in atomlist` で異常終了していた
+    バグを修正。atomlist (周期表 dict) に直接該当キーが無くても、SPEC で
+    指定された Z 値 → z2sym 経由で標準シンボル (例: Z=28 → 'Ni') の body を
+    fallback で取得するようにした。NiO (Niup/Nidn 反強磁性セットアップ) で
+    ctrlG.<ext>.toml と PB.toml が正常に生成されることを確認。
+
 2026-05-12
   [bugfix] x0kf_v4h.f90: streaming MEMORY_3D で nwhis > nw の場合に
     MPI_Allreduce カウント不一致によるデッドロックを修正。
