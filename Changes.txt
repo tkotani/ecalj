@@ -1,4 +1,11 @@
 2026-06-02
+  [feat] [io] のキー名を verbos → verbose、tim → time にリネーム。
+    m_lmfinit.f90 の rval2 呼び出しは新名前を先に試し、見つからなければ
+    旧名前にフォールバックするので既存 95 個の ctrlG.<sname>.toml は
+    そのまま動く。新規生成 (ctrlgenToml.py) は新名前で出す。
+    pylib/ctrl_schema.py (Legacy2toml mapping) と pylib/toml_comments.py
+    も同時更新。testecalj --all で全 PASS。
+
   [feat] m_ctrl_toml_loader.f90 + ctrlgenToml.py: [struc] nspec / nbas を
     TOML に書かなくても loader が [[spec]] / [[site]] の配列長から
     合成 (STRUC_NSPEC / STRUC_NBAS) するように。append は walk_table の

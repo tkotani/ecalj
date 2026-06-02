@@ -24,7 +24,7 @@ SECTION_HEADER = {
 
     'io': (
         "# === IO ===",
-        "# verbos: console verbosity (default 31). Larger -> more diagnostic",
+        "# verbose: console verbosity (default 31). Larger -> more diagnostic",
         "#   output. Use 35-41 when investigating failures.",
     ),
 
@@ -141,7 +141,7 @@ KEY_INLINE = {
         'symgrp': "# 'find' = auto-detect from lattice (see header)",
     },
     'io': {
-        'verbos': "# 31 default, 35 verbose, 41+ debug",
+        'verbose': "# 31 default, 35 verbose, 41+ debug",
     },
     'bz': {
         'metal':   "# 0 insulator, 3 tetra+broadening (safe metal default)",

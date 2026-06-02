@@ -25,8 +25,8 @@ SCHEMA = {
     'SYMGRPAF':     (None, 'symgrpaf', 'str', 'SYMGRPAF'),
 
     # -------- [io] --------
-    'IO_VERBOS':    ('io', 'verbos', 'int',     'VERBOS'),
-    'IO_TIM':       ('io', 'tim',    'int_vec', 'TIM'),
+    'IO_VERBOS':    ('io', 'verbose', 'int',     'VERBOS'),
+    'IO_TIM':       ('io', 'time',    'int_vec', 'TIM'),
 
     # -------- [struc] --------
     'STRUC_NSPEC':  ('struc', 'nspec', 'int',         'NSPEC'),

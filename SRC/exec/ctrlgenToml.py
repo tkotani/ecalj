@@ -456,7 +456,7 @@ def main():
                 if len(nums) >= 9:
                     vals = [float(x) for x in nums[:9]]
                     _plat = [vals[0:3], vals[3:6], vals[6:9]]
-        tmp_toml = 'symgrp = "find"\n\n[io]\nverbos = 35\n\n'
+        tmp_toml = 'symgrp = "find"\n\n[io]\nverbose = 35\n\n'
         # nspec/nbas omitted: synthesized by the TOML loader from
         # [[spec]] / [[site]] array lengths (m_ctrl_toml_loader.f90).
         tmp_toml += f'[struc]\nalat = {fmt_real(_alat)}\n'
@@ -496,8 +496,8 @@ def main():
     out.append('symgrp = "find"')
     out.append('')
     out.append('[io]')
-    out.append('verbos = 35')
-    out.append('tim    = [0, 0]')
+    out.append('verbose = 35')
+    out.append('time    = [0, 0]')
     out.append('')
 
     # [struc] — ALAT, PLAT from listsite/liststruc evaled
