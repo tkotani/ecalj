@@ -67,8 +67,11 @@ for the ecalj toolchain.
 
 What completes:
 
-  - `lmf <TAB>` / `lmfa <TAB>` / `lmchk <TAB>` -> `<sname>` taken
-    from `ctrlg.*.toml` in cwd.
+  - `lmf <TAB>` / `lmfa <TAB>` / `lmchk <TAB>` -> the full
+    `ctrlg.<sname>.toml` filenames in cwd.  The binary strips
+    `ctrlg.` and `.toml` at startup, so `lmf ctrlg.nio.toml` and
+    `lmf nio` are equivalent.  `lmf ctrlg.nio` (no `.toml` suffix)
+    and `lmf ctrl.nio` (legacy text format) abort with a hint.
   - `lmf nio --<TAB>` -> every registered cmdopt0 / cmdopt2 flag
     (`--writeham`, `--jobgw=`, ...).  The flag list is dumped at
     install time by `lmf --listcmdopt`, so a registry edit is
