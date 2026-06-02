@@ -35,10 +35,8 @@ contains
     if(cmdopt0('--help')) call print_usage_and_quit('lmchk')
     call MPI_BARRIER( comm, ierr)
     call m_lmfinit_init(prgnam,comm) ! Computational settings.
-    if(cmdopt2('--pr=',outs)) then
-      read(outs,*) k
-      call Setprint(k)
-    endif
+    ! --pr=N is translated to -v[io.verbose]=N in m_toml_override.f90, so the
+    ! verbose level is already set inside m_lmfinit_init via setpr0(verbos).
     if( .NOT. master_mpi) call setprint(-100) !iprint() is negative except master
     call m_lattic_init() !lattice setup (for ewald sum)
     call m_mksym_init()  !symmetry go into m_lattic and m_mksym

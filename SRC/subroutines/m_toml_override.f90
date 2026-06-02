@@ -50,7 +50,15 @@ contains
              call rx('legacy -v<name>=<value> override: use -v[<toml-path>]=<value>')
           endif
        endif
-       if (.not. is_v_override(arg, path, val)) cycle
+       ! Legacy single-key shortcuts. Each one maps to a specific TOML
+       ! key; translate to the canonical -v[<path>]=<value> path so the
+       ! TOML text is the single source of truth and m_lmfinit.f90 no
+       ! longer has to override values after rval2.
+       if (translate_legacy_cmdopt(arg, path, val)) then
+          ! fall through to the apply block below
+       else if (.not. is_v_override(arg, path, val)) then
+          cycle
+       endif
        if (master_mpi .and. .not. did_log_header) then
           write(stdo,'(a)') ' --- TOML overrides applied (-v[<path>]=<value>) ---'
           did_log_header = .true.
@@ -59,6 +67,50 @@ contains
        call apply_one_override(text, trim(path), trim(val))
     enddo
   end subroutine load_toml_with_overrides
+
+  !> Translate the three legacy cmdline overrides into the canonical
+  !! TOML-path form. They predate -v[<path>]=<value>; keeping them as a
+  !! pre-processing translation lets m_lmfinit.f90 stay rval2-only.
+  !!   --pr=N      / -pr=N   -> io.verbose = N
+  !!   --time=N    / --time=N,M -> io.time = [N, 999] / [N, M]
+  !!   --phispinsym         -> ham.phispinsym = true
+  function translate_legacy_cmdopt(arg, path, val) result(yes)
+    character(*),                  intent(in)  :: arg
+    character(len=:), allocatable, intent(out) :: path, val
+    logical :: yes
+    integer :: alen, comma
+    character(len=:), allocatable :: rhs
+    yes = .false.
+    alen = len_trim(arg)
+    if (alen <= 0) return
+    if (alen >= 5 .and. arg(1:5) == '--pr=') then
+       path = 'io.verbose'
+       val  = arg(6:alen)
+       yes  = .true.; return
+    endif
+    if (alen >= 4 .and. arg(1:4) == '-pr=') then
+       path = 'io.verbose'
+       val  = arg(5:alen)
+       yes  = .true.; return
+    endif
+    if (alen >= 8 .and. arg(1:7) == '--time=') then
+       rhs   = arg(8:alen)
+       comma = index(rhs, ',')
+       path  = 'io.time'
+       if (comma > 0) then
+          val = '[' // rhs(1:comma-1) // ',' // rhs(comma+1:) // ']'
+       else
+          ! single value: pad the second slot with the old 999 sentinel
+          val = '[' // rhs // ',999]'
+       endif
+       yes  = .true.; return
+    endif
+    if (arg(1:alen) == '--phispinsym') then
+       path = 'ham.phispinsym'
+       val  = 'true'
+       yes  = .true.; return
+    endif
+  end function translate_legacy_cmdopt
 
 
   subroutine slurp_file(filename, text)

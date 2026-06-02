@@ -164,7 +164,7 @@ contains
       endif
       call rval2('IO_TIME'   , rr=rr, defa=[real(8):: -1]); io_tim=nint(rr)
       if (io_tim(1) == -1) then
-         call rval2('IO_TIM'    , rr=rr, defa=[real(8)::  1 ]); io_tim=nint(rr)
+         call rval2('IO_TIM'    , rr=rr, defa=[real(8)::  0 ]); io_tim=nint(rr)
       endif
       call rval2('STRUC_ALAT', rr=rr, nout=n);  alat=rr  !   lattice parameter, in a.u.
 !      call rval2('STRUC_DALAT',rr=rr, nout=n);  dalat=rr !adding to ALAT
@@ -338,25 +338,17 @@ contains
       integer:: isw,iprint
       logical:: cmdopt0,cmdopt2
       allocate(sspec(nspec)) !NOTE: this is in module m_fatom.f90
-      call setpr0(30)       !Set initial verbose for console output.
-      if    (cmdopt2('--pr=',outs))then; read(outs,*) verbos
-      elseif(cmdopt2('--pr',outs)) then; read(outs,*) verbos
-      elseif(cmdopt2('-pr',outs))  then; read(outs,*) verbos
-      endif
-      call setpr0(verbos) !Set initial verbos
+      ! verbos / io_tim / phispinsym are set entirely from TOML now.
+      ! The legacy cmdline shortcuts (--pr=N, --time=N,M, --phispinsym) are
+      ! translated to -v[io.verbose]=, -v[io.time]=[N,M], -v[ham.phispinsym]=true
+      ! in m_toml_override.f90 before the TOML is parsed, so rval2 above already
+      ! sees the overridden values.
+      call setpr0(verbos)
       if( .NOT. master_mpi) call setpr0(-100) !iprint()=0 except master
-      io_tim=0
-      if(cmdopt2('--time',outs)) then ! Timing: Turns CPU timing log #1:tree depth #2:CPU times as routines execute.
-         outs=trim(outs(2:))//' 999' ! --time=#1,#2     
-         read(outs,*)io_tim(1),io_tim(2)
-         if(io_tim(1)==999) io_tim=[5,2]
-      endif
-      call tcinit(io_tim(2),io_tim(1),levelinit) !Start tcn (timing monitor) 
-      call tcn('m_lmfinit') 
-      !      lcd4 = merge(T,F,prgnam/='LMFA')
-      if(cmdopt0('--phispinsym'))phispinsym = .true.
-      if(sum(abs(socaxis-[0d0,0d0,1d0])) >1d-6 .AND. (.NOT.cmdopt0('--phispinsym'))) &
-           call rx('We need --phispinsym for SO=1 and HAM_SOCAXIS/=001. Need check if you dislike --phispinsym.')
+      call tcinit(io_tim(2),io_tim(1),levelinit) !Start tcn (timing monitor)
+      call tcn('m_lmfinit')
+      if(sum(abs(socaxis-[0d0,0d0,1d0])) >1d-6 .AND. (.NOT.phispinsym)) &
+           call rx('We need [ham] phispinsym=true (or --phispinsym) for SO=1 and HAM_SOCAXIS/=001. Need check if you dislike phispinsym.')
       !TK found --phispinsym (the same radialfunctions for both spins) caused a problem to determine required number of nodes for NiO(LDA). 2023sep.
 !      if(cmdopt0('--zmel0')) OVEPS=0d0 !for epsmode ok?
       if(pwmode==10) pwmode=0   !takao added. corrected Sep2011

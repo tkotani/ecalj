@@ -1,4 +1,16 @@
 2026-06-02
+  [refactor] m_toml_override.f90 + m_lmfinit.f90 + main_lmchk.f90:
+    `--pr=N` / `--time=N,M` / `--phispinsym` の 3 つの「cmdline で TOML
+    キーを上書き」する旧 cmdopt 分岐を、TOML override 層
+    (m_toml_override.f90) に集約。translate_legacy_cmdopt() が
+    --pr=N → io.verbose=N、--time=N,M → io.time=[N,M]、
+    --phispinsym → ham.phispinsym=true に翻訳して TOML 本文 parse 前に
+    適用。m_lmfinit.f90 / main_lmchk.f90 の rval2 後の再上書きコードと
+    redundant な cmdopt2 分岐は削除。SOCAXIS チェックは `cmdopt0`
+    判定から `phispinsym` 変数判定に切替。これで TOML キーの上書き
+    経路が `-v[<path>]=<value>` 一系統に統一された。testecalj copt /
+    te / nio_gwsc 全 PASS。
+
   [feat] ctrlgenToml.py + toml_comments.py: [ham] に phispinsym = false を
     explicit に書くようにした。これまで TOML 出力に無く `defa=0` で
     暗黙の OFF だったため、SOC perturbation 等で必要なときの存在感が
