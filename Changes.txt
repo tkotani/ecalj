@@ -1,4 +1,18 @@
 2026-06-02
+  [feat] m_cmdopt_registry.f90 (新規) + m_toml_override.f90: cmdline で
+    TOML キーを上書きする入力経路を厳密化。
+    - `--[<dotted.path>]=<value>` / `--<a.b>=<value>` (dot 含む) を
+      `-v[<path>]=<value>` と同等の TOML override として認識
+    - plain `--<word>=<value>` (dot 無し / 括弧無し) は cmdopt2 レジストリ
+      `m_cmdopt_registry::CMDOPT2_REGISTRY` に照合。
+      レジストリは値付き cmdopt2 (`--jobgw`, `--job`, `--nb` 等) と
+      `--quit=show` / `--diag=tridiag` / `--dwnb=mlo` のような cmdopt0
+      で `=` を含む形を合わせて 16 個列挙
+    - どちらにも該当しない `--bogus=42` は典型タイポと見なして即 abort、
+      `--[<path>]=<value>` の使い方とドキュメント URL を出す
+    - Samples/TestInstall/copt/test.py: 死語の `-cstrx=l12 --pr41` を
+      `--pr=41` に置換
+
   [refactor] m_toml_override.f90 + m_lmfinit.f90 + main_lmchk.f90:
     `--pr=N` / `--time=N,M` / `--phispinsym` の 3 つの「cmdline で TOML
     キーを上書き」する旧 cmdopt 分岐を、TOML override 層

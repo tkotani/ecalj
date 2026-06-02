@@ -7,9 +7,10 @@
 !  Each applied override is logged (rank-0 only) so it appears in the
 !  console output of every lmf/lmfa/GW utility.
 module m_toml_override
-  use m_args,   only: arglist, narg
-  use m_lgunit, only: stdo
-  use m_MPItk,  only: master_mpi
+  use m_args,            only: arglist, narg
+  use m_lgunit,          only: stdo
+  use m_MPItk,           only: master_mpi
+  use m_cmdopt_registry, only: is_known_cmdopt2
   implicit none
   private
   public :: load_toml_with_overrides
@@ -56,7 +57,12 @@ contains
        ! longer has to override values after rval2.
        if (translate_legacy_cmdopt(arg, path, val)) then
           ! fall through to the apply block below
-       else if (.not. is_v_override(arg, path, val)) then
+       else if (is_v_override(arg, path, val)) then
+          ! existing -v[<path>]=<value> form
+       else if (is_dashdash_override(arg, path, val)) then
+          ! new --[<path>]=<value> and --<a.b.c>=<value> forms
+       else
+          call classify_plain_dashdash(arg)
           cycle
        endif
        if (master_mpi .and. .not. did_log_header) then
@@ -111,6 +117,66 @@ contains
        yes  = .true.; return
     endif
   end function translate_legacy_cmdopt
+
+  !> New override syntax: --[<dotted.path>]=<value> or --<a.b.c>=<value>.
+  !! Brackets make the override explicit (no plain-word ambiguity) and the
+  !! dotted-path form is unambiguous because no cmdopt name contains a dot.
+  function is_dashdash_override(arg, path, val) result(yes)
+    character(*),                  intent(in)  :: arg
+    character(len=:), allocatable, intent(out) :: path, val
+    logical :: yes
+    integer :: alen, eq, rb
+    yes = .false.
+    alen = len_trim(arg)
+    if (alen < 5) return
+    if (arg(1:2) /= '--') return
+    ! --[<path>]=<value>
+    if (arg(3:3) == '[') then
+       rb = index(arg, ']=')
+       if (rb < 4) return
+       path = arg(4:rb-1)
+       val  = arg(rb+2:alen)
+       yes  = .true.
+       return
+    endif
+    ! --<dotted.path>=<value>: dots in the lhs make it unambiguous since
+    ! no current cmdopt name contains a dot.
+    eq = index(arg, '=')
+    if (eq < 4 .or. index(arg(3:eq-1), '.') == 0) return
+    path = arg(3:eq-1)
+    val  = arg(eq+1:alen)
+    yes  = .true.
+  end function is_dashdash_override
+
+  !> Plain `--<word>=<value>` or `-<word>=<value>` arg (no brackets, no dots).
+  !! Decide between:
+  !!   (1) known cmdopt2 -> cycle (cmdopt2 picks it up downstream).
+  !!   (2) anything else -> abort with hint. The user typed --foo=value
+  !!       which is neither a registered cmdopt2 nor a TOML path.
+  !! cmdopt0 flags (no `=`) flow through untouched; same for short -X
+  !! patterns we do not recognise here.
+  subroutine classify_plain_dashdash(arg)
+    character(*), intent(in) :: arg
+    integer :: alen, eq
+    alen = len_trim(arg)
+    if (alen <= 0) return
+    if (arg(1:1) /= '-') return
+    eq = index(arg, '=')
+    if (eq == 0) return                       ! flag (cmdopt0), leave alone
+    if (is_known_cmdopt2(arg(1:eq-1))) return ! registered cmdopt2, pass through
+    if (master_mpi) then
+       write(stdo,'(a)') ' '
+       write(stdo,'(a)') 'ERROR: unknown option `'//trim(arg)//'`.'
+       write(stdo,'(a)') '       To override a TOML key use the bracketed form'
+       write(stdo,'(a)') '         --['//arg(3:eq-1)//']=<value>'
+       write(stdo,'(a)') '       or the dotted-path form'
+       write(stdo,'(a)') '         --<section>.'//arg(3:eq-1)//'=<value>'
+       write(stdo,'(a)') '       For a list of registered cmdline options see'
+       write(stdo,'(a)') '         https://ecalj.github.io/ecaljdoc/manual/cmdopts'
+       write(stdo,'(a)') '       and m_cmdopt_registry.f90 for the cmdopt2 registry.'
+    endif
+    call rx('unknown option: '//trim(arg))
+  end subroutine classify_plain_dashdash
 
 
   subroutine slurp_file(filename, text)
