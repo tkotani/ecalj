@@ -176,44 +176,12 @@ contains
     call exit(0)   ! bypass rx0 because MPI may not be initialized yet
   end subroutine print_usage_and_quit
 end module m_ext
-logical function cmdopt0(argstr)! Check a command-line argument exist. 
-  use m_args,only: m_setargs,arglist,narg
-  !i Inputs  argstr: command-line string to search; search to strln chars
-  !o Outputs cmdopt: T if argument found, else F
-  implicit none
-  character(*):: argstr
-  integer :: iarg
-  cmdopt0 = .false.
-  call m_setargs()
-  do iarg=1,narg
-     if(trim(arglist(iarg)) == trim(argstr)) then
-        cmdopt0 = .true.
-        return
-     endif
-  enddo
-end function cmdopt0
-logical function cmdopt2(argstr,outstr)  ! return it in outstr
-  use m_args,only: m_setargs,arglist,narg
-  !i Inputs argstr: command-line string to search; search to strln chars
-  !o Outputs cmdopt: T if argument found, else F
-  !o   outstr: output string
-  implicit none
-  character(*):: argstr,outstr
-  integer ::     nargs,strln !dummy
-  logical :: lsequ
-  integer :: iarg,nargf,idum,nxarg,strlnx
-  character(120) :: strn
-  cmdopt2 = .false.
-    call m_setargs()
-  do iarg=1,narg
-     strlnx = len_trim(argstr) !override input strln
-     if(arglist(iarg)(1:strlnx)==trim(argstr)) then
-        cmdopt2 = .true.
-        outstr = arglist(iarg)(strlnx+1:)
-        return
-     endif
-  enddo
-end function cmdopt2
+
+! cmdopt0/cmdopt2: top-level (non-module) functions that look up a
+! command-line argument in m_args::arglist. They remain top-level so
+! that m_cmdopt_registry (which calls them) and m_args::m_setargs
+! (which is called from inside them, via lazy-init) can co-exist
+! without circular module USE. Definition lives in m_cmdopt_registry.f90.
 
 ! module m_prgnam
 !    character(32):: prgnamx = ''

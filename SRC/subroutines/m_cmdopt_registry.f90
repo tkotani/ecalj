@@ -516,3 +516,54 @@ contains
   end subroutine load_cmdopt0_registry
 
 end module m_cmdopt_registry
+
+!=========================================================================
+! cmdopt0 / cmdopt2: top-level argument-lookup functions.
+!
+! Kept OUTSIDE m_cmdopt_registry so that m_args::m_setargs (which calls
+! load_cmdopt0/2_registry on first invocation) does not introduce a
+! circular module USE with m_cmdopt_registry. Module-level USE chains
+! must be acyclic in Fortran, so cmdopt0/cmdopt2 live as standalone
+! external functions instead -- m_cmdopt_registry's load_*_registry
+! routines declare them `logical, external` and call them directly.
+!
+! Migrated 2026-06-02 from m_ext.f90 alongside the cmdopt0/cmdopt2
+! single-shot caching refactor.
+!=========================================================================
+
+!> True if `argstr` exists verbatim in arglist. Triggers lazy m_setargs
+!! init on first call; subsequent calls reuse arglist.
+logical function cmdopt0(argstr)
+  use m_args, only: m_setargs, arglist, narg
+  implicit none
+  character(*) :: argstr
+  integer :: iarg
+  cmdopt0 = .false.
+  call m_setargs()
+  do iarg = 1, narg
+     if (trim(arglist(iarg)) == trim(argstr)) then
+        cmdopt0 = .true.
+        return
+     endif
+  enddo
+end function cmdopt0
+
+!> True if some arglist token starts with `argstr` (typically
+!! `'--foo='`); the remainder of the matching token is returned in
+!! `outstr`. Triggers lazy m_setargs init on first call.
+logical function cmdopt2(argstr, outstr)
+  use m_args, only: m_setargs, arglist, narg
+  implicit none
+  character(*) :: argstr, outstr
+  integer :: iarg, strlnx
+  cmdopt2 = .false.
+  call m_setargs()
+  do iarg = 1, narg
+     strlnx = len_trim(argstr)
+     if (arglist(iarg)(1:strlnx) == trim(argstr)) then
+        cmdopt2 = .true.
+        outstr = arglist(iarg)(strlnx + 1:)
+        return
+     endif
+  enddo
+end function cmdopt2
