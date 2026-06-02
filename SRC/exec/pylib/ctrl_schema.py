@@ -24,9 +24,9 @@ SCHEMA = {
     'SYMGRP':       (None, 'symgrp',   'str', 'SYMGRP'),
     'SYMGRPAF':     (None, 'symgrpaf', 'str', 'SYMGRPAF'),
 
-    # -------- [io] --------
-    'IO_VERBOS':    ('io', 'verbose', 'int',     'VERBOS'),
-    'IO_TIM':       ('io', 'time',    'int_vec', 'TIM'),
+    # -------- top-level (verbose/time were promoted from the old [io]) --------
+    'IO_VERBOS':    (None, 'verbose', 'int',     'VERBOS'),
+    'IO_TIM':       (None, 'time',    'int_vec', 'TIM'),
 
     # -------- [struc] --------
     'STRUC_NSPEC':  ('struc', 'nspec', 'int',         'NSPEC'),

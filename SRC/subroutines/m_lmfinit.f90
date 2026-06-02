@@ -154,18 +154,11 @@ contains
            pos(3,nbas),ispec(nbas),ifrlx(3,nbas),iantiferro(nbas))
       idu=0; uh=0d0; jh=0d0; rs3=0.5d0; eh3=0.5d0; pnusp=0d0; pzsp=0d0; qnu=0d0; lpz=0; lpzex=0; cstrmx=F; rmt=0d0
       nkapii=1; nkapi=1; rsmh1 = 0d0; rsmh2 = 0d0; eh1  = 0d0; eh2 = 0d0; idmod=0; rfoca = 0d0; rg=0d0
-      ! Preferred TOML keys are `[io] verbose` and `[io] time`.
-      ! Legacy spellings `verbos` / `tim` are kept as a silent fallback
-      ! so existing ctrlG.<sname>.toml files still load; new files emitted
-      ! by ctrlgenToml.py use the modern spelling.
-      call rval2('IO_VERBOSE', rr=rr, defa=[real(8):: -1]); verbos=nint(rr)
-      if (verbos == -1) then
-         call rval2('IO_VERBOS' , rr=rr, defa=[real(8)::  30]); verbos=nint(rr)
-      endif
-      call rval2('IO_TIME'   , rr=rr, defa=[real(8):: -1]); io_tim=nint(rr)
-      if (io_tim(1) == -1) then
-         call rval2('IO_TIM'    , rr=rr, defa=[real(8)::  0 ]); io_tim=nint(rr)
-      endif
+      ! `verbose` and `time` are top-level TOML keys (the old [io]
+      ! section was dropped). The override syntax mirrors this:
+      ! --toml.verbose=50 / --toml.time=[5,5].
+      call rval2('VERBOSE', rr=rr, defa=[real(8):: 30]); verbos=nint(rr)
+      call rval2('TIME'   , rr=rr, defa=[real(8):: 0]);  io_tim=nint(rr)
       call rval2('STRUC_ALAT', rr=rr, nout=n);  alat=rr  !   lattice parameter, in a.u.
 !      call rval2('STRUC_DALAT',rr=rr, nout=n);  dalat=rr !adding to ALAT
       call rval2('STRUC_PLAT', rv=rv, nreq=9);  plat=reshape(rv,shape(plat))
@@ -189,7 +182,7 @@ contains
       call rval2('HAM_PWMODE',rr=rr, defa=[real(8):: 0]);  pwmode=nint(rr)
       call rval2('HAM_PWEMAX',rr=rr, defa=[real(8):: 0]);  pwemax=rr
       call rval2('HAM_READP', rr=rr, defa=[real(8):: 0]); readpnu= nint(rr)==1
-      call rval2('HAM_PHISPINSYM', rr=rr, defa=[real(8):: 0]); phispinsym= nint(rr)==1 !spin symmetric radial function
+      call rval2('HAM_PHISPINSYM', rr=rr, nreq=1); phispinsym= nint(rr)==1 !spin symmetric radial function (must be set in TOML)
 !      call rval2('HAM_READPSKIPF', rr=rr, defa=[real(8):: 1]); readpnuskipf= nint(rr)==1
 !      call rval2('HAM_V0FIX', rr=rr, defa=[real(8):: 0]); v0fix =  nint(rr)==1
       call rval2('HAM_PNUFIX',rr=rr, defa=[real(8):: 0]); pnufix=  nint(rr)==1

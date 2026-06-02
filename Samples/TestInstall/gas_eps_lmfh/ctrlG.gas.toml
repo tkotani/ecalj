@@ -3,9 +3,7 @@
 
 symgrp = "R4Z*I MX*I R3D find"
 
-[io]
-verbos = 41
-
+verbose = 41
 [struc]
 nspec = 4
 nbas  = 4
@@ -99,6 +97,7 @@ b     = 0.7
 k     = 5
 
 [ham]
+phispinsym = false  # spin-averaged radial wfns (needed for SO=1 perturbation)
 nspin  = 1
 rel    = true
 ftmesh = [24, 24, 24]

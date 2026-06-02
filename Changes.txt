@@ -1,4 +1,30 @@
 2026-06-02
+  [BREAKING] TOML override syntax 一新と TOML スキーマ調整。新仕様:
+    - 受け入れる override 形式は `--toml.<dotted.path>=<value>` 一つだけ
+      (例: --toml.bz.nkabc=[8,8,8] / --toml.ham.so=1 /
+            --toml.verbose=50 / --toml.ham.phispinsym=true)。値は TOML
+      仕様準拠 (bool は小文字 true/false 必須、文字列はクォート要)
+    - 旧 -v[<path>]= / -v<name>= / --[<path>]= / --<a.b>= / --pr=N /
+      --time=... / --phispinsym 形式は全て abort + 移行ヒントを出す
+    - cmdopt は m_cmdopt_registry::CMDOPT2_REGISTRY に登録されたものだけ
+      `--foo=value` で通る。未登録は即 abort (typo 検出)
+  TOML スキーマ変更:
+    - [io] セクション撤廃。verbose / time を top-level に昇格
+    - [ham] phispinsym を nreq=1 (必須) に変更
+  関連変更:
+    - m_lmfinit.f90: rval2 を VERBOSE / TIME / HAM_PHISPINSYM=nreq=1 に
+    - ctrlgenToml.py: [io] 出力削除、top-level に verbose/time
+    - pylib/ctrl_schema.py + toml_comments.py: top-level マッピングへ
+    - SRC/exec/migrate_ctrlG_v2.py (新規): 既存 ctrlG.toml の一括移行
+      (drop [io] / rename verbos→verbose / inject phispinsym=false)
+    - Samples 配下 59 個の ctrlG.<sname>.toml を移行スクリプトで一括更新
+    - 11 個の Samples/TestInstall/*/test.py を `-v[<path>]=` →
+      `--toml.<path>=` に sed 一括置換、`--pr=N`/`--time=N` も
+      `--toml.verbose=N`/`--toml.time=[N,M]` に更新
+    - pylib/dft.py + gwutil.py の内部 `-v[iter.b]=` も
+      `--toml.iter.b=` に
+  検証: copt + te + nio_gwsc gfortran-14 ローカルで全 PASS。
+
   [feat] m_cmdopt_registry.f90 (新規) + m_toml_override.f90: cmdline で
     TOML キーを上書きする入力経路を厳密化。
     - `--[<dotted.path>]=<value>` / `--<a.b>=<value>` (dot 含む) を

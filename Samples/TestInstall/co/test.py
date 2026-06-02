@@ -27,13 +27,13 @@ def test(args,bindir,testdir,workdir):
     tall=''
     rmfiles(workdir,[out1,out3]+out2)
     runprogs([
-                lmfa+" co -v[bz.metal]=3 -v[bz.nkabc]=[8,8,8] -v[iter.nit]=3 --pr31 > "+ out1,
-                lmf+ " co -v[bz.metal]=3 -v[bz.nkabc]=[8,8,8] -v[iter.nit]=3 -v[iter.w]=[1,0] --pr31 >> "+out1,
+                lmfa+" co --toml.bz.metal=3 --toml.bz.nkabc=[8,8,8] --toml.iter.nit=3 --toml.verbose=31 > "+ out1,
+                lmf+ " co --toml.bz.metal=3 --toml.bz.nkabc=[8,8,8] --toml.iter.nit=3 --toml.iter.w=[1,0] --toml.verbose=31 >> "+out1,
                 "rm *mixm.co",
-                lmf+ " co -v[bz.metal]=3 -v[bz.nkabc]=[8,8,8] -v[iter.nit]=3 -v[iter.w]=[0,1] --pr31 >> "+out1,
+                lmf+ " co --toml.bz.metal=3 --toml.bz.nkabc=[8,8,8] --toml.iter.nit=3 --toml.iter.w=[0,1] --toml.verbose=31 >> "+out1,
                 "rm *mixm.co",
-                lmf+ " co -v[bz.metal]=3 -v[bz.nkabc]=[8,8,8] -v[iter.nit]=3 --pr31 --time=5 >> "+out1,
-                lmf+ " co -v[bz.metal]=3 -v[bz.nkabc]=[8,8,8] -v[iter.nit]=3 --pr31  -v[ham.so]=1 --band >> "+out1,
+                lmf+ " co --toml.bz.metal=3 --toml.bz.nkabc=[8,8,8] --toml.iter.nit=3 --toml.verbose=31 --toml.time=[5,999] >> "+out1,
+                lmf+ " co --toml.bz.metal=3 --toml.bz.nkabc=[8,8,8] --toml.iter.nit=3 --toml.verbose=31  --toml.ham.so=1 --band >> "+out1,
                 "rm -f atm.* *mixm.* rst.* save.* log.* *hssn.* wkp.* dos.* tdos.* pdos.* dos-mull.* qpp.* out.lmf-dos*"
     ])
     tall+=test1_check(testdir+'/'+out1, workdir+'/'+out1)
@@ -49,8 +49,8 @@ def test(args,bindir,testdir,workdir):
     '''
     print(message1)
     runprogs([
-                lmfa+" co -v[bz.metal]=3 -v[bz.nkabc]=[8,8,8] -v[iter.nit]=1 --pr31 > out.lmf-dos.co",\
-                job_pdos+" co "+ np4 +" -v[bz.metal]=3 -v[bz.nkabc]=[8,8,8] -v[iter.nit]=1 --pr31 --NoGnuplot > out.lmf-dos.co"\
+                lmfa+" co --toml.bz.metal=3 --toml.bz.nkabc=[8,8,8] --toml.iter.nit=1 --toml.verbose=31 > out.lmf-dos.co",\
+                job_pdos+" co "+ np4 +" --toml.bz.metal=3 --toml.bz.nkabc=[8,8,8] --toml.iter.nit=1 --toml.verbose=31 --NoGnuplot > out.lmf-dos.co"\
     ])
     tall+=test2_check(testdir+'/'+out3, workdir+'/'+out3)
     return tall

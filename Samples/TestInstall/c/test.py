@@ -5,20 +5,20 @@ def test(args,bindir,testdir,workdir):
     tall=''
     message1='''
     # Case C: test of homogeneous background
-    # zbak is overridden via -v[bz.zbak]=N (N=0 neutral, N=1 ionized).
+    # zbak is overridden via --toml.bz.zbak=N (N=0 neutral, N=1 ionized).
 '''
     print(message1)
     outfile='out.lmf.neutral.c'
     runprogs([
-        lmfa+" c -v[bz.zbak]=0 > "+outfile,
-        lmf+ " c -v[bz.zbak]=0 >>"+outfile,
+        lmfa+" c --toml.bz.zbak=0 > "+outfile,
+        lmf+ " c --toml.bz.zbak=0 >>"+outfile,
         "rm -f *mixm.* rst.* save.* log.* *hssn.* wkp.* bsmv.* bnds.*"
     ])
     tall+=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
     outfile='out.lmf.ionized.c'
     runprogs([
-        lmfa+" c -v[bz.zbak]=1 > "+outfile,
-        lmf+ " c -v[bz.zbak]=1 >>"+outfile,
+        lmfa+" c --toml.bz.zbak=1 > "+outfile,
+        lmf+ " c --toml.bz.zbak=1 >>"+outfile,
         "rm -f *mixm.* rst.* save.* log.* *hssn.* wkp.* bsmv.* bnds.*"
     ])
     tall+=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)

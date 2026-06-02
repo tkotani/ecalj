@@ -84,7 +84,7 @@ def run_lmf(cluster: str,
             nprocs=params.nprocs,
             npernode=params.npernode,
             command=params.command,
-            args=params.args + [f'-v[iter.b]={bval}']
+            args=params.args + [f'--toml.iter.b={bval}']
         )
         try:
             run_cmd(cluster, current_params, retry=False, stdin_str=stdin_str, stdout=stdout)

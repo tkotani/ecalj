@@ -18,10 +18,10 @@ def test(args,bindir,testdir,workdir):
                  lmfa+" na  > "+outfile ,
                  lmf+ " na >>"+outfile,
                  "rm *mixm.na rst.na",
-                 lmfa+" na -v[spec.1.p]=[3.7,3.5,3.2,4.12,5.1] -v[spec.1.pz]=[0.0,2.9] >>"+outfile,
-                 lmf+ " na -v[spec.1.p]=[3.7,3.5,3.2,4.12,5.1] -v[spec.1.pz]=[0.0,2.9]>>"+outfile,
+                 lmfa+" na --toml.spec.1.p=[3.7,3.5,3.2,4.12,5.1] --toml.spec.1.pz=[0.0,2.9] >>"+outfile,
+                 lmf+ " na --toml.spec.1.p=[3.7,3.5,3.2,4.12,5.1] --toml.spec.1.pz=[0.0,2.9]>>"+outfile,
                  "rm *mixm.na rst.na",
-                 lmf+ " na -v[spec.1.p]=[3.7,3.5,3.2,4.12,5.1] -v[spec.1.pz]=[0.0,12.94] >>"+outfile
+                 lmf+ " na --toml.spec.1.p=[3.7,3.5,3.2,4.12,5.1] --toml.spec.1.pz=[0.0,12.94] >>"+outfile
         ])
         tall+=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
         return tall

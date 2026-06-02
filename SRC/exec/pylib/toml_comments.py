@@ -18,14 +18,10 @@ SECTION_HEADER = {
         "# === Top-level keys ===",
         "# symgrp: 'find' lets lmf detect maximum space-group symmetry from",
         "#   lattice + species. Set explicitly (e.g. 'r4z r3d r2x') to lower",
-        "#   the symmetry by hand. 'lmchk foobar --pr60' lists generators.",
+        "#   the symmetry by hand. 'lmchk foobar --toml.verbose=60' lists generators.",
         "#   See https://ecalj.github.io/ecaljdoc/manual/lmf#symgrp",
-    ),
-
-    'io': (
-        "# === IO ===",
-        "# verbose: console verbosity (default 31). Larger -> more diagnostic",
-        "#   output. Use 35-41 when investigating failures.",
+        "# verbose / time: console verbosity and CPU timing log.",
+        "#   Override at run time with --toml.verbose=50 / --toml.time=[5,5].",
     ),
 
     'struc': (
@@ -138,10 +134,9 @@ SECTION_HEADER = {
 
 KEY_INLINE = {
     'top': {
-        'symgrp': "# 'find' = auto-detect from lattice (see header)",
-    },
-    'io': {
+        'symgrp':  "# 'find' = auto-detect from lattice (see header)",
         'verbose': "# 31 default, 35 verbose, 41+ debug",
+        'time':    "# CPU timing log; [depth, on-the-fly]",
     },
     'bz': {
         'metal':   "# 0 insulator, 3 tetra+broadening (safe metal default)",

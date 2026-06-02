@@ -2,9 +2,7 @@
 # Schema-typed TOML; m_lmfinit::ReadCtrlp walks this file generically.
 
 
-[io]
-verbos = 30
-
+verbose = 30
 [struc]
 nspec = 5
 nbas  = 8
@@ -159,6 +157,7 @@ b     = 0.5
 k     = 4
 
 [ham]
+phispinsym = false  # spin-averaged radial wfns (needed for SO=1 perturbation)
 nspin  = 2
 rel    = true
 ftmesh = [24, 24, 24]

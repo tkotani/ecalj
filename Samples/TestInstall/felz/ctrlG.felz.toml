@@ -3,9 +3,7 @@
 
 symgrp = "i*i"
 
-[io]
-verbos = 30
-
+verbose = 30
 [struc]
 nspec = 1
 nbas  = 1
@@ -55,6 +53,7 @@ b     = 0.5
 k     = 3
 
 [ham]
+phispinsym = false  # spin-averaged radial wfns (needed for SO=1 perturbation)
 nspin  = 2
 rel    = true
 so     = 0

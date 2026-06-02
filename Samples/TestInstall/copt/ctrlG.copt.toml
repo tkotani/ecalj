@@ -3,9 +3,7 @@
 
 symgrp = "find"
 
-[io]
-verbos = 30
-
+verbose = 30
 [struc]
 nspec = 2
 nbas  = 4
@@ -73,6 +71,7 @@ mix = "B"
 b   = 0.3
 
 [ham]
+phispinsym = false  # spin-averaged radial wfns (needed for SO=1 perturbation)
 nspin  = 2
 rel    = true
 so     = 0

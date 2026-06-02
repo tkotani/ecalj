@@ -3,9 +3,7 @@
 
 symgrp = "R4Z MZ"
 
-[io]
-verbos = 30
-
+verbose = 30
 [struc]
 nspec = 2
 nbas  = 2
@@ -68,6 +66,7 @@ b     = 0.2
 w     = [0.8, 0.2]
 
 [ham]
+phispinsym = false  # spin-averaged radial wfns (needed for SO=1 perturbation)
 nspin  = 2
 rel    = true
 so     = 0

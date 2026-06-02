@@ -12,9 +12,8 @@ symgrp = "find"  # 'find' = auto-detect from lattice (see header)
 # === IO ===
 # verbos: console verbosity (default 31). Larger -> more diagnostic
 #   output. Use 35-41 when investigating failures.
-[io]
-verbos = 35  # 31 default, 35 verbose, 41+ debug
-tim    = [0, 0]
+verbose = 35  # 31 default, 35 verbose, 41+ debug
+time    = [0, 0]
 
 # === STRUC: lattice ===
 # alat in a.u.; plat is the primitive cell in units of alat (rows = a1,a2,a3).
@@ -175,6 +174,7 @@ b     = 0.2  # mixing ratio (smaller -> more stable)
 #   pnufix=true freezes log-derivative B.C. of radial functions.
 # forces: 0 no force calc, 1 compute Hellmann-Feynman forces.
 [ham]
+phispinsym = false  # spin-averaged radial wfns (needed for SO=1 perturbation)
 nspin       = 1  # 1 nonmag, 2 spin-polarized
 rel         = true  # scalar-relativistic
 so          = 0  # 0 none, 1 L.S, 2 Lz.Sz

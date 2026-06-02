@@ -1,11 +1,30 @@
-!> Apply -v[<toml-path>]=<value> overrides to the raw text of a TOML file
+!> Apply --toml.<dotted.path>=<value> overrides to the raw text of a TOML file
 !  before toml_loads. Supported paths:
-!    -v[symgrp]="find"          top-level scalar
-!    -v[ham.gmax]=15            section.key
-!    -v[bz.nkabc]=[6,6,6]       section.key with array RHS
-!    -v[spec.1.r]=2.5           [[spec]] array-of-tables, 1-based index
+!    --toml.symgrp="find"          top-level scalar
+!    --toml.verbose=50             top-level scalar (was [io] verbose)
+!    --toml.time=[5,5]             top-level array  (was [io] time)
+!    --toml.ham.gmax=15            section.key
+!    --toml.ham.phispinsym=true    section.key (bool, must be lowercase)
+!    --toml.bz.nkabc=[6,6,6]       section.key with array RHS
+!    --toml.struc.alat=7.88        section.key
+!    --toml.spec.1.r=2.5           [[spec]] array-of-tables, 1-based index
 !  Each applied override is logged (rank-0 only) so it appears in the
-!  console output of every lmf/lmfa/GW utility.
+!  console output of every lmf/lmfa/GW utility. Values are TOML-typed
+!  (so `true`/`false` lowercase, strings quoted, arrays in `[...]`).
+!
+!  Other --foo=value args are checked against
+!  m_cmdopt_registry::CMDOPT2_REGISTRY; if it matches a known cmdopt2 (or
+!  a cmdopt0 whose name carries `=`, e.g. --quit=show) it passes through
+!  to the existing cmdopt path, otherwise we abort with a hint.
+!
+!  Retired (now aborts with a one-line migration hint):
+!    -v<name>=<value>           legacy ctrl %const form
+!    -v[<path>]=<value>         the old TOML override prefix
+!    --[<path>]=<value>         intermediate bracketed form
+!    --<a.b.c>=<value>          intermediate dotted form
+!    --pr=N                     cmdline shortcut for verbose
+!    --time=<...>               cmdline shortcut for time
+!    --phispinsym               cmdline shortcut for [ham] phispinsym
 module m_toml_override
   use m_args,            only: arglist, narg
   use m_lgunit,          only: stdo
@@ -17,12 +36,13 @@ module m_toml_override
 
 contains
 
-  !> Read filename as a text buffer, apply any -v[<path>]=<value> overrides
-  !  found in arglist, and return the (possibly modified) buffer in `text`.
+  !> Read filename as a text buffer, apply any --toml.<path>=<value>
+  !  overrides found in arglist (plus the retained --pr=N shortcut),
+  !  and return the (possibly modified) buffer in `text`.
   subroutine load_toml_with_overrides(filename, text)
     character(*),                  intent(in)  :: filename
     character(len=:), allocatable, intent(out) :: text
-    integer :: u, ios, sz, i
+    integer :: i
     character(len=:), allocatable :: path, val
     character(len=512) :: arg
     logical :: did_log_header
@@ -32,41 +52,15 @@ contains
     did_log_header = .false.
     do i = 1, narg
        arg = arglist(i)
-       ! Catch the legacy ctrl %const form `-v<name>=<value>` (no `[`).
-       ! Silently ignoring it was a footgun: users would set -vnspin=2 and
-       ! lmf would run with the TOML default. Abort with a hint instead.
-       if (len_trim(arg) >= 4 .and. arg(1:2) == '-v' .and. arg(3:3) /= '[') then
-          if (index(arg(3:), '=') > 0) then
-             if (master_mpi) then
-                write(stdo,'(a)') ' '
-                write(stdo,'(a)') 'ERROR: legacy `-v<name>=<value>` syntax is no longer supported.'
-                write(stdo,'(a)') '       Offending argument: '//trim(arg)
-                write(stdo,'(a)') '       Use the TOML-path form `-v[<dotted.path>]=<value>` instead.'
-                write(stdo,'(a)') '       Examples:'
-                write(stdo,'(a)') '         -v[bz.nkabc]=[8,8,8]   (was -vnk=8)'
-                write(stdo,'(a)') '         -v[ham.so]=1            (was -vso=1)'
-                write(stdo,'(a)') '         -v[ham.scaledsigma]=0.8 (was -vssig=0.8)'
-                write(stdo,'(a)') '       See https://ecalj.github.io/ecaljdoc/manual/toml_migration'
-             endif
-             call rx('legacy -v<name>=<value> override: use -v[<toml-path>]=<value>')
-          endif
-       endif
-       ! Legacy single-key shortcuts. Each one maps to a specific TOML
-       ! key; translate to the canonical -v[<path>]=<value> path so the
-       ! TOML text is the single source of truth and m_lmfinit.f90 no
-       ! longer has to override values after rval2.
-       if (translate_legacy_cmdopt(arg, path, val)) then
-          ! fall through to the apply block below
-       else if (is_v_override(arg, path, val)) then
-          ! existing -v[<path>]=<value> form
-       else if (is_dashdash_override(arg, path, val)) then
-          ! new --[<path>]=<value> and --<a.b.c>=<value> forms
+       call abort_on_retired_form(arg)
+       if (is_toml_override(arg, path, val)) then
+          ! new --toml.<dotted.path>=<value> form
        else
-          call classify_plain_dashdash(arg)
+          call classify_non_toml_arg(arg)
           cycle
        endif
        if (master_mpi .and. .not. did_log_header) then
-          write(stdo,'(a)') ' --- TOML overrides applied (-v[<path>]=<value>) ---'
+          write(stdo,'(a)') ' --- TOML overrides applied (--toml.<path>=<value>) ---'
           did_log_header = .true.
        endif
        if (master_mpi) write(stdo,'(a)') '   '//trim(path)//' = '//trim(val)
@@ -74,116 +68,108 @@ contains
     enddo
   end subroutine load_toml_with_overrides
 
-  !> Translate the three legacy cmdline overrides into the canonical
-  !! TOML-path form. They predate -v[<path>]=<value>; keeping them as a
-  !! pre-processing translation lets m_lmfinit.f90 stay rval2-only.
-  !!   --pr=N      / -pr=N   -> io.verbose = N
-  !!   --time=N    / --time=N,M -> io.time = [N, 999] / [N, M]
-  !!   --phispinsym         -> ham.phispinsym = true
-  function translate_legacy_cmdopt(arg, path, val) result(yes)
+  !> Canonical TOML override syntax: --toml.<dotted.path>=<value>.
+  !! Strip the literal `--toml.` prefix; everything before the first `=`
+  !! becomes the TOML path, everything after is the (TOML-typed) value.
+  function is_toml_override(arg, path, val) result(yes)
     character(*),                  intent(in)  :: arg
     character(len=:), allocatable, intent(out) :: path, val
     logical :: yes
-    integer :: alen, comma
-    character(len=:), allocatable :: rhs
-    yes = .false.
+    integer :: alen, eq
+    yes  = .false.
     alen = len_trim(arg)
-    if (alen <= 0) return
-    if (alen >= 5 .and. arg(1:5) == '--pr=') then
-       path = 'io.verbose'
-       val  = arg(6:alen)
-       yes  = .true.; return
-    endif
-    if (alen >= 4 .and. arg(1:4) == '-pr=') then
-       path = 'io.verbose'
-       val  = arg(5:alen)
-       yes  = .true.; return
-    endif
-    if (alen >= 8 .and. arg(1:7) == '--time=') then
-       rhs   = arg(8:alen)
-       comma = index(rhs, ',')
-       path  = 'io.time'
-       if (comma > 0) then
-          val = '[' // rhs(1:comma-1) // ',' // rhs(comma+1:) // ']'
-       else
-          ! single value: pad the second slot with the old 999 sentinel
-          val = '[' // rhs // ',999]'
-       endif
-       yes  = .true.; return
-    endif
-    if (arg(1:alen) == '--phispinsym') then
-       path = 'ham.phispinsym'
-       val  = 'true'
-       yes  = .true.; return
-    endif
-  end function translate_legacy_cmdopt
-
-  !> New override syntax: --[<dotted.path>]=<value> or --<a.b.c>=<value>.
-  !! Brackets make the override explicit (no plain-word ambiguity) and the
-  !! dotted-path form is unambiguous because no cmdopt name contains a dot.
-  function is_dashdash_override(arg, path, val) result(yes)
-    character(*),                  intent(in)  :: arg
-    character(len=:), allocatable, intent(out) :: path, val
-    logical :: yes
-    integer :: alen, eq, rb
-    yes = .false.
-    alen = len_trim(arg)
-    if (alen < 5) return
-    if (arg(1:2) /= '--') return
-    ! --[<path>]=<value>
-    if (arg(3:3) == '[') then
-       rb = index(arg, ']=')
-       if (rb < 4) return
-       path = arg(4:rb-1)
-       val  = arg(rb+2:alen)
-       yes  = .true.
-       return
-    endif
-    ! --<dotted.path>=<value>: dots in the lhs make it unambiguous since
-    ! no current cmdopt name contains a dot.
+    if (alen < 9) return                       ! "--toml.x=" minimum is 9
+    if (arg(1:7) /= '--toml.') return
     eq = index(arg, '=')
-    if (eq < 4 .or. index(arg(3:eq-1), '.') == 0) return
-    path = arg(3:eq-1)
+    if (eq <= 8) return                        ! must have something between `.` and `=`
+    path = arg(8:eq-1)
     val  = arg(eq+1:alen)
     yes  = .true.
-  end function is_dashdash_override
+  end function is_toml_override
 
-  !> Plain `--<word>=<value>` or `-<word>=<value>` arg (no brackets, no dots).
-  !! Decide between:
-  !!   (1) known cmdopt2 -> cycle (cmdopt2 picks it up downstream).
-  !!   (2) anything else -> abort with hint. The user typed --foo=value
-  !!       which is neither a registered cmdopt2 nor a TOML path.
-  !! cmdopt0 flags (no `=`) flow through untouched; same for short -X
-  !! patterns we do not recognise here.
-  subroutine classify_plain_dashdash(arg)
+  !> Anything starting with `-` but not the new --toml./--pr= forms.
+  !! Either a registered cmdopt that passes through, or a typo we abort on.
+  !! cmdopt0 flags (no `=`) flow through untouched.
+  subroutine classify_non_toml_arg(arg)
     character(*), intent(in) :: arg
     integer :: alen, eq
     alen = len_trim(arg)
     if (alen <= 0) return
-    if (arg(1:1) /= '-') return
+    if (arg(1:1) /= '-') return                ! not a flag, leave alone
     eq = index(arg, '=')
-    if (eq == 0) return                       ! flag (cmdopt0), leave alone
-    if (is_known_cmdopt2(arg(1:eq-1))) return ! registered cmdopt2, pass through
+    if (eq == 0) return                        ! cmdopt0 flag, leave alone
+    if (is_known_cmdopt2(arg(1:eq-1))) return  ! registered cmdopt, pass through
     if (master_mpi) then
        write(stdo,'(a)') ' '
        write(stdo,'(a)') 'ERROR: unknown option `'//trim(arg)//'`.'
-       write(stdo,'(a)') '       To override a TOML key use the bracketed form'
-       write(stdo,'(a)') '         --['//arg(3:eq-1)//']=<value>'
-       write(stdo,'(a)') '       or the dotted-path form'
-       write(stdo,'(a)') '         --<section>.'//arg(3:eq-1)//'=<value>'
+       write(stdo,'(a)') '       To override a TOML key, use'
+       write(stdo,'(a)') '         --toml.<dotted.path>=<value>'
        write(stdo,'(a)') '       For a list of registered cmdline options see'
        write(stdo,'(a)') '         https://ecalj.github.io/ecaljdoc/manual/cmdopts'
        write(stdo,'(a)') '       and m_cmdopt_registry.f90 for the cmdopt2 registry.'
     endif
     call rx('unknown option: '//trim(arg))
-  end subroutine classify_plain_dashdash
+  end subroutine classify_non_toml_arg
+
+  !> Hard-error on syntaxes we used to accept. Each branch prints one
+  !! migration hint so the failure mode is "obvious from one line".
+  subroutine abort_on_retired_form(arg)
+    character(*), intent(in) :: arg
+    integer :: alen
+    alen = len_trim(arg)
+    if (alen < 2) return
+
+    ! -v...  family (legacy %const + intermediate -v[...]= TOML override)
+    if (alen >= 3 .and. arg(1:2) == '-v') then
+       if (index(arg, '=') > 0) call retired_die(arg, &
+            '-v...=<value> is retired. Use --toml.<dotted.path>=<value>.')
+       return
+    endif
+
+    ! --[<path>]=<value>  intermediate bracketed form
+    if (alen >= 5 .and. arg(1:3) == '--[' .and. index(arg, ']=') > 0) then
+       call retired_die(arg, &
+            '--[<path>]=<value> is retired. Use --toml.<dotted.path>=<value>.')
+    endif
+
+    ! --pr=N
+    if (alen >= 5 .and. arg(1:5) == '--pr=') then
+       call retired_die(arg, &
+            '--pr=N is retired. Use --toml.verbose=N.')
+    endif
+
+    ! --time=...
+    if (alen >= 7 .and. arg(1:7) == '--time=') then
+       call retired_die(arg, &
+            '--time=<...> is retired. Use --toml.time=[N,M].')
+    endif
+
+    ! --phispinsym  (cmdline flag retired; lives on inside Legacy2toml.py
+    ! which still rewrites the legacy ctrl token, but the Fortran binary
+    ! must read it from [ham] phispinsym in the TOML.)
+    if (arg(1:alen) == '--phispinsym') then
+       call retired_die(arg, &
+            '--phispinsym is retired. Use --toml.ham.phispinsym=true, '// &
+            'or set [ham] phispinsym = true in ctrlG.<sname>.toml.')
+    endif
+  end subroutine abort_on_retired_form
+
+  subroutine retired_die(arg, hint)
+    character(*), intent(in) :: arg, hint
+    if (master_mpi) then
+       write(stdo,'(a)') ' '
+       write(stdo,'(a)') 'ERROR: retired syntax `'//trim(arg)//'`'
+       write(stdo,'(a)') '       '//trim(hint)
+       write(stdo,'(a)') '       https://ecalj.github.io/ecaljdoc/manual/toml_migration'
+    endif
+    call rx('retired syntax: '//trim(arg))
+  end subroutine retired_die
 
 
   subroutine slurp_file(filename, text)
     character(*),                  intent(in)  :: filename
     character(len=:), allocatable, intent(out) :: text
-    integer :: u, ios, sz
-    character :: c
+    integer :: u, ios
     open(newunit=u, file=filename, status='old', action='read', form='formatted', iostat=ios)
     if (ios /= 0) call rx('m_toml_override: cannot open '//filename)
     text = ''
@@ -199,31 +185,15 @@ contains
   end subroutine slurp_file
 
 
-  function is_v_override(arg, path, val) result(yes)
-    character(*),                  intent(in)  :: arg
-    character(len=:), allocatable, intent(out) :: path, val
-    logical :: yes
-    integer :: lb, rb, eq
-    yes = .false.
-    if (len_trim(arg) < 5) return
-    if (arg(1:3) /= '-v[') return
-    rb = index(arg, ']=')
-    if (rb < 4) return
-    path = arg(4:rb-1)
-    val  = arg(rb+2:len_trim(arg))
-    yes = .true.
-  end function is_v_override
-
-
   !> Replace the RHS of a single key in text, navigating by dotted path.
   subroutine apply_one_override(text, path, val)
     character(len=:), allocatable, intent(inout) :: text
     character(*),                  intent(in)    :: path, val
     character(len=:), allocatable :: section_pat, key
     character(len=64)             :: idx_str
-    integer :: i, lastdot, second_lastdot, idx, sec_count
+    integer :: lastdot, second_lastdot, idx
     logical :: is_array_of_tables
-    integer :: sec_start, sec_end, key_pos, eol_pos
+    integer :: sec_start, sec_end
     !
     ! Path forms:
     !   key                   -> top-level scalar
@@ -252,7 +222,7 @@ contains
          sec_start, sec_end)
     if (sec_start <= 0) then
        if (master_mpi) write(stdo,'(a)') &
-            '   (warn) -v override path "'//trim(path)//'" not found in TOML; skipped'
+            '   (warn) --toml override path "'//trim(path)//'" not found in TOML; skipped'
        return
     endif
     call replace_key_in_range(text, sec_start, sec_end, trim(key), val)
