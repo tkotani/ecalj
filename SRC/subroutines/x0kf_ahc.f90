@@ -17,8 +17,7 @@ module m_x0kf_ahc
   use m_readVcoud,only:   vcousq,zcousq,ngb,ngc
   use m_kind,only:kindrcxq
   use m_setqibz_lmfham,only: set_qibz,irotg
-  use m_cmdopt_registry, only: c2_EfermiShifteV, c2_EfermiShifteV_set, c2_nww, c2_cutuu, c2_cutuu_set
-  use m_cmdopt_registry, only: c0_AHCMAT, c0_UUMAT, c0_ahc, c0_debugzmel, c0_gpu, c0_mloahc, c0_qibzonly, c0_x0test, c0_zmel0
+  use m_cmdopt_registry, only: c0_AHCMAT, c0_UUMAT, c0_ahc, c0_debugzmel, c0_gpu, c0_mloahc, c0_qibzonly, c0_x0test, c0_zmel0, c2_EfermiShifteV, c2_EfermiShifteV_set, c2_cutuu, c2_cutuu_set, c2_nww
   implicit none
   public:: x0kf_ahc, deallocatezxq, deallocatezxqi
   complex(8),public,allocatable:: zxq(:,:,:), zxqi(:,:,:)   !Not yet protected because of main_hx0fp0
@@ -125,7 +124,6 @@ contains
     use m_gpu, only: use_gpu
 !    use m_data_gpu, only: SetDataGPU_inkx, ExitDataGPU_inkx
     use m_procar, only: read_sdenmat, sdendwgtall
-    use m_cmdopt_registry, only: c0_AHCMAT, c0_UUMAT, c0_ahc, c0_debugzmel, c0_gpu, c0_mloahc, c0_qibzonly, c0_x0test, c0_zmel0
     implicit none
     intent(in)::      realomega,imagomega, q,iq,npr,schi,crpa,chipm,nolfco,q00,zzr
     logical:: realomega,imagomega,crpa,chipm,nolfco
@@ -721,7 +719,6 @@ contains
   end subroutine deallocatezxqi
   subroutine x0kf_zmel( q,k, isp_k,isp_kq)!, GPUTEST) ! Return zmel= <phi phi |M_I> in m_zmel
     use m_mpi, only: comm_b => comm_b_xq
-    use m_cmdopt_registry, only: c0_debugzmel
     intent(in)   ::     q,k, isp_k,isp_kq   
     integer::              k,isp_k,isp_kq 
     real(8)::           q(3)

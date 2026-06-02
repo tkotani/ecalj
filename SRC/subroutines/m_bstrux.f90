@@ -23,7 +23,6 @@ contains
     use m_qplist,only: qplist,iqini,iqend,nkp
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat
     use m_lmfinit,only: lfrce
-    use m_cmdopt_registry, only: c0_skipbstruxinit
     implicit none
     real(8):: qin(3),q(3),eps=1d-10
     integer:: iq,iqx,ia !!!!! 2023-04-25 obatadebug    q=qin !    call shorbz(qin,q,qlat,plat) !Get q. Is this fine?

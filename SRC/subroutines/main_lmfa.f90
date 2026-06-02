@@ -9,7 +9,6 @@ contains
     use m_lgunit,only:   m_lgunit_init, stdo,stdl
     use m_lmfinit,only:m_Lmfinit_init
     use m_freeat,only:   Freeat
-    use m_cmdopt_registry, only: c0_help
     implicit none
 !    include "mpif.h" 
     character:: aaa*512

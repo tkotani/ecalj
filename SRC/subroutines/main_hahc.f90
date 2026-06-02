@@ -3,7 +3,7 @@
 !! eps_lmf_cphipm mode is now commented out; you may need to recover this if necessary
 !! (only epsPP_lmf_chipm mode works).
 module m_hahc
-  use m_cmdopt_registry, only: c0_ahc, c0_interbandonly, c0_intrabandonly, c0_x0test, c0_zmel0
+  use m_cmdopt_registry, only: c0_ahc, c0_interbandonly, c0_intrabandonly, c0_x0test, c0_zmel0, c2_job, c2_nb, c2_nk
   contains
 subroutine hahc() bind(C)
   use m_ReadEfermi,only: Readefermi,ef
@@ -36,7 +36,6 @@ subroutine hahc() bind(C)
 !  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
   use m_genallcf_v3,only: nprecb,mrecb,mrece,nqbzt,nband,mrecg
   use m_readVcoud,only: Readvcoud,vcousq,zcousq !,ngb,ngc
-  use m_cmdopt_registry, only: c2_job, c2_nb, c2_nk
   use m_x0kf_ahc,only: x0kf_ahc,deallocatezxq,deallocatezxqi,zxqi,zxq
   use m_llw,only: WVRllwR,WVIllwI
   use m_w0w0i,only: w0w0i
@@ -45,7 +44,6 @@ subroutine hahc() bind(C)
   use m_dpsion,only: dpsion5
   use m_gpu,only: gpu_init
   use m_ftox
-  use m_cmdopt_registry, only: c0_ahc, c0_interbandonly, c0_intrabandonly, c0_x0test, c0_zmel0
   implicit none
   !! We calculate chi0 by the follwoing three steps.
   !!  gettetwt: tetrahedron weights
@@ -441,7 +439,6 @@ subroutine hahc() bind(C)
 !  if(ixc==12)   call rx0( ' OK! hx0fp0 mode=12    Ecor mode')
 contains
   subroutine writeepsopen()
-    use m_cmdopt_registry, only: c0_interbandonly, c0_intrabandonly
     character*4:: charnum4
     itag=''
     if(c0_interbandonly) itag='.interbandonly'

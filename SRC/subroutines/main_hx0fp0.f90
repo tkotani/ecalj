@@ -2,7 +2,7 @@
 !!
 !! eps_lmf_cphipm mode is commented out; only epsPP_lmf_chipm works.
 module m_hx0fp0
-  use m_cmdopt_registry, only: c0_interbandonly, c0_intrabandonly
+  use m_cmdopt_registry, only: c0_interbandonly, c0_intrabandonly, c2_job
   contains
 subroutine hx0fp0()
   use m_ReadEfermi,   only: Readefermi, ef
@@ -31,9 +31,7 @@ subroutine hx0fp0()
   use m_llw,          only: WVRllwR, WVIllwI, MPI__llw_alloc_bufs, MPI__irecvllw_q, MPI__isendllw_q, MPI__waitllw
   use m_lgunit,       only: m_lgunit_init, stdo
   use m_gpu,          only: gpu_init
-  use m_cmdopt_registry, only: c2_job
   use m_ftox
-  use m_cmdopt_registry, only: c0_interbandonly, c0_intrabandonly
   implicit none
   real(8)    :: qp(3), quu(3), ua=1d0, vcmean, frr
   real(8)    :: schi=1d0, chg1, chg2, dumm1, dumm2
@@ -287,7 +285,6 @@ subroutine hx0fp0()
 !  if(ixc==12)   call rx0( ' OK! hx0fp0 mode=12    Ecor mode')
 contains
   subroutine writeepsopen()
-    use m_cmdopt_registry, only: c0_interbandonly, c0_intrabandonly
     character(4), external :: charnum4
     itag=''
     if(c0_interbandonly) itag='.interbandonly'

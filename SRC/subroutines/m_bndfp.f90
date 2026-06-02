@@ -110,7 +110,6 @@ contains
     
     !See history github ecalj after 2009.
     use mpi
-    use m_cmdopt_registry, only: c0_boltztrap, c0_cls, c0_debugbndfp, c0_density, c0_eigen_at_k, c0_fermisurface, c0_fullmesh, c0_mkprocar, c0_quitecore, c0_tdos, c0_tdostetf, c0_writeeigen, c0_writeham, c0_wsig_fbz, c2_quit
     implicit none
     character(10) :: head
     integer:: plbnd,nk1,nk2,nk3,nx,ny, iter,i,ifi,ipr,iq,isp,jsp,iprint,ipts,ierr

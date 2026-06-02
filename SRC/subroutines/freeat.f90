@@ -19,7 +19,6 @@ contains
     !   ceh   :energy of core tail to smoothed Hankel
     !   sumtc :core kinetic energy
     ! ----------------------------------------------------------------------
-    use m_cmdopt_registry, only: c0_vesatom
     implicit none
     integer :: ifi,iprint,is,nglob,nr,nrmt,nrmx, n0,nkap0,nxi,nxi0,nrmix,igets,lmxa,kcor,lcor,iofa, i_dum,ifives,ifiwv
     character(8) :: spid,chole(8)
@@ -153,7 +152,6 @@ contains
     !u   19 Apr 02 Redesigned input to avoid the use of structures
     !u   10 Apr 02 Redimensionsed etab,rtab to accomodate larger lmax
     ! ----------------------------------------------------------------------
-    use m_cmdopt_registry, only: c0_skip_qvalcheck
     implicit none
     integer :: nrmx,nrmt,is,nxi0,nxi,nrmix,lwf,lxcf,n0,kcor,lcor
     parameter (nrmx=1501,n0=10)

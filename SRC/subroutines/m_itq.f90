@@ -87,7 +87,6 @@ contains
     use m_nvfortran, only: findloc
     use m_ftox
     use m_mpi, only: mpi__root
-    use m_cmdopt_registry, only: c0_ntqxx
     integer, intent(in) :: nbmx_sig, nspinmx
     real(8), intent(in) :: ebmx_sig, eftrue
     integer :: ifih, nspinmxin, is, ip, nqibzin, iqibz, ierr

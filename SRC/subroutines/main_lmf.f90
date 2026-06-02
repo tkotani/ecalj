@@ -6,7 +6,7 @@
 ! This assure that we can not modify data in a module by other modules.
 ! Bootstrap sequence of module initialzation. The variables in modules are proteted except m_density. Use variables with 'use only'.
 module m_lmf
-use m_cmdopt_registry, only: c0_getq, c0_help, c0_vbmonly, c0_wdsawada, c0_writeham, c0_writepdos, c2_quit
+use m_cmdopt_registry, only: c0_getq, c0_help, c0_vbmonly, c0_wdsawada, c0_writeham, c0_writepdos, c2_jobgw, c2_quit
 contains
   subroutine lmf(commin) bind(C)
     use mpi
@@ -34,9 +34,7 @@ contains
     use m_writeband,only: writepdos,writedossawada
     use m_vbmmode,only: vbmmode
     use m_gpu,only:      gpu_init
-    use m_cmdopt_registry, only: c2_jobgw
     use m_ftox
-    use m_cmdopt_registry, only: c0_getq, c0_help, c0_vbmonly, c0_wdsawada, c0_writeham, c0_writepdos, c2_quit
     implicit none
     integer,optional:: commin
     integer:: iarg,iprint,jobgw,ierr,ifi

@@ -36,7 +36,6 @@ contains
                          tg_q_epsl  => q_epsl,  tg_qend_epsl => qend_epsl, &
                          tg_idx_epsl => idx_epsl, tg_n_epsl => n_epsl
     use m_getqforgw,only: getqonly,qx,nq
-    use m_cmdopt_registry, only: c0_readQforGW
     intent(in)         iq0pin,alat,plat,qlat,nnn,alp,alpv,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,lnq0iadd
     integer:: iq0pin !    logical:: newoffsetG
     integer:: nnn(3),nstbz(*),nqbz,nqibz,ngcxx,ngcx(nqbz),ngrp !n1q,n2q,n3q,

@@ -48,7 +48,6 @@ contains
     use m_MPItk,only: procid,master
     use m_ext,only:sname
     use m_ftox
-    use m_cmdopt_registry, only: c0_use_sigm_fbz, c0_wsig_fbz
     integer:: ierr,ifi,ndimh_dummy,ifis2,ik1,ik2,ik3,is,iset,nqp
     logical:: mtosigmaonly
     character strn*120

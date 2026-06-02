@@ -1,6 +1,6 @@
 !> PMT --> lmfham1 --> MPO --> lmfham2 --> MLO
 module m_lmfham2
-  use m_cmdopt_registry, only: c0_cmlo
+  use m_cmdopt_registry, only: c0_cmlo, c2_job
   public lmfham2
   private
 contains
@@ -40,8 +40,6 @@ contains
     use m_rotwave,only:  rotmatMTO!,rotmatPMT
     use m_read_Worb,only: s_read_Worb, nclass_mlwf, cbas_mlwf, norb=>nbasclass_mlwf !,classname_mlwf !,iclassin !,iphi,iphidot,nphi,nphix
     use m_nvfortran,only:findloc
-    use m_cmdopt_registry, only: c2_job
-    use m_cmdopt_registry, only: c0_cmlo
     implicit none
     intent(in):: commin
     integer:: i,iq,is,ix,j,ifbb,ifoc,nbb,isc,ifq0p, nox,iki,ikf,nsc1,ndz,nin,nout,nsc2,ibb

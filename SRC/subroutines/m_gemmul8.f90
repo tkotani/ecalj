@@ -52,7 +52,6 @@ contains
     use m_lgunit, only: stdo
     use m_ftox, only: ftox
     use m_mpi,only: ipr
-    use m_cmdopt_registry, only: c0_use_gemmul8
     logical, save :: is_gemmul8_inited = .false.
     if(is_gemmul8_inited) return
     use_gemmul8 = c0_use_gemmul8

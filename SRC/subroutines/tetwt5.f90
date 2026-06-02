@@ -84,7 +84,6 @@ contains
     ! takao dec2003; matrix_linear() mode
     ! okumura Jan2019
     ! wan: skip ebmx cutoff for magnon calculation
-    use m_cmdopt_registry, only: c0_interbandonly, c0_intrabandonly
     implicit none
     integer:: npm,jpm,ibxmx,jbxmx,jbx,nrankc1,nrankc2,nnn1,nnn2,nnni,nnnj,ncc
     integer, intent(in) :: iqbz, fqbz

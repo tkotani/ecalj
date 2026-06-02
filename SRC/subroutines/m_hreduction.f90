@@ -13,7 +13,6 @@ contains
    use m_GWinput, only: gwinput_init, gwinput_loaded, &
                         tg_mlo_nskip => mlo_nskip, tg_mlo_eww => mlo_eww, &
                         tg_mlo_emax => mlo_emax
-   use m_cmdopt_registry, only: c0_gs, c0_mlo_diagnorm, c0_mlo_feb4, c0_mlo_ortho, c0_mlo_orthonorm
    implicit none
    integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev,nxx,jj,ndimPMTx,nvpmt,mlomethod,nskip,nskipin
    real(8)::beta,emu,val,wgt(ndimPMT),evlmto(ndimMTO),evl(ndimPMT),evlx(ndimPMT),qp(3),eww,eadd

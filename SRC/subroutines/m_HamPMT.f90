@@ -88,7 +88,6 @@ contains
       use m_readqplist,only: eferm
       use m_rotwave,only:  rotmatMTO!,rotmatPMT
       use m_mpiio, only: openm, writem, closem, mpiio_buf, buf_get, readm_buf
-      use m_cmdopt_registry, only: c0_mlo, c0_skip1d, c0_skip2nd, c0_skip2ndd, c0_skip2ndp, c0_skip2nds, c0_skipd, c0_skipf, c0_skiplo, c0_socmatrix
       implicit none
       integer:: ifihmto,nqbz
       integer::ikpd,ikp,ib1,ib2,ifih,it,iq,nev,nmx,ifig=-999,i,j,ndimPMT,lold,m,ndimPMTmx

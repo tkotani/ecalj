@@ -713,7 +713,6 @@ contains
     !r   Reads in diagonal occupation numbers from file occnum.ext or dmatu
     !r   given in order of m=-l,l, isp=1,2, and constructs initial vorb
     !    use m_ldauu,only: ldau
-    use m_cmdopt_registry, only: c0_showdmat
     implicit none
     integer:: idvsh=0
     complex(8):: dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu),&
@@ -1135,7 +1134,6 @@ contains
     !u   09 Nov 05 (wrl) Convert dmat to complex form
     !u   30 Apr 05 Lambrecht first created
     !--------------------------------------------------------------
-    use m_cmdopt_registry, only: c0_nosymdm
     implicit none
     integer :: nbas,lldau(nbas),ng,nsp,lmaxu,istab(nbas,ng),i_copy_size
     integer :: is,igetss,lmxa,m1,m2,ilm1,ilm2,ib,l,isp,m3,m4,ig,iblu,nlibu,jb,jblu,ofjbl,lwarn

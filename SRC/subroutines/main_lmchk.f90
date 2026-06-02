@@ -15,7 +15,6 @@ contains
     use m_lattic,only:  m_Lattic_init
     use m_mksym,only:   m_mksym_init
     use m_lmaux,only:   lmaux
-    use m_cmdopt_registry, only: c0_help
     implicit none
     character:: aaa*512,sss*128
     integer,optional::commin

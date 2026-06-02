@@ -17,7 +17,7 @@ module m_procar
   real(8),allocatable,protected:: dwgtall(:,:,:,:,:),sdendwgtall(:,:,:,:,:)
   logical,private:: isp1init=.true.,isp2init=.true. !,init=.true.
   integer,private:: iprocar1,iprocar2 ,isdenmat
-  logical,private:: cmdopt0,fullmesh,debug,procaron
+  logical,private:: fullmesh,debug,procaron
   logical,private:: idwmode=.false.
   real(8), allocatable:: dlmm(:,:,:,:)
   real(8), allocatable :: dwgtk(:,:,:,:)
@@ -30,7 +30,6 @@ contains
     if(nexist) close(iprocar2)
   end subroutine m_procar_closeprocar
   subroutine m_procar_init()
-    use m_cmdopt_registry, only: c0_debugbndfp, c0_fermisurface, c0_fullmesh, c0_mkprocar, c0_nowritedw
     integer :: istat
     fullmesh = c0_fullmesh.or.c0_fermisurface
     debug    = c0_debugbndfp
@@ -48,7 +47,6 @@ contains
   subroutine m_procar_add(iq,ispin,ef0,evl,qp,nev,evec,ndimhx) !vmag0 removed. 2024-6-14 since evl contains effect of vmag0
     use m_makusq,only: makusq
     use m_ftox
-    use m_cmdopt_registry, only: c0_debugbndfp, c0_fermisurface, c0_fullmesh, c0_mkprocar, c0_writedw, c0_ylmc
     implicit none
     complex(8):: evec(ndimhx,nev)
     character*1000::ccc
@@ -172,7 +170,6 @@ contains
     use m_lattic,only: qlat=>lat_qlat, plat=>lat_plat,pos=>rv_a_opos
     use m_ext,only:sname
     use m_tetirr,only: tetirr
-    use m_cmdopt_registry, only: c0_afsym, c0_tetraw
     real(8):: evlall(:,:,:)
     integer:: kpproc(*)
     integer,allocatable:: ipqe(:,:,:),idtete(:,:)
@@ -303,7 +300,6 @@ contains
   subroutine m_sden_add(iq,ispin,ef0,evl,qp,nev,evec,ndimhx)
     use m_makusq,only: makusq
     use m_ftox
-    use m_cmdopt_registry, only: c0_phispinsym
     implicit none
     complex(8):: evec(ndimhx,nev)! ,evec_reshape(ndhamx,nspc,nev)
     character*1000::ccc

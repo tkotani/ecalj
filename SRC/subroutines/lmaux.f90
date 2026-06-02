@@ -3,7 +3,7 @@ module m_lmaux !main part of lmchk ! check crystal structure symmetry and get WS
   use m_xlgen,only:xlgen
   use m_lgunit,only:stdo
   use m_ext,only: sname
-  use m_cmdopt_registry, only: c0_getwsr, c0_shorten, c0_slat, c0_terse, c0_terse_short
+  use m_cmdopt_registry, only: c0_getwsr, c0_shorten, c0_slat
   public:: lmaux
   private
 contains
@@ -15,7 +15,6 @@ contains
     use m_struc_def
     use m_lattic,only:lat_plat,rv_a_opos
     use m_ftox
-    use m_cmdopt_registry, only: c0_getwsr, c0_shorten, c0_slat
     implicit none
     integer:: mode=1 !,wksize
     character(120) :: outs,fnam(8)
@@ -1533,7 +1532,6 @@ contains
     !u Updates
     !u   21 Aug 02 Can print out positions as multiples of plat
     ! ----------------------------------------------------------------
-    use m_cmdopt_registry, only: c0_terse, c0_terse_short
     implicit none
     ! Passed parameters
     integer :: nbas,nbasp
@@ -1547,7 +1545,7 @@ contains
     double precision :: qlat(3,3),volspp
     integer :: ibas,jbas,ic,jc,kc,m,ipr,i1mach,m1,m2,m3,isw,istdo
     character(80) :: a, ch(1)
-    logical :: lterse,lrmt
+    logical :: lrmt
     character(8) :: clabl,clablj
     integer:: ifp,js
     character(10):: i2char
@@ -1629,7 +1627,6 @@ contains
 
     ! --- Check sphere overlaps ---
     fovl = 0
-    lterse = c0_terse_short .or. c0_terse
     if (lrmt       .AND. ipr > 10) write(stdo,453)
     if ( .NOT. lrmt .AND. ipr > 10) write(stdo,463)
     do  301  ibas = 1, nbasp
@@ -1682,8 +1679,7 @@ contains
              ctmt = nint(1000*ovlpmt/dd1)/10d0
           endif
           fovl = fovl + max(ovlprs/dd1,0d0)**6
-          if ((lterse .OR. ipr <= 40) .AND. ctrs <= -10 &
-               .OR. ipr <= 10) goto 30
+          if (ipr <= 40 .AND. ctrs <= -10 .OR. ipr <= 10) goto 30
           ch = ' '
           if (ovlprs >= 0d0) ch='*'
           if (lrmt .AND. .FALSE. ) then

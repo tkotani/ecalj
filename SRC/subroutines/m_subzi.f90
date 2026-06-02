@@ -22,7 +22,6 @@ contains
     !   nsp    : 2 for spin-polarized case, otherwise 1
     !   nkp    : number of irreducible k-points (bzmesh.f)
     !   nevmx  : maximum number of eigenvectors to find 
-    use m_cmdopt_registry, only: c0_band, c0_cls, c0_fermisurface, c0_mkprocar, c0_pdos, c0_tdos, c0_zmel0
     implicit none
     integer :: nkp
     real(8) :: zval

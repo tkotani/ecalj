@@ -27,7 +27,7 @@ ${EXEC_DIR}/job_dos --pdos "$@"
 #     run_arg('---', MPI_SIZE, nfpgw, '/lmf', 'llmf_pdosband', MATERIAL, '--mkprocar', '--fullmesh', *sys.argv[4:])
 #
 #     # Read Pdosdata.$MATERIAL and generate PDOS
-#     run_arg('---', MPI_SIZE, nfpgw, '/lmf', 'llmf_pdos', MATERIAL, '--writepdos', '-emin=-20.0', '-emax=20.0', '-ndos=4000', *sys.argv[4:])
+#     run_arg('---', MPI_SIZE, nfpgw, '/lmf', 'llmf_pdos', MATERIAL, '--writepdos', '--emin=-20.0', '--emax=20.0', '--ndos=4000', *sys.argv[4:])
 #
 #     print("""
 # ===== PDOS file structure (dos.isp*) =========================

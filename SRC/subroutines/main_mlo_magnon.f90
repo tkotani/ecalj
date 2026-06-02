@@ -1,6 +1,6 @@
 !>  Calculate Chi^+-, spin susceptibility. 
 module m_mlo_magnon 
-  use m_cmdopt_registry, only: c0_dos, c0_geteta
+  use m_cmdopt_registry, only: c0_dos, c0_geteta, c2_nk, c2_sp1, c2_sp2
   implicit none
   public :: mlo_magnon
   contains
@@ -39,13 +39,11 @@ subroutine mlo_magnon() bind(C)
   use m_mem, only: writemem
   use m_sort, only: sort_index, lower_bound, upper_bound
   use m_ftox, only: ftox
-  use m_cmdopt_registry, only: c2_sp1, c2_sp2, c2_nk
   !! We calculate chi0 by the follwoing three steps.
   !!  gettetwt: tetrahedron weights
   !!  x0kf_v4h: Accumlate Im part of the Lindhard function. Im(chi0) or Im(chi0^+-)
   !!  dpsion5: calculate real part by the Hilbert transformation from the Im part
   !!  xxx removed--> eibz means extented irreducible brillowin zone scheme by C.Friedlich. (not so efficient in cases).
-  use m_cmdopt_registry, only: c0_dos, c0_geteta
   integer:: iwf, jwf, inwf, jnwf
   integer :: file_magnon
   integer:: iqxini, iqxend, i, iw, iq, kx, istat, nqcalc

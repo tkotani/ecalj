@@ -1,5 +1,5 @@
 module m_qg4gw
-  use m_cmdopt_registry, only: c0_n1n2n3eps
+  use m_cmdopt_registry, only: c0_n1n2n3eps, c2_job
   contains
 subroutine qg4gw() bind(C)
   !> Generate required q+G vectors and so on for GW calculations.
@@ -50,8 +50,6 @@ subroutine qg4gw() bind(C)
   use m_keyvalue,only: getkeyvalue
   use m_mpi,only: MPI__Initialize,MPI__root
   use m_lgunit,only: m_lgunit_init
-  use m_cmdopt_registry, only: c2_job
-  use m_cmdopt_registry, only: c0_n1n2n3eps
   implicit none
   integer(4) :: ifiqg,ifiqgc,ifigw0,ngrp,ifi,i,ig,iq0pin
   real(8) :: alat,QpGcut_psi, QpGcut_Cou,dummy ,plat(3,3),volum,q0(3),qlat0(3,3),a1,a2,unit

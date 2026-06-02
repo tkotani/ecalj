@@ -40,12 +40,12 @@ residue = [i for i in range(nd-njob*size)]
 comm.barrier()
 for i in range(njob):
     print('rank=',rank,rank*njob+i,efshift[rank*njob+i],flush=True)
-    print(f"{epath}/hahc --job=202 --ahc --interbandonly -EfermiShifteV={efshift[rank*njob+i]} {options} > lahc.{rank}")
-    os.system("{exe}/hahc --job=202 --ahc --interbandonly -EfermiShifteV={ef} {op} > lahc.{rank}"
+    print(f"{epath}/hahc --job=202 --ahc --interbandonly --EfermiShifteV={efshift[rank*njob+i]} {options} > lahc.{rank}")
+    os.system("{exe}/hahc --job=202 --ahc --interbandonly --EfermiShifteV={ef} {op} > lahc.{rank}"
               .format(exe=epath,ef=efshift[rank*njob+i],op=options,rank=rank))
 if rank in residue:
     print('rank=',rank,size*njob+rank,efshift[size*njob+rank],flush=True)
-    os.system("{exe}/hahc --job=202 --ahc --interbandonly -EfermiShifteV={ef} {op} > lahc.{rank}"
+    os.system("{exe}/hahc --job=202 --ahc --interbandonly --EfermiShifteV={ef} {op} > lahc.{rank}"
               .format(exe=epath,ef=efshift[size*njob+rank],op=options,rank=rank))
 
 comm.barrier()

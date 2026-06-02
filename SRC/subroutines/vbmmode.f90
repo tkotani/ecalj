@@ -5,7 +5,6 @@ module m_vbmmode
 subroutine vbmmode()
   use m_lmfinit,only: ispec,nbas,vol,nspec,rmt_i=>rmt,z_i=>z
   use m_ext,only:sname
-  use m_cmdopt_registry, only: c0_vbmonly
   implicit none
   character(120):: vbmlll
   real(8):: rydberg=13.6058d0,esold

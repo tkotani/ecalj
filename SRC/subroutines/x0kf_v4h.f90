@@ -156,7 +156,6 @@ contains
                     mpi__rank_k => mpi__rank_k_xq, mpi__size_k => mpi__size_k_xq, &
                     mpi__root_k => mpi__root_k_xq, mpi__rank_root_k => mpi__rank_root_k_xq, &
                     comm_k => comm_k_xq, comm_root_k => comm_root_k_xq
-use m_cmdopt_registry, only: c0_debugzmel, c0_tetwtk
 #ifdef __MP
     use m_mpi,only: MPI__reduceSum => MPI__reduceSum_c
 #else

@@ -35,7 +35,6 @@ contains
     use m_lattic,only:  plat=>lat_plat,rv_a_opos
     use m_mksym_util,only: mksym,mptauof,rotdlmm
     use m_ftox
-    use m_cmdopt_registry, only: c0_nosym, c0_pdos
     implicit none
     integer,parameter::  ngmx = 48
 !    character,intent(in)::  prgnam*(*)

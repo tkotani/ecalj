@@ -301,14 +301,13 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   use m_mpi,only: setipr
     use m_lgunit,only:   m_lgunit_init
     use m_MPItk,only:    m_MPItk_init,procid,nrank=>nsize
-    use m_cmdopt_registry, only: c2_sp1, c2_sp2
+    use m_cmdopt_registry, only: c0_mlo, c2_sp1, c2_sp2
 
-  
+
   ! RS: MPI module
 !  use rsmpi,only: rsmpi_init,mpi_comm_world,mpi_double_precision,mpi_integer,mpi_sum
 !  use rsmpi_rotkindex,only: setup_rotkindex, nrot_local_rotk,irot_index_rotk
-  
-  use m_cmdopt_registry, only: c0_mlo
+
   implicit none
   real(8),parameter :: &
        ua    = 1d0    ! constant in w(0)exp(-ua^2*w'^2) to take care of peak around w'=0

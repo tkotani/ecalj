@@ -72,7 +72,6 @@ function get_geig_wan(q, isp, mpi_mode, comm) result(geig_wan)
   end subroutine onoff_write_pkm4crpa
   subroutine init_readeigen_mlw_noeval() ! replace cphi and geig for hwmat ! this should be called after init_readgeigen2
   !xxxxxxxxxxxxxx only for nspc=1. Need fixing for nspc=2  
-    use m_cmdopt_registry, only: c0_mlo
     implicit none
     integer:: iq,is,ifiqg,ikp, isx,mrecb_o,ikpisp,mrecg_o, &
          nwf_o,nband_o,ifmlw,ifmlwe,nqbz,nqbze,nqbze2,iqbz,iqbz2,nwf2, &

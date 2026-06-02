@@ -21,7 +21,7 @@ def cal_fermisurface(args, extra_args):
     nk3 = args.vnk3+1
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
                                args=[target, "--fermisurface", "--skipbstruxinit", "-pr45",
-                                     f"-emin={args.emin}", f"-emax={args.emax}",
+                                     f"--emin={args.emin}", f"--emax={args.emax}",
                                      f"-vnk1={nk1}", f"-vnk2={nk2}", f"-vnk3={nk3}", *extra_args]), stdout="llmf_fs")
 
     print(f'OK! We got fermiup.bxsf (fermidn.bxsf) for {target}')

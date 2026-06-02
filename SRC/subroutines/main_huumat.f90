@@ -1,6 +1,6 @@
 !>  Calculate <u|u> matrix . u_kj(r) is the perodic part of eigencuntion.
 module m_uumat
-  use m_cmdopt_registry, only: c0_ahc, c0_q2q1test, c0_qibzonly, c2_dwnb
+  use m_cmdopt_registry, only: c0_ahc, c0_q2q1test, c0_qibzonly, c2_dwnb, c2_job, c2_sp1, c2_sp2
   public uumatrix
   private
 contains
@@ -31,8 +31,6 @@ subroutine uumatrix()
   use m_mksym,only: m_mksym_init
   use m_mpitk, only: m_mpitk_init
   use m_ftox
-  use m_cmdopt_registry, only: c2_job, c2_sp1, c2_sp2
-  use m_cmdopt_registry, only: c0_ahc, c0_q2q1test, c0_qibzonly, c2_dwnb
   implicit none
   integer:: i,ix,ngrpx ,is, nxx ,ibas ,ibas1, ngpmx, ifphi, nbas, nradmx, ncoremx, &
             nrx, ic, icx, isp, l, n, irad, ifoc, ldim2, ixx, ngp1, ngp2, &

@@ -12,7 +12,6 @@ module m_clsmode
   complex(8),allocatable,private :: ausc_zv(:),ausc(:)
 contains
   subroutine m_clsmode_init()
-    use m_cmdopt_registry, only: c0_cls
     character(10):: i2char
     integer::i,ific
     character strn*120, clsopt*120

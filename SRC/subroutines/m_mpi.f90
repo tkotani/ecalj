@@ -42,7 +42,6 @@ module m_mpi !MPI utility (unified from m_mpi + m_MPItk)
 
 contains
   subroutine setipr(comm)
-    use m_cmdopt_registry, only: c0_fullstdo
     integer:: comm
     call MPI_Comm_rank( comm, mpi__rank, mpi__info )
     mpi__root= mpi__rank==0
@@ -50,7 +49,6 @@ contains
     if(c0_fullstdo) ipr=.true.
   end subroutine setipr
   subroutine MPI__Initialize(commin)
-    use m_cmdopt_registry, only: c0_fullstdo
     implicit none
     character(1024*4) :: cwd, stdout
     character(10):: i2char

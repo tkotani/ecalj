@@ -12,7 +12,6 @@ module m_lgunit ! file handles for standard output log, and mpilog
 contains
   subroutine M_lgunit_init()
 !    use m_mpi,only: mpi__root
-    use m_cmdopt_registry, only: c0_mlog
     stdo= lgunit(1)
     stdl= lgunit(2)
 !    if(c0_mlog) stml=lgunit(3)

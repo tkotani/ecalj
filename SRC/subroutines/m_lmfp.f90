@@ -1,5 +1,4 @@
-module m_lmfp !Driver for iteration loop for lmf-MPIK (electronic and MD)
-  use m_cmdopt_registry, only: c0_skipbstruxinit, c0_wsig_fbz, c2_quit
+module m_lmfp !Driver for iteration loop for lmf (electronic and MD)
   public lmfp
   private
 contains
@@ -21,6 +20,8 @@ contains
     use m_lattic,only: setopos !this is to store atomic position
     use m_ftox
     use m_rdovfa,only:rdovfa
+    use m_cmdopt_registry, only: c0_skipbstruxinit, c0_wsig_fbz, c2_quit
+    use mpi
     !!= Main routine of lmf = (following document is roughly checked at May2021)
     !! lmfp contains two loops after initialization
     !!   1  outer  AtomicPositionRelaxiation:  do 2000 is for molecular dynamics (relaxiation).
@@ -38,12 +39,10 @@ contains
     !! ===> history is removed to avoid confusions. See ecalj@github
     !! aug2020. T.kotani removed lshr mode (automatic modification of plat), because
     !!      Probably, we need to re-design it (maybe outside of fortran code).
-    use mpi
-    use m_cmdopt_registry, only: c0_skipbstruxinit, c0_wsig_fbz, c2_quit
     implicit none
     integer,parameter:: nm=3
     character alabl*8, flg*3
-    logical :: cmdopt,llmfgw,lbin,cmdopt0 !,lshr=.false.
+    logical :: llmfgw,lbin !,lshr=.false.
     integer :: i,ifi,ipr, k, nit1,numq, lsc, icom,  nvrelx , itrlx,lscx
     integer:: ibas,unlink,ifipos,iter,j,idmatu,iprint
     real(8) :: gam(4),gam1,bstim,pletot(6,2), xvcart(3),xvfrac(3),seref,etot(2),vs=2d0,vs1

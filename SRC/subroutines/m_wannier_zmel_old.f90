@@ -139,7 +139,6 @@ contains
     use m_wan_wfs, only:readgeigw
     use m_mlo_wfs, only: get_geig_cmlo, cmlo_init
     ! this is for Wanner (readeigW, drvmelp3)
-    use m_cmdopt_registry, only: c0_mlo
     implicit none
     real(8):: q(3),q_rk(3),qik(3),ginv(3,3)
     integer:: ngp1, ngp2, ngpmx,nqbz,nqibz, ngcmx ,nctot,nband, &

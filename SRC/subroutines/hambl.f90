@@ -26,7 +26,6 @@ contains
     !o   s     :overlap matrix
     !    See Eq.(C.1)           in [1]
     !r  qpg(ig) = tpiba * ( qin + matmul(qlat,igapwin(1:3,ig))), ig=1,napw
-    use m_cmdopt_registry, only: c0_show_time
     implicit none
     integer:: mode,isp,i
     logical :: show_time = .false.

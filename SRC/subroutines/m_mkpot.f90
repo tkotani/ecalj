@@ -139,7 +139,6 @@ contains
     use m_smvxcm,only: smvxcm
     use m_smves,only: smves
     use m_rhomom,only: rhomom
-    use m_cmdopt_registry, only: c0_espot, c0_estaticall
     implicit none
     type(s_rv1) :: orhoat(3,nbas)
     complex(8):: smrho(n1,n2,n3,nsp),smpot(n1,n2,n3,nsp)

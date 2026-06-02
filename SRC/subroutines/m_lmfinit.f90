@@ -107,7 +107,6 @@ contains
     !   rdhessr: T read hessian matrix, xtolr: relaxation x-tolerance, gtolr: relaxation g-tolerance, stepr: step length
     !   nkillr: Remove hessian after this many steps
     use mpi
-    use m_cmdopt_registry, only: c0_band, c0_cls, c0_debug, c0_etot, c0_fermisurface, c0_fullmesh, c0_noinv, c0_nosym, c0_pdos, c0_tdos, c0_v0fix, c0_zmel0, c2_quit
     implicit none
     character,intent(in)::  prgnam*(*)
     integer,parameter:: recln=512

@@ -35,7 +35,6 @@ module m_locpot
   integer,external :: iprint
 contains
   subroutine locpot(job,novxc, orhoat,qmom,vval,gpot0)
-    use m_cmdopt_registry, only: c0_density, c0_socmatrix, c0_vesdat, c0_wpotmt, c0_wrhomt, c0_writev0
     implicit none
     intent(in)::    job,novxc, orhoat,qmom,vval,gpot0
     !i Inputs

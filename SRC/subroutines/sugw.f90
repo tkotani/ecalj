@@ -37,7 +37,6 @@ contains
          gcore_n,aac,bbc,gval_orth,zzpi,nrmxe=>nrmx ,gval_n
     use m_blas,only: zmm_h, m_op_T, m_op_C
     use m_lapack, only: zsv_h
-use m_cmdopt_registry, only: c0_debugsugw, c0_mlo, c0_modifiedGS, c0_normcheck, c0_novxc, c0_quitecore, c0_show_time, c0_skipCPHI, c0_skipGS, c0_wanatom
 #ifdef __GPU
     use m_blas, only: zmm => zmm_d
     use m_lapack, only: zsv => zsv_d, zsv_h

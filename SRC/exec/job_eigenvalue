@@ -17,7 +17,7 @@ def cal_eigen(args, extra_args):
                                args=[target, "--quit=band", *extra_args]), stdout="llmf_ef")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
                                args=[target, "--band", "--eigen-at-k", "--skipbstruxinit",
-                                     f"-emin={args.emin}", f"-emax={args.emax}", *extra_args]), stdout="llmf_eigen")
+                                     f"--emin={args.emin}", f"--emax={args.emax}", *extra_args]), stdout="llmf_eigen")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -34,7 +34,7 @@ if __name__ == "__main__":
             'The energy range can be specified with the -emin and -emax options.\n'
             'The default range is -100 eV to 30 eV.\n\n'
             'Example:\n'
-            '  job_eigenvalue cu -np 8 -emin=-20 -emax=20 -vpwemax=4 -vgmax=15\n'
+            '  job_eigenvalue cu -np 8 --emin=-20 --emax=20 -vpwemax=4 -vgmax=15\n'
             'Output: Eigenvalues for the specified k-points and energy range are saved in eigenup.dat (majority spin state) and eigendw.dat (minority spin state).\n'
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter

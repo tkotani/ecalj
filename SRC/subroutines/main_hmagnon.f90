@@ -1,6 +1,6 @@
 !>  Calculate Chi^+-, spin susceptibility. 
 module m_hmagnon 
-  use m_cmdopt_registry, only: c0_dos, c0_geteta
+  use m_cmdopt_registry, only: c0_dos, c0_geteta, c2_Wtype, c2_Wtype_set, c2_nk, c2_sp1, c2_sp2
   contains
 subroutine hmagnon() bind(C)
   use m_readwan,only: wan_readeval2, read_wandata, nwf, tr_mat_onsite, tr_mat_onsite_diag, &
@@ -35,8 +35,6 @@ subroutine hmagnon() bind(C)
   use m_lapack, only: zminv => zminv_h, zhev => zhev_h, zgev => zgev_h
   use m_mem, only: writemem
   use m_ftox, only: ftox
-  use m_cmdopt_registry, only: c2_sp1, c2_sp2, c2_nk, c2_Wtype, c2_Wtype_set
-  use m_cmdopt_registry, only: c0_dos, c0_geteta
   implicit none
   !! We calculate chi0 by the follwoing three steps.
   !!  gettetwt: tetrahedron weights

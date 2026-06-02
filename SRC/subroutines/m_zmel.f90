@@ -182,7 +182,6 @@ contains
     use m_mlo_wfs, only: get_geig_cmlo, get_cphi_cmlo, cmlo_init
     use m_itq,only: itq, ntq
     use mpi
-    use m_cmdopt_registry, only: c0_debugzmel
     implicit none
     intent(in)::           q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc, zmelconjg
     integer, optional, intent(in) :: comm

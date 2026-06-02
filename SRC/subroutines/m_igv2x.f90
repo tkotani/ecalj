@@ -61,7 +61,6 @@ contains
     use m_MPItk,only: master_mpi,procid,master
     use m_lmfinit,only: nlmto !    use m_shortn3_qlat,only: shortn3_qlat,nout,nlatout
     use m_ftox
-    use m_cmdopt_registry, only: c0_debugbndfp
     integer:: ifiese,imx11(1,1)
     integer,allocatable ::  kv_iv(:,:)
     real(8):: ppin(3),qp(3),qqq(3),pwgmax,dum,platt(3,3)

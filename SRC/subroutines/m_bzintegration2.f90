@@ -179,7 +179,6 @@ contains
   subroutine bzwts(nevx,n1,n2,n3,nkp,ntet,idtet,zval,& ! BZ integration for fermi level, band sum and qp weights
        metal,tetra,norder,npts,width,rnge,wtkp,eb, efermi,sumev,wtkb,dosef,sumqv,ent,lfill)
     use m_bzints,only:bzints
-    use m_cmdopt_registry, only: c0_cvK
     implicit none
     intent(in)::  nevx,n1,n2,n3,nkp,ntet,idtet,zval,&
          metal,tetra,norder,npts,width,rnge,wtkp!,eb

@@ -32,7 +32,6 @@ contains
     use m_mkqp,only: nkabc=> bz_nabc,bz_nkp
     use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
     use m_ext,only: sname
-    use m_cmdopt_registry, only: c0_eigen_at_k, c0_fermisurface, c0_fullmesh, c0_mkprocar, c0_onesp
     intent(in)::             plbnd,llmfgw
     integer:: nqp2_syml(nsymlmax),nqp2s_syml(nsymlmax),nqp2e_syml(nsymlmax)
     logical:: masslineon(nsymlmax),llmfgw
@@ -345,7 +344,6 @@ contains
     use m_ext,only: sname
     use m_dstrbp,only: dstrbp
     use m_gpu,only: use_gpu, ngpu_ranks
-    use m_cmdopt_registry, only: c0_jobgw, c0_writeham
     implicit none
     integer:: iq,isp,ispx,icount,iqs,ncount,iqsi,iqse,iprint,idat,i,nsize,nspxx
     integer:: ndata
@@ -392,7 +390,6 @@ contains
     use m_MPItk,only: procid, master_mpi, numprocs=>nsize
     use m_lmfinit,only: nsp, afsym, nspx
     use m_dstrbp,only: dstrbp
-    use m_cmdopt_registry, only: c0_jobgw, c0_writeham
     implicit none
     integer :: ndata, nspxx, iqsi, iqse, jdat, iq, isp, i
     nspxx = nspx

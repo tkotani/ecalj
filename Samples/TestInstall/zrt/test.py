@@ -15,7 +15,7 @@ def test(args,bindir,testdir,workdir):
         print(message1)
         rmfiles(workdir,[outfile])
         runprogs([
-                        lmfa+"  zrt --no-iactiv > out.lmf.zrt > "+outfile,
+                        lmfa+"  zrt > out.lmf.zrt > "+outfile,
                         lmf+"  --ctrlg:iter.nit=1 --ctrlg:ham.forces=1  zrt >> "+outfile,
                         lmf+"  --ctrlg:iter.nit=1 --ctrlg:ham.forces=1  zrt >> "+outfile 
         ])

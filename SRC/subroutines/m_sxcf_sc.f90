@@ -139,7 +139,6 @@ use m_cmdopt_registry, only: c0_debug
   integer :: sxs_wi_ini = 0, sxs_wi_fin = 0, sxs_wi_num = 0
   integer :: sxs_wr_ini = 0, sxs_wr_fin = 0, sxs_wr_num = 0
   real(8), parameter:: rmax=2d0
-  logical,external :: cmdopt0 !we need external here
 contains
   subroutine reducez(nspinmx)
 #ifdef __MP
@@ -362,7 +361,6 @@ contains
   subroutine sxcf_correlation_step_kx(kx, ef, esmr, nspinmx)
     use m_mpi, only: comm_b => comm_b_sxc, ipr
     use m_gpu, only: use_gpu
-    use m_cmdopt_registry, only: c0_debug
     integer, intent(in) :: kx, nspinmx
     real(8), intent(in) :: ef, esmr
     integer :: icount, ns1, ns2, kr, nwxi, ns2r, nwx, izz, n_nttp, tri_idx

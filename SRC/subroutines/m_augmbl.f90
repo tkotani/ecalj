@@ -202,7 +202,6 @@ contains
     !o   hso   :spin diagonal and off-diagonal block of spin-orbit hamiltonian
     ! note  'shorbz need to be improved in future (the method in shortn3)'.
     ! note  We obtain Lz,L+,and L- (Lzz Lmm Lpp) in this routine. From their linear combinatios, we have hso.
-    use m_cmdopt_registry, only: c0_socmatrix
     implicit none
     type(s_sblock),target :: ohsozz(3,nbas),ohsopm(3,nbas)
     integer:: isp, ndimh, ibas, isa,kmax,lmxa,lmxb, nglob,nlma,nlmb,lso,nkaph

@@ -20,8 +20,7 @@ module m_tetwt
 !!
   use m_mpi,only:ipr
   use m_lgunit,only:stdo
-  use m_cmdopt_registry, only: c2_EfermiShifteV, c2_EfermiShifteV_set
-  use m_cmdopt_registry, only: c0_debug
+  use m_cmdopt_registry, only: c0_debug, c2_EfermiShifteV, c2_EfermiShifteV_set
   implicit none
   !! output ------------------------
   real(8),allocatable,protected,public :: whw(:)
@@ -42,7 +41,6 @@ contains
     use m_ReadEfermi,only: ef
     use m_readgwinput,only: ebmx,nbmx,mtet
     use m_tetwt5,only:tetwt5x_dtet4,rsvwwk00_4,hisrange
-    use m_cmdopt_registry, only: c0_debug
     intent(in)::      q,iq,is,isf,ekxx1,ekxx2,nband,wan
     !! nqibz_mtet: is only for mtet/=(/1,1,1/) --->(we usually use only this case)
     !!

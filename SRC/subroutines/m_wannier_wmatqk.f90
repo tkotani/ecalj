@@ -27,7 +27,6 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   use m_read_bzdata,only: wklm
   use m_mlo_wfs, only: get_cphi_cmlo, cmlo_init
 !  use rsmpi_rotkindex,only:nk_local_rotk,ik_index_rotk
-  use m_cmdopt_registry, only: c0_mlo
   implicit none
   integer :: ntq, natom,nqbz,nqibz,ngrp,nq,nw_i,nw,niw, natomx,&
        nband,  nlmto, nq0i,nctot,mbytes,iwksize,nlmtobnd,nstate,nstatex, &

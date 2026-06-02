@@ -32,7 +32,6 @@ contains
                          tg_gauss_img  => gauss_img, &
                          tg_KPC        => KeepPositiveCou, &
                          tg_MagAtom    => MagAtom
-    use m_cmdopt_registry, only: c0_corehole
     integer :: ifcorehole,it,nctot,nspin
     call gwinput_init()
     if (.not. gwinput_loaded) call rx('m_readgwinput: GWinput.toml is required.')

@@ -14,7 +14,6 @@ module m_mlo_ham
   logical, protected :: socmatrix = .false.
 contains
   subroutine read_ham_rs()! read RealSpace MTO Hamiltonian
-    use m_cmdopt_registry, only: c0_socmatrix
     integer:: ifihmto, i
     socmatrix = c0_socmatrix
     open(newunit=ifihmto,file='HamRsMLO',form='unformatted', action='read')

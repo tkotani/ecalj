@@ -51,7 +51,6 @@ module m_bandcal
   private
 contains
   subroutine m_bandcal_init(lrout,ef0,vmag,writeham) ! Set up Hamiltonian, diagonalization
-use m_cmdopt_registry, only: c0_debugbndfp, c0_mkprocar, c0_skiphammsoc, c0_socmatrix, c0_testso, c0_writeham, c0_writesene, c2_diag
 #ifdef __GPU
     use m_gpu, only: use_gpu
 #endif
@@ -789,7 +788,6 @@ use m_cmdopt_registry, only: c0_debugbndfp, c0_mkprocar, c0_skiphammsoc, c0_socm
     call tcx('m_bandcal_init')
   end subroutine m_bandcal_init
   subroutine m_bandcal_2nd()! accumulate eval,evec-related quantities by addrbl
-use m_cmdopt_registry, only: c0_afsym, c0_cls
 #ifdef __GPU
     use m_gpu, only: use_gpu
 #endif

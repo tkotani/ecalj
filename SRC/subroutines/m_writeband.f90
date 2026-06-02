@@ -2,8 +2,7 @@
 module m_writeband
   use m_MPItk,only: comm
   use m_ftox
-  use m_cmdopt_registry, only: c2_emin_eV, c2_emin_set, c2_emax_eV, c2_emax_set, c2_ndos
-  use m_cmdopt_registry, only: c0_eszero
+  use m_cmdopt_registry, only: c0_allband, c0_eszero, c0_writedw, c2_emax_eV, c2_emax_set, c2_emin_eV, c2_emin_set, c2_ndos
   real(8),external:: rydberg
   public writeband,writefs,writepdos,writedossawada,write_eigenvalues
   private
@@ -14,7 +13,6 @@ contains
     use m_qplist,only: nkp,nsyml,xdatt,nqp_syml,nqp2n_syml,qplist,labeli,labele,nqps_syml,nqpe_syml,dqsyml,etolv,etolc
     use m_bandcal,only:nevls
     use m_ext,only: sname,dirname
-    use m_cmdopt_registry, only: c0_eszero
     implicit none
     real(8),intent(in):: eferm,vesav,evtop,ecbot ! evtop is max of n-th band. !evbot is bottom of bands upper than n+1
     integer:: ifbndo,ikp,isyml,jsp
@@ -288,7 +286,6 @@ contains
     use m_mkqp,only: bz_nabc
     use m_qplist,only:nkp,qplist
     use m_shortn3_qlat,only: shortn3_qlat,nout,nlatout
-    use m_cmdopt_registry, only: c0_allband
     implicit none
     logical:: allband
     real(8):: ppin(3),eferm
@@ -365,7 +362,6 @@ contains
     use m_dstrbp,only: dstrbp
     use m_mpiio, only: readm_d, openm, closem
 !    use m_lmfinit,only:lso
-    use m_cmdopt_registry, only: c0_writedw
     implicit none
     integer:: ifip,ndhamx,nsp,nspx,nevmin,nchanp,nbas,nkk1,nkk2,nkk3,ntete,ndos,nkp &
          ,ibas,jsp,ifi,init,iend,ipts,j,ndos_,ichan,isp,itet,ksp,i,ib

@@ -15,7 +15,6 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
   use m_orbl,only: Orblib,ktab,ltab,offl,norb
   use m_ftox
   use m_ropyln,only: ropyln
-use m_cmdopt_registry, only: c0_debugpwmat, c0_show_time
 #ifdef __GPU
   use m_blas,only: zmm => zmm_d, m_op_T, zmm_h
   use cudafor
