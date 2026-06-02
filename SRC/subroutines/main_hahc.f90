@@ -35,6 +35,7 @@ subroutine hahc() bind(C)
 !  use m_readhbe,only: Readhbe, nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
   use m_genallcf_v3,only: nprecb,mrecb,mrece,nqbzt,nband,mrecg
   use m_readVcoud,only: Readvcoud,vcousq,zcousq !,ngb,ngc
+  use m_cmdopt_registry, only: c2_job, c2_nb, c2_nk
   use m_x0kf_ahc,only: x0kf_ahc,deallocatezxq,deallocatezxqi,zxqi,zxq
   use m_llw,only: WVRllwR,WVIllwI
   use m_w0w0i,only: w0w0i
@@ -176,8 +177,7 @@ subroutine hahc() bind(C)
   logical:: readw0w0itest=.false.,hx0,cmdopt0
   integer:: ifq0p,ifwc,ifif,ierr,iqxx,ifi0,npr
   real(8),allocatable:: ekxx1(:,:),ekxx2(:,:)
-  logical:: cmdopt2,zmel0mode,NoVcou
-  character(20):: outs=''
+  logical:: zmel0mode,NoVcou
   logical,save:: initzmel0=.true.
   real(8):: q0a,qa
 !  complex(8),allocatable:: rcxq0(:,:,:,:)
@@ -199,8 +199,8 @@ subroutine hahc() bind(C)
   write(6,"(a)") ' #1:run mode= 11: normal! 111: normal fullband! 10111 : normal  crpa!'
   write(6,"(a)") '             202: epsNoLFC! 203: eps!  222: chi^+- NoLFC'
   write(6,"(a)")  '-------------------------------------------------------'
-  if(cmdopt2('--job=',outs)) then; read(outs,*) ixc
-  elseif(MPI__root) then         ; read(5,*)    ixc
+  if (c2_job >= 0) then; ixc = c2_job
+  elseif(MPI__root) then; read(5,*) ixc
   endif
   call MPI__Broadcast(ixc)
   call cputid(0)
@@ -352,12 +352,12 @@ subroutine hahc() bind(C)
   endif
 
   n_bpara = 1
-  if(cmdopt2('--nb=', outs)) read(outs,*) n_bpara
+  if (c2_nb >= 0) n_bpara = c2_nb
   nqcalc = iqxend - iqxini + 1
   if(cmdopt0('--zmel0')) nqcalc = nqcalc - 1
   if(nqcalc < 1) call rx('hx0fp0: sanity check. nqcalc < 1: specify more than 2 q-points in zmel0 mode')
   n_kpara = max(mpi__size/(n_bpara*nqcalc), 1)  !Default setting of parallelization. b-parallel is 1.
-  if(cmdopt2('--nk=', outs)) read(outs,*) n_kpara
+  if (c2_nk >= 0) n_kpara = c2_nk
   worker_inQtask = n_bpara * n_kpara
   write(6,'(1X,A,3I5)') 'MPI: worker_inQtask, n_bpara, n_kpara', worker_inQtask, n_bpara, n_kpara
   call MPI__InitQgroups(worker_inQtask)

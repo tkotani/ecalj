@@ -22,6 +22,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   use m_hvccfp0_util,only: mkb0,strxq
   use m_nvfortran,only:findloc
   use m_gpu,only: gpu_init
+  use m_cmdopt_registry, only: c2_job
   implicit none
   integer :: ifvcfpout,ifhvccfp,is,  if1011,if3011, ifplane,ngpmx, ngcmx, nbloch,&
        ibas,ic,lxx,nxx,nrx,l,n,k,isx,kdummy, nkdmx,nkqmx,lmax,nkdest,nkrest,ngp,ngc,nlxx,i,lnjcg,lnxcg, &
@@ -44,8 +45,8 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   complex(8),allocatable:: geig(:,:),strx(:,:,:,:),sgpb(:,:,:,:),sgpp(:,:,:,:), fouvb(:,:,:,:),fouvp(:,:,:,:),&
        vcoul0(:,:), s(:,:),sd(:,:),rojp(:,:,:) , vcoulnn(:,:), gbvec(:), vcoul_org(:,:),&
        matp(:),matp2(:),ppmt(:,:,:,:),pmat(:,:),pomat(:,:),zzr(:)
-  logical :: checkeig, besseltest=.false.,smbb, wvcc, cmdopt2,cmdopt0,debug=.false.
-  character(20) :: xxt,outs=''
+  logical :: checkeig, besseltest=.false.,smbb, wvcc, cmdopt0,debug=.false.
+  character(20) :: xxt
   character(3) :: charnum3
   character(10) :: i2char
   character(128):: vcoudfile
@@ -58,7 +59,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   call gpu_init(comm) 
   call M_lgunit_init()
   if( mpi__root) write(6,"(' mode=0,3,202 (0 and 3 give the same results for given bas)' )")
-  if(cmdopt2('--job=',outs)) then; read(outs,*) imode
+  if (c2_job >= 0) then; imode = c2_job
   elseif( mpi__root ) then       ; read(5,*) imode;   endif
   call MPI__Broadcast(imode) !  write(ixcc,"('.mode=',i4.4)")imode
   call MPI__consoleout('hvccfp0.mode'//charnum3(imode))

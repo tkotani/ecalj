@@ -2,6 +2,7 @@
 module m_writeband
   use m_MPItk,only: comm
   use m_ftox
+  use m_cmdopt_registry, only: c2_emin_eV, c2_emin_set, c2_emax_eV, c2_emax_set, c2_ndos
   real(8),external:: rydberg
   public writeband,writefs,writepdos,writedossawada,write_eigenvalues
   private
@@ -286,14 +287,13 @@ contains
     use m_qplist,only:nkp,qplist
     use m_shortn3_qlat,only: shortn3_qlat,nout,nlatout
     implicit none
-    logical:: cmdopt0,allband, cmdopt2
+    logical:: cmdopt0,allband
     real(8):: ppin(3),eferm
     integer:: ip,i,isp,ififm,nbxx,iq,ib,nkk1,nkk2,nkk3,ifi,nx(3),ndhamx
     real(8):: rlatp(3,3),xmx2(3),vadd,qshort(3),evlall(:,:,:)
     real(8):: spinweightsoc(:,:,:), emin, emax
     character*100::sss=''
-    character(len=256) :: strn
-    integer:: iout 
+    integer:: iout
     nkk1=bz_nabc(1)
     nkk2=bz_nabc(2)
     nkk3=bz_nabc(3)
@@ -302,14 +302,8 @@ contains
     ndhamx=nx(1)
     emin = -0.5d0
     emax = 0.5d0
-    if(cmdopt2('-emin=',strn))then
-      read(strn,*) emin
-      emin = emin/rydberg()
-    endif
-    if(cmdopt2('-emax=',strn))then
-      read(strn,*) emax
-      emax = emax/rydberg()
-    endif
+    if (c2_emin_set) emin = c2_emin_eV / rydberg()
+    if (c2_emax_set) emax = c2_emax_eV / rydberg()
     do isp=1,nsp/nspc
        if(isp==1) open(newunit=ifi, file='fermiup.bxsf')
        if(isp==2) open(newunit=ifi, file='fermidn.bxsf')
@@ -376,10 +370,8 @@ contains
     real(8)::eminp,emaxp,ef0,eee,eminp_,emaxp_
     character*3::charnum3
     real(8):: bin,eigen(4),vvv,wt,bin2
-    character strn*120
     character*(*)::ext
     character(8)::xt
-    logical::cmdopt2!,mlog
     integer, dimension(:),allocatable :: kpproc
     integer::numprocs,procid,ierr,itete,iteti,ispx,lso
     logical :: cmdopt0, idwmode
@@ -411,18 +403,9 @@ contains
     eminp =-25.0/rydberg() !default values
     emaxp = 30.0/rydberg()
     ndos  = 5500
-    if (cmdopt2('-emin=',strn)) then
-       read(strn,*) eminp_
-       eminp = eminp_/rydberg()
-    endif
-    if (cmdopt2('-emax=',strn)) then
-       read(strn,*) emaxp_
-       emaxp = emaxp_/rydberg()
-    endif
-    if(cmdopt2('-ndos=',strn))  then
-       read(strn,*) ndos_
-       ndos = ndos_
-    endif
+    if (c2_emin_set) eminp = c2_emin_eV / rydberg()
+    if (c2_emax_set) emaxp = c2_emax_eV / rydberg()
+    if (c2_ndos >= 0) ndos = c2_ndos
     bin = (emaxp - eminp) / (ndos - 1)
     vvv = ( 3d0  -  nsp ) / ( nkk1 * nkk2 * nkk3 * 6d0 )/4d0
     allocate(pdosalla(ndos,nsp,nchanp,nbas))
@@ -594,18 +577,10 @@ contains
     use m_sort, only: lower_bound, upper_bound
     implicit none
     real(8), intent(in):: eferm, evlall(:,:,:), spinweightsoc(:,:,:)
-    logical:: cmdopt2
     integer :: lower, upper, iq, isp, ifile, nbands
-    character(len=256) :: strn
     real(8) :: emin = -huge(0d0), emax = 10d0 !Ryd
-    if(cmdopt2('-emin=',strn))then
-      read(strn,*) emin
-      emin = emin/rydberg()
-    endif
-    if(cmdopt2('-emax=',strn))then
-      read(strn,*) emax
-      emax = emax/rydberg()
-    endif
+    if (c2_emin_set) emin = c2_emin_eV / rydberg()
+    if (c2_emax_set) emax = c2_emax_eV / rydberg()
     nbands = minval(count(evlall(:,:,:) - eferm <= 100d0, dim=1))  !!trancation for dummy large eigenvalues
     lower = minval([ ((lower_bound(evlall(1:nbands,isp,iq) - eferm, value=emin), isp=1,nspx), iq=1,nkp) ])
     upper = maxval([ ((upper_bound(evlall(1:nbands,isp,iq) - eferm, value=emax), isp=1,nspx), iq=1,nkp) ])

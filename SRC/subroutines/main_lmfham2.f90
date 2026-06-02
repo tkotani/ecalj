@@ -39,13 +39,14 @@ contains
     use m_rotwave,only:  rotmatMTO!,rotmatPMT
     use m_read_Worb,only: s_read_Worb, nclass_mlwf, cbas_mlwf, norb=>nbasclass_mlwf !,classname_mlwf !,iclassin !,iphi,iphidot,nphi,nphix
     use m_nvfortran,only:findloc
+    use m_cmdopt_registry, only: c2_job
     implicit none
     intent(in):: commin
     integer:: i,iq,is,ix,j,ifbb,ifoc,nbb,isc,ifq0p, nox,iki,ikf,nsc1,ndz,nin,nout,nsc2,ibb
     integer:: inii,if102,iwf2,ib,itmp,itmp2,nqbz2,nspin2,ib1,ib2,iqb,iqbz,it,jsp,nmx,nev,isyml!,nqbz!,n1,n2,n3
     integer:: nMLO,ikx,ikxx,iadd,i1q,i2q,i1,i2,imp,inp,inx,imx,ibas,ibold,ibx !,nnorb
     integer,parameter:: nlinex=100
-    integer::nline,np(nlinex), iwf,ldim2,ixx,npin,ifuumat,job=-1
+    integer::nline,np(nlinex), iwf,ldim2,ixx,npin,ifuumat,job
     real(8),parameter:: pi = 4d0*datan(1d0)
     real(8) :: tpia,vol,voltot,rs,alpha, rydberg,hartree,tripl,wbbsum,bb(3,12),eimax ,wbbs,WTbandqsum,WTinnerqsum,&
          evalssold,qi(3,nlinex),qf(3,nlinex), omgi,omgiold,conv1,alpha1,zesumold,zesi,emm,eLinner,eUinner,eLinnereV,eUinnereV,&
@@ -66,10 +67,9 @@ contains
          evecc1(:,:,:),evecc2(:,:,:),eveci(:,:,:)
     complex(8),allocatable:: hmmr2(:,:,:,:),ommr2(:,:,:,:),wmat(:,:),wmat2(:,:),cnk0i(:,:,:)
     character(256):: fband2,fband1
-    logical:: cmdopt2,noinner,eLinnerauto,ELhardauto,eUinnerauto,convn,eUouterauto,skipdfinner,EUautosp,debug=.false.
+    logical:: noinner,eLinnerauto,ELhardauto,eUinnerauto,convn,eUouterauto,skipdfinner,EUautosp,debug=.false.
     real(8):: WTseed,eoffset, projcut,ewid,ewideV,eUinnercut,eouter,CUouter,WTouter,EUouter,CLhard,eUoutereV,CUinner,&
          eLhardeVoffset,eUBinner
-    character:: outs*20
     character(256):: aaa='',bbb='',a
     integer:: nmto_,nqbz_,iki_,ikf_,nMLO_,ilowest,ieLhard,iUinneradd,igrp,ndimmto
     real(8)::qx(3),qtarget(3),eps=1d-8,qp(3),WTbanddefault
@@ -87,7 +87,7 @@ contains
     call m_mksym_init()  !symmetry go into m_lattic and m_mksym
     call m_mkqp_init() ! data of BZ go into m_mkqp
     call m_qplist_init(plbnd=0,llmfgw=.false.) ! Get q point list at which we do band calculationsb
-    if(cmdopt2('--job=',outs)) read(outs,*) job
+    job = c2_job
     write(stdo,ftox)'=== Start lmfham2 --job=',job
     if(job/=0.and.job/=1) call rx0(' Set --job=0 or 1') !error exit
     call mpibc1_int(job,1,'lmfham2_job') !Set job of --job=job in arguments of lmf-MPIK.

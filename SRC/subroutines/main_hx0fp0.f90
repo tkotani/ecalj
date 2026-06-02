@@ -30,6 +30,7 @@ subroutine hx0fp0()
   use m_llw,          only: WVRllwR, WVIllwI, MPI__llw_alloc_bufs, MPI__irecvllw_q, MPI__isendllw_q, MPI__waitllw
   use m_lgunit,       only: m_lgunit_init, stdo
   use m_gpu,          only: gpu_init
+  use m_cmdopt_registry, only: c2_job
   use m_ftox
   implicit none
   real(8)    :: qp(3), quu(3), ua=1d0, vcmean, frr
@@ -45,9 +46,9 @@ subroutine hx0fp0()
   integer    :: ifepsdatnolfc, ifepsdat, ifchipmn_mat
   integer    :: n_bpara, n_kpara, worker_inQtask, worker_auto, iq1_dest
   character(11)       :: ttt
-  character(128)      :: itag, outs=''
+  character(128)      :: itag
   character(3),  external :: charnum3
-  logical,       external :: cmdopt0, cmdopt2
+  logical,       external :: cmdopt0
   integer,       external :: verbose
   real(8),    allocatable :: symope(:,:)
   integer,    allocatable :: nxx_r(:), aimbas(:)
@@ -65,7 +66,7 @@ subroutine hx0fp0()
   if(ipr) write(stdo,"(a)") ' #1:run mode= 11: normal! 111: normal fullband! 10111 : normal  crpa!'
   if(ipr) write(stdo,"(a)") '             202: epsNoLFC! 203: eps!  222: chi^+- NoLFC'
   if(ipr) write(stdo,"(a)")  '-------------------------------------------------------'
-  if(cmdopt2('--job=',outs)) then; read(outs,*) ixc
+  if (c2_job >= 0) then; ixc = c2_job
   elseif(MPI__root) then         ; read(5,*)    ixc
   endif
   call MPI__Broadcast(ixc)

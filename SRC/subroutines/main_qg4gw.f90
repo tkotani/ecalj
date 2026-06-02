@@ -49,6 +49,7 @@ subroutine qg4gw() bind(C)
   use m_keyvalue,only: getkeyvalue
   use m_mpi,only: MPI__Initialize,MPI__root
   use m_lgunit,only: m_lgunit_init
+  use m_cmdopt_registry, only: c2_job
   implicit none
   integer(4) :: ifiqg,ifiqgc,ifigw0,ngrp,ifi,i,ig,iq0pin
   real(8) :: alat,QpGcut_psi, QpGcut_Cou,dummy ,plat(3,3),volum,q0(3),qlat0(3,3),a1,a2,unit
@@ -58,16 +59,15 @@ subroutine qg4gw() bind(C)
   integer(4)::nnn(3),ret,verbose,q0pchoice,wgtq0p,iq0pinxxx,n1,n2,n3
   logical:: GaussSmear,KeepEigen,core_orth,ldummy, lnq0iadd=.false. !keepppovl,
   integer:: gammacellctrl=0
-  logical:: lmagnon = .false., ln1n2n3eps = .false., cmdopt2, cmdopt0
-  character(20):: outs=''
+  logical:: lmagnon = .false., ln1n2n3eps = .false., cmdopt0
   call MPI__Initialize()
 !  if(.not.MPI__root) goto 9999
   call M_lgunit_init()
   call cputid (0)
   write(6,"(a)")'qg4gw: Generate Q0P->1; Readin Q0P->2; SW(chipm)->4'
   write(6,"(a)")'       Generate Q0P and Q0P for xyz ->201 '
-  if( cmdopt2('--job=',outs) ) then
-     read(outs,*) iq0pin
+  if (c2_job >= 0) then
+     iq0pin = c2_job
   else
      read (5,*) iq0pin
   endif

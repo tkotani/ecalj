@@ -20,6 +20,7 @@ module m_tetwt
 !!
   use m_mpi,only:ipr
   use m_lgunit,only:stdo
+  use m_cmdopt_registry, only: c2_EfermiShifteV, c2_EfermiShifteV_set
   implicit none
   !! output ------------------------
   real(8),allocatable,protected,public :: whw(:)
@@ -73,8 +74,6 @@ contains
     integer, intent(in),optional :: ikbz_in, fkbz_in
     integer :: ikbz, fkbz
     real(8):: efshift=0d0
-    character(256):: strn
-    logical:: cmdopt2
     real(8),external::rydberg
     ikbz = 1
     fkbz = nqbz
@@ -133,9 +132,8 @@ contains
     if (present(wan)) then
        if(wan) wan1= .TRUE. 
     endif
-    AHCrigidEfshift: if (cmdopt2('-EfermiShifteV=',strn)) then
-       read(strn,*) efshift
-       efshift = efshift/rydberg()
+    AHCrigidEfshift: if (c2_EfermiShifteV_set) then
+       efshift = c2_EfermiShifteV / rydberg()
     endif AHCrigidEfshift
     call tetwt5x_dtet4(npm,ncc, q, ekxx1, ekxx2, qlat,ginv,ef+efshift, ntetf,nqbzw, nband, &
          ikbz, fkbz, nqbz, nctot,ecore_(1,is),idtetf,qbzw,ib1bz,job, &

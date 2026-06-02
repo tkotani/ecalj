@@ -34,6 +34,7 @@ subroutine hmagnon() bind(C)
   use m_lapack, only: zminv => zminv_h, zhev => zhev_h, zgev => zgev_h
   use m_mem, only: writemem
   use m_ftox, only: ftox
+  use m_cmdopt_registry, only: c2_sp1, c2_sp2, c2_nk, c2_Wtype, c2_Wtype_set
   implicit none
   !! We calculate chi0 by the follwoing three steps.
   !!  gettetwt: tetrahedron weights
@@ -50,7 +51,7 @@ subroutine hmagnon() bind(C)
   complex(8), allocatable:: wkmat(:,:), imat(:,:), rmat(:,:), r_tr(:), r_diag(:), k_tr(:), k_diag(:), rmat_site(:,:), rmat_diag(:,:)
   complex(8), allocatable :: jq(:), jq_w(:,:), jq_site(:), jq_w_site(:,:), jq_diag(:), jq_w_diag(:,:)
   complex(8), parameter :: img=(0d0,1d0)
-  logical:: cmdopt0, cmdopt2
+  logical:: cmdopt0
   integer :: isp1, isp2
   logical:: realomega, imagomega, epsmode, wan !, nms !, lhm, lsvd
   logical, allocatable :: mpi__task(:)
@@ -71,11 +72,8 @@ subroutine hmagnon() bind(C)
 
   hartree = 2d0*rydberg()
   isp1 = 2; isp2 = 1  ! default DNUP
-  block
-    character(20) :: outs
-    if(cmdopt2('--sp1=', outs)) read(outs,*) isp1
-    if(cmdopt2('--sp2=', outs)) read(outs,*) isp2
-  endblock
+  if (c2_sp1 >= 0) isp1 = c2_sp1
+  if (c2_sp2 >= 0) isp2 = c2_sp2
   geteta = cmdopt0('--geteta')
   calcdos  = cmdopt0('--dos')
   ganmma_only = geteta  !GammaPoint only calculation
@@ -164,11 +162,10 @@ subroutine hmagnon() bind(C)
 
   SetMPI_Rankdivider: block
     integer :: n_bpara, n_kpara, worker_inQtask
-    character(20):: outs
     nqcalc = iqxend-iqxini+1
     n_bpara = 1
     n_kpara = max(mpi__size/(n_bpara*nqcalc), 1)  !Default setting of parallelization. b-parallel is 1.
-    if(cmdopt2('--nk=', outs)) read(outs,*) n_kpara
+    if (c2_nk >= 0) n_kpara = c2_nk
     worker_inQtask = n_bpara * n_kpara
     ! gettetwt_split = n_kpara > 2
     gettetwt_split = .true. ! We always split gettetwt by k to prevent memory exhaustion.
@@ -199,7 +196,7 @@ subroutine hmagnon() bind(C)
   call readefermi() !!! ef:     Fermi energy at 0 K
 
   SetWannierAndScreendCoulombData: block
-    character(20):: Wtype, opts
+    character(20):: Wtype
     call read_wandata()    ! nwf, nsp_w,nqtt_w ! --- okumura Read dimensions of hamiltonian_wannier, spin, nqtt
     call set_wan_nnwf(nnwf_size_reduction) !set nnwf ~ # of RiRj (onsite_approx = .true.), RiR'j (onsite_approx = .flase. ), wan_pair_index
     select case(isp1*10+isp2)
@@ -209,7 +206,7 @@ subroutine hmagnon() bind(C)
       case(21); Wtype = 'down_up'
       case default; call rx('hmagnon: invalid isp1/isp2 for Wtype')
     end select
-    if(cmdopt2('--Wtype=', opts)) Wtype = trim(opts)
+    if (c2_Wtype_set) Wtype = trim(c2_Wtype)
     call set_wan_scrw(nnwf_size_reduction, w_onsite_dddd, Wtype=Wtype) !set scrw
     if(mpi__root) write(stdo,ftox) '# nwf, nnwf:', nwf, nnwf
   endblock SetWannierAndScreendCoulombData

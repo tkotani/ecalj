@@ -8,6 +8,7 @@ module m_args
   integer,private:: nx=64
 contains
   subroutine m_setargs()
+    use m_cmdopt_registry, only: load_cmdopt2_registry
     integer:: iarg,iargc
     character(120) :: strn
     if(.not.init) return
@@ -21,6 +22,10 @@ contains
        argall=trim(argall)//' '//trim(strn)
     enddo
     init=.false.
+    ! Parse cmdopt2 entries (--jobgw=, --nb=, ...) into typed module
+    ! variables in m_cmdopt_registry. Idempotent; recursive cmdopt2
+    ! calls re-enter m_setargs and bail out at the `init` check above.
+    call load_cmdopt2_registry()
   endsubroutine m_setargs
   subroutine m_setargsc(cname,prt) bind(C) !Pass narg and arglist from python instead of m_setargs
     implicit none
@@ -50,6 +55,11 @@ contains
        write(*,*)'m_setargsc=',i, trim(arglist(i))
     enddo
     endif
+    ! Parse cmdopt2 entries into typed module variables (same as m_setargs).
+    block
+      use m_cmdopt_registry, only: load_cmdopt2_registry
+      call load_cmdopt2_registry()
+    end block
   end subroutine m_setargsc
 end module m_args
 

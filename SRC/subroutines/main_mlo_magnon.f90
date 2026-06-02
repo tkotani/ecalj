@@ -38,6 +38,7 @@ subroutine mlo_magnon() bind(C)
   use m_mem, only: writemem
   use m_sort, only: sort_index, lower_bound, upper_bound
   use m_ftox, only: ftox
+  use m_cmdopt_registry, only: c2_sp1, c2_sp2, c2_nk
   !! We calculate chi0 by the follwoing three steps.
   !!  gettetwt: tetrahedron weights
   !!  x0kf_v4h: Accumlate Im part of the Lindhard function. Im(chi0) or Im(chi0^+-)
@@ -52,7 +53,7 @@ subroutine mlo_magnon() bind(C)
   complex(8), allocatable, target :: kmat(:,:,:)
   complex(8), allocatable:: imat(:,:)
   complex(8), parameter :: img=(0d0,1d0)
-  logical:: cmdopt0, cmdopt2
+  logical:: cmdopt0
   integer :: isp1, isp2, is, isf
   logical:: realomega, imagomega, epsmode
   logical, allocatable :: mpi__task(:)
@@ -69,11 +70,8 @@ subroutine mlo_magnon() bind(C)
 
   hartree = 2d0*rydberg()
   isp1 = 2; isp2 = 1  ! default DNUP
-  block
-    character(20) :: outs
-    if(cmdopt2('--sp1=', outs)) read(outs,*) isp1
-    if(cmdopt2('--sp2=', outs)) read(outs,*) isp2
-  endblock
+  if (c2_sp1 >= 0) isp1 = c2_sp1
+  if (c2_sp2 >= 0) isp2 = c2_sp2
   is = isp2; isf = isp1
   geteta = cmdopt0('--geteta')
   calcdos = cmdopt0('--dos')
@@ -161,11 +159,10 @@ subroutine mlo_magnon() bind(C)
 
   SetMPI_Rankdivider: block
     integer :: n_bpara, n_kpara, worker_inQtask
-    character(20):: outs
     nqcalc = iqxend-iqxini+1
     n_bpara = 1
     n_kpara = max(mpi__size/(n_bpara*nqcalc), 1)  !Default setting of parallelization. b-parallel is 1.
-    if(cmdopt2('--nk=', outs)) read(outs,*) n_kpara
+    if (c2_nk >= 0) n_kpara = c2_nk
     worker_inQtask = n_bpara * n_kpara
     ! gettetwt_split = n_kpara > 2
     gettetwt_split = .true. ! We always split gettetwt by k to prevent memory exhaustion.

@@ -44,6 +44,7 @@ contains
     use m_readeigen,only: INIT_READEIGEN,INIT_READEIGEN2,LOWESTEVAL,readeval
     use m_mem,only:writemem,totalram
     use m_sxcf_count,only: sxcf_scz_count
+    use m_cmdopt_registry, only: c2_job
     implicit none
     logical, intent(in), optional :: skip_init
     integer, intent(in), optional :: ixc_in
@@ -54,8 +55,7 @@ contains
     real(8) :: qreal(3), wgtq0p, quu(3)
     real(8), allocatable :: eqt(:)
     integer :: ixc, nspinmx
-    logical :: legas, exchange, cmdopt2
-    character(20):: outs=''
+    logical :: legas, exchange
     character(3) :: charnum3
     do_init = .true.
     if(present(skip_init)) do_init = .not. skip_init
@@ -68,8 +68,8 @@ contains
       call M_lgunit_init()
       call writemem('Start hsfp0: TotalRAM per node='//ftof(totalram(),3)//' GB')
       if(MPI__root) then
-         if(cmdopt2('--job=',outs)) then
-            read(outs,*) ixc
+         if (c2_job >= 0) then
+            ixc = c2_job
          else
             if(ipr) write(stdo,*) ' --- Choose modes below ------------'
             if(ipr) write(stdo,*) '  Sx(1) Sc(2) ScoreX(3) '

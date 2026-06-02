@@ -17,6 +17,7 @@ module m_x0kf_ahc
   use m_readVcoud,only:   vcousq,zcousq,ngb,ngc
   use m_kind,only:kindrcxq
   use m_setqibz_lmfham,only: set_qibz,irotg
+  use m_cmdopt_registry, only: c2_EfermiShifteV, c2_EfermiShifteV_set, c2_nww, c2_cutuu, c2_cutuu_set
   implicit none
   public:: x0kf_ahc, deallocatezxq, deallocatezxqi
   complex(8),public,allocatable:: zxq(:,:,:), zxqi(:,:,:)   !Not yet protected because of main_hx0fp0
@@ -290,11 +291,10 @@ contains
             integer:: im,in,ib,ic,iq
             real(8):: imagweight, wpw_k,wpw_kq,qa,q0a,efshift=0d0
             complex(8):: img=(0d0,1d0)
-            logical :: cmdopt0,cmdopt2,GPUTEST
+            logical :: cmdopt0,GPUTEST
             character*4:: charnum4
             character*7:: charnum7
             character(8):: charext
-            character(256)::strn
             if(.not.allocated(rcxq)) then
                allocate(rcxq(npr,npr_col,nwhis,npm))
                rcxq=0d0
@@ -312,9 +312,7 @@ contains
                allocate(omegasum_tet(3,3,nqbz),source=0d0)
                allocate(omegasum_sp(3,3,nqbz),source=0d0)
             endif
-            if (cmdopt2('-EfermiShifteV=',strn)) then
-               read(strn,*) efshift
-            endif
+            if (c2_EfermiShifteV_set) efshift = c2_EfermiShifteV
             ! SDENMAT: block
             !   use m_procar,only: m_sden_add
             !   integer::iq
@@ -408,8 +406,6 @@ contains
                     complex(8):: facb(3,nbb), bnn(ndd,nband_k,nbb) 
                     complex(8):: uubb(nbb,nbb,nband_k,nband_k)
                     real(8):: ekxx(1:nband_k,nbb), ekxx0(1:nband_k), norm, cutuu=.3d0
-                    logical::cmdopt2
-                    character(256)::strn
                     forall(ibb=1:nbb) facb(:,ibb) = bb(:,ibb)*wbb(ibb)
                     !                      do ibb=1,nbb
                     !                        write(stdo,ftox)'fffffffffbbbb',k,ibb,facb(:,ibb)
@@ -417,8 +413,8 @@ contains
                     forall(ibb=1:nbb) ekxx(1:nband_k,ibb) = readeval(rk(:,k)+bb(:,ibb), isp_k )
                     ekxx0(1:nband_k)                      = readeval(rk(:,k),           isp_k )
                     ierr=0
-                    if (cmdopt2('--nww=',strn)) read(strn,*) nww
-                    if (cmdopt2('--cutuu=',strn)) read(strn,*) cutuu
+                    if (c2_nww >= 0) nww = c2_nww
+                    if (c2_cutuu_set) cutuu = c2_cutuu
                     !                      do concurrent(ibb=1:nbb, in=1:nband_k) !For in at k, we look for inbb at k+b. inbb(-1),inbb(1) is lowest and highest.
                     do ibb=1,nbb
                       do in=1,nband_k !For in at k, we look for inbb at k+b. inbb(-1),inbb(1) is lowest and highest.

@@ -15,8 +15,8 @@ contains
     use m_mksym,only:   m_mksym_init
     use m_lmaux,only:   lmaux
     implicit none
-    logical:: cmdopt0,cmdopt2
-    character:: outs*20,aaa*512,sss*128
+    logical:: cmdopt0
+    character:: aaa*512,sss*128
     integer,optional::commin
     integer:: iarg,k,ierr,comm
     character(32):: prgnam='LMCHK'

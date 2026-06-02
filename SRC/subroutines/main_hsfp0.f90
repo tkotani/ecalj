@@ -31,6 +31,7 @@ subroutine hsfp0() bind(C)
   use m_bzints,only: bzints2x
   use m_gpu,only: gpu_init
   use m_getqforgw,only: getqforgw, nbmin,nbmax,nq,qx
+  use m_cmdopt_registry, only: c2_job
   implicit none
   !! = Calculate the diagonal part of self-energy \Sigma within the GW approximation. And some other functions =
   !  See document at the top of hsfp0.sc.m.F
@@ -149,8 +150,6 @@ subroutine hsfp0() bind(C)
   character(128) :: ixcc
   integer:: nw,ifcoh, ixx(2),n1x,n2x
   real(8)::dwdummy, ef
-  logical:: cmdopt2
-  character(20):: outs=''
 !  integer:: ntq
 !  integer,allocatable:: itq(:)
 
@@ -167,8 +166,8 @@ subroutine hsfp0() bind(C)
      ixc = 2!; nz=0
      open(newunit=ifcoh,file='COH')
   elseif(MPI__root) then
-     if(cmdopt2('--job=',outs)) then
-        read(outs,*) ixc
+     if (c2_job >= 0) then
+        ixc = c2_job
      else
         if(ipr) write(6,*) ' --- Choose omodes below ----------------'
         if(ipr) write(6,*) '  Sx(1) Sc(2) ScoreX(3) Spectrum(4) '

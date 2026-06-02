@@ -47,8 +47,6 @@ contains
     real(8) :: gam(4),gam1,bstim,pletot(6,2), xvcart(3),xvfrac(3),seref,etot(2),vs=2d0,vs1
     real(8),allocatable :: rv_a_omad (:) !  Madelung matrix if necessary
     character(10):: i2char
-    logical:: cmdopt2
-    character(20):: outs=''
     integer:: ierr,iv,ifile_handle
     logical:: irpos,hsign,iatom
     character(256):: strn,strn2

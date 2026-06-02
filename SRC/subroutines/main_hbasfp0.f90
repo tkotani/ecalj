@@ -14,19 +14,19 @@ subroutine hbasfp0() bind(C) ! Generates orthonormal optimal product basis and r
   use m_mpi,only: MPI__Initialize !no mpi now but used for exit routine rx, finalizing MPI
   use m_excore,only: excore
   use m_lgunit,only:stdo
+  use m_cmdopt_registry, only: c2_job
   implicit none
   integer:: &
        ifphiv(2),ifphic(2), iphiv(2),iphivd(2),iphic(2),iphi(2),iphidot(2),ifev(2),ifevf(2),ibas,ibas1,ic,icx,ifaln,iflmto,ifphi, &
        ii,ir,irad,isp,ix,lmx,lmx2,n,nbas,ncoremx,l,icore,ifianf,nphi,nradmx,maxnn, idummy,ifinin,incwfin,ret,ndat
   integer,allocatable:: lcutmxa(:),nrofi(:),ncindx(:,:),lcindx(:,:),nrad(:),nindx_r(:,:),lindx_r(:,:),nc_max(:,:),ncore(:)
   real(8),allocatable:: phitoto(:,:,:,:,:), aa(:),rr(:,:),phitotr(:,:,:,:,:), cutbasex(:), bb(:),zz(:), phic(:,:)
-  logical :: checkdid ,anfexist, cmdopt2, ptest=.false. !See ptest in hvccfp0.f
-  character(20):: outs=''
+  logical :: checkdid ,anfexist, ptest=.false. !See ptest in hvccfp0.f
   call MPI__Initialize() !this is for rx 
   write(stdo,'(a)') ' --- Input normal(=0); coremode(=3); ptest(=4); Excore(=5); for core-valence Ex(=6);'// &
        ' val-val Ex(7);  normal+<rho_spin|B> (8); version(-9999) ?'
-  if(cmdopt2('--job=',outs)) then
-     read(outs,*) ix
+  if (c2_job >= 0) then
+     ix = c2_job
   else
      read(5,*) ix !call rx('Use --job=foobar instead of read(5,*) ix.')
   endif

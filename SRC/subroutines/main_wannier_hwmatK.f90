@@ -301,6 +301,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   use m_mpi,only: setipr
     use m_lgunit,only:   m_lgunit_init
     use m_MPItk,only:    m_MPItk_init,procid,nrank=>nsize
+    use m_cmdopt_registry, only: c2_sp1, c2_sp2
 
   
   ! RS: MPI module
@@ -444,7 +445,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   integer:: ierr,master=0,comm,irr,iqibz
   integer,allocatable::irkall(:,:),irk(:,:)
   logical:: master_mpi, debug = .false.
-  logical :: spinflip, cmdopt0, cmdopt2, mlo_mode
+  logical :: spinflip, cmdopt0, mlo_mode
   integer :: nwf, isp1, isp2
 !  include "mpif.h"
   comm= mpi_comm_world
@@ -493,11 +494,8 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   lomega0=.false.
   mlo_mode = cmdopt0('--mlo')
   isp1 = 0; isp2 = 0
-  block
-    character(20) :: outs
-    if(cmdopt2('--sp1=', outs)) read(outs,*) isp1
-    if(cmdopt2('--sp2=', outs)) read(outs,*) isp2
-  endblock
+  if (c2_sp1 >= 0) isp1 = c2_sp1
+  if (c2_sp2 >= 0) isp2 = c2_sp2
   spinflip = (isp1 /= 0 .and. isp2 /= 0 .and. isp1 /= isp2)
   if(master_mpi) write(6,'(A,2I3,A,L2)') ' sp1,sp2=', isp1, isp2, ' spinflip=', spinflip
   if (ixc==11) then

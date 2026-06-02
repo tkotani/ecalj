@@ -136,7 +136,7 @@ contains
       call load_ctrl_toml('ctrlg.'//trim(sname)//'.toml', recrd, reclnr, nrecs2)
     endblock ReadCtrlToml
     Stage1GetCatok: block ! Readin Category-Token-Subtoken from recrd by rval2
-      logical:: cmdopt0,cmdopt2,parmxp
+      logical:: cmdopt0,parmxp
       integer:: iprint,isw,ncp,nmix,broy,n,n1,n2,n3
       real(8):: avwsr,rydberg,wt(2),beta
       character(8):: fnam,xn
@@ -329,7 +329,7 @@ contains
     endblock Stage1GetCatok
     Stage2SetModuleParameters: block
       integer:: isw,iprint
-      logical:: cmdopt0,cmdopt2
+      logical:: cmdopt0
       allocate(sspec(nspec)) !NOTE: this is in module m_fatom.f90
       ! verbos / io_tim / phispinsym are set entirely from TOML now.
       ! The legacy cmdline shortcuts (--pr=N, --time=N,M, --phispinsym) are

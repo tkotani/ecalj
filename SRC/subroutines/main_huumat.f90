@@ -30,6 +30,7 @@ subroutine uumatrix()
   use m_mksym,only: m_mksym_init
   use m_mpitk, only: m_mpitk_init
   use m_ftox
+  use m_cmdopt_registry, only: c2_job, c2_sp1, c2_sp2
   implicit none
   integer:: i,ix,ngrpx ,is, nxx ,ibas ,ibas1, ngpmx, ifphi, nbas, nradmx, ncoremx, &
             nrx, ic, icx, isp, l, n, irad, ifoc, ldim2, ixx, ngp1, ngp2, &
@@ -49,14 +50,13 @@ subroutine uumatrix()
   complex(8),parameter :: img=(0d0,1d0)
   complex(8),allocatable :: geig1(:,:),geig2(:,:),cphi1(:,:),cphi2(:,:), uum(:,:,:), ppovl(:,:), ppj(:,:,:,:)
   complex(8) :: phaseatom
-  logical :: cmdopt2, cmdopt0
+  logical :: cmdopt0
   logical :: use_bbvec_file
   integer :: nbasis, isp1, isp2
   complex(8), allocatable :: uumq(:,:,:,:)
   character(8) :: head(2:3,2)
   character(4) charnum4
   character*7:: charnum7
-  character(20):: outs=''
   procedure(readgeigf_mpi), pointer :: get_geig => readgeigf_mpi
   procedure(readcphif_mpi), pointer :: get_cphi => readcphif_mpi
   call M_lgunit_init()
@@ -69,8 +69,8 @@ subroutine uumatrix()
   call date_and_time(values=timevalues)
   write(stdo,"('mpirank=',i5,' YYYY.MM.DD.HH.MM.msec=',9i4)")mpi__rank,timevalues(1:3),timevalues(5:8)
   if(mpi__root) then
-    if(cmdopt2('--job=',outs)) then
-      read(outs,*) ixc
+    if (c2_job >= 0) then
+      ixc = c2_job
     else
       write(stdo,*) ' --- Choose modes below -------------------'
       write(stdo,*) '  (2) (q,q+b), (3) (q,q+q0), (4) sum_k (k,k+q) with specified sp1, sp2'
@@ -85,8 +85,8 @@ subroutine uumatrix()
   isp1 = 2; isp2 = 1  ! default UPDN
   if(ixc == 4 .or. ixc == 5) then
     if(mpi__root) then
-      if(cmdopt2('--sp1=', outs)) read(outs,*) isp1
-      if(cmdopt2('--sp2=', outs)) read(outs,*) isp2
+      if (c2_sp1 >= 0) isp1 = c2_sp1
+      if (c2_sp2 >= 0) isp2 = c2_sp2
     endif
     call MPI__Broadcast(isp1)
     call MPI__Broadcast(isp2)

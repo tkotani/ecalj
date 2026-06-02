@@ -33,22 +33,22 @@ contains
     use m_writeband,only: writepdos,writedossawada
     use m_vbmmode,only: vbmmode
     use m_gpu,only:      gpu_init
+    use m_cmdopt_registry, only: c2_jobgw
     use m_ftox
     implicit none
     integer,optional:: commin
-    integer:: iarg,iprint,jobgw=-1,ierr,ifi
-    logical:: cmdopt0,cmdopt2, writeham,sigx
-    character:: outs*20,aaa*512,sss*128
+    integer:: iarg,iprint,jobgw,ierr,ifi
+    logical:: cmdopt0, writeham,sigx
+    character:: aaa*512,sss*128
     character(32):: prgnam
     integer:: comm
-!    include "mpif.h" 
+!    include "mpif.h"
     comm = MPI_COMM_WORLD
     if(present(commin)) comm= commin
     if(cmdopt0('--help')) call print_usage_and_quit('lmf')
-    if(cmdopt2('--jobgw=',outs))then
+    jobgw = c2_jobgw  ! -1 = not set; otherwise 0 or 1 (validated in registry)
+    if (jobgw >= 0) then
        prgnam='LMFGWD' !GW set up mode
-       read(outs,*) jobgw
-       if(jobgw/=0.and.jobgw/=1) call rx0(' Set --jobgw=0 or 1')
     else
        prgnam='LMF'
     endif

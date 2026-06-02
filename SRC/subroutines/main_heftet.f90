@@ -16,6 +16,7 @@ contains
     use m_mpi,only: MPI__Initialize
     use m_lgunit,only: m_lgunit_init
     use m_bzints,only: bzints2x
+    use m_cmdopt_registry, only: c2_job
     implicit none
     integer :: mxclass,ngnmax, ibas,ibasx,ngpmx,nxx,ngcmx,nbloch,ifqpnt,ifwd, &
          nprecx,nblochpmx2,nwt,niwt, nqnum,mdimx,nblochpmx, ifrcw,ifrcwi,  noccxv,maxocc,noccx,ifvcfpout,iqall,iaf,ntq, &
@@ -28,12 +29,11 @@ contains
     real(8):: elo,ehi,e1,e2,efermi,dum,dosef,efxx,rydberg,dum111(1,1,1)  , tol=1d-8,toql=1d-8, volwgt, ddq(3),bandgap,tolq=1d-8
     real(8),allocatable:: dos(:), qz(:,:), eband(:,:,:),eband2(:,:,:), ene(:), dos_kbt(:), dosef_kbt
     real(8),parameter:: pi= 4d0*datan(1d0)
-    logical :: metal,qbzreg,usetetrakbt, cmdopt2
-    character(20):: outs=''
+    logical :: metal,qbzreg,usetetrakbt
     call MPI__Initialize()
     call M_lgunit_init()
-    if(cmdopt2('--job=',outs)) then
-      read(outs,*) imode
+    if (c2_job >= 0) then
+      imode = c2_job
     else
       write(stdo,*) 'mode=(1-5)?'
       read(5,*) imode
