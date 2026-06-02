@@ -111,3 +111,23 @@ complete -F _ecalj_toml_sname \
     gwsc gw_lmfh eps_lmfh epsPP_lmfh \
     genMLWF genMLWFx
 complete -F _ecalj_fortran_complete lmf lmfa lmchk
+
+# Delegate to _ecalj_fortran_complete when the user types
+# `mpirun [-np N] lmf|lmfa|lmchk ...`. Without this, tab-completion
+# is governed by mpirun's own completion (or the bash default) and
+# misses our --<flag> / --ctrlg:<path> handling.
+_ecalj_mpirun_passthrough() {
+    local i=1
+    while [ $i -lt $COMP_CWORD ]; do
+        case "${COMP_WORDS[$i]##*/}" in
+            lmf|lmfa|lmchk)
+                _ecalj_fortran_complete
+                return $?
+                ;;
+        esac
+        i=$((i + 1))
+    done
+    # No ecalj binary seen yet -- let bash's default (filename) kick in.
+    COMPREPLY=()
+}
+complete -F _ecalj_mpirun_passthrough -o default mpirun mpiexec

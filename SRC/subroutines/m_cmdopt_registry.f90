@@ -494,7 +494,17 @@ contains
   !! populates the runtime tables and before MPI is initialized; we
   !! call `exit` directly so MPI need not have been spun up.
   subroutine list_cmdopts()
-    integer :: i
+    use mpi
+    integer :: i, ierr
+    logical :: mpi_was_init
+    ! Some MPI launchers (e.g. HPCX on kt1) flag an "abnormal
+    ! termination" if a process exits without going through
+    ! MPI_Init/MPI_Finalize, even when its rank's exit code is 0.
+    ! Bracket the dump with MPI init/finalize so `mpirun -np 1 lmf
+    ! --listcmdopt` (the path InstallAll.py uses to generate the
+    ! completion data) returns 0 cleanly.
+    call MPI_Initialized(mpi_was_init, ierr)
+    if (.not. mpi_was_init) call MPI_Init(ierr)
     if (allocated(known0)) then
        do i = 1, size(known0)
           write(*,'(a)') trim(known0(i))
@@ -506,6 +516,7 @@ contains
        enddo
     endif
     flush(6)
+    if (.not. mpi_was_init) call MPI_Finalize(ierr)
     call exit(0)
   end subroutine list_cmdopts
 
