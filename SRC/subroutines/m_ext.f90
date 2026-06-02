@@ -81,6 +81,22 @@ contains
     i = getcwd(dirname)
     do i = 1, narg
        !write(*,*)'m_ext_init=',i, trim(arglist(i))
+       ! Strip "ctrlg." prefix and ".toml" suffix from sname so that
+       !   lmf nio                 (bare sname)
+       !   lmf ctrlg.nio           (typing the new filename prefix)
+       !   lmf ctrlg.nio.toml      (the full filename, e.g. after TAB)
+       ! all converge on sname='nio'. Same idea for the legacy "ctrl."
+       ! prefix below; keep that branch first so a literal file
+       ! `ctrl.nio` (with a dot but no ".toml") still resolves.
+       if (len_trim(arglist(i)) >= 7 .and. arglist(i)(1:6)=='ctrlg.') then
+          sss = arglist(i)(7:)
+          if (len_trim(sss) >= 5 .and. sss(len_trim(sss)-4:len_trim(sss))=='.toml') then
+             sname = sss(:len_trim(sss)-5)
+          else
+             sname = trim(sss)
+          endif
+          goto 999
+       endif
        if(arglist(i)(1:5)=='ctrl.') then
           sname=trim(arglist(i)(6:))
           goto 999
