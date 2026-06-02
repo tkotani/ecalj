@@ -97,9 +97,18 @@ contains
           endif
           goto 999
        endif
-       if(arglist(i)(1:5)=='ctrl.') then
-          sname=trim(arglist(i)(6:))
-          goto 999
+       if (len_trim(arglist(i)) >= 6 .and. arglist(i)(1:5)=='ctrl.') then
+          ! Legacy `ctrl.<sname>` text format is no longer parsed by
+          ! the Fortran binaries (since the 2026-05 TOML migration).
+          ! Reject loudly so the user notices instead of silently
+          ! falling through to an "OK" run that read defaults.
+          sss = arglist(i)(6:)
+          write(6,'(a)') ''
+          write(6,'(a)') 'ERROR: ctrl.'//trim(sss)//' is the legacy text format and is no longer read.'
+          write(6,'(a)') '       Convert with:   Legacy2toml.py '//trim(sss)
+          write(6,'(a)') '       Then re-run with the bare sname (e.g.: lmf '//trim(sss)//').'
+          flush(6)
+          call exit(1)
        endif
        if(arglist(i)(1:1)/='-') then
           sname=trim(arglist(i))

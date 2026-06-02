@@ -32,7 +32,11 @@ _ecalj_complete_from_glob() {
 
 _ecalj_legacy_sname()  { _ecalj_complete_from_glob 'ctrl.*'        'ctrl.'  ''      ; }
 _ecalj_ctrls_sname()   { _ecalj_complete_from_glob 'ctrls.*'       'ctrls.' ''      ; }
-_ecalj_toml_sname()    { _ecalj_complete_from_glob 'ctrlg.*.toml'  'ctrlg.' '.toml' ; }
+# Offer the full filename (`ctrlg.nio.toml`) rather than the bare sname
+# (`nio`) so the user can see what's actually in cwd. m_ext_init strips
+# both the `ctrlg.` prefix and the `.toml` suffix at startup, so the
+# binary accepts either form.
+_ecalj_toml_sname()    { _ecalj_complete_from_glob 'ctrlg.*.toml'  ''       ''      ; }
 
 # Tab-complete --<flag> and --ctrlg:<dotted.path>= for the Fortran
 # binaries (lmf, lmfa, lmchk).
@@ -45,20 +49,23 @@ _ecalj_toml_sname()    { _ecalj_complete_from_glob 'ctrlg.*.toml'  'ctrlg.' '.to
 #                     cwd's ctrlg.*.toml ([[spec]] / [[site]] arrays are
 #                     expanded into spec.1.r, spec.2.r, ...).
 _ecalj_fortran_complete() {
-    # The default COMP_WORDBREAKS contains ':', so bash splits
-    # "--ctrlg:bz." into three tokens. Reconstruct the full word
-    # being completed by walking back through COMP_WORDS until we
-    # hit whitespace.
-    local i=$COMP_CWORD cur=""
-    while [ $i -ge 0 ]; do
-        local w="${COMP_WORDS[$i]}"
-        cur="$w$cur"
-        # stop once we picked up the leading '-' of the option
-        [[ "$w" == -* ]] && break
-        i=$((i - 1))
-    done
-    # if we did not find a leading '-', fall through to positional handling
-    [[ "$cur" != -* ]] && cur="${COMP_WORDS[COMP_CWORD]}"
+    local cur="${COMP_WORDS[COMP_CWORD]}"
+    local prev="${COMP_WORDS[COMP_CWORD-1]:-}"
+    # Only reconstruct the full word when bash split it on a `:`
+    # (COMP_WORDBREAKS default), e.g. "--ctrlg:bz." -> ("--ctrlg",":","bz.").
+    # For a plain sname argument ("lmf nio<TAB>") leave cur as the raw
+    # current token so the positional branch below ($cur not matching
+    # -*) falls into _ecalj_toml_sname.
+    if [ "$prev" = ":" ]; then
+        local i=$COMP_CWORD
+        cur=""
+        while [ $i -ge 0 ]; do
+            local w="${COMP_WORDS[$i]}"
+            cur="$w$cur"
+            [[ "$w" == -* ]] && break
+            i=$((i - 1))
+        done
+    fi
 
     local script_dir="$(dirname "${BASH_SOURCE[0]}")"
     local cmdopt_list="$script_dir/ecalj_cmdopts.list"
