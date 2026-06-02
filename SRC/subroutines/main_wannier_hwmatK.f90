@@ -308,6 +308,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
 !  use rsmpi,only: rsmpi_init,mpi_comm_world,mpi_double_precision,mpi_integer,mpi_sum
 !  use rsmpi_rotkindex,only: setup_rotkindex, nrot_local_rotk,irot_index_rotk
   
+  use m_cmdopt_registry, only: c0_mlo
   implicit none
   real(8),parameter :: &
        ua    = 1d0    ! constant in w(0)exp(-ua^2*w'^2) to take care of peak around w'=0
@@ -445,7 +446,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   integer:: ierr,master=0,comm,irr,iqibz
   integer,allocatable::irkall(:,:),irk(:,:)
   logical:: master_mpi, debug = .false.
-  logical :: spinflip, cmdopt0, mlo_mode
+  logical :: spinflip,mlo_mode
   integer :: nwf, isp1, isp2
 !  include "mpif.h"
   comm= mpi_comm_world
@@ -492,7 +493,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   nz=input3(2)
   idummy=input3(3)
   lomega0=.false.
-  mlo_mode = cmdopt0('--mlo')
+  mlo_mode = c0_mlo
   isp1 = 0; isp2 = 0
   if (c2_sp1 >= 0) isp1 = c2_sp1
   if (c2_sp2 >= 0) isp2 = c2_sp2

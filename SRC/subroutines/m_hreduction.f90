@@ -1,4 +1,5 @@
 module m_hreduction
+use m_cmdopt_registry, only: c0_gs, c0_mlo_diagnorm, c0_mlo_feb4, c0_mlo_ortho, c0_mlo_orthonorm
 contains
   subroutine Hreduction(mlomethod,iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,ovlmout, qp, cmlo,nev, zMLO) !> Reduce H(ndimPMT) to H(ndimMTO)
     ! cmlo= <Psi^MPT i|F^MLO j>
@@ -12,6 +13,7 @@ contains
    use m_GWinput, only: gwinput_init, gwinput_loaded, &
                         tg_mlo_nskip => mlo_nskip, tg_mlo_eww => mlo_eww, &
                         tg_mlo_emax => mlo_emax
+   use m_cmdopt_registry, only: c0_gs, c0_mlo_diagnorm, c0_mlo_feb4, c0_mlo_ortho, c0_mlo_orthonorm
    implicit none
    integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev,nxx,jj,ndimPMTx,nvpmt,mlomethod,nskip,nskipin
    real(8)::beta,emu,val,wgt(ndimPMT),evlmto(ndimMTO),evl(ndimPMT),evlx(ndimPMT),qp(3),eww,eadd
@@ -26,7 +28,6 @@ contains
    complex(8),allocatable :: Amat(:,:)
    real(8):: fff1,fff !epsovl=1d-8 epsovlm=0d0 ,
    logical:: iprx
-   logical:: cmdopt0
    ! choosed MTO Hamiltonian. Get evlmto,evecmto
    ovlmx= ovlm
    hammx= hamm
@@ -137,7 +138,7 @@ contains
       enddo mloloop
       Amat(1:nskip,:)=0d0
 ! do we need GramSchmidt orthogonalizaition? We expect lower is enphasized more for mode0 and for mode2.
-      if(cmdopt0('--gs')) call GramSchmidt(ndimPMTx,ndimMTO,Amat) !Amat= ¥bar{<Psi_PMT_i |Psi_MTO j>}
+      if(c0_gs) call GramSchmidt(ndimPMTx,ndimMTO,Amat) !Amat= ¥bar{<Psi_PMT_i |Psi_MTO j>}
       
       ! cmlo(i,k) = \sum_j ¥bar{<Psi_PMT_i |Psi_MTO j>} <Psi_MTO j|F_MTO k> = <Psi_PMT_i|F_MLO k>
       ! |F^MLO_k> = P |F_MTO_k> = (\sum_{i,j} |Psi_PMT_i> ¥bar{<Psi_PMT_i |Psi_MTO j>} <Psi_MTO j|) |F_MTO k>=  |Psi_PMT> C * zMTO 
@@ -151,13 +152,13 @@ contains
       ! Diagonal-only; off-diagonal overlap is left untouched. Use --mlo_diagnormalization
       ! to enable. Matches Feb 2026 commit 464a2d510 behavior when on.
       ! (--mlo_ortho below performs full Lowdin orthogonalization.)
-      MLODiagonalNormalize: if (cmdopt0('--mlo_diagnorm') .or. cmdopt0('--mlo_feb4')) then
+      MLODiagonalNormalize: if (c0_mlo_diagnorm .or. c0_mlo_feb4) then
          do i = 1, ndimMTO
             ddd = sum(dconjg(cmlo_loc(1:nx,i))*cmlo_loc(1:nx,i)) !<F^MLO|F^MLO>
             cmlo_loc(1:nx,i) = cmlo_loc(1:nx,i)/sqrt(ddd)
          enddo
       endif MLODiagonalNormalize
-      MLOLowdinOrthogonalization:if(cmdopt0('--mlo_orthonorm') .or. cmdopt0('--mlo_ortho')) then
+      MLOLowdinOrthogonalization:if(c0_mlo_orthonorm .or. c0_mlo_ortho) then
         block
           use m_lapack, only: zhev => zhev_h
           complex(8) :: ovlm_mlo(ndimMTO,ndimMTO), evl_ovl_buf(ndimMTO,ndimMTO), sinv_half(ndimMTO, ndimMTO)

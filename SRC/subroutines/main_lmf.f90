@@ -6,6 +6,7 @@
 ! This assure that we can not modify data in a module by other modules.
 ! Bootstrap sequence of module initialzation. The variables in modules are proteted except m_density. Use variables with 'use only'.
 module m_lmf
+use m_cmdopt_registry, only: c0_getq, c0_help, c0_vbmonly, c0_wdsawada, c0_writeham, c0_writepdos, c2_quit
 contains
   subroutine lmf(commin) bind(C)
     use mpi
@@ -35,17 +36,18 @@ contains
     use m_gpu,only:      gpu_init
     use m_cmdopt_registry, only: c2_jobgw
     use m_ftox
+    use m_cmdopt_registry, only: c0_getq, c0_help, c0_vbmonly, c0_wdsawada, c0_writeham, c0_writepdos, c2_quit
     implicit none
     integer,optional:: commin
     integer:: iarg,iprint,jobgw,ierr,ifi
-    logical:: cmdopt0, writeham,sigx
+    logical:: writeham,sigx
     character:: aaa*512,sss*128
     character(32):: prgnam
     integer:: comm
 !    include "mpif.h"
     comm = MPI_COMM_WORLD
     if(present(commin)) comm= commin
-    if(cmdopt0('--help')) call print_usage_and_quit('lmf')
+    if(c0_help) call print_usage_and_quit('lmf')
     jobgw = c2_jobgw  ! -1 = not set; otherwise 0 or 1 (validated in registry)
     if (jobgw >= 0) then
        prgnam='LMFGWD' !GW set up mode
@@ -62,14 +64,14 @@ contains
     if(master_mpi) write(stdo,"(a,g0)")'mpisize=',nsize
     if(master_mpi) write(stdl,"(a,g0)")'mpisize=',nsize
     !  call setcmdpath()         ! Set self-command path (this is for call system at m_lmfinit)
-    WritePdosmode: if( cmdopt0('--writepdos') ) then  ! See job_pdos. New pdos mode (use --mkprocar and --fullmesh together).
+    WritePdosmode: if( c0_writepdos ) then  ! See job_pdos. New pdos mode (use --mkprocar and --fullmesh together).
        ! We use all k points (--fullmesh), instead of using crystal symmetry. See job_pdos
        if(master_mpi) write(stdo,*) '... Doing writepdos mode. Wait a while ...'
        if(master_mpi) write(stdo,*) '... See job_pdos to know how to call --writepdos mode'
        call writepdos(trim(sname))
        call rx0('done: end of --writepdos mode.')
     endif WritePdosmode
-    WriteDOSsawadamode:  if( cmdopt0('--wdsawada') ) then !! Sawada's simple mode and exit
+    WriteDOSsawadamode:  if( c0_wdsawada ) then !! Sawada's simple mode and exit
        if(master_mpi)write(stdo,*) '... write Dos from tetraf.dat and eigenf.dat. '
        if(master_mpi)write(stdo,*) '...  eigenf.dat is for qplistf.dat '
        call writedossawada()
@@ -98,7 +100,7 @@ contains
     call m_supot_init() ! get G vectors for charge ! Array allocated in supot rhoat smrho.
     call sugcut(1)
     if(nlibu>0) call m_ldau_init() !! LDA+U initialization
-    if(cmdopt0('--quit=dmat')) call rx0('--quit=dmat')
+    if((trim(c2_quit) == 'dmat')) call rx0('--quit=dmat')
     call m_qplist_init(plbnd,jobgw==1) ! Get q point list at which we do band calculations
     call m_qplist_qspdivider()  !generate iqini:iqend,isini,isend  for each rank
     call m_igv2xall_init(1,nkp) !G vectors for qplist. (1,nkp) is needed for gwb.head
@@ -108,16 +110,16 @@ contains
     inquire(file='sigm.'//trim(sname),exist=sigx)
     if(jobgw>=0.or.sigx) call m_hamindexW_init() !write HAMindex for GW part, or for reading sigm
     if(sigx) call readhamindex() !for reading sigm
-    writeham= cmdopt0('--writeham') !m_writeham_* is after m_hamindex_init 2022apr22
+    writeham= c0_writeham !m_writeham_* is after m_hamindex_init 2022apr22
     if(writeham .AND. master_mpi) call m_gennlat_init(bz_nabc) !for interpolation of Hamiltonian
     if(writeham .AND. master_mpi) call m_writeham_init()
     if(writeham .AND. master_mpi) call m_writeham_write()
-    if( cmdopt0('--quit=ham') ) call rx0('quit = ham')
-    if(cmdopt0('--vbmonly')) then !Get VBM and CBM relative to vaccum ! (a simple approximaiton to determine VBM and CBM. Need fixing if necessary).
+    if( (trim(c2_quit) == 'ham') ) call rx0('quit = ham')
+    if(c0_vbmonly) then !Get VBM and CBM relative to vaccum ! (a simple approximaiton to determine VBM and CBM. Need fixing if necessary).
        if(master_mpi) call vbmmode()
        call rx0('--vbmonly mode done')
     endif
-    if(cmdopt0('--getq')) then ! Current version is not for spin dependent, with many restrictions.
+    if(c0_getq) then ! Current version is not for spin dependent, with many restrictions.
        if(master_mpi) call Getqmode()
        call rx0('--getq mode done')
     endif

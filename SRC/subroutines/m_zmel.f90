@@ -16,6 +16,7 @@ module m_zmel
   use m_kind, only: kp => kindzmel
   use m_blas, only: m_op_c, m_op_n, m_op_t, int_split, BACKEND_BLAS
   use m_mpi, only: ipr
+use m_cmdopt_registry, only: c0_debugzmel
 #if defined(__MP) && defined(__GPU)
   use m_blas, only: gemm => cmm_d
 #elif defined(__MP)
@@ -181,6 +182,7 @@ contains
     use m_mlo_wfs, only: get_geig_cmlo, get_cphi_cmlo, cmlo_init
     use m_itq,only: itq, ntq
     use mpi
+    use m_cmdopt_registry, only: c0_debugzmel
     implicit none
     intent(in)::           q,kvec,irot,rkvec, ns1,ns2,ispm, nqini,nqmax,ispq, nctot,ncc, zmelconjg
     integer, optional, intent(in) :: comm
@@ -191,7 +193,7 @@ contains
     integer:: ngp1, ngp2, ngvecpB1(3,ngpmx),ngvecpB2(3,ngpmx),nadd(3)
     integer:: i,iap,ias,ib,ic,icp,nc,nc1,nv,ics,itp,iae,ims,ime
     real(8):: quu(3),q(3), kvec(3),rkvec(3),qkt(3),qt(3), qdiff(3)
-    logical:: zmelconjg, debug, cmdopt0
+    logical:: zmelconjg, debug
     complex(kind=kp),allocatable:: geigq(:,:),dgeigqk(:,:),cphiq(:,:), cphim(:,:)
     integer:: invr,nt0,ntp0,nmtot,nqtot
     integer:: iasx(natom),icsx(natom),iatomp(natom),imdim(natom),iclass(natom)
@@ -210,7 +212,7 @@ contains
     attributes(device) :: zmelp0, cphiq, cphim, geigq, dgeigqk, &
                           ppbvphiq_d, cphim_d, cphiq_d, ppbc_d, ppbv_d, ngvecpB1, ngvecpB2, zmelt, zmelt_d, wfs
 #endif
-    debug = cmdopt0('--debugzmel')
+    debug = c0_debugzmel
     if(present(mlo_mode)) then
       if(mlo_mode) then
         get_geig => get_geig_cmlo
@@ -690,7 +692,7 @@ end module m_zmel
 !     ! nm2 :end      index of middle state  (nctot+nvalence order)
 !     nm1=ns1
 !     nm2=ns2
-!     debug=cmdopt0('--debugzmel')
+!     debug=c0_debugzmel
 !     if(allocated(zmel)) deallocate(zmel)
 !     nt0  = nm2-nm1+1
 !     ntp0 = nqmax-nqini+1

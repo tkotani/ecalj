@@ -13,6 +13,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon,ln1n2n3eps)! Make require
                        tg_alpha_OffG => alpha_OffG, tg_alpha_OffG_vec => alpha_OffG_vec
   use m_hamindex0,only: Readhamindex0, symops,ngrp,alat,plat,qlat
   use m_lgunit,only: stdo
+  use m_cmdopt_registry, only: c0_dos
   implicit none
   intent(in)::   iq0pin, gammacellctrl,lnq0iadd,lmagnon,ln1n2n3eps
   !!     |q+G| < QpGcut_psi for eigenfunction psi.
@@ -41,7 +42,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon,ln1n2n3eps)! Make require
   logical :: regmesh=.false. ,regmeshg=.false. ,  timereversal
   logical :: caca,debug=.false. !,newaniso
   logical :: newoffsetG !july2014
-  logical :: lnq0iadd, lmagnon, ln1n2n3eps, unit2=.false. ,cmdopt0
+  logical :: lnq0iadd, lmagnon, ln1n2n3eps, unit2=.false.
   logical :: keepqg
   integer :: ifiqg2,ifiqgc2
   integer, allocatable :: ngvecp_tmp(:,:),ngvecc_tmp(:,:)
@@ -54,7 +55,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon,ln1n2n3eps)! Make require
      if (lmagnon .or. ln1n2n3eps) then
         if (any(tg_n1n2n3eps /= 0)) nnn = tg_n1n2n3eps   ! else default = n1n2n3
      endif
-     if (lmagnon .and. cmdopt0('--dos')) then
+     if (lmagnon .and. c0_dos) then
         if (any(tg_n1n2n3dos /= 0)) nnn = tg_n1n2n3dos
      endif
      QpGx2     = tg_QpGcut_psi
@@ -65,7 +66,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon,ln1n2n3eps)! Make require
      call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
 !     call getkeyvalue("GWinput", "n1n2n3", nnn,3)
 !     if(lmagnon) call getkeyvalue("GWinput", "n1n2n3eps",nnn,3,default=nnn)
-!     if(lmagnon .and. cmdopt0('--dos')) then
+!     if(lmagnon .and. c0_dos) then
 !       call getkeyvalue("GWinput", "n1n2n3dos",nnn,3,default=nnn)
 !     endif
 !     call getkeyvalue("GWinput", "QpGcut_psi",QpGx2)
@@ -172,7 +173,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon,ln1n2n3eps)! Make require
   enddo
   print *,' Writing BZDATA...'
   open(newunit=ifbz, file='__BZDATA',form='unformatted')
-  if(lmagnon .and. cmdopt0('--dos')) then
+  if(lmagnon .and. c0_dos) then
     close(ifbz)
     open(newunit=ifbz, file='__BZDATA.DOS',form='unformatted')
   endif

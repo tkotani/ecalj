@@ -28,6 +28,7 @@ module m_bandcal
   use m_struc_def,only:s_rv5   !o oqkkl : memory is allocated for qkkl
   use m_mpiio, only: writem_d, openm, closem, openedm, mpiio_buf, buf_put, writem_buf
   ! outputs ---------------------------
+  use m_cmdopt_registry, only: c0_afsym, c0_cls, c0_debugbndfp, c0_mkprocar, c0_skiphammsoc, c0_socmatrix, c0_testso, c0_writeham, c0_writesene, c2_diag
   public m_bandcal_init, m_bandcal_2nd, m_bandcal_clean, m_bandcal_allreduce, m_bandcal_symsmrho
   public :: m_bandcal_gather_evlall, m_bandcal_gather_spinweightall
   integer,allocatable,protected,public::     ndimhx_(:,:),nevls(:,:) 
@@ -50,6 +51,7 @@ module m_bandcal
   private
 contains
   subroutine m_bandcal_init(lrout,ef0,vmag,writeham) ! Set up Hamiltonian, diagonalization
+use m_cmdopt_registry, only: c0_debugbndfp, c0_mkprocar, c0_skiphammsoc, c0_socmatrix, c0_testso, c0_writeham, c0_writesene, c2_diag
 #ifdef __GPU
     use m_gpu, only: use_gpu
 #endif
@@ -60,7 +62,7 @@ contains
     real(8):: qp(3),ef0,def=0d0,xv(3),q(3),vmag
     real(8),allocatable    :: evl(:,:), spinweight(:,:)
     complex(8),allocatable :: evec(:,:) !eigenvector( :,nband)
-    logical:: ltet,cmdopt0,dmatuinit=.true.,wsene,magexist,writeham
+    logical:: ltet,dmatuinit=.true.,wsene,magexist,writeham
     character(3):: charnum3
     ! Batch storage for hambl results (all ranks) and GPU diagonalization
     complex(8),allocatable :: hamm_batch(:,:,:), ovlm_batch(:,:,:)
@@ -70,13 +72,13 @@ contains
 #endif
     logical:: socmatrix, skiphammsoc
     call tcn('m_bandcal_init')
-    socmatrix=cmdopt0('--socmatrix')
-    skiphammsoc=cmdopt0('--skiphammsoc') !skip adding SOC to hamm (for SOC-as-perturbation post-processing)
+    socmatrix=c0_socmatrix
+    skiphammsoc=c0_skiphammsoc !skip adding SOC to hamm (for SOC-as-perturbation post-processing)
     if(master_mpi) write(stdo,ftox)'m_bandcal_init: start'
     sigmamode = mod(lrsig,10)/=0
-    ! writeham = cmdopt0('--writeham')
-    PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
-    debug    = cmdopt0('--debugbndfp')
+    ! writeham = c0_writeham
+    PROCARon = c0_mkprocar !write PROCAR(vasp format).
+    debug    = c0_debugbndfp
     ltet = ntet>0 !   nspx=nsp/nspc !nspc=1 only for so=1 
     if(plbnd==0 .AND. lso/=0 .AND. lmet==0 ) call rx('metal weights required to get orb.moment')
     if(lso/=0) allocate(orbtm_rv(lmxax+1,nsp,nbas),source=0d0) !for spin-orbit coupling
@@ -173,7 +175,7 @@ contains
             allocate(hammhso(ndimh,ndimh,3))
             call aughsoc(qp, ohsozz,ohsopm,ndimh, hammhso)! SOC part of Hamiltonian hammhso is calculated.
          endif
-         wsene = cmdopt0('--writesene')
+         wsene = c0_writesene
          if(wsene) then
             open(newunit=iwsene,file='sene.isp:'//charnum3(isp)//'_iq:'//charnum3(iq),form='unformatted')
             if(iq==1 .AND. isp==1) write(iwsene) nsp,ndimsig,bz_nabc,nkp,0,0,0
@@ -185,7 +187,7 @@ contains
                call hambl(ispc,qp,osmpot,vconst,osig,otau,oppi, hamm(:,ispc,:,ispc),ovlm(:,ispc,:,ispc))
                if(.not.skiphammsoc) hamm(:,ispc,:,ispc)= hamm(:,ispc,:,ispc) + hammhso(:,:,ispc) !spin-diag SOC elements (1,1), (2,2) added
             enddo
-            if (cmdopt0('--testso').or.skiphammsoc) then !this is for AHC test, or SOC-as-perturbation mode
+            if (c0_testso.or.skiphammsoc) then !this is for AHC test, or SOC-as-perturbation mode
                hamm(:,1,:,2) = 0d0
                hamm(:,2,:,1) = 0d0
             else
@@ -418,7 +420,7 @@ contains
       ! Create cuSOLVER handle (for eigensolve only, GEMM uses Ozaki)
       istat_g = cusolverDnCreate(cs_h)
       allocate(devinfo)
-      if(cmdopt0('--diag=chefsi') .or. cmdopt0('--diag=tridiag')) then  ! explicit alt solver
+      if((trim(c2_diag) == 'chefsi') .or. (trim(c2_diag) == 'tridiag')) then  ! explicit alt solver
         ! === Alternative eigensolver path ===
         alt_diag: block
           use mpi, only: MPI_WTIME
@@ -430,7 +432,7 @@ contains
             nd_j = ndimhx_batch(jd); nmx_jj = nmx_batch(jd)
             isp_jj = isp_batch(jd); iq_jj = iq_batch(jd)
             allocate(evecs_dd(nd_j, nmx_jj))
-            if(cmdopt0('--diag=tridiag')) then
+            if((trim(c2_diag) == 'tridiag')) then
               use_tridiag: block
                 use m_ozaki_tridiag, only: ozaki_tridiag_zhegv
                 call ozaki_tridiag_zhegv(nd_j, nmx_jj, hamm_batch(1,1,jd), nbandmx, &
@@ -464,7 +466,7 @@ contains
         endblock alt_diag
         deallocate(hamm_batch, ovlm_batch, ndimhx_batch, isp_batch, iq_batch, nmx_batch)
         if(allocated(ovlm_save)) deallocate(ovlm_save)
-      elseif(.not. cmdopt0('--diag=default')) then
+      elseif(.not. (trim(c2_diag) == 'default')) then
       ! === Batched cuSOLVER+Ozaki: all-GPU pipelined (DEFAULT for GPU builds) ===
       batched_diag: block
         use mpi, only: MPI_WTIME
@@ -787,6 +789,7 @@ contains
     call tcx('m_bandcal_init')
   end subroutine m_bandcal_init
   subroutine m_bandcal_2nd()! accumulate eval,evec-related quantities by addrbl
+use m_cmdopt_registry, only: c0_afsym, c0_cls
 #ifdef __GPU
     use m_gpu, only: use_gpu
 #endif
@@ -796,7 +799,6 @@ contains
     real(8),allocatable:: evl(:,:)
     complex(8),allocatable :: evec(:,:)!,evecbackup(:,:)
     type(t_igv2x_data):: kdat
-    logical:: cmdopt0
     call tcn('m_bandcal_2nd')
     if(master_mpi) write(stdo,ftox)'m_bandcal_2nd: to fill eigenfunctions**2 up to Efermi'
     ! Pre-compute rsibl setup data in shared memory (all ranks, parallel)
@@ -849,7 +851,7 @@ contains
        iq = iqproc(idat)
        qp = qplist(:,iq)  !write(stdo,ftox)'m_bandcal_init: procid iq=',procid,iq,ftof(qp)
        isp= isproc(idat)
-       if(afsym.and.isp==2) cycle !cmdopt0('--afsym').and.isp==2) cycle
+       if(afsym.and.isp==2) cycle !c0_afsym.and.isp==2) cycle
        call m_Igv2x_getiq(iq, kdat) ! Get napw, ndimh, ndimhx, igv2x for given iq (explicit, no state change)
        nev   = neviqis(idat)
        allocate(evec(kdat%ndimhx,nev))
@@ -858,9 +860,9 @@ contains
        evec(1:kdat%ndimhx,1:nev)=eveciqis(1:kdat%ndimhx,1:nev,idat)
        if(lso/=0)              call mkorbm(isp, nev, iq,qp, evec,  orbtm_rv)
        if(nlibu>0 .AND. nev>0) call mkdmtu(isp, iq,qp, nev, evec,  dmatu)
-       if(cmdopt0('--cls'))    call m_clsmode_set1(nev,isp,iq,qp,nev,evec) !all inputs
+       if(c0_cls)    call m_clsmode_set1(nev,isp,iq,qp,nev,evec) !all inputs
        call addrbl(isp,qp,iq, kdat%napw,kdat%ndimh,kdat%ndimhx,kdat%igv2x, osmpot,vconst,osig,otau,oppi,evec,evl,nev, smrho_out, sumqv, sumev, oqkkl,oeqkkl, frcband)
-       afsymGETevecFROMisponeANDaccumulate:  if(afsym) then !cmdopt0('--afsym')) then
+       afsymGETevecFROMisponeANDaccumulate:  if(afsym) then !c0_afsym) then
           if(idat==1.and.master_mpi) write(stdo,ftox)'m_bandcal: afsymblock'
           afsymblock: block !isp2 is given by isp=1
             use m_rotwave,only:  rotevec
@@ -869,7 +871,6 @@ contains
             use m_lattic,only: plat=>lat_plat
             use m_ftox
             use m_subzi, only: m_subzi_copy_wtkb
-            logical:: cmdopt0
             integer:: igrp,isp2,ikp,iev,ndeltaG(3),ikpx
             real(8):: qtarget(3),platt(3,3),diffq(3),tol=1d-4,qpr(3)
             complex(8):: evecrot(kdat%ndimhx,nev)
@@ -897,7 +898,7 @@ contains
               call m_subzi_copy_wtkb(isp, iq, isp2, ikp)
               if( lso/=0)              call mkorbm(isp2, nev, ikp,qpr, evecrot,  orbtm_rv)
               if( nlibu>0 .AND. nev>0) call mkdmtu(isp2,      ikp,qpr, nev, evecrot,  dmatu)
-              if( cmdopt0('--cls'))    call m_clsmode_set1(nev,isp2,ikp,qpr,nev,evecrot)
+              if( c0_cls)    call m_clsmode_set1(nev,isp2,ikp,qpr,nev,evecrot)
               call addrbl(isp2,qpr,ikp, kdat2%napw,kdat2%ndimh,kdat2%ndimhx,kdat2%igv2x, osmpot,vconst,osig,otau,oppi,evecrot,evl,nev, smrho_out, sumqv, sumev, oqkkl,oeqkkl, frcband)
             endblock
           endblock afsymblock

@@ -1,9 +1,11 @@
 module m_vbmmode
+  use m_cmdopt_registry, only: c0_vbmonly
   contains
 !>Get VBM and CBM relative to vaccum (a simple approximaiton. need fixing.).
 subroutine vbmmode()
   use m_lmfinit,only: ispec,nbas,vol,nspec,rmt_i=>rmt,z_i=>z
   use m_ext,only:sname
+  use m_cmdopt_registry, only: c0_vbmonly
   implicit none
   character(120):: vbmlll
   real(8):: rydberg=13.6058d0,esold
@@ -40,7 +42,7 @@ subroutine vbmmode()
   vref= sumvesatm/vol - vessm -sumvesloc/vol
   write(*,"('### VBM: Add vref to eigval to estimate eV relative to vaccum. vref(eV)=',f12.6)") vref*Rydberg
   write(*,"('### VBM: Mean estatic pot by superposition of atoms(eV)=',f12.6)")sumvesatm/vol*rydberg
-  !      if(cmdopt0('--vbmonly')) then
+  !      if(c0_vbmonly) then
   open(newunit=ifvbm,file='vbmcbm.'//trim(sname))
   read(ifvbm,"(a)") vbmlll
   print *,'readin vbmbm--> ',vbmlll

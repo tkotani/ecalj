@@ -8,6 +8,7 @@ module  m_bzintegration2 ! BZ integration
   use m_ftox
   use m_lgunit,only: stdo,stdl
   use m_MPItk,only: master_mpi
+  use m_cmdopt_registry, only: c0_cvK
   public bzintegration2
   private
 contains
@@ -178,6 +179,7 @@ contains
   subroutine bzwts(nevx,n1,n2,n3,nkp,ntet,idtet,zval,& ! BZ integration for fermi level, band sum and qp weights
        metal,tetra,norder,npts,width,rnge,wtkp,eb, efermi,sumev,wtkb,dosef,sumqv,ent,lfill)
     use m_bzints,only:bzints
+    use m_cmdopt_registry, only: c0_cvK
     implicit none
     intent(in)::  nevx,n1,n2,n3,nkp,ntet,idtet,zval,&
          metal,tetra,norder,npts,width,rnge,wtkp!,eb
@@ -383,7 +385,7 @@ contains
           if(ipr>0) write(stdo,ftox)' VBmax = ',ftof(emin),' CBmin = ',ftof(emax),' gap = ',&
                ftof(emax-emin),'Ry = ',ftof((emax-emin)*13.6058d0,3),'eV'
        endif
-       if(master_mpi.and.(cmdopt0('--cvK:') .and. n<0 .and. metal)) then ! ... (optional) Tabulate specific heat in file for list of T's
+       if(master_mpi.and.(c0_cvK .and. n<0 .and. metal)) then ! ... (optional) Tabulate specific heat in file for list of T's
           lRy = 0
           ryy='K'
           itmax=8

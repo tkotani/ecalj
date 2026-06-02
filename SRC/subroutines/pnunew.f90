@@ -34,6 +34,7 @@ subroutine pnunew(eferm) != Makes new boundary conditions pnu for phi,phidot =
   !u   17 Sep 01 When local orbital present, allow semiore pnz to float
   !u   28 Aug 01 Extended to local orbitals.  For now, freeze pnu
   ! ----------------------------------------------------------------------
+  use m_cmdopt_registry, only: c0_phispinsym
   implicit none
   logical lpz,lfrzv,lfrzz
   integer:: idmod(n0) ,ipr,ib,is,lmxa,l,ipqn,m,isp,nr,nn,mxcst ! 
@@ -48,7 +49,7 @@ subroutine pnunew(eferm) != Makes new boundary conditions pnu for phi,phidot =
   character spid*8
   integer ::iwdummy ,i_copy_size,nnz,nnv
   real(8):: eferm,eee
-  logical:: lsemicorepz,cmdopt0
+  logical:: lsemicorepz
   real(8):: pmean
   character strn*120
   call tcn('pnunew')
@@ -207,7 +208,7 @@ subroutine pnunew(eferm) != Makes new boundary conditions pnu for phi,phidot =
               if (ipr>34) write(stdo,"(i2,i2,i6,'      ---   ',6f12.6)")l,isp,idmod(m),ez,pold,ptry,pfree,pnz(m,isp)
            endif
         enddo isploop
-        !phispinsym= cmdopt0('--phispinsym') !! spin averaged pnu takaoAug2019
+        !phispinsym= c0_phispinsym !! spin averaged pnu takaoAug2019
         if(phispinsym) then
            if(ib==1.and.ipr>0.and.m==lmxa+1) write(stdo,*)'pnunew: --phispinsym enforces spin-averaged pnu' 
            pmean = sum(pnu(m,1:nsp))/nsp

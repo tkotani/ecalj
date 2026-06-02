@@ -3,6 +3,7 @@ module m_writeband
   use m_MPItk,only: comm
   use m_ftox
   use m_cmdopt_registry, only: c2_emin_eV, c2_emin_set, c2_emax_eV, c2_emax_set, c2_ndos
+  use m_cmdopt_registry, only: c0_eszero
   real(8),external:: rydberg
   public writeband,writefs,writepdos,writedossawada,write_eigenvalues
   private
@@ -13,6 +14,7 @@ contains
     use m_qplist,only: nkp,nsyml,xdatt,nqp_syml,nqp2n_syml,qplist,labeli,labele,nqps_syml,nqpe_syml,dqsyml,etolv,etolc
     use m_bandcal,only:nevls
     use m_ext,only: sname,dirname
+    use m_cmdopt_registry, only: c0_eszero
     implicit none
     real(8),intent(in):: eferm,vesav,evtop,ecbot ! evtop is max of n-th band. !evbot is bottom of bands upper than n+1
     integer:: ifbndo,ikp,isyml,jsp
@@ -33,7 +35,7 @@ contains
     integer:: idat,ifglts(2),iqplist,isp,nx(3)
     character(100)::acrossef
     character(13)::massd,mass2d,labelp
-    logical:: scd,cmdopt0
+    logical:: scd
     real(8)::kef
     real(8),allocatable:: kabs(:)
     real(8)::  evlall(:,:,:),basel
@@ -53,7 +55,7 @@ contains
        !write(stdo,"('ikpoff=',2i5)") isyml,ikpoff(isyml)
     enddo
     !! write bandplot.glt for gnuplot
-    eszero = cmdopt0('--eszero')
+    eszero = c0_eszero
     basel= merge(vesav,eferm,eszero)
     allocate(fnameb(nsyml,nspx))
     do jsp = 1, nspx
@@ -286,8 +288,9 @@ contains
     use m_mkqp,only: bz_nabc
     use m_qplist,only:nkp,qplist
     use m_shortn3_qlat,only: shortn3_qlat,nout,nlatout
+    use m_cmdopt_registry, only: c0_allband
     implicit none
-    logical:: cmdopt0,allband
+    logical:: allband
     real(8):: ppin(3),eferm
     integer:: ip,i,isp,ififm,nbxx,iq,ib,nkk1,nkk2,nkk3,ifi,nx(3),ndhamx
     real(8):: rlatp(3,3),xmx2(3),vadd,qshort(3),evlall(:,:,:)
@@ -297,7 +300,7 @@ contains
     nkk1=bz_nabc(1)
     nkk2=bz_nabc(2)
     nkk3=bz_nabc(3)
-    allband  = cmdopt0('--allband')
+    allband  = c0_allband
     nx=shape(evlall)
     ndhamx=nx(1)
     emin = -0.5d0
@@ -362,6 +365,7 @@ contains
     use m_dstrbp,only: dstrbp
     use m_mpiio, only: readm_d, openm, closem
 !    use m_lmfinit,only:lso
+    use m_cmdopt_registry, only: c0_writedw
     implicit none
     integer:: ifip,ndhamx,nsp,nspx,nevmin,nchanp,nbas,nkk1,nkk2,nkk3,ntete,ndos,nkp &
          ,ibas,jsp,ifi,init,iend,ipts,j,ndos_,ichan,isp,itet,ksp,i,ib
@@ -374,10 +378,10 @@ contains
     character(8)::xt
     integer, dimension(:),allocatable :: kpproc
     integer::numprocs,procid,ierr,itete,iteti,ispx,lso
-    logical :: cmdopt0, idwmode
+    logical :: idwmode
     real(8), allocatable :: dwgt4(:,:,:,:,:)
     integer :: iq, idt, idw, ifile_dw, istat
-    idwmode = cmdopt0('--writedw')
+    idwmode = c0_writedw
     if(idwmode) print *, 'writedw mode ON'
     print *,' pdosdata file=','pdosdata.'//trim(ext)
     open(newunit=ifip,form='unformatted',file='pdosdata.'//trim(ext))

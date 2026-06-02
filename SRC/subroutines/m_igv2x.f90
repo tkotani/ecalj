@@ -2,6 +2,7 @@
 module m_igv2x
   use m_lgunit,only:stdo
   use m_struc_def,only: s_nv2
+  use m_cmdopt_registry, only: c0_debugbndfp
   public:: m_igv2xall_init, m_igv2x_setiq, m_igv2x_getiq
   integer,protected,public:: nbandmx
   integer,protected,pointer,public :: igv2x(:,:)
@@ -60,14 +61,15 @@ contains
     use m_MPItk,only: master_mpi,procid,master
     use m_lmfinit,only: nlmto !    use m_shortn3_qlat,only: shortn3_qlat,nout,nlatout
     use m_ftox
+    use m_cmdopt_registry, only: c0_debugbndfp
     integer:: ifiese,imx11(1,1)
     integer,allocatable ::  kv_iv(:,:)
     real(8):: ppin(3),qp(3),qqq(3),pwgmax,dum,platt(3,3)
-    logical:: debug,cmdopt0
+    logical:: debug
     logical,save:: init=.true.
     integer:: iout,iapw,napwx,i !,nout,nlatout(3,noutmx)
     call tcn('m_igv2x_init')
-    debug = cmdopt0('--debugbndfp')
+    debug = c0_debugbndfp
     platt=transpose(plat)
     if(allocated(igv2x_z)) deallocate(igv2x_z)
     if (0<pwemax .and. mod(pwmode,10)>0) then !with APWs

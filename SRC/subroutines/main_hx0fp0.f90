@@ -2,6 +2,7 @@
 !!
 !! eps_lmf_cphipm mode is commented out; only epsPP_lmf_chipm works.
 module m_hx0fp0
+  use m_cmdopt_registry, only: c0_interbandonly, c0_intrabandonly
   contains
 subroutine hx0fp0()
   use m_ReadEfermi,   only: Readefermi, ef
@@ -32,6 +33,7 @@ subroutine hx0fp0()
   use m_gpu,          only: gpu_init
   use m_cmdopt_registry, only: c2_job
   use m_ftox
+  use m_cmdopt_registry, only: c0_interbandonly, c0_intrabandonly
   implicit none
   real(8)    :: qp(3), quu(3), ua=1d0, vcmean, frr
   real(8)    :: schi=1d0, chg1, chg2, dumm1, dumm2
@@ -48,7 +50,6 @@ subroutine hx0fp0()
   character(11)       :: ttt
   character(128)      :: itag
   character(3),  external :: charnum3
-  logical,       external :: cmdopt0
   integer,       external :: verbose
   real(8),    allocatable :: symope(:,:)
   integer,    allocatable :: nxx_r(:), aimbas(:)
@@ -286,10 +287,11 @@ subroutine hx0fp0()
 !  if(ixc==12)   call rx0( ' OK! hx0fp0 mode=12    Ecor mode')
 contains
   subroutine writeepsopen()
+    use m_cmdopt_registry, only: c0_interbandonly, c0_intrabandonly
     character(4), external :: charnum4
     itag=''
-    if(cmdopt0('--interbandonly')) itag='.interbandonly'
-    if(cmdopt0('--intrabandonly')) itag='.intrabandonly'
+    if(c0_interbandonly) itag='.interbandonly'
+    if(c0_intrabandonly) itag='.intrabandonly'
     iqixc2 = iq- (nqibz+nq0ix)
     if(( .NOT. chipm) .AND. nolfco) then
       if(allocated(x0mean)) deallocate(x0mean)

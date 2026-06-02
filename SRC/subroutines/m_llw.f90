@@ -59,7 +59,7 @@ contains
     integer:: iq,iq0,nwmax,nwmin,iw,imode,ix,igb1,igb2,ifllw
     integer:: nmbas1,nmbas2,ngc0,ifw4p
     real(8):: frr,q(3),vcou1,quu(3),eee
-    logical::  localfieldcorrectionllw,cmdopt0
+    logical::  localfieldcorrectionllw
     type(stopwatch) :: t_sw_matinv, t_sw_x_gather, t_sw_x_m2e_xf
     integer :: istat
     character(10):: i2char
@@ -230,7 +230,7 @@ contains
     integer:: nmbas1,nmbas2
     integer:: iq,iq0,nwmax,nwmin,iw,imode,ix,igb1,igb2,ifllwi
     real(8):: frr,q(3),vcou1
-    logical::  localfieldcorrectionllw,cmdopt0
+    logical::  localfieldcorrectionllw
     logical, intent(in) :: is_x0_m_basis, is_wc_m_basis
 !    complex(8):: zxqi(nmbas1,nmbas2,niw)
     character(10):: i2char

@@ -1,5 +1,6 @@
 !>Crystal symmetry data are stored by call m_mksym_init. NOTE:nbas (atomic sites)-> nspec (species) -> nclass (class)
 module m_mksym 
+  use m_cmdopt_registry, only: c0_nosym, c0_pdos
   public :: m_mksym_init
   integer,allocatable,protected :: oics(:)    ! ispec= ics(iclass) gives spec for iclass.
   real(8),allocatable,protected :: symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:),dlmm(:,:,:,:)
@@ -34,12 +35,13 @@ contains
     use m_lattic,only:  plat=>lat_plat,rv_a_opos
     use m_mksym_util,only: mksym,mptauof,rotdlmm
     use m_ftox
+    use m_cmdopt_registry, only: c0_nosym, c0_pdos
     implicit none
     integer,parameter::  ngmx = 48
 !    character,intent(in)::  prgnam*(*)
     integer:: ibas,lc,j,iprint,nclass,ngrpTotal,k,npgrpAll
     integer,parameter::recln=511
-    logical ::cmdopt0,ipr10=.false.
+    logical ::ipr10=.false.
     character strn*(recln),strn2*(recln),outs(recln)
     real(8):: osymgr(3,3,ngmx), oag(3,ngmx)
     real(8),parameter:: tol=1d-4
@@ -48,7 +50,7 @@ contains
     ipr10= iprint()>10 
     strn = 'find'
     if(len_trim(sstrnsymg)>0) strn=trim(sstrnsymg)
-    if(cmdopt0('--nosym') .OR. cmdopt0('--pdos') ) strn = ' '
+    if(c0_nosym .OR. c0_pdos ) strn = ' '
     lc=merge(1,0,addinv) ! Add inversion to get sampling k points. phi*. When we have TR with keeping spin \sigma, psi_-k\sigm(r) = (psi_k\sigma(r))^* 
     !lmxax=lmxax
     if(master_mpi) call pshpr(60)

@@ -22,6 +22,7 @@ subroutine hhomogas()
   use m_homoelectron,only: read_qgband, efermi_egas !for gsq 
   use m_readgwinput,only: ReadGwinputKeys!,egauss,ecut,ecuts,mtet,ebmx,nbmx,imbas
 !  use m_shortn3,only: shortn3_initialize,shortn3
+  use m_cmdopt_registry, only: c0_debug
   implicit none
   integer::nctot=0,nspin=1,niw
   !! ------------------------------------------------
@@ -205,13 +206,13 @@ subroutine hhomogas()
   real(8)::rlatp(3,3),xmx2(3),qqin(3),qshort(3),qshort2,ppin(3),qlength,rs
   integer:: nlatout(3,48),nout,iout
   integer,parameter:: noutmx=48
-  logical:: initiq,cmdopt0
+  logical:: initiq
   integer:: ifz,ifi,ifif
   real(8):: ef
   integer:: comm
 !  include "mpif.h"
 ! Pay attension to the following bootstrap sequence to fill data to modules!  
-  debug = cmdopt0('--debug')
+  debug = c0_debug
   comm = MPI_COMM_WORLD
   call m_lgunit_init() 
   hartree  = 2d0*rydberg()

@@ -4,6 +4,7 @@ module m_qplist
   use m_lgunit,only:stdo
   use m_nvfortran,only: findloc
   use m_sort, only: sort_index, lower_bound, upper_bound
+  use m_cmdopt_registry, only: c0_eigen_at_k, c0_fermisurface, c0_fullmesh, c0_jobgw, c0_mkprocar, c0_onesp, c0_writeham
   implicit none
   public :: m_qplist_init,m_qplist_qspdivider,m_qplist_redistribute_all,qshortn
   integer,protected,public::   napwmxqp
@@ -31,11 +32,12 @@ contains
     use m_mkqp,only: nkabc=> bz_nabc,bz_nkp
     use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
     use m_ext,only: sname
+    use m_cmdopt_registry, only: c0_eigen_at_k, c0_fermisurface, c0_fullmesh, c0_mkprocar, c0_onesp
     intent(in)::             plbnd,llmfgw
     integer:: nqp2_syml(nsymlmax),nqp2s_syml(nsymlmax),nqp2e_syml(nsymlmax)
     logical:: masslineon(nsymlmax),llmfgw
     integer:: plbnd,ifqplist,nkk1,nkk2,nkk3,ik1,ik2,ik3,iq,ifi,ifisyml,isyml,i,ierr
-    logical:: cmdopt0,fullmesh,PROCARon,fsmode
+    logical:: fullmesh,PROCARon,fsmode
     integer:: ikp,ifbnd,nsymln,onesp=0,jobgw
     real(8):: qps_syml(3,nsymlmax), qpe_syml(3,nsymlmax),rq
     real(8)::  totxdatt
@@ -51,9 +53,9 @@ contains
     nkk1=nkabc(1)
     nkk2=nkabc(2)
     nkk3=nkabc(3)
-    fullmesh = cmdopt0('--fullmesh').or. cmdopt0('--fermisurface') !full mesh stop just after do 2010 iq loop.
-    fsmode   = cmdopt0('--fermisurface') !full mesh stop just after do 2010 iq loop.
-    PROCARon = cmdopt0('--mkprocar')
+    fullmesh = c0_fullmesh.or. c0_fermisurface !full mesh stop just after do 2010 iq loop.
+    fsmode   = c0_fermisurface !full mesh stop just after do 2010 iq loop.
+    PROCARon = c0_mkprocar
     if(allocated(qplist)) deallocate(qplist)
     plbndmode: if( .NOT. master_mpi) then 
        continue
@@ -91,7 +93,7 @@ contains
        enddo
        close(ifqplist)
     else ! plbnd/=1 band plot mode
-       if(cmdopt0('--onesp') .AND. nspx==1) onesp = 1
+       if(c0_onesp .AND. nspx==1) onesp = 1
        if(fullmesh) then
           nkp = nkk1*nkk2*nkk3
           allocate(qplist(3,nkp))
@@ -122,7 +124,7 @@ contains
                 enddo
              enddo
           endif
-       elseif(cmdopt0('--eigen-at-k')) then
+       elseif(c0_eigen_at_k) then
          ReadEigenAtK:block
            logical :: filexists
            integer :: iunit, ios, ios_data
@@ -343,13 +345,13 @@ contains
     use m_ext,only: sname
     use m_dstrbp,only: dstrbp
     use m_gpu,only: use_gpu, ngpu_ranks
+    use m_cmdopt_registry, only: c0_jobgw, c0_writeham
     implicit none
     integer:: iq,isp,ispx,icount,iqs,ncount,iqsi,iqse,iprint,idat,i,nsize,nspxx
     integer:: ndata
-    logical:: cmdopt0
     call tcn('m_qplist_qpsdivider')
     nspxx=nspx
-    if((.not.cmdopt0('--jobgw')).and.(.not.cmdopt0('--writeham')).and.afsym) nspxx=1
+    if((.not.c0_jobgw).and.(.not.c0_writeham).and.afsym) nspxx=1
     ndata = nkp*nspxx
     allocate(kpproc(0:numprocs))
     ! Distribute k-points to ALL ranks (all ranks do hambl, GPU ranks do batched diag)
@@ -390,11 +392,11 @@ contains
     use m_MPItk,only: procid, master_mpi, numprocs=>nsize
     use m_lmfinit,only: nsp, afsym, nspx
     use m_dstrbp,only: dstrbp
+    use m_cmdopt_registry, only: c0_jobgw, c0_writeham
     implicit none
     integer :: ndata, nspxx, iqsi, iqse, jdat, iq, isp, i
-    logical :: cmdopt0
     nspxx = nspx
-    if((.not.cmdopt0('--jobgw')).and.(.not.cmdopt0('--writeham')).and.afsym) nspxx=1
+    if((.not.c0_jobgw).and.(.not.c0_writeham).and.afsym) nspxx=1
     ndata = nkp * nspxx
     ! Standard distribution across ALL ranks
     call dstrbp(ndata, numprocs, 1, kpproc(0))

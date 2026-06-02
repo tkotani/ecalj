@@ -1,4 +1,5 @@
 module m_qg4gw
+  use m_cmdopt_registry, only: c0_n1n2n3eps
   contains
 subroutine qg4gw() bind(C)
   !> Generate required q+G vectors and so on for GW calculations.
@@ -50,6 +51,7 @@ subroutine qg4gw() bind(C)
   use m_mpi,only: MPI__Initialize,MPI__root
   use m_lgunit,only: m_lgunit_init
   use m_cmdopt_registry, only: c2_job
+  use m_cmdopt_registry, only: c0_n1n2n3eps
   implicit none
   integer(4) :: ifiqg,ifiqgc,ifigw0,ngrp,ifi,i,ig,iq0pin
   real(8) :: alat,QpGcut_psi, QpGcut_Cou,dummy ,plat(3,3),volum,q0(3),qlat0(3,3),a1,a2,unit
@@ -59,7 +61,7 @@ subroutine qg4gw() bind(C)
   integer(4)::nnn(3),ret,verbose,q0pchoice,wgtq0p,iq0pinxxx,n1,n2,n3
   logical:: GaussSmear,KeepEigen,core_orth,ldummy, lnq0iadd=.false. !keepppovl,
   integer:: gammacellctrl=0
-  logical:: lmagnon = .false., ln1n2n3eps = .false., cmdopt0
+  logical:: lmagnon = .false., ln1n2n3eps = .false.
   call MPI__Initialize()
 !  if(.not.MPI__root) goto 9999
   call M_lgunit_init()
@@ -93,7 +95,7 @@ subroutine qg4gw() bind(C)
   else
      call rx( 'Not allowed iq0pin')
   endif
-  if(cmdopt0('--n1n2n3eps')) ln1n2n3eps=.true.
+  if(c0_n1n2n3eps) ln1n2n3eps=.true.
   call mkQG2(iq0pinxxx, gammacellctrl,lnq0iadd,lmagnon,ln1n2n3eps)
   write(6,*) ' OK! End of qg4gw '
   if(iq0pin ==1)     call rx0( ' OK! qg4gw mode=1 normal mode')

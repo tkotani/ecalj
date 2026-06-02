@@ -33,6 +33,7 @@ subroutine bzmesh(plat,qb,ifac,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx)! Divides 
   !  The reciprocal lattice is divided into n1*n2*n3 microcells which are parallelipipeds with 8 corners. The corners are nodes of the
   !  k-space mesh in the whole reciprocal lattice unit cell. Thus, for i1=1..n1, i2=1..n2, i3=1..n3 the qp(i1,i2,i3) are
   !  q_k = (i1*ifac(1)-1)*qb(k,1) +  (i2*ifac(2)-1)*qb(k,2) +  (i3*ifac(3)-1)*qb(k,3),    where ifac is 1 or 2; see bzmsh0.
+  use m_cmdopt_registry, only: c0_kchk
   implicit none
   logical :: lshft(3)
   integer :: n1,n2,n3,nqmx,ng,nq,ipq(n1,n2,n3)
@@ -40,7 +41,6 @@ subroutine bzmesh(plat,qb,ifac,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx)! Divides 
   integer :: i1,i2,i3,ifac(3),ig,igcnt,ii,ii1,ii2,ii3,ipr,iq,is(3),iwgt,jj(3),lgunit,m1,m2,m3,ndmx,nnn(3),mmm(3),ifi
   double precision :: w0,swgt,v(3),v1(3),rb(3,3),xx(3)
   character(1) :: chr(0:2)
-  logical,external:: cmdopt0
   real(8):: tolq
   call getpr(ipr)
   bzmesh0: block
@@ -117,12 +117,12 @@ subroutine bzmesh(plat,qb,ifac,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx)! Divides 
         write(stdo,"(i5,2x,3f12.6,i10,1x,a,f14.6)") iq,qp(1,iq),qp(2,iq),qp(3,iq),iwgt,chr(ii),abs(wgt(iq))
      enddo
   endif
-  if(cmdopt0('--kchk')) call rx0('kchk finished: mesh is compatible for spg symmetry')
+  if(c0_kchk) call rx0('kchk finished: mesh is compatible for spg symmetry')
   return
 9999 continue
   open(newunit=ifi,file='bzmesh.'//trim(sname)//'.err')
   write(ifi,*)'BZMESH: symops incompatible with this mesh'
   close(ifi)
-  if(cmdopt0('--kchk')) call rx0('kchk finished: mesh is not compatible for spg symmetry')
+  if(c0_kchk) call rx0('kchk finished: mesh is not compatible for spg symmetry')
   call rx('BZMESH: symops incompatible with this mesh')
 end subroutine bzmesh

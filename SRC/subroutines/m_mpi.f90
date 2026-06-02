@@ -1,6 +1,7 @@
 module m_mpi !MPI utility (unified from m_mpi + m_MPItk)
   use mpi
   use m_lgunit, only: stdo, stdl
+  use m_cmdopt_registry, only: c0_fullstdo
   implicit none
   integer :: mpi__size
   integer :: mpi__rank
@@ -41,19 +42,19 @@ module m_mpi !MPI utility (unified from m_mpi + m_MPItk)
 
 contains
   subroutine setipr(comm)
+    use m_cmdopt_registry, only: c0_fullstdo
     integer:: comm
-    logical,external:: cmdopt0
     call MPI_Comm_rank( comm, mpi__rank, mpi__info )
     mpi__root= mpi__rank==0
     ipr=mpi__root
-    if(cmdopt0('--fullstdo')) ipr=.true.
+    if(c0_fullstdo) ipr=.true.
   end subroutine setipr
   subroutine MPI__Initialize(commin)
+    use m_cmdopt_registry, only: c0_fullstdo
     implicit none
     character(1024*4) :: cwd, stdout
     character(10):: i2char
     integer,optional:: commin
-    logical,external:: cmdopt0
     logical :: initialized
     comm=MPI_COMM_WORLD
     if(present(commin)) comm= commin
@@ -65,7 +66,7 @@ contains
     mpi__root= mpi__rank==0
     if( mpi__root ) call chdir(cwd)
     ipr=mpi__root
-    if(cmdopt0('--fullstdo')) ipr=.true.
+    if(c0_fullstdo) ipr=.true.
     !-- m_MPItk compatible
     procid = mpi__rank
     nsize = mpi__size

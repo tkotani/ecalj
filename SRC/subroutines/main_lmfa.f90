@@ -1,4 +1,5 @@
 module m_lmfa
+use m_cmdopt_registry, only: c0_help
 contains
   subroutine lmfa(commin) bind(C)
     use mpi
@@ -8,9 +9,9 @@ contains
     use m_lgunit,only:   m_lgunit_init, stdo,stdl
     use m_lmfinit,only:m_Lmfinit_init
     use m_freeat,only:   Freeat
+    use m_cmdopt_registry, only: c0_help
     implicit none
 !    include "mpif.h" 
-    logical:: cmdopt0
     character:: aaa*512
     character(8) :: prgnam='LMFA', charext
     integer:: ierr,info,nsizex
@@ -27,7 +28,7 @@ contains
     if(master_mpi) write(stdl,"(a)") trim(aaa)
     if(master_mpi) write(stdo,*) 'mpisize=',nsize
     if(master_mpi) write(stdl,*) 'mpisize=',nsize
-    if(cmdopt0('--help')) call print_usage_and_quit('lmfa')
+    if(c0_help) call print_usage_and_quit('lmfa')
     open(newunit=ifi,file='save.'//trim(sname),position='append')
     write(ifi,"(a)")'Start '//trim(prgnam)//trim(argall)
     close(ifi)

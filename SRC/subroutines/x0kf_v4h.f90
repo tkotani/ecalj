@@ -18,6 +18,7 @@ module m_x0kf
   use m_kind,only: kp => kindrcxq
   use m_mpi,only: ipr, mpi__root_k => mpi__root_k_xq
   use m_wv_storage, only: shm_wvr, shm_wvi, wv_ngb
+use m_cmdopt_registry, only: c0_debugzmel, c0_tetwtk
 #if defined(__MP) && defined(__GPU)
   use m_blas, only: gemm => cmm_d
 #elif defined(__MP)
@@ -41,7 +42,6 @@ module m_x0kf
   integer, allocatable :: icounkmin(:), icounkmax(:)
   real(8), allocatable :: whwc(:)
   integer, allocatable :: iwini(:),iwend(:),itc(:),itpc(:),jpmc(:),icouini(:)
-  logical, external :: cmdopt0
   logical :: debug = .false.
 contains
 
@@ -156,6 +156,7 @@ contains
                     mpi__rank_k => mpi__rank_k_xq, mpi__size_k => mpi__size_k_xq, &
                     mpi__root_k => mpi__root_k_xq, mpi__rank_root_k => mpi__rank_root_k_xq, &
                     comm_k => comm_k_xq, comm_root_k => comm_root_k_xq
+use m_cmdopt_registry, only: c0_debugzmel, c0_tetwtk
 #ifdef __MP
     use m_mpi,only: MPI__reduceSum => MPI__reduceSum_c
 #else
@@ -186,7 +187,7 @@ contains
     if (npm /= 1)      call rx('x0kf_zxq: npm/=1 not supported')
     if (wv_ngb /= npr) call rx('x0kf_zxq: wv_ngb /= npr (shm_wvr size mismatch)')
 
-    if (cmdopt0('--tetwtk')) tetwtk = .true.
+    if (c0_tetwtk) tetwtk = .true.
     call gwinput_init()
     if (gwinput_loaded) then
       zmel_max_size = tg_zmel_max_size
@@ -209,7 +210,7 @@ contains
     !$acc kernels
     rcxq = (0_kp, 0_kp)
     !$acc end kernels
-    debug = cmdopt0('--debugzmel')
+    debug = c0_debugzmel
     isloop: do isp_k = 1, nsp
       GETtetrahedronWeight: block
         isp_kq = merge(3-isp_k, isp_k, chipm)

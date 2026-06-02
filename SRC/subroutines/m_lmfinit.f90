@@ -11,6 +11,7 @@ module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are pro
   
   use m_nvfortran,only: findloc
   use m_scg,only:scg
+  use m_cmdopt_registry, only: c0_band, c0_cls, c0_debug, c0_etot, c0_fermisurface, c0_fullmesh, c0_noinv, c0_nosym, c0_pdos, c0_tdos, c0_v0fix, c0_zmel0, c2_quit
   implicit none 
   public:: m_lmfinit_init,icgi,icge
   integer,public,parameter:: noutmx=48,NULLI=-99999,nkap0=3,mxspec=256,lstrn=1000,n0=10,nppn=2,nrmx=1501,nlmx=64,n00=n0*nkap0,k0=3
@@ -106,6 +107,7 @@ contains
     !   rdhessr: T read hessian matrix, xtolr: relaxation x-tolerance, gtolr: relaxation g-tolerance, stepr: step length
     !   nkillr: Remove hessian after this many steps
     use mpi
+    use m_cmdopt_registry, only: c0_band, c0_cls, c0_debug, c0_etot, c0_fermisurface, c0_fullmesh, c0_noinv, c0_nosym, c0_pdos, c0_tdos, c0_v0fix, c0_zmel0, c2_quit
     implicit none
     character,intent(in)::  prgnam*(*)
     integer,parameter:: recln=512
@@ -115,7 +117,7 @@ contains
     character fileid*64
     character(256)::  a,outs,sss,ch
     character(128) :: nm
-    logical :: cmdopt0,  debug,sexist=.false., ipr10,fullmesh,lzz, logarr(100)
+    logical :: debug,sexist=.false., ipr10,fullmesh,lzz, logarr(100)
     integer :: i,is,iprint, iprt,isw,ifi,j,k,l,lfrzw,lrs,k1,k2,lmxbj,lmxaj,nlbj,&
          ibas,ierr,lc, iqnu=0, ifzbak,nn1,nn2,nnx,nlaj,isp,&
          inumaf,iin,iout,ik,iprior,ibp1,indx,iposn,m,nvi,nvl,nn1xx,nn2xx, nnn,ib,&
@@ -125,7 +127,7 @@ contains
     real(8),allocatable ::rv(:)
     character*(8),allocatable::clabl(:)
     integer,allocatable:: idxdn(:,:,:) ,pnuspdefaulti(:,:)
-    real(8),allocatable:: pnuspc(:,:,:),qnuc(:,:,:,:),pp(:,:,:,:),ves(:),zc(:) !    debug = cmdopt0('--debug')
+    real(8),allocatable:: pnuspc(:,:,:),qnuc(:,:,:,:),pp(:,:,:,:),ves(:),zc(:) !    debug = c0_debug
     integer,optional:: commin
     integer:: comm !,nsizex,info
     comm=MPI_COMM_WORLD
@@ -136,7 +138,7 @@ contains
       call load_ctrl_toml('ctrlg.'//trim(sname)//'.toml', recrd, reclnr, nrecs2)
     endblock ReadCtrlToml
     Stage1GetCatok: block ! Readin Category-Token-Subtoken from recrd by rval2
-      logical:: cmdopt0,parmxp
+      logical:: parmxp
       integer:: iprint,isw,ncp,nmix,broy,n,n1,n2,n3
       real(8):: avwsr,rydberg,wt(2),beta
       character(8):: fnam,xn
@@ -186,7 +188,7 @@ contains
 !      call rval2('HAM_READPSKIPF', rr=rr, defa=[real(8):: 1]); readpnuskipf= nint(rr)==1
 !      call rval2('HAM_V0FIX', rr=rr, defa=[real(8):: 0]); v0fix =  nint(rr)==1
       call rval2('HAM_PNUFIX',rr=rr, defa=[real(8):: 0]); pnufix=  nint(rr)==1
-      if(cmdopt0('--v0fix')) then
+      if(c0_v0fix) then
         v0fix=.true.
         pnufix=.true.
       endif  
@@ -264,7 +266,7 @@ contains
       call fill3in(n,bz_lshft)
       call rval2('BZ_METAL', rr=rr, defa=[real(8):: 3]); bz_lmet=nint(rr) !0 or 3. '0 insulator only; 3 for metal
       call rval2('BZ_TETRA', rr=rr, defa=[real(8):: 1]); bz_tetrahedron= nint(rr)==1 ! tetrahedron switch 1 or 0.
-      if(cmdopt0('--tdos') .OR. cmdopt0('--pdos')) then
+      if(c0_tdos .OR. c0_pdos) then
          write(stdo,*)' --tdos or --pdos enforces BZ_METAL=3 and BZ_TETRA=T'
          bz_lmet=3
          bz_tetrahedron=.true.
@@ -329,7 +331,6 @@ contains
     endblock Stage1GetCatok
     Stage2SetModuleParameters: block
       integer:: isw,iprint
-      logical:: cmdopt0
       allocate(sspec(nspec)) !NOTE: this is in module m_fatom.f90
       ! verbos / io_tim / phispinsym are set entirely from TOML now.
       ! The legacy cmdline shortcuts (--pr=N, --time=N,M, --phispinsym) are
@@ -343,7 +344,7 @@ contains
       if(sum(abs(socaxis-[0d0,0d0,1d0])) >1d-6 .AND. (.NOT.phispinsym)) &
            call rx('We need [ham] phispinsym=true (or --phispinsym) for SO=1 and HAM_SOCAXIS/=001. Need check if you dislike phispinsym.')
       !TK found --phispinsym (the same radialfunctions for both spins) caused a problem to determine required number of nodes for NiO(LDA). 2023sep.
-!      if(cmdopt0('--zmel0')) OVEPS=0d0 !for epsmode ok?
+!      if(c0_zmel0) OVEPS=0d0 !for epsmode ok?
       if(pwmode==10) pwmode=0   !takao added. corrected Sep2011
       if(trim(prgnam)=='LMFGWD') pwmode=10+ mod(pwmode,10) !lmfgw mode use 
       if(iprint()>0) write(stdo,ftox) ' ===> for --jobgw, pwmode is switched to be ',pwmode
@@ -529,11 +530,11 @@ contains
       ! # NOTE: because of inversion in space-group symmetry, we may have 
       ! #       |phi_sigm^fk|^2 = |phi_sigm^{-fk}|^2. This is not for NOINV.
     
-      if( (lrlxr>=1.AND.lrlxr<=3) .OR. cmdopt0('--cls') .OR. cmdopt0('--nosym') .OR. cmdopt0('--pdos')) then
+      if( (lrlxr>=1.AND.lrlxr<=3) .OR. c0_cls .OR. c0_nosym .OR. c0_pdos) then
          symg = 'e'
          addinv = .false. 
          !   elseif( lso==0 .and. sum(abs(idu))/=0 .and. (.not.sexist) ) then ! Add inversion means Hamiltonian is real (time-reversal).
-      elseif(cmdopt0('--noinv')) then !2024-5-1
+      elseif(c0_noinv) then !2024-5-1
          addinv=.false.
       elseif( lso==0 .and. sum(abs(idu))==0 .and. (.not.sexist) ) then ! Add inversion means Hamiltonian is real (time-reversal). !bugfix by obata 2023-12-12
          addinv=.true. 
@@ -639,21 +640,20 @@ contains
       seref= sum([(eref(ispec(ib)),ib=1,nbas)])
       ham_seref= seref
       call MPI_BARRIER(comm, ierr )
-      if( cmdopt0('--quit=show') ) call rx0(trim(prgnam)//' --quit=show')
+      if( (trim(c2_quit) == 'show') ) call rx0(trim(prgnam)//' --quit=show')
     endblock Stage2SetModuleParameters
     Stage3InitialSetting :block 
-      logical:: cmdopt0
       integer:: iprint
-      if (cmdopt0('--etot')) then
+      if (c0_etot) then
          lfrce=0 !force calculation or not
          maxit=1 !max number of iteration for electronic structure part
       endif
       if(lhf) maxit= 1
       cc=merge(274.074d0,1d10,lrel/=0) !speed of light. scalar rel 1d10 for lrel=0
-      fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') !compute eigenvalues for fullmesh q points 
+      fullmesh = c0_fullmesh.or.c0_fermisurface !compute eigenvalues for fullmesh q points 
       lrout = 1 ! =1:evaluate output density and/or KS energy 
       leks = 1
-      if(cmdopt0('--band') .OR. fullmesh) then !Switch to plot bands at specified qp
+      if(c0_band .OR. fullmesh) then !Switch to plot bands at specified qp
          lfrce = 0
          plbnd = 1 !band plot mode
          lrout = 0
@@ -664,7 +664,7 @@ contains
       if(bz_lmet/=0 .OR. bz_tetrahedron ) ldos=1
       if(ldos==0) bz_ndos = 1
       call rxx((lrout == 0 .AND. lfrce /= 0),       'lrout==0 and lfrce/=0 is not allowed')
-      call rxx((lrout == 0 .AND. cmdopt0('--etot')),'lrout==0 and --etot not allowed')
+      call rxx((lrout == 0 .AND. c0_etot),'lrout==0 and --etot not allowed')
       LDApU: block 
         nlibu = 0
         lmaxu = 0

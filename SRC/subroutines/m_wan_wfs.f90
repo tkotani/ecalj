@@ -8,6 +8,7 @@ module m_wan_wfs
   use m_genallcf_v3,only: nsp =>nspin ,ndima,ndimanspc, mrecb,mrece,mrecg,nband,nspc,nspx
   use m_lgunit,only:stdo
   use m_ftox
+  use m_cmdopt_registry, only: c0_mlo
   implicit none
   public ::  get_geig_wan, get_cphi_wan
   public :: Init_readeigen_mlw_noeval, Readcphiw, Readgeigw
@@ -71,6 +72,7 @@ function get_geig_wan(q, isp, mpi_mode, comm) result(geig_wan)
   end subroutine onoff_write_pkm4crpa
   subroutine init_readeigen_mlw_noeval() ! replace cphi and geig for hwmat ! this should be called after init_readgeigen2
   !xxxxxxxxxxxxxx only for nspc=1. Need fixing for nspc=2  
+    use m_cmdopt_registry, only: c0_mlo
     implicit none
     integer:: iq,is,ifiqg,ikp, isx,mrecb_o,ikpisp,mrecg_o, &
          nwf_o,nband_o,ifmlw,ifmlwe,nqbz,nqbze,nqbze2,iqbz,iqbz2,nwf2, &
@@ -83,13 +85,13 @@ function get_geig_wan(q, isp, mpi_mode, comm) result(geig_wan)
          geig3(:,:),cphi3(:,:), &
          geig4(:,:),cphi4(:,:), &
          cbwf(:,:,:,:),uum(:,:,:,:,:)
-    logical :: keepeigen,cmdopt0,mlocase
+    logical :: keepeigen,mlocase
     integer:: ikpx,ifi,ndimMTO
     character*(8):: fname
     keepeig_mlw = .True. !keepeigen()
     if(ipr) write(6,*)' init_readeigen_mlw_noeval'
     ! --- Readin MLWU/D, MLWEU/D, and UUq0U/D
-    mlocase=cmdopt0('--mlo')
+    mlocase=c0_mlo
     
     ! if(mlocase) then
     !   iko_ix=1

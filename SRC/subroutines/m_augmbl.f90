@@ -2,6 +2,7 @@ module m_augmbl !Add augmentation part to H and S. aughsoc add SO part to H.
   use m_lmfinit,only: lmxa_i=>lmxa,lmxb_i=>lmxb,kmxt_i=>kmxt
   !Inputs are Site integrals, sig,tau,pi,hso See JPSJ.kotani
   use m_ll,only:ll
+  use m_cmdopt_registry, only: c0_socmatrix
   public augmbl,aughsoc
   private
 #ifdef __GPU
@@ -201,6 +202,7 @@ contains
     !o   hso   :spin diagonal and off-diagonal block of spin-orbit hamiltonian
     ! note  'shorbz need to be improved in future (the method in shortn3)'.
     ! note  We obtain Lz,L+,and L- (Lzz Lmm Lpp) in this routine. From their linear combinatios, we have hso.
+    use m_cmdopt_registry, only: c0_socmatrix
     implicit none
     type(s_sblock),target :: ohsozz(3,nbas),ohsopm(3,nbas)
     integer:: isp, ndimh, ibas, isa,kmax,lmxa,lmxb, nglob,nlma,nlmb,lso,nkaph
@@ -213,10 +215,9 @@ contains
     complex(8):: img=(0d0,1d0), facso(3,3), f1,f2,f3
     real(8)::d2
     logical,save:: init=.true.
-    logical:: cmdopt0
     call tcn ('aughsoc')
     lso=lsox
-    if(cmdopt0('--socmatrix')) lso=1
+    if(c0_socmatrix) lso=1
     if(lso==1) then
        if( sum(abs(socaxis-[0d0,0d0,1d0]))  < 1d-6) then
           !     Mixing matrix for Spin-block facso based on (Lz,L-,L+)

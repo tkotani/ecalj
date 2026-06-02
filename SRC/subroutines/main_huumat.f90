@@ -1,5 +1,6 @@
 !>  Calculate <u|u> matrix . u_kj(r) is the perodic part of eigencuntion.
 module m_uumat
+  use m_cmdopt_registry, only: c0_ahc, c0_q2q1test, c0_qibzonly, c2_dwnb
   public uumatrix
   private
 contains
@@ -31,6 +32,7 @@ subroutine uumatrix()
   use m_mpitk, only: m_mpitk_init
   use m_ftox
   use m_cmdopt_registry, only: c2_job, c2_sp1, c2_sp2
+  use m_cmdopt_registry, only: c0_ahc, c0_q2q1test, c0_qibzonly, c2_dwnb
   implicit none
   integer:: i,ix,ngrpx ,is, nxx ,ibas ,ibas1, ngpmx, ifphi, nbas, nradmx, ncoremx, &
             nrx, ic, icx, isp, l, n, irad, ifoc, ldim2, ixx, ngp1, ngp2, &
@@ -50,7 +52,6 @@ subroutine uumatrix()
   complex(8),parameter :: img=(0d0,1d0)
   complex(8),allocatable :: geig1(:,:),geig2(:,:),cphi1(:,:),cphi2(:,:), uum(:,:,:), ppovl(:,:), ppj(:,:,:,:)
   complex(8) :: phaseatom
-  logical :: cmdopt0
   logical :: use_bbvec_file
   integer :: nbasis, isp1, isp2
   complex(8), allocatable :: uumq(:,:,:,:)
@@ -149,12 +150,12 @@ subroutine uumatrix()
   call init_readeigen()   !Initialization for readeigen
   call init_readeigen2()
   nbasis = nband
-  if(cmdopt0('--dwnb=wan')) then
+  if((trim(c2_dwnb) == 'wan')) then
     call Init_readeigen_mlw_noeval()
     get_geig => get_geig_wan
     get_cphi => get_cphi_wan
     nbasis = nwf
-  elseif(cmdopt0('--dwnb=mlo')) then
+  elseif((trim(c2_dwnb) == 'mlo')) then
     call mlo_read_hma_rs() !set ndimMTO -> nmlo
     get_geig => get_geig_cmlo
     get_cphi => get_cphi_cmlo
@@ -230,7 +231,7 @@ subroutine uumatrix()
     head(3,1:2)=['UUq0U.','UUq0D.']
     if(mpi__root) then
       do isp=1,nspx
-        if(cmdopt0('--ahc')) then
+        if(c0_ahc) then
           open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum7(0),form='unformatted')
         else
           open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum4(0),form='unformatted')
@@ -251,7 +252,7 @@ subroutine uumatrix()
   j1min = minval(iko_ixs(1:nspx)) !starting band index
   j1max = maxval(iko_fxs(1:nspx))
   allocate( uum(j1min:j1max, j1min:j1max,nspx) ) ! uumatrix allocated
-  if(cmdopt0('--qibzonly')) call set_qibz(plat,qbz,nqbz,symops,ngrp) !If only at qibz, we need to set irotg
+  if(c0_qibzonly) call set_qibz(plat,qbz,nqbz,symops,ngrp) !If only at qibz, we need to set irotg
   if (ixc == 2) nbbloop = nbb
   if (ixc == 3) nbbloop = nq0i
   if (ixc == 4) nbbloop = nq0i_ ! same with nq0i
@@ -268,7 +269,7 @@ subroutine uumatrix()
     if(ixc == 4) dq=-bbv(:,ibb) !q1(:) = qbz(:,iqbz)         !q2(:) = qbz(:,iqbz) + qbz(:,ibb)
     if(ixc == 5) dq = 0d0
     if(sum(abs(dq))<1d-8) dq=(/1d-10,0d0,0d0/)
-    if(cmdopt0('--q2q1test')) dq=1d-10
+    if(c0_q2q1test) dq=1d-10
     absdq = sqrt(sum(dq**2))
     absqg2 = (2*pi/alat)**2 *sum(dq**2)
     absqg =sqrt(absqg2)
@@ -335,12 +336,12 @@ subroutine uumatrix()
 
   iqbz4uum: do 1070 iqbz = 1,nqbz  !qibzonly need to be improved to balance load in ranks.
     if(mod(iqbz-1,mpi__size)/=mpi__rank) cycle !MPI
-    if (cmdopt0('--qibzonly')) then
+    if (c0_qibzonly) then
       if(irotg(iqbz)/=1)  cycle !only irreducible q point
     endif
     if(ixc == 2 .or. ixc == 3)  then
     do isp=1,nspx
-      if(cmdopt0('--ahc')) then
+      if(c0_ahc) then
         open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum7(iqbz),form='unformatted')
       else
         open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum4(iqbz),form='unformatted')
@@ -351,7 +352,7 @@ subroutine uumatrix()
       if(ixc == 2) then
         iqb = ikbidx(ibb,iqbz)
         q1(:) = qbz(:,iqbz)
-        if(cmdopt0('--q2q1test')) then
+        if(c0_q2q1test) then
           q2(:) = qbz(:,iqbz)
         else
           q2(:) = qbz(:,iqbz) + bbv(:,ibb)

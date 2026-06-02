@@ -10,6 +10,7 @@ module m_HamPMT
                         tg_worb_lm => worb_lm, tg_worb_nlm => worb_nlm
    use m_hreduction,only: hreduction
    use m_nvfortran, only: findloc
+   use m_cmdopt_registry, only: c0_mlo, c0_skip1d, c0_skip2nd, c0_skip2ndd, c0_skip2ndp, c0_skip2nds, c0_skipd, c0_skipf, c0_skiplo, c0_socmatrix
    real(8),external::tolq !eps=1d-8
    real(8),allocatable,protected:: plat(:,:),pos(:,:),qlat(:,:),symops(:,:,:)
    real(8),allocatable,protected,target:: qplist(:,:)
@@ -87,6 +88,7 @@ contains
       use m_readqplist,only: eferm
       use m_rotwave,only:  rotmatMTO!,rotmatPMT
       use m_mpiio, only: openm, writem, closem, mpiio_buf, buf_get, readm_buf
+      use m_cmdopt_registry, only: c0_mlo, c0_skip1d, c0_skip2nd, c0_skip2ndd, c0_skip2ndp, c0_skip2nds, c0_skipd, c0_skipf, c0_skiplo, c0_socmatrix
       implicit none
       integer:: ifihmto,nqbz
       integer::ikpd,ikp,ib1,ib2,ifih,it,iq,nev,nmx,ifig=-999,i,j,ndimPMT,lold,m,ndimPMTmx
@@ -97,7 +99,6 @@ contains
       integer:: ndimMTO !ndimMTO<ldim if we throw away f MTOs, for example.
 
       integer:: ib_tableM(ldim),k_tableM(ldim),l_tableM(ldim),ierr,iqibz,iqbz,igg,nMTO,mlomethod,nskip !,procid_in,numprocs_in
-      logical:: cmdopt0
       integer, allocatable:: ib_tableI(:)
       real(8),pointer::qbz(:,:)
       complex(8),allocatable::ovlmi(:,:,:,:),hammi(:,:,:,:),rotmat(:,:),hammhsoi(:,:,:,:)
@@ -106,7 +107,7 @@ contains
       logical::debug=.true.
       logical:: socmatrix
       integer:: io
-      socmatrix=cmdopt0('--socmatrix')
+      socmatrix=c0_socmatrix
       ReadInfoFromGWinput: block ! Input orbital index for MLO, stored into idmto (s,p,d=1,2,3,4,5,6,7,8,9)
         ! gwinput_init() aborts if GWinput.toml is missing, so gwinput_loaded
         ! is always .true. below; the else branches are unreachable.
@@ -155,14 +156,14 @@ contains
           endif
           lm = l_table(i)**2 + l_table(i) + m +1
           if(.not. any(lm==lmindex(1:16,ib))) cycle
-          !     if(cmdopt0('--skipf') .and.   l_table(i)>=3) cycle ! skip f orbitals. !if(k_table(i)==2.and.l_table(i)>=2) cycle ! throw away EH2 for d
-          !     if(cmdopt0('--skipd') .and.   l_table(i)>=2) cycle ! throw away EH2 for d
-          !     if(cmdopt0('--skip2nd') .and. k_table(i)==2) cycle 
-          !     if(cmdopt0('--skip2ndp').and. k_table(i)==2.and.l_table(i)==1) cycle 
-          !     if(cmdopt0('--skip2nds').and. k_table(i)==2.and.l_table(i)==0) cycle  !skip EH2 
-          !     if(cmdopt0('--skiplo') .and. k_table(i)==3) cycle !skip local orbital
-          !     if(cmdopt0('--skip2ndd') .and. k_table(i)>=2.and.l_table(i)>=2) cycle ! throw away EH2 for d
-          !     if(cmdopt0('--skip1d') .and.  k_table(i)==1 .and. l_table(i)==2) cycle ! throw away EH2 for d
+          !     if(c0_skipf .and.   l_table(i)>=3) cycle ! skip f orbitals. !if(k_table(i)==2.and.l_table(i)>=2) cycle ! throw away EH2 for d
+          !     if(c0_skipd .and.   l_table(i)>=2) cycle ! throw away EH2 for d
+          !     if(c0_skip2nd .and. k_table(i)==2) cycle 
+          !     if(c0_skip2ndp.and. k_table(i)==2.and.l_table(i)==1) cycle 
+          !     if(c0_skip2nds.and. k_table(i)==2.and.l_table(i)==0) cycle  !skip EH2 
+          !     if(c0_skiplo .and. k_table(i)==3) cycle !skip local orbital
+          !     if(c0_skip2ndd .and. k_table(i)>=2.and.l_table(i)>=2) cycle ! throw away EH2 for d
+          !     if(c0_skip1d .and.  k_table(i)==1 .and. l_table(i)==2) cycle ! throw away EH2 for d
           nn=nn+1
           ix(nn)=i
           ib_tableM(nn)= ib_table(i)
@@ -185,7 +186,7 @@ contains
       allocate(ndimPMTq(nqibz),source=0)
 
 !2026-1-27      
-      cmlo4GWinput: if(cmdopt0('--mlo')) then !from __Hamiltoniangw to __cmlo.data, __cmlo.info
+      cmlo4GWinput: if(c0_mlo) then !from __Hamiltoniangw to __cmlo.data, __cmlo.info
         HreductionIqibzGWinput: block
           integer:: ifi, ifizz, isp, mrecbb, ndble, nbandmx, iqqisp, nqbzgw !, idat
           complex(8):: rotmatt(ndimMTO,ndimMTO), ovlm(1:ndimMTO,1:ndimMTO), hamm(1:ndimMTO,1:ndimMTO)

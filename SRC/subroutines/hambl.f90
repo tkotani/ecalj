@@ -1,4 +1,5 @@
 module m_hambl
+  use m_cmdopt_registry, only: c0_show_time
   public hambl
 contains
   subroutine hambl(isp,qin,smpot,vconst,osig,otau,oppi, h,s)! Make LDA/GGA Hamiltonian and overlap matrix for a k-point. No SOC added.
@@ -25,9 +26,10 @@ contains
     !o   s     :overlap matrix
     !    See Eq.(C.1)           in [1]
     !r  qpg(ig) = tpiba * ( qin + matmul(qlat,igapwin(1:3,ig))), ig=1,napw
+    use m_cmdopt_registry, only: c0_show_time
     implicit none
     integer:: mode,isp,i
-    logical :: cmdopt0, show_time = .false.
+    logical :: show_time = .false.
     type(s_cv5) :: oppi(3,nbas)
     type(s_rv4) :: otau(3,nbas)
     type(s_rv4) :: osig(3,nbas)
@@ -38,7 +40,7 @@ contains
     h = 0d0 !Hamiltonian for the basis of MTO+APW
     s = 0d0 !Overlap matrix for the basis of MTO+APW
 
-    show_time = cmdopt0('--show_time')
+    show_time = c0_show_time
     if(show_time)call stopwatch_init(sw, 'getham_aug')
     if(show_time)call stopwatch_start(sw)
     call augmbl(isp,qin,osig,otau,oppi,ndimh, h,s)! Augmentation parts of h,s

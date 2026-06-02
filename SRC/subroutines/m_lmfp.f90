@@ -1,4 +1,5 @@
 module m_lmfp !Driver for iteration loop for lmf-MPIK (electronic and MD)
+  use m_cmdopt_registry, only: c0_skipbstruxinit, c0_wsig_fbz, c2_quit
   public lmfp
   private
 contains
@@ -38,6 +39,7 @@ contains
     !! aug2020. T.kotani removed lshr mode (automatic modification of plat), because
     !!      Probably, we need to re-design it (maybe outside of fortran code).
     use mpi
+    use m_cmdopt_registry, only: c0_skipbstruxinit, c0_wsig_fbz, c2_quit
     implicit none
     integer,parameter:: nm=3
     character alabl*8, flg*3
@@ -95,7 +97,7 @@ contains
        ! We can make structure constant (C_akL Eq.(38) in /JPSJ.84.034702) here when we have no extended local orbital.
        ! NOTE: When we use extenteded local obtail, we run m_bstrux_init after elocp in mkpot.(we may remove extented local orbial in future)
        if(sum(lpzex)==0) then
-          if((.not.cmdopt0('--wsig_fbz')).and.(.not.cmdopt0('--skipbstruxinit'))) call m_bstrux_init() ! Get structure constants for nbas and qplist 
+          if((.not.c0_wsig_fbz).and.(.not.c0_skipbstruxinit)) call m_bstrux_init() ! Get structure constants for nbas and qplist 
        endif   
        if( ipr>=30) then ! Write atom positions
           write(stdo,"(/1x,'Basis, after reading restart file'/' site spec',8x,'pos (Cartesian coordinates)',9x,&
@@ -112,7 +114,7 @@ contains
           call bndfp(iter,llmfgw,plbnd) !Main. Band cal. Get total energies ham_ehf and ham_ehk
           if(nlibu>0.AND.lrout>0)call m_ldau_vorbset(ham_ehk, dmatu)!Set new vorb for dmat by given bndfp (mkpot)
           !    plot density --density are in locpot.f90(rho1mt and rho2mt) and mkpot.f90(smooth part).
-          if(master_mpi.AND.(.NOT.cmdopt0('--quit=band'))) then
+          if(master_mpi.AND.(.NOT.(trim(c2_quit) == 'band'))) then
              if(lrout>0) k=iors(iter, 'write') ! Write restart file (skip if --quit=band) ---
           endif
           if (maxit<=0) goto 9998 
@@ -133,7 +135,7 @@ contains
           if(lsc==2 .AND. ( .NOT. lhf) .AND. maxit>1) lsc = 3
           if(lsc==1 .AND. lrout>0 .OR. lsc==3)        lsc=merge(1,3,iter >= maxit)
           if(master_mpi) flush(stdo)
-          if( cmdopt0('--quit=band')) call rx0('lmf : exit (--quit=band)')
+          if( (trim(c2_quit) == 'band')) call rx0('lmf : exit (--quit=band)')
           if( lsc <= 2) exit  
 1000   enddo ElectronicStructureSelfConsistencyLoop
        if(nitrlx==0) exit !no molecular dynamics (=no atomic position relaxation)

@@ -272,7 +272,6 @@ subroutine qqirre(qibz,nqibz,symops,ngrp,plat,nqbz, qq,nqq, qqi,nqi,irr)
   integer :: ixx,ix,i,ngrp,ig,nqqi,nqq,irr(nqq),nqirr,nqibz,ib,nqbz,nqi
   real(8) :: qq(1:3,nqq),qqi(1:3,nqq),symops(3,3,ngrp),sym(3,3),qt(3),qz(3),qibz(3,nqibz) !
   real(8):: plat(3,3),platt(3,3),tolq
-  logical:: cmdopt0
   platt=transpose(plat)
   ixx=nqi
   do i = 1,nqq

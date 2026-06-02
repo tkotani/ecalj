@@ -3,6 +3,7 @@ module m_lgunit ! file handles for standard output log, and mpilog
   !  stdo: file handle for standard output
   !  stdl: handle for log
   !  stml: mpilog
+  use m_cmdopt_registry, only: c0_mlog
   public:: m_lgunit_init,m_lgunit_reset,ipr
   integer,public :: stdl,stdo=6,stml
   logical:: ipr
@@ -11,10 +12,10 @@ module m_lgunit ! file handles for standard output log, and mpilog
 contains
   subroutine M_lgunit_init()
 !    use m_mpi,only: mpi__root
-    logical:: cmdopt0
+    use m_cmdopt_registry, only: c0_mlog
     stdo= lgunit(1)
     stdl= lgunit(2)
-!    if(cmdopt0('--mlog')) stml=lgunit(3)
+!    if(c0_mlog) stml=lgunit(3)
   end subroutine M_lgunit_init
   subroutine m_lgunit_reset()
     if(lgunit2_ /= 0) close(lgunit2_, status='keep')

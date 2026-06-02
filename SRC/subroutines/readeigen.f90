@@ -469,7 +469,7 @@ contains
   subroutine init_readeigen2()    ! this should be called after init_readgeigen
     implicit none
     integer:: iq,is,ifiqg,ikp, isx,ikpisp,verbose,ifoc, i1,i2,i3,i4,i5,iorb,iorbold,i
-    logical :: keepeigen,cmdopt0
+    logical :: keepeigen
     character(8) :: xt
     call readmnla_cphi()
     keepeig = keepeigen()

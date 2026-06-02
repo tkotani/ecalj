@@ -43,6 +43,7 @@
 module m_itq
   use m_struct_from_lmf, only: nband
   use m_lgunit, only: stdo
+  use m_cmdopt_registry, only: c0_ntqxx
   implicit none
   integer, allocatable, protected, public :: itq(:)
   integer,             protected, public :: ntq
@@ -86,16 +87,17 @@ contains
     use m_nvfortran, only: findloc
     use m_ftox
     use m_mpi, only: mpi__root
+    use m_cmdopt_registry, only: c0_ntqxx
     integer, intent(in) :: nbmx_sig, nspinmx
     real(8), intent(in) :: ebmx_sig, eftrue
     integer :: ifih, nspinmxin, is, ip, nqibzin, iqibz, ierr
     real(8), allocatable :: eqt(:)
-    logical :: cmdopt0, readntqxx
+    logical :: readntqxx
     if(nbandmx_loaded_from_NTQXX) return  ! NTQXX-mode idempotent: don't recompute
     if(allocated(nbandmx)) deallocate(nbandmx)
     allocate(nbandmx(nqibz, nspinmx), eqt(nband))
     readntqxx = .false.
-    if(cmdopt0('--ntqxx')) then
+    if(c0_ntqxx) then
       open(newunit=ifih, file='NTQXX', status='old', iostat=ierr)
       if(ierr == 0) then
          read(ifih,*) nqibzin, nspinmxin
@@ -115,7 +117,7 @@ contains
             nbandmx(ip,is) = min(findloc(eqt-eftrue > ebmx_sig, value=.true., dim=1)-1, nbmx_sig)
          enddo
       enddo
-      if(mpi__root .and. cmdopt0('--ntqxx')) then
+      if(mpi__root .and. c0_ntqxx) then
          open(newunit=ifih, file='NTQXX')
          write(ifih,ftox) nqibz, nspinmx, ' !nqibz nspinmx. Note NTQXX is used when --ntqxx'
          do iqibz = 1, nqibz

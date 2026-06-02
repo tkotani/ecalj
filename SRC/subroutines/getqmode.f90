@@ -3,12 +3,13 @@ subroutine getqmode()  !no output. getq mode just output. Not return variables.
   use m_lmfinit, only: nspec,ispec,nbas,lmxax
   use m_lgunit,only:stdo
   use m_ext,only:sname,dirname ! nvfortran ICE workaround: dirname added (need 2+ symbols when m_lmfinit+m_lgunit present)
+  use m_cmdopt_registry, only: c0_debugbndfp
   implicit none
-  logical:: debug,cmdopt0
+  logical:: debug
   integer:: lmxa,is,ifiwv,il,isp,ifiqb,ib,ibas,idummy,npri
   real(8):: qsetsum,qlx(0:100),evll,qrmtx
   real(8),allocatable::qrmt(:,:),ql(:,:),qset(:,:),qatot(:)
-  debug    = cmdopt0('--debugbndfp')
+  debug    = c0_debugbndfp
   write(stdo,"(a)") 'getqmode(): Q from ql given by lmf'
   write(stdo,"(a)") 'WARN current version is only for spin symmetric; and not more than 2(2l+1) occupancy'
   lmxa = lmxax 

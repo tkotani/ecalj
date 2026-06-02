@@ -11,6 +11,7 @@ module m_zmel_old !for wannier part This will be removed soon.
   use m_hamindex0,only: Readhamindex0
   use m_readVcoud,only: zcousq,ngc,ngb !! zcousq is the eigenfuncition of the Coulomb matrix
   ! OUTPUT: zmel(nbb,nmtot, nqtot) ,nbb:mixproductbasis, nmtot:middlestate, nqtot:endstate
+  use m_cmdopt_registry, only: c0_mlo
   complex(8),allocatable,protected,public :: zmel(:,:,:)
 !  real(8),protected,public:: qm0(3) !for zmel0
   integer,protected:: nbb           !1st dimension of zmel. MPB
@@ -138,6 +139,7 @@ contains
     use m_wan_wfs, only:readgeigw
     use m_mlo_wfs, only: get_geig_cmlo, cmlo_init
     ! this is for Wanner (readeigW, drvmelp3)
+    use m_cmdopt_registry, only: c0_mlo
     implicit none
     real(8):: q(3),q_rk(3),qik(3),ginv(3,3)
     integer:: ngp1, ngp2, ngpmx,nqbz,nqibz, ngcmx ,nctot,nband, &
@@ -156,8 +158,8 @@ contains
          ,zmelt(1:nbloch+ngc,1:nctot+nt0,1:ntp0)
     real(8):: q_rkt(3),qt(3),qu1(3),qu2(3)
     integer::verbose
-    logical :: mlo_mode, cmdopt0
-    mlo_mode = cmdopt0('--mlo')
+    logical :: mlo_mode
+    mlo_mode = c0_mlo
     if(mlo_mode) call cmlo_init()
     call readqg('QGpsi', q,    qt,   ngp1, ngvecpB1)
     call readqg('QGpsi', q_rk, q_rkt,ngp2, ngvecpB2)

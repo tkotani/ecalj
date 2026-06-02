@@ -4,6 +4,7 @@ module m_ldau_util
   use m_MPItk,only: master_mpi
   use m_lmfinit,only: lmxa_i=>lmxa
   use m_ftox
+  use m_cmdopt_registry, only: c0_nosymdm, c0_showdmat
   public ldau, sudmtu,chkdmu,mixmag,symdmu
   private
 contains
@@ -712,6 +713,7 @@ contains
     !r   Reads in diagonal occupation numbers from file occnum.ext or dmatu
     !r   given in order of m=-l,l, isp=1,2, and constructs initial vorb
     !    use m_ldauu,only: ldau
+    use m_cmdopt_registry, only: c0_showdmat
     implicit none
     integer:: idvsh=0
     complex(8):: dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu),&
@@ -725,7 +727,7 @@ contains
     character str*80,spid*8,aaa*24, xn*8
     complex(8) :: dmwk_zv(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
     real(8):: uhx,uhxx
-    logical :: mlog,occe,dexist,readtemp,cmdopt0
+    logical :: mlog,occe,dexist,readtemp
     real(8)::sss
     character(128):: bbb
     call rxx(nsp.ne.2,'LDA+U must be spin-polarized!')
@@ -871,14 +873,14 @@ contains
     if (havesh /= idvsh) then
        call rotycs ( 2 * idvsh - 1 , dmwk_zv , nbas , nsp , lmaxu, lldau )
     endif
-    if(cmdopt0('--showdmat')) then
+    if(c0_showdmat) then
        if(master_mpi)write(stdo,*)
        call praldm(0,30,30,idvsh,nbas,nsp,lmaxu,lldau,' Symmetrized dmats' , dmwk_zv )
     endif
     !     Print dmats in complementary harmonics
     i = 1-idvsh
     call rotycs(2 * i - 1 , dmwk_zv , nbas , nsp , lmaxu, lldau )
-    if(cmdopt0('--showdmat')) then
+    if(c0_showdmat) then
        if(master_mpi)write(stdo,*)
        call praldm(0,30,30,i,nbas,nsp,lmaxu,lldau, ' Symmetrized dmats' , dmwk_zv )
     endif
@@ -922,11 +924,11 @@ contains
        if (xx > .01d0) write(stdo,*)'          (warning) RMS change unexpectely large'
        write(stdo,*)
     endif
-    if(cmdopt0('--showdmat')) call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,' Symmetrized vorb',vorb)
+    if(c0_showdmat) call praldm(0,30,30,havesh,nbas,nsp,lmaxu,lldau,' Symmetrized vorb',vorb)
     i = 1-idvsh
     dmwk_zv=vorb
     call rotycs( 2 * i - 1 , dmwk_zv , nbas , nsp , lmaxu , lldau )
-    if(cmdopt0('--showdmat')) then
+    if(c0_showdmat) then
        write(stdo,*) ! vorb in complementary harmonics
        call praldm(0,30,30, i , nbas , nsp , lmaxu , lldau , ' Vorb' , dmwk_zv )
     endif
@@ -966,7 +968,6 @@ contains
     complex(8),pointer:: rot(:,:)
     complex(8),save,target::rott(2,2,5,-1:1)
     logical,save:: init=.true.
-    logical:: cmdopt0
     if(mode/=1 .AND. mode/=-1) call rx('ROTYCS: mode must be 1 or -1')
     if(init)then
        do m=1,5
@@ -1134,6 +1135,7 @@ contains
     !u   09 Nov 05 (wrl) Convert dmat to complex form
     !u   30 Apr 05 Lambrecht first created
     !--------------------------------------------------------------
+    use m_cmdopt_registry, only: c0_nosymdm
     implicit none
     integer :: nbas,lldau(nbas),ng,nsp,lmaxu,istab(nbas,ng),i_copy_size
     integer :: is,igetss,lmxa,m1,m2,ilm1,ilm2,ib,l,isp,m3,m4,ig,iblu,nlibu,jb,jblu,ofjbl,lwarn
@@ -1141,11 +1143,10 @@ contains
     complex(8):: sdmat(-3:3,-3:3,2,2),&  ! ... for spinor rotations
          dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu),&
          dmatw(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
-    logical :: cmdopt0
     character (40) :: str
     dmatw=0d0
     rms = 0
-    if (cmdopt0('--nosymdm') .OR. ng == 0) return
+    if (c0_nosymdm .OR. ng == 0) return
     ! --- Setup for spinor part ---
     lwarn = 0
     do  ig = 1, ng

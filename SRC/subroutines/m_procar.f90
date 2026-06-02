@@ -8,6 +8,7 @@ module m_procar
   use m_qplist,only: nkp,xdatt,qplist
   use m_mpiio,only: openm, writem_d, closem
 !  public m_procar_init, m_procar_closeprocar, m_procar_writepdos, dwgtall,nchanp,m_procar_add
+  use m_cmdopt_registry, only: c0_afsym, c0_debugbndfp, c0_fermisurface, c0_fullmesh, c0_mkprocar, c0_nowritedw, c0_phispinsym, c0_tetraw, c0_writedw, c0_ylmc
   public m_procar_init, m_procar_closeprocar, m_procar_writepdos, nchanp,m_procar_add,sdendwgtall,m_sden_add,read_sdenmat !, dwgtall
 
  
@@ -29,12 +30,12 @@ contains
     if(nexist) close(iprocar2)
   end subroutine m_procar_closeprocar
   subroutine m_procar_init()
-    logical:: cmdopt0
+    use m_cmdopt_registry, only: c0_debugbndfp, c0_fermisurface, c0_fullmesh, c0_mkprocar, c0_nowritedw
     integer :: istat
-    fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface')
-    debug    = cmdopt0('--debugbndfp')
-    PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
-    idwmode  = .not. cmdopt0('--nowritedw')
+    fullmesh = c0_fullmesh.or.c0_fermisurface
+    debug    = c0_debugbndfp
+    PROCARon = c0_mkprocar !write PROCAR(vasp format).
+    idwmode  = .not. c0_nowritedw
     if(procaron .AND. fullmesh ) then
        if(.not.idwmode) allocate(dwgtall(nchanp,nbas,ndhamx,nsp,nkp),source=0d0)
        if(idwmode) then
@@ -47,6 +48,7 @@ contains
   subroutine m_procar_add(iq,ispin,ef0,evl,qp,nev,evec,ndimhx) !vmag0 removed. 2024-6-14 since evl contains effect of vmag0
     use m_makusq,only: makusq
     use m_ftox
+    use m_cmdopt_registry, only: c0_debugbndfp, c0_fermisurface, c0_fullmesh, c0_mkprocar, c0_writedw, c0_ylmc
     implicit none
     complex(8):: evec(ndimhx,nev)
     character*1000::ccc
@@ -57,14 +59,13 @@ contains
     complex(8),allocatable:: auspp(:,:,:,:,:)
     integer:: iq,isp,iprocar,iband,is,ilm,nspc,ib,nev,i,m,l,ndimhx,ispin,ispstart,ispend,ispx
     real(8):: rydberg=13.6058d0,evl(ndhamx,nspx)
-    logical:: cmdopt0
     real(8),allocatable:: evlm(:,:)
     character(8)::xt
     integer :: istat
-!    idwmode  = cmdopt0('--writedw')
-!    fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface')
-!    debug    = cmdopt0('--debugbndfp')
-!    PROCARon = cmdopt0('--mkprocar') !write PROCAR(vasp format).
+!    idwmode  = c0_writedw
+!    fullmesh = c0_fullmesh.or.c0_fermisurface
+!    debug    = c0_debugbndfp
+!    PROCARon = c0_mkprocar !write PROCAR(vasp format).
 !    if(procaron .AND. fullmesh ) then
 !       if(idwmode) open(newunit=idw,file='dwgtall'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
 !       if(.not.idwmode) allocate(dwgtall(nchanp,nbas,ndhamx,nsp,nkp),source=0d0)
@@ -133,8 +134,7 @@ contains
                      complex(8):: img=(0d0,1d0)
                      integer:: ilmm
                      real(8),parameter:: dsq=1d0/2d0**0.5d0
-                     logical:: cmdopt0
-                     if(cmdopt0('--ylmc') .AND. m/=0) then !feb 2022 !based on spherical harmonics
+                     if(c0_ylmc .AND. m/=0) then !feb 2022 !based on spherical harmonics
                         ilmm = ilm-2*m
                         if(m>0) then
                            auasaz =[&
@@ -172,8 +172,8 @@ contains
     use m_lattic,only: qlat=>lat_qlat, plat=>lat_plat,pos=>rv_a_opos
     use m_ext,only:sname
     use m_tetirr,only: tetirr
+    use m_cmdopt_registry, only: c0_afsym, c0_tetraw
     real(8):: evlall(:,:,:)
-    logical:: cmdopt0
     integer:: kpproc(*)
     integer,allocatable:: ipqe(:,:,:),idtete(:,:)
     integer:: ik1,ik2,ik3,iq,nkk1,nkk2,nkk3,ntete,ifip,nevmin
@@ -183,7 +183,7 @@ contains
     nkk3=nkabc(3)
     !! pdos mode (--mkprocar and --fullmesh). ===
     if(.not.idwmode) then
-       if(afsym) then !cmdopt0('--afsym')) then
+       if(afsym) then !c0_afsym) then
           call xmpbnd2(kpproc,nbas*nchanp*ndhamx,nkp,dwgtall(:,:,:,1,:)) !all dwgtall broadcasted to k
           call xmpbnd2(kpproc,nbas*nchanp*ndhamx,nkp,dwgtall(:,:,:,2,:)) 
        elseif(lso==1) then
@@ -218,7 +218,7 @@ contains
        write(ifip) ef0
        close(ifip)
        if(nkp/=nkk1*nkk2*nkk3) call rx('pdosmode but nkp/=nkk1*nkk2*nkk3')
-       if( cmdopt0('--tetraw')) then
+       if( c0_tetraw) then
           open(newunit=ifip,file='tetradata.dat',form='unformatted')
           write(ifip) ndhamx,nkp,ntete
           write(ifip) idtete
@@ -303,6 +303,7 @@ contains
   subroutine m_sden_add(iq,ispin,ef0,evl,qp,nev,evec,ndimhx)
     use m_makusq,only: makusq
     use m_ftox
+    use m_cmdopt_registry, only: c0_phispinsym
     implicit none
     complex(8):: evec(ndimhx,nev)! ,evec_reshape(ndhamx,nspc,nev)
     character*1000::ccc
@@ -316,9 +317,8 @@ contains
     real(8),allocatable:: evlm(:,:)
     character(8)::xt
     integer::idw
-    logical:: cmdopt0 
     !!! I have to modify this to calculate at q in GWinput.
-    if(lso/=1.or..not.cmdopt0('--phispinsym')) return
+    if(lso/=1.or..not.c0_phispinsym) return
     ispx = 1
     allocate(evlm,source=evl)
     evlm(:,ispin)=evl(:,ispin) !+ vmag0*(ispin-1.5d0)

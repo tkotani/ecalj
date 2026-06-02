@@ -3,6 +3,7 @@
 !! eps_lmf_cphipm mode is now commented out; you may need to recover this if necessary
 !! (only epsPP_lmf_chipm mode works).
 module m_hahc
+  use m_cmdopt_registry, only: c0_ahc, c0_interbandonly, c0_intrabandonly, c0_x0test, c0_zmel0
   contains
 subroutine hahc() bind(C)
   use m_ReadEfermi,only: Readefermi,ef
@@ -44,6 +45,7 @@ subroutine hahc() bind(C)
   use m_dpsion,only: dpsion5
   use m_gpu,only: gpu_init
   use m_ftox
+  use m_cmdopt_registry, only: c0_ahc, c0_interbandonly, c0_intrabandonly, c0_x0test, c0_zmel0
   implicit none
   !! We calculate chi0 by the follwoing three steps.
   !!  gettetwt: tetrahedron weights
@@ -174,7 +176,7 @@ subroutine hahc() bind(C)
   integer,allocatable ::  invgx(:) !iclasst(:),
   integer:: ificlass,k
   complex(8),allocatable:: ppovl_(:,:)
-  logical:: readw0w0itest=.false.,hx0,cmdopt0
+  logical:: readw0w0itest=.false.,hx0
   integer:: ifq0p,ifwc,ifif,ierr,iqxx,ifi0,npr
   real(8),allocatable:: ekxx1(:,:),ekxx2(:,:)
   logical:: zmel0mode,NoVcou
@@ -212,7 +214,7 @@ subroutine hahc() bind(C)
   ! elseif(ixc==111) then; write(6,*)"OK ixc=111 normal fullband"; epsmode=.false. 
   ! elseif(ixc==10011)then;write(6,*)"OK ixc=10011 crpa ";         epsmode=.false. ; crpa=.true.
   ! elseif(ixc==202) then; write(6,*)"OK ixc=202 eps NoLFC";
-    epsmode = .true.; imagomega=.false.; omitqbz=.true.;nolfco=.true. ; chipm=.true. !cmdopt0('--ahc')
+    epsmode = .true.; imagomega=.false.; omitqbz=.true.;nolfco=.true. ; chipm=.true. !c0_ahc
   ! elseif(ixc==203) then; write(6,*)"OK ixc=203 eps wLFC";        epsmode = .true.; imagomega=.false.; omitqbz=.true.   
   ! elseif(ixc==222) then; write(6,*)"OK ixc=222 chipm noLFC";     epsmode = .true.; imagomega=.false.; omitqbz=.true.;nolfco=.true.
   !    chipm=.true.    !  elseif(ixc==12) realomega=.false.; ecorr_on=901; then ! Total energy test mode --> need fixing 
@@ -354,7 +356,7 @@ subroutine hahc() bind(C)
   n_bpara = 1
   if (c2_nb >= 0) n_bpara = c2_nb
   nqcalc = iqxend - iqxini + 1
-  if(cmdopt0('--zmel0')) nqcalc = nqcalc - 1
+  if(c0_zmel0) nqcalc = nqcalc - 1
   if(nqcalc < 1) call rx('hx0fp0: sanity check. nqcalc < 1: specify more than 2 q-points in zmel0 mode')
   n_kpara = max(mpi__size/(n_bpara*nqcalc), 1)  !Default setting of parallelization. b-parallel is 1.
   if (c2_nk >= 0) n_kpara = c2_nk
@@ -378,7 +380,7 @@ subroutine hahc() bind(C)
   if(.NOT.chipm) allocate(zzr(1,1),source=(0d0,0d0)) !dummy
   write(*,*) 'iqxini, iqxend', iqxini, iqxend
   iqloop: do 1001 iq = iqxini,iqxend  ! NOTE: qp=(0,0,0) is omitted when iqxini=2
-    if(cmdopt0('--zmel0').and.iq==iqxini) cycle
+    if(c0_zmel0.and.iq==iqxini) cycle
     if( .NOT. MPI__task(iq) ) cycle
     call cputid (0)
     qp  = qibze(:,iq)
@@ -386,7 +388,7 @@ subroutine hahc() bind(C)
     ! Readin diagonalized Coulomb interaction zcousq: E(\nu,I), Enu basis is given in PRB81,125102; vcousq: sqrt(v), as well.
     write(6,*); write(6,"('===== do 1001: iq qp=',i7,3f9.4,' ========')")iq,qp
     call Readqg0('QGcou',qp,   quu,ngc) ! ngc: the number of IPW for the interaction matrix (in QGcou),
-    NoVcou= chipm !.or.cmdopt0('--x0test')
+    NoVcou= chipm !.or.c0_x0test
     call Readvcoud(qp,iq,NoVcou) !Readin vcousq,zcousq ngb ngc for the Coulomb matrix
     ngb = ngc+nbloch
     write(6,"('  nbloch ngb ngc=',3i10)") nbloch,ngb,ngc
@@ -401,7 +403,7 @@ subroutine hahc() bind(C)
     if(epsmode) call writeepsopen()
     write(6,"(' ##### ',2i4,' out of nqibz+n0qi nsp=',2i4,' ##### ')")iq, nqibz + nq0i, nspin
     call x0kf_ahc(realomega,imagomega,qp,iq,npr,schi,crpa,chipm,nolfco, q00,zzr)
-    if(cmdopt0('--x0test').and.cmdopt0('--ahc')) cycle   
+    if(c0_x0test.and.c0_ahc) cycle   
     if(mpi__root_k) then
       realomegamode: if(realomega) then !===RealOmega === W-V: WVR and WVI. Wing elemments: llw, llwi LLWR,LLWI
         if(mpi__root_k) then
@@ -422,8 +424,8 @@ subroutine hahc() bind(C)
     call mpi_barrier(comm_b, ierr)
 1001 enddo iqloop
   call MPI_barrier(comm,ierr)
-  if(cmdopt0('--x0test')) call rx0(' ok! x0test mode')
-  if(cmdopt0('--ahc')) call rx0(' ok! ahc mode')
+  if(c0_x0test) call rx0(' ok! x0test mode')
+  if(c0_ahc) call rx0(' ok! ahc mode')
   ! if( .NOT. epsmode) call MPI__sendllw2(iqxend,MPI__ranktab) !!! mpi send LLW to root.
   ! !! == W(0) divergent part and W(0) non-analytic constant part.== Note that this is only for qp=0 -->iq=1
   ! !! get w0 and w0i (diagonal element at Gamma point.   !! This return w0, and w0i
@@ -439,10 +441,11 @@ subroutine hahc() bind(C)
 !  if(ixc==12)   call rx0( ' OK! hx0fp0 mode=12    Ecor mode')
 contains
   subroutine writeepsopen()
+    use m_cmdopt_registry, only: c0_interbandonly, c0_intrabandonly
     character*4:: charnum4
     itag=''
-    if(cmdopt0('--interbandonly')) itag='.interbandonly'
-    if(cmdopt0('--intrabandonly')) itag='.intrabandonly'
+    if(c0_interbandonly) itag='.interbandonly'
+    if(c0_intrabandonly) itag='.intrabandonly'
     iqixc2 = iq- (nqibz+nq0ix)
     if(( .NOT. chipm) .AND. nolfco) then
       if(allocated(x0mean)) deallocate(x0mean)

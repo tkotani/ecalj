@@ -1,6 +1,7 @@
 !> Read values from GWinput
 module m_readgwinput 
   use m_struct_from_lmf,only: nspin; use m_core_state,only: nctot
+  use m_cmdopt_registry, only: c0_corehole
   implicit none
   real(8),protected:: egauss,ecut,ecuts,ebmx ,ebmx_sig,ua_
   integer,protected:: nbmx,nbmx_sig !,nbcutlow_sig !nbcut,nbcut2,
@@ -31,7 +32,7 @@ contains
                          tg_gauss_img  => gauss_img, &
                          tg_KPC        => KeepPositiveCou, &
                          tg_MagAtom    => MagAtom
-    logical:: cmdopt0
+    use m_cmdopt_registry, only: c0_corehole
     integer :: ifcorehole,it,nctot,nspin
     call gwinput_init()
     if (.not. gwinput_loaded) call rx('m_readgwinput: GWinput.toml is required.')
@@ -75,7 +76,7 @@ contains
 !   call getkeyvalue("GWinput","MagAtom", imbas,nmbas,status=istat,default=imbasd)
 !   nmbas = istat
 
-    corehole = cmdopt0('--corehole')
+    corehole = c0_corehole
     if(corehole) then
        open(newunit=ifcorehole,file='CoreHole')
        allocate(wcorehole(nctot,nspin))

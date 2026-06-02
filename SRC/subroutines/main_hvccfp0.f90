@@ -45,7 +45,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   complex(8),allocatable:: geig(:,:),strx(:,:,:,:),sgpb(:,:,:,:),sgpp(:,:,:,:), fouvb(:,:,:,:),fouvp(:,:,:,:),&
        vcoul0(:,:), s(:,:),sd(:,:),rojp(:,:,:) , vcoulnn(:,:), gbvec(:), vcoul_org(:,:),&
        matp(:),matp2(:),ppmt(:,:,:,:),pmat(:,:),pomat(:,:),zzr(:)
-  logical :: checkeig, besseltest=.false.,smbb, wvcc, cmdopt0,debug=.false.
+  logical :: checkeig, besseltest=.false.,smbb, wvcc,debug=.false.
   character(20) :: xxt
   character(3) :: charnum3
   character(10) :: i2char

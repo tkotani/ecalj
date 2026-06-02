@@ -1,5 +1,6 @@
 !>  Calculate Chi^+-, spin susceptibility. 
 module m_mlo_magnon 
+  use m_cmdopt_registry, only: c0_dos, c0_geteta
   implicit none
   public :: mlo_magnon
   contains
@@ -44,6 +45,7 @@ subroutine mlo_magnon() bind(C)
   !!  x0kf_v4h: Accumlate Im part of the Lindhard function. Im(chi0) or Im(chi0^+-)
   !!  dpsion5: calculate real part by the Hilbert transformation from the Im part
   !!  xxx removed--> eibz means extented irreducible brillowin zone scheme by C.Friedlich. (not so efficient in cases).
+  use m_cmdopt_registry, only: c0_dos, c0_geteta
   integer:: iwf, jwf, inwf, jnwf
   integer :: file_magnon
   integer:: iqxini, iqxend, i, iw, iq, kx, istat, nqcalc
@@ -53,7 +55,6 @@ subroutine mlo_magnon() bind(C)
   complex(8), allocatable, target :: kmat(:,:,:)
   complex(8), allocatable:: imat(:,:)
   complex(8), parameter :: img=(0d0,1d0)
-  logical:: cmdopt0
   integer :: isp1, isp2, is, isf
   logical:: realomega, imagomega, epsmode
   logical, allocatable :: mpi__task(:)
@@ -73,8 +74,8 @@ subroutine mlo_magnon() bind(C)
   if (c2_sp1 >= 0) isp1 = c2_sp1
   if (c2_sp2 >= 0) isp2 = c2_sp2
   is = isp2; isf = isp1
-  geteta = cmdopt0('--geteta')
-  calcdos = cmdopt0('--dos')
+  geteta = c0_geteta
+  calcdos = c0_dos
   ganmma_only = geteta  !GammaPoint only calculation
 
   call m_lgunit_init()

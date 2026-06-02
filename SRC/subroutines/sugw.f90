@@ -1,6 +1,7 @@
 !> Generate all the inputs for GW calculation. Need q+G info from QGpsi and QGcou which are generated a qg4gw.
 module m_sugw
   use m_mpiio,only: openm,writem,closem, mpiio_buf, buf_put, writem_buf, openedm
+  use m_cmdopt_registry, only: c0_debugsugw, c0_mlo, c0_modifiedGS, c0_normcheck, c0_novxc, c0_quitecore, c0_show_time, c0_skipCPHI, c0_skipGS, c0_wanatom
   real(8),allocatable,public::ecore(:,:,:),gcore(:,:,:,:),gval(:,:,:,:,:)
   integer,public::   ndham, nqirr,nqibz    !ndima, ncoremx,
 !  integer,allocatable,public::  konf0(:,:) !konfig(:,:),ncores(:),
@@ -36,6 +37,7 @@ contains
          gcore_n,aac,bbc,gval_orth,zzpi,nrmxe=>nrmx ,gval_n
     use m_blas,only: zmm_h, m_op_T, m_op_C
     use m_lapack, only: zsv_h
+use m_cmdopt_registry, only: c0_debugsugw, c0_mlo, c0_modifiedGS, c0_normcheck, c0_novxc, c0_quitecore, c0_show_time, c0_skipCPHI, c0_skipGS, c0_wanatom
 #ifdef __GPU
     use m_blas, only: zmm => zmm_d
     use m_lapack, only: zsv => zsv_d, zsv_h
@@ -80,7 +82,7 @@ contains
     complex(8),allocatable :: aus_zv(:,:,:,:,:), hamm(:,:,:,:),ovlm(:,:,:,:),ovlmtoi(:,:),ovliovl(:,:) ,hammhso(:,:,:)
     complex(8),allocatable:: evec(:,:),evec0(:,:),vxc(:,:,:,:),ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:),pzovl(:,:,:), pwz0(:,:),&
          testcc(:,:),testc(:,:,:),testcd(:,:),ppovld(:),cphi(:,:,:),cphi0(:,:,:),cphi_p(:,:,:),geig(:,:,:),geig_p(:,:,:),sene(:,:),ppovli(:,:)
-    logical :: lwvxc,cmdopt0, magexist, debug=.false.,sigmamode,wanatom=.false.,once=.true.
+    logical :: lwvxc,magexist, debug=.false.,sigmamode,wanatom=.false.,once=.true.
 !    logical,optional:: socmatrix
     character(8) :: xt
     character(256):: ext,sprocid,extn
@@ -94,8 +96,8 @@ contains
     logical :: show_time = .false.
 
     call tcn ('m_sugw_init')
-    debug=cmdopt0('--debugsugw')
-    show_time = cmdopt0('--show_time')
+    debug=c0_debugsugw
+    show_time = c0_show_time
     call getpr(ipr)
     if(lmxax<=0) call rx('sugw: lmxax>0 for gw mode')
     sigmamode = mod(lrsig,10) .ne. 0
@@ -104,7 +106,7 @@ contains
     if(master_mpi) write(stdo,"(' MagField added to Hailtonian -vmag/2 for isp=1, +vmag/2 for isp=2: vmag(Ry)=',d13.6)") vmag
     call readhamindex0() ! ==== Read file NLAindx ==== !this is not necessary since we do m_hamindex0_init in main_lmf.
 !    
-!    if(cmdopt0('--wanatom').and.master_mpi) wanatom=.true. 
+!    if(c0_wanatom.and.master_mpi) wanatom=.true. 
 !    if(wanatom) then ! 'wanplotatom.dat' is originally a part of gwa and gwb.head. only for wanplot which will be unsupported.
 !      open(newunit=ifigwa,file='wanplotatom.dat',form='unformatted') 
 !      write(ifigwa)nbas,nsp,ndima,nbandmx,maxval(lmxa),ncoremx,nrmx,plat,alat!,nqirr,nqibz
@@ -218,7 +220,7 @@ contains
       close(ifec)
       endblock
     endif ECOREwrite
-    if(cmdopt0('--quitecore')) then
+    if(c0_quitecore) then
       call tcx('m_sugw_init')
       return
     endif
@@ -352,9 +354,9 @@ contains
         !close(ifhbed)
       endblock WriteGWfilesB
     endif WriteGWfiles
-    if(cmdopt0('--skipCPHI')) goto 1011
+    if(c0_skipCPHI) goto 1011
     call mpi_barrier(comm,ierr)
-    if(cmdopt0('--mlo')) then
+    if(c0_mlo) then
       ! open(newunit=ifihh,file='__Hamiltoniangw.'//trim(strprocid),form='unformatted')
       ! write(ifihh) niqisp,nqirr,nbandmx,numproc,nqbz
       ! write(ifihh) qplist(1:3,1:nqirr),iqproc(1:niqisp),isproc(1:niqisp)
@@ -457,7 +459,7 @@ contains
         endif AddExternelMagneticField;            if(debug)write(stdo,ftox)' iqisploop666'
         if(show_time) call stopwatch_init(sw, 'diag ham')
         if(show_time) call stopwatch_start(sw)
-        if(cmdopt0('--mlo')) then ! 2026-1-29
+        if(c0_mlo) then ! 2026-1-29
           WriteHamiltonianGW: block
             type(mpiio_buf) :: buf
             integer :: iqqisp
@@ -478,8 +480,8 @@ contains
         if(show_time) call stopwatch_show(sw)
       endblock GetHamiltonianAndDiagonalize;       if(debug)write(stdo,ftox)' iqisploop777 1212'
 1212  continue
-!      lwvxc = (socmatrix .or. iq<=iqibzmax).and.(.not.cmdopt0('--novxc'))
-      lwvxc = (iq<=iqibzmax).and.(.not.cmdopt0('--novxc'))
+!      lwvxc = (socmatrix .or. iq<=iqibzmax).and.(.not.c0_novxc)
+      lwvxc = (iq<=iqibzmax).and.(.not.c0_novxc)
       if(lwvxc) then
 !         open(newunit=ifvxcevec, file= '__vxcevec'//trim(xt(iq))//trim(xt(isp)),form='unformatted')
 !         write(ifvxcevec) qp,ndimhx,nev
@@ -629,14 +631,14 @@ contains
         ! enddo ! skip cphi(ix,1:nev,1:nspc) = cphi(ix, 1:nev,1:nspc) /sqrt(1d0+0.1d0*nindx(ix)) here because zzpi includes this factor 2025-5-7
         GramSchmidtCphiGeig :block
           use m_GramSchmidt,only:GramSchmidt2 ,CB_GramSchmidt
-          if(.not.cmdopt0('--skipGS')) then
-            if(cmdopt0('--modifiedGS')) then !very slow
+          if(.not.c0_skipGS) then
+            if(c0_modifiedGS) then !very slow
                call GramSchmidt2(nspc,nev,ndima,ngp,ngpmx, ppj(1:ndima,1:ndima,isp),ppovl, cphix,geigr) !Improve Orthogonalization
             else !faster
                call CB_GramSchmidt(nspc,nev,ndima,ngp,ngpmx, ppj(1:ndima,1:ndima,isp),ppovl, cphix,geigr)
             endif
           endif
-          if(cmdopt0('--normcheck')) then
+          if(c0_normcheck) then
             ! MO added blas_mode to replaced matmul by a BLAS call 2025-06-21
             !if(blas_mode) then
             allocate(ovvmat(nev,nev),source=(0d0,0d0))
@@ -685,11 +687,11 @@ contains
       endblock WriteCphiGeig; if(debug)write(stdo,ftox)' writechpigeig 1001'  
       deallocate(hamm,ovlm,evec,vxc,cphi)!,pwz,cphiw)
 1001 enddo iqisploop
-    if(cmdopt0('--mlo')) istat = closem(ifihh)
+    if(c0_mlo) istat = closem(ifihh)
     istat = closem(ifvxcevec)
     i=closem(ifcphim) !mpi-io
     i=closem(ifgeigm)
-    if(cmdopt0('--mlo') .and. openedm(ifihh)) istat = closem(ifihh)
+    if(c0_mlo .and. openedm(ifihh)) istat = closem(ifihh)
     call mpi_barrier(comm,ierr)
     call mpibc2_real(evl,   nbandmx*nqirr*nspx,'evl')
     call mpibc2_real(vxclda,nbandmx*nqirr*nspx,'vxclda')

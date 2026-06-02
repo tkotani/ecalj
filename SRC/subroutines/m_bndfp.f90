@@ -25,6 +25,7 @@
 module m_bndfp
   use m_lgunit,only:stdo,stdl
   use m_density,only: orhoat,smrho,eferm            !input/output unprotected  ! NOTE:variable in m_density are not protected
+  use m_cmdopt_registry, only: c0_boltztrap, c0_cls, c0_debugbndfp, c0_density, c0_eigen_at_k, c0_fermisurface, c0_fullmesh, c0_mkprocar, c0_quitecore, c0_tdos, c0_tdostetf, c0_writeeigen, c0_writeham, c0_wsig_fbz, c2_quit
   real(8),protected,public:: ham_ehf, ham_ehk, sev  !output
   real(8),protected,public:: qdiff                  !output
   real(8),protected,allocatable,public:: force(:,:) !output
@@ -109,11 +110,12 @@ contains
     
     !See history github ecalj after 2009.
     use mpi
+    use m_cmdopt_registry, only: c0_boltztrap, c0_cls, c0_debugbndfp, c0_density, c0_eigen_at_k, c0_fermisurface, c0_fullmesh, c0_mkprocar, c0_quitecore, c0_tdos, c0_tdostetf, c0_writeeigen, c0_writeham, c0_wsig_fbz, c2_quit
     implicit none
     character(10) :: head
     integer:: plbnd,nk1,nk2,nk3,nx,ny, iter,i,ifi,ipr,iq,isp,jsp,iprint,ipts,ierr
     integer:: ifih,ifii,ib,ix,ifimag,nevmin,nnn,ikp
-    logical:: llmfgw,sigx, ltet,cmdopt0,sigmamode,tdos,debug=.false.
+    logical:: llmfgw,sigx, ltet,sigmamode,tdos,debug=.false.
     logical:: fullmesh,PROCARon,writeham=.false.,magexist, fsmode , writeeigen=.false.
     logical,save:: siginit=.true.
     real(8):: sttime,entime,vesav
@@ -123,10 +125,10 @@ contains
     real(8),parameter::  pi=4d0*datan(1d0)
     real(8),external:: rydberg
     call tcn ('bndfp')
-    debug  = cmdopt0('--debugbndfp')
-    tdos   = cmdopt0('--tdos')  !total dos mode or not
-    fsmode = cmdopt0('--fermisurface')!FermiSurfece for xcrysden in http://www.xcrysden.org/doc/XSF.html#2l.16
-    writeeigen = cmdopt0('--eigen-at-k') .or. cmdopt0('--writeeigen') ! for eigenatk output mode in m_bandcal_init
+    debug  = c0_debugbndfp
+    tdos   = c0_tdos  !total dos mode or not
+    fsmode = c0_fermisurface!FermiSurfece for xcrysden in http://www.xcrysden.org/doc/XSF.html#2l.16
+    writeeigen = c0_eigen_at_k .or. c0_writeeigen ! for eigenatk output mode in m_bandcal_init
     ipr    = iprint() ! for procid/=master, we set iprint=0 at lmv7.F
     ltet = ntet>0! tetrahedron method or not
     vmag=0d0
@@ -144,7 +146,7 @@ contains
 114   continue
     endif GETefermFORplbndMODE
     if(phispinsym) call phispinsym_ssite_set() !pnu,pz are spin symmetrized! Set spin-symmetrized pnu.aug2019. See also in pnunew and locpot
-    writeham= cmdopt0('--writeham') ! Write out Hamiltonian HamiltonianPMT.*
+    writeham= c0_writeham ! Write out Hamiltonian HamiltonianPMT.*
     ! if(writeham) open(newunit=ifih,file='HamiltonianPMT.'//trim(strprocid),form='unformatted')
     ! if(writeham) write(ifih)procid,numprocs
     bndfp_timing: block
@@ -154,18 +156,18 @@ contains
     GetPotentialFromDensity: block
       if(llmfgw) call m_mkpot_novxc(smrho,orhoat) !Get osigx,otaux oppix spotx, which are onsite integrals without XC part for GWdriver: lmfgw mode
       call m_mkpot_init(smrho,orhoat)! From smrho and rhoat, get one-particle potential and related quantities. mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
-      if(cmdopt0('--quit=mkpot')) call rx0('--quit=mkpot')
+      if((trim(c2_quit) == 'mkpot')) call rx0('--quit=mkpot')
     endblock GetPotentialFromDensity
     t_mkpot1 = MPI_WTIME() - t_start
     call m_subzi_init() ! Setup weight wtkb for BZ integration.  ! NOTE: if (wkp.* exists).and.lmet==2, wkp is used for wkkb.
     if(lpztail) call sugcut(2) ! lpztail: if T, local orbital of 2nd type(hankel tail). Hankel's e of local orbital of PZ>10 (hankel tail mode) is changing. ==>T.K think current version of PZ>10 might not give so useful advantages.
-    CorelevelSpectroscopyINIT: if(cmdopt0('--cls')) then
+    CorelevelSpectroscopyINIT: if(c0_cls) then
       call rxx(lso==1,  'CLS not implemented in noncoll case')
       call rxx(lrout==0,'bndfp: need output density for cls')
       call m_clsmode_init()
     endif CorelevelSpectroscopyINIT
     sigmamode = (lrsig/=0)
-    READsigmForQSGW: if( (sigmamode .AND. siginit).and.(.not.cmdopt0('--quitecore')) ) then !sigm contains \Sigma-Vxc 
+    READsigmForQSGW: if( (sigmamode .AND. siginit).and.(.not.c0_quitecore) ) then !sigm contains \Sigma-Vxc 
       inquire(file='sigm.'//trim(sname),exist=sigx)
       if(sigx) then
         open(newunit=ifi,file='sigm.'//trim(sname),form='unformatted')
@@ -177,7 +179,7 @@ contains
       call mpi_barrier(comm,ierr)
       siginit=.false. !only once
     endif READsigmForQSGW ! We now set "ndimsig=ldim",which means we use only projection onto MTO spaces even when PMT.
-    call rxx(cmdopt0('--wsig_fbz'),'No sigm file from which we do --wsig_fbz')
+    call rxx(c0_wsig_fbz,'No sigm file from which we do --wsig_fbz')
     if(sigmamode .AND. master_mpi) write(stdo,*)' ScaledSigma=',ham_scaledsigma
     magexist= abs(vmag)>1d-6
     GWdriverExit: if(llmfgw) then
@@ -187,7 +189,7 @@ contains
     endif GWdriverExit
     ! Set up Hamiltonian and diagonalization in m_bandcal_init. To know outputs, see 'use m_bandcal,only:'. The outputs are evlall, and so on.
     sttime = MPI_WTIME() ! if(nspc==2) call m_addrbl_allocate_swtk(ndham,nsp,nkp)
-    if(cmdopt0('--mkprocar')) call m_procar_init()
+    if(c0_mkprocar) call m_procar_init()
     GetHamiltonianAndDiagonalize: block
       t_band = MPI_WTIME()
       call m_bandcal_init(lrout,eferm,vmag,writeham) ! Get Hamiltonian and diagonalization resulting evl,evec,evlall.
@@ -219,16 +221,16 @@ contains
       endif
     endblock BROADCASTevlall
     BandPLOTmode: block
-      fullmesh = cmdopt0('--fullmesh').or.cmdopt0('--fermisurface') ! pdos mode (--mkprocar and --fullmesh)
-      PROCARon = cmdopt0('--mkprocar') 
-      if(plbnd/=0.or.(procaron.and.fullmesh).or.cmdopt0('--boltztrap')) then
+      fullmesh = c0_fullmesh.or.c0_fermisurface ! pdos mode (--mkprocar and --fullmesh)
+      PROCARon = c0_mkprocar 
+      if(plbnd/=0.or.(procaron.and.fullmesh).or.c0_boltztrap) then
          ! evlallm is removed. vmag is included in Hamitonian now.  2024-06-14
          Procarmode:block
            nevmin = minval(nevls(1:nkp,1:nspx))
            if(fullmesh .AND. procaron) call m_procar_writepdos(evlall,nevmin,eferm,kpproc) 
            if(fullmesh .AND. procaron) call rx0('Done pdos: --mkprocar .and. --fullmesh. Check by "grep k-point PROCAR.*.*"')
          endblock Procarmode
-         Boltztrap:if( cmdopt0('--boltztrap')) then
+         Boltztrap:if( c0_boltztrap) then
             call writeboltztrap(eferm) ! boltztrap data
             call rx0('Done boltztrap: boltztrap.* are generated')
          endif Boltztrap
@@ -288,7 +290,7 @@ contains
        write(stdo,ftox)' bndfp:Generating TDOS: efermi(eV)=',ftof(rydberg()*eferm),&
             ' DOSwindow emin emax(eV)= ',ftof(rydberg()*dosw),'ltet nsp=',ltet,nsp
        allocate( dosi_rv(ndos,nsp),dos_rv(ndos,nsp),source=0d0) !for xxxdif
-       if(cmdopt0('--tdostetf')) ltet= .FALSE. ! Set tetrahedron=F
+       if(c0_tdostetf) ltet= .FALSE. ! Set tetrahedron=F
        if(ltet) then
           nnn=nkabc(1)*nkabc(2)*nkabc(3)
           !do iq=1,nkp          !   do jsp=1,nspx
@@ -340,7 +342,7 @@ contains
       call m_bandcal_allreduce() 
       t_band2nd = MPI_WTIME() - t_band2nd
     endif GetDensity
-    CorelevelSpectroscopy2: if(cmdopt0('--cls')) then !m_clsmode_set1 is called in m_bandcal
+    CorelevelSpectroscopy2: if(c0_cls) then !m_clsmode_set1 is called in m_bandcal
       dosw(1)= emin  - 0.5d0     ! lowest energy limit to plot dos
       dosw(2)= eferm + bz_dosmax ! highest energy limit to plot dos
       call m_clsmode_finalize(eferm,ndimh,nbandmx,nspx,nkp,dosw,evlall)
@@ -348,7 +350,7 @@ contains
     endif CorelevelSpectroscopy2
     if(lso/=0)   call iorbtm() !Write Orbital Moment
     if(lrout/=0) call m_bandcal_symsmrho()  !Get smrho_out. Symmetrize smooth density ! Assemble output density, energies and forces 
-    WRITEsmrhoTOxsf: if(cmdopt0('--density') .AND. master_mpi) then ! new density mode
+    WRITEsmrhoTOxsf: if(c0_density .AND. master_mpi) then ! new density mode
        block
          use m_lmfinit,only:z
          integer::i1,i2,i3,i
@@ -385,7 +387,7 @@ contains
          if(leks>=1) then
             call mkekin(osig,otau,oppi,oqkkl,vconst,osmpot,smrho_out,sev,  ekinval)
             call m_mkpot_energyterms(smrho_out, orhoat_out) !qmom is revised for given orhoat_out
-            if(cmdopt0('--density')) then
+            if(c0_density) then
                call mpi_barrier(comm,ierr)
                call rx0('end of --density mode')
             endif

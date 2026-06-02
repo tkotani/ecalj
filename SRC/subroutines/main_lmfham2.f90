@@ -1,5 +1,6 @@
 !> PMT --> lmfham1 --> MPO --> lmfham2 --> MLO
 module m_lmfham2
+  use m_cmdopt_registry, only: c0_cmlo
   public lmfham2
   private
 contains
@@ -40,6 +41,7 @@ contains
     use m_read_Worb,only: s_read_Worb, nclass_mlwf, cbas_mlwf, norb=>nbasclass_mlwf !,classname_mlwf !,iclassin !,iphi,iphidot,nphi,nphix
     use m_nvfortran,only:findloc
     use m_cmdopt_registry, only: c2_job
+    use m_cmdopt_registry, only: c0_cmlo
     implicit none
     intent(in):: commin
     integer:: i,iq,is,ix,j,ifbb,ifoc,nbb,isc,ifq0p, nox,iki,ikf,nsc1,ndz,nin,nout,nsc2,ibb
@@ -572,14 +574,14 @@ contains
         complex(8)::phase,proj(iki:ikf,iki:ikf),cmlo(iki:ikf,nMLO),cmloi0(iki:ikf,nMLO),cmloi(iki:ikf,nMLO),cmpomlo(iki:ikf,nMLO),&
              ham(nMLO,nMLO),ovlx(nMLO,nMLO),evecl(nMLO,nMLO),rotmatmlo(nMLO,nMLO),phaseij(natom,natom,npairmx),&
              hami(nMLO,nMLO),ovlxi(nMLO,nMLO)
-        logical:: cmdopt0,init
+        logical:: init
         character(8):: xt
         jsp=is
         do iqibz = 1,nqibz
           forall(i=iki:ikf,j=iki:ikf) proj(i,j)=sum(cnki(i,:,iqibz)*dconjg(cnki(j,:,iqibz))) !projector
           cmloi0(iki:ikf,1:nMLO) = matmul(proj,amnk(iki:ikf,1:nMLO,iqibz)) !Get MLO by proj. |FMLO_i> = |PsiMPO_j> Cmloi(j,i)
           ! |PsiMLO_i> =  |PsiMPO_j> cmloi(j,i)*eveci  = |PsiPMT> cmpoi*eveci * cmloi*evecl
-          if(cmdopt0('--cmlo')) then
+          if(c0_cmlo) then
             open(newunit=ificpmtmpo, file='Cmpo' //trim(xt(iqibz))//trim(xt(jsp)),form='unformatted')
             read(ificpmtmpo) nPMT, nMPO
             if( nmto/=nMPO) call rx('nmto/=nMPO')
@@ -631,7 +633,7 @@ contains
                 ommr2(i,j,it,jsp)= ommr2(i,j,it,jsp)+ ovlx(i,j)*phaseij(ib1,ib2,it)
               enddo
             enddo; enddo
-            if(cmdopt0('--cmlo')) then !at iqibz
+            if(c0_cmlo) then !at iqibz
               if(init) then !at irreducible points
                 nmx = nMLO
                 call zhev_tk4(nMLO,ham,ovlx,nmx,nev, evll,evecl,oveps)! Diangonale (hamm - evl ovlm )evec=0

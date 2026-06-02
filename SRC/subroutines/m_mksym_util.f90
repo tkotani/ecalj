@@ -926,7 +926,6 @@ contains
     integer :: ires(3, nbas, ng)
     integer:: ib1,ib2
     real(8) ::tran(3),delta(3,ng)
-    logical:: cmdopt0
     logical,optional:: afmode
     ep=1d-3
     if(iprintx>=46) write(6,*)'MPTAUOf: search miat tiat for wave function rotation'

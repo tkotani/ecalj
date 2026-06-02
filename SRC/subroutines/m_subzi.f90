@@ -2,6 +2,7 @@ module m_subzi ! Obtain weight wtkb(ib,isp,iq) for brillowine zone integation
   use m_ftox
   use m_lgunit,only: stdo
   use m_struc_def,only: s_rv1
+  use m_cmdopt_registry, only: c0_band, c0_cls, c0_fermisurface, c0_mkprocar, c0_pdos, c0_tdos, c0_zmel0
   type(s_rv1),allocatable,protected,public :: t_wtkb(:,:) ! wtkb : tetrahedron integration weights. it might be from wkp.*
   integer,protected,public:: nevmx
   public :: m_subzi_init, m_subzi_bzintegration, m_subzi_bcast_wtkb, m_subzi_copy_wtkb
@@ -21,8 +22,8 @@ contains
     !   nsp    : 2 for spin-polarized case, otherwise 1
     !   nkp    : number of irreducible k-points (bzmesh.f)
     !   nevmx  : maximum number of eigenvectors to find 
+    use m_cmdopt_registry, only: c0_band, c0_cls, c0_fermisurface, c0_mkprocar, c0_pdos, c0_tdos, c0_zmel0
     implicit none
-    logical :: cmdopt0
     integer :: nkp
     real(8) :: zval
     call tcn('m_subzi_init')
@@ -31,14 +32,14 @@ contains
       if(allocated(t_wtkb)) deallocate(t_wtkb)       
       allocate(t_wtkb(nspx,nkp))
     endif
-!    if(cmdopt0('--pdos').or.cmdopt0('--mkprocar').or.cmdopt0('--zmel0').or.cmdopt0('--cls')) then
-    if(cmdopt0('--pdos').or.cmdopt0('--mkprocar').or.cmdopt0('--cls')) then
+!    if(c0_pdos.or.c0_mkprocar.or.c0_zmel0.or.c0_cls) then
+    if(c0_pdos.or.c0_mkprocar.or.c0_cls) then
       nevmx= ndhamx  !all bands
-    elseif(cmdopt0('--tdos').or. cmdopt0('--band').or.cmdopt0('--fermisurface')) then !nevmx=0 implies eigenvalue-only mode
+    elseif(c0_tdos.or. c0_band.or.c0_fermisurface) then !nevmx=0 implies eigenvalue-only mode
       nevmx = merge(ndhamx, 0, lso==1)
-!    if(cmdopt0('--tdos').or. cmdopt0('--band').or.cmdopt0('--fermisurface')) then !nevmx=0 implies eigenvalue-only mode
+!    if(c0_tdos.or. c0_band.or.c0_fermisurface) then !nevmx=0 implies eigenvalue-only mode
 !      nevmx = merge(ndhamx, 0, lso==1)
-!    elseif(cmdopt0('--pdos').or.cmdopt0('--mkprocar').or.cmdopt0('--zmel0').or.cmdopt0('--cls')) then
+!    elseif(c0_pdos.or.c0_mkprocar.or.c0_zmel0.or.c0_cls) then
 !      nevmx= ndhamx  !all bands
     else  !just above occipied bands. (tetrahedron method may require a little more than zval/2)
       zval = qval-qbg

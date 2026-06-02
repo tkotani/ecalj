@@ -54,7 +54,7 @@ contains
     complex(8),allocatable:: w3p(:),wtff(:)
     logical:: tote=.false.!, hermitianW
     real(8),allocatable:: vcoud_(:),wfft(:)
-    logical:: iprx,cmdopt0
+    logical:: iprx
     integer:: ixx,ixc,icount,ndivmx
     real(8),parameter:: pi=4d0*datan(1d0), fpi=4d0*pi, tpi=8d0*datan(1d0),ddw=10d0
     integer:: kxold,nccc,icount0,ifiqg

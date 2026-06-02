@@ -78,6 +78,7 @@ module m_cmdopt_registry
   logical, public, protected, save :: c0_afsym           = .false.
   logical, public, protected, save :: c0_ahc             = .false.
   logical, public, protected, save :: c0_allband         = .false.
+  logical, public, protected, save :: c0_avoidgamma      = .false.
   logical, public, protected, save :: c0_band            = .false.
   logical, public, protected, save :: c0_boltztrap       = .false.
   logical, public, protected, save :: c0_cls             = .false.
@@ -191,6 +192,7 @@ module m_cmdopt_registry
        '--afsym',           &
        '--ahc',             &
        '--allband',         &
+       '--avoidgamma',      &
        '--band',            &
        '--boltztrap',       &
        '--cls',             &
@@ -410,6 +412,7 @@ contains
     c0_afsym           = cmdopt0('--afsym')
     c0_ahc             = cmdopt0('--ahc')
     c0_allband         = cmdopt0('--allband')
+    c0_avoidgamma      = cmdopt0('--avoidgamma')
     c0_band            = cmdopt0('--band')
     c0_boltztrap       = cmdopt0('--boltztrap')
     c0_cls             = cmdopt0('--cls')

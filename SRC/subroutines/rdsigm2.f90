@@ -1,5 +1,6 @@
 module m_rdsigm2
   use m_nvfortran,only:findloc
+  use m_cmdopt_registry, only: c0_use_sigm_fbz, c0_wsig_fbz
   public:: m_rdsigm2_init, Getsenex, Dsene, senex !getsenex returns the self-energy term.
   public:: ndimsig, sene
   integer,protected,public :: nk1,nk2,nk3
@@ -47,14 +48,15 @@ contains
     use m_MPItk,only: procid,master
     use m_ext,only:sname
     use m_ftox
+    use m_cmdopt_registry, only: c0_use_sigm_fbz, c0_wsig_fbz
     integer:: ierr,ifi,ndimh_dummy,ifis2,ik1,ik2,ik3,is,iset,nqp
-    logical:: mtosigmaonly,cmdopt0
+    logical:: mtosigmaonly
     character strn*120
     real(8),allocatable:: qsmesh2(:,:,:,:)
     call tcn('m_rdsigm2_init')
     ndimsig= ldim      
     if(procid==master) then
-       if(cmdopt0('--use_sigm_fbz')) then
+       if(c0_use_sigm_fbz) then
          open(newunit=ifi,file='sigm_fbz.'//trim(sname),form='unformatted')
          write(stdo, ftox) 'open sigm_fbz'
        else
@@ -74,7 +76,7 @@ contains
        rewind ifi
        call rdsigm2(nspsigm,ifi,nk1,nk2,nk3,ldim,qsmesh2,mtosigmaonly(),ndimsig) ! Get self-energy sfz in the full BZ.
        close(ifi)
-       WRITEsig_fbz: if(cmdopt0('--wsig_fbz')) then
+       WRITEsig_fbz: if(c0_wsig_fbz) then
           open(newunit=ifis2,file='sigm_fbz.'//trim(sname),form='unformatted')
           write(stdo,"(a)")' Writing sigm_fbz.* for SYMGRP e --wsig_fbz'
           write(ifis2) nspsigm,ndimsig,nk1,nk2,nk3,nk1*nk2*nk3,0,0,0
@@ -93,7 +95,7 @@ contains
        call fftz3(sfz,nk1,nk2,nk3,nk1,nk2,nk3,ndimsig**2*nspsigm,iset,+1) !+1 backward ! FT hrr is on regular mesh points. For bloch2
        hrr => sfz ! rename sfz as hrr
     endif                  !procid==master
-    if(cmdopt0('--wsig_fbz')) call rx0('end of --wsig_fbz mode')
+    if(c0_wsig_fbz) call rx0('end of --wsig_fbz mode')
     call mpibc1_int(nspsigm,1,'senebr:nspsigm')
     call mpibc1_int(nk1,1,'senebr:nk1')
     call mpibc1_int(nk2,1,'senebr:nk2')

@@ -5,6 +5,7 @@ module m_mlo_ham
   use m_blas, only: zmm => zmm_h, zmv => zmv_h, m_op_T
   use m_lapack, only: zhgv => zhgv_h, zsv => zsv_h
   use m_ftox, only: ftox
+  use m_cmdopt_registry, only: c0_socmatrix
   implicit none
   public :: read_ham_rs, calc_ham_eigen
   integer, protected, target :: ndimMTO, npairmx, nspx, nsite
@@ -13,9 +14,9 @@ module m_mlo_ham
   logical, protected :: socmatrix = .false.
 contains
   subroutine read_ham_rs()! read RealSpace MTO Hamiltonian
+    use m_cmdopt_registry, only: c0_socmatrix
     integer:: ifihmto, i
-    logical:: cmdopt0
-    socmatrix = cmdopt0('--socmatrix')
+    socmatrix = c0_socmatrix
     open(newunit=ifihmto,file='HamRsMLO',form='unformatted', action='read')
     read(ifihmto) ndimMTO,npairmx,nspx !    allocate(ix(ndimMTO))
     if(ipr) write(stdo,ftox)'MTOHamiltonian: ndimMTO,npairmx,nspx=',ndimMTO,npairmx,nspx

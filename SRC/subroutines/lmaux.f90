@@ -3,6 +3,7 @@ module m_lmaux !main part of lmchk ! check crystal structure symmetry and get WS
   use m_xlgen,only:xlgen
   use m_lgunit,only:stdo
   use m_ext,only: sname
+  use m_cmdopt_registry, only: c0_getwsr, c0_shorten, c0_slat, c0_terse, c0_terse_short
   public:: lmaux
   private
 contains
@@ -14,11 +15,12 @@ contains
     use m_struc_def
     use m_lattic,only:lat_plat,rv_a_opos
     use m_ftox
+    use m_cmdopt_registry, only: c0_getwsr, c0_shorten, c0_slat
     implicit none
     integer:: mode=1 !,wksize
     character(120) :: outs,fnam(8)
     integer :: NULLI
-    logical :: cmdopt0,T,F,swtmp
+    logical :: T,F,swtmp
     parameter (T=.true., F=.false., NULLI=-99999)
 
 !!!!!!!!!!!!!
@@ -72,7 +74,7 @@ contains
     nbasp = nbas !+ npadl + npadr
     nbaspp = nbas !2*nbasp - nbas
     j = 10
-    if (cmdopt0('--shorten')) then
+    if (c0_shorten) then
        call shorps ( nbasp , plat , modep , rv_a_opos , rv_a_opos )
     endif
     ! --- Neighbor tables and sphere overlaps ---
@@ -93,7 +95,7 @@ contains
     call poppr
     ! --- Print out a few superlattice vectors ---
     j = 6
-    if (cmdopt0('--slat')) then
+    if (c0_slat) then
        if (iprint() >= 10) then
           write(stdo,ftox)' LMCHK:  print multiples of plat'//new_line('a')// &
                '  i1  i2  i3=       x           y           z           flen'
@@ -117,7 +119,7 @@ contains
     ! --- Find sphere overlaps ---
     j = 9
     ifx=0
-    if (cmdopt0('--getwsr')) then
+    if (c0_getwsr) then
        write(stdo,*)' ... Make sphere radii'
        allocate(zz_rv(nspec))
        allocate(rmt_rv(nspec))
@@ -1531,6 +1533,7 @@ contains
     !u Updates
     !u   21 Aug 02 Can print out positions as multiples of plat
     ! ----------------------------------------------------------------
+    use m_cmdopt_registry, only: c0_terse, c0_terse_short
     implicit none
     ! Passed parameters
     integer :: nbas,nbasp
@@ -1544,7 +1547,7 @@ contains
     double precision :: qlat(3,3),volspp
     integer :: ibas,jbas,ic,jc,kc,m,ipr,i1mach,m1,m2,m3,isw,istdo
     character(80) :: a, ch(1)
-    logical :: lterse,cmdopt0,lrmt
+    logical :: lterse,lrmt
     character(8) :: clabl,clablj
     integer:: ifp,js
     character(10):: i2char
@@ -1626,7 +1629,7 @@ contains
 
     ! --- Check sphere overlaps ---
     fovl = 0
-    lterse = cmdopt0('-terse') .or. cmdopt0('--terse')
+    lterse = c0_terse_short .or. c0_terse
     if (lrmt       .AND. ipr > 10) write(stdo,453)
     if ( .NOT. lrmt .AND. ipr > 10) write(stdo,463)
     do  301  ibas = 1, nbasp

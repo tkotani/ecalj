@@ -14,6 +14,7 @@ module m_q0p
   !! NxNyNz for Si100 slab model in the paper.
   !! (I still not understand why it does not show divergent behevior in the anisotropic case).
   !!
+  use m_cmdopt_registry, only: c0_readQforGW
   implicit none
   integer,public,protected:: nq0i=0,nq0iadd=0,nany=0 ! Number of Q0P !,nq0itrue=0
   integer,public,protected,allocatable:: ixyz(:)  ! ixyz(1:nq0i+nq0iadd) q0i for x,y,z directions
@@ -35,6 +36,7 @@ contains
                          tg_q_epsl  => q_epsl,  tg_qend_epsl => qend_epsl, &
                          tg_idx_epsl => idx_epsl, tg_n_epsl => n_epsl
     use m_getqforgw,only: getqonly,qx,nq
+    use m_cmdopt_registry, only: c0_readQforGW
     intent(in)         iq0pin,alat,plat,qlat,nnn,alp,alpv,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,lnq0iadd
     integer:: iq0pin !    logical:: newoffsetG
     integer:: nnn(3),nstbz(*),nqbz,nqibz,ngcxx,ngcx(nqbz),ngrp !n1q,n2q,n3q,
@@ -62,7 +64,7 @@ contains
     integer,allocatable :: ndiv(:)
     real(8),allocatable:: qsave(:,:),   qmin(:,:),qmax(:,:)
     real(8),allocatable:: qany(:,:)
-    logical:: ibzqq,lnq0iadd,unita,cmdopt0,qepsl_inc_left
+    logical:: ibzqq,lnq0iadd,unita,qepsl_inc_left
     integer:: dummyia(1,1),k
     real(8),parameter:: pi=4d0* atan(1d0)
     real(8):: tpioa
@@ -224,7 +226,7 @@ contains
        enddo
        nq0i=nq0i*2
     endif
-    if(iq0pin==1.and.cmdopt0('--readQforGW')) then !We can supply any q vector for GW calculation
+    if(iq0pin==1.and.c0_readQforGW) then !We can supply any q vector for GW calculation
        call getqonly() !Get qx nq
        allocate(qany,source=qx(:,1:nq))
        write(6,*)" GetQforGW mode: readin number of q=",nq

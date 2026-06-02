@@ -95,6 +95,7 @@ module m_sxcf_sc
   use m_nvfortran, only: findloc
   use m_hamindex, only: ngrp
   use m_blas, only: m_op_c, m_op_n, m_op_t
+use m_cmdopt_registry, only: c0_debug
 #if defined(__MP) && defined(__GPU)
   use m_blas, only: gemm => cmm_d
 #elif defined(__MP)
@@ -361,6 +362,7 @@ contains
   subroutine sxcf_correlation_step_kx(kx, ef, esmr, nspinmx)
     use m_mpi, only: comm_b => comm_b_sxc, ipr
     use m_gpu, only: use_gpu
+    use m_cmdopt_registry, only: c0_debug
     integer, intent(in) :: kx, nspinmx
     real(8), intent(in) :: ef, esmr
     integer :: icount, ns1, ns2, kr, nwxi, ns2r, nwx, izz, n_nttp, tri_idx
@@ -371,7 +373,7 @@ contains
     integer, allocatable :: idx_i(:), idx_j(:)
     character(64) :: charli
     character(8)  :: charext
-    debug = cmdopt0('--debug')
+    debug = c0_debug
     qibz_k = qibz(:,kx)
     call Readvcoud(qibz_k, kx, NoVcou=.false.)   !Readin ngc,ngb,vcoud ! Coulomb matrix
     call set_m2e_prod_basis(npr=ngb)             !Set M to E basis transformation matrix

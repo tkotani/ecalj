@@ -1,5 +1,6 @@
 !>  Calculate Chi^+-, spin susceptibility. 
 module m_hmagnon 
+  use m_cmdopt_registry, only: c0_dos, c0_geteta
   contains
 subroutine hmagnon() bind(C)
   use m_readwan,only: wan_readeval2, read_wandata, nwf, tr_mat_onsite, tr_mat_onsite_diag, &
@@ -35,6 +36,7 @@ subroutine hmagnon() bind(C)
   use m_mem, only: writemem
   use m_ftox, only: ftox
   use m_cmdopt_registry, only: c2_sp1, c2_sp2, c2_nk, c2_Wtype, c2_Wtype_set
+  use m_cmdopt_registry, only: c0_dos, c0_geteta
   implicit none
   !! We calculate chi0 by the follwoing three steps.
   !!  gettetwt: tetrahedron weights
@@ -51,7 +53,6 @@ subroutine hmagnon() bind(C)
   complex(8), allocatable:: wkmat(:,:), imat(:,:), rmat(:,:), r_tr(:), r_diag(:), k_tr(:), k_diag(:), rmat_site(:,:), rmat_diag(:,:)
   complex(8), allocatable :: jq(:), jq_w(:,:), jq_site(:), jq_w_site(:,:), jq_diag(:), jq_w_diag(:,:)
   complex(8), parameter :: img=(0d0,1d0)
-  logical:: cmdopt0
   integer :: isp1, isp2
   logical:: realomega, imagomega, epsmode, wan !, nms !, lhm, lsvd
   logical, allocatable :: mpi__task(:)
@@ -74,8 +75,8 @@ subroutine hmagnon() bind(C)
   isp1 = 2; isp2 = 1  ! default DNUP
   if (c2_sp1 >= 0) isp1 = c2_sp1
   if (c2_sp2 >= 0) isp2 = c2_sp2
-  geteta = cmdopt0('--geteta')
-  calcdos  = cmdopt0('--dos')
+  geteta = c0_geteta
+  calcdos  = c0_dos
   ganmma_only = geteta  !GammaPoint only calculation
 
   call m_lgunit_init()

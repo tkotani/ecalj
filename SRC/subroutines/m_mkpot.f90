@@ -88,6 +88,7 @@ module m_mkpot !How to learn this? Instead of reading all source, understand I/O
   use m_supot,only: n1,n2,n3
   use m_MPItk,only: master_mpi
   use m_ftox
+  use m_cmdopt_registry, only: c0_espot, c0_estaticall
   integer,external:: iprint
 
   public:: m_mkpot_init, m_mkpot_energyterms, m_mkpot_novxc , m_mkpot_deallocate 
@@ -138,10 +139,11 @@ contains
     use m_smvxcm,only: smvxcm
     use m_smves,only: smves
     use m_rhomom,only: rhomom
+    use m_cmdopt_registry, only: c0_espot, c0_estaticall
     implicit none
     type(s_rv1) :: orhoat(3,nbas)
     complex(8):: smrho(n1,n2,n3,nsp),smpot(n1,n2,n3,nsp)
-    logical:: cmdopt0,novxc,secondcall=.false.     !      integer,optional:: dipole_
+    logical:: novxc,secondcall=.false.     !      integer,optional:: dipole_
     logical,optional:: novxc_
     integer:: job,i1,i2,i3,i,isw,isum, ifi,isp,j,k,ix,iy,iz,ismpot(4) 
     real(8):: hpot0_rv(nbas), dq,qsmc,smq,smag,sum2,rhoex,rhoec,rhvsm, uat,usm,valfsm, &
@@ -162,15 +164,15 @@ contains
     call rhomom(orhoat, qmom,vsum) ! Multipole moments qmom is calculated
     SmoothPart: block
       call smves(qmom,gpot0,vval,hpot0_rv,smrho,smpot,vconst,smq,qsmc,fes,rhvsm0,rhvsm,zsum,vesrmt,qbg)!0th comp. of Estatic potential Ves and Ees
-      if(master_mpi) then !.and.cmdopt0('--espot')) then !writeout electrostatic potential 
+      if(master_mpi) then !.and.c0_espot) then !writeout electrostatic potential 
         ismpot = shape(smpot)
         open(newunit=ife,file='estaticpot.dat')
         write(ife,'(a)') "# electrostatic potential along selected lines: Modify m_mkpo.f90:L227 around if necessary!"
         write(ife,ftox)  "# real space mesh: ",ismpot(1:3)
         skipx=4
         skipy=ismpot(2)
-        if(cmdopt0('--estaticall')) skipx=1
-        if(cmdopt0('--estaticall')) skipy=1
+        if(c0_estaticall) skipx=1
+        if(c0_estaticall) skipy=1
         do ix=1, ismpot(1),skipx
           do iy=1, ismpot(2),skipy
             do iz=1, ismpot(3)

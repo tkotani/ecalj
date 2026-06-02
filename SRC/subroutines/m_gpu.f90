@@ -24,7 +24,6 @@ module m_gpu
     integer :: status(mpi_status_size)
     integer :: ierr, ndevs, ndevs_tmp, mydev_tmp, hostid_tmp, i, hostid, nlocal_procs, ilocal_rank
     integer, allocatable :: hostids(:), rankids(:)
-    logical :: cmdopt0
     interface
       function gethostid() bind(c)
         use iso_c_binding

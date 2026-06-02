@@ -3,6 +3,7 @@ module m_tetwt5
   use m_mpi,only:ipr
   use m_lgunit,only:stdo
   use m_ftox
+  use m_cmdopt_registry, only: c0_interbandonly, c0_intrabandonly
   public hisrange,tetwt5x_dtet4,rsvwwk00_4
   private
 contains
@@ -83,6 +84,7 @@ contains
     ! takao dec2003; matrix_linear() mode
     ! okumura Jan2019
     ! wan: skip ebmx cutoff for magnon calculation
+    use m_cmdopt_registry, only: c0_interbandonly, c0_intrabandonly
     implicit none
     integer:: npm,jpm,ibxmx,jbxmx,jbx,nrankc1,nrankc2,nnn1,nnn2,nnni,nnnj,ncc
     integer, intent(in) :: iqbz, fqbz
@@ -158,7 +160,7 @@ contains
     logical,optional:: wan
 !!! tetrakbt
     real(8):: temperature     ![K], temporally
-    logical:: interbandonly=.false.,intrabandonly=.false.,cmdopt0
+    logical:: interbandonly=.false.,intrabandonly=.false.
     real(8),parameter:: tolx=1d-5
     !---------------------------------------------------------------------
     call gwinput_init()
@@ -217,8 +219,8 @@ contains
     endif
     efermia = efermi
     efermib = efermi
-    interbandonly=cmdopt0('--interbandonly')
-    intrabandonly=cmdopt0('--intrabandonly')
+    interbandonly=c0_interbandonly
+    intrabandonly=c0_intrabandonly
     tetrahedronloop: do 1000 itet = 1, ntetf 
        kk (0:3) = ib1bz( idtetf(0:3,itet) )     !  k
        if(.not.any( iqbz <= kk(0:3) .and.  kk(0:3) <= fqbz )) cycle

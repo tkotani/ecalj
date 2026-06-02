@@ -9,6 +9,7 @@ module m_bstrux
   use m_ll,only:ll
   use m_ftox
   use m_nvfortran,only:findloc
+  use m_cmdopt_registry, only: c0_skipbstruxinit
   public:: bstrux_set, bstr, dbstr, m_bstrux_init
   complex(8),pointer,protected::  bstr(:,:,:)
   complex(8),pointer,protected:: dbstr(:,:,:,:)
@@ -22,11 +23,12 @@ contains
     use m_qplist,only: qplist,iqini,iqend,nkp
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat
     use m_lmfinit,only: lfrce
+    use m_cmdopt_registry, only: c0_skipbstruxinit
     implicit none
     real(8):: qin(3),q(3),eps=1d-10
     integer:: iq,iqx,ia !!!!! 2023-04-25 obatadebug    q=qin !    call shorbz(qin,q,qlat,plat) !Get q. Is this fine?
-    logical:: lll(iqii:iqee),cmdopt0
-    if(cmdopt0('--skipbstruxinit')) then
+    logical:: lll(iqii:iqee)
+    if(c0_skipbstruxinit) then
        iq = findloc([(sum( (qin-qplist(:,iqx))**2 )<eps,iqx=iqini,iqend)],value=.true.,dim=1)+iqini-1
        call m_bstrux_init(iq,iq)
     else

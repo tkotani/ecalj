@@ -6,18 +6,19 @@ module m_clsmode
   use m_mkqp,only: nkp=>bz_nkp
   use m_MPItk,only: master_mpi
   use m_ftox,only: ftox
+  use m_cmdopt_registry, only: c0_cls
   integer,parameter,private:: nsitmx = 256
   integer,private::  icls=0 , isite(nsitmx) , iclsl(nsitmx), iclsn(nsitmx),nsites
   complex(8),allocatable,private :: ausc_zv(:),ausc(:)
 contains
   subroutine m_clsmode_init()
-    logical:: cmdopt0
+    use m_cmdopt_registry, only: c0_cls
     character(10):: i2char
     integer::i,ific
     character strn*120, clsopt*120
     character(512):: aaachar
     !! --- Options for core level specta (CLS) ---
-    if (cmdopt0('--cls')) then
+    if (c0_cls) then
        icls = 1
        open(newunit=ific,file='CLSinput') !2022apr28
        i=0

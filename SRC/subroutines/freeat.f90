@@ -3,6 +3,7 @@ module m_freeat !free-standing spherical atom calculaitons for initial contditio
   use m_lmfinit,only: kmax_i=>kmxt,lfoca_i=>lfoca,rfoca_i=>rfoca
   use m_lgunit,only: stdo,stdl
   use m_rseq,only: rseq
+  use m_cmdopt_registry, only: c0_skip_qvalcheck, c0_vesatom
   public freeat,freats
   private
   logical,private:: ifivv
@@ -18,6 +19,7 @@ contains
     !   ceh   :energy of core tail to smoothed Hankel
     !   sumtc :core kinetic energy
     ! ----------------------------------------------------------------------
+    use m_cmdopt_registry, only: c0_vesatom
     implicit none
     integer :: ifi,iprint,is,nglob,nr,nrmt,nrmx, n0,nkap0,nxi,nxi0,nrmix,igets,lmxa,kcor,lcor,iofa, i_dum,ifives,ifiwv
     character(8) :: spid,chole(8)
@@ -25,10 +27,9 @@ contains
     real(8) :: qc,ccof,ceh,z,rmt,rfoca,qcor(2),a,sumec, sumtc,seref,dgets,dgetss,etot
     real(8) :: hfc(nxi0,2),exi(nxi0),hfct(nxi0,2), v(nrmx*2),rho(nrmx*2),rhoc(nrmx*2),rofi(nrmx*2)
     real(8) :: pnu(n0,2),pz(n0,2),qat(n0,2), rtab(n0,2),etab(n0,2),rsmfa
-    logical:: cmdopt0
     character strn*120
     open(newunit=ifi,file='__atm.'//trim(sname))
-    ifivv=cmdopt0('--vesatom')
+    ifivv=c0_vesatom
     if(ifivv) open(newunit=ifives,file='vesintatm.'//trim(sname)//'.chk')
     if(ifivv) open(newunit=ifiwv,file='veswavatm.'//trim(sname)//'.chk')
     hfct = 0d0
@@ -152,13 +153,13 @@ contains
     !u   19 Apr 02 Redesigned input to avoid the use of structures
     !u   10 Apr 02 Redimensionsed etab,rtab to accomodate larger lmax
     ! ----------------------------------------------------------------------
+    use m_cmdopt_registry, only: c0_skip_qvalcheck
     implicit none
     integer :: nrmx,nrmt,is,nxi0,nxi,nrmix,lwf,lxcf,n0,kcor,lcor
     parameter (nrmx=1501,n0=10)
     character(8) :: spid
     real(8) :: rsmfa,rfoca,qc,ccof,ceh,sec,stc,z,rmt,a,eref, v(nrmx*2),rho(nrmx*2),rhoc(nrmx*2),hfc(nxi0,*),hfct(nxi0,*), &
          exi(*),rtab(n0,2),etab(n0,2),rofi(nrmx*2),rs3,eh3,vmtz,qcor(2)
-    logical :: cmdopt0
     integer :: ncmx,nvmx
     parameter (ncmx=50, nvmx=20)
     integer :: idmod(n0)
@@ -271,7 +272,7 @@ contains
     ! ov 2010 QvalCheck
     do i = 1, nsp
        do l = 0, lmxa
-          if( .NOT. cmdopt0('--skip_qvalcheck')) then
+          if( .NOT. c0_skip_qvalcheck) then
              if(ql(1,l+1,i)<-1d-10) then
                 call rx('conf:negative Qval. Check SPEC_ATOM_Q & MMOM or Use --skip_qvalcheck')
              endif

@@ -16,6 +16,7 @@ module m_locpot
   use m_fatom,only:sspec
   use m_density,only: v0pot,v1pot,pnzall,pnuall ! output
 
+  use m_cmdopt_registry, only: c0_density, c0_socmatrix, c0_vesdat, c0_wpotmt, c0_wrhomt, c0_writev0
   public locpot
   real(8),allocatable,public :: rotp(:,:,:,:,:) !rotation matrix
   real(8),public:: sumt0,sumec,sumtc,valvef,xcore,sqloc,saloc,qval,qsc,vvesat,vesaverage !,sqlocc
@@ -34,6 +35,7 @@ module m_locpot
   integer,external :: iprint
 contains
   subroutine locpot(job,novxc, orhoat,qmom,vval,gpot0)
+    use m_cmdopt_registry, only: c0_density, c0_socmatrix, c0_vesdat, c0_wpotmt, c0_wrhomt, c0_writev0
     implicit none
     intent(in)::    job,novxc, orhoat,qmom,vval,gpot0
     !i Inputs
@@ -84,7 +86,7 @@ contains
          qcorg,qcorh,cofg,cofh,rg,rs3,vmtz,qcor(2),qc0,qsc0, ov0mean,pmean,&
          vesint(nbas)
     character spid*8
-    logical :: lfltwf,cmdopt0,readov0,v0write,novxc
+    logical :: lfltwf,readov0,v0write,novxc
     real(8),pointer:: pnu(:,:),pnz(:,:)
     real(8),allocatable:: wk(:),efg(:,:),zz(:)
     logical,save:: secondcall=.false.
@@ -159,7 +161,7 @@ contains
       allocate(osig(3,ib)%v(nkaph,nkaph,0:lmxh,nsp))       ! Hsm*Hsm
       allocate(otau(3,ib)%v(nkaph,nkaph,0:lmxh,nsp)) 
       allocate(oppi(3,ib)%cv(nkaph,nkaph,nlmh,nlmh,nsp))
-      if(lso/=0 .OR. cmdopt0('--socmatrix')) then!spin-orbit copling matrix elements !ohsopm (L- and L+) is irrelevant for lso=2
+      if(lso/=0 .OR. c0_socmatrix) then!spin-orbit copling matrix elements !ohsopm (L- and L+) is irrelevant for lso=2
         allocate(ohsozz(1,ib)%sdiag(0:kmax,0:kmax,nlma,nlma,nsp),ohsopm(1,ib)%soffd(0:kmax,0:kmax,nlma,nlma,nsp)) ! Pkl*Pkl zz and pm component
         allocate(ohsozz(2,ib)%sdiag(nkaph,0:kmax,nlmh,nlma,nsp), ohsopm(2,ib)%soffd(nkaph,0:kmax,nlmh,nlma,nsp))! Hsm*Pkl
         allocate(ohsozz(3,ib)%sdiag(nkaph,nkaph,nlmh,nlmh,nsp), ohsopm(3,ib)%soffd(nkaph,nkaph,nlmh,nlmh,nsp))! Hsm*Hsm
@@ -186,7 +188,7 @@ contains
              dEdQ(nlml),rvsm(nlml,nsp),rvtr(nlml,nsp),rhol1t(nr,nlml),rhol2t(nr,nlml),rmax
         call radmsh(rmt,a,nr,rofi)
         call radwgt(rmt,a,nr,rwgt)
-        if(cmdopt0('--wrhomt'))call wrhomt('rhoMT.','density',ib,orhoat(1,ib)%v,rofi,nr,nlml,nsp)!Write true density to rhoMT.ib
+        if(c0_wrhomt)call wrhomt('rhoMT.','density',ib,orhoat(1,ib)%v,rofi,nr,nlml,nsp)!Write true density to rhoMT.ib
         associate( &
              rho1=>reshape(orhoat(1,ib)%v,shape(rhol1)), &
              rho2=>reshape(orhoat(2,ib)%v,shape(rhol2)), &
@@ -260,7 +262,7 @@ contains
           vnucl= 2d0*srfpi*sum(rwgt(2:nr)*rhol1t(2:nr,1)*(1d0/rofi(2:nr)-1d0/rmt)) +2d0*z/rmt + y0*dEdQ(1) != v1es+vcore at ir=0 without 2z/r. Note b.c.
           ! Estatic term of 1st comp. of Eq.34. is given as  v1es +  2d0*(-z/r+z/rmt) =  Ves(rhol1t,zero at rmt)+y0*dEdQ(1) + 2d0*(-z/r+z/rmt)  
           vvesata(ib) = rvs1-z*vnucl - rvs2  ! density \times electrostatic potential (z-z self-interaction removed).
-          if(master_mpi.and.cmdopt0('--vesdat')) then
+          if(master_mpi.and.c0_vesdat) then
             if(ib==1) open(newunit=ifi,file='ves.dat')
             do ir=2,nr
               write(ifi,ftox) ib, ir,rofi(ir), y0*v1es(ir,1,1)- 2*z/rofi(ir), y0*v2es(ir,1,1)
@@ -314,7 +316,7 @@ contains
           ! write(stdo,"(' core chg:',3f15.6)") qcor1 !,qcor2,qlocc
         endif
         ! write density 1st(true) component and counter components.
-        if(cmdopt0('--density') .AND. master_mpi .AND. secondcall) then
+        if(c0_density .AND. master_mpi .AND. secondcall) then
           write(stdo,"(' TotalValenceChange diff in MT; ib,\int(rho2-rho1)=',i5,f13.5)") ib,qloc(ib)
           write(strib,'(i10)') ib
           open(newunit=ibx,file='rho1MT.'//trim(adjustl(strib)))
@@ -332,7 +334,7 @@ contains
           enddo
           close(ibx)
         endif
-        if(cmdopt0('--wpotmt'))call wrhomt('vtrue.','potential',ib,v1,rofi,nr,nlml,nsp)! Write true potential to file vtrue.ib
+        if(c0_wpotmt)call wrhomt('vtrue.','potential',ib,v1,rofi,nr,nlml,nsp)! Write true potential to file vtrue.ib
         if(lfltwf) v0pot(ib)%v(1:nr,1:nsp) = y0*v1out(1:nr,1,1:nsp) ! Update the potential used to define radial basis set
         v1pot(ib)%v(1:nr,1:nsp) = y0*v1out(1:nr,1,1:nsp) ! Store the potential used in mkrout to calculate the core
         phispinsymB: if(phispinsym) then ! spin averaged oV0 to generate phi and phidot. takaoAug2019
@@ -351,7 +353,7 @@ contains
             read(ifi) ov0(1:nr,1:nsp)
             close(ifi)
             forall(ir=1:nr) v0pot(ib)%v(ir,:)= ov0(ir,:)
-          elseif(cmdopt0('--writev0')) then
+          elseif(c0_writev0) then
             open(newunit=ifi,file='v0pot.'//trim(charext(ib)),form='unformatted')
             write(ifi) v0pot(ib)%v(ir,1:nsp)
             close(ifi)
@@ -388,7 +390,7 @@ contains
             v1=v1es 
             v2=v2es 
           endif
-          lsox = merge(1, lso, .NOT. novxc .AND. cmdopt0('--socmatrix') )
+          lsox = merge(1, lso, .NOT. novxc .AND. c0_socmatrix )
           if (iprint() >= 20) write(stdo,"('     potential shift to crystal energy zero:',f12.6)") y0*(gpot0(1,ib)-gpotb(1))
           rsmaa=rsma(is)
           nlma = (lmxa+1)**2
@@ -442,7 +444,7 @@ contains
     rhovxc =  sum(rhovxca,dim=2)
     qval = sum(qv)+sum(qsca)
     qsc  = sum(qsca)
-    if(cmdopt0('--density') .AND. master_mpi) secondcall= .TRUE. 
+    if(c0_density .AND. master_mpi) secondcall= .TRUE. 
     if (iprint() > 40) call elfigr(nbas,stdo,zz,efg)!  Electric field gradient
     deallocate(efg,zz)
     call tcx('locpot')

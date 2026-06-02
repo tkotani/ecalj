@@ -21,6 +21,7 @@ module m_tetwt
   use m_mpi,only:ipr
   use m_lgunit,only:stdo
   use m_cmdopt_registry, only: c2_EfermiShifteV, c2_EfermiShifteV_set
+  use m_cmdopt_registry, only: c0_debug
   implicit none
   !! output ------------------------
   real(8),allocatable,protected,public :: whw(:)
@@ -41,6 +42,7 @@ contains
     use m_ReadEfermi,only: ef
     use m_readgwinput,only: ebmx,nbmx,mtet
     use m_tetwt5,only:tetwt5x_dtet4,rsvwwk00_4,hisrange
+    use m_cmdopt_registry, only: c0_debug
     intent(in)::      q,iq,is,isf,ekxx1,ekxx2,nband,wan
     !! nqibz_mtet: is only for mtet/=(/1,1,1/) --->(we usually use only this case)
     !!
@@ -70,7 +72,7 @@ contains
     real(8),allocatable:: ecore_(:,:)
     integer:: ix,iqx
     logical,optional:: wan
-    logical:: wan1,cmdopt0
+    logical:: wan1
     integer, intent(in),optional :: ikbz_in, fkbz_in
     integer :: ikbz, fkbz
     real(8):: efshift=0d0
@@ -91,7 +93,7 @@ contains
 
     tetra=.true.
     !      eibzmode = eibz4x0()
-    debug=cmdopt0('--debug')
+    debug=c0_debug
     if(verbose()>=100) debug= .TRUE. 
     !      if(.not.allocated(nbnb))
     allocate( nbnb(ikbz:fkbz,npm)   )

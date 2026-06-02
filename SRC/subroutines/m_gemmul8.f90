@@ -1,5 +1,6 @@
 module m_gemmul8
   use iso_c_binding
+  use m_cmdopt_registry, only: c0_use_gemmul8
   implicit none
   integer, parameter :: num_moduli_d = 15, num_moduli_z = 15, num_moduli_c = 7
   logical :: use_gemmul8 = .false.
@@ -51,10 +52,10 @@ contains
     use m_lgunit, only: stdo
     use m_ftox, only: ftox
     use m_mpi,only: ipr
+    use m_cmdopt_registry, only: c0_use_gemmul8
     logical, save :: is_gemmul8_inited = .false.
-    logical :: cmdopt0
     if(is_gemmul8_inited) return
-    use_gemmul8 = cmdopt0('--use_gemmul8')
+    use_gemmul8 = c0_use_gemmul8
     is_gemmul8_inited = .true.
 #ifdef __GEMMUL8
     if(use_gemmul8) call gemmul8_init_handle(gemmul8_handle)

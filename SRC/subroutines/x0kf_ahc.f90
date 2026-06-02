@@ -18,6 +18,7 @@ module m_x0kf_ahc
   use m_kind,only:kindrcxq
   use m_setqibz_lmfham,only: set_qibz,irotg
   use m_cmdopt_registry, only: c2_EfermiShifteV, c2_EfermiShifteV_set, c2_nww, c2_cutuu, c2_cutuu_set
+  use m_cmdopt_registry, only: c0_AHCMAT, c0_UUMAT, c0_ahc, c0_debugzmel, c0_gpu, c0_mloahc, c0_qibzonly, c0_x0test, c0_zmel0
   implicit none
   public:: x0kf_ahc, deallocatezxq, deallocatezxqi
   complex(8),public,allocatable:: zxq(:,:,:), zxqi(:,:,:)   !Not yet protected because of main_hx0fp0
@@ -36,7 +37,6 @@ module m_x0kf_ahc
   !
   real(8),public::qrk(3),qq(3)
   integer,public::ns1,ns2,ispm,ispq,nqini,nqmax,icounkmink,icounkmaxk
-  logical,external:: cmdopt0 
   logical:: debug
 contains
   function X0kf_v4hz_init(job,q,isp_k,isp_kq, iq, crpa) result(ierr) !index accumulation. Initialzation for calling x0kf_v4h
@@ -125,6 +125,7 @@ contains
     use m_gpu, only: use_gpu
 !    use m_data_gpu, only: SetDataGPU_inkx, ExitDataGPU_inkx
     use m_procar, only: read_sdenmat, sdendwgtall
+    use m_cmdopt_registry, only: c0_AHCMAT, c0_UUMAT, c0_ahc, c0_debugzmel, c0_gpu, c0_mloahc, c0_qibzonly, c0_x0test, c0_zmel0
     implicit none
     intent(in)::      realomega,imagomega, q,iq,npr,schi,crpa,chipm,nolfco,q00,zzr
     logical:: realomega,imagomega,crpa,chipm,nolfco
@@ -134,7 +135,6 @@ contains
     real(8):: q(3),schi,ekxx1(nband,nqbz),ekxx2(nband,nqbz),frr,wgt,vol,tripl
     character(10) :: i2char
     type(stopwatch) :: t_sw_zmel, t_sw_x0
-    logical:: cmdopt0
     real(8),allocatable::ku(:,:),kbu(:,:,:)
     real(8),allocatable::wbb(:),bb(:,:)
     integer::iko_ixs(2),iko_fxs(2),nbb,ifahc,nband_k,nband_kq,ibb1,ibb2,ix1,ix2
@@ -144,7 +144,7 @@ contains
     vol = abs(alat**3*tripl(plat,plat(1,2),plat(1,3)))
     !    npr=nprin
     qq=q
-!    GPUTEST = .true. !cmdopt0('--gpu')
+!    GPUTEST = .true. !c0_gpu
 
     ipr_col = mpi__ipr_col(mpi__rank_b) ! start index of column on xq for product basis set
     npr_col = mpi__npr_col(mpi__rank_b) ! number of columns on xq
@@ -156,9 +156,9 @@ contains
     if(chipm .AND. nolfco) then; call set_m2e_prod_basis_chipm(zzr,npr)
     else;                        call set_m2e_prod_basis(npr=npr) !bugfix 2024-5-23 mobata. Set npr=1 for EPSPP0 mode(no lfc)
     endif
-    if(cmdopt0('--qibzonly')) call set_qibz(plat,qbz,nqbz,symops,ngrp)
+    if(c0_qibzonly) call set_qibz(plat,qbz,nqbz,symops,ngrp)
     
-    ReadinBBVEC: if(cmdopt0('--ahc')) then
+    ReadinBBVEC: if(c0_ahc) then
        RBBVEC:block
          integer:: nqbz2,nspin2,ifbb,iqr,ib,ibr,iq
          open(newunit=ifbb,file='BBVEC')
@@ -191,7 +191,7 @@ contains
     allocate(uumat_k(nband,nband,nbb,nqbz,nspx),source=dcmplx(0d0,0d0))!,uumat_kq(nband_kq,nband_kq,nbb,nqbz))
     call readuun(ikbidx,iko_ixs,iko_fxs,nband,nqbz,nbb,nspx, uumat_k)  ! read <u|u> matrix for isp_k
     if(debug)write(stdo,ftox)'uuuuusumabs=',nband,nqbz,nbb,nspx,sum(abs(uumat_k))
-    ! if (cmdopt0('--mloahc')) then
+    ! if (c0_mloahc) then
     !    ReadCMLO: block
     !      integer::iqibz,iq,ificmlo,nMLO
     !      real(8)::qp(***)
@@ -239,10 +239,10 @@ contains
     isloop: do 1103 isp_k = 1,nspx
        isqloop: do 1104 isp_kq = 1, nspx
           if(isp_k/=isp_kq) cycle
-          ReadinUU: if (cmdopt0('--ahc')) then
+          ReadinUU: if (c0_ahc) then
              nband_k = nband !iko_fxs(isp_k)
 !             nband_kq=nband !iko_fxs(isp_kq)
-             ! WriteUU: if (cmdopt0('--UUMAT')) then
+             ! WriteUU: if (c0_UUMAT) then
              !    UUMATblock: block
              !      integer :: iq, ib, ifuu, ibnd1, ibnd2
              !      character(2) :: char
@@ -291,7 +291,7 @@ contains
             integer:: im,in,ib,ic,iq
             real(8):: imagweight, wpw_k,wpw_kq,qa,q0a,efshift=0d0
             complex(8):: img=(0d0,1d0)
-            logical :: cmdopt0,GPUTEST
+            logical :: GPUTEST
             character*4:: charnum4
             character*7:: charnum7
             character(8):: charext
@@ -320,7 +320,7 @@ contains
             !      call m_sden_add(iq,isp_k,ef0*,evl*,q,nband,evec*,ndima) ! ***
             !   enddo
             ! endblock SDENMAT
-            zmel0mode: if(cmdopt0('--zmel0')) then ! For epsPP0. Use zmel-zmel0 (for subtracting numerical error) for matrix elements.
+            zmel0mode: if(c0_zmel0) then ! For epsPP0. Use zmel-zmel0 (for subtracting numerical error) for matrix elements.
                zmel0block : block
                  real(8)::  q1a,q2a,rfac00
                  complex(8),allocatable:: zmel0(:,:,:)
@@ -369,7 +369,7 @@ contains
 !                   ! nqini= nkqmin(k);      nqmax= nkqmax(k)
 !                   icounkmink= icounkmin(k); icounkmaxk= icounkmax(k)
 !                   call stopwatch_start(t_sw_zmel)
-!                   debug=cmdopt0('--debugzmel')
+!                   debug=c0_debugzmel
 !                   if(debug) write(stdo,ftox) 'ggggggggg goto build_zmel',k, nkmin(k),nkmax(k),nctot
 !                   if(use_gpu) then
 !                      !Currently, mpi version of get_zmel_init_gpu which is available by adding comm argument for MPI communicator,
@@ -394,10 +394,10 @@ contains
                !where(abs(uumat_k)>1d6) uumat_k=0d0 !zeroclear padding part (no data region)
               kloop10:do 1510 k=1,nqbz !6,6 !1,nqbz !6,8 !zmel = < M(igb q) phi( rk it occ)|  phi(q+rk itp unocc)>
                 if(mod(k-1, mpi__size_k) /= mpi__rank_k)  cycle
-                if(cmdopt0('--x0test')) then
+                if(c0_x0test) then
                   continue
-                elseif (cmdopt0('--ahc')) then
-                  if (cmdopt0('--AHCMAT')) open(newunit=ifahc,file='AHCMAT-q'//trim(charext(k))//'.isp'//trim(charext(isp_k))//trim(charext(isp_kq)))
+                elseif (c0_ahc) then
+                  if (c0_AHCMAT) open(newunit=ifahc,file='AHCMAT-q'//trim(charext(k))//'.isp'//trim(charext(isp_k))//trim(charext(isp_kq)))
                   AHCmatrix: block !rk=qbz k is index of iqbz
                     use m_nvfortran,only: findloc
                     real(8),parameter::epsdege=1d-4 !Ry !degeneracy
@@ -528,18 +528,18 @@ contains
                             itp => itpc(icoun))   !unocc    at q+k
 
 !! NOTE since Im(CC)=0 for n=m, we don't need next skip mechanism for it>=itp.
-!! if(cmdopt0('--ahc').and. it>=itp) cycle ! we can not skip it>=itp 2025-2-10
+!! if(c0_ahc.and. it>=itp) cycle ! we can not skip it>=itp 2025-2-10
                          
-                         if(cmdopt0('--x0test')) then
+                         if(c0_x0test) then
                             forall(iw=iwini(icoun):iwend(icoun)) rcxq(:,:,iw,jpm)=rcxq(:,:,iw,jpm)+ whwc(iw-iwini(icoun)+icouini(icoun))
-                         elseif (cmdopt0('--ahc')) then ! AHC: Anomalous Hall conductivity matrix
+                         elseif (c0_ahc) then ! AHC: Anomalous Hall conductivity matrix
                             do concurrent(alpha=1:3,beta=1:3)
 !                               zmelzmelahc(alpha,beta) = dimag(zmelahc_k(alpha,it,itp)*zmelahc_k(beta,itp,it) &
 !                                    -                    zmelahc_k(beta,it,itp)*zmelahc_k(alpha,itp,it))
                                zmelzmelahc(alpha,beta) = -dimag(zzahc(alpha,beta,it,itp)-zzahc(beta,alpha,it,itp))
                             enddo
                             if (sum(abs(uumat_k(it,itp,:,k,isp_k)))>1d6) cycle !.or.sum(abs(uumat_kq(it,itp,:,k)))>1d6) cycle
-!                            if (cmdopt0('--AHCMAT')) then
+!                            if (c0_AHCMAT) then
 !                               write(ifahc,ftox) it,itp,ftod(zmelzmelahc(1,2),3),&
 !                                    ftod(zmelzmelahc(1,3),3),  ftod(zmelzmelahc(2,3),3),'  k=',ftof(rk(:,k),4)
 !                            endif
@@ -578,7 +578,7 @@ contains
                             real(8) :: zmelzmelahc(3,3)
                             integer:: alpha, beta
                             real(8),parameter:: pi=3.141592653589793
-                            if (cmdopt0('--ahc')) then ! AHC: Anomalous Hall conductivity matrix
+                            if (c0_ahc) then ! AHC: Anomalous Hall conductivity matrix
                                do concurrent(alpha=1:3,beta=1:3)
                                   ! zmelzmelahc(alpha,beta) = dimag(zmelahc(alpha,it,itp)*dconjg(zmelahc(beta,it,itp)) &
                                   !      -                    zmelahc(beta,it,itp)*dconjg(zmelahc(alpha,it,itp)))
@@ -595,7 +595,7 @@ contains
                                     'zmel12=',ftof(zzahc(1,2,it,itp)),'abs=',abs(zzahc(1,2,it,itp))
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!                               
                                if (sum(abs(uumat_k(it,itp,:,k,isp_k)))>1d6) cycle !.or.sum(abs(uumat_kq(it,itp,:,k)))>1d6) cycle
-                               if (cmdopt0('--AHCMAT').and.abs(zmelzmelahc(1,2))>1d-1) then
+                               if (c0_AHCMAT.and.abs(zmelzmelahc(1,2))>1d-1) then
                                   write(ifahc,ftox) it,itp,k,ftod(zmelzmelahc(1,2),2), ftof(ekxxx1(it),3),ftof(ekxxx1(itp),3)!,&
 !                                       ftod(zmelzmelahc(1,3),3),  ftod(zmelzmelahc(2,3),3),'  k=',ftof(rk(:,k),4)
                                endif
@@ -607,26 +607,26 @@ contains
                     enddo
                   endblock directsum
 !----------------------------------
-!                  if(cmdopt0('--ahc')) deallocate(zmelahc_k)
-                  if(cmdopt0('--ahc')) deallocate(zzahc)
-                  if(cmdopt0('--ahc').and.cmdopt0('--AHCMAT')) close(ifahc)
+!                  if(c0_ahc) deallocate(zmelahc_k)
+                  if(c0_ahc) deallocate(zzahc)
+                  if(c0_ahc.and.c0_AHCMAT) close(ifahc)
 1510           enddo kloop10
 !            endif
 1590        continue
 2000        continue
-            if(cmdopt0('--x0test')) then
+            if(c0_x0test) then
                open(newunit=ifx0,file='x0test.'//charnum7(iq)//'.dat') !iq is after nqibz
                iwloop: do iw= 1,nwhis
                   write(ifx0,ftox) ftof(q),' ',iw,ftod(2d0*frhis(iw)),ftod(2d0*frhis(iw+1)),' ',rcxq(1,1,iw,1) !frhis in a.u.
                enddo iwloop
             endif
-            if (cmdopt0('--ahc')) then
+            if (c0_ahc) then
                sigAHC:block ! AHC: calculate anomalous Hall conductivity
                  integer:: i,k,iahc_tet,iahc_sp,isum,isum_tet,isum_sp
                  real(8),parameter:: fac=4.599849969441961d4 ! (e^2/hbar)/a_0 / (Ohm^-1 cm^-1), where a_0=1 bohr
                  real(8)::sigmaahc_tet(3,3),sigmaahc_sp(3,3),omegaahcsum_tet(3,3),omegaahcsum_sp(3,3),kw
                  real(8)::summ_tet, summ_sp
-                 logical::lahc,cmdopt0
+                 logical::lahc
                  character(1) :: charisp_k, charisp_kq
                  character(256)::dum1,dum2
 
@@ -699,10 +699,10 @@ contains
           !         enddo
           !      enddo
           !    end block mpi_kaccumulate
-          !    if(mpi__root_k.and..not.cmdopt0('--ahc')) then
+          !    if(mpi__root_k.and..not.c0_ahc) then
           !       call dpsion5(realomega, imagomega, rcxq, npr, npr_col, zxq, zxqi, chipm, schi,isp_k,  ecut,ecuts)
           !    endif
-          !    if(cmdopt0('--ahc')) then
+          !    if(c0_ahc) then
           !       deallocate(rcxq,omegaahc_tet,omegaahc_sp,omegasum_tet,omegasum_sp)
           !    else
           !       deallocate(rcxq)
@@ -721,10 +721,11 @@ contains
   end subroutine deallocatezxqi
   subroutine x0kf_zmel( q,k, isp_k,isp_kq)!, GPUTEST) ! Return zmel= <phi phi |M_I> in m_zmel
     use m_mpi, only: comm_b => comm_b_xq
+    use m_cmdopt_registry, only: c0_debugzmel
     intent(in)   ::     q,k, isp_k,isp_kq   
     integer::              k,isp_k,isp_kq 
     real(8)::           q(3)
-    debug=cmdopt0('--debugzmel')
+    debug=c0_debugzmel
 !    logical, intent(in), optional:: GPUTEST
 !    call get_zmel_init(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, nm1=nkmin(k)+nctot, nm2=nkmax(k)+nctot, ispm=isp_k, &
 !         nqini=nkqmin(k), nqmax=nkqmax(k), ispq=isp_kq,nctot=nctot, ncc=merge(0,nctot,npm==1), iprx=.false., zmelconjg=.true.)
