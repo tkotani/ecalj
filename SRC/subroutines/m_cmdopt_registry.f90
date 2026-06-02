@@ -1,4 +1,4 @@
-!> Central registry of command-line option lookups. Two roles in one module:
+!> Central registry of command-line option lookups. Three roles:
 !!
 !!   1. Single-shot parsing into typed module variables. Callsites do
 !!      `use m_cmdopt_registry, only: c0_writeham` (bool) or
@@ -7,10 +7,16 @@
 !!      read(outs,*) jobgw` pattern. load_*_registry() are called once at
 !!      startup (from m_args::m_setargs); subsequent calls are no-ops.
 !!
-!!   2. Strict typo detection. classify_non_toml_arg() in m_toml_override
-!!      consults is_known_cmdopt0()/is_known_cmdopt2() before deciding
-!!      between "TOML override", "registered cmdopt, pass through", and
-!!      "user typo, abort with hint".
+!!   2. Strict typo detection. validate_arglist() walks every arglist
+!!      token after both load_*_registry have populated the known-flag
+!!      tables; any `--word` / `-word` not in either table aborts at
+!!      startup with a hint. Runs from m_setargs so every program (both
+!!      lmf-family and GW utilities) gets typo checking.
+!!
+!!   3. Retired-syntax diagnostics. validate_arglist also catches the
+!!      legacy `-v...=`, `--[...]=`, `--toml.<path>=`, `--pr=`, etc.
+!!      forms and aborts with a one-line migration hint pointing at the
+!!      canonical `--ctrlg:<path>=<value>` syntax.
 !!
 !! Maintenance:
 !!   - When adding a new cmdopt0 (pure flag), declare a `c0_<name>`
@@ -35,10 +41,9 @@
 module m_cmdopt_registry
   implicit none
   private
-  public :: is_known_cmdopt0
-  public :: is_known_cmdopt2
   public :: load_cmdopt2_registry
   public :: load_cmdopt0_registry
+  public :: validate_arglist
 
   !========================================================================
   ! Cached cmdopt2 values (=value form). Populated by load_cmdopt2_registry.
@@ -183,65 +188,64 @@ module m_cmdopt_registry
   logical, public, protected, save :: c0_zmel0           = .false.
 
   !========================================================================
-  ! Runtime registry for typo detection.
-  !
-  ! Populated as a side-effect of load_cmdopt0/2_registry: each flag we
-  ! look up is also appended to one of these tables. is_known_cmdopt0/2
-  ! linearly scan until the first empty slot. No separate counter or
-  ! parameter array to keep in sync -- the load functions ARE the
-  ! source of truth, and the array itself records how many entries
-  ! exist (the populated prefix ends at the first '' slot).
-  !
-  ! Capacity is a fixed upper bound (~9 KB total) deliberately well
-  ! above the present 105+16 entries.
+  ! Runtime registry for typo detection. Populated as a side-effect of
+  ! load_cmdopt0/2_registry; consulted by validate_arglist. Allocatable,
+  ! grown one slot at a time via move_alloc -- no fixed capacity.
   !========================================================================
-  integer, parameter :: REG_CAP = 200
-  character(len=24), private, save :: known0(REG_CAP) = ''
-  character(len=20), private, save :: known2(REG_CAP) = ''
+  character(len=24), private, save, allocatable :: known0(:)
+  character(len=20), private, save, allocatable :: known2(:)
 
 contains
 
   !> Append `flag` to the cmdopt0 typo-detection table. Idempotent.
-  !! Scans for the first empty slot; if we hit REG_CAP without finding
-  !! one, abort -- means someone added > REG_CAP flags and the cap
-  !! needs bumping.
   subroutine register0(flag)
     character(*), intent(in) :: flag
-    integer :: i
-    do i = 1, REG_CAP
-       if (known0(i) == flag) return         ! already registered
-       if (known0(i) == '') then             ! first empty slot
-          known0(i) = flag
-          return
-       endif
-    enddo
-    call rx('m_cmdopt_registry: bump REG_CAP')
+    character(len=24), allocatable :: tmp(:)
+    integer :: n, i
+    if (allocated(known0)) then
+       do i = 1, size(known0)
+          if (known0(i) == flag) return
+       enddo
+       n = size(known0)
+       allocate(tmp(n + 1))
+       tmp(1:n) = known0
+       tmp(n + 1) = flag
+       call move_alloc(from=tmp, to=known0)
+    else
+       allocate(known0(1))
+       known0(1) = flag
+    endif
   end subroutine register0
 
   !> Append `flag` (bare name, no trailing `=`) to the cmdopt2
   !! typo-detection table. Idempotent.
   subroutine register2(flag)
     character(*), intent(in) :: flag
-    integer :: i
-    do i = 1, REG_CAP
-       if (known2(i) == flag) return
-       if (known2(i) == '') then
-          known2(i) = flag
-          return
-       endif
-    enddo
-    call rx('m_cmdopt_registry: bump REG_CAP')
+    character(len=20), allocatable :: tmp(:)
+    integer :: n, i
+    if (allocated(known2)) then
+       do i = 1, size(known2)
+          if (known2(i) == flag) return
+       enddo
+       n = size(known2)
+       allocate(tmp(n + 1))
+       tmp(1:n) = known2
+       tmp(n + 1) = flag
+       call move_alloc(from=tmp, to=known2)
+    else
+       allocate(known2(1))
+       known2(1) = flag
+    endif
   end subroutine register2
 
-  !> True if `flag` (full token, e.g. "--writeham" or "-terse") was
-  !! registered by load_cmdopt0_registry. Case-sensitive.
+  !> True if `flag` (full token) was registered by load_cmdopt0_registry.
   function is_known_cmdopt0(flag) result(yes)
     character(*), intent(in) :: flag
     logical :: yes
     integer :: i
     yes = .false.
-    do i = 1, REG_CAP
-       if (known0(i) == '') return           ! end of populated entries
+    if (.not. allocated(known0)) return
+    do i = 1, size(known0)
        if (trim(flag) == trim(known0(i))) then
           yes = .true.
           return
@@ -249,15 +253,15 @@ contains
     enddo
   end function is_known_cmdopt0
 
-  !> True if `flag` ("--foo" or "-foo", *without* trailing `=`) was
-  !! registered by load_cmdopt2_registry. Case-sensitive.
+  !> True if `flag` (bare name, no trailing `=`) was registered by
+  !! load_cmdopt2_registry.
   function is_known_cmdopt2(flag) result(yes)
     character(*), intent(in) :: flag
     logical :: yes
     integer :: i
     yes = .false.
-    do i = 1, REG_CAP
-       if (known2(i) == '') return
+    if (.not. allocated(known2)) return
+    do i = 1, size(known2)
        if (trim(flag) == trim(known2(i))) then
           yes = .true.
           return
@@ -265,32 +269,17 @@ contains
     enddo
   end function is_known_cmdopt2
 
-  !> Look up a pure cmdopt0 flag in arglist, cache the boolean, AND
-  !! register the flag in the runtime typo-detection table.
-  subroutine set0(flag, var)
-    character(*), intent(in)  :: flag
-    logical,      intent(out) :: var
-    logical, external :: cmdopt0
-    var = cmdopt0(flag)
-    call register0(flag)
-  end subroutine set0
-
-  !> Wrapper around cmdopt2 that also registers `flag` (bare name; the
-  !! trailing `=` is appended internally before the cmdopt2 call) in
-  !! the cmdopt2 typo-detection table.
-  function get2(flag, outs) result(found)
-    character(*), intent(in)  :: flag
-    character(*), intent(out) :: outs
-    logical :: found
-    logical, external :: cmdopt2
-    call register2(flag)
-    found = cmdopt2(trim(flag) // '=', outs)
-  end function get2
-
-  !> Parse every cmdopt2 entry into the cached module variables above.
-  !! Idempotent: subsequent calls are no-ops. Called once at startup
-  !! from m_args::m_setargs (after arglist is populated).
-  subroutine load_cmdopt2_registry()
+  !> Parse every cmdopt2 entry (--xxx=value form) into the cached
+  !! c2_* module variables. Idempotent. Called once at startup from
+  !! m_args::m_setargs after arglist is populated.
+  !!
+  !! narg/arglist are passed in (no `use m_args`) to keep this module
+  !! self-contained and avoid a circular module-USE chain with m_args.
+  !! The internal `get2` helper inherits narg/arglist via host
+  !! association.
+  subroutine load_cmdopt2_registry(narg, arglist)
+    integer,      intent(in) :: narg
+    character(*), intent(in) :: arglist(narg)
     logical, save :: done = .false.
     character(len=120) :: outs
     if (done) return
@@ -333,14 +322,40 @@ contains
     if (get2('--quit', outs)) c2_quit = trim(outs)
     if (get2('--diag', outs)) c2_diag = trim(outs)
     if (get2('--dwnb', outs)) c2_dwnb = trim(outs)
+
+  contains
+    !> Look up `<flag>=<value>` in arglist; return .true. + value in
+    !! outs when found. Also registers `flag` (bare name) in the
+    !! cmdopt2 typo-detection table.
+    function get2(flag, outs) result(found)
+      character(*), intent(in)  :: flag
+      character(*), intent(out) :: outs
+      logical :: found
+      character(len=:), allocatable :: pref
+      integer :: iarg, plen
+      call register2(flag)
+      pref = trim(flag) // '='
+      plen = len(pref)
+      found = .false.
+      do iarg = 1, narg
+         if (len_trim(arglist(iarg)) < plen) cycle
+         if (arglist(iarg)(1:plen) == pref) then
+            outs  = arglist(iarg)(plen + 1:)
+            found = .true.
+            return
+         endif
+      enddo
+    end function get2
   end subroutine load_cmdopt2_registry
 
-  !> Parse every cmdopt0 entry (pure flags) into the cached c0_* logicals.
-  !! Idempotent. Called once from m_args::m_setargs alongside
-  !! load_cmdopt2_registry. Each call to set0() also registers the flag
-  !! in the typo-detection table, so adding a new cmdopt0 only requires
-  !! ONE new line here.
-  subroutine load_cmdopt0_registry()
+  !> Parse every cmdopt0 entry (pure flag form) into the cached c0_*
+  !! module variables. Idempotent. Called once from m_args::m_setargs
+  !! alongside load_cmdopt2_registry. Each `call set0()` also registers
+  !! the flag in the typo-detection table, so adding a new cmdopt0
+  !! only requires ONE new line here.
+  subroutine load_cmdopt0_registry(narg, arglist)
+    integer,      intent(in) :: narg
+    character(*), intent(in) :: arglist(narg)
     logical, save :: done = .false.
     if (done) return
     done = .true.
@@ -450,57 +465,104 @@ contains
     call set0('--x0test',         c0_x0test)
     call set0('--ylmc',           c0_ylmc)
     call set0('--zmel0',          c0_zmel0)
+
+  contains
+    !> Look up `flag` verbatim in arglist; set `var` to the result
+    !! AND register `flag` in the cmdopt0 typo-detection table.
+    subroutine set0(flag, var)
+      character(*), intent(in)  :: flag
+      logical,      intent(out) :: var
+      integer :: iarg
+      call register0(flag)
+      var = .false.
+      do iarg = 1, narg
+         if (trim(arglist(iarg)) == flag) then
+            var = .true.
+            return
+         endif
+      enddo
+    end subroutine set0
   end subroutine load_cmdopt0_registry
 
+  !> Final-pass strict typo / retired-syntax check. Walks every token
+  !! and aborts on:
+  !!   - retired forms (-v...=, --[...]=, --toml.<path>=, --pr=, etc.)
+  !!     with a one-line migration hint
+  !!   - any --word / -word (no `=`) not in the cmdopt0 table
+  !!   - any --word=... whose bare prefix isn't in the cmdopt2 table
+  !! Skips:
+  !!   - bare positional args (no leading `-`)
+  !!   - --ctrlg:<path>=<value> (canonical TOML override syntax)
+  !!
+  !! narg/arglist are passed in (rather than `use m_args, only: ...`) to
+  !! avoid a circular module dependency: m_args::m_setargs already uses
+  !! m_cmdopt_registry to call this routine.
+  subroutine validate_arglist(narg, arglist)
+    integer,      intent(in) :: narg
+    character(*), intent(in) :: arglist(narg)
+    logical, save :: done = .false.
+    integer :: i, alen, eq
+    character(len=:), allocatable :: arg
+    if (done) return
+    done = .true.
+    do i = 1, narg
+       arg = trim(arglist(i))
+       alen = len(arg)
+       if (alen == 0) cycle
+       if (arg(1:1) /= '-') cycle                         ! positional
+       if (alen >= 8 .and. arg(1:8) == '--ctrlg:') cycle  ! TOML override
+       call check_retired(arg)                            ! aborts on legacy forms
+       eq = index(arg, '=')
+       if (eq == 0) then
+          if (is_known_cmdopt0(arg)) cycle
+       else
+          if (is_known_cmdopt2(arg(1:eq-1))) cycle
+       endif
+       call die_unknown(arg)
+    enddo
+  end subroutine validate_arglist
+
+  subroutine check_retired(arg)
+    character(*), intent(in) :: arg
+    integer :: alen
+    alen = len_trim(arg)
+    if (alen < 2) return
+    if (alen >= 3 .and. arg(1:2) == '-v' .and. index(arg, '=') > 0) &
+         call die_retired(arg, &
+              '-v...=<value> is retired. Use --ctrlg:<dotted.path>=<value>.')
+    if (alen >= 5 .and. arg(1:3) == '--[' .and. index(arg, ']=') > 0) &
+         call die_retired(arg, &
+              '--[<path>]=<value> is retired. Use --ctrlg:<dotted.path>=<value>.')
+    if (alen >= 9 .and. arg(1:7) == '--toml.' .and. index(arg, '=') > 0) &
+         call die_retired(arg, &
+              '--toml.<path>=<value> is retired. Use --ctrlg:<dotted.path>=<value>.')
+    if (alen >= 5 .and. arg(1:5) == '--pr=') &
+         call die_retired(arg, '--pr=N is retired. Use --ctrlg:verbose=N.')
+    if (alen >= 7 .and. arg(1:7) == '--time=') &
+         call die_retired(arg, '--time=<...> is retired. Use --ctrlg:time=[N,M].')
+    if (arg(1:alen) == '--phispinsym') &
+         call die_retired(arg, &
+              '--phispinsym is retired. Use --ctrlg:ham.phispinsym=true, '// &
+              'or set [ham] phispinsym = true in ctrlg.<sname>.toml.')
+  end subroutine check_retired
+
+  subroutine die_unknown(arg)
+    character(*), intent(in) :: arg
+    write(*,'(a)') ' '
+    write(*,'(a)') 'ERROR: unknown option `'//trim(arg)//'`.'
+    write(*,'(a)') '       To override a TOML key, use --ctrlg:<dotted.path>=<value>.'
+    write(*,'(a)') '       Registered options: see m_cmdopt_registry.f90 (c0_*/c2_*)'
+    write(*,'(a)') '       or https://ecalj.github.io/ecaljdoc/manual/cmdopts'
+    call rx('unknown option: '//trim(arg))
+  end subroutine die_unknown
+
+  subroutine die_retired(arg, hint)
+    character(*), intent(in) :: arg, hint
+    write(*,'(a)') ' '
+    write(*,'(a)') 'ERROR: retired syntax `'//trim(arg)//'`'
+    write(*,'(a)') '       '//trim(hint)
+    write(*,'(a)') '       https://ecalj.github.io/ecaljdoc/manual/toml_migration'
+    call rx('retired syntax: '//trim(arg))
+  end subroutine die_retired
+
 end module m_cmdopt_registry
-
-!=========================================================================
-! cmdopt0 / cmdopt2: top-level argument-lookup functions.
-!
-! Kept OUTSIDE m_cmdopt_registry so that m_args::m_setargs (which calls
-! load_cmdopt0/2_registry on first invocation) does not introduce a
-! circular module USE with m_cmdopt_registry. Module-level USE chains
-! must be acyclic in Fortran, so cmdopt0/cmdopt2 live as standalone
-! external functions instead -- m_cmdopt_registry's load_*_registry
-! routines declare them `logical, external` and call them directly.
-!
-! Migrated 2026-06-02 from m_ext.f90 alongside the cmdopt0/cmdopt2
-! single-shot caching refactor.
-!=========================================================================
-
-!> True if `argstr` exists verbatim in arglist. Triggers lazy m_setargs
-!! init on first call; subsequent calls reuse arglist.
-logical function cmdopt0(argstr)
-  use m_args, only: m_setargs, arglist, narg
-  implicit none
-  character(*) :: argstr
-  integer :: iarg
-  cmdopt0 = .false.
-  call m_setargs()
-  do iarg = 1, narg
-     if (trim(arglist(iarg)) == trim(argstr)) then
-        cmdopt0 = .true.
-        return
-     endif
-  enddo
-end function cmdopt0
-
-!> True if some arglist token starts with `argstr` (typically
-!! `'--foo='`); the remainder of the matching token is returned in
-!! `outstr`. Triggers lazy m_setargs init on first call.
-logical function cmdopt2(argstr, outstr)
-  use m_args, only: m_setargs, arglist, narg
-  implicit none
-  character(*) :: argstr, outstr
-  integer :: iarg, strlnx
-  cmdopt2 = .false.
-  call m_setargs()
-  do iarg = 1, narg
-     strlnx = len_trim(argstr)
-     if (arglist(iarg)(1:strlnx) == trim(argstr)) then
-        cmdopt2 = .true.
-        outstr = arglist(iarg)(strlnx + 1:)
-        return
-     endif
-  enddo
-end function cmdopt2

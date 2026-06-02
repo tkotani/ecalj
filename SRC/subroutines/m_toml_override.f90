@@ -12,24 +12,15 @@
 !  console output of every lmf/lmfa/GW utility. Values are TOML-typed
 !  (so `true`/`false` lowercase, strings quoted, arrays in `[...]`).
 !
-!  Other --foo=value args are checked against
-!  m_cmdopt_registry::CMDOPT2_REGISTRY; if it matches a known cmdopt2 (or
-!  a cmdopt0 whose name carries `=`, e.g. --quit=show) it passes through
-!  to the existing cmdopt path, otherwise we abort with a hint.
-!
-!  Retired (now aborts with a one-line migration hint):
-!    -v<name>=<value>           legacy ctrl %const form
-!    -v[<path>]=<value>         the old TOML override prefix
-!    --[<path>]=<value>         intermediate bracketed form
-!    --<a.b.c>=<value>          intermediate dotted form
-!    --pr=N                     cmdline shortcut for verbose
-!    --time=<...>               cmdline shortcut for time
-!    --phispinsym               cmdline shortcut for [ham] phispinsym
+!  Strict typo detection for non-ctrlg flags and retired-syntax checks
+!  (-v..., --[...]=, --toml.<path>=, --pr=, --time=, --phispinsym) live
+!  in m_cmdopt_registry::validate_arglist, called from m_setargs at
+!  startup. Anything that survives that pass and isn't a --ctrlg:
+!  override is silently skipped here.
 module m_toml_override
   use m_args,            only: arglist, narg
   use m_lgunit,          only: stdo
   use m_MPItk,           only: master_mpi
-  use m_cmdopt_registry, only: is_known_cmdopt2, is_known_cmdopt0
   implicit none
   private
   public :: load_toml_with_overrides
@@ -37,8 +28,8 @@ module m_toml_override
 contains
 
   !> Read filename as a text buffer, apply any --ctrlg:<path>=<value>
-  !  overrides found in arglist (plus the retained --pr=N shortcut),
-  !  and return the (possibly modified) buffer in `text`.
+  !  overrides found in arglist, and return the (possibly modified)
+  !  buffer in `text`.
   subroutine load_toml_with_overrides(filename, text)
     character(*),                  intent(in)  :: filename
     character(len=:), allocatable, intent(out) :: text
@@ -52,13 +43,7 @@ contains
     did_log_header = .false.
     do i = 1, narg
        arg = arglist(i)
-       call abort_on_retired_form(arg)
-       if (is_toml_override(arg, path, val)) then
-          ! new --ctrlg:<dotted.path>=<value> form
-       else
-          call classify_non_toml_arg(arg)
-          cycle
-       endif
+       if (.not. is_toml_override(arg, path, val)) cycle
        if (master_mpi .and. .not. did_log_header) then
           write(stdo,'(a)') ' --- TOML overrides applied (--ctrlg:<path>=<value>) ---'
           did_log_header = .true.
@@ -114,95 +99,6 @@ contains
     if (trimmed == 'nan'   .or. trimmed == 'inf')   return
     out = '"' // v // '"'
   end function autoquote_bare_string
-
-  !> Anything starting with `-` but not the new --ctrlg: form.
-  !! Either a registered cmdopt that passes through, or a typo we abort on.
-  !! Strict mode: cmdopt0 flags (no `=`) are also checked against the
-  !! registry; an unknown flag aborts with a hint.
-  subroutine classify_non_toml_arg(arg)
-    character(*), intent(in) :: arg
-    integer :: alen, eq
-    alen = len_trim(arg)
-    if (alen <= 0) return
-    if (arg(1:1) /= '-') return                ! not a flag, leave alone
-    eq = index(arg, '=')
-    if (eq == 0) then
-       if (is_known_cmdopt0(trim(arg))) return    ! registered cmdopt0, pass through
-    else
-       if (is_known_cmdopt2(arg(1:eq-1))) return  ! registered cmdopt2, pass through
-    endif
-    if (master_mpi) then
-       write(stdo,'(a)') ' '
-       write(stdo,'(a)') 'ERROR: unknown option `'//trim(arg)//'`.'
-       write(stdo,'(a)') '       To override a TOML key, use'
-       write(stdo,'(a)') '         --ctrlg:<dotted.path>=<value>'
-       write(stdo,'(a)') '       For a list of registered cmdline options see'
-       write(stdo,'(a)') '         https://ecalj.github.io/ecaljdoc/manual/cmdopts'
-       write(stdo,'(a)') '       and m_cmdopt_registry.f90 for the CMDOPT0/CMDOPT2 registries.'
-    endif
-    call rx('unknown option: '//trim(arg))
-  end subroutine classify_non_toml_arg
-
-  !> Hard-error on syntaxes we used to accept. Each branch prints one
-  !! migration hint so the failure mode is "obvious from one line".
-  subroutine abort_on_retired_form(arg)
-    character(*), intent(in) :: arg
-    integer :: alen
-    alen = len_trim(arg)
-    if (alen < 2) return
-
-    ! -v...  family (legacy %const + intermediate -v[...]= TOML override)
-    if (alen >= 3 .and. arg(1:2) == '-v') then
-       if (index(arg, '=') > 0) call retired_die(arg, &
-            '-v...=<value> is retired. Use --ctrlg:<dotted.path>=<value>.')
-       return
-    endif
-
-    ! --[<path>]=<value>  intermediate bracketed form
-    if (alen >= 5 .and. arg(1:3) == '--[' .and. index(arg, ']=') > 0) then
-       call retired_die(arg, &
-            '--[<path>]=<value> is retired. Use --ctrlg:<dotted.path>=<value>.')
-    endif
-
-    ! --toml.<path>=<value>  intermediate dotted prefix
-    if (alen >= 9 .and. arg(1:7) == '--toml.' .and. index(arg, '=') > 0) then
-       call retired_die(arg, &
-            '--toml.<path>=<value> is retired. Use --ctrlg:<dotted.path>=<value>.')
-    endif
-
-    ! --pr=N
-    if (alen >= 5 .and. arg(1:5) == '--pr=') then
-       call retired_die(arg, &
-            '--pr=N is retired. Use --ctrlg:verbose=N.')
-    endif
-
-    ! --time=...
-    if (alen >= 7 .and. arg(1:7) == '--time=') then
-       call retired_die(arg, &
-            '--time=<...> is retired. Use --ctrlg:time=[N,M].')
-    endif
-
-    ! --phispinsym  (cmdline flag retired; lives on inside Legacy2toml.py
-    ! which still rewrites the legacy ctrl token, but the Fortran binary
-    ! must read it from [ham] phispinsym in the TOML.)
-    if (arg(1:alen) == '--phispinsym') then
-       call retired_die(arg, &
-            '--phispinsym is retired. Use --ctrlg:ham.phispinsym=true, '// &
-            'or set [ham] phispinsym = true in ctrlg.<sname>.toml.')
-    endif
-  end subroutine abort_on_retired_form
-
-  subroutine retired_die(arg, hint)
-    character(*), intent(in) :: arg, hint
-    if (master_mpi) then
-       write(stdo,'(a)') ' '
-       write(stdo,'(a)') 'ERROR: retired syntax `'//trim(arg)//'`'
-       write(stdo,'(a)') '       '//trim(hint)
-       write(stdo,'(a)') '       https://ecalj.github.io/ecaljdoc/manual/toml_migration'
-    endif
-    call rx('retired syntax: '//trim(arg))
-  end subroutine retired_die
-
 
   subroutine slurp_file(filename, text)
     character(*),                  intent(in)  :: filename
