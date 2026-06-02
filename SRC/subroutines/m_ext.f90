@@ -81,21 +81,27 @@ contains
     i = getcwd(dirname)
     do i = 1, narg
        !write(*,*)'m_ext_init=',i, trim(arglist(i))
-       ! Strip "ctrlg." prefix and ".toml" suffix from sname so that
+       ! Accept exactly two canonical forms for the positional sname:
        !   lmf nio                 (bare sname)
-       !   lmf ctrlg.nio           (typing the new filename prefix)
-       !   lmf ctrlg.nio.toml      (the full filename, e.g. after TAB)
-       ! all converge on sname='nio'. Same idea for the legacy "ctrl."
-       ! prefix below; keep that branch first so a literal file
-       ! `ctrl.nio` (with a dot but no ".toml") still resolves.
+       !   lmf ctrlg.nio.toml      (the actual TOML file in cwd; this
+       !                            is what `lmf <TAB>` expands to)
+       ! Anything that starts with "ctrlg." but does NOT end in ".toml"
+       ! (e.g. `lmf ctrlg.nio`) is rejected: it is neither a filename
+       ! that exists on disk nor a sname the user could reasonably
+       ! mean -- usually a typo where the user forgot the ".toml" or
+       ! left the TAB completion half-done.
        if (len_trim(arglist(i)) >= 7 .and. arglist(i)(1:6)=='ctrlg.') then
           sss = arglist(i)(7:)
           if (len_trim(sss) >= 5 .and. sss(len_trim(sss)-4:len_trim(sss))=='.toml') then
              sname = sss(:len_trim(sss)-5)
-          else
-             sname = trim(sss)
+             goto 999
           endif
-          goto 999
+          write(6,'(a)') ''
+          write(6,'(a)') 'ERROR: "'//trim(arglist(i))//'" is not a recognised sname form.'
+          write(6,'(a)') '       Use either the bare sname (e.g. "'//trim(sss)//'")'
+          write(6,'(a)') '       or the full filename "ctrlg.'//trim(sss)//'.toml".'
+          flush(6)
+          call exit(1)
        endif
        if (len_trim(arglist(i)) >= 6 .and. arglist(i)(1:5)=='ctrl.') then
           ! Legacy `ctrl.<sname>` text format is no longer parsed by
