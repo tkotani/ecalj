@@ -41,15 +41,15 @@ step is required.
 `%const` was removed.  Run-time overrides now use TOML-path syntax:
 
     OLD:  lmf si -vnk=8 -vmetal=3
-    NEW:  lmf si -v[bz.nkabc]=[8,8,8] -v[bz.metal]=3
+    NEW:  lmf si --toml.bz.nkabc=[8,8,8] --toml.bz.metal=3
 
-The `-v[<path>]=val` form is text-substituted into the TOML in memory
+The `--toml.<path>=val` form is text-substituted into the TOML in memory
 before parsing; the file on disk is never modified.
 
 When `Legacy2toml.py` sees `-vNAME=VAL` it prints a 3-level diagnostic:
 
   - **WARN**  `NAME` is not in `%const`            -> the override is a no-op.
-  - **INFO**  `NAME` maps to a TOML path           -> use `-v[<path>]=val`
+  - **INFO**  `NAME` maps to a TOML path           -> use `--toml.<path>=val`
                                                      at run time instead;
                                                      no reconversion needed.
   - **ERROR** `NAME` changes topology              -> save the result as a

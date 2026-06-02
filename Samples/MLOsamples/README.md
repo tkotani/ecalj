@@ -295,8 +295,8 @@ The MLO + TOML migration introduced two regressions, fixed in commits
   dropped real data when GWinput had a real block plus a commented
   example. Now keeps the first.
 - **`job_mlo_soc` -v overrides**: `-vnspin=2 -vso=0` form is silently
-  ignored under TOML-only mode; replaced with `-v[ham.nspin]=2`,
-  `-v[ham.so]=0/1`.
+  ignored under TOML-only mode; replaced with `--toml.ham.nspin=2`,
+  `--toml.ham.so=0/1`.
 - **gfortran 13.3 / 14.2 codegen bug** in `m_HamPMT.f90`
   (`ReadInfoFromGWinput` block): a "naked" `else: call rx` on the
   `<Worb>` if/else miscompiles the live (TOML) path, corrupting

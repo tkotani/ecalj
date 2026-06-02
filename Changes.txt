@@ -1,4 +1,10 @@
 2026-06-02
+  [docs] 新 TOML override 仕様 (--toml.<path>=<value>) を関連箇所に
+    反映: m_ext.f90 --help バナー、SRC/exec/Legacy2toml.py の
+    INFO/WARN/ERROR diagnostic、README.md / ecaljclaude.md /
+    ecalj_auto/README.md / Samples/MLOsamples/README.md /
+    Samples/MLOsamples/README_SOC.md 内のサンプルコマンド。
+
   [BREAKING] TOML override syntax 一新と TOML スキーマ調整。新仕様:
     - 受け入れる override 形式は `--toml.<dotted.path>=<value>` 一つだけ
       (例: --toml.bz.nkabc=[8,8,8] / --toml.ham.so=1 /

@@ -10,10 +10,10 @@ SOC を摂動として加える方式。lmf の aughsoc を `--socmatrix` で別
 
 `job_mlo_soc <target> -np N` で自動実行される 4 ステップ:
 
-1. **SOC Ef 決定** — `lmf --quit=band -v[ham.nspin]=2 --phispinsym -v[ham.so]=1`
+1. **SOC Ef 決定** — `lmf --quit=band --toml.ham.nspin=2 --toml.ham.phispinsym=true --toml.ham.so=1`
    - フル LS のスピノルハミルトニアンを全 BZ メッシュで解き `efermi.lmf` を生成
    - これを `efermi_soc` にコピー（以後の lmf 実行でも上書きされない）
-2. **H + V_SO 書き出し** — `lmf --writeham --mkprocar --noinv --mlo -v[ham.nspin]=2 --phispinsym -v[ham.so]=0 --socmatrix`
+2. **H + V_SO 書き出し** — `lmf --writeham --mkprocar --noinv --mlo --toml.ham.nspin=2 --toml.ham.phispinsym=true --toml.ham.so=0 --socmatrix`
    - スカラー相対論のハミルトニアンを `__HamiltonianPMT` に、SOC 行列を
      `__HamiltonianPMTsoc` に書く
 3. **MLO バンド計算** — `mlo --socmatrix`
@@ -46,7 +46,7 @@ SOC を摂動として加える方式。lmf の aughsoc を `--socmatrix` で別
 共通ファイル構成:
 - 入力: `ctrl.*`, `GWinput`, `syml.*`, `qplist.dat`, `rst.*`, `atmpnu.*.*`
 - QSGW の場合は `sigm.*` も (GaAsSoc のみ)
-- `bnd00N.spin1`: SOC spinor DFT bands (`job_band -v[ham.nspin]=2 -v[ham.so]=1 --phispinsym`)
+- `bnd00N.spin1`: SOC spinor DFT bands (`job_band --toml.ham.nspin=2 --toml.ham.so=1 --toml.ham.phispinsym=true`)
 - `bandplot.isp1.glt`: プロットテンプレート
 - `band_MLO_spin{1,2}.dat`: 非SOC MLO 参照（nspin=2 なら per-spin 2 ファイル）
 - `band_MLO_spin1.soc.dat`: SOC MLO 参照 (2N スピノル)
@@ -67,7 +67,7 @@ cd <target>_work
 gnuplot -p bandplot_MLO.isp1.glt
 ```
 - **赤点**: MLO-SOC bands (`job_mlo_soc` 出力)
-- **黒線**: DFT-SOC bands (`job_band -v[ham.nspin]=2 -v[ham.so]=1` 出力)
+- **黒線**: DFT-SOC bands (`job_band --toml.ham.nspin=2 --toml.ham.so=1` 出力)
 
 両者が SOC 分裂した VBM 周辺で整合することを確認できる。
 

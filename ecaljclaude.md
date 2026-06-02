@@ -260,7 +260,7 @@ Legacy2toml.py <sname>        # writes ctrlG.<sname>.toml + PB.toml
 ### 旧 -v オーバーライドの新形式
 ```
 OLD:  lmf si -vnk=8 -vmetal=3
-NEW:  lmf si -v[bz.nkabc]=[8,8,8] -v[bz.metal]=3
+NEW:  lmf si --toml.bz.nkabc=[8,8,8] --toml.bz.metal=3
 ```
 
 ### ファイル命名規約

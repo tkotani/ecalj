@@ -18,8 +18,8 @@ Legacy2toml.py — one-shot migration tool: legacy ecalj input -> TOML.
 
   Run-time tunables (-v) have moved from %const to TOML-path syntax:
       OLD:  lmf si -vnk=8 -vmetal=3
-      NEW:  lmf si -v[bz.nkabc]=[8,8,8] -v[bz.metal]=3
-  The -v[<path>]=val form is processed in-memory by m_toml_override.f90;
+      NEW:  lmf si --toml.bz.nkabc=[8,8,8] --toml.bz.metal=3
+  The --toml.<path>=val form is processed in-memory by m_toml_override.f90;
   it never rewrites the .toml file on disk.
 
 ==============================================================================
@@ -31,7 +31,8 @@ Legacy2toml.py — one-shot migration tool: legacy ecalj input -> TOML.
 ==============================================================================
   Outputs (written / overwritten in cwd; .bakup of any prior file is kept)
 ==============================================================================
-    ctrlG.<sname>.toml    [io]/[struc]/[[site]]/[[spec]]/[bz]/[iter]/[ham]/...
+    ctrlG.<sname>.toml    top-level (symgrp, verbose, time) +
+                          [struc]/[[site]]/[[spec]]/[bz]/[iter]/[ham]/...
                           plus [gw]/[product_basis] (scalars only)/[blocks]
     PB.toml               [product_basis] per-atom: nlx, valence, core
 
@@ -51,7 +52,7 @@ Legacy2toml.py — one-shot migration tool: legacy ecalj input -> TOML.
 
     A 3-level diagnostic warns about each -v BEFORE conversion:
       [WARN]  NAME not in %const         -- the override is a no-op
-      [INFO]  NAME maps to a TOML path   -- prefer runtime -v[<path>]=val
+      [INFO]  NAME maps to a TOML path   -- prefer runtime --toml.<path>=val
                                            (no reconversion needed)
       [ERROR] NAME affects topology      -- variant required:
               save the result as ctrlG.<sname>.<tag>.toml and switch via
@@ -85,7 +86,7 @@ def banner(msg):
 
 # ----- -v override analyzer (3-level diagnostic) ----------------------------
 # Tokens that inherently change schema topology / structure of TOML;
-# overriding them via -v[<path>]=val cannot be expressed in default TOML mode.
+# overriding them via --toml.<path>=val cannot be expressed in default TOML mode.
 TOPOLOGY_TOKENS = {
     ('STRUC', 'NBAS'),
     ('STRUC', 'NSPEC'),
@@ -173,9 +174,9 @@ def analyze_v_overrides(ctrl_path, v_args):
 
       1. WARN if the var is not defined in any %const     (no-op override)
       2. ERROR if any reference site is structural/topology (cannot be
-         expressed as -v[<path>]=val in default TOML mode -- requires a
+         expressed as --toml.<path>=val in default TOML mode -- requires a
          pre-generated ctrlG.<sname>.<tag>.toml variant).
-      3. INFO otherwise: suggest the equivalent -v[<toml-path>]=val that
+      3. INFO otherwise: suggest the equivalent --toml.<toml-path>=val that
          can be used in default TOML mode without going through Legacy2toml.
 
     Returns the count of ERRORs (caller decides whether to abort).
@@ -206,7 +207,7 @@ def analyze_v_overrides(ctrl_path, v_args):
                 print(f'  [ERROR] -v{name}={val}: '
                       f"used as section header line ({src.lstrip()[:60]}...). "
                       f"Toggles a TOML section (e.g. enabling [DYN]); "
-                      f"cannot be expressed as -v[<path>]=val. "
+                      f"cannot be expressed as --toml.<path>=val. "
                       f"Use a ctrlG.<sname>.<tag>.toml variant.")
                 n_err += 1
                 any_topology = True
@@ -215,7 +216,7 @@ def analyze_v_overrides(ctrl_path, v_args):
                 print(f'  [ERROR] -v{name}={val}: '
                       f"changes topology ({cat}_{tok}={val}). "
                       f"TOML schema fixes [[site]]/[[spec]] count; "
-                      f"cannot be expressed as -v[<path>]=val. "
+                      f"cannot be expressed as --toml.<path>=val. "
                       f"Generate a ctrlG.<sname>.<tag>.toml variant via:\n"
                       f"      Legacy2toml.py <sname> -v{name}={val} ...   # save output\n"
                       f"      mv ctrlG.<sname>.toml ctrlG.<sname>.<tag>.toml")
@@ -233,7 +234,7 @@ def analyze_v_overrides(ctrl_path, v_args):
                 else:
                     print(f'  [INFO] -v{name}={val}: '
                           f"used at {cat}_{tok} -> TOML path '{tp}'. "
-                          f"Equivalent: -v[{tp}]={val}")
+                          f"Equivalent: --toml.{tp}={val}")
     print('---')
     return n_err
 
@@ -255,7 +256,7 @@ def main():
     n_err = analyze_v_overrides(str(ctrl_legacy), extra_args)
     if n_err > 0:
         print(f'Legacy2toml.py: {n_err} -v override(s) cannot be expressed '
-              f'as -v[<path>]=val in default TOML mode.', flush=True)
+              f'as --toml.<path>=val in default TOML mode.', flush=True)
         print('  Proceeding with conversion anyway -- the resulting '
               'ctrlG.{0}.toml reflects these overrides; save it with a '
               'descriptive suffix (e.g. ctrlG.{0}.<tag>.toml) and switch '
