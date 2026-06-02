@@ -175,6 +175,7 @@ KEY_INLINE = {
         'pnufix':      "# fix B.C. of radial functions",
         'frzwf':       "# freeze wavefunctions",
         'forces':      "# 0 none, 1 compute forces",
+        'phispinsym':  "# spin-averaged radial wfns; needed for SO=1 perturbation",
     },
     'struc': {
         'alat': "# lattice constant (a.u.)",

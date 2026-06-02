@@ -1,4 +1,11 @@
 2026-06-02
+  [feat] ctrlgenToml.py + toml_comments.py: [ham] に phispinsym = false を
+    explicit に書くようにした。これまで TOML 出力に無く `defa=0` で
+    暗黙の OFF だったため、SOC perturbation 等で必要なときの存在感が
+    薄かった。新規 ctrlG.<sname>.toml に "true = spin-averaged radial
+    wfns (needed for SOC=1 perturbation)" の inline コメント付きで出力。
+    既存 ctrlG.toml は変更不要 (デフォルト false と等価)。
+
   [feat] [io] のキー名を verbos → verbose、tim → time にリネーム。
     m_lmfinit.f90 の rval2 呼び出しは新名前を先に試し、見つからなければ
     旧名前にフォールバックするので既存 95 個の ctrlG.<sname>.toml は

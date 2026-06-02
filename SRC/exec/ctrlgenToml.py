@@ -669,6 +669,7 @@ def main():
     out.append('readp       = true')
     out.append('pnufix      = true')
     out.append('frzwf       = false')
+    out.append('phispinsym  = false  # true = spin-averaged radial wfns (needed for SOC=1 perturbation)')
     out.append(f'scaledsigma = {fmt_real(opts["ssig"])}')
     out.append(f'so          = {opts["so"]}')
     out.append('oveps       = 1.0e-8')
