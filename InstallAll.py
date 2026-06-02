@@ -211,10 +211,14 @@ def main():
     # offer flag-name completion without exec()ing lmf on every tab.
     # Regenerated on every InstallAll.py run, so a registry edit is
     # picked up the next time the user reinstalls.
+    #
+    # Wrap in `mpirun -np 1` because some MPI flavours (e.g. HPCX on
+    # kt1) refuse to bring up an MPI binary without launcher framing,
+    # and abort before it can reach c0_listcmdopt.
     cmdopt_list = BIN_DIR / 'ecalj_cmdopts.list'
     print(f'Dumping cmdopt registry -> {cmdopt_list}')
     try:
-        run_shell(f"{BIN_DIR / 'lmf'} --listcmdopt > {cmdopt_list}")
+        run_shell(f"mpirun -np 1 {BIN_DIR / 'lmf'} --listcmdopt > {cmdopt_list}")
     except Exception as e:
         print(f'  (warn) cmdopt dump failed: {e}; tab-completion of flags will be empty')
 
