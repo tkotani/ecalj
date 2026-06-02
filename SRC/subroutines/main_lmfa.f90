@@ -1,5 +1,5 @@
 module m_lmfa
-use m_cmdopt_registry, only: c0_help
+use m_cmdopt_registry, only: c0_help, c0_listcmdopt, list_cmdopts
 contains
   subroutine lmfa(commin) bind(C)
     use mpi
@@ -28,6 +28,7 @@ contains
     if(master_mpi) write(stdo,*) 'mpisize=',nsize
     if(master_mpi) write(stdl,*) 'mpisize=',nsize
     if(c0_help) call print_usage_and_quit('lmfa')
+    if(c0_listcmdopt) call list_cmdopts()
     open(newunit=ifi,file='save.'//trim(sname),position='append')
     write(ifi,"(a)")'Start '//trim(prgnam)//trim(argall)
     close(ifi)

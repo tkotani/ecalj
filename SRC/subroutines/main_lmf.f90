@@ -6,7 +6,7 @@
 ! This assure that we can not modify data in a module by other modules.
 ! Bootstrap sequence of module initialzation. The variables in modules are proteted except m_density. Use variables with 'use only'.
 module m_lmf
-use m_cmdopt_registry, only: c0_getq, c0_help, c0_vbmonly, c0_wdsawada, c0_writeham, c0_writepdos, c2_jobgw, c2_quit
+use m_cmdopt_registry, only: c0_getq, c0_help, c0_listcmdopt, c0_vbmonly, c0_wdsawada, c0_writeham, c0_writepdos, c2_jobgw, c2_quit, list_cmdopts
 contains
   subroutine lmf(commin) bind(C)
     use mpi
@@ -46,6 +46,7 @@ contains
     comm = MPI_COMM_WORLD
     if(present(commin)) comm= commin
     if(c0_help) call print_usage_and_quit('lmf')
+    if(c0_listcmdopt) call list_cmdopts()
     jobgw = c2_jobgw  ! -1 = not set; otherwise 0 or 1 (validated in registry)
     if (jobgw >= 0) then
        prgnam='LMFGWD' !GW set up mode

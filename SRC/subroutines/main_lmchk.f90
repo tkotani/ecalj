@@ -2,7 +2,7 @@
 ! the main purpose of lmchk is just determine the MT raduis with charge neutrality condition.
 ! I think it might be probably easier to rewrite new code  without examining detail of lmaux.
 module m_lmchk 
-use m_cmdopt_registry, only: c0_help
+use m_cmdopt_registry, only: c0_help, c0_listcmdopt, list_cmdopts
 contains
   subroutine lmchk(commin) bind(C)
     use mpi
@@ -33,6 +33,7 @@ contains
     if(master_mpi) write(stdl,*) 'mpisize=',nsize
     if(master_mpi) call setcmdpath() !set self-command path
     if(c0_help) call print_usage_and_quit('lmchk')
+    if(c0_listcmdopt) call list_cmdopts()
     call MPI_BARRIER( comm, ierr)
     call m_lmfinit_init(prgnam,comm) ! Computational settings.
     ! --pr=N is translated to -v[io.verbose]=N in m_toml_override.f90, so the

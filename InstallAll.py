@@ -207,6 +207,17 @@ def main():
 
     run_shell(f"{verbose}cmake --build {BUILD_DIR} -j{jobs}", env=cmake_env)
 
+    # Dump the cmdopt registry into BINDIR so ecalj_complete.bash can
+    # offer flag-name completion without exec()ing lmf on every tab.
+    # Regenerated on every InstallAll.py run, so a registry edit is
+    # picked up the next time the user reinstalls.
+    cmdopt_list = BIN_DIR / 'ecalj_cmdopts.list'
+    print(f'Dumping cmdopt registry -> {cmdopt_list}')
+    try:
+        run_shell(f"{BIN_DIR / 'lmf'} --listcmdopt > {cmdopt_list}")
+    except Exception as e:
+        print(f'  (warn) cmdopt dump failed: {e}; tab-completion of flags will be empty')
+
     # Install per-user bash completion (one-shot append to ~/.bashrc).
     if not args.no_bashrc:
         install_bash_completion(BIN_DIR)

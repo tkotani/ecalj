@@ -44,6 +44,7 @@ module m_cmdopt_registry
   public :: load_cmdopt2_registry
   public :: load_cmdopt0_registry
   public :: validate_arglist
+  public :: list_cmdopts
 
   !========================================================================
   ! Cached cmdopt2 values (=value form). Populated by load_cmdopt2_registry.
@@ -117,6 +118,7 @@ module m_cmdopt_registry
   logical, public, protected, save :: c0_intrabandonly   = .false.
   logical, public, protected, save :: c0_jobgw           = .false.  ! bare --jobgw (not --jobgw=N)
   logical, public, protected, save :: c0_kchk            = .false.
+  logical, public, protected, save :: c0_listcmdopt      = .false.  ! dump registered cmdopts and exit (for bash completion)
   logical, public, protected, save :: c0_mkprocar        = .false.
   logical, public, protected, save :: c0_mlo             = .false.
   logical, public, protected, save :: c0_mlo_diagnorm    = .false.
@@ -394,6 +396,7 @@ contains
     call set0('--intrabandonly',  c0_intrabandonly, narg, arglist)
     call set0('--jobgw',          c0_jobgw, narg, arglist)
     call set0('--kchk',           c0_kchk, narg, arglist)
+    call set0('--listcmdopt',     c0_listcmdopt, narg, arglist)
     call set0('--mkprocar',       c0_mkprocar, narg, arglist)
     call set0('--mlo',            c0_mlo, narg, arglist)
     call set0('--mlo_diagnorm',   c0_mlo_diagnorm, narg, arglist)
@@ -480,6 +483,31 @@ contains
        endif
     enddo
   end subroutine set0
+
+  !> Print every registered cmdopt0 / cmdopt2 name, one per line, to
+  !! stdout, then exit cleanly. cmdopt2 names are emitted with a
+  !! trailing `=` so a bash completion script can distinguish them
+  !! from bare flags. Used by `<binary> --listcmdopt` to feed shell
+  !! completion (`compgen -W "$(lmf --listcmdopt)"`).
+  !!
+  !! Triggered from main_lmf / main_lmfa / main_lmchk after m_setargs
+  !! populates the runtime tables and before MPI is initialized; we
+  !! call `exit` directly so MPI need not have been spun up.
+  subroutine list_cmdopts()
+    integer :: i
+    if (allocated(known0)) then
+       do i = 1, size(known0)
+          write(*,'(a)') trim(known0(i))
+       enddo
+    endif
+    if (allocated(known2)) then
+       do i = 1, size(known2)
+          write(*,'(a)') trim(known2(i)) // '='
+       enddo
+    endif
+    flush(6)
+    call exit(0)
+  end subroutine list_cmdopts
 
   !> Final-pass strict typo / retired-syntax check. Walks every token
   !! and aborts on:
