@@ -83,9 +83,37 @@ contains
     eq = index(arg, '=')
     if (eq <= 8) return                        ! must have something between `.` and `=`
     path = arg(8:eq-1)
-    val  = arg(eq+1:alen)
+    val  = autoquote_bare_string(arg(eq+1:alen))
     yes  = .true.
   end function is_toml_override
+
+  !> Rescue users from shell quote stripping. `--toml.symgrp="find"` is
+  !! eaten by bash into `--toml.symgrp=find` and the bare `find` is not
+  !! a valid TOML literal -- the override would fail. Detect "this is
+  !! clearly meant as a TOML string" and wrap it in double quotes.
+  !!
+  !! Pass through unchanged when the value is already a TOML literal:
+  !!   - starts with " ' [ {            (quoted / array / inline table)
+  !!   - is the bool keyword            (true / false)
+  !!   - is a float keyword             (nan / inf, with optional +/-)
+  !!   - starts with digit + - .        (numeric)
+  function autoquote_bare_string(v) result(out)
+    character(*), intent(in)      :: v
+    character(len=:), allocatable :: out
+    character(len=:), allocatable :: trimmed
+    integer :: n
+    out = v
+    trimmed = trim(adjustl(v))
+    n = len(trimmed)
+    if (n == 0) return
+    select case (trimmed(1:1))
+    case ('"', "'", '[', '{', '0':'9', '+', '-', '.')
+       return
+    end select
+    if (trimmed == 'true'  .or. trimmed == 'false') return
+    if (trimmed == 'nan'   .or. trimmed == 'inf')   return
+    out = '"' // v // '"'
+  end function autoquote_bare_string
 
   !> Anything starting with `-` but not the new --toml./--pr= forms.
   !! Either a registered cmdopt that passes through, or a typo we abort on.

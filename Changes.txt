@@ -1,4 +1,12 @@
 2026-06-02
+  [feat] m_toml_override: --toml.<path>=<value> の値が裸の文字列識別子
+    (`find`, `rx mx` 等) の場合に自動でダブルクォートを付加する
+    autoquote_bare_string を追加。`bash` がシングル/ダブルクォートを
+    剥がす経路で TOML 文字列が壊れるのを救済する (例:
+    `--toml.symgrp=find` → 内部で `symgrp = "find"`)。先頭が
+    `" ' [ { 0-9 + - .` のいずれかか、`true`/`false`/`nan`/`inf` の場合は
+    既存 TOML literal とみなして pass-through。
+
   [docs] 新 TOML override 仕様 (--toml.<path>=<value>) を関連箇所に
     反映: m_ext.f90 --help バナー、SRC/exec/Legacy2toml.py の
     INFO/WARN/ERROR diagnostic、README.md / ecaljclaude.md /
