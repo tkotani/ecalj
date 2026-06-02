@@ -187,45 +187,50 @@ module m_cmdopt_registry
   !
   ! Populated as a side-effect of load_cmdopt0/2_registry: each flag we
   ! look up is also appended to one of these tables. is_known_cmdopt0/2
-  ! linearly scan the populated prefix. No separate "list of known
-  ! flags" parameter array to keep in sync with the load functions --
-  ! the load functions ARE the source of truth.
+  ! linearly scan until the first empty slot. No separate counter or
+  ! parameter array to keep in sync -- the load functions ARE the
+  ! source of truth, and the array itself records how many entries
+  ! exist (the populated prefix ends at the first '' slot).
   !
-  ! Capacity is a fixed upper bound (cheap, ~5 KB total) deliberately
-  ! well above the present 105+16 entries to absorb future growth
-  ! without resorting to allocatable arrays.
+  ! Capacity is a fixed upper bound (~9 KB total) deliberately well
+  ! above the present 105+16 entries.
   !========================================================================
   integer, parameter :: REG_CAP = 200
   character(len=24), private, save :: known0(REG_CAP) = ''
   character(len=20), private, save :: known2(REG_CAP) = ''
-  integer,           private, save :: n_known0 = 0
-  integer,           private, save :: n_known2 = 0
 
 contains
 
-  !> Append `flag` to the cmdopt0 typo-detection list. Idempotent.
+  !> Append `flag` to the cmdopt0 typo-detection table. Idempotent.
+  !! Scans for the first empty slot; if we hit REG_CAP without finding
+  !! one, abort -- means someone added > REG_CAP flags and the cap
+  !! needs bumping.
   subroutine register0(flag)
     character(*), intent(in) :: flag
     integer :: i
-    do i = 1, n_known0
-       if (trim(known0(i)) == trim(flag)) return
+    do i = 1, REG_CAP
+       if (known0(i) == flag) return         ! already registered
+       if (known0(i) == '') then             ! first empty slot
+          known0(i) = flag
+          return
+       endif
     enddo
-    if (n_known0 >= REG_CAP) call rx('m_cmdopt_registry: bump REG_CAP')
-    n_known0 = n_known0 + 1
-    known0(n_known0) = flag
+    call rx('m_cmdopt_registry: bump REG_CAP')
   end subroutine register0
 
   !> Append `flag` (bare name, no trailing `=`) to the cmdopt2
-  !! typo-detection list. Idempotent.
+  !! typo-detection table. Idempotent.
   subroutine register2(flag)
     character(*), intent(in) :: flag
     integer :: i
-    do i = 1, n_known2
-       if (trim(known2(i)) == trim(flag)) return
+    do i = 1, REG_CAP
+       if (known2(i) == flag) return
+       if (known2(i) == '') then
+          known2(i) = flag
+          return
+       endif
     enddo
-    if (n_known2 >= REG_CAP) call rx('m_cmdopt_registry: bump REG_CAP')
-    n_known2 = n_known2 + 1
-    known2(n_known2) = flag
+    call rx('m_cmdopt_registry: bump REG_CAP')
   end subroutine register2
 
   !> True if `flag` (full token, e.g. "--writeham" or "-terse") was
@@ -235,7 +240,8 @@ contains
     logical :: yes
     integer :: i
     yes = .false.
-    do i = 1, n_known0
+    do i = 1, REG_CAP
+       if (known0(i) == '') return           ! end of populated entries
        if (trim(flag) == trim(known0(i))) then
           yes = .true.
           return
@@ -250,7 +256,8 @@ contains
     logical :: yes
     integer :: i
     yes = .false.
-    do i = 1, n_known2
+    do i = 1, REG_CAP
+       if (known2(i) == '') return
        if (trim(flag) == trim(known2(i))) then
           yes = .true.
           return
