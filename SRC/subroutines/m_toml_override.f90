@@ -29,7 +29,7 @@ module m_toml_override
   use m_args,            only: arglist, narg
   use m_lgunit,          only: stdo
   use m_MPItk,           only: master_mpi
-  use m_cmdopt_registry, only: is_known_cmdopt2
+  use m_cmdopt_registry, only: is_known_cmdopt2, is_known_cmdopt0
   implicit none
   private
   public :: load_toml_with_overrides
@@ -115,9 +115,10 @@ contains
     out = '"' // v // '"'
   end function autoquote_bare_string
 
-  !> Anything starting with `-` but not the new --ctrlg:/--pr= forms.
+  !> Anything starting with `-` but not the new --ctrlg: form.
   !! Either a registered cmdopt that passes through, or a typo we abort on.
-  !! cmdopt0 flags (no `=`) flow through untouched.
+  !! Strict mode: cmdopt0 flags (no `=`) are also checked against the
+  !! registry; an unknown flag aborts with a hint.
   subroutine classify_non_toml_arg(arg)
     character(*), intent(in) :: arg
     integer :: alen, eq
@@ -125,8 +126,11 @@ contains
     if (alen <= 0) return
     if (arg(1:1) /= '-') return                ! not a flag, leave alone
     eq = index(arg, '=')
-    if (eq == 0) return                        ! cmdopt0 flag, leave alone
-    if (is_known_cmdopt2(arg(1:eq-1))) return  ! registered cmdopt, pass through
+    if (eq == 0) then
+       if (is_known_cmdopt0(trim(arg))) return    ! registered cmdopt0, pass through
+    else
+       if (is_known_cmdopt2(arg(1:eq-1))) return  ! registered cmdopt2, pass through
+    endif
     if (master_mpi) then
        write(stdo,'(a)') ' '
        write(stdo,'(a)') 'ERROR: unknown option `'//trim(arg)//'`.'
@@ -134,7 +138,7 @@ contains
        write(stdo,'(a)') '         --ctrlg:<dotted.path>=<value>'
        write(stdo,'(a)') '       For a list of registered cmdline options see'
        write(stdo,'(a)') '         https://ecalj.github.io/ecaljdoc/manual/cmdopts'
-       write(stdo,'(a)') '       and m_cmdopt_registry.f90 for the cmdopt2 registry.'
+       write(stdo,'(a)') '       and m_cmdopt_registry.f90 for the CMDOPT0/CMDOPT2 registries.'
     endif
     call rx('unknown option: '//trim(arg))
   end subroutine classify_non_toml_arg
