@@ -10,13 +10,13 @@ ecalj documents is at [ecaljdoc](https://ecalj.github.io/ecaljdoc/)
 Fortran binaries (lmf, lmfa, lmchk, gwsc, hsfp0, ...) read only:
 
   - `ctrlg.<sname>.toml`  -- merged ctrl + GW driver sections + PB cut-offs
-  - `PB.toml`             -- per-atom product-basis tables (sname-free)
+  - `PB.<sname>.toml`     -- per-atom product-basis tables (GW path only)
 
 ### Starting from scratch (POSCAR or hand-written ctrls)
 
     # 1. prepare ctrls.<sname>  (basic structure: atoms, lattice, ...)
     # 2. generate the TOML pair:
-    ctrlgenToml.py <sname>            # writes ctrlg.<sname>.toml + PB.toml
+    ctrlgenToml.py <sname>            # writes ctrlg.<sname>.toml + PB.<sname>.toml
     #    add --skipgw if you do not need GW (saves ~0.5 s)
     # 3. run as usual:
     lmfa <sname>
@@ -30,7 +30,7 @@ step is required.
 ### Migrating an old (pre 2026-05) directory
 
     cd <your-old-dir>                 # has ctrl.<sname> and GWinput
-    Legacy2toml.py <sname>            # writes ctrlg.<sname>.toml + PB.toml
+    Legacy2toml.py <sname>            # writes ctrlg.<sname>.toml + PB.<sname>.toml
     # legacy ctrl.<sname> / GWinput remain on disk but are no longer read.
     lmf <sname> ... # usual workflow
 
@@ -62,9 +62,29 @@ When `Legacy2toml.py` sees `-vNAME=VAL` it prints a 3-level diagnostic:
 ### Tab completion
 
 `InstallAll.py` appends a guarded source line to `~/.bashrc`
-(skip with `--no-bashrc`) so new shells pick up `<sname>`
-tab-completion for `Legacy2toml.py`, `ctrlgenToml.py`,
-`lmf`, `lmfa`, `lmchk`, `gwsc`, `gw_lmfh`, `eps_lmfh`,
-`epsPP_lmfh`, `genMLWF`, `genMLWFx`.  Candidates are taken
-from `ctrl.*` / `ctrls.*` / `ctrlg.*.toml` in cwd, depending
-on which input each script reads.
+(skip with `--no-bashrc`) so new shells pick up tab-completion
+for the ecalj toolchain.
+
+What completes:
+
+  - `lmf <TAB>` / `lmfa <TAB>` / `lmchk <TAB>` -> `<sname>` taken
+    from `ctrlg.*.toml` in cwd.
+  - `lmf nio --<TAB>` -> every registered cmdopt0 / cmdopt2 flag
+    (`--writeham`, `--jobgw=`, ...).  The flag list is dumped at
+    install time by `lmf --listcmdopt`, so a registry edit is
+    picked up on the next `./InstallAll.py` run.
+  - `lmf nio --ctrlg:bz.<TAB>` -> every dotted-path key that
+    actually exists in the cwd's `ctrlg.<sname>.toml`, parsed
+    live by `python3 tomllib` on each TAB so an edit shows up
+    immediately.  `[[spec]]` / `[[site]]` arrays expand to
+    `spec.1.r`, `spec.2.r`, ...
+  - `mpirun -np 8 lmf <TAB>` works the same -- the completion
+    walks `mpirun`'s argument list, recognises the ecalj binary
+    that follows, and delegates.
+  - `Legacy2toml.py <TAB>` -> `ctrl.*`, `ctrlgenToml.py <TAB>`
+    -> `ctrls.*`.
+
+Because the completion list comes from the same source of truth
+the binary uses at startup (the cmdopt registry + the on-disk
+TOML), TAB-completed input never trips the strict typo /
+key-not-found checks in `m_cmdopt_registry::validate_arglist`.
