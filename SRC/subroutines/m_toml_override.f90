@@ -265,8 +265,25 @@ contains
        enddo
        line_begin = line_begin + 1
     enddo
-    if (master_mpi) write(stdo,'(a)') &
-         '   (warn) key "'//trim(key)//'" not found in target section; override skipped'
+    abort_unknown_key: block
+      use m_mpi, only: comm
+      integer :: ierr_abort
+      ! Only the master rank prints + calls MPI_Abort; the other ranks
+      ! block on a barrier that never returns (master MPI_Aborts before
+      ! it could). This collapses the diagnostic from `8 * (rx-line +
+      ! "Abort(11) on node N")` down to a single banner + one Abort line.
+      if (master_mpi) then
+         write(stdo,'(a)') ' '
+         write(stdo,'(a)') 'ERROR: --ctrlg: key "'//trim(key)//'" not found in target section.'
+         write(stdo,'(a)') '       Either the path is misspelled (e.g. "verbo" -> "verbose")'
+         write(stdo,'(a)') '       or the key does not exist in ctrlg.<sname>.toml.'
+         write(stdo,'(a)') '       To add a new key, edit ctrlg.<sname>.toml directly.'
+         flush(stdo)
+         call MPI_Abort(comm, 11, ierr_abort)
+      else
+         call MPI_Barrier(comm, ierr_abort)
+      endif
+    end block abort_unknown_key
   end subroutine replace_key_in_range
 
 
