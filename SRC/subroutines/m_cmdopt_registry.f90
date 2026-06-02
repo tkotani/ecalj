@@ -13,11 +13,13 @@
 !!      "user typo, abort with hint".
 !!
 !! Maintenance:
-!!   - When adding a new cmdopt0 (pure flag), append to CMDOPT0_REGISTRY
-!!     AND declare a `c0_<name>` logical AND set it in load_cmdopt0_registry.
-!!   - When adding a new cmdopt2 (=value), append to CMDOPT2_REGISTRY AND
-!!     declare a `c2_<name>` of appropriate type AND parse it in
-!!     load_cmdopt2_registry.
+!!   - When adding a new cmdopt0 (pure flag), declare a `c0_<name>`
+!!     logical above AND add a single `call set0('--<name>', c0_<name>)`
+!!     line in load_cmdopt0_registry. The typo-detection table is built
+!!     as a side effect of set0() -- no parallel list to keep in sync.
+!!   - When adding a new cmdopt2 (=value), declare a `c2_<name>` of
+!!     appropriate type AND add a `get2('--<name>', outs)` call in
+!!     load_cmdopt2_registry; get2 registers the flag for typo detection.
 !!   - `--quit=`, `--diag=`, `--dwnb=` are stored as cmdopt2 strings
 !!     (c2_quit, c2_diag, c2_dwnb) even though callers historically used
 !!     cmdopt0('--quit=show') etc. The use-site test becomes
@@ -181,174 +183,102 @@ module m_cmdopt_registry
   logical, public, protected, save :: c0_zmel0           = .false.
 
   !========================================================================
-  ! Registry tables (single source of truth for typo detection).
-  !========================================================================
-
-  ! Pure cmdopt0 flag names. Strict typo check: if arglist has a `--word`
-  ! or `-word` (no `=`), and it isn't in this list, abort.
-  character(len=24), parameter :: CMDOPT0_REGISTRY(*) = [character(len=24) :: &
-       '--AHCMAT',          &
-       '--UUMAT',           &
-       '--afsym',           &
-       '--ahc',             &
-       '--allband',         &
-       '--avoidgamma',      &
-       '--band',            &
-       '--boltztrap',       &
-       '--cls',             &
-       '--cmlo',            &
-       '--corehole',        &
-       '--cvK:',            &
-       '--debug',           &
-       '--debugbndfp',      &
-       '--debugpwmat',      &
-       '--debugsugw',       &
-       '--debugzmel',       &
-       '--density',         &
-       '--dos',             &
-       '--eigen-at-k',      &
-       '--espot',           &
-       '--estaticall',      &
-       '--eszero',          &
-       '--etot',            &
-       '--fermisurface',    &
-       '--fullmesh',        &
-       '--fullstdo',        &
-       '--geteta',          &
-       '--getq',            &
-       '--getwsr',          &
-       '--gpu',             &
-       '--gs',              &
-       '--help',            &
-       '--interbandonly',   &
-       '--intrabandonly',   &
-       '--jobgw',           &
-       '--kchk',            &
-       '--mkprocar',        &
-       '--mlo',             &
-       '--mlo_diagnorm',    &
-       '--mlo_feb4',        &
-       '--mlo_ortho',       &
-       '--mlo_orthonorm',   &
-       '--mloahc',          &
-       '--mlog',            &
-       '--modifiedGS',      &
-       '--n1n2n3eps',       &
-       '--noinv',           &
-       '--normcheck',       &
-       '--nosym',           &
-       '--nosymdm',         &
-       '--novxc',           &
-       '--nowritedw',       &
-       '--ntqxx',           &
-       '--onesp',           &
-       '--pdos',            &
-       '--phispinsym',      &
-       '--q2q1test',        &
-       '--qibzonly',        &
-       '--quitecore',       &
-       '--readQforGW',      &
-       '--shorten',         &
-       '--show_time',       &
-       '--showdmat',        &
-       '--skip1d',          &
-       '--skip2nd',         &
-       '--skip2ndd',        &
-       '--skip2ndp',        &
-       '--skip2nds',        &
-       '--skipCPHI',        &
-       '--skipGS',          &
-       '--skip_qvalcheck',  &
-       '--skipbstruxinit',  &
-       '--skipd',           &
-       '--skipf',           &
-       '--skiphammsoc',     &
-       '--skiplo',          &
-       '--slat',            &
-       '--socmatrix',       &
-       '--tdos',            &
-       '--tdostetf',        &
-       '--terse',           &
-       '-terse',            &  ! single-dash alias retained for lmaux
-       '--testso',          &
-       '--tetraw',          &
-       '--tetwtk',          &
-       '--use_gemmul8',     &
-       '--use_sigm_fbz',    &
-       '--v0fix',           &
-       '--vbmonly',         &
-       '--vesatom',         &
-       '--vesdat',          &
-       '--wanatom',         &
-       '--wdsawada',        &
-       '--wpotmt',          &
-       '--wrhomt',          &
-       '--writedw',         &
-       '--writeeigen',      &
-       '--writeham',        &
-       '--writepdos',       &
-       '--writesene',       &
-       '--writev0',         &
-       '--wsig_fbz',        &
-       '--x0test',          &
-       '--ylmc',            &
-       '--zmel0'            ]
-
-  ! cmdopt2 names (=value form). Drop the trailing `=`; the matcher in
-  ! m_toml_override compares `--<word>` after splitting on `=`.
+  ! Runtime registry for typo detection.
   !
-  ! Three of these (`--quit`, `--diag`, `--dwnb`) are conceptually
-  ! cmdopt0-with-enum-value; we cache them as cmdopt2 strings (c2_quit
-  ! etc.) and rewrite use sites as `if (c2_quit == 'show')` etc.
-  character(len=20), parameter :: CMDOPT2_REGISTRY(*) = [character(len=20) :: &
-       '--Wtype',           &
-       '--cutuu',           &
-       '--diag',            &
-       '--dwnb',            &
-       '--job',             &
-       '--jobgw',           &
-       '--nb',              &
-       '--nk',              &
-       '--nww',             &
-       '--quit',            &
-       '--sp1',             &
-       '--sp2',             &
-       '-EfermiShifteV',    &
-       '-emax',             &
-       '-emin',             &
-       '-ndos'              ]
+  ! Populated as a side-effect of load_cmdopt0/2_registry: each flag we
+  ! look up is also appended to one of these tables. is_known_cmdopt0/2
+  ! linearly scan the populated prefix. No separate "list of known
+  ! flags" parameter array to keep in sync with the load functions --
+  ! the load functions ARE the source of truth.
+  !
+  ! Capacity is a fixed upper bound (cheap, ~5 KB total) deliberately
+  ! well above the present 105+16 entries to absorb future growth
+  ! without resorting to allocatable arrays.
+  !========================================================================
+  integer, parameter :: REG_CAP = 200
+  character(len=24), private, save :: known0(REG_CAP) = ''
+  character(len=20), private, save :: known2(REG_CAP) = ''
+  integer,           private, save :: n_known0 = 0
+  integer,           private, save :: n_known2 = 0
 
 contains
 
-  !> True if `flag` ("--foo" or "-foo", *without* trailing `=`) is a
-  !! registered cmdopt2 name. Case-sensitive.
+  !> Append `flag` to the cmdopt0 typo-detection list. Idempotent.
+  subroutine register0(flag)
+    character(*), intent(in) :: flag
+    integer :: i
+    do i = 1, n_known0
+       if (trim(known0(i)) == trim(flag)) return
+    enddo
+    if (n_known0 >= REG_CAP) call rx('m_cmdopt_registry: bump REG_CAP')
+    n_known0 = n_known0 + 1
+    known0(n_known0) = flag
+  end subroutine register0
+
+  !> Append `flag` (bare name, no trailing `=`) to the cmdopt2
+  !! typo-detection list. Idempotent.
+  subroutine register2(flag)
+    character(*), intent(in) :: flag
+    integer :: i
+    do i = 1, n_known2
+       if (trim(known2(i)) == trim(flag)) return
+    enddo
+    if (n_known2 >= REG_CAP) call rx('m_cmdopt_registry: bump REG_CAP')
+    n_known2 = n_known2 + 1
+    known2(n_known2) = flag
+  end subroutine register2
+
+  !> True if `flag` (full token, e.g. "--writeham" or "-terse") was
+  !! registered by load_cmdopt0_registry. Case-sensitive.
+  function is_known_cmdopt0(flag) result(yes)
+    character(*), intent(in) :: flag
+    logical :: yes
+    integer :: i
+    yes = .false.
+    do i = 1, n_known0
+       if (trim(flag) == trim(known0(i))) then
+          yes = .true.
+          return
+       endif
+    enddo
+  end function is_known_cmdopt0
+
+  !> True if `flag` ("--foo" or "-foo", *without* trailing `=`) was
+  !! registered by load_cmdopt2_registry. Case-sensitive.
   function is_known_cmdopt2(flag) result(yes)
     character(*), intent(in) :: flag
     logical :: yes
     integer :: i
     yes = .false.
-    do i = 1, size(CMDOPT2_REGISTRY)
-       if (trim(flag) == trim(CMDOPT2_REGISTRY(i))) then
+    do i = 1, n_known2
+       if (trim(flag) == trim(known2(i))) then
           yes = .true.
           return
        endif
     enddo
   end function is_known_cmdopt2
 
-  !> True if `flag` (full token, e.g. "--writeham" or "-terse") is a
-  !! registered cmdopt0 flag. Case-sensitive.
-  function is_known_cmdopt0(flag) result(yes)
-    character(*), intent(in) :: flag
-    logical :: yes
-    integer :: i
-    yes = .false.
-    do i = 1, size(CMDOPT0_REGISTRY)
-       if (trim(flag) == trim(CMDOPT0_REGISTRY(i))) then
-          yes = .true.
-          return
-       endif
-    enddo
-  end function is_known_cmdopt0
+  !> Look up a pure cmdopt0 flag in arglist, cache the boolean, AND
+  !! register the flag in the runtime typo-detection table.
+  subroutine set0(flag, var)
+    character(*), intent(in)  :: flag
+    logical,      intent(out) :: var
+    logical, external :: cmdopt0
+    var = cmdopt0(flag)
+    call register0(flag)
+  end subroutine set0
+
+  !> Wrapper around cmdopt2 that also registers `flag` (bare name; the
+  !! trailing `=` is appended internally before the cmdopt2 call) in
+  !! the cmdopt2 typo-detection table.
+  function get2(flag, outs) result(found)
+    character(*), intent(in)  :: flag
+    character(*), intent(out) :: outs
+    logical :: found
+    logical, external :: cmdopt2
+    call register2(flag)
+    found = cmdopt2(trim(flag) // '=', outs)
+  end function get2
 
   !> Parse every cmdopt2 entry into the cached module variables above.
   !! Idempotent: subsequent calls are no-ops. Called once at startup
@@ -356,163 +286,163 @@ contains
   subroutine load_cmdopt2_registry()
     logical, save :: done = .false.
     character(len=120) :: outs
-    logical, external :: cmdopt2
     if (done) return
     done = .true.
 
     ! Integer-valued
-    if (cmdopt2('--jobgw=', outs)) then
+    if (get2('--jobgw', outs)) then
        read(outs,*) c2_jobgw
        if (c2_jobgw /= 0 .and. c2_jobgw /= 1) &
             call rx('m_cmdopt_registry: --jobgw must be 0 or 1')
     endif
-    if (cmdopt2('--job=',   outs)) read(outs,*) c2_job
-    if (cmdopt2('--nb=',    outs)) read(outs,*) c2_nb
-    if (cmdopt2('--nk=',    outs)) read(outs,*) c2_nk
-    if (cmdopt2('--nww=',   outs)) read(outs,*) c2_nww
-    if (cmdopt2('--sp1=',   outs)) read(outs,*) c2_sp1
-    if (cmdopt2('--sp2=',   outs)) read(outs,*) c2_sp2
-    if (cmdopt2('-ndos=',   outs)) read(outs,*) c2_ndos
+    if (get2('--job',   outs)) read(outs,*) c2_job
+    if (get2('--nb',    outs)) read(outs,*) c2_nb
+    if (get2('--nk',    outs)) read(outs,*) c2_nk
+    if (get2('--nww',   outs)) read(outs,*) c2_nww
+    if (get2('--sp1',   outs)) read(outs,*) c2_sp1
+    if (get2('--sp2',   outs)) read(outs,*) c2_sp2
+    if (get2('-ndos',   outs)) read(outs,*) c2_ndos
 
     ! Real-valued
-    if (cmdopt2('--cutuu=', outs)) then
+    if (get2('--cutuu', outs)) then
        read(outs,*) c2_cutuu;          c2_cutuu_set         = .true.
     endif
-    if (cmdopt2('-emin=',   outs)) then
+    if (get2('-emin',   outs)) then
        read(outs,*) c2_emin_eV;        c2_emin_set          = .true.
     endif
-    if (cmdopt2('-emax=',   outs)) then
+    if (get2('-emax',   outs)) then
        read(outs,*) c2_emax_eV;        c2_emax_set          = .true.
     endif
-    if (cmdopt2('-EfermiShifteV=', outs)) then
+    if (get2('-EfermiShifteV', outs)) then
        read(outs,*) c2_EfermiShifteV;  c2_EfermiShifteV_set = .true.
     endif
 
     ! String-valued
-    if (cmdopt2('--Wtype=', outs)) then
+    if (get2('--Wtype', outs)) then
        c2_Wtype     = trim(outs)
        c2_Wtype_set = .true.
     endif
     ! cmdopt0-with-enum-value
-    if (cmdopt2('--quit=', outs)) c2_quit = trim(outs)
-    if (cmdopt2('--diag=', outs)) c2_diag = trim(outs)
-    if (cmdopt2('--dwnb=', outs)) c2_dwnb = trim(outs)
+    if (get2('--quit', outs)) c2_quit = trim(outs)
+    if (get2('--diag', outs)) c2_diag = trim(outs)
+    if (get2('--dwnb', outs)) c2_dwnb = trim(outs)
   end subroutine load_cmdopt2_registry
 
   !> Parse every cmdopt0 entry (pure flags) into the cached c0_* logicals.
   !! Idempotent. Called once from m_args::m_setargs alongside
-  !! load_cmdopt2_registry.
+  !! load_cmdopt2_registry. Each call to set0() also registers the flag
+  !! in the typo-detection table, so adding a new cmdopt0 only requires
+  !! ONE new line here.
   subroutine load_cmdopt0_registry()
     logical, save :: done = .false.
-    logical, external :: cmdopt0
     if (done) return
     done = .true.
-    c0_AHCMAT          = cmdopt0('--AHCMAT')
-    c0_UUMAT           = cmdopt0('--UUMAT')
-    c0_afsym           = cmdopt0('--afsym')
-    c0_ahc             = cmdopt0('--ahc')
-    c0_allband         = cmdopt0('--allband')
-    c0_avoidgamma      = cmdopt0('--avoidgamma')
-    c0_band            = cmdopt0('--band')
-    c0_boltztrap       = cmdopt0('--boltztrap')
-    c0_cls             = cmdopt0('--cls')
-    c0_cmlo            = cmdopt0('--cmlo')
-    c0_corehole        = cmdopt0('--corehole')
-    c0_cvK             = cmdopt0('--cvK:')
-    c0_debug           = cmdopt0('--debug')
-    c0_debugbndfp      = cmdopt0('--debugbndfp')
-    c0_debugpwmat      = cmdopt0('--debugpwmat')
-    c0_debugsugw       = cmdopt0('--debugsugw')
-    c0_debugzmel       = cmdopt0('--debugzmel')
-    c0_density         = cmdopt0('--density')
-    c0_dos             = cmdopt0('--dos')
-    c0_eigen_at_k      = cmdopt0('--eigen-at-k')
-    c0_espot           = cmdopt0('--espot')
-    c0_estaticall      = cmdopt0('--estaticall')
-    c0_eszero          = cmdopt0('--eszero')
-    c0_etot            = cmdopt0('--etot')
-    c0_fermisurface    = cmdopt0('--fermisurface')
-    c0_fullmesh        = cmdopt0('--fullmesh')
-    c0_fullstdo        = cmdopt0('--fullstdo')
-    c0_geteta          = cmdopt0('--geteta')
-    c0_getq            = cmdopt0('--getq')
-    c0_getwsr          = cmdopt0('--getwsr')
-    c0_gpu             = cmdopt0('--gpu')
-    c0_gs              = cmdopt0('--gs')
-    c0_help            = cmdopt0('--help')
-    c0_interbandonly   = cmdopt0('--interbandonly')
-    c0_intrabandonly   = cmdopt0('--intrabandonly')
-    c0_jobgw           = cmdopt0('--jobgw')
-    c0_kchk            = cmdopt0('--kchk')
-    c0_mkprocar        = cmdopt0('--mkprocar')
-    c0_mlo             = cmdopt0('--mlo')
-    c0_mlo_diagnorm    = cmdopt0('--mlo_diagnorm')
-    c0_mlo_feb4        = cmdopt0('--mlo_feb4')
-    c0_mlo_ortho       = cmdopt0('--mlo_ortho')
-    c0_mlo_orthonorm   = cmdopt0('--mlo_orthonorm')
-    c0_mloahc          = cmdopt0('--mloahc')
-    c0_mlog            = cmdopt0('--mlog')
-    c0_modifiedGS      = cmdopt0('--modifiedGS')
-    c0_n1n2n3eps       = cmdopt0('--n1n2n3eps')
-    c0_noinv           = cmdopt0('--noinv')
-    c0_normcheck       = cmdopt0('--normcheck')
-    c0_nosym           = cmdopt0('--nosym')
-    c0_nosymdm         = cmdopt0('--nosymdm')
-    c0_novxc           = cmdopt0('--novxc')
-    c0_nowritedw       = cmdopt0('--nowritedw')
-    c0_ntqxx           = cmdopt0('--ntqxx')
-    c0_onesp           = cmdopt0('--onesp')
-    c0_pdos            = cmdopt0('--pdos')
-    c0_phispinsym      = cmdopt0('--phispinsym')
-    c0_q2q1test        = cmdopt0('--q2q1test')
-    c0_qibzonly        = cmdopt0('--qibzonly')
-    c0_quitecore       = cmdopt0('--quitecore')
-    c0_readQforGW      = cmdopt0('--readQforGW')
-    c0_shorten         = cmdopt0('--shorten')
-    c0_show_time       = cmdopt0('--show_time')
-    c0_showdmat        = cmdopt0('--showdmat')
-    c0_skip1d          = cmdopt0('--skip1d')
-    c0_skip2nd         = cmdopt0('--skip2nd')
-    c0_skip2ndd        = cmdopt0('--skip2ndd')
-    c0_skip2ndp        = cmdopt0('--skip2ndp')
-    c0_skip2nds        = cmdopt0('--skip2nds')
-    c0_skipCPHI        = cmdopt0('--skipCPHI')
-    c0_skipGS          = cmdopt0('--skipGS')
-    c0_skip_qvalcheck  = cmdopt0('--skip_qvalcheck')
-    c0_skipbstruxinit  = cmdopt0('--skipbstruxinit')
-    c0_skipd           = cmdopt0('--skipd')
-    c0_skipf           = cmdopt0('--skipf')
-    c0_skiphammsoc     = cmdopt0('--skiphammsoc')
-    c0_skiplo          = cmdopt0('--skiplo')
-    c0_slat            = cmdopt0('--slat')
-    c0_socmatrix       = cmdopt0('--socmatrix')
-    c0_tdos            = cmdopt0('--tdos')
-    c0_tdostetf        = cmdopt0('--tdostetf')
-    c0_terse           = cmdopt0('--terse')
-    c0_terse_short     = cmdopt0('-terse')
-    c0_testso          = cmdopt0('--testso')
-    c0_tetraw          = cmdopt0('--tetraw')
-    c0_tetwtk          = cmdopt0('--tetwtk')
-    c0_use_gemmul8     = cmdopt0('--use_gemmul8')
-    c0_use_sigm_fbz    = cmdopt0('--use_sigm_fbz')
-    c0_v0fix           = cmdopt0('--v0fix')
-    c0_vbmonly         = cmdopt0('--vbmonly')
-    c0_vesatom         = cmdopt0('--vesatom')
-    c0_vesdat          = cmdopt0('--vesdat')
-    c0_wanatom         = cmdopt0('--wanatom')
-    c0_wdsawada        = cmdopt0('--wdsawada')
-    c0_wpotmt          = cmdopt0('--wpotmt')
-    c0_wrhomt          = cmdopt0('--wrhomt')
-    c0_writedw         = cmdopt0('--writedw')
-    c0_writeeigen      = cmdopt0('--writeeigen')
-    c0_writeham        = cmdopt0('--writeham')
-    c0_writepdos       = cmdopt0('--writepdos')
-    c0_writesene       = cmdopt0('--writesene')
-    c0_writev0         = cmdopt0('--writev0')
-    c0_wsig_fbz        = cmdopt0('--wsig_fbz')
-    c0_x0test          = cmdopt0('--x0test')
-    c0_ylmc            = cmdopt0('--ylmc')
-    c0_zmel0           = cmdopt0('--zmel0')
+    call set0('--AHCMAT',         c0_AHCMAT)
+    call set0('--UUMAT',          c0_UUMAT)
+    call set0('--afsym',          c0_afsym)
+    call set0('--ahc',            c0_ahc)
+    call set0('--allband',        c0_allband)
+    call set0('--avoidgamma',     c0_avoidgamma)
+    call set0('--band',           c0_band)
+    call set0('--boltztrap',      c0_boltztrap)
+    call set0('--cls',            c0_cls)
+    call set0('--cmlo',           c0_cmlo)
+    call set0('--corehole',       c0_corehole)
+    call set0('--cvK:',           c0_cvK)
+    call set0('--debug',          c0_debug)
+    call set0('--debugbndfp',     c0_debugbndfp)
+    call set0('--debugpwmat',     c0_debugpwmat)
+    call set0('--debugsugw',      c0_debugsugw)
+    call set0('--debugzmel',      c0_debugzmel)
+    call set0('--density',        c0_density)
+    call set0('--dos',            c0_dos)
+    call set0('--eigen-at-k',     c0_eigen_at_k)
+    call set0('--espot',          c0_espot)
+    call set0('--estaticall',     c0_estaticall)
+    call set0('--eszero',         c0_eszero)
+    call set0('--etot',           c0_etot)
+    call set0('--fermisurface',   c0_fermisurface)
+    call set0('--fullmesh',       c0_fullmesh)
+    call set0('--fullstdo',       c0_fullstdo)
+    call set0('--geteta',         c0_geteta)
+    call set0('--getq',           c0_getq)
+    call set0('--getwsr',         c0_getwsr)
+    call set0('--gpu',            c0_gpu)
+    call set0('--gs',             c0_gs)
+    call set0('--help',           c0_help)
+    call set0('--interbandonly',  c0_interbandonly)
+    call set0('--intrabandonly',  c0_intrabandonly)
+    call set0('--jobgw',          c0_jobgw)
+    call set0('--kchk',           c0_kchk)
+    call set0('--mkprocar',       c0_mkprocar)
+    call set0('--mlo',            c0_mlo)
+    call set0('--mlo_diagnorm',   c0_mlo_diagnorm)
+    call set0('--mlo_feb4',       c0_mlo_feb4)
+    call set0('--mlo_ortho',      c0_mlo_ortho)
+    call set0('--mlo_orthonorm',  c0_mlo_orthonorm)
+    call set0('--mloahc',         c0_mloahc)
+    call set0('--mlog',           c0_mlog)
+    call set0('--modifiedGS',     c0_modifiedGS)
+    call set0('--n1n2n3eps',      c0_n1n2n3eps)
+    call set0('--noinv',          c0_noinv)
+    call set0('--normcheck',      c0_normcheck)
+    call set0('--nosym',          c0_nosym)
+    call set0('--nosymdm',        c0_nosymdm)
+    call set0('--novxc',          c0_novxc)
+    call set0('--nowritedw',      c0_nowritedw)
+    call set0('--ntqxx',          c0_ntqxx)
+    call set0('--onesp',          c0_onesp)
+    call set0('--pdos',           c0_pdos)
+    call set0('--phispinsym',     c0_phispinsym)
+    call set0('--q2q1test',       c0_q2q1test)
+    call set0('--qibzonly',       c0_qibzonly)
+    call set0('--quitecore',      c0_quitecore)
+    call set0('--readQforGW',     c0_readQforGW)
+    call set0('--shorten',        c0_shorten)
+    call set0('--show_time',      c0_show_time)
+    call set0('--showdmat',       c0_showdmat)
+    call set0('--skip1d',         c0_skip1d)
+    call set0('--skip2nd',        c0_skip2nd)
+    call set0('--skip2ndd',       c0_skip2ndd)
+    call set0('--skip2ndp',       c0_skip2ndp)
+    call set0('--skip2nds',       c0_skip2nds)
+    call set0('--skipCPHI',       c0_skipCPHI)
+    call set0('--skipGS',         c0_skipGS)
+    call set0('--skip_qvalcheck', c0_skip_qvalcheck)
+    call set0('--skipbstruxinit', c0_skipbstruxinit)
+    call set0('--skipd',          c0_skipd)
+    call set0('--skipf',          c0_skipf)
+    call set0('--skiphammsoc',    c0_skiphammsoc)
+    call set0('--skiplo',         c0_skiplo)
+    call set0('--slat',           c0_slat)
+    call set0('--socmatrix',      c0_socmatrix)
+    call set0('--tdos',           c0_tdos)
+    call set0('--tdostetf',       c0_tdostetf)
+    call set0('--terse',          c0_terse)
+    call set0('-terse',           c0_terse_short)  ! single-dash alias for lmaux
+    call set0('--testso',         c0_testso)
+    call set0('--tetraw',         c0_tetraw)
+    call set0('--tetwtk',         c0_tetwtk)
+    call set0('--use_gemmul8',    c0_use_gemmul8)
+    call set0('--use_sigm_fbz',   c0_use_sigm_fbz)
+    call set0('--v0fix',          c0_v0fix)
+    call set0('--vbmonly',        c0_vbmonly)
+    call set0('--vesatom',        c0_vesatom)
+    call set0('--vesdat',         c0_vesdat)
+    call set0('--wanatom',        c0_wanatom)
+    call set0('--wdsawada',       c0_wdsawada)
+    call set0('--wpotmt',         c0_wpotmt)
+    call set0('--wrhomt',         c0_wrhomt)
+    call set0('--writedw',        c0_writedw)
+    call set0('--writeeigen',     c0_writeeigen)
+    call set0('--writeham',       c0_writeham)
+    call set0('--writepdos',      c0_writepdos)
+    call set0('--writesene',      c0_writesene)
+    call set0('--writev0',        c0_writev0)
+    call set0('--wsig_fbz',       c0_wsig_fbz)
+    call set0('--x0test',         c0_x0test)
+    call set0('--ylmc',           c0_ylmc)
+    call set0('--zmel0',          c0_zmel0)
   end subroutine load_cmdopt0_registry
 
 end module m_cmdopt_registry
