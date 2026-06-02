@@ -1,13 +1,13 @@
-!> Apply --toml.<dotted.path>=<value> overrides to the raw text of a TOML file
+!> Apply --ctrlg:<dotted.path>=<value> overrides to the raw text of a TOML file
 !  before toml_loads. Supported paths:
-!    --toml.symgrp="find"          top-level scalar
-!    --toml.verbose=50             top-level scalar (was [io] verbose)
-!    --toml.time=[5,5]             top-level array  (was [io] time)
-!    --toml.ham.gmax=15            section.key
-!    --toml.ham.phispinsym=true    section.key (bool, must be lowercase)
-!    --toml.bz.nkabc=[6,6,6]       section.key with array RHS
-!    --toml.struc.alat=7.88        section.key
-!    --toml.spec.1.r=2.5           [[spec]] array-of-tables, 1-based index
+!    --ctrlg:symgrp="find"          top-level scalar
+!    --ctrlg:verbose=50             top-level scalar (was [io] verbose)
+!    --ctrlg:time=[5,5]             top-level array  (was [io] time)
+!    --ctrlg:ham.gmax=15            section.key
+!    --ctrlg:ham.phispinsym=true    section.key (bool, must be lowercase)
+!    --ctrlg:bz.nkabc=[6,6,6]       section.key with array RHS
+!    --ctrlg:struc.alat=7.88        section.key
+!    --ctrlg:spec.1.r=2.5           [[spec]] array-of-tables, 1-based index
 !  Each applied override is logged (rank-0 only) so it appears in the
 !  console output of every lmf/lmfa/GW utility. Values are TOML-typed
 !  (so `true`/`false` lowercase, strings quoted, arrays in `[...]`).
@@ -36,7 +36,7 @@ module m_toml_override
 
 contains
 
-  !> Read filename as a text buffer, apply any --toml.<path>=<value>
+  !> Read filename as a text buffer, apply any --ctrlg:<path>=<value>
   !  overrides found in arglist (plus the retained --pr=N shortcut),
   !  and return the (possibly modified) buffer in `text`.
   subroutine load_toml_with_overrides(filename, text)
@@ -54,13 +54,13 @@ contains
        arg = arglist(i)
        call abort_on_retired_form(arg)
        if (is_toml_override(arg, path, val)) then
-          ! new --toml.<dotted.path>=<value> form
+          ! new --ctrlg:<dotted.path>=<value> form
        else
           call classify_non_toml_arg(arg)
           cycle
        endif
        if (master_mpi .and. .not. did_log_header) then
-          write(stdo,'(a)') ' --- TOML overrides applied (--toml.<path>=<value>) ---'
+          write(stdo,'(a)') ' --- TOML overrides applied (--ctrlg:<path>=<value>) ---'
           did_log_header = .true.
        endif
        if (master_mpi) write(stdo,'(a)') '   '//trim(path)//' = '//trim(val)
@@ -68,8 +68,8 @@ contains
     enddo
   end subroutine load_toml_with_overrides
 
-  !> Canonical TOML override syntax: --toml.<dotted.path>=<value>.
-  !! Strip the literal `--toml.` prefix; everything before the first `=`
+  !> Canonical TOML override syntax: --ctrlg:<dotted.path>=<value>.
+  !! Strip the literal `--ctrlg:` prefix; everything before the first `=`
   !! becomes the TOML path, everything after is the (TOML-typed) value.
   function is_toml_override(arg, path, val) result(yes)
     character(*),                  intent(in)  :: arg
@@ -78,17 +78,17 @@ contains
     integer :: alen, eq
     yes  = .false.
     alen = len_trim(arg)
-    if (alen < 9) return                       ! "--toml.x=" minimum is 9
-    if (arg(1:7) /= '--toml.') return
+    if (alen < 10) return                      ! "--ctrlg:x=" minimum is 10
+    if (arg(1:8) /= '--ctrlg:') return
     eq = index(arg, '=')
-    if (eq <= 8) return                        ! must have something between `.` and `=`
-    path = arg(8:eq-1)
+    if (eq <= 9) return                        ! must have something between `:` and `=`
+    path = arg(9:eq-1)
     val  = autoquote_bare_string(arg(eq+1:alen))
     yes  = .true.
   end function is_toml_override
 
-  !> Rescue users from shell quote stripping. `--toml.symgrp="find"` is
-  !! eaten by bash into `--toml.symgrp=find` and the bare `find` is not
+  !> Rescue users from shell quote stripping. `--ctrlg:symgrp="find"` is
+  !! eaten by bash into `--ctrlg:symgrp=find` and the bare `find` is not
   !! a valid TOML literal -- the override would fail. Detect "this is
   !! clearly meant as a TOML string" and wrap it in double quotes.
   !!
@@ -115,7 +115,7 @@ contains
     out = '"' // v // '"'
   end function autoquote_bare_string
 
-  !> Anything starting with `-` but not the new --toml./--pr= forms.
+  !> Anything starting with `-` but not the new --ctrlg:/--pr= forms.
   !! Either a registered cmdopt that passes through, or a typo we abort on.
   !! cmdopt0 flags (no `=`) flow through untouched.
   subroutine classify_non_toml_arg(arg)
@@ -131,7 +131,7 @@ contains
        write(stdo,'(a)') ' '
        write(stdo,'(a)') 'ERROR: unknown option `'//trim(arg)//'`.'
        write(stdo,'(a)') '       To override a TOML key, use'
-       write(stdo,'(a)') '         --toml.<dotted.path>=<value>'
+       write(stdo,'(a)') '         --ctrlg:<dotted.path>=<value>'
        write(stdo,'(a)') '       For a list of registered cmdline options see'
        write(stdo,'(a)') '         https://ecalj.github.io/ecaljdoc/manual/cmdopts'
        write(stdo,'(a)') '       and m_cmdopt_registry.f90 for the cmdopt2 registry.'
@@ -150,26 +150,32 @@ contains
     ! -v...  family (legacy %const + intermediate -v[...]= TOML override)
     if (alen >= 3 .and. arg(1:2) == '-v') then
        if (index(arg, '=') > 0) call retired_die(arg, &
-            '-v...=<value> is retired. Use --toml.<dotted.path>=<value>.')
+            '-v...=<value> is retired. Use --ctrlg:<dotted.path>=<value>.')
        return
     endif
 
     ! --[<path>]=<value>  intermediate bracketed form
     if (alen >= 5 .and. arg(1:3) == '--[' .and. index(arg, ']=') > 0) then
        call retired_die(arg, &
-            '--[<path>]=<value> is retired. Use --toml.<dotted.path>=<value>.')
+            '--[<path>]=<value> is retired. Use --ctrlg:<dotted.path>=<value>.')
+    endif
+
+    ! --toml.<path>=<value>  intermediate dotted prefix
+    if (alen >= 9 .and. arg(1:7) == '--toml.' .and. index(arg, '=') > 0) then
+       call retired_die(arg, &
+            '--toml.<path>=<value> is retired. Use --ctrlg:<dotted.path>=<value>.')
     endif
 
     ! --pr=N
     if (alen >= 5 .and. arg(1:5) == '--pr=') then
        call retired_die(arg, &
-            '--pr=N is retired. Use --toml.verbose=N.')
+            '--pr=N is retired. Use --ctrlg:verbose=N.')
     endif
 
     ! --time=...
     if (alen >= 7 .and. arg(1:7) == '--time=') then
        call retired_die(arg, &
-            '--time=<...> is retired. Use --toml.time=[N,M].')
+            '--time=<...> is retired. Use --ctrlg:time=[N,M].')
     endif
 
     ! --phispinsym  (cmdline flag retired; lives on inside Legacy2toml.py
@@ -177,8 +183,8 @@ contains
     ! must read it from [ham] phispinsym in the TOML.)
     if (arg(1:alen) == '--phispinsym') then
        call retired_die(arg, &
-            '--phispinsym is retired. Use --toml.ham.phispinsym=true, '// &
-            'or set [ham] phispinsym = true in ctrlG.<sname>.toml.')
+            '--phispinsym is retired. Use --ctrlg:ham.phispinsym=true, '// &
+            'or set [ham] phispinsym = true in ctrlg.<sname>.toml.')
     endif
   end subroutine abort_on_retired_form
 

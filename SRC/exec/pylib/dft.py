@@ -8,7 +8,7 @@ from .run_cmd import run_cmd, MPIParams
 
 
 def _read_bmix_from_ctrl(target: str) -> float:
-    toml_file = f'ctrlG.{target}.toml'
+    toml_file = f'ctrlg.{target}.toml'
     if Path(toml_file).is_file():
         import tomllib
         with open(toml_file, 'rb') as f:
@@ -54,8 +54,8 @@ def _prepare_for_lmf_retry(rst_file: str):
 
 
 def _ensure_ctrl(target):
-    if not Path(f"ctrlG.{target}.toml").is_file() and not Path(f"ctrl.{target}").is_file():
-        raise RuntimeError(f"No ctrl file (neither ctrlG.{target}.toml nor ctrl.{target})")
+    if not Path(f"ctrlg.{target}.toml").is_file() and not Path(f"ctrl.{target}").is_file():
+        raise RuntimeError(f"No ctrl file (neither ctrlg.{target}.toml nor ctrl.{target})")
 
 
 _const_b: dict = {}
@@ -84,7 +84,7 @@ def run_lmf(cluster: str,
             nprocs=params.nprocs,
             npernode=params.npernode,
             command=params.command,
-            args=params.args + [f'--toml.iter.b={bval}']
+            args=params.args + [f'--ctrlg:iter.b={bval}']
         )
         try:
             run_cmd(cluster, current_params, retry=False, stdin_str=stdin_str, stdout=stdout)

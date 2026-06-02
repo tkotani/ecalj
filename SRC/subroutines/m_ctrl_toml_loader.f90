@@ -19,7 +19,7 @@ module m_ctrl_toml_loader
 
 contains
 
-  !> Load ctrlG.<sname>.toml and produce recrd(:) for rval2.
+  !> Load ctrlg.<sname>.toml and produce recrd(:) for rval2.
   subroutine load_ctrl_toml(filename, recrd, reclnr, nrecs)
     character(*), intent(in) :: filename
     character(len=:), allocatable, intent(out) :: recrd(:)

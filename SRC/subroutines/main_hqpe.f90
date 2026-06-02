@@ -22,7 +22,7 @@ subroutine hqpe() bind(C)  ! Jul,2000 t.kotani started from hqpe by Ferdi.Aryase
        qx(:,:,:),eldax(:,:),rsec(:,:,:),csec(:,:,:),zfac(:,:)
   integer:: ret,iix
   logical :: nozmode=.false.
-  call MPI__Initialize()    ! populate sname from argv so m_GWinput can locate ctrlG.<sname>.toml
+  call MPI__Initialize()    ! populate sname from argv so m_GWinput can locate ctrlg.<sname>.toml
   call Genallcf_v3(0)
   jin=0
   open(newunit=ifsex(1)   ,file='SEXU')

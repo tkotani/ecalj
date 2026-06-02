@@ -1,4 +1,17 @@
 2026-06-02
+  [BREAKING] cmdline override prefix と TOML ファイル命名規約を変更:
+    - `--toml.<path>=<value>` → `--ctrlg:<dotted.path>=<value>`
+      (prefix と path を `:` で分離、ctrlg ファイルを上書きする意図を明示)
+    - `ctrlG.<sname>.toml` → `ctrlg.<sname>.toml` (lowercase G)
+    - `PB.toml` → `PB.<sname>.toml` (sname 付き、cwd で複数系統共存可能に)
+    旧 `--toml.<path>=...` 形式は abort + 移行ヒントを出す。Fortran/Python
+    両側のファイル探索ロジック (m_ext.f90 / m_GWinput.f90 / gwsc / pylib/dft.py
+    等)、bash completion、ctrlgenToml.py / Legacy2toml.py / ctrlgenM1.py /
+    mkGWinput 出力、59 ctrlG.<sname>.toml + 42 PB.toml の rename、11
+    sample test.py、README*.md / ecaljclaude.md / ecalj_auto/README.md /
+    Samples/MLOsamples/README*.md を一括更新。
+    検証: copt + te + nio_gwsc gfortran-14 ローカルで全 PASS。
+
   [feat] m_toml_override: --toml.<path>=<value> の値が裸の文字列識別子
     (`find`, `rx mx` 等) の場合に自動でダブルクォートを付加する
     autoquote_bare_string を追加。`bash` がシングル/ダブルクォートを

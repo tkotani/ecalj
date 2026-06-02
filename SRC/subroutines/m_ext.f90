@@ -77,11 +77,11 @@ contains
     enddo
     ! No positional arg supplied. GW-side programs (qg4gw, heftet, hbasfp0,
     ! hvccfp0, hx0fp0, hwmatK_MPI, ...) don't take sname on the command line.
-    ! Auto-detect: if cwd has exactly one ctrlG.<x>.toml, use that <x>.
+    ! Auto-detect: if cwd has exactly one ctrlg.<x>.toml, use that <x>.
     ! Per-rank tmp file (PID-suffixed) to avoid races across MPI ranks.
     write(pidstr,'(i0)') getpid()
     tmpfile = '.ext_glob_'//trim(pidstr)
-    call execute_command_line('ls -1 ctrlG.*.toml 2>/dev/null > '//trim(tmpfile), wait=.true.)
+    call execute_command_line('ls -1 ctrlg.*.toml 2>/dev/null > '//trim(tmpfile), wait=.true.)
     open(newunit=ifi, file=trim(tmpfile), status='old', action='read', iostat=ios)
     if (ios == 0) then
        nmatch = 0
@@ -97,8 +97,8 @@ contains
        if (nmatch == 1) then
           fname = trim(candidate)
           dotpos = index(fname, '.toml', back=.true.)
-          if (fname(1:6) == 'ctrlG.' .and. dotpos > 7) then
-             sname = fname(7:dotpos-1)   ! chars between "ctrlG." and ".toml"
+          if (fname(1:6) == 'ctrlg.' .and. dotpos > 7) then
+             sname = fname(7:dotpos-1)   ! chars between "ctrlg." and ".toml"
              goto 999
           endif
        endif
@@ -116,33 +116,33 @@ contains
   subroutine print_usage_and_quit(prgnam)
     character(*), intent(in) :: prgnam
     write(6,'(a)') ''
-    write(6,'(a)') 'Usage: '//trim(prgnam)//' <sname> [--option ...] [--toml.<path>=<value> ...]'
+    write(6,'(a)') 'Usage: '//trim(prgnam)//' <sname> [--option ...] [--ctrlg:<path>=<value> ...]'
     write(6,'(a)') ''
-    write(6,'(a)') '  <sname> is the extension of the control file (ctrlG.<sname>.toml).'
+    write(6,'(a)') '  <sname> is the extension of the control file (ctrlg.<sname>.toml).'
     write(6,'(a)') '  GW-side utilities (qg4gw, heftet, hbasfp0, hvccfp0, hx0fp0, ...) take no'
-    write(6,'(a)') '  positional <sname>; they auto-detect from the unique ctrlG.*.toml in cwd.'
+    write(6,'(a)') '  positional <sname>; they auto-detect from the unique ctrlg.*.toml in cwd.'
     write(6,'(a)') ''
     write(6,'(a)') 'Inputs (lmf / lmfa / lmchk, only files actually read):'
-    write(6,'(a)') '  ctrlG.<sname>.toml          main control file (TOML schema)'
-    write(6,'(a)') '  PB.toml                     product-basis table (GW path only)'
+    write(6,'(a)') '  ctrlg.<sname>.toml          main control file (TOML schema)'
+    write(6,'(a)') '  PB.<sname>.toml             product-basis table (GW path only)'
     write(6,'(a)') '  syml.<sname>                k-line for --band'
     write(6,'(a)') '  atmpnu.{1,2,3}.<sname>      atomic radial wfns (from lmfa)'
     write(6,'(a)') '  rst.<sname>                 density restart (carries from previous SCF)'
     write(6,'(a)') '  sigm.<sname>                self-energy (QSGW)'
     write(6,'(a)') ''
     write(6,'(a)') 'Run-time TOML override:'
-    write(6,'(a)') '  --toml.<dotted.path>=<value>   override a key in ctrlG.<sname>.toml.'
-    write(6,'(a)') '    Examples: --toml.verbose=50            --toml.time=[5,5]'
-    write(6,'(a)') '              --toml.bz.nkabc=[8,8,8]      --toml.ham.scaledsigma=0.8'
-    write(6,'(a)') '              --toml.ham.so=1              --toml.ham.nspin=2'
-    write(6,'(a)') '              --toml.ham.phispinsym=true   --toml.spec.1.r=2.5'
+    write(6,'(a)') '  --ctrlg:<dotted.path>=<value>   override a key in ctrlg.<sname>.toml.'
+    write(6,'(a)') '    Examples: --ctrlg:verbose=50            --ctrlg:time=[5,5]'
+    write(6,'(a)') '              --ctrlg:bz.nkabc=[8,8,8]      --ctrlg:ham.scaledsigma=0.8'
+    write(6,'(a)') '              --ctrlg:ham.so=1              --ctrlg:ham.nspin=2'
+    write(6,'(a)') '              --ctrlg:ham.phispinsym=true   --ctrlg:spec.1.r=2.5'
     write(6,'(a)') '    Values are TOML-typed: bool lowercase (true/false), strings quoted,'
     write(6,'(a)') '    arrays in [...]. Applied in memory; the file on disk is untouched.'
     write(6,'(a)') '    Each applied override is logged on rank 0.'
     write(6,'(a)') ''
     write(6,'(a)') '    Retired (now abort): -v..., --[<path>]=..., --<a.b>=...,'
     write(6,'(a)') '                         --pr=N, --time=..., --phispinsym.'
-    write(6,'(a)') '                         Use --toml.<path>=<value>.'
+    write(6,'(a)') '                         Use --ctrlg:<path>=<value>.'
     write(6,'(a)') ''
     write(6,'(a)') 'Full documentation:'
     write(6,'(a)') '  manual:           https://ecalj.github.io/ecaljdoc/manual/lmf'
@@ -151,8 +151,8 @@ contains
     write(6,'(a)') ''
     write(6,'(a)') 'Most-asked subset:'
     write(6,'(a)') '  --help                this banner'
-    write(6,'(a)') '  --toml.verbose=N      console verbosity (e.g. =50 traces, =70 debug)'
-    write(6,'(a)') '  --toml.time=[N,M]     CPU timing log: depth, on-the-fly (e.g. [5,5])'
+    write(6,'(a)') '  --ctrlg:verbose=N      console verbosity (e.g. =50 traces, =70 debug)'
+    write(6,'(a)') '  --ctrlg:time=[N,M]     CPU timing log: depth, on-the-fly (e.g. [5,5])'
     write(6,'(a)') '  --band                band plot along syml.<sname>'
     write(6,'(a)') '  --jobgw={0,1}         run as GW driver (replaces lmfgw-MPIK)'
     write(6,'(a)') '  --quit={show,ham,mkpot,dmat,band}   staged stop points'

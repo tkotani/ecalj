@@ -1,10 +1,10 @@
 #!/bin/bash
 # Append default [gw]/[product_basis]/[blocks] sections to an existing
-# ctrlG.<target>.toml, and generate PB.toml.
+# ctrlg.<target>.toml, and generate PB.<sname>.toml.
 #
 # Pre-flight steps to obtain HAMINDEX0:  lmfa -> lmf --jobgw=0 -> gwinit
 #
-# If ctrlG.<target>.toml or PB.toml already exists, it is moved aside to
+# If ctrlg.<target>.toml or PB.<sname>.toml already exists, it is moved aside to
 # <name>.bakup before being regenerated.
 set -e
 nfpgw=$(dirname "$0")
@@ -15,7 +15,7 @@ if [ $# -lt 1 ]; then
 fi
 
 target=$1
-ctrlg="ctrlG.${target}.toml"
+ctrlg="ctrlg.${target}.toml"
 
 if [ ! -f "$ctrlg" ]; then
     echo "mkGWinput: $ctrlg not found in cwd."
@@ -24,14 +24,14 @@ if [ ! -f "$ctrlg" ]; then
 fi
 
 # Snapshot the pre-existing files so users never lose hand edits.
-for f in "$ctrlg" PB.toml; do
+for f in "$ctrlg" PB.<sname>.toml; do
     if [ -f "$f" ]; then
         echo "mkGWinput: backing up $f -> $f.bakup"
         mv "$f" "$f.bakup"
     fi
 done
 # We need the *.bakup of ctrlG itself as the starting point for gwinit's
-# upsert (it expects a ctrlG.<target>.toml in cwd).
+# upsert (it expects a ctrlg.<target>.toml in cwd).
 cp "${ctrlg}.bakup" "$ctrlg"
 
 mpirun -np 1 "$nfpgw/lmfa" "$target"  > llmfa
@@ -41,6 +41,6 @@ mpirun -np 1 "$nfpgw/gwinit" "$target"
 echo
 echo '-------------------------------------------------------------------'
 echo "  $ctrlg   updated ([gw]/[product_basis]/[blocks])"
-echo "  PB.toml  generated (per-atom product-basis tables)"
+echo "  PB.<sname>.toml  generated (per-atom product-basis tables)"
 echo "  default n1n2n3 = 4 4 4. Edit by hand if needed."
 echo 'OK!'

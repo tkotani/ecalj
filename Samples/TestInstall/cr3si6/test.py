@@ -21,8 +21,8 @@ def test(args,bindir,testdir,workdir):
         outfile='out.lmf.cr3si6'
         rmfiles(workdir,[outfile])
         runprogs([
-                 lmfa+" cr3si6 --toml.verbose=51 --toml.iter.nit=2 --toml.time=[6,999] >  "+outfile,
-                 lmf +" cr3si6 --toml.verbose=51 --toml.iter.nit=2 --toml.time=[6,999] >> "+outfile
+                 lmfa+" cr3si6 --ctrlg:verbose=51 --ctrlg:iter.nit=2 --ctrlg:time=[6,999] >  "+outfile,
+                 lmf +" cr3si6 --ctrlg:verbose=51 --ctrlg:iter.nit=2 --ctrlg:time=[6,999] >> "+outfile
         ])
         tall=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
         return tall

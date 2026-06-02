@@ -9,7 +9,7 @@
 #   lmf / lmfa / lmchk /
 #   gwsc / gw_lmfh /
 #   eps_lmfh / epsPP_lmfh /
-#   genMLWF / genMLWFx     -> ctrlG.*.toml (TOML inputs)
+#   genMLWF / genMLWFx     -> ctrlg.*.toml (TOML inputs)
 #
 # All globs are scoped to the current working directory; completion only
 # shows candidates that actually exist for the script you are about to run.
@@ -32,7 +32,7 @@ _ecalj_complete_from_glob() {
 
 _ecalj_legacy_sname()  { _ecalj_complete_from_glob 'ctrl.*'        'ctrl.'  ''      ; }
 _ecalj_ctrls_sname()   { _ecalj_complete_from_glob 'ctrls.*'       'ctrls.' ''      ; }
-_ecalj_toml_sname()    { _ecalj_complete_from_glob 'ctrlG.*.toml'  'ctrlG.' '.toml' ; }
+_ecalj_toml_sname()    { _ecalj_complete_from_glob 'ctrlg.*.toml'  'ctrlg.' '.toml' ; }
 
 complete -F _ecalj_legacy_sname  Legacy2toml.py
 complete -F _ecalj_ctrls_sname   ctrlgenToml.py

@@ -125,7 +125,7 @@ subroutine hpsig_MPI()
   ! m, MPI
   ! initialize MPI
   call mpi_init(ierr)
-  block ! sname / argv setup for ctrlG.<sname>.toml lookup
+  block ! sname / argv setup for ctrlg.<sname>.toml lookup
     use m_args, only: m_setargs
     use m_ext,  only: m_ext_init
     call m_setargs(); call m_ext_init()

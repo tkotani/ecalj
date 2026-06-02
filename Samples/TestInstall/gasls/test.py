@@ -14,8 +14,8 @@ def test(args,bindir,testdir,workdir):
         outfile='out.lmf.ls-bands.gasls'
         rmfiles(workdir,[outfile])
         runprogs([
-                 lmfa+" --toml.ham.so=1 gasls --toml.ham.pwmode=0 >"+outfile,
-                 lmf+ " --toml.ham.so=1  gasls --band --toml.ham.pwmode=0 >>"+outfile
+                 lmfa+" --ctrlg:ham.so=1 gasls --ctrlg:ham.pwmode=0 >"+outfile,
+                 lmf+ " --ctrlg:ham.so=1  gasls --band --ctrlg:ham.pwmode=0 >>"+outfile
         ])
         print(message1)
         tall=compeval(testdir+'/'+outfile, workdir+'/'+outfile,' 0.00000  0.00000  0.00000',lineeval=3,evalso=5,tol=1e-4) 

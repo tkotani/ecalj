@@ -127,7 +127,7 @@ Both DFT and MLO bands plotted on the same panel (`Energy − E_F`, eV).
 - `FeSoc`: Fe 3d manifold ±2 eV around E_F, both spins.
 - `FeMgOSoc`: dense band structure of the Fe-MgO interface region.
 
-## Settings to know (in `ctrlG.<sname>.toml`)
+## Settings to know (in `ctrlg.<sname>.toml`)
 
 As of 2026-05 the Fortran binaries read structured TOML only. Legacy
 `GWinput` is converted on first use by `Legacy2toml.py`; what follows
@@ -243,7 +243,7 @@ post-processing step is needed.
 verifies the on-site diagonal **V** and **W − V** for both spin
 channels against hard-coded reference values (one (V, W−V) tuple per
 orbital, indices 1..9 = s + 3p + 5d).  Reference values live inline in
-`test.py` (generated 2026-05-08 from this directory's `ctrlG.fe.toml`
+`test.py` (generated 2026-05-08 from this directory's `ctrlg.fe.toml`
 + `GWinput`); **no `Coulomb_v.*` / `Screening_W-v.*` are committed** as
 test fixtures, so the test is self-contained.  Tolerance: 0.05 eV.
 
@@ -295,8 +295,8 @@ The MLO + TOML migration introduced two regressions, fixed in commits
   dropped real data when GWinput had a real block plus a commented
   example. Now keeps the first.
 - **`job_mlo_soc` -v overrides**: `-vnspin=2 -vso=0` form is silently
-  ignored under TOML-only mode; replaced with `--toml.ham.nspin=2`,
-  `--toml.ham.so=0/1`.
+  ignored under TOML-only mode; replaced with `--ctrlg:ham.nspin=2`,
+  `--ctrlg:ham.so=0/1`.
 - **gfortran 13.3 / 14.2 codegen bug** in `m_HamPMT.f90`
   (`ReadInfoFromGWinput` block): a "naked" `else: call rx` on the
   `<Worb>` if/else miscompiles the live (TOML) path, corrupting

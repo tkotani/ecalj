@@ -7,19 +7,19 @@ Legacy2toml.py — one-shot migration tool: legacy ecalj input -> TOML.
 ==============================================================================
   As of 2026-05, the Fortran binaries (lmf / lmfa / lmchk / gwsc / hsfp0 ...)
   read ONLY structured TOML:
-      ctrlG.<sname>.toml   (merged ctrl + GW driver sections + PB cut-offs)
-      PB.toml              (per-atom product basis tables, sname-free)
+      ctrlg.<sname>.toml   (merged ctrl + GW driver sections + PB cut-offs)
+      PB.<sname>.toml              (per-atom product basis tables, per-sname)
   Legacy text inputs (ctrl.<sname>, GWinput) are NO LONGER read by Fortran.
 
   To migrate an existing working directory:
       $ cd <your-old-dir>          # contains ctrl.<sname> and GWinput
-      $ Legacy2toml.py <sname>     # produces ctrlG.<sname>.toml + PB.toml
+      $ Legacy2toml.py <sname>     # produces ctrlg.<sname>.toml + PB.<sname>.toml
       # then resume your normal workflow (lmf, gwsc, ...) unchanged.
 
   Run-time tunables (-v) have moved from %const to TOML-path syntax:
       OLD:  lmf si -vnk=8 -vmetal=3
-      NEW:  lmf si --toml.bz.nkabc=[8,8,8] --toml.bz.metal=3
-  The --toml.<path>=val form is processed in-memory by m_toml_override.f90;
+      NEW:  lmf si --ctrlg:bz.nkabc=[8,8,8] --ctrlg:bz.metal=3
+  The --ctrlg:<path>=val form is processed in-memory by m_toml_override.f90;
   it never rewrites the .toml file on disk.
 
 ==============================================================================
@@ -31,10 +31,10 @@ Legacy2toml.py — one-shot migration tool: legacy ecalj input -> TOML.
 ==============================================================================
   Outputs (written / overwritten in cwd; .bakup of any prior file is kept)
 ==============================================================================
-    ctrlG.<sname>.toml    top-level (symgrp, verbose, time) +
+    ctrlg.<sname>.toml    top-level (symgrp, verbose, time) +
                           [struc]/[[site]]/[[spec]]/[bz]/[iter]/[ham]/...
                           plus [gw]/[product_basis] (scalars only)/[blocks]
-    PB.toml               [product_basis] per-atom: nlx, valence, core
+    PB.<sname>.toml               [product_basis] per-atom: nlx, valence, core
 
   Both files include human-readable inline comments (units / role of each
   key); see toml_comments.py to update the wording in one place.
@@ -48,26 +48,26 @@ Legacy2toml.py — one-shot migration tool: legacy ecalj input -> TOML.
 
   -v handling (only useful when generating ctrlG variants):
     Each "-vNAME=VAL" overrides %const NAME=... before {NAME} substitution
-    in the legacy ctrl, baking the resulting numbers into ctrlG.<sname>.toml.
+    in the legacy ctrl, baking the resulting numbers into ctrlg.<sname>.toml.
 
     A 3-level diagnostic warns about each -v BEFORE conversion:
       [WARN]  NAME not in %const         -- the override is a no-op
-      [INFO]  NAME maps to a TOML path   -- prefer runtime --toml.<path>=val
+      [INFO]  NAME maps to a TOML path   -- prefer runtime --ctrlg:<path>=val
                                            (no reconversion needed)
       [ERROR] NAME affects topology      -- variant required:
-              save the result as ctrlG.<sname>.<tag>.toml and switch via
+              save the result as ctrlg.<sname>.<tag>.toml and switch via
               "cp" before each lmf invocation.  See Samples/TestInstall/te
               for a worked example.
 
 ==============================================================================
   Pipeline (internal)
 ==============================================================================
-  1. ctrl2ctrltoml.py  : ctrl.<sname>  -> ctrlG.<sname>.toml (sections from
+  1. ctrl2ctrltoml.py  : ctrl.<sname>  -> ctrlg.<sname>.toml (sections from
                                           ctrl_schema.py, typed)
   2. gwinput2toml.py   : GWinput       -> intermediate GWinput.toml.tmp
   3. split + append    : [gw] + [product_basis] (pb_tolerance / pb_lcutmx)
-                         + [blocks] are appended to ctrlG.<sname>.toml;
-                         per-atom nlx / valence / core go to PB.toml.
+                         + [blocks] are appended to ctrlg.<sname>.toml;
+                         per-atom nlx / valence / core go to PB.<sname>.toml.
   4. apply annotations : toml_comments.py inserts SECTION_HEADER blocks and
                          unit-bearing inline comments (idempotent).
 
@@ -86,7 +86,7 @@ def banner(msg):
 
 # ----- -v override analyzer (3-level diagnostic) ----------------------------
 # Tokens that inherently change schema topology / structure of TOML;
-# overriding them via --toml.<path>=val cannot be expressed in default TOML mode.
+# overriding them via --ctrlg:<path>=val cannot be expressed in default TOML mode.
 TOPOLOGY_TOKENS = {
     ('STRUC', 'NBAS'),
     ('STRUC', 'NSPEC'),
@@ -174,9 +174,9 @@ def analyze_v_overrides(ctrl_path, v_args):
 
       1. WARN if the var is not defined in any %const     (no-op override)
       2. ERROR if any reference site is structural/topology (cannot be
-         expressed as --toml.<path>=val in default TOML mode -- requires a
-         pre-generated ctrlG.<sname>.<tag>.toml variant).
-      3. INFO otherwise: suggest the equivalent --toml.<toml-path>=val that
+         expressed as --ctrlg:<path>=val in default TOML mode -- requires a
+         pre-generated ctrlg.<sname>.<tag>.toml variant).
+      3. INFO otherwise: suggest the equivalent --ctrlg:<toml-path>=val that
          can be used in default TOML mode without going through Legacy2toml.
 
     Returns the count of ERRORs (caller decides whether to abort).
@@ -207,8 +207,8 @@ def analyze_v_overrides(ctrl_path, v_args):
                 print(f'  [ERROR] -v{name}={val}: '
                       f"used as section header line ({src.lstrip()[:60]}...). "
                       f"Toggles a TOML section (e.g. enabling [DYN]); "
-                      f"cannot be expressed as --toml.<path>=val. "
-                      f"Use a ctrlG.<sname>.<tag>.toml variant.")
+                      f"cannot be expressed as --ctrlg:<path>=val. "
+                      f"Use a ctrlg.<sname>.<tag>.toml variant.")
                 n_err += 1
                 any_topology = True
                 continue
@@ -216,10 +216,10 @@ def analyze_v_overrides(ctrl_path, v_args):
                 print(f'  [ERROR] -v{name}={val}: '
                       f"changes topology ({cat}_{tok}={val}). "
                       f"TOML schema fixes [[site]]/[[spec]] count; "
-                      f"cannot be expressed as --toml.<path>=val. "
-                      f"Generate a ctrlG.<sname>.<tag>.toml variant via:\n"
+                      f"cannot be expressed as --ctrlg:<path>=val. "
+                      f"Generate a ctrlg.<sname>.<tag>.toml variant via:\n"
                       f"      Legacy2toml.py <sname> -v{name}={val} ...   # save output\n"
-                      f"      mv ctrlG.<sname>.toml ctrlG.<sname>.<tag>.toml")
+                      f"      mv ctrlg.<sname>.toml ctrlg.<sname>.<tag>.toml")
                 n_err += 1
                 any_topology = True
                 continue
@@ -234,7 +234,7 @@ def analyze_v_overrides(ctrl_path, v_args):
                 else:
                     print(f'  [INFO] -v{name}={val}: '
                           f"used at {cat}_{tok} -> TOML path '{tp}'. "
-                          f"Equivalent: --toml.{tp}={val}")
+                          f"Equivalent: --ctrlg:{tp}={val}")
     print('---')
     return n_err
 
@@ -256,18 +256,18 @@ def main():
     n_err = analyze_v_overrides(str(ctrl_legacy), extra_args)
     if n_err > 0:
         print(f'Legacy2toml.py: {n_err} -v override(s) cannot be expressed '
-              f'as --toml.<path>=val in default TOML mode.', flush=True)
+              f'as --ctrlg:<path>=val in default TOML mode.', flush=True)
         print('  Proceeding with conversion anyway -- the resulting '
-              'ctrlG.{0}.toml reflects these overrides; save it with a '
-              'descriptive suffix (e.g. ctrlG.{0}.<tag>.toml) and switch '
+              'ctrlg.{0}.toml reflects these overrides; save it with a '
+              'descriptive suffix (e.g. ctrlg.{0}.<tag>.toml) and switch '
               'between variants via cp in your test.py.'.format(sname),
               flush=True)
 
     # ------------------------------------------------------------------
-    # 1. ctrl.<sname>  ->  ctrlG.<sname>.toml  (via ctrl2ctrltoml.py)
+    # 1. ctrl.<sname>  ->  ctrlg.<sname>.toml  (via ctrl2ctrltoml.py)
     # ------------------------------------------------------------------
-    banner(f'ctrl.{sname} -> ctrlG.{sname}.toml')
-    out_path = Path(f'ctrlG.{sname}.toml')
+    banner(f'ctrl.{sname} -> ctrlg.{sname}.toml')
+    out_path = Path(f'ctrlg.{sname}.toml')
     with open(out_path, 'wb') as fout:
         rc = subprocess.run(
             [str(here / 'ctrl2ctrltoml.py'), *extra_args],
@@ -277,15 +277,15 @@ def main():
         sys.exit(f'Legacy2toml.py: ctrl2ctrltoml.py returned {rc}')
 
     # ------------------------------------------------------------------
-    # 2. GWinput  ->  ctrlG.<sname>.toml [gw, product_basis (slim), blocks]
-    #              +  PB.toml   [per-atom nlx / valence / core]
+    # 2. GWinput  ->  ctrlg.<sname>.toml [gw, product_basis (slim), blocks]
+    #              +  PB.<sname>.toml   [per-atom nlx / valence / core]
     # (skipped if no GWinput in cwd)
     # ------------------------------------------------------------------
     gwinput = Path('GWinput')
     if not gwinput.exists():
-        banner(f'no GWinput in cwd; ctrlG.{sname}.toml emitted without GW sections')
+        banner(f'no GWinput in cwd; ctrlg.{sname}.toml emitted without GW sections')
         return
-    banner(f'GWinput -> append [gw]/[product_basis]/[blocks] to ctrlG.{sname}.toml + PB.toml')
+    banner(f'GWinput -> append [gw]/[product_basis]/[blocks] to ctrlg.{sname}.toml + PB.<sname>.toml')
     # Run gwinput2toml.py to get a GWinput.toml in the legacy "all in one" form
     tmp_gwinput_toml = Path('GWinput.toml.tmp.l2t')
     rc = subprocess.run(
@@ -300,7 +300,7 @@ def main():
 
     # Split [product_basis]:
     #   - keep tolerance/lcutmx in ctrlG (rename to pb_tolerance/pb_lcutmx)
-    #   - move nlx/valence/core to PB.toml
+    #   - move nlx/valence/core to PB.<sname>.toml
     pb_tol_match = re.search(r'^tolerance\s*=\s*(\[[^\]]*\])', text, re.MULTILINE)
     pb_lcm_match = re.search(r'^lcutmx\s*=\s*(\[[^\]]*\])',    text, re.MULTILINE)
     pb_tol = pb_tol_match.group(1) if pb_tol_match else '[1e-3]'
@@ -325,7 +325,7 @@ def main():
         '[product_basis]\n'
         f'pb_tolerance = {pb_tol}\n'
         f'pb_lcutmx    = {pb_lcm}\n'
-        f'\n# Per-atom product-basis tables (nlx / valence / core) live in PB.toml\n'
+        f'\n# Per-atom product-basis tables (nlx / valence / core) live in PB.<sname>.toml\n'
     )
     blocks_text = blocks_section.group(0).rstrip() + '\n' if blocks_section else ''
     # Strip vestigial PRODUCT_BASIS raw-text block from [blocks]
@@ -342,20 +342,21 @@ def main():
         f.write('\n')
         f.write(blocks_text)
 
-    # Build PB.toml
-    with open('PB.toml', 'w') as f:
-        f.write('# PB.toml -- per-atom product-basis tables (auto-generated by Legacy2toml.py)\n\n')
+    # Build PB.<sname>.toml
+    pb_path = f'PB.{sname}.toml'
+    with open(pb_path, 'w') as f:
+        f.write(f'# {pb_path} -- per-atom product-basis tables (auto-generated by Legacy2toml.py)\n\n')
         f.write('[product_basis]\n\n')
         for blk in (nlx_block, valence_block, core_block):
             if blk:
                 f.write(blk.rstrip() + '\n\n')
 
     # Annotate output with help comments from toml_comments.py
-    for fname in (str(out_path), 'PB.toml'):
+    for fname in (str(out_path), pb_path):
         if Path(fname).exists():
             txt = Path(fname).read_text()
             Path(fname).write_text(apply_toml_annotations(txt))
-    banner(f'wrote ctrlG.{sname}.toml + PB.toml (annotated)')
+    banner(f'wrote ctrlg.{sname}.toml + {pb_path} (annotated)')
 
 if __name__ == '__main__':
     main()

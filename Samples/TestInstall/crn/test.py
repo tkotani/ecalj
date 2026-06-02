@@ -19,7 +19,7 @@ def test(args,bindir,testdir,workdir):
         runprogs([
                  lmfa+" crn > "+out1 ,
                  lmf+ " crn >>"+out1,
-                 lmf+ " --toml.iter.nit=1 --toml.bz.metal=2 crn >>"+out1,
+                 lmf+ " --ctrlg:iter.nit=1 --ctrlg:bz.metal=2 crn >>"+out1,
                  lmf+ " --cls crn >>"+out1
         ])
         tall+=test2_check(testdir+'/'+out2, workdir+'/'+out2)

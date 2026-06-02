@@ -1,4 +1,4 @@
-"""Inline help text for ctrlG.<sname>.toml and PB.toml.
+"""Inline help text for ctrlg.<sname>.toml and PB.<sname>.toml.
 
 Used by ctrl2ctrltoml.py (Legacy2toml.py) and ctrlgenToml.py to embed
 self-contained explanations next to each TOML section/key, mirroring the
@@ -18,10 +18,10 @@ SECTION_HEADER = {
         "# === Top-level keys ===",
         "# symgrp: 'find' lets lmf detect maximum space-group symmetry from",
         "#   lattice + species. Set explicitly (e.g. 'r4z r3d r2x') to lower",
-        "#   the symmetry by hand. 'lmchk foobar --toml.verbose=60' lists generators.",
+        "#   the symmetry by hand. 'lmchk foobar --ctrlg:verbose=60' lists generators.",
         "#   See https://ecalj.github.io/ecaljdoc/manual/lmf#symgrp",
         "# verbose / time: console verbosity and CPU timing log.",
-        "#   Override at run time with --toml.verbose=50 / --toml.time=[5,5].",
+        "#   Override at run time with --ctrlg:verbose=50 / --ctrlg:time=[5,5].",
     ),
 
     'struc': (
@@ -122,8 +122,8 @@ SECTION_HEADER = {
 
     'product_basis': (
         "# === PRODUCT_BASIS ===",
-        "# pb_tolerance / pb_lcutmx : ctrlG.<sname>.toml (cut-off tunables).",
-        "# nlx / valence / core     : PB.toml (sname-free, shared per-spec tables).",
+        "# pb_tolerance / pb_lcutmx : ctrlg.<sname>.toml (cut-off tunables).",
+        "# nlx / valence / core     : PB.<sname>.toml (per-spec tables).",
     ),
 
     'blocks': (

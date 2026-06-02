@@ -270,7 +270,7 @@ module m_GWinput
 contains
 
   !> Idempotent helper for callers: ensure GW input has been loaded.
-  !  Reads ctrlG.<sname>.toml (carries [gw], [product_basis] scalars,
+  !  Reads ctrlg.<sname>.toml (carries [gw], [product_basis] scalars,
   !  [blocks]) plus PB.toml (per-atom product-basis arrays). Both files
   !  are mandatory; legacy ctrl/GWinput must be pre-converted to TOML
   !  via Legacy2toml.py before launching the Fortran binary.
@@ -279,10 +279,10 @@ contains
     logical :: have_ctrlg, have_pb
     character(len=:), allocatable :: errmsg
     if (gwinput_loaded) return
-    inquire(file='ctrlG.'//trim(sname)//'.toml', exist=have_ctrlg)
-    if (.not. have_ctrlg) call rx('m_GWinput: ctrlG.'//trim(sname)// &
+    inquire(file='ctrlg.'//trim(sname)//'.toml', exist=have_ctrlg)
+    if (.not. have_ctrlg) call rx('m_GWinput: ctrlg.'//trim(sname)// &
          '.toml not found in cwd (run Legacy2toml.py to convert legacy inputs).')
-    inquire(file='PB.toml', exist=have_pb)
+    inquire(file='PB.'//trim(sname)//'.toml', exist=have_pb)
     if (.not. have_pb) call rx('m_GWinput: PB.toml not found in cwd '// &
          '(run Legacy2toml.py / mkGWinput to generate it).')
     call gwinput_load(error=errmsg)
@@ -290,10 +290,10 @@ contains
   end subroutine gwinput_init
 
   subroutine gwinput_load(filename, error)
-    !> Load ctrlG.<sname>.toml + PB.toml. Idempotent.
-    !  filename defaults to 'ctrlG.<sname>.toml' if absent.
+    !> Load ctrlg.<sname>.toml + PB.toml. Idempotent.
+    !  filename defaults to 'ctrlg.<sname>.toml' if absent.
     !
-    !  Sections consumed from ctrlG.<sname>.toml:
+    !  Sections consumed from ctrlg.<sname>.toml:
     !    [gw]              -- run-level scalars (n1n2n3, QpGcut_*, etc.)
     !    [product_basis]   -- pb_tolerance, pb_lcutmx (slim scalars)
     !    [blocks]          -- raw text blocks (QforEPS, QforGW, Worb, ...)
@@ -316,7 +316,7 @@ contains
     if (present(filename)) then
        fname = trim(filename)
     else
-       fname = 'ctrlG.'//trim(sname)//'.toml'
+       fname = 'ctrlg.'//trim(sname)//'.toml'
     endif
 
     block
@@ -340,7 +340,7 @@ contains
     if (associated(pb)) call load_pb_section(pb)
 
     !---- PB.toml (per-atom product-basis tables; mandatory for GW) ----
-    call load_pb_file('PB.toml')
+    call load_pb_file('PB.'//trim(sname)//'.toml')
 
     !---- [blocks] ----
     call get_value(root, 'blocks', blocks)
@@ -522,7 +522,7 @@ contains
 
   subroutine load_pb_section(pb)
     !> Read scalar [product_basis] entries (pb_tolerance, pb_lcutmx) from
-    !  ctrlG.<sname>.toml. Per-atom arrays (nlx / valence / core) live in
+    !  ctrlg.<sname>.toml. Per-atom arrays (nlx / valence / core) live in
     !  PB.toml and are loaded by load_pb_file; we do not look for them here.
     type(toml_table), pointer, intent(in) :: pb
     type(toml_array), pointer :: arr

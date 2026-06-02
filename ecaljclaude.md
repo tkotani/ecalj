@@ -245,26 +245,26 @@ OpenACC の `!$acc` ディレクティブと構造が対応する。
 
 ### 新方式
 Fortran バイナリは以下のみを読む:
-- `ctrlG.<sname>.toml` — ctrl + GW driver sections + PB cut-offs の統合 TOML
+- `ctrlg.<sname>.toml` — ctrl + GW driver sections + PB cut-offs の統合 TOML
 - `PB.toml` — per-atom product-basis tables (sname-free)
 
 ### 生成
 ```bash
 # POSCAR から新規生成
-ctrlgenToml.py <sname>        # writes ctrlG.<sname>.toml + PB.toml
+ctrlgenToml.py <sname>        # writes ctrlg.<sname>.toml + PB.toml
 
 # 旧形式 (ctrl + GWinput) からの移行
-Legacy2toml.py <sname>        # writes ctrlG.<sname>.toml + PB.toml
+Legacy2toml.py <sname>        # writes ctrlg.<sname>.toml + PB.toml
 ```
 
 ### 旧 -v オーバーライドの新形式
 ```
 OLD:  lmf si -vnk=8 -vmetal=3
-NEW:  lmf si --toml.bz.nkabc=[8,8,8] --toml.bz.metal=3
+NEW:  lmf si --ctrlg:bz.nkabc=[8,8,8] --ctrlg:bz.metal=3
 ```
 
 ### ファイル命名規約
-- `ctrlG.foobar.toml` (foobar = 物質ID, mp-1234 等)
+- `ctrlg.foobar.toml` (foobar = 物質ID, mp-1234 等)
 - ディレクトリで識別可能でも**ファイル名に ID を残す** — HTP バッチで取り違え防止、LLM のクロスリファレンス誤認防止
 
 ## hgw_combined (in-memory W)

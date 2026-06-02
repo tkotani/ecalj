@@ -6,15 +6,15 @@ def test(args,bindir,testdir,workdir):
     # Case te: molecular statics in an open structure
     # --- Test 1.  Basic check of programs lmfa,lmf ---
     Four pre-generated ctrlG variants are switched in via cp before each call:
-       ctrlG.te.lmfa.toml   (default,       used by lmfa)
-       ctrlG.te.float.toml  (nbas=12,       w/ floating orbitals)
-       ctrlG.te.pw.toml     (KMXA=5,PWMODE=11,  with PWs)
-       ctrlG.te.mto.toml    (MTO only)
+       ctrlg.te.lmfa.toml   (default,       used by lmfa)
+       ctrlg.te.float.toml  (nbas=12,       w/ floating orbitals)
+       ctrlg.te.pw.toml     (KMXA=5,PWMODE=11,  with PWs)
+       ctrlg.te.mto.toml    (MTO only)
 '''
     print(message1)
     outfile='out.lmf.te'
     rmfiles(workdir,[outfile])
-    cp = lambda tag: f"cp {testdir}/ctrlG.te.{tag}.toml ctrlG.te.toml"
+    cp = lambda tag: f"cp {testdir}/ctrlg.te.{tag}.toml ctrlg.te.toml"
     runprogs([
         cp('lmfa'),  lmfa+ "te > "+outfile,
         cp('float'), lmf + "te >> "+outfile,
