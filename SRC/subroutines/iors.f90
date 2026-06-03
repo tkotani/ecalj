@@ -14,7 +14,7 @@ contains
     use m_ftox
     use m_chgmsh,only:chgmsh
     use m_lmfinit,only:z_i=>z,nr_i=>nr,kmxt_i=>kmxt,rmt_i=>rmt,lmxa_i=>lmxa,lmxl_i=>lmxl,lmxb_i=>lmxb,lfoca
-    use m_fatom,only:sspec,mpibc1_s_spec
+    use m_fatom,only:sspec
     use m_mpi,only:master_mpi
     !! I/O data
     !!     smrho, rhoat
@@ -87,84 +87,66 @@ contains
        use    = '         use from  restart file:'
        ignore = '         ignore in restart file:'
        line = 'header'
-       ! MPI check to see if at least 1st record can be read. Abort with error message if file is missing (lfail = .true.)
-       lfail = .false.
-       if (master_mpi) then 
-          lfail = .true.
-          read(jfi,end=996,err=996) vs1
-          lfail = .false.
-          rewind jfi
-996       continue
+       ! Probe the file: every rank tries to read vs1 on its own handle.
+       ! If the open succeeded but the first record is unreadable (empty /
+       ! truncated rst), branch to 998 uniformly.
+       read(jfi,end=998,err=998) vs1
+       read(jfi) !fid0
+       read(jfi) datimp,usernm,hostnm
+       read(jfi) nbas0,nat0,nsp0 !,npan0,lrel0,nspec0
+       read(jfi) nit
+       read(jfi) alat0,vol0
+       if(master_mpi .and. ipr >= 40) write(stdo,710) trim(usernm),trim(hostnm),trim(datimp)
+       if(master_mpi .and. nbas/=nbas0) then
+          write(stdo,ftox)' (warning) mismatch in nbas ... skipping sites'
+          write(stdo,ftox)' expected nbas=',nbas,'but rst file has nbas=',nbas0
        endif
-       call mpibc1_logical(lfail,1,'iors_read error')
-       if (lfail) goto 998
-       if (master_mpi) then
-          read(jfi,end=998,err=998) vs1
-          read(jfi) !fid0
-          read(jfi) datimp,usernm,hostnm
-          read(jfi) nbas0,nat0,nsp0 !,npan0,lrel0,nspec0
-          read(jfi) nit
-          read(jfi) alat0,vol0
-          if(ipr >= 40) write(stdo,710) trim(usernm),trim(hostnm),trim(datimp)
-          if(nbas/=nbas0) then
-             write(stdo,ftox)' (warning) mismatch in nbas ... skipping sites'
-             write(stdo,ftox)' expected nbas=',nbas,'but rst file has nbas=',nbas0
-          endif
-          if (nsp0 < nsp) write(stdo,*)'   (warning) rst file not spin pol .. splitting spins'
-       endif
+       if(master_mpi .and. nsp0 < nsp) write(stdo,*)'   (warning) rst file not spin pol .. splitting spins'
 710    format(/9x,'written by -  ',a,' on ',a,' at: ',a)
-       call mpibc1_int(nbas0,1,'iors_nbas0')
-!       call mpibc1_int(nat0,1,'iors_nat0')
-       call mpibc1_real(plat,9,'iors_plat')
-       call mpibc1_int(nit,1,'iors_nit')
        !   --- Read smooth charge density ---
        allocate(osmrho(n1,n2,n3,nsp))
        osmrho=0d0
        line = 'smoothed density'
-       if (master_mpi) then
-          read(jfi,err=999,end=999) n11,n21,n31
-          if (n11 == n1 .AND. n21 == n2 .AND. n31 == n3) then
-             n =n1*n2*n3
-             read(jfi) osmrho(:,:,:,1:nsp0)
-             if (nsp > nsp0) then
-                osmrho(:,:,:,1)=.5d0*osmrho(:,:,:,1)
-                osmrho(:,:,:,2)= osmrho(:,:,:,1)
-             endif
-          else                 !... or read and remesh
-             if (ipr >= 10) write(stdo,450) n11,n21,n31,n1,n2,n3
-450          format(9x,'remesh density from  ',i4,'  *',i4,'  *',i4,'    to  ',i4,'  *',i4,'  *',i4)
-             allocate(h_zv(n11*n21*n31*nsp))
-             read(jfi)h_zv(1:n11*n21*n31*nsp0)
-             if (nsp > nsp0) then
-                n  = n11*n21*n31
-                h_zv(1:n    ) = .5d0 *h_zv(1:n)
-                h_zv(1+n:n+n) = h_zv(1:n)
-             endif
-             call pshpr(50)
-             i = 0
-             if (n1 == 2*n11 .AND. n2 == 2*n21 .AND. n3 == 2*n31) i=3
-             call chgmsh ( i , plat , nsp , n11 , n21 , n31 , n11,n21,n31 , h_zv , n1 , n2 , n3 , n1 , n2 , n3 , osmrho )
-             call poppr
-             if (allocated(h_zv)) deallocate(h_zv)
+       read(jfi,err=999,end=999) n11,n21,n31
+       if (n11 == n1 .AND. n21 == n2 .AND. n31 == n3) then
+          n =n1*n2*n3
+          read(jfi) osmrho(:,:,:,1:nsp0)
+          if (nsp > nsp0) then
+             osmrho(:,:,:,1)=.5d0*osmrho(:,:,:,1)
+             osmrho(:,:,:,2)= osmrho(:,:,:,1)
           endif
-          !     ... If cell volume changed, scale smooth density to maintain charge
-          vfac = vol0/vol
-          if (dabs(vfac-1d0) > 1d-8) then
-             if (ipr >= 10) write(stdo,460) vol0,vfac
-460          format(9x,'volume changed from',f8.2,' :  scale smooth density by',f8.4)
-             osmrho=osmrho*vfac
+       else                 !... or read and remesh
+          if (master_mpi .and. ipr >= 10) write(stdo,450) n11,n21,n31,n1,n2,n3
+450       format(9x,'remesh density from  ',i4,'  *',i4,'  *',i4,'    to  ',i4,'  *',i4,'  *',i4)
+          allocate(h_zv(n11*n21*n31*nsp))
+          read(jfi)h_zv(1:n11*n21*n31*nsp0)
+          if (nsp > nsp0) then
+             n  = n11*n21*n31
+             h_zv(1:n    ) = .5d0 *h_zv(1:n)
+             h_zv(1+n:n+n) = h_zv(1:n)
           endif
+          call pshpr(50)
+          i = 0
+          if (n1 == 2*n11 .AND. n2 == 2*n21 .AND. n3 == 2*n31) i=3
+          call chgmsh ( i , plat , nsp , n11 , n21 , n31 , n11,n21,n31 , h_zv , n1 , n2 , n3 , n1 , n2 , n3 , osmrho )
+          call poppr
+          if (allocated(h_zv)) deallocate(h_zv)
        endif
-       call mpibc1_complex(osmrho, size(osmrho), 'iors_smrho' )
+       !     ... If cell volume changed, scale smooth density to maintain charge
+       vfac = vol0/vol
+       if (dabs(vfac-1d0) > 1d-8) then
+          if (master_mpi .and. ipr >= 10) write(stdo,460) vol0,vfac
+460       format(9x,'volume changed from',f8.2,' :  scale smooth density by',f8.4)
+          osmrho=osmrho*vfac
+       endif
 115    continue
        !   --- Read information related to dynamics ---
-       if (master_mpi) read(jfi) eferm0
-       call mpibc1_real(eferm0,1,'iors:eferm')
+       read(jfi) eferm0
        use=trim(use)//'use window,'
        eferm=eferm0
        line = 'site data' !Read atomic positions,forcexxxs,velocities ---
-       do ib = 1, nbas0 
-          if (master_mpi) read(jfi)
+       do ib = 1, nbas0
+          read(jfi)
        enddo
        !   --- Read information for local densities ---
        use=trim(use)//' pnu,'
@@ -188,45 +170,31 @@ contains
              if (lmxa == -1) goto 20
           endif
           ibaug = ibaug+1
-          if (master_mpi) then
-             read(jfi) is0,spid0,lmxa0,lmxl0,nr0,rmt0,a0,z0,qc
-             if (ib > nbas) goto 20
-             if (ipr >= 40) then
-                write(stdo,380) ib,is0,spid0
-!                if (ib > nat) write(stdo,380) ib,is0,spid0, ' (skip)'
-             endif
-380          format('   atom',i4,'    species',i4,':',a:a)
-             !     ... read(but don't use) extra info since record is present
-             read(jfi) lmxv0,lmxr,lmxb0,kmax0
-          endif
-          call mpibc1_int(lmxa0,1,'iors_lmxa0')
-          call mpibc1_int(lmxl0,1,'iors_lmxl0')
-          call mpibc1_int(nr0,1,'iors_nr0')
-          call mpibc1_real(a0,1,'iors_a0')
-          call mpibc1_real(qc,1,'iors_qc')
+          read(jfi) is0,spid0,lmxa0,lmxl0,nr0,rmt0,a0,z0,qc
+          if (ib > nbas) goto 20
+          if (master_mpi .and. ipr >= 40) write(stdo,380) ib,is0,spid0
+380       format('   atom',i4,'    species',i4,':',a:a)
+          !     ... read(but don't use) extra info since record is present
+          read(jfi) lmxv0,lmxr,lmxb0,kmax0
           if (is == -1 ) call rx('iors: need check for is==-1')
-          !if(readpnu) then 
+          !if(readpnu) then
           !   read(jfi)
           !   read(jfi)
           !else
           if(.true.) then
              pnu=>pnuall(:,:,ib)
              pnz=>pnzall(:,:,ib)
-             if (master_mpi) then
-                read(jfi) ((pnu(l+1,isp), l=0,lmxa0),isp=1,nsp0)
-                read(jfi) ((pnz(l+1,isp), l=0,lmxa0),isp=1,nsp0)
-                do  isp = 1, nsp0
-                   if (nsp > nsp0) then
-                      do  l = 0, lmxa0
-                         pnu(l+1,2) = pnu(l+1,1)
-                         pnz(l+1,2) = pnz(l+1,1)
-                      enddo
-                   endif
-                enddo
-             endif
+             read(jfi) ((pnu(l+1,isp), l=0,lmxa0),isp=1,nsp0)
+             read(jfi) ((pnz(l+1,isp), l=0,lmxa0),isp=1,nsp0)
+             do  isp = 1, nsp0
+                if (nsp > nsp0) then
+                   do  l = 0, lmxa0
+                      pnu(l+1,2) = pnu(l+1,1)
+                      pnz(l+1,2) = pnz(l+1,1)
+                   enddo
+                endif
+             enddo
              do  isp = 1, nsp
-                call mpibc1_real(pnu(1,isp),lmxa0+1,'iors_pnu')
-                call mpibc1_real(pnz(1,isp),lmxa0+1,'iors_pnu')
                 !       ... For backwards compatibility: prior versions wrote pnu for pnz
                 do  l = 0, lmxa0+1
                    if (pnu(l+1,isp) == mod(pnz(l+1,isp),10d0)) pnz(l+1,isp) = 0
@@ -234,33 +202,29 @@ contains
              enddo
              pnuall(:,1:nsp,ib)=pnu(:,1:nsp)
              pnzall(:,1:nsp,ib)=pnz(:,1:nsp)
-             if (ipr >= 20) write(stdo,203) ib,spid,'file pnu',(pnu(i,1), i=1,lmxa+1)
-             if (ipr >= 20) write(stdo,203) ib,spid,'file pz ',(pnz(i,1), i=1,lmxa+1)
+             if (master_mpi .and. ipr >= 20) write(stdo,203) ib,spid,'file pnu',(pnu(i,1), i=1,lmxa+1)
+             if (master_mpi .and. ipr >= 20) write(stdo,203) ib,spid,'file pz ',(pnz(i,1), i=1,lmxa+1)
           endif
-       
+
           idmod=0
           idmoz=0
-          if (master_mpi) then
-             read(jfi) (idmod(l+1), l=0,lmxa0)
-             read(jfi) (idmoz(l+1), l=0,lmxa0)
-          endif
+          read(jfi) (idmod(l+1), l=0,lmxa0)
+          read(jfi) (idmoz(l+1), l=0,lmxa0)
 203       format(9x,'site',i4,':',a,':',a,' is',8f6.2)
 204       format(26x,a,8f6.2)
           nlml0 = (lmxl0+1)**2
           nlml = (lmxl+1)**2
           if (nr <= 0)   nr = nr0
           if (a <= 1d-6) a = a0
-          if (master_mpi) then
-             call fsanrg(rmt0,rmt,rmt,1d-3,msg,'rmt',.true.)
-             call fsanrg(rmt0,rmt,rmt,1d-6,msg,'rmt',.false.)
-!             call fsanrg(z0,z,z,1d-6,msg,'z',.true.)
-             call fsanrg(a0,a,a,0d-9,msg,'a',.true.)
-             lfail = isanrg(nr0,nr,nr,msgw,'nr',.false.)
-             if (isanrg(lmxl,  0,lmxa,  msg,'lmxl', .FALSE. )) goto 999
-             if (kmax0 /= kmax .AND. ipr >= 10) write(stdo,201) ib,spid,'kmax',kmax0,kmax
-             if (lmxa0 /= lmxa .AND. ipr >= 10) write(stdo,201) ib,spid,'lmax',lmxa0,lmxa
-201          format(9x,'site',i4,', species ',a,': augmentation ',a,' changed from',i2,' to',i2)
-          endif
+          call fsanrg(rmt0,rmt,rmt,1d-3,msg,'rmt',.true.)
+          call fsanrg(rmt0,rmt,rmt,1d-6,msg,'rmt',.false.)
+!         call fsanrg(z0,z,z,1d-6,msg,'z',.true.)
+          call fsanrg(a0,a,a,0d-9,msg,'a',.true.)
+          lfail = isanrg(nr0,nr,nr,msgw,'nr',.false.)
+          if (isanrg(lmxl,  0,lmxa,  msg,'lmxl', .FALSE. )) goto 999
+          if (master_mpi .and. kmax0 /= kmax .AND. ipr >= 10) write(stdo,201) ib,spid,'kmax',kmax0,kmax
+          if (master_mpi .and. lmxa0 /= lmxa .AND. ipr >= 10) write(stdo,201) ib,spid,'lmax',lmxa0,lmxa
+201       format(9x,'site',i4,', species ',a,': augmentation ',a,' changed from',i2,' to',i2)
           nlml0 = (lmxl0+1)**2
           nlml  = (lmxl+1)**2
           if (nr /= nr0) call rx('iors not set up to convert radial mesh')
@@ -269,21 +233,14 @@ contains
           allocate(orhoat(3,ib)%v(nr*nsp))
           allocate(v0pot(ib)%v(nr,nsp))
           allocate(v1pot(ib)%v(nr,nsp))
-          if (master_mpi) then
-             call readrho(ifi,nr,nlml0,nsp0,nlml,nsp,orhoat(1,ib)%v)
-             call readrho(ifi,nr,nlml0,nsp0,nlml,nsp,orhoat(2,ib)%v)
-             call readrho(ifi,nr,1,nsp0,1,nsp,orhoat(3,ib)%v)
-             call readrhos(ifi,nr,nsp0,nsp,v0pot(ib)%v) !ssite(ib)%rv_a_ov0)
-             call readrhos(ifi,nr,nsp0,nsp,v1pot(ib)%v)  !ssite(ib)%rv_a_ov1)
-             if(nlml0 > nlml .AND. ipr >= 10) write(stdo,202) ib,spid,'truncate',nlml0,nlml
-             if(nlml0 < nlml .AND. ipr >= 10) write(stdo,202) ib,spid,'inflate',nlml0,nlml
-202          format(9x,'site',i4,', species ',a,': ',a,' local density from nlm=',i3,' to',i3)
-          endif
-          call mpibc1_real( orhoat(1,ib)%v, size(orhoat(1,ib)%v), 'iors_rhoat(1)' )
-          call mpibc1_real( orhoat(2,ib)%v, size(orhoat(2,ib)%v), 'iors_rhoat(2)' )
-          call mpibc1_real( orhoat(3,ib)%v, size(orhoat(3,ib)%v), 'iors_rhoat(3)' )
-          call mpibc1_real( v0pot(ib)%v,size(v0pot(ib)%v) , 'iors_v0' )
-          call mpibc1_real( v1pot(ib)%v,size(v1pot(ib)%v) , 'iors_v1' )
+          call readrho(ifi,nr,nlml0,nsp0,nlml,nsp,orhoat(1,ib)%v)
+          call readrho(ifi,nr,nlml0,nsp0,nlml,nsp,orhoat(2,ib)%v)
+          call readrho(ifi,nr,1,nsp0,1,nsp,orhoat(3,ib)%v)
+          call readrhos(ifi,nr,nsp0,nsp,v0pot(ib)%v) !ssite(ib)%rv_a_ov0)
+          call readrhos(ifi,nr,nsp0,nsp,v1pot(ib)%v)  !ssite(ib)%rv_a_ov1)
+          if(master_mpi .and. nlml0 > nlml .AND. ipr >= 10) write(stdo,202) ib,spid,'truncate',nlml0,nlml
+          if(master_mpi .and. nlml0 < nlml .AND. ipr >= 10) write(stdo,202) ib,spid,'inflate',nlml0,nlml
+202       format(9x,'site',i4,', species ',a,': ',a,' local density from nlm=',i3,' to',i3)
 20        continue
        enddo
 !       write(6,*) 'iiiiiii',isanrg(ibaug, nat,nat,  msg,'nat', .FALSE. ),ibaug,nat
@@ -295,43 +252,28 @@ contains
           nr  =nr_i(is)
           lmxa=lmxa_i(is)
           if (lmxa == -1) goto 30
-          if (master_mpi) then
-             read(jfi,err=999,end=999) nr0,a0,qc,cof,eh,stc !,lfoc0 !,rfoc0
-             lfail = isanrg(nr0,nr,nr,msgw,'nr',.false.)
-             call fsanrg(a0,a,a,0d-9,msg,'spec a',.true.)
-          endif
-          call mpibc1_real(qc,1, 'iors_qc')
-          call mpibc1_real(cof,1,'iors_cof')
-          call mpibc1_real(eh,1, 'iors_eh')
-          call mpibc1_real(stc,1,'iors_stc')
+          read(jfi,err=999,end=999) nr0,a0,qc,cof,eh,stc !,lfoc0 !,rfoc0
+          lfail = isanrg(nr0,nr,nr,msgw,'nr',.false.)
+          call fsanrg(a0,a,a,0d-9,msg,'spec a',.true.)
           !     ... FP core densities
           if (allocated(sspec(is)%rv_a_orhoc)) deallocate(sspec(is)%rv_a_orhoc)
           allocate(sspec(is)%rv_a_orhoc(nr*nsp))
-          if (master_mpi) then
-             if (nr /= nr0) call rx('iors not set up to convert core radial mesh')
-             read(jfi) sspec(is)%rv_a_orhoc(1:nr*nsp0) !, nr * nsp0 , jfi )
-             if (nsp > nsp0) then !spin-split core density
-                i = nr
-                call dscal ( i , 0.5d0 , sspec(is)%rv_a_orhoc , 1 )
-                call dpscop ( sspec(is)%rv_a_orhoc , sspec(is)%rv_a_orhoc , i , 1 , 1 + i , 1d0  )
-             endif
+          if (nr /= nr0) call rx('iors not set up to convert core radial mesh')
+          read(jfi) sspec(is)%rv_a_orhoc(1:nr*nsp0) !, nr * nsp0 , jfi )
+          if (nsp > nsp0) then !spin-split core density
+             i = nr
+             call dscal ( i , 0.5d0 , sspec(is)%rv_a_orhoc , 1 )
+             call dpscop ( sspec(is)%rv_a_orhoc , sspec(is)%rv_a_orhoc , i , 1 , 1 + i , 1d0  )
           endif
-          call mpibc1_real(sspec(is)%rv_a_orhoc, size(sspec(is)%rv_a_orhoc), 'iors_rhoca'  )
           call dpzero(exi,n0)
           call dpzero(hfc,n0*2)
-          if (master_mpi) then
-             read(jfi,err=999,end=999) rsmfa,nxi
-             read(jfi,err=999,end=999) ((exi(i),hfc(i,isp),i=1,nxi),isp=1,nsp0)
-             if (nsp > nsp0) then
-                i = n0
-                call dscal(i,0.5d0,hfc,1)
-                call dpscop(hfc,hfc,i,1,1+i,1d0)
-             endif
+          read(jfi,err=999,end=999) rsmfa,nxi
+          read(jfi,err=999,end=999) ((exi(i),hfc(i,isp),i=1,nxi),isp=1,nsp0)
+          if (nsp > nsp0) then
+             i = n0
+             call dscal(i,0.5d0,hfc,1)
+             call dpscop(hfc,hfc,i,1,1+i,1d0)
           endif
-          call mpibc1_real(rsmfa,1,'iors_rsmfa')
-          call mpibc1_int(nxi,1,'iors_nxi')
-          call mpibc1_real(exi,nxi,'iors_exi')
-          call mpibc1_real(hfc,nsp*nxi,'iors_hfc')
           sspec(is)%ctail=cof
           sspec(is)%etail=eh
           sspec(is)%stc=stc
@@ -365,9 +307,6 @@ contains
              if (allocated(rwgt_rv)) deallocate(rwgt_rv)
           endif
 40        continue
-       enddo
-       do i_spec=1,nspec
-          call mpibc1_s_spec(sspec(i_spec))!,'iors_sspec')
        enddo
     endif
 !=======================================================================    
