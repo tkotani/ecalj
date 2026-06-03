@@ -78,9 +78,22 @@ _ecalj_fortran_complete() {
             local toml
             toml=$(ls ctrlg.*.toml 2>/dev/null | head -1)
             [ -z "$toml" ] && return 0
-            local paths
-            paths=$(python3 - "$toml" 2>/dev/null <<'PYEOF'
+            local prefix="${cur#--ctrlg:}"
+            # Bypass compgen here so that values containing TOML/glob
+            # metacharacters ([ ] etc.) are not subjected to filename
+            # expansion. Python emits `key=<current-value>` lines
+            # filtered by $prefix; mapfile reads them verbatim.
+            mapfile -t COMPREPLY < <(python3 - "$toml" "$prefix" 2>/dev/null <<'PYEOF'
 import sys, tomllib
+def fmt(v):
+    if isinstance(v, bool):           return 'true' if v else 'false'
+    if isinstance(v, (int, float)):   return repr(v)
+    if isinstance(v, str):
+        # Multi-line TOML strings (e.g. blocks.QforEPS) would split
+        # each COMPREPLY entry on newlines; show no value for those.
+        return '' if '\n' in v else v
+    if isinstance(v, list):           return '[' + ','.join(fmt(x) for x in v) + ']'
+    return str(v)
 def walk(d, p=''):
     for k, v in d.items():
         if isinstance(v, dict):
@@ -89,12 +102,15 @@ def walk(d, p=''):
             for i, it in enumerate(v, 1):
                 yield from walk(it, f'{p}{k}.{i}.')
         else:
-            yield p + k
-print(' '.join(walk(tomllib.load(open(sys.argv[1], 'rb')))))
+            yield f'{p}{k}={fmt(v)}'
+prefix = sys.argv[2]
+for line in walk(tomllib.load(open(sys.argv[1], 'rb'))):
+    if line.startswith(prefix):
+        print(line)
 PYEOF
 )
-            COMPREPLY=( $(compgen -W "$paths" -S "=" -- "${cur#--ctrlg:}") )
-            # The =<value> still needs typing, suppress the trailing space
+            # User may want to edit the value, so keep the cursor at
+            # the end of the inserted text rather than padding a space.
             compopt -o nospace 2>/dev/null
             ;;
         -*)
