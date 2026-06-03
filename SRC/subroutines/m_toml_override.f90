@@ -227,7 +227,7 @@ contains
     character(len=:), allocatable, intent(inout) :: text
     integer,                       intent(in)    :: p_start, p_end
     character(*),                  intent(in)    :: key, val
-    integer :: i, line_begin, line_eq, line_end, klen
+    integer :: i, line_begin, line_eq, line_end, klen, depth
     character :: c
     klen = len_trim(key)
     line_begin = p_start
@@ -247,9 +247,43 @@ contains
                 line_eq = index(text(i:p_end), '=')
                 if (line_eq > 0) then
                    line_eq = i + line_eq - 1
-                   ! find end of line
-                   line_end = i
-                   do while (line_end <= p_end .and. text(line_end:line_end) /= achar(10))
+                   ! Find end of *value*, not just end of line.
+                   ! Multi-line arrays/inline tables (e.g.
+                   !   plat = [[1,0,0],
+                   !           [0,1,0],
+                   !           [0,0,1]]
+                   ! ) must be replaced in full or the trailing lines
+                   ! become syntactic garbage. Track [..]/{..} depth and
+                   ! skip `#` comments and "..."/'...' string contents so
+                   ! brackets there don't disturb the count.
+                   line_end = line_eq + 1
+                   depth = 0
+                   do while (line_end <= p_end)
+                      c = text(line_end:line_end)
+                      if (c == '"') then
+                         line_end = line_end + 1
+                         do while (line_end <= p_end .and. text(line_end:line_end) /= '"')
+                            if (text(line_end:line_end) == '\' .and. line_end < p_end) &
+                                 line_end = line_end + 1
+                            line_end = line_end + 1
+                         enddo
+                      elseif (c == "'") then
+                         line_end = line_end + 1
+                         do while (line_end <= p_end .and. text(line_end:line_end) /= "'")
+                            line_end = line_end + 1
+                         enddo
+                      elseif (c == '#') then
+                         do while (line_end <= p_end .and. text(line_end:line_end) /= achar(10))
+                            line_end = line_end + 1
+                         enddo
+                         cycle
+                      elseif (c == '[' .or. c == '{') then
+                         depth = depth + 1
+                      elseif (c == ']' .or. c == '}') then
+                         depth = depth - 1
+                      elseif (c == achar(10) .and. depth <= 0) then
+                         exit
+                      endif
                       line_end = line_end + 1
                    enddo
                    ! splice: keep up to and including '=', insert ' '+val, then newline
