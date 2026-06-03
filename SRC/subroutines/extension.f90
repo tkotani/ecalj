@@ -87,31 +87,32 @@ subroutine readin5(i0,i1,i2) ! readin i0,i1,i2; these defaults value are 0 0 0 i
   read(recxxx2,*) i0, i1, i2
 end subroutine readin5
 ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
-module m_pomat
-  implicit none
-  complex(8),allocatable,protected:: pomat(:,:)
-  integer,protected:: nn,no
-contains
-  subroutine readpomat(q)
-    intent(in)::         q
-    ! This returns nn,no, and pomat(nn,no)
-    real(8):: q_r(3),q(3)
-    integer:: nn,iqx,isx,ifpomat,nkpo,nnmx,nomx,ikpo,nn_,no,iopen,iclose
-    open(newunit=ifpomat,file='POmat',form='unformatted')
-    !... smoothed mixed basis !oct2005 ! This replace original zmelt with new zmelt based on smoothed mixed basis.
-    do
-       read(ifpomat) q_r,nn,no,iqx !readin reduction matrix pomat
-       allocate( pomat(nn,no) )
-       read(ifpomat) pomat
-       if( sum(abs(q-q_r))<1d-10) then ! .AND. kx <= nqibz ) then
-          write(6,*) 'ok find the section for give qibz_k'
-          exit
-       endif
-       deallocate(pomat)
-    enddo
-    close(ifpomat)
-  end subroutine readpomat
-end module m_pomat
+! m_pomat: dead 2026-06-03 (no external `use m_pomat` in SRC).
+! module m_pomat
+!   implicit none
+!   complex(8),allocatable,protected:: pomat(:,:)
+!   integer,protected:: nn,no
+! contains
+!   subroutine readpomat(q)
+!     intent(in)::         q
+!     ! This returns nn,no, and pomat(nn,no)
+!     real(8):: q_r(3),q(3)
+!     integer:: nn,iqx,isx,ifpomat,nkpo,nnmx,nomx,ikpo,nn_,no,iopen,iclose
+!     open(newunit=ifpomat,file='POmat',form='unformatted')
+!     !... smoothed mixed basis !oct2005 ! This replace original zmelt with new zmelt based on smoothed mixed basis.
+!     do
+!        read(ifpomat) q_r,nn,no,iqx !readin reduction matrix pomat
+!        allocate( pomat(nn,no) )
+!        read(ifpomat) pomat
+!        if( sum(abs(q-q_r))<1d-10) then ! .AND. kx <= nqibz ) then
+!           write(6,*) 'ok find the section for give qibz_k'
+!           exit
+!        endif
+!        deallocate(pomat)
+!     enddo
+!     close(ifpomat)
+!   end subroutine readpomat
+! end module m_pomat
 ! subroutine getngbpomat(nqibze,nnmx,nomx)
 !   !- just to get the maximum size of ngb (mized basis size) from POmat
 !   implicit none
