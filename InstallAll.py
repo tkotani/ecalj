@@ -268,10 +268,12 @@ def main():
     # and abort before it can reach c0_listcmdopt.
     cmdopt_list = BIN_DIR / 'ecalj_cmdopts.list'
     print(f'Dumping cmdopt registry -> {cmdopt_list}')
-    try:
-        run_shell(f"mpirun -np 1 {BIN_DIR / 'lmf'} --listcmdopt > {cmdopt_list}")
-    except Exception as e:
-        print(f'  (warn) cmdopt dump failed: {e}; tab-completion of flags will be empty')
+    # skip_on_error=True: some MPI launchers (HPCX on kt1) flag a non-zero
+    # exit even when MPI_Init/MPI_Finalize bracket the dump and stdout is
+    # fully written. Tab completion is cosmetic; never let it block the
+    # install.
+    run_shell(f"mpirun -np 1 {BIN_DIR / 'lmf'} --listcmdopt > {cmdopt_list}",
+              skip_on_error=True)
 
     # Install per-user bash completion (one-shot append to ~/.bashrc).
     if not args.no_bashrc:
