@@ -2,7 +2,7 @@
 module m_gtv2 
   use m_ftox
   use m_lgunit,only:stdo
-  use m_MPItk,only:master_mpi
+  use m_mpi,only:master_mpi
   public rval2,gtv2_setrcd
   private
     integer::nrecs,reclnr

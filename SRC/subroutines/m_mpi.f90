@@ -1,4 +1,4 @@
-module m_mpi !MPI utility (unified from m_mpi + m_MPItk)
+module m_mpi !MPI utility
   use mpi
   use m_lgunit, only: stdo, stdl
   use m_cmdopt_registry, only: c0_fullstdo
@@ -7,7 +7,7 @@ module m_mpi !MPI utility (unified from m_mpi + m_MPItk)
   integer :: mpi__rank
   logical :: mpi__root
   integer :: comm
-!-- m_MPItk compatible variables
+!-- public aliases for mpi__rank / mpi__size / mpi__root (formerly re-exported via m_MPItk)
   integer, protected :: procid, master = 0, nsize
   logical, protected :: master_mpi, readtk = .false.
   character(8), protected :: strprocid
@@ -65,7 +65,7 @@ contains
     if( mpi__root ) call chdir(cwd)
     ipr=mpi__root
     if(c0_fullstdo) ipr=.true.
-    !-- m_MPItk compatible
+    !-- populate the protected aliases consumed by `use m_mpi,only: procid/master_mpi/...`
     procid = mpi__rank
     nsize = mpi__size
     master_mpi = mpi__root

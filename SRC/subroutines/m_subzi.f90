@@ -69,7 +69,7 @@ contains
     use m_mkqp,only: nkp=>bz_nkp
     use m_qplist, only: owner
     use m_igv2x,only: nbandmx
-    use m_MPItk, only: master, master_mpi, procid, comm
+    use m_mpi, only: master, master_mpi, procid, comm
     use mpi, only: mpi_double_precision, mpi_status_size
     implicit none
     integer:: status(MPI_Status_size), iq, isp, itag, ierr

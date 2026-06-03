@@ -7,7 +7,7 @@ module  m_bzintegration2 ! BZ integration
   use m_nvfortran
   use m_ftox
   use m_lgunit,only: stdo,stdl
-  use m_MPItk,only: master_mpi
+  use m_mpi,only: master_mpi
   use m_cmdopt_registry, only: c0_cvK
   public bzintegration2
   private

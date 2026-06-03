@@ -5,7 +5,7 @@ module m_locpot
   use m_lmfinit,only: z_i=>z,nr_i=>nr,lmxa_i=>lmxa,rmt_i=>rmt,lmxb_i=>lmxb,lmxl_i=>lmxl,spec_a,kmxt_i=>kmxt,rg_i=>rg,nlmxlx
   use m_lmfinit,only: lmxax,nsp,nbas,phispinsym,nsp
   use m_ll,only:ll
-  use m_MPItk,only: master_mpi
+  use m_mpi,only: master_mpi
   use m_lgunit,only:stdo
   use m_vxcatom,only: vxcnsp
   use m_hansmr,only:  hansmr

@@ -55,7 +55,7 @@ contains
     use m_density,only: v0pot,v1pot,pnuall,pnzall !read
     use m_rhocor,only: getcor
     use m_makusp,only: makusp
-    use m_MPItk,only: master_mpi
+    use m_mpi,only: master_mpi
     use m_fatom,only: sspec
     use m_ftox
     use m_ext,only:sname

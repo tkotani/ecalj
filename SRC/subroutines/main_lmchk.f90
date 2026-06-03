@@ -8,7 +8,7 @@ contains
     use mpi
     use m_args,only: argall,m_setargs
     use m_ext,only:     m_Ext_init,sname, print_usage_and_quit
-    use m_MPItk,only:   m_MPItk_init,nsize,master_mpi
+    use m_mpi,only:   MPI__Initialize,nsize,master_mpi
     use m_lgunit,only:  m_lgunit_init, stdo,stdl
     use m_cmdpath,only: setcmdpath
     use m_lmfinit,only: m_Lmfinit_init,nlibu,plbnd
@@ -22,7 +22,7 @@ contains
     character(32):: prgnam='LMCHK'
     comm=MPI_COMM_WORLD
     if(present(commin)) comm= commin
-    call m_MPItk_init(comm) 
+    call MPI__Initialize(comm) 
     call m_ext_init()        ! Get sname, e.g. trim(sname)=si of ctrl.si
     call m_lgunit_init()
     if(nsize/=1) call rx('Current lmchk is only for single core')

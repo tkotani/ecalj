@@ -14,7 +14,7 @@ contains
     use m_lmfinit,only: rv_a_ocy,nsp,ispec
     use m_lattic,only: vol=>lat_vol
     use m_supot,only: ng=>lat_ng,n1,n2,n3
-    use m_MPItk,only: master_mpi
+    use m_mpi,only: master_mpi
     use m_ext,only: sname
     use m_esmsmves,only: esmsmves
     use m_vesgcm,only: vesgcm
@@ -195,7 +195,7 @@ contains
         use m_lmfinit,only: nspec
         use m_lgunit,only:stdo
         use m_ftox
-        use m_MPItk,only: master_mpi
+        use m_mpi,only: master_mpi
         agv(:) = sqrt(agv(:))
         allocate(keep_phil(ng,0:lmxx,nspec))
         if(master_mpi) write(stdo,ftox) ' Precomputing and storing keep_phil array in mshvmt: size=', &

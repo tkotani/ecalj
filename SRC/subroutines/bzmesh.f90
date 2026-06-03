@@ -2,7 +2,7 @@ subroutine bzmesh(plat,qb,ifac,n1,n2,n3,lshft,g,ng,ipq,qp,wgt,nq,nqmx)! Divides 
   use m_lgunit,only:stdo
   use m_ext,only: sname
   use m_ftox
-  use m_mpitk,only: master_mpi
+  use m_mpi,only: master_mpi
   !i  plat     :primitive lattice vectors
   !i  n1,n2,n3 :no. divisions for the 3 recip. latt. vecs; (see Remarks)
   !i  g,ng     :symmetry point group operations, and number

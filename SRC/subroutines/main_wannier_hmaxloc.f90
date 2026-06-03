@@ -58,7 +58,7 @@ subroutine hmaxloc()
                        tg_wan_nsh1 => wan_nsh1, tg_wan_nsh2 => wan_nsh2
   use m_hamindex0,only: readhamindex0,iclasst
   use m_mksym_util,only:mptauof
-  ! use m_MPItk,only: m_MPItk_init
+  ! use m_mpi,only: MPI__Initialize
   use m_mpi, only: MPI__Initialize, MPI__consoleout, MPI__AllreduceSumReal, MPI__AllreduceSum, MPI__Split, MPI__Broadcast
   use m_mpi, only: mpi__rank, mpi__size, mpi__root, mpi__rank_s, mpi__size_s, mpi__root_s, comm_s, comm_s_idx
   implicit none

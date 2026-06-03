@@ -4,7 +4,7 @@ module m_clsmode
   use m_igv2x,only: nbandmx
   use m_lgunit,only:stdo
   use m_mkqp,only: nkp=>bz_nkp
-  use m_MPItk,only: master_mpi
+  use m_mpi,only: master_mpi
   use m_ftox,only: ftox
   use m_cmdopt_registry, only: c0_cls
   integer,parameter,private:: nsitmx = 256

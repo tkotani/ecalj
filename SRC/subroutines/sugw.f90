@@ -21,7 +21,7 @@ contains
     use m_mkpot,only: smpot=>osmpot, vconst, spotx
     use m_locpot,only: osig, otau, oppi, ohsozz,ohsopm
     use m_locpot,only: oppix
-    use m_MPItk,only: numproc=>nsize,procid,master,master_mpi,comm,strprocid
+    use m_mpi,only: numproc=>nsize,procid,master,master_mpi,comm,strprocid
     use m_igv2x,only: napw,ndimh,ndimhx,igv2x,m_Igv2x_setiq,ndimhall,nbandmx
     use m_elocp,only: rsmlss=>rsml, ehlss=>ehl
     use m_qplist,only: qplist,ngplist,ngvecp,iqibzmax,niqisp,iqproc,isproc

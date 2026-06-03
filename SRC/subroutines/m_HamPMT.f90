@@ -1,6 +1,6 @@
 !> Read HamiltionanPMTinfo and HamiltonianPMT. Then convert HamPMT to HamRsMLO
 module m_HamPMT
-   use m_MPItk,only: procid, master_mpi, nsize,master,strprocid
+   use m_mpi,only: procid, master_mpi, nsize,master,strprocid
    use m_lgunit,only:stdo
    use m_ftox
    use m_lmfinit,only: oveps
@@ -506,7 +506,7 @@ module m_HamRsMLO ! read real-space MLO Hamiltonian
    complex(8),allocatable,protected:: ovlmr(:,:,:,:),hammr(:,:,:,:)
 contains
    subroutine ReadHamRsMLO()! read RealSpace MTO Hamiltonian
-      use m_MPItk,only: master_mpi
+      use m_mpi,only: master_mpi
       integer:: ifihmto
       open(newunit=ifihmto,file='HamRsMLO',form='unformatted')
       read(ifihmto) ndimMTO,npairmx,nspx !    allocate(ix(ndimMTO))

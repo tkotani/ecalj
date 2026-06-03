@@ -13,7 +13,7 @@ contains
   use m_ftox
   use m_lgunit,only: stdo,m_lgunit_init
   use m_zhev,only:   Zhev_tk4
-  use m_MPItk,only: m_MPItk_init, nsize, procid,master_mpi,comm !  use m_ext,only:      m_ext_init,sname
+  use m_mpi,only: MPI__Initialize, nsize, procid,master_mpi,comm !  use m_ext,only:      m_ext_init,sname
   use m_keyvalue,only: Getkeyvalue
   use m_lmfinit,only:  m_lmfinit_init,oveps,nbas 
   use m_ext,only: m_ext_init,sname
@@ -35,7 +35,7 @@ contains
 !  include "mpif.h"
 !  call setcmdpath() !Set self-command path (this is for call system at m_lmfinit)
   call m_ext_init()         ! Get sname, e.g. trim(sname)=si of ctrl.si
-  call m_MPItk_init() ! mpi initialization
+  call MPI__Initialize() ! mpi initialization
   call m_lgunit_init() !set stdo,stdl
   call m_lmfinit_init('lmfham1')! Read ctrlp into module m_lmfinit.
   call m_lattic_init()      ! lattice setup (for ewald sum)

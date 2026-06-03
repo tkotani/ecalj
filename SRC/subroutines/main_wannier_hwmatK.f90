@@ -300,7 +300,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   use m_lmf,only: lmf
   use m_mpi,only: setipr
     use m_lgunit,only:   m_lgunit_init
-    use m_MPItk,only:    m_MPItk_init,procid,nrank=>nsize
+    use m_mpi,only:    MPI__Initialize,procid,nrank=>nsize
     use m_cmdopt_registry, only: c0_mlo, c2_sp1, c2_sp2
 
 
@@ -450,14 +450,14 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
 !  include "mpif.h"
   comm= mpi_comm_world
 !  call mpi_init(ierr)
-  call m_MPItk_init(comm)  ! MPI info
+  call MPI__Initialize(comm)  ! MPI info
   !call mpi_comm_size(comm, nrank, ierr)
   !call MPI_COMM_RANK(comm, procid, ierr )
   master_mpi = procid == master
 
 ! 2026-2-1 for rotMTO
   ! call MPI_BARRIER( comm, ierr)
-  !  call m_MPItk_init(comm)  ! MPI info
+  !  call MPI__Initialize(comm)  ! MPI info
   !  !call m_ext_init()    ! Get sname, e.g. trim(sname)=si of ctrl.si
   !  call m_lgunit_init() ! Set file handle of stdo(console) and stdl(log)    !print *, 'len_trim(argall)=',trim(argall),len_trim(argall),master_mpi
   ! call setipr(comm)

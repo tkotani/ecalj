@@ -24,7 +24,7 @@ contains
     use m_ftox
     use m_lgunit,only: stdo,m_lgunit_init
     use m_zhev,only:zhev_tk4
-    use m_MPItk,only:    m_MPItk_init, nsize, master_mpi !  use m_ext,only:      m_ext_init,sname
+    use m_mpi,only:    MPI__Initialize, nsize, master_mpi !  use m_ext,only:      m_ext_init,sname
     use m_keyvalue,only: getkeyvalue
     use m_lmfinit,only:  m_lmfinit_init,oveps,nmtoi
     use m_ext,only: m_ext_init,sname
@@ -78,7 +78,7 @@ contains
     integer,optional::commin
     comm = MPI_COMM_WORLD
     if(present(commin)) comm= commin
-    call m_MPItk_init(comm) ! mpi initialization
+    call MPI__Initialize(comm) ! mpi initialization
     call m_ext_init()            ! Get sname, e.g. trim(sname)=si of ctrl.si
     call m_lgunit_init() !set stdo,stdl
     call MPI_BARRIER( comm, ierr)

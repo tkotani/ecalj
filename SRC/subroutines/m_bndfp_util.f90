@@ -1,6 +1,6 @@
 !>utils called in bndfp
 module m_bndfp_util
-  use m_MPItk,only:master_mpi
+  use m_mpi,only:master_mpi
   use m_ll,only:ll
   use m_lgunit,only:stdo
   public mkekin,makdos,phispinsym_ssite_set,iorbtm

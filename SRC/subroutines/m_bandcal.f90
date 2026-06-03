@@ -10,7 +10,7 @@ module m_bandcal
   use m_igv2x,only: m_igv2x_setiq, m_igv2x_getiq, t_igv2x_data, napw,ndimh,ndimhx,igv2x,nbandmx
   use m_lmfinit,only: lrsig=>ham_lsig, lso,ham_scaledsigma,lmet=>bz_lmet,nbas,epsovl=>ham_oveps,nspc,plbnd,lfrce
   use m_lmfinit,only: pwmode=>ham_pwmode,pwemax,nsp,nlibu,lmaxu,lmxax
-  use m_MPItk,only: master_mpi, procid,strprocid, numprocs=>nsize, comm
+  use m_mpi,only: master_mpi, procid,strprocid, numprocs=>nsize, comm
   use m_subzi, only: nevmx
   use m_supot, only: n1,n2,n3
   use m_rdsigm2,only: senex,sene,getsenex,dsene,ndimsig
@@ -915,7 +915,7 @@ contains
   end subroutine m_bandcal_2nd
   subroutine m_bandcal_gather_evlall()
     use m_qplist, only: owner
-    use m_MPItk, only: master, master_mpi, procid, comm
+    use m_mpi, only: master, master_mpi, procid, comm
     use mpi, only: mpi_double_precision, mpi_status_size
     implicit none
     integer:: status(MPI_Status_size), iq, isp, itag, ierr
@@ -935,7 +935,7 @@ contains
   end subroutine
   subroutine m_bandcal_gather_spinweightall()
     use m_qplist, only: owner
-    use m_MPItk, only: master, master_mpi, procid, comm
+    use m_mpi, only: master, master_mpi, procid, comm
     use mpi, only: mpi_double_precision, mpi_status_size
     implicit none
     integer:: status(MPI_Status_size), iq, isp, itag, ierr

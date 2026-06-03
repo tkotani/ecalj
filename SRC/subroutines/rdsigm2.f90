@@ -45,7 +45,7 @@ contains
     use m_lmfinit,only : nbas,pwmode=>ham_pwmode,ldim=>nlmto
     use m_lgunit,only:stdo
     use m_mksym,only: laf=>AFmode !symops_af!,napwmx
-    use m_MPItk,only: procid,master
+    use m_mpi,only: procid,master
     use m_ext,only:sname
     use m_ftox
     integer:: ierr,ifi,ndimh_dummy,ifis2,ik1,ik2,ik3,is,iset,nqp

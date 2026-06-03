@@ -14,7 +14,7 @@ contains
     use m_ext,only: sname
     use m_lgunit,only:stdo,stdl
     use m_ftox
-    use m_MPItk,only: master_mpi,comm
+    use m_mpi,only: master_mpi,comm
     use m_fatom,only:sspec,mpibc1_s_spec
     !i Inputs
     !i   nbas  :size of basis

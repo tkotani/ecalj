@@ -15,7 +15,7 @@ contains
     use m_chgmsh,only:chgmsh
     use m_lmfinit,only:z_i=>z,nr_i=>nr,kmxt_i=>kmxt,rmt_i=>rmt,lmxa_i=>lmxa,lmxl_i=>lmxl,lmxb_i=>lmxb,lfoca
     use m_fatom,only:sspec,mpibc1_s_spec
-    use m_MPItk,only:master_mpi
+    use m_mpi,only:master_mpi
     !! I/O data
     !!     smrho, rhoat
     !      sspec:

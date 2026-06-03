@@ -1,6 +1,6 @@
 !>core density
 module m_rhocor
-  use m_MPItk,only:master_mpi,procid
+  use m_mpi,only:master_mpi,procid
   use m_lgunit,only:stdo
   use m_rseq,only: rseq
   public:: getcor,rhocor

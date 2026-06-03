@@ -96,14 +96,14 @@ subroutine rxx(test,string)
 end subroutine rxx
 !----------- Normal exit
 subroutine rx0s(string) !normal exit for master_mpi
-  use m_MPItk,only: master_mpi
+  use m_mpi,only: master_mpi
   character*(*) string
   if(master_mpi) write(6,"(/,a)") trim(string)//' ======================'
   call exit(0)
 end subroutine rx0s
 subroutine rx0(strng)! Normal exit
   use m_mpi,only:   comm1=>comm
-  use m_MPItk,only: comm2=>comm,readtk
+  use m_mpi,only: comm2=>comm,readtk
   use m_lgunit,only:stdo,stdl
   implicit none
   integer :: iopt,abret

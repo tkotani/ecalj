@@ -1,6 +1,6 @@
 !>output routines such as writeband used in bndfp
 module m_writeband
-  use m_MPItk,only: comm
+  use m_mpi,only: comm
   use m_ftox
   use m_cmdopt_registry, only: c0_allband, c0_eszero, c0_writedw, c2_emax_eV, c2_emax_set, c2_emin_eV, c2_emin_set, c2_ndos
   real(8),external:: rydberg

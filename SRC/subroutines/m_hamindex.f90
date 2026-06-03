@@ -59,7 +59,7 @@ contains
     
 !    use m_suham,only: ndham=>ham_ndham !max dimension of hamiltonian +napwad (for so=0,2)
     use m_lmfinit,only:norbx,ltabx,ktabx,offlx,lmxax,nspc
-    use m_MPItk,only: master_mpi,comm
+    use m_mpi,only: master_mpi,comm
     use m_lgunit,only:stdo
     use m_ftox
     use m_mksym,only: rv_a_osymgr=>symops,rv_a_oag=>ag,iclasst,AFmode_mksym=>AFmode,ngrp,AFmode,symops,ag

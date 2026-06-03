@@ -1,7 +1,7 @@
 !>utils for LDAU
 module m_ldau_util
   use m_lgunit,only:stdo
-  use m_MPItk,only: master_mpi
+  use m_mpi,only: master_mpi
   use m_lmfinit,only: lmxa_i=>lmxa
   use m_ftox
   use m_cmdopt_registry, only: c0_nosymdm, c0_showdmat

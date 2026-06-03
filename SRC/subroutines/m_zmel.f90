@@ -11,7 +11,7 @@ module m_zmel
   use m_readVcoud,only: zcousq,ngc,ngb !! zcousq is the eigenfuncition of the Coulomb matrix
   use m_ftox
   use m_lgunit,only:stdo
-  use m_MPItk,only:master_mpi
+  use m_mpi,only:master_mpi
   use m_mem,only: memused,writemem
   use m_kind, only: kp => kindzmel
   use m_blas, only: m_op_c, m_op_n, m_op_t, int_split, BACKEND_BLAS

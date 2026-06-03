@@ -20,7 +20,7 @@
 module m_toml_override
   use m_args,            only: arglist, narg
   use m_lgunit,          only: stdo
-  use m_MPItk,           only: master_mpi
+  use m_mpi,           only: master_mpi
   implicit none
   private
   public :: load_toml_with_overrides

@@ -29,7 +29,7 @@ subroutine uumatrix()
   use m_lmfinit,only: m_lmfinit_init
   use m_lattic,only: m_lattic_init
   use m_mksym,only: m_mksym_init
-  use m_mpitk, only: m_mpitk_init
+  use m_mpi, only: MPI__Initialize
   use m_ftox
   implicit none
   integer:: i,ix,ngrpx ,is, nxx ,ibas ,ibas1, ngpmx, ifphi, nbas, nradmx, ncoremx, &
@@ -59,7 +59,7 @@ subroutine uumatrix()
   procedure(readgeigf_mpi), pointer :: get_geig => readgeigf_mpi
   procedure(readcphif_mpi), pointer :: get_cphi => readcphif_mpi
   call M_lgunit_init()
-  call m_MPItk_init(comm)
+  call MPI__Initialize(comm)
   !for rotMTO
   call m_lmfinit_init('uumat',comm)! Read ctrlp into module m_lmfinit.
   call m_lattic_init()       ! lattice setup (for ewald sum)

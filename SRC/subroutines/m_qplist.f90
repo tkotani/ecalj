@@ -28,7 +28,7 @@ contains
   subroutine m_qplist_init(plbnd,llmfgw)
     use m_lmfinit,only: nspx,pwemax,alat,pwmode
     use m_mkqp,only: rv_p_oqp,rv_a_owtkp
-    use m_MPItk,only: procid,master,master_mpi
+    use m_mpi,only: procid,master,master_mpi
     use m_mkqp,only: nkabc=> bz_nabc,bz_nkp
     use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
     use m_ext,only: sname
@@ -339,7 +339,7 @@ contains
     endif   
   end function qshortn
   subroutine m_qplist_qspdivider() ! MPIK k point divider. From iqini to iqend for each processor. ! Set iqini,iqend ispx for each rank (procid)
-    use m_MPItk,only: procid,master,master_mpi, numprocs=>nsize
+    use m_mpi,only: procid,master,master_mpi, numprocs=>nsize
     use m_lmfinit,only: nsp,afsym,nspx
     use m_ext,only: sname
     use m_dstrbp,only: dstrbp
@@ -387,7 +387,7 @@ contains
   subroutine m_qplist_redistribute_all()
     ! Switch from GPU-only k-point distribution to standard all-rank distribution
     ! Called after batched diag, before bandcal_2nd
-    use m_MPItk,only: procid, master_mpi, numprocs=>nsize
+    use m_mpi,only: procid, master_mpi, numprocs=>nsize
     use m_lmfinit,only: nsp, afsym, nspx
     use m_dstrbp,only: dstrbp
     implicit none

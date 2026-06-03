@@ -3,7 +3,7 @@ module m_mksym_util
   use m_lgunit,only:stdo
   use m_ftox
   use m_nvfortran,only: findloc
-  use m_mpitk,only: master_mpi
+  use m_mpi,only: master_mpi
   public mksym,mptauof,rotdlmm
   private
   real(8),parameter:: toll=1d-4,tiny=1d-4,epsr=1d-12

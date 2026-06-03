@@ -5,7 +5,7 @@ module m_mlo_ovlppair
   use m_lmfinit,    only: m_lmfinit_init
   use m_lattic,     only: m_lattic_init, plat=>lat_plat
   use m_mksym,      only: m_mksym_init
-  use m_mpitk,      only: m_mpitk_init
+  use m_mpi,      only: MPI__Initialize
   use m_genallcf_v3,only: Genallcf_v3, nspin
   use m_read_bzdata,only: Read_BZDATA, nqbz, qbz, nqibz, qibz, nq0i, q0i, wbz, irk, ngrp
   use m_readgwinput,only: ReadGWinputKeys
@@ -36,7 +36,7 @@ contains
   subroutine init_build_ovlppair(comm_in)
     integer, intent(in) :: comm_in
     call M_lgunit_init()
-    call m_mpitk_init(comm_in)
+    call MPI__Initialize(comm_in)
     call m_lmfinit_init('ovlppair', int(comm_in)) ! Read ctrlp into module m_lmfinit.
     call m_lattic_init()                        ! lattice setup (for ewald sum)
     call m_mksym_init()                         ! symmetry go into m_lattic and m_mksym

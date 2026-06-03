@@ -42,7 +42,7 @@ contains
     use m_shortn3,only: gvlst2
     use m_igv2x,only: m_igv2x_getiq, t_igv2x_data, nbandmx
     use m_qplist,only: qplist
-    use m_MPItk,only: procid_l=>procid, master_mpi, comm
+    use m_mpi,only: procid_l=>procid, master_mpi, comm
     implicit none
     integer, intent(in) :: nkp, nlocal
     integer, intent(in) :: iqlist(nlocal), isplist(nlocal)
@@ -130,7 +130,7 @@ contains
   end subroutine
 
   subroutine mpibc2_int_max_rsibl(val)
-    use m_MPItk, only: comm
+    use m_mpi, only: comm
     use mpi, only: MPI_INTEGER, MPI_MAX
     implicit none
     integer, intent(inout) :: val

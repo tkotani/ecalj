@@ -2,8 +2,8 @@ module m_mixrho !mixing routine of density given by smrho and orho
   use m_lmfinit,only: z_i=>z,nr_i=>nr,rmt_i=>rmt,lmxl_i=>lmxl,spec_a,rg_i=>rg,rsmv_i=>rsmv,nbas
   use m_ll,only:ll
   use m_lgunit,only:stdo,stml !  integer,parameter,public:: kmxv=15
-  use m_MPItk,only: comm
-!  use m_MPItk,only: master_mpi
+  use m_mpi,only: comm
+!  use m_mpi,only: master_mpi
   public:: mixrho
   private
   real(8),parameter::pi = 4d0*datan(1d0), srfpi = dsqrt(4d0*pi)

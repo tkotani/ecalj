@@ -52,7 +52,7 @@ contains
     use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
     use m_rdsigm2,only: m_rdsigm2_init
     use m_subzi,only: m_subzi_init,m_subzi_bzintegration
-    use m_MPItk,only: master_mpi, strprocid, numprocs=>nsize,xmpbnd2,comm,procid
+    use m_mpi,only: master_mpi, strprocid, numprocs=>nsize,xmpbnd2,comm,procid
     use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyterms,m_mkpot_novxc 
     use m_mkpot,only: osmpot, qmom, vconst, qval , qsc , fes1_rv , fes2_rv, amom
     use m_locpot,only: osig,otau,oppi,vesaverage

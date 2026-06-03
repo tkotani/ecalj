@@ -63,7 +63,7 @@ subroutine mpibc1_complex(vec,nnn,label)
   call mpibc1(vec,nnn,cast,mlog,funnam,label)
 end subroutine mpibc1_complex
 subroutine mpibc1(vec,n,cast,mlog,funnam,label)  !- Broadcasts a vector from master node to the world (MPI)
-   use m_MPItk,only: procid, numprocs=>nsize,comm
+   use m_mpi,only: procid, numprocs=>nsize,comm
   !i Inputs
   !i   vec   :vector to broadcast
   !i   n     :length of vector
@@ -106,7 +106,7 @@ subroutine mpibc1(vec,n,cast,mlog,funnam,label)  !- Broadcasts a vector from mas
   endif
 end subroutine mpibc1
 subroutine mpibc2(vec,n,cast,mlog,funnam,label) !Performs MPI_ALLREDUCE on a vector (MPI)
-  use m_MPItk, only: procid, numprocs=>nsize,comm
+  use m_mpi, only: procid, numprocs=>nsize,comm
   use m_lgunit,only:stml
   use m_ftox
   !i   vec   :vector to broadcast

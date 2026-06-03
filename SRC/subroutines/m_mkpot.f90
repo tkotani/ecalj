@@ -86,7 +86,7 @@ module m_mkpot !How to learn this? Instead of reading all source, understand I/O
   use m_lmfinit,only: lpzex, nbas,nsp,alat=>lat_alat,nlmxlx, vol
   use m_struc_def,only: s_rv1,s_sblock,s_rv4,s_cv5
   use m_supot,only: n1,n2,n3
-  use m_MPItk,only: master_mpi
+  use m_mpi,only: master_mpi
   use m_ftox
   use m_cmdopt_registry, only: c0_espot, c0_estaticall
   integer,external:: iprint

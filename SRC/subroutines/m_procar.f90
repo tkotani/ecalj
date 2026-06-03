@@ -4,7 +4,7 @@ module m_procar
   use m_lmfinit,only: nlmax,nsp,nbas,ispec,nspc,n0,lmxa_i=>lmxa,afsym,lso,nspx
   use m_igv2x,only: igv2x,napw,ndhamx=>nbandmx
   use m_locpot,only: sab_rv=>sab 
-  use m_MPItk,only: master_mpi, strprocid, numprocs=>nsize,procid,xmpbnd2
+  use m_mpi,only: master_mpi, strprocid, numprocs=>nsize,procid,xmpbnd2
   use m_qplist,only: nkp,xdatt,qplist
   use m_mpiio,only: openm, writem_d, closem
 !  public m_procar_init, m_procar_closeprocar, m_procar_writepdos, dwgtall,nchanp,m_procar_add

@@ -5,7 +5,7 @@ module m_bstrux
   use m_lmfinit,only: lmxa_i=>lmxa, kmxt_i=>kmxt ! nvfortran ICE workaround: afsym,lfrce moved to each subroutine
   use m_struc_def,only: s_cv3,s_cv4
   use m_lgunit,only:stdo
-  use m_MPItk,only:procid
+  use m_mpi,only:procid
   use m_ll,only:ll
   use m_ftox
   use m_nvfortran,only:findloc

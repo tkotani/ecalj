@@ -28,7 +28,7 @@ contains
     ! No floating orbital case  !    ldim  = ham_ldham(1)
     use m_mksym,only: osymgr=>symops,oag=>ag,ngrpin=>ngrp,iclasstin=>iclasst 
     use m_mksym_util,only:mptauof
-    use m_MPItk,only: master_mpi
+    use m_mpi,only: master_mpi
     use m_density,only: pnzall,pnuall
     !r As you see in subroutine rotwvigg, the index for Hamiltonian reads as;
     !      do iorb=1,norbmto             !orbital-blocks are specified by ibas, l, and k.

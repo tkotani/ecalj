@@ -1,7 +1,7 @@
 !ldau density matrix and potential
 module m_ldau 
   use m_ldau_util,only: chkdmu,sudmtu,mixmag
-  use m_mpitk,only:master_mpi
+  use m_mpi,only:master_mpi
   use m_ftox
   public:: m_ldau_init, m_ldau_vorbset
   complex(8),allocatable,protected,public::  vorb(:,:,:,:) !potential

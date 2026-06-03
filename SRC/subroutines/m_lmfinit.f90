@@ -4,7 +4,7 @@
 module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are processed and stored in m_lmfinit_init.
   use m_ftox !for write(*,ftox) ftof(values)
   use m_ext,only :sname        ! sname contains extension. foobar of ctrl.foobar
-  use m_MPItk,only: master_mpi
+  use m_mpi,only: master_mpi
   use m_lgunit,only: stdo,stdl
   use m_fatom,only:   sspec !allocation only in m_lmfinit: free atom density (detremined by lmfa) WARN: Not protected.
   use m_density,only: pnuall,pnzall !NOTE: These are set here! log-derivative of radial functions. m_denisty is NOT protected.

@@ -2,7 +2,7 @@
 !! All ranks on the same node share the same physical memory via MPI-3 shared memory windows.
 !! Rank 0 in the shared comm allocates; others attach via MPI_Win_shared_query.
 module m_sharedmem
-  use m_MPItk, only: procid, numprocs=>nsize
+  use m_mpi, only: procid, numprocs=>nsize
   implicit none
   public :: shm_init, shm_finalize, shm_barrier
   public :: shm_alloc_r8_1d, shm_alloc_r8_2d, shm_alloc_r8_3d

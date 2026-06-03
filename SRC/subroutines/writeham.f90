@@ -1,10 +1,10 @@
 module m_writeham
-  use m_MPItk,only: master_mpi
+  use m_mpi,only: master_mpi
   integer,private:: ififft,ifspec
   logical,private:: initset1=.true.,writeham=.false.
 contains
   subroutine m_writeham_init()
-    !use m_MPItk,only: strprocid
+    !use m_mpi,only: strprocid
     use m_lattic,only: qlat=>lat_qlat,pos=>rv_a_opos,plat=>lat_plat
     use m_lmfinit,only: nbas,  alat=>lat_alat
     use m_gennlat,only: nlat,npair,nqwgt,npairmx

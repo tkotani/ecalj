@@ -38,7 +38,7 @@ contains
   end subroutine m_Igv2x_getiq
   subroutine m_igv2xall_init(iqini,iqend) !initialization for qplist(iqini:iqend)  
     use m_qplist,only: qplist 
-    use m_MPItk,only: master_mpi,procid,master
+    use m_mpi,only: master_mpi,procid,master
     integer:: iqini,iqend,iq
     real(8):: qp(3)
     call tcn('m_igv2xall_init')
@@ -58,7 +58,7 @@ contains
   subroutine m_igv2x_init(qp) !Set napw and igv2x_z for given qp
     use m_lmfinit,only: pwmode=>ham_pwmode,pwemax,alat=>lat_alat,nspc
     use m_lattic,only: qlat=>lat_qlat,plat=>lat_plat
-    use m_MPItk,only: master_mpi,procid,master
+    use m_mpi,only: master_mpi,procid,master
     use m_lmfinit,only: nlmto !    use m_shortn3_qlat,only: shortn3_qlat,nout,nlatout
     use m_ftox
     integer:: ifiese,imx11(1,1)

@@ -29,7 +29,7 @@ module m_mksym
   !        ATOM=O POS= 1.5  1.5  1.5
 contains
   subroutine m_mksym_init() 
-    use m_mpitk,only:   master_mpi
+    use m_mpi,only:   master_mpi
     use m_lgunit,only:  stdo
     use m_lmfinit,only: nspec,nbas, sstrnsymg,symgaf,ips=>iv_a_oips,slabl,iantiferro,addinv,lmxax
     use m_lattic,only:  plat=>lat_plat,rv_a_opos

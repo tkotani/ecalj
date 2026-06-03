@@ -10,7 +10,7 @@ contains
     use m_lgunit,only:stdo
     use m_xclda,only: evxcp,evxcv
     use m_ftox
-    use m_MPItk,only: master_mpi
+    use m_mpi,only: master_mpi
     !i We only allow lxcfun (set at m_lmfinit) are one of
     !         :  1 Ceperly-Alder
     !         :  2  Barth-Hedin (ASW fit)

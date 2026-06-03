@@ -1,6 +1,6 @@
 !>Free atom density determined by lmfa. lmf stores data into rst.*. But unchanged.
 module m_fatom
-  use m_MPItk,only: comm
+  use m_mpi,only: comm
   integer,parameter::  n0=10
   type s_spec
      ! I think lmfa detemines all the following data and write to atm.* files

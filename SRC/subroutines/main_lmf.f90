@@ -12,7 +12,7 @@ contains
     use mpi
     use m_args,only:     argall
     use m_ext,only:      sname, print_usage_and_quit !m_ext_init,
-    use m_MPItk,only:    m_MPItk_init, nsize, master_mpi
+    use m_mpi,only:    MPI__Initialize, nsize, master_mpi
     use m_lgunit,only:   m_lgunit_init, stdo,stdl
     use m_cmdpath,only:  setcmdpath
     use m_lmfinit,only:  m_lmfinit_init,nlibu,plbnd,nbas
@@ -53,7 +53,7 @@ contains
     else
        prgnam='LMF'
     endif
-    call m_MPItk_init(comm)  ! MPI info
+    call MPI__Initialize(comm)  ! MPI info
     !call m_ext_init()    ! Get sname, e.g. trim(sname)=si of ctrl.si
     call gpu_init(comm) 
     call m_lgunit_init() ! Set file handle of stdo(console) and stdl(log)    !print *, 'len_trim(argall)=',trim(argall),len_trim(argall),master_mpi
