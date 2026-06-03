@@ -84,16 +84,26 @@ _ecalj_fortran_complete() {
             # expansion. Python emits `key=<current-value>` lines
             # filtered by $prefix; mapfile reads them verbatim.
             mapfile -t COMPREPLY < <(python3 - "$toml" "$prefix" 2>/dev/null <<'PYEOF'
-import sys, tomllib
-def fmt(v):
+import sys, tomllib, shlex
+# to_toml: render the value as a valid TOML literal so the user can
+# accept the completion and run the command without further editing.
+#   bool -> true / false
+#   num  -> as repr (canonical Python form is TOML-compatible)
+#   str  -> "..."   (basic string, inner " and \ escaped)
+#   list -> [a,b,c] / nested
+# Multi-line strings have no single-line TOML literal that fits in
+# one CLI arg; return None so the key prints as `key=` with no value.
+def to_toml(v):
     if isinstance(v, bool):           return 'true' if v else 'false'
     if isinstance(v, (int, float)):   return repr(v)
     if isinstance(v, str):
-        # Multi-line TOML strings (e.g. blocks.QforEPS) would split
-        # each COMPREPLY entry on newlines; show no value for those.
-        return '' if '\n' in v else v
-    if isinstance(v, list):           return '[' + ','.join(fmt(x) for x in v) + ']'
-    return str(v)
+        if '\n' in v: return None
+        return '"' + v.replace('\\', '\\\\').replace('"', '\\"') + '"'
+    if isinstance(v, list):
+        parts = [to_toml(x) for x in v]
+        if any(p is None for p in parts): return None
+        return '[' + ','.join(parts) + ']'
+    return None
 def walk(d, p=''):
     for k, v in d.items():
         if isinstance(v, dict):
@@ -102,7 +112,12 @@ def walk(d, p=''):
             for i, it in enumerate(v, 1):
                 yield from walk(it, f'{p}{k}.{i}.')
         else:
-            yield f'{p}{k}={fmt(v)}'
+            t = to_toml(v)
+            # shlex.quote wraps the TOML value in single quotes when
+            # it contains bash-special chars ([ ] " etc.), so bash
+            # quote-removal at execute time gives the binary the
+            # unescaped TOML form (`bz.nkabc=[8,8,8]`, `symgrp="find"`).
+            yield f'{p}{k}=' if t is None else f'{p}{k}={shlex.quote(t)}'
 prefix = sys.argv[2]
 for line in walk(tomllib.load(open(sys.argv[1], 'rb'))):
     if line.startswith(prefix):
