@@ -100,22 +100,38 @@ _ecalj_fortran_complete() {
             # filtered by $prefix; mapfile reads them verbatim.
             mapfile -t COMPREPLY < <(python3 - "$toml" "$prefix" 2>/dev/null <<'PYEOF'
 import sys, tomllib, shlex
-# to_toml: render the value as a valid TOML literal so the user can
-# accept the completion and run the command without further editing.
+# to_toml: render the value as a form that, after bash quote-removal
+# + m_toml_override::autoquote_bare_string, ends up as a valid TOML
+# literal substituted into the in-memory TOML.
 #   bool -> true / false
-#   num  -> as repr (canonical Python form is TOML-compatible)
-#   str  -> "..."   (basic string, inner " and \ escaped)
+#   num  -> repr (canonical Python form is TOML-compatible)
+#   str  -> raw bareword when autoquote can rescue it (covers
+#           `symgrp=find`, `symgrp=rx i`, atom names, mix labels),
+#           otherwise full "..." basic-string form for the cases
+#           autoquote cannot disambiguate (digits/bool-keyword/
+#           leading-special) or for strings containing " or \ that
+#           need TOML escapes.
 #   list -> [a,b,c] / nested
-# Multi-line strings have no single-line TOML literal that fits in
-# one CLI arg; return None so the key prints as `key=` with no value.
-def to_toml(v):
+# Multi-line strings: no single-line TOML literal fits in one CLI
+# argument; return None so the key prints as `key=` with no value.
+def _autoquote_safe(s):
+    if not s: return False
+    if s[0] in '"\'[{+-.': return False
+    if s[0].isdigit():    return False
+    if s in ('true', 'false', 'nan', 'inf'): return False
+    if '"' in s or '\\' in s: return False
+    return True
+def to_toml(v, top=True):
     if isinstance(v, bool):           return 'true' if v else 'false'
     if isinstance(v, (int, float)):   return repr(v)
     if isinstance(v, str):
         if '\n' in v: return None
+        # autoquote_bare_string only fires on the outer RHS, not
+        # inside arrays -- TOML requires "..." for in-array strings.
+        if top and _autoquote_safe(v): return v
         return '"' + v.replace('\\', '\\\\').replace('"', '\\"') + '"'
     if isinstance(v, list):
-        parts = [to_toml(x) for x in v]
+        parts = [to_toml(x, top=False) for x in v]
         if any(p is None for p in parts): return None
         return '[' + ','.join(parts) + ']'
     return None
