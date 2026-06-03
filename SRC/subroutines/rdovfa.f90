@@ -14,8 +14,9 @@ contains
     use m_ext,only: sname
     use m_lgunit,only:stdo,stdl
     use m_ftox
-    use m_mpi,only: master_mpi,comm
-    use m_fatom,only:sspec,mpibc1_s_spec
+    ! (m_mpi import dropped: rdovfa now reads __atm.<sname> on every rank;
+    !  the only surviving master_mpi mention is in a commented-out v0fix block.)
+    use m_fatom,only:sspec
     !i Inputs
     !i   nbas  :size of basis
     !i   nspec :number of species
@@ -28,7 +29,6 @@ contains
     ! rsmfa:  smoothing radius for tails of free-atom charge density. Irrelevant except first iteration only (non-self-consistent harris). A large radius produces smoother interstitial charge, but somewhat less accurate fit.
 !Default: R/2, with R=augmentation (muffin-tin) radius. 
     ! ----------------------------------------------------------------------
-    use mpi
     implicit none
     integer :: nrmx, n0,i_spec
     parameter ( nrmx=1501, n0=10 )
@@ -39,11 +39,11 @@ contains
          a,rmt,z,rfoc,z0,rmt0,a0,qc,ccof, &
          ceh,stc,ztot,ctot,corm,ssum,fac,sum1,sum2,sqloc,dq,smom, slmom,qcor(2)
     character(8) :: spid(nspec),spidr
-    integer:: ipr,iprint,iofa,kcor,lcor, i,ifi,is, nr,lfoc,nr0,i1,nch,ib,igetss,lmxl,nlml,ierr 
+    integer:: ipr,iprint,iofa,kcor,lcor, i,ifi,is, nr,lfoc,nr0,i1,nch,ib,igetss,lmxl,nlml
     real(8) ,allocatable :: rwgt_rv(:)
     complex(8) ,allocatable :: cv_zv(:)
     character msg*23, strn*120
-    logical :: lfail, l_dummy_isanrg,isanrg,mlog
+    logical :: lfail, l_dummy_isanrg,isanrg
     call tcn('rdovfa')
     ipr   = iprint()
     msg   = '         File mismatch:'
@@ -52,7 +52,7 @@ contains
     exi=0d0
     hfc=0d0
     hfct=0d0
-    if (master_mpi) open(newunit=ifi,file='__atm.'//trim(sname))  !! Read free-atom density for all species ---
+    open(newunit=ifi,file='__atm.'//trim(sname))  !! Read free-atom density for all species ---
     isloop: do  10  is = 1, nspec
        spid(is)=slabl(is)
        a= spec_a(is)
@@ -65,41 +65,26 @@ contains
        z=z_i(is)
        lfoc=lfoca_i(is)
        rfoc=rfoca_i(is)
-       if (master_mpi) then
-          if (z == 0 .AND. rmt == 0) then
-             nxi(is) = 0
-             rsmfa(is) = 0
-             z0=0
-             rmt0=0
-             a0=0
-             nr0=0
-             qc=0
-             ccof=0
-             ceh=0
-             stc=0
-             if (allocated(rv_a_ov0a(is)%v)) deallocate(rv_a_ov0a(is)%v)
-             if (allocated(rv_a_orhofa(is)%v)) deallocate(rv_a_orhofa(is)%v)
-          else
-             nr0=nrmx 
-             lfail = .false.
-             lfail = iofa(spidr,n0,nxi(is),exi(1,is),hfc(1,1,is),hfct(1,1,is),rsmfa(is),z0,rmt0 &
-                 ,a0,nr0,qc,ccof,ceh,stc,rv_a_orhofa(is)%v,sspec(is)%rv_a_orhoc,rv_a_ov0a(is)%v,ifi,'read')< 0
-             if(lfail) call rx('you did lmfa? Readin freeatom')
-          endif
+       if (z == 0 .AND. rmt == 0) then
+          nxi(is) = 0
+          rsmfa(is) = 0
+          z0=0
+          rmt0=0
+          a0=0
+          nr0=0
+          qc=0
+          ccof=0
+          ceh=0
+          stc=0
+          if (allocated(rv_a_ov0a(is)%v)) deallocate(rv_a_ov0a(is)%v)
+          if (allocated(rv_a_orhofa(is)%v)) deallocate(rv_a_orhofa(is)%v)
+       else
+          nr0=nrmx
+          lfail = .false.
+          lfail = iofa(spidr,n0,nxi(is),exi(1,is),hfc(1,1,is),hfct(1,1,is),rsmfa(is),z0,rmt0 &
+              ,a0,nr0,qc,ccof,ceh,stc,rv_a_orhofa(is)%v,sspec(is)%rv_a_orhoc,rv_a_ov0a(is)%v,ifi,'read')< 0
+          if(lfail) call rx('you did lmfa? Readin freeatom')
        endif
-       call mpi_barrier(comm,ierr)
-       call mpibc1(nr0,1,2,mlog,'rdovfa','nr0')
-       call mpibc1(nxi(is),1,2,mlog,'rdovfa','nxi')
-       call mpibc1(exi(1,is),nxi(is),4,mlog,'rdovfa','exi')
-       call mpibc1(hfc(1,1,is),nsp*n0,4,mlog,'rdovfa','hfc')
-       call mpibc1(hfct(1,1,is),nsp*n0,4,mlog,'rdovfa','hfct')
-       call mpibc1(rsmfa(is),1,4,mlog,'rdovfa','rsmfa')
-       call mpibc1(a0,1,4,mlog,'rdovfa','a0')
-       call mpibc1(rv_a_orhofa( is )%v,nr0 * nsp,4,mlog,'rdovfa' ,'rhofa' )
-       call mpibc1(sspec(is)%rv_a_orhoc,nr0*nsp,4,mlog,'rdovfa','rhoca')
-       call mpibc1( rv_a_ov0a( is )%v,nr0 * nsp,4,mlog,'rdovfa', 'v0a' )
-!       if(master_mpi.and. ipr >= 30 .AND. rmt0 /= 0) write(stdo,400) trim(spid(is)),spidr,rmt0,nr0,a0
-!400       format(' rdovfa: expected ',a,',',T27,' read ',a, ' with rmt=',f8.4,'  mesh',i6,f7.3)
        if(nr <= 0)   nr = nr0
        if(a <= 1d-6) a = a0
        if(z == 0 .AND. rmt == 0) then
@@ -115,10 +100,7 @@ contains
        sspec(is)%exi=exi(:,is)
        sspec(is)%chfa=hfc(:,:,is)
 10  enddo isloop
-    do i_spec=1,nspec ! Re-broadcast entire species structure, and arrays used below
-       call mpibc1_s_spec(sspec(i_spec))!,'rdovfa_sspec')
-    enddo
-    if (master_mpi) close(ifi)
+    close(ifi)
     ! --- Define arrays for local densities rho1,rho2,rhoc and v0,v1 ---
     ztot = 0d0
     ctot = 0d0

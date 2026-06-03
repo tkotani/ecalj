@@ -471,15 +471,12 @@ contains
       allocate(rv_a_ocy(nlm),rv_a_ocg(lnjcg),iv_a_ojcg(lnjcg),iv_a_oidxcg(lnxcg))
       call sylmnc(rv_a_ocy , lmxcy ) ! Clebsh-Gordon coefficients for lmf part
       call scg(lmxcg , rv_a_ocg , iv_a_oidxcg , iv_a_ojcg ) !set CG coefficients for lmf part.
-      if (master_mpi) then
-         inquire(file='sigm.'//trim(sname),exist=sexist)
-         if (lrsigx/=0 .AND. ( .NOT. sexist) ) then
-            write(stdo,*)' bndfp (warning): no sigm file found ... LDA calculation only'
-            lrsigx = 0
-         endif
-         ham_lsig=lrsigx
+      inquire(file='sigm.'//trim(sname),exist=sexist)
+      if (lrsigx/=0 .AND. ( .NOT. sexist) ) then
+         if(master_mpi) write(stdo,*)' bndfp (warning): no sigm file found ... LDA calculation only'
+         lrsigx = 0
       endif
-      call mpibc1_int(ham_lsig,1,'bndfp_ham_lsig')
+      ham_lsig=lrsigx
       ham_scaledsigma=scaledsigma
       ham_pwmode=pwmode
       !r  pwmode Controls PW part of basis.  

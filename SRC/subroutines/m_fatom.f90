@@ -1,6 +1,7 @@
 !>Free atom density determined by lmfa. lmf stores data into rst.*. But unchanged.
+! mpibc1_s_spec was here; every caller (iors, rdovfa) now reads __atm/
+! rst on every rank itself so the broadcast is no longer needed.
 module m_fatom
-  use m_mpi,only: comm
   integer,parameter::  n0=10
   type s_spec
      ! I think lmfa detemines all the following data and write to atm.* files
@@ -16,18 +17,4 @@ module m_fatom
      real(8),allocatable :: rv_a_orhoc(:) !pointer to core density
   end type s_spec
   type(s_spec),allocatable:: sspec(:) !just allocated for iors and rdovfa. Not touched.
-contains
-  subroutine mpibc1_s_spec(ssp)
-    use mpi
-    implicit none
-    type(s_spec):: ssp
-    integer :: master=0,ierr
-    call mpi_bcast(ssp%ctail, 1,MPI_REAL8 , master, comm,ierr)
-    call mpi_bcast(ssp%etail, 1,MPI_REAL8 , master, comm,ierr)
-    call mpi_bcast(ssp%stc,   1,MPI_REAL8   , master, comm,ierr)
-    call mpi_bcast(ssp%nxi,   1,MPI_INTEGER , master, comm,ierr)
-    call mpi_bcast(ssp%qc,    1,MPI_REAL8    , master, comm,ierr)
-    call mpi_bcast(ssp%exi, size(ssp%exi), MPI_REAL8 , master, comm,ierr) 
-    call mpi_bcast(ssp%chfa,size(ssp%chfa),MPI_REAL8, master, comm,ierr)
-  end subroutine mpibc1_s_spec
 end module m_fatom
