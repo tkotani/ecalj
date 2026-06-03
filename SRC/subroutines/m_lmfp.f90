@@ -11,7 +11,7 @@ contains
     use m_mkpot,only:   amom
     use m_ext,only:     sname
     use m_iors,only:    iors
-    use m_iors_old,only: iors_old !only for reading vs=1.04 rst file (before 2022-5-14)
+    ! use m_iors_old, only: iors_old   ! no longer supported (vs=1.04 rst, pre 2022-5-14)
     use m_MPItk,only:  master_mpi,comm
     use m_bndfp,only:  Bndfp,   ham_ehf,ham_ehk,qdiff,force,sev
     use m_ldau,only:   m_ldau_vorbset, eorb
@@ -80,8 +80,10 @@ contains
     call Mpi_barrier(comm,ierr)
     call Mpibc1_real(vs,1,'lmv7: vs: version id of rst file')
     k=-1 !try to read rst files containing density
-    if(vs==2d0) k = iors(nit1,'read') ! read rst file. 
-    if(vs/=2d0) k = iors_old(nit1,'read') ! read rst file. 
+    if(vs==2d0) k = iors(nit1,'read') ! read rst file.
+    if(vs/=2d0) call rx('m_lmfp: rst.'//trim(sname)//' has unsupported version id (vs/=2.0). '// &
+         'Pre-2022-5-14 rst files (vs=1.04) are no longer read; delete the rst file and regenerate from lmfa/lmf.')
+    ! if(vs/=2d0) k = iors_old(nit1,'read')   ! no longer supported (pre 2022-5-14 rst)
     call Mpibc1_int(k,1,'lmv7:lmfp_k')
     if(k<0) then 
        call rdovfa()  ! Initial potential from atm file (lmfa) if rst can not read
