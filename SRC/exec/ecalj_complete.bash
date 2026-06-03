@@ -17,14 +17,29 @@
 _ecalj_complete_from_glob() {
     local cur="${COMP_WORDS[COMP_CWORD]}"
     local pattern="$1"  prefix="$2"  suffix="$3"
-    local f stripped snames=()
+    local f stripped bare snames=() w cw skip
     shopt -q nullglob; local saved_nullglob=$?
     shopt -s nullglob
     for f in $pattern; do
         [ -f "$f" ] || continue
         stripped="${f#$prefix}"
         stripped="${stripped%$suffix}"
-        snames+=("$stripped")
+        # Skip candidates whose sname is already a positional argument
+        # earlier in COMP_WORDS. ecalj binaries / scripts take exactly
+        # one positional sname, so re-offering it (e.g. `lmf nio <TAB>`
+        # or `lmfa ctrlg.nio.toml <TAB>` with a trailing space) would
+        # blindly duplicate the word. The binary accepts the bare sname
+        # *and* the full filename, so check both representations.
+        bare="${f#ctrlg.}"; bare="${bare%.toml}"
+        bare="${bare#ctrl.}"; bare="${bare#ctrls.}"
+        skip=0
+        for ((w=0; w<COMP_CWORD; w++)); do
+            cw="${COMP_WORDS[w]}"
+            if [ "$cw" = "$f" ] || [ "$cw" = "$stripped" ] || [ "$cw" = "$bare" ]; then
+                skip=1; break
+            fi
+        done
+        [ $skip -eq 0 ] && snames+=("$stripped")
     done
     [ $saved_nullglob -ne 0 ] && shopt -u nullglob
     COMPREPLY=( $(compgen -W "${snames[*]}" -- "$cur") )
