@@ -5,12 +5,11 @@ module m_esmsmves
 contains
   subroutine esmsmves(qmom,ng,gv,kv,cv,cg1,cgsum,smrho,qbg,smpot,f,gpot0,hpot0,qsmc,zsum,vrmt)
     use m_lmfinit,only: nsp, alat=>lat_alat,nbas,nlmxlx
-    use m_mpi,only:  master_mpi,comm
+    use m_mpi,only:  master_mpi
     use m_lattic,only: vol=>lat_vol,plat=>lat_plat
     use m_lgunit,only:stdo
     use m_supot,only:n1,n2,n3
     use m_vesgcm,only: vesgcm
-    use mpi
     implicit none
     integer, intent(in) :: ng, kv(ng,3)
     real(8), intent(in) :: gv(ng,3),    qmom(nlmxlx,nbas), qbg
@@ -22,7 +21,7 @@ contains
     real(8), save :: sa0, tresm, z1esm, z2esm, z0esm, vesmp, vesmm, eesmp, eesmm
     logical, save :: esm_init = .true.
     logical ::  twrite = .true.
-    integer :: ig, i, j, ifiese, ierr, ib, is !, i_copy_size, in3, in2, in1!, nsp
+    integer :: ig, i, j, ifiese, ib, is !, i_copy_size, in3, in2, in1!, nsp
     real(8), parameter ::angstr=1d0/0.5291769, ev=2d0/27.2113834, eps=1d-10
     real(8) :: eh, tau(3), vg(3), ddot, gvr, rmt, fac, gvb, g2
     real(8) :: pi, epi, tpiba, tpiba2
@@ -42,26 +41,23 @@ contains
        vesmm=0d0
        eesmp=0d0
        eesmm=0d0
-       if (master_mpi ) then
-          open(newunit=ifiese,file='esm_input.dat',status='old',err=201)
-          read(ifiese,*,err=201) jesm
-          read(ifiese,*,err=201) jtresm,tresm
-          read(ifiese,*,err=201) z1esm,z2esm
-          read(ifiese,*,err=201) vesmp,vesmm
-          read(ifiese,*,err=201) eesmp,eesmm
-          close(ifiese)
-201       continue
-       endif
-       call mpibc1_int(jesm, 1,'esmsmves_jesm')
+       open(newunit=ifiese,file='esm_input.dat',status='old',err=201)
+       read(ifiese,*,err=201) jesm
+       read(ifiese,*,err=201) jtresm,tresm
+       read(ifiese,*,err=201) z1esm,z2esm
+       read(ifiese,*,err=201) vesmp,vesmm
+       read(ifiese,*,err=201) eesmp,eesmm
+       close(ifiese)
+201    continue
        if(jesm==0) then
           if(master_mpi) write(stdo,"(a)")'  esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode'
           call tcx('esmsmves')
           return
        endif
-       if (master_mpi ) then
-          tresm=-tresm
-          z0esm =  alat*plat(3,3)*0.5d0
-          sa0 = alat*alat*abs(plat(1,1)*plat(2,2)-plat(2,1)*plat(1,2))
+       tresm=-tresm
+       z0esm =  alat*plat(3,3)*0.5d0
+       sa0 = alat*alat*abs(plat(1,1)*plat(2,2)-plat(2,1)*plat(1,2))
+       if (master_mpi) then
           write(stdo,*)
           write(stdo,*) '  esmsmves'
           write(stdo, '(3I5,2I10)') n1, n2, n3, ng, ng
@@ -98,17 +94,6 @@ contains
           endif
           write(stdo,*)
        endif
-       call mpi_barrier(comm,ierr)        !        call mpibc1_int (jesm,  1         ,'esmsmves_jesm')
-       call mpibc1_int (jtresm,1,'esmsmves_jtresm')
-       call mpibc1_real(tresm, 1,'esmsmves_tresm')
-       call mpibc1_real(z1esm, 1,'esmsmves_z1esm')
-       call mpibc1_real(z2esm, 1,'esmsmves_z2esm')
-       call mpibc1_real(vesmp, 1,'esmsmves_vesmp')
-       call mpibc1_real(vesmm, 1,'esmsmves_vesmm')
-       call mpibc1_real(eesmp, 1,'esmsmves_eesmp')
-       call mpibc1_real(eesmm, 1,'esmsmves_eesmm')
-       call mpibc1_real(z0esm, 1,'esmsmves_z0esm')
-       call mpibc1_real(sa0,   1,'esmsmves_sa0')
        if( jesm == 0 ) then
           if ( master_mpi ) write(stdo,*)'jesm=0 return'
           esm_init = .false.
