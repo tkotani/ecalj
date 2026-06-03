@@ -47,7 +47,9 @@ contains
     istat = 0
   end function cmm_h
   integer function cmm_batch_h(a, b, c, m, n, k, nbatch, opa, opb, alpha, beta, lda, ldb, ldc, samea, sameb, comm) result(istat)
-    use mpi
+    include "mpif.h"   ! NOT `use mpi`: nvfortran cannot resolve the generic
+                      ! mpi_bcast with a complex(4) buffer + integer(8) count;
+                      ! the legacy include keeps the call at implicit interface.
     complex(4) :: a(*), b(*), c(*)
     integer, intent(in) :: m, n, k, nbatch
     character, intent(in), optional :: opa, opb
@@ -225,7 +227,7 @@ contains
     istat = 0
   end function zmm_h
   integer function zmm_batch_h(a, b, c, m, n, k, nbatch, opa, opb, alpha, beta, lda, ldb, ldc, samea, sameb, comm) result(istat)
-    use mpi
+    include "mpif.h"   ! NOT `use mpi`: see cmm_batch_h above.
     complex(8) :: a(*), b(*), c(*)
     integer, intent(in) :: m, n, k, nbatch
     character, intent(in), optional :: opa, opb
