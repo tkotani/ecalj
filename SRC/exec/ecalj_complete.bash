@@ -51,12 +51,16 @@ _ecalj_toml_sname()    { _ecalj_complete_from_glob 'ctrlg.*.toml'  ''       ''  
 _ecalj_fortran_complete() {
     local cur="${COMP_WORDS[COMP_CWORD]}"
     local prev="${COMP_WORDS[COMP_CWORD-1]:-}"
-    # Only reconstruct the full word when bash split it on a `:`
+    # Reconstruct the full word when bash split it on a `:`
     # (COMP_WORDBREAKS default), e.g. "--ctrlg:bz." -> ("--ctrlg",":","bz.").
-    # For a plain sname argument ("lmf nio<TAB>") leave cur as the raw
-    # current token so the positional branch below ($cur not matching
-    # -*) falls into _ecalj_toml_sname.
-    if [ "$prev" = ":" ]; then
+    # Two cursor positions are possible:
+    #   `lmf --ctrlg:<TAB>`     -> COMP_CWORD points at ":"  (cur=":")
+    #   `lmf --ctrlg:bz<TAB>`   -> COMP_CWORD points at "bz" (cur="bz", prev=":")
+    # Both need the leading "--ctrlg" stitched back on. For a plain sname
+    # argument ("lmf nio<TAB>") leave cur as the raw current token so the
+    # positional branch below ($cur not matching -*) falls into
+    # _ecalj_toml_sname.
+    if [ "$prev" = ":" ] || [ "$cur" = ":" ]; then
         local i=$COMP_CWORD
         cur=""
         while [ $i -ge 0 ]; do
