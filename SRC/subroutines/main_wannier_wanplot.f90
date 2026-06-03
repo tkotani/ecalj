@@ -1324,6 +1324,7 @@ contains
     use m_wan_lmf2gw,only: lmf2gw,iclass,nclass,zz,alat,nbas,nsp,plat,ldim2,bas !set_mnla,
     use m_wan_qg,only: read_qg,ngp
     use m_genallcf_v3,only: genallcf_v3, nprecb,mrecb,mrece,nqbzt,nband,mrecg
+    use mpi
     !  use m_wanplotformat,only: wrt_cube,wrt_xsf
     !  use m_readhbe,only:Readhbe,nprecb,mrecb,mrece,nlmtot,nqbzt,nband,mrecg
 
@@ -1357,8 +1358,7 @@ contains
     character*4::fname
     logical:: debug=.false.,vis_skip
     integer::nqbzx,incwfin
-    !! MPI dummy
-    include 'mpif.h'
+    !! MPI dummy (`use mpi` is now at the top of the subroutine)
     integer:: ierr
     call mpi_init(ierr)
     call getkeyvalue(inputfile,'vis_skip',  vis_skip,  default=.false. )

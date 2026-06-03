@@ -47,7 +47,7 @@ contains
     istat = 0
   end function cmm_h
   integer function cmm_batch_h(a, b, c, m, n, k, nbatch, opa, opb, alpha, beta, lda, ldb, ldc, samea, sameb, comm) result(istat)
-    include "mpif.h"
+    use mpi
     complex(4) :: a(*), b(*), c(*)
     integer, intent(in) :: m, n, k, nbatch
     character, intent(in), optional :: opa, opb
@@ -225,7 +225,7 @@ contains
     istat = 0
   end function zmm_h
   integer function zmm_batch_h(a, b, c, m, n, k, nbatch, opa, opb, alpha, beta, lda, ldb, ldc, samea, sameb, comm) result(istat)
-    include "mpif.h"
+    use mpi
     complex(8) :: a(*), b(*), c(*)
     integer, intent(in) :: m, n, k, nbatch
     character, intent(in), optional :: opa, opb
