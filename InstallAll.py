@@ -83,6 +83,57 @@ def build_and_install_gemmul8(build_dir: Path, bin_dir: Path):
 ECALJ_BASHRC_MARKER = "# >>> ecalj bash completion (auto-installed by InstallAll.py) >>>"
 ECALJ_BASHRC_END    = "# <<< ecalj bash completion <<<"
 
+# Manifest filename dropped into BIN_DIR.  uninstall.py reads this to
+# learn which symlinks / real files InstallAll.py placed in BIN_DIR
+# and what `~/.bashrc` it appended to.
+ECALJ_MANIFEST_NAME = "ecalj_install_manifest.txt"
+
+
+def write_install_manifest(bin_dir: Path, ecalj_root: Path):
+    """Scan BIN_DIR and record every path that came from this ecalj install.
+
+    Includes:
+      * symlinks under bin_dir whose target resolves into ecalj_root
+        (covers SRC/exec, StructureTool, GetSyml, ecalj_auto helpers,
+        and the cmake `deliver` target's libecaljF*.so + main exes).
+      * known real files (ecalj_cmdopts.list, libgemmul8.so*).
+
+    Format: header lines starting with '#', then one absolute path per
+    line.  Re-running InstallAll.py overwrites the manifest, so stale
+    entries from an older install layout do not accumulate.
+    """
+    manifest = bin_dir / ECALJ_MANIFEST_NAME
+    ecalj_root_str = str(ecalj_root)
+    entries = []
+    real_file_names = {"ecalj_cmdopts.list", ECALJ_MANIFEST_NAME}
+    for entry in sorted(bin_dir.iterdir()):
+        if entry.is_symlink():
+            try:
+                target = os.readlink(entry)
+            except OSError:
+                continue
+            target_abs = (bin_dir / target).resolve() if not os.path.isabs(target) else Path(target)
+            if str(target_abs).startswith(ecalj_root_str + os.sep) or str(target_abs) == ecalj_root_str:
+                entries.append(str(entry))
+        elif entry.is_file():
+            if entry.name in real_file_names or entry.name.startswith("libgemmul8."):
+                entries.append(str(entry))
+    timestamp = time.strftime("%Y-%m-%dT%H:%M:%S%z")
+    bashrc = pathlib.Path.home() / ".bashrc"
+    bashrc_touched = bashrc.exists() and ECALJ_BASHRC_MARKER in bashrc.read_text()
+    lines = [
+        "# ecalj install manifest",
+        f"# created: {timestamp}",
+        f"# ecalj_root: {ecalj_root}",
+        f"# bin_dir: {bin_dir}",
+        f"# bashrc: {bashrc} (marker {'present' if bashrc_touched else 'absent'})",
+        "# uninstall: run `python3 {ecalj_root}/uninstall.py` to remove everything below.".format(ecalj_root=ecalj_root),
+        "",
+    ]
+    lines.extend(entries)
+    manifest.write_text("\n".join(lines) + "\n")
+    print(f"Wrote install manifest ({len(entries)} entries) -> {manifest}")
+
 
 def install_bash_completion(bin_dir):
     """Append a guarded source line to ~/.bashrc so tab-completion for
@@ -225,6 +276,10 @@ def main():
     # Install per-user bash completion (one-shot append to ~/.bashrc).
     if not args.no_bashrc:
         install_bash_completion(BIN_DIR)
+
+    # Record every BIN_DIR entry that belongs to this install so
+    # uninstall.py can undo it without re-deriving the layout.
+    write_install_manifest(BIN_DIR, CWD)
 
     if args.notest:
         print('Compilation finished. Skipping tests.')
