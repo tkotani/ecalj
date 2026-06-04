@@ -29,7 +29,7 @@ subroutine hgw(do_correlation, do_exchange)
   use m_llw,only: MPI__irecvllw_q, MPI__isendllw_q, MPI__waitllw, MPI__llw_alloc_bufs
   use m_mpi,only: MPI__Initialize, MPI__InitQgroups, MPI__FreeQgroups, &
                 & MPI__SplitXq, MPI__FreeXq, MPI__SplitSxc, MPI__FreeSxc, &
-                & MPI__AutoSetup, &
+                & MPI__AutoSetup, MPI__PrintSummary, &
                 & MPI__root, MPI__rank, MPI__size, MPI__consoleout, comm, &
                 & ipr, comm_q, mpi__rank_q, mpi__root_q, &
                 & worker_inQtask, n_qgroup, iq_qgroup, qgroup_root
@@ -112,6 +112,7 @@ subroutine hgw(do_correlation, do_exchange)
                                      worker_inQtask, n_qgroup, iqxend
   call MPI__SplitXq(n_bpara_xq, n_kpara_xq)
   call MPI__SplitSxc(n_bpara_sxc, n_kpara_sxc)
+  call MPI__PrintSummary(n_bpara_xq, n_kpara_xq, n_bpara_sxc, n_kpara_sxc)
 
   call hsfp0_sc_setup(skip_init=.true., ixc_in=2)
   call sxcf_correlation_init(hs_ef, hs_esmr, hs_nspinmx)
@@ -147,11 +148,11 @@ subroutine hgw(do_correlation, do_exchange)
       end if
       call sxcf_correlation_step_kx(iq, hs_ef, hs_esmr, hs_nspinmx)
     end if
+    call wv_dealloc()
   enddo
   call MPI__waitllw()  ! ensure pending Isends complete
 
   call sxcf_correlation_finalize()
-  call wv_dealloc()
   call hsfp0_sc_writeout(skip_rx0=.true.)
   call MPI__FreeXq()
   call MPI__FreeSxc()

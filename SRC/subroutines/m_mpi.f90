@@ -17,6 +17,8 @@ module m_mpi !MPI utility
   integer, protected :: iq_qgroup=0, n_qgroup=1, worker_inQtask=2
   integer, allocatable, protected :: qgroup_ppn(:)   ! ppn for each q-group (size=n_qgroup)
   integer, allocatable, protected :: qgroup_root(:)  ! global rank of comm_q root per group
+  integer, parameter :: qgroup_host_len = 64
+  character(qgroup_host_len), allocatable, protected :: qgroup_host(:)  ! hostname per q-group
 
 !-- Xq split (k-priority): used by build_screened_coulomb and exchange
 !   comm_k_xq: all worker ranks (k-parallel);  comm_b_xq: ω-parallel (size=n_bpara)
@@ -119,11 +121,36 @@ contains
     if (allocated(qgroup_root)) deallocate(qgroup_root)
     allocate(qgroup_ppn(0:n_qgroup-1),  source=0)
     allocate(qgroup_root(0:n_qgroup-1), source=0)
-    qgroup_ppn(iq_qgroup) = worker_inQtask
+    if (mpi__root_q) qgroup_ppn(iq_qgroup)  = worker_inQtask
     if (mpi__root_q) qgroup_root(iq_qgroup) = mpi__rank
     call MPI_Allreduce(MPI_IN_PLACE, qgroup_ppn,  n_qgroup, MPI_INTEGER, MPI_SUM, comm, mpi__info)
     call MPI_Allreduce(MPI_IN_PLACE, qgroup_root, n_qgroup, MPI_INTEGER, MPI_SUM, comm, mpi__info)
+    ! Collect hostname of each q-group's root node.
+    call collect_qgroup_hostnames()
   end subroutine MPI__InitQgroups
+
+  subroutine collect_qgroup_hostnames()
+    character(qgroup_host_len) :: myhost
+    character(qgroup_host_len), allocatable :: all_hosts(:)
+    integer :: ig
+    myhost = ' '
+    call hostnm(myhost)
+    if (allocated(qgroup_host)) deallocate(qgroup_host)
+    allocate(qgroup_host(0:n_qgroup-1), source=repeat(' ', qgroup_host_len))
+    if (mpi__root) then
+      allocate(all_hosts(0:mpi__size-1))
+    else
+      allocate(all_hosts(0:0))  ! dummy recvbuf for non-root
+    endif
+    call MPI_Gather(myhost, qgroup_host_len, MPI_CHARACTER, &
+                    all_hosts, qgroup_host_len, MPI_CHARACTER, 0, comm, mpi__info)
+    if (mpi__root) then
+      do ig = 0, n_qgroup-1
+        qgroup_host(ig) = all_hosts(qgroup_root(ig))
+      enddo
+    endif
+    deallocate(all_hosts)
+  end subroutine collect_qgroup_hostnames
 
   subroutine MPI__SplitXq(n_bpara, n_kpara)
     !> k-priority split of comm_q into comm_k_xq (size=n_kpara) and comm_b_xq (size=n_bpara).
@@ -152,7 +179,7 @@ contains
       call mpi_comm_rank(comm_root_k_xq, mpi__rank_root_k_xq, mpi__info)
       call mpi_comm_size(comm_root_k_xq, mpi__size_root_k_xq, mpi__info)
     endif
-    if(ipr) write(06,'(X,A,6I5,3L2)') &
+    if(c0_fullstdo) write(06,'(X,A,6I5,3L2)') &
       "MPI(Xq): rank rank_q rank_k_xq rank_b_xq n_bpara n_kpara root_q root_k root_b", &
       mpi__rank, mpi__rank_q, mpi__rank_k_xq, mpi__rank_b_xq, n_bpara, n_kpara, &
       mpi__root_q, mpi__root_k_xq, mpi__root_b_xq
@@ -188,7 +215,7 @@ contains
     call mpi_comm_rank(comm_k_sxc, mpi__rank_k_sxc, mpi__info)
     call mpi_comm_size(comm_k_sxc, mpi__size_k_sxc, mpi__info)
     mpi__root_k_sxc = mpi__rank_k_sxc == 0
-    if(ipr) write(06,'(X,A,6I5,3L2)') &
+    if(c0_fullstdo) write(06,'(X,A,6I5,3L2)') &
       "MPI(Sxc): rank rank_q rank_k_sxc rank_b_sxc n_bpara n_kpara root_q root_k root_b", &
       mpi__rank, mpi__rank_q, mpi__rank_k_sxc, mpi__rank_b_sxc, n_bpara, n_kpara, &
       mpi__root_q, mpi__root_k_sxc, mpi__root_b_sxc
@@ -207,6 +234,7 @@ contains
     call mpi_comm_free(comm_q, mpi__info)
     if (allocated(qgroup_ppn))  deallocate(qgroup_ppn)
     if (allocated(qgroup_root)) deallocate(qgroup_root)
+    if (allocated(qgroup_host)) deallocate(qgroup_host)
   end subroutine MPI__FreeQgroups
 
   subroutine MPI__Split(n_split)
@@ -576,7 +604,7 @@ contains
     n_bpara_sxc = find_div_geq(worker, n_bpara_sxc)
     n_kpara_sxc = worker / n_bpara_sxc
 
-    if (ipr) then
+    if (ipr .and. c0_fullstdo) then
       write(stdo,'(1X,A)')        'MPI__AutoSetup:'
       write(stdo,'(2X,A,F6.2,A)') 'node freeram (avail x 0.7)=', avail_gb, ' GB'
       write(stdo,'(2X,A,F8.4,A)') 'SHM/q-group=', shm_gb,  ' GB'
@@ -606,6 +634,93 @@ contains
     end function find_div_geq
 
   end subroutine MPI__AutoSetup
+
+  subroutine MPI__PrintSummary(n_bpara_xq, n_kpara_xq, n_bpara_sxc, n_kpara_sxc)
+    !> Human-readable MPI decomposition summary.  Call after MPI__InitQgroups,
+    !> MPI__SplitXq, and MPI__SplitSxc.  Printed by root rank only.
+    integer, intent(in) :: n_bpara_xq, n_kpara_xq, n_bpara_sxc, n_kpara_sxc
+    integer :: ig
+    logical :: contiguous_ranks
+    if (.not. ipr) return
+    write(stdo,'(/,1X,A)') 'MPI layout:'
+    write(stdo,'(3X,A,I0,2(A,I0))') &
+      'total=', mpi__size, '  q-groups=', n_qgroup, '  workers/q-group=', worker_inQtask
+    ! q-group → node mapping (each q-group shares one node's memory)
+    contiguous_ranks = .true.
+    do ig = 1, n_qgroup-1
+      if (qgroup_root(ig) /= qgroup_root(ig-1) + qgroup_ppn(ig-1)) contiguous_ranks = .false.
+    enddo
+    write(stdo,'(3X,A)') 'node (shared memory) per q-group:'
+    if (n_qgroup <= 32 .or. c0_fullstdo) then
+      do ig = 0, n_qgroup-1
+        call mpi__print_qgroup_line(ig, contiguous_ranks)
+      enddo
+    else
+      ! too many groups to list; show first/last few as a sample
+      do ig = 0, min(2, n_qgroup-1)
+        call mpi__print_qgroup_line(ig, contiguous_ranks)
+      enddo
+      if (n_qgroup > 6) write(stdo,'(5X,A,I0,A)') '... (', n_qgroup-6, ' groups omitted)'
+      do ig = max(3, n_qgroup-3), n_qgroup-1
+        call mpi__print_qgroup_line(ig, contiguous_ranks)
+      enddo
+      write(stdo,'(5X,A)') '(--fullstdo to list all groups)'
+    endif
+    ! intra-group split layout
+    write(stdo,'(3X,A,I0,A,I0,A,I0,A)') &
+      'Xq  (W):    ', worker_inQtask, ' workers = ', n_bpara_xq, '(omega) x ', n_kpara_xq, '(k)'
+    write(stdo,'(3X,A,I0,A,I0,A,I0,A)') &
+      'Sxc (corr): ', worker_inQtask, ' workers = ', n_bpara_sxc, '(omega) x ', n_kpara_sxc, '(k)'
+    write(stdo,'(3X,A)') '[rank_q = rank_b * n_kpara + rank_k, within each q-group]'
+    if (worker_inQtask <= 64) then
+      if (n_bpara_sxc == n_bpara_xq .and. n_kpara_sxc == n_kpara_xq) then
+        call mpi__print_grid('Xq and Sxc', n_bpara_xq, n_kpara_xq)
+      else
+        call mpi__print_grid('Xq', n_bpara_xq, n_kpara_xq)
+        call mpi__print_grid('Sxc', n_bpara_sxc, n_kpara_sxc)
+      endif
+    endif
+    write(stdo,*)
+  end subroutine MPI__PrintSummary
+
+  subroutine mpi__print_qgroup_line(ig, contig)
+    integer, intent(in) :: ig
+    logical, intent(in) :: contig
+    character(qgroup_host_len) :: hname
+    hname = ' '
+    if (allocated(qgroup_host)) hname = trim(qgroup_host(ig))
+    if (contig) then
+      write(stdo,'(5X,A,I0,A,I0,A,I0,A,A)') &
+        'g=', ig, ': ranks ', qgroup_root(ig), '..', qgroup_root(ig)+qgroup_ppn(ig)-1, &
+        '  ', trim(hname)
+    else
+      write(stdo,'(5X,A,I0,A,I0,A,I0,A,A)') &
+        'g=', ig, ': root=', qgroup_root(ig), '  ppn=', qgroup_ppn(ig), &
+        '  ', trim(hname)
+    endif
+  end subroutine mpi__print_qgroup_line
+
+  subroutine mpi__print_grid(tag, nb, nk)
+    character(len=*), intent(in) :: tag
+    integer, intent(in) :: nb, nk
+    integer :: ib, ik, pos
+    character(len=2048) :: row
+    write(stdo,'(3X,A,A)') tag, ' rank_q grid (b\k):'
+    row = '        k:'
+    pos = 11
+    do ik = 0, nk-1
+      write(row(pos:pos+4), '(I5)') ik; pos = pos + 5
+    enddo
+    write(stdo,'(A)') trim(row)
+    do ib = 0, nb-1
+      write(row, '(4X,A,I3,A)') 'b=', ib, ':'
+      pos = len_trim(row) + 1
+      do ik = 0, nk-1
+        write(row(pos:pos+4), '(I5)') ib*nk + ik; pos = pos + 5
+      enddo
+      write(stdo,'(A)') trim(row)
+    enddo
+  end subroutine mpi__print_grid
 
 end module m_mpi
 
