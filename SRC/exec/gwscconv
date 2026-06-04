@@ -31,7 +31,11 @@ import sys
 from pathlib import Path
 
 GAP_RE = re.compile(r"gap =\s*[-\d.]+\s*Ry =\s*([-\d.]+)\s*eV")
-EXEC_DIR = Path(__file__).resolve().parent
+# Do NOT resolve(): binaries live in the bin/ dir as symlinks (lmfa ->
+# build/, gwsc -> SRC/exec/). Resolving jumps to SRC/exec where the Fortran
+# binaries are absent. Keep the invoked path (bin/) like gwsc does, so
+# gwsc -> EXEC_DIR/lmfa resolves to bin/lmfa.
+EXEC_DIR = Path(__file__).parent
 GWSC = EXEC_DIR / "gwsc"
 
 
