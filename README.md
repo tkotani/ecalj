@@ -22,6 +22,12 @@ Fortran binaries (lmf, lmfa, lmchk, gwsc, hsfp0, ...) read only:
     lmfa <sname>
     lmf  <sname>
     gwsc 5 -np N <sname>              # GW (when needed)
+    gwsc 5 -np N --gpu --mp --fp32 <sname>   # GPU mixed precision; --fp32 uses
+                                             # true FP32 (not TF32) in the GEMMs.
+                                             # Needed for ill-conditioned dielectrics
+                                             # (heavy element + molecular anion, e.g.
+                                             # NO3/N3/ClO): without it TF32 corrupts
+                                             # W/SEc and QSGW diverges or yields NaN.
 
 `ctrlg.<sname>.toml` contains every ctrl/GWinput key with inline
 comments (units, role, defaults).  Edit it directly; no re-conversion
