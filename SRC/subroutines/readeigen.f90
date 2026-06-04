@@ -476,8 +476,13 @@ contains
     init2=.false.
     if(Keepeig       .and.ipr) write(6,*)' KeepEigen=T; readin geig and cphi into m_readeigen'
     if(( .NOT. Keepeig).and.ipr) write(6,*)' KeepEigen=F; not keep geig and cphi in m_readeigen'
-    i=openm(newunit=ifcphim,file='__CPHI',recl=mrecb) ! Obata moved openm here, bug was 'openm after return 
+    i=openm(newunit=ifcphim,file='__CPHI',recl=mrecb) ! Obata moved openm here, bug was 'openm after return
     i=openm(newunit=ifgeigm,file='__GEIG',recl=mrecg) ! in the case of keepeig=F ' fix at 2024-10-15
+    if (mrecb /= ndima*nspc*nband*16) then
+      if(ipr) write(stdo,'(a,2i0)') ' readeigen: __CPHI mrecb vs ndima*nspc*nband*16 = ', mrecb, ndima*nspc*nband*16
+      call rx('readeigen: __CPHI record size inconsistent with GW product basis ndima.'// &
+              ' Re-run sugw and regenerate PB.toml to match current ctrlg parameters.')
+    endif
     if( .NOT. Keepeig) call keep_wfs_init() ! allocate for keep wfs
     if( .NOT. keepeig) return
     allocate(geig(ngpmx*nspc,nband,nqi,nspx))
