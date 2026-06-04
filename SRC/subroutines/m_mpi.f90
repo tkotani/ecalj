@@ -582,15 +582,21 @@ contains
     worker_exch  = min(worker_exch, ppn)
 
     ! Correlation worker: SHM-constrained.
-    ! Step 1: worker_inQtask — maximize q-groups within memory
+    ! Step 1: worker_inQtask — maximize q-groups within memory; also ensure worker is large
+    ! enough to support the n_bpara_xq required for rcxq GPU VRAM.
     ! Clamp before int() to avoid 32-bit overflow when shm_gb is tiny (e.g. nolfco: ngb_max=1).
     max_qg = max(1, int(min(avail_gb / shm_gb, real(ppn, 8))))
     max_qg = min(max_qg, ppn, nq_calc)  ! no point in more q-groups than q-points
     target_w = (ppn + max_qg - 1) / max_qg  ! ceiling division: ensures n_qgroup <= nq_calc
+    ! GPU: rcxq is device array; n_bpara_xq must fit rcxq per rank in GPU VRAM.
+    ! worker must be >= required n_bpara_xq so find_div_geq can satisfy the constraint.
+    if (present(gpu_avail_gb)) then
+      if (gpu_avail_gb > 0d0) target_w = max(target_w, ceiling(rcxq_gb / (gpu_avail_gb * safety)))
+    endif
     worker = find_div_geq(mpi__size, target_w)
     worker = min(worker, ppn)
 
-    ! Step 2: n_bpara_xq — ensure rcxq fits in private budget.
+    ! Step 2: n_bpara_xq — ensure rcxq fits in private budget (CPU) and GPU VRAM.
     ! Each non-root_k rank allocates rcxq for its iw_lo:iw_hi slice (= rcxq_gb/n_bpara).
     ! n_bpara*(n_kpara-1) non-root_k ranks per q-group → total = (n_kpara-1)*rcxq_gb per q-group.
     ! Constraint: n_qg*(n_kpara-1)*rcxq_gb ≤ priv_gb
@@ -599,6 +605,16 @@ contains
     priv_gb = avail_gb - n_qg * shm_gb
     need_bpara = real(worker,8) / (1d0 + priv_gb / (real(n_qg,8) * rcxq_gb))
     n_bpara_xq = max(1, ceiling(need_bpara))
+    ! GPU: rcxq is device array; per-rank size = rcxq_gb/n_bpara_xq must fit in GPU VRAM.
+    ! Constraint: n_bpara_xq ≥ ceil(rcxq_gb / (gpu_avail_gb * safety))
+    if (present(gpu_avail_gb)) then
+      if (gpu_avail_gb > 0d0) then
+        n_bpara_xq = max(n_bpara_xq, ceiling(rcxq_gb / (gpu_avail_gb * safety)))
+        if (ipr .and. c0_fullstdo) &
+          write(stdo,'(2X,A,F8.4,A,F6.2,A,I3)') &
+            'rcxq_gb(n_bpara=1)=', rcxq_gb, ' GB  gpu_avail=', gpu_avail_gb, ' GB  → n_bpara_xq>=', n_bpara_xq
+      endif
+    endif
     n_bpara_xq = find_div_geq(worker, n_bpara_xq)
     n_kpara_xq = worker / n_bpara_xq
 
