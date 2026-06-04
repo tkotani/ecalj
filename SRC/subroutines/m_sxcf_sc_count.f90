@@ -161,35 +161,31 @@ contains
       enddo kxloop
       GetNmbatch: block !nmbatch is the Batch size of sum for middle states. !Get zmel(MPB,middle ,external)
       use m_read_ppovl,only: getppx2,ngcgp
-      use m_mem,only:memused
-      use m_GWinput, only: gwinput_init, gwinput_loaded, tg_MEMnmbatch => MEMnmbatch
+      use m_GWinput, only: gwinput_init, gwinput_loaded, tg_zmel_batch_gb => zmel_batch_gb
       integer:: nbloch,ifiqg,iiixxx,ngcmx,filename(natom),ic,nblocha(natom),ifp
       real(8),parameter:: k=1000 !Note GB is over integer(4)
-      real(8):: mmax  ! GByte. Size of memory per rank to determine nmbatch
-      real(8):: mmm
+      real(8):: mmax  ! GByte. zmel batch size per rank (= zmel_batch_gb)
       call gwinput_init()
       if (gwinput_loaded) then
-         mmax = tg_MEMnmbatch
+         mmax = tg_zmel_batch_gb
       else
          call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
-!         call getkeyvalue("GWinput","MEMnmbatch",mmax,default=2d0)
       endif
+      if (mmax < 0.001d0) mmax = 0.4d0
       call getppx2([(0d0,i=1,3)],get_ngcgp=.true.)
       open(newunit=ifiqg, file='__QGcou',form='unformatted')
       read(ifiqg) iiixxx, ngcmx
       close(ifiqg)
-      do ic = 1,natom 
+      do ic = 1,natom
          open(newunit=ifp,file=trim('__PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10))),form='unformatted')
          read(ifp) nblocha(ic)
          close(ifp)
       enddo
-!      mmm= max(mmax - memused() - 16d0*(ngcgp*maxval(nbandmx)) /k**3,0d0)  !ggitp(ngcgp,ntp0) !rough estimation in GB
-      mmm= max(mmax - 16d0*(ngcgp*maxval(nbandmx)) /k**3,0d0)  !ggitp(ngcgp,ntp0) !rough estimation in GB ! uncount memused() already 2024-8-18
       nbloch=sum(nblocha)
       if(ipr)write(stdo,ftox)'sxcf_fal2_count.sc: ',nbandmx,ngcgp
-      if(ipr)write(stdo,ftox)'sxcf_fal2_count.sc: mmax memused size(z(ngcgp,nbandmx)) nmbatch=',mmax,memused(),ngcgp*16d0*maxval(nbandmx)/k**3, mmm,nmbatch
-      nmbatch = floor( min(maxval(nstatemax)+1d-8, mmm*k**3/(maxval(nbandmx)*(nbloch+ngcmx+ngcmx)*16) +1d-8) ) ! +ngcmx is for zmelp0(ngc,nm1v:nm2v,ntp0)
-      if(nmbatch==0) call rx('sxcf_fal2_count.sc. Too small memory for nmbatch mechanism. Enlarge GWinput MEMnmbatch')
+      if(ipr)write(stdo,ftox)'sxcf_fal2_count.sc: zmel_batch_gb nbloch ngcmx=',mmax,nbloch,ngcmx
+      nmbatch = floor( min(maxval(nstatemax)+1d-8, mmax*k**3/(maxval(nbandmx)*(nbloch+ngcmx+ngcmx)*16) +1d-8) )
+      if(nmbatch==0) call rx('sxcf_fal2_count.sc. Too small memory for nmbatch. Enlarge zmel_batch_gb in GWinput.toml')
       if(ipr)write(stdo,ftox)'sxcf_fal2_count: nmbatch=',nmbatch,' nbandmx nbloch ngcmx=',maxval(nbandmx),nbloch,ngcmx&
            ,'nstatemaxmx=',maxval(nstatemax)
       endblock GetNmbatch

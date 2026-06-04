@@ -2,7 +2,7 @@
 module m_x0kf
   use m_lgunit,only: stdo
   use m_keyvalue,only : Getkeyvalue
-  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_zmel_max_size => zmel_max_size
+  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_zmel_batch_gb => zmel_batch_gb
   use m_pkm4crpa,only : Readpkm4crpa
   use m_zmel,only: build_zmel, zmel
   use m_freq,only: npm, nwhis
@@ -172,7 +172,7 @@ contains
     real(8):: q(3), schi, ekxx1(nband,nqbz), ekxx2(nband,nqbz)
     character(10) :: i2char
     logical :: tetwtk = .false.
-    real(8) :: zmel_max_size
+    real(8) :: zmel_batch_gb
     type(stopwatch) :: t_sw_zmel, t_sw_x0, t_sw_dpsion
 
     ! Omega parallelism: split flat range (1-npm)*nwhis:nwhis across comm_b ranks.
@@ -189,11 +189,11 @@ contains
     if (c0_tetwtk) tetwtk = .true.
     call gwinput_init()
     if (gwinput_loaded) then
-      zmel_max_size = tg_zmel_max_size
+      zmel_batch_gb = tg_zmel_batch_gb
     else
       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
     endif
-    if (zmel_max_size < 0.001d0) zmel_max_size = 1d0
+    if (zmel_batch_gb < 0.001d0) zmel_batch_gb = 0.4d0
     if (chipm .AND. nolfco) then
       call set_m2e_prod_basis_chipm(zzr, npr)
     else
@@ -246,7 +246,7 @@ contains
             integer, allocatable :: ns1lists(:), ns2lists(:)
             nsize = (nkqmax(k)-nkqmin(k))*npr
             nns   = (nkmax(k) - nkmin(k) + 1)
-            nbatch = ceiling(dble(nns)*nsize*16/1000**3/zmel_max_size)
+            nbatch = ceiling(dble(nns)*nsize*16/1000**3/zmel_batch_gb)
             allocate(ns1lists(nbatch), ns2lists(nbatch))
             ns1 = nkmin(k) + nctot
             do ibatch = 1, nbatch

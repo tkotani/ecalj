@@ -110,8 +110,7 @@ module m_GWinput
   real(8), protected, public :: shift_majority     = 0.0d0
   real(8), protected, public :: output_ddmat_atom  = 1.0d0
   real(8), protected, public :: dRdIatRmax         = 0.003d0
-  real(8), protected, public :: zmel_max_size      = 1.0d0
-  real(8), protected, public :: MEMnmbatch         = 2.0d0
+  real(8), protected, public :: zmel_batch_gb      = 0.0d0
   real(8), protected, public :: magnon_delta       = 0.0d0
   real(8), protected, public :: magnon_delta_dos   = 1.0d-6
   real(8), protected, public :: magnon_HistBin_ratio = 1.03d0
@@ -413,8 +412,8 @@ contains
     call gv_r(gw, 'shift_majority',     shift_majority)
     call gv_r(gw, 'output_ddmat_atom',  output_ddmat_atom)
     call gv_r(gw, 'dRdIatRmax',         dRdIatRmax)
-    call gv_r(gw, 'zmel_max_size',      zmel_max_size)
-    call gv_r(gw, 'MEMnmbatch',         MEMnmbatch)
+    call gv_r(gw, 'zmel_batch_gb',      zmel_batch_gb)
+    call gv_r(gw, 'zmel_max_size',      zmel_batch_gb)  ! legacy alias
     call gv_r(gw, 'magnon_delta',       magnon_delta)
     call gv_r(gw, 'magnon_delta_dos',   magnon_delta_dos)
     call gv_r(gw, 'magnon_HistBin_ratio', magnon_HistBin_ratio)

@@ -24,7 +24,7 @@ subroutine hgw(do_correlation, do_exchange)
   use m_freq,only: Getfreq2,freq_r,nw_i,nw,niw, nwhis_hgw=>nwhis, npm_hgw=>npm
   use m_w0w0i,only: W0w0i
   use m_readgwinput,only: ReadGwinputKeys
-  use m_GWinput,only: mpi_worker_exch, mpi_worker_corr
+  use m_GWinput,only: mpi_worker_exch, mpi_worker_corr, zmel_batch_gb
   use m_qbze,only:  Setqbze,qibze
   use m_llw,only: MPI__irecvllw_q, MPI__isendllw_q, MPI__waitllw, MPI__llw_alloc_bufs
   use m_mpi,only: MPI__Initialize, MPI__InitQgroups, MPI__FreeQgroups, &
@@ -54,7 +54,7 @@ subroutine hgw(do_correlation, do_exchange)
   logical, intent(in) :: do_correlation, do_exchange
   integer :: iq, iqxend, iw, ifwd, verbose, ifif, ierr
   integer :: n_bpara_xq, n_kpara_xq, n_bpara_sxc, n_kpara_sxc, worker_auto, worker_exch
-  real(8) :: gpu_avail_gb
+  real(8) :: gpu_avail_gb, zmel_cpu_gb
   integer :: src_group
   real(8) :: ua=1d0, qp(3)
   logical :: debug=.false., realomega, imagomega
@@ -87,12 +87,20 @@ subroutine hgw(do_correlation, do_exchange)
   gpu_avail_gb = real(acc_get_property(mydev, acc_device_nvidia, acc_property_free_memory), 8) &
                  / 1d9 / real(ranks_per_gpu, 8)
 #endif
+  ! CPU: zmel (×3 simultaneous) lives in host RAM → reserve before SHM budget.
+  ! GPU: zmel is a device array (VRAM) → no host RAM reservation; GPU fix is separate.
+  zmel_cpu_gb = zmel_batch_gb
+  if (zmel_cpu_gb < 0.001d0) zmel_cpu_gb = 0.4d0
+#ifdef __GPU
+  zmel_cpu_gb = 0d0
+#endif
   call MPI__AutoSetup(nblochpmx, nwhis_hgw, npm_hgw, niw, nqibz, &
                       n_bpara_sxc_hint=1, &
                       worker_out=worker_auto, worker_exch_out=worker_exch, &
                       n_bpara_xq_out=n_bpara_xq, n_kpara_xq_out=n_kpara_xq, &
                       n_bpara_sxc_out=n_bpara_sxc, n_kpara_sxc_out=n_kpara_sxc, &
-                      gpu_avail_gb=gpu_avail_gb)
+                      gpu_avail_gb=gpu_avail_gb, &
+                      zmel_per_rank_gb=3d0*zmel_cpu_gb)
   if (mpi_worker_exch > 0) then
     if (mod(MPI__size, mpi_worker_exch) /= 0) &
       call rx('mpi_worker_exch must divide mpi__size')

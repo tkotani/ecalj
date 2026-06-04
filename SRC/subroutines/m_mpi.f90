@@ -540,7 +540,7 @@ contains
                              worker_out, n_bpara_xq_out, n_kpara_xq_out, &
                              n_bpara_sxc_hint, worker_exch_out, &
                              n_bpara_sxc_out, n_kpara_sxc_out, &
-                             gpu_avail_gb)
+                             gpu_avail_gb, zmel_per_rank_gb)
     use m_lgunit, only: stdo
     use m_ftox
     use m_mem_node, only: mem_avail_node_gb
@@ -554,11 +554,12 @@ contains
     integer, intent(out), optional :: worker_exch_out
     integer, intent(out), optional :: n_bpara_sxc_out, n_kpara_sxc_out
     real(8), intent(in),  optional :: gpu_avail_gb
+    real(8), intent(in),  optional :: zmel_per_rank_gb  ! peak private zmel budget per rank (GB)
     integer :: ppn, comm_node, ierr
     integer :: max_qg, target_w, worker, n_qg
     integer :: worker_exch, max_qg_exch, target_w_exch
     integer :: n_bpara_xq, n_kpara_xq, n_bpara_sxc, n_kpara_sxc
-    real(8) :: avail_gb, shm_gb, rcxq_gb, priv_gb, need_bpara, wvu_gb = 0d0
+    real(8) :: avail_gb, avail_for_shm, shm_gb, rcxq_gb, priv_gb, need_bpara, wvu_gb = 0d0
     real(8) :: bytes_per_elem  ! 2*kindrcxq: 8 (single) or 16 (double)
     real(8), parameter :: safety = 0.7d0
 
@@ -575,6 +576,16 @@ contains
     ! rcxq per non-root rank = wvr size only
     rcxq_gb = real(ngb_max,8)**2 * real(nwhis*npm + 1, 8)       * bytes_per_elem / 1d9
 
+    ! Reserve peak zmel budget (per rank × ppn) before SHM allocation.
+    ! Correlation uses zmel + czmelwc + wzmel simultaneously → caller passes 3×zmel_batch_gb.
+    avail_for_shm = avail_gb
+    if (present(zmel_per_rank_gb)) then
+      if (zmel_per_rank_gb > 0d0) then
+        avail_for_shm = avail_gb - ppn * zmel_per_rank_gb
+        avail_for_shm = max(avail_for_shm, shm_gb)  ! always allow at least 1 q-group
+      endif
+    endif
+
     ! Exchange worker: no SHM constraint; maximize q-groups up to nq_calc.
     max_qg_exch  = min(ppn, nq_calc)
     target_w_exch = (ppn + max_qg_exch - 1) / max_qg_exch
@@ -585,7 +596,7 @@ contains
     ! Step 1: worker_inQtask — maximize q-groups within memory; also ensure worker is large
     ! enough to support the n_bpara_xq required for rcxq GPU VRAM.
     ! Clamp before int() to avoid 32-bit overflow when shm_gb is tiny (e.g. nolfco: ngb_max=1).
-    max_qg = max(1, int(min(avail_gb / shm_gb, real(ppn, 8))))
+    max_qg = max(1, int(min(avail_for_shm / shm_gb, real(ppn, 8))))
     max_qg = min(max_qg, ppn, nq_calc)  ! no point in more q-groups than q-points
     target_w = (ppn + max_qg - 1) / max_qg  ! ceiling division: ensures n_qgroup <= nq_calc
     ! GPU: rcxq is device array; n_bpara_xq must fit rcxq per rank in GPU VRAM.
@@ -643,6 +654,11 @@ contains
     if (ipr .and. c0_fullstdo) then
       write(stdo,'(1X,A)')        'MPI__AutoSetup:'
       write(stdo,'(2X,A,F6.2,A)') 'node freeram (avail x 0.7)=', avail_gb, ' GB'
+      if (present(zmel_per_rank_gb)) then
+        if (zmel_per_rank_gb > 0d0) &
+          write(stdo,'(2X,A,F6.2,A,F6.2,A)') 'zmel/rank=', zmel_per_rank_gb, &
+            ' GB  avail_for_shm=', avail_for_shm, ' GB'
+      endif
       write(stdo,'(2X,A,F8.4,A)') 'SHM/q-group=', shm_gb,  ' GB'
       write(stdo,'(2X,A,F8.4,A)') 'rcxq/rank  =', rcxq_gb, ' GB'
       write(stdo,'(2X,A,3I5)')    'ppn nq_calc worker_corr:', ppn, nq_calc, worker
