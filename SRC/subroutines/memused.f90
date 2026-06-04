@@ -141,9 +141,23 @@ contains
   real(8) function memused() !in GB  (VmRSS current RSS; fallback to getrusage peak on non-Linux)
     use iso_c_binding, only: c_int, c_long
     implicit none
+    type, bind(C) :: c_rusage
+      integer(c_long) :: ru_utime(2), ru_stime(2), ru_maxrss
+      integer(c_long) :: ru_pad(14)
+    end type c_rusage
+    interface
+      function getrusage(what, usage) bind(C, name="getrusage")
+        import :: c_int, c_rusage
+        integer(c_int) :: getrusage
+        integer(c_int), value :: what
+        type(c_rusage) :: usage
+      end function getrusage
+    end interface
     integer :: unit, ios
     character(256) :: line
     integer(8) :: val
+    type(c_rusage) :: usage
+    integer(c_int) :: ret
     ! Try /proc/self/status (Linux) for current RSS
     open(newunit=unit, file='/proc/self/status', status='old', action='read', iostat=ios)
     if (ios == 0) then
@@ -161,24 +175,8 @@ contains
       return
     endif
     ! Fallback: getrusage peak RSS (non-Linux or procfs unavailable)
-    block
-      type, bind(C) :: c_rusage
-        integer(c_long) :: ru_utime(2), ru_stime(2), ru_maxrss
-        integer(c_long) :: ru_pad(14)
-      end type
-      interface
-        function getrusage(what, usage) bind(C, name="getrusage")
-          import :: c_int, c_rusage
-          integer(c_int) :: getrusage
-          integer(c_int), value :: what
-          type(c_rusage) :: usage
-        end function
-      end interface
-      type(c_rusage) :: usage
-      integer(c_int) :: ret
-      ret = getrusage(0_c_int, usage)
-      memused = usage%ru_maxrss / 1d6
-    end block
+    ret = getrusage(0_c_int, usage)
+    memused = usage%ru_maxrss / 1d6
   end function memused
 
   character(23) function datetime()

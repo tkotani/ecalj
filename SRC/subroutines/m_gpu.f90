@@ -5,10 +5,11 @@ module m_gpu
   use cudafor
 #endif
   implicit none
-  public :: gpu_init, check_memory_gpu, use_gpu, gpu_finalize, ngpu_ranks
+  public :: gpu_init, check_memory_gpu, use_gpu, gpu_finalize, ngpu_ranks, ranks_per_gpu
   integer,public :: mydev
   logical, protected :: use_gpu = .false.
-  integer, protected :: ngpu_ranks = 0  ! number of GPU ranks (= ndevs)
+  integer, protected :: ngpu_ranks = 0    ! number of GPU ranks (= ndevs)
+  integer, protected :: ranks_per_gpu = 1  ! MPI ranks sharing one GPU
   private
   integer :: procid, nsize
   contains
@@ -53,10 +54,12 @@ module m_gpu
     if (share_gpu_) then
       ! All local ranks share GPUs (round-robin); each initializes its assigned device.
       ngpu_ranks = nlocal_procs
+      ranks_per_gpu = (nlocal_procs + ndevs - 1) / ndevs  ! ceiling(nlocal_procs/ndevs)
       use_gpu = .true.
     else
       ! Only first ndevs local ranks use GPU (one rank per GPU).
       ngpu_ranks = min(ndevs, nlocal_procs)
+      ranks_per_gpu = 1
       use_gpu = (ilocal_rank < ndevs)
     endif
 

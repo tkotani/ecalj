@@ -533,11 +533,14 @@ contains
   !> Determine worker_inQtask, n_bpara/n_kpara for SplitXq and SplitSxc from memory.
   !> ngb_max:  max npr across q-points (nblochpmx for normal, 1 for nolfco, nmbas for chipm).
   !> nq_calc:  number of q-points actually computed (nqibz for hgw; nq0i for hx0fp0 epsmode).
+  !> gpu_avail_gb: free GPU VRAM per rank (GB); if present, constrains n_bpara_sxc so that
+  !>   wvi_upper + wvr_upper (≈ shm_gb/2 / n_bpara_sxc per rank) fit in GPU memory.
   !> Queries node RAM via freeram(); determines parameters to fit SHM + rcxq in memory.
   subroutine MPI__AutoSetup(ngb_max, nwhis, npm, niw, nq_calc, &
                              worker_out, n_bpara_xq_out, n_kpara_xq_out, &
                              n_bpara_sxc_hint, worker_exch_out, &
-                             n_bpara_sxc_out, n_kpara_sxc_out)
+                             n_bpara_sxc_out, n_kpara_sxc_out, &
+                             gpu_avail_gb)
     use m_lgunit, only: stdo
     use m_ftox
     use m_mem_node, only: mem_avail_node_gb
@@ -550,11 +553,12 @@ contains
     integer, intent(in),  optional :: n_bpara_sxc_hint
     integer, intent(out), optional :: worker_exch_out
     integer, intent(out), optional :: n_bpara_sxc_out, n_kpara_sxc_out
+    real(8), intent(in),  optional :: gpu_avail_gb
     integer :: ppn, comm_node, ierr
     integer :: max_qg, target_w, worker, n_qg
     integer :: worker_exch, max_qg_exch, target_w_exch
     integer :: n_bpara_xq, n_kpara_xq, n_bpara_sxc, n_kpara_sxc
-    real(8) :: avail_gb, shm_gb, rcxq_gb, priv_gb, need_bpara
+    real(8) :: avail_gb, shm_gb, rcxq_gb, priv_gb, need_bpara, wvu_gb = 0d0
     real(8) :: bytes_per_elem  ! 2*kindrcxq: 8 (single) or 16 (double)
     real(8), parameter :: safety = 0.7d0
 
@@ -598,9 +602,25 @@ contains
     n_bpara_xq = find_div_geq(worker, n_bpara_xq)
     n_kpara_xq = worker / n_bpara_xq
 
-    ! Step 3: n_bpara_sxc — user hint or default 1 (only meaningful when sxc outputs requested)
+    ! Step 3: n_bpara_sxc
+    ! CPU: default 1 (wvi/wvr_upper live on GPU only, no CPU constraint).
+    ! GPU: wvi_upper + wvr_upper ≈ shm_gb/2 / n_bpara_sxc per rank must fit in GPU VRAM.
+    !   Constraint: n_bpara_sxc ≥ ceil(wvu_gb / (gpu_avail_gb * safety))
     n_bpara_sxc = 1
-    if (present(n_bpara_sxc_hint)) n_bpara_sxc = merge(n_bpara_sxc_hint, 1, n_bpara_sxc_hint > 0)
+    if (present(n_bpara_sxc_hint)) then
+      if (n_bpara_sxc_hint > 0) n_bpara_sxc = n_bpara_sxc_hint
+    endif
+    if (present(gpu_avail_gb)) then
+      if (gpu_avail_gb > 0d0) then
+        ! wvu_gb (n_bpara=1): upper-triangular W ≈ shm_gb/2
+        wvu_gb = real(ngb_max,8) * real(ngb_max+1,8) / 2d0 &
+               * real(nwhis*npm + 1 + niw, 8) * bytes_per_elem / 1d9
+        n_bpara_sxc = max(n_bpara_sxc, ceiling(wvu_gb / (gpu_avail_gb * safety)))
+        if (ipr .and. c0_fullstdo) &
+          write(stdo,'(2X,A,F8.4,A,F6.2,A,I3)') &
+            'wvu_gb(n_bpara=1)=', wvu_gb, ' GB  gpu_avail=', gpu_avail_gb, ' GB  → n_bpara_sxc>=', n_bpara_sxc
+      endif
+    endif
     n_bpara_sxc = find_div_geq(worker, n_bpara_sxc)
     n_kpara_sxc = worker / n_bpara_sxc
 

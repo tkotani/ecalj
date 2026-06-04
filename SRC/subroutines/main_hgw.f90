@@ -35,7 +35,12 @@ subroutine hgw(do_correlation, do_exchange)
                 & worker_inQtask, n_qgroup, iq_qgroup, qgroup_root
   use m_lgunit,only: m_lgunit_init,stdo
   use m_ftox
+#ifdef __GPU
+  use m_gpu,only: gpu_init, mydev, ranks_per_gpu
+  use openacc, only: acc_get_property, acc_device_nvidia, acc_property_free_memory
+#else
   use m_gpu,only: gpu_init
+#endif
   use m_hsfp0_sc,only: hsfp0_sc, hsfp0_sc_setup, hsfp0_sc_writeout, &
                        hs_ef, hs_esmr, hs_nspinmx
   use m_screened_coulomb,only: build_screened_coulomb_step_kx
@@ -49,6 +54,7 @@ subroutine hgw(do_correlation, do_exchange)
   logical, intent(in) :: do_correlation, do_exchange
   integer :: iq, iqxend, iw, ifwd, verbose, ifif, ierr
   integer :: n_bpara_xq, n_kpara_xq, n_bpara_sxc, n_kpara_sxc, worker_auto, worker_exch
+  real(8) :: gpu_avail_gb
   integer :: src_group
   real(8) :: ua=1d0, qp(3)
   logical :: debug=.false., realomega, imagomega
@@ -75,11 +81,18 @@ subroutine hgw(do_correlation, do_exchange)
   imagomega = .true.
   call Getfreq2(.false.,realomega,imagomega,ua,iprintx)
 
+  gpu_avail_gb = 0d0
+#ifdef __GPU
+  ! Divide free VRAM by ranks_per_gpu: each rank sharing the same GPU gets an equal share.
+  gpu_avail_gb = real(acc_get_property(mydev, acc_device_nvidia, acc_property_free_memory), 8) &
+                 / 1d9 / real(ranks_per_gpu, 8)
+#endif
   call MPI__AutoSetup(nblochpmx, nwhis_hgw, npm_hgw, niw, nqibz, &
                       n_bpara_sxc_hint=1, &
                       worker_out=worker_auto, worker_exch_out=worker_exch, &
                       n_bpara_xq_out=n_bpara_xq, n_kpara_xq_out=n_kpara_xq, &
-                      n_bpara_sxc_out=n_bpara_sxc, n_kpara_sxc_out=n_kpara_sxc)
+                      n_bpara_sxc_out=n_bpara_sxc, n_kpara_sxc_out=n_kpara_sxc, &
+                      gpu_avail_gb=gpu_avail_gb)
   if (mpi_worker_exch > 0) then
     if (mod(MPI__size, mpi_worker_exch) /= 0) &
       call rx('mpi_worker_exch must divide mpi__size')
