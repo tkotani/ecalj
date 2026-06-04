@@ -1,0 +1,62 @@
+mp-1080045 2026-04-26 23:29:04 ERROR gwsc: NaN detected in lsc
+mp-20458 2026-04-28 17:09:33 ERROR gwsc: NaN detected in lsc (in-flight)
+mp-2247 2026-04-29 00:14:14 ERROR gwsc: NaN detected in lsc (in-flight)
+mp-22604 2026-04-29 00:34:56 ERROR gwsc: NaN detected in lsc (in-flight)
+mp-27419 2026-05-01 00:44:19 ERROR gwsc: RuntimeError: lmf failed even after reducing bmix to minimum.
+mp-29047 2026-05-01 10:15:43 ERROR gwsc: NaN detected in lqpe (in-flight)
+mp-3078 2026-05-03 23:05:15 ERROR gwsc: NaN detected in lsc (in-flight)
+mp-510557 2026-05-02 05:58:15 ERROR gwsc: NaN detected in lqpe (in-flight)
+mp-545730 2026-05-02 07:39:39 ERROR gwsc: RuntimeError: lmf failed even after reducing bmix to minimum.
+mp-552169 2026-05-02 18:51:16 ERROR gwsc: NaN detected in lqpe (in-flight)
+mp-552604 2026-05-02 16:51:05 ERROR gwsc: NaN detected in lqpe (in-flight)
+mp-570140 2026-05-03 22:53:33 ERROR gwsc: NaN detected in lsc (in-flight)
+mp-570589 2026-05-03 23:29:31 ERROR gwsc: NaN detected in lsc (in-flight)
+mp-571297 2026-05-03 23:54:45 ERROR gwsc: NaN detected in lsc (in-flight)
+mp-22981 2026-05-04 12:30:48 ERROR gwsc: NaN detected in lqpe (in-flight)
+mp-1077553 2026-05-04 12:47:03 ERROR gwsc: NaN detected in lqpe (in-flight)
+mp-22535 2026-05-04 13:09:22 ERROR gwsc: NaN detected in lqpe (in-flight)
+mp-22993 2026-05-04 13:18:53 ERROR gwsc: NaN detected in lqpe (in-flight)
+mp-1077901 2026-05-04 13:38:56 ERROR gwsc: NaN detected in lqpe (in-flight)
+mp-1179832 2026-05-04 13:43:43 ERROR gwsc: RuntimeError: Command failed: mpirun -np 30 /home/takao/bin2/lmf mp-1179832 --jobgw=1 -v[ham.scaledsigma]=0.8
+mp-29738 2026-05-04 21:46:14 ERROR gwsc: RuntimeError: lmf failed even after reducing bmix to minimum.
+mp-29798 2026-05-04 22:46:40 ERROR gwsc: NaN detected in lqpe (in-flight)
+mp-30530 2026-05-04 23:15:13 ERROR gwsc: NaN detected in lqpe (in-flight)
+mp-36248 2026-05-04 23:22:09 ERROR gwsc: NaN detected in lqpe (in-flight)
+mp-551758 2026-05-04 23:30:53 ERROR gwsc: RuntimeError: lmf failed even after reducing bmix to minimum.
+mp-3307 2026-05-04 23:32:00 ERROR gwsc: NaN detected in lqpe (in-flight)
+mp-30302 2026-05-04 23:40:01 ERROR gwsc: NaN detected in lqpe (in-flight)
+mp-551798 2026-05-05 00:37:52 ERROR gwsc: NaN detected in lqpe (in-flight)
+mp-5606 2026-05-05 00:53:26 ERROR gwsc: NaN detected in lqpe (in-flight)
+mp-567299 2026-05-05 01:06:33 ERROR gwsc: NaN detected in lqpe (in-flight)
+mp-552934 2026-05-05 01:58:45 ERROR gwsc: NaN detected in lqpe (in-flight)
+mp-581833 2026-05-05 14:00:58 ERROR gwsc: NaN detected in lqpe (in-flight)
+mp-625548 2026-05-05 17:35:22 ERROR gwsc: NaN detected in lqpe (in-flight)
+mp-626151 2026-05-05 18:28:17 ERROR gwsc: RuntimeError: lmf failed even after reducing bmix to minimum.
+mp-6781 2026-05-06 08:18:49 ERROR gwsc: TIMEOUT after 8h
+mp-685022 2026-05-06 08:36:17 ERROR gwsc: TIMEOUT after 8h
+mp-691 2026-05-06 09:17:14 ERROR gwsc: TIMEOUT after 8h
+mp-696736 2026-05-06 10:25:31 ERROR gwsc: TIMEOUT after 8h
+mp-720 2026-05-06 16:55:44 ERROR gwsc: TIMEOUT after 8h
+mp-730101 2026-05-06 20:54:53 ERROR gwsc: TIMEOUT after 8h
+mp-7700 2026-05-07 07:48:56 ERROR gwsc: NaN detected in lqpe (in-flight)
+mp-8196 2026-05-07 22:30:26 ERROR gwsc: RuntimeError: lmf failed even after reducing bmix to minimum.
+mp-8348 2026-05-08 12:52:06 ERROR gwsc: TIMEOUT after 8h
+mp-8360 2026-05-08 13:03:18 ERROR gwsc: TIMEOUT after 8h
+mp-8361 2026-05-08 14:00:16 ERROR gwsc: TIMEOUT after 8h
+mp-870 2026-05-08 16:06:32 ERROR gwsc: NaN detected in lqpe (in-flight)
+mp-8446 2026-05-08 16:31:16 ERROR gwsc: TIMEOUT after 8h
+mp-863757 2026-05-08 18:14:11 ERROR gwsc: TIMEOUT after 8h
+mp-571266 2026-05-09 10:55:15 ERROR gwsc: TIMEOUT after 8h
+mp-9778 2026-05-09 12:01:42 ERROR gwsc: TIMEOUT after 8h
+mp-9922 2026-05-09 19:10:29 ERROR gwsc: TIMEOUT after 8h
+mp-9687 2026-05-09 20:05:48 ERROR gwsc: TIMEOUT after 8h
+mp-570219 2026-05-09 23:57:32 ERROR gwsc: TIMEOUT after 8h
+mp-571100 2026-05-10 03:14:18 ERROR gwsc: TIMEOUT after 8h
+mp-9273 2026-05-10 09:20:40 ERROR gwsc: TIMEOUT after 8h
+mp-571442 2026-05-10 09:44:02 ERROR gwsc: TIMEOUT after 8h
+mp-9274 2026-05-10 11:15:18 ERROR gwsc: TIMEOUT after 8h
+mp-573321 2026-05-10 11:16:16 ERROR gwsc: TIMEOUT after 8h
+mp-570076 2026-05-10 14:53:37 ERROR gwsc: TIMEOUT after 8h
+mp-570051 2026-05-10 15:19:59 ERROR gwsc: KILLED (in-flight when GW1500 stopped)
+mp-568388 2026-05-10 15:19:59 ERROR gwsc: KILLED (in-flight when GW1500 stopped)
+mp-23435 2026-05-10 15:19:59 ERROR gwsc: KILLED (in-flight when GW1500 stopped)
