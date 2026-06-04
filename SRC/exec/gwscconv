@@ -3,7 +3,8 @@
 gwscconv: convergence-aware wrapper around gwsc.
 
 Repeatedly runs `gwsc 1 ...` until the band gap of the last 3 QSGW iterations
-agrees within `--conv-tol` (eV), or `--max-iter` total QSGW iters is reached.
+agrees within `--conv-tol` (eV) for 2 consecutive iterations, or `--max-iter`
+total QSGW iters is reached.
 
 Usage:
     gwscconv [gwsc-args...] [--conv-tol TOL] [--max-iter N]
@@ -116,6 +117,7 @@ def main():
     n0 = existing_iter()
     total_iter = n0
     history = []  # gaps observed in this run (eV)
+    consec_ok = 0  # consecutive iters with last-3 swing < tol (need 2 to stop)
     print(f"=== gwscconv start: cwd={os.getcwd()} ===", flush=True)
     print(f"=== gwscconv: conv_tol={args.conv_tol} eV  max_iter={args.max_iter}  Iter0={n0} ===",
           flush=True)
@@ -143,10 +145,17 @@ def main():
         if len(history) >= 3:
             last3 = history[-3:]
             swing = max(last3) - min(last3)
-            print(f"gwscconv: last-3 swing = {swing:.4f} eV (tol {args.conv_tol})", flush=True)
             if swing < args.conv_tol:
+                consec_ok += 1
+            else:
+                consec_ok = 0
+            print(f"gwscconv: last-3 swing = {swing:.4f} eV (tol {args.conv_tol}); "
+                  f"consec under tol = {consec_ok}/2", flush=True)
+            # Require the swing to stay under tol for 2 consecutive iters before
+            # declaring convergence (guards against a one-off small swing).
+            if consec_ok >= 2:
                 print(f"=== gwscconv: CONVERGED at iter {total_iter} "
-                      f"(swing {swing:.4f} < {args.conv_tol}) ===", flush=True)
+                      f"(swing < {args.conv_tol} for 2 consecutive iters) ===", flush=True)
                 break
 
     if total_iter >= args.max_iter:
