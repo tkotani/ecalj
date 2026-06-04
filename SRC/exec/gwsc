@@ -26,6 +26,7 @@ parser.add_argument('--emptyrun'  ,help='test for gprof for memory',    action='
 parser.add_argument('--gpu'       ,help='USE GPU version for hsfp0 and hgw',    action='store_true')
 parser.add_argument('--gemmul8'   ,help='USE GEMMul8 valid in GPU without MP',    action='store_true')
 parser.add_argument('--mp'        ,help='USE mixed precision version for hsfp0 and hgw',    action='store_true')
+parser.add_argument('--fp32'      ,help='With --mp: use true FP32 (not TF32) in GPU GEMMs. Fixes ill-conditioned dielectric (e.g. mp-8196)', action='store_true')
 parser.add_argument("-c", "--cluster", help="cluster name", default="default", type=str)
 args,unknown=parser.parse_known_args()
 
@@ -56,6 +57,8 @@ if args.mp:
     exec_type = "_mp"
 if args.gpu:
     exec_type = exec_type + "_gpu"
+if args.fp32:
+    options.append("--use_fp32")
 if args.gemmul8:
     options.append("--use_gemmul8")
     libpath = Path(__file__).parent / "libgemmul8.so"

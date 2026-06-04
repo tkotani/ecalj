@@ -288,7 +288,8 @@ contains
   end function zmm_batch_h
 #ifdef __GPU
   integer function cmm_d(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc, policy) result(istat)
-    use cublas_v2, m_type =>CUDA_C_32F, compute_type => CUBLAS_COMPUTE_32F_FAST_TF32, algo => cublas_gemm_default
+    use cublas_v2, m_type =>CUDA_C_32F, algo => cublas_gemm_default
+    use m_cmdopt_registry, only: c0_use_fp32  ! --use_fp32 -> true FP32, else TF32
     complex(4), device, target :: a(*), b(*), c(*)
     integer, intent(in) :: m, n, k
     character, intent(in), optional :: opa, opb
@@ -341,11 +342,12 @@ contains
     else
       istat = cublasGemmEX(cublas_handle, opa_in_cublas, opb_in_cublas, m, n, k,  &
                            alpha_in, a, m_type, lda_in, b, m_type, ldb_in, beta_in, c, m_type, ldc_in,&
-                           compute_type, algo)
+                           merge(CUBLAS_COMPUTE_32F, CUBLAS_COMPUTE_32F_FAST_TF32, c0_use_fp32), algo)
     endif
   end function cmm_d
   integer function cmm_batch_d(a, b, c, m, n, k, nbatch, opa, opb, alpha, beta, lda, ldb, ldc, samea, sameb, comm) result(istat)
-    use cublas_v2, m_type =>CUDA_C_32F, compute_type => CUBLAS_COMPUTE_32F_FAST_TF32, algo => cublas_gemm_default
+    use cublas_v2, m_type =>CUDA_C_32F, algo => cublas_gemm_default
+    use m_cmdopt_registry, only: c0_use_fp32  ! --use_fp32 -> true FP32, else TF32
     complex(4), device :: a(*), b(*), c(*)
     integer, intent(in) :: m, n, k, nbatch
     character, intent(in), optional :: opa, opb
@@ -387,7 +389,8 @@ contains
     opb_in_cublas = get_m_op_cublas(opb_in)
     istat = cublasGemmStridedBatchedEX(cublas_handle, opa_in_cublas, opb_in_cublas, m, n, k, &
                                        alpha_in, a, m_type, lda_in, stridea, b, m_type, ldb_in, strideb, beta_in, &
-                                       c, m_type, ldc_in, stridec, nbatch, compute_type, algo)
+                                       c, m_type, ldc_in, stridec, nbatch, &
+                                       merge(CUBLAS_COMPUTE_32F, CUBLAS_COMPUTE_32F_FAST_TF32, c0_use_fp32), algo)
   end function cmm_batch_d
   integer function zvv_d(x, y, n, res, incx, incy) result(istat)
     implicit none
