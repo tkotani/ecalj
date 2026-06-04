@@ -194,6 +194,8 @@ def main():
 
     # --- Symlink everything in exec/ into ~/bin ---
     for item in EXEC_DIR.iterdir():
+        if item.name.startswith('__'):
+            continue
         link = BIN_DIR / item.name
         if link.is_symlink() or (link.exists() and link.is_file()):
             link.unlink()

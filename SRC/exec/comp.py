@@ -104,7 +104,7 @@ def compeval(f1in,f2in,key,lineeval,evalso,tol):
     return out
 
 def diffnum(f1,f2,tol,comparekeys):
-    import diffnum0
+    from pylib import diffnum0
     file1 = open(f1,'rt').read()
     file2 = open(f2,'rt').read()
     errmax = diffnum0.comparenum(tol,file1,file2, comparekeys, printsw=0)
