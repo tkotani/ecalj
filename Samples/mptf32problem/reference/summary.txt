@@ -1,0 +1,11 @@
+mp-8196 (AgNO3) QSGW 1-iteration from LDA, scaledsigma=0.8
+Generated on the fp32-gemm-option branch (commit: see git log).
+
+case    sigma_m(lqpe)     sev(eV)         conv 
+cpu     529.4483761856516  -204.667408     c    
+tf32    55488.43586332666  -5059.413414    i    
+fp32    529.4636709190414  -204.668401     c    
+
+conv: 'c'=converged, 'i'=not converged (diverging).
+Correct answer (CPU/FP32): sigma_m ~ 529, sev ~ -204.7 eV, converged.
+TF32 (default --mp): sigma_m ~ 55000, sev ~ -5059 eV, diverges -> QSGW fails.
