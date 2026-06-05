@@ -392,6 +392,11 @@ def emit_section(sec):
                 ln = ln + '  ' + c
             print(ln)
             seen.add(k)
+    if sec == 'ham' and 'phispinsym' not in seen:
+        # [ham] phispinsym is required by the current Fortran reader
+        # (m_lmfinit rval2 nreq=1). Legacy ctrl has no PHISPINSYM token,
+        # so emit the default explicitly (mirrors ctrlgenToml.py).
+        print('phispinsym  = false  # true = spin-averaged radial wfns (needed for SOC=1 perturbation)')
     print('')
 
 emit_section('io')
