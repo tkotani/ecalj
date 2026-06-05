@@ -562,19 +562,13 @@ contains
     real(8) :: avail_gb, avail_for_shm, shm_gb, rcxq_gb, priv_gb, need_bpara, wvu_gb = 0d0
     real(8) :: gpu_avail_gb, bytes_per_elem, zmel_gb, vram_for_xq, vram_for_sxc
     real(8), parameter :: safety = 0.7d0
-    ! Per-rank reserve for memory NOT in the shm_gb/rcxq_gb budget below:
-    ! transient work arrays (zmel etc.) allocated later inside the hgw loop.
-    ! Subtracted (×ppn) from avail so the chosen layout leaves room for them and
-    ! does not OOM. (geig/cphi are already reflected in mem_avail: they are
-    ! allocated before this routine; on CPU they are node-shared, on GPU per-rank.)
-    real(8), parameter :: priv_reserve_gb = 1.0d0
 
     ! ppn: ranks per node from shared-memory topology
     call MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, mpi__rank, MPI_INFO_NULL, comm_node, ierr)
     call MPI_Comm_size(comm_node, ppn, ierr)
     call MPI_Comm_free(comm_node, ierr)
 
-    avail_gb     = mem_avail_node_gb() * safety - real(ppn,8) * priv_reserve_gb
+    avail_gb     = mem_avail_node_gb() * safety
     gpu_avail_gb = gpu_avail_mem_gb()
 
     bytes_per_elem = real(2 * kindrcxq, 8)  ! complex(kindrcxq): 8 or 16 bytes
@@ -582,19 +576,6 @@ contains
     shm_gb  = real(ngb_max,8)**2 * real(nwhis*npm + 1 + niw, 8) * bytes_per_elem / 1d9
     ! rcxq per non-root rank = wvr size only
     rcxq_gb = real(ngb_max,8)**2 * real(nwhis*npm + 1, 8)       * bytes_per_elem / 1d9
-    ! Never let the reserve drive the budget below one full q-group (must run).
-    avail_gb = max(avail_gb, shm_gb + rcxq_gb)
-
-    ! Reserve peak zmel budget (per rank × ppn) before SHM allocation.
-    ! Correlation uses zmel + czmelwc + wzmel simultaneously → caller passes 3×zmel_batch_gb.
-    avail_for_shm = avail_gb
-    if (present(zmel_per_rank_gb)) then
-      if (zmel_per_rank_gb > 0d0) then
-        avail_for_shm = avail_gb - ppn * zmel_per_rank_gb
-        avail_for_shm = max(avail_for_shm, shm_gb)  ! always allow at least 1 q-group
-      endif
-    endif
-
     ! Exchange worker: no SHM constraint; maximize q-groups up to nq_calc.
     max_qg_exch  = min(ppn, nq_calc)
     target_w_exch = (ppn + max_qg_exch - 1) / max_qg_exch
@@ -680,8 +661,7 @@ contains
 
     if (ipr .and. c0_fullstdo) then
       write(stdo,'(1X,A)')        'MPI__AutoSetup:'
-      write(stdo,'(2X,A,F6.2,A,F5.2,A)') 'budget (avail x 0.7 - ppn x reserve)=', avail_gb, &
-                                          ' GB  (reserve/rank=', priv_reserve_gb, ' GB)'
+      write(stdo,'(2X,A,F6.2,A)') 'node freeram (avail x 0.7)=', avail_gb, ' GB'
       if (zmel_gb > 0d0) &
         write(stdo,'(2X,A,F6.2,A,F6.2,A)') 'zmel/rank(×3 for CPU)=', zmel_gb, &
           ' GB  avail_for_shm=', avail_for_shm, ' GB'
