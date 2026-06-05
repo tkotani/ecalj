@@ -26,6 +26,15 @@
     --use_fp32(__VxcEvec ファイルの Γ点 v_xc は健全: max 2.29, Inf 無し)。
     検証: 修正版で hqpe_sc 正常終了、ESEAVR 全q 0.16〜0.17、QPU/sigm/バンド健全、
     本番 gwsc 継続で iter4 rc=0。
+
+  [fix] MPI__AutoSetup: mpi__size >> nq_calc のとき余剰 q-group が大量発生する問題を修正。
+    メモリ制約のみで worker_inQtask を決めていたため (target_w = ceil(ppn/max_qg))、
+    q-group 数が q 点数を大幅に超えることがあった
+    (例: 512ランク, ppn=64, 18q点 → 128グループ, 107グループが遊び)。
+    target_w に ceil(mpi__size/nq_calc) も課すことで n_qgroup ≤ nq_calc を保証。
+    例: 512ランク, ppn=64, 18q点 → worker=32, n_qgroup=16, 全ランク稼働。
+    exchange フェーズの worker 計算にも同様の修正を適用。
+
   [feat] readeigen: CPU ビルドで geig/cphi (固有ベクトル) を MPI 共有メモリ化。
     KeepEigen=T 時、geig/cphi(complex(8)) を各ランクが private 複製で保持していた
     (密な系で ~2GB/rank; liti2o4 14原子/LDA 16^3 で 60ランク = ~126GB の純複製)。
@@ -48,6 +57,60 @@
     変更(一発の偶然収束で止まるのを防ぐ)。(2) EXEC_DIR の .resolve() を除去 ——
     bin/ の symlink を辿ると Fortran バイナリの無い SRC/exec を指して lmfa 起動に
     失敗していた。gwsc と同じ Path(__file__).parent に統一。
+
+  [feat] readeigen: GPU ビルドでも geig/cphi を CPU SHM 化（VRAM 常駐廃止）。
+    KeepEigen=T 時、GPU ビルドは geig/cphi を per-rank allocatable + !$acc copyin で
+    VRAM に常駐させていた（密な系で数 GB/rank の VRAM を専有）。
+    #ifdef __GPU の分岐を除去し CPU と同じ pointer + shm_alloc_c8_4d パスに統一。
+    readgeigf_mpi / readcphif_mpi の keepeig 節は "!$acc kernels present(geig/cphi)"
+    を廃止し、SHM ポインタから geigenr/cphifr へ host コピー後に
+    !$acc update device で H2D 転送する方式に変更。
+    転送サイズは 1 q 点スライス（ngpmx*nspc×nband）のみで GEMM 律速な計算と比べ無視できる。
+
+  [feat] MPI__AutoSetup: priv_reserve_gb(固定 1 GB/rank)を廃止し
+    zmel 実サイズベースの見積りに変更。
+    新引数 zmel_per_rank_gb（呼び出し側が実サイズを計算して渡す）を追加。
+    CPU: avail_for_shm = avail×0.7 − ppn×3×zmel_gb（zmel+czmelwc+wzmel 同時確保 ×3）。
+    GPU: gpu_avail_mem_gb()（新規）で VRAM 空き量を取得し、
+      W-build: rcxq/n_bpara_xq + zmel×2 ≤ gpu_avail×0.7
+      Sc:      wvu/n_bpara_sxc + zmel×3 ≤ gpu_avail×0.7
+    の制約を n_bpara_xq / n_bpara_sxc の下限として付加。
+    GPU: ranks_per_gpu (gpu_init で設定) で GPU 共有時の VRAM を per-rank に按分。
+
+  [feat] MPI__PrintSummary（m_mpi.f90 新規）: InitQgroups/SplitXq/SplitSxc 後に
+    q-group→ノード対応・intra-group レイアウト(omega×k)・LPT q-point 割り当て
+    を human-readable に出力。グループ数 >32 は先頭/末尾のみ表示（--fullstdo で全表示）。
+
+  [feat] main_hgw: 補助 q 点(aux-q)と通常 q 点を統一 LPT でアサイン。
+    従来は aux-q を mod(iq-nqibz-1, n_qgroup) で固定割り当て（負荷不均一の恐れ）。
+    mpi_assign_qtask_lpt に naux / aux_grp_out 引数を追加し、aux-q の重みを
+    avg_regular_weight/3（W-build のみで Sc なし ≈ 1:3 コスト比）として LPT に統合。
+    reg_grp_assign / aux_grp_assign を public 変数として公開。
+    iq ループ内で W-build と Sc の直後に mpi__root_q が "hgw iq=N: W-build/Sc" と
+    stopwatch 計時付きで進捗を出力するよう変更。
+    wv_dealloc() をループ末尾（各 iq 処理後）に移動（従来はループ外 = 全 iq 完了後）。
+
+  [feat] m_sxcf_sc: wvr_upper / wvi_upper を GPU build で attributes(device) 宣言。
+    従来は CPU に確保して !$acc enter data copyin で VRAM に複製していた
+    （VRAM に 2 コピー存在し、Sc フェーズで最大メモリ使用量が増大）。
+    GPU build では device 属性のみとし CPU コピーを廃止。
+    SHM から slice-by-slice に小バッファ wv(ngb,ngb) 経由で device へ転送
+    （!$acc update device(wv) → !$acc parallel loop で上三角要素をコピー）。
+
+  [feat] m_GWinput: MEMnmbatch / zmel_max_size を zmel_batch_gb に統合。
+    legacy alias として zmel_max_size は引き続き読み込み可。
+    GPU ビルド時は zmel_batch_gb_min_gpu=2.0 GB を下限としてクランプ
+    （CPU 最小値は zmel_batch_gb_min=0.4 GB）。
+
+  [fix] memused: /proc/self/status の VmRSS（現在 RSS）を読むよう変更。
+    従来の getrusage は peak RSS を返すため、SHM 化後に解放したメモリが
+    memused() に残り続けて AutoSetup の avail 見積りが悲観的になっていた。
+    procfs が使えない環境では getrusage にフォールバック。
+    mempeak 更新の比較演算子 > → < を修正（peak が更新されていなかったバグ）。
+
+  [refactor] SRC/exec_legacy/: 現行フローで使われないスクリプト群を exec/ から移動。
+    Cal_W_off-site.py, FLEX_interaction.py, Makeinstall, gwutil.py 等 43 ファイル。
+    diffnum0.py は exec/pylib/ に移動（pylib 内のユーティリティとして整理）。
 
 2026-06-04
   [feat] GPU 混合精度 GEMM に --fp32 ランタイムオプションを追加。

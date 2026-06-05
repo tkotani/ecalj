@@ -17,6 +17,8 @@ module m_mpi !MPI utility
   integer, protected :: iq_qgroup=0, n_qgroup=1, worker_inQtask=2
   integer, allocatable, protected :: qgroup_ppn(:)   ! ppn for each q-group (size=n_qgroup)
   integer, allocatable, protected :: qgroup_root(:)  ! global rank of comm_q root per group
+  integer, parameter :: qgroup_host_len = 64
+  character(qgroup_host_len), allocatable, protected :: qgroup_host(:)  ! hostname per q-group
 
 !-- Xq split (k-priority): used by build_screened_coulomb and exchange
 !   comm_k_xq: all worker ranks (k-parallel);  comm_b_xq: ω-parallel (size=n_bpara)
@@ -119,11 +121,36 @@ contains
     if (allocated(qgroup_root)) deallocate(qgroup_root)
     allocate(qgroup_ppn(0:n_qgroup-1),  source=0)
     allocate(qgroup_root(0:n_qgroup-1), source=0)
-    qgroup_ppn(iq_qgroup) = worker_inQtask
+    if (mpi__root_q) qgroup_ppn(iq_qgroup)  = worker_inQtask
     if (mpi__root_q) qgroup_root(iq_qgroup) = mpi__rank
     call MPI_Allreduce(MPI_IN_PLACE, qgroup_ppn,  n_qgroup, MPI_INTEGER, MPI_SUM, comm, mpi__info)
     call MPI_Allreduce(MPI_IN_PLACE, qgroup_root, n_qgroup, MPI_INTEGER, MPI_SUM, comm, mpi__info)
+    ! Collect hostname of each q-group's root node.
+    call collect_qgroup_hostnames()
   end subroutine MPI__InitQgroups
+
+  subroutine collect_qgroup_hostnames()
+    character(qgroup_host_len) :: myhost
+    character(qgroup_host_len), allocatable :: all_hosts(:)
+    integer :: ig
+    myhost = ' '
+    call hostnm(myhost)
+    if (allocated(qgroup_host)) deallocate(qgroup_host)
+    allocate(qgroup_host(0:n_qgroup-1), source=repeat(' ', qgroup_host_len))
+    if (mpi__root) then
+      allocate(all_hosts(0:mpi__size-1))
+    else
+      allocate(all_hosts(0:0))  ! dummy recvbuf for non-root
+    endif
+    call MPI_Gather(myhost, qgroup_host_len, MPI_CHARACTER, &
+                    all_hosts, qgroup_host_len, MPI_CHARACTER, 0, comm, mpi__info)
+    if (mpi__root) then
+      do ig = 0, n_qgroup-1
+        qgroup_host(ig) = all_hosts(qgroup_root(ig))
+      enddo
+    endif
+    deallocate(all_hosts)
+  end subroutine collect_qgroup_hostnames
 
   subroutine MPI__SplitXq(n_bpara, n_kpara)
     !> k-priority split of comm_q into comm_k_xq (size=n_kpara) and comm_b_xq (size=n_bpara).
@@ -152,7 +179,7 @@ contains
       call mpi_comm_rank(comm_root_k_xq, mpi__rank_root_k_xq, mpi__info)
       call mpi_comm_size(comm_root_k_xq, mpi__size_root_k_xq, mpi__info)
     endif
-    if(ipr) write(06,'(X,A,6I5,3L2)') &
+    if(c0_fullstdo) write(06,'(X,A,6I5,3L2)') &
       "MPI(Xq): rank rank_q rank_k_xq rank_b_xq n_bpara n_kpara root_q root_k root_b", &
       mpi__rank, mpi__rank_q, mpi__rank_k_xq, mpi__rank_b_xq, n_bpara, n_kpara, &
       mpi__root_q, mpi__root_k_xq, mpi__root_b_xq
@@ -188,7 +215,7 @@ contains
     call mpi_comm_rank(comm_k_sxc, mpi__rank_k_sxc, mpi__info)
     call mpi_comm_size(comm_k_sxc, mpi__size_k_sxc, mpi__info)
     mpi__root_k_sxc = mpi__rank_k_sxc == 0
-    if(ipr) write(06,'(X,A,6I5,3L2)') &
+    if(c0_fullstdo) write(06,'(X,A,6I5,3L2)') &
       "MPI(Sxc): rank rank_q rank_k_sxc rank_b_sxc n_bpara n_kpara root_q root_k root_b", &
       mpi__rank, mpi__rank_q, mpi__rank_k_sxc, mpi__rank_b_sxc, n_bpara, n_kpara, &
       mpi__root_q, mpi__root_k_sxc, mpi__root_b_sxc
@@ -207,6 +234,7 @@ contains
     call mpi_comm_free(comm_q, mpi__info)
     if (allocated(qgroup_ppn))  deallocate(qgroup_ppn)
     if (allocated(qgroup_root)) deallocate(qgroup_root)
+    if (allocated(qgroup_host)) deallocate(qgroup_host)
   end subroutine MPI__FreeQgroups
 
   subroutine MPI__Split(n_split)
@@ -505,14 +533,18 @@ contains
   !> Determine worker_inQtask, n_bpara/n_kpara for SplitXq and SplitSxc from memory.
   !> ngb_max:  max npr across q-points (nblochpmx for normal, 1 for nolfco, nmbas for chipm).
   !> nq_calc:  number of q-points actually computed (nqibz for hgw; nq0i for hx0fp0 epsmode).
+  !> gpu_avail_gb: free GPU VRAM per rank (GB); if present, constrains n_bpara_sxc so that
+  !>   wvi_upper + wvr_upper (≈ shm_gb/2 / n_bpara_sxc per rank) fit in GPU memory.
   !> Queries node RAM via freeram(); determines parameters to fit SHM + rcxq in memory.
   subroutine MPI__AutoSetup(ngb_max, nwhis, npm, niw, nq_calc, &
                              worker_out, n_bpara_xq_out, n_kpara_xq_out, &
                              n_bpara_sxc_hint, worker_exch_out, &
-                             n_bpara_sxc_out, n_kpara_sxc_out)
+                             n_bpara_sxc_out, n_kpara_sxc_out, &
+                             zmel_per_rank_gb)
     use m_lgunit, only: stdo
     use m_ftox
     use m_mem_node, only: mem_avail_node_gb
+    use m_gpu,      only: gpu_avail_mem_gb
     use m_kind, only: kindrcxq
     use mpi
     implicit none
@@ -522,51 +554,69 @@ contains
     integer, intent(in),  optional :: n_bpara_sxc_hint
     integer, intent(out), optional :: worker_exch_out
     integer, intent(out), optional :: n_bpara_sxc_out, n_kpara_sxc_out
+    real(8), intent(in),  optional :: zmel_per_rank_gb  ! one zmel batch per rank (GB); ×2/×3 applied internally
     integer :: ppn, comm_node, ierr
     integer :: max_qg, target_w, worker, n_qg
     integer :: worker_exch, max_qg_exch, target_w_exch
     integer :: n_bpara_xq, n_kpara_xq, n_bpara_sxc, n_kpara_sxc
-    real(8) :: avail_gb, shm_gb, rcxq_gb, priv_gb, need_bpara
-    real(8) :: bytes_per_elem  ! 2*kindrcxq: 8 (single) or 16 (double)
+    real(8) :: avail_gb, avail_for_shm, shm_gb, rcxq_gb, priv_gb, need_bpara, wvu_gb = 0d0
+    real(8) :: gpu_avail_gb, bytes_per_elem, zmel_gb, vram_for_xq, vram_for_sxc
     real(8), parameter :: safety = 0.7d0
-    ! Per-rank reserve for memory NOT in the shm_gb/rcxq_gb budget below:
-    ! transient work arrays (zmel etc.) allocated later inside the hgw loop.
-    ! Subtracted (×ppn) from avail so the chosen layout leaves room for them and
-    ! does not OOM. (geig/cphi are already reflected in mem_avail: they are
-    ! allocated before this routine; on CPU they are node-shared, on GPU per-rank.)
-    real(8), parameter :: priv_reserve_gb = 1.0d0
 
     ! ppn: ranks per node from shared-memory topology
     call MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, mpi__rank, MPI_INFO_NULL, comm_node, ierr)
     call MPI_Comm_size(comm_node, ppn, ierr)
     call MPI_Comm_free(comm_node, ierr)
 
-    avail_gb = mem_avail_node_gb() * safety - real(ppn,8) * priv_reserve_gb
+    avail_gb     = mem_avail_node_gb() * safety
+    gpu_avail_gb = gpu_avail_mem_gb()
 
     bytes_per_elem = real(2 * kindrcxq, 8)  ! complex(kindrcxq): 8 or 16 bytes
     ! SHM per q-group: wvr(ngb_max²×(nwhis*npm+1)) + wvi(ngb_max²×niw)
     shm_gb  = real(ngb_max,8)**2 * real(nwhis*npm + 1 + niw, 8) * bytes_per_elem / 1d9
     ! rcxq per non-root rank = wvr size only
     rcxq_gb = real(ngb_max,8)**2 * real(nwhis*npm + 1, 8)       * bytes_per_elem / 1d9
-    ! Never let the reserve drive the budget below one full q-group (must run).
-    avail_gb = max(avail_gb, shm_gb + rcxq_gb)
-
     ! Exchange worker: no SHM constraint; maximize q-groups up to nq_calc.
     max_qg_exch  = min(ppn, nq_calc)
     target_w_exch = (ppn + max_qg_exch - 1) / max_qg_exch
+    ! Ensure n_qgroup ≤ nq_calc: need worker ≥ ceil(mpi__size / nq_calc).
+    target_w_exch = max(target_w_exch, (mpi__size + nq_calc - 1) / nq_calc)
     worker_exch  = find_div_geq(mpi__size, target_w_exch)
     worker_exch  = min(worker_exch, ppn)
 
+    ! zmel_gb: one zmel batch per rank (0 if not specified).
+    zmel_gb = 0d0
+    if (present(zmel_per_rank_gb)) zmel_gb = max(0d0, zmel_per_rank_gb)
+
+    ! Reserve peak zmel budget (per rank × ppn) before SHM allocation.
+    ! CPU: zmel lives in host RAM; Sc uses zmel+czmelwc+wzmel simultaneously → ×3.
+    ! GPU: zmel lives in VRAM → no host RAM reservation (handled in VRAM constraints below).
+    avail_for_shm = avail_gb
+    if (zmel_gb > 0d0 .and. gpu_avail_gb == 0d0) then
+      avail_for_shm = max(avail_gb - ppn * 3d0*zmel_gb, shm_gb)
+    endif
+
     ! Correlation worker: SHM-constrained.
-    ! Step 1: worker_inQtask — maximize q-groups within memory
+    ! Step 1: worker_inQtask — maximize q-groups within memory; also ensure worker is large
+    ! enough to support the n_bpara_xq required for rcxq GPU VRAM, and that n_qgroup ≤ nq_calc.
     ! Clamp before int() to avoid 32-bit overflow when shm_gb is tiny (e.g. nolfco: ngb_max=1).
-    max_qg = max(1, int(min(avail_gb / shm_gb, real(ppn, 8))))
+    max_qg = max(1, int(min(avail_for_shm / shm_gb, real(ppn, 8))))
     max_qg = min(max_qg, ppn, nq_calc)  ! no point in more q-groups than q-points
-    target_w = (ppn + max_qg - 1) / max_qg  ! ceiling division: ensures n_qgroup <= nq_calc
+    target_w = (ppn + max_qg - 1) / max_qg
+    ! Ensure n_qgroup (= mpi__size/worker) ≤ nq_calc: need worker ≥ ceil(mpi__size/nq_calc).
+    ! Prevents idle q-groups when mpi__size >> nq_calc (e.g. 512 ranks, 18 q-points, ppn=32).
+    target_w = max(target_w, (mpi__size + nq_calc - 1) / nq_calc)
+    ! GPU W-build: rcxq/n_bpara + zmel×2 ≤ gpu_avail per rank.
+    if (gpu_avail_gb > 0d0) then
+      if (gpu_avail_gb > 0d0) then
+        vram_for_xq = max(gpu_avail_gb * safety - 2d0*zmel_gb, rcxq_gb/real(mpi__size,8))
+        target_w = max(target_w, ceiling(rcxq_gb / vram_for_xq))
+      endif
+    endif
     worker = find_div_geq(mpi__size, target_w)
     worker = min(worker, ppn)
 
-    ! Step 2: n_bpara_xq — ensure rcxq fits in private budget.
+    ! Step 2: n_bpara_xq — ensure rcxq fits in private budget (CPU) and GPU VRAM.
     ! Each non-root_k rank allocates rcxq for its iw_lo:iw_hi slice (= rcxq_gb/n_bpara).
     ! n_bpara*(n_kpara-1) non-root_k ranks per q-group → total = (n_kpara-1)*rcxq_gb per q-group.
     ! Constraint: n_qg*(n_kpara-1)*rcxq_gb ≤ priv_gb
@@ -575,19 +625,51 @@ contains
     priv_gb = avail_gb - n_qg * shm_gb
     need_bpara = real(worker,8) / (1d0 + priv_gb / (real(n_qg,8) * rcxq_gb))
     n_bpara_xq = max(1, ceiling(need_bpara))
+    ! GPU W-build: rcxq/n_bpara_xq + zmel×2 ≤ gpu_avail (per rank).
+    ! Constraint: n_bpara_xq ≥ ceil(rcxq_gb / vram_for_xq)
+    if (gpu_avail_gb > 0d0) then
+      if (gpu_avail_gb > 0d0) then
+        vram_for_xq = max(gpu_avail_gb * safety - 2d0*zmel_gb, rcxq_gb/real(worker,8))
+        n_bpara_xq = max(n_bpara_xq, ceiling(rcxq_gb / vram_for_xq))
+        if (ipr .and. c0_fullstdo) &
+          write(stdo,'(2X,A,F8.4,A,F6.2,A,F6.2,A,I3)') &
+            'W-build VRAM: rcxq=', rcxq_gb, ' GB  zmel×2=', 2d0*zmel_gb, &
+            ' GB  vram_for_xq=', vram_for_xq, ' GB  → n_bpara_xq>=', n_bpara_xq
+      endif
+    endif
     n_bpara_xq = find_div_geq(worker, n_bpara_xq)
     n_kpara_xq = worker / n_bpara_xq
 
-    ! Step 3: n_bpara_sxc — user hint or default 1 (only meaningful when sxc outputs requested)
+    ! Step 3: n_bpara_sxc
+    ! CPU: default 1 (wvi/wvr_upper live on GPU only, no CPU constraint).
+    ! GPU Sc: wvu/n_bpara_sxc + zmel×3 ≤ gpu_avail (per rank).
+    !   Constraint: n_bpara_sxc ≥ ceil(wvu_gb / vram_for_sxc)
     n_bpara_sxc = 1
-    if (present(n_bpara_sxc_hint)) n_bpara_sxc = merge(n_bpara_sxc_hint, 1, n_bpara_sxc_hint > 0)
+    if (present(n_bpara_sxc_hint)) then
+      if (n_bpara_sxc_hint > 0) n_bpara_sxc = n_bpara_sxc_hint
+    endif
+    if (gpu_avail_gb > 0d0) then
+      if (gpu_avail_gb > 0d0) then
+        ! wvu_gb (n_bpara=1): upper-triangular W ≈ shm_gb/2
+        wvu_gb = real(ngb_max,8) * real(ngb_max+1,8) / 2d0 &
+               * real(nwhis*npm + 1 + niw, 8) * bytes_per_elem / 1d9
+        vram_for_sxc = max(gpu_avail_gb * safety - 3d0*zmel_gb, wvu_gb/real(worker,8))
+        n_bpara_sxc = max(n_bpara_sxc, ceiling(wvu_gb / vram_for_sxc))
+        if (ipr .and. c0_fullstdo) &
+          write(stdo,'(2X,A,F8.4,A,F6.2,A,F6.2,A,I3)') &
+            'Sc VRAM:      wvu=',  wvu_gb,      ' GB  zmel×3=', 3d0*zmel_gb, &
+            ' GB  vram_for_sxc=', vram_for_sxc, ' GB  → n_bpara_sxc>=', n_bpara_sxc
+      endif
+    endif
     n_bpara_sxc = find_div_geq(worker, n_bpara_sxc)
     n_kpara_sxc = worker / n_bpara_sxc
 
-    if (ipr) then
+    if (ipr .and. c0_fullstdo) then
       write(stdo,'(1X,A)')        'MPI__AutoSetup:'
-      write(stdo,'(2X,A,F6.2,A,F5.2,A)') 'budget (avail x 0.7 - ppn x reserve)=', avail_gb, &
-                                          ' GB  (reserve/rank=', priv_reserve_gb, ' GB)'
+      write(stdo,'(2X,A,F6.2,A)') 'node freeram (avail x 0.7)=', avail_gb, ' GB'
+      if (zmel_gb > 0d0) &
+        write(stdo,'(2X,A,F6.2,A,F6.2,A)') 'zmel/rank(×3 for CPU)=', zmel_gb, &
+          ' GB  avail_for_shm=', avail_for_shm, ' GB'
       write(stdo,'(2X,A,F8.4,A)') 'SHM/q-group=', shm_gb,  ' GB'
       write(stdo,'(2X,A,F8.4,A)') 'rcxq/rank  =', rcxq_gb, ' GB'
       write(stdo,'(2X,A,3I5)')    'ppn nq_calc worker_corr:', ppn, nq_calc, worker
@@ -615,6 +697,127 @@ contains
     end function find_div_geq
 
   end subroutine MPI__AutoSetup
+
+  subroutine MPI__PrintSummary(n_bpara_xq, n_kpara_xq, n_bpara_sxc, n_kpara_sxc, &
+                                reg_grp, aux_grp)
+    !> Human-readable MPI decomposition summary.  Call after MPI__InitQgroups,
+    !> MPI__SplitXq, MPI__SplitSxc, and (optionally) after sxcf_correlation_init.
+    !> reg_grp(iq): 0-based group assigned to regular q-point iq (size nqibz).
+    !> aux_grp(i):  0-based group assigned to i-th aux q-point (size nq0i+nq0iadd).
+    !> Printed by root rank only.
+    integer, intent(in)           :: n_bpara_xq, n_kpara_xq, n_bpara_sxc, n_kpara_sxc
+    integer, intent(in), optional :: reg_grp(:), aux_grp(:)
+    integer :: ig, iq, i, nqreg, naux, nreg_g, naux_g
+    logical :: contiguous_ranks, show_iqlist
+    if (.not. ipr) return
+    write(stdo,'(/,1X,A)') 'MPI layout:'
+    write(stdo,'(3X,A,I0,2(A,I0))') &
+      'total=', mpi__size, '  q-groups=', n_qgroup, '  workers/q-group=', worker_inQtask
+    ! q-group → node mapping (each q-group shares one node's memory)
+    contiguous_ranks = .true.
+    do ig = 1, n_qgroup-1
+      if (qgroup_root(ig) /= qgroup_root(ig-1) + qgroup_ppn(ig-1)) contiguous_ranks = .false.
+    enddo
+    write(stdo,'(3X,A)') 'node (shared memory) per q-group:'
+    if (n_qgroup <= 32 .or. c0_fullstdo) then
+      do ig = 0, n_qgroup-1
+        call mpi__print_qgroup_line(ig, contiguous_ranks)
+      enddo
+    else
+      ! too many groups to list; show first/last few as a sample
+      do ig = 0, min(2, n_qgroup-1)
+        call mpi__print_qgroup_line(ig, contiguous_ranks)
+      enddo
+      if (n_qgroup > 6) write(stdo,'(5X,A,I0,A)') '... (', n_qgroup-6, ' groups omitted)'
+      do ig = max(3, n_qgroup-3), n_qgroup-1
+        call mpi__print_qgroup_line(ig, contiguous_ranks)
+      enddo
+      write(stdo,'(5X,A)') '(--fullstdo to list all groups)'
+    endif
+    ! intra-group split layout
+    write(stdo,'(3X,A,I0,A,I0,A,I0,A)') &
+      'Xq  (W):    ', worker_inQtask, ' workers = ', n_bpara_xq, '(omega) x ', n_kpara_xq, '(k)'
+    write(stdo,'(3X,A,I0,A,I0,A,I0,A)') &
+      'Sxc (corr): ', worker_inQtask, ' workers = ', n_bpara_sxc, '(omega) x ', n_kpara_sxc, '(k)'
+    write(stdo,'(3X,A)') '[rank_q = rank_b * n_kpara + rank_k, within each q-group]'
+    if (worker_inQtask <= 64) then
+      if (n_bpara_sxc == n_bpara_xq .and. n_kpara_sxc == n_kpara_xq) then
+        call mpi__print_grid('Xq and Sxc', n_bpara_xq, n_kpara_xq)
+      else
+        call mpi__print_grid('Xq', n_bpara_xq, n_kpara_xq)
+        call mpi__print_grid('Sxc', n_bpara_sxc, n_kpara_sxc)
+      endif
+    endif
+    ! q-point → q-group assignment (only when LPT data available)
+    if (present(reg_grp)) then
+      nqreg = size(reg_grp)
+      naux  = 0
+      if (present(aux_grp)) naux = size(aux_grp)
+      show_iqlist = (nqreg <= 32 .or. c0_fullstdo)
+      write(stdo,'(3X,A,I0,A,I0)') 'q-point assignment (LPT):  nqreg=', nqreg, '  naux=', naux
+      write(stdo,'(5X,A)') 'g   nreg  naux  [regular iq | aux i]'
+      do ig = 0, n_qgroup-1
+        nreg_g = count(reg_grp == ig)
+        naux_g = 0
+        if (present(aux_grp)) naux_g = count(aux_grp == ig)
+        write(stdo,'(I6, I6, I6)', advance='no') ig, nreg_g, naux_g
+        if (show_iqlist) then
+          write(stdo,'(A)', advance='no') '  ['
+          do iq = 1, nqreg
+            if (reg_grp(iq) == ig) write(stdo,'(I4)', advance='no') iq
+          enddo
+          if (present(aux_grp) .and. naux_g > 0) then
+            write(stdo,'(A)', advance='no') ' |'
+            do i = 1, naux
+              if (aux_grp(i) == ig) write(stdo,'(I3)', advance='no') i
+            enddo
+          endif
+          write(stdo,'(A)', advance='no') ']'
+        endif
+        write(stdo,*)
+      enddo
+    endif
+    write(stdo,*)
+  end subroutine MPI__PrintSummary
+
+  subroutine mpi__print_qgroup_line(ig, contig)
+    integer, intent(in) :: ig
+    logical, intent(in) :: contig
+    character(qgroup_host_len) :: hname
+    hname = ' '
+    if (allocated(qgroup_host)) hname = trim(qgroup_host(ig))
+    if (contig) then
+      write(stdo,'(5X,A,I0,A,I0,A,I0,A,A)') &
+        'g=', ig, ': ranks ', qgroup_root(ig), '..', qgroup_root(ig)+qgroup_ppn(ig)-1, &
+        '  ', trim(hname)
+    else
+      write(stdo,'(5X,A,I0,A,I0,A,I0,A,A)') &
+        'g=', ig, ': root=', qgroup_root(ig), '  ppn=', qgroup_ppn(ig), &
+        '  ', trim(hname)
+    endif
+  end subroutine mpi__print_qgroup_line
+
+  subroutine mpi__print_grid(tag, nb, nk)
+    character(len=*), intent(in) :: tag
+    integer, intent(in) :: nb, nk
+    integer :: ib, ik, pos
+    character(len=2048) :: row
+    write(stdo,'(3X,A,A)') tag, ' rank_q grid (b\k):'
+    row = '        k:'
+    pos = 11
+    do ik = 0, nk-1
+      write(row(pos:pos+4), '(I5)') ik; pos = pos + 5
+    enddo
+    write(stdo,'(A)') trim(row)
+    do ib = 0, nb-1
+      write(row, '(4X,A,I3,A)') 'b=', ib, ':'
+      pos = len_trim(row) + 1
+      do ik = 0, nk-1
+        write(row(pos:pos+4), '(I5)') ib*nk + ik; pos = pos + 5
+      enddo
+      write(stdo,'(A)') trim(row)
+    enddo
+  end subroutine mpi__print_grid
 
 end module m_mpi
 

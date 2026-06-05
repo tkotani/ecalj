@@ -122,6 +122,9 @@ use m_cmdopt_registry, only: c0_debug
   ! boundaries.
   integer, allocatable :: ndiv(:), nstatei(:,:), nstatee(:,:)
   complex(kind=kp), allocatable :: wvr_upper(:,:), wvi_upper(:,:)
+#ifdef __GPU
+  attributes(device) :: wvr_upper, wvi_upper  ! GPU-only; no CPU copy
+#endif
   ! Step WB.3b: working state lives at module scope (ecalj-style singleton).
   ! Lifetime: allocated in init / start of exchange, used by step_kx /
   ! kxloop body, deallocated in finalize / end of exchange.
@@ -384,10 +387,7 @@ contains
       if (any(kx == kxc(:))) then
         call wv_open_iq_for_read(kx, want_real=.true., want_imag=.true.)
         if (sxs_keepwv) then
-          if (ipr) write(stdo,ftox) 'save WVI and WVR on CPU and GPU (if GPU is used) memory. This requires sufficient memory'
-          ! (MO) wvi & wvr are also allocated in CPU memory and are note needed for GPU calcualtion. but allocation of huge
-          ! device memory made a error (I don't know the reason). therefore, we used openacc data copyin procedure
-          ! but it is usually ok becuase CPU memoery size is always larger than that of GPU.
+          if (ipr) write(stdo,ftox) 'save WVI and WVR on GPU device memory (slice-by-slice from SHM, no CPU copy)'
           call flush(stdo)
           call stopwatch_reset(sxs_setwv)
           call stopwatch_start(sxs_setwv)
@@ -400,34 +400,42 @@ contains
               tri_idx = tri_idx + 1
             enddo
           enddo
-          allocate(wv(nblochpmx,nblochpmx))
+          !$acc enter data copyin(idx_i, idx_j)
+          ! Allocate wvi/wvr_upper on GPU device memory only (attributes(device)),
+          ! then fill slice-by-slice via small CPU buffer wv(ngb,ngb).
           allocate(wvi_upper(ngb*(ngb+1)/2, sxs_wi_ini:sxs_wi_fin))
           allocate(wvr_upper(ngb*(ngb+1)/2, sxs_wr_ini:sxs_wr_fin))
+          allocate(wv(nblochpmx,nblochpmx))
+          !$acc enter data create(wv)
           do iw = sxs_wi_ini, sxs_wi_fin
             if (iw == 0) then
               call wv_get_real(iw, wv)
             else
               call wv_get_imag(iw, wv)
             endif
+            !$acc update device(wv)
+            !$acc parallel loop present(wvi_upper, idx_i, idx_j, wv)
             do tri_idx = 1, ngb*(ngb+1)/2
-              i = idx_i(tri_idx)
-              j = idx_j(tri_idx)
-              wvi_upper(tri_idx,iw) = wv(i,j)
+              wvi_upper(tri_idx,iw) = wv(idx_i(tri_idx), idx_j(tri_idx))
             enddo
+            !$acc end parallel loop
           enddo
           do iw = sxs_wr_ini, sxs_wr_fin
             call wv_get_real(iw, wv)
+            !$acc update device(wv)
+            !$acc parallel loop present(wvr_upper, idx_i, idx_j, wv)
             do tri_idx = 1, ngb*(ngb+1)/2
-              i = idx_i(tri_idx)
-              j = idx_j(tri_idx)
-              wvr_upper(tri_idx,iw) = (wv(i,j) + conjg(wv(j,i)))*0.5_kp
+              wvr_upper(tri_idx,iw) = (wv(idx_i(tri_idx),idx_j(tri_idx)) + &
+                                        conjg(wv(idx_j(tri_idx),idx_i(tri_idx)))) * 0.5_kp
             enddo
+            !$acc end parallel loop
           enddo
-          !$acc enter data copyin(wvi_upper, wvr_upper, idx_i, idx_j)
-          call stopwatch_pause(sxs_setwv)
-          if (ipr) write(stdo, '(X,A,2F8.3)') 'WVI/WVR : sizes (GB)', dble(size(wvi_upper))*kp*2/gb, dble(size(wvr_upper))*kp*2/gb
-          call stopwatch_show(sxs_setwv)
+          !$acc exit data delete(wv)
           deallocate(wv)
+          call stopwatch_pause(sxs_setwv)
+          if (ipr) write(stdo, '(X,A,2F8.3)') 'WVI/WVR GPU sizes (GB)', &
+            dble(size(wvi_upper))*kp*2/gb, dble(size(wvr_upper))*kp*2/gb
+          call stopwatch_show(sxs_setwv)
         endif
       endif
       !end subroutine setwv
@@ -688,14 +696,9 @@ contains
     enddo irotloop
     ReleaseWV: block !subroutine releasewv()
       if (any(kx == kxc(:))) then
-        if (allocated(wvi_upper)) then
-          !$acc exit data delete(wvi_upper)
-          deallocate(wvi_upper)
-        endif
-        if (allocated(wvr_upper)) then
-          !$acc exit data delete(wvr_upper)
-          deallocate(wvr_upper)
-        endif
+        ! wvi/wvr_upper: device allocatable → deallocate frees GPU memory directly
+        if (allocated(wvi_upper)) deallocate(wvi_upper)
+        if (allocated(wvr_upper)) deallocate(wvr_upper)
         if (allocated(idx_i)) then
           !$acc exit data delete(idx_i)
           deallocate(idx_i)

@@ -6,7 +6,6 @@ module m_mlo_wfs
   use m_genallcf_v3, only: nsp => nspin, ndima, nband, nspc, nspx
   use m_readeigen,   only: readgeigf => readgeigf_mpi, readcphif => readcphif_mpi
   use m_GWinput,     only: gwinput_init, gwinput_loaded,  tg_KeepCMLO => KeepCMLO
-  use,intrinsic :: ieee_arithmetic
   use m_ftox
   implicit none
   public :: cmlo_init, get_geig_cmlo, get_cphi_cmlo
@@ -102,12 +101,15 @@ contains
   end function get_cphi_cmlo
 
   subroutine read_cmlo(qtarget, isp, cmlo_out, ovlm_inv)
+    use m_rotwave, only: rotmatMTO
+    use m_lapack,  only: zminv => zminv_h
     real(8), intent(in) :: qtarget(3)
     integer, intent(in) :: isp
     complex(8), intent(out) :: cmlo_out(nband,nmlo)
     complex(8), intent(out), optional :: ovlm_inv(nmlo,nmlo)
     integer :: i, igg, iqqisp, j, ig, iq, iqq, istat
     real(8) :: qp(3), qx(3), qxx(3)
+    complex(8) :: rotmatt(nmlo,nmlo), rotmat(nMTO,nMTO), ovlm(nmlo,nmlo)
     logical :: found
     real(8), external :: tolq !eps=1d-8
     ! find iq for given qtarget
@@ -128,19 +130,13 @@ contains
     if(.not.found) call rx('read_cmlo: can not find ig and iq')
     iqqisp = isp + nspx*(iqq-1)
     read(ifile_cmlo, rec=iqqisp) cmlo_out
-    RotCMLO: block
-      use m_rotwave, only: rotmatMTO
-      use m_lapack, only: zminv => zminv_h
-      complex(8) :: rotmatt(nmlo,nmlo), rotmat(nMTO,nMTO)
-      complex(8) :: ovlm(nmlo,nmlo)
-      call rotmatMTO(igg, qp,qtarget,nMTO, rotmat)
-      forall(i=1:nmlo,j=1:nmlo) rotmatt(i,j)=rotmat(ix(i),ix(j))
-      cmlo_out = matmul(cmlo_out,dconjg(transpose(rotmatt)))
-      if(present(ovlm_inv)) then
-        ovlm = matmul(dconjg(transpose(cmlo_out)), cmlo_out)
-        istat = zminv(ovlm, n=nmlo)
-        ovlm_inv = ovlm
-      endif
-    endblock RotCMLO
+    call rotmatMTO(igg, qp, qtarget, nMTO, rotmat)
+    forall(i=1:nmlo, j=1:nmlo) rotmatt(i,j) = rotmat(ix(i),ix(j))
+    cmlo_out = matmul(cmlo_out, dconjg(transpose(rotmatt)))
+    if(present(ovlm_inv)) then
+      ovlm = matmul(dconjg(transpose(cmlo_out)), cmlo_out)
+      istat = zminv(ovlm, n=nmlo)
+      ovlm_inv = ovlm
+    endif
   end subroutine read_cmlo
 end module m_mlo_wfs

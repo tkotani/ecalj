@@ -183,7 +183,7 @@ contains
       call rval2('HAM_PWMODE',rr=rr, defa=[real(8):: 0]);  pwmode=nint(rr)
       call rval2('HAM_PWEMAX',rr=rr, defa=[real(8):: 0]);  pwemax=rr
       call rval2('HAM_READP', rr=rr, defa=[real(8):: 0]); readpnu= nint(rr)==1
-      call rval2('HAM_PHISPINSYM', rr=rr, nreq=1); phispinsym= nint(rr)==1 !spin symmetric radial function (must be set in TOML)
+      call rval2('HAM_PHISPINSYM', rr=rr, defa=[real(8):: 0]); phispinsym= nint(rr)==1 !spin symmetric radial function
 !      call rval2('HAM_READPSKIPF', rr=rr, defa=[real(8):: 1]); readpnuskipf= nint(rr)==1
 !      call rval2('HAM_V0FIX', rr=rr, defa=[real(8):: 0]); v0fix =  nint(rr)==1
       call rval2('HAM_PNUFIX',rr=rr, defa=[real(8):: 0]); pnufix=  nint(rr)==1
