@@ -1,0 +1,150 @@
+#!/usr/bin/env python3
+"""qsgw_status - progress / elapsed-time / convergence dashboard for a gwsc QSGW run.
+
+Run in the QSGW working directory:
+    qsgw_status                 # one shot
+    qsgw_status --last 21       # also show ETA to iteration 21
+    watch -n 30 qsgw_status     # live
+
+Reads only run artifacts (cheap): QPU.*run / sigm.iter* (iteration anchors via mtime),
+the gwsc stdout log (current step), and save.<target> / lqpe (convergence).
+Self-contained; works for any material in any directory.
+"""
+import os, re, glob, time, sys, argparse
+
+def hms(sec):
+    sec = int(max(0, sec)); h, r = divmod(sec, 3600); m, s = divmod(r, 60)
+    return f"{h}h{m:02d}m{s:02d}s" if h else f"{m}m{s:02d}s"
+
+def clock(t):
+    return time.strftime("%H:%M:%S", time.localtime(t))
+
+def main():
+    ap = argparse.ArgumentParser(description="QSGW (gwsc) progress dashboard")
+    ap.add_argument("--last", type=int, default=None,
+                    help="final iteration number (for ETA to completion)")
+    ap.add_argument("-d", "--dir", default=".", help="run directory (default: cwd)")
+    ap.add_argument("--log", default=None, help="gwsc stdout log (default: auto-detect)")
+    args = ap.parse_args()
+    GW = os.path.abspath(args.dir)
+    now = time.time()
+
+    # --- target name (from save.* / ctrl.*) ---
+    target = None
+    for pat in ("save.*", "ctrl.*"):
+        for f in glob.glob(os.path.join(GW, pat)):
+            b = os.path.basename(f)
+            if "." in b and not b.endswith((".chk", ".toml")):
+                target = b.split(".", 1)[1]; break
+        if target:
+            break
+
+    # --- iteration anchors: prefer the source with more entries ---
+    def anchors(pat, rgx):
+        out = []
+        for f in glob.glob(os.path.join(GW, pat)):
+            m = re.search(rgx, os.path.basename(f))
+            if m:
+                out.append((int(m.group(1)), os.path.getmtime(f)))
+        out.sort(); return out
+    a_qpu = anchors("QPU.*run", r"QPU\.(\d+)run$")
+    a_sig = anchors("sigm.iter*", r"sigm\.iter(\d+)$")
+    sig = a_sig if len(a_sig) >= len(a_qpu) else a_qpu
+    durs = [(n, t - sig[i-1][1]) for i, (n, t) in enumerate(sig) if i > 0]
+    done_max = sig[-1][0] if sig else 0
+    cur_iter = done_max + 1
+    cur_start = sig[-1][1] if sig else None
+    recent = sorted(d for _, d in durs[-4:]) or [1020.0]
+    avg_iter = recent[len(recent)//2]
+
+    # --- gwsc log: auto-detect newest *.log containing gwsc markers ---
+    log = args.log
+    if not log:
+        cands = []
+        for f in glob.glob(os.path.join(GW, "*.log")):
+            try:
+                with open(f, errors="ignore") as fh:
+                    head = fh.read(4000)
+                if "START gwsc" in head or "QSGW iteration" in head:
+                    cands.append((os.path.getmtime(f), f))
+            except OSError:
+                pass
+        if cands:
+            log = max(cands)[1]
+
+    # --- current step from gwsc log ---
+    STEP = re.compile(r"mpirun .*?/([a-z0-9_]+) .*?stdout='([^']+)'(.*)$")
+    cur_step = cur_stdout = None; step_running = False; last = None
+    if log and os.path.exists(log):
+        with open(log, errors="ignore") as fh:
+            for line in fh:
+                mm = STEP.search(line)
+                if mm:
+                    last = (mm.group(1), mm.group(2), "Elap." in mm.group(3))
+        if last:
+            cur_step, cur_stdout, done = last
+            step_running = not done
+    step_el = None
+    if step_running and cur_stdout:
+        p = os.path.join(GW, cur_stdout)
+        if os.path.exists(p):
+            step_el = now - os.path.getmtime(p)
+
+    # --- convergence: sev per iter end + current rmsdel ---
+    sev = []
+    save = os.path.join(GW, "save." + target) if target else None
+    if save and os.path.exists(save):
+        with open(save, errors="ignore") as fh:
+            for line in fh:
+                m = re.match(r"\s*c .*sev\(eV\)=\s*([-\d.]+)", line)
+                if m:
+                    sev.append(float(m.group(1)))
+    rmsdel = None
+    lq = os.path.join(GW, "lqpe")
+    if os.path.exists(lq):
+        with open(lq, errors="ignore") as fh:
+            for line in fh:
+                m = re.search(r"rmsdel=\s*([\d.]+D[-+]\d+)", line)
+                if m:
+                    rmsdel = m.group(1).replace("D", "E")
+
+    running = step_running or (cur_start and now - cur_start < 3 * avg_iter)
+    W = 60
+    print("=" * W)
+    print(f" QSGW status  [{target or '?'}]  @ {clock(now)}   dir={GW}")
+    print("=" * W)
+    tgt = f"   (target iter {args.last})" if args.last else ""
+    print(f" iterations : completed up to iter {done_max}{tgt}")
+    if running and cur_start:
+        print(f" current    : iter {cur_iter}  running  | elapsed "
+              f"{hms(now-cur_start)} / ~{hms(avg_iter)}")
+        if cur_step:
+            ss = f"  ({hms(step_el)} elapsed)" if step_el is not None else " (finished; next starting)"
+            print(f" step       : {cur_step}  [{'RUNNING' if step_running else 'done'}]{ss}")
+            if cur_step.startswith("hgw"):
+                print("              (hgw is the long bottleneck step)")
+    else:
+        print(" current    : no gwsc step running (idle / finished?)")
+    print(f" pace       : ~{hms(avg_iter)}/iter (median of last {len(recent)})")
+    if args.last:
+        remaining = max(0, args.last - done_max)
+        eta = remaining * avg_iter - (now - cur_start if (running and cur_start) else 0)
+        print(f" remaining  : {remaining} iters  ->  ETA {clock(now+eta)}  (in {hms(eta)})")
+    print("-" * W)
+    print(" per-iteration wall time:")
+    for n, d in durs[-6:]:
+        mt = dict(sig)[n]
+        flag = "  (incl. idle/restart?)" if d > 2.2 * avg_iter else ""
+        print(f"   iter {n:>2} : {hms(d):>9}   done {clock(mt)}{flag}")
+    if sev:
+        print("-" * W)
+        print(" convergence (sev, eV; Δ vs previous):")
+        for i in range(max(0, len(sev) - 6), len(sev)):
+            d = f"{sev[i]-sev[i-1]:+.4f}" if i > 0 else "   --"
+            print(f"   {sev[i]:14.4f}   Δ={d}")
+    if rmsdel:
+        print(f" sigma rmsdel (current iter, lqpe): {rmsdel}")
+    print("=" * W)
+
+if __name__ == "__main__":
+    main()

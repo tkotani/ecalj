@@ -1,4 +1,11 @@
 2026-06-05
+  [tool] SRC/exec/qsgw_status: gwsc QSGW 反復の進行ダッシュボード(新規)。
+    実行ディレクトリで `qsgw_status [--last N]`(watch -n 30 で常駐可)。
+    QPU.*run / sigm.iter* の mtime から反復ごとの経過時間・ペース(中央値)・ETA、
+    gwsc ログ末尾から現在の step(hgw 等)と step 経過、save.<target> の sev 差分と
+    lqpe の rmsdel(σ収束)を表示。対象名・ログ・反復アンカーは自動検出。run 専用の
+    重い処理はせず成果物の読取のみ。Makeinstall で ~/bin へ配布。
+
   [fix] hqpe_sc: __VxcEvec 読込配列を ldimh=max(ndham,nbandmx) で確保(配列範囲外修正)。
     QSGW(liti2o4, --gpu --mp --fp32 --ntqxx)が iter4 の hqpe_sc で
     "double free or corruption" → SIGABRT で停止。症状は lqpe の
