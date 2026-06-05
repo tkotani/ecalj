@@ -1,4 +1,24 @@
 2026-06-05
+  [fix] hqpe_sc: __VxcEvec 読込配列を ldimh=max(ndham,nbandmx) で確保(配列範囲外修正)。
+    QSGW(liti2o4, --gpu --mp --fp32 --ntqxx)が iter4 の hqpe_sc で
+    "double free or corruption" → SIGABRT で停止。症状は lqpe の
+    ESEAVR(q=1,Γ)= ~-3.0e+101(ゴミ)、ESEAVRmean ~-7e98。
+    原因: main_hqpe.sc.f90 の ReadVxcEvec で v_xc/evec/evl を nhq(=ndham=333)
+    で確保していたが、GW の qibz メッシュには ndimhx(q)=nz が 334〜336 の q が
+    あり(ndham は SCF 16^3 メッシュの max=333、GW は 6^3+offsetΓ メッシュで
+    max=336。napw が q 依存のため別メッシュで max が異なるのは正当)、
+    v_xc(1:nz,1:nz,iq,is)=... で nz>nhq の範囲外書込→ヒープ破壊→別 q(Γ)の
+    v_xc が Inf 化→matmul で se~1e99→ESEAVR 発散→abort。書込側 sugw.f90 は
+    nbandmx(=336=max ndimhx)で確保しており、読込側だけが ndham を使っていた。
+    --ntqxx で ntq が反復ごとに変わり確保サイズ→ヒープ配置が変わるため
+    iter2/3 はたまたま無害、iter4 で発症(潜在バグ)。
+    対処: __VxcEvec.info から nbandmx を読み、v_xc/evec/evl/evec_inv/evec_invt を
+    ldimh=max(ndham,nbandmx) で確保。nz>nbandmx を検出するアサートを追加(将来の
+    不整合をヒープ破壊前に明示停止)。あわせて I/O を含む do concurrent を通常 do に。
+    無罪だった点(再調査の記録): ntqxx 上限(元々151で正しい)、do concurrent、
+    --use_fp32(__VxcEvec ファイルの Γ点 v_xc は健全: max 2.29, Inf 無し)。
+    検証: 修正版で hqpe_sc 正常終了、ESEAVR 全q 0.16〜0.17、QPU/sigm/バンド健全、
+    本番 gwsc 継続で iter4 rc=0。
   [feat] readeigen: CPU ビルドで geig/cphi (固有ベクトル) を MPI 共有メモリ化。
     KeepEigen=T 時、geig/cphi(complex(8)) を各ランクが private 複製で保持していた
     (密な系で ~2GB/rank; liti2o4 14原子/LDA 16^3 で 60ランク = ~126GB の純複製)。

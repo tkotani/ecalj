@@ -49,6 +49,7 @@ contains
     integer:: nz,ntqmin, ndimsig,ns2,ndimsigin,procid,nrank,ifigwb_,ifigwx1_,ifigwx2_,ifvxcevec,ifevec_, ipx
     character*256:: extn,ext
     integer,allocatable:: ifevec__(:),ifvxcevec_(:),iprocq(:,:),ntqxx(:)
+    integer:: ldimh,nqirr_info,nspx_info,nbandmx_info,mrecv_info,ifinfo,ierr_info
     real(8):: eseavrmean,eseadd,tolq=1d-4
     integer,allocatable:: nev(:,:)
     complex(8),allocatable:: ovl(:,:)
@@ -100,9 +101,23 @@ contains
       rewind ifsigm
     endif     !if(laf) nspin=2
 !!! Read vxcevec
+    !2026-06-05 TK: nhq(=ndham) can be SMALLER than the per-q Hamiltonian dim ndimhx(q)=nz
+    ! on the GW qibz mesh (e.g. nz=336 > ndham=333 at some q). The VxcEvec records are
+    ! written (sugw.f90) sized by nbandmx(=max ndimhx); reading them into v_xc/evec/evl
+    ! dimensioned (nhq,..) then does v_xc(1:nz,1:nz)=... with nz>nhq -> out-of-bounds
+    ! write -> heap corruption (showed up as Inf in v_xc at another q -> ESEAVR ~1d101 ->
+    ! double free). Size the band/basis arrays by ldimh=max(nhq,nbandmx_info) instead.
+    ldimh = nhq
+    open(newunit=ifinfo, file='__VxcEvec.info', form='unformatted', status='old', iostat=ierr_info)
+    if(ierr_info==0) then
+      read(ifinfo,iostat=ierr_info) nqirr_info,nspx_info,nbandmx_info,mrecv_info
+      if(ierr_info==0) ldimh = max(nhq, nbandmx_info)
+      close(ifinfo)
+    endif
     write(stdo,ftox)' read from bzdata nqibz; nqibz nq nhq=',nqibz,nqibz,nhq
     write(stdo,ftox)' ndimh ntq nsp nqibz =',nhq,ntq,nspin,nqibz !NOTE this ndimh is the maximum dimention of Hamiltonian.
-    allocate(qqq(3,nqibz,nspin),v_xc(nhq,nhq,nqibz,nspin),evec(nhq,nhq,nqibz,nspin),evl(nhq,nqibz,nspin),nev(nqibz,nspin))
+    write(stdo,ftox)' hqpe.sc: array leading dim ldimh nhq(ndham) =',ldimh,nhq
+    allocate(qqq(3,nqibz,nspin),v_xc(ldimh,ldimh,nqibz,nspin),evec(ldimh,ldimh,nqibz,nspin),evl(ldimh,nqibz,nspin),nev(nqibz,nspin))
     allocate(nhqx(nqibz,nspin))
     ReadVxcEvec: block
         ! open(newunit=ifvxcevec, file='__vxcevec'//trim(xt(iq))//trim(xt(is)),form='unformatted')
@@ -129,6 +144,11 @@ contains
           call buf_get(buf, qp_tmp)
           call buf_get(buf, nz)
           call buf_get(buf, nev(iq,is))
+          !2026-06-05 TK: guard against the OOB that motivated ldimh: the per-q GW
+          ! Hamiltonian dim nz=ndimhx(q) must fit the VxcEvec buffer (=nbandmx_f, the GW
+          ! mesh max). If it ever exceeds, stop with a clear message instead of corrupting
+          ! the heap. (nbandmx_f, not ndham: ndham is the SCF-mesh dim and can be smaller.)
+          if(nz > nbandmx_f) call rx('hqpe.sc: ndimhx(q)=nz exceeds VxcEvec nbandmx; arrays would overflow')
           call buf_get(buf, vxc_buf)
           call buf_get(buf, evec_buf)
           call buf_get(buf, evl_buf)
@@ -168,7 +188,7 @@ contains
     allocate(sex2(ntq,ntq,nqibz), sexcore(ntq,nqibz),sexcore2(ntq,ntq,nqibz) )
     allocate(rsec(ntq,nqibz),csec(ntq,nqibz),sec2(ntq,ntq,nqibz))
     allocate(eqp(ntq,nqibz), ntqxx(nqibz))!,eqp2(ntq,nqibz))
-    allocate(se(ntq,ntq,nqibz),evec_inv(nhq,nhq) ,evec_invt(nhq,nhq),ev_se_ev(ndimsig,ndimsig),sed(ntq))
+    allocate(se(ntq,ntq,nqibz),evec_inv(ldimh,ldimh) ,evec_invt(ldimh,ldimh),ev_se_ev(ndimsig,ndimsig),sed(ntq))
     MAINspinloop: do 1001  is = 1,nspin ; write(stdo,ftox) ' --- is=',is
       do 1010 ip = 1,nqibz
         read(ifsex2(is))     isx,qx2,sex2(1:ntq,1:ntq,ip)
@@ -200,7 +220,7 @@ contains
         enddo WRITEqpe
         write (ifqpe(is),*)
 1010  enddo
-      do concurrent(ip=1:nqibz) ! Make SE_ij-VXC_ij, where ij are band index
+      do ip=1,nqibz ! Make SE_ij-VXC_ij, where ij are band index !2026-06-05 TK: was 'do concurrent' but it contains I/O (write below) and uses shared scalars/sed(:); plain do is correct (cheap loop).
         nx = ntqxx(ip)
         nz = nhqx(ip,is)
         se(1:nx,1:nx,ip)=&
@@ -217,7 +237,7 @@ contains
         eseavr(ip,is) = merge(eavr2,0d0,nx/=0) !in Hartree since sed is in Hartree SquareAverage4extrapolationOFsigma
         write(stdo,ftox)"###  the constant (ESEAVR=e-weighted average Ry)= ",is,ip,2d0*eseavr(ip,is)
       enddo
-      eseavrmean = sum(nstar(1:nqibz)*eseavr(1:nqibz,is))/nqbz    
+      eseavrmean = sum(nstar(1:nqibz)*eseavr(1:nqibz,is))/nqbz
       write(6,"(' ESEAVRmean (exprapolated SE above emax_sigm) isp=',d13.6,i2)")eseavrmean,is
 !!! Make inverse evec_inv(n,i) matrix \psi_n=sum_i evec(i,n)\phi_i, where \psi is eigenfunction and \phi is basis function
 !!! evec_inv(ib1,iww)= \sum_ib2 ovlinv(ib1,ib2)*dconjg(evec(iww,ib2)), we introduce nev. iww is for PMT basis. ib for band index.
