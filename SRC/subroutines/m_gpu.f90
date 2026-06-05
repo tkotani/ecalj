@@ -5,7 +5,8 @@ module m_gpu
   use cudafor
 #endif
   implicit none
-  public :: gpu_init, check_memory_gpu, use_gpu, gpu_finalize, ngpu_ranks, ranks_per_gpu
+  public :: gpu_init, check_memory_gpu, use_gpu, gpu_finalize, ngpu_ranks, ranks_per_gpu, &
+            gpu_avail_mem_gb
   integer,public :: mydev
   logical, protected :: use_gpu = .false.
   integer, protected :: ngpu_ranks = 0    ! number of GPU ranks (= ndevs)
@@ -100,6 +101,16 @@ module m_gpu
     call execute_command_line(cmd)
 #endif
   end subroutine
+
+  real(8) function gpu_avail_mem_gb()
+    !> Free VRAM per rank (GB). Returns 0 on CPU builds or before gpu_init.
+    !> Mirrors mem_avail_node_gb() for host RAM.
+    gpu_avail_mem_gb = 0d0
+#ifdef __GPU
+    gpu_avail_mem_gb = real(acc_get_property(mydev, acc_device_nvidia, acc_property_free_memory), 8) &
+                       / 1d9 / real(ranks_per_gpu, 8)
+#endif
+  end function gpu_avail_mem_gb
 
   subroutine gpu_finalize()
 #ifdef __GPU

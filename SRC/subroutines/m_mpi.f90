@@ -540,10 +540,11 @@ contains
                              worker_out, n_bpara_xq_out, n_kpara_xq_out, &
                              n_bpara_sxc_hint, worker_exch_out, &
                              n_bpara_sxc_out, n_kpara_sxc_out, &
-                             gpu_avail_gb, zmel_per_rank_gb)
+                             zmel_per_rank_gb)
     use m_lgunit, only: stdo
     use m_ftox
     use m_mem_node, only: mem_avail_node_gb
+    use m_gpu,      only: gpu_avail_mem_gb
     use m_kind, only: kindrcxq
     use mpi
     implicit none
@@ -553,14 +554,13 @@ contains
     integer, intent(in),  optional :: n_bpara_sxc_hint
     integer, intent(out), optional :: worker_exch_out
     integer, intent(out), optional :: n_bpara_sxc_out, n_kpara_sxc_out
-    real(8), intent(in),  optional :: gpu_avail_gb
-    real(8), intent(in),  optional :: zmel_per_rank_gb  ! peak private zmel budget per rank (GB)
+    real(8), intent(in),  optional :: zmel_per_rank_gb  ! one zmel batch per rank (GB); ×2/×3 applied internally
     integer :: ppn, comm_node, ierr
     integer :: max_qg, target_w, worker, n_qg
     integer :: worker_exch, max_qg_exch, target_w_exch
     integer :: n_bpara_xq, n_kpara_xq, n_bpara_sxc, n_kpara_sxc
     real(8) :: avail_gb, avail_for_shm, shm_gb, rcxq_gb, priv_gb, need_bpara, wvu_gb = 0d0
-    real(8) :: bytes_per_elem  ! 2*kindrcxq: 8 (single) or 16 (double)
+    real(8) :: gpu_avail_gb, bytes_per_elem, zmel_gb, vram_for_xq, vram_for_sxc
     real(8), parameter :: safety = 0.7d0
 
     ! ppn: ranks per node from shared-memory topology
@@ -568,7 +568,8 @@ contains
     call MPI_Comm_size(comm_node, ppn, ierr)
     call MPI_Comm_free(comm_node, ierr)
 
-    avail_gb = mem_avail_node_gb() * safety
+    avail_gb     = mem_avail_node_gb() * safety
+    gpu_avail_gb = gpu_avail_mem_gb()
 
     bytes_per_elem = real(2 * kindrcxq, 8)  ! complex(kindrcxq): 8 or 16 bytes
     ! SHM per q-group: wvr(ngb_max²×(nwhis*npm+1)) + wvi(ngb_max²×niw)
@@ -592,6 +593,18 @@ contains
     worker_exch  = find_div_geq(mpi__size, target_w_exch)
     worker_exch  = min(worker_exch, ppn)
 
+    ! zmel_gb: one zmel batch per rank (0 if not specified).
+    zmel_gb = 0d0
+    if (present(zmel_per_rank_gb)) zmel_gb = max(0d0, zmel_per_rank_gb)
+
+    ! Reserve peak zmel budget (per rank × ppn) before SHM allocation.
+    ! CPU: zmel lives in host RAM; Sc uses zmel+czmelwc+wzmel simultaneously → ×3.
+    ! GPU: zmel lives in VRAM → no host RAM reservation (handled in VRAM constraints below).
+    avail_for_shm = avail_gb
+    if (zmel_gb > 0d0 .and. gpu_avail_gb == 0d0) then
+      avail_for_shm = max(avail_gb - ppn * 3d0*zmel_gb, shm_gb)
+    endif
+
     ! Correlation worker: SHM-constrained.
     ! Step 1: worker_inQtask — maximize q-groups within memory; also ensure worker is large
     ! enough to support the n_bpara_xq required for rcxq GPU VRAM.
@@ -599,10 +612,12 @@ contains
     max_qg = max(1, int(min(avail_for_shm / shm_gb, real(ppn, 8))))
     max_qg = min(max_qg, ppn, nq_calc)  ! no point in more q-groups than q-points
     target_w = (ppn + max_qg - 1) / max_qg  ! ceiling division: ensures n_qgroup <= nq_calc
-    ! GPU: rcxq is device array; n_bpara_xq must fit rcxq per rank in GPU VRAM.
-    ! worker must be >= required n_bpara_xq so find_div_geq can satisfy the constraint.
-    if (present(gpu_avail_gb)) then
-      if (gpu_avail_gb > 0d0) target_w = max(target_w, ceiling(rcxq_gb / (gpu_avail_gb * safety)))
+    ! GPU W-build: rcxq/n_bpara + zmel×2 ≤ gpu_avail per rank.
+    if (gpu_avail_gb > 0d0) then
+      if (gpu_avail_gb > 0d0) then
+        vram_for_xq = max(gpu_avail_gb * safety - 2d0*zmel_gb, rcxq_gb/real(mpi__size,8))
+        target_w = max(target_w, ceiling(rcxq_gb / vram_for_xq))
+      endif
     endif
     worker = find_div_geq(mpi__size, target_w)
     worker = min(worker, ppn)
@@ -616,14 +631,16 @@ contains
     priv_gb = avail_gb - n_qg * shm_gb
     need_bpara = real(worker,8) / (1d0 + priv_gb / (real(n_qg,8) * rcxq_gb))
     n_bpara_xq = max(1, ceiling(need_bpara))
-    ! GPU: rcxq is device array; per-rank size = rcxq_gb/n_bpara_xq must fit in GPU VRAM.
-    ! Constraint: n_bpara_xq ≥ ceil(rcxq_gb / (gpu_avail_gb * safety))
-    if (present(gpu_avail_gb)) then
+    ! GPU W-build: rcxq/n_bpara_xq + zmel×2 ≤ gpu_avail (per rank).
+    ! Constraint: n_bpara_xq ≥ ceil(rcxq_gb / vram_for_xq)
+    if (gpu_avail_gb > 0d0) then
       if (gpu_avail_gb > 0d0) then
-        n_bpara_xq = max(n_bpara_xq, ceiling(rcxq_gb / (gpu_avail_gb * safety)))
+        vram_for_xq = max(gpu_avail_gb * safety - 2d0*zmel_gb, rcxq_gb/real(worker,8))
+        n_bpara_xq = max(n_bpara_xq, ceiling(rcxq_gb / vram_for_xq))
         if (ipr .and. c0_fullstdo) &
-          write(stdo,'(2X,A,F8.4,A,F6.2,A,I3)') &
-            'rcxq_gb(n_bpara=1)=', rcxq_gb, ' GB  gpu_avail=', gpu_avail_gb, ' GB  → n_bpara_xq>=', n_bpara_xq
+          write(stdo,'(2X,A,F8.4,A,F6.2,A,F6.2,A,I3)') &
+            'W-build VRAM: rcxq=', rcxq_gb, ' GB  zmel×2=', 2d0*zmel_gb, &
+            ' GB  vram_for_xq=', vram_for_xq, ' GB  → n_bpara_xq>=', n_bpara_xq
       endif
     endif
     n_bpara_xq = find_div_geq(worker, n_bpara_xq)
@@ -631,21 +648,23 @@ contains
 
     ! Step 3: n_bpara_sxc
     ! CPU: default 1 (wvi/wvr_upper live on GPU only, no CPU constraint).
-    ! GPU: wvi_upper + wvr_upper ≈ shm_gb/2 / n_bpara_sxc per rank must fit in GPU VRAM.
-    !   Constraint: n_bpara_sxc ≥ ceil(wvu_gb / (gpu_avail_gb * safety))
+    ! GPU Sc: wvu/n_bpara_sxc + zmel×3 ≤ gpu_avail (per rank).
+    !   Constraint: n_bpara_sxc ≥ ceil(wvu_gb / vram_for_sxc)
     n_bpara_sxc = 1
     if (present(n_bpara_sxc_hint)) then
       if (n_bpara_sxc_hint > 0) n_bpara_sxc = n_bpara_sxc_hint
     endif
-    if (present(gpu_avail_gb)) then
+    if (gpu_avail_gb > 0d0) then
       if (gpu_avail_gb > 0d0) then
         ! wvu_gb (n_bpara=1): upper-triangular W ≈ shm_gb/2
         wvu_gb = real(ngb_max,8) * real(ngb_max+1,8) / 2d0 &
                * real(nwhis*npm + 1 + niw, 8) * bytes_per_elem / 1d9
-        n_bpara_sxc = max(n_bpara_sxc, ceiling(wvu_gb / (gpu_avail_gb * safety)))
+        vram_for_sxc = max(gpu_avail_gb * safety - 3d0*zmel_gb, wvu_gb/real(worker,8))
+        n_bpara_sxc = max(n_bpara_sxc, ceiling(wvu_gb / vram_for_sxc))
         if (ipr .and. c0_fullstdo) &
-          write(stdo,'(2X,A,F8.4,A,F6.2,A,I3)') &
-            'wvu_gb(n_bpara=1)=', wvu_gb, ' GB  gpu_avail=', gpu_avail_gb, ' GB  → n_bpara_sxc>=', n_bpara_sxc
+          write(stdo,'(2X,A,F8.4,A,F6.2,A,F6.2,A,I3)') &
+            'Sc VRAM:      wvu=',  wvu_gb,      ' GB  zmel×3=', 3d0*zmel_gb, &
+            ' GB  vram_for_sxc=', vram_for_sxc, ' GB  → n_bpara_sxc>=', n_bpara_sxc
       endif
     endif
     n_bpara_sxc = find_div_geq(worker, n_bpara_sxc)
@@ -654,11 +673,9 @@ contains
     if (ipr .and. c0_fullstdo) then
       write(stdo,'(1X,A)')        'MPI__AutoSetup:'
       write(stdo,'(2X,A,F6.2,A)') 'node freeram (avail x 0.7)=', avail_gb, ' GB'
-      if (present(zmel_per_rank_gb)) then
-        if (zmel_per_rank_gb > 0d0) &
-          write(stdo,'(2X,A,F6.2,A,F6.2,A)') 'zmel/rank=', zmel_per_rank_gb, &
-            ' GB  avail_for_shm=', avail_for_shm, ' GB'
-      endif
+      if (zmel_gb > 0d0) &
+        write(stdo,'(2X,A,F6.2,A,F6.2,A)') 'zmel/rank(×3 for CPU)=', zmel_gb, &
+          ' GB  avail_for_shm=', avail_for_shm, ' GB'
       write(stdo,'(2X,A,F8.4,A)') 'SHM/q-group=', shm_gb,  ' GB'
       write(stdo,'(2X,A,F8.4,A)') 'rcxq/rank  =', rcxq_gb, ' GB'
       write(stdo,'(2X,A,3I5)')    'ppn nq_calc worker_corr:', ppn, nq_calc, worker
@@ -687,12 +704,17 @@ contains
 
   end subroutine MPI__AutoSetup
 
-  subroutine MPI__PrintSummary(n_bpara_xq, n_kpara_xq, n_bpara_sxc, n_kpara_sxc)
+  subroutine MPI__PrintSummary(n_bpara_xq, n_kpara_xq, n_bpara_sxc, n_kpara_sxc, &
+                                reg_grp, aux_grp)
     !> Human-readable MPI decomposition summary.  Call after MPI__InitQgroups,
-    !> MPI__SplitXq, and MPI__SplitSxc.  Printed by root rank only.
-    integer, intent(in) :: n_bpara_xq, n_kpara_xq, n_bpara_sxc, n_kpara_sxc
-    integer :: ig
-    logical :: contiguous_ranks
+    !> MPI__SplitXq, MPI__SplitSxc, and (optionally) after sxcf_correlation_init.
+    !> reg_grp(iq): 0-based group assigned to regular q-point iq (size nqibz).
+    !> aux_grp(i):  0-based group assigned to i-th aux q-point (size nq0i+nq0iadd).
+    !> Printed by root rank only.
+    integer, intent(in)           :: n_bpara_xq, n_kpara_xq, n_bpara_sxc, n_kpara_sxc
+    integer, intent(in), optional :: reg_grp(:), aux_grp(:)
+    integer :: ig, iq, i, nqreg, naux, nreg_g, naux_g
+    logical :: contiguous_ranks, show_iqlist
     if (.not. ipr) return
     write(stdo,'(/,1X,A)') 'MPI layout:'
     write(stdo,'(3X,A,I0,2(A,I0))') &
@@ -731,6 +753,35 @@ contains
         call mpi__print_grid('Xq', n_bpara_xq, n_kpara_xq)
         call mpi__print_grid('Sxc', n_bpara_sxc, n_kpara_sxc)
       endif
+    endif
+    ! q-point → q-group assignment (only when LPT data available)
+    if (present(reg_grp)) then
+      nqreg = size(reg_grp)
+      naux  = 0
+      if (present(aux_grp)) naux = size(aux_grp)
+      show_iqlist = (nqreg <= 32 .or. c0_fullstdo)
+      write(stdo,'(3X,A,I0,A,I0)') 'q-point assignment (LPT):  nqreg=', nqreg, '  naux=', naux
+      write(stdo,'(5X,A)') 'g   nreg  naux  [regular iq | aux i]'
+      do ig = 0, n_qgroup-1
+        nreg_g = count(reg_grp == ig)
+        naux_g = 0
+        if (present(aux_grp)) naux_g = count(aux_grp == ig)
+        write(stdo,'(I6, I6, I6)', advance='no') ig, nreg_g, naux_g
+        if (show_iqlist) then
+          write(stdo,'(A)', advance='no') '  ['
+          do iq = 1, nqreg
+            if (reg_grp(iq) == ig) write(stdo,'(I4)', advance='no') iq
+          enddo
+          if (present(aux_grp) .and. naux_g > 0) then
+            write(stdo,'(A)', advance='no') ' |'
+            do i = 1, naux
+              if (aux_grp(i) == ig) write(stdo,'(I3)', advance='no') i
+            enddo
+          endif
+          write(stdo,'(A)', advance='no') ']'
+        endif
+        write(stdo,*)
+      enddo
     endif
     write(stdo,*)
   end subroutine MPI__PrintSummary

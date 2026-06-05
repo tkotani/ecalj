@@ -110,7 +110,9 @@ module m_GWinput
   real(8), protected, public :: shift_majority     = 0.0d0
   real(8), protected, public :: output_ddmat_atom  = 1.0d0
   real(8), protected, public :: dRdIatRmax         = 0.003d0
-  real(8), protected, public :: zmel_batch_gb      = 0.0d0
+  real(8), parameter,  public :: zmel_batch_gb_min     = 0.4d0  ! minimum zmel batch, CPU (GB/rank)
+  real(8), parameter,  public :: zmel_batch_gb_min_gpu = 2.0d0  ! minimum zmel batch, GPU (GB/rank)
+  real(8), protected, public :: zmel_batch_gb         = zmel_batch_gb_min
   real(8), protected, public :: magnon_delta       = 0.0d0
   real(8), protected, public :: magnon_delta_dos   = 1.0d-6
   real(8), protected, public :: magnon_HistBin_ratio = 1.03d0
@@ -414,6 +416,12 @@ contains
     call gv_r(gw, 'dRdIatRmax',         dRdIatRmax)
     call gv_r(gw, 'zmel_batch_gb',      zmel_batch_gb)
     call gv_r(gw, 'zmel_max_size',      zmel_batch_gb)  ! legacy alias
+    clamp_zmel: block
+      use m_gpu, only: use_gpu
+      real(8) :: zmin
+      zmin = merge(zmel_batch_gb_min_gpu, zmel_batch_gb_min, use_gpu)
+      zmel_batch_gb = max(zmel_batch_gb, zmin)
+    endblock clamp_zmel
     call gv_r(gw, 'magnon_delta',       magnon_delta)
     call gv_r(gw, 'magnon_delta_dos',   magnon_delta_dos)
     call gv_r(gw, 'magnon_HistBin_ratio', magnon_HistBin_ratio)

@@ -182,7 +182,8 @@ contains
     ! k-point parallelism: split nqbz across comm_k ranks.
     k_lo = mpi__rank_k * ((nqbz + mpi__size_k - 1) / mpi__size_k) + 1
     k_hi = min(k_lo + (nqbz + mpi__size_k - 1) / mpi__size_k - 1, nqbz)
-    write(stdo,*) 'x0kf_zxq: k_lo, k_hi, nwhis, nw_i, nw, iw_lo, iw_hi', k_lo, k_hi, nwhis, nw_i, nw, iw_lo, iw_hi
+    if (ipr) write(stdo,'(1X,A,7I6)') 'x0kf_zxq: k_lo k_hi nwhis nw_i nw iw_lo iw_hi =', &
+                                       k_lo, k_hi, nwhis, nw_i, nw, iw_lo, iw_hi
     if (npm /= 1)      call rx('x0kf_zxq: npm/=1 not supported')
     if (wv_ngb /= npr) call rx('x0kf_zxq: wv_ngb /= npr (shm_wvr size mismatch)')
 
@@ -203,7 +204,9 @@ contains
     if (associated(zxq)) nullify(zxq)
     if (allocated(rcxq)) deallocate(rcxq)
     if (nw_w > nwhis) call rx('nwhis is smaller than nw_w')
-    if (ipr) write(stdo,ftox)' size of rcxq:', npr, nwhis*npm+1
+    if (ipr) write(stdo,'(1X,A,I0,A,I0,A,F7.3,A)') &
+        'rcxq(npr,npr,niw): npr=', npr, '  niw=', iw_hi-iw_lo+1, &
+        '  mem=', real(npr,8)**2 * real(iw_hi-iw_lo+1,8) * real(2*kp,8) / 1d9, ' GB'
     call flush(stdo)
     allocate(rcxq(1:npr, 1:npr, iw_lo:iw_hi))
     !$acc kernels
