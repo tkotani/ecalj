@@ -529,19 +529,27 @@ contains
     real(8) :: avail_gb, shm_gb, rcxq_gb, priv_gb, need_bpara
     real(8) :: bytes_per_elem  ! 2*kindrcxq: 8 (single) or 16 (double)
     real(8), parameter :: safety = 0.7d0
+    ! Per-rank reserve for memory NOT in the shm_gb/rcxq_gb budget below:
+    ! transient work arrays (zmel etc.) allocated later inside the hgw loop.
+    ! Subtracted (×ppn) from avail so the chosen layout leaves room for them and
+    ! does not OOM. (geig/cphi are already reflected in mem_avail: they are
+    ! allocated before this routine; on CPU they are node-shared, on GPU per-rank.)
+    real(8), parameter :: priv_reserve_gb = 1.0d0
 
     ! ppn: ranks per node from shared-memory topology
     call MPI_Comm_split_type(comm, MPI_COMM_TYPE_SHARED, mpi__rank, MPI_INFO_NULL, comm_node, ierr)
     call MPI_Comm_size(comm_node, ppn, ierr)
     call MPI_Comm_free(comm_node, ierr)
 
-    avail_gb = mem_avail_node_gb() * safety
+    avail_gb = mem_avail_node_gb() * safety - real(ppn,8) * priv_reserve_gb
 
     bytes_per_elem = real(2 * kindrcxq, 8)  ! complex(kindrcxq): 8 or 16 bytes
     ! SHM per q-group: wvr(ngb_max²×(nwhis*npm+1)) + wvi(ngb_max²×niw)
     shm_gb  = real(ngb_max,8)**2 * real(nwhis*npm + 1 + niw, 8) * bytes_per_elem / 1d9
     ! rcxq per non-root rank = wvr size only
     rcxq_gb = real(ngb_max,8)**2 * real(nwhis*npm + 1, 8)       * bytes_per_elem / 1d9
+    ! Never let the reserve drive the budget below one full q-group (must run).
+    avail_gb = max(avail_gb, shm_gb + rcxq_gb)
 
     ! Exchange worker: no SHM constraint; maximize q-groups up to nq_calc.
     max_qg_exch  = min(ppn, nq_calc)
@@ -578,7 +586,8 @@ contains
 
     if (ipr) then
       write(stdo,'(1X,A)')        'MPI__AutoSetup:'
-      write(stdo,'(2X,A,F6.2,A)') 'node freeram (avail x 0.7)=', avail_gb, ' GB'
+      write(stdo,'(2X,A,F6.2,A,F5.2,A)') 'budget (avail x 0.7 - ppn x reserve)=', avail_gb, &
+                                          ' GB  (reserve/rank=', priv_reserve_gb, ' GB)'
       write(stdo,'(2X,A,F8.4,A)') 'SHM/q-group=', shm_gb,  ' GB'
       write(stdo,'(2X,A,F8.4,A)') 'rcxq/rank  =', rcxq_gb, ' GB'
       write(stdo,'(2X,A,3I5)')    'ppn nq_calc worker_corr:', ppn, nq_calc, worker
