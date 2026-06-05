@@ -1,3 +1,27 @@
+2026-06-05
+  [feat] readeigen: CPU ビルドで geig/cphi (固有ベクトル) を MPI 共有メモリ化。
+    KeepEigen=T 時、geig/cphi(complex(8)) を各ランクが private 複製で保持していた
+    (密な系で ~2GB/rank; liti2o4 14原子/LDA 16^3 で 60ランク = ~126GB の純複製)。
+    これが AutoSetup の予算(rcxq+SHM)外で、hgw を OOM(signal 9)させていた。
+    CPU 版はノード共有メモリ窓に確保し node-root のみがディスク読込→barrier で
+    全ランクへ公開。GPU 版は従来の per-rank 維持(acc present)。
+    m_sharedmem に shm_alloc_c8_4d (complex(8) 4D窓) を追加。
+    実測 liti2o4 -np60: Private_Dirty 2.3→0.58 GB/rank、ピーク >270GB(OOM)→~153GB。
+    geig/cphi は read-only・kt1 は単一NUMA なので計算速度は不変、init のディスク
+    読込は ppn重複→1回 に削減。mp-8196 CPU の SEc 不変(正しさ確認)。
+    補足: KeepEigen は自動でなく手動既定 T(速度)/F(省メモリ)。本変更で T のまま
+    省メモリになり F に落とす必要が減った。
+
+  [fix] MPI__AutoSetup: 予算外の per-rank 作業配列(zmel等, hgwループ後半で確保)の
+    ぶんを予約。avail から ppn×priv_reserve_gb(=1.0) を差し引き、1 q-group 未満には
+    ならないようclamp。メモリに余裕がある時(q-group が nq_calc 律速)は無影響、
+    逼迫時のみレイアウトを締めて OOM を確実に回避。
+
+  [fix] gwscconv: (1) 収束判定を「直近3iterのギャップ振れ < conv-tol が2回連続」に
+    変更(一発の偶然収束で止まるのを防ぐ)。(2) EXEC_DIR の .resolve() を除去 ——
+    bin/ の symlink を辿ると Fortran バイナリの無い SRC/exec を指して lmfa 起動に
+    失敗していた。gwsc と同じ Path(__file__).parent に統一。
+
 2026-06-04
   [feat] GPU 混合精度 GEMM に --fp32 ランタイムオプションを追加。
     --gpu --mp は既定で TF32 (CUBLAS_COMPUTE_32F_FAST_TF32, 仮数10bit) を使うが、
