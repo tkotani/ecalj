@@ -15,6 +15,7 @@ module m_readeigen
   use m_keyvalue,only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, tg_KeepQG => KeepQG
   use m_keep_wfs,only: keep_wfs_init, update_keep_geig, update_keep_cphi, set_geig_from_keep, set_cphi_from_keep
+  use m_sharedmem, only: shm_init, shm_rank, shm_alloc_c8_4d, shm_barrier
   use m_mpi, only: ipr, MPI__AllreduceAND, MPI__zBcast => MPI__zBcast_h, get_mpi_master
 #ifdef __GPU
   use m_blas, only : zmm => zmm_d
@@ -36,7 +37,15 @@ module m_readeigen
   logical,private:: debug=.false.
   character(8),external :: xt
   real(8),allocatable,private:: evud(:,:,:)
-  complex(8),allocatable,private:: geig(:,:,:,:),cphi(:,:,:,:)
+#ifdef __GPU
+  complex(8),allocatable,private:: geig(:,:,:,:),cphi(:,:,:,:)  ! GPU: per-rank (acc copyin to device)
+#else
+  ! CPU: node-shared via MPI shared memory (read-only after fill). Eliminates the
+  ! per-rank replication of geig/cphi (~2 GB/rank for dense systems) that caused
+  ! hgw OOM at high rank counts. GPU build keeps per-rank copies (acc present).
+  complex(8),pointer,private:: geig(:,:,:,:)=>null(),cphi(:,:,:,:)=>null()
+  integer,save,private:: geig_shm_id=-1, cphi_shm_id=-1
+#endif
   integer,allocatable,private:: ngvecp(:,:,:), ngvecprev(:,:,:,:)
   integer,allocatable,private:: l_tbl(:),k_tbl(:),ibas_tbl(:),offset_tbl(:),offset_rev_tbl(:,:,:)
   logical,private:: keepqg
@@ -485,6 +494,7 @@ contains
     endif
     if( .NOT. Keepeig) call keep_wfs_init() ! allocate for keep wfs
     if( .NOT. keepeig) return
+#ifdef __GPU
     allocate(geig(ngpmx*nspc,nband,nqi,nspx))
     allocate(cphi(ndima*nspc,nband,nqi,nspx))
     do ikp= 1,nqi
@@ -495,6 +505,24 @@ contains
        enddo
     enddo
     !$acc enter data copyin(geig, cphi)
+#else
+    ! CPU: allocate geig/cphi in node-shared memory; only the node-root rank reads
+    ! them from disk; a barrier publishes the data to all ranks on the node.
+    call shm_init()
+    call shm_alloc_c8_4d(geig, ngpmx*nspc, nband, nqi, nspx, geig_shm_id)
+    call shm_alloc_c8_4d(cphi, ndima*nspc, nband, nqi, nspx, cphi_shm_id)
+    if(shm_rank()==0) then
+       do ikp= 1,nqi
+          do is= 1,nspx
+             ikpisp= is + nsp*(ikp-1)
+             i=readm(ifcphim,rec=ikpisp, data=cphi(1:ndima*nspc,1:nband,ikp,is))
+             if(ngpmx/=0) i=readm(ifgeigm,rec=ikpisp,data=geig(1:ngpmx*nspc,1:nband,ikp,is))
+          enddo
+       enddo
+    endif
+    call shm_barrier(geig_shm_id)
+    call shm_barrier(cphi_shm_id)
+#endif
     if(keepeig)i=closem(ifcphim)
     if(keepeig)i=closem(ifgeigm)
   end subroutine init_readeigen2

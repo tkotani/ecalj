@@ -166,6 +166,7 @@ module m_cmdopt_registry
   logical, public, protected, save :: c0_testso          = .false.
   logical, public, protected, save :: c0_tetraw          = .false.
   logical, public, protected, save :: c0_tetwtk          = .false.
+  logical, public, protected, save :: c0_use_fp32        = .false.
   logical, public, protected, save :: c0_use_gemmul8     = .false.
   logical, public, protected, save :: c0_use_sigm_fbz    = .false.
   logical, public, protected, save :: c0_v0fix           = .false.
@@ -444,6 +445,7 @@ contains
     call set0('--testso',         c0_testso, narg, arglist)
     call set0('--tetraw',         c0_tetraw, narg, arglist)
     call set0('--tetwtk',         c0_tetwtk, narg, arglist)
+    call set0('--use_fp32',       c0_use_fp32, narg, arglist)
     call set0('--use_gemmul8',    c0_use_gemmul8, narg, arglist)
     call set0('--use_sigm_fbz',   c0_use_sigm_fbz, narg, arglist)
     call set0('--v0fix',          c0_v0fix, narg, arglist)

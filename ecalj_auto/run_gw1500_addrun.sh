@@ -102,7 +102,7 @@ run_one() {
     echo "$(date '+%F %T') $mpid START addrun (Iter0=$maxn, NADD=$NADD)" | tee -a $LOG
 
     # Run gwsc with watchdog (NaN check + 8h timeout, mirroring worker.sh)
-    $EPATH/gwsc $NADD -np $NCORE -np2 $NP2 --gpu --mp $mpid '-v[ham.scaledsigma]=0.8' > osgw.addrun.out 2>&1 &
+    $EPATH/gwsc $NADD -np $NCORE -np2 $NP2 --gpu --mp --fp32 $mpid '-v[ham.scaledsigma]=0.8' > osgw.addrun.out 2>&1 &
     local gwsc_pid=$!
     local kill_reason=""
     while kill -0 $gwsc_pid 2>/dev/null; do

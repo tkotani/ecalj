@@ -83,7 +83,7 @@ run_material() {
         fi
     else
     # In-flight watchdog: NaN check every 5min, 8h hard timeout
-    $EPATH/gwsc $niter -np $NCORE -np2 $NP2 --gpu --mp $mpid '-v[ham.scaledsigma]=0.8' > osgw.out 2>&1 &
+    $EPATH/gwsc $niter -np $NCORE -np2 $NP2 --gpu --mp --fp32 $mpid '-v[ham.scaledsigma]=0.8' > osgw.out 2>&1 &
     local gwsc_pid=$!
     local kill_reason=""
     while kill -0 $gwsc_pid 2>/dev/null; do

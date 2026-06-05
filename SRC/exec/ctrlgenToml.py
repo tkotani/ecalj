@@ -457,6 +457,9 @@ def main():
                     vals = [float(x) for x in nums[:9]]
                     _plat = [vals[0:3], vals[3:6], vals[6:9]]
         tmp_toml = 'symgrp = "find"\nverbose = 35\n\n'
+        # [ham] phispinsym is required by the current Fortran reader
+        # (m_lmfinit.f90: HAM_PHISPINSYM nreq=1); the getwsr probe needs it too.
+        tmp_toml += '[ham]\nphispinsym = false\n\n'
         # nspec/nbas omitted: synthesized by the TOML loader from
         # [[spec]] / [[site]] array lengths (m_ctrl_toml_loader.f90).
         tmp_toml += f'[struc]\nalat = {fmt_real(_alat)}\n'

@@ -131,7 +131,7 @@ run_one() {
     echo "$(date '+%F %T') $wid $mpid START Iter0=$maxn" | tee -a $LOG
 
     # ===== Phase A: gwscconv (continue until conv or max-iter) =====
-    $EPATH/gwscconv -np $NCORE -np2 $NP2 --gpu --mp $mpid '-v[ham.scaledsigma]=0.8' \
+    $EPATH/gwscconv -np $NCORE -np2 $NP2 --gpu --mp --fp32 $mpid '-v[ham.scaledsigma]=0.8' \
         --conv-tol $CONV_TOL --max-iter $MAX_ITER > osgw.conv.out 2>&1 &
     local pid=$!
     local kill_reason=""

@@ -1,3 +1,55 @@
+2026-06-05
+  [feat] readeigen: CPU ビルドで geig/cphi (固有ベクトル) を MPI 共有メモリ化。
+    KeepEigen=T 時、geig/cphi(complex(8)) を各ランクが private 複製で保持していた
+    (密な系で ~2GB/rank; liti2o4 14原子/LDA 16^3 で 60ランク = ~126GB の純複製)。
+    これが AutoSetup の予算(rcxq+SHM)外で、hgw を OOM(signal 9)させていた。
+    CPU 版はノード共有メモリ窓に確保し node-root のみがディスク読込→barrier で
+    全ランクへ公開。GPU 版は従来の per-rank 維持(acc present)。
+    m_sharedmem に shm_alloc_c8_4d (complex(8) 4D窓) を追加。
+    実測 liti2o4 -np60: Private_Dirty 2.3→0.58 GB/rank、ピーク >270GB(OOM)→~153GB。
+    geig/cphi は read-only・kt1 は単一NUMA なので計算速度は不変、init のディスク
+    読込は ppn重複→1回 に削減。mp-8196 CPU の SEc 不変(正しさ確認)。
+    補足: KeepEigen は自動でなく手動既定 T(速度)/F(省メモリ)。本変更で T のまま
+    省メモリになり F に落とす必要が減った。
+
+  [fix] MPI__AutoSetup: 予算外の per-rank 作業配列(zmel等, hgwループ後半で確保)の
+    ぶんを予約。avail から ppn×priv_reserve_gb(=1.0) を差し引き、1 q-group 未満には
+    ならないようclamp。メモリに余裕がある時(q-group が nq_calc 律速)は無影響、
+    逼迫時のみレイアウトを締めて OOM を確実に回避。
+
+  [fix] gwscconv: (1) 収束判定を「直近3iterのギャップ振れ < conv-tol が2回連続」に
+    変更(一発の偶然収束で止まるのを防ぐ)。(2) EXEC_DIR の .resolve() を除去 ——
+    bin/ の symlink を辿ると Fortran バイナリの無い SRC/exec を指して lmfa 起動に
+    失敗していた。gwsc と同じ Path(__file__).parent に統一。
+
+2026-06-04
+  [feat] GPU 混合精度 GEMM に --fp32 ランタイムオプションを追加。
+    --gpu --mp は既定で TF32 (CUBLAS_COMPUTE_32F_FAST_TF32, 仮数10bit) を使うが、
+    悪条件な誘電行列 (重元素+分子アニオン NO3/ClO/BrO/N3/PO4 等で局所場が強く
+    条件数が大きい系) では TF32 の ~1e-3 相対誤差が (1-vχ0) の逆行列で増幅され
+    W/SEc が破壊、QSGW が発散 (lmf failed) または NaN (lsc/lqpe) になる。
+    --fp32 で cmm_d/cmm_batch_d の compute_type を真の FP32 (仮数23bit, ~1e-7) に
+    切替える (ストレージは単精度のまま、~7%減速、CPU/倍精度と一致)。FP64 は過剰。
+    汚染源は χ0 累積 (zmel 縮約) であり m_llw の逆行列パスだけ直しても無効と確認。
+    - m_cmdopt_registry.f90: c0_use_fp32 宣言 + --use_fp32 登録
+    - m_blas.f90: compute_type を merge(CUBLAS_COMPUTE_32F, ..._FAST_TF32, c0_use_fp32)
+    - SRC/exec/gwsc: --fp32 → options に --use_fp32
+    検証: mp-8196(AgNO3)/mp-581833(RbN3) で CPU 一致。GW1500 失敗群
+    [A]lmf-failed/[B]NaN-lsc/[C]NaN-lqpe を ctrlgenToml.py→gwsc --fp32 で再現し
+    軒並み収束 (NaN/発散が消失)。デフォルト TF32 は不変なので既存挙動に影響なし。
+
+  [fix] ctrlgenToml.py: lmchk --getwsr プローブ用の最小 ctrlg.tmp.toml に
+    [ham] phispinsym=false を追加。2026-06-02 の HAM_PHISPINSYM=nreq=1 必須化で
+    プローブ toml が phispinsym 欠落により lmchk が abort し、ctrlgenToml.py が
+    全構造で失敗していた (最終出力には phispinsym=false が入っていたがプローブ側が
+    漏れていた)。これで ctrls→ctrlg/PB.toml 生成が再び通る。
+
+  [feat] ecalj_auto: GW1500 バッチ (worker.sh / run_gw1500_addrun.sh /
+    run_gw1500_addrun_conv.sh) の QSGW 呼び出しに --fp32 を追加。新フロー
+    vasp2ctrl → ctrlgenToml.py → gwscconv --gpu --mp --fp32 --conv-tol 0.1
+    で悪条件失敗群を自動救済できるようにした (収束基準は last-3-iter ギャップ
+    振れ < 0.1 eV)。
+
 2026-06-02
   [BREAKING] cmdline override prefix と TOML ファイル命名規約を変更:
     - `--toml.<path>=<value>` → `--ctrlg:<dotted.path>=<value>`

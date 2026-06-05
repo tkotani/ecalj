@@ -19,13 +19,22 @@ argc = len(argvs)
 print( 'args= ',argvs,argc)
 
 if (argc != 2 or '--help' in argvs):
-	print( ' == Image Display VASP(input file of lmf) to ctrl ==')
-	print( '    usage: viewvesta POSCAR_foo.vasp    ')
+	print( ' == Image Display via VESTA of an lmf structure file ==')
+	print( '    usage: viewvesta ctrlg.foo.toml          (canonical, post-2026-05)')
+	print( '           viewvesta ctrls.foo               (legacy structure-only)')
+	print( '           viewvesta ctrl.foo                (legacy text ctrl)')
+	print( '           viewvesta POSCAR_foo.vasp         (pre-made POSCAR)')
 	sys.exit(-1)
 
 fname=argvs[1]
 ix=0
-if argvs[1][0:5]=='ctrls':
+# ctrlg.<sname>.toml -- canonical TOML input. Must be tested BEFORE the
+# generic 'ctrl' prefix branch below or it would be misclassified.
+if argvs[1].startswith('ctrlg.') and argvs[1].endswith('.toml'):
+	ext = argvs[1][len('ctrlg.'):-len('.toml')]
+	fname = 'POSCAR_' + ext + '.vasp'
+	ix=1
+elif argvs[1][0:5]=='ctrls':
 	fname = re.sub('ctrls.','POSCAR_',argvs[1])+'.vasp'
 	ix=1
 elif argvs[1][0:4]=='ctrl':
