@@ -7,6 +7,7 @@ module m_sharedmem
   public :: shm_init, shm_finalize, shm_barrier
   public :: shm_alloc_r8_1d, shm_alloc_r8_2d, shm_alloc_r8_3d
   public :: shm_alloc_i4_1d, shm_alloc_i4_2d, shm_alloc_i4_3d
+  public :: shm_alloc_c8_4d
   public :: shm_free
   public :: shm_comm, shm_rank, shm_nprocs
   private
@@ -112,6 +113,20 @@ contains
     call MPI_Win_allocate_shared(sz,du,MPI_INFO_NULL,comm_shared,bp,win,ierr)
     if(rank_shared/=0) call MPI_Win_shared_query(win,0,szq,du,bp,ierr)
     call c_f_pointer(bp,ptr,[n1,n2,n3]); win_handles(id)=win
+  end subroutine
+
+  subroutine shm_alloc_c8_4d(ptr, n1, n2, n3, n4, id)
+    use mpi; use, intrinsic :: iso_c_binding
+    implicit none
+    complex(8), pointer, intent(out) :: ptr(:,:,:,:)
+    integer, intent(in) :: n1,n2,n3,n4; integer, intent(out) :: id
+    integer(MPI_ADDRESS_KIND) :: sz, szq; integer :: du,ierr,win; type(c_ptr) :: bp
+    call shm_get_slot(id); du=16; sz=0
+    if(rank_shared==0) sz=int(n1,MPI_ADDRESS_KIND)*int(n2,MPI_ADDRESS_KIND) &
+                          *int(n3,MPI_ADDRESS_KIND)*int(n4,MPI_ADDRESS_KIND)*16
+    call MPI_Win_allocate_shared(sz,du,MPI_INFO_NULL,comm_shared,bp,win,ierr)
+    if(rank_shared/=0) call MPI_Win_shared_query(win,0,szq,du,bp,ierr)
+    call c_f_pointer(bp,ptr,[n1,n2,n3,n4]); win_handles(id)=win
   end subroutine
 
   subroutine shm_barrier(id)
