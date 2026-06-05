@@ -1,4 +1,12 @@
 2026-06-05
+  [fix] MPI__AutoSetup: prevent idle q-groups when mpi__size >> nq_calc.
+    Previously worker_inQtask was determined solely by memory/SHM constraints
+    (target_w = ceil(ppn / max_qg)), which could yield n_qgroup >> nq_calc idle
+    groups (e.g. 512 ranks, ppn=64, 18 q-points → 128 groups, 107 idle).
+    Now target_w also enforces ceil(mpi__size / nq_calc) so that n_qgroup ≤ nq_calc.
+    Example: 512 ranks, ppn=64, 18 q-points → worker=32, n_qgroup=16 (all ranks active).
+    Same fix applied to the exchange-phase worker.
+
   [feat] readeigen: CPU ビルドで geig/cphi (固有ベクトル) を MPI 共有メモリ化。
     KeepEigen=T 時、geig/cphi(complex(8)) を各ランクが private 複製で保持していた
     (密な系で ~2GB/rank; liti2o4 14原子/LDA 16^3 で 60ランク = ~126GB の純複製)。

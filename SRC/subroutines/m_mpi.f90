@@ -579,6 +579,8 @@ contains
     ! Exchange worker: no SHM constraint; maximize q-groups up to nq_calc.
     max_qg_exch  = min(ppn, nq_calc)
     target_w_exch = (ppn + max_qg_exch - 1) / max_qg_exch
+    ! Ensure n_qgroup ≤ nq_calc: need worker ≥ ceil(mpi__size / nq_calc).
+    target_w_exch = max(target_w_exch, (mpi__size + nq_calc - 1) / nq_calc)
     worker_exch  = find_div_geq(mpi__size, target_w_exch)
     worker_exch  = min(worker_exch, ppn)
 
@@ -596,11 +598,14 @@ contains
 
     ! Correlation worker: SHM-constrained.
     ! Step 1: worker_inQtask — maximize q-groups within memory; also ensure worker is large
-    ! enough to support the n_bpara_xq required for rcxq GPU VRAM.
+    ! enough to support the n_bpara_xq required for rcxq GPU VRAM, and that n_qgroup ≤ nq_calc.
     ! Clamp before int() to avoid 32-bit overflow when shm_gb is tiny (e.g. nolfco: ngb_max=1).
     max_qg = max(1, int(min(avail_for_shm / shm_gb, real(ppn, 8))))
     max_qg = min(max_qg, ppn, nq_calc)  ! no point in more q-groups than q-points
-    target_w = (ppn + max_qg - 1) / max_qg  ! ceiling division: ensures n_qgroup <= nq_calc
+    target_w = (ppn + max_qg - 1) / max_qg
+    ! Ensure n_qgroup (= mpi__size/worker) ≤ nq_calc: need worker ≥ ceil(mpi__size/nq_calc).
+    ! Prevents idle q-groups when mpi__size >> nq_calc (e.g. 512 ranks, 18 q-points, ppn=32).
+    target_w = max(target_w, (mpi__size + nq_calc - 1) / nq_calc)
     ! GPU W-build: rcxq/n_bpara + zmel×2 ≤ gpu_avail per rank.
     if (gpu_avail_gb > 0d0) then
       if (gpu_avail_gb > 0d0) then
