@@ -258,6 +258,13 @@ def emit_toml(parsed: dict) -> str:
     out.append("")
 
     if parsed["gw"]:
+        # Legacy GaussianFilterX0 is the chi0 Gaussian-filter; the live code now drives it via SmearX0
+        # (same Ha units) and ABORTS if GaussianFilterX0 appears in a .toml. Rename it on conversion.
+        if "GaussianFilterX0" in parsed["gw"]:
+            gfx0 = parsed["gw"].pop("GaussianFilterX0")
+            if "SmearX0" not in parsed["gw"]:
+                parsed["gw"]["SmearX0"] = gfx0
+            sys.stderr.write(f"gwinput2toml: legacy GaussianFilterX0={gfx0} -> SmearX0\n")
         out.append("[gw]")
         for k, v in parsed["gw"].items():
             out.append(f"{k} = {emit_value(v)}")

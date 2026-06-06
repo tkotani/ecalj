@@ -196,7 +196,7 @@ delta = -1e-06  # (Ry) small imaginary shift (~1e-6)
 deltaw = 0.02  # (a.u.) numerical-derivative mesh for Z factor
 esmr = 0.003  # (Ry) hsfp0 smearing; keep < band gap for insulators
 GaussSmear = true  # Gaussian smearing for poles of G^LDA in hsfp0
-GaussianFilterX0 = 0.0001
+SmearX0 = 0.0001  # (Ha) Gaussian smear of chi0 along freq (was GaussianFilterX0; renamed - that key now aborts)
 QforEPSunita = true
 # === PRODUCT_BASIS ===
 # pb_tolerance / pb_lcutmx : ctrlG.<sname>.toml (cut-off tunables).

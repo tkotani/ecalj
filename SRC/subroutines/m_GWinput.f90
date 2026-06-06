@@ -44,8 +44,10 @@ module m_GWinput
   real(8), protected, public :: dw           = 0.005d0
   real(8), protected, public :: omg_c        = 0.04d0
   real(8), protected, public :: WgtQ0P       = 0.01d0
-  real(8), protected, public :: SmearX0      = 0.0d0
-  real(8), protected, public :: GaussianFilterX0 = 0.0d0
+  real(8), protected, public :: SmearX0      = 0.0d0   ! (Ha) Gaussian smear of X0 (chi0) along freq; 0=off. Driver, see dpsion5
+  real(8), protected, public :: SmearX0q0    = -1.0d0  ! (Ha) <0: unset -> use SmearX0; >=0: SmearX0 override applied at offset-Gamma q0 only
+  ! NOTE: GaussianFilterX0 (a legacy GWinput key) was a dead/unused variable. It is now REMOVED.
+  !       If present in a .toml, load_gw_section aborts and tells the user to use SmearX0 / SmearX0q0.
   logical, protected, public :: GaussSmear   = .false.
 
   ! Optional flags
@@ -386,7 +388,16 @@ contains
     call gv_r(gw, 'omg_c',         omg_c)
     call gv_r(gw, 'WgtQ0P',        WgtQ0P)
     call gv_r(gw, 'SmearX0',       SmearX0)
-    call gv_r(gw, 'GaussianFilterX0', GaussianFilterX0)
+    call gv_r(gw, 'SmearX0q0',     SmearX0q0)
+    ! GaussianFilterX0 is removed (it was a dead key that never took effect). Abort loudly if a .toml still has it.
+    block
+      real(8) :: gfx0_dummy
+      integer :: gfx0_stat
+      call get_value(gw, 'GaussianFilterX0', gfx0_dummy, stat=gfx0_stat)
+      if (gfx0_stat == 0) call rx('m_GWinput: GaussianFilterX0 is no longer supported (it was a dead, '// &
+        'never-consumed key). Use SmearX0 (Ha) for the chi0 Gaussian filter and SmearX0q0 for the '// &
+        'offset-Gamma(q0)-only override. Remove GaussianFilterX0 from your .toml.')
+    end block
     call gv_r(gw, 'wan_conv_1st',  wan_conv_1st)
     call gv_r(gw, 'wan_conv_end',  wan_conv_end)
     call gv_r(gw, 'wan_max_1st',   wan_max_1st)

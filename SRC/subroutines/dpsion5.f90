@@ -188,7 +188,7 @@ contains
       allocate(gfmat(nwhis,nwhis))
       allocate(cgfmat(nwhis,nwhis))
       allocate(rcxq_work(npr,nwhis))
-      if(ipr) write(stdo,ftox) 'dpsion_chiq: GaussianFilterX0 is not checked yet: see dpsion_chiq'
+      if(ipr) write(stdo,ftox) 'dpsion_chiq: SmearX0 (chi0 GaussianFilter) is not checked yet: see dpsion_chiq'
       gfmat=gaussianfilterhis(smearx0,frhis,nwhis)
 
       !$acc data copyin(gfmat) create(cgfmat, rcxq_work)
@@ -352,7 +352,7 @@ contains
 
   !> Host (CPU) version of dpsion_chiq: no attributes(device), no OpenACC.
   !> rcxq and zxqi must be host-resident (e.g. pointing to shm_wvr/shm_wvi).
-  subroutine dpsion_chiq_h(realomega, imagomega, chipm, rcxq, zxqi, npr, npr_col, schi, isp, ecut)
+  subroutine dpsion_chiq_h(realomega, imagomega, chipm, rcxq, zxqi, npr, npr_col, schi, isp, ecut, smearx0_in)
     use m_keyvalue, only: getkeyvalue
     use m_GWinput, only: gwinput_init, gwinput_loaded, tg_SmearX0 => SmearX0
     use m_freq, only: frhis, freqr=>freq_r, freqi=>freq_i, nwhis, npm, nw_i, nw_w=>nw, niwt=>niw
@@ -367,6 +367,7 @@ contains
     implicit none
     logical, intent(in)  :: realomega, imagomega, chipm
     real(8), intent(in)  :: ecut, schi
+    real(8), intent(in), optional :: smearx0_in  ! caller-supplied SmearX0 (e.g. SmearX0q0 at offset-Gamma); falls back to toml SmearX0 if absent
     integer, intent(in)  :: isp, npr, npr_col
     complex(kind=kp), intent(inout) :: rcxq(1:npr,1:npr_col,(1-npm)*nwhis:nwhis)
     complex(kind=kp), intent(out)   :: zxqi(1:npr,1:npr_col,niwt)
@@ -382,13 +383,15 @@ contains
     call flush(stdo)
     if (chipm.and.npm==2) call rx('dpsion_chiq_h: npm==2 .AND. chipm is not meaningful')
     call gwinput_init()
-    if (gwinput_loaded) then
+    if (present(smearx0_in)) then
+      smearx0 = smearx0_in
+    elseif (gwinput_loaded) then
       smearx0 = tg_SmearX0
     else
       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
     endif
     GaussianFilter: if (abs(smearx0) > 1d-15) then
-      if (ipr) write(6,'("SmearX0= ",d13.6)') smearx0
+      if (ipr) write(6,'("SmearX0(chi0 GaussianFilter)= ",d13.6)') smearx0
       allocate(gfmat(nwhis,nwhis))
       allocate(cgfmat(nwhis,nwhis))
       allocate(rcxq_work(npr,nwhis))
