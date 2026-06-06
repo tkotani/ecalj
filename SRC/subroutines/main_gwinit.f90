@@ -68,6 +68,8 @@ contains
     write(ifi,'(a)') 'QpGcut_cou = 3.0    # |q+G| cutoff for Coulomb / W'
     write(ifi,'(a)') 'unit_2pioa = false  # false: a.u.; true: 2*pi/alat'
     write(ifi,'(a)') 'alpha_OffG = 1.0    # offset-Gamma auxiliary function'
+    write(ifi,'(a)') '# Q0Pchoice = 1     # offset-Gamma deltaq_scale: 1 -> 0.1 (q->0 limit), 2 -> 1/sqrt(3) (mean-value)'
+    write(ifi,'(a)') '# deltaq_scale = 0.3  # (optional) directly set deltaq_scale, overriding Q0Pchoice'
     write(ifi,'(a)') '# emax_chi0 = 999.0   # (Ry) optional emax cutoff for chi0'
     write(ifi,'(a)') 'emax_sigm  = 3.0    # (Ry) emax cutoff for Sigma'
     write(ifi,'(a)')

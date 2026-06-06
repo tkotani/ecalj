@@ -156,6 +156,7 @@ module m_GWinput
   integer, protected, public :: wan_in_bmax        = -999
   integer, protected, public :: mixpriorit         = 3
   integer, protected, public :: Q0Pchoice          = 1
+  real(8), protected, public :: DeltaQscale        = -1.0d0  ! >0: directly set offset-Gamma deltaq_scale; <0: use Q0Pchoice (1->0.1, 2->1/sqrt3)
   integer, protected, public :: Verbose            = 0
   integer, protected, public :: Q0P_Choice         = 0
   ! NormChk_int: switch.f90 reads NormChk as integer (default=1) — keep
@@ -465,6 +466,7 @@ contains
     call gv_i(gw, 'wan_in_bmax',        wan_in_bmax)
     call gv_i(gw, 'mixpriorit',         mixpriorit)
     call gv_i(gw, 'Q0Pchoice',          Q0Pchoice)
+    call gv_r(gw, 'deltaq_scale',       DeltaQscale)
     call gv_i(gw, 'Verbose',            Verbose)
     call gv_i(gw, 'Q0P_Choice',         Q0P_Choice)
     call gv_i(gw, 'NormChk',            NormChk_int)  ! integer form (switch.f90)

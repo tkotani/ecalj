@@ -332,6 +332,10 @@ contains
               call dpsion_init(realomega, imagomega, chipm)
               smearx0_eff = SmearX0
               if (iq > nqibz .and. SmearX0q0 >= 0d0) smearx0_eff = SmearX0q0  ! offset-Gamma q0 only override
+              ! confirmation display (NOT ipr-guarded): shows the chi0 Gaussian-filter width actually used per q
+              write(stdo,"(' x0kf SmearX0 check: iq=',i4,'  is_q0p(offsetGamma)=',l1, &
+                   '  SmearX0_used(Ha)=',f12.6,'  [SmearX0=',f10.6,' SmearX0q0=',f10.6,']')") &
+                   iq, (iq>nqibz), smearx0_eff, SmearX0, SmearX0q0
               call dpsion_chiq(realomega, imagomega, chipm, chi0, zxqi, npr, npr, schi, isp_k, ecut, smearx0_eff)
               call stopwatch_pause(t_sw_dpsion)
               call stopwatch_show(t_sw_dpsion)

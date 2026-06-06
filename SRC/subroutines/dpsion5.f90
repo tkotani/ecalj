@@ -379,6 +379,7 @@ contains
     complex(kind=kp), allocatable :: rcxq_work(:,:), cgfmat(:,:)
     integer  :: ipr_col, ipm, istat, ispx
     real(8)  :: wfac, smearx0
+    real(8)  :: fs_b(2), ar_b(2), fs_a(2), ar_a(2), frcw   ! SmearX0 f-sum/area diagnostic (head & off-diag)
     if (ipr) write(stdo,ftox) " -- dpsion_chiq_h: start... nw_w nwhis=", nw_w, nwhis
     call flush(stdo)
     if (chipm.and.npm==2) call rx('dpsion_chiq_h: npm==2 .AND. chipm is not meaningful')
@@ -397,10 +398,30 @@ contains
       allocate(rcxq_work(npr,nwhis))
       gfmat = gaussianfilterhis(smearx0, frhis, nwhis)
       cgfmat(:,:) = cmplx(gfmat(:,:), kind=kp)
+      ! --- f-sum/area diagnostic BEFORE filtering (head=(1,1), off-diag=(1,2)) ---
+      ar_b=0d0; fs_b=0d0
+      do iw=1,nwhis
+        frcw=(frhis(iw)+frhis(iw+1))/2d0
+        ar_b(1)=ar_b(1)+dble(rcxq(1,1,iw)); fs_b(1)=fs_b(1)+frcw*dble(rcxq(1,1,iw))
+        if(npr_col>=2) then
+          ar_b(2)=ar_b(2)+dble(rcxq(1,2,iw)); fs_b(2)=fs_b(2)+frcw*dble(rcxq(1,2,iw))
+        endif
+      enddo
       do ipr_col = 1, npr_col
         rcxq_work(1:npr,1:nwhis) = rcxq(1:npr,ipr_col,1:nwhis)
         istat = gemm(rcxq_work, cgfmat, rcxq(1,ipr_col,1), npr, nwhis, nwhis, ldC=npr*npr_col, opB=m_op_T)
       enddo
+      ! --- f-sum/area diagnostic AFTER filtering; f-sum must be (nearly) unchanged ---
+      ar_a=0d0; fs_a=0d0
+      do iw=1,nwhis
+        frcw=(frhis(iw)+frhis(iw+1))/2d0
+        ar_a(1)=ar_a(1)+dble(rcxq(1,1,iw)); fs_a(1)=fs_a(1)+frcw*dble(rcxq(1,1,iw))
+        if(npr_col>=2) then
+          ar_a(2)=ar_a(2)+dble(rcxq(1,2,iw)); fs_a(2)=fs_a(2)+frcw*dble(rcxq(1,2,iw))
+        endif
+      enddo
+      write(stdo,"(' SmearX0 fsum-diag head(1,1):  area b/a=',2es13.5,'  f-sum b/a=',2es13.5)") ar_b(1),ar_a(1),fs_b(1),fs_a(1)
+      if(npr_col>=2) write(stdo,"(' SmearX0 fsum-diag offd(1,2): area b/a=',2es13.5,'  f-sum b/a=',2es13.5)") ar_b(2),ar_a(2),fs_b(2),fs_a(2)
       if (npm == 2) then
         cgfmat(1:nwhis,1:nwhis) = cmplx(gfmat(1:nwhis,nwhis:1:-1), kind=kp)
         do ipr_col = 1, npr_col
@@ -627,30 +648,38 @@ contains
   end subroutine dpsion5
 !  subroutine GaussianFilter(rcxq,nmbas1,nmbas2, egauss,iprint)
   function gaussianfilterhis(smearx0, frhis,nwhis) result(gfmat)
-!    use m_getxc,only: getxc,mean_from_xc
+    ! Bin-width-weighted, weight-conserving Gaussian smoothing of Im chi0 along omega.
+    ! frhis is a strongly non-uniform (exponential) mesh, so the kernel MUST carry the bin
+    ! width dfr; a plain count-sum normalization (the old code) biased toward the dense
+    ! omega~0 bins and broke the sum rules.
+    ! gemm computes rcxq_new(i) = sum_j rcxq(j) * gfmat(i,j)  (target i, source j).
+    ! We use the scatter form  gfmat(i,j) = K(i,j) dfr(i) / sum_i' K(i',j) dfr(i')  so that
+    !   sum_i gfmat(i,j) = 1  for every source j
+    ! => area  sum_iw rcxq(iw)        is conserved EXACTLY (0th moment), and
+    !    f-sum sum_iw omega_iw rcxq   is conserved to the continuum (symmetric-kernel) limit.
+    ! Reduces to the identity as smearx0 -> 0.
     implicit none
     integer,intent(in):: nwhis
     real(8),intent(in):: smearx0,frhis(nwhis+1)
-    real(8):: gfmat(nwhis,nwhis),xc(nwhis)
-    real(8),allocatable:: frc(:),gfm(:)
+    real(8):: gfmat(nwhis,nwhis)
+    real(8),allocatable:: frc(:),dfr(:),gfm(:)
     real(8):: ggg
     integer:: i,j
-    allocate(frc(nwhis),gfm(nwhis))
+    allocate(frc(nwhis),dfr(nwhis),gfm(nwhis))
     do i=1,nwhis
-      frc(i)=(frhis(i)+frhis(i+1))/2d0
-!      xc(i) = mean_from_xc(frc(i),smearx0)
-!      write(*,*)'ggggggggg', smearx0, ftod(frc(i)), ftod(xc(i))
+      frc(i)=(frhis(i)+frhis(i+1))/2d0     ! bin-center frequency (Ha)
+      dfr(i)= frhis(i+1)-frhis(i)          ! bin width (Ha)
     enddo
-    do i=1,nwhis
-       do j=1,nwhis
-          gfm(j)= exp( -(frc(i)-frc(j))**2/(2d0*smearx0**2))
+    do j=1,nwhis                            ! source bin (column)
+       do i=1,nwhis                         ! target bin (row)
+          gfm(i)= exp( -(frc(i)-frc(j))**2/(2d0*smearx0**2) ) * dfr(i)
        enddo
-       ggg = sum(gfm(:))
-       do j=1,nwhis
-          gfmat(j,i)= gfm(j)/ggg
+       ggg = sum(gfm(:))                    ! = sum_i K(i,j) dfr(i)
+       do i=1,nwhis
+          gfmat(i,j)= gfm(i)/ggg            ! = K(i,j) dfr(i) / sum_i' K(i',j) dfr(i')
        enddo
     enddo
-    deallocate(frc,gfm)
+    deallocate(frc,dfr,gfm)
 ! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
 !      do j=1,nwhis,20
 ! !      if(j>10) cycle

@@ -64,22 +64,31 @@ end function oncewrite
 real(8) function deltaq_scale()
   ! Q0Pchoice=1: qzerolimit. (not too small because of numerical reason.)
   ! Q0Pchoice=2: =1d0/3.0**.5d0/Q is the mean value of \int_{|q|<Q} d^3 q <1/q^2> for a sphere.
+  ! deltaq_scale (toml, real): if >0 it directly sets the offset-Gamma magnitude scale, overriding Q0Pchoice.
   use m_keyvalue,only: getkeyvalue
-  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_Q0Pchoice => Q0Pchoice
+  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_Q0Pchoice => Q0Pchoice, tg_dqs => DeltaQscale
   integer,save :: ttt=1
+  real(8),save :: dqs=-1d0
   logical,save:: init=.true.
   if(init) then
      call gwinput_init()
      if (gwinput_loaded) then
         ttt = tg_Q0Pchoice
+        dqs = tg_dqs
      else
         call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
 !        call getkeyvalue("GWinput","Q0Pchoice",ttt,default=1)
      endif
-     write(6,"('  Q0Pchoice=',i3)") ttt
+     if(dqs>0d0) then
+        write(6,"('  deltaq_scale (explicit override)=',f12.6)") dqs
+     else
+        write(6,"('  Q0Pchoice=',i3)") ttt
+     endif
      init=.false.
   endif
-  if(ttt==1) then
+  if(dqs>0d0) then
+     deltaq_scale=dqs            !explicit override from toml deltaq_scale
+  elseif(ttt==1) then
      deltaq_scale=0.1d0 !this is essentially q to zero limit.
   elseif(ttt==2) then
      deltaq_scale=1d0/3.0**.5d0
