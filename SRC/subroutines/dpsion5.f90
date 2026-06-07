@@ -189,7 +189,7 @@ contains
       allocate(cgfmat(nwhis,nwhis))
       allocate(rcxq_work(npr,nwhis))
       if(ipr) write(stdo,ftox) 'dpsion_chiq: SmearX0 (chi0 GaussianFilter) is not checked yet: see dpsion_chiq'
-      gfmat=gaussianfilterhis(smearx0,frhis,nwhis)
+      gfmat=gaussianfilterhis(smearx0,frhis,nwhis,npm)
 
       !$acc data copyin(gfmat) create(cgfmat, rcxq_work)
       !$acc kernels
@@ -396,7 +396,7 @@ contains
       allocate(gfmat(nwhis,nwhis))
       allocate(cgfmat(nwhis,nwhis))
       allocate(rcxq_work(npr,nwhis))
-      gfmat = gaussianfilterhis(smearx0, frhis, nwhis)
+      gfmat = gaussianfilterhis(smearx0, frhis, nwhis, npm)
       cgfmat(:,:) = cmplx(gfmat(:,:), kind=kp)
       ! --- f-sum/area diagnostic BEFORE filtering (head=(1,1), off-diag=(1,2)) ---
       ar_b=0d0; fs_b=0d0
@@ -546,7 +546,7 @@ contains
        if(eginit) then
          if(ipr) write(stdo,'("SmearX0= ",d13.6)') smearx0
           allocate(gfmat(nwhis,nwhis))
-          gfmat=gaussianfilterhis(smearx0,frhis,nwhis)
+          gfmat=gaussianfilterhis(smearx0,frhis,nwhis,npm)
           eginit=.false.
        endif
        do ipm=1,npm
@@ -647,23 +647,29 @@ contains
     call cputid(0)
   end subroutine dpsion5
 !  subroutine GaussianFilter(rcxq,nmbas1,nmbas2, egauss,iprint)
-  function gaussianfilterhis(smearx0, frhis,nwhis) result(gfmat)
-    ! Bin-width-weighted, weight-conserving Gaussian smoothing of Im chi0 along omega.
+  function gaussianfilterhis(smearx0, frhis,nwhis,npm) result(gfmat)
+    ! Bin-width-weighted Gaussian smoothing of Im chi0 along omega.
     ! frhis is a strongly non-uniform (exponential) mesh, so the kernel MUST carry the bin
-    ! width dfr; a plain count-sum normalization (the old code) biased toward the dense
-    ! omega~0 bins and broke the sum rules.
+    ! width dfr (target measure); a plain count-sum normalization (old code) biased toward the
+    ! dense omega~0 bins and broke the sum rules.
     ! gemm computes rcxq_new(i) = sum_j rcxq(j) * gfmat(i,j)  (target i, source j).
-    ! We use the scatter form  gfmat(i,j) = K(i,j) dfr(i) / sum_i' K(i',j) dfr(i')  so that
-    !   sum_i gfmat(i,j) = 1  for every source j
-    ! => area  sum_iw rcxq(iw)        is conserved EXACTLY (0th moment), and
-    !    f-sum sum_iw omega_iw rcxq   is conserved to the continuum (symmetric-kernel) limit.
-    ! Reduces to the identity as smearx0 -> 0.
+    !
+    ! Two ingredients:
+    !  (1) target-bin width dfr(i): K(i,j)*dfr(i) normalized by sum_i' K(i',j)*dfr(i')
+    !      => faithful Gaussian convolution of the spectral DENSITY on the non-uniform mesh.
+    !  (2) npm==1 (charge chi0, only omega>=0 stored): Im chi0 is ODD in omega
+    !      (Im chi0(-w) = -Im chi0(w), from reality/causality, independent of time reversal).
+    !      So use the odd extension K(i,j) - K(i,-j) with K(i,-j)=exp[-(frc(i)+frc(j))^2/2s^2].
+    !      This makes the smoothed Im chi0 vanish as omega->0 (no spurious pile-up from the
+    !      hard omega=0 cut) and preserves the f-sum. Normalizer stays the SYMMETRIC sum
+    !      sum_i' K(i',j)*dfr(i') so the column -> 0 as frc(j)->0 (odd, area not forced to 1).
+    !      npm/=1 (chipm/magnon, +-omega both stored): keep the plain symmetric kernel.
     implicit none
-    integer,intent(in):: nwhis
+    integer,intent(in):: nwhis,npm
     real(8),intent(in):: smearx0,frhis(nwhis+1)
     real(8):: gfmat(nwhis,nwhis)
     real(8),allocatable:: frc(:),dfr(:),gfm(:)
-    real(8):: ggg
+    real(8):: ggg,ksym
     integer:: i,j
     allocate(frc(nwhis),dfr(nwhis),gfm(nwhis))
     do i=1,nwhis
@@ -671,12 +677,18 @@ contains
       dfr(i)= frhis(i+1)-frhis(i)          ! bin width (Ha)
     enddo
     do j=1,nwhis                            ! source bin (column)
+       ggg = 0d0
        do i=1,nwhis                         ! target bin (row)
-          gfm(i)= exp( -(frc(i)-frc(j))**2/(2d0*smearx0**2) ) * dfr(i)
+          ksym = exp( -(frc(i)-frc(j))**2/(2d0*smearx0**2) )
+          ggg  = ggg + ksym*dfr(i)          ! symmetric normalizer = sum_i K(i,j) dfr(i)
+          if(npm==1) then                   ! odd extension: subtract reflected Gaussian
+             gfm(i)= ( ksym - exp( -(frc(i)+frc(j))**2/(2d0*smearx0**2) ) ) * dfr(i)
+          else
+             gfm(i)= ksym * dfr(i)
+          endif
        enddo
-       ggg = sum(gfm(:))                    ! = sum_i K(i,j) dfr(i)
        do i=1,nwhis
-          gfmat(i,j)= gfm(i)/ggg            ! = K(i,j) dfr(i) / sum_i' K(i',j) dfr(i')
+          gfmat(i,j)= gfm(i)/ggg
        enddo
     enddo
     deallocate(frc,dfr,gfm)
