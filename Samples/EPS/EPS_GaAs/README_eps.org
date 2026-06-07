@@ -2,12 +2,12 @@
 
 * Get rst (and sigm) by a self-consistent calculaiton.
 
-* Then Run 
->eps_lmfh (with local field correction),
-  or 
->espPP_lmfh (withuout local field correction).
+* Then Run
+>job_eps --lcf <sname>      (with local-field correction; legacy name: eps_lmfh)
+  or
+>job_eps <sname>            (without local-field correction; legacy name: epsPP_lmfh / epsPP0)
 
-epsPP_lmfh is much faster thatn eps_lmfh
+job_eps (no --lcf) is much faster than job_eps --lcf.
 
 
 * Setting inof GWinput
@@ -32,16 +32,16 @@ Too small q may cause numerical problem.
 We usually need many k points for paper-level calculaitons (as 20x20x20 for GaAs)
 so as to reproduce sharp structures of Im(epsilon).
 
-But note that eps_lmfh is very time-consuming, 
-whereas epsPP_lmfh is not so time consuming even when you use 'n1n2n3 20 20 20' 
+But note that job_eps --lcf is very time-consuming, 
+whereas job_eps is not so time consuming even when you use 'n1n2n3 20 20 20' 
 in GWinput.
 
-So, I recommend you to start from 12 12 12 or so for GaAs case if you try eps_lmfh
+So, I recommend you to start from 12 12 12 or so for GaAs case if you try job_eps --lcf
 (I think 12x12x12 is not so bad to determine epslion(0,0) for MgO). 
 
 
 ** Reduce Mixed product basis.
-To do eps_lmfh, we need to reduce computational time.
+To do job_eps --lcf, we need to reduce computational time.
 For the purpose, set lcutmx(atom) as 2, and QpGcut_cou can be 2.0 or so.
 But Carefully check these conditions do not change your results; For check, you can use
 smaller number of k points case.
