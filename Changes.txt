@@ -1,4 +1,13 @@
 2026-06-05
+  [fix] ctrl2ctrltoml.py: 生成 TOML の [ham] セクションに phispinsym=false を
+    自動付加。2026-06-02 で HAM_PHISPINSYM=nreq=1 必須化したが、legacy ctrl 形式は
+    PHISPINSYM トークンを持たないため、Legacy2toml.py 経由(内部で
+    ctrl2ctrltoml.py を呼ぶ)で生成した toml が phispinsym 欠落のまま lmf に
+    渡り abort していた。ctrlgenToml.py 側(ctrls→toml 経路, line 673)は既に
+    同 default を補完していたため、ctrl2ctrltoml.py(ctrl→toml 経路)にも同等の
+    fallback を追加(emit_section('ham') の末尾で seen に無ければ default 行を
+    出力)。これで legacy ctrl からの移行が再び一発で通る。
+
   [tool] SRC/exec/qsgw_status: gwsc QSGW 反復の進行ダッシュボード(新規)。
     実行ディレクトリで `qsgw_status [--last N]`(watch -n 30 で常駐可)。
     QPU.*run / sigm.iter* の mtime から反復ごとの経過時間・ペース(中央値)・ETA、
@@ -26,6 +35,15 @@
     --use_fp32(__VxcEvec ファイルの Γ点 v_xc は健全: max 2.29, Inf 無し)。
     検証: 修正版で hqpe_sc 正常終了、ESEAVR 全q 0.16〜0.17、QPU/sigm/バンド健全、
     本番 gwsc 継続で iter4 rc=0。
+
+  [fix] MPI__AutoSetup: mpi__size >> nq_calc のとき余剰 q-group が大量発生する問題を修正。
+    メモリ制約のみで worker_inQtask を決めていたため (target_w = ceil(ppn/max_qg))、
+    q-group 数が q 点数を大幅に超えることがあった
+    (例: 512ランク, ppn=64, 18q点 → 128グループ, 107グループが遊び)。
+    target_w に ceil(mpi__size/nq_calc) も課すことで n_qgroup ≤ nq_calc を保証。
+    例: 512ランク, ppn=64, 18q点 → worker=32, n_qgroup=16, 全ランク稼働。
+    exchange フェーズの worker 計算にも同様の修正を適用。
+
   [feat] readeigen: CPU ビルドで geig/cphi (固有ベクトル) を MPI 共有メモリ化。
     KeepEigen=T 時、geig/cphi(complex(8)) を各ランクが private 複製で保持していた
     (密な系で ~2GB/rank; liti2o4 14原子/LDA 16^3 で 60ランク = ~126GB の純複製)。
@@ -48,6 +66,60 @@
     変更(一発の偶然収束で止まるのを防ぐ)。(2) EXEC_DIR の .resolve() を除去 ——
     bin/ の symlink を辿ると Fortran バイナリの無い SRC/exec を指して lmfa 起動に
     失敗していた。gwsc と同じ Path(__file__).parent に統一。
+
+  [feat] readeigen: GPU ビルドでも geig/cphi を CPU SHM 化（VRAM 常駐廃止）。
+    KeepEigen=T 時、GPU ビルドは geig/cphi を per-rank allocatable + !$acc copyin で
+    VRAM に常駐させていた（密な系で数 GB/rank の VRAM を専有）。
+    #ifdef __GPU の分岐を除去し CPU と同じ pointer + shm_alloc_c8_4d パスに統一。
+    readgeigf_mpi / readcphif_mpi の keepeig 節は "!$acc kernels present(geig/cphi)"
+    を廃止し、SHM ポインタから geigenr/cphifr へ host コピー後に
+    !$acc update device で H2D 転送する方式に変更。
+    転送サイズは 1 q 点スライス（ngpmx*nspc×nband）のみで GEMM 律速な計算と比べ無視できる。
+
+  [feat] MPI__AutoSetup: priv_reserve_gb(固定 1 GB/rank)を廃止し
+    zmel 実サイズベースの見積りに変更。
+    新引数 zmel_per_rank_gb（呼び出し側が実サイズを計算して渡す）を追加。
+    CPU: avail_for_shm = avail×0.7 − ppn×3×zmel_gb（zmel+czmelwc+wzmel 同時確保 ×3）。
+    GPU: gpu_avail_mem_gb()（新規）で VRAM 空き量を取得し、
+      W-build: rcxq/n_bpara_xq + zmel×2 ≤ gpu_avail×0.7
+      Sc:      wvu/n_bpara_sxc + zmel×3 ≤ gpu_avail×0.7
+    の制約を n_bpara_xq / n_bpara_sxc の下限として付加。
+    GPU: ranks_per_gpu (gpu_init で設定) で GPU 共有時の VRAM を per-rank に按分。
+
+  [feat] MPI__PrintSummary（m_mpi.f90 新規）: InitQgroups/SplitXq/SplitSxc 後に
+    q-group→ノード対応・intra-group レイアウト(omega×k)・LPT q-point 割り当て
+    を human-readable に出力。グループ数 >32 は先頭/末尾のみ表示（--fullstdo で全表示）。
+
+  [feat] main_hgw: 補助 q 点(aux-q)と通常 q 点を統一 LPT でアサイン。
+    従来は aux-q を mod(iq-nqibz-1, n_qgroup) で固定割り当て（負荷不均一の恐れ）。
+    mpi_assign_qtask_lpt に naux / aux_grp_out 引数を追加し、aux-q の重みを
+    avg_regular_weight/3（W-build のみで Sc なし ≈ 1:3 コスト比）として LPT に統合。
+    reg_grp_assign / aux_grp_assign を public 変数として公開。
+    iq ループ内で W-build と Sc の直後に mpi__root_q が "hgw iq=N: W-build/Sc" と
+    stopwatch 計時付きで進捗を出力するよう変更。
+    wv_dealloc() をループ末尾（各 iq 処理後）に移動（従来はループ外 = 全 iq 完了後）。
+
+  [feat] m_sxcf_sc: wvr_upper / wvi_upper を GPU build で attributes(device) 宣言。
+    従来は CPU に確保して !$acc enter data copyin で VRAM に複製していた
+    （VRAM に 2 コピー存在し、Sc フェーズで最大メモリ使用量が増大）。
+    GPU build では device 属性のみとし CPU コピーを廃止。
+    SHM から slice-by-slice に小バッファ wv(ngb,ngb) 経由で device へ転送
+    （!$acc update device(wv) → !$acc parallel loop で上三角要素をコピー）。
+
+  [feat] m_GWinput: MEMnmbatch / zmel_max_size を zmel_batch_gb に統合。
+    legacy alias として zmel_max_size は引き続き読み込み可。
+    GPU ビルド時は zmel_batch_gb_min_gpu=2.0 GB を下限としてクランプ
+    （CPU 最小値は zmel_batch_gb_min=0.4 GB）。
+
+  [fix] memused: /proc/self/status の VmRSS（現在 RSS）を読むよう変更。
+    従来の getrusage は peak RSS を返すため、SHM 化後に解放したメモリが
+    memused() に残り続けて AutoSetup の avail 見積りが悲観的になっていた。
+    procfs が使えない環境では getrusage にフォールバック。
+    mempeak 更新の比較演算子 > → < を修正（peak が更新されていなかったバグ）。
+
+  [refactor] SRC/exec_legacy/: 現行フローで使われないスクリプト群を exec/ から移動。
+    Cal_W_off-site.py, FLEX_interaction.py, Makeinstall, gwutil.py 等 43 ファイル。
+    diffnum0.py は exec/pylib/ に移動（pylib 内のユーティリティとして整理）。
 
 2026-06-04
   [feat] GPU 混合精度 GEMM に --fp32 ランタイムオプションを追加。
@@ -76,6 +148,113 @@
     vasp2ctrl → ctrlgenToml.py → gwscconv --gpu --mp --fp32 --conv-tol 0.1
     で悪条件失敗群を自動救済できるようにした (収束基準は last-3-iter ギャップ
     振れ < 0.1 eV)。
+
+2026-06-03
+  [refactor] MPI startup-read 経路の全 rank 並列化 (mpibc1_* 系の大規模削減)。
+    POSIX/NFS/Lustre が同一ファイル N rank 同時 read を保証する前提で、startup
+    時に master が読んで全 rank に Bcast していた「master-reads + mpibc1_*」
+    パターンを「全 rank が独立に open/read/close する」形に置換。
+    - iors.f90: rst.<sname> の read path で 25+ 件の mpibc1_int/real/complex/
+      mpibc1_s_spec を全削除。lfail 探査、osmrho/pnu/pnz/rhoat/v0/v1/spec data の
+      bcast 経路もろとも撤去。write は master 単独のまま不変。502→441 行。
+      全 rank 完全同一 EHF=-6372.629191/EHK=-6372.480439 (1/4/8 rank)。
+    - rdovfa.f90 + m_fatom.f90 + m_lmfinit.f90: __atm.<sname> 読み込みと
+      mpibc1_s_spec 撤去。m_fatom から mpibc1_s_spec subroutine を削除
+      (唯一の caller だった iors/rdovfa 両方で不要に)。m_lmfinit の
+      sigm.<sname> 存在チェック後の bcast も全 rank inquire に。
+    - esmsmves.f90: ESM init block の master read + 11 件の mpibc1_*/
+      mpi_barrier 撤去。jesm=0 path 不変。
+    - mpibc.f90: mpibc2 (MPI_Allreduce SUM wrapper) を MPI_IN_PLACE 化、
+      ibuf/dbuf alloc + dcopy/icopy back の plumbing を撤去 (-51 LOC)。
+      callsite 不変 (signature 保持)。ifort 2018 workaround (transfer 不可
+      コメント) は最低 ifort 2023 で過去のものに。
+    - 残置: master-only output (write(stdo,...)) のため master_mpi 条件のみ。
+      mpibc2 (Allreduce 系 31 callsite) は本質的 collective で削減不可。
+      m_qplist/m_bndfp の per-iter computed scalar bcast は決定性確証が
+      取れないため凍結。
+    効果: ~50-60 callsite 削減、~300 LOC 削減。3 環境 testecalj --all 全通過
+    (t14 gfortran-14: 666/666、mic ifort 2023: 666/666、kt1 nvfortran 26.1+
+    GPU+MP: 645/645 "ALL PASSED")。
+
+  [refactor] m_MPItk → m_mpi 統合 (legacy alias module 撤去)。
+    m_mpitk.f90 は 14 行の thin re-export wrapper だった (procid/strprocid/
+    master/nsize/master_mpi/xmpbnd2/comm/readtk + m_MPItk_init を
+    m_mpi から forward)。本体は既に m_mpi に集約済み。callsite を一括移行:
+    - 54 ファイルの `use m_MPItk` → `use m_mpi` (case-insensitive)
+    - 8 callsite の `m_MPItk_init(comm)` → `MPI__Initialize(comm)`
+      (他 19 callsite は既に MPI__Initialize 直呼び)
+    - リネーム alias (comm2=>comm, nrank=>nsize 等) はそのまま機能
+    - m_mpitk.f90 削除 + m_mpi.f90 のコメントから "m_MPItk compatible" を
+      正常化
+    56 files changed, +80/-94 LOC。NiO 4-rank smoke 数値一致。
+
+  [refactor] iors_old.f90 (vs=1.04 rst, pre-2022-5-14) を削除。
+    iors_old は 2022 年 5 月 14 日以前の旧 rst バイナリ format 読込用で
+    788 行、唯一の caller は m_lmfp.f90 の 1 行。vs/=2.0 path を rx() に
+    置換 (no longer supported メッセージ付き) + ファイル削除。3 年以上未使用、
+    遭遇する 旧 rst ファイルがあれば lmfa から再生成すべき状況。
+
+  [refactor] dead source 整理。
+    - コメントのみ 4 ファイル削除: lmf2gw.f90, m_anf.f90, main_hmlo.f90,
+      main_hsigmconv.f90 (合計 543 行、ファイル内全行が `^!`、CMake auto-glob で
+      無シンボル .o を生成していた)。
+    - 全 dead 8 ファイル (~1984 LOC) を SRC/BK/ に退避: m_eibz, m_hamMTO,
+      m_readeps, m_rotMPB, w_psir, rpaq, zsecsym, madmat。declared module
+      230 vs imported module 219 のスキャンと free-subroutine 外部 caller の
+      確認を経て「外部参照ゼロ」を保証して移動。
+    - 部分 dead 2 ファイル (wintzsg.f90/extension.f90) は live free
+      subroutine を保持しつつ dead module/関数のみコメントアウト。
+      wintzsg.f90 の wintz_npm は wintzsg_npm が内部 call していたため
+      live 判定で保持 (linker エラーで検知して復活)。
+    - rgwinf_mod.f90 の長期 stale 削除を git index に staging。
+    - SRC/BK/ 配下に退避しているため、必要なら参照可能。
+
+  [refactor] m_blas: include "mpif.h" → use mpi (主要 2 関数除く)。
+    main_wannier_wanplot.f90 の 1 件と m_blas.f90 の 1 件は use mpi 化。
+    ただし m_blas.f90 の cmm_batch_h / zmm_batch_h は include "mpif.h" を
+    維持 (nvfortran は use mpi の generic mpi_bcast を complex(4)/integer(8)
+    の組合せで resolve できない、include なら implicit interface で通る、
+    legacy 派の意図的選択)。SRC/subroutines/SRC/main 配下では SRC/BK/ を除き
+    active な include mpif.h は m_blas.f90 の 2 関数のみとなる。
+
+  [feat] viewvesta / ctrl2vasp: 正規 TOML 入力 ctrlg.<sname>.toml を受理。
+    viewvesta はこれまで ctrl./ctrls. プレフィックスのみ判定していたため
+    `viewvesta ctrlg.nio.toml` が誤って `ctrl` 分岐に落ち、結果として
+    POSCAR_g.nio.toml.vasp(ゴミ名)が生成されていた。
+    - viewvesta.py: ctrlg.*.toml 判定を ctrl* 判定より前に置く (順序が
+      重要、`'ctrlg.foo.toml'[0:4]=='ctrl'` が誤マッチするため)。
+    - ctrl2vasp.py: TOML 分岐を追加。tomllib で読込→struc.alat (Bohr) を
+      angstrom 換算→struc.plat を 9 要素に平坦化→[[site]] を
+      [[name, x, y, z], ...] に展開→既存 convctrl.savefile() に渡して
+      POSCAR 出力。legacy ctrl./ctrls. path は完全に維持。
+    Help text に 3 形式 (canonical TOML / 旧 ctrls / 旧 ctrl /
+      pre-made POSCAR) を明記。NiO 検証: 3 入力形式すべて同一 139 byte
+      POSCAR を生成、VESTA 起動 OK。
+
+  [feat] bash completion (ecalj_complete.bash): --ctrlg:<path>= の Tab で
+    現状値を表示。
+    - --ctrlg:<TAB> → 全 dotted key を `bz.nkabc=[8,8,8]`,
+      `symgrp='"find"'`, `bz.tetra=true` 等の TOML literal で出力
+    - TOML 文字列は autoquote_bare_string が救済できる形 (letter 始まり等)
+      なら裸で emit、それ以外は `'"value"'` で二重 quote (外 ' で bash
+      保護、内 " で TOML 引用)、リストは外 ' で glob 衝突 ([8,8,8] 等)
+      防止
+    - multi-line 文字列 (blocks.QforEPS 等) は値非表示 `key=` のみ
+    - `--ctrlg:<TAB>` (CWORD=":") と `--ctrlg:bz.<TAB>` (CWORD="bz.") 両方
+      正しく動作するよう cur 再構築条件を `prev==":"` / `cur==":"` 両方で
+      トリガ
+    - `lmfa ctrlg.nio.toml <TAB>` (positional 既出+末尾スペース)で同 sname
+      を再 offer しないよう、勝手な重複を抑止
+    関連: m_toml_override の multi-line array 置換 bug 修正
+    (--ctrlg:struc.plat='[[..],[..],[..]]' が 1 行目しか置換せず orphan を
+    残していた問題)、ecalj_complete でリストに対する `'...'` 外側 quote
+    付加、m_ext で `lmf ctrlg.<sname>` (no .toml) を loud reject。
+
+  [fix] InstallAll.py: lmf --listcmdopt の post-build dump を skip_on_error=
+    True に。HPCX (kt1 OpenMPI) は MPI_Init/Finalize bracket 付きでも exit=1
+    を返すため、tab-completion 用 cmdopt list 生成だけで全 install が abort
+    していた。stdout は完全に書き出されるため file は正しく生成済、それを
+    blocker にしないよう wrapper の sys.exit(1) を抑止。
 
 2026-06-02
   [BREAKING] cmdline override prefix と TOML ファイル命名規約を変更:

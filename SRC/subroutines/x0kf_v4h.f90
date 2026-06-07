@@ -2,7 +2,7 @@
 module m_x0kf
   use m_lgunit,only: stdo
   use m_keyvalue,only : Getkeyvalue
-  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_zmel_max_size => zmel_max_size
+  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_zmel_batch_gb => zmel_batch_gb
   use m_pkm4crpa,only : Readpkm4crpa
   use m_zmel,only: build_zmel, zmel
   use m_freq,only: npm, nwhis
@@ -173,7 +173,7 @@ contains
     real(8):: q(3), schi, ekxx1(nband,nqbz), ekxx2(nband,nqbz)
     character(10) :: i2char
     logical :: tetwtk = .false.
-    real(8) :: zmel_max_size
+    real(8) :: zmel_batch_gb
     real(8) :: smearx0_eff   ! SmearX0 used for this q; SmearX0q0 override at offset-Gamma (iq>nqibz)
     type(stopwatch) :: t_sw_zmel, t_sw_x0, t_sw_dpsion
 
@@ -184,18 +184,19 @@ contains
     ! k-point parallelism: split nqbz across comm_k ranks.
     k_lo = mpi__rank_k * ((nqbz + mpi__size_k - 1) / mpi__size_k) + 1
     k_hi = min(k_lo + (nqbz + mpi__size_k - 1) / mpi__size_k - 1, nqbz)
-    write(stdo,*) 'x0kf_zxq: k_lo, k_hi, nwhis, nw_i, nw, iw_lo, iw_hi', k_lo, k_hi, nwhis, nw_i, nw, iw_lo, iw_hi
+    if (ipr) write(stdo,'(1X,A,7I6)') 'x0kf_zxq: k_lo k_hi nwhis nw_i nw iw_lo iw_hi =', &
+                                       k_lo, k_hi, nwhis, nw_i, nw, iw_lo, iw_hi
     if (npm /= 1)      call rx('x0kf_zxq: npm/=1 not supported')
     if (wv_ngb /= npr) call rx('x0kf_zxq: wv_ngb /= npr (shm_wvr size mismatch)')
 
     if (c0_tetwtk) tetwtk = .true.
     call gwinput_init()
     if (gwinput_loaded) then
-      zmel_max_size = tg_zmel_max_size
+      zmel_batch_gb = tg_zmel_batch_gb
     else
       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
     endif
-    if (zmel_max_size < 0.001d0) zmel_max_size = 1d0
+    if (zmel_batch_gb < 0.001d0) zmel_batch_gb = 0.4d0
     if (chipm .AND. nolfco) then
       call set_m2e_prod_basis_chipm(zzr, npr)
     else
@@ -205,7 +206,9 @@ contains
     if (associated(zxq)) nullify(zxq)
     if (allocated(rcxq)) deallocate(rcxq)
     if (nw_w > nwhis) call rx('nwhis is smaller than nw_w')
-    if (ipr) write(stdo,ftox)' size of rcxq:', npr, nwhis*npm+1
+    if (ipr) write(stdo,'(1X,A,I0,A,I0,A,F7.3,A)') &
+        'rcxq(npr,npr,niw): npr=', npr, '  niw=', iw_hi-iw_lo+1, &
+        '  mem=', real(npr,8)**2 * real(iw_hi-iw_lo+1,8) * real(2*kp,8) / 1d9, ' GB'
     call flush(stdo)
     allocate(rcxq(1:npr, 1:npr, iw_lo:iw_hi))
     !$acc kernels
@@ -248,7 +251,7 @@ contains
             integer, allocatable :: ns1lists(:), ns2lists(:)
             nsize = (nkqmax(k)-nkqmin(k))*npr
             nns   = (nkmax(k) - nkmin(k) + 1)
-            nbatch = ceiling(dble(nns)*nsize*16/1000**3/zmel_max_size)
+            nbatch = ceiling(dble(nns)*nsize*16/1000**3/zmel_batch_gb)
             allocate(ns1lists(nbatch), ns2lists(nbatch))
             ns1 = nkmin(k) + nctot
             do ibatch = 1, nbatch

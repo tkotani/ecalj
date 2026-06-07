@@ -37,15 +37,11 @@ module m_readeigen
   logical,private:: debug=.false.
   character(8),external :: xt
   real(8),allocatable,private:: evud(:,:,:)
-#ifdef __GPU
-  complex(8),allocatable,private:: geig(:,:,:,:),cphi(:,:,:,:)  ! GPU: per-rank (acc copyin to device)
-#else
-  ! CPU: node-shared via MPI shared memory (read-only after fill). Eliminates the
-  ! per-rank replication of geig/cphi (~2 GB/rank for dense systems) that caused
-  ! hgw OOM at high rank counts. GPU build keeps per-rank copies (acc present).
+  ! geig/cphi: node-shared via MPI shared memory on both CPU and GPU builds.
+  ! GPU build transfers one q-point slice to device in readgeigf_mpi/readcphif_mpi
+  ! rather than keeping the full arrays in VRAM.
   complex(8),pointer,private:: geig(:,:,:,:)=>null(),cphi(:,:,:,:)=>null()
   integer,save,private:: geig_shm_id=-1, cphi_shm_id=-1
-#endif
   integer,allocatable,private:: ngvecp(:,:,:), ngvecprev(:,:,:,:)
   integer,allocatable,private:: l_tbl(:),k_tbl(:),ibas_tbl(:),offset_tbl(:),offset_rev_tbl(:,:,:)
   logical,private:: keepqg
@@ -228,9 +224,8 @@ contains
     endif
     !$acc enter data create(geigenr)
     if(keepeig) then
-      !$acc kernels present(geig, geigenr)
-      geigenr(1:ngpmx*nspc,1:nband) = geig(1:ngpmx*nspc,1:nband,iqi,isp)
-      !$acc end kernels
+      geigenr(1:ngpmx*nspc,1:nband) = geig(1:ngpmx*nspc,1:nband,iqi,isp)  ! host SHM slice
+      !$acc update device(geigenr)
     else
       !$acc host_data use_device(geigenr)
       has_geig = set_geig_from_keep(iqi,isp,geigenr) !set geigenr if it is stored
@@ -346,9 +341,8 @@ contains
     quu(:) = qu(:)
     !$acc enter data create(cphifr)
     if(keepeig) then
-      !$acc kernels present(cphi)
-      cphifr(1:ndima*nspc,1:nband) = cphi(1:ndima*nspc,1:nband,iqi,isp)
-      !$acc end kernels
+      cphifr(1:ndima*nspc,1:nband) = cphi(1:ndima*nspc,1:nband,iqi,isp)  ! host SHM slice
+      !$acc update device(cphifr)
     else
       !$acc host_data use_device(cphifr)
       has_cphi = set_cphi_from_keep(iqi,isp,cphifr)
@@ -485,24 +479,19 @@ contains
     init2=.false.
     if(Keepeig       .and.ipr) write(6,*)' KeepEigen=T; readin geig and cphi into m_readeigen'
     if(( .NOT. Keepeig).and.ipr) write(6,*)' KeepEigen=F; not keep geig and cphi in m_readeigen'
-    i=openm(newunit=ifcphim,file='__CPHI',recl=mrecb) ! Obata moved openm here, bug was 'openm after return 
+    i=openm(newunit=ifcphim,file='__CPHI',recl=mrecb) ! Obata moved openm here, bug was 'openm after return
     i=openm(newunit=ifgeigm,file='__GEIG',recl=mrecg) ! in the case of keepeig=F ' fix at 2024-10-15
+    if (mrecb /= ndima*nspc*nband*16) then
+      if(ipr) write(stdo,'(a,2i0)') ' readeigen: __CPHI mrecb vs ndima*nspc*nband*16 = ', mrecb, ndima*nspc*nband*16
+      call rx('readeigen: __CPHI record size inconsistent with GW product basis ndima.'// &
+              ' Re-run sugw and regenerate PB.toml to match current ctrlg parameters.')
+    endif
     if( .NOT. Keepeig) call keep_wfs_init() ! allocate for keep wfs
     if( .NOT. keepeig) return
-#ifdef __GPU
-    allocate(geig(ngpmx*nspc,nband,nqi,nspx))
-    allocate(cphi(ndima*nspc,nband,nqi,nspx))
-    do ikp= 1,nqi
-       do is= 1,nspx
-          ikpisp= is + nsp*(ikp-1)
-          i=readm(ifcphim,rec=ikpisp, data=cphi(1:ndima*nspc,1:nband,ikp,is))
-          if(ngpmx/=0) i=readm(ifgeigm,rec=ikpisp,data=geig(1:ngpmx*nspc,1:nband,ikp,is))
-       enddo
-    enddo
-    !$acc enter data copyin(geig, cphi)
-#else
-    ! CPU: allocate geig/cphi in node-shared memory; only the node-root rank reads
-    ! them from disk; a barrier publishes the data to all ranks on the node.
+    ! CPU and GPU: allocate geig/cphi in node-shared memory; only the node-root rank
+    ! reads from disk; a barrier publishes the data to all ranks on the node.
+    ! GPU build transfers one q-point slice to device per readgeigf_mpi/readcphif_mpi
+    ! call instead of keeping the full arrays in VRAM.
     call shm_init()
     call shm_alloc_c8_4d(geig, ngpmx*nspc, nband, nqi, nspx, geig_shm_id)
     call shm_alloc_c8_4d(cphi, ndima*nspc, nband, nqi, nspx, cphi_shm_id)
@@ -517,7 +506,6 @@ contains
     endif
     call shm_barrier(geig_shm_id)
     call shm_barrier(cphi_shm_id)
-#endif
     if(keepeig)i=closem(ifcphim)
     if(keepeig)i=closem(ifgeigm)
   end subroutine init_readeigen2

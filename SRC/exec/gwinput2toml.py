@@ -266,8 +266,18 @@ def emit_toml(parsed: dict) -> str:
                 parsed["gw"]["SmearX0"] = gfx0
             sys.stderr.write(f"gwinput2toml: legacy GaussianFilterX0={gfx0} -> SmearX0\n")
         out.append("[gw]")
-        for k, v in parsed["gw"].items():
+        gw = dict(parsed["gw"])
+        # Rename legacy keys to zmel_batch_gb; MEMnmbatch has different semantics so drop it.
+        for legacy in ("zmel_max_size", "MEMnmbatch"):
+            if legacy in gw and "zmel_batch_gb" not in gw:
+                if legacy == "zmel_max_size":
+                    gw["zmel_batch_gb"] = gw.pop(legacy)
+                else:
+                    gw.pop(legacy)  # MEMnmbatch scale differs; just drop it
+        for k, v in gw.items():
             out.append(f"{k} = {emit_value(v)}")
+        if "zmel_batch_gb" not in gw:
+            out.append("# zmel_batch_gb = 0.4  # (GB) zmel batch size per rank; increase for large systems")
         out.append("")
 
     pb = parsed["product_basis"]

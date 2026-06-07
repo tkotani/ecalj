@@ -2,7 +2,7 @@ module m_sxcf_count !job scheduler for self-energy calculation. icount mechanism
   use m_readeigen,only: Readeval
   use m_itq,only: ntq,nbandmx
   use m_struct_from_lmf,only: nspin,nband,mrecg,natom; use m_core_state,only: nctot,ecore; use m_gw_user_config,only: niw
-  use m_read_bzdata,only: qibz,qbz,wk=>wbz,nqibz,nqbz,wklm,lxklm,nq0i, wqt=>wt,q0i, irk
+  use m_read_bzdata,only: qibz,qbz,wk=>wbz,nqibz,nqbz,wklm,lxklm,nq0i,nq0iadd, wqt=>wt,q0i, irk
   use m_readfreq_r,only: freq_r, nw_i,nw,freqx,wx=>wwx,nblochpmx,mrecl,expa_,npm,nprecx
 !  use m_readhbe,only: nband,mrecg
   use m_hamindex,only: ngrp
@@ -13,7 +13,9 @@ module m_sxcf_count !job scheduler for self-energy calculation. icount mechanism
   use m_lgunit,only:stdo
   implicit none
   public sxcf_scz_count, mpi_assign_qtask_lpt, lpt_assign
-  logical, allocatable, public :: q_ownedby_me(:)  ! LPT q-group assignment (size nqibz)
+  logical, allocatable, public :: q_ownedby_me(:)   ! LPT q-group assignment (size nqibz)
+  integer, allocatable, public :: reg_grp_assign(:) ! LPT group for each regular q-point (size nqibz)
+  integer, allocatable, public :: aux_grp_assign(:) ! LPT group for each aux q-point (size nq0i+nq0iadd)
   integer, public :: iq1_dest = 0  ! global rank of qroot for group processing iq=1
   !=== Job scheduler ==============
   integer,public:: ncount 
@@ -74,7 +76,9 @@ contains
     if(allocated(nwxc))       deallocate(nwxc)
     if(allocated(icountini))  deallocate(icountini)
     if(allocated(icountend))  deallocate(icountend)
-    if(allocated(q_ownedby_me)) deallocate(q_ownedby_me)
+    if(allocated(q_ownedby_me))   deallocate(q_ownedby_me)
+    if(allocated(reg_grp_assign)) deallocate(reg_grp_assign)
+    if(allocated(aux_grp_assign)) deallocate(aux_grp_assign)
     if(ixc==3.and.nctot==0)then
        allocate( irkip(nspinmx,nqibz,ngrp,nqibz),source=0 ) ! nrkip is weight correspoinding to irkip for a node.
        return
@@ -86,11 +90,16 @@ contains
       integer :: kx, ip, is, igrp, idx
       logical :: kx_assigned(nqibz)
       integer :: ga(nqibz)
-      ! Level 1: distribute kx by LPT.
+      integer :: naux
+      ! Level 1: distribute regular kx and aux q-points by unified LPT.
+      naux = nq0i + nq0iadd
       allocate(q_ownedby_me(nqibz))
+      allocate(reg_grp_assign(nqibz))
+      allocate(aux_grp_assign(max(1, naux)))
       call mpi_assign_qtask_lpt(1, nqibz, nspinmx, n_qgroup, iq_qgroup, &
                                  worker_inQtask, q_ownedby_me, capacity=qgroup_ppn, &
-                                 grp_assign=ga)
+                                 grp_assign=ga, naux=naux, aux_grp_out=aux_grp_assign)
+      reg_grp_assign = ga
       ! iq1_dest: global rank of comm_q root for the group assigned iq=1.
       ! qgroup_root is computed in MPI__InitQgroups via Allreduce — correct for any topology.
       iq1_dest = qgroup_root(ga(1))
@@ -161,35 +170,30 @@ contains
       enddo kxloop
       GetNmbatch: block !nmbatch is the Batch size of sum for middle states. !Get zmel(MPB,middle ,external)
       use m_read_ppovl,only: getppx2,ngcgp
-      use m_mem,only:memused
-      use m_GWinput, only: gwinput_init, gwinput_loaded, tg_MEMnmbatch => MEMnmbatch
+      use m_GWinput, only: gwinput_init, gwinput_loaded, tg_zmel_batch_gb => zmel_batch_gb
       integer:: nbloch,ifiqg,iiixxx,ngcmx,filename(natom),ic,nblocha(natom),ifp
       real(8),parameter:: k=1000 !Note GB is over integer(4)
-      real(8):: mmax  ! GByte. Size of memory per rank to determine nmbatch
-      real(8):: mmm
+      real(8):: mmax  ! GByte. zmel batch size per rank (= zmel_batch_gb)
       call gwinput_init()
       if (gwinput_loaded) then
-         mmax = tg_MEMnmbatch
+         mmax = tg_zmel_batch_gb
       else
          call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
-!         call getkeyvalue("GWinput","MEMnmbatch",mmax,default=2d0)
       endif
       call getppx2([(0d0,i=1,3)],get_ngcgp=.true.)
       open(newunit=ifiqg, file='__QGcou',form='unformatted')
       read(ifiqg) iiixxx, ngcmx
       close(ifiqg)
-      do ic = 1,natom 
+      do ic = 1,natom
          open(newunit=ifp,file=trim('__PPBRD_V2_'//char( 48+ic/10 )//char( 48+mod(ic,10))),form='unformatted')
          read(ifp) nblocha(ic)
          close(ifp)
       enddo
-!      mmm= max(mmax - memused() - 16d0*(ngcgp*maxval(nbandmx)) /k**3,0d0)  !ggitp(ngcgp,ntp0) !rough estimation in GB
-      mmm= max(mmax - 16d0*(ngcgp*maxval(nbandmx)) /k**3,0d0)  !ggitp(ngcgp,ntp0) !rough estimation in GB ! uncount memused() already 2024-8-18
       nbloch=sum(nblocha)
       if(ipr)write(stdo,ftox)'sxcf_fal2_count.sc: ',nbandmx,ngcgp
-      if(ipr)write(stdo,ftox)'sxcf_fal2_count.sc: mmax memused size(z(ngcgp,nbandmx)) nmbatch=',mmax,memused(),ngcgp*16d0*maxval(nbandmx)/k**3, mmm,nmbatch
-      nmbatch = floor( min(maxval(nstatemax)+1d-8, mmm*k**3/(maxval(nbandmx)*(nbloch+ngcmx+ngcmx)*16) +1d-8) ) ! +ngcmx is for zmelp0(ngc,nm1v:nm2v,ntp0)
-      if(nmbatch==0) call rx('sxcf_fal2_count.sc. Too small memory for nmbatch mechanism. Enlarge GWinput MEMnmbatch')
+      if(ipr)write(stdo,ftox)'sxcf_fal2_count.sc: zmel_batch_gb nbloch ngcmx=',mmax,nbloch,ngcmx
+      nmbatch = floor( min(maxval(nstatemax)+1d-8, mmax*k**3/(maxval(nbandmx)*(nbloch+ngcmx+ngcmx)*16) +1d-8) )
+      if(nmbatch==0) call rx('sxcf_fal2_count.sc. Too small memory for nmbatch. Enlarge zmel_batch_gb in GWinput.toml')
       if(ipr)write(stdo,ftox)'sxcf_fal2_count: nmbatch=',nmbatch,' nbandmx nbloch ngcmx=',maxval(nbandmx),nbloch,ngcmx&
            ,'nstatemaxmx=',maxval(nstatemax)
       endblock GetNmbatch
@@ -349,33 +353,57 @@ contains
   end subroutine get_nwx
 
   subroutine mpi_assign_qtask_lpt(iq_ini, iq_end, nspinmx, n_groups, group_rank, &
-                                    worker_inQtask, qtask, qrank, capacity, grp_assign)
-    ! Assign q-points [iq_ini:iq_end] to q-groups using lpt_assign.
+                                    worker_inQtask, qtask, qrank, capacity, grp_assign, &
+                                    naux, aux_grp_out)
+    !> Assign q-points [iq_ini:iq_end] (regular) and naux auxiliary q-points to q-groups via LPT.
+    !> Aux q-points only do build_screened_coulomb (no Sc); their weight is estimated as
+    !> avg_regular_weight/3, reflecting the approx W-build:Sc ≈ 1:3 cost ratio.
+    !> aux_grp_out(i) receives the group (0-based) assigned to the i-th aux q-point.
     use m_read_bzdata, only: irk, ngrp
     integer, intent(in)           :: iq_ini, iq_end, nspinmx, n_groups, group_rank, worker_inQtask
     integer, intent(in),  optional:: capacity(0:n_groups-1)
     logical, intent(out)          :: qtask(iq_ini:iq_end)
-    integer, intent(out), optional:: qrank(iq_ini:iq_end)      ! kept for back-compat; not reliable for non-uniform topology
-    integer, intent(out), optional:: grp_assign(iq_ini:iq_end) ! group index (0-based) assigned to each iq
-    integer :: niq, iq
-    integer :: wl(iq_end-iq_ini+1)
-    logical :: assigned(iq_end-iq_ini+1)
-    integer :: ga(iq_end-iq_ini+1)
-    niq = iq_end - iq_ini + 1
+    integer, intent(out), optional:: qrank(iq_ini:iq_end)
+    integer, intent(out), optional:: grp_assign(iq_ini:iq_end)
+    integer, intent(in),  optional:: naux          ! number of aux q-points (nq0i+nq0iadd)
+    integer, intent(out), optional:: aux_grp_out(:) ! size naux: group assigned to each aux q-point
+    integer :: niq, iq, i, naux_in, ntotal, aux_wt
+    integer, allocatable :: wl(:), ga(:)
+    logical, allocatable :: assigned(:)
+    niq    = iq_end - iq_ini + 1
+    naux_in = 0
+    if (present(naux)) naux_in = max(0, naux)
+    ntotal = niq + naux_in
+    allocate(wl(ntotal), ga(ntotal), assigned(ntotal))
     do iq = iq_ini, iq_end
       wl(iq-iq_ini+1) = count(irk(iq,:) > 0) * nspinmx
     enddo
-    call lpt_assign(niq, wl, n_groups, group_rank, assigned, ga, capacity)
+    if (naux_in > 0) then
+      ! W-build cost ≈ avg_Sc_cost/3  (W:Sc ≈ 1:3)
+      aux_wt = max(1, sum(wl(1:niq)) / (3 * niq))
+      wl(niq+1:ntotal) = aux_wt
+    endif
+    call lpt_assign(ntotal, wl, n_groups, group_rank, assigned, ga, capacity)
     do iq = iq_ini, iq_end
       qtask(iq) = assigned(iq-iq_ini+1)
       if (present(qrank))      qrank(iq)      = ga(iq-iq_ini+1) * worker_inQtask
       if (present(grp_assign)) grp_assign(iq) = ga(iq-iq_ini+1)
     enddo
-    if(ipr) then
-      write(stdo,'(1X,A,2I5)') 'mpi_assign_qtask_lpt: n_groups, group_rank=', n_groups, group_rank
-      write(stdo,'(1X,A,*(I6))') '  workload per iq =', wl
-      write(stdo,'(1X,A,*(I6))') '  assigned group  =', ga
+    if (present(aux_grp_out) .and. naux_in > 0) then
+      do i = 1, naux_in
+        aux_grp_out(i) = ga(niq + i)
+      enddo
     endif
+    if (ipr) then
+      write(stdo,'(1X,A,2I5)') 'mpi_assign_qtask_lpt: n_groups, group_rank=', n_groups, group_rank
+      write(stdo,'(1X,A,*(I6))') '  workload per iq (regular) =', wl(1:niq)
+      write(stdo,'(1X,A,*(I6))') '  assigned group  (regular) =', ga(1:niq)
+      if (naux_in > 0) then
+        write(stdo,'(1X,A,2I5)') '  naux, aux_wt =', naux_in, aux_wt
+        write(stdo,'(1X,A,*(I6))') '  assigned group  (aux)     =', ga(niq+1:ntotal)
+      endif
+    endif
+    deallocate(wl, ga, assigned)
   end subroutine mpi_assign_qtask_lpt
 
   subroutine lpt_assign(n_items, workload, n_groups, group_rank, assigned, grp_assign_out, capacity)
