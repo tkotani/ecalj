@@ -1,5 +1,9 @@
 !>finite-temperature tetrahedron method
-module m_tetrakbt 
+!! WARNING: BROKEN / sketch only. `[gw] tetrakbt=true` produces a WRONG chi0 (NaN W/SEc
+!! for metals), even at T->0. The midpoint factorization in eaf_triangle mis-places weight
+!! by up to ~4451x for Fermi-surface-crossing tetrahedra. Do NOT use for production.
+!! See m_tetrakbt_BUGREPORT.md (diagnosis + recommended energy-convolution fix).
+module m_tetrakbt
   use m_keyvalue,only: getkeyvalue
   implicit none
   public:: tetrakbt_init, tetrakbt, kbt,integtetn
