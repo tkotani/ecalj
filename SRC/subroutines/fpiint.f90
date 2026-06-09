@@ -1,5 +1,6 @@
 module m_fpiint !- Points and weights for integration on a sphere surface
   public fpiint
+  public gausq   ! Legendre-Gauss quadrature (used by the finite-T tetrahedron convolution)
   private
   contains
 subroutine fpiint(nx,np,nxp,x,w) !- Points and weights for integration on a sphere surface

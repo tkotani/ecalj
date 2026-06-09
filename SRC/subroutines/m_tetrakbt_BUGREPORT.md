@@ -1,7 +1,13 @@
-# m_tetrakbt (finite-temperature tetrahedron) — KNOWN BUG REPORT
+# m_tetrakbt (finite-temperature tetrahedron) — BUG REPORT & FIX
 
-**Status: BROKEN. Do NOT enable `tetrakbt = true` for production until fixed.**
-Date: 2026-06-08
+**Status: FIXED (2026-06-09).** `[gw] tetrakbt = true` now uses `lindtet6_kbt`
+(in `tetwt5.f90`), the method (B') energy convolution described below. The old
+midpoint-factorization routines in `m_tetrakbt.f90` (`tetrakbt`/`eaf_triangle`/...)
+are no longer called and are kept only for reference.
+Verified on Na 4x4x4: no NaN at any T; T->0 reproduces `lindtet6` (ESEAVR agree to ~1e-9,
+Re(Sc) identical at print precision); T=300K gives a small physical thermal shift.
+
+The original diagnosis (date: 2026-06-08) follows.
 
 ## TL;DR
 `m_tetrakbt` (the finite-temperature tetrahedron weights for chi0, selected by

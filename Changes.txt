@@ -1,3 +1,21 @@
+2026-06-09
+  [fix] 有限温度テトラヘドロン法 (gw: tetrakbt=true) を method (B') で正しく実装。
+    新ルーチン lindtet6_kbt (tetwt5.f90) が、厳密な T=0 ルーチン lindtet6 を
+    フェルミ準位 E をずらして呼び、熱核 -f'(E) で重み付き加算する
+    エネルギー畳み込み W_T(w)=∫dE(-f'(E)) lindtet6(w; E_F=E) を行う。
+    lindtet6 の占有マスク θ(E-ea)θ(eb-E) を畳み込むと厳密に Adler-Wiser の
+    numerator f_T(ea)-f_T(eb) になる。E=E_F+2*kbt*t 置換で核は (1/2)sech^2(t) と
+    滑らかになり、t∈[-6,6] の 20点 Gauss-Legendre で十分。FS から離れたテトラは
+    単発 lindtet6 にゲートし、NE倍コストは FS 近傍のみ。核は正規化し総和則を保存。
+    旧 m_tetrakbt の中点ファクタライズ (eaf_triangle, 最大4451倍の誤差で金属の
+    chi0 を壊し W/SEc が NaN) を置換。lindtet6 を無改造で再利用するため
+    matrix_linear の4頂点列も自動的に正しく充填される。
+    fpiint.f90 の gausq (Gauss-Legendre) を public 化。
+    検証 (Na 4x4x4): 全 T で NaN 無し; T->0 で lindtet6 と一致 (ESEAVR 差 ~1e-9,
+    Re(Sc) は印字精度で全状態一致); T=300K で物理的な熱シフト。
+    旧ルーチン (tetrakbt/eaf_triangle/factri 等) は未使用化、削除候補。
+    詳細: SRC/subroutines/m_tetrakbt_BUGREPORT.md
+
 2026-06-05
   [fix] ctrl2ctrltoml.py: 生成 TOML の [ham] セクションに phispinsym=false を
     自動付加。2026-06-02 で HAM_PHISPINSYM=nreq=1 必須化したが、legacy ctrl 形式は

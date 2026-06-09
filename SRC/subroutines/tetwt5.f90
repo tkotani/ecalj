@@ -1,5 +1,6 @@
 module m_tetwt5
-  use m_tetrakbt,only: tetrakbt_init, tetrakbt, integtetn
+  use m_tetrakbt,only: tetrakbt_init, tetrakbt, integtetn, kbt
+  use m_fpiint,only: gausq
   use m_mpi,only:ipr
   use m_lgunit,only:stdo
   use m_ftox
@@ -318,7 +319,9 @@ contains
                       write(6,"('  -x(a.u.)= ',4f10.3)") -x(0:3)
                    endif
                    if(usetetrakbt) then
-                      call tetrakbt(eunocc-efermib, eocc-efermia, x, voltet, frhis,nwhis,   wtthis2)
+                      ! Finite-T tetrahedron: energy convolution of the exact T=0 lindtet6
+                      ! (method B'). Replaces the broken midpoint factorization in m_tetrakbt.
+                      call lindtet6_kbt(kkv,kvec,eocc,eunocc, x, efermia,efermib,kbt,frhis,nwhis, wtthis2)
                    else
                       call lindtet6( kkv,kvec,eocc,eunocc, x, efermia,efermib,frhis,nwhis,  wtthis2)
                    endif
@@ -606,6 +609,46 @@ contains
     endif
     if(chkwrt) write(6,*) 'end of lindtet6',wtthis
   end subroutine lindtet6
+  subroutine lindtet6_kbt(kkv,kvec, ea, eb, x, efermia, efermib, kbt, frhis, nwhis, wtthis)
+    ! Finite-temperature tetrahedron weights via energy convolution (method B').
+    !   W_T(omega) = \int dE (-f'(E)) * W_{T=0}(omega; E_F=E)
+    ! W_{T=0} is the exact T=0 result from lindtet6 with the Fermi level set to E.
+    ! Convolving lindtet6's occupied-x-unoccupied mask theta(E-ea)*theta(eb-E)
+    ! with the thermal kernel -f'(E) gives exactly the Adler-Wiser numerator
+    ! f_T(ea)-f_T(eb); no midpoint factorization (the m_tetrakbt bug) is used.
+    ! lindtet6 is reused verbatim; the only new ingredient is the E-quadrature.
+    ! With E=E_F+2*kbt*t one has (-f'(E))dE = (1/2)sech^2(t) dt, a smooth kernel,
+    ! so a fixed Gauss-Legendre rule on t in [-Tcut,Tcut] is sufficient.
+    ! wtthis is an accumulating variable (caller zeroes it), as for lindtet6.
+    implicit none
+    integer,intent(in):: nwhis
+    real(8),intent(in):: kkv(3,4),kvec(3,4),ea(4),eb(4),x(4),efermia,efermib,kbt,frhis(nwhis+1)
+    real(8),intent(inout):: wtthis(nwhis,4)
+    integer,parameter:: NE=20          ! Gauss-Legendre nodes for the thermal kernel
+    real(8),parameter:: Tcut=6d0       ! window: |E-Ef| <= 2*kbt*Tcut (tanh(6)~1)
+    real(8):: tg(NE),wg(NE),wtmp(nwhis,4),ker,dE,knorm,win
+    integer:: ie
+    ! Gate: if both bands stay fully occupied/unoccupied across the thermal window,
+    ! the occupation is flat and the T=0 routine at Ef is already exact (no NE cost).
+    win = 2d0*kbt*Tcut
+    if( ( maxval(ea-efermia) < -win .or. minval(ea-efermia) > win ) .and. &
+        ( maxval(eb-efermib) < -win .or. minval(eb-efermib) > win ) ) then
+       call lindtet6(kkv,kvec, ea, eb, x, efermia, efermib, frhis, nwhis, wtthis)
+       return
+    endif
+    call gausq(NE, -Tcut, Tcut, tg, wg, 0, 0)         ! nodes/weights on t in [-Tcut,Tcut]
+    knorm = 0d0                                        ! normalize -> exact sum rule despite truncation
+    do ie=1,NE
+       knorm = knorm + wg(ie)*0.5d0/cosh(tg(ie))**2
+    enddo
+    do ie=1,NE
+       dE  = 2d0*kbt*tg(ie)
+       ker = (wg(ie)*0.5d0/cosh(tg(ie))**2)/knorm
+       wtmp = 0d0
+       call lindtet6(kkv,kvec, ea, eb, x, efermia+dE, efermib+dE, frhis, nwhis, wtmp)
+       wtthis = wtthis + ker*wtmp
+    enddo
+  end subroutine lindtet6_kbt
   subroutine inttetra6(kkv,kk_,xx_,ebf,itetx,frhis,nwhis, wtthis)
     ! calculate tetrahedron integral Eq.(16).
     ! the four corners and denoted by itetx.

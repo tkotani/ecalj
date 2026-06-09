@@ -1,8 +1,11 @@
 !>finite-temperature tetrahedron method
-!! WARNING: BROKEN / sketch only. `[gw] tetrakbt=true` produces a WRONG chi0 (NaN W/SEc
-!! for metals), even at T->0. The midpoint factorization in eaf_triangle mis-places weight
-!! by up to ~4451x for Fermi-surface-crossing tetrahedra. Do NOT use for production.
-!! See m_tetrakbt_BUGREPORT.md (diagnosis + recommended energy-convolution fix).
+!! NOTE: `[gw] tetrakbt=true` is now served by lindtet6_kbt (in tetwt5.f90), which does the
+!! exact energy convolution of the T=0 lindtet6 (method B'). The routines in THIS module
+!! (tetrakbt/eaf_triangle/factri/...) are the OLD broken midpoint-factorization sketch:
+!! they produced a wrong chi0 (NaN W/SEc for metals, up to ~4451x weight misplacement on
+!! Fermi-surface-crossing tetrahedra) and are NO LONGER CALLED. Kept only for reference;
+!! candidates for removal. Only kbt, tetrakbt_init (and integtetn) are still used.
+!! See m_tetrakbt_BUGREPORT.md.
 module m_tetrakbt
   use m_keyvalue,only: getkeyvalue
   implicit none
