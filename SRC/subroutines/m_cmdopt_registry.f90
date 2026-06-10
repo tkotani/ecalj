@@ -143,6 +143,7 @@ module m_cmdopt_registry
   logical, public, protected, save :: c0_qibzonly        = .false.
   logical, public, protected, save :: c0_quitecore       = .false.
   logical, public, protected, save :: c0_readQforGW      = .false.
+  logical, public, protected, save :: c0_removeFermiWindowLiTi2O4 = .false.  ! drop EF+-2eV bands from chi0 (diagnostic, m_tetwt)
   logical, public, protected, save :: c0_shorten         = .false.
   logical, public, protected, save :: c0_show_time       = .false.
   logical, public, protected, save :: c0_showdmat        = .false.
@@ -193,7 +194,7 @@ module m_cmdopt_registry
   ! load_cmdopt0/2_registry; consulted by validate_arglist. Allocatable,
   ! grown one slot at a time via move_alloc -- no fixed capacity.
   !========================================================================
-  character(len=24), private, save, allocatable :: known0(:)
+  character(len=40), private, save, allocatable :: known0(:)
   character(len=20), private, save, allocatable :: known2(:)
 
 contains
@@ -201,7 +202,7 @@ contains
   !> Append `flag` to the cmdopt0 typo-detection table. Idempotent.
   subroutine register0(flag)
     character(*), intent(in) :: flag
-    character(len=24), allocatable :: tmp(:)
+    character(len=40), allocatable :: tmp(:)
     integer :: n, i
     if (allocated(known0)) then
        do i = 1, size(known0)
@@ -422,6 +423,7 @@ contains
     call set0('--qibzonly',       c0_qibzonly, narg, arglist)
     call set0('--quitecore',      c0_quitecore, narg, arglist)
     call set0('--readQforGW',     c0_readQforGW, narg, arglist)
+    call set0('--removeFermiWindowLiTi2O4', c0_removeFermiWindowLiTi2O4, narg, arglist)
     call set0('--shorten',        c0_shorten, narg, arglist)
     call set0('--show_time',      c0_show_time, narg, arglist)
     call set0('--showdmat',       c0_showdmat, narg, arglist)
