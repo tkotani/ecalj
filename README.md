@@ -5,6 +5,38 @@ email: takaokotani@gmail.com
 ---
 ecalj documents is at [ecaljdoc](https://ecalj.github.io/ecaljdoc/)
 
+## 2026-06-13  Changelog: finite-T chi0, hsfp0 GPU, gw_lmfh GPU/MP flow, fixes
+
+New in the GW chain (commits 37e6fbc2..2a04e767; user guide: FiniteT_and_QPE_HOWTO.md):
+
+- **tetrakbt / t_tetrakbt** (`[gw]` in ctrlg toml): finite-temperature tetrahedron
+  for chi0 with a consistent finite-T Fermi level (heftet writes `EFERMI_kbt`;
+  m_tetwt consumes it). Physically broadens the Fermi surface — the recommended
+  regularization for metallic QSGW instabilities (sharp nesting response).
+- **hsfp0_gpu** (new binary, gpu variant): CUDA-Fortran offload of the one-shot
+  correlation W contractions. Validated against CPU at production scale
+  (LiTi2O4 6^3: max |CPU-GPU| 3e-13 eV); ~13x per-rank speedup.
+- **gw_lmfh**: TOML-mode gate (ctrlg+PB, same as gwsc), new options
+  `--gpu --mp --fp32 -np2 N`. With `--gpu`, hvccfp0/hx0fp0 run as GPU variants
+  and `--job=12` runs on hsfp0_gpu; with `--mp`, the single-precision WVR/WVI
+  written by hx0fp0_mp* are promoted on read by the double-precision hsfp0.
+  NOTE: if you change EMAXforGW/EMINforGW between stages, rerun hsfp0
+  --job=3/--job=11 before hqpe (SEXU/SECU state counts must match).
+- **Arbitrary-q QP energies**: `[blocks] QforGW` (3 reals per line, Cartesian
+  2pi/alat) + the gw_lmfh flow evaluates diagonal Sigma at any q (e.g. band
+  lines). Combine with EMINforGW/EMAXforGW (eV vs EF) to limit target bands
+  (avoids 1d20-padded states at off-mesh q).
+- **Diagnostics**: `--dumpW` (gwsc/hgw) persists the streaming-SHM W to
+  `__WVR.<iq>/__WVI.<iq>` for offline Wc(q,omega) analysis;
+  `--WVR2ptRaxis` switches the Sc real-axis pole interpolation to 2-point
+  linear (overshoot-free) — bounds the omega-interpolation error.
+- **Fixes**: real-axis pole binning OOB guard (findloc-miss wrote nttp(-1));
+  hsfp0 imag-axis/zwz0 hand loops replaced by zgemm (~8x); gw_lmfh stale-W
+  cleanup glob matched legacy names and never ran.
+- **Branch `gwkbt-dev`**: finite-T GxW Stage A/B (gwkbt / gwkbt_boson keys) is
+  isolated there as WIP — the Stage B entry2 static-bin fix on that branch
+  needs design review and re-validation before merging.
+
 ## 2026-05  Quick start (the new TOML flow)
 
 Fortran binaries (lmf, lmfa, lmchk, gwsc, hsfp0, ...) read only:

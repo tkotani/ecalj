@@ -1,3 +1,50 @@
+2026-06-13
+  [fix] 実軸極項のビン詰めOOBガード (m_sxcf_sc)。findloc不一致(ixs=0)で nttp(-1)
+    へ範囲外書込み、ixs=nw で nttp(nw+1)。正しいガードは ixs<1 .or. ixs>nw-1。
+    注意: 過剰版 ixs<2 は bin0(静的Wスロット)が正当であるにも関わらず we~0 の
+    オンシェル極項(-Wc(0)/2型)を全て落とし、si_gwsc の QPU を 3.54 eV 狂わせる
+    (バイセクトで特定)。HistBin_dw が小さい設定(例 1e-5)では bin1 が極薄のため
+    被害がほぼ出ない一方、粗い dw では eV 級に達する設定依存の危険なバグだった。
+    検証: si_gwsc QPU/log.si とも参照と diff 0.0。
+  [new] hsfp0_gpu: 1ショットGW(QPE)の相関W縮約を CUDA-Fortran でGPU化。
+    sxcf_fal2 の4ホットスポット (zwz0 / 虚軸zwz / 実軸zwz / QPE極項
+    zmel^H Wc(ix..ix+2) zmel) を zmm_d + CUF対角内積カーネルで実装。
+    zw3 平面はデバイス常駐(ホストRAM ~ngb^2*nw*16B/rank 節約)。
+    検証: si で CPU と 0.000000 eV 一致。LiTi2O4 6^3 実スケールで SECU 396成分
+    max|CPU-GPU|=3.2e-13 eV (倍精度の加算順序差のみ)。4rank+2GPU 72分 vs
+    20 CPUrank 186分。CMake: gpu 変種に main_hsfp0+sxcf_fal2 を組込み
+    (MP変種は complex(8) ハードコードのため除外のまま)。
+  [perf] hsfp0 のCPU経路: 「対称性で半分」の手書き三角ループ(zwz0/虚軸zwz)が
+    BLASの約8倍遅い実測ホットスポット(gdbスタックサンプリングで特定)だったのを
+    matzwz(zgemm)+実部取りに置換。数学的に同値、TestInstall 参照と同値。
+  [new] gw_lmfh の近代化: ctrlg+PB の TOMLゲート(gwscと同じ)、--gpu/--mp/--fp32/
+    -np2 を追加。--mp 時は hx0fp0_mp* が書く単精度 WVR/WVI (nprecx=4) を
+    倍精度 hsfp0 が読み込み時に昇格 (sxcf_fal2 wv_single、main_hsfp0 の
+    WV.d チェック緩和)。旧 'WV.d' 掃除グロブが実名 __WV.d/__WVR.* に一致せず
+    掃除が一度も走っていなかったのも修正。
+    QforGW (ctrlg [blocks]、1行3実数 Cartesian 2pi/alat) + EMINforGW/EMAXforGW
+    (eV, EF基準) で任意k線上の QPE が実用化 (LiTi2O4 Γ-K 11点で実証)。
+    落とし穴: EMAX/EMINforGW を段間で変えたら hsfp0 --job=3/--job=11 から
+    再実行しないと hqpe が SEXU の EOF で死ぬ (SEXU/SECU の状態数不整合)。
+    また QforGW の外部 q では nev<nbmax の 1d20 パディング状態があるため
+    EMAXforGW で上を絞ること (絞らないと sxcf 222 |w-e| out of range)。
+  [new] 診断オプション2件: --dumpW は streaming hgw の SHM 上 W を
+    __WVR.<iq>/__WVI.<iq> へ書出し(分割フロー互換形式、Wc(q,w)のオフライン解析用)。
+    --WVR2ptRaxis は Sc 実軸極項の3点Lagrange(alagr3zz、端点重みが負になり得る)を
+    2点線形(凸重み、オーバーシュート無し)へ切替 (m_sxcf_sc / sxcf_fal2 両経路)。
+    LiTi2O4 6^3 では両者 rms 6e-4 eV 一致 = ωメッシュ内挿は金属不安定性の原因では
+    ないことの判定に使用。
+  [branch] gwkbt-dev: 有限T GxW Stage A/B (gwkbt/gwkbt_boson、6/11 WIP) を main から
+    隔離。既知問題: Stage B entry2 (静的ビンへの -kbt*D_sigma 登録) が ixsb>=2 の
+    判定ミスで一度も発火していなかった (静的ビンは ixsb=1)。ブランチ先頭で >=1 に
+    修正済みだが設計レビューと gwkbt_test_plasmonpole.py 再検証が必要。
+    デフォルトoffでは main と同値 (si_gwsc diff 0.0 をブランチ先端で確認)。
+  [doc] ユーザー向け手引き FiniteT_and_QPE_HOWTO.md を追加 (tetrakbt の使い方、
+    任意k線QPEのレシピ、GPU/MPオプション、診断、既知の落とし穴)。
+  [memo] nvfortran 26.1: associate 内の block 構文が plain-CPU 変種で誤コンパイル
+    の疑い(変種依存)。当該箇所は block を使わずルーチンスコープ一時変数で回避。
+    並列ビルドの fort1 signal 11 ICE は再現性なく -j4 リトライで回避可能。
+
 2026-06-09
   [fix] 有限温度テトラヘドロン法 (gw: tetrakbt=true) を method (B') で正しく実装。
     新ルーチン lindtet6_kbt (tetwt5.f90) が、厳密な T=0 ルーチン lindtet6 を
