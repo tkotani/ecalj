@@ -40,7 +40,8 @@ subroutine hgw(do_correlation, do_exchange)
                        hs_ef, hs_esmr, hs_nspinmx
   use m_screened_coulomb,only: build_screened_coulomb_step_kx
   use m_x0kf,only: deallocatezxq, deallocatezxqi
-  use m_wv_storage,only: wv_dealloc
+  use m_wv_storage,only: wv_dealloc, wv_dump_shm_to_file
+  use m_cmdopt_registry,only: c0_dumpW
   use m_sxcf_sc,only: sxcf_correlation_init, sxcf_correlation_step_kx, &
                       sxcf_correlation_finalize
   use m_sxcf_count,only: iq1_dest, reg_grp_assign, aux_grp_assign
@@ -164,6 +165,10 @@ subroutine hgw(do_correlation, do_exchange)
       call sxcf_correlation_step_kx(iq, hs_ef, hs_esmr, hs_nspinmx)
       if (mpi__root_q) call stopwatch_pause_and_show(sw_q)
     end if
+    ! --dumpW: persist SHM W-V (Wc) to __WVR.<iq>/__WVI.<iq> for analysis.
+    ! Placed after W0w0i (iq=1 Gamma correction) and Sc consumption, before dealloc,
+    ! while shm_wvr/shm_wvi for this iq are still valid. Each q-group root dumps its iq.
+    if (c0_dumpW .and. mpi__root_q) call wv_dump_shm_to_file(iq, mrecl, nblochpmx, realomega, imagomega)
     call wv_dealloc()
   enddo
   call MPI__waitllw()  ! ensure pending Isends complete
