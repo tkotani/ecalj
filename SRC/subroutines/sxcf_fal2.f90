@@ -1,3 +1,28 @@
+#ifdef __GPU
+module m_sxcf_fal2_gpu
+  !> CUF helpers for the GPU offload of the W-contraction hot spots in sxcf_fal3z.
+  !! A module is required so the device dummy arguments get an explicit interface.
+contains
+  subroutine zwz_diag_dev(zmel_dv, cc_dv, zwzd_dv, ngb, nstate, ntp0)
+    !> zwzd(it,itp) = sum_l conjg(zmel(l,it,itp)) * cc(l, it+(itp-1)*nstate)
+    !! cc = zw*zmel(:,:) from a prior zmm_d call (flattened state index).
+    integer, intent(in) :: ngb, nstate, ntp0
+    complex(8), device :: zmel_dv(ngb,nstate,ntp0), cc_dv(ngb,nstate*ntp0), zwzd_dv(nstate,ntp0)
+    integer :: it, itp, l
+    complex(8) :: zs
+    !$cuf kernel do(2) <<<*,*>>>
+    do itp = 1, ntp0
+       do it = 1, nstate
+          zs = (0d0,0d0)
+          do l = 1, ngb
+             zs = zs + conjg(zmel_dv(l,it,itp))*cc_dv(l, it+(itp-1)*nstate)
+          enddo
+          zwzd_dv(it,itp) = zs
+       enddo
+    enddo
+  end subroutine zwz_diag_dev
+end module m_sxcf_fal2_gpu
+#endif
 subroutine sxcf_fal3z(&
      kount,ixc,deltaw,shtw,qip,itq, ntq,ef,ef2,esmr,esmr2,&
      nsp,isp,  qbas,ginv,qibz,qbz,wk,nstbz,wik,  &
@@ -16,6 +41,10 @@ subroutine sxcf_fal3z(&
   use m_zmel,only: build_zmel, set_m2e_prod_basis, zmel
   use m_readVcoud,only:   Readvcoud, vcoud,vcousq,zcousq,ngb,ngc
   use m_wfac,only:wfacx2,weavx2
+#ifdef __GPU
+  use m_blas, only: zmm_d
+  use m_sxcf_fal2_gpu, only: zwz_diag_dev
+#endif
   implicit none
   intent(in)::&
        kount,ixc,deltaw,shtw,qip,itq, ntq,ef,ef2,esmr,esmr2, nsp,isp,  &
@@ -256,6 +285,15 @@ subroutine sxcf_fal3z(&
   complex(8), allocatable :: zw_(:,:) !,zzmel(:,:)
   complex(4), allocatable :: zw_sp(:,:)  ! single-precision read buffer for _mp-written WVR/WVI
   logical :: wv_single = .false.
+#ifdef __GPU
+  ! Device buffers for the correlation W-contractions (zwz0 / imag-axis / real-axis / pole term).
+  ! zmel_dv is refreshed per (kx,irot) from the host zmel (kept valid by 'acc update host' after
+  ! build_zmel). VRAM budget ~ zmel+cc (2x ngb*nstate*ntp0) + zw3 planes; ~6 GB for liti2o4 6^3.
+  complex(8), device, allocatable :: zw_dv(:,:), zmel_dv(:,:,:), cc_dv(:,:), zwzd_dv(:,:), &
+       zw3_dv(:,:,:), yv_dv(:,:), z3_dv(:)
+  complex(8), allocatable :: zwztmp_h(:,:)
+  integer :: istat_g, j_g
+#endif
   complex(8), allocatable :: zwz2(:,:),zw2(:,:),zmel2(:,:) !0 variant
   complex(8) ::  zz2 ,zwz3(3) ,zwz3x
   real(8) :: dd,omg_c,dw2,omg
@@ -599,6 +637,17 @@ subroutine sxcf_fal3z(&
            ! e = e(q-rk,n), w' is real, Wc = W-v
            !================================================================
            allocate( zw (nblochpmx,nblochpmx) )
+#ifdef __GPU
+           ! per-(kx,irot) device buffers (sizes follow ngb/nstate/ntp0 of this kx)
+           if(allocated(zmel_dv)) deallocate(zmel_dv)
+           allocate(zmel_dv(ngb,nstate,ntp0)); zmel_dv = zmel(1:ngb,1:nstate,1:ntp0)
+           if(allocated(zw_dv))   deallocate(zw_dv);   allocate(zw_dv(nblochpmx,nblochpmx))
+           if(allocated(cc_dv))   deallocate(cc_dv);   allocate(cc_dv(ngb,nstate*ntp0))
+           if(allocated(zwzd_dv)) deallocate(zwzd_dv); allocate(zwzd_dv(nstate,ntp0))
+           if(allocated(zwztmp_h))deallocate(zwztmp_h);allocate(zwztmp_h(nstate,ntp0))
+           if(allocated(yv_dv))   deallocate(yv_dv);   allocate(yv_dv(ngb,3))
+           if(.not.allocated(z3_dv)) allocate(z3_dv(3))
+#endif
            !====================================================================
            ! contribution to SEc(qt,w) from integration along the imaginary axis
            !====================================================================
@@ -613,15 +662,20 @@ subroutine sxcf_fal3z(&
            nrec=ix 
            if(debug) write(6,*)' wvr nrec kx nw nw_i ix=',nrec,kx,nw,nw_i,ix
            if(wv_single) then; read(ifrcw,rec=nrec) zw_sp; zw=zw_sp; else; read(ifrcw,rec=nrec) zw; endif ! direct access read Wc(0) = W(0) - v
-           ! zwz0 = Re(zmel^dagger Wc(0) zmel), diagonal in (it,itp). BLAS path (matzwz =
-           ! zgemm + dots) replaces the old hand-written triangular loop: same math
-           ! (the loop computed 2*Re(upper)+diag = Re of the full bilinear for symmetric zw)
-           ! but ~8x faster; the scalar loop was the measured hotspot (gdb sampling).
+           ! zwz0 = Re(zmel^dagger Wc(0) zmel), diagonal in (it,itp). BLAS/GPU path replaces the
+           ! old hand-written triangular loop (same math, zgemm speed; was a measured hotspot).
+#ifdef __GPU
+           zw_dv = zw
+           istat_g = zmm_d(zw_dv, zmel_dv, cc_dv, ngb, nstate*ntp0, ngb, lda=nblochpmx, ldb=ngb, ldc=ngb)
+           call zwz_diag_dev(zmel_dv, cc_dv, zwzd_dv, ngb, nstate, ntp0)
+           zwz0 = zwzd_dv
+#else
            block
              complex(8):: zwz0tmp(nstate,ntp0)
              call matzwz( zw(1:ngb,1:ngb), zmel, ntp0,nstate,ngb, zwz0tmp)
              zwz0 = zwz0tmp
            end block
+#endif
            zwz0 = dreal(zwz0)
            ! COH term test ----- The sum of the all states for zwz00 gives the delta function.
            if(cohtest) then
@@ -644,9 +698,22 @@ subroutine sxcf_fal3z(&
               nrec= ix
               if(debug) write(6,*)' wvi nrec=',nrec
               if(wv_single) then; read(ifrcwi,rec=nrec) zw_sp; zw=zw_sp; else; read(ifrcwi,rec=nrec) zw; endif ! Readin W-v on imag axis
+#ifdef __GPU
+              zw_dv = zw
+              istat_g = zmm_d(zw_dv, zmel_dv, cc_dv, ngb, nstate*ntp0, ngb, lda=nblochpmx, ldb=ngb, ldc=ngb)
+              call zwz_diag_dev(zmel_dv, cc_dv, zwzd_dv, ngb, nstate, ntp0)
+              zwztmp_h = zwzd_dv
+              if(npm==1) then ! zwz real on imag axis (zw symmetric): keep Re only
+                 zwz(ix,1:nstate,1:ntp0) = dreal(zwztmp_h)
+              else
+                 zwz(ix,1:nstate,1:ntp0) = zwztmp_h
+              endif
+#else
               if(npm==1) then   ! zwz is real (zw symmetric on imag axis): Re(zmel^dagger zw zmel).
-                 ! BLAS path then take the real part; mathematically identical to the old
-                 ! hand-written triangular loop, ~8x faster (measured hotspot, gdb sampling).
+                 ! BLAS path (matzwz=zgemm+dots) then take the real part. Mathematically identical
+                 ! to the old hand-written triangular loop (which computed 2*Re(upper)+diag),
+                 ! but runs at zgemm speed; the triangular scalar loop was the measured hotspot
+                 ! (gdb sampling: all hits at the old line) and ran ~8x slower than zgemm.
                  block
                    complex(8):: zwztmp(nstate,ntp0)
                    call matzwz( zw(1:ngb,1:ngb), zmel, ntp0,nstate,ngb, zwztmp)
@@ -656,6 +723,7 @@ subroutine sxcf_fal3z(&
                  call matzwz( zw(1:ngb,1:ngb), zmel, ntp0,nstate,ngb, &
                       zwz(ix,1:nstate,1:ntp0))
               endif
+#endif
               if(debug) write(6,*)' sumzw=',sum(abs(zw))
            enddo               !ix
            if(verbose()>50) write(*,'("xxx:6.1 before matzwz in ix cycle ",$)')
@@ -855,6 +923,19 @@ subroutine sxcf_fal3z(&
               zwz3mode=.false.
            endif
            if(zwz3mode) then
+#ifdef __GPU
+              ! W(omega') planes live on the device only (saves ~ngb^2*nw*16B of host RAM and
+              ! feeds the GPU pole-term contraction below).
+              if(allocated(zw3_dv)) deallocate(zw3_dv)
+              allocate(zw3_dv(ngb,ngb,nwxi:nwx))
+              do ix = nwxi,nwx
+                 nrec=ix-nw_i+1
+                 if(wv_single) then; read(ifrcw,rec=nrec) zw_sp; zw=zw_sp; else; read(ifrcw,rec=nrec) zw; endif
+                 zw3_dv(:,:,ix) = zw(1:ngb,1:ngb)
+              enddo
+              deallocate(zw)
+           else
+#else
               allocate( zw3(ngb,ngb,nwxi:nwx))
               do ix = nwxi,nwx  ! real frequency w'-loop
                  nrec=ix-nw_i+1
@@ -878,6 +959,7 @@ subroutine sxcf_fal3z(&
               enddo
               deallocate(zw)
            else
+#endif
               nstatex= max(ntp0,nt_max)
               if(allocated(zwz)) deallocate(zwz)
               allocate( zwz(nwxi:nwx,1:nstatex,ntp0) )
@@ -885,8 +967,16 @@ subroutine sxcf_fal3z(&
                  nrec= ix-nw_i+1
                  if(wv_single) then; read(ifrcw,rec=nrec) zw_sp; zw=zw_sp; else; read(ifrcw,rec=nrec) zw; endif ! Readin (W-v)(k,w')(i,j) at k and w' on imag axis
                  ! zwz = S[i,j] <psi(q,t) |psi(q-rk,n) B(rk,i)> Wc(k,iw')(i,j) > <B(rk,j) psi(q-rk,n) |psi(q,t)>
+#ifdef __GPU
+                 zw_dv = zw
+                 istat_g = zmm_d(zw_dv, zmel_dv, cc_dv, ngb, nstate*ntp0, ngb, lda=nblochpmx, ldb=ngb, ldc=ngb)
+                 call zwz_diag_dev(zmel_dv, cc_dv, zwzd_dv, ngb, nstate, ntp0)
+                 zwztmp_h = zwzd_dv
+                 zwz(ix,1:nstatex,1:ntp0) = zwztmp_h(1:nstatex,1:ntp0)
+#else
                  call matzwz(zw(1:ngb,1:ngb), zmel(1:ngb,1:nstatex,1:ntp0), ntp0,nstatex,ngb,   &
                       zwz(ix,1:nstatex,1:ntp0))
+#endif
                  ! zmel (ngb, nstate, ntp0)
               enddo
               !              deallocate(zmel)
@@ -959,14 +1049,24 @@ subroutine sxcf_fal3z(&
                  if(omg < ef .and. nw_i/=0) iir = -1 !May2006 because of \int d omega' G(omega-omega') W(omega')
                  if(zwz3mode) then
                    zwz3=(0d0,0d0)
-                   if(debug) write(6,"('wwwwwww ixs=',10i4)")ixs,igb2,it,itp
-                   if(debug) write(6,*)'2011 www zmel aaa=',sum(abs(zmel(:,:,:)))
+#ifdef __GPU
+                   ! zwz3(j) = zmel(:,it,itp)^H * Wc(:,:,ix_j) * zmel(:,it,itp), ix_j on device.
+                   ! Two GEMV-shaped zmm_d per plane + one 1x3 'C' GEMM for the dots.
+                   do j_g = 1,3
+                     istat_g = zmm_d(zw3_dv(1,1,iir*(ixs-2+j_g)), zmel_dv(1,it,itp), yv_dv(1,j_g), &
+                          ngb, 1, ngb, lda=ngb, ldb=ngb, ldc=ngb)
+                   enddo
+                   istat_g = zmm_d(zmel_dv(1,it,itp), yv_dv, z3_dv, 1, 3, ngb, opa='C', &
+                        lda=ngb, ldb=ngb, ldc=1)
+                   zwz3(1:3) = z3_dv(1:3)
+#else
                    do ix = ixs, ixs+2
                      do igb2=1,ngb
                        zz2 = sum(dconjg(zmel(1:ngb,it,itp))*zw3(1:ngb,igb2,iir*(ix-1)) )
                        zwz3(ix-ixs+1) = zwz3(ix-ixs+1)+zz2 *zmel(igb2,it,itp)
                      enddo     !igb2
                    enddo       !ix
+#endif
                    if(debug) write(6,"('w xxxxxxxxxxxxx ixs loopend=',i4)")ixs
                    if(debug) write(6,*)zwz3(1:3) !,freq_r(ixs-1),zwz3(1:3)
                    if(debug) write(6,*)'we frez zwz3=', we,ixs,freq_r(ixs-1:ixs+1)
@@ -996,7 +1096,11 @@ subroutine sxcf_fal3z(&
               enddo
            endif
            if(zwz3mode) then
+#ifdef __GPU
+              deallocate(zw3_dv)   ! device-resident planes (host zw3 never allocated on GPU path)
+#else
               deallocate(zw3)
+#endif
            else
               deallocate(zwz)
            endif

@@ -78,7 +78,12 @@ if __name__ == "__main__":
             f.unlink()
 
     run_cmd(cluster, MPIParams(command=EXEC_DIR/f"hx0fp0{exec_type}", args=[target, "--job=11", *extra_args], **smpi2), stdout="lx0_sf")
-    run_cmd(cluster, MPIParams(command=EXEC_DIR/"hsfp0",  args=[target, "--job=12", *extra_args], **smpi), stdout="lsc_sf")
+    # Correlation Sc: use the CUF-offloaded hsfp0_gpu (few ranks, GPU-bound) when --gpu was
+    # requested and the binary exists; exchange steps above stay on the CPU hsfp0 (no GPU path).
+    if args.gpu and (EXEC_DIR/"hsfp0_gpu").exists():
+        run_cmd(cluster, MPIParams(command=EXEC_DIR/"hsfp0_gpu", args=[target, "--job=12", *extra_args], **smpi2), stdout="lsc_sf")
+    else:
+        run_cmd(cluster, MPIParams(command=EXEC_DIR/"hsfp0",  args=[target, "--job=12", *extra_args], **smpi), stdout="lsc_sf")
     run_cmd(cluster, MPIParams(command=EXEC_DIR/"hqpe",   args=[target, "--job=0",  *extra_args], **s1),  stdout="lqpe")
 
     print('OK! ==== All calculation finished for gw_lmfh ====')
