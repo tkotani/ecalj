@@ -347,7 +347,10 @@ subroutine hsfp0() bind(C)
      read(ifwd,*) nprecx,mrecl,nblochpmx,nwp,niwt, nqnum, nw_i
      if(ipr) write(6,"(' Readin WV.d =', 10i8)") nprecx,mrecl,nblochpmx, nwp, niwt, nqnum, nw_i
      close(ifwd)
-     if(nprecx/=ndble)call rx("hsfp0: dim of WVR and WVI not compatible")!call checkeq(nprecx,ndble)
+     ! nprecx=8: double-precision WVR/WVI (CPU/GPU hx0fp0). nprecx=4: single-precision files
+     ! from hx0fp0_mp* (gw_lmfh --mp --fp32 path); sxcf_fal2 promotes them on read (wv_single).
+     if(nprecx/=ndble .and. nprecx/=4) call rx("hsfp0: dim of WVR and WVI not compatible")
+     if(nprecx==4 .and. ipr) write(6,"(a)") ' hsfp0: single-precision WVR/WVI detected (_mp writer); promoting on read'
      nw=nwp-1
      if (niwt /= niw) call rx( 'hsfp0: wrong niw')
      !! Energy mesh; along real axis. Read 'freq_r'
