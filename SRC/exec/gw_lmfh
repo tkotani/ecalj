@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 import argparse
+import sys
 from pathlib import Path
 from pylib.run_cmd import run_cmd, MPIParams
-from pylib.gwinput_prepare import ensure_gwinput_toml
 
 EXEC_DIR = Path(__file__).parent
 
@@ -13,6 +13,10 @@ parser = argparse.ArgumentParser(prog='gw_lmfh', description='''
 ''')
 parser.add_argument("extension",   help='extension of ctrl file')
 parser.add_argument("-np",         help='number of MPI cores', default=8, type=int)
+parser.add_argument("-np2", "-npgpu", help='number of MPI cores for GPU steps (hvccfp0/hx0fp0)', type=int, default=None)
+parser.add_argument('--gpu',       help='USE GPU version of hvccfp0/hx0fp0 (hsfp0 has no GPU build)', action='store_true')
+parser.add_argument('--mp',        help='USE mixed precision version of hvccfp0/hx0fp0', action='store_true')
+parser.add_argument('--fp32',      help='With --mp: true FP32 (not TF32) GPU GEMMs', action='store_true')
 parser.add_argument("-c", "--cluster", help="cluster name", default="default", type=str)
 args, extra_args = parser.parse_known_args()
 
@@ -21,9 +25,27 @@ cluster = args.cluster
 s1  = {"nprocs": 1}
 smpi = {"nprocs": args.np}
 
+exec_type = ""
+if args.mp:
+    # hvccfp0_mp*/hx0fp0_mp* write single-precision WVR/WVI (nprecx=4); the CPU hsfp0
+    # promotes them on read (sxcf_fal2 wv_single path). Combine with --fp32 for accuracy.
+    exec_type = "_mp"
+if args.gpu:
+    exec_type = exec_type + "_gpu"
+if args.fp32:
+    extra_args = [*extra_args, "--use_fp32"]
+# GPU steps: fewer ranks (1 per GPU is typical). Falls back to -np when -np2 unset or CPU run.
+smpi2 = {"nprocs": args.np2} if (args.np2 and exec_type) else smpi
+
 if __name__ == "__main__":
-    if not ensure_gwinput_toml(exec_dir=EXEC_DIR):
-        raise SystemExit('gw_lmfh: cannot proceed without GWinput.toml')
+    # TOML mode gate (same as gwsc): Fortran binaries read ctrlg.<target>.toml + PB.<target>.toml
+    _ctrlg = Path(f'ctrlg.{target}.toml')
+    _pb    = Path(f'PB.{target}.toml')
+    if not _ctrlg.is_file() or not _pb.is_file():
+        print(f'gw_lmfh: missing {_ctrlg if not _ctrlg.is_file() else _pb} in cwd.', file=sys.stderr)
+        print('         Run Legacy2toml.py to convert legacy ctrl+GWinput to TOML form.', file=sys.stderr)
+        raise SystemExit(2)
+    print(f'gw_lmfh: using {_ctrlg} + {_pb} (TOML mode)')
 
     for name in ['NoCore', 'QPU', 'QPD']:
         p = Path(name)
@@ -40,19 +62,22 @@ if __name__ == "__main__":
 
     ## Core part of the self-energy (exchange only) ##
     run_cmd(cluster, MPIParams(command=EXEC_DIR/"hbasfp0", args=[target, "--job=3", *extra_args], **s1),   stdout="lbasC")
-    run_cmd(cluster, MPIParams(command=EXEC_DIR/"hvccfp0", args=[target, "--job=3", *extra_args], **smpi), stdout="lvccC")
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/f"hvccfp0{exec_type}", args=[target, "--job=3", *extra_args], **smpi2), stdout="lvccC")
     run_cmd(cluster, MPIParams(command=EXEC_DIR/"hsfp0",   args=[target, "--job=3", *extra_args], **smpi), stdout="lsxC")
 
     ## Valence part of the self-energy Sigma ##
     run_cmd(cluster, MPIParams(command=EXEC_DIR/"hbasfp0", args=[target, "--job=0", *extra_args],  **s1),  stdout="lbas")
-    run_cmd(cluster, MPIParams(command=EXEC_DIR/"hvccfp0", args=[target, "--job=0", *extra_args],  **smpi), stdout="lvcc")
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/f"hvccfp0{exec_type}", args=[target, "--job=0", *extra_args],  **smpi2), stdout="lvcc")
     run_cmd(cluster, MPIParams(command=EXEC_DIR/"hsfp0",   args=[target, "--job=11", *extra_args], **smpi), stdout="lsx_sf")
 
-    if Path('WV.d').exists():
-        for f in Path('.').glob('WV*'):
+    # Stale-W cleanup before hx0fp0 regenerates them. Current file names are
+    # __WV.d / __WVR.<iq> / __WVI.<iq> (the unprefixed 'WV.d' is a legacy name
+    # that never matches -> the old glob silently cleaned nothing).
+    if Path('__WV.d').exists():
+        for f in Path('.').glob('__WV*'):
             f.unlink()
 
-    run_cmd(cluster, MPIParams(command=EXEC_DIR/"hx0fp0", args=[target, "--job=11", *extra_args], **smpi), stdout="lx0_sf")
+    run_cmd(cluster, MPIParams(command=EXEC_DIR/f"hx0fp0{exec_type}", args=[target, "--job=11", *extra_args], **smpi2), stdout="lx0_sf")
     run_cmd(cluster, MPIParams(command=EXEC_DIR/"hsfp0",  args=[target, "--job=12", *extra_args], **smpi), stdout="lsc_sf")
     run_cmd(cluster, MPIParams(command=EXEC_DIR/"hqpe",   args=[target, "--job=0",  *extra_args], **s1),  stdout="lqpe")
 
