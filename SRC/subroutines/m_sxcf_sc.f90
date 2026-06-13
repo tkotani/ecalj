@@ -587,6 +587,7 @@ contains
                       if (wfac_(it,itp) < wfaccut) cycle
                       we_(it,itp)  = .5d0*abs(omg - weavx2(omg,ef, sxs_ekc(it),esmr))
                       ixs = findloc(freq_r(1:nw)>we_(it,itp), value=.true., dim=1)
+                      if (ixs < 1 .or. ixs > nw-1) cycle ! OOB guard: findloc miss (0) writes nttp(-1); ixs=nw writes nttp(nw+1). ixs=1 is VALID (bin 0 = static-W slot, freq_r(0)=0).
                       nttp(ixs-1:ixs+1) = nttp(ixs-1:ixs+1) + 1
                     enddo
                   enddo itploop
@@ -606,6 +607,7 @@ contains
                       wfac_(it,itp) =  wfac_(it,itp)*sxs_wkkr*dsign(1d0, omg-ef) !wfac_ = $w$ weight (smeared thus truncated by ef). See the sentences.
                       we_(it,itp)   = .5d0*abs(omg - weavx2(omg,ef, sxs_ekc(it),esmr)) !we_= \bar{\omega_\epsilon} in sentences next to Eq.58 in PRB76,165106 (2007)
                       ixs = findloc(freq_r(1:nw)>we_(it,itp), value=.true., dim=1)
+                      if (ixs < 1 .or. ixs > nw-1) cycle ! OOB guard: findloc miss (0) writes nttp(-1); ixs=nw writes nttp(nw+1). ixs=1 is VALID (bin 0 = static-W slot, freq_r(0)=0).
                       associate(x => we_(it,itp), xi => freq_r(ixs-1:ixs+1)) !x=>we_ is \omega_\epsilon in Eq.(55).
                         amat(1:3,1) = 1d0                 !old version: call alagr3z2wgt(we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
                         amat(1:3,2) = xi(1:3)**2
