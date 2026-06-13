@@ -310,6 +310,25 @@ complex(8) function alagr3zz(x,xi,fi)
        sum (matmul(amatinv,dimag(fi)) * (/1d0,x**2,x**4/) ) )
   if(dimag(alagr3zz)>0d0) alagr3zz = dcmplx( dreal(alagr3zz),0d0)
 ENDfunction alagr3zz
+!------------------------------------------------------------------------
+complex(8) function alagr2zz(x,xi,fi)
+  ! 2-point LINEAR interpolation in u=x^2 (even function), drop-in replacement for
+  ! alagr3zz using only the bracketing pair xi(1)<=x<xi(2). Weights are the convex
+  ! pair (1-t),t with t in [0,1] -> the result stays between fi(1) and fi(2):
+  ! NO negative weights, NO overshoot, NO sign flip (unlike the 3-point Lagrange,
+  ! whose end cardinals go negative and overshoot a curved/cusped Wc near omega=0).
+  ! The imag clamp below is therefore redundant (kept for parity with alagr3zz).
+  implicit none
+  real(8):: xi(2), x, t, d
+  complex(8):: fi(2)
+  d = xi(2)**2 - xi(1)**2
+  t = 0d0
+  if(d/=0d0) t = (x**2 - xi(1)**2)/d
+  if(t<0d0) t = 0d0
+  if(t>1d0) t = 1d0
+  alagr2zz = (1d0-t)*fi(1) + t*fi(2)
+  if(dimag(alagr2zz)>0d0) alagr2zz = dcmplx( dreal(alagr2zz),0d0)
+ENDfunction alagr2zz
 ! sssssssssssssssssssssssssssssssssssssssssssssssssssss
 ! subroutine timeshow(info)
 ! #ifdef __GPU

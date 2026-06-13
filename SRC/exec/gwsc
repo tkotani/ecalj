@@ -28,6 +28,7 @@ parser.add_argument('--gemmul8'   ,help='USE GEMMul8 valid in GPU without MP',  
 parser.add_argument('--mp'        ,help='USE mixed precision version for hsfp0 and hgw',    action='store_true')
 parser.add_argument('--fp32'      ,help='With --mp: use true FP32 (not TF32) in GPU GEMMs. Fixes ill-conditioned dielectric (e.g. mp-8196)', action='store_true')
 parser.add_argument('--removeFermiWindowLiTi2O4', help='DIAGNOSTIC: drop bands within +-2eV of EF from chi0 (m_tetwt). Tests if Fermi-surface neighbourhood drives QSGW oscillation', action='store_true')
+parser.add_argument('--WVR2ptRaxis', help='Sc real-axis (WVR) pole term: 2-point LINEAR Wc(we) interpolation (alagr2zz, no negative-weight overshoot) instead of 3-point Lagrange', action='store_true')
 parser.add_argument("-c", "--cluster", help="cluster name", default="default", type=str)
 args,unknown=parser.parse_known_args()
 
@@ -62,6 +63,8 @@ if args.fp32:
     options.append("--use_fp32")
 if args.removeFermiWindowLiTi2O4:
     options.append("--removeFermiWindowLiTi2O4")
+if args.WVR2ptRaxis:
+    options.append("--WVR2ptRaxis")
 if args.gemmul8:
     options.append("--use_gemmul8")
     libpath = Path(__file__).parent / "libgemmul8.so"

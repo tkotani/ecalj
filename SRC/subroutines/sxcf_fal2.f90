@@ -41,6 +41,7 @@ subroutine sxcf_fal3z(&
   use m_zmel,only: build_zmel, set_m2e_prod_basis, zmel
   use m_readVcoud,only:   Readvcoud, vcoud,vcousq,zcousq,ngb,ngc
   use m_wfac,only:wfacx2,weavx2
+  use m_cmdopt_registry,only: c0_WVR2ptRaxis
 #ifdef __GPU
   use m_blas, only: zmm_d
   use m_sxcf_fal2_gpu, only: zwz_diag_dev
@@ -264,7 +265,7 @@ subroutine sxcf_fal3z(&
   integer:: ngpmx, ngcmx, igc,                     nadd(3)
   real(8) :: wgt0(nq0i,ngrp),qk(3), qdiff(3),add(3),symgg(3,3,ngrp),symope(3,3),&
        & qxx(3),q0i(1:3,1:nq0i),shtv(3),alat,ecore(nctot), coh(ntq,nq)
-  complex(8)::   alagr3zz,wintz
+  complex(8)::   alagr3zz,alagr2zz,wintz
   complex(8),allocatable :: zz(:),zzmel(:,:,:),&
        & zw (:,:), zwz(:,:,:), zwz0(:,:),zwzi(:,:),zwz00(:,:)
   ! for exchange --------------------
@@ -1072,15 +1073,25 @@ subroutine sxcf_fal3z(&
                    if(debug) write(6,*)'we frez zwz3=', we,ixs,freq_r(ixs-1:ixs+1)
                    if(debug) write(6,*)'2011 bbb www zmel=',sum(abs(zmel(:,:,:)))
 
+                   if(c0_WVR2ptRaxis) then
+                     zsec(iw,itp,ip) = zsec(iw,itp,ip) &
+                          &               + wfac *alagr2zz(we,freq_r(ixs-1),zwz3) ! 2pt linear (no overshoot)
+                   else
                    zsec(iw,itp,ip) = zsec(iw,itp,ip) &
                         &               + wfac *alagr3zz(we,freq_r(ixs-1),zwz3) !faleev
+                   endif
 
                    if(debug) write(6,*)'2011 ccc www zmel=',sum(abs(zmel(:,:,:)))
                    if(debug) write(6,"('wwwwwww eo zsecsum')")
                  else
                    zwzz(1:3) = zwz(iir*(ixs-1):iir*(ixs+1):iir, it,itp)
+                   if(c0_WVR2ptRaxis) then
+                     zsec(iw,itp,ip) = zsec(iw,itp,ip) &
+                          &               + wfac*alagr2zz(we,freq_r(ixs-1),zwzz) ! 2pt linear (no overshoot)
+                   else
                    zsec(iw,itp,ip) = zsec(iw,itp,ip) &
                         &               + wfac*alagr3zz(we,freq_r(ixs-1),zwzz)
+                   endif
                  endif
 2011           enddo itloop
 2002         enddo itploop      !end of SEc w and qt -loop

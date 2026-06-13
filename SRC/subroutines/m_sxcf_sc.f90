@@ -95,7 +95,7 @@ module m_sxcf_sc
   use m_nvfortran, only: findloc
   use m_hamindex, only: ngrp
   use m_blas, only: m_op_c, m_op_n, m_op_t
-use m_cmdopt_registry, only: c0_debug
+use m_cmdopt_registry, only: c0_debug, c0_WVR2ptRaxis
 #if defined(__MP) && defined(__GPU)
   use m_blas, only: gemm => cmm_d
 #elif defined(__MP)
@@ -570,7 +570,7 @@ contains
                 CorrelationSelfEnergyRealAxis: Block !Real Axis integral. Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
                   use m_wfac, only: wfacx2, weavx2
                   integer :: itini, itend, ittp, ittp3(3), ixs, nttp_max, nttp(0:nw), i, j
-                  real(8) :: we_(ns1:ns2r,sxs_ntqxx), wfac_(ns1:ns2r,sxs_ntqxx), omg, amat(3,3), wgt3ititp(3)
+                  real(8) :: we_(ns1:ns2r,sxs_ntqxx), wfac_(ns1:ns2r,sxs_ntqxx), omg, amat(3,3), wgt3ititp(3), tt2p
                   complex(kind=kp), allocatable :: wz_iw(:,:), czwc_iw(:,:)
                   real(8), allocatable :: wgtiw(:,:)
                   integer, allocatable :: itw(:,:), itpw(:,:)
@@ -609,10 +609,18 @@ contains
                       ixs = findloc(freq_r(1:nw)>we_(it,itp), value=.true., dim=1)
                       if (ixs < 1 .or. ixs > nw-1) cycle ! OOB guard: findloc miss (0) writes nttp(-1); ixs=nw writes nttp(nw+1). ixs=1 is VALID (bin 0 = static-W slot, freq_r(0)=0).
                       associate(x => we_(it,itp), xi => freq_r(ixs-1:ixs+1)) !x=>we_ is \omega_\epsilon in Eq.(55).
+                        if(c0_WVR2ptRaxis) then ! 2-point LINEAR in omega^2 on the bracketing pair: convex weights, no overshoot
+                          ! NOTE: no BLOCK construct here -- nvfortran miscompiles block-inside-associate
+                          ! in the plain-CPU variant (silently corrupts the ELSE path; bisected 2026-06-13).
+                          tt2p = (x**2 - xi(1)**2)/(xi(2)**2 - xi(1)**2)
+                          tt2p = max(0d0,min(1d0,tt2p))
+                          wgt3ititp = wfac_(it,itp)*[1d0-tt2p, tt2p, 0d0]
+                        else
                         amat(1:3,1) = 1d0                 !old version: call alagr3z2wgt(we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
                         amat(1:3,2) = xi(1:3)**2
                         amat(1:3,3) = xi(1:3)**4
                         wgt3ititp = wfac_(it,itp)*matmul([1d0, x**2, x**4], inverse33(amat))
+                        endif
                       end associate
                       nttp(ixs-1:ixs+1) = nttp(ixs-1:ixs+1) + 1
                       ittp3(1:3) = nttp(ixs-1:ixs+1)

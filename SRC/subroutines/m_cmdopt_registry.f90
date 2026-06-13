@@ -144,6 +144,7 @@ module m_cmdopt_registry
   logical, public, protected, save :: c0_quitecore       = .false.
   logical, public, protected, save :: c0_readQforGW      = .false.
   logical, public, protected, save :: c0_removeFermiWindowLiTi2O4 = .false.  ! drop EF+-2eV bands from chi0 (diagnostic, m_tetwt)
+  logical, public, protected, save :: c0_WVR2ptRaxis     = .false.  ! Sc real-axis (WVR) pole: 2-point LINEAR Wc(we) (alagr2zz, no overshoot) instead of 3-point Lagrange alagr3zz
   logical, public, protected, save :: c0_shorten         = .false.
   logical, public, protected, save :: c0_show_time       = .false.
   logical, public, protected, save :: c0_showdmat        = .false.
@@ -380,6 +381,7 @@ contains
     call set0('--debugzmel',      c0_debugzmel, narg, arglist)
     call set0('--density',        c0_density, narg, arglist)
     call set0('--dos',            c0_dos, narg, arglist)
+    call set0('--WVR2ptRaxis',    c0_WVR2ptRaxis, narg, arglist)
     call set0('--eigen-at-k',     c0_eigen_at_k, narg, arglist)
     call set0('--espot',          c0_espot, narg, arglist)
     call set0('--estaticall',     c0_estaticall, narg, arglist)
