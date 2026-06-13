@@ -167,16 +167,26 @@ contains
          call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
 !        call getkeyvalue("GWinput","tetrakbt",usetetrakbt,default=.false.)
       endif
-      if (imode==5 .AND. usetetrakbt) then
+      ! Finite-T Fermi level by discrete k-sum (consistent with tetrakbt chi0):
+      ! (3-nspin)/nqbz * sum_{s,iq,n} f(e-EF;kbt) = valn, by bisection. Used by
+      ! m_tetwt when tetrakbt=true. (imode==1 is the gwsc GW flow.)
+      if ((imode==1 .OR. imode==5) .AND. usetetrakbt) then
         call tetrakbt_init() !! read kbt
-        e11 = efermi - 10*kbt
-        e22 = efermi + 10*kbt
-        nptdos_kbt = 10001
-        call bzints2x(volwgt,eband,dum111,nkp,nbandx,nbandx, nspx,e11,e22,dos_kbt, nptdos_kbt ,efermi,1,nteti,idteti)
-        call fermi_kbt(valn,dos_kbt,nptdos_kbt,e11,e22, kbt, efermi, efermi_kbt) !Fermi level at finite tempearture.
-        deallocate(dos_kbt)
+        FermiKbtTetraNOS: block ! EF^T from tetrahedron NOS (x) thermal kernel (2026-06-11).
+          ! Replaces the discrete k-sum as the EFERMI_kbt source: T->0 reduces exactly to
+          ! the tetrahedron EF (no staircase error at kbt below the mesh level spacing).
+          integer,parameter:: nptk=2401
+          real(8):: ek1, ek2, dosk(nptk), efkbt_disc
+          ek1 = efermi - 60d0*kbt - 1d-9
+          ek2 = efermi + 60d0*kbt + 1d-9
+          call bzints2x(volwgt,eband,dum111,nkp,nbandx,nbandx,nspx,ek1,ek2,dosk,nptk,efermi,1,nteti,idteti)
+          call fermi_kbt_tetra(valn, dosk, nptk, ek1, ek2, kbt, efermi, efermi_kbt)
+          call fermi_kbt_discrete(valn,eband2,nbandx,nspx,nqbz,nspin,kbt,elo,ehi, efkbt_disc) ! diagnostic
+          write(stdo,ftox)' heftet: EFERMI_kbt(tetraNOSconv)=',ftof(efermi_kbt), &
+               ' [diagnostic discrete k-sum=',ftof(efkbt_disc),'] kbt=',ftof(kbt)
+        endblock FermiKbtTetraNOS
         open(newunit=ifief_kbt,file='EFERMI_kbt')
-        write(ifief_kbt,"(2d23.15,a)") efermi_kbt, kbt,' ! This efermi kbt are obtained by heftet:'
+        write(ifief_kbt,"(2d23.15,a)") efermi_kbt, kbt,' ! efermi_kbt (finite-T, tetra-NOS conv) by heftet'
         close(ifief_kbt)
       endif
       deallocate(dos)
@@ -326,4 +336,78 @@ contains
       endif
     endif
   end subroutine efrang3
+
+  subroutine fermi_kbt_discrete(valn,eband,nb,nsp,nq,nspin,kbt,elo,ehi, efkbt)
+    ! Finite-temperature Fermi level by a discrete k-sum (no DOS/tetrahedron):
+    !   N(EF) = (3-nspin)/nq * sum_{s=1..nsp, iq=1..nq, n=1..nb} f(e-EF;kbt) = valn,
+    ! solved by bisection (N is monotonic in EF). eband is the FULL-BZ eigenvalue
+    ! array (equal weight 1/nq). Consistent with the finite-T chi0 (tetrakbt).
+    implicit none
+    intent(in)::  valn,eband,nb,nsp,nq,nspin,kbt,elo,ehi
+    intent(out):: efkbt
+    integer:: nb,nsp,nq,nspin, is,iq,n,it
+    real(8):: valn,eband(nb,nsp,nq),kbt,elo,ehi,efkbt, a,b,c,fc,sf,x
+    sf = dble(3-nspin)/dble(nq)            ! spin degeneracy * k-weight
+    a = elo - 30d0*kbt ; b = ehi + 30d0*kbt
+    do it = 1,300
+      c = 0.5d0*(a+b)
+      fc = 0d0
+      do is=1,nsp ; do iq=1,nq ; do n=1,nb
+        x = (eband(n,is,iq)-c)/kbt
+        if    (x >  40d0) then ; continue
+        elseif(x < -40d0) then ; fc = fc + 1d0
+        else                   ; fc = fc + 1d0/(exp(x)+1d0)
+        endif
+      enddo ; enddo ; enddo
+      fc = fc*sf
+      if(fc > valn) then ; b = c ; else ; a = c ; endif
+      if(b-a < 1d-12) exit
+    enddo
+    efkbt = 0.5d0*(a+b)
+  end subroutine fermi_kbt_discrete
+  subroutine fermi_kbt_tetra(valn, nos, npt, ea, eb, kbt, ef0, efkbt)
+    ! Finite-temperature Fermi level from the TETRAHEDRON NOS (2026-06-11):
+    !   N_T(E) = int de DOS(e) f_T(e-E) = int de NOS(e) (-f'_T(e-E))
+    !          = sum_i ker_i * NOS(E + 2*kbt*t_i)        [B'-type GL20 kernel]
+    ! solved by bisection. T->0 reduces EXACTLY to the tetrahedron EF (same NOS),
+    ! removing the discrete-staircase O(level spacing) error of fermi_kbt_discrete
+    ! at kbt below the coarse-mesh level spacing (e.g. 30K on 4^3/6^3 meshes).
+    ! nos(1:npt): tetrahedron NOS on the linear grid [ea,eb] (from bzints2x job=1).
+    use m_fpiint,only: gausq
+    implicit none
+    intent(in)::  valn, nos, npt, ea, eb, kbt, ef0
+    intent(out):: efkbt
+    integer:: npt, i, it
+    integer,parameter:: NE=20
+    real(8):: valn, nos(npt), ea, eb, kbt, ef0, efkbt
+    real(8):: tg(NE), wg(NE), ker(NE), a,b,c, fc, de
+    call gausq(NE, -6d0, 6d0, tg, wg, 0, 0)
+    ker = wg*0.5d0/cosh(tg)**2
+    ker = ker/sum(ker)
+    de  = (eb-ea)/(npt-1)
+    a = ef0 - 45d0*kbt
+    b = ef0 + 45d0*kbt
+    do it = 1,200
+      c  = 0.5d0*(a+b)
+      fc = 0d0
+      do i=1,NE
+        fc = fc + ker(i)*nosi(c + 2d0*kbt*tg(i))
+      enddo
+      if(fc > valn) then; b = c; else; a = c; endif
+      if(b-a < 1d-12) exit
+    enddo
+    efkbt = 0.5d0*(a+b)
+  contains
+    real(8) function nosi(e) ! clamped linear interpolation of nos on [ea,eb]
+      real(8),intent(in):: e
+      real(8):: p
+      integer:: j
+      if(e <= ea) then;     nosi = nos(1)
+      elseif(e >= eb) then; nosi = nos(npt)
+      else
+        p = (e-ea)/de;  j = int(p)+1;  p = p-(j-1)
+        nosi = (1d0-p)*nos(j) + p*nos(j+1)
+      endif
+    end function nosi
+  end subroutine fermi_kbt_tetra
 end module m_heftet

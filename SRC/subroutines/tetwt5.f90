@@ -160,6 +160,9 @@ contains
     logical,optional:: wan
 !!! tetrakbt
     real(8):: temperature     ![K], temporally
+    real(8):: wocc            ! finite-T widening of the occupied/unoccupied pair selection
+    real(8):: fb1,fb2,fbound  ! exact upper bound on a pair's Adler-Wiser weight (finite-T pruning)
+    real(8),parameter:: tolpair=1d-5 ! drop pairs whose maximum possible weight is below this
     logical:: interbandonly=.false.,intrabandonly=.false.
     real(8),parameter:: tolx=1d-5
     !---------------------------------------------------------------------
@@ -174,6 +177,13 @@ contains
     if (usetetrakbt) then
        call tetrakbt_init()
     endif     !      if(verbose()>=150) chkwrt=.true.
+    ! Finite-T pair selection: at T>0 states within ~12kbt above (below) E_F still carry
+    ! occupation f (holes 1-f). Widen the sharp-theta selection below (noccx_k/noccx_kq
+    ! counts and the minval/maxval pair filter) by wocc=2*kbt*Tcut (=12kbt, matching the
+    ! lindtet6_kbt scan window), so that such pairs reach lindtet6_kbt instead of being
+    ! dropped at T=0 criteria. wocc=0 reproduces the original T=0 selection exactly.
+    wocc = 0d0
+    if (usetetrakbt) wocc = 12d0*kbt
     voltot = abs(det33(qbas))
     piofvoltot = pi/4d0/voltot
     !      fermi_dS=0d0
@@ -233,8 +243,8 @@ contains
           ek_ ( 1:nband+nctot, 0:3) = ekzz1( 1:nband+nctot, kkm(0:3)) ! k
           ekq_( 1:nband+nctot, 0:3) = ekzz2( 1:nband+nctot, kkm(0:3)) ! k+q
 !          if(ipr) write(stdo,ftox) 'eocc  ', ek_ -efermi,  if(ipr) write(stdo,ftox) 'eunocc', ekq_-efermi
-          noccx_k = maxval(count( ek_(1:nband, 0:3)<efermi,dim=1) ) !the highest number of occupied states
-          noccx_kq= maxval(count( ekq_(1:nband,0:3)<efermi,dim=1) )
+          noccx_k = maxval(count( ek_(1:nband, 0:3)<efermi+wocc,dim=1) ) !the highest number of occupied states (finite-T widened by wocc)
+          noccx_kq= maxval(count( ekq_(1:nband,0:3)<efermi+wocc,dim=1) )
           ebmxx= merge(1d10,ebmx,present(wan)) !! exclude wannier model: (okumura, 2017/06/13)
           nbandmx_k   = minval(count( ek_(1:nband,  0:3)<min(1d10,ebmxx),dim=1)) ! nband max See sugw.f90:L331 evl(1+nev:nbandmx,iq,isp)=1d20 !padding
           nbandmx_kq  = minval(count( ekq_(1:nband, 0:3)<min(1d10,ebmxx),dim=1)) ! 2024-9-4
@@ -289,10 +299,17 @@ contains
                       eunocc => ek_ (ib,0:3)
                       eocc   => ekq_(jb,0:3)
                     endif
-                   if( minval(eocc) <= efermia .AND.  maxval(eunocc) >= efermib ) then
-                      continue
+                   if(usetetrakbt) then
+                      ! Exact bound: max_k [f(ea(k))-f(eb(k))] <= f(min ea - efa) - f(max eb - efb).
+                      ! Prunes (i) pairs far from E_F and (ii) close-band pairs with tiny occupation
+                      ! difference, at a guaranteed weight loss < tolpair. Replaces the wocc box window
+                      ! (wocc still widens the noccx band-loop bounds above, a superset of this filter).
+                      fb1 = (minval(eocc)  -efermia)/kbt
+                      fb2 = (maxval(eunocc)-efermib)/kbt
+                      fbound = 1d0/(exp(min(max(fb1,-60d0),60d0))+1d0) - 1d0/(exp(min(max(fb2,-60d0),60d0))+1d0)
+                      if( fbound <= tolpair ) cycle
                    else
-                      cycle
+                      if( .not.( minval(eocc) <= efermia .AND. maxval(eunocc) >= efermib ) ) cycle
                    endif
                    if( maxval(eunocc(:)-eocc(:)) <0d0 ) cycle ! this makes a bit effective.
                    if(job==0 ) then  !takao
@@ -626,7 +643,7 @@ contains
     real(8),intent(inout):: wtthis(nwhis,4)
     integer,parameter:: NE=20          ! Gauss-Legendre nodes for the thermal kernel
     real(8),parameter:: Tcut=6d0       ! window: |E-Ef| <= 2*kbt*Tcut (tanh(6)~1)
-    real(8):: tg(NE),wg(NE),wtmp(nwhis,4),ker,dE,knorm,win
+    real(8):: tg(NE),wg(NE),wtmp(nwhis,4),ker,dE,knorm,win,eamin,ebmax
     integer:: ie
     ! Gate: if both bands stay fully occupied/unoccupied across the thermal window,
     ! the occupation is flat and the T=0 routine at Ef is already exact (no NE cost).
@@ -638,11 +655,16 @@ contains
     endif
     call gausq(NE, -Tcut, Tcut, tg, wg, 0, 0)         ! nodes/weights on t in [-Tcut,Tcut]
     knorm = 0d0                                        ! normalize -> exact sum rule despite truncation
-    do ie=1,NE
-       knorm = knorm + wg(ie)*0.5d0/cosh(tg(ie))**2
+    do ie=1,NE                                         ! (knorm runs over ALL nodes: it normalizes the
+       knorm = knorm + wg(ie)*0.5d0/cosh(tg(ie))**2    !  kernel, independent of which nodes vanish below)
     enddo
+    eamin = minval(ea)
+    ebmax = maxval(eb)
     do ie=1,NE
        dE  = 2d0*kbt*tg(ie)
+       ! Node zero-skip (exact): lindtet6 vanishes when nothing is occupied in band a
+       ! (scanned Ef_a below all its corners) or nothing is unoccupied in band b.
+       if( efermia+dE <= eamin .or. efermib+dE >= ebmax ) cycle
        ker = (wg(ie)*0.5d0/cosh(tg(ie))**2)/knorm
        wtmp = 0d0
        call lindtet6(kkv,kvec, ea, eb, x, efermia+dE, efermib+dE, frhis, nwhis, wtmp)

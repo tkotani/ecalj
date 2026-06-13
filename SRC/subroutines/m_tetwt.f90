@@ -38,8 +38,9 @@ contains
     use m_gw_user_config,only: niw_in=>niw; use m_core_state,only: ecore,nctot; use m_struct_from_lmf,only: nspin
     use m_freq,only: Getfreq2, frhis,freq_r,freq_i, nwhis,nw_i,nw,npm,niw !output of getfreq
     use m_read_bzdata,only: qlat,ginv, ntetf,idtetf,ib1bz,nqibz_mtet=>nqibz,nqbz,qbz,nqbzw,qbzw, idtetf,ib1bz, qbzw,nqbzw !for tetrahedron
-    use m_ReadEfermi,only: ef
+    use m_ReadEfermi,only: ef, ef_kbt, readefermi_kbt
     use m_readgwinput,only: ebmx,nbmx,mtet
+    use m_GWinput,only: gwinput_init, gwinput_loaded, tg_tetrakbt=>tetrakbt
     use m_tetwt5,only:tetwt5x_dtet4,rsvwwk00_4,hisrange
     intent(in)::      q,iq,is,isf,ekxx1,ekxx2,nband,wan
     !! nqibz_mtet: is only for mtet/=(/1,1,1/) --->(we usually use only this case)
@@ -74,6 +75,8 @@ contains
     integer, intent(in),optional :: ikbz_in, fkbz_in
     integer :: ikbz, fkbz
     real(8):: efshift=0d0
+    real(8):: eftet                 ! Fermi level passed to chi0 tetrahedron (finite-T if tetrakbt)
+    logical:: usetetrakbt
     real(8),external::rydberg
     ikbz = 1
     fkbz = nqbz
@@ -135,7 +138,16 @@ contains
     AHCrigidEfshift: if (c2_EfermiShifteV_set) then
        efshift = c2_EfermiShifteV / rydberg()
     endif AHCrigidEfshift
-    call tetwt5x_dtet4(npm,ncc, q, ekxx1, ekxx2, qlat,ginv,ef+efshift, ntetf,nqbzw, nband, &
+    ! Finite-T tetrahedron: use the finite-T Fermi level (EFERMI_kbt from heftet)
+    ! so the chi0 occupation f(e-Ef;T) and Ef are at the same electron temperature.
+    call gwinput_init()
+    usetetrakbt = gwinput_loaded .and. tg_tetrakbt
+    eftet = ef
+    if(usetetrakbt) then
+       call readefermi_kbt()   ! reads EFERMI_kbt -> ef_kbt
+       eftet = ef_kbt
+    endif
+    call tetwt5x_dtet4(npm,ncc, q, ekxx1, ekxx2, qlat,ginv,eftet+efshift, ntetf,nqbzw, nband, &
          ikbz, fkbz, nqbz, nctot,ecore_(1,is),idtetf,qbzw,ib1bz,job, &
          iwgt,nbnb,   demin,demax,                          & !job=0
          frhis, nwhis,nbnbx,ibjb,nhwtot,  ihw,nhw,jhw, whw, & ! job=1    not-used
@@ -236,7 +248,7 @@ contains
        if(wan) wan1= .TRUE. 
     endif
     call tetwt5x_dtet4(  npm,ncc, &
-         q, ekxx1, ekxx2, qlat,ginv,ef, &
+         q, ekxx1, ekxx2, qlat,ginv,eftet, &
          ntetf,nqbzw, nband, ikbz, fkbz, nqbz, &
          nctot,ecore_(1,is),idtetf,qbzw,ib1bz, &
          job, &
