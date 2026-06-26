@@ -478,8 +478,34 @@ module m_ReadEfermi
   use m_lgunit,only:stdo
   use m_mpi,only: ipr
   real(8),protected:: bandgap, ef, ef_kbt
-  public:: readefermi,readefermi_kbt,setefermi
+  public:: readefermi,readefermi_kbt,setefermi,sigmakbt_setup
 contains
+  !> Sigma-side finite-T setup (t_sigmakbt). When t_sigmakbt>0:
+  !!  - switch the self-energy Fermi level to the finite-T EFERMI_kbt (same mu as tetrakbt chi0),
+  !!  - enable the Fermi-Dirac occupation kernel (set_sigma_fd) at kBT=t_sigmakbt in wfacx/wfacx2/weavx2.
+  !! Requires EFERMI_kbt to exist (heftet with tetrakbt). Intended use: t_sigmakbt == t_tetrakbt
+  !! so chi0(W) and Sigma(G) share one physical temperature. Default (0) keeps legacy behaviour.
+  subroutine sigmakbt_setup()
+    use m_GWinput, only: t_sigmakbt, gwinput_init, gwinput_loaded
+    use m_wfac, only: set_sigma_fd
+    real(8):: kb=8.6171d-5, kbt, rydberg
+    logical:: efk_exist
+    call gwinput_init()
+    if(.not.gwinput_loaded) return
+    if(t_sigmakbt <= 0d0) return
+    inquire(file='EFERMI_kbt', exist=efk_exist)
+    if(.not.efk_exist) then
+       if(ipr) write(stdo,"(a)")' sigmakbt_setup: WARNING t_sigmakbt>0 but EFERMI_kbt missing'// &
+            ' (need tetrakbt/heftet). Sigma-side finite-T NOT applied.'
+       return
+    endif
+    kbt = kb*t_sigmakbt/rydberg()      ! K -> Ry
+    call readefermi_kbt()              ! ef_kbt <- EFERMI_kbt
+    call setefermi(ef_kbt)             ! self-energy now uses the finite-T Fermi level
+    call set_sigma_fd(.true., kbt)     ! Fermi-Dirac occupation in Sigma_x and Sigma_c
+    if(ipr) write(stdo,"(a,f9.1,a,e13.5,a,f12.6)") &
+         ' sigmakbt_setup: t_sigmakbt[K]=',t_sigmakbt,' kbt[Ry]=',kbt,' ef<-EFERMI_kbt=',ef_kbt
+  end subroutine sigmakbt_setup
   subroutine setefermi(efin)
     real(8)::efin
     ef=efin

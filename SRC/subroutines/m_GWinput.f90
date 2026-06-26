@@ -62,6 +62,11 @@ module m_GWinput
   logical, protected, public :: tetrakbt     = .false.
   ! t_tetrakbt: temperature in Kelvin, real (legacy default 300d0)
   real(8), protected, public :: t_tetrakbt   = 300.0d0
+  ! t_sigmakbt: Sigma-side electronic temperature in Kelvin (finite-T self-energy occupation).
+  !   0 (default) = off (Gaussian esmr smearing at T=0 EFERMI, legacy behaviour).
+  !   >0          = Fermi-Dirac occupation at this T in Sigma_x=Gv & Sigma_c=G(W-v), evaluated
+  !                 at the finite-T Fermi level EFERMI_kbt (consistent with tetrakbt on chi0).
+  real(8), protected, public :: t_sigmakbt   = 0.0d0
   ! MagAtom: variable-length integer array of magnetic-atom site indices.
   ! Allocated to size(>=1) on load; consumers use size(MagAtom) for count.
   integer, protected, public, allocatable :: MagAtom(:)
@@ -364,6 +369,7 @@ contains
     call gv_r(gw, 'EMAXforGW',     EMAXforGW)
     call gv_i(gw, 'BZmesh',        BZmesh)
     call gv_r(gw, 't_tetrakbt',    t_tetrakbt)
+    call gv_r(gw, 't_sigmakbt',    t_sigmakbt)
     call gv_r(gw, 'mlo_emax',      mlo_emax)        ! legacy reads as REAL
     call gv_i(gw, 'mlo_method',    mlo_method)
     call gv_i(gw, 'wan_maxit_1st', wan_maxit_1st)

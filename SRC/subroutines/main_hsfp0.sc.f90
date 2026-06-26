@@ -29,6 +29,8 @@ contains
     use m_readqg,only: READQG0,READNGMX2, ngpmx,ngcmx
     use m_READ_BZDATA,only: READ_BZDATA, nqbz,nqibz,n1,n2,n3,ginv,qbz,wbz,qibz
     use m_genallcf_v3,only: GENALLCF_V3,Setesmr, natom,nspin,plat,alat,deltaw,esmr_in=>esmr,nctot,ecore,nband, laf
+    use m_ReadEfermi, only: sigmakbt_setup, ef_kbt   ! t_sigmakbt: Sigma-side finite-T
+    use m_wfac, only: sig_fd
     use m_itq,only: setitq_hsfp0sc,nbandmx, ntq
     use m_mpi,only: &
          MPI__Initialize,MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum, &
@@ -159,6 +161,11 @@ contains
       enddo
       deallocate(eqt)
     endblock WriteoutInit
+    ! t_sigmakbt: enable Fermi-Dirac Sigma occupation (wfacx/wfacx2/weavx2) and use the
+    ! finite-T Fermi level EFERMI_kbt for the occupation boundary (both Sigma_x and Sigma_c,
+    ! both hsfp0_sc and hgw binaries route through here). No-op when t_sigmakbt<=0.
+    call sigmakbt_setup()
+    if(sig_fd) ef = ef_kbt
     ! Stash phase outputs into module state for _consume / _writeout.
     hs_ixc      = ixc
     hs_exchange = exchange
