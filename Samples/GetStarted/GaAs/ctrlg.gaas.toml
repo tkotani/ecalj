@@ -3,22 +3,18 @@
 # === Top-level keys ===
 # symgrp: 'find' lets lmf detect maximum space-group symmetry from
 #   lattice + species. Set explicitly (e.g. 'r4z r3d r2x') to lower
-#   the symmetry by hand. 'lmchk foobar --pr60' lists generators.
+#   the symmetry by hand. 'lmchk foobar --ctrlg:verbose=60' lists generators.
 #   See https://ecalj.github.io/ecaljdoc/manual/lmf#symgrp
+# verbose / time: console verbosity and CPU timing log.
+#   Override at run time with --ctrlg:verbose=50 / --ctrlg:time=[5,5].
 symgrp = "find"  # 'find' = auto-detect from lattice (see header)
-
-# === IO ===
-# verbos: console verbosity (default 31). Larger -> more diagnostic
-#   output. Use 35-41 when investigating failures.
 verbose = 35  # 31 default, 35 verbose, 41+ debug
-time    = [0, 0]
+time    = [0, 0]  # CPU timing log; [depth, on-the-fly]
 
 # === STRUC: lattice ===
 # alat in a.u.; plat is the primitive cell in units of alat (rows = a1,a2,a3).
 # nbas/nspec are filled automatically from the [[site]]/[[spec]] arrays.
 [struc]
-nspec = 2
-nbas  = 2
 alat  = 10.6830984717779  # lattice constant (a.u.)
 plat  = [[0.0, 0.5, 0.5],  # primitive vectors in units of alat
          [0.5, 0.0, 0.5],
@@ -45,9 +41,9 @@ atom   = "Ga"
 z      = 31
 r      = 2.19
 eh     = [-1.0, -1.0, -1.0, -1.0]
-rsmh   = [1.1, 1.1, 1.1, 1.1]
+rsmh   = [1.095, 1.095, 1.095, 1.095]
 eh2    = [-2.0, -2.0, -2.0]
-rsmh2  = [1.1, 1.1, 1.1]
+rsmh2  = [1.095, 1.095, 1.095]
 lmxa   = 4
 kmxa   = 5
 nmcore = 1
@@ -114,7 +110,6 @@ convc = 1.0e-5  # max d(rho_out - rho_in) (Ry)
 #   pnufix=true freezes log-derivative B.C. of radial functions.
 # forces: 0 no force calc, 1 compute Hellmann-Feynman forces.
 [ham]
-phispinsym = false  # spin-averaged radial wfns (needed for SO=1 perturbation)
 nspin       = 1  # 1 nonmag, 2 spin-polarized
 forces      = 0  # 0 none, 1 compute forces
 gmax        = 12.0  # real-space mesh G-cutoff (Ry); alt: ftmesh
@@ -125,6 +120,7 @@ pwemax      = 3.0  # APW cutoff (Ry)
 readp       = true  # read P,PZ from atom calc results
 pnufix      = true  # fix B.C. of radial functions
 frzwf       = false  # freeze wavefunctions
+phispinsym  = false  # true = spin-averaged radial wfns (needed for SOC=1 perturbation)
 scaledsigma = 1.0  # QSGW mixing: 1.0 full, 0.8 = QSGW80
 so          = 0  # 0 none, 1 L.S, 2 Lz.Sz
 oveps       = 1.0e-8  # overlap-eps for (H-eO)z=0; 1d-8 default
@@ -139,8 +135,8 @@ hf = false
 # Touch only if you know what you are doing -- defaults are sensible.
 [gw]
 n1n2n3 = [4, 4, 4]   # BZ mesh
-# n1n2n3eps = [8, 8, 8]   # MAGNON-ONLY (lmagnon=T): separate finer mesh for
-#                          # epsilon(q,omega). Silently ignored by GW / job_mloW etc.
+# n1n2n3eps = [8, 8, 8]   # Optional finer mesh for eps/chipm/magnon (qg4gw --job=2/4/40001).
+#                          # Silently ignored by GW (job=1) if not set.
 QpGcut_psi = 4.0    # |q+G| cutoff for eigenfunctions  (a.u. unless unit_2pioa=true)
 QpGcut_cou = 3.0    # |q+G| cutoff for Coulomb / W
 unit_2pioa = false  # false: a.u.; true: 2*pi/alat
@@ -175,8 +171,8 @@ QforEPSau = true    # interpret <QforEPS> as a.u.
 # wan_conv_end  = 1e-8
 
 # === PRODUCT_BASIS ===
-# pb_tolerance / pb_lcutmx : ctrlG.<sname>.toml (cut-off tunables).
-# nlx / valence / core     : PB.toml (sname-free, shared per-spec tables).
+# pb_tolerance / pb_lcutmx : ctrlg.<sname>.toml (cut-off tunables).
+# nlx / valence / core     : PB.<sname>.toml (per-spec tables).
 [product_basis]
 # Tolerance to drop linearly-dependent products. Larger gives smaller PB.
 pb_tolerance = [1e-3]  # drop linearly-dep products below this (default 1e-3)
@@ -185,7 +181,7 @@ pb_tolerance = [1e-3]  # drop linearly-dep products below this (default 1e-3)
 # Use 4 for atoms with valence d (Ni, Ga, etc.), 6 for f.
 pb_lcutmx = [4, 4]  # max l-cutoff per atom (4 for d-valence, 6 for f)
 
-# Per-atom product-basis tables (nlx / valence / core) live in PB.toml
+# Per-atom product-basis tables (nlx / valence / core) live in PB.<sname>.toml
 
 # === BLOCKS: GW additional blocks (epsilon, etc.) ===
 # QforEPS / QforEPSL : q-point lists for dielectric function calc.
