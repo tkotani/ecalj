@@ -9,7 +9,7 @@
 #     4. Rewrite ef= in bandplot_MLO.isp1.glt using efermi_soc.
 #
 # Common settings:
-#   -vnspin=2 --phispinsym
+#   --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true
 # Step-specific:
 #   Step 1: -vso=1 (full LS, for Ef determination)
 #   Step 2: -vso=0 --socmatrix (scalar-rel DFT, SOC matrix written separately)
@@ -28,12 +28,12 @@ from pylib.utils import merge_files, remove_files
 
 EXEC_DIR = Path(__file__).parent
 
-# TOML-only mode: use -v[<toml-path>]=<value> syntax (m_toml_override).
-# Old -vnspin=2 / -vso=0 forms are silently ignored at HEAD.
-COMMON_FLAGS = ["-v[ham.nspin]=2", "--phispinsym"]
-EF_FLAGS    = ["-v[ham.so]=1"]
-WRITE_FLAGS = ["-v[ham.so]=0", "--socmatrix"]
-MLO_FLAGS   = ["-v[ham.nspin]=2", "--phispinsym", "--socmatrix"]
+# TOML-only mode: runtime overrides use --ctrlg:<toml-path>=<value>
+# (m_toml_override; the older -v[path]= / --toml. forms abort at HEAD).
+COMMON_FLAGS = ["--ctrlg:ham.nspin=2", "--ctrlg:ham.phispinsym=true"]
+EF_FLAGS    = ["--ctrlg:ham.so=1"]
+WRITE_FLAGS = ["--ctrlg:ham.so=0", "--socmatrix"]
+MLO_FLAGS   = ["--ctrlg:ham.nspin=2", "--ctrlg:ham.phispinsym=true", "--socmatrix"]
 
 def read_eferm(fname):
     # efermi.lmf first line: <Ef(Ry)> <vmag> # ...
@@ -101,9 +101,9 @@ if __name__ == "__main__":
         description=(
             'Example:\n'
             "  job_mlo_soc gaas -np 8 [extra options]\n"
-            "Common flags: -vnspin=2 --phispinsym\n"
-            "Step 1 (Ef):      lmf --quit=band -vso=1  -> efermi_soc\n"
-            "Step 2 (writeham): lmf --writeham ... -vso=0 --socmatrix\n"
+            "Common flags: --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true\n"
+            "Step 1 (Ef):      lmf --quit=band --ctrlg:ham.so=1  -> efermi_soc\n"
+            "Step 2 (writeham): lmf --writeham ... --ctrlg:ham.so=0 --socmatrix\n"
             "Step 3 (mlo):     mlo --socmatrix\n"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter

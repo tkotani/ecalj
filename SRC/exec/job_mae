@@ -12,7 +12,7 @@ def get_sigm_fbz(args, extra_args):
     target = args.extension
     cluster = args.cluster
     run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"lmf",
-                               args=[target, '--phispinsym', '--wsig_fbz', *extra_args]),
+                               args=[target, '--ctrlg:ham.phispinsym=true', '--wsig_fbz', *extra_args]),
             stdout="llmf_wsig_fbz")
 
 def cal_mae(args, extra_args):
@@ -23,11 +23,11 @@ def cal_mae(args, extra_args):
 
     if not args.skipSCF:
         run_lmf(cluster, target, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
-                                           args=[target, '--phispinsym', *extra_args]),
+                                           args=[target, '--ctrlg:ham.phispinsym=true', *extra_args]),
                 bmix_reduction=True, stdout="llmf_phispinsym")
 
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
-                               args=[target, '--phispinsym', '--quit=band', *extra_args]),
+                               args=[target, '--ctrlg:ham.phispinsym=true', '--quit=band', *extra_args]),
             stdout="llmf_nosoi_ef")
 
     if Path(f'sigm.{target}').exists():
@@ -44,7 +44,7 @@ def cal_mae(args, extra_args):
         run_cmd(cluster,
             MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf", 
                       args=[ target, '--nosym', '--use_sigm_fbz', '--skipbstruxinit',
-                            '--phispinsym', '-vso=1', '--quit=band',
+                            '--ctrlg:ham.phispinsym=true', '-vso=1', '--quit=band',
                             *so_arg_list, *extra_args]),
             stdout=f'llmf_so{direction}')
     vals = {}
