@@ -1,3 +1,19 @@
+2026-08-17
+  [fix] ctrl2ctrltoml.py (Legacy2toml 変換): 旧 ctrl の CONST カテゴリ
+    (bare 名変数; 例 ALAT=a*fv, R=R) と %ifdef/%ifndef/%if/%else/%endif
+    分岐が未処理だったのを実装。従来は CONST 変数未解決で変換クラッシュ
+    (TestInstall/fe) や ALAT のデフォルト落ち (gdn)、%ifdef 両分岐出力に
+    よる SPEC 重複が発生。token 評価はキー位置 (TOK=) を除外 (R=R で
+    キー名が数値化して MT 半径が消えるのを防止)。%const は {name} 置換
+    専用の別名前空間に分離 (ITER の b= が %const b に食われる退行を回避)。
+    ベクトル値の未解決シンボルはクラッシュせず rval2 デフォルトへ降格。
+    リグレッション: CONST/%ifdef 無しの legacy ctrl 4 件で新旧出力一致。
+  [fix] Samples/TestInstall/{fe,gdn}: 空プレースホルダのままだった
+    ctrlg.*.toml を修正版コンバータで正規生成 (fe: R=2.325 復元、gdn:
+    %else + ldau 分岐の LDA+U 設定込み)。lmchk/lmfa/lmf 1iter 確認済み。
+  [doc] Samples 系 README 3 件: ctrlG.<sname>.toml / sname 無し PB.toml の
+    旧表記を ctrlg.<sname>.toml / PB.<sname>.toml へ更新。
+
 2026-06-13
   [fix] 実軸極項のビン詰めOOBガード (m_sxcf_sc)。findloc不一致(ixs=0)で nttp(-1)
     へ範囲外書込み、ixs=nw で nttp(nw+1)。正しいガードは ixs<1 .or. ixs>nw-1。

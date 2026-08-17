@@ -31,36 +31,110 @@ instrl = instr.split('\n')
 
 labels = []
 T, t, F, f = 1, 1, 0, 0
+# Two distinct variable layers of the legacy format:
+#   % const NAME=...  -> preprocessor vars, referenced ONLY as {NAME}  (pconstns)
+#   CONST NAME=...    -> runtime vars, referenced bare in expressions
+#                        (e.g. ALAT=a*fv)                              (constns)
+# Keeping them separate matters: a % const named 'b' must NOT capture the
+# 'b' token of "ITER MIX=B3,b=0.2".
+pconstns = {}
+constns = {}
 pat = r'(\r?\n)|(\r\n?)'
 aft = r'\n'
-for linei in instrl:
-    line = re.sub(pat, aft, linei)
-    if len(line) == 0: continue
-    if line[0] != '%': continue
-    if line[0] == '#': continue
-    if 'const' not in line: continue  # skip %show etc.
-    line = re.sub(r'=\s+', '=', line)
-    constdata0 = (line.split('const')[1]).split('#')[0].split(' ')
-    for ix in constdata0:
-        if ix == '': continue
-        ix = ix.replace('^', '**')
-        exec(ix)
-        labels.append(ix.split('=')[0])
-constrep = {i: str(eval(i)) for i in labels}
-for i in constrep.keys():
-    exec('del ' + str(i))
 
+# -v overrides must be visible while scanning (they can flip %ifdef branches)
+vconst = {}
 for iarg in sys.argv[1:]:
     try:
         vin = iarg.split('-v')[1]
         label, val = vin.split('=')
     except Exception:
         continue
+    vconst[label] = val
+
+# Single sequential pass: %ifdef/%ifndef/%if/%else/%endif preprocessing
+# (branch conditions evaluate % const values, undefined -> false) combined
+# with % const collection. Inactive-branch lines are dropped entirely.
+active_lines = []
+ifstack = []  # per level: [this_branch_active, some_branch_taken]
+for linei in instrl:
+    line = re.sub(pat, aft, linei)
+    stripped = line.strip()
+    m = re.match(r'^%\s*(ifdef|ifndef|if)\b\s*(.*)$', stripped)
+    if m:
+        parent = all(lv[0] for lv in ifstack)
+        cond = False
+        if parent:
+            try:
+                cond = bool(eval(m.group(2).replace('^', '**'), globals(), pconstns))
+            except Exception:
+                cond = False
+        if m.group(1) == 'ifndef':
+            cond = not cond
+        ifstack.append([cond, cond])
+        continue
+    if re.match(r'^%\s*elseif\b|^%\s*else\b', stripped):
+        if ifstack:
+            parent = all(lv[0] for lv in ifstack[:-1])
+            ifstack[-1][0] = parent and not ifstack[-1][1]
+            ifstack[-1][1] = ifstack[-1][1] or ifstack[-1][0]
+        continue
+    if re.match(r'^%\s*endif\b', stripped):
+        if ifstack:
+            ifstack.pop()
+        continue
+    if not all(lv[0] for lv in ifstack):
+        continue  # inside a false branch
+    active_lines.append(line)
+    if len(line) == 0: continue
+    if line[0] != '%': continue
+    if 'const' not in line: continue  # skip %show etc.
+    line = re.sub(r'=\s+', '=', line)
+    constdata0 = (line.split('const')[1]).split('#')[0].split(' ')
+    for ix in constdata0:
+        if ix == '': continue
+        label = ix.split('=')[0]
+        if label in vconst:  # -v wins over the ctrl default
+            ix = label + '=' + vconst[label]
+        ix = ix.replace('^', '**')
+        exec(ix, globals(), pconstns)
+        labels.append(label)
+constrep = {i: str(eval(i, globals(), pconstns)) for i in labels}
+
+for label, val in vconst.items():
     constrep[label] = str(val)
 
-midfile = instr
+midfile = '\n'.join(active_lines)
 for i, irep in constrep.items():
     midfile = midfile.replace('{' + i + '}', irep)
+
+# Legacy CONST category: bare-name variables referenced by later expressions
+# (e.g. "CONST a=4.977/0.529177 fv=1" then "STRUC ALAT=a*fv"). Collect its
+# assignments (indented continuation lines included) into constns so the
+# per-token eval below resolves them; the category itself is dropped at the
+# tokenize step.
+incat = False
+for cline in midfile.split('\n'):
+    if not cline:
+        incat = False
+        continue
+    if cline[0] not in ' \t':
+        parts = cline.split(None, 1)
+        incat = parts[0] == 'CONST'
+        body = parts[1] if (incat and len(parts) > 1) else ''
+    else:
+        body = cline if incat else ''
+    if not body:
+        continue
+    body = re.sub(r'=\s+', '=', body).split('#')[0]
+    for ix in body.split():
+        if '=' not in ix:
+            continue
+        ix = re.sub(r'(\d)[dD]([-+]?\d)', r'\1e\2', ix.replace('^', '**'))
+        try:
+            exec(ix, globals(), constns)
+        except Exception:
+            print(f'# WARNING: CONST: could not evaluate {ix!r}', file=sys.stderr)
 
 outfile = ''
 for ilinex in midfile.split('\n'):
@@ -76,12 +150,15 @@ for ilinex in midfile.split('\n'):
         iii = re.sub(r'\)', ' )', iii)
         mmm = re.split(r'([=, ])', iii)
     nnn = []
-    for ix in mmm:
+    for k, ix in enumerate(mmm):
         eout = ix
-        try:
-            eout = eval(ix)
-        except Exception:
-            pass
+        if k + 1 < len(mmm) and mmm[k + 1] == '=':
+            pass  # KEY position (TOK=...): a CONST var may share the name (e.g. R=R) — never evaluate
+        else:
+            try:
+                eout = eval(ix, globals(), constns)
+            except Exception:
+                pass
         nnn.append(str(eout).replace(',', ' '))
     outfile += ''.join(nnn) + '\n'
 outfile = re.sub(r'\t', ' ', outfile)
@@ -111,6 +188,8 @@ for iline in lll.split('\n'):
     if not iline: continue
     line = iline
     cat = iline.split(' ')[0]
+    if cat == 'CONST':
+        continue  # consumed into constns above; not an rval2 category
     if cat == 'ITER':
         line = line.replace(',', ' ')
     line = [i for i in line.split(' ') if i != '']
@@ -177,18 +256,24 @@ def parse_value(val_str: str, typ: str):
             return float(toks[0])
         except ValueError:
             return None
-    if typ == 'int_vec':
-        return [int(float(t)) for t in toks]
-    if typ == 'int_vec3':
-        vals = [int(float(t)) for t in toks]
-        return (vals + [0,0,0])[:3]
-    if typ == 'real_vec':
-        return [float(t) for t in toks]
-    if typ == 'real_vec3':
-        vals = [float(t) for t in toks]
-        return (vals + [0.0,0.0,0.0])[:3]
+    try:
+        if typ == 'int_vec':
+            return [int(float(t)) for t in toks]
+        if typ == 'int_vec3':
+            vals = [int(float(t)) for t in toks]
+            return (vals + [0,0,0])[:3]
+        if typ == 'real_vec':
+            return [float(t) for t in toks]
+        if typ == 'real_vec3':
+            vals = [float(t) for t in toks]
+            return (vals + [0.0,0.0,0.0])[:3]
+    except ValueError:
+        return None  # unresolved symbol etc.; caller warns + rval2 default
     if typ == 'real_mat3x3':
-        vals = [float(t) for t in toks]
+        try:
+            vals = [float(t) for t in toks]
+        except ValueError:
+            return None
         if len(vals) != 9:
             warn(f'real_mat3x3 expected 9 values, got {len(vals)}')
             vals = (vals + [0.0]*9)[:9]
