@@ -1,4 +1,5 @@
 from __future__ import annotations
+import re
 import sys
 import glob
 import shutil
@@ -17,10 +18,21 @@ def run_shell(command: str, cwd=None, env=None, skip_on_error: bool = False):
             print("Skipping command.", file=sys.stderr)
 
 
+def _rank_order(path: Path):
+    """Sort key honouring a numeric suffix: PROCAR.UP.2 before PROCAR.UP.10.
+
+    MPI rank suffixes are not zero-padded (m_mpi strprocid), so a plain
+    lexicographic sort scrambles the k-point order whenever np >= 11.
+    """
+    m = re.search(r'(\d+)$', path.name)
+    return (path.name[:m.start()] if m else path.name,
+            int(m.group(1)) if m else -1)
+
+
 def merge_files(pattern: str, output_file: str | Path, remove_sources: bool = True):
-    """Merges files matching a pattern into a single output file."""
+    """Merges files matching a pattern into a single output file (rank order)."""
     output = Path(output_file).resolve()
-    files = sorted(Path(p).resolve() for p in glob.glob(pattern))
+    files = sorted((Path(p).resolve() for p in glob.glob(pattern)), key=_rank_order)
     files = [f for f in files if f != output]
     if not files:
         return

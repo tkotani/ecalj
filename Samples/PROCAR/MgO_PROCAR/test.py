@@ -17,7 +17,8 @@ def test(args, bindir, testdir, workdir):
             f"{bindir}/job_band {MATERIAL} -np {ncore} --NoGnuplot > ljob_band",
             "rm -rf PROCAR*",
             lmf + f"--mkprocar --band {MATERIAL} > lbandW",
-            "cat PROCAR.UP.* >> PROCAR.UP",
+            # rank suffixes are not zero-padded: numeric sort keeps k-point order at np>=11
+            "cat $(ls PROCAR.UP.* | sort -t. -k3 -n) > PROCAR.UP",
             "rm PROCAR.UP.*",
             f"{workdir}/BandWeight.py > bw.dat",
             "gnuplot bnds.gnu.mgoW",
