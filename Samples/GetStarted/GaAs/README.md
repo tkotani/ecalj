@@ -11,8 +11,8 @@ hunting for a POSCAR.
 | file | role |
 |---|---|
 | `ctrls.gaas` | Step 1 output (lightweight structure-only seed; lattice + 2 sites: Ga, As). |
-| `ctrlG.gaas.toml` | Step 2 output (full TOML input read by `lmf` / `lmfa` / `gwsc`). Generated from `ctrls.gaas` by `ctrlgenToml.py gaas`. |
-| `PB.toml` | Step 2 by-product (per-atom product-basis tables, GW path only — normally not edited by hand). |
+| `ctrlg.gaas.toml` | Step 2 output (full TOML input read by `lmf` / `lmfa` / `gwsc`). Generated from `ctrls.gaas` by `ctrlgenToml.py gaas`. |
+| `PB.gaas.toml` | Step 2 by-product (per-atom product-basis tables, GW path only — normally not edited by hand). |
 
 ## How to reproduce
 

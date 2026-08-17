@@ -3,10 +3,10 @@
 As of 2026-05 the Fortran binaries (`lmf`, `lmfa`, `lmchk`, `gwsc`,
 `hsfp0`, ...) read structured TOML only:
 
-- `ctrlG.<sname>.toml` — merged ctrl + GW driver sections + PB cut-offs
-- `PB.toml` — per-atom product basis tables (sname-free)
+- `ctrlg.<sname>.toml` — merged ctrl + GW driver sections + PB cut-offs
+- `PB.<sname>.toml` — per-atom product basis tables
 
-The four directories below are already migrated and pass `testecalj`.
+The five directories below are already migrated and pass `testecalj`.
 The rest are kept under [Legacy/](Legacy/) and still use legacy
 `ctrl.<sname>` + `GWinput`; run `Legacy2toml.py <sname>` inside each
 working dir to convert before invoking `lmf`/`gwsc`/etc.
@@ -15,7 +15,7 @@ working dir to convert before invoking `lmf`/`gwsc`/etc.
 
 | dir | role | what's inside |
 |---|---|---|
-| [GetStarted/](GetStarted/) | minimal seeds for the [ecaljdoc tutorial](https://ecalj.github.io/ecaljdoc/manual/README_tutorial#getstarted) | `GaAs/` ships `ctrls.gaas` + `ctrlG.gaas.toml` + `PB.toml`. See [GetStarted/README.md](GetStarted/README.md). |
+| [GetStarted/](GetStarted/) | minimal seeds for the [ecaljdoc tutorial](https://ecalj.github.io/ecaljdoc/manual/README_tutorial#getstarted) | `GaAs/` ships `ctrls.gaas` + `ctrlg.gaas.toml` + `PB.gaas.toml`. See [GetStarted/README.md](GetStarted/README.md). |
 | [MLOsamples/](MLOsamples/) | MuffinTin Localized Orbitals (Wannier replacement) | 17 samples — semiconductors, magnetic metals, multilayers, 4f systems. See [MLOsamples/README.md](MLOsamples/README.md). |
 | [TestInstall/](TestInstall/) | install validation suite | 23 samples — ground-state, GW (gwsc), eps (eps_lmfh, epsPP_lmfh), magnetic susceptibility (chipm), cRPA. Driven by `testecalj --all`. |
 | [EPS/](EPS/) | dielectric function ε(q,ω) | 3 samples — `EPS_Cu`, `EPS_GaAs`, `EPS_Ag`. epsPP0 with no LFC; small q probe + intra/inter band split. |

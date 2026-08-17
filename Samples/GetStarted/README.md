@@ -4,8 +4,8 @@ The GetStarted walk-through in
 [ecaljdoc](https://ecalj.github.io/ecaljdoc/manual/README_tutorial#getstarted)
 takes you from a structure file to a QSGW band plot. To save users
 hunting for a starting POSCAR / `ctrls`, each subdirectory here
-ships the minimal input pair (`ctrls.<sname>` + `ctrlG.<sname>.toml`
-+ `PB.toml`) that the tutorial assumes.
+ships the minimal input pair (`ctrls.<sname>` + `ctrlg.<sname>.toml`
++ `PB.<sname>.toml`) that the tutorial assumes.
 
 ## Samples
 
