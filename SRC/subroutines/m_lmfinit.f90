@@ -294,7 +294,7 @@ contains
 ! 4.3 TOL= error criterion for the Ewald sums.
       call rval2('EWALD_TOL',rr=rr,defa=[1d-8]); lat_tol=rr !'Ewald tolerance')
       lat_as    = 2d0   !call rval2('EWALD_AS',rr=rr,defa=[2d0]);   lat_as=rr  !'Ewald smoothing parameter
-      lat_nkdmx = 10000 !call rval2('EWALD_NKDMX',rr=rr,defa=[real(8):: 300]); lat_nkdmx=nint(rr) !'Ewald tolerance'
+      lat_nkdmx = 30000 !was 10000; headroom for elongated cells. dlv is 3*8*nkdmx bytes; 30000 -> 0.7MB, harmless.
       mix_nsave = 8         ! nsave = # iter to save on disk
       mix_tolu = 0          ! tolu
       mix_umix = 1          ! umix (mixing parm for LDA+U)

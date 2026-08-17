@@ -105,8 +105,18 @@ for label, val in vconst.items():
     constrep[label] = str(val)
 
 midfile = '\n'.join(active_lines)
-for i, irep in constrep.items():
-    midfile = midfile.replace('{' + i + '}', irep)
+
+def _braceval(m):
+    """{name} -> constrep (so -v overrides win); {expr} -> eval, e.g. ALAT={a1/au}."""
+    expr = m.group(1)
+    if expr in constrep:
+        return constrep[expr]
+    try:
+        return str(eval(expr.replace('^', '**'), globals(), pconstns))
+    except Exception:
+        return m.group(0)  # leave unresolved braces as-is (caller warns downstream)
+
+midfile = re.sub(r'\{([^{}]+)\}', _braceval, midfile)
 
 # Legacy CONST category: bare-name variables referenced by later expressions
 # (e.g. "CONST a=4.977/0.529177 fv=1" then "STRUC ALAT=a*fv"). Collect its

@@ -1,3 +1,12 @@
+2026-08-18
+  [fix] ctrl2ctrltoml.py: ブレース内「式」({a1/au} 等) を未評価のまま落として
+    いたのを eval で解決。ALAT={式} 形式の旧 ctrl (pdo_gwsc443, yh3fcc_gwsc666)
+    で alat が toml から脱落し、lmf が xlgen 発散 (nv が上限+1 に張り付く) で
+    abort していた真因。{name} は従来どおり constrep 優先 (-v 上書き有効)。
+    回帰: ブレース式なし legacy ctrl 3 件で新旧出力一致。pdo/yh3 の toml を
+    再生成し pdo は lmf 1iter 通過を確認。
+  [fix] m_lmfinit: lat_nkdmx 10000→30000 (dlv 0.7MB, 細長セル用の余裕)。
+
 2026-08-17
   [fix] ctrl2ctrltoml.py (Legacy2toml 変換): 旧 ctrl の CONST カテゴリ
     (bare 名変数; 例 ALAT=a*fv, R=R) と %ifdef/%ifndef/%if/%else/%endif
