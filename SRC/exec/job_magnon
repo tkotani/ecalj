@@ -29,8 +29,11 @@ def cal_MLWFvw(args, extra_args):
     target = args.extension
     mpi_size = args.np
     options = extra_args
-    prefix = "--spinflip" if args.Wtype in ("up_down", "down_up") else ""
-    option_W = f"{prefix} --getW_{args.Wtype}"
+    # hwmatK_MPI spin selection is now --sp1/--sp2 (spinflip = sp1/=sp2);
+    # the old --spinflip/--getW_<type> flags are no longer registered.
+    sp_of = {"up": (1, 1), "down": (2, 2), "up_down": (1, 2), "down_up": (2, 1)}
+    sp1, sp2 = sp_of[args.Wtype]
+    option_W = f"--sp1={sp1} --sp2={sp2}"
 
     run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"lmf", args=[target, "--jobgw=0", *options]), stdout="llmfgw00")
     run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"qg4gw", args=["--job=1", *options]), stdout="lqg4gw")

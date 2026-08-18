@@ -21,7 +21,7 @@ working dir to convert before invoking `lmf`/`gwsc`/etc.
 | [EPS/](EPS/) | dielectric function ε(q,ω) | 3 samples — `EPS_Cu`, `EPS_GaAs`, `EPS_Ag`. epsPP0 with no LFC; small q probe + intra/inter band split. |
 | [PROCAR/](PROCAR/) | fat-band weight / orbital projection | 2 samples — `MgO_PROCAR` (O-2p weight on bands), `Ni2MnGa_L21_PROCAR` (per-atom fat band, FM Heusler). |
 
-## Verification status (2026-08-18 sweep)
+## Verification status (2026-08-18/19 sweep)
 
 All TOML-ified samples above were executed end-to-end and their
 `test.py` checks pass:
@@ -32,8 +32,24 @@ All TOML-ified samples above were executed end-to-end and their
   2026-08 (the 2025-10 references predated the 2026-06 real-axis
   binning fix and the TOML migration).
 - EPS 3/3, PROCAR 2/2, MLOsamples 17/17 — ALL PASSED
+- BenchmarkTest 2/2 (`inas2gasb2`, `inas4gasb4`) — PASSED against the
+  stored QPU.1run references. On a single 32GB GPU run with `-np2 1`
+  (two GW ranks on one GPU run out of memory for these sizes).
+- GetStarted/GaAs — tutorial seed verified (lmfa + lmf converge).
+- Legacy — every dir with a usable `ctrl.<sname>` (32 targets) is now
+  TOML-ified and passes an lmfa smoke test; `AFsymmetry/NiO`+`NiSe`
+  are full testecalj targets again (fresh rst + references).
 
 Known issues:
+
+- `Legacy/Magnon/*`: chain modernized (`job_magnon` now drives
+  hwmatK_MPI via `--sp1/--sp2`; runs through qg4gw/hvccfp0/hx0fp0/
+  hwmatK), but `hmagnon` crashes at the screened-W (`set_wan_scrw`)
+  stage with the TOML-converted inputs — needs a dedicated debugging
+  session. Old references kept.
+- `idu>=10` (LDA+U with the 10-offset mode) combined with `symgrpaf`
+  crashes zhev_tk4 (nev/=nevout) — reproduced with NiSe; its sample
+  now runs without the (U=0, no-op) idu block.
 
 - `TestInstall/yh3fcc_gwsc666`: broken with the current code — the
   radial solver runs away (e~20 Ry) on the Y `pz=[4.9,4.9]` extended

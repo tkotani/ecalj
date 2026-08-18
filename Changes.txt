@@ -1,3 +1,15 @@
+2026-08-19
+  [new] Samples 検証スイープ第2弾 (Samples/README.md 参照):
+    BenchmarkTest 2/2 PASSED (kt1 GPU1 -np2 1; 32GB GPU 1枚に GW 2ランクは
+    inas 級で OOM)。GetStarted/GaAs チュートリアルフロー検証。
+    Legacy 32 dir を一括 TOML 化 (全変換成功+lmfa スモーク通過)。
+    AFsymmetry NiO/NiSe を testecalj 復帰 (旧形式 rst が現行 iors 非互換で
+    参照とズレていたのを新収束 rst+新参照で解消)。
+  [fix] job_magnon: hwmatK_MPI の廃止フラグ --spinflip/--getW_* を
+    --sp1/--sp2 へ移行。magnon チェーンは hwmatK まで通るが、最終段
+    hmagnon が set_wan_scrw 段で落ちる (要専用デバッグ、README 記載)。
+  [bug] idu>=10 + symgrpaf で zhev_tk4 abort (NiSe で再現、要修理)。
+
 2026-08-18
   [new] Samples 全域検証スイープ (詳細は Samples/README.md「Verification
     status」): TestInstall --all を 25 targets へ拡張 (fe=スピン分極DOS,
