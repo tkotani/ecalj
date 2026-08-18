@@ -2,7 +2,7 @@
 import os, sys, shutil, argparse
 import importlib.util
 
-testallinit='copt te zrt co cr3si6 felz gasls eras c crn cu na gas_eps_lmfh gas_epsPP_lmfh fe_epsPP_lmfh_chipm si_gw_lmfh gas_pw_gw_lmfh si_gwsc gas_gwsc nio_gwsc fe_gwsc ni_crpa srvo3_crpa'
+testallinit='copt te zrt co cr3si6 felz gasls eras c crn cu na fe gdn gas_eps_lmfh gas_epsPP_lmfh fe_epsPP_lmfh_chipm si_gw_lmfh gas_pw_gw_lmfh si_gwsc gas_gwsc nio_gwsc fe_gwsc ni_crpa srvo3_crpa'
 gwall='gas_eps_lmfh gas_epsPP_lmfh fe_epsPP_lmfh_chipm si_gw_lmfh gas_pw_gw_lmfh si_gwsc gas_gwsc nio_gwsc fe_gwsc ni_crpa srvo3_crpa'
 
 parser = argparse.ArgumentParser(description="ecalj test runner")

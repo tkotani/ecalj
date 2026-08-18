@@ -17,9 +17,33 @@ working dir to convert before invoking `lmf`/`gwsc`/etc.
 |---|---|---|
 | [GetStarted/](GetStarted/) | minimal seeds for the [ecaljdoc tutorial](https://ecalj.github.io/ecaljdoc/manual/README_tutorial#getstarted) | `GaAs/` ships `ctrls.gaas` + `ctrlg.gaas.toml` + `PB.gaas.toml`. See [GetStarted/README.md](GetStarted/README.md). |
 | [MLOsamples/](MLOsamples/) | MuffinTin Localized Orbitals (Wannier replacement) | 17 samples — semiconductors, magnetic metals, multilayers, 4f systems. See [MLOsamples/README.md](MLOsamples/README.md). |
-| [TestInstall/](TestInstall/) | install validation suite | 23 samples — ground-state, GW (gwsc), eps (eps_lmfh, epsPP_lmfh), magnetic susceptibility (chipm), cRPA. Driven by `testecalj --all`. |
+| [TestInstall/](TestInstall/) | install validation suite | 25 samples — ground-state (incl. `fe` spin-pol DOS, `gdn` LDA+U), GW (gwsc), eps (eps_lmfh, epsPP_lmfh), magnetic susceptibility (chipm), cRPA. Driven by `testecalj --all`. Extra heavy GW targets (`cugase2_gwsc222`, `nio_gwsc444`, `pdo_gwsc443`, `gas_gwsc666`) have their own `test.py` and run individually: `testecalj -np 60 <dir>`. |
 | [EPS/](EPS/) | dielectric function ε(q,ω) | 3 samples — `EPS_Cu`, `EPS_GaAs`, `EPS_Ag`. epsPP0 with no LFC; small q probe + intra/inter band split. |
 | [PROCAR/](PROCAR/) | fat-band weight / orbital projection | 2 samples — `MgO_PROCAR` (O-2p weight on bands), `Ni2MnGa_L21_PROCAR` (per-atom fat band, FM Heusler). |
+
+## Verification status (2026-08-18 sweep)
+
+All TOML-ified samples above were executed end-to-end and their
+`test.py` checks pass:
+
+- TestInstall `--all` (25 targets incl. new `fe`, `gdn`) — ALL PASSED
+- TestInstall heavy GW extras — `cugase2_gwsc222`, `nio_gwsc444`,
+  `pdo_gwsc443`, `gas_gwsc666` PASSED with references regenerated
+  2026-08 (the 2025-10 references predated the 2026-06 real-axis
+  binning fix and the TOML migration).
+- EPS 3/3, PROCAR 2/2, MLOsamples 17/17 — ALL PASSED
+
+Known issues:
+
+- `TestInstall/yh3fcc_gwsc666`: broken with the current code — the
+  radial solver runs away (e~20 Ry) on the Y `pz=[4.9,4.9]` extended
+  local orbitals and lmf aborts on a huge allocation. Needs a
+  physics-level revisit of the basis setup; kept with its (stale)
+  references for now.
+- `MLOsamples/Fe_job_mloW`: work-in-progress dir, no test.py.
+- PROCAR band weights require np-safe concatenation (fixed 2026-08 in
+  `pylib merge_files` / MgO test.py); if you concatenate
+  `PROCAR.UP.*` by hand, sort the rank suffix numerically.
 
 ## Legacy (under Legacy/, awaiting TOML migration)
 

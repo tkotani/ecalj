@@ -1,4 +1,17 @@
 2026-08-18
+  [new] Samples 全域検証スイープ (詳細は Samples/README.md「Verification
+    status」): TestInstall --all を 25 targets へ拡張 (fe=スピン分極DOS,
+    gdn=LDA+U を test.py 化して追加、766 checks ALL PASSED)。大型GW 4件
+    (cugase2_gwsc222/nio_gwsc444/pdo_gwsc443/gas_gwsc666) に si_gwsc 型
+    test.py を追加し、2025-10 の古い参照を現行コード (kt1 GPU FP64) で
+    再生成、独立クリーン再ランで全 PASSED。EPS 3/3, PROCAR 2/2,
+    MLOsamples 17/17 PASSED。yh3fcc_gwsc666 は現行コードで radial solver
+    暴走 (Y pz=[4.9,4.9]) — 要物理検討として README に記録。
+  [fix] PROCAR 連結の k 点順序: MPI rank 接尾辞がゼロ詰めでないため
+    np>=11 で辞書順 cat が k 順序を破壊 (pylib merge_files と
+    MgO_PROCAR/test.py の両方)。数値ソートに修正。
+  [fix] job_mlo_soc/job_mae: 廃止済み -v[path]= / --phispinsym 構文で
+    lmf が起動時 abort していたのを --ctrlg: 構文へ移行。
   [fix] ctrl2ctrltoml.py: ブレース内「式」({a1/au} 等) を未評価のまま落として
     いたのを eval で解決。ALAT={式} 形式の旧 ctrl (pdo_gwsc443, yh3fcc_gwsc666)
     で alat が toml から脱落し、lmf が xlgen 発散 (nv が上限+1 に張り付く) で
