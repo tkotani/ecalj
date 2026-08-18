@@ -211,15 +211,15 @@ subroutine hhomogas()
   real(8):: ef
   integer:: comm
 !  include "mpif.h"
-! Pay attension to the following bootstrap sequence to fill data to modules!  
-  debug = c0_debug
+! Pay attension to the following bootstrap sequence to fill data to modules!
   comm = MPI_COMM_WORLD
-  call m_lgunit_init() 
+  call m_lgunit_init()
   hartree  = 2d0*rydberg()
   pi       = 4d0*datan(1d0)
   fourpi   = 4d0*pi
   sqfourpi = sqrt(fourpi)
-  call MPI__Initialize()
+  call MPI__Initialize() ! populates the cmdopt registry - read c0_*/c2_* only AFTER this
+  debug = c0_debug
   call MPI__consoleout('hhomogas')
   call cputid (0)
   call cputid(0)

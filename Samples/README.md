@@ -42,11 +42,14 @@ All TOML-ified samples above were executed end-to-end and their
 
 Known issues:
 
-- `Legacy/Magnon/*`: chain modernized (`job_magnon` now drives
-  hwmatK_MPI via `--sp1/--sp2`; runs through qg4gw/hvccfp0/hx0fp0/
-  hwmatK), but `hmagnon` crashes at the screened-W (`set_wan_scrw`)
-  stage with the TOML-converted inputs — needs a dedicated debugging
-  session. Old references kept.
+- `Legacy/Magnon/*`: RESOLVED 2026-08-19 — the hmagnon crash was a
+  bootstrap-order bug (cmdopt registry read before MPI__Initialize
+  populated it, so --geteta/--sp1/--sp2 were silently ignored); fixed
+  in main_hmagnon/main_mlo_magnon/main_hhomogas. All four magnon
+  tests now PASS with references regenerated 2026-08 (kt1, np=60).
+  Note TrKpm/TrRpm values near magnon resonances are pole-position
+  sensitive; cross-compiler comparisons may need loose tolerances
+  there.
 - `idu>=10` (LDA+U with the 10-offset mode) combined with `symgrpaf`
   crashes zhev_tk4 (nev/=nevout) — reproduced with NiSe; its sample
   now runs without the (U=0, no-op) idu block.

@@ -6,8 +6,15 @@
     AFsymmetry NiO/NiSe を testecalj 復帰 (旧形式 rst が現行 iors 非互換で
     参照とズレていたのを新収束 rst+新参照で解消)。
   [fix] job_magnon: hwmatK_MPI の廃止フラグ --spinflip/--getW_* を
-    --sp1/--sp2 へ移行。magnon チェーンは hwmatK まで通るが、最終段
-    hmagnon が set_wan_scrw 段で落ちる (要専用デバッグ、README 記載)。
+    --sp1/--sp2 へ移行。
+  [fix] hmagnon/mlo_magnon/hhomogas: cmdopt registry の読み出しが
+    MPI__Initialize() (= argv パース) より前にあり、--geteta/--sp1 等の
+    全フラグが黙って無効化 → 非 geteta 分岐の未割付 sz_site 参照で
+    segfault していた (addr2line + 単ランク再現で特定)。読み出しを
+    初期化後へ移動。全 main の同型パターンを監査 (lmf は外側 main が
+    先にパースするため実害なし)。これで Magnon 4 テスト
+    (Fe/Ni/FeCo/Fe_bcc_in_sc) が全 PASSED — 参照は現行コードで再生成
+    (kt1 np=60)。共鳴極近傍の TrKpm/TrRpm は極位置に敏感な点に注意。
   [bug] idu>=10 + symgrpaf で zhev_tk4 abort (NiSe で再現、要修理)。
 
 2026-08-18

@@ -70,6 +70,8 @@ subroutine hmagnon() bind(C)
   ! cma mode is commented out 2025-12-06. cma mode is no longer maintained. For CMA mode, use old version
 
   hartree = 2d0*rydberg()
+  call m_lgunit_init()
+  call MPI__Initialize() ! populates the cmdopt registry (m_setargs_init) - read c0_*/c2_* only AFTER this
   isp1 = 2; isp2 = 1  ! default DNUP
   if (c2_sp1 >= 0) isp1 = c2_sp1
   if (c2_sp2 >= 0) isp2 = c2_sp2
@@ -77,8 +79,6 @@ subroutine hmagnon() bind(C)
   calcdos  = c0_dos
   ganmma_only = geteta  !GammaPoint only calculation
 
-  call m_lgunit_init()
-  call MPI__Initialize()
   msg ='hmagnon'
   if(geteta) msg = trim(msg)//'_geteta_mode'
   call MPI__consoleout(trim(msg))
