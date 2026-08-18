@@ -10,7 +10,7 @@ def test(args,bindir,testdir,workdir):
         rmfiles(workdir,[outfile])
         runprogs([
                  lmfa+" nio > "+outfile,
-                 lmf+" -vnit=3 nio >> "+outfile,
+                 lmf+" nio --ctrlg:iter.nit=3 >> "+outfile,
         ])
         tall=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
         return tall

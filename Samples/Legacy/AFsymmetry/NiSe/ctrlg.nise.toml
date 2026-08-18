@@ -51,6 +51,9 @@ pos  = [0.343339587242026, 0.198227178236398,              0.75]
 # idu/uh/jh (LDA+U), and rsmh/eh (smoothed-Hankel basis).
 # kmxa = radial expansion order at tail sites (default 5).
 # Rule of thumb: kmxa > pwemax (in Ry). r = MT radius (a.u.).
+# NOTE: legacy IDU=(0,0,12) UH=0 removed 2026-08-19: idu>=10 together with
+# symgrpaf crashes zhev_tk4 (nev/=nevout) in the current code; with U=0 the
+# LDA+U block was a no-op anyway. See Samples/README Known issues.
 [[spec]]   # @1
 atom   = "Niup"
 z      = 28
@@ -64,9 +67,6 @@ lmxa   = 4
 mmom   = [0.0, 0.0, 1.2]
 nmcore = 1
 kmxa   = 5
-idu    = [ 0,  0, 12]
-uh     = [0.0, 0.0, 0.0]
-jh     = [0.0, 0.0, 0.0]
 
 [[spec]]   # @2
 atom   = "Nidn"
@@ -81,9 +81,6 @@ lmxa   = 4
 mmom   = [ 0.0,  0.0, -1.2]
 nmcore = 1
 kmxa   = 5
-idu    = [ 0,  0, 12]
-uh     = [0.0, 0.0, 0.0]
-jh     = [0.0, 0.0, 0.0]
 
 [[spec]]   # @3
 atom   = "Se"
