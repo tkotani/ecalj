@@ -132,33 +132,30 @@ contains
         elseif(mlomethod==2) then
           ecut = evlmto(j)
         elseif(mlomethod==3) then
-          ! Per-orbital window from the spectral distribution p_j(i)=|<Psi_PMT_i|Psi_MTO_j>|^2
-          ! (normalized: sum_i p_j = 1). ecut_j = energy where the cumulative weight reaches
-          ! mlo_tau (default 0.90); smoothing width from the quantile spread (0.80..0.95)/2.
-          ! Narrow bands (3d/4f) get a tight window automatically; broad sp orbitals a wide,
-          ! smooth one -- no global mlo_emax needed, mixed systems (Fe+Si etc.) get per-orbital windows.
-          quantile3: block
-            real(8):: pj(ndimPMTx), wtot, csum, qlo, qmid, qhi, elo, emid, ehi
-            integer:: ii
+          ! Per-orbital window from MOMENTS of the spectral distribution
+          ! p_j(i)=|<Psi_PMT_i|Psi_MTO_j>|^2 (normalized: sum_i p_j = 1):
+          !   w_j    = max( 0.5*esig_j, 0.01Ry )
+          !   ecut_j = max( emean_j + esig_j,  eferm + 0.15Ry + 2*w_j )
+          ! Moments (not quantiles) are smooth functionals of k, so ecut_j(k) varies
+          ! smoothly along k -- no staircase jumps from discrete spectra. The eferm
+          ! floor guarantees every orbital keeps near-EF eigenstates with theta-bar~1
+          ! (frozen window). Narrow 3d/4f orbitals get tight windows, broad sp
+          ! orbitals wide smooth ones; mixed systems get per-orbital windows with
+          ! no global mlo_emax. (mlo_tau is reserved / unused by this method.)
+          moment3: block
+            real(8):: pj(ndimPMTx), wtot, emean, esig
             pj = abs(fac(1:ndimPMTx,j))**2
             if(nskip>0) pj(1:nskip) = 0d0
             wtot = sum(pj)
             if(wtot < 0.1d0) then ! orbital barely representable above semicore: method-0 fallback
               ecut = max(emax, evlmto(j))
             else
-              qlo = 0.80d0*wtot; qmid = tg_mlo_tau*wtot; qhi = 0.95d0*wtot
-              csum = 0d0; elo = -1d99; emid = -1d99; ehi = -1d99
-              do ii = nskip+1, ndimPMTx  ! evl is ascending
-                csum = csum + pj(ii)
-                if(elo  < -1d98 .and. csum >= qlo ) elo  = evl(ii)
-                if(emid < -1d98 .and. csum >= qmid) emid = evl(ii)
-                if(csum >= qhi) then; ehi = evl(ii); exit; endif
-              enddo
-              if(ehi < -1d98) ehi = evl(ndimPMTx)
-              ecut  = emid
-              ewuse = max((ehi-elo)/2d0, 0.01d0) ! Ry; floor keeps theta-bar smooth inside degeneracies
+              emean = sum(pj(nskip+1:ndimPMTx)*evl(nskip+1:ndimPMTx))/wtot
+              esig  = sqrt(max(sum(pj(nskip+1:ndimPMTx)*(evl(nskip+1:ndimPMTx)-emean)**2)/wtot, 0d0))
+              ewuse = max(0.5d0*esig, 0.01d0)                       ! Ry
+              ecut  = max(emean + esig, eferm + 0.15d0 + 2d0*ewuse) ! EF+~2eV floor -> theta-bar(EF)~1
             endif
-          endblock quantile3
+          endblock moment3
         endif
         pmtloop: do i=nskip+1,ndimPMTx
           Amat(i,j)= fac(i,j) * fermidist( (evl(i) - ecut) /ewuse)
