@@ -109,6 +109,8 @@ module m_GWinput
   real(8), protected, public :: BZadiv             = 1.0d0
   real(8), protected, public :: ene_sppola         = 0.0d0
   real(8), protected, public :: mlo_eww            = 0.2d0
+  ! mlo_tau: cumulative-weight quantile for mlo_method=3 (per-orbital window from p_j=|<PMT|MTO>|^2)
+  real(8), protected, public :: mlo_tau            = 0.90d0
   real(8), protected, public :: mixbeta            = 1.0d0
   real(8), protected, public :: mixtj              = 0.0d0
   real(8), protected, public :: TFscreen           = 1.0d-5**0.5d0
@@ -424,6 +426,7 @@ contains
     call gv_r(gw, 'BZadiv',             BZadiv)
     call gv_r(gw, 'ene_sppola',         ene_sppola)
     call gv_r(gw, 'mlo_eww',            mlo_eww)
+    call gv_r(gw, 'mlo_tau',            mlo_tau)
     call gv_r(gw, 'mixbeta',            mixbeta)
     call gv_r(gw, 'mixtj',              mixtj)
     call gv_r(gw, 'TFscreen',           TFscreen)

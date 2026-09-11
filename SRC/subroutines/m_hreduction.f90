@@ -12,7 +12,7 @@ contains
    use m_keyvalue,only: getkeyvalue
    use m_GWinput, only: gwinput_init, gwinput_loaded, &
                         tg_mlo_nskip => mlo_nskip, tg_mlo_eww => mlo_eww, &
-                        tg_mlo_emax => mlo_emax
+                        tg_mlo_emax => mlo_emax, tg_mlo_tau => mlo_tau
    implicit none
    integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev,nxx,jj,ndimPMTx,nvpmt,mlomethod,nskip,nskipin
    real(8)::beta,emu,val,wgt(ndimPMT),evlmto(ndimMTO),evl(ndimPMT),evlx(ndimPMT),qp(3),eww,eadd
@@ -50,7 +50,7 @@ contains
       use m_nvfortran,only : findloc
       use m_ftox
       integer:: ie,nidxevlmto,nidxevl,ibx,jx,idxevlmto(ndimMTO),idxevl(ndimPMT),jbx,nval,nnn,imx,nbx,ii
-      real(8):: eee,fffx,ecut,xxx,rydberg,facww,sss,fff,epscore,emax,alpha,emin,ww(ndimPMTx),dex,ddd !,ewcutf
+      real(8):: eee,fffx,ecut,xxx,rydberg,facww,sss,fff,epscore,emax,alpha,emin,ww(ndimPMTx),dex,ddd,ewuse !,ewcutf
       real(8),allocatable::mulfac(:,:),mulfacw(:,:)
       complex(8):: imag=(0d0,1d0)
       ! Assert block for normalization check
@@ -123,16 +123,45 @@ contains
 
       !Amat is a modification of fac(ndimPMTx,ndimMTO), which is <Psi_PMT_i |Psi_MTO j>. Psi are eigenfunctions.
       allocate(Amat(ndimPMTx,ndimMTO),source=(0d0,0d0))!this is to avoid bug in ifort18.0.5
-      mloloop : do j=1,ndimMTO 
+      mloloop : do j=1,ndimMTO
+        ewuse = eww
         if(mlomethod==0) then          ! Determine ecut for j to determine maxmum i index for PMT.
           ecut = max(emax, evlmto(j))  !  emax(relative to ef) is the rigid limit for localized MTOs
         elseif(mlomethod==1) then
-          ecut = emax 
-        elseif(mlomethod==2) then  
-          ecut = evlmto(j)  
+          ecut = emax
+        elseif(mlomethod==2) then
+          ecut = evlmto(j)
+        elseif(mlomethod==3) then
+          ! Per-orbital window from the spectral distribution p_j(i)=|<Psi_PMT_i|Psi_MTO_j>|^2
+          ! (normalized: sum_i p_j = 1). ecut_j = energy where the cumulative weight reaches
+          ! mlo_tau (default 0.90); smoothing width from the quantile spread (0.80..0.95)/2.
+          ! Narrow bands (3d/4f) get a tight window automatically; broad sp orbitals a wide,
+          ! smooth one -- no global mlo_emax needed, mixed systems (Fe+Si etc.) get per-orbital windows.
+          quantile3: block
+            real(8):: pj(ndimPMTx), wtot, csum, qlo, qmid, qhi, elo, emid, ehi
+            integer:: ii
+            pj = abs(fac(1:ndimPMTx,j))**2
+            if(nskip>0) pj(1:nskip) = 0d0
+            wtot = sum(pj)
+            if(wtot < 0.1d0) then ! orbital barely representable above semicore: method-0 fallback
+              ecut = max(emax, evlmto(j))
+            else
+              qlo = 0.80d0*wtot; qmid = tg_mlo_tau*wtot; qhi = 0.95d0*wtot
+              csum = 0d0; elo = -1d99; emid = -1d99; ehi = -1d99
+              do ii = nskip+1, ndimPMTx  ! evl is ascending
+                csum = csum + pj(ii)
+                if(elo  < -1d98 .and. csum >= qlo ) elo  = evl(ii)
+                if(emid < -1d98 .and. csum >= qmid) emid = evl(ii)
+                if(csum >= qhi) then; ehi = evl(ii); exit; endif
+              enddo
+              if(ehi < -1d98) ehi = evl(ndimPMTx)
+              ecut  = emid
+              ewuse = max((ehi-elo)/2d0, 0.01d0) ! Ry; floor keeps theta-bar smooth inside degeneracies
+            endif
+          endblock quantile3
         endif
-        pmtloop: do i=nskip+1,ndimPMTx 
-          Amat(i,j)= fac(i,j) * fermidist( (evl(i) - ecut) /eww)
+        pmtloop: do i=nskip+1,ndimPMTx
+          Amat(i,j)= fac(i,j) * fermidist( (evl(i) - ecut) /ewuse)
         enddo pmtloop
       enddo mloloop
       Amat(1:nskip,:)=0d0
