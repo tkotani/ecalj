@@ -143,17 +143,27 @@ contains
           ! orbitals wide smooth ones; mixed systems get per-orbital windows with
           ! no global mlo_emax. (mlo_tau is reserved / unused by this method.)
           moment3: block
+            ! v3: moments RESTRICTED to eps_i < eferm + dwin (dwin=5eV). The unrestricted
+            ! second moment blows up on the free-electron / antibonding tail of sp orbitals,
+            ! giving huge half-open windows (many states at theta-bar~0.5) that spoil both
+            ! the low-energy imprint and the bare-MTO character (v2 regression on C/Si/GaAs/NiO).
+            ! Restricted moments are tail-immune and reproduce the three hand-tuned regimes:
+            !  sp valence orbitals -> ecut ~ EF (the winning mlo_emax=0), localized empty
+            !  d within EF+dwin (Cr,Ni) -> ecut just above them (the winning mlo_emax~7eV),
+            !  itinerant magnets -> auto window. Still smooth in k, near-EF kept by the floor.
             real(8):: pj(ndimPMTx), wtot, emean, esig
+            real(8),parameter:: dwin=0.37d0, dfloor=0.15d0 ! Ry: ~5eV moment window, ~2eV EF floor
             pj = abs(fac(1:ndimPMTx,j))**2
             if(nskip>0) pj(1:nskip) = 0d0
+            where(evl(1:ndimPMTx) > eferm+dwin) pj = 0d0  ! tail immunity
             wtot = sum(pj)
-            if(wtot < 0.1d0) then ! orbital barely representable above semicore: method-0 fallback
+            if(wtot < 0.1d0) then ! orbital lives above EF+dwin (or semicore): method-0 fallback
               ecut = max(emax, evlmto(j))
             else
               emean = sum(pj(nskip+1:ndimPMTx)*evl(nskip+1:ndimPMTx))/wtot
               esig  = sqrt(max(sum(pj(nskip+1:ndimPMTx)*(evl(nskip+1:ndimPMTx)-emean)**2)/wtot, 0d0))
-              ewuse = max(0.5d0*esig, 0.01d0)                       ! Ry
-              ecut  = max(emean + esig, eferm + 0.15d0 + 2d0*ewuse) ! EF+~2eV floor -> theta-bar(EF)~1
+              ewuse = max(0.5d0*esig, 0.022d0)               ! Ry; floor ~0.3eV
+              ecut  = max(emean + esig, eferm + dfloor)      ! EF+~2eV frozen floor
             endif
           endblock moment3
         endif
