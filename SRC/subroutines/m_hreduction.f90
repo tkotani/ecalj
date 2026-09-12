@@ -142,26 +142,24 @@ contains
           ! (frozen window). Narrow 3d/4f orbitals get tight windows, broad sp
           ! orbitals wide smooth ones; mixed systems get per-orbital windows with
           ! no global mlo_emax. (mlo_tau is reserved / unused by this method.)
-          bandcount4: block
-            ! v4: soft BAND-COUNT projection, no energy windows at all.
-            ! theta-bar(n') = fermidist( (n' - (nocc(k)+ncb)) / nw ) in band-index space,
-            ! identical for every orbital n''. Keeps all occupied bands plus the lowest
-            ! ncb conduction bands (CBM/VBM neighbourhoods frozen; in-gap localized
-            ! states such as Cr-d in Al2O3 are by definition the lowest unoccupied
-            ! bands, so they are kept), and excludes the high antibonding/free-electron
-            ! manifold (sp valence stays exact). Band counting is k-uniform, so H(k)
-            ! is smooth; orbital-independent, so symmetry is trivial. Reproduces the
-            ! three hand-tuned regimes: mlo_emax=0 (semiconductors), ~7eV (Al2O3_Cr),
-            ! and the automatic window (metals) with fixed ncb=2, nw=1.
-            real(8),parameter:: ncb=2.5d0, nw=1d0   ! soft step centred between nocc+2 and nocc+3
-            integer:: nocc
+          bandenergy5: block
+            ! v5: energy cut at the (nocc+ncb)-th band, broad exponential tail.
+            !   ecut(k) = evl(nocc(k)+3),  width = eww (default 0.2Ry ~ 2.7eV), all orbitals alike.
+            ! Rationale (constraints from v1-v4 experiments):
+            !  - band-counted target: keeps all occupied + lowest ~2-3 conduction bands
+            !    (VBM/CBM neighbourhoods and in-gap localized states such as Cr-d in
+            !    Al2O3 frozen); reproduces the hand-tuned regimes mlo_emax=0 / ~7eV / auto.
+            !  - expressed as the ENERGY of that band -> smooth in k by band continuity.
+            !  - the broad fermidist tail keeps small nonzero weights on the high
+            !    antibonding manifold: rank(A) stays ndimMTO (v4 failed by rank
+            !    deficiency when only nocc+2 states survived a sharp index gate),
+            !    while low-energy states dominate exponentially (~e^-(de/2.7eV)).
+            integer:: nocc, itgt
             nocc = count(evl(nskip+1:ndimPMTx) < eferm)
-            ecut  = 0d0; ewuse = 1d0 ! unused by this method (index-space gate below)
-            do i = nskip+1, ndimPMTx
-              Amat(i,j) = fac(i,j) * fermidist( (dble(i-nskip) - (dble(nocc)+ncb)) / nw )
-            enddo
-            cycle mloloop ! Amat already set for this j
-          endblock bandcount4
+            itgt = min(nskip + nocc + 3, ndimPMTx)
+            ecut = evl(itgt)
+            ewuse = eww
+          endblock bandenergy5
         endif
         pmtloop: do i=nskip+1,ndimPMTx
           Amat(i,j)= fac(i,j) * fermidist( (evl(i) - ecut) /ewuse)
