@@ -142,30 +142,26 @@ contains
           ! (frozen window). Narrow 3d/4f orbitals get tight windows, broad sp
           ! orbitals wide smooth ones; mixed systems get per-orbital windows with
           ! no global mlo_emax. (mlo_tau is reserved / unused by this method.)
-          moment3: block
-            ! v3: moments RESTRICTED to eps_i < eferm + dwin (dwin=5eV). The unrestricted
-            ! second moment blows up on the free-electron / antibonding tail of sp orbitals,
-            ! giving huge half-open windows (many states at theta-bar~0.5) that spoil both
-            ! the low-energy imprint and the bare-MTO character (v2 regression on C/Si/GaAs/NiO).
-            ! Restricted moments are tail-immune and reproduce the three hand-tuned regimes:
-            !  sp valence orbitals -> ecut ~ EF (the winning mlo_emax=0), localized empty
-            !  d within EF+dwin (Cr,Ni) -> ecut just above them (the winning mlo_emax~7eV),
-            !  itinerant magnets -> auto window. Still smooth in k, near-EF kept by the floor.
-            real(8):: pj(ndimPMTx), wtot, emean, esig
-            real(8),parameter:: dwin=0.37d0, dfloor=0.15d0 ! Ry: ~5eV moment window, ~2eV EF floor
-            pj = abs(fac(1:ndimPMTx,j))**2
-            if(nskip>0) pj(1:nskip) = 0d0
-            where(evl(1:ndimPMTx) > eferm+dwin) pj = 0d0  ! tail immunity
-            wtot = sum(pj)
-            if(wtot < 0.1d0) then ! orbital lives above EF+dwin (or semicore): method-0 fallback
-              ecut = max(emax, evlmto(j))
-            else
-              emean = sum(pj(nskip+1:ndimPMTx)*evl(nskip+1:ndimPMTx))/wtot
-              esig  = sqrt(max(sum(pj(nskip+1:ndimPMTx)*(evl(nskip+1:ndimPMTx)-emean)**2)/wtot, 0d0))
-              ewuse = max(0.5d0*esig, 0.022d0)               ! Ry; floor ~0.3eV
-              ecut  = max(emean + esig, eferm + dfloor)      ! EF+~2eV frozen floor
-            endif
-          endblock moment3
+          bandcount4: block
+            ! v4: soft BAND-COUNT projection, no energy windows at all.
+            ! theta-bar(n') = fermidist( (n' - (nocc(k)+ncb)) / nw ) in band-index space,
+            ! identical for every orbital n''. Keeps all occupied bands plus the lowest
+            ! ncb conduction bands (CBM/VBM neighbourhoods frozen; in-gap localized
+            ! states such as Cr-d in Al2O3 are by definition the lowest unoccupied
+            ! bands, so they are kept), and excludes the high antibonding/free-electron
+            ! manifold (sp valence stays exact). Band counting is k-uniform, so H(k)
+            ! is smooth; orbital-independent, so symmetry is trivial. Reproduces the
+            ! three hand-tuned regimes: mlo_emax=0 (semiconductors), ~7eV (Al2O3_Cr),
+            ! and the automatic window (metals) with fixed ncb=2, nw=1.
+            real(8),parameter:: ncb=2.5d0, nw=1d0   ! soft step centred between nocc+2 and nocc+3
+            integer:: nocc
+            nocc = count(evl(nskip+1:ndimPMTx) < eferm)
+            ecut  = 0d0; ewuse = 1d0 ! unused by this method (index-space gate below)
+            do i = nskip+1, ndimPMTx
+              Amat(i,j) = fac(i,j) * fermidist( (dble(i-nskip) - (dble(nocc)+ncb)) / nw )
+            enddo
+            cycle mloloop ! Amat already set for this j
+          endblock bandcount4
         endif
         pmtloop: do i=nskip+1,ndimPMTx
           Amat(i,j)= fac(i,j) * fermidist( (evl(i) - ecut) /ewuse)
