@@ -50,7 +50,7 @@ contains
       use m_nvfortran,only : findloc
       use m_ftox
       integer:: ie,nidxevlmto,nidxevl,ibx,jx,idxevlmto(ndimMTO),idxevl(ndimPMT),jbx,nval,nnn,imx,nbx,ii
-      real(8):: eee,fffx,ecut,xxx,rydberg,facww,sss,fff,epscore,emax,alpha,emin,ww(ndimPMTx),dex,ddd,ewuse !,ewcutf
+      real(8):: eee,fffx,ecut,xxx,rydberg,facww,sss,fff,epscore,emax,alpha,emin,ww(ndimPMTx),dex,ddd,ewuse,efrz !,ewcutf
       real(8),allocatable::mulfac(:,:),mulfacw(:,:)
       complex(8):: imag=(0d0,1d0)
       ! Assert block for normalization check
@@ -125,6 +125,7 @@ contains
       allocate(Amat(ndimPMTx,ndimMTO),source=(0d0,0d0))!this is to avoid bug in ifort18.0.5
       mloloop : do j=1,ndimMTO
         ewuse = eww
+        efrz  = -1d99 ! hard-freeze edge; active only for mlomethod=3 (v6.3)
         if(mlomethod==0) then          ! Determine ecut for j to determine maxmum i index for PMT.
           ecut = max(emax, evlmto(j))  !  emax(relative to ef) is the rigid limit for localized MTOs
         elseif(mlomethod==1) then
@@ -157,12 +158,15 @@ contains
             integer:: nocc, itgt
             nocc = count(evl(nskip+1:ndimPMTx) < eferm)
             itgt = min(nskip + nocc + 3, ndimPMTx)
-            ecut = max(evl(itgt), evl(min(nskip+nocc+1,ndimPMTx))+0.22d0, evlmto(j)) ! v6.2: nocc+3 bands AND CBM+3eV (metals: EF+3eV); own-energy floor keeps rank
+            efrz = evl(min(nskip+nocc+1,ndimPMTx)) + 0.22d0 ! CBM+3eV (metals: ~EF+3eV): hard-frozen with narrow width in pmtloop
+            ecut = max(evl(itgt), efrz, evlmto(j))       ! v6.3: soft tail beyond the frozen window; own-energy floor keeps rank
             ewuse = eww
           endblock bandenergy5
         endif
         pmtloop: do i=nskip+1,ndimPMTx
-          Amat(i,j)= fac(i,j) * fermidist( (evl(i) - ecut) /ewuse)
+          Amat(i,j)= fac(i,j) * max( fermidist((evl(i)-efrz)/0.05d0), fermidist((evl(i)-ecut)/ewuse) )
+          ! v6.3 two-stage theta-bar: near-unity inside the frozen window (narrow 0.05Ry edge -> band-edge
+          ! curvature undistorted), the usual broad eww tail outside (rank + graded completeness).
         enddo pmtloop
       enddo mloloop
       Amat(1:nskip,:)=0d0
