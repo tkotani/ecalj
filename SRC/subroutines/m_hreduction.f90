@@ -1,5 +1,6 @@
 module m_hreduction
 use m_cmdopt_registry, only: c0_gs, c0_mlo_diagnorm, c0_mlo_feb4, c0_mlo_ortho, c0_mlo_orthonorm
+logical,private,save:: regime_report=.true. ! print the per-orbital regime classification once (first q)
 contains
   subroutine Hreduction(mlomethod,iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,ovlmout, qp, cmlo,nev, zMLO) !> Reduce H(ndimPMT) to H(ndimMTO)
     ! cmlo= <Psi^MPT i|F^MLO j>
@@ -189,6 +190,10 @@ contains
                   emean7 = sum(pj*evl(1:ndimPMTx))/wtot7
                   esig7  = sqrt(max(sum(pj*(evl(1:ndimPMTx)-emean7)**2)/wtot7, 0d0))
                   ewuse  = min(max(tg_mlo_ewalpha*esig7, tg_mlo_ewmin), eww)
+                  ! Make the automatic localized/extended classification visible (first q only).
+                  if(regime_report) write(stdo,"(a,i4,3f12.5,a)") ' mlo regime: iorb eMTO-eF(eV) sigma(eV) width(eV) =', &
+                       j, (evlmto(j)-eferm)*rydberg(), esig7*rydberg(), ewuse*rydberg(), &
+                       merge('  localized','  extended ', ewuse < 0.5d0*(tg_mlo_ewmin+eww))
                 endif
               endblock regime7
             endif
@@ -201,6 +206,7 @@ contains
           ! curvature undistorted), the usual broad eww tail outside (rank + graded completeness).
         enddo pmtloop
       enddo mloloop
+      regime_report=.false.
       Amat(1:nskip,:)=0d0
 ! do we need GramSchmidt orthogonalizaition? We expect lower is enphasized more for mode0 and for mode2.
       if(c0_gs) call GramSchmidt(ndimPMTx,ndimMTO,Amat) !Amat= ¥bar{<Psi_PMT_i |Psi_MTO j>}
