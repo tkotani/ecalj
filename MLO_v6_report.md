@@ -92,7 +92,7 @@ Si の CBM(Γ–X 途中 ≈0.85X、**メッシュ外の点**)の異常はご指
 worb は spd 18 軌道(予算は充分)であり、原因は $H_{\mathrm{MLO}}(\mathbf{R})$ の
 フーリエ補間誤差(参照 DFT は各 $\mathbf{k}$ で厳密対角化、MLO はメッシュからの補間):
 
-| Si (QSGW), v6.3 固定 | 6³ | 8³ | 10³ |
+| Si (QSGW), A 固定 | 6³ | 8³ | 10³ |
 |----|------:|------:|------:|
 | ΔCBM (eV) | +0.165 | **−0.010** | +0.014 |
 | gap (DFT 1.057) | 1.222 | 1.047 | 1.070 |
@@ -112,13 +112,13 @@ worb は spd 18 軌道(予算は充分)であり、原因は $H_{\mathrm{MLO}}(\
 ## 5. バンドプロット(灰線: 第一原理 PMT、赤×: MLO(最終形 v6.5 系))
 
 ![Al2O3_Cr](MLO_v6_figs/Al2O3_Cr.png)
-Al₂O₃:Cr — ギャップ内 Cr d・VBM/CBM とも凍結窓内で一致(gap −21 meV、m\* 0.98/1.02)。手調整 emax=7eV を完全自動置換。
+Al₂O₃:Cr — ギャップ内 Cr d・VBM/CBM とも凍結窓内で一致(rms 0.020 eV、m\*(VBM) 0.99)。手調整 emax=7eV を完全自動置換。
 
 ![C](MLO_v6_figs/C.png)
-C(ダイヤ、8³)— CBM 曲率はメッシュ律速(gap −140 meV)。
+C(ダイヤ、8³)— CBM 曲率はメッシュ律速(gap −106 meV)。
 
 ![GaAs](MLO_v6_figs/GaAs.png)
-GaAs — 窓 rms 0.032 eV、gap +27 meV。
+GaAs — 窓 rms 0.027 eV、gap +21 meV。
 
 ![Si666gwsc](MLO_v6_figs/Si666gwsc.png)
 Si(QSGW、6³)— CBM 誤差はメッシュ由来(8³ で −10 meV に消滅、§4)。
@@ -127,16 +127,16 @@ Si(QSGW、6³)— CBM 誤差はメッシュ由来(8³ で −10 meV に消滅、
 SrTiO₃ — 窓 rms 0.031 eV、m\*(VBM) 1.05。
 
 ![NiO](MLO_v6_figs/NiO666lda.png)
-NiO — gap +10 meV、m\*(CBM) 0.98。
+NiO — 窓 rms 0.039 eV、gap +2 meV、m\* 0.95/0.99。
 
 ![Fe](MLO_v6_figs/Fe.png)
-Fe — E_F+3eV 窓 rms 0.033 eV、m\* 1.16/1.12。
+Fe — E_F+3eV 窓 rms 0.025 eV、m\* 1.16/1.13。
 
 ![FeCo](MLO_v6_figs/FeCo.png)
 FeCo — rms 0.008 eV。
 
 ![Cu](MLO_v6_figs/Cu.png)
-Cu — 残る最難系(rms 0.164)。d-s 混成の MTO 素性の問題の可能性、クラス別 Δ フィットの第一対象。
+Cu — 残る最難系(rms 0.158)。d-s 混成の MTO 素性の問題の可能性、クラス別 Δ フィットの第一対象。
 
 ![FeMgO](MLO_v6_figs/FeMgO.png)
 FeMgO スラブ — 二相系。CBM+3eV 凍結で 0.24→0.052 eV に改善。スパン外表面状態は残る(empty-sphere 追加が根治)。
@@ -144,7 +144,7 @@ FeMgO スラブ — 二相系。CBM+3eV 凍結で 0.24→0.052 eV に改善。�
 ## 6. 到達点と残課題
 
 **到達点**: 15 系すべてで崩壊なし・手調整パラメータゼロ。
-「mlo_method 1/2 と emax を系ごとに使い回す」運用は v6.3 で不要になった。
+「mlo_method 1/2 と emax を系ごとに使い回す」運用は不要になった。
 目標窓 [占有, CBM+3eV] の rms は Cu を除き全系 ≤0.073 eV(メッシュ律速分を除くと ≤0.059 eV)。
 
 **残課題**:
@@ -157,5 +157,5 @@ FeMgO スラブ — 二相系。CBM+3eV 凍結で 0.24→0.052 eV に改善。�
 
 ---
 
-再現: branch `mlo3` / `mlo_method = 3`(v6.3)/ ベンチ `Samples/MLOsamples/*__m3`(+ `Si666gwsc__m3k8/k10`)/
+再現: branch `mlo3` / `mlo_method = 3`(v6.5)/ ベンチ `Samples/MLOsamples/*__m3`(+ `Si666gwsc__m3k8/k10`)/
 評価 `eval_v62.py`, `gap_and_plots.py`。手調整比較基準は各サンプル既定の `mlo_emax`(0 / 5 / 7 eV / auto)。
