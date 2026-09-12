@@ -157,7 +157,7 @@ contains
             integer:: nocc, itgt
             nocc = count(evl(nskip+1:ndimPMTx) < eferm)
             itgt = min(nskip + nocc + 3, ndimPMTx)
-            ecut = max(evl(itgt), eferm+0.22d0, evlmto(j)) ! v6.1: at least nocc+3 bands AND EF+3eV; own-energy floor keeps rank
+            ecut = max(evl(itgt), evl(min(nskip+nocc+1,ndimPMTx))+0.22d0, evlmto(j)) ! v6.2: nocc+3 bands AND CBM+3eV (metals: EF+3eV); own-energy floor keeps rank
             ewuse = eww
           endblock bandenergy5
         endif
