@@ -157,7 +157,7 @@ contains
             integer:: nocc, itgt
             nocc = count(evl(nskip+1:ndimPMTx) < eferm)
             itgt = min(nskip + nocc + 3, ndimPMTx)
-            ecut = max(evl(itgt), evlmto(j)) ! per-orbital own-energy floor: method-0's hidden rank mechanism
+            ecut = max(evl(itgt), eferm+0.22d0, evlmto(j)) ! v6.1: at least nocc+3 bands AND EF+3eV; own-energy floor keeps rank
             ewuse = eww
           endblock bandenergy5
         endif
