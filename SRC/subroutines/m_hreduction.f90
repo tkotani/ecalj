@@ -158,8 +158,9 @@ contains
             integer:: nocc, itgt
             nocc = count(evl(nskip+1:ndimPMTx) < eferm)
             itgt = min(nskip + nocc + 3, ndimPMTx)
-            efrz = evl(min(nskip+nocc+1,ndimPMTx)) + 0.22d0 ! CBM+3eV (metals: ~EF+3eV): hard-frozen with narrow width in pmtloop
-            ecut = max(evl(itgt), efrz, evlmto(j))       ! v6.3: soft tail beyond the frozen window; own-energy floor keeps rank
+            efrz = evl(min(nskip+nocc+1,ndimPMTx)) + 0.22d0 ! CBM+3eV (metals: ~EF+3eV)
+            ecut = max(evl(itgt), efrz + 2d0*eww, evlmto(j)) ! v6.4: single sigmoid, ecut shifted so sigma(efrz)~0.88 (folds the freeze into ecut)
+            efrz = -1d99 ! disable the narrow first stage: theta-bar = broad sigmoid only
             ewuse = eww
           endblock bandenergy5
         endif
