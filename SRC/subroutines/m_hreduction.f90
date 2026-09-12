@@ -180,7 +180,7 @@ contains
             !   Clamped to [mlo_ewmin, mlo_eww], so the two regimes appear as the two
             !   saturation limits and mixed systems (sp + localized d in one cell) get
             !   per-orbital treatment. mlo_ewalpha=0 restores the single global width.
-            if(tg_mlo_ewalpha > 0d0) then
+            if(abs(tg_mlo_ewalpha) > 0d0) then
               regime7: block
                 real(8):: pj(ndimPMTx), wtot7, emean7, esig7
                 pj = abs(fac(1:ndimPMTx,j))**2
@@ -189,7 +189,14 @@ contains
                 if(wtot7 > 1d-8) then
                   emean7 = sum(pj*evl(1:ndimPMTx))/wtot7
                   esig7  = sqrt(max(sum(pj*(evl(1:ndimPMTx)-emean7)**2)/wtot7, 0d0))
-                  ewuse  = min(max(tg_mlo_ewalpha*esig7, tg_mlo_ewmin), eww)
+                  ! alpha>0: width grows with the spread (localized -> sharp, extended -> broad)
+                  ! alpha<0: the inverse (extended -> sharp, localized -> broad). The scan decides
+                  ! which direction the data wants; both are one-parameter families around v6.5.
+                  if(tg_mlo_ewalpha > 0d0) then
+                    ewuse = min(max(tg_mlo_ewalpha*esig7, tg_mlo_ewmin), eww)
+                  else
+                    ewuse = min(max(eww + tg_mlo_ewalpha*esig7, tg_mlo_ewmin), eww)
+                  endif
                   ! Make the automatic localized/extended classification visible (first q only).
                   if(regime_report) write(stdo,"(a,i4,3f12.5,a)") ' mlo regime: iorb eMTO-eF(eV) sigma(eV) width(eV) =', &
                        j, (evlmto(j)-eferm)*rydberg(), esig7*rydberg(), ewuse*rydberg(), &
