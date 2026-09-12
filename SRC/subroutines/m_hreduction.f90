@@ -175,10 +175,20 @@ contains
             !   ecut_j = max( eps_CBM + mlo_dwin, eps^MTO_j + mlo_down ),
             !   w_j    = clamp( mlo_wfrz + mlo_ewalpha*sigwin_j, mlo_ewmin, mlo_eww ).
             ! mlo_ewalpha=0 gives the fixed-width rule (grid optimum dwin=0.18, w=0.10 Ry).
-            efrz  = -1d99
-            ewfrz = 1d0
-            ecut  = max(evl(min(nskip+nocc+1,ndimPMTx)) + tg_mlo_dwin, evlmto(j) + tg_mlo_down)
-            ewuse = tg_mlo_wfrz
+            ! v9: restore the two-stage form -- the experiment showed the single sigmoid's
+            ! width is nearly inert (with the cut far above the occupied states the weights
+            ! scale almost uniformly and the per-orbital normalization removes it), while
+            ! what actually acts is the treatment ABOVE the cut, i.e. the second sigmoid.
+            ! So the regime coefficient is applied to eww, not to wfrz:
+            !   theta_j = max( sigma((eps-efrz)/wfrz), sigma((eps-ecut_j)/w_j) )
+            !   w_j = clamp( mlo_eww + mlo_ewalpha*sigwin_j, mlo_wfrz, mlo_eww )
+            ! With alpha<0 an extended (large sigwin) orbital is pulled from the broad
+            ! d-regime width (mlo_eww=0.20) down towards the sharp sp-regime one
+            ! (mlo_wfrz=0.10), which is the split measured across the samples.
+            efrz  = evl(min(nskip+nocc+1,ndimPMTx)) + tg_mlo_dwin
+            ecut  = max(efrz, evlmto(j) + tg_mlo_down)
+            ewfrz = tg_mlo_wfrz
+            ewuse = eww
             ! v7 (regime rule): the tail width follows the orbital's own spectral spread
             !   sigma_j from p_j(i)=|<Psi^PMT_i|Psi^MTO_j>|^2  (a smooth, second-moment
             !   functional of k).  A localized orbital keeps its weight inside the window,
@@ -206,7 +216,7 @@ contains
                   ! alpha>0: width grows with the spread (localized -> sharp, extended -> broad)
                   ! alpha<0: the inverse (extended -> sharp, localized -> broad). The scan decides
                   ! which direction the data wants; both are one-parameter families around v6.5.
-                  ewuse = min(max(tg_mlo_wfrz + tg_mlo_ewalpha*esig7, tg_mlo_ewmin), eww)
+                  ewuse = min(max(eww + tg_mlo_ewalpha*esig7, tg_mlo_wfrz), eww)
                   ! Make the automatic localized/extended classification visible (first q only).
                   if(regime_report) write(stdo,"(a,i4,3f12.5,a)") ' mlo regime: iorb eMTO-eF(eV) sigma(eV) width(eV) =', &
                        j, (evlmto(j)-eferm)*rydberg(), esig7*rydberg(), ewuse*rydberg(), &
