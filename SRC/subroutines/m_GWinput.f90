@@ -115,6 +115,12 @@ module m_GWinput
   real(8), protected, public :: mlo_dwin           = 0.22d0
   real(8), protected, public :: mlo_wfrz           = 0.05d0
   real(8), protected, public :: mlo_down           = 0.0d0
+  ! v7 regime rule: per-orbital tail width from the spectral spread of p_j=|S(:,j)|^2.
+  !   eww_j = min( max( mlo_ewalpha*sigma_j, mlo_ewmin ), mlo_eww )
+  ! mlo_ewalpha = 0 disables it (single global mlo_eww = v6.5 behaviour).
+  ! Localized orbitals (small sigma) get a sharp cut; wide sp orbitals saturate at mlo_eww.
+  real(8), protected, public :: mlo_ewalpha        = 0.0d0
+  real(8), protected, public :: mlo_ewmin          = 0.05d0
   real(8), protected, public :: mixbeta            = 1.0d0
   real(8), protected, public :: mixtj              = 0.0d0
   real(8), protected, public :: TFscreen           = 1.0d-5**0.5d0
@@ -434,6 +440,8 @@ contains
     call gv_r(gw, 'mlo_dwin',           mlo_dwin)
     call gv_r(gw, 'mlo_wfrz',           mlo_wfrz)
     call gv_r(gw, 'mlo_down',           mlo_down)
+    call gv_r(gw, 'mlo_ewalpha',        mlo_ewalpha)
+    call gv_r(gw, 'mlo_ewmin',          mlo_ewmin)
     call gv_r(gw, 'mixbeta',            mixbeta)
     call gv_r(gw, 'mixtj',              mixtj)
     call gv_r(gw, 'TFscreen',           TFscreen)

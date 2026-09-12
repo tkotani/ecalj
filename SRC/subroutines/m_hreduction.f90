@@ -13,7 +13,8 @@ contains
    use m_GWinput, only: gwinput_init, gwinput_loaded, &
                         tg_mlo_nskip => mlo_nskip, tg_mlo_eww => mlo_eww, &
                         tg_mlo_emax => mlo_emax, tg_mlo_tau => mlo_tau, &
-                        tg_mlo_dwin => mlo_dwin, tg_mlo_wfrz => mlo_wfrz, tg_mlo_down => mlo_down
+                        tg_mlo_dwin => mlo_dwin, tg_mlo_wfrz => mlo_wfrz, tg_mlo_down => mlo_down, &
+                        tg_mlo_ewalpha => mlo_ewalpha, tg_mlo_ewmin => mlo_ewmin
    implicit none
    integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev,nxx,jj,ndimPMTx,nvpmt,mlomethod,nskip,nskipin
    real(8)::beta,emu,val,wgt(ndimPMT),evlmto(ndimMTO),evl(ndimPMT),evlx(ndimPMT),qp(3),eww,eadd
@@ -169,6 +170,28 @@ contains
             ecut  = max(efrz, evlmto(j) + tg_mlo_down)
             ewfrz = tg_mlo_wfrz
             ewuse = eww
+            ! v7 (regime rule): the tail width follows the orbital's own spectral spread
+            !   sigma_j from p_j(i)=|<Psi^PMT_i|Psi^MTO_j>|^2  (a smooth, second-moment
+            !   functional of k).  A localized orbital keeps its weight inside the window,
+            !   so a sharp cut is right and a broad tail only mixes in high states; a wide
+            !   sp orbital has its character spread over many bands, so cutting sharply
+            !   truncates itself (rank / graded completeness) and it needs the broad tail.
+            !   Clamped to [mlo_ewmin, mlo_eww], so the two regimes appear as the two
+            !   saturation limits and mixed systems (sp + localized d in one cell) get
+            !   per-orbital treatment. mlo_ewalpha=0 restores the single global width.
+            if(tg_mlo_ewalpha > 0d0) then
+              regime7: block
+                real(8):: pj(ndimPMTx), wtot7, emean7, esig7
+                pj = abs(fac(1:ndimPMTx,j))**2
+                if(nskip>0) pj(1:nskip) = 0d0
+                wtot7 = sum(pj)
+                if(wtot7 > 1d-8) then
+                  emean7 = sum(pj*evl(1:ndimPMTx))/wtot7
+                  esig7  = sqrt(max(sum(pj*(evl(1:ndimPMTx)-emean7)**2)/wtot7, 0d0))
+                  ewuse  = min(max(tg_mlo_ewalpha*esig7, tg_mlo_ewmin), eww)
+                endif
+              endblock regime7
+            endif
             ewuse = eww
           endblock bandenergy5
         endif
