@@ -12,7 +12,8 @@ contains
    use m_keyvalue,only: getkeyvalue
    use m_GWinput, only: gwinput_init, gwinput_loaded, &
                         tg_mlo_nskip => mlo_nskip, tg_mlo_eww => mlo_eww, &
-                        tg_mlo_emax => mlo_emax, tg_mlo_tau => mlo_tau
+                        tg_mlo_emax => mlo_emax, tg_mlo_tau => mlo_tau, &
+                        tg_mlo_dwin => mlo_dwin, tg_mlo_wfrz => mlo_wfrz, tg_mlo_down => mlo_down
    implicit none
    integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev,nxx,jj,ndimPMTx,nvpmt,mlomethod,nskip,nskipin
    real(8)::beta,emu,val,wgt(ndimPMT),evlmto(ndimMTO),evl(ndimPMT),evlx(ndimPMT),qp(3),eww,eadd
@@ -50,7 +51,7 @@ contains
       use m_nvfortran,only : findloc
       use m_ftox
       integer:: ie,nidxevlmto,nidxevl,ibx,jx,idxevlmto(ndimMTO),idxevl(ndimPMT),jbx,nval,nnn,imx,nbx,ii
-      real(8):: eee,fffx,ecut,xxx,rydberg,facww,sss,fff,epscore,emax,alpha,emin,ww(ndimPMTx),dex,ddd,ewuse,efrz !,ewcutf
+      real(8):: eee,fffx,ecut,xxx,rydberg,facww,sss,fff,epscore,emax,alpha,emin,ww(ndimPMTx),dex,ddd,ewuse,efrz,ewfrz !,ewcutf
       real(8),allocatable::mulfac(:,:),mulfacw(:,:)
       complex(8):: imag=(0d0,1d0)
       ! Assert block for normalization check
@@ -125,7 +126,8 @@ contains
       allocate(Amat(ndimPMTx,ndimMTO),source=(0d0,0d0))!this is to avoid bug in ifort18.0.5
       mloloop : do j=1,ndimMTO
         ewuse = eww
-        efrz  = -1d99 ! hard-freeze edge; active only for mlomethod=3 (v6.3)
+        efrz  = -1d99 ! hard-freeze edge; active only for mlomethod=3
+        ewfrz = 1d0
         if(mlomethod==0) then          ! Determine ecut for j to determine maxmum i index for PMT.
           ecut = max(emax, evlmto(j))  !  emax(relative to ef) is the rigid limit for localized MTOs
         elseif(mlomethod==1) then
@@ -158,14 +160,20 @@ contains
             integer:: nocc, itgt
             nocc = count(evl(nskip+1:ndimPMTx) < eferm)
             itgt = min(nskip + nocc + 3, ndimPMTx)
-            efrz = -1d99 ! v6.6: single narrow sigmoid (w_frz=w collapses the max); rank carried by the own-orbital floor
-            ecut = max(evl(min(nskip+nocc+1,ndimPMTx)) + 0.22d0, evlmto(j)) ! CBM+3eV window + own-orbital floor
-            ewuse = 0.05d0
+            ! Parametrized two-stage theta-bar (scan keys mlo_dwin/mlo_wfrz/mlo_down + mlo_eww):
+            !   theta = max( sigma((eps-efrz)/wfrz), sigma((eps-ecut_j)/eww) )
+            !   efrz  = evl(nocc+1) + dwin  (CBM+dwin; ~EF+dwin in metals)
+            !   ecut_j= max(efrz, evlmto_j + down)
+            ! wfrz=eww collapses to a single sigmoid (v6.6 family); defaults reproduce v6.5.
+            efrz  = evl(min(nskip+nocc+1,ndimPMTx)) + tg_mlo_dwin
+            ecut  = max(efrz, evlmto(j) + tg_mlo_down)
+            ewfrz = tg_mlo_wfrz
+            ewuse = eww
             ewuse = eww
           endblock bandenergy5
         endif
         pmtloop: do i=nskip+1,ndimPMTx
-          Amat(i,j)= fac(i,j) * max( fermidist((evl(i)-efrz)/0.05d0), fermidist((evl(i)-ecut)/ewuse) )
+          Amat(i,j)= fac(i,j) * max( fermidist((evl(i)-efrz)/ewfrz), fermidist((evl(i)-ecut)/ewuse) )
           ! v6.3 two-stage theta-bar: near-unity inside the frozen window (narrow 0.05Ry edge -> band-edge
           ! curvature undistorted), the usual broad eww tail outside (rank + graded completeness).
         enddo pmtloop
