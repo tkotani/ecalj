@@ -112,8 +112,8 @@ module m_GWinput
   ! mlo_tau: cumulative-weight quantile for mlo_method=3 (per-orbital window from p_j=|<PMT|MTO>|^2)
   real(8), protected, public :: mlo_tau            = 0.90d0
   ! mlo_method=3 window-scan keys (Ry): target window above CBM, freeze-edge width, own-floor lift
-  real(8), protected, public :: mlo_dwin           = 0.22d0
-  real(8), protected, public :: mlo_wfrz           = 0.05d0
+  real(8), protected, public :: mlo_dwin           = 0.18d0  ! Ry: target window above the CBM (~2.4 eV); scan optimum
+  real(8), protected, public :: mlo_wfrz           = 0.10d0  ! Ry: edge width at that cut (~1.4 eV); scan optimum
   real(8), protected, public :: mlo_down           = 0.0d0
   ! v7 regime rule: per-orbital tail width from the spectral spread of p_j=|S(:,j)|^2.
   !   eww_j = min( max( mlo_ewalpha*sigma_j, mlo_ewmin ), mlo_eww )
