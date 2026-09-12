@@ -158,8 +158,9 @@ contains
             integer:: nocc, itgt
             nocc = count(evl(nskip+1:ndimPMTx) < eferm)
             itgt = min(nskip + nocc + 3, ndimPMTx)
-            efrz = evl(min(nskip+nocc+1,ndimPMTx)) + 0.22d0 ! CBM+3eV (metals: ~EF+3eV): hard-frozen (narrow edge in pmtloop)
-            ecut = max(efrz, evlmto(j)) ! v6.5 final: freeze window + own-orbital floor; evl(nocc+3) arm removed as redundant
+            efrz = -1d99 ! v6.6: single narrow sigmoid (w_frz=w collapses the max); rank carried by the own-orbital floor
+            ecut = max(evl(min(nskip+nocc+1,ndimPMTx)) + 0.22d0, evlmto(j)) ! CBM+3eV window + own-orbital floor
+            ewuse = 0.05d0
             ewuse = eww
           endblock bandenergy5
         endif
