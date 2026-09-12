@@ -216,7 +216,21 @@ contains
                   ! alpha>0: width grows with the spread (localized -> sharp, extended -> broad)
                   ! alpha<0: the inverse (extended -> sharp, localized -> broad). The scan decides
                   ! which direction the data wants; both are one-parameter families around v6.5.
-                  ewuse = min(max(eww + tg_mlo_ewalpha*esig7, tg_mlo_wfrz), eww)
+                  ! alpha>0: proportional form  w_j = clamp( alpha*sigma_win_j, wfrz, eww ).
+                  !   sigma_win_j measures how far orbital j's weight is spread over PMT
+                  !   eigenstates INSIDE the window, i.e. how badly the MTO eigenstate fails
+                  !   to be a single PMT eigenstate. Measured: diamond C sp3 gives 0.2-0.8 eV
+                  !   (the MTO basis is nearly exact there) while Al2O3:Cr gives 0.5-2.4 eV.
+                  !   A well-matched orbital needs no weight above the cut (w -> wfrz, which
+                  !   makes the two stages coincide and removes the upper tail); a strongly
+                  !   mixed one needs the graded tail (w -> eww). This reproduces the measured
+                  !   split (C prefers no tail, Al2O3/Fe prefer it) from S and eps alone.
+                  ! alpha<0: offset form, kept for comparison.
+                  if(tg_mlo_ewalpha > 0d0) then
+                    ewuse = min(max(tg_mlo_ewalpha*esig7, tg_mlo_wfrz), eww)
+                  else
+                    ewuse = min(max(eww + tg_mlo_ewalpha*esig7, tg_mlo_wfrz), eww)
+                  endif
                   ! Make the automatic localized/extended classification visible (first q only).
                   if(regime_report) write(stdo,"(a,i4,3f12.5,a)") ' mlo regime: iorb eMTO-eF(eV) sigma(eV) width(eV) =', &
                        j, (evlmto(j)-eferm)*rydberg(), esig7*rydberg(), ewuse*rydberg(), &
