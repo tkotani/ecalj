@@ -4,14 +4,17 @@
 窓        : VBM-2 eV .. CBM+2 eV (金属は E_F±2 eV)
 対応づけ  : 順序を保つ最適割当 (DP)。縮退・交差・バンド数の差に耐える。
             MLO 模型は DFT より本数が少ないので、順位で揃えると偽の誤差が出る。
-損失      : 2 方向で測る。
+損失      : 一方向では決まらないので、ベクトルで返す。用途によって
+            どれを重んじるかが変わるため、スカラーに潰さない。
 
-  (a) バンド全体      L_band = (ΔE_rms/σ_E)^2 + (Δv/v / σ_v)^2
-                      σ_E = 20 meV, σ_v = 5%。マッチングと微分 (スムーズネス)。
-  (b) CBM の性質      L_edge = (ΔE_gap/σ_gap)^2 + (ln(m*比)/σ_m)^2   (絶縁体のみ)
-                      σ_gap = 10 meV, σ_m = 0.05。m*比 = m*_MLO/m*_DFT。
+  L_win  = (ΔE_rms[窓] /σ_E)^2     窓 VBM-2..CBM+2 eV (金属 EF±2) の一致
+  L_occ  = (ΔE_rms[占有]/σ_E)^2    EF-12..EF-2 eV。窓だけ見ると見落とす
+  L_vel  = (Δv/v / σ_v)^2          分散 (経路方向の勾配)、スムーズネス
+  L_gap  = (ΔE_gap/σ_gap)^2        バンドギャップ       (絶縁体のみ)
+  L_m    = (ln(m*比)/σ_m)^2        CBM 有効質量         (絶縁体のみ)
 
-            L = L_band + L_edge
+  σ_E = 20 meV, σ_v = 0.05, σ_gap = 10 meV, σ_m = 0.05。
+  重みは「その誤差ひとつで 1」と読む。m*比 = m*_MLO/m*_DFT で 1.00 が一致。
 
 注意: m* は補間の質に敏感で、粗い k メッシュでは雑音が乗る。Si では 6^3 の m* が
       1.64 なのに 8^3 で 1.05、10^3 で 0.93 になる (w=0.13)。しかも 6^3 は系統的に
@@ -30,6 +33,7 @@ BASE = os.path.expanduser('~/ecalj/Samples/MLOsamples')
 S_E, V_REL, PAD = 0.020, 0.05, 2.0   # eV, 相対, eV
 S_GAP, S_M = 0.010, 0.05             # eV, ln(m*比)
 DXS = (0.10, 0.15, 0.20)             # m* フィット窓 (経路座標)。中央値を採用
+OCC_LO, OCC_HI = -12.0, -2.0         # eV: 深い占有側の範囲
 
 
 def read_ef(g):
@@ -170,19 +174,30 @@ def evaluate(M, B):
     vr = float(np.sqrt(np.mean(np.array(vref) ** 2))) if vref else 1.0
     rmsE = float(np.sqrt(np.mean(dE ** 2)))
     rmsV = float(np.sqrt(np.mean(dV ** 2))) / vr if vr > 1e-9 else np.nan
-    Lband = (rmsE / S_E) ** 2 + (rmsV / V_REL) ** 2
-    r = dict(rmsE=rmsE, rmsV=rmsV, Lband=Lband, npt=len(dE), win=(lo, hi),
-             gap=None, mstar=None, rough=None, Ledge=0.0)
+    rmsO = rms_range(M, B, OCC_LO, OCC_HI)
+    r = dict(rmsE=rmsE, rmsV=rmsV, rmsO=rmsO, npt=len(dE), win=(lo, hi),
+             gap=None, mstar=None, rough=None,
+             L_win=(rmsE / S_E) ** 2, L_vel=(rmsV / V_REL) ** 2,
+             L_occ=((rmsO / S_E) ** 2 if rmsO == rmsO else np.nan),
+             L_gap=np.nan, L_m=np.nan)
     e = edge_terms(M, B)
     if e is not None:
         gap, ms, rough = e
-        r.update(gap=gap, mstar=ms, rough=rough)
+        r.update(gap=gap, mstar=ms, rough=rough, L_gap=(gap / S_GAP) ** 2)
         if ms == ms and ms > 0:
-            r['Ledge'] = (gap / S_GAP) ** 2 + (np.log(ms) / S_M) ** 2
-        else:
-            r['Ledge'] = (gap / S_GAP) ** 2
-    r['loss'] = r['Lband'] + r['Ledge']
+            r['L_m'] = (np.log(ms) / S_M) ** 2
     return r
+
+
+def rms_range(M, B, lo, hi):
+    """エネルギー範囲 [lo, hi] に限った ΔE rms。窓の外 (深い占有側) を見るのに使う。"""
+    d = []
+    for x in sorted(set(M) & set(B)):
+        b = [e for e in B[x] if lo <= e <= hi]
+        m = [e for e in M[x] if lo <= e <= hi]
+        for a, c in align(m, b):
+            d.append(m[a] - b[c])
+    return float(np.sqrt(np.mean(np.array(d) ** 2))) if d else np.nan
 
 
 def cbm_curvature(P, thr):
@@ -247,22 +262,21 @@ if __name__ == '__main__':
     args = sys.argv[1:]
     if not args:
         sys.exit(f'usage: {os.path.basename(sys.argv[0])} <workdir> [<workdir> ...]')
-    print(f"{'系':20s} {'窓 (eV)':>16s} {'ΔE rms':>8s} {'Δv/v':>8s} {'gap':>7s} "
-          f"{'m*':>6s} {'L_band':>8s} {'L_edge':>8s} {'L':>9s}")
-    tot = []
+    f = lambda v: f'{v:8.1f}' if v == v else '       —'
+    print(f"{'系':20s} {'窓 (eV)':>15s} | "
+          f"{'L_win':>8s} {'L_occ':>8s} {'L_vel':>8s} {'L_gap':>8s} {'L_m':>8s}")
+    print('-' * 82)
     for w in args:
-        p = w if os.path.isdir(w) else os.path.join(BASE, w)
-        name = os.path.basename(p.rstrip('/')).replace('_work', '')
+        p_ = w if os.path.isdir(w) else os.path.join(BASE, w)
+        name = os.path.basename(p_.rstrip('/')).replace('_work', '')
         try:
-            v = eval_workdir(p)
+            v = eval_workdir(p_)
         except Exception as e:
             print(f'{name:20s} (評価不能: {e})'); continue
         if v is None:
             print(f'{name:20s} (データ不足)'); continue
-        g = f"{v['gap']*1000:+7.0f}" if v['gap'] is not None else '      —'
-        m = f"{v['mstar']:6.2f}" if v['mstar'] is not None else '     —'
-        print(f"{name:20s} [{v['win'][0]:6.2f},{v['win'][1]:6.2f}] {v['rmsE']:8.4f} "
-              f"{v['rmsV']:8.3f} {g} {m} {v['Lband']:8.1f} {v['Ledge']:8.1f} {v['loss']:9.1f}")
-        tot.append(v['loss'])
-    if len(tot) > 1:
-        print(f"{'平均':20s} {'':16s} {'':8s} {'':8s} {np.mean(tot):9.1f}")
+        print(f"{name:20s} [{v['win'][0]:6.2f},{v['win'][1]:6.2f}] | "
+              f"{f(v['L_win'])} {f(v['L_occ'])} {f(v['L_vel'])} {f(v['L_gap'])} {f(v['L_m'])}")
+    print()
+    print('L_win 窓内 / L_occ 占有側 EF-12..-2 eV / L_vel 分散 / L_gap ギャップ / L_m 有効質量')
+    print('一方向では決まらないので合計は取らない。用途に応じて重んじる方向を選ぶこと。')
