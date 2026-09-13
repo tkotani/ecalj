@@ -20,10 +20,12 @@ A^{\mathbf{k}}_{n'n''}\,
 \langle\Psi^{\mathrm{MTO}}_{\mathbf{k}n''}|F^{\mathrm{MTO}}_{\mathbf{k}n}\rangle,
 \qquad
 A^{\mathbf{k}}_{n'n''}=S^{\mathbf{k}}_{n'n''}\;\theta^{\mathbf{k}}_{n'n''}
+\tag{1}
 $$
 
 $$
 S^{\mathbf{k}}_{n'n''}=\langle\Psi^{\mathrm{PMT}}_{\mathbf{k}n'}|\Psi^{\mathrm{MTO}}_{\mathbf{k}n''}\rangle
+\tag{2}
 $$
 
 **重み行列(最終形)**: $\theta$ は $n'$(PMT 側)と $n''$(MTO 側)の両方に依存するので $\theta^{\mathbf{k}}_{n'n''}$ と書く。
@@ -35,6 +37,7 @@ $$
 \sigma\!\left(\frac{\epsilon_{\mathbf{k}n'}-e^{\mathrm{cut}}_{\mathbf{k}n''}}{w}\right)
 \right],
 \qquad \sigma(x)=\frac{1}{1+e^{x}}
+\tag{3}
 $$
 
 $$
@@ -42,12 +45,14 @@ $$
 \;\;(\simeq \epsilon_{\mathrm{CBM}}+\Delta;\ \text{金属では}\ E_F+\Delta),
 \qquad
 e^{\mathrm{cut}}_{\mathbf{k}n''}=\max\!\left(\epsilon_{\mathrm{frz}}(\mathbf{k}),\,\epsilon^{\mathrm{MTO}}_{\mathbf{k}n''}\right)
+\tag{4}
 $$
 
 $$
 \boxed{\;\Delta=0.18\,\mathrm{Ry}\ (2.45\,\mathrm{eV}),\qquad
 w_{\mathrm{frz}}=0.10\,\mathrm{Ry}\ (1.36\,\mathrm{eV}),\qquad
 w=0.20\,\mathrm{Ry}\ (2.72\,\mathrm{eV})\;}
+\tag{5}
 $$
 
 入力は $S$、$\epsilon^{\mathrm{PMT}}$、$\epsilon^{\mathrm{MTO}}$、$E_F$ のみ。系ごとの指定は不要
@@ -222,6 +227,7 @@ MLO 側 $m_1\le\cdots\le m_n$ を DFT 側 $b_1\le\cdots\le b_N$ ($n\le N$) に�
 
 $$
 D_{i,j}=\min\bigl(\,D_{i,j-1},\;\;D_{i-1,j-1}+|m_i-b_j|\,\bigr)
+\tag{6}
 $$
 
 第 1 項が「DFT の $b_j$ は模型に対応相手が無い」、第 2 項が「$m_i\leftrightarrow b_j$ を
@@ -236,6 +242,7 @@ $$
 $$
 \Delta\epsilon = m_i-b_j,\qquad
 \Delta v = \frac{m_i(x_+)-m_i(x_-)}{x_+-x_-}-\frac{b_j(x_+)-b_j(x_-)}{x_+-x_-}
+\tag{7}
 $$
 
 (微分は隣接 $k$ 点の中心差分。対応づけは $x_\pm$ でも取り直す。)
@@ -246,6 +253,7 @@ L=\Big(\frac{\langle\Delta\epsilon^2\rangle^{1/2}}{\sigma_E}\Big)^{2}
  +\Big(\frac{\langle\Delta v^2\rangle^{1/2}/\,v_{\rm ref}}{\sigma_v}\Big)^{2},
 \qquad \sigma_E=20\ \mathrm{meV},\quad \sigma_v=0.05
 \;}
+\tag{8}
 $$
 
 $v_{\rm ref}=\langle (db/dx)^2\rangle^{1/2}$ は DFT 側の傾きの rms(速度誤差を相対化する)。

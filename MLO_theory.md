@@ -18,12 +18,14 @@ $$
 =\sum_{n'n''}|\Psi^{\mathrm{PMT}}_{\mathbf{k}n'}\rangle\;
 A^{\mathbf{k}}_{n'n''}\;
 \langle\Psi^{\mathrm{MTO}}_{\mathbf{k}n''}|F^{\mathrm{MTO}}_{\mathbf{k}n}\rangle
+\tag{1}
 $$
 
 $A$ を素の重なり $S$ にすると
 
 $$
 S^{\mathbf{k}}_{n'n''}=\langle\Psi^{\mathrm{PMT}}_{\mathbf{k}n'}|\Psi^{\mathrm{MTO}}_{\mathbf{k}n''}\rangle
+\tag{2}
 $$
 
 $\sum_{n'n''}|\Psi^{\mathrm{PMT}}_{n'}\rangle S_{n'n''}\langle\Psi^{\mathrm{MTO}}_{n''}|$
@@ -32,6 +34,7 @@ $\sum_{n'n''}|\Psi^{\mathrm{PMT}}_{n'}\rangle S_{n'n''}\langle\Psi^{\mathrm{MTO}
 
 $$
 A^{\mathbf{k}}_{n'n''}=S^{\mathbf{k}}_{n'n''}\;\theta^{\mathbf{k}}_{n'n''}
+\tag{3}
 $$
 
 $\theta$ に使える情報は $\varepsilon^{\mathrm{PMT}}_{n'}$、$\varepsilon^{\mathrm{MTO}}_{n''}$、
@@ -51,6 +54,7 @@ $$
 \;\Bigr],
 \qquad
 \sigma(x)=\frac{1}{1+e^{x}}
+\tag{4}
 $$
 
 method 0/1/2 では $\varepsilon_{\mathrm{frz}}=-\infty$ なので **(I) は恒等的に 0**、
@@ -68,6 +72,7 @@ method 3 の窓は
 $$
 \varepsilon_{\mathrm{frz}}=\varepsilon_{\mathrm{CBM}}+\Delta
 \quad(\text{金属では }E_F+\Delta)
+\tag{5}
 $$
 
 つまり **method 3 は「手置きの $e_{\max}$ を、CBM 基準の自動窓に置き換えたもの」**であって、
