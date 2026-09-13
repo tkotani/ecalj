@@ -46,7 +46,7 @@ $$
 | **2** | $\varepsilon^{\mathrm{MTO}}_{n''}$ | 無視 | 自己参照のみ。調整パラメータなし |
 | **1** | $e_{\max}$ | 唯一のカット | 大域カットのみ |
 | **0** | $\max(e_{\max},\varepsilon^{\mathrm{MTO}}_{n''})$ | **床** | 大域の床 + 自己参照 |
-| **4** | $\max(E_F+\Delta,\varepsilon^{\mathrm{MTO}}_{n''})$ | 無視 | 床を自動化した method 0 |
+| **4** | $\max(\varepsilon_{\mathrm{CBM}}+\Delta,\varepsilon^{\mathrm{MTO}}_{n''})$ | 無視 | 床を自動化した method 0 |
 | **3** | $\max(\varepsilon_{\mathrm{frz}},\varepsilon^{\mathrm{MTO}}_{n''})$、第 1 項も有効 | 無視 | 二段シグモイド |
 
 $$
@@ -101,7 +101,8 @@ Fe と RuO₂ でたまたま有用な位置に来たのが「auto で動いて�
 
 ## 3. 固定設定 — method 0, `mlo_emax = 2.449` eV
 
-床を $E_F+\Delta$($\Delta=0.18$ Ry $=2.449$ eV)と置く。物質ごとの入力はゼロ。
+床を $E_F+\Delta$($\Delta=0.18$ Ry $=2.449$ eV)と置く。全物質に同じ値を書くので、
+物質ごとに**変える**調整はゼロ。
 評価窓は $E_F\pm1.5$ eV(課題 1 の目的そのもの)と VBM−2 eV 〜 CBM+2 eV。
 
 | 系 (MTO 数) | $E_F\pm1.5$ | 窓全体 | $\Delta v/v$ | ギャップ誤差 | $m^*$ 比 |
@@ -178,7 +179,7 @@ e^{\mathrm{cut}}_{n''}=\max\bigl(\varepsilon_{\mathrm{CBM}}+\Delta,\;\varepsilon
 $$
 
 $\varepsilon_{\mathrm{CBM}}$ は**大域の**伝導帯下端(金属では $E_F$)。
-パラメータは $\Delta=0.18$ Ry、$w=0.20$ Ry の 2 つだけで、物質ごとの入力は無い。
+パラメータは $\Delta=0.18$ Ry、$w=0.20$ Ry の 2 つだけで、物質ごとに変える調整は無い。
 
 **`mlo_method = 4` として実装済み。** 大域の伝導帯端は新しく計算する必要はなく、
 lmf が SCF の BZ 積分で既に求めて `efermi.lmf` に書いている
@@ -189,7 +190,12 @@ $(\varepsilon_{\mathrm{ecbot}}-E_F)$ として `eferm` に足している
 (`qplist.dat` は零点に `estaticav` を使うことがあるため)。
 `efermi.lmf` が無ければ $E_F$ に落ちる。
 
-物質ごとの入力は `mlo_method = 4` の一行だけ。
+物質ごとに書く**調整パラメータはゼロ**になった。`mlo_emax` を 0 / 5 / 7 / auto と
+使い分ける必要が消え、入力は `mlo_method = 4` の一行だけである。
+
+ただし `Worb`(`[blocks]` 内、どの lm チャネルで MTO 部分空間を作るか)は
+当然ながら物質ごとに要る。これは調整ノブではなく**模型の定義そのもの**で、
+method に関係なく MLO には常に必要なものである。
 
 ### 最終形の結果
 

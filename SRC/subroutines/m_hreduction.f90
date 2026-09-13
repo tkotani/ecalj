@@ -137,11 +137,11 @@ contains
           ecut = evlmto(j)
         elseif(mlomethod==4) then
           ! For target (1): a minimal model that reproduces the energy region
-          ! around EF. method 0 with the hand-set emax replaced by ONE number
-          ! shared by every material:
-          !   ecut_j = max( eferm + mlo_dwin , eps^MTO_j )
-          ! mlo_emax is ignored; mlo_dwin (Ry) is how far above EF the model is
-          ! required to be accurate.
+          ! around EF. method 0 with the hand-set emax replaced by an automatic
+          ! floor, the same rule for every material:
+          !   ecut_j = max( ecbot + mlo_dwin , eps^MTO_j )
+          ! mlo_emax is ignored; mlo_dwin (Ry) is how far above the band edge the
+          ! model is required to be accurate.
           !
           ! Two design points, both measured on the MLOsamples set:
           !  - ONE sigmoid, as in method 0, so eps^MTO_j enters the CUT POSITION.
