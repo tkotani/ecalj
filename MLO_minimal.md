@@ -14,9 +14,27 @@ FeMgO は空格子球が要るので保留(§3)。
 
 ## 1. 最終形
 
-課題 1 の答えは式 (1) である。$\theta^{\mathbf{k}}_{n'n''}$ は PMT 固有状態 $n'$ を
-MTO 固有状態 $n''$ に取り込むときの重みで、一般形と 5 つの method の関係は付録 A、
-そこに至る経緯と実測の根拠は付録 B〜D にある。
+MLO は PMT 基底の恒等分解から、選んだ MTO 部分空間の固有状態
+$\Psi^{\mathrm{MTO}}$ を介して作る:
+
+$$
+|F^{\mathrm{MLO}}_{\mathbf{k}n}\rangle
+=\sum_{n'n''}|\Psi^{\mathrm{PMT}}_{\mathbf{k}n'}\rangle\;
+A^{\mathbf{k}}_{n'n''}\;
+\langle\Psi^{\mathrm{MTO}}_{\mathbf{k}n''}|F^{\mathrm{MTO}}_{\mathbf{k}n}\rangle,
+\qquad
+A^{\mathbf{k}}_{n'n''}=S^{\mathbf{k}}_{n'n''}\,\theta^{\mathbf{k}}_{n'n''}
+\tag{1}
+$$
+
+$$
+S^{\mathbf{k}}_{n'n''}=\langle\Psi^{\mathrm{PMT}}_{\mathbf{k}n'}|\Psi^{\mathrm{MTO}}_{\mathbf{k}n''}\rangle
+\tag{2}
+$$
+
+$A$ を素の重なり $S$ のままにすると恒等演算子になって
+$F^{\mathrm{MLO}}=F^{\mathrm{MTO}}$ に戻ってしまうので、重み $\theta$ を掛ける。
+**この $\theta$ をどう決めるかが問題のすべてで**、課題 1 の答えは式 (3) である。
 
 $$
 \boxed{\;
@@ -24,7 +42,8 @@ $$
 \qquad
 e^{\mathrm{cut}}_{n''}=\max\bigl(\varepsilon_{\mathrm{CBM}}+\Delta,\;\varepsilon^{\mathrm{MTO}}_{n''}\bigr)
 \;}
-\tag{1}
+\qquad \sigma(x)=\frac{1}{1+e^{x}}
+\tag{3}
 $$
 
 $\varepsilon_{\mathrm{CBM}}$ は**大域の**伝導帯下端(金属では $E_F$)。
@@ -208,21 +227,7 @@ $w$ を 0.20 → 0.80 と広げると $E_F\pm1.5$ は 0.0064 → 0.0170 と鈍�
 
 ## 付録 A. 重み行列 — 5 つの method は同じ一本の式
 
-$$
-|F^{\mathrm{MLO}}_{\mathbf{k}n}\rangle
-=\sum_{n'n''}|\Psi^{\mathrm{PMT}}_{\mathbf{k}n'}\rangle\;
-A^{\mathbf{k}}_{n'n''}\;
-\langle\Psi^{\mathrm{MTO}}_{\mathbf{k}n''}|F^{\mathrm{MTO}}_{\mathbf{k}n}\rangle,
-\qquad
-A^{\mathbf{k}}_{n'n''}=S^{\mathbf{k}}_{n'n''}\,\theta^{\mathbf{k}}_{n'n''}
-\tag{2}
-$$
-
-$$
-S^{\mathbf{k}}_{n'n''}=\langle\Psi^{\mathrm{PMT}}_{\mathbf{k}n'}|\Psi^{\mathrm{MTO}}_{\mathbf{k}n''}\rangle
-\tag{3}
-$$
-
+式 (1) の $A=S\theta$ に入る重み $\theta$ の一般形。式 (3) はこの特別な場合である。
 実装 (`m_hreduction.f90`) はどの method でも式 (4) を
 
 $$
