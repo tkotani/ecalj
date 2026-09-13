@@ -109,18 +109,12 @@ module m_GWinput
   real(8), protected, public :: BZadiv             = 1.0d0
   real(8), protected, public :: ene_sppola         = 0.0d0
   real(8), protected, public :: mlo_eww            = 0.2d0
-  ! mlo_tau: cumulative-weight quantile for mlo_method=3 (per-orbital window from p_j=|<PMT|MTO>|^2)
-  real(8), protected, public :: mlo_tau            = 0.90d0
-  ! mlo_method=3 window-scan keys (Ry): target window above CBM, freeze-edge width, own-floor lift
-  real(8), protected, public :: mlo_dwin           = 0.18d0  ! Ry: target window above the CBM (~2.4 eV); scan optimum
-  real(8), protected, public :: mlo_wfrz           = 0.10d0  ! Ry: edge width at that cut (~1.4 eV); scan optimum
-  real(8), protected, public :: mlo_down           = 0.0d0
-  ! v7 regime rule: per-orbital tail width from the spectral spread of p_j=|S(:,j)|^2.
-  !   eww_j = min( max( mlo_ewalpha*sigma_j, mlo_ewmin ), mlo_eww )
-  ! mlo_ewalpha = 0 disables it (single global mlo_eww = v6.5 behaviour).
-  ! Localized orbitals (small sigma) get a sharp cut; wide sp orbitals saturate at mlo_eww.
-  real(8), protected, public :: mlo_ewalpha        = 0.0d0
-  real(8), protected, public :: mlo_ewmin          = 0.05d0
+  ! Window keys (Ry). mlo_dwin is how far above the band edge (EF in metals)
+  ! the model is required to be accurate: mlo_method=4 puts its floor at
+  ! eferm+mlo_dwin, mlo_method=3 at eps_{nocc+1}(k)+mlo_dwin.
+  real(8), protected, public :: mlo_dwin           = 0.18d0  ! Ry (~2.45 eV)
+  real(8), protected, public :: mlo_wfrz           = 0.10d0  ! Ry: freeze-edge width, mlo_method=3 only
+  real(8), protected, public :: mlo_down           = 0.0d0   ! Ry: lift of the own-energy floor, mlo_method=3 only
   real(8), protected, public :: mixbeta            = 1.0d0
   real(8), protected, public :: mixtj              = 0.0d0
   real(8), protected, public :: TFscreen           = 1.0d-5**0.5d0
@@ -436,12 +430,9 @@ contains
     call gv_r(gw, 'BZadiv',             BZadiv)
     call gv_r(gw, 'ene_sppola',         ene_sppola)
     call gv_r(gw, 'mlo_eww',            mlo_eww)
-    call gv_r(gw, 'mlo_tau',            mlo_tau)
     call gv_r(gw, 'mlo_dwin',           mlo_dwin)
     call gv_r(gw, 'mlo_wfrz',           mlo_wfrz)
     call gv_r(gw, 'mlo_down',           mlo_down)
-    call gv_r(gw, 'mlo_ewalpha',        mlo_ewalpha)
-    call gv_r(gw, 'mlo_ewmin',          mlo_ewmin)
     call gv_r(gw, 'mixbeta',            mixbeta)
     call gv_r(gw, 'mixtj',              mixtj)
     call gv_r(gw, 'TFscreen',           TFscreen)

@@ -1,6 +1,5 @@
 module m_hreduction
 use m_cmdopt_registry, only: c0_gs, c0_mlo_diagnorm, c0_mlo_feb4, c0_mlo_ortho, c0_mlo_orthonorm
-logical,private,save:: regime_report=.true. ! print the per-orbital regime classification once (first q)
 contains
   subroutine Hreduction(mlomethod,iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,ovlmout, qp, cmlo,nev, zMLO) !> Reduce H(ndimPMT) to H(ndimMTO)
     ! cmlo= <Psi^MPT i|F^MLO j>
@@ -13,9 +12,9 @@ contains
    use m_keyvalue,only: getkeyvalue
    use m_GWinput, only: gwinput_init, gwinput_loaded, &
                         tg_mlo_nskip => mlo_nskip, tg_mlo_eww => mlo_eww, &
-                        tg_mlo_emax => mlo_emax, tg_mlo_tau => mlo_tau, &
-                        tg_mlo_dwin => mlo_dwin, tg_mlo_wfrz => mlo_wfrz, tg_mlo_down => mlo_down, &
-                        tg_mlo_ewalpha => mlo_ewalpha, tg_mlo_ewmin => mlo_ewmin
+                        tg_mlo_emax => mlo_emax, &
+                        tg_mlo_dwin => mlo_dwin, tg_mlo_wfrz => mlo_wfrz, &
+                        tg_mlo_down => mlo_down
    implicit none
    integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev,nxx,jj,ndimPMTx,nvpmt,mlomethod,nskip,nskipin
    real(8)::beta,emu,val,wgt(ndimPMT),evlmto(ndimMTO),evl(ndimPMT),evlx(ndimPMT),qp(3),eww,eadd
@@ -136,110 +135,48 @@ contains
           ecut = emax
         elseif(mlomethod==2) then
           ecut = evlmto(j)
+        elseif(mlomethod==4) then
+          ! For target (1): a minimal model that reproduces the energy region
+          ! around EF. method 0 with the hand-set emax replaced by ONE number
+          ! shared by every material:
+          !   ecut_j = max( eferm + mlo_dwin , eps^MTO_j )
+          ! mlo_emax is ignored; mlo_dwin (Ry) is how far above EF the model is
+          ! required to be accurate.
+          !
+          ! Two design points, both measured on the MLOsamples set:
+          !  - ONE sigmoid, as in method 0, so eps^MTO_j enters the CUT POSITION.
+          !    method 3 combines two sigmoids with max(), and since eps_frz <=
+          !    ecut_j always holds, eps^MTO_j survives only in the tail and only
+          !    while wfrz < eww. That is the weaker way to use it: at the same
+          !    floor Fe gives 0.017 eV here vs 0.031 eV for method 3.
+          !  - The floor is k-INDEPENDENT. Tracking the lowest unoccupied state
+          !    at each k makes the window mean something different at every k and
+          !    measures much worse on metals (Fe 0.075 eV).
+          ! Referencing the floor to the band edge instead of EF was measured to
+          ! be equivalent (mean 0.0110 vs 0.0111 eV over 10 systems), so EF is
+          ! used and no global CBM is needed.
+          ecut = max(eferm + tg_mlo_dwin, evlmto(j))
         elseif(mlomethod==3) then
-          ! Per-orbital window from MOMENTS of the spectral distribution
-          ! p_j(i)=|<Psi_PMT_i|Psi_MTO_j>|^2 (normalized: sum_i p_j = 1):
-          !   w_j    = max( 0.5*esig_j, 0.01Ry )
-          !   ecut_j = max( emean_j + esig_j,  eferm + 0.15Ry + 2*w_j )
-          ! Moments (not quantiles) are smooth functionals of k, so ecut_j(k) varies
-          ! smoothly along k -- no staircase jumps from discrete spectra. The eferm
-          ! floor guarantees every orbital keeps near-EF eigenstates with theta-bar~1
-          ! (frozen window). Narrow 3d/4f orbitals get tight windows, broad sp
-          ! orbitals wide smooth ones; mixed systems get per-orbital windows with
-          ! no global mlo_emax. (mlo_tau is reserved / unused by this method.)
-          bandenergy5: block
-            ! v5: energy cut at the (nocc+ncb)-th band, broad exponential tail.
-            !   ecut(k) = evl(nocc(k)+3),  width = eww (default 0.2Ry ~ 2.7eV), all orbitals alike.
-            ! Rationale (constraints from v1-v4 experiments):
-            !  - band-counted target: keeps all occupied + lowest ~2-3 conduction bands
-            !    (VBM/CBM neighbourhoods and in-gap localized states such as Cr-d in
-            !    Al2O3 frozen); reproduces the hand-tuned regimes mlo_emax=0 / ~7eV / auto.
-            !  - expressed as the ENERGY of that band -> smooth in k by band continuity.
-            !  - the broad fermidist tail keeps small nonzero weights on the high
-            !    antibonding manifold: rank(A) stays ndimMTO (v4 failed by rank
-            !    deficiency when only nocc+2 states survived a sharp index gate),
-            !    while low-energy states dominate exponentially (~e^-(de/2.7eV)).
-            integer:: nocc, itgt
-            nocc = count(evl(nskip+1:ndimPMTx) < eferm)
-            itgt = min(nskip + nocc + 3, ndimPMTx)
-            ! Parametrized two-stage theta-bar (scan keys mlo_dwin/mlo_wfrz/mlo_down + mlo_eww):
-            !   theta = max( sigma((eps-efrz)/wfrz), sigma((eps-ecut_j)/eww) )
-            !   efrz  = evl(nocc+1) + dwin  (CBM+dwin; ~EF+dwin in metals)
-            !   ecut_j= max(efrz, evlmto_j + down)
-            ! wfrz=eww collapses to a single sigmoid (v6.6 family); defaults reproduce v6.5.
-            ! v8: ONE sigmoid. The two-stage form was mathematically redundant: for any
-            ! orbital whose own energy lies below the freeze edge, ecut_j == efrz, the two
-            ! sigmoids share a centre and max() always selects the wider one -- so only
-            ! max(wfrz,eww) ever acted. Keep the surviving structure explicitly:
-            !   theta_j(eps) = sigma( (eps - ecut_j)/w_j ),
-            !   ecut_j = max( eps_CBM + mlo_dwin, eps^MTO_j + mlo_down ),
-            !   w_j    = clamp( mlo_wfrz + mlo_ewalpha*sigwin_j, mlo_ewmin, mlo_eww ).
-            ! mlo_ewalpha=0 gives the fixed-width rule (grid optimum dwin=0.18, w=0.10 Ry).
-            ! v9: restore the two-stage form -- the experiment showed the single sigmoid's
-            ! width is nearly inert (with the cut far above the occupied states the weights
-            ! scale almost uniformly and the per-orbital normalization removes it), while
-            ! what actually acts is the treatment ABOVE the cut, i.e. the second sigmoid.
-            ! So the regime coefficient is applied to eww, not to wfrz:
-            !   theta_j = max( sigma((eps-efrz)/wfrz), sigma((eps-ecut_j)/w_j) )
-            !   w_j = clamp( mlo_eww + mlo_ewalpha*sigwin_j, mlo_wfrz, mlo_eww )
-            ! With alpha<0 an extended (large sigwin) orbital is pulled from the broad
-            ! d-regime width (mlo_eww=0.20) down towards the sharp sp-regime one
-            ! (mlo_wfrz=0.10), which is the split measured across the samples.
+          ! Two-stage form: a freeze edge at the local conduction edge plus the
+          ! method-0 style per-orbital cut, combined by max().
+          !   theta_j = max( sigma((eps-efrz)/wfrz), sigma((eps-ecut_j)/eww) )
+          !   efrz    = evl(nocc+1) + mlo_dwin        (local band edge + dwin)
+          !   ecut_j  = max( efrz, evl^MTO_j + mlo_down )
+          ! Kept for comparison. Two measured drawbacks vs method 4:
+          !  - efrz <= ecut_j always, so with wfrz = eww the first sigmoid wins
+          !    everywhere and evl^MTO_j drops out entirely; it survives only in
+          !    the tail, and only while wfrz < eww.
+          !  - efrz follows the lowest unoccupied state AT EACH k, so the window
+          !    means something different at every k (Fe: 0.075 eV vs 0.017 eV for
+          !    a k-independent floor at the same height).
+          block
+            integer:: nocc
+            nocc  = count(evl(nskip+1:ndimPMTx) < eferm)
             efrz  = evl(min(nskip+nocc+1,ndimPMTx)) + tg_mlo_dwin
             ecut  = max(efrz, evlmto(j) + tg_mlo_down)
             ewfrz = tg_mlo_wfrz
             ewuse = eww
-            ! v7 (regime rule): the tail width follows the orbital's own spectral spread
-            !   sigma_j from p_j(i)=|<Psi^PMT_i|Psi^MTO_j>|^2  (a smooth, second-moment
-            !   functional of k).  A localized orbital keeps its weight inside the window,
-            !   so a sharp cut is right and a broad tail only mixes in high states; a wide
-            !   sp orbital has its character spread over many bands, so cutting sharply
-            !   truncates itself (rank / graded completeness) and it needs the broad tail.
-            !   Clamped to [mlo_ewmin, mlo_eww], so the two regimes appear as the two
-            !   saturation limits and mixed systems (sp + localized d in one cell) get
-            !   per-orbital treatment. mlo_ewalpha=0 restores the single global width.
-            if(abs(tg_mlo_ewalpha) > 0d0) then
-              regime7: block
-                real(8):: pj(ndimPMTx), wtot7, emean7, esig7
-                pj = abs(fac(1:ndimPMTx,j))**2
-                if(nskip>0) pj(1:nskip) = 0d0
-                wtot7 = sum(pj)
-                ! Restrict to eps <= ecut: the unrestricted second moment is dominated by
-                ! the free-electron tail (sigma ~ 8-10 eV for EVERY orbital) and carries no
-                ! localized/extended information at all. Inside the window it does: a d/f
-                ! orbital sits in a narrow band, an sp orbital spans the whole valence range.
-                where(evl(1:ndimPMTx) > ecut) pj = 0d0
-                wtot7 = sum(pj)
-                if(wtot7 > 1d-8) then
-                  emean7 = sum(pj*evl(1:ndimPMTx))/wtot7
-                  esig7  = sqrt(max(sum(pj*(evl(1:ndimPMTx)-emean7)**2)/wtot7, 0d0))
-                  ! alpha>0: width grows with the spread (localized -> sharp, extended -> broad)
-                  ! alpha<0: the inverse (extended -> sharp, localized -> broad). The scan decides
-                  ! which direction the data wants; both are one-parameter families around v6.5.
-                  ! alpha>0: proportional form  w_j = clamp( alpha*sigma_win_j, wfrz, eww ).
-                  !   sigma_win_j measures how far orbital j's weight is spread over PMT
-                  !   eigenstates INSIDE the window, i.e. how badly the MTO eigenstate fails
-                  !   to be a single PMT eigenstate. Measured: diamond C sp3 gives 0.2-0.8 eV
-                  !   (the MTO basis is nearly exact there) while Al2O3:Cr gives 0.5-2.4 eV.
-                  !   A well-matched orbital needs no weight above the cut (w -> wfrz, which
-                  !   makes the two stages coincide and removes the upper tail); a strongly
-                  !   mixed one needs the graded tail (w -> eww). This reproduces the measured
-                  !   split (C prefers no tail, Al2O3/Fe prefer it) from S and eps alone.
-                  ! alpha<0: offset form, kept for comparison.
-                  if(tg_mlo_ewalpha > 0d0) then
-                    ewuse = min(max(tg_mlo_ewalpha*esig7, tg_mlo_wfrz), eww)
-                  else
-                    ewuse = min(max(eww + tg_mlo_ewalpha*esig7, tg_mlo_wfrz), eww)
-                  endif
-                  ! Make the automatic localized/extended classification visible (first q only).
-                  if(regime_report) write(stdo,"(a,i4,3f12.5,a)") ' mlo regime: iorb eMTO-eF(eV) sigma(eV) width(eV) =', &
-                       j, (evlmto(j)-eferm)*rydberg(), esig7*rydberg(), ewuse*rydberg(), &
-                       merge('  localized','  extended ', ewuse < 0.5d0*(tg_mlo_ewmin+eww))
-                endif
-              endblock regime7
-            endif
-            ewuse = eww
-          endblock bandenergy5
+          endblock
         endif
         pmtloop: do i=nskip+1,ndimPMTx
           Amat(i,j)= fac(i,j) * max( fermidist((evl(i)-efrz)/ewfrz), fermidist((evl(i)-ecut)/ewuse) )
@@ -247,7 +184,6 @@ contains
           ! curvature undistorted), the usual broad eww tail outside (rank + graded completeness).
         enddo pmtloop
       enddo mloloop
-      regime_report=.false.
       Amat(1:nskip,:)=0d0
 ! do we need GramSchmidt orthogonalizaition? We expect lower is enphasized more for mode0 and for mode2.
       if(c0_gs) call GramSchmidt(ndimPMTx,ndimMTO,Amat) !Amat= ¥bar{<Psi_PMT_i |Psi_MTO j>}
