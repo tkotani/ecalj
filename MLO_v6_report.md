@@ -1,6 +1,6 @@
 # MLO 自動窓 — `mlo_method = 3` の探索記録
 
-ecalj branch `mlo3` / MLOsamples 16 系 / 2026-09-13
+ecalj branch `mlo3` / MLOsamples 16 系 / 2026-09-13 14:00 JST(探索記録。確定形ではない)
 
 > **注意: 本書の `mlo_method = 3`(二段シグモイド)は採用されなかった。**
 > 確定形は単一シグモイドの `mlo_method = 4` で、
