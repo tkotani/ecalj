@@ -5,7 +5,7 @@ contains
     ! cmlo= <Psi^MPT i|F^MLO j>
    use m_zhev,only:zhev_tk4
    use m_nvfortran, only: findloc
-   use m_readqplist,only: eferm
+   use m_readqplist,only: eferm, ecbot
 !   use m_HamPMT,only: GramSchmidt!,epsovl
    use m_lgunit,only:stdo
    use m_lmfinit,only:oveps
@@ -152,10 +152,13 @@ contains
           !  - The floor is k-INDEPENDENT. Tracking the lowest unoccupied state
           !    at each k makes the window mean something different at every k and
           !    measures much worse on metals (Fe 0.075 eV).
-          ! Referencing the floor to the band edge instead of EF was measured to
-          ! be equivalent (mean 0.0110 vs 0.0111 eV over 10 systems), so EF is
-          ! used and no global CBM is needed.
-          ecut = max(eferm + tg_mlo_dwin, evlmto(j))
+          ! The floor is referenced to the global conduction edge ecbot, not to
+          ! EF. For metals and narrow gaps the two coincide, but a wide gap needs
+          ! the floor ABOVE the CBM or the CBM is left unconstrained: Al2O3:Cr
+          ! (CBM at EF+6.2 eV) gives a gap error of -128 meV from EF+dwin and
+          ! +7 meV from ecbot+dwin (m* ratio 0.58 -> 1.08). That is what the
+          ! hand-set mlo_emax = 7 eV in the sample was doing.
+          ecut = max(ecbot + tg_mlo_dwin, evlmto(j))
         elseif(mlomethod==3) then
           ! Two-stage form: a freeze edge at the local conduction edge plus the
           ! method-0 style per-orbital cut, combined by max().

@@ -424,6 +424,12 @@ module m_readqplist
   integer,protected:: ndat
   real(8),allocatable,protected:: xdat(:),qplistsy(:,:)
   real(8),protected:: eferm !<-- temporary use. just as a memo.
+  !> Global conduction-band edge, on the same zero as eferm above.
+  !  Metals give the lowest state just above EF, insulators the CBM, so one
+  !  quantity covers both. Read from efermi.lmf as the OFFSET ecbot-eferm and
+  !  added to eferm here, because qplist.dat may use estaticav as its zero.
+  !  Falls back to eferm when efermi.lmf is absent.
+  real(8),protected:: ecbot
 contains
   subroutine readqplistsy()
     implicit none
@@ -446,5 +452,22 @@ contains
 1011 continue
     ndat=ix-1
     close(ifqplistsy)
+    call readbandedge()
   end subroutine readqplistsy
+
+  subroutine readbandedge()
+    implicit none
+    integer:: ifi
+    real(8):: eferm_f, evtop_f, ecbot_f
+    logical:: file_exists
+    ecbot = eferm
+    inquire(file='efermi.lmf', exist=file_exists)
+    if(.not.file_exists) return
+    open(newunit=ifi,file='efermi.lmf',status='old')
+    read(ifi,*,err=1013,end=1013) eferm_f   ! eferm (+vmag on the same record)
+    read(ifi,*,err=1013,end=1013) evtop_f   ! top of valence
+    read(ifi,*,err=1013,end=1013) ecbot_f   ! bottom of conduction
+    ecbot = eferm + (ecbot_f - eferm_f)
+1013 close(ifi)
+  end subroutine readbandedge
 end module m_readqplist
