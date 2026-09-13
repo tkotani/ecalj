@@ -108,13 +108,20 @@ module m_GWinput
   ! Reals
   real(8), protected, public :: BZadiv             = 1.0d0
   real(8), protected, public :: ene_sppola         = 0.0d0
-  real(8), protected, public :: mlo_eww            = 0.2d0
-  ! Window keys (Ry). mlo_dwin is how far above the band edge (EF in metals)
-  ! the model is required to be accurate: mlo_method=4 puts its floor at
-  ! eferm+mlo_dwin, mlo_method=3 at eps_{nocc+1}(k)+mlo_dwin.
-  real(8), protected, public :: mlo_dwin           = 0.18d0  ! Ry (~2.45 eV)
-  real(8), protected, public :: mlo_wfrz           = 0.10d0  ! Ry: freeze-edge width, mlo_method=3 only
-  real(8), protected, public :: mlo_down           = 0.0d0   ! Ry: lift of the own-energy floor, mlo_method=3 only
+  ! All mlo_* energies are in eV, like mlo_emax.
+  ! mlo_dwin: how far ABOVE the band edge (the global CBM; EF in metals) the model
+  !   is required to be accurate. mlo_method=4 puts its floor at ecbot+mlo_dwin.
+  !   This is a STATEMENT OF WHAT YOU WANT, not a fitting parameter: set it to the
+  !   top of the energy window you care about, and evaluate in that same window.
+  ! mlo_eww: width of the sigmoid that falls off above that floor. THIS is the knob
+  !   to turn when the residual is too large. Measured optima (eV): semiconductors
+  !   ~1.8-2.0, single-atom transition metals Fe/Cu ~11, RuO2 ~1.8.
+  ! Defaults 2.0/2.0 eV beat the earlier 2.45/2.72 on the sample set
+  !   (window rms 16.9 -> 15.0 meV, occupied side 11.6 -> 7.4 meV, |gap| 16 -> 13 meV).
+  real(8), protected, public :: mlo_eww            = 2.0d0    ! eV
+  real(8), protected, public :: mlo_dwin           = 2.0d0    ! eV
+  real(8), protected, public :: mlo_wfrz           = 1.36d0   ! eV: freeze-edge width, mlo_method=3 only
+  real(8), protected, public :: mlo_down           = 0.0d0    ! eV: own-energy floor lift, mlo_method=3 only
   real(8), protected, public :: mixbeta            = 1.0d0
   real(8), protected, public :: mixtj              = 0.0d0
   real(8), protected, public :: TFscreen           = 1.0d-5**0.5d0

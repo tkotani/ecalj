@@ -52,7 +52,7 @@ contains
       use m_nvfortran,only : findloc
       use m_ftox
       integer:: ie,nidxevlmto,nidxevl,ibx,jx,idxevlmto(ndimMTO),idxevl(ndimPMT),jbx,nval,nnn,imx,nbx,ii
-      real(8):: eee,fffx,ecut,xxx,rydberg,facww,sss,fff,epscore,emax,alpha,emin,ww(ndimPMTx),dex,ddd,ewuse,efrz,ewfrz !,ewcutf
+      real(8):: eee,fffx,ecut,xxx,rydberg,facww,sss,fff,epscore,emax,alpha,emin,ww(ndimPMTx),dex,ddd,ewuse,efrz,ewfrz,dwin,wfrz,down !,ewcutf
       real(8),allocatable::mulfac(:,:),mulfacw(:,:)
       complex(8):: imag=(0d0,1d0)
       ! Assert block for normalization check
@@ -107,7 +107,11 @@ contains
       ! When P = \sum_i \sum_j |Psi^PMT_i> <Psi^PMT_i|Psi^MTO_j> <Psi^MTO_j|, we have |F^MTO_k>=  P| F^MTO_k>. That is P is identical operator.
       ! Instead of <Psi^PMT_i|Psi^MTO_j>, we use Amat which is a modified version.
       if (gwinput_loaded) then
-         eww = tg_mlo_eww
+         ! mlo_* keys are all in eV (like mlo_emax). Convert once, here.
+         eww   = tg_mlo_eww  /rydberg()
+         dwin  = tg_mlo_dwin /rydberg()
+         wfrz  = tg_mlo_wfrz /rydberg()
+         down  = tg_mlo_down /rydberg()
       else
          call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
 !         call getkeyvalue("GWinput","mlo_eww",eww,default=0.2d0) !smoothing cutoff
@@ -158,7 +162,7 @@ contains
           ! (CBM at EF+6.2 eV) gives a gap error of -128 meV from EF+dwin and
           ! +7 meV from ecbot+dwin (m* ratio 0.58 -> 1.08). That is what the
           ! hand-set mlo_emax = 7 eV in the sample was doing.
-          ecut = max(ecbot + tg_mlo_dwin, evlmto(j))
+          ecut = max(ecbot + dwin, evlmto(j))
         elseif(mlomethod==3) then
           ! Two-stage form: a freeze edge at the local conduction edge plus the
           ! method-0 style per-orbital cut, combined by max().
@@ -175,9 +179,9 @@ contains
           block
             integer:: nocc
             nocc  = count(evl(nskip+1:ndimPMTx) < eferm)
-            efrz  = evl(min(nskip+nocc+1,ndimPMTx)) + tg_mlo_dwin
-            ecut  = max(efrz, evlmto(j) + tg_mlo_down)
-            ewfrz = tg_mlo_wfrz
+            efrz  = evl(min(nskip+nocc+1,ndimPMTx)) + dwin
+            ecut  = max(efrz, evlmto(j) + down)
+            ewfrz = wfrz
             ewuse = eww
           endblock
         endif
