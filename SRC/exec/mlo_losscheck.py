@@ -43,7 +43,11 @@ def read_ef(g):
 
 
 def load_mlo(fn, ef):
-    d = {}
+    """band_MLO_spin*.dat を読む。列は x, E(Ry), スピン, バンド番号。
+    経路セグメントの継ぎ目の k は 2 回書かれる (バンド番号 1..n が 2 周する) ので、
+    (k, バンド番号) で重複を落とす。落とさないと Si は 92 k 点中 5 点だけ
+    18 本でなく 36 本になり、準位の対応づけが壊れる。"""
+    d, seen = {}, set()
     for l in open(fn):
         if l.lstrip().startswith('#'):
             continue
@@ -51,9 +55,15 @@ def load_mlo(fn, ef):
         if len(t) < 2:
             continue
         try:
-            d.setdefault(round(float(t[0]), 5), []).append((float(t[1]) - ef) * RY)
+            x, e = round(float(t[0]), 5), (float(t[1]) - ef) * RY
         except ValueError:
-            pass
+            continue
+        if len(t) >= 4:
+            key = (x, t[3])
+            if key in seen:
+                continue
+            seen.add(key)
+        d.setdefault(x, []).append(e)
     for k in d:
         d[k].sort()
     return d
