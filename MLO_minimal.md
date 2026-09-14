@@ -132,6 +132,28 @@ $m^*$ 1.41 → 1.03)で、$6^3$ の値は補間の雑音を含む。
 $w$ を最適化すれば 14.9 / 8.5 meV まで下がる(§3)。
 **NiO の占有側 18.4 meV** は窓内 15.8 meV より大きく、窓だけ見ていたら見落とす種類の誤差である。
 
+### 代表図 — Si と Fe
+
+![Si](MLO_minimal_figs/pub_Si.png)
+
+Si(19 MTO = 2 原子 × sp³d⁵)。左が目的窓、右が MLO 模型が伸びきる全域。
+斜線が目的窓($\mathrm{VBM}-2$ eV 〜 $\mathrm{CBM}+\Delta$)。
+窓の中は赤 × が灰線に完全に乗り、窓の外でも 28 eV まで滑らかに続く。
+
+![Fe](MLO_minimal_figs/pub_Fe.png)
+
+Fe(9 MTO = sp³d⁵)。majority と minority を並べた。**両スピンとも同等に乗る**:
+
+| Fe | $\delta E_{\rm win}$ | $\delta E_{\rm occ}$ | $\delta v/v$ |
+|---|---:|---:|---:|
+| majority | 19.8 meV | 12.9 meV | 0.044 |
+| minority | 17.1 meV | 18.4 meV | 0.025 |
+
+FeCo も同様(majority 8.3 / minority 4.6 meV)、NiO は両スピン同値。
+**磁性系でスピンによる偏りは出ていない。**
+金属なので目的窓は $E_F-2$ eV 〜 $E_F+\Delta$。$E_F$ を横切る sp バンドは
+ゾーン境界の 32 eV まで追えている。
+
 ### 高エネルギー側 — トランケーションは滑らか
 
 MLO 模型は MTO 部分空間の次元しかバンドを持たないので、どこかで DFT から離れる。
