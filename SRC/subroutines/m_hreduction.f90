@@ -108,7 +108,13 @@ contains
       ! Instead of <Psi^PMT_i|Psi^MTO_j>, we use Amat which is a modified version.
       if (gwinput_loaded) then
          ! mlo_* keys are all in eV (like mlo_emax). Convert once, here.
-         eww   = tg_mlo_eww  /rydberg()
+         ! mlo_eww absent: method 4 takes 2.0 eV (optimized for it), the older
+         ! methods take 0.2 Ry so the shipped samples reproduce exactly.
+         if (tg_mlo_eww == huge(0d0)) then
+            eww = merge(2.0d0, 0.2d0*rydberg(), mlomethod == 4)/rydberg()
+         else
+            eww = tg_mlo_eww/rydberg()
+         endif
          dwin  = tg_mlo_dwin /rydberg()
          wfrz  = tg_mlo_wfrz /rydberg()
          down  = tg_mlo_down /rydberg()

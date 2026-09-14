@@ -118,7 +118,11 @@ module m_GWinput
   !   ~1.8-2.0, single-atom transition metals Fe/Cu ~11, RuO2 ~1.8.
   ! Defaults 2.0/2.0 eV beat the earlier 2.45/2.72 on the sample set
   !   (window rms 16.9 -> 15.0 meV, occupied side 11.6 -> 7.4 meV, |gap| 16 -> 13 meV).
-  real(8), protected, public :: mlo_eww            = 2.0d0    ! eV
+  ! mlo_eww default is METHOD-DEPENDENT and resolved in m_hreduction:
+  !   mlo_method=4 -> 2.0 eV (the value optimized for it)
+  !   mlo_method=0/1/2/3 -> 2.7211 eV (= 0.2 Ry, the historical value, so that the
+  !     shipped samples and their reference band files are reproduced exactly).
+  real(8), protected, public :: mlo_eww            = huge(0d0) ! sentinel: key absent
   real(8), protected, public :: mlo_dwin           = 2.0d0    ! eV
   real(8), protected, public :: mlo_wfrz           = 1.36d0   ! eV: freeze-edge width, mlo_method=3 only
   real(8), protected, public :: mlo_down           = 0.0d0    ! eV: own-energy floor lift, mlo_method=3 only
