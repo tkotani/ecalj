@@ -81,6 +81,24 @@ $(\varepsilon_{\mathrm{ecbot}}-E_F)$ として `eferm` に足している
 当然ながら物質ごとに要る。これは調整ノブではなく**模型の定義そのもの**で、
 method に関係なく MLO には常に必要なものである。
 
+### 入力キー
+
+`gwinit` が生成する `ctrlg.<sname>.toml` の `[gw]` に、既定値が陽に書き出される:
+
+```toml
+mlo_method = 4      # theta = sigma((eps - ecut_j)/mlo_w),
+                    #   ecut_j = max(CBM + mlo_delta, eps^MTO_j)
+mlo_delta  = 2.0    # (eV) how far above the band edge (EF in metals) the
+                    #   model must be accurate. A statement of what you want,
+                    #   not a fitting parameter: match it to your target window.
+mlo_w      = 2.0    # (eV) width of the fall-off above that floor. THIS is the
+                    #   knob to turn if the residual is too large. Measured
+                    #   optima: semiconductors ~2, Fe/Cu-like metals ~11.
+```
+
+$\Delta$ が `mlo_delta`、$w$ が `mlo_w` で、**単位はすべて eV**
+(`mlo_emax` が元から eV なので `mlo_*` が揃う)。
+
 ---
 
 ## 2. 結果
@@ -114,6 +132,45 @@ $m^*$ 1.41 → 1.03)で、$6^3$ の値は補間の雑音を含む。
 **C.sp と Cu が既定では合わない**(窓 26.7 / 31.0 meV)が、どちらも $w$ を上げたい側の系で、
 $w$ を最適化すれば 14.9 / 8.5 meV まで下がる(§3)。
 **NiO の占有側 18.4 meV** は窓内 15.8 meV より大きく、窓だけ見ていたら見落とす種類の誤差である。
+
+### 高エネルギー側 — トランケーションは滑らか
+
+MLO 模型は MTO 部分空間の次元しかバンドを持たないので、どこかで DFT から離れる。
+その離れ方がリンギングになっていないかを見るため、**MLO が伸びきるところまで**描いた
+(図は `<系>_full.png`。左が目的窓、右が全域、青点線が床 $\varepsilon_{\rm CBM}+\Delta$)。
+
+| 系 (MTO 数) | MLO が伸びる上限 | DFT の上限 |
+|---|---:|---:|
+| C (sp のみ, 8) | 16.8 eV | 124.5 eV |
+| Fe (spd, 9) | 31.9 eV | 124.6 eV |
+| Si (19) | 28.8 eV | 108.3 eV |
+| C (spd, 19) | 86.1 eV | 151.4 eV |
+| Al₂O₃:Cr (53) | 32.0 eV | 141.1 eV |
+
+床の上でも MLO バンドは連続な曲線で、折れや振動は見えない。数値でも確かめた
+— バンドに沿った $|d^2E/dx^2|$ の中央値(eV、括弧内は DFT の同じ量):
+
+| 系 | −10..0 | 0..3 | 3..8 | 8..15 | 15..25 | 25..40 |
+|---|---|---|---|---|---|---|
+| Si | 7.9 (8.1) | 12.5 (9.2) | 15.9 (14.2) | 24.2 (21.8) | 30.3 (45.1) | 20.4 (45.9) |
+| Fe | 12.4 (10.2) | 45.8 (20.4) | 37.8 (24.5) | 41.3 (36.3) | 94.2 (54.8) | **216.3 (79.4)** |
+| GaAs | 7.6 (6.5) | 15.7 (11.4) | 13.8 (13.4) | 24.4 (20.7) | 46.2 (37.4) | 36.4 (59.5) |
+| Al₂O₃:Cr | 207.6 (138.2) | — | 62.8 (42.1) | 367.2 (216.7) | 307.7 (240.6) | 338.5 (586.1) |
+
+Si・GaAs・Al₂O₃:Cr は**高エネルギー側で MLO の曲率が DFT を下回る**
+(Si は 20 対 46)。リンギングどころか DFT より滑らかである。
+**Fe だけが 25 eV 超で 216 対 79 と 2.7 倍**になる。spd 9 軌道しかない模型が
+32 eV まで引き伸ばされている領域で、模型の容量を超えている。
+目的の窓($E_F$ 近傍)には影響しない。
+
+![Si full](MLO_minimal_figs/Si666gwsc__m3_full.png)
+
+Si — 床(+3 eV)まで完全に一致し、その上は DFT から離れつつ 28 eV まで滑らかに伸びる。
+
+![Fe full](MLO_minimal_figs/Fe__m3_full.png)
+
+Fe — $E_F$ を横切る sp バンドをゾーン境界の 32 eV まで追えている。
+17–25 eV で DFT から離れるが曲線としては滑らか。
 
 ### バンドプロット(灰線: 第一原理 PMT、赤 ×: MLO)
 
@@ -292,9 +349,9 @@ $H(\mathbf{R})$ 打ち切りの超格子依存性なので、**2 つのメッシ
 3. **残差が大きければ $w$ だけを動かす。** 1 次元で足りる。実測の最適値は
    半導体 1.8–2.0 eV、Fe・Cu のような単原子遷移金属 11 eV、RuO₂ 1.8 eV。
 
-> `mlo_eww` の既定は **method 依存**にしてある。`mlo_method = 4` では 2.0 eV、
+> `mlo_w` の既定は **method 依存**にしてある。`mlo_method = 4` では 2.0 eV、
 > 旧 method 0/1/2/3 では 2.72 eV(= 0.2 Ry の従来値)。旧 method を使う
-> 既存サンプルの結果とその参照ファイルを変えないためで、`mlo_eww` を明示すれば
+> 既存サンプルの結果とその参照ファイルを変えないためで、`mlo_w` を明示すれば
 > どの method でもその値が使われる。
 
 $\Delta$ の効きは $w$ よりはるかに弱い。$\Delta$ を 1→4 eV と振っても誤差の変化は

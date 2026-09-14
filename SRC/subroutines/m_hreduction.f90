@@ -11,9 +11,9 @@ contains
    use m_lmfinit,only:oveps
    use m_keyvalue,only: getkeyvalue
    use m_GWinput, only: gwinput_init, gwinput_loaded, &
-                        tg_mlo_nskip => mlo_nskip, tg_mlo_eww => mlo_eww, &
+                        tg_mlo_nskip => mlo_nskip, tg_mlo_w => mlo_w, &
                         tg_mlo_emax => mlo_emax, &
-                        tg_mlo_dwin => mlo_dwin, tg_mlo_wfrz => mlo_wfrz, &
+                        tg_mlo_delta => mlo_delta, tg_mlo_wfrz => mlo_wfrz, &
                         tg_mlo_down => mlo_down
    implicit none
    integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev,nxx,jj,ndimPMTx,nvpmt,mlomethod,nskip,nskipin
@@ -108,19 +108,19 @@ contains
       ! Instead of <Psi^PMT_i|Psi^MTO_j>, we use Amat which is a modified version.
       if (gwinput_loaded) then
          ! mlo_* keys are all in eV (like mlo_emax). Convert once, here.
-         ! mlo_eww absent: method 4 takes 2.0 eV (optimized for it), the older
+         ! mlo_w absent: method 4 takes 2.0 eV (optimized for it), the older
          ! methods take 0.2 Ry so the shipped samples reproduce exactly.
-         if (tg_mlo_eww == huge(0d0)) then
+         if (tg_mlo_w == huge(0d0)) then
             eww = merge(2.0d0, 0.2d0*rydberg(), mlomethod == 4)/rydberg()
          else
-            eww = tg_mlo_eww/rydberg()
+            eww = tg_mlo_w/rydberg()
          endif
-         dwin  = tg_mlo_dwin /rydberg()
+         dwin  = tg_mlo_delta /rydberg()
          wfrz  = tg_mlo_wfrz /rydberg()
          down  = tg_mlo_down /rydberg()
       else
          call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
-!         call getkeyvalue("GWinput","mlo_eww",eww,default=0.2d0) !smoothing cutoff
+!         call getkeyvalue("GWinput","mlo_w",eww,default=0.2d0) !smoothing cutoff
       endif
       emax = evl(ndimMTO+nskip) - eferm   ! emax is the max of evl at ndimMTO+nskip. This is mainly useful for localized bands range.
 !      emax = evlmto(ndimMTO) - eferm
@@ -149,8 +149,8 @@ contains
           ! For target (1): a minimal model that reproduces the energy region
           ! around EF. method 0 with the hand-set emax replaced by an automatic
           ! floor, the same rule for every material:
-          !   ecut_j = max( ecbot + mlo_dwin , eps^MTO_j )
-          ! mlo_emax is ignored; mlo_dwin (Ry) is how far above the band edge the
+          !   ecut_j = max( ecbot + mlo_delta , eps^MTO_j )
+          ! mlo_emax is ignored; mlo_delta (Ry) is how far above the band edge the
           ! model is required to be accurate.
           !
           ! Two design points, both measured on the MLOsamples set:
@@ -173,7 +173,7 @@ contains
           ! Two-stage form: a freeze edge at the local conduction edge plus the
           ! method-0 style per-orbital cut, combined by max().
           !   theta_j = max( sigma((eps-efrz)/wfrz), sigma((eps-ecut_j)/eww) )
-          !   efrz    = evl(nocc+1) + mlo_dwin        (local band edge + dwin)
+          !   efrz    = evl(nocc+1) + mlo_delta        (local band edge + dwin)
           !   ecut_j  = max( efrz, evl^MTO_j + mlo_down )
           ! Kept for comparison. Two measured drawbacks vs method 4:
           !  - efrz <= ecut_j always, so with wfrz = eww the first sigmoid wins

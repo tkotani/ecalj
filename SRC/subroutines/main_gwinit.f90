@@ -90,6 +90,17 @@ contains
     write(ifi,'(a)') '# ----- Q for dielectric eps -----'
     write(ifi,'(a)') 'QforEPSau = true    # interpret <QforEPS> as a.u.'
     write(ifi,'(a)')
+    write(ifi,'(a)') '# ----- MLO (Muffin-tin based Localized Orbitals) -----'
+    write(ifi,'(a)') '# Needs a Worb block in [blocks] naming the lm channels of the model.'
+    write(ifi,'(a)') 'mlo_method = 4      # theta = sigma((eps - ecut_j)/mlo_w),'
+    write(ifi,'(a)') '                    #   ecut_j = max(CBM + mlo_delta, eps^MTO_j)'
+    write(ifi,'(a)') 'mlo_delta  = 2.0    # (eV) how far above the band edge (EF in metals) the'
+    write(ifi,'(a)') '                    #   model must be accurate. A statement of what you want,'
+    write(ifi,'(a)') '                    #   not a fitting parameter: match it to your target window.'
+    write(ifi,'(a)') 'mlo_w      = 2.0    # (eV) width of the fall-off above that floor. THIS is the'
+    write(ifi,'(a)') '                    #   knob to turn if the residual is too large. Measured'
+    write(ifi,'(a)') '                    #   optima: semiconductors ~2, Fe/Cu-like metals ~11.'
+    write(ifi,'(a)')
     write(ifi,'(a)') '# ----- Wannier (uncomment to use) -----'
     write(ifi,'(a)') '# wan_out_emin  = -1.05   # eV relative to EFermi'
     write(ifi,'(a)') '# wan_out_emax  =  2.4'

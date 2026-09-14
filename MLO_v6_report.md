@@ -327,5 +327,5 @@ FeMgO スラブ — 二相系。rms 0.054 eV。MTO エンベロープ(減衰長 
 
 再現: branch `mlo3` / `mlo_method = 3`(既定値のみ)/ ベンチ `Samples/MLOsamples/*__m3`
 (+ `Cu__spd`, `Si666gwsc__m3k8/k10`)/ 評価 `SRC/exec/mlo_bandcheck.py`。
-走査用キー `mlo_dwin` / `mlo_wfrz` / `mlo_eww` / `mlo_down` / `mlo_ewalpha` / `mlo_ewmin` は
+走査用キー `mlo_dwin` (現 `mlo_delta`) / `mlo_wfrz` / `mlo_eww` (現 `mlo_w`) / `mlo_down` / `mlo_ewalpha` / `mlo_ewmin` は
 再調査用に残してある(既定値が最適値)。

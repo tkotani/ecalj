@@ -82,7 +82,7 @@ module m_GWinput
 
   ! Wannier-related
   ! mlo_method: how the weight theta in A = S*theta is built (see m_hreduction).
-  !   4 (default, recommended) ecut_j = max(ecbot + mlo_dwin, eps^MTO_j), one sigmoid.
+  !   4 (default, recommended) ecut_j = max(ecbot + mlo_delta, eps^MTO_j), one sigmoid.
   !                            No per-material input; mlo_emax is ignored.
   !   0/1/2  legacy, one sigmoid with a hand-set mlo_emax as the floor (0), the only
   !          cut (1), or no floor at all (2, the orbital's own energy).
@@ -117,21 +117,21 @@ module m_GWinput
   real(8), protected, public :: BZadiv             = 1.0d0
   real(8), protected, public :: ene_sppola         = 0.0d0
   ! All mlo_* energies are in eV, like mlo_emax.
-  ! mlo_dwin: how far ABOVE the band edge (the global CBM; EF in metals) the model
-  !   is required to be accurate. mlo_method=4 puts its floor at ecbot+mlo_dwin.
+  ! mlo_delta: how far ABOVE the band edge (the global CBM; EF in metals) the model
+  !   is required to be accurate. mlo_method=4 puts its floor at ecbot+mlo_delta.
   !   This is a STATEMENT OF WHAT YOU WANT, not a fitting parameter: set it to the
   !   top of the energy window you care about, and evaluate in that same window.
-  ! mlo_eww: width of the sigmoid that falls off above that floor. THIS is the knob
+  ! mlo_w: width of the sigmoid that falls off above that floor. THIS is the knob
   !   to turn when the residual is too large. Measured optima (eV): semiconductors
   !   ~1.8-2.0, single-atom transition metals Fe/Cu ~11, RuO2 ~1.8.
   ! Defaults 2.0/2.0 eV beat the earlier 2.45/2.72 on the sample set
   !   (window rms 16.9 -> 15.0 meV, occupied side 11.6 -> 7.4 meV, |gap| 16 -> 13 meV).
-  ! mlo_eww default is METHOD-DEPENDENT and resolved in m_hreduction:
+  ! mlo_w default is METHOD-DEPENDENT and resolved in m_hreduction:
   !   mlo_method=4 -> 2.0 eV (the value optimized for it)
   !   mlo_method=0/1/2/3 -> 2.7211 eV (= 0.2 Ry, the historical value, so that the
   !     shipped samples and their reference band files are reproduced exactly).
-  real(8), protected, public :: mlo_eww            = huge(0d0) ! sentinel: key absent
-  real(8), protected, public :: mlo_dwin           = 2.0d0    ! eV
+  real(8), protected, public :: mlo_w            = huge(0d0) ! sentinel: key absent
+  real(8), protected, public :: mlo_delta           = 2.0d0    ! eV
   real(8), protected, public :: mlo_wfrz           = 1.36d0   ! eV: freeze-edge width, mlo_method=3 only
   real(8), protected, public :: mlo_down           = 0.0d0    ! eV: own-energy floor lift, mlo_method=3 only
   real(8), protected, public :: mixbeta            = 1.0d0
@@ -448,8 +448,8 @@ contains
     ! Batch 2 reals
     call gv_r(gw, 'BZadiv',             BZadiv)
     call gv_r(gw, 'ene_sppola',         ene_sppola)
-    call gv_r(gw, 'mlo_eww',            mlo_eww)
-    call gv_r(gw, 'mlo_dwin',           mlo_dwin)
+    call gv_r(gw, 'mlo_w',            mlo_w)
+    call gv_r(gw, 'mlo_delta',           mlo_delta)
     call gv_r(gw, 'mlo_wfrz',           mlo_wfrz)
     call gv_r(gw, 'mlo_down',           mlo_down)
     call gv_r(gw, 'mixbeta',            mixbeta)
