@@ -21,20 +21,26 @@ $$
 |F^{\mathrm{MLO}}_{\mathbf{k}n}\rangle
 =\sum_{n'n''}|\Psi^{\mathrm{PMT}}_{\mathbf{k}n'}\rangle\;
 A^{\mathbf{k}}_{n'n''}\;
-\langle\Psi^{\mathrm{MTO}}_{\mathbf{k}n''}|F^{\mathrm{MTO}}_{\mathbf{k}n}\rangle,
-\qquad
-A^{\mathbf{k}}_{n'n''}=S^{\mathbf{k}}_{n'n''}\,\theta^{\mathbf{k}}_{n'n''}
+\langle\Psi^{\mathrm{MTO}}_{\mathbf{k}n''}|F^{\mathrm{MTO}}_{\mathbf{k}n}\rangle
 \tag{1}
 $$
+
+ここで $S$ を PMT 固有状態と MTO 固有状態の重なりとする:
 
 $$
 S^{\mathbf{k}}_{n'n''}=\langle\Psi^{\mathrm{PMT}}_{\mathbf{k}n'}|\Psi^{\mathrm{MTO}}_{\mathbf{k}n''}\rangle
 \tag{2}
 $$
 
-$A$ を素の重なり $S$ のままにすると恒等演算子になって
-$F^{\mathrm{MLO}}=F^{\mathrm{MTO}}$ に戻ってしまうので、重み $\theta$ を掛ける。
-**この $\theta$ をどう決めるかが問題のすべてで**、課題 1 の答えは式 (3) である。
+$A=S$ とすると式 (1) の和は MTO 部分空間への射影演算子そのものになり、
+$F^{\mathrm{MLO}}=F^{\mathrm{MTO}}$ に戻ってしまう。そこで重み $\theta$ を掛ける:
+
+$$
+A^{\mathbf{k}}_{n'n''}=S^{\mathbf{k}}_{n'n''}\,\theta^{\mathbf{k}}_{n'n''}
+\tag{3}
+$$
+
+**この $\theta$ をどう決めるかが問題のすべてで**、課題 1 の答えは式 (4) である。
 
 $$
 \boxed{\;
@@ -43,7 +49,7 @@ $$
 e^{\mathrm{cut}}_{n''}=\max\bigl(\varepsilon_{\mathrm{CBM}}+\Delta,\;\varepsilon^{\mathrm{MTO}}_{n''}\bigr)
 \;}
 \qquad \sigma(x)=\frac{1}{1+e^{x}}
-\tag{3}
+\tag{4}
 $$
 
 $\varepsilon_{\mathrm{CBM}}$ は**大域の**伝導帯下端(金属では $E_F$)。
@@ -51,7 +57,7 @@ $\varepsilon_{\mathrm{CBM}}$ は**大域の**伝導帯下端(金属では $E_F$)
 
 $$
 \boxed{\;\Delta = 2.0\ {\rm eV},\qquad w = 2.0\ {\rm eV}\;}
-\tag{4}
+\tag{5}
 $$
 
 役割がはっきり違う。**$\Delta$ は「どこまで合わせたいか」の宣言**であって
@@ -164,20 +170,20 @@ $$
 L_{\rm win}=\Bigl(\frac{\Delta E_{\rm rms}[\text{窓}]}{\sigma_E}\Bigr)^{2},\quad
 L_{\rm occ}=\Bigl(\frac{\Delta E_{\rm rms}[\text{占有}]}{\sigma_E}\Bigr)^{2},\quad
 L_{\rm vel}=\Bigl(\frac{\Delta v/v}{\sigma_v}\Bigr)^{2}
-\tag{4}
+\tag{6}
 $$
 
 $$
 L_{\rm gap}=\Bigl(\frac{\Delta E_{\rm gap}}{\sigma_{\rm gap}}\Bigr)^{2},\qquad
 L_{m}=\Bigl(\frac{\ln(m^*_{\rm MLO}/m^*_{\rm DFT})}{\sigma_m}\Bigr)^{2}
 \qquad(\text{絶縁体のみ})
-\tag{5}
+\tag{7}
 $$
 
 $$
 \sigma_E=20\ {\rm meV},\quad \sigma_v=0.05,\quad
 \sigma_{\rm gap}=10\ {\rm meV},\quad \sigma_m=0.05
-\tag{6}
+\tag{8}
 $$
 
 重みは「その誤差ひとつで 1」と読む。窓は $\mathrm{VBM}-2$ eV 〜 $\mathrm{CBM}+2$ eV
@@ -398,8 +404,8 @@ Cu は大域ギャップ 0.1995 eV なのに 92 k 点中 1 点しか $|E-E_F|<0.
 
 ## 付録 A. 重み行列 — 5 つの method は同じ一本の式
 
-式 (1) の $A=S\theta$ に入る重み $\theta$ の一般形。式 (3) はこの特別な場合である。
-実装 (`m_hreduction.f90`) はどの method でも式 (7) を
+式 (3) の $A=S\theta$ に入る重み $\theta$ の一般形。式 (4) はこの特別な場合である。
+実装 (`m_hreduction.f90`) はどの method でも式 (9) を
 
 $$
 \theta^{\mathbf{k}}_{n'n''}=
@@ -408,11 +414,11 @@ $$
 \sigma\Bigl(\tfrac{\varepsilon_{n'}-e^{\mathrm{cut}}_{n''}}{w}\Bigr)
 \Bigr],
 \qquad \sigma(x)=\frac{1}{1+e^{x}}
-\tag{7}
+\tag{9}
 $$
 
 組み立てる。method 0/1/2/4 では $\varepsilon_{\mathrm{frz}}=-\infty$ なので
-式 (7) の第 1 項は恒等的に 0 で、**第 2 項だけ**が働く。違いは $e^{\mathrm{cut}}_{n''}$ だけ:
+式 (9) の第 1 項は恒等的に 0 で、**第 2 項だけ**が働く。違いは $e^{\mathrm{cut}}_{n''}$ だけ:
 
 | method | $e^{\mathrm{cut}}_{n''}$ | `mlo_emax` | 性格 |
 |---|---|---|---|
@@ -425,7 +431,7 @@ $$
 $$
 \varepsilon_{\mathrm{frz}}=\varepsilon_{n_{\mathrm{occ}}+1}(\mathbf{k})+\Delta
 \quad(\text{method 3 のみ、}\mathbf{k}\text{ ごとの最低非占有準位})
-\tag{8}
+\tag{10}
 $$
 
 ### 二つの項の役割は違う
