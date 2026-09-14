@@ -81,9 +81,17 @@ module m_GWinput
   logical, protected, public :: KeepPositiveCou = .true.
 
   ! Wannier-related
-  ! mlo_emax: legacy reads as REAL (m_hreduction default=emax*rydberg).
+  ! mlo_method: how the weight theta in A = S*theta is built (see m_hreduction).
+  !   4 (default, recommended) ecut_j = max(ecbot + mlo_dwin, eps^MTO_j), one sigmoid.
+  !                            No per-material input; mlo_emax is ignored.
+  !   0/1/2  legacy, one sigmoid with a hand-set mlo_emax as the floor (0), the only
+  !          cut (1), or no floor at all (2, the orbital's own energy).
+  !   3      two-stage sigmoid; superseded by 4 (kept for comparison).
+  integer, protected, public :: mlo_method   = 4
+  ! mlo_emax: used by mlo_method 0 and 1 only. Absent -> evl(ndimMTO+nskip), which is
+  !   an accident of band counting rather than a window; that is why 0/1 needed a
+  !   hand-set value per material and why 4 exists.
   real(8), protected, public :: mlo_emax     = huge(0d0)  ! sentinel: key absent ⇒ runtime default
-  integer, protected, public :: mlo_method   = 0
   integer, protected, public :: wan_maxit_1st = 100
   integer, protected, public :: wan_maxit_2nd = 100
   real(8), protected, public :: wan_tb_cut   = 1.01d0
