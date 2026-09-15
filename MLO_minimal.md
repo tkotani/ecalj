@@ -521,6 +521,26 @@ $\Delta$ の効きは $w$ よりはるかに弱い。$\Delta$ を 1→4 eV と�
   ずれ幅は $0.3245311$ Ry $=4.4155$ eV で、これは以前
   「$H$ が $c\,O$ に比例して $c=0.342$ Ry ずれる」と測っていた量そのものである。
 
+  **その後の措置(2026-09-16)**
+
+  1. `esm_input.dat` を廃止し、`ctrlg.<sname>.toml` の **`[esm]` セクション**へ移した。
+     ファイルが残っていれば `esm_input.ctrlg.toml` を書いてエラー終了する。
+     $c/a>3$ なのに `[esm]` が無ければ警告も出す。
+  2. **`FeMgOSoc` も同じ病気だった。** `FeMgO` と `ctrlg` も `rst.femgo` も
+     バイト一致の同じスラブなのに `esm_input.dat` が置かれておらず、
+     $E_F$ が $+0.07203343$ Ry(ESM 無し)対 $-0.25231238$ Ry(ESM 有り)、
+     差 $4.4129$ eV。ESM で収束させた `rst` を ESM 無しで展開した参照になっていた。
+     `[esm]` を入れて `job_band`/`job_mlo`/`job_mlo_soc` で参照を作り直した。
+  3. **`FeMgO_ES`(55 軌道)をサンプル化した。** ローカルで一から再生成し、
+     `testecalj FeMgO FeMgOSoc FeMgO_ES` が全て PASSED。
+  4. その過程で **`readbandedge` の黙ったフォールバック**が見つかった。
+     `efermi.lmf` が無いと `ecbot` が $E_F$ に落ちるので、method 4 の床が
+     $\varepsilon_\mathrm{CBM}+\Delta$ ではなく $E_F+\Delta$ になる。
+     FeMgO_ES では $\varepsilon_\mathrm{CBM}-E_F=0.0148$ eV の差が θ を通って
+     MLO バンドを $2.2$ meV 動かし、許容値 $7.4\times10^{-5}$ Ry を超えた。
+     警告を出すようにし、サンプルに `efermi.lmf` を同梱した。
+     絶縁体ならギャップ幅ぶん丸ごと外すので、これは実害のある穴だった。
+
   > **切り分けに時間をかけすぎた。** rst のバイナリ互換性、`atmpnu`/`__atm`、
   > 負の密度の警告、非決定性 — どれも潰したが、どれも無実だった。
   > `Vesav` が 13 桁一致していた時点で密度側は無実と分かるので、

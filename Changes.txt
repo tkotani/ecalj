@@ -15,6 +15,18 @@
     - Samples/MLOsamples/FeMgO, FeMgO_ES, FeMgO__m3 を [esm] へ移行済み。
       移行後も E_F は kt1 と 12 桁一致、バンドは最大差 4.8e-8 eV。
 
+  [fix] FeMgOSoc: esm_input.dat が置かれておらず ESM 無しで参照が作られていた
+    (FeMgO と ctrlg も rst もバイト一致の同じスラブなのに E_F が 4.4129 eV
+    ずれていた)。[esm] を入れて job_band/job_mlo/job_mlo_soc で参照を再生成。
+  [new] Samples/MLOsamples/FeMgO_ES: 空格子球 7 個 (R=1.9 a.u.) を真空層に
+    入れた FeMgO スラブ。Worb は空格子球 s のみ + Mg,O から 3d を削って
+    55 軌道。元の 78 軌道モデルより小さく、窓誤差は 127 meV -> 1.6 meV。
+  [fix] readbandedge (m_qplist.f90): efermi.lmf が無いと ecbot が黙って
+    eferm にフォールバックしていた。mlo_method=4 の床が ecbot+delta から
+    eferm+delta に変わり、FeMgO_ES で MLO バンドが 2.2 meV ずれて
+    許容 7.4e-5 Ry を超えた。警告を出すようにし、サンプルに efermi.lmf を同梱。
+
+
 2026-08-19
   [new] Samples 検証スイープ第2弾 (Samples/README.md 参照):
     BenchmarkTest 2/2 PASSED (kt1 GPU1 -np2 1; 32GB GPU 1枚に GW 2ランクは
