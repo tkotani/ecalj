@@ -4,7 +4,8 @@ module m_esmsmves
   private
 contains
   subroutine esmsmves(qmom,ng,gv,kv,cv,cg1,cgsum,smrho,qbg,smpot,f,gpot0,hpot0,qsmc,zsum,vrmt)
-    use m_lmfinit,only: nsp, alat=>lat_alat,nbas,nlmxlx
+    use m_lmfinit,only: nsp, alat=>lat_alat,nbas,nlmxlx, &
+         esm_jesm, esm_shiftmode, esm_origin, esm_zb, esm_potential, esm_field
     use m_mpi,only:  master_mpi
     use m_lattic,only: vol=>lat_vol,plat=>lat_plat
     use m_lgunit,only:stdo
@@ -21,7 +22,7 @@ contains
     real(8), save :: sa0, tresm, z1esm, z2esm, z0esm, vesmp, vesmm, eesmp, eesmm
     logical, save :: esm_init = .true.
     logical ::  twrite = .true.
-    integer :: ig, i, j, ifiese, ib, is !, i_copy_size, in3, in2, in1!, nsp
+    integer :: ig, i, j, ib, is !, i_copy_size, in3, in2, in1!, nsp
     real(8), parameter ::angstr=1d0/0.5291769, ev=2d0/27.2113834, eps=1d-10
     real(8) :: eh, tau(3), vg(3), ddot, gvr, rmt, fac, gvb, g2
     real(8) :: pi, epi, tpiba, tpiba2
@@ -41,16 +42,19 @@ contains
        vesmm=0d0
        eesmp=0d0
        eesmm=0d0
-       open(newunit=ifiese,file='esm_input.dat',status='old',err=201)
-       read(ifiese,*,err=201) jesm
-       read(ifiese,*,err=201) jtresm,tresm
-       read(ifiese,*,err=201) z1esm,z2esm
-       read(ifiese,*,err=201) vesmp,vesmm
-       read(ifiese,*,err=201) eesmp,eesmm
-       close(ifiese)
-201    continue
+       ! Configuration comes from [esm] in ctrlg.<sname>.toml (see
+       ! m_lmfinit::readesm). The retired esm_input.dat is refused there.
+       jesm   = esm_jesm
+       jtresm = esm_shiftmode
+       tresm  = esm_origin
+       z1esm  = esm_zb(1)
+       z2esm  = esm_zb(2)
+       vesmp  = esm_potential(1)
+       vesmm  = esm_potential(2)
+       eesmp  = esm_field(1)
+       eesmm  = esm_field(2)
        if(jesm==0) then
-          if(master_mpi) write(stdo,"(a)")'  esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode'
+          if(master_mpi) write(stdo,"(a)")'  esmsmves: ESM is off (no [esm] section in ctrlg.<sname>.toml)'
           call tcx('esmsmves')
           return
        endif

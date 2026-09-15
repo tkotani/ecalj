@@ -1,3 +1,20 @@
+2026-09-15
+  [BREAKING] esm_input.dat を廃止し、ctrlg.<sname>.toml の [esm] セクションへ移行。
+    ESM (Effective Screening Medium) は真空層を持つスラブの静電ポテンシャル解法。
+    旧形式は数字だけの位置指定で、しかも「ファイルが無ければ黙って ESM 無効」
+    だった (esmsmves.f90 の open(...,err=201) → jesm=0 → 一行書いて return)。
+    真空スラブでこれをやるとエネルギーのゼロ点が数 eV 動くが異常終了しない。
+    実際 FeMgO で E_F が 4.4155 eV ずれ、長時間「コンパイラ/MPI のマシン依存」
+    を疑う羽目になった (真相は新サンプル組み立て時のコピー忘れ)。
+    - [esm] boundary/origin/shiftmode/zb/potential/field。boundary は
+      "vac/slab/vac" 等の文字列 (旧 jesm 整数も受ける)。全キー明示を推奨。
+    - esm_input.dat が残っていると lmf は esm_input.ctrlg.toml を書いて
+      エラー終了する。その [esm] ブロックを ctrlg へ貼って原本を消すこと。
+    - Legacy2toml.py が esm_input.dat → [esm] を自動変換 (原本は削除)。
+    - c/a > 3 なのに [esm] が無い場合に警告 (スラブの取りこぼし検出)。
+    - Samples/MLOsamples/FeMgO, FeMgO_ES, FeMgO__m3 を [esm] へ移行済み。
+      移行後も E_F は kt1 と 12 桁一致、バンドは最大差 4.8e-8 eV。
+
 2026-08-19
   [new] Samples 検証スイープ第2弾 (Samples/README.md 参照):
     BenchmarkTest 2/2 PASSED (kt1 GPU1 -np2 1; 32GB GPU 1枚に GW 2ランクは

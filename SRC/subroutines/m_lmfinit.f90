@@ -31,6 +31,11 @@ module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are pro
        bz_efmax,bz_zval,bz_fsmom,bz_semsh(10),zbak,bz_range=5d0,bz_dosmax,&
        lat_as,lat_tol,lat_rpad=0d0, str_rmax=nullr, etol,qtol,mix_tolu,mix_umix, pwemax,oveps,& !,pwemin=0d0
        ham_seref, bz_w,lat_platin(3,3),lat_alat,lat_avw,lat_tolft,lat_gmaxin,socaxis(3), xtolr,gtolr,stepr, wtinit(2),wc,betainit 
+  !> ESM (Effective Screening Medium) for slabs with a vacuum layer, read from
+  !! [esm] in ctrlg.<sname>.toml. esm_jesm=0 means ESM is off (plain periodic
+  !! boundary). Consumed by m_esmsmves::esmsmves. See readesm() below.
+  integer,public,protected:: esm_jesm=0, esm_shiftmode=0
+  real(8),public,protected:: esm_origin=0d0, esm_zb(2)=0d0, esm_potential(2)=0d0, esm_field(2)=0d0
   character(lstrn),public,protected:: sstrnsymg, symg=' ',   symgaf=' '!for Antiferro
   character(128),public,protected :: iter_mix=' ' !mix
   character(8),public,protected:: alabl
@@ -187,6 +192,7 @@ contains
 !      call rval2('HAM_READPSKIPF', rr=rr, defa=[real(8):: 1]); readpnuskipf= nint(rr)==1
 !      call rval2('HAM_V0FIX', rr=rr, defa=[real(8):: 0]); v0fix =  nint(rr)==1
       call rval2('HAM_PNUFIX',rr=rr, defa=[real(8):: 0]); pnufix=  nint(rr)==1
+      call readesm(alat,plat,comm) ! [esm]: ESM for slabs. Aborts if esm_input.dat is present.
       if(c0_v0fix) then
         v0fix=.true.
         pnufix=.true.
@@ -782,6 +788,144 @@ contains
     call MPI_BARRIER(comm, ierr)
     call tcx('m_lmfinit')
   end subroutine m_lmfinit_init
+
+  !> Read [esm] from ctrlg.<sname>.toml into the esm_* module variables.
+  !!
+  !! ESM (Effective Screening Medium, M. Obata) solves the electrostatics of a
+  !! slab with a vacuum layer. It used to be configured by a positional
+  !! esm_input.dat, whose absence silently disabled ESM -- a slab then got the
+  !! plain periodic treatment, moving the energy zero by several eV with no
+  !! error (this cost us a long hunt on FeMgO, 2026-09-15). So: if
+  !! esm_input.dat is still around we convert it to TOML and stop.
+  subroutine readesm(alat,plat,comm)
+    use mpi
+    use m_gtv2,only: rval2
+    real(8),intent(in):: alat,plat(3,3)
+    integer,intent(in):: comm
+    character(64):: bnd
+    character(256):: ch
+    real(8),allocatable:: rv(:)
+    real(8):: rr, z0
+    integer:: ifi, jesm, jtresm, ierr
+    real(8):: tresm, z1, z2, vp, vm, ep, em
+    logical:: fexist
+    z0 = alat*plat(3,3)*0.5d0
+    inquire(file='esm_input.dat', exist=fexist)
+    if(fexist) then
+       jesm=0; jtresm=0; tresm=0d0; z1=z0; z2=-z0; vp=0d0; vm=0d0; ep=0d0; em=0d0
+       open(newunit=ifi,file='esm_input.dat',status='old',err=801)
+       read(ifi,*,err=801,end=801) jesm
+       read(ifi,*,err=801,end=801) jtresm,tresm
+       read(ifi,*,err=801,end=801) z1,z2
+       read(ifi,*,err=801,end=801) vp,vm
+       read(ifi,*,err=801,end=801) ep,em
+801    continue
+       close(ifi)
+       if(master_mpi) then
+          open(newunit=ifi,file='esm_input.ctrlg.toml')
+          write(ifi,'(a)') '# Converted from esm_input.dat. Merge this [esm] block into'
+          write(ifi,'(a)') '# ctrlg.<sname>.toml and delete esm_input.dat.'
+          write(ifi,'(a)') '#'
+          write(ifi,'(a)') '# ESM (Effective Screening Medium): electrostatics of a slab with a'
+          write(ifi,'(a)') '# vacuum layer. No [esm] section means ESM is off.'
+          write(ifi,'(a)') '[esm]'
+          write(ifi,'(3a)')'boundary  = "',trim(jesm2bnd(jesm)),'"'
+          write(ifi,'(a)') '            # "off"                 ESM disabled              [jesm=0]'
+          write(ifi,'(a)') '            # "vac/slab/vac"        vacuum both sides         [jesm=1]'
+          write(ifi,'(a)') '            # "metal/slab/metal"    metal both sides          [jesm=2]'
+          write(ifi,'(a)') '            # "vac/slab/metal"                                [jesm=3]'
+          write(ifi,'(a)') '            # "metal/slab/vac"                                [jesm=4]'
+          write(ifi,'(a)') '            # "vac/slab/vac:field"  vacuum, field given       [jesm=5]'
+          write(ifi,'(a)') '            # "metal/slab/metal:v-e"  v on -z, field on +z    [jesm=6]'
+          write(ifi,'(a)') '            # "metal/slab/metal:e-v"  field on -z, v on +z    [jesm=7]'
+          write(ifi,'(a)') '            # "periodic:esm"        same as off, via ESM path [jesm=10]'
+          write(ifi,'(a,f16.8,a)') 'origin    = ',tresm,'  # (a.u.) z-translation of the density.'
+          write(ifi,'(a)') '            # Same number as line 2 of the old esm_input.dat;'
+          write(ifi,'(a)') '            # the code applies -origin internally (unchanged).'
+          write(ifi,'(a,i0,a)')    'shiftmode = ',jtresm,'  # 0: origin is absolute, 1: in units of the cell length'
+          write(ifi,'(a,f16.8,a,f16.8,a)') 'zb        = [',z1,',',z2,']  # (a.u.) boundaries z1esm, z2esm'
+          write(ifi,'(a,f16.8,a)') '            # default would be [',z0,', -(same)] = +-alat*plat(3,3)/2'
+          write(ifi,'(a,f16.8,a,f16.8,a)') 'potential = [',vp,',',vm,']  # (Ry) vesmp, vesmm on the two sides'
+          write(ifi,'(a,f16.8,a,f16.8,a)') 'field     = [',ep,',',em,']  # (Ry/a.u.) eesmp, eesmm on the two sides'
+          close(ifi)
+       endif
+       call MPI_BARRIER(comm, ierr) ! let master finish the file before anyone aborts
+       call rx('esm_input.dat is retired. Its contents were written to '// &
+            'esm_input.ctrlg.toml: merge that [esm] block into ctrlg.<sname>.toml '// &
+            'and delete esm_input.dat.')
+    endif
+    call rval2('ESM_BOUNDARY', ch=ch)
+    bnd = adjustl(ch)
+    esm_jesm = bnd2jesm(bnd)
+    if(esm_jesm == 0) then
+       ! No [esm] at all is the normal case for a bulk crystal, but for a slab
+       ! with a vacuum layer it silently moves the energy zero by several eV.
+       ! We cannot detect "is this a slab" reliably, so warn on the cheap proxy:
+       ! a c axis far longer than a and b.
+       if(master_mpi .and. trim(bnd)=='' .and. &
+            plat(3,3) > 3d0*max(abs(plat(1,1)),abs(plat(2,2)))) then
+          write(stdo,'(a)')' '
+          write(stdo,'(a)')' WARNING: c/a = '// &
+               ftof(plat(3,3)/max(abs(plat(1,1)),abs(plat(2,2))),1)// &
+               ' -- this looks like a slab, but ctrlg.<sname>.toml has no [esm] section.'
+          write(stdo,'(a)')'          ESM is OFF, so a vacuum layer gets the plain periodic'
+          write(stdo,'(a)')'          treatment and the energy zero can shift by several eV.'
+          write(stdo,'(a)')'          Add [esm] boundary = "vac/slab/vac" if that is not what you want.'
+          write(stdo,'(a)')' '
+       endif
+       return ! ESM off: leave the rest at their initial values
+    endif
+    call rval2('ESM_ORIGIN',   rr=rr, defa=[0d0]);          esm_origin=rr
+    call rval2('ESM_SHIFTMODE',rr=rr, defa=[real(8):: 0]);  esm_shiftmode=nint(rr)
+    call rval2('ESM_ZB',       rv=rv, defa=[z0,-z0]);       esm_zb=rv(1:2)
+    call rval2('ESM_POTENTIAL',rv=rv, defa=[0d0,0d0]);      esm_potential=rv(1:2)
+    call rval2('ESM_FIELD',    rv=rv, defa=[0d0,0d0]);      esm_field=rv(1:2)
+  end subroutine readesm
+
+  !> "vac/slab/vac" etc. -> jesm. A bare integer is also accepted so that
+  !! mechanically converted files keep working. Unknown spelling aborts.
+  integer function bnd2jesm(s) result(j)
+    character(*),intent(in):: s
+    character(:),allocatable:: t
+    integer:: ios
+    t = trim(adjustl(s))
+    select case (t)
+    case ('');                       j = 0
+    case ('off','none');             j = 0
+    case ('vac/slab/vac');           j = 1
+    case ('metal/slab/metal');       j = 2
+    case ('vac/slab/metal');         j = 3
+    case ('metal/slab/vac');         j = 4
+    case ('vac/slab/vac:field');     j = 5
+    case ('metal/slab/metal:v-e');   j = 6
+    case ('metal/slab/metal:e-v');   j = 7
+    case ('periodic:esm');           j = 10
+    case default
+       read(t,*,iostat=ios) j
+       if(ios /= 0) call rx('[esm] boundary: unknown value "'//t// &
+            '". Use off / vac/slab/vac / metal/slab/metal / vac/slab/metal / '// &
+            'metal/slab/vac / vac/slab/vac:field / metal/slab/metal:v-e / '// &
+            'metal/slab/metal:e-v / periodic:esm')
+    end select
+  end function bnd2jesm
+
+  !> jesm -> the string spelling, for the esm_input.dat converter.
+  function jesm2bnd(j) result(s)
+    integer,intent(in):: j
+    character(:),allocatable:: s
+    select case (j)
+    case (1);        s = 'vac/slab/vac'
+    case (2);        s = 'metal/slab/metal'
+    case (3);        s = 'vac/slab/metal'
+    case (4);        s = 'metal/slab/vac'
+    case (5);        s = 'vac/slab/vac:field'
+    case (6);        s = 'metal/slab/metal:v-e'
+    case (7);        s = 'metal/slab/metal:e-v'
+    case (10,11);    s = 'periodic:esm'
+    case default;    s = 'off'
+    end select
+  end function jesm2bnd
+
   pure subroutine getiout(a,iin,iout) !a(1:iout) can be nonzero.
     intent(in):: a,iin
     intent(out):: iout

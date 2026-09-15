@@ -112,6 +112,16 @@ SCHEMA = {
     'HAM_PHISPINSYM':  ('ham', 'phispinsym',   'bool',      'PHISPINSYM'),
     'HAM_PNUFIX':      ('ham', 'pnufix',       'bool',      'PNUFIX'),
 
+    # -------- [esm] --------
+    # ESM (Effective Screening Medium) for slabs with a vacuum layer.
+    # Replaces the old positional esm_input.dat. Absent section = ESM off.
+    'ESM_BOUNDARY':  ('esm', 'boundary',  'str',      'BOUNDARY'),
+    'ESM_ORIGIN':    ('esm', 'origin',    'real',     'ORIGIN'),
+    'ESM_SHIFTMODE': ('esm', 'shiftmode', 'int',      'SHIFTMODE'),
+    'ESM_ZB':        ('esm', 'zb',        'real_vec' ,'ZB'),
+    'ESM_POTENTIAL': ('esm', 'potential', 'real_vec' ,'POTENTIAL'),
+    'ESM_FIELD':     ('esm', 'field',     'real_vec' ,'FIELD'),
+
     # -------- [iter] --------
     # NOTE: ITER_b/wc/w/k were lower-case in legacy. We standardize the
     # legacy_subkey to upper-case here; m_lmfinit.f90 must be updated to call

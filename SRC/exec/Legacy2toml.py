@@ -238,6 +238,55 @@ def analyze_v_overrides(ctrl_path, v_args):
     print('---')
     return n_err
 
+ESM_BOUNDARY = {
+    0: 'off', 1: 'vac/slab/vac', 2: 'metal/slab/metal', 3: 'vac/slab/metal',
+    4: 'metal/slab/vac', 5: 'vac/slab/vac:field', 6: 'metal/slab/metal:v-e',
+    7: 'metal/slab/metal:e-v', 10: 'periodic:esm', 11: 'periodic:esm',
+}
+
+
+def convert_esm_input(ctrlg_path):
+    """esm_input.dat (positional) -> [esm] appended to ctrlg.<sname>.toml.
+
+    ESM (Effective Screening Medium) configures the electrostatics of a slab
+    with a vacuum layer. Fortran no longer reads esm_input.dat -- it aborts if
+    the file is present -- so convert it here and delete the original.
+    """
+    esm = Path('esm_input.dat')
+    if not esm.exists():
+        return
+    nums = []
+    for line in esm.read_text().splitlines():
+        line = line.split('#')[0].strip()
+        if line:
+            nums.extend(line.split())
+    if len(nums) < 9:
+        sys.exit(f'Legacy2toml.py: {esm} has {len(nums)} values, expected 9')
+    jesm = int(float(nums[0]))
+    jtresm = int(float(nums[1]))
+    tresm, z1, z2, vp, vm, ep, em = (float(x) for x in nums[2:9])
+    banner(f'{esm} -> [esm] in {ctrlg_path.name}')
+    with open(ctrlg_path, 'a') as f:
+        f.write(f'''
+# === ESM (Effective Screening Medium) ===
+# Electrostatics of a slab with a vacuum layer. Converted from esm_input.dat.
+# No [esm] section at all means ESM is off -- for a vacuum slab that silently
+# moves the energy zero by several eV, so do not drop this section.
+[esm]
+boundary  = "{ESM_BOUNDARY.get(jesm, 'off')}"
+            # "off" / "vac/slab/vac" / "metal/slab/metal" / "vac/slab/metal" /
+            # "metal/slab/vac" / "vac/slab/vac:field" / "metal/slab/metal:v-e" /
+            # "metal/slab/metal:e-v" / "periodic:esm"
+origin    = {tresm!r}  # (a.u.) z-translation of the density; code applies -origin
+shiftmode = {jtresm}  # 0: origin is absolute, 1: in units of the cell length
+zb        = [{z1!r}, {z2!r}]  # (a.u.) boundaries z1esm, z2esm
+potential = [{vp!r}, {vm!r}]  # (Ry) vesmp, vesmm on the +z / -z sides
+field     = [{ep!r}, {em!r}]  # (Ry/a.u.) eesmp, eesmm on the +z / -z sides
+''')
+    esm.unlink()
+    print(f'  {esm} converted and removed.', flush=True)
+
+
 def main():
     if len(sys.argv) < 2 or sys.argv[1] in ('-h', '--help'):
         sys.exit(__doc__.strip())
@@ -275,6 +324,11 @@ def main():
         ).returncode
     if rc != 0:
         sys.exit(f'Legacy2toml.py: ctrl2ctrltoml.py returned {rc}')
+
+    # ------------------------------------------------------------------
+    # 1b. esm_input.dat -> [esm] appended to ctrlg.<sname>.toml
+    # ------------------------------------------------------------------
+    convert_esm_input(out_path)
 
     # ------------------------------------------------------------------
     # 2. GWinput  ->  ctrlg.<sname>.toml [gw, product_basis (slim), blocks]
