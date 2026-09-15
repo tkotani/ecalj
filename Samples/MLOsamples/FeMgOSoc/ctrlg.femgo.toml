@@ -234,3 +234,25 @@ QforGW = """
  0.2 0.0 0.0
  0.3 0.0 0.0
 """
+
+# === ESM (Effective Screening Medium) ===
+# Electrostatics of a slab with a vacuum layer (M. Obata, Kanazawa Univ.).
+# No [esm] section at all means ESM is off -- and for a vacuum slab that
+# silently moves the energy zero by several eV, so do not omit it here.
+# Replaces the retired positional esm_input.dat.
+[esm]
+boundary  = "vac/slab/vac"  # vacuum(-z)/slab/vacuum(+z)                 [jesm=1]
+            # "off"                    ESM disabled                      [jesm=0]
+            # "metal/slab/metal"                                         [jesm=2]
+            # "vac/slab/metal"                                           [jesm=3]
+            # "metal/slab/vac"                                           [jesm=4]
+            # "vac/slab/vac:field"     vacuum both sides, field given    [jesm=5]
+            # "metal/slab/metal:v-e"   potential on -z, field on +z      [jesm=6]
+            # "metal/slab/metal:e-v"   field on -z, potential on +z      [jesm=7]
+            # "periodic:esm"           same result as off, via ESM path  [jesm=10]
+origin    = -8.63717        # (a.u.) z-translation of the density; code applies -origin
+shiftmode = 0               # 0: origin is absolute, 1: in units of the cell length
+zb        = [23.907104, -23.907104]  # (a.u.) boundaries z1esm, z2esm
+                                     # (alat*plat[2][2]/2 = 23.903861, so these are set by hand)
+potential = [0.0, 0.0]      # (Ry) vesmp, vesmm on the +z / -z sides
+field     = [0.0, 0.0]      # (Ry/a.u.) eesmp, eesmm on the +z / -z sides
