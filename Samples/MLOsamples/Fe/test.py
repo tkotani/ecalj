@@ -3,14 +3,23 @@ import glob, os, subprocess, sys
 from comp import rmfiles
 
 # Expected on-site diagonal <i i | V/W-V | i i> at R=(0,0,0), omega=0  [eV]
-# Baseline: 2026-05-08 job_mloW fe -np 8 (Fe bcc, 1 Fe atom, s+3p+5d = 9 orbitals)
+# Baseline: 2026-09-16 job_mloW fe -np 4 (Fe bcc, 1 Fe atom, s+3p+5d = 9 orbitals)
+#           with mlo_method = 4 (Delta = w = 2.0 eV).
+#
+# The previous baseline (2026-05-08) used mlo_method = 0. Switching to 4 leaves
+# s and p almost unchanged but moves the five d orbitals by 0.9 eV (UP) and
+# 1.7-2.1 eV (DN): V 23.95 -> 22.98 and 23.19 -> 21.45. That is a real change,
+# not noise -- with the default w = 2.0 eV the floor at ecbot+Delta sits above
+# E_F for a metal, so more PMT weight enters and the d MLOs come out more
+# extended, lowering the on-site U. Fe is one of the systems that prefer a much
+# wider w (measured optimum ~11 eV); see MLO_minimal.md section 3.
 EXPECTED = {
-    'UP': {1:(10.6977,-9.7736), 2:(10.7015,-9.3768), 3:(10.7015,-9.3774),
-           4:(10.7015,-9.3768), 5:(23.9480,-22.3433), 6:(23.9480,-22.3431),
-           7:(23.9239,-22.1601), 8:(23.9480,-22.3429), 9:(23.9239,-22.1602)},
-    'DN': {1:(10.6868,-9.7572), 2:(10.7161,-9.3825), 3:(10.7161,-9.3831),
-           4:(10.7161,-9.3825), 5:(23.1946,-21.6553), 6:(23.1946,-21.6552),
-           7:(23.0995,-21.4155), 8:(23.1946,-21.6550), 9:(23.0995,-21.4156)},
+    'UP': {1:(10.6227,-9.7058), 2:(10.7465,-9.3756), 3:(10.7465,-9.3762),
+           4:(10.7465,-9.3756), 5:(22.9839,-21.4666), 6:(22.9839,-21.4664),
+           7:(23.0628,-21.3852), 8:(22.9839,-21.4663), 9:(23.0628,-21.3853)},
+    'DN': {1:(10.5700,-9.6560), 2:(10.7341,-9.3615), 3:(10.7341,-9.3621),
+           4:(10.7341,-9.3615), 5:(21.4495,-20.0617), 6:(21.4495,-20.0616),
+           7:(20.9761,-19.4960), 8:(21.4495,-20.0614), 9:(20.9762,-19.4962)},
 }
 TOL = 0.05  # eV; tighter than physical changes, looser than numerical noise
 

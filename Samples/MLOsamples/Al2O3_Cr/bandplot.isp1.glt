@@ -4,7 +4,7 @@ set xzeroaxis
 set grid
 set ylabel "Energy-Efermi(eV)"
 # This is given written in subroutine writeband in lm7K/fp/bndfp.F
-set title "Band al2o3_cr isp=1 at /home/takao/people/saito/Al2O3_Cr"
+set title "Band al2o3_cr isp=1 at /home/takao/ecalj/Samples/MLOsamples/Al2O3_Cr"
 set yrange [   -20.00000:    20.00000]
 set xrange [0.0:     0.80088]
 set xtics ('GAMMA'   0.0000000000,\

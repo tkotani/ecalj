@@ -135,8 +135,8 @@ pnufix      = true  # fix B.C. of radial functions
 # nband_chi0/emax_chi0: bands/energy window for chi0.
 # Touch only if you know what you are doing -- defaults are sensible.
 [gw]
-mlo_method = 0
-mlo_emax = 7
+mlo_method = 4  # theta=sigma((eps-ecut_j)/mlo_w), ecut_j=max(CBM+mlo_delta, eps^MTO_j)
+#mlo_emax (method 4 では使わない) mlo_emax = 7
 n1n2n3 = [4, 4, 4]  # BZ mesh for GW
 n1n2n3eps = [8, 8, 8]
 QpGcut_psi = 4.0  # |q+G| cutoff for eigenfunctions (a.u. unless unit_2pioa=true)

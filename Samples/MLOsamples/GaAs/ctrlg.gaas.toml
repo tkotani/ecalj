@@ -132,8 +132,8 @@ phispinsym  = false  # true = spin-averaged radial wfns (needed for SOC=1 pertur
 # nband_chi0/emax_chi0: bands/energy window for chi0.
 # Touch only if you know what you are doing -- defaults are sensible.
 [gw]
-mlo_method = 0
-mlo_emax = 0
+mlo_method = 4  # theta=sigma((eps-ecut_j)/mlo_w), ecut_j=max(CBM+mlo_delta, eps^MTO_j)
+#mlo_emax (method 4 では使わない) mlo_emax = 0
 # zmel_batch_gb = 0.4  # (GB) zmel batch size per rank; increase for large systems
 
 # Blocks not yet structured — kept as raw text for round-trip

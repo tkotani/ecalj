@@ -4,7 +4,7 @@ set xzeroaxis
 set grid
 set ylabel "Energy-Efermi(eV)"
 # This is given written in subroutine writeband in lm7K/fp/bndfp.F
-set title "Band gdco5 isp=1 at /home/takao/people/Liqin/GdCo5"
+set title "Band gdco5 isp=1 at /home/takao/ecalj/Samples/MLOsamples/GdCo5"
 set yrange [   -20.00000:    20.00000]
 set xrange [0.0:     1.01319]
 set xtics ('GAMMA'   0.0000000000,\

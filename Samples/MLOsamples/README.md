@@ -17,7 +17,7 @@ testecalj -np 8 FeMgOSoc      # FeMgO slab + empty spheres, 55 MLO, with SOC
 
 # Plain MLO non-SOC
 testecalj -np 8 Si666gwsc     # Si QSGW, non-magnetic, MLO + DFT band check
-testecalj -np 8 Al2O3_Cr      # Cr-doped Al2O3 QSGW80, mlo_emax=7 example
+testecalj -np 8 Al2O3_Cr      # Cr-doped Al2O3 QSGW80 (CBM ~7 eV above E_F)
 testecalj -np 8 C             # diamond C
 testecalj -np 8 C.sp          # graphite-like C (sp-only)
 testecalj -np 8 Cu            # fcc Cu
@@ -47,7 +47,7 @@ Each test runs the full pipeline (lmf → mlo, plus the 4-step
 | `GaAsSoc`    | GaAs QSGW              | 1 | ✓ | `band_MLO_spin1.dat`, `band_MLO_spin1.soc.dat` |
 | `FeSoc`      | bcc Fe DFT             | 2 | ✓ | `band_MLO_spin{1,2}.dat`, `band_MLO_spin1.soc.dat` |
 | `FeMgOSoc`   | FeMgO slab + empty spheres (55 MLO) | 2 | ✓ | `band_MLO_spin{1,2}.dat`, `band_MLO_spin1.soc.dat` |
-| `Al2O3_Cr`   | Cr-doped Al2O3 QSGW80  | 2 | – | `band_MLO_spin{1,2}.dat` (mlo_emax=7) |
+| `Al2O3_Cr`   | Cr-doped Al2O3 QSGW80  | 2 | – | `band_MLO_spin{1,2}.dat` |
 | `C`          | diamond C              | 1 | – | `band_MLO_spin1.dat` |
 | `C.sp`       | C graphite-like (sp)   | 1 | – | `band_MLO_spin1.dat` |
 | `Cu`         | fcc Cu                 | 1 | – | `band_MLO_spin1.dat` |
@@ -62,8 +62,10 @@ Each test runs the full pipeline (lmf → mlo, plus the 4-step
 | `SmP`        | SmP (4f, so=2 Lz·Sz)   | 2 | – | `band_MLO_spin{1,2}.dat` |
 
 For `Si666gwsc` the MLO test was added on top of an existing `job_band`
-DFT-band check, so testecalj runs both. `Al2O3_Cr` is the canonical
-example for `mlo_emax > 0` (Cr 3d states sit ~7 eV above E_F).
+DFT-band check, so testecalj runs both. `Al2O3_Cr` is the system that used
+to need a hand-set `mlo_emax = 7` (its CBM sits ~7 eV above E_F); with
+`mlo_method = 4` the floor at `ecbot + mlo_delta` finds that automatically,
+which is the whole point of the method.
 
 ## Plots
 
@@ -77,7 +79,7 @@ show the 2N-spinor MLO overlay (post-`job_mlo_soc`).
 |---|---|---|---|---|
 | ![](plots/GaAsSoc.png) | ![](plots/Si666gwsc.png) | ![](plots/C.png) | ![](plots/C.sp.png) | ![](plots/SrTiO3.png) |
 
-| Al2O3_Cr (mlo_emax=7) | GdION | SmP |
+| Al2O3_Cr | GdION | SmP |
 |---|---|---|
 | ![](plots/Al2O3_Cr.png) | ![](plots/GdION.png) | ![](plots/SmP.png) |
 
@@ -153,12 +155,19 @@ As of 2026-05 the Fortran binaries read structured TOML only. Legacy
 `GWinput` is converted on first use by `Legacy2toml.py`; what follows
 shows the converted form actually consumed by `lmf` / `mlo`.
 
+All 18 samples use `mlo_method = 4` (since 2026-09-16). It needs no
+per-material tuning -- `mlo_emax` is gone from every sample.
+
 ```toml
-mlo_method = 0       # 0 = standard, 1 = emax-cut, 2 = MTO-energy cut
-mlo_emax   = 0       # eV relative to E_F (semiconductor: 0 ≈ at E_F).
-                     # User-set 0 is honoured literally; sentinel default for
-                     # "key absent" applies emax*Ry at runtime.
-                     # Al2O3_Cr-style insulators: try 7 eV.
+mlo_method = 4       # theta = sigma((eps - ecut_j)/mlo_w),
+                     #   ecut_j = max(CBM + mlo_delta, eps^MTO_j)
+mlo_delta  = 2.0     # (eV) how far above the band edge (E_F in metals) the
+                     #   model must be accurate. A statement of intent, not a
+                     #   fitting parameter: match it to your target window.
+mlo_w      = 2.0     # (eV) width of the fall-off. THIS is the knob to turn
+                     #   if the residual is too large. Measured optima:
+                     #   semiconductors ~2, Fe/Cu-like metals ~11.
+                     # All three are defaults -- you may omit them entirely.
 Worb = """           # which lm orbitals per atom enter the MLO basis
   1 Ga   1 2 3 4 5 6 7 8 9
   2 As   1 2 3 4 5 6 7 8 9
@@ -219,7 +228,7 @@ W on the Fe 3d block comes out around **~1.5 eV**.
 
 #### Reproduction runs (2026-05-08, gfortran-14, ROMIO, `--mlo_feb4` on)
 
-`job_mloW fe -np <N>` in `Samples/MLOsamples/Fe/`, `mlo_method = 0`,
+`job_mloW fe -np <N>` in `Samples/MLOsamples/Fe/`, `mlo_method = 4`,
 on-site Fe-1 d-block diagonal `⟨i i | W | i i⟩` at R=0, ω=0:
 
 | BZ mesh | parallelism | W (t2g, UP) | W (eg, UP) | W (t2g, DN) | W (eg, DN) |

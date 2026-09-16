@@ -1,0 +1,9 @@
+ -0.2625393354425935D-01  0.0000000000000000D+00 # (Ry) Fermi energy and Bias vmag; -vmag/2 +vmag/2 for each spin,
+ -0.2669794798713645D-01 # (Ry) Top of Valence
+ -0.2597004597180683D-01 # (Ry) Bottom of conduction
+  0.6405085613300757D+00 -0.6667624948743350D+00 # (Ry) Efermi-Vesav Vesav
+  0.6100000000000000D+02  0.0000000000000000D+00 #before: number of electrons total at sites:qval, backg:qbg=
+  0.6099999999999566D+02  0.5378916396039826D+01 # band: charge(nup+nspin), mag.mom(nup-ndown)
+          -330.124458662 # band: band energy sum (eV)=
+         8         8         8    # Used k point to determine Ef
+     1# iter CAUTION! This file is overwritten by lmf SC loop

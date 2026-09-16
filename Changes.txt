@@ -61,6 +61,22 @@
     nmx>n が起こり、zhegvx に IU>N という不正な引数を渡していた。
 
 
+  [BREAKING] MLOsamples 全 18 サンプルを mlo_method = 4 に統一。mlo_emax は
+    全サンプルから削除 (method 4 は CBM を ecbot+mlo_delta で自動的に掴むので
+    物質ごとの手調整が要らない。Al2O3_Cr の mlo_emax=7 がまさにそれだった)。
+    参照 (band_MLO_spin*.dat, bnd*, qplist.dat, bandplot*.glt) を全て再生成。
+    - efermi.lmf を全サンプルに同梱し git 管理下に入れた。method 4 は ecbot を
+      ここから読むので、無いと黙って eferm にフォールバックする (別項参照)。
+    - SOC サンプル (FeSoc/GaAsSoc/FeMgOSoc) は非SOC版の efermi.lmf を同梱する。
+      job_mlo_soc の 1 段目が efermi.lmf を SOC 値で上書きするので、SOC を後に
+      走らせたまま同梱すると Test 1 (非SOC) が 1e-4 Ry ずれて落ちる。
+    - Fe/test.py の V, W-V 期待値を更新。method 0 -> 4 で s,p はほぼ不変だが
+      d が UP 0.9 eV / DN 1.7-2.1 eV 動く (V 23.95->22.98, 23.19->21.45)。
+      既定 w=2.0 eV では金属の床が E_F より上に来て MLO が非局在化しオンサイト
+      U が下がるため。Fe は w~11 eV を好む系 (MLO_minimal.md 3 節)。
+    検証: testecalj で 18 サンプル 322 チェック全て PASSED。
+
+
 2026-08-19
   [new] Samples 検証スイープ第2弾 (Samples/README.md 参照):
     BenchmarkTest 2/2 PASSED (kt1 GPU1 -np2 1; 32GB GPU 1枚に GW 2ランクは
