@@ -41,6 +41,26 @@
     許容 7.4e-5 Ry を超えた。警告を出すようにし、サンプルに efermi.lmf を同梱。
 
 
+  [BUG][重要] lmf --quit=band が LDA+U の dmats.<sname> を NaN で破壊していた。
+    --quit=band は bndfp からバンド段の直後に戻るので dmatu が積算されない。
+    その未計算の dmatu を m_ldau_vorbset に渡していたため vorb が NaN になり、
+    さらに dmats.<sname> が NaN で上書きされる (= ユーザ入力ファイルの破壊)。
+    job_band は同一ディレクトリで --quit=band → --band と走るので、2 段目が
+    その NaN を読んで H 全体が NaN になり LAPACK が収束せず
+    "zhev_tk4: nev /=nevout something wrong." で止まっていた。
+    直下の rst 書き出しは既に --quit=band で飛ばしているので、同じガードを
+    m_ldau_vorbset にも付けた。影響: LDA+U で --quit=band を通すもの全て
+    (job_band, job_pdos 等)。MLOsamples/GdCo5 で再現・修正確認。
+  [fix] zhev_tk4/zhev_tk2: LAPACK の ier を nev/=nevout より先に判定する。
+    従来は真因が LAPACK エラーでも "nev /=nevout something wrong" と表示され、
+    対角化の引数を疑わせた (上の GdCo5 で遠回りの原因)。失敗時に ier と次元を
+    出し、h に NaN があれば「上流が原因」、zhegvx で ier>n なら「overlap が
+    正定値でない」と明示する。
+  [fix] zhev_tk2: nev=nmx を nev=min(nmx,n) に。zhev_tk4 は clamp 済みだった。
+    nmx は k 全体でのバンド上限 (ndham)、n=ndimh は k ごとに変わるので
+    nmx>n が起こり、zhegvx に IU>N という不正な引数を渡していた。
+
+
 2026-08-19
   [new] Samples 検証スイープ第2弾 (Samples/README.md 参照):
     BenchmarkTest 2/2 PASSED (kt1 GPU1 -np2 1; 32GB GPU 1枚に GW 2ランクは
