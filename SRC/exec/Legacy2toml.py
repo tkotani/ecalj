@@ -74,7 +74,7 @@ Legacy2toml.py — one-shot migration tool: legacy ecalj input -> TOML.
   Each step is echoed with a "=== Legacy2toml.py: ..." banner so failures
   point you straight at the offending file.
 """
-import os, sys, re, shutil, subprocess
+import os, sys, re, shutil, subprocess, datetime
 from pathlib import Path
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
@@ -249,11 +249,16 @@ def convert_esm_input(ctrlg_path):
     """esm_input.dat (positional) -> [esm] appended to ctrlg.<sname>.toml.
 
     ESM (Effective Screening Medium) configures the electrostatics of a slab
-    with a vacuum layer. Fortran no longer reads esm_input.dat -- it aborts if
-    the file is present -- so convert it here and delete the original.
+    with a vacuum layer. Fortran no longer reads esm_input.dat; it migrates the
+    file the same way this does. Either path leaves esm_input.dat.bk behind
+    with a header saying where the settings went.
     """
     esm = Path('esm_input.dat')
     if not esm.exists():
+        return
+    if '\n[esm]' in ('\n' + ctrlg_path.read_text()):
+        archive_esm_input(esm, ctrlg_path, has_section=True)
+        banner(f'{ctrlg_path.name} already has [esm]; {esm} -> {esm}.bk (unused)')
         return
     nums = []
     for line in esm.read_text().splitlines():
@@ -283,8 +288,28 @@ zb        = [{z1!r}, {z2!r}]  # (a.u.) boundaries z1esm, z2esm
 potential = [{vp!r}, {vm!r}]  # (Ry) vesmp, vesmm on the +z / -z sides
 field     = [{ep!r}, {em!r}]  # (Ry/a.u.) eesmp, eesmm on the +z / -z sides
 ''')
+    archive_esm_input(esm, ctrlg_path, has_section=False)
+    print(f'  {esm} converted, appended to {ctrlg_path.name}, '
+          f'original kept as {esm}.bk', flush=True)
+
+
+def archive_esm_input(esm, ctrlg_path, has_section):
+    """Move esm_input.dat to esm_input.dat.bk, keeping the original lines and
+    prepending a header that says where the settings went."""
+    when = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    head = [f'# esm_input.dat is retired; this is the archived original.',
+            f'# Moved {when}.']
+    if has_section:
+        head += [f'# {ctrlg_path.name} already had an [esm] section, so these',
+                 f'# settings were NOT copied anywhere -- the TOML one is what runs.',
+                 f'# Compare the two if you expected this file to be in effect.']
+    else:
+        head += [f'# These settings were converted and appended to {ctrlg_path.name}',
+                 f'# as an [esm] section. Edit them there from now on; this file is',
+                 f'# no longer read.']
+    head += ['#', '# --- original contents below ---']
+    Path(str(esm) + '.bk').write_text('\n'.join(head) + '\n' + esm.read_text())
     esm.unlink()
-    print(f'  {esm} converted and removed.', flush=True)
 
 
 def main():

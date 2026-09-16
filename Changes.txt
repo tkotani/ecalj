@@ -8,9 +8,14 @@
     を疑う羽目になった (真相は新サンプル組み立て時のコピー忘れ)。
     - [esm] boundary/origin/shiftmode/zb/potential/field。boundary は
       "vac/slab/vac" 等の文字列 (旧 jesm 整数も受ける)。全キー明示を推奨。
-    - esm_input.dat が残っていると lmf は esm_input.ctrlg.toml を書いて
-      エラー終了する。その [esm] ブロックを ctrlg へ貼って原本を消すこと。
-    - Legacy2toml.py が esm_input.dat → [esm] を自動変換 (原本は削除)。
+    - 後方互換: esm_input.dat が残っていても止まらず、その場で移行する。
+        ctrlg に [esm] が有る → そちらが勝つ。原本は esm_input.dat.bk へ退避し、
+          .bk の冒頭に「TOML 側が使われた」と書く。
+        ctrlg に [esm] が無い → 変換して ctrlg.<sname>.toml の末尾に説明付きで
+          追記し、原本を esm_input.dat.bk へ退避 (移送先を .bk 冒頭に明記)。
+          TOML は既に読み終わっているので、その実行では変換値を直接使う。
+      冪等。2 回目以降は [esm] が有るので何も起きない。
+    - Legacy2toml.py も同じ規則で esm_input.dat → [esm] を変換する。
     - c/a > 3 なのに [esm] が無い場合に警告 (スラブの取りこぼし検出)。
     - Samples/MLOsamples/FeMgO, FeMgO_ES, FeMgO__m3 を [esm] へ移行済み。
       移行後も E_F は kt1 と 12 桁一致、バンドは最大差 4.8e-8 eV。
