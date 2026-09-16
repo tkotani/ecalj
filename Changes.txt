@@ -1,3 +1,29 @@
+2026-09-16 (4)
+  Samples/kBT/ を物質名ディレクトリに再構成し、Fe の対照実験を追加。
+    kBT/README.md    注意点をここに集約 (併用必須、esmr 据え置き、deltaq、T 収束確認)
+    kBT/LiTi2O4/     従来の 3 run をここへ移動 (66MB)
+    kBT/Fe/          t_sigmakbt だけを 0 と 3000K に切り替えた対照実験 (0.8MB)
+    README_kt1_original.md は kBT/README.md に統合して削除 (命名規則と kt1 側の
+    在庫一覧を 3 節に。主要知見は既に本文へ取り込み済み)。
+  Fe の対照実験 (kt1 ~/sigmakbt_test, 2026-06-15): tetrakbt=true, t_tetrakbt=3000 は
+  両方同じで t_sigmakbt だけ 0 vs 3000。chi0 (=W) が同一なので差は Sigma 側だけ。
+    変わらないもの: vxc, SExcore, Z, LDA 固有値がビット単位で同一 (対照として成立)
+    変わるもの (Sigma - vxc の rms):
+      |e-EF|<1eV   0.788 eV     1-3eV  0.648 eV
+      3-10eV       0.428 eV    >10eV   0.094 eV
+    最大 1.93 eV。SEx と SEc は個別には最大 2.40 / 3.66 eV 動くが符号が逆で和は小さい。
+    交換分裂はほぼ不変 (-0.213 -> -0.212 eV) でほぼスピン共通のシフト。
+    EFERMI 0.01496 Ry -> EFERMI_kbt 0.03373 Ry (0.26 eV)。
+    => Sigma 側の有限温度は小さな補正ではない。chi0 だけ温めるのは数値的にも大きい。
+  結果の信頼性について (kt1 の REPORT_20260613.md より、kBT/README.md 2 節と doc 5.5):
+    - 2026-06-13 の m_sxcf_sc.f90 OOB ガード修正 (ixs<2 -> ixs<1) 以前のビルドは
+      omega_eps~0 の実軸極項を全部捨てていて QP の絶対値と EF 近傍が信用できない
+      (si_gwsc で 3.54 eV ずれ)。
+    - 2026-06-13 の 37e6fbc23 以前は tetwt5 の上流ペア選別が sharp theta のままで
+      高温で chi0 を過小評価 (1000K ~1%, 3000K ~18%)。現在は wocc=12*kbt +
+      fbound/tolpair の厳密上界で解決済み。
+    ここに置いた run はすべて 06-15〜06-20 実行で、両方の修正が入った後のもの。
+
 2026-09-16 (3)
   Samples/kBT/ に 9^3 の run を追加し、run ごとのディレクトリに再構成。
     kBT/input/                3 run 共通 (PB, syml, rst.lda)
