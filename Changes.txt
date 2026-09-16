@@ -98,6 +98,13 @@
       Fe 系で W を使う実計算では mlo_w を上げること (Fe/test.py にも明記)。
 
 
+  [change] MLOsamples/FeMgO, FeMgOSoc: 空格子球の Worb を s のみ -> s,p にした
+    (55 -> 76 軌道)。窓型の損失は 3.1 -> 2.5 meV と控えめだが、準位ごとに見ると
+    平均が半分 (15.9/11.4 -> 8.3/6.0 meV)、最大が 860 -> 294 meV と 3 分の 1。
+    効いているのは E_F より上、特に +2〜+6 eV で 3〜5 倍。窓 (E_F±2 eV) の外なので
+    窓型の指標にはほとんど出てこなかった。参照を再生成し ALL PASSED。
+
+
 2026-08-19
   [new] Samples 検証スイープ第2弾 (Samples/README.md 参照):
     BenchmarkTest 2/2 PASSED (kt1 GPU1 -np2 1; 32GB GPU 1枚に GW 2ランクは
