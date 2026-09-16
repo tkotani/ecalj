@@ -274,7 +274,10 @@ contains
        nev=n
     else
        jobz = 'V'
-       nev=nmx
+       nev=min(nmx,n) ! clamp: zhegvx wants IU<=N. zhev_tk4 already does this;
+                      ! here nmx>n would have passed an illegal IU (ier<0).
+                      ! nmx is the caller's band cap (ndham), which is the max
+                      ! over k, while n=ndimh varies with k -- so nmx>n happens.
     endif
     abstol=1d-10 ! OK?
     lwork=max(1,2*n,lworksave) !OK? efficient?
