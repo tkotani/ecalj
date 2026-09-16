@@ -1,0 +1,10 @@
+--- llmfgw00 / lgw : chi0 side (tetrakbt) ---
+ tetrakbt_init: T[K], kbt[Ry], kbt[eV] 2000  0.12667E-01  0.17234E+00
+
+--- stdout.0000.hsfp0_sc.mode003 : Sigma side (t_sigmakbt) ---
+ sigmakbt_setup: t_sigmakbt[K]=   2000.0 kbt[Ry]=  0.12667E-01 ef<-EFERMI_kbt=    0.267452
+ sigmakbt_setup: t_sigmakbt[K]=   2000.0 kbt[Ry]=  0.12667E-01 ef<-EFERMI_kbt=    0.267540
+
+--- EFERMI (T=0) / EFERMI_kbt (finite-T) ---
+  0.277063046836211D+00  0.000000000000000D+00 ! efermi bandgap are obtained by heftet
+  0.267452126929387D+00  0.126668038630584D-01 ! efermi_kbt (finite-T, tetra-NOS conv) by heftet

@@ -1,3 +1,20 @@
+2026-09-16
+  Samples/kBT/ を新設。有限温度 QSGW (tetrakbt + t_sigmakbt) の LiTi2O4 サンプル。
+    計算が重い (GW 11 反復) ので testecalj のターゲットにはせず、入力と結果だけを置く。
+    - input/  ctrlg / PB / syml と LDA 収束済みの rst。6^3、deltaq_scale=0.1、
+              tetrakbt = t_sigmakbt = 2000 K。
+    - results/ 収束した sigm (これを使えば GW をやり直さずバンドが描ける)、
+              QPU.1run..11run、反復ごとのバンド図、bnd_iterations.tar.gz (元データ)、
+              EFERMI / EFERMI_kbt、finiteT_evidence.txt (両側が効いている証拠のログ)。
+    - plots/  T = 0/1000/2000/3000 K の比較と deltaq_scale アーティファクトの証拠。
+    温度依存について確認したこと (別 run 群、deltaq_scale=0.3):
+      Ti-3d t2g 帯の Γ-L 上の底が T=0 で -3.91 eV まで落ちる (分散ではなく q→0 head
+      の破綻)。1000K -1.31、2000K -0.66、3000K -0.50 eV と温度で単調に消える。
+      3000K に残る K-Γ 中央のスパイク (-1.24 eV) は deltaq_scale=0.3 が原因で、
+      0.1 にすると消える。tetrakbt 本体の問題ではない。高温では deltaq_scale も
+      小さく取ること。
+    ecaljdoc の manual/finiteT.md は manual/kBT.md に改名し、上記を反映。
+
 2026-09-15
   [BREAKING] esm_input.dat を廃止し、ctrlg.<sname>.toml の [esm] セクションへ移行。
     ESM (Effective Screening Medium) は真空層を持つスラブの静電ポテンシャル解法。
