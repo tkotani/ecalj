@@ -1,0 +1,370 @@
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMFA smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp --time=5,5
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMFA smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+i mmom= 4.9900 ehk(eV)=-292843.515013 sev(eV)=-186.351167
+i mmom= 4.9922 ehk(eV)=-292843.620290 sev(eV)=-183.358771
+i mmom= 4.9921 ehk(eV)=-292843.626573 sev(eV)=-182.498409
+i mmom= 4.9913 ehk(eV)=-292843.640169 sev(eV)=-180.053866
+Start LMFA smp
+Start LMF smp
+Start LMFA smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp --pr30
+Start LMF smp --pr40
+Start LMF smp --pr40 --time=5,5
+Start LMF smp --time=5,5
+Start LMF smp --time=5,5
+Start LMF smp --time=5,5
+Start LMF smp --time=5,5
+Start LMF smp --time=5,5
+Start LMF smp --time=5,5
+Start LMF smp --time=5,5
+Start LMF smp --time=5,5
+Start LMF smp --time=5,5
+Start LMF smp --time=5,5
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+h mmom= 5.0000 ehf(eV)=-292851.352265 ehk(eV)=-292849.646291 sev(eV)=-172.395446
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp
+i mmom= 4.9985 ehf(eV)=-292849.822697 ehk(eV)=-292849.822902 sev(eV)=-183.564047
+c mmom= 4.9985 ehf(eV)=-292849.822735 ehk(eV)=-292849.822941 sev(eV)=-183.563645
+Start LMF smp --writeham --mkprocar --fullmesh
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp --writeham --mkprocar --fullmesh
+Start LMCHK smp
+Start LMF smp --quit=band
+i mmom= 4.9982 ehf(eV)=-292849.808353 ehk(eV)=-292849.808387 sev(eV)=-183.548427
+Start LMF smp --band
+Start LMF smp --writeham --mkprocar --fullmesh
+Start LMF smp --writeham --mkprocar --fullmesh
+Start LMF smp
+Start LMF smp
+Start LMF smp
+Start LMF smp --job=1
+Start LMF smp --writeham --mkprocar --fullmesh
+Start LMF smp
+Start LMF smp --quit=band
+i mmom= 4.9982 ehf(eV)=-292849.808353 ehk(eV)=-292849.808387 sev(eV)=-183.548427
+Start LMF smp --band
+Start LMF smp --writeham --mkprocar --fullmesh
+Start LMF smp
+Start LMF smp --quit=band
+i mmom= 4.9775 ehf(eV)=-292851.104356 ehk(eV)=-292834.417753 sev(eV)=-184.844430
+Start LMF smp --band
+Start LMF smp --quit=band
+i mmom= 4.9982 ehf(eV)=-292849.818331 ehk(eV)=-292849.818383 sev(eV)=-183.558405
+Start LMF smp --band
+Start LMF smp --job=1
+Start LMF smp --writeham --mkprocar --fullmesh
+Start LMF smp
+Start LMF smp --job=0
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp --job=1
+Start LMF smp
+Start LMF smp
+i mmom= 4.9982 ehf(eV)=-292849.818330 ehk(eV)=-292849.818383 sev(eV)=-183.558405
+i mmom= 4.9982 ehf(eV)=-292849.815236 ehk(eV)=-292849.815398 sev(eV)=-183.591161
+i mmom= 4.9982 ehf(eV)=-292849.809515 ehk(eV)=-292849.809649 sev(eV)=-183.652564
+i mmom= 4.9982 ehf(eV)=-292849.812090 ehk(eV)=-292849.812281 sev(eV)=-183.624896
+i mmom= 4.9982 ehf(eV)=-292849.814067 ehk(eV)=-292849.814274 sev(eV)=-183.604527
+i mmom= 4.9982 ehf(eV)=-292849.813926 ehk(eV)=-292849.814133 sev(eV)=-183.606631
+i mmom= 4.9982 ehf(eV)=-292849.813585 ehk(eV)=-292849.813792 sev(eV)=-183.612095
+c mmom= 4.9982 ehf(eV)=-292849.813575 ehk(eV)=-292849.813782 sev(eV)=-183.612647
+Start LMF smp
+i mmom= 4.9982 ehf(eV)=-292849.813624 ehk(eV)=-292849.813831 sev(eV)=-183.612424
+Start LMF smp --writeham --mkprocar --fullmesh
+Start lmfham1 smp
+Start LMF --job=0 smp
+Start LMF --job=0 smp
+Start LMF --job=1 smp
+Start LMF --job=1 smp
+Start LMF --job=1 smp
+Start LMF --job=1 smp
+Start LMF --job=1 smp
+Start LMF --job=1 smp
+Start LMF --job=1 smp
+Start LMF --job=1 smp
+Start LMF --job=1 smp
+Start LMF --job=1 smp
+Start LMF smp --writeham --mkprocar --fullmesh
+Start LMFA smp
+Start LMF smp
+i mmom= 4.9982 ehf(eV)=-292849.818330 ehk(eV)=-292849.818383 sev(eV)=-183.558405
+i mmom= 4.9982 ehf(eV)=-292849.815236 ehk(eV)=-292849.815398 sev(eV)=-183.591161
+i mmom= 4.9982 ehf(eV)=-292849.809515 ehk(eV)=-292849.809649 sev(eV)=-183.652564
+i mmom= 4.9982 ehf(eV)=-292849.812090 ehk(eV)=-292849.812281 sev(eV)=-183.624896
+i mmom= 4.9982 ehf(eV)=-292849.814067 ehk(eV)=-292849.814274 sev(eV)=-183.604527
+i mmom= 4.9982 ehf(eV)=-292849.813926 ehk(eV)=-292849.814133 sev(eV)=-183.606631
+i mmom= 4.9982 ehf(eV)=-292849.813585 ehk(eV)=-292849.813792 sev(eV)=-183.612095
+c mmom= 4.9982 ehf(eV)=-292849.813575 ehk(eV)=-292849.813782 sev(eV)=-183.612647
+Start LMF smp --quit=band
+i mmom= 4.9982 ehf(eV)=-292849.813624 ehk(eV)=-292849.813831 sev(eV)=-183.612424
+Start LMF smp --band
+Start LMF smp --writeham --mkprocar --fullmesh
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMFA smp
+Start LMF smp
+i mmom= 4.9982 ehf(eV)=-292849.813624 ehk(eV)=-292849.813831 sev(eV)=-183.612424
+c mmom= 4.9982 ehf(eV)=-292849.813661 ehk(eV)=-292849.813867 sev(eV)=-183.611914
+Start LMF smp --quit=band
+i mmom= 4.9982 ehf(eV)=-292849.813709 ehk(eV)=-292849.813915 sev(eV)=-183.611183
+Start LMF smp --band
+Start LMF smp --quit=band
+i mmom= 4.9982 ehf(eV)=-292849.813709 ehk(eV)=-292849.813915 sev(eV)=-183.611183
+Start LMF smp --band
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkporcar --noinv
+Start LMF smp --writeham --mkporcar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --mkprocar --noinv
+i mmom= 4.9982 ehf(eV)=-292849.813709 ehk(eV)=-292849.813915 sev(eV)=-183.611183
+Start LMF smp --mkprocar --noinv
+Start LMF smp --mkprocar --noinv
+Start LMF smp --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp
+Start LMFA smp
+Start LMF smp
+h mmom= 0.7457 ehk(eV)=-292627.732936 sev(eV)=-129.689979
+i mmom= 1.1143 ehk(eV)=-292697.144944 sev(eV)=-193.282155
+i mmom= 1.0000 ehk(eV)=-291086.988915 sev(eV)=-509.819163
+i mmom= 1.4185 ehk(eV)=-292755.115438 sev(eV)=-244.570115
+i mmom= 6.1651 ehk(eV)=-292655.667504 sev(eV)=-271.263607
+i mmom= 5.0978 ehk(eV)=-292725.798750 sev(eV)=-240.455150
+i mmom= 1.0481 ehk(eV)=-292694.188993 sev(eV)=-193.903646
+i mmom= 5.0833 ehk(eV)=-292739.006492 sev(eV)=-225.698737
+i mmom= 0.9505 ehk(eV)=-292680.007043 sev(eV)=-177.865533
+i mmom= 4.3685 ehk(eV)=-292777.572553 sev(eV)=-203.556791
+i mmom= 2.6809 ehk(eV)=-292783.132041 sev(eV)=-190.566457
+i mmom= 4.1279 ehk(eV)=-292791.139275 sev(eV)=-201.937643
+i mmom= 3.2822 ehk(eV)=-292796.004067 sev(eV)=-191.612467
+i mmom= 3.5907 ehk(eV)=-292801.116479 sev(eV)=-196.291072
+i mmom= 3.5848 ehk(eV)=-292802.038303 sev(eV)=-197.765973
+i mmom= 3.5923 ehk(eV)=-292802.806861 sev(eV)=-199.361624
+i mmom= 3.5973 ehk(eV)=-292803.433477 sev(eV)=-202.586196
+i mmom= 3.6130 ehk(eV)=-292803.913878 sev(eV)=-206.817691
+i mmom= 3.6170 ehk(eV)=-292804.311925 sev(eV)=-207.169611
+i mmom= 3.6207 ehk(eV)=-292804.628136 sev(eV)=-207.824213
+i mmom= 3.6234 ehk(eV)=-292804.881683 sev(eV)=-208.310102
+Start LMF smp
+i mmom= 3.6257 ehk(eV)=-292805.085086 sev(eV)=-208.602921
+i mmom= 3.6259 ehk(eV)=-292805.247828 sev(eV)=-208.924368
+i mmom= 3.6260 ehk(eV)=-292805.378092 sev(eV)=-209.197788
+i mmom= 3.6253 ehk(eV)=-292805.482670 sev(eV)=-209.382761
+i mmom= 3.6266 ehk(eV)=-292805.565853 sev(eV)=-209.603805
+i mmom= 3.6272 ehk(eV)=-292805.632633 sev(eV)=-209.768709
+i mmom= 3.6274 ehk(eV)=-292805.686197 sev(eV)=-209.890446
+i mmom= 3.6279 ehk(eV)=-292805.729021 sev(eV)=-210.003591
+i mmom= 3.6276 ehk(eV)=-292805.763497 sev(eV)=-210.059310
+i mmom= 3.6276 ehk(eV)=-292805.791027 sev(eV)=-210.119937
+i mmom= 3.6279 ehk(eV)=-292805.813023 sev(eV)=-210.177254
+i mmom= 3.6278 ehk(eV)=-292805.830731 sev(eV)=-210.207370
+i mmom= 3.6278 ehk(eV)=-292805.844879 sev(eV)=-210.237515
+i mmom= 3.6278 ehk(eV)=-292805.856213 sev(eV)=-210.261167
+i mmom= 3.6278 ehk(eV)=-292805.865323 sev(eV)=-210.276518
+i mmom= 3.6278 ehk(eV)=-292805.872556 sev(eV)=-210.295429
+i mmom= 3.6278 ehk(eV)=-292805.878366 sev(eV)=-210.308950
+i mmom= 3.6278 ehk(eV)=-292805.883032 sev(eV)=-210.318621
+i mmom= 3.6278 ehk(eV)=-292805.886778 sev(eV)=-210.325412
+i mmom= 3.6278 ehk(eV)=-292805.889763 sev(eV)=-210.332459
+i mmom= 3.6278 ehk(eV)=-292805.892155 sev(eV)=-210.338163
+i mmom= 3.6278 ehk(eV)=-292805.894076 sev(eV)=-210.342070
+i mmom= 3.6278 ehk(eV)=-292805.895615 sev(eV)=-210.345193
+i mmom= 3.6278 ehk(eV)=-292805.896848 sev(eV)=-210.347665
+i mmom= 3.6278 ehk(eV)=-292805.897835 sev(eV)=-210.349704
+i mmom= 3.6278 ehk(eV)=-292805.898625 sev(eV)=-210.351502
+i mmom= 3.6278 ehk(eV)=-292805.899253 sev(eV)=-210.353624
+i mmom= 3.6278 ehk(eV)=-292805.899762 sev(eV)=-210.354304
+i mmom= 3.6278 ehk(eV)=-292805.900168 sev(eV)=-210.355153
+x mmom= 3.6278 ehk(eV)=-292805.900493 sev(eV)=-210.355925
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --quit=band
+i mmom= 3.6278 ehk(eV)=-292805.900754 sev(eV)=-210.356363
+Start LMF smp --band
+Start LMF smp --quit=band
+i mmom= 3.6278 ehk(eV)=-292805.900963 sev(eV)=-210.356781
+Start LMF smp --band
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp
+i mmom= 3.6278 ehk(eV)=-292805.901131 sev(eV)=-210.357115
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --writeham --mkprocar --noinv
+Start LMF smp --quit=band
+i mmom= 3.6278 ehf(eV)=-292772.214591 ehk(eV)=-292825.526021 sev(eV)=-210.357370
+Start LMF smp --band
+Start LMF smp --writeham --mkprocar --noinv --mlo

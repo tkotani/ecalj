@@ -1,0 +1,198 @@
+Start LMFA ruo2
+Start LMF ruo2
+i mmom=-0.0000 ehf(eV)=-254768.556786 ehk(eV)=-254768.553586 sev(eV)=-113.014034
+i mmom= 0.0000 ehf(eV)=-254768.552279 ehk(eV)=-254768.552125 sev(eV)=-112.789473
+i mmom= 0.0000 ehf(eV)=-254768.539115 ehk(eV)=-254768.538617 sev(eV)=-111.686370
+i mmom= 0.0000 ehf(eV)=-254768.541773 ehk(eV)=-254768.541698 sev(eV)=-111.864685
+i mmom= 0.0000 ehf(eV)=-254768.545939 ehk(eV)=-254768.546135 sev(eV)=-112.115011
+i mmom= 0.0000 ehf(eV)=-254768.546287 ehk(eV)=-254768.546494 sev(eV)=-112.137175
+i mmom= 0.0000 ehf(eV)=-254768.546432 ehk(eV)=-254768.546645 sev(eV)=-112.147695
+Start LMFA ruo2
+Start LMF ruo2
+h mmom= 0.0000 ehf(eV)=-254775.635335 ehk(eV)=-254747.508924 sev(eV)=-114.859999
+i mmom=-0.0002 ehf(eV)=-254768.614881 ehk(eV)=-254767.560239 sev(eV)=-99.600560
+i mmom= 0.0002 ehf(eV)=-254768.705714 ehk(eV)=-254767.501279 sev(eV)=-104.124714
+i mmom= 0.0001 ehf(eV)=-254768.938992 ehk(eV)=-254767.607637 sev(eV)=-119.180554
+i mmom=-0.0004 ehf(eV)=-254768.592631 ehk(eV)=-254768.186202 sev(eV)=-112.601824
+i mmom=-0.0004 ehf(eV)=-254768.602708 ehk(eV)=-254768.143129 sev(eV)=-112.578768
+i mmom=-0.0004 ehf(eV)=-254768.533701 ehk(eV)=-254768.527491 sev(eV)=-113.751520
+i mmom=-0.0002 ehf(eV)=-254768.539145 ehk(eV)=-254768.537283 sev(eV)=-113.014811
+i mmom= 0.0002 ehf(eV)=-254768.553486 ehk(eV)=-254768.553473 sev(eV)=-111.540143
+i mmom= 0.0002 ehf(eV)=-254768.554236 ehk(eV)=-254768.554233 sev(eV)=-111.544673
+i mmom= 0.0001 ehf(eV)=-254768.559073 ehk(eV)=-254768.559334 sev(eV)=-111.737911
+i mmom= 0.0001 ehf(eV)=-254768.561255 ehk(eV)=-254768.561634 sev(eV)=-111.820503
+i mmom= 0.0001 ehf(eV)=-254768.562711 ehk(eV)=-254768.563151 sev(eV)=-111.888619
+i mmom= 0.0001 ehf(eV)=-254768.563322 ehk(eV)=-254768.563779 sev(eV)=-111.930833
+i mmom= 0.0001 ehf(eV)=-254768.563407 ehk(eV)=-254768.563862 sev(eV)=-111.948027
+c mmom= 0.0001 ehf(eV)=-254768.563302 ehk(eV)=-254768.563758 sev(eV)=-111.945565
+Start LMF ruo2 --quit=band
+i mmom= 0.0001 ehf(eV)=-254768.563245 ehk(eV)=-254768.563706 sev(eV)=-111.937738
+Start LMF ruo2 --band
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2
+i mmom= 0.0002 ehf(eV)=-254768.554238 ehk(eV)=-254768.554235 sev(eV)=-111.544679
+i mmom= 0.0001 ehf(eV)=-254768.559077 ehk(eV)=-254768.559338 sev(eV)=-111.737896
+i mmom= 0.0001 ehf(eV)=-254768.561257 ehk(eV)=-254768.561636 sev(eV)=-111.820491
+i mmom= 0.0001 ehf(eV)=-254768.562713 ehk(eV)=-254768.563153 sev(eV)=-111.888628
+i mmom= 0.0001 ehf(eV)=-254768.563323 ehk(eV)=-254768.563779 sev(eV)=-111.930825
+i mmom= 0.0001 ehf(eV)=-254768.563407 ehk(eV)=-254768.563862 sev(eV)=-111.948013
+c mmom= 0.0001 ehf(eV)=-254768.563302 ehk(eV)=-254768.563759 sev(eV)=-111.945558
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --quit=band
+i mmom= 0.0001 ehf(eV)=-254768.563245 ehk(eV)=-254768.563706 sev(eV)=-111.937735
+Start LMF ruo2 --band
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2
+i mmom= 0.0001 ehf(eV)=-254768.561756 ehk(eV)=-254768.557311 sev(eV)=-111.936246
+i mmom= 0.0001 ehf(eV)=-254768.562242 ehk(eV)=-254768.557734 sev(eV)=-111.932817
+i mmom=-0.0002 ehf(eV)=-254768.521661 ehk(eV)=-254768.522864 sev(eV)=-111.897164
+i mmom=-0.0002 ehf(eV)=-254768.523838 ehk(eV)=-254768.524568 sev(eV)=-111.893384
+i mmom=-0.0003 ehf(eV)=-254768.506461 ehk(eV)=-254768.511517 sev(eV)=-111.926638
+i mmom=-0.0002 ehf(eV)=-254768.526166 ehk(eV)=-254768.526519 sev(eV)=-111.891099
+i mmom=-0.0002 ehf(eV)=-254768.526266 ehk(eV)=-254768.526718 sev(eV)=-111.788588
+i mmom=-0.0002 ehf(eV)=-254768.527638 ehk(eV)=-254768.527412 sev(eV)=-111.767459
+i mmom=-0.0004 ehf(eV)=-254768.495503 ehk(eV)=-254768.498346 sev(eV)=-111.728326
+i mmom= 0.0001 ehf(eV)=-254768.567315 ehk(eV)=-254768.564775 sev(eV)=-111.706341
+i mmom= 0.0001 ehf(eV)=-254768.566031 ehk(eV)=-254768.563609 sev(eV)=-111.691656
+i mmom=-0.0003 ehf(eV)=-254768.519134 ehk(eV)=-254768.520048 sev(eV)=-111.669823
+i mmom=-0.0000 ehf(eV)=-254768.555118 ehk(eV)=-254768.553646 sev(eV)=-111.652602
+i mmom= 0.0001 ehf(eV)=-254768.565958 ehk(eV)=-254768.563483 sev(eV)=-111.616993
+i mmom=-0.0004 ehf(eV)=-254768.493384 ehk(eV)=-254768.497336 sev(eV)=-111.452907
+i mmom=-0.0002 ehf(eV)=-254768.531030 ehk(eV)=-254768.530198 sev(eV)=-111.641892
+i mmom=-0.0003 ehf(eV)=-254768.528108 ehk(eV)=-254768.528661 sev(eV)=-112.229267
+i mmom=-0.0002 ehf(eV)=-254768.541575 ehk(eV)=-254768.541891 sev(eV)=-112.358109
+i mmom=-0.0001 ehf(eV)=-254768.555269 ehk(eV)=-254768.555355 sev(eV)=-112.415216
+i mmom=-0.0001 ehf(eV)=-254768.552902 ehk(eV)=-254768.553548 sev(eV)=-112.373860
+i mmom=-0.0001 ehf(eV)=-254768.548188 ehk(eV)=-254768.548874 sev(eV)=-112.253053
+i mmom=-0.0001 ehf(eV)=-254768.548119 ehk(eV)=-254768.548936 sev(eV)=-112.268956
+i mmom=-0.0001 ehf(eV)=-254768.547770 ehk(eV)=-254768.548465 sev(eV)=-112.254028
+i mmom=-0.0001 ehf(eV)=-254768.545883 ehk(eV)=-254768.546681 sev(eV)=-112.228876
+i mmom=-0.0001 ehf(eV)=-254768.548229 ehk(eV)=-254768.549142 sev(eV)=-112.281930
+i mmom=-0.0001 ehf(eV)=-254768.548065 ehk(eV)=-254768.549583 sev(eV)=-112.309166
+i mmom= 0.0000 ehf(eV)=-254768.544171 ehk(eV)=-254768.544364 sev(eV)=-112.143715
+i mmom= 0.0000 ehf(eV)=-254768.543916 ehk(eV)=-254768.544142 sev(eV)=-112.135439
+i mmom= 0.0000 ehf(eV)=-254768.543848 ehk(eV)=-254768.544084 sev(eV)=-112.133086
+i mmom= 0.0000 ehf(eV)=-254768.543876 ehk(eV)=-254768.544117 sev(eV)=-112.134660
+i mmom= 0.0000 ehf(eV)=-254768.543872 ehk(eV)=-254768.544113 sev(eV)=-112.133974
+i mmom= 0.0000 ehf(eV)=-254768.543841 ehk(eV)=-254768.544094 sev(eV)=-112.134856
+i mmom= 0.0000 ehf(eV)=-254768.543707 ehk(eV)=-254768.543997 sev(eV)=-112.135542
+i mmom= 0.0000 ehf(eV)=-254768.544133 ehk(eV)=-254768.544530 sev(eV)=-112.133001
+i mmom=-0.0000 ehf(eV)=-254768.543513 ehk(eV)=-254768.543841 sev(eV)=-112.135014
+i mmom=-0.0000 ehf(eV)=-254768.542767 ehk(eV)=-254768.543295 sev(eV)=-112.135067
+i mmom= 0.0000 ehf(eV)=-254768.544269 ehk(eV)=-254768.544584 sev(eV)=-112.134271
+i mmom= 0.0000 ehf(eV)=-254768.544275 ehk(eV)=-254768.544579 sev(eV)=-112.134360
+i mmom= 0.0000 ehf(eV)=-254768.544287 ehk(eV)=-254768.544575 sev(eV)=-112.133796
+i mmom= 0.0000 ehf(eV)=-254768.544299 ehk(eV)=-254768.544555 sev(eV)=-112.133654
+i mmom= 0.0000 ehf(eV)=-254768.544310 ehk(eV)=-254768.544537 sev(eV)=-112.134030
+c mmom= 0.0000 ehf(eV)=-254768.544273 ehk(eV)=-254768.544490 sev(eV)=-112.133033
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2
+i mmom= 0.0000 ehf(eV)=-254768.544276 ehk(eV)=-254768.544493 sev(eV)=-112.133189
+c mmom= 0.0000 ehf(eV)=-254768.544284 ehk(eV)=-254768.544501 sev(eV)=-112.133532
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --quit=band
+i mmom= 0.0000 ehf(eV)=-254768.544284 ehk(eV)=-254768.544501 sev(eV)=-112.133403
+Start LMF ruo2 --band
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --writeham --mkprocar --noinv
+Start LMF ruo2 --quit=band
+i mmom= 0.0000 ehf(eV)=-254768.544284 ehk(eV)=-254768.544497 sev(eV)=-112.133403
+Start LMF ruo2 --band
+Start LMF ruo2 --writeham --mkprocar --noinv --mlo

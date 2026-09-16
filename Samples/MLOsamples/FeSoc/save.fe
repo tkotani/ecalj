@@ -1,0 +1,14 @@
+Start LMF fe --quit=band
+i mmom= 2.2443 ehf(eV)=-34574.139046 ehk(eV)=-34574.139111 sev(eV)=-327.530341
+Start LMF fe --band
+Start LMF fe --writeham --mkprocar --noinv --mlo
+Start LMF fe --quit=band --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true --ctrlg:ham.so=1
+i mmom= 2.2430 ehf(eV)=-34574.127589 ehk(eV)=-34574.126846 sev(eV)=-327.518883
+Start LMF fe --writeham --mkprocar --noinv --mlo --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true --ctrlg:ham.so=0 --socmatrix
+Start LMF fe --quit=band
+i mmom= 2.2443 ehf(eV)=-34574.139046 ehk(eV)=-34574.139111 sev(eV)=-327.530341
+Start LMF fe --band
+Start LMF fe --writeham --mkprocar --noinv --mlo
+Start LMF fe --quit=band --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true --ctrlg:ham.so=1
+i mmom= 2.2430 ehf(eV)=-34574.127589 ehk(eV)=-34574.126846 sev(eV)=-327.518883
+Start LMF fe --writeham --mkprocar --noinv --mlo --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true --ctrlg:ham.so=0 --socmatrix

@@ -1,0 +1,3 @@
+OK! --> Start echo --- | mpirun --bind-to core --map-by core -np 8  /home/takao/ecalj/SRC/exec/lmf Fe --quit=band --phispinsym --testso -vso=1 > llmf_ef
+OK! --> Start echo --- | mpirun --bind-to core --map-by core -np 8  /home/takao/ecalj/SRC/exec/lmf Fe --band --phispinsym --testso -vso=1 > llmf_band
+If you like, edit and run 'job_band, or gnuplot -persist bandplot.isp1.glt (and isp2)'

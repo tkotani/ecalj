@@ -1,0 +1,316 @@
+=== START LMCHK   srtio3 ===
+ mpisize=           1
+m_lmfinit: LMCHK
+rval2: STRUC_NSPEC             requ n= 1 val= 3.00000000
+rval2: STRUC_NBAS              requ n= 1 val= 5.00000000
+rval2: HAM_NSPIN               defa n= 1 val= 1.00000000
+rval2: IO_VERBOS               defa n= 1 val= 35.00000000
+rval2: IO_TIM                  defa n= 1 val= 0.00000000
+rval2: STRUC_ALAT              ---- n= 1 val= 7.36804496
+rval2: STRUC_DALAT             ---- n= 0 val= 
+rval2: STRUC_PLAT              requ n= 9 val= 1.00000000  0.00000000  0.00000000  0.00000000  1.00000000  0.00000000  0.00000000  0.00000000  1.00000000
+rval2: OPTIONS_HF              defa n= 1 val= 0.00000000
+rval2: HAM_REL                 defa n= 1 val= 1.00000000
+rval2: HAM_SO                  defa n= 1 val= 0.00000000
+rval2: HAM_SOCAXIS             defa n= 3 val= 0.00000000  0.00000000  1.00000000
+rval2: HAM_GMAX                defa n= 1 val= 12.00000000
+rval2: HAM_FTMESH              defa n= 3 val= 0.00000000  0.00000000  0.00000000
+rval2: HAM_TOL                 defa n= 1 val= 0.00000100
+rval2: HAM_FRZWF               defa n= 1 val= 0.00000000
+rval2: HAM_XCFUN               defa n= 1 val= 1.00000000
+rval2: HAM_FORCES              defa n= 1 val= 0.00000000
+rval2: HAM_RDSIG               defa n= 1 val= 12.00000000
+rval2: HAM_ScaledSigma         defa n= 1 val= 1.00000000
+rval2: HAM_EWALD               defa n= 1 val= 0.00000000
+rval2: HAM_OVEPS               defa n= 1 val= 0.00000001
+rval2: HAM_PWMODE              defa n= 1 val= 1.00000000
+rval2: HAM_PWEMAX              defa n= 1 val= 3.00000000
+rval2: HAM_READP               defa n= 1 val= 1.00000000
+rval2: HAM_V0FIX               defa n= 1 val= 0.00000000
+rval2: HAM_PNUFIX              defa n= 1 val= 1.00000000
+=== SPEC =1
+rval2: SPEC_ATOM@1             val=  Sr
+rval2: SPEC_Z@1                ---- n= 1 val= 38.00000000
+rval2: SPEC_R@1                ---- n= 1 val= 3.00000000
+rval2: SPEC_R/W@1              ---- n= 0 val= 
+rval2: SPEC_R/A@1              ---- n= 0 val= 
+rval2: SPEC_A@1                defa n= 1 val= 0.00000000
+rval2: SPEC_NR@1               defa n= 1 val= 0.00000000
+rval2: SPEC_RSMH@1             ---- n= 4 val= 1.50000000  1.50000000  1.50000000  1.50000000
+rval2: SPEC_EH@1               requ n= 4 val= -1.00000000 -1.00000000 -1.00000000 -1.00000000
+rval2: SPEC_RSMH2@1            ---- n= 3 val= 1.50000000  1.50000000  1.50000000
+rval2: SPEC_EH2@1              requ n= 3 val= -2.00000000 -2.00000000 -2.00000000
+rval2: SPEC_LMX@1              defa n= 1 val= 3.00000000
+rval2: SPEC_LMXA@1             defa n= 1 val= 4.00000000
+rval2: SPEC_LMXL@1             defa n= 1 val= 4.00000000
+rval2: SPEC_P@1                ---- n= 0 val= 
+rval2: SPEC_Q@1                ---- n= 0 val= 
+rval2: SPEC_NMCORE@1           defa n= 1 val= 1.00000000
+rval2: SPEC_PZ@1               ---- n= 2 val= 4.90000000  4.90000000
+rval2: SPEC_LFOCA@1            defa n= 1 val= 1.00000000
+rval2: SPEC_KMXA@1             defa n= 1 val= 5.00000000
+rval2: SPEC_RSMA@1             defa n= 1 val= 1.20000000
+rval2: SPEC_IDMOD@1            ---- n= 0 val= 
+rval2: SPEC_FRZWF@1            defa n= 1 val= 0.00000000
+rval2: SPEC_IDU@1              ---- n= 0 val= 
+rval2: SPEC_UH@1               ---- n= 0 val= 
+rval2: SPEC_JH@1               ---- n= 0 val= 
+rval2: SPEC_C-HOLE@1           val= 
+rval2: SPEC_C-HQ@1             defa n= 2 val= -1.00000000  0.00000000
+rval2: SPEC_EREF1              defa n= 1 val= 0.00000000
+=== SPEC =2
+rval2: SPEC_ATOM@2             val=  Ti
+rval2: SPEC_Z@2                ---- n= 1 val= 22.00000000
+rval2: SPEC_R@2                ---- n= 1 val= 2.03000000
+rval2: SPEC_R/W@2              ---- n= 0 val= 
+rval2: SPEC_R/A@2              ---- n= 0 val= 
+rval2: SPEC_A@2                defa n= 1 val= 0.00000000
+rval2: SPEC_NR@2               defa n= 1 val= 0.00000000
+rval2: SPEC_RSMH@2             ---- n= 4 val= 1.01000000  1.01000000  1.01000000  1.01000000
+rval2: SPEC_EH@2               requ n= 4 val= -1.00000000 -1.00000000 -1.00000000 -1.00000000
+rval2: SPEC_RSMH2@2            ---- n= 3 val= 1.01000000  1.01000000  1.01000000
+rval2: SPEC_EH2@2              requ n= 3 val= -2.00000000 -2.00000000 -2.00000000
+rval2: SPEC_LMX@2              defa n= 1 val= 3.00000000
+rval2: SPEC_LMXA@2             defa n= 1 val= 4.00000000
+rval2: SPEC_LMXL@2             defa n= 1 val= 4.00000000
+rval2: SPEC_P@2                ---- n= 0 val= 
+rval2: SPEC_Q@2                ---- n= 0 val= 
+rval2: SPEC_NMCORE@2           defa n= 1 val= 1.00000000
+rval2: SPEC_PZ@2               ---- n= 2 val= 0.00000000  3.90000000
+rval2: SPEC_LFOCA@2            defa n= 1 val= 1.00000000
+rval2: SPEC_KMXA@2             defa n= 1 val= 5.00000000
+rval2: SPEC_RSMA@2             defa n= 1 val= 0.81200000
+rval2: SPEC_IDMOD@2            ---- n= 0 val= 
+rval2: SPEC_FRZWF@2            defa n= 1 val= 0.00000000
+rval2: SPEC_IDU@2              ---- n= 0 val= 
+rval2: SPEC_UH@2               ---- n= 0 val= 
+rval2: SPEC_JH@2               ---- n= 0 val= 
+rval2: SPEC_C-HOLE@2           val= 
+rval2: SPEC_C-HQ@2             defa n= 2 val= -1.00000000  0.00000000
+rval2: SPEC_EREF2              defa n= 1 val= 0.00000000
+=== SPEC =3
+rval2: SPEC_ATOM@3             val=  O
+rval2: SPEC_Z@3                ---- n= 1 val= 8.00000000
+rval2: SPEC_R@3                ---- n= 1 val= 1.55000000
+rval2: SPEC_R/W@3              ---- n= 0 val= 
+rval2: SPEC_R/A@3              ---- n= 0 val= 
+rval2: SPEC_A@3                defa n= 1 val= 0.00000000
+rval2: SPEC_NR@3               defa n= 1 val= 0.00000000
+rval2: SPEC_RSMH@3             ---- n= 3 val= 0.77000000  0.77000000  0.77000000
+rval2: SPEC_EH@3               requ n= 3 val= -1.00000000 -1.00000000 -1.00000000
+rval2: SPEC_RSMH2@3            ---- n= 2 val= 0.77000000  0.77000000
+rval2: SPEC_EH2@3              requ n= 2 val= -2.00000000 -2.00000000
+rval2: SPEC_LMX@3              defa n= 1 val= 3.00000000
+rval2: SPEC_LMXA@3             defa n= 1 val= 4.00000000
+rval2: SPEC_LMXL@3             defa n= 1 val= 4.00000000
+rval2: SPEC_P@3                ---- n= 0 val= 
+rval2: SPEC_Q@3                ---- n= 0 val= 
+rval2: SPEC_NMCORE@3           defa n= 1 val= 1.00000000
+rval2: SPEC_PZ@3               ---- n= 0 val= 
+rval2: SPEC_LFOCA@3            defa n= 1 val= 0.00000000
+rval2: SPEC_KMXA@3             defa n= 1 val= 5.00000000
+rval2: SPEC_RSMA@3             defa n= 1 val= 0.62000000
+rval2: SPEC_IDMOD@3            ---- n= 0 val= 
+rval2: SPEC_FRZWF@3            defa n= 1 val= 0.00000000
+rval2: SPEC_IDU@3              ---- n= 0 val= 
+rval2: SPEC_UH@3               ---- n= 0 val= 
+rval2: SPEC_JH@3               ---- n= 0 val= 
+rval2: SPEC_C-HOLE@3           val= 
+rval2: SPEC_C-HQ@3             defa n= 2 val= -1.00000000  0.00000000
+rval2: SPEC_EREF3              defa n= 1 val= 0.00000000
+=== SITE =1
+rval2: SITE_ATOM@1             val=  Sr
+rval2: SITE_POS@1              ---- n= 3 val= 0.50000000  0.50000000  0.50000000
+rval2: SITE_RELAX@1            defa n= 3 val= 1.00000000  1.00000000  1.00000000
+rval2: SITE_AF@1               defa n= 1 val= 0.00000000
+=== SITE =2
+rval2: SITE_ATOM@2             val=  Ti
+rval2: SITE_POS@2              ---- n= 3 val= 0.00000000  0.00000000  0.00000000
+rval2: SITE_RELAX@2            defa n= 3 val= 1.00000000  1.00000000  1.00000000
+rval2: SITE_AF@2               defa n= 1 val= 0.00000000
+=== SITE =3
+rval2: SITE_ATOM@3             val=  O
+rval2: SITE_POS@3              ---- n= 3 val= 0.50000000  0.00000000  0.00000000
+rval2: SITE_RELAX@3            defa n= 3 val= 1.00000000  1.00000000  1.00000000
+rval2: SITE_AF@3               defa n= 1 val= 0.00000000
+=== SITE =4
+rval2: SITE_ATOM@4             val=  O
+rval2: SITE_POS@4              ---- n= 3 val= 0.00000000  0.50000000  0.00000000
+rval2: SITE_RELAX@4            defa n= 3 val= 1.00000000  1.00000000  1.00000000
+rval2: SITE_AF@4               defa n= 1 val= 0.00000000
+=== SITE =5
+rval2: SITE_ATOM@5             val=  O
+rval2: SITE_POS@5              ---- n= 3 val= 0.00000000  0.00000000  0.50000000
+rval2: SITE_RELAX@5            defa n= 3 val= 1.00000000  1.00000000  1.00000000
+rval2: SITE_AF@5               defa n= 1 val= 0.00000000
+rval2: STR_RMAXS               ---- n= 0 val= 
+rval2: STR_RMAX                ---- n= 0 val= 
+rval2: STR_MXNBR               defa n= 1 val= 0.00000000
+rval2: BZ_NKABC                ---- n= 3 val= 6.00000000  6.00000000  6.00000000
+rval2: BZ_BZJOB                ---- n= 0 val= 
+rval2: BZ_METAL                defa n= 1 val= 3.00000000
+rval2: BZ_TETRA                defa n= 1 val= 1.00000000
+rval2: BZ_N                    defa n= 1 val= -1.00000000
+rval2: BZ_W                    defa n= 1 val= 0.01000000
+rval2: BZ_ZBAK                 defa n= 1 val= 0.00000000
+rval2: BZ_SAVDOS               defa n= 1 val= 1.00000000
+rval2: BZ_NPTS                 defa n= 1 val= 2001.00000000
+rval2: BZ_DOSMAX               defa n= 1 val= 1.50000000
+rval2: BZ_EFMAX                defa n= 1 val= 5.00000000
+rval2: BZ_FSMOM                defa n= 1 val= -99999.00000000
+rval2: BZ_FSMOMMETHOD          defa n= 1 val= 0.00000000
+rval2: SYMGRP                  val=  find
+rval2: SYMGRPAF                val= 
+rval2: EWALD_TOL               defa n= 1 val= 0.00000001
+rval2: ITER_NIT                defa n= 1 val= 80.00000000
+rval2: ITER_NRMIX              defa n= 1 val= 80.00000000
+rval2: ITER_MIX                val=  A5
+rval2: ITER_CONV               defa n= 1 val= 0.00001000
+rval2: ITER_CONVC              defa n= 1 val= 0.00001000
+rval2: ITER_UMIX               defa n= 1 val= 0.20000000
+rval2: ITER_TOLU               defa n= 1 val= 0.00000000
+rval2: ITER_b                  defa n= 1 val= 0.20000000
+rval2: ITER_wc                 defa n= 1 val= -1.00000000
+rval2: ITER_w                  defa n= 2 val= 1.00000000  1.00000000
+rval2: ITER_k                  defa n= 1 val= -1.00000000
+rval2: DYN_MODE                defa n= 1 val= 0.00000000
+rval2: DYN_NIT                 defa n= 1 val= 1.00000000
+rval2: DYN_HESS                defa n= 1 val= 1.00000000
+rval2: DYN_XTOL                defa n= 1 val= 0.00100000
+rval2: DYN_GTOL                defa n= 1 val= 0.00000000
+rval2: DYN_STEP                defa n= 1 val= 0.01500000
+rval2: DYN_NKILL               defa n= 1 val= 0.00000000
+mixing param: A/B nmix wt= 0 5 1.000000  1.000000 beta wc killj=  0.200000 -1.000000 -1
+ ===> for --jobgw, pwmode is switched to be  1
+  bndfp (warning): no sigm file found ... LDA calculation only
+
+pnu === pnu setting ===
+pnu   ibas isp   pnu(0:lmxa)  pz(0:lmxa)
+pnu:  1 1 5.730  5.360  4.400  4.130  5.100   4.900  4.900  0.000  0.000  0.000
+pnu:  2 1 4.660  4.400  3.620  4.130  5.100   0.000  3.900  0.000  0.000  0.000
+pnu:  3 1 2.920  2.860  3.180  4.110  5.100   0.000  0.000  0.000  0.000  0.000
+pnu:  4 1 2.920  2.860  3.180  4.110  5.100   0.000  0.000  0.000  0.000  0.000
+pnu:  5 1 2.920  2.860  3.180  4.110  5.100   0.000  0.000  0.000  0.000  0.000
+
+mto === MTO setting ===
+mto ispec lmxb lpz nkapii nkaphh=    1    3    1    2    3
+mto rsmh1    1  1.50  1.50  1.50  1.50
+mto   eh1    1 -1.00 -1.00 -1.00 -1.00
+mto rsmh2    1  1.50  1.50  1.50
+mto  eh2     1 -2.00 -2.00 -2.00
+mto pz       1  4.90  4.90
+mto lh       3  2  1
+mto ispec lmxb lpz nkapii nkaphh=    2    3    1    2    3
+mto rsmh1    2  1.01  1.01  1.01  1.01
+mto   eh1    2 -1.00 -1.00 -1.00 -1.00
+mto rsmh2    2  1.01  1.01  1.01
+mto  eh2     2 -2.00 -2.00 -2.00
+mto pz       2  0.00  3.90
+mto lh       3  2  1
+mto ispec lmxb lpz nkapii nkaphh=    3    2    0    2    2
+mto rsmh1    3  0.77  0.77  0.77
+mto   eh1    3 -1.00 -1.00 -1.00
+mto rsmh2    3  0.77  0.77
+mto  eh2     3 -2.00 -2.00
+mto lh       2  1
+
+                Plat                                  Qlat
+   1.000000   0.000000   0.000000        1.000000   0.000000   0.000000
+   0.000000   1.000000   0.000000        0.000000   1.000000   0.000000
+   0.000000   0.000000   1.000000        0.000000   0.000000   1.000000
+  Cell vol=   399.997063
+
+m_lattic_init:  as= 2.000  tol= 1.00E-08  alat= 7.36804   awald= 0.271
+         r1=  2.885   nkd=  93      q1=  3.426   nkq= 171
+SpaceGroupSym of Lattice: ========start========================== 
+ SYMGRP = find
+  Generators except find: 
+ sgroup:  1 symmetry operations from 0 generators
+ symlat: Bravais system is cubic        with 48 symmetry operations.
+ symcry: crystal invariant under 48 following symmetry operations for tol=  0.000100
+   Enlarging ngen= 1  ng nggen= 48 6
+   Enlarging ngen= 2  ng nggen= 48 48
+ groupg: the following are sufficient to generate the space group:
+  Generators:  trans(cart)= i*r3d r2(0,1,1)
+  Generators:: trans(frac)= i*r3d r2(0,1,1)
+ gensym: ig group ops (:vector means translation in cartesian)
+    1  e
+    2  i*r3d
+    3  r3(-1,-1,-1)
+    4  i
+    5  r3d
+    6  i*r3(-1,-1,-1)
+    7  r2(0,1,1)
+    8  i*r4(0,0,-1)
+    9  r4y
+   10  m(0,1,1)
+   11  r4(0,0,-1)
+   12  i*r4y
+   13  i*r4(0,-1,0)
+   14  r4x
+   15  m(1,1,0)
+   16  r4(0,-1,0)
+   17  i*r4x
+   18  r2(1,1,0)
+   19  r4z
+   20  m(1,0,1)
+   21  r4(-1,0,0)
+   22  i*r4z
+   23  r2(1,0,1)
+   24  i*r4(-1,0,0)
+   25  i*r3(-1,1,1)
+   26  r3(1,-1,-1)
+   27  r3(-1,1,1)
+   28  i*r3(1,-1,-1)
+   29  r2y
+   30  i*r3(1,-1,1)
+   31  my
+   32  r3(1,-1,1)
+   33  i*r3(-1,-1,1)
+   34  r2z
+   35  r3(-1,-1,1)
+   36  mz
+   37  i*r3(1,1,-1)
+   38  r3(1,1,-1)
+   39  r2x
+   40  mx
+   41  i*r3(-1,1,-1)
+   42  r3(-1,1,-1)
+   43  m(1,-1,0)
+   44  r2(1,-1,0)
+   45  r2(0,1,-1)
+   46  m(0,1,-1)
+   47  m(1,0,-1)
+   48  r2(1,0,-1)
+ gensym: site permutation table for group operations ...
+  ib/ig:  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48
+      1:  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
+      2:  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2  2
+      3:  3  4  5  3  4  5  3  4  5  3  4  5  5  3  4  5  3  4  4  5  3  4  5  3  5  4  5  4  3  5  3  5  4  3  4  3  5  5  3  3  4  4  4  4  3  3  5  5
+      4:  4  5  3  4  5  3  5  3  4  5  3  4  4  5  3  4  5  3  3  4  5  3  4  5  3  5  3  5  4  3  4  3  5  4  5  4  3  3  4  4  5  5  3  3  5  5  4  4
+      5:  5  3  4  5  3  4  4  5  3  4  5  3  3  4  5  3  4  5  5  3  4  5  3  4  4  3  4  3  5  4  5  4  3  5  3  5  4  4  5  5  3  3  5  5  4  4  3  3
+ splcls:  ibas iclass ispec label(ispec)
+            1     1     1     Sr
+            2     2     2     Ti
+            3     3     3     O
+            4     3     3     O
+            5     3     3     O
+SpaceGroupSym of Lattice: ========end =========================== 
+
+  lmaux:
+Use default rmaxs= 7.2171072700751253 a.u. rmaxs/avw=  2.700000 rmaxs/alat=  0.979515
+     Site      ic Spec        Rmax      Position
+conf     1      1  Sr      3.000000     0.500000   0.500000   0.500000
+conf     2      2  Ti      2.030000     0.000000   0.000000   0.000000
+conf     3      3  O       1.550000     0.500000   0.000000   0.000000
+conf     4      3  O       1.550000     0.000000   0.500000   0.000000
+conf     5      3  O       1.550000     0.000000   0.000000   0.500000
+ Cell volume=   399.997 Sum of sphere volumes=  194.934 (  0.5  %)
+
+ ib jb  sp&ic1  sp&ic2        Pos(jb)-Pos(ib)   Dist  sumrs   Ovlp    %
+  2  3  Ti2     O3        3.684  0.000  0.000  3.684  3.580  -0.10  -2.8 
+  2  4  Ti2     O3        0.000  3.684  0.000  3.684  3.580  -0.10  -2.8 
+  2  5  Ti2     O3        0.000  0.000  3.684  3.684  3.580  -0.10  -2.8 
+ OVMIN:  fovl=   0.0 <ovlp> =   0.0%   max ovlp =  -2.8%
+CPU time:    0.173s     Tue Mar 25 18:13:31 2025 on process=0
+Exit 0 procid= 0 OK! end of LMCHK ======================

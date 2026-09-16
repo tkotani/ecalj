@@ -1,0 +1,21 @@
+2024-6-23
+* This is a sample to relax atomic position.
+We have double loop in m_lmfp.f90
+
+Outer loop is for moving atomic position.
+Inner loop is for electronic structure.
+
+save.lagao3 shows iteration history.
+c or x meand for the end of innerloop
+C or X means for the end of outerloop.
+
+Thus you will see many c or x until you get C.
+
+run
+>lmfa
+and 
+>lmf
+
+# NOTE:
+ AtomPos.lagao3 keeps atomic position.
+ When AtomPos.lagao3 exists, we override positions described in ctrl file.

@@ -1,0 +1,21 @@
+rank= 0 0 -4.0
+/home/takao/ecalj/SRC/exec/hahc --job=202 --ahc --interbandonly -EfermiShifteV=-4.0 ['--phispinsym'] > lahc.0
+rank= 0 1 -3.84
+/home/takao/ecalj/SRC/exec/hahc --job=202 --ahc --interbandonly -EfermiShifteV=-3.84 ['--phispinsym'] > lahc.0
+rank= 0 2 -3.68
+/home/takao/ecalj/SRC/exec/hahc --job=202 --ahc --interbandonly -EfermiShifteV=-3.68 ['--phispinsym'] > lahc.0
+rank= 0 3 -3.52
+/home/takao/ecalj/SRC/exec/hahc --job=202 --ahc --interbandonly -EfermiShifteV=-3.52 ['--phispinsym'] > lahc.0
+rank= 0 4 -3.36
+/home/takao/ecalj/SRC/exec/hahc --job=202 --ahc --interbandonly -EfermiShifteV=-3.36 ['--phispinsym'] > lahc.0
+rank= 0 5 -3.2
+/home/takao/ecalj/SRC/exec/hahc --job=202 --ahc --interbandonly -EfermiShifteV=-3.2 ['--phispinsym'] > lahc.0
+rank= 0 6 -3.04
+/home/takao/ecalj/SRC/exec/hahc --job=202 --ahc --interbandonly -EfermiShifteV=-3.04 ['--phispinsym'] > lahc.0
+rank= 0 7 -2.88
+/home/takao/ecalj/SRC/exec/hahc --job=202 --ahc --interbandonly -EfermiShifteV=-2.88 ['--phispinsym'] > lahc.0
+rank= 0 8 -2.7199999999999998
+/home/takao/ecalj/SRC/exec/hahc --job=202 --ahc --interbandonly -EfermiShifteV=-2.7199999999999998 ['--phispinsym'] > lahc.0
+rank= 0 9 -2.56
+/home/takao/ecalj/SRC/exec/hahc --job=202 --ahc --interbandonly -EfermiShifteV=-2.56 ['--phispinsym'] > lahc.0
+rank= 0 10 -2.4

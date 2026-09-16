@@ -1,0 +1,14 @@
+NOTE: Use run_arg defined in /home/takao/ecalj/SRC/exec/run_arg
+### START genMLWF: MPI size=  8, MATERIAL= Fe
+--- Neither sigm nor sigm.$MATERIAL exists. ==> LDA 
+OK! --> Start echo --- | /home/takao/ecalj/SRC/exec/lmfa Fe --phispinsym > llmfa 
+OK! --> Start echo --- | mpirun -np 8 /home/takao/ecalj/SRC/exec/lmf Fe --phispinsym > llmf_start 
+OK! --> Start echo 0 | /home/takao/ecalj/SRC/exec/lmf Fe --jobgw=0 --novxc --phispinsym > llmfgw00 
+OK! --> Start echo 1 | /home/takao/ecalj/SRC/exec/qg4gw --job=4 --phispinsym > lqg4gw04 
+OK! --> Start echo 1 | mpirun -np 8 /home/takao/ecalj/SRC/exec/lmf Fe --jobgw=1 --phispinsym > llmfgw01 
+OK! --> Start echo 1 | /home/takao/ecalj/SRC/exec/heftet --phispinsym > leftet 
+OK! --> Start echo 0 | /home/takao/ecalj/SRC/exec/hbasfp0 --job=4 --phispinsym > lbas 
+OK! --> Start echo 1 | /home/takao/ecalj/SRC/exec/hmaxloc --phispinsym > lmaxloc1 
+OK! --> Start echo 2 | mpirun -np 8 /home/takao/ecalj/SRC/exec/huumat_MPI --phispinsym > luumat2 
+OK! --> Start echo --- | /home/takao/ecalj/SRC/exec/hahc --job=202 --ahc --interbandonly --phispinsym > lahc 
+OK! It's finished well.

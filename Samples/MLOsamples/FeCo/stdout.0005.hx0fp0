@@ -1,0 +1,1349 @@
+ ### console output for rank=  5
+ CPU:       0.0000 secs =     0.0 mins.
+ CPU:       0.0010 secs =     0.0 mins.
+ CPU:       0.0010 secs =     0.0 mins.
+ nqibze nqibz nq0i= 26 24 2
+ CPU:       0.0680 secs =     0.0 mins.
+ CPU:       0.4110 secs =     0.0 mins.
+    m_zmel000: zmelsize= 0.002766 GB                              rank= 5 Memused (CPU)  0.286 GB 2026-02-04T12:12:28.658
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.297 GB 2026-02-04T12:12:28.692
+    m_zmel000: zmelsize= 0.002877 GB                              rank= 5 Memused (CPU)  0.301 GB 2026-02-04T12:12:28.857
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.308 GB 2026-02-04T12:12:28.892
+    m_zmel000: zmelsize= 0.002877 GB                              rank= 5 Memused (CPU)  0.308 GB 2026-02-04T12:12:29.072
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.308 GB 2026-02-04T12:12:29.098
+    m_zmel000: zmelsize= 0.002877 GB                              rank= 5 Memused (CPU)  0.308 GB 2026-02-04T12:12:29.320
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.308 GB 2026-02-04T12:12:29.344
+    m_zmel000: zmelsize= 0.002877 GB                              rank= 5 Memused (CPU)  0.308 GB 2026-02-04T12:12:29.582
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.308 GB 2026-02-04T12:12:29.600
+    m_zmel000: zmelsize= 0.002877 GB                              rank= 5 Memused (CPU)  0.308 GB 2026-02-04T12:12:29.765
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.308 GB 2026-02-04T12:12:29.782
+    m_zmel000: zmelsize= 0.002932 GB                              rank= 5 Memused (CPU)  0.308 GB 2026-02-04T12:12:29.963
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.308 GB 2026-02-04T12:12:29.981
+    m_zmel000: zmelsize= 0.002877 GB                              rank= 5 Memused (CPU)  0.308 GB 2026-02-04T12:12:30.138
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.308 GB 2026-02-04T12:12:30.155
+    m_zmel000: zmelsize= 0.002877 GB                              rank= 5 Memused (CPU)  0.309 GB 2026-02-04T12:12:30.282
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.309 GB 2026-02-04T12:12:30.300
+    m_zmel000: zmelsize= 0.002932 GB                              rank= 5 Memused (CPU)  0.309 GB 2026-02-04T12:12:30.454
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.309 GB 2026-02-04T12:12:30.476
+    m_zmel000: zmelsize= 0.003083 GB                              rank= 5 Memused (CPU)  0.309 GB 2026-02-04T12:12:30.661
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.312 GB 2026-02-04T12:12:30.682
+    m_zmel000: zmelsize= 0.002932 GB                              rank= 5 Memused (CPU)  0.312 GB 2026-02-04T12:12:30.830
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.312 GB 2026-02-04T12:12:30.851
+    m_zmel000: zmelsize= 0.002877 GB                              rank= 5 Memused (CPU)  0.312 GB 2026-02-04T12:12:31.018
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.312 GB 2026-02-04T12:12:31.034
+    m_zmel000: zmelsize= 0.002877 GB                              rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:31.192
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:31.209
+    m_zmel000: zmelsize= 0.002932 GB                              rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:31.333
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:31.350
+    m_zmel000: zmelsize= 0.002877 GB                              rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:31.529
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:31.546
+    m_zmel000: zmelsize= 0.002964 GB                              rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:31.701
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:31.718
+    m_zmel000: zmelsize= 0.003083 GB                              rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:31.899
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:31.917
+    m_zmel000: zmelsize= 0.003083 GB                              rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:32.096
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:32.114
+    m_zmel000: zmelsize= 0.003083 GB                              rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:32.283
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:32.302
+    m_zmel000: zmelsize= 0.003083 GB                              rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:32.480
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:32.496
+    m_zmel000: zmelsize= 0.003023 GB                              rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:32.666
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:32.685
+    m_zmel000: zmelsize= 0.003142 GB                              rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:32.857
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:32.874
+    m_zmel000: zmelsize= 0.003023 GB                              rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:33.032
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:33.049
+    m_zmel000: zmelsize= 0.003083 GB                              rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:33.198
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:33.215
+    m_zmel000: zmelsize= 0.003142 GB                              rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:33.375
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:33.392
+    m_zmel000: zmelsize= 0.003142 GB                              rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:33.545
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:33.562
+    m_zmel000: zmelsize= 0.002932 GB                              rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:33.727
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:33.744
+    m_zmel000: zmelsize= 0.003083 GB                              rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:33.908
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:33.925
+    m_zmel000: zmelsize= 0.003023 GB                              rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:34.106
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:34.124
+    m_zmel000: zmelsize= 0.002932 GB                              rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:34.284
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:34.303
+    m_zmel000: zmelsize= 0.002822 GB                              rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:34.457
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.313 GB 2026-02-04T12:12:34.474
+    m_zmel000: zmelsize= 0.002786 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:34.631
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:34.649
+    m_zmel000: zmelsize= 0.002964 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:34.809
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:34.826
+    m_zmel000: zmelsize= 0.003083 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:35.010
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:35.026
+    m_zmel000: zmelsize= 0.002964 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:35.172
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:35.189
+    m_zmel000: zmelsize= 0.002964 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:35.358
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:35.376
+    m_zmel000: zmelsize= 0.003083 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:35.560
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:35.580
+    m_zmel000: zmelsize= 0.003142 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:35.796
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:35.819
+    m_zmel000: zmelsize= 0.003083 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:35.995
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:36.012
+    m_zmel000: zmelsize= 0.003083 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:36.164
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:36.181
+    m_zmel000: zmelsize= 0.003142 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:36.332
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:36.351
+    m_zmel000: zmelsize= 0.003023 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:36.509
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:36.527
+    m_zmel000: zmelsize= 0.003142 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:36.680
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:36.698
+    m_zmel000: zmelsize= 0.002964 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:36.868
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:36.885
+    m_zmel000: zmelsize= 0.003083 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:37.057
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:37.075
+    m_zmel000: zmelsize= 0.003142 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:37.221
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:37.239
+    m_zmel000: zmelsize= 0.003083 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:37.397
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:37.414
+    m_zmel000: zmelsize= 0.002964 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:37.602
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:37.619
+    m_zmel000: zmelsize= 0.003083 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:37.797
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:37.813
+    m_zmel000: zmelsize= 0.003083 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:37.973
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:37.990
+    m_zmel000: zmelsize= 0.003083 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:38.150
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:38.167
+    m_zmel000: zmelsize= 0.003083 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:38.346
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:38.364
+    m_zmel000: zmelsize= 0.002822 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:38.563
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:38.580
+    m_zmel000: zmelsize= 0.002932 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:38.771
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:38.789
+    m_zmel000: zmelsize= 0.003023 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:38.942
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:38.959
+    m_zmel000: zmelsize= 0.003083 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:39.111
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:39.128
+    m_zmel000: zmelsize= 0.002932 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:39.289
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:39.306
+    m_zmel000: zmelsize= 0.003142 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:39.447
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:39.466
+    m_zmel000: zmelsize= 0.003142 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:39.630
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:39.648
+    m_zmel000: zmelsize= 0.003083 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:39.808
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:39.825
+    m_zmel000: zmelsize= 0.003023 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:40.010
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:40.027
+    m_zmel000: zmelsize= 0.003142 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:40.176
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:40.194
+    m_zmel000: zmelsize= 0.003023 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:40.345
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:40.362
+ Time:           zmel_gemm     3.2897 (sec)
+ Time:             x0_gemm     8.6204 (sec)
+ CPU:      12.3220 secs =     0.2 mins.
+ CPU:      12.5110 secs =     0.2 mins.
+    m_zmel000: zmelsize= 0.002213 GB                              rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:40.722
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.314 GB 2026-02-04T12:12:40.743
+    m_zmel000: zmelsize= 0.002521 GB                              rank= 5 Memused (CPU)  0.316 GB 2026-02-04T12:12:40.900
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.316 GB 2026-02-04T12:12:40.926
+    m_zmel000: zmelsize= 0.002434 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:41.115
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:41.140
+    m_zmel000: zmelsize= 0.002521 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:41.279
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:41.302
+    m_zmel000: zmelsize= 0.002521 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:41.473
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:41.493
+    m_zmel000: zmelsize= 0.002292 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:41.670
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:41.691
+    m_zmel000: zmelsize= 0.002478 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:41.863
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:41.889
+    m_zmel000: zmelsize= 0.002434 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:42.089
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:42.114
+    m_zmel000: zmelsize= 0.002434 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:42.287
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:42.307
+    m_zmel000: zmelsize= 0.002478 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:42.472
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:42.493
+    m_zmel000: zmelsize= 0.002521 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:42.645
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:42.665
+    m_zmel000: zmelsize= 0.002478 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:42.805
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:42.827
+    m_zmel000: zmelsize= 0.002521 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:43.041
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:43.063
+    m_zmel000: zmelsize= 0.002434 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:43.216
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:43.236
+    m_zmel000: zmelsize= 0.002478 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:43.377
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:43.397
+    m_zmel000: zmelsize= 0.002292 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:43.593
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:43.613
+    m_zmel000: zmelsize= 0.002213 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:43.755
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:43.774
+    m_zmel000: zmelsize= 0.002434 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:43.949
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:43.975
+    m_zmel000: zmelsize= 0.002434 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:44.149
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:44.174
+    m_zmel000: zmelsize= 0.002292 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:44.351
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:44.373
+    m_zmel000: zmelsize= 0.002434 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:44.529
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:44.552
+    m_zmel000: zmelsize= 0.002174 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:44.751
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:44.776
+    m_zmel000: zmelsize= 0.002253 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:44.989
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:45.014
+    m_zmel000: zmelsize= 0.002391 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:45.173
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:45.197
+    m_zmel000: zmelsize= 0.002434 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:45.367
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:45.390
+    m_zmel000: zmelsize= 0.002253 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:45.549
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:45.573
+    m_zmel000: zmelsize= 0.002253 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:45.757
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:45.781
+    m_zmel000: zmelsize= 0.002478 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:45.945
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:45.967
+    m_zmel000: zmelsize= 0.002292 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:46.114
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:46.133
+    m_zmel000: zmelsize= 0.002391 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:46.306
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:46.327
+    m_zmel000: zmelsize= 0.002478 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:46.475
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:46.494
+    m_zmel000: zmelsize= 0.002253 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:46.637
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:46.664
+    m_zmel000: zmelsize= 0.002016 GB                              rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:46.813
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.317 GB 2026-02-04T12:12:46.835
+    m_zmel000: zmelsize= 0.002134 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:46.995
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:47.015
+    m_zmel000: zmelsize= 0.002213 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:47.163
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:47.182
+    m_zmel000: zmelsize= 0.002134 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:47.325
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:47.344
+    m_zmel000: zmelsize= 0.002134 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:47.507
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:47.545
+    m_zmel000: zmelsize= 0.002213 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:47.736
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:47.760
+    m_zmel000: zmelsize= 0.002253 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:47.969
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:47.994
+    m_zmel000: zmelsize= 0.002213 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:48.172
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:48.198
+    m_zmel000: zmelsize= 0.002213 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:48.357
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:48.376
+    m_zmel000: zmelsize= 0.002253 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:48.510
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:48.529
+    m_zmel000: zmelsize= 0.001956 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:48.671
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 9                    rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:48.690
+    m_zmel000: zmelsize= 0.002253 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:48.798
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:48.819
+    m_zmel000: zmelsize= 0.002134 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:48.969
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:48.987
+    m_zmel000: zmelsize= 0.002213 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:49.139
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:49.160
+    m_zmel000: zmelsize= 0.002253 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:49.299
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:49.318
+    m_zmel000: zmelsize= 0.002213 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:49.495
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:49.519
+    m_zmel000: zmelsize= 0.002213 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:49.692
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:49.711
+    m_zmel000: zmelsize= 0.002292 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:49.870
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:49.893
+    m_zmel000: zmelsize= 0.002434 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:50.038
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:50.060
+    m_zmel000: zmelsize= 0.002434 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:50.229
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:50.249
+    m_zmel000: zmelsize= 0.002292 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:50.404
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:50.424
+    m_zmel000: zmelsize= 0.002253 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:50.581
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:50.606
+    m_zmel000: zmelsize= 0.002478 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:50.761
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:50.783
+    m_zmel000: zmelsize= 0.002391 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:50.933
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:50.954
+    m_zmel000: zmelsize= 0.002434 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:51.103
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:51.122
+    m_zmel000: zmelsize= 0.002478 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:51.268
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:51.290
+    m_zmel000: zmelsize= 0.002253 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:51.434
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:51.454
+    m_zmel000: zmelsize= 0.002253 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:51.628
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:51.652
+    m_zmel000: zmelsize= 0.002434 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:51.802
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:51.822
+    m_zmel000: zmelsize= 0.002391 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:51.979
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:52.004
+    m_zmel000: zmelsize= 0.002253 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:52.203
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:52.228
+    m_zmel000: zmelsize= 0.002174 GB                              rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:52.403
+    m_zmel111(notildeM) ngc= 72 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.318 GB 2026-02-04T12:12:52.425
+ Time:           zmel_gemm     3.5078 (sec)
+ Time:             x0_gemm     8.4046 (sec)
+ CPU:      24.4240 secs =     0.4 mins.
+  --- realomega --- 
+  --- imagomega --- 
+ -- dpsion_chiq: start imagomega
+ -- dpsion_chiq: start realomega
+ Time:              dpsion     0.7437 (sec)
+freq_r iq iw realomg trwv=    0.0000    6    0 -0.89260743065111D+02  0.53694210916008D-15 -0.89918895427813D+02  0.53997008974049D-15
+freq_r iq iw realomg trwv=    0.0001    6    1 -0.89260752267676D+02 -0.75561085319023D-02 -0.89918904925223D+02 -0.77172978728365D-02
+freq_r iq iw realomg trwv=    0.0002    6    2 -0.89260596376084D+02 -0.22987284607523D-01 -0.89918746646364D+02 -0.23476951852240D-01
+freq_r iq iw realomg trwv=    0.0003    6    3 -0.89260594371120D+02 -0.39108553693911D-01 -0.89918747135317D+02 -0.39940260517122D-01
+freq_r iq iw realomg trwv=    0.0004    6    4 -0.89260846840142D+02 -0.55939888180850D-01 -0.89919009838455D+02 -0.57127468805353D-01
+freq_r iq iw realomg trwv=    0.0005    6    5 -0.89261501377919D+02 -0.73496986949398D-01 -0.89919686191437D+02 -0.75054459066360D-01
+freq_r iq iw realomg trwv=    0.0006    6    6 -0.89262819857921D+02 -0.91786011439119D-01 -0.89921044331599D+02 -0.93727411716843D-01
+freq_r iq iw realomg trwv=    0.0008    6    7 -0.89265277089929D+02 -0.11087873066435D+00 -0.89923569823981D+02 -0.11321945214368D+00
+freq_r iq iw realomg trwv=    0.0009    6    8 -0.89269171774122D+02 -0.13217494744798D+00 -0.89927569010882D+02 -0.13495721763841D+00
+freq_r iq iw realomg trwv=    0.0011    6    9 -0.89274066563288D+02 -0.15719014976933D+00 -0.89932598578702D+02 -0.16048622783659D+00
+freq_r iq iw realomg trwv=    0.0012    6   10 -0.89279053867621D+02 -0.18650814285439D+00 -0.89937734178431D+02 -0.19040862758948D+00
+freq_r iq iw realomg trwv=    0.0014    6   11 -0.89282988708039D+02 -0.22088450381966D+00 -0.89941806073904D+02 -0.22549737749719D+00
+freq_r iq iw realomg trwv=    0.0016    6   12 -0.89284374914960D+02 -0.26025836973551D+00 -0.89943288643803D+02 -0.26568529333556D+00
+freq_r iq iw realomg trwv=    0.0017    6   13 -0.89281887698489D+02 -0.30239495454734D+00 -0.89940837329724D+02 -0.30869372646112D+00
+freq_r iq iw realomg trwv=    0.0019    6   14 -0.89275534580850D+02 -0.34550305887341D+00 -0.89934461926870D+02 -0.35270720958040D+00
+freq_r iq iw realomg trwv=    0.0021    6   15 -0.89265663610618D+02 -0.38931330238123D+00 -0.89924515264216D+02 -0.39745423563627D+00
+freq_r iq iw realomg trwv=    0.0023    6   16 -0.89252237865674D+02 -0.43360668180384D+00 -0.89910959210954D+02 -0.44271085736172D+00
+freq_r iq iw realomg trwv=    0.0026    6   17 -0.89234943253975D+02 -0.47762920103562D+00 -0.89893476051304D+02 -0.48771045950538D+00
+freq_r iq iw realomg trwv=    0.0028    6   18 -0.89214123693337D+02 -0.51890550607071D+00 -0.89872417484121D+02 -0.52994058698327D+00
+freq_r iq iw realomg trwv=    0.0030    6   19 -0.89191810295923D+02 -0.55478403158907D+00 -0.89849850703328D+02 -0.56671026969374D+00
+freq_r iq iw realomg trwv=    0.0033    6   20 -0.89170805145062D+02 -0.58809226396956D+00 -0.89828615933124D+02 -0.60091985435576D+00
+freq_r iq iw realomg trwv=    0.0036    6   21 -0.89151104470445D+02 -0.62247150758770D+00 -0.89808679254792D+02 -0.63627359389629D+00
+freq_r iq iw realomg trwv=    0.0039    6   22 -0.89132133369298D+02 -0.65620203499342D+00 -0.89789448137645D+02 -0.67095871032512D+00
+freq_r iq iw realomg trwv=    0.0042    6   23 -0.89114693420359D+02 -0.68955936087315D+00 -0.89771773621679D+02 -0.70519786715135D+00
+freq_r iq iw realomg trwv=    0.0045    6   24 -0.89099019199054D+02 -0.72513686681812D+00 -0.89755934810589D+02 -0.74168396202469D+00
+freq_r iq iw realomg trwv=    0.0048    6   25 -0.89084344551109D+02 -0.76407227072268D+00 -0.89741153326162D+02 -0.78162852182919D+00
+freq_r iq iw realomg trwv=    0.0052    6   26 -0.89069380212455D+02 -0.80709710438769D+00 -0.89726098264584D+02 -0.82578478502944D+00
+freq_r iq iw realomg trwv=    0.0055    6   27 -0.89053020235148D+02 -0.85290378596917D+00 -0.89709637272907D+02 -0.87280239321836D+00
+freq_r iq iw realomg trwv=    0.0059    6   28 -0.89034406700400D+02 -0.90238883416182D+00 -0.89690895089115D+02 -0.92360082447421D+00
+freq_r iq iw realomg trwv=    0.0063    6   29 -0.89012372841142D+02 -0.95271969595370D+00 -0.89668682589464D+02 -0.97530166521469D+00
+freq_r iq iw realomg trwv=    0.0067    6   30 -0.88988011461714D+02 -0.99917974394642D+00 -0.89644124367209D+02 -0.10230789113531D+01
+freq_r iq iw realomg trwv=    0.0072    6   31 -0.88963900767188D+02 -0.10463995891315D+01 -0.89619847298693D+02 -0.10716696012819D+01
+freq_r iq iw realomg trwv=    0.0077    6   32 -0.88939338561320D+02 -0.10945488140765D+01 -0.89595139567579D+02 -0.11212488336736D+01
+freq_r iq iw realomg trwv=    0.0082    6   33 -0.88914164909395D+02 -0.11424976901791D+01 -0.89569841277005D+02 -0.11706787035449D+01
+freq_r iq iw realomg trwv=    0.0087    6   34 -0.88889754781998D+02 -0.11904353270138D+01 -0.89545349618194D+02 -0.12201611464693D+01
+freq_r iq iw realomg trwv=    0.0092    6   35 -0.88866720894462D+02 -0.12396375919114D+01 -0.89522285243595D+02 -0.12709958193876D+01
+freq_r iq iw realomg trwv=    0.0098    6   36 -0.88844765576103D+02 -0.12913893920400D+01 -0.89500347776407D+02 -0.13244950708256D+01
+freq_r iq iw realomg trwv=    0.0104    6   37 -0.88823314177676D+02 -0.13459697587284D+01 -0.89478959873211D+02 -0.13809440898601D+01
+freq_r iq iw realomg trwv=    0.0110    6   38 -0.88802673923832D+02 -0.14016786484640D+01 -0.89458458896395D+02 -0.14386047088344D+01
+freq_r iq iw realomg trwv=    0.0117    6   39 -0.88784337497930D+02 -0.14594854066339D+01 -0.89440390284519D+02 -0.14985371393157D+01
+freq_r iq iw realomg trwv=    0.0124    6   40 -0.88768172099923D+02 -0.15280650886561D+01 -0.89424541678224D+02 -0.15697262933731D+01
+freq_r iq iw realomg trwv=    0.0132    6   41 -0.88746586668899D+02 -0.15953406253322D+01 -0.89403176164481D+02 -0.16396911279800D+01
+freq_r iq iw realomg trwv=    0.0139    6   42 -0.88729181247332D+02 -0.16647488322068D+01 -0.89386139329653D+02 -0.17120981604304D+01
+freq_r iq iw realomg trwv=    0.0148    6   43 -0.88733184902231D+02 -0.17716185710794D+01 -0.89390669198320D+02 -0.18238175104757D+01
+freq_r iq iw realomg trwv=    0.0156    6   44 -0.88711195384915D+02 -0.18942430853646D+01 -0.89367948090340D+02 -0.19515033899095D+01
+freq_r iq iw realomg trwv=    0.0165    6   45 -0.88651302884706D+02 -0.20220826934753D+01 -0.89305969536823D+02 -0.20839445512702D+01
+freq_r iq iw realomg trwv=    0.0175    6   46 -0.88536542534603D+02 -0.21337358661757D+01 -0.89187687807345D+02 -0.21991004212517D+01
+freq_r iq iw realomg trwv=    0.0185    6   47 -0.88374344956676D+02 -0.21854186537664D+01 -0.89021116598004D+02 -0.22522213057293D+01
+freq_r iq iw realomg trwv=    0.0195    6   48 -0.88256653700009D+02 -0.21677739897357D+01 -0.88900595826818D+02 -0.22344616171649D+01
+freq_r iq iw realomg trwv=    0.0206    6   49 -0.88230682043031D+02 -0.21492254756473D+01 -0.88873999332099D+02 -0.22165618189134D+01
+freq_r iq iw realomg trwv=    0.0218    6   50 -0.88355483191000D+02 -0.26137610571776D+01 -0.88999821210024D+02 -0.26896950137148D+01
+freq_r iq iw realomg trwv=    0.0230    6   51 -0.87803590375601D+02 -0.21863306270741D+01 -0.88439595658177D+02 -0.22545240825141D+01
+freq_r iq iw realomg trwv=    0.0243    6   52 -0.87885024412778D+02 -0.21768871257029D+01 -0.88522715659592D+02 -0.22441430788681D+01
+freq_r iq iw realomg trwv=    0.0256    6   53 -0.87924144605236D+02 -0.21273742261847D+01 -0.88564452650430D+02 -0.21937467924308D+01
+freq_r iq iw realomg trwv=    0.0270    6   54 -0.87968517773698D+02 -0.19842318661665D+01 -0.88613221072153D+02 -0.20478114052443D+01
+freq_r iq iw realomg trwv=    0.0285    6   55 -0.88115424848562D+02 -0.19017325762048D+01 -0.88767646379597D+02 -0.19652926142787D+01
+freq_r iq iw realomg trwv=    0.0301    6   56 -0.88328324685140D+02 -0.19357007957658D+01 -0.88989851790954D+02 -0.20037624253547D+01
+freq_r iq iw realomg trwv=    0.0317    6   57 -0.88544741067423D+02 -0.21664541714771D+01 -0.89214557516837D+02 -0.22522639638248D+01
+freq_r iq iw realomg trwv=    0.0335    6   58 -0.88653414416377D+02 -0.24410068985764D+01 -0.89321995555297D+02 -0.25519637472107D+01
+freq_r iq iw realomg trwv=    0.0353    6   59 -0.88669652235888D+02 -0.22495607577668D+01 -0.89327297820305D+02 -0.23263025326410D+01
+freq_r iq iw realomg trwv=    0.0372    6   60 -0.88970575582545D+02 -0.26196336125396D+01 -0.89646408979580D+02 -0.27127038126279D+01
+freq_r iq iw realomg trwv=    0.0392    6   61 -0.89106890929741D+02 -0.29204162334169D+01 -0.89792314347498D+02 -0.30287244946715D+01
+freq_r iq iw realomg trwv=    0.0413    6   62 -0.89170036999120D+02 -0.30581427471069D+01 -0.89861956765230D+02 -0.31726334033086D+01
+freq_r iq iw realomg trwv=    0.0435    6   63 -0.89335850975302D+02 -0.32925385362622D+01 -0.90037593735335D+02 -0.34257509015022D+01
+freq_r iq iw realomg trwv=    0.0459    6   64 -0.89528860018711D+02 -0.36621335810014D+01 -0.90237292316533D+02 -0.38217558160507D+01
+freq_r iq iw realomg trwv=    0.0483    6   65 -0.89658822980585D+02 -0.39869134428440D+01 -0.90367526632448D+02 -0.41660488708433D+01
+freq_r iq iw realomg trwv=    0.0509    6   66 -0.89818995213102D+02 -0.43215234096202D+01 -0.90528125896349D+02 -0.45200777850287D+01
+freq_r iq iw realomg trwv=    0.0536    6   67 -0.90037668158666D+02 -0.46119426405309D+01 -0.90749809984740D+02 -0.48259325676972D+01
+freq_r iq iw realomg trwv=    0.0565    6   68 -0.90396921254783D+02 -0.52331088549810D+01 -0.91118147186201D+02 -0.54785338587604D+01
+freq_r iq iw realomg trwv=    0.0595    6   69 -0.90686614001763D+02 -0.65640359507821D+01 -0.91417061189533D+02 -0.68808786717059D+01
+freq_r iq iw realomg trwv=    0.0626    6   70 -0.90414711077740D+02 -0.73013403498894D+01 -0.91104176521974D+02 -0.76434081019278D+01
+freq_r iq iw realomg trwv=    0.0659    6   71 -0.90288942698913D+02 -0.81862321468269D+01 -0.90951362802105D+02 -0.85608370230144D+01
+freq_r iq iw realomg trwv=    0.0694    6   72 -0.89494983364838D+02 -0.84856774217091D+01 -0.90118195615637D+02 -0.88637028858770D+01
+freq_r iq iw realomg trwv=    0.0731    6   73 -0.89308588753967D+02 -0.90161795271608D+01 -0.89907711993513D+02 -0.94018551458937D+01
+freq_r iq iw realomg trwv=    0.0769    6   74 -0.88951428513935D+02 -0.94216243652765D+01 -0.89531195674966D+02 -0.97994771330365D+01
+freq_r iq iw realomg trwv=    0.0810    6   75 -0.88847745925493D+02 -0.10186733963784D+02 -0.89428682230441D+02 -0.10610174520121D+02
+freq_r iq iw realomg trwv=    0.0852    6   76 -0.88314607671920D+02 -0.10861136530416D+02 -0.88869894985499D+02 -0.11329303098104D+02
+freq_r iq iw realomg trwv=    0.0897    6   77 -0.87330965662396D+02 -0.11175447406213D+02 -0.87837527557300D+02 -0.11663607438091D+02
+freq_r iq iw realomg trwv=    0.0944    6   78 -0.86820838570204D+02 -0.10963455630437D+02 -0.87274059400288D+02 -0.11439807252369D+02
+freq_r iq iw realomg trwv=    0.0993    6   79 -0.86904729021336D+02 -0.10896791676482D+02 -0.87324420952090D+02 -0.11365420638780D+02
+freq_r iq iw realomg trwv=    0.1045    6   80 -0.87415973387890D+02 -0.12021424792543D+02 -0.87813803661028D+02 -0.12517011216846D+02
+freq_r iq iw realomg trwv=    0.1100    6   81 -0.86612650545759D+02 -0.12929858972907D+02 -0.86954430687010D+02 -0.13405126662248D+02
+freq_r iq iw realomg trwv=    0.1157    6   82 -0.85964787203888D+02 -0.13937618165596D+02 -0.86276261976900D+02 -0.14429890234791D+02
+freq_r iq iw realomg trwv=    0.1218    6   83 -0.84604723493731D+02 -0.13877810635902D+02 -0.84857717285777D+02 -0.14326294621769D+02
+freq_r iq iw realomg trwv=    0.1281    6   84 -0.83821994957677D+02 -0.13688423172170D+02 -0.84050919215629D+02 -0.14090793012858D+02
+freq_r iq iw realomg trwv=    0.1348    6   85 -0.84009412601737D+02 -0.14205958964739D+02 -0.84239948720320D+02 -0.14625220802728D+02
+freq_r iq iw realomg trwv=    0.1418    6   86 -0.83606691396302D+02 -0.14662847465107D+02 -0.83808069930810D+02 -0.15089608599312D+02
+freq_r iq iw realomg trwv=    0.1492    6   87 -0.82863949139486D+02 -0.15081640360060D+02 -0.83019923372184D+02 -0.15481608447512D+02
+freq_r iq iw realomg trwv=    0.1569    6   88 -0.82241225091632D+02 -0.14831061492002D+02 -0.82367652095293D+02 -0.15196424353519D+02
+freq_r iq iw realomg trwv=    0.1651    6   89 -0.81948528895111D+02 -0.14856699726500D+02 -0.82057538422532D+02 -0.15190548873382D+02
+freq_r iq iw realomg trwv=    0.1736    6   90 -0.81857632448548D+02 -0.15386535515253D+02 -0.81953745683499D+02 -0.15704695751771D+02
+freq_r iq iw realomg trwv=    0.1826    6   91 -0.81466097297142D+02 -0.15847179896538D+02 -0.81544188698768D+02 -0.16142794700181D+02
+freq_r iq iw realomg trwv=    0.1921    6   92 -0.81031698864975D+02 -0.16085058527367D+02 -0.81093010522571D+02 -0.16344281061371D+02
+freq_r iq iw realomg trwv=    0.2021    6   93 -0.80807152633793D+02 -0.16193535839789D+02 -0.80861856059926D+02 -0.16416992337998D+02
+freq_r iq iw realomg trwv=    0.2125    6   94 -0.80812824949445D+02 -0.16280464128728D+02 -0.80868705408870D+02 -0.16472225246812D+02
+freq_r iq iw realomg trwv=    0.2235    6   95 -0.81043378863745D+02 -0.16685658414756D+02 -0.81105218596984D+02 -0.16850886276313D+02
+freq_r iq iw realomg trwv=    0.2351    6   96 -0.81282796606978D+02 -0.17429127352205D+02 -0.81353091766039D+02 -0.17571974806843D+02
+freq_r iq iw realomg trwv=    0.2473    6   97 -0.81432779725209D+02 -0.18353320164557D+02 -0.81513239985713D+02 -0.18476892015354D+02
+freq_r iq iw realomg trwv=    0.2600    6   98 -0.81548845837634D+02 -0.19678153806668D+02 -0.81641637281826D+02 -0.19783012270937D+02
+freq_r iq iw realomg trwv=    0.2735    6   99 -0.81284705500364D+02 -0.21516584437084D+02 -0.81393176461341D+02 -0.21606639754623D+02
+freq_r iq iw realomg trwv=    0.2876    6  100 -0.79695440467926D+02 -0.23770577109686D+02 -0.79821811585552D+02 -0.23851671202710D+02
+freq_r iq iw realomg trwv=    0.3024    6  101 -0.76692775603483D+02 -0.24529523794637D+02 -0.76837626806376D+02 -0.24608083361587D+02
+freq_r iq iw realomg trwv=    0.3180    6  102 -0.74996217319984D+02 -0.23215043706969D+02 -0.75159101409804D+02 -0.23298679199498D+02
+freq_r iq iw realomg trwv=    0.3345    6  103 -0.74520103351171D+02 -0.21954048131121D+02 -0.74697778370880D+02 -0.22052057255746D+02
+freq_r iq iw realomg trwv=    0.3517    6  104 -0.75186845325741D+02 -0.21731683254465D+02 -0.75372166702532D+02 -0.21852456308462D+02
+freq_r iq iw realomg trwv=    0.3698    6  105 -0.75953883580873D+02 -0.22162560668043D+02 -0.76136010850600D+02 -0.22309805731095D+02
+freq_r iq iw realomg trwv=    0.3889    6  106 -0.76179835119879D+02 -0.22598588935999D+02 -0.76348562603856D+02 -0.22761979579776D+02
+freq_r iq iw realomg trwv=    0.4089    6  107 -0.76591036732445D+02 -0.23359218915936D+02 -0.76741695194400D+02 -0.23529463638540D+02
+freq_r iq iw realomg trwv=    0.4300    6  108 -0.77002337836289D+02 -0.24520999384112D+02 -0.77135268150234D+02 -0.24685763990489D+02
+freq_r iq iw realomg trwv=    0.4522    6  109 -0.77488744239619D+02 -0.26563691123807D+02 -0.77608951820749D+02 -0.26716540904097D+02
+freq_r iq iw realomg trwv=    0.4755    6  110 -0.77355813842817D+02 -0.28794331959186D+02 -0.77470626590938D+02 -0.28933121447581D+02
+freq_r iq iw realomg trwv=    0.4999    6  111 -0.76176236761054D+02 -0.30158429530983D+02 -0.76290874119783D+02 -0.30291820078869D+02
+freq_r iq iw realomg trwv=    0.5257    6  112 -0.74315387501885D+02 -0.30220919939358D+02 -0.74429594939916D+02 -0.30351668804947D+02
+freq_r iq iw realomg trwv=    0.5527    6  113 -0.75208697844049D+02 -0.30174224725839D+02 -0.75321459896002D+02 -0.30307488087150D+02
+freq_r iq iw realomg trwv=    0.5812    6  114 -0.76993301851958D+02 -0.31594473661599D+02 -0.77101909141901D+02 -0.31731826074017D+02
+freq_r iq iw realomg trwv=    0.6111    6  115 -0.78836044351102D+02 -0.35147749610646D+02 -0.78938886079956D+02 -0.35285204611036D+02
+freq_r iq iw realomg trwv=    0.6425    6  116 -0.78528881243198D+02 -0.38791033149009D+02 -0.78626138129279D+02 -0.38927742119221D+02
+freq_r iq iw realomg trwv=    0.6755    6  117 -0.76718168416896D+02 -0.41861331575163D+02 -0.76807245822334D+02 -0.42003642907818D+02
+freq_r iq iw realomg trwv=    0.7103    6  118 -0.76413451835358D+02 -0.45289907228637D+02 -0.76490724065631D+02 -0.45430901604384D+02
+freq_r iq iw realomg trwv=    0.7468    6  119 -0.76584377343854D+02 -0.50225629494135D+02 -0.76648197954294D+02 -0.50364472234648D+02
+freq_r iq iw realomg trwv=    0.7852    6  120 -0.76945336758583D+02 -0.55836101087921D+02 -0.76994245617003D+02 -0.55963352115866D+02
+freq_r iq iw realomg trwv=    0.8255    6  121 -0.72773419476296D+02 -0.63639009941416D+02 -0.72813657483365D+02 -0.63736120170678D+02
+freq_r iq iw realomg trwv=    0.8680    6  122 -0.62012125885202D+02 -0.72602417768757D+02 -0.62061981886945D+02 -0.72660710817283D+02
+freq_r iq iw realomg trwv=    0.9126    6  123 -0.45859945934757D+02 -0.73656361021748D+02 -0.45932371536048D+02 -0.73713882681122D+02
+freq_r iq iw realomg trwv=    0.9595    6  124 -0.32712331460924D+02 -0.57581777734262D+02 -0.32796843001624D+02 -0.57660661640503D+02
+freq_r iq iw realomg trwv=    1.0088    6  125 -0.44197432027450D+02 -0.55954137800189D+02 -0.44280373137441D+02 -0.56047552135958D+02
+freq_r iq iw realomg trwv=    1.0606    6  126 -0.42621955772171D+02 -0.62228055874993D+02 -0.42699186258464D+02 -0.62319975122738D+02
+freq_r iq iw realomg trwv=    1.1151    6  127 -0.38414626405318D+02 -0.63563602379089D+02 -0.38487343055404D+02 -0.63658118489761D+02
+freq_r iq iw realomg trwv=    1.1723    6  128 -0.36591644110683D+02 -0.67547148161516D+02 -0.36657571431221D+02 -0.67644442129188D+02
+freq_r iq iw realomg trwv=    1.2325    6  129 -0.25903151822630D+02 -0.67485873014567D+02 -0.25963560697850D+02 -0.67570919880042D+02
+freq_r iq iw realomg trwv=    1.2958    6  130 -0.18190520515668D+02 -0.61642563363343D+02 -0.18251762253367D+02 -0.61717862493221D+02
+freq_r iq iw realomg trwv=    1.3624    6  131 -0.14296807781329D+02 -0.56255858391155D+02 -0.14362688304154D+02 -0.56326294883258D+02
+freq_r iq iw realomg trwv=    1.4323    6  132 -0.13054503158522D+02 -0.53609512306695D+02 -0.13126280969022D+02 -0.53678308064170D+02
+freq_r iq iw realomg trwv=    1.5059    6  133 -0.10255867621397D+02 -0.48367280162393D+02 -0.10334840860918D+02 -0.48434215130643D+02
+freq_r iq iw realomg trwv=    1.5832    6  134 -0.13441125577288D+02 -0.47457843799052D+02 -0.13525215755054D+02 -0.47538479474754D+02
+freq_r iq iw realomg trwv=    1.6645    6  135 -0.10391991801150D+02 -0.45375128552346D+02 -0.10482323910520D+02 -0.45442014313486D+02
+freq_r iq iw realomg trwv=    1.7499    6  136 -0.87454452514685D+01 -0.42338508376431D+02 -0.88591573955047D+01 -0.42400427804753D+02
+freq_r iq iw realomg trwv=    1.8397    6  137 -0.99491111774068D+01 -0.39418942032606D+02 -0.10105455652797D+02 -0.39477032650972D+02
+freq_r iq iw realomg trwv=    1.9342    6  138 -0.15001559741925D+02 -0.39288871288754D+02 -0.15270979066623D+02 -0.39574155999389D+02
+freq_r iq iw realomg trwv=    2.0334    6  139 -0.14727838364021D+02 -0.45025472547502D+02 -0.14690757796152D+02 -0.45278527980954D+02
+freq_r iq iw realomg trwv=    2.1378    6  140 -0.14670321683265D+02 -0.56324642835794D+02 -0.14596506162797D+02 -0.56448421198592D+02
+freq_r iq iw realomg trwv=    2.2475    6  141 -0.43989026570712D+01 -0.51628676077257D+02 -0.43551964317418D+01 -0.51764034228774D+02
+freq_r iq iw realomg trwv=    2.3628    6  142  0.28242177139130D+01 -0.52390280466536D+02  0.28691389790029D+01 -0.52498067166572D+02
+freq_r iq iw realomg trwv=    2.4841    6  143  0.74720595379230D+01 -0.48740043218534D+02  0.75147679433184D+01 -0.48846149962807D+02
+freq_r iq iw realomg trwv=    2.6115    6  144  0.12942353846695D+02 -0.43914857646560D+02  0.12990678530047D+02 -0.44013040049047D+02
+freq_r iq iw realomg trwv=    2.7455    6  145  0.18669768469734D+02 -0.35829236726878D+02  0.18717819958696D+02 -0.35886736719590D+02
+freq_r iq iw realomg trwv=    2.8864    6  146  0.15508840322258D+02 -0.33277264405084D+02  0.15546342776624D+02 -0.33347249454176D+02
+freq_r iq iw realomg trwv=    3.0345    6  147  0.15968394783426D+02 -0.31193546297157D+02  0.16007343905713D+02 -0.31259065964472D+02
+freq_r iq iw realomg trwv=    3.1902    6  148  0.17367270375427D+02 -0.28161749183686D+02  0.17406828798350D+02 -0.28218120660368D+02
+freq_r iq iw realomg trwv=    3.3538    6  149  0.18231647046510D+02 -0.25414459752420D+02  0.18269899768345D+02 -0.25464948659563D+02
+freq_r iq iw realomg trwv=    3.5259    6  150  0.19251994758542D+02 -0.21843628341956D+02  0.19290041707135D+02 -0.21892304012212D+02
+freq_r iq iw realomg trwv=    3.7068    6  151  0.19755226847589D+02 -0.17307488006827D+02  0.19793099096783D+02 -0.17346426095102D+02
+freq_r iq iw realomg trwv=    3.8969    6  152  0.18817335560718D+02 -0.14766925292562D+02  0.18854055204569D+02 -0.14804948634104D+02
+freq_r iq iw realomg trwv=    4.0968    6  153  0.18143915839579D+02 -0.12028793737934D+02  0.18181172670385D+02 -0.12062240574917D+02
+freq_r iq iw realomg trwv=    4.3070    6  154  0.17007563911932D+02 -0.84924238957618D+01  0.17043935214843D+02 -0.85179844619109D+01
+freq_r iq iw realomg trwv=    4.5279    6  155  0.15240534022760D+02 -0.71890184717948D+01  0.15274523442038D+02 -0.72107360712990D+01
+freq_r iq iw realomg trwv=    4.7602    6  156  0.14174226939546D+02 -0.61320756007989D+01  0.14207089123318D+02 -0.61521368508177D+01
+freq_r iq iw realomg trwv=    5.0043    6  157  0.13154552803883D+02 -0.42897314784115D+01  0.13186638896646D+02 -0.43047166167899D+01
+freq_r iq iw realomg trwv=    5.2610    6  158  0.11770933571572D+02 -0.29226379808426D+01  0.11800541554218D+02 -0.29316818171444D+01
+freq_r iq iw realomg trwv=    5.5309    6  159  0.10400111710610D+02 -0.19170456666048D+01  0.10426232794193D+02 -0.19230815544721D+01
+freq_r iq iw realomg trwv=    5.8145    6  160  0.91344282366981D+01 -0.15958347232750D+01  0.91574141417708D+01 -0.16006664259818D+01
+freq_r iq iw realomg trwv=    6.1128    6  161  0.81312624193618D+01 -0.10503308550468D+01  0.81517373297622D+01 -0.10536287144531D+01
+freq_r iq iw realomg trwv=    6.4263    6  162  0.72173015463959D+01 -0.75925546990297D+00  0.72354639231408D+01 -0.76146408926795D+00
+freq_r iq iw realomg trwv=    6.7558    6  163  0.64280511600282D+01 -0.53782887036589D+00  0.64441915755182D+01 -0.53942151272313D+00
+freq_r iq iw realomg trwv=    7.1023    6  164  0.56961836876783D+01 -0.17066282239587D+00  0.57104573081772D+01 -0.17120875058233D+00
+ Time:              gather     0.0209 (sec)
+ Time:              matinv     1.0256 (sec)
+freq_i iq iw imgomg trwv=   75.6475    6    1 -0.38065912465216D-01 -0.22665115506661D-21 -0.38158828372789D-01 -0.22682330062270D-21
+freq_i iq iw imgomg trwv=   13.8218    6    2 -0.10916882675026D+01 -0.34201272738271D-19 -0.10943459438611D+01 -0.34346546451150D-19
+freq_i iq iw imgomg trwv=    5.2385    6    3 -0.62052642522966D+01 -0.46299597107795D-17 -0.62202417084158D+01 -0.48305946429536D-17
+freq_i iq iw imgomg trwv=    2.5298    6    4 -0.17291045260944D+02 -0.51147212113785D-16 -0.17332393257508D+02 -0.51123913617485D-16
+freq_i iq iw imgomg trwv=    1.3498    6    5 -0.32394536348527D+02 -0.26124172419163D-15 -0.32472057782955D+02 -0.26124378596492D-15
+freq_i iq iw imgomg trwv=    0.7408    6    6 -0.48254429138386D+02 -0.12191818635766D-15 -0.48375842611152D+02 -0.12179325260565D-15
+freq_i iq iw imgomg trwv=    0.3953    6    7 -0.62255336211871D+02 -0.50548379860215D-15 -0.62435838723778D+02 -0.50574907959479D-15
+freq_i iq iw imgomg trwv=    0.1909    6    8 -0.73500150931701D+02  0.49658293628158D-14 -0.73777054139887D+02  0.49660198121314D-14
+freq_i iq iw imgomg trwv=    0.0723    6    9 -0.82238034479475D+02 -0.38934991787123D-14 -0.82683597685189D+02 -0.38949871184351D-14
+freq_i iq iw imgomg trwv=    0.0132    6   10 -0.87627620452865D+02 -0.34007128179676D-14 -0.88241472371694D+02 -0.34022953520285D-14
+ Time:              gather     0.0013 (sec)
+ Time:              matinv     0.0583 (sec)
+ CPU:      26.5190 secs =     0.4 mins.
+ CPU:      26.8940 secs =     0.4 mins.
+    m_zmel000: zmelsize= 0.002956 GB                              rank= 5 Memused (CPU)  0.330 GB 2026-02-04T12:12:55.105
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:55.126
+    m_zmel000: zmelsize= 0.002900 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:55.277
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:55.295
+    m_zmel000: zmelsize= 0.002956 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:55.435
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:55.452
+    m_zmel000: zmelsize= 0.002845 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:55.606
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:55.625
+    m_zmel000: zmelsize= 0.002900 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:55.777
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:55.798
+    m_zmel000: zmelsize= 0.002789 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:55.994
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:56.016
+    m_zmel000: zmelsize= 0.002900 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:56.239
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:56.261
+    m_zmel000: zmelsize= 0.002956 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:56.426
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:56.445
+    m_zmel000: zmelsize= 0.002789 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:56.629
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:56.649
+    m_zmel000: zmelsize= 0.002621 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:56.810
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:56.826
+    m_zmel000: zmelsize= 0.002988 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:56.968
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:56.985
+    m_zmel000: zmelsize= 0.002900 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:57.157
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:57.174
+    m_zmel000: zmelsize= 0.002900 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:57.332
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:57.353
+    m_zmel000: zmelsize= 0.002789 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:57.505
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:57.521
+    m_zmel000: zmelsize= 0.002900 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:57.677
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:57.695
+    m_zmel000: zmelsize= 0.002956 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:57.862
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:57.880
+    m_zmel000: zmelsize= 0.003167 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:58.030
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:58.048
+    m_zmel000: zmelsize= 0.003108 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:58.200
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:58.216
+    m_zmel000: zmelsize= 0.003167 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:58.369
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:58.387
+    m_zmel000: zmelsize= 0.003167 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:58.542
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:58.561
+    m_zmel000: zmelsize= 0.003048 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:58.717
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:58.733
+    m_zmel000: zmelsize= 0.003108 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:58.903
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:58.920
+    m_zmel000: zmelsize= 0.003048 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:59.095
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:59.111
+    m_zmel000: zmelsize= 0.003167 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:59.260
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:59.277
+    m_zmel000: zmelsize= 0.003108 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:59.425
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:59.442
+    m_zmel000: zmelsize= 0.002988 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:59.614
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:59.630
+    m_zmel000: zmelsize= 0.003108 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:59.797
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:59.815
+    m_zmel000: zmelsize= 0.002900 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:59.968
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:12:59.984
+    m_zmel000: zmelsize= 0.003048 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:00.127
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:00.143
+    m_zmel000: zmelsize= 0.003108 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:00.294
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:00.311
+    m_zmel000: zmelsize= 0.002845 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:00.474
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:00.491
+    m_zmel000: zmelsize= 0.002956 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:00.642
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:00.659
+    m_zmel000: zmelsize= 0.003167 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:00.802
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:00.820
+    m_zmel000: zmelsize= 0.003108 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:00.971
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:00.988
+    m_zmel000: zmelsize= 0.003167 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:01.133
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:01.150
+    m_zmel000: zmelsize= 0.003108 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:01.302
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:01.319
+    m_zmel000: zmelsize= 0.003108 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:01.439
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:01.456
+    m_zmel000: zmelsize= 0.003108 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:01.615
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:01.632
+    m_zmel000: zmelsize= 0.003108 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:01.790
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:01.807
+    m_zmel000: zmelsize= 0.003167 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:01.949
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:01.967
+    m_zmel000: zmelsize= 0.003108 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:02.112
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:02.131
+    m_zmel000: zmelsize= 0.002988 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:02.284
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:02.302
+    m_zmel000: zmelsize= 0.003108 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:02.445
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:02.463
+    m_zmel000: zmelsize= 0.003108 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:02.618
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:02.636
+    m_zmel000: zmelsize= 0.003108 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:02.776
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:02.793
+    m_zmel000: zmelsize= 0.003108 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:02.937
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:02.954
+    m_zmel000: zmelsize= 0.003108 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:03.112
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:03.129
+    m_zmel000: zmelsize= 0.003167 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:03.280
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:03.298
+    m_zmel000: zmelsize= 0.003167 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:03.439
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:03.456
+    m_zmel000: zmelsize= 0.003108 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:03.606
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:03.623
+    m_zmel000: zmelsize= 0.003167 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:03.769
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:03.786
+    m_zmel000: zmelsize= 0.003167 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:03.942
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:03.959
+    m_zmel000: zmelsize= 0.003048 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:04.114
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:04.131
+    m_zmel000: zmelsize= 0.002900 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:04.284
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:04.300
+    m_zmel000: zmelsize= 0.002845 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:04.448
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:04.465
+    m_zmel000: zmelsize= 0.003167 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:04.600
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:04.621
+    m_zmel000: zmelsize= 0.003108 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:04.779
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:04.796
+    m_zmel000: zmelsize= 0.002789 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:04.962
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:04.979
+    m_zmel000: zmelsize= 0.003108 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:05.154
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:05.172
+    m_zmel000: zmelsize= 0.003108 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:05.348
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:05.364
+    m_zmel000: zmelsize= 0.003048 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:05.512
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:05.530
+    m_zmel000: zmelsize= 0.003108 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:05.686
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:05.704
+    m_zmel000: zmelsize= 0.003048 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:05.876
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:05.895
+    m_zmel000: zmelsize= 0.003167 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:06.095
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:06.113
+ Time:           zmel_gemm     3.1675 (sec)
+ Time:             x0_gemm     8.0380 (sec)
+ CPU:      38.1000 secs =     0.6 mins.
+ CPU:      38.2900 secs =     0.6 mins.
+    m_zmel000: zmelsize= 0.002271 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:06.501
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:06.521
+    m_zmel000: zmelsize= 0.002454 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:06.654
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:06.675
+    m_zmel000: zmelsize= 0.002498 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:06.822
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:06.844
+    m_zmel000: zmelsize= 0.002410 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:06.992
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:07.011
+    m_zmel000: zmelsize= 0.002454 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:07.153
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:07.171
+    m_zmel000: zmelsize= 0.002151 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:07.336
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:07.354
+    m_zmel000: zmelsize= 0.002454 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:07.493
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:07.513
+    m_zmel000: zmelsize= 0.002498 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:07.655
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:07.675
+    m_zmel000: zmelsize= 0.002366 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:07.814
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:07.834
+    m_zmel000: zmelsize= 0.002235 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:07.977
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:07.995
+    m_zmel000: zmelsize= 0.002366 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:08.132
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:08.152
+    m_zmel000: zmelsize= 0.002454 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:08.291
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:08.310
+    m_zmel000: zmelsize= 0.002454 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:08.442
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:08.460
+    m_zmel000: zmelsize= 0.002366 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:08.626
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:08.644
+    m_zmel000: zmelsize= 0.002454 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:08.787
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:08.806
+    m_zmel000: zmelsize= 0.002271 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:08.962
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:08.982
+    m_zmel000: zmelsize= 0.002271 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:09.141
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:09.159
+    m_zmel000: zmelsize= 0.002454 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:09.298
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:09.319
+    m_zmel000: zmelsize= 0.002498 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:09.492
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:09.517
+    m_zmel000: zmelsize= 0.002271 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:09.722
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:09.744
+    m_zmel000: zmelsize= 0.002410 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:09.893
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:09.912
+    m_zmel000: zmelsize= 0.002231 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:10.113
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:10.138
+    m_zmel000: zmelsize= 0.002191 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:10.335
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:10.360
+    m_zmel000: zmelsize= 0.002498 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:10.522
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:10.543
+    m_zmel000: zmelsize= 0.002454 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:10.727
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:10.746
+    m_zmel000: zmelsize= 0.002231 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:10.904
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:10.921
+    m_zmel000: zmelsize= 0.002311 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:11.051
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:11.069
+    m_zmel000: zmelsize= 0.002454 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:11.208
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:11.227
+    m_zmel000: zmelsize= 0.002191 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:11.361
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:11.379
+    m_zmel000: zmelsize= 0.002542 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:11.498
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:11.517
+    m_zmel000: zmelsize= 0.002498 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:11.660
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:11.681
+    m_zmel000: zmelsize= 0.002271 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:11.821
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:11.839
+    m_zmel000: zmelsize= 0.002271 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:11.968
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:11.986
+    m_zmel000: zmelsize= 0.002231 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:12.111
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:12.129
+    m_zmel000: zmelsize= 0.002271 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:12.258
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:12.275
+    m_zmel000: zmelsize= 0.002311 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:12.411
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:12.429
+    m_zmel000: zmelsize= 0.002311 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:12.559
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:12.576
+    m_zmel000: zmelsize= 0.002311 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:12.703
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:12.721
+    m_zmel000: zmelsize= 0.002231 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:12.854
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:12.873
+    m_zmel000: zmelsize= 0.002271 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:13.009
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:13.033
+    m_zmel000: zmelsize= 0.002311 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:13.188
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:13.208
+    m_zmel000: zmelsize= 0.002231 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:13.336
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:13.353
+    m_zmel000: zmelsize= 0.002080 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:13.474
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 9                    rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:13.493
+    m_zmel000: zmelsize= 0.002231 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:13.637
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:13.656
+    m_zmel000: zmelsize= 0.002231 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:13.793
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:13.811
+    m_zmel000: zmelsize= 0.002311 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:13.942
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:13.961
+    m_zmel000: zmelsize= 0.002311 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:14.089
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:14.107
+    m_zmel000: zmelsize= 0.002271 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:14.238
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:14.256
+    m_zmel000: zmelsize= 0.002271 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:14.382
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:14.400
+    m_zmel000: zmelsize= 0.002231 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:14.529
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:14.547
+    m_zmel000: zmelsize= 0.002498 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:14.680
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:14.698
+    m_zmel000: zmelsize= 0.002498 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:14.835
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:14.853
+    m_zmel000: zmelsize= 0.002271 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:14.991
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:15.009
+    m_zmel000: zmelsize= 0.002311 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:15.149
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:15.169
+    m_zmel000: zmelsize= 0.002410 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:15.304
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:15.323
+    m_zmel000: zmelsize= 0.002498 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:15.455
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:15.473
+    m_zmel000: zmelsize= 0.002542 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:15.613
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:15.634
+    m_zmel000: zmelsize= 0.002454 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:15.773
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:15.792
+    m_zmel000: zmelsize= 0.002231 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:15.991
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:16.011
+    m_zmel000: zmelsize= 0.002231 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:16.185
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:16.204
+    m_zmel000: zmelsize= 0.002410 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:16.341
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:16.361
+    m_zmel000: zmelsize= 0.002454 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:16.493
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:16.511
+    m_zmel000: zmelsize= 0.002191 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:16.651
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:16.669
+    m_zmel000: zmelsize= 0.002271 GB                              rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:16.794
+    m_zmel111(notildeM) ngc= 74 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.333 GB 2026-02-04T12:13:16.817
+ Time:           zmel_gemm     3.1181 (sec)
+ Time:             x0_gemm     7.3466 (sec)
+ CPU:      48.7550 secs =     0.8 mins.
+ -- dpsion_chiq: start imagomega
+ -- dpsion_chiq: start realomega
+ Time:              dpsion     0.6342 (sec)
+freq_r iq iw realomg trwv=    0.0000   14    0 -0.10710736910310D+03 -0.58788178694665D-15 -0.10775798557520D+03 -0.58700503071062D-15
+freq_r iq iw realomg trwv=    0.0001   14    1 -0.10710737876235D+03 -0.33845691176159D-02 -0.10775799556252D+03 -0.34962896180148D-02
+freq_r iq iw realomg trwv=    0.0002   14    2 -0.10710734891999D+03 -0.10324031759720D-01 -0.10775796480200D+03 -0.10664818725577D-01
+freq_r iq iw realomg trwv=    0.0003   14    3 -0.10710740582244D+03 -0.17616470372243D-01 -0.10775802369042D+03 -0.18197934201582D-01
+freq_r iq iw realomg trwv=    0.0004   14    4 -0.10710756890297D+03 -0.25260766756002D-01 -0.10775819236843D+03 -0.26094164369576D-01
+freq_r iq iw realomg trwv=    0.0005   14    5 -0.10710787009682D+03 -0.33266676951901D-01 -0.10775850402758D+03 -0.34363441051472D-01
+freq_r iq iw realomg trwv=    0.0006   14    6 -0.10710834800814D+03 -0.41655322134476D-01 -0.10775899875142D+03 -0.43027607708992D-01
+freq_r iq iw realomg trwv=    0.0008   14    7 -0.10710905001919D+03 -0.50445683873518D-01 -0.10775972568973D+03 -0.52106182270989D-01
+freq_r iq iw realomg trwv=    0.0009   14    8 -0.10711004135494D+03 -0.59659561261355D-01 -0.10776075250358D+03 -0.61621571904204D-01
+freq_r iq iw realomg trwv=    0.0011   14    9 -0.10711140039489D+03 -0.69360554851596D-01 -0.10776216061296D+03 -0.71639280520942D-01
+freq_r iq iw realomg trwv=    0.0012   14   10 -0.10711324990484D+03 -0.79565306396571D-01 -0.10776407781162D+03 -0.82175996183214D-01
+freq_r iq iw realomg trwv=    0.0014   14   11 -0.10711577402066D+03 -0.90425444803253D-01 -0.10776669564342D+03 -0.93389421397027D-01
+freq_r iq iw realomg trwv=    0.0016   14   12 -0.10711902860554D+03 -0.10252303934389D+00 -0.10777007182205D+03 -0.10588490436992D+00
+freq_r iq iw realomg trwv=    0.0017   14   13 -0.10712256765347D+03 -0.11680889499136D+00 -0.10777374262966D+03 -0.12064870184274D+00
+freq_r iq iw realomg trwv=    0.0019   14   14 -0.10712558350866D+03 -0.13318412738854D+00 -0.10777686975007D+03 -0.13757578600528D+00
+freq_r iq iw realomg trwv=    0.0021   14   15 -0.10712811195260D+03 -0.14948741152239D+00 -0.10777949177426D+03 -0.15442106824338D+00
+freq_r iq iw realomg trwv=    0.0023   14   16 -0.10713080165537D+03 -0.16642117607767D+00 -0.10778228456913D+03 -0.17191356348846D+00
+freq_r iq iw realomg trwv=    0.0026   14   17 -0.10713372171290D+03 -0.18454250678548D+00 -0.10778532070243D+03 -0.19063633174338D+00
+freq_r iq iw realomg trwv=    0.0028   14   18 -0.10713690500565D+03 -0.20351067931934D+00 -0.10778863449274D+03 -0.21023418950528D+00
+freq_r iq iw realomg trwv=    0.0030   14   19 -0.10714058483767D+03 -0.22356605648361D+00 -0.10779246817729D+03 -0.23096231934909D+00
+freq_r iq iw realomg trwv=    0.0033   14   20 -0.10714464667081D+03 -0.24566574811126D+00 -0.10779669641154D+03 -0.25382553519857D+00
+freq_r iq iw realomg trwv=    0.0036   14   21 -0.10714875250201D+03 -0.26952594511315D+00 -0.10780096317366D+03 -0.27851030235606D+00
+freq_r iq iw realomg trwv=    0.0039   14   22 -0.10715291431319D+03 -0.29485629951206D+00 -0.10780528476390D+03 -0.30471217866447D+00
+freq_r iq iw realomg trwv=    0.0042   14   23 -0.10715729005017D+03 -0.32186710751348D+00 -0.10780982939084D+03 -0.33265008258413D+00
+freq_r iq iw realomg trwv=    0.0045   14   24 -0.10716165511877D+03 -0.35154052517656D+00 -0.10781436587067D+03 -0.36335018107423D+00
+freq_r iq iw realomg trwv=    0.0048   14   25 -0.10716539622663D+03 -0.38370634608121D+00 -0.10781825671611D+03 -0.39663751475796D+00
+freq_r iq iw realomg trwv=    0.0052   14   26 -0.10716801763727D+03 -0.41784206189230D+00 -0.10782098641453D+03 -0.43197349457768D+00
+freq_r iq iw realomg trwv=    0.0055   14   27 -0.10717016151167D+03 -0.45088562181574D+00 -0.10782321115235D+03 -0.46620407147091D+00
+freq_r iq iw realomg trwv=    0.0059   14   28 -0.10717398833808D+03 -0.48320399380390D+00 -0.10782715484653D+03 -0.49969336107313D+00
+freq_r iq iw realomg trwv=    0.0063   14   29 -0.10718095127581D+03 -0.51800448355303D+00 -0.10783432046487D+03 -0.53574063613833D+00
+freq_r iq iw realomg trwv=    0.0067   14   30 -0.10719171850667D+03 -0.55702126225165D+00 -0.10784540585785D+03 -0.57613378305890D+00
+freq_r iq iw realomg trwv=    0.0072   14   31 -0.10720755640286D+03 -0.60040672004364D+00 -0.10786172965848D+03 -0.62102031000480D+00
+freq_r iq iw realomg trwv=    0.0077   14   32 -0.10721374684356D+03 -0.70900069968258D+00 -0.10786819972608D+03 -0.73352873519416D+00
+freq_r iq iw realomg trwv=    0.0082   14   33 -0.10718516566664D+03 -0.76614635108498D+00 -0.10783843462147D+03 -0.79282174184032D+00
+freq_r iq iw realomg trwv=    0.0087   14   34 -0.10716218749724D+03 -0.77906044720297D+00 -0.10781423408299D+03 -0.80614978564118D+00
+freq_r iq iw realomg trwv=    0.0092   14   35 -0.10716683967210D+03 -0.81174591609651D+00 -0.10781868882593D+03 -0.83977655035322D+00
+freq_r iq iw realomg trwv=    0.0098   14   36 -0.10718046762531D+03 -0.86928930136797D+00 -0.10783246342381D+03 -0.89898449661297D+00
+freq_r iq iw realomg trwv=    0.0104   14   37 -0.10718886030413D+03 -0.95122495596370D+00 -0.10784084572368D+03 -0.98326294944078D+00
+freq_r iq iw realomg trwv=    0.0110   14   38 -0.10718064738101D+03 -0.10512013608261D+01 -0.10783216273361D+03 -0.10860651771716D+01
+freq_r iq iw realomg trwv=    0.0117   14   39 -0.10714911759295D+03 -0.11446754799180D+01 -0.10779952578038D+03 -0.11820909962168D+01
+freq_r iq iw realomg trwv=    0.0124   14   40 -0.10710532234429D+03 -0.11971823480068D+01 -0.10775436429859D+03 -0.12358884583511D+01
+freq_r iq iw realomg trwv=    0.0132   14   41 -0.10707576470227D+03 -0.12283133712237D+01 -0.10772389518411D+03 -0.12675944146088D+01
+freq_r iq iw realomg trwv=    0.0139   14   42 -0.10706274015638D+03 -0.12986823389416D+01 -0.10771046144884D+03 -0.13394137602593D+01
+freq_r iq iw realomg trwv=    0.0148   14   43 -0.10703564758438D+03 -0.13665185962155D+01 -0.10768288150032D+03 -0.14086103587090D+01
+freq_r iq iw realomg trwv=    0.0156   14   44 -0.10700100655099D+03 -0.14118263396583D+01 -0.10764784892946D+03 -0.14546522569503D+01
+freq_r iq iw realomg trwv=    0.0165   14   45 -0.10697441826909D+03 -0.14453272832633D+01 -0.10762138047510D+03 -0.14886075922278D+01
+freq_r iq iw realomg trwv=    0.0175   14   46 -0.10696171096453D+03 -0.14775292703178D+01 -0.10760946268725D+03 -0.15213187805786D+01
+freq_r iq iw realomg trwv=    0.0185   14   47 -0.10696505815017D+03 -0.15069590295431D+01 -0.10761438495652D+03 -0.15514193065626D+01
+freq_r iq iw realomg trwv=    0.0195   14   48 -0.10698626355245D+03 -0.15627386571095D+01 -0.10763786686830D+03 -0.16090866441404D+01
+freq_r iq iw realomg trwv=    0.0206   14   49 -0.10700877357146D+03 -0.16550655203337D+01 -0.10766268587398D+03 -0.17048574040109D+01
+freq_r iq iw realomg trwv=    0.0218   14   50 -0.10701355895869D+03 -0.17582607755632D+01 -0.10766923712781D+03 -0.18120380551205D+01
+freq_r iq iw realomg trwv=    0.0230   14   51 -0.10699439374763D+03 -0.18423786600339D+01 -0.10765119850089D+03 -0.18998117859737D+01
+freq_r iq iw realomg trwv=    0.0243   14   52 -0.10696081889209D+03 -0.18865374789470D+01 -0.10761832451099D+03 -0.19465658209806D+01
+freq_r iq iw realomg trwv=    0.0256   14   53 -0.10694454503552D+03 -0.18684407928079D+01 -0.10760377392336D+03 -0.19284160285101D+01
+freq_r iq iw realomg trwv=    0.0270   14   54 -0.10698504620693D+03 -0.18269577135468D+01 -0.10764879256216D+03 -0.18865221280365D+01
+freq_r iq iw realomg trwv=    0.0285   14   55 -0.10709227070177D+03 -0.18213127962935D+01 -0.10776341442405D+03 -0.18834220981447D+01
+freq_r iq iw realomg trwv=    0.0301   14   56 -0.10725260050359D+03 -0.18809114530185D+01 -0.10793247928257D+03 -0.19510932198255D+01
+freq_r iq iw realomg trwv=    0.0317   14   57 -0.10744083470585D+03 -0.20691052878382D+01 -0.10812824391505D+03 -0.21532047267164D+01
+freq_r iq iw realomg trwv=    0.0335   14   58 -0.10759003069138D+03 -0.23091196460784D+01 -0.10828158585555D+03 -0.24087579392386D+01
+freq_r iq iw realomg trwv=    0.0353   14   59 -0.10770072119015D+03 -0.25407933613068D+01 -0.10839376877059D+03 -0.26542178534248D+01
+freq_r iq iw realomg trwv=    0.0372   14   60 -0.10779013413047D+03 -0.28505346556942D+01 -0.10848299124718D+03 -0.29810202781913D+01
+freq_r iq iw realomg trwv=    0.0392   14   61 -0.10780522259238D+03 -0.31279256611323D+01 -0.10849420645936D+03 -0.32728222358799D+01
+freq_r iq iw realomg trwv=    0.0413   14   62 -0.10777240756522D+03 -0.31609120166983D+01 -0.10845643898907D+03 -0.33103509827830D+01
+freq_r iq iw realomg trwv=    0.0435   14   63 -0.10787918751493D+03 -0.31920770302145D+01 -0.10856347428061D+03 -0.33445629085788D+01
+freq_r iq iw realomg trwv=    0.0459   14   64 -0.10813176629657D+03 -0.34059324986505D+01 -0.10882134899189D+03 -0.35707577434842D+01
+freq_r iq iw realomg trwv=    0.0483   14   65 -0.10840633597497D+03 -0.37232398797655D+01 -0.10910072589225D+03 -0.39040056665510D+01
+freq_r iq iw realomg trwv=    0.0509   14   66 -0.10867839339247D+03 -0.42268679265059D+01 -0.10937622374074D+03 -0.44302097615758D+01
+freq_r iq iw realomg trwv=    0.0536   14   67 -0.10885986278932D+03 -0.48063838339404D+01 -0.10955724411085D+03 -0.50349771566490D+01
+freq_r iq iw realomg trwv=    0.0565   14   68 -0.10895553805980D+03 -0.52714428842212D+01 -0.10964983747915D+03 -0.55226527535134D+01
+freq_r iq iw realomg trwv=    0.0595   14   69 -0.10909353017438D+03 -0.58937807141613D+01 -0.10978369325214D+03 -0.61783438853096D+01
+freq_r iq iw realomg trwv=    0.0626   14   70 -0.10912037630847D+03 -0.64823669190193D+01 -0.10979710045983D+03 -0.67936096089014D+01
+freq_r iq iw realomg trwv=    0.0659   14   71 -0.10913904533471D+03 -0.70906871630247D+01 -0.10979909780684D+03 -0.74258600100552D+01
+freq_r iq iw realomg trwv=    0.0694   14   72 -0.10913005493673D+03 -0.77936924253736D+01 -0.10977169887375D+03 -0.81491142262597D+01
+freq_r iq iw realomg trwv=    0.0731   14   73 -0.10908595298111D+03 -0.86180721139850D+01 -0.10970975932868D+03 -0.89954420281310D+01
+freq_r iq iw realomg trwv=    0.0769   14   74 -0.10890024060627D+03 -0.94346480715267D+01 -0.10950448640687D+03 -0.98386137303277D+01
+freq_r iq iw realomg trwv=    0.0810   14   75 -0.10856162922344D+03 -0.10150781700138D+02 -0.10914048692793D+03 -0.10579987142576D+02
+freq_r iq iw realomg trwv=    0.0852   14   76 -0.10803359406468D+03 -0.10567969220020D+02 -0.10858107701356D+03 -0.11012827503292D+02
+freq_r iq iw realomg trwv=    0.0897   14   77 -0.10763984109248D+03 -0.10899347689602D+02 -0.10815839971596D+03 -0.11360374983488D+02
+freq_r iq iw realomg trwv=    0.0944   14   78 -0.10744681018386D+03 -0.11384341916748D+02 -0.10793596872590D+03 -0.11865767313934D+02
+freq_r iq iw realomg trwv=    0.0993   14   79 -0.10726643955331D+03 -0.11969998086188D+02 -0.10771535831345D+03 -0.12474286529117D+02
+freq_r iq iw realomg trwv=    0.1045   14   80 -0.10695362471020D+03 -0.12471232496922D+02 -0.10734785050384D+03 -0.12973100936151D+02
+freq_r iq iw realomg trwv=    0.1100   14   81 -0.10668382225957D+03 -0.12933227436403D+02 -0.10703305412818D+03 -0.13419299909701D+02
+freq_r iq iw realomg trwv=    0.1157   14   82 -0.10652994832336D+03 -0.13620178344424D+02 -0.10684385999691D+03 -0.14101655329146D+02
+freq_r iq iw realomg trwv=    0.1218   14   83 -0.10645542089498D+03 -0.14631136258718D+02 -0.10673346200219D+03 -0.15117847775347D+02
+freq_r iq iw realomg trwv=    0.1281   14   84 -0.10573987195453D+03 -0.15219725149792D+02 -0.10596524362642D+03 -0.15659336334389D+02
+freq_r iq iw realomg trwv=    0.1348   14   85 -0.10541667817969D+03 -0.16146405560049D+02 -0.10562411182584D+03 -0.16571441339106D+02
+freq_r iq iw realomg trwv=    0.1418   14   86 -0.10496889757718D+03 -0.17446282560346D+02 -0.10515396311237D+03 -0.17876780025942D+02
+freq_r iq iw realomg trwv=    0.1492   14   87 -0.10351553275028D+03 -0.17685717022306D+02 -0.10365470763340D+03 -0.18063315178069D+02
+freq_r iq iw realomg trwv=    0.1569   14   88 -0.10286567474604D+03 -0.17754819380172D+02 -0.10299151785287D+03 -0.18107935455111D+02
+freq_r iq iw realomg trwv=    0.1651   14   89 -0.10246876394141D+03 -0.18049615330115D+02 -0.10258092807803D+03 -0.18381775189615D+02
+freq_r iq iw realomg trwv=    0.1736   14   90 -0.10219059137444D+03 -0.18611281191788D+02 -0.10228759888140D+03 -0.18922911623851D+02
+freq_r iq iw realomg trwv=    0.1826   14   91 -0.10185983715522D+03 -0.19045400117505D+02 -0.10194166589641D+03 -0.19331489242096D+02
+freq_r iq iw realomg trwv=    0.1921   14   92 -0.10159312250228D+03 -0.19473839629227D+02 -0.10166307738387D+03 -0.19729531566546D+02
+freq_r iq iw realomg trwv=    0.2021   14   93 -0.10141925906388D+03 -0.19917760126116D+02 -0.10148336768268D+03 -0.20142255472154D+02
+freq_r iq iw realomg trwv=    0.2125   14   94 -0.10130342403632D+03 -0.20380988851040D+02 -0.10136740620851D+03 -0.20577654535165D+02
+freq_r iq iw realomg trwv=    0.2235   14   95 -0.10138141840687D+03 -0.21056985309174D+02 -0.10144831089589D+03 -0.21230211697512D+02
+freq_r iq iw realomg trwv=    0.2351   14   96 -0.10163307498916D+03 -0.21979691306835D+02 -0.10170451460638D+03 -0.22129789549337D+02
+freq_r iq iw realomg trwv=    0.2473   14   97 -0.10199239283760D+03 -0.23299050289232D+02 -0.10207155415866D+03 -0.23425817860317D+02
+freq_r iq iw realomg trwv=    0.2600   14   98 -0.10219957947250D+03 -0.25387893136015D+02 -0.10229112537372D+03 -0.25493030972729D+02
+freq_r iq iw realomg trwv=    0.2735   14   99 -0.10141724866039D+03 -0.27882755151240D+02 -0.10152531739492D+03 -0.27972026652975D+02
+freq_r iq iw realomg trwv=    0.2876   14  100 -0.99136207922188D+02 -0.30016518287877D+02 -0.99263398028196D+02 -0.30095652654156D+02
+freq_r iq iw realomg trwv=    0.3024   14  101 -0.96044918924780D+02 -0.30485802204593D+02 -0.96192439667255D+02 -0.30562892556624D+02
+freq_r iq iw realomg trwv=    0.3180   14  102 -0.94189026627775D+02 -0.29176187045061D+02 -0.94354623026612D+02 -0.29262843828442D+02
+freq_r iq iw realomg trwv=    0.3345   14  103 -0.94279289613898D+02 -0.27851425359581D+02 -0.94457378104787D+02 -0.27953320293072D+02
+freq_r iq iw realomg trwv=    0.3517   14  104 -0.95673832852136D+02 -0.27616428826466D+02 -0.95857445316693D+02 -0.27737907678301D+02
+freq_r iq iw realomg trwv=    0.3698   14  105 -0.95729048425630D+02 -0.28714183282696D+02 -0.95909994576240D+02 -0.28856081123526D+02
+freq_r iq iw realomg trwv=    0.3889   14  106 -0.95599387130248D+02 -0.30317351152532D+02 -0.95769714513133D+02 -0.30476387437160D+02
+freq_r iq iw realomg trwv=    0.4089   14  107 -0.94715834309894D+02 -0.31633245897060D+02 -0.94869948799482D+02 -0.31799828570548D+02
+freq_r iq iw realomg trwv=    0.4300   14  108 -0.94615152590377D+02 -0.32562135196412D+02 -0.94752713293268D+02 -0.32725265278901D+02
+freq_r iq iw realomg trwv=    0.4522   14  109 -0.95710149353673D+02 -0.34194293440421D+02 -0.95835402825985D+02 -0.34347471558270D+02
+freq_r iq iw realomg trwv=    0.4755   14  110 -0.96629374165221D+02 -0.36195629306111D+02 -0.96748095110127D+02 -0.36337108275690D+02
+freq_r iq iw realomg trwv=    0.4999   14  111 -0.96711028206597D+02 -0.38054574297288D+02 -0.96827740349494D+02 -0.38187750154360D+02
+freq_r iq iw realomg trwv=    0.5257   14  112 -0.96638008701120D+02 -0.39836050250750D+02 -0.96755535973931D+02 -0.39964273794420D+02
+freq_r iq iw realomg trwv=    0.5527   14  113 -0.96649861621754D+02 -0.41976520290748D+02 -0.96768371005659D+02 -0.42107055495968D+02
+freq_r iq iw realomg trwv=    0.5812   14  114 -0.95315743760126D+02 -0.45322631569287D+02 -0.95431351568837D+02 -0.45461951474894D+02
+freq_r iq iw realomg trwv=    0.6111   14  115 -0.94928264993235D+02 -0.49220546314779D+02 -0.95037160214874D+02 -0.49362755458961D+02
+freq_r iq iw realomg trwv=    0.6425   14  116 -0.93628026364107D+02 -0.52611852778749D+02 -0.93729738016595D+02 -0.52752649302809D+02
+freq_r iq iw realomg trwv=    0.6755   14  117 -0.95399787542874D+02 -0.54134142802043D+02 -0.95493483204921D+02 -0.54279405028707D+02
+freq_r iq iw realomg trwv=    0.7103   14  118 -0.96235963778648D+02 -0.58321171065512D+02 -0.96317234410821D+02 -0.58470132309259D+02
+freq_r iq iw realomg trwv=    0.7468   14  119 -0.96844007971226D+02 -0.65778662193395D+02 -0.96908683063340D+02 -0.65925460453406D+02
+freq_r iq iw realomg trwv=    0.7852   14  120 -0.97520443159955D+02 -0.76038594411930D+02 -0.97567730737047D+02 -0.76171471851345D+02
+freq_r iq iw realomg trwv=    0.8255   14  121 -0.92004073625024D+02 -0.95089216793216D+02 -0.92042576026251D+02 -0.95188777196031D+02
+freq_r iq iw realomg trwv=    0.8680   14  122 -0.58745804171211D+02 -0.11652744460821D+03 -0.58794733642938D+02 -0.11658844965716D+03
+freq_r iq iw realomg trwv=    0.9126   14  123 -0.28581307036063D+02 -0.94932865791021D+02 -0.28652950425306D+02 -0.94989726367037D+02
+freq_r iq iw realomg trwv=    0.9595   14  124 -0.36484327780332D+02 -0.73855085976190D+02 -0.36569654012736D+02 -0.73935538272489D+02
+freq_r iq iw realomg trwv=    1.0088   14  125 -0.45367688159650D+02 -0.74330649410758D+02 -0.45451494957650D+02 -0.74426856867500D+02
+freq_r iq iw realomg trwv=    1.0606   14  126 -0.45857215025461D+02 -0.77165233418297D+02 -0.45934545236174D+02 -0.77260807134565D+02
+freq_r iq iw realomg trwv=    1.1151   14  127 -0.42051096815135D+02 -0.81532574868678D+02 -0.42123293469176D+02 -0.81628427425788D+02
+freq_r iq iw realomg trwv=    1.1723   14  128 -0.33899095862501D+02 -0.85168088663697D+02 -0.33964956269256D+02 -0.85266779980401D+02
+freq_r iq iw realomg trwv=    1.2325   14  129 -0.19233265017099D+02 -0.82963529976792D+02 -0.19293873950515D+02 -0.83050482886921D+02
+freq_r iq iw realomg trwv=    1.2958   14  130 -0.10886531756387D+02 -0.74221580684901D+02 -0.10947073484488D+02 -0.74301624812995D+02
+freq_r iq iw realomg trwv=    1.3624   14  131 -0.76971984079349D+01 -0.65768551540133D+02 -0.77605984707876D+01 -0.65841847566818D+02
+freq_r iq iw realomg trwv=    1.4323   14  132 -0.59211348620222D+01 -0.58515434505517D+02 -0.59908506771396D+01 -0.58582364009174D+02
+freq_r iq iw realomg trwv=    1.5059   14  133 -0.77022719929101D+01 -0.53710305880881D+02 -0.77811091307859D+01 -0.53777365649745D+02
+freq_r iq iw realomg trwv=    1.5832   14  134 -0.12789089232569D+02 -0.56517623217083D+02 -0.12872815432695D+02 -0.56600238301233D+02
+freq_r iq iw realomg trwv=    1.6645   14  135 -0.54160164311502D+01 -0.50364251233782D+02 -0.55046647606324D+01 -0.50433579220815D+02
+freq_r iq iw realomg trwv=    1.7499   14  136 -0.59297149617545D+01 -0.46490017208349D+02 -0.60409040165470D+01 -0.46552716557431D+02
+freq_r iq iw realomg trwv=    1.8397   14  137 -0.74559615110727D+01 -0.42679487618772D+02 -0.76087279730770D+01 -0.42739521915790D+02
+freq_r iq iw realomg trwv=    1.9342   14  138 -0.14328012334138D+02 -0.42508255809608D+02 -0.14590577633142D+02 -0.42788837551911D+02
+freq_r iq iw realomg trwv=    2.0334   14  139 -0.14958512598265D+02 -0.49289677281122D+02 -0.14922773282546D+02 -0.49537582532124D+02
+freq_r iq iw realomg trwv=    2.1378   14  140 -0.16161345973116D+02 -0.63152225811918D+02 -0.16090138086988D+02 -0.63273777380228D+02
+freq_r iq iw realomg trwv=    2.2475   14  141 -0.25413421809789D+01 -0.57779615881209D+02 -0.25002990449753D+01 -0.57913381563680D+02
+freq_r iq iw realomg trwv=    2.3628   14  142  0.33951761036848D+01 -0.57919589197506D+02  0.34372707903347D+01 -0.58027392242322D+02
+freq_r iq iw realomg trwv=    2.4841   14  143  0.76733599321767D+01 -0.53801955270254D+02  0.77135439147018D+01 -0.53907704576058D+02
+freq_r iq iw realomg trwv=    2.6115   14  144  0.14257873876880D+02 -0.51910450770937D+02  0.14304047548370D+02 -0.52010912277635D+02
+freq_r iq iw realomg trwv=    2.7455   14  145  0.23492791489334D+02 -0.40405660784275D+02  0.23539808746526D+02 -0.40463690627247D+02
+freq_r iq iw realomg trwv=    2.8864   14  146  0.18914692734606D+02 -0.37327445838837D+02  0.18950881027269D+02 -0.37397613223679D+02
+freq_r iq iw realomg trwv=    3.0345   14  147  0.19265347660674D+02 -0.34743989616334D+02  0.19302704328850D+02 -0.34810391941670D+02
+freq_r iq iw realomg trwv=    3.1902   14  148  0.20538032787361D+02 -0.31343071363032D+02  0.20576176029300D+02 -0.31400547260591D+02
+freq_r iq iw realomg trwv=    3.3538   14  149  0.21308778053302D+02 -0.28145473614802D+02  0.21345812529362D+02 -0.28197433302033D+02
+freq_r iq iw realomg trwv=    3.5259   14  150  0.22162727490981D+02 -0.24558589260167D+02  0.22200055993621D+02 -0.24609387739197D+02
+freq_r iq iw realomg trwv=    3.7068   14  151  0.22972288944594D+02 -0.19088900402629D+02  0.23009769933316D+02 -0.19129000134971D+02
+freq_r iq iw realomg trwv=    3.8969   14  152  0.21789818787642D+02 -0.16684474087445D+02  0.21826225500307D+02 -0.16724005336541D+02
+freq_r iq iw realomg trwv=    4.0968   14  153  0.21241732591659D+02 -0.12773018322896D+02  0.21278905415744D+02 -0.12807865584584D+02
+freq_r iq iw realomg trwv=    4.3070   14  154  0.19591191764024D+02 -0.89653573439036D+01  0.19627681629431D+02 -0.89922223151081D+01
+freq_r iq iw realomg trwv=    4.5279   14  155  0.17447286362982D+02 -0.74727985489212D+01  0.17481596136572D+02 -0.74956931650514D+01
+freq_r iq iw realomg trwv=    4.7602   14  156  0.16054353094189D+02 -0.62931973163425D+01  0.16087506474854D+02 -0.63137305244078D+01
+freq_r iq iw realomg trwv=    5.0043   14  157  0.14757891369813D+02 -0.44450343352786D+01  0.14790023130614D+02 -0.44605707126947D+01
+freq_r iq iw realomg trwv=    5.2610   14  158  0.13189851725483D+02 -0.30762561063261D+01  0.13219507853823D+02 -0.30862756730147D+01
+freq_r iq iw realomg trwv=    5.5309   14  159  0.11664419179008D+02 -0.19854071917090D+01  0.11690712401901D+02 -0.19922388761084D+01
+freq_r iq iw realomg trwv=    5.8145   14  160  0.10245027430596D+02 -0.16519494972106D+01  0.10268279832024D+02 -0.16577125914712D+01
+freq_r iq iw realomg trwv=    6.1128   14  161  0.91132308236878D+01 -0.10680953170181D+01  0.91341336857675D+01 -0.10722270367305D+01
+freq_r iq iw realomg trwv=    6.4263   14  162  0.80793202815416D+01 -0.77040180429943D+00  0.80980273322208D+01 -0.77328343068982D+00
+freq_r iq iw realomg trwv=    6.7558   14  163  0.71891008068517D+01 -0.54418097406181D+00  0.72058740631007D+01 -0.54633052529233D+00
+freq_r iq iw realomg trwv=    7.1023   14  164  0.63708540531524D+01 -0.17282383809354D+00  0.63857685069581D+01 -0.17358693056370D+00
+ Time:              gather     0.0209 (sec)
+ Time:              matinv     0.9270 (sec)
+freq_i iq iw imgomg trwv=   75.6475   14    1 -0.43154694436518D-01 -0.12352622597465D-20 -0.43249781730756D-01 -0.12149654599398D-20
+freq_i iq iw imgomg trwv=   13.8218   14    2 -0.12396741956317D+01  0.35425553061293D-18 -0.12423897236663D+01  0.35425989011049D-18
+freq_i iq iw imgomg trwv=    5.2385   14    3 -0.70956565727315D+01 -0.19798038500556D-17 -0.71108860758373D+01 -0.19783411184435D-17
+freq_i iq iw imgomg trwv=    2.5298   14    4 -0.20039149556088D+02 -0.29134547310174D-16 -0.20081008580701D+02 -0.29532597572560D-16
+freq_i iq iw imgomg trwv=    1.3498   14    5 -0.38255144491497D+02 -0.22357010147901D-16 -0.38333508618484D+02 -0.22547533751917D-16
+freq_i iq iw imgomg trwv=    0.7408   14    6 -0.58107227466984D+02  0.24068695134925D-15 -0.58229930830262D+02  0.24063654770490D-15
+freq_i iq iw imgomg trwv=    0.3953   14    7 -0.76012946885546D+02 -0.47784371466601D-15 -0.76195155554601D+02 -0.47777781629524D-15
+freq_i iq iw imgomg trwv=    0.1909   14    8 -0.90204413497532D+02 -0.79506362329803D-15 -0.90483335053902D+02 -0.79471940836914D-15
+freq_i iq iw imgomg trwv=    0.0723   14    9 -0.10049617570926D+03  0.44676765027271D-14 -0.10094389719385D+03  0.44673718858220D-14
+freq_i iq iw imgomg trwv=    0.0132   14   10 -0.10600468670689D+03 -0.21590999767093D-14 -0.10661808755109D+03 -0.21623124184383D-14
+ Time:              gather     0.0011 (sec)
+ Time:              matinv     0.0537 (sec)
+ CPU:      50.6040 secs =     0.8 mins.
+ CPU:      50.9710 secs =     0.8 mins.
+    m_zmel000: zmelsize= 0.002856 GB                              rank= 5 Memused (CPU)  0.334 GB 2026-02-04T12:13:19.182
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:19.199
+    m_zmel000: zmelsize= 0.002912 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:19.352
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:19.378
+    m_zmel000: zmelsize= 0.002856 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:19.592
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:19.617
+    m_zmel000: zmelsize= 0.002968 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:19.752
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:19.770
+    m_zmel000: zmelsize= 0.002912 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:19.916
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:19.933
+    m_zmel000: zmelsize= 0.002800 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:20.084
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:20.102
+    m_zmel000: zmelsize= 0.002912 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:20.259
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:20.275
+    m_zmel000: zmelsize= 0.002912 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:20.481
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:20.504
+    m_zmel000: zmelsize= 0.002856 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:20.683
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:20.698
+    m_zmel000: zmelsize= 0.002912 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:20.846
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:20.864
+    m_zmel000: zmelsize= 0.003060 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:21.034
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:21.052
+    m_zmel000: zmelsize= 0.002968 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:21.235
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:21.252
+    m_zmel000: zmelsize= 0.002968 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:21.415
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:21.432
+    m_zmel000: zmelsize= 0.002912 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:21.624
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:21.645
+    m_zmel000: zmelsize= 0.002968 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:21.860
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:21.880
+    m_zmel000: zmelsize= 0.002968 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:22.062
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:22.078
+    m_zmel000: zmelsize= 0.003120 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:22.247
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:22.265
+    m_zmel000: zmelsize= 0.003120 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:22.450
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:22.467
+    m_zmel000: zmelsize= 0.003120 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:22.652
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:22.669
+    m_zmel000: zmelsize= 0.003180 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:22.888
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:22.911
+    m_zmel000: zmelsize= 0.003120 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:23.096
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:23.116
+    m_zmel000: zmelsize= 0.003000 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:23.315
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:23.334
+    m_zmel000: zmelsize= 0.003120 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:23.537
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:23.559
+    m_zmel000: zmelsize= 0.003120 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:23.775
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:23.793
+    m_zmel000: zmelsize= 0.003120 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:23.958
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:23.975
+    m_zmel000: zmelsize= 0.003120 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:24.135
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:24.151
+    m_zmel000: zmelsize= 0.003120 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:24.331
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:24.349
+    m_zmel000: zmelsize= 0.002968 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:24.517
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:24.534
+    m_zmel000: zmelsize= 0.003180 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:24.684
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:24.701
+    m_zmel000: zmelsize= 0.003120 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:24.857
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:24.874
+    m_zmel000: zmelsize= 0.002968 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:25.033
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:25.049
+    m_zmel000: zmelsize= 0.002912 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:25.194
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:25.210
+    m_zmel000: zmelsize= 0.003060 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:25.361
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:25.378
+    m_zmel000: zmelsize= 0.003120 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:25.550
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:25.567
+    m_zmel000: zmelsize= 0.003060 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:25.743
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:25.764
+    m_zmel000: zmelsize= 0.003180 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:25.969
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:25.986
+    m_zmel000: zmelsize= 0.003120 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:26.158
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:26.175
+    m_zmel000: zmelsize= 0.003000 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:26.366
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:26.388
+    m_zmel000: zmelsize= 0.003120 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:26.621
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:26.639
+    m_zmel000: zmelsize= 0.003120 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:26.875
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:26.894
+    m_zmel000: zmelsize= 0.003060 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:27.085
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:27.104
+    m_zmel000: zmelsize= 0.003120 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:27.264
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:27.280
+    m_zmel000: zmelsize= 0.003060 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:27.456
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:27.472
+    m_zmel000: zmelsize= 0.003180 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:27.643
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:27.660
+    m_zmel000: zmelsize= 0.003180 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:27.822
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:27.839
+    m_zmel000: zmelsize= 0.003120 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:28.009
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:28.026
+    m_zmel000: zmelsize= 0.003180 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:28.210
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:28.228
+    m_zmel000: zmelsize= 0.003180 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:28.400
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:28.418
+    m_zmel000: zmelsize= 0.003120 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:28.595
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:28.612
+    m_zmel000: zmelsize= 0.003000 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:28.815
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:28.833
+    m_zmel000: zmelsize= 0.003120 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:29.030
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:29.048
+    m_zmel000: zmelsize= 0.003180 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:29.226
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:29.244
+    m_zmel000: zmelsize= 0.003000 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:29.429
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:29.447
+    m_zmel000: zmelsize= 0.002632 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:29.625
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:29.641
+    m_zmel000: zmelsize= 0.002800 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:29.791
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:29.808
+    m_zmel000: zmelsize= 0.003120 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:29.948
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:29.964
+    m_zmel000: zmelsize= 0.003120 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:30.109
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:30.127
+    m_zmel000: zmelsize= 0.002800 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:30.293
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 14                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:30.310
+    m_zmel000: zmelsize= 0.003120 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:30.464
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:30.481
+    m_zmel000: zmelsize= 0.003180 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:30.666
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:30.684
+    m_zmel000: zmelsize= 0.003180 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:30.851
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:30.869
+    m_zmel000: zmelsize= 0.003120 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:31.036
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:31.053
+    m_zmel000: zmelsize= 0.003180 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:31.200
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:31.216
+    m_zmel000: zmelsize= 0.003060 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:31.381
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 15                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:31.398
+ Time:           zmel_gemm     3.3045 (sec)
+ Time:             x0_gemm     9.0741 (sec)
+ CPU:      63.3500 secs =     1.1 mins.
+ CPU:      63.5190 secs =     1.1 mins.
+    m_zmel000: zmelsize= 0.002200 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:31.730
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:31.747
+    m_zmel000: zmelsize= 0.002464 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:31.875
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:31.893
+    m_zmel000: zmelsize= 0.002420 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:32.035
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:32.053
+    m_zmel000: zmelsize= 0.002508 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:32.184
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:32.202
+    m_zmel000: zmelsize= 0.002464 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:32.328
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:32.346
+    m_zmel000: zmelsize= 0.002240 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:32.493
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:32.510
+    m_zmel000: zmelsize= 0.002552 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:32.635
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:32.656
+    m_zmel000: zmelsize= 0.002464 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:32.792
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:32.811
+    m_zmel000: zmelsize= 0.002420 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:32.952
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:32.970
+    m_zmel000: zmelsize= 0.002552 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:33.108
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:33.127
+    m_zmel000: zmelsize= 0.002508 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:33.276
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:33.294
+    m_zmel000: zmelsize= 0.002508 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:33.443
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:33.461
+    m_zmel000: zmelsize= 0.002508 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:33.593
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:33.612
+    m_zmel000: zmelsize= 0.002464 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:33.748
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:33.766
+    m_zmel000: zmelsize= 0.002508 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:33.940
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:33.964
+    m_zmel000: zmelsize= 0.002280 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:34.092
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:34.111
+    m_zmel000: zmelsize= 0.002320 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:34.237
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:34.255
+    m_zmel000: zmelsize= 0.002552 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:34.389
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:34.408
+    m_zmel000: zmelsize= 0.002464 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:34.541
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:34.560
+    m_zmel000: zmelsize= 0.002280 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:34.696
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:34.714
+    m_zmel000: zmelsize= 0.002552 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:34.836
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:34.855
+    m_zmel000: zmelsize= 0.002240 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:34.992
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:35.009
+    m_zmel000: zmelsize= 0.002320 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:35.131
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:35.150
+    m_zmel000: zmelsize= 0.002464 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:35.283
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:35.301
+    m_zmel000: zmelsize= 0.002464 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:35.461
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:35.480
+    m_zmel000: zmelsize= 0.002320 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:35.636
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:35.657
+    m_zmel000: zmelsize= 0.002320 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:35.793
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:35.812
+    m_zmel000: zmelsize= 0.002508 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:35.944
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:35.963
+    m_zmel000: zmelsize= 0.002280 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:36.103
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:36.121
+    m_zmel000: zmelsize= 0.002464 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:36.243
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:36.261
+    m_zmel000: zmelsize= 0.002508 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:36.403
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:36.422
+    m_zmel000: zmelsize= 0.002320 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:36.560
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:36.579
+    m_zmel000: zmelsize= 0.002280 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:36.698
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:36.716
+    m_zmel000: zmelsize= 0.002320 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:36.857
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:36.875
+    m_zmel000: zmelsize= 0.002200 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:37.010
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:37.027
+    m_zmel000: zmelsize= 0.002280 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:37.202
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:37.226
+    m_zmel000: zmelsize= 0.002320 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:37.371
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:37.394
+    m_zmel000: zmelsize= 0.002240 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:37.576
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:37.594
+    m_zmel000: zmelsize= 0.002240 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:37.723
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:37.740
+    m_zmel000: zmelsize= 0.002240 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:37.879
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:37.899
+    m_zmel000: zmelsize= 0.002200 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:38.024
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:38.041
+    m_zmel000: zmelsize= 0.002240 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:38.159
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:38.177
+    m_zmel000: zmelsize= 0.001980 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:38.304
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 9                    rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:38.322
+    m_zmel000: zmelsize= 0.002280 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:38.419
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:38.436
+    m_zmel000: zmelsize= 0.002280 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:38.562
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:38.582
+    m_zmel000: zmelsize= 0.002240 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:38.721
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:38.738
+    m_zmel000: zmelsize= 0.002280 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:38.866
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:38.884
+    m_zmel000: zmelsize= 0.002280 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:39.015
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:39.035
+    m_zmel000: zmelsize= 0.002240 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:39.191
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:39.210
+    m_zmel000: zmelsize= 0.002160 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:39.389
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:39.410
+    m_zmel000: zmelsize= 0.002464 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:39.554
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:39.574
+    m_zmel000: zmelsize= 0.002508 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:39.718
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:39.736
+    m_zmel000: zmelsize= 0.002160 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:39.898
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:39.915
+    m_zmel000: zmelsize= 0.002040 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:40.045
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:40.062
+    m_zmel000: zmelsize= 0.002376 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:40.185
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:40.202
+    m_zmel000: zmelsize= 0.002464 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:40.348
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:40.369
+    m_zmel000: zmelsize= 0.002464 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:40.502
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:40.520
+    m_zmel000: zmelsize= 0.002376 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:40.645
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:40.663
+    m_zmel000: zmelsize= 0.002240 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:40.804
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:40.821
+    m_zmel000: zmelsize= 0.002280 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:40.950
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:40.968
+    m_zmel000: zmelsize= 0.002508 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:41.085
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:41.103
+    m_zmel000: zmelsize= 0.002464 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:41.238
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 11                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:41.257
+    m_zmel000: zmelsize= 0.002280 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:41.403
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:41.420
+    m_zmel000: zmelsize= 0.002200 GB                              rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:41.542
+    m_zmel111(notildeM) ngc= 75 nm1v nm2v= 1 10                   rank= 5 Memused (CPU)  0.336 GB 2026-02-04T12:13:41.560
+ Time:           zmel_gemm     2.9582 (sec)
+ Time:             x0_gemm     6.9916 (sec)
+ CPU:      73.4690 secs =     1.2 mins.
+ -- dpsion_chiq: start imagomega
+ -- dpsion_chiq: start realomega
+ Time:              dpsion     0.6811 (sec)
+freq_r iq iw realomg trwv=    0.0000   22    0 -0.10972322364557D+03  0.76814335026198D-15 -0.11037731379747D+03  0.77055565463468D-15
+freq_r iq iw realomg trwv=    0.0001   22    1 -0.10972322883222D+03 -0.38104086293075D-02 -0.11037731927288D+03 -0.39294065826159D-02
+freq_r iq iw realomg trwv=    0.0002   22    2 -0.10972314869014D+03 -0.11623191016309D-01 -0.11037723768464D+03 -0.11986177306508D-01
+freq_r iq iw realomg trwv=    0.0003   22    3 -0.10972311596195D+03 -0.19837213808019D-01 -0.11037720621842D+03 -0.20456713978769D-01
+freq_r iq iw realomg trwv=    0.0004   22    4 -0.10972314287069D+03 -0.28473416302760D-01 -0.11037723772220D+03 -0.29362606159296D-01
+freq_r iq iw realomg trwv=    0.0005   22    5 -0.10972324650572D+03 -0.37559756448307D-01 -0.11037735012759D+03 -0.38732761060590D-01
+freq_r iq iw realomg trwv=    0.0006   22    6 -0.10972344018210D+03 -0.47149619400504D-01 -0.11037755738874D+03 -0.48622656675248D-01
+freq_r iq iw realomg trwv=    0.0008   22    7 -0.10972373284736D+03 -0.57286450972956D-01 -0.11037786883652D+03 -0.59077308804342D-01
+freq_r iq iw realomg trwv=    0.0009   22    8 -0.10972411774997D+03 -0.68061521215671D-01 -0.11037827761841D+03 -0.70190985122352D-01
+freq_r iq iw realomg trwv=    0.0011   22    9 -0.10972455284506D+03 -0.79558993792085D-01 -0.11037874052266D+03 -0.82050625366199D-01
+freq_r iq iw realomg trwv=    0.0012   22   10 -0.10972497954027D+03 -0.91808290347440D-01 -0.11037919719642D+03 -0.94686975841204D-01
+freq_r iq iw realomg trwv=    0.0014   22   11 -0.10972533876365D+03 -0.10482687969607D+00 -0.11037958645640D+03 -0.10811863182246D+00
+freq_r iq iw realomg trwv=    0.0016   22   12 -0.10972553401404D+03 -0.11866530722239D+00 -0.11037980788390D+03 -0.12239812699318D+00
+freq_r iq iw realomg trwv=    0.0017   22   13 -0.10972537133914D+03 -0.13335320124810D+00 -0.11037965961977D+03 -0.13755579422061D+00
+freq_r iq iw realomg trwv=    0.0019   22   14 -0.10972486498470D+03 -0.14806882140728D+00 -0.11037915714668D+03 -0.15273539525845D+00
+freq_r iq iw realomg trwv=    0.0021   22   15 -0.10972472269322D+03 -0.16193496380160D+00 -0.11037903898239D+03 -0.16702186480113D+00
+freq_r iq iw realomg trwv=    0.0023   22   16 -0.10972548176769D+03 -0.17669615970307D+00 -0.11037986799332D+03 -0.18222679965020D+00
+freq_r iq iw realomg trwv=    0.0026   22   17 -0.10972658451853D+03 -0.19332318064296D+00 -0.11038106843443D+03 -0.19936690533686D+00
+freq_r iq iw realomg trwv=    0.0028   22   18 -0.10972794443431D+03 -0.20961657377854D+00 -0.11038255243443D+03 -0.21616375562380D+00
+freq_r iq iw realomg trwv=    0.0030   22   19 -0.10973061811323D+03 -0.22587379181994D+00 -0.11038541374911D+03 -0.23293971143513D+00
+freq_r iq iw realomg trwv=    0.0033   22   20 -0.10973461013367D+03 -0.24528038522378D+00 -0.11038964345297D+03 -0.25301461816036D+00
+freq_r iq iw realomg trwv=    0.0036   22   21 -0.10973907648170D+03 -0.26646875276857D+00 -0.11039435545971D+03 -0.27494461586201D+00
+freq_r iq iw realomg trwv=    0.0039   22   22 -0.10974415033899D+03 -0.28960787630561D+00 -0.11039969023774D+03 -0.29889546508480D+00
+freq_r iq iw realomg trwv=    0.0042   22   23 -0.10974949180044D+03 -0.31625697087309D+00 -0.11040530246081D+03 -0.32647549335985D+00
+freq_r iq iw realomg trwv=    0.0045   22   24 -0.10975396863925D+03 -0.34663877393821D+00 -0.11041002273432D+03 -0.35793220685693D+00
+freq_r iq iw realomg trwv=    0.0048   22   25 -0.10975593226785D+03 -0.38098705605846D+00 -0.11041213509764D+03 -0.39351538691091D+00
+freq_r iq iw realomg trwv=    0.0052   22   26 -0.10975422845028D+03 -0.41588048072006D+00 -0.11041043850521D+03 -0.42966468461217D+00
+freq_r iq iw realomg trwv=    0.0055   22   27 -0.10975204873634D+03 -0.44291556103734D+00 -0.11040826231882D+03 -0.45763306307294D+00
+freq_r iq iw realomg trwv=    0.0059   22   28 -0.10975309490885D+03 -0.47103985376651D+00 -0.11040944762943D+03 -0.48676498855271D+00
+freq_r iq iw realomg trwv=    0.0063   22   29 -0.10975640396923D+03 -0.50199465924818D+00 -0.11041297497971D+03 -0.51886084378803D+00
+freq_r iq iw realomg trwv=    0.0067   22   30 -0.10976114951820D+03 -0.53499282471641D+00 -0.11041797916757D+03 -0.55308234243670D+00
+freq_r iq iw realomg trwv=    0.0072   22   31 -0.10976751642320D+03 -0.57027576504323D+00 -0.11042465505980D+03 -0.58967241791478D+00
+freq_r iq iw realomg trwv=    0.0077   22   32 -0.10977570933449D+03 -0.60855807863715D+00 -0.11043321986602D+03 -0.62937041868456D+00
+freq_r iq iw realomg trwv=    0.0082   22   33 -0.10978582927969D+03 -0.65112637905997D+00 -0.11044378107007D+03 -0.67351866077625D+00
+freq_r iq iw realomg trwv=    0.0087   22   34 -0.10979769491997D+03 -0.69911601726240D+00 -0.11045614517733D+03 -0.72330459319854D+00
+freq_r iq iw realomg trwv=    0.0092   22   35 -0.10981074380592D+03 -0.75435000445832D+00 -0.11046972391247D+03 -0.78060348060473D+00
+freq_r iq iw realomg trwv=    0.0098   22   36 -0.10982317857870D+03 -0.82041103114291D+00 -0.11048265302898D+03 -0.84913757715139D+00
+freq_r iq iw realomg trwv=    0.0104   22   37 -0.10983055818666D+03 -0.89936181955665D+00 -0.11049030739116D+03 -0.93105665838142D+00
+freq_r iq iw realomg trwv=    0.0110   22   38 -0.10982710715425D+03 -0.98676930022636D+00 -0.11048668874500D+03 -0.10217238669706D+01
+freq_r iq iw realomg trwv=    0.0117   22   39 -0.10981009546102D+03 -0.10685689067906D+01 -0.11046902466328D+03 -0.11064876145511D+01
+freq_r iq iw realomg trwv=    0.0124   22   40 -0.10978555894223D+03 -0.11295802708965D+01 -0.11044363950206D+03 -0.11697273914983D+01
+freq_r iq iw realomg trwv=    0.0132   22   41 -0.10976636147093D+03 -0.11862539220718D+01 -0.11042380052537D+03 -0.12285418503271D+01
+freq_r iq iw realomg trwv=    0.0139   22   42 -0.10975350019851D+03 -0.12443849059610D+01 -0.11041049922883D+03 -0.12889283109947D+01
+freq_r iq iw realomg trwv=    0.0148   22   43 -0.10974448425352D+03 -0.13097731373171D+01 -0.11040111710335D+03 -0.13569084015603D+01
+freq_r iq iw realomg trwv=    0.0156   22   44 -0.10972982750199D+03 -0.13723735604018D+01 -0.11038575734644D+03 -0.14219725304690D+01
+freq_r iq iw realomg trwv=    0.0165   22   45 -0.10971124855380D+03 -0.14241255014465D+01 -0.11036619434977D+03 -0.14756189272929D+01
+freq_r iq iw realomg trwv=    0.0175   22   46 -0.10970164471853D+03 -0.14725267700362D+01 -0.11035588918432D+03 -0.15255627468085D+01
+freq_r iq iw realomg trwv=    0.0185   22   47 -0.10970673747843D+03 -0.15092296829265D+01 -0.11036092910286D+03 -0.15630157960711D+01
+freq_r iq iw realomg trwv=    0.0195   22   48 -0.10974170216014D+03 -0.16038375427096D+01 -0.11039715635936D+03 -0.16605456242087D+01
+freq_r iq iw realomg trwv=    0.0206   22   49 -0.10976413535471D+03 -0.17642750626081D+01 -0.11042045833671D+03 -0.18262361266296D+01
+freq_r iq iw realomg trwv=    0.0218   22   50 -0.10973580949922D+03 -0.18809449177126D+01 -0.11039148145760D+03 -0.19464794704561D+01
+freq_r iq iw realomg trwv=    0.0230   22   51 -0.10970260280941D+03 -0.19274676892027D+01 -0.11035791846264D+03 -0.19948153553599D+01
+freq_r iq iw realomg trwv=    0.0243   22   52 -0.10970328761380D+03 -0.19928975054698D+01 -0.11035912001984D+03 -0.20637675059130D+01
+freq_r iq iw realomg trwv=    0.0256   22   53 -0.10972159003967D+03 -0.21160246815954D+01 -0.11037670687016D+03 -0.21922096129095D+01
+freq_r iq iw realomg trwv=    0.0270   22   54 -0.10966646899421D+03 -0.20702368374930D+01 -0.11032000780988D+03 -0.21412697913243D+01
+freq_r iq iw realomg trwv=    0.0285   22   55 -0.10971048331850D+03 -0.20727807238910D+01 -0.11036847997347D+03 -0.21408671466984D+01
+freq_r iq iw realomg trwv=    0.0301   22   56 -0.10977430713220D+03 -0.21893487922731D+01 -0.11043907809095D+03 -0.22630661751654D+01
+freq_r iq iw realomg trwv=    0.0317   22   57 -0.10981883774567D+03 -0.21349031788203D+01 -0.11048969066895D+03 -0.22119490535900D+01
+freq_r iq iw realomg trwv=    0.0335   22   58 -0.11002723892666D+03 -0.21487092135824D+01 -0.11070693152679D+03 -0.22313722770188D+01
+freq_r iq iw realomg trwv=    0.0353   22   59 -0.11030792123203D+03 -0.23677889970688D+01 -0.11099731016633D+03 -0.24624721493601D+01
+freq_r iq iw realomg trwv=    0.0372   22   60 -0.11055201958473D+03 -0.26904017292230D+01 -0.11124967580640D+03 -0.28010667227995D+01
+freq_r iq iw realomg trwv=    0.0392   22   61 -0.11073501293565D+03 -0.31876657160352D+01 -0.11143719453551D+03 -0.33235779939001D+01
+freq_r iq iw realomg trwv=    0.0413   22   62 -0.11072096684393D+03 -0.35856778608874D+01 -0.11141870782430D+03 -0.37400418500165D+01
+freq_r iq iw realomg trwv=    0.0435   22   63 -0.11058287574151D+03 -0.37534186800582D+01 -0.11127356314674D+03 -0.39172842048094D+01
+freq_r iq iw realomg trwv=    0.0459   22   64 -0.11059533890177D+03 -0.38638112097615D+01 -0.11128424532000D+03 -0.40371202051519D+01
+freq_r iq iw realomg trwv=    0.0483   22   65 -0.11073203754491D+03 -0.39517635668363D+01 -0.11142261470640D+03 -0.41312381139976D+01
+freq_r iq iw realomg trwv=    0.0509   22   66 -0.11102532552817D+03 -0.42233678290839D+01 -0.11172331882413D+03 -0.44162057588488D+01
+freq_r iq iw realomg trwv=    0.0536   22   67 -0.11136408527095D+03 -0.47970228312831D+01 -0.11207034689559D+03 -0.50197034395612D+01
+freq_r iq iw realomg trwv=    0.0565   22   68 -0.11157418560729D+03 -0.55719918296496D+01 -0.11228040033159D+03 -0.58362430799482D+01
+freq_r iq iw realomg trwv=    0.0595   22   69 -0.11155025889324D+03 -0.60199923387104D+01 -0.11224210905285D+03 -0.63075591427082D+01
+freq_r iq iw realomg trwv=    0.0626   22   70 -0.11163246308310D+03 -0.67543204985726D+01 -0.11231232058834D+03 -0.70724864781888D+01
+freq_r iq iw realomg trwv=    0.0659   22   71 -0.11156646671020D+03 -0.75246727957275D+01 -0.11222821475415D+03 -0.78741139878811D+01
+freq_r iq iw realomg trwv=    0.0694   22   72 -0.11123849259473D+03 -0.80137671239753D+01 -0.11187318274041D+03 -0.83798087889847D+01
+freq_r iq iw realomg trwv=    0.0731   22   73 -0.11099211317700D+03 -0.84126318980749D+01 -0.11160373059927D+03 -0.87905237655218D+01
+freq_r iq iw realomg trwv=    0.0769   22   74 -0.11093913335199D+03 -0.88347586050327D+01 -0.11153349206888D+03 -0.92251243378545D+01
+freq_r iq iw realomg trwv=    0.0810   22   75 -0.11106112371537D+03 -0.95358028809311D+01 -0.11164180068761D+03 -0.99546815201967D+01
+freq_r iq iw realomg trwv=    0.0852   22   76 -0.11098341625595D+03 -0.10425513224277D+02 -0.11154024528841D+03 -0.10881983595625D+02
+freq_r iq iw realomg trwv=    0.0897   22   77 -0.11054439872134D+03 -0.11139583301407D+02 -0.11105950875544D+03 -0.11618882966116D+02
+freq_r iq iw realomg trwv=    0.0944   22   78 -0.10989213564482D+03 -0.11366591612898D+02 -0.11035753753651D+03 -0.11836957547211D+02
+freq_r iq iw realomg trwv=    0.0993   22   79 -0.10966852969326D+03 -0.11743839131044D+02 -0.11010343144169D+03 -0.12215766937205D+02
+freq_r iq iw realomg trwv=    0.1045   22   80 -0.10972796908030D+03 -0.12550495389174D+02 -0.11013538899054D+03 -0.13039505940849D+02
+freq_r iq iw realomg trwv=    0.1100   22   81 -0.10936478995531D+03 -0.13083646126640D+02 -0.10972922047247D+03 -0.13575021185219D+02
+freq_r iq iw realomg trwv=    0.1157   22   82 -0.10893186260849D+03 -0.13534438092137D+02 -0.10925167002348D+03 -0.14021265214192D+02
+freq_r iq iw realomg trwv=    0.1218   22   83 -0.10856703759147D+03 -0.13922649335486D+02 -0.10884330523037D+03 -0.14383447665083D+02
+freq_r iq iw realomg trwv=    0.1281   22   84 -0.10855864646113D+03 -0.14702806000551D+02 -0.10880806718896D+03 -0.15150189045853D+02
+freq_r iq iw realomg trwv=    0.1348   22   85 -0.10845551597326D+03 -0.15767844069537D+02 -0.10867708621276D+03 -0.16213354118669D+02
+freq_r iq iw realomg trwv=    0.1418   22   86 -0.10793325255038D+03 -0.16544546445614D+02 -0.10811679537218D+03 -0.16968145277352D+02
+freq_r iq iw realomg trwv=    0.1492   22   87 -0.10744138007193D+03 -0.17508522999114D+02 -0.10759359503542D+03 -0.17908921506854D+02
+freq_r iq iw realomg trwv=    0.1569   22   88 -0.10677758286721D+03 -0.18090774629788D+02 -0.10690325854363D+03 -0.18456484483679D+02
+freq_r iq iw realomg trwv=    0.1651   22   89 -0.10628831017578D+03 -0.18936255156994D+02 -0.10639746232883D+03 -0.19282436383948D+02
+freq_r iq iw realomg trwv=    0.1736   22   90 -0.10551549125623D+03 -0.19597996470138D+02 -0.10560472802640D+03 -0.19917117805163D+02
+freq_r iq iw realomg trwv=    0.1826   22   91 -0.10478916963846D+03 -0.19902776739914D+02 -0.10486249770028D+03 -0.20192447253199D+02
+freq_r iq iw realomg trwv=    0.1921   22   92 -0.10430422910305D+03 -0.20003869237043D+02 -0.10436684978842D+03 -0.20258489541953D+02
+freq_r iq iw realomg trwv=    0.2021   22   93 -0.10415424393834D+03 -0.20247371273069D+02 -0.10421345221736D+03 -0.20471421276149D+02
+freq_r iq iw realomg trwv=    0.2125   22   94 -0.10421946334822D+03 -0.20608193924925D+02 -0.10427877911654D+03 -0.20805466695406D+02
+freq_r iq iw realomg trwv=    0.2235   22   95 -0.10454571026560D+03 -0.21132792531784D+02 -0.10460737739816D+03 -0.21304190573986D+02
+freq_r iq iw realomg trwv=    0.2351   22   96 -0.10532403580802D+03 -0.22116284038882D+02 -0.10539169026459D+03 -0.22260771112704D+02
+freq_r iq iw realomg trwv=    0.2473   22   97 -0.10616875372810D+03 -0.23940900664814D+02 -0.10624691329444D+03 -0.24062604496342D+02
+freq_r iq iw realomg trwv=    0.2600   22   98 -0.10663785920570D+03 -0.26859059511932D+02 -0.10672980231537D+03 -0.26961424967539D+02
+freq_r iq iw realomg trwv=    0.2735   22   99 -0.10556544073848D+03 -0.30949080379197D+02 -0.10567472391302D+03 -0.31034573111897D+02
+freq_r iq iw realomg trwv=    0.2876   22  100 -0.10126108549405D+03 -0.33498104164804D+02 -0.10139083012637D+03 -0.33574908879232D+02
+freq_r iq iw realomg trwv=    0.3024   22  101 -0.97184575482557D+02 -0.32522726878904D+02 -0.97335197589005D+02 -0.32599880761408D+02
+freq_r iq iw realomg trwv=    0.3180   22  102 -0.95744067088341D+02 -0.30261180696294D+02 -0.95913192596749D+02 -0.30347495068868D+02
+freq_r iq iw realomg trwv=    0.3345   22  103 -0.96221755388180D+02 -0.28974154142189D+02 -0.96403313810968D+02 -0.29079332103377D+02
+freq_r iq iw realomg trwv=    0.3517   22  104 -0.96506861074876D+02 -0.28974124792463D+02 -0.96692037936100D+02 -0.29100714554272D+02
+freq_r iq iw realomg trwv=    0.3698   22  105 -0.96660704345880D+02 -0.29637838107316D+02 -0.96841404480073D+02 -0.29784171196517D+02
+freq_r iq iw realomg trwv=    0.3889   22  106 -0.96802689612790D+02 -0.30522807789237D+02 -0.96971786149656D+02 -0.30685866100570D+02
+freq_r iq iw realomg trwv=    0.4089   22  107 -0.97019578719985D+02 -0.31593627767229D+02 -0.97171582072839D+02 -0.31763582579163D+02
+freq_r iq iw realomg trwv=    0.4300   22  108 -0.97562841090546D+02 -0.32959449839159D+02 -0.97697093946218D+02 -0.33125179580320D+02
+freq_r iq iw realomg trwv=    0.4522   22  109 -0.98432771656801D+02 -0.34854442385393D+02 -0.98554152297746D+02 -0.35005897933875D+02
+freq_r iq iw realomg trwv=    0.4755   22  110 -0.98974990314371D+02 -0.36879569854781D+02 -0.99091780434796D+02 -0.37017079859395D+02
+freq_r iq iw realomg trwv=    0.4999   22  111 -0.99399513696256D+02 -0.38673834883207D+02 -0.99517503047768D+02 -0.38804362175825D+02
+freq_r iq iw realomg trwv=    0.5257   22  112 -0.99115202536344D+02 -0.41153902732241D+02 -0.99235583656151D+02 -0.41284460214167D+02
+freq_r iq iw realomg trwv=    0.5527   22  113 -0.98165355514928D+02 -0.43784003123893D+02 -0.98283733996388D+02 -0.43922678956247D+02
+freq_r iq iw realomg trwv=    0.5812   22  114 -0.98020232260078D+02 -0.46360047891835D+02 -0.98132163889606D+02 -0.46502324001432D+02
+freq_r iq iw realomg trwv=    0.6111   22  115 -0.97644613459709D+02 -0.49651962924133D+02 -0.97749283109981D+02 -0.49793453965077D+02
+freq_r iq iw realomg trwv=    0.6425   22  116 -0.96789742128744D+02 -0.53381314105235D+02 -0.96888259954916D+02 -0.53520010060032D+02
+freq_r iq iw realomg trwv=    0.6755   22  117 -0.97238280609079D+02 -0.56405386075963D+02 -0.97330521906628D+02 -0.56547220001343D+02
+freq_r iq iw realomg trwv=    0.7103   22  118 -0.97490296041449D+02 -0.60034546775172D+02 -0.97571695082934D+02 -0.60182789026526D+02
+freq_r iq iw realomg trwv=    0.7468   22  119 -0.98398829480065D+02 -0.66846155580847D+02 -0.98463627723091D+02 -0.66993196468974D+02
+freq_r iq iw realomg trwv=    0.7852   22  120 -0.99539476573712D+02 -0.74428003938056D+02 -0.99586125300279D+02 -0.74562097038280D+02
+freq_r iq iw realomg trwv=    0.8255   22  121 -0.96180428021987D+02 -0.90549687169758D+02 -0.96217878282452D+02 -0.90647598155360D+02
+freq_r iq iw realomg trwv=    0.8680   22  122 -0.69109396356299D+02 -0.12441255066953D+03 -0.69158843521054D+02 -0.12447308619185D+03
+freq_r iq iw realomg trwv=    0.9126   22  123 -0.29516250396581D+02 -0.10209666521374D+03 -0.29587969153517D+02 -0.10215612802424D+03
+freq_r iq iw realomg trwv=    0.9595   22  124 -0.41365892348674D+02 -0.77969875840987D+02 -0.41449355660456D+02 -0.78052888102137D+02
+freq_r iq iw realomg trwv=    1.0088   22  125 -0.48779512603963D+02 -0.78602579591379D+02 -0.48860926238009D+02 -0.78697696471638D+02
+freq_r iq iw realomg trwv=    1.0606   22  126 -0.43929945348944D+02 -0.84442196852518D+02 -0.44005917437206D+02 -0.84535920622848D+02
+freq_r iq iw realomg trwv=    1.1151   22  127 -0.37947474140419D+02 -0.85881801630325D+02 -0.38019427243295D+02 -0.85976967377702D+02
+freq_r iq iw realomg trwv=    1.1723   22  128 -0.32673219045073D+02 -0.87279487694283D+02 -0.32738735215778D+02 -0.87378899764674D+02
+freq_r iq iw realomg trwv=    1.2325   22  129 -0.19164830080961D+02 -0.84047758726930D+02 -0.19224578391793D+02 -0.84135053748736D+02
+freq_r iq iw realomg trwv=    1.2958   22  130 -0.11571838447437D+02 -0.76152847757278D+02 -0.11631554424514D+02 -0.76232518537096D+02
+freq_r iq iw realomg trwv=    1.3624   22  131 -0.80034295576694D+01 -0.69059037393467D+02 -0.80661863385084D+01 -0.69132646289940D+02
+freq_r iq iw realomg trwv=    1.4323   22  132 -0.52449239825056D+01 -0.61877300118011D+02 -0.53136283258610D+01 -0.61945149169255D+02
+freq_r iq iw realomg trwv=    1.5059   22  133 -0.57624269259642D+01 -0.55775021419404D+02 -0.58395432624462D+01 -0.55843145905680D+02
+freq_r iq iw realomg trwv=    1.5832   22  134 -0.95571654688822D+01 -0.55959322681389D+02 -0.96390733579148D+01 -0.56041044349657D+02
+freq_r iq iw realomg trwv=    1.6645   22  135 -0.59150536072910D+01 -0.50721630022433D+02 -0.60022907384344D+01 -0.50790817355607D+02
+freq_r iq iw realomg trwv=    1.7499   22  136 -0.61211768334894D+01 -0.47553211770660D+02 -0.62307122578648D+01 -0.47615998749415D+02
+freq_r iq iw realomg trwv=    1.8397   22  137 -0.73556518416599D+01 -0.43306761755756D+02 -0.75061858132397D+01 -0.43367061663241D+02
+freq_r iq iw realomg trwv=    1.9342   22  138 -0.14551919013562D+02 -0.42541323762673D+02 -0.14810811992578D+02 -0.42819233926896D+02
+freq_r iq iw realomg trwv=    2.0334   22  139 -0.16162858425815D+02 -0.51173594658880D+02 -0.16126888314245D+02 -0.51419779323681D+02
+freq_r iq iw realomg trwv=    2.1378   22  140 -0.16219382700846D+02 -0.65226728871360D+02 -0.16148035267887D+02 -0.65347755778734D+02
+freq_r iq iw realomg trwv=    2.2475   22  141 -0.28419560611624D+01 -0.59457794182280D+02 -0.28006285159311D+01 -0.59590013929225D+02
+freq_r iq iw realomg trwv=    2.3628   22  142  0.44202961607679D+01 -0.60135297421974D+02  0.44627698362606D+01 -0.60242372040907D+02
+freq_r iq iw realomg trwv=    2.4841   22  143  0.10171570030977D+02 -0.55035249591997D+02  0.10212229387131D+02 -0.55140009857347D+02
+freq_r iq iw realomg trwv=    2.6115   22  144  0.15521795781341D+02 -0.51507378688606D+02  0.15568226120323D+02 -0.51605927749668D+02
+freq_r iq iw realomg trwv=    2.7455   22  145  0.23471035990893D+02 -0.41290138457638D+02  0.23517897129897D+02 -0.41347853394099D+02
+freq_r iq iw realomg trwv=    2.8864   22  146  0.19606904439504D+02 -0.37649072927014D+02  0.19643230294377D+02 -0.37718304037922D+02
+freq_r iq iw realomg trwv=    3.0345   22  147  0.19647286481770D+02 -0.35456257853104D+02  0.19684645325008D+02 -0.35521594741950D+02
+freq_r iq iw realomg trwv=    3.1902   22  148  0.21360779306552D+02 -0.31838656942098D+02  0.21398842725053D+02 -0.31895683518843D+02
+freq_r iq iw realomg trwv=    3.3538   22  149  0.22207476640442D+02 -0.28230440162832D+02  0.22244514824610D+02 -0.28281699972531D+02
+freq_r iq iw realomg trwv=    3.5259   22  150  0.22860293337397D+02 -0.24515202312582D+02  0.22897562360797D+02 -0.24565299063132D+02
+freq_r iq iw realomg trwv=    3.7068   22  151  0.23470720142208D+02 -0.19055640496495D+02  0.23508196400405D+02 -0.19095355411747D+02
+freq_r iq iw realomg trwv=    3.8969   22  152  0.22213201973255D+02 -0.16322981896827D+02  0.22249638595109D+02 -0.16361807374522D+02
+freq_r iq iw realomg trwv=    4.0968   22  153  0.21350493056946D+02 -0.12843073749271D+02  0.21387613250875D+02 -0.12877290387422D+02
+freq_r iq iw realomg trwv=    4.3070   22  154  0.19751544007524D+02 -0.89975702127587D+01  0.19787871128193D+02 -0.90236925114374D+01
+freq_r iq iw realomg trwv=    4.5279   22  155  0.17613440421976D+02 -0.76437214459070D+01  0.17647505997810D+02 -0.76661664625167D+01
+freq_r iq iw realomg trwv=    4.7602   22  156  0.16269758696697D+02 -0.63959330080530D+01  0.16302719434820D+02 -0.64161132008888D+01
+freq_r iq iw realomg trwv=    5.0043   22  157  0.14979392998077D+02 -0.45133393444790D+01  0.15011401530031D+02 -0.45285462945547D+01
+freq_r iq iw realomg trwv=    5.2610   22  158  0.13393649458758D+02 -0.30929699184586D+01  0.13423181827374D+02 -0.31025014423809D+01
+freq_r iq iw realomg trwv=    5.5309   22  159  0.11838074180286D+02 -0.19976898281970D+01  0.11864196092358D+02 -0.20041227398327D+01
+freq_r iq iw realomg trwv=    5.8145   22  160  0.10396558374915D+02 -0.16574697463446D+01  0.10419604952036D+02 -0.16627763565919D+01
+freq_r iq iw realomg trwv=    6.1128   22  161  0.92458489628873D+01 -0.10776407338343D+01  0.92664857588626D+01 -0.10813831314712D+01
+freq_r iq iw realomg trwv=    6.4263   22  162  0.81987774319020D+01 -0.77544915715467D+00  0.82171754989607D+01 -0.77799035914710D+00
+freq_r iq iw realomg trwv=    6.7558   22  163  0.72958814507961D+01 -0.54685726768981D+00  0.73123002930311D+01 -0.54871570820589D+00
+freq_r iq iw realomg trwv=    7.1023   22  164  0.64653892568915D+01 -0.17288068264306D+00  0.64799428231157D+01 -0.17352592071717D+00
+ Time:              gather     0.0220 (sec)
+ Time:              matinv     0.8389 (sec)
+freq_i iq iw imgomg trwv=   75.6475   22    1 -0.43878686060313D-01  0.13157546470859D-20 -0.43972387385979D-01  0.13157614578317D-20
+freq_i iq iw imgomg trwv=   13.8218   22    2 -0.12608490133183D+01  0.66887417030701D-19 -0.12635269423392D+01  0.66779577176345D-19
+freq_i iq iw imgomg trwv=    5.2385   22    3 -0.72265992687682D+01  0.78385545137174D-17 -0.72416535385545D+01  0.78392459796684D-17
+freq_i iq iw imgomg trwv=    2.5298   22    4 -0.20459132143413D+02  0.10000154919844D-16 -0.20500625585791D+02  0.99999392833594D-17
+freq_i iq iw imgomg trwv=    1.3498   22    5 -0.39152718884864D+02 -0.82480713154826D-17 -0.39230598647847D+02 -0.81928892923491D-17
+freq_i iq iw imgomg trwv=    0.7408   22    6 -0.59559958541423D+02 -0.14758410283969D-15 -0.59682198744138D+02 -0.14765386177558D-15
+freq_i iq iw imgomg trwv=    0.3953   22    7 -0.77961820276902D+02  0.20320424953739D-16 -0.78143751335742D+02  0.20311230997106D-16
+freq_i iq iw imgomg trwv=    0.1909   22    8 -0.92530193202866D+02  0.61399916124193D-15 -0.92809219290964D+02  0.61404832408755D-15
+freq_i iq iw imgomg trwv=    0.0723   22    9 -0.10301874323671D+03  0.21295418937695D-14 -0.10346713096160D+03  0.21314259674728D-14
+freq_i iq iw imgomg trwv=    0.0132   22   10 -0.10861516041180D+03 -0.40947497945368D-14 -0.10923125228488D+03 -0.40954004120653D-14
+ Time:              gather     0.0010 (sec)
+ Time:              matinv     0.0494 (sec)
+ CPU:      92.4720 secs =     1.5 mins.

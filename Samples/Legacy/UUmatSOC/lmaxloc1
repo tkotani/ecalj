@@ -1,0 +1,98 @@
+  verbose=           0
+  --- Choose omodes below ----------------
+   bb vectors (1) or Wannier fn. (2) or TB Hamiltonian (3)
+  --- Put number above ! -----------------
+  ixc=           1
+  ### readin BZDATA ###
+  end of read_BZdata
+  nqibz ngrp=          20           0
+  nqbz  =          64
+  m_qbze: nqibz nqibze=          20          22
+  --- Freq ---
+    niw  =    10
+    delta=   -0.000001
+    esmr =    0.003000
+  reading <PRODUCT_BASIS> section
+ lx=  0 readin tolerance=  0.100D-02
+ lx=  1 readin tolerance=  0.100D-02
+ lx=  2 readin tolerance=  0.100D-02
+ lx=  3 readin tolerance=  0.100D-02
+ lx=  4 readin tolerance=  0.100D-02
+ lx=  5 readin tolerance=  0.100D-02
+ lx=  6 readin tolerance=  0.100D-02
+ lx=  7 readin tolerance=  0.100D-02
+ lx=  8 readin tolerance=  0.100D-02
+  4
+ --- prod section: lcutmx cutbase=  4  0.100D-02  0.100D-02  0.100D-02  0.100D-02  0.100D-02  0.100D-02  0.100D-02  0.100D-02  0.100D-02
+  --- valence product basis section
+  1  0  1  1  1
+  1  0  2  0  0
+  1  1  1  1  1
+  1  1  2  0  0
+  1  1  3  1  0
+  1  2  1  1  1
+  1  2  2  0  0
+  1  3  1  0  1
+  1  3  2  0  0
+  1  4  1  0  0
+  1  4  2  0  0
+  --- core product basis section
+  1  0  1  0  0  0  0
+  1  0  2  0  0  0  0
+  1  0  3  0  0  0  0
+  1  1  1  0  0  0  0
+  ### incwf=-1 Use ForSxc for core
+  read ECORE : ic=           1
+  CPU:       0.0000 secs =     0.0 mins
+ genallcf_v3
+  nbmx ebmx from GWinput=     99999 0.300000D+01
+  hsfp0: end of genallcf2
+ opening:    10 MLWU
+ opening:    11 MLWEU
+init_readeigen:
+ read(ifiqg)         192          92   4.0000000000000000               64         148
+Read EValue: nband nqi nsp nspc nspx 88 148 2 2 1
+   --- Readingin CLASS info ---
+ goto mptauof
+  Ef=   4.7504669157030298E-002
+  wgt nocc=   1.0000000000000000        27.000000000000000     
+  ef    =   4.7504669157030298E-002
+  esmr  =   3.0000000000000001E-003
+  valn  =                       NaN
+  ntot  =   27.000000000000000     
+  end of readin @MNLA_CPHI: norbtx=          11
+  KeepEigen=T; readin geig and cphi into m_readeigen
+ Read k points for bands from GWinput
+  ifqpnt ret=        2010           5
+ output:           1          16 Fe           1           2           3           4           5           6           7           8           9          10          11          12          13          14          15          16
+ checkorb: iiwf,idorb(iiwf)           1           0
+ checkorb: iiwf,idorb(iiwf)           2           1
+ checkorb: iiwf,idorb(iiwf)           3           1
+ checkorb: iiwf,idorb(iiwf)           4           1
+ checkorb: iiwf,idorb(iiwf)           5           2
+ checkorb: iiwf,idorb(iiwf)           6           2
+ checkorb: iiwf,idorb(iiwf)           7           2
+ checkorb: iiwf,idorb(iiwf)           8           2
+ checkorb: iiwf,idorb(iiwf)           9           2
+ checkorb: iiwf,idorb(iiwf)          10           3
+ checkorb: iiwf,idorb(iiwf)          11           3
+ checkorb: iiwf,idorb(iiwf)          12           3
+ checkorb: iiwf,idorb(iiwf)          13           3
+ checkorb: iiwf,idorb(iiwf)          14           3
+ checkorb: iiwf,idorb(iiwf)          15           3
+ checkorb: iiwf,idorb(iiwf)          16           3
+ mloc.heps    0.0000000000000000     
+  ***
+    1  20  16  nspin  nq  ntq
+ spin = 0   nbloch ngp ngc=   0   0   0  nqbz =    64  nqibz =    20   ef=    0.0475 Rydberg
+ 0.2000000000000000D-01 <= deltaw(Hartree)
+ 0.5416939889677745D+01 <= alat
+ 0.4750466915703030D-01 <= ef 
+ 0.3000000000000000D-02 <= esmr
+  sum of nonzero iirk=          64          64
+ getbb: bcc
+elist max enwf enwfmaxi=      2.56322     -0.15668
+ Outer energy window, on
+ eomin, eomax =  -60.000000000000000        180.00000000000000     
+ Inner energy window, off
+Exit 0 procid= 0 hmaxloc: ixc=1 ok

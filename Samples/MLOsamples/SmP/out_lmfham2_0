@@ -1,0 +1,87 @@
+=== Start lmfham2 --job= 0
+MHAM: --- MTO part of PMT Hamiltonian index (real-harmonics table is in job_pdos script) --- 
+MHAM: MTO block dim=   67
+MHAM: i ib(atom) l m k(EH,EH2,PZ)=  1  1  0  0  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)=  2  1  1 -1  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)=  3  1  1  0  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)=  4  1  1  1  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)=  5  1  2 -2  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)=  6  1  2 -1  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)=  7  1  2  0  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)=  8  1  2  1  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)=  9  1  2  2  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 10  1  3 -3  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 11  1  3 -2  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 12  1  3 -1  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 13  1  3  0  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 14  1  3  1  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 15  1  3  2  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 16  1  3  3  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 17  1  0  0  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 18  1  1 -1  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 19  1  1  0  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 20  1  1  1  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 21  1  2 -2  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 22  1  2 -1  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 23  1  2  0  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 24  1  2  1  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 25  1  2  2  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 26  1  3 -3  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 27  1  3 -2  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 28  1  3 -1  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 29  1  3  0  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 30  1  3  1  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 31  1  3  2  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 32  1  3  3  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 33  1  1 -1  3
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 34  1  1  0  3
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 35  1  1  1  3
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 36  1  3 -3  3
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 37  1  3 -2  3
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 38  1  3 -1  3
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 39  1  3  0  3
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 40  1  3  1  3
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 41  1  3  2  3
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 42  1  3  3  3
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 43  2  0  0  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 44  2  1 -1  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 45  2  1  0  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 46  2  1  1  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 47  2  2 -2  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 48  2  2 -1  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 49  2  2  0  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 50  2  2  1  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 51  2  2  2  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 52  2  3 -3  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 53  2  3 -2  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 54  2  3 -1  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 55  2  3  0  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 56  2  3  1  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 57  2  3  2  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 58  2  3  3  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 59  2  0  0  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 60  2  1 -1  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 61  2  1  0  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 62  2  1  1  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 63  2  2 -2  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 64  2  2 -1  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 65  2  2  0  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 66  2  2  1  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 67  2  2  2  2
+MTOHamiltonian: ndimMTO,npairmx,nspx= 57 540 2
+ OK: Read HamRsMTO file!
+ idmto= 10 11 12 13 14 15 16
+ Reading: mlo_ maxit conv mix= 20  0.000100  0.500000
+ Reading: mlo_WTseed =  0.00
+ Reading: mlo_WTband =  32.00
+ Reading: mlo_WTinner=  256.00
+ Reading: mlo_EUinner mlo_ELinner _EWinner(eV)=  100000000.00 -100000000.00  0.10
+ Rule of thumb: WTband x WTinner ~ 8192 to respect nabla term (smooth continuity).
+    mlo_WTband push down bands when we use low mlo_WTinner: WTband maybe 4,8,16,32
+    mlo_WTinner: (soft)128,256,512,1024,2048(Hard). 
+ getbb: fcc
+ nbb wbb(in unit of 2pi/alat)= 8 4.500  4.500  4.500  4.500  4.500  4.500  4.500  4.500
+Going to get CNmat ... : nband for |MLO1>= 57 iko_i iko_f= 1 57
+Generating connection matrix ispinloop: is = 1   out of 2
+Generating connection matrix ispinloop: is = 2   out of 2
+Exit 0 procid= 0 OK! end of lmhfam2 job=0 for generating CNmat

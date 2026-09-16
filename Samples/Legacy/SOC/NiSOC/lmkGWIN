@@ -1,0 +1,32 @@
+/home/takao/bin
+4
+ni
+ Default n1q n2q n3q =     4    4    4
+   1  28.0000   4   4   4   3   4   5
+ alat      =     6.659398
+ plat a1   =     0.000000     0.500000     0.500000
+ plat a2   =     0.500000     0.000000     0.500000
+ plat a3   =     0.500000     0.500000     0.000000
+getbzdata1: n1n2n3=    4    4    4
+  BZadiv=  1.000
+  getbzdata1 :   plat                               qlat
+   0.00000   0.50000   0.50000       -1.00000   1.00000   1.00000
+   0.50000   0.00000   0.50000        1.00000  -1.00000   1.00000
+   0.50000   0.50000   0.00000        1.00000   1.00000  -1.00000
+  nqibz sum.iwgt nqbz =       8      64
+  Num. of irreducible k - points.=     8 from    64
+             Qx        Qy        Qz      Multiplicity    Weight
+    1      0.0000    0.0000    0.0000         1        0.031250
+    2     -0.2500    0.2500    0.2500         8        0.250000
+    3     -0.5000    0.5000    0.5000         4        0.125000
+    4      0.0000    0.0000    0.5000         6        0.187500
+    5     -0.2500    0.2500    0.7500        24        0.750000
+    6     -0.5000    0.5000    1.0000        12        0.375000
+    7      0.0000    0.0000    1.0000         3        0.093750
+    8      0.0000    0.5000    1.0000         6        0.187500
+  nkstar: ----- nqbz nqibz=      64       8 -----
+ --- TOTAL num of q is n1*n2*n3=        64
+-------------------------------------------------------------------
+  We use n1n2n3= 4 4 4  in GWinput. This is k points mesh for GW mode
+  You can change it by hand (not need to repeat this). ==
+OK! GWinpt.tmp is generated!

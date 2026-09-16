@@ -1,3 +1,18 @@
+2026-09-17
+  TOML 化済みサンプルから GWinput を削除 (39 件)。
+    Samples/{TestInstall,MLOsamples,EPS}/*/GWinput      34 件
+    Samples/{TestInstall,BenchmarkTest}/*/GWinput.legacy_backup  5 件
+    Fortran 側は legacy GWinput reader を無効化済み (getbzdata1.f90 / readeigen.f90 が
+    'legacy GWinput reader is disabled. GWinput.toml is required.' で rx abort) なので、
+    これらは読まれない。置いてあると編集しても効かず紛らわしいだけ。
+    削除前に 34 件すべて ctrlg.<sname>.toml と PB.<sname>.toml が揃っていることを確認。
+    si_gwsc は削除後も ALL PASSED。
+  Samples/Legacy/ の GWinput 17 件は残す。Legacy2toml.py / gwinput2toml.py の
+    変換元であって、設計どおりの入力ファイルである。
+  ctrls.<sname> も残す (ctrlgenToml.py の入力)。
+  なお ctrl.<sname> が TOML 化済みディレクトリに 53 件残っている。lmf は
+    ctrlg.<sname>.toml しか読まないので同様に死んでいるはずだが、未確認・未処理。
+
 2026-09-16 (5)
   Samples/kBT/LiTi2O4 に 3000K の 2 run を追加。Sigma 側を切ると収束しないことの実証。
     n666_T3000/           6^3 3000K 29 反復、両側 3000K

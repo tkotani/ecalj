@@ -1,0 +1,22 @@
+set terminal postscript enhanced color eps
+set output "bandplot.isp1.band.eps"
+set xzeroaxis
+set grid
+set ylabel "Energy-Efermi(eV)"
+# This is given written in subroutine writeband in lm7K/fp/bndfp.F
+set title "Band es at /home/takao/ecalj/Samples/TETRAHEDRON_HomoGas"
+set yrange [   -20.00000:    20.00000]
+set xrange [0.0:     3.07313]
+set xtics ('P'   0.0000000000,\
+'Gamma'   0.8660254038,\
+'H'   1.8660254038,\
+'N'   2.5731321850,\
+'P'   3.0731321850)
+tpia=2*3.1415926/     6.35000
+plot \
+"bnd001.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd002.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd003.spin1" u ($2):($3) lt 1 pt 1 w lp,\
+"bnd004.spin1" u ($2):($3) lt 1 pt 1 w lp
+set terminal x11
+replot

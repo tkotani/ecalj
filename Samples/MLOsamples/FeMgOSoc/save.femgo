@@ -1,0 +1,14 @@
+Start LMF femgo --quit=band
+i mmom= 8.4131 ehf(eV)=-126125.232487 ehk(eV)=-126125.232191 sev(eV)=-1544.360816
+Start LMF femgo --band
+Start LMF femgo --writeham --mkprocar --noinv --mlo
+Start LMF femgo --quit=band --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true --ctrlg:ham.so=1
+i mmom= 8.4081 ehf(eV)=-126125.214051 ehk(eV)=-126125.210315 sev(eV)=-1544.342380
+Start LMF femgo --writeham --mkprocar --noinv --mlo --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true --ctrlg:ham.so=0 --socmatrix
+Start LMF femgo --quit=band
+i mmom= 8.4131 ehf(eV)=-126125.232487 ehk(eV)=-126125.232191 sev(eV)=-1544.360816
+Start LMF femgo --band
+Start LMF femgo --writeham --mkprocar --noinv --mlo
+Start LMF femgo --quit=band --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true --ctrlg:ham.so=1
+i mmom= 8.4081 ehf(eV)=-126125.214051 ehk(eV)=-126125.210315 sev(eV)=-1544.342380
+Start LMF femgo --writeham --mkprocar --noinv --mlo --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true --ctrlg:ham.so=0 --socmatrix

@@ -1,0 +1,11 @@
+#!/usr/bin/bash -x
+lmfa si >llmf
+mpirun -np 8 lmf si >llmf
+job_band si -np 8
+job_ham si -np 8
+lmfham2 si --job=0
+lmfham2 si --job=1
+gnuplot -p bandplot_MLO.isp1.glt
+
+
+python ~/ecalj/SRC/exec/job_ham si -np 6 --skipf --skipd --mlo_facww=0.8

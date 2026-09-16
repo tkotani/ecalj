@@ -1,0 +1,7 @@
+%const q=1.627
+STRUC ALAT=6.03
+      PLAT=0 -1 0   sqrt(3)/2 1/2   0 0 0 {q}
+SITE  ATOM=Ga POS=         0   0     0*{q}
+      ATOM=N  POS=         0   0   5/8*{q}
+      ATOM=Ga POS= 1/sqrt(3)   0   1/2*{q}
+      ATOM=N  POS= 1/sqrt(3)   0   5/8*{q}-{q}/2

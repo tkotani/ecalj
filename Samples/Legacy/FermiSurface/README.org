@@ -1,0 +1,6 @@
+After you get convergece for Cu,
+>job_fermisurface
+and follow the instruction to run job_fermisurface.
+Then run 
+xcrysden --bxsf fermiup.bxsf
+to visualize Fermisurface

@@ -1,0 +1,21 @@
+ ### console output for rank=  2
+CPU:  0.00 s=  0.0 min 
+ CPU:       0.0000 secs =     0.0 mins.
+CPU:  0.07 s=  0.0 min end of qindependentRadialIntegrals
+CPU:  0.07 s=  0.0 min  do 1001: iq nqibz q ngc =    4    8    0.2500    0.2500    0.5000   34
+CPU:  0.08 s=  0.0 min mkjp_4 ibas, hasBessel= 1 F
+CPU:  0.08 s=  0.0 min  mkjp_4: goto rojploop
+CPU:  0.11 s=  0.0 min  mkjp_4: goto dev_mo block. size of ajr:,nx 1668618 6 5 6 3 3 0 0 0 0
+CPU:  0.16 s=  0.0 min start vcoulq_4 for iqx= 4 q= 0.2500  0.2500  0.5000  ngc= 34  nbas= 1  lx= 8  nx= 6 procid= 2
+CPU:  0.16 s=  0.0 min  vcoulq_4: ngb  nbloch ngc nrx procid=   133    99    34  5453     2
+CPU:  0.16 s=  0.0 min  vcoulq_4: goto PvB procid= 2
+CPU:  0.17 s=  0.0 min  vcoulq_4: goto PvP procid ngc lxx nrx= 2 34 8 5453
+CPU:  0.17 s=  0.0 min  vcoulq_4: goto igig loop (type-batched) 2
+CPU:  0.17 s=  0.0 min  vcoulq_4: type atoms 1 - 1 nr= 5453 lx= 8 procid= 2
+CPU:  0.22 s=  0.0 min  vcoulq_4:  igig type kernel procid= 2 natom_type= 1
+CPU:  0.22 s=  0.0 min end of vcoulq_4 for iqx= 4 procid= 2
+CPU:  0.22 s=  0.0 min  end of mkppovl2
+CPU:  0.22 s=  0.0 min diag: gpuid freemem reqmem rmem GB= 0 0.000  0.002  93132257461.548
+CPU:  0.24 s=  0.0 min end of Diag_Coul
+CPU:  0.24 s=  0.0 min  end of do 1001
+CPU:  0.24 s=  0.0 min end of hvccfp0

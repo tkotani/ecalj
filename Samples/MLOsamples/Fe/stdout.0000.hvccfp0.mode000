@@ -1,0 +1,257 @@
+ ### console output for rank=  0
+CPU:  0.00 s=  0.0 min 
+  --- Freq ---
+    niw  =    10
+    esmr =    0.003000
+  reading <PRODUCT_BASIS> section
+ lx=  0 readin tolerance=  0.100D-02
+ lx=  1 readin tolerance=  0.100D-02
+ lx=  2 readin tolerance=  0.100D-02
+ lx=  3 readin tolerance=  0.100D-02
+ lx=  4 readin tolerance=  0.100D-02
+ lx=  5 readin tolerance=  0.100D-02
+ lx=  6 readin tolerance=  0.100D-02
+ lx=  7 readin tolerance=  0.100D-02
+ lx=  8 readin tolerance=  0.100D-02
+  4
+           1           0           2           3
+           1           1           3           1
+           1           2           2           0
+           1           3           2           0
+           1           4           2           0
+  --- valence product basis section
+  1  0  1  1  1
+  1  0  2  0  0
+  1  1  1  1  1
+  1  1  2  0  0
+  1  1  3  1  0
+  1  2  1  1  1
+  1  2  2  0  0
+  1  3  1  0  1
+  1  3  2  0  0
+  1  4  1  0  0
+  1  4  2  0  0
+  --- core product basis section
+  1  0  1  0  0  0  0
+  1  0  2  0  0  0  0
+  1  0  3  0  0  0  0
+  1  1  1  0  0  0  0
+  ### Use unocc occ ForX0 for core
+  read ECORE : iatom lmxa =           1           4
+ read ecore=   0   1   1 -0.69740D+04 -0.69740D+04
+ read ecore=   0   2   1 -0.80986D+03 -0.80986D+03
+ read ecore=   0   3   1 -0.85611D+02 -0.85611D+02
+ read ecore=   1   1   1 -0.68989D+03 -0.68989D+03
+ CPU:       0.0000 secs =     0.0 mins.
+ genallcf_v3
+  ### readin BZDATA ###
+  end of read_BZdata
+
+ lattc:  as= 2.000   tol= 1.00E-14   lmax=16   awald= 0.4652   v0=     0.500
+ alat1=  5.41690   estimates:   nkd   388   nkr   712
+  r0=   3.0361   rc=  16.4463   radd=   0.5556   nkd=    387
+  q0=   6.0968   qc=   7.0718   qadd=   0.8819   nkr=    683
+ Coulomb is exp(sqrt(-eee)*r)/r. eee=-0.100000D-04
+CPU:  0.07 s=  0.0 min end of qindependentRadialIntegrals
+  init_readqg ifi=           2
+init_readqg cou  qc ngc =   0.000   0.000   0.000   43
+init_readqg cou  qc ngc =   0.000   0.250   0.250   38
+init_readqg cou  qc ngc =   0.000   0.500   0.500   40
+init_readqg cou  qc ngc =   0.000   0.750   0.750   38
+init_readqg cou  qc ngc =   0.250   0.000   0.250   38
+init_readqg cou  qc ngc =   0.250   0.250   0.500   34
+init_readqg cou  qc ngc =   0.250   0.500   0.750   34
+init_readqg cou  qc ngc =   0.250   0.750   1.000   38
+init_readqg cou  qc ngc =   0.500   0.000   0.500   40
+init_readqg cou  qc ngc =   0.500   0.250   0.750   34
+init_readqg cou  qc ngc =   0.500   0.500   1.000   40
+init_readqg cou  qc ngc =   0.500   0.750   1.250   34
+init_readqg cou  qc ngc =   0.750   0.000   0.750   38
+init_readqg cou  qc ngc =   0.750   0.250   1.000   38
+init_readqg cou  qc ngc =   0.750   0.500   1.250   34
+init_readqg cou  qc ngc =   0.750   0.750   1.500   34
+init_readqg cou  qc ngc =   0.250   0.250   0.000   38
+init_readqg cou  qc ngc =   0.250   0.500   0.250   34
+init_readqg cou  qc ngc =   0.250   0.750   0.500   34
+init_readqg cou  qc ngc =   0.250   1.000   0.750   38
+init_readqg cou  qc ngc =   0.500   0.250   0.250   34
+init_readqg cou  qc ngc =   0.500   0.500   0.500   28
+init_readqg cou  qc ngc =   0.500   0.750   0.750   34
+init_readqg cou  qc ngc =   0.500   1.000   1.000   35
+init_readqg cou  qc ngc =   0.750   0.250   0.500   34
+init_readqg cou  qc ngc =   0.750   0.500   0.750   34
+init_readqg cou  qc ngc =   0.750   0.750   1.000   38
+init_readqg cou  qc ngc =   0.750   1.000   1.250   38
+init_readqg cou  qc ngc =   1.000   0.250   0.750   38
+init_readqg cou  qc ngc =   1.000   0.500   1.000   35
+init_readqg cou  qc ngc =   1.000   0.750   1.250   38
+init_readqg cou  qc ngc =   1.000   1.000   1.500   35
+init_readqg cou  qc ngc =   0.500   0.500   0.000   40
+init_readqg cou  qc ngc =   0.500   0.750   0.250   34
+init_readqg cou  qc ngc =   0.500   1.000   0.500   40
+init_readqg cou  qc ngc =   0.500   1.250   0.750   34
+init_readqg cou  qc ngc =   0.750   0.500   0.250   34
+init_readqg cou  qc ngc =   0.750   0.750   0.500   34
+init_readqg cou  qc ngc =   0.750   1.000   0.750   38
+init_readqg cou  qc ngc =   0.750   1.250   1.000   38
+init_readqg cou  qc ngc =   1.000   0.500   0.500   40
+init_readqg cou  qc ngc =   1.000   0.750   0.750   38
+init_readqg cou  qc ngc =   1.000   1.000   1.000   38
+init_readqg cou  qc ngc =   1.000   1.250   1.250   38
+init_readqg cou  qc ngc =   1.250   0.500   0.750   34
+init_readqg cou  qc ngc =   1.250   0.750   1.000   38
+init_readqg cou  qc ngc =   1.250   1.000   1.250   38
+init_readqg cou  qc ngc =   1.250   1.250   1.500   34
+init_readqg cou  qc ngc =   0.750   0.750   0.000   38
+init_readqg cou  qc ngc =   0.750   1.000   0.250   38
+init_readqg cou  qc ngc =   0.750   1.250   0.500   34
+init_readqg cou  qc ngc =   0.750   1.500   0.750   34
+init_readqg cou  qc ngc =   1.000   0.750   0.250   38
+init_readqg cou  qc ngc =   1.000   1.000   0.500   35
+init_readqg cou  qc ngc =   1.000   1.250   0.750   38
+init_readqg cou  qc ngc =   1.000   1.500   1.000   35
+init_readqg cou  qc ngc =   1.250   0.750   0.500   34
+init_readqg cou  qc ngc =   1.250   1.000   0.750   38
+init_readqg cou  qc ngc =   1.250   1.250   1.000   38
+init_readqg cou  qc ngc =   1.250   1.500   1.250   34
+init_readqg cou  qc ngc =   1.500   0.750   0.750   34
+init_readqg cou  qc ngc =   1.500   1.000   1.000   35
+init_readqg cou  qc ngc =   1.500   1.250   1.250   34
+init_readqg cou  qc ngc =   1.500   1.500   1.500   28
+init_readqg cou  qc ngc =   0.000   0.013   0.013   43
+init_readqg cou  qc ngc =   0.000   0.263   0.263   38
+init_readqg cou  qc ngc =   0.000   0.512   0.512   40
+init_readqg cou  qc ngc =   0.000   0.762   0.762   38
+init_readqg cou  qc ngc =   0.250   0.013   0.263   38
+init_readqg cou  qc ngc =   0.250   0.263   0.512   34
+init_readqg cou  qc ngc =   0.250   0.512   0.762   34
+init_readqg cou  qc ngc =   0.250   0.762   1.012   38
+init_readqg cou  qc ngc =   0.500   0.013   0.512   40
+init_readqg cou  qc ngc =   0.500   0.263   0.762   34
+init_readqg cou  qc ngc =   0.500   0.512   1.012   40
+init_readqg cou  qc ngc =   0.500   0.762   1.262   34
+init_readqg cou  qc ngc =   0.750   0.013   0.762   38
+init_readqg cou  qc ngc =   0.750   0.263   1.012   38
+init_readqg cou  qc ngc =   0.750   0.512   1.262   34
+init_readqg cou  qc ngc =   0.750   0.762   1.512   34
+init_readqg cou  qc ngc =   0.250   0.263   0.013   38
+init_readqg cou  qc ngc =   0.250   0.512   0.263   34
+init_readqg cou  qc ngc =   0.250   0.762   0.512   34
+init_readqg cou  qc ngc =   0.250   1.012   0.762   38
+init_readqg cou  qc ngc =   0.500   0.263   0.263   34
+init_readqg cou  qc ngc =   0.500   0.512   0.512   28
+init_readqg cou  qc ngc =   0.500   0.762   0.762   34
+init_readqg cou  qc ngc =   0.500   1.012   1.012   35
+init_readqg cou  qc ngc =   0.750   0.263   0.512   34
+init_readqg cou  qc ngc =   0.750   0.512   0.762   34
+init_readqg cou  qc ngc =   0.750   0.762   1.012   38
+init_readqg cou  qc ngc =   0.750   1.012   1.262   38
+init_readqg cou  qc ngc =   1.000   0.263   0.762   38
+init_readqg cou  qc ngc =   1.000   0.512   1.012   35
+init_readqg cou  qc ngc =   1.000   0.762   1.262   38
+init_readqg cou  qc ngc =   1.000   1.012   1.512   35
+init_readqg cou  qc ngc =   0.500   0.512   0.013   40
+init_readqg cou  qc ngc =   0.500   0.762   0.263   34
+init_readqg cou  qc ngc =   0.500   1.012   0.512   40
+init_readqg cou  qc ngc =   0.500   1.262   0.762   34
+init_readqg cou  qc ngc =   0.750   0.512   0.263   34
+init_readqg cou  qc ngc =   0.750   0.762   0.512   34
+init_readqg cou  qc ngc =   0.750   1.012   0.762   38
+init_readqg cou  qc ngc =   0.750   1.262   1.012   38
+init_readqg cou  qc ngc =   1.000   0.512   0.512   40
+init_readqg cou  qc ngc =   1.000   0.762   0.762   38
+init_readqg cou  qc ngc =   1.000   1.012   1.012   38
+init_readqg cou  qc ngc =   1.000   1.262   1.262   38
+init_readqg cou  qc ngc =   1.250   0.512   0.762   34
+init_readqg cou  qc ngc =   1.250   0.762   1.012   38
+init_readqg cou  qc ngc =   1.250   1.012   1.262   38
+init_readqg cou  qc ngc =   1.250   1.262   1.512   34
+init_readqg cou  qc ngc =   0.750   0.762   0.013   38
+init_readqg cou  qc ngc =   0.750   1.012   0.263   38
+init_readqg cou  qc ngc =   0.750   1.262   0.512   34
+init_readqg cou  qc ngc =   0.750   1.512   0.762   34
+init_readqg cou  qc ngc =   1.000   0.762   0.263   38
+init_readqg cou  qc ngc =   1.000   1.012   0.512   35
+init_readqg cou  qc ngc =   1.000   1.262   0.762   38
+init_readqg cou  qc ngc =   1.000   1.512   1.012   35
+init_readqg cou  qc ngc =   1.250   0.762   0.512   34
+init_readqg cou  qc ngc =   1.250   1.012   0.762   38
+init_readqg cou  qc ngc =   1.250   1.262   1.012   38
+init_readqg cou  qc ngc =   1.250   1.512   1.262   34
+init_readqg cou  qc ngc =   1.500   0.762   0.762   34
+init_readqg cou  qc ngc =   1.500   1.012   1.012   35
+init_readqg cou  qc ngc =   1.500   1.262   1.262   34
+init_readqg cou  qc ngc =   1.500   1.512   1.512   28
+ iqxini iqxend=           1           9
+CPU:  0.07 s=  0.0 min  do 1001: iq nqibz q ngc =    1    8    0.0000    0.0000    0.0000   43
+CPU:  0.08 s=  0.0 min mkjp_4 ibas, hasBessel= 1 F
+CPU:  0.08 s=  0.0 min  mkjp_4: goto rojploop
+CPU:  0.12 s=  0.0 min  mkjp_4: goto dev_mo block. size of ajr:,nx 2110311 6 5 6 3 3 0 0 0 0
+CPU:  0.17 s=  0.0 min start vcoulq_4 for iqx= 1 q= 0.0000  0.0000  0.0000  ngc= 43  nbas= 1  lx= 8  nx= 6 procid= 0
+CPU:  0.17 s=  0.0 min  vcoulq_4: ngb  nbloch ngc nrx procid=   142    99    43  5453     0
+CPU:  0.17 s=  0.0 min  vcoulq_4: goto PvB procid= 0
+CPU:  0.17 s=  0.0 min  vcoulq_4: goto PvP procid ngc lxx nrx= 0 43 8 5453
+CPU:  0.17 s=  0.0 min  vcoulq_4: goto igig loop (type-batched) 0
+CPU:  0.17 s=  0.0 min  vcoulq_4: type atoms 1 - 1 nr= 5453 lx= 8 procid= 0
+CPU:  0.25 s=  0.0 min  vcoulq_4:  igig type kernel procid= 0 natom_type= 1
+CPU:  0.25 s=  0.0 min end of vcoulq_4 for iqx= 1 procid= 0
+CPU:  0.25 s=  0.0 min  end of mkppovl2
+CPU:  0.25 s=  0.0 min diag: gpuid freemem reqmem rmem GB= 0 0.000  0.002  93132257461.548
+CPU:  0.27 s=  0.0 min end of Diag_Coul
+  --- goto eigen check1 --- 
+   1 0.1256637061436443D+07
+   2 0.4669095815415240D+01
+   3 0.4669095815410058D+01
+   4 0.4665446500012336D+01
+   5 0.4665446500002578D+01
+   6 0.4665446500000092D+01
+   7 0.4664019421129924D+01
+   8 0.4649841230231883D+01
+   9 0.4649841230221515D+01
+  10 0.4649841230213810D+01
+  ... 
+ 137 0.2567552577090644D-01
+ 138 0.2567552577072205D-01
+ 139 0.2567552577071469D-01
+ 140 0.2567279692397635D-01
+ 141 0.2567279692371557D-01
+ 142 0.8873802147312730D-02
+ nev ngv q=  142  142  0.000000  0.000000  0.000000
+CPU:  0.27 s=  0.0 min  end of do 1001
+CPU:  0.27 s=  0.0 min  do 1001: iq nqibz q ngc =    2    8    0.0000    0.2500    0.2500   38
+CPU:  0.27 s=  0.0 min mkjp_4 ibas, hasBessel= 1 F
+CPU:  0.27 s=  0.0 min  mkjp_4: goto rojploop
+CPU:  0.30 s=  0.0 min  mkjp_4: goto dev_mo block. size of ajr:,nx 1864926 6 5 6 3 3 0 0 0 0
+CPU:  0.32 s=  0.0 min start vcoulq_4 for iqx= 2 q= 0.0000  0.2500  0.2500  ngc= 38  nbas= 1  lx= 8  nx= 6 procid= 0
+CPU:  0.32 s=  0.0 min  vcoulq_4: ngb  nbloch ngc nrx procid=   137    99    38  5453     0
+CPU:  0.32 s=  0.0 min  vcoulq_4: goto PvB procid= 0
+CPU:  0.32 s=  0.0 min  vcoulq_4: goto PvP procid ngc lxx nrx= 0 38 8 5453
+CPU:  0.32 s=  0.0 min  vcoulq_4: goto igig loop (type-batched) 0
+CPU:  0.32 s=  0.0 min  vcoulq_4: type atoms 1 - 1 nr= 5453 lx= 8 procid= 0
+CPU:  0.37 s=  0.0 min  vcoulq_4:  igig type kernel procid= 0 natom_type= 1
+CPU:  0.37 s=  0.0 min end of vcoulq_4 for iqx= 2 procid= 0
+CPU:  0.37 s=  0.0 min  end of mkppovl2
+CPU:  0.37 s=  0.0 min diag: gpuid freemem reqmem rmem GB= 0 0.000  0.002  93132257461.548
+CPU:  0.39 s=  0.0 min end of Diag_Coul
+  --- goto eigen check1 --- 
+   1 0.7471627180690103D+02
+   2 0.8299596152684476D+01
+   3 0.5746340682671367D+01
+   4 0.5738583971710935D+01
+   5 0.5738403140869947D+01
+   6 0.5737887993294781D+01
+   7 0.4380531806988604D+01
+   8 0.4377275872719233D+01
+   9 0.3538921020420022D+01
+  10 0.3534405580745108D+01
+  ... 
+ 132 0.2567886938883161D-01
+ 133 0.2567797610663093D-01
+ 134 0.2567734276131693D-01
+ 135 0.2567725737521197D-01
+ 136 0.2567250901349479D-01
+ 137 0.8874730174719877D-02
+ nev ngv q=  137  137  0.000000  0.250000  0.250000
+CPU:  0.39 s=  0.0 min  end of do 1001
+CPU:  0.39 s=  0.0 min end of hvccfp0
+Exit 0 procid= 0  OK! hvccfp0 imode=0

@@ -1,0 +1,51 @@
+
+IORBTM:  orbital moments :
+ ibas  Spec        spin   Moment decomposed by l ...
+    1    Fe           1         NaN         NaN         NaN         NaN         NaN
+    1    Fe           2         NaN         NaN         NaN         NaN         NaN
+ total orbital moment   1:         NaN
+    2    Fe           1         NaN         NaN         NaN         NaN         NaN
+    2    Fe           2         NaN         NaN         NaN         NaN         NaN
+ total orbital moment   2:         NaN
+    3    Fe           1         NaN         NaN         NaN         NaN         NaN
+    3    Fe           2         NaN         NaN         NaN         NaN         NaN
+ total orbital moment   3:         NaN
+    4    Mg           1         NaN         NaN         NaN         NaN         NaN
+    4    Mg           2         NaN         NaN         NaN         NaN         NaN
+ total orbital moment   4:         NaN
+    5    Mg           1         NaN         NaN         NaN         NaN         NaN
+    5    Mg           2         NaN         NaN         NaN         NaN         NaN
+ total orbital moment   5:         NaN
+    6    Mg           1         NaN         NaN         NaN         NaN         NaN
+    6    Mg           2         NaN         NaN         NaN         NaN         NaN
+ total orbital moment   6:         NaN
+    7    O            1         NaN         NaN         NaN         NaN         NaN
+    7    O            2         NaN         NaN         NaN         NaN         NaN
+ total orbital moment   7:         NaN
+    8    O            1         NaN         NaN         NaN         NaN         NaN
+    8    O            2         NaN         NaN         NaN         NaN         NaN
+ total orbital moment   8:         NaN
+    9    O            1         NaN         NaN         NaN         NaN         NaN
+    9    O            2         NaN         NaN         NaN         NaN         NaN
+ total orbital moment   9:         NaN
+   10    E            1         NaN         NaN         NaN    0.000000    0.000000
+   10    E            2         NaN         NaN         NaN    0.000000    0.000000
+ total orbital moment  10:         NaN
+   11    E            1         NaN         NaN         NaN    0.000000    0.000000
+   11    E            2         NaN         NaN         NaN    0.000000    0.000000
+ total orbital moment  11:         NaN
+   12    E            1         NaN         NaN         NaN    0.000000    0.000000
+   12    E            2         NaN         NaN         NaN    0.000000    0.000000
+ total orbital moment  12:         NaN
+   13    E            1         NaN         NaN         NaN    0.000000    0.000000
+   13    E            2         NaN         NaN         NaN    0.000000    0.000000
+ total orbital moment  13:         NaN
+   14    E            1         NaN         NaN         NaN    0.000000    0.000000
+   14    E            2         NaN         NaN         NaN    0.000000    0.000000
+ total orbital moment  14:         NaN
+   15    E            1         NaN         NaN         NaN    0.000000    0.000000
+   15    E            2         NaN         NaN         NaN    0.000000    0.000000
+ total orbital moment  15:         NaN
+   16    E            1         NaN         NaN         NaN    0.000000    0.000000
+   16    E            2         NaN         NaN         NaN    0.000000    0.000000
+ total orbital moment  16:         NaN

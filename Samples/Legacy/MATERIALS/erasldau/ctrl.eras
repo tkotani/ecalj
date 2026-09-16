@@ -1,0 +1,36 @@
+SYMGRP  R4Z MZ
+HEADER  rocksalt ErAs
+% const asa=f nsp=2 nk=4 free=0 hf=0 ldau=t so=f
+TESTLMF lmfa eras
+        lmf -vnit=1 --pr51 eras
+        lmf -vnit=3 eras
+MPI version
+        mpix -np=7 lmf-MPIK --rs=0 -vnit=1 --pr51 eras
+        mpix -np=7 lmf-MPIK -vnit=3 eras
+CLEAN   rm -f ctrl.eras moms.eras occnum.eras out1.eras out2.eras qpp.eras
+VERS    LMASA-6 LMF-6 LM:7 FP:7
+IO      SHOW=f HELP=f VERBOS=30 WKP=F IACTIV=F
+OPTIONS REL=t CCOR=T LMH=F ADNF=f  HF={hf} PFLOAT=0
+# SYMGRP  i*i
+SYMGRP  find
+BZ      METAL=2 TETRA=t NEVMX=50 EFMAX=3 NKABC={nk} {nk} {nk} BZJOB=f
+STR     RMAX=3.02
+CONST   a=5.732/0.529177249 fv=1 tet=1.0
+STRUC   NBAS=2 NSPEC=2 NL=4
+        ALAT=a*fv PLAT=  0 .5 .5  .5  0 .5  .5 .5  0
+        SHEAR=0 0 1 tet
+SITE    ATOM=Er POS=  0   0   0
+        ATOM=As POS= .50 .50 .50
+SPEC    ATOM=Er Z=68 R=2.8464  LMX=3 LMXA=3 RSMH= 1.6 1.6  1.6  1 EH= -0.1 -0.1 -0.1 -0.1
+        RSMH2= 4.5 4.5 0 0 EH2=-0.5 -0.5 0 0 EREF=-26155.557342 MMOM=0 0 0 3 A=.03 
+#       PZ=0,0,0,5.4
+% ifdef ldau
+% const udc=2
+        IDU= 0 0 {udc} {udc} UH= 0 0 0.1 0.632 JH= 0 0 0 0.055
+% endif
+        ATOM=As  Z=33 R=2.5691 LMX=2 LMXA=2 RSMH= 1.4 1.4 1.4  EH= -0.6 -0.1 -0.1
+        EREF=-4515.471448 A=.03 
+% const nit=3
+ITER    MIX=A,b=0.2,w=0.8,0.2 CONV=0 CONVC=1E-5 TOLU=1e-5 UMIX=1 NIT={nit}
+MIX     MODE=A,b=0.2,w=0.8,0.2 CONV=0 CONVC=1E-5 TOLU=1e-5 UMIX=1
+HAM     FTMESH=30 30 30 NSPIN={nsp} SO=1

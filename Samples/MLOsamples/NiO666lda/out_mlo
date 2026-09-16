@@ -1,0 +1,745 @@
+m_lmfinit: lmfham1
+rval2: STRUC_NSPEC             requ n= 1 val= 3.00000000
+rval2: STRUC_NBAS              requ n= 1 val= 4.00000000
+rval2: HAM_NSPIN               defa n= 1 val= 2.00000000
+rval2: IO_VERBOS               defa n= 1 val= 55.00000000
+rval2: IO_TIM                  defa n= 1 val= 3.00000000
+rval2: STRUC_ALAT              ---- n= 1 val= 7.88000000
+rval2: STRUC_PLAT              requ n= 9 val= 0.50000000  0.50000000  1.00000000  0.50000000  1.00000000  0.50000000  1.00000000  0.50000000  0.50000000
+rval2: OPTIONS_HF              defa n= 1 val= 0.00000000
+rval2: HAM_REL                 defa n= 1 val= 1.00000000
+rval2: HAM_SO                  defa n= 1 val= 0.00000000
+rval2: HAM_SOCAXIS             defa n= 3 val= 0.00000000  0.00000000  1.00000000
+rval2: HAM_GMAX                defa n= 1 val= 12.00000000
+rval2: HAM_FTMESH              defa n= 3 val= 0.00000000  0.00000000  0.00000000
+rval2: HAM_TOL                 defa n= 1 val= 0.00000100
+rval2: HAM_FRZWF               defa n= 1 val= 0.00000000
+rval2: HAM_XCFUN               defa n= 1 val= 1.00000000
+rval2: HAM_FORCES              defa n= 1 val= 0.00000000
+rval2: HAM_RDSIG               defa n= 1 val= 12.00000000
+rval2: HAM_ScaledSigma         defa n= 1 val= 1.00000000
+rval2: HAM_EWALD               defa n= 1 val= 0.00000000
+rval2: HAM_OVEPS               defa n= 1 val= 0.00000001
+rval2: HAM_PWMODE              defa n= 1 val= 11.00000000
+rval2: HAM_PWEMAX              defa n= 1 val= 2.00000000
+rval2: HAM_READP               defa n= 1 val= 0.00000000
+rval2: HAM_PHISPINSYM          defa n= 1 val= 0.00000000
+rval2: HAM_PNUFIX              defa n= 1 val= 0.00000000
+=== SPEC =1
+rval2: SPEC_ATOM@1             val=  Niup
+rval2: SPEC_Z@1                ---- n= 1 val= 28.00000000
+rval2: SPEC_R@1                ---- n= 1 val= 2.19000000
+rval2: SPEC_R/W@1              ---- n= 0 val= 
+rval2: SPEC_R/A@1              ---- n= 0 val= 
+rval2: SPEC_A@1                defa n= 1 val= 0.00000000
+rval2: SPEC_NR@1               defa n= 1 val= 0.00000000
+rval2: SPEC_RSMH@1             ---- n= 4 val= 1.09000000  1.09000000  1.09000000  1.09000000
+rval2: SPEC_EH@1               requ n= 4 val= -1.00000000 -1.00000000 -1.00000000 -1.00000000
+rval2: SPEC_RSMH2@1            ---- n= 3 val= 1.09000000  1.09000000  1.09000000
+rval2: SPEC_EH2@1              requ n= 3 val= -2.00000000 -2.00000000 -2.00000000
+rval2: SPEC_LMX@1              defa n= 1 val= 3.00000000
+rval2: SPEC_LMXA@1             defa n= 1 val= 4.00000000
+rval2: SPEC_LMXL@1             defa n= 1 val= 4.00000000
+rval2: SPEC_P@1                ---- n= 3 val= 0.00000000  0.00000000  4.20000000
+rval2: SPEC_Q@1                ---- n= 0 val= 
+rval2: SPEC_MMOM@1             ---- n= 3 val= 0.00000000  0.00000000  1.00000000
+rval2: SPEC_NMCORE@1           defa n= 1 val= 1.00000000
+rval2: SPEC_PZ@1               ---- n= 3 val= 0.00000000  0.00000000  3.90000000
+rval2: SPEC_LFOCA@1            defa n= 1 val= 1.00000000
+rval2: SPEC_KMXA@1             defa n= 1 val= 5.00000000
+rval2: SPEC_RSMA@1             defa n= 1 val= 0.87600000
+rval2: SPEC_IDMOD@1            ---- n= 0 val= 
+rval2: SPEC_FRZWF@1            defa n= 1 val= 0.00000000
+rval2: SPEC_IDU@1              ---- n= 0 val= 
+rval2: SPEC_UH@1               ---- n= 0 val= 
+rval2: SPEC_JH@1               ---- n= 0 val= 
+rval2: SPEC_C-HOLE@1           val= 
+rval2: SPEC_C-HQ@1             defa n= 2 val= -1.00000000  0.00000000
+rval2: SPEC_EREF1              defa n= 1 val= 0.00000000
+=== SPEC =2
+rval2: SPEC_ATOM@2             val=  Nidn
+rval2: SPEC_Z@2                ---- n= 1 val= 28.00000000
+rval2: SPEC_R@2                ---- n= 1 val= 2.19000000
+rval2: SPEC_R/W@2              ---- n= 0 val= 
+rval2: SPEC_R/A@2              ---- n= 0 val= 
+rval2: SPEC_A@2                defa n= 1 val= 0.00000000
+rval2: SPEC_NR@2               defa n= 1 val= 0.00000000
+rval2: SPEC_RSMH@2             ---- n= 4 val= 1.09000000  1.09000000  1.09000000  1.09000000
+rval2: SPEC_EH@2               requ n= 4 val= -1.00000000 -1.00000000 -1.00000000 -1.00000000
+rval2: SPEC_RSMH2@2            ---- n= 3 val= 1.09000000  1.09000000  1.09000000
+rval2: SPEC_EH2@2              requ n= 3 val= -2.00000000 -2.00000000 -2.00000000
+rval2: SPEC_LMX@2              defa n= 1 val= 3.00000000
+rval2: SPEC_LMXA@2             defa n= 1 val= 4.00000000
+rval2: SPEC_LMXL@2             defa n= 1 val= 4.00000000
+rval2: SPEC_P@2                ---- n= 3 val= 0.00000000  0.00000000  4.20000000
+rval2: SPEC_Q@2                ---- n= 0 val= 
+rval2: SPEC_MMOM@2             ---- n= 3 val= 0.00000000  0.00000000 -1.00000000
+rval2: SPEC_NMCORE@2           defa n= 1 val= 1.00000000
+rval2: SPEC_PZ@2               ---- n= 3 val= 0.00000000  0.00000000  3.90000000
+rval2: SPEC_LFOCA@2            defa n= 1 val= 1.00000000
+rval2: SPEC_KMXA@2             defa n= 1 val= 5.00000000
+rval2: SPEC_RSMA@2             defa n= 1 val= 0.87600000
+rval2: SPEC_IDMOD@2            ---- n= 0 val= 
+rval2: SPEC_FRZWF@2            defa n= 1 val= 0.00000000
+rval2: SPEC_IDU@2              ---- n= 0 val= 
+rval2: SPEC_UH@2               ---- n= 0 val= 
+rval2: SPEC_JH@2               ---- n= 0 val= 
+rval2: SPEC_C-HOLE@2           val= 
+rval2: SPEC_C-HQ@2             defa n= 2 val= -1.00000000  0.00000000
+rval2: SPEC_EREF2              defa n= 1 val= 0.00000000
+=== SPEC =3
+rval2: SPEC_ATOM@3             val=  O
+rval2: SPEC_Z@3                ---- n= 1 val= 8.00000000
+rval2: SPEC_R@3                ---- n= 1 val= 1.75000000
+rval2: SPEC_R/W@3              ---- n= 0 val= 
+rval2: SPEC_R/A@3              ---- n= 0 val= 
+rval2: SPEC_A@3                defa n= 1 val= 0.00000000
+rval2: SPEC_NR@3               defa n= 1 val= 0.00000000
+rval2: SPEC_RSMH@3             ---- n= 3 val= 0.88000000  0.88000000  0.88000000
+rval2: SPEC_EH@3               requ n= 3 val= -1.00000000 -1.00000000 -1.00000000
+rval2: SPEC_RSMH2@3            ---- n= 2 val= 0.88000000  0.88000000
+rval2: SPEC_EH2@3              requ n= 2 val= -2.00000000 -2.00000000
+rval2: SPEC_LMX@3              defa n= 1 val= 3.00000000
+rval2: SPEC_LMXA@3             defa n= 1 val= 4.00000000
+rval2: SPEC_LMXL@3             defa n= 1 val= 4.00000000
+rval2: SPEC_P@3                ---- n= 0 val= 
+rval2: SPEC_Q@3                ---- n= 0 val= 
+rval2: SPEC_MMOM@3             ---- n= 0 val= 
+rval2: SPEC_NMCORE@3           defa n= 1 val= 1.00000000
+rval2: SPEC_PZ@3               ---- n= 0 val= 
+rval2: SPEC_LFOCA@3            defa n= 1 val= 0.00000000
+rval2: SPEC_KMXA@3             defa n= 1 val= 5.00000000
+rval2: SPEC_RSMA@3             defa n= 1 val= 0.70000000
+rval2: SPEC_IDMOD@3            ---- n= 0 val= 
+rval2: SPEC_FRZWF@3            defa n= 1 val= 0.00000000
+rval2: SPEC_IDU@3              ---- n= 0 val= 
+rval2: SPEC_UH@3               ---- n= 0 val= 
+rval2: SPEC_JH@3               ---- n= 0 val= 
+rval2: SPEC_C-HOLE@3           val= 
+rval2: SPEC_C-HQ@3             defa n= 2 val= -1.00000000  0.00000000
+rval2: SPEC_EREF3              defa n= 1 val= 0.00000000
+=== SITE =1
+rval2: SITE_ATOM@1             val=  Niup
+rval2: SITE_POS@1              ---- n= 3 val= 0.00000000  0.00000000  0.00000000
+rval2: SITE_RELAX@1            defa n= 3 val= 1.00000000  1.00000000  1.00000000
+rval2: SITE_AF@1               defa n= 1 val= 0.00000000
+=== SITE =2
+rval2: SITE_ATOM@2             val=  Nidn
+rval2: SITE_POS@2              ---- n= 3 val= 1.00000000  1.00000000  1.00000000
+rval2: SITE_RELAX@2            defa n= 3 val= 1.00000000  1.00000000  1.00000000
+rval2: SITE_AF@2               defa n= 1 val= 0.00000000
+=== SITE =3
+rval2: SITE_ATOM@3             val=  O
+rval2: SITE_POS@3              ---- n= 3 val= 0.50000000  0.50000000  0.50000000
+rval2: SITE_RELAX@3            defa n= 3 val= 1.00000000  1.00000000  1.00000000
+rval2: SITE_AF@3               defa n= 1 val= 0.00000000
+=== SITE =4
+rval2: SITE_ATOM@4             val=  O
+rval2: SITE_POS@4              ---- n= 3 val= 1.50000000  1.50000000  1.50000000
+rval2: SITE_RELAX@4            defa n= 3 val= 1.00000000  1.00000000  1.00000000
+rval2: SITE_AF@4               defa n= 1 val= 0.00000000
+rval2: STR_RMAXS               ---- n= 0 val= 
+rval2: STR_RMAX                ---- n= 0 val= 
+rval2: STR_MXNBR               defa n= 1 val= 0.00000000
+rval2: BZ_NKABC                ---- n= 3 val= 6.00000000  6.00000000  6.00000000
+rval2: BZ_BZJOB                ---- n= 1 val= 0.00000000
+rval2: BZ_METAL                defa n= 1 val= 0.00000000
+rval2: BZ_TETRA                defa n= 1 val= 1.00000000
+rval2: BZ_N                    defa n= 1 val= 0.00000000
+rval2: BZ_W                    defa n= 1 val= 0.00500000
+rval2: BZ_ZBAK                 defa n= 1 val= 0.00000000
+rval2: BZ_SAVDOS               defa n= 1 val= 0.00000000
+rval2: BZ_NPTS                 defa n= 1 val= 4001.00000000
+rval2: BZ_DOSMAX               defa n= 1 val= 2.93992268
+rval2: BZ_EFMAX                defa n= 1 val= 5.00000000
+rval2: BZ_FSMOM                defa n= 1 val= -99999.00000000
+rval2: BZ_FSMOMMETHOD          defa n= 1 val= 0.00000000
+rval2: SYMGRP                  val=  find
+rval2: SYMGRPAF                val= 
+rval2: EWALD_TOL               defa n= 1 val= 0.00000001
+rval2: ITER_NIT                defa n= 1 val= 30.00000000
+rval2: ITER_NRMIX              defa n= 1 val= 80.00000000
+rval2: ITER_MIX                val=  A2
+rval2: ITER_CONV               defa n= 1 val= 0.00001000
+rval2: ITER_CONVC              defa n= 1 val= 0.00001000
+rval2: ITER_UMIX               defa n= 1 val= 0.50000000
+rval2: ITER_TOLU               defa n= 1 val= 0.00000000
+rval2: ITER_b                  defa n= 1 val= 0.50000000
+rval2: ITER_wc                 defa n= 1 val= -1.00000000
+rval2: ITER_w                  defa n= 2 val= 1.00000000  1.00000000
+rval2: ITER_k                  defa n= 1 val= -1.00000000
+rval2: DYN_MODE                defa n= 1 val= 0.00000000
+rval2: DYN_NIT                 defa n= 1 val= 1.00000000
+rval2: DYN_HESS                defa n= 1 val= 1.00000000
+rval2: DYN_XTOL                defa n= 1 val= 0.00100000
+rval2: DYN_GTOL                defa n= 1 val= 0.00000000
+rval2: DYN_STEP                defa n= 1 val= 0.01500000
+rval2: DYN_NKILL               defa n= 1 val= 0.00000000
+mixing param: A/B nmix wt= 0 2 1.000000  1.000000 beta wc killj=  0.500000 -1.000000 -1
+ ===> for --jobgw, pwmode is switched to be  11
+  bndfp (warning): no sigm file found ... LDA calculation only
+
+pnu === pnu setting ===
+pnu   ibas isp   pnu(0:lmxa)  pz(0:lmxa)
+pnu:  1 1 4.670  4.410  4.200  4.120  5.100   0.000  0.000  3.900  0.000  0.000 pnu:  1 2 4.670  4.410  4.200  4.120  5.100   0.000  0.000  3.900  0.000  0.000
+pnu:  2 1 4.670  4.410  4.200  4.120  5.100   0.000  0.000  3.900  0.000  0.000 pnu:  2 2 4.670  4.410  4.200  4.120  5.100   0.000  0.000  3.900  0.000  0.000
+pnu:  3 1 2.920  2.860  3.180  4.110  5.100   0.000  0.000  0.000  0.000  0.000 pnu:  3 2 2.920  2.860  3.180  4.110  5.100   0.000  0.000  0.000  0.000  0.000
+pnu:  4 1 2.920  2.860  3.180  4.110  5.100   0.000  0.000  0.000  0.000  0.000 pnu:  4 2 2.920  2.860  3.180  4.110  5.100   0.000  0.000  0.000  0.000  0.000
+
+mto === MTO setting ===
+mto ispec lmxb lpz nkapii nkaphh=    1    3    1    2    3
+mto rsmh1    1  1.09  1.09  1.09  1.09
+mto   eh1    1 -1.00 -1.00 -1.00 -1.00
+mto rsmh2    1  1.09  1.09  1.09
+mto  eh2     1 -2.00 -2.00 -2.00
+mto pz       1  0.00  0.00  3.90
+mto lh       3  2  2
+mto ispec lmxb lpz nkapii nkaphh=    2    3    1    2    3
+mto rsmh1    2  1.09  1.09  1.09  1.09
+mto   eh1    2 -1.00 -1.00 -1.00 -1.00
+mto rsmh2    2  1.09  1.09  1.09
+mto  eh2     2 -2.00 -2.00 -2.00
+mto pz       2  0.00  0.00  3.90
+mto lh       3  2  2
+mto ispec lmxb lpz nkapii nkaphh=    3    2    0    2    2
+mto rsmh1    3  0.88  0.88  0.88
+mto   eh1    3 -1.00 -1.00 -1.00
+mto rsmh2    3  0.88  0.88
+mto  eh2     3 -2.00 -2.00
+mto lh       2  1
+ aaaaaaa alat=   7.8799999999999999     
+ aaaaaaa alat=   7.8799999999999999     
+ aaaaaaa alat=   7.8799999999999999     
+ aaaaaaa alat=   7.8799999999999999     
+ aaaaaaa alat=   7.8799999999999999     
+ aaaaaaa alat=   7.8799999999999999     
+
+                Plat                                  Qlat
+   0.500000   0.500000   1.000000       -0.500000  -0.500000   1.500000
+   0.500000   1.000000   0.500000       -0.500000   1.500000  -0.500000
+   1.000000   0.500000   0.500000        1.500000  -0.500000  -0.500000
+ aaaaaaa alat=   7.8799999999999999     
+ aaaaaaa alat=   7.8799999999999999     
+  Cell vol (borh**3)=   244.651936
+
+m_lattic_init:  as= 2.000  tol= 1.00E-08  alat= 7.88000   awald= 0.320
+         r1=  2.346   nkd= 103      q1=  4.434   nkq= 179
+SpaceGroupSym of Lattice: ========start========================== 
+ SYMGRP = find
+  Generators except find: 
+  Generators find or not:  T
+ sgroup:  1 symmetry operations from 0 generators
+ symlat: Bravais system is rhombohedral with 12 symmetry operations.
+ symcry: crystal invariant under 12 following symmetry operations for tol=  0.001000
+   Enlarging ngen= 1  ng nggen= 12 6
+   Enlarging ngen= 2  ng nggen= 12 12
+ groupg: the following are sufficient to generate the space group:
+  Generators:  trans(cart)= i*r3d r2(1,0,-1)
+  Generators:: trans(frac)= i*r3d r2(1,0,-1)
+ gensym: ig group ops (:vector means translation in cartesian)
+    1  e
+    2  i*r3d
+    3  r3(-1,-1,-1)
+    4  i
+    5  r3d
+    6  i*r3(-1,-1,-1)
+    7  r2(1,0,-1)
+    8  m(0,1,-1)
+    9  r2(1,-1,0)
+   10  m(1,0,-1)
+   11  r2(0,1,-1)
+   12  m(1,-1,0)
+ gensym: site permutation table for group operations ...
+  ib/ig:  1  2  3  4  5  6  7  8  9 10 11 12
+      1:  1  1  1  1  1  1  1  1  1  1  1  1
+      2:  2  2  2  2  2  2  2  2  2  2  2  2
+      3:  3  4  3  4  3  4  4  3  4  3  4  3
+      4:  4  3  4  3  4  3  3  4  3  4  3  4
+ splcls:  ibas iclass ispec label(ispec)
+            1     1     1     Niup
+            2     2     2     Nidn
+            3     3     3     O
+            4     3     3     O
+SpaceGroupSym of Lattice: ========end =========================== 
+
+ BZMESH: ngrp nq  12   32 QP from    6   6   6 shift=FFF
+              Qx          Qy          Qz      Multiplicity    Weight
+readhamPMTinfo nkp= 216
+    1      0.000000    0.000000    0.000000         1        0.009259
+    2     -0.083333   -0.083333    0.250000         6        0.055556
+    3     -0.166667   -0.166667    0.500000         6        0.055556
+readhamPMTinfo nkp= 216
+    4     -0.250000   -0.250000    0.750000         3        0.027778
+    5     -0.166667    0.166667    0.166667         6        0.055556
+    6     -0.250000    0.083333    0.416667        12        0.111111
+    7     -0.333333    0.000000    0.666667        12        0.111111
+    8     -0.416667   -0.083333    0.916667        12        0.111111
+    9     -0.500000   -0.166667    1.166667         6        0.055556
+   10     -0.333333    0.333333    0.333333         6        0.055556
+   11     -0.416667    0.250000    0.583333        12        0.111111
+readhamPMTinfo nkp= 216
+   12     -0.500000    0.166667    0.833333         6        0.055556
+   13     -0.500000    0.500000    0.500000         3        0.027778
+   14      0.083333    0.083333    0.083333         2        0.018519
+   15      0.000000    0.000000    0.333333         6        0.055556
+   16     -0.083333   -0.083333    0.583333         6        0.055556
+   17     -0.166667   -0.166667    0.833333         6        0.055556
+   18     -0.250000   -0.250000    1.083333         6        0.055556
+   19     -0.083333    0.250000    0.250000         6        0.055556
+   20     -0.166667    0.166667    0.500000        12        0.111111
+   21     -0.250000    0.083333    0.750000        12        0.111111
+   22     -0.333333    0.000000    1.000000        12        0.111111
+   23     -0.250000    0.416667    0.416667         6        0.055556
+   24     -0.333333    0.333333    0.666667        12        0.111111
+   25     -0.416667    0.250000    0.916667         6        0.055556
+   26     -0.416667    0.583333    0.583333         6        0.055556
+   27      0.166667    0.166667    0.166667         2        0.018519
+   28      0.083333    0.083333    0.416667         6        0.055556
+   29      0.000000    0.000000    0.666667         6        0.055556
+   30      0.000000    0.333333    0.333333         6        0.055556
+   31     -0.083333    0.250000    0.583333         6        0.055556
+   32      0.250000    0.250000    0.250000         1        0.009259
+ TETIRR: sorting     1296 tetrahedra ...
+readhamPMTinfo nkp= 216
+     108 inequivalent tetrahedron=
+readhamPMTinfo nkp= 216
+readhamPMTinfo nkp= 216
+MHAM: --- MTO part of PMT Hamiltonian index (real-harmonics table is in job_pdos script) --- 
+MHAM: MTO block dim=   86
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=   1  1  1  0  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=   2  2  1  1  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=   3  3  1  1  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=   4  4  1  1  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=   5  5  1  2  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=   6  6  1  2  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=   7  7  1  2  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=   8  8  1  2  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=   9  9  1  2  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  10 10  1  3  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  11 11  1  3  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  12 12  1  3  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  13 13  1  3  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  14 14  1  3  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  15 15  1  3  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  16 16  1  3  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  17 17  1  0  2
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  18 18  1  1  2
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  19 19  1  1  2
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  20 20  1  1  2
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  21 21  1  2  2
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  22 22  1  2  2
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  23 23  1  2  2
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  24 24  1  2  2
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  25 25  1  2  2
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  26 26  1  2  3
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  27 27  1  2  3
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  28 28  1  2  3
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  29 29  1  2  3
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  30 30  1  2  3
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  31  1  2  0  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  32  2  2  1  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  33  3  2  1  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  34  4  2  1  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  35  5  2  2  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  36  6  2  2  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  37  7  2  2  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  38  8  2  2  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  39  9  2  2  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  40 10  2  3  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  41 11  2  3  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  42 12  2  3  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  43 13  2  3  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  44 14  2  3  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  45 15  2  3  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  46 16  2  3  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  47 17  2  0  2
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  48 18  2  1  2
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  49 19  2  1  2
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  50 20  2  1  2
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  51 21  2  2  2
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  52 22  2  2  2
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  53 23  2  2  2
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  54 24  2  2  2
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  55 25  2  2  2
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  56 26  2  2  3
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  57 27  2  2  3
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  58 28  2  2  3
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  59 29  2  2  3
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  60 30  2  2  3
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  61  1  3  0  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  62  2  3  1  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  63  3  3  1  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  64  4  3  1  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  65  5  3  2  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  66  6  3  2  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  67  7  3  2  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  68  8  3  2  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  69  9  3  2  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  70 10  3  0  2
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  71 11  3  1  2
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  72 12  3  1  2
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  73 13  3  1  2
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  74  1  4  0  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  75  2  4  1  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  76  3  4  1  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  77  4  4  1  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  78  5  4  2  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  79  6  4  2  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  80  7  4  2  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  81  8  4  2  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  82  9  4  2  1
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  83 10  4  0  2
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  84 11  4  1  2
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  85 12  4  1  2
+MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=  86 13  4  1  2
+readhamPMTinfo nkp= 216
+readhamPMTinfo nkp= 216
+  start iqiloop=           1          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  1 1 0 0.000000  0.000000  0.000000
+  start iqiloop=           1          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  25 1 6 -0.416667  0.250000  0.916667
+  start iqiloop=           1          32
+  jspxx=           1
+  start iqiloop=           1          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  29 1 7 0.000000  0.000000  0.666667
+=== Reading Ham for iqibz spin procid q=  9 1 2 -0.500000 -0.166667  1.166667
+  start iqiloop=           1          32
+  jspxx=           1
+  start iqiloop=           1          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  5 1 1 -0.166667  0.166667  0.166667
+=== Reading Ham for iqibz spin procid q=  21 1 5 -0.250000  0.083333  0.750000
+  start iqiloop=           1          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  13 1 3 -0.500000  0.500000  0.500000
+  start iqiloop=           1          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  17 1 4 -0.166667 -0.166667  0.833333
+nnnnn nskip 2
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  25 2 6 -0.416667  0.250000  0.916667
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  5 2 1 -0.166667  0.166667  0.166667
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  29 2 7 0.000000  0.000000  0.666667
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  21 2 5 -0.250000  0.083333  0.750000
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  1 2 0 0.000000  0.000000  0.000000
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  9 2 2 -0.500000 -0.166667  1.166667
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  17 2 4 -0.166667 -0.166667  0.833333
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  13 2 3 -0.500000  0.500000  0.500000
+nnnnn nskip 2
+  end of iqiloop=           1          32
+  start iqiloop=           2          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  26 1 6 -0.416667  0.583333  0.583333
+nnnnn nskip 2
+  end of iqiloop=           1          32
+  start iqiloop=           2          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  6 1 1 -0.250000  0.083333  0.416667
+nnnnn nskip 2
+  end of iqiloop=           1          32
+  start iqiloop=           2          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  30 1 7 0.000000  0.333333  0.333333
+nnnnn nskip 2
+  end of iqiloop=           1          32
+  start iqiloop=           2          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  22 1 5 -0.333333  0.000000  1.000000
+nnnnn nskip 2
+nnnnn nskip 2
+  end of iqiloop=           1          32
+  start iqiloop=           2          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  10 1 2 -0.333333  0.333333  0.333333
+  end of iqiloop=           1          32
+  start iqiloop=           2          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  2 1 0 -0.083333 -0.083333  0.250000
+nnnnn nskip 2
+  end of iqiloop=           1          32
+  start iqiloop=           2          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  18 1 4 -0.250000 -0.250000  1.083333
+nnnnn nskip 2
+  end of iqiloop=           1          32
+  start iqiloop=           2          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  14 1 3 0.083333  0.083333  0.083333
+nnnnn nskip 2
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  26 2 6 -0.416667  0.583333  0.583333
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  6 2 1 -0.250000  0.083333  0.416667
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  30 2 7 0.000000  0.333333  0.333333
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  22 2 5 -0.333333  0.000000  1.000000
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  2 2 0 -0.083333 -0.083333  0.250000
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  10 2 2 -0.333333  0.333333  0.333333
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  18 2 4 -0.250000 -0.250000  1.083333
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  14 2 3 0.083333  0.083333  0.083333
+nnnnn nskip 2
+nnnnn nskip 2
+  end of iqiloop=           2          32
+  start iqiloop=           3          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  7 1 1 -0.333333  0.000000  0.666667
+  end of iqiloop=           2          32
+  start iqiloop=           3          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  31 1 7 -0.083333  0.250000  0.583333
+nnnnn nskip 2
+  end of iqiloop=           2          32
+  start iqiloop=           3          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  27 1 6 0.166667  0.166667  0.166667
+nnnnn nskip 2
+  end of iqiloop=           2          32
+  start iqiloop=           3          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  23 1 5 -0.250000  0.416667  0.416667
+nnnnn nskip 2
+  end of iqiloop=           2          32
+  start iqiloop=           3          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  3 1 0 -0.166667 -0.166667  0.500000
+nnnnn nskip 2
+  end of iqiloop=           2          32
+  start iqiloop=           3          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  11 1 2 -0.416667  0.250000  0.583333
+nnnnn nskip 2
+  end of iqiloop=           2          32
+  start iqiloop=           3          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  19 1 4 -0.083333  0.250000  0.250000
+nnnnn nskip 2
+  end of iqiloop=           2          32
+  start iqiloop=           3          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  15 1 3 0.000000  0.000000  0.333333
+nnnnn nskip 2
+nnnnn nskip 2
+  jspxx=           2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  31 2 7 -0.083333  0.250000  0.583333
+=== Reading Ham for iqibz spin procid q=  7 2 1 -0.333333  0.000000  0.666667
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  27 2 6 0.166667  0.166667  0.166667
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  23 2 5 -0.250000  0.416667  0.416667
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  3 2 0 -0.166667 -0.166667  0.500000
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  11 2 2 -0.416667  0.250000  0.583333
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  19 2 4 -0.083333  0.250000  0.250000
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  15 2 3 0.000000  0.000000  0.333333
+nnnnn nskip 2
+nnnnn nskip 2
+  end of iqiloop=           3          32
+  start iqiloop=           4          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  32 1 7 0.250000  0.250000  0.250000
+  end of iqiloop=           3          32
+  start iqiloop=           4          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  8 1 1 -0.416667 -0.083333  0.916667
+nnnnn nskip 2
+nnnnn nskip 2
+  end of iqiloop=           3          32
+  start iqiloop=           4          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  28 1 6 0.083333  0.083333  0.416667
+  end of iqiloop=           3          32
+  start iqiloop=           4          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  4 1 0 -0.250000 -0.250000  0.750000
+nnnnn nskip 2
+  end of iqiloop=           3          32
+  start iqiloop=           4          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  24 1 5 -0.333333  0.333333  0.666667
+nnnnn nskip 2
+  end of iqiloop=           3          32
+  start iqiloop=           4          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  12 1 2 -0.500000  0.166667  0.833333
+nnnnn nskip 2
+  end of iqiloop=           3          32
+  start iqiloop=           4          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  20 1 4 -0.166667  0.166667  0.500000
+nnnnn nskip 2
+  end of iqiloop=           3          32
+  start iqiloop=           4          32
+  jspxx=           1
+=== Reading Ham for iqibz spin procid q=  16 1 3 -0.083333 -0.083333  0.583333
+nnnnn nskip 2
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  8 2 1 -0.416667 -0.083333  0.916667
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  32 2 7 0.250000  0.250000  0.250000
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  4 2 0 -0.250000 -0.250000  0.750000
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  28 2 6 0.083333  0.083333  0.416667
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  24 2 5 -0.333333  0.333333  0.666667
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  12 2 2 -0.500000  0.166667  0.833333
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  20 2 4 -0.166667  0.166667  0.500000
+nnnnn nskip 2
+  jspxx=           2
+=== Reading Ham for iqibz spin procid q=  16 2 3 -0.083333 -0.083333  0.583333
+nnnnn nskip 2
+nnnnn nskip 2
+  end of iqiloop=           4          32
+  start iqiloop=           5          32
+  jspxx=           1
+nnnnn nskip 2
+  end of iqiloop=           4          32
+  start iqiloop=           5          32
+  jspxx=           1
+  end of iqiloop=           4          32
+  start iqiloop=           5          32
+  jspxx=           1
+nnnnn nskip 2
+  end of iqiloop=           4          32
+  start iqiloop=           5          32
+  jspxx=           1
+nnnnn nskip 2
+nnnnn nskip 2
+  end of iqiloop=           4          32
+  start iqiloop=           5          32
+  jspxx=           1
+  end of iqiloop=           4          32
+  start iqiloop=           5          32
+  jspxx=           1
+nnnnn nskip 2
+  end of iqiloop=           4          32
+  start iqiloop=           5          32
+  jspxx=           1
+nnnnn nskip 2
+  end of iqiloop=           4          32
+  start iqiloop=           5          32
+  jspxx=           1
+nnnn nsize procid iqini iqend= 8 4 109 135    27
+nnnn nsize procid iqini iqend= 8 5 136 162    27
+nnnn nsize procid iqini iqend= 8 7 190 216    27
+nnnn nsize procid iqini iqend= 8 0 1 27    27
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 1 1 1 q ig= 0.0000  0.0000  0.0000 1
+nnnn nsize procid iqini iqend= 8 6 163 189    27
+nnnn nsize procid iqini iqend= 8 3 82 108    27
+nnnn nsize procid iqini iqend= 8 1 28 54    27
+nnnn nsize procid iqini iqend= 8 2 55 81    27
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 1 1 2 q ig= 0.0000  0.0000  0.0000 1
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 2 2 1 q ig= -0.0833 -0.0833  0.2500 1
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 2 2 2 q ig= -0.0833 -0.0833  0.2500 1
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 3 3 1 q ig= -0.1667 -0.1667  0.5000 1
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 3 3 2 q ig= -0.1667 -0.1667  0.5000 1
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 4 4 1 q ig= -0.2500 -0.2500  0.7500 1
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 4 4 2 q ig= -0.2500 -0.2500  0.7500 1
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 3 5 1 q ig= -0.3333 -0.3333  1.0000 4
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 3 5 2 q ig= -0.3333 -0.3333  1.0000 4
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 2 6 1 q ig= -0.4167 -0.4167  1.2500 4
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 2 6 2 q ig= -0.4167 -0.4167  1.2500 4
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 2 7 1 q ig= -0.0833  0.2500 -0.0833 3
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 2 7 2 q ig= -0.0833  0.2500 -0.0833 3
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 5 8 1 q ig= -0.1667  0.1667  0.1667 1
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 5 8 2 q ig= -0.1667  0.1667  0.1667 1
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 6 9 1 q ig= -0.2500  0.0833  0.4167 1
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 6 9 2 q ig= -0.2500  0.0833  0.4167 1
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 7 10 1 q ig= -0.3333  0.0000  0.6667 1
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 7 10 2 q ig= -0.3333  0.0000  0.6667 1
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 8 11 1 q ig= -0.4167 -0.0833  0.9167 1
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 8 11 2 q ig= -0.4167 -0.0833  0.9167 1
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 9 12 1 q ig= -0.5000 -0.1667  1.1667 1
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 9 12 2 q ig= -0.5000 -0.1667  1.1667 1
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 3 13 1 q ig= -0.1667  0.5000 -0.1667 3
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 3 13 2 q ig= -0.1667  0.5000 -0.1667 3
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 6 14 1 q ig= -0.2500  0.4167  0.0833 8
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 6 14 2 q ig= -0.2500  0.4167  0.0833 8
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 10 15 1 q ig= -0.3333  0.3333  0.3333 1
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 10 15 2 q ig= -0.3333  0.3333  0.3333 1
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 11 16 1 q ig= -0.4167  0.2500  0.5833 1
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 11 16 2 q ig= -0.4167  0.2500  0.5833 1
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 12 17 1 q ig= -0.5000  0.1667  0.8333 1
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 12 17 2 q ig= -0.5000  0.1667  0.8333 1
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 8 18 1 q ig= -0.5833  0.0833  1.0833 11
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 8 18 2 q ig= -0.5833  0.0833  1.0833 11
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 4 19 1 q ig= -0.2500  0.7500 -0.2500 3
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 4 19 2 q ig= -0.2500  0.7500 -0.2500 3
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 7 20 1 q ig= -0.3333  0.6667  0.0000 8
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 7 20 2 q ig= -0.3333  0.6667  0.0000 8
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 11 21 1 q ig= -0.4167  0.5833  0.2500 8
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 11 21 2 q ig= -0.4167  0.5833  0.2500 8
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 13 22 1 q ig= -0.5000  0.5000  0.5000 1
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 13 22 2 q ig= -0.5000  0.5000  0.5000 1
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 11 23 1 q ig= -0.5833  0.4167  0.7500 11
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 11 23 2 q ig= -0.5833  0.4167  0.7500 11
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 7 24 1 q ig= -0.6667  0.3333  1.0000 11
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 7 24 2 q ig= -0.6667  0.3333  1.0000 11
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 3 25 1 q ig= -0.3333  1.0000 -0.3333 6
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 3 25 2 q ig= -0.3333  1.0000 -0.3333 6
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 8 26 1 q ig= -0.4167  0.9167 -0.0833 8
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 8 26 2 q ig= -0.4167  0.9167 -0.0833 8
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 12 27 1 q ig= -0.5000  0.8333  0.1667 4
+=== Rotate Ham from iqibz to iqbz; iqibz iqbz isp q= 12 27 2 q ig= -0.5000  0.8333  0.1667 4
+  Writing HamRsMLO... ndimMTO=          16
+  Wrote HamRsMLO file! End of lmfham1
+MTOHamiltonian: ndimMTO,npairmx,nspx= 16 540 2
+ OK: Read HamRsMLO file! Use i-ioffib for setting <Worb>
+plot bands: nsize procid iqini iqend= 8 7 85 95    12 95
+plot bands: nsize procid iqini iqend= 8 2 25 36    12 95
+plot bands: nsize procid iqini iqend= 8 0 1 12    12 95
+plot bands: nsize procid iqini iqend= 8 6 73 84    12 95
+plot bands: nsize procid iqini iqend= 8 4 49 60    12 95
+plot bands: nsize procid iqini iqend= 8 3 37 48    12 95
+plot bands: nsize procid iqini iqend= 8 1 13 24    12 95
+plot bands: nsize procid iqini iqend= 8 5 61 72    12 95
+Dim of |MLO1>based Hamiltonian HamRsMTO= 16 Atom-pair in real space= 540
+CPU time:    0.798s     Wed Mar 18 07:37:40 2026 on process=0
+Exit 0 procid= 0 OK! end of mlo. Get MLO Hamiltoian.

@@ -1,0 +1,12 @@
+        : mlo_maxit       = 50
+        : mlo_conv        =  0.100000D-05
+        : mlo_mix         =  0.50
+        : mlo_WTseed      =  32.00
+        : mlo_WTband      =  512.00
+        : mlo_WTinner     =  8182.00
+        : mlo_EUinner(eV) =  0.10D+02
+        : mlo_ELinner(eV) = -0.10D+09
+        : mlo_ewid(eV)    =  1.00
+        : mlo_WTouter     =  32768.00
+        : mlo_CUouter     =  0.00
+        : mlo_ELhard(eV)= -10.00

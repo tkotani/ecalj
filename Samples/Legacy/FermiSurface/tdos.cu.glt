@@ -1,0 +1,16 @@
+#!/usr/bin/gnuplot -persist
+set title "Total DOS"
+set terminal postscript enhanced color eps
+set output "tdos.eps"
+set grid
+set zeroaxis
+set xran [-20.0:20.0]
+set xlabel " eV (zero at the Fermi energy or top of valence)"
+set ylabel " number of states/(cell eV) : red "
+set y2tics
+set y2label " number of electrons : green "
+set yrange  [0:5]
+set y2range [0:50]
+plot "dos.tot.cu" u ($1*13.605):($2/13.605) w l lc rgb "red", "dosi.tot.cu" u ($1*13.605):2 w l lc rgb "green" axis x1y2
+set terminal x11
+replot

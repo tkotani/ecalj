@@ -1,0 +1,317 @@
+=== START LFMA ===
+ mpisize=           1
+m_lmfinit: LMFA
+rval2: STRUC_NSPEC             requ n= 1 val= 2.00000000
+rval2: STRUC_NBAS              requ n= 1 val= 2.00000000
+rval2: HAM_NSPIN               defa n= 1 val= 1.00000000
+rval2: VERBOSE                 defa n= 1 val= 35.00000000
+rval2: TIME                    defa n= 1 val= 0.00000000
+rval2: STRUC_ALAT              ---- n= 1 val= 10.68309847
+rval2: STRUC_PLAT              requ n= 9 val= 0.00000000  0.50000000  0.50000000  0.50000000  0.00000000  0.50000000  0.50000000  0.50000000  0.00000000
+rval2: OPTIONS_HF              defa n= 1 val= 0.00000000
+rval2: HAM_REL                 defa n= 1 val= 1.00000000
+rval2: HAM_SO                  defa n= 1 val= 0.00000000
+rval2: HAM_SOCAXIS             defa n= 3 val= 0.00000000  0.00000000  1.00000000
+rval2: HAM_GMAX                defa n= 1 val= 12.00000000
+rval2: HAM_FTMESH              defa n= 3 val= 0.00000000  0.00000000  0.00000000
+rval2: HAM_TOL                 defa n= 1 val= 0.00000100
+rval2: HAM_FRZWF               defa n= 1 val= 0.00000000
+rval2: HAM_XCFUN               defa n= 1 val= 1.00000000
+rval2: HAM_FORCES              defa n= 1 val= 0.00000000
+rval2: HAM_RDSIG               defa n= 1 val= 1.00000000
+rval2: HAM_ScaledSigma         defa n= 1 val= 1.00000000
+rval2: HAM_EWALD               defa n= 1 val= 0.00000000
+rval2: HAM_OVEPS               defa n= 1 val= 0.00000001
+rval2: HAM_PWMODE              defa n= 1 val= 1.00000000
+rval2: HAM_PWEMAX              defa n= 1 val= 3.00000000
+rval2: HAM_READP               defa n= 1 val= 1.00000000
+rval2: HAM_PHISPINSYM          defa n= 1 val= 0.00000000
+rval2: HAM_PNUFIX              defa n= 1 val= 1.00000000
+rval2: ESM_BOUNDARY            val= 
+=== SPEC =1
+rval2: SPEC_ATOM@1             val=  Ga
+rval2: SPEC_Z@1                ---- n= 1 val= 31.00000000
+rval2: SPEC_R@1                ---- n= 1 val= 2.19000000
+rval2: SPEC_R/W@1              ---- n= 0 val= 
+rval2: SPEC_R/A@1              ---- n= 0 val= 
+rval2: SPEC_A@1                defa n= 1 val= 0.00000000
+rval2: SPEC_NR@1               defa n= 1 val= 0.00000000
+rval2: SPEC_RSMH@1             ---- n= 4 val= 1.10000000  1.10000000  1.10000000  1.10000000
+rval2: SPEC_EH@1               requ n= 4 val= -1.00000000 -1.00000000 -1.00000000 -1.00000000
+rval2: SPEC_RSMH2@1            ---- n= 3 val= 1.10000000  1.10000000  1.10000000
+rval2: SPEC_EH2@1              requ n= 3 val= -2.00000000 -2.00000000 -2.00000000
+rval2: SPEC_LMX@1              defa n= 1 val= 999.00000000
+rval2: SPEC_LMXA@1             defa n= 1 val= 4.00000000
+rval2: SPEC_LMXL@1             defa n= 1 val= 4.00000000
+rval2: SPEC_P@1                ---- n= 3 val= 0.00000000  0.00000000  4.50000000
+rval2: SPEC_Q@1                ---- n= 0 val= 
+rval2: SPEC_NMCORE@1           defa n= 1 val= 1.00000000
+rval2: SPEC_PZ@1               ---- n= 3 val= 0.00000000  0.00000000  3.90000000
+rval2: SPEC_LFOCA@1            defa n= 1 val= 1.00000000
+rval2: SPEC_KMXA@1             defa n= 1 val= 5.00000000
+rval2: SPEC_RSMA@1             defa n= 1 val= 0.87600000
+rval2: SPEC_IDMOD@1            ---- n= 0 val= 
+rval2: SPEC_FRZWF@1            defa n= 1 val= 0.00000000
+rval2: SPEC_IDU@1              ---- n= 0 val= 
+rval2: SPEC_UH@1               ---- n= 0 val= 
+rval2: SPEC_JH@1               ---- n= 0 val= 
+rval2: SPEC_C-HOLE@1           val= 
+rval2: SPEC_C-HQ@1             defa n= 2 val= -1.00000000  0.00000000
+rval2: SPEC_EREF1              defa n= 1 val= 0.00000000
+=== SPEC =2
+rval2: SPEC_ATOM@2             val=  As
+rval2: SPEC_Z@2                ---- n= 1 val= 33.00000000
+rval2: SPEC_R@2                ---- n= 1 val= 2.30000000
+rval2: SPEC_R/W@2              ---- n= 0 val= 
+rval2: SPEC_R/A@2              ---- n= 0 val= 
+rval2: SPEC_A@2                defa n= 1 val= 0.00000000
+rval2: SPEC_NR@2               defa n= 1 val= 0.00000000
+rval2: SPEC_RSMH@2             ---- n= 4 val= 1.15000000  1.15000000  1.15000000  1.15000000
+rval2: SPEC_EH@2               requ n= 4 val= -1.00000000 -1.00000000 -1.00000000 -1.00000000
+rval2: SPEC_RSMH2@2            ---- n= 3 val= 1.15000000  1.15000000  1.15000000
+rval2: SPEC_EH2@2              requ n= 3 val= -2.00000000 -2.00000000 -2.00000000
+rval2: SPEC_LMX@2              defa n= 1 val= 999.00000000
+rval2: SPEC_LMXA@2             defa n= 1 val= 4.00000000
+rval2: SPEC_LMXL@2             defa n= 1 val= 4.00000000
+rval2: SPEC_P@2                ---- n= 0 val= 
+rval2: SPEC_Q@2                ---- n= 0 val= 
+rval2: SPEC_NMCORE@2           defa n= 1 val= 1.00000000
+rval2: SPEC_PZ@2               ---- n= 0 val= 
+rval2: SPEC_LFOCA@2            defa n= 1 val= 1.00000000
+rval2: SPEC_KMXA@2             defa n= 1 val= 5.00000000
+rval2: SPEC_RSMA@2             defa n= 1 val= 0.92000000
+rval2: SPEC_IDMOD@2            ---- n= 0 val= 
+rval2: SPEC_FRZWF@2            defa n= 1 val= 0.00000000
+rval2: SPEC_IDU@2              ---- n= 0 val= 
+rval2: SPEC_UH@2               ---- n= 0 val= 
+rval2: SPEC_JH@2               ---- n= 0 val= 
+rval2: SPEC_C-HOLE@2           val= 
+rval2: SPEC_C-HQ@2             defa n= 2 val= -1.00000000  0.00000000
+rval2: SPEC_EREF2              defa n= 1 val= 0.00000000
+=== SITE =1
+rval2: SITE_ATOM@1             val=  Ga
+rval2: SITE_POS@1              ---- n= 3 val= 0.00000000  0.00000000  0.00000000
+rval2: SITE_RELAX@1            defa n= 3 val= 1.00000000  1.00000000  1.00000000
+rval2: SITE_AF@1               defa n= 1 val= 0.00000000
+=== SITE =2
+rval2: SITE_ATOM@2             val=  As
+rval2: SITE_POS@2              ---- n= 3 val= 0.25000000  0.25000000  0.25000000
+rval2: SITE_RELAX@2            defa n= 3 val= 1.00000000  1.00000000  1.00000000
+rval2: SITE_AF@2               defa n= 1 val= 0.00000000
+rval2: STR_RMAXS               ---- n= 0 val= 
+rval2: STR_RMAX                ---- n= 0 val= 
+rval2: STR_MXNBR               defa n= 1 val= 0.00000000
+rval2: BZ_NKABC                ---- n= 3 val= 8.00000000  8.00000000  8.00000000
+rval2: BZ_BZJOB                ---- n= 0 val= 
+rval2: BZ_METAL                defa n= 1 val= 3.00000000
+rval2: BZ_TETRA                defa n= 1 val= 1.00000000
+rval2: BZ_N                    defa n= 1 val= 0.00000000
+rval2: BZ_W                    defa n= 1 val= 0.00500000
+rval2: BZ_ZBAK                 defa n= 1 val= 0.00000000
+rval2: BZ_SAVDOS               defa n= 1 val= 1.00000000
+rval2: BZ_NPTS                 defa n= 1 val= 4001.00000000
+rval2: BZ_DOSMAX               defa n= 1 val= 2.93992268
+rval2: BZ_EFMAX                defa n= 1 val= 5.00000000
+rval2: BZ_FSMOM                defa n= 1 val= -99999.00000000
+rval2: BZ_FSMOMMETHOD          defa n= 1 val= 0.00000000
+rval2: SYMGRP                  val=  find
+rval2: SYMGRPAF                val= 
+rval2: EWALD_TOL               defa n= 1 val= 0.00000001
+rval2: ITER_NIT                defa n= 1 val= 80.00000000
+rval2: ITER_NRMIX              defa n= 1 val= 80.00000000
+rval2: ITER_MIX                val=  B3
+rval2: ITER_CONV               defa n= 1 val= 0.00001000
+rval2: ITER_CONVC              defa n= 1 val= 0.00001000
+rval2: ITER_UMIX               defa n= 1 val= 0.20000000
+rval2: ITER_TOLU               defa n= 1 val= 0.00000000
+rval2: ITER_b                  defa n= 1 val= 0.20000000
+rval2: ITER_wc                 defa n= 1 val= -1.00000000
+rval2: ITER_w                  defa n= 2 val= 1.00000000  1.00000000
+rval2: ITER_k                  defa n= 1 val= -1.00000000
+rval2: DYN_MODE                defa n= 1 val= 0.00000000
+rval2: DYN_NIT                 defa n= 1 val= 1.00000000
+rval2: DYN_HESS                defa n= 1 val= 1.00000000
+rval2: DYN_XTOL                defa n= 1 val= 0.00100000
+rval2: DYN_GTOL                defa n= 1 val= 0.00000000
+rval2: DYN_STEP                defa n= 1 val= 0.01500000
+rval2: DYN_NKILL               defa n= 1 val= 0.00000000
+mixing param: A/B nmix wt= 1 3 1.000000  1.000000 beta wc killj=  0.200000 -1.000000 -1
+ ===> for --jobgw, pwmode is switched to be  1
+  bndfp (warning): no sigm file found ... LDA calculation only
+
+pnu === pnu setting ===
+pnu   ibas isp   pnu(0:lmxa)  pz(0:lmxa)
+pnu:  1 1 4.750  4.590  4.500  4.120  5.100   0.000  0.000  3.900  0.000  0.000
+pnu:  2 1 4.900  4.780  4.200  4.120  5.100   0.000  0.000  0.000  0.000  0.000
+
+mto === MTO setting ===
+mto ispec lmxb lpz nkapii nkaphh=    1    3    1    2    3
+mto rsmh1    1  1.10  1.10  1.10  1.10
+mto   eh1    1 -1.00 -1.00 -1.00 -1.00
+mto rsmh2    1  1.10  1.10  1.10
+mto  eh2     1 -2.00 -2.00 -2.00
+mto pz       1  0.00  0.00  3.90
+mto lh       3  2  2
+mto ispec lmxb lpz nkapii nkaphh=    2    3    0    2    2
+mto rsmh1    2  1.15  1.15  1.15  1.15
+mto   eh1    2 -1.00 -1.00 -1.00 -1.00
+mto rsmh2    2  1.15  1.15  1.15
+mto  eh2     2 -2.00 -2.00 -2.00
+mto lh       3  2
+freats:
+
+conf:------------------------------------------------------
+conf:SPEC_ATOM= Ga : --- Table for atomic configuration --- (n and nz are Pr. Quantum numbers for valence) 
+conf:  isp  l    n nz    Qval     Qcore   CoreConf 
+conf:    1  0    4  0    2.000    6.000 => 1,2,3,
+conf:    1  1    4  0    1.000   12.000 => 2,3,
+conf:    1  2    4  3   10.000    0.000 => 
+conf:    1  3    4  0    0.000    0.000 => 
+conf:    1  4    5  0    0.000    0.000 => 
+usedQ=     2.000     1.000    10.000     0.000     0.000
+conf: Species  Ga       Z=  31.00 Qc=  18.000 R=  2.190000 Q=  0.000000 nsp= 1 mom=  0.000000
+conf: rmt rmax a=  2.190000  49.598097  0.015000 nrmt nr= 657 865
+ goto atomc xxx
+ atomsc nmcore=           1
+ NOTE: rhocor: core density is spin-independent now for any MMOM, june2012.
+       We use spin-avaraged potential to calculate core density rhoc.
+       Thus diff of core eigen is pot. due to valence electron. I/O:iofa.F
+
+ end of atomsc xxxxx
+ vsum=  -166.26520613764279                1
+sumev= -15.814546 etot= -3882.268069 eref=  0.000000 etot-eref= -3882.268069
+
+ Free-atom wavefunctions:
+ valence:      eval       node at      max at       c.t.p.   rho(r>rmt)       pnu
+   4s      -0.67398         0.807       1.882       2.875     0.498992       4.814  0
+   4p      -0.20078         0.869       2.519       5.144     0.779519       4.685  0
+   3d      -1.42658         0.000       0.531       2.017     0.014758       3.915  1
+   4d       0.01240         1.254      33.481      49.598*    0.999993       4.202  0
+   4f       0.01883         0.000      35.919      49.598*    1.000000       4.148  0
+   5g       0.02597         0.000      37.441      49.598*    1.000000       5.094  0
+
+ core:        ecore       node at      max at       c.t.p.   rho(r>rmt)
+   1s    -750.27750         0.000       0.032       0.065     0.000000
+   2s     -92.58142         0.065       0.183       0.285     0.000000
+   2p     -80.67737         0.000       0.146       0.309     0.000000
+   3s     -10.83385         0.267       0.565       0.823     0.000073
+   3p      -7.24866         0.240       0.567       0.979     0.000354
+ tailsm: init
+
+ tailsm: fit tails to 6 smoothed hankels, rmt= 2.19000, rsm= 1.09500
+  ---E:energies of smHankels. C:fitting coeeficient for core tail. ---
+ E:    -1.00000    -2.00000    -4.00000    -6.00000    -9.00000   -15.00000
+ C:     1.01788     1.95772   -40.88170   399.99665 -1733.71648  7046.36338
+        r          rho         fit         diff
+    2.190000    0.026703    0.026669    0.000033
+    2.544436    0.015063    0.015063    0.000001
+    2.956232    0.007978    0.007977    0.000001
+    3.434670    0.003910    0.003914   -0.000004
+    3.990536    0.001764    0.001762    0.000002
+    4.636360    0.000731    0.000731    0.000000
+    5.386701    0.000278    0.000280   -0.000002
+    6.258473    0.000096    0.000097   -0.000001
+    7.271327    0.000030    0.000030    0.000000
+    8.448095    0.000008    0.000008    0.000000
+    9.815305    0.000002    0.000002    0.000000
+    q(fit):     1.925105    rms diff:   0.000014
+    fit: r>rmt  1.925105   r<rmt  3.425655   qtot  5.350759
+    rho: r>rmt  1.925105   r<rmt 11.074895   qtot 13.000000
+ tailsm:  fit tails to        6 functions with
+
+ rsm=  0.10950D+01 rms error=  0.14194D-04
+conf: Core rhoc(rmt)= 0.002479 spillout= 0.002268
+ Fit with Hankel e=-32.089155233809791 coeff=1325.6451668430818
+      r            rhoc          fit
+    2.190000    0.01188830    0.01188830
+    2.290806    0.00701883    0.00702529
+    2.469233    0.00275336    0.00275600
+    2.661556    0.00100077    0.00099933
+    2.868858    0.00033517    0.00033288
+    3.092306    0.00010281    0.00010119
+    3.333157    0.00002869    0.00002787
+    3.592766    0.00000723    0.00000690
+    3.872594    0.00000163    0.00000152
+    4.174217    0.00000033    0.00000030
+    4.499332    0.00000006    0.00000005
+ end of freats: spid nmcore=Ga                 1
+freats:
+
+conf:------------------------------------------------------
+conf:SPEC_ATOM= As : --- Table for atomic configuration --- (n and nz are Pr. Quantum numbers for valence) 
+conf:  isp  l    n nz    Qval     Qcore   CoreConf 
+conf:    1  0    4  0    2.000    6.000 => 1,2,3,
+conf:    1  1    4  0    3.000   12.000 => 2,3,
+conf:    1  2    4  0    0.000   10.000 => 3,
+conf:    1  3    4  0    0.000    0.000 => 
+conf:    1  4    5  0    0.000    0.000 => 
+usedQ=     2.000     3.000     0.000     0.000     0.000
+conf: Species  As       Z=  33.00 Qc=  28.000 R=  2.300000 Q=  0.000000 nsp= 1 mom=  0.000000
+conf: rmt rmax a=  2.300000  49.055341  0.015000 nrmt nr= 673 877
+ goto atomc xxx
+ atomsc nmcore=           1
+
+ end of atomsc xxxxx
+ vsum=  -173.40539587922842                2
+sumev= -3.338521 etot= -4515.531967 eref=  0.000000 etot-eref= -4515.531967
+
+ Free-atom wavefunctions:
+ valence:      eval       node at      max at       c.t.p.   rho(r>rmt)       pnu
+   4s      -1.08042         0.734       1.606       2.387     0.264726       4.872  0
+   4p      -0.39256         0.778       1.971       3.732     0.523467       4.807  0
+   4d       0.01304         0.977      33.463      49.055*    0.999994       4.339  0
+   4f       0.01938         0.000      35.590      49.055*    1.000000       4.157  0
+   5g       0.02663         0.000      37.059      49.055*    1.000000       5.096  0
+
+ core:        ecore       node at      max at       c.t.p.   rho(r>rmt)
+   1s    -859.60109         0.000       0.030       0.061     0.000000
+   2s    -109.05611         0.061       0.170       0.266     0.000000
+   2p     -95.71561         0.000       0.136       0.287     0.000000
+   3s     -13.92448         0.248       0.522       0.760     0.000007
+   3p      -9.80200         0.222       0.521       0.892     0.000041
+   3d      -3.00563         0.000       0.475       1.518     0.001914
+ tailsm: init
+
+ tailsm: fit tails to 6 smoothed hankels, rmt= 2.30000, rsm= 1.15000
+  ---E:energies of smHankels. C:fitting coeeficient for core tail. ---
+ E:    -1.00000    -2.00000    -4.00000    -6.00000    -9.00000   -15.00000
+ C:     0.07440     7.09395    17.75185  -162.11878   704.56051 -3480.80317
+        r          rho         fit         diff
+    2.300000    0.030617    0.030628   -0.000012
+    2.672234    0.016838    0.016838   -0.000001
+    3.104709    0.008237    0.008237    0.000000
+    3.607173    0.003588    0.003587    0.000001
+    4.190952    0.001386    0.001386   -0.000001
+    4.869208    0.000469    0.000469    0.000000
+    5.657228    0.000137    0.000136    0.000001
+    6.572777    0.000033    0.000033    0.000000
+    7.636493    0.000007    0.000007   -0.000000
+    8.872354    0.000001    0.000001   -0.000000
+    q(fit):     2.099877    rms diff:   0.000006
+    fit: r>rmt  2.099877   r<rmt  3.982093   qtot  6.081970
+    rho: r>rmt  2.099877   r<rmt  2.900123   qtot  5.000000
+ tailsm:  fit tails to        6 functions with
+
+ rsm=  0.11500D+01 rms error=  0.56935D-05
+conf: Core rhoc(rmt)= 0.012873 spillout= 0.019406
+ Fit with Hankel e=-15.213481999295690 coeff=233.07145819915527
+      r            rhoc          fit
+    2.300000    0.06810038    0.06810038
+    2.370048    0.05321450    0.05339751
+    2.554645    0.02782667    0.02801549
+    2.753619    0.01385936    0.01389700
+    2.968090    0.00654584    0.00648923
+    3.199264    0.00291836    0.00283903
+    3.448444    0.00122230    0.00115784
+    3.717031    0.00047850    0.00043777
+    4.006536    0.00017414    0.00015255
+    4.318589    0.00005858    0.00004868
+    4.654946    0.00001810    0.00001413
+    5.017500    0.00000510    0.00000370
+    5.408291    0.00000130    0.00000087
+    5.829519    0.00000030    0.00000018
+    6.283554    0.00000006    0.00000003
+    6.772950    0.00000001    0.00000001
+ end of freats: spid nmcore=As                 1
+Sum of reference energies:                      0.000000000000
+OK! end of LMFA ======================

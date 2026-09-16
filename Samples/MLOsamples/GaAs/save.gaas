@@ -1,0 +1,17 @@
+Start LMF gaas --quit=band
+Start LMFA gaas
+Start LMF gaas
+h ehf(eV)=-114268.545414 ehk(eV)=-114268.158337 sev(eV)=-143.263386
+i ehf(eV)=-114268.421703 ehk(eV)=-114268.285567 sev(eV)=-148.409007
+i ehf(eV)=-114268.384912 ehk(eV)=-114268.258535 sev(eV)=-161.115676
+i ehf(eV)=-114268.351527 ehk(eV)=-114268.314490 sev(eV)=-158.492842
+i ehf(eV)=-114268.338124 ehk(eV)=-114268.335886 sev(eV)=-156.288748
+i ehf(eV)=-114268.337207 ehk(eV)=-114268.336591 sev(eV)=-156.220612
+i ehf(eV)=-114268.336782 ehk(eV)=-114268.336752 sev(eV)=-156.218679
+i ehf(eV)=-114268.336724 ehk(eV)=-114268.336721 sev(eV)=-156.284229
+i ehf(eV)=-114268.336731 ehk(eV)=-114268.336749 sev(eV)=-156.258415
+c ehf(eV)=-114268.336746 ehk(eV)=-114268.336771 sev(eV)=-156.225124
+Start LMF gaas --quit=band
+i ehf(eV)=-114268.336746 ehk(eV)=-114268.336772 sev(eV)=-156.222178
+Start LMF gaas --band
+Start LMF gaas --writeham --mkprocar --noinv --mlo

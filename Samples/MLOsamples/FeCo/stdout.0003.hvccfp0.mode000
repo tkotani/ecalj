@@ -1,0 +1,62 @@
+ ### console output for rank=  3
+CPU:  0.00 s=  0.0 min 
+ CPU:       0.0000 secs =     0.0 mins.
+CPU:  0.09 s=  0.0 min end of qindependentRadialIntegrals
+CPU:  0.09 s=  0.0 min  do 1001: iq nqibz q ngc =   12   24    0.5000    0.5000    0.2212   64
+CPU:  0.10 s=  0.0 min mkjp_4 ibas, hasBessel= 1 F
+CPU:  0.10 s=  0.0 min  mkjp_4: goto rojploop
+CPU:  0.15 s=  0.0 min  mkjp_4: goto dev_mo block. size of ajr:,nx 3007296 6 5 6 3 3 0 0 0 0
+CPU:  0.19 s=  0.0 min mkjp_4 ibas, hasBessel= 2 F
+CPU:  0.19 s=  0.0 min  mkjp_4: goto rojploop
+CPU:  0.24 s=  0.0 min  mkjp_4: goto dev_mo block. size of ajr:,nx 2996928 5 4 4 3 2 0 0 0 0
+CPU:  0.26 s=  0.0 min start vcoulq_4 for iqx= 12 q= 0.5000  0.5000  0.2212  ngc= 64  nbas= 2  lx= 8  nx= 6 procid= 3
+CPU:  0.26 s=  0.0 min  vcoulq_4: ngb  nbloch ngc nrx procid=   239   175    64  5221     3
+CPU:  0.26 s=  0.0 min  vcoulq_4: goto PvB procid= 3
+CPU:  0.26 s=  0.0 min  vcoulq_4: goto PvP procid ngc lxx nrx= 3 64 8 5221
+CPU:  0.26 s=  0.0 min  vcoulq_4: goto igig loop 3
+CPU:  0.34 s=  0.0 min  vcoulq_4:  igig loop procid ibas nr lx, hasBessel= 3 1 5221 8 F
+CPU:  0.41 s=  0.0 min  vcoulq_4:  igig loop procid ibas nr lx, hasBessel= 3 2 5203 8 F
+CPU:  0.41 s=  0.0 min end of vcoulq_4 for iqx= 12 procid= 3
+CPU:  0.41 s=  0.0 min  end of mkppovl2
+CPU:  0.41 s=  0.0 min diag: gpuid freemem reqmem rmem GB= 0 0.000  0.007  93132257461.548
+CPU:  0.45 s=  0.0 min end of Diag_Coul
+CPU:  0.45 s=  0.0 min  end of do 1001
+CPU:  0.45 s=  0.0 min  do 1001: iq nqibz q ngc =   13   24    0.0000    0.0000    0.4425   78
+CPU:  0.46 s=  0.0 min mkjp_4 ibas, hasBessel= 1 F
+CPU:  0.46 s=  0.0 min  mkjp_4: goto rojploop
+CPU:  0.52 s=  0.0 min  mkjp_4: goto dev_mo block. size of ajr:,nx 3665142 6 5 6 3 3 0 0 0 0
+CPU:  0.54 s=  0.0 min mkjp_4 ibas, hasBessel= 2 F
+CPU:  0.54 s=  0.0 min  mkjp_4: goto rojploop
+CPU:  0.58 s=  0.0 min  mkjp_4: goto dev_mo block. size of ajr:,nx 3652506 5 4 4 3 2 0 0 0 0
+CPU:  0.61 s=  0.0 min start vcoulq_4 for iqx= 13 q= 0.0000  0.0000  0.4425  ngc= 78  nbas= 2  lx= 8  nx= 6 procid= 3
+CPU:  0.61 s=  0.0 min  vcoulq_4: ngb  nbloch ngc nrx procid=   253   175    78  5221     3
+CPU:  0.61 s=  0.0 min  vcoulq_4: goto PvB procid= 3
+CPU:  0.61 s=  0.0 min  vcoulq_4: goto PvP procid ngc lxx nrx= 3 78 8 5221
+CPU:  0.61 s=  0.0 min  vcoulq_4: goto igig loop 3
+CPU:  0.71 s=  0.0 min  vcoulq_4:  igig loop procid ibas nr lx, hasBessel= 3 1 5221 8 F
+CPU:  0.81 s=  0.0 min  vcoulq_4:  igig loop procid ibas nr lx, hasBessel= 3 2 5203 8 F
+CPU:  0.81 s=  0.0 min end of vcoulq_4 for iqx= 13 procid= 3
+CPU:  0.81 s=  0.0 min  end of mkppovl2
+CPU:  0.81 s=  0.0 min diag: gpuid freemem reqmem rmem GB= 0 0.000  0.008  93132257461.548
+CPU:  0.86 s=  0.0 min end of Diag_Coul
+CPU:  0.86 s=  0.0 min  end of do 1001
+CPU:  0.86 s=  0.0 min  do 1001: iq nqibz q ngc =   14   24    0.2500    0.0000    0.4425   74
+CPU:  0.87 s=  0.0 min mkjp_4 ibas, hasBessel= 1 F
+CPU:  0.87 s=  0.0 min  mkjp_4: goto rojploop
+CPU:  0.91 s=  0.0 min  mkjp_4: goto dev_mo block. size of ajr:,nx 3477186 6 5 6 3 3 0 0 0 0
+CPU:  0.94 s=  0.0 min mkjp_4 ibas, hasBessel= 2 F
+CPU:  0.94 s=  0.0 min  mkjp_4: goto rojploop
+CPU:  0.98 s=  0.0 min  mkjp_4: goto dev_mo block. size of ajr:,nx 3465198 5 4 4 3 2 0 0 0 0
+CPU:  1.00 s=  0.0 min start vcoulq_4 for iqx= 14 q= 0.2500  0.0000  0.4425  ngc= 74  nbas= 2  lx= 8  nx= 6 procid= 3
+CPU:  1.00 s=  0.0 min  vcoulq_4: ngb  nbloch ngc nrx procid=   249   175    74  5221     3
+CPU:  1.00 s=  0.0 min  vcoulq_4: goto PvB procid= 3
+CPU:  1.00 s=  0.0 min  vcoulq_4: goto PvP procid ngc lxx nrx= 3 74 8 5221
+CPU:  1.00 s=  0.0 min  vcoulq_4: goto igig loop 3
+CPU:  1.09 s=  0.0 min  vcoulq_4:  igig loop procid ibas nr lx, hasBessel= 3 1 5221 8 F
+CPU:  1.18 s=  0.0 min  vcoulq_4:  igig loop procid ibas nr lx, hasBessel= 3 2 5203 8 F
+CPU:  1.18 s=  0.0 min end of vcoulq_4 for iqx= 14 procid= 3
+CPU:  1.18 s=  0.0 min  end of mkppovl2
+CPU:  1.18 s=  0.0 min diag: gpuid freemem reqmem rmem GB= 0 0.000  0.007  93132257461.548
+CPU:  1.24 s=  0.0 min end of Diag_Coul
+CPU:  1.24 s=  0.0 min  end of do 1001
+CPU:  1.24 s=  0.0 min end of hvccfp0

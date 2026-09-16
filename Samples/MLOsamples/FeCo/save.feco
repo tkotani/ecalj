@@ -1,0 +1,16 @@
+Start LMF feco --quit=band
+i mmom= 4.3406 ehf(eV)=-72428.880418 ehk(eV)=-72428.880521 sev(eV)=-334.248556
+Start LMF feco --band
+Start LMF feco --writeham --mkprocar --noinv --mlo
+Start LMF feco --writeham --mkprocar --noinv --mlo
+Start LMFA feco
+Start LMF feco
+i mmom= 4.3406 ehf(eV)=-72428.880418 ehk(eV)=-72428.880521 sev(eV)=-334.248556
+c mmom= 4.3406 ehf(eV)=-72428.880419 ehk(eV)=-72428.880522 sev(eV)=-334.249865
+Start LMFGWD feco --jobgw=0
+Start LMFGWD feco --jobgw=1 --mlo
+Start LMF feco --writeham --mkprocar --noinv --mlo
+Start LMF feco --quit=band
+i mmom= 4.3406 ehf(eV)=-72428.880420 ehk(eV)=-72428.880523 sev(eV)=-334.249169
+Start LMF feco --band
+Start LMF feco --writeham --mkprocar --noinv --mlo

@@ -1,0 +1,71 @@
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --quit=band
+Start LMF nio --quit=band
+Start LMF nio --quit=band
+i mmom= 0.0000 ehf(eV)=-86701.294543 ehk(eV)=-86701.294368 sev(eV)=-146.443707
+Start LMF nio --band
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio
+i mmom= 0.0000 ehf(eV)=-86701.294543 ehk(eV)=-86701.294368 sev(eV)=-146.443707
+i mmom= 0.0000 ehf(eV)=-86701.294577 ehk(eV)=-86701.293970 sev(eV)=-146.442688
+c mmom= 0.0000 ehf(eV)=-86701.294545 ehk(eV)=-86701.294382 sev(eV)=-146.442930
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF ctrl.nio --writeham --mkprocar --noinv
+Start LMF ctrl.nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --quit=band
+i mmom= 0.0000 ehf(eV)=-86701.337494 ehk(eV)=-86701.336971 sev(eV)=-146.487086
+Start LMF nio --band
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --quit=band
+Start LMF nio --quit=band
+i mmom=-0.0000 ehf(eV)=-86701.294541 ehk(eV)=-86701.294379 sev(eV)=-146.444133
+Start LMF nio --band
+Start LMF nio --writeham --mkprocar --noinv
+Start LMF nio --writeham --mkprocar --noinv --mlo
+Start LMF nio --quit=band
+i mmom=-0.0000 ehf(eV)=-86701.294541 ehk(eV)=-86701.294379 sev(eV)=-146.444133
+Start LMF nio --band
+Start LMF nio --writeham --mkprocar --noinv --mlo

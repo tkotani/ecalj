@@ -1,0 +1,16 @@
+set terminal postscript enhanced color eps
+set output "bandplot.isp1.band.eps"
+set xzeroaxis
+set grid
+set ylabel "Energy-Efermi(eV)"
+# This is given written in subroutine writeband in lm7K/fp/bndfp.F
+set title "Band Fe isp=1 at /home/takao/ecalj/Samples/AHC/Fe/k4_so2"
+set yrange [   -20.00000:    20.00000]
+set xrange [0.0:     1.00000]
+set xtics ('GAMMA'   0.0000000000,\
+'H'   1.0000000000)
+tpia=2*3.1415926/     5.41694
+plot \
+"bnd001.spin1" u ($2):($3) lt 1 pt 1 w lp
+set terminal x11
+replot

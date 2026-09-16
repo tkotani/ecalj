@@ -1,0 +1,152 @@
+=== Start lmfham2 --job= 1
+MHAM: --- MTO part of PMT Hamiltonian index (real-harmonics table is in job_pdos script) --- 
+MHAM: MTO block dim=   67
+MHAM: i ib(atom) l m k(EH,EH2,PZ)=  1  1  0  0  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)=  2  1  1 -1  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)=  3  1  1  0  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)=  4  1  1  1  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)=  5  1  2 -2  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)=  6  1  2 -1  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)=  7  1  2  0  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)=  8  1  2  1  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)=  9  1  2  2  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 10  1  3 -3  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 11  1  3 -2  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 12  1  3 -1  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 13  1  3  0  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 14  1  3  1  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 15  1  3  2  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 16  1  3  3  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 17  1  0  0  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 18  1  1 -1  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 19  1  1  0  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 20  1  1  1  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 21  1  2 -2  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 22  1  2 -1  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 23  1  2  0  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 24  1  2  1  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 25  1  2  2  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 26  1  3 -3  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 27  1  3 -2  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 28  1  3 -1  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 29  1  3  0  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 30  1  3  1  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 31  1  3  2  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 32  1  3  3  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 33  1  1 -1  3
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 34  1  1  0  3
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 35  1  1  1  3
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 36  1  3 -3  3
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 37  1  3 -2  3
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 38  1  3 -1  3
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 39  1  3  0  3
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 40  1  3  1  3
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 41  1  3  2  3
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 42  1  3  3  3
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 43  2  0  0  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 44  2  1 -1  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 45  2  1  0  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 46  2  1  1  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 47  2  2 -2  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 48  2  2 -1  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 49  2  2  0  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 50  2  2  1  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 51  2  2  2  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 52  2  3 -3  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 53  2  3 -2  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 54  2  3 -1  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 55  2  3  0  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 56  2  3  1  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 57  2  3  2  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 58  2  3  3  1
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 59  2  0  0  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 60  2  1 -1  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 61  2  1  0  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 62  2  1  1  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 63  2  2 -2  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 64  2  2 -1  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 65  2  2  0  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 66  2  2  1  2
+MHAM: i ib(atom) l m k(EH,EH2,PZ)= 67  2  2  2  2
+MTOHamiltonian: ndimMTO,npairmx,nspx= 57 540 2
+ OK: Read HamRsMTO file!
+ idmto= 10 11 12 13 14 15 16
+ Reading: mlo_ maxit conv mix= 20  0.000100  0.500000
+ Reading: mlo_WTseed =  0.00
+ Reading: mlo_WTband =  32.00
+ Reading: mlo_WTinner=  256.00
+ Reading: mlo_EUinner mlo_ELinner _EWinner(eV)=  100000000.00 -100000000.00  0.10
+ Rule of thumb: WTband x WTinner ~ 8192 to respect nabla term (smooth continuity).
+    mlo_WTband push down bands when we use low mlo_WTinner: WTband maybe 4,8,16,32
+    mlo_WTinner: (soft)128,256,512,1024,2048(Hard). 
+ getbb: fcc
+ nbb wbb(in unit of 2pi/alat)= 8 4.500  4.500  4.500  4.500  4.500  4.500  4.500  4.500
+ bandgap(on mesh point) eV=  0.517
+ einnerH from VBM=  3.517  eV
+ einnerL from VBM= -100000000.000  eV
+isploop: is= 1 out of 2 ChooseSpace by cnk(init:iend,1:nMLO,1:nqbz)= 1 57 7 216
+#SC-loop:isc= 1 Omega/nMLO= -250.554402 Nabla2/nMLO(a.u.**2)=  8.956532 MeanOverlap=  0.834200 Emean(eV)=-5.558528 Pinner= 0.999645
+#SC-loop:isc= 2 Omega/nMLO= -257.002517 Nabla2/nMLO(a.u.**2)=  5.760238 MeanOverlap=  0.893369 Emean(eV)=-5.567434 Pinner= 0.999780
+#SC-loop:isc= 3 Omega/nMLO= -260.338917 Nabla2/nMLO(a.u.**2)=  4.091539 MeanOverlap=  0.924259 Emean(eV)=-5.567285 Pinner= 0.999777
+#SC-loop:isc= 4 Omega/nMLO= -262.048683 Nabla2/nMLO(a.u.**2)=  3.233068 MeanOverlap=  0.940151 Emean(eV)=-5.566120 Pinner= 0.999760
+#SC-loop:isc= 5 Omega/nMLO= -262.925620 Nabla2/nMLO(a.u.**2)=  2.791329 MeanOverlap=  0.948328 Emean(eV)=-5.564846 Pinner= 0.999746
+#SC-loop:isc= 6 Omega/nMLO= -263.377810 Nabla2/nMLO(a.u.**2)=  2.562696 MeanOverlap=  0.952560 Emean(eV)=-5.563658 Pinner= 0.999737
+#SC-loop:isc= 7 Omega/nMLO= -263.613245 Nabla2/nMLO(a.u.**2)=  2.443050 MeanOverlap=  0.954775 Emean(eV)=-5.562597 Pinner= 0.999732
+#SC-loop:isc= 8 Omega/nMLO= -263.737668 Nabla2/nMLO(a.u.**2)=  2.379351 MeanOverlap=  0.955954 Emean(eV)=-5.561665 Pinner= 0.999729
+#SC-loop:isc= 9 Omega/nMLO= -263.804858 Nabla2/nMLO(a.u.**2)=  2.344578 MeanOverlap=  0.956598 Emean(eV)=-5.560853 Pinner= 0.999727
+#SC-loop:isc= 10 Omega/nMLO= -263.842235 Nabla2/nMLO(a.u.**2)=  2.324937 MeanOverlap=  0.956962 Emean(eV)=-5.560149 Pinner= 0.999726
+#SC-loop:isc= 11 Omega/nMLO= -263.863847 Nabla2/nMLO(a.u.**2)=  2.313345 MeanOverlap=  0.957176 Emean(eV)=-5.559541 Pinner= 0.999726
+#SC-loop:isc= 12 Omega/nMLO= -263.876942 Nabla2/nMLO(a.u.**2)=  2.306142 MeanOverlap=  0.957310 Emean(eV)=-5.559017 Pinner= 0.999725
+#SC-loop:isc= 13 Omega/nMLO= -263.885300 Nabla2/nMLO(a.u.**2)=  2.301410 MeanOverlap=  0.957397 Emean(eV)=-5.558566 Pinner= 0.999725
+#SC-loop:isc= 14 Omega/nMLO= -263.890927 Nabla2/nMLO(a.u.**2)=  2.298129 MeanOverlap=  0.957458 Emean(eV)=-5.558179 Pinner= 0.999725
+#SC-loop:isc= 15 Omega/nMLO= -263.894905 Nabla2/nMLO(a.u.**2)=  2.295741 MeanOverlap=  0.957502 Emean(eV)=-5.557846 Pinner= 0.999725
+#SC-loop:isc= 16 Omega/nMLO= -263.897839 Nabla2/nMLO(a.u.**2)=  2.293935 MeanOverlap=  0.957536 Emean(eV)=-5.557562 Pinner= 0.999725
+#SC-loop:isc= 17 Omega/nMLO= -263.900076 Nabla2/nMLO(a.u.**2)=  2.292526 MeanOverlap=  0.957562 Emean(eV)=-5.557318 Pinner= 0.999725
+#SC-loop:isc= 18 Omega/nMLO= -263.901827 Nabla2/nMLO(a.u.**2)=  2.291403 MeanOverlap=  0.957582 Emean(eV)=-5.557109 Pinner= 0.999725
+#SC-loop:isc= 19 Omega/nMLO= -263.903222 Nabla2/nMLO(a.u.**2)=  2.290493 MeanOverlap=  0.957599 Emean(eV)=-5.556930 Pinner= 0.999725
+#SC-loop:isc= 20 Omega/nMLO= -263.904351 Nabla2/nMLO(a.u.**2)=  2.289748 MeanOverlap=  0.957613 Emean(eV)=-5.556777 Pinner= 0.999725
+ Step1: not converged
+  get hmmr2. Goto band_lmfham2.dat ---------
+ iq q=  1 0.000  0.000  0.000 e=-0.749 -0.562 -0.450 -0.372 -0.284 -0.280  0.035
+ iq q=  2 0.000 -0.048  0.000 e=-4.950 -0.562 -0.450 -0.372 -0.284 -0.280  0.046
+ iq q=  3 0.000 -0.095  0.000 e=-0.563 -0.450 -0.372 -0.284 -0.280  0.024
+ iq q=  4 0.000 -0.143  0.000 e=-0.563 -0.450 -0.372 -0.284 -0.280  0.010
+ iq q=  5 0.000 -0.190  0.000 e=-0.563 -0.450 -0.372 -0.283 -0.280 -0.012
+ iq q= ...
+einner ewid (eV)=   0.100000
+OK! Run gnuplot -p bandplot.lmfham2.isp1.glt.Red points are by hmmr2 for Hamiltonian on {|MLO2>}
+ bandgap(on mesh point) eV=  0.255
+ einnerH from VBM=  3.517  eV
+ einnerL from VBM= -100000000.000  eV
+isploop: is= 2 out of 2 ChooseSpace by cnk(init:iend,1:nMLO,1:nqbz)= 1 57 7 216
+#SC-loop:isc= 1 Omega/nMLO= -136.396358 Nabla2/nMLO(a.u.**2)=  25.190013 MeanOverlap=  0.533692 Emean(eV)=-0.123499 Pinner= 0.730472
+#SC-loop:isc= 2 Omega/nMLO= -150.899743 Nabla2/nMLO(a.u.**2)=  18.041429 MeanOverlap=  0.666024 Emean(eV)=-0.148586 Pinner= 0.731047
+#SC-loop:isc= 3 Omega/nMLO= -158.497692 Nabla2/nMLO(a.u.**2)=  14.263963 MeanOverlap=  0.735951 Emean(eV)=-0.162705 Pinner= 0.731085
+#SC-loop:isc= 4 Omega/nMLO= -162.457009 Nabla2/nMLO(a.u.**2)=  12.289611 MeanOverlap=  0.772500 Emean(eV)=-0.172267 Pinner= 0.731039
+#SC-loop:isc= 5 Omega/nMLO= -164.525024 Nabla2/nMLO(a.u.**2)=  11.258079 MeanOverlap=  0.791595 Emean(eV)=-0.179471 Pinner= 0.730992
+#SC-loop:isc= 6 Omega/nMLO= -165.614410 Nabla2/nMLO(a.u.**2)=  10.715685 MeanOverlap=  0.801635 Emean(eV)=-0.185166 Pinner= 0.730958
+#SC-loop:isc= 7 Omega/nMLO= -166.196937 Nabla2/nMLO(a.u.**2)=  10.426911 MeanOverlap=  0.806981 Emean(eV)=-0.189829 Pinner= 0.730934
+#SC-loop:isc= 8 Omega/nMLO= -166.515272 Nabla2/nMLO(a.u.**2)=  10.270248 MeanOverlap=  0.809881 Emean(eV)=-0.193684 Pinner= 0.730919
+#SC-loop:isc= 9 Omega/nMLO= -166.695857 Nabla2/nMLO(a.u.**2)=  10.182459 MeanOverlap=  0.811506 Emean(eV)=-0.197016 Pinner= 0.730908
+#SC-loop:isc= 10 Omega/nMLO= -166.803946 Nabla2/nMLO(a.u.**2)=  10.130887 MeanOverlap=  0.812461 Emean(eV)=-0.200007 Pinner= 0.730899
+#SC-loop:isc= 11 Omega/nMLO= -166.873313 Nabla2/nMLO(a.u.**2)=  10.098618 MeanOverlap=  0.813058 Emean(eV)=-0.202766 Pinner= 0.730893
+#SC-loop:isc= 12 Omega/nMLO= -166.921677 Nabla2/nMLO(a.u.**2)=  10.076786 MeanOverlap=  0.813462 Emean(eV)=-0.205367 Pinner= 0.730887
+#SC-loop:isc= 13 Omega/nMLO= -166.958504 Nabla2/nMLO(a.u.**2)=  10.060660 MeanOverlap=  0.813761 Emean(eV)=-0.207863 Pinner= 0.730882
+#SC-loop:isc= 14 Omega/nMLO= -166.988988 Nabla2/nMLO(a.u.**2)=  10.047654 MeanOverlap=  0.814002 Emean(eV)=-0.210295 Pinner= 0.730877
+#SC-loop:isc= 15 Omega/nMLO= -167.016095 Nabla2/nMLO(a.u.**2)=  10.036296 MeanOverlap=  0.814212 Emean(eV)=-0.212697 Pinner= 0.730872
+#SC-loop:isc= 16 Omega/nMLO= -167.041631 Nabla2/nMLO(a.u.**2)=  10.025696 MeanOverlap=  0.814408 Emean(eV)=-0.215093 Pinner= 0.730867
+#SC-loop:isc= 17 Omega/nMLO= -167.066806 Nabla2/nMLO(a.u.**2)=  10.015258 MeanOverlap=  0.814601 Emean(eV)=-0.217506 Pinner= 0.730862
+#SC-loop:isc= 18 Omega/nMLO= -167.092541 Nabla2/nMLO(a.u.**2)=  10.004530 MeanOverlap=  0.814800 Emean(eV)=-0.219954 Pinner= 0.730856
+#SC-loop:isc= 19 Omega/nMLO= -167.119650 Nabla2/nMLO(a.u.**2)=  9.993110 MeanOverlap=  0.815011 Emean(eV)=-0.222453 Pinner= 0.730850
+#SC-loop:isc= 20 Omega/nMLO= -167.148951 Nabla2/nMLO(a.u.**2)=  9.980592 MeanOverlap=  0.815243 Emean(eV)=-0.225016 Pinner= 0.730843
+ Step1: not converged
+  get hmmr2. Goto band_lmfham2.dat ---------
+ iq q=  1 0.000  0.000  0.000 e=0.018  0.023  0.024  0.158  0.177  0.177
+ iq q=  2 0.000 -0.048  0.000 e=-0.046  0.017  0.023  0.228  0.531
+ iq q=  3 0.000 -0.095  0.000 e=-3.471 -0.068  0.013  0.023  0.199  0.495
+ iq q=  4 0.000 -0.143  0.000 e=-0.609 -0.058  0.012  0.026  0.181  0.450
+ iq q=  5 0.000 -0.190  0.000 e=-0.465 -0.050  0.018  0.071  0.168  0.418
+ iq q= ...
+einner ewid (eV)=   0.100000
+OK! Run gnuplot -p bandplot.lmfham2.isp2.glt.Red points are by hmmr2 for Hamiltonian on {|MLO2>}
+Exit 0 procid= 0 OK! end of lmfham2 -----------------

@@ -1,0 +1,363 @@
+INFO: Ubuntu 20.04.4 LTS \n \l
+INFO: GNU Fortran (Ubuntu 9.4.0-1ubuntu1~20.04.1) 9.4.0
+INFO: -O2 -g -fimplicit-none -finit-integer=NaN -finit-real=NaN -JOBJ.gfortran -IOBJ.gfortran
+INFO: MATH: -lmkl_rt
+INFO: git: commit 71c7cc3e0a3c71158df290a13c97b64e8c109d90
+INFO:    : Author: Takao Kotani <takaokotani@gmail.com>
+INFO:    : Date:   Thu Aug 3 16:50:01 2023 +0900
+INFO: linked at Thu Aug  3 18:31:07 JST 2023
+===START LMF with   smp ===
+mpisize=1
+m_lmfinit: LMF
+cmdl for python=/home/takao/ecalj/SRC/exec/ctrl2ctrlp.py  smp<ctrl.smp >ctrlp.smp
+rval2: STRUC_NSPEC             requ n= 1 val= 2.00000000
+rval2: STRUC_NBAS              requ n= 1 val= 2.00000000
+rval2: HAM_NSPIN               defa n= 1 val= 2.00000000
+rval2: IO_VERBOS               defa n= 1 val= 35.00000000
+rval2: IO_TIM                  defa n= 1 val= 0.00000000
+rval2: STRUC_ALAT              ---- n= 1 val= 10.88482682
+rval2: STRUC_DALAT             ---- n= 0 val= 
+rval2: STRUC_PLAT              requ n= 9 val= 0.00000000  0.50000000  0.50000000  0.50000000  0.00000000  0.50000000  0.50000000  0.50000000  0.00000000
+rval2: OPTIONS_HF              defa n= 1 val= 0.00000000
+rval2: HAM_REL                 defa n= 1 val= 1.00000000
+rval2: HAM_SO                  defa n= 1 val= 2.00000000
+rval2: HAM_SOCAXIS             defa n= 3 val= 0.00000000  0.00000000  1.00000000
+rval2: HAM_GMAX                defa n= 1 val= 12.00000000
+rval2: HAM_FTMESH              defa n= 3 val= 0.00000000  0.00000000  0.00000000
+rval2: HAM_TOL                 defa n= 1 val= 0.00000100
+rval2: HAM_FRZWF               defa n= 1 val= 0.00000000
+rval2: HAM_XCFUN               defa n= 1 val= 1.00000000
+rval2: HAM_FORCES              defa n= 1 val= 0.00000000
+rval2: HAM_RDSIG               defa n= 1 val= 12.00000000
+rval2: HAM_ScaledSigma         defa n= 1 val= 1.00000000
+rval2: HAM_EWALD               defa n= 1 val= 0.00000000
+rval2: HAM_OVEPS               defa n= 1 val= 0.00000010
+rval2: HAM_PWMODE              defa n= 1 val= 1.00000000
+rval2: HAM_PWEMAX              defa n= 1 val= 3.00000000
+rval2: HAM_READP               defa n= 1 val= 1.00000000
+rval2: HAM_READPSKIPF          defa n= 1 val= 1.00000000
+rval2: HAM_V0FIX               defa n= 1 val= 0.00000000
+rval2: HAM_PNUFIX              defa n= 1 val= 1.00000000
+=== SPEC =1
+rval2: SPEC_Z@1                ---- n= 1 val= 62.00000000
+rval2: SPEC_R@1                ---- n= 1 val= 2.85000000
+rval2: SPEC_R/W@1              ---- n= 0 val= 
+rval2: SPEC_R/A@1              ---- n= 0 val= 
+rval2: SPEC_A@1                defa n= 1 val= 0.00000000
+rval2: SPEC_NR@1               defa n= 1 val= 0.00000000
+rval2: SPEC_RSMH@1             ---- n= 4 val= 1.43000000  1.43000000  1.43000000  1.43000000
+rval2: SPEC_EH@1               requ n= 4 val= -1.00000000 -1.00000000 -1.00000000 -1.00000000
+rval2: SPEC_RSMH2@1            ---- n= 4 val= 1.43000000  1.43000000  1.43000000  1.43000000
+rval2: SPEC_EH2@1              requ n= 4 val= -2.00000000 -2.00000000 -2.00000000 -2.00000000
+rval2: SPEC_LMX@1              defa n= 1 val= 3.00000000
+rval2: SPEC_LMXA@1             defa n= 1 val= 6.00000000
+rval2: SPEC_LMXL@1             defa n= 1 val= 6.00000000
+rval2: SPEC_P@1                ---- n= 0 val= 
+rval2: SPEC_Q@1                ---- n= 0 val= 
+rval2: SPEC_MMOM@1             ---- n= 4 val= 0.00000000  0.00000000  0.00000000  5.00000000
+rval2: SPEC_NMCORE@1           defa n= 1 val= 1.00000000
+rval2: SPEC_PZ@1               ---- n= 4 val= 0.00000000  15.90000000  0.00000000  5.50000000
+rval2: SPEC_LFOCA@1            defa n= 1 val= 1.00000000
+rval2: SPEC_KMXA@1             defa n= 1 val= 5.00000000
+rval2: SPEC_RSMA@1             defa n= 1 val= 1.14000000
+rval2: SPEC_IDMOD@1            ---- n= 0 val= 
+rval2: SPEC_FRZWF@1            defa n= 1 val= 0.00000000
+rval2: SPEC_IDU@1              ---- n= 4 val= 0.00000000  0.00000000  0.00000000  12.00000000
+rval2: SPEC_UH@1               ---- n= 4 val= 0.00000000  0.00000000  0.00000000  0.60400000
+rval2: SPEC_JH@1               ---- n= 4 val= 0.00000000  0.00000000  0.00000000  0.07870000
+rval2: SPEC_C-HQ@1             defa n= 2 val= -1.00000000  0.00000000
+rval2: SPEC_EREF1              defa n= 1 val= 0.00000000
+=== SPEC =2
+rval2: SPEC_Z@2                ---- n= 1 val= 15.00000000
+rval2: SPEC_R@2                ---- n= 1 val= 2.43000000
+rval2: SPEC_R/W@2              ---- n= 0 val= 
+rval2: SPEC_R/A@2              ---- n= 0 val= 
+rval2: SPEC_A@2                defa n= 1 val= 0.00000000
+rval2: SPEC_NR@2               defa n= 1 val= 0.00000000
+rval2: SPEC_RSMH@2             ---- n= 4 val= 1.21000000  1.21000000  1.21000000  1.21000000
+rval2: SPEC_EH@2               requ n= 4 val= -1.00000000 -1.00000000 -1.00000000 -1.00000000
+rval2: SPEC_RSMH2@2            ---- n= 3 val= 1.21000000  1.21000000  1.21000000
+rval2: SPEC_EH2@2              requ n= 3 val= -2.00000000 -2.00000000 -2.00000000
+rval2: SPEC_LMX@2              defa n= 1 val= 3.00000000
+rval2: SPEC_LMXA@2             defa n= 1 val= 6.00000000
+rval2: SPEC_LMXL@2             defa n= 1 val= 6.00000000
+rval2: SPEC_P@2                ---- n= 0 val= 
+rval2: SPEC_Q@2                ---- n= 0 val= 
+rval2: SPEC_MMOM@2             ---- n= 0 val= 
+rval2: SPEC_NMCORE@2           defa n= 1 val= 1.00000000
+rval2: SPEC_PZ@2               ---- n= 0 val= 
+rval2: SPEC_LFOCA@2            defa n= 1 val= 1.00000000
+rval2: SPEC_KMXA@2             defa n= 1 val= 5.00000000
+rval2: SPEC_RSMA@2             defa n= 1 val= 0.97200000
+rval2: SPEC_IDMOD@2            ---- n= 0 val= 
+rval2: SPEC_FRZWF@2            defa n= 1 val= 0.00000000
+rval2: SPEC_IDU@2              ---- n= 0 val= 
+rval2: SPEC_UH@2               ---- n= 0 val= 
+rval2: SPEC_JH@2               ---- n= 0 val= 
+rval2: SPEC_C-HQ@2             defa n= 2 val= -1.00000000  0.00000000
+rval2: SPEC_EREF2              defa n= 1 val= 0.00000000
+=== SITE =1
+rval2: SITE_POS@1              ---- n= 3 val= 0.00000000  0.00000000  0.00000000
+rval2: SITE_RELAX@1            defa n= 3 val= 1.00000000  1.00000000  1.00000000
+rval2: SITE_AF@1               defa n= 1 val= 0.00000000
+=== SITE =2
+rval2: SITE_POS@2              ---- n= 3 val= 0.50000000  0.50000000  0.50000000
+rval2: SITE_RELAX@2            defa n= 3 val= 1.00000000  1.00000000  1.00000000
+rval2: SITE_AF@2               defa n= 1 val= 0.00000000
+rval2: STR_RMAXS               ---- n= 0 val= 
+rval2: STR_RMAX                ---- n= 0 val= 
+rval2: STR_MXNBR               defa n= 1 val= 0.00000000
+rval2: BZ_NKABC                ---- n= 3 val= 10.00000000  10.00000000  10.00000000
+rval2: BZ_BZJOB                ---- n= 0 val= 
+rval2: BZ_METAL                defa n= 1 val= 3.00000000
+rval2: BZ_TETRA                defa n= 1 val= 1.00000000
+rval2: BZ_N                    defa n= 1 val= -1.00000000
+rval2: BZ_W                    defa n= 1 val= 0.01000000
+rval2: BZ_ZBAK                 defa n= 1 val= 0.00000000
+rval2: BZ_SAVDOS               defa n= 1 val= 1.00000000
+rval2: BZ_NPTS                 defa n= 1 val= 2001.00000000
+rval2: BZ_DOSMAX               defa n= 1 val= 15.00000000
+rval2: BZ_EFMAX                defa n= 1 val= 5.00000000
+rval2: BZ_NEVMX                defa n= 1 val= 0.00000000
+rval2: BZ_FSMOM                defa n= 1 val= -99999.00000000
+rval2: BZ_FSMOMMETHOD          defa n= 1 val= 0.00000000
+rval2: EWALD_AS                defa n= 1 val= 2.00000000
+rval2: EWALD_TOL               defa n= 1 val= 0.00000001
+rval2: EWALD_NKDMX             defa n= 1 val= 300.00000000
+rval2: ITER_NIT                defa n= 1 val= 30.00000000
+rval2: ITER_NRMIX              defa n= 1 val= 80.00000000
+rval2: ITER_CONV               defa n= 1 val= 0.00001000
+rval2: ITER_CONVC              defa n= 1 val= 0.00001000
+rval2: ITER_UMIX               defa n= 1 val= 0.20000000
+rval2: ITER_TOLU               defa n= 1 val= 0.00000000
+rval2: ITER_TOLU               defa n= 1 val= 0.00000000
+rval2: ITER_b                  defa n= 1 val= 0.20000000
+rval2: ITER_wc                 defa n= 1 val= -1.00000000
+rval2: ITER_w                  defa n= 2 val= 1.00000000  1.00000000
+rval2: ITER_k                  defa n= 1 val= -1.00000000
+rval2: DYN_MODE                defa n= 1 val= 0.00000000
+rval2: DYN_NIT                 defa n= 1 val= 1.00000000
+rval2: DYN_HESS                defa n= 1 val= 1.00000000
+rval2: DYN_XTOL                defa n= 1 val= 0.00100000
+rval2: DYN_GTOL                defa n= 1 val= 0.00000000
+rval2: DYN_STEP                defa n= 1 val= 0.01500000
+rval2: DYN_NKILL               defa n= 1 val= 0.00000000
+mixing param: A/B nmix wt= 0 2 1.000000  1.000000 beta wc killj=  0.200000 -1.000000 -1
+ ===> for --jobgw, pwmode is switched to be  1
+ READP=T: read pnu from atmpnu.*
+For IDU>10 with sigm.*, we set UH=JH=0 for l,ibas=   4   1
+ READP=T: read pnu from atmpnu.*
+pnu list       ibas isp  pnu(0:lmxa) 
+pnu: j isp pnu= 1 1 6.515  6.500  5.836  4.610  5.100  6.100  7.100
+pnz: j isp  pz= 1 1 0.000  5.927  0.000  5.500  0.000  0.000  0.000
+pnu: j isp pnu= 1 2 6.515  6.500  5.836  4.610  5.100  6.100  7.100
+pnz: j isp  pz= 1 2 0.000  5.927  0.000  5.500  0.000  0.000  0.000
+pnu: j isp pnu= 2 1 3.881  3.835  3.475  4.120  5.100  6.100  7.100
+pnz: j isp  pz= 2 1 0.000  0.000  0.000  0.000  0.000  0.000  0.000
+pnu: j isp pnu= 2 2 3.881  3.835  3.475  4.120  5.100  6.100  7.100
+pnz: j isp  pz= 2 2 0.000  0.000  0.000  0.000  0.000  0.000  0.000
+
+mto === MTO setting ===
+mto ispec lmxb lpz nkapii nkaphh=    1    3    1    2    3
+mto rsmh1    1  1.43  1.43  1.43  1.43
+mto   eh1    1 -1.00 -1.00 -1.00 -1.00
+mto rsmh2    1  1.43  1.43  1.43  1.43
+mto  eh2     1 -2.00 -2.00 -2.00 -2.00
+mto pz       1  0.00  5.93  0.00  5.50
+mto lh       3  3  3
+mto ispec lmxb lpz nkapii nkaphh=    2    3    0    2    2
+mto rsmh1    2  1.21  1.21  1.21  1.21
+mto   eh1    2 -1.00 -1.00 -1.00 -1.00
+mto rsmh2    2  1.21  1.21  1.21
+mto  eh2     2 -2.00 -2.00 -2.00
+mto lh       3  2 -1
+
+                Plat                                  Qlat
+   0.000000   0.500000   0.500000       -1.000000   1.000000   1.000000
+   0.500000   0.000000   0.500000        1.000000  -1.000000   1.000000
+   0.500000   0.500000   0.000000        1.000000   1.000000  -1.000000
+  Cell vol=   322.407087
+
+LATTC:  as= 2.000   tol= 1.00E-08   alat=10.88483   awald= 0.292
+         r1=  1.837   nkd=  87      q1=  5.504   nkq= 169
+SpaceGroupSym: ======================================= 
+  Generators except find=r4z
+ sgroup:  4 symmetry operations from 1 generators
+ sgroup: ig op
+        1  e                                  
+        2  r4z                                
+        3  r2z                                
+        4  r4(0,0,-1)                         
+ gensym: ig group ops (:vector means translation in cartesian)
+    1  e
+    2  r4z
+    3  r2z
+    4  r4(0,0,-1)
+ gensym: site permutation table for group operations ...
+  ib/ig:  1  2  3  4
+      1:  1  1  1  1
+      2:  2  2  2  2
+   no attempt to add inversion symmetry
+ splcls:  ibas iclass ispec label(ispec)
+            1     1     1     Sm
+            2     2     2     P
+SpaceGroupSym: ========end of SYM section============= 
+
+ BZMESH:    260 irreducible QP from   10  10  10 shift=FFF
+ TETIRR: sorting     6000 tetrahedra ...
+    1475 inequivalent tetrahedron=
+MSHSIZ: mesh has 25 x 25 x 25 divisions; length =     0.308     0.308     0.308
+      generated from gmax (a.u.)=     12.0000: 9409 vectors of 15625 (60%)
+ SGVSYM: 2368 symmetry stars found for 9409 reciprocal lattice vectors
+
+ sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  Sm       0*   1.43  -1.00   5.198    1.21E-06     749 
+  Sm       1*   1.43  -1.00   5.510    1.02E-06     941 
+  Sm       2*   1.43  -1.00   5.824    1.33E-06    1067 
+  Sm       3    1.43  -1.00   6.138    2.21E-06    1243 
+  Sm       0*   1.43  -2.00   5.198    1.21E-06     749 
+  Sm       1*   1.43  -2.00   5.510    1.02E-06     941 
+  Sm       2*   1.43  -2.00   5.824    1.33E-06    1067 
+  Sm       3    1.43  -2.00   6.138    2.21E-06    1243 
+  P        0*   1.21  -1.00   6.144    1.90E-06    1243 
+  P        1*   1.21  -1.00   6.548    1.08E-06    1471 
+  P        2*   1.21  -1.00   6.953    1.13E-06    1837 
+  P        3    1.21  -1.00   7.355    1.30E-06    2109 
+  P        0*   1.21  -2.00   6.144    1.90E-06    1243 
+  P        1*   1.21  -2.00   6.548    1.08E-06    1471 
+  P        2    1.21  -2.00   6.953    1.13E-06    1837 
+suham: PW basis Emax=  3.000 npw,ndham= 27 94
+  sudmtu: reading density matrix from file dmats in spherical harmonics
+sudmtu:  RMS change in dmats from symmetrization  0.000000
+
+Species Sm      mode 0 0 0 2 U 0.00  0.00  0.00  0.00 J 0.00  0.00  0.00  0.00
+ sudmtu:  RMS change in vorb from symmetrization =   0.000000
+
+ m_qplistinit:start
+lmv7: Read rst version ID=  2.00
+
+ iors  : read rst restart file (binary mesh density)
+          use from  restart file:use window, pnu,
+          ignore in restart file:
+
+ Basis, after reading restart file
+ site spec        pos (Cartesian coordinates)         pos (multiples of plat)
+   1        Sm  0.000000   0.000000   0.000000    0.000000   0.000000   0.000000
+   2         P  0.500000   0.500000   0.500000    0.500000   0.500000   0.500000
+
+--- BNDFP:  begin iteration 1 of 30
+ m_mkpot_init: Making one-particle potential ...
+  esmsmves: ESM is not turned on, you need esm_input.dat for ESM mode
+ smves: Add vconst to Ele.Static Pot. so that avaraged Ves at Rmt is zero: vconst=-0.509123
+   smooth rhoves     40.214012   charge    11.906641
+  smvxcm: all smrho_w is positive
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 1 -4.208348 -5.496867 -0.729105
+  smvxc2: smooth isp rhoeps rhomu vxcavg= 2 -4.188100 -5.467111 -0.725796
+  locpot:
+   site  1  z= 62.0  rmt= 2.85000  nr=783   a=0.015  nlml=49  rg=0.713  Vfloat=T
+    sm core charge in MT=  0.658173 =total-spillout=  0.672176 -  0.014003
+ ibas l=  1  0 pnu(1:nsp) pnz(1:nsp)=   6.51486   6.51486   0.00000   0.00000
+ ibas l=  1  1 pnu(1:nsp) pnz(1:nsp)=   6.50000   6.50000   5.92653   5.92653
+ ibas l=  1  2 pnu(1:nsp) pnz(1:nsp)=   5.83635   5.83635   0.00000   0.00000
+ ibas l=  1  3 pnu(1:nsp) pnz(1:nsp)=   4.61000   4.61000   5.50000   5.50000
+ ibas l=  1  4 pnu(1:nsp) pnz(1:nsp)=   5.10000   5.10000   0.00000   0.00000
+ ibas l=  1  5 pnu(1:nsp) pnz(1:nsp)=   6.10000   6.10000   0.00000   0.00000
+ ibas l=  1  6 pnu(1:nsp) pnz(1:nsp)=   7.10000   7.10000   0.00000   0.00000
+     potential shift to crystal energy zero:    0.000011
+l,pnz= 2 0.0000000000000000 nkapi nkape nkaph rsmh= 2 3 3 1.4299999999999999 1.4299999999999999 0.69437241439056503E-309
+l,pnz= 3 5.9265324776629553 nkapi nkape nkaph rsmh= 2 3 3 1.4299999999999999 1.4299999999999999 0.69437241439056503E-309
+l,pnz= 4 0.0000000000000000 nkapi nkape nkaph rsmh= 2 3 3 1.4299999999999999 1.4299999999999999 0.0000000000000000
+l,pnz= 5 5.5000000000000000 nkapi nkape nkaph rsmh= 2 3 3 1.4299999999999999 1.4299999999999999 0.0000000000000000
+   site  2  z= 15.0  rmt= 2.43000  nr=579   a=0.015  nlml=49  rg=0.608  Vfloat=T
+    sm core charge in MT=  0.006960 =total-spillout=  0.007037 -  0.000077
+ ibas l=  2  0 pnu(1:nsp) pnz(1:nsp)=   3.88084   3.88084   0.00000   0.00000
+ ibas l=  2  1 pnu(1:nsp) pnz(1:nsp)=   3.83451   3.83451   0.00000   0.00000
+ ibas l=  2  2 pnu(1:nsp) pnz(1:nsp)=   3.47508   3.47508   0.00000   0.00000
+ ibas l=  2  3 pnu(1:nsp) pnz(1:nsp)=   4.12000   4.12000   0.00000   0.00000
+ ibas l=  2  4 pnu(1:nsp) pnz(1:nsp)=   5.10000   5.10000   0.00000   0.00000
+ ibas l=  2  5 pnu(1:nsp) pnz(1:nsp)=   6.10000   6.10000   0.00000   0.00000
+ ibas l=  2  6 pnu(1:nsp) pnz(1:nsp)=   7.10000   7.10000   0.00000   0.00000
+     potential shift to crystal energy zero:    0.000113
+l,pnz= 2 0.0000000000000000 nkapi nkape nkaph rsmh= 2 2 3 1.2100000000000000 1.2100000000000000 0.0000000000000000
+l,pnz= 3 0.0000000000000000 nkapi nkape nkaph rsmh= 2 2 3 1.2100000000000000 1.2100000000000000 0.0000000000000000
+l,pnz= 4 0.0000000000000000 nkapi nkape nkaph rsmh= 2 2 3 1.2100000000000000 1.2100000000000000 0.0000000000000000
+l,pnz= 5 0.0000000000000000 nkapi nkape nkaph rsmh= 2 2 3 1.2100000000000000 0.0000000000000000 0.0000000000000000
+  mkpot:
+   Energy terms:           smooth           local           total
+   rhoval*veff            -26.394831      -278.267263      -304.662094
+   rhoval*ves            -75.495321      -193.431932      -268.927253
+   psnuc*ves             155.923346    -88363.824188    -88207.900842
+   utot                   40.214012    -44278.628060    -44238.414047
+   rho*exc                -8.396448      -493.716384      -502.112832
+   rho*vxc               -10.963978      -655.013056      -665.977034
+   valence chg            11.906641         7.093359        19.000000
+   valence mag             0.066183         4.932280         4.998464
+   core charge            58.000000        -0.000000        58.000000
+   Charges:  valence    19.00000   cores    58.00000   nucleii   -77.00000
+   hom background     0.00000   deviation from neutrality:     -0.00000
+
+ sugcut:  orbital-dependent cutoffs for local orbitals, tol= 1.00E-06
+ spec      l    rsm    eh     gmax    last term    cutoff
+  Sm       0    0.00   0.00Infinity    1.00E+00    9409*
+  Sm       1    0.00   0.00Infinity    1.20E+01    9409*
+ sigm file has    20 irreducible QP: nk =    4    4    4
+
+ rdsigm2:
+  lat_nsgrp=           4
+ q-points in full BZ where sigma calculable ...
+ BZMESH:     64 irreducible QP from    4   4   4 shift=FFF
+ Irr. qp for which sigma is calculated ...
+ BZMESH:     20 irreducible QP from    4   4   4 shift=FFF
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    1    0       0.00000      0.00000      0.00000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    1    0      -0.25000      0.25000      0.25000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    1    0      -0.50000      0.50000      0.50000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    1    0      -0.75000      0.75000      0.75000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    1    0       0.00000      0.00000      0.50000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    1    0      -0.25000      0.25000      0.75000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    1    0      -0.50000      0.50000      1.00000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    1    0       0.00000      0.00000      1.00000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    1    0      -0.25000      0.25000      1.25000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    1    0       0.00000      0.00000      1.50000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    1    0       0.00000      0.50000      0.00000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    1    0      -0.25000      0.75000      0.25000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    1    0      -0.50000      1.00000      0.50000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    1    0       0.00000      0.50000      0.50000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    1    0      -0.25000      0.75000      0.75000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    1    0       0.75000     -0.25000      0.25000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    1    0       0.00000      0.50000      1.00000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    1    0       0.75000     -0.25000      0.75000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    1    0       0.00000      1.00000      0.00000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    1    0       0.00000      1.00000      0.50000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    2    0       0.00000      0.00000      0.00000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    2    0      -0.25000      0.25000      0.25000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    2    0      -0.50000      0.50000      0.50000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    2    0      -0.75000      0.75000      0.75000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    2    0       0.00000      0.00000      0.50000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    2    0      -0.25000      0.25000      0.75000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    2    0      -0.50000      0.50000      1.00000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    2    0       0.00000      0.00000      1.00000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    2    0      -0.25000      0.25000      1.25000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    2    0       0.00000      0.00000      1.50000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    2    0       0.00000      0.50000      0.00000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    2    0      -0.25000      0.75000      0.25000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    2    0      -0.50000      1.00000      0.50000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    2    0       0.00000      0.50000      0.50000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    2    0      -0.25000      0.75000      0.75000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    2    0       0.75000     -0.25000      0.25000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    2    0       0.00000      0.50000      1.00000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    2    0       0.75000     -0.25000      0.75000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    2    0       0.00000      1.00000      0.00000
+ rdsigm2:Goto hamfb3k  xxx input isp,iaf,qp=    2    0       0.00000      1.00000      0.50000
+  --- end of sigmainit: rdsigm2 initialization section ---
+  ScaledSigma=   1.0000000000000000     
+ m_bandcal_init: start
+ bndfp: kpt     1 of   260 k=  0.0000  0.0000  0.0000 ndimh = nmto+napw =    94   67   27
+
+Intel MKL ERROR: Parameter 3 was incorrect on entry to ZGEMM .
+
+Intel MKL ERROR: Parameter 3 was incorrect on entry to ZGEMM .
+
+Intel MKL ERROR: Parameter 4 was incorrect on entry to ZHEEVX.
+CPU time:    2.893s     Thu Aug  3 18:51:11 2023 on process=0
+ERROR Exit -1 procid= 0 zhev_tk4: nev /=nevout something wrong.

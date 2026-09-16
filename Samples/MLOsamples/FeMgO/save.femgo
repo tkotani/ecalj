@@ -1,0 +1,4 @@
+Start LMF femgo --quit=band
+i mmom= 8.4131 ehf(eV)=-126125.232487 ehk(eV)=-126125.232191 sev(eV)=-1544.360816
+Start LMF femgo --band
+Start LMF femgo --writeham --mkprocar --noinv --mlo

@@ -1,0 +1,727 @@
+m_lmfinit: LMF
+rval2: STRUC_NSPEC             requ n= 1 val= 1.00000000
+rval2: STRUC_NBAS              requ n= 1 val= 1.00000000
+rval2: HAM_NSPIN               defa n= 1 val= 2.00000000
+rval2: IO_VERBOS               defa n= 1 val= 35.00000000
+rval2: IO_TIM                  defa n= 1 val= 0.00000000
+rval2: STRUC_ALAT              ---- n= 1 val= 5.41690210
+rval2: STRUC_PLAT              requ n= 9 val= -0.50000000  0.50000000  0.50000000  0.50000000 -0.50000000  0.50000000  0.50000000  0.50000000 -0.50000000
+rval2: OPTIONS_HF              defa n= 1 val= 0.00000000
+rval2: HAM_REL                 defa n= 1 val= 1.00000000
+rval2: HAM_SO                  defa n= 1 val= 0.00000000
+rval2: HAM_SOCAXIS             defa n= 3 val= 0.00000000  0.00000000  1.00000000
+rval2: HAM_GMAX                defa n= 1 val= 12.00000000
+rval2: HAM_FTMESH              defa n= 3 val= 0.00000000  0.00000000  0.00000000
+rval2: HAM_TOL                 defa n= 1 val= 0.00000100
+rval2: HAM_FRZWF               defa n= 1 val= 0.00000000
+rval2: HAM_XCFUN               defa n= 1 val= 1.00000000
+rval2: HAM_FORCES              defa n= 1 val= 0.00000000
+rval2: HAM_RDSIG               defa n= 1 val= 12.00000000
+rval2: HAM_ScaledSigma         defa n= 1 val= 1.00000000
+rval2: HAM_EWALD               defa n= 1 val= 0.00000000
+rval2: HAM_OVEPS               defa n= 1 val= 0.00000010
+rval2: HAM_PWMODE              defa n= 1 val= 1.00000000
+rval2: HAM_PWEMAX              defa n= 1 val= 3.00000000
+rval2: HAM_READP               defa n= 1 val= 0.00000000
+rval2: HAM_PHISPINSYM          defa n= 1 val= 0.00000000
+rval2: HAM_PNUFIX              defa n= 1 val= 0.00000000
+=== SPEC =1
+rval2: SPEC_ATOM@1             val=  Fe
+rval2: SPEC_Z@1                ---- n= 1 val= 26.00000000
+rval2: SPEC_R@1                ---- n= 1 val= 2.28000000
+rval2: SPEC_R/W@1              ---- n= 0 val= 
+rval2: SPEC_R/A@1              ---- n= 0 val= 
+rval2: SPEC_A@1                defa n= 1 val= 0.00000000
+rval2: SPEC_NR@1               defa n= 1 val= 0.00000000
+rval2: SPEC_RSMH@1             ---- n= 4 val= 1.14000000  1.14000000  1.14000000  1.14000000
+rval2: SPEC_EH@1               requ n= 4 val= -1.00000000 -1.00000000 -1.00000000 -1.00000000
+rval2: SPEC_RSMH2@1            ---- n= 3 val= 1.14000000  1.14000000  1.14000000
+rval2: SPEC_EH2@1              requ n= 3 val= -2.00000000 -2.00000000 -2.00000000
+rval2: SPEC_LMX@1              defa n= 1 val= 3.00000000
+rval2: SPEC_LMXA@1             defa n= 1 val= 4.00000000
+rval2: SPEC_LMXL@1             defa n= 1 val= 4.00000000
+rval2: SPEC_P@1                ---- n= 0 val= 
+rval2: SPEC_Q@1                ---- n= 0 val= 
+rval2: SPEC_MMOM@1             ---- n= 4 val= 0.00000000  0.00000000  2.00000000  0.00000000
+rval2: SPEC_NMCORE@1           defa n= 1 val= 1.00000000
+rval2: SPEC_PZ@1               ---- n= 2 val= 0.00000000  3.90000000
+rval2: SPEC_LFOCA@1            defa n= 1 val= 1.00000000
+rval2: SPEC_KMXA@1             defa n= 1 val= 5.00000000
+rval2: SPEC_RSMA@1             defa n= 1 val= 0.91200000
+rval2: SPEC_IDMOD@1            ---- n= 0 val= 
+rval2: SPEC_FRZWF@1            defa n= 1 val= 0.00000000
+rval2: SPEC_IDU@1              ---- n= 0 val= 
+rval2: SPEC_UH@1               ---- n= 0 val= 
+rval2: SPEC_JH@1               ---- n= 0 val= 
+rval2: SPEC_C-HOLE@1           val= 
+rval2: SPEC_C-HQ@1             defa n= 2 val= -1.00000000  0.00000000
+rval2: SPEC_EREF1              defa n= 1 val= 0.00000000
+=== SITE =1
+rval2: SITE_ATOM@1             val=  Fe
+rval2: SITE_POS@1              ---- n= 3 val= 0.00000000  0.00000000  0.00000000
+rval2: SITE_RELAX@1            defa n= 3 val= 1.00000000  1.00000000  1.00000000
+rval2: SITE_AF@1               defa n= 1 val= 0.00000000
+rval2: STR_RMAXS               ---- n= 0 val= 
+rval2: STR_RMAX                ---- n= 0 val= 
+rval2: STR_MXNBR               defa n= 1 val= 0.00000000
+rval2: BZ_NKABC                ---- n= 3 val= 8.00000000  8.00000000  8.00000000
+rval2: BZ_BZJOB                ---- n= 0 val= 
+rval2: BZ_METAL                defa n= 1 val= 3.00000000
+rval2: BZ_TETRA                defa n= 1 val= 1.00000000
+rval2: BZ_N                    defa n= 1 val= 0.00000000
+rval2: BZ_W                    defa n= 1 val= 0.00500000
+rval2: BZ_ZBAK                 defa n= 1 val= 0.00000000
+rval2: BZ_SAVDOS               defa n= 1 val= 1.00000000
+rval2: BZ_NPTS                 defa n= 1 val= 2001.00000000
+rval2: BZ_DOSMAX               defa n= 1 val= 1.50000000
+rval2: BZ_EFMAX                defa n= 1 val= 5.00000000
+rval2: BZ_FSMOM                defa n= 1 val= -99999.00000000
+rval2: BZ_FSMOMMETHOD          defa n= 1 val= 0.00000000
+rval2: SYMGRP                  val=  find
+rval2: SYMGRPAF                val= 
+rval2: EWALD_TOL               defa n= 1 val= 0.00000001
+rval2: ITER_NIT                defa n= 1 val= 30.00000000
+rval2: ITER_NRMIX              defa n= 1 val= 80.00000000
+rval2: ITER_MIX                val=  A2
+rval2: ITER_CONV               defa n= 1 val= 0.00001000
+rval2: ITER_CONVC              defa n= 1 val= 0.00001000
+rval2: ITER_UMIX               defa n= 1 val= 0.50000000
+rval2: ITER_TOLU               defa n= 1 val= 0.00000000
+rval2: ITER_b                  defa n= 1 val= 0.50000000
+rval2: ITER_wc                 defa n= 1 val= -1.00000000
+rval2: ITER_w                  defa n= 2 val= 1.00000000  1.00000000
+rval2: ITER_k                  defa n= 1 val= -1.00000000
+rval2: DYN_MODE                defa n= 1 val= 0.00000000
+rval2: DYN_NIT                 defa n= 1 val= 1.00000000
+rval2: DYN_HESS                defa n= 1 val= 1.00000000
+rval2: DYN_XTOL                defa n= 1 val= 0.00100000
+rval2: DYN_GTOL                defa n= 1 val= 0.00000000
+rval2: DYN_STEP                defa n= 1 val= 0.01500000
+rval2: DYN_NKILL               defa n= 1 val= 0.00000000
+mixing param: A/B nmix wt= 0 2 1.000000  1.000000 beta wc killj=  0.500000 -1.000000 -1
+ ===> for --jobgw, pwmode is switched to be  1
+  bndfp (warning): no sigm file found ... LDA calculation only
+
+pnu === pnu setting ===
+pnu   ibas isp   pnu(0:lmxa)  pz(0:lmxa)
+pnu:  1 1 4.660  4.410  3.800  4.130  5.100   0.000  3.900  0.000  0.000  0.000 pnu:  1 2 4.660  4.410  3.800  4.130  5.100   0.000  3.900  0.000  0.000  0.000
+
+mto === MTO setting ===
+mto ispec lmxb lpz nkapii nkaphh=    1    3    1    2    3
+mto rsmh1    1  1.14  1.14  1.14  1.14
+mto   eh1    1 -1.00 -1.00 -1.00 -1.00
+mto rsmh2    1  1.14  1.14  1.14
+mto  eh2     1 -2.00 -2.00 -2.00
+mto pz       1  0.00  3.90
+mto lh       3  2  1
+
+                Plat                                  Qlat
+  -0.500000   0.500000   0.500000        0.000000   1.000000   1.000000
+   0.500000  -0.500000   0.500000        1.000000   0.000000   1.000000
+   0.500000   0.500000  -0.500000        1.000000   1.000000   0.000000
+  Cell vol (borh**3)=   79.473614
+
+m_lattic_init:  as= 2.000  tol= 1.00E-08  alat= 5.41690   awald= 0.465
+         r1=  2.467   nkd= 137      q1=  4.688   nkq= 201
+SpaceGroupSym of Lattice: ========start========================== 
+ SYMGRP = find
+  Generators except find: 
+  Generators find or not:  T
+ sgroup:  1 symmetry operations from 0 generators
+ symlat: Bravais system is cubic        with 48 symmetry operations.
+ symcry: crystal invariant under 48 following symmetry operations for tol=  0.000100
+   Enlarging ngen= 1  ng nggen= 48 6
+   Enlarging ngen= 2  ng nggen= 48 48
+ groupg: the following are sufficient to generate the space group:
+  Generators:  trans(cart)= i*r3d r2(1,1,0)
+  Generators:: trans(frac)= i*r3d r2(1,1,0)
+ gensym: ig group ops (:vector means translation in cartesian)
+    1  e
+    2  i*r3d
+    3  r3(-1,-1,-1)
+    4  i
+    5  r3d
+    6  i*r3(-1,-1,-1)
+    7  r2(1,1,0)
+    8  i*r4(0,-1,0)
+    9  r4x
+   10  m(1,1,0)
+   11  r4(0,-1,0)
+   12  i*r4x
+   13  i*r4(-1,0,0)
+   14  r4z
+   15  m(1,0,1)
+   16  r4(-1,0,0)
+   17  i*r4z
+   18  r2(1,0,1)
+   19  r4y
+   20  m(0,1,1)
+   21  r4(0,0,-1)
+   22  i*r4y
+   23  r2(0,1,1)
+   24  i*r4(0,0,-1)
+   25  i*r3(1,1,-1)
+   26  r3(-1,-1,1)
+   27  r3(1,1,-1)
+   28  i*r3(-1,-1,1)
+   29  r2x
+   30  i*r3(-1,1,1)
+   31  mx
+   32  r3(-1,1,1)
+   33  i*r3(-1,1,-1)
+   34  r2y
+   35  r3(-1,1,-1)
+   36  my
+   37  i*r3(1,-1,1)
+   38  r3(1,-1,1)
+   39  r2z
+   40  mz
+   41  i*r3(1,-1,-1)
+   42  r3(1,-1,-1)
+   43  m(1,0,-1)
+   44  r2(1,0,-1)
+   45  r2(1,-1,0)
+   46  m(1,-1,0)
+   47  m(0,1,-1)
+   48  r2(0,1,-1)
+ gensym: site permutation table for group operations ...
+  ib/ig:  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48
+      1:  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1  1
+ splcls:  ibas iclass ispec label(ispec)
+            1     1     1     Fe
+SpaceGroupSym of Lattice: ========end =========================== 
+
+  verbose=           0
+  --- Choose omodes below ----------------
+   V (1) or W (2) or U(3)
+   V_omega=0 (11) or W_omega=0 (12)
+   [option --- (+ QPNT.{number} ?)] 
+  --- Put number above ! -----------------
+  ixc nz=           1           0
+  spinflip option = F
+  ### readin BZDATA ###
+  end of read_BZdata
+  nqbz  =          64
+  nqibz ngrp=           8           0
+  --- Freq ---
+    niw  =    10
+    esmr =    0.003000
+  reading <PRODUCT_BASIS> section
+ lx=  0 readin tolerance=  0.100D-02
+ lx=  1 readin tolerance=  0.100D-02
+ lx=  2 readin tolerance=  0.100D-02
+ lx=  3 readin tolerance=  0.100D-02
+ lx=  4 readin tolerance=  0.100D-02
+ lx=  5 readin tolerance=  0.100D-02
+ lx=  6 readin tolerance=  0.100D-02
+ lx=  7 readin tolerance=  0.100D-02
+ lx=  8 readin tolerance=  0.100D-02
+  4
+           1           0           2           3
+           1           1           3           1
+           1           2           2           0
+           1           3           2           0
+           1           4           2           0
+  --- valence product basis section
+  1  0  1  1  1
+  1  0  2  0  0
+  1  1  1  1  1
+  1  1  2  0  0
+  1  1  3  1  0
+  1  2  1  1  1
+  1  2  2  0  0
+  1  3  1  0  1
+ CPU:       0.0000 secs =     0.0 mins.
+  1  3  2  0  0
+  1  4  1  0  0
+  1  4  2  0  0
+  --- core product basis section
+  1  0  1  0  0  0  0
+  1  0  2  0  0  0  0
+  1  0  3  0  0  0  0
+  1  1  1  0  0  0  0
+ CPU:       0.0000 secs =     0.0 mins.
+  ### incwf=-1 Use ForSxc for core
+  read ECORE : iatom lmxa =           1           4
+ CPU:       0.0000 secs =     0.0 mins.
+ CPU:       0.0000 secs =     0.0 mins.
+ CPU:       0.0000 secs =     0.0 mins.
+ read ecore=   0   1   1 -0.69740D+04 -0.69740D+04
+ read ecore=   0   2   1 -0.80986D+03 -0.80986D+03
+ read ecore=   0   3   1 -0.85611D+02 -0.85611D+02
+ read ecore=   1   1   1 -0.68989D+03 -0.68989D+03
+ CPU:       0.0000 secs =     0.0 mins.
+ genallcf_v3
+  hsfp0: end of genallcf2
+ CPU:       0.0000 secs =     0.0 mins.
+ CPU:       0.0000 secs =     0.0 mins.
+  --- bare Coulomb mode --- 
+  --- computational conditions --- 
+    deltaw  =     0.020000
+    ua      =     1.000000
+    esmr    =     0.003000
+    alat voltot =     5.416902    79.473614
+init_readeigen:
+ read(ifiqg)         128          92   4.0000000000000000               64          34
+Read EValue: nband nqi nsp nspc nspx 41 34 2 1 2
+  ngcmx ngpmx=          43          92
+  rdpp_v3: 
+  ppbrd size           5           5           6           1           2
+  rdpp_v3: 
+  ppbrd size           5           5           6           1           2
+  rdpp_v3: 
+  ppbrd size           5           5           6           1           2
+  rdpp_v3: 
+  ppbrd size           5           5           6           1           2
+  rdpp_v3: 
+  ppbrd size           5           5           6           1           2
+  rdpp_v3: 
+  ppbrd size           5           5           6           1           2
+  rdpp_v3: 
+  ppbrd size           5           5           6           1           2
+  rdpp_v3: 
+  ppbrd size           5           5           6           1           2
+  rdpp_v3:end 
+  rdpp_v3:end 
+  rdpp_v3:end 
+  rdpp_v3:end 
+  rdpp_v3:end 
+  init_readqg ifi=           1
+  rdpp_v3:end 
+  rdpp_v3:end 
+  init_readqg ifi=           2
+init_readqg cou  qc ngc =   0.000   0.000   0.000   43
+init_readqg cou  qc ngc =   0.000   0.250   0.250   38
+init_readqg cou  qc ngc =   0.000   0.500   0.500   40
+init_readqg cou  qc ngc =   0.000   0.750   0.750   38
+init_readqg cou  qc ngc =   0.250   0.000   0.250   38
+init_readqg cou  qc ngc =   0.250   0.250   0.500   34
+init_readqg cou  qc ngc =   0.250   0.500   0.750   34
+init_readqg cou  qc ngc =   0.250   0.750   1.000   38
+init_readqg cou  qc ngc =   0.500   0.000   0.500   40
+init_readqg cou  qc ngc =   0.500   0.250   0.750   34
+init_readqg cou  qc ngc =   0.500   0.500   1.000   40
+init_readqg cou  qc ngc =   0.500   0.750   1.250   34
+init_readqg cou  qc ngc =   0.750   0.000   0.750   38
+init_readqg cou  qc ngc =   0.750   0.250   1.000   38
+init_readqg cou  qc ngc =   0.750   0.500   1.250   34
+init_readqg cou  qc ngc =   0.750   0.750   1.500   34
+init_readqg cou  qc ngc =   0.250   0.250   0.000   38
+  rdpp_v3:end 
+init_readqg cou  qc ngc =   0.250   0.500   0.250   34
+init_readqg cou  qc ngc =   0.250   0.750   0.500   34
+init_readqg cou  qc ngc =   0.250   1.000   0.750   38
+init_readqg cou  qc ngc =   0.500   0.250   0.250   34
+init_readqg cou  qc ngc =   0.500   0.500   0.500   28
+init_readqg cou  qc ngc =   0.500   0.750   0.750   34
+init_readqg cou  qc ngc =   0.500   1.000   1.000   35
+init_readqg cou  qc ngc =   0.750   0.250   0.500   34
+init_readqg cou  qc ngc =   0.750   0.500   0.750   34
+init_readqg cou  qc ngc =   0.750   0.750   1.000   38
+init_readqg cou  qc ngc =   0.750   1.000   1.250   38
+init_readqg cou  qc ngc =   1.000   0.250   0.750   38
+init_readqg cou  qc ngc =   1.000   0.500   1.000   35
+init_readqg cou  qc ngc =   1.000   0.750   1.250   38
+init_readqg cou  qc ngc =   1.000   1.000   1.500   35
+init_readqg cou  qc ngc =   0.500   0.500   0.000   40
+init_readqg cou  qc ngc =   0.500   0.750   0.250   34
+init_readqg cou  qc ngc =   0.500   1.000   0.500   40
+init_readqg cou  qc ngc =   0.500   1.250   0.750   34
+init_readqg cou  qc ngc =   0.750   0.500   0.250   34
+init_readqg cou  qc ngc =   0.750   0.750   0.500   34
+init_readqg cou  qc ngc =   0.750   1.000   0.750   38
+init_readqg cou  qc ngc =   0.750   1.250   1.000   38
+init_readqg cou  qc ngc =   1.000   0.500   0.500   40
+init_readqg cou  qc ngc =   1.000   0.750   0.750   38
+init_readqg cou  qc ngc =   1.000   1.000   1.000   38
+init_readqg cou  qc ngc =   1.000   1.250   1.250   38
+init_readqg cou  qc ngc =   1.250   0.500   0.750   34
+init_readqg cou  qc ngc =   1.250   0.750   1.000   38
+init_readqg cou  qc ngc =   1.250   1.000   1.250   38
+init_readqg cou  qc ngc =   1.250   1.250   1.500   34
+init_readqg cou  qc ngc =   0.750   0.750   0.000   38
+init_readqg cou  qc ngc =   0.750   1.000   0.250   38
+init_readqg cou  qc ngc =   0.750   1.250   0.500   34
+init_readqg cou  qc ngc =   0.750   1.500   0.750   34
+init_readqg cou  qc ngc =   1.000   0.750   0.250   38
+init_readqg cou  qc ngc =   1.000   1.000   0.500   35
+init_readqg cou  qc ngc =   1.000   1.250   0.750   38
+init_readqg cou  qc ngc =   1.000   1.500   1.000   35
+init_readqg cou  qc ngc =   1.250   0.750   0.500   34
+init_readqg cou  qc ngc =   1.250   1.000   0.750   38
+init_readqg cou  qc ngc =   1.250   1.250   1.000   38
+init_readqg cou  qc ngc =   1.250   1.500   1.250   34
+init_readqg cou  qc ngc =   1.500   0.750   0.750   34
+init_readqg cou  qc ngc =   1.500   1.000   1.000   35
+init_readqg cou  qc ngc =   1.500   1.250   1.250   34
+init_readqg cou  qc ngc =   1.500   1.500   1.500   28
+init_readqg cou  qc ngc =   0.000   0.013   0.013   43
+init_readqg cou  qc ngc =   0.000   0.263   0.263   38
+init_readqg cou  qc ngc =   0.000   0.512   0.512   40
+init_readqg cou  qc ngc =   0.000   0.762   0.762   38
+init_readqg cou  qc ngc =   0.250   0.013   0.263   38
+init_readqg cou  qc ngc =   0.250   0.263   0.512   34
+init_readqg cou  qc ngc =   0.250   0.512   0.762   34
+init_readqg cou  qc ngc =   0.250   0.762   1.012   38
+init_readqg cou  qc ngc =   0.500   0.013   0.512   40
+init_readqg cou  qc ngc =   0.500   0.263   0.762   34
+init_readqg cou  qc ngc =   0.500   0.512   1.012   40
+init_readqg cou  qc ngc =   0.500   0.762   1.262   34
+init_readqg cou  qc ngc =   0.750   0.013   0.762   38
+init_readqg cou  qc ngc =   0.750   0.263   1.012   38
+init_readqg cou  qc ngc =   0.750   0.512   1.262   34
+init_readqg cou  qc ngc =   0.750   0.762   1.512   34
+init_readqg cou  qc ngc =   0.250   0.263   0.013   38
+init_readqg cou  qc ngc =   0.250   0.512   0.263   34
+init_readqg cou  qc ngc =   0.250   0.762   0.512   34
+init_readqg cou  qc ngc =   0.250   1.012   0.762   38
+init_readqg cou  qc ngc =   0.500   0.263   0.263   34
+init_readqg cou  qc ngc =   0.500   0.512   0.512   28
+init_readqg cou  qc ngc =   0.500   0.762   0.762   34
+init_readqg cou  qc ngc =   0.500   1.012   1.012   35
+init_readqg cou  qc ngc =   0.750   0.263   0.512   34
+init_readqg cou  qc ngc =   0.750   0.512   0.762   34
+init_readqg cou  qc ngc =   0.750   0.762   1.012   38
+init_readqg cou  qc ngc =   0.750   1.012   1.262   38
+init_readqg cou  qc ngc =   1.000   0.263   0.762   38
+init_readqg cou  qc ngc =   1.000   0.512   1.012   35
+init_readqg cou  qc ngc =   1.000   0.762   1.262   38
+init_readqg cou  qc ngc =   1.000   1.012   1.512   35
+init_readqg cou  qc ngc =   0.500   0.512   0.013   40
+init_readqg cou  qc ngc =   0.500   0.762   0.263   34
+init_readqg cou  qc ngc =   0.500   1.012   0.512   40
+init_readqg cou  qc ngc =   0.500   1.262   0.762   34
+init_readqg cou  qc ngc =   0.750   0.512   0.263   34
+init_readqg cou  qc ngc =   0.750   0.762   0.512   34
+init_readqg cou  qc ngc =   0.750   1.012   0.762   38
+init_readqg cou  qc ngc =   0.750   1.262   1.012   38
+init_readqg cou  qc ngc =   1.000   0.512   0.512   40
+init_readqg cou  qc ngc =   1.000   0.762   0.762   38
+init_readqg cou  qc ngc =   1.000   1.012   1.012   38
+init_readqg cou  qc ngc =   1.000   1.262   1.262   38
+init_readqg cou  qc ngc =   1.250   0.512   0.762   34
+init_readqg cou  qc ngc =   1.250   0.762   1.012   38
+init_readqg cou  qc ngc =   1.250   1.012   1.262   38
+init_readqg cou  qc ngc =   1.250   1.262   1.512   34
+init_readqg cou  qc ngc =   0.750   0.762   0.013   38
+init_readqg cou  qc ngc =   0.750   1.012   0.263   38
+init_readqg cou  qc ngc =   0.750   1.262   0.512   34
+init_readqg cou  qc ngc =   0.750   1.512   0.762   34
+init_readqg cou  qc ngc =   1.000   0.762   0.263   38
+init_readqg cou  qc ngc =   1.000   1.012   0.512   35
+init_readqg cou  qc ngc =   1.000   1.262   0.762   38
+init_readqg cou  qc ngc =   1.000   1.512   1.012   35
+init_readqg cou  qc ngc =   1.250   0.762   0.512   34
+init_readqg cou  qc ngc =   1.250   1.012   0.762   38
+init_readqg cou  qc ngc =   1.250   1.262   1.012   38
+init_readqg cou  qc ngc =   1.250   1.512   1.262   34
+init_readqg cou  qc ngc =   1.500   0.762   0.762   34
+init_readqg cou  qc ngc =   1.500   1.012   1.012   35
+init_readqg cou  qc ngc =   1.500   1.262   1.262   34
+init_readqg cou  qc ngc =   1.500   1.512   1.512   28
+  end of read QGcou
+  end of readin @MNLA_CPHI: norbtx=          11
+  KeepEigen=T; readin geig and cphi into m_readeigen
+ nband =          41
+ nband =          41
+ nband =          41
+  init_readeigen_mlw_noeval
+ nband =          41
+ nband =          41
+ nband =          41
+ nband =          41
+ nband =          41
+nqbz nqtt= 64 128
+nqbz nqtt= 64 128
+nqbz nqtt= 64 128
+nqbz nqtt= 64 128
+nqbz nqtt= 64 128
+nqbz nqtt= 64 128
+nqbz nqtt= 64 128
+nqbz nqtt= 64 128
+  xxx nband=          41
+ Here!!!!!!!!!!!!! F T           1
+nrws1, rcut1 =    1    0.000000
+nrws2, rcut2 =    1    0.000000
+ rrrrrrr rws1 rws1 =   0.0000000000000000        0.0000000000000000        0.0000000000000000       rrrrrr2   0.0000000000000000        0.0000000000000000        0.0000000000000000     
+  Used k number in Q0P =           1
+  1      1.000000        0.000000      0.012500      0.012500
+allq0i=F   1  1     0.08333
+allq0i=F   1  2     0.08333
+allq0i=F   1  3     0.08333
+allq0i=F   1  4     0.08333
+allq0i=F   1  5     0.08333
+allq0i=F   1  6     0.08333
+allq0i=F   1  7     0.08333
+allq0i=F   1  8     0.08333
+allq0i=F   1  9     0.08333
+allq0i=F   1 10     0.08333
+allq0i=F   1 11     0.08333
+allq0i=F   1 12     0.08333
+ Here!!!!!!!!!!!!! F T           1
+nrws1, rcut1 =    1    0.000000
+nrws2, rcut2 =    1    0.000000
+ rrrrrrr rws1 rws1 =   0.0000000000000000        0.0000000000000000        0.0000000000000000       rrrrrr2   0.0000000000000000        0.0000000000000000        0.0000000000000000     
+  Used k number in Q0P =           1
+  1      1.000000        0.000000      0.012500      0.012500
+allq0i=F   1  1     0.08333
+allq0i=F   1  2     0.08333
+allq0i=F   1  3     0.08333
+allq0i=F   1  4     0.08333
+allq0i=F   1  5     0.08333
+allq0i=F   1  6     0.08333
+allq0i=F   1  7     0.08333
+allq0i=F   1  8     0.08333
+allq0i=F   1  9     0.08333
+allq0i=F   1 10     0.08333
+allq0i=F   1 11     0.08333
+allq0i=F   1 12     0.08333
+ Here!!!!!!!!!!!!! F T           1
+nrws1, rcut1 =    1    0.000000
+nrws2, rcut2 =    1    0.000000
+ Here!!!!!!!!!!!!! F T           1
+ rrrrrrr rws1 rws1 =   0.0000000000000000        0.0000000000000000        0.0000000000000000       rrrrrr2   0.0000000000000000        0.0000000000000000        0.0000000000000000     
+  Used k number in Q0P =           1
+  1      1.000000        0.000000      0.012500      0.012500
+nrws1, rcut1 =    1    0.000000
+nrws2, rcut2 =    1    0.000000
+ rrrrrrr rws1 rws1 =   0.0000000000000000        0.0000000000000000        0.0000000000000000       rrrrrr2   0.0000000000000000        0.0000000000000000        0.0000000000000000     
+  Used k number in Q0P =           1
+allq0i=F   1  1     0.08333
+allq0i=F   1  2     0.08333
+allq0i=F   1  3     0.08333
+allq0i=F   1  4     0.08333
+ Here!!!!!!!!!!!!! F T           1
+nrws1, rcut1 =    1    0.000000
+nrws2, rcut2 =    1    0.000000
+allq0i=F   1  5     0.08333
+allq0i=F   1  6     0.08333
+allq0i=F   1  7     0.08333
+allq0i=F   1  8     0.08333
+allq0i=F   1  9     0.08333
+  1      1.000000        0.000000      0.012500      0.012500
+allq0i=F   1  1     0.08333
+allq0i=F   1  2     0.08333
+allq0i=F   1  3     0.08333
+allq0i=F   1  4     0.08333
+allq0i=F   1  5     0.08333
+allq0i=F   1  6     0.08333
+allq0i=F   1  7     0.08333
+allq0i=F   1 10     0.08333
+allq0i=F   1 11     0.08333
+allq0i=F   1 12     0.08333
+ rrrrrrr rws1 rws1 =   0.0000000000000000        0.0000000000000000        0.0000000000000000       rrrrrr2   0.0000000000000000        0.0000000000000000        0.0000000000000000     
+  Used k number in Q0P =           1
+  1      1.000000        0.000000      0.012500      0.012500
+allq0i=F   1  1     0.08333
+allq0i=F   1  2     0.08333
+allq0i=F   1  8     0.08333
+allq0i=F   1  9     0.08333
+allq0i=F   1 10     0.08333
+allq0i=F   1 11     0.08333
+allq0i=F   1 12     0.08333
+allq0i=F   1  3     0.08333
+allq0i=F   1  4     0.08333
+allq0i=F   1  5     0.08333
+allq0i=F   1  6     0.08333
+allq0i=F   1  7     0.08333
+allq0i=F   1  8     0.08333
+allq0i=F   1  9     0.08333
+allq0i=F   1 10     0.08333
+allq0i=F   1 11     0.08333
+allq0i=F   1 12     0.08333
+ Here!!!!!!!!!!!!! F T           1
+nrws1, rcut1 =    1    0.000000
+nrws2, rcut2 =    1    0.000000
+ rrrrrrr rws1 rws1 =   0.0000000000000000        0.0000000000000000        0.0000000000000000       rrrrrr2   0.0000000000000000        0.0000000000000000        0.0000000000000000     
+  Used k number in Q0P =           1
+  1      1.000000        0.000000      0.012500      0.012500
+ Here!!!!!!!!!!!!! F T           1
+nrws1, rcut1 =    1    0.000000
+nrws2, rcut2 =    1    0.000000
+ rrrrrrr rws1 rws1 =   0.0000000000000000        0.0000000000000000        0.0000000000000000       rrrrrr2   0.0000000000000000        0.0000000000000000        0.0000000000000000     
+  Used k number in Q0P =           1
+  1      1.000000        0.000000      0.012500      0.012500
+allq0i=F   1  1     0.08333
+allq0i=F   1  2     0.08333
+allq0i=F   1  3     0.08333
+allq0i=F   1  4     0.08333
+allq0i=F   1  5     0.08333
+allq0i=F   1  6     0.08333
+allq0i=F   1  7     0.08333
+allq0i=F   1  8     0.08333
+allq0i=F   1  9     0.08333
+allq0i=F   1 10     0.08333
+allq0i=F   1  1     0.08333
+allq0i=F   1  2     0.08333
+allq0i=F   1  3     0.08333
+allq0i=F   1  4     0.08333
+allq0i=F   1  5     0.08333
+allq0i=F   1  6     0.08333
+allq0i=F   1  7     0.08333
+allq0i=F   1  8     0.08333
+allq0i=F   1 11     0.08333
+allq0i=F   1 12     0.08333
+allq0i=F   1  9     0.08333
+allq0i=F   1 10     0.08333
+allq0i=F   1 11     0.08333
+allq0i=F   1 12     0.08333
+ Caution! evals are zero hereafter.
+ nwf =           9
+ init_readeigen_mlw: done
+ Here!!!!!!!!!!!!! F T           1
+nrws1, rcut1 =    1    0.000000
+nrws2, rcut2 =    1    0.000000
+ rrrrrrr rws1 rws1 =   0.0000000000000000        0.0000000000000000        0.0000000000000000       rrrrrr2   0.0000000000000000        0.0000000000000000        0.0000000000000000     
+  Used k number in Q0P =           1
+  1      1.000000        0.000000      0.012500      0.012500
+allq0i=F   1  1     0.08333
+allq0i=F   1  2     0.08333
+allq0i=F   1  3     0.08333
+allq0i=F   1  4     0.08333
+allq0i=F   1  5     0.08333
+allq0i=F   1  6     0.08333
+allq0i=F   1  7     0.08333
+allq0i=F   1  8     0.08333
+allq0i=F   1  9     0.08333
+allq0i=F   1 10     0.08333
+allq0i=F   1 11     0.08333
+allq0i=F   1 12     0.08333
+  *** tot num of q near 0   =   12.000000000000000     
+  sum(wgt0) from Q0P=  0.100000D+01
+  ***
+    2   8   0  nspin  nq  ntq
+ spin = 2   nbloch ngp ngc=  99  79  43  nqbz =    64  nqibz =     8   ef=********** Rydberg
+ 0.2000000000000000D-01 <= deltaw(Hartree)
+ 0.5416902095140190D+01 <= alat
+ 0.1000000000000000+100 <= ef 
+ 0.3000000000000000D-02 <= esmr
+  total number of k-points should be   75.000000000000000     
+ RS: loop over spin --
+  ssssss spinloop           1           2
+  ssssss spinloop           1           2
+  ssssss spinloop           1           2
+  ssssss spinloop           1           2
+  ssssss spinloop           1           2
+  ssssss spinloop           1           2
+  ssssss spinloop           1           2
+  ssssss spinloop           1           2
+is=  1:   1  out of  48  rotations:  procid=  0 CPU:       0.1120 secs =     0.0 mins.
+is=  1:   2  out of  48  rotations:  procid=  0 CPU:       1.3980 secs =     0.0 mins.
+is=  1:   3  out of  48  rotations:  procid=  0 CPU:       2.2320 secs =     0.0 mins.
+is=  1:   4  out of  48  rotations:  procid=  0 CPU:       3.0390 secs =     0.1 mins.
+is=  1:   5  out of  48  rotations:  procid=  0 CPU:       3.6100 secs =     0.1 mins.
+is=  1:   6  out of  48  rotations:  procid=  0 CPU:       4.1810 secs =     0.1 mins.
+is=  1:   7  out of  48  rotations:  procid=  0 CPU:       4.7490 secs =     0.1 mins.
+is=  1:   8  out of  48  rotations:  procid=  0 CPU:       5.2950 secs =     0.1 mins.
+is=  1:   9  out of  48  rotations:  procid=  0 CPU:       5.2960 secs =     0.1 mins.
+is=  1:  10  out of  48  rotations:  procid=  0 CPU:       5.2980 secs =     0.1 mins.
+is=  1:  11  out of  48  rotations:  procid=  0 CPU:       5.2990 secs =     0.1 mins.
+is=  1:  12  out of  48  rotations:  procid=  0 CPU:       5.3000 secs =     0.1 mins.
+is=  1:  13  out of  48  rotations:  procid=  0 CPU:       5.3020 secs =     0.1 mins.
+is=  1:  14  out of  48  rotations:  procid=  0 CPU:       5.3030 secs =     0.1 mins.
+is=  1:  15  out of  48  rotations:  procid=  0 CPU:       5.3040 secs =     0.1 mins.
+is=  1:  16  out of  48  rotations:  procid=  0 CPU:       5.3070 secs =     0.1 mins.
+is=  1:  17  out of  48  rotations:  procid=  0 CPU:       5.3080 secs =     0.1 mins.
+is=  1:  18  out of  48  rotations:  procid=  0 CPU:       5.3090 secs =     0.1 mins.
+is=  1:  19  out of  48  rotations:  procid=  0 CPU:       5.3110 secs =     0.1 mins.
+is=  1:  20  out of  48  rotations:  procid=  0 CPU:       5.3120 secs =     0.1 mins.
+is=  1:  21  out of  48  rotations:  procid=  0 CPU:       5.3140 secs =     0.1 mins.
+is=  1:  22  out of  48  rotations:  procid=  0 CPU:       5.3150 secs =     0.1 mins.
+is=  1:  23  out of  48  rotations:  procid=  0 CPU:       5.3160 secs =     0.1 mins.
+is=  1:  24  out of  48  rotations:  procid=  0 CPU:       5.3180 secs =     0.1 mins.
+is=  1:  25  out of  48  rotations:  procid=  0 CPU:       5.3190 secs =     0.1 mins.
+is=  1:  26  out of  48  rotations:  procid=  0 CPU:       5.3200 secs =     0.1 mins.
+is=  1:  27  out of  48  rotations:  procid=  0 CPU:       5.3220 secs =     0.1 mins.
+is=  1:  28  out of  48  rotations:  procid=  0 CPU:       5.3230 secs =     0.1 mins.
+is=  1:  29  out of  48  rotations:  procid=  0 CPU:       5.3250 secs =     0.1 mins.
+is=  1:  30  out of  48  rotations:  procid=  0 CPU:       5.3260 secs =     0.1 mins.
+is=  1:  31  out of  48  rotations:  procid=  0 CPU:       5.3270 secs =     0.1 mins.
+is=  1:  32  out of  48  rotations:  procid=  0 CPU:       5.3290 secs =     0.1 mins.
+is=  1:  33  out of  48  rotations:  procid=  0 CPU:       5.3300 secs =     0.1 mins.
+is=  1:  34  out of  48  rotations:  procid=  0 CPU:       5.3310 secs =     0.1 mins.
+is=  1:  35  out of  48  rotations:  procid=  0 CPU:       5.3320 secs =     0.1 mins.
+is=  1:  36  out of  48  rotations:  procid=  0 CPU:       5.3340 secs =     0.1 mins.
+is=  1:  37  out of  48  rotations:  procid=  0 CPU:       5.3350 secs =     0.1 mins.
+is=  1:  38  out of  48  rotations:  procid=  0 CPU:       5.3360 secs =     0.1 mins.
+is=  1:  39  out of  48  rotations:  procid=  0 CPU:       5.3380 secs =     0.1 mins.
+is=  1:  40  out of  48  rotations:  procid=  0 CPU:       5.3390 secs =     0.1 mins.
+is=  1:  41  out of  48  rotations:  procid=  0 CPU:       5.3400 secs =     0.1 mins.
+is=  1:  42  out of  48  rotations:  procid=  0 CPU:       5.3420 secs =     0.1 mins.
+is=  1:  43  out of  48  rotations:  procid=  0 CPU:       5.3430 secs =     0.1 mins.
+is=  1:  44  out of  48  rotations:  procid=  0 CPU:       5.3440 secs =     0.1 mins.
+is=  1:  45  out of  48  rotations:  procid=  0 CPU:       5.3450 secs =     0.1 mins.
+is=  1:  46  out of  48  rotations:  procid=  0 CPU:       5.3470 secs =     0.1 mins.
+is=  1:  47  out of  48  rotations:  procid=  0 CPU:       5.3480 secs =     0.1 mins.
+is=  1:  48  out of  48  rotations:  procid=  0 CPU:       5.3490 secs =     0.1 mins.
+ start wvmat
+ Coulomb interaction (v) : 
+  ssssss spinloop           2           2
+  ssssss spinloop           2           2
+  ssssss spinloop           2           2
+  ssssss spinloop           2           2
+  ssssss spinloop           2           2
+  ssssss spinloop           2           2
+  ssssss spinloop           2           2
+
+  ssssss spinloop           2           2
+is=  2:   1  out of  48  rotations:  procid=  0 CPU:       5.3710 secs =     0.1 mins.
+is=  2:   2  out of  48  rotations:  procid=  0 CPU:       6.5160 secs =     0.1 mins.
+is=  2:   3  out of  48  rotations:  procid=  0 CPU:       7.0960 secs =     0.1 mins.
+is=  2:   4  out of  48  rotations:  procid=  0 CPU:       7.6680 secs =     0.1 mins.
+is=  2:   5  out of  48  rotations:  procid=  0 CPU:       8.2360 secs =     0.1 mins.
+is=  2:   6  out of  48  rotations:  procid=  0 CPU:       8.7990 secs =     0.1 mins.
+is=  2:   7  out of  48  rotations:  procid=  0 CPU:       9.3830 secs =     0.2 mins.
+is=  2:   8  out of  48  rotations:  procid=  0 CPU:       9.9600 secs =     0.2 mins.
+is=  2:   9  out of  48  rotations:  procid=  0 CPU:       9.9620 secs =     0.2 mins.
+is=  2:  10  out of  48  rotations:  procid=  0 CPU:       9.9640 secs =     0.2 mins.
+is=  2:  11  out of  48  rotations:  procid=  0 CPU:       9.9650 secs =     0.2 mins.
+is=  2:  12  out of  48  rotations:  procid=  0 CPU:       9.9670 secs =     0.2 mins.
+is=  2:  13  out of  48  rotations:  procid=  0 CPU:       9.9690 secs =     0.2 mins.
+is=  2:  14  out of  48  rotations:  procid=  0 CPU:       9.9700 secs =     0.2 mins.
+is=  2:  15  out of  48  rotations:  procid=  0 CPU:       9.9720 secs =     0.2 mins.
+is=  2:  16  out of  48  rotations:  procid=  0 CPU:       9.9730 secs =     0.2 mins.
+is=  2:  17  out of  48  rotations:  procid=  0 CPU:       9.9750 secs =     0.2 mins.
+is=  2:  18  out of  48  rotations:  procid=  0 CPU:       9.9770 secs =     0.2 mins.
+is=  2:  19  out of  48  rotations:  procid=  0 CPU:       9.9780 secs =     0.2 mins.
+is=  2:  20  out of  48  rotations:  procid=  0 CPU:       9.9800 secs =     0.2 mins.
+is=  2:  21  out of  48  rotations:  procid=  0 CPU:       9.9810 secs =     0.2 mins.
+is=  2:  22  out of  48  rotations:  procid=  0 CPU:       9.9830 secs =     0.2 mins.
+is=  2:  23  out of  48  rotations:  procid=  0 CPU:       9.9850 secs =     0.2 mins.
+is=  2:  24  out of  48  rotations:  procid=  0 CPU:       9.9870 secs =     0.2 mins.
+is=  2:  25  out of  48  rotations:  procid=  0 CPU:       9.9900 secs =     0.2 mins.
+is=  2:  26  out of  48  rotations:  procid=  0 CPU:       9.9910 secs =     0.2 mins.
+is=  2:  27  out of  48  rotations:  procid=  0 CPU:       9.9930 secs =     0.2 mins.
+is=  2:  28  out of  48  rotations:  procid=  0 CPU:       9.9940 secs =     0.2 mins.
+is=  2:  29  out of  48  rotations:  procid=  0 CPU:       9.9960 secs =     0.2 mins.
+is=  2:  30  out of  48  rotations:  procid=  0 CPU:       9.9980 secs =     0.2 mins.
+is=  2:  31  out of  48  rotations:  procid=  0 CPU:       9.9990 secs =     0.2 mins.
+is=  2:  32  out of  48  rotations:  procid=  0 CPU:      10.0010 secs =     0.2 mins.
+is=  2:  33  out of  48  rotations:  procid=  0 CPU:      10.0030 secs =     0.2 mins.
+is=  2:  34  out of  48  rotations:  procid=  0 CPU:      10.0050 secs =     0.2 mins.
+is=  2:  35  out of  48  rotations:  procid=  0 CPU:      10.0060 secs =     0.2 mins.
+is=  2:  36  out of  48  rotations:  procid=  0 CPU:      10.0080 secs =     0.2 mins.
+is=  2:  37  out of  48  rotations:  procid=  0 CPU:      10.0110 secs =     0.2 mins.
+is=  2:  38  out of  48  rotations:  procid=  0 CPU:      10.0120 secs =     0.2 mins.
+is=  2:  39  out of  48  rotations:  procid=  0 CPU:      10.0140 secs =     0.2 mins.
+is=  2:  40  out of  48  rotations:  procid=  0 CPU:      10.0160 secs =     0.2 mins.
+is=  2:  41  out of  48  rotations:  procid=  0 CPU:      10.0180 secs =     0.2 mins.
+is=  2:  42  out of  48  rotations:  procid=  0 CPU:      10.0190 secs =     0.2 mins.
+is=  2:  43  out of  48  rotations:  procid=  0 CPU:      10.0210 secs =     0.2 mins.
+is=  2:  44  out of  48  rotations:  procid=  0 CPU:      10.0220 secs =     0.2 mins.
+is=  2:  45  out of  48  rotations:  procid=  0 CPU:      10.0240 secs =     0.2 mins.
+is=  2:  46  out of  48  rotations:  procid=  0 CPU:      10.0250 secs =     0.2 mins.
+is=  2:  47  out of  48  rotations:  procid=  0 CPU:      10.0270 secs =     0.2 mins.
+is=  2:  48  out of  48  rotations:  procid=  0 CPU:      10.0280 secs =     0.2 mins.
+ start wvmat
+ Coulomb interaction (v) : 
+
+ CPU:      10.1700 secs =     0.2 mins.
+ CPU:      10.1700 secs =     0.2 mins.
+ CPU:      10.1700 secs =     0.2 mins.
+ CPU:      10.1700 secs =     0.2 mins.
+ CPU:      10.1700 secs =     0.2 mins.
+ CPU:      10.1700 secs =     0.2 mins.
+OK! end of hwmatK_MPI
+ CPU:      10.1700 secs =     0.2 mins.
+ CPU:      10.1700 secs =     0.2 mins.

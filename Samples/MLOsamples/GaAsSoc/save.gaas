@@ -1,0 +1,14 @@
+Start LMF gaas --quit=band
+i ehf(eV)=-114283.437153 ehk(eV)=-114283.437163 sev(eV)=-174.033710
+Start LMF gaas --band
+Start LMF gaas --writeham --mkprocar --noinv --mlo
+Start LMF gaas --quit=band --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true --ctrlg:ham.so=1
+i mmom=-0.0000 ehf(eV)=-114283.451609 ehk(eV)=-114283.451619 sev(eV)=-174.048166
+Start LMF gaas --writeham --mkprocar --noinv --mlo --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true --ctrlg:ham.so=0 --socmatrix
+Start LMF gaas --quit=band
+i ehf(eV)=-114283.437153 ehk(eV)=-114283.437163 sev(eV)=-174.033710
+Start LMF gaas --band
+Start LMF gaas --writeham --mkprocar --noinv --mlo
+Start LMF gaas --quit=band --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true --ctrlg:ham.so=1
+i mmom=-0.0000 ehf(eV)=-114283.451609 ehk(eV)=-114283.451619 sev(eV)=-174.048166
+Start LMF gaas --writeham --mkprocar --noinv --mlo --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true --ctrlg:ham.so=0 --socmatrix
