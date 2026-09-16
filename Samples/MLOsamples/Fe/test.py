@@ -12,7 +12,15 @@ from comp import rmfiles
 # not noise -- with the default w = 2.0 eV the floor at ecbot+Delta sits above
 # E_F for a metal, so more PMT weight enters and the d MLOs come out more
 # extended, lowering the on-site U. Fe is one of the systems that prefer a much
-# wider w (measured optimum ~11 eV); see MLO_minimal.md section 3.
+# wider w (measured optimum ~11 eV); see MLO_minimal.md section 2/3.
+#
+# Measured with mlo_w = 11 eV instead of the 2.0 default:
+#     band error   dE_win 19.8 -> 9.7 meV,  dv/v 0.057 -> 0.024
+#     d-orbital W  UP 1.5815 -> 1.6308 eV,  DN 1.4248 -> 1.5546 eV
+# i.e. the bands get twice as good and W comes back close to the old method-0
+# values (UP 1.6684, DN 1.5972). THIS SAMPLE KEEPS THE DEFAULT w = 2.0 so that
+# all 18 samples share one setting -- but for real work where W itself is the
+# quantity you use (magnetic interactions), raise mlo_w.
 EXPECTED = {
     'UP': {1:(10.6227,-9.7058), 2:(10.7465,-9.3756), 3:(10.7465,-9.3762),
            4:(10.7465,-9.3756), 5:(22.9839,-21.4666), 6:(22.9839,-21.4664),

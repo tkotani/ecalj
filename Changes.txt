@@ -77,6 +77,27 @@
     検証: testecalj で 18 サンプル 322 チェック全て PASSED。
 
 
+  [doc] MLO のドキュメントと図を Samples/MLOsamples/ に集約。
+    MLO_minimal.md -> Samples/MLOsamples/MLO_minimal.md (方法の本文)
+    MLO_theory.md / MLO_optimization_log.md / MLO_v6_report.md (+図)
+      -> Samples/MLOsamples/notes/ (作業記録)
+    図 -> Samples/MLOsamples/plots/ に一本化 (38 枚)。リポジトリ直下の
+      MLO_minimal_figs/ は削除 (method 3 の走査ディレクトリから作った古い図で、
+      元ディレクトリ自体が既に無かった)。
+  [new] SRC/exec/mlo_bandplot.py: MLO vs 第一原理バンドのプロット。
+    以前は /tmp のアドホックなスクリプトで図を作っており再現できなくなっていた。
+  [doc] MLO_minimal.md 2 節を全 18 サンプルの実測で書き直し。
+    - (a) E_F 近傍の模型 11 系: 最良 FeMgO 3.1 meV、中央値 9.9 meV
+    - (b) SOC 版は非 SOC と同程度 (FeMgOSoc 4.1, FeSoc 21.9 meV)
+    - (c) 窓型損失で測れない模型 (Cu の d のみ、4f のみ) を明示
+    - (d) 4f 模型は準位の重なりで評価。method 4 は method 0 と同等だが
+          Delta は効いていない (4f は床より遥かに下で theta~1 に戻る)
+    - w は効く: Fe で w=2.0 -> 11 にすると dE_win 19.8 -> 9.7 meV、
+      d 軌道の W も UP 1.5815 -> 1.6308、DN 1.4248 -> 1.5546 eV と戻る。
+      V と W-V は個別に 1-2 eV 動くが 90% 相殺し、W の変化は UP -5%, DN -11%。
+      Fe 系で W を使う実計算では mlo_w を上げること (Fe/test.py にも明記)。
+
+
 2026-08-19
   [new] Samples 検証スイープ第2弾 (Samples/README.md 参照):
     BenchmarkTest 2/2 PASSED (kt1 GPU1 -np2 1; 32GB GPU 1枚に GW 2ランクは
