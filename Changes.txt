@@ -1,3 +1,24 @@
+2026-09-16 (5)
+  Samples/kBT/LiTi2O4 に 3000K の 2 run を追加。Sigma 側を切ると収束しないことの実証。
+    n666_T3000/           6^3 3000K 29 反復、両側 3000K
+    n666_T3000_chi0only/  6^3 3000K 60 反復、t_sigmakbt を書いていない (Sigma は T=0)
+    入力の差は t_sigmakbt の行だけ (mixing --ctrlg:iter.b=0.1 と PB は同一)。
+    chi0 はどちらも 3000K なので差は Sigma 側だけから来る。
+  結果 (plots/convergence_T3000.png):
+    両側 3000K  : 反復 15 あたりから 1 反復あたり 3-5 meV に落ち着きそのまま
+    chi0 のみ   : 反復 20 で 6 meV まで下がった後また上がり、残り 40 反復を
+                  10-50 meV でさまよい続ける (最後の 10 反復で平均 22.8 meV)
+    行き着く先も違う: 両側(29) と chi0 のみ(60) の差は |E-Ef|<0.5eV で rms 198 meV、
+    |E-Ef|<2eV で rms 552 meV (最大 1.73 eV)。60 反復後のバンドは質的に別物。
+    理由: chi0 だけ温めると Sigma が chi0 と違う Fermi 準位を見る。
+      chi0only: Sigma は EFERMI=0.29428 Ry、chi0 は EFERMI_kbt=0.25672 Ry (0.51 eV 差)
+      両側    : どちらも EFERMI_kbt=0.25315 Ry
+    これで自己無撞着ループが閉じない。t_sigmakbt == t_tetrakbt にせよという理由。
+  plots/bands_iterations_T3000.pdf (60 ページ、5MB) 追加。青=両側、赤破線=chi0 のみ。
+    青は途中で止まり赤は最後まで動き続ける。
+  注意: この 2 run は実行日が 2 日離れている (06-13 22:46 開始 と 06-15 23:48 開始)。
+    どちらも 06-13 09:09 の 2 件の修正より後だが当時のバイナリは特定できない。
+
 2026-09-16 (4)
   Samples/kBT/ を物質名ディレクトリに再構成し、Fe の対照実験を追加。
     kBT/README.md    注意点をここに集約 (併用必須、esmr 据え置き、deltaq、T 収束確認)

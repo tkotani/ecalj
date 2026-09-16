@@ -1,0 +1,4 @@
+ tetrakbt_init: T[K], kbt[Ry], kbt[eV] 3000  0.19000E-01  0.25851E+00
+
+  0.294278052723437D+00  0.000000000000000D+00 ! efermi bandgap are obtained by heftet
+  0.256715332351808D+00  0.190002057945876D-01 ! efermi_kbt (finite-T, tetra-NOS conv) by heftet

@@ -1,0 +1,5 @@
+ tetrakbt_init: T[K], kbt[Ry], kbt[eV] 3000  0.19000E-01  0.25851E+00
+ sigmakbt_setup: t_sigmakbt[K]=   3000.0 kbt[Ry]=  0.19000E-01 ef<-EFERMI_kbt=    0.253155
+
+  0.269041634759889D+00  0.000000000000000D+00 ! efermi bandgap are obtained by heftet
+  0.253147750082190D+00  0.190002057945876D-01 ! efermi_kbt (finite-T, tetra-NOS conv) by heftet
