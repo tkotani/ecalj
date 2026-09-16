@@ -13,7 +13,7 @@ cd ~/ecalj/Samples/MLOsamples
 # SOC test set (job_mlo + job_mlo_soc)
 testecalj -np 8 GaAsSoc       # semiconductor, with SOC
 testecalj -np 8 FeSoc         # ferromagnetic Fe (nspin=2), with SOC
-testecalj -np 8 FeMgOSoc      # FeMgO multilayer (nspin=2), with SOC
+testecalj -np 8 FeMgOSoc      # FeMgO slab + empty spheres, 55 MLO, with SOC
 
 # Plain MLO non-SOC
 testecalj -np 8 Si666gwsc     # Si QSGW, non-magnetic, MLO + DFT band check
@@ -24,8 +24,7 @@ testecalj -np 8 Cu            # fcc Cu
 testecalj -np 8 SrTiO3        # perovskite, non-magnetic
 testecalj -np 8 Fe            # bcc Fe (nspin=2, no SOC)
 testecalj -np 8 FeCo          # FeCo alloy (nspin=2)
-testecalj -np 8 FeMgO         # FeMgO slab, 78 MLO (nspin=2, no SOC)
-testecalj -np 8 FeMgO_ES      # FeMgO slab + empty spheres, 55 MLO
+testecalj -np 8 FeMgO         # FeMgO slab + empty spheres, 55 MLO (nspin=2, no SOC)
 testecalj -np 8 GdCo5         # GdCo5 (Gd 4f, nspin=2)
 testecalj -np 8 GdION         # Gd ion QSGW
 testecalj -np 8 NiO666lda     # NiO LDA AFM
@@ -47,7 +46,7 @@ Each test runs the full pipeline (lmf → mlo, plus the 4-step
 | `Si666gwsc`  | Si QSGW (6×6×6)        | 1 | – | `bnd00{1..6}.spin1`, `band_MLO_spin1.dat` |
 | `GaAsSoc`    | GaAs QSGW              | 1 | ✓ | `band_MLO_spin1.dat`, `band_MLO_spin1.soc.dat` |
 | `FeSoc`      | bcc Fe DFT             | 2 | ✓ | `band_MLO_spin{1,2}.dat`, `band_MLO_spin1.soc.dat` |
-| `FeMgOSoc`   | FeMgO multilayer DFT   | 2 | ✓ | `band_MLO_spin{1,2}.dat`, `band_MLO_spin1.soc.dat` |
+| `FeMgOSoc`   | FeMgO slab + empty spheres (55 MLO) | 2 | ✓ | `band_MLO_spin{1,2}.dat`, `band_MLO_spin1.soc.dat` |
 | `Al2O3_Cr`   | Cr-doped Al2O3 QSGW80  | 2 | – | `band_MLO_spin{1,2}.dat` (mlo_emax=7) |
 | `C`          | diamond C              | 1 | – | `band_MLO_spin1.dat` |
 | `C.sp`       | C graphite-like (sp)   | 1 | – | `band_MLO_spin1.dat` |
@@ -55,8 +54,7 @@ Each test runs the full pipeline (lmf → mlo, plus the 4-step
 | `SrTiO3`     | SrTiO3 perovskite      | 1 | – | `band_MLO_spin1.dat` |
 | `Fe`         | bcc Fe DFT (no SOC)    | 2 | – | `job_mloW` + on-site diagonal V, W−V check (inline in `Fe/test.py`, no file) |
 | `FeCo`       | FeCo alloy             | 2 | – | `band_MLO_spin{1,2}.dat` |
-| `FeMgO`      | FeMgO slab (78 MLO)    | 2 | – | `band_MLO_spin{1,2}.dat` |
-| `FeMgO_ES`   | FeMgO slab + empty spheres (55 MLO) | 2 | – | `band_MLO_spin{1,2}.dat` |
+| `FeMgO`      | FeMgO slab + empty spheres (55 MLO) | 2 | – | `band_MLO_spin{1,2}.dat` |
 | `GdCo5`      | GdCo5 (4f magnetic)    | 2 | – | `band_MLO_spin{1,2}.dat` |
 | `GdION`      | Gd ion QSGW            | 2 | – | `band_MLO_spin{1,2}.dat` |
 | `NiO666lda`  | NiO LDA AFM            | 2 | – | `band_MLO_spin{1,2}.dat` |
@@ -127,17 +125,27 @@ Both DFT and MLO bands plotted on the same panel (`Energy − E_F`, eV).
 - `GaAsSoc`: VBM around Γ shows the As-p triplet. With `job_mlo_soc`,
   the Δ_SO ≈ 0.34 eV split-off band is reproduced.
 - `FeSoc`: Fe 3d manifold ±2 eV around E_F, both spins.
-- `FeMgOSoc`: dense band structure of the Fe-MgO interface region.
-- `FeMgO_ES`: same slab with 7 empty spheres (R = 1.9 a.u.) filling the
-  30.5 a.u. vacuum. Without them the barrier region has no basis function at
-  all and the window error is 127 meV; with them it drops to 1.6 meV. The
-  `Worb` here keeps only s on the empty spheres and drops 3d from Mg and O,
-  giving a **55-orbital** model -- smaller than the 78 of `FeMgO` and far
-  more accurate. Intended for magnetic-fluctuation work.
+- `FeMgOSoc`: same model as `FeMgO` below, with SOC added as a perturbation
+  via `job_mlo_soc`. The SOC Fermi level moves by 3.1 meV
+  (-0.38286150 -> -0.38263489 Ry).
+- `FeMgO`: Fe/MgO slab with 7 empty spheres (R = 1.9 a.u.) filling the
+  30.5 a.u. vacuum. Without them the barrier region carries no basis function
+  at all, so the interface states cannot be represented in principle. The
+  `Worb` keeps only s on the empty spheres and drops 3d from Mg and O, giving
+  a **55-orbital** model. Measured with `mlo_losscheck.py` (window E_F±2 eV):
 
-  All three FeMgO dirs carry an `[esm]` section: this is a slab with a vacuum
-  layer, and without ESM the energy zero moves by ~4.4 eV (silently, before
-  2026-09-15 -- see Changes.txt).
+  | | orbitals | dE_win | dE_occ | dv/v |
+  |---|---|---|---|---|
+  | this model (empty spheres, `mlo_method=4`) | **55** | **3.1 meV** | **0.6 meV** | **0.008** |
+  | the old one (no empty spheres, `mlo_method=0 mlo_emax=5`) | 78 | 113.3 meV | 7.7 meV | 0.270 |
+
+  The old 78-orbital model was the worst in this whole sample set and was
+  removed on 2026-09-16; the present one is both smaller and ~37x better.
+
+  `FeMgOSoc` uses exactly these inputs plus the SOC test, so the two dirs
+  share one baseline. Both carry an `[esm]` section: this is a slab with a
+  vacuum layer, and without ESM the energy zero moves by ~4.4 eV (silently,
+  before 2026-09-15 -- see Changes.txt).
 
 ## Settings to know (in `ctrlg.<sname>.toml`)
 

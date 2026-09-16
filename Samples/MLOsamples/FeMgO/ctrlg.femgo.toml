@@ -19,8 +19,8 @@ time    = [0, 0]
 # alat in a.u.; plat is the primitive cell in units of alat (rows = a1,a2,a3).
 # nbas/nspec are filled automatically from the [[site]]/[[spec]] arrays.
 [struc]
-nspec = 3
-nbas  = 9
+nspec = 4
+nbas  = 16
 alat  = 5.62682109104301  # lattice constant (a.u.)
 plat  = [[1.0, 0.0,         0.0],  # primitive vectors in units of alat
          [0.0, 1.0,         0.0],
@@ -65,6 +65,34 @@ pos  = [               0.5,                0.5, -0.726207005500609]
 atom = "O"
 pos  = [0.0, 0.0, 0.0]
 
+[[site]]   # ES1
+atom = "E"
+pos  = [0.0, 0.0, 0.648679]
+
+[[site]]   # ES2
+atom = "E"
+pos  = [0.5, 0.5, 1.321187]
+
+[[site]]   # ES3
+atom = "E"
+pos  = [0.0, 0.0, 1.993696]
+
+[[site]]   # ES4
+atom = "E"
+pos  = [0.5, 0.5, 2.666204]
+
+[[site]]   # ES5
+atom = "E"
+pos  = [0.0, 0.0, 3.338713]
+
+[[site]]   # ES6
+atom = "E"
+pos  = [0.5, 0.5, 4.011221]
+
+[[site]]   # ES7
+atom = "E"
+pos  = [0.0, 0.0, 4.683729]
+
 # === SPEC: per-species parameters ===
 # Touch mainly mmom (initial magnetic moment, NSPIN=2),
 # idu/uh/jh (LDA+U), and rsmh/eh (smoothed-Hankel basis).
@@ -107,6 +135,15 @@ eh2    = [-2.0, -2.0]
 lmxa   = 4
 nmcore = 1
 kmxa   = 5
+
+[[spec]]   # @4  empty sphere (vacuum region of the slab)
+atom   = "E"
+z      = 0
+r      = 1.9
+lmx    = 2
+lmxa   = 2
+rsmh   = [0.950, 0.950, 0.950]
+eh     = [-0.3, -0.3, -0.3]
 
 # === BZ: Brillouin-zone integration ===
 # nkabc = k-mesh divisions (1 entry -> isotropic, 3 entries -> per axis).
@@ -174,8 +211,7 @@ pnufix      = true  # fix B.C. of radial functions
 # nband_chi0/emax_chi0: bands/energy window for chi0.
 # Touch only if you know what you are doing -- defaults are sensible.
 [gw]
-mlo_method = 0
-mlo_emax = 5
+mlo_method = 4
 n1n2n3 = [4, 4, 1]  # BZ mesh for GW
 QpGcut_psi = 4.0  # |q+G| cutoff for eigenfunctions (a.u. unless unit_2pioa=true)
 QpGcut_cou = 3.0  # |q+G| cutoff for Coulomb / W
@@ -214,12 +250,19 @@ Worb = """
 1 Fe   1 2 3 4 5 6 7 8 9 11 12 13 14 15 16 
 2 Fe   1 2 3 4 5 6 7 8 9 11 12 13 14 15 16 
 3 Fe   1 2 3 4 5 6 7 8 9 11 12 13 14 15 16 
-4 Mg   1 2 3 4 5 6 7 8 9 11 12 13 14 15 16 
-5 Mg   1 2 3 4 5 6 7 8 9 11 12 13 14 15 16 
-6 Mg   1 2 3 4 5 6 7 8 9 11 12 13 14 15 16 
-7 O    2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 
-8 O    2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 
-9 O    2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 
+4 Mg   1 2 3 4 11 12 13 14 15 16 
+5 Mg   1 2 3 4 11 12 13 14 15 16 
+6 Mg   1 2 3 4 11 12 13 14 15 16 
+7 O    2 3 4 10 11 12 13 14 15 16 
+8 O    2 3 4 10 11 12 13 14 15 16 
+9 O    2 3 4 10 11 12 13 14 15 16 
+10 E    1 
+11 E    1 
+12 E    1 
+13 E    1 
+14 E    1 
+15 E    1 
+16 E    1 
 """
 
 QforEPS = """
