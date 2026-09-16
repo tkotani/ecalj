@@ -1,3 +1,31 @@
+2026-09-16 (2)
+  kBT (tetrakbt / t_sigmakbt) の実装をレビュー。骨格は正しいが 3 点ある。未修正。
+  詳細は ecaljdoc の manual/kBT.md の 7 節。
+    - 恒等式は厳密。lindtet6_kbt の method B' は int dE (-f'(E)) theta(E-ea)theta(eb-E)
+      = f(ea)-f(eb) を k 積分の内側で使っており、E 積分と k 積分が交換するので厳密。
+      分子は Adler-Wiser の f_a - f_b (f_a(1-f_b) ではない) で、応答関数として正しい。
+      ゲート (tetwt5.f90:651)、node zero-skip (:667)、EFERMI_kbt の熱核畳み込み二分法
+      (main_heftet.f90:368) もそれぞれ確認して正しい。
+    - [精度] E 積分の gausq(NE=20,-6,6) の最内節点が |t|=0.459、つまり E_F の
+      +-0.92 kBT の内側を一切標本化していない。テトラヘドロン内のバンド幅が kBT 以下
+      (平坦バンド・バンド端・van Hove) だと占有因子が最大 0.17 ずれる。NE を増やしても
+      1/N でしか落ちない。同じ 20 点で [-6,-1,0,1,6] の 4 区間 x GL5 にすると最悪誤差が
+      1.7e-1 -> 2.9e-2 と 6 倍良くなる (本筋は角エネルギーで区間を切ること)。
+    - [不整合] Sigma 側で sig_fd を on にしても、状態範囲の窓は ddw*esmr (ddw=10) のまま
+      (m_sxcf_sc.f90:457-458, m_sxcf_sc_count.f90:158,262-263)。さらに sxcf_scz_count は
+      sigmakbt_setup より前に呼ばれるので窓の中心が T=0 の EFERMI、重みの中心が
+      EFERMI_kbt になる。既定値 (2000K, esmr=0.01) では切り捨て 3.7e-4 で無害だが、
+      5000K で 4%、esmr=0.002 で 17% と警告なしに悪化する。
+      直すなら窓を max(ddw*esmr, 12*sig_kbt) にし、sigmakbt_setup を count の前に移す。
+    - [範囲] Bose 因子 n_B(omega) は入っていない。T=0 の等高線 (虚軸積分 + 実軸の極補正)
+      をそのまま残して占有数だけ FD にしたもの。「電子温度を入れた GW」であって
+      「有限温度 GW」ではない。QSGW 安定化の正則化としては筋が通る。
+    - [latent] m_sxcf_sc.f90:237 の sxs_ekc(is1+nctot) は sxs_ekc(is1) のはず。
+      2024-07-25 の 245ef9f3f (nvfortran 24.1 回避) での書き換えミス。元は ekc(it)。
+      現状 mode 1/2 は nctot=0、mode 3 は else 分岐に入らないので実害なし。
+      main_hsfp0.sc.f90:166 の if(sig_fd) ef = ef_kbt が ixc==3 (CoreEx) にも効いて
+      LOWESTEVAL-1d-3 を上書きするのも同様に今は無害だが fragile。
+
 2026-09-16
   Samples/kBT/ を新設。有限温度 QSGW (tetrakbt + t_sigmakbt) の LiTi2O4 サンプル。
     計算が重い (GW 11 反復) ので testecalj のターゲットにはせず、入力と結果だけを置く。
