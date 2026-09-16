@@ -22,6 +22,7 @@ contains
 #endif
   end subroutine
   subroutine zhev_tk4(n,h,s,nmx,nev, e,z, epsovl)
+    use m_lgunit,only: stdo
 #ifdef __GPU
     use m_gpu, only: use_gpu
 #endif
@@ -183,8 +184,17 @@ contains
     allocate(work(lwork),rwork(7*nm),iwork(5*nm),znm(nm,max(1,nev)))
     call zheevx(jobz,'I','U',nm,hh,nm,vldummy,vudummy,1,nev,abstol,nevout,e,znm,nm,work,lwork,rwork,iwork,ifail,ier)
     lworksave= WORK(1)
+    ! ier first: a LAPACK failure also leaves nevout /= nev, so checking the
+    ! count first reports 'nev /=nevout' for what is really a zheevx error and
+    ! sends you looking in the wrong place (it cost us a long detour on GdCo5,
+    ! where the real cause was a NaN Hamiltonian upstream). ier>0 from zheevx
+    ! means the iteration did not converge -- usually NaN/Inf in h.
+    if(ier/=0) then
+       write(stdo,"(' zhev_tk4: zheevx failed. ier=',i0,'  nm=',i0,'  nev=',i0,'  nevout=',i0)") ier,nm,nev,nevout
+       if(any(hh/=hh)) write(stdo,"(a)")' zhev_tk4: the Hamiltonian contains NaN -- the fault is upstream of zhev.'
+       call rx('zhev_tk4: zheevx for hh cause error.')
+    endif
     call rxx(nev/=nevout,'zhev_tk4: nev /=nevout something wrong. ')
-    call rxx(ier.ne.0, 'zhev_tk4: zheev for hh cause error.')
     deallocate(work,iwork,rwork)
     z=1d99
     call zgemm('N','N',n, min(nmx,nm),nm,(1d0,0d0),zz,n,znm,nm,(0d0,0d0),z,n)
@@ -223,6 +233,7 @@ contains
     call tcx('zhev_tk4')
   end subroutine zhev_tk4
   subroutine zhev_tk2(n,h,s,nmx,nev, e,z)
+    use m_lgunit,only: stdo
     !!== Eigenvalues and/or some eigenvectors of a Hermitian matrix (weighted for first nlmto basis).==
     !! ----------------------------------------------------------------
     !! Inputs:
@@ -271,8 +282,15 @@ contains
     call zhegvx(1,jobz,'I','U',n,h,n,s,n,vldummy,vudummy,1,nev,abstol,nevx,e,z,n,work,lwork,rwork,iwork,ifail,ier)
     lworksave= WORK(1)  !this is optimum lwork
     !      print *,'nev nevx n=',nev,nevx,n
+    ! ier first -- see the note in zhev_tk4. For zhegvx, ier>n additionally
+    ! means the overlap matrix is not positive definite.
+    if(ier/=0) then
+       write(stdo,"(' zhev_tk2: zhegvx failed. ier=',i0,'  n=',i0,'  nev=',i0,'  nevx=',i0)") ier,n,nev,nevx
+       if(ier>n) write(stdo,"(a)")' zhev_tk2: the overlap matrix is not positive definite.'
+       if(any(h/=h)) write(stdo,"(a)")' zhev_tk2: the Hamiltonian contains NaN -- the fault is upstream of zhev.'
+       call rx('zhev_tk2: zhegvx cannot find all eigen.')
+    endif
     call rxx(nev/=nevx,'zhev_tk2: nev /=nevx something wrong. ')
-    call rxx(ier.ne.0, 'zhev_tk2: zhegvx cannot find all eigen.')
     deallocate(work,iwork,rwork)
     call tcx('zhev_tk2')
   end subroutine zhev_tk2
