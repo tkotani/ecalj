@@ -113,7 +113,14 @@ contains
           if(master_mpi) write(stdo,*)
           if(master_mpi) write(stdo,"(a)")trim("--- BNDFP:  begin iteration "//trim(i2char(iter))//" of "//trim(i2char(maxit)))
           call bndfp(iter,llmfgw,plbnd) !Main. Band cal. Get total energies ham_ehf and ham_ehk
-          if(nlibu>0.AND.lrout>0)call m_ldau_vorbset(ham_ehk, dmatu)!Set new vorb for dmat by given bndfp (mkpot)
+          ! --quit=band returns from bndfp right after the band step, so dmatu
+          ! is never accumulated. Feeding that to m_ldau_vorbset poisons vorb
+          ! AND overwrites dmats.<sname> with NaN -- i.e. it destroys a user
+          ! INPUT file, and the next lmf --band then reads NaN and builds a NaN
+          ! Hamiltonian (seen on GdCo5: job_band stage 1 broke stage 2). The rst
+          ! write just below is already skipped for the same reason; do the same.
+          if(nlibu>0.AND.lrout>0 .AND. (.NOT.(trim(c2_quit)=='band'))) &
+               call m_ldau_vorbset(ham_ehk, dmatu)!Set new vorb for dmat by given bndfp (mkpot)
           !    plot density --density are in locpot.f90(rho1mt and rho2mt) and mkpot.f90(smooth part).
           if(master_mpi.AND.(.NOT.(trim(c2_quit) == 'band'))) then
              if(lrout>0) k=iors(iter, 'write') ! Write restart file (skip if --quit=band) ---
