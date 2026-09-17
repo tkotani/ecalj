@@ -270,13 +270,15 @@ contains
       call fill3in(n,bz_nabcin) !filled to the end if n<3
       ! [mlo] mlo_nkabc: the k mesh on which lmf --writeham --mlo dumps the PMT
       ! Hamiltonian that the MLO is built on. Only that pass uses it; the SCF and
-      ! everything else keep [bz] nkabc. Absent -> same mesh as [bz] nkabc.
+      ! everything else keep [bz] nkabc. No default: the MLO mesh is a statement
+      ! of what the model is built on, so it has to be written (2026-09-17).
       if (c0_writeham .and. c0_mlo) then
          call rval2('MLO_MLO_NKABC', rv=rv, nout=n)
-         if (n > 0 .and. nint(rv(1)) > 0) then
-            bz_nabcin(1:n) = nint(rv(1:n)); call fill3in(n, bz_nabcin)
-            if (master_mpi) write(stdo,ftox) ' lmfinit: [mlo] mlo_nkabc =', bz_nabcin, ' used for the MLO Hamiltonian (--writeham --mlo)'
-         endif
+         if (n == 0 .or. nint(rv(1)) <= 0) call rx('lmf --writeham --mlo needs  mlo_nkabc = [n1, n2, n3]  in the [mlo]'// &
+              ' section of ctrlg.'//trim(sname)//'.toml (the k mesh the MLO Hamiltonian is built on;'// &
+              ' [bz] nkabc is NOT used as a default).')
+         bz_nabcin(1:n) = nint(rv(1:n)); call fill3in(n, bz_nabcin)
+         if (master_mpi) write(stdo,ftox) ' lmfinit: [mlo] mlo_nkabc =', bz_nabcin, ' used for the MLO Hamiltonian (--writeham --mlo)'
       endif
       call rval2('BZ_BZJOB',rv=rv, nout=n); bz_lshft(1:n)=nint(rv)! '=0 centers BZ mesh at origin, =1 centers off origin' 
       call fill3in(n,bz_lshft)

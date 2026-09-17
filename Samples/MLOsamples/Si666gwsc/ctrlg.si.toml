@@ -124,11 +124,10 @@ pwemax = 3.0  # APW cutoff (Ry)
 # mlo_method / mlo_delta / mlo_w shape the weight theta; mlo_lm lists the
 # lm channels per atom (1=s, 2-4=p, 5-9=d, 10-16=f; partial shells allowed).
 [mlo]
-mlo_method = 4    # theta = sigma((eps - ecut_j)/mlo_w),  ecut_j = max(CBM + mlo_delta, eps^MTO_j)
-mlo_delta  = 2.0  # (eV) default. How far above the band edge (E_F in metals) the model must be accurate
-mlo_w      = 2.0  # (eV) default for mlo_method=4. Width of the fall-off above that floor
-# ----------------------------------------------------------------
-# mlo_nkabc = [6, 6, 6]   # k mesh for the MLO Hamiltonian only (lmf --writeham --mlo); absent = [bz] nkabc
+mlo_method = 4          # theta = sigma((eps - ecut_j)/mlo_w),  ecut_j = max(CBM + mlo_delta, eps^MTO_j)
+mlo_delta  = 2.0        # (eV) default. How far above the band edge (E_F in metals) the model must be accurate
+mlo_w      = 2.0        # (eV) default for mlo_method=4. Width of the fall-off above that floor
+mlo_nkabc  = [6, 6, 6]  # k mesh the MLO Hamiltonian is built on (lmf --writeham --mlo); required
 # ----------------------------------------------------------------
 mlo_lm = """
   1 Si   1 2 3 4 5 6 7 8 9

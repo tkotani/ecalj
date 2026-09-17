@@ -229,7 +229,7 @@ KEY_INLINE = {
         'wan_conv_end':  "# Wannier final convergence threshold",
     },
     'mlo': {
-        'mlo_nkabc':   "# k mesh for the MLO Hamiltonian (lmf --writeham --mlo); absent = [bz] nkabc",
+        'mlo_nkabc':   "# k mesh the MLO Hamiltonian is built on (lmf --writeham --mlo); required",
     },
     'blocks': {
         'QforEPS':     "# q-list for eps(omega) head",

@@ -132,7 +132,31 @@ contains
     write(ifi,'(a)') 'mlo_method = 4      # 4 = the sigma weight above (the only one in use)'
     write(ifi,'(a)') 'mlo_delta  = 2.0    # (eV) accuracy floor above the band edge'
     write(ifi,'(a)') 'mlo_w      = 2.0    # (eV) fall-off width; raise if the residual is too large'
-    write(ifi,'(a)') '# mlo_nkabc = [12, 12, 12]   # k mesh for the MLO Hamiltonian (lmf --writeham --mlo); absent = [bz] nkabc'
+    block ! mlo_nkabc is mandatory for lmf --writeham --mlo; start from the SCF mesh [bz] nkabc
+      use tomlf, only: toml_table, toml_array, toml_load, toml_error, get_value, len
+      type(toml_table), allocatable :: root
+      type(toml_table), pointer :: bz
+      type(toml_array), pointer :: arr
+      type(toml_error), allocatable :: terr
+      integer :: nk(3), i, nn
+      nk = 8
+      call toml_load(root, ctrlg, error=terr)
+      if (.not. allocated(terr)) then
+         call get_value(root, 'bz', bz, requested=.false.)
+         if (associated(bz)) then
+            call get_value(bz, 'nkabc', arr, requested=.false.)
+            if (associated(arr)) then
+               nn = len(arr)
+               do i = 1, min(3, nn)
+                  call get_value(arr, i, nk(i))
+               enddo
+               if (nn == 1) nk(2:3) = nk(1)
+            endif
+         endif
+      endif
+      write(ifi,'(a,3(i0,a))') 'mlo_nkabc  = [', nk(1), ', ', nk(2), ', ', nk(3), &
+           ']   # k mesh the MLO Hamiltonian is built on (lmf --writeham --mlo). Required; copied from [bz] nkabc'
+    endblock
     write(ifi,'(a)')
     write(ifi,'(a)') '# mlo_lm: which lm channels of which atom make the model. One row per atom:'
     write(ifi,'(a)') '#   <iatom> <label> <lm1> <lm2> ...   (a row starting with ! is ignored)'

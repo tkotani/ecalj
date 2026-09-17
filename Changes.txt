@@ -1,7 +1,9 @@
 2026-09-17 (17)
-  [mlo] mlo_nkabc = [n1,n2,n3]: MLO を作る k メッシュを [bz] nkabc から切り離す。
-  lmf --writeham --mlo のパスだけ bz_nabcin をこれで置き換える (m_lmfinit)。
-  未指定なら従来どおり [bz] nkabc。gwinit のテンプレに見え消しで、ecaljdoc mlo.md。
+  [mlo] mlo_nkabc = [n1,n2,n3]: MLO を作る k メッシュ。lmf --writeham --mlo のパスだけ
+  bz_nabcin をこれで置き換える (m_lmfinit)。**必須・既定なし**: 無ければ lmf が abort して
+  書き方を案内する ([bz] nkabc を黙って流用しない。模型を何の上に作ったかは入力に書く)。
+  gwinit は [bz] nkabc と同じ値を実値で書く。MLOsamples 18 件は [bz] nkabc と同じ値を
+  明記 (参照結果は不変、18/18 PASSED)。ecaljdoc mlo.md / lmf.md。
     Cu: [bz] 10^3 + mlo_nkabc 16^3 の band_MLO は nkabc を 16^3 にした run と bit 一致。
   Samples/MLOsamples/BackUp_notes/mlo_low_cu_20260917.md: Cu の d 模型で mlo_low /
     両側窓 / mlo_delta=-1.5 / mlo_w 走査 / k メッシュ走査を図付きで記録。結論: s-d 交差の
