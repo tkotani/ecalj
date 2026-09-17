@@ -162,15 +162,6 @@ mlo_lm = """
 1 Fe   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
 """
 
-# === PRODUCT_BASIS ===
-# pb_tolerance / pb_lcutmx : ctrlg.<sname>.toml (cut-off tunables).
-# nlx / valence / core     : PB.<sname>.toml (per-spec tables).
-[product_basis]
-pb_tolerance = [0.001]  # drop linearly-dep products below this (default 1e-3)
-pb_lcutmx    = [4]      # max l-cutoff per atom (4 for d-valence, 6 for f)
-
-# Per-atom product-basis tables (nlx / valence / core) live in PB.<sname>.toml
-
 # === BLOCKS: raw multi-line blocks with no better home (QPNT, QforEPSL, hrotr) ===
 [blocks]
 QPNT = """
@@ -180,3 +171,12 @@ QPNT = """
           53
 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53
 """
+
+# === PRODUCT_BASIS ===
+# pb_tolerance / pb_lcutmx : ctrlg.<sname>.toml (cut-off tunables).
+# nlx / valence / core     : PB.<sname>.toml (per-spec tables).
+[product_basis]
+pb_tolerance = [0.001]  # drop linearly-dep products below this (default 1e-3)
+pb_lcutmx    = [4]      # max l-cutoff per atom (4 for d-valence, 6 for f)
+
+# Per-atom product-basis tables (nlx / valence / core) live in PB.<sname>.toml

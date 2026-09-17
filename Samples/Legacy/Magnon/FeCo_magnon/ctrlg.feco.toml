@@ -178,6 +178,12 @@ mlo_lm = """
 2 Co   1 2 3 4 5 6 7 8 9 
 """
 
+# === BLOCKS: raw multi-line blocks with no better home (QPNT, QforEPSL, hrotr) ===
+[blocks]
+QforEPSL = """
+0d0    0d0    0d0      0.5d0  0d0    0d0      40 ! Gamma to X
+"""
+
 # === PRODUCT_BASIS ===
 # pb_tolerance / pb_lcutmx : ctrlg.<sname>.toml (cut-off tunables).
 # nlx / valence / core     : PB.<sname>.toml (per-spec tables).
@@ -186,9 +192,3 @@ pb_tolerance = [0.001]  # drop linearly-dep products below this (default 1e-3)
 pb_lcutmx    = [4, 4]   # max l-cutoff per atom (4 for d-valence, 6 for f)
 
 # Per-atom product-basis tables (nlx / valence / core) live in PB.<sname>.toml
-
-# === BLOCKS: raw multi-line blocks with no better home (QPNT, QforEPSL, hrotr) ===
-[blocks]
-QforEPSL = """
-0d0    0d0    0d0      0.5d0  0d0    0d0      40 ! Gamma to X
-"""

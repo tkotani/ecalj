@@ -23,7 +23,8 @@
     見出しコメント (# === PRODUCT_BASIS が [gw] の中に、など) を除去。整形前後で TOML の
     解析結果が同一であることを assert し、冪等。Legacy2toml.py が最後に適用する。
     toml_comments.py に [mlo] の見出しを追加。gwinit のテンプレもブロック間に空行。
-    tracked ctrlg 105 件に適用。
+    tracked ctrlg 105 件に適用。セクション順は [gw] [mlo] [blocks] [product_basis] で
+    [product_basis] を末尾に (gwinit / gwinput2toml / Legacy2toml も同順で書く)。
   テスト: MLOsamples 18 件 (整形前) ALL PASSED、整形後に Cu・FeMgO・si_gwsc・EPS_Cu、
     ni_crpa・srvo3_crpa ALL PASSED。testecalj --all は未実施。
 

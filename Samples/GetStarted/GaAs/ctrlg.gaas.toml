@@ -130,6 +130,7 @@ oveps       = 1.0e-8  # overlap-eps for (H-eO)z=0; 1d-8 default
 # hf=true: Hartree-Fock-style non-self-consistent diag (debugging).
 [options]
 hf = false
+
 # === GW: driver (used by lmf --jobgw=N and gwsc) ===
 # nband_chi0/emax_chi0: bands/energy window for chi0.
 # Touch only if you know what you are doing -- defaults are sensible.

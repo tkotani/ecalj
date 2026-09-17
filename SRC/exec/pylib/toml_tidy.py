@@ -6,7 +6,8 @@ written by ctrlgenToml.py ([struc], [[site]], [[spec]], [bz], [iter], [ham],
 
 What it does, per section:
   - aligns   key = value   # comment   into columns (like [esm])
-  - one blank line before every section header
+  - one blank line before every section header; order [gw] [mlo] [blocks]
+    [product_basis] ([product_basis] last, whatever order the file had)
   - one blank line before and after every multi-line \"\"\" block
   - drops header comments that got orphaned by earlier key moves
     ("# === PRODUCT_BASIS ===" outside [product_basis], "# === BLOCKS: ..."
@@ -140,35 +141,56 @@ def _emit(items):
     return lines, trailer
 
 
+ORDER = ("gw", "mlo", "blocks", "product_basis")   # [product_basis] goes last
+
+
 def tidy_gw_sections(text: str) -> str:
     secs = _split_sections(text)
-    out = []
-    pending_hdr = []          # '# === X ===' lines to glue above the next [section]
+    # A '# === X ===' comment run at the END of one section is the header of
+    # the NEXT section: move it there so sections can be reordered freely.
+    moved = []
     for name, lines in secs:
+        if moved and moved[-1][0] in GW_SECTIONS + (None,):
+            pass
+        moved.append([name, lines])
+    for i in range(len(moved) - 1):
+        _, lines = moved[i]
+        k = len(lines)
+        while k > 0 and lines[k-1].strip() == "":
+            k -= 1
+        j = k
+        while j > 0 and lines[j-1].lstrip().startswith("#"):
+            j -= 1
+        run = lines[j:k]
+        if run and any(l.lstrip().startswith("# ===") for l in run):
+            moved[i][1] = lines[:j]
+            moved[i+1][1] = run + moved[i+1][1]        # header run now precedes '[section]'
+    # split into the leading non-GW part and the GW-side sections
+    head = []; gw = {}
+    for name, lines in moved:
         if name in GW_SECTIONS:
-            items = _items(lines)
-            items = _drop_orphans(items, name)
-            items = _align_keys(items)
-            body, trailer = _emit(items)
-            # a '# ===' header run directly above stays glued to this [section]
-            k = len(out)
-            while k > 0 and out[k-1] == "":
-                k -= 1
-            if k > 0 and out[k-1].lstrip().startswith("#") and any(l.lstrip().startswith("# ===") for l in out[max(0,k-4):k]):
-                del out[k:]
-            elif out and out[-1] != "":
-                out.append("")
-            if pending_hdr:
-                out.extend(pending_hdr); pending_hdr = []
-            out.extend(body)
-            out.append("")
-            pending_hdr = trailer
+            gw[name] = lines
         else:
-            if pending_hdr:
-                out.extend(pending_hdr); pending_hdr = []
-            out.extend(lines)
-    if pending_hdr:
-        out.extend(pending_hdr)
+            head.extend(lines)
+    while head and head[-1].strip() == "":
+        head.pop()
+    out = list(head)
+    for name in ORDER:
+        if name not in gw:
+            continue
+        lines = gw[name]
+        # header comment run (moved above) comes first, then the items
+        h = 0
+        while h < len(lines) and lines[h].lstrip().startswith("#"):
+            h += 1
+        hdr_run, body_lines = lines[:h], lines[h:]
+        items = _items(body_lines)
+        items = _drop_orphans(items, name)
+        items = _align_keys(items)
+        body, trailer = _emit(items)       # trailer: stray header run, discard (re-added by rule above)
+        out.append("")
+        out.extend(hdr_run)
+        out.extend(body)
     res = "\n".join(out)
     res = re.sub(r"\n{3,}", "\n\n", res)
     return res.rstrip("\n") + "\n"

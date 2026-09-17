@@ -3,7 +3,7 @@
 !         place -- typically created by ctrlgenToml.py or Legacy2toml.py).
 !  Output:
 !    ctrlg.<sname>.toml   (existing ctrl sections preserved; any old
-!                          [gw]/[mlo]/[product_basis]/[blocks] stripped and
+!                          [gw]/[mlo]/[blocks]/[product_basis] stripped and
 !                          replaced with freshly-generated ones)
 !    PB.<sname>.toml              (per-atom product basis tables: nlx/valence/core)
 !
@@ -55,8 +55,8 @@ contains
 
     !! ===== Build ctrlg.<sname>.toml.partial =====
     !!   step 1: copy ctrl sections from existing ctrlg.<sname>.toml,
-    !!           dropping any prior [gw]/[mlo]/[product_basis]/[blocks] sections.
-    !!   step 2: append fresh [gw]/[mlo]/[product_basis]/[blocks] sections.
+    !!           dropping any prior [gw]/[mlo]/[blocks]/[product_basis] sections.
+    !!   step 2: append fresh [gw]/[mlo]/[blocks]/[product_basis] sections.
     call copy_ctrl_sections(ctrlg, ctrlg_partial, ifi)
 
     !! ----- [gw] -----
@@ -139,6 +139,12 @@ contains
     write(ifi,'(a)') '"""'
     write(ifi,'(a)')
 
+    !! ----- [blocks] (raw multi-line blocks that have no better home) -----
+    write(ifi,'(a)') '[blocks]'
+    write(ifi,'(a)') '# QforEPSL = """'
+    write(ifi,'(a)') '#  0 0 0   1 0 0  20'
+    write(ifi,'(a)') '# """'
+    write(ifi,'(a)')
     !! ----- [product_basis] (slim: only the user-tuned scalars) -----
     write(ifi,'(a)') '[product_basis]'
     write(ifi,'(a)') '# Tolerance to drop linearly-dependent products. Larger gives smaller PB.'
@@ -157,12 +163,6 @@ contains
     write(ifi,'(a)') '# Per-atom product-basis tables (nlx / valence / core) live in PB.<sname>.toml'
     write(ifi,'(a)')
 
-    !! ----- [blocks] (raw multi-line blocks that have no better home) -----
-    write(ifi,'(a)') '[blocks]'
-    write(ifi,'(a)') '# QforEPSL = """'
-    write(ifi,'(a)') '#  0 0 0   1 0 0  20'
-    write(ifi,'(a)') '# """'
-    write(ifi,'(a)')
 
     close(ifi)
 
@@ -258,13 +258,13 @@ contains
     close(ifpb)
     call execute_command_line('mv '//pb_partial//' PB.'//trim(sname)//'.toml', wait=.true.)
 
-    stop ' OK! gwinit upserted [gw]/[mlo]/[product_basis]/[blocks] into '//ctrlg// &
+    stop ' OK! gwinit upserted [gw]/[mlo]/[blocks]/[product_basis] into '//ctrlg// &
          ' and wrote PB.'//trim(sname)//'.toml.'
   end subroutine gwinit_v2
 
 
   !> Copy the ctrl sections of a ctrlg.<sname>.toml into a fresh file,
-  !  dropping any pre-existing [gw], [mlo], [product_basis] and [blocks]
+  !  dropping any pre-existing [gw], [mlo], [blocks] and [product_basis]
   !  sections so we can rewrite them. The fresh file is left open at
   !  the unit number `ifi_out`, positioned at end-of-file ready for
   !  appending the new GW sections.

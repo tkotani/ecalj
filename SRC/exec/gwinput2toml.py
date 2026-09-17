@@ -298,6 +298,14 @@ def emit_toml(parsed: dict) -> str:
                 out.append('"""')
             out.append("")
 
+    if parsed["blocks"]:
+        out.append("[blocks]")
+        for tag, body in parsed["blocks"].items():
+            out.append(f'{tag} = """')
+            out.append(body)
+            out.append('"""')
+            out.append("")
+
     pb = parsed["product_basis"]
     if pb:
         out.append("[product_basis]")
@@ -326,14 +334,6 @@ def emit_toml(parsed: dict) -> str:
             for row in pb["core"]:
                 out.append(f"  {emit_value(row)},")
             out.append("]")
-            out.append("")
-
-    if parsed["blocks"]:
-        out.append("[blocks]")
-        for tag, body in parsed["blocks"].items():
-            out.append(f'{tag} = """')
-            out.append(body)
-            out.append('"""')
             out.append("")
 
     return "\n".join(out)

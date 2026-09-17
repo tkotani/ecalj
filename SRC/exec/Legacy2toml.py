@@ -389,7 +389,7 @@ def main():
     if not gwinput.exists():
         banner(f'no GWinput in cwd; ctrlg.{sname}.toml emitted without GW sections')
         return
-    banner(f'GWinput -> append [gw]/[mlo]/[product_basis]/[blocks] to ctrlg.{sname}.toml + PB.<sname>.toml')
+    banner(f'GWinput -> append [gw]/[mlo]/[blocks]/[product_basis] to ctrlg.{sname}.toml + PB.<sname>.toml')
     # Run gwinput2toml.py to get the legacy GWinput as one intermediate TOML
     tmp_gwinput_toml = Path('.l2t_gwinput.tmp')
     rc = subprocess.run(
@@ -423,7 +423,7 @@ def main():
     # (we'll write pb_tolerance/pb_lcutmx instead), and keep [blocks] as-is.
     gw_section = re.search(r'^\[gw\].*?(?=^\[)', text, re.DOTALL | re.MULTILINE)
     mlo_section = re.search(r'^\[mlo\].*?(?=^\[)', text, re.DOTALL | re.MULTILINE)
-    blocks_section = re.search(r'^\[blocks\].*', text, re.DOTALL | re.MULTILINE)
+    blocks_section = re.search(r'^\[blocks\].*?(?=^\[|\Z)', text, re.DOTALL | re.MULTILINE)
 
     gw_text = gw_section.group(0).rstrip() if gw_section else '[gw]\n'
     mlo_text = mlo_section.group(0).rstrip() + '\n' if mlo_section else ''
@@ -447,9 +447,11 @@ def main():
         if mlo_text:
             f.write('\n')
             f.write(mlo_text)
-        f.write(pb_text)
+        if blocks_text:
+            f.write('\n')
+            f.write(blocks_text)
         f.write('\n')
-        f.write(blocks_text)
+        f.write(pb_text)
 
     # Build PB.<sname>.toml
     pb_path = f'PB.{sname}.toml'
