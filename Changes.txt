@@ -1,3 +1,18 @@
+2026-09-17 (15)
+  履歴クリーンアップ後 (41465583b, dev/main に push 済み) の 4 環境ゲート、全部通過:
+    local  gfortran-14        : testecalj --all 25/25, MLOsamples 18/18
+    kt1    nvfortran GPU+MP   : 25/25 (366 s), 18/18, kBT Fe one-shot (--gpu --mp) 参照と
+                                Σ-vxc max 0.025 eV (TF32 分; gfortran では 0.001 eV),
+                                GetStarted/GaAs 一気通貫 gap 1.5571 eV
+    mic    ifx 2026.0.0       : 25/25 (230 s), 18/18
+    ucgw   ifx 2024.2 (ucs51) : 25/25 (15 分, -np 32), 18/18
+  mic の FeMgO は 6 月から残っていた untracked の esm_input.dat (*.dat は gitignore なので
+    git clean でも残る) を新 lmf が仕様どおり abort した。消して再実行。古い作業ツリーでは
+    同じことが起きうる: ctrlg_absorb.py <sname> を一度通す。
+  ucgw は git fetch が index-pack --fix-thin で固まる (NFS 上の肥大 repo)。self-contained
+    pack (git pack-objects --revs --stdout, --thin なし) を unpack-objects で入れた。
+  push 前後の差分 bundle: 9.8 GB -> 132 MB。
+
 2026-09-17 (14)
   未 push の履歴 (08c1fd9f..main, 181 コミット) を git filter-repo で書き換え、8 月の Legacy
   TOML 化と 9 月の MLO 整備の git add -A が巻き込んだ計算の中間出力 26.6 GB (10,870 パス、
