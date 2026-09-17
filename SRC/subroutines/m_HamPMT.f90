@@ -50,7 +50,7 @@ contains
       ibold=-999
       ioff=0
       do i = 1,ldim
-         if(l_table(i)/= lold) then !reset m of lm
+         if(l_table(i)/= lold .or. ib_table(i)/=ibold) then !reset m of lm on a new (atom,l) shell
             m=-l_table(i)
             lold=l_table(i)
          else
@@ -118,7 +118,7 @@ contains
         ! string-trim+concat statement; trim() alone or // alone do NOT work.
         ! The first if (mlomethod scalar) is unaffected.
         use m_nvfortran,only : findloc
-        integer::lmindex(16,nbas),lm,iw,ibw,nlmw
+        integer::lmindex(16,nbas),lm,iw,ibw,nlmw,ibsel
         character(256):: aaa
         call gwinput_init()
         if (gwinput_loaded) then
@@ -140,6 +140,7 @@ contains
         endif
         nn=0
         lold=-999
+        ibsel=-999
 !        nskip=0
         do i=1,ldim  !Only MTOs for EH 
           if( k_table(i)==2) cycle  !skip 2nd
@@ -148,8 +149,16 @@ contains
             cycle  !skip local orbita l! we assume nskip is for local orbtail to skip 
           endif  
           ib=ib_table(i)
-          if(lold/=l_table(i)) then
+          ! m runs -l..l over the 2l+1 consecutive entries of one (atom, l) shell.
+          ! Reset it whenever the shell changes -- by l, or by atom (two s-only
+          ! atoms in a row would otherwise keep counting). Until 2026-09-17 lold
+          ! was never updated here, so m stayed at -l and lm at l**2+1: Worb then
+          ! selected a whole shell if its first lm (1/2/5/10) was listed and
+          ! nothing otherwise, and could not pick a partial shell (t2g, eg, ...).
+          if(lold/=l_table(i) .or. ibsel/=ib) then
             m= -l_table(i)
+            lold=l_table(i)
+            ibsel=ib
           else
             m=m+1
           endif

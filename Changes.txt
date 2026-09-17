@@ -1,3 +1,22 @@
+2026-09-17 (2)
+  [bugfix] MLO の Worb 選別が lm 単位で効いていなかった (m_HamPMT.f90)。
+    選別ループで lold を更新していなかったため m が常に -l、lm が常に l**2+1 になり、
+    Worb は「殻の先頭 lm (s=1, p=2, d=5, f=10) が書いてあれば殻全体、無ければ殻全体なし」
+    としか働かず、それ以外の番号は無視されていた。部分殻 (t2g だけ等) は選べなかった。
+    修正: (原子, l) が変わるたびに m をリセットし lold/ibsel を更新。表示用ループも
+    原子の切り替わりでリセットするよう揃えた (s だけの原子が連続すると m がずれる)。
+    確認: Cu の Worb を 5 6 8 (dxy,dyz,dxz) にして ndimMTO=3。
+    MLOsamples 18 件 322 checks ALL PASSED (全部完全殻で先頭ありなので参照不変)。
+  FeMgO / FeMgOSoc の Worb から Fe/Mg の 11..16、O の 10..16 を削除。
+    Fe と Mg の基底には f の MTO がある (rsmh 4 本) が、Worb に 10 が無かったので
+    上のバグで f 殻がまるごと落ちており、模型は 3x9+3x4+3x3+7x4=76 本だった。
+    削除前後でバンドは max deviation 0.0。修正後に旧 Worb のままだと f が 6 本ずつ
+    入って別の模型になるため、この掃除は修正と一体。
+    経緯: 最初の 521610f82 が全原子に lm を 16 まで並べたテンプレートで、
+    後で Mg/O から d を削ったときに f の尻尾だけ残った。
+  Worb の番号は job_band が PROCAR に書く順 (s=1; p=2,3,4; d=5..9; f=10..16)。
+    ecaljdoc manual/mlo.md に表と注意を追加。
+
 2026-09-17
   TOML 化済みサンプルから GWinput を削除 (39 件)。
     Samples/{TestInstall,MLOsamples,EPS}/*/GWinput      34 件
