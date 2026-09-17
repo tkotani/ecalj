@@ -245,16 +245,18 @@ OpenACC の `!$acc` ディレクティブと構造が対応する。
 
 ### 新方式
 Fortran バイナリは以下のみを読む:
-- `ctrlg.<sname>.toml` — ctrl + GW driver sections + PB cut-offs の統合 TOML
-- `PB.toml` — per-atom product-basis tables (sname-free)
+- `ctrlg.<sname>.toml` — ctrl + GW driver sections ([gw] [mlo] [blocks]) + 末尾の
+  [product_basis] (cut-offs と per-atom tables nlx / valence / core) の統合 TOML
+- 旧 `PB.<sname>.toml` / `esm_input.dat` / `GWinput.toml` は読まない。前二者が残って
+  いれば abort → `ctrlg_absorb.py <sname>` で ctrlg に取り込む (2026-09-17)
 
 ### 生成
 ```bash
 # POSCAR から新規生成
-ctrlgenToml.py <sname>        # writes ctrlg.<sname>.toml + PB.toml
+ctrlgenToml.py <sname>        # writes ctrlg.<sname>.toml
 
 # 旧形式 (ctrl + GWinput) からの移行
-Legacy2toml.py <sname>        # writes ctrlg.<sname>.toml + PB.toml
+Legacy2toml.py <sname>        # writes ctrlg.<sname>.toml
 ```
 
 ### 旧 -v オーバーライドの新形式

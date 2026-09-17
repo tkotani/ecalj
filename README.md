@@ -39,16 +39,22 @@ New in the GW chain (commits 37e6fbc2..2a04e767; user guide: FiniteT_and_QPE_HOW
 
 ## 2026-05  Quick start (the new TOML flow)
 
-Fortran binaries (lmf, lmfa, lmchk, gwsc, hsfp0, ...) read only:
+Fortran binaries (lmf, lmfa, lmchk, gwsc, hsfp0, ...) read one file only:
 
-  - `ctrlg.<sname>.toml`  -- merged ctrl + GW driver sections + PB cut-offs
-  - `PB.<sname>.toml`     -- per-atom product-basis tables (GW path only)
+  - `ctrlg.<sname>.toml`  -- ctrl + GW driver sections ([gw] [mlo] [blocks]);
+                             [product_basis] closes the file with the cut-offs
+                             and the per-atom tables nlx / valence / core
+                             (GW path only, written by gwinit, not hand-edited)
+
+  Leftover side files from older layouts (`PB.<sname>.toml`, `esm_input.dat`)
+  are not read: the binaries abort and name `ctrlg_absorb.py <sname>`, which
+  folds them into ctrlg. `GWinput.toml` is dead and can be removed.
 
 ### Starting from scratch (POSCAR or hand-written ctrls)
 
     # 1. prepare ctrls.<sname>  (basic structure: atoms, lattice, ...)
     # 2. generate the TOML pair:
-    ctrlgenToml.py <sname>            # writes ctrlg.<sname>.toml + PB.<sname>.toml
+    ctrlgenToml.py <sname>            # writes ctrlg.<sname>.toml
     #    add --skipgw if you do not need GW (saves ~0.5 s)
     # 3. run as usual:
     lmfa <sname>
@@ -68,7 +74,7 @@ step is required.
 ### Migrating an old (pre 2026-05) directory
 
     cd <your-old-dir>                 # has ctrl.<sname> and GWinput
-    Legacy2toml.py <sname>            # writes ctrlg.<sname>.toml + PB.<sname>.toml
+    Legacy2toml.py <sname>            # writes ctrlg.<sname>.toml
     # legacy ctrl.<sname> / GWinput remain on disk but are no longer read.
     lmf <sname> ... # usual workflow
 

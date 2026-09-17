@@ -41,8 +41,8 @@ Sanity check in the output: hx0fp0/hgw stdout prints
 
 ## 2. gw_lmfh: one-shot GW (G0W0-style QPE) — modern flow
 
-`gw_lmfh` now uses the same TOML gate as gwsc (needs `ctrlg.<sname>.toml` +
-`PB.<sname>.toml` in cwd) and accepts GPU/MP options:
+`gw_lmfh` now uses the same TOML gate as gwsc (needs `ctrlg.<sname>.toml`
+in cwd) and accepts GPU/MP options:
 
     gw_lmfh <sname> -np 60                          # CPU
     gw_lmfh <sname> -np 60 -np2 2 --gpu             # FP64 GPU W (hvccfp0/hx0fp0_gpu)

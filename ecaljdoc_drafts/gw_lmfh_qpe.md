@@ -19,7 +19,7 @@ gw_lmfh <sname> -np N -np2 M --gpu               # FP64 GPU for hvccfp0/hx0fp0
 gw_lmfh <sname> -np N -np2 M --gpu --mp --fp32   # fast path (see below)
 ```
 
-Requires `ctrlg.<sname>.toml` + `PB.<sname>.toml` in the working directory
+Requires `ctrlg.<sname>.toml` in the working directory
 (same TOML gate as `gwsc`).
 
 | option | meaning |

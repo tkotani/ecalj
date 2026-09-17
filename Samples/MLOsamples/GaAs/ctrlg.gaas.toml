@@ -149,8 +149,9 @@ mlo_lm = """
 """
 
 # === PRODUCT_BASIS ===
-# pb_tolerance / pb_lcutmx : ctrlg.<sname>.toml (cut-off tunables).
-# nlx / valence / core     : PB.<sname>.toml (per-spec tables).
+# pb_tolerance / pb_lcutmx : the cut-offs you may tune.
+# nlx / valence / core     : per-atom tables, same meaning as the legacy
+#   <PRODUCT_BASIS> block; written by gwinit from [[spec]], normally left alone.
 [product_basis]
 pb_tolerance = [1e-3]  # drop linearly-dep products below this (default 1e-3)
 pb_lcutmx    = []      # max l-cutoff per atom (4 for d-valence, 6 for f)
