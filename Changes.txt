@@ -1,3 +1,16 @@
+2026-09-17 (3)
+  wan_* (Wannier / hmaxloc 用のキー) を Wannier を使わないサンプル 26 ファイルで
+  コメントアウト (見え消し)。値はそのまま残してある。
+    対象: MLOsamples (FeMgO, FeMgOSoc, FeCo, GaAsSoc), kBT/LiTi2O4 の 5 run, EPS 3 件,
+          BenchmarkTest 2 件, Legacy の Wannier を使わないもの
+    残す: TestInstall/ni_crpa, srvo3_crpa (cRPA は hmaxloc 経由で Wannier が要る)、
+          Legacy/Magnon/* (job_magnon が hmaxloc を呼ぶ)。
+          wan_out_emin/emax の既定値は 999/-999 の番兵なので、ここで消すと壊れる。
+    wan_* を読むのは m_GWinput と main_wannier_hmaxloc だけで MLO は読まない。
+    gwinit のテンプレは元から全 8 行コメント済み。見出しを
+    "Wannier (hmaxloc: cRPA, job_magnon). Not used by MLO." に直した。
+    GaAsSoc で ALL PASSED を確認 (toml の読み込みに問題なし)。
+
 2026-09-17 (2)
   [bugfix] MLO の Worb 選別が lm 単位で効いていなかった (m_HamPMT.f90)。
     選別ループで lold を更新していなかったため m が常に -l、lm が常に l**2+1 になり、

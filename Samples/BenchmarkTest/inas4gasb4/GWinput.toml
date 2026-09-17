@@ -19,15 +19,15 @@ keepEigen = ".false."
 zmel_batch_gb = 4
 QforEPSunita = true
 EMAXforGW = 5
-wan_out_emin = -1.05
-wan_out_emax = 2.4
-wan_tb_cut = 15
-wan_maxit_1st = 300
-wan_conv_1st = 1e-07
-wan_max_1st = 0.1
-wan_maxit_2nd = 1500
-wan_max_2nd = 0.3
-wan_conv_end = 1e-08
+# wan_out_emin = -1.05
+# wan_out_emax = 2.4
+# wan_tb_cut = 15
+# wan_maxit_1st = 300
+# wan_conv_1st = 1e-07
+# wan_max_1st = 0.1
+# wan_maxit_2nd = 1500
+# wan_max_2nd = 0.3
+# wan_conv_end = 1e-08
 
 [product_basis]
 tolerance = [0.001]

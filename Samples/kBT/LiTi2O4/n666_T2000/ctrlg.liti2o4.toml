@@ -215,15 +215,15 @@ tetrakbt = true    # finite-T tetrahedron (lindtet6_kbt, method B')
 t_tetrakbt = 2000.0  # 2000K
 t_sigmakbt = 2000.0  # Sigma-side FD finite-T = t_tetrakbt (2000K)
 KeepEigen = false
-wan_out_emin = -1.05  # (eV, rel. EFermi) Wannier outer window low
-wan_out_emax = 2.4  # (eV, rel. EFermi) Wannier outer window high
-wan_tb_cut = 15
-wan_maxit_1st = 300  # 1st-stage Wannier max iterations
-wan_conv_1st = 1e-07  # 1st-stage Wannier convergence threshold
-wan_max_1st = 0.1  # 1st-stage Wannier step size
-wan_maxit_2nd = 1500  # 2nd-stage Wannier max iterations
-wan_max_2nd = 0.3  # 2nd-stage Wannier step size
-wan_conv_end = 1e-08  # Wannier final convergence threshold
+# wan_out_emin = -1.05  # (eV, rel. EFermi) Wannier outer window low
+# wan_out_emax = 2.4  # (eV, rel. EFermi) Wannier outer window high
+# wan_tb_cut = 15
+# wan_maxit_1st = 300  # 1st-stage Wannier max iterations
+# wan_conv_1st = 1e-07  # 1st-stage Wannier convergence threshold
+# wan_max_1st = 0.1  # 1st-stage Wannier step size
+# wan_maxit_2nd = 1500  # 2nd-stage Wannier max iterations
+# wan_max_2nd = 0.3  # 2nd-stage Wannier step size
+# wan_conv_end = 1e-08  # Wannier final convergence threshold
 # === PRODUCT_BASIS ===
 # pb_tolerance / pb_lcutmx : ctrlg.<sname>.toml (cut-off tunables).
 # nlx / valence / core     : PB.<sname>.toml (per-spec tables).

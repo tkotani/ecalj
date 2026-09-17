@@ -101,7 +101,7 @@ contains
     write(ifi,'(a)') '                    #   knob to turn if the residual is too large. Measured'
     write(ifi,'(a)') '                    #   optima: semiconductors ~2, Fe/Cu-like metals ~11.'
     write(ifi,'(a)')
-    write(ifi,'(a)') '# ----- Wannier (uncomment to use) -----'
+    write(ifi,'(a)') '# ----- Wannier (hmaxloc: cRPA, job_magnon). Not used by MLO. Uncomment to use. -----'
     write(ifi,'(a)') '# wan_out_emin  = -1.05   # eV relative to EFermi'
     write(ifi,'(a)') '# wan_out_emax  =  2.4'
     write(ifi,'(a)') '# wan_maxit_1st = 300'
