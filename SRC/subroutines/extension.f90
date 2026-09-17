@@ -20,7 +20,7 @@ subroutine readd_iSigma_en(ifinin,iSigma_en)
   if (gwinput_loaded) then
      iSigma_en = tg_iSigMode
   else
-     call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+     call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !     call getkeyvalue("GWinput","iSigMode",iSigma_en )
   endif
   write(6,*)' iSigma_en=',iSigma_en
@@ -44,7 +44,7 @@ subroutine getnemx(nbmx,ebmx,im,ipr) !- Readin nbmx ebmx for hxofp0 hscfp0
         ebmx = tg_emax_chi0
      endif
   else
-     call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+     call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !     if    (im==8) then
 !        call getkeyvalue("GWinput","nband_sigm",nbmx, default=99999 )
 !        call getkeyvalue("GWinput","emax_sigm", ebmx, default=1d10  )
@@ -69,7 +69,7 @@ subroutine getnemx8(nbmx,ebmx)  !- Readin nbmx ebmx for hscfp0
      ebmx = tg_emax_sigm
      ret = 1
   else
-     call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+     call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !     call getkeyvalue("GWinput","nband_sigm",nbmx,1, default=(/9999999/),status=ret)
 !     write(6,*)' status 1=',ret
 !     call getkeyvalue("GWinput","emax_sigm", ebmx,1, default=(/1d10/),status=ret)

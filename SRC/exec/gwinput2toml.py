@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-gwinput2toml.py - Convert legacy GWinput to GWinput.toml
+gwinput2toml.py - Convert a legacy GWinput into TOML text (helper for Legacy2toml.py)
 
-Usage: gwinput2toml.py [GWinput] [-o GWinput.toml]
+Usage: gwinput2toml.py [GWinput] -o <intermediate.toml>   (called by Legacy2toml.py)
 
 Reads ecalj's tag-based GWinput format and emits a TOML file with the
-same content, structured under [gw] (scalar/vector keys) and
+same content, structured under [gw] (scalar/vector keys), [mlo] (mlo_* keys) and
 [product_basis] (PRODUCT_BASIS block). Other blocks (<QPNT>, <QforGW>,
 <QforEPS>, <QforEPSL>, <Worb>) are passed through as raw multi-line
 strings under [blocks] for future structured handling.
@@ -254,7 +254,7 @@ def emit_toml(parsed: dict) -> str:
     """Render the parsed dict as TOML text."""
     out = []
 
-    out.append("# GWinput.toml — auto-generated from legacy GWinput by gwinput2toml.py")
+    out.append("# intermediate TOML from legacy GWinput (gwinput2toml.py); consumed by Legacy2toml.py, not read by ecalj")
     out.append("")
 
     if parsed["gw"]:
@@ -274,11 +274,20 @@ def emit_toml(parsed: dict) -> str:
                     gw["zmel_batch_gb"] = gw.pop(legacy)
                 else:
                     gw.pop(legacy)  # MEMnmbatch scale differs; just drop it
+        mlo = {k: v for k, v in gw.items() if k.startswith("mlo_")}   # -> their own [mlo] section
         for k, v in gw.items():
+            if k in mlo:
+                continue
             out.append(f"{k} = {emit_value(v)}")
         if "zmel_batch_gb" not in gw:
             out.append("# zmel_batch_gb = 0.4  # (GB) zmel batch size per rank; increase for large systems")
         out.append("")
+        if mlo:
+            out.append("[mlo]")
+            out.append("# MLO keys (Worb, which names the lm channels, stays in [blocks])")
+            for k, v in mlo.items():
+                out.append(f"{k} = {emit_value(v)}")
+            out.append("")
 
     pb = parsed["product_basis"]
     if pb:
@@ -323,13 +332,13 @@ def emit_toml(parsed: dict) -> str:
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Convert GWinput to GWinput.toml")
+    ap = argparse.ArgumentParser(description="Convert a legacy GWinput into intermediate TOML for Legacy2toml.py. ecalj itself never reads this file: the GW input is ctrlg.<sname>.toml + PB.<sname>.toml.")
     ap.add_argument("input", nargs="?", default="GWinput", help="Input GWinput file (default: GWinput)")
-    ap.add_argument("-o", "--output", default=None, help="Output TOML (default: <input>.toml)")
+    ap.add_argument("-o", "--output", required=True, help="Output TOML path (intermediate; pick a name that is not GWinput.toml)")
     args = ap.parse_args()
 
     in_path = Path(args.input)
-    out_path = Path(args.output) if args.output else in_path.with_suffix(in_path.suffix + ".toml")
+    out_path = Path(args.output)
 
     if not in_path.exists():
         print(f"Error: input file '{in_path}' not found", file=sys.stderr)

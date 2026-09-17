@@ -121,7 +121,7 @@ contains
     if (gwinput_loaded) then
        keep_ppbir = tg_KeepPpb
     else
-       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !       call getkeyvalue("GWinput","KeepPpb",keep_ppbir,default=.false.)
     endif
     ng_done = ng

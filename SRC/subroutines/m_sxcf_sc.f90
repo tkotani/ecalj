@@ -318,7 +318,7 @@ contains
     if (gwinput_loaded) then
        sxs_keepwv = tg_KeepWV
     else
-       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
     endif
     LoopScheduleCheck: block
       izz = 0

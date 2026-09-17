@@ -194,7 +194,7 @@ contains
     if (gwinput_loaded) then
       zmel_batch_gb = tg_zmel_batch_gb
     else
-      call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+      call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
     endif
     if (zmel_batch_gb < 0.001d0) zmel_batch_gb = 0.4d0
     if (chipm .AND. nolfco) then

@@ -249,7 +249,7 @@ contains
        if (gwinput_loaded) then
           ngcell = tg_ngcell
        else
-          call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+          call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !          call getkeyvalue("GWinput","ngcell",ngcell,default=1)
        endif
        ntetf = 6*nqbz
@@ -579,19 +579,14 @@ contains
     !! x is [0,1] --> xqcon = [0,1]
     !! x can be -1 <= x =< 1
     use m_keyvalue,only: getkeyvalue
-    use m_GWinput, only: gwinput_init, gwinput_loaded, tg_BZadiv => BZadiv
+    use m_GWinput, only: gwinput_init, gwinput_loaded, gwinput_available, tg_BZadiv => BZadiv
     real(8),intent(in)::x
     real(8),parameter:: pi=4d0*atan(1d0) !3.1415926535897932d0
     real(8),save:: adiv,bdiv
     logical,save:: oncew=.true.
     logical:: ggg
     if(oncew) then ! BZ division setting.
-       block
-         logical :: have_toml
-         inquire(file='GWinput',exist=ggg)
-         inquire(file='GWinput.toml',exist=have_toml)
-         ggg = ggg .or. have_toml
-       end block
+       ggg = gwinput_available()   ! ctrlg.<sname>.toml + PB.<sname>.toml present?
        if(.not.ggg) then
           adiv=1d0
        else
@@ -599,7 +594,7 @@ contains
           if (gwinput_loaded) then
              adiv = tg_BZadiv
           else
-             call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+             call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !             call getkeyvalue("GWinput","BZadiv",adiv,default=1d0)
           endif
        endif

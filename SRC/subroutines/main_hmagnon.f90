@@ -101,7 +101,7 @@ subroutine hmagnon() bind(C)
      if (tg_magnon_HistBin_dw    /= 1d-5)   freq_dw    = tg_magnon_HistBin_dw
      negative_cut  = tg_magnon_negative_cut
   else
-     call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+     call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !     call getkeyvalue("GWinput","magnon_w_onsite_dddd",w_onsite_dddd,default=.true.)
 !     call getkeyvalue("GWinput","magnon_delta", delta, default=0d0) !1d-6 for Insulator case
 !     call getkeyvalue("GWinput","magnon_delta_dos", delta_dos, default=1d-6)

@@ -27,7 +27,7 @@ contains
     if (gwinput_loaded) then
        temperature = tg_t_tetrakbt
     else
-       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !       call getkeyvalue("GWinput","t_tetrakbt",temperature,default=3d+2)
     endif
     tt = temperature+1d-12 !avoid 0

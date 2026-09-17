@@ -22,7 +22,7 @@ contains
     if (gwinput_loaded) then
        nkeep_wfs = tg_nkeep_wfs
     else
-       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !       call getkeyvalue("GWinput", "nkeep_wfs", nkeep_wfs, default=2)
     endif
     if(nkeep_wfs < 1) return

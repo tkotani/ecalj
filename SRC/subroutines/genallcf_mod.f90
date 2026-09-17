@@ -49,7 +49,7 @@ contains
                           mg_deltaw => deltaw, &
                           mg_esmr   => esmr
     call gwinput_init()
-    if (.not. gwinput_loaded) call rx('gw_user_config_init: GWinput.toml is required.')
+    if (.not. gwinput_loaded) call rx('gw_user_config_init: ctrlg.<sname>.toml is required.')
     niw    = mg_niw
     deltaw = mg_deltaw
     esmr   = mg_esmr
@@ -181,7 +181,7 @@ contains
                                           ncwf(lt+1,nt,iatomt), ncwf2(lt+1,nt,iatomt)
        enddo
     else
-       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !       call getkeyvalue("GWinput","<PRODUCT_BASIS>", unit=ifi, status=ret)
 !       read(ifi,*)
 !       read(ifi,"(a)") tolchar

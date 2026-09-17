@@ -64,7 +64,7 @@ Legacy2toml.py — one-shot migration tool: legacy ecalj input -> TOML.
 ==============================================================================
   1. ctrl2ctrltoml.py  : ctrl.<sname>  -> ctrlg.<sname>.toml (sections from
                                           ctrl_schema.py, typed)
-  2. gwinput2toml.py   : GWinput       -> intermediate GWinput.toml.tmp
+  2. gwinput2toml.py   : GWinput       -> intermediate .l2t_gwinput.tmp (deleted afterwards)
   3. split + append    : [gw] + [product_basis] (pb_tolerance / pb_lcutmx)
                          + [blocks] are appended to ctrlg.<sname>.toml;
                          per-atom nlx / valence / core go to PB.<sname>.toml.
@@ -364,9 +364,9 @@ def main():
     if not gwinput.exists():
         banner(f'no GWinput in cwd; ctrlg.{sname}.toml emitted without GW sections')
         return
-    banner(f'GWinput -> append [gw]/[product_basis]/[blocks] to ctrlg.{sname}.toml + PB.<sname>.toml')
-    # Run gwinput2toml.py to get a GWinput.toml in the legacy "all in one" form
-    tmp_gwinput_toml = Path('GWinput.toml.tmp.l2t')
+    banner(f'GWinput -> append [gw]/[mlo]/[product_basis]/[blocks] to ctrlg.{sname}.toml + PB.<sname>.toml')
+    # Run gwinput2toml.py to get the legacy GWinput as one intermediate TOML
+    tmp_gwinput_toml = Path('.l2t_gwinput.tmp')
     rc = subprocess.run(
         [str(here / 'gwinput2toml.py'), 'GWinput', '-o', str(tmp_gwinput_toml)],
         stdout=subprocess.DEVNULL, stderr=sys.stderr,
@@ -397,9 +397,11 @@ def main():
     # the per-atom arrays, drop the legacy 'tolerance'/'lcutmx' assignment
     # (we'll write pb_tolerance/pb_lcutmx instead), and keep [blocks] as-is.
     gw_section = re.search(r'^\[gw\].*?(?=^\[)', text, re.DOTALL | re.MULTILINE)
+    mlo_section = re.search(r'^\[mlo\].*?(?=^\[)', text, re.DOTALL | re.MULTILINE)
     blocks_section = re.search(r'^\[blocks\].*', text, re.DOTALL | re.MULTILINE)
 
     gw_text = gw_section.group(0).rstrip() if gw_section else '[gw]\n'
+    mlo_text = mlo_section.group(0).rstrip() + '\n' if mlo_section else ''
     pb_text = (
         '[product_basis]\n'
         f'pb_tolerance = {pb_tol}\n'
@@ -417,6 +419,9 @@ def main():
         f.write('\n')
         f.write(gw_text)
         f.write('\n')
+        if mlo_text:
+            f.write('\n')
+            f.write(mlo_text)
         f.write(pb_text)
         f.write('\n')
         f.write(blocks_text)

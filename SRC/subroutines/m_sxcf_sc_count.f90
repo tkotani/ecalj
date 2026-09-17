@@ -178,7 +178,7 @@ contains
       if (gwinput_loaded) then
          mmax = tg_zmel_batch_gb
       else
-         call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+         call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
       endif
       call getppx2([(0d0,i=1,3)],get_ngcgp=.true.)
       open(newunit=ifiqg, file='__QGcou',form='unformatted')
@@ -193,7 +193,7 @@ contains
       if(ipr)write(stdo,ftox)'sxcf_fal2_count.sc: ',nbandmx,ngcgp
       if(ipr)write(stdo,ftox)'sxcf_fal2_count.sc: zmel_batch_gb nbloch ngcmx=',mmax,nbloch,ngcmx
       nmbatch = floor( min(maxval(nstatemax)+1d-8, mmax*k**3/(maxval(nbandmx)*(nbloch+ngcmx+ngcmx)*16) +1d-8) )
-      if(nmbatch==0) call rx('sxcf_fal2_count.sc. Too small memory for nmbatch. Enlarge zmel_batch_gb in GWinput.toml')
+      if(nmbatch==0) call rx('sxcf_fal2_count.sc. Too small memory for nmbatch. Enlarge zmel_batch_gb in ctrlg.<sname>.toml [gw]')
       if(ipr)write(stdo,ftox)'sxcf_fal2_count: nmbatch=',nmbatch,' nbandmx nbloch ngcmx=',maxval(nbandmx),nbloch,ngcmx&
            ,'nstatemaxmx=',maxval(nstatemax)
       endblock GetNmbatch

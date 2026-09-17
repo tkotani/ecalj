@@ -416,7 +416,7 @@ subroutine hmaxloc()
      if (heps == -1d50) heps = r_v   ! sentinel: default=rcut
      heps   = tg_wan_tbcut_heps
   else
-     call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+     call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !     call getkeyvalue("GWinput","wan_out_ewin",leout,default=.true.)
 !     call getkeyvalue("GWinput","wan_in_ewin",lein,default=.false.)
 !     call getkeyvalue("GWinput","wan_in_bwin",lbin,default=.false.)
@@ -461,7 +461,7 @@ subroutine hmaxloc()
      leauto   = tg_wan_out_emax_auto
      leinauto = tg_wan_in_emax_auto
   else
-     call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+     call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !     call getkeyvalue("GWinput","wan_out_emax_auto",leauto,default=.false.)
 !     call getkeyvalue("GWinput","wan_in_emax_auto",leinauto,default=.false.)
   endif
@@ -976,7 +976,7 @@ subroutine hmaxloc()
     if (gwinput_loaded) then
        lsh = tg_wan_small_ham
     else
-       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !       call getkeyvalue("GWinput","wan_small_ham",lsh,default=.false.)
     endif
     if (lsh) then
@@ -984,7 +984,7 @@ subroutine hmaxloc()
          nsh1 = tg_wan_nsh1
          nsh2 = tg_wan_nsh2
       else
-         call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+         call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !         call getkeyvalue("GWinput","wan_nsh1",nsh1, default=1 )
 !         call getkeyvalue("GWinput","wan_nsh2",nsh2, default=2 )
       endif

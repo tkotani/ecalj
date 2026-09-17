@@ -35,7 +35,7 @@ contains
        ecut = tg_EMAXforGW
        emin = tg_EMINforGW
     else
-       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !       call getkeyvalue("GWinput","EMAXforGW",ecut,default= 99999d0)
 !       call getkeyvalue("GWinput","EMINforGW",emin,default=-99999d0)
     endif
@@ -74,7 +74,7 @@ contains
           allocate(qx(3, nq), source = tg_q_qgw)
        endif
     else
-       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !       call getkeyvalue("GWinput","<QforGW>",unit=ifqpnt,errstop='off',status=ret)
 !       nq=0
 !       if(ret>0) then !read <QforGW> section

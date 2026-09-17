@@ -340,7 +340,7 @@ contains
     if (gwinput_loaded) then
        beta = tg_mixbeta
     else
-       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !       call getkeyvalue("GWinput","mixbeta",beta,default=1d0,status=ret)
     endif
     write(stdo,ftox)' mixsigma: Anderson mixing sigma with mixing beta =',ftof(beta)
@@ -373,7 +373,7 @@ contains
     if (gwinput_loaded) then
        imix = tg_mixpriorit
     else
-       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !       call getkeyvalue("GWinput","mixpriorit",imix,default=3,status=ret) !  Restrict maximum number of prior iterations
     endif
     mmix = min(max(nitr-1,0),imix)
@@ -381,7 +381,7 @@ contains
     if (gwinput_loaded) then
        acc = tg_mixtj
     else
-       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !       call getkeyvalue("GWinput","mixtj",acc,default=0d0,status=ret)
     endif
     if(acc/=0d0) then

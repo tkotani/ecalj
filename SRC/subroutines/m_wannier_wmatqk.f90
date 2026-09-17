@@ -154,7 +154,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   if (gwinput_loaded) then
      nbcut = tg_nbcutlow_sig
   else
-     call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+     call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !     call getkeyvalue("GWinput","nbcutlow_sig",nbcut, default=0 )
   endif
   nbcutc=nctot+nbcut
@@ -180,7 +180,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
      noq0p   = tg_TestNoQ0P
      if (.not. noq0p) noq0p = tg_NoQ0P
   else
-     call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+     call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !     call getkeyvalue("GWinput","TestOnlyQ0P",onlyq0p,default=.false.)
 !     call getkeyvalue("GWinput","TestNoQ0P",noq0p,default=.false.)
 !     if ( .NOT. noq0p) &

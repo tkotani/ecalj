@@ -3,7 +3,7 @@
 #
 # For each GWinput in $1 (find search root), do:
 #   GWinput  -[gwinput2toml.py]->  toml1
-#   toml1    -[tomlexpand.py]  ->  GWinput'
+#   toml1    -[../exec_legacy/tomlexpand.py]  ->  GWinput'
 #   GWinput' -[gwinput2toml.py]->  toml2
 #   diff toml1 toml2
 #
@@ -12,7 +12,7 @@
 set -u
 ROOT="${1:-/home/takao/ecaljdeveloper/Samples}"
 TOMLGEN="${TOMLGEN:-$HOME/bin/gwinput2toml.py}"
-TOMLEXPAND="${TOMLEXPAND:-$HOME/bin/tomlexpand.py}"
+TOMLEXPAND="${TOMLEXPAND:-$HOME/bin/../exec_legacy/tomlexpand.py}"
 
 pass=0
 fail=0

@@ -9,7 +9,7 @@ EXEC_DIR = Path(__file__).parent
 parser = argparse.ArgumentParser(prog='gw_lmfh', description='''
   One-shot GW calculation to get QP energies.
   Example: gw_lmfh si -np 4
-  for ctrl.si, rst.si and GWinput
+  for ctrlg.si.toml, PB.si.toml and rst.si
 ''')
 parser.add_argument("extension",   help='extension of ctrl file')
 parser.add_argument("-np",         help='number of MPI cores', default=8, type=int)

@@ -1,4 +1,4 @@
-!> m_GWinput: single source of truth for GWinput.toml contents.
+!> m_GWinput: single source of truth for the GW-side input (ctrlg.<sname>.toml + PB.<sname>.toml).
 !  Loads once via toml-f, exposes all values as protected module variables.
 !  Callers `use m_GWinput, only: niw, deltaw, ...` to access values.
 !
@@ -6,6 +6,46 @@
 !  GWinput keys are loaded eagerly at startup, then read-only thereafter.
 !
 !  Schema based on survey of 66 Samples GWinput files.
+!
+!  ---------------------------------------------------------------------------
+!  THE INPUT IS ctrlg.<sname>.toml + PB.<sname>.toml. NOTHING ELSE.
+!  ---------------------------------------------------------------------------
+!  There is no GWinput.toml. That name was an intermediate of the 2026-05
+!  migration and nothing in ecalj reads it; a file by that name in a run
+!  directory is dead and can be moved to trash. The legacy plain-text GWinput
+!  is not read either (the reader is disabled and aborts with a message).
+!
+!  Converting a legacy GWinput by hand (what Legacy2toml.py does, written out
+!  here so it can be done without the script if it ever bit-rots):
+!
+!    GWinput line              -> ctrlg.<sname>.toml
+!    ---------------------------------------------------------------------
+!    scalar/vector keys        -> [gw]      key = value   (same names, TOML
+!                                 syntax: 1d-7 -> 1e-7, "on"/"off" -> true/false,
+!                                 "n1n2n3 4 4 4" -> n1n2n3 = [4, 4, 4])
+!    mlo_*  (any)              -> [mlo]     key = value   (MLO model; Worb stays
+!                                 in [blocks] because Wannier/hmaxloc share it)
+!    wan_*  (any)              -> [gw]      only needed by hmaxloc (cRPA, magnon);
+!                                 comment them out otherwise
+!    <PRODUCT_BASIS> tolerance -> [product_basis] pb_tolerance = [..]
+!    <PRODUCT_BASIS> lcutmx    -> [product_basis] pb_lcutmx    = [..]
+!    <PRODUCT_BASIS> nlx / valence / core tables
+!                              -> PB.<sname>.toml  [product_basis]  nlx = [...],
+!                                 valence = [...], core = [...]   (per-atom rows)
+!    <QPNT> <QforEPS> <QforEPSL> <QforGW> <Worb> <hrotr>
+!                              -> [blocks]  NAME = """<raw lines verbatim>"""
+!
+!    renamed / retired on the way:
+!      GaussianFilterX0  -> SmearX0 (same Ha units); GaussianFilterX0 itself aborts
+!      zmel_max_size     -> zmel_batch_gb
+!      MEMnmbatch        -> dropped (different meaning)
+!      SmearX0 / SmearX0q0 -> superseded by tetrakbt (leave unset)
+!      mlo_emax          -> retired (mlo_method=4 does not use it)
+!      esm_input.dat     -> [esm] section (see m_lmfinit; migrated in place)
+!
+!  Two files that look like GW input but are not: ctrls.<sname> is the seed
+!  for ctrlgenToml.py, and GWinput in Samples/Legacy/ is the converter's input.
+!  ---------------------------------------------------------------------------
 !
 module m_GWinput
   use tomlf, only: toml_table, toml_array, toml_load, toml_error, &
@@ -299,7 +339,7 @@ module m_GWinput
   !-----------------------------------------------------------------
   logical, protected, public :: gwinput_loaded = .false.
 
-  public :: gwinput_load, gwinput_init
+  public :: gwinput_load, gwinput_init, gwinput_available
 
 contains
 
@@ -308,6 +348,17 @@ contains
   !  [blocks]) plus PB.toml (per-atom product-basis arrays). Both files
   !  are mandatory; legacy ctrl/GWinput must be pre-converted to TOML
   !  via Legacy2toml.py before launching the Fortran binary.
+  !> True when the GW-side input (ctrlg.<sname>.toml + PB.<sname>.toml) is present.
+  !  For callers that must work with and without GW input (verbose(), BZadiv, ...):
+  !  gwinput_init() aborts when the files are missing, this only reports.
+  logical function gwinput_available()
+    use m_ext, only: sname
+    logical :: a, b
+    inquire(file='ctrlg.'//trim(sname)//'.toml', exist=a)
+    inquire(file='PB.'//trim(sname)//'.toml',    exist=b)
+    gwinput_available = a .and. b
+  end function gwinput_available
+
   subroutine gwinput_init()
     use m_ext, only: sname
     logical :: have_ctrlg, have_pb
@@ -340,7 +391,7 @@ contains
     character(len=:), allocatable, intent(out), optional :: error
 
     type(toml_table), allocatable, target :: root
-    type(toml_table), pointer :: gw, pb, blocks
+    type(toml_table), pointer :: gw, pb, blocks, mlo
     type(toml_error), allocatable :: terr
     character(len=:), allocatable :: fname
 
@@ -380,6 +431,11 @@ contains
     call get_value(root, 'blocks', blocks)
     if (associated(blocks)) call load_blocks_section(blocks)
 
+    !---- [mlo] (mlo_* keys + Worb; overrides anything left in [gw]/[blocks]) ----
+    call get_value(root, 'mlo', mlo, requested=.false.)   ! do not create it when absent
+    if (associated(mlo)) call load_mlo_section(mlo)
+    if (allocated(block_Worb)) call parse_Worb(block_Worb)
+
     gwinput_loaded = .true.
   end subroutine gwinput_load
 
@@ -395,8 +451,10 @@ contains
     call gv_i(gw, 'BZmesh',        BZmesh)
     call gv_r(gw, 't_tetrakbt',    t_tetrakbt)
     call gv_r(gw, 't_sigmakbt',    t_sigmakbt)
-    call gv_r(gw, 'mlo_emax',      mlo_emax)        ! legacy reads as REAL
-    call gv_i(gw, 'mlo_method',    mlo_method)
+    ! mlo_* used to live in [gw]. They now belong to [mlo] (see load_mlo_section);
+    ! a [gw] that still carries them is read the old way, with a one-line notice,
+    ! and any [mlo] value loaded afterwards overrides it.
+    call load_mlo_keys(gw, legacy=.true.)
     call gv_i(gw, 'wan_maxit_1st', wan_maxit_1st)
     call gv_i(gw, 'wan_maxit_2nd', wan_maxit_2nd)
     call gv_r(gw, 'wan_tb_cut',    wan_tb_cut)      ! legacy reads as REAL (default 1.01)
@@ -448,10 +506,6 @@ contains
     ! Batch 2 reals
     call gv_r(gw, 'BZadiv',             BZadiv)
     call gv_r(gw, 'ene_sppola',         ene_sppola)
-    call gv_r(gw, 'mlo_w',            mlo_w)
-    call gv_r(gw, 'mlo_delta',           mlo_delta)
-    call gv_r(gw, 'mlo_wfrz',           mlo_wfrz)
-    call gv_r(gw, 'mlo_down',           mlo_down)
     call gv_r(gw, 'mixbeta',            mixbeta)
     call gv_r(gw, 'mixtj',              mixtj)
     call gv_r(gw, 'TFscreen',           TFscreen)
@@ -472,19 +526,6 @@ contains
     call gv_r(gw, 'magnon_delta_dos',   magnon_delta_dos)
     call gv_r(gw, 'magnon_HistBin_ratio', magnon_HistBin_ratio)
     call gv_r(gw, 'magnon_HistBin_dw',  magnon_HistBin_dw)
-    call gv_r(gw, 'mlo_conv',           mlo_conv)
-    call gv_r(gw, 'mlo_mix',            mlo_mix)
-    call gv_r(gw, 'mlo_EUinner',        mlo_EUinner)
-    call gv_r(gw, 'mlo_CUouter',        mlo_CUouter)
-    call gv_r(gw, 'mlo_CUinner',        mlo_CUinner)
-    call gv_r(gw, 'mlo_WTinner',        mlo_WTinner)
-    call gv_r(gw, 'mlo_WTband',         mlo_WTband)
-    call gv_r(gw, 'mlo_WTseed',         mlo_WTseed)
-    call gv_r(gw, 'mlo_ELinner',        mlo_ELinner)
-    call gv_r(gw, 'mlo_ewid',           mlo_ewid)
-    call gv_r(gw, 'mlo_WTouter',        mlo_WTouter)
-    call gv_r(gw, 'mlo_CLhard',         mlo_CLhard)
-    call gv_r(gw, 'mlo_ELhard',         mlo_ELhard)
     call gv_r(gw, 'wmat_rcut1',         wmat_rcut1)
     call gv_r(gw, 'wmat_rcut2',         wmat_rcut2)
     call gv_r(gw, 'wan_mix_1st',        wan_mix_1st)
@@ -496,9 +537,7 @@ contains
     ! Batch 2 integers
     call gv_i(gw, 'ngcell',             ngcell)
     call gv_i(gw, 'nkeep_wfs',          nkeep_wfs)
-    call gv_i(gw, 'mlo_nskip',          mlo_nskip)
     call gv_i(gw, 'nbcutlow_sig',       nbcutlow_sig)
-    call gv_i(gw, 'mlo_maxit',          mlo_maxit)
     call gv_i(gw, 'wan_nb_below',       wan_nb_below)
     call gv_i(gw, 'wan_nb_above',       wan_nb_above)
     call gv_i(gw, 'wan_out_bmin',       wan_out_bmin)
@@ -552,7 +591,6 @@ contains
     call gv_l(gw, 'wmat_WSsuper',              wmat_WSsuper)
     call gv_l(gw, 'wan_gauss_head',            wan_gauss_head)
     call gv_l(gw, 'wan_truncate',              wan_truncate)
-    call gv_l(gw, 'mlo_EUinnerAUTOsp',         mlo_EUinnerAUTOsp)
     call gv_l(gw, 'wan_out_emax_auto',         wan_out_emax_auto)
     call gv_l(gw, 'wan_in_emax_auto',          wan_in_emax_auto)
     call gv_l(gw, 'wan_small_ham',             wan_small_ham)
@@ -572,6 +610,56 @@ contains
     call gv_rv3(gw, 'alpha_OffG_vec', alpha_OffG_vec)
     call gv_rv3(gw, 'wmat_rsite',     wmat_rsite)
   end subroutine load_gw_section
+
+  !> All mlo_* scalar keys. Shared by the new [mlo] section and, for backward
+  !  compatibility, by a [gw] that still carries them.
+  subroutine load_mlo_keys(tbl, legacy)
+    use m_mpi, only: master_mpi
+    use m_lgunit, only: stdo
+    type(toml_table), pointer, intent(in) :: tbl
+    logical, intent(in) :: legacy
+    integer :: st, idum
+    if (legacy) then
+       call get_value(tbl, 'mlo_method', idum, stat=st)   ! only asks whether the key exists
+       if (st == 0 .and. master_mpi) write(stdo,'(a)') &
+            ' m_GWinput: NOTE mlo_* keys found in [gw]; they belong in a [mlo] section now.'// &
+            ' [gw] is still read, but please move them.'
+    endif
+    call gv_r(tbl, 'mlo_emax',      mlo_emax)        ! legacy reads as REAL
+    call gv_i(tbl, 'mlo_method',    mlo_method)
+    call gv_r(tbl, 'mlo_w',            mlo_w)
+    call gv_r(tbl, 'mlo_delta',           mlo_delta)
+    call gv_r(tbl, 'mlo_wfrz',           mlo_wfrz)
+    call gv_r(tbl, 'mlo_down',           mlo_down)
+    call gv_r(tbl, 'mlo_conv',           mlo_conv)
+    call gv_r(tbl, 'mlo_mix',            mlo_mix)
+    call gv_r(tbl, 'mlo_EUinner',        mlo_EUinner)
+    call gv_r(tbl, 'mlo_CUouter',        mlo_CUouter)
+    call gv_r(tbl, 'mlo_CUinner',        mlo_CUinner)
+    call gv_r(tbl, 'mlo_WTinner',        mlo_WTinner)
+    call gv_r(tbl, 'mlo_WTband',         mlo_WTband)
+    call gv_r(tbl, 'mlo_WTseed',         mlo_WTseed)
+    call gv_r(tbl, 'mlo_ELinner',        mlo_ELinner)
+    call gv_r(tbl, 'mlo_ewid',           mlo_ewid)
+    call gv_r(tbl, 'mlo_WTouter',        mlo_WTouter)
+    call gv_r(tbl, 'mlo_CLhard',         mlo_CLhard)
+    call gv_r(tbl, 'mlo_ELhard',         mlo_ELhard)
+    call gv_i(tbl, 'mlo_nskip',          mlo_nskip)
+    call gv_i(tbl, 'mlo_maxit',          mlo_maxit)
+    call gv_l(tbl, 'mlo_EUinnerAUTOsp',         mlo_EUinnerAUTOsp)
+  end subroutine load_mlo_keys
+
+  !> [mlo] section: everything that defines the MLO model -- the mlo_* keys and
+  !  the Worb block. Worb here takes precedence over a Worb left in [blocks].
+  subroutine load_mlo_section(mlo)
+    type(toml_table), pointer, intent(in) :: mlo
+    character(len=:), allocatable :: w
+    call load_mlo_keys(mlo, legacy=.false.)
+    ! Only replace a Worb that came from [blocks] if [mlo] actually has one
+    ! (gv_c_alloc's intent(out) would otherwise deallocate it).
+    call gv_c_alloc(mlo, 'Worb', w)
+    if (allocated(w)) call move_alloc(w, block_Worb)
+  end subroutine load_mlo_section
 
 
   subroutine load_pb_section(pb)
@@ -665,7 +753,6 @@ contains
     if (allocated(block_QforGW))   call parse_qvec_list(block_QforGW,   q_qgw,  n_qgw)
     if (allocated(block_QforEPSL)) call parse_QforEPSL(block_QforEPSL, q_epsl, qend_epsl, idx_epsl, n_epsl)
     if (allocated(block_QPNT))     call parse_QPNT(block_QPNT)
-    if (allocated(block_Worb))     call parse_Worb(block_Worb)
   end subroutine load_blocks_section
 
 

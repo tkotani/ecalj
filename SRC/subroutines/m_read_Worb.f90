@@ -34,7 +34,7 @@ contains
     call gwinput_init()
     if (gwinput_loaded) then
        nclass_mlwf = tg_n_worb
-       if (nclass_mlwf == 0) call rx('s_read_Worb: empty Worb in GWinput.toml')
+       if (nclass_mlwf == 0) call rx('s_read_Worb: empty Worb in ctrlg.<sname>.toml')
        allocate(iclassin(nclass_mlwf), nbasclass_mlwf(nclass_mlwf), classname_mlwf(nclass_mlwf))
        nbasclassMax = 0
        do iclass = 1, nclass_mlwf
@@ -50,7 +50,7 @@ contains
                tg_worb_lm(1:nbasclass_mlwf(iclass), iclass)
        enddo
     else
-       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !       call getkeyvalue("GWinput","<Worb>",unit=ifmloc,status=ret)
 !       iline = 0
 !       nline = 0
@@ -125,7 +125,7 @@ contains
           ioffadd = ioffadd + nnvv * (2*il + 1)
        enddo
     else
-       call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !       call getkeyvalue("GWinput","<PRODUCT_BASIS>",unit=ifmloc,status=ret)
 !       read(ifmloc,*)
 !       read(ifmloc,*)

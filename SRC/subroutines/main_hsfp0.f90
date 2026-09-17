@@ -552,7 +552,7 @@ subroutine hsfp0() bind(C)
   if (gwinput_loaded) then
      allq0i = tg_allq0i
   else
-     call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+     call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !     call getkeyvalue("GWinput","allq0i",allq0i,default=.false.)
   endif
   call q0iwgt3(allq0i,symgg,ngrp,wqt,q0i,nq0i, wgt0)   

@@ -132,7 +132,7 @@ contains
             enddo
          enddo
       else
-         call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+         call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !         call getkeyvalue("GWinput","<Worb>",unit=ifmloc,status=ret)
 !         do
 !           read(ifmloc,"(a)") aaa
@@ -178,7 +178,7 @@ contains
          ELhardeV  = tg_mlo_ELhard
          EUautosp  = tg_mlo_EUinnerAUTOsp
       else
-         call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+         call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !         call getkeyvalue("GWinput","mlo_maxit",nsc1,default=100)
 !         call getkeyvalue("GWinput","mlo_conv",conv1,default=1d-6)
 !         call getkeyvalue("GWinput","mlo_mix",alpha1,default=.5d0)

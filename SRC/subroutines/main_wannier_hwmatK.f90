@@ -620,7 +620,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   if (gwinput_loaded) then
      lstatic = tg_wmat_static
   else
-     call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+     call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !     call getkeyvalue("GWinput","wmat_static",lstatic,default= .FALSE. )
   endif
   if (lstatic) nrw = 0
@@ -654,7 +654,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   if (gwinput_loaded) then
      lfull = tg_wmat_all
   else
-     call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+     call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !     call getkeyvalue("GWinput","wmat_all",lfull,default= .FALSE. )
   endif
   if(lfull)then
@@ -670,7 +670,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
         rcut2 = tg_wmat_rcut2
         lwssc = tg_wmat_WSsuper
      else
-        call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+        call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !        call getkeyvalue("GWinput","wmat_rcut1",rcut1, default=0.01d0 )
 !        call getkeyvalue("GWinput","wmat_rcut2",rcut2, default=0.01d0 )
 !        call getkeyvalue("GWinput","wmat_WSsuper",lwssc,default=.true.)
@@ -715,7 +715,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
         rsite = tg_wmat_rsite
         ret = 1
      else
-        call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+        call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !        call getkeyvalue("GWinput","wmat_rsite", rsite,3, default=(/0.0d0,0.0d0,0.0d0/),status=ret)
      endif
      rcut1 = 0.0d0
@@ -739,7 +739,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   if (gwinput_loaded) then
      allq0i = tg_allq0i
   else
-     call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+     call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
 !     call getkeyvalue("GWinput","allq0i",allq0i,default= .FALSE. )!S.F.Jan06
   endif
   call q0iwgt3(allq0i,symgg,ngrp,wqt,q0i,nq0i,     wgt0)                   ! added allq0i argument

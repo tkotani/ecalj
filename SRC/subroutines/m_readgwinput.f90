@@ -34,7 +34,7 @@ contains
                          tg_MagAtom    => MagAtom
     integer :: ifcorehole,it,nctot,nspin
     call gwinput_init()
-    if (.not. gwinput_loaded) call rx('m_readgwinput: GWinput.toml is required.')
+    if (.not. gwinput_loaded) call rx('m_readgwinput: ctrlg.<sname>.toml is required.')
     ! ---- TOML path: copy from m_GWinput module variables ----
     ecut            = tg_ecut_p
     ecuts           = tg_ecuts_p

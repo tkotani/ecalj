@@ -108,7 +108,7 @@ contains
       integer:: io
       socmatrix=c0_socmatrix
       ReadInfoFromGWinput: block ! Input orbital index for MLO, stored into idmto (s,p,d=1,2,3,4,5,6,7,8,9)
-        ! gwinput_init() aborts if GWinput.toml is missing, so gwinput_loaded
+        ! gwinput_init() aborts if ctrlg.<sname>.toml is missing, so gwinput_loaded
         ! is always .true. below; the else branches are unreachable.
         !
         ! gfortran 13.3 / 14.2 codegen bug: a "naked" else with only call rx
@@ -124,7 +124,7 @@ contains
         if (gwinput_loaded) then
           mlomethod = tg_mlo_method
         else
-          call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+          call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
         endif
         lmindex = -999
         if (gwinput_loaded) then
@@ -135,7 +135,7 @@ contains
               lmindex(1:nlmw, ibw) = tg_worb_lm(1:nlmw, iw)
            enddo
         else
-           call rx('m_GWinput: legacy GWinput reader is disabled. GWinput.toml is required.')
+           call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
            aaa = trim(aaa) // ' '   ! compiler bait, unreachable -- see block header
         endif
         nn=0
