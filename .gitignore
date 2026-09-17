@@ -102,3 +102,30 @@ Work/
 *.tar.gz
 __*
 nvidia-*
+
+# --- large intermediate outputs of lmf/gwsc/mlo (2026-09-17 cleanup; 26 GB of these
+#     had been swept into unpushed commits by `git add -A`). References that a test
+#     needs are small (band_MLO_*.dat, *.chk, QPU/QPD) and are added with `git add -f`.
+Screening_W-v*
+Coulomb_v*
+HamRs*
+MLOHamR
+CNmat
+HamiltonianPMT*
+__HamiltonianPMT*
+PROCAR.*
+GEIG
+QGpsi
+QGcou
+HAMindex
+lahc*
+luumat2
+UUU
+UUD
+sigm.[0-9]*run
+__WV.*
+WVR
+WVI
+*.zip
+Samples/Legacy/BK/
+Samples/Legacy/AHC/BK/

@@ -1,3 +1,18 @@
+2026-09-17 (14)
+  未 push の履歴 (08c1fd9f..main, 181 コミット) を git filter-repo で書き換え、8 月の Legacy
+  TOML 化と 9 月の MLO 整備の git add -A が巻き込んだ計算の中間出力 26.6 GB (10,870 パス、
+  100 MB 超 54 件) を全履歴から除去。dev/main (前回 push 済み) に既にあるものは触っていない。
+    除去したもの: Samples/Legacy/BK/ と Legacy/AHC/BK/ の丸ごと、Screening_W-v* / Coulomb_v* /
+    HamRs* / MLOHamR / CNmat / HamiltonianPMT* / GEIG / QGpsi / QGcou / HAMindex / lahc* /
+    luumat2 / UUU / UUD / PROCAR.* / sigm.Nrun / *.zip、Si666gwsc/{os,sys,subprocess,argparse}
+    (Python モジュール名で書き出された誤出力)、それ以外の 5 MB 超。kBT の sigm.liti2o4
+    (13 / 30 MB) も「sigm/rst は同梱しない」方針で外した (README に再現手順と原本の場所)。
+    rst は最大 8 MB なので残した (FeMgO のテストに要る)。
+    新規分で残る 5 MB 超は rst.lagao3 6.4 MB、kBT の tar.gz 6.3 MB と PDF 5.5 MB だけ。
+    書き換え前の main は backup/main-before-cleanup-20260917 に保存。
+    .gitignore に上記パターンを追加 (テストの参照は git add -f)。
+  この後ローカル / kt1 (再 clone) / mic / ucgw でテストし、通れば push。
+
 2026-09-17 (13)
   gwinit のテンプレが tetrakbt = true / t_tetrakbt = 300 を既定で書くのをやめ、見え消しにした
   (tetrakbt / t_tetrakbt / t_sigmakbt の 3 行、「有限温度モードは外して使う」の注記付き)。
