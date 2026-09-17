@@ -15,7 +15,8 @@ Recommended usage (no flags):
     ctrlgenToml.py <ext>
 
 Just run with the sname; everything else is sensible defaults baked
-into ctrlg.<ext>.toml. The file is fully commented and TOML-typed —
+into ctrlg.<ext>.toml. A commented-out [esm] template follows [ham]:
+bulk crystals leave it alone (no [esm] = ESM off); a slab uncomments it. The file is fully commented and TOML-typed —
 **you are expected to edit ctrlg.<ext>.toml afterwards** (k-mesh,
 nspin, so, xcfun, scaledsigma, [[spec]] U/J, ...). The CLI flags
 below are bake-in equivalents of those edits, useful for scripting
