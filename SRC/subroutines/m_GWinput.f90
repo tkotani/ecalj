@@ -34,8 +34,8 @@
 !                                 core = [[iatom,l,n,occ,unocc,forX0,forSxc],...]
 !                                 (one inner list per row; the section is the
 !                                 last one in the file. Until 2026-09 these three
-!                                 were a separate PB.<sname>.toml, still read with
-!                                 a NOTE when ctrlg has no nlx.)
+!                                 were a separate PB.<sname>.toml; that file is
+!                                 not read any more -- ctrlg_absorb.py folds it in.)
 !    <QforEPS> <QforGW>        -> [gw]      NAME = """<raw lines verbatim>"""
 !    <Worb>                    -> [mlo]     mlo_lm = """<raw lines verbatim>"""
 !    <QPNT> <QforEPSL> <hrotr> -> [blocks]  NAME = """<raw lines verbatim>"""
@@ -53,7 +53,7 @@
 !  ---------------------------------------------------------------------------
 !
 module m_GWinput
-  use tomlf, only: toml_table, toml_array, toml_load, toml_error, &
+  use tomlf, only: toml_table, toml_array, toml_error, &
                    get_value, len
   implicit none
   private
@@ -382,8 +382,8 @@ contains
     !    [blocks]          -- raw text blocks (QPNT, QforEPSL, hrotr)
     !    [product_basis]   -- pb_tolerance, pb_lcutmx and the per-atom tables
     !                         nlx / valence / core (before 2026-09 those three
-    !                         sat in a separate PB.<sname>.toml; that file is
-    !                         still read, with a NOTE, when ctrlg has no nlx).
+    !                         sat in a separate PB.<sname>.toml; such a file
+    !                         is not read: abort -> ctrlg_absorb.py).
     use m_ext, only: sname
     character(*),               intent(in),  optional :: filename
     character(len=:), allocatable, intent(out), optional :: error
@@ -424,7 +424,7 @@ contains
        call load_pb_section(pb)
        call load_pb_tables(pb)
     endif
-    if (pb_n_nlx == 0) call load_pb_file('PB.'//trim(sname)//'.toml')   ! pre-2026-09 layout
+    if (pb_n_nlx == 0) call refuse_pb_file('PB.'//trim(sname)//'.toml')   ! pre-2026-09 layout: not read
 
     !---- [blocks] ----
     call get_value(root, 'blocks', blocks)
@@ -706,28 +706,18 @@ contains
     call load_int_2darray(pb, 'core',    7, pb_core,    pb_n_core)
   end subroutine load_pb_tables
 
-  !> Pre-2026-09 layout: the tables in a separate PB.<sname>.toml. Read only
-  !  when ctrlg.<sname>.toml carries no nlx, and say so; gwinit / Legacy2toml.py
-  !  write them into ctrlg now.
-  subroutine load_pb_file(filename)
-    use m_mpi, only: master_mpi
-    use m_lgunit, only: stdo
+  !> Pre-2026-09 layout: the tables in a separate PB.<sname>.toml. Not read;
+  !  abort and point at ctrlg_absorb.py, which appends them to ctrlg.
+  subroutine refuse_pb_file(filename)
+    use m_ext, only: sname
     character(*), intent(in) :: filename
-    type(toml_table), allocatable, target :: root
-    type(toml_table), pointer :: pb
-    type(toml_error), allocatable :: terr
     logical :: exists
     inquire(file=filename, exist=exists)
     if (.not. exists) return
-    call toml_load(root, filename, error=terr)
-    if (allocated(terr)) call rx('m_GWinput: '//trim(filename)// &
-         ' parse error: '//terr%message)
-    call get_value(root, 'product_basis', pb)
-    if (.not. associated(pb)) return
-    call load_pb_tables(pb)
-    if (master_mpi) write(stdo,'(a)') ' m_GWinput: NOTE nlx/valence/core read from '//trim(filename)// &
-         ' (old layout). They belong in ctrlg [product_basis] now; append them there and remove the file.'
-  end subroutine load_pb_file
+    call rx('m_GWinput: '//trim(filename)//' is retired and not read. Run  ctrlg_absorb.py '// &
+         trim(sname)//'  to move its nlx/valence/core into [product_basis] of ctrlg.'// &
+         trim(sname)//'.toml, then remove the file.')
+  end subroutine refuse_pb_file
 
 
   subroutine load_int_2darray(tbl, key, ncol, mat, nrow_out)

@@ -192,7 +192,7 @@ contains
 !      call rval2('HAM_READPSKIPF', rr=rr, defa=[real(8):: 1]); readpnuskipf= nint(rr)==1
 !      call rval2('HAM_V0FIX', rr=rr, defa=[real(8):: 0]); v0fix =  nint(rr)==1
       call rval2('HAM_PNUFIX',rr=rr, defa=[real(8):: 0]); pnufix=  nint(rr)==1
-      call readesm(alat,plat,comm) ! [esm]: ESM for slabs. Aborts if esm_input.dat is present.
+      call readesm(alat,plat) ! [esm]: ESM for slabs. Aborts if esm_input.dat is present.
       if(c0_v0fix) then
         v0fix=.true.
         pnufix=.true.
@@ -797,104 +797,26 @@ contains
   !! plain periodic treatment, moving the energy zero by several eV with no
   !! error (this cost us a long hunt on FeMgO, 2026-09-15).
   !!
-  !! A leftover esm_input.dat is migrated in place rather than refused, so old
-  !! directories keep working:
-  !!   - ctrlg already has [esm]  -> that wins; esm_input.dat is just archived
-  !!                                 as esm_input.dat.bk.
-  !!   - ctrlg has no [esm]       -> convert, append the [esm] block to
-  !!                                 ctrlg.<sname>.toml, archive the original
-  !!                                 as esm_input.dat.bk with a note saying
-  !!                                 where it went, and use the values in THIS
-  !!                                 run too (the TOML was already parsed).
-  subroutine readesm(alat,plat,comm)
-    use mpi
+  !! The Fortran reads ctrlg.<sname>.toml only. A leftover esm_input.dat is
+  !! not read and not converted here: we abort and point at ctrlg_absorb.py
+  !! (or Legacy2toml.py), which write it into [esm]. Aborting rather than
+  !! ignoring, so a slab never runs without ESM by accident.
+  subroutine readesm(alat,plat)
     use m_gtv2,only: rval2
     real(8),intent(in):: alat,plat(3,3)
-    integer,intent(in):: comm
     character(64):: bnd
     character(256):: ch
     real(8),allocatable:: rv(:)
     real(8):: rr, z0
-    integer:: ifi, jesm, jtresm, ierr
-    real(8):: tresm, z1, z2, vp, vm, ep, em
-    logical:: fexist, has_section, migrated
-    character(:),allocatable:: ctrlg
-    ctrlg = 'ctrlg.'//trim(sname)//'.toml'
+    logical:: fexist
     z0 = alat*plat(3,3)*0.5d0
+    inquire(file='esm_input.dat', exist=fexist)
+    if(fexist) call rx('esm_input.dat is retired and not read. Run  ctrlg_absorb.py '// &
+         trim(sname)//'  to convert it into the [esm] section of ctrlg.'//trim(sname)// &
+         '.toml (or write [esm] by hand and remove the file).')
     call rval2('ESM_BOUNDARY', ch=ch)
     bnd = adjustl(ch)
-    has_section = trim(bnd) /= ''
     esm_jesm = bnd2jesm(bnd)
-    migrated = .false.
-
-    LEGACYFILE: block ! esm_input.dat -> [esm] in ctrlg.<sname>.toml
-      inquire(file='esm_input.dat', exist=fexist)
-      if(.not.fexist) exit LEGACYFILE
-      jesm=0; jtresm=0; tresm=0d0; z1=z0; z2=-z0; vp=0d0; vm=0d0; ep=0d0; em=0d0
-      open(newunit=ifi,file='esm_input.dat',status='old',err=801)
-      read(ifi,*,err=801,end=801) jesm
-      read(ifi,*,err=801,end=801) jtresm,tresm
-      read(ifi,*,err=801,end=801) z1,z2
-      read(ifi,*,err=801,end=801) vp,vm
-      read(ifi,*,err=801,end=801) ep,em
-801   continue
-      close(ifi)
-      if(.not.has_section) then ! adopt the file's values for this run as well
-         esm_jesm      = jesm
-         esm_shiftmode = jtresm
-         esm_origin    = tresm
-         esm_zb        = [z1,z2]
-         esm_potential = [vp,vm]
-         esm_field     = [ep,em]
-         migrated      = .true.
-      endif
-      MASTERONLY: if(master_mpi) then
-         if(.not.has_section) then
-            open(newunit=ifi,file=ctrlg,position='append')
-            write(ifi,'(a)') ''
-            write(ifi,'(a)') '# === ESM (Effective Screening Medium) ==='
-            write(ifi,'(a)') '# Appended automatically from esm_input.dat (now esm_input.dat.bk).'
-            write(ifi,'(a)') '# Electrostatics of a slab with a vacuum layer. No [esm] section at'
-            write(ifi,'(a)') '# all means ESM is off -- for a vacuum slab that silently moves the'
-            write(ifi,'(a)') '# energy zero by several eV, so do not drop this section.'
-            write(ifi,'(a)') '[esm]'
-            write(ifi,'(3a)')'boundary  = "',trim(jesm2bnd(jesm)),'"'
-            write(ifi,'(a)') '            # "off"                   ESM disabled              [jesm=0]'
-            write(ifi,'(a)') '            # "vac/slab/vac"          vacuum both sides         [jesm=1]'
-            write(ifi,'(a)') '            # "metal/slab/metal"      metal both sides          [jesm=2]'
-            write(ifi,'(a)') '            # "vac/slab/metal"                                  [jesm=3]'
-            write(ifi,'(a)') '            # "metal/slab/vac"                                  [jesm=4]'
-            write(ifi,'(a)') '            # "vac/slab/vac:field"    vacuum, field given       [jesm=5]'
-            write(ifi,'(a)') '            # "metal/slab/metal:v-e"  v on -z, field on +z      [jesm=6]'
-            write(ifi,'(a)') '            # "metal/slab/metal:e-v"  field on -z, v on +z      [jesm=7]'
-            write(ifi,'(a)') '            # "periodic:esm"          same as off, via ESM path [jesm=10]'
-            write(ifi,'(a,f16.8,a)') 'origin    = ',tresm,'  # (a.u.) z-translation of the density.'
-            write(ifi,'(a)') '            # Same number as line 2 of the old esm_input.dat;'
-            write(ifi,'(a)') '            # the code applies -origin internally (unchanged).'
-            write(ifi,'(a,i0,a)')    'shiftmode = ',jtresm,'  # 0: origin is absolute, 1: in units of the cell length'
-            write(ifi,'(a,f16.8,a,f16.8,a)') 'zb        = [',z1,',',z2,']  # (a.u.) boundaries z1esm, z2esm'
-            write(ifi,'(a,f16.8,a)') '            # (alat*plat[2][2]/2 = ',z0,', the default if omitted)'
-            write(ifi,'(a,f16.8,a,f16.8,a)') 'potential = [',vp,',',vm,']  # (Ry) vesmp, vesmm on the +z / -z sides'
-            write(ifi,'(a,f16.8,a,f16.8,a)') 'field     = [',ep,',',em,']  # (Ry/a.u.) eesmp, eesmm on the +z / -z sides'
-            close(ifi)
-         endif
-         call archive_esm_input(has_section, ctrlg)
-         write(stdo,'(a)')' '
-         if(has_section) then
-            write(stdo,'(a)')' NOTE: esm_input.dat is retired. '//ctrlg//' already has an [esm]'
-            write(stdo,'(a)')'       section, so that one is used and the old file was moved to'
-            write(stdo,'(a)')'       esm_input.dat.bk.'
-         else
-            write(stdo,'(a)')' NOTE: esm_input.dat is retired. Its contents were converted and'
-            write(stdo,'(a)')'       appended to '//ctrlg//' as an [esm] section; the old file'
-            write(stdo,'(a)')'       was moved to esm_input.dat.bk. This run already uses them.'
-         endif
-         write(stdo,'(a)')' '
-      endif MASTERONLY
-      call MPI_BARRIER(comm, ierr) ! the rename must be done before anyone re-inquires
-    endblock LEGACYFILE
-
-    if(migrated) return ! values came from esm_input.dat, not from the TOML
     if(esm_jesm == 0) then
        ! No [esm] at all is the normal case for a bulk crystal, but for a slab
        ! with a vacuum layer it silently moves the energy zero by several eV.
@@ -919,41 +841,6 @@ contains
     call rval2('ESM_POTENTIAL',rv=rv, defa=[0d0,0d0]);      esm_potential=rv(1:2)
     call rval2('ESM_FIELD',    rv=rv, defa=[0d0,0d0]);      esm_field=rv(1:2)
   end subroutine readesm
-
-  !> Move esm_input.dat to esm_input.dat.bk, keeping the original lines and
-  !! prepending a header that says where the settings went. Master only.
-  subroutine archive_esm_input(has_section, ctrlg)
-    logical,intent(in):: has_section
-    character(*),intent(in):: ctrlg
-    integer:: ifin, ifout, ios
-    character(512):: line
-    character(8):: dat, tim
-    call date_and_time(date=dat, time=tim)
-    open(newunit=ifin, file='esm_input.dat', status='old', iostat=ios)
-    if(ios /= 0) return
-    open(newunit=ifout, file='esm_input.dat.bk')
-    write(ifout,'(a)') '# esm_input.dat is retired; this is the archived original.'
-    write(ifout,'(a)') '# Moved '//dat(1:4)//'-'//dat(5:6)//'-'//dat(7:8)// &
-                       ' '//tim(1:2)//':'//tim(3:4)//':'//tim(5:6)//'.'
-    if(has_section) then
-       write(ifout,'(a)') '# '//ctrlg//' already had an [esm] section, so these'
-       write(ifout,'(a)') '# settings were NOT copied anywhere -- the TOML one is what runs.'
-       write(ifout,'(a)') '# Compare the two if you expected this file to be in effect.'
-    else
-       write(ifout,'(a)') '# These settings were converted and appended to '//ctrlg
-       write(ifout,'(a)') '# as an [esm] section. Edit them there from now on; this file is'
-       write(ifout,'(a)') '# no longer read.'
-    endif
-    write(ifout,'(a)') '#'
-    write(ifout,'(a)') '# --- original contents below ---'
-    do
-       read(ifin,'(a)',iostat=ios) line
-       if(ios /= 0) exit
-       write(ifout,'(a)') trim(line)
-    enddo
-    close(ifin, status='delete')
-    close(ifout)
-  end subroutine archive_esm_input
 
   !> "vac/slab/vac" etc. -> jesm. A bare integer is also accepted so that
   !! mechanically converted files keep working. Unknown spelling aborts.
@@ -982,22 +869,6 @@ contains
     end select
   end function bnd2jesm
 
-  !> jesm -> the string spelling, for the esm_input.dat converter.
-  function jesm2bnd(j) result(s)
-    integer,intent(in):: j
-    character(:),allocatable:: s
-    select case (j)
-    case (1);        s = 'vac/slab/vac'
-    case (2);        s = 'metal/slab/metal'
-    case (3);        s = 'vac/slab/metal'
-    case (4);        s = 'metal/slab/vac'
-    case (5);        s = 'vac/slab/vac:field'
-    case (6);        s = 'metal/slab/metal:v-e'
-    case (7);        s = 'metal/slab/metal:e-v'
-    case (10,11);    s = 'periodic:esm'
-    case default;    s = 'off'
-    end select
-  end function jesm2bnd
 
   pure subroutine getiout(a,iin,iout) !a(1:iout) can be nonzero.
     intent(in):: a,iin

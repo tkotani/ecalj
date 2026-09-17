@@ -1,3 +1,21 @@
+2026-09-17 (9)
+  Fortran は ctrlg.<sname>.toml 以外を読まない、で統一。
+    m_lmfinit::readesm: esm_input.dat があれば abort して ctrlg_absorb.py を案内
+    (2026-09-16 のその場移行を廃止。無視ではなく abort なのは、スラブが ESM 無しで
+    黙って走らないため)。archive_esm_input / jesm2bnd を削除。
+    m_GWinput: ctrlg に nlx が無く PB.<sname>.toml があれば abort して同じく案内
+    ((8) の NOTE 付き fallback を廃止)。
+    新規 SRC/exec/ctrlg_absorb.py <sname> (実体は pylib/ctrlg_absorb.py):
+    esm_input.dat -> [esm]、PB.<sname>.toml -> [product_basis] の nlx/valence/core。
+    原本は *.bk に (冒頭に移送先を記録)。既に ctrlg 側にあれば .bk に退避するだけ。
+    最後に annotate + tidy (TOML 内容不変を assert)。Legacy2toml.py の esm 変換は
+    この pylib を呼ぶ形に (GWinput が無い場合も tidy を通すようにした)。
+  テスト: FeMgO の [esm] を抜いて esm_input.dat に戻し lmchk -> abort、
+    ctrlg_absorb.py -> [esm] が元と一致 ([gw] の前に入る)、lmchk 通過。
+    si_gwsc_work で表を PB.si.toml に戻し qg4gw -> abort、ctrlg_absorb.py -> 元の ctrlg と
+    TOML 一致、qg4gw 通過。Legacy2toml.py (IIR/C) は wan_* 見え消し以外サンプルと一致。
+  ecaljdoc lmf.md / toml_migration.md / gwsc.md / mlo.md / UsageDetailed.md。
+
 2026-09-17 (8)
   PB.<sname>.toml を廃止して ctrlg.<sname>.toml の末尾に統合。GW 側の入力は
   ctrlg.<sname>.toml 一つ。[product_basis] (常に最終セクション) が pb_tolerance /

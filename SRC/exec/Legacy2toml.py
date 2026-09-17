@@ -75,11 +75,11 @@ Legacy2toml.py — one-shot migration tool: legacy ecalj input -> TOML.
   Each step is echoed with a "=== Legacy2toml.py: ..." banner so failures
   point you straight at the offending file.
 """
-import os, sys, re, shutil, subprocess, datetime
+import os, sys, re, shutil, subprocess
 from pathlib import Path
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
-from pylib.toml_comments import apply_toml_annotations
+from pylib.ctrlg_absorb import absorb_esm, finish
 
 def banner(msg):
     print(f'=== Legacy2toml.py: {msg}', flush=True)
@@ -239,80 +239,6 @@ def analyze_v_overrides(ctrl_path, v_args):
     print('---')
     return n_err
 
-ESM_BOUNDARY = {
-    0: 'off', 1: 'vac/slab/vac', 2: 'metal/slab/metal', 3: 'vac/slab/metal',
-    4: 'metal/slab/vac', 5: 'vac/slab/vac:field', 6: 'metal/slab/metal:v-e',
-    7: 'metal/slab/metal:e-v', 10: 'periodic:esm', 11: 'periodic:esm',
-}
-
-
-def convert_esm_input(ctrlg_path):
-    """esm_input.dat (positional) -> [esm] appended to ctrlg.<sname>.toml.
-
-    ESM (Effective Screening Medium) configures the electrostatics of a slab
-    with a vacuum layer. Fortran no longer reads esm_input.dat; it migrates the
-    file the same way this does. Either path leaves esm_input.dat.bk behind
-    with a header saying where the settings went.
-    """
-    esm = Path('esm_input.dat')
-    if not esm.exists():
-        return
-    if '\n[esm]' in ('\n' + ctrlg_path.read_text()):
-        archive_esm_input(esm, ctrlg_path, has_section=True)
-        banner(f'{ctrlg_path.name} already has [esm]; {esm} -> {esm}.bk (unused)')
-        return
-    nums = []
-    for line in esm.read_text().splitlines():
-        line = line.split('#')[0].strip()
-        if line:
-            nums.extend(line.split())
-    if len(nums) < 9:
-        sys.exit(f'Legacy2toml.py: {esm} has {len(nums)} values, expected 9')
-    jesm = int(float(nums[0]))
-    jtresm = int(float(nums[1]))
-    tresm, z1, z2, vp, vm, ep, em = (float(x) for x in nums[2:9])
-    banner(f'{esm} -> [esm] in {ctrlg_path.name}')
-    with open(ctrlg_path, 'a') as f:
-        f.write(f'''
-# === ESM (Effective Screening Medium) ===
-# Electrostatics of a slab with a vacuum layer. Converted from esm_input.dat.
-# No [esm] section at all means ESM is off -- for a vacuum slab that silently
-# moves the energy zero by several eV, so do not drop this section.
-[esm]
-boundary  = "{ESM_BOUNDARY.get(jesm, 'off')}"
-            # "off" / "vac/slab/vac" / "metal/slab/metal" / "vac/slab/metal" /
-            # "metal/slab/vac" / "vac/slab/vac:field" / "metal/slab/metal:v-e" /
-            # "metal/slab/metal:e-v" / "periodic:esm"
-origin    = {tresm!r}  # (a.u.) z-translation of the density; code applies -origin
-shiftmode = {jtresm}  # 0: origin is absolute, 1: in units of the cell length
-zb        = [{z1!r}, {z2!r}]  # (a.u.) boundaries z1esm, z2esm
-potential = [{vp!r}, {vm!r}]  # (Ry) vesmp, vesmm on the +z / -z sides
-field     = [{ep!r}, {em!r}]  # (Ry/a.u.) eesmp, eesmm on the +z / -z sides
-''')
-    archive_esm_input(esm, ctrlg_path, has_section=False)
-    print(f'  {esm} converted, appended to {ctrlg_path.name}, '
-          f'original kept as {esm}.bk', flush=True)
-
-
-def archive_esm_input(esm, ctrlg_path, has_section):
-    """Move esm_input.dat to esm_input.dat.bk, keeping the original lines and
-    prepending a header that says where the settings went."""
-    when = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    head = [f'# esm_input.dat is retired; this is the archived original.',
-            f'# Moved {when}.']
-    if has_section:
-        head += [f'# {ctrlg_path.name} already had an [esm] section, so these',
-                 f'# settings were NOT copied anywhere -- the TOML one is what runs.',
-                 f'# Compare the two if you expected this file to be in effect.']
-    else:
-        head += [f'# These settings were converted and appended to {ctrlg_path.name}',
-                 f'# as an [esm] section. Edit them there from now on; this file is',
-                 f'# no longer read.']
-    head += ['#', '# --- original contents below ---']
-    Path(str(esm) + '.bk').write_text('\n'.join(head) + '\n' + esm.read_text())
-    esm.unlink()
-
-
 def main():
     if len(sys.argv) < 2 or sys.argv[1] in ('-h', '--help'):
         sys.exit(__doc__.strip())
@@ -354,7 +280,7 @@ def main():
     # ------------------------------------------------------------------
     # 1b. esm_input.dat -> [esm] appended to ctrlg.<sname>.toml
     # ------------------------------------------------------------------
-    convert_esm_input(out_path)
+    absorb_esm(Path(out_path))   # esm_input.dat -> [esm] (the Fortran refuses the file)
 
     # ------------------------------------------------------------------
     # 2. GWinput  ->  ctrlg.<sname>.toml [gw] [mlo] [blocks] [product_basis]
@@ -363,6 +289,7 @@ def main():
     # ------------------------------------------------------------------
     gwinput = Path('GWinput')
     if not gwinput.exists():
+        finish(Path(out_path))
         banner(f'no GWinput in cwd; ctrlg.{sname}.toml emitted without GW sections')
         return
     banner(f'GWinput -> append [gw]/[mlo]/[blocks]/[product_basis] to ctrlg.{sname}.toml')
@@ -426,20 +353,15 @@ def main():
         f.write('\n')
         f.write(pb_text)
 
-    # A PB.<sname>.toml from an earlier conversion is obsolete now.
+    # A PB.<sname>.toml from an earlier conversion is obsolete now (and the
+    # Fortran refuses to run next to one).
     if Path(f'PB.{sname}.toml').exists():
-        banner(f'NOTE PB.{sname}.toml is obsolete (its tables are now inside ctrlg.{sname}.toml); remove it')
+        banner(f'NOTE PB.{sname}.toml is obsolete: the tables are inside ctrlg.{sname}.toml now. '
+               f'Remove it, or run  ctrlg_absorb.py {sname}  to archive it as .bk')
 
-    # Annotate output with help comments from toml_comments.py, then tidy
-    # (column alignment, section order, rules between blocks). Content must
-    # not change.
-    from pylib.toml_tidy import tidy_gw_sections
-    import tomllib
-    raw = apply_toml_annotations(Path(out_path).read_text())
-    tidy = tidy_gw_sections(raw)
-    if tomllib.loads(raw) != tomllib.loads(tidy):
-        sys.exit('Legacy2toml.py: internal error, tidy changed the TOML content')
-    Path(out_path).write_text(tidy)
+    # Annotate with help comments from toml_comments.py, then tidy (column
+    # alignment, section order, rules between blocks). Content must not change.
+    finish(Path(out_path))
     banner(f'wrote ctrlg.{sname}.toml (annotated)')
 
 if __name__ == '__main__':
