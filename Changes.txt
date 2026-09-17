@@ -1,3 +1,10 @@
+2026-09-17 (13)
+  gwinit のテンプレが tetrakbt = true / t_tetrakbt = 300 を既定で書くのをやめ、見え消しにした
+  (tetrakbt / t_tetrakbt / t_sigmakbt の 3 行、「有限温度モードは外して使う」の注記付き)。
+    tetrakbt=true は chi0 を有限温度 (Fermi-Dirac 占有 + EFERMI_kbt) の四面体で計算する
+    モード切替そのもので、既定 true だと絶縁体でも 300 K の占有が入っていた。
+    新規生成の ctrlg は T=0 (従来どおり)。有限温度は manual/kBT の手順で明示的に有効にする。
+
 2026-09-17 (12)
   アップロード直前テスト (kt1: ~/ecalj を ~/ecaljold2026sep17 に退避し bundle から clean clone、
   InstallAll.py --fc nvfortran --gpu --mp -np 60 -np2 1, GPU 0 のみ):
