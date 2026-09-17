@@ -14,7 +14,7 @@ contains
                         tg_mlo_nskip => mlo_nskip, tg_mlo_w => mlo_w, &
                         tg_mlo_emax => mlo_emax, &
                         tg_mlo_delta => mlo_delta, tg_mlo_wfrz => mlo_wfrz, &
-                        tg_mlo_down => mlo_down
+                        tg_mlo_down => mlo_down, tg_mlo_low => mlo_low, tg_mlo_wlow => mlo_wlow
    implicit none
    integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev,nxx,jj,ndimPMTx,nvpmt,mlomethod,nskip,nskipin
    real(8)::beta,emu,val,wgt(ndimPMT),evlmto(ndimMTO),evl(ndimPMT),evlx(ndimPMT),qp(3),eww,eadd
@@ -53,6 +53,8 @@ contains
       use m_ftox
       integer:: ie,nidxevlmto,nidxevl,ibx,jx,idxevlmto(ndimMTO),idxevl(ndimPMT),jbx,nval,nnn,imx,nbx,ii
       real(8):: eee,fffx,ecut,xxx,rydberg,facww,sss,fff,epscore,emax,alpha,emin,ww(ndimPMTx),dex,ddd,ewuse,efrz,ewfrz,dwin,wfrz,down !,ewcutf
+      real(8):: elow, ewlow, thlow
+      logical:: lowcut
       real(8),allocatable::mulfac(:,:),mulfacw(:,:)
       complex(8):: imag=(0d0,1d0)
       ! Assert block for normalization check
@@ -118,6 +120,15 @@ contains
          dwin  = tg_mlo_delta /rydberg()
          wfrz  = tg_mlo_wfrz /rydberg()
          down  = tg_mlo_down /rydberg()
+         ! hidden lower cut: theta_j *= sigma((elow - eps)/ewlow); off unless mlo_low is set
+         lowcut = tg_mlo_low /= huge(0d0)
+         elow   = 0d0; ewlow = eww
+         if (lowcut) then
+            elow = eferm + tg_mlo_low/rydberg()
+            if (tg_mlo_wlow /= huge(0d0)) ewlow = tg_mlo_wlow/rydberg()
+            if (iprx) write(stdo,ftox) ' Hreduction: mlo_low (hidden) lower cut at EF',ftof(tg_mlo_low),&
+                 'eV, width',ftof(ewlow*rydberg()),'eV'
+         endif
       else
          call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
 !         call getkeyvalue("GWinput","mlo_w",eww,default=0.2d0) !smoothing cutoff
@@ -192,7 +203,9 @@ contains
           endblock
         endif
         pmtloop: do i=nskip+1,ndimPMTx
-          Amat(i,j)= fac(i,j) * max( fermidist((evl(i)-efrz)/ewfrz), fermidist((evl(i)-ecut)/ewuse) )
+          thlow = 1d0
+          if (lowcut) thlow = fermidist((elow-evl(i))/ewlow)   ! rises through 1/2 at elow
+          Amat(i,j)= fac(i,j) * thlow * max( fermidist((evl(i)-efrz)/ewfrz), fermidist((evl(i)-ecut)/ewuse) )
           ! v6.3 two-stage theta-bar: near-unity inside the frozen window (narrow 0.05Ry edge -> band-edge
           ! curvature undistorted), the usual broad eww tail outside (rank + graded completeness).
         enddo pmtloop

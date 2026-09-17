@@ -1,3 +1,13 @@
+2026-09-17 (16)
+  MLO の隠しオプション mlo_low / mlo_wlow ([mlo], eV): θ_j に下側のカット
+  σ((E_F + mlo_low − ε)/mlo_wlow) を掛け、E_F+mlo_low より下の PMT 状態を模型のフィットから
+  外す (mlo_method によらず。mlo_low 未指定なら無効、mlo_wlow 既定は mlo_w)。
+    m_GWinput (読み込み), m_hreduction (Amat の重み)。テンプレ・文書には出さない。
+    Cu の d 模型 (mlo_lm 5 6 7 8 9) で試した: base / low6_w05 / low7_w1 で d 帯 [-6,-1] の
+    rms 98 / 97 / 102 meV、[-2,+1] で 43 / 34 / 34 meV。s 帯の底 (-9.5 eV) を切っても
+    d 帯の中を横切る s 帯との交差 (k≈1.8, 3.3) での折れは残る — 5 本の模型で 6 本を
+    追う場所なので、エネルギー窓では消えない。図: ~/trash/mlo_low_cu/cu_mlo_low.png。
+
 2026-09-17 (15)
   履歴クリーンアップ後 (41465583b, dev/main に push 済み) の 4 環境ゲート、全部通過:
     local  gfortran-14        : testecalj --all 25/25, MLOsamples 18/18

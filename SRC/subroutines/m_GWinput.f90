@@ -179,6 +179,13 @@ module m_GWinput
   real(8), protected, public :: mlo_delta           = 2.0d0    ! eV
   real(8), protected, public :: mlo_wfrz           = 1.36d0   ! eV: freeze-edge width, mlo_method=3 only
   real(8), protected, public :: mlo_down           = 0.0d0    ! eV: own-energy floor lift, mlo_method=3 only
+  ! mlo_low / mlo_wlow (hidden, any mlo_method): also cut the model OFF BELOW an
+  ! energy. theta_j gets an extra factor sigma((mlo_low - eps)/mlo_wlow), so PMT
+  ! states below EF + mlo_low (eV) stop pulling on the fit. Off unless mlo_low is
+  ! set; mlo_wlow defaults to mlo_w. Meant for e.g. a d-only model of Cu, where
+  ! the s band bottom far below the d band otherwise enters with weight 1.
+  real(8), protected, public :: mlo_low            = huge(0d0) ! eV rel. EF; huge = off
+  real(8), protected, public :: mlo_wlow           = huge(0d0) ! eV; huge = same as mlo_w
   real(8), protected, public :: mixbeta            = 1.0d0
   real(8), protected, public :: mixtj              = 0.0d0
   real(8), protected, public :: TFscreen           = 1.0d-5**0.5d0
@@ -637,6 +644,8 @@ contains
     call gv_r(tbl, 'mlo_delta',           mlo_delta)
     call gv_r(tbl, 'mlo_wfrz',           mlo_wfrz)
     call gv_r(tbl, 'mlo_down',           mlo_down)
+    call gv_r(tbl, 'mlo_low',            mlo_low)
+    call gv_r(tbl, 'mlo_wlow',           mlo_wlow)
     call gv_r(tbl, 'mlo_conv',           mlo_conv)
     call gv_r(tbl, 'mlo_mix',            mlo_mix)
     call gv_r(tbl, 'mlo_EUinner',        mlo_EUinner)
