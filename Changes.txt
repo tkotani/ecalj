@@ -1,3 +1,19 @@
+2026-09-18 (4)
+  MLO の模型関数の選択: 浅い半芯 LO は LO を模型関数にする (m_HamPMT ShallowLO)。
+    mlo_lm で指定した (atom,l) に半芯 LO (0<pz<10, int(pz)<int(pnu)) があるとき、模型選択の前に
+    PMT ハミルトニアンを全 k で対角化し、LO 部分空間への射影重み (v^H S_GG^-1 v) > 1/2 の
+    占有状態の最高エネルギーを取る。E_F − 10 eV より上 (浅い) なら LO を模型関数にして EH を
+    捨て、下 (深い) なら従来どおり EH を使い LO 状態は nskip で外す。MPI で max を集約。
+    ZnO (Zn 3d −3.8 eV) が 476 → 0.8 meV。GaAs/NaCl/TiO2/Fe の深い LO は不変。
+    拡張 LO (pz が価電子殻より上、RuO2 の pz=5.5) は候補外 (使うと 14→254 meV)。
+    18 サンプルで参照が動いたのは NiO だけ (Ni 3d LO を浅い判定、16.6→16.4 meV、
+    max 52 meV; 参照と plots を更新)。18/18 PASSED。
+    Gd/Sm 4f は pz と pnu が同殻なので候補外。試しに LO を使うと GdCo5 12.6→7.4、
+    SmP 76→40 meV と改善する — 同殻 LO の扱いは未決 (要 user 判断)。
+    実験フラグ --mlo_lod は廃止 (見え消し)。
+    注意: 事前対角化で zhev_tk4 に (nbandmx,nbandmx) 配列をそのまま渡すと列がずれる
+    (dummy は explicit-shape)。(1:ndimPMT,1:ndimPMT) の部分配列で渡すこと。
+
 2026-09-18 (3)
   ctrlgenToml.py の既定 mix="B3", b=0.2 は磁性系で初期モーメントを 1 反復目で潰す
   (MP の Fe: 2.13 → 0.02 μB、Ni も 0)。Anderson A3 (b=0.3) か B3 でも b=0.5 なら 2.24 μB。

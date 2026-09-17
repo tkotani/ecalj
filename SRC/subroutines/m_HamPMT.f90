@@ -10,7 +10,7 @@ module m_HamPMT
                         tg_worb_lm => worb_lm, tg_worb_nlm => worb_nlm
    use m_hreduction,only: hreduction, hreduction_nskip
    use m_nvfortran, only: findloc
-   use m_cmdopt_registry, only: c0_mlo, c0_skip1d, c0_skip2nd, c0_skip2ndd, c0_skip2ndp, c0_skip2nds, c0_skipd, c0_skipf, c0_skiplo, c0_socmatrix, c0_mlo_lod
+   use m_cmdopt_registry, only: c0_mlo, c0_skip1d, c0_skip2nd, c0_skip2ndd, c0_skip2ndp, c0_skip2nds, c0_skipd, c0_skipf, c0_skiplo, c0_socmatrix
    real(8),external::tolq !eps=1d-8
    real(8),allocatable,protected:: plat(:,:),pos(:,:),qlat(:,:),symops(:,:,:)
    real(8),allocatable,protected,target:: qplist(:,:)
@@ -143,6 +143,7 @@ contains
         use m_nvfortran,only : findloc
         integer::lmindex(16,nbas),lm,iw,ibw,nlmw,ibsel
         character(256):: aaa
+        logical:: use_lo(nbas,0:3)
         call gwinput_init()
         if (gwinput_loaded) then
           mlomethod = tg_mlo_method
@@ -161,20 +162,108 @@ contains
            call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
            aaa = trim(aaa) // ' '   ! compiler bait, unreachable -- see block header
         endif
+        ! Which function represents a listed l channel: the EH function, or the
+        ! local orbital (k=3) of that atom and l when it has one?  A deep semicore
+        ! LO (Ga 3d at -15 eV) is not part of the model: its states are dropped
+        ! by nskip and the EH function (4d-like) serves the model.  A SHALLOW
+        ! semicore LO (Zn 3d at -6 eV, hybridized with O 2p, inside the window)
+        ! IS the model function; with the EH function instead ZnO came out at
+        ! 476 meV, with the LO at 0.8 meV (2026-09-18, BackUp_notes/mp_20260918).
+        ! Decide per (atom,l) from the PMT Hamiltonian: the LO-dominated states
+        ! (Mulliken weight > 1/2 on that LO block, occupied) are "shallow" when
+        ! their highest energy over all k is above EF - 10 eV.
+        ShallowLO: block
+          use mpi
+          use m_lmfinit, only: oveps
+          real(8), parameter :: eshallow = -10d0/13.605d0     ! Ry, relative to EF
+          integer :: ifih_info, ifih, mrech, mrechsoc, nbandmx, istat, iqxx, jspxx, iqqisp, nev0, nmx, il, ierr, ng, nspxl
+          type(mpiio_buf) :: buf
+          complex(8), allocatable :: ovlmp(:,:), hammp(:,:), evec(:,:), sc(:,:), s0(:,:)
+          real(8), allocatable :: evl(:)
+          real(8) :: etop(nbas,0:3), etop_all(nbas,0:3), w
+          logical :: has_lo(nbas,0:3)
+          use_lo = .false.; has_lo = .false.; etop = -1d99
+          ! only SEMICORE local orbitals (0 < pz < 10 and int(pz) < int(pnu)) are
+          ! candidates. An extended LO (pz above the valence shell, e.g. Ru pz=5.5
+          ! next to the 4d EH function) is a high-lying tail function, not a band:
+          ! with it as the model function RuO2 went 14 -> 254 meV.
+          block
+            use m_lmfinit, only: pzsp, pnusp
+            real(8) :: pz, pnu
+            do i = 1, ldim
+              if (k_table(i)/=3 .or. l_table(i)>3) cycle
+              pz  = pzsp (l_table(i)+1, 1, ispec_table(i))
+              pnu = pnusp(l_table(i)+1, 1, ispec_table(i))
+              if (pz > 0d0 .and. pz < 10d0 .and. int(pz) < int(pnu)) has_lo(ib_table(i), l_table(i)) = .true.
+            enddo
+          endblock
+          if (any(has_lo)) then
+            open(newunit=ifih_info, file='__HamiltonianPMT.info', form='unformatted', action='read')
+            read(ifih_info) nbandmx, mrech, mrechsoc
+            close(ifih_info)
+            allocate(ovlmp(nbandmx,nbandmx), hammp(nbandmx,nbandmx), evec(nbandmx,nbandmx), evl(nbandmx), sc(nbandmx,nbandmx), s0(nbandmx,nbandmx))
+            istat = openm(newunit=ifih, file='__HamiltonianPMT', recl=mrech)
+            nspxl = nsp; if (lso==1) nspxl = 1      ! nspx of the module is set only later
+            do iqxx = 1, nqibz
+              if (mod(iqxx-1, nsize) /= procid) cycle
+              do jspxx = 1, nspxl
+                iqqisp = jspxx + nspxl*(iqxx-1)
+                istat = readm_buf(ifih, rec=iqqisp, buf=buf)
+                call buf_get(buf, qp); call buf_get(buf, ndimPMT); call buf_get(buf, ovlmp); call buf_get(buf, hammp)
+                nmx = ndimPMT
+                s0(1:ndimPMT,1:ndimPMT) = ovlmp(1:ndimPMT,1:ndimPMT)      ! zhev_tk4 destroys its inputs
+                call zhev_tk4(ndimPMT, hammp(1:ndimPMT,1:ndimPMT), ovlmp(1:ndimPMT,1:ndimPMT), nmx, nev0, evl(1:ndimPMT), &
+                     evec(1:ndimPMT,1:ndimPMT), oveps)   ! sections: the dummies are explicit-shape (ndimPMT,*)
+                sc(1:ndimPMT,1:nev0) = matmul(s0(1:ndimPMT,1:ndimPMT), evec(1:ndimPMT,1:nev0))   ! S c
+                do ib = 1, nbas; do il = 0, 3
+                  if (.not. has_lo(ib,il)) cycle
+                  ! projection weight of state i onto span{LO functions of (ib,il)}:
+                  !   w = v^H S_GG^-1 v,  v_g = <chi_g|psi_i> = (S c)_g   (0 <= w <= 1)
+                  ! (a Mulliken partition is useless here: MTO/APW overlaps give
+                  !  per-function weights of +-100 for states near EF)
+                  ng = count(k_table==3 .and. ib_table==ib .and. l_table==il)
+                  block
+                    use m_lapack, only: zminv => zminv_h
+                    integer :: g(ng), ii, jj
+                    complex(8) :: sgg(ng,ng), v(ng)
+                    g = pack([(j, j=1,ldim)], k_table==3 .and. ib_table==ib .and. l_table==il)
+                    forall(ii=1:ng, jj=1:ng) sgg(ii,jj) = s0(g(ii), g(jj))
+                    istat = zminv(sgg, n=ng)
+                    do i = 1, nev0
+                      v = sc(g, i)
+                      w = dble(dot_product(v, matmul(sgg, v))) / dble(dot_product(evec(1:ndimPMT,i), sc(1:ndimPMT,i)))  ! / <psi|psi>
+                      ! occupied states only: the LO function also has weight in
+                      ! unphysical states far above EF, which are not the band.
+                      if (w > 0.5d0 .and. evl(i) < eferm + 0.05d0) etop(ib,il) = max(etop(ib,il), evl(i))
+                    enddo
+                  endblock
+                enddo; enddo
+              enddo
+            enddo
+            istat = closem(ifih)
+            call MPI_Allreduce(etop, etop_all, nbas*4, MPI_DOUBLE_PRECISION, MPI_MAX, MPI_COMM_WORLD, ierr)
+            do ib = 1, nbas; do il = 0, 3
+              if (.not. has_lo(ib,il)) cycle
+              use_lo(ib,il) = etop_all(ib,il) > eferm + eshallow
+              if (master_mpi) write(stdo,ftox) ' m_HamPMT: local orbital atom',ib,' l=',il,' top of its band EF',&
+                   ftof((etop_all(ib,il)-eferm)*13.605d0),'eV ->', merge('SHALLOW: LO is the model function         ', &
+                   'deep: EH is the model function, LO skipped', use_lo(ib,il))
+            enddo; enddo
+          endif
+        endblock ShallowLO
         nn=0
         lold=-999
         ibsel=-999
 !        nskip=0
         do i=1,ldim  !Only MTOs for EH 
           if( k_table(i)==2) cycle  !skip 2nd
-          ! --mlo_lod (experiment 2026-09-18): for the d channel take the local
-          ! orbital (k=3, e.g. Zn 3d, pz=3.9) instead of the EH function (4d-like).
-          ! Shallow semicore d that hybridizes with the valence (ZnO) is not
-          ! represented by the EH d function.
-          if( c0_mlo_lod .and. l_table(i)==2 ) then
-            if( k_table(i)==1 .and. any(k_table==3 .and. l_table==2 .and. ib_table==ib_table(i)) ) cycle  ! EH d dropped when an LO d exists
+          ! shallow local orbital (see ShallowLO above): the LO is the model function
+          ! for that (atom,l) and the EH function is dropped; otherwise the LO is
+          ! skipped (its states are removed by nskip) and the EH function is taken.
+          if( l_table(i)<=3 .and. use_lo(ib_table(i),l_table(i)) ) then
+            if( k_table(i)==1 ) cycle   ! EH dropped, LO taken
           else
-            if( k_table(i)==3 ) cycle  !skip local orbital (nskip handles its states)
+            if( k_table(i)==3 ) cycle   ! LO skipped, EH taken
           endif
           ib=ib_table(i)
           ! m runs -l..l over the 2l+1 consecutive entries of one (atom, l) shell.

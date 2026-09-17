@@ -162,7 +162,7 @@ module m_cmdopt_registry
   logical, public, protected, save :: c0_skipf           = .false.
   logical, public, protected, save :: c0_skiphammsoc     = .false.
   logical, public, protected, save :: c0_skiplo          = .false.
-  logical, public, protected, save :: c0_mlo_lod         = .false.  ! experiment 2026-09-18: model d = local orbital (k=3) instead of EH
+  !logical, public, protected, save :: c0_mlo_lod         = .false.  ! 2026-09-18 experiment, superseded by the automatic shallow-LO rule in m_HamPMT
   logical, public, protected, save :: c0_slat            = .false.
   logical, public, protected, save :: c0_socmatrix       = .false.
   logical, public, protected, save :: c0_tdos            = .false.
@@ -445,7 +445,7 @@ contains
     call set0('--skipf',          c0_skipf, narg, arglist)
     call set0('--skiphammsoc',    c0_skiphammsoc, narg, arglist)
     call set0('--skiplo',         c0_skiplo, narg, arglist)
-    call set0('--mlo_lod',        c0_mlo_lod, narg, arglist)
+    !call set0('--mlo_lod',        c0_mlo_lod, narg, arglist)   ! superseded by the automatic shallow-LO rule
     call set0('--slat',           c0_slat, narg, arglist)
     call set0('--socmatrix',      c0_socmatrix, narg, arglist)
     call set0('--tdos',           c0_tdos, narg, arglist)
