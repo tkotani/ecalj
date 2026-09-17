@@ -1,3 +1,10 @@
+2026-09-17 (4)
+  MLOsamples 18 件の ctrlg に mlo_delta = 2.0 と mlo_w = 2.0 (eV) を明示。
+    どちらも mlo_method=4 の既定値そのもので結果は変わらない (Cu, NiO666lda で
+    ALL PASSED 確認)。mlo_method / mlo_delta / mlo_w の 3 つが模型を決める入力で、
+    既定に頼って 2 つを書かずにおくと何を回したかが入力から読めないため。
+    gwinit のテンプレは元から 3 つとも書いている。
+
 2026-09-17 (3)
   wan_* (Wannier / hmaxloc 用のキー) を Wannier を使わないサンプル 26 ファイルで
   コメントアウト (見え消し)。値はそのまま残してある。
