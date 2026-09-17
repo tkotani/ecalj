@@ -1,3 +1,21 @@
+2026-09-18 (1)
+  MLO の nskip (射影子から外す最下位 PMT 状態の数) を k に依らない規則にした。
+    従来: k ごとに「模型部分空間への重み < 1/2 の最下位状態の数」。Cu の d 模型では s 帯が
+    band 1 になる k とならない k で 0/1 が入れ替わり、MLO バンドに折れが出ていた
+    (Samples/MLOsamples/BackUp_notes/mlo_low_cu_20260917.md)。
+    新: 同じ per-k count の全 k・全スピンでの最小値 (m_HamPMT が本番ループ前に全 k を
+    一巡、MPI_Allreduce MIN; Hreduction_nskip を新設し nskip_auto として渡す)。
+    「全 k で非模型である状態だけ外す」= 模型的かもしれない状態は落とさない。
+    半芯 LO の数 (pz) だけの規則も試したが、O 2s などの低い非模型帯を外せず
+    Al2O3_Cr/FeMgO/NiO/RuO2/SrTiO3 で大幅悪化 (RuO2 8→150 meV) のため不採用
+    (nsemicore は診断として表示するだけ)。
+    手動 mlo_nskip は廃止 (m_GWinput の読み込みと m_hreduction の使用を見え消し)。
+    診断用 mlo_method=9 (θ=1、MTO のみ) を追加。
+    参照更新: Cu band_MLO_spin1 (折れ消失、E_F 近傍 43→18 meV)、SmP と GdCo5 の
+    band_MLO_spin2 (非占有 4f 模型; per-k count が 4/5 を行き来 → 4 に固定。SmP 75→139,
+    GdCo5 17→39 meV)。他 15 系は bit 一致。MLOsamples 18/18 (322 checks) PASSED。
+    plots/{Cu,SmP,GdCo5}*.png を再生成。
+
 2026-09-17 (17)
   [mlo] mlo_nkabc = [n1,n2,n3]: MLO を作る k メッシュ。lmf --writeham --mlo のパスだけ
   bz_nabcin をこれで置き換える (m_lmfinit)。**必須・既定なし**: 無ければ lmf が abort して

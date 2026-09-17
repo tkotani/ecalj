@@ -8,13 +8,22 @@ module m_HamPMT
    use m_GWinput, only: gwinput_init, gwinput_loaded, tg_mlo_method => mlo_method, &
                         tg_n_worb => n_worb, tg_worb_iatom => worb_iatom, &
                         tg_worb_lm => worb_lm, tg_worb_nlm => worb_nlm
-   use m_hreduction,only: hreduction
+   use m_hreduction,only: hreduction, hreduction_nskip
    use m_nvfortran, only: findloc
    use m_cmdopt_registry, only: c0_mlo, c0_skip1d, c0_skip2nd, c0_skip2ndd, c0_skip2ndp, c0_skip2nds, c0_skipd, c0_skipf, c0_skiplo, c0_socmatrix
    real(8),external::tolq !eps=1d-8
    real(8),allocatable,protected:: plat(:,:),pos(:,:),qlat(:,:),symops(:,:,:)
    real(8),allocatable,protected,target:: qplist(:,:)
    integer,allocatable,protected:: nlat(:,:,:,:),npair(:,:),ib_table(:),l_table(:),k_table(:),ispec_table(:),nqwgt(:,:,:),m_table(:)
+   ! nsemicore: number of semicore local-orbital basis functions in the MTO block
+   ! (k_table=3 with 0<pz<10 and int(pz)<int(pnu)). Printed as a diagnostic only:
+   ! the projector drops nskip_global lowest PMT states, where nskip_global is the
+   ! minimum over all k (and spins) of the per-k count of leading non-model states
+   ! (weight < 1/2 in the model subspace; Hreduction_nskip). That covers semicore
+   ! LOs and low-lying non-model bands (O 2s, ...) alike, and being a minimum over k
+   ! it never flips across the mesh (2026-09-18, Cu d-only model).
+   integer,protected:: nsemicore = 0
+   integer,private:: nskip_global = 0
    character(8),allocatable,protected:: slabl_table(:)
    integer,protected:: nkk1,nkk2,nkk3,nbas,nkp,npairmx,ldim,jsp,lso,nsp,nspx,nspc,ngrp !ldim is number of MTOs
    real(8),protected:: alat
@@ -63,6 +72,20 @@ contains
          write(stdo,"('MHAM: i i-ioffib ib(atom) l k(1:EH,2:EH2,3:PZ)=',i4,5i3)")&
             i,i-ioff,ib_table(i),l_table(i),k_table(i)
       enddo
+      CountSemicore: block
+        use m_lmfinit, only: pzsp, pnusp
+        real(8):: pz, pnu
+        nsemicore = 0
+        if (allocated(pzsp) .and. allocated(pnusp)) then
+           do i = 1, ldim
+              if (k_table(i) /= 3) cycle
+              pz  = pzsp (l_table(i)+1, 1, ispec_table(i))
+              pnu = pnusp(l_table(i)+1, 1, ispec_table(i))
+              if (pz > 0d0 .and. pz < 10d0 .and. int(pz) < int(pnu)) nsemicore = nsemicore + 1
+           enddo
+        endif
+        write(stdo,ftox) 'MHAM: semicore local-orbital functions in the MTO block (dropped from the MLO projector) nsemicore=', nsemicore
+      endblock CountSemicore
    end subroutine ReadHamPMTInfo
    !c$$$  !! delta fun check for FFT: k --> T --> k
    !c$$$!!    \delta_{kk'} = \sum_{T \in T(i,j)} W_T exp( i (k-k') T)
@@ -220,8 +243,22 @@ contains
           ndble = 8
           mrecbb = 2*nbandmx*ndimMTO* ndble !byte size  !Use -assume byterecl for ifort, so that ifort recognizes the recored in the unit of bytes.
           i = openm(newunit=ifizz, file='__cmlo.data',recl=mrecbb)
-          ! if(numprocs_in/=nsize) call rxii('m_HamPMT: nsize for lmf and lmfham1 should be the same', numprocs_in,nsize)
-          ! iqibzloops: do idat=1,niqisp
+          NskipPrepassGW: block ! nskip_global = min over all (iq,isp) of the per-k non-model count
+            use mpi
+            integer:: nsk, nskmin, ierr
+            nskmin = huge(0)
+            do iq = 1, nqirr; do isp = 1, nspx
+              iqqisp = isp + nspx*(iq-1)
+              if(mod(iqqisp-1, nsize) /= procid) cycle
+              istat = readm_buf(ifihh, rec=iqqisp, buf=buf)
+              call buf_get(buf, ndimPMT); call buf_get(buf, ovlmp); call buf_get(buf, hammp)
+              call Hreduction_nskip(ndimPMT,hammp(1:ndimPMT,1:ndimPMT),ovlmp(1:ndimPMT,1:ndimPMT),ndimMTO,ix, nsk)
+              nskmin = min(nskmin, nsk)
+            enddo; enddo
+            call MPI_Allreduce(nskmin, nskip_global, 1, MPI_INTEGER, MPI_MIN, MPI_COMM_WORLD, ierr)
+            if(master_mpi) write(stdo,ftox) ' m_HamPMT: nskip (min over k of leading non-model PMT states) =', nskip_global, &
+                 '  [semicore LO functions in the basis:', nsemicore,']'
+          endblock NskipPrepassGW
           iqibzloops: do iq = 1, nqirr; do isp=1, nspx
             iqqisp= isp + nspx*(iq-1)
             if(mod(iqqisp-1, nsize) /= procid)  cycle
@@ -238,7 +275,7 @@ contains
             ! read(ifihh) hammp
             cmlo=0d0 !zero padding for 1:nbandmx in advance
             call Hreduction(mlomethod,.false.,ndimPMT,hammp(1:ndimPMT,1:ndimPMT),ovlmp(1:ndimPMT,1:ndimPMT), &
-                            ndimMTO,ix,fff1, hamm,ovlm,qp,cmlo=cmlo(1:ndimPMT,1:ndimMTO), nev=nev)
+                            ndimMTO,ix,fff1, hamm,ovlm,qp,cmlo=cmlo(1:ndimPMT,1:ndimMTO), nev=nev, nskip_auto=nskip_global)
               ! iqqisp= isp + nspx*(iq-1)
 !                write(*,*)'cccccccccc cmlowrite',isp,iq,iqqisp, sum(abs(cmlo))
             istat = writem(ifizz,rec=iqqisp,data=cmlo)
@@ -278,7 +315,24 @@ contains
           istat = openm(newunit=ifihsoc,file='__HamiltonianPMTsoc',recl=mrechsoc)
           allocate(hammhsop(nbandmx/nspc,nbandmx/nspc,3)) !hammhso is per-orbital (no spinor doubling)
         endif
-        ! read(ifih)  !procid_in,numprocs_in
+        NskipPrepass: block ! nskip_global = min over all (iq,isp) of the per-k non-model count
+          use mpi
+          integer:: nsk, nskmin, ierr
+          nskmin = huge(0)
+          do iqxx=1,nqibz
+            if(mod(iqxx-1, nsize) /= procid) cycle
+            do jspxx=1,nspx
+              iqqisp= jspxx + nspx*(iqxx-1)
+              istat = readm_buf(ifih, rec=iqqisp, buf=buf)
+              call buf_get(buf, qp); call buf_get(buf, ndimPMT); call buf_get(buf, ovlmp); call buf_get(buf, hammp)
+              call Hreduction_nskip(ndimPMT,hammp(1:ndimPMT,1:ndimPMT),ovlmp(1:ndimPMT,1:ndimPMT),ndimMTO,ix, nsk)
+              nskmin = min(nskmin, nsk)
+            enddo
+          enddo
+          call MPI_Allreduce(nskmin, nskip_global, 1, MPI_INTEGER, MPI_MIN, MPI_COMM_WORLD, ierr)
+          if(master_mpi) write(stdo,ftox) ' m_HamPMT: nskip (min over k of leading non-model PMT states) =', nskip_global, &
+               '  [semicore LO functions in the basis:', nsemicore,']'
+        endblock NskipPrepass
         iqiloop: do iqxx=1,nqibz !nqibz !xx=1,nqibz !iqini,iqend !iqxx=1,nqibz 
            if(debug)write(6,*)' start iqiloop=',iqxx,nqibz
            if(mod(iqxx-1, nsize) /= procid) cycle iqiloop
@@ -301,11 +355,11 @@ contains
               if(socmatrix.and.jspxx==nspx) then
 !                call Hreduction(mlomethod,.false.,ndimPMT,hammp,ovlmp, ndimMTO,ix,fff1, hamm,ovlm,qp,nev=nx, zMLO=zMLO)
                 call Hreduction(mlomethod,.false.,ndimPMT,hammp(1:ndimPMT,1:ndimPMT),ovlmp(1:ndimPMT,1:ndimPMT), &
-                                ndimMTO,ix,fff1, hamm,ovlm,qp,nev=nx, zMLO=zMLO)
+                                ndimMTO,ix,fff1, hamm,ovlm,qp,nev=nx, zMLO=zMLO, nskip_auto=nskip_global)
               else
 !                call Hreduction(mlomethod,.false.,ndimPMT,hammp,ovlmp, ndimMTO,ix,fff1, hamm,ovlm,qp,nev=nx)
                 call Hreduction(mlomethod,.false.,ndimPMT,hammp(1:ndimPMT,1:ndimPMT),ovlmp(1:ndimPMT,1:ndimPMT), &
-                                ndimMTO,ix,fff1, hamm,ovlm,qp,nev=nx)
+                                ndimMTO,ix,fff1, hamm,ovlm,qp,nev=nx, nskip_auto=nskip_global)
               endif
 
               if(socmatrix.and.jspxx==nspx) then

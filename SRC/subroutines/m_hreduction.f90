@@ -1,7 +1,43 @@
 module m_hreduction
 use m_cmdopt_registry, only: c0_gs, c0_mlo_diagnorm, c0_mlo_feb4, c0_mlo_ortho, c0_mlo_orthonorm
 contains
-  subroutine Hreduction(mlomethod,iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,ovlmout, qp, cmlo,nev, zMLO) !> Reduce H(ndimPMT) to H(ndimMTO)
+  !> How many of the lowest PMT eigenstates at this k are NOT model-like: the
+  !  count of leading states whose weight sum_j |<Psi^PMT_i|Psi^MTO_j>|^2 in the
+  !  model subspace is below 1/2 (semicore local orbitals, O 2s bands, ...).
+  !  m_HamPMT takes the MINIMUM of this over all k (and spins, and MPI ranks)
+  !  and hands it to Hreduction as nskip_auto, so the projector drops the same
+  !  number of states at every k. Deciding it per k (the rule until 2026-09-18)
+  !  flipped between 0 and 1 across k for Cu's d-only model, where the s band is
+  !  band 1 at some k and not at others, and put kinks into the MLO bands.
+  subroutine Hreduction_nskip(ndimPMT,hamm,ovlm,ndimMTO,ix, nskipin)
+    use m_zhev,only:zhev_tk4
+    use m_nvfortran, only: findloc
+    use m_lmfinit,only:oveps
+    implicit none
+    integer,intent(in):: ndimPMT,ndimMTO,ix(ndimMTO)
+    complex(8),intent(in):: hamm(ndimPMT,ndimPMT),ovlm(ndimPMT,ndimPMT)
+    integer,intent(out):: nskipin
+    integer:: i,j,nev,nmx
+    real(8):: evlmto(ndimMTO),evl(ndimPMT),wsum(ndimPMT)
+    complex(8):: evecmto(ndimMTO,ndimMTO),evecpmt(ndimPMT,ndimPMT),ovlmx(ndimPMT,ndimPMT),hammx(ndimPMT,ndimPMT)
+    complex(8):: sv(ndimPMT,ndimMTO)
+    real(8),parameter:: epscore=0.5d0
+    ovlmx=ovlm; hammx=hamm; nmx=ndimMTO
+    call zhev_tk4(ndimMTO,hammx(ix(1:ndimMTO),ix(1:ndimMTO)),ovlmx(ix(1:ndimMTO),ix(1:ndimMTO)), nmx,nev, evlmto, evecmto, oveps)
+    ovlmx=ovlm; hammx=hamm; nmx=ndimPMT
+    call zhev_tk4(ndimPMT,hammx,ovlmx, nmx,nev, evl,evecpmt, oveps)
+    sv = matmul(ovlm(:,ix(1:ndimMTO)), evecmto)          ! S |Psi_MTO_j>
+    wsum = 0d0
+    do i=1,nev
+       do j=1,ndimMTO
+          wsum(i) = wsum(i) + abs(sum(dconjg(evecpmt(:,i))*sv(:,j)))**2
+       enddo
+    enddo
+    nskipin = findloc(wsum(1:nev) > epscore, value=.true., dim=1) - 1
+    if (nskipin < 0) nskipin = nev
+  end subroutine Hreduction_nskip
+
+  subroutine Hreduction(mlomethod,iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,ovlmout, qp, cmlo,nev, zMLO, nskip_auto) !> Reduce H(ndimPMT) to H(ndimMTO)
     ! cmlo= <Psi^MPT i|F^MLO j>
    use m_zhev,only:zhev_tk4
    use m_nvfortran, only: findloc
@@ -11,7 +47,7 @@ contains
    use m_lmfinit,only:oveps
    use m_keyvalue,only: getkeyvalue
    use m_GWinput, only: gwinput_init, gwinput_loaded, &
-                        tg_mlo_nskip => mlo_nskip, tg_mlo_w => mlo_w, &
+                        tg_mlo_w => mlo_w, &   ! tg_mlo_nskip => mlo_nskip retired 2026-09-18
                         tg_mlo_emax => mlo_emax, &
                         tg_mlo_delta => mlo_delta, tg_mlo_wfrz => mlo_wfrz, &
                         tg_mlo_down => mlo_down !, tg_mlo_low => mlo_low, tg_mlo_wlow => mlo_wlow, &
@@ -25,6 +61,7 @@ contains
    complex(8):: hammout(ndimMTO,ndimMTO),ovlmout(ndimMTO,ndimMTO)
    complex(8),optional,intent(out):: cmlo(ndimPMT,ndimMTO) !<Psi^PMT_i|F^MLO_k>, PMT-eigenstate-basis coefficients
    complex(8),optional,intent(out):: zMLO(ndimPMT,ndimMTO) !|F_MLO_k> = sum_m |chi^PMT_m> zMLO(m,k)
+   integer,optional,intent(in):: nskip_auto  ! number of semicore-LO states to drop (k-independent, from m_HamPMT)
    complex(8):: cmlo_loc(ndimPMT,ndimMTO) !internal working array
 !   complex(8),optional:: zcplz(ndimPMT,ndimMTO)
    complex(8),allocatable :: Amat(:,:)
@@ -70,18 +107,31 @@ contains
         enddo
       endif
       
-      ! Determine nskip, eigenfunctions PMT(1:nskip), semicores, are removed.
+      ! Determine nskip: the lowest nskip PMT eigenstates (semicore local orbitals) are
+      ! removed from the projector. The count comes from the basis (number of semicore
+      ! LO functions, m_HamPMT%nsemicore) so it is the same at every k. The old rule
+      ! -- count the lowest states whose weight in the model subspace is < 0.5 -- is
+      ! k-dependent: for Cu's d-only model the s band is band 1 at some k and not at
+      ! others, and the projector jumped between them (kinks in the MLO bands,
+      ! Samples/MLOsamples/BackUp_notes/mlo_low_cu_20260917.md). Kept as fallback
+      ! when the caller cannot supply the count.
       epscore=0.5d0
-      nskipin = findloc( sum(abs(fac(:,:))**2,dim=2) > epscore, value=.true.,dim=1)-1 !semicore level skip by LO. Or skip evec outside of MTOa
-      call gwinput_init()
-      if (gwinput_loaded) then
-         nskip = tg_mlo_nskip
-         if (nskip == -huge(0)) nskip = nskipin   ! sentinel ⇒ key absent
+      if (present(nskip_auto)) then
+         nskipin = nskip_auto                       ! k-independent: min over k of the per-k count (m_HamPMT)
       else
-         call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
-!         call getkeyvalue("GWinput","mlo_nskip",nskip,default=nskipin) !nskip is LO bands. This will be automatic
+         nskipin = findloc( sum(abs(fac(:,:))**2,dim=2) > epscore, value=.true.,dim=1)-1 ! per-k fallback (callers without a pre-pass)
       endif
+      call gwinput_init()
+      if (.not. gwinput_loaded) call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
+      nskip = nskipin
+      ! mlo_nskip (manual override) is retired 2026-09-18: the automatic rule is the definition now.
+      !nskip = tg_mlo_nskip
+      !if (nskip == -huge(0)) nskip = nskipin   ! sentinel ⇒ key absent
       write(stdo,ftox) 'nnnnn nskip',nskip !,ftof(sum(abs(fac(:,:))**2,dim=2))
+      do i = 1, nskip   ! a dropped state that IS model-like would be a mistake; say so
+         if (sum(abs(fac(i,:))**2) > epscore) write(stdo,ftox) &
+              ' Hreduction: WARNING skipped PMT state',i,'has weight',ftof(sum(abs(fac(i,:))**2)),'in the model at q=',ftof(qp)
+      enddo
 
       ! === Usage ===
       ! Simple version ---> Set mlo_method 0 with mlo_emax for Semiconductor (\lesssim VBM) or Al2O3_Cr (7eV or higher)
@@ -172,6 +222,11 @@ contains
           ecut = emax
         elseif(mlomethod==2) then
           ecut = evlmto(j)
+        elseif(mlomethod==9) then
+          ! Diagnostic (hidden): no energy cut at all, theta = 1 for every PMT state.
+          ! Then Amat = fac and P = sum_i |Psi_PMT_i><Psi_PMT_i| is the identity on the
+          ! PMT space, so |F_MLO> = |F_MTO> and the MLO bands are the MTO-only bands.
+          ecut = 1d99
         elseif(mlomethod==4) then
           ! For target (1): a minimal model that reproduces the energy region
           ! around EF. method 0 with the hand-set emax replaced by an automatic

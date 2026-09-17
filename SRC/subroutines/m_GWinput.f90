@@ -670,7 +670,7 @@ contains
     call gv_r(tbl, 'mlo_WTouter',        mlo_WTouter)
     call gv_r(tbl, 'mlo_CLhard',         mlo_CLhard)
     call gv_r(tbl, 'mlo_ELhard',         mlo_ELhard)
-    call gv_i(tbl, 'mlo_nskip',          mlo_nskip)
+    !call gv_i(tbl, 'mlo_nskip',          mlo_nskip)   ! retired 2026-09-18: nskip is automatic (min over k of the non-model count)
     call gv_i(tbl, 'mlo_maxit',          mlo_maxit)
     call gv_l(tbl, 'mlo_EUinnerAUTOsp',         mlo_EUinnerAUTOsp)
   end subroutine load_mlo_keys
