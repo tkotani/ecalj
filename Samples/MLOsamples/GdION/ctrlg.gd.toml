@@ -123,14 +123,18 @@ pwemax      = 3.0  # APW cutoff (Ry)
 # nband_chi0/emax_chi0: bands/energy window for chi0.
 # Touch only if you know what you are doing -- defaults are sensible.
 [gw]
-mlo_method = 4  # theta = sigma((eps - ecut_j)/mlo_w),  ecut_j = max(CBM + mlo_delta, eps^MTO_j)
-mlo_delta  = 2.0  # (eV) default. How far above the band edge (E_F in metals) the model must be accurate
-mlo_w      = 2.0  # (eV) default for mlo_method=4. Width of the fall-off above that floor
 
 # Blocks not yet structured — kept as raw text for round-trip
 # === PRODUCT_BASIS ===
 # pb_tolerance / pb_lcutmx : ctrlG.<sname>.toml (cut-off tunables).
 # nlx / valence / core     : PB.toml (sname-free, shared per-spec tables).
+[mlo]
+# MLO (muffin-tin based localized orbitals). Which lm channels make the model
+# is given by Worb in [blocks]; the three keys below shape the weight theta.
+mlo_method = 4  # theta = sigma((eps - ecut_j)/mlo_w),  ecut_j = max(CBM + mlo_delta, eps^MTO_j)
+mlo_delta  = 2.0  # (eV) default. How far above the band edge (E_F in metals) the model must be accurate
+mlo_w      = 2.0  # (eV) default for mlo_method=4. Width of the fall-off above that floor
+
 [product_basis]
 pb_tolerance = [1e-3]  # drop linearly-dep products below this (default 1e-3)
 pb_lcutmx    = []  # max l-cutoff per atom (4 for d-valence, 6 for f)

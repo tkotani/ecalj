@@ -1,3 +1,35 @@
+2026-09-17 (5)
+  [BREAKING-ish] GWinput.toml は一切読まない。GW 側の入力は ctrlg.<sname>.toml + PB.<sname>.toml だけ。
+    GWinput.toml は 2026-05 移行期の中間ファイル名で、ecalj は読んでいなかったが、
+    その存在を条件にする古い判定が 3 か所に残っていて実害が出ていた:
+    - job_mloW → pylib/gwinput_prepare.py: GWinput.toml (無ければ GWinput から変換) の
+      存在だけを要求する門番。Fe の test は mlo_method=0 と矛盾した化石の GWinput.toml で
+      門番を通していただけだった。門番を ctrlg/PB の存在確認に置換し gwinput_prepare.py は
+      削除 (使用者は job_mloW のみ)。
+    - switch.f90 (Verbose) と getbzdata1.f90 (BZadiv): GWinput/GWinput.toml が存在すれば
+      TOML を読む判定 → ctrlg の世界では常に偽で、[gw] Verbose と BZadiv が読まれていなかった。
+      m_GWinput に gwinput_available() (ctrlg と PB の両方があるか) を追加して置換。
+    - rx の文言 39 か所「GWinput.toml is required」→「ctrlg.<sname>.toml + PB.<sname>.toml」。
+    tomlexpand.py (TOML→旧 GWinput の逆変換、round_trip_check.sh 専用) は SRC/exec_legacy/ へ。
+    gwinput2toml.py は Legacy2toml.py の内部ヘルパであることを明示し -o を必須に
+    (既定で GWinput.toml を作らない)。Legacy2toml.py の一時ファイル名も .l2t_gwinput.tmp に。
+    迷子の Samples/MLOsamples/Fe/GWinput.toml と BenchmarkTest/inas4gasb4/GWinput.toml は削除
+    (~/trash/GWinput_toml_20260917/ に退避)。
+    手で変換できるよう、旧 GWinput → ctrlg/PB の対応表と改名・廃止キーの一覧を
+    m_GWinput.f90 の冒頭コメントに書き込んだ。
+  [mlo] セクション新設。mlo_* キーを [gw] から [mlo] へ。
+    m_GWinput: load_mlo_keys / load_mlo_section。[gw] に mlo_* が残っていれば読んで一行案内
+    (互換)、[mlo] があればそちらが勝つ。Worb は Wannier (hmaxloc) と共用なので [blocks] のまま
+    ([mlo] にあっても読む)。
+    注意: toml-f の get_value(root,'mlo',mlo) は無いサブテーブルを作る (requested=.true. 既定)
+    ので requested=.false. が要る。これを知らずに gv_c_alloc(mlo,'Worb') の intent(out) で
+    [blocks] の Worb を解放してしまい、Cu で ndimMTO=-999998 → zheevx 失敗になった。
+    gwinit のテンプレも [mlo] を書き、再生成時に既存の [mlo] を剥がす。
+    gwinput2toml.py / Legacy2toml.py は mlo_* を [mlo] に書く。
+    MLOsamples 18 件を移行 (mlo_method/mlo_delta/mlo_w を [mlo] へ)。
+    ecaljdoc: manual/mlo.md, manual/lmf.md。
+    テスト: si_gwsc ALL PASSED、MLOsamples 18 件 322 checks ALL PASSED (全件 [mlo] 経路、案内なし)。
+
 2026-09-17 (4)
   MLOsamples 18 件の ctrlg に mlo_delta = 2.0 と mlo_w = 2.0 (eV) を明示。
     どちらも mlo_method=4 の既定値そのもので結果は変わらない (Cu, NiO666lda で

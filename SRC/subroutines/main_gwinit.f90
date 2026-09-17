@@ -3,7 +3,7 @@
 !         place -- typically created by ctrlgenToml.py or Legacy2toml.py).
 !  Output:
 !    ctrlg.<sname>.toml   (existing ctrl sections preserved; any old
-!                          [gw]/[product_basis]/[blocks] stripped and
+!                          [gw]/[mlo]/[product_basis]/[blocks] stripped and
 !                          replaced with freshly-generated ones)
 !    PB.<sname>.toml              (per-atom product basis tables: nlx/valence/core)
 !
@@ -55,8 +55,8 @@ contains
 
     !! ===== Build ctrlg.<sname>.toml.partial =====
     !!   step 1: copy ctrl sections from existing ctrlg.<sname>.toml,
-    !!           dropping any prior [gw]/[product_basis]/[blocks] sections.
-    !!   step 2: append fresh [gw]/[product_basis]/[blocks] sections.
+    !!           dropping any prior [gw]/[mlo]/[product_basis]/[blocks] sections.
+    !!   step 2: append fresh [gw]/[mlo]/[product_basis]/[blocks] sections.
     call copy_ctrl_sections(ctrlg, ctrlg_partial, ifi)
 
     !! ----- [gw] -----
@@ -90,17 +90,6 @@ contains
     write(ifi,'(a)') '# ----- Q for dielectric eps -----'
     write(ifi,'(a)') 'QforEPSau = true    # interpret <QforEPS> as a.u.'
     write(ifi,'(a)')
-    write(ifi,'(a)') '# ----- MLO (Muffin-tin based Localized Orbitals) -----'
-    write(ifi,'(a)') '# Needs a Worb block in [blocks] naming the lm channels of the model.'
-    write(ifi,'(a)') 'mlo_method = 4      # theta = sigma((eps - ecut_j)/mlo_w),'
-    write(ifi,'(a)') '                    #   ecut_j = max(CBM + mlo_delta, eps^MTO_j)'
-    write(ifi,'(a)') 'mlo_delta  = 2.0    # (eV) how far above the band edge (EF in metals) the'
-    write(ifi,'(a)') '                    #   model must be accurate. A statement of what you want,'
-    write(ifi,'(a)') '                    #   not a fitting parameter: match it to your target window.'
-    write(ifi,'(a)') 'mlo_w      = 2.0    # (eV) width of the fall-off above that floor. THIS is the'
-    write(ifi,'(a)') '                    #   knob to turn if the residual is too large. Measured'
-    write(ifi,'(a)') '                    #   optima: semiconductors ~2, Fe/Cu-like metals ~11.'
-    write(ifi,'(a)')
     write(ifi,'(a)') '# ----- Wannier (hmaxloc: cRPA, job_magnon). Not used by MLO. Uncomment to use. -----'
     write(ifi,'(a)') '# wan_out_emin  = -1.05   # eV relative to EFermi'
     write(ifi,'(a)') '# wan_out_emax  =  2.4'
@@ -110,6 +99,20 @@ contains
     write(ifi,'(a)') '# wan_maxit_2nd = 1500'
     write(ifi,'(a)') '# wan_max_2nd   = 0.3'
     write(ifi,'(a)') '# wan_conv_end  = 1e-8'
+    write(ifi,'(a)')
+
+    !! ----- [mlo] -----
+    write(ifi,'(a)') '[mlo]'
+    write(ifi,'(a)') '# MLO (muffin-tin based localized orbitals). Which lm channels make the'
+    write(ifi,'(a)') '# model is given by Worb in [blocks]; these three shape the weight theta.'
+    write(ifi,'(a)') 'mlo_method = 4      # theta = sigma((eps - ecut_j)/mlo_w),'
+    write(ifi,'(a)') '                    #   ecut_j = max(CBM + mlo_delta, eps^MTO_j)'
+    write(ifi,'(a)') 'mlo_delta  = 2.0    # (eV) how far above the band edge (EF in metals) the'
+    write(ifi,'(a)') '                    #   model must be accurate. A statement of what you want,'
+    write(ifi,'(a)') '                    #   not a fitting parameter: match it to your target window.'
+    write(ifi,'(a)') 'mlo_w      = 2.0    # (eV) width of the fall-off above that floor. THIS is the'
+    write(ifi,'(a)') '                    #   knob to turn if the residual is too large. Measured'
+    write(ifi,'(a)') '                    #   optima: semiconductors ~2, Fe/Cu-like metals ~11.'
     write(ifi,'(a)')
 
     !! ----- [product_basis] (slim: only the user-tuned scalars) -----
@@ -233,13 +236,13 @@ contains
     close(ifpb)
     call execute_command_line('mv '//pb_partial//' PB.'//trim(sname)//'.toml', wait=.true.)
 
-    stop ' OK! gwinit upserted [gw]/[product_basis]/[blocks] into '//ctrlg// &
+    stop ' OK! gwinit upserted [gw]/[mlo]/[product_basis]/[blocks] into '//ctrlg// &
          ' and wrote PB.'//trim(sname)//'.toml.'
   end subroutine gwinit_v2
 
 
   !> Copy the ctrl sections of a ctrlg.<sname>.toml into a fresh file,
-  !  dropping any pre-existing [gw], [product_basis] and [blocks]
+  !  dropping any pre-existing [gw], [mlo], [product_basis] and [blocks]
   !  sections so we can rewrite them. The fresh file is left open at
   !  the unit number `ifi_out`, positioned at end-of-file ready for
   !  appending the new GW sections.
@@ -259,6 +262,7 @@ contains
        read(u_in,'(a)',iostat=ios) line
        if (ios /= 0) exit
        if (line(1:5) == '[gw]'              .or. &
+           line(1:6) == '[mlo]'             .or. &
            line(1:16) == '[product_basis]' .or. &
            line(1:8) == '[blocks]') then
           skip = .true.
