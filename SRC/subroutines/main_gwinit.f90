@@ -90,6 +90,20 @@ contains
     write(ifi,'(a)') '# ----- Q for dielectric eps -----'
     write(ifi,'(a)') 'QforEPSau = true    # interpret <QforEPS> as a.u.'
     write(ifi,'(a)')
+    write(ifi,'(a)') '# ----- q points for eps (QforEPS) and for one-shot GW (QforGW) -----'
+    write(ifi,'(a)') 'QforEPS = """'
+    write(ifi,'(a)') ' 0 0 0.00050'
+    write(ifi,'(a)') ' 0 0 0.00100'
+    write(ifi,'(a)') ' 0 0 0.00200'
+    write(ifi,'(a)') '"""'
+    write(ifi,'(a)')
+    write(ifi,'(a)') 'QforGW = """'
+    write(ifi,'(a)') ' 0.0 0.0 0.0'
+    write(ifi,'(a)') ' 0.1 0.0 0.0'
+    write(ifi,'(a)') ' 0.2 0.0 0.0'
+    write(ifi,'(a)') ' 0.3 0.0 0.0'
+    write(ifi,'(a)') '"""'
+    write(ifi,'(a)')
     write(ifi,'(a)') '# ----- Wannier (hmaxloc: cRPA, job_magnon). Not used by MLO. Uncomment to use. -----'
     write(ifi,'(a)') '# wan_out_emin  = -1.05   # eV relative to EFermi'
     write(ifi,'(a)') '# wan_out_emax  =  2.4'
@@ -103,8 +117,8 @@ contains
 
     !! ----- [mlo] -----
     write(ifi,'(a)') '[mlo]'
-    write(ifi,'(a)') '# MLO (muffin-tin based localized orbitals). Which lm channels make the'
-    write(ifi,'(a)') '# model is given by Worb in [blocks]; these three shape the weight theta.'
+    write(ifi,'(a)') '# MLO (muffin-tin based localized orbitals). mlo_lm names the lm channels of'
+    write(ifi,'(a)') '# the model per atom; the three keys shape the weight theta.'
     write(ifi,'(a)') 'mlo_method = 4      # theta = sigma((eps - ecut_j)/mlo_w),'
     write(ifi,'(a)') '                    #   ecut_j = max(CBM + mlo_delta, eps^MTO_j)'
     write(ifi,'(a)') 'mlo_delta  = 2.0    # (eV) how far above the band edge (EF in metals) the'
@@ -113,6 +127,16 @@ contains
     write(ifi,'(a)') 'mlo_w      = 2.0    # (eV) width of the fall-off above that floor. THIS is the'
     write(ifi,'(a)') '                    #   knob to turn if the residual is too large. Measured'
     write(ifi,'(a)') '                    #   optima: semiconductors ~2, Fe/Cu-like metals ~11.'
+    write(ifi,'(a)')
+    write(ifi,'(a)') '# mlo_lm: which lm channels of which atom make the model. One row per atom:'
+    write(ifi,'(a)') '#   <iatom> <label> <lm1> <lm2> ...   (a row starting with ! is ignored)'
+    write(ifi,'(a)') '# lm: 1=s; 2,3,4=py,pz,px; 5..9=dxy,dyz,dz2,dxz,dx2-y2; 10..16=f  (real harmonics,'
+    write(ifi,'(a)') '#     the PROCAR order). A partial shell is fine, e.g. 5 6 8 for t2g only.'
+    write(ifi,'(a)') 'mlo_lm = """'
+    do ibas = 1, nbas
+       write(ifi,'(a,i0,1x,a,a)') '! ', ibas, trim(spid(ibas)), '   1 2 3 4 5 6 7 8 9'
+    enddo
+    write(ifi,'(a)') '"""'
     write(ifi,'(a)')
 
     !! ----- [product_basis] (slim: only the user-tuned scalars) -----
@@ -133,35 +157,12 @@ contains
     write(ifi,'(a)') '# Per-atom product-basis tables (nlx / valence / core) live in PB.<sname>.toml'
     write(ifi,'(a)')
 
-    !! ----- [blocks] -----
+    !! ----- [blocks] (raw multi-line blocks that have no better home) -----
     write(ifi,'(a)') '[blocks]'
-    write(ifi,'(a)') 'QforEPS = """'
-    write(ifi,'(a)') ' 0 0 0.00050'
-    write(ifi,'(a)') ' 0 0 0.00100'
-    write(ifi,'(a)') ' 0 0 0.00200'
-    write(ifi,'(a)') '"""'
-    write(ifi,'(a)')
     write(ifi,'(a)') '# QforEPSL = """'
     write(ifi,'(a)') '#  0 0 0   1 0 0  20'
     write(ifi,'(a)') '# """'
     write(ifi,'(a)')
-
-    write(ifi,'(a)') 'QforGW = """'
-    write(ifi,'(a)') ' 0.0 0.0 0.0'
-    write(ifi,'(a)') ' 0.1 0.0 0.0'
-    write(ifi,'(a)') ' 0.2 0.0 0.0'
-    write(ifi,'(a)') ' 0.3 0.0 0.0'
-    write(ifi,'(a)') '"""'
-    write(ifi,'(a)')
-
-    write(ifi,'(a)') '# Worb: atomic orbitals for MLWF / MLO modelling.'
-    write(ifi,'(a)') '# Each row: <iatom> <label> <lm1> <lm2> ...'
-    write(ifi,'(a)') '# lm index: 1=s, 2=py, 3=pz, 4=px, 5=xy, 6=yz, 7=3z^2-1, 8=xz, 9=x^2-y^2, ... (real harmonics)'
-    write(ifi,'(a)') 'Worb = """'
-    do ibas = 1, nbas
-       write(ifi,'(a,i0,1x,a,a)') '! ', ibas, trim(spid(ibas)), '   1 2 3 4 5 6 7 8 9'
-    enddo
-    write(ifi,'(a)') '"""'
 
     close(ifi)
 

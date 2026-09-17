@@ -20,7 +20,7 @@ time = [0, 0]  # CPU timing log; [depth, on-the-fly]
 nspec = 2
 nbas  = 2
 alat  = 10.6830984717779  # lattice constant (a.u.)
-plat  = [[0.0, 0.5, 0.5],
+plat  = [[0.0, 0.5, 0.5],  # primitive vectors in units of alat
          [0.5, 0.0, 0.5],
          [0.5, 0.5, 0.0]]
 
@@ -126,4 +126,3 @@ scaledsigma = 1.0  # QSGW mixing: 1.0 full, 0.8 = QSGW80
 pwmode      = 11  # 0=MTO 1=PMT 2=APW 11=PMT(|q+G|, default) 12=LAPW
 pwemax      = 3.0  # APW cutoff (Ry)
 phispinsym  = false  # true = spin-averaged radial wfns (needed for SOC=1 perturbation)
-

@@ -30,7 +30,7 @@ contains
     allocate(ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO))
     read(ifihmto) ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO)
     close(ifihmto)
-    if(ipr) write(stdo,*)'OK: Read HamRsMLO file! Use i-ioffib for setting <Worb>'
+    if(ipr) write(stdo,*)'OK: Read HamRsMLO file! Use i-ioffib for setting mlo_lm'
     ib_tableI = pack(ib_tableM(1:ndimMTO), [(all(ib_tableM(:i-1)/=ib_tableM(i)), i=1,ndimMTO)])
     if(ipr) write(stdo,ftox) 'Atomic sites in the primitive cell for MLO Hamiltonian: ', ib_tableI
     nsite = size(ib_tableI)

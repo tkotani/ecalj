@@ -14,7 +14,7 @@ symgrpaf = "r4z:( 0.0 0.5 0.3450563852 )"
 # verbos: console verbosity (default 31). Larger -> more diagnostic
 #   output. Use 35-41 when investigating failures.
 verbose = 35  # 31 default, 35 verbose, 41+ debug
-time    = [0, 0]
+time    = [0, 0]  # CPU timing log; [depth, on-the-fly]
 
 # === STRUC: lattice ===
 # alat in a.u.; plat is the primitive cell in units of alat (rows = a1,a2,a3).
@@ -176,62 +176,26 @@ pwemax      = 3.0  # APW cutoff (Ry)
 readp       = true  # read P,PZ from atom calc results
 pnufix      = true  # fix B.C. of radial functions
 
-
 # === GW: driver (used by lmf --jobgw=N and gwsc) ===
 # nband_chi0/emax_chi0: bands/energy window for chi0.
 # Touch only if you know what you are doing -- defaults are sensible.
 [gw]
-n1n2n3 = [4, 4, 6]  # BZ mesh for GW
-QpGcut_psi = 4.0  # |q+G| cutoff for eigenfunctions (a.u. unless unit_2pioa=true)
-QpGcut_cou = 3.0  # |q+G| cutoff for Coulomb / W
-unit_2pioa = false  # false: a.u.;  true: 2*pi/alat
-alpha_OffG = 1.0  # offset-Gamma auxiliary function (dimensionless)
-emax_sigm = 3.0  # (Ry) Sigma exact below; extrapolated above
-HistBin_dw = 1e-05  # bin width on real-axis at omega=0
-HistBin_ratio = 1.03  # frhis(iw)=(dw/(r-1))*(exp((r-1)*(iw-1))-1)
-iSigMode = 3  # self-energy mode flag (3 = standard QSGW)
-niw = 10  # # of imag-axis frequencies (try 6/10/12)
-delta = -1e-06  # (Ry) small imaginary shift (~1e-6)
-deltaw = 0.02  # (a.u.) numerical-derivative mesh for Z factor
-esmr = 0.003  # (Ry) hsfp0 smearing; keep < band gap for insulators
-GaussSmear = true  # Gaussian smearing for poles of G^LDA in hsfp0
-SmearX0 = 0.0001  # (Ha) Gaussian smear of chi0 along freq (was GaussianFilterX0; renamed - that key now aborts)
-QforEPSunita = true
-# === PRODUCT_BASIS ===
-# pb_tolerance / pb_lcutmx : ctrlG.<sname>.toml (cut-off tunables).
-# nlx / valence / core     : PB.toml (sname-free, shared per-spec tables).
-[mlo]
-# MLO (muffin-tin based localized orbitals). Which lm channels make the model
-# is given by Worb in [blocks]; the three keys below shape the weight theta.
-mlo_method = 4  # theta = sigma((eps - ecut_j)/mlo_w),  ecut_j = max(CBM + mlo_delta, eps^MTO_j)
-mlo_delta  = 2.0  # (eV) default. How far above the band edge (E_F in metals) the model must be accurate
-mlo_w      = 2.0  # (eV) default for mlo_method=4. Width of the fall-off above that floor
-
-[product_basis]
-pb_tolerance = [0.001]  # drop linearly-dep products below this (default 1e-3)
-pb_lcutmx    = [4, 4, 2, 2, 2, 2]  # max l-cutoff per atom (4 for d-valence, 6 for f)
-
-# Per-atom product-basis tables (nlx / valence / core) live in PB.toml
-
-# === BLOCKS: GW additional blocks (epsilon, etc.) ===
-# QforEPS / QforEPSL : q-point lists for dielectric function calc.
-[blocks]
-Worb = """
-  1 Ruup   5 6 7 8 9 
-  2 Rudn   5 6 7 8 9 
-  3 O   2 3 4
-  4 O   2 3 4
-  5 O   2 3 4
-  6 O   2 3 4
-"""
-
-QPNT = """
-*** all qibz for gw_lmfh -->1, otherwise 0
-           1
-*** # of states and band index for gw_lmfh calculation.
-         100
-1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100
-"""
+n1n2n3        = [4, 4, 6]  # BZ mesh for GW
+QpGcut_psi    = 4.0        # |q+G| cutoff for eigenfunctions (a.u. unless unit_2pioa=true)
+QpGcut_cou    = 3.0        # |q+G| cutoff for Coulomb / W
+unit_2pioa    = false      # false: a.u.;  true: 2*pi/alat
+alpha_OffG    = 1.0        # offset-Gamma auxiliary function (dimensionless)
+emax_sigm     = 3.0        # (Ry) Sigma exact below; extrapolated above
+HistBin_dw    = 1e-05      # bin width on real-axis at omega=0
+HistBin_ratio = 1.03       # frhis(iw)=(dw/(r-1))*(exp((r-1)*(iw-1))-1)
+iSigMode      = 3          # self-energy mode flag (3 = standard QSGW)
+niw           = 10         # # of imag-axis frequencies (try 6/10/12)
+delta         = -1e-06     # (Ry) small imaginary shift (~1e-6)
+deltaw        = 0.02       # (a.u.) numerical-derivative mesh for Z factor
+esmr          = 0.003      # (Ry) hsfp0 smearing; keep < band gap for insulators
+GaussSmear    = true       # Gaussian smearing for poles of G^LDA in hsfp0
+SmearX0       = 0.0001     # (Ha) Gaussian smear of chi0 along freq (was GaussianFilterX0; renamed - that key now aborts)
+QforEPSunita  = true
 
 QforEPS = """
  0 0 0.00001   
@@ -240,4 +204,40 @@ QforEPS = """
  0 0 0.002     
  0 0 0.0028284 
  0 0 0.004
+"""
+
+# === MLO: muffin-tin based localized orbitals (see manual/mlo) ===
+# mlo_method / mlo_delta / mlo_w shape the weight theta; mlo_lm lists the
+# lm channels per atom (1=s, 2-4=p, 5-9=d, 10-16=f; partial shells allowed).
+[mlo]
+mlo_method = 4    # theta = sigma((eps - ecut_j)/mlo_w),  ecut_j = max(CBM + mlo_delta, eps^MTO_j)
+mlo_delta  = 2.0  # (eV) default. How far above the band edge (E_F in metals) the model must be accurate
+mlo_w      = 2.0  # (eV) default for mlo_method=4. Width of the fall-off above that floor
+
+mlo_lm = """
+  1 Ruup   5 6 7 8 9 
+  2 Rudn   5 6 7 8 9 
+  3 O   2 3 4
+  4 O   2 3 4
+  5 O   2 3 4
+  6 O   2 3 4
+"""
+
+# === PRODUCT_BASIS ===
+# pb_tolerance / pb_lcutmx : ctrlg.<sname>.toml (cut-off tunables).
+# nlx / valence / core     : PB.<sname>.toml (per-spec tables).
+[product_basis]
+pb_tolerance = [0.001]             # drop linearly-dep products below this (default 1e-3)
+pb_lcutmx    = [4, 4, 2, 2, 2, 2]  # max l-cutoff per atom (4 for d-valence, 6 for f)
+
+# Per-atom product-basis tables (nlx / valence / core) live in PB.toml
+
+# === BLOCKS: raw multi-line blocks with no better home (QPNT, QforEPSL, hrotr) ===
+[blocks]
+QPNT = """
+*** all qibz for gw_lmfh -->1, otherwise 0
+           1
+*** # of states and band index for gw_lmfh calculation.
+         100
+1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100
 """

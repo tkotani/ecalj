@@ -193,28 +193,30 @@ phispinsym  = false  # spin-averaged radial wfns; required by m_lmfinit (nreq=1)
 # nband_chi0/emax_chi0: bands/energy window for chi0.
 # Touch only if you know what you are doing -- defaults are sensible.
 [gw]
-mixbeta = 0.5
-n1n2n3 = [9, 9, 9]   # BZ mesh for GW (10-iter scf, speed-patch binary)
-QpGcut_psi = 4.0  # |q+G| cutoff for eigenfunctions (a.u. unless unit_2pioa=true)
-QpGcut_cou = 3.0  # |q+G| cutoff for Coulomb / W
-unit_2pioa = false  # false: a.u.;  true: 2*pi/alat
-alpha_OffG = 1.0  # offset-Gamma auxiliary function (dimensionless)
-emax_sigm = 3.0  # (Ry) Sigma exact below; extrapolated above
-HistBin_dw = 1e-05  # bin width on real-axis at omega=0
-HistBin_ratio = 1.03  # frhis(iw)=(dw/(r-1))*(exp((r-1)*(iw-1))-1)
-iSigMode = 3  # self-energy mode flag (3 = standard QSGW)
-niw = 10  # # of imag-axis frequencies (try 6/10/12)
-delta = -1e-06  # (Ry) small imaginary shift (~1e-6)
-deltaw = 0.02  # (a.u.) numerical-derivative mesh for Z factor
-esmr = 0.01
-GaussSmear = true  # Gaussian smearing for poles of G^LDA in hsfp0
+mixbeta       = 0.5
+n1n2n3        = [9, 9, 9]  # BZ mesh for GW (10-iter scf, speed-patch binary)
+QpGcut_psi    = 4.0        # |q+G| cutoff for eigenfunctions (a.u. unless unit_2pioa=true)
+QpGcut_cou    = 3.0        # |q+G| cutoff for Coulomb / W
+unit_2pioa    = false      # false: a.u.;  true: 2*pi/alat
+alpha_OffG    = 1.0        # offset-Gamma auxiliary function (dimensionless)
+emax_sigm     = 3.0        # (Ry) Sigma exact below; extrapolated above
+HistBin_dw    = 1e-05      # bin width on real-axis at omega=0
+HistBin_ratio = 1.03       # frhis(iw)=(dw/(r-1))*(exp((r-1)*(iw-1))-1)
+iSigMode      = 3          # self-energy mode flag (3 = standard QSGW)
+niw           = 10         # # of imag-axis frequencies (try 6/10/12)
+delta         = -1e-06     # (Ry) small imaginary shift (~1e-6)
+deltaw        = 0.02       # (a.u.) numerical-derivative mesh for Z factor
+esmr          = 0.01       # (Ry) hsfp0 smearing; keep < band gap for insulators
+GaussSmear    = true       # Gaussian smearing for poles of G^LDA in hsfp0
+
 # SmearX0   = retired (superseded by tetrakbt / method B-prime)
 # SmearX0q0 = retired (superseded by tetrakbt / method B-prime)
-deltaq_scale = 0.1
-tetrakbt = true    # finite-T tetrahedron (lindtet6_kbt, method B')
-t_tetrakbt = 1000.0  # 1000K
-t_sigmakbt = 1000.0  # Sigma-side FD finite-T = t_tetrakbt (1000K)
-KeepEigen = false
+deltaq_scale  = 0.1
+tetrakbt      = true       # finite-T tetrahedron (lindtet6_kbt, method B')
+t_tetrakbt    = 1000.0     # 1000K
+t_sigmakbt    = 1000.0     # Sigma-side FD finite-T = t_tetrakbt (1000K)
+KeepEigen     = false
+
 # wan_out_emin = -1.05  # (eV, rel. EFermi) Wannier outer window low
 # wan_out_emax = 2.4  # (eV, rel. EFermi) Wannier outer window high
 # wan_tb_cut = 15
@@ -224,17 +226,44 @@ KeepEigen = false
 # wan_maxit_2nd = 1500  # 2nd-stage Wannier max iterations
 # wan_max_2nd = 0.3  # 2nd-stage Wannier step size
 # wan_conv_end = 1e-08  # Wannier final convergence threshold
+
+QforEPS = """
+ 0d0 0d0 0.01d0
+ 0d0 0d0 0.02d0
+ 0d0 0d0 0.04d0
+"""
+
+# === MLO: muffin-tin based localized orbitals (see manual/mlo) ===
+# mlo_method / mlo_delta / mlo_w shape the weight theta; mlo_lm lists the
+# lm channels per atom (1=s, 2-4=p, 5-9=d, 10-16=f; partial shells allowed).
+[mlo]
+mlo_lm = """
+!  1 Li   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+!  2 Li   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+!  3 Ti   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+!  4 Ti   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+!  5 Ti   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+!  6 Ti   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+!  7 O   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+!  8 O   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+!  9 O   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+! 10 O   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+! 11 O   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+! 12 O   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+! 13 O   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+! 14 O   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+"""
+
 # === PRODUCT_BASIS ===
 # pb_tolerance / pb_lcutmx : ctrlg.<sname>.toml (cut-off tunables).
 # nlx / valence / core     : PB.<sname>.toml (per-spec tables).
 [product_basis]
-pb_tolerance = [0.001]  # drop linearly-dep products below this (default 1e-3)
+pb_tolerance = [0.001]                     # drop linearly-dep products below this (default 1e-3)
 pb_lcutmx    = [2, 2, 4, 4, 4, 4, 2, 2, 2, 2, 2, 2, 2, 2]  # max l-cutoff per atom (4 for d-valence, 6 for f)
 
 # Per-atom product-basis tables (nlx / valence / core) live in PB.<sname>.toml
 
-# === BLOCKS: GW additional blocks (epsilon, etc.) ===
-# QforEPS / QforEPSL : q-point lists for dielectric function calc.
+# === BLOCKS: raw multi-line blocks with no better home (QPNT, QforEPSL, hrotr) ===
 [blocks]
 QPNT = """
  --- Specify the q and band indeces for which we evaluate the self-energy ---
@@ -262,27 +291,4 @@ QPNT = """
  14    -0.0000000000000000     0.3333333333333334     0.6666666666666666
  15    -0.1666666666666667     0.5000000000000000     0.8333333333333334
  16     0.0000000000000000     0.3333333333333333     0.9999999999999999
-"""
-
-QforEPS = """
- 0d0 0d0 0.01d0
- 0d0 0d0 0.02d0
- 0d0 0d0 0.04d0
-"""
-
-Worb = """
-!  1 Li   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
-!  2 Li   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
-!  3 Ti   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
-!  4 Ti   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
-!  5 Ti   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
-!  6 Ti   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
-!  7 O   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
-!  8 O   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
-!  9 O   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
-! 10 O   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
-! 11 O   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
-! 12 O   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
-! 13 O   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
-! 14 O   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
 """

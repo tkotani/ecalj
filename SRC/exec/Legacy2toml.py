@@ -466,6 +466,15 @@ def main():
         if Path(fname).exists():
             txt = Path(fname).read_text()
             Path(fname).write_text(apply_toml_annotations(txt))
+    # Tidy the GW-side sections of ctrlg (column alignment, blank lines around
+    # blocks, section headers glued to their [section]). Content must not change.
+    from pylib.toml_tidy import tidy_gw_sections
+    import tomllib
+    raw = Path(out_path).read_text()
+    tidy = tidy_gw_sections(raw)
+    if tomllib.loads(raw) != tomllib.loads(tidy):
+        sys.exit('Legacy2toml.py: internal error, tidy changed the TOML content')
+    Path(out_path).write_text(tidy)
     banner(f'wrote ctrlg.{sname}.toml + {pb_path} (annotated)')
 
 if __name__ == '__main__':

@@ -23,8 +23,7 @@
 !    scalar/vector keys        -> [gw]      key = value   (same names, TOML
 !                                 syntax: 1d-7 -> 1e-7, "on"/"off" -> true/false,
 !                                 "n1n2n3 4 4 4" -> n1n2n3 = [4, 4, 4])
-!    mlo_*  (any)              -> [mlo]     key = value   (MLO model; Worb stays
-!                                 in [blocks] because Wannier/hmaxloc share it)
+!    mlo_*  (any)              -> [mlo]     key = value   (MLO model)
 !    wan_*  (any)              -> [gw]      only needed by hmaxloc (cRPA, magnon);
 !                                 comment them out otherwise
 !    <PRODUCT_BASIS> tolerance -> [product_basis] pb_tolerance = [..]
@@ -32,8 +31,9 @@
 !    <PRODUCT_BASIS> nlx / valence / core tables
 !                              -> PB.<sname>.toml  [product_basis]  nlx = [...],
 !                                 valence = [...], core = [...]   (per-atom rows)
-!    <QPNT> <QforEPS> <QforEPSL> <QforGW> <Worb> <hrotr>
-!                              -> [blocks]  NAME = """<raw lines verbatim>"""
+!    <QforEPS> <QforGW>        -> [gw]      NAME = """<raw lines verbatim>"""
+!    <Worb>                    -> [mlo]     mlo_lm = """<raw lines verbatim>"""
+!    <QPNT> <QforEPSL> <hrotr> -> [blocks]  NAME = """<raw lines verbatim>"""
 !
 !    renamed / retired on the way:
 !      GaussianFilterX0  -> SmearX0 (same Ha units); GaussianFilterX0 itself aborts
@@ -327,7 +327,7 @@ module m_GWinput
   integer, protected, public               :: qpnt_nq        = 0
   real(8), protected, public, allocatable  :: qpnt_q(:,:)        ! (3, qpnt_nq)
 
-  ! Worb: list of records: iatom, label(8), lm(1..nlm).
+  ! mlo_lm (formerly Worb): list of records: iatom, label(8), lm(1..nlm).
   integer, protected, public               :: n_worb         = 0
   integer, protected, public, allocatable  :: worb_iatom(:)
   character(8), protected, public, allocatable :: worb_label(:)
@@ -381,7 +381,7 @@ contains
     !  Sections consumed from ctrlg.<sname>.toml:
     !    [gw]              -- run-level scalars (n1n2n3, QpGcut_*, etc.)
     !    [product_basis]   -- pb_tolerance, pb_lcutmx (slim scalars)
-    !    [blocks]          -- raw text blocks (QforEPS, QforGW, Worb, ...)
+    !    [blocks]          -- raw text blocks (QPNT, QforEPSL, hrotr; QforEPS/QforGW moved to [gw], Worb to [mlo] mlo_lm)
     !
     !  PB.toml carries the per-atom product-basis tables nlx / valence /
     !  core in its own [product_basis] section; loaded after ctrlG so
@@ -431,10 +431,12 @@ contains
     call get_value(root, 'blocks', blocks)
     if (associated(blocks)) call load_blocks_section(blocks)
 
-    !---- [mlo] (mlo_* keys + Worb; overrides anything left in [gw]/[blocks]) ----
+    !---- [mlo] (mlo_* keys + mlo_lm; overrides anything left in [gw]/[blocks]) ----
     call get_value(root, 'mlo', mlo, requested=.false.)   ! do not create it when absent
     if (associated(mlo)) call load_mlo_section(mlo)
-    if (allocated(block_Worb)) call parse_Worb(block_Worb)
+    if (allocated(block_QforEPS)) call parse_qvec_list(block_QforEPS, q_eps, n_eps)
+    if (allocated(block_QforGW))  call parse_qvec_list(block_QforGW,  q_qgw, n_qgw)
+    if (allocated(block_Worb))    call parse_Worb(block_Worb)
 
     gwinput_loaded = .true.
   end subroutine gwinput_load
@@ -442,6 +444,7 @@ contains
 
   subroutine load_gw_section(gw)
     type(toml_table), pointer, intent(in) :: gw
+    logical :: ok
     ! Integer scalars
     call gv_i(gw, 'iSigMode',      iSigMode)
     call gv_i(gw, 'niw',           niw)
@@ -451,6 +454,10 @@ contains
     call gv_i(gw, 'BZmesh',        BZmesh)
     call gv_r(gw, 't_tetrakbt',    t_tetrakbt)
     call gv_r(gw, 't_sigmakbt',    t_sigmakbt)
+    ! QforEPS / QforGW: q-point lists for eps and for the one-shot GW driver.
+    ! They live in [gw] since 2026-09-17; a copy left under [blocks] is still read.
+    ok = take_block(gw, 'QforEPS', block_QforEPS)
+    ok = take_block(gw, 'QforGW',  block_QforGW)
     ! mlo_* used to live in [gw]. They now belong to [mlo] (see load_mlo_section);
     ! a [gw] that still carries them is read the old way, with a one-line notice,
     ! and any [mlo] value loaded afterwards overrides it.
@@ -650,15 +657,16 @@ contains
   end subroutine load_mlo_keys
 
   !> [mlo] section: everything that defines the MLO model -- the mlo_* keys and
-  !  the Worb block. Worb here takes precedence over a Worb left in [blocks].
+  !  the mlo_lm block (formerly Worb). It takes precedence over a Worb left in [blocks].
   subroutine load_mlo_section(mlo)
     type(toml_table), pointer, intent(in) :: mlo
-    character(len=:), allocatable :: w
+    logical :: got
     call load_mlo_keys(mlo, legacy=.false.)
-    ! Only replace a Worb that came from [blocks] if [mlo] actually has one
-    ! (gv_c_alloc's intent(out) would otherwise deallocate it).
-    call gv_c_alloc(mlo, 'Worb', w)
-    if (allocated(w)) call move_alloc(w, block_Worb)
+    ! mlo_lm: which lm channels (per atom) make the MLO model. This is the block
+    ! that was called Worb under [blocks] until 2026-09-17; the old name is still
+    ! accepted here and under [blocks].
+    got = take_block(mlo, 'mlo_lm', block_Worb)
+    if (.not. got) got = take_block(mlo, 'Worb', block_Worb)
   end subroutine load_mlo_section
 
 
@@ -739,18 +747,38 @@ contains
   end subroutine load_int_2darray
 
 
+  !> Read a multi-line-string key into var only if the key is present
+  !  (gv_c_alloc's intent(out) would otherwise deallocate a value loaded
+  !  from another section). Returns .true. when something was read.
+  logical function take_block(tbl, key, var)
+    type(toml_table), pointer,     intent(in)    :: tbl
+    character(*),                  intent(in)    :: key
+    character(len=:), allocatable, intent(inout) :: var
+    character(len=:), allocatable :: w
+    call gv_c_alloc(tbl, key, w)
+    take_block = allocated(w)
+    if (take_block) call move_alloc(w, var)
+  end function take_block
+
   subroutine load_blocks_section(blocks)
+    use m_mpi, only: master_mpi
+    use m_lgunit, only: stdo
     type(toml_table), pointer, intent(in) :: blocks
+    logical :: old_eps, old_gw, old_worb
     call gv_c_alloc(blocks, 'QPNT',     block_QPNT)
-    call gv_c_alloc(blocks, 'QforEPS',  block_QforEPS)
     call gv_c_alloc(blocks, 'QforEPSL', block_QforEPSL)
-    call gv_c_alloc(blocks, 'QforGW',   block_QforGW)
-    call gv_c_alloc(blocks, 'Worb',     block_Worb)
     call gv_c_alloc(blocks, 'hrotr',    block_hrotr)
+    ! Old homes of QforEPS / QforGW (now [gw]) and Worb (now [mlo] mlo_lm).
+    ! Read them if the new home has not supplied them, and say so.
+    old_eps  = .false.; old_gw = .false.; old_worb = .false.
+    if (.not. allocated(block_QforEPS)) old_eps  = take_block(blocks, 'QforEPS', block_QforEPS)
+    if (.not. allocated(block_QforGW))  old_gw   = take_block(blocks, 'QforGW',  block_QforGW)
+    if (.not. allocated(block_Worb))    old_worb = take_block(blocks, 'Worb',    block_Worb)
+    if ((old_eps .or. old_gw .or. old_worb) .and. master_mpi) write(stdo,'(a)') &
+         ' m_GWinput: NOTE [blocks] still carries QforEPS/QforGW (now [gw]) and/or Worb'// &
+         ' (now [mlo] mlo_lm). Still read, but please move them.'
 
     ! Parse raw text into structured arrays (caller-friendly).
-    if (allocated(block_QforEPS))  call parse_qvec_list(block_QforEPS,  q_eps,  n_eps)
-    if (allocated(block_QforGW))   call parse_qvec_list(block_QforGW,   q_qgw,  n_qgw)
     if (allocated(block_QforEPSL)) call parse_QforEPSL(block_QforEPSL, q_epsl, qend_epsl, idx_epsl, n_epsl)
     if (allocated(block_QPNT))     call parse_QPNT(block_QPNT)
   end subroutine load_blocks_section

@@ -1,3 +1,32 @@
+2026-09-17 (7)
+  ctrlg.<sname>.toml の配置替え (読み込みは旧配置も受ける・案内を一行出す):
+    Worb            -> [mlo] の mlo_lm に改名して移動 (MLO の模型定義そのもの。
+                       Wannier/hmaxloc も同じものを読む)
+    QforEPS, QforGW -> [gw] へ (GW ドライバの q 点リスト)
+    [blocks] に残るのは QPNT / QforEPSL / hrotr だけ。空になった [blocks] は消した。
+    m_GWinput: take_block() (キーがあるときだけ受け取る。gv_c_alloc の intent(out) が
+    先に読んだ値を消さないように)。QforEPS/QforGW/Worb の parse は全セクションを
+    読み終えてから。
+    gwinit のテンプレ、gwinput2toml.py / Legacy2toml.py、tracked な ctrlg 62 ファイル
+    (mlo_lm 46, QforEPS 43, QforGW 20) を移行。
+    ecaljdoc manual/mlo.md, lmf.md。
+  genMLWFx (bash) にも GWinput.toml の門番が残っていた (無ければ GWinput から自動生成)。
+    2026-09-17 (2) で GWinput を消したため ni_crpa / srvo3_crpa / Magnon が通らなくなって
+    いた。ctrlg/PB の存在確認に置換。SRC/exec の非 Python スクリプトも全部洗った。
+  FeMgO / FeMgOSoc では元の Worb の閉じ """ が最終行と同じ行にあり、移行時に
+    QforEPS ごと [mlo] へ運んでしまっていた (TOML 上は別キーになるので読み込み側から
+    見えない)。手で直し、tracked ctrlg 105 件を TOML として解析して取り残し・混入が
+    無いことを確認。
+  ctrlg の GW 側 4 セクションの体裁を揃える formatter を新設 (pylib/toml_tidy.py):
+    key = value  # comment を列揃え ([esm] と同じ流儀)、セクション見出し (# === X ===) は
+    直下の [section] に密着、複数行ブロック (""") の前後に空行、キー移動で取り残された
+    見出しコメント (# === PRODUCT_BASIS が [gw] の中に、など) を除去。整形前後で TOML の
+    解析結果が同一であることを assert し、冪等。Legacy2toml.py が最後に適用する。
+    toml_comments.py に [mlo] の見出しを追加。gwinit のテンプレもブロック間に空行。
+    tracked ctrlg 105 件に適用。
+  テスト: MLOsamples 18 件 (整形前) ALL PASSED、整形後に Cu・FeMgO・si_gwsc・EPS_Cu、
+    ni_crpa・srvo3_crpa ALL PASSED。testecalj --all は未実施。
+
 2026-09-17 (6)
   PB.<sname>.toml に列の説明を復元。旧 GWinput の <PRODUCT_BASIS> にあった
   「atom l nnvv nnc」「atom l n occ unocc」「... ForX0 ForSxc」の説明が、Legacy2toml.py が

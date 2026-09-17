@@ -13,7 +13,7 @@ symgrp = "r4z"  # 'find' = auto-detect from lattice (see header)
 # verbos: console verbosity (default 31). Larger -> more diagnostic
 #   output. Use 35-41 when investigating failures.
 verbose = 35  # 31 default, 35 verbose, 41+ debug
-time    = [0, 0]
+time    = [0, 0]  # CPU timing log; [depth, on-the-fly]
 
 # === STRUC: lattice ===
 # alat in a.u.; plat is the primitive cell in units of alat (rows = a1,a2,a3).
@@ -118,32 +118,29 @@ oveps       = 1e-08  # overlap-eps for (H-eO)z=0; 1d-8 default
 pwmode      = 1  # 0=MTO 1=PMT 2=APW 11=PMT(|q+G|, default) 12=LAPW
 pwemax      = 3.0  # APW cutoff (Ry)
 
-
 # === GW: driver (used by lmf --jobgw=N and gwsc) ===
 # nband_chi0/emax_chi0: bands/energy window for chi0.
 # Touch only if you know what you are doing -- defaults are sensible.
 [gw]
-
 # Blocks not yet structured — kept as raw text for round-trip
-# === PRODUCT_BASIS ===
-# pb_tolerance / pb_lcutmx : ctrlG.<sname>.toml (cut-off tunables).
-# nlx / valence / core     : PB.toml (sname-free, shared per-spec tables).
+
+# === MLO: muffin-tin based localized orbitals (see manual/mlo) ===
+# mlo_method / mlo_delta / mlo_w shape the weight theta; mlo_lm lists the
+# lm channels per atom (1=s, 2-4=p, 5-9=d, 10-16=f; partial shells allowed).
 [mlo]
-# MLO (muffin-tin based localized orbitals). Which lm channels make the model
-# is given by Worb in [blocks]; the three keys below shape the weight theta.
-mlo_method = 4  # theta = sigma((eps - ecut_j)/mlo_w),  ecut_j = max(CBM + mlo_delta, eps^MTO_j)
+mlo_method = 4    # theta = sigma((eps - ecut_j)/mlo_w),  ecut_j = max(CBM + mlo_delta, eps^MTO_j)
 mlo_delta  = 2.0  # (eV) default. How far above the band edge (E_F in metals) the model must be accurate
 mlo_w      = 2.0  # (eV) default for mlo_method=4. Width of the fall-off above that floor
 
-[product_basis]
-pb_tolerance = [1e-3]  # drop linearly-dep products below this (default 1e-3)
-pb_lcutmx    = []  # max l-cutoff per atom (4 for d-valence, 6 for f)
-
-# Per-atom product-basis tables (nlx / valence / core) live in PB.toml
-
-# === BLOCKS: GW additional blocks (epsilon, etc.) ===
-# QforEPS / QforEPSL : q-point lists for dielectric function calc.
-[blocks]
-Worb = """
+mlo_lm = """
   1 Gd   10 11 12 13 14 15 16
 """
+
+# === PRODUCT_BASIS ===
+# pb_tolerance / pb_lcutmx : ctrlg.<sname>.toml (cut-off tunables).
+# nlx / valence / core     : PB.<sname>.toml (per-spec tables).
+[product_basis]
+pb_tolerance = [1e-3]  # drop linearly-dep products below this (default 1e-3)
+pb_lcutmx    = []      # max l-cutoff per atom (4 for d-valence, 6 for f)
+
+# Per-atom product-basis tables (nlx / valence / core) live in PB.toml

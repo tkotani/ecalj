@@ -19,7 +19,7 @@ verbose = 30  # 31 default, 35 verbose, 41+ debug
 nspec = 1
 nbas  = 1
 alat  = 5.4235161392124  # lattice constant (a.u.)
-plat  = [[0.5,  0.5,  0.5],
+plat  = [[0.5,  0.5,  0.5],  # primitive vectors in units of alat
          [0.5, -0.5,  0.5],
          [0.5,  0.5, -0.5]]
 
@@ -116,4 +116,3 @@ phispinsym  = false  # true = spin-averaged radial wfns (needed for SOC=1 pertur
 # tol controls accuracy; default 1e-12 is fine.
 [ewald]
 tol = 1e-08
-

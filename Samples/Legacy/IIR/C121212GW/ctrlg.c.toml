@@ -119,27 +119,27 @@ readp       = true  # read P,PZ from atom calc results
 pnufix      = true  # fix B.C. of radial functions
 phispinsym  = false  # true = spin-averaged radial wfns (needed for SOC=1 perturbation)
 
-
 # === GW: driver (used by lmf --jobgw=N and gwsc) ===
 # nband_chi0/emax_chi0: bands/energy window for chi0.
 # Touch only if you know what you are doing -- defaults are sensible.
 [gw]
-n1n2n3 = [12, 12, 12]  # BZ mesh for GW
-QpGcut_psi = 4.0  # |q+G| cutoff for eigenfunctions (a.u. unless unit_2pioa=true)
-QpGcut_cou = 3.0  # |q+G| cutoff for Coulomb / W
-unit_2pioa = false  # false: a.u.;  true: 2*pi/alat
-alpha_OffG = 1.0  # offset-Gamma auxiliary function (dimensionless)
-emax_sigm = 3.0  # (Ry) Sigma exact below; extrapolated above
-HistBin_dw = 0.002  # bin width on real-axis at omega=0
-HistBin_ratio = 1.08  # frhis(iw)=(dw/(r-1))*(exp((r-1)*(iw-1))-1)
-iSigMode = 3  # self-energy mode flag (3 = standard QSGW)
-niw = 10  # # of imag-axis frequencies (try 6/10/12)
-delta = -1e-06  # (Ry) small imaginary shift (~1e-6)
-deltaw = 0.02  # (a.u.) numerical-derivative mesh for Z factor
-esmr = 0.003  # (Ry) hsfp0 smearing; keep < band gap for insulators
-GaussSmear = true  # Gaussian smearing for poles of G^LDA in hsfp0
-EMAXforGW = 30  # (eV, rel. EFermi) upper band cutoff for GW Sigma
-QforEPSunita = true
+n1n2n3        = [12, 12, 12]  # BZ mesh for GW
+QpGcut_psi    = 4.0           # |q+G| cutoff for eigenfunctions (a.u. unless unit_2pioa=true)
+QpGcut_cou    = 3.0           # |q+G| cutoff for Coulomb / W
+unit_2pioa    = false         # false: a.u.;  true: 2*pi/alat
+alpha_OffG    = 1.0           # offset-Gamma auxiliary function (dimensionless)
+emax_sigm     = 3.0           # (Ry) Sigma exact below; extrapolated above
+HistBin_dw    = 0.002         # bin width on real-axis at omega=0
+HistBin_ratio = 1.08          # frhis(iw)=(dw/(r-1))*(exp((r-1)*(iw-1))-1)
+iSigMode      = 3             # self-energy mode flag (3 = standard QSGW)
+niw           = 10            # # of imag-axis frequencies (try 6/10/12)
+delta         = -1e-06        # (Ry) small imaginary shift (~1e-6)
+deltaw        = 0.02          # (a.u.) numerical-derivative mesh for Z factor
+esmr          = 0.003         # (Ry) hsfp0 smearing; keep < band gap for insulators
+GaussSmear    = true          # Gaussian smearing for poles of G^LDA in hsfp0
+EMAXforGW     = 30            # (eV, rel. EFermi) upper band cutoff for GW Sigma
+QforEPSunita  = true
+
 # wan_out_emin = -1.05  # (eV, rel. EFermi) Wannier outer window low
 # wan_out_emax = 2.4  # (eV, rel. EFermi) Wannier outer window high
 # wan_tb_cut = 15
@@ -150,18 +150,7 @@ QforEPSunita = true
 # wan_max_2nd = 0.3  # 2nd-stage Wannier step size
 # wan_conv_end = 1e-08  # Wannier final convergence threshold
 # zmel_batch_gb = 0.4  # (GB) zmel batch size per rank; increase for large systems
-# === PRODUCT_BASIS ===
-# pb_tolerance / pb_lcutmx : ctrlg.<sname>.toml (cut-off tunables).
-# nlx / valence / core     : PB.<sname>.toml (per-spec tables).
-[product_basis]
-pb_tolerance = [0.001]  # drop linearly-dep products below this (default 1e-3)
-pb_lcutmx    = [2, 2]  # max l-cutoff per atom (4 for d-valence, 6 for f)
 
-# Per-atom product-basis tables (nlx / valence / core) live in PB.<sname>.toml
-
-# === BLOCKS: GW additional blocks (epsilon, etc.) ===
-# QforEPS / QforEPSL : q-point lists for dielectric function calc.
-[blocks]
 QforEPS = """
  0 0 0.001     
  0 0 0.0014142 
@@ -170,7 +159,20 @@ QforEPS = """
  0 0 0.004
 """
 
-Worb = """
+# === MLO: muffin-tin based localized orbitals (see manual/mlo) ===
+# mlo_method / mlo_delta / mlo_w shape the weight theta; mlo_lm lists the
+# lm channels per atom (1=s, 2-4=p, 5-9=d, 10-16=f; partial shells allowed).
+[mlo]
+mlo_lm = """
 !  1 C   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
 !  2 C   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
 """
+
+# === PRODUCT_BASIS ===
+# pb_tolerance / pb_lcutmx : ctrlg.<sname>.toml (cut-off tunables).
+# nlx / valence / core     : PB.<sname>.toml (per-spec tables).
+[product_basis]
+pb_tolerance = [0.001]  # drop linearly-dep products below this (default 1e-3)
+pb_lcutmx    = [2, 2]   # max l-cutoff per atom (4 for d-valence, 6 for f)
+
+# Per-atom product-basis tables (nlx / valence / core) live in PB.<sname>.toml

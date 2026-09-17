@@ -1,5 +1,5 @@
 !--------------------------------------
-!! This module is for readling informations of <Worb> section in GWinput.
+!! Reads the mlo_lm block ([mlo] of ctrlg.<sname>.toml; formerly <Worb>): which lm channels per atom.
 !! Then this is transformed to the form for the calculation of MLWF.
 !!
 !! nclass_mlwf    : the number of atoms for Wannier
@@ -34,7 +34,7 @@ contains
     call gwinput_init()
     if (gwinput_loaded) then
        nclass_mlwf = tg_n_worb
-       if (nclass_mlwf == 0) call rx('s_read_Worb: empty Worb in ctrlg.<sname>.toml')
+       if (nclass_mlwf == 0) call rx('s_read_Worb: empty mlo_lm (in [mlo] of ctrlg.<sname>.toml; the block was called Worb)')
        allocate(iclassin(nclass_mlwf), nbasclass_mlwf(nclass_mlwf), classname_mlwf(nclass_mlwf))
        nbasclassMax = 0
        do iclass = 1, nclass_mlwf

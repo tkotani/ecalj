@@ -21,7 +21,7 @@ verbose = 31  # 31 default, 35 verbose, 41+ debug
 nspec = 1
 nbas  = 2
 alat  = 4.7031352107503  # lattice constant (a.u.)
-plat  = [[              0.0, -1.0,              0.0],
+plat  = [[              0.0, -1.0,              0.0],  # primitive vectors in units of alat
          [0.866025403784439,  0.5,              0.0],
          [              0.0,  0.0, 1.63299316185545]]
 
@@ -121,4 +121,3 @@ rmax = 3.5
 # tol controls accuracy; default 1e-12 is fine.
 [ewald]
 tol = 1e-06
-

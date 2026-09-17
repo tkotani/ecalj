@@ -5,8 +5,8 @@ gwinput2toml.py - Convert a legacy GWinput into TOML text (helper for Legacy2tom
 Usage: gwinput2toml.py [GWinput] -o <intermediate.toml>   (called by Legacy2toml.py)
 
 Reads ecalj's tag-based GWinput format and emits a TOML file with the
-same content, structured under [gw] (scalar/vector keys), [mlo] (mlo_* keys) and
-[product_basis] (PRODUCT_BASIS block). Other blocks (<QPNT>, <QforGW>,
+same content, structured under [gw] (scalar/vector keys + QforEPS/QforGW),
+[mlo] (mlo_* keys + mlo_lm, the legacy <Worb>) and [product_basis]. Other blocks (<QPNT>, <QforGW>,
 <QforEPS>, <QforEPSL>, <Worb>) are passed through as raw multi-line
 strings under [blocks] for future structured handling.
 """
@@ -281,12 +281,21 @@ def emit_toml(parsed: dict) -> str:
             out.append(f"{k} = {emit_value(v)}")
         if "zmel_batch_gb" not in gw:
             out.append("# zmel_batch_gb = 0.4  # (GB) zmel batch size per rank; increase for large systems")
+        blocks = parsed["blocks"]
+        for tag in ("QforEPS", "QforGW"):            # q-point lists belong to the GW driver
+            if tag in blocks:
+                out.append(f'{tag} = """')
+                out.append(blocks.pop(tag))
+                out.append('"""')
         out.append("")
-        if mlo:
+        if mlo or "Worb" in blocks:
             out.append("[mlo]")
-            out.append("# MLO keys (Worb, which names the lm channels, stays in [blocks])")
             for k, v in mlo.items():
                 out.append(f"{k} = {emit_value(v)}")
+            if "Worb" in blocks:
+                out.append('mlo_lm = """')
+                out.append(blocks.pop("Worb"))
+                out.append('"""')
             out.append("")
 
     pb = parsed["product_basis"]
@@ -320,7 +329,6 @@ def emit_toml(parsed: dict) -> str:
             out.append("")
 
     if parsed["blocks"]:
-        out.append("# Blocks not yet structured — kept as raw text for round-trip")
         out.append("[blocks]")
         for tag, body in parsed["blocks"].items():
             out.append(f'{tag} = """')

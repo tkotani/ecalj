@@ -20,7 +20,7 @@ time = [2, 2]  # CPU timing log; [depth, on-the-fly]
 nspec = 1
 nbas  = 1
 alat  = 5.21564618265722  # lattice constant (a.u.)
-plat  = [[-0.5,  0.5,  0.5],
+plat  = [[-0.5,  0.5,  0.5],  # primitive vectors in units of alat
          [ 0.5, -0.5,  0.5],
          [ 0.5,  0.5, -0.5]]
 
@@ -107,4 +107,3 @@ rdsig  = 12
 pwmode = 11  # 0=MTO 1=PMT 2=APW 11=PMT(|q+G|, default) 12=LAPW
 pwemax = 3.0  # APW cutoff (Ry)
 phispinsym  = false  # true = spin-averaged radial wfns (needed for SOC=1 perturbation)
-

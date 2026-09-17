@@ -19,7 +19,7 @@ verbose = 40  # 31 default, 35 verbose, 41+ debug
 nspec = 2
 nbas  = 2
 alat  = 9.4051662451573  # lattice constant (a.u.)
-plat  = [[0.0, 0.5, 0.5],
+plat  = [[0.0, 0.5, 0.5],  # primitive vectors in units of alat
          [0.5, 0.0, 0.5],
          [0.5, 0.5, 0.0]]
 
@@ -139,4 +139,3 @@ hf = false
 # rmax: cutoff radius for structure constants.
 [str]
 rmax = 3.02
-

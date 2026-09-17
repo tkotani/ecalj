@@ -20,7 +20,7 @@ time = [0, 0]  # CPU timing log; [depth, on-the-fly]
 nspec = 3
 nbas  = 20
 alat  = 10.3651519245923  # lattice constant (a.u.)
-plat  = [[1.0,              0.0,              0.0],
+plat  = [[1.0,              0.0,              0.0],  # primitive vectors in units of alat
          [0.0, 1.41659070191431,              0.0],
          [0.0,              0.0, 1.00692798541477]]
 
@@ -226,4 +226,3 @@ hess = true
 xtol = 0.0001
 gtol = 0.0
 step = 0.015
-

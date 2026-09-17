@@ -107,7 +107,7 @@ contains
       logical:: socmatrix
       integer:: io
       socmatrix=c0_socmatrix
-      ReadInfoFromGWinput: block ! Input orbital index for MLO, stored into idmto (s,p,d=1,2,3,4,5,6,7,8,9)
+      ReadInfoFromGWinput: block ! Input orbital index for MLO (mlo_lm, formerly Worb), stored into idmto (s,p,d=1,2,3,4,5,6,7,8,9)
         ! gwinput_init() aborts if ctrlg.<sname>.toml is missing, so gwinput_loaded
         ! is always .true. below; the else branches are unreachable.
         !
@@ -528,6 +528,6 @@ contains
       allocate(ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO))
       read(ifihmto) ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO)
       close(ifihmto)
-      if(master_mpi) write(stdo,*)'OK: Read HamRsMLO file! Use i-ioffib for setting <Worb>'
+      if(master_mpi) write(stdo,*)'OK: Read HamRsMLO file! Use i-ioffib for setting mlo_lm'
    end subroutine ReadHamRsMLO
 end module m_HamRsMLO

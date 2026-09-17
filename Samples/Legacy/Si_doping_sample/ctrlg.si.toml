@@ -20,7 +20,7 @@ time = [0, 0]  # CPU timing log; [depth, on-the-fly]
 nspec = 1
 nbas  = 2
 alat  = 10.2630121868486  # lattice constant (a.u.)
-plat  = [[0.0, 0.5, 0.5],
+plat  = [[0.0, 0.5, 0.5],  # primitive vectors in units of alat
          [0.5, 0.0, 0.5],
          [0.5, 0.5, 0.0]]
 
@@ -116,4 +116,3 @@ oveps       = 1e-07  # overlap-eps for (H-eO)z=0; 1d-8 default
 pwmode      = 11  # 0=MTO 1=PMT 2=APW 11=PMT(|q+G|, default) 12=LAPW
 pwemax      = 2.0  # APW cutoff (Ry)
 phispinsym  = false  # true = spin-averaged radial wfns (needed for SOC=1 perturbation)
-

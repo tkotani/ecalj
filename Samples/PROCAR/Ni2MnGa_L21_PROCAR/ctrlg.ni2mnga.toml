@@ -13,7 +13,7 @@ symgrp = "find"  # 'find' = auto-detect from lattice (see header)
 # verbos: console verbosity (default 31). Larger -> more diagnostic
 #   output. Use 35-41 when investigating failures.
 verbose = 35  # 31 default, 35 verbose, 41+ debug
-time    = [0, 0]
+time    = [0, 0]  # CPU timing log; [depth, on-the-fly]
 
 # === STRUC: lattice ===
 # alat in a.u.; plat is the primitive cell in units of alat (rows = a1,a2,a3).
@@ -22,7 +22,7 @@ time    = [0, 0]
 nspec = 3
 nbas  = 4
 alat  = 11.0076590630356  # lattice constant (a.u.)
-plat  = [[0.0, 0.5, 0.5],
+plat  = [[0.0, 0.5, 0.5],  # primitive vectors in units of alat
          [0.5, 0.0, 0.5],
          [0.5, 0.5, 0.0]]
 
@@ -159,4 +159,3 @@ pwmode      = 1  # 0=MTO 1=PMT 2=APW 11=PMT(|q+G|, default) 12=LAPW
 pwemax      = 3.0  # APW cutoff (Ry)
 readp       = true  # read P,PZ from atom calc results
 pnufix      = true  # fix B.C. of radial functions
-

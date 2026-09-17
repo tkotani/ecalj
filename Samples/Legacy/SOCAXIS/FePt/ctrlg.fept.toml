@@ -20,7 +20,7 @@ time = [0, 0]  # CPU timing log; [depth, on-the-fly]
 nspec = 2
 nbas  = 2
 alat  = 5.1510175  # lattice constant (a.u.)
-plat  = [[1.0, 0.0,       0.0],
+plat  = [[1.0, 0.0,       0.0],  # primitive vectors in units of alat
          [0.0, 1.0,       0.0],
          [0.0, 0.0, 1.3620588]]
 
@@ -134,4 +134,3 @@ pwemax      = 3.0  # APW cutoff (Ry)
 readp       = true  # read P,PZ from atom calc results
 pnufix      = true  # fix B.C. of radial functions
 phispinsym  = false  # true = spin-averaged radial wfns (needed for SOC=1 perturbation)
-

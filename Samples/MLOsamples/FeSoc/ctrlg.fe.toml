@@ -13,7 +13,7 @@ symgrp = "find"  # 'find' = auto-detect from lattice (see header)
 # verbos: console verbosity (default 31). Larger -> more diagnostic
 #   output. Use 35-41 when investigating failures.
 verbose = 35  # 31 default, 35 verbose, 41+ debug
-time    = [0, 0]
+time    = [0, 0]  # CPU timing log; [depth, on-the-fly]
 
 # === STRUC: lattice ===
 # alat in a.u.; plat is the primitive cell in units of alat (rows = a1,a2,a3).
@@ -111,47 +111,24 @@ rdsig  = 12
 pwmode = 1  # 0=MTO 1=PMT 2=APW 11=PMT(|q+G|, default) 12=LAPW
 pwemax = 3.0  # APW cutoff (Ry)
 
-
 # === GW: driver (used by lmf --jobgw=N and gwsc) ===
 # nband_chi0/emax_chi0: bands/energy window for chi0.
 # Touch only if you know what you are doing -- defaults are sensible.
 [gw]
-n1n2n3 = [6, 6, 6, 4, 4, 4]  # BZ mesh for GW
-QpGcut_psi = 4.0  # |q+G| cutoff for eigenfunctions (a.u. unless unit_2pioa=true)
-QpGcut_cou = 3.0  # |q+G| cutoff for Coulomb / W
-unit_2pioa = false  # false: a.u.;  true: 2*pi/alat
-alpha_OffG = 1.0  # offset-Gamma auxiliary function (dimensionless)
-emax_sigm = 3.0  # (Ry) Sigma exact below; extrapolated above
-niw = 10  # # of imag-axis frequencies (try 6/10/12)
-HistBin_dw = 0.0001  # bin width on real-axis at omega=0
-HistBin_ratio = 1.05  # frhis(iw)=(dw/(r-1))*(exp((r-1)*(iw-1))-1)
-GaussSmear = true  # Gaussian smearing for poles of G^LDA in hsfp0
-deltaw = 0.02  # (a.u.) numerical-derivative mesh for Z factor
-esmr = 0.003  # (Ry) hsfp0 smearing; keep < band gap for insulators
-QforEPSau = true  # true = interpret <QforEPS> as a.u.
-EMAXforGW = 15  # (eV, rel. EFermi) upper band cutoff for GW Sigma
-# === PRODUCT_BASIS ===
-# pb_tolerance / pb_lcutmx : ctrlG.<sname>.toml (cut-off tunables).
-# nlx / valence / core     : PB.toml (sname-free, shared per-spec tables).
-[mlo]
-# MLO (muffin-tin based localized orbitals). Which lm channels make the model
-# is given by Worb in [blocks]; the three keys below shape the weight theta.
-mlo_method = 4  # theta = sigma((eps - ecut_j)/mlo_w),  ecut_j = max(CBM + mlo_delta, eps^MTO_j)
-mlo_delta  = 2.0  # (eV) default. How far above the band edge (E_F in metals) the model must be accurate
-mlo_w      = 2.0  # (eV) default for mlo_method=4. Width of the fall-off above that floor
-
-[product_basis]
-pb_tolerance = [0.001]  # drop linearly-dep products below this (default 1e-3)
-pb_lcutmx    = [4]  # max l-cutoff per atom (4 for d-valence, 6 for f)
-
-# Per-atom product-basis tables (nlx / valence / core) live in PB.toml
-
-# === BLOCKS: GW additional blocks (epsilon, etc.) ===
-# QforEPS / QforEPSL : q-point lists for dielectric function calc.
-[blocks]
-Worb = """
-  1 Fe 1 2 3 4 5 6 7 8 9
-"""
+n1n2n3        = [6, 6, 6, 4, 4, 4]  # BZ mesh for GW
+QpGcut_psi    = 4.0                 # |q+G| cutoff for eigenfunctions (a.u. unless unit_2pioa=true)
+QpGcut_cou    = 3.0                 # |q+G| cutoff for Coulomb / W
+unit_2pioa    = false               # false: a.u.;  true: 2*pi/alat
+alpha_OffG    = 1.0                 # offset-Gamma auxiliary function (dimensionless)
+emax_sigm     = 3.0                 # (Ry) Sigma exact below; extrapolated above
+niw           = 10                  # # of imag-axis frequencies (try 6/10/12)
+HistBin_dw    = 0.0001              # bin width on real-axis at omega=0
+HistBin_ratio = 1.05                # frhis(iw)=(dw/(r-1))*(exp((r-1)*(iw-1))-1)
+GaussSmear    = true                # Gaussian smearing for poles of G^LDA in hsfp0
+deltaw        = 0.02                # (a.u.) numerical-derivative mesh for Z factor
+esmr          = 0.003               # (Ry) hsfp0 smearing; keep < band gap for insulators
+QforEPSau     = true                # true = interpret <QforEPS> as a.u.
+EMAXforGW     = 15                  # (eV, rel. EFermi) upper band cutoff for GW Sigma
 
 QforEPS = """
  0 0 0.00050
@@ -165,3 +142,24 @@ QforGW = """
  0.2 0.0 0.0
  0.3 0.0 0.0
 """
+
+# === MLO: muffin-tin based localized orbitals (see manual/mlo) ===
+# mlo_method / mlo_delta / mlo_w shape the weight theta; mlo_lm lists the
+# lm channels per atom (1=s, 2-4=p, 5-9=d, 10-16=f; partial shells allowed).
+[mlo]
+mlo_method = 4    # theta = sigma((eps - ecut_j)/mlo_w),  ecut_j = max(CBM + mlo_delta, eps^MTO_j)
+mlo_delta  = 2.0  # (eV) default. How far above the band edge (E_F in metals) the model must be accurate
+mlo_w      = 2.0  # (eV) default for mlo_method=4. Width of the fall-off above that floor
+
+mlo_lm = """
+  1 Fe 1 2 3 4 5 6 7 8 9
+"""
+
+# === PRODUCT_BASIS ===
+# pb_tolerance / pb_lcutmx : ctrlg.<sname>.toml (cut-off tunables).
+# nlx / valence / core     : PB.<sname>.toml (per-spec tables).
+[product_basis]
+pb_tolerance = [0.001]  # drop linearly-dep products below this (default 1e-3)
+pb_lcutmx    = [4]      # max l-cutoff per atom (4 for d-valence, 6 for f)
+
+# Per-atom product-basis tables (nlx / valence / core) live in PB.toml

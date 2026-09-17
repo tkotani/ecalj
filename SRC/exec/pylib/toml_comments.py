@@ -120,6 +120,12 @@ SECTION_HEADER = {
         "# Touch only if you know what you are doing -- defaults are sensible.",
     ),
 
+    'mlo': (
+        "# === MLO: muffin-tin based localized orbitals (see manual/mlo) ===",
+        "# mlo_method / mlo_delta / mlo_w shape the weight theta; mlo_lm lists the",
+        "# lm channels per atom (1=s, 2-4=p, 5-9=d, 10-16=f; partial shells allowed).",
+    ),
+
     'product_basis': (
         "# === PRODUCT_BASIS ===",
         "# pb_tolerance / pb_lcutmx : ctrlg.<sname>.toml (cut-off tunables).",
@@ -127,8 +133,7 @@ SECTION_HEADER = {
     ),
 
     'blocks': (
-        "# === BLOCKS: GW additional blocks (epsilon, etc.) ===",
-        "# QforEPS / QforEPSL : q-point lists for dielectric function calc.",
+        "# === BLOCKS: raw multi-line blocks with no better home (QPNT, QforEPSL, hrotr) ===",
     ),
 }
 
