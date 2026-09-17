@@ -132,6 +132,8 @@ mlo_method = 4    # theta = sigma((eps - ecut_j)/mlo_w),  ecut_j = max(CBM + mlo
 mlo_delta  = 2.0  # (eV) default. How far above the band edge (E_F in metals) the model must be accurate
 mlo_w      = 2.0  # (eV) default for mlo_method=4. Width of the fall-off above that floor
 # ----------------------------------------------------------------
+# mlo_nkabc = [2, 2, 2]   # k mesh for the MLO Hamiltonian only (lmf --writeham --mlo); absent = [bz] nkabc
+# ----------------------------------------------------------------
 mlo_lm = """
   1 Gd   10 11 12 13 14 15 16
 """
