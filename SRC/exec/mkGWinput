@@ -1,11 +1,11 @@
 #!/bin/bash
-# Append default [gw]/[product_basis]/[blocks] sections to an existing
-# ctrlg.<target>.toml, and generate PB.<sname>.toml.
+# Append default [gw]/[mlo]/[blocks]/[product_basis] sections to an existing
+# ctrlg.<target>.toml ([product_basis] includes the per-atom tables that were
+# PB.<sname>.toml before 2026-09).
 #
 # Pre-flight steps to obtain HAMINDEX0:  lmfa -> lmf --jobgw=0 -> gwinit
 #
-# If ctrlg.<target>.toml or PB.<sname>.toml already exists, it is moved aside to
-# <name>.bakup before being regenerated.
+# The existing ctrlg.<target>.toml is moved aside to <name>.bakup first.
 set -e
 nfpgw=$(dirname "$0")
 
@@ -24,7 +24,7 @@ if [ ! -f "$ctrlg" ]; then
 fi
 
 # Snapshot the pre-existing files so users never lose hand edits.
-for f in "$ctrlg" PB.<sname>.toml; do
+for f in "$ctrlg"; do
     if [ -f "$f" ]; then
         echo "mkGWinput: backing up $f -> $f.bakup"
         mv "$f" "$f.bakup"
@@ -40,7 +40,6 @@ mpirun -np 1 "$nfpgw/gwinit" "$target"
 
 echo
 echo '-------------------------------------------------------------------'
-echo "  $ctrlg   updated ([gw]/[product_basis]/[blocks])"
-echo "  PB.<sname>.toml  generated (per-atom product-basis tables)"
+echo "  $ctrlg   updated ([gw]/[mlo]/[blocks]/[product_basis] incl. nlx/valence/core)"
 echo "  default n1n2n3 = 4 4 4. Edit by hand if needed."
 echo 'OK!'

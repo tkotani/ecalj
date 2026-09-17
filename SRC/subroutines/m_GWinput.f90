@@ -1,4 +1,4 @@
-!> m_GWinput: single source of truth for the GW-side input (ctrlg.<sname>.toml + PB.<sname>.toml).
+!> m_GWinput: single source of truth for the GW-side input (ctrlg.<sname>.toml).
 !  Loads once via toml-f, exposes all values as protected module variables.
 !  Callers `use m_GWinput, only: niw, deltaw, ...` to access values.
 !
@@ -8,7 +8,7 @@
 !  Schema based on survey of 66 Samples GWinput files.
 !
 !  ---------------------------------------------------------------------------
-!  THE INPUT IS ctrlg.<sname>.toml + PB.<sname>.toml. NOTHING ELSE.
+!  THE INPUT IS ctrlg.<sname>.toml. NOTHING ELSE.
 !  ---------------------------------------------------------------------------
 !  There is no GWinput.toml. That name was an intermediate of the 2026-05
 !  migration and nothing in ecalj reads it; a file by that name in a run
@@ -29,8 +29,13 @@
 !    <PRODUCT_BASIS> tolerance -> [product_basis] pb_tolerance = [..]
 !    <PRODUCT_BASIS> lcutmx    -> [product_basis] pb_lcutmx    = [..]
 !    <PRODUCT_BASIS> nlx / valence / core tables
-!                              -> PB.<sname>.toml  [product_basis]  nlx = [...],
-!                                 valence = [...], core = [...]   (per-atom rows)
+!                              -> [product_basis] nlx = [[iatom,l,nnvv,nnc],...],
+!                                 valence = [[iatom,l,n,occ,unocc],...],
+!                                 core = [[iatom,l,n,occ,unocc,forX0,forSxc],...]
+!                                 (one inner list per row; the section is the
+!                                 last one in the file. Until 2026-09 these three
+!                                 were a separate PB.<sname>.toml, still read with
+!                                 a NOTE when ctrlg has no nlx.)
 !    <QforEPS> <QforGW>        -> [gw]      NAME = """<raw lines verbatim>"""
 !    <Worb>                    -> [mlo]     mlo_lm = """<raw lines verbatim>"""
 !    <QPNT> <QforEPSL> <hrotr> -> [blocks]  NAME = """<raw lines verbatim>"""
@@ -344,48 +349,41 @@ module m_GWinput
 contains
 
   !> Idempotent helper for callers: ensure GW input has been loaded.
-  !  Reads ctrlg.<sname>.toml (carries [gw], [product_basis] scalars,
-  !  [blocks]) plus PB.toml (per-atom product-basis arrays). Both files
-  !  are mandatory; legacy ctrl/GWinput must be pre-converted to TOML
-  !  via Legacy2toml.py before launching the Fortran binary.
-  !> True when the GW-side input (ctrlg.<sname>.toml + PB.<sname>.toml) is present.
+  !  Reads ctrlg.<sname>.toml: [gw], [mlo], [blocks] and [product_basis]
+  !  (cut-offs plus the per-atom tables nlx/valence/core). Legacy
+  !  ctrl/GWinput must be pre-converted via Legacy2toml.py first.
+  !> True when the GW-side input (ctrlg.<sname>.toml) is present.
   !  For callers that must work with and without GW input (verbose(), BZadiv, ...):
-  !  gwinput_init() aborts when the files are missing, this only reports.
+  !  gwinput_init() aborts when the file is missing, this only reports.
   logical function gwinput_available()
     use m_ext, only: sname
-    logical :: a, b
-    inquire(file='ctrlg.'//trim(sname)//'.toml', exist=a)
-    inquire(file='PB.'//trim(sname)//'.toml',    exist=b)
-    gwinput_available = a .and. b
+    inquire(file='ctrlg.'//trim(sname)//'.toml', exist=gwinput_available)
   end function gwinput_available
 
   subroutine gwinput_init()
     use m_ext, only: sname
-    logical :: have_ctrlg, have_pb
+    logical :: have_ctrlg
     character(len=:), allocatable :: errmsg
     if (gwinput_loaded) return
     inquire(file='ctrlg.'//trim(sname)//'.toml', exist=have_ctrlg)
     if (.not. have_ctrlg) call rx('m_GWinput: ctrlg.'//trim(sname)// &
          '.toml not found in cwd (run Legacy2toml.py to convert legacy inputs).')
-    inquire(file='PB.'//trim(sname)//'.toml', exist=have_pb)
-    if (.not. have_pb) call rx('m_GWinput: PB.toml not found in cwd '// &
-         '(run Legacy2toml.py / mkGWinput to generate it).')
     call gwinput_load(error=errmsg)
-    if (.not. gwinput_loaded) call rx('m_GWinput: failed to load ctrlG/PB toml')
+    if (.not. gwinput_loaded) call rx('m_GWinput: failed to load ctrlg.'//trim(sname)//'.toml')
   end subroutine gwinput_init
 
   subroutine gwinput_load(filename, error)
-    !> Load ctrlg.<sname>.toml + PB.toml. Idempotent.
+    !> Load ctrlg.<sname>.toml. Idempotent.
     !  filename defaults to 'ctrlg.<sname>.toml' if absent.
     !
-    !  Sections consumed from ctrlg.<sname>.toml:
-    !    [gw]              -- run-level scalars (n1n2n3, QpGcut_*, etc.)
-    !    [product_basis]   -- pb_tolerance, pb_lcutmx (slim scalars)
-    !    [blocks]          -- raw text blocks (QPNT, QforEPSL, hrotr; QforEPS/QforGW moved to [gw], Worb to [mlo] mlo_lm)
-    !
-    !  PB.toml carries the per-atom product-basis tables nlx / valence /
-    !  core in its own [product_basis] section; loaded after ctrlG so
-    !  it overrides anything pb_nlx etc. may inadvertently have.
+    !  Sections consumed:
+    !    [gw]              -- run-level scalars (n1n2n3, QpGcut_*, etc.) + QforEPS/QforGW
+    !    [mlo]             -- mlo_method/mlo_delta/mlo_w + mlo_lm
+    !    [blocks]          -- raw text blocks (QPNT, QforEPSL, hrotr)
+    !    [product_basis]   -- pb_tolerance, pb_lcutmx and the per-atom tables
+    !                         nlx / valence / core (before 2026-09 those three
+    !                         sat in a separate PB.<sname>.toml; that file is
+    !                         still read, with a NOTE, when ctrlg has no nlx).
     use m_ext, only: sname
     character(*),               intent(in),  optional :: filename
     character(len=:), allocatable, intent(out), optional :: error
@@ -420,12 +418,13 @@ contains
     call get_value(root, 'gw', gw)
     if (associated(gw)) call load_gw_section(gw)
 
-    !---- [product_basis] (slim: pb_tolerance, pb_lcutmx scalars only) ----
+    !---- [product_basis]: cut-offs + per-atom tables nlx / valence / core ----
     call get_value(root, 'product_basis', pb)
-    if (associated(pb)) call load_pb_section(pb)
-
-    !---- PB.toml (per-atom product-basis tables; mandatory for GW) ----
-    call load_pb_file('PB.'//trim(sname)//'.toml')
+    if (associated(pb)) then
+       call load_pb_section(pb)
+       call load_pb_tables(pb)
+    endif
+    if (pb_n_nlx == 0) call load_pb_file('PB.'//trim(sname)//'.toml')   ! pre-2026-09 layout
 
     !---- [blocks] ----
     call get_value(root, 'blocks', blocks)
@@ -671,9 +670,8 @@ contains
 
 
   subroutine load_pb_section(pb)
-    !> Read scalar [product_basis] entries (pb_tolerance, pb_lcutmx) from
-    !  ctrlg.<sname>.toml. Per-atom arrays (nlx / valence / core) live in
-    !  PB.toml and are loaded by load_pb_file; we do not look for them here.
+    !> Read the cut-offs (pb_tolerance, pb_lcutmx) of [product_basis];
+    !  the per-atom tables of the same section go through load_pb_tables.
     type(toml_table), pointer, intent(in) :: pb
     type(toml_array), pointer :: arr
     integer :: i, n
@@ -700,8 +698,20 @@ contains
   end subroutine load_pb_section
 
 
-  !> Load per-atom product-basis tables from PB.toml.
+  !> Per-atom product-basis tables nlx / valence / core of a [product_basis] table.
+  subroutine load_pb_tables(pb)
+    type(toml_table), pointer, intent(in) :: pb
+    call load_int_2darray(pb, 'nlx',     4, pb_nlx,     pb_n_nlx)
+    call load_int_2darray(pb, 'valence', 5, pb_valence, pb_n_val)
+    call load_int_2darray(pb, 'core',    7, pb_core,    pb_n_core)
+  end subroutine load_pb_tables
+
+  !> Pre-2026-09 layout: the tables in a separate PB.<sname>.toml. Read only
+  !  when ctrlg.<sname>.toml carries no nlx, and say so; gwinit / Legacy2toml.py
+  !  write them into ctrlg now.
   subroutine load_pb_file(filename)
+    use m_mpi, only: master_mpi
+    use m_lgunit, only: stdo
     character(*), intent(in) :: filename
     type(toml_table), allocatable, target :: root
     type(toml_table), pointer :: pb
@@ -714,9 +724,9 @@ contains
          ' parse error: '//terr%message)
     call get_value(root, 'product_basis', pb)
     if (.not. associated(pb)) return
-    call load_int_2darray(pb, 'nlx',     4, pb_nlx,     pb_n_nlx)
-    call load_int_2darray(pb, 'valence', 5, pb_valence, pb_n_val)
-    call load_int_2darray(pb, 'core',    7, pb_core,    pb_n_core)
+    call load_pb_tables(pb)
+    if (master_mpi) write(stdo,'(a)') ' m_GWinput: NOTE nlx/valence/core read from '//trim(filename)// &
+         ' (old layout). They belong in ctrlg [product_basis] now; append them there and remove the file.'
   end subroutine load_pb_file
 
 

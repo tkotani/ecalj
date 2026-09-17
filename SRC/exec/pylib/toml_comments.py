@@ -1,4 +1,4 @@
-"""Inline help text for ctrlg.<sname>.toml and PB.<sname>.toml.
+"""Inline help text for ctrlg.<sname>.toml (the GW-side sections included).
 
 Used by ctrl2ctrltoml.py (Legacy2toml.py) and ctrlgenToml.py to embed
 self-contained explanations next to each TOML section/key, mirroring the
@@ -128,8 +128,9 @@ SECTION_HEADER = {
 
     'product_basis': (
         "# === PRODUCT_BASIS ===",
-        "# pb_tolerance / pb_lcutmx : ctrlg.<sname>.toml (cut-off tunables).",
-        "# nlx / valence / core     : PB.<sname>.toml (per-spec tables).",
+        "# pb_tolerance / pb_lcutmx : the cut-offs you may tune.",
+        "# nlx / valence / core     : per-atom tables, same meaning as the legacy",
+        "#   <PRODUCT_BASIS> block; written by gwinit from [[spec]], normally left alone.",
     ),
 
     'blocks': (
@@ -229,6 +230,31 @@ KEY_INLINE = {
 }
 
 
+# Explanations printed before the three per-atom tables of [product_basis].
+# gwinit (main_gwinit.f90) writes the same text; keep the two in step.
+PB_TABLE_COMMENTS = {
+    'nlx': (
+        "# nlx [iatom, l, nnvv, nnc]: one row per (iatom, l). iatom = site index in",
+        "#   [[site]] order (lmchk prints it). nnvv = radial functions for valence at",
+        "#   this l (2 = phi, phidot; 3 = phi, phidot, phiz local orbital); nnc = number",
+        "#   of core levels at this l. Derived from rsmh/eh/pz of [[spec]].",
+    ),
+    'valence': (
+        "# valence [iatom, l, n, occ, unocc]: one row per valence radial function.",
+        "#   n = 1 phi, 2 phidot, 3 phiz (local orbital). occ / unocc = 1/0 put the",
+        "#   function into the occupied / unoccupied group; the product basis is built",
+        "#   from (occupied) x (unoccupied) products and pruned by pb_tolerance.",
+        "#   phidot is usually left out (0 0) for speed; including it is more accurate.",
+    ),
+    'core': (
+        "# core [iatom, l, n, occ, unocc, forX0, forSxc]: one row per core level.",
+        "#   n = core index at this l (1 = deepest). occ / unocc as above; forX0 / forSxc",
+        "#   = 1/0 include this core in chi0 / in Sigma_xc (CORE1/CORE2 of PRB 76, 165106).",
+        "#   Modern runs leave every core row all-zero.",
+    ),
+}
+
+
 def fmt_section_header(sec):
     """Return a multi-line string (with trailing '\n' on each line) of the
     section header comment block, or '' if no header is defined."""
@@ -243,7 +269,7 @@ def fmt_key_inline(sec, key):
     return KEY_INLINE.get(sec, {}).get(key, '')
 
 
-__all__ = ['SECTION_HEADER', 'KEY_INLINE',
+__all__ = ['SECTION_HEADER', 'KEY_INLINE', 'PB_TABLE_COMMENTS',
            'fmt_section_header', 'fmt_key_inline']
 
 
@@ -279,6 +305,12 @@ def apply_toml_annotations(text):
             out.append(ln)
             continue
         m2 = _re_app.match(r"^(\s*)([A-Za-z0-9_/\"]+)(\s*=\s*)(.+)$", ln)
+        if m2 and last_sec == "product_basis":
+            k = m2.group(2).strip()
+            if k in PB_TABLE_COMMENTS and m2.group(4).strip() == "[":
+                marker = PB_TABLE_COMMENTS[k][0]
+                if marker not in text:
+                    out.extend(PB_TABLE_COMMENTS[k])
         if m2 and last_sec:
             indent, key, sep, val = m2.groups()
             if ("#" not in val

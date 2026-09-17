@@ -82,8 +82,7 @@ $\lvert\varepsilon-E_F\rvert<3$ eV での `dSEnoZ` の交換分裂は
 ## ディレクトリ
 
 ```
-input/  PB.fe.toml     product basis
-        rst.fe.lda     LDA 収束済みの rst
+input/  rst.fe.lda     LDA 収束済みの rst   (product basis は各 ctrlg の [product_basis] 末尾)
 
 t_sigmakbt0/     ctrlg.fe.toml   (t_sigmakbt = 0.0)
 t_sigmakbt3000/  ctrlg.fe.toml   (t_sigmakbt = 3000.0)
@@ -99,7 +98,6 @@ plots/  fe_sigmakbt_shift.png
 
 ```bash
 mkdir work && cd work
-cp ../input/PB.fe.toml .
 cp ../t_sigmakbt3000/ctrlg.fe.toml .
 cp ../input/rst.fe.lda rst.fe
 lmfa fe

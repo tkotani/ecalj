@@ -181,7 +181,7 @@ contains
                                           ncwf(lt+1,nt,iatomt), ncwf2(lt+1,nt,iatomt)
        enddo
     else
-       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
+       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
 !       call getkeyvalue("GWinput","<PRODUCT_BASIS>", unit=ifi, status=ret)
 !       read(ifi,*)
 !       read(ifi,"(a)") tolchar

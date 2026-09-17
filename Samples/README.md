@@ -3,8 +3,7 @@
 As of 2026-05 the Fortran binaries (`lmf`, `lmfa`, `lmchk`, `gwsc`,
 `hsfp0`, ...) read structured TOML only:
 
-- `ctrlg.<sname>.toml` — merged ctrl + GW driver sections + PB cut-offs
-- `PB.<sname>.toml` — per-atom product basis tables
+- `ctrlg.<sname>.toml` — ctrl + GW driver sections; `[product_basis]` at the end carries the cut-offs and the per-atom tables (nlx/valence/core)
 
 The five directories below are already migrated and pass `testecalj`.
 The rest are kept under [Legacy/](Legacy/) and still use legacy
@@ -15,7 +14,7 @@ working dir to convert before invoking `lmf`/`gwsc`/etc.
 
 | dir | role | what's inside |
 |---|---|---|
-| [GetStarted/](GetStarted/) | minimal seeds for the [ecaljdoc tutorial](https://ecalj.github.io/ecaljdoc/manual/README_tutorial#getstarted) | `GaAs/` ships `ctrls.gaas` + `ctrlg.gaas.toml` + `PB.gaas.toml`. See [GetStarted/README.md](GetStarted/README.md). |
+| [GetStarted/](GetStarted/) | minimal seeds for the [ecaljdoc tutorial](https://ecalj.github.io/ecaljdoc/manual/README_tutorial#getstarted) | `GaAs/` ships `ctrls.gaas` + `ctrlg.gaas.toml`. See [GetStarted/README.md](GetStarted/README.md). |
 | [MLOsamples/](MLOsamples/) | MuffinTin Localized Orbitals (Wannier replacement) | 17 samples — semiconductors, magnetic metals, multilayers, 4f systems. See [MLOsamples/README.md](MLOsamples/README.md). |
 | [TestInstall/](TestInstall/) | install validation suite | 25 samples — ground-state (incl. `fe` spin-pol DOS, `gdn` LDA+U), GW (gwsc), eps (eps_lmfh, epsPP_lmfh), magnetic susceptibility (chipm), cRPA. Driven by `testecalj --all`. Extra heavy GW targets (`cugase2_gwsc222`, `nio_gwsc444`, `pdo_gwsc443`, `gas_gwsc666`) have their own `test.py` and run individually: `testecalj -np 60 <dir>`. |
 | [EPS/](EPS/) | dielectric function ε(q,ω) | 3 samples — `EPS_Cu`, `EPS_GaAs`, `EPS_Ag`. epsPP0 with no LFC; small q probe + intra/inter band split. |

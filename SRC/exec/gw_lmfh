@@ -9,7 +9,7 @@ EXEC_DIR = Path(__file__).parent
 parser = argparse.ArgumentParser(prog='gw_lmfh', description='''
   One-shot GW calculation to get QP energies.
   Example: gw_lmfh si -np 4
-  for ctrlg.si.toml, PB.si.toml and rst.si
+  for ctrlg.si.toml and rst.si
 ''')
 parser.add_argument("extension",   help='extension of ctrl file')
 parser.add_argument("-np",         help='number of MPI cores', default=8, type=int)
@@ -38,14 +38,13 @@ if args.fp32:
 smpi2 = {"nprocs": args.np2} if (args.np2 and exec_type) else smpi
 
 if __name__ == "__main__":
-    # TOML mode gate (same as gwsc): Fortran binaries read ctrlg.<target>.toml + PB.<target>.toml
+    # TOML mode gate (same as gwsc): Fortran binaries read ctrlg.<target>.toml only
     _ctrlg = Path(f'ctrlg.{target}.toml')
-    _pb    = Path(f'PB.{target}.toml')
-    if not _ctrlg.is_file() or not _pb.is_file():
-        print(f'gw_lmfh: missing {_ctrlg if not _ctrlg.is_file() else _pb} in cwd.', file=sys.stderr)
+    if not _ctrlg.is_file():
+        print(f'gw_lmfh: missing {_ctrlg} in cwd.', file=sys.stderr)
         print('         Run Legacy2toml.py to convert legacy ctrl+GWinput to TOML form.', file=sys.stderr)
         raise SystemExit(2)
-    print(f'gw_lmfh: using {_ctrlg} + {_pb} (TOML mode)')
+    print(f'gw_lmfh: using {_ctrlg} (TOML mode)')
 
     for name in ['NoCore', 'QPU', 'QPD']:
         p = Path(name)

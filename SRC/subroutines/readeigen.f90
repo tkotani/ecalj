@@ -418,7 +418,7 @@ contains
     if (gwinput_loaded) then
        keepqg = tg_KeepQG
     else
-       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
+       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
 !       call getkeyvalue("GWinput","KeepQG",keepqg,default=.true.)
     endif
     if((.not.keepqg).and.ipr) write(6,*) 'keepQG = .false. in readeigen'

@@ -340,7 +340,7 @@ def emit_toml(parsed: dict) -> str:
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Convert a legacy GWinput into intermediate TOML for Legacy2toml.py. ecalj itself never reads this file: the GW input is ctrlg.<sname>.toml + PB.<sname>.toml.")
+    ap = argparse.ArgumentParser(description="Convert a legacy GWinput into intermediate TOML for Legacy2toml.py. ecalj itself never reads this file: the GW input is ctrlg.<sname>.toml.")
     ap.add_argument("input", nargs="?", default="GWinput", help="Input GWinput file (default: GWinput)")
     ap.add_argument("-o", "--output", required=True, help="Output TOML path (intermediate; pick a name that is not GWinput.toml)")
     args = ap.parse_args()

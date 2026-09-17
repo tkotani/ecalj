@@ -178,7 +178,7 @@ contains
       if (gwinput_loaded) then
          mmax = tg_zmel_batch_gb
       else
-         call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
+         call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
       endif
       call getppx2([(0d0,i=1,3)],get_ngcgp=.true.)
       open(newunit=ifiqg, file='__QGcou',form='unformatted')

@@ -97,7 +97,7 @@ contains
           ibzqq = tg_QforEPSIBZ
           qepsl_inc_left = tg_QforEPSLIncLeft
        else
-          call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
+          call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
 !          call getkeyvalue("GWinput","QforEPSunita",unita,default=.false.)
 !          call getkeyvalue("GWinput","QforEPSau",   unita,default=unita)
 !          call getkeyvalue("GWinput","QforEPSIBZ",ibzqq,default=.false.)
@@ -123,7 +123,7 @@ contains
                 nq0i = nq0i00
              endif
           else
-             call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
+             call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
 !             call getkeyvalue("GWinput","<QforEPS>", unit=ifinin,status=nq0i00,errstop='off')
 !             nq0i00 =max(nq0i00,0)
 !             if(nq0i00>0) close(ifinin)
@@ -164,7 +164,7 @@ contains
                 enddo
              endif
           else
-             call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
+             call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
 !          if(nq0i00>0) then
 !             call getkeyvalue("GWinput","<QforEPS>",unit=ifinin,status=nq0i00)
 !             do i=1,nq0i00

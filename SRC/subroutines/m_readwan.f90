@@ -181,7 +181,7 @@ contains
     if (gwinput_loaded) then
        shift_ev = tg_shift_majority
     else
-       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
+       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
 !       call getkeyvalue("GWinput","shift_majority",shift_ev,default=0d0)
     endif
     if (shift_ev /= 0d0) write(6,*) "shift_ev [eV]: ",shift_ev
@@ -218,7 +218,7 @@ contains
     if (gwinput_loaded) then
        shift_ev = tg_shift_majority
     else
-       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
+       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
 !       call getkeyvalue("GWinput","shift_majority",shift_ev,default=0d0)
     endif
     if (shift_ev /= 0d0) write(6,*) "shift_ev [eV]: ",shift_ev
@@ -780,7 +780,7 @@ contains
     if (gwinput_loaded) then
        iddmat_in = tg_output_ddmat_atom
     else
-       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
+       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
 !       call getkeyvalue("GWinput","output_ddmat_atom",iddmat_in,default=1d0)
     endif
     iddmat=int(iddmat_in)

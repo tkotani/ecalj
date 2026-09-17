@@ -63,7 +63,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon,ln1n2n3eps)! Make require
      unit2     = tg_unit_2pioa
      keepqg    = tg_KeepQG
   else
-     call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
+     call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
 !     call getkeyvalue("GWinput", "n1n2n3", nnn,3)
 !     if(lmagnon) call getkeyvalue("GWinput", "n1n2n3eps",nnn,3,default=nnn)
 !     if(lmagnon .and. c0_dos) then
@@ -107,7 +107,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon,ln1n2n3eps)! Make require
      if (gwinput_loaded) then
         nnng = tg_GammaDivn1n2n3
      else
-        call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
+        call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
 !        call getkeyvalue("GWinput","GammaDivn1n2n3",nnng,3)
      endif
      nnn = nnng          !division of Gamma cell
@@ -156,7 +156,7 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon,ln1n2n3eps)! Make require
         if (alpv(1) == -1d50) call rx(' mkqg: No alpha_offG nor alpha_offG_vec given in GWinput')
      endif
   else
-     call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
+     call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
 !     call getkeyvalue("GWinput","alpha_OffG",alp,default=-1d60)
 !     alpv(:)=alp
 !     if(alp==-1d60) then

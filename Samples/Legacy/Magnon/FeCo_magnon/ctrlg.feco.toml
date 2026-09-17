@@ -30,7 +30,7 @@ plat  = [[1.0, 0.0,  0.0],  # primitive vectors in units of alat
 [[site]]   # @1
 atom = "Fe"
 pos  = [0.0, 0.0, 0.0]
-
+# ----------------------------------------------------------------
 [[site]]   # @2
 atom = "Co"
 pos  = [0.5, 0.5, 0.5]
@@ -53,7 +53,7 @@ mmom   = [0.0, 0.0, 2.0, 0.0]
 nmcore = 1
 pz     = [0.0, 3.9]
 kmxa   = 5
-
+# ----------------------------------------------------------------
 [[spec]]   # @2
 atom   = "Co"
 z      = 27
@@ -159,9 +159,9 @@ wan_max_1st    = 0.1        # 1st-stage Wannier step size
 wan_maxit_2nd  = 1500       # 2nd-stage Wannier max iterations
 wan_max_2nd    = 0.3        # 2nd-stage Wannier step size
 wan_conv_end   = 1e-08      # Wannier final convergence threshold
-
+# ----------------------------------------------------------------
 # zmel_batch_gb = 0.4  # (GB) zmel batch size per rank; increase for large systems
-
+# ----------------------------------------------------------------
 QforGW = """
  0.0 0.0 0.0
  0.1 0.0 0.0
@@ -190,5 +190,65 @@ QforEPSL = """
 [product_basis]
 pb_tolerance = [0.001]  # drop linearly-dep products below this (default 1e-3)
 pb_lcutmx    = [4, 4]   # max l-cutoff per atom (4 for d-valence, 6 for f)
-
-# Per-atom product-basis tables (nlx / valence / core) live in PB.<sname>.toml
+# ----------------------------------------------------------------
+# nlx [iatom, l, nnvv, nnc]: one row per (iatom, l). iatom = site index in
+#   [[site]] order (lmchk prints it). nnvv = radial functions for valence at
+#   this l (2 = phi, phidot; 3 = phi, phidot, phiz local orbital); nnc = number
+#   of core levels at this l. Derived from rsmh/eh/pz of [[spec]].
+nlx = [
+  [1, 0, 2, 3],
+  [1, 1, 3, 1],
+  [1, 2, 2, 0],
+  [1, 3, 2, 0],
+  [1, 4, 2, 0],
+  [2, 0, 2, 3],
+  [2, 1, 2, 2],
+  [2, 2, 2, 0],
+  [2, 3, 2, 0],
+  [2, 4, 2, 0],
+]
+# ----------------------------------------------------------------
+# valence [iatom, l, n, occ, unocc]: one row per valence radial function.
+#   n = 1 phi, 2 phidot, 3 phiz (local orbital). occ / unocc = 1/0 put the
+#   function into the occupied / unoccupied group; the product basis is built
+#   from (occupied) x (unoccupied) products and pruned by pb_tolerance.
+#   phidot is usually left out (0 0) for speed; including it is more accurate.
+valence = [
+  [1, 0, 1, 1, 1],
+  [1, 0, 2, 0, 0],
+  [1, 1, 1, 1, 1],
+  [1, 1, 2, 0, 0],
+  [1, 1, 3, 1, 0],
+  [1, 2, 1, 1, 1],
+  [1, 2, 2, 0, 0],
+  [1, 3, 1, 0, 1],
+  [1, 3, 2, 0, 0],
+  [1, 4, 1, 0, 0],
+  [1, 4, 2, 0, 0],
+  [2, 0, 1, 1, 1],
+  [2, 0, 2, 0, 0],
+  [2, 1, 1, 1, 1],
+  [2, 1, 2, 0, 0],
+  [2, 2, 1, 1, 1],
+  [2, 2, 2, 0, 0],
+  [2, 3, 1, 0, 1],
+  [2, 3, 2, 0, 0],
+  [2, 4, 1, 0, 0],
+  [2, 4, 2, 0, 0],
+]
+# ----------------------------------------------------------------
+# core [iatom, l, n, occ, unocc, forX0, forSxc]: one row per core level.
+#   n = core index at this l (1 = deepest). occ / unocc as above; forX0 / forSxc
+#   = 1/0 include this core in chi0 / in Sigma_xc (CORE1/CORE2 of PRB 76, 165106).
+#   Modern runs leave every core row all-zero.
+core = [
+  [1, 0, 1, 0, 0, 0, 0],
+  [1, 0, 2, 0, 0, 0, 0],
+  [1, 0, 3, 0, 0, 0, 0],
+  [1, 1, 1, 0, 0, 0, 0],
+  [2, 0, 1, 0, 0, 0, 0],
+  [2, 0, 2, 0, 0, 0, 0],
+  [2, 0, 3, 0, 0, 0, 0],
+  [2, 1, 1, 0, 0, 0, 0],
+  [2, 1, 2, 0, 0, 0, 0],
+]

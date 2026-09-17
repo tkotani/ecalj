@@ -1,3 +1,34 @@
+2026-09-17 (8)
+  PB.<sname>.toml を廃止して ctrlg.<sname>.toml の末尾に統合。GW 側の入力は
+  ctrlg.<sname>.toml 一つ。[product_basis] (常に最終セクション) が pb_tolerance /
+  pb_lcutmx に続けて nlx / valence / core の表を持つ (説明コメントは表の直前に)。
+    m_GWinput: [product_basis] から表を読む。nlx が無いときだけ旧 PB.<sname>.toml を
+    NOTE 付きで読む (古い作業ディレクトリ救済)。gwinput_available()/gwinput_init() は
+    ctrlg の存在だけを見る。
+    gwinit (main_gwinit.f90): 表を ctrlg に書き、PB は書かない。古い PB が残っていれば
+    NOTE。[mlo] の説明は行末コメントの続き行ではなくキーの前の行に。
+    Legacy2toml.py / ctrlgenToml.py / mkGWinput / gwsc / gw_lmfh / job_mloW / genMLWFx:
+    PB の生成・門番・コピーを外す。ctrlgenToml.py は最後に toml_tidy を通す。
+    toml_comments.py: 表の説明 PB_TABLE_COMMENTS を持ち、apply_toml_annotations が
+    nlx/valence/core の前に (無ければ) 入れる。gwinit も同じ文を書く。
+    「legacy GWinput reader is disabled」の abort 文 (35 ファイル) から PB を外した。
+    Samples: tracked ctrlg 105 件のうち 51 件に PB の表を取り込み (TOML として
+    旧 ctrlg ∪ PB と同一であることを assert)、PB.*.toml 57 件を git rm
+    (~/trash/PB_toml_20260917/ に保存)。MLOsamples の 11 件の PB は表の無い
+    ヘッダだけのファイルだった (MLO は表を使わない)。kBT/*/input の PB は各 run の
+    ctrlg に取り込んだ。README の記述も更新。
+  ctrlg の行間の規約: 空行は大見出し (# === X === のコメント群と [section]) の前だけ。
+    セクション内は [[site]]/[[spec]] の各表の間、""" ブロックや複数行配列の前後、
+    コメント群の前を "# ----…" の罫線で区切る (toml_tidy.tidy_spacing。ファイル全体に
+    適用、""" の中は触らない、罫線は再生成するので冪等)。ctrlgenToml.py / gwinit /
+    Legacy2toml.py の出力もこの形。tracked ctrlg 99 件を書き換え (残り 6 件は 1 原子で
+    変化なし)。
+  テスト: ctrlgenToml.py gaas (ctrls から一気通貫)、Legacy2toml.py (IIR/C: 取り込み済み
+    サンプルと [product_basis] が一致)、Cu (MLO)・si_gwsc・nio_gwsc ALL PASSED
+    (work dir に PB 無し・NOTE 無しで product basis 生成を確認)。testecalj --all は未実施。
+  ecaljdoc: lmf.md (セクション表・例・行間規約), gwsc.md, toml_migration.md,
+    README_tutorial.md ほか 12 ファイルから PB.<sname>.toml を外した。
+
 2026-09-17 (7)
   ctrlg.<sname>.toml の配置替え (読み込みは旧配置も受ける・案内を一行出す):
     Worb            -> [mlo] の mlo_lm に改名して移動 (MLO の模型定義そのもの。

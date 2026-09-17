@@ -4,7 +4,7 @@
 Runs: lmfa → lmf → lmf(GW prep) → qg4gw → lmf(--jobgw=1 --mlo) →
       heftet → hbasfp0 → mlo → hvccfp0 → hwmatK_MPI(v) → hx0fp0 → hwmatK_MPI(W-v)
 
-Requires bnd001.spin1 (run job_band first), ctrlg.<target>.toml and PB.<target>.toml.
+Requires bnd001.spin1 (run job_band first) and ctrlg.<target>.toml.
 """
 import argparse
 import contextlib
@@ -24,11 +24,10 @@ def cal_mloW(args, extra_args):
     if not Path('bnd001.spin1').exists():
         sys.exit('job_mloW: bnd001.spin1 not found — run job_band first')
 
-    # The GW side reads ctrlg.<target>.toml + PB.<target>.toml (the old
-    # GWinput.toml gate here only ever checked for a file nothing consumed).
-    for need in (f'ctrlg.{target}.toml', f'PB.{target}.toml'):
-        if not Path(need).is_file():
-            sys.exit(f'job_mloW: {need} not found')
+    # The GW side reads ctrlg.<target>.toml only (the old GWinput.toml gate
+    # here only ever checked for a file nothing consumed).
+    if not Path(f'ctrlg.{target}.toml').is_file():
+        sys.exit(f'job_mloW: ctrlg.{target}.toml not found')
 
     # If sigm exists alongside sigm.<target>, symlink sigm.<target> → sigm (GW mode).
     sigm     = Path('sigm')

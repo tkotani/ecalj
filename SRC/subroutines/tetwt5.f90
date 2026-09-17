@@ -170,7 +170,7 @@ contains
     if (gwinput_loaded) then
        usetetrakbt = tg_tetrakbt
     else
-       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
+       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
 !       call getkeyvalue("GWinput","tetrakbt",usetetrakbt,default=.false.)
     endif
     if(ipr) write(stdo,"(' tetwt5: job efermi usetetrakbt:=',i2,d13.6,l)") job,efermi,usetetrakbt

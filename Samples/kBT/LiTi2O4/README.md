@@ -55,8 +55,7 @@ esmr         = 0.01      # 数値的な極の平滑化 (有限温度は t_sigmak
 ## 2. ディレクトリ
 
 ```
-input/          3 つの run で共通の入力
-   PB.liti2o4.toml    product basis
+input/          3 つの run で共通の入力 (product basis は各 ctrlg の [product_basis] 末尾にある)
    syml.liti2o4       バンド線 (Γ-X-U|K-Γ-L-W-X)
    rst.liti2o4.lda    LDA 収束済みの rst (ここから gwsc を始めた)
 
@@ -262,7 +261,7 @@ head が、高温 × 大きい `deltaq` で破綻する**もの。高温を使�
 
 ```bash
 mkdir work && cd work
-cp ../input/PB.liti2o4.toml ../input/syml.liti2o4 .
+cp ../input/syml.liti2o4 .
 cp ../n999_T1000/ctrlg.liti2o4.toml .          # 回したい run の ctrlg
 cp ../input/rst.liti2o4.lda rst.liti2o4
 lmfa liti2o4

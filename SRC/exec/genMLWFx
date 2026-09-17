@@ -26,13 +26,11 @@ fi
 ### Read funcitons run_arg and run_arg_tee defined in a file run_arg ###
 source $nfpgw/run_arg
 
-######## GW-side input: ctrlg.<sname>.toml + PB.<sname>.toml (nothing reads GWinput.toml) ##########
-for need in ctrlg.${MATERIAL}.toml PB.${MATERIAL}.toml; do
-    if [ ! -f $need ]; then
-        echo "genMLWF: ERROR -- $need not found (run Legacy2toml.py to convert a legacy ctrl+GWinput)" >&2
-        exit 1
-    fi
-done
+######## GW-side input: ctrlg.<sname>.toml (nothing reads GWinput.toml or PB.<sname>.toml) ##########
+if [ ! -f ctrlg.${MATERIAL}.toml ]; then
+    echo "genMLWF: ERROR -- ctrlg.${MATERIAL}.toml not found (run Legacy2toml.py to convert a legacy ctrl+GWinput)" >&2
+    exit 1
+fi
 
 ######## start here ##########
 $echo_run echo "### START genMLWF: MPI size= " $MPI_SIZE, "MATERIAL= "$MATERIAL

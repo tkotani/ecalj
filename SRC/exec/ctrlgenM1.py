@@ -19,7 +19,7 @@
 #
 # DEPRECATED 2026-May: this script previously generated a legacy
 # ctrl.<ext> text file as input to lmf/lmfa.  Since 2026-May the
-# Fortran reads ctrlg.<ext>.toml + PB.<sname>.toml only; use ctrlgenToml.py
+# Fortran reads ctrlg.<ext>.toml only; use ctrlgenToml.py
 # (which goes ctrls.<ext> -> ctrlg.<ext>.toml directly).
 # The atomlist below is still consumed by ctrlgenToml.py via runtime
 # regex-extraction of this file, so the source body is preserved.

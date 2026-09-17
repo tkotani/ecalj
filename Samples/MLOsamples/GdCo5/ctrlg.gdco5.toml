@@ -32,23 +32,23 @@ plat  = [[4.29808407898, -2.4815,   0.0],  # primitive vectors in units of alat
 [[site]]   # @1
 atom = "Co"
 pos  = [2.14904203949,      -1.24075,        1.9865]
-
+# ----------------------------------------------------------------
 [[site]]   # @2
 atom = "Co"
 pos  = [   0.0, 2.4815, 1.9865]
-
+# ----------------------------------------------------------------
 [[site]]   # @3
 atom = "Co"
 pos  = [2.14904203949,       1.24075,        1.9865]
-
+# ----------------------------------------------------------------
 [[site]]   # @4
 atom = "Co"
 pos  = [1.43269469299,        2.4815,           0.0]
-
+# ----------------------------------------------------------------
 [[site]]   # @5
 atom = "Co"
 pos  = [2.86538938599,           0.0,           0.0]
-
+# ----------------------------------------------------------------
 [[site]]   # @6
 atom = "Gd"
 pos  = [0.0, 0.0, 0.0]
@@ -69,7 +69,7 @@ eh2    = [-2.0, -2.0, -2.0]
 lmxa   = 4
 nmcore = 1
 kmxa   = 5
-
+# ----------------------------------------------------------------
 [[spec]]   # @2
 atom   = "Gd"
 z      = 64
@@ -161,7 +161,7 @@ pnufix      = true  # fix B.C. of radial functions
 mlo_method = 4    # theta = sigma((eps - ecut_j)/mlo_w),  ecut_j = max(CBM + mlo_delta, eps^MTO_j)
 mlo_delta  = 2.0  # (eV) default. How far above the band edge (E_F in metals) the model must be accurate
 mlo_w      = 2.0  # (eV) default for mlo_method=4. Width of the fall-off above that floor
-
+# ----------------------------------------------------------------
 mlo_lm = """
  1 Co   
  2 Co   
@@ -177,5 +177,3 @@ mlo_lm = """
 [product_basis]
 pb_tolerance = [1e-3]  # drop linearly-dep products below this (default 1e-3)
 pb_lcutmx    = []      # max l-cutoff per atom (4 for d-valence, 6 for f)
-
-# Per-atom product-basis tables (nlx / valence / core) live in PB.toml

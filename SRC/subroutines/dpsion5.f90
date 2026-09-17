@@ -180,7 +180,7 @@ contains
     if (gwinput_loaded) then
        smearx0 = tg_SmearX0
     else
-       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
+       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
 !       call getkeyvalue("GWinput","SmearX0", smearx0, default=0d0 )
     endif
     GaussianFilter: if(abs(smearx0)>1d-15) then
@@ -389,7 +389,7 @@ contains
     elseif (gwinput_loaded) then
       smearx0 = tg_SmearX0
     else
-      call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
+      call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
     endif
     GaussianFilter: if (abs(smearx0) > 1d-15) then
       if (ipr) write(6,'("SmearX0(chi0 GaussianFilter)= ",d13.6)') smearx0
@@ -539,7 +539,7 @@ contains
     if (gwinput_loaded) then
        smearx0 = tg_SmearX0
     else
-       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
+       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
 !       call getkeyvalue("GWinput","SmearX0", smearx0, default=0d0 )
     endif
     GaussianFilter: if(abs(smearx0)>1d-15) then

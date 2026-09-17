@@ -24,7 +24,7 @@ contains
     if (gwinput_loaded) then
       keep_mlo = tg_KeepCMLO
     else
-      call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
+      call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
     endif
     open(newunit=ifihh, file='__cmlo.info', form='unformatted')
     read(ifihh) nmlo, nqbz, nqirr, nMTO, mrecbb

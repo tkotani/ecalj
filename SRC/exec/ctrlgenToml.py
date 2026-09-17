@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """
-ctrlgenToml.py — generate ctrlg.<ext>.toml + PB.<ext>.toml from ctrls.<ext>.
+ctrlgenToml.py — generate ctrlg.<ext>.toml from ctrls.<ext>.
 
 Companion to ctrlgenM1.py (which generates a legacy ctrl template).
 Same ctrls.<ext> input and the same periodic-table atomlist defaults,
-but emits the structured TOML pair that today's Fortran reads directly
-(ctrlg.<ext>.toml via m_ctrl_toml_loader; PB.<ext>.toml has the per-atom
-product-basis tables — GW path only, normally not edited by hand).
+but emits the one structured TOML file that today's Fortran reads directly
+(lmf side via m_ctrl_toml_loader, GW side via m_GWinput). The per-atom
+product-basis tables nlx/valence/core close the file in [product_basis]
+(GW path only, normally not edited by hand; they were a separate
+PB.<ext>.toml before 2026-09).
 
 Recommended usage (no flags):
 
@@ -31,16 +33,15 @@ Optional flags (all bake into ctrlg.<ext>.toml):
     --ssig=F             ScaledSigma (1.0 = full QSGW, 0.8 = QSGW80)
     --tratio=F           sphere-touching ratio (default 0.97)
     --ehmol              EH=-1 group only (smaller basis for molecules)
-    --skipgw             generate ctrlg.<ext>.toml only (no [gw] /
-                         [product_basis] / [blocks]; no PB.<ext>.toml).
+    --skipgw             generate ctrlg.<ext>.toml without the GW sections
+                         ([gw] / [mlo] / [blocks] / [product_basis]).
                          Use for DFT-only / no-GW workflows.
-    --addgw              append [gw] / [product_basis] / [blocks] (and
-                         emit PB.<ext>.toml) to an *existing* ctrlg.<ext>.toml
-                         WITHOUT regenerating the ctrl-side keys —
-                         preserves any hand-edits you made to [bz] /
-                         [ham] / [[spec]] etc.  Errors out if [gw] is
-                         already present (delete the GW tables and
-                         PB.<ext>.toml first, or omit --addgw to fully
+    --addgw              append [gw] / [mlo] / [blocks] / [product_basis]
+                         to an *existing* ctrlg.<ext>.toml WITHOUT
+                         regenerating the ctrl-side keys — preserves any
+                         hand-edits you made to [bz] / [ham] / [[spec]] etc.
+                         Errors out if [gw] is already present (delete the
+                         GW sections first, or omit --addgw to fully
                          regenerate from ctrls.<ext>).
     --showatomlist       print the periodic-table defaults table and exit
     -h, --help           show this docstring
@@ -50,19 +51,17 @@ Inputs:
 
 Outputs:
     ctrlg.<ext>.toml — schema-typed TOML, ready for lmfa/lmf/gwsc.
-    PB.<ext>.toml          — per-atom product-basis tables (GW only;
-                       normally not edited by hand).
 
 Compatibility note: ctrlgenM1.py + ctrl2ctrltoml.py is preserved as
-the legacy path. As of 2026-05 the Fortran reads ctrlg.<ext>.toml +
-PB.<ext>.toml only; ctrlgenM1.py exits immediately with a pointer to this
-script.
+the legacy path. As of 2026-05 the Fortran reads ctrlg.<ext>.toml
+only; ctrlgenM1.py exits immediately with a pointer to this script.
 
 2026-05-03 T.K. + Claude.
 """
 import os, sys, re
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from pylib.toml_comments import fmt_section_header, fmt_key_inline, apply_toml_annotations
+from pylib.toml_tidy import tidy_gw_sections
 
 # ---------------------------------------------------------------------------
 # Atomlist — extracted at runtime from ctrlgenM1.py so there's a single
@@ -376,7 +375,7 @@ def main():
         if re.search(r'(?m)^\s*\[gw\]\s*$', existing):
             sys.exit(f'ctrlgenToml --addgw: {out_path} already has a [gw] '
                      f'section.  Refusing to append (delete the existing '
-                     f'[gw]/[product_basis]/[blocks] tables and PB.{ext}.toml '
+                     f'[gw]/[mlo]/[blocks]/[product_basis] sections '
                      f'first, or just re-run `ctrlgenToml.py {ext}` '
                      f'without --addgw to regenerate from ctrls.{ext}).')
         _run_gw_append(ext, out_path)
@@ -683,15 +682,15 @@ def main():
 
     out_path = 'ctrlg.' + ext + '.toml'
 
-    # Backup any pre-existing ctrlg.<ext>.toml / PB.<ext>.toml to *.bakup before
-    # we write fresh ones. One-generation backup (we overwrite previous .bakup).
+    # Backup a pre-existing ctrlg.<ext>.toml to *.bakup before we write a
+    # fresh one. One-generation backup (we overwrite previous .bakup).
     import shutil
-    for p in (out_path, f'PB.{ext}.toml'):
+    for p in (out_path,):
         if os.path.exists(p):
             shutil.move(p, p + '.bakup')
             print(f'ctrlgenToml: backed up existing {p} -> {p}.bakup')
 
-    text = apply_toml_annotations('\n'.join(out))
+    text = tidy_gw_sections(apply_toml_annotations('\n'.join(out)))
     with open(out_path, 'wt') as f:
         f.write(text)
     print(f'ctrlgenToml: wrote {out_path} ({len(specnames)} spec, {len(sitenames)} sites)')
@@ -702,19 +701,19 @@ def main():
         except OSError: pass
 
     # ---------------------------------------------------------------------
-    # Append [gw] / [product_basis] / [blocks] sections + emit PB.<ext>.toml
+    # Append [gw] / [mlo] / [blocks] / [product_basis] sections
     # by running the standard pipeline:   lmfa -> lmf --jobgw=0 -> gwinit
     # ---------------------------------------------------------------------
     if opts.get('skipgw'):
-        print(f'ctrlgenToml: --skipgw, leaving ctrlg.{ext}.toml without [gw]/[product_basis]/[blocks].  PB.{ext}.toml not generated.')
+        print(f'ctrlgenToml: --skipgw, leaving ctrlg.{ext}.toml without [gw]/[mlo]/[blocks]/[product_basis].')
         return
     _run_gw_append(ext, out_path)
 
 
 def _run_gw_append(ext, out_path):
-    """Run lmfa -> lmf --jobgw=0 -> gwinit to append [gw] / [product_basis]
-    / [blocks] to ctrlg.<ext>.toml (in place) and write PB.<ext>.toml.  Used by
-    the default flow and by --addgw."""
+    """Run lmfa -> lmf --jobgw=0 -> gwinit to append [gw] / [mlo] / [blocks]
+    / [product_basis] to ctrlg.<ext>.toml (in place).  Used by the default
+    flow and by --addgw."""
     import subprocess
     from pathlib import Path
     here = Path(__file__).parent  # do NOT resolve symlinks; ~/bin/lmfa etc. live here
@@ -731,14 +730,12 @@ def _run_gw_append(ext, out_path):
     rc = subprocess.run(['mpirun', '-np', '1', str(here / 'gwinit'), ext]).returncode
     if rc != 0:
         sys.exit(f'ctrlgenToml: gwinit failed (rc={rc})')
-    # Re-apply annotations: gwinit appended raw [gw]/[product_basis]/[blocks];
-    # also wrote PB.<ext>.toml. Both need section headers from toml_comments.
-    for fname in (out_path, f'PB.{ext}.toml'):
-        if os.path.exists(fname):
-            txt = open(fname).read()
-            open(fname, 'w').write(apply_toml_annotations(txt))
+    # Re-apply annotations (gwinit appended raw [gw]/[mlo]/[blocks]/[product_basis]
+    # that need the section headers from toml_comments) and tidy the layout.
+    txt = open(out_path).read()
+    open(out_path, 'w').write(tidy_gw_sections(apply_toml_annotations(txt)))
     print(f'ctrlgenToml: done. {out_path} has top-level/[struc]/[[site]]/[[spec]]/...')
-    print(f'             plus [gw]/[product_basis]/[blocks].  PB.<ext>.toml has nlx/valence/core.')
+    print(f'             plus [gw]/[mlo]/[blocks]/[product_basis] (incl. nlx/valence/core).')
 
 
 if __name__ == '__main__':

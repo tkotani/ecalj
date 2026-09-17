@@ -79,19 +79,17 @@ options.extend(unknown)
 print('--- Start gwsc ---')
 print('option=',options)
 
-# Ensure ctrlg.<target>.toml + PB.<target>.toml exist before launching any binary.
-# Fortran binaries are TOML-only (no auto-conversion). Use --legacy on the
-# wrapper scripts to invoke Legacy2toml.py beforehand.
+# Ensure ctrlg.<target>.toml exists before launching any binary (it carries the
+# GW sections too; the per-atom product-basis tables moved into it from
+# PB.<target>.toml in 2026-09). Fortran binaries are TOML-only (no
+# auto-conversion): run Legacy2toml.py beforehand for legacy ctrl+GWinput.
 import os.path as _op
 _ctrlg = f'ctrlg.{target}.toml'
-_pb    = f'PB.{target}.toml'
-_have_ctrlg = _op.isfile(_ctrlg)
-_have_pb    = _op.isfile(_pb)
-if not _have_ctrlg or not _have_pb:
-    print(f'gwsc: missing {_ctrlg if not _have_ctrlg else _pb} in cwd.', file=sys.stderr)
+if not _op.isfile(_ctrlg):
+    print(f'gwsc: missing {_ctrlg} in cwd.', file=sys.stderr)
     print('       Run Legacy2toml.py to convert legacy ctrl+GWinput to TOML form.', file=sys.stderr)
     raise SystemExit(2)
-print(f'gwsc: using {_ctrlg} + {_pb} (TOML mode)')
+print(f'gwsc: using {_ctrlg} (TOML mode)')
 
 try:
     tmp=[int(s.strip('QPU.').strip('run')) for s in os.listdir() if 'QPU.' in s]
@@ -118,7 +116,7 @@ if not sigm_name.is_symlink():
     sigm_name.unlink(missing_ok=True)
     sigm_name.symlink_to(sigm)
 
-flist=['ctrlg.%s.toml'%target,'PB.%s.toml'%target,rst_name,sigm_name,'save.%s'%target,'log.%s'%target,'QPU','QPD','lsxC','lsx','lsc','ECORE']
+flist=['ctrlg.%s.toml'%target,rst_name,sigm_name,'save.%s'%target,'log.%s'%target,'QPU','QPD','lsxC','lsx','lsc','ECORE']
 
 #initial band structre
 print('===== Ititial band structure ====== ',flush=True)

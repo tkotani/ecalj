@@ -30,7 +30,7 @@ plat  = [[0.0, 0.5, 0.5],  # primitive vectors in units of alat
 [[site]]   # @1
 atom = "Ga"
 pos  = [0.0, 0.0, 0.0]
-
+# ----------------------------------------------------------------
 [[site]]   # @2
 atom = "As"
 pos  = [0.25, 0.25, 0.25]
@@ -53,7 +53,7 @@ p      = [0.0, 0.0, 4.5]
 nmcore = 1
 pz     = [0.0, 0.0, 3.9]
 kmxa   = 5
-
+# ----------------------------------------------------------------
 [[spec]]   # @2
 atom   = "As"
 z      = 33
@@ -142,7 +142,7 @@ phispinsym  = false  # true = spin-averaged radial wfns (needed for SOC=1 pertur
 mlo_method = 4    # theta = sigma((eps - ecut_j)/mlo_w),  ecut_j = max(CBM + mlo_delta, eps^MTO_j)
 mlo_delta  = 2.0  # (eV) default. How far above the band edge (E_F in metals) the model must be accurate
 mlo_w      = 2.0  # (eV) default for mlo_method=4. Width of the fall-off above that floor
-
+# ----------------------------------------------------------------
 mlo_lm = """
 1 Ga  1 2 3 4 5 6 7 8 9 
 2 As  1 2 3 4 5 6 7 8 9
@@ -154,5 +154,3 @@ mlo_lm = """
 [product_basis]
 pb_tolerance = [1e-3]  # drop linearly-dep products below this (default 1e-3)
 pb_lcutmx    = []      # max l-cutoff per atom (4 for d-valence, 6 for f)
-
-# Per-atom product-basis tables (nlx / valence / core) live in PB.<sname>.toml

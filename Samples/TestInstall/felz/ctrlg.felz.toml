@@ -9,7 +9,7 @@
 # verbose / time: console verbosity and CPU timing log.
 #   Override at run time with --ctrlg:verbose=50 / --ctrlg:time=[5,5].
 symgrp = "i*i"  # 'find' = auto-detect from lattice (see header)
-
+# ----------------------------------------------------------------
 verbose = 30  # 31 default, 35 verbose, 41+ debug
 # === STRUC: lattice ===
 # alat in a.u.; plat is the primitive cell in units of alat (rows = a1,a2,a3).

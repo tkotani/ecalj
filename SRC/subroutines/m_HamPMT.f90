@@ -124,7 +124,7 @@ contains
         if (gwinput_loaded) then
           mlomethod = tg_mlo_method
         else
-          call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
+          call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
         endif
         lmindex = -999
         if (gwinput_loaded) then
@@ -135,7 +135,7 @@ contains
               lmindex(1:nlmw, ibw) = tg_worb_lm(1:nlmw, iw)
            enddo
         else
-           call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
+           call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
            aaa = trim(aaa) // ' '   ! compiler bait, unreachable -- see block header
         endif
         nn=0

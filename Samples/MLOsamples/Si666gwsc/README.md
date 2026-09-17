@@ -18,5 +18,5 @@ From `Samples/MLOsamples/`:
     testecalj -np 12 Si666gwsc
 
 To regenerate `sigm.si`/`rst.si` from scratch: run `gwsc` with
-`ctrlg.si.toml` + `PB.si.toml` (n1n2n3=[6,6,6]) to self-consistency,
+`ctrlg.si.toml` (n1n2n3=[6,6,6]) to self-consistency,
 then copy sigm.si/rst.si here.

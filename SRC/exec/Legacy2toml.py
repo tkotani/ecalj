@@ -7,13 +7,14 @@ Legacy2toml.py — one-shot migration tool: legacy ecalj input -> TOML.
 ==============================================================================
   As of 2026-05, the Fortran binaries (lmf / lmfa / lmchk / gwsc / hsfp0 ...)
   read ONLY structured TOML:
-      ctrlg.<sname>.toml   (merged ctrl + GW driver sections + PB cut-offs)
-      PB.<sname>.toml              (per-atom product basis tables, per-sname)
+      ctrlg.<sname>.toml   (ctrl + GW driver sections; [product_basis] at the
+                            end carries the per-atom tables, which were a
+                            separate PB.<sname>.toml before 2026-09)
   Legacy text inputs (ctrl.<sname>, GWinput) are NO LONGER read by Fortran.
 
   To migrate an existing working directory:
       $ cd <your-old-dir>          # contains ctrl.<sname> and GWinput
-      $ Legacy2toml.py <sname>     # produces ctrlg.<sname>.toml + PB.<sname>.toml
+      $ Legacy2toml.py <sname>     # produces ctrlg.<sname>.toml
       # then resume your normal workflow (lmf, gwsc, ...) unchanged.
 
   Run-time tunables (-v) have moved from %const to TOML-path syntax:
@@ -33,10 +34,10 @@ Legacy2toml.py — one-shot migration tool: legacy ecalj input -> TOML.
 ==============================================================================
     ctrlg.<sname>.toml    top-level (symgrp, verbose, time) +
                           [struc]/[[site]]/[[spec]]/[bz]/[iter]/[ham]/...
-                          plus [gw]/[product_basis] (scalars only)/[blocks]
-    PB.<sname>.toml               [product_basis] per-atom: nlx, valence, core
+                          plus [gw]/[mlo]/[blocks]/[product_basis] (the last
+                          one with the per-atom nlx / valence / core rows)
 
-  Both files include human-readable inline comments (units / role of each
+  The file includes human-readable inline comments (units / role of each
   key); see toml_comments.py to update the wording in one place.
 
 ==============================================================================
@@ -65,9 +66,9 @@ Legacy2toml.py — one-shot migration tool: legacy ecalj input -> TOML.
   1. ctrl2ctrltoml.py  : ctrl.<sname>  -> ctrlg.<sname>.toml (sections from
                                           ctrl_schema.py, typed)
   2. gwinput2toml.py   : GWinput       -> intermediate .l2t_gwinput.tmp (deleted afterwards)
-  3. split + append    : [gw] + [product_basis] (pb_tolerance / pb_lcutmx)
-                         + [blocks] are appended to ctrlg.<sname>.toml;
-                         per-atom nlx / valence / core go to PB.<sname>.toml.
+  3. split + append    : [gw] + [mlo] + [blocks] + [product_basis]
+                         (pb_tolerance / pb_lcutmx / nlx / valence / core)
+                         are appended to ctrlg.<sname>.toml, in that order.
   4. apply annotations : toml_comments.py inserts SECTION_HEADER blocks and
                          unit-bearing inline comments (idempotent).
 
@@ -79,31 +80,6 @@ from pathlib import Path
 import sys as _sys, os as _os
 _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
 from pylib.toml_comments import apply_toml_annotations
-
-PB_HEADER = '''# Per-atom product-basis tables. Loaded by m_GWinput with ctrlg.<sname>.toml
-# (pb_tolerance and pb_lcutmx live there; do not duplicate them here).
-# iatom = site index in [[site]] order (lmchk prints it); l = angular momentum.
-# Same meaning as the legacy <PRODUCT_BASIS> block; only the container changed.
-#
-# nlx     [iatom, l, nnvv, nnc]          derived from rsmh/eh/pz of [[spec]]
-#           nnvv : radial functions for valence at this l: 2 = {phi, phidot},
-#                  3 = {phi, phidot, phiz (local orbital)}
-#           nnc  : number of core levels at this l
-#
-# valence [iatom, l, n, occ, unocc]      one row per valence radial function
-#           n     : 1 = phi, 2 = phidot, 3 = phiz (local orbital)
-#           occ   : 1/0 put this function in the "occupied" group
-#           unocc : 1/0 put it in the "unoccupied" group
-#           The product basis is built from products (occupied group) x
-#           (unoccupied group), then pruned by pb_tolerance. phidot is
-#           usually left out (0 0) for speed; including it is more accurate.
-#
-# core    [iatom, l, n, occ, unocc, forX0, forSxc]   one row per core level
-#           n      : core index at this l (1 = deepest)
-#           occ/unocc : as above; forX0 / forSxc : 1/0 include this core in
-#           chi0 / in Sigma_xc (the CORE1/CORE2 distinction of PRB 76, 165106).
-#           Historical: modern runs leave every core row all-zero.'''
-
 
 def banner(msg):
     print(f'=== Legacy2toml.py: {msg}', flush=True)
@@ -381,15 +357,15 @@ def main():
     convert_esm_input(out_path)
 
     # ------------------------------------------------------------------
-    # 2. GWinput  ->  ctrlg.<sname>.toml [gw, product_basis (slim), blocks]
-    #              +  PB.<sname>.toml   [per-atom nlx / valence / core]
+    # 2. GWinput  ->  ctrlg.<sname>.toml [gw] [mlo] [blocks] [product_basis]
+    #    ([product_basis] last, with the per-atom nlx / valence / core rows)
     # (skipped if no GWinput in cwd)
     # ------------------------------------------------------------------
     gwinput = Path('GWinput')
     if not gwinput.exists():
         banner(f'no GWinput in cwd; ctrlg.{sname}.toml emitted without GW sections')
         return
-    banner(f'GWinput -> append [gw]/[mlo]/[blocks]/[product_basis] to ctrlg.{sname}.toml + PB.<sname>.toml')
+    banner(f'GWinput -> append [gw]/[mlo]/[blocks]/[product_basis] to ctrlg.{sname}.toml')
     # Run gwinput2toml.py to get the legacy GWinput as one intermediate TOML
     tmp_gwinput_toml = Path('.l2t_gwinput.tmp')
     rc = subprocess.run(
@@ -402,9 +378,8 @@ def main():
     text = tmp_gwinput_toml.read_text()
     tmp_gwinput_toml.unlink()
 
-    # Split [product_basis]:
-    #   - keep tolerance/lcutmx in ctrlG (rename to pb_tolerance/pb_lcutmx)
-    #   - move nlx/valence/core to PB.<sname>.toml
+    # [product_basis]: tolerance/lcutmx become pb_tolerance/pb_lcutmx; the
+    # nlx/valence/core rows follow them in the same section.
     pb_tol_match = re.search(r'^tolerance\s*=\s*(\[[^\]]*\])', text, re.MULTILINE)
     pb_lcm_match = re.search(r'^lcutmx\s*=\s*(\[[^\]]*\])',    text, re.MULTILINE)
     pb_tol = pb_tol_match.group(1) if pb_tol_match else '[1e-3]'
@@ -417,10 +392,6 @@ def main():
     valence_block = grab_block('valence')
     core_block    = grab_block('core')
 
-    # Build slim [gw] + [product_basis] + [blocks] for ctrlG
-    # Strategy: take everything after the first [gw] in tmp output, drop
-    # the per-atom arrays, drop the legacy 'tolerance'/'lcutmx' assignment
-    # (we'll write pb_tolerance/pb_lcutmx instead), and keep [blocks] as-is.
     gw_section = re.search(r'^\[gw\].*?(?=^\[)', text, re.DOTALL | re.MULTILINE)
     mlo_section = re.search(r'^\[mlo\].*?(?=^\[)', text, re.DOTALL | re.MULTILINE)
     blocks_section = re.search(r'^\[blocks\].*?(?=^\[|\Z)', text, re.DOTALL | re.MULTILINE)
@@ -431,8 +402,10 @@ def main():
         '[product_basis]\n'
         f'pb_tolerance = {pb_tol}\n'
         f'pb_lcutmx    = {pb_lcm}\n'
-        f'\n# Per-atom product-basis tables (nlx / valence / core) live in PB.<sname>.toml\n'
     )
+    for blk in (nlx_block, valence_block, core_block):
+        if blk:
+            pb_text += '\n' + blk.rstrip() + '\n'
     blocks_text = blocks_section.group(0).rstrip() + '\n' if blocks_section else ''
     # Strip vestigial PRODUCT_BASIS raw-text block from [blocks]
     blocks_text = re.sub(
@@ -453,31 +426,21 @@ def main():
         f.write('\n')
         f.write(pb_text)
 
-    # Build PB.<sname>.toml
-    pb_path = f'PB.{sname}.toml'
-    with open(pb_path, 'w') as f:
-        f.write(f'# {pb_path} -- auto-generated by Legacy2toml.py\n')
-        f.write(PB_HEADER + '\n\n')
-        f.write('[product_basis]\n\n')
-        for blk in (nlx_block, valence_block, core_block):
-            if blk:
-                f.write(blk.rstrip() + '\n\n')
+    # A PB.<sname>.toml from an earlier conversion is obsolete now.
+    if Path(f'PB.{sname}.toml').exists():
+        banner(f'NOTE PB.{sname}.toml is obsolete (its tables are now inside ctrlg.{sname}.toml); remove it')
 
-    # Annotate output with help comments from toml_comments.py
-    for fname in (str(out_path), pb_path):
-        if Path(fname).exists():
-            txt = Path(fname).read_text()
-            Path(fname).write_text(apply_toml_annotations(txt))
-    # Tidy the GW-side sections of ctrlg (column alignment, blank lines around
-    # blocks, section headers glued to their [section]). Content must not change.
+    # Annotate output with help comments from toml_comments.py, then tidy
+    # (column alignment, section order, rules between blocks). Content must
+    # not change.
     from pylib.toml_tidy import tidy_gw_sections
     import tomllib
-    raw = Path(out_path).read_text()
+    raw = apply_toml_annotations(Path(out_path).read_text())
     tidy = tidy_gw_sections(raw)
     if tomllib.loads(raw) != tomllib.loads(tidy):
         sys.exit('Legacy2toml.py: internal error, tidy changed the TOML content')
     Path(out_path).write_text(tidy)
-    banner(f'wrote ctrlg.{sname}.toml + {pb_path} (annotated)')
+    banner(f'wrote ctrlg.{sname}.toml (annotated)')
 
 if __name__ == '__main__':
     main()

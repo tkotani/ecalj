@@ -357,7 +357,7 @@ subroutine hpsig_MPI()
         ghead = tg_wan_gauss_head
         tailt = tg_wan_truncate
      else
-        call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
+        call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
 !        call getkeyvalue("GWinput","wan_gauss_head",ghead,default=.false.)
 !        call getkeyvalue("GWinput","wan_truncate",tailt,default=.false.)
      endif

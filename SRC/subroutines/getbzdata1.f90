@@ -249,7 +249,7 @@ contains
        if (gwinput_loaded) then
           ngcell = tg_ngcell
        else
-          call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
+          call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
 !          call getkeyvalue("GWinput","ngcell",ngcell,default=1)
        endif
        ntetf = 6*nqbz
@@ -586,7 +586,7 @@ contains
     logical,save:: oncew=.true.
     logical:: ggg
     if(oncew) then ! BZ division setting.
-       ggg = gwinput_available()   ! ctrlg.<sname>.toml + PB.<sname>.toml present?
+       ggg = gwinput_available()   ! ctrlg.<sname>.toml present?
        if(.not.ggg) then
           adiv=1d0
        else
@@ -594,7 +594,7 @@ contains
           if (gwinput_loaded) then
              adiv = tg_BZadiv
           else
-             call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml + PB.<sname>.toml are required.')
+             call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
 !             call getkeyvalue("GWinput","BZadiv",adiv,default=1d0)
           endif
        endif
