@@ -14,7 +14,8 @@ contains
                         tg_mlo_nskip => mlo_nskip, tg_mlo_w => mlo_w, &
                         tg_mlo_emax => mlo_emax, &
                         tg_mlo_delta => mlo_delta, tg_mlo_wfrz => mlo_wfrz, &
-                        tg_mlo_down => mlo_down, tg_mlo_low => mlo_low, tg_mlo_wlow => mlo_wlow
+                        tg_mlo_down => mlo_down, tg_mlo_low => mlo_low, tg_mlo_wlow => mlo_wlow, &
+                        tg_mlo_pcut => mlo_pcut, tg_mlo_pw => mlo_pw
    implicit none
    integer::i,j,ndimPMT,ndimMTO,nx,nmx,ix(ndimMTO),nev,nxx,jj,ndimPMTx,nvpmt,mlomethod,nskip,nskipin
    real(8)::beta,emu,val,wgt(ndimPMT),evlmto(ndimMTO),evl(ndimPMT),evlx(ndimPMT),qp(3),eww,eadd
@@ -53,8 +54,8 @@ contains
       use m_ftox
       integer:: ie,nidxevlmto,nidxevl,ibx,jx,idxevlmto(ndimMTO),idxevl(ndimPMT),jbx,nval,nnn,imx,nbx,ii
       real(8):: eee,fffx,ecut,xxx,rydberg,facww,sss,fff,epscore,emax,alpha,emin,ww(ndimPMTx),dex,ddd,ewuse,efrz,ewfrz,dwin,wfrz,down !,ewcutf
-      real(8):: elow, ewlow, thlow
-      logical:: lowcut
+      real(8):: elow, ewlow, thlow, pcut, pw, thp, pwt(ndimPMTx)
+      logical:: lowcut, charcut
       real(8),allocatable::mulfac(:,:),mulfacw(:,:)
       complex(8):: imag=(0d0,1d0)
       ! Assert block for normalization check
@@ -120,6 +121,13 @@ contains
          dwin  = tg_mlo_delta /rydberg()
          wfrz  = tg_mlo_wfrz /rydberg()
          down  = tg_mlo_down /rydberg()
+         ! hidden character cut: theta *= sigma((p_i - pcut)/pw), p_i = sum_j |<Psi_PMT_i|Psi_MTO_j>|^2
+         charcut = tg_mlo_pcut /= huge(0d0)
+         pcut = 0d0; pw = tg_mlo_pw
+         if (charcut) then
+            pcut = tg_mlo_pcut
+            if (iprx) write(stdo,ftox) ' Hreduction: mlo_pcut (hidden) character cut at p=',ftof(pcut),' width',ftof(pw)
+         endif
          ! hidden lower cut: theta_j *= sigma((elow - eps)/ewlow); off unless mlo_low is set
          lowcut = tg_mlo_low /= huge(0d0)
          elow   = 0d0; ewlow = eww
@@ -146,6 +154,12 @@ contains
 
       !Amat is a modification of fac(ndimPMTx,ndimMTO), which is <Psi_PMT_i |Psi_MTO j>. Psi are eigenfunctions.
       allocate(Amat(ndimPMTx,ndimMTO),source=(0d0,0d0))!this is to avoid bug in ifort18.0.5
+      pwt = 1d0
+      if (charcut) then
+         do i=1,ndimPMTx
+            pwt(i) = fermidist((pcut - sum(abs(fac(i,1:ndimMTO))**2))/pw)   ! ~1 for model-like states
+         enddo
+      endif
       mloloop : do j=1,ndimMTO
         ewuse = eww
         efrz  = -1d99 ! hard-freeze edge; active only for mlomethod=3
@@ -205,7 +219,7 @@ contains
         pmtloop: do i=nskip+1,ndimPMTx
           thlow = 1d0
           if (lowcut) thlow = fermidist((elow-evl(i))/ewlow)   ! rises through 1/2 at elow
-          Amat(i,j)= fac(i,j) * thlow * max( fermidist((evl(i)-efrz)/ewfrz), fermidist((evl(i)-ecut)/ewuse) )
+          Amat(i,j)= fac(i,j) * thlow * pwt(i) * max( fermidist((evl(i)-efrz)/ewfrz), fermidist((evl(i)-ecut)/ewuse) )
           ! v6.3 two-stage theta-bar: near-unity inside the frozen window (narrow 0.05Ry edge -> band-edge
           ! curvature undistorted), the usual broad eww tail outside (rank + graded completeness).
         enddo pmtloop

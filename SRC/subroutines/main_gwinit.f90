@@ -132,6 +132,7 @@ contains
     write(ifi,'(a)') 'mlo_method = 4      # 4 = the sigma weight above (the only one in use)'
     write(ifi,'(a)') 'mlo_delta  = 2.0    # (eV) accuracy floor above the band edge'
     write(ifi,'(a)') 'mlo_w      = 2.0    # (eV) fall-off width; raise if the residual is too large'
+    write(ifi,'(a)') '# mlo_nkabc = [12, 12, 12]   # k mesh for the MLO Hamiltonian (lmf --writeham --mlo); absent = [bz] nkabc'
     write(ifi,'(a)')
     write(ifi,'(a)') '# mlo_lm: which lm channels of which atom make the model. One row per atom:'
     write(ifi,'(a)') '#   <iatom> <label> <lm1> <lm2> ...   (a row starting with ! is ignored)'

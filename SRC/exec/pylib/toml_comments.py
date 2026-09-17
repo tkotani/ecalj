@@ -228,6 +228,9 @@ KEY_INLINE = {
         'wan_max_2nd':   "# 2nd-stage Wannier step size",
         'wan_conv_end':  "# Wannier final convergence threshold",
     },
+    'mlo': {
+        'mlo_nkabc':   "# k mesh for the MLO Hamiltonian (lmf --writeham --mlo); absent = [bz] nkabc",
+    },
     'blocks': {
         'QforEPS':     "# q-list for eps(omega) head",
         'QforEPSL':    "# q-list for off-diagonal eps",

@@ -11,7 +11,8 @@ module m_lmfinit ! 'call m_lmfinit_init' sets all initial data from ctrl are pro
   
   use m_nvfortran,only: findloc
   use m_scg,only:scg
-  use m_cmdopt_registry, only: c0_band, c0_cls, c0_debug, c0_etot, c0_fermisurface, c0_fullmesh, c0_noinv, c0_nosym, c0_pdos, c0_tdos, c0_v0fix, c0_zmel0, c2_quit
+  use m_cmdopt_registry, only: c0_band, c0_cls, c0_debug, c0_etot, c0_fermisurface, c0_fullmesh, c0_noinv, c0_nosym, c0_pdos, c0_tdos, c0_v0fix, c0_zmel0, c2_quit, &
+       c0_writeham, c0_mlo
   implicit none 
   public:: m_lmfinit_init,icgi,icge
   integer,public,parameter:: noutmx=48,NULLI=-99999,nkap0=3,mxspec=256,lstrn=1000,n0=10,nppn=2,nrmx=1501,nlmx=64,n00=n0*nkap0,k0=3
@@ -267,6 +268,16 @@ contains
       call rval2('STR_MXNBR',rr=rr, defa=[real(8):: 0d0]); str_mxnbr=rr !'Max number of nbrs (for dimensioning arrays)')
       call rval2('BZ_NKABC',rv=rv, nout=n); bz_nabcin(1:n)=nint(rv) !No. q points along 3 lattice vectors.=no. divisions for F.T. mesh
       call fill3in(n,bz_nabcin) !filled to the end if n<3
+      ! [mlo] mlo_nkabc: the k mesh on which lmf --writeham --mlo dumps the PMT
+      ! Hamiltonian that the MLO is built on. Only that pass uses it; the SCF and
+      ! everything else keep [bz] nkabc. Absent -> same mesh as [bz] nkabc.
+      if (c0_writeham .and. c0_mlo) then
+         call rval2('MLO_MLO_NKABC', rv=rv, nout=n)
+         if (n > 0 .and. nint(rv(1)) > 0) then
+            bz_nabcin(1:n) = nint(rv(1:n)); call fill3in(n, bz_nabcin)
+            if (master_mpi) write(stdo,ftox) ' lmfinit: [mlo] mlo_nkabc =', bz_nabcin, ' used for the MLO Hamiltonian (--writeham --mlo)'
+         endif
+      endif
       call rval2('BZ_BZJOB',rv=rv, nout=n); bz_lshft(1:n)=nint(rv)! '=0 centers BZ mesh at origin, =1 centers off origin' 
       call fill3in(n,bz_lshft)
       call rval2('BZ_METAL', rr=rr, defa=[real(8):: 3]); bz_lmet=nint(rr) !0 or 3. '0 insulator only; 3 for metal
