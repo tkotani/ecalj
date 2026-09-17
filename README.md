@@ -37,6 +37,13 @@ New in the GW chain (commits 37e6fbc2..2a04e767; user guide: FiniteT_and_QPE_HOW
   isolated there as WIP — the Stage B entry2 static-bin fix on that branch
   needs design review and re-validation before merging.
 
+## What's new (2026-06 .. 09)
+
+See `HIGHLIGHTS_2026-06_09.md`: one input file `ctrlg.<sname>.toml`
+(PB / esm_input.dat / GWinput.toml retired; `ctrlg_absorb.py` converts old
+directories), MLO in its final form (`mlo_method = 4`), finite-T QSGW samples,
+`gw_lmfh` on GPU, and the bug fixes.
+
 ## 2026-05  Quick start (the new TOML flow)
 
 Fortran binaries (lmf, lmfa, lmchk, gwsc, hsfp0, ...) read one file only:
