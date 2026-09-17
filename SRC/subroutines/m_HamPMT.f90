@@ -10,7 +10,7 @@ module m_HamPMT
                         tg_worb_lm => worb_lm, tg_worb_nlm => worb_nlm
    use m_hreduction,only: hreduction, hreduction_nskip
    use m_nvfortran, only: findloc
-   use m_cmdopt_registry, only: c0_mlo, c0_skip1d, c0_skip2nd, c0_skip2ndd, c0_skip2ndp, c0_skip2nds, c0_skipd, c0_skipf, c0_skiplo, c0_socmatrix
+   use m_cmdopt_registry, only: c0_mlo, c0_skip1d, c0_skip2nd, c0_skip2ndd, c0_skip2ndp, c0_skip2nds, c0_skipd, c0_skipf, c0_skiplo, c0_socmatrix, c0_mlo_lod
    real(8),external::tolq !eps=1d-8
    real(8),allocatable,protected:: plat(:,:),pos(:,:),qlat(:,:),symops(:,:,:)
    real(8),allocatable,protected,target:: qplist(:,:)
@@ -167,10 +167,15 @@ contains
 !        nskip=0
         do i=1,ldim  !Only MTOs for EH 
           if( k_table(i)==2) cycle  !skip 2nd
-          if( k_table(i)==3) then
-!            nskip=nskip+1 
-            cycle  !skip local orbita l! we assume nskip is for local orbtail to skip 
-          endif  
+          ! --mlo_lod (experiment 2026-09-18): for the d channel take the local
+          ! orbital (k=3, e.g. Zn 3d, pz=3.9) instead of the EH function (4d-like).
+          ! Shallow semicore d that hybridizes with the valence (ZnO) is not
+          ! represented by the EH d function.
+          if( c0_mlo_lod .and. l_table(i)==2 ) then
+            if( k_table(i)==1 .and. any(k_table==3 .and. l_table==2 .and. ib_table==ib_table(i)) ) cycle  ! EH d dropped when an LO d exists
+          else
+            if( k_table(i)==3 ) cycle  !skip local orbital (nskip handles its states)
+          endif
           ib=ib_table(i)
           ! m runs -l..l over the 2l+1 consecutive entries of one (atom, l) shell.
           ! Reset it whenever the shell changes -- by l, or by atom (two s-only

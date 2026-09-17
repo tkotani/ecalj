@@ -1,3 +1,13 @@
+2026-09-18 (2)
+  Materials Project の 10 結晶 (Ag Al MgO NaCl SiC GaAs CdTe ZnO TiO2 Ni) で MLO の既定を
+  DFT レベルで試した (Samples/MLOsamples/BackUp_notes/mp_20260918/)。絶縁体 1〜3 meV、
+  遷移金属 15〜30 meV、Al 74 meV (自由電子帯は窓外)。
+  ZnO だけ 476 meV: Zn 3d が局所軌道 (pz=3.9) で、mlo_lm の d は常に EH (4d 的) を取る
+  ため、窓内 (-6 eV) にある 3d 帯を表せない。実験フラグ --mlo_lod (d チャネルに LO を使う、
+  m_HamPMT の選択ループ) で 0.8 meV。GaAs では逆に 14→20 meV (深い 3d は nskip で外して
+  EH を使うのが正しい)。浅い LO は模型関数に・深い LO は外す、の自動判定が要る (未実装)。
+  Ni は nspin=2, mmom=0.6 でも 0.002 μB に収束 (要調査、MLO 自体は 21 meV で問題なし)。
+
 2026-09-18 (1)
   MLO の nskip (射影子から外す最下位 PMT 状態の数) を k に依らない規則にした。
     従来: k ごとに「模型部分空間への重み < 1/2 の最下位状態の数」。Cu の d 模型では s 帯が
