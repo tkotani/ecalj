@@ -1,3 +1,15 @@
+2026-09-17 (12)
+  アップロード直前テスト (kt1: ~/ecalj を ~/ecaljold2026sep17 に退避し bundle から clean clone、
+  InstallAll.py --fc nvfortran --gpu --mp -np 60 -np2 1, GPU 0 のみ):
+    testecalj --all 25/25 (7.5 分)、MLOsamples 18/18、kBT Fe one-shot --gpu --mp が 6 月の参照と
+    max 0.001 eV、GetStarted/GaAs 一気通貫 (ctrlgenToml → lmfa/lmf → gwsc 1 --gpu --mp) で
+    EFERMI_kbt 0.153446582 Ry (ローカル gfortran と 1e-11 一致)、gap 1.5571 eV (ローカル 1.5577)。
+  clean clone で初めて出た不具合: MLOsamples の Fe / GaAs / GaAsSoc の band_MLO_spin*.dat 参照が
+    .gitignore (*.dat) で untracked だった (ローカルでは通る)。git add -f で追跡。
+  ローカル (gfortran) は (11) 参照。両環境とも 4 段 (install / MLO / kBT / GetStarted) 全通過。
+  kt1 メモ: HPCX は mpirun 無しの lmfa を起動できない (InstallAll.py の注記どおり)。テストスクリプトは
+    mpirun -np 1 lmfa にすること。
+
 2026-09-17 (11)
   heftet: 絶縁体 (「only filled or empty bands」の分岐) で EFERMI_kbt を書いていなかった。
   gwinit のテンプレは 6 月から tetrakbt=true (300 K) を既定で書くので、新規に作った絶縁体は
