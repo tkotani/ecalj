@@ -650,8 +650,15 @@ def main():
 
     # [iter]
     out.append('[iter]')
-    out.append('mix   = "B3"')
-    out.append('b     = 0.2')
+    # Broyden with b=0.2 from a spin-polarized atom start can wipe the moment out
+    # at the first step (MP Fe: 2.13 -> 0.02 muB at iteration 2; Ni likewise),
+    # while Anderson keeps it (Fe 2.24 muB). Magnetic runs get Anderson.
+    if opts['nspin'] == '2':
+        out.append('mix   = "A3"   # Anderson: Broyden B3 with b=0.2 can collapse the moment at the first step')
+        out.append('b     = 0.3')
+    else:
+        out.append('mix   = "B3"   # magnetic systems: use "A3" (Broyden can collapse the moment; see comment above)')
+        out.append('b     = 0.2')
     out.append('umix  = 0.2')
     out.append('nit   = 80')
     out.append('conv  = 1.0e-5')

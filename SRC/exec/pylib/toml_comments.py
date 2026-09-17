@@ -59,6 +59,8 @@ SECTION_HEADER = {
         "# === ITER: self-consistency ===",
         "# mix:  'A#' Anderson (stable), 'B#'/'B3' Broyden (faster, default).",
         "#       The trailing digit is history length kept (e.g. B3 = keep 3).",
+        "#       MAGNETIC (nspin=2): use 'A3'. Broyden B3 with b=0.2 can wipe the",
+        "#       moment out at the first step (Fe 2.13 -> 0.02 muB); A3 keeps 2.24.",
         "# b:    mixing ratio (smaller -> stable but slower convergence).",
         "# conv: max |dE| between iterations.  convc: max d(rho_out - rho_in).",
         "# umix/tolu: LDA+U density-matrix mixing parameters.",

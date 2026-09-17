@@ -1,3 +1,10 @@
+2026-09-18 (3)
+  ctrlgenToml.py の既定 mix="B3", b=0.2 は磁性系で初期モーメントを 1 反復目で潰す
+  (MP の Fe: 2.13 → 0.02 μB、Ni も 0)。Anderson A3 (b=0.3) か B3 でも b=0.5 なら 2.24 μB。
+    --nspin=2 のときは mix="A3", b=0.3 を書く。非磁性既定 B3 の行末と [iter] の説明
+    (toml_comments) に「磁性なら A3」を明記 (手で nspin=2 に変える人向け)。
+    修正後 MP の Fe 2.24 μB / Ni 0.66 μB、MLO 両スピン 17〜20 meV。
+
 2026-09-18 (2)
   Materials Project の 10 結晶 (Ag Al MgO NaCl SiC GaAs CdTe ZnO TiO2 Ni) で MLO の既定を
   DFT レベルで試した (Samples/MLOsamples/BackUp_notes/mp_20260918/)。絶縁体 1〜3 meV、

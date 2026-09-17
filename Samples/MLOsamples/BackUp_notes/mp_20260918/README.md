@@ -25,9 +25,11 @@ POSCAR (MP の primitive) → vasp2ctrl → ctrls.<name> → ctrlgenToml.py <nam
 | **ZnO** (wurtzite) | mp-2133 | gap 0.75 | 0 | **476 / 1391** | 512 / 1007 |
 | ZnO, d 模型に LO を使う (`--mlo_lod`) | | | 0 | **0.8 / 16** | 0.4 / 2.4 |
 | TiO2 (rutile) | mp-2657 | gap 1.7 | 6 (Ti 3p LO) | 0.8 / 7.3 | 0.8 / 5.5 |
-| Ni | mp-23 | 金属 | 0 | 21 / 146 | 17 / 146 |
+| Ni（非磁性に落ちた run） | mp-23 | 金属 | 0 | 21 / 146 | 17 / 146 |
+| Ni, `mix="A3"` で 0.66 μB | mp-23 | 強磁性 | 0 | 20 / 148 (↑), 20 / 134 (↓) | 19 / 136, 16 / 134 |
+| Fe, `mix="A3"` で 2.24 μB | mp-13 | 強磁性 | 3 (Fe 3p LO) | 17 / 218 (↑), 18 / 147 (↓) | 19 / 218, 20 / 147 |
 
-図: `fig_<name>.png`（灰 DFT、赤 MLO、青破線 = 窓の上端）。
+図: `fig_<name>.png`（灰 DFT、赤 MLO、青破線 = 窓の上端）。磁性は `fig_fe_mag.png`, `fig_ni_mag.png`。
 
 ## 見えたこと
 
@@ -44,9 +46,12 @@ POSCAR (MP の primitive) → vasp2ctrl → ctrls.<name> → ctrlgenToml.py <nam
    nskip で外す**、という切り替えが要る。自動化するならエネルギー基準（LO 帯が
    E_F − 10 eV より上なら LO を使う、など）。`--mlo_lod` は実験用に残してある
    （既定 off、マニュアル未記載）。
-3. **Ni は非磁性に落ちた**（`mmom = 0.6` を `[[spec]]` に置いて `nspin = 2` にしても
-   0.002 μB に収束）。MLO 自体は問題ないが、`ctrlgenToml` の既定（`readp/pnufix` など）と
-   磁性の相性は別途確認が要る。
+3. **Ni・Fe が非磁性に落ちた — 原因は `ctrlgenToml` 既定の混合 `mix = "B3", b = 0.2`。**
+   Fe (mp-13) で 1 反復目は 2.13 μB なのに 2 反復目で 0.02 μB に潰れる。Anderson `A3`
+   （b=0.3）または `B3` でも `b=0.5` なら 2.24 μB を保つ（TestInstall/fe は `A6, b=0.5`）。
+   `ctrlgenToml.py --nspin=2` は `mix = "A3", b = 0.3` を書くようにし、非磁性の既定
+   `B3` の行と [iter] の説明に「磁性なら A3」を明記した（commit 参照）。修正後の
+   Fe / Ni の MLO は上の表のとおり両スピン 17〜20 meV。
 4. 自動 `nskip`（k での最小値）は NaCl の Na 2p、GaAs の Ga 3d、TiO2 の Ti 3p を
    正しく数え、折れは出ていない。
 
