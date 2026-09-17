@@ -6,8 +6,8 @@
   Samples/MLOsamples/BackUp_notes/mlo_low_cu_20260917.md: Cu の d 模型で mlo_low /
     両側窓 / mlo_delta=-1.5 / mlo_w 走査 / k メッシュ走査を図付きで記録。結論: s-d 交差の
     折れはエネルギー窓・幅・k 点では消えない (5 本で 6 本を追う場所)。
-  隠しオプション mlo_pcut / mlo_pw (PMT 状態の模型部分空間への射影重み p_i で θ を切る)
-    はソースに入れてあるが未検証・既定 off。
+  隠しオプション mlo_low / mlo_wlow ((16) で試したもの) と mlo_pcut / mlo_pw (未検証) は
+    コードを見え消し (コメントアウト) にして残した。生きているのは mlo_nkabc だけ。
 
 2026-09-17 (16)
   MLO の隠しオプション mlo_low / mlo_wlow ([mlo], eV): θ_j に下側のカット

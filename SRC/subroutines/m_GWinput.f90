@@ -184,15 +184,17 @@ module m_GWinput
   ! states below EF + mlo_low (eV) stop pulling on the fit. Off unless mlo_low is
   ! set; mlo_wlow defaults to mlo_w. Meant for e.g. a d-only model of Cu, where
   ! the s band bottom far below the d band otherwise enters with weight 1.
-  real(8), protected, public :: mlo_low            = huge(0d0) ! eV rel. EF; huge = off
-  real(8), protected, public :: mlo_wlow           = huge(0d0) ! eV; huge = same as mlo_w
+  ! (2026-09-17: tried on Cu's d model, kept as a record, not active)
+  !real(8), protected, public :: mlo_low            = huge(0d0) ! eV rel. EF; huge = off
+  !real(8), protected, public :: mlo_wlow           = huge(0d0) ! eV; huge = same as mlo_w
   ! mlo_pcut / mlo_pw (hidden): cut by CHARACTER instead of energy. PMT state i
   ! enters the fit with the extra factor sigma((p_i - mlo_pcut)/mlo_pw), where
   ! p_i = sum_j |<Psi^PMT_i|Psi^MTO_j>|^2 is its weight in the model's MTO
   ! subspace (0..1). States that are not model-like (an s band crossing a d-only
   ! model) drop out wherever they are in energy. Off unless mlo_pcut is set.
-  real(8), protected, public :: mlo_pcut           = huge(0d0) ! 0..1; huge = off
-  real(8), protected, public :: mlo_pw             = 0.1d0     ! width of the sigmoid in p
+  ! (not tried yet; kept as a record, not active)
+  !real(8), protected, public :: mlo_pcut           = huge(0d0) ! 0..1; huge = off
+  !real(8), protected, public :: mlo_pw             = 0.1d0     ! width of the sigmoid in p
   real(8), protected, public :: mixbeta            = 1.0d0
   real(8), protected, public :: mixtj              = 0.0d0
   real(8), protected, public :: TFscreen           = 1.0d-5**0.5d0
@@ -651,10 +653,10 @@ contains
     call gv_r(tbl, 'mlo_delta',           mlo_delta)
     call gv_r(tbl, 'mlo_wfrz',           mlo_wfrz)
     call gv_r(tbl, 'mlo_down',           mlo_down)
-    call gv_r(tbl, 'mlo_low',            mlo_low)
-    call gv_r(tbl, 'mlo_wlow',           mlo_wlow)
-    call gv_r(tbl, 'mlo_pcut',           mlo_pcut)
-    call gv_r(tbl, 'mlo_pw',             mlo_pw)
+    !call gv_r(tbl, 'mlo_low',            mlo_low)    ! hidden lower cut, see the comment at the declaration
+    !call gv_r(tbl, 'mlo_wlow',           mlo_wlow)
+    !call gv_r(tbl, 'mlo_pcut',           mlo_pcut)   ! hidden character cut, see the comment at the declaration
+    !call gv_r(tbl, 'mlo_pw',             mlo_pw)
     call gv_r(tbl, 'mlo_conv',           mlo_conv)
     call gv_r(tbl, 'mlo_mix',            mlo_mix)
     call gv_r(tbl, 'mlo_EUinner',        mlo_EUinner)
