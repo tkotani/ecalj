@@ -1,3 +1,18 @@
+2026-09-17 (11)
+  heftet: 絶縁体 (「only filled or empty bands」の分岐) で EFERMI_kbt を書いていなかった。
+  gwinit のテンプレは 6 月から tetrakbt=true (300 K) を既定で書くので、新規に作った絶縁体は
+  hgw が空の EFERMI_kbt を読んで EOF で落ちる (GetStarted/GaAs の一気通貫で発覚。
+  TestInstall の絶縁体は tetrakbt を指定していないので素通りしていた)。
+    有限温度 EF の計算を金属/絶縁体の分岐の後に出し、両方で書く。絶縁体では efermi が
+    ギャップ中央なので NOS 窓にギャップが入る; fermi_kbt_tetra は N_T(E)=valn の解が区間に
+    なる場合 (ギャップがカーネルの届く幅より広い) に上端でなく区間の中央を返すようにした
+    (上端・下端をそれぞれ二分法で求めて平均。金属では両者一致)。
+    GaAs (LDA gap 0.29 eV, 300 K): EFERMI_kbt = 0.15345 Ry (T=0 の中央 0.15221 から
+    DOS の非対称で +0.0012 Ry、離散 k 和の診断値 0.15326 と整合)。gwsc 1 反復で gap 1.56 eV。
+  ローカル pre-upload テスト: testecalj --all 25/25、MLOsamples 18/18、kBT Fe one-shot
+    (QPU.1run が 6 月の kt1 参照と max 0.001 eV、EFERMI_kbt 1e-6 Ry 一致)、GetStarted/GaAs
+    一気通貫 (ctrlgenToml.py の [product_basis] がサンプルと一致)。
+
 2026-09-17 (10)
   ctrlgenToml.py が [esm] の見え消しテンプレ (toml_comments.ESM_SAMPLE: # === ESM 見出し +
   # [esm] 以下 1 キー 1 行、「スラブなら外して数値は注意して」の注記) を [ham] の直後に書く。

@@ -159,39 +159,41 @@ contains
       enddo
       call rx( 'heftet:bug in fermi level finder or tol too small')
 444   continue
-      ! Fermi energy at finite temperature (EFERMI_kbt); Okumura (Feb.2020)
-      call gwinput_init()
-      if (gwinput_loaded) then
-        usetetrakbt = tg_tetrakbt
-      else
-         call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
-!        call getkeyvalue("GWinput","tetrakbt",usetetrakbt,default=.false.)
-      endif
-      ! Finite-T Fermi level by discrete k-sum (consistent with tetrakbt chi0):
-      ! (3-nspin)/nqbz * sum_{s,iq,n} f(e-EF;kbt) = valn, by bisection. Used by
-      ! m_tetwt when tetrakbt=true. (imode==1 is the gwsc GW flow.)
-      if ((imode==1 .OR. imode==5) .AND. usetetrakbt) then
-        call tetrakbt_init() !! read kbt
-        FermiKbtTetraNOS: block ! EF^T from tetrahedron NOS (x) thermal kernel (2026-06-11).
-          ! Replaces the discrete k-sum as the EFERMI_kbt source: T->0 reduces exactly to
-          ! the tetrahedron EF (no staircase error at kbt below the mesh level spacing).
-          integer,parameter:: nptk=2401
-          real(8):: ek1, ek2, dosk(nptk), efkbt_disc
-          ek1 = efermi - 60d0*kbt - 1d-9
-          ek2 = efermi + 60d0*kbt + 1d-9
-          call bzints2x(volwgt,eband,dum111,nkp,nbandx,nbandx,nspx,ek1,ek2,dosk,nptk,efermi,1,nteti,idteti)
-          call fermi_kbt_tetra(valn, dosk, nptk, ek1, ek2, kbt, efermi, efermi_kbt)
-          call fermi_kbt_discrete(valn,eband2,nbandx,nspx,nqbz,nspin,kbt,elo,ehi, efkbt_disc) ! diagnostic
-          write(stdo,ftox)' heftet: EFERMI_kbt(tetraNOSconv)=',ftof(efermi_kbt), &
-               ' [diagnostic discrete k-sum=',ftof(efkbt_disc),'] kbt=',ftof(kbt)
-        endblock FermiKbtTetraNOS
-        open(newunit=ifief_kbt,file='EFERMI_kbt')
-        write(ifief_kbt,"(2d23.15,a)") efermi_kbt, kbt,' ! efermi_kbt (finite-T, tetra-NOS conv) by heftet'
-        close(ifief_kbt)
-      endif
       deallocate(dos)
       bandgap=0d0
       write(ifief,"(2d23.15,a)") efermi,bandgap," ! efermi bandgap are obtained by heftet"
+    endif
+    ! Fermi energy at finite temperature (EFERMI_kbt). Written for metals AND
+    ! insulators (the insulator branch above used to skip it, so hgw died on an
+    ! empty EFERMI_kbt for every fresh insulator with tetrakbt=true, 2026-09-17).
+    call gwinput_init()
+    if (gwinput_loaded) then
+      usetetrakbt = tg_tetrakbt
+    else
+      call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
+    endif
+    ! Used by m_tetwt when tetrakbt=true. (imode==1 is the gwsc GW flow.)
+    if ((imode==1 .OR. imode==5) .AND. usetetrakbt) then
+      call tetrakbt_init() !! read kbt
+      FermiKbtTetraNOS: block ! EF^T from tetrahedron NOS (x) thermal kernel (2026-06-11).
+        ! Replaces the discrete k-sum as the EFERMI_kbt source: T->0 reduces exactly to
+        ! the tetrahedron EF (no staircase error at kbt below the mesh level spacing).
+        ! For an insulator efermi is mid-gap; the NOS window then holds the gap and
+        ! fermi_kbt_tetra returns the middle of the degenerate solution interval.
+        integer,parameter:: nptk=2401
+        real(8):: ek1, ek2, dosk(nptk), efkbt_disc
+        volwgt = (3.d0 - nspin) / ntetf
+        ek1 = efermi - 60d0*kbt - 1d-9
+        ek2 = efermi + 60d0*kbt + 1d-9
+        call bzints2x(volwgt,eband,dum111,nkp,nbandx,nbandx,nspx,ek1,ek2,dosk,nptk,efermi,1,nteti,idteti)
+        call fermi_kbt_tetra(valn, dosk, nptk, ek1, ek2, kbt, efermi, efermi_kbt)
+        call fermi_kbt_discrete(valn,eband2,nbandx,nspx,nqbz,nspin,kbt,elo,ehi, efkbt_disc) ! diagnostic
+        write(stdo,ftox)' heftet: EFERMI_kbt(tetraNOSconv)=',ftof(efermi_kbt), &
+             ' [diagnostic discrete k-sum=',ftof(efkbt_disc),'] kbt=',ftof(kbt)
+      endblock FermiKbtTetraNOS
+      open(newunit=ifief_kbt,file='EFERMI_kbt')
+      write(ifief_kbt,"(2d23.15,a)") efermi_kbt, kbt,' ! efermi_kbt (finite-T, tetra-NOS conv) by heftet'
+      close(ifief_kbt)
     endif
     close(ifief)
     if((imode/=1 .OR. imode/=5) .and. (any(eband(nbandx,:,:)<efermi)) ) &
@@ -380,24 +382,39 @@ contains
     integer:: npt, i, it
     integer,parameter:: NE=20
     real(8):: valn, nos(npt), ea, eb, kbt, ef0, efkbt
-    real(8):: tg(NE), wg(NE), ker(NE), a,b,c, fc, de
+    real(8):: tg(NE), wg(NE), ker(NE), a,b,c, fc, de, eup, elo
     call gausq(NE, -6d0, 6d0, tg, wg, 0, 0)
     ker = wg*0.5d0/cosh(tg)**2
     ker = ker/sum(ker)
     de  = (eb-ea)/(npt-1)
-    a = ef0 - 45d0*kbt
-    b = ef0 + 45d0*kbt
-    do it = 1,200
-      c  = 0.5d0*(a+b)
-      fc = 0d0
-      do i=1,NE
-        fc = fc + ker(i)*nosi(c + 2d0*kbt*tg(i))
-      enddo
-      if(fc > valn) then; b = c; else; a = c; endif
-      if(b-a < 1d-12) exit
-    enddo
-    efkbt = 0.5d0*(a+b)
+    ! N_T(E) is flat (= valn) across a gap wider than the kernel's reach, so the
+    ! solution is an interval there: bisect to its upper edge (first E with
+    ! N_T > valn) and to its lower edge (last E with N_T < valn) and take the
+    ! middle. For a metal both edges coincide.
+    eup = edge(.true.)
+    elo = edge(.false.)
+    efkbt = 0.5d0*(eup+elo)
   contains
+    real(8) function edge(upper)
+      logical,intent(in):: upper
+      real(8),parameter:: eps = 1d-10
+      a = ef0 - 45d0*kbt
+      b = ef0 + 45d0*kbt
+      do it = 1,200
+        c  = 0.5d0*(a+b)
+        fc = 0d0
+        do i=1,NE
+          fc = fc + ker(i)*nosi(c + 2d0*kbt*tg(i))
+        enddo
+        if(upper) then
+          if(fc > valn*(1d0+eps)) then; b = c; else; a = c; endif
+        else
+          if(fc < valn*(1d0-eps)) then; a = c; else; b = c; endif
+        endif
+        if(b-a < 1d-12) exit
+      enddo
+      edge = 0.5d0*(a+b)
+    end function edge
     real(8) function nosi(e) ! clamped linear interpolation of nos on [ea,eb]
       real(8),intent(in):: e
       real(8):: p
