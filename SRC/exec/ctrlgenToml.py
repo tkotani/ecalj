@@ -60,7 +60,7 @@ only; ctrlgenM1.py exits immediately with a pointer to this script.
 """
 import os, sys, re
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from pylib.toml_comments import fmt_section_header, fmt_key_inline, apply_toml_annotations
+from pylib.toml_comments import fmt_section_header, fmt_key_inline, apply_toml_annotations, ESM_SAMPLE
 from pylib.toml_tidy import tidy_gw_sections
 
 # ---------------------------------------------------------------------------
@@ -674,6 +674,9 @@ def main():
     out.append(f'so          = {opts["so"]}')
     out.append('oveps       = 1.0e-8')
     out.append('# rdsig = 12   # uncomment when sigm.<ext> exists (QSGW)')
+    out.append('')
+
+    out.extend(ESM_SAMPLE)      # commented-out [esm]; a slab uncomments it
     out.append('')
 
     out.append('[options]')

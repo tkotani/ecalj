@@ -206,6 +206,10 @@ pwemax      = 3.0  # APW cutoff (Ry)
 readp       = true  # read P,PZ from atom calc results
 pnufix      = true  # fix B.C. of radial functions
 
+# === ESM: effective screening medium (slabs only; no [esm] = off) ===
+# Electrostatics of a slab with a vacuum layer. Without this section a
+# vacuum layer gets the plain periodic treatment and the energy zero can
+# shift by several eV, so keep it for slabs. See manual/lmf#esm.
 [esm]
 boundary  = "vac/slab/vac"  # vacuum(-z)/slab/vacuum(+z)                 [jesm=1]
             # "off"                    ESM disabled                      [jesm=0]

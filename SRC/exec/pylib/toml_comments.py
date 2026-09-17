@@ -88,6 +88,13 @@ SECTION_HEADER = {
     ),
 
     # ----------------------------------------------------------------- OPTIONS
+    'esm': (
+        "# === ESM: effective screening medium (slabs only; no [esm] = off) ===",
+        "# Electrostatics of a slab with a vacuum layer. Without this section a",
+        "# vacuum layer gets the plain periodic treatment and the energy zero can",
+        "# shift by several eV, so keep it for slabs. See manual/lmf#esm.",
+    ),
+
     'options': (
         "# === OPTIONS ===",
         "# hf=true: Hartree-Fock-style non-self-consistent diag (debugging).",
@@ -230,6 +237,25 @@ KEY_INLINE = {
 }
 
 
+# Commented-out [esm] template that ctrlgenToml.py writes into every new file
+# (bulk crystals need no [esm]; a slab uncomments it). ctrlg_absorb.py removes
+# this block when it writes a real [esm] from esm_input.dat.
+ESM_SAMPLE = (
+    "# === ESM: effective screening medium (slabs only; no [esm] = off) ===",
+    "# Uncomment for a slab with a vacuum layer and set the numbers with care:",
+    "# without [esm] the vacuum gets the plain periodic treatment and the energy",
+    "# zero shifts by several eV with no error. See manual/lmf#esm.",
+    '# [esm]',
+    '# boundary  = "vac/slab/vac"  # off / vac/slab/vac / metal/slab/metal / vac/slab/metal /',
+    '#                             # metal/slab/vac / vac/slab/vac:field / metal/slab/metal:v-e /',
+    '#                             # metal/slab/metal:e-v / periodic:esm',
+    '# origin    = 0.0             # (a.u.) z-translation of the density; the code applies -origin',
+    '# shiftmode = 0               # 0: origin is absolute, 1: in units of the cell length',
+    '# zb        = [12.0, -12.0]   # (a.u.) boundaries z1, z2 (default: +-alat*plat[2][2]/2)',
+    '# potential = [0.0, 0.0]      # (Ry) on the +z / -z sides (metal boundaries)',
+    '# field     = [0.0, 0.0]      # (Ry/a.u.) on the +z / -z sides',
+)
+
 # Explanations printed before the three per-atom tables of [product_basis].
 # gwinit (main_gwinit.f90) writes the same text; keep the two in step.
 PB_TABLE_COMMENTS = {
@@ -269,7 +295,7 @@ def fmt_key_inline(sec, key):
     return KEY_INLINE.get(sec, {}).get(key, '')
 
 
-__all__ = ['SECTION_HEADER', 'KEY_INLINE', 'PB_TABLE_COMMENTS',
+__all__ = ['SECTION_HEADER', 'KEY_INLINE', 'PB_TABLE_COMMENTS', 'ESM_SAMPLE',
            'fmt_section_header', 'fmt_key_inline']
 
 

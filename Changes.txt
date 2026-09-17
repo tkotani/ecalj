@@ -1,3 +1,10 @@
+2026-09-17 (10)
+  ctrlgenToml.py が [esm] の見え消しテンプレ (toml_comments.ESM_SAMPLE: # === ESM 見出し +
+  # [esm] 以下 1 キー 1 行、「スラブなら外して数値は注意して」の注記) を [ham] の直後に書く。
+    バルクはそのまま (セクション無し = ESM off)。toml_comments に本物の [esm] 用の見出し
+    'esm' も追加 (FeMgO / FeMgOSoc に適用)。ctrlg_absorb.py は本物の [esm] を書くとき
+    このテンプレを消す。ecaljdoc lmf.md。
+
 2026-09-17 (9)
   Fortran は ctrlg.<sname>.toml 以外を読まない、で統一。
     m_lmfinit::readesm: esm_input.dat があれば abort して ctrlg_absorb.py を案内

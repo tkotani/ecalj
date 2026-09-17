@@ -59,12 +59,15 @@ def absorb_esm(ctrlg: Path) -> bool:
     jesm = int(float(nums[0]))
     jtresm = int(float(nums[1]))
     tresm, z1, z2, vp, vm, ep, em = (float(x) for x in nums[2:9])
+    # the commented-out template ctrlgenToml.py writes is superseded by the real section
+    from pylib.toml_comments import ESM_SAMPLE, SECTION_HEADER
+    text = ctrlg.read_text()
+    sample = '\n'.join(ESM_SAMPLE) + '\n'
+    if sample in text:
+        ctrlg.write_text(text.replace(sample, ''))
     with open(ctrlg, 'a') as f:
-        f.write(f'''
-# === ESM: effective screening medium (slabs only; no section = off) ===
-# Electrostatics of a slab with a vacuum layer. Converted from esm_input.dat.
-# No [esm] section at all means ESM is off -- for a vacuum slab that silently
-# moves the energy zero by several eV, so do not drop this section.
+        f.write('\n' + '\n'.join(SECTION_HEADER['esm']) + '\n')
+        f.write(f'''# Converted from esm_input.dat.
 [esm]
 boundary  = "{ESM_BOUNDARY.get(jesm, 'off')}"
             # "off" / "vac/slab/vac" / "metal/slab/metal" / "vac/slab/metal" /
