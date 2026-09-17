@@ -1,3 +1,15 @@
+2026-09-17 (6)
+  PB.<sname>.toml に列の説明を復元。旧 GWinput の <PRODUCT_BASIS> にあった
+  「atom l nnvv nnc」「atom l n occ unocc」「... ForX0 ForSxc」の説明が、Legacy2toml.py が
+  書く PB.toml から落ちていて、サンプルの PB.toml は全部それだった。
+    説明文を一つに決めて gwinit (Fortran) と Legacy2toml.py の両方が書き、
+    既存の PB.toml 42 件の冒頭にも入れた (表の中身は不変、Cu で ALL PASSED)。
+    nlx [iatom,l,nnvv,nnc] / valence [iatom,l,n,occ,unocc] (n: 1=phi 2=phidot 3=phiz) /
+    core [iatom,l,n,occ,unocc,forX0,forSxc]。occ×unocc の積で product basis を作る。
+    gwinit は各行に # 4s_phi のようなラベルも付ける。
+  ecaljdoc manual/gwsc.md の PB.toml の説明は [[spec]] 単位・ラベル列付きという
+    実在しない形式を示していたので、実物の平坦な [product_basis] 形式に書き直した。
+
 2026-09-17 (5)
   [BREAKING-ish] GWinput.toml は一切読まない。GW 側の入力は ctrlg.<sname>.toml + PB.<sname>.toml だけ。
     GWinput.toml は 2026-05 移行期の中間ファイル名で、ecalj は読んでいなかったが、
