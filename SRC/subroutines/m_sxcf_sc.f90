@@ -682,6 +682,26 @@ contains
                 !$acc host_data use_device(zmel, zsec)
                 ierr = gemm(czmelwc, zmel, zsec, sxs_ntqxx, sxs_ntqxx, nbb*(ns2-ns1+1), opA = m_op_C, beta = CONE, ldC = ntq)
                 !$acc end host_data
+                TraceSc: block ! diagnostic: ECALJ_TRACESC="ip i j" prints the running <i|Sc|j>, <j|Sc|i> (eV) per (kx,irot,icount)
+                  real(8), parameter :: hartree_ev = 27.211386d0
+                  integer, save :: tr_ip = -1, tr_i, tr_j
+                  logical, save :: tr_init = .false.
+                  character(64) :: tr_env
+                  integer :: tr_len, tr_stat
+                  if (.not. tr_init) then
+                    tr_init = .true.
+                    call get_environment_variable('ECALJ_TRACESC', tr_env, tr_len, tr_stat)
+                    if (tr_stat == 0 .and. tr_len > 0) read(tr_env, *, iostat=tr_stat) tr_ip, tr_i, tr_j
+                    if (tr_stat /= 0) tr_ip = -1
+                  endif
+                  if (tr_ip == ip .and. isp == 1 .and. tr_i <= sxs_ntqxx .and. tr_j <= sxs_ntqxx) then
+                    !$acc update host(zsecall(tr_i:tr_i,tr_j:tr_j,ip,isp), zsecall(tr_j:tr_j,tr_i:tr_i,ip,isp))
+                    write(stdo,"(' traceSc kx=',i3,' irot=',i3,' ip=',i3,' icount=',i5,' ns1 ns2=',2i4,' q=',3f8.4,' <i|Sc|j>=',2f10.4,' <j|Sc|i>=',2f10.4,' eV')") &
+                         kx, irot, ip, icount, ns1, ns2, qibz(:,kx), &
+                         real(zsecall(tr_i,tr_j,ip,isp))*hartree_ev, aimag(zsecall(tr_i,tr_j,ip,isp))*hartree_ev, &
+                         real(zsecall(tr_j,tr_i,ip,isp))*hartree_ev, aimag(zsecall(tr_j,tr_i,ip,isp))*hartree_ev
+                  endif
+                end block TraceSc
                 !$acc kernels loop independent
                 do itp = 1, sxs_ntqxx
                   ! zsec(itp,itp) = real(zsec(itp,itp),kind=kp)+img*min(-real((img*zsec(itp,itp)),kind=kp),0_kp) !enforce Imzsec<0 !does not work in intel
