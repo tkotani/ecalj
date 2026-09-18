@@ -67,6 +67,7 @@ Each test runs the full pipeline (lmf → mlo, plus the 4-step
 | `NiO666lda`  | NiO LDA AFM            | 2 | – | `band_MLO_spin{1,2}.dat` |
 | `RuO2`       | RuO2 QSGW              | 2 | – | `band_MLO_spin{1,2}.dat` |
 | `SmP`        | SmP (4f, so=2 Lz·Sz)   | 2 | – | `band_MLO_spin{1,2}.dat` |
+| `Ag`, `Al`, `NaCl`, `SiC`, `CdTe`, `ZnO`, `TiO2` | Materials Project structures, DFT, all s,p,d channels, defaults; self-contained (lmfa → lmf → job_band → job_mlo, no rst) | 1 | – | `band_MLO_spin1.dat` (see [BackUp_notes/mp_20260918](BackUp_notes/mp_20260918/README.md)) |
 
 For `Si666gwsc` the MLO test was added on top of an existing `job_band`
 DFT-band check, so testecalj runs both. `Al2O3_Cr` is the system that used
@@ -105,6 +106,16 @@ show the 2N-spinor MLO overlay (post-`job_mlo_soc`).
 | FeMgO | FeMgOSoc (SOC) |
 |---|---|
 | ![](plots/FeMgO.png) | ![](plots/FeMgOSoc.png) |
+
+### Materials Project structures, defaults untouched (DFT)
+
+| Ag | Al | NaCl | SiC |
+|---|---|---|---|
+| ![](plots/Ag.png) | ![](plots/Al.png) | ![](plots/NaCl.png) | ![](plots/SiC.png) |
+
+| CdTe | ZnO | TiO2 |
+|---|---|---|
+| ![](plots/CdTe.png) | ![](plots/ZnO.png) | ![](plots/TiO2.png) |
 
 ## Manual run
 

@@ -1,3 +1,9 @@
+2026-09-18 (9)
+  Samples/MLOsamples に Materials Project 由来の 7 サンプルを追加 (Ag, Al, NaCl, SiC, CdTe, ZnO,
+  TiO2)。入力 (POSCAR, ctrls, ctrlg, syml) と test.py (lmfa → lmf → job_band → job_mlo、rst 無しで
+  自己完結)、参照 band_MLO_spin1.dat、plots/<Name>.png。既定パラメタ・全 s,p,d チャネルのまま。
+  ZnO は浅い Zn 3d LO を模型に使う自動判定のテストになる (0.8 meV)。README の表と図。
+
 2026-09-18 (8)
   BackUp_notes/mlo_low_cu_20260917.md (mlo_low / 両側窓 / mlo_w / k メッシュの試行記録) を
   mlo_nskip_cu_problem.md に整理: 折れの正体 (k 依存の nskip) 以降だけを簡潔に。
