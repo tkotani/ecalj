@@ -50,9 +50,11 @@ POSCAR (MP の primitive) → vasp2ctrl → ctrls.<name> → ctrlgenToml.py <nam
    NaCl Na 2p −20.7、TiO2 Ti 3p −32.8、Fe 3p −50.9 は深い → 変化なし。
    拡張 LO（pz が価電子殻より上、例 RuO2 の Ru pz=5.5）は候補にしない（試すと 14 → 254 meV）。
    18 サンプルで参照が動いたのは NiO だけ（Ni 3d LO が浅い判定、16.6 → 16.4 meV、
-   最大 52 meV の差、参照更新）。Gd/Sm の 4f は pz と pnu が同じ殻なので候補外だが、
-   試しに LO を使うと GdCo5 12.6 → 7.4、SmP 76 → 40 meV と良くなる — 同殻 LO の扱いは
-   要検討。`--mlo_lod` は廃止（見え消し）。
+   最大 52 meV の差、参照更新）。GdCo5 の Gd（`pz = 5.0`）と SmP の Sm（`pz = 15.0`）の f は
+   価電子 4f（`pnu = 4.x`）より上の **5f 拡張 LO** なので候補外。最初の版（k=3 なら何でも候補）
+   で試しにその 5f を模型の f にすると GdCo5 12.6 → 7.4、SmP 76 → 40 meV と数字は良くなるが、
+   4f の帯を 5f 関数で表す操作で（RuO2 の pz=5.5 で 254 meV に壊れたのと同種）、採用しない。
+   4f の動径関数を 2 本持てば当たる、という示唆にとどめる。`--mlo_lod` は廃止（見え消し）。
 3. **Ni・Fe が非磁性に落ちた — 原因は `ctrlgenToml` 既定の混合 `mix = "B3", b = 0.2`。**
    Fe (mp-13) で 1 反復目は 2.13 μB なのに 2 反復目で 0.02 μB に潰れる。Anderson `A3`
    （b=0.3）または `B3` でも `b=0.5` なら 2.24 μB を保つ（TestInstall/fe は `A6, b=0.5`）。

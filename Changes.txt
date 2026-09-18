@@ -8,8 +8,9 @@
     拡張 LO (pz が価電子殻より上、RuO2 の pz=5.5) は候補外 (使うと 14→254 meV)。
     18 サンプルで参照が動いたのは NiO だけ (Ni 3d LO を浅い判定、16.6→16.4 meV、
     max 52 meV; 参照と plots を更新)。18/18 PASSED。
-    Gd/Sm 4f は pz と pnu が同殻なので候補外。試しに LO を使うと GdCo5 12.6→7.4、
-    SmP 76→40 meV と改善する — 同殻 LO の扱いは未決 (要 user 判断)。
+    GdCo5 の Gd (pz=5.0) と SmP の Sm (pz=15.0) の f は価電子 4f (pnu 4.x) より上の 5f
+    拡張 LO なので候補外。初版 (k=3 なら何でも候補) でそれを模型 f にすると GdCo5 12.6→7.4、
+    SmP 76→40 meV と数字は良くなるが、4f 帯を 5f 関数で表す操作なので採用しない。
     実験フラグ --mlo_lod は廃止 (見え消し)。
     注意: 事前対角化で zhev_tk4 に (nbandmx,nbandmx) 配列をそのまま渡すと列がずれる
     (dummy は explicit-shape)。(1:ndimPMT,1:ndimPMT) の部分配列で渡すこと。
