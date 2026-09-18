@@ -142,6 +142,19 @@ SEc の差、valence 帯 state 9〜24、全 k）:
   のに対し、9³ は mixbeta=0.5 の Anderson 履歴に半分残った、のどちらか。(b) なら mixbeta=1.0
   （または事故反復の sigm 破棄）で 9³ も回復するはず。
   今日の 6³ χ₀-only iter 1（右下）は 6 月 iter 1 と同形（Σ 側 T=0 の差は band では見えない）。
+- 19:00 6 月の run ごとの**最終反復の band**（`plot_band_final_june.py`、−10.5〜+3.5 eV、
+  赤 = band 9〜12、青 = 13〜24、灰 = Ti t2g/eg）:
+
+  ![final-iteration bands of the June runs](LiTi2O4/plots/bands_final_june_runs.png)
+
+  - χ₀+Σ（t_sigmakbt あり）の 6³ 1000/2000/3000 K と 9³ 3000 K は O 2p も t2g も素直。
+    9³ 1000 K iter 45 だけ Γ の針と細かい波。
+  - **χ₀ だけ**（t_sigmakbt 無し）の run は別物: 一発（iter 1）の時点で t2g に −1〜−3 eV の
+    深い針が多数（6³ 1000 K, 9³ 3000 K）、収束後（6³ 3000 K iter 60, esmr=0.019, 5000 K）は
+    t2g が E_F に張り付いた平坦帯に潰れ、O 2p の底も −9.5 eV へ沈む。χ₀ が EFERMI_kbt、
+    Σ が EFERMI という E_F の二重管理（kBT.md §9）の帰結で、Σ 側も温めるのが必須という
+    6 月の結論の根拠。今日の 6³ χ₀-only チェーンを止めたのは結果的に正しい
+    （χ₀-only の band は事故以前に別の理由で壊れている）。
 
 ---
 
