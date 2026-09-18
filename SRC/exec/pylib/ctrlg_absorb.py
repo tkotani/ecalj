@@ -104,8 +104,16 @@ def absorb_pb(ctrlg: Path, sname: str) -> bool:
         sys.exit(f'ctrlg_absorb: {ctrlg.name} has no [product_basis] section; '
                  f'run  ctrlgenToml.py {sname} --addgw  (or gwinit) first')
     if not text.rstrip('\n').split('\n[')[-1].startswith('product_basis]'):
-        sys.exit(f'ctrlg_absorb: [product_basis] is not the last section of {ctrlg.name}; '
-                 f'run  python3 -m pylib.toml_tidy {ctrlg.name}  first')
+        # ctrlg written before 2026-09 ([gw] [product_basis] [mlo] ... order): reorder first
+        from pylib.toml_tidy import tidy_gw_sections
+        new = tidy_gw_sections(text)
+        if tomllib.loads(new) != tomllib.loads(text):
+            sys.exit(f'ctrlg_absorb: internal error, tidy changed the TOML content of {ctrlg.name}')
+        ctrlg.write_text(new)
+        text = new
+        _say(f'{ctrlg.name}: sections reordered so that [product_basis] comes last')
+        if not text.rstrip('\n').split('\n[')[-1].startswith('product_basis]'):
+            sys.exit(f'ctrlg_absorb: could not move [product_basis] to the end of {ctrlg.name}')
     pbtext = pb.read_text()
     blocks = []
     for key in ('nlx', 'valence', 'core'):
