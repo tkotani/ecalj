@@ -129,6 +129,11 @@ SEc の差、valence 帯 state 9〜24、全 k）:
   （iter 2→3 の |ΔSEc| 最大 0.98 eV、>1.5 eV は 0 件）— 6 月の iter 6 型の事故（数十 eV）とは
   別の、もっと穏やかな機構。候補: iter 3 は `mixsigma` の Anderson 外挿が初めて効く反復
   （nmix=3、iter 2 までは線形混合）。6³ でも iter 3 で 7.3 → 10.7 meV の小さな上がり。
+- 20:40 **チェーン停止**（user 判断、iter 4 の途中）。iter 1〜3 の状態（rst, sigm, QPU, EFERMI*,
+  hgw の stdout）は kt1 `n999_dq0.1_T1000K_repro20260918/band/iter1〜3/` に保存。
+  iter 3 の荒れは `band/iter2/` から 1 反復（2 h, GPU 2 枚）で再現できる。6 月 iter 6 型の
+  SEc 数十 eV の事故は現行コードでは未再現（そこまで回していない）— 必要なら `band/iter3/` から
+  ITER0=4 で再開（`run_repro2.sh`）。
 - 18:10 反復ごとの band の履歴図（`plot_band_history.py`、6 月 iter 1〜45 と今日の iter 1〜3、
   O 2p の底 −10〜−4 eV、赤 = band 9〜12、青 = 13〜19）:
 
