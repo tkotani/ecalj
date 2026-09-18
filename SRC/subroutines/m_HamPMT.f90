@@ -16,7 +16,7 @@ module m_HamPMT
    real(8),allocatable,protected,target:: qplist(:,:)
    integer,allocatable,protected:: nlat(:,:,:,:),npair(:,:),ib_table(:),l_table(:),k_table(:),ispec_table(:),nqwgt(:,:,:),m_table(:)
    ! nsemicore: number of semicore local-orbital basis functions in the MTO block
-   ! (k_table=3 with 0<pz<10 and int(pz)<int(pnu)). Printed as a diagnostic only:
+   ! (k_table=3 with shell int(mod(pz,10)) < int(pnu)). Printed as a diagnostic only:
    ! the projector drops nskip_global lowest PMT states, where nskip_global is the
    ! minimum over all k (and spins) of the per-k count of leading non-model states
    ! (weight < 1/2 in the model subspace; Hreduction_nskip). That covers semicore
@@ -81,7 +81,7 @@ contains
               if (k_table(i) /= 3) cycle
               pz  = pzsp (l_table(i)+1, 1, ispec_table(i))
               pnu = pnusp(l_table(i)+1, 1, ispec_table(i))
-              if (pz > 0d0 .and. pz < 10d0 .and. int(pz) < int(pnu)) nsemicore = nsemicore + 1
+              if (pz > 0d0 .and. int(mod(pz,10d0)) < int(pnu)) nsemicore = nsemicore + 1   ! pz=10+n.m: extended-tail form of shell n
            enddo
         endif
         write(stdo,ftox) 'MHAM: semicore local-orbital functions in the MTO block (dropped from the MLO projector) nsemicore=', nsemicore
@@ -183,8 +183,8 @@ contains
           real(8) :: etop(nbas,0:3), etop_all(nbas,0:3), w
           logical :: has_lo(nbas,0:3)
           use_lo = .false.; has_lo = .false.; etop = -1d99
-          ! only SEMICORE local orbitals (0 < pz < 10 and int(pz) < int(pnu)) are
-          ! candidates. An extended LO (pz above the valence shell, e.g. Ru pz=5.5
+          ! only SEMICORE local orbitals (shell int(mod(pz,10)) below the valence
+          ! shell int(pnu); pz = 10+n.m is the extended-tail form) are candidates. An extended LO (pz above the valence shell, e.g. Ru pz=5.5
           ! next to the 4d EH function) is a high-lying tail function, not a band:
           ! with it as the model function RuO2 went 14 -> 254 meV.
           block
@@ -194,7 +194,7 @@ contains
               if (k_table(i)/=3 .or. l_table(i)>3) cycle
               pz  = pzsp (l_table(i)+1, 1, ispec_table(i))
               pnu = pnusp(l_table(i)+1, 1, ispec_table(i))
-              if (pz > 0d0 .and. pz < 10d0 .and. int(pz) < int(pnu)) has_lo(ib_table(i), l_table(i)) = .true.
+              if (pz > 0d0 .and. int(mod(pz,10d0)) < int(pnu)) has_lo(ib_table(i), l_table(i)) = .true.   ! pz=10+n.m: extended-tail form of shell n
             enddo
           endblock
           if (any(has_lo)) then
