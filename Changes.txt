@@ -1,3 +1,8 @@
+2026-09-18 (8)
+  BackUp_notes/mlo_low_cu_20260917.md (mlo_low / 両側窓 / mlo_w / k メッシュの試行記録) を
+  mlo_nskip_cu_problem.md に整理: 折れの正体 (k 依存の nskip) 以降だけを簡潔に。
+  試行の図 6 枚は削除 (git 履歴に残る)。
+
 2026-09-18 (7)
   MLO: nskip で外した帯と残した帯の間にギャップがあることを確認する (m_HamPMT report_nskip_gap)。
     全 k での max E(nskip) と min E(nskip+1) を比べて表示し、重なっていれば abort

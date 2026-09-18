@@ -118,7 +118,7 @@ contains
       ! -- count the lowest states whose weight in the model subspace is < 0.5 -- is
       ! k-dependent: for Cu's d-only model the s band is band 1 at some k and not at
       ! others, and the projector jumped between them (kinks in the MLO bands,
-      ! Samples/MLOsamples/BackUp_notes/mlo_low_cu_20260917.md). Kept as fallback
+      ! Samples/MLOsamples/BackUp_notes/mlo_nskip_cu_problem.md). Kept as fallback
       ! when the caller cannot supply the count.
       epscore=0.5d0
       if (present(nskip_auto)) then
@@ -177,7 +177,7 @@ contains
          wfrz  = tg_mlo_wfrz /rydberg()
          down  = tg_mlo_down /rydberg()
          ! Two hidden cuts were tried here on 2026-09-17 and left commented out
-         ! (Samples/MLOsamples/BackUp_notes/mlo_low_cu_20260917.md):
+         ! (Samples/MLOsamples/BackUp_notes/mlo_nskip_cu_problem.md):
          !  - lower cut  theta_j *= sigma((EF+mlo_low - eps)/mlo_wlow)  -- Cu d model: 98 -> 97 meV, no help
          !  - character cut theta *= sigma((p_i - mlo_pcut)/mlo_pw), p_i = sum_j |<Psi_PMT_i|Psi_MTO_j>|^2 -- not tried
          !charcut = tg_mlo_pcut /= huge(0d0)
