@@ -25,8 +25,9 @@
   [manual/mlo](https://ecalj.github.io/ecaljdoc/manual/mlo) に理論・損失関数・走査結果。
 - `mlo_lm` で lm チャネルを原子ごとに指定（`5 6 8` で t2g だけ、など）。
   旧 Worb は殻全体しか選べていなかったバグを修正。
-- `Samples/MLOsamples/` 18 系（Si, GaAs, C, Cu, Fe, NiO, SrTiO3, Al2O3:Cr, GdCo5, RuO2, SmP, FeMgO …）
-  すべて method 4 で参照を更新、`testecalj` で回帰チェック。
+- `Samples/MLOsamples/` 25 系（Si, GaAs, C, Cu, Fe, NiO, SrTiO3, Al2O3:Cr, GdCo5, RuO2, SmP, FeMgO …、
+  Materials Project から既定のまま回した Ag, Al, NaCl, SiC, CdTe, ZnO, TiO2）すべて method 4 で
+  `testecalj` の回帰チェック。全系のフィッティング図は [manual/mlo](https://ecalj.github.io/ecaljdoc/manual/mlo)。
 - FeMgO スラブは空格子球 + ESM（`[esm]` セクション）の 76 軌道モデルを標準に。
 
 ## 3. 有限温度 QSGW（試験的）
@@ -49,6 +50,14 @@
 - PROCAR の k 点順序（np ≥ 11 で rank 接尾辞の数値ソート）。
 - `m_sxcf_sc` の実軸極ビニングの範囲外アクセス。`readbandedge` の黙った fallback。
 - heftet が絶縁体で `EFERMI_kbt` を書かず、有限温度モードの絶縁体が落ちていた。
+- MLO の `nskip`（射影子から外す半芯状態の数）を k ごとに決めていたため、Cu の d 模型のように
+  最下位が s 帯になる k とならない k で射影子が入れ替わり、バンドに折れが出ていた。
+  全 k での最小値に固定し、外した帯と残した帯の間にギャップが無ければ止まる。
+- `lmf` が前の run の混合履歴 `__mixm.<sname>` を引き継いでいた。非磁性に収束した run の履歴を
+  継ぐと Broyden の 1 歩目で非磁性解へ落ちる（Fe 2.13 → 0.02 μB）。起動時に捨てるようにした
+  （`--keepmixm` で従来どおり）。
+- Zn 3d のような浅い半芯 LO（`pz`）を `mlo_lm` の模型関数に使えず（常に EH 関数だった）、
+  ZnO の MLO が 476 meV 外れていた。LO の帯が E_F−10 eV より上なら LO を使う。
 
 ## 6. サンプルとテスト
 
