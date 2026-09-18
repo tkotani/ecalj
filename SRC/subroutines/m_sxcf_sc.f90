@@ -95,7 +95,7 @@ module m_sxcf_sc
   use m_nvfortran, only: findloc
   use m_hamindex, only: ngrp
   use m_blas, only: m_op_c, m_op_n, m_op_t
-use m_cmdopt_registry, only: c0_debug, c0_WVR2ptRaxis, c0_skipq0Sc
+use m_cmdopt_registry, only: c0_debug, c0_WVR2ptRaxis, c0_skipq0Sc, c0_skipRaxisSc
 #if defined(__MP) && defined(__GPU)
   use m_blas, only: gemm => cmm_d
 #elif defined(__MP)
@@ -583,6 +583,7 @@ contains
                   attributes(device) :: wz_iw, czwc_iw
 #endif
                   nttp = 0
+                  if (c0_skipRaxisSc) goto 1113 ! --skipRaxisSc (diagnostic): no real-axis pole term
                   itploop: do itp = 1, sxs_ntqxx
                     omg   = sxs_omega(itp)
                     itini = merge(max(ns1,sxs_nt0m+1),  ns1, mask= omg>=ef)
