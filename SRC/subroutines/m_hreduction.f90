@@ -9,7 +9,7 @@ contains
   !  number of states at every k. Deciding it per k (the rule until 2026-09-18)
   !  flipped between 0 and 1 across k for Cu's d-only model, where the s band is
   !  band 1 at some k and not at others, and put kinks into the MLO bands.
-  subroutine Hreduction_nskip(ndimPMT,hamm,ovlm,ndimMTO,ix, nskipin)
+  subroutine Hreduction_nskip(ndimPMT,hamm,ovlm,ndimMTO,ix, nskipin, evlout)
     use m_zhev,only:zhev_tk4
     use m_nvfortran, only: findloc
     use m_lmfinit,only:oveps
@@ -17,6 +17,7 @@ contains
     integer,intent(in):: ndimPMT,ndimMTO,ix(ndimMTO)
     complex(8),intent(in):: hamm(ndimPMT,ndimPMT),ovlm(ndimPMT,ndimPMT)
     integer,intent(out):: nskipin
+    real(8),intent(out),optional:: evlout(:)   ! the lowest size(evlout) PMT eigenvalues (for the gap check)
     integer:: i,j,nev,nmx
     real(8):: evlmto(ndimMTO),evl(ndimPMT),wsum(ndimPMT)
     complex(8):: evecmto(ndimMTO,ndimMTO),evecpmt(ndimPMT,ndimPMT),ovlmx(ndimPMT,ndimPMT),hammx(ndimPMT,ndimPMT)
@@ -35,6 +36,10 @@ contains
     enddo
     nskipin = findloc(wsum(1:nev) > epscore, value=.true., dim=1) - 1
     if (nskipin < 0) nskipin = nev
+    if (present(evlout)) then
+       evlout = 1d99
+       evlout(1:min(size(evlout),nev)) = evl(1:min(size(evlout),nev))
+    endif
   end subroutine Hreduction_nskip
 
   subroutine Hreduction(mlomethod,iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,ovlmout, qp, cmlo,nev, zMLO, nskip_auto) !> Reduce H(ndimPMT) to H(ndimMTO)

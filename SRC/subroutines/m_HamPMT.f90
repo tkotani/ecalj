@@ -339,19 +339,22 @@ contains
           i = openm(newunit=ifizz, file='__cmlo.data',recl=mrecbb)
           NskipPrepassGW: block ! nskip_global = min over all (iq,isp) of the per-k non-model count
             use mpi
+            integer, parameter :: nbchk = 40
             integer:: nsk, nskmin, ierr
-            nskmin = huge(0)
+            real(8):: ev(nbchk), etop(nbchk), ebot(nbchk), etop_all(nbchk), ebot_all(nbchk)
+            nskmin = huge(0); etop = -1d99; ebot = 1d99
             do iq = 1, nqirr; do isp = 1, nspx
               iqqisp = isp + nspx*(iq-1)
               if(mod(iqqisp-1, nsize) /= procid) cycle
               istat = readm_buf(ifihh, rec=iqqisp, buf=buf)
               call buf_get(buf, ndimPMT); call buf_get(buf, ovlmp); call buf_get(buf, hammp)
-              call Hreduction_nskip(ndimPMT,hammp(1:ndimPMT,1:ndimPMT),ovlmp(1:ndimPMT,1:ndimPMT),ndimMTO,ix, nsk)
-              nskmin = min(nskmin, nsk)
+              call Hreduction_nskip(ndimPMT,hammp(1:ndimPMT,1:ndimPMT),ovlmp(1:ndimPMT,1:ndimPMT),ndimMTO,ix, nsk, ev)
+              nskmin = min(nskmin, nsk); etop = max(etop, ev); ebot = min(ebot, ev)
             enddo; enddo
             call MPI_Allreduce(nskmin, nskip_global, 1, MPI_INTEGER, MPI_MIN, MPI_COMM_WORLD, ierr)
-            if(master_mpi) write(stdo,ftox) ' m_HamPMT: nskip (min over k of leading non-model PMT states) =', nskip_global, &
-                 '  [semicore LO functions in the basis:', nsemicore,']'
+            call MPI_Allreduce(etop, etop_all, nbchk, MPI_DOUBLE_PRECISION, MPI_MAX, MPI_COMM_WORLD, ierr)
+            call MPI_Allreduce(ebot, ebot_all, nbchk, MPI_DOUBLE_PRECISION, MPI_MIN, MPI_COMM_WORLD, ierr)
+            if(master_mpi) call report_nskip_gap(nskip_global, nsemicore, nbchk, etop_all, ebot_all)
           endblock NskipPrepassGW
           iqibzloops: do iq = 1, nqirr; do isp=1, nspx
             iqqisp= isp + nspx*(iq-1)
@@ -411,21 +414,24 @@ contains
         endif
         NskipPrepass: block ! nskip_global = min over all (iq,isp) of the per-k non-model count
           use mpi
+          integer, parameter :: nbchk = 40
           integer:: nsk, nskmin, ierr
-          nskmin = huge(0)
+          real(8):: ev(nbchk), etop(nbchk), ebot(nbchk), etop_all(nbchk), ebot_all(nbchk)
+          nskmin = huge(0); etop = -1d99; ebot = 1d99
           do iqxx=1,nqibz
             if(mod(iqxx-1, nsize) /= procid) cycle
             do jspxx=1,nspx
               iqqisp= jspxx + nspx*(iqxx-1)
               istat = readm_buf(ifih, rec=iqqisp, buf=buf)
               call buf_get(buf, qp); call buf_get(buf, ndimPMT); call buf_get(buf, ovlmp); call buf_get(buf, hammp)
-              call Hreduction_nskip(ndimPMT,hammp(1:ndimPMT,1:ndimPMT),ovlmp(1:ndimPMT,1:ndimPMT),ndimMTO,ix, nsk)
-              nskmin = min(nskmin, nsk)
+              call Hreduction_nskip(ndimPMT,hammp(1:ndimPMT,1:ndimPMT),ovlmp(1:ndimPMT,1:ndimPMT),ndimMTO,ix, nsk, ev)
+              nskmin = min(nskmin, nsk); etop = max(etop, ev); ebot = min(ebot, ev)
             enddo
           enddo
           call MPI_Allreduce(nskmin, nskip_global, 1, MPI_INTEGER, MPI_MIN, MPI_COMM_WORLD, ierr)
-          if(master_mpi) write(stdo,ftox) ' m_HamPMT: nskip (min over k of leading non-model PMT states) =', nskip_global, &
-               '  [semicore LO functions in the basis:', nsemicore,']'
+          call MPI_Allreduce(etop, etop_all, nbchk, MPI_DOUBLE_PRECISION, MPI_MAX, MPI_COMM_WORLD, ierr)
+          call MPI_Allreduce(ebot, ebot_all, nbchk, MPI_DOUBLE_PRECISION, MPI_MIN, MPI_COMM_WORLD, ierr)
+          if(master_mpi) call report_nskip_gap(nskip_global, nsemicore, nbchk, etop_all, ebot_all)
         endblock NskipPrepass
         iqiloop: do iqxx=1,nqibz !nqibz !xx=1,nqibz !iqini,iqend !iqxx=1,nqibz 
            if(debug)write(6,*)' start iqiloop=',iqxx,nqibz
@@ -594,6 +600,37 @@ contains
         write(stdo,*)" Wrote HamRsMLO file! End of lmfham1"
       endif
    end subroutine HamPMTtoHamRsMLO
+
+   !> Print what nskip removes and check that an energy gap separates the dropped
+   !  bands from the kept ones at every k: max_k E(nskip) < min_k E(nskip+1).
+   !  The dropped states are meant to be semicore (and deep s) bands; if the
+   !  highest dropped band overlaps the lowest kept band somewhere in the zone,
+   !  the cut runs through a band and the model loses part of it -> abort.
+   subroutine report_nskip_gap(nskip, nsemicore, nb, etop, ebot)
+     use m_readqplist, only: eferm
+     integer, intent(in) :: nskip, nsemicore, nb
+     real(8), intent(in) :: etop(nb), ebot(nb)   ! max_k / min_k of PMT eigenvalue n, n=1..nb
+     real(8), parameter :: ry = 13.605d0
+     real(8) :: gap
+     write(stdo,ftox) ' m_HamPMT: nskip (min over k of leading non-model PMT states) =', nskip, &
+          '  [semicore LO functions in the basis:', nsemicore,']'
+     if (nskip <= 0) then
+        write(stdo,ftox) ' m_HamPMT: nothing dropped from the projector; lowest kept band bottom', &
+             ftof((ebot(1)-eferm)*ry), 'eV (rel. EF)'
+        return
+     endif
+     if (nskip+1 > nb) then
+        write(stdo,ftox) ' m_HamPMT: nskip exceeds the', nb, 'bands kept for the gap check; no gap check'
+        return
+     endif
+     gap = ebot(nskip+1) - etop(nskip)
+     write(stdo,ftox) ' m_HamPMT: dropped bands 1..', nskip, ': top', ftof((etop(nskip)-eferm)*ry), &
+          'eV; kept band', nskip+1, ': bottom', ftof((ebot(nskip+1)-eferm)*ry), 'eV; gap', ftof(gap*ry), 'eV (rel. EF)'
+     if (gap <= 0d0) call rx('m_HamPMT: the bands dropped from the MLO projector (1..nskip) overlap the kept ones'// &
+          ' in energy (gap '//trim(ftof(gap*ry))//' eV): the cut runs through a band. Check mlo_lm and the'// &
+          ' semicore treatment (pz) of the model atoms.')
+     if (gap*ry < 1d0) write(stdo,ftox) ' m_HamPMT: NOTE the gap between dropped and kept bands is only', ftof(gap*ry), 'eV'
+   end subroutine report_nskip_gap
 
    subroutine so3_to_su2(R3, D) !Convert SO(3) rotation matrix to SU(2) for spinor rotation.
       !Improper part (inversion) does not act on spin; take its proper part.
