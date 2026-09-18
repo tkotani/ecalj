@@ -369,7 +369,7 @@ contains
     integer :: icount, ns1, ns2, kr, nwxi, ns2r, nwx, izz, n_nttp, tri_idx
     integer :: irot, ip, isp
     real(8) :: q(3), qibz_k(3), qbz_kr(3), qk(3)
-    logical :: debug
+    logical :: debug, skipthis
     real(8), parameter :: ddw = 10d0
     integer, allocatable :: idx_i(:), idx_j(:)
     character(64) :: charli
@@ -443,8 +443,25 @@ contains
     izz = 0
     ! --skipq0Sc (diagnostic): leave out the Gamma-cell W (kx=1, whose head comes from the offset-Gamma
     ! chi0) from Sigma_c.  Everything else (WV open/close, exchange) is untouched.
-    if (c0_skipq0Sc .and. kx == 1) then
-      if (ipr) write(stdo,ftox) ' --skipq0Sc: Sigma_c contribution of kx=1 (Gamma cell) skipped'
+    SkipKxSc: block ! diagnostic: ECALJ_SKIPKXSC="2 5" leaves those kx (W q-points) out of Sigma_c
+      integer, save :: nskipkx = -1, skipkx(64)
+      character(256) :: env
+      integer :: elen, estat, k
+      if (nskipkx < 0) then
+        nskipkx = 0
+        call get_environment_variable('ECALJ_SKIPKXSC', env, elen, estat)
+        if (estat == 0 .and. elen > 0) then
+          do k = 1, 64
+            read(env, *, iostat=estat) skipkx(1:k)
+            if (estat /= 0) exit
+            nskipkx = k
+          enddo
+        endif
+      endif
+      skipthis = (c0_skipq0Sc .and. kx == 1) .or. any(skipkx(1:nskipkx) == kx)
+    end block SkipKxSc
+    if (skipthis) then
+      if (ipr) write(stdo,ftox) ' skipSc: Sigma_c contribution of kx=',kx,' skipped (--skipq0Sc / ECALJ_SKIPKXSC)'
     else
     irotloop:            do irot = 1, ngrp    ! (kx,irot) determines qbz(:,kr), which is in FBZ. W(kx) is rotated to be W(g(kx))
       iploopexternal:    do ip   = 1, nqibz   !external index for q of \Sigma(q,isp)
@@ -683,26 +700,6 @@ contains
                 !$acc host_data use_device(zmel, zsec)
                 ierr = gemm(czmelwc, zmel, zsec, sxs_ntqxx, sxs_ntqxx, nbb*(ns2-ns1+1), opA = m_op_C, beta = CONE, ldC = ntq)
                 !$acc end host_data
-                TraceSc: block ! diagnostic: ECALJ_TRACESC="ip i j" prints the running <i|Sc|j>, <j|Sc|i> (eV) per (kx,irot,icount)
-                  real(8), parameter :: hartree_ev = 27.211386d0
-                  integer, save :: tr_ip = -1, tr_i, tr_j
-                  logical, save :: tr_init = .false.
-                  character(64) :: tr_env
-                  integer :: tr_len, tr_stat
-                  if (.not. tr_init) then
-                    tr_init = .true.
-                    call get_environment_variable('ECALJ_TRACESC', tr_env, tr_len, tr_stat)
-                    if (tr_stat == 0 .and. tr_len > 0) read(tr_env, *, iostat=tr_stat) tr_ip, tr_i, tr_j
-                    if (tr_stat /= 0) tr_ip = -1
-                  endif
-                  if (tr_ip == ip .and. isp == 1 .and. tr_i <= sxs_ntqxx .and. tr_j <= sxs_ntqxx) then
-                    !$acc update host(zsecall(tr_i:tr_i,tr_j:tr_j,ip,isp), zsecall(tr_j:tr_j,tr_i:tr_i,ip,isp))
-                    write(stdo,"(' traceSc kx=',i3,' irot=',i3,' ip=',i3,' icount=',i5,' ns1 ns2=',2i4,' q=',3f8.4,' <i|Sc|j>=',2f10.4,' <j|Sc|i>=',2f10.4,' eV')") &
-                         kx, irot, ip, icount, ns1, ns2, qibz(:,kx), &
-                         real(zsecall(tr_i,tr_j,ip,isp))*hartree_ev, aimag(zsecall(tr_i,tr_j,ip,isp))*hartree_ev, &
-                         real(zsecall(tr_j,tr_i,ip,isp))*hartree_ev, aimag(zsecall(tr_j,tr_i,ip,isp))*hartree_ev
-                  endif
-                end block TraceSc
                 !$acc kernels loop independent
                 do itp = 1, sxs_ntqxx
                   ! zsec(itp,itp) = real(zsec(itp,itp),kind=kp)+img*min(-real((img*zsec(itp,itp)),kind=kp),0_kp) !enforce Imzsec<0 !does not work in intel
