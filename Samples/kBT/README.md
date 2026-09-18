@@ -136,6 +136,8 @@ kt1 側にあってここに持ってきていないもの:
 
 ## 4. これから詰めるべき課題
 
+研究ログ（日付順、試したこと・数字・仮説）は [kBT_research.md](kBT_research.md)。
+
 一覧は [ecaljdoc: kBT §9](https://ecalj.github.io/ecaljdoc/manual/kBT#9-これから詰めるべき課題-2026-09-17)。
 要点だけ:
 
