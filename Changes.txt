@@ -1,3 +1,21 @@
+2026-09-18 (5)
+  MP の Fe/Ni が非磁性に落ちた真因: **古い混合履歴 __mixm.<sname> の継承**。B3, b=0.2 は無実。
+    b の走査 (0.05〜0.5) で 0.2 だけ潰れたのは、その 1 本だけ古い __mixm (非磁性に収束した
+    前の run のもの) を消し忘れたディレクトリで回したため。__mixm を消せば B3/0.2 で 2.24 μB。
+    非磁性の履歴で Broyden の最初の更新を作ると非磁性の不動点 (これも自己無撞着解) へ飛ぶ。
+    修正:
+    - m_lmfp: rst が無く原子密度から始めるときは __mixm.<sname> を捨てて NOTE を出す
+      (新しい密度の軌道に古い履歴を継がせない)。
+    - mixrho/packdensity: __mixm のレコード長が今の nda*nsp と違えば無視 (setup 変更の保険)。
+    - ctrlgenToml.py: 内部の lmf 実行が残す __mixm.<ext> を消す。(3) の A3 化は撤回して
+      B3, b=0.2 (2024-09-22 以来の既定) に戻した。[iter] の説明は「setup を変えたら __mixm を
+      消す」に。
+    履歴: 2010-11-13 から 2024-09-22 までの既定は Anderson (A5, b=0.2)、f2cd9880b で
+    B4 ("probably better")、0cb6621ac で B3。b=0.2 は 2010 年から不変。
+    検証: 古い __mixm を置いた状態で lmf を起動 → NOTE を出して捨て、2.2412 μB (16 反復)。
+    testecalj --all 25/25 (766)、MLOsamples 18/18。
+  ecaljdoc lmf.md の「磁性は A3」の段落を書き直し。
+
 2026-09-18 (4)
   MLO の模型関数の選択: 浅い半芯 LO は LO を模型関数にする (m_HamPMT ShallowLO)。
     mlo_lm で指定した (atom,l) に半芯 LO (0<pz<10, int(pz)<int(pnu)) があるとき、模型選択の前に
@@ -15,12 +33,9 @@
     注意: 事前対角化で zhev_tk4 に (nbandmx,nbandmx) 配列をそのまま渡すと列がずれる
     (dummy は explicit-shape)。(1:ndimPMT,1:ndimPMT) の部分配列で渡すこと。
 
-2026-09-18 (3)
-  ctrlgenToml.py の既定 mix="B3", b=0.2 は磁性系で初期モーメントを 1 反復目で潰す
-  (MP の Fe: 2.13 → 0.02 μB、Ni も 0)。Anderson A3 (b=0.3) か B3 でも b=0.5 なら 2.24 μB。
-    --nspin=2 のときは mix="A3", b=0.3 を書く。非磁性既定 B3 の行末と [iter] の説明
-    (toml_comments) に「磁性なら A3」を明記 (手で nspin=2 に変える人向け)。
-    修正後 MP の Fe 2.24 μB / Ni 0.66 μB、MLO 両スピン 17〜20 meV。
+2026-09-18 (3)  [誤診。(5) で訂正・撤回]
+  ctrlgenToml.py の既定 mix="B3", b=0.2 が磁性を潰すと判断し --nspin=2 で A3 を書くようにした
+  が、真因は古い __mixm (混合履歴) だった。(5) で B3, b=0.2 に戻した。
 
 2026-09-18 (2)
   Materials Project の 10 結晶 (Ag Al MgO NaCl SiC GaAs CdTe ZnO TiO2 Ni) で MLO の既定を

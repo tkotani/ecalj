@@ -89,6 +89,23 @@ contains
        call rdovfa()  ! Initial potential from atm file (lmfa) if rst can not read
        nit1 = 0
        iatom=.true.
+       ! A fresh start from the free-atom density must not inherit the mixing
+       ! history of an earlier trajectory (__mixm): with the history of a run
+       ! that had converged to the non-magnetic state, Broyden's first step took
+       ! Fe from 2.13 to 0.02 muB and stayed there (2026-09-18).
+       FreshStartNoHistory: block
+         integer :: ifmx, ios
+         logical :: lex
+         if (master_mpi) then
+            inquire(file='__mixm.'//trim(sname), exist=lex)
+            if (lex) then
+               open(newunit=ifmx, file='__mixm.'//trim(sname), status='old', iostat=ios)
+               if (ios == 0) close(ifmx, status='delete')
+               write(stdo,'(a)') ' lmf: NOTE starting from the atomic density; the old mixing history __mixm.'// &
+                    trim(sname)//' is discarded.'
+            endif
+         endif
+       endblock FreshStartNoHistory
     else
        iatom=.false.
     endif

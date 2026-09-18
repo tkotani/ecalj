@@ -650,15 +650,8 @@ def main():
 
     # [iter]
     out.append('[iter]')
-    # Broyden with b=0.2 from a spin-polarized atom start can wipe the moment out
-    # at the first step (MP Fe: 2.13 -> 0.02 muB at iteration 2; Ni likewise),
-    # while Anderson keeps it (Fe 2.24 muB). Magnetic runs get Anderson.
-    if opts['nspin'] == '2':
-        out.append('mix   = "A3"   # Anderson: Broyden B3 with b=0.2 can collapse the moment at the first step')
-        out.append('b     = 0.3')
-    else:
-        out.append('mix   = "B3"   # magnetic systems: use "A3" (Broyden can collapse the moment; see comment above)')
-        out.append('b     = 0.2')
+    out.append('mix   = "B3"')
+    out.append('b     = 0.2')
     out.append('umix  = 0.2')
     out.append('nit   = 80')
     out.append('conv  = 1.0e-5')
@@ -741,6 +734,13 @@ def _run_gw_append(ext, out_path):
     rc = subprocess.run(['mpirun', '-np', '1', str(here / 'gwinit'), ext]).returncode
     if rc != 0:
         sys.exit(f'ctrlgenToml: gwinit failed (rc={rc})')
+    # The internal lmfa/lmf runs above leave a mixing history (__mixm.<ext>) and a
+    # density (rst.<ext>) for the settings as generated. A user who then changes
+    # nspin/xcfun/... and runs lmf would continue from them; lmf now ignores a
+    # __mixm of another setup, but the cleanest start is none at all.
+    for junk in (f'__mixm.{ext}', f'mixm.{ext}'):
+        try: os.unlink(junk)
+        except OSError: pass
     # Re-apply annotations (gwinit appended raw [gw]/[mlo]/[blocks]/[product_basis]
     # that need the section headers from toml_comments) and tidy the layout.
     txt = open(out_path).read()

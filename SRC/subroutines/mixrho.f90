@@ -437,6 +437,16 @@ contains
          readerror = .true.
          read (ifi,err=311,end=311) nmixr, na
          readerror = .false.
+         ! A mixing history belongs to one density trajectory. A __mixm left by a
+         ! run with another setup (ctrlgenToml's internal nspin=1 lmf, then the
+         ! user sets nspin=2: 2026-09-18, MP Fe collapsed 2.13 -> 0.02 muB at the
+         ! first Broyden step) must not be used. The record length tells.
+         if (na /= nda*nsp) then
+            write(stdo,ftox) ' mixrho: NOTE '//trim(fnam)//' is from a different setup (record', na, &
+                 ' vs', nda*nsp, 'now); mixing history ignored, starting afresh.'
+            nmixr = 0
+            goto 312
+         endif
          do j = 1,  min(mxsav,nmixr)
             read(ifi,end=90,err=90) a(1:nda,1:nsp,j+1,1) 
             read(ifi,end=90,err=90) a(1:nda,1:nsp,j+1,2)
