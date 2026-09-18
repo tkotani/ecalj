@@ -95,7 +95,7 @@ module m_sxcf_sc
   use m_nvfortran, only: findloc
   use m_hamindex, only: ngrp
   use m_blas, only: m_op_c, m_op_n, m_op_t
-use m_cmdopt_registry, only: c0_debug, c0_WVR2ptRaxis
+use m_cmdopt_registry, only: c0_debug, c0_WVR2ptRaxis, c0_skipq0Sc
 #if defined(__MP) && defined(__GPU)
   use m_blas, only: gemm => cmm_d
 #elif defined(__MP)
@@ -441,6 +441,11 @@ contains
       !end subroutine setwv
     end block SetWVblock
     izz = 0
+    ! --skipq0Sc (diagnostic): leave out the Gamma-cell W (kx=1, whose head comes from the offset-Gamma
+    ! chi0) from Sigma_c.  Everything else (WV open/close, exchange) is untouched.
+    if (c0_skipq0Sc .and. kx == 1) then
+      if (ipr) write(stdo,ftox) ' --skipq0Sc: Sigma_c contribution of kx=1 (Gamma cell) skipped'
+    else
     irotloop:            do irot = 1, ngrp    ! (kx,irot) determines qbz(:,kr), which is in FBZ. W(kx) is rotated to be W(g(kx))
       iploopexternal:    do ip   = 1, nqibz   !external index for q of \Sigma(q,isp)
         isploopexternal: do isp  = 1, nspinmx !external index
@@ -704,6 +709,7 @@ contains
         enddo isploopexternal
       enddo iploopexternal
     enddo irotloop
+    endif ! --skipq0Sc
     ReleaseWV: block !subroutine releasewv()
       if (any(kx == kxc(:))) then
         ! wvi/wvr_upper: device allocatable → deallocate frees GPU memory directly
