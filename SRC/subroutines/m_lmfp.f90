@@ -79,6 +79,26 @@ contains
     endif
     call Mpi_barrier(comm,ierr)
     call Mpibc1_real(vs,1,'lmv7: vs: version id of rst file')
+    ! The mixing history __mixm.<sname> of a previous lmf run is discarded at
+    ! start (2026-09-18). Continuing it never bought anything in practice, and
+    ! a history from a run that ended elsewhere (non-magnetic, other sigm, other
+    ! setup) can drag the new run there: Fe went 2.13 -> 0.02 muB at the first
+    ! Broyden step from the history of a collapsed run. --keepmixm (hidden)
+    ! keeps it.
+    DiscardMixingHistory: block
+      use m_cmdopt_registry, only: c0_keepmixm
+      integer :: ifmx, ios
+      logical :: lex
+      if (master_mpi .and. .not. c0_keepmixm) then
+         inquire(file='__mixm.'//trim(sname), exist=lex)
+         if (lex) then
+            open(newunit=ifmx, file='__mixm.'//trim(sname), status='old', iostat=ios)
+            if (ios == 0) close(ifmx, status='delete')
+            write(stdo,'(a)') ' lmf: mixing history __mixm.'//trim(sname)//' of the previous run discarded (--keepmixm keeps it)'
+         endif
+      endif
+    endblock DiscardMixingHistory
+    call Mpi_barrier(comm,ierr)
     k=-1 !try to read rst files containing density
     if(vs==2d0) k = iors(nit1,'read') ! read rst file.
     if(vs/=2d0) call rx('m_lmfp: rst.'//trim(sname)//' has unsupported version id (vs/=2.0). '// &
@@ -89,23 +109,6 @@ contains
        call rdovfa()  ! Initial potential from atm file (lmfa) if rst can not read
        nit1 = 0
        iatom=.true.
-       ! A fresh start from the free-atom density must not inherit the mixing
-       ! history of an earlier trajectory (__mixm): with the history of a run
-       ! that had converged to the non-magnetic state, Broyden's first step took
-       ! Fe from 2.13 to 0.02 muB and stayed there (2026-09-18).
-       FreshStartNoHistory: block
-         integer :: ifmx, ios
-         logical :: lex
-         if (master_mpi) then
-            inquire(file='__mixm.'//trim(sname), exist=lex)
-            if (lex) then
-               open(newunit=ifmx, file='__mixm.'//trim(sname), status='old', iostat=ios)
-               if (ios == 0) close(ifmx, status='delete')
-               write(stdo,'(a)') ' lmf: NOTE starting from the atomic density; the old mixing history __mixm.'// &
-                    trim(sname)//' is discarded.'
-            endif
-         endif
-       endblock FreshStartNoHistory
     else
        iatom=.false.
     endif

@@ -19,8 +19,8 @@ def test(args,bindir,testdir,workdir):
         runprogs([
                  lmfa+" crn > "+out1 ,
                  lmf+ " crn >>"+out1,
-                 lmf+ " --ctrlg:iter.nit=1 --ctrlg:bz.metal=2 crn >>"+out1,
-                 lmf+ " --cls crn >>"+out1
+                 lmf+ " --keepmixm --ctrlg:iter.nit=1 --ctrlg:bz.metal=2 crn >>"+out1,   # continues the (unconverged) SCF above: keep its mixing history
+                 lmf+ " --keepmixm --cls crn >>"+out1
         ])
         tall+=test2_check(testdir+'/'+out2, workdir+'/'+out2)
         return tall
