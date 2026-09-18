@@ -123,8 +123,11 @@ SEc の差、valence 帯 state 9〜24、全 k）:
 - 18:00 iter 2 完了（8880 s、前半は 6³ と GPU 共有）。これも 6 月と一致: 荒れ 8.9 / 10.8 meV
   （6 月 8.9 / 10.8）、SEc 最大差 9 meV・平均 0.2 meV、ehf −109754.052 eV（6 月 −109754.052）。
   iter 1→2 の SEc ジャンプ無し（max 0.83 eV）。次の iter 3 で 6 月は 29 meV に荒れた。
-- 18:10 反復ごとの band の履歴図 `LiTi2O4/plots/bands_history_999_T1000.png`
-  （`plot_band_history.py`、6 月 iter 1〜45 と今日の iter 1, 2、O 2p の底 −10〜−4 eV）。
+- 18:10 反復ごとの band の履歴図（`plot_band_history.py`、6 月 iter 1〜45 と今日の iter 1, 2、
+  O 2p の底 −10〜−4 eV、赤 = band 9〜12、青 = 13〜19）:
+
+  ![O 2p bands per iteration, 9^3 1000 K](LiTi2O4/plots/bands_history_999_T1000.png)
+
   iter 1, 2 は滑らか、**iter 3 で全 k 路に細かい波が乗り**（Γ だけではない）、iter 17〜18 で
   band 9 の Γ に鋭い落ち込み（−8.4 → −9.8 eV の針）が出て iter 45 まで残る。
 
