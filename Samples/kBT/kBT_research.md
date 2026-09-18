@@ -123,7 +123,13 @@ SEc の差、valence 帯 state 9〜24、全 k）:
 - 18:00 iter 2 完了（8880 s、前半は 6³ と GPU 共有）。これも 6 月と一致: 荒れ 8.9 / 10.8 meV
   （6 月 8.9 / 10.8）、SEc 最大差 9 meV・平均 0.2 meV、ehf −109754.052 eV（6 月 −109754.052）。
   iter 1→2 の SEc ジャンプ無し（max 0.83 eV）。次の iter 3 で 6 月は 29 meV に荒れた。
-- 18:10 反復ごとの band の履歴図（`plot_band_history.py`、6 月 iter 1〜45 と今日の iter 1, 2、
+- 20:15 **iter 3 で荒れが再現**: 荒れ指標 25.4 / 32.4 meV（6 月 28.7 / 37.5）、band 10〜12 に
+  6 月と同じ細かい波。ここから 6 月とのずれが出始める（SEc 最大差 0.19 eV、ehf −109760.160
+  対 −109760.773 eV）が定性的には同じ軌道。**iter 3 の荒れは SEc の飛びではない**
+  （iter 2→3 の |ΔSEc| 最大 0.98 eV、>1.5 eV は 0 件）— 6 月の iter 6 型の事故（数十 eV）とは
+  別の、もっと穏やかな機構。候補: iter 3 は `mixsigma` の Anderson 外挿が初めて効く反復
+  （nmix=3、iter 2 までは線形混合）。6³ でも iter 3 で 7.3 → 10.7 meV の小さな上がり。
+- 18:10 反復ごとの band の履歴図（`plot_band_history.py`、6 月 iter 1〜45 と今日の iter 1〜3、
   O 2p の底 −10〜−4 eV、赤 = band 9〜12、青 = 13〜19）:
 
   ![O 2p bands per iteration, 9^3 1000 K](LiTi2O4/plots/bands_history_999_T1000.png)
