@@ -408,9 +408,6 @@ logical function tetra_hsfp0()
   !                            ! Note that you have to supply EFERMI by the tetrahedon method.
   tetra_hsfp0=.false.
 end function tetra_hsfp0
-real(8) function wgtq0p() !essentially dummy
-  wgtq0p=0.01d0
-END function wgtq0p
 real(8) function escale()
   use m_keyvalue,only: getkeyvalue   !c--- used q0pchoice<0 mode -------
   use m_GWinput, only: gwinput_init, gwinput_loaded, tg_q0scale => q0scale

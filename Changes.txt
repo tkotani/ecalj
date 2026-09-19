@@ -1,3 +1,17 @@
+2026-09-19 (2)
+  コード整理 (wcsmear 周り):
+  - m_sxcf_sc: 実軸極項の重み生成を pole_weights (1 ルーチン; 従来の 3 点 Lagrange / 2 点線形と
+    wcsmear の核積分を一本化) にまとめ、「数える 1 周目 / 詰める 2 周目」を同じループで回す。
+    診断コード (--skipq0Sc / --skipRaxisSc / ECALJ_SKIPKXSC) の見え消しは削除 (使い方は
+    Samples/kBT/kBT_research.md に記録)。
+  - wfacx.f90: wfacx2 / wfacx / weavx2 の Gaussian・FD の式を wcdf 経由に一本化。
+  - dpsion5: SmearX0 の GaussianFilter ブロック 3 箇所を smearx0_apply に統合 (GPU 版
+    dpsion_chiq_d の device 常駐版はそのまま)。f-sum 診断の print と古いデバッグ出力を削除。
+  - q0irre.f90: 呼び手の無い setq0_2 とその補助関数群 (aufcc, auxfun*, getnvaln, atomform0,
+    setq0x_notused) を削除 (987 → 312 行)。switch.f90 の wgtq0p() ダミーと各所の未使用宣言を削除。
+  - 検証: Si 一発 (wcsmear=true) が整理前と 0.00000 eV 一致。回帰 (gfortran, wcsmear=false):
+    si_gwsc, gas_epsPP_lmfh, fe_gwsc, si_gw_lmfh, nio_gwsc, gas_gwsc, na 全 PASSED。
+
 2026-09-19 (1)
   [gw] の smearing 系キーを整理 (Samples/kBT/kBT_research.md の 2026-09-18〜19 の調査を受けて)。
   - 論理キー tetrakbt を廃止し t_tetrakbt (K) に一本化。既定 300 → 0 (= off)。t_sigmakbt と同じ

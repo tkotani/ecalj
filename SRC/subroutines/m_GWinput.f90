@@ -41,7 +41,6 @@
 !    <QPNT> <QforEPSL> <hrotr> -> [blocks]  NAME = """<raw lines verbatim>"""
 !
 !    renamed / retired on the way:
-!      GaussianFilterX0  -> SmearX0 (same Ha units); GaussianFilterX0 was never consumed and is ignored
 !      zmel_max_size     -> zmel_batch_gb
 !      MEMnmbatch        -> dropped (different meaning)
 !      SmearX0q0, GaussSmear, dw, omg_c, delta, WgtQ0P, tetrakbt -> removed 2026-09-19 (dead keys; the

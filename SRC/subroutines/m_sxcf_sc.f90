@@ -362,48 +362,68 @@ contains
 
   ! One iteration of the kxloop: read/load W(kx), then accumulate the
   ! correlation contribution into zsecall(:,:,ip,isp) for all (irot, ip, isp).
-  subroutine wcsmear_weights(omg, ef, ek, esmr, nw, freq_r, iw1, iw2, wts)
-    ! --wcsmear: weights of the real-axis pole term when the smearing of the intermediate level ek
-    ! is applied to W_c(omega) itself (Eq.55 of PRB76,165106 integrated over the smeared level)
-    ! instead of evaluating W_c at the mean energy omega_bar (Eq.58).
-    ! The level e' runs over the window between ef and omg with the kernel g(e'-ek) = dPhi/de'
-    ! (Phi = wcdf: Gaussian esmr, or Fermi-Dirac when t_sigmakbt), and omega = |omg - e'|/2 (Hartree).
-    ! W mesh point iw owns omega in [(freq_r(iw-1)+freq_r(iw))/2, (freq_r(iw)+freq_r(iw+1))/2]; its
-    ! weight is Phi(b-ek)-Phi(a-ek) over the e' interval mapped from that omega interval, clipped to
-    ! the window.  sum(wts) = wfacx2(omg,ef,ek,esmr) up to the tail beyond freq_r(nw).
-    use m_wfac, only: wcdf, wcut
-    real(8), intent(in) :: omg, ef, ek, esmr
+  subroutine pole_weights(omg, ef, ek, esmr, smear, nw, freq_r, wfac, scale, iw1, iw2, wts)
+    ! Weights of one (it,itp) pair of the real-axis pole term of Sigma_c on the W mesh points
+    ! iw1:iw2 (wts(iw), sum = wfac*scale), or iw2 < iw1 when the pair contributes nothing.
+    ! The intermediate level ek is smeared by the kernel of wfacx2 (Gaussian esmr, or Fermi-Dirac
+    ! when t_sigmakbt>0); wfac is its weight inside the window between ef and omg (PRB 76, 165106)
+    ! and scale carries the k-point weight and the sign of (omg - ef).
+    !  smear=.false. (default): W_c is taken at the mean energy omega_bar = |omg - weavx2|/2 (Eq. 58),
+    !     interpolated on the 3 bracketing mesh points (omega^2 Lagrange; 2-point linear with --WVR2ptRaxis).
+    !  smear=.true.  ([gw] wcsmear): the kernel is applied to W_c(omega) itself.  The level e' runs over
+    !     the window with the kernel g(e'-ek), omega = |omg - e'|/2 (Hartree); mesh point iw owns
+    !     omega in [(freq_r(iw-1)+freq_r(iw))/2, (freq_r(iw)+freq_r(iw+1))/2] and gets
+    !     Phi(b-ek)-Phi(a-ek) over the e' interval mapped from that cell, clipped to the window.
+    use m_wfac, only: wcdf, wcut, weavx2
+    real(8), intent(in) :: omg, ef, ek, esmr, wfac, scale
+    logical, intent(in) :: smear
     integer, intent(in) :: nw
     real(8), intent(in) :: freq_r(0:nw)
     integer, intent(out) :: iw1, iw2
     real(8), intent(out) :: wts(0:nw)
-    real(8) :: el, eh, sgn, wlo, whi, a, b, t, cut, wa, wb
-    integer :: iw, ia, ib
+    real(8) :: el, eh, sgn, wa, wb, a, b, t, cut, x, xi(3), amat(3,3), tt2p, w3(3)
+    integer :: iw, ia, ib, ixs
     wts = 0d0; iw1 = 0; iw2 = -1
-    el = min(omg, ef); eh = max(omg, ef)
+    if (.not. smear .or. wcut(esmr) <= 0d0) then          ! ---- W_c at the mean energy (Eq. 58)
+      x   = .5d0*abs(omg - weavx2(omg, ef, ek, esmr))     ! \bar{omega_epsilon}
+      ixs = findloc(freq_r(1:nw) > x, value=.true., dim=1)
+      if (ixs < 1 .or. ixs > nw-1) return                 ! findloc miss (0) or beyond the mesh; ixs=1 (bin 0 = static W) is valid
+      xi = freq_r(ixs-1:ixs+1)
+      if (c0_WVR2ptRaxis) then                            ! 2-point linear in omega^2: convex, no overshoot
+        tt2p = max(0d0, min(1d0, (x**2 - xi(1)**2)/(xi(2)**2 - xi(1)**2)))
+        w3 = [1d0-tt2p, tt2p, 0d0]
+      else                                                ! 3-point Lagrange in omega^2 (alagr3zz)
+        amat(1:3,1) = 1d0; amat(1:3,2) = xi**2; amat(1:3,3) = xi**4
+        w3 = matmul([1d0, x**2, x**4], inverse33(amat))
+      endif
+      iw1 = ixs-1; iw2 = ixs+1
+      wts(iw1:iw2) = wfac*scale*w3
+      return
+    endif
+    el = min(omg, ef); eh = max(omg, ef)                  ! ---- kernel-integrated weights ([gw] wcsmear)
     cut = wcut(esmr)
-    el = max(el, ek - cut); eh = min(eh, ek + cut)     ! where the kernel is non-negligible
+    el = max(el, ek - cut); eh = min(eh, ek + cut)        ! where the kernel is non-negligible
     if (eh <= el) return
-    sgn = merge(1d0, -1d0, omg < ef)                    ! e' = omg + sgn*2*omega lies between omg and ef
-    wa = 0.5d0*min(abs(omg-el), abs(omg-eh)); wb = 0.5d0*max(abs(omg-el), abs(omg-eh)) ! omega range (Hartree)
+    sgn = merge(1d0, -1d0, omg < ef)                      ! e' = omg + sgn*2*omega lies between omg and ef
+    wa = .5d0*min(abs(omg-el), abs(omg-eh)); wb = .5d0*max(abs(omg-el), abs(omg-eh))
     ia = 0; ib = nw
-    do iw = 1, nw                                       ! first point whose cell reaches wa, last whose cell starts below wb
-      if (0.5d0*(freq_r(iw-1)+freq_r(iw)) <= wa) ia = iw
-      if (0.5d0*(freq_r(iw-1)+freq_r(iw)) >= wb) then; ib = iw - 1; exit; endif
+    do iw = 1, nw                                         ! cells reaching [wa, wb]
+      if (.5d0*(freq_r(iw-1)+freq_r(iw)) <= wa) ia = iw
+      if (.5d0*(freq_r(iw-1)+freq_r(iw)) >= wb) then; ib = iw - 1; exit; endif
     enddo
     do iw = ia, ib
-      wlo = merge(0d0, 0.5d0*(freq_r(iw-1)+freq_r(iw)), iw == 0)
-      whi = merge(freq_r(nw), 0.5d0*(freq_r(iw)+freq_r(iw+1)), iw == nw)
-      a = omg + sgn*2d0*wlo; b = omg + sgn*2d0*whi
+      a = omg + sgn*2d0*merge(0d0, .5d0*(freq_r(iw-1)+freq_r(iw)), iw == 0)
+      b = omg + sgn*2d0*merge(freq_r(nw), .5d0*(freq_r(iw)+freq_r(iw+1)), iw == nw)
       if (a > b) then; t = a; a = b; b = t; endif
       a = max(a, el); b = min(b, eh)
       if (b <= a) cycle
-      wts(iw) = wcdf(b - ek, esmr) - wcdf(a - ek, esmr)
-      if (wts(iw) < 1d-12) then; wts(iw) = 0d0; cycle; endif
+      t = wcdf(b - ek, esmr) - wcdf(a - ek, esmr)   ! kernel weight of this cell; these sum to wfac
+      if (t < 1d-12) cycle
+      wts(iw) = scale*t
       if (iw2 < iw1) iw1 = iw
       iw2 = iw
     enddo
-  end subroutine wcsmear_weights
+  end subroutine pole_weights
   subroutine sxcf_correlation_step_kx(kx, ef, esmr, nspinmx)
     use m_mpi, only: comm_b => comm_b_sxc, ipr
     use m_gpu, only: use_gpu
@@ -412,7 +432,7 @@ contains
     integer :: icount, ns1, ns2, kr, nwxi, ns2r, nwx, izz, n_nttp, tri_idx
     integer :: irot, ip, isp
     real(8) :: q(3), qibz_k(3), qbz_kr(3), qk(3)
-    logical :: debug !diag , skipthis
+    logical :: debug
     real(8), parameter :: ddw = 10d0
     integer, allocatable :: idx_i(:), idx_j(:)
     character(64) :: charli
@@ -486,31 +506,6 @@ contains
     izz = 0
     ! --skipq0Sc (diagnostic): leave out the Gamma-cell W (kx=1, whose head comes from the offset-Gamma
     ! chi0) from Sigma_c.  Everything else (WV open/close, exchange) is untouched.
-    ! Diagnostics used on 2026-09-18/19 (Samples/kBT/kBT_research.md), kept commented out:
-    !   --skipq0Sc      : leave the Gamma-cell W (kx=1) out of Sigma_c
-    !   ECALJ_SKIPKXSC  : leave the listed kx out of Sigma_c
-    ! To re-enable: uncomment this block, the 'endif ! --skipq0Sc' after irotloop, the
-    ! c0_skipq0Sc entry in m_cmdopt_registry, and the declaration of skipthis.
-!diag     SkipKxSc: block ! diagnostic: ECALJ_SKIPKXSC="2 5" leaves those kx (W q-points) out of Sigma_c
-!diag       integer, save :: nskipkx = -1, skipkx(64)
-!diag       character(256) :: env
-!diag       integer :: elen, estat, k
-!diag       if (nskipkx < 0) then
-!diag         nskipkx = 0
-!diag         call get_environment_variable('ECALJ_SKIPKXSC', env, elen, estat)
-!diag         if (estat == 0 .and. elen > 0) then
-!diag           do k = 1, 64
-!diag             read(env, *, iostat=estat) skipkx(1:k)
-!diag             if (estat /= 0) exit
-!diag             nskipkx = k
-!diag           enddo
-!diag         endif
-!diag       endif
-!diag       skipthis = (c0_skipq0Sc .and. kx == 1) .or. any(skipkx(1:nskipkx) == kx)
-!diag     end block SkipKxSc
-!diag     if (skipthis) then
-!diag       if (ipr) write(stdo,ftox) ' skipSc: Sigma_c contribution of kx=',kx,' skipped (--skipq0Sc / ECALJ_SKIPKXSC)'
-!diag     else
     irotloop:            do irot = 1, ngrp    ! (kx,irot) determines qbz(:,kr), which is in FBZ. W(kx) is rotated to be W(g(kx))
       iploopexternal:    do ip   = 1, nqibz   !external index for q of \Sigma(q,isp)
         isploopexternal: do isp  = 1, nspinmx !external index
@@ -638,91 +633,48 @@ contains
 
                 call stopwatch_start(sxs_cr)
                 CorrelationSelfEnergyRealAxis: Block !Real Axis integral. Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
-                  use m_wfac, only: wfacx2, weavx2, wcut
-                  integer :: itini, itend, ittp, ittp3(3), ixs, nttp_max, nttp(0:nw), i, j, iw1, iw2
-                  real(8) :: we_(ns1:ns2r,sxs_ntqxx), wfac_(ns1:ns2r,sxs_ntqxx), omg, amat(3,3), wgt3ititp(3), tt2p
-                  real(8) :: wts(0:nw), esmr_it
-                  logical :: smear_it
+                  use m_wfac, only: wfacx2
+                  integer :: itini, itend, ittp, nttp_max, nttp(0:nw), i, iw1, iw2, ipass
+                  real(8) :: omg, wfac, wts(0:nw), esmr_it
+                  logical :: smear
                   complex(kind=kp), allocatable :: wz_iw(:,:), czwc_iw(:,:)
                   real(8), allocatable :: wgtiw(:,:)
                   integer, allocatable :: itw(:,:), itpw(:,:)
 #ifdef __GPU
                   attributes(device) :: wz_iw, czwc_iw
 #endif
-                  nttp = 0
-!diag             if (c0_skipRaxisSc) goto 1113 ! --skipRaxisSc (diagnostic): no real-axis pole term (2026-09-19)
-                  itploop: do itp = 1, sxs_ntqxx
-                    omg   = sxs_omega(itp)
-                    itini = merge(max(ns1,sxs_nt0m+1),  ns1, mask= omg>=ef)
-                    itend = merge(ns2r,  min(sxs_nt0p,ns2r), mask= omg>=ef)
-                    do it = itini, itend
-                      esmr_it = merge(0d0,esmr,mask=it<=nctot)
-                      wfac_(it,itp) = wfacx2(omg, ef, sxs_ekc(it), esmr_it)
-                      if (wfac_(it,itp) < wfaccut) cycle
-                      smear_it = (tg_wcsmear .or. c0_wcsmear) .and. wcut(esmr_it) > 0d0
-                      if (smear_it) then ! --wcsmear: kernel-integrated weights over the W mesh points
-                        call wcsmear_weights(omg, ef, sxs_ekc(it), esmr_it, nw, freq_r(0:nw), iw1, iw2, wts)
-                        if (iw2 < iw1) cycle
-                        nttp(iw1:iw2) = nttp(iw1:iw2) + 1
-                        cycle
-                      endif
-                      we_(it,itp)  = .5d0*abs(omg - weavx2(omg,ef, sxs_ekc(it),esmr))
-                      ixs = findloc(freq_r(1:nw)>we_(it,itp), value=.true., dim=1)
-                      if (ixs < 1 .or. ixs > nw-1) cycle ! OOB guard: findloc miss (0) writes nttp(-1); ixs=nw writes nttp(nw+1). ixs=1 is VALID (bin 0 = static-W slot, freq_r(0)=0).
-                      nttp(ixs-1:ixs+1) = nttp(ixs-1:ixs+1) + 1
-                    enddo
-                  enddo itploop
-                  nttp_max = maxval(nttp)
-                  if (nttp_max <= 0) goto 1113
-                  allocate (itw(nttp_max,0:nw),  source = 0)
-                  allocate (itpw(nttp_max,0:nw), source = 0)
-                  allocate (wgtiw(nttp_max,0:nw),source = 0d0)
-                  nttp = 0
-                  itploopFORwgtiw: do itp = 1, sxs_ntqxx
-                    omg   = sxs_omega(itp)
-                    itini = merge(max(ns1,sxs_nt0m+1),  ns1, mask= omg>=ef)
-                    itend = merge(ns2r,  min(sxs_nt0p,ns2r), mask= omg>=ef)
-                    do it = itini, itend     ! sxs_nt0p corresponds to efp
-                      esmr_it = merge(0d0,esmr,mask=it<=nctot)
-                      wfac_(it,itp) = wfacx2(omg, ef, sxs_ekc(it), esmr_it) !Gaussian smearing
-                      if (wfac_(it,itp) < wfaccut) cycle
-                      wfac_(it,itp) =  wfac_(it,itp)*sxs_wkkr*dsign(1d0, omg-ef) !wfac_ = $w$ weight (smeared thus truncated by ef). See the sentences.
-                      smear_it = (tg_wcsmear .or. c0_wcsmear) .and. wcut(esmr_it) > 0d0
-                      if (smear_it) then ! --wcsmear: the smearing of the level ek is applied to W_c(omega), not to the mean energy
-                        call wcsmear_weights(omg, ef, sxs_ekc(it), esmr_it, nw, freq_r(0:nw), iw1, iw2, wts)
+                  smear = tg_wcsmear .or. c0_wcsmear
+                  PoleWeights: do ipass = 1, 2   ! pass 1 counts the pairs per mesh point, pass 2 stores them
+                    nttp = 0
+                    do itp = 1, sxs_ntqxx
+                      omg   = sxs_omega(itp)
+                      itini = merge(max(ns1,sxs_nt0m+1),  ns1, mask= omg>=ef)
+                      itend = merge(ns2r,  min(sxs_nt0p,ns2r), mask= omg>=ef)
+                      do it = itini, itend     ! sxs_nt0p corresponds to efp
+                        esmr_it = merge(0d0, esmr, mask=it<=nctot)   ! core levels are sharp
+                        wfac = wfacx2(omg, ef, sxs_ekc(it), esmr_it)  ! weight of the level inside [ef, omg]
+                        if (wfac < wfaccut) cycle
+                        call pole_weights(omg, ef, sxs_ekc(it), esmr_it, smear, nw, freq_r(0:nw), wfac, &
+                                          sxs_wkkr*dsign(1d0, omg-ef), iw1, iw2, wts)
                         do i = iw1, iw2
-                          if (wts(i) <= 0d0) cycle
+                          if (wts(i) == 0d0) cycle
                           nttp(i) = nttp(i) + 1
-                          itw(nttp(i),i)   = it
-                          itpw(nttp(i),i)  = itp
-                          wgtiw(nttp(i),i) = wts(i)*sxs_wkkr*dsign(1d0, omg-ef)
+                          if (ipass == 2) then
+                            itw(nttp(i),i)   = it
+                            itpw(nttp(i),i)  = itp
+                            wgtiw(nttp(i),i) = wts(i)
+                          endif
                         enddo
-                        cycle
-                      endif
-                      we_(it,itp)   = .5d0*abs(omg - weavx2(omg,ef, sxs_ekc(it),esmr)) !we_= \bar{\omega_\epsilon} in sentences next to Eq.58 in PRB76,165106 (2007)
-                      ixs = findloc(freq_r(1:nw)>we_(it,itp), value=.true., dim=1)
-                      if (ixs < 1 .or. ixs > nw-1) cycle ! OOB guard: findloc miss (0) writes nttp(-1); ixs=nw writes nttp(nw+1). ixs=1 is VALID (bin 0 = static-W slot, freq_r(0)=0).
-                      associate(x => we_(it,itp), xi => freq_r(ixs-1:ixs+1)) !x=>we_ is \omega_\epsilon in Eq.(55).
-                        if(c0_WVR2ptRaxis) then ! 2-point LINEAR in omega^2 on the bracketing pair: convex weights, no overshoot
-                          ! NOTE: no BLOCK construct here -- nvfortran miscompiles block-inside-associate
-                          ! in the plain-CPU variant (silently corrupts the ELSE path; bisected 2026-06-13).
-                          tt2p = (x**2 - xi(1)**2)/(xi(2)**2 - xi(1)**2)
-                          tt2p = max(0d0,min(1d0,tt2p))
-                          wgt3ititp = wfac_(it,itp)*[1d0-tt2p, tt2p, 0d0]
-                        else
-                        amat(1:3,1) = 1d0                 !old version: call alagr3z2wgt(we_(it,itp),freq_r(ixs-1),wgt3(:,it,itp))
-                        amat(1:3,2) = xi(1:3)**2
-                        amat(1:3,3) = xi(1:3)**4
-                        wgt3ititp = wfac_(it,itp)*matmul([1d0, x**2, x**4], inverse33(amat))
-                        endif
-                      end associate
-                      nttp(ixs-1:ixs+1) = nttp(ixs-1:ixs+1) + 1
-                      ittp3(1:3) = nttp(ixs-1:ixs+1)
-                      forall(i=1:3) itw(ittp3(i),  ixs-2+i) = it
-                      forall(i=1:3) itpw(ittp3(i), ixs-2+i) = itp
-                      forall(i=1:3) wgtiw(ittp3(i),ixs-2+i) = wgt3ititp(i)
+                      enddo
                     enddo
-                  enddo itploopFORwgtiw
+                    if (ipass == 1) then
+                      nttp_max = maxval(nttp)
+                      if (nttp_max <= 0) goto 1113
+                      allocate (itw(nttp_max,0:nw),  source = 0)
+                      allocate (itpw(nttp_max,0:nw), source = 0)
+                      allocate (wgtiw(nttp_max,0:nw),source = 0d0)
+                    endif
+                  enddo PoleWeights
                   n_nttp = count(nttp(sxs_wr_ini:sxs_wr_fin) > 0)
                   allocate(wz_iw(ngb,nttp_max), czwc_iw(ngb,nttp_max))
                   !$acc data copyin(wgtiw, nttp, itw, itpw)
@@ -798,7 +750,6 @@ contains
         enddo isploopexternal
       enddo iploopexternal
     enddo irotloop
-!diag     endif ! --skipq0Sc
     ReleaseWV: block !subroutine releasewv()
       if (any(kx == kxc(:))) then
         ! wvi/wvr_upper: device allocatable → deallocate frees GPU memory directly
@@ -847,3 +798,4 @@ contains
     c(3)=a(1)*b(2)-a(2)*b(1)
   end function crossf
 end module m_sxcf_sc
+

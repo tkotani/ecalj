@@ -126,7 +126,7 @@ subroutine hsfp0() bind(C)
   integer::ret
   character*(150):: ddd
   integer:: bzcase=1,  ngpn1,verbose,ngcn1,nwxx,nss(2) !mrecg,
-  real(8)   :: wgtq0p,quu(3)
+  real(8)   :: quu(3)
   real(8),allocatable:: freq_r(:)
 !  integer:: ifpomat,nkpo,nnmx,nomx,ikpo,nn_,no
   real(8):: q_r(3)

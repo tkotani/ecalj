@@ -54,7 +54,7 @@ contains
     integer :: incwfin, ip, is, ix, ierr
     real(8) :: voltot, valn, eftrue, esmref, esmr, ef
     real(8), external :: tripl, rydberg
-    real(8) :: qreal(3), wgtq0p, quu(3)
+    real(8) :: qreal(3), quu(3)
     real(8), allocatable :: eqt(:)
     integer :: ixc, nspinmx
     logical :: legas, exchange

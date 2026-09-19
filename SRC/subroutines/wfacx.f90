@@ -72,26 +72,15 @@ contains
        wcut = 5d0*esmr       ! g_Gauss(5 sigma) ~ 4e-6 of the peak
     endif
   end function wcut
+  !> Weight of a level ek, smeared by the kernel of wcdf, inside the window [e1,e2].
   pure real(8) function wfacx2(e1,e2, ek,esmr)
     real(8), intent(in) :: e1, e2, ek, esmr
-    real(8) ::el,eh
-    real(8),parameter :: ewidthcut=1d-6
-    el=min(e1,e2)  !May2006
-    eh=max(e1,e2)
-    if(eh-el< ewidthcut) then !July2006
-       wfacx2=0d0
-       return
-    endif
-    if(sig_fd) then
-       wfacx2 = fd_cdf(eh-ek,sig_kbt) - fd_cdf(el-ek,sig_kbt)
-       return
-    endif
-    if(esmr==0d0) then
-       wfacx2=0d0
-       if(el <= ek .AND. ek <eh ) wfacx2=1d0
-       return
-    endif
-    wfacx2 = .5d0*erfc(-(eh-ek)/sqrt(2d0)/esmr) - .5d0*erfc(-(el-ek)/sqrt(2d0)/esmr)
+    real(8), parameter :: ewidthcut=1d-6
+    real(8) :: el, eh
+    el=min(e1,e2); eh=max(e1,e2)
+    wfacx2 = 0d0
+    if(eh-el < ewidthcut) return
+    wfacx2 = wcdf(eh-ek,esmr) - wcdf(el-ek,esmr)
   END function wfacx2
   !! Averaged energy in window[el, eh] for the smearing kernel centred on ek.
   pure real(8) function weavx2(e1,e2, ek,esmr)
@@ -110,7 +99,11 @@ contains
        weavx2 = ek + ( fd_iav(xh,sig_kbt) - fd_iav(xl,sig_kbt) )/wtt
        return
     endif
-    wtt=    0.5d0*erfc(-(eh-ek)/sqrt(2d0)/esmr) -0.5d0*erfc(-(el-ek)/sqrt(2d0)/esmr)
+    wtt = wcdf(eh-ek,esmr) - wcdf(el-ek,esmr)
+    if(esmr==0d0 .or. wtt < 1d-12) then   ! sharp level, or (numerically) empty window
+       weavx2 = merge(ek, 0.5d0*(el+eh), esmr==0d0)
+       return
+    endif
     sig2= 2d0*esmr**2
     weavx2 = ek+ esmr/sqrt(2d0*pi) *( -exp(-(eh-ek)**2/sig2) + exp(-(el-ek)**2/sig2) )/wtt
   END function weavx2
@@ -118,17 +111,8 @@ end module m_wfac
 
 !> Standalone exchange occupation weight (kept as external function for existing callers).
 pure real(8) function wfacx(el,eh, ek,esmr)
-  use m_wfac, only: sig_fd, sig_kbt, fd_cdf
+  use m_wfac, only: wcdf
   implicit none
   real(8), intent(in) :: el,eh,ek,esmr
-  if(sig_fd) then
-     wfacx = fd_cdf(eh-ek,sig_kbt) - fd_cdf(el-ek,sig_kbt)
-     return
-  endif
-  if(esmr==0d0) then
-     wfacx=0d0
-     if(el <= ek .AND. ek <eh ) wfacx=1d0
-     return
-  endif
-  wfacx = .5d0*erfc(-(eh-ek)/sqrt(2d0)/esmr) - .5d0*erfc(-(el-ek)/sqrt(2d0)/esmr)
+  wfacx = wcdf(eh-ek,esmr) - wcdf(el-ek,esmr)
 end function wfacx

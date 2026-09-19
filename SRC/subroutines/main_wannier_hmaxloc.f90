@@ -135,7 +135,7 @@ subroutine hmaxloc()
 
 
   integer(4):: bzcase,  ngpn1,verbose,ngcn1,nwxx !mrecg,
-  real(8)   :: wgtq0p,quu(3)
+  real(8)   :: quu(3)
 
   integer(4):: iii,isx,ivsumxxx
 

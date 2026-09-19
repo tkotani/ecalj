@@ -177,18 +177,12 @@ contains
     if(chipm.and.npm==2) call rx( 'x0kf_v4h:npm==2 .AND. chipm is not meaningful probably')  ! Note rcxq here is negative 
     !$acc data copyin(his_R, his_L)
     call gwinput_init()
-    if (gwinput_loaded) then
-       smearx0 = tg_SmearX0
-    else
-       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
-!       call getkeyvalue("GWinput","SmearX0", smearx0, default=0d0 )
-    endif
-    GaussianFilter: if(abs(smearx0)>1d-15) then
-      if(ipr) write(6,'("SmearX0= ",d13.6)') smearx0
+    smearx0 = merge(tg_SmearX0, 0d0, gwinput_loaded)
+    GaussianFilter: if(abs(smearx0)>1d-15) then   ! [gw] SmearX0 (normally 0); device-resident version of smearx0_apply
+      if(ipr) write(stdo,'(" SmearX0 (Ha) = ",es12.4,"  : Gaussian smearing of Im chi0 along omega")') smearx0
       allocate(gfmat(nwhis,nwhis))
       allocate(cgfmat(nwhis,nwhis))
       allocate(rcxq_work(npr,nwhis))
-      if(ipr) write(stdo,ftox) 'dpsion_chiq: SmearX0 (chi0 GaussianFilter) is not checked yet: see dpsion_chiq'
       gfmat=gaussianfilterhis(smearx0,frhis,nwhis,npm)
 
       !$acc data copyin(gfmat) create(cgfmat, rcxq_work)
@@ -354,7 +348,6 @@ contains
   !> rcxq and zxqi must be host-resident (e.g. pointing to shm_wvr/shm_wvi).
   subroutine dpsion_chiq_h(realomega, imagomega, chipm, rcxq, zxqi, npr, npr_col, schi, isp, ecut)
     use m_keyvalue, only: getkeyvalue
-    use m_GWinput, only: gwinput_init, gwinput_loaded, tg_SmearX0 => SmearX0
     use m_freq, only: frhis, freqr=>freq_r, freqi=>freq_i, nwhis, npm, nw_i, nw_w=>nw, niwt=>niw
     use m_ftox
     use m_lgunit, only: stdo
@@ -375,59 +368,12 @@ contains
     real(8),  parameter :: pi = 4d0*datan(1d0)
     complex(8), parameter :: img = (0d0, 1d0)
     complex(kind=kp) :: zxq_work(1:npr,nw_i:nw_w), cimatt(niwt,nwhis,npm), crmatt(nw_i:nw_w,nwhis,npm)
-    complex(kind=kp), allocatable :: rcxq_work(:,:), cgfmat(:,:)
     integer  :: ipr_col, ipm, istat, ispx
-    real(8)  :: wfac, smearx0
-    real(8)  :: fs_b(2), ar_b(2), fs_a(2), ar_a(2), frcw   ! SmearX0 f-sum/area diagnostic (head & off-diag)
+    real(8)  :: wfac
     if (ipr) write(stdo,ftox) " -- dpsion_chiq_h: start... nw_w nwhis=", nw_w, nwhis
     call flush(stdo)
     if (chipm.and.npm==2) call rx('dpsion_chiq_h: npm==2 .AND. chipm is not meaningful')
-    call gwinput_init()
-    if (gwinput_loaded) then
-      smearx0 = tg_SmearX0
-    else
-      call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
-    endif
-    GaussianFilter: if (abs(smearx0) > 1d-15) then
-      if (ipr) write(6,'("SmearX0(chi0 GaussianFilter)= ",d13.6)') smearx0
-      allocate(gfmat(nwhis,nwhis))
-      allocate(cgfmat(nwhis,nwhis))
-      allocate(rcxq_work(npr,nwhis))
-      gfmat = gaussianfilterhis(smearx0, frhis, nwhis, npm)
-      cgfmat(:,:) = cmplx(gfmat(:,:), kind=kp)
-      ! --- f-sum/area diagnostic BEFORE filtering (head=(1,1), off-diag=(1,2)) ---
-      ar_b=0d0; fs_b=0d0
-      do iw=1,nwhis
-        frcw=(frhis(iw)+frhis(iw+1))/2d0
-        ar_b(1)=ar_b(1)+dble(rcxq(1,1,iw)); fs_b(1)=fs_b(1)+frcw*dble(rcxq(1,1,iw))
-        if(npr_col>=2) then
-          ar_b(2)=ar_b(2)+dble(rcxq(1,2,iw)); fs_b(2)=fs_b(2)+frcw*dble(rcxq(1,2,iw))
-        endif
-      enddo
-      do ipr_col = 1, npr_col
-        rcxq_work(1:npr,1:nwhis) = rcxq(1:npr,ipr_col,1:nwhis)
-        istat = gemm(rcxq_work, cgfmat, rcxq(1,ipr_col,1), npr, nwhis, nwhis, ldC=npr*npr_col, opB=m_op_T)
-      enddo
-      ! --- f-sum/area diagnostic AFTER filtering; f-sum must be (nearly) unchanged ---
-      ar_a=0d0; fs_a=0d0
-      do iw=1,nwhis
-        frcw=(frhis(iw)+frhis(iw+1))/2d0
-        ar_a(1)=ar_a(1)+dble(rcxq(1,1,iw)); fs_a(1)=fs_a(1)+frcw*dble(rcxq(1,1,iw))
-        if(npr_col>=2) then
-          ar_a(2)=ar_a(2)+dble(rcxq(1,2,iw)); fs_a(2)=fs_a(2)+frcw*dble(rcxq(1,2,iw))
-        endif
-      enddo
-      write(stdo,"(' SmearX0 fsum-diag head(1,1):  area b/a=',2es13.5,'  f-sum b/a=',2es13.5)") ar_b(1),ar_a(1),fs_b(1),fs_a(1)
-      if(npr_col>=2) write(stdo,"(' SmearX0 fsum-diag offd(1,2): area b/a=',2es13.5,'  f-sum b/a=',2es13.5)") ar_b(2),ar_a(2),fs_b(2),fs_a(2)
-      if (npm == 2) then
-        cgfmat(1:nwhis,1:nwhis) = cmplx(gfmat(1:nwhis,nwhis:1:-1), kind=kp)
-        do ipr_col = 1, npr_col
-          rcxq_work(1:npr,1:nwhis) = rcxq(1:npr,ipr_col,-nwhis:-1:1)
-          istat = gemm(rcxq_work, cgfmat, rcxq(1,ipr_col,-nwhis), npr, nwhis, nwhis, ldC=npr*npr_col, opB=m_op_T)
-        enddo
-      endif
-      deallocate(gfmat, cgfmat, rcxq_work)
-    endif GaussianFilter
+    call smearx0_apply(rcxq, npr, npr_col, nwhis, npm, frhis)   ! [gw] SmearX0 (normally 0)
 
     ispx = merge(isp, 3-isp, schi >= 0)
     if (realomega .and. nwhis <= nw_w) call rxii('dpsion_chiq_h: nwhis<=nw_w', nwhis, nw_w)
@@ -496,12 +442,10 @@ contains
   subroutine dpsion5(realomega,imagomega,rcxq,nmbas1,nmbas2, zxq,zxqi, chipm,schi,isp,ecut,ecuts)
     use m_freq,only:  frhis, freqr=>freq_r,freqi=>freq_i, nwhis, npm, nw_i, nw_w=>nw, niwt=>niw
 !    use m_readgwinput,only: egauss
-!    use m_GaussianFilter,only: GaussianFilter
     use m_ftox
     use m_lgunit,only:stdo
     use m_kind,only:kindrcxq
     use m_keyvalue,only: getkeyvalue
-    use m_GWinput, only: gwinput_init, gwinput_loaded, tg_SmearX0 => SmearX0
     implicit none
     intent(in)::     realomega,imagomega,     nmbas1,nmbas2,           chipm,schi,isp,ecut,ecuts
     intent(out)::                        rcxq,                zxq,zxqi
@@ -519,42 +463,19 @@ contains
     !r  We suppose "freqr(i)=moddle of i-th bin; freqr(0)=0." (I think called routine hilbertmat itself is not limited by this condition).
     integer:: igb1,igb2, iw,iwp,ix,ifxx,nmbas1,nmbas2,isp,ispx,it, ii,i,ibas1,ibas2,nmnm
     logical :: evaltest     
-    real(8):: px,omp,om,om2,om1, aaa,d_omg, ecut,ecuts,wcut,dee,schi, domega_r,domega_c,domega_l,delta_l,delta_r,smearx0
+    real(8):: px,omp,om,om2,om1, aaa,d_omg, ecut,ecuts,wcut,dee,schi, domega_r,domega_c,domega_l,delta_l,delta_r
     complex(8):: zxq(nmbas1,nmbas2, nw_i:nw_w),zxqi(nmbas1,nmbas2,niwt),img=(0d0,1d0),beta,wfac, zz,rrr(-nwhis:nwhis)
     logical :: realomega, imagomega,chipm,debug=.false.
     integer:: jpm,ipm,verbose,isgi   !     complex(8):: x0mean(nw_i:nw_w,nmbas,nmbas)
     real(8),parameter:: pi  = 4d0*datan(1d0)
     logical::init=.true.
     integer:: imbas1,imbas2,j
-    complex(8):: rcxqin(1:nwhis)
     complex(kindrcxq):: rcxq(nmbas1,nmbas2, nwhis,npm)
 
     if(ipr) write(stdo,ftox)" -- dpsion5: start... nw_w nwhis=",nw_w,nwhis
     if(chipm.and.npm==2) call rx( 'x0kf_v4h:npm==2 .AND. chipm is not meaningful probably')  ! Note rcxq here is negative 
     call cputid(0)
-    call gwinput_init()
-    if (gwinput_loaded) then
-       smearx0 = tg_SmearX0
-    else
-       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
-!       call getkeyvalue("GWinput","SmearX0", smearx0, default=0d0 )
-    endif
-    GaussianFilter: if(abs(smearx0)>1d-15) then
-       if(eginit) then
-         if(ipr) write(stdo,'("SmearX0= ",d13.6)') smearx0
-          allocate(gfmat(nwhis,nwhis))
-          gfmat=gaussianfilterhis(smearx0,frhis,nwhis,npm)
-          eginit=.false.
-       endif
-       do ipm=1,npm
-          do imbas1=1,nmbas1
-             do imbas2=1,nmbas2
-                rcxqin = rcxq(imbas1,imbas2,1:nwhis,ipm)
-                rcxq(imbas1,imbas2,1:nwhis,ipm) = matmul(gfmat,rcxqin)
-             enddo
-          enddo
-       enddo       !write(6,"(' End of Gaussian Filter egauss=',f9.4)") egauss
-    endif GaussianFilter
+    call smearx0_apply(rcxq, nmbas1, nmbas2, nwhis, npm, frhis)   ! [gw] SmearX0 (normally 0)
        
     ispx = merge(isp,3-isp,schi>=0) !  if(schi<0)  ispx = 3-isp  
     if(realomega.and.nwhis <= nw_w) call rxii('dpsion5: nwhis<=nw_w',nwhis,nw_w)
@@ -643,7 +564,43 @@ contains
     if(ipr) write(stdo,'("         end dpsion5 ",$)')
     call cputid(0)
   end subroutine dpsion5
-!  subroutine GaussianFilter(rcxq,nmbas1,nmbas2, egauss,iprint)
+  !> [gw] SmearX0: Gaussian smearing of the Im chi0 histogram rcxq(npr,npr_col,bins) along omega
+  !! (bin-width weighted, odd extension for npm=1; see gaussianfilterhis).  No-op when SmearX0 = 0.
+  subroutine smearx0_apply(rcxq, npr, npr_col, nwhis, npm, frhis)
+    use m_GWinput, only: gwinput_init, gwinput_loaded, tg_SmearX0 => SmearX0
+    use m_lgunit, only: stdo
+    use m_blas, only: m_op_T
+#if defined(__MP)
+    use m_blas, only: gemm => cmm_h
+#else
+    use m_blas, only: gemm => zmm_h
+#endif
+    integer, intent(in) :: npr, npr_col, nwhis, npm
+    real(8), intent(in) :: frhis(nwhis+1)
+    complex(kind=kp), intent(inout) :: rcxq(npr, npr_col, (1-npm)*nwhis:nwhis)
+    complex(kind=kp), allocatable :: rcxq_work(:,:), cgfmat(:,:)
+    real(8), allocatable :: gf(:,:)
+    integer :: ipr_col, istat
+    call gwinput_init()
+    if (.not. gwinput_loaded) return
+    if (abs(tg_SmearX0) <= 1d-15) return
+    if (ipr) write(stdo,'(" SmearX0 (Ha) = ",es12.4,"  : Gaussian smearing of Im chi0 along omega")') tg_SmearX0
+    allocate(gf(nwhis,nwhis), cgfmat(nwhis,nwhis), rcxq_work(npr,nwhis))
+    gf = gaussianfilterhis(tg_SmearX0, frhis, nwhis, npm)
+    cgfmat = cmplx(gf, kind=kp)
+    do ipr_col = 1, npr_col
+      rcxq_work = rcxq(1:npr, ipr_col, 1:nwhis)
+      istat = gemm(rcxq_work, cgfmat, rcxq(1,ipr_col,1), npr, nwhis, nwhis, ldC=npr*npr_col, opB=m_op_T)
+    enddo
+    if (npm == 2) then
+      cgfmat = cmplx(gf(1:nwhis, nwhis:1:-1), kind=kp)
+      do ipr_col = 1, npr_col
+        rcxq_work = rcxq(1:npr, ipr_col, -nwhis:-1:1)
+        istat = gemm(rcxq_work, cgfmat, rcxq(1,ipr_col,-nwhis), npr, nwhis, nwhis, ldC=npr*npr_col, opB=m_op_T)
+      enddo
+    endif
+    deallocate(gf, cgfmat, rcxq_work)
+  end subroutine smearx0_apply
   function gaussianfilterhis(smearx0, frhis,nwhis,npm) result(gfmat)
     ! Bin-width-weighted Gaussian smoothing of Im chi0 along omega.
     ! frhis is a strongly non-uniform (exponential) mesh, so the kernel MUST carry the bin
@@ -689,18 +646,6 @@ contains
        enddo
     enddo
     deallocate(frc,dfr,gfm)
-! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
-!      do j=1,nwhis,20
-! !      if(j>10) cycle
-!       write(1019,*)
-!       write(1019,*)
-!       do i=1,nwhis
-!         write(1019,'(2f19.8)') frhis(i),gfmat(i,j) !/(frhis(i+1)-frhis(i))
-!       enddo
-! !      write(*,*)'sssssss',i,sum(gfmat(:,j)*([(frhis(i+1)-frhis(i),i=1,nwhis)]))
-!       write(*,*)'sssssss',j,sum(gfmat(:,j))
-!     enddo
-!     stop 'xxxxxxxxxxxaaa'
     
   end function gaussianfilterhis
 end module m_dpsion

@@ -405,7 +405,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
 
 
   integer::  ngpn1,verbose,ngcn1,nwxx !bzcase, mrecg,
-  real(8)   :: wgtq0p,quu(3)
+  real(8)   :: quu(3)
 
   real(8),allocatable:: freq_r(:)
 

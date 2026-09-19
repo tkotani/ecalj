@@ -86,7 +86,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   integer::nlnmv(*),nlnmc(*),icore(*),ncore(*),imdim(*)
 
   integer::verbose,nstbz(nqbz),iqini,iqend !bzcase,
-  real(8):: wgtq0p
+
 
   integer:: iqindx,nrec,kxx
   real(8)::quu(3),qibz_k(3),qbz_kr(3)
