@@ -8,6 +8,18 @@ module m_tetwt5
   public hisrange,tetwt5x_dtet4,rsvwwk00_4
   private
 contains
+  subroutine tetwt_set_threads()
+    ! [gw] omp_tetwt > 0: number of OpenMP threads for the tetrahedron loop of tetwt5 (per MPI rank).
+    ! 0 (default) leaves OMP_NUM_THREADS as it is.  No-op when compiled without OpenMP.
+    use m_GWinput, only: gwinput_init, gwinput_loaded, omp_tetwt
+    !$ use omp_lib, only: omp_set_num_threads, omp_get_max_threads
+    logical, save :: done = .false.
+    if (done) return
+    done = .true.
+    call gwinput_init()
+    !$ if (gwinput_loaded .and. omp_tetwt > 0) call omp_set_num_threads(omp_tetwt)
+    !$ if (ipr) write(stdo,"(' tetwt5: OpenMP threads for the tetrahedron loop =',i4)") omp_get_max_threads()
+  end subroutine tetwt_set_threads
   subroutine tetwt5x_dtet4(npm,ncc,q,eband1,eband2,qbas,ginv,efermi,ntetf, nqbzw, nband,  &
        iqbz, fqbz, nqbz, &
        nctot,ecore,  idtetf,qbzw,ib1bz, job, &
@@ -231,6 +243,19 @@ contains
     efermib = efermi
     interbandonly=c0_interbandonly
     intrabandonly=c0_intrabandonly
+    ! OpenMP over tetrahedra (2026-09-19).  Each iteration writes only through the atomic
+    ! statements below (iwgt/demin/demax for job=0, whw for job=1); everything else is private.
+    ! The inner routines (lindtet6, lindtet6_kbt, inttetra6, intttvc6, midk3, integtetn, gausq)
+    ! keep no state between calls.  Thread count: [gw] omp_tetwt (0 = leave OMP_NUM_THREADS alone).
+    call tetwt_set_threads()
+    !$omp parallel do default(none) schedule(dynamic,4) &
+    !$omp   shared(ntetf,nmtet,ib1bz,idtetf,iqbz,fqbz,qbzw,ib1bzm,idtetfm,qbzwm,ekzz1,ekzz2,nband,nctot, &
+    !$omp          efermi,efermia,efermib,wocc,ebmx,wan,npm,intrabandonly,interbandonly,job,usetetrakbt, &
+    !$omp          kbt,tolpair,tolx,frhis,nwhis,iwgt,demax,demin,ibjb,ihw,jhw,nhw,whw,piofvoltot,wtet, &
+    !$omp          chkwrt,stdo) &
+    !$omp   private(itet,im,kk,kkv,kkm,kvec,am,voltet,ek_,ekq_,noccx_k,noccx_kq,ebmxx,nbandmx_k,nbandmx_kq, &
+    !$omp           jpm,ibxmx,jbxmx,ibx,jbx,ib,jb,eocc,eunocc,fb1,fb2,fbound,ixx,x,demax_,demin_,wtthis2, &
+    !$omp           ikx,ibib,jini,iini,nnn,ihis,ddw,i)
     tetrahedronloop: do 1000 itet = 1, ntetf 
        kk (0:3) = ib1bz( idtetf(0:3,itet) )     !  k
        if(.not.any( iqbz <= kk(0:3) .and.  kk(0:3) <= fqbz )) cycle
@@ -313,16 +338,16 @@ contains
                    endif
                    if( maxval(eunocc(:)-eocc(:)) <0d0 ) cycle ! this makes a bit effective.
                    if(job==0 ) then  !takao
-                      do ixx=0,3
-                        if(kk(ixx) < iqbz .OR. kk(ixx) > fqbz) cycle
-                        iwgt(ib,jb,kk(ixx),jpm)= .true.
-                      enddo
                       x(0:3) = .5d0*(eocc-eunocc) ! + omg !Denominator. unit in Hartree.
                       demax_ =  maxval(-x(0:3)) ! in Hartree
                       demin_ =  minval(-x(0:3)) ! in Hartree
                       do ixx=0,3
                          if(kk(ixx) < iqbz .OR. kk(ixx) > fqbz) cycle
+                         !$omp atomic write
+                         iwgt(ib,jb,kk(ixx),jpm) = .true.
+                         !$omp atomic update
                          demax(ib,jb,kk(ixx),jpm) = max(demax_, demax(ib,jb,kk(ixx),jpm))
+                         !$omp atomic update
                          demin(ib,jb,kk(ixx),jpm) = min(demin_, demin(ib,jb,kk(ixx),jpm))
                       enddo
                       cycle
@@ -360,10 +385,15 @@ contains
                       iini = ihw(ibib,kk(ikx),jpm)
                       nnn =  nhw(ibib,kk(ikx),jpm)
                       if(matrix_linear()) then
-                         whw(jini:jini+nnn-1)=whw(jini:jini+nnn-1) + wtthis2(iini:iini+nnn-1,ikx) *piofvoltot
+                         do i = 0, nnn-1
+                            !$omp atomic update
+                            whw(jini+i) = whw(jini+i) + wtthis2(iini+i,ikx)*piofvoltot
+                         enddo
                       else
-                         whw(jini:jini+nnn-1)=whw(jini:jini+nnn-1) + wtthis2(iini:iini+nnn-1,0) *piofvoltot &
-                              * 4*wtet(ikx,im,itet) ! piofvoltot= pi/voltot/4
+                         do i = 0, nnn-1
+                            !$omp atomic update
+                            whw(jini+i) = whw(jini+i) + wtthis2(iini+i,0)*piofvoltot*4*wtet(ikx,im,itet) ! piofvoltot= pi/voltot/4
+                         enddo
                       endif
                    enddo
                 enddo
@@ -371,6 +401,7 @@ contains
           enddo
 1100   enddo
 1000  enddo tetrahedronloop
+    !$omp end parallel do
     deallocate(idtetfm, qbzwm,ib1bzm, qbzm)
     !! === Symmetrization of wgt and whw   ===
     !! NOTE: We just enforce the same weight for degenerated bands.
@@ -799,7 +830,8 @@ contains
          integb3p, integb3m , integb2p, integb2m,ww2p,ww3p
     real(8):: frhis(nwhis+1),wtthis(nwhis,4),intega,integb,stot,xxx,wx
     logical ::chkwrt=.false., matrix_linear
-    real(8):: kkvkin(4,4),www(1:4)=.25d0,ec,wcg(4),wttt
+    real(8):: kkvkin(4,4),www(1:4),ec,wcg(4),wttt
+    www = .25d0
     call sortea( -v,ieaord,4,isig)
     WW(1:4) = -v( ieaord(1:4) )   !  ww(1)<ww(2)<ww(3)<ww(4)
     if(( .NOT. (WW(1)<=WW(2))) .OR. ( .NOT. (WW(2)<=WW(3))) .OR. ( .NOT. (WW(3)<=WW(4))) ) then

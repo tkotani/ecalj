@@ -110,6 +110,9 @@ module m_GWinput
   !   W_c at the mean energy.  Removes the knife-edge sensitivity to sharp plasmon poles of W
   !   (LiTi2O4 at <=1000 K, Samples/kBT/kBT_research.md 2026-09-19).  Unchanged where W_c is smooth.
   logical, protected, public :: wcsmear      = .false.
+  ! omp_tetwt: OpenMP threads per MPI rank for the tetrahedron loop of tetwt5 (hx0fp0/hgw W-build).
+  !   0 (default) = leave OMP_NUM_THREADS as it is.
+  integer, protected, public :: omp_tetwt    = 0
   ! MagAtom: variable-length integer array of magnetic-atom site indices.
   ! Allocated to size(>=1) on load; consumers use size(MagAtom) for count.
   integer, protected, public, allocatable :: MagAtom(:)
@@ -468,6 +471,7 @@ contains
     call gv_r(gw, 't_tetrakbt',    t_tetrakbt)
     call gv_r(gw, 't_sigmakbt',    t_sigmakbt)
     call gv_l(gw, 'wcsmear',       wcsmear)
+    call gv_i(gw, 'omp_tetwt',     omp_tetwt)
     ! QforEPS / QforGW: q-point lists for eps and for the one-shot GW driver.
     ! They live in [gw] since 2026-09-17; a copy left under [blocks] is still read.
     ok = take_block(gw, 'QforEPS', block_QforEPS)
