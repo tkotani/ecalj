@@ -8,18 +8,20 @@ module m_tetwt5
   public hisrange,tetwt5x_dtet4,rsvwwk00_4
   private
 contains
-  subroutine tetwt_set_threads()
-    ! [gw] omp_tetwt > 0: number of OpenMP threads for the tetrahedron loop of tetwt5 (per MPI rank).
-    ! 0 (default) leaves OMP_NUM_THREADS as it is.  No-op when compiled without OpenMP.
+  integer function tetwt_threads()
+    ! Number of OpenMP threads for the tetrahedron loop of tetwt5 (per MPI rank): [gw] omp_tetwt if > 0,
+    ! else the OpenMP default (OMP_NUM_THREADS).  Only this loop is affected (num_threads clause);
+    ! MKL and the rest of the process keep their own thread settings.  1 when built without OpenMP.
     use m_GWinput, only: gwinput_init, gwinput_loaded, omp_tetwt
-    !$ use omp_lib, only: omp_set_num_threads, omp_get_max_threads
-    logical, save :: done = .false.
-    if (done) return
-    done = .true.
+    !$ use omp_lib, only: omp_get_max_threads
+    logical, save :: first = .true.
+    tetwt_threads = 1
+    !$ tetwt_threads = omp_get_max_threads()
     call gwinput_init()
-    !$ if (gwinput_loaded .and. omp_tetwt > 0) call omp_set_num_threads(omp_tetwt)
-    !$ if (ipr) write(stdo,"(' tetwt5: OpenMP threads for the tetrahedron loop =',i4)") omp_get_max_threads()
-  end subroutine tetwt_set_threads
+    if (gwinput_loaded .and. omp_tetwt > 0) tetwt_threads = omp_tetwt
+    if (first .and. ipr) write(stdo,"(' tetwt5: OpenMP threads for the tetrahedron loop =',i4)") tetwt_threads
+    first = .false.
+  end function tetwt_threads
   subroutine tetwt5x_dtet4(npm,ncc,q,eband1,eband2,qbas,ginv,efermi,ntetf, nqbzw, nband,  &
        iqbz, fqbz, nqbz, &
        nctot,ecore,  idtetf,qbzw,ib1bz, job, &
@@ -177,6 +179,7 @@ contains
     real(8),parameter:: tolpair=1d-5 ! drop pairs whose maximum possible weight is below this
     logical:: interbandonly=.false.,intrabandonly=.false.
     real(8),parameter:: tolx=1d-5
+    integer:: nthr
     !---------------------------------------------------------------------
     call gwinput_init()
     if (gwinput_loaded) then
@@ -247,11 +250,11 @@ contains
     ! statements below (iwgt/demin/demax for job=0, whw for job=1); everything else is private.
     ! The inner routines (lindtet6, lindtet6_kbt, inttetra6, intttvc6, midk3, integtetn, gausq)
     ! keep no state between calls.  Thread count: [gw] omp_tetwt (0 = leave OMP_NUM_THREADS alone).
-    call tetwt_set_threads()
-    !$omp parallel do default(none) schedule(dynamic,4) &
+    nthr = tetwt_threads()
+    !$omp parallel do default(none) schedule(dynamic,4) num_threads(nthr) &
     !$omp   shared(ntetf,nmtet,ib1bz,idtetf,iqbz,fqbz,qbzw,ib1bzm,idtetfm,qbzwm,ekzz1,ekzz2,nband,nctot, &
     !$omp          efermi,efermia,efermib,wocc,ebmx,wan,npm,intrabandonly,interbandonly,job,usetetrakbt, &
-    !$omp          kbt,tolpair,tolx,frhis,nwhis,iwgt,demax,demin,ibjb,ihw,jhw,nhw,whw,piofvoltot,wtet, &
+    !$omp          kbt,frhis,nwhis,iwgt,demax,demin,ibjb,ihw,jhw,nhw,whw,piofvoltot,wtet, &
     !$omp          chkwrt,stdo) &
     !$omp   private(itet,im,kk,kkv,kkm,kvec,am,voltet,ek_,ekq_,noccx_k,noccx_kq,ebmxx,nbandmx_k,nbandmx_kq, &
     !$omp           jpm,ibxmx,jbxmx,ibx,jbx,ib,jb,eocc,eunocc,fb1,fb2,fbound,ixx,x,demax_,demin_,wtthis2, &
