@@ -5,7 +5,7 @@ module m_hx0fp0
   use m_cmdopt_registry, only: c0_interbandonly, c0_intrabandonly, c2_job
   contains
 subroutine hx0fp0()
-  use m_ReadEfermi,   only: Readefermi, ef
+  use m_ReadEfermi,   only: Readefermi, ef, sigmakbt_setup
   use m_readqg,       only: Readngmx2, Readqg0, ngpmx, ngcmx
   use m_hamindex,     only: Readhamindex, ngrp
   use m_readeigen,    only: Readeval, Init_readeigen, Init_readeigen2
@@ -93,6 +93,7 @@ subroutine hx0fp0()
      write(stdo,*)' nqbz nqibz =',nqbz,nqibz
   endif
   call Readefermi()
+  call sigmakbt_setup()   ! t_sigmakbt: the real-axis W mesh (getwemax) must cover the Fermi-Dirac window of Sigma
   if(ipr) write(stdo,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
   call genallcf_v3(incwfx=0) !use 'ForX0 for core' in GWIN
   if(chipm .AND. nspin==1) call rx( 'chipm mode is for nspin=2')

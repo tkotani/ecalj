@@ -22,6 +22,7 @@ subroutine hgw(do_correlation, do_exchange)
   use m_zmel,only: Mptauof_zmel
   use m_itq,only:  Setitq
   use m_freq,only: Getfreq2,freq_r,nw_i,nw,niw, nwhis_hgw=>nwhis, npm_hgw=>npm
+  use m_ReadEfermi,only: sigmakbt_setup
   use m_w0w0i,only: W0w0i
   use m_readgwinput,only: ReadGwinputKeys
   use m_GWinput,only: mpi_worker_exch, mpi_worker_corr, zmel_batch_gb
@@ -65,6 +66,7 @@ subroutine hgw(do_correlation, do_exchange)
   call Genallcf_v3(incwfx=-1)
   call Read_BZDATA(hx0)
   call Readefermi()
+  call sigmakbt_setup()   ! t_sigmakbt: Fermi-Dirac Sigma occupation + EFERMI_kbt, before the frequency mesh (getwemax) is built
   call ReadGWinputKeys()
   call Readngmx2()
   call Setqbze()

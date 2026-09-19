@@ -10,7 +10,7 @@
 !! Gaussian behaviour. T->0 (kbt->0) reduces to the sharp step.
 module  m_wfac
   implicit none
-  public :: wfacx2, weavx2, set_sigma_fd, fd_cdf, wcdf, wcut
+  public :: wfacx2, weavx2, set_sigma_fd, fd_cdf, wcdf, wcut, sig_window
   ! --- Sigma-side finite-T (Fermi-Dirac) state, set once via set_sigma_fd ---
   logical, save, public :: sig_fd  = .false.  ! .true. -> use Fermi-Dirac kernel at sig_kbt
   real(8), save, public :: sig_kbt = 0d0      ! electronic temperature in Ry (kBT)
@@ -73,6 +73,19 @@ contains
     endif
   end function wcut
   !> Weight of a level ek, smeared by the kernel of wcdf, inside the window [e1,e2].
+  !> Half-width (Ry) of the window around E_F inside which intermediate levels can carry a
+  !! partial occupation, i.e. can enter the real-axis pole term or change the exchange weight:
+  !! 10*esmr for the Gaussian (T=0), the tail of the Fermi-Dirac kernel when t_sigmakbt>0.
+  !! Used by sxcf_scz_count (batch sizing) and the pole loop so that the same states are seen.
+  pure real(8) function sig_window(esmr)
+    real(8), intent(in) :: esmr
+    real(8), parameter :: ddw = 10d0
+    if (sig_fd) then
+       sig_window = wcut(esmr)      ! 15 kBT (see wcut)
+    else
+       sig_window = ddw*esmr
+    endif
+  end function sig_window
   pure real(8) function wfacx2(e1,e2, ek,esmr)
     real(8), intent(in) :: e1, e2, ek, esmr
     real(8), parameter :: ewidthcut=1d-6

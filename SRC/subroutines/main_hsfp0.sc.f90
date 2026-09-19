@@ -137,6 +137,13 @@ contains
     if(mpi__root) call setitq_hsfp0sc(nbmx_sig,ebmx_sig,eftrue,nspinmx)
     call MPI_barrier(comm,ierr)
     if(.not.mpi__root) call setitq_hsfp0sc(nbmx_sig,ebmx_sig,eftrue,nspinmx)
+    ! t_sigmakbt: enable Fermi-Dirac Sigma occupation (wfacx/wfacx2/weavx2) and use the
+    ! finite-T Fermi level EFERMI_kbt for the occupation boundary (both Sigma_x and Sigma_c,
+    ! both hsfp0_sc and hgw binaries route through here). No-op when t_sigmakbt<=0.
+    ! Must precede sxcf_scz_count: the batch sizing uses the same E_F and state window
+    ! (sig_window: 10 esmr at T=0, 15 kBT when Fermi-Dirac) as the self-energy loops.
+    call sigmakbt_setup()
+    if(sig_fd) ef = ef_kbt
     SchedulingSelfEnergyCalculation: block
       if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
       if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
@@ -161,11 +168,6 @@ contains
       enddo
       deallocate(eqt)
     endblock WriteoutInit
-    ! t_sigmakbt: enable Fermi-Dirac Sigma occupation (wfacx/wfacx2/weavx2) and use the
-    ! finite-T Fermi level EFERMI_kbt for the occupation boundary (both Sigma_x and Sigma_c,
-    ! both hsfp0_sc and hgw binaries route through here). No-op when t_sigmakbt<=0.
-    call sigmakbt_setup()
-    if(sig_fd) ef = ef_kbt
     ! Stash phase outputs into module state for _consume / _writeout.
     hs_ixc      = ixc
     hs_exchange = exchange

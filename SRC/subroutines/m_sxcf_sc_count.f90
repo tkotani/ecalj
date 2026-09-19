@@ -8,6 +8,7 @@ module m_sxcf_count !job scheduler for self-energy calculation. icount mechanism
   use m_hamindex,only: ngrp
   !use m_mpi,only: MPI__sxcf_rankdivider
   use m_mpi,only:ipr
+  use m_wfac,only: sig_window
   use m_wfac,only:wfacx2,weavx2
   use m_ftox
   use m_lgunit,only:stdo
@@ -58,7 +59,7 @@ contains
     real(8),allocatable:: vcoud_(:),wfft(:)
     logical:: iprx
     integer:: ixx,ixc,icount,ndivmx
-    real(8),parameter:: pi=4d0*datan(1d0), fpi=4d0*pi, tpi=8d0*datan(1d0),ddw=10d0
+    real(8),parameter:: pi=4d0*datan(1d0), fpi=4d0*pi, tpi=8d0*datan(1d0)
     integer:: kxold,nccc,icount0,ifiqg
     complex(8),allocatable:: zmelc(:,:,:)
     integer,allocatable::ndiv(:),nstatei(:,:),nstatee(:,:)
@@ -155,7 +156,7 @@ contains
               ekq = readeval(qk, isp) 
               ekc(1:nctot)= ecore(1:nctot,isp) ! core
               ekc(nctot+1:nctot+nband) = ekq (1:nband)
-              nt0p = count(ekq<ef+ddw*esmr) +nctot 
+              nt0p = count(ekq<ef+sig_window(esmr)) +nctot 
               if(exchange) then
                 nstateMax(icount) = nt0p
               else   
@@ -259,8 +260,8 @@ contains
                 ekc(1:nctot)= ecore(1:nctot,isp) ! core
                 ekc(nctot+1:nctot+nband) = ekq (1:nband)
                 !nt0  = count(ekc<ef) 
-                nt0p = count(ekq<ef+ddw*esmr) +nctot 
-                nt0m = count(ekq<ef-ddw*esmr) +nctot
+                nt0p = count(ekq<ef+sig_window(esmr)) +nctot 
+                nt0m = count(ekq<ef-sig_window(esmr)) +nctot
                 ntqxx = nbandmx(ip,isp) ! ntqxx is number of bands for <i|sigma|j>.
                 !write(6,*) icount, ispc(icount),kxc(icount),' irot ',irot,ip,kr
                 if(exchange) then

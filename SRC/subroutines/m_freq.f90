@@ -219,6 +219,7 @@ subroutine getwemax(lqall,wemax)!> In order to get |e_ip-ef| on real space integ
   use m_lgunit,only: stdo
   use m_ftox
   use m_mpi,only:ipr
+  use m_wfac,only: sig_window
   implicit none
   logical,intent(in):: lqall
   real(8),intent(out):: wemax
@@ -261,9 +262,11 @@ subroutine getwemax(lqall,wemax)!> In order to get |e_ip-ef| on real space integ
         enddo
      enddo
   enddo
-  !! for Gaussian smearing   !      if(GaussSmear()) then
-  ffac=10d0 !This is OK?
-  !      else   !        ffac=0.5d0  !      endif
+  ! Margin for the smeared occupation edge: 10 esmr (Gaussian, T=0), or the tail of the
+  ! Fermi-Dirac kernel when t_sigmakbt>0 (sig_window), so that the real-axis W mesh reaches
+  ! every pole the self-energy can pick up.  Expressed below as ffac*esmr.
+  ffac=10d0
+  if(esmr > 0d0) ffac = sig_window(esmr)/esmr
   emaxv =  0d0 !-1d99 fixed oct.2003 takao
   eminc =  0d0 !1d99
   do is = 1, nspinmx

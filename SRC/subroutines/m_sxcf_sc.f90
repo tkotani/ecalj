@@ -427,13 +427,13 @@ contains
   subroutine sxcf_correlation_step_kx(kx, ef, esmr, nspinmx)
     use m_mpi, only: comm_b => comm_b_sxc, ipr
     use m_gpu, only: use_gpu
+    use m_wfac, only: sig_window
     integer, intent(in) :: kx, nspinmx
     real(8), intent(in) :: ef, esmr
     integer :: icount, ns1, ns2, kr, nwxi, ns2r, nwx, izz, n_nttp, tri_idx
     integer :: irot, ip, isp
     real(8) :: q(3), qibz_k(3), qbz_kr(3), qk(3)
     logical :: debug
-    real(8), parameter :: ddw = 10d0
     integer, allocatable :: idx_i(:), idx_j(:)
     character(64) :: charli
     character(8)  :: charext
@@ -519,8 +519,8 @@ contains
           sxs_ekc(1:nctot+nband) = [ecore(1:nctot,isp), readeval(qk, isp)]
           sxs_ntqxx = nbandmx(ip,isp) ! sxs_ntqxx is number of bands for <i|sigma|j>.
           sxs_omega(1:ntq) = sxs_eq(1:ntq)
-          sxs_nt0p = count(sxs_ekc < ef + ddw*esmr)
-          sxs_nt0m = count(sxs_ekc < ef - ddw*esmr)
+          sxs_nt0p = count(sxs_ekc < ef + sig_window(esmr))   ! states that can be partially occupied
+          sxs_nt0m = count(sxs_ekc < ef - sig_window(esmr))   ! (10 esmr at T=0, 15 kBT with t_sigmakbt)
           NMBATCHloop: do icount = icountini(isp,ip,irot,kx), icountend(isp,ip,irot,kx) !batch of middle states.
             ns1  = nstti(icount)   !Range of middle states is [ns1:ns2] for given icount
             ns2  = nstte(icount)
