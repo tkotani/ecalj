@@ -180,6 +180,7 @@ contains
     logical:: interbandonly=.false.,intrabandonly=.false.
     real(8),parameter:: tolx=1d-5
     integer:: nthr
+    integer(8):: tw0, tw1, tw2, twrate
     !---------------------------------------------------------------------
     call gwinput_init()
     if (gwinput_loaded) then
@@ -251,6 +252,7 @@ contains
     ! The inner routines (lindtet6, lindtet6_kbt, inttetra6, intttvc6, midk3, integtetn, gausq)
     ! keep no state between calls.  Thread count: [gw] omp_tetwt (0 = leave OMP_NUM_THREADS alone).
     nthr = tetwt_threads()
+    call system_clock(tw0, twrate)
     !$omp parallel do default(none) schedule(dynamic,4) num_threads(nthr) &
     !$omp   shared(ntetf,nmtet,ib1bz,idtetf,iqbz,fqbz,qbzw,ib1bzm,idtetfm,qbzwm,ekzz1,ekzz2,nband,nctot, &
     !$omp          efermi,efermia,efermib,wocc,ebmx,wan,npm,intrabandonly,interbandonly,job,usetetrakbt, &
@@ -405,6 +407,7 @@ contains
 1100   enddo
 1000  enddo tetrahedronloop
     !$omp end parallel do
+    call system_clock(tw1)
     deallocate(idtetfm, qbzwm,ib1bzm, qbzm)
     !! === Symmetrization of wgt and whw   ===
     !! NOTE: We just enforce the same weight for degenerated bands.
@@ -490,6 +493,9 @@ contains
        enddo
 1120   continue
     enddo ! end of kx loop
+    call system_clock(tw2)
+    if(ipr) write(stdo,"(' tetwt5 wall(s): job=',i1,' tetrahedron loop',f8.2,'  symmetrization',f8.2,'  threads',i3)") &
+         job, dble(tw1-tw0)/twrate, dble(tw2-tw1)/twrate, nthr
 
     if(job==0) then
        do jpm =1, npm
