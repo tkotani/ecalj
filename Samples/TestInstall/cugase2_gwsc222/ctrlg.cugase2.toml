@@ -172,14 +172,10 @@ nband_chi0 = 999          # explicit # of bands for chi0 (overrides emax_chi0)
 emax_chi0  = 999.0        # (Ry) emax cutoff for chi0
 nband_sigm = [999, 9999]  # explicit # of bands for Sigma (overrides emax_sigm)
 emax_sigm  = 2            # (Ry) Sigma exact below; extrapolated above
-dw         = 0.005
-omg_c      = 0.04
 iSigMode   = 3            # self-energy mode flag (3 = standard QSGW)
 niw        = 10           # # of imag-axis frequencies (try 6/10/12)
-delta      = -1e-06       # (Ry) small imaginary shift (~1e-6)
 deltaw     = 0.02         # (a.u.) numerical-derivative mesh for Z factor
 esmr       = 0.003        # (Ry) hsfp0 smearing; keep < band gap for insulators
-GaussSmear = true         # Gaussian smearing for poles of G^LDA in hsfp0
 # ----------------------------------------------------------------
 QforEPS = """
  0d0 0d0 0.01d0

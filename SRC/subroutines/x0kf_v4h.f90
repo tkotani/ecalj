@@ -162,7 +162,7 @@ contains
     use m_mpi,only: MPI__reduceSum
 #endif
     use m_gpu, only: use_gpu
-    use m_GWinput, only: SmearX0, SmearX0q0
+    use m_GWinput, only: SmearX0
     use mpi
     implicit none
     intent(in)::      realomega, imagomega, q, iq, npr, schi, crpa, chipm, nolfco, zzr
@@ -174,7 +174,6 @@ contains
     character(10) :: i2char
     logical :: tetwtk = .false.
     real(8) :: zmel_batch_gb
-    real(8) :: smearx0_eff   ! SmearX0 used for this q; SmearX0q0 override at offset-Gamma (iq>nqibz)
     type(stopwatch) :: t_sw_zmel, t_sw_x0, t_sw_dpsion
 
     ! Omega parallelism: split flat range (1-npm)*nwhis:nwhis across comm_b ranks.
@@ -333,13 +332,7 @@ contains
               call stopwatch_init(t_sw_dpsion, 'dpsion')
               call stopwatch_start(t_sw_dpsion)
               call dpsion_init(realomega, imagomega, chipm)
-              smearx0_eff = SmearX0
-              if (iq > nqibz .and. SmearX0q0 >= 0d0) smearx0_eff = SmearX0q0  ! offset-Gamma q0 only override
-              ! confirmation display (NOT ipr-guarded): shows the chi0 Gaussian-filter width actually used per q
-              write(stdo,"(' x0kf SmearX0 check: iq=',i4,'  is_q0p(offsetGamma)=',l1, &
-                   '  SmearX0_used(Ha)=',f12.6,'  [SmearX0=',f10.6,' SmearX0q0=',f10.6,']')") &
-                   iq, (iq>nqibz), smearx0_eff, SmearX0, SmearX0q0
-              call dpsion_chiq(realomega, imagomega, chipm, chi0, zxqi, npr, npr, schi, isp_k, ecut, smearx0_eff)
+              call dpsion_chiq(realomega, imagomega, chipm, chi0, zxqi, npr, npr, schi, isp_k, ecut)
               call stopwatch_pause(t_sw_dpsion)
               call stopwatch_show(t_sw_dpsion)
             endif

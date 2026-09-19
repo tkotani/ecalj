@@ -124,7 +124,6 @@ emax_sigm     = 3.0                 # (Ry) Sigma exact below; extrapolated above
 niw           = 10                  # # of imag-axis frequencies (try 6/10/12)
 HistBin_dw    = 0.0001              # bin width on real-axis at omega=0
 HistBin_ratio = 1.05                # frhis(iw)=(dw/(r-1))*(exp((r-1)*(iw-1))-1)
-GaussSmear    = true                # Gaussian smearing for poles of G^LDA in hsfp0
 deltaw        = 0.02                # (a.u.) numerical-derivative mesh for Z factor
 esmr          = 0.003               # (Ry) hsfp0 smearing; keep < band gap for insulators
 QforEPSau     = true                # true = interpret <QforEPS> as a.u.

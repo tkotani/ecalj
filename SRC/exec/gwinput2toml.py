@@ -258,15 +258,17 @@ def emit_toml(parsed: dict) -> str:
     out.append("")
 
     if parsed["gw"]:
-        # Legacy GaussianFilterX0 is the chi0 Gaussian-filter; the live code now drives it via SmearX0
-        # (same Ha units) and ABORTS if GaussianFilterX0 appears in a .toml. Rename it on conversion.
-        if "GaussianFilterX0" in parsed["gw"]:
-            gfx0 = parsed["gw"].pop("GaussianFilterX0")
-            if "SmearX0" not in parsed["gw"]:
-                parsed["gw"]["SmearX0"] = gfx0
-            sys.stderr.write(f"gwinput2toml: legacy GaussianFilterX0={gfx0} -> SmearX0\n")
         out.append("[gw]")
         gw = dict(parsed["gw"])
+        # Keys that ecalj no longer reads (2026-09-19): GaussianFilterX0 never took effect; GaussSmear,
+        # delta, dw, omg_c, WgtQ0P were read but not consumed; the logical tetrakbt is replaced by
+        # t_tetrakbt>0 (tetrakbt=false -> t_tetrakbt=0).
+        if "tetrakbt" in gw and not gw.pop("tetrakbt"):   # parsed as bool via BOOL_KEYS
+            gw["t_tetrakbt"] = 0
+        for dead in ("GaussianFilterX0", "GaussSmear", "delta", "dw", "omg_c", "WgtQ0P", "SmearX0q0"):
+            if dead in gw:
+                gw.pop(dead)
+                sys.stderr.write(f"gwinput2toml: legacy key {dead} dropped (not read by ecalj)\n")
         # Rename legacy keys to zmel_batch_gb; MEMnmbatch has different semantics so drop it.
         for legacy in ("zmel_max_size", "MEMnmbatch"):
             if legacy in gw and "zmel_batch_gb" not in gw:

@@ -1,3 +1,28 @@
+2026-09-19 (1)
+  [gw] の smearing 系キーを整理 (Samples/kBT/kBT_research.md の 2026-09-18〜19 の調査を受けて)。
+  - 論理キー tetrakbt を廃止し t_tetrakbt (K) に一本化。既定 300 → 0 (= off)。t_sigmakbt と同じ
+    流儀 (>0 で有効)。読み手 3 箇所 (tetwt5, m_tetwt, heftet) は t_tetrakbt > 0 に。古い ctrlg の
+    tetrakbt 行は無視される。kBT/Fe の 3000 K 一発は参照 QPU と完全一致。
+  - 読まれるだけで効いていなかったキーを削除: GaussSmear, delta, dw, omg_c, WgtQ0P、
+    SmearX0q0 (offset-Γ だけの上書き; x0kf_v4h / dpsion_chiq_h の経路も削除)、GaussianFilterX0
+    検出時の abort。SmearX0 (Ha, 既定 0) は明示キーとして残す (通常不要)。
+    gwinit テンプレ・toml_comments・gwinput2toml.py・Samples の ctrlg 89 ファイルから該当行を削除。
+  - 新キー [gw] wcsmear (既定 false): Σc の実軸極項で、中間準位の smearing 核 (esmr の Gaussian、
+    t_sigmakbt>0 なら Fermi-Dirac) を極の位置にも適用し W_c(ω) を核で積分する (wcsmear_weights)。
+    従来は重みだけ核で積分し W_c は平均エネルギーで 1 点評価 (PRB76,165106 Eq.58)。
+    LiTi2O4 1000 K で、一発 GW の E_F 近傍の針 (−3.4 eV) が消え、9³ の iter 2→3 の O 2p 荒れが
+    47.8 → 12.7 meV。極の無い系ではほぼ不変 (Si 一発で SEc 差 平均 14 meV、最大 77 meV は
+    +10〜15 eV の高い状態)。コスト: 実軸極項 ×6.7、全体で 6³ +7 %、9³ +26 %。
+    核の裾は FD 15 kBT / Gaussian 5σ で打ち切り (wcut)。
+    正体: 第一殻 q の W_c(q,ω) の t2g プラズモン極 (ω_p≈1.78 eV, 幅 0.1 eV, --dumpW で確認) を
+    極項が ω_ε = ε_qn − ε_{q−k,n'} で踏み、反復ごとに極の反対側へ渡っていた (シーソー)。
+    T で単調に消える (⟨48|Σc|33⟩ = −27/−13/−3.2/−1.9 eV @ 500/1000/1500/2000 K)。
+  - 診断用に一時的に足した --skipq0Sc / --skipRaxisSc / ECALJ_SKIPKXSC は見え消し (m_sxcf_sc,
+    m_cmdopt_registry の !diag 行)。解析道具 o2p_rough.py / sec_jump.py / read_se2.py は
+    Samples/kBT/LiTi2O4/ に。
+  - 回帰 (gfortran, wcsmear=false): si_gwsc, gas_epsPP_lmfh, fe_gwsc, si_gw_lmfh, nio_gwsc, na 全 PASSED。
+  - ecaljdoc: manual/kBT.md (§3.5 wcsmear、キー統合)、gwinput.md、lmf.md、samples.md、ecaljgpu.md。
+
 2026-09-18 (9)
   Samples/MLOsamples に Materials Project 由来の 7 サンプルを追加 (Ag, Al, NaCl, SiC, CdTe, ZnO,
   TiO2)。入力 (POSCAR, ctrls, ctrlg, syml) と test.py (lmfa → lmf → job_band → job_mlo、rst 無しで

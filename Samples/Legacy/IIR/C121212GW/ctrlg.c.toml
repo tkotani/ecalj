@@ -133,10 +133,8 @@ HistBin_dw    = 0.002         # bin width on real-axis at omega=0
 HistBin_ratio = 1.08          # frhis(iw)=(dw/(r-1))*(exp((r-1)*(iw-1))-1)
 iSigMode      = 3             # self-energy mode flag (3 = standard QSGW)
 niw           = 10            # # of imag-axis frequencies (try 6/10/12)
-delta         = -1e-06        # (Ry) small imaginary shift (~1e-6)
 deltaw        = 0.02          # (a.u.) numerical-derivative mesh for Z factor
 esmr          = 0.003         # (Ry) hsfp0 smearing; keep < band gap for insulators
-GaussSmear    = true          # Gaussian smearing for poles of G^LDA in hsfp0
 EMAXforGW     = 30            # (eV, rel. EFermi) upper band cutoff for GW Sigma
 QforEPSunita  = true
 # ----------------------------------------------------------------

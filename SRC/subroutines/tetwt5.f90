@@ -18,7 +18,7 @@ contains
        nbmx,ebmx,mtet, &
        wan)                 
     use m_keyvalue,only: getkeyvalue
-    use m_GWinput, only: gwinput_init, gwinput_loaded, tg_tetrakbt => tetrakbt
+    use m_GWinput, only: gwinput_init, gwinput_loaded, tg_t_tetrakbt => t_tetrakbt
     !> Obtain weights (imaginary part) for Dielectric function by tetrahedron method.
     !! ------------------------------------------------------------------------------
     !! \param  q       = q-vector in x(q,iw)  2*pi*q(1:3)/alat is the true q.
@@ -168,7 +168,7 @@ contains
     !---------------------------------------------------------------------
     call gwinput_init()
     if (gwinput_loaded) then
-       usetetrakbt = tg_tetrakbt
+       usetetrakbt = tg_t_tetrakbt > 0d0
     else
        call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
 !       call getkeyvalue("GWinput","tetrakbt",usetetrakbt,default=.false.)

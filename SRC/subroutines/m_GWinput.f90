@@ -41,10 +41,11 @@
 !    <QPNT> <QforEPSL> <hrotr> -> [blocks]  NAME = """<raw lines verbatim>"""
 !
 !    renamed / retired on the way:
-!      GaussianFilterX0  -> SmearX0 (same Ha units); GaussianFilterX0 itself aborts
+!      GaussianFilterX0  -> SmearX0 (same Ha units); GaussianFilterX0 was never consumed and is ignored
 !      zmel_max_size     -> zmel_batch_gb
 !      MEMnmbatch        -> dropped (different meaning)
-!      SmearX0 / SmearX0q0 -> superseded by tetrakbt (leave unset)
+!      SmearX0q0, GaussSmear, dw, omg_c, delta, WgtQ0P, tetrakbt -> removed 2026-09-19 (dead keys; the
+!                           logical tetrakbt is replaced by t_tetrakbt>0). Unknown keys are ignored.
 !      mlo_emax          -> retired (mlo_method=4 does not use it)
 !      esm_input.dat     -> [esm] section (see m_lmfinit; migrated in place)
 !
@@ -85,15 +86,7 @@ module m_GWinput
   real(8), protected, public :: HistBin_dw   = 1.0d-5  ! legacy m_freq default
   real(8), protected, public :: deltaw       = 0.02d0
   real(8), protected, public :: esmr         = 0.003d0
-  real(8), protected, public :: delta        = -1.0d-6
-  real(8), protected, public :: dw           = 0.005d0
-  real(8), protected, public :: omg_c        = 0.04d0
-  real(8), protected, public :: WgtQ0P       = 0.01d0
-  real(8), protected, public :: SmearX0      = 0.0d0   ! (Ha) Gaussian smear of X0 (chi0) along freq; 0=off. Driver, see dpsion5
-  real(8), protected, public :: SmearX0q0    = -1.0d0  ! (Ha) <0: unset -> use SmearX0; >=0: SmearX0 override applied at offset-Gamma q0 only
-  ! NOTE: GaussianFilterX0 (a legacy GWinput key) was a dead/unused variable. It is now REMOVED.
-  !       If present in a .toml, load_gw_section aborts and tells the user to use SmearX0 / SmearX0q0.
-  logical, protected, public :: GaussSmear   = .false.
+  real(8), protected, public :: SmearX0      = 0.0d0   ! (Ha) Gaussian smearing of Im chi0 along omega (dpsion5); 0=off. Normally not needed: see wcsmear.
 
   ! Optional flags
   logical, protected, public :: KeepEigen    = .true.
@@ -104,14 +97,20 @@ module m_GWinput
   logical, protected, public :: QforEPSau    = .false.
   logical, protected, public :: QforEPSunita = .false.
   logical, protected, public :: QforEPSLIncLeft = .false.
-  logical, protected, public :: tetrakbt     = .false.
-  ! t_tetrakbt: temperature in Kelvin, real (legacy default 300d0)
-  real(8), protected, public :: t_tetrakbt   = 300.0d0
+  ! t_tetrakbt: chi0-side electronic temperature in Kelvin (finite-T tetrahedron, method B').
+  !   0 (default) = off (T=0 lindtet6).  >0 = Fermi-Dirac occupations at this T (lindtet6_kbt),
+  !   and heftet also writes EFERMI_kbt.  (The old logical 'tetrakbt' is gone: t_tetrakbt>0 means on.)
+  real(8), protected, public :: t_tetrakbt   = 0.0d0
   ! t_sigmakbt: Sigma-side electronic temperature in Kelvin (finite-T self-energy occupation).
   !   0 (default) = off (Gaussian esmr smearing at T=0 EFERMI, legacy behaviour).
   !   >0          = Fermi-Dirac occupation at this T in Sigma_x=Gv & Sigma_c=G(W-v), evaluated
   !                 at the finite-T Fermi level EFERMI_kbt (consistent with tetrakbt on chi0).
   real(8), protected, public :: t_sigmakbt   = 0.0d0
+  ! wcsmear: in the real-axis pole term of Sigma_c, apply the smearing of the intermediate level
+  !   (Gaussian esmr, or Fermi-Dirac when t_sigmakbt>0) to W_c(omega) itself instead of evaluating
+  !   W_c at the mean energy.  Removes the knife-edge sensitivity to sharp plasmon poles of W
+  !   (LiTi2O4 at <=1000 K, Samples/kBT/kBT_research.md 2026-09-19).  Unchanged where W_c is smooth.
+  logical, protected, public :: wcsmear      = .false.
   ! MagAtom: variable-length integer array of magnetic-atom site indices.
   ! Allocated to size(>=1) on load; consumers use size(MagAtom) for count.
   integer, protected, public, allocatable :: MagAtom(:)
@@ -469,6 +468,7 @@ contains
     call gv_i(gw, 'BZmesh',        BZmesh)
     call gv_r(gw, 't_tetrakbt',    t_tetrakbt)
     call gv_r(gw, 't_sigmakbt',    t_sigmakbt)
+    call gv_l(gw, 'wcsmear',       wcsmear)
     ! QforEPS / QforGW: q-point lists for eps and for the one-shot GW driver.
     ! They live in [gw] since 2026-09-17; a copy left under [blocks] is still read.
     ok = take_block(gw, 'QforEPS', block_QforEPS)
@@ -496,21 +496,7 @@ contains
     call gv_r(gw, 'HistBin_dw',    HistBin_dw)
     call gv_r(gw, 'deltaw',        deltaw)
     call gv_r(gw, 'esmr',          esmr)
-    call gv_r(gw, 'delta',         delta)
-    call gv_r(gw, 'dw',            dw)
-    call gv_r(gw, 'omg_c',         omg_c)
-    call gv_r(gw, 'WgtQ0P',        WgtQ0P)
     call gv_r(gw, 'SmearX0',       SmearX0)
-    call gv_r(gw, 'SmearX0q0',     SmearX0q0)
-    ! GaussianFilterX0 is removed (it was a dead key that never took effect). Abort loudly if a .toml still has it.
-    block
-      real(8) :: gfx0_dummy
-      integer :: gfx0_stat
-      call get_value(gw, 'GaussianFilterX0', gfx0_dummy, stat=gfx0_stat)
-      if (gfx0_stat == 0) call rx('m_GWinput: GaussianFilterX0 is no longer supported (it was a dead, '// &
-        'never-consumed key). Use SmearX0 (Ha) for the chi0 Gaussian filter and SmearX0q0 for the '// &
-        'offset-Gamma(q0)-only override. Remove GaussianFilterX0 from your .toml.')
-    end block
     call gv_r(gw, 'wan_conv_1st',  wan_conv_1st)
     call gv_r(gw, 'wan_conv_end',  wan_conv_end)
     call gv_r(gw, 'wan_max_1st',   wan_max_1st)
@@ -574,7 +560,6 @@ contains
     call gv_i(gw, 'NormChk',            NormChk_int)  ! integer form (switch.f90)
 
     ! Boolean flags
-    call gv_l(gw, 'GaussSmear',      GaussSmear)
     call gv_l(gw, 'KeepEigen',       KeepEigen)
     call gv_l(gw, 'KeepCMLO',        KeepCMLO)
     call gv_l(gw, 'KeepPPOVL',       KeepPPOVL)
@@ -584,7 +569,6 @@ contains
     call gv_l(gw, 'QforEPSau',       QforEPSau)
     call gv_l(gw, 'QforEPSunita',    QforEPSunita)
     call gv_l(gw, 'QforEPSLIncLeft', QforEPSLIncLeft)
-    call gv_l(gw, 'tetrakbt',        tetrakbt)
     call gv_l(gw, 'wan_in_ewin',     wan_in_ewin)
     call gv_l(gw, 'KeepPositiveCou', KeepPositiveCou)
 

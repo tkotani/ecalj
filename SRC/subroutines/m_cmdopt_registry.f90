@@ -146,9 +146,8 @@ module m_cmdopt_registry
   logical, public, protected, save :: c0_removeFermiWindowLiTi2O4 = .false.  ! drop EF+-2eV bands from chi0 (diagnostic, m_tetwt)
   logical, public, protected, save :: c0_dumpW           = .false.  ! persist SHM W-V to __WVR.<iq>/__WVI.<iq> (combined hgw, analysis)
   logical, public, protected, save :: c0_WVR2ptRaxis     = .false.  ! Sc real-axis (WVR) pole: 2-point LINEAR Wc(we) (alagr2zz, no overshoot) instead of 3-point Lagrange alagr3zz
-  logical, public, protected, save :: c0_skipq0Sc        = .false.  ! diagnostic: drop the Gamma-cell (kx=1, offset-Gamma head) W from Sigma_c (m_sxcf_sc)
-  logical, public, protected, save :: c0_skipRaxisSc     = .false.  ! diagnostic: drop the real-axis pole term of Sigma_c, keep the imaginary-axis integral (m_sxcf_sc)
-  logical, public, protected, save :: c0_wcsmear         = .false.  ! Sc real-axis pole term: apply the level smearing (esmr / FD) to W_c(omega) instead of to the mean energy (m_sxcf_sc)
+!diag   logical, public, protected, save :: c0_skipq0Sc        = .false.  ! diagnostic: drop the Gamma-cell (kx=1, offset-Gamma head) W from Sigma_c (m_sxcf_sc)
+!diag   logical, public, protected, save :: c0_skipRaxisSc     = .false.  ! diagnostic: drop the real-axis pole term of Sigma_c, keep the imaginary-axis integral (m_sxcf_sc)
   logical, public, protected, save :: c0_shorten         = .false.
   logical, public, protected, save :: c0_show_time       = .false.
   logical, public, protected, save :: c0_showdmat        = .false.
@@ -389,9 +388,8 @@ contains
     call set0('--dos',            c0_dos, narg, arglist)
     call set0('--dumpW',          c0_dumpW, narg, arglist)
     call set0('--WVR2ptRaxis',    c0_WVR2ptRaxis, narg, arglist)
-    call set0('--skipq0Sc',       c0_skipq0Sc, narg, arglist)
-    call set0('--skipRaxisSc',    c0_skipRaxisSc, narg, arglist)
-    call set0('--wcsmear',        c0_wcsmear, narg, arglist)
+!diag     call set0('--skipq0Sc',       c0_skipq0Sc, narg, arglist)
+!diag     call set0('--skipRaxisSc',    c0_skipRaxisSc, narg, arglist)
     call set0('--eigen-at-k',     c0_eigen_at_k, narg, arglist)
     call set0('--espot',          c0_espot, narg, arglist)
     call set0('--estaticall',     c0_estaticall, narg, arglist)

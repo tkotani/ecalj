@@ -153,7 +153,6 @@ HistBin_ratio = 1.05       # bin: frhis(iw) = (dw/(r-1))*(exp((r-1)*(iw-1)) - 1)
 #                     # method B-prime) and the finite-T Fermi level EFERMI_kbt; false = T=0 tetrahedron
 # t_tetrakbt = 300    # (K) electronic temperature for chi0
 # t_sigmakbt = 300    # (K) Fermi-Dirac occupations in Sigma too; set equal to t_tetrakbt (needs tetrakbt)
-GaussSmear    = true       # Gaussian smearing for poles of G^LDA in hsfp0
 deltaw        = 0.02       # (a.u.) numerical-derivative mesh for Z factor
 esmr          = 0.003      # (Ry) hsfp0 smearing; keep < band gap for insulators
 # ----- Q for diagonal Sigma=GW (gw_lmfh) -----

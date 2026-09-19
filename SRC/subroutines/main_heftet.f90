@@ -4,7 +4,7 @@ module m_heftet
   public heftet
 contains
   subroutine heftet() bind(C)! Calculates the Fermi energy by tetrahedron method.
-    use m_GWinput, only: gwinput_init, gwinput_loaded, tg_tetrakbt => tetrakbt
+    use m_GWinput, only: gwinput_init, gwinput_loaded, tg_t_tetrakbt => t_tetrakbt
     use m_read_bzdata,only: read_bzdata, idteti,qbz,qibz,dq_,nqibz,ntetf,nteti,ginv,nqbz
     use m_genallcf_v3,only: genallcf_v3,natom,nspin,nl,nn,nnv,nnc,nlnmx, nctot,niw,nspx
     use m_genallcf_v3,only: alat, deltaw,esmr, plat, pos,z,ecore, konf,nlnx,valn=>qval
@@ -168,7 +168,7 @@ contains
     ! empty EFERMI_kbt for every fresh insulator with tetrakbt=true, 2026-09-17).
     call gwinput_init()
     if (gwinput_loaded) then
-      usetetrakbt = tg_tetrakbt
+      usetetrakbt = tg_t_tetrakbt > 0d0
     else
       call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
     endif

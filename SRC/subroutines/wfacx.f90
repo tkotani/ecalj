@@ -67,9 +67,9 @@ contains
   pure real(8) function wcut(esmr)
     real(8), intent(in) :: esmr
     if (sig_fd) then
-       wcut = 30d0*sig_kbt
+       wcut = 15d0*sig_kbt   ! g_FD(15 kBT) ~ 3e-7 of the peak
     else
-       wcut = 6d0*esmr
+       wcut = 5d0*esmr       ! g_Gauss(5 sigma) ~ 4e-6 of the peak
     endif
   end function wcut
   pure real(8) function wfacx2(e1,e2, ek,esmr)

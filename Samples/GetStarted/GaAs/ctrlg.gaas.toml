@@ -152,7 +152,6 @@ HistBin_dw    = 1e-4       # bin width along real axis at omega=0
 HistBin_ratio = 1.05       # bin: frhis(iw) = (dw/(r-1))*(exp((r-1)*(iw-1)) - 1)
 # ----------------------------------------------------------------
 # SmearX0 = 0.01        # (Ha) Gaussian smear for X0 (metals)
-GaussSmear    = true       # Gaussian smearing for poles of G^LDA in hsfp0
 deltaw        = 0.02       # (a.u.) numerical-derivative mesh for Z factor
 esmr          = 0.003      # (Ry) hsfp0 smearing; keep < band gap for insulators
 # ----- Q for diagonal Sigma=GW (gw_lmfh) -----

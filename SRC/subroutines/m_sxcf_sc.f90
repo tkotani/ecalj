@@ -95,7 +95,8 @@ module m_sxcf_sc
   use m_nvfortran, only: findloc
   use m_hamindex, only: ngrp
   use m_blas, only: m_op_c, m_op_n, m_op_t
-use m_cmdopt_registry, only: c0_debug, c0_WVR2ptRaxis, c0_skipq0Sc, c0_skipRaxisSc, c0_wcsmear
+use m_cmdopt_registry, only: c0_debug, c0_WVR2ptRaxis
+use m_GWinput, only: tg_wcsmear => wcsmear
 #if defined(__MP) && defined(__GPU)
   use m_blas, only: gemm => cmm_d
 #elif defined(__MP)
@@ -411,7 +412,7 @@ contains
     integer :: icount, ns1, ns2, kr, nwxi, ns2r, nwx, izz, n_nttp, tri_idx
     integer :: irot, ip, isp
     real(8) :: q(3), qibz_k(3), qbz_kr(3), qk(3)
-    logical :: debug, skipthis
+    logical :: debug !diag , skipthis
     real(8), parameter :: ddw = 10d0
     integer, allocatable :: idx_i(:), idx_j(:)
     character(64) :: charli
@@ -485,26 +486,31 @@ contains
     izz = 0
     ! --skipq0Sc (diagnostic): leave out the Gamma-cell W (kx=1, whose head comes from the offset-Gamma
     ! chi0) from Sigma_c.  Everything else (WV open/close, exchange) is untouched.
-    SkipKxSc: block ! diagnostic: ECALJ_SKIPKXSC="2 5" leaves those kx (W q-points) out of Sigma_c
-      integer, save :: nskipkx = -1, skipkx(64)
-      character(256) :: env
-      integer :: elen, estat, k
-      if (nskipkx < 0) then
-        nskipkx = 0
-        call get_environment_variable('ECALJ_SKIPKXSC', env, elen, estat)
-        if (estat == 0 .and. elen > 0) then
-          do k = 1, 64
-            read(env, *, iostat=estat) skipkx(1:k)
-            if (estat /= 0) exit
-            nskipkx = k
-          enddo
-        endif
-      endif
-      skipthis = (c0_skipq0Sc .and. kx == 1) .or. any(skipkx(1:nskipkx) == kx)
-    end block SkipKxSc
-    if (skipthis) then
-      if (ipr) write(stdo,ftox) ' skipSc: Sigma_c contribution of kx=',kx,' skipped (--skipq0Sc / ECALJ_SKIPKXSC)'
-    else
+    ! Diagnostics used on 2026-09-18/19 (Samples/kBT/kBT_research.md), kept commented out:
+    !   --skipq0Sc      : leave the Gamma-cell W (kx=1) out of Sigma_c
+    !   ECALJ_SKIPKXSC  : leave the listed kx out of Sigma_c
+    ! To re-enable: uncomment this block, the 'endif ! --skipq0Sc' after irotloop, the
+    ! c0_skipq0Sc entry in m_cmdopt_registry, and the declaration of skipthis.
+!diag     SkipKxSc: block ! diagnostic: ECALJ_SKIPKXSC="2 5" leaves those kx (W q-points) out of Sigma_c
+!diag       integer, save :: nskipkx = -1, skipkx(64)
+!diag       character(256) :: env
+!diag       integer :: elen, estat, k
+!diag       if (nskipkx < 0) then
+!diag         nskipkx = 0
+!diag         call get_environment_variable('ECALJ_SKIPKXSC', env, elen, estat)
+!diag         if (estat == 0 .and. elen > 0) then
+!diag           do k = 1, 64
+!diag             read(env, *, iostat=estat) skipkx(1:k)
+!diag             if (estat /= 0) exit
+!diag             nskipkx = k
+!diag           enddo
+!diag         endif
+!diag       endif
+!diag       skipthis = (c0_skipq0Sc .and. kx == 1) .or. any(skipkx(1:nskipkx) == kx)
+!diag     end block SkipKxSc
+!diag     if (skipthis) then
+!diag       if (ipr) write(stdo,ftox) ' skipSc: Sigma_c contribution of kx=',kx,' skipped (--skipq0Sc / ECALJ_SKIPKXSC)'
+!diag     else
     irotloop:            do irot = 1, ngrp    ! (kx,irot) determines qbz(:,kr), which is in FBZ. W(kx) is rotated to be W(g(kx))
       iploopexternal:    do ip   = 1, nqibz   !external index for q of \Sigma(q,isp)
         isploopexternal: do isp  = 1, nspinmx !external index
@@ -644,7 +650,7 @@ contains
                   attributes(device) :: wz_iw, czwc_iw
 #endif
                   nttp = 0
-                  if (c0_skipRaxisSc) goto 1113 ! --skipRaxisSc (diagnostic): no real-axis pole term
+!diag             if (c0_skipRaxisSc) goto 1113 ! --skipRaxisSc (diagnostic): no real-axis pole term (2026-09-19)
                   itploop: do itp = 1, sxs_ntqxx
                     omg   = sxs_omega(itp)
                     itini = merge(max(ns1,sxs_nt0m+1),  ns1, mask= omg>=ef)
@@ -653,7 +659,7 @@ contains
                       esmr_it = merge(0d0,esmr,mask=it<=nctot)
                       wfac_(it,itp) = wfacx2(omg, ef, sxs_ekc(it), esmr_it)
                       if (wfac_(it,itp) < wfaccut) cycle
-                      smear_it = c0_wcsmear .and. wcut(esmr_it) > 0d0
+                      smear_it = tg_wcsmear .and. wcut(esmr_it) > 0d0
                       if (smear_it) then ! --wcsmear: kernel-integrated weights over the W mesh points
                         call wcsmear_weights(omg, ef, sxs_ekc(it), esmr_it, nw, freq_r(0:nw), iw1, iw2, wts)
                         if (iw2 < iw1) cycle
@@ -681,7 +687,7 @@ contains
                       wfac_(it,itp) = wfacx2(omg, ef, sxs_ekc(it), esmr_it) !Gaussian smearing
                       if (wfac_(it,itp) < wfaccut) cycle
                       wfac_(it,itp) =  wfac_(it,itp)*sxs_wkkr*dsign(1d0, omg-ef) !wfac_ = $w$ weight (smeared thus truncated by ef). See the sentences.
-                      smear_it = c0_wcsmear .and. wcut(esmr_it) > 0d0
+                      smear_it = tg_wcsmear .and. wcut(esmr_it) > 0d0
                       if (smear_it) then ! --wcsmear: the smearing of the level ek is applied to W_c(omega), not to the mean energy
                         call wcsmear_weights(omg, ef, sxs_ekc(it), esmr_it, nw, freq_r(0:nw), iw1, iw2, wts)
                         do i = iw1, iw2
@@ -792,7 +798,7 @@ contains
         enddo isploopexternal
       enddo iploopexternal
     enddo irotloop
-    endif ! --skipq0Sc
+!diag     endif ! --skipq0Sc
     ReleaseWV: block !subroutine releasewv()
       if (any(kx == kxc(:))) then
         ! wvi/wvr_upper: device allocatable → deallocate frees GPU memory directly

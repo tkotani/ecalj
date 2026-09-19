@@ -115,8 +115,7 @@ phispinsym  = false  # true = spin-averaged radial wfns (needed for SOC=1 pertur
 # nband_chi0/emax_chi0: bands/energy window for chi0.
 # Touch only if you know what you are doing -- defaults are sensible.
 [gw]
-tetrakbt       = false      # finite-T tetrahedron for X0 (method B-prime); supersedes SmearX0
-t_tetrakbt     = 0          # (K) electronic temperature for tetrakbt (default 300)
+t_tetrakbt     = 0          # (K) chi0 finite-T tetrahedron (method B-prime); 0 = off
 n1n2n3         = [4, 4, 4]  # BZ mesh for GW
 n1n2n3eps      = [4, 4, 4]
 QpGcut_psi     = 4.0        # |q+G| cutoff for eigenfunctions (a.u. unless unit_2pioa=true)
@@ -128,10 +127,8 @@ HistBin_dw     = 1e-06      # bin width on real-axis at omega=0
 HistBin_ratio  = 1.03       # frhis(iw)=(dw/(r-1))*(exp((r-1)*(iw-1))-1)
 iSigMode       = 3          # self-energy mode flag (3 = standard QSGW)
 niw            = 10         # # of imag-axis frequencies (try 6/10/12)
-delta          = -1e-06     # (Ry) small imaginary shift (~1e-6)
 deltaw         = 0.02       # (a.u.) numerical-derivative mesh for Z factor
 esmr           = 0.003      # (Ry) hsfp0 smearing; keep < band gap for insulators
-GaussSmear     = true       # Gaussian smearing for poles of G^LDA in hsfp0
 QforEPSLIncLeft = true
 MagAtom        = 1
 wan_out_emin   = -10        # (eV, rel. EFermi) Wannier outer window low

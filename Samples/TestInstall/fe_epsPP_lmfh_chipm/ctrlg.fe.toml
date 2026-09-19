@@ -124,7 +124,6 @@ rmax = 3.5
 [gw]
 MagAtom       = 1
 BZmesh        = [1]
-WgtQ0P        = 0.01
 NormChk       = false
 n1n2n3        = [2, 2, 2]  # BZ mesh for GW
 QpGcut_psi    = 2.7        # |q+G| cutoff for eigenfunctions (a.u. unless unit_2pioa=true)
@@ -136,10 +135,8 @@ HistBin_ratio = 1.08       # frhis(iw)=(dw/(r-1))*(exp((r-1)*(iw-1))-1)
 HistBin_dw    = 0.0005     # bin width on real-axis at omega=0
 iSigMode      = 3          # self-energy mode flag (3 = standard QSGW)
 niw           = 6          # # of imag-axis frequencies (try 6/10/12)
-delta         = -1e-08     # (Ry) small imaginary shift (~1e-6)
 deltaw        = 0.02       # (a.u.) numerical-derivative mesh for Z factor
 esmr          = 0.003      # (Ry) hsfp0 smearing; keep < band gap for insulators
-GaussSmear    = true       # Gaussian smearing for poles of G^LDA in hsfp0
 # ----------------------------------------------------------------
 QforEPS = """
 0d0 0d0 0d0

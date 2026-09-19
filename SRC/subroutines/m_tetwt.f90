@@ -40,7 +40,7 @@ contains
     use m_read_bzdata,only: qlat,ginv, ntetf,idtetf,ib1bz,nqibz_mtet=>nqibz,nqbz,qbz,nqbzw,qbzw, idtetf,ib1bz, qbzw,nqbzw !for tetrahedron
     use m_ReadEfermi,only: ef, ef_kbt, readefermi_kbt
     use m_readgwinput,only: ebmx,nbmx,mtet
-    use m_GWinput,only: gwinput_init, gwinput_loaded, tg_tetrakbt=>tetrakbt
+    use m_GWinput,only: gwinput_init, gwinput_loaded, tg_t_tetrakbt=>t_tetrakbt
     use m_tetwt5,only:tetwt5x_dtet4,rsvwwk00_4,hisrange
     intent(in)::      q,iq,is,isf,ekxx1,ekxx2,nband,wan
     !! nqibz_mtet: is only for mtet/=(/1,1,1/) --->(we usually use only this case)
@@ -141,7 +141,7 @@ contains
     ! Finite-T tetrahedron: use the finite-T Fermi level (EFERMI_kbt from heftet)
     ! so the chi0 occupation f(e-Ef;T) and Ef are at the same electron temperature.
     call gwinput_init()
-    usetetrakbt = gwinput_loaded .and. tg_tetrakbt
+    usetetrakbt = gwinput_loaded .and. tg_t_tetrakbt > 0d0
     eftet = ef
     if(usetetrakbt) then
        call readefermi_kbt()   ! reads EFERMI_kbt -> ef_kbt

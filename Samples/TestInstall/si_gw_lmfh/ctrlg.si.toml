@@ -116,14 +116,10 @@ QpGcut_psi = 2.7        # |q+G| cutoff for eigenfunctions (a.u. unless unit_2pio
 QpGcut_cou = 2.5        # |q+G| cutoff for Coulomb / W
 unit_2pioa = false      # false: a.u.;  true: 2*pi/alat
 alpha_OffG = 1.0        # offset-Gamma auxiliary function (dimensionless)
-dw         = 0.04
-omg_c      = 0.5
 iSigMode   = 3          # self-energy mode flag (3 = standard QSGW)
 niw        = 6          # # of imag-axis frequencies (try 6/10/12)
-delta      = -0.0001    # (Ry) small imaginary shift (~1e-6)
 deltaw     = 0.02       # (a.u.) numerical-derivative mesh for Z factor
 esmr       = 0.003      # (Ry) hsfp0 smearing; keep < band gap for insulators
-GaussSmear = true       # Gaussian smearing for poles of G^LDA in hsfp0
 EMAXforGW  = 3          # (eV, rel. EFermi) upper band cutoff for GW Sigma
 # ----------------------------------------------------------------
 QforGW = """
