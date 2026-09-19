@@ -95,7 +95,7 @@ module m_sxcf_sc
   use m_nvfortran, only: findloc
   use m_hamindex, only: ngrp
   use m_blas, only: m_op_c, m_op_n, m_op_t
-use m_cmdopt_registry, only: c0_debug, c0_WVR2ptRaxis
+use m_cmdopt_registry, only: c0_debug, c0_WVR2ptRaxis, c0_wcsmear
 use m_GWinput, only: tg_wcsmear => wcsmear
 #if defined(__MP) && defined(__GPU)
   use m_blas, only: gemm => cmm_d
@@ -659,7 +659,7 @@ contains
                       esmr_it = merge(0d0,esmr,mask=it<=nctot)
                       wfac_(it,itp) = wfacx2(omg, ef, sxs_ekc(it), esmr_it)
                       if (wfac_(it,itp) < wfaccut) cycle
-                      smear_it = tg_wcsmear .and. wcut(esmr_it) > 0d0
+                      smear_it = (tg_wcsmear .or. c0_wcsmear) .and. wcut(esmr_it) > 0d0
                       if (smear_it) then ! --wcsmear: kernel-integrated weights over the W mesh points
                         call wcsmear_weights(omg, ef, sxs_ekc(it), esmr_it, nw, freq_r(0:nw), iw1, iw2, wts)
                         if (iw2 < iw1) cycle
@@ -687,7 +687,7 @@ contains
                       wfac_(it,itp) = wfacx2(omg, ef, sxs_ekc(it), esmr_it) !Gaussian smearing
                       if (wfac_(it,itp) < wfaccut) cycle
                       wfac_(it,itp) =  wfac_(it,itp)*sxs_wkkr*dsign(1d0, omg-ef) !wfac_ = $w$ weight (smeared thus truncated by ef). See the sentences.
-                      smear_it = tg_wcsmear .and. wcut(esmr_it) > 0d0
+                      smear_it = (tg_wcsmear .or. c0_wcsmear) .and. wcut(esmr_it) > 0d0
                       if (smear_it) then ! --wcsmear: the smearing of the level ek is applied to W_c(omega), not to the mean energy
                         call wcsmear_weights(omg, ef, sxs_ekc(it), esmr_it, nw, freq_r(0:nw), iw1, iw2, wts)
                         do i = iw1, iw2
