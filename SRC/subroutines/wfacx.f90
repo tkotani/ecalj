@@ -10,7 +10,7 @@
 !! Gaussian behaviour. T->0 (kbt->0) reduces to the sharp step.
 module  m_wfac
   implicit none
-  public :: wfacx2, weavx2, set_sigma_fd, fd_cdf
+  public :: wfacx2, weavx2, set_sigma_fd, fd_cdf, wcdf, wcut
   ! --- Sigma-side finite-T (Fermi-Dirac) state, set once via set_sigma_fd ---
   logical, save, public :: sig_fd  = .false.  ! .true. -> use Fermi-Dirac kernel at sig_kbt
   real(8), save, public :: sig_kbt = 0d0      ! electronic temperature in Ry (kBT)
@@ -52,6 +52,26 @@ contains
     fd_iav = 0.5d0*( x*tanh(x/a) - a*lncosh(x/a) )
   end function fd_iav
 
+  !> CDF of the occupation kernel used by wfacx2: boundary at x = e - ek (Gaussian esmr, or FD when sig_fd).
+  pure real(8) function wcdf(x, esmr)
+    real(8), intent(in) :: x, esmr
+    if (sig_fd) then
+       wcdf = fd_cdf(x, sig_kbt)
+    elseif (esmr == 0d0) then
+       wcdf = merge(1d0, 0d0, x >= 0d0)
+    else
+       wcdf = 0.5d0*erfc(-x/sqrt(2d0)/esmr)
+    endif
+  end function wcdf
+  !> half-width (Ry) beyond which the kernel of wcdf is negligible (0 for the sharp step).
+  pure real(8) function wcut(esmr)
+    real(8), intent(in) :: esmr
+    if (sig_fd) then
+       wcut = 30d0*sig_kbt
+    else
+       wcut = 6d0*esmr
+    endif
+  end function wcut
   pure real(8) function wfacx2(e1,e2, ek,esmr)
     real(8), intent(in) :: e1, e2, ek, esmr
     real(8) ::el,eh

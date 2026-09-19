@@ -95,7 +95,7 @@ module m_sxcf_sc
   use m_nvfortran, only: findloc
   use m_hamindex, only: ngrp
   use m_blas, only: m_op_c, m_op_n, m_op_t
-use m_cmdopt_registry, only: c0_debug, c0_WVR2ptRaxis, c0_skipq0Sc, c0_skipRaxisSc
+use m_cmdopt_registry, only: c0_debug, c0_WVR2ptRaxis, c0_skipq0Sc, c0_skipRaxisSc, c0_wcsmear
 #if defined(__MP) && defined(__GPU)
   use m_blas, only: gemm => cmm_d
 #elif defined(__MP)
@@ -361,6 +361,48 @@ contains
 
   ! One iteration of the kxloop: read/load W(kx), then accumulate the
   ! correlation contribution into zsecall(:,:,ip,isp) for all (irot, ip, isp).
+  subroutine wcsmear_weights(omg, ef, ek, esmr, nw, freq_r, iw1, iw2, wts)
+    ! --wcsmear: weights of the real-axis pole term when the smearing of the intermediate level ek
+    ! is applied to W_c(omega) itself (Eq.55 of PRB76,165106 integrated over the smeared level)
+    ! instead of evaluating W_c at the mean energy omega_bar (Eq.58).
+    ! The level e' runs over the window between ef and omg with the kernel g(e'-ek) = dPhi/de'
+    ! (Phi = wcdf: Gaussian esmr, or Fermi-Dirac when t_sigmakbt), and omega = |omg - e'|/2 (Hartree).
+    ! W mesh point iw owns omega in [(freq_r(iw-1)+freq_r(iw))/2, (freq_r(iw)+freq_r(iw+1))/2]; its
+    ! weight is Phi(b-ek)-Phi(a-ek) over the e' interval mapped from that omega interval, clipped to
+    ! the window.  sum(wts) = wfacx2(omg,ef,ek,esmr) up to the tail beyond freq_r(nw).
+    use m_wfac, only: wcdf, wcut
+    real(8), intent(in) :: omg, ef, ek, esmr
+    integer, intent(in) :: nw
+    real(8), intent(in) :: freq_r(0:nw)
+    integer, intent(out) :: iw1, iw2
+    real(8), intent(out) :: wts(0:nw)
+    real(8) :: el, eh, sgn, wlo, whi, a, b, t, cut, wa, wb
+    integer :: iw, ia, ib
+    wts = 0d0; iw1 = 0; iw2 = -1
+    el = min(omg, ef); eh = max(omg, ef)
+    cut = wcut(esmr)
+    el = max(el, ek - cut); eh = min(eh, ek + cut)     ! where the kernel is non-negligible
+    if (eh <= el) return
+    sgn = merge(1d0, -1d0, omg < ef)                    ! e' = omg + sgn*2*omega lies between omg and ef
+    wa = 0.5d0*min(abs(omg-el), abs(omg-eh)); wb = 0.5d0*max(abs(omg-el), abs(omg-eh)) ! omega range (Hartree)
+    ia = 0; ib = nw
+    do iw = 1, nw                                       ! first point whose cell reaches wa, last whose cell starts below wb
+      if (0.5d0*(freq_r(iw-1)+freq_r(iw)) <= wa) ia = iw
+      if (0.5d0*(freq_r(iw-1)+freq_r(iw)) >= wb) then; ib = iw - 1; exit; endif
+    enddo
+    do iw = ia, ib
+      wlo = merge(0d0, 0.5d0*(freq_r(iw-1)+freq_r(iw)), iw == 0)
+      whi = merge(freq_r(nw), 0.5d0*(freq_r(iw)+freq_r(iw+1)), iw == nw)
+      a = omg + sgn*2d0*wlo; b = omg + sgn*2d0*whi
+      if (a > b) then; t = a; a = b; b = t; endif
+      a = max(a, el); b = min(b, eh)
+      if (b <= a) cycle
+      wts(iw) = wcdf(b - ek, esmr) - wcdf(a - ek, esmr)
+      if (wts(iw) < 1d-12) then; wts(iw) = 0d0; cycle; endif
+      if (iw2 < iw1) iw1 = iw
+      iw2 = iw
+    enddo
+  end subroutine wcsmear_weights
   subroutine sxcf_correlation_step_kx(kx, ef, esmr, nspinmx)
     use m_mpi, only: comm_b => comm_b_sxc, ipr
     use m_gpu, only: use_gpu
@@ -590,9 +632,11 @@ contains
 
                 call stopwatch_start(sxs_cr)
                 CorrelationSelfEnergyRealAxis: Block !Real Axis integral. Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
-                  use m_wfac, only: wfacx2, weavx2
-                  integer :: itini, itend, ittp, ittp3(3), ixs, nttp_max, nttp(0:nw), i, j
+                  use m_wfac, only: wfacx2, weavx2, wcut
+                  integer :: itini, itend, ittp, ittp3(3), ixs, nttp_max, nttp(0:nw), i, j, iw1, iw2
                   real(8) :: we_(ns1:ns2r,sxs_ntqxx), wfac_(ns1:ns2r,sxs_ntqxx), omg, amat(3,3), wgt3ititp(3), tt2p
+                  real(8) :: wts(0:nw), esmr_it
+                  logical :: smear_it
                   complex(kind=kp), allocatable :: wz_iw(:,:), czwc_iw(:,:)
                   real(8), allocatable :: wgtiw(:,:)
                   integer, allocatable :: itw(:,:), itpw(:,:)
@@ -606,8 +650,16 @@ contains
                     itini = merge(max(ns1,sxs_nt0m+1),  ns1, mask= omg>=ef)
                     itend = merge(ns2r,  min(sxs_nt0p,ns2r), mask= omg>=ef)
                     do it = itini, itend
-                      wfac_(it,itp) = wfacx2(omg, ef, sxs_ekc(it), merge(0d0,esmr,mask=it<=nctot))
+                      esmr_it = merge(0d0,esmr,mask=it<=nctot)
+                      wfac_(it,itp) = wfacx2(omg, ef, sxs_ekc(it), esmr_it)
                       if (wfac_(it,itp) < wfaccut) cycle
+                      smear_it = c0_wcsmear .and. wcut(esmr_it) > 0d0
+                      if (smear_it) then ! --wcsmear: kernel-integrated weights over the W mesh points
+                        call wcsmear_weights(omg, ef, sxs_ekc(it), esmr_it, nw, freq_r(0:nw), iw1, iw2, wts)
+                        if (iw2 < iw1) cycle
+                        nttp(iw1:iw2) = nttp(iw1:iw2) + 1
+                        cycle
+                      endif
                       we_(it,itp)  = .5d0*abs(omg - weavx2(omg,ef, sxs_ekc(it),esmr))
                       ixs = findloc(freq_r(1:nw)>we_(it,itp), value=.true., dim=1)
                       if (ixs < 1 .or. ixs > nw-1) cycle ! OOB guard: findloc miss (0) writes nttp(-1); ixs=nw writes nttp(nw+1). ixs=1 is VALID (bin 0 = static-W slot, freq_r(0)=0).
@@ -625,9 +677,22 @@ contains
                     itini = merge(max(ns1,sxs_nt0m+1),  ns1, mask= omg>=ef)
                     itend = merge(ns2r,  min(sxs_nt0p,ns2r), mask= omg>=ef)
                     do it = itini, itend     ! sxs_nt0p corresponds to efp
-                      wfac_(it,itp) = wfacx2(omg, ef, sxs_ekc(it), merge(0d0,esmr,mask=it<=nctot)) !Gaussian smearing
+                      esmr_it = merge(0d0,esmr,mask=it<=nctot)
+                      wfac_(it,itp) = wfacx2(omg, ef, sxs_ekc(it), esmr_it) !Gaussian smearing
                       if (wfac_(it,itp) < wfaccut) cycle
                       wfac_(it,itp) =  wfac_(it,itp)*sxs_wkkr*dsign(1d0, omg-ef) !wfac_ = $w$ weight (smeared thus truncated by ef). See the sentences.
+                      smear_it = c0_wcsmear .and. wcut(esmr_it) > 0d0
+                      if (smear_it) then ! --wcsmear: the smearing of the level ek is applied to W_c(omega), not to the mean energy
+                        call wcsmear_weights(omg, ef, sxs_ekc(it), esmr_it, nw, freq_r(0:nw), iw1, iw2, wts)
+                        do i = iw1, iw2
+                          if (wts(i) <= 0d0) cycle
+                          nttp(i) = nttp(i) + 1
+                          itw(nttp(i),i)   = it
+                          itpw(nttp(i),i)  = itp
+                          wgtiw(nttp(i),i) = wts(i)*sxs_wkkr*dsign(1d0, omg-ef)
+                        enddo
+                        cycle
+                      endif
                       we_(it,itp)   = .5d0*abs(omg - weavx2(omg,ef, sxs_ekc(it),esmr)) !we_= \bar{\omega_\epsilon} in sentences next to Eq.58 in PRB76,165106 (2007)
                       ixs = findloc(freq_r(1:nw)>we_(it,itp), value=.true., dim=1)
                       if (ixs < 1 .or. ixs > nw-1) cycle ! OOB guard: findloc miss (0) writes nttp(-1); ixs=nw writes nttp(nw+1). ixs=1 is VALID (bin 0 = static-W slot, freq_r(0)=0).
