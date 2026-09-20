@@ -9,6 +9,11 @@ complex(8) function wintzsg_npm(npm,v,v0,x,wt,a,expa,we, nx,esmr)
   !! Levels farther than 30 kBT from omega see a smooth integrand and use the sharp formula at we.
   !! (Until 2026-09-20 this was the Gaussian regularization 'sig = esmr/2' of Eq. 57, which is the Gaussian
   !! level smearing of the esmr era; the same change was made in m_sxcf_sc.)
+  !! Mechanism: the half residue -v0 sign(we)/2 of this integral cancels the step of the real-axis pole
+  !! term at the window edge e = omega; the level kernel must therefore be the same here and in the pole
+  !! term weights (contract in m_wfac, wfacx.f90), or levels within a few kBT of omega get an error of
+  !! [Phi_here - Phi_pole] |M|^2 W_c(0) (eV-sized through the q->0 head).  Formulae and numbers:
+  !!   https://ecalj.github.io/ecaljdoc/manual/kBT#_3-6-sigma-c-の-contour-分解と準位-smearing-の整合
   use m_wfac, only: fd_cdf
   implicit none
   integer(4),intent(in)::npm,nx

@@ -5,6 +5,22 @@
 !! of the level inside an energy window [el,eh] is Phi(eh-ek)-Phi(el-ek) with Phi the cumulative of g.
 !! kbt = 0 is the sharp step (core levels).  Until 2026-09-20 this was a Gaussian of width esmr;
 !! t_sigmaw = 1000 K is close to the old esmr = 0.01 Ry (kbt = 0.0063 Ry vs sigma = 0.01 Ry).
+!!
+!! CONTRACT (do not break it when changing the kernel): the same Phi must be used in the three places
+!! where a level of Sigma_c is smeared,
+!!   (1) the occupation weight of Sigma_x            (wfacx),
+!!   (2) the window weight of the real-axis pole term (wfacx2 / pole_weights, [gw] wcsmear),
+!!   (3) the half-residue step of the imaginary-axis integral
+!!       (m_sxcf_sc CorrelationSelfEnergyImagAxis, wintzsg_npm in wintzsg.f90).
+!! Reason: the contour decomposition Sigma_c = I(w_e) + P(w_e), w_e = (omega-e)/2, of one sharp level
+!! has a step -sign(w_e) W_c(0)/2 in the imaginary-axis part I that cancels the step 0 -> W_c(0) of
+!! the pole term P at the window edge e = omega.  Smearing the level means averaging BOTH I and P over
+!! g(e-ek).  If only P is smeared with a new kernel while I keeps the old one, the two smeared steps
+!! no longer cancel and every level within a few kbt of omega leaves [Phi_new - Phi_old](omega-e) times
+!! |M|^2 W_c(0), which is eV-sized through the q->0 head of W_c (NiO 2^3 O 2s pair: 0.6 eV, 2026-09-20).
+!! The Gaussian 'sig = esmr/2' of the old Eq. 57 (PRB 76, 165106) was exactly the smearing of that step.
+!! Derivation, numbers and the current formulae (Eqs. 5-10):
+!!   https://ecalj.github.io/ecaljdoc/manual/kBT#_3-6-sigma-c-の-contour-分解と準位-smearing-の整合
 module  m_wfac
   implicit none
   public :: wfacx2, weavx2, fd_cdf, wcdf, wcut, sig_window, pole_weights

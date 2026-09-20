@@ -518,6 +518,11 @@ contains
                   ! -sign(we)/2 (exp(aw^2) erfc(aw) - 1) and the numeric part go through the nodes.  So
                   ! imaginary-axis + pole term = Sigma_c of the FD-smeared level (with wcsmear), and the two
                   ! half-residue steps cancel for a level near omega (NiO 2^3 O 2s pair, 2026-09-20).
+                  ! Mechanism: for one sharp level, I(we) (this block) has the step -sign(we) W_c(0)/2 at we=0
+                  ! and the pole term P has the step 0 -> W_c(0) at the window edge e = omega; the two cancel.
+                  ! Smearing the level = averaging BOTH over the kernel; a kernel change here must be the same
+                  ! as in wfacx2/pole_weights (contract in m_wfac, wfacx.f90).  Formulae and the NiO numbers:
+                  ! https://ecalj.github.io/ecaljdoc/manual/kBT#_3-6-sigma-c-の-contour-分解と準位-smearing-の整合
                   integer, parameter :: nqfd = 40
                   itpdo: do itp = 1, sxs_ntqxx
                    itpo: do it = ns1, ns2
