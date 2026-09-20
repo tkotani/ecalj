@@ -36,7 +36,7 @@
 青と赤は線の太さの中で重なる。REF の Γ–L・Γ–X の針（−2 eV 超）は両方に無い。
 図: `LiTi2O4/plot_oneshot_666_compare.py`（band ファイルは kt1 の各 run の `band/bnd0*.spin1`）。
 
-### 2026-09-20 23:20 プラン chi0_lowsmear — 低エネルギー部分だけ重みを保って鈍らせた W で QSGW、抜けた分はフルスペクトル一発で
+### 2026-09-20 23:10 プラン chi0_lowsmear — 低エネルギー部分だけ重みを保って鈍らせた W で QSGW、抜けた分はフルスペクトル一発で
 
 （22:45 に書いた「ω フィルタ + 静的置換」案は取り下げ。理由: 定数 $\chi_0^{\rm low}(0)$ を足すと
 $\varepsilon(\omega\to\infty)\ne1$、$W(\infty)\ne v$ で GW の高周波極限と f-sum を壊す。単純な ω フィルタも
