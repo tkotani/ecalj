@@ -44,6 +44,17 @@
   一発 GW の針（−3.4 eV）が消え、9³ の反復の荒れが 48 → 13 meV。極の無い系ではほぼ不変。
 - **2026-09-19 16:30 追記** — `[gw]` の整理: 論理キー `tetrakbt` は廃止し `t_tetrakbt > 0`（既定 0）に。読まれるだけだった
   `GaussSmear, delta, dw, omg_c, WgtQ0P, SmearX0q0` を削除（残っていても無視）。
+- **2026-09-20 12:50 追記 — Σ 側の smearing は `[gw] t_sigmaw`（K、既定 1000）の一本に（破壊的変更・互換読みあり）**:
+  `esmr`（Ry, Gaussian）と `t_sigmakbt` を廃止し、Σ_x / Σ_c の中間準位の核は常に Fermi–Dirac（幅 kBT）。
+  既定 1000 K は旧 `esmr = 0.01` Ry と同じ標準偏差。`esmr` が残っていれば同じ幅の `t_sigmaw` に換算して読む
+  （0.003 Ry → 262 K）。`wcsmear` は既定 true。Fermi 準位は `t_tetrakbt > 0` なら `EFERMI_kbt`（無ければ abort）。
+  `t_tetrakbt > 0` と `SmearX0 > 0` は排他。一発 GW（`gw_lmfh`）も同じ扱い。
+  **見つけた落とし穴**: Σ_c の虚軸積分（PRB 76, 165106 Eq. 57）の Gaussian 正則化 `sig = esmr/2` は実は
+  Gaussian の準位 smearing そのもので、極項だけ核を変えると ω 近傍の準位で段差が打ち消さず
+  NiO 2³ の O 2s 対で 0.6 eV の誤差が出た。虚軸側も同じ FD 核で平均する形に直し、Gaussian 参照と 3 桁一致、
+  幅依存もほぼ消えた。TestInstall の GW 参照（Si, GaAs, NiO, Fe, GaAs 一発）は更新
+  （Si 0.08 eV, Fe 0.03 eV, NiO 2³ 0.4 eV（離散極）, 固有値は Si/Fe で < 10 meV）。
+  [manual/gwinput](https://ecalj.github.io/ecaljdoc/manual/gwinput) `t_sigmaw`、[manual/kBT](https://ecalj.github.io/ecaljdoc/manual/kBT) §0/§3。
 
 ## 4. 一発 GW と GPU
 
