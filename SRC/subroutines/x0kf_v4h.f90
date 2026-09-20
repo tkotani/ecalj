@@ -42,8 +42,33 @@ use m_cmdopt_registry, only: c0_debugzmel, c0_tetwtk
   integer, allocatable :: icounkmin(:), icounkmax(:)
   real(8), allocatable :: whwc(:)
   integer, allocatable :: iwini(:),iwend(:),itc(:),itpc(:),jpmc(:),icouini(:)
+  logical, allocatable :: intrac(:)   ! pair is intraband (n1b == n2b): the Drude term, exempt from chi0_filterw
+  real(8), allocatable :: fcw(:)      ! [gw] chi0_filterw: factor per histogram bin (1 = off)
   logical :: debug = .false.
 contains
+  !> [gw] chi0_filterw = [wc, dw] (eV): factor 1/(1+exp((wc-|omega|)/dw)) of each histogram bin
+  !! (bin center, frhis in Hartree), applied to the tetrahedron weights of the interband pairs
+  !! (and of the intraband ones too when chi0_filterw_drude = false) in accumulate_chi0.
+  !! Filtering the weights pair by pair is the same as filtering the Im chi0 histogram of those
+  !! pairs; Re chi0(omega) and chi0(i omega) then follow from the same Im chi0 (dpsion5), so W stays
+  !! consistent on both axes.  Samples/kBT/kBT_research.md 2026-09-20 23:26.
+  subroutine chi0_filterw_setup()
+    use m_GWinput, only: chi0_filterw, chi0_filterw_set, chi0_filterw_drude
+    use m_freq, only: frhis
+    integer :: iw
+    real(8) :: x
+    if (allocated(fcw)) deallocate(fcw)
+    allocate(fcw(nwhis), source = 1d0)
+    call gwinput_init()
+    if (.not. gwinput_loaded) return
+    if (.not. chi0_filterw_set) return
+    do iw = 1, nwhis
+      x = (chi0_filterw(1) - 27.211386d0*.5d0*(frhis(iw)+frhis(iw+1)))/chi0_filterw(2)
+      fcw(iw) = merge(0d0, merge(1d0, 1d0/(1d0+exp(x)), x < -40d0), x > 40d0)
+    enddo
+    if (ipr) write(stdo,'(" chi0_filterw (eV) wc dw =",2f8.3,"  drude kept =",l2, &
+         "  : transitions below wc removed from chi0")') chi0_filterw, chi0_filterw_drude
+  end subroutine chi0_filterw_setup
 
   function X0kf_v4hz_init(job, q, isp_k, isp_kq, iq, crpa, ikbz_in, fkbz_in) result(ierr)
     implicit none
@@ -80,8 +105,9 @@ contains
       if (allocated(itpc))     deallocate(itpc)
       if (allocated(jpmc))     deallocate(jpmc)
       if (allocated(icouini))  deallocate(icouini)
+      if (allocated(intrac))   deallocate(intrac)
       allocate(whwc(ncount), kc(ncoun), iwini(ncoun), iwend(ncoun), &
-               itc(ncoun), itpc(ncoun), jpmc(ncoun), icouini(ncoun))
+               itc(ncoun), itpc(ncoun), jpmc(ncoun), icouini(ncoun), intrac(ncoun))
       if (allocated(icounkmin)) deallocate(icounkmin)
       if (allocated(icounkmax)) deallocate(icounkmax)
       allocate(icounkmin(ikbz:fkbz), icounkmax(ikbz:fkbz))
@@ -123,6 +149,7 @@ contains
             iwini (icoun) = ihw(ibib,k,jpm)
             iwend (icoun) = ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1
             icouini(icoun) = icount+1
+            intrac(icoun) = n1b(ibib,k,jpm) == n2b(ibib,k,jpm) .and. n1b(ibib,k,jpm) <= nband
           endif
           do iw = ihw(ibib,k,jpm), ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1
             imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
@@ -213,6 +240,7 @@ contains
     !$acc kernels
     rcxq = (0_kp, 0_kp)
     !$acc end kernels
+    call chi0_filterw_setup()   ! [gw] chi0_filterw (normally off): fcw = 1
     debug = c0_debugzmel
     isloop: do isp_k = 1, nsp
       GETtetrahedronWeight: block
@@ -300,7 +328,7 @@ contains
           end block
         endif
       end block x0kf_v4hz_block
-      deallocate(whwc, kc, iwini, iwend, itc, itpc, jpmc, icouini, nkmin, nkmax, nkqmin, nkqmax, icounkmin, icounkmax)
+      deallocate(whwc, kc, iwini, iwend, itc, itpc, jpmc, icouini, intrac, nkmin, nkmax, nkqmin, nkqmax, icounkmin, icounkmax)
       HilbertTransformation: if (isp_k==nsp .OR. chipm) then
         !Get real part. When chipm=T, do dpsion5 for every isp_k; When =F, do dpsion5 after rxcq accumulated for spins
         mpi_k_accumulate: block
@@ -366,6 +394,7 @@ contains
 
   subroutine accumulate_chi0(ns1, ns2, iw_lo, iw_hi, npr, icounkmink, icounkmaxk)
     use m_blas, only: m_op_c
+    use m_GWinput, only: chi0_filterw_drude
 #ifdef __GPU
     use openacc
     use cudafor
@@ -410,6 +439,7 @@ contains
         itw(ittp,iw,jpm)       = it
         itpw(ittp,iw,jpm)      = itp
         hilbert_w(ittp,iw,jpm) = whwc(iw-iwini(icoun)+icouini(icoun))
+        if (.not.(intrac(icoun) .and. chi0_filterw_drude)) hilbert_w(ittp,iw,jpm) = hilbert_w(ittp,iw,jpm)*fcw(iw)
       enddo
     enddo
 

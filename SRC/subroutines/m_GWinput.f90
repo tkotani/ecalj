@@ -120,6 +120,16 @@ module m_GWinput
   !   low-energy transitions of a partially filled band).  Empty (default) = off.
   real(8), protected, public :: chi0_skip_window(2) = 0d0
   logical, protected, public :: chi0_skip_window_set = .false.
+  ! chi0_filterw = [wc, dw] (eV): the tetrahedron weight of every band pair is multiplied, bin by bin,
+  !   by the Fermi-like step 1/(1+exp((wc-|omega|)/dw)) when chi0 is accumulated (x0kf_v4h), i.e. the
+  !   transitions below wc are removed from chi0 (omega-space cRPA).  Empty (default) = off.
+  ! chi0_filterw_drude (default true): the intraband pairs (same band, occupied part -> unoccupied part
+  !   across E_F; the Drude term, same test as --intrabandonly of the eps code) are exempt from the
+  !   filter, so the static metallic screening and the Drude weight stay.  false: filtered as well.
+  !   Meaningless without chi0_filterw.  Experimental (2026-09-20, Samples/kBT/kBT_research.md 23:26).
+  real(8), protected, public :: chi0_filterw(2) = 0d0
+  logical, protected, public :: chi0_filterw_set = .false.
+  logical, protected, public :: chi0_filterw_drude = .true.
   ! MagAtom: variable-length integer array of magnetic-atom site indices.
   ! Allocated to size(>=1) on load; consumers use size(MagAtom) for count.
   integer, protected, public, allocatable :: MagAtom(:)
@@ -507,6 +517,14 @@ contains
         call get_value(arr, 1, chi0_skip_window(1)); call get_value(arr, 2, chi0_skip_window(2))
         chi0_skip_window_set = .true.
       endif
+      call get_value(gw, 'chi0_filterw', arr, requested=.false.)
+      if (associated(arr)) then
+        if (len(arr) /= 2) call rx('m_GWinput: chi0_filterw must be [wc, dw] (eV)')
+        call get_value(arr, 1, chi0_filterw(1)); call get_value(arr, 2, chi0_filterw(2))
+        if (chi0_filterw(2) <= 0d0) call rx('m_GWinput: chi0_filterw: dw must be > 0')
+        chi0_filterw_set = .true.
+      endif
+      call gv_l(gw, 'chi0_filterw_drude', chi0_filterw_drude)
     end block
     ! QforEPS / QforGW: q-point lists for eps and for the one-shot GW driver.
     ! They live in [gw] since 2026-09-17; a copy left under [blocks] is still read.

@@ -1,3 +1,12 @@
+2026-09-20 (2)
+  [gw] chi0_filterw = [wc, dw] (eV) と chi0_filterw_drude (既定 true): 隠し・実験用 (Samples/kBT/kBT_research.md 23:26)。
+  - x0kf_v4h の accumulate_chi0 で、バンド対ごとのテトラヘドロン重みに bin ごとの因子 1/(1+exp((wc−|ω|)/dw)) を
+    掛けて wc 以下の遷移を χ0 から落とす (ω 空間の cRPA)。帯内対 (n1b == n2b、E_F を横切る同じバンド = Drude、
+    誘電関数の --intrabandonly と同じ判定) は chi0_filterw_drude = true なら因子を掛けずに残す (静的金属遮蔽と
+    Drude 重みを保持)。対の重みで掛けるので Im χ0 → Re χ0 / χ0(iω) の整合はそのまま、host/device 共通、追加メモリ無し。
+  - 目的: プラズモン極を抜いた W で QSGW を回し、抜いた分は収束後にフルスペクトルの一発で戻す 2 段階 (LiTi2O4)。
+  - 既定 off で不変 (si_gw_lmfh PASSED)。Fe 5³ で wc = 1 eV: SEc 差 max 0.06 eV、Drude 有無で 0.025 eV。
+
 2026-09-20 (1)
   plan t_sigmaw: Σ 側の smearing パラメタを [gw] t_sigmaw (K, 既定 1000) の一本に統合。
   - esmr (Ry, Gaussian) と t_sigmakbt (K) を廃止。Σx の占有重み・Σc 実軸極項の窓重み・wcsmear の
