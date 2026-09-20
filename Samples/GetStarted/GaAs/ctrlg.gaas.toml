@@ -153,7 +153,7 @@ HistBin_ratio = 1.05       # bin: frhis(iw) = (dw/(r-1))*(exp((r-1)*(iw-1)) - 1)
 # ----------------------------------------------------------------
 # SmearX0 = 0.01        # (Ha) Gaussian smear for X0 (metals)
 deltaw        = 0.02       # (a.u.) numerical-derivative mesh for Z factor
-esmr          = 0.003      # (Ry) hsfp0 smearing; keep < band gap for insulators
+t_sigmaw      = 262        # (K) Fermi-Dirac width of the Sigma levels (from esmr = 0.003 Ry)
 # ----- Q for diagonal Sigma=GW (gw_lmfh) -----
 # QforGWIBZ = true   # use IBZ instead of <QforGW>
 EMAXforGW     = 15         # eV (above EFermi) bands cutoff for Sigma=GW

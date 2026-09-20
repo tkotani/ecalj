@@ -97,6 +97,7 @@ module m_sxcf_sc
   use m_blas, only: m_op_c, m_op_n, m_op_t
 use m_cmdopt_registry, only: c0_debug, c0_WVR2ptRaxis, c0_wcsmear
 use m_GWinput, only: tg_wcsmear => wcsmear
+use m_wfac, only: pole_weights
 #if defined(__MP) && defined(__GPU)
   use m_blas, only: gemm => cmm_d
 #elif defined(__MP)
@@ -362,68 +363,6 @@ contains
 
   ! One iteration of the kxloop: read/load W(kx), then accumulate the
   ! correlation contribution into zsecall(:,:,ip,isp) for all (irot, ip, isp).
-  subroutine pole_weights(omg, ef, ek, esmr, smear, nw, freq_r, wfac, scale, iw1, iw2, wts)
-    ! Weights of one (it,itp) pair of the real-axis pole term of Sigma_c on the W mesh points
-    ! iw1:iw2 (wts(iw), sum = wfac*scale), or iw2 < iw1 when the pair contributes nothing.
-    ! The intermediate level ek is smeared by the kernel of wfacx2 (Gaussian esmr, or Fermi-Dirac
-    ! when t_sigmakbt>0); wfac is its weight inside the window between ef and omg (PRB 76, 165106)
-    ! and scale carries the k-point weight and the sign of (omg - ef).
-    !  smear=.false. (default): W_c is taken at the mean energy omega_bar = |omg - weavx2|/2 (Eq. 58),
-    !     interpolated on the 3 bracketing mesh points (omega^2 Lagrange; 2-point linear with --WVR2ptRaxis).
-    !  smear=.true.  ([gw] wcsmear): the kernel is applied to W_c(omega) itself.  The level e' runs over
-    !     the window with the kernel g(e'-ek), omega = |omg - e'|/2 (Hartree); mesh point iw owns
-    !     omega in [(freq_r(iw-1)+freq_r(iw))/2, (freq_r(iw)+freq_r(iw+1))/2] and gets
-    !     Phi(b-ek)-Phi(a-ek) over the e' interval mapped from that cell, clipped to the window.
-    use m_wfac, only: wcdf, wcut, weavx2
-    real(8), intent(in) :: omg, ef, ek, esmr, wfac, scale
-    logical, intent(in) :: smear
-    integer, intent(in) :: nw
-    real(8), intent(in) :: freq_r(0:nw)
-    integer, intent(out) :: iw1, iw2
-    real(8), intent(out) :: wts(0:nw)
-    real(8) :: el, eh, sgn, wa, wb, a, b, t, cut, x, xi(3), amat(3,3), tt2p, w3(3)
-    integer :: iw, ia, ib, ixs
-    wts = 0d0; iw1 = 0; iw2 = -1
-    if (.not. smear .or. wcut(esmr) <= 0d0) then          ! ---- W_c at the mean energy (Eq. 58)
-      x   = .5d0*abs(omg - weavx2(omg, ef, ek, esmr))     ! \bar{omega_epsilon}
-      ixs = findloc(freq_r(1:nw) > x, value=.true., dim=1)
-      if (ixs < 1 .or. ixs > nw-1) return                 ! findloc miss (0) or beyond the mesh; ixs=1 (bin 0 = static W) is valid
-      xi = freq_r(ixs-1:ixs+1)
-      if (c0_WVR2ptRaxis) then                            ! 2-point linear in omega^2: convex, no overshoot
-        tt2p = max(0d0, min(1d0, (x**2 - xi(1)**2)/(xi(2)**2 - xi(1)**2)))
-        w3 = [1d0-tt2p, tt2p, 0d0]
-      else                                                ! 3-point Lagrange in omega^2 (alagr3zz)
-        amat(1:3,1) = 1d0; amat(1:3,2) = xi**2; amat(1:3,3) = xi**4
-        w3 = matmul([1d0, x**2, x**4], inverse33(amat))
-      endif
-      iw1 = ixs-1; iw2 = ixs+1
-      wts(iw1:iw2) = wfac*scale*w3
-      return
-    endif
-    el = min(omg, ef); eh = max(omg, ef)                  ! ---- kernel-integrated weights ([gw] wcsmear)
-    cut = wcut(esmr)
-    el = max(el, ek - cut); eh = min(eh, ek + cut)        ! where the kernel is non-negligible
-    if (eh <= el) return
-    sgn = merge(1d0, -1d0, omg < ef)                      ! e' = omg + sgn*2*omega lies between omg and ef
-    wa = .5d0*min(abs(omg-el), abs(omg-eh)); wb = .5d0*max(abs(omg-el), abs(omg-eh))
-    ia = 0; ib = nw
-    do iw = 1, nw                                         ! cells reaching [wa, wb]
-      if (.5d0*(freq_r(iw-1)+freq_r(iw)) <= wa) ia = iw
-      if (.5d0*(freq_r(iw-1)+freq_r(iw)) >= wb) then; ib = iw - 1; exit; endif
-    enddo
-    do iw = ia, ib
-      a = omg + sgn*2d0*merge(0d0, .5d0*(freq_r(iw-1)+freq_r(iw)), iw == 0)
-      b = omg + sgn*2d0*merge(freq_r(nw), .5d0*(freq_r(iw)+freq_r(iw+1)), iw == nw)
-      if (a > b) then; t = a; a = b; b = t; endif
-      a = max(a, el); b = min(b, eh)
-      if (b <= a) cycle
-      t = wcdf(b - ek, esmr) - wcdf(a - ek, esmr)   ! kernel weight of this cell; these sum to wfac
-      if (t < 1d-12) cycle
-      wts(iw) = scale*t
-      if (iw2 < iw1) iw1 = iw
-      iw2 = iw
-    enddo
-  end subroutine pole_weights
   subroutine sxcf_correlation_step_kx(kx, ef, esmr, nspinmx)
     use m_mpi, only: comm_b => comm_b_sxc, ipr
     use m_gpu, only: use_gpu
@@ -520,7 +459,7 @@ contains
           sxs_ntqxx = nbandmx(ip,isp) ! sxs_ntqxx is number of bands for <i|sigma|j>.
           sxs_omega(1:ntq) = sxs_eq(1:ntq)
           sxs_nt0p = count(sxs_ekc < ef + sig_window(esmr))   ! states that can be partially occupied
-          sxs_nt0m = count(sxs_ekc < ef - sig_window(esmr))   ! (10 esmr at T=0, 15 kBT with t_sigmakbt)
+          sxs_nt0m = count(sxs_ekc < ef - sig_window(esmr))   ! (kernel tail, 15 kBT of t_sigmaw)
           NMBATCHloop: do icount = icountini(isp,ip,irot,kx), icountend(isp,ip,irot,kx) !batch of middle states.
             ns1  = nstti(icount)   !Range of middle states is [ns1:ns2] for given icount
             ns2  = nstte(icount)
@@ -557,37 +496,52 @@ contains
                 call stopwatch_start(sxs_ci)
                 CorrelationSelfEnergyImagAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)! Integration along ImAxis for zwz(sxs_omega)
                   use m_readfreq_r, only: wt=>wwx, x=>freqx
-                  real(8):: wgtim_(0:npm*niw), wgtim(0:npm*niw,ns1:ns2,sxs_ntqxx), we, cons(niw), omd(niw), omd2w(niw)
-                  real(8):: sig, sig2, aw, aw2
-                  integer :: igb
+                  use m_wfac, only: fd_cdf
+                  real(8):: wgtim_(0:npm*niw), wgtim(0:npm*niw,ns1:ns2,sxs_ntqxx), we, cons(niw)
+                  real(8):: wgtim1(0:npm*niw), aw, aw2, u, xk, estep
+                  integer :: igb, jq, nq
                   complex(kind=kp), allocatable :: wzmel(:,:,:)
 #ifdef __GPU
                   attributes(device) :: wzmel
 #endif
-                  sig = .5d0*esmr
-                  sig2 = 2d0*(.5d0*esmr)**2
+                  ! Imaginary-axis weights of one level ekc(it) for Sigma_c(omega(itp)), Eq. 57 of PRB 76, 165106:
+                  ! numeric part on the niw mesh with W_c(i w') - W_c(0) exp(-(ua w')^2) (smooth), analytic
+                  ! part for the Gaussian fit W_c(0) exp(-(ua w')^2): -sign(we)/2 exp(aw^2) erfc(aw), aw=ua|we|,
+                  ! we=(omega-e)/2 (Hartree).  This is the sharp-level formula (it was used for the core levels;
+                  ! the valence levels had a Gaussian regularization 'sig' that smeared the sign(we) step
+                  ! and was the Gaussian level smearing of the esmr era).
+                  ! The level smearing is now the Fermi-Dirac kernel of width esmr (=kBT, m_wfac), the same
+                  ! kernel as the pole-term weights and wcsmear: the weights of a valence level within
+                  ! 30 kBT of omega are averaged over the kernel, e = ekc + x, x = kBT ln(u/(1-u)) with
+                  ! midpoint nodes u in (0,1) (the FD cumulative is the measure).  The step -sign(we)/2 is
+                  ! discontinuous and is averaged analytically, -(2 Phi_FD(omega-ekc) - 1)/2; the smooth rest
+                  ! -sign(we)/2 (exp(aw^2) erfc(aw) - 1) and the numeric part go through the nodes.  So
+                  ! imaginary-axis + pole term = Sigma_c of the FD-smeared level (with wcsmear), and the two
+                  ! half-residue steps cancel for a level near omega (NiO 2^3 O 2s pair, 2026-09-20).
+                  integer, parameter :: nqfd = 40
                   itpdo: do itp = 1, sxs_ntqxx
                    itpo: do it = ns1, ns2
-                      we = .5d0*(sxs_omega(itp) - sxs_ekc(it)) !we in hartree unit (atomic unit)
-                      aw = abs(ua_*we)
-                      aw2 = aw*aw
-                      if (it<=nctot) then ! if w = e the integral = -v(0)/2 ! frequency integral
-                        cons = 1d0/(we**2*x**2 + (1d0-x)**2)
-                        wgtim_(1:niw)= we*cons*wt*(-1d0/pi)
-                        wgtim_(0)=merge(-sum(wgtim_(1:niw)*expa_)-0.5d0*dsign(1d0,we)*dexp(we**2*ua_**2)*erfc(ua_*dabs(we)),0d0,&
-                             mask=dabs(we)<rmax/ua_)
-                        if (npm==2) wgtim_(niw+1:2*niw) = cons*(1d0/x-1d0)*wt/pi !Asymmetric contribution need check
-                      else
-                        omd   = 1d0/x - 1d0
-                        omd2w = omd**2 + we**2
-                        where(omd2w/sig2  > 5d-3) cons = (1d0 - exp(-omd2w/sig2))/omd2w
-                        where(omd2w/sig2 <= 5d-3) cons = (1d0/sig2 -omd2w/sig2**2/2d0 +omd2w**2/sig2**3/6d0 -omd2w**3/sig2**4/24d0&
-                             + omd2w**4/sig2**5/120d0 - omd2w**5/sig2**6/720d0)
-                        wgtim_(1:niw) = -we*cons*wt/(x**2)/pi
-                        wgtim_(0) =  we*sum(cons*expa_*wt/(x**2))/pi &
-                             + dsign(1d0,we)*.5d0*exp(aw2)*( erfc(sqrt(aw2 + we**2/sig2)) - erfc(aw) ) !See Eq.(57) in PRB165106
-                        if (npm==2) wgtim_(niw+1:2*niw) = cons*omd*wt/(x**2)/pi !Asymmetric contribution need check
-                      endif
+                      nq = 1
+                      if (it>nctot .and. esmr>0d0 .and. abs(sxs_omega(itp)-sxs_ekc(it)) < 30d0*esmr) nq = nqfd
+                      wgtim_ = 0d0
+                      fdnodes: do jq = 1, nq
+                        xk = 0d0
+                        if (nq > 1) then
+                          u  = (jq - .5d0)/nq
+                          xk = esmr*log(u/(1d0-u))
+                        endif
+                        we = .5d0*(sxs_omega(itp) - sxs_ekc(it) - xk) !we in hartree unit (atomic unit)
+                        aw = abs(ua_*we)
+                        aw2 = aw*aw
+                        cons = 1d0/(we**2*x**2 + (1d0-x)**2)          ! = 1/(x^2 (w'^2+we^2)), w' = 1/x - 1
+                        wgtim1(1:niw)= we*cons*wt*(-1d0/pi)
+                        estep = dsign(1d0,we)*dexp(aw2)*erfc(aw)     ! sign(we) exp(aw^2) erfc(aw), -> sign(we) at we=0
+                        if (nq > 1) estep = estep - dsign(1d0,we)    ! the step itself is added analytically below
+                        wgtim1(0)=merge(-sum(wgtim1(1:niw)*expa_)-0.5d0*estep, 0d0, mask=dabs(we)<rmax/ua_)
+                        if (npm==2) wgtim1(niw+1:2*niw) = cons*(1d0/x-1d0)*wt/pi !Asymmetric contribution need check
+                        wgtim_ = wgtim_ + wgtim1/nq
+                      enddo fdnodes
+                      if (nq > 1) wgtim_(0) = wgtim_(0) - 0.5d0*(2d0*fd_cdf(sxs_omega(itp)-sxs_ekc(it), esmr) - 1d0)
                       wgtim(:,it,itp) = sxs_wkkr*wgtim_ !! Integration weight wgtim along im axis for zwz(0:niw*npm)
                     enddo itpo
                   enddo itpdo
@@ -778,24 +732,5 @@ contains
     call stopwatch_show(sxs_xc)
   end subroutine sxcf_correlation_finalize
 
-  pure function inverse33(matrix) result(inverse) !Inverse of 3X3 matrix
-    implicit none
-    real(8),intent(in) :: matrix(3,3)
-    real(8) :: inverse(3,3), det
-    inverse(:,1)= crossf(matrix(:,2),matrix(:,3))
-    inverse(:,2)= crossf(matrix(:,3),matrix(:,1))
-    inverse(:,3)= crossf(matrix(:,1),matrix(:,2))
-    det = sum(matrix(:,1)*inverse(:,1))
-    inverse = transpose(inverse)
-    inverse = inverse/det
-  end function inverse33
-  pure function crossf(a,b) result(c)
-    implicit none
-    intent(in):: a,b
-    real(8):: a(3),b(3),c(3)
-    c(1)=a(2)*b(3)-a(3)*b(2)
-    c(2)=a(3)*b(1)-a(1)*b(3)
-    c(3)=a(1)*b(2)-a(2)*b(1)
-  end function crossf
 end module m_sxcf_sc
 

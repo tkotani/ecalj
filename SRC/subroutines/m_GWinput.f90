@@ -84,7 +84,6 @@ module m_GWinput
   real(8), protected, public :: HistBin_ratio = 1.03d0
   real(8), protected, public :: HistBin_dw   = 1.0d-5  ! legacy m_freq default
   real(8), protected, public :: deltaw       = 0.02d0
-  real(8), protected, public :: esmr         = 0.003d0
   real(8), protected, public :: SmearX0      = 0.0d0   ! (Ha) Gaussian smearing of Im chi0 along omega (dpsion5); 0=off. Normally not needed: see wcsmear.
 
   ! Optional flags
@@ -100,19 +99,27 @@ module m_GWinput
   !   0 (default) = off (T=0 lindtet6).  >0 = Fermi-Dirac occupations at this T (lindtet6_kbt),
   !   and heftet also writes EFERMI_kbt.  (The old logical 'tetrakbt' is gone: t_tetrakbt>0 means on.)
   real(8), protected, public :: t_tetrakbt   = 0.0d0
-  ! t_sigmakbt: Sigma-side electronic temperature in Kelvin (finite-T self-energy occupation).
-  !   0 (default) = off (Gaussian esmr smearing at T=0 EFERMI, legacy behaviour).
-  !   >0          = Fermi-Dirac occupation at this T in Sigma_x=Gv & Sigma_c=G(W-v), evaluated
-  !                 at the finite-T Fermi level EFERMI_kbt (consistent with tetrakbt on chi0).
-  real(8), protected, public :: t_sigmakbt   = 0.0d0
-  ! wcsmear: in the real-axis pole term of Sigma_c, apply the smearing of the intermediate level
-  !   (Gaussian esmr, or Fermi-Dirac when t_sigmakbt>0) to W_c(omega) itself instead of evaluating
-  !   W_c at the mean energy.  Removes the knife-edge sensitivity to sharp plasmon poles of W
+  ! t_sigmaw: width (K) of the Fermi-Dirac kernel that smears the intermediate levels of the
+  !   self-energy (Sigma_x = Gv and the pole term of Sigma_c = G(W-v)).  A numerical width, not a
+  !   full finite-T self-energy.  Default 1000 K ~ the former Gaussian esmr = 0.01 Ry.  Metals may
+  !   want 300-1000 K together with a finer k mesh.  The Fermi level is EFERMI_kbt when
+  !   t_tetrakbt > 0 (chi0 also at finite T), EFERMI otherwise.
+  !   (2026-09-20: replaces esmr [Ry, Gaussian] and t_sigmakbt; both are read for compatibility.)
+  real(8), protected, public :: t_sigmaw     = 1000.0d0
+  real(8), parameter :: kb_ev = 8.6171d-5, rydberg_ev = 13.605693d0   ! for the esmr -> t_sigmaw conversion
+  ! wcsmear (default true): in the real-axis pole term of Sigma_c, apply the Fermi-Dirac smearing of
+  !   the intermediate level (t_sigmaw) to W_c(omega) itself instead of evaluating W_c at the mean
+  !   energy (false = the old 3-point interpolation at the mean energy).  Removes the knife-edge sensitivity to sharp plasmon poles of W
   !   (LiTi2O4 at <=1000 K, Samples/kBT/kBT_research.md 2026-09-19).  Unchanged where W_c is smooth.
-  logical, protected, public :: wcsmear      = .false.
+  logical, protected, public :: wcsmear      = .true.
   ! omp_tetwt: OpenMP threads per MPI rank for the tetrahedron loop of tetwt5 (hx0fp0/hgw W-build).
   !   0 (default) = leave OMP_NUM_THREADS as it is.
   integer, protected, public :: omp_tetwt    = 0
+  ! chi0_skip_window = [emin, emax] (eV, relative to E_F): band pairs whose occupied AND unoccupied
+  !   states both lie inside the window are left out of chi0 (cRPA-like removal of the intraband /
+  !   low-energy transitions of a partially filled band).  Empty (default) = off.
+  real(8), protected, public :: chi0_skip_window(2) = 0d0
+  logical, protected, public :: chi0_skip_window_set = .false.
   ! MagAtom: variable-length integer array of magnetic-atom site indices.
   ! Allocated to size(>=1) on load; consumers use size(MagAtom) for count.
   integer, protected, public, allocatable :: MagAtom(:)
@@ -459,6 +466,8 @@ contains
 
 
   subroutine load_gw_section(gw)
+    use m_mpi, only: ipr
+    use m_lgunit, only: stdo
     type(toml_table), pointer, intent(in) :: gw
     logical :: ok
     ! Integer scalars
@@ -469,9 +478,36 @@ contains
     call gv_r(gw, 'EMAXforGW',     EMAXforGW)
     call gv_i(gw, 'BZmesh',        BZmesh)
     call gv_r(gw, 't_tetrakbt',    t_tetrakbt)
-    call gv_r(gw, 't_sigmakbt',    t_sigmakbt)
+    block   ! t_sigmaw, with the retired esmr (Ry, Gaussian) and t_sigmakbt (K) read for compatibility
+      real(8) :: tsk, esm
+      integer :: st1, st2, st3
+      call get_value(gw, 't_sigmaw', t_sigmaw, stat=st1)
+      tsk = -1d0; call get_value(gw, 't_sigmakbt', tsk, stat=st2)
+      esm = -1d0; call get_value(gw, 'esmr', esm, stat=st3)
+      if (st2 == 0 .and. tsk > 0d0) then
+        if (st1 /= 0) t_sigmaw = tsk
+        if (ipr) write(stdo,"(a)") ' m_GWinput: t_sigmakbt is retired -> use t_sigmaw (K); value copied'
+      endif
+      if (st3 == 0 .and. st1 /= 0 .and. (st2 /= 0 .or. tsk <= 0d0) .and. esm > 0d0) then
+        t_sigmaw = esm*rydberg_ev/(1.81d0*kb_ev)   ! Gaussian sigma (Ry) -> kBT with the same std (FD std = pi kBT/sqrt3 = 1.81 kBT)
+        if (ipr) write(stdo,"(a,f8.1,a)") ' m_GWinput: esmr is retired (Gaussian smearing); t_sigmaw =', &
+             t_sigmaw, ' K set from it. Please write t_sigmaw in [gw].'
+      elseif (st3 == 0) then
+        if (ipr) write(stdo,"(a)") ' m_GWinput: esmr is retired and ignored (the Sigma kernel is Fermi-Dirac of width t_sigmaw)'
+      endif
+      if (t_sigmaw < 0d0) call rx('m_GWinput: t_sigmaw must be >= 0 (K)')
+    end block
     call gv_l(gw, 'wcsmear',       wcsmear)
     call gv_i(gw, 'omp_tetwt',     omp_tetwt)
+    block
+      type(toml_array), pointer :: arr
+      call get_value(gw, 'chi0_skip_window', arr, requested=.false.)
+      if (associated(arr)) then
+        if (len(arr) /= 2) call rx('m_GWinput: chi0_skip_window must be [emin, emax] (eV)')
+        call get_value(arr, 1, chi0_skip_window(1)); call get_value(arr, 2, chi0_skip_window(2))
+        chi0_skip_window_set = .true.
+      endif
+    end block
     ! QforEPS / QforGW: q-point lists for eps and for the one-shot GW driver.
     ! They live in [gw] since 2026-09-17; a copy left under [blocks] is still read.
     ok = take_block(gw, 'QforEPS', block_QforEPS)
@@ -498,8 +534,9 @@ contains
     call gv_r(gw, 'HistBin_ratio', HistBin_ratio)
     call gv_r(gw, 'HistBin_dw',    HistBin_dw)
     call gv_r(gw, 'deltaw',        deltaw)
-    call gv_r(gw, 'esmr',          esmr)
     call gv_r(gw, 'SmearX0',       SmearX0)
+    if (t_tetrakbt > 0d0 .and. SmearX0 > 0d0) call rx('m_GWinput: t_tetrakbt > 0 and SmearX0 > 0 are exclusive: '// &
+         'smooth the poles of W either by the electron temperature or by the omega smearing, not both')
     call gv_r(gw, 'wan_conv_1st',  wan_conv_1st)
     call gv_r(gw, 'wan_conv_end',  wan_conv_end)
     call gv_r(gw, 'wan_max_1st',   wan_max_1st)

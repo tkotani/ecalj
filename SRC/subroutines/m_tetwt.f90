@@ -20,7 +20,8 @@ module m_tetwt
 !!
   use m_mpi,only:ipr
   use m_lgunit,only:stdo
-  use m_cmdopt_registry, only: c0_debug, c2_EfermiShifteV, c2_EfermiShifteV_set, c0_removeFermiWindowLiTi2O4
+  use m_cmdopt_registry, only: c0_debug, c2_EfermiShifteV, c2_EfermiShifteV_set
+  use m_GWinput, only: chi0_skip_window, chi0_skip_window_set
   implicit none
   !! output ------------------------
   real(8),allocatable,protected,public :: whw(:)
@@ -262,29 +263,35 @@ contains
          nbmx,ebmx,mtet, wan1)           !Jan2019
     deallocate(demin,demax,iwgt,nbnbtt)
 
-    !! --removeFermiWindowLiTi2O4: zero chi0 tetrahedron weights for any band-pair whose
-    !! occ or unocc endpoint lies within +-2 eV of E_F (drops the Fermi-surface neighbourhood,
-    !! i.e. the intraband + low-energy interband/nesting transitions). Diagnostic flag.
-    RemoveFW: if (c0_removeFermiWindowLiTi2O4) then
+    !! [gw] chi0_skip_window = [emin, emax] (eV rel. E_F): drop from chi0 every band pair whose
+    !! occupied and unoccupied states BOTH lie inside the window (the intraband / low-energy
+    !! transitions of a partially filled band, i.e. the source of the sharp low-energy plasmon of a
+    !! metal).  Transitions into or out of the window (e.g. O 2p -> t2g) are kept.  cRPA-like.
+    SkipWindow: if (chi0_skip_window_set) then
        block
-         real(8) :: ewin_ry, eo_, eu_
-         integer :: jp_, kk_, ibp_, no_, nu_
-         ewin_ry = 2.0d0/13.605693d0   ! 2 eV in Rydberg (eigenvalues & ef are in Ry)
+         real(8) :: w1, w2, eo_, eu_
+         integer :: jp_, kk_, ibp_, no_, nu_, ndrop, ntot
+         w1 = chi0_skip_window(1)/rydberg(); w2 = chi0_skip_window(2)/rydberg()
+         ndrop = 0; ntot = 0
          do jp_ = 1, npm
            do kk_ = ikbz, fkbz
              do ibp_ = 1, nbnb(kk_,jp_)
-               no_ = n1b(ibp_,kk_,jp_)   ! occupied band (n1b>nband => core, deep: keep)
-               nu_ = n2b(ibp_,kk_,jp_)   ! unoccupied band (1..nband)
+               no_ = n1b(ibp_,kk_,jp_)   ! occupied band (n1b>nband => core: never inside)
+               nu_ = n2b(ibp_,kk_,jp_)   ! unoccupied band
                if (no_ >= 1 .and. no_ <= nband) then; eo_ = ekxx1(no_,kk_)-ef; else; eo_ = -1d30; endif
                if (nu_ >= 1 .and. nu_ <= nband) then; eu_ = ekxx2(nu_,kk_)-ef; else; eu_ =  1d30; endif
-               if (abs(eo_) < ewin_ry .or. abs(eu_) < ewin_ry) &
-                    whw(jhw(ibp_,kk_,jp_):jhw(ibp_,kk_,jp_)+nhw(ibp_,kk_,jp_)-1) = 0d0
+               ntot = ntot + 1
+               if (eo_ > w1 .and. eo_ < w2 .and. eu_ > w1 .and. eu_ < w2) then
+                  whw(jhw(ibp_,kk_,jp_):jhw(ibp_,kk_,jp_)+nhw(ibp_,kk_,jp_)-1) = 0d0
+                  ndrop = ndrop + 1
+               endif
              enddo
            enddo
          enddo
-         if (ipr) write(stdo,*) ' --removeFermiWindowLiTi2O4: zeroed chi0 weights within +-2eV of EF'
+         if (ipr) write(stdo,"(' chi0_skip_window [eV]:',2f8.3,'  pairs dropped/total =',2i9)") &
+              chi0_skip_window, ndrop, ntot
        end block
-    endif RemoveFW
+    endif SkipWindow
 
     !! ======TetrahedronWeight_5 block end =========
   end subroutine gettetwt

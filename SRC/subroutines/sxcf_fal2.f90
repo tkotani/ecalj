@@ -37,11 +37,11 @@ subroutine sxcf_fal3z(&
   use m_readqg,only:readqg0
   use m_readeigen,only: readeval
   use m_keyvalue,only: getkeyvalue
-  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_gauss_img => gauss_img
+  use m_GWinput, only: gwinput_init, gwinput_loaded, tg_gauss_img => gauss_img, tg_wcsmear => wcsmear
   use m_zmel,only: build_zmel, set_m2e_prod_basis, zmel
   use m_readVcoud,only:   Readvcoud, vcoud,vcousq,zcousq,ngb,ngc
-  use m_wfac,only:wfacx2,weavx2
-  use m_cmdopt_registry,only: c0_WVR2ptRaxis
+  use m_wfac,only:wfacx2,weavx2,pole_weights
+  use m_cmdopt_registry,only: c0_WVR2ptRaxis, c0_wcsmear
 #ifdef __GPU
   use m_blas, only: zmm_d
   use m_sxcf_fal2_gpu, only: zwz_diag_dev
@@ -296,7 +296,9 @@ subroutine sxcf_fal3z(&
   integer :: istat_g, j_g
 #endif
   complex(8), allocatable :: zwz2(:,:),zw2(:,:),zmel2(:,:) !0 variant
-  complex(8) ::  zz2 ,zwz3(3) ,zwz3x
+  complex(8) ::  zz2 ,zwz3(3) ,zwz3x, zwzp
+  real(8), allocatable :: wts_p(:)     ! [gw] wcsmear: kernel-integrated weights on the W mesh (pole_weights)
+  integer :: iw1_p, iw2_p, ip_w
   real(8) :: dd,omg_c,dw2,omg
   real(8) :: freq_r(nw_i:nw)
   complex(8), allocatable :: zw3(:,:,:)
@@ -1025,6 +1027,38 @@ subroutine sxcf_fal3z(&
                    if(omg>=ef) we = 0.5d0* abs(max(omg-ekc(it), 0d0)) ! positive
                    if(omg< ef) we = 0.5d0* abs(min(omg-ekc(it), 0d0)) ! negative
                  endif
+                 WcSmear: if (tg_wcsmear .or. c0_wcsmear) then   ! ---- [gw] wcsmear: W_c integrated over the level kernel
+                   ! (same as the QSGW path, m_sxcf_sc): mesh point iw gets the kernel weight of its cell, the
+                   ! plane of mesh point iw is iir*iw.  Needs the planes up to iw2_p (getwemax leaves 15 kBT).
+                   if (.not.allocated(wts_p)) allocate(wts_p(0:nw))
+                   call pole_weights(omg, ef, ekc(it), esmrx, .true., nw, freq_r(0:nw), wfac, dble(iii)*wtt, iw1_p, iw2_p, wts_p)
+                   if (iw2_p < iw1_p) cycle
+                   iir = 1
+                   if (omg < ef .and. nw_i/=0) iir = -1
+                   if ((iir==1 .and. iw2_p > nwx) .or. (iir==-1 .and. iw2_p > abs(nwxi))) then
+                     write(6,*)' wcsmear: iw2 nwx nwxi=',iw2_p,nwx,nwxi
+                     call rx(' sxcf: wcsmear needs W planes beyond the mesh (nwx)')
+                   endif
+                   do ip_w = iw1_p, iw2_p
+                     if (wts_p(ip_w) == 0d0) cycle
+                     if (zwz3mode) then
+#ifdef __GPU
+                       istat_g = zmm_d(zw3_dv(1,1,iir*ip_w), zmel_dv(1,it,itp), yv_dv(1,1), ngb, 1, ngb, lda=ngb, ldb=ngb, ldc=ngb)
+                       istat_g = zmm_d(zmel_dv(1,it,itp), yv_dv, z3_dv, 1, 1, ngb, opa='C', lda=ngb, ldb=ngb, ldc=1)
+                       zwzp = z3_dv(1)
+#else
+                       zwzp = 0d0
+                       do igb2 = 1, ngb
+                         zwzp = zwzp + sum(dconjg(zmel(1:ngb,it,itp))*zw3(1:ngb,igb2,iir*ip_w))*zmel(igb2,it,itp)
+                       enddo
+#endif
+                     else
+                       zwzp = zwz(iir*ip_w, it, itp)
+                     endif
+                     zsec(iw,itp,ip) = zsec(iw,itp,ip) + wts_p(ip_w)*zwzp
+                   enddo
+                   cycle
+                 endif WcSmear
                  wfac= iii* wfac*wtt
                  ! three-point interpolation for Wc(we)
                  do iwp = 1,nw

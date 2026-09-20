@@ -136,7 +136,7 @@ HistBin_dw    = 0.0005     # bin width on real-axis at omega=0
 iSigMode      = 3          # self-energy mode flag (3 = standard QSGW)
 niw           = 6          # # of imag-axis frequencies (try 6/10/12)
 deltaw        = 0.02       # (a.u.) numerical-derivative mesh for Z factor
-esmr          = 0.003      # (Ry) hsfp0 smearing; keep < band gap for insulators
+t_sigmaw      = 262        # (K) Fermi-Dirac width of the Sigma levels (from esmr = 0.003 Ry)
 # ----------------------------------------------------------------
 QforEPS = """
 0d0 0d0 0d0

@@ -145,7 +145,7 @@ emax_sigm  = 2.0                         # (Ry) Sigma exact below; extrapolated 
 iSigMode   = 3                           # self-energy mode flag (3 = standard QSGW)
 niw        = 10                          # # of imag-axis frequencies (try 6/10/12)
 deltaw     = 0.02                        # (a.u.) numerical-derivative mesh for Z factor
-esmr       = 0.003                       # (Ry) hsfp0 smearing; keep < band gap for insulators
+t_sigmaw      = 262        # (K) Fermi-Dirac width of the Sigma levels (from esmr = 0.003 Ry)
 # ----------------------------------------------------------------
 # zmel_batch_gb = 0.4  # (GB) zmel batch size per rank; increase for large systems
 # ----------------------------------------------------------------

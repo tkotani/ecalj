@@ -125,7 +125,7 @@ niw           = 10                  # # of imag-axis frequencies (try 6/10/12)
 HistBin_dw    = 0.0001              # bin width on real-axis at omega=0
 HistBin_ratio = 1.05                # frhis(iw)=(dw/(r-1))*(exp((r-1)*(iw-1))-1)
 deltaw        = 0.02                # (a.u.) numerical-derivative mesh for Z factor
-esmr          = 0.003               # (Ry) hsfp0 smearing; keep < band gap for insulators
+t_sigmaw      = 262        # (K) Fermi-Dirac width of the Sigma levels (from esmr = 0.003 Ry)
 QforEPSau     = true                # true = interpret <QforEPS> as a.u.
 EMAXforGW     = 15                  # (eV, rel. EFermi) upper band cutoff for GW Sigma
 # ----------------------------------------------------------------

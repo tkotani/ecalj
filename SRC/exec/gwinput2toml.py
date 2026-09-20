@@ -265,6 +265,16 @@ def emit_toml(parsed: dict) -> str:
         # t_tetrakbt>0 (tetrakbt=false -> t_tetrakbt=0).
         if "tetrakbt" in gw and not gw.pop("tetrakbt"):   # parsed as bool via BOOL_KEYS
             gw["t_tetrakbt"] = 0
+        # esmr (Ry, Gaussian sigma) -> t_sigmaw (K, Fermi-Dirac width with the same standard deviation)
+        if "esmr" in gw and "t_sigmaw" not in gw:
+            try:
+                gw["t_sigmaw"] = round(float(gw.pop("esmr")) * 13.605693 / (1.81 * 8.6171e-5), 0)
+                sys.stderr.write(f"gwinput2toml: esmr -> t_sigmaw = {gw['t_sigmaw']} K\n")
+            except (TypeError, ValueError):
+                gw.pop("esmr", None)
+        if "t_sigmakbt" in gw:
+            v = gw.pop("t_sigmakbt")
+            if "t_sigmaw" not in gw and v and float(v) > 0: gw["t_sigmaw"] = v
         for dead in ("GaussianFilterX0", "GaussSmear", "delta", "dw", "omg_c", "WgtQ0P", "SmearX0q0"):
             if dead in gw:
                 gw.pop(dead)

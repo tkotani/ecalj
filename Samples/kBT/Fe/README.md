@@ -1,5 +1,11 @@
 # Fe — `t_sigmakbt` だけを切り替えた対照実験
 
+> **2026-09-20**: キーは `t_sigmaw` に改名 (ctrlg は変換済み: `t_sigmakbt0/` は `t_sigmaw = 262`
+> = 旧 `esmr = 0.003` Ry と同じ幅、`t_sigmakbt3000/` は `t_sigmaw = 3000`)。核は常に Fermi-Dirac で、
+> Fermi 準位はどちらも `EFERMI_kbt` (t_tetrakbt = 3000)。したがって今の対照は「Σ 側の核の幅
+> 262 K vs 3000 K」であり、以下の本文 (T=0 Gaussian vs FD 3000 K、E_F も違う) とは条件が少し違う。
+> `results/QPU.1run` は 2026-09-20 のコード (虚軸積分も FD 核、wcsmear=true) で再生成したもの。
+
 **Σ 側の有限温度が効くかどうかを、それ以外を完全に固定して測ったもの。**
 
 2 つの run は `t_sigmakbt` の値以外**まったく同じ入力**である:

@@ -93,7 +93,7 @@ subroutine hx0fp0()
      write(stdo,*)' nqbz nqibz =',nqbz,nqibz
   endif
   call Readefermi()
-  call sigmakbt_setup()   ! t_sigmakbt: the real-axis W mesh (getwemax) must cover the Fermi-Dirac window of Sigma
+  call sigmakbt_setup()   ! E_F of Sigma (EFERMI_kbt when t_tetrakbt>0); the real-axis W mesh (getwemax) must cover the FD window of Sigma
   if(ipr) write(stdo,"(a,f12.6)")' --- READIN ef from EFERMI. ef=',ef
   call genallcf_v3(incwfx=0) !use 'ForX0 for core' in GWIN
   if(chipm .AND. nspin==1) call rx( 'chipm mode is for nspin=2')

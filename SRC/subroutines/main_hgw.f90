@@ -66,7 +66,7 @@ subroutine hgw(do_correlation, do_exchange)
   call Genallcf_v3(incwfx=-1)
   call Read_BZDATA(hx0)
   call Readefermi()
-  call sigmakbt_setup()   ! t_sigmakbt: Fermi-Dirac Sigma occupation + EFERMI_kbt, before the frequency mesh (getwemax) is built
+  call sigmakbt_setup()   ! E_F of Sigma (EFERMI_kbt when t_tetrakbt>0), before the frequency mesh (getwemax) is built
   call ReadGWinputKeys()
   call Readngmx2()
   call Setqbze()

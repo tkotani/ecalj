@@ -39,23 +39,27 @@ module m_gw_user_config
   implicit none
   public :: gw_user_config_init, set_esmr
   integer, protected, public :: niw
+  !> esmr: width (Ry) of the Fermi-Dirac kernel that smears the levels of the self-energy,
+  !! = kB * t_sigmaw.  (The name is kept from the Gaussian era; it is kBT now, see m_wfac.)
   real(8), protected, public :: deltaw, esmr
   private
 contains
   subroutine gw_user_config_init()
-    !> Read niw / deltaw / esmr from m_GWinput (TOML-only mode).
+    !> Read niw / deltaw / t_sigmaw from m_GWinput (TOML-only mode).
     use m_GWinput,  only: gwinput_init, gwinput_loaded, &
                           mg_niw    => niw, &
                           mg_deltaw => deltaw, &
-                          mg_esmr   => esmr
+                          mg_t_sigmaw => t_sigmaw
+    real(8), parameter :: kb = 8.6171d-5   ! eV/K
+    real(8) :: rydberg
     call gwinput_init()
     if (.not. gwinput_loaded) call rx('gw_user_config_init: ctrlg.<sname>.toml is required.')
     niw    = mg_niw
     deltaw = mg_deltaw
-    esmr   = mg_esmr
+    esmr   = kb*mg_t_sigmaw/rydberg()
     if(ipr) write(stdo,*) ' --- Freq ---'
     if(ipr) write(stdo,"(a,i6)")   '    niw  =', niw
-    if(ipr) write(stdo,"(a,f12.6)")'    esmr =', esmr
+    if(ipr) write(stdo,"(a,f9.1,a,f12.6,a)")'    t_sigmaw =', mg_t_sigmaw, ' K  (Sigma kernel width kBT =', esmr, ' Ry)'
 
 !   ---- Legacy GWinput reader (disabled 2026-05-02 -- TOML only) ----
 !   use m_keyvalue, only: getkeyvalue
@@ -480,31 +484,24 @@ module m_ReadEfermi
   real(8),protected:: bandgap, ef, ef_kbt
   public:: readefermi,readefermi_kbt,setefermi,sigmakbt_setup
 contains
-  !> Sigma-side finite-T setup (t_sigmakbt). When t_sigmakbt>0:
-  !!  - switch the self-energy Fermi level to the finite-T EFERMI_kbt (same mu as tetrakbt chi0),
-  !!  - enable the Fermi-Dirac occupation kernel (set_sigma_fd) at kBT=t_sigmakbt in wfacx/wfacx2/weavx2.
-  !! Requires EFERMI_kbt to exist (heftet with tetrakbt). Intended use: t_sigmakbt == t_tetrakbt
-  !! so chi0(W) and Sigma(G) share one physical temperature. Default (0) keeps legacy behaviour.
   subroutine sigmakbt_setup()
-    use m_GWinput, only: t_sigmakbt, gwinput_init, gwinput_loaded
-    use m_wfac, only: set_sigma_fd
-    real(8):: kb=8.6171d-5, kbt, rydberg
+    !> Fermi level of the self-energy: EFERMI_kbt (mu(T) written by heftet) when chi0 is at finite
+    !! temperature (t_tetrakbt > 0), EFERMI otherwise.  The kernel width itself is t_sigmaw
+    !! (m_gw_user_config esmr = kBT), always Fermi-Dirac.
+    use m_GWinput, only: t_tetrakbt, t_sigmaw, gwinput_init, gwinput_loaded
     logical:: efk_exist
     call gwinput_init()
     if(.not.gwinput_loaded) return
-    if(t_sigmakbt <= 0d0) return
-    inquire(file='EFERMI_kbt', exist=efk_exist)
-    if(.not.efk_exist) then
-       if(ipr) write(stdo,"(a)")' sigmakbt_setup: WARNING t_sigmakbt>0 but EFERMI_kbt missing'// &
-            ' (need tetrakbt/heftet). Sigma-side finite-T NOT applied.'
+    if(t_tetrakbt <= 0d0) then
+       if(ipr) write(stdo,"(a,f8.1,a)") ' sigmaw_setup: Sigma kernel Fermi-Dirac, t_sigmaw[K]=',t_sigmaw,'  ef<-EFERMI (chi0 at T=0)'
        return
     endif
-    kbt = kb*t_sigmakbt/rydberg()      ! K -> Ry
+    inquire(file='EFERMI_kbt', exist=efk_exist)
+    if(.not.efk_exist) call rx('sigmaw_setup: t_tetrakbt>0 but EFERMI_kbt is missing (run heftet with t_tetrakbt>0)')
     call readefermi_kbt()              ! ef_kbt <- EFERMI_kbt
-    call setefermi(ef_kbt)             ! self-energy now uses the finite-T Fermi level
-    call set_sigma_fd(.true., kbt)     ! Fermi-Dirac occupation in Sigma_x and Sigma_c
-    if(ipr) write(stdo,"(a,f9.1,a,e13.5,a,f12.6)") &
-         ' sigmakbt_setup: t_sigmakbt[K]=',t_sigmakbt,' kbt[Ry]=',kbt,' ef<-EFERMI_kbt=',ef_kbt
+    call setefermi(ef_kbt)             ! self-energy uses the finite-T Fermi level of chi0
+    if(ipr) write(stdo,"(a,f8.1,a,f12.6)") &
+         ' sigmaw_setup: Sigma kernel Fermi-Dirac, t_sigmaw[K]=',t_sigmaw,'  ef<-EFERMI_kbt=',ef_kbt
   end subroutine sigmakbt_setup
   subroutine setefermi(efin)
     real(8)::efin

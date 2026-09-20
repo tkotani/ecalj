@@ -143,7 +143,6 @@ module m_cmdopt_registry
   logical, public, protected, save :: c0_qibzonly        = .false.
   logical, public, protected, save :: c0_quitecore       = .false.
   logical, public, protected, save :: c0_readQforGW      = .false.
-  logical, public, protected, save :: c0_removeFermiWindowLiTi2O4 = .false.  ! drop EF+-2eV bands from chi0 (diagnostic, m_tetwt)
   logical, public, protected, save :: c0_dumpW           = .false.  ! persist SHM W-V to __WVR.<iq>/__WVI.<iq> (combined hgw, analysis)
   logical, public, protected, save :: c0_WVR2ptRaxis     = .false.  ! Sc real-axis (WVR) pole: 2-point LINEAR Wc(we) (alagr2zz, no overshoot) instead of 3-point Lagrange alagr3zz
   logical, public, protected, save :: c0_wcsmear         = .false.  ! same as [gw] wcsmear=true (command-line form; the key is preferred)
@@ -431,7 +430,6 @@ contains
     call set0('--qibzonly',       c0_qibzonly, narg, arglist)
     call set0('--quitecore',      c0_quitecore, narg, arglist)
     call set0('--readQforGW',     c0_readQforGW, narg, arglist)
-    call set0('--removeFermiWindowLiTi2O4', c0_removeFermiWindowLiTi2O4, narg, arglist)
     call set0('--shorten',        c0_shorten, narg, arglist)
     call set0('--show_time',      c0_show_time, narg, arglist)
     call set0('--showdmat',       c0_showdmat, narg, arglist)

@@ -29,8 +29,8 @@ contains
     use m_readqg,only: READQG0,READNGMX2, ngpmx,ngcmx
     use m_READ_BZDATA,only: READ_BZDATA, nqbz,nqibz,n1,n2,n3,ginv,qbz,wbz,qibz
     use m_genallcf_v3,only: GENALLCF_V3,Setesmr, natom,nspin,plat,alat,deltaw,esmr_in=>esmr,nctot,ecore,nband, laf
-    use m_ReadEfermi, only: sigmakbt_setup, ef_kbt   ! t_sigmakbt: Sigma-side finite-T
-    use m_wfac, only: sig_fd
+    use m_ReadEfermi, only: sigmakbt_setup, ef_kbt   ! Sigma Fermi level (EFERMI or EFERMI_kbt)
+    use m_GWinput, only: t_tetrakbt
     use m_itq,only: setitq_hsfp0sc,nbandmx, ntq
     use m_mpi,only: &
          MPI__Initialize,MPI__root,MPI__Broadcast,MPI__rank,MPI__size,MPI__allreducesum, &
@@ -137,13 +137,11 @@ contains
     if(mpi__root) call setitq_hsfp0sc(nbmx_sig,ebmx_sig,eftrue,nspinmx)
     call MPI_barrier(comm,ierr)
     if(.not.mpi__root) call setitq_hsfp0sc(nbmx_sig,ebmx_sig,eftrue,nspinmx)
-    ! t_sigmakbt: enable Fermi-Dirac Sigma occupation (wfacx/wfacx2/weavx2) and use the
-    ! finite-T Fermi level EFERMI_kbt for the occupation boundary (both Sigma_x and Sigma_c,
-    ! both hsfp0_sc and hgw binaries route through here). No-op when t_sigmakbt<=0.
-    ! Must precede sxcf_scz_count: the batch sizing uses the same E_F and state window
-    ! (sig_window: 10 esmr at T=0, 15 kBT when Fermi-Dirac) as the self-energy loops.
+    ! Sigma Fermi level: EFERMI_kbt when chi0 is at finite T (t_tetrakbt>0), EFERMI otherwise.
+    ! The level kernel is Fermi-Dirac of width t_sigmaw (m_wfac) in every branch.
+    ! Must precede sxcf_scz_count: the batch sizing uses the same E_F and state window (sig_window).
     call sigmakbt_setup()
-    if(sig_fd) ef = ef_kbt
+    if(t_tetrakbt > 0d0) ef = ef_kbt
     SchedulingSelfEnergyCalculation: block
       if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
       if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')

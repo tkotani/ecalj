@@ -1,3 +1,47 @@
+2026-09-20 (1)
+  plan t_sigmaw: Σ 側の smearing パラメタを [gw] t_sigmaw (K, 既定 1000) の一本に統合。
+  - esmr (Ry, Gaussian) と t_sigmakbt (K) を廃止。Σx の占有重み・Σc 実軸極項の窓重み・wcsmear の
+    極位置の分布はすべて Fermi-Dirac 核 (幅 kBT = t_sigmaw)。既定 1000 K は旧 esmr = 0.01 Ry と
+    同じ標準偏差 (FD の std = π kBT/√3 = 1.81 kBT)。wfacx.f90 は FD のみ (fd_cdf, wcdf, wcut=15 kBT,
+    sig_window, wfacx2, weavx2, wfacx)、set_sigma_fd / sig_fd のグローバルは削除。
+    m_gw_user_config の esmr は名前だけ残し中身は kBT (Ry)。中間状態の候補窓と実軸 ω メッシュの
+    余裕は 15 kBT (m_freq getwemax ffac=15、m_sxcf_sc_count sig_window)。
+  - Fermi 準位: t_tetrakbt > 0 なら EFERMI_kbt (無ければ abort)、そうでなければ EFERMI
+    (sigmakbt_setup)。χ0 と Σ が別の E_F を見る組合せは無くなった。
+  - wcsmear の既定を true に (false で従来の平均エネルギー 1 点評価)。
+  - t_tetrakbt > 0 と SmearX0 > 0 は排他 (abort)。
+  - 互換読み: ctrlg の esmr は同じ標準偏差の t_sigmaw に換算 (0.003 Ry → 262 K)、t_sigmakbt は値を
+    t_sigmaw に写す (t_sigmaw があれば優先)。gwinput2toml.py も同じ換算。gwinit テンプレ・
+    toml_comments.py・Samples の ctrlg 89 ファイルを t_sigmaw に書き換え (旧 esmr=0.003 → 262 K、
+    0.01 → 872 K で旧結果に近い幅を保つ)。
+  - 新キー [gw] chi0_skip_window = [emin, emax] (eV): 占有・非占有の両端が窓内のバンド対を χ0 から
+    落とす (cRPA 風、m_tetwt)。診断フラグ --removeFermiWindowLiTi2O4 を置き換え。既定 off。
+  - Σc 虚軸積分 (m_sxcf_sc) の準位 smearing も同じ FD 核に。旧コードの価電子準位の式 (Eq. 57 の
+    Gaussian 正則化 sig = esmr/2) は「鋭い準位の式から 2 次元 Gaussian の一片を落とした」もので、
+    その一片が sign(we)/2 の半留数の段差を Gaussian で均す = esmr 時代の準位 smearing そのものだった。
+    極項だけ FD にすると 2 つの段差が打ち消さず、ω の数 kBT 以内の準位で |M|²W_c(0) 級の誤差が出る
+    (NiO 2³ の O 2s 対 (70 meV 差) で SEc ±0.6 eV、QSGW 固有値 0.47 eV)。
+    新しい式: 鋭い準位の式 (従来 core 用の分岐) を、ω の 30 kBT 以内の価電子準位について FD 核で
+    平均する (e = ε' + kBT ln(u/(1−u))、u の中点 40 点。sign(we)/2 の段差は解析的に
+    −(2Φ_FD(ω−ε')−1)/2、滑らかな残りは求積)。sig は消滅。虚軸 + 極項 = FD で均した準位の Σc
+    (wcsmear と整合)。NiO 2³ 262 K, wcsmear=false で Gaussian 参照と 3 桁一致 (10.523/10.541 eV)、
+    wcsmear=true で 30/262/473 K が 10.495/10.503/10.510 eV と幅にほぼ依らない。
+  - 一発 GW (hsfp0 / sxcf_fal2, gw_lmfh) も同じ扱いに: wintzsg_npm (wintzsg.f90) を FD 核平均に書き換え
+    (鋭い式 wintz_npm の半留数を解析的に平均、滑らかな残り wintz_npm_smooth を求積。冒頭の死んだ
+    m_purewintz のコメント塊は削除)、極項に wcsmear の分岐 (pole_weights を m_wfac に移して共用、
+    zwz3mode では平面ごとに zmm_d/内積)、hsfp0 に sigmakbt_setup (t_tetrakbt>0 なら EFERMI_kbt)。
+  - 回帰 (gfortran, 参照 = Gaussian esmr, wcsmear=false 時代、Samples の ctrlg は同じ幅 262 K):
+      si_gwsc      QPU eQP max 0.076 / 平均 0.014 eV (+10 eV 以上の高い状態、wcsmear 分)、QSGW 固有値 5 meV
+      fe_gwsc      QPU/QPD eQP max 0.022 / 0.035 eV、平均 0.004 (E_F 直上の状態で SEx と SEc が ±0.13〜0.19
+                   逆符号に動いて相殺)、QSGW 固有値 7 meV
+      nio_gwsc     QPU eQP max 0.42 / 平均 0.03 eV、QSGW 固有値 max 0.16 eV (2³ の W_c は Landau 減衰の無い
+                   離散極なので 1 点内挿と核平均が本質的に違う。wcsmear=false なら参照と 3 桁一致)
+      si_gw_lmfh   PASSED (5 meV)、gas_pw_gw_lmfh eQP max 0.011 (VBM の SEx 35 meV は FD の裾、SEc と相殺)
+      gas_epsPP_lmfh, gas_eps_lmfh PASSED (Σ を使わない)
+    参照値は次のコミットで全ターゲット更新。
+  - ecaljdoc: gwinput.md (t_sigmaw / wcsmear / SmearX0 排他)、kBT.md (§0 表、§3、§3.5、§7.3、§9)、
+    lmf.md、samples.md。
+
 2026-09-19 (2)
   コード整理 (wcsmear 周り):
   - m_sxcf_sc: 実軸極項の重み生成を pole_weights (1 ルーチン; 従来の 3 点 Lagrange / 2 点線形と

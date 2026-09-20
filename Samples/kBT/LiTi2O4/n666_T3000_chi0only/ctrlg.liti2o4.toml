@@ -205,7 +205,7 @@ HistBin_ratio = 1.03       # frhis(iw)=(dw/(r-1))*(exp((r-1)*(iw-1))-1)
 iSigMode      = 3          # self-energy mode flag (3 = standard QSGW)
 niw           = 10         # # of imag-axis frequencies (try 6/10/12)
 deltaw        = 0.02       # (a.u.) numerical-derivative mesh for Z factor
-esmr          = 0.01       # (Ry) hsfp0 smearing; keep < band gap for insulators
+t_sigmaw      = 872        # (K) Fermi-Dirac width of the Sigma levels (from esmr = 0.01 Ry)
 # ----------------------------------------------------------------
 # SmearX0   = retired (superseded by tetrakbt / method B-prime)
 # SmearX0q0 = retired (superseded by tetrakbt / method B-prime)

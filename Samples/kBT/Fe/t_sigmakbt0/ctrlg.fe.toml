@@ -112,7 +112,6 @@ pwemax = 2.0  # APW cutoff (Ry)
 # Touch only if you know what you are doing -- defaults are sensible.
 [gw]
 t_tetrakbt    = 3000.0     # (K) chi0 finite-T tetrahedron (method B-prime); 0 = off
-t_sigmakbt    = 0.0
 n1n2n3        = [5, 5, 5]  # BZ mesh for GW
 QpGcut_psi    = 3.0        # |q+G| cutoff for eigenfunctions (a.u. unless unit_2pioa=true)
 QpGcut_cou    = 2.0        # |q+G| cutoff for Coulomb / W
@@ -124,7 +123,7 @@ HistBin_dw    = 0.01       # bin width on real-axis at omega=0
 iSigMode      = 3          # self-energy mode flag (3 = standard QSGW)
 niw           = 10         # # of imag-axis frequencies (try 6/10/12)
 deltaw        = 0.02       # (a.u.) numerical-derivative mesh for Z factor
-esmr          = 0.003      # (Ry) hsfp0 smearing; keep < band gap for insulators
+t_sigmaw      = 262        # (K) Fermi-Dirac width of the Sigma levels (from esmr = 0.003 Ry)
 # ----------------------------------------------------------------
 QforEPS = """
  0d0 0d0 0.01d0

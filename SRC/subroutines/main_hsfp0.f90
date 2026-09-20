@@ -1,7 +1,7 @@
 module m_hsfp0
   contains
 subroutine hsfp0() bind(C)
-  use m_ReadEfermi,only: Readefermi,ef_read=>ef
+  use m_ReadEfermi,only: Readefermi,ef_read=>ef,sigmakbt_setup
    use m_nvfortran, only: findloc
   use m_readqg,only: Readqg0,Readngmx2,ngpmx,ngcmx
   use m_hamindex,only:   Readhamindex
@@ -375,6 +375,7 @@ subroutine hsfp0() bind(C)
   endif
   !! efermi by tetrahedron. this can be overwritten
   call readefermi()
+  call sigmakbt_setup()   ! EFERMI_kbt when chi0 is at finite T (t_tetrakbt>0); the Sigma kernel is FD of width t_sigmaw
   ef=ef_read
   if(tetraex) goto 201
 

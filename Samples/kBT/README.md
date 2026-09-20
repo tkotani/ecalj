@@ -1,4 +1,11 @@
-# kBT — 有限温度 QSGW (`tetrakbt` + `t_sigmakbt`) のサンプル
+# kBT — 有限温度 QSGW (`t_tetrakbt` + `t_sigmaw`) のサンプル
+
+> **2026-09-20 (plan t_sigmaw)**: Σ 側のキーは `t_sigmaw` (K, 既定 1000) に一本化された
+> (`esmr` [Ry, Gaussian] と `t_sigmakbt` は互換読みのみ)。核は常に Fermi-Dirac、`wcsmear` は既定 true、
+> Fermi 準位は `t_tetrakbt > 0` なら `EFERMI_kbt` (無ければ abort)。下の「使うときの注意」のうち
+> `t_sigmakbt` / `esmr` に関する 3 項は**過去の話**で、いまは (1) `t_sigmaw` は常に有効、
+> (2) `t_tetrakbt` と同じ温度にするのが自然だが必須ではない、(3) `esmr` は無い、である。
+> ディレクトリ名 `Fe/t_sigmakbt*` は当時のまま。最新の経緯は `kBT_research.md` (新しい順)。
 
 電子温度を χ₀ 側 (`tetrakbt`) と Σ 側 (`t_sigmakbt`) の**両方**に入れた QSGW の
 実例。手法とその限界は

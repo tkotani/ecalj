@@ -119,7 +119,7 @@ alpha_OffG = 1.0        # offset-Gamma auxiliary function (dimensionless)
 iSigMode   = 3          # self-energy mode flag (3 = standard QSGW)
 niw        = 6          # # of imag-axis frequencies (try 6/10/12)
 deltaw     = 0.02       # (a.u.) numerical-derivative mesh for Z factor
-esmr       = 0.003      # (Ry) hsfp0 smearing; keep < band gap for insulators
+t_sigmaw      = 262        # (K) Fermi-Dirac width of the Sigma levels (from esmr = 0.003 Ry)
 EMAXforGW  = 3          # (eV, rel. EFermi) upper band cutoff for GW Sigma
 # ----------------------------------------------------------------
 QforGW = """
