@@ -36,54 +36,43 @@
 青と赤は線の太さの中で重なる。REF の Γ–L・Γ–X の針（−2 eV 超）は両方に無い。
 図: `LiTi2O4/plot_oneshot_666_compare.py`（band ファイルは kt1 の各 run の `band/bnd0*.spin1`）。
 
-### 2026-09-20 22:45 プラン chi0_wfilter — プラズモンを抜いた W で QSGW を回し、抜いた分はフルスペクトル一発で戻す
+### 2026-09-20 23:20 プラン chi0_lowsmear — 低エネルギー部分だけ重みを保って鈍らせた W で QSGW、抜けた分はフルスペクトル一発で
 
-**目的**: 静的 QSGW が扱えない「$W_c(\omega)$ の鋭いプラズモン極」を自己無撞着ループから外し、
-その効果は最後に動的（ω 依存）な一発 GW で 1 次まで足す。
+（22:45 に書いた「ω フィルタ + 静的置換」案は取り下げ。理由: 定数 $\chi_0^{\rm low}(0)$ を足すと
+$\varepsilon(\omega\to\infty)\ne1$、$W(\infty)\ne v$ で GW の高周波極限と f-sum を壊す。単純な ω フィルタも
+静的金属遮蔽をプラズモンごと消す（両者は同じ帯内 f-sum 重み）ので不可。）
+
+**目的**: 静的 QSGW が扱えない「$W_c(\omega)$ の鋭いプラズモン極（幅 0.1 eV）」を自己無撞着ループから外し、
+その効果は最後に ω 依存の一発 GW で 1 次まで足す。
+
+**方針**: 低エネルギー部分の**重みは保ったまま鋭さだけを消す**。RPA では静的遮蔽とプラズモンは同じ帯内重みなので
+重みを保てば極は残るが、幅を与えれば針の原因にはならない。
+
+$$
+\mathrm{Im}\chi_0(\omega)\;\to\;f_c(\omega)\,\mathrm{Im}\chi_0(\omega)\;+\;K_\gamma*\bigl[(1-f_c(\omega))\,\mathrm{Im}\chi_0(\omega)\bigr],
+\qquad f_c=\frac{1}{1+e^{(w_c-|\omega|)/d_w}}
+$$
+
+- $\omega < w_c$ の部分（t2g 帯内＋低い帯間）だけを幅 $\gamma$ の Gaussian $K_\gamma$ で畳む。帯間部分は触らない。
+  $K_\gamma$ は既存の `gaussianfilterhis`（ビン幅重み付き・奇関数拡張、f-sum 保存）をそのまま使う。
+- 保たれるもの: f-sum（厳密）、$W(\infty)=v$、静的遮蔽（$O(\gamma^2)$）、因果性（同じ Im から KK で Re と χ₀(iω)）。
+- 変わるもの: $\mathrm{Im}\,\varepsilon(\omega_p)$ が増えてプラズモンが幅 $\sim\gamma$ に鈍る。`t_tetrakbt ≥ 1500 K` の
+  Landau 減衰と同じ効き方だが、占有は T=0 のまま。`SmearX0` との違いは低エネルギー部分だけを畳むこと。
+- キー（隠し、実験用）: `[gw] chi0_lowsmear = [wc, dw, gamma]`（eV）。dpsion5 の Hilbert 変換の前、host/device 両経路。
+  既定 off。22:36 に実装した `chi0_wfilter`（フィルタのみ）をこの形に書き換える（未コミット）。
 
 **2 段階の筋書き**
 
-1. **QSGW は $W^{\rm hi}$ で回す**: Im χ₀ から低エネルギー（$\lesssim 2$ eV、t2g 帯内＋低い帯間）を落とした χ₀ で W を作り、
-   それで QSGW を収束させる。$\Sigma(\omega)$ が準位間で滑らかになるので静的化の前提が満たされ、反復は安定。
-   物理的には「t2g 帯内遮蔽を除いた部分遮蔽 QSGW」（cRPA の U で GW をやるのと同類）。
-2. **抜いた分はフルスペクトル一発で戻す**: 収束した QSGW の固有系（rst + sigm）の上で、フィルタ無しの $W^{\rm full}$ で
-   ω 依存の Σ を一発（hsfp0、Z 因子付き）:
-   $E_{QP} = \varepsilon + Z\,[\Sigma^{\rm full}(\varepsilon) - V_{xc}^{\rm QSGW,hi}]$。
-   $V_{xc}^{\rm QSGW,hi}$ は $\Sigma^{\rm hi}$ の静的化そのものなので、差はちょうどプラズモン部分の動的補正
-   （サテライト・寿命込みで 1 次）。ecalj では QSGW 収束ディレクトリで `gw_lmfh`（lmfgw が sigm を読む）。
-   注意: 1 と 2 で同じ E_F・同じ基底、$w_c$ は「プラズモンより上・帯間遮蔽より下」（LiTi₂O₄ は 2 eV、`--dumpW` で確認）。
+1. **QSGW は鈍らせた $W$ で回す**: 反復は安定（Σ(ω) が準位間で滑らか）。
+2. **最後にフルスペクトル一発**: 収束した QSGW の固有系（rst + sigm）の上で、鈍らせていない $W$ で ω 依存の Σ を一発
+   （`gw_lmfh`、Z 因子付き）。$E_{QP}=\varepsilon+Z[\Sigma^{\rm full}(\varepsilon)-V_{xc}^{\rm QSGW}]$ で、差が
+   プラズモンの動的補正（サテライト・寿命込みで 1 次）。同じ E_F・同じ基底で。
 
-**キー（隠し、実験用）**: `[gw] chi0_wfilter = [wc, dw]`（eV）。dpsion5 の Hilbert 変換の前に
-$\mathrm{Im}\chi_0(\omega) \to \mathrm{Im}\chi_0(\omega)\,f_c(\omega)$、$f_c = 1/(1+e^{(w_c-|\omega|)/d_w})$。
-実軸の Re χ₀ と虚軸の χ₀(iω) は同じ Im から作られるので W は実軸・虚軸で整合したまま変わる。
-host（dpsion5 / dpsion_chiq_h）と device（dpsion_chiq_d）の両経路。既定 off。**22:36 ローカル実装・ビルド済み、未コミット。**
+**試験**（6³ 一発、LDA から、`t_tetrakbt = 0`、`t_sigmaw = 1000`、wcsmear 既定）: $w_c = 2$、$d_w = 0.2$、$\gamma = 0.3$ と 0.5 eV。
+見るもの: 針（Γ–L band 33）、O 2p 荒れ、⟨48|Σc|33⟩、E_F 近傍対角のシフト、`--dumpW` で第一殻 q の $W_c(\omega)$ の頭
+（極の幅、$W_c(0)$ の保存）。対照: REF、NEW20260920（1000 K, wcsmear）、それと `SmearX0 = 0.011 Ha`（0.3 eV、全域）の T=0 一発。
 
-**問題点: 単純な ω フィルタは Fermi 面の遮蔽も一緒に消す。**
-静的金属遮蔽 $\varepsilon(q,0) = 1 + k_{TF}^2/q^2$ は $\mathrm{Re}\chi_0(0) = \frac2\pi\int \mathrm{Im}\chi_0(\omega')/\omega'\,d\omega'$
-（低 ω が支配）、プラズモンは同じ帯内重みが作る $1-\omega_p^2/\omega^2$ の零点で、$\omega_p$ 付近の Im χ₀ は極の**幅**を
-決めるだけ。だから 2 eV 以下を落とすと両方消え、$\omega_p$ 付近だけ落とすと極はむしろ鋭くなる。
-RPA では「静的金属遮蔽あり・プラズモンなし」は ω フィルタだけでは作れない。
-
-**解決案: 静的置換**（`chi0_wfilter_static = true`、既定 true にする）。落とした低エネルギー部分の静的極限だけを、
-ω に依らない定数として戻す:
-
-$$
-\chi_0(\omega)\;\to\;\chi_0^{\rm hi}(\omega) + \chi_0^{\rm low}(0),\qquad
-\chi_0^{\rm low}(0) = \frac2\pi\int_0^{\infty}\frac{\mathrm{Im}\chi_0(\omega')\,[1-f_c(\omega')]}{\omega'}\,d\omega'
-$$
-
-- $\omega = 0$ で元の静的遮蔽（Fermi 面の遮蔽）を厳密に保つ。
-- Drude の $1/\omega^2$ 動力学が無いのでプラズモン極は出ない（Thomas–Fermi 的な帯内遮蔽）。
-- 代償: 高 ω で低エネルギー部分の遮蔽が減衰しない（過遮蔽）。これは段階 2 の一発で 1 次まで補正される。
-- 実装: dpsion5 でフィルタ前に $\mathrm{Im}\chi_0(1-f_c)$ を取っておき、KK 行列 `crmatt` の ω=0 行で定数 $C$
-  （行列、npr×npr_col）を作り、実軸 `zxq(ω)` と虚軸 `zxqi(iω)` の全 ω に足す。host/device で 30 行程度。
-
-**比較で見るもの**（6³ 一発、LDA から、`t_tetrakbt = 0`、`t_sigmaw = 1000`、wcsmear 既定）:
-針（Γ–L band 33）、O 2p 荒れ（`o2p_rough`）、⟨48|Σc|33⟩（`read_se2.py`）、E_F 近傍対角の系統シフト（遮蔽が抜けた分）、
-`--dumpW` で第一殻 q の $W_c(\omega)$ の頭（極が消えているか、$W_c(0)$ が保たれているか）。
-対照: REF（wcsmear なし）、WCSMEAR/OMP01（昨日）、NEW20260920（今日のコード、22:21 開始、走行中）。
-
-**状態**: user 判断待ち（静的置換を入れて進めるか）。
+**状態**: user 承認待ち。
 
 ### 2026-09-20 13:10 修正点の数式メモ — Σc の contour 分解と準位 smearing の整合
 
