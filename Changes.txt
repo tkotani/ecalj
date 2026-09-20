@@ -40,6 +40,10 @@
       gas_epsPP_lmfh, gas_eps_lmfh PASSED (Σ を使わない)
     参照 (QPU/QPD/log) を si_gwsc, gas_gwsc, nio_gwsc, fe_gwsc, gas_pw_gw_lmfh で更新 (gas_gwsc は eQP max 0.20 eV
     の高い状態、固有値 20 meV)。clean な再ランで 6 ターゲット ALL PASSED。
+  - 大型 GW (kt1 nvfortran GPU FP64, -np 32 -np2 2) の参照も更新: 旧参照との eQP 差は gas_gwsc666 max 0.006 eV、
+    nio_gwsc444 max 0.17 (数状態) / 平均 0.0035、pdo_gwsc443 max 0.016、cugase2_gwsc222 max 0.014 eV。
+    2³ の NiO で 0.4 eV だった wcsmear の効果はメッシュが密になると数 meV に落ちる。yh3fcc_gwsc666 は
+    lmf の LDA 段で落ちる既知の故障 (2026-08-18 から) のため未更新。
   - TestInstall/eras の test.py: 2 本目の lmf に --keepmixm (09-18 の「__mixm を起動時に捨てる」変更で crn と
     同様に必要だった。LDA+U の準安定解が混合履歴に依る)。参照はそのまま PASS。
   - ecaljdoc: gwinput.md (t_sigmaw / wcsmear / SmearX0 排他)、kBT.md (§0 表、§3、§3.5、§7.3、§9)、
