@@ -11,7 +11,7 @@
 
 書き方: **新しいものが上**、時刻は JST。
 
-### 2026-09-20 11:45 プラン: Σ 側の幅を `t_sigmaw`（K）一本に、`wcsmear` を標準に、esmr 廃止（user 合意）
+### 2026-09-20 11:45 プラン t_sigmaw: Σ 側の smearing を `t_sigmaw`（K）一本に、`wcsmear` を標準に、esmr 廃止（user 合意）
 
 方針
 - Σ 側の準位の幅は常に Fermi–Dirac 核。キーは **`t_sigmaw`**（K; 「フルの有限温度 Σ ではない」ので
