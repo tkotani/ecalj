@@ -16,7 +16,7 @@ def test(args,bindir,testdir,workdir):
         runprogs([
                  lmfa+" eras  > "+outfile,
                  lmf+" --ctrlg:iter.nit=1 --ctrlg:verbose=51 eras >> "+outfile,
-                 lmf+" --ctrlg:iter.nit=3 eras        >> "+outfile 
+                 lmf+" --keepmixm --ctrlg:iter.nit=3 eras >> "+outfile 
         ])
         tall=test1_check(testdir+'/'+outfile, workdir+'/'+outfile)
         return tall
