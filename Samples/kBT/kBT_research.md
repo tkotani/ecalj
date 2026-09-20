@@ -11,6 +11,14 @@
 
 書き方: **新しいものが上**、時刻は JST。
 
+### 2026-09-20 11:00 T=0 / 有限温度の整理表を kBT.md §0 に（ecaljdoc `35b04fe`）
+
+χ₀ 側（占有 θ / FD-GL20、E_F、SmearX0、chi0_skip_window）と Σ 側（E_F、占有核 Gaussian esmr / FD kBT、
+極の位置の評価 ω̄ / wcsmear、候補窓 10 esmr / 15 kBT、共通部）の表。要点: 温度は 2 キー独立で実用は
+同じ T、esmr は T=0 専用（有限温度では読まれない）、wcsmear は温度スイッチではない。
+`chi0_skip_window = [emin, emax]`（両端が窓内の対を χ₀ から除く、cRPA 風）は実装・ビルド済みだが
+未コミット・未テスト（user の「まず整理」指示で保留）。
+
 ### 2026-09-20 10:30 結論（user と合意）: 残る針は静的 QSGW の適用限界
 
 - `t_sigmakbt` の Σ 側有限温度は「Fermi 準位 μ(T)、占有核 FD（幅 kBT）、候補窓・ω 余裕」の 3 点だけが
