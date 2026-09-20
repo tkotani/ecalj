@@ -36,43 +36,45 @@
 青と赤は線の太さの中で重なる。REF の Γ–L・Γ–X の針（−2 eV 超）は両方に無い。
 図: `LiTi2O4/plot_oneshot_666_compare.py`（band ファイルは kt1 の各 run の `band/bnd0*.spin1`）。
 
-### 2026-09-20 23:10 プラン chi0_lowsmear — 低エネルギー部分だけ重みを保って鈍らせた W で QSGW、抜けた分はフルスペクトル一発で
+### 2026-09-20 23:35 プラン chi0_filterw — 低エネルギー帯間遷移を抜いた W で QSGW、Drude（帯内）は残す、抜けた分はフルスペクトル一発で
 
-（22:45 に書いた「ω フィルタ + 静的置換」案は取り下げ。理由: 定数 $\chi_0^{\rm low}(0)$ を足すと
-$\varepsilon(\omega\to\infty)\ne1$、$W(\infty)\ne v$ で GW の高周波極限と f-sum を壊す。単純な ω フィルタも
-静的金属遮蔽をプラズモンごと消す（両者は同じ帯内 f-sum 重み）ので不可。）
+（22:45 の「ω フィルタ＋静的置換」と 23:10 の「低エネルギー重み保存平滑化」は取り下げ。前者は
+$W(\infty)\ne v$ で GW の高周波極限を壊す。後者は user 判断で不採用 — 誘電関数の計算と同様に
+Drude（帯内）とそれ以外を**バンドで**分けるほうが明快。）
 
-**目的**: 静的 QSGW が扱えない「$W_c(\omega)$ の鋭いプラズモン極（幅 0.1 eV）」を自己無撞着ループから外し、
-その効果は最後に ω 依存の一発 GW で 1 次まで足す。
+**キー**（隠し、実験用。2026-09-20 user 決定）
 
-**方針**: 低エネルギー部分の**重みは保ったまま鋭さだけを消す**。RPA では静的遮蔽とプラズモンは同じ帯内重みなので
-重みを保てば極は残るが、幅を与えれば針の原因にはならない。
+| キー | 既定 | 意味 |
+|---|---|---|
+| `chi0_filterw = [wc, dw]`（eV） | off | dpsion5 の Hilbert 変換の前に $\mathrm{Im}\chi_0(\omega)\to f_c(\omega)\,\mathrm{Im}\chi_0(\omega)$、$f_c=1/(1+e^{(w_c-|\omega|)/d_w})$。$w_c$ 以下の遷移を落とす。実軸の Re χ₀ と χ₀(iω) は同じ Im から作られるので W は整合したまま |
+| `chi0_filterw_drude` | true | `chi0_filterw` の付属。true: 帯内（E_F を横切る同じバンドの占有部→非占有部）の遷移は**フィルタから外して残す**（Drude 重み・静的金属遮蔽を保持）。false: 帯内にもフィルタを掛ける（2 eV 以下は Drude ごと落ちる）。フィルタ無しでは無意味 |
 
-$$
-\mathrm{Im}\chi_0(\omega)\;\to\;f_c(\omega)\,\mathrm{Im}\chi_0(\omega)\;+\;K_\gamma*\bigl[(1-f_c(\omega))\,\mathrm{Im}\chi_0(\omega)\bigr],
-\qquad f_c=\frac{1}{1+e^{(w_c-|\omega|)/d_w}}
-$$
+帯内の判定は誘電関数の `--intrabandonly` / `--interbandonly` と同じ（tetwt5.f90: 四面体の 4 頂点で
+$\varepsilon_{ib}=\varepsilon_{jb}$）。t2g 3 本が交差する四面体では帯内の一部が $ib\ne jb$ に漏れるが、それは
+帯間としてフィルタに掛かる（小さい）。
 
-- $\omega < w_c$ の部分（t2g 帯内＋低い帯間）だけを幅 $\gamma$ の Gaussian $K_\gamma$ で畳む。帯間部分は触らない。
-  $K_\gamma$ は既存の `gaussianfilterhis`（ビン幅重み付き・奇関数拡張、f-sum 保存）をそのまま使う。
-- 保たれるもの: f-sum（厳密）、$W(\infty)=v$、静的遮蔽（$O(\gamma^2)$）、因果性（同じ Im から KK で Re と χ₀(iω)）。
-- 変わるもの: $\mathrm{Im}\,\varepsilon(\omega_p)$ が増えてプラズモンが幅 $\sim\gamma$ に鈍る。`t_tetrakbt ≥ 1500 K` の
-  Landau 減衰と同じ効き方だが、占有は T=0 のまま。`SmearX0` との違いは低エネルギー部分だけを畳むこと。
-- キー（隠し、実験用）: `[gw] chi0_lowsmear = [wc, dw, gamma]`（eV）。dpsion5 の Hilbert 変換の前、host/device 両経路。
-  既定 off。22:36 に実装した `chi0_wfilter`（フィルタのみ）をこの形に書き換える（未コミット）。
+**実装**（2 ヒストグラム）
+1. tetwt5: 対ごとの帯内タグ `intra(ibib,k,jpm)` を m_tetwt から公開（判定式は既存の interbandonly と同一）。
+2. x0kf_v4h: bin ごとの GEMM で、タグ付き対を第 2 ヒストグラム `rcxq_drude` に積む（メモリ ×2、GEMM 2 本。9³ でも +20 s 程度）。host / device（`x0kf_v4hz`）両経路。
+3. dpsion5: `chi0_filterw` を `rcxq`（帯間）にだけ掛け、`rcxq_drude` を足し戻してから Hilbert 変換。`chi0_filterw_drude=false` なら足してから掛ける。host / device 両経路。
+4. 検証: 既定で不変（Si 一発 PASSED）、`--intrabandonly` の χ₀ = `rcxq_drude`、6³ 一発。
+
+**段階 1 の $W^{\rm hi}$ が持つもの**: Drude 重み（静的金属遮蔽、q→0 のプラズモン重みも）、2 eV 以上の帯間。
+持たないもの: 2 eV 以下の t2g–t2g 帯間。プラズモンは Drude 重みから残るが、低エネルギー帯間が無い分だけ
+振動数と幅が変わる — 針が消えるかはこれで決まる（消えなければ `chi0_filterw_drude=false` で Drude も落とし、
+静的遮蔽は段階 2 に任せる）。
 
 **2 段階の筋書き**
+1. QSGW は $W^{\rm hi}$ で回す（Σ(ω) が準位間で滑らか → 静的化が安定）。
+2. 収束した QSGW の固有系（rst + sigm）の上で、フィルタ無しの $W^{\rm full}$ で ω 依存の Σ を一発（`gw_lmfh`、Z 因子付き）。
+   $E_{QP}=\varepsilon+Z[\Sigma^{\rm full}(\varepsilon)-V_{xc}^{\rm QSGW}]$ で、差が抜いた分の動的補正（サテライト・寿命込みで 1 次）。
+   同じ E_F・同じ基底で。$w_c$ は「プラズモンより上・高い帯間より下」（LiTi₂O₄ は 2 eV、`--dumpW` で確認）。
 
-1. **QSGW は鈍らせた $W$ で回す**: 反復は安定（Σ(ω) が準位間で滑らか）。
-2. **最後にフルスペクトル一発**: 収束した QSGW の固有系（rst + sigm）の上で、鈍らせていない $W$ で ω 依存の Σ を一発
-   （`gw_lmfh`、Z 因子付き）。$E_{QP}=\varepsilon+Z[\Sigma^{\rm full}(\varepsilon)-V_{xc}^{\rm QSGW}]$ で、差が
-   プラズモンの動的補正（サテライト・寿命込みで 1 次）。同じ E_F・同じ基底で。
+**試験**（6³ 一発、LDA から、`t_tetrakbt = 0`、`t_sigmaw = 1000`、wcsmear 既定）: `chi0_filterw = [2, 0.1]`、
+`chi0_filterw_drude` = true / false の 2 本。見るもの: 針（Γ–L band 33）、O 2p 荒れ、⟨48|Σc|33⟩、E_F 近傍対角のシフト、
+`--dumpW` で第一殻 q の $W_c(\omega)$ の頭（極の位置・幅、$W_c(0)$）。対照: REF、NEW20260920（1000 K, wcsmear）。
 
-**試験**（6³ 一発、LDA から、`t_tetrakbt = 0`、`t_sigmaw = 1000`、wcsmear 既定）: $w_c = 2$、$d_w = 0.2$、$\gamma = 0.3$ と 0.5 eV。
-見るもの: 針（Γ–L band 33）、O 2p 荒れ、⟨48|Σc|33⟩、E_F 近傍対角のシフト、`--dumpW` で第一殻 q の $W_c(\omega)$ の頭
-（極の幅、$W_c(0)$ の保存）。対照: REF、NEW20260920（1000 K, wcsmear）、それと `SmearX0 = 0.011 Ha`（0.3 eV、全域）の T=0 一発。
-
-**状態**: user 承認待ち。
+**状態**: 23:35 実装開始。
 
 ### 2026-09-20 13:10 修正点の数式メモ — Σc の contour 分解と準位 smearing の整合
 
