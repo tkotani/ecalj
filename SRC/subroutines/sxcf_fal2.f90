@@ -299,6 +299,7 @@ subroutine sxcf_fal3z(&
   complex(8) ::  zz2 ,zwz3(3) ,zwz3x, zwzp
   real(8), allocatable :: wts_p(:)     ! [gw] wcsmear: kernel-integrated weights on the W mesh (pole_weights)
   integer :: iw1_p, iw2_p, ip_w
+  logical :: wcs_warned = .false.
   real(8) :: dd,omg_c,dw2,omg
   real(8) :: freq_r(nw_i:nw)
   complex(8), allocatable :: zw3(:,:,:)
@@ -1035,10 +1036,17 @@ subroutine sxcf_fal3z(&
                    if (iw2_p < iw1_p) cycle
                    iir = 1
                    if (omg < ef .and. nw_i/=0) iir = -1
-                   if ((iir==1 .and. iw2_p > nwx) .or. (iir==-1 .and. iw2_p > abs(nwxi))) then
-                     write(6,*)' wcsmear: iw2 nwx nwxi=',iw2_p,nwx,nwxi
-                     call rx(' sxcf: wcsmear needs W planes beyond the mesh (nwx)')
+                   ! The kernel tail (15 kBT) can reach beyond the W planes read for this run (nwx from the
+                   ! QP-energy window; --job=4 sweeps omega further): drop the cells beyond the mesh (their
+                   ! weight is the far tail of the kernel) and say so once.
+                   if (iir==1 .and. iw2_p > nwx) then
+                     if (.not. wcs_warned) write(6,"(' wcsmear: kernel tail beyond the W mesh, clipped: iw2 nwx=',2i6)") iw2_p, nwx
+                     wcs_warned = .true.; iw2_p = nwx
+                   elseif (iir==-1 .and. iw2_p > abs(nwxi)) then
+                     if (.not. wcs_warned) write(6,"(' wcsmear: kernel tail beyond the W mesh, clipped: iw2 nwxi=',2i6)") iw2_p, nwxi
+                     wcs_warned = .true.; iw2_p = abs(nwxi)
                    endif
+                   if (iw2_p < iw1_p) cycle
                    do ip_w = iw1_p, iw2_p
                      if (wts_p(ip_w) == 0d0) cycle
                      if (zwz3mode) then
