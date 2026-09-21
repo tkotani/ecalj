@@ -27,11 +27,12 @@
   チェーン (E) の後に Drude 残しで再 dump（`dumpw_T1000_filt3_drude_v2`、キュー済み）。
 - チェーン (E)（標準案、6 反復）: 11:26 開始、iter 1 = 6.4 / 8.1 meV（11:53）。
 
-![LDA / Drude 落とす / Drude 残す（標準）/ (E) iter 1](LiTi2O4/plots/bands_standard_20260921.png)
+![LDA / Drude 落とす / Drude 残す（標準）/ フィルタなし](LiTi2O4/plots/bands_standard_20260921.png)
 
-一発（mixbeta 1）同士: Drude を落とすと t2g の帯幅が 3.5 eV（−1.5〜+2.0）まで広がり O 2p が −9.8 eV まで沈む。Drude 残す
-（標準）は t2g −0.5〜+1.25、O 2p 底 −9.2 で LDA に近い。(E) iter 1 は mixbeta 0.5 なのでその半分の変化（O 2p 底 −8.7、t2g −0.6〜+1.3）。
-どの一発も滑らか。
+一発（LDA から、mixbeta 1）4 枚: Drude を落とすと t2g の帯幅が 3.5 eV（−1.5〜+2.0）まで広がり O 2p が −9.8 eV まで沈む。
+Drude 残す（標準）は t2g −0.5〜+1.25、O 2p 底 −9.2。フィルタなし（NEW20260920、右端）は t2g −1.05〜+0.9、O 2p 底 −8.5 で、
+フィルタで抜いた帯間遮蔽の分だけ標準は t2g が上（+0.5 eV 級）・O 2p が下（−0.7 eV）。どの一発も滑らか。
+(E) は iter 2 まで（6.4 → 10.3 meV）で user 指示により 12:20 停止。次のチェーンは mixbeta 1.0（混合なし、user 指示）。
 
 ### 2026-09-21 10:50 user 判断: Drude（帯内）は W に残す。標準案 = Drude 残す + `chi0_filterw=[3,0.2]` + χ₀ 1000 K + `t_sigmaw=1000` + wcsmear
 
