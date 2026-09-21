@@ -42,7 +42,9 @@ kt1 `/mnt/data1/LiTi2O4_kbt_runs/n666_filterw2_drude_20260921`（06:02〜07:55�
 | 5 | 14.6 / 17.4 | −9.64 | 8 | 2.48（Γ st11） |
 | 6 | 12.9 / 17.1 | −9.51 | 0 | 1.17 |
 
-![6 反復のバンド](LiTi2O4/plots/chain_666_filterw_iter1-6.png)
+![6 反復のバンド](LiTi2O4/plots/chain_666_filterw_iter1-5_and_D1.png)
+
+（左 5 枚: Drude 残しチェーン iter 1–5。右端: (D) 全部入り（χ₀ 1000 K、filterw [3,0.2]、Drude 落とす）の iter 1、10:40 差し替え。元の 6 枚版は `chain_666_filterw_iter1-6.png`。）
 
 - 1〜3 反復は針も荒れも無く滑らか（wcsmear 単独の 7 meV 級）。O 2p の底は反復ごとに 0.3 eV ずつ下がり続ける（−8.7 → −9.9 → −9.5）。
 - **4 反復目から E_F 直上（+0.5〜+1.3 eV）の t2g に小さな凸凹**（Γ 近傍、W–X）が現れ、O 2p の荒れも 18 meV に跳ねる。
