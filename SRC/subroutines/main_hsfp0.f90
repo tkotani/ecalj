@@ -466,6 +466,14 @@ subroutine hsfp0() bind(C)
 !ccccccccccccccccccccccccccccccccccccccccccccccccccc
      omegamax = 2*freq_r(nw-1) !omegamax is in Ry.
      dwplot = 0.01
+     block   ! hidden: ECALJ_DWPLOT (Ry) and ECALJ_OMEGAMAX (Ry) override the Sigma_c(omega) mesh of --job=4
+       character(64) :: env
+       integer :: ierr
+       call get_environment_variable('ECALJ_DWPLOT', env, status=ierr)
+       if (ierr == 0 .and. len_trim(env) > 0) read(env,*) dwplot
+       call get_environment_variable('ECALJ_OMEGAMAX', env, status=ierr)
+       if (ierr == 0 .and. len_trim(env) > 0) read(env,*) omegamax
+     end block
      if( omegamax <0) call rx( 'hsfp0 :strange omegamax <0 ')
      iwini =  -int( omegamax / dwplot )
      iwend =   int( omegamax/  dwplot )
