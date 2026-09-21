@@ -14,7 +14,7 @@
 - **MAIN** `n666_MAIN_drude_mix05`（GPU 0、`-np 30 -np2 1`）: χ₀ 1000 K、`chi0_filterw=[3,0.2]`、**Drude 残す**、`t_sigmaw=1000`、
   wcsmear、**mixbeta 0.5**、LDA から 15 反復。13:14 開始。
 - **(F) 続行** `n666_filterw3_nodrude_mix1`（GPU 1）: Drude なし、mixbeta 1、iter 1 の状態から iter 2〜6。13:14 再開。
-- 1 GPU あたり 1 反復 ~45 分見込み。`chain.log` は反復ごとに開始・終了時刻付き（`~/trash/chain2gpu.sh`）。
+- 1 GPU あたり 1 反復は実測 66 分（(F) iter 2、2 本並走で CPU 30 ランクずつ）。/dev/shm は 2 本で 1.2 GB（問題なし）。`chain.log` は反復ごとに開始・終了時刻付き（`~/trash/chain2gpu.sh`）。
   hgw 2 本同居は /dev/shm（126 GB、6³ なら余裕）を最初の W-build 後に確認する。
 - 予定: プラズモンスペクトル（`--dumpW`、$W_c(q,\omega)$ の対角成分と $-\mathrm{Im\,tr}\,W_c$、成分によらずピーク位置が同じか）は
   フィルタなし 1000 K の一発を別途 1 本（GPU が空いてから）。
@@ -35,6 +35,7 @@ Drude とプラズモンを 3 eV で抜いても残る → W の低エネルギ�
 | iter | 開始 | 終了 | O 2p 荒れ mean / max [meV] | 底 E(b9) |
 |---|---|---|---|---|
 | 1 | 12:35 | 13:02 | 7.0 / 9.0 | −9.86 |
+| 2 | 13:14 | 14:20 | 8.7 / 9.9 | −10.52 |
 
 ### 2026-09-21 12:10 dumpW 一発 2 本（χ₀ 1000 K、wc=3/dw=0.2）: Drude 残す方が NEW に近い。W_c の頭は抽出スクリプトの D 指数バグで取れず → 再 dump をキュー
 
