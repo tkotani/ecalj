@@ -27,6 +27,12 @@
   チェーン (E) の後に Drude 残しで再 dump（`dumpw_T1000_filt3_drude_v2`、キュー済み）。
 - チェーン (E)（標準案、6 反復）: 11:26 開始、iter 1 = 6.4 / 8.1 meV（11:53）。
 
+![LDA / Drude 落とす / Drude 残す（標準）/ (E) iter 1](LiTi2O4/plots/bands_standard_20260921.png)
+
+一発（mixbeta 1）同士: Drude を落とすと t2g の帯幅が 3.5 eV（−1.5〜+2.0）まで広がり O 2p が −9.8 eV まで沈む。Drude 残す
+（標準）は t2g −0.5〜+1.25、O 2p 底 −9.2 で LDA に近い。(E) iter 1 は mixbeta 0.5 なのでその半分の変化（O 2p 底 −8.7、t2g −0.6〜+1.3）。
+どの一発も滑らか。
+
 ### 2026-09-21 10:50 user 判断: Drude（帯内）は W に残す。標準案 = Drude 残す + `chi0_filterw=[3,0.2]` + χ₀ 1000 K + `t_sigmaw=1000` + wcsmear
 
 Drude を落とすと静的金属遮蔽が消えて t2g が +0.66 eV、O 2p が −0.45 eV 余計に動く（05:50 の NODRUDE）。段階 2 で戻すにしても
