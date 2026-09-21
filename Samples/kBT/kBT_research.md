@@ -65,8 +65,11 @@ kt1 `/mnt/data1/LiTi2O4_kbt_runs/n666_filterw2_drude_20260921`（06:02〜07:55�
 - 対照 FILT2_NODRUDE（06:02 完了、一発）: 荒れ 7.0 / 9.1 meV、⟨48|Σ|33⟩ < 1.03、Drude を落とすと DRUDE 比で t2g +0.66、O 2p −0.45 eV
   さらに動く（静的金属遮蔽が消えた分）。
 
-次: (a) を切り分けるため $w_c$ を 3 eV（t2g 帯間を確実に全部落とす）と $d_w$ を 0.3 eV に広げた 6³ チェーンを投入。
-(b) は NODRUDE のチェーンで見る。両方 6 反復、順番に（hgw は 1 本ずつ）。
+次（09:45〜、順番に 6 反復ずつ、hgw は 1 本ずつ、`/mnt/data1/LiTi2O4_kbt_runs/`）:
+(A) `n666_filterw3_dw03_drude`: $w_c=3$、$d_w=0.3$、Drude 残す — (a) の切り分け。
+(B) `n666_filterw2_nodrude`: $w_c=2$、$d_w=0.1$、Drude も落とす — (b) の切り分け。
+(C) `n666_filterw2_T1000_drude`: $w_c=2$、$d_w=0.1$、Drude 残す、**`t_tetrakbt=1000`**（χ₀ も 1000 K、E_F は EFERMI_kbt）— user 指示 09:50。
+Σ 側は 3 本とも `t_sigmaw=1000`、wcsmear 既定。
 
 ### 2026-09-21 05:55 6³ 実験の状況（まとめ）
 
