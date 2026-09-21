@@ -19,6 +19,12 @@ Drude とプラズモンを 3 eV で抜いても残る → W の低エネルギ�
 **mixbeta 1.0**、LDA から 6 反復）。12:35 開始、pid 692716。(E) は iter 2 で停止。
 続けて **(G)** `n666_filterw3_drude_mix1`（同条件で Drude 残す）6 反復を (F) の後に自動起動（13:00 キュー、pid 711990、user 不在 〜17:00）。
 
+(F) の進行（`chi0_filterw_drude = false` = **Drude なし**、hgw 出力 `drude kept = F` で確認）:
+
+| iter | 開始 | 終了 | O 2p 荒れ mean / max [meV] | 底 E(b9) |
+|---|---|---|---|---|
+| 1 | 12:35 | 13:02 | 7.0 / 9.0 | −9.86 |
+
 ### 2026-09-21 12:10 dumpW 一発 2 本（χ₀ 1000 K、wc=3/dw=0.2）: Drude 残す方が NEW に近い。W_c の頭は抽出スクリプトの D 指数バグで取れず → 再 dump をキュー
 
 `/mnt/data1/LiTi2O4_kbt_runs/dumpw_T1000_filt3_{nodrude,drude}`（10:29〜11:25、各 28 分、`--dumpW`、mixbeta=1）。
