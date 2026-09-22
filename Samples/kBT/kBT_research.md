@@ -11,6 +11,13 @@
 
 ## 2026-09-22
 
+### 2026-09-22 11:45 user: 「6³ と 9³ の一発が従来より近すぎないか」→ 数字で確認
+
+共通 q（632 状態、|E|<3 eV）の QPU.1run 比較（P 設定）: SEx max 33 / mean 3 meV、SEc max 32 / mean 8、dSEnoZ max 13 / mean 5 meV。
+9³ の hgw は nqbz=729・nqibz=35 で回っている（確認）。「eQP 差 0」は iter 1 の eQP が LDA 固有値のままなので無意味（6 月も同じ）。
+疑い: SmearX0（Im χ₀ の 0.156 eV Gaussian）が W の q 依存の細かい構造を先に均すので、メッシュ依存が小さく見えているのでは。
+SmearX0 → 0 では差が開くはず。検証 = SmearX0 なし（χ₀ T=0、wcsmear のみ）の 6³/9³ 一発の比較（GPU が空いたら）。
+
 ### 2026-09-22 11:30 メモ: 単純な金属の χ₀・W_c・Σc の模型（LiTi₂O₄ の状況に合わせて）
 
 LiTi₂O₄ の低エネルギーは「幅 ~2 eV の t2g 帯が 1/6 だけ占有された金属」。Lindhard（電子ガス）＋帯間の背景誘電率 $\varepsilon_\infty$ で特徴が出る。
