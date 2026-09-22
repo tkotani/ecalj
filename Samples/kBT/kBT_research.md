@@ -149,9 +149,10 @@ $\varepsilon'$ = t2g 占有底 −0.6 eV なら $\omega = +1.2$ eV — 03:40 の
 | | 1 | 09:19→11:11 | 7.1 / 9.9 | 4.8 / 6.9 | −8.40 |
 | | 2 | 11:11→12:51 | 7.3 / 9.3 | 7.0 / 15.1 | −8.50 |
 
-![9^3 rows](LiTi2O4/plots/P999_rows.png)
+![6^3 vs 9^3 per iteration](LiTi2O4/plots/P_666_999_rows.png)
 
-（縦に LDA → iter 1 → iter 2 → …、最下段は 6³ 収束解。反復が増えたら行を足す: `LiTi2O4/plot_band_rows.py`。）
+（行 = LDA, iter 1, 2, …; 列 = 6³ O 2p | 9³ O 2p | 6³ E_F 近傍 | 9³ E_F 近傍。9³ の行は反復が出るごとに埋まる。
+`LiTi2O4/plot_band_rows_666_999.py Pchain P999 NITER`。）
 9³ iter 2 は 6³ iter 2 とほぼ同じ形。t2g の max 15 meV は Γ–X 中程 +0.5〜+0.7 eV の交差点（6³ でも同じ場所に小さな凸凹）。
 
 ![9^3 iter 1 vs 6^3](LiTi2O4/plots/P999_iter1.png)
