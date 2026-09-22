@@ -1,3 +1,13 @@
+2026-09-22 (1)
+  tetwt5 の OpenMP を作り直し: job=1 の histogram 重み whw をスレッド私有の whw_t(:,ithr) に積み、ループ後に和を取る
+  (09-19 の atomic 版は競合で効かなかった)。job=0 の flag/bound は atomic のまま。メモリ nhwtot×nthr×8 B
+  (9³ LiTi2O4: 4.2 GB/rank)。[gw] omp_tetwt は従来どおり (0 = OMP_NUM_THREADS)。Fe chipm / GaAs eps で
+  1 vs 8 スレッドの差 1e-16 (和の順序)。
+  hsfp0 --job=4 (Σc(ω) スペクトル): 隠し環境変数 ECALJ_DWPLOT / ECALJ_OMEGAMAX (Ry) で ω メッシュを上書き
+  (旧既定の ±7 Ry は W メッシュを超えて落ちる)。sxcf_fal2 の wcsmear は核の裾が W メッシュを超えたら clip
+  (rx でなく)。Samples/kBT/contour_test/: contour 分解 + FD smearing の単体試験 (厳密求積と 0.35 % 以内)。
+  [gw] chi0_filterw / chi0_filterw_drude (隠し) は 09-20 (2) 参照。
+
 2026-09-20 (2)
   [gw] chi0_filterw = [wc, dw] (eV) と chi0_filterw_drude (既定 true): 隠し・実験用 (Samples/kBT/kBT_research.md 23:26)。
   - x0kf_v4h の accumulate_chi0 で、バンド対ごとのテトラヘドロン重みに bin ごとの因子 1/(1+exp((wc−|ω|)/dw)) を
