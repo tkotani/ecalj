@@ -17,7 +17,7 @@ def read(d):
 labels=['Γ','X','U|K','Γ','L','W','X']
 out,title,d9=sys.argv[1],sys.argv[2],sys.argv[3]; its=[int(x) for x in sys.argv[4].split(',')]
 rows=[(f'iter{i}',f'iter {i}') for i in its]
-fig,axs=plt.subplots(len(rows),2,figsize=(13,3.4*len(rows)),squeeze=False)
+fig,axs=plt.subplots(len(rows),2,figsize=(18,5.2*len(rows)),squeeze=False)
 def panel(ax,segs,lo,hi,ylo,yhi,tag,ttl):
     ticks=[0]
     for b in segs:
@@ -38,4 +38,4 @@ for r,(sub,lab) in enumerate(rows):
     panel(axs[r,0],segs,5,22,-11,-3,'O 2p',f'9^3 {lab}  (O 2p)')
     panel(axs[r,1],segs,20,60,-2.5,3.0,'near E_F',f'9^3 {lab}  (near E_F)')
     axs[r,0].set_ylabel('E − E_F (eV)')
-fig.suptitle(title,fontsize=13); fig.tight_layout(rect=(0,0,1,0.985)); fig.savefig(out,dpi=70)
+fig.suptitle(title,fontsize=13); fig.tight_layout(rect=(0,0,1,0.985)); fig.savefig(out,dpi=90)
