@@ -1,8 +1,10 @@
 2026-09-22 (1)
-  tetwt5 の OpenMP を作り直し: job=1 の histogram 重み whw をスレッド私有の whw_t(:,ithr) に積み、ループ後に和を取る
-  (09-19 の atomic 版は競合で効かなかった)。job=0 の flag/bound は atomic のまま。既定は 1 スレッド (omp_tetwt 未指定 = 従来どおり; OMP_NUM_THREADS に従わない — 多ランク CPU 実行でメモリ×コア数になるのを避ける)。メモリ nhwtot×nthr×8 B
-  (9³ LiTi2O4: 4.2 GB/rank)。[gw] omp_tetwt は従来どおり (0 = OMP_NUM_THREADS)。Fe chipm / GaAs eps で
-  1 vs 8 スレッドの差 1e-16 (和の順序)。
+  tetwt5 の並列化を OpenMP から MPI k 並列に (user 判断)。x0kf_v4h の既定経路で gettetwt / x0kf_v4hz_init を
+  自ランクの k 範囲 k_lo:k_hi (comm_k) だけで呼ぶ (tetwt5 は範囲外の四面体を先頭で skip するので、コストは
+  (k_hi−k_lo+1)/nqbz)。従来は全ランクが全 k を冗長に計算していた。1 ランクなら従来と同一。GaAs eps: 新 np=8 と旧 np=8 が
+  bitwise 一致 (np=1 vs np=8 の 5e-7 差は旧来からの ω 分割の和順序)。09-19〜22 の OpenMP (omp_tetwt, whw_t, CMake の
+  OMP_FLAG, tetwt5 の !$omp) は全て削除。hgw は --np2 を GPU 数より多く (share_gpu で round-robin) すれば comm_k が
+  増えて tetwt5 も分散する; 有限温度 χ0 (lindtet6_kbt ~150 s/q) で効く。
   hsfp0 --job=4 (Σc(ω) スペクトル): 隠し環境変数 ECALJ_DWPLOT / ECALJ_OMEGAMAX (Ry) で ω メッシュを上書き
   (旧既定の ±7 Ry は W メッシュを超えて落ちる)。sxcf_fal2 の wcsmear は核の裾が W メッシュを超えたら clip
   (rx でなく)。Samples/kBT/contour_test/: contour 分解 + FD smearing の単体試験 (厳密求積と 0.35 % 以内)。

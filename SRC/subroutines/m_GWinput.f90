@@ -112,11 +112,6 @@ module m_GWinput
   !   energy (false = the old 3-point interpolation at the mean energy).  Removes the knife-edge sensitivity to sharp plasmon poles of W
   !   (LiTi2O4 at <=1000 K, Samples/kBT/kBT_research.md 2026-09-19).  Unchanged where W_c is smooth.
   logical, protected, public :: wcsmear      = .true.
-  ! omp_tetwt: OpenMP threads per MPI rank for the tetrahedron loop of tetwt5 (hx0fp0/hgw W-build).
-  !   0 (default) = 1 thread (serial, the old behaviour).  Set it (e.g. 30 with 2 GPU ranks on a 64-core
-  !   node) when chi0 is at finite T (t_tetrakbt > 0): lindtet6_kbt costs ~150 s per q serial.  Memory:
-  !   nhwtot*omp_tetwt*8 B per rank (9^3 LiTi2O4: 140 MB per thread).
-  integer, protected, public :: omp_tetwt    = 0
   ! chi0_skip_window = [emin, emax] (eV, relative to E_F): band pairs whose occupied AND unoccupied
   !   states both lie inside the window are left out of chi0 (cRPA-like removal of the intraband /
   !   low-energy transitions of a partially filled band).  Empty (default) = off.
@@ -510,7 +505,6 @@ contains
       if (t_sigmaw < 0d0) call rx('m_GWinput: t_sigmaw must be >= 0 (K)')
     end block
     call gv_l(gw, 'wcsmear',       wcsmear)
-    call gv_i(gw, 'omp_tetwt',     omp_tetwt)
     block
       type(toml_array), pointer :: arr
       call get_value(gw, 'chi0_skip_window', arr, requested=.false.)

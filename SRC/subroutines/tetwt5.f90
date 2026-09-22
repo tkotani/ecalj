@@ -8,22 +8,6 @@ module m_tetwt5
   public hisrange,tetwt5x_dtet4,rsvwwk00_4
   private
 contains
-  integer function tetwt_threads()
-    ! Number of OpenMP threads for the tetrahedron loop of tetwt5 (per MPI rank): [gw] omp_tetwt if > 0,
-    ! else 1 (the serial behaviour).  Only this loop is affected (num_threads clause); MKL and the rest
-    ! of the process keep their own thread settings.  The default is deliberately 1, not OMP_NUM_THREADS:
-    ! job=1 allocates nhwtot*nthr*8 B per rank (9^3 LiTi2O4: 140 MB per thread), and a CPU run with many
-    ! MPI ranks must not multiply that by the core count.  Worth setting (e.g. 30 with -np2 2 on a 64-core
-    ! node) when chi0 is at finite T ([gw] t_tetrakbt > 0, lindtet6_kbt ~ 150 s per q); at T=0 the loop
-    ! is ~20 s per q and hardly matters.
-    use m_GWinput, only: gwinput_init, gwinput_loaded, omp_tetwt
-    logical, save :: first = .true.
-    tetwt_threads = 1
-    call gwinput_init()
-    if (gwinput_loaded .and. omp_tetwt > 0) tetwt_threads = omp_tetwt
-    if (first .and. ipr) write(stdo,"(' tetwt5: OpenMP threads for the tetrahedron loop =',i4)") tetwt_threads
-    first = .false.
-  end function tetwt_threads
   subroutine tetwt5x_dtet4(npm,ncc,q,eband1,eband2,qbas,ginv,efermi,ntetf, nqbzw, nband,  &
        iqbz, fqbz, nqbz, &
        nctot,ecore,  idtetf,qbzw,ib1bz, job, &
@@ -181,10 +165,7 @@ contains
     real(8),parameter:: tolpair=1d-5 ! drop pairs whose maximum possible weight is below this
     logical:: interbandonly=.false.,intrabandonly=.false.
     real(8),parameter:: tolx=1d-5
-    integer:: nthr, ithr
     integer(8):: tw0, tw1, tw2, twrate
-    real(8), allocatable :: whw_t(:,:)   ! job=1: per-thread histogram weights, reduced into whw after the loop
-    !$ integer, external :: omp_get_thread_num
     !---------------------------------------------------------------------
     call gwinput_init()
     if (gwinput_loaded) then
@@ -251,30 +232,13 @@ contains
     efermib = efermi
     interbandonly=c0_interbandonly
     intrabandonly=c0_intrabandonly
-    ! OpenMP over tetrahedra (2026-09-19, reworked 2026-09-22).  job=0 writes only flags/bounds
-    ! (iwgt/demin/demax) through atomics; job=1 accumulates the histogram weights into a
-    ! per-thread copy whw_t(:,ithr) (no atomics on the hot loop) which is reduced into whw after
-    ! the loop.  The inner routines (lindtet6, lindtet6_kbt, inttetra6, intttvc6, midk3, integtetn,
-    ! gausq) keep no state between calls.  Thread count: [gw] omp_tetwt (0 = OMP_NUM_THREADS).
-    ! Memory: nhwtot*nthr*8 B (9^3 LiTi2O4: 17.5e6 * 30 * 8 = 4.2 GB per MPI rank).
-    nthr = tetwt_threads()
-    if (job == 1) then
-       allocate(whw_t(nhwtot, nthr), source = 0d0)
-    else
-       allocate(whw_t(1, 1))
-    endif
+    ! The tetrahedron loop runs over all tetrahedra but only accumulates the k points iqbz:fqbz
+    ! (the others are skipped at the top), so a k-range call costs ~4/nqbz of the full loop.
+    ! Parallelism: MPI over k ranges (x0kf_v4h calls gettetwt for its comm_k slice); no OpenMP
+    ! (the 2026-09-19/22 OpenMP variants were removed on 2026-09-22 -- MPI k-parallel is simpler and
+    ! needs no per-thread copies of whw).
     call system_clock(tw0, twrate)
-    !$omp parallel do default(none) schedule(dynamic,4) num_threads(nthr) &
-    !$omp   shared(ntetf,nmtet,ib1bz,idtetf,iqbz,fqbz,qbzw,ib1bzm,idtetfm,qbzwm,ekzz1,ekzz2,nband,nctot, &
-    !$omp          efermi,efermia,efermib,wocc,ebmx,wan,npm,intrabandonly,interbandonly,job,usetetrakbt, &
-    !$omp          kbt,frhis,nwhis,iwgt,demax,demin,ibjb,ihw,jhw,nhw,whw_t,piofvoltot,wtet, &
-    !$omp          chkwrt,stdo) &
-    !$omp   private(itet,im,kk,kkv,kkm,kvec,am,voltet,ek_,ekq_,noccx_k,noccx_kq,ebmxx,nbandmx_k,nbandmx_kq, &
-    !$omp           jpm,ibxmx,jbxmx,ibx,jbx,ib,jb,eocc,eunocc,fb1,fb2,fbound,ixx,x,demax_,demin_,wtthis2, &
-    !$omp           ikx,ibib,jini,iini,nnn,ihis,ddw,i,ithr)
     tetrahedronloop: do 1000 itet = 1, ntetf 
-       ithr = 1
-       !$ ithr = omp_get_thread_num() + 1
        kk (0:3) = ib1bz( idtetf(0:3,itet) )     !  k
        if(.not.any( iqbz <= kk(0:3) .and.  kk(0:3) <= fqbz )) cycle
        kkv(1:3, 0:3) = qbzw (1:3, idtetf(0:3,itet) )
@@ -361,11 +325,8 @@ contains
                       demin_ =  minval(-x(0:3)) ! in Hartree
                       do ixx=0,3
                          if(kk(ixx) < iqbz .OR. kk(ixx) > fqbz) cycle
-                         !$omp atomic write
                          iwgt(ib,jb,kk(ixx),jpm) = .true.
-                         !$omp atomic update
                          demax(ib,jb,kk(ixx),jpm) = max(demax_, demax(ib,jb,kk(ixx),jpm))
-                         !$omp atomic update
                          demin(ib,jb,kk(ixx),jpm) = min(demin_, demin(ib,jb,kk(ixx),jpm))
                       enddo
                       cycle
@@ -403,9 +364,9 @@ contains
                       iini = ihw(ibib,kk(ikx),jpm)
                       nnn =  nhw(ibib,kk(ikx),jpm)
                       if(matrix_linear()) then
-                         whw_t(jini:jini+nnn-1,ithr) = whw_t(jini:jini+nnn-1,ithr) + wtthis2(iini:iini+nnn-1,ikx)*piofvoltot
+                         whw(jini:jini+nnn-1) = whw(jini:jini+nnn-1) + wtthis2(iini:iini+nnn-1,ikx)*piofvoltot
                       else
-                         whw_t(jini:jini+nnn-1,ithr) = whw_t(jini:jini+nnn-1,ithr) &
+                         whw(jini:jini+nnn-1) = whw(jini:jini+nnn-1) &
                               + wtthis2(iini:iini+nnn-1,0)*piofvoltot*4*wtet(ikx,im,itet) ! piofvoltot= pi/voltot/4
                       endif
                    enddo
@@ -414,13 +375,6 @@ contains
           enddo
 1100   enddo
 1000  enddo tetrahedronloop
-    !$omp end parallel do
-    if (job == 1) then   ! reduce the per-thread copies (whw is zeroed by the caller; keep its content)
-       do ithr = 1, nthr
-          whw(1:nhwtot) = whw(1:nhwtot) + whw_t(1:nhwtot, ithr)
-       enddo
-    endif
-    deallocate(whw_t)
     call system_clock(tw1)
     deallocate(idtetfm, qbzwm,ib1bzm, qbzm)
     !! === Symmetrization of wgt and whw   ===
@@ -508,8 +462,8 @@ contains
 1120   continue
     enddo ! end of kx loop
     call system_clock(tw2)
-    if(ipr) write(stdo,"(' tetwt5 wall(s): job=',i1,' tetrahedron loop',f8.2,'  symmetrization',f8.2,'  threads',i3)") &
-         job, dble(tw1-tw0)/twrate, dble(tw2-tw1)/twrate, nthr
+    if(ipr) write(stdo,"(' tetwt5 wall(s): job=',i1,' k-range',2i6,'  tetrahedron loop',f8.2,'  symmetrization',f8.2)") &
+         job, iqbz, fqbz, dble(tw1-tw0)/twrate, dble(tw2-tw1)/twrate
 
     if(job==0) then
        do jpm =1, npm

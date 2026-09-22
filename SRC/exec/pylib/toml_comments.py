@@ -215,7 +215,6 @@ KEY_INLINE = {
         't_sigmaw':      "# (K) Fermi-Dirac width of the Sigma levels (numerical; 1000 ~ old esmr 0.01 Ry)",
         'wcsmear':       "# (default true) Sigma_c pole term integrates W_c over the smeared level",
         'SmearX0':       "# (Ha) Gaussian smearing of Im chi0 along omega; 0 = off. 0.0057 (= FD 1000 K std) broadens the plasmon poles of W (metals)",
-        'omp_tetwt':     "# OpenMP threads/rank for the tetrahedron loop of the W-build; 0 = 1 thread. Useful only with t_tetrakbt > 0",
         'deltaw':        "# (a.u.) numerical-derivative mesh for Z factor",
         'EMINforGW':     "# (eV, rel. EFermi) lower band cutoff for GW Sigma",
         'EMAXforGW':     "# (eV, rel. EFermi) upper band cutoff for GW Sigma",

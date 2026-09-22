@@ -250,9 +250,14 @@ contains
           ekxx2(1:nband,kx) = readeval(q+rk(:,kx), isp_kq)
         enddo
         if (.not.tetwtk) then
-          call gettetwt(q, iq, isp_k, isp_kq, ekxx1, ekxx2, nband=nband)
-          ierr = x0kf_v4hz_init(0, q, isp_k, isp_kq, iq, crpa)
-          ierr = x0kf_v4hz_init(1, q, isp_k, isp_kq, iq, crpa)
+          ! Tetrahedron weights only for this rank's k slice k_lo:k_hi (MPI k-parallel over comm_k):
+          ! tetwt5 skips the tetrahedra with no vertex in the range, so the cost is ~(k_hi-k_lo+1)/nqbz
+          ! of the full loop.  With one k rank this is the old all-k call.  (2026-09-22; replaces the
+          ! OpenMP variant.)  The weights of a k point do not depend on the range (the degenerate-band
+          ! symmetrization acts within a k point), so the result is independent of the split.
+          call gettetwt(q, iq, isp_k, isp_kq, ekxx1, ekxx2, nband=nband, ikbz_in=k_lo, fkbz_in=k_hi)
+          ierr = x0kf_v4hz_init(0, q, isp_k, isp_kq, iq, crpa, ikbz_in=k_lo, fkbz_in=k_hi)
+          ierr = x0kf_v4hz_init(1, q, isp_k, isp_kq, iq, crpa, ikbz_in=k_lo, fkbz_in=k_hi)
           call tetdeallocate()
         endif
       end block GETtetrahedronWeight
