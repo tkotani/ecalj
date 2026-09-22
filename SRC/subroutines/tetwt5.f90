@@ -10,13 +10,15 @@ module m_tetwt5
 contains
   integer function tetwt_threads()
     ! Number of OpenMP threads for the tetrahedron loop of tetwt5 (per MPI rank): [gw] omp_tetwt if > 0,
-    ! else the OpenMP default (OMP_NUM_THREADS).  Only this loop is affected (num_threads clause);
-    ! MKL and the rest of the process keep their own thread settings.  1 when built without OpenMP.
+    ! else 1 (the serial behaviour).  Only this loop is affected (num_threads clause); MKL and the rest
+    ! of the process keep their own thread settings.  The default is deliberately 1, not OMP_NUM_THREADS:
+    ! job=1 allocates nhwtot*nthr*8 B per rank (9^3 LiTi2O4: 140 MB per thread), and a CPU run with many
+    ! MPI ranks must not multiply that by the core count.  Worth setting (e.g. 30 with -np2 2 on a 64-core
+    ! node) when chi0 is at finite T ([gw] t_tetrakbt > 0, lindtet6_kbt ~ 150 s per q); at T=0 the loop
+    ! is ~20 s per q and hardly matters.
     use m_GWinput, only: gwinput_init, gwinput_loaded, omp_tetwt
-    !$ use omp_lib, only: omp_get_max_threads
     logical, save :: first = .true.
     tetwt_threads = 1
-    !$ tetwt_threads = omp_get_max_threads()
     call gwinput_init()
     if (gwinput_loaded .and. omp_tetwt > 0) tetwt_threads = omp_tetwt
     if (first .and. ipr) write(stdo,"(' tetwt5: OpenMP threads for the tetrahedron loop =',i4)") tetwt_threads

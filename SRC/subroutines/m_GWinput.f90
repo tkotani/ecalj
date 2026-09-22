@@ -113,7 +113,9 @@ module m_GWinput
   !   (LiTi2O4 at <=1000 K, Samples/kBT/kBT_research.md 2026-09-19).  Unchanged where W_c is smooth.
   logical, protected, public :: wcsmear      = .true.
   ! omp_tetwt: OpenMP threads per MPI rank for the tetrahedron loop of tetwt5 (hx0fp0/hgw W-build).
-  !   0 (default) = leave OMP_NUM_THREADS as it is.
+  !   0 (default) = 1 thread (serial, the old behaviour).  Set it (e.g. 30 with 2 GPU ranks on a 64-core
+  !   node) when chi0 is at finite T (t_tetrakbt > 0): lindtet6_kbt costs ~150 s per q serial.  Memory:
+  !   nhwtot*omp_tetwt*8 B per rank (9^3 LiTi2O4: 140 MB per thread).
   integer, protected, public :: omp_tetwt    = 0
   ! chi0_skip_window = [emin, emax] (eV, relative to E_F): band pairs whose occupied AND unoccupied
   !   states both lie inside the window are left out of chi0 (cRPA-like removal of the intraband /

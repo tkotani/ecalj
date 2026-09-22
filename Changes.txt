@@ -1,6 +1,6 @@
 2026-09-22 (1)
   tetwt5 の OpenMP を作り直し: job=1 の histogram 重み whw をスレッド私有の whw_t(:,ithr) に積み、ループ後に和を取る
-  (09-19 の atomic 版は競合で効かなかった)。job=0 の flag/bound は atomic のまま。メモリ nhwtot×nthr×8 B
+  (09-19 の atomic 版は競合で効かなかった)。job=0 の flag/bound は atomic のまま。既定は 1 スレッド (omp_tetwt 未指定 = 従来どおり; OMP_NUM_THREADS に従わない — 多ランク CPU 実行でメモリ×コア数になるのを避ける)。メモリ nhwtot×nthr×8 B
   (9³ LiTi2O4: 4.2 GB/rank)。[gw] omp_tetwt は従来どおり (0 = OMP_NUM_THREADS)。Fe chipm / GaAs eps で
   1 vs 8 スレッドの差 1e-16 (和の順序)。
   hsfp0 --job=4 (Σc(ω) スペクトル): 隠し環境変数 ECALJ_DWPLOT / ECALJ_OMEGAMAX (Ry) で ω メッシュを上書き
