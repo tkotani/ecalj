@@ -11,6 +11,15 @@
 
 ## 2026-09-22
 
+### 2026-09-22 13:05 tetwt5: OpenMP を撤去し MPI k 並列に（user 判断）
+
+`2a5401798`: x0kf_v4h の既定経路で `gettetwt` / `x0kf_v4hz_init` を自ランクの k 範囲（`k_lo:k_hi`、comm_k）だけで呼ぶ。
+tetwt5 は範囲外の四面体を先頭で skip するので、コストは (k_hi−k_lo+1)/nqbz。従来は全ランクが全 k を冗長に計算していた。
+入力は固有値だけ（2 MB）、出力 whw は自分の k 分だけ → メモリも減る。GaAs eps 8 ランクで旧コードと bitwise 一致。
+OpenMP（`omp_tetwt`、`whw_t`、CMake `OMP_FLAG`、`!$omp`）は全削除。ecaljdoc gwinput.md 更新（`a5b8…`）。
+使い方: hgw を `-np2` で GPU 数より多く（`gpu_init(share_gpu=.true.)` で round-robin 共有）→ `MPI__AutoSetup` が
+comm_k を広げ tetwt5 が分散。GPU メモリは rcxq/n_bpara + zmel の分だけ増える（AutoSetup が見る）。kt1 での計測は 9³ の後。
+
 ### 2026-09-22 12:40 tetwt5 の並列について（user との整理）
 
 - `omp_tetwt` の既定を **1 スレッド**に変更（`75ad8be6e`）: 旧既定の「OMP_NUM_THREADS に従う」は、スレッド私有 `whw_t`（9³ で 140 MB/スレッド）を
