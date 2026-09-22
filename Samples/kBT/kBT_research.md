@@ -56,14 +56,30 @@ offset-Γ（$|q|$=0.008）では $qv_F \approx 0.03$ eV なので Drude 重み�
 
 **2. RPA の W とプラズモン**
 
+$\varepsilon(q,\omega) = 1 - v(q)\,\chi_0(q,\omega)$、$\chi_0 = \chi_0^{\rm intra} + \chi_0^{\rm inter}$。帯間部分は低エネルギーでは実数の背景
+$1 - v\,\mathrm{Re}\chi_0^{\rm inter}(0) \equiv \varepsilon_\infty \approx 5$〜7（O 2p → Ti、3 eV 以上に Im）。帯内は Lindhard で、実部・虚部を分けて書くと
+
 $$
-\varepsilon(q,\omega) = \varepsilon_\infty - \frac{\omega_p^{2}}{\omega^2}\Bigl(1+\tfrac35\tfrac{q^2v_F^2}{\omega^2}\Bigr) + i\,\ldots,\qquad
-W_c(q,\omega) = \frac{v(q)}{\varepsilon(q,\omega)} - v(q)
+\mathrm{Re}\,\varepsilon(q,\omega) = \varepsilon_\infty - \frac{\omega_p^{2}}{\omega^2}\Bigl(1+\tfrac35\tfrac{q^2v_F^2}{\omega^2}\Bigr)\quad(\omega \gg qv_F),
+\qquad
+\mathrm{Im}\,\varepsilon(q,\omega) = -v(q)\,\mathrm{Im}\chi_0^{\rm intra}(q,\omega) = \frac{\pi}{2}\,v(q)N(0)\,\frac{\omega}{qv_F}\ \theta(qv_F-\omega)
 $$
 
-$\varepsilon_\infty \approx 5$〜7 は O 2p → Ti の帯間遮蔽（3 eV 以上）。プラズモンは $\omega_p^{\rm scr} = \omega_p^{\rm bare}/\sqrt{\varepsilon_\infty} \approx 1.8$ eV。
-$qv_F < \omega_p$ の $q$ では Im χ₀ = 0 なので**幅ゼロの真の極**。幅が付くのは (i) $\omega_p$ が $qv_F$ に近づく $q$（Landau 減衰。第二殻で 1.8 と 2.2 eV に割れる）、
-(ii) 帯間遷移の裾（3 eV 以上）、(iii) 温度／SmearX0。第一殻の幅 0.1 eV は (iii) だけの寄与。
+（$\omega_p^2 = v(q)\,N(0)\,q^2v_F^2/3$、3 次元では $v(q)=4\pi e^2/q^2$ で $\omega_p$ は $q$ に依らない）。T=0 の Lindhard では
+$\mathrm{Im}\,\varepsilon$ は $\omega > qv_F$（正確には $\omega > qv_F + q^2/2m$）で**厳密にゼロ**。有限温度 / SmearX0 では裾が
+$\Delta\omega \sim k_BT$ / Gaussian 幅だけ外に伸びる。
+
+$$
+W_c(q,\omega) = \frac{v(q)}{\varepsilon(q,\omega)} - v(q),\qquad
+\mathrm{Im}\,W_c = -\,v(q)\,\frac{\mathrm{Im}\,\varepsilon}{(\mathrm{Re}\,\varepsilon)^2+(\mathrm{Im}\,\varepsilon)^2}
+$$
+
+プラズモン: $\mathrm{Re}\,\varepsilon(\omega_p^{\rm scr}) = 0$、$\omega_p^{\rm scr} = \omega_p/\sqrt{\varepsilon_\infty}\approx 1.8$ eV。そこで $\mathrm{Im}\,\varepsilon = 0$ なら
+$\mathrm{Im}\,W_c$ はデルタ関数（**幅ゼロの真の極**）、重みは $\pi v(q)/|\partial\mathrm{Re}\varepsilon/\partial\omega| = \pi v(q)\,\omega_p^{\rm scr}/(2\varepsilon_\infty)$。
+$\mathrm{Im}\,\varepsilon(\omega_p^{\rm scr}) \ne 0$ なら Lorentz 型で半値幅 $\gamma = \mathrm{Im}\,\varepsilon/|\partial\mathrm{Re}\varepsilon/\partial\omega|$。
+幅が付く経路: (i) $qv_F$ が $\omega_p^{\rm scr}$ に近づく $q$（Landau 減衰、上の $\theta$ が 1 になる。第二殻で 1.8 と 2.2 eV に割れる）、
+(ii) 帯間遷移の Im（3 eV 以上の裾が 1.8 eV に少し掛かる）、(iii) 温度／SmearX0 による $\mathrm{Im}\,\chi_0^{\rm intra}$ の裾。
+第一殻（$qv_F \approx 0.4$ eV $\ll 1.8$）の幅 0.1 eV は (iii)（1000 K、kBT 0.086 eV）だけの寄与 — だから SmearX0 0.156 eV で目に見えて鈍る。
 
 **3. Σc のプラズモン極模型**（`contour_test` の $W_c$ と同じ）
 
