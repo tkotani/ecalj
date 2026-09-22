@@ -81,6 +81,16 @@ $\mathrm{Im}\,\varepsilon(\omega_p^{\rm scr}) \ne 0$ なら Lorentz 型で半値
 (ii) 帯間遷移の Im（3 eV 以上の裾が 1.8 eV に少し掛かる）、(iii) 温度／SmearX0 による $\mathrm{Im}\,\chi_0^{\rm intra}$ の裾。
 第一殻（$qv_F \approx 0.4$ eV $\ll 1.8$）の幅 0.1 eV は (iii)（1000 K、kBT 0.086 eV）だけの寄与 — だから SmearX0 0.156 eV で目に見えて鈍る。
 
+$\omega\to0$（user の確認）: 帯内の $\mathrm{Re}\,\chi_0 \to -N(0)$（静的 Lindhard）で
+$\mathrm{Re}\,\varepsilon(q,0) = \varepsilon_\infty + k_{TF}^2/q^2$（$k_{TF}^2 = 4\pi e^2N(0)$）が有限かつ大きいので、
+
+$$
+\mathrm{Im}\,W_c(q,\omega\to0) \simeq -v(q)\,\frac{\tfrac{\pi}{2}v(q)N(0)\,\omega/(qv_F)}{(\varepsilon_\infty+k_{TF}^2/q^2)^2} \propto -\omega
+$$
+
+と線形にゼロへ、発散はない（第一殻の $-\mathrm{Im}W_c/\omega\approx$ 一定）。$\mathrm{Re}\,\chi_0\simeq N(0)q^2v_F^2/3\omega^2$ は $\omega\gg qv_F$ 側の展開。
+offset-Γ は $k_{TF}^2/q^2$ が巨大で $W_c(0)\to -v(q)(1-1/\varepsilon(q,0))$ は有限（−382）、Im は $\omega<qv_F=0.03$ eV の中だけ。
+
 **3. Σc のプラズモン極模型**（`contour_test` の $W_c$ と同じ）
 
 $$
