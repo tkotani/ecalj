@@ -22,6 +22,10 @@ P2（2000 K 相当）は 08:34 に GPU 0 で自動開始（`SmearX0 = 0.0114`, `
 
 ![P converged](LiTi2O4/plots/P_converged.png)
 
+全反復（LDA + iter 1〜8）:
+
+![P all iterations](LiTi2O4/plots/P_all_iterations.png)
+
 LDA → iter 1 → 4 → 8（右端は iter 7 と 8 の重ね描き: 青と赤が完全に重なる）。収束解: t2g 幅は LDA 2.2 eV（−0.85〜+1.35）→ 1.4 eV
 （−0.5〜+0.9）と**狭まり**、O 2p は 0.5〜0.7 eV 下がる。E_F 直上 +0.8〜+1.0 eV に 30〜50 meV の小さな凸凹が残る（反復で不変）。
 
