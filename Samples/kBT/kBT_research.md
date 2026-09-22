@@ -11,6 +11,55 @@
 
 ## 2026-09-22
 
+### 2026-09-22 11:30 メモ: 単純な金属の χ₀・W_c・Σc の模型（LiTi₂O₄ の状況に合わせて）
+
+LiTi₂O₄ の低エネルギーは「幅 ~2 eV の t2g 帯が 1/6 だけ占有された金属」。Lindhard（電子ガス）＋帯間の背景誘電率 $\varepsilon_\infty$ で特徴が出る。
+
+**1. 帯内 χ₀（Lindhard、T=0、小 q）**
+
+$$
+\mathrm{Im}\,\chi_0(q,\omega) = -\frac{\pi N(0)}{2}\,\frac{\omega}{q v_F}\quad (0<\omega<qv_F),\qquad
+\mathrm{Re}\,\chi_0(q,\omega\gg qv_F) \simeq \frac{N(0)}{2}\,\frac{q^2v_F^2/3}{\omega^2}
+$$
+
+Im χ₀ は ω に線形に立ち上がり $\omega = qv_F$ で切れる。今朝の dump: 第一殻（$|q|$=0.29）で $-\mathrm{Im}W_c/\omega \approx$ 一定、0.4 eV で落ちる = $qv_F \approx 0.4$ eV。
+offset-Γ（$|q|$=0.008）では $qv_F \approx 0.03$ eV なので Drude 重みが 30 meV に押し込まれる（10:35 の図）。
+
+**2. RPA の W とプラズモン**
+
+$$
+\varepsilon(q,\omega) = \varepsilon_\infty - \frac{\omega_p^{2}}{\omega^2}\Bigl(1+\tfrac35\tfrac{q^2v_F^2}{\omega^2}\Bigr) + i\,\ldots,\qquad
+W_c(q,\omega) = \frac{v(q)}{\varepsilon(q,\omega)} - v(q)
+$$
+
+$\varepsilon_\infty \approx 5$〜7 は O 2p → Ti の帯間遮蔽（3 eV 以上）。プラズモンは $\omega_p^{\rm scr} = \omega_p^{\rm bare}/\sqrt{\varepsilon_\infty} \approx 1.8$ eV。
+$qv_F < \omega_p$ の $q$ では Im χ₀ = 0 なので**幅ゼロの真の極**。幅が付くのは (i) $\omega_p$ が $qv_F$ に近づく $q$（Landau 減衰。第二殻で 1.8 と 2.2 eV に割れる）、
+(ii) 帯間遷移の裾（3 eV 以上）、(iii) 温度／SmearX0。第一殻の幅 0.1 eV は (iii) だけの寄与。
+
+**3. Σc のプラズモン極模型**（`contour_test` の $W_c$ と同じ）
+
+$$
+W_c(z) = -\frac{v\,\omega_p^2}{\omega_p^2 - z^2 - i\gamma z},\qquad
+\Sigma_c(\omega) \simeq \sum_{k'}|M_{k'}|^2\left[\theta(\varepsilon'-E_F)\,\frac{-v\omega_p/2}{\omega-\varepsilon'-\omega_p+i\eta}
++ \theta(E_F-\varepsilon')\,\frac{-v\omega_p/2}{\omega-\varepsilon'+\omega_p-i\eta}\right]
+$$
+
+（$\gamma\to0$ のプラズモン極近似）。非占有状態 $\omega$ には**占有**中間状態 $\varepsilon'$ が $\omega-\varepsilon' = \omega_p$ を満たすところに共鳴。
+$\varepsilon'$ = t2g 占有底 −0.6 eV なら $\omega = +1.2$ eV — 03:40 の $\Sigma_c(\omega)$ で非占有 t2g（+0.4〜+1.3）が座っている肩。
+傾き $\partial\Sigma/\partial\omega \sim -|M|^2 v\omega_p/(2\Delta^2)$、$\Delta = \omega-\varepsilon'-\omega_p$。実測 −1.3。
+
+**4. 各手段の模型上の意味**
+
+| 手段 | 模型で何が変わるか | 観測 |
+|---|---|---|
+| 温度 / `SmearX0` | $\gamma$ を増やす → 共鳴の肩を幅 $\gamma$ で鈍らせる | P（1000 K 相当）で収束。2000 K 相当でさらに滑らかなはず |
+| `chi0_filterw`（帯間を抜く） | $\varepsilon_\infty \to 1$ 側 → $\omega_p$ が上がり遮蔽が弱まる。肩は消えず位置が動く | R: バンドが HF 側に開き O 2p 底が沈み続ける |
+| Drude 抜き | $\omega_p \to 0$、静的遮蔽も消える | 帯幅 3.5 eV、さらに HF 的 |
+| `t_sigmaw` | $\varepsilon'$ を均すだけ。$\Sigma(\omega)$ の $\omega$ 依存は不変 | 効かない（01:48） |
+| `wcsmear` | $W_c$ を $\varepsilon'$ の分布で平均 = 極を踏む事故を防ぐ。肩の傾きは変えない | 針は消えるが凸凹は残る |
+
+この模型で `contour_test` を占有側の極も含む 2 極版にすれば、E_F 直上の凸凹の $\gamma$ 依存（1000 K vs 2000 K 相当）を計算前に見積もれる。
+
 ### 2026-09-22 11:15 9³ iter 1: O 2p 7.1 / 9.9、t2g 4.8 / 6.9 meV（6³ の iter 1 と同水準）、112 分
 
 `n999_P_smearx0_nofilter_mix05` iter 1（09:19→11:11、6709 s）: O 2p 荒れ 7.1 / 9.9、t2g 4.8 / 6.9、底 −8.40。
