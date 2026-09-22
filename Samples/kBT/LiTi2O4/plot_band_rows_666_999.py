@@ -15,8 +15,8 @@ def read(d):
         segs.append(b)
     return segs
 labels=['Γ','X','U|K','Γ','L','W','X']
-out,title,d6,d9,niter=sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4],int(sys.argv[5])
-rows=[('lda','LDA')]+[(f'iter{i}',f'iter {i}') for i in range(1,niter+1)]
+out,title,d6,d9=sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4]; its=[int(x) for x in sys.argv[5].split(',')]
+rows=([('lda','LDA')] if 0 in its else [])+[(f'iter{i}',f'iter {i}') for i in its if i>0]
 fig,axs=plt.subplots(len(rows),4,figsize=(26,3.4*len(rows)),squeeze=False)
 def panel(ax,segs,lo,hi,ylo,yhi,tag,ttl):
     ticks=[0]
