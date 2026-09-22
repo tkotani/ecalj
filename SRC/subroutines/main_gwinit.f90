@@ -87,6 +87,12 @@ contains
     write(ifi,'(a)') '# t_tetrakbt = 1000   # (K) chi0 with Fermi-Dirac occupations at this T (finite-T tetrahedron, method'
     write(ifi,'(a)') '#                     # B-prime) and the finite-T Fermi level EFERMI_kbt for chi0 and Sigma; 0 (default)'
     write(ifi,'(a)') '#                     # = T=0 tetrahedron. For metals whose W has sharp plasmon poles. Exclusive with SmearX0.'
+    write(ifi,'(a)') '# SmearX0 = 0.0057    # (Ha) Gaussian smearing of Im chi0 along omega (0.0057 Ha = std of Fermi-Dirac at 1000 K).'
+    write(ifi,'(a)') '#                     # Broadens the plasmon poles of W; LiTi2O4 6^3/9^3 QSGW converged with it (2026-09-22).'
+    write(ifi,'(a)') '#                     # Exclusive with t_tetrakbt > 0.'
+    write(ifi,'(a)') '# omp_tetwt = 30      # OpenMP threads per MPI rank for the tetrahedron loop of the W-build (0 = 1 thread).'
+    write(ifi,'(a)') '#                     # Worth it only with t_tetrakbt > 0 (lindtet6_kbt ~150 s/q serial at 9^3); memory'
+    write(ifi,'(a)') '#                     # nhwtot*threads*8 B per rank (~140 MB per thread at 9^3). Not tied to OMP_NUM_THREADS.'
     write(ifi,'(a)') 'deltaw = 0.02           # (a.u.) numerical-derivative mesh for Z factor'
     write(ifi,'(a)')
     write(ifi,'(a)') '# ----- Q for diagonal Sigma=GW (gw_lmfh) -----'
