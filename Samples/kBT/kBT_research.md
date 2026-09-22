@@ -20,6 +20,10 @@
 |---|---|---|---|---|---|
 | | 1 | 09:19→11:11 | 7.1 / 9.9 | 4.8 / 6.9 | −8.40 |
 
+![9^3 iter 1 vs 6^3](LiTi2O4/plots/P999_iter1.png)
+
+6³ iter 1 と 9³ iter 1 は目で区別できない（一発ではメッシュ収束している）。
+
 ### 2026-09-22 10:35 offset-Γ の Im $W_c$ の ω → 0（user の問い）
 
 ![low-omega W_c](LiTi2O4/plots/wc_lowomega_nofilter_20260922.png)
