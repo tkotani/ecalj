@@ -13,10 +13,7 @@
 
 ### 2026-09-23 00:35 9³ iter 9〜（当面継続、user 00:30）
 iter 9: o2p 7.5 / 11.4、t2g **4.3 / 8.0**、底 −8.766（2 反復続けて同じ値 = 底は止まった）。
-iter 9 以降は行並び図を分ける: `Samples/kBT/LiTi2O4/plots/P_999_rows_9on.png`（9³ のみ、列 = O 2p / E_F 近傍）。
-スクリプトは `Samples/kBT/LiTi2O4/plot_band_rows_one.py`（1 ラン版、引数 OUT TITLE DIR "9,10,..."）。
-
-![9^3 iterations 9 onward](LiTi2O4/plots/P_999_rows_9on.png)
+行並び図 `P_666_999_rows.png` はそのまま下に伸ばす（6³ の列は iter 8 で終わりなので 9 以降は空白、9³ だけが続く）。
 
 ### 2026-09-22 23:00 9³ iter 8: t2g 4.2 / 8.9 meV、底が初めて戻る（−8.767 → −8.766）
 6³ iter 8 と 9³ iter 8 の同一 k 経路での差（6³ − 9³、meV）:
