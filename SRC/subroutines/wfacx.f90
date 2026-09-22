@@ -44,17 +44,21 @@ contains
     real(8), intent(in) :: x, kbt
     wcdf = fd_cdf(x, kbt)
   end function wcdf
-  !> half-width (Ry) beyond which the kernel is negligible: g(15 kbt)/g(0) ~ 3e-7.  0 for the sharp step.
+  !> Half-width (Ry) of the level distribution used when the pole term integrates W_c over the
+  !! kernel ([gw] wcsmear, pole_weights): the cells beyond ek +- wcut are dropped.  8 kbt leaves out
+  !! 2 f(8) = 6.7e-4 of the weight (the cell weights inside are exact CDF differences, so nothing else
+  !! changes).  It sets the number of W planes the pole term touches, i.e. its cost: 15 -> 8 kbt
+  !! halved the real-axis part of Sigma_c (9^3 LiTi2O4, 2026-09-22).  0 for the sharp step.
   pure real(8) function wcut(kbt)
     real(8), intent(in) :: kbt
-    wcut = 15d0*kbt
+    wcut = 8d0*kbt
   end function wcut
   !> Half-width (Ry) of the window around E_F inside which intermediate levels can be partially
   !! occupied (batch sizing in sxcf_scz_count, the state window of the pole term, the real-axis
-  !! omega range in getwemax): the kernel tail.
+  !! omega range in getwemax): the far tail of the kernel, f(15) ~ 3e-7.  Bookkeeping only, cheap.
   pure real(8) function sig_window(kbt)
     real(8), intent(in) :: kbt
-    sig_window = wcut(kbt)
+    sig_window = 15d0*kbt
   end function sig_window
   !> stable ln(cosh(z))
   pure real(8) function lncosh(z)
@@ -151,12 +155,18 @@ contains
       if (a > b) then; t = a; a = b; b = t; endif
       a = max(a, el); b = min(b, eh)
       if (b <= a) cycle
-      t = wcdf(b - ek, esmr) - wcdf(a - ek, esmr)   ! kernel weight of this cell; these sum to wfac
+      t = wcdf(b - ek, esmr) - wcdf(a - ek, esmr)   ! kernel weight of this cell; these sum to wfac over the full tail
       if (t < 1d-12) cycle
       wts(iw) = scale*t
       if (iw2 < iw1) iw1 = iw
       iw2 = iw
     enddo
+    ! The cells beyond ek +- wcut are not visited; give their weight (2 f(wcut/kbt) of wfac at most) to
+    ! the visited ones so that sum(wts) = wfac*scale exactly, as for the sharp-level path.
+    if (iw2 >= iw1) then
+      t = sum(wts(iw1:iw2))
+      if (abs(t) > 1d-12) wts(iw1:iw2) = wts(iw1:iw2)*(wfac*scale/t)
+    endif
   end subroutine pole_weights
   pure function crossf(a,b) result(c)
     implicit none
