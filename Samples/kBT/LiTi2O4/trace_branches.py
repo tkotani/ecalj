@@ -27,6 +27,9 @@ def trace(b, lo, hi):
         C=np.abs(pred[:,None]-E[i][None,:])         # cost branch x eigenvalue
         r,c=linear_sum_assignment(C)
         tr[i]=E[i][c]
+    # renumber branches by their energy at a generic k (x = 0.30), so that the same physical
+    # branch carries the same label in every panel (the label at Gamma is arbitrary inside a multiplet)
+    k0=int(0.10*(len(X)-1)); o=np.argsort(tr[k0]); tr=tr[:,o]
     return X, tr, ibs
 out,title=sys.argv[1],sys.argv[2]; ylo,yhi=float(sys.argv[3]),float(sys.argv[4])
 runs=[(sys.argv[i],sys.argv[i+1]) for i in range(5,len(sys.argv),2)]

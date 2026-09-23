@@ -35,7 +35,10 @@
 
 ![Gamma-X traced branches](LiTi2O4/plots/GX_traced_lda_666_999.png)
 
-LDA の多重項（1.0〜1.45 eV）まで入る共通レンジ 0.30〜1.55 eV で描いたもの（user 13:35）:
+LDA の多重項（1.0〜1.45 eV）まで入る共通レンジ 0.30〜1.55 eV で描いたもの（user 13:35 / 13:45）。
+**枝の番号は「x = 0.10（Γ のすぐ外、Γ の多重縮退が解けた位置）でのエネルギー順」に付け直した**ので、
+3 枚のパネルで同じ番号が同じ枝を指す（9³ の大振動枝は br8 ではなく **br5**。以前の番号は追跡開始時の
+Γ での並び順で、Γ の縮退多重項の中では任意だったため 6³ と 9³ でずれていた。band-index 図も同じレンジに）。
 
 ![Gamma-X traced branches, wide range](LiTi2O4/plots/GX_traced_wide_lda_666_999.png)
 
