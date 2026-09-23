@@ -92,6 +92,47 @@ contains
           close(ifis2) !call fclose(ifis2)
        endif WRITEsig_fbz
        call fftz3(sfz,nk1,nk2,nk3,nk1,nk2,nk3,ndimsig**2*nspsigm,iset,+1) !+1 backward ! FT hrr is on regular mesh points. For bloch2
+       ! ---------------------------------------------------------------
+       ! Optional: drop the OFF-SITE part of Sigma for the second radial set
+       ! (EH2).  The two radial functions of one (atom,l) have the same angular
+       ! character, so their inter-site blocks are largely redundant; carrying
+       ! both gives the real-space representation more freedom than the q mesh
+       ! can determine, which shows up as ringing of the interpolated bands
+       ! between mesh points.  The on-site block is kept, so Sigma itself is not
+       ! truncated -- only the k dependence it can generate.
+       !   ECALJ_SIG_1RAD = 2  : the l=2 (d) channels only   (the long-ranged ones)
+       !   ECALJ_SIG_1RAD = -1 : every l of the EH2 set
+       Sigma1Radial: block
+         use m_lmfinit,only: l_table,k_table
+         character(32):: cval
+         integer:: lsel,i2,j2,ir1,ir2,ir3,isx,ncut
+         integer:: stat
+         call get_environment_variable('ECALJ_SIG_1RAD',cval,status=stat)
+         if(stat==0 .and. len_trim(cval)>0) then
+           read(cval,*) lsel
+           ncut=0
+           do j2=1,ndimsig
+             do i2=1,ndimsig
+               if( (k_table(i2)==2 .and. (lsel<0 .or. l_table(i2)==lsel)) .or. &
+                   (k_table(j2)==2 .and. (lsel<0 .or. l_table(j2)==lsel)) ) then
+                 do isx=1,nspsigm
+                   do ir3=1,nk3
+                     do ir2=1,nk2
+                       do ir1=1,nk1
+                         if(ir1==1 .and. ir2==1 .and. ir3==1) cycle ! keep R=0
+                         sfz(ir1,ir2,ir3,i2,j2,isx)=0d0
+                       enddo
+                     enddo
+                   enddo
+                 enddo
+                 ncut=ncut+1
+               endif
+             enddo
+           enddo
+           write(stdo,"(a,i3,a,i7,a,i7)") ' rdsigm2: ECALJ_SIG_1RAD=',lsel, &
+             ' -> off-site Sigma zeroed for',ncut,' of',ndimsig**2
+         endif
+       endblock Sigma1Radial
        hrr => sfz ! rename sfz as hrr
     endif                  !procid==master
     if(c0_wsig_fbz) call rx0('end of --wsig_fbz mode')
