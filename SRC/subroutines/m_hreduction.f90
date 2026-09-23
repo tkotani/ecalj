@@ -100,10 +100,30 @@ contains
       !logical:: lowcut, charcut
       real(8),allocatable::mulfac(:,:),mulfacw(:,:)
       complex(8):: imag=(0d0,1d0)
-      ! Assert block for normalization check
-      do j=1,ndimMTO 
-        if(abs(sum(abs(fac(:,j))**2)-1d0)>1d-4) call rxi('Hreduction: normalization error band index=',j)
-      enddo
+      ! Normalization check.  sum_i |<Psi_PMT_i|Psi_MTO_j>|^2 = 1 requires the PMT
+      ! eigenvectors to be complete; zhev_tk4 drops near-linearly-dependent
+      ! directions (oveps), so a model that spans (nearly) the whole MTO block --
+      ! e.g. mlo_lm + mlo_lm2 listing both radial sets -- loses a little weight
+      ! there.  Report the worst case and renormalize when it is small; abort
+      ! only when the loss is large enough to change the model.
+      NormalizationCheck: block
+        real(8):: dev, devmax
+        integer:: jworst
+        devmax=0d0; jworst=0
+        do j=1,ndimMTO
+          dev = sum(abs(fac(:,j))**2)-1d0
+          if(abs(dev)>abs(devmax)) then; devmax=dev; jworst=j; endif
+        enddo
+        if(abs(devmax)>1d-2) call rxi('Hreduction: normalization error band index=',jworst)
+        if(abs(devmax)>1d-4) then
+          if(iprx) write(stdo,"(a,i5,a,es10.2,a)") &
+            ' Hreduction: PMT completeness loss, worst band',jworst,' dev=',devmax,' -> renormalized'
+          do j=1,ndimMTO
+            dev = sum(abs(fac(:,j))**2)
+            if(dev>1d-8) fac(:,j)=fac(:,j)/sqrt(dev)
+          enddo
+        endif
+      endblock NormalizationCheck
       if(iprx) then
         do j=1,ndimMTO !Amat is corrected matrix element of <psi_PMT|psi_MTO>
           do i=1,ndimPMTx
