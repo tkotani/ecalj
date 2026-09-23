@@ -72,6 +72,12 @@ kt1 側に commit（`183ac817f`）してから再ビルド。
 |---|---|---|---|---|---|---|
 | 1 | 20:32→20:49 | 1015 | 6.9 / 9.1 | 5.0 / 9.9 | **10.83 / 5.08** | −8.495 |
 
+**バンドプロット（このシリーズ、反復ごとに下へ伸ばす）**: 行 = LDA, iter 1, …、列 = O 2p / E_F 近傍。
+`Samples/kBT/LiTi2O4/plots/nk6_rows.png`（`nk6_rows.py`、引数 OUT TITLE DIR "0,1,2,…"、0 = LDA）。
+9³ を後から加えるときは列を 2 ラン分（6³ | 9³）に拡張する。
+
+![nk6 series rows](LiTi2O4/plots/nk6_rows.png)
+
 ### 2026-09-23 19:51 新シリーズ: 6³ を `nkabc = n1n2n3 = 6³` で LDA から（まず LDA のみ）
 user「6³ でやってみろ。LDA からスタートする。新たにバンドプロットを開始する。まず LDA ができたらプロット」。
 run: `/mnt/data1/LiTi2O4_kbt_runs/n666_nk6_from_lda`。設定は P のまま
@@ -84,11 +90,7 @@ run: `/mnt/data1/LiTi2O4_kbt_runs/n666_nk6_from_lda`。設定は P のまま
 
 ![LDA nk6 vs nk16](LiTi2O4/plots/nk6_lda_vs_nk16.png)
 
-**このシリーズのバンドプロット**（行 = LDA, iter 1, iter 2, …、列 = O 2p / E_F 近傍）。
-反復ごとに行を足していく: `Samples/kBT/LiTi2O4/plots/nk6_rows.png`（スクリプト `nk6_rows.py`、
-引数 OUT TITLE DIR "0,1,2,…"、0 = LDA）。
-
-![nk6 series rows](LiTi2O4/plots/nk6_rows.png)
+（このシリーズの行並びバンドプロットは最新エントリ 20:49 にまとめた。）
 
 従来の `nkabc = 16³` の LDA（左）と一致:
 
