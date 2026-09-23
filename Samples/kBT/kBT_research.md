@@ -18,6 +18,9 @@ user「基本的には MTO の自由度全てでの MLO を考えてモデル化
 `ndimMTO = 154`（MTO ブロック全体は 230 なので完全ではない — `mlo_lm` は lm チャネルの選択で、
 EH/EH2 の 2 組の動径関数をすべて拾えているわけではない）。run: `/mnt/data1/LiTi2O4_kbt_runs/mlo_fullMTO_nk9`、09-24 00:02。
 
+![full-MTO MLO](LiTi2O4/plots/mlo_fullMTO_nk9.png)
+*図 00:05-1*  線 = 154 軌道 MLO の補間、○ = Σ メッシュ点上の厳密な QSGW 値。O 2p / t2g / eg / 格子間バンド
+
 *表 00:05-1*  Σ メッシュ点で、各第一原理バンドに**最も近い MLO 準位までの距離** [meV]
 
 | 帯 | mean | rms | max |
