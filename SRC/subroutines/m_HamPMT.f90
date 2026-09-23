@@ -7,7 +7,11 @@ module m_HamPMT
    use m_keyvalue,only: getkeyvalue
    use m_GWinput, only: gwinput_init, gwinput_loaded, tg_mlo_method => mlo_method, &
                         tg_n_worb => n_worb, tg_worb_iatom => worb_iatom, &
-                        tg_worb_lm => worb_lm, tg_worb_nlm => worb_nlm
+                        tg_worb_lm => worb_lm, tg_worb_nlm => worb_nlm, &
+                        tg_n_worb2 => n_worb2, tg_worb2_iatom => worb2_iatom, &
+                        tg_worb2_lm => worb2_lm, tg_worb2_nlm => worb2_nlm, &
+                        tg_n_worb3 => n_worb3, tg_worb3_iatom => worb3_iatom, &
+                        tg_worb3_lm => worb3_lm, tg_worb3_nlm => worb3_nlm
    use m_hreduction,only: hreduction, hreduction_nskip
    use m_nvfortran, only: findloc
    use m_cmdopt_registry, only: c0_mlo, c0_skip1d, c0_skip2nd, c0_skip2ndd, c0_skip2ndp, c0_skip2nds, c0_skipd, c0_skipf, c0_skiplo, c0_socmatrix
@@ -141,7 +145,8 @@ contains
         ! string-trim+concat statement; trim() alone or // alone do NOT work.
         ! The first if (mlomethod scalar) is unaffected.
         use m_nvfortran,only : findloc
-        integer::lmindex(16,nbas),lm,iw,ibw,nlmw,ibsel
+        integer::lmindex(16,nbas),lmindex2(16,nbas),lmindex3(16,nbas),lm,iw,ibw,nlmw,ibsel,ksel
+        logical:: haslo3
         character(256):: aaa
         logical:: use_lo(nbas,0:3)
         call gwinput_init()
@@ -151,12 +156,31 @@ contains
           call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
         endif
         lmindex = -999
+        ! lmindex2: channels of the SECOND radial set (EH2), from [mlo] mlo_lm2.
+        ! Empty (the default) reproduces the historical model, which used the EH
+        ! set only.  Listing them adds one more MLO per (atom,lm), so that the
+        ! model can span the whole MTO block -- needed if Sigma (which lives in
+        ! that block) is to be carried into the MLO representation without loss.
+        lmindex2 = -999
+        lmindex3 = -999
         if (gwinput_loaded) then
            do iw = 1, tg_n_worb
               ibw  = tg_worb_iatom(iw)
               nlmw = tg_worb_nlm(iw)
               if (ibw < 1 .or. ibw > nbas) cycle
               lmindex(1:nlmw, ibw) = tg_worb_lm(1:nlmw, iw)
+           enddo
+           do iw = 1, tg_n_worb2
+              ibw  = tg_worb2_iatom(iw)
+              nlmw = tg_worb2_nlm(iw)
+              if (ibw < 1 .or. ibw > nbas) cycle
+              lmindex2(1:nlmw, ibw) = tg_worb2_lm(1:nlmw, iw)
+           enddo
+           do iw = 1, tg_n_worb3
+              ibw  = tg_worb3_iatom(iw)
+              nlmw = tg_worb3_nlm(iw)
+              if (ibw < 1 .or. ibw > nbas) cycle
+              lmindex3(1:nlmw, ibw) = tg_worb3_lm(1:nlmw, iw)
            enddo
         else
            call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
@@ -254,16 +278,25 @@ contains
         nn=0
         lold=-999
         ibsel=-999
+        ksel=-999
 !        nskip=0
-        do i=1,ldim  !Only MTOs for EH 
-          if( k_table(i)==2) cycle  !skip 2nd
-          ! shallow local orbital (see ShallowLO above): the LO is the model function
-          ! for that (atom,l) and the EH function is dropped; otherwise the LO is
-          ! skipped (its states are removed by nskip) and the EH function is taken.
-          if( l_table(i)<=3 .and. use_lo(ib_table(i),l_table(i)) ) then
-            if( k_table(i)==1 ) cycle   ! EH dropped, LO taken
-          else
-            if( k_table(i)==3 ) cycle   ! LO skipped, EH taken
+        do i=1,ldim  !MTOs of the EH set, plus the EH2 channels listed in mlo_lm2
+          ! EH2 (k=2) enters only where mlo_lm2 lists it; with no mlo_lm2 this is
+          ! the old unconditional "skip 2nd".
+          if( k_table(i)==2 .and. all(lmindex2(1:16,ib_table(i))==-999) ) cycle
+          ! With mlo_lm3 the LO is an ADDITIONAL model function for that atom, so
+          ! the EH function is kept as well; without it the historical either/or
+          ! below applies.
+          haslo3 = any(lmindex3(1:16,ib_table(i)) /= -999)
+          if( .not. haslo3 ) then
+            ! shallow local orbital (see ShallowLO above): the LO is the model function
+            ! for that (atom,l) and the EH function is dropped; otherwise the LO is
+            ! skipped (its states are removed by nskip) and the EH function is taken.
+            if( l_table(i)<=3 .and. use_lo(ib_table(i),l_table(i)) ) then
+              if( k_table(i)==1 ) cycle   ! EH dropped, LO taken
+            else
+              if( k_table(i)==3 ) cycle   ! LO skipped, EH taken
+            endif
           endif
           ib=ib_table(i)
           ! m runs -l..l over the 2l+1 consecutive entries of one (atom, l) shell.
@@ -272,15 +305,24 @@ contains
           ! was never updated here, so m stayed at -l and lm at l**2+1: Worb then
           ! selected a whole shell if its first lm (1/2/5/10) was listed and
           ! nothing otherwise, and could not pick a partial shell (t2g, eg, ...).
-          if(lold/=l_table(i) .or. ibsel/=ib) then
+          ! The shell changes with l, with the atom, and now also with the radial
+          ! set k: an s-only atom would otherwise carry m across the EH -> EH2 step.
+          if(lold/=l_table(i) .or. ibsel/=ib .or. ksel/=k_table(i)) then
             m= -l_table(i)
             lold=l_table(i)
             ibsel=ib
+            ksel=k_table(i)
           else
             m=m+1
           endif
           lm = l_table(i)**2 + l_table(i) + m +1
-          if(.not. any(lm==lmindex(1:16,ib))) cycle
+          if(k_table(i)==2) then
+            if(.not. any(lm==lmindex2(1:16,ib))) cycle
+          elseif(k_table(i)==3 .and. haslo3) then
+            if(.not. any(lm==lmindex3(1:16,ib))) cycle
+          else
+            if(.not. any(lm==lmindex(1:16,ib))) cycle
+          endif
           !     if(c0_skipf .and.   l_table(i)>=3) cycle ! skip f orbitals. !if(k_table(i)==2.and.l_table(i)>=2) cycle ! throw away EH2 for d
           !     if(c0_skipd .and.   l_table(i)>=2) cycle ! throw away EH2 for d
           !     if(c0_skip2nd .and. k_table(i)==2) cycle 

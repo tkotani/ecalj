@@ -334,6 +334,8 @@ module m_GWinput
   character(len=:), protected, public, allocatable :: block_QforEPSL
   character(len=:), protected, public, allocatable :: block_QforGW
   character(len=:), protected, public, allocatable :: block_Worb
+  character(len=:), protected, public, allocatable :: block_Worb2
+  character(len=:), protected, public, allocatable :: block_Worb3
   character(len=:), protected, public, allocatable :: block_hrotr
 
   !-----------------------------------------------------------------
@@ -369,6 +371,22 @@ module m_GWinput
   character(8), protected, public, allocatable :: worb_label(:)
   integer, protected, public, allocatable  :: worb_lm(:,:)       ! (16, n_worb), -999 for unused slots
   integer, protected, public, allocatable  :: worb_nlm(:)        ! actual count per row
+  ! mlo_lm2: the same, but for the SECOND radial set (EH2) of the PMT basis.
+  ! Optional; absent means "no EH2 channel in the MLO model", which is the
+  ! historical behaviour (m_HamPMT skipped k_table==2 unconditionally).
+  integer, protected, public               :: n_worb2        = 0
+  integer, protected, public, allocatable  :: worb2_iatom(:)
+  character(8), protected, public, allocatable :: worb2_label(:)
+  integer, protected, public, allocatable  :: worb2_lm(:,:)      ! (16, n_worb2)
+  integer, protected, public, allocatable  :: worb2_nlm(:)
+  ! mlo_lm3: the same, for the local-orbital (PZ, k=3) channels.  Listing a
+  ! channel here takes the LO IN ADDITION to the EH function; without it the
+  ! historical either/or applies (LO replaces EH when use_lo, else LO dropped).
+  integer, protected, public               :: n_worb3        = 0
+  integer, protected, public, allocatable  :: worb3_iatom(:)
+  character(8), protected, public, allocatable :: worb3_label(:)
+  integer, protected, public, allocatable  :: worb3_lm(:,:)
+  integer, protected, public, allocatable  :: worb3_nlm(:)
 
   !-----------------------------------------------------------------
   ! State
@@ -467,6 +485,8 @@ contains
     if (allocated(block_QforEPS)) call parse_qvec_list(block_QforEPS, q_eps, n_eps)
     if (allocated(block_QforGW))  call parse_qvec_list(block_QforGW,  q_qgw, n_qgw)
     if (allocated(block_Worb))    call parse_Worb(block_Worb)
+    if (allocated(block_Worb2))   call parse_Worb2(block_Worb2)
+    if (allocated(block_Worb3))   call parse_Worb3(block_Worb3)
 
     gwinput_loaded = .true.
   end subroutine gwinput_load
@@ -724,6 +744,10 @@ contains
     ! accepted here and under [blocks].
     got = take_block(mlo, 'mlo_lm', block_Worb)
     if (.not. got) got = take_block(mlo, 'Worb', block_Worb)
+    ! mlo_lm2: optional, same syntax, for the EH2 (second energy) radial set.
+    got = take_block(mlo, 'mlo_lm2', block_Worb2)
+    ! mlo_lm3: optional, same syntax, for the local-orbital (PZ) channels.
+    got = take_block(mlo, 'mlo_lm3', block_Worb3)
   end subroutine load_mlo_section
 
 
@@ -1048,9 +1072,30 @@ contains
   !> Worb: each non-comment line is "iatom label lm1 lm2 ... lmN".
   subroutine parse_Worb(text)
     character(len=:), allocatable, intent(in) :: text
+    call parse_worb_generic(text, n_worb, worb_iatom, worb_label, worb_lm, worb_nlm)
+  end subroutine parse_Worb
+
+  !> Same syntax as mlo_lm, for the EH2 radial set (mlo_lm2).
+  subroutine parse_Worb2(text)
+    character(len=:), allocatable, intent(in) :: text
+    call parse_worb_generic(text, n_worb2, worb2_iatom, worb2_label, worb2_lm, worb2_nlm)
+  end subroutine parse_Worb2
+
+  !> Same syntax as mlo_lm, for the local-orbital (PZ) channels (mlo_lm3).
+  subroutine parse_Worb3(text)
+    character(len=:), allocatable, intent(in) :: text
+    call parse_worb_generic(text, n_worb3, worb3_iatom, worb3_label, worb3_lm, worb3_nlm)
+  end subroutine parse_Worb3
+
+  subroutine parse_worb_generic(text, nrec, iat, lab_out, lm_out, nlm_out)
+    character(len=:), allocatable, intent(in) :: text
+    integer, intent(out) :: nrec
+    integer, allocatable, intent(inout) :: iat(:), lm_out(:,:), nlm_out(:)
+    character(8), allocatable, intent(inout) :: lab_out(:)
     integer :: u, ios, n, i, ib, lmtmp(16), nlm, k
     character(256) :: line
     character(8)   :: lab
+    nrec = 0
     if (.not. allocated(text)) return
     if (len(text) == 0) return
     call open_block_unit(text, u)
@@ -1064,12 +1109,12 @@ contains
     if (n == 0) then
        close(u); return
     endif
-    if (allocated(worb_iatom)) deallocate(worb_iatom)
-    if (allocated(worb_label)) deallocate(worb_label)
-    if (allocated(worb_lm))    deallocate(worb_lm)
-    if (allocated(worb_nlm))   deallocate(worb_nlm)
-    allocate(worb_iatom(n), worb_label(n), worb_lm(16,n), worb_nlm(n))
-    worb_lm = -999
+    if (allocated(iat))     deallocate(iat)
+    if (allocated(lab_out)) deallocate(lab_out)
+    if (allocated(lm_out))  deallocate(lm_out)
+    if (allocated(nlm_out)) deallocate(nlm_out)
+    allocate(iat(n), lab_out(n), lm_out(16,n), nlm_out(n))
+    lm_out = -999
     rewind(u)
     i = 0
     do
@@ -1085,18 +1130,18 @@ contains
           if (ios /= 0) cycle
        endif
        i = i + 1
-       worb_iatom(i) = ib
-       worb_label(i) = lab
-       worb_lm(:,i)  = lmtmp
+       iat(i)     = ib
+       lab_out(i) = lab
+       lm_out(:,i)= lmtmp
        nlm = 0
        do k = 1, 16
           if (lmtmp(k) /= -999) nlm = k
        enddo
-       worb_nlm(i) = nlm
+       nlm_out(i) = nlm
     enddo
     close(u)
-    n_worb = i
-  end subroutine parse_Worb
+    nrec = i
+  end subroutine parse_worb_generic
 
 
   pure logical function skip_line(line)
