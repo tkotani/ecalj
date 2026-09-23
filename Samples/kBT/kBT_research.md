@@ -35,6 +35,14 @@
 
 ![Gamma-X traced branches](LiTi2O4/plots/GX_traced_lda_666_999.png)
 
+LDA の多重項（1.0〜1.45 eV）まで入る共通レンジ 0.30〜1.55 eV で描いたもの（user 13:35）:
+
+![Gamma-X traced branches, wide range](LiTi2O4/plots/GX_traced_wide_lda_666_999.png)
+
+LDA では Γ 0.53 → X 0.94 eV に上がる枝、1.39 → 0.96 に下がる枝、1.39 → 0.68 に急降下する枝（桃）がいずれも滑らか。
+QSGW ではこの多重項全体が 0.7〜1.0 eV に圧縮され、そのうち **1 本だけ**が Γ 0.73/0.75 eV から出て 0.97 / 1.05 eV まで
+跳ね上がる大振動を示す（6³ 茶 br5 / 9³ 黄緑 br8）。桃の急降下枝は QSGW でも滑らかなまま。
+
 追跡後に、滑らかな分散（4 次多項式）を引いた残差で測ると:
 
 | | 枝 | 平均 E | peak-to-peak | 残差 rms |
