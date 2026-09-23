@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Row layout for the nk6 series: rows = LDA, iter 1, iter 2, ...  columns = O 2p | near E_F.
-usage: nk6_rows.py OUT.png TITLE DIR "0,1,2,..."   (0 = LDA -> DIR/lda, n -> DIR/iterN)"""
-import sys, glob, os
+usage: nk6_rows.py OUT.png TITLE DIR "0,1,2,..."  (row titles carry the mtime of the band files)  (0 = LDA -> DIR/lda, n -> DIR/iterN)"""
+import sys, glob, os, time
 import matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
 from collections import defaultdict
 plt.rcParams.update({'font.size':12})
@@ -17,7 +17,7 @@ def read(d):
 labels=['Γ','X','U|K','Γ','L','W','X']
 out,title,d0=sys.argv[1],sys.argv[2],sys.argv[3]; its=[int(x) for x in sys.argv[4].split(',')]
 rows=[('lda','LDA') if i==0 else (f'iter{i}',f'iter {i}') for i in its]
-fig,axs=plt.subplots(len(rows),2,figsize=(15,4.6*len(rows)),squeeze=False)
+fig,axs=plt.subplots(len(rows),2,figsize=(15.6,4.6*len(rows)),squeeze=False)
 for r,(sub,lab) in enumerate(rows):
     path=os.path.join(d0,sub)
     if not os.path.isdir(path):
@@ -35,7 +35,30 @@ for r,(sub,lab) in enumerate(rows):
         for t in ticks: ax.axvline(t,color='0.75',lw=0.6)
         if tag!='O 2p': ax.axhline(0,color='0.4',lw=0.8,ls='--')
         ax.set_xticks(ticks); ax.set_xticklabels(labels[:len(ticks)])
-        ax.set_xlim(ticks[0],ticks[-1]); ax.set_ylim(ylo,yhi); ax.set_title(f'{lab}   ({tag})')
+        ax.set_xlim(ticks[0],ticks[-1]); ax.set_ylim(ylo,yhi)
+        # band labels at the X end: group bands that are degenerate there (within 10 meV)
+        last=segs[-1]; xe=max(x for x,_ in last[1])
+        ent=[]
+        for ib in range(lo,hi):
+            if ib in last:
+                ent.append((last[ib][-1][1],ib))
+        ent.sort()
+        grp=[]
+        for e,ib in ent:
+            if ylo<e<yhi:
+                if grp and abs(e-grp[-1][0][-1])<0.010: grp[-1][0].append(e); grp[-1][1].append(ib)
+                else: grp.append(([e],[ib]))
+        span=yhi-ylo; minsep=0.030*span; ypos=[]
+        for es,ibs in grp:
+            y=sum(es)/len(es)
+            if ypos and y-ypos[-1]<minsep: y=ypos[-1]+minsep
+            ypos.append(y)
+        for (es,ibs),y in zip(grp,ypos):
+            nm=str(ibs[0]) if len(ibs)==1 else f'{ibs[0]}-{ibs[-1]}'
+            ax.annotate(nm,(xe,y),textcoords='offset points',xytext=(4,-3),
+                        fontsize=8,color='C0',annotation_clip=False)
+        ts=time.strftime('%m-%d %H:%M', time.localtime(os.path.getmtime(sorted(glob.glob(os.path.join(path,'bnd0*.spin1')))[0])))
+        ax.set_title(f'{lab}   ({tag})   [{ts}]')
     axs[r,0].set_ylabel('E − E_F (eV)')
 fig.suptitle(title,fontsize=13); fig.tight_layout(rect=(0,0,1,1-0.03/len(rows)))
 fig.savefig(out,dpi=100)
