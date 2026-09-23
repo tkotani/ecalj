@@ -41,6 +41,12 @@ run: `/mnt/data1/LiTi2O4_kbt_runs/n666_nk6_from_lda`。設定は P のまま
 
 ![LDA nk6 vs nk16](LiTi2O4/plots/nk6_lda_vs_nk16.png)
 
+**このシリーズのバンドプロット**（行 = LDA, iter 1, iter 2, …、列 = O 2p / E_F 近傍）。
+反復ごとに行を足していく: `Samples/kBT/LiTi2O4/plots/nk6_rows.png`（スクリプト `nk6_rows.py`、
+引数 OUT TITLE DIR "0,1,2,…"、0 = LDA）。
+
+![nk6 series rows](LiTi2O4/plots/nk6_rows.png)
+
 従来の `nkabc = 16³` の LDA（左）と一致:
 
 | 帯 | 平均差 | rms | max |
