@@ -114,7 +114,10 @@ contains
           dev = sum(abs(fac(:,j))**2)-1d0
           if(abs(dev)>abs(devmax)) then; devmax=dev; jworst=j; endif
         enddo
-        if(abs(devmax)>1d-2) call rxi('Hreduction: normalization error band index=',jworst)
+        if(abs(devmax)>1d-2) then
+          write(stdo,"(a,i5,a,f10.6)")' Hreduction: PMT completeness loss too large: band',jworst,' dev=',devmax
+          call rxi('Hreduction: normalization error band index=',jworst)
+        endif
         if(abs(devmax)>1d-4) then
           if(iprx) write(stdo,"(a,i5,a,es10.2,a)") &
             ' Hreduction: PMT completeness loss, worst band',jworst,' dev=',devmax,' -> renormalized'
