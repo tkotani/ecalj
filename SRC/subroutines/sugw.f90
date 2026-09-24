@@ -381,16 +381,11 @@ contains
       endblock PrepWriteHamiltonianGW
       PrepCmlo: block !design 4.2 a'
         use m_readqplist,only: set_bandedge
-        integer:: ifmi
+        use m_sigmlo,only: read_mloindex
         logical:: lex
-        inquire(file='__mloindex',exist=lex)
+        inquire(file='HamRsMLO',exist=lex) !the MLO index is in its trailing records
         if(lex .and. nspc==1) then
-          open(newunit=ifmi,file='__mloindex',form='unformatted',status='old')
-          read(ifmi) ndimMTO_a, ldim_a, mlomethod_a, nskip_a
-          allocate(ix_a(ndimMTO_a))
-          read(ifmi) ix_a
-          read(ifmi) fff1_a, eferm_a, ecbot_a
-          close(ifmi)
+          call read_mloindex(ndimMTO_a, ldim_a, mlomethod_a, nskip_a, ix_a, fff1_a, eferm_a, ecbot_a)
           call set_bandedge(eferm_a, ecbot_a) !Hreduction reads these for the MLO window
           mrecbb_a = 2*nbandmx*ndimMTO_a*8
           istat = openm(newunit=ifcmlo,file='__cmlo.data',recl=mrecbb_a)
@@ -398,7 +393,7 @@ contains
           lcmlo = .true.
           if(master_mpi) write(stdo,ftox)" sugw: a' active. ndimMTO mlomethod nskip=",ndimMTO_a,mlomethod_a,nskip_a
         elseif(lex) then
-          if(master_mpi) write(stdo,ftox)" sugw: __mloindex found but nspc=2 (SOC); a' skipped"
+          if(master_mpi) write(stdo,ftox)" sugw: HamRsMLO found but nspc=2 (SOC); a' skipped"
         endif
       endblock PrepCmlo
     endif

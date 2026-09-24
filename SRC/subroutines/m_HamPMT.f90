@@ -716,18 +716,6 @@ contains
       if(lsigmlo) call mpibc2_complex(sigmlor,size(sigmlor),'m_HamPMT_sigmlor')
       call mpibc2_complex(ovlmr,size(ovlmr),'m_HamPMT_ovlmr') !to master
       if(socmatrix) call mpibc2_complex(hammhsor,size(hammhsor),'m_HamPMT_hammhsor') !to master
-      WriteMloIndex: if(master_mpi) then !index so that sugw can build the MLO itself (design 4.1 step 0c/0d)
-        block
-          use m_readqplist,only: eferm,ecbot
-          integer:: ifmi
-          open(newunit=ifmi,file='__mloindex',form='unformatted')
-          write(ifmi) ndimMTO, ldim, mlomethod, nskip_global
-          write(ifmi) ix(1:ndimMTO)
-          write(ifmi) fff1, eferm, ecbot
-          close(ifmi)
-          write(stdo,ftox)' Wrote __mloindex: ndimMTO mlomethod nskip=',ndimMTO,mlomethod,nskip_global
-        endblock
-      endif WriteMloIndex
       if(master_mpi) then ! write RealSpace MTO Hamiltonian          !ix(1:ndimMTO)=ix1(1:ndimMTO) !for atom idex
         write(stdo,*)' Writing HamRsMLO... ndimMTO=',ndimMTO
         open(newunit=ifihmto,file='HamRsMLO',form='unformatted')
@@ -738,6 +726,18 @@ contains
         if(socmatrix) write(ifihmto) hammhsor(1:npairmx,1:ndimMTO,1:ndimMTO,1:3)
         write(ifihmto) ovlmr(1:npairmx,1:ndimMTO,1:ndimMTO,1:nspx) !,ix(1:ndimMTO)
         write(ifihmto) ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO)
+        !--- appended records: the MLO index, so that sugw (step a') and getsenex can
+        !    rebuild the same chi~ without a separate file.  Existing readers stop after
+        !    the records above, so appending is backward compatible.  It lives here and
+        !    not in a __-prefixed file, because cleargw deletes those and this must
+        !    survive the whole chain (design 4.1: chi~ is frozen once).
+        MloIndexRecords: block
+          use m_readqplist,only: eferm,ecbot
+          write(ifihmto) ndimMTO, ldim, mlomethod, nskip_global
+          write(ifihmto) ix(1:ndimMTO)
+          write(ifihmto) fff1, eferm, ecbot
+          write(stdo,ftox)' HamRsMLO: appended MLO index. ndimMTO mlomethod nskip=',ndimMTO,mlomethod,nskip_global
+        endblock MloIndexRecords
         close(ifihmto)
         write(stdo,*)" Wrote HamRsMLO file! End of lmfham1"
         if(lsigmlo) then !self-contained: getsenex Bloch-sums this without m_HamPMT

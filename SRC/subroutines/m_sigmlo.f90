@@ -12,7 +12,7 @@ module m_sigmlo
   use m_lgunit,only: stdo
   use m_ftox
   implicit none
-  public :: sigmlo_init, sigmlo_senex, sigmlo_on
+  public :: sigmlo_init, sigmlo_senex, sigmlo_on, read_mloindex
   logical, protected :: sigmlo_on = .false.
   private
   integer :: ndimMTO=0, npairmx=0, nspx=0, nbas=0, mlomethod=4, nskip=0
@@ -21,20 +21,36 @@ module m_sigmlo
   complex(8), allocatable :: sigmlor(:,:,:,:)   !(npairmx, ndimMTO, ndimMTO, nspx)
   logical :: init = .true.
 contains
+  !> The MLO index lives in the trailing records of HamRsMLO (not in a __-prefixed
+  !> file, which cleargw would delete).  Skip the four data records, then read it.
+  subroutine read_mloindex(nd, ld, mm, nsk, ixo, f1, ef, ec)
+    use m_cmdopt_registry, only: c0_socmatrix
+    integer,intent(out):: nd, ld, mm, nsk
+    integer,allocatable,intent(out):: ixo(:)
+    real(8),intent(out):: f1, ef, ec
+    integer:: ifh, n1,n2,n3
+    open(newunit=ifh,file='HamRsMLO',form='unformatted',status='old',action='read')
+    read(ifh) n1,n2,n3        !ndimMTO,npairmx,nspx
+    read(ifh)                 !hammr
+    if(c0_socmatrix) read(ifh) !hammhsor
+    read(ifh)                 !ovlmr
+    read(ifh)                 !ib_tableM,k_tableM,l_tableM
+    read(ifh) nd, ld, mm, nsk
+    allocate(ixo(nd)); read(ifh) ixo
+    read(ifh) f1, ef, ec
+    close(ifh)
+  end subroutine read_mloindex
+
   subroutine sigmlo_init()
     use m_readqplist,only: set_bandedge
-    integer :: ifs, ifm, nd2, ld2, ms2, ns2
+    integer :: ifs, nd2, ld2
     logical :: lex1, lex2
     if(.not.init) return
     init = .false.
     inquire(file='SigRsMLO', exist=lex1)
-    inquire(file='__mloindex',exist=lex2)
+    inquire(file='HamRsMLO', exist=lex2)
     if(.not.(lex1.and.lex2)) return
-    open(newunit=ifm,file='__mloindex',form='unformatted',status='old')
-    read(ifm) nd2, ld2, mlomethod, nskip
-    allocate(ix(nd2)); read(ifm) ix
-    read(ifm) fff1, eferm, ecbot
-    close(ifm)
+    call read_mloindex(nd2, ld2, mlomethod, nskip, ix, fff1, eferm, ecbot)
     open(newunit=ifs,file='SigRsMLO',form='unformatted',status='old',action='read')
     read(ifs) ndimMTO, npairmx, nspx, nbas
     if(ndimMTO /= nd2) call rx('m_sigmlo: SigRsMLO and __mloindex disagree on ndimMTO')
