@@ -138,6 +138,17 @@ else:
     patterns = [*flist, 'atmpnu*']; copy_files(*patterns, dest_dir=rundir)
     remove_files(f'__mixm*{target}*')
 
+## Structure-only GW setup, hoisted out of the iteration loop.
+##   lmf --jobgw=0 calls m_hamindex0_init() and exits (main_lmf.f90:95) -> HAMindex0,
+##   which depends on the structure and the basis, not on the density or sigm.
+##   qg4gw --job=1 turns that plus the q mesh and the cutoffs into QGpsi/QGcou.
+## Nothing in the loop deletes them, so once is enough.
+## (NB `gwsc 1` x N is NOT identical to `gwsc N` regardless: each invocation re-runs
+##  the "initial band structure" lmf when a sigm is already present.  That is gwsc's
+##  normal behaviour, not an artefact of this hoisting.)
+run_cmd(cluster, MPIParams(command=EXEC_DIR/"lmf", args=[target, "--jobgw=0", *options], **mpi_params_lmf), stdout="llmfgw00")
+run_cmd(cluster, MPIParams(command=EXEC_DIR/"qg4gw", args=[target, "--job=1", *options], **mpi_params_single), stdout="lqg4gw")
+
 ## MLO route: wipe ONLY the files that are rebuilt within every iteration.
 ##   __HamiltonianGW*  : written by lmf --jobgw=1 each iteration; a truncated one from
 ##                       an aborted run once made `mlo` read past EOF.
@@ -171,11 +182,7 @@ if(Iter0!=0): print(f'We found QPU.{Iter0} -->start to generate QPU.{Iter0+1}...
 for i in range(1,nloop+1): #nloop is the additional number of iteration
     niter=i+Iter0
     print(f'===== QSGW iteration start iter {niter} ===',flush=True)
-    #gw initialize.  These stay INSIDE the loop: hoisting them made `gwsc 1` twice
-    #differ from `gwsc 2` (the latter then ran them once and converged to a different,
-    #lower-moment state for NiO).  Whatever they carry is not purely structural.
-    run_cmd(cluster, MPIParams(command=EXEC_DIR/"lmf", args=[target, "--jobgw=0", *options], **mpi_params_lmf), stdout="llmfgw00")
-    run_cmd(cluster, MPIParams(command=EXEC_DIR/"qg4gw", args=[target, "--job=1", *options], **mpi_params_single), stdout="lqg4gw")
+    #gw initialize (only --jobgw=1; the structure-only part is above the loop)
     run_cmd(cluster, MPIParams(command=EXEC_DIR/"lmf", args=[target, "--jobgw=1", *options], **mpi_params_lmf), stdout="llmfgw01")
 
     ## (step a' -- __cmlo.data -- is done inside lmf --jobgw=1 above, see sugw.f90)
