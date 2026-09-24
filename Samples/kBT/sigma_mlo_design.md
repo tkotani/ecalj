@@ -67,11 +67,11 @@ $n_k^3 = 216$ セル分の実空間自由度を持たせている。しかも MT
 |---|---|---|
 | $\chi^{\rm PMT}_m$ | **PMT 基底関数**（MTO + APW） | $m = 1\ldots n_{\rm dimh}$、**APW の本数は $k$ に依存** |
 | $\chi^{\rm MTO}_\mu$ | その MTO 部分（**下付き = 共変**） | $\mu = 1\ldots L$（`ldim` = 230）、**$k$ 非依存** |
-| $\chi_{\rm MTO}^{\mu}$ | その**双対（反変）基底**、$\langle\chi_{\rm MTO}^{\mu}|\chi^{\rm MTO}_\nu\rangle=\delta^\mu_\nu$ | 上付きで区別 |
+| $\chi_{\rm MTO}^{\mu}$ | その**双対（反変）基底**、$\langle\chi_{\rm MTO}^{\mu}\mid\chi^{\rm MTO}_\nu\rangle=\delta^\mu_\nu$ | 上付きで区別 |
 | $\chi^{\rm MTO}_{ix(k)}$ | **MLO の種**。`ix(k)` 番目の MTO 基底関数（固定） | 新しい記号は要らない |
 | $\tilde\chi_k = P\,\chi^{\rm MTO}_{ix(k)}$ | **MLO**（コードの `F^MLO`）。band 多様体への射影 | $k = 1\ldots M$（`ndimMTO` = 154） |
 | $\psi^{\rm PMT}_i$ | **固有関数**（基底ではない） | |
-| `cmlo`$_{ik} = \langle \psi^{\rm PMT}_i|\tilde\chi_k\rangle$ | MLO の**固有関数**基底での係数 | |
+| `cmlo`$_{ik} = \langle \psi^{\rm PMT}_i\mid\tilde\chi_k\rangle$ | MLO の**固有関数**基底での係数 | |
 | `zMLO`$_{mk}$ | MLO の **PMT 基底**での係数、$\tilde\chi_k=\sum_m \chi^{\rm PMT}_m z^{\rm MLO}_{mk}$ | $(n_{\rm dimh}, M)$ |
 | $P_a$ | **PAW（augmentation）チャネル** φ, φ̇ | $a = 1\ldots N_a$（`ndima` = 700）、**$k$ 非依存** |
 | $B_{am}(k)$ | PMT 基底関数の augmentation 係数 | lmf が任意 $k$ で厳密に作る |
@@ -264,9 +264,9 @@ MLO を重ねる場合（§3.6）だけ、直前の反復の `zMLO` を使う（
 
 | # | 何を | 合格の目安 |
 |---|---|---|
-| 1 | **$\Sigma^{\rm PAW}(R)$ の減衰** … $\|\Sigma(R)\|$ vs $\|R\|$ をチャネル別に | MTO 表現（09-24 の測定）より速く減衰。BvK セル端で頭打ちしない |
+| 1 | **$\Sigma^{\rm PAW}(R)$ の減衰** … $\Vert\Sigma(R)\Vert$ vs $\Vert R\Vert$ をチャネル別に | MTO 表現（09-24 の測定）より速く減衰。BvK セル端で頭打ちしない |
 | 2 | **次元の切り詰め** … l の上限を 4/3/2 と変えて $\Sigma$ の値と荒れを見る | 値が動かない範囲で最小の l |
-| 3 | **メッシュ点での厳密性** … §3.5 の $\Sigma^{\rm PMT}(k)$ を q メッシュ点で元と比較 | バンドで 1 meV 以内 |
+| 3 | **メッシュ点での厳密性** … §3.3(3) の $\Sigma^{\rm PMT}(k)$ を q メッシュ点で元と比較 | バンドで 1 meV 以内 |
 | 4 | **補間の滑らかさ** … Γ–X 211 点の残差 rms | 従来 9.8 meV → 6 meV 以下 |
 | 5 | **反復の安定性** … 6³ で 10 反復 | 収束解が従来と数 meV 以内、占有 t2g のさざ波が成長しない |
 | 6 | **他の系での回帰** … Si, NiO, Fe（TestInstall） | 既定（`sigma_mlo` 無効）で完全一致 |
