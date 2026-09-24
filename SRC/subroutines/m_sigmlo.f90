@@ -12,7 +12,7 @@ module m_sigmlo
   use m_lgunit,only: stdo
   use m_ftox
   implicit none
-  public :: sigmlo_init, sigmlo_senex, sigmlo_on, read_mloindex
+  public :: sigmlo_init, sigmlo_senex, sigmlo_on, read_mloindex, zmlo_frozen
   logical, protected :: sigmlo_on = .false.
   private
   integer :: ndimMTO=0, npairmx=0, nspx=0, nbas=0, mlomethod=4, nskip=0
@@ -20,6 +20,16 @@ module m_sigmlo
   real(8) :: plat(3,3), fff1=2d0, eferm=0d0, ecbot=0d0
   complex(8), allocatable :: sigmlor(:,:,:,:)   !(npairmx, ndimMTO, ndimMTO, nspx)
   logical :: init = .true.
+  !--- chi~ cache.  Sigma^MLO(R) is a matrix IN the chi~ basis, so chi~ must not move
+  !    while that matrix is being used.  Rebuilding z^MLO from the current H^LDA at every
+  !    SCF step makes it move (NiO: 1.4-1.9 % between the LDA and the QSGW density), and
+  !    Sigma then gets re-read in a rotating basis.  Cache per (q,isp) and reuse.
+  !    ECALJ_MLO_NOCACHE=1 restores the old per-call rebuild.
+  integer :: nzc = 0
+  real(8), allocatable :: qzc(:,:)
+  integer, allocatable :: ispzc(:)
+  complex(8), allocatable :: zcache(:,:,:)
+  logical :: nocache = .false., cfirst = .true.
 contains
   !> The MLO index lives in the trailing records of HamRsMLO (not in a __-prefixed
   !> file, which cleargw would delete).  Skip the four data records, then read it.
@@ -67,10 +77,101 @@ contains
     allocate(ib_tableM(ndimMTO)); read(ifs) ib_tableM, ix
     close(ifs)
     call set_bandedge(eferm, ecbot)   !Hreduction reads these for the MLO window
+    call zmlo_ref_load()
     sigmlo_on = .true.
     write(stdo,ftox)' m_sigmlo: MLO Sigma interpolation ON. ndimMTO nskip=',ndimMTO,nskip, &
          ' |Sigma(R)|=',ftof(sum(abs(sigmlor)))
   end subroutine sigmlo_init
+
+  !> Return the frozen z^MLO(q,isp) if ZmloRef has it; ok=.false. otherwise.  sugw's step
+  !> a' must build Sigma^MLO in the SAME chi~ that getsenex will use it in.
+  subroutine zmlo_frozen(q0, isp0, nm, nmlo_out, z0, ok)
+    real(8),intent(in):: q0(3)
+    integer,intent(in):: isp0, nm
+    integer,intent(out):: nmlo_out
+    complex(8),intent(out):: z0(nm,*)
+    logical,intent(out):: ok
+    integer:: jc
+    ok=.false.; nmlo_out=ndimMTO
+    if(nocache) return
+    do jc=1,nzc
+      if(ispzc(jc)==isp0 .and. sum(abs(qzc(:,jc)-q0))<1d-8 .and. size(zcache,1)>=nm) then
+        z0(1:nm,1:ndimMTO) = zcache(1:nm,1:ndimMTO,jc); ok=.true.; return
+      endif
+    enddo
+  end subroutine zmlo_frozen
+
+  !> ZmloRef: chi~ persisted across the whole chain.  The SCF k mesh and the GW q list are
+  !> the same at every iteration, so storing z^MLO for the k we meet freezes chi~ exactly
+  !> (design 4.1).  No __ prefix: cleargw must not delete it.  Delete it by hand to
+  !> redefine the model.  ECALJ_MLO_NOCACHE=1 disables both the cache and this file.
+  subroutine zmlo_ref_load()
+    integer:: ifz, nd, nm, isp0, ios, n
+    real(8):: q0(3)
+    complex(8),allocatable:: z0(:,:)
+    logical:: lex
+    inquire(file='ZmloRef',exist=lex)
+    if(.not.lex) return
+    open(newunit=ifz,file='ZmloRef',form='unformatted',status='old',action='read')
+    read(ifz,iostat=ios) nd
+    if(ios/=0 .or. nd/=ndimMTO) then
+      close(ifz)
+      if(nd/=ndimMTO) write(stdo,ftox)' m_sigmlo: ZmloRef has ndimMTO=',nd,' /= ',ndimMTO,' -> ignored'
+      return
+    endif
+    n=0
+    do
+      read(ifz,iostat=ios) q0, isp0, nm
+      if(ios/=0) exit
+      allocate(z0(nm,ndimMTO))
+      read(ifz,iostat=ios) z0
+      if(ios/=0) then; deallocate(z0); exit; endif
+      call cache_put(q0, isp0, nm, z0)
+      deallocate(z0); n=n+1
+    enddo
+    close(ifz)
+    write(stdo,ftox)' m_sigmlo: loaded ZmloRef (frozen chi~), records=',n
+  end subroutine zmlo_ref_load
+
+  subroutine zmlo_ref_append(q0, isp0, nm, z0)
+    real(8),intent(in):: q0(3)
+    integer,intent(in):: isp0, nm
+    complex(8),intent(in):: z0(nm,ndimMTO)
+    integer:: ifz
+    logical:: lex
+    inquire(file='ZmloRef',exist=lex)
+    if(lex) then
+      open(newunit=ifz,file='ZmloRef',form='unformatted',position='append')
+    else
+      open(newunit=ifz,file='ZmloRef',form='unformatted')
+      write(ifz) ndimMTO
+    endif
+    write(ifz) q0, isp0, nm
+    write(ifz) z0
+    close(ifz)
+  end subroutine zmlo_ref_append
+
+  subroutine cache_put(q0, isp0, nm, z0)
+    real(8),intent(in):: q0(3)
+    integer,intent(in):: isp0, nm
+    complex(8),intent(in):: z0(nm,ndimMTO)
+    complex(8),allocatable:: zt(:,:,:)
+    real(8),allocatable:: qt(:,:)
+    integer,allocatable:: it(:)
+    integer:: ld
+    if(nzc==0) then
+      allocate(zcache(nm,ndimMTO,1), qzc(3,1), ispzc(1))
+      zcache(:,:,1)=z0; qzc(:,1)=q0; ispzc(1)=isp0; nzc=1
+    else
+      ld=max(nm,size(zcache,1))
+      allocate(zt(ld,ndimMTO,nzc+1), source=(0d0,0d0))
+      allocate(qt(3,nzc+1)); allocate(it(nzc+1))
+      zt(1:size(zcache,1),:,1:nzc)=zcache; qt(:,1:nzc)=qzc; it(1:nzc)=ispzc
+      zt(1:nm,:,nzc+1)=z0; qt(:,nzc+1)=q0; it(nzc+1)=isp0
+      call move_alloc(zt,zcache); call move_alloc(qt,qzc); call move_alloc(it,ispzc)
+      nzc=nzc+1
+    endif
+  end subroutine cache_put
 
   !> senex(ndimh,ndimh) = the PMT matrix element of Sigma, eq (14).
   subroutine sigmlo_senex(qp, isp, ndimh, ovlm, hamm, senex)
@@ -135,11 +236,52 @@ contains
         endif
       endif
     endblock RoundTripCheck
-    allocate(hl(ndimh,ndimh),ol(ndimh,ndimh),zm(ndimh,ndimMTO))
-    hl = hamm; ol = ovlm                       !Hreduction may modify its arguments
-    call Hreduction(mlomethod,.false.,ndimh, hl, ol, ndimMTO, ix, fff1, &
-         hmo, omo, qp, nev=nxq, zMLO=zm, nskip_auto=nskip)
-    deallocate(hl,ol)
+    allocate(zm(ndimh,ndimMTO))
+    ChiTildeCache: block
+      character(32):: cv
+      integer:: st, ic, jc
+      complex(8),allocatable:: zt(:,:,:)
+      real(8),allocatable:: qt(:,:)
+      integer,allocatable:: it(:)
+      if(cfirst) then
+        cfirst=.false.
+        call get_environment_variable('ECALJ_MLO_NOCACHE',cv,status=st)
+        nocache = (st==0 .and. len_trim(cv)>0)
+        if(nocache) write(stdo,ftox)' m_sigmlo: chi~ cache DISABLED (ECALJ_MLO_NOCACHE)'
+      endif
+      ic = 0
+      if(.not.nocache) then
+        do jc = 1, nzc
+          if(ispzc(jc)==isp .and. sum(abs(qzc(:,jc)-qp))<1d-8 .and. size(zcache,1)>=ndimh) then
+            ic = jc; exit
+          endif
+        enddo
+      endif
+      if(ic>0) then
+        zm = zcache(1:ndimh,1:ndimMTO,ic)          !chi~ frozen: reuse
+      else
+        block
+          complex(8):: hl(ndimh,ndimh), ol(ndimh,ndimh)
+          hl = hamm; ol = ovlm                     !Hreduction may modify its arguments
+          call Hreduction(mlomethod,.false.,ndimh, hl, ol, ndimMTO, ix, fff1, &
+               hmo, omo, qp, nev=nxq, zMLO=zm, nskip_auto=nskip)
+        endblock
+        if(.not.nocache) then                      !append to the cache
+          if(nzc==0) then
+            allocate(zcache(ndimh,ndimMTO,1), qzc(3,1), ispzc(1))
+            zcache(:,:,1)=zm; qzc(:,1)=qp; ispzc(1)=isp; nzc=1
+          else
+            allocate(zt(max(ndimh,size(zcache,1)),ndimMTO,nzc+1), source=(0d0,0d0))
+            allocate(qt(3,nzc+1)); allocate(it(nzc+1))
+            zt(1:size(zcache,1),:,1:nzc)=zcache; qt(:,1:nzc)=qzc; it(1:nzc)=ispzc
+            zt(1:ndimh,:,nzc+1)=zm; qt(:,nzc+1)=qp; it(nzc+1)=isp
+            call move_alloc(zt,zcache); call move_alloc(qt,qzc); call move_alloc(it,ispzc)
+            nzc=nzc+1
+          endif
+          call zmlo_ref_append(qp, isp, ndimh, zm)   !keep chi~ for the whole chain
+        endif
+      endif
+    endblock ChiTildeCache
     ZmloDump: block !ECALJ_ZMLO_DUMP=1: write z^MLO(k) so it can be compared with the one
       !that sugw's step a' built at the same q.  They must be identical: both are
       !Hreduction(H^LDA(q), S^PMT(q)) with the same frozen index.

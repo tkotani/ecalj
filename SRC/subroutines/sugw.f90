@@ -519,8 +519,16 @@ contains
             complex(8):: hmo(ndimMTO_a,ndimMTO_a), omo(ndimMTO_a,ndimMTO_a)
             complex(8), allocatable :: zm(:,:), sz(:,:)
             allocate(zm(ndimhx,ndimMTO_a))
-            call Hreduction(mlomethod_a,.false.,ndimhx, hamm_lda(:,1,:,1), ovlm_keep(:,1,:,1), &
-                 ndimMTO_a, ix_a, fff1_a, hmo, omo, qp, nev=nxq, zMLO=zm, nskip_auto=nskip_a)
+            UseFrozenChi: block !take the chi~ that getsenex will use, if it is already fixed
+              use m_sigmlo,only: sigmlo_init, zmlo_frozen
+              integer:: nmo
+              logical:: okz
+              call sigmlo_init()
+              call zmlo_frozen(qp, isp, ndimhx, nmo, zm, okz)
+              if(.not.okz) &
+                call Hreduction(mlomethod_a,.false.,ndimhx, hamm_lda(:,1,:,1), ovlm_keep(:,1,:,1), &
+                     ndimMTO_a, ix_a, fff1_a, hmo, omo, qp, nev=nxq, zMLO=zm, nskip_auto=nskip_a)
+            endblock UseFrozenChi
             ZmloDumpA: block !ECALJ_ZMLO_DUMP=1: the a' side of the same comparison
               character(32):: cv
               integer:: st, ifz
