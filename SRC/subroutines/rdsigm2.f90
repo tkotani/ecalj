@@ -48,6 +48,33 @@ contains
         sene = (0d0,0d0)            !sene is only a diagnostic dump in this route
         allocate(senex(ndimh,ndimh))
         call sigmlo_senex(qp, isp, ndimh, ovlm, hamm, senex)
+        CheckAgainstMTO: block !ECALJ_SIGMLO_CHECK=1: also build the conventional senex
+          use m_lgunit,only: stdo
+          !and report max|difference| per q.  This shows whether a particular q (e.g. an
+          !report max|difference| per q.  This is how to see whether a particular q (e.g. an
+          !offset-Gamma point) is where the MLO route goes wrong.
+          character(32):: cval2
+          integer:: stat2
+          logical,save:: chk=.false., chkfirst=.true.
+          complex(8),allocatable:: senex_mto(:,:),ovi(:,:),oio(:,:)
+          if(chkfirst) then
+            chkfirst=.false.
+            call get_environment_variable('ECALJ_SIGMLO_CHECK',cval2,status=stat2)
+            chk = (stat2==0 .and. len_trim(cval2)>0)
+          endif
+          if(chk) then
+            call bloch2(qp,ispsigm,sene)
+            allocate(ovi(ndimsig,ndimsig),oio(ndimsig,ndimh),senex_mto(ndimh,ndimh))
+            ovi = ovlm(1:ndimsig,1:ndimsig)
+            call matcinv(ndimsig,ovi)
+            oio = matmul(ovi,ovlm(1:ndimsig,1:ndimh))
+            senex_mto = matmul(transpose(dconjg(oio)), matmul(sene,oio))
+            write(stdo,"(a,3f9.5,a,f12.3,a,f12.3)")' SIGMLO_CHECK q=',qp, &
+                 '  max|MLO-MTO|[meV]=', maxval(abs(senex-senex_mto))*13605.7d0, &
+                 '   max|MTO|[meV]=',    maxval(abs(senex_mto))*13605.7d0
+            deallocate(ovi,oio,senex_mto)
+          endif
+        endblock CheckAgainstMTO
         call tcx('getsenex')
         return
       endif
