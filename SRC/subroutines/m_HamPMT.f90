@@ -14,7 +14,7 @@ module m_HamPMT
                         tg_worb3_lm => worb3_lm, tg_worb3_nlm => worb3_nlm
    use m_hreduction,only: hreduction, hreduction_nskip
    use m_nvfortran, only: findloc
-   use m_cmdopt_registry, only: c0_mlo, c0_skip1d, c0_skip2nd, c0_skip2ndd, c0_skip2ndp, c0_skip2nds, c0_skipd, c0_skipf, c0_skiplo, c0_socmatrix
+   use m_cmdopt_registry, only: c0_mlo, c0_mlofreeze, c0_skip1d, c0_skip2nd, c0_skip2ndd, c0_skip2ndp, c0_skip2nds, c0_skipd, c0_skipf, c0_skiplo, c0_socmatrix
    real(8),external::tolq !eps=1d-8
    real(8),allocatable,protected:: plat(:,:),pos(:,:),qlat(:,:),symops(:,:,:)
    real(8),allocatable,protected,target:: qplist(:,:)
@@ -134,8 +134,8 @@ contains
       integer,allocatable::ndimPMTq(:), iqproc(:),isproc(:)
       logical,allocatable:: lqibz(:)
       logical::debug=.true.
-      logical:: socmatrix, lcmlo_legacy
-      integer:: io
+      logical:: socmatrix, lcmlo_legacy, lfrozen=.false.
+      integer:: io, nskip_frozen=-1
       socmatrix=c0_socmatrix
       ReadInfoFromGWinput: block ! Input orbital index for MLO (mlo_lm, formerly Worb), stored into idmto (s,p,d=1,2,3,4,5,6,7,8,9)
         ! gwinput_init() aborts if ctrlg.<sname>.toml is missing, so gwinput_loaded
@@ -343,6 +343,31 @@ contains
       endblock ReadInfoFromGWinput
       ndimMTO=nn
       if(lso==1) ndimMTO=nn*2 !L.S mode
+      FrozenModel: block !design 4.1: chi~ is defined ONCE per chain.
+        !HamRsMLO already there -> this is a later iteration.  Take the frozen window
+        !(nskip, eferm, ecbot) from its trailing records and do NOT rewrite the file,
+        !so every iteration of the chain uses the same chi~.
+        use m_readqplist,only: set_bandedge
+        integer:: nd,ld,mm,nsk,ifh,n1,n2,n3
+        integer,allocatable:: ixf(:)
+        real(8):: f1,ef,ec
+        inquire(file='HamRsMLO',exist=lfrozen)
+        lfrozen = lfrozen .and. c0_mlofreeze   !explicit: the driver says so (gwsc passes --mlofreeze)
+        if(c0_mlofreeze .and. .not.lfrozen) call rx('m_HamPMT: --mlofreeze given but HamRsMLO is not there')
+        if(lfrozen) then
+          open(newunit=ifh,file='HamRsMLO',form='unformatted',status='old',action='read')
+          read(ifh) n1,n2,n3
+          read(ifh); if(socmatrix) read(ifh); read(ifh); read(ifh)
+          read(ifh) nd,ld,mm,nsk
+          allocate(ixf(nd)); read(ifh) ixf
+          read(ifh) f1,ef,ec
+          close(ifh)
+          if(nd/=ndimMTO) call rx('m_HamPMT: HamRsMLO has a different ndimMTO; delete it to redefine the model')
+          nskip_frozen = nsk
+          call set_bandedge(ef, ec)
+          if(master_mpi) write(stdo,ftox)' m_HamPMT: HamRsMLO exists -> frozen model. nskip eferm ecbot=',nsk,ftof(ef),ftof(ec)
+        endif
+      endblock FrozenModel
       nMTO=ldim
       nspx=nsp
       if(lso==1) nspx=1
@@ -535,6 +560,7 @@ contains
           call MPI_Allreduce(etop, etop_all, nbchk, MPI_DOUBLE_PRECISION, MPI_MAX, MPI_COMM_WORLD, ierr)
           call MPI_Allreduce(ebot, ebot_all, nbchk, MPI_DOUBLE_PRECISION, MPI_MIN, MPI_COMM_WORLD, ierr)
           if(master_mpi) call report_nskip_gap(nskip_global, nsemicore, nbchk, etop_all, ebot_all)
+          if(lfrozen) nskip_global = nskip_frozen !keep the value the chain started with
         endblock NskipPrepass
         iqiloop: do iqxx=1,nqibz !nqibz !xx=1,nqibz !iqini,iqend !iqxx=1,nqibz 
            if(debug)write(6,*)' start iqiloop=',iqxx,nqibz
@@ -716,7 +742,8 @@ contains
       if(lsigmlo) call mpibc2_complex(sigmlor,size(sigmlor),'m_HamPMT_sigmlor')
       call mpibc2_complex(ovlmr,size(ovlmr),'m_HamPMT_ovlmr') !to master
       if(socmatrix) call mpibc2_complex(hammhsor,size(hammhsor),'m_HamPMT_hammhsor') !to master
-      if(master_mpi) then ! write RealSpace MTO Hamiltonian          !ix(1:ndimMTO)=ix1(1:ndimMTO) !for atom idex
+      if(master_mpi .and. lfrozen) write(stdo,ftox)' m_HamPMT: HamRsMLO kept (frozen chi~); only SigRsMLO is (re)written'
+      if(master_mpi .and. .not.lfrozen) then ! write RealSpace MTO Hamiltonian
         write(stdo,*)' Writing HamRsMLO... ndimMTO=',ndimMTO
         open(newunit=ifihmto,file='HamRsMLO',form='unformatted')
         write(ifihmto) ndimMTO,npairmx,nspx
@@ -740,6 +767,8 @@ contains
         endblock MloIndexRecords
         close(ifihmto)
         write(stdo,*)" Wrote HamRsMLO file! End of lmfham1"
+      endif
+      if(master_mpi) then
         if(lsigmlo) then !self-contained: getsenex Bloch-sums this without m_HamPMT
           open(newunit=ifihmto,file='SigRsMLO',form='unformatted')
           write(ifihmto) ndimMTO,npairmx,nspx,nbas

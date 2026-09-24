@@ -121,6 +121,7 @@ module m_cmdopt_registry
   logical, public, protected, save :: c0_listcmdopt      = .false.  ! dump registered cmdopts and exit (for bash completion)
   logical, public, protected, save :: c0_mkprocar        = .false.
   logical, public, protected, save :: c0_mlo             = .false.
+  logical, public, protected, save :: c0_mlofreeze       = .false.  ! keep the existing HamRsMLO (chi~ frozen for the chain); only (re)write SigRsMLO
   logical, public, protected, save :: c0_mlo_diagnorm    = .false.
   logical, public, protected, save :: c0_mlo_feb4        = .false.
   logical, public, protected, save :: c0_mlo_ortho       = .false.
@@ -408,6 +409,7 @@ contains
     call set0('--listcmdopt',     c0_listcmdopt, narg, arglist)
     call set0('--mkprocar',       c0_mkprocar, narg, arglist)
     call set0('--mlo',            c0_mlo, narg, arglist)
+    call set0('--mlofreeze',      c0_mlofreeze, narg, arglist)
     call set0('--mlo_diagnorm',   c0_mlo_diagnorm, narg, arglist)
     call set0('--mlo_feb4',       c0_mlo_feb4, narg, arglist)
     call set0('--mlo_ortho',      c0_mlo_ortho, narg, arglist)
