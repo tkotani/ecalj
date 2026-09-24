@@ -392,7 +392,12 @@ contains
       !first pass (step 0d, before any --jobgw=1) there is none and we skip it.
       block
         logical:: lhgw
-        inquire(file='__HamiltonianGW.info',exist=lhgw)
+        integer:: nbyte
+        !NB: the open below has no status='old', so a failed earlier run leaves an EMPTY
+        !__HamiltonianGW.info behind; exist= alone is not enough, check the size too.
+        nbyte = 0
+        inquire(file='__HamiltonianGW.info',exist=lhgw,size=nbyte)
+        lhgw = lhgw .and. nbyte > 0
         if(c0_mlo .and. .not.lhgw .and. master_mpi) &
              write(stdo,ftox)' m_HamPMT: no __HamiltonianGW.info -> skip the legacy cmlo block (sugw does it)'
         lcmlo_legacy = c0_mlo .and. lhgw
@@ -407,7 +412,7 @@ contains
           complex(8), allocatable :: ovlmp(:,:), hammp(:,:), cmlo(:,:) !in PMT basis max size array
           ! complex(8), allocatable :: ovlm_(nbandmx,nbandmx), hamm_(nbandmx,nbandmx), cmlo(nbandmx,ndimMTO)
           !for sugw output for GWinput to get zcplz for q point in qg4gw.
-          open(newunit=ifihh_info, file='__HamiltonianGW.info', form='unformatted')
+          open(newunit=ifihh_info, file='__HamiltonianGW.info', form='unformatted', status='old')
           read(ifihh_info) nqirr, nbandmx, nqbzgw, mrech
           allocate(qplistgw(3,nqirr))
           read(ifihh_info) qplistgw(1:3,1:nqirr)
