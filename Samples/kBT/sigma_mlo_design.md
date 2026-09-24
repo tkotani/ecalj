@@ -366,11 +366,17 @@ MTO では制御できない（§7 の付録）のに対し MLO では窓で制�
 | 挟む行列 | `ovliovl` $=\big[(O^{\rm MTO})^{-1}S^{\rm PMT}\big]$ ← 引数 `ovlm` から作る | $\big[(O^{\rm MLO})^{-1}A^\dagger\big]$、$A = S^{\rm PMT}(q)\,z^{\rm MLO}(q)$（式 (15)） |
 | 出力 | `senex(ndimh,ndimh)` | 同じ |
 
-インタフェースは変わらない。呼び出し元（`m_bandcal.f90` = 通常モード、`sugw.f90` = **GW ドライバモード**）は
-無改造で、**バンドも密度も、GW へ渡す固有関数も、同時に同じ MLO 内挿になる**。
-両モードで処方が揃うことは反復の整合に必須である（§3.2.4）。
+出力 `senex(ndimh,ndimh)` は同じなので、呼び出し元の**論理**は変わらない。
+ただし現行の引数は `getsenex(qp,isp,ndimh,ovlm)` で **`hamm` を受け取っていない**ので、
+$z^{\rm MLO}(k)$ を作るために **`hamm` を 1 つ足す**必要がある:
 
-新規に要る入力は $z^{\rm MLO}(q)$ ただ 1 つ。$S^{\rm PMT}(q)$ は既に引数 `ovlm` で渡っている。
+```
+call getsenex(qp, isp, ndimh, ovlm, hamm)   ! hamm = H^LDA(k)、4 箇所とも呼び出し時点で手元にある
+```
+
+呼び出しは `m_bandcal.f90`:198,210（通常モード）と `sugw.f90`:429,440（**GW ドライバモード**）の 4 箇所。
+どちらのモードも同じ `getsenex` を通るので、**バンドも密度も、GW へ渡す固有関数も、同時に同じ MLO 内挿になる**。
+両モードで処方が揃うことは反復の整合に必須である（§3.2.4）。
 
 以下、そこへ至る段を並べる。段 3 は lmf に手を入れずに数字を先に見るための**試験台**で、
 本体は段 4 である。
@@ -430,12 +436,27 @@ $O^{\rm MLO}(k)$ は既に同じ場所で作られている。$\Sigma$ を PMT �
 有効時、§4.0 の表のとおり `bloch2` と `ovliovl` を差し替える。任意 $k$ で要るのは
 式 (15) の $A(k) = S^{\rm PMT}(k)\,z^{\rm MLO}(k)$ と $O^{\rm MLO}(k)$ の 2 つだけ。
 
-- $z^{\rm MLO}(k)$ … **内挿しない**。その場で `Hreduction(...,hamm,ovlm,...,zMLO)` を呼ぶ。
-  引数 `hamm` = $H^{\rm LDA}(k)$、`ovlm` = $S^{\rm PMT}(k)$ は既にその場にある（§3.2.4）。
-  **offset-Γ を含む任意 $k$ で通る。** $k$ あたり対角化 2 回分の追加コスト。
-- **循環の断ち方**: MLO は $H^{\rm LDA}$ から作る（`getsenex` 突入時点で確定）。
-  メッシュ点の `cmlo` も同じく LDA 由来（段 1'）。窓の大域量は `__cmlo.info` の凍結値を使う。
-- $O^{\rm MLO}(k) = (z^{\rm MLO})^\dagger S^{\rm PMT}(k) z^{\rm MLO}$ を同じ場所で作る。
+**$z^{\rm MLO}(k)$ の作り直し手順**（内挿しない。その $k$ でゼロから作る）:
+
+1. `__cmlo.info` から **種のリスト `ix(1:ndimMTO)`、`mlomethod`、凍結した窓**
+   （`nskip`, $\varepsilon_{\rm cbot}$, $E_F$）を読む。**その場で決め直さない。**
+   `Hreduction` は `m_readqplist` の `eferm`, `ecbot` を見るので、そこへ凍結値を入れる。
+2. その $k$ で `Hreduction(mlomethod, iprx, ndimh, hamm, ovlm, ndimMTO, ix, fff1, hammout, ovlmout, qp, cmlo, nev, zMLO, nskip)` を呼ぶ。
+   中でやっていること:
+   1. $H^{\rm LDA}(k)\,c=\varepsilon\,S^{\rm PMT}(k)\,c$ を解く → $\psi^{\rm PMT}_i(k)$, $\varepsilon_i(k)$（`evecpmt`）
+   2. MTO ブロックだけを対角化 → $\psi^{\rm MTO}_j(k)$, $\varepsilon^{\rm MTO}_j(k)$（`evecmto`）
+   3. 重なり `fac`$_{ij}=\langle\psi^{\rm PMT}_i\mid\psi^{\rm MTO}_j\rangle$ と窓の重み $\bar\theta_{ij}$ を作り
+      `Amat` $=$ `fac` $\times\bar\theta$（$i\le$ `nskip` はゼロ）
+   4. `cmlo` $=$ `Amat` $\cdot$ `evecmto`$^\dagger\,S^{\rm MTO}[ix,ix]$
+   5. `zMLO` $=$ `evecpmt(:,1:nx)` $\cdot$ `cmlo`
+3. $A(k) = $ `ovlm` $\cdot$ `zMLO`、$O^{\rm MLO}(k) = $ `zMLO`$^\dagger A$（式 (15)）。
+4. 式 (14) で `senex` を組む。
+
+**offset-Γ を含む任意 $k$ で通る**（$\mathrm{FFT}[z]$ を使わないので APW の本数が $k$ 依存でも構わない）。
+**循環しない**: MLO は $H^{\rm LDA}$ から作るので、`getsenex` 突入時点で入力が揃っている。
+メッシュ点の `cmlo` も同じく LDA 由来にすること（段 1'）。
+**コスト**: 2-1 と 2-2 で $k$ あたり対角化 2 回分。
+
 - `mlo_nkabc = n1n2n3` を必須にする。
 
 ## 5. 検証手順
