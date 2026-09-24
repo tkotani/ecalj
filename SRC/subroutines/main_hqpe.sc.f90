@@ -24,7 +24,7 @@ contains
     use m_mpi,only: MPI__Initialize, mpi__rank
     use m_genallcf_v3,only: genallcf_v3, nband_gw=>nband; use m_struct_from_lmf,only: laf, nmto=>nlmto, nspin
     use m_mpiio, only: openm, closem, mpiio_buf, buf_get, readm_buf
-    use m_mlo_wfs,only: cmlo_init, get_cmlo, nmlo
+    use m_mlo_wfs,only: cmlo_init, get_cmlo_qirr, nmlo
     !    use m_readefermi,only: readefermi,ef
     implicit none
     integer:: ifsex(2),ifsexcore(2),ifxc(2),ifsec(2),ifqpe(2),ifsex2(2),ifsexcore2(2),ifsec2(2) !,iftote(2),iftote2(2)
@@ -277,10 +277,12 @@ contains
         SigmaMLO: if(lmlo) then !eq.(11) of sigma_mlo_design.md: Sigma^MLO = cmlo^dag Sigma^psi cmlo
           block
             integer:: nxx,nvv
+            logical:: okq
             nxx = min(ntqxx(ip),nband_gw)
             nvv = min(nevv,      nband_gw) !bands above nxx are extrapolated by eseavrmean
             allocate(cmloq(nband_gw,nmlo))
-            cmloq = get_cmlo(qqq(1:3,ip,is),is)
+            call get_cmlo_qirr(qqq(1:3,ip,is),is,cmloq,okq)
+            if(.not.okq) call rx('hqpe.sc: q not found in __cmlo (mlo mesh must match n1n2n3)')
             sigmlo(:,:,ip,is) = 2d0*matmul(transpose(dconjg(cmloq(1:nxx,:))), &
                                            matmul(se(1:nxx,1:nxx,ip),cmloq(1:nxx,:))) !in Ry
             if(nvv>nxx) sigmlo(:,:,ip,is) = sigmlo(:,:,ip,is) &

@@ -8,7 +8,7 @@ module m_mlo_wfs
   use m_GWinput,     only: gwinput_init, gwinput_loaded,  tg_KeepCMLO => KeepCMLO
   use m_ftox
   implicit none
-  public :: cmlo_init, get_geig_cmlo, get_cphi_cmlo, get_cmlo
+  public :: cmlo_init, get_geig_cmlo, get_cphi_cmlo, get_cmlo, get_cmlo_qirr
   integer, public, protected :: nmlo, nMTO
   private
   complex(8), allocatable :: cmlo(:,:,:,:)
@@ -99,6 +99,27 @@ contains
     endif
     cphi_cmlo = matmul(cphi, cmlo_ik_is)
   end function get_cphi_cmlo
+
+  !> cmlo at a q that is literally in qplistgw (no symmetry rotation, no m_hamindex needed).
+  !> ok=.false. if q is not on that list. Used by hqpe_sc, which only ever asks for those q.
+  subroutine get_cmlo_qirr(qtarget, isp, cmlo_out, ok)
+    real(8), intent(in) :: qtarget(3)
+    integer, intent(in) :: isp
+    complex(8), intent(out) :: cmlo_out(nband,nmlo)
+    logical, intent(out) :: ok
+    integer :: iq, iqqisp
+    real(8), external :: tolq
+    ok = .false.
+    do iq = 1, nqirr
+      if(sum(abs(qplistgw(:,iq)-qtarget)) < tolq()) then
+        iqqisp = isp + nspx*(iq-1)
+        read(ifile_cmlo, rec=iqqisp) cmlo_out
+        ok = .true.
+        return
+      endif
+    enddo
+    cmlo_out = (0d0,0d0)
+  end subroutine get_cmlo_qirr
 
   subroutine read_cmlo(qtarget, isp, cmlo_out, ovlm_inv)
     use m_rotwave, only: rotmatMTO
