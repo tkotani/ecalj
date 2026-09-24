@@ -1,0 +1,16 @@
+#!/usr/bin/env python3 
+#>mpirun -np 4 pysample
+from setcomm import callF,setcomm
+from mpi4py import MPI
+import sys,os
+# load ecalj and MKL libraries. Return ecalj.foobar and communicator
+ecaljF,rank,size,comm= setcomm("gfortran/lib/libecaljF.so", '/usr/lib/x86_64-linux-gnu/libmkl_rt.so')
+
+# Set path to ctrl2ctrlp.py in m_setcmdpath
+pathctrl2ctrlp = os.path.dirname(os.path.realpath(__file__))
+callF(ecaljF.setcmdpathc,[pathctrl2ctrlp,len(pathctrl2ctrlp)]) 
+# Set args in m_args
+arglist=' '.join(sys.argv[1:])
+callF(ecaljF.m_setargsc,[arglist,len(arglist)]) 
+# Run lmfa
+callF(ecaljF.lmfa)

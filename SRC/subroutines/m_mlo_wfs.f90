@@ -8,7 +8,7 @@ module m_mlo_wfs
   use m_GWinput,     only: gwinput_init, gwinput_loaded,  tg_KeepCMLO => KeepCMLO
   use m_ftox
   implicit none
-  public :: cmlo_init, get_geig_cmlo, get_cphi_cmlo
+  public :: cmlo_init, get_geig_cmlo, get_cphi_cmlo, get_cmlo
   integer, public, protected :: nmlo, nMTO
   private
   complex(8), allocatable :: cmlo(:,:,:,:)

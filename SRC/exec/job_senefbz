@@ -1,0 +1,22 @@
+#!/bin/bash
+echo $0 $@ 
+if [ $# -le 2 ] || [ $2 != "-np" ]; then
+  echo " An example of usage: job_senefbz si -np 4 "
+  echo " This generates sigm_fbz.si. This is only for given nk1,nk2,nk3 in ctrl file."
+  exit
+else
+  MPI_SIZE=$3
+fi
+MATERIAL=$1
+rm -rf wkp.$MATERIAL
+
+n=$0
+nfpgw=${n%/*}
+NO_MPI=0
+
+rm sene.isp*
+mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK $MATERIAL >& llmf_sigmnk
+cat sene.isp* > sigm.$TARGET.nk
+cp sigm.$TARGET.nk sigm.$TARGET
+mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK $MATERIAL --wsig_fbz >& llmf_wsig_fbz
+

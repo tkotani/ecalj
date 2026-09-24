@@ -22,8 +22,9 @@ contains
     use m_read_bzdata, only: Read_bzdata, nstar, nqibz2=>nqibz, nqbz,nqibz,  n1,n2,n3
     use m_hamindex,only: Readhamindex, nhq=>ndham
     use m_mpi,only: MPI__Initialize, mpi__rank
-    use m_genallcf_v3,only: genallcf_v3; use m_struct_from_lmf,only: laf, nmto=>nlmto, nspin
+    use m_genallcf_v3,only: genallcf_v3, nband_gw=>nband; use m_struct_from_lmf,only: laf, nmto=>nlmto, nspin
     use m_mpiio, only: openm, closem, mpiio_buf, buf_get, readm_buf
+    use m_mlo_wfs,only: cmlo_init, get_cmlo, nmlo
     !    use m_readefermi,only: readefermi,ef
     implicit none
     integer:: ifsex(2),ifsexcore(2),ifxc(2),ifsec(2),ifqpe(2),ifsex2(2),ifsexcore2(2),ifsec2(2) !,iftote(2),iftote2(2)
@@ -58,6 +59,10 @@ contains
     integer:: ntq,it,n1x,n2x,n3x,nqx,nspinx,nx
     real(8):: ehf,ehfx,eshift,eshift2,fwhm,exx,elow=1d-2
     real(8) :: wex 
+    !--- Sigma in the MLO representation (design: Samples/kBT/sigma_mlo_design.md, stage 2)
+    logical:: lmlo
+    integer:: ifsigmlo
+    complex(8),allocatable:: cmloq(:,:),sigmlo(:,:,:,:)
     ! call getkeyvalue("GWinput","EXonly",wex,default=0d0,status=ret); exonly = .not.(wex==0d0);  if(exonly) write(6,*)' exonly=T wex=',wex
     call MPI__Initialize()    !this is just for exit routine subroutine rx('...') works well.
     call m_lgunit_init()
@@ -66,6 +71,13 @@ contains
     call read_BZDATA()
     hartree=2d0*rydberg()
     ndimsig= merge(nmto,nhq, mtosigmaonly())
+    InitMLO: block !Sigma^MLO(q) = cmlo^dag (Sigma^psi-Vxc) cmlo. Written in addition to sigm.
+      inquire(file='__cmlo.info',exist=lmlo)
+      if(lmlo) then
+        call cmlo_init()
+        write(stdo,ftox)' hqpe.sc: __cmlo found. Will also write SigmMLO.q  nmlo=',nmlo
+      endif
+    endblock InitMLO
 !!! open files    
     open(newunit=ifxc(1)  , file='XCU')
     open(newunit=ifsex2(1), file='SEX2U',form='UNFORMATTED', status='OLD') !    open(newunit=ifsec(1),file='SECU')
@@ -189,6 +201,7 @@ contains
     allocate(rsec(ntq,nqibz),csec(ntq,nqibz),sec2(ntq,ntq,nqibz))
     allocate(eqp(ntq,nqibz), ntqxx(nqibz))!,eqp2(ntq,nqibz))
     allocate(se(ntq,ntq,nqibz),evec_inv(ldimh,ldimh) ,evec_invt(ldimh,ldimh),ev_se_ev(ndimsig,ndimsig),sed(ntq))
+    if(lmlo) allocate(sigmlo(nmlo,nmlo,nqibz,nspin),source=(0d0,0d0))
     MAINspinloop: do 1001  is = 1,nspin ; write(stdo,ftox) ' --- is=',is
       do 1010 ip = 1,nqibz
         read(ifsex2(is))     isx,qx2,sex2(1:ntq,1:ntq,ip)
@@ -261,6 +274,20 @@ contains
         !write(6,*)'sssssssssssss sumcheck ',sum(abs(sigmv(1:ns2,1:ns2,ip))),ns2,nevv,nz,ntqxx(ip) !,sum(abs(evec_invt(1:nz,1:nevv))),ns2,nevv,nz
         ! Note 2*ev_se_ev bacause v_xc in sugw.f was in rydberg while SE was in hartree
         write(ifsigm) sigmv(:,:,ip)
+        SigmaMLO: if(lmlo) then !eq.(11) of sigma_mlo_design.md: Sigma^MLO = cmlo^dag Sigma^psi cmlo
+          block
+            integer:: nxx,nvv
+            nxx = min(ntqxx(ip),nband_gw)
+            nvv = min(nevv,      nband_gw) !bands above nxx are extrapolated by eseavrmean
+            allocate(cmloq(nband_gw,nmlo))
+            cmloq = get_cmlo(qqq(1:3,ip,is),is)
+            sigmlo(:,:,ip,is) = 2d0*matmul(transpose(dconjg(cmloq(1:nxx,:))), &
+                                           matmul(se(1:nxx,1:nxx,ip),cmloq(1:nxx,:))) !in Ry
+            if(nvv>nxx) sigmlo(:,:,ip,is) = sigmlo(:,:,ip,is) &
+                 + 2d0*eseavrmean*matmul(transpose(dconjg(cmloq(nxx+1:nvv,:))),cmloq(nxx+1:nvv,:))
+            deallocate(cmloq)
+          endblock
+        endif SigmaMLO
 3003  enddo SIGMiploop
       if(laf) exit
       close(ifqpe(is)) !      close(iftote(is))!        close(iftote2(is))
@@ -278,6 +305,15 @@ contains
     rewind ifse_out
     call rwsigma ('write',ifse_out,sigma_m,qqqx_m, nspin,ndimsig,n1,n2,n3,nqibz)
     close(ifse_out)
+    WriteSigmMLO: if(lmlo) then
+      open(newunit=ifsigmlo,file='SigmMLO.q',form='UNFORMATTED')
+      write(ifsigmlo) nmlo,nqibz,nspin,n1,n2,n3
+      write(ifsigmlo) ((qqq(1:3,ip,is),is=1,nspin),ip=1,nqibz)
+      write(ifsigmlo) sigmlo
+      close(ifsigmlo)
+      write(stdo,ftox)' hqpe.sc: wrote SigmMLO.q  nmlo nqibz nspin=',nmlo,nqibz,nspin, &
+           ' |SigmMLO|=',ftof(sum(abs(sigmlo)))
+    endif WriteSigmMLO
     if(mpi__rank==0) write(6,ftox) ' OK! hqpe_sc '
     call mpi_finalize(ierr)
   end subroutine hqpe_sc

@@ -1,0 +1,21 @@
+#!/bin/bash
+echo $0 $@ 
+if [ $# -le 2 ] || [ $2 != "-np" ]; then
+  echo "An example of usage: job_sfbz si -np 4 [options for lmf]"
+  echo " For example, [options for lmf] is ' -vpwemax=4 -vgmax=15 -vxcfun=103'"
+  exit
+else
+  MPI_SIZE=$3
+fi
+MATERIAL=$1
+rm -rf wkp.$MATERIAL
+
+n=$0
+nfpgw=${n%/*}
+NO_MPI=0
+
+rm sene.isp*
+mpirun -np $MPI_SIZE $nfpgw/lmf-MPIK $MATERIAL >&
+cat sene.isp* > sigm.$TARGET.nk
+cp sigm.$TARGET.nk sigm.$TARGET
+
