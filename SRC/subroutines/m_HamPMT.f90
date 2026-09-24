@@ -605,6 +605,7 @@ contains
       endblock HreductionIqibz
       call mpibc2_complex(hammi,size(hammi),'m_HamPMT_hammi') 
       call mpibc2_complex(ovlmi,size(ovlmi),'m_HamPMT_ovlmi') 
+      if(lsigmlo) call mpibc2_complex(sigmloi,size(sigmloi),'m_HamPMT_sigmloi') 
       if(socmatrix) call mpibc2_complex(hammhsoi,size(hammhsoi),'m_HamPMT_hammhsoi') 
 
       call mpibc2_int(ndimPMTq,size(ndimPMTq),'m_HamPMT_ndimPMTq')
