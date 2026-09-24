@@ -12,6 +12,62 @@
 
 （図表の番号は `図 HH:MM-n` / `表 HH:MM-n`。HH:MM はそのエントリの時刻、n はエントリ内の通し番号。エントリの時刻は変わらないので番号は安定する。）
 
+### 2026-09-24 21:15 段 4 実装 — **MLO-QSGW が自己無撞着に回るようになった**（Si で検証）
+
+設計書 [sigma_mlo_design.md](sigma_mlo_design.md) の段 4（`getsenex` の差し替え）を実装し、
+`gwsc` で MLO 内挿の QSGW が最後まで回ることを Si 2³ で確認した。
+
+**実装**（commit `408436715`）
+
+- **`m_sigmlo.f90`（新規）** — `SigRsMLO` と `__mloindex` を読み、任意 $k$ で
+  (1) $\Sigma^{\rm MLO}(k)=\sum_R\Sigma^{\rm MLO}(R)e^{-ikR}$（式 (12)）、
+  (2) $z^{\rm MLO}(k)$ を `Hreduction($H^{\rm LDA}(k),S^{\rm PMT}(k)$)` で**その場で作り直す**（内挿しない、式 (17)）、
+  (3) $A=S^{\rm PMT}z^{\rm MLO}$、$O^{\rm MLO}=z^\dagger A$（式 (15)）、
+  (4) `senex`$=A(O^{\rm MLO})^{-1}\Sigma^{\rm MLO}(k)(O^{\rm MLO})^{-1}A^\dagger$（式 (14)）。
+- **`getsenex(qp,isp,ndimh,ovlm,hamm)`** — `hamm` を追加（呼び出し 4 箇所も更新）。
+  `SigRsMLO` と `__mloindex` があれば MLO 経路、無ければ従来どおり。既定は変わらない。
+- **`SigRsMLO` を自己完結化** — 対リスト（`plat`, `npair`, `nlat`, `nqwgt`, `ib_tableM`, `ix`）を同梱。
+  `getsenex` は `m_HamPMT` の状態に依存しない。
+
+*図 21:15-1* Si 2³、2 反復後の自己無撞着バンド。左＝両者の重ね書き、右＝差。点線が Σ メッシュ点（Γ, X）。
+
+![mloqsgw_si](Si/mloqsgw_si.png)
+
+`Samples/kBT/Si/mloqsgw_si.png`（生成: `Si/mloqsgw_si.py`）
+
+*表 21:15-1* Si 2³、2 反復後
+
+| | 従来 QSGW | **MLO-QSGW**（18 軌道） |
+|---|---|---|
+| $E_F$ | 3.288 eV | 3.259 |
+| $E_{\rm HF}$ | −15729.0750 eV | −15729.1195 |
+| バンド差（b1–8、Γ–X 101 点） | — | 平均 **32.7** meV、最大 **103.8** |
+
+**読み**: 左図では両者はほぼ重なる。差は Σ メッシュ点（Γ, X）でも 0 にならない（b1 で +24 meV）が、
+これは**別の自己無撞着解に収束した**ためで、内挿誤差ではない。
+Si の MLO は 18 軌道（2 Si × spd）で MTO 50 チャネルの部分空間なので、
+この差は MLO 部分空間への射影誤差と見るべき大きさである。
+
+**`gwsc` の構成**（できるだけ反復の外へ出した）
+
+| 反復の外（1 回） | 依存するもの |
+|---|---|
+| `lmf --jobgw=0` | 構造と基底のみ（`m_hamindex0_init()` → `HAMindex0`） |
+| `qg4gw --job=1` | 同上（`QGpsi`/`QGcou`） |
+| `lmf --writeham --mlo` | `HamiltonianPMTInfo` |
+| `mlo --mlo` | `__mloindex`（凍結した `ix`, `mlomethod`, `nskip`, `eferm`, `ecbot`）＋ `HamRsMLO` |
+
+| 反復ごと | |
+|---|---|
+| `lmf --jobgw=1` | a3 ＋ **a'**（`sugw` の中で `__cmlo.data`） |
+| GW 本体 | $\Sigma^{\psi}$ |
+| `hqpe_sc` | `sigm`（MTO）と **`SigmMLO.q`**（MLO）を**並列に**出す |
+| `mlo --mlo` | `SigRsMLO` |
+| `lmf` | SCF。`getsenex` が MLO 経路で `senex` を作る |
+
+**投入**: LiTi₂O₄ 6³（全 EH lm 154 軌道）を LDA から 10 反復（`n666_mloqsgw`、21:00 開始、1 反復 ≈ 17 分）。
+従来の `n666_nk6_from_lda` と荒れ・収束値を突き合わせる。
+
 ### 2026-09-24 20:10 MLO 内挿の実装（段 1'〜3 + a'）と LiTi₂O₄ 6³ での最初の比較
 
 設計書 [sigma_mlo_design.md](sigma_mlo_design.md) の実装を進め、LiTi₂O₄ 6³ で従来法と比べた。
