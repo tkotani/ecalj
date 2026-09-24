@@ -142,12 +142,13 @@ else:
 ##   __HamiltonianGW*  : written by lmf --jobgw=1 each iteration; a truncated one from
 ##                       an aborted run once made `mlo` read past EOF.
 ##   __cmlo.*          : written by step a' each iteration.
-## Do NOT touch SigRsMLO / SigmMLO.q / HamRsMLO.  A chain is driven by
+##   __SigmMLO.q       : written by hqpe_sc and consumed by mlo, inside one iteration.
+## Do NOT touch SigRsMLO / HamRsMLO.  A chain is driven by
 ## repeated `gwsc 1` calls, and SigRsMLO from the previous iteration is what makes
 ## lmf --jobgw=1 use the MLO route at all; deleting it silently turns the GW input
 ## back into the conventional sigm and the chain is no longer a MLO-QSGW.
 if "--mlo" in options:
-    remove_files('__cmlo.data', '__cmlo.info',
+    remove_files('__cmlo.data', '__cmlo.info', '__SigmMLO.q',
                  '__HamiltonianGW', '__HamiltonianGW.info')
 
 ## Structure-only GW setup: hoisted out of the iteration loop.
@@ -196,7 +197,7 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
     run_cmd(cluster, MPIParams(command=EXEC_DIR/f"hgw{exec_type}", args=[target, "--jobgw=1", *options], **mpi_params_gw), stdout="lgw")
     move_files('stdout*', dest_dir='STDOUT')
 
-    ## Make Vxc^QSGW (sigm file).  With --mlo it also writes SigmMLO.q = Sigma in the MLO basis.
+    ## Make Vxc^QSGW (sigm file).  With --mlo it also writes __SigmMLO.q = Sigma in the MLO basis.
     run_cmd(cluster, MPIParams(command=EXEC_DIR/"hqpe_sc", args=[target, *options], **mpi_params_single), stdout="lqpe")
 
     ## Sigma^MLO(q) -> Sigma^MLO(R) (SigRsMLO), on the same pair list as HamRsMLO.

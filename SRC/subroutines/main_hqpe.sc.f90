@@ -75,7 +75,7 @@ contains
       inquire(file='__cmlo.info',exist=lmlo)
       if(lmlo) then
         call cmlo_init()
-        write(stdo,ftox)' hqpe.sc: __cmlo found. Will also write SigmMLO.q  nmlo=',nmlo
+        write(stdo,ftox)' hqpe.sc: __cmlo found. Will also write __SigmMLO.q  nmlo=',nmlo
       endif
     endblock InitMLO
 !!! open files    
@@ -308,12 +308,12 @@ contains
     call rwsigma ('write',ifse_out,sigma_m,qqqx_m, nspin,ndimsig,n1,n2,n3,nqibz)
     close(ifse_out)
     WriteSigmMLO: if(lmlo) then
-      open(newunit=ifsigmlo,file='SigmMLO.q',form='UNFORMATTED')
+      open(newunit=ifsigmlo,file='__SigmMLO.q',form='UNFORMATTED')
       write(ifsigmlo) nmlo,nqibz,nspin,n1,n2,n3
       write(ifsigmlo) ((qqq(1:3,ip,is),is=1,nspin),ip=1,nqibz)
       write(ifsigmlo) sigmlo
       close(ifsigmlo)
-      write(stdo,ftox)' hqpe.sc: wrote SigmMLO.q  nmlo nqibz nspin=',nmlo,nqibz,nspin, &
+      write(stdo,ftox)' hqpe.sc: wrote __SigmMLO.q  nmlo nqibz nspin=',nmlo,nqibz,nspin, &
            ' |SigmMLO|=',ftof(sum(abs(sigmlo)))
     endif WriteSigmMLO
     if(mpi__rank==0) write(6,ftox) ' OK! hqpe_sc '

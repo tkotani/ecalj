@@ -354,12 +354,12 @@ contains
       ReadSigmMLO: block !Sigma^MLO(q) from hqpe_sc (stage 2 of Samples/kBT/sigma_mlo_design.md)
         integer:: ifs,nmlof,nqf,nspf,n1f,n2f,n3f,ipx,isx,iqm,iqm2
         real(8),allocatable:: qsig(:,:,:)
-        inquire(file='SigmMLO.q',exist=lsigmlo)
+        inquire(file='__SigmMLO.q',exist=lsigmlo)
         if(lsigmlo) then
-          open(newunit=ifs,file='SigmMLO.q',form='unformatted',status='old')
+          open(newunit=ifs,file='__SigmMLO.q',form='unformatted',status='old')
           read(ifs) nmlof,nqf,nspf,n1f,n2f,n3f
           if(nmlof/=ndimMTO .or. nqf/=nqibz) then
-            write(stdo,ftox)' m_HamPMT: SigmMLO.q mismatch -> ignored. file=',nmlof,nqf,' here=',ndimMTO,nqibz
+            write(stdo,ftox)' m_HamPMT: __SigmMLO.q mismatch -> ignored. file=',nmlof,nqf,' here=',ndimMTO,nqibz
             lsigmlo=.false.; close(ifs)
           else
             allocate(qsig(3,nspf,nqf))
@@ -372,12 +372,12 @@ contains
               tmp=sigmlo_in
               do ipx=1,nqf
                 iqm = findloc([(sum(abs(qibz(:,iqm2)-qsig(:,1,ipx)))<tolq(),iqm2=1,nqibz)],value=.true.,dim=1)
-                if(iqm<1) call rx('m_HamPMT: SigmMLO.q has a q not on qibz')
+                if(iqm<1) call rx('m_HamPMT: __SigmMLO.q has a q not on qibz')
                 forall(isx=1:nspx) sigmlo_in(:,:,iqm,isx)=tmp(:,:,ipx,isx)
               enddo
             endblock ReorderToQibz
             allocate(sigmloi(1:ndimMTO,1:ndimMTO,nqibz,nspx),source=(0d0,0d0))
-            if(master_mpi) write(stdo,ftox)' m_HamPMT: read SigmMLO.q |Sigma|=',ftof(sum(abs(sigmlo_in)))
+            if(master_mpi) write(stdo,ftox)' m_HamPMT: read __SigmMLO.q |Sigma|=',ftof(sum(abs(sigmlo_in)))
           endif
         endif
       endblock ReadSigmMLO
