@@ -138,12 +138,16 @@ else:
     patterns = [*flist, 'atmpnu*']; copy_files(*patterns, dest_dir=rundir)
     remove_files(f'__mixm*{target}*')
 
-## MLO route: wipe the derived intermediates before anything else.  All of these are
-## rebuilt from scratch below, and a stale or truncated one from an aborted run is a
-## silent trap (an empty __HamiltonianGW.info once made `mlo` read past EOF).
+## MLO route: wipe ONLY the files that are rebuilt within every iteration.
+##   __HamiltonianGW*  : written by lmf --jobgw=1 each iteration; a truncated one from
+##                       an aborted run once made `mlo` read past EOF.
+##   __cmlo.*          : written by step a' each iteration.
+## Do NOT touch SigRsMLO / SigmMLO.q / __mloindex / HamRsMLO.  A chain is driven by
+## repeated `gwsc 1` calls, and SigRsMLO from the previous iteration is what makes
+## lmf --jobgw=1 use the MLO route at all; deleting it silently turns the GW input
+## back into the conventional sigm and the chain is no longer a MLO-QSGW.
 if "--mlo" in options:
-    remove_files('__cmlo.data', '__cmlo.info', '__mloindex',
-                 'SigRsMLO', 'SigmMLO.q', 'HamRsMLO',
+    remove_files('__cmlo.data', '__cmlo.info',
                  '__HamiltonianGW', '__HamiltonianGW.info')
 
 ## Structure-only GW setup: hoisted out of the iteration loop.
