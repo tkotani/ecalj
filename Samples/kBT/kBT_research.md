@@ -53,12 +53,12 @@ $O^{\rm MLO}$ の条件数も健全（76 軌道で 36、154 軌道で 111。NiO 
 | $\Sigma^{\rm MLO}(q)\to R\to q$ の往復 | `ECALJ_SIGMLO_RT=1` | メッシュ点で **1.9〜4.5 meV**（最大要素の 0.3 %） |
 | q ごとの MLO/MTO の `senex` 差 | `ECALJ_SIGMLO_CHECK=1` | 全 q で一様に 13〜23 %。offset-Γ が最悪（23 %）だがそこだけ壊れてはいない |
 
-#### 【訂正 05:40】$\tilde\chi$ は収束している。原因はそれではない
+#### 【訂正 08:39】$\tilde\chi$ は収束している。原因はそれではない
 
 下の「$\tilde\chi$ が動く」という診断は**誤りだった**。LiTi₂O₄ の連鎖で反復ごとの $z^{\rm MLO}$ を
 比べると、後半ではほとんど止まっている。
 
-*表 05:40-1* LiTi₂O₄ 6³ の連鎖での $\tilde\chi$ の動き（72 q 点、`ECALJ_ZMLO_DUMP`）
+*表 08:39-1* LiTi₂O₄ 6³ の連鎖での $\tilde\chi$ の動き（72 q 点、`ECALJ_ZMLO_DUMP`）
 
 | 反復の組 | $z^{\rm MLO}$ の相対変化 | 重なりの最小 |
 |---|---|---|
@@ -74,7 +74,7 @@ commit `01b9ea4df`。NiO で 3 反復通ることを確認済み。`ECALJ_MLO_NO
 
 #### 真因: $\Sigma^{\rm MLO}(R)$ が減衰しない
 
-*表 05:40-2* `SigRsMLO` から直接測った $\Sigma^{\rm MLO}(R)$ の距離依存（LiTi₂O₄ 6³、76 軌道）
+*表 08:39-2* `SigRsMLO` から直接測った $\Sigma^{\rm MLO}(R)$ の距離依存（LiTi₂O₄ 6³、76 軌道）
 
 | \|R\| (alat) | max \|Σ(R)\| [meV] | mean |
 |---|---|---|
