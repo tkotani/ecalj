@@ -111,9 +111,23 @@ MTO 行だけなら $k$ 非依存で FFT できるが、それは MLO の一部�
 
 ### 3.3 PAW（augmentation）チャネルを部分空間に使う【本命】
 
-**出発点は $\Sigma^\psi_{ij}(q) = \langle\psi^{\rm PMT}_i|\hat\Sigma|\psi^{\rm PMT}_j\rangle$**（GW が直接出す量）であって、
-`sigm` の $\Sigma^{\rm MTO}$ は **MTO 基底へ変換した途中産物**にすぎない。
-PAW チャネルへ移すなら **MTO を経由しない**。
+**出発点**。GW（`hsfp0`/`hgw`）が各既約 $q$ で出すのは、**固有関数で挟んだ行列要素**
+
+$$\Sigma^{\psi}_{ij}(q) \;=\; \langle \psi^{\rm PMT}_{iq} \,|\, \hat\Sigma \,|\, \psi^{\rm PMT}_{jq}\rangle$$
+
+である（QSGW ではこれをエルミート化した静的 $\Sigma$）。演算子としては
+
+$$\hat\Sigma(q) \;=\; \sum_{ij} |\psi^{\rm PMT}_{iq}\rangle\;\Sigma^{\psi}_{ij}(q)\;\langle \psi^{\rm PMT}_{jq}|$$
+
+固有関数は正規直交（$\langle\psi_i|\psi_j\rangle = \delta_{ij}$）なので、ここには逆行列が要らない。
+
+現状の `hqpe_sc` は、これを **MTO 基底**の行列へ変換している:
+
+$$\Sigma^{\rm MTO}_{\mu\nu}(q) \;=\; \langle\chi^{\rm MTO}_\mu|\hat\Sigma(q)|\chi^{\rm MTO}_\nu\rangle
+\;=\; \sum_{ij} \langle\chi^{\rm MTO}_\mu|\psi_i\rangle\,\Sigma^{\psi}_{ij}\,\langle\psi_j|\chi^{\rm MTO}_\nu\rangle$$
+
+これが `sigm` の中身で、**途中産物**にすぎない。
+$\hat\Sigma$ を別の部分空間で保持したいなら、**MTO を経由せず $\Sigma^{\psi}$ から直接**取ればよい。
 
 $P_a$（MT 球内の φ, φ̇）は **$k$ 非依存の固定索引**であり、$B(k)$ は **lmf が任意 $k$ で厳密に作る**。
 したがって §3.2 の障害（APW の本数が $k$ 依存）が最初から無い。
