@@ -34,11 +34,11 @@ contains
     close(ifihmto)
     if(ipr) write(stdo,*)'OK: Read HamRsMLO file! Use i-ioffib for setting mlo_lm'
     ReadSigRsMLO: block !stage 3 test bed of Samples/kBT/sigma_mlo_design.md
-      integer:: ifs,nm,np,ns
+      integer:: ifs,nm,np,ns,nb
       inquire(file='SigRsMLO',exist=lsigmlo)
       if(lsigmlo) then
         open(newunit=ifs,file='SigRsMLO',form='unformatted',action='read')
-        read(ifs) nm,np,ns
+        read(ifs) nm,np,ns,nb
         if(nm/=ndimMTO .or. np/=npairmx .or. ns/=nspx) then
           if(ipr) write(stdo,ftox)'m_mlo_ham: SigRsMLO mismatch -> ignored',nm,np,ns
           lsigmlo=.false.

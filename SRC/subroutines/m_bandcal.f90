@@ -195,7 +195,7 @@ contains
             endif
             if(sigmamode) then
                do ispc=1,nspc
-                  call getsenex(qp, ispc, ndimh, ovlm(:,ispc,:,ispc)) !bugfix at 2024-4-24 obata: ispc was 1 when 2023-9-20
+                  call getsenex(qp, ispc, ndimh, ovlm(:,ispc,:,ispc), hamm(:,ispc,:,ispc)) !bugfix at 2024-4-24 obata: ispc was 1 when 2023-9-20
                   hamm(:,ispc,:,ispc) = hamm(:,ispc,:,ispc) + ham_scaledsigma*senex !sene= Vxc(QSGW)-Vxc(LDA)
                   if(wsene) write(iwsene) qp,ispc
                   if(wsene) write(iwsene) sene
@@ -207,7 +207,7 @@ contains
             call hambl(isp,qp,osmpot,vconst,osig,otau,oppi,hamm(:,1,:,1), ovlm(:,1,:,1))
             if(lso==2) hamm(:,1,:,1) = hamm(:,1,:,1) + hammhso(:,:,isp)
             if(sigmamode) then !!Add  Vxc(QSGW)-Vxc
-               call getsenex(qp,isp,ndimh,ovlm(:,1,:,1))
+               call getsenex(qp,isp,ndimh,ovlm(:,1,:,1), hamm(:,1,:,1))
                hamm(:,1,:, 1) = hamm(:,1,:,1) + ham_scaledsigma*senex !senex= Vxc(QSGW)-Vxc(LDA)
                if(wsene) write(iwsene) qp,isp
                if(wsene) write(iwsene) sene

@@ -15,7 +15,7 @@ module m_rdsigm2
   real(8),protected,allocatable ::  rv_p_oqsig (:)
   logical,private:: debugmode=.False.
 contains
-  subroutine getsenex(qp,isp,ndimh,ovlm)! Return self-energy senex at qp,isp
+  subroutine getsenex(qp,isp,ndimh,ovlm,hamm)! Return self-energy senex at qp,isp
     ! Sigma is carried as a rank-reduced operator in the non-orthogonal MTO
     ! subspace:  Sigma = |PMT><PMT|sub> O_sub^-1 Sigma_sub O_sub^-1 <sub|PMT><PMT|
     ! where "sub" is by default the whole MTO block (ndimsig channels).
@@ -29,6 +29,7 @@ contains
     implicit none
     integer:: isp,ndimh,ispsigm
     real(8):: qp(3)
+    complex(8),intent(in),optional:: hamm(ndimh,ndimh) !H^LDA(k): needed by the MLO route
     complex(8),allocatable:: ovlmtoi(:,:),ovliovl(:,:),senesub(:,:)
     complex(8):: ovlm(ndimh,ndimh)
     integer,allocatable:: idx(:)
@@ -40,6 +41,17 @@ contains
     allocate(sene(ndimsig,ndimsig))
     ispsigm=isp
     if(isp>nspsigm) ispsigm = nspsigm
+    MLOroute: block !stage 4 of Samples/kBT/sigma_mlo_design.md: interpolate Sigma in the MLO space
+      use m_sigmlo,only: sigmlo_init, sigmlo_senex, sigmlo_on
+      call sigmlo_init()
+      if(sigmlo_on .and. present(hamm)) then
+        sene = (0d0,0d0)            !sene is only a diagnostic dump in this route
+        allocate(senex(ndimh,ndimh))
+        call sigmlo_senex(qp, isp, ndimh, ovlm, hamm, senex)
+        call tcx('getsenex')
+        return
+      endif
+    endblock MLOroute
     call bloch2(qp,ispsigm,sene) !return self-energy for given qp,ispsigm
     if(first) then
       first=.false.

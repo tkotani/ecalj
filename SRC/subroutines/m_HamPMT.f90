@@ -724,10 +724,15 @@ contains
         write(ifihmto) ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO)
         close(ifihmto)
         write(stdo,*)" Wrote HamRsMLO file! End of lmfham1"
-        if(lsigmlo) then
+        if(lsigmlo) then !self-contained: getsenex Bloch-sums this without m_HamPMT
           open(newunit=ifihmto,file='SigRsMLO',form='unformatted')
-          write(ifihmto) ndimMTO,npairmx,nspx
+          write(ifihmto) ndimMTO,npairmx,nspx,nbas
           write(ifihmto) sigmlor(1:npairmx,1:ndimMTO,1:ndimMTO,1:nspx)
+          write(ifihmto) plat
+          write(ifihmto) npair(1:nbas,1:nbas)
+          write(ifihmto) nlat(1:3,1:npairmx,1:nbas,1:nbas)
+          write(ifihmto) nqwgt(1:npairmx,1:nbas,1:nbas)
+          write(ifihmto) ib_tableM(1:ndimMTO), ix(1:ndimMTO)
           close(ifihmto)
           write(stdo,ftox)' Wrote SigRsMLO |Sigma(R)|=',ftof(sum(abs(sigmlor)))
         endif
