@@ -216,52 +216,46 @@ MTO 版と同一の実装で回る。**内挿される自由度は $L^2 n_k^3 = 
 $M^2 n_k^3 = 154^2\cdot n_k^3$（t2g モデルなら $12^2\cdot n_k^3$）に減り、
 しかも準線形従属な方向が取り除かれている** — §1 の表の問題に直接効く。
 
-#### 3.2.3 式 (6)(7): $\tilde\chi$ の実空間表現を経由する
+#### 3.2.3 実空間 MLO 表現は既にコードにある
 
-残るのは、任意 $k$ で
+$\tilde\chi$ は実空間表現を持ち、**それを使う機構は既に動いている**（MLO バンドプロットがそれ）。
 
-$$\big[\hat\Sigma\big]_{mn}(k) = \sum_{klk'l'} A_{m\alpha}(k)\,
-\big(O^{\rm MLO}\big)^{-1}_{kk'}\,\Sigma^{\rm MLO}_{k'l'}(k)\,
-\big(O^{\rm MLO}\big)^{-1}_{l'l}\,A^{*}_{n\beta}(k),
-\qquad A_{m\alpha}(k) = \big\langle \chi^{\rm PMT}_{mk}\mid\tilde\chi_{\alpha k}\big\rangle\tag{14}
-$$
-
-を作る段（式 (6)(7) の MLO 版）。必要なのは $A(k)$ と $O^{\rm MLO}(k)=\langle\tilde\chi_\alpha|\tilde\chi_\alpha\rangle$ の 2 つだけ。
-
-**やってはいけない道**: $z^{\rm MLO}_{m\alpha}(q)$ を要素ごとにフーリエ内挿すること。
-行索引 $m$ は PMT 基底で、APW の本数が $k$ ごとに違う（$|k+G|<$ cutoff の $G$ 集合が変わる）ので
-$C(R)=\mathrm{FFT}[z^{\rm MLO}(q)]$ は定義できない。
-
-**正しい道**: $\tilde\chi$ は**実空間の局在関数**であり、その表現を経由する。
-$$\tilde\chi_{k}(\mathbf r - \mathbf R) \;=\; \frac{1}{N_q}\sum_{q} e^{-i q R}\,\tilde\chi_{\alpha q}(\mathbf r),
-\qquad
-\tilde\chi_{\alpha q}(\mathbf r) = \sum_m \chi^{\rm PMT}_{mq}(\mathbf r)\, z^{\rm MLO}_{m\alpha}(q)\tag{15}
-$$
-この $\tilde\chi_\alpha(\mathbf r)$ は BvK 超格子上で厳密に決まる **$k$ に依らない 1 個の関数**である。中身は 2 部分:
-
-| 部分 | 表現 | 任意 $k$ での扱い |
+| 実体 | 作る場所 | 中身 |
 |---|---|---|
-| MTO 部分 | $\sum_{\mu R'} d_{\mu\alpha}(R')\,\chi^{\rm MTO}_\mu(\mathbf r-\mathbf R')$、$d = \mathrm{FFT}\big[z^{\rm MLO}_{\rm MTO}\big]$ — 索引 $\mu$ は $q$ 非依存なので FFT できる（`__amlo.data` にあるのはこれ） | lmf が既に持つ「Bloch 和した MTO どうしの重なり」の機構でそのまま計算できる |
-| 平滑（APW）部分 | 超格子の平面波係数 $z^{\rm MLO}_{(qG)\alpha}$ の集合。局在関数なのでフーリエ成分は連続 | 局在領域に切って $\hat f(\mathbf k+\mathbf G)$ を求め直す（リサンプル） |
+| `hammr`, **`ovlmr`** | `HamPMTtoHamRsMLO`（`m_HamPMT.f90`）が `HamRsMLO` に書く | $H^{\rm MLO}(R)$, $O^{\rm MLO}(R)$。添字は `npair(ib1,ib2)` / `nlat` / `nqwgt` の**対リスト**上。これは `bloch2` と同じ WS 最短ベクトル機構 |
+| 任意 $q$ での Bloch 和 | `m_mlo_ham::calc_ham_eigen` | 上の 2 つを $q$ で和して $H^{\rm MLO}(q), O^{\rm MLO}(q)$ を作り一般化固有値問題を解く → `band_MLO_spin1.dat` |
 
-そして式 (14) が要求するのは $\tilde\chi$ を **$k$ の基底で展開すること**ではなく、
-**$\chi^{\rm PMT}_{mk}$ との重なり積分**である:
+$\Sigma^{\rm MLO}(R)$ は `hammr`/`ovlmr` と**まったく同種の MLO×MLO 行列**（添字 $\alpha\beta$ は $q$ 非依存）だから、
+式 (13) は新規実装ですらなく、既存の経路に 1 本足すだけである。$O^{\rm MLO}(k)$ も既に任意 $k$ で得られている。
 
-$$A_{m\alpha}(k) \;=\; \sum_{R} e^{i k R}\,
-\big\langle \chi^{\rm PMT}_{mk}\,\big|\,\tilde\chi_\alpha(\mathbf r-\mathbf R)\big\rangle\tag{16}
+**「APW の本数が $k$ 依存」が効くのは 1 箇所だけ**: $z^{\rm MLO}_{m\alpha}(q)$ を**要素ごとにフーリエ内挿**しようとしたときである。
+行索引 $m$ が PMT 基底なので $\mathrm{FFT}[z^{\rm MLO}]$ は定義できない。**その手を使わなければよい**だけで、
+$\tilde\chi$ 自体は BvK 超格子上の局在関数として厳密に決まっている:
+
+$$\tilde\chi_{\alpha}(\mathbf r-\mathbf R) = \frac{1}{N_q}\sum_{q} e^{-i q R}\sum_m \chi^{\rm PMT}_{mq}(\mathbf r)\, z^{\rm MLO}_{m\alpha}(q)\tag{14}
 $$
 
-これは $\tilde\chi$ が $k$ の基底の張る空間に入っているかどうかとは無関係に、常に定義される。
-$O^{\rm MLO}(k)$ も同じ形（$\chi^{\rm PMT}$ を $\tilde\chi$ に替えるだけ）。
-$\Sigma^{\rm MLO}(R)$ を実空間で切って式 (13) で Bloch 和するのと、**同じ種類の操作**である。
+#### 3.2.4 使い方は 2 通り
 
-**残る近似**は、局在関数の裾を BvK セルで切ることだけ。
-これは現状の式 (4)(5)（$\Sigma^{\rm MTO}(R)$ を BvK セルで切る）が既に受け入れている近似と同質で、
-しかも $\tilde\chi$ は $\Sigma$ より局在が良いはずだから条件は緩い。
+**(A) バンド / QP エネルギーが目的なら、追加実装はほぼ無い。**
+$H^{\rm MLO}(R)$ に $\Sigma^{\rm MLO}(R)$ を足して `calc_ham_eigen` に渡すだけ。
+$\Sigma$ を PMT 基底に戻す必要は無いので、式 (6)(7) に相当する段自体が存在しない。
+09-24 の測定で、MLO 表現の Γ–X 粗さは MTO 内挿の 9.8 meV に対し 3.5 meV（t2g 12 軌道）/ 6.3 meV（154 軌道）、
+メッシュ点の値は 0.1–0.5 meV で再現していた。
 
-**実装上いちばん楽な分解**は、球内を PAW チャネル $P_a$（$k$ 非依存、$B(k)$ は lmf が任意 $k$ で厳密に作る）、
-球外の平滑部分を超格子平面波、とすること。すなわち §3.3 の道具立てを**戻す段にだけ**使う。
-§3.2.2（どの部分空間で $\Sigma$ を保持するか = MLO）と §3.3（どう戻すか = PAW）は**併用できる**。
+**(B) SCF（電子密度）まで回すなら、$\Sigma$ を PMT ハミルトニアンに戻す必要がある。**
+lmf は PMT 基底で密度を作るので、任意 $k$ で
+
+$$A_{m\alpha}(k) = \big\langle\chi^{\rm PMT}_{mk}\mid\tilde\chi_{\alpha k}\big\rangle = \big(S^{\rm PMT}(k)\,z^{\rm MLO}(k)\big)_{m\alpha}\tag{15}
+$$
+
+が要る。**これも内挿しない**: $z^{\rm MLO}(k)$ は式 (10)(11) の射影をその $k$ で実行すれば直接得られる
+（`Hreduction` は `qplist.dat` の任意 $k$ リストで走る。`job_mlo` がバンドプロットで実際にやっていること）。
+コストは $k$ ごとの対角化 1 回分。$\mathrm{FFT}[z]$ を使わないので APW の本数が $k$ 依存でも構わない。
+
+**整合条件**: $\Sigma^{\rm MLO}(q)$ を作ったときの band 多様体と、$A(k)$ を作るときの多様体が
+**同じ処方**でなければならない（例: どちらも「前反復の $H$ の固有関数」）。
+種 $\chi^{\rm MTO}_{ix(\alpha)}$ が固定なのでゲージは自動的に揃う（§3.2.1 の表）。
 
 ### 3.3 PAW（augmentation）チャネル【部分空間にも、戻す道具にも使える】
 
@@ -278,7 +272,7 @@ $P_a$（MT 球内の φ, φ̇）は **$k$ 非依存の固定索引**であり、
 固有関数の augmentation 係数 `cphi` は $\psi_i = \sum_a P_a\,c_{ai}$（球内）なので
 $\langle P_a|\psi_i\rangle = (\Pi c)_{ai}$（$\Pi$ = 球内の重なり `ppj`）。演算子 $\hat\Sigma = \sum_{ij}|\psi_i\rangle\Sigma^\psi_{ij}\langle\psi_j|$ の PAW 行列は
 
-$$\boxed{\ \Sigma^{\rm PAW}(q) \;=\; (\Pi\,c)\;\Sigma^{\psi}(q)\;(\Pi\,c)^\dagger\ }\tag{17}
+$$\boxed{\ \Sigma^{\rm PAW}(q) \;=\; (\Pi\,c)\;\Sigma^{\psi}(q)\;(\Pi\,c)^\dagger\ }\tag{16}
 $$
 
 `hqpe_sc` が今 式 (3) を作っているところを、これに差し替える。
@@ -294,12 +288,12 @@ $\Sigma^{\rm PAW}(q)$ を FFT して $\Sigma^{\rm PAW}(R)$、任意 $k$ で Bloc
 
 $$\big[\hat\Sigma\big]_{mn} = \sum_{acdb} \langle\chi^{\rm PMT}_m|P_a\rangle\,
 \big(\Pi\big)^{-1}_{ac}\,\Sigma^{\rm PAW}_{cd}(k)\,\big(\Pi\big)^{-1}_{db}\,
-\langle P_b|\chi^{\rm PMT}_n\rangle\tag{18}
+\langle P_b|\chi^{\rm PMT}_n\rangle\tag{17}
 $$
 
 ここで $\langle\chi^{\rm PMT}_m|P_a\rangle = (B^\dagger \Pi)_{ma}$ なので $\Pi^{-1}$ が両側で約分して
 
-$$\boxed{\ \Sigma^{\rm PMT}_{mn}(k) \;=\; \big(B^\dagger(k)\,\Sigma^{\rm PAW}(k)\,B(k)\big)_{mn}\ }\tag{19}
+$$\boxed{\ \Sigma^{\rm PMT}_{mn}(k) \;=\; \big(B^\dagger(k)\,\Sigma^{\rm PAW}(k)\,B(k)\big)_{mn}\ }\tag{18}
 $$
 
 **$B(k)$ は厳密**、逆行列も不要。`getsenex` は 1 行になる。
