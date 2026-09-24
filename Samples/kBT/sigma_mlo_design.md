@@ -61,21 +61,24 @@ $n_k^3 = 216$ セル分の実空間自由度を持たせている。しかも MT
 
 ## 3. 設計
 
-### 3.0 記号 — 基底・種・固有関数・MLO を区別する
+### 3.0 記号 — 基底・双対基底・MLO・固有関数を区別する
 
 | 記号 | 意味 | 次元 / 索引 |
 |---|---|---|
 | $\chi^{\rm PMT}_m$ | **PMT 基底関数**（MTO + APW） | $m = 1\ldots n_{\rm dimh}$、**APW の本数は $k$ に依存** |
-| $\chi^{\rm MTO}_\mu$ | その MTO 部分 | $\mu = 1\ldots L$（`ldim` = 230）、**$k$ 非依存** |
-| $F^{\rm MTO}_k$ | **種**。`ix(k)` 番目の MTO 基底関数（固定） | $k = 1\ldots M$ |
-| $\psi^{\rm PMT}_i$ | **固有関数** | |
-| $F^{\rm MLO}_k = P\,F^{\rm MTO}_k$ | **MLO**。band 多様体への射影 | $= \sum_m \chi^{\rm PMT}_m\, z^{\rm MLO}_{mk}$ |
-| `cmlo`$_{ik} = \langle \psi^{\rm PMT}_i | F^{\rm MLO}_k\rangle$ | **固有関数**基底での係数 | |
-| `zMLO`$_{mk}$ | **PMT 基底**での係数（`Hreduction` が返す） | $(n_{\rm dimh}, M)$ |
+| $\chi^{\rm MTO}_\mu$ | その MTO 部分（**下付き = 共変**） | $\mu = 1\ldots L$（`ldim` = 230）、**$k$ 非依存** |
+| $\chi_{\rm MTO}^{\mu}$ | その**双対（反変）基底**、$\langle\chi_{\rm MTO}^{\mu}|\chi^{\rm MTO}_\nu\rangle=\delta^\mu_\nu$ | 上付きで区別 |
+| $\chi^{\rm MTO}_{ix(k)}$ | **MLO の種**。`ix(k)` 番目の MTO 基底関数（固定） | 新しい記号は要らない |
+| $\tilde\chi_k = P\,\chi^{\rm MTO}_{ix(k)}$ | **MLO**（コードの `F^MLO`）。band 多様体への射影 | $k = 1\ldots M$（`ndimMTO` = 154） |
+| $\psi^{\rm PMT}_i$ | **固有関数**（基底ではない） | |
+| `cmlo`$_{ik} = \langle \psi^{\rm PMT}_i|\tilde\chi_k\rangle$ | MLO の**固有関数**基底での係数 | |
+| `zMLO`$_{mk}$ | MLO の **PMT 基底**での係数、$\tilde\chi_k=\sum_m \chi^{\rm PMT}_m z^{\rm MLO}_{mk}$ | $(n_{\rm dimh}, M)$ |
 | $P_a$ | **PAW（augmentation）チャネル** φ, φ̇ | $a = 1\ldots N_a$（`ndima` = 700）、**$k$ 非依存** |
 | $B_{am}(k)$ | PMT 基底関数の augmentation 係数 | lmf が任意 $k$ で厳密に作る |
 
-$\Sigma$ は `sigm` に $\Sigma^{\rm MTO}_{\mu\nu}(q) = \langle\chi^{\rm MTO}_\mu|\Sigma-V_{xc}|\chi^{\rm MTO}_\nu\rangle$ として入っている（$L\times L$）。
+コードの `F^MTO_k` は $\chi^{\rm MTO}_{ix(k)}$、`F^MLO_k` は $\tilde\chi_k$ に対応する。
+
+$\Sigma$ は `sigm` に $\Sigma^{\rm MTO}_{\mu\nu}(q)=\langle\chi^{\rm MTO}_\mu|\hat\Sigma|\chi^{\rm MTO}_\nu\rangle$ として入っている（$L\times L$）。
 
 ### 3.1 現状の展開はすでに非直交の双対基底【2026-09-24 訂正】
 
@@ -95,13 +98,13 @@ senex   = matmul(conjg(transpose(ovliovl)), matmul(sene, ovliovl))
 
 MTO 基底は非直交なので、**双対（反変）基底**
 
-$$|\tilde\chi^{\rm MTO}_\mu\rangle \;=\; \sum_\nu |\chi^{\rm MTO}_\nu\rangle\,(O^{\rm MTO})^{-1}_{\nu\mu},
-\qquad \langle\tilde\chi^{\rm MTO}_\mu|\chi^{\rm MTO}_\nu\rangle = \delta_{\mu\nu}\tag{2}
+$$|\chi_{\rm MTO}^{\mu}\rangle \;=\; \sum_\nu |\chi^{\rm MTO}_\nu\rangle\,(O^{\rm MTO})^{-1}_{\nu\mu},
+\qquad \langle\chi_{\rm MTO}^{\mu}|\chi^{\rm MTO}_\nu\rangle = \delta^{\mu}_{\nu}\tag{2}
 $$
 
 を使って演算子を組む:
 
-$$\hat\Sigma \;=\; \sum_{\mu\nu} |\tilde\chi^{\rm MTO}_\mu\rangle\;\Sigma^{\rm MTO}_{\mu\nu}\;\langle\tilde\chi^{\rm MTO}_\nu|\tag{3}
+$$\hat\Sigma \;=\; \sum_{\mu\nu} |\chi_{\rm MTO}^{\mu}\rangle\;\Sigma^{\rm MTO}_{\mu\nu}\;\langle\chi_{\rm MTO}^{\nu}|\tag{3}
 $$
 
 その **PMT 基底での行列要素**が `senex`:
@@ -119,9 +122,9 @@ $$
 
 ### 3.2 MLO を部分空間に使う場合【障害あり】
 
-$F^{\rm MLO}$ で保持するなら
+$\tilde\chi$ で保持するなら
 
-$$\Sigma^{\rm MLO}_{kl}(q) = \langle F^{\rm MLO}_k|\hat\Sigma|F^{\rm MLO}_l\rangle
+$$\Sigma^{\rm MLO}_{kl}(q) = \langle \tilde\chi_k|\hat\Sigma|\tilde\chi_l\rangle
 = \big(D^\dagger \Sigma^{\rm MTO} D\big)_{kl},\qquad
 D(q) = O_{\rm MTO}^{-1}\,\langle{\rm MTO}|{\rm PMT}\rangle\, z^{\rm MLO}\tag{5}
 $$
@@ -137,12 +140,12 @@ $$
 **APW の本数が $k$ ごとに違う**（$|k+G| <$ cutoff の $G$ 集合が変わる）。
 したがって **$C(R) = \mathrm{FFT}[z^{\rm MLO}(q)]$ が定義できない**。
 MTO 行だけなら $k$ 非依存で FFT できるが、それは MLO の一部でしかない
-（切り捨てると $F^{\rm MLO}$ ではない別物になる）。
+（切り捨てると $\tilde\chi$ ではない別物になる）。
 
 → 式 (5)(6) の道は、この障害を回避しない限り成立しない。
 
 回避案（いずれも未検証）:
-1. MLO の APW 成分を無視し、MTO 成分だけで近似する。$F^{\rm MLO}$ の APW 重みが小さい系でのみ可。
+1. MLO の APW 成分を無視し、MTO 成分だけで近似する。$\tilde\chi$ の APW 重みが小さい系でのみ可。
 2. **MLO を PAW チャネルで展開する**（→ §3.3）。PAW チャネルは $k$ 非依存なので係数が固定できる。
 
 ### 3.3 PAW（augmentation）チャネルを部分空間に使う【本命】
