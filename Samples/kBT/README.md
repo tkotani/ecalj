@@ -17,6 +17,22 @@
 
 ブランチ: `t_sigmakbt` (Σ 側。χ₀ 側の `tetrakbt` は `main` にある)
 
+## MLO-gwsc（開発中）
+
+この下の `kBT_research.md` の 2026-09-24〜25 のエントリは、kBT 本体ではなく
+**自己エネルギーを MLO 表現で内挿する QSGW** の開発記録である。
+$\Sigma$ の q メッシュ点の「間」にだけ出る数十 meV の凸凹（LiTi₂O₄ で 25〜29 meV）を、
+MTO 基底ではなく MLO の小さな部分空間で $\Sigma$ を保持することで抑えようという試み。
+
+| 文書 | 中身 |
+|---|---|
+| [`sigma_mlo_design.md`](sigma_mlo_design.md) | 設計書。出発点 $\langle\psi\|\hat\Sigma\|\psi\rangle$ からの式の導出（式 (1)–(17)）、実装手順、検証手順、踏んだバグの記録 |
+| [`kBT_research.md`](kBT_research.md) | 実測ログ（新しい順）。NiO / Si での検証、LiTi₂O₄ の連鎖 |
+| [ecaljdoc: MLO-gwsc](https://ecalj.github.io/ecaljdoc/manual/mlo_gwsc) | 使い方（`gwsc --mlo`）、保持すべきファイル、現状の精度 |
+
+**既定では一切動かない。** `gwsc` に `--mlo` を付けたときだけ有効。
+従来の `gwsc` の挙動は変わらない。
+
 | | 中身 | 大きさ |
 |---|---|---|
 | [`LiTi2O4/`](LiTi2O4/) | 金属スピネル。$6^3$/$9^3$ のメッシュ収束、反復収束、温度依存、`deltaq` の罠 | 66 MB |
