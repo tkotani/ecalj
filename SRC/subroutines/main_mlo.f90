@@ -85,6 +85,11 @@ contains
 !  if(master_mpi) write(stdo,ftox)'Read qplist.dat: ndat =',ndat
   nmx = ndimMTO
   ndatx=ndat
+  if(ndat==0) then   ! no qplist.dat: cmlo/HamRsMLO were the point, there is no band path to plot
+    if(master_mpi) write(stdo,ftox)'mlo: no qplist.dat -> skip the MLO band plot (HamRsMLO/__cmlo written)'
+    call mpi_finalize(ierr)
+    return
+  endif
   GetEigenvaluesForSYML: block!Get Hamitonian at k points from hammr,ovlmr (Realspace Hamiltonian), then diagnalize.
     real(8):: evl(merge(2*ndimMTO, ndimMTO*nspc, socmatrix), nspx, ndatx)
     integer:: ierr,ifixx

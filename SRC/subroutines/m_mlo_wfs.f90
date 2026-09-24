@@ -13,6 +13,7 @@ module m_mlo_wfs
   private
   complex(8), allocatable :: cmlo(:,:,:,:)
   integer :: nqirr, ifile_cmlo
+  integer :: nbandmx_cmlo !rows per record in __cmlo.data; NOT necessarily nband
   logical :: keep_mlo, init = .true., debug = .false.
   integer, allocatable :: ix(:)
   real(8), allocatable :: qplistgw(:,:)
@@ -32,6 +33,9 @@ contains
     read(ifihh) ix, qplistgw
     close(ifihh)
     open(newunit=ifile_cmlo,file='__cmlo.data',action='read',form='unformatted',access='direct',recl=mrecbb)
+    nbandmx_cmlo = mrecbb/(16*nmlo) !mrecbb = 2*nbandmx*nmlo*8
+    write(stdo,ftox)'cmlo_init: nmlo nbandmx(record) nband(here) =',nmlo,nbandmx_cmlo,nband
+    if(nbandmx_cmlo < nband) call rx('cmlo_init: __cmlo.data has fewer bands than nband')
     init = .false.
   end subroutine cmlo_init
 
@@ -113,13 +117,26 @@ contains
     do iq = 1, nqirr
       if(sum(abs(qplistgw(:,iq)-qtarget)) < tolq()) then
         iqqisp = isp + nspx*(iq-1)
-        read(ifile_cmlo, rec=iqqisp) cmlo_out
+        call read_cmlo_rec(iqqisp, cmlo_out)
         ok = .true.
         return
       endif
     enddo
     cmlo_out = (0d0,0d0)
   end subroutine get_cmlo_qirr
+
+  !> One record of __cmlo.data is (nbandmx_cmlo, nmlo); read it whole, then keep the
+  !> first nband rows. Reading straight into an (nband,nmlo) array mis-aligns the
+  !> columns whenever nband < nbandmx_cmlo.
+  subroutine read_cmlo_rec(irec, cmlo_out)
+    integer, intent(in) :: irec
+    complex(8), intent(out) :: cmlo_out(nband,nmlo)
+    complex(8), allocatable :: buf(:,:)
+    allocate(buf(nbandmx_cmlo,nmlo))
+    read(ifile_cmlo, rec=irec) buf
+    cmlo_out(1:nband,1:nmlo) = buf(1:nband,1:nmlo)
+    deallocate(buf)
+  end subroutine read_cmlo_rec
 
   subroutine read_cmlo(qtarget, isp, cmlo_out, ovlm_inv)
     use m_rotwave, only: rotmatMTO
@@ -150,7 +167,7 @@ contains
     enddo FindIqIgg
     if(.not.found) call rx('read_cmlo: can not find ig and iq')
     iqqisp = isp + nspx*(iqq-1)
-    read(ifile_cmlo, rec=iqqisp) cmlo_out
+    call read_cmlo_rec(iqqisp, cmlo_out)
     call rotmatMTO(igg, qp, qtarget, nMTO, rotmat)
     forall(i=1:nmlo, j=1:nmlo) rotmatt(i,j) = rotmat(ix(i),ix(j))
     cmlo_out = matmul(cmlo_out, dconjg(transpose(rotmatt)))

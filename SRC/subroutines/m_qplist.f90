@@ -436,7 +436,24 @@ contains
     integer:: ifqplistsy,nnn,ix
     logical :: file_exists
     inquire(file='qplist.dat', exist=file_exists)
-    if(.not. file_exists) call rx('qplist.dat do not exist! you may need to run job_band in advance!')
+    if(.not. file_exists) then
+       ! No band path: ndat=0 and the caller skips the band section. eferm still
+       ! matters (the MLO energy window), so take it from efermi.lmf, which any
+       ! lmf SC run writes. This lets `mlo` run inside gwsc, where there is no
+       ! job_band and hence no qplist.dat.
+       ndat = 0
+       if(allocated(xdat)) deallocate(xdat)
+       if(allocated(qplistsy)) deallocate(qplistsy)
+       allocate(xdat(1),qplistsy(1:3,1))
+       eferm = 0d0
+       inquire(file='efermi.lmf', exist=file_exists)
+       if(.not.file_exists) call rx('readqplistsy: neither qplist.dat nor efermi.lmf')
+       open(newunit=ifqplistsy,file='efermi.lmf')
+       read(ifqplistsy,*) eferm
+       close(ifqplistsy)
+       call readbandedge()
+       return
+    endif
     open(newunit=ifqplistsy,file='qplist.dat')
     nnn=10000
     if(allocated(xdat)) deallocate(xdat)
