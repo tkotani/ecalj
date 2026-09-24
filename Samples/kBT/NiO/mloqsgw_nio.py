@@ -50,6 +50,7 @@ ax[0].axhline(0.0, color='k', lw=0.9)                 # E_F
 ax[1].yaxis.set_major_locator(MultipleLocator(1.0))   # eV
 ax[1].yaxis.set_minor_locator(MultipleLocator(0.25))
 ax[1].axhline(0.0, color='k', lw=0.9)
-fig.suptitle('NiO 2$^3$ ($n_{k}=n_{1}n_{2}n_{3}=2^3$, AF) — dotted = $\\Sigma$ mesh points', fontsize=10)
+nk = sys.argv[5] if len(sys.argv)>5 else '2'
+fig.suptitle(f'NiO {nk}$^3$ ($n_k=n_1n_2n_3={nk}^3$, AF) — dotted = $\\Sigma$ mesh points', fontsize=10)
 plt.tight_layout(rect=[0,0,1,0.94]); plt.savefig(sys.argv[3], dpi=140)
 print('wrote', sys.argv[3])
