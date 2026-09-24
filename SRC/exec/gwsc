@@ -138,6 +138,14 @@ else:
     patterns = [*flist, 'atmpnu*']; copy_files(*patterns, dest_dir=rundir)
     remove_files(f'__mixm*{target}*')
 
+## MLO route: wipe the derived intermediates before anything else.  All of these are
+## rebuilt from scratch below, and a stale or truncated one from an aborted run is a
+## silent trap (an empty __HamiltonianGW.info once made `mlo` read past EOF).
+if "--mlo" in options:
+    remove_files('__cmlo.data', '__cmlo.info', '__mloindex',
+                 'SigRsMLO', 'SigmMLO.q', 'HamRsMLO',
+                 '__HamiltonianGW', '__HamiltonianGW.info')
+
 ## Structure-only GW setup: hoisted out of the iteration loop.
 ##   lmf --jobgw=0 calls m_hamindex0_init() and exits (main_lmf.f90:95) -> HAMindex0,
 ##   which depends on the structure and the basis, not on the density or sigm.
