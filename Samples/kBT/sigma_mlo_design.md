@@ -133,7 +133,7 @@ getsenex   ->  [Sigma]_mn(k)          senex  -> H
 | $\chi^{\rm PMT}_m$ | **PMT 基底関数**（MTO + APW） | $m = 1\ldots n_{\rm dimh}$、**APW の本数は $k$ に依存** |
 | $\chi^{\rm MTO}_\mu$ | その MTO 部分 | $\mu = 1\ldots L$（`ldim` = 230）、**$k$ 非依存** |
 | $\chi^{\rm MTO}_{ix(\alpha)}$ | **MLO の種**。`ix(`$\alpha$`)` 番目の MTO 基底関数（固定） | 新しい記号は要らない |
-| $\tilde\chi_\alpha = P\,\chi^{\rm MTO}_{ix(\alpha)}$ | **MLO**（コードの `F^MLO`）。band 多様体への射影 | $\alpha = 1\ldots M$（`ndimMTO` = 154） |
+| $\tilde\chi_\alpha$ | **MLO**（コードの `F^MLO`）。種をエネルギー窓付きで band 多様体へ射影したもの（式 (10)(11)）。**冪等な射影ではない** | $\alpha = 1\ldots M$（`ndimMTO` = 154） |
 | $\psi^{\rm PMT}_i$ | **固有関数**（基底ではない） | |
 | `cmlo`$_{i\alpha} = \langle \psi^{\rm PMT}_i\mid\tilde\chi_\alpha\rangle$ | MLO の**固有関数**基底での係数 | $(n_{\rm band}, M)$、**両添字とも $q$ 非依存の数** |
 | `zMLO`$_{m\alpha}$ | MLO の **PMT 基底**での係数、$\tilde\chi_\alpha=\sum_m \chi^{\rm PMT}_m z^{\rm MLO}_{m\alpha}$ | $(n_{\rm dimh}, M)$ |
@@ -169,28 +169,47 @@ $$\tilde\chi_{\alpha q} \;=\; \sum_m \chi^{\rm PMT}_{mq}\; z^{\rm MLO}_{m\alpha}
 $$
 
 二段で組まれている。第一段は、**固定した MTO 種** $\chi^{\rm MTO}_{ix(\alpha)}$ を
-band 多様体へ射影した係数（固有関数基底、コードの `cmlo`）
+band 多様体へ**エネルギー窓付きで**射影した係数（固有関数基底、コードの `cmlo`）:
 
-$$c^{\rm MLO}_{i\alpha}(q) \;=\; \sum_j
-\big\langle \psi^{\rm PMT}_{iq}\mid\psi^{\rm MTO}_{jq}\big\rangle^{*}\,
-\big\langle \psi^{\rm MTO}_{jq}\mid\chi^{\rm MTO}_{ix(\alpha)}\big\rangle\tag{10}
+$$c^{\rm MLO}_{i\alpha}(q) \;=\; \sum_j \bar\theta_{ij}(q)\;
+\big\langle \psi^{\rm PMT}_{iq}\mid\psi^{\rm MTO}_{jq}\big\rangle\,
+\big\langle \psi^{\rm MTO}_{jq}\mid\chi^{\rm MTO}_{ix(\alpha)}\big\rangle,
+\qquad c^{\rm MLO}_{i\alpha}=0 \ \ (i \le \texttt{nskip})\tag{10}
 $$
+
+ここで $\psi^{\rm MTO}_{jq}$ は MTO ブロックだけを対角化した固有関数、
+$\bar\theta$ が**窓の重み**（コードの `Amat` $=$ `fac` $\times\,\bar\theta$）:
+
+$$\bar\theta_{ij}(q) \;=\; \max\Big[\,
+f\!\Big(\frac{\varepsilon_i(q)-\varepsilon_{\rm frz}}{w_{\rm frz}}\Big),\;
+f\!\Big(\frac{\varepsilon_i(q)-\varepsilon^{\rm cut}_{j}}{w}\Big)\Big],
+\qquad f(x)=\frac{1}{e^{x}+1}\tag{11}
+$$
+
+$\varepsilon^{\rm cut}_j = \max(\varepsilon_{\rm cbot}+\Delta,\ \varepsilon^{\rm MTO}_j(q))$（既定の `mlomethod=4`）。
+パラメータは `mlo_delta` $=\Delta$、`mlo_wfrz` $=w_{\rm frz}$、`mlo_w` $=w$、`mlo_down`。
+床 $\varepsilon_{\rm cbot}+\Delta$ は **$q$ 非依存**に取る（$k$ ごとに動かすと窓の意味が $k$ ごとに変わり、金属で悪化する）。
+
+**これは冪等な射影ではない**。$\bar\theta<1$ の重みが入り（`--mlo_gs` の Gram–Schmidt を使えばなおさら）、
+$\tilde\chi_\alpha$ は「窓の中のバンドで書ける範囲で種に最も近い局在関数」である。
+**窓の外は鋭く切られるのではなく、幅 $w$ で連続に落ちる。**
 
 第二段は、固有ベクトル $z^{\psi}_{mi}(q)$（`evecpmt`、$|\psi_{iq}\rangle=\sum_m|\chi^{\rm PMT}_{mq}\rangle z^{\psi}_{mi}$）を掛けて PMT 基底へ戻す:
 
-$$z^{\rm MLO}(q) \;=\; z^{\psi}(q)\, c^{\rm MLO}(q)\tag{11}
+$$z^{\rm MLO}(q) \;=\; z^{\psi}(q)\, c^{\rm MLO}(q)\tag{12}
 $$
 
 この構成の性質（内挿の可否を左右する）:
 
 | 性質 | 内容 |
 |---|---|
+| **窓** | $\bar\theta$（式 (11)）で窓の中のバンドだけが寄与する。$\Sigma^{\rm MLO}$ は**窓の中でのみ $\hat\Sigma$ を忠実に表す** — これは欠陥ではなく設計意図そのもの（§3.3） |
 | **ゲージ** | 種 $\chi^{\rm MTO}_{ix(\alpha)}$ が $q$ に依らず固定なので **射影ゲージ**。固有ベクトルの任意位相・縮退内の任意回転は式 (10) で相殺し、$z^{\rm MLO}(q)$ は $q$ の滑らかな関数になる（Wannier の gauge fixing に相当する作業が不要） |
 | **直交性** | 既定では**非直交**。$O^{\rm MLO}(q) = (z^{\rm MLO})^\dagger S^{\rm PMT}(q)\, z^{\rm MLO}$。`--mlo_ortho` のときだけ Löwdin 直交化（`MLOLowdinOrthogonalization`）、`c0_mlo_diagnorm` で対角規格化。いずれも任意 |
 | **次元** | $M$ = `ndimMTO`（LiTi2O4 全 MTO で 154、t2g モデルで 12）。行数 $n_{\rm dimh}(q)$ は MTO 230 + APW（$q$ 依存） |
 | **出力** | `m_HamPMT.f90` が `__amlo.data` / `__amlo.info` に direct access で書き出す（1 record = 1 個の $(q,\sigma)$）。`info` は `ldim, ndimMTO, nqibz, nspx, mrecamlo` と種の索引 `ix(1:ndimMTO)`、`qibz(1:3,1:nqibz)` |
 
-**ただし、この先で実際に要るのは `cmlo` の方である**（式 (12)）。
+**ただし、この先で実際に要るのは `cmlo` の方である**（式 (13)）。
 現状 `__amlo.data` が持っているのは `zMLO` の MTO 行だけ（`writem(..., zMLO(1:ldim,1:ndimMTO))`、$230\times154$）で、
 `cmlo` は `Hreduction` の中で作られてそのまま捨てられている。→ 段 1' で書き出す（§4）。
 
@@ -201,7 +220,7 @@ $$
 
 $$\Sigma^{\rm MLO}_{\alpha\beta}(q) \;=\; \langle \tilde\chi_\alpha|\hat\Sigma(q)|\tilde\chi_\beta\rangle
 \;=\; \sum_{ij} \big(c^{\rm MLO}_{i\alpha}\big)^{*}\,\Sigma^{\psi}_{ij}(q)\,c^{\rm MLO}_{j\beta}
-\;=\;\big((c^{\rm MLO})^\dagger\,\Sigma^{\psi}\,c^{\rm MLO}\big)_{\alpha\beta}\tag{12}
+\;=\;\big((c^{\rm MLO})^\dagger\,\Sigma^{\psi}\,c^{\rm MLO}\big)_{\alpha\beta}\tag{13}
 $$
 
 $c^{\rm MLO}_{i\alpha}=\langle\psi^{\rm PMT}_{iq}\mid\tilde\chi_{\alpha q}\rangle$（式 (10)）の第一添字は
@@ -212,7 +231,7 @@ $\psi$ は正規直交だから逆行列も不要。$\Sigma^{\psi}$ から一発
 
 $$\Sigma^{\rm MLO}_{\alpha\beta}(R) = \frac{1}{N_q}\sum_q \Sigma^{\rm MLO}_{\alpha\beta}(q)e^{-iqR},
 \qquad
-\Sigma^{\rm MLO}_{\alpha\beta}(k) = \sum_R \Sigma^{\rm MLO}_{\alpha\beta}(R)\,\overline{e^{ikR}}\tag{13}
+\Sigma^{\rm MLO}_{\alpha\beta}(k) = \sum_R \Sigma^{\rm MLO}_{\alpha\beta}(R)\,\overline{e^{ikR}}\tag{14}
 $$
 
 $\alpha,\beta$ は MLO の通し番号（$M$ = `ndimMTO`）で **$q$ 非依存**だから、FFT も Bloch 和も
@@ -230,13 +249,13 @@ $\tilde\chi$ は実空間表現を持ち、**それを使う機構は既に動�
 | 任意 $q$ での Bloch 和 | `m_mlo_ham::calc_ham_eigen` | 上の 2 つを $q$ で和して $H^{\rm MLO}(q), O^{\rm MLO}(q)$ を作り一般化固有値問題を解く → `band_MLO_spin1.dat` |
 
 $\Sigma^{\rm MLO}(R)$ は `hammr`/`ovlmr` と**まったく同種の MLO×MLO 行列**（添字 $\alpha\beta$ は $q$ 非依存）だから、
-式 (13) は新規実装ですらなく、既存の経路に 1 本足すだけである。$O^{\rm MLO}(k)$ も既に任意 $k$ で得られている。
+式 (14) は新規実装ですらなく、既存の経路に 1 本足すだけである。$O^{\rm MLO}(k)$ も既に任意 $k$ で得られている。
 
 **「APW の本数が $k$ 依存」が効くのは 1 箇所だけ**: $z^{\rm MLO}_{m\alpha}(q)$ を**要素ごとにフーリエ内挿**しようとしたときである。
 行索引 $m$ が PMT 基底なので $\mathrm{FFT}[z^{\rm MLO}]$ は定義できない。**その手を使わなければよい**だけで、
 $\tilde\chi$ 自体は BvK 超格子上の局在関数として厳密に決まっている:
 
-$$\tilde\chi_{\alpha}(\mathbf r-\mathbf R) = \frac{1}{N_q}\sum_{q} e^{-i q R}\sum_m \chi^{\rm PMT}_{mq}(\mathbf r)\, z^{\rm MLO}_{m\alpha}(q)\tag{14}
+$$\tilde\chi_{\alpha}(\mathbf r-\mathbf R) = \frac{1}{N_q}\sum_{q} e^{-i q R}\sum_m \chi^{\rm PMT}_{mq}(\mathbf r)\, z^{\rm MLO}_{m\alpha}(q)\tag{15}
 $$
 
 #### 3.2.4 使い方は 2 通り
@@ -250,10 +269,10 @@ $\Sigma$ を PMT 基底に戻す必要は無いので、式 (6)(7) に相当す�
 **(B) SCF（電子密度）まで回すなら、$\Sigma$ を PMT ハミルトニアンに戻す必要がある。**
 lmf は PMT 基底で密度を作るので、任意 $k$ で
 
-$$A_{m\alpha}(k) = \big\langle\chi^{\rm PMT}_{mk}\mid\tilde\chi_{\alpha k}\big\rangle = \big(S^{\rm PMT}(k)\,z^{\rm MLO}(k)\big)_{m\alpha}\tag{15}
+$$A_{m\alpha}(k) = \big\langle\chi^{\rm PMT}_{mk}\mid\tilde\chi_{\alpha k}\big\rangle = \big(S^{\rm PMT}(k)\,z^{\rm MLO}(k)\big)_{m\alpha}\tag{16}
 $$
 
-が要る。**これも内挿しない**: $z^{\rm MLO}(k)$ は式 (10)(11) の射影をその $k$ で実行すれば直接得られる
+が要る。**これも内挿しない**: $z^{\rm MLO}(k)$ は式 (10)–(12) の射影をその $k$ で実行すれば直接得られる
 （`Hreduction` は `qplist.dat` の任意 $k$ リストで走る。`job_mlo` がバンドプロットで実際にやっていること）。
 コストは $k$ ごとの対角化 1 回分。$\mathrm{FFT}[z]$ を使わないので APW の本数が $k$ 依存でも構わない。
 
@@ -302,7 +321,7 @@ MTO では制御できない（§7 の付録）のに対し MLO では窓で制�
 
 ### 段 1' — `cmlo` の書き出し  【未着手・ここが次の一手】
 
-式 (12) が要るのは `zMLO` ではなく **`cmlo`$_{i\alpha}(q)$**（バンド × MLO、両添字とも $q$ 非依存）。
+式 (13) が要るのは `zMLO` ではなく **`cmlo`$_{i\alpha}(q)$**（バンド × MLO、両添字とも $q$ 非依存）。
 `Hreduction` の中で作られているが外へ出していない。段 1 と同じ機構で出す。
 
 - `__cmlo.data` … レコード = `(iq, isp)`、中身 `cmlo(1:nband, 1:ndimMTO)`
@@ -310,13 +329,13 @@ MTO では制御できない（§7 の付録）のに対し MLO では窓で制�
 
 **注意 — バンド索引の整合**: $\Sigma^{\psi}_{ij}(q)$ は `emax_sigm` 以下のバンド、
 `cmlo` は MLO の窓（`nskip` 以上）で張られる。**両者の $i$ の原点と範囲を `info` に明記して突き合わせる**。
-窓の外のバンドは式 (12) で単に寄与ゼロとして扱う（それが §3.3 の「捨てる自由度」）。
+窓の外のバンドは式 (13) で重み $\bar\theta$ により**連続に**落ちる（鋭い打ち切りではない）。
 
 ### 段 2 — $\Sigma^{\rm MLO}(R)$ の生成
 
 入力 `sigm`（または $\Sigma^{\psi}$ を直接）+ `__cmlo.data/.info`、出力 `SigRsMLO`。
 
-1. 式 (12) で $\Sigma^{\rm MLO}(q) = (c^{\rm MLO})^\dagger \Sigma^{\psi}(q)\, c^{\rm MLO}$。**MTO を経由しない。**
+1. 式 (13) で $\Sigma^{\rm MLO}(q) = (c^{\rm MLO})^\dagger \Sigma^{\psi}(q)\, c^{\rm MLO}$。**MTO を経由しない。**
    $\Sigma^{\psi}$ は `hqpe_sc` が MTO へ落とす前の段にあるので、そこに分岐を入れるのが素直。
 2. 既約 $q$ → 全 BZ。**回転則に注意**: $\tilde\chi_\alpha$ は原子中心の $lm$ を種に持つので
    MTO と同じ回転則で回るが、`ix(α)` の対応付けを間違えると全部壊れる。段 3 の検証で必ず捕まる。
@@ -341,9 +360,9 @@ $O^{\rm MLO}(k)$ は既に同じ場所で作られている。$\Sigma$ を PMT �
 ```
 
 有効時、§4.0 の表のとおり `bloch2` と `ovliovl` を差し替える。任意 $k$ で要るのは
-式 (15) の $A(k) = S^{\rm PMT}(k)\,z^{\rm MLO}(k)$ と $O^{\rm MLO}(k)$ の 2 つだけ。
+式 (16) の $A(k) = S^{\rm PMT}(k)\,z^{\rm MLO}(k)$ と $O^{\rm MLO}(k)$ の 2 つだけ。
 
-- $z^{\rm MLO}(k)$ … **内挿しない**。その $k$ で式 (10)(11) の射影を実行する
+- $z^{\rm MLO}(k)$ … **内挿しない**。その $k$ で式 (10)–(12) の射影を実行する
   （`Hreduction` は任意 $k$ リストで走る）。$k$ ごとに対角化 1 回分の追加コスト。
 - **循環の断ち方**: $\tilde\chi_\alpha(k)$ の定義に使う band 多様体は
   「**直前の反復の $H$ の固有関数**」で固定する。$\Sigma^{\rm MLO}(q)$ を作ったときと同じ処方にすること（§3.2.4 の整合条件）。
@@ -367,7 +386,7 @@ $O^{\rm MLO}(k)$ は既に同じ場所で作られている。$\Sigma$ を PMT �
 ## 6. リスク・未解決
 
 1. **バンド索引の突き合わせ** — 段 1'。$\Sigma^{\psi}$ の範囲（`emax_sigm`）と `cmlo` の窓（`nskip` 以上）が
-   ずれると式 (12) が静かに壊れる。検証 2（メッシュ点での厳密性）で必ず捕まるので、そこで担保する。
+   ずれると式 (13) が静かに壊れる。検証 2（メッシュ点での厳密性）で必ず捕まるので、そこで担保する。
 2. **既約 $q$ → 全 BZ の回転** — 段 2-2。`ix(α)` と回転則の対応を誤ると全部壊れる。同じく検証 2 で捕まる。
 3. **(B) の循環** — 段 4。$\tilde\chi(k)$ の定義に使う多様体を「直前の反復の $H$」に固定して断つ。
    これが不安定なら (A) のバンド経路だけを採り、SCF は従来の MTO 内挿のまま、という使い分けもあり得る。
