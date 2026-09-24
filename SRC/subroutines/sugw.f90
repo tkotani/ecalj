@@ -521,6 +521,26 @@ contains
             allocate(zm(ndimhx,ndimMTO_a))
             call Hreduction(mlomethod_a,.false.,ndimhx, hamm_lda(:,1,:,1), ovlm_keep(:,1,:,1), &
                  ndimMTO_a, ix_a, fff1_a, hmo, omo, qp, nev=nxq, zMLO=zm, nskip_auto=nskip_a)
+            ZmloDumpA: block !ECALJ_ZMLO_DUMP=1: the a' side of the same comparison
+              character(32):: cv
+              integer:: st, ifz
+              logical,save:: dmp=.false., dfirst=.true.
+              if(dfirst) then
+                dfirst=.false.
+                call get_environment_variable('ECALJ_ZMLO_DUMP',cv,status=st)
+                dmp = (st==0 .and. len_trim(cv)>0)
+                if(dmp) then
+                  open(newunit=ifz,file='__zmlo_sugw',form='unformatted')
+                  close(ifz,status='delete')
+                endif
+              endif
+              if(dmp) then
+                open(newunit=ifz,file='__zmlo_sugw',form='unformatted',position='append')
+                write(ifz) qp, isp, ndimhx, ndimMTO_a
+                write(ifz) zm(1:ndimhx,1:ndimMTO_a)
+                close(ifz)
+              endif
+            endblock ZmloDumpA
             allocate(sz(ndimhx,ndimMTO_a))
             sz = matmul(ovlm_keep(1:ndimhx,1,1:ndimhx,1), zm)        ! S^PMT z^MLO_0
             cmlo_a = (0d0,0d0)

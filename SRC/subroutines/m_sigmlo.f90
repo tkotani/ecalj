@@ -87,6 +87,7 @@ contains
     complex(8),allocatable :: zm(:,:), amat(:,:), hl(:,:), ol(:,:), tmp(:,:)
     complex(8) :: ph
     jsp = min(isp, nspx)
+    if(.false.) continue
     BlochSum: block  !eq (12); same phase convention as m_mlo_ham::calc_ham_eigen
       sigk = (0d0,0d0)
       do i = 1, ndimMTO
@@ -101,11 +102,66 @@ contains
       enddo
       sigk = 0.5d0*(sigk + transpose(dconjg(sigk)))  !kill the residual anti-hermitian part
     endblock BlochSum
+    RoundTripCheck: block !ECALJ_SIGMLO_RT=1: at a mesh q, the Bloch sum of Sigma^MLO(R) must
+      !reproduce the Sigma^MLO(q) that hqpe_sc wrote (eq 11 -> FFT -> eq 12 is a round trip).
+      character(32):: cv
+      integer:: st, ifs, nm2,nq2,ns2,n1,n2,n3, ip, isx, iqm
+      logical,save:: rt=.false., rfirst=.true.
+      real(8),allocatable:: qs(:,:,:)
+      complex(8),allocatable:: sq(:,:,:,:)
+      logical:: lex
+      if(rfirst) then
+        rfirst=.false.
+        call get_environment_variable('ECALJ_SIGMLO_RT',cv,status=st)
+        rt = (st==0 .and. len_trim(cv)>0)
+      endif
+      if(rt) then
+        inquire(file='__SigmMLO.q',exist=lex)
+        if(lex) then
+          open(newunit=ifs,file='__SigmMLO.q',form='unformatted',status='old',action='read')
+          read(ifs) nm2,nq2,ns2,n1,n2,n3
+          allocate(qs(3,ns2,nq2), sq(nm2,nm2,nq2,ns2))
+          read(ifs) qs; read(ifs) sq; close(ifs)
+          iqm=0
+          do ip=1,nq2
+            if(sum(abs(qs(:,1,ip)-qp))<1d-6) then; iqm=ip; exit; endif
+          enddo
+          if(iqm>0) then
+            write(stdo,"(a,3f9.5,a,f12.4,a,f12.4)")' SIGMLO_RT q=',qp, &
+              '  max|Bloch(R)-q-space|[meV]=',maxval(abs(sigk-sq(:,:,iqm,jsp)))*13605.7d0, &
+              '   max|q-space|[meV]=',maxval(abs(sq(:,:,iqm,jsp)))*13605.7d0
+          endif
+          deallocate(qs,sq)
+        endif
+      endif
+    endblock RoundTripCheck
     allocate(hl(ndimh,ndimh),ol(ndimh,ndimh),zm(ndimh,ndimMTO))
     hl = hamm; ol = ovlm                       !Hreduction may modify its arguments
     call Hreduction(mlomethod,.false.,ndimh, hl, ol, ndimMTO, ix, fff1, &
          hmo, omo, qp, nev=nxq, zMLO=zm, nskip_auto=nskip)
     deallocate(hl,ol)
+    ZmloDump: block !ECALJ_ZMLO_DUMP=1: write z^MLO(k) so it can be compared with the one
+      !that sugw's step a' built at the same q.  They must be identical: both are
+      !Hreduction(H^LDA(q), S^PMT(q)) with the same frozen index.
+      character(32):: cv
+      integer:: st, ifz
+      logical,save:: dmp=.false., dfirst=.true.
+      if(dfirst) then
+        dfirst=.false.
+        call get_environment_variable('ECALJ_ZMLO_DUMP',cv,status=st)
+        dmp = (st==0 .and. len_trim(cv)>0)
+        if(dmp) then
+          open(newunit=ifz,file='__zmlo_getsenex',form='unformatted')
+          close(ifz,status='delete')
+        endif
+      endif
+      if(dmp) then
+        open(newunit=ifz,file='__zmlo_getsenex',form='unformatted',position='append')
+        write(ifz) qp, isp, ndimh, ndimMTO
+        write(ifz) zm(1:ndimh,1:ndimMTO)
+        close(ifz)
+      endif
+    endblock ZmloDump
     allocate(amat(ndimh,ndimMTO))
     amat = matmul(ovlm, zm)                    !A = S^PMT z^MLO           eq (15)
     omlo = matmul(transpose(dconjg(zm)), amat) !O^MLO = z^dag A
