@@ -166,9 +166,29 @@ contains
     write(ifi,'(a)') '#   <iatom> <label> <lm1> <lm2> ...   (a row starting with ! is ignored)'
     write(ifi,'(a)') '# lm: 1=s; 2,3,4=py,pz,px; 5..9=dxy,dyz,dz2,dxz,dx2-y2; 10..16=f  (real harmonics,'
     write(ifi,'(a)') '#     the PROCAR order). A partial shell is fine, e.g. 5 6 8 for t2g only.'
+    write(ifi,'(a)') '# Default below: s,p (1..4) up to Ne, s,p,d (1..9) from Na on.  A d on oxygen'
+    write(ifi,'(a)') '#   is a polarization function, not a valence orbital, and an MLO built on it'
+    write(ifi,'(a)') '#   only adds a near-null direction.  f (10..16) is never listed by default:'
+    write(ifi,'(a)') '#   this targets systems without 4f (up to Xe).'
+    write(ifi,'(a)') '# At most ONE MLO per (atom, lm): do not add the second radial set (mlo_lm2) for'
+    write(ifi,'(a)') '#   an lm already listed here -- the projection collapses the two onto the same'
+    write(ifi,'(a)') '#   function and the MLO overlap turns near-singular.'
     write(ifi,'(a)') 'mlo_lm = """'
     do ibas = 1, nbas
-       write(ifi,'(a,i0,1x,a,a)') '! ', ibas, trim(spid(ibas)), '   1 2 3 4 5 6 7 8 9'
+       ! Which lm to list by default: s,p for a main-group atom, s,p,d for a d-block
+       ! one.  Oxygen's d is a polarization function, not a valence orbital, and an
+       ! MLO built on it only adds a near-null direction.  f is never listed: this
+       ! default targets systems without 4f (up to Xe).  Edit the row to change it.
+       block
+         integer :: nz, lmx_mlo
+         character(len=64) :: lmlist
+         nz = nint(zz(ibas))
+         lmx_mlo = 2                                    ! s,p,d by default
+         if (nz <= 10) lmx_mlo = 1                      ! H..Ne: s,p only (no d valence)
+         lmlist = merge('   1 2 3 4                    ', &
+                        '   1 2 3 4 5 6 7 8 9          ', lmx_mlo==1)
+         write(ifi,'(i0,1x,a,a)') ibas, trim(spid(ibas)), trim(lmlist)
+       endblock
     enddo
     write(ifi,'(a)') '"""'
     write(ifi,'(a)')
