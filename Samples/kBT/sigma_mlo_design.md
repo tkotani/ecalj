@@ -424,21 +424,28 @@ call getsenex(qp, isp, ndimh, ovlm, hamm)   ! hamm = H^LDA(k)、4 箇所とも�
 どちらのモードも同じ `getsenex` を通るので、**バンドも密度も、GW へ渡す固有関数も、同時に同じ MLO 内挿になる**。
 両モードで処方が揃うことは反復の整合に必須である（§3.2.4）。
 
-### 4.1 反復の外（一度だけ） — $\tilde\chi$ を固定する
+### 4.1 反復の外（一度だけ）
 
 **$\tilde\chi_\alpha$ は反復ごとに作り直さない。**種 $\chi^{\rm MTO}_{ix(\alpha)}$ も窓のパラメータも固定なのだから、
 $\tilde\chi$ を一度決めて全反復で使い回せばよい。これで `mlo` を反復の中で 2 回呼ぶ（サンドイッチする）必要が無くなる。
 
-1. `lmf --writeham --mlo` … `HamiltonianPMTInfo`（MTO チャネル表 `ix`、`ndimMTO`）
-2. 出発の $H$（LDA でよい）で GW メッシュ上の $z^{\rm MLO}_0(q)$ を作り、**保存する**（`__zmlo.data`）。
-   窓の大域量（`nskip`, $\varepsilon_{\rm cbot}$, $E_F$）も同時に凍結する。
+| # | 実行 | 何に依存するか |
+|---|---|---|
+| 0a | `lmf --jobgw=0` | **構造と基底だけ**。`m_hamindex0_init()` で `HAMindex0` を書いて即終了する（`main_lmf.f90`:95）。密度にも $\Sigma$ にも依らない |
+| 0b | `qg4gw --job=1` | 同上。$q$ メッシュと cutoff から `QGpsi`（offset-Γ 込み）を作るだけ |
+| 0c | `lmf --writeham --mlo` | `HamiltonianPMTInfo`（MTO チャネル表 `ix`、`ndimMTO`） |
+| 0d | $z^{\rm MLO}_0(q)$ を $H^{\rm LDA}$ で作って保存（`__zmlo.data`） | 窓の大域量（`nskip`, $\varepsilon_{\rm cbot}$, $E_F$）も同時に凍結 |
+
+**したがって反復は a3 以降だけでよい。**
+現行の `gwsc` は 0a・0b を毎反復走らせているが、どちらも安価なので害は無い（残してよい）。
+$\tilde\chi_\alpha$ を 0d で固定するのが要点で、これにより反復の中で MLO を作り直す必要が無くなる。
 
 ### 4.2 反復ごと
 
 | 段 | 実行 | 何をする / 出力 |
 |---|---|---|
-| a1 | `lmf --jobgw=0` | GW 用の構造・k 点情報。`QGpsi` はまだ無いので GW の全 q リストでは走らない |
-| a2 | `qg4gw --job=1` | `QGpsi`（GW の q と G の一覧、offset-Γ 込み） |
+| (a1) | `lmf --jobgw=0` | §4.1 の 0a と同じ。**構造のみ依存なので本来は反復不要** |
+| (a2) | `qg4gw --job=1` | §4.1 の 0b と同じ。**同上** |
 | **a3** | **`lmf --jobgw=1`**（= `m_sugw_init`） | GW の全 q で固有値問題を解き、`__VxcEvec`（$z^{\psi}$, $V_{xc}$）、`geig`/`cphi`、`__HamiltonianGW` を書く |
 | **a'** | **a3 と同じルーチンの中** | $c'(q) = (z^{\psi})^\dagger S^{\rm PMT}(q)\, z^{\rm MLO}_0(q)$ → `__cmlo.data` |
 | b | `heftet` / `hbasfp0` / `hvccfp0` / `hsfp0_sc` / `hgw` | $\Sigma^{\psi}$（`SEX2U`, `SEC2U`, …） |
