@@ -424,8 +424,34 @@ call getsenex(qp, isp, ndimh, ovlm, hamm)   ! hamm = H^LDA(k)、4 箇所とも�
 どちらのモードも同じ `getsenex` を通るので、**バンドも密度も、GW へ渡す固有関数も、同時に同じ MLO 内挿になる**。
 両モードで処方が揃うことは反復の整合に必須である（§3.2.4）。
 
-以下、そこへ至る段を並べる。段 3 は lmf に手を入れずに数字を先に見るための**試験台**で、
-本体は段 4 である。
+### 4.1 反復の外（一度だけ） — $\tilde\chi$ を固定する
+
+**$\tilde\chi_\alpha$ は反復ごとに作り直さない。**種 $\chi^{\rm MTO}_{ix(\alpha)}$ も窓のパラメータも固定なのだから、
+$\tilde\chi$ を一度決めて全反復で使い回せばよい。これで `mlo` を反復の中で 2 回呼ぶ（サンドイッチする）必要が無くなる。
+
+1. `lmf --writeham --mlo` … `HamiltonianPMTInfo`（MTO チャネル表 `ix`、`ndimMTO`）
+2. 出発の $H$（LDA でよい）で GW メッシュ上の $z^{\rm MLO}_0(q)$ を作り、**保存する**（`__zmlo.data`）。
+   窓の大域量（`nskip`, $\varepsilon_{\rm cbot}$, $E_F$）も同時に凍結する。
+
+### 4.2 反復ごと
+
+| 段 | 実行 | 入出力 |
+|---|---|---|
+| a | `lmf --jobgw=0` / `qg4gw` / `lmf --jobgw=1` | `__HamiltonianGW`, `__VxcEvec`（= 現反復の固有ベクトル $z^{\psi}$） |
+| a' | **同じ `sugw` の中で** $c'(q) = (z^{\psi})^\dagger S^{\rm PMT}(q)\, z^{\rm MLO}_0(q)$ | `__cmlo.data` |
+| b | GW 本体 | `SEX2U` 他 |
+| c | `hqpe_sc` | `sigm` ＋ **`SigmMLO.q`**（式 (11)） |
+| d | `mlo --mlo` | **`SigRsMLO`**（対称化 → 全 BZ → FFT） |
+| e | `lmf` | SCF。`getsenex` が `SigRsMLO` を使う（段 4） |
+
+**a' が肝**である。$\tilde\chi_\alpha$ は固定した 1 個の関数だが、式 (11) が要求する
+$c^{\rm MLO}_{i\alpha}=\langle\psi_i\mid\tilde\chi_\alpha\rangle$ の $\psi_i$ は
+**$\Sigma^{\psi}$ を計算したのと同じ固有関数**（＝現反復の QSGW 固有関数）でなければならない。
+固定した $\tilde\chi$ を現反復の固有基底へ**展開し直す**のが $c'$ の式である。
+
+> **実測（2026-09-24）**: これを守らずに、$\tilde\chi$ を LDA で作り $\Sigma^{\psi}$ を QSGW 固有基底のまま縮約すると、
+> **メッシュ点で 44〜218 meV ずれる**。逆に $\tilde\chi$ を QSGW で作って $H^{\rm MLO}$ を LDA で作ると **312 meV**。
+> $\tilde\chi$ が首尾一貫していれば **1.2 meV**（LDA 対照 1.1 meV）。
 
 ### 段 1 — `zMLO` の書き出し  【2026-09-24 完了】
 
