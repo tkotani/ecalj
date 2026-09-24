@@ -47,10 +47,25 @@ getsenex   : PMT ハミルトニアンへ加算
 
 ## 3. 設計
 
-### 3.0 【2026-09-24 訂正】現状の展開はすでに非直交の双対基底 — 変えるのは部分空間だけ
+### 3.0 記号 — 基底・種・固有関数・MLO を区別する
 
-当初「`mtosigmaonly` が APW を捨てている」と書いたが**誤り**だった。
-`getsenex`（`rdsigm2.f90:18`）は
+| 記号 | 意味 | 次元 / 索引 |
+|---|---|---|
+| $\chi^{\rm PMT}_m$ | **PMT 基底関数**（MTO + APW） | $m = 1\ldots n_{\rm dimh}$、**APW の本数は $k$ に依存** |
+| $\chi^{\rm MTO}_\mu$ | その MTO 部分 | $\mu = 1\ldots L$（`ldim` = 230）、**$k$ 非依存** |
+| $F^{\rm MTO}_k$ | **種**。`ix(k)` 番目の MTO 基底関数（固定） | $k = 1\ldots M$ |
+| $\psi^{\rm PMT}_i$ | **固有関数** | |
+| $F^{\rm MLO}_k = P\,F^{\rm MTO}_k$ | **MLO**。band 多様体への射影 | $= \sum_m \chi^{\rm PMT}_m\, z^{\rm MLO}_{mk}$ |
+| `cmlo`$_{ik} = \langle \psi^{\rm PMT}_i | F^{\rm MLO}_k\rangle$ | **固有関数**基底での係数 | |
+| `zMLO`$_{mk}$ | **PMT 基底**での係数（`Hreduction` が返す） | $(n_{\rm dimh}, M)$ |
+| $P_a$ | **PAW（augmentation）チャネル** φ, φ̇ | $a = 1\ldots N_a$（`ndima` = 700）、**$k$ 非依存** |
+| $B_{am}(k)$ | PMT 基底関数の augmentation 係数 | lmf が任意 $k$ で厳密に作る |
+
+$\Sigma$ は `sigm` に $\Sigma^{\rm MTO}_{\mu\nu}(q) = \langle\chi^{\rm MTO}_\mu|\Sigma-V_{xc}|\chi^{\rm MTO}_\nu\rangle$ として入っている（$L\times L$）。
+
+### 3.1 現状の展開はすでに非直交の双対基底【2026-09-24 訂正】
+
+当初「`mtosigmaonly` が APW を捨てている」と書いたが**誤り**。`getsenex`（`rdsigm2.f90:18`）は
 
 ```fortran
 ovlmtoi = ovlm(1:ndimsig,1:ndimsig)            ! O_MTO
@@ -61,72 +76,74 @@ senex   = matmul(conjg(transpose(ovliovl)), matmul(sene, ovliovl))
 
 すなわち
 
-$$\hat\Sigma \;=\; |{\rm PMT}\rangle\,\langle{\rm PMT}|{\rm MTO}\rangle\,O_{\rm MTO}^{-1}\;
+$$\hat\Sigma = |{\rm PMT}\rangle\,\langle{\rm PMT}|{\rm MTO}\rangle\,O_{\rm MTO}^{-1}\;
 \Sigma^{\rm MTO}\;O_{\rm MTO}^{-1}\,\langle{\rm MTO}|{\rm PMT}\rangle\,\langle{\rm PMT}|$$
 
-を既に実装しており、**APW ブロックも埋まる**。`mtosigmaonly` は「Σ の行列要素を MTO 部分空間で保持する」
-という意味であって、「APW に効かない」ではない。
+であり、**APW ブロックも埋まる**。`mtosigmaonly` は「$\Sigma$ の行列要素を MTO 部分空間で保持する」の意。
 
-したがって **変えられるのは「どの部分空間で Σ を保持し、内挿するか」だけ**である。
-MTO（230、非直交、EH/EH2 が準線形従属、裾が長い）→ MLO（154、局在、固定種）に置き換える。
-**展開の枠組みは一切変えない**ので、`getsenex` の 4 行を差し替えるだけで済む。
+→ **変えられるのは「どの部分空間で $\Sigma$ を保持し、内挿するか」だけ**。展開の枠組みは変えない。
 
-### 3.1 記号
+### 3.2 MLO を部分空間に使う場合【障害あり】
 
-- $\chi^{\rm MTO}_\mu$ … MTO 基底（$\mu = 1\ldots L$、$L$ = `ldim` = 230）
-- $|w_i\rangle = \sum_\mu \chi^{\rm MTO}_\mu A_{\mu i}$ … MLO（$i = 1\ldots M$、$M$ = `ndimMTO` = 154）。
-  $A(q)$ = `zMLO(1:ldim, 1:ndimMTO)`、`Hreduction` が返す。**段 1 で `__amlo.data` に書き出し済み**。
-- $\Sigma^{\rm MTO}(q)$ … `sigm` の中身
+$F^{\rm MLO}$ で保持するなら
 
-### 3.2 MLO 表現
+$$\Sigma^{\rm MLO}_{kl}(q) = \langle F^{\rm MLO}_k|\hat\Sigma|F^{\rm MLO}_l\rangle
+= \big(D^\dagger \Sigma^{\rm MTO} D\big)_{kl},\qquad
+D(q) = O_{\rm MTO}^{-1}\,\langle{\rm MTO}|{\rm PMT}\rangle\, z^{\rm MLO}$$
 
-$$\Sigma^{\rm MLO}(q) = A^\dagger(q)\,\Sigma^{\rm MTO}(q)\,A(q) \qquad (M \times M)$$
+戻すときは
 
-計量は不要（`sigm` は $\langle\chi|\Sigma-V_{xc}|\chi\rangle$ そのもの）。自由度は $L^2 \to M^2$ で **45 %**。
+$$\hat\Sigma = |{\rm PMT}\rangle\,S_{\rm PMT} z^{\rm MLO}\,O_{\rm MLO}^{-1}\;\Sigma^{\rm MLO}(k)\;
+O_{\rm MLO}^{-1}\,(z^{\rm MLO})^\dagger S_{\rm PMT}\,\langle{\rm PMT}|,
+\qquad O_{\rm MLO} = (z^{\rm MLO})^\dagger S_{\rm PMT} z^{\rm MLO}$$
 
-### 3.3 内挿
+**障害**: 任意 $k$ で $z^{\rm MLO}(k)$ が要るが、$z^{\rm MLO}$ の行は PMT 基底で、
+**APW の本数が $k$ ごとに違う**（$|k+G| <$ cutoff の $G$ 集合が変わる）。
+したがって **$C(R) = \mathrm{FFT}[z^{\rm MLO}(q)]$ が定義できない**。
+MTO 行だけなら $k$ 非依存で FFT できるが、それは MLO の一部でしかない
+（切り捨てると $F^{\rm MLO}$ ではない別物になる）。
 
-$\Sigma^{\rm MLO}(q)$ を FFT して $\Sigma^{\rm MLO}(R)$ とし、任意 $k$ では
-`HamRsMLO` と同じ WS 最短ベクトル・重みで Bloch 和を取る。
-**内挿されるのはここだけ**。
+→ **MLO をそのまま内挿する道は、この障害を回避しない限り成立しない。**
 
-### 3.4 `getsenex` の差し替え
+回避案（いずれも未検証）:
+1. MLO の APW 成分を無視し、MTO 成分だけで近似する。$F^{\rm MLO}$ の APW 重みが小さい系でのみ可。
+2. **MLO を PAW チャネルで展開する**（→ §3.3）。PAW チャネルは $k$ 非依存なので係数が固定できる。
 
-$$\hat\Sigma = |{\rm PMT}\rangle\,\langle{\rm PMT}|w\rangle\,O_{\rm MLO}^{-1}\;
-\Sigma^{\rm MLO}(k)\;O_{\rm MLO}^{-1}\,\langle w|{\rm PMT}\rangle\,\langle{\rm PMT}|$$
+### 3.3 PAW（augmentation）チャネルを部分空間に使う【本命】
 
-コード上は `ovlm(1:ndimsig,1:ndimh)` を $A^\dagger(k)\,\mathrm{ovlm}(1{:}L,1{:}n_{\rm dimh})$ に、
-`ovlm(1:ndimsig,1:ndimsig)` を $A^\dagger(k)\,\mathrm{ovlm}(1{:}L,1{:}L)\,A(k)$ に置き換えるだけ。
-$M \times M$ の逆行列（154³）は無視できるコスト。
+$P_a$（MT 球内の φ, φ̇）は **$k$ 非依存の固定索引**であり、$B(k)$ は **lmf が任意 $k$ で厳密に作る**。
+したがって §3.2 の障害が最初から無い。
 
-### 3.5 $A(k)$ をどう作るか
+$$\Sigma^{\rm PAW}_{ab}(q) = \big(D_{\rm PAW}^\dagger\,\Sigma^{\rm MTO}(q)\,D_{\rm PAW}\big)_{ab},
+\qquad D_{\rm PAW}(q) = O_{\rm MTO}^{-1}\,\langle{\rm MTO}|{\rm PMT}\rangle\, \Pi^{-1} B^\dagger(q)$$
 
-$A(q)$ は Σ メッシュ点でしか無いので、任意 $k$ には
+（$\Pi$ = 球内の重なり `ppj`。GW 側は `cphi` で同じ量を既に扱っている。）
 
-$$C(R) = \mathrm{FFT}[A(q)], \qquad A(k) = \sum_R C(R)\,e^{ikR}$$
+内挿は $\Sigma^{\rm PAW}(R)$ で行い、戻すのは
 
-**ゲージは projection gauge** — MLO は固定した MTO 種 $F^{\rm MTO}_k$ を band 多様体へ射影して作る
-（`m_hreduction.f90:317`）ので、固有ベクトルの任意位相は入らない。したがって $C(R)$ は意味を持つ。
-**要検証**（§5 の検証 1・2）。
+$$\hat\Sigma = |{\rm PMT}\rangle\, B^\dagger(k)\,\Pi^{-1}\,\Sigma^{\rm PAW}(k)\,\Pi^{-1}\,B(k)\,\langle{\rm PMT}|$$
 
-反復の中では **直前の反復の $A$ を使う**（user 2026-09-24）。QSGW が $\Sigma$ 自体についてやっていることと
-同じで、自己無撞着に至れば整合する。
+**$B(k)$ も $\Pi$ も厳密**。内挿されるのは $\Sigma^{\rm PAW}(k)$ だけ。
 
-### 3.6 何を失うか
+**局在性**: 部分波は球内に厳密に閉じているので、MTO 包絡（smooth Hankel、裾が長い）より
+$\Sigma(R)$ の減衰が速いはず。09-24 の測定で Ti 3d ブロックが BvK セル端で頭打ちだったのは、
+包絡の裾が主因の可能性が高い。**要検証**（§5 の検証 1）。
 
-MLO 部分空間の外の $\Sigma$。LiTi₂O₄ の 154 軌道模型では
+**次元**: `ndima` = 700（`lmxa` = 4）。l を切れば
 
-| 帯 | メッシュ点での再現 |
+| 切り方 | チャネル数 |
 |---|---|
-| O 2s / O 2p / t2g / eg（E_F+4 eV まで） | **0.1〜0.5 meV** |
-| 格子間バンド（E_F+4 eV 以上） | 33〜306 meV |
+| 全部（lmxa = 4） | 700 |
+| l ≤ 3（= `lmx`） | 448 |
+| l ≤ 2 | 252 |
+| 原子別（Ti は d まで、O は p まで、Li は s,p） | 〜150 |
 
-### 3.7 PAW チャネル案（将来）
+**どこで切るかは実測で決める**（§5 の検証 2）。
 
-MLO の代わりに MT 球内の部分波 φ, φ̇ のチャネル（`@MNLA_CPHI`、`ndima` = 700）へ射影する案もある。
-利点は $B(k)$（augmentation 係数）が **lmf が任意 $k$ で厳密に作れる**ため $A(k)$ の内挿が要らないこと。
-欠点は次元が 700 と多いこと（l ≤ 3 で 448、l ≤ 2 で 252、原子別に切れば 〜150）。
-**MLO 案で §5 の検証 1・2 が通らなかった場合の代替**として残す。
+### 3.4 何を失うか
+
+PAW チャネルの外 = **MT 球の外（格子間）の $\Sigma$**。
+現状の MTO 表現も球外を MTO 包絡の裾で表しているだけなので、優劣は自明ではない。**検証 3 で測る。**
 
 ## 4. 実装手順
 
@@ -150,7 +167,7 @@ MLO の代わりに MT 球内の部分波 φ, φ̇ のチャネル（`@MNLA_CPHI
    （MTO/MLO のように「行と列で回転則が違う」問題が無い）。
 3. FFT → $\Sigma^{\rm PAW}(R)$、WS 最短ベクトルの対リストで保存。
 
-### 段 3 — `bloch2` の差し替え
+### 段 3 — `getsenex` の差し替え
 
 `rdsigm2.f90` に分岐を入れる。既定は従来どおり。
 
