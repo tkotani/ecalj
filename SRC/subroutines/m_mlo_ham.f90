@@ -11,7 +11,9 @@ module m_mlo_ham
   integer, protected, target :: ndimMTO, npairmx, nspx, nsite
   integer, allocatable, protected:: ib_tableM(:), l_tableM(:), k_tableM(:), ib_tableI(:)
   complex(8),allocatable, protected:: ovlmr(:,:,:,:), hammr(:,:,:,:), hammhsor(:,:,:,:) !npairmx, ndimMTO, ndimMTO, nspx order
+  complex(8),allocatable, protected:: sigmlor(:,:,:,:) !Sigma^MLO(R); added to hamm when SigRsMLO exists
   logical, protected :: socmatrix = .false.
+  logical, protected :: lsigmlo = .false.
 contains
   subroutine read_ham_rs()! read RealSpace MTO Hamiltonian
     integer:: ifihmto, i
@@ -31,6 +33,23 @@ contains
     read(ifihmto) ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO)
     close(ifihmto)
     if(ipr) write(stdo,*)'OK: Read HamRsMLO file! Use i-ioffib for setting mlo_lm'
+    ReadSigRsMLO: block !stage 3 test bed of Samples/kBT/sigma_mlo_design.md
+      integer:: ifs,nm,np,ns
+      inquire(file='SigRsMLO',exist=lsigmlo)
+      if(lsigmlo) then
+        open(newunit=ifs,file='SigRsMLO',form='unformatted',action='read')
+        read(ifs) nm,np,ns
+        if(nm/=ndimMTO .or. np/=npairmx .or. ns/=nspx) then
+          if(ipr) write(stdo,ftox)'m_mlo_ham: SigRsMLO mismatch -> ignored',nm,np,ns
+          lsigmlo=.false.
+        else
+          allocate(sigmlor(npairmx,ndimMTO,ndimMTO,nspx))
+          read(ifs) sigmlor
+          if(ipr) write(stdo,ftox)'m_mlo_ham: SigRsMLO added to H. |Sigma(R)|=',sum(abs(sigmlor))
+        endif
+        close(ifs)
+      endif
+    endblock ReadSigRsMLO
     ib_tableI = pack(ib_tableM(1:ndimMTO), [(all(ib_tableM(:i-1)/=ib_tableM(i)), i=1,ndimMTO)])
     if(ipr) write(stdo,ftox) 'Atomic sites in the primitive cell for MLO Hamiltonian: ', ib_tableI
     nsite = size(ib_tableI)
@@ -49,6 +68,7 @@ contains
     real(8), parameter :: pi=4d0*atan(1d0)
     complex(8), parameter :: img=(0d0,1d0)
     complex(8) :: phases(npairmx)
+    complex(8) :: sbuf(ndimMTO)
     integer, allocatable :: idims(:), jdims(:)
     integer :: i, j, ib1, ib2, it, jj, ibt1, ibt2, istat, io, js, jsp_src, nspinor
 
@@ -71,6 +91,12 @@ contains
           do jj = 1, size(jdims)
             istat = zmv(hammr(1,idims(1),jdims(jj),jsp_src), phases, hamm(idims(1),js,jdims(jj),js), n=size(idims), m=npair(ib1,ib2), opA=m_op_T, lda=npairmx)
             istat = zmv(ovlmr(1,idims(1),jdims(jj),jsp_src), phases, ovlm(idims(1),js,jdims(jj),js), n=size(idims), m=npair(ib1,ib2), opA=m_op_T, lda=npairmx)
+            if(lsigmlo) then
+              sbuf(1:size(idims)) = (0d0,0d0)
+              istat = zmv(sigmlor(1,idims(1),jdims(jj),jsp_src), phases, sbuf, n=size(idims), m=npair(ib1,ib2), opA=m_op_T, lda=npairmx)
+              hamm(idims(1):idims(1)+size(idims)-1,js,jdims(jj),js) = &
+                   hamm(idims(1):idims(1)+size(idims)-1,js,jdims(jj),js) + sbuf(1:size(idims))
+            endif
           enddo
         enddo
         if(socmatrix) then
