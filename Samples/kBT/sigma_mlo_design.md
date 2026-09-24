@@ -192,7 +192,7 @@ $$
 ブロッホ基底、band 多様体も窓（エネルギーで決まる）も $q$ の周期的な量だから、$\tilde\chi_{\alpha,q+G}=\tilde\chi_{\alpha q}$。
 **したがって $\Sigma^{\rm MLO}_{\alpha\beta}(q)$ は $q$ の周期関数であり、式 (11)(12) のフーリエ変換が正当化される。
 これが本設計の licence である。**
-同じ理由で $\tilde\chi_\alpha$ 自身も実空間の種を持ち、和を取れば任意 $k$ で再構成できる（式 (13) の $A(k)$ はそれ）。
+同じ理由で $\tilde\chi_\alpha$ 自身も実空間の種を持ち、和を取れば任意 $k$ で再構成できる（式 (15) の $A(k)$ はそれ）。
 
 周期的でないのは**係数配列 $z^{\rm MLO}_{m\alpha}(q)$ の APW 部分**の方で、$q\to q+G'$ でラベルがずれる。
 だから $\mathrm{FFT}[z^{\rm MLO}]$ は取れない。しかし**内挿に要るのは行列であって係数ではない**（§3.2.3）。
@@ -258,12 +258,32 @@ $\Sigma$ を PMT 基底に戻す必要は無いので、式 (6)(7) に相当す�
 メッシュ点の値は 0.1–0.5 meV で再現していた。
 
 **(B) SCF（電子密度）まで回すなら、$\Sigma$ を PMT ハミルトニアンに戻す必要がある。**
-lmf は PMT 基底で密度を作るので、任意 $k$ で
+lmf は PMT 基底で密度を作るので、式 (12) の $\Sigma^{\rm MLO}_{\alpha\beta}(k)$ を
+ハミルトニアンの行列要素に書き換える式が要る。MLO も非直交なので
+$\big(O^{\rm MLO}\big)^{-1}$ を両側に挟む（式 (6)(7) の MLO 版）:
 
-$$A_{m\alpha}(k) = \big\langle\chi^{\rm PMT}_{mk}\mid\tilde\chi_{\alpha k}\big\rangle = \big(S^{\rm PMT}(k)\,z^{\rm MLO}(k)\big)_{m\alpha}\tag{13}
+$$\hat\Sigma \;=\; \sum_{\alpha\alpha'\beta'\beta} |\tilde\chi_{\alpha k}\rangle\,
+\big(O^{\rm MLO}\big)^{-1}_{\alpha\alpha'}\;\Sigma^{\rm MLO}_{\alpha'\beta'}(k)\;
+\big(O^{\rm MLO}\big)^{-1}_{\beta'\beta}\,\langle\tilde\chi_{\beta k}|\tag{13}
 $$
 
-が要る。**これも内挿しない**: $z^{\rm MLO}(k)$ は式 (9) の射影をその $k$ で実行すれば直接得られる
+$$\boxed{\;\big[\hat\Sigma\big]_{mn}(k) \;=\; \sum_{\alpha\alpha'\beta'\beta}
+A_{m\alpha}(k)\,\big(O^{\rm MLO}\big)^{-1}_{\alpha\alpha'}\;\Sigma^{\rm MLO}_{\alpha'\beta'}(k)\;
+\big(O^{\rm MLO}\big)^{-1}_{\beta'\beta}\,A^{*}_{n\beta}(k)\;}\tag{14}
+$$
+
+これが `senex(ndimh,ndimh)` である。要る行列は 2 つだけ:
+
+$$A_{m\alpha}(k) = \big\langle\chi^{\rm PMT}_{mk}\mid\tilde\chi_{\alpha k}\big\rangle
+= \big(S^{\rm PMT}(k)\,z^{\rm MLO}(k)\big)_{m\alpha},
+\qquad
+O^{\rm MLO}_{\alpha\beta}(k) = \big((z^{\rm MLO})^\dagger A\big)_{\alpha\beta}\tag{15}
+$$
+
+$m,n$ は MTO と APW の両方を走るので、現状（式 (7)）と同じく **APW ブロックも埋まる**。
+$S^{\rm PMT}(k)$ は `getsenex` の引数 `ovlm` で既に渡っている。
+
+**$z^{\rm MLO}(k)$ は内挿しない**: 式 (9) の射影をその $k$ で実行すれば直接得られる
 （`Hreduction` は `qplist.dat` の任意 $k$ リストで走る。`job_mlo` がバンドプロットで実際にやっていること）。
 コストは $k$ ごとの対角化 1 回分。$\mathrm{FFT}[z]$ を使わないので APW の本数が $k$ 依存でも構わない。
 
@@ -290,7 +310,7 @@ MTO では制御できない（§7 の付録）のに対し MLO では窓で制�
 | | 現状 | MLO 版 |
 |---|---|---|
 | 内挿 | `call bloch2(qp,ispsigm,sene)` → $\Sigma^{\rm MTO}(q)$（$L\times L$、$L$=230） | $\Sigma^{\rm MLO}(R)$ を同じ対リストで Bloch 和 → $\Sigma^{\rm MLO}(q)$（$M\times M$、$M$=154 or 12） |
-| 挟む行列 | `ovliovl` $=\big[(O^{\rm MTO})^{-1}S^{\rm PMT}\big]$ ← 引数 `ovlm` から作る | $\big[(O^{\rm MLO})^{-1}A^\dagger\big]$、$A = S^{\rm PMT}(q)\,z^{\rm MLO}(q)$（式 (13)） |
+| 挟む行列 | `ovliovl` $=\big[(O^{\rm MTO})^{-1}S^{\rm PMT}\big]$ ← 引数 `ovlm` から作る | $\big[(O^{\rm MLO})^{-1}A^\dagger\big]$、$A = S^{\rm PMT}(q)\,z^{\rm MLO}(q)$（式 (15)） |
 | 出力 | `senex(ndimh,ndimh)` | 同じ |
 
 インタフェースは変わらない。呼び出し元（`m_bandcal.f90`、`sugw.f90` の 2 箇所）は無改造で、
@@ -351,7 +371,7 @@ $O^{\rm MLO}(k)$ は既に同じ場所で作られている。$\Sigma$ を PMT �
 ```
 
 有効時、§4.0 の表のとおり `bloch2` と `ovliovl` を差し替える。任意 $k$ で要るのは
-式 (13) の $A(k) = S^{\rm PMT}(k)\,z^{\rm MLO}(k)$ と $O^{\rm MLO}(k)$ の 2 つだけ。
+式 (15) の $A(k) = S^{\rm PMT}(k)\,z^{\rm MLO}(k)$ と $O^{\rm MLO}(k)$ の 2 つだけ。
 
 - $z^{\rm MLO}(k)$ … **内挿しない**。その $k$ で式 (9) の射影を実行する
   （`Hreduction` は任意 $k$ リストで走る）。$k$ ごとに対角化 1 回分の追加コスト。
