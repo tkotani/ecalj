@@ -47,101 +47,90 @@ getsenex   : PMT ハミルトニアンへ加算
 
 ## 3. 設計
 
-### 3.0 どの空間へ射影するか — MTO ブロックではなく **PAW（augmentation）チャネル**
+### 3.0 【2026-09-24 訂正】現状の展開はすでに非直交の双対基底 — 変えるのは部分空間だけ
 
-現状の `sigm` は `mtosigmaonly` により **MTO ブロック（`ldim` = 230）のみ**を保持し、
-**APW の寄与を捨てている**。これは制御されていない近似である。
+当初「`mtosigmaonly` が APW を捨てている」と書いたが**誤り**だった。
+`getsenex`（`rdsigm2.f90:18`）は
 
-代わりに **MT 球内の部分波 φ, φ̇ のチャネル（PAW / augmentation）**へ射影する。
-利点が 3 つある。
+```fortran
+ovlmtoi = ovlm(1:ndimsig,1:ndimsig)            ! O_MTO
+call matcinv(ndimsig,ovlmtoi)                  ! O_MTO^-1
+ovliovl = matmul(ovlmtoi, ovlm(1:ndimsig,1:ndimh))
+senex   = matmul(conjg(transpose(ovliovl)), matmul(sene, ovliovl))
+```
 
-1. **APW を捨てない。** MTO も APW も同じ augmentation チャネルに寄与するので、
-   Σ の情報が落ちない。
-2. **準線形従属が構造的に無い。** EH と EH2 は「形の似た 2 つの smooth Hankel」で、
-   これが今日の失敗（`ECALJ_SIG_EHONLY` の発散、230 チャネル MLO の完全性損失 >1 %）の根源だった。
-   一方 φ と φ̇ は構成上 $\langle\phi|\dot\phi\rangle = 0$ で、径方向の意味が明確に違う。
-3. **局在性が良い。** 部分波は球内に厳密に閉じている。MTO 包絡関数（smooth Hankel）の
-   長い裾が無いので、$\Sigma(R)$ の減衰が速いはずである
-   （09-24 の測定で Ti 3d ブロックが BvK セル端で頭打ちだったのは、包絡の裾が主因の可能性が高い）。
+すなわち
 
-**機構は既にある。** GW 側は最初から PAW チャネルで動いている:
+$$\hat\Sigma \;=\; |{\rm PMT}\rangle\,\langle{\rm PMT}|{\rm MTO}\rangle\,O_{\rm MTO}^{-1}\;
+\Sigma^{\rm MTO}\;O_{\rm MTO}^{-1}\,\langle{\rm MTO}|{\rm PMT}\rangle\,\langle{\rm PMT}|$$
 
-- `@MNLA_CPHI` … チャネルの索引 `(m, n, l, ibas)`、次元 `ndima`
-- `cphi(ia, iband)` … 固有関数の augmentation 係数（`readeigen.f90`）
-- `ppj(ndima, ndima, nsp)` … MT 球内の重なり行列（`m_ppj.f90`）
+を既に実装しており、**APW ブロックも埋まる**。`mtosigmaonly` は「Σ の行列要素を MTO 部分空間で保持する」
+という意味であって、「APW に効かない」ではない。
 
-LiTi₂O₄ では **`ndima` = 700**（原子あたり 50 = (lmxa+1)² × 2 = 25 lm × {φ, φ̇}、14 原子）。
+したがって **変えられるのは「どの部分空間で Σ を保持し、内挿するか」だけ**である。
+MTO（230、非直交、EH/EH2 が準線形従属、裾が長い）→ MLO（154、局在、固定種）に置き換える。
+**展開の枠組みは一切変えない**ので、`getsenex` の 4 行を差し替えるだけで済む。
 
-### 3.1 次元をどう抑えるか
+### 3.1 記号
 
-700 は現状の 230 より多い。ただし Σ は高 l では小さいので切り詰められる:
+- $\chi^{\rm MTO}_\mu$ … MTO 基底（$\mu = 1\ldots L$、$L$ = `ldim` = 230）
+- $|w_i\rangle = \sum_\mu \chi^{\rm MTO}_\mu A_{\mu i}$ … MLO（$i = 1\ldots M$、$M$ = `ndimMTO` = 154）。
+  $A(q)$ = `zMLO(1:ldim, 1:ndimMTO)`、`Hreduction` が返す。**段 1 で `__amlo.data` に書き出し済み**。
+- $\Sigma^{\rm MTO}(q)$ … `sigm` の中身
 
-| 切り方 | チャネル数 |
-|---|---|
-| 全部（lmxa = 4） | 700 |
-| l ≤ 3（= `lmx`） | 448 |
-| l ≤ 2 | 252 |
-| 原子別（Ti は d まで、O は p まで、Li は s,p） | 〜150 |
+### 3.2 MLO 表現
 
-**どこで切るかは実測で決める**（§5 の検証 3・4）。切っても
-「値を保ったまま自由度を減らす」ことが PAW チャネルでは可能なはずである
-—— φ/φ̇ が直交していて、高 l の寄与が小さいため。
-MTO ブロックで同じことをやると発散した（§7）のと対照的。
+$$\Sigma^{\rm MLO}(q) = A^\dagger(q)\,\Sigma^{\rm MTO}(q)\,A(q) \qquad (M \times M)$$
 
-### 3.2 記号
+計量は不要（`sigm` は $\langle\chi|\Sigma-V_{xc}|\chi\rangle$ そのもの）。自由度は $L^2 \to M^2$ で **45 %**。
 
-- $P_a$ … PAW チャネル（$a = 1\ldots N_a$、`ndima`）。球内重なり $\;\Pi_{ab}$ = `ppj`。
-- $\chi^{\rm PMT}_m$ … PMT 基底（MTO + APW、$m = 1\ldots$ `ndimPMT`）。
-- $B_{am}(k)$ … PMT 基底関数の augmentation 係数。$|\chi^{\rm PMT}_m\rangle \to \sum_a P_a B_{am}$。
-  lmf が毎 k 作っている量（`m_augmat` 系）。
-- $|w_i\rangle = \sum_m \chi^{\rm PMT}_m\, z^{\rm MLO}_{mi}$ … MLO。
-  **`zMLO(1:ndimPMT, 1:ndimMTO)` が MLO と PMT 基底を直接つなぐ変換行列**で、
-  `Hreduction` が返す（APW 行も含む）。
+### 3.3 内挿
 
-### 3.3 Σ を PAW チャネルで持つ
-
-GW が出すのは $\langle\psi_i|\Sigma|\psi_j\rangle$。固有関数の augmentation 係数 `cphi` を使えば
-
-$$\Sigma^{\rm PAW}_{ab}(q) = \sum_{ij} \,\overline{c^{\phantom{*}}_{a i}}\; \Sigma_{ij}(q)\; c_{b j},
-\qquad c_{ai} = \langle P_a|\psi_i\rangle$$
-
-`hqpe_sc` が今 MTO 基底へ変換しているところを、この形に差し替える。
-
-### 3.4 内挿
-
-$\Sigma^{\rm PAW}(q)$ を FFT して $\Sigma^{\rm PAW}(R)$ とし、任意 $k$ では
+$\Sigma^{\rm MLO}(q)$ を FFT して $\Sigma^{\rm MLO}(R)$ とし、任意 $k$ では
 `HamRsMLO` と同じ WS 最短ベクトル・重みで Bloch 和を取る。
-**PAW チャネルは原子中心で球内に閉じているので、この実空間表現が最も短距離になる**、
-というのが本設計の要である。
+**内挿されるのはここだけ**。
 
-### 3.5 戻す
+### 3.4 `getsenex` の差し替え
 
-$k$ での PMT ハミルトニアンに足すには
+$$\hat\Sigma = |{\rm PMT}\rangle\,\langle{\rm PMT}|w\rangle\,O_{\rm MLO}^{-1}\;
+\Sigma^{\rm MLO}(k)\;O_{\rm MLO}^{-1}\,\langle w|{\rm PMT}\rangle\,\langle{\rm PMT}|$$
 
-$$\Sigma^{\rm PMT}_{mn}(k) = \sum_{ab} \overline{B_{am}(k)}\; \Sigma^{\rm PAW}_{ab}(k)\; B_{bn}(k)$$
+コード上は `ovlm(1:ndimsig,1:ndimh)` を $A^\dagger(k)\,\mathrm{ovlm}(1{:}L,1{:}n_{\rm dimh})$ に、
+`ovlm(1:ndimsig,1:ndimsig)` を $A^\dagger(k)\,\mathrm{ovlm}(1{:}L,1{:}L)\,A(k)$ に置き換えるだけ。
+$M \times M$ の逆行列（154³）は無視できるコスト。
 
-$B(k)$ は lmf が**任意 $k$ で厳密に作れる**（内挿不要）。
-したがって **§3.5 の循環問題（$A(k)$ の内挿）は消える** —— これが MTO/MLO 案に対する最大の利点である。
+### 3.5 $A(k)$ をどう作るか
 
-### 3.6 MLO はどこで要るのか
+$A(q)$ は Σ メッシュ点でしか無いので、任意 $k$ には
 
-上の (3.3)–(3.5) だけなら MLO は不要である。MLO が要るのは
-**PAW チャネルをさらに絞りたい場合**で、そのときは `zMLO` が PMT 基底と直接つながっているので
+$$C(R) = \mathrm{FFT}[A(q)], \qquad A(k) = \sum_R C(R)\,e^{ikR}$$
 
-$$\langle w_i|\Sigma|w_j\rangle = \sum_{mn} \overline{z^{\rm MLO}_{mi}}\;\Sigma^{\rm PMT}_{mn}\; z^{\rm MLO}_{nj}$$
+**ゲージは projection gauge** — MLO は固定した MTO 種 $F^{\rm MTO}_k$ を band 多様体へ射影して作る
+（`m_hreduction.f90:317`）ので、固有ベクトルの任意位相は入らない。したがって $C(R)$ は意味を持つ。
+**要検証**（§5 の検証 1・2）。
 
-で一段で落とせる。**まず PAW チャネルだけで試し、足りなければ MLO を重ねる**という順序にする。
+反復の中では **直前の反復の $A$ を使う**（user 2026-09-24）。QSGW が $\Sigma$ 自体についてやっていることと
+同じで、自己無撞着に至れば整合する。
 
-### 3.7 何を失うか
+### 3.6 何を失うか
 
-PAW チャネルの外＝**MT 球の外（格子間）の Σ**。
-LiTi₂O₄ の格子間バンド（E_F+4 eV 以上）は MT 球の外に 44〜67 % の重みを持つので、
-そこは従来と変わる。ただし現状も `mtosigmaonly` で APW を捨てているので、
-**むしろ現状より良くなる**方向である。
+MLO 部分空間の外の $\Sigma$。LiTi₂O₄ の 154 軌道模型では
+
+| 帯 | メッシュ点での再現 |
+|---|---|
+| O 2s / O 2p / t2g / eg（E_F+4 eV まで） | **0.1〜0.5 meV** |
+| 格子間バンド（E_F+4 eV 以上） | 33〜306 meV |
+
+### 3.7 PAW チャネル案（将来）
+
+MLO の代わりに MT 球内の部分波 φ, φ̇ のチャネル（`@MNLA_CPHI`、`ndima` = 700）へ射影する案もある。
+利点は $B(k)$（augmentation 係数）が **lmf が任意 $k$ で厳密に作れる**ため $A(k)$ の内挿が要らないこと。
+欠点は次元が 700 と多いこと（l ≤ 3 で 448、l ≤ 2 で 252、原子別に切れば 〜150）。
+**MLO 案で §5 の検証 1・2 が通らなかった場合の代替**として残す。
 
 ## 4. 実装手順
 
-### 段 1 — $A(q)$ の書き出し  【2026-09-24 完了】
+### 段 1 — $A(q)$ の書き出し  【2026-09-24 完了 — 実装済みはここまで】
 
 `m_HamPMT.f90` の `HreductionIqibz` ループで `zMLO` を常時要求し、その MTO 行を書き出す。
 
