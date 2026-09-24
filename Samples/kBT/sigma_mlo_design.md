@@ -462,7 +462,7 @@ $c^{\rm MLO}_{i\alpha}=\langle\psi_i\mid\tilde\chi_\alpha\rangle$ の $\psi_i$ �
 
 `lmf --writeham --mlo`（= `job_mlo` の第 1 段）で生成される。
 
-### 段 1' — `cmlo` の書き出し  【未着手・ここが次の一手】
+### 段 1' — `cmlo` の書き出し  【骨格は実装済み。§4.2 a' の基底そろえが未了 — ここが次の一手】
 
 式 (11) が要るのは `zMLO` ではなく **`cmlo`$_{i\alpha}(q)$**（バンド × MLO、両添字とも $q$ 非依存）。
 `Hreduction` の中で作られているが外へ出していない。段 1 と同じ機構で出す。
@@ -477,7 +477,7 @@ $c^{\rm MLO}_{i\alpha}=\langle\psi_i\mid\tilde\chi_\alpha\rangle$ の $\psi_i$ �
 `cmlo` は MLO の窓（`nskip` 以上）で張られる。**両者の $i$ の原点と範囲を `info` に明記して突き合わせる**。
 窓の外のバンドは式 (11) で重み $\bar\theta$ により**連続に**落ちる（鋭い打ち切りではない）。
 
-### 段 2 — $\Sigma^{\rm MLO}(R)$ の生成
+### 段 2 — $\Sigma^{\rm MLO}(R)$ の生成  【2026-09-24 実装済み（hqpe_sc + m_HamPMT）】
 
 入力 `sigm`（または $\Sigma^{\psi}$ を直接）+ `__cmlo.data/.info`、出力 `SigRsMLO`。
 
@@ -489,7 +489,7 @@ $c^{\rm MLO}_{i\alpha}=\langle\psi_i\mid\tilde\chi_\alpha\rangle$ の $\psi_i$ �
    （`npair(ib1,ib2)` / `nlat` / `nqwgt` の対リスト、`(npairmx, ndimMTO, ndimMTO, nspx)`）。
    `HamPMTtoHamRsMLO` の FFT 部分をそのまま流用できる。
 
-### 段 3 — 試験台: `calc_ham_eigen` に足してバンドだけ見る  【lmf 無改造。先にこれをやる】
+### 段 3 — 試験台: `calc_ham_eigen` に足してバンドだけ見る  【2026-09-24 実装済み】
 
 `m_mlo_ham.f90` の `read_ham_rs` で `SigRsMLO` も読み、`calc_ham_eigen` の
 `FourierTransform` ブロックで `hammr` と同じ位相で和して `hamm` に加算するだけ。
