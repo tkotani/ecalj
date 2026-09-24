@@ -25,6 +25,7 @@ contains
     use m_genallcf_v3,only: genallcf_v3, nband_gw=>nband; use m_struct_from_lmf,only: laf, nmto=>nlmto, nspin
     use m_mpiio, only: openm, closem, mpiio_buf, buf_get, readm_buf
     use m_mlo_wfs,only: cmlo_init, get_cmlo_qirr, nmlo
+    use m_cmdopt_registry,only: c0_mlo
     !    use m_readefermi,only: readefermi,ef
     implicit none
     integer:: ifsex(2),ifsexcore(2),ifxc(2),ifsec(2),ifqpe(2),ifsex2(2),ifsexcore2(2),ifsec2(2) !,iftote(2),iftote2(2)
@@ -73,6 +74,7 @@ contains
     ndimsig= merge(nmto,nhq, mtosigmaonly())
     InitMLO: block !Sigma^MLO(q) = cmlo^dag (Sigma^psi-Vxc) cmlo. Written in addition to sigm.
       inquire(file='__cmlo.info',exist=lmlo)
+      lmlo = lmlo .and. c0_mlo   !opt-in only
       if(lmlo) then
         call cmlo_init()
         write(stdo,ftox)' hqpe.sc: __cmlo found. Will also write __SigmMLO.q  nmlo=',nmlo

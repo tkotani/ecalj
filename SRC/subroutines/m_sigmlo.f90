@@ -43,10 +43,13 @@ contains
 
   subroutine sigmlo_init()
     use m_readqplist,only: set_bandedge
+    use m_cmdopt_registry,only: c0_mlo
     integer :: ifs, nd2, ld2
     logical :: lex1, lex2
     if(.not.init) return
     init = .false.
+    if(.not.c0_mlo) return   !the MLO route is opt-in: leftover SigRsMLO in a directory
+                             !must never silently change a conventional run
     inquire(file='SigRsMLO', exist=lex1)
     inquire(file='HamRsMLO', exist=lex2)
     if(.not.(lex1.and.lex2)) return

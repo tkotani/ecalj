@@ -384,6 +384,7 @@ contains
         use m_sigmlo,only: read_mloindex
         logical:: lex
         inquire(file='HamRsMLO',exist=lex) !the MLO index is in its trailing records
+        lex = lex .and. c0_mlo             !opt-in only
         if(lex .and. nspc==1) then
           call read_mloindex(ndimMTO_a, ldim_a, mlomethod_a, nskip_a, ix_a, fff1_a, eferm_a, ecbot_a)
           call set_bandedge(eferm_a, ecbot_a) !Hreduction reads these for the MLO window
