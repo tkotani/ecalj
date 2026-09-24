@@ -31,19 +31,33 @@ MLO 表現（154 次元、局在、固定種でゲージ固定）に移すと、
 ## 2. 現状のデータフロー
 
 ```
-hsfp0/hgw : <psi^PMT_i| Sigma |psi^PMT_j>        固有状態基底、既約 q
+hsfp0/hgw : Sigma^psi_ij(q) = <psi^PMT_i| Sigma |psi^PMT_j>     固有関数基底、既約 q      … 式 (5)
     |
-hqpe_sc   : QSGW の静的 Sigma を組み、固有ベクトルで MTO 基底へ変換
-    |       APW 成分は捨てる (mtosigmaonly)
+hqpe_sc   : QSGW の静的 Sigma を組み、MTO 基底の行列へ変換                              … 式 (7)
     v
-sigm.<sname> : <chi^MTO_mu| Sigma-Vxc |chi^MTO_nu>   ndimsig = nlmto (= ldim)
+sigm.<sname> : Sigma^MTO_munu(q)     ndimsig = nlmto (= L = 230)
     |
-m_rdsigm2_init : 全 BZ へ展開 (rdsigm2/hamfb3k) -> FFT -> hrr(R)    <- ここが 230^2 x nk^3
+rdsigm2   : 対称操作で全 BZ へ展開 (hamfb3k)
     |
-bloch2(k)  : WS 最短ベクトルで Bloch 和 -> Sigma(k)                 <- ここで中点がオーバーシュート
+fftz3     : 実空間へ    Sigma^MTO_munu(R)   =  hrr                 <- 自由度 L^2 x nk^3
     |
-getsenex   : PMT ハミルトニアンへ加算
+bloch2(k) : WS 最短ベクトル・重み平均で任意 k へ Bloch 和                               … 式 (1)
+    |
+getsenex  : 双対展開で PMT 基底へ広げ、H に加える                                        … 式 (2)
 ```
+
+**内挿されるのは式 (7) の行列要素**であり、$\mu\nu$ 成分ごとに独立にフーリエ内挿される:
+
+$$\Sigma^{\rm MTO}_{\mu\nu}(R) = \frac{1}{N_q}\sum_{q} \Sigma^{\rm MTO}_{\mu\nu}(q)\,e^{-iqR},
+\qquad
+\Sigma^{\rm MTO}_{\mu\nu}(k) = \sum_{R} \Sigma^{\rm MTO}_{\mu\nu}(R)\,\overline{e^{ikR}}\tag{1}
+$$
+
+（上線は縮退した最短ベクトル群についての平均、`m_shortn3.f90:gennlat` の `nqwgt`。）
+
+**問題はここ**。6³ なら既約 q は 16 点しかないのに、式 (1) は $L^2 = 230^2$ 個の要素それぞれについて
+$n_k^3 = 216$ セル分の実空間自由度を持たせている。しかも MTO 基底は非直交で EH/EH2 が準線形従属、
+包絡関数の裾も長い。結果として、**メッシュ点の間で線形独立性の低い自由度がふらつく**（§1 の表）。
 
 ## 3. 設計
 
@@ -77,10 +91,10 @@ senex   = matmul(conjg(transpose(ovliovl)), matmul(sene, ovliovl))
 すなわち
 
 $$\hat\Sigma = |{\rm PMT}\rangle\,\langle{\rm PMT}|{\rm MTO}\rangle\,O_{\rm MTO}^{-1}\;
-\Sigma^{\rm MTO}\;O_{\rm MTO}^{-1}\,\langle{\rm MTO}|{\rm PMT}\rangle\,\langle{\rm PMT}|\tag{1}
+\Sigma^{\rm MTO}\;O_{\rm MTO}^{-1}\,\langle{\rm MTO}|{\rm PMT}\rangle\,\langle{\rm PMT}|\tag{2}
 $$
 
-式 (1) であり、**APW ブロックも埋まる**。`mtosigmaonly` は「$\Sigma$ の行列要素を MTO 部分空間で保持する」の意。
+式 (2) であり、**APW ブロックも埋まる**。`mtosigmaonly` は「$\Sigma$ の行列要素を MTO 部分空間で保持する」の意。
 
 → **変えられるのは「どの部分空間で $\Sigma$ を保持し、内挿するか」だけ**。展開の枠組みは変えない。
 
@@ -90,14 +104,14 @@ $F^{\rm MLO}$ で保持するなら
 
 $$\Sigma^{\rm MLO}_{kl}(q) = \langle F^{\rm MLO}_k|\hat\Sigma|F^{\rm MLO}_l\rangle
 = \big(D^\dagger \Sigma^{\rm MTO} D\big)_{kl},\qquad
-D(q) = O_{\rm MTO}^{-1}\,\langle{\rm MTO}|{\rm PMT}\rangle\, z^{\rm MLO}\tag{2}
+D(q) = O_{\rm MTO}^{-1}\,\langle{\rm MTO}|{\rm PMT}\rangle\, z^{\rm MLO}\tag{3}
 $$
 
 戻すときは
 
 $$\hat\Sigma = |{\rm PMT}\rangle\,S_{\rm PMT} z^{\rm MLO}\,O_{\rm MLO}^{-1}\;\Sigma^{\rm MLO}(k)\;
 O_{\rm MLO}^{-1}\,(z^{\rm MLO})^\dagger S_{\rm PMT}\,\langle{\rm PMT}|,
-\qquad O_{\rm MLO} = (z^{\rm MLO})^\dagger S_{\rm PMT} z^{\rm MLO}\tag{3}
+\qquad O_{\rm MLO} = (z^{\rm MLO})^\dagger S_{\rm PMT} z^{\rm MLO}\tag{4}
 $$
 
 **障害**: 任意 $k$ で $z^{\rm MLO}(k)$ が要るが、$z^{\rm MLO}$ の行は PMT 基底で、
@@ -106,7 +120,7 @@ $$
 MTO 行だけなら $k$ 非依存で FFT できるが、それは MLO の一部でしかない
 （切り捨てると $F^{\rm MLO}$ ではない別物になる）。
 
-→ 式 (2)(3) の道は、この障害を回避しない限り成立しない。
+→ 式 (3)(4) の道は、この障害を回避しない限り成立しない。
 
 回避案（いずれも未検証）:
 1. MLO の APW 成分を無視し、MTO 成分だけで近似する。$F^{\rm MLO}$ の APW 重みが小さい系でのみ可。
@@ -116,12 +130,12 @@ MTO 行だけなら $k$ 非依存で FFT できるが、それは MLO の一部�
 
 **出発点**。GW（`hsfp0`/`hgw`）が各既約 $q$ で出すのは、**固有関数で挟んだ行列要素**
 
-$$\Sigma^{\psi}_{ij}(q) \;=\; \langle \psi^{\rm PMT}_{iq} \,|\, \hat\Sigma \,|\, \psi^{\rm PMT}_{jq}\rangle\tag{4}
+$$\Sigma^{\psi}_{ij}(q) \;=\; \langle \psi^{\rm PMT}_{iq} \,|\, \hat\Sigma \,|\, \psi^{\rm PMT}_{jq}\rangle\tag{5}
 $$
 
-である（式 (4)。QSGW ではこれをエルミート化した静的 $\Sigma$）。演算子としては
+である（式 (5)。QSGW ではこれをエルミート化した静的 $\Sigma$）。演算子としては
 
-$$\hat\Sigma(q) \;=\; \sum_{ij} |\psi^{\rm PMT}_{iq}\rangle\;\Sigma^{\psi}_{ij}(q)\;\langle \psi^{\rm PMT}_{jq}|\tag{5}
+$$\hat\Sigma(q) \;=\; \sum_{ij} |\psi^{\rm PMT}_{iq}\rangle\;\Sigma^{\psi}_{ij}(q)\;\langle \psi^{\rm PMT}_{jq}|\tag{6}
 $$
 
 固有関数は正規直交（$\langle\psi_i|\psi_j\rangle = \delta_{ij}$）なので、ここには逆行列が要らない。
@@ -129,24 +143,24 @@ $$
 現状の `hqpe_sc` は、これを **MTO 基底**の行列へ変換している:
 
 $$\Sigma^{\rm MTO}_{\mu\nu}(q) \;=\; \langle\chi^{\rm MTO}_\mu|\hat\Sigma(q)|\chi^{\rm MTO}_\nu\rangle
-\;=\; \sum_{ij} \langle\chi^{\rm MTO}_\mu|\psi_i\rangle\,\Sigma^{\psi}_{ij}\,\langle\psi_j|\chi^{\rm MTO}_\nu\rangle\tag{6}
+\;=\; \sum_{ij} \langle\chi^{\rm MTO}_\mu|\psi_i\rangle\,\Sigma^{\psi}_{ij}\,\langle\psi_j|\chi^{\rm MTO}_\nu\rangle\tag{7}
 $$
 
-式 (6) が `sigm` の中身で、**途中産物**にすぎない。
+式 (7) が `sigm` の中身で、**途中産物**にすぎない。
 $\hat\Sigma$ を別の部分空間で保持したいなら、**MTO を経由せず $\Sigma^{\psi}$ から直接**取ればよい。
 
 $P_a$（MT 球内の φ, φ̇）は **$k$ 非依存の固定索引**であり、$B(k)$ は **lmf が任意 $k$ で厳密に作る**。
-したがって §3.2 の障害（APW の本数が $k$ 依存）が最初から無い。
+したがって §3.2（式 (3)(4)）の障害（APW の本数が $k$ 依存）が最初から無い。
 
 **(1) GW の出力から直接**
 
 固有関数の augmentation 係数 `cphi` は $\psi_i = \sum_a P_a\,c_{ai}$（球内）なので
 $\langle P_a|\psi_i\rangle = (\Pi c)_{ai}$（$\Pi$ = 球内の重なり `ppj`）。演算子 $\hat\Sigma = \sum_{ij}|\psi_i\rangle\Sigma^\psi_{ij}\langle\psi_j|$ の PAW 行列は
 
-$$\boxed{\ \Sigma^{\rm PAW}(q) \;=\; (\Pi\,c)\;\Sigma^{\psi}(q)\;(\Pi\,c)^\dagger\ }\tag{7}
+$$\boxed{\ \Sigma^{\rm PAW}(q) \;=\; (\Pi\,c)\;\Sigma^{\psi}(q)\;(\Pi\,c)^\dagger\ }\tag{8}
 $$
 
-`hqpe_sc` が今 式 (6) を作っているところを、式 (7) に差し替える。
+`hqpe_sc` が今 式 (7) を作っているところを、式 (8) に差し替える。
 `cphi` も `ppj` も GW 側に既にある。
 
 **(2) 内挿**
@@ -157,10 +171,10 @@ $\Sigma^{\rm PAW}(q)$ を FFT して $\Sigma^{\rm PAW}(R)$、任意 $k$ で Bloc
 
 $\langle\chi^{\rm PMT}_m|P_a\rangle = (B^\dagger \Pi)_{ma}$ なので、双対展開の $\Pi^{-1}$ が両側で約分して
 
-$$\boxed{\ \Sigma^{\rm PMT}_{mn}(k) \;=\; \big(B^\dagger(k)\,\Sigma^{\rm PAW}(k)\,B(k)\big)_{mn}\ }\tag{8}
+$$\boxed{\ \Sigma^{\rm PMT}_{mn}(k) \;=\; \big(B^\dagger(k)\,\Sigma^{\rm PAW}(k)\,B(k)\big)_{mn}\ }\tag{9}
 $$
 
-式 (8) の **$B(k)$ は厳密**、逆行列も不要。`getsenex` は 1 行になる。
+式 (9) の **$B(k)$ は厳密**、逆行列も不要。`getsenex` は 1 行になる。
 
 **局在性**: 部分波は球内に厳密に閉じているので、MTO 包絡（smooth Hankel、裾が長い）より
 $\Sigma(R)$ の減衰が速いはず。09-24 の測定で Ti 3d ブロックが BvK セル端で頭打ちだったのは、
