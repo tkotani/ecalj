@@ -174,8 +174,10 @@ $c^{\rm MLO}_{i\alpha}=\langle\psi^{\rm PMT}_{iq}\mid\tilde\chi_{\alpha q}\rangl
 
 **ブロッホ基底とは「$q$ について周期性を持つもの」である。**
 すなわち $\chi_{\mu,q+G} = \chi_{\mu q}$（$G$ は逆格子ベクトル）。
-これは「$q$ に依らない実空間関数 $f$ ひとつから $\sum_T e^{iqT} f(\mathbf r-\mathbf T)$ で生成される」ことと同値で
-（$e^{i(q+G)T}=e^{iqT}$ だから）、**$q$ のフーリエ級数＝実空間表現が存在する根拠そのもの**である。
+これは「**$q$ に依らない実空間関数 $f$ ひとつからブロッホ和 $\sum_T e^{iqT} f(\mathbf r-\mathbf T)$ で構成できる**」
+ことと同値である。片方向は $e^{i(q+G)T}=e^{iqT}$ から直ちに出る。逆も言えて、$q$ の周期関数なら
+$f(\mathbf r-\mathbf T)=\frac{1}{N_q}\sum_q e^{-iqT}\chi_{\mu q}(\mathbf r)$ で種が取り出せ、和を取れば元に戻る。
+**これが $q$ のフーリエ級数＝実空間表現が存在する根拠そのもの**である。
 
 $$\chi^{\rm MTO}_{\mu q}(\mathbf r) = \sum_{T} e^{iqT}\,\chi^{\rm MTO}_{\mu}(\mathbf r - \mathbf T - \boldsymbol\tau_{ib})
 \quad\Rightarrow\quad \chi^{\rm MTO}_{\mu,q+G} = \chi^{\rm MTO}_{\mu q}\tag{10}
@@ -190,6 +192,7 @@ $$
 ブロッホ基底、band 多様体も窓（エネルギーで決まる）も $q$ の周期的な量だから、$\tilde\chi_{\alpha,q+G}=\tilde\chi_{\alpha q}$。
 **したがって $\Sigma^{\rm MLO}_{\alpha\beta}(q)$ は $q$ の周期関数であり、式 (11)(12) のフーリエ変換が正当化される。
 これが本設計の licence である。**
+同じ理由で $\tilde\chi_\alpha$ 自身も実空間の種を持ち、和を取れば任意 $k$ で再構成できる（式 (13) の $A(k)$ はそれ）。
 
 周期的でないのは**係数配列 $z^{\rm MLO}_{m\alpha}(q)$ の APW 部分**の方で、$q\to q+G'$ でラベルがずれる。
 だから $\mathrm{FFT}[z^{\rm MLO}]$ は取れない。しかし**内挿に要るのは行列であって係数ではない**（§3.2.3）。
