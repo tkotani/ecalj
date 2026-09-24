@@ -455,9 +455,24 @@ $\tilde\chi_\alpha$ を 0d で固定するのが要点で、これにより反�
 | **a3** | **`lmf --jobgw=1`**（= `m_sugw_init`） | GW の全 q で固有値問題を解き、`__VxcEvec`（$z^{\psi}$, $V_{xc}$）、`geig`/`cphi`、`__HamiltonianGW` を書く |
 | **a'** | **a3 と同じルーチンの中** | $c'(q) = (z^{\psi})^\dagger S^{\rm PMT}(q)\, z^{\rm MLO}_0(q)$ → `__cmlo.data` |
 | b | `heftet` / `hbasfp0` / `hvccfp0` / `hsfp0_sc` / `hgw` | $\Sigma^{\psi}$（`SEX2U`, `SEC2U`, …） |
-| c | `hqpe_sc` | `sigm` ＋ **`SigmMLO.q`**（式 (11)） |
+| c | `hqpe_sc` | `sigm`（式 (3)）**と並列に** **`SigmMLO.q`**（式 (11)）。下の注を見よ |
 | d | `mlo --mlo` | **`SigRsMLO`**（対称化 → 全 BZ → FFT） |
 | e | `lmf` | SCF。`getsenex` が `SigRsMLO` を使う（段 4） |
+
+#### 注: `sigm` と `SigmMLO.q` は並列であって、連鎖ではない
+
+**MTO 基底へ落としてから MLO へ移す、ということはしていない。** `hqpe_sc` の中で、
+同一の `se`（= 固有関数基底の $\Sigma^{\psi}-V_{xc}$）から 2 本が**独立に**出る:
+
+```
+se (band basis)
+ ├─ evec_invt · se · evec_inv  + (窓外)·eseavrmean  →  sigm        230 = MTO   式 (3)
+ └─ cmlo^dag  · se · cmlo      + (窓外)·eseavrmean  →  SigmMLO.q   154 = MLO   式 (11)
+```
+
+`ev_se_ev`（MTO 枝の中間量）は MLO 枝に一切入らない。
+MTO 枝を残してあるのは、現状 `getsenex` が `sigm` を読むからという**過渡的な理由だけ**である。
+段 4 が入れば $H$ に実際に入るのは MLO 版になり、`sigm` は従来互換のために書くだけになる。
 
 #### a' を `lmf --jobgw=1` に置く理由
 
