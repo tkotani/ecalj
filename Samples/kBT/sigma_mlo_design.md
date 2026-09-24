@@ -433,8 +433,14 @@ $\tilde\chi$ を一度決めて全反復で使い回せばよい。これで `ml
 |---|---|---|
 | 0a | `lmf --jobgw=0` | **構造と基底だけ**。`m_hamindex0_init()` で `HAMindex0` を書いて即終了する（`main_lmf.f90`:95）。密度にも $\Sigma$ にも依らない |
 | 0b | `qg4gw --job=1` | 同上。$q$ メッシュと cutoff から `QGpsi`（offset-Γ 込み）を作るだけ |
-| 0c | `lmf --writeham --mlo` | `HamiltonianPMTInfo`（MTO チャネル表 `ix`、`ndimMTO`） |
-| 0d | $z^{\rm MLO}_0(q)$ を $H^{\rm LDA}$ で作って保存（`__zmlo.data`） | 窓の大域量（`nskip`, $\varepsilon_{\rm cbot}$, $E_F$）も同時に凍結 |
+| 0c | `lmf --writeham --mlo` | `HamiltonianPMTInfo`（MTO チャネル表の材料） |
+| 0d | `mlo --mlo` | **`__mloindex`**: `ndimMTO, ldim, mlomethod, nskip_global` / `ix(1:ndimMTO)` / `fff1, eferm, ecbot`。あわせて `HamRsMLO` |
+
+$z^{\rm MLO}_0(q)$ を**ファイルに置かない**のが実装上の判断である。置くと
+「$z^{\rm MLO}_0$ は `__HamiltonianGW` から作る／`__HamiltonianGW` は `lmf --jobgw=1` が書く／
+a' はその `lmf --jobgw=1` の中」で循環する。代わりに**索引だけ凍結**し、
+$z^{\rm MLO}_0(q)$ は a' の中で $H^{\rm LDA}(q)$ からその場で作り直す（§4.2 a'）。
+索引が固定なら処方は同一なので、$\tilde\chi$ は毎回同じ関数になる。
 
 **したがって反復は a3 以降だけでよい。**
 現行の `gwsc` は 0a・0b を毎反復走らせているが、どちらも安価なので害は無い（残してよい）。
@@ -468,16 +474,32 @@ $\tilde\chi_\alpha$ を 0d で固定するのが要点で、これにより反�
 `mlo` を別プロセスで走らせて `__HamiltonianGW` から作り直すと、
 どの $H$ を書いたかに依存して基底がずれる（§4.1 末尾の実測）。
 
-#### a' の実装（未着手）
+#### a' の実装  【2026-09-24 実装済み — `sugw.f90`】
 
-a3 の $q$ ループ内、`getsenex` の**前**に $H^{\rm LDA}$ で $z^{\rm MLO}_0$ を作る余地がある
-（§3.2.4 のとおり `hamm` はその時点で $H^{\rm LDA}$）。手順:
+`sugw` の $q$ ループの中で、次の順に行う。
 
-1. §4.1 で凍結した $z^{\rm MLO}_0(q)$ を読む（または初回なら `Hreduction(hamm=H^{\rm LDA}, ovlm)` で作って書き出す）
-2. 対角化の**後**（`evec` が出てから）$c'(q) = (z^{\psi})^\dagger\, S^{\rm PMT}(q)\, z^{\rm MLO}_0(q)$
-3. `__cmlo.data` に書く。レコードは現行と同じ `(nbandmx, ndimMTO)`、索引 `isp + nspx*(iq-1)`
+1. **`getsenex` の前**に `hamm`（= $H^{\rm LDA}(q)$）と `ovlm`（= $S^{\rm PMT}(q)$）を退避する。
+   `zhev_tk4` が両方を破壊するので、退避は必須。
+2. 対角化の**後**（`evec` = $z^{\psi}$ が出てから）:
+   ```
+   call Hreduction(mlomethod, .false., ndimhx, hamm_lda, ovlm_keep, &
+                   ndimMTO, ix, fff1, hmo, omo, qp, nev=nxq, zMLO=zm, nskip_auto=nskip)
+   sz     = matmul(ovlm_keep, zm)                       ! S^PMT z^MLO_0
+   cmlo   = matmul(transpose(dconjg(evec)), sz)         ! c' = z^psi^dag S z^MLO_0
+   ```
+3. `__cmlo.data` に書く。レコードは `(nbandmx, ndimMTO)`、索引 `isp + nspx*(iq-1)`。
+   `__cmlo.info` は最後に master が書く。
 
-これで gwsc から `mlo` の前半呼び出しが消え、**反復ごとの `mlo` は d の 1 回だけ**になる。
+`mlomethod`, `ix`, `fff1`, `nskip` は `__mloindex` から読む。
+`Hreduction` は窓に `m_readqplist` の `eferm`/`ecbot` を使うが、`sugw` は `qplist.dat` を読まないので
+**`set_bandedge(eferm, ecbot)`**（`m_qplist.f90` に新設）で `__mloindex` の凍結値を流し込む。
+
+**`evec` は `__VxcEvec` に書かれるのと同一の配列**である。これにより
+$c'$ が $\Sigma^{\psi}$ と同じ band 基底にあることが、規約ではなく**構造的に**保証される。
+
+**制限**: `nspc=2`（SOC）では a' を飛ばす（警告を出す）。スピノル基底での $c'$ は未実装。
+
+これで gwsc から `mlo` の前半呼び出しが消え、**反復ごとの `mlo` は d の 1 回だけ**になった。
 
 ### 段 1 — `zMLO` の書き出し  【2026-09-24 完了】
 
@@ -614,3 +636,38 @@ $$
 
 いずれも「**生の MTO 表現では、値を保ったまま自由度を減らせない**」ことを示している。
 MLO 表現だけがそれを可能にする、というのが本設計の根拠である。
+
+---
+
+## 8. 実装ログ — 2026-09-24 に踏んだバグと落とし穴
+
+段 1'〜3 を実装して Si と LiTi₂O₄ で回した際に踏んだもの。同じ穴を二度掘らないための記録。
+
+### 8.1 コードのバグ
+
+| # | 症状 | 原因 | 対処 |
+|---|---|---|---|
+| 1 | $\Sigma$ が一部の $k$ で消え、バンドが X 点で LDA に戻る | `sigmloi` を全 BZ ループの前に **MPI 集約していなかった**。`hammi`/`ovlmi` は `mpibc2_complex` されているのに見落とした | `m_HamPMT` に `mpibc2_complex(sigmloi,...)` を追加（`2ac1552c0`） |
+| 2 | `hqpe_sc` が `rotmatMTO` で segfault | `m_mlo_wfs::read_cmlo` は対称操作で回転するが、その `rotmatMTO` は `m_hamindex` の状態を要求する。`hqpe_sc` はそれを用意していない | `get_cmlo_qirr` を新設。`qplistgw` に**そのまま在る** $q$ だけを扱い回転しない（`7039157fa`） |
+| 3 | （潜在）`__cmlo.data` のレコードは `(nbandmx, nmlo)` なのに `(nband, nmlo)` の配列へ直接 read していた | `nband < nbandmx` のとき列がずれる。今回は `nband = nbandmx = 322` で顕在化しなかった | 正しい大きさの緩衝を介して読む `read_cmlo_rec` を新設 |
+| 4 | メッシュ点で 44〜218 meV ずれる | `__HamiltonianGW` に $H^{\rm LDA}$ を書いたため `cmlo` が $\langle\psi^{\rm LDA}\mid\tilde\chi\rangle$ になり、$\Sigma^{\psi}$（QSGW 固有基底）と**異なる基底を縮約**していた | いったん差し戻し、最終的に a' を `sugw` に実装して解決 |
+| 5 | 同 312 meV | 逆の不整合。$\tilde\chi$ を QSGW で作り、$H^{\rm MLO}$ を LDA で作った | 同上 |
+
+### 8.2 運用・手順の落とし穴
+
+| # | 症状 | 原因 |
+|---|---|---|
+| 6 | バンドが全部 LDA になっていたのに気付かなかった | テストスクリプトが `sigm.<sname>` を消したまま復元せず、lmf が `bndfp (warning): no sigm file found ... LDA calculation only` を出していた。**警告は出るが計算は止まらない** |
+| 7 | `mlo` が `gwsc` の中で動かない | `qplist.dat` を必須にしていた（`job_band` 先行が前提）。→ 任意にし、無ければ `eferm` を `efermi.lmf` から取りバンド部を飛ばす |
+| 8 | 同上、`HamiltonianPMTInfo` が無い | `lmf --writeham` が先に要る。→ `gwsc` の反復の**外**で 1 回走らせる |
+| 9 | `HamRsMLO` に $\Sigma$ を足すと二重計上 | `__HamiltonianPMT` は `getsenex` の**後**に書かれるので既に $\Sigma$ 込み。比較は「LDA の `HamRsMLO` + `SigRsMLO`」対「通常の QSGW バンド」で行う |
+| 10 | kt1 のビルドが止まる | `m_mlo_wfs.f90` が nvfortran -O2 で ICE（既知）。該当オブジェクトだけ -O1 で手動コンパイル。`ecaljF_mp`（非 GPU の MP 版）は -O1/-O0 でも通らず未ビルド（kt1 の実行は GPU 版なので支障なし） |
+
+### 8.3 測り方の落とし穴
+
+**局所 2 次フィットからの残差は粗さの指標にならない。** バンド交差の位置で必ず尖るので、
+交差の多い $t_{2g}$ 多様体では交差だけを拾ってしまう（09-24 の最初の測定はこれで誤判定しかけた）。
+
+**使うべきは「隣接メッシュ点を結ぶ弦からのずれ」**である。$\Sigma$ の内挿誤差はメッシュ点で 0、
+その間で最大になるので、この量が内挿のオーバーシュートを直接測る。
+バンド分散そのものも含むが、2 つの表現を**同じバンド・同じ区間**で比べる限り差は内挿に由来する。
