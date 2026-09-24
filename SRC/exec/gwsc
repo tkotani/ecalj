@@ -138,6 +138,15 @@ else:
     patterns = [*flist, 'atmpnu*']; copy_files(*patterns, dest_dir=rundir)
     remove_files(f'__mixm*{target}*')
 
+## Structure-only GW setup: hoisted out of the iteration loop.
+##   lmf --jobgw=0 calls m_hamindex0_init() and exits (main_lmf.f90:95) -> HAMindex0,
+##   which depends on the structure and the basis, not on the density or sigm.
+##   qg4gw --job=1 turns that plus the q mesh and the cutoffs into QGpsi/QGcou.
+## Nothing in the loop deletes them (the end-of-iteration cleanup only moves
+## SEX*/SEC*/XC* into SEBK), so once is enough.
+run_cmd(cluster, MPIParams(command=EXEC_DIR/"lmf", args=[target, "--jobgw=0", *options], **mpi_params_lmf), stdout="llmfgw00")
+run_cmd(cluster, MPIParams(command=EXEC_DIR/"qg4gw", args=[target, "--job=1", *options], **mpi_params_single), stdout="lqg4gw")
+
 ## MLO route (Samples/kBT/sigma_mlo_design.md 4.1): steps 0c/0d, ONCE, outside the loop.
 ##   lmf --writeham --mlo -> HamiltonianPMTInfo
 ##   mlo --mlo            -> __mloindex (the frozen MTO channel list ix, the window
@@ -152,9 +161,7 @@ if(Iter0!=0): print(f'We found QPU.{Iter0} -->start to generate QPU.{Iter0+1}...
 for i in range(1,nloop+1): #nloop is the additional number of iteration
     niter=i+Iter0
     print(f'===== QSGW iteration start iter {niter} ===',flush=True)
-    #gw initialize
-    run_cmd(cluster, MPIParams(command=EXEC_DIR/"lmf", args=[target, "--jobgw=0", *options], **mpi_params_lmf), stdout="llmfgw00")
-    run_cmd(cluster, MPIParams(command=EXEC_DIR/"qg4gw", args=[target, "--job=1", *options], **mpi_params_single), stdout="lqg4gw")
+    #gw initialize (only --jobgw=1; see the structure-only block above the loop)
     run_cmd(cluster, MPIParams(command=EXEC_DIR/"lmf", args=[target, "--jobgw=1", *options], **mpi_params_lmf), stdout="llmfgw01")
 
     ## (step a' -- __cmlo.data -- is done inside lmf --jobgw=1 above, see sugw.f90)
