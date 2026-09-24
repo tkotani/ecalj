@@ -134,7 +134,7 @@ contains
       integer,allocatable::ndimPMTq(:), iqproc(:),isproc(:)
       logical,allocatable:: lqibz(:)
       logical::debug=.true.
-      logical:: socmatrix
+      logical:: socmatrix, lcmlo_legacy
       integer:: io
       socmatrix=c0_socmatrix
       ReadInfoFromGWinput: block ! Input orbital index for MLO (mlo_lm, formerly Worb), stored into idmto (s,p,d=1,2,3,4,5,6,7,8,9)
@@ -386,7 +386,18 @@ contains
       allocate(ndimPMTq(nqibz),source=0)
 
 !2026-1-27      
-      cmlo4GWinput: if(c0_mlo) then !from __Hamiltoniangw to __cmlo.data, __cmlo.info
+      !LEGACY: __cmlo.data is now written by sugw (design 4.2 step a'), which has evec and
+      !S^PMT together and so cannot get the band basis wrong. This block only runs if a
+      !__HamiltonianGW.info from a previous lmf --jobgw=1 happens to be around; on the
+      !first pass (step 0d, before any --jobgw=1) there is none and we skip it.
+      block
+        logical:: lhgw
+        inquire(file='__HamiltonianGW.info',exist=lhgw)
+        if(c0_mlo .and. .not.lhgw .and. master_mpi) &
+             write(stdo,ftox)' m_HamPMT: no __HamiltonianGW.info -> skip the legacy cmlo block (sugw does it)'
+        lcmlo_legacy = c0_mlo .and. lhgw
+      endblock
+      cmlo4GWinput: if(lcmlo_legacy) then !from __Hamiltoniangw to __cmlo.data, __cmlo.info
         HreductionIqibzGWinput: block
           integer:: ifi, ifizz, isp, mrecbb, ndble, nbandmx, iqqisp, nqbzgw !, idat
           complex(8):: rotmatt(ndimMTO,ndimMTO), ovlm(1:ndimMTO,1:ndimMTO), hamm(1:ndimMTO,1:ndimMTO)
