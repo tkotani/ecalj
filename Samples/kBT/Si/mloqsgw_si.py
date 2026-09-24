@@ -34,9 +34,18 @@ ax[1].legend(fontsize=7, ncol=4)
 d = (em[:NB]+efm)-(er[:NB]+efr)
 ax[1].text(0.02,0.05,f'|diff| mean {np.abs(d).mean()*1e3:.1f}, max {np.abs(d).max()*1e3:.1f} meV',
            transform=ax[1].transAxes, fontsize=8)
+from matplotlib.ticker import MultipleLocator
 for a in ax:
     for m in (0.0,1.0): a.axvline(m,color='k',ls=':',lw=0.8)
     a.set_xlabel('$\\Gamma \\to X$'); a.set_xlim(0,1)
+    a.grid(axis='y', which='major', color='0.75', lw=0.6)
+    a.grid(axis='y', which='minor', color='0.9',  lw=0.4)
+ax[0].yaxis.set_major_locator(MultipleLocator(2.0))   # eV
+ax[0].yaxis.set_minor_locator(MultipleLocator(0.5))
+ax[0].axhline(0.0, color='k', lw=0.9)                 # E_F
+ax[1].yaxis.set_major_locator(MultipleLocator(20.0))  # meV
+ax[1].yaxis.set_minor_locator(MultipleLocator(5.0))
+ax[1].axhline(0.0, color='k', lw=0.9)
 fig.suptitle('Si 2$^3$ ($n_{k}=n_{1}n_{2}n_{3}=2^3$) — dotted = $\\Sigma$ mesh points ($\\Gamma$, X)', fontsize=10)
 plt.tight_layout(rect=[0,0,1,0.94]); plt.savefig(sys.argv[3], dpi=140)
 print('wrote', sys.argv[3])
