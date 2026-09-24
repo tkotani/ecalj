@@ -445,10 +445,23 @@ $O^{\rm MLO}(k)$ は既に同じ場所で作られている。$\Sigma$ を PMT �
    中でやっていること:
    1. $H^{\rm LDA}(k)\,c=\varepsilon\,S^{\rm PMT}(k)\,c$ を解く → $\psi^{\rm PMT}_i(k)$, $\varepsilon_i(k)$（`evecpmt`）
    2. MTO ブロックだけを対角化 → $\psi^{\rm MTO}_j(k)$, $\varepsilon^{\rm MTO}_j(k)$（`evecmto`）
-   3. 重なり `fac`$_{ij}=\langle\psi^{\rm PMT}_i\mid\psi^{\rm MTO}_j\rangle$ と窓の重み $\bar\theta_{ij}$ を作り
-      `Amat` $=$ `fac` $\times\bar\theta$（$i\le$ `nskip` はゼロ）
+   3. `fac`$_{ij}=\langle\psi^{\rm PMT}_i\mid\psi^{\rm MTO}_j\rangle = \big((z^{\psi})^\dagger S^{\rm PMT}_{[:,\,ix]} z^{\rm MTO}\big)_{ij}$
+      に窓の重み $\bar\theta_{ij}$ を掛けて `Amat`（$i\le$ `nskip` はゼロ）
    4. `cmlo` $=$ `Amat` $\cdot$ `evecmto`$^\dagger\,S^{\rm MTO}[ix,ix]$
    5. `zMLO` $=$ `evecpmt(:,1:nx)` $\cdot$ `cmlo`
+   まとめると、$z^{\psi}$ = `evecpmt`、$z^{\rm MTO}$ = `evecmto` として
+
+$$z^{\rm MLO}(k) = z^{\psi}\,
+\Big[\;\bar\theta \odot \big( (z^{\psi})^\dagger\, S^{\rm PMT}_{[:,\,ix]}\, z^{\rm MTO}\big)\Big]\,
+(z^{\rm MTO})^\dagger\, S^{\rm PMT}_{[ix,\,ix]}\tag{17}
+$$
+
+   （$\odot$ は要素ごとの積）。**材料は 2 つだけ** — **エネルギー因子 $\bar\theta$** と
+   **$\langle\chi^{\rm PMT}\mid\chi^{\rm MTO}\rangle = S^{\rm PMT}_{[:,\,ix]}$**（コードの `ovlmx(:,ix)`）。
+   固有ベクトルは $H^{\rm LDA}(k)$ を PMT 空間と MTO ブロックで解いて得る。
+   **検算**: $\bar\theta\equiv1$ なら完全性から $z^{\rm MLO}$ は種そのもの（$\tilde\chi_\alpha=\chi^{\rm MTO}_{ix(\alpha)}$）に戻る
+   — `mlomethod=9` がこの極限である。窓だけが MLO を MTO から隔てている。
+
 3. $A(k) = $ `ovlm` $\cdot$ `zMLO`、$O^{\rm MLO}(k) = $ `zMLO`$^\dagger A$（式 (15)）。
 4. 式 (14) で `senex` を組む。
 
