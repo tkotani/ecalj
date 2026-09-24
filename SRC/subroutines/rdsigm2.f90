@@ -16,24 +16,52 @@ module m_rdsigm2
   logical,private:: debugmode=.False.
 contains
   subroutine getsenex(qp,isp,ndimh,ovlm)! Return self-energy senex at qp,isp
+    ! Sigma is carried as a rank-reduced operator in the non-orthogonal MTO
+    ! subspace:  Sigma = |PMT><PMT|sub> O_sub^-1 Sigma_sub O_sub^-1 <sub|PMT><PMT|
+    ! where "sub" is by default the whole MTO block (ndimsig channels).
+    !
+    ! ECALJ_SIG_DROPL = l : leave the EH2 (second radial set) channels of that l
+    !   OUT of the subspace altogether -- Sigma_sub, O_sub and <sub|PMT> are all
+    !   built on the reduced index set, so the dual expansion stays consistent.
+    !   (Zeroing those elements of Sigma while keeping the full O^-1 is NOT the
+    !   same thing and blows the bands up; see ECALJ_SIG_EHONLY.)
+    use m_lmfinit,only: l_table,k_table
     implicit none
     integer:: isp,ndimh,ispsigm
     real(8):: qp(3)
-    complex(8),allocatable:: ovlmtoi(:,:),ovliovl(:,:)
+    complex(8),allocatable:: ovlmtoi(:,:),ovliovl(:,:),senesub(:,:)
     complex(8):: ovlm(ndimh,ndimh)
+    integer,allocatable:: idx(:)
+    integer:: i,nsub,ldrop,stat
+    character(32):: cval
+    logical,save:: first=.true.
+    integer,save:: ldrop_s=-999
     call tcn('getsenex')
     allocate(sene(ndimsig,ndimsig))
     ispsigm=isp
     if(isp>nspsigm) ispsigm = nspsigm
     call bloch2(qp,ispsigm,sene) !return self-energy for given qp,ispsigm
-    allocate( ovlmtoi(ndimsig,ndimsig),ovliovl(ndimsig,ndimh))
-    ovlmtoi = ovlm(1:ndimsig,1:ndimsig)
-    call matcinv(ndimsig,ovlmtoi)
-    ovliovl = matmul(ovlmtoi,ovlm(1:ndimsig,1:ndimh))
+    if(first) then
+      first=.false.
+      call get_environment_variable('ECALJ_SIG_DROPL',cval,status=stat)
+      if(stat==0 .and. len_trim(cval)>0) read(cval,*) ldrop_s
+    endif
+    ldrop = ldrop_s
+    allocate(idx(ndimsig))
+    nsub=0
+    do i=1,ndimsig
+      if(ldrop/=-999 .and. k_table(i)==2 .and. l_table(i)==ldrop) cycle
+      nsub=nsub+1; idx(nsub)=i
+    enddo
+    allocate( ovlmtoi(nsub,nsub),ovliovl(nsub,ndimh),senesub(nsub,nsub))
+    ovlmtoi = ovlm(idx(1:nsub),idx(1:nsub))
+    senesub = sene(idx(1:nsub),idx(1:nsub))
+    call matcinv(nsub,ovlmtoi)
+    ovliovl = matmul(ovlmtoi,ovlm(idx(1:nsub),1:ndimh))
     deallocate(ovlmtoi)
     allocate(senex(ndimh,ndimh))
-    senex = matmul(transpose(dconjg(ovliovl)), matmul(sene,ovliovl))
-    deallocate(ovliovl)
+    senex = matmul(transpose(dconjg(ovliovl)), matmul(senesub,ovliovl))
+    deallocate(ovliovl,senesub,idx)
     call tcx('getsenex')
   end subroutine getsenex
   ! ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
