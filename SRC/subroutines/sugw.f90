@@ -79,6 +79,15 @@ contains
     real(8),pointer:: pnu(:,:),pnz(:,:)
     integer,allocatable :: konft(:,:,:),iiyf(:),ibidx(:,:),nqq(:), m_indx(:),n_indx(:),l_indx(:),ibas_indx(:)
     complex(8),allocatable :: aus_zv(:,:,:,:,:), hamm(:,:,:,:),ovlm(:,:,:,:),ovlmtoi(:,:),ovliovl(:,:) ,hammhso(:,:,:)
+    !--- design 4.2 step a': c'(q) = z^psi^dag S^PMT z^MLO_0, written to __cmlo.data.
+    !    z^MLO_0 is rebuilt here from H^LDA(q) with the frozen channel list in __mloindex,
+    !    so chi~ is the same function at every q and c' is in the SAME band basis as
+    !    Sigma^psi (evec below is the very array written to __VxcEvec).
+    logical :: lcmlo = .false.
+    integer :: ifcmlo, ndimMTO_a, ldim_a, mlomethod_a, nskip_a, mrecbb_a
+    integer, allocatable :: ix_a(:)
+    real(8) :: fff1_a, eferm_a, ecbot_a
+    complex(8), allocatable :: hamm_lda(:,:,:,:), ovlm_keep(:,:,:,:), zmlo_a(:,:), cmlo_a(:,:)
     complex(8),allocatable:: evec(:,:),evec0(:,:),vxc(:,:,:,:),ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:),pzovl(:,:,:), pwz0(:,:),&
          testcc(:,:),testc(:,:,:),testcd(:,:),ppovld(:),cphi(:,:,:),cphi0(:,:,:),cphi_p(:,:,:),geig(:,:,:),geig_p(:,:,:),sene(:,:),ppovli(:,:)
     logical :: lwvxc,magexist, debug=.false.,sigmamode,wanatom=.false.,once=.true.
@@ -370,6 +379,28 @@ contains
         endif
         istat = openm(newunit=ifihh,file='__HamiltonianGW',recl=mrech)
       endblock PrepWriteHamiltonianGW
+      PrepCmlo: block !design 4.2 a'
+        use m_readqplist,only: set_bandedge
+        integer:: ifmi
+        logical:: lex
+        inquire(file='__mloindex',exist=lex)
+        if(lex .and. nspc==1) then
+          open(newunit=ifmi,file='__mloindex',form='unformatted',status='old')
+          read(ifmi) ndimMTO_a, ldim_a, mlomethod_a, nskip_a
+          allocate(ix_a(ndimMTO_a))
+          read(ifmi) ix_a
+          read(ifmi) fff1_a, eferm_a, ecbot_a
+          close(ifmi)
+          call set_bandedge(eferm_a, ecbot_a) !Hreduction reads these for the MLO window
+          mrecbb_a = 2*nbandmx*ndimMTO_a*8
+          istat = openm(newunit=ifcmlo,file='__cmlo.data',recl=mrecbb_a)
+          allocate(zmlo_a(nbandmx,ndimMTO_a), cmlo_a(nbandmx,ndimMTO_a))
+          lcmlo = .true.
+          if(master_mpi) write(stdo,ftox)" sugw: a' active. ndimMTO mlomethod nskip=",ndimMTO_a,mlomethod_a,nskip_a
+        elseif(lex) then
+          if(master_mpi) write(stdo,ftox)" sugw: __mloindex found but nspc=2 (SOC); a' skipped"
+        endif
+      endblock PrepCmlo
     endif
     call m_ppj_init()  !Get ppj(1:ndima,1:ndima,isp): overlap matrix between atomic orbitals within MT. 
     ! CPHI GEIG. We use mpi-io from 2024-9-26
@@ -436,6 +467,12 @@ contains
           call hambl(isp,qp,smpot,vconst,osig,otau,oppi,  hamm(:,1,:,1), ovlm(:,1,:,1)) !ham=<F_i|H(LDA)|F_j> and ovl=<F_i|F_j>
           if(lso==2) hamm(:,1,:,1) = hamm(:,1,:,1) + hammhso(:,:,isp) !diagonal part of SOC matrix added for Lz.Sz mode.
           vxc(:,1,:,1) = hamm(:,1,:,1) - vxc(:,1,:,1) ! vxc(LDA) part
+          if(lcmlo) then !design 4.2 a': keep H^LDA(q) and S^PMT(q); zhev_tk4 below destroys them
+            if(allocated(hamm_lda)) deallocate(hamm_lda)
+            if(allocated(ovlm_keep)) deallocate(ovlm_keep)
+            allocate(hamm_lda, source=hamm)
+            allocate(ovlm_keep, source=ovlm)
+          endif
           if(sigmamode) then !Add  Vxc(QSGW)-Vxc 
             call getsenex(qp,isp,ndimh,ovlm(:,1,:,1))
             hamm(:,1,:, 1) = hamm(:,1,:,1) + ham_scaledsigma*senex !senex= Vxc(QSGW)-Vxc(LDA)
@@ -479,6 +516,24 @@ contains
           endblock WriteHamiltonianGW
         endif
         call zhev_tk4(ndimhx,hamm,ovlm,ndimhx,nev,evl(1,iq,isp),evec,epsovl) ! Diagonalization. nev:Calculated number of eigenvec
+        CmloStepAprime: if(lcmlo) then !design 4.2 a'
+          block
+            use m_hreduction,only: Hreduction
+            integer:: nxq, iqqisp
+            complex(8):: hmo(ndimMTO_a,ndimMTO_a), omo(ndimMTO_a,ndimMTO_a)
+            complex(8), allocatable :: zm(:,:), sz(:,:)
+            allocate(zm(ndimhx,ndimMTO_a))
+            call Hreduction(mlomethod_a,.false.,ndimhx, hamm_lda(:,1,:,1), ovlm_keep(:,1,:,1), &
+                 ndimMTO_a, ix_a, fff1_a, hmo, omo, qp, nev=nxq, zMLO=zm, nskip_auto=nskip_a)
+            allocate(sz(ndimhx,ndimMTO_a))
+            sz = matmul(ovlm_keep(1:ndimhx,1,1:ndimhx,1), zm)        ! S^PMT z^MLO_0
+            cmlo_a = (0d0,0d0)
+            cmlo_a(1:nev,1:ndimMTO_a) = matmul(transpose(dconjg(evec(1:ndimhx,1:nev))), sz) ! c' = z^psi^dag S z
+            iqqisp = isp + nspx*(iq-1)
+            istat = writem(ifcmlo, rec=iqqisp, data=cmlo_a)
+            deallocate(zm, sz)
+          endblock
+        endif CmloStepAprime
         if(show_time) call stopwatch_show(sw)
       endblock GetHamiltonianAndDiagonalize;       if(debug)write(stdo,ftox)' iqisploop777 1212'
 1212  continue
@@ -690,6 +745,19 @@ contains
       deallocate(hamm,ovlm,evec,vxc,cphi)!,pwz,cphiw)
 1001 enddo iqisploop
     if(c0_mlo) istat = closem(ifihh)
+    if(lcmlo) then
+      istat = closem(ifcmlo)
+      if(master_mpi) then
+        block
+          integer:: ifi
+          open(newunit=ifi,file='__cmlo.info',form='unformatted')
+          write(ifi) ndimMTO_a, nqbz, nqirr, ldim_a, mrecbb_a
+          write(ifi) ix_a(1:ndimMTO_a), qplist(1:3,1:nqirr)
+          close(ifi)
+          write(stdo,ftox)" sugw: wrote __cmlo.data/.info (a')  ndimMTO nqirr=",ndimMTO_a,nqirr
+        endblock
+      endif
+    endif
     istat = closem(ifvxcevec)
     i=closem(ifcphim) !mpi-io
     i=closem(ifgeigm)

@@ -700,6 +700,18 @@ contains
       if(lsigmlo) call mpibc2_complex(sigmlor,size(sigmlor),'m_HamPMT_sigmlor')
       call mpibc2_complex(ovlmr,size(ovlmr),'m_HamPMT_ovlmr') !to master
       if(socmatrix) call mpibc2_complex(hammhsor,size(hammhsor),'m_HamPMT_hammhsor') !to master
+      WriteMloIndex: if(master_mpi) then !index so that sugw can build the MLO itself (design 4.1 step 0c/0d)
+        block
+          use m_readqplist,only: eferm,ecbot
+          integer:: ifmi
+          open(newunit=ifmi,file='__mloindex',form='unformatted')
+          write(ifmi) ndimMTO, ldim, mlomethod, nskip_global
+          write(ifmi) ix(1:ndimMTO)
+          write(ifmi) fff1, eferm, ecbot
+          close(ifmi)
+          write(stdo,ftox)' Wrote __mloindex: ndimMTO mlomethod nskip=',ndimMTO,mlomethod,nskip_global
+        endblock
+      endif WriteMloIndex
       if(master_mpi) then ! write RealSpace MTO Hamiltonian          !ix(1:ndimMTO)=ix1(1:ndimMTO) !for atom idex
         write(stdo,*)' Writing HamRsMLO... ndimMTO=',ndimMTO
         open(newunit=ifihmto,file='HamRsMLO',form='unformatted')

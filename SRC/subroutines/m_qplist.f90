@@ -472,6 +472,13 @@ contains
     call readbandedge()
   end subroutine readqplistsy
 
+  !> Set eferm/ecbot directly (sugw has them from the SCF and never reads qplist.dat).
+  subroutine set_bandedge(eferm_in, ecbot_in)
+    real(8),intent(in):: eferm_in, ecbot_in
+    eferm = eferm_in
+    ecbot = ecbot_in
+  end subroutine set_bandedge
+
   subroutine readbandedge()
     use m_mpi,only: master_mpi
     implicit none
