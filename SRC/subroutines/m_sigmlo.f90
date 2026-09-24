@@ -27,7 +27,9 @@ module m_sigmlo
   !    ECALJ_MLO_NOCACHE=1 restores the old per-call rebuild.
   integer :: nzc = 0
   real(8), allocatable :: qzc(:,:)
-  integer, allocatable :: ispzc(:)
+  integer, allocatable :: ispzc(:), ndzc(:)   !ndzc: the ndimh each entry was built with.
+  !ndimh depends on q when pwmode=11, so an entry may only be reused at its own size;
+  !taking the first rows of a zero-padded entry gave a singular O^MLO and NaN.
   complex(8), allocatable :: zcache(:,:,:)
   logical :: nocache = .false., cfirst = .true.
 contains
@@ -95,7 +97,7 @@ contains
     ok=.false.; nmlo_out=ndimMTO
     if(nocache) return
     do jc=1,nzc
-      if(ispzc(jc)==isp0 .and. sum(abs(qzc(:,jc)-q0))<1d-8 .and. size(zcache,1)>=nm) then
+      if(ispzc(jc)==isp0 .and. ndzc(jc)==nm .and. sum(abs(qzc(:,jc)-q0))<1d-8) then
         z0(1:nm,1:ndimMTO) = zcache(1:nm,1:ndimMTO,jc); ok=.true.; return
       endif
     enddo
@@ -157,18 +159,19 @@ contains
     complex(8),intent(in):: z0(nm,ndimMTO)
     complex(8),allocatable:: zt(:,:,:)
     real(8),allocatable:: qt(:,:)
-    integer,allocatable:: it(:)
+    integer,allocatable:: it(:), nt(:)
     integer:: ld
     if(nzc==0) then
-      allocate(zcache(nm,ndimMTO,1), qzc(3,1), ispzc(1))
-      zcache(:,:,1)=z0; qzc(:,1)=q0; ispzc(1)=isp0; nzc=1
+      allocate(zcache(nm,ndimMTO,1), qzc(3,1), ispzc(1), ndzc(1))
+      zcache(:,:,1)=z0; qzc(:,1)=q0; ispzc(1)=isp0; ndzc(1)=nm; nzc=1
     else
       ld=max(nm,size(zcache,1))
       allocate(zt(ld,ndimMTO,nzc+1), source=(0d0,0d0))
-      allocate(qt(3,nzc+1)); allocate(it(nzc+1))
-      zt(1:size(zcache,1),:,1:nzc)=zcache; qt(:,1:nzc)=qzc; it(1:nzc)=ispzc
-      zt(1:nm,:,nzc+1)=z0; qt(:,nzc+1)=q0; it(nzc+1)=isp0
+      allocate(qt(3,nzc+1)); allocate(it(nzc+1)); allocate(nt(nzc+1))
+      zt(1:size(zcache,1),:,1:nzc)=zcache; qt(:,1:nzc)=qzc; it(1:nzc)=ispzc; nt(1:nzc)=ndzc
+      zt(1:nm,:,nzc+1)=z0; qt(:,nzc+1)=q0; it(nzc+1)=isp0; nt(nzc+1)=nm
       call move_alloc(zt,zcache); call move_alloc(qt,qzc); call move_alloc(it,ispzc)
+      call move_alloc(nt,ndzc)
       nzc=nzc+1
     endif
   end subroutine cache_put
@@ -240,9 +243,6 @@ contains
     ChiTildeCache: block
       character(32):: cv
       integer:: st, ic, jc
-      complex(8),allocatable:: zt(:,:,:)
-      real(8),allocatable:: qt(:,:)
-      integer,allocatable:: it(:)
       if(cfirst) then
         cfirst=.false.
         call get_environment_variable('ECALJ_MLO_NOCACHE',cv,status=st)
@@ -252,7 +252,7 @@ contains
       ic = 0
       if(.not.nocache) then
         do jc = 1, nzc
-          if(ispzc(jc)==isp .and. sum(abs(qzc(:,jc)-qp))<1d-8 .and. size(zcache,1)>=ndimh) then
+          if(ispzc(jc)==isp .and. ndzc(jc)==ndimh .and. sum(abs(qzc(:,jc)-qp))<1d-8) then
             ic = jc; exit
           endif
         enddo
@@ -266,18 +266,8 @@ contains
           call Hreduction(mlomethod,.false.,ndimh, hl, ol, ndimMTO, ix, fff1, &
                hmo, omo, qp, nev=nxq, zMLO=zm, nskip_auto=nskip)
         endblock
-        if(.not.nocache) then                      !append to the cache
-          if(nzc==0) then
-            allocate(zcache(ndimh,ndimMTO,1), qzc(3,1), ispzc(1))
-            zcache(:,:,1)=zm; qzc(:,1)=qp; ispzc(1)=isp; nzc=1
-          else
-            allocate(zt(max(ndimh,size(zcache,1)),ndimMTO,nzc+1), source=(0d0,0d0))
-            allocate(qt(3,nzc+1)); allocate(it(nzc+1))
-            zt(1:size(zcache,1),:,1:nzc)=zcache; qt(:,1:nzc)=qzc; it(1:nzc)=ispzc
-            zt(1:ndimh,:,nzc+1)=zm; qt(:,nzc+1)=qp; it(nzc+1)=isp
-            call move_alloc(zt,zcache); call move_alloc(qt,qzc); call move_alloc(it,ispzc)
-            nzc=nzc+1
-          endif
+        if(.not.nocache) then
+          call cache_put(qp, isp, ndimh, zm)
           call zmlo_ref_append(qp, isp, ndimh, zm)   !keep chi~ for the whole chain
         endif
       endif
