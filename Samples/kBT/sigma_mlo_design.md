@@ -172,26 +172,27 @@ $$
 $z^{\psi}_{mi}$ は固有ベクトル（`evecpmt`）。$\psi$ は正規直交なので
 $c^{\rm MLO}_{i\alpha}=\langle\psi^{\rm PMT}_{iq}\mid\tilde\chi_{\alpha q}\rangle$ そのものである。
 
-**ブロッホ基底なのは MTO 部分だけである。** ここでいう「ブロッホ基底」は、
-**$q$ に依らない実空間関数 $f$ ひとつから $\sum_T e^{iqT} f(\mathbf r-\mathbf T)$ で生成されるもの**の意である
-（単にブロッホの定理を満たす関数、という意味ではない）。ここを混同すると設計を誤る:
+**ブロッホ基底とは「$q$ について周期性を持つもの」である。**
+すなわち $\chi_{\mu,q+G} = \chi_{\mu q}$（$G$ は逆格子ベクトル）。
+これは「$q$ に依らない実空間関数 $f$ ひとつから $\sum_T e^{iqT} f(\mathbf r-\mathbf T)$ で生成される」ことと同値で
+（$e^{i(q+G)T}=e^{iqT}$ だから）、**$q$ のフーリエ級数＝実空間表現が存在する根拠そのもの**である。
 
-$$\chi^{\rm MTO}_{\mu q}(\mathbf r) = \sum_{T} e^{iqT}\,\chi^{\rm MTO}_{\mu}(\mathbf r - \mathbf T - \boldsymbol\tau_{ib}),
-\qquad
-\chi^{\rm APW}_{Gq}(\mathbf r) = e^{i(q+G)\cdot\mathbf r}\quad(\text{球内は増補})\tag{10}
+$$\chi^{\rm MTO}_{\mu q}(\mathbf r) = \sum_{T} e^{iqT}\,\chi^{\rm MTO}_{\mu}(\mathbf r - \mathbf T - \boldsymbol\tau_{ib})
+\quad\Rightarrow\quad \chi^{\rm MTO}_{\mu,q+G} = \chi^{\rm MTO}_{\mu q}\tag{10}
 $$
 
-- $\chi^{\rm MTO}$ は **$q$ に依らない実空間関数のブロッホ和**。背後に $q$ 非依存の局在した種があるので、
-  実空間の担い手（$R$ 表現）を持つ。$\Sigma^{\rm MTO}(R)$ や `hammr`/`ovlmr` が成り立つのはこれによる。
-- $\chi^{\rm APW}_{Gq}=e^{i(q+G)r}$ は $q$ のブロッホ関数ではあるが、**$q$ 非依存の局在した種のブロッホ和ではない**。
-  $G$ の走る集合が $q$ ごとに変わり、対応する実空間の担い手が無い。
+- **$\chi^{\rm MTO}$ はブロッホ基底**。だから $\Sigma^{\rm MTO}_{\mu\nu}(q)$ は $q$ の周期関数で、
+  式 (4)(5) のフーリエ変換が意味を持つ。`hammr`/`ovlmr` も同じ理由で成り立つ。
+- **$\chi^{\rm APW}_{Gq}=e^{i(q+G)\mathbf r}$ はブロッホ基底ではない**。$q\to q+G'$ で張る空間は同じでも
+  **ラベル $G$ がずれる**（$\{q+G'+G\}=\{q+G''\}$）ので、$G$ で番号付けた基底関数は $q$ の周期関数にならない。
 
-したがって **MLO 自身も、その APW 成分ゆえに「$q$ 非依存の局在関数のブロッホ和」ではない**。
-式 (9) の $z^{\rm MLO}$ を $q$ でフーリエ変換できないのは、突き詰めればこの理由である。
+**MLO はどうか。$\tilde\chi_\alpha$ は関数としては $q$ の周期関数である** — 種 $\chi^{\rm MTO}_{ix(\alpha)}$ が
+ブロッホ基底、band 多様体も窓（エネルギーで決まる）も $q$ の周期的な量だから、$\tilde\chi_{\alpha,q+G}=\tilde\chi_{\alpha q}$。
+**したがって $\Sigma^{\rm MLO}_{\alpha\beta}(q)$ は $q$ の周期関数であり、式 (11)(12) のフーリエ変換が正当化される。
+これが本設計の licence である。**
 
-**しかし内挿に要るのはそれではない。** 要るのは MLO×MLO の**行列** $\Sigma^{\rm MLO}_{\alpha\beta}(q)$ であって、
-添字 $\alpha,\beta$ は $q$ 非依存の通し番号（数）である。だから $q$ についてフーリエ変換でき、
-任意 $k$ でブロッホ和できる。$H^{\rm MLO}(R)$, $O^{\rm MLO}(R)$（`hammr`, `ovlmr`）が既にそれをやっている（§3.2.3）。
+周期的でないのは**係数配列 $z^{\rm MLO}_{m\alpha}(q)$ の APW 部分**の方で、$q\to q+G'$ でラベルがずれる。
+だから $\mathrm{FFT}[z^{\rm MLO}]$ は取れない。しかし**内挿に要るのは行列であって係数ではない**（§3.2.3）。
 
 | | |
 |---|---|
@@ -242,8 +243,8 @@ $\Sigma^{\rm MLO}(R)$ は `hammr`/`ovlmr` と**まったく同種の MLO×MLO �
 
 **「APW の本数が $k$ 依存」が効くのは 1 箇所だけ**: $z^{\rm MLO}_{m\alpha}(q)$ を**要素ごとにフーリエ内挿**しようとしたときである。
 行索引 $m$ が PMT 基底なので $\mathrm{FFT}[z^{\rm MLO}]$ は定義できない。**その手を使わなければよい**だけで、
-$\tilde\chi$ の APW 成分には $q$ 非依存の実空間の担い手が無いからである（§3.2.1）。
-**内挿するのは $\tilde\chi$ ではなく、$q$ 非依存の添字を持つ行列 $\Sigma^{\rm MLO}_{\alpha\beta}$ の方**である。
+$z^{\rm MLO}$ の APW 部分が $q$ の周期関数でないからである（§3.2.1）。
+**内挿するのは係数 $z^{\rm MLO}$ ではなく、$q$ の周期関数である行列 $\Sigma^{\rm MLO}_{\alpha\beta}$ の方**である。
 
 #### 3.2.4 使い方は 2 通り
 
