@@ -130,7 +130,7 @@ getsenex   ->  [Sigma]_mn(k)          senex  -> H
 
 | 記号 | 意味 | 次元 / 索引 |
 |---|---|---|
-| $\chi^{\rm PMT}_m$ | **PMT 基底関数**（MTO + APW） | $m = 1\ldots n_{\rm dimh}$、**APW の本数は $k$ に依存** |
+| $\chi^{\rm PMT}_m$ | **PMT 基底関数**（MTO + APW） | $m = 1\ldots n_{\rm dimh}$。APW の G の選び方は §3.2.1 の脚注 |
 | $\chi^{\rm MTO}_\mu$ | その MTO 部分 | $\mu = 1\ldots L$（`ldim` = 230）、**$k$ 非依存** |
 | $\chi^{\rm MTO}_{ix(\alpha)}$ | **MLO の種**。`ix(`$\alpha$`)` 番目の MTO 基底関数（固定） | 新しい記号は要らない |
 | $\tilde\chi_\alpha$ | **MLO**（コードの `F^MLO`）。種をエネルギー窓付きで band 多様体へ射影したもの（式 (9)）。**冪等な射影ではない** | $\alpha = 1\ldots M$（`ndimMTO` = 154） |
@@ -185,8 +185,16 @@ $$
 
 - **$\chi^{\rm MTO}$ はブロッホ基底**。だから $\Sigma^{\rm MTO}_{\mu\nu}(q)$ は $q$ の周期関数で、
   式 (4)(5) のフーリエ変換が意味を持つ。`hammr`/`ovlmr` も同じ理由で成り立つ。
-- **$\chi^{\rm APW}_{Gq}=e^{i(q+G)\mathbf r}$ はブロッホ基底ではない**。$q\to q+G'$ で張る空間は同じでも
-  **ラベル $G$ がずれる**（$\{q+G'+G\}=\{q+G''\}$）ので、$G$ で番号付けた基底関数は $q$ の周期関数にならない。
+- **$\chi^{\rm APW}_{Gq}=e^{i(q+G)\mathbf r}$ はブロッホ基底ではない**。$q\to q+G'$ で、ラベル $G$ の関数は
+  ラベル $G'+G$ の関数に移る。**ラベルがずれる**ので、$G$ で番号付けた基底関数は $q$ の周期関数にならない。
+  これは**本数の問題ではなくラベルの問題**である。
+
+  > **APW の $G$ の選び方（`m_igv2x.f90`）**: `pwgmax = sqrt(pwemax)` として、
+  > `pwmode` の 10 の位が **0 なら $|G| <$ `pwgmax`**（`qqq = 0`。**本数 `napw` は $q$ に依らない**）、
+  > **1 なら $|q+G| <$ `pwgmax`**（$q$ 依存）。LiTi₂O₄ の計算は `pwmode = 1` なので**前者**。
+  > どちらでも上のラベルずれは起きるので、$\mathrm{FFT}[z^{\rm MLO}]$ が取れない結論は変わらない。
+  > なお厳密には、$|G|$ カットだと張る空間自体も $q$ の周期関数にならない（$G$ 球が原点固定だから）。
+  > $|q+G|$ カットならそこは周期的になる。
 
 **MLO はどうか。$\tilde\chi_\alpha$ は関数としては $q$ の周期関数である** — 種 $\chi^{\rm MTO}_{ix(\alpha)}$ が
 ブロッホ基底、band 多様体も窓（エネルギーで決まる）も $q$ の周期的な量だから、$\tilde\chi_{\alpha,q+G}=\tilde\chi_{\alpha q}$。
@@ -203,7 +211,7 @@ $$
 | **窓** | $\Sigma^{\rm MLO}$ は**窓の中でのみ $\hat\Sigma$ を忠実に表す**。窓の外は鋭く切れるのではなく連続に落ちる。これは欠陥ではなく設計意図（§3.3） |
 | **ゲージ** | 種が $q$ に依らず固定 ⇒ **射影ゲージ**。固有ベクトルの任意位相・縮退内の任意回転は相殺し、$z^{\rm MLO}(q)$ は $q$ の滑らかな関数（Wannier の gauge fixing が要らない） |
 | **直交性** | 既定では**非直交**。$O^{\rm MLO}(q) = (z^{\rm MLO})^\dagger S^{\rm PMT}(q)\, z^{\rm MLO}$。`--mlo_ortho` のときだけ Löwdin 直交化 |
-| **次元** | $\alpha = 1\ldots M$、$M$ = `ndimMTO`（LiTi2O4 全 EH lm で 154、t2g 模型で 12）。$i$ はバンド指標、$m$ は PMT 指標（APW の本数は $q$ 依存） |
+| **次元** | $\alpha = 1\ldots M$、$M$ = `ndimMTO`（LiTi2O4 全 EH lm で 154、t2g 模型で 12）。$i$ はバンド指標、$m$ は PMT 指標 |
 | **出力** | 段 1 で `zMLO` の MTO 行を `__amlo.data` に書き出し済み。**この先で要るのは `cmlo` の方**（式 (11)）で、まだ外に出していない → 段 1' |
 
 #### 3.2.2 式 (3)–(5) は MTO を MLO に置き換えるだけで済む
@@ -217,7 +225,7 @@ $$\Sigma^{\rm MLO}_{\alpha\beta}(q) \;=\; \langle \tilde\chi_\alpha|\hat\Sigma(q
 $$
 
 $c^{\rm MLO}_{i\alpha}=\langle\psi^{\rm PMT}_{iq}\mid\tilde\chi_{\alpha q}\rangle$（式 (9)）の第一添字は
-**バンド指標**なので、APW の本数が $q$ に依ることは**ここには入らない**。
+**バンド指標**なので、APW の事情は**ここには入らない**。
 $\psi$ は正規直交だから逆行列も不要。$\Sigma^{\psi}$ から一発で取れる。
 
 続く 2 段はそのまま:
@@ -244,7 +252,7 @@ $\tilde\chi$ は実空間表現を持ち、**それを使う機構は既に動�
 $\Sigma^{\rm MLO}(R)$ は `hammr`/`ovlmr` と**まったく同種の MLO×MLO 行列**（添字 $\alpha\beta$ は $q$ 非依存）だから、
 式 (12) は新規実装ですらなく、既存の経路に 1 本足すだけである。$O^{\rm MLO}(k)$ も既に任意 $k$ で得られている。
 
-**「APW の本数が $k$ 依存」が効くのは 1 箇所だけ**: $z^{\rm MLO}_{m\alpha}(q)$ を**要素ごとにフーリエ内挿**しようとしたときである。
+**APW の事情が効くのは 1 箇所だけ**: $z^{\rm MLO}_{m\alpha}(q)$ を**要素ごとにフーリエ内挿**しようとしたときである。
 行索引 $m$ が PMT 基底なので $\mathrm{FFT}[z^{\rm MLO}]$ は定義できない。**その手を使わなければよい**だけで、
 $z^{\rm MLO}$ の APW 部分が $q$ の周期関数でないからである（§3.2.1）。
 **内挿するのは係数 $z^{\rm MLO}$ ではなく、$q$ の周期関数である行列 $\Sigma^{\rm MLO}_{\alpha\beta}$ の方**である。
@@ -304,7 +312,7 @@ $S^{\rm PMT}(k)$ は `getsenex` の引数 `ovlm` で既に渡っている。
 
 がその場にある。これは `Hreduction(mlomethod,...,hamm,ovlm,...,qp,cmlo,nev,zMLO,...)` の入力そのものなので、
 **その $k$ で `Hreduction` を呼べば $z^{\rm MLO}(k)$ が直接得られる**。$\mathrm{FFT}[z]$ は使わないので
-APW の本数が $k$ 依存でも構わず、offset-Γ のような特殊点でも同じ手順で通る。
+APW の事情に関係なく、offset-Γ のような特殊点でも同じ手順で通る。
 
 **循環しない理由**: MLO を $H^{\rm LDA}$ から作るから。$\Sigma$ を含む $H$ を使おうとすると
 「$\Sigma$ を作るのに $\Sigma$ が要る」になるが、$H^{\rm LDA}$ なら `getsenex` 突入時点で確定している。
@@ -465,7 +473,7 @@ $$
 3. $A(k) = $ `ovlm` $\cdot$ `zMLO`、$O^{\rm MLO}(k) = $ `zMLO`$^\dagger A$（式 (15)）。
 4. 式 (14) で `senex` を組む。
 
-**offset-Γ を含む任意 $k$ で通る**（$\mathrm{FFT}[z]$ を使わないので APW の本数が $k$ 依存でも構わない）。
+**offset-Γ を含む任意 $k$ で通る**（$\mathrm{FFT}[z]$ を使わないので APW の事情に触れない）。
 **循環しない**: MLO は $H^{\rm LDA}$ から作るので、`getsenex` 突入時点で入力が揃っている。
 メッシュ点の `cmlo` も同じく LDA 由来にすること（段 1'）。
 **コスト**: 2-1 と 2-2 で $k$ あたり対角化 2 回分。
