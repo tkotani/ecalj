@@ -12,6 +12,46 @@
 
 （図表の番号は `図 HH:MM-n` / `表 HH:MM-n`。HH:MM はそのエントリの時刻、n はエントリ内の通し番号。エントリの時刻は変わらないので番号は安定する。）
 
+### 2026-09-24 17:40 設計書の実装（段 1'〜3）— Si 2³ でスモークテスト通過、メッシュ点で 1.4〜21.5 meV
+
+[sigma_mlo_design.md](sigma_mlo_design.md) の段 1'〜3 を実装し、Si（`nkabc = n1n2n3 = mlo_nkabc = [2,2,2]`、`pwmode=11`、
+MLO 18 軌道 = 2 Si × spd）で端から端まで通した。
+
+**実装（commit `a0c7a7300`, `3bf449a11`, `409ccf9d6`, `7039157fa`）**
+
+| 段 | 変更 |
+|---|---|
+| 1' | `__cmlo.data` の書き出しは**既にあった**（`m_HamPMT.f90` の `cmlo4GWinput`、`--mlo` で有効）。設計の要求に合わせ、`sugw.f90` が `--mlo` のとき `__HamiltonianGW` に **$\Sigma$ 込みでなく $H^{\rm LDA}$** を書くよう変更（`hamm_lda`）。MLO を LDA 由来にするため |
+| 2 | `hqpe_sc`: 式 (11) の $\Sigma^{\rm MLO}(q)=c^\dagger(\Sigma^\psi-V_{xc})c$ を作り（`eseavrmean` の窓外外挿項も同じ形で足す）`SigmMLO.q` に書く。$\Sigma^\psi$ は既存の `se(1:nx,1:nx,ip)` そのもの。`m_HamPMT`: それを `hammr`/`ovlmr` と**同じ対称化→全 BZ 回転→FFT の経路**に相乗りさせ `SigRsMLO` を書く |
+| 3 | `m_mlo_ham::calc_ham_eigen`: `SigRsMLO` があれば `hammr` と同じ位相で `hamm` に加算 |
+| — | `gwsc`: `--mlo` のとき `lmf --jobgw=1` と `hqpe_sc` の**間**に `mlo --mlo` を挟む（この順序でないと `__cmlo.data` が 1 反復ずれる） |
+
+**スモークテスト**: LDA → `gwsc 1 si --mlo`（12 秒）→ `SigmMLO.q`（nmlo=18, nqibz=3）→
+`lmf --writeham --mlo`（**sigm を外して LDA**）→ `mlo --mlo` → `SigRsMLO` → バンド。
+`HamRsMLO` は `getsenex` の後に書かれる `__HamiltonianPMT` 由来なので既に $\Sigma$ を含む。
+**二重計上を避けるため、比較は「LDA の `HamRsMLO` + `SigRsMLO`」対「通常の QSGW バンド」で行う。**
+
+*表 17:40-1* Γ 点（= Σ メッシュ点）での $\Sigma$ 補正 $E^{\rm QSGW}-E^{\rm LDA}$
+
+| band | 従来（MTO 表現） | **MLO 表現** | 差 |
+|---|---|---|---|
+| 1（Si 3s） | 205.4 meV | 219.5 | 14.1 |
+| 2–4（Γ25′ VBM） | 229.1 | 207.6 | 21.5 |
+| 5–7（Γ15） | 967.7 | 969.1 | **1.4** |
+| 8 | 834.1 | 821.4 | 12.7 |
+| 9 以上（窓の外） | — | — | 1 eV 級（想定内） |
+
+**判定**: 経路は通った。メッシュ点で窓内のバンドは 1.4〜21.5 meV で一致しており、
+これは MLO 部分空間（18 軌道）への射影誤差と見てよい大きさ。
+
+**未解決・注意**:
+- 対称線上の平均/最大差（バンド 2 で 281 meV 等）は、61 バンドの PMT と 18 バンドの MLO 模型で
+  **バンド番号の対応が崩れている**寄与が入っている。分離していない。
+- このテストでは `qplist.dat` の $E_F$ が QSGW のもののまま LDA の $H$ で MLO を作っており、窓がわずかに不整合。
+- `gwsc` の `mlo --mlo` 段は `HamiltonianPMTInfo` と `qplist.dat` が既にあることを前提にしている（要 `job_band` 先行）。
+
+次は Si で検証 2（メッシュ点での厳密性、バンド対応を揃えて）と検証 3（補間の滑らかさ）。
+
 ### 2026-09-24 16:33 tiNoD2（Ti 3d の EH2 を基底から外す、MTO 230→210）10 反復完走 — **荒れは減らない。この筋は否定された**
 
 `n666_tiNoD2` は 16:33 に iter 10 まで完走（1 反復 ≈ 15.5 分）。Eb9 は iter 6 以降 −8.87 で安定し、収束はしている。
