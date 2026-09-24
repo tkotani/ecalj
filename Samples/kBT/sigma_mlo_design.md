@@ -130,15 +130,16 @@ getsenex   ->  [Sigma]_mn(k)          senex  -> H
 |---|---|---|
 | $\chi^{\rm PMT}_m$ | **PMT 基底関数**（MTO + APW） | $m = 1\ldots n_{\rm dimh}$、**APW の本数は $k$ に依存** |
 | $\chi^{\rm MTO}_\mu$ | その MTO 部分 | $\mu = 1\ldots L$（`ldim` = 230）、**$k$ 非依存** |
-| $\chi^{\rm MTO}_{ix(k)}$ | **MLO の種**。`ix(k)` 番目の MTO 基底関数（固定） | 新しい記号は要らない |
-| $\tilde\chi_k = P\,\chi^{\rm MTO}_{ix(k)}$ | **MLO**（コードの `F^MLO`）。band 多様体への射影 | $k = 1\ldots M$（`ndimMTO` = 154） |
+| $\chi^{\rm MTO}_{ix(\alpha)}$ | **MLO の種**。`ix(`$\alpha$`)` 番目の MTO 基底関数（固定） | 新しい記号は要らない |
+| $\tilde\chi_\alpha = P\,\chi^{\rm MTO}_{ix(\alpha)}$ | **MLO**（コードの `F^MLO`）。band 多様体への射影 | $\alpha = 1\ldots M$（`ndimMTO` = 154） |
 | $\psi^{\rm PMT}_i$ | **固有関数**（基底ではない） | |
-| `cmlo`$_{ik} = \langle \psi^{\rm PMT}_i\mid\tilde\chi_k\rangle$ | MLO の**固有関数**基底での係数 | |
-| `zMLO`$_{mk}$ | MLO の **PMT 基底**での係数、$\tilde\chi_k=\sum_m \chi^{\rm PMT}_m z^{\rm MLO}_{mk}$ | $(n_{\rm dimh}, M)$ |
+| `cmlo`$_{ik} = \langle \psi^{\rm PMT}_i\mid\tilde\chi_\alpha\rangle$ | MLO の**固有関数**基底での係数 | |
+| `zMLO`$_{m\alpha}$ | MLO の **PMT 基底**での係数、$\tilde\chi_\alpha=\sum_m \chi^{\rm PMT}_m z^{\rm MLO}_{m\alpha}$ | $(n_{\rm dimh}, M)$ |
 | $P_a$ | **PAW（augmentation）チャネル** φ, φ̇ | $a = 1\ldots N_a$（`ndima` = 700）、**$k$ 非依存** |
 | $B_{am}(k)$ | PMT 基底関数の augmentation 係数 | lmf が任意 $k$ で厳密に作る |
 
-コードの `F^MTO_k` は $\chi^{\rm MTO}_{ix(k)}$、`F^MLO_k` は $\tilde\chi_k$ に対応する。
+コードの `F^MTO_k` は $\chi^{\rm MTO}_{ix(\alpha)}$、`F^MLO_k` は $\tilde\chi_\alpha$ に対応する。
+**MLO の索引には $\alpha,\beta$ を使い、波数 $k,q$ と区別する。**
 
 $\Sigma$ は `sigm` に $\Sigma^{\rm MTO}_{\mu\nu}(q)=\langle\chi^{\rm MTO}_\mu|\hat\Sigma|\chi^{\rm MTO}_\nu\rangle$ として入っている（$L\times L$）。
 
@@ -153,23 +154,23 @@ $\Sigma$ は `sigm` に $\Sigma^{\rm MTO}_{\mu\nu}(q)=\langle\chi^{\rm MTO}_\mu|
 以下、MLO（§3.2）と PAW チャネル（§3.3）を検討する。
 なお **どちらも MTO を経由しない** — 式 (1) の $\Sigma^{\psi}$ から直接その部分空間の行列を作る。
 
-### 3.2 MLO を部分空間に使う【式 (3)–(5) は可、(6)(7) が未解決】
+### 3.2 MLO を部分空間に使う【本命】
 
 #### 3.2.1 MLO ↔ PMT の変換行列は既に得ている（段 1 実装済み）
 
 まず確認しておくべき事実として、**MLO を PMT 基底へ展開する係数行列はコードが既に作っている**。
 `Hreduction`（`SRC/subroutines/m_hreduction.f90`）が引数 `zMLO` で返すのがそれで、
 
-$$\tilde\chi_{kq} \;=\; \sum_m \chi^{\rm PMT}_{mq}\; z^{\rm MLO}_{mk}(q),
+$$\tilde\chi_{\alpha q} \;=\; \sum_m \chi^{\rm PMT}_{mq}\; z^{\rm MLO}_{m\alpha}(q),
 \qquad z^{\rm MLO} \in \mathbb{C}^{\,n_{\rm dimh}(q)\times M}\tag{9}
 $$
 
-二段で組まれている。第一段は、**固定した MTO 種** $\chi^{\rm MTO}_{ix(k)}$ を
+二段で組まれている。第一段は、**固定した MTO 種** $\chi^{\rm MTO}_{ix(\alpha)}$ を
 band 多様体へ射影した係数（固有関数基底、コードの `cmlo`）
 
-$$c^{\rm MLO}_{ik}(q) \;=\; \sum_j
+$$c^{\rm MLO}_{i\alpha}(q) \;=\; \sum_j
 \big\langle \psi^{\rm PMT}_{iq}\mid\psi^{\rm MTO}_{jq}\big\rangle^{*}\,
-\big\langle \psi^{\rm MTO}_{jq}\mid\chi^{\rm MTO}_{ix(k)}\big\rangle\tag{10}
+\big\langle \psi^{\rm MTO}_{jq}\mid\chi^{\rm MTO}_{ix(\alpha)}\big\rangle\tag{10}
 $$
 
 第二段は、固有ベクトル $z^{\psi}_{mi}(q)$（`evecpmt`、$|\psi_{iq}\rangle=\sum_m|\chi^{\rm PMT}_{mq}\rangle z^{\psi}_{mi}$）を掛けて PMT 基底へ戻す:
@@ -181,7 +182,7 @@ $$
 
 | 性質 | 内容 |
 |---|---|
-| **ゲージ** | 種 $\chi^{\rm MTO}_{ix(k)}$ が $q$ に依らず固定なので **射影ゲージ**。固有ベクトルの任意位相・縮退内の任意回転は式 (10) で相殺し、$z^{\rm MLO}(q)$ は $q$ の滑らかな関数になる（Wannier の gauge fixing に相当する作業が不要） |
+| **ゲージ** | 種 $\chi^{\rm MTO}_{ix(\alpha)}$ が $q$ に依らず固定なので **射影ゲージ**。固有ベクトルの任意位相・縮退内の任意回転は式 (10) で相殺し、$z^{\rm MLO}(q)$ は $q$ の滑らかな関数になる（Wannier の gauge fixing に相当する作業が不要） |
 | **直交性** | 既定では**非直交**。$O^{\rm MLO}(q) = (z^{\rm MLO})^\dagger S^{\rm PMT}(q)\, z^{\rm MLO}$。`--mlo_ortho` のときだけ Löwdin 直交化（`MLOLowdinOrthogonalization`）、`c0_mlo_diagnorm` で対角規格化。いずれも任意 |
 | **次元** | $M$ = `ndimMTO`（LiTi2O4 全 MTO で 154、t2g モデルで 12）。行数 $n_{\rm dimh}(q)$ は MTO 230 + APW（$q$ 依存） |
 | **出力** | `m_HamPMT.f90` が `__amlo.data` / `__amlo.info` に direct access で書き出す（1 record = 1 個の $(q,\sigma)$）。`info` は `ldim, ndimMTO, nqibz, nspx, mrecamlo` と種の索引 `ix(1:ndimMTO)`、`qibz(1:3,1:nqibz)` |
@@ -194,71 +195,90 @@ APW 行は捨てている。これは §3.2.3 の障害そのものである。
 §2 の流れのうち **(3) ψ→基底 / (4) FFT / (5) Bloch 和** は、MTO を $\tilde\chi$ に
 読み替えるだけで成立する。しかも式 (3) の MLO 版は **`zMLO` を経由しない**:
 
-$$\Sigma^{\rm MLO}_{kl}(q) \;=\; \langle \tilde\chi_k|\hat\Sigma(q)|\tilde\chi_l\rangle
-\;=\; \sum_{ij} \big(c^{\rm MLO}_{ik}\big)^{*}\,\Sigma^{\psi}_{ij}(q)\,c^{\rm MLO}_{jl}
+$$\Sigma^{\rm MLO}_{\alpha\beta}(q) \;=\; \langle \tilde\chi_\alpha|\hat\Sigma(q)|\tilde\chi_\beta\rangle
+\;=\; \sum_{ij} \big(c^{\rm MLO}_{i\alpha}\big)^{*}\,\Sigma^{\psi}_{ij}(q)\,c^{\rm MLO}_{j\beta}
 \;=\;\big((c^{\rm MLO})^\dagger\,\Sigma^{\psi}\,c^{\rm MLO}\big)_{kl}\tag{12}
 $$
 
-$c^{\rm MLO}_{ik}=\langle\psi^{\rm PMT}_{iq}\mid\tilde\chi_{kq}\rangle$（式 (10)）の第一添字は
+$c^{\rm MLO}_{i\alpha}=\langle\psi^{\rm PMT}_{iq}\mid\tilde\chi_{\alpha q}\rangle$（式 (10)）の第一添字は
 **バンド指標**なので、APW の本数が $q$ に依ることは**ここには入らない**。
 $\psi$ は正規直交だから逆行列も不要。$\Sigma^{\psi}$ から一発で取れる。
 
 続く 2 段はそのまま:
 
-$$\Sigma^{\rm MLO}_{kl}(R) = \frac{1}{N_q}\sum_q \Sigma^{\rm MLO}_{kl}(q)e^{-iqR},
+$$\Sigma^{\rm MLO}_{\alpha\beta}(R) = \frac{1}{N_q}\sum_q \Sigma^{\rm MLO}_{\alpha\beta}(q)e^{-iqR},
 \qquad
-\Sigma^{\rm MLO}_{kl}(k) = \sum_R \Sigma^{\rm MLO}_{kl}(R)\,\overline{e^{ikR}}\tag{13}
+\Sigma^{\rm MLO}_{\alpha\beta}(k) = \sum_R \Sigma^{\rm MLO}_{\alpha\beta}(R)\,\overline{e^{ikR}}\tag{13}
 $$
 
-$k,l$ は MLO の通し番号（$M$ = `ndimMTO`）で **$q$ 非依存**だから、FFT も Bloch 和も
+$\alpha,\beta$ は MLO の通し番号（$M$ = `ndimMTO`）で **$q$ 非依存**だから、FFT も Bloch 和も
 MTO 版と同一の実装で回る。**内挿される自由度は $L^2 n_k^3 = 230^2\cdot n_k^3$ から
 $M^2 n_k^3 = 154^2\cdot n_k^3$（t2g モデルなら $12^2\cdot n_k^3$）に減り、
 しかも準線形従属な方向が取り除かれている** — §1 の表の問題に直接効く。
 
-#### 3.2.3 詰まるのは式 (6)(7) — $H$ へ戻す段だけ
+#### 3.2.3 式 (6)(7): $\tilde\chi$ の実空間表現を経由する
 
 残るのは、任意 $k$ で
 
-$$\big[\hat\Sigma\big]_{mn}(k) = \sum_{klk'l'} A_{mk}(k)\,
+$$\big[\hat\Sigma\big]_{mn}(k) = \sum_{klk'l'} A_{m\alpha}(k)\,
 \big(O^{\rm MLO}\big)^{-1}_{kk'}\,\Sigma^{\rm MLO}_{k'l'}(k)\,
-\big(O^{\rm MLO}\big)^{-1}_{l'l}\,A^{*}_{nl}(k),
-\qquad A_{mk}(k) = \big(S^{\rm PMT}(k)\, z^{\rm MLO}(k)\big)_{mk}\tag{14}
+\big(O^{\rm MLO}\big)^{-1}_{l'l}\,A^{*}_{n\beta}(k),
+\qquad A_{m\alpha}(k) = \big\langle \chi^{\rm PMT}_{mk}\mid\tilde\chi_{\alpha k}\big\rangle\tag{14}
 $$
 
-を作る段（式 (6)(7) の MLO 版）。ここで初めて **$\tilde\chi$ そのものが任意 $k$ で要る**。
+を作る段（式 (6)(7) の MLO 版）。必要なのは $A(k)$ と $O^{\rm MLO}(k)=\langle\tilde\chi_\alpha|\tilde\chi_\alpha\rangle$ の 2 つだけ。
 
-**障害**: $z^{\rm MLO}$ の行は PMT 基底で、**APW の本数が $k$ ごとに違う**
-（$|k+G| <$ cutoff の $G$ 集合が変わる）。したがって $C(R)=\mathrm{FFT}[z^{\rm MLO}(q)]$ が定義できない。
-MTO 行（$q$ 非依存、`__amlo.data` にあるのはこれ）だけなら FFT できるが、それは $\tilde\chi$ の一部でしかない。
+**やってはいけない道**: $z^{\rm MLO}_{m\alpha}(q)$ を要素ごとにフーリエ内挿すること。
+行索引 $m$ は PMT 基底で、APW の本数が $k$ ごとに違う（$|k+G|<$ cutoff の $G$ 集合が変わる）ので
+$C(R)=\mathrm{FFT}[z^{\rm MLO}(q)]$ は定義できない。
 
-より本質的に言うと、実空間の局在関数 $\tilde\chi_{kR}=\frac{1}{N_q}\sum_q e^{-iqR}\tilde\chi_{kq}$ は
-連続なフーリエ成分を持つので、別の $k$ の APW 集合 $\{k+G\}$ では**厳密には表せない**。
-MTO 部分は $k$ 非依存の実空間関数の Bloch 和なので lmf が任意 $k$ で厳密に作れるのと対照的である。
+**正しい道**: $\tilde\chi$ は**実空間の局在関数**であり、その表現を経由する。
+$$\tilde\chi_{k}(\mathbf r - \mathbf R) \;=\; \frac{1}{N_q}\sum_{q} e^{-i q R}\,\tilde\chi_{\alpha q}(\mathbf r),
+\qquad
+\tilde\chi_{\alpha q}(\mathbf r) = \sum_m \chi^{\rm PMT}_{mq}(\mathbf r)\, z^{\rm MLO}_{m\alpha}(q)\tag{15}
+$$
+この $\tilde\chi_\alpha(\mathbf r)$ は BvK 超格子上で厳密に決まる **$k$ に依らない 1 個の関数**である。中身は 2 部分:
 
-→ 式 (3)–(5) は無条件で置き換え可。**式 (6)(7) だけが未解決**。
+| 部分 | 表現 | 任意 $k$ での扱い |
+|---|---|---|
+| MTO 部分 | $\sum_{\mu R'} d_{\mu\alpha}(R')\,\chi^{\rm MTO}_\mu(\mathbf r-\mathbf R')$、$d = \mathrm{FFT}\big[z^{\rm MLO}_{\rm MTO}\big]$ — 索引 $\mu$ は $q$ 非依存なので FFT できる（`__amlo.data` にあるのはこれ） | lmf が既に持つ「Bloch 和した MTO どうしの重なり」の機構でそのまま計算できる |
+| 平滑（APW）部分 | 超格子の平面波係数 $z^{\rm MLO}_{(qG)\alpha}$ の集合。局在関数なのでフーリエ成分は連続 | 局在領域に切って $\hat f(\mathbf k+\mathbf G)$ を求め直す（リサンプル） |
 
-回避案（いずれも未検証）:
-1. **MLO の APW 成分を無視し、MTO 行だけで $\tilde\chi$ を近似する**。$\tilde\chi$ の APW 重みが小さければ実用になる。
-   → **測定すべき量**: $\|z^{\rm MLO}_{\rm APW}\|/\|z^{\rm MLO}\|$。現状 `__amlo.data` は MTO 行しか書いていないので、
-   `m_HamPMT.f90` の `writem` を `zMLO(1:ndimh,:)` に拡げれば測れる（小改修）。
-2. **戻す段だけ PAW チャネルで書く**（→ §3.3）。$P_a$ は $k$ 非依存、$B(k)$ は lmf が任意 $k$ で厳密に作るので、
-   式 (14) の $A_{mk}(k)$ に相当するものが逆行列なしで得られる。§3.2.2（部分空間の選び方）と §3.3（戻し方）は**併用できる**。
+そして式 (14) が要求するのは $\tilde\chi$ を **$k$ の基底で展開すること**ではなく、
+**$\chi^{\rm PMT}_{mk}$ との重なり積分**である:
 
-### 3.3 PAW（augmentation）チャネルを部分空間に使う【本命】
+$$A_{m\alpha}(k) \;=\; \sum_{R} e^{i k R}\,
+\big\langle \chi^{\rm PMT}_{mk}\,\big|\,\tilde\chi_\alpha(\mathbf r-\mathbf R)\big\rangle\tag{16}
+$$
+
+これは $\tilde\chi$ が $k$ の基底の張る空間に入っているかどうかとは無関係に、常に定義される。
+$O^{\rm MLO}(k)$ も同じ形（$\chi^{\rm PMT}$ を $\tilde\chi$ に替えるだけ）。
+$\Sigma^{\rm MLO}(R)$ を実空間で切って式 (13) で Bloch 和するのと、**同じ種類の操作**である。
+
+**残る近似**は、局在関数の裾を BvK セルで切ることだけ。
+これは現状の式 (4)(5)（$\Sigma^{\rm MTO}(R)$ を BvK セルで切る）が既に受け入れている近似と同質で、
+しかも $\tilde\chi$ は $\Sigma$ より局在が良いはずだから条件は緩い。
+
+**実装上いちばん楽な分解**は、球内を PAW チャネル $P_a$（$k$ 非依存、$B(k)$ は lmf が任意 $k$ で厳密に作る）、
+球外の平滑部分を超格子平面波、とすること。すなわち §3.3 の道具立てを**戻す段にだけ**使う。
+§3.2.2（どの部分空間で $\Sigma$ を保持するか = MLO）と §3.3（どう戻すか = PAW）は**併用できる**。
+
+### 3.3 PAW（augmentation）チャネル【部分空間にも、戻す道具にも使える】
 
 **出発点は §2.1 の式 (1)(2) そのもの**。`hqpe_sc` がそれを式 (3) で MTO 基底に落とすのが現状だが、
 式 (3) は**途中産物**にすぎない。$\hat\Sigma$ を別の部分空間で保持したいなら、
 **MTO を経由せず $\Sigma^{\psi}$ から直接**取ればよい。
 
 $P_a$（MT 球内の φ, φ̇）は **$k$ 非依存の固定索引**であり、$B(k)$ は **lmf が任意 $k$ で厳密に作る**。
-したがって §3.2.3 の障害（$z^{\rm MLO}$ の APW 行の本数が $k$ 依存）が最初から無い。
+したがって $\Sigma$ をこのチャネルで保持すれば、任意 $k$ への戻しが逆行列なしで厳密に書ける。
+また §3.2.3 のとおり、**$\Sigma$ の部分空間は MLO のまま、球内の表現だけ $P_a$ にする**という併用もできる。
 
 **(1) GW の出力から直接**
 
 固有関数の augmentation 係数 `cphi` は $\psi_i = \sum_a P_a\,c_{ai}$（球内）なので
 $\langle P_a|\psi_i\rangle = (\Pi c)_{ai}$（$\Pi$ = 球内の重なり `ppj`）。演算子 $\hat\Sigma = \sum_{ij}|\psi_i\rangle\Sigma^\psi_{ij}\langle\psi_j|$ の PAW 行列は
 
-$$\boxed{\ \Sigma^{\rm PAW}(q) \;=\; (\Pi\,c)\;\Sigma^{\psi}(q)\;(\Pi\,c)^\dagger\ }\tag{15}
+$$\boxed{\ \Sigma^{\rm PAW}(q) \;=\; (\Pi\,c)\;\Sigma^{\psi}(q)\;(\Pi\,c)^\dagger\ }\tag{17}
 $$
 
 `hqpe_sc` が今 式 (3) を作っているところを、これに差し替える。
@@ -274,12 +294,12 @@ $\Sigma^{\rm PAW}(q)$ を FFT して $\Sigma^{\rm PAW}(R)$、任意 $k$ で Bloc
 
 $$\big[\hat\Sigma\big]_{mn} = \sum_{acdb} \langle\chi^{\rm PMT}_m|P_a\rangle\,
 \big(\Pi\big)^{-1}_{ac}\,\Sigma^{\rm PAW}_{cd}(k)\,\big(\Pi\big)^{-1}_{db}\,
-\langle P_b|\chi^{\rm PMT}_n\rangle\tag{16}
+\langle P_b|\chi^{\rm PMT}_n\rangle\tag{18}
 $$
 
 ここで $\langle\chi^{\rm PMT}_m|P_a\rangle = (B^\dagger \Pi)_{ma}$ なので $\Pi^{-1}$ が両側で約分して
 
-$$\boxed{\ \Sigma^{\rm PMT}_{mn}(k) \;=\; \big(B^\dagger(k)\,\Sigma^{\rm PAW}(k)\,B(k)\big)_{mn}\ }\tag{17}
+$$\boxed{\ \Sigma^{\rm PMT}_{mn}(k) \;=\; \big(B^\dagger(k)\,\Sigma^{\rm PAW}(k)\,B(k)\big)_{mn}\ }\tag{19}
 $$
 
 **$B(k)$ は厳密**、逆行列も不要。`getsenex` は 1 行になる。
