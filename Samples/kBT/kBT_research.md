@@ -12,7 +12,7 @@
 
 （図表の番号は `図 HH:MM-n` / `表 HH:MM-n`。HH:MM はそのエントリの時刻、n はエントリ内の通し番号。エントリの時刻は変わらないので番号は安定する。）
 
-### 2026-09-24 21:15 段 4 実装 — **MLO-QSGW が自己無撞着に回るようになった**（Si で検証）
+### 2026-09-24 20:43 段 4 実装 — **MLO-QSGW が自己無撞着に回るようになった**（Si で検証）
 
 設計書 [sigma_mlo_design.md](sigma_mlo_design.md) の段 4（`getsenex` の差し替え）を実装し、
 `gwsc` で MLO 内挿の QSGW が最後まで回ることを Si 2³ で確認した。
@@ -29,13 +29,13 @@
 - **`SigRsMLO` を自己完結化** — 対リスト（`plat`, `npair`, `nlat`, `nqwgt`, `ib_tableM`, `ix`）を同梱。
   `getsenex` は `m_HamPMT` の状態に依存しない。
 
-*図 21:15-1* Si 2³、2 反復後の自己無撞着バンド。左＝両者の重ね書き、右＝差。点線が Σ メッシュ点（Γ, X）。
+*図 20:43-1* Si 2³、2 反復後の自己無撞着バンド。左＝両者の重ね書き、右＝差。点線が Σ メッシュ点（Γ, X）。
 
 ![mloqsgw_si](Si/mloqsgw_si.png)
 
 `Samples/kBT/Si/mloqsgw_si.png`（生成: `Si/mloqsgw_si.py`）
 
-*表 21:15-1* Si 2³、2 反復後
+*表 20:43-1* Si 2³、2 反復後
 
 | | 従来 QSGW | **MLO-QSGW**（18 軌道） |
 |---|---|---|
@@ -65,7 +65,7 @@ Si の MLO は 18 軌道（2 Si × spd）で MTO 50 チャネルの部分空間�
 | `mlo --mlo` | `SigRsMLO` |
 | `lmf` | SCF。`getsenex` が MLO 経路で `senex` を作る |
 
-**投入**: LiTi₂O₄ 6³（全 EH lm 154 軌道）を LDA から 10 反復（`n666_mloqsgw`、21:00 開始、1 反復 ≈ 17 分）。
+**投入**: LiTi₂O₄ 6³（全 EH lm 154 軌道）を LDA から 10 反復（`n666_mloqsgw`、20:40 開始、1 反復 ≈ 17 分）。
 従来の `n666_nk6_from_lda` と荒れ・収束値を突き合わせる。
 
 ### 2026-09-24 20:10 MLO 内挿の実装（段 1'〜3 + a'）と LiTi₂O₄ 6³ での最初の比較
