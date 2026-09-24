@@ -107,6 +107,27 @@ contains
          character(32):: cval
          integer:: lsel,i2,j2,ir1,ir2,ir3,isx,ncut
          integer:: stat
+         ! ECALJ_SIG_EHONLY: project Sigma onto the EH channels, i.e. zero the
+         ! WHOLE EH2 block (R=0 included).  Unlike ECALJ_SIG_1RAD this keeps the
+         ! on-site and off-site parts consistent, so the near-singular direction
+         ! of the overlap gets zero rather than a mismatched value.
+         !   = -1 : every l ;  = l : that l only
+         call get_environment_variable('ECALJ_SIG_EHONLY',cval,status=stat)
+         if(stat==0 .and. len_trim(cval)>0) then
+           read(cval,*) lsel
+           ncut=0
+           do j2=1,ndimsig
+             do i2=1,ndimsig
+               if( (k_table(i2)==2 .and. (lsel<0 .or. l_table(i2)==lsel)) .or. &
+                   (k_table(j2)==2 .and. (lsel<0 .or. l_table(j2)==lsel)) ) then
+                 sfz(:,:,:,i2,j2,:)=0d0
+                 ncut=ncut+1
+               endif
+             enddo
+           enddo
+           write(stdo,"(a,i3,a,i7,a,i7)") ' rdsigm2: ECALJ_SIG_EHONLY=',lsel, &
+             ' -> Sigma zeroed (all R) for',ncut,' of',ndimsig**2
+         endif
          call get_environment_variable('ECALJ_SIG_1RAD',cval,status=stat)
          if(stat==0 .and. len_trim(cval)>0) then
            read(cval,*) lsel
