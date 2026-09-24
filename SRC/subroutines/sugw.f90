@@ -79,7 +79,6 @@ contains
     real(8),pointer:: pnu(:,:),pnz(:,:)
     integer,allocatable :: konft(:,:,:),iiyf(:),ibidx(:,:),nqq(:), m_indx(:),n_indx(:),l_indx(:),ibas_indx(:)
     complex(8),allocatable :: aus_zv(:,:,:,:,:), hamm(:,:,:,:),ovlm(:,:,:,:),ovlmtoi(:,:),ovliovl(:,:) ,hammhso(:,:,:)
-    complex(8),allocatable :: hamm_lda(:,:,:,:) !LDA H written to __HamiltonianGW when --mlo
     complex(8),allocatable:: evec(:,:),evec0(:,:),vxc(:,:,:,:),ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:),pzovl(:,:,:), pwz0(:,:),&
          testcc(:,:),testc(:,:,:),testcd(:,:),ppovld(:),cphi(:,:,:),cphi0(:,:,:),cphi_p(:,:,:),geig(:,:,:),geig_p(:,:,:),sene(:,:),ppovli(:,:)
     logical :: lwvxc,magexist, debug=.false.,sigmamode,wanatom=.false.,once=.true.
@@ -400,10 +399,6 @@ contains
       
 !      ndimPMT(idat)=ndimh
       allocate(hamm(ndimh,nspc,ndimh,nspc),ovlm(ndimh,nspc,ndimh,nspc)) !Spin-offdiagonal block included since nspc=2 for lso=1.
-      if(c0_mlo) then
-        if(allocated(hamm_lda)) deallocate(hamm_lda)
-        allocate(hamm_lda(ndimh,nspc,ndimh,nspc))
-      endif
       allocate(evec(ndimhx,ndimhx),vxc(ndimh,nspc,ndimh,nspc),cphi(ndima,ndimhx,nspc))!,cphiw(ndimhx,nspc))
       if(iqbk==iq) then
         continue
@@ -429,7 +424,6 @@ contains
           enddo
           hamm(:,1,:,2)= hammhso(:,:,3)                    !spin-offdiagonal SOC elements (1,2) block added
           hamm(:,2,:,1)= transpose(dconjg(hammhso(:,:,3))) !                              (2,1) block
-          if(c0_mlo) hamm_lda = hamm !LDA H kept for __HamiltonianGW (MLO must be LDA-based; see Samples/kBT/sigma_mlo_design.md 3.2.4)
           if(sigmamode) then !Add  Vxc(QSGW)-Vxc 
             do ispc=1,nspc
               call getsenex(qp, ispc, ndimh, ovlm(:,ispc,:,ispc)) !bugfix at 2024-4-24 obata: ispc was 1 when 2023-9-20
@@ -442,7 +436,6 @@ contains
           call hambl(isp,qp,smpot,vconst,osig,otau,oppi,  hamm(:,1,:,1), ovlm(:,1,:,1)) !ham=<F_i|H(LDA)|F_j> and ovl=<F_i|F_j>
           if(lso==2) hamm(:,1,:,1) = hamm(:,1,:,1) + hammhso(:,:,isp) !diagonal part of SOC matrix added for Lz.Sz mode.
           vxc(:,1,:,1) = hamm(:,1,:,1) - vxc(:,1,:,1) ! vxc(LDA) part
-          if(c0_mlo) hamm_lda = hamm !LDA H kept for __HamiltonianGW (see above)
           if(sigmamode) then !Add  Vxc(QSGW)-Vxc 
             call getsenex(qp,isp,ndimh,ovlm(:,1,:,1))
             hamm(:,1,:, 1) = hamm(:,1,:,1) + ham_scaledsigma*senex !senex= Vxc(QSGW)-Vxc(LDA)
@@ -473,7 +466,10 @@ contains
             ovlm_(:,:) = 0d0
             hamm_(:,:) = 0d0
             ovlm_(1:ndimhx,1:ndimhx) = reshape(ovlm, shape=[ndimhx,ndimhx])
-            hamm_(1:ndimhx,1:ndimhx) = reshape(hamm_lda, shape=[ndimhx,ndimhx]) !LDA H, not H+Sigma
+            ! H INCLUDING Sigma. cmlo built from this is <psi^QSGW_i|chi~>, the same band basis
+            ! as Sigma^psi in hqpe_sc; an LDA H here contracts two different bases (44-218 meV
+            ! error at the mesh points, measured 2026-09-24).
+            hamm_(1:ndimhx,1:ndimhx) = reshape(hamm, shape=[ndimhx,ndimhx])
             iqqisp= isp + nspx*(iq-1)
             call buf_put(buf, int(ndimhx,4)); call buf_put(buf, ovlm_); call buf_put(buf, hamm_)
             istat = writem_buf(ifihh, rec=iqqisp, buf=buf)
