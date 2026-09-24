@@ -111,19 +111,34 @@ MTO 行だけなら $k$ 非依存で FFT できるが、それは MLO の一部�
 
 ### 3.3 PAW（augmentation）チャネルを部分空間に使う【本命】
 
+**出発点は $\Sigma^\psi_{ij}(q) = \langle\psi^{\rm PMT}_i|\hat\Sigma|\psi^{\rm PMT}_j\rangle$**（GW が直接出す量）であって、
+`sigm` の $\Sigma^{\rm MTO}$ は **MTO 基底へ変換した途中産物**にすぎない。
+PAW チャネルへ移すなら **MTO を経由しない**。
+
 $P_a$（MT 球内の φ, φ̇）は **$k$ 非依存の固定索引**であり、$B(k)$ は **lmf が任意 $k$ で厳密に作る**。
-したがって §3.2 の障害が最初から無い。
+したがって §3.2 の障害（APW の本数が $k$ 依存）が最初から無い。
 
-$$\Sigma^{\rm PAW}_{ab}(q) = \big(D_{\rm PAW}^\dagger\,\Sigma^{\rm MTO}(q)\,D_{\rm PAW}\big)_{ab},
-\qquad D_{\rm PAW}(q) = O_{\rm MTO}^{-1}\,\langle{\rm MTO}|{\rm PMT}\rangle\, \Pi^{-1} B^\dagger(q)$$
+**(1) GW の出力から直接**
 
-（$\Pi$ = 球内の重なり `ppj`。GW 側は `cphi` で同じ量を既に扱っている。）
+固有関数の augmentation 係数 `cphi` は $\psi_i = \sum_a P_a\,c_{ai}$（球内）なので
+$\langle P_a|\psi_i\rangle = (\Pi c)_{ai}$（$\Pi$ = 球内の重なり `ppj`）。演算子 $\hat\Sigma = \sum_{ij}|\psi_i\rangle\Sigma^\psi_{ij}\langle\psi_j|$ の PAW 行列は
 
-内挿は $\Sigma^{\rm PAW}(R)$ で行い、戻すのは
+$$\boxed{\ \Sigma^{\rm PAW}(q) \;=\; (\Pi\,c)\;\Sigma^{\psi}(q)\;(\Pi\,c)^\dagger\ }$$
 
-$$\hat\Sigma = |{\rm PMT}\rangle\, B^\dagger(k)\,\Pi^{-1}\,\Sigma^{\rm PAW}(k)\,\Pi^{-1}\,B(k)\,\langle{\rm PMT}|$$
+`hqpe_sc` が今 MTO 基底へ変換しているところを、この 1 本に差し替える。
+`cphi` も `ppj` も GW 側に既にある。
 
-**$B(k)$ も $\Pi$ も厳密**。内挿されるのは $\Sigma^{\rm PAW}(k)$ だけ。
+**(2) 内挿**
+
+$\Sigma^{\rm PAW}(q)$ を FFT して $\Sigma^{\rm PAW}(R)$、任意 $k$ で Bloch 和。**内挿されるのはここだけ。**
+
+**(3) 戻す**
+
+$\langle\chi^{\rm PMT}_m|P_a\rangle = (B^\dagger \Pi)_{ma}$ なので、双対展開の $\Pi^{-1}$ が両側で約分して
+
+$$\boxed{\ \Sigma^{\rm PMT}_{mn}(k) \;=\; \big(B^\dagger(k)\,\Sigma^{\rm PAW}(k)\,B(k)\big)_{mn}\ }$$
+
+**$B(k)$ は厳密**、逆行列も不要。`getsenex` は 1 行になる。
 
 **局在性**: 部分波は球内に厳密に閉じているので、MTO 包絡（smooth Hankel、裾が長い）より
 $\Sigma(R)$ の減衰が速いはず。09-24 の測定で Ti 3d ブロックが BvK セル端で頭打ちだったのは、
@@ -161,8 +176,9 @@ PAW チャネルの外 = **MT 球の外（格子間）の $\Sigma$**。
 
 新規ツール（または `hqpe_sc` の後段）。入力 `sigm`, `__amlo.data/.info`、出力 `SigRsMLO`。
 
-1. `hqpe_sc` で $\Sigma^{\rm PAW}_{ab}(q) = \sum_{ij}\overline{c_{ai}}\,\Sigma_{ij}\,c_{bj}$ を作り、
-   `sigm` の代わりに（または併記して）書き出す。`cphi` は GW 側に既にある。
+1. `hqpe_sc` で $\Sigma^{\rm PAW}(q) = (\Pi c)\,\Sigma^{\psi}(q)\,(\Pi c)^\dagger$ を作り、
+   `sigm` の代わりに（または併記して）書き出す。`cphi`（= $c$）も `ppj`（= $\Pi$）も GW 側に既にある。
+   **MTO 基底は経由しない。**
 2. 既約 q → 全 BZ へ展開。**$P_a$ は原子中心の球面調和なので回転則が明快**
    （MTO/MLO のように「行と列で回転則が違う」問題が無い）。
 3. FFT → $\Sigma^{\rm PAW}(R)$、WS 最短ベクトルの対リストで保存。
