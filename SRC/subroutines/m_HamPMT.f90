@@ -444,12 +444,24 @@ contains
         type(mpiio_buf) :: buf
         complex(8), allocatable :: ovlmp(:,:), hammp(:,:) !in PMT basis !max size
         complex(8), allocatable :: hammhsop(:,:,:), hammhso(:,:,:), zMLO(:,:)
+        ! __amlo.data: the MLO expanded in the MTO basis, A(q) = zMLO(1:ldim,:),
+        ! one record per (iq,isp).  This is the transformation that carries Sigma
+        ! (which lives in the MTO block) into the MLO representation, where its
+        ! real-space interpolation has far fewer degrees of freedom.  The gauge is
+        ! fixed by construction -- each MLO is the projection of a FIXED MTO seed
+        ! F^MTO_k followed by Loewdin orthonormalisation -- so A(q) is smooth in q
+        ! and its Fourier transform C(R) is meaningful.
+        integer :: ifiamlo, mrecamlo, istata
+        logical :: wamlo
         open(newunit=ifih_info, file='__HamiltonianPMT.info', form='unformatted', action='read')
         read(ifih_info) nbandmx, mrech, mrechsoc
         write(stdo,ftox) "nbandmx, mrech", nbandmx, mrech, mrechsoc
         close(ifih_info)
         allocate(ovlmp(nbandmx,nbandmx), hammp(nbandmx,nbandmx))
         istat = openm(newunit=ifih,file='__HamiltonianPMT',recl=mrech)
+        wamlo = .true.
+        mrecamlo = 2*ldim*ndimMTO*8
+        istata = openm(newunit=ifiamlo,file='__amlo.data',recl=mrecamlo)
         if(socmatrix) then
           istat = openm(newunit=ifihsoc,file='__HamiltonianPMTsoc',recl=mrechsoc)
           allocate(hammhsop(nbandmx/nspc,nbandmx/nspc,3)) !hammhso is per-orbital (no spinor doubling)
@@ -488,8 +500,8 @@ contains
               if(socmatrix.and.jspxx==nspx) then
                 istat = readm_buf(ifihsoc, rec=iqqisp, buf=buf)
                 call buf_get(buf, hammhsop)
-                allocate(zMLO(ndimPMT,ndimMTO))
               endif
+              if(.not.allocated(zMLO)) allocate(zMLO(ndimPMT,ndimMTO))
               ! write(06,*) 'xxxx: iq, is', iqxx, jspxx, qp(3), ndimPMT, ndimMTO
               iqibz = findloc( [(sum(abs(qibz(:,i)-qp))<tolq(),i=1,nqibz)],value=.true.,dim=1)
               if(iqibz /= iqxx) call rxii('m_HamPMT:k-points mismatch:', iqibz,iqxx)
@@ -501,8 +513,9 @@ contains
               else
 !                call Hreduction(mlomethod,.false.,ndimPMT,hammp,ovlmp, ndimMTO,ix,fff1, hamm,ovlm,qp,nev=nx)
                 call Hreduction(mlomethod,.false.,ndimPMT,hammp(1:ndimPMT,1:ndimPMT),ovlmp(1:ndimPMT,1:ndimPMT), &
-                                ndimMTO,ix,fff1, hamm,ovlm,qp,nev=nx, nskip_auto=nskip_global)
+                                ndimMTO,ix,fff1, hamm,ovlm,qp,nev=nx, zMLO=zMLO, nskip_auto=nskip_global)
               endif
+              if(wamlo) istata = writem(ifiamlo,rec=iqqisp,data=zMLO(1:ldim,1:ndimMTO))
 
               if(socmatrix.and.jspxx==nspx) then
                 allocate(hammhso(1:ndimMTO,1:ndimMTO,3))
@@ -539,6 +552,19 @@ contains
 2029    continue
         ! close(ifih)
         istat = closem(ifih)
+        if(wamlo) then
+          istata = closem(ifiamlo)
+          if(master_mpi) then
+            AmloInfo: block
+              integer:: ifia
+              open(newunit=ifia,file='__amlo.info',form='unformatted')
+              write(ifia) ldim,ndimMTO,nqibz,nspx,mrecamlo
+              write(ifia) ix(1:ndimMTO)
+              write(ifia) qibz(1:3,1:nqibz)
+              close(ifia)
+            endblock AmloInfo
+          endif
+        endif
         if(socmatrix) istat = closem(ifihsoc)
       endblock HreductionIqibz
       call mpibc2_complex(hammi,size(hammi),'m_HamPMT_hammi') 
