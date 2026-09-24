@@ -151,8 +151,9 @@ $\Sigma$ は `sigm` に $\Sigma^{\rm MTO}_{\mu\nu}(q)=\langle\chi^{\rm MTO}_\mu|
 
 の一点に尽きる。現状は MTO（$L = 230$、非直交、EH/EH2 が準線形従属、裾が長い）。
 以下、MLO（§3.2）と PAW チャネル（§3.3）を検討する。
+なお **どちらも MTO を経由しない** — 式 (1) の $\Sigma^{\psi}$ から直接その部分空間の行列を作る。
 
-### 3.2 MLO を部分空間に使う場合【障害あり】
+### 3.2 MLO を部分空間に使う【式 (3)–(5) は可、(6)(7) が未解決】
 
 #### 3.2.1 MLO ↔ PMT の変換行列は既に得ている（段 1 実装済み）
 
@@ -188,36 +189,60 @@ $$
 **ただし現状のファイルは MTO 行だけ**（`writem(..., zMLO(1:ldim,1:ndimMTO))`、$230\times154$）で、
 APW 行は捨てている。これは §3.2.3 の障害そのものである。
 
-#### 3.2.2 その変換行列で $\Sigma$ を MLO 表現にする
+#### 3.2.2 式 (3)–(5) は MTO を MLO に置き換えるだけで済む
 
-$\tilde\chi$ で保持するなら
+§2 の流れのうち **(3) ψ→基底 / (4) FFT / (5) Bloch 和** は、MTO を $\tilde\chi$ に
+読み替えるだけで成立する。しかも式 (3) の MLO 版は **`zMLO` を経由しない**:
 
-$$\Sigma^{\rm MLO}_{kl}(q) = \langle \tilde\chi_k|\hat\Sigma|\tilde\chi_l\rangle
-= \big(D^\dagger \Sigma^{\rm MTO} D\big)_{kl},\qquad
-D(q) = O_{\rm MTO}^{-1}\,\langle{\rm MTO}|{\rm PMT}\rangle\, z^{\rm MLO}\tag{12}
+$$\Sigma^{\rm MLO}_{kl}(q) \;=\; \langle \tilde\chi_k|\hat\Sigma(q)|\tilde\chi_l\rangle
+\;=\; \sum_{ij} \big(c^{\rm MLO}_{ik}\big)^{*}\,\Sigma^{\psi}_{ij}(q)\,c^{\rm MLO}_{jl}
+\;=\;\big((c^{\rm MLO})^\dagger\,\Sigma^{\psi}\,c^{\rm MLO}\big)_{kl}\tag{12}
 $$
 
-戻すときは
+$c^{\rm MLO}_{ik}=\langle\psi^{\rm PMT}_{iq}\mid\tilde\chi_{kq}\rangle$（式 (10)）の第一添字は
+**バンド指標**なので、APW の本数が $q$ に依ることは**ここには入らない**。
+$\psi$ は正規直交だから逆行列も不要。$\Sigma^{\psi}$ から一発で取れる。
 
-$$\big[\hat\Sigma\big]_{mn} = \sum_{klk'l'} \big(S^{\rm PMT} z^{\rm MLO}\big)_{mk}
+続く 2 段はそのまま:
+
+$$\Sigma^{\rm MLO}_{kl}(R) = \frac{1}{N_q}\sum_q \Sigma^{\rm MLO}_{kl}(q)e^{-iqR},
+\qquad
+\Sigma^{\rm MLO}_{kl}(k) = \sum_R \Sigma^{\rm MLO}_{kl}(R)\,\overline{e^{ikR}}\tag{13}
+$$
+
+$k,l$ は MLO の通し番号（$M$ = `ndimMTO`）で **$q$ 非依存**だから、FFT も Bloch 和も
+MTO 版と同一の実装で回る。**内挿される自由度は $L^2 n_k^3 = 230^2\cdot n_k^3$ から
+$M^2 n_k^3 = 154^2\cdot n_k^3$（t2g モデルなら $12^2\cdot n_k^3$）に減り、
+しかも準線形従属な方向が取り除かれている** — §1 の表の問題に直接効く。
+
+#### 3.2.3 詰まるのは式 (6)(7) — $H$ へ戻す段だけ
+
+残るのは、任意 $k$ で
+
+$$\big[\hat\Sigma\big]_{mn}(k) = \sum_{klk'l'} A_{mk}(k)\,
 \big(O^{\rm MLO}\big)^{-1}_{kk'}\,\Sigma^{\rm MLO}_{k'l'}(k)\,
-\big(O^{\rm MLO}\big)^{-1}_{l'l}\,\big(S^{\rm PMT} z^{\rm MLO}\big)^{*}_{nl},
-\qquad O^{\rm MLO} = (z^{\rm MLO})^\dagger S^{\rm PMT} z^{\rm MLO}\tag{13}
+\big(O^{\rm MLO}\big)^{-1}_{l'l}\,A^{*}_{nl}(k),
+\qquad A_{mk}(k) = \big(S^{\rm PMT}(k)\, z^{\rm MLO}(k)\big)_{mk}\tag{14}
 $$
 
-#### 3.2.3 障害: $z^{\rm MLO}$ を任意 $k$ へ運べない
+を作る段（式 (6)(7) の MLO 版）。ここで初めて **$\tilde\chi$ そのものが任意 $k$ で要る**。
 
-**障害**: 任意 $k$ で $z^{\rm MLO}(k)$ が要るが、$z^{\rm MLO}$ の行は PMT 基底で、
-**APW の本数が $k$ ごとに違う**（$|k+G| <$ cutoff の $G$ 集合が変わる）。
-したがって **$C(R) = \mathrm{FFT}[z^{\rm MLO}(q)]$ が定義できない**。
-MTO 行だけなら $k$ 非依存で FFT できるが、それは MLO の一部でしかない
-（切り捨てると $\tilde\chi$ ではない別物になる）。
+**障害**: $z^{\rm MLO}$ の行は PMT 基底で、**APW の本数が $k$ ごとに違う**
+（$|k+G| <$ cutoff の $G$ 集合が変わる）。したがって $C(R)=\mathrm{FFT}[z^{\rm MLO}(q)]$ が定義できない。
+MTO 行（$q$ 非依存、`__amlo.data` にあるのはこれ）だけなら FFT できるが、それは $\tilde\chi$ の一部でしかない。
 
-→ 式 (4)(5) の道は、この障害を回避しない限り成立しない。
+より本質的に言うと、実空間の局在関数 $\tilde\chi_{kR}=\frac{1}{N_q}\sum_q e^{-iqR}\tilde\chi_{kq}$ は
+連続なフーリエ成分を持つので、別の $k$ の APW 集合 $\{k+G\}$ では**厳密には表せない**。
+MTO 部分は $k$ 非依存の実空間関数の Bloch 和なので lmf が任意 $k$ で厳密に作れるのと対照的である。
+
+→ 式 (3)–(5) は無条件で置き換え可。**式 (6)(7) だけが未解決**。
 
 回避案（いずれも未検証）:
-1. MLO の APW 成分を無視し、MTO 成分だけで近似する。$\tilde\chi$ の APW 重みが小さい系でのみ可。
-2. **MLO を PAW チャネルで展開する**（→ §3.3）。PAW チャネルは $k$ 非依存なので係数が固定できる。
+1. **MLO の APW 成分を無視し、MTO 行だけで $\tilde\chi$ を近似する**。$\tilde\chi$ の APW 重みが小さければ実用になる。
+   → **測定すべき量**: $\|z^{\rm MLO}_{\rm APW}\|/\|z^{\rm MLO}\|$。現状 `__amlo.data` は MTO 行しか書いていないので、
+   `m_HamPMT.f90` の `writem` を `zMLO(1:ndimh,:)` に拡げれば測れる（小改修）。
+2. **戻す段だけ PAW チャネルで書く**（→ §3.3）。$P_a$ は $k$ 非依存、$B(k)$ は lmf が任意 $k$ で厳密に作るので、
+   式 (14) の $A_{mk}(k)$ に相当するものが逆行列なしで得られる。§3.2.2（部分空間の選び方）と §3.3（戻し方）は**併用できる**。
 
 ### 3.3 PAW（augmentation）チャネルを部分空間に使う【本命】
 
@@ -233,7 +258,7 @@ $P_a$（MT 球内の φ, φ̇）は **$k$ 非依存の固定索引**であり、
 固有関数の augmentation 係数 `cphi` は $\psi_i = \sum_a P_a\,c_{ai}$（球内）なので
 $\langle P_a|\psi_i\rangle = (\Pi c)_{ai}$（$\Pi$ = 球内の重なり `ppj`）。演算子 $\hat\Sigma = \sum_{ij}|\psi_i\rangle\Sigma^\psi_{ij}\langle\psi_j|$ の PAW 行列は
 
-$$\boxed{\ \Sigma^{\rm PAW}(q) \;=\; (\Pi\,c)\;\Sigma^{\psi}(q)\;(\Pi\,c)^\dagger\ }\tag{14}
+$$\boxed{\ \Sigma^{\rm PAW}(q) \;=\; (\Pi\,c)\;\Sigma^{\psi}(q)\;(\Pi\,c)^\dagger\ }\tag{15}
 $$
 
 `hqpe_sc` が今 式 (3) を作っているところを、これに差し替える。
@@ -249,12 +274,12 @@ $\Sigma^{\rm PAW}(q)$ を FFT して $\Sigma^{\rm PAW}(R)$、任意 $k$ で Bloc
 
 $$\big[\hat\Sigma\big]_{mn} = \sum_{acdb} \langle\chi^{\rm PMT}_m|P_a\rangle\,
 \big(\Pi\big)^{-1}_{ac}\,\Sigma^{\rm PAW}_{cd}(k)\,\big(\Pi\big)^{-1}_{db}\,
-\langle P_b|\chi^{\rm PMT}_n\rangle\tag{15}
+\langle P_b|\chi^{\rm PMT}_n\rangle\tag{16}
 $$
 
 ここで $\langle\chi^{\rm PMT}_m|P_a\rangle = (B^\dagger \Pi)_{ma}$ なので $\Pi^{-1}$ が両側で約分して
 
-$$\boxed{\ \Sigma^{\rm PMT}_{mn}(k) \;=\; \big(B^\dagger(k)\,\Sigma^{\rm PAW}(k)\,B(k)\big)_{mn}\ }\tag{16}
+$$\boxed{\ \Sigma^{\rm PMT}_{mn}(k) \;=\; \big(B^\dagger(k)\,\Sigma^{\rm PAW}(k)\,B(k)\big)_{mn}\ }\tag{17}
 $$
 
 **$B(k)$ は厳密**、逆行列も不要。`getsenex` は 1 行になる。
