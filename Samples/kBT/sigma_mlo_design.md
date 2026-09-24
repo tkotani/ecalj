@@ -318,6 +318,28 @@ $\Sigma$ 込みの $H$ で MLO を作るので、ここを LDA 側に固定す�
 
 **コスト**: `Hreduction` は PMT ブロックと MTO ブロックを対角化するので、$k$ あたり対角化 2 回分が増える。
 
+**では $A$ や $z^{\rm MLO}$ を内挿すれば安くならないか**（重い場合の逃げ道。**未検証**）。
+$q$ 周期性（§3.2.1）で仕分けると、ブロックごとに事情が違う:
+
+| 量 | $q$ 周期か | 内挿できるか |
+|---|---|---|
+| $\Sigma^{\rm MLO}_{\alpha\beta}$, $O^{\rm MLO}_{\alpha\beta}$ | **周期** | フーリエ内挿できる（本設計が使うのはこれ） |
+| $A$ の **MTO 行** $\langle\chi^{\rm MTO}_{\mu k}\mid\tilde\chi_{\alpha k}\rangle$ | **周期**（両者ともブロッホ基底） | フーリエ内挿できる |
+| $A$ の **APW 行** $\langle\chi^{\rm APW}_{Gk}\mid\tilde\chi_{\alpha k}\rangle$ | 周期でない（$G$ ラベルがずれる） | フーリエ内挿は**できない** |
+| $z^{\rm MLO}$ の APW 行 | 同上 | 同上 |
+
+ただし APW 行には別の構造がある。$\tilde\chi_{\alpha,k+G'}=\tilde\chi_{\alpha k}$ なので
+
+$$A_{G\alpha}(k) \;=\; \tilde F_\alpha(\mathbf k+\mathbf G),
+\qquad \tilde F_\alpha(\mathbf p) = \int d\mathbf r\; e^{-i\mathbf p\cdot\mathbf r}\,\tilde\chi_\alpha(\mathbf r)\tag{16}
+$$
+
+すなわち **$k$ と $G$ に別々に依存するのではなく、ベクトル $\mathbf k+\mathbf G$ ひとつの滑らかな関数**であり、
+それは**実空間 MLO のフーリエ変換**に他ならない（$\tilde\chi_\alpha$ が局在しているから滑らかに減衰する）。
+したがって「$k$ についてフーリエ内挿する」のではなく、
+**$\tilde F_\alpha(\mathbf p)$ を逆空間の細かい格子に一度だけ作って参照する**のが筋になる。
+球内の増補も $\mathbf k+\mathbf G$ で決まるので同じ扱いができるはず。**要検証**。
+
 **整合条件**: 要するに $\tilde\chi_\alpha$ は、メッシュ点でも任意 $k$ でも**同一の処方**で作られた
 同じ関数でなければならない（$H^{\rm LDA}$ + 凍結した窓）。
 種 $\chi^{\rm MTO}_{ix(\alpha)}$ が固定なのでゲージは自動的に揃う（§3.2.1）。
