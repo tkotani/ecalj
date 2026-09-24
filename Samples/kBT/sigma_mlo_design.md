@@ -435,23 +435,42 @@ $\tilde\chi$ を一度決めて全反復で使い回せばよい。これで `ml
 
 ### 4.2 反復ごと
 
-| 段 | 実行 | 入出力 |
+| 段 | 実行 | 何をする / 出力 |
 |---|---|---|
-| a | `lmf --jobgw=0` / `qg4gw` / `lmf --jobgw=1` | `__HamiltonianGW`, `__VxcEvec`（= 現反復の固有ベクトル $z^{\psi}$） |
-| a' | **同じ `sugw` の中で** $c'(q) = (z^{\psi})^\dagger S^{\rm PMT}(q)\, z^{\rm MLO}_0(q)$ | `__cmlo.data` |
-| b | GW 本体 | `SEX2U` 他 |
+| a1 | `lmf --jobgw=0` | GW 用の構造・k 点情報。`QGpsi` はまだ無いので GW の全 q リストでは走らない |
+| a2 | `qg4gw --job=1` | `QGpsi`（GW の q と G の一覧、offset-Γ 込み） |
+| **a3** | **`lmf --jobgw=1`**（= `m_sugw_init`） | GW の全 q で固有値問題を解き、`__VxcEvec`（$z^{\psi}$, $V_{xc}$）、`geig`/`cphi`、`__HamiltonianGW` を書く |
+| **a'** | **a3 と同じルーチンの中** | $c'(q) = (z^{\psi})^\dagger S^{\rm PMT}(q)\, z^{\rm MLO}_0(q)$ → `__cmlo.data` |
+| b | `heftet` / `hbasfp0` / `hvccfp0` / `hsfp0_sc` / `hgw` | $\Sigma^{\psi}$（`SEX2U`, `SEC2U`, …） |
 | c | `hqpe_sc` | `sigm` ＋ **`SigmMLO.q`**（式 (11)） |
 | d | `mlo --mlo` | **`SigRsMLO`**（対称化 → 全 BZ → FFT） |
 | e | `lmf` | SCF。`getsenex` が `SigRsMLO` を使う（段 4） |
 
-**a' が肝**である。$\tilde\chi_\alpha$ は固定した 1 個の関数だが、式 (11) が要求する
-$c^{\rm MLO}_{i\alpha}=\langle\psi_i\mid\tilde\chi_\alpha\rangle$ の $\psi_i$ は
-**$\Sigma^{\psi}$ を計算したのと同じ固有関数**（＝現反復の QSGW 固有関数）でなければならない。
-固定した $\tilde\chi$ を現反復の固有基底へ**展開し直す**のが $c'$ の式である。
+#### a' を `lmf --jobgw=1` に置く理由
 
-> **実測（2026-09-24）**: これを守らずに、$\tilde\chi$ を LDA で作り $\Sigma^{\psi}$ を QSGW 固有基底のまま縮約すると、
-> **メッシュ点で 44〜218 meV ずれる**。逆に $\tilde\chi$ を QSGW で作って $H^{\rm MLO}$ を LDA で作ると **312 meV**。
-> $\tilde\chi$ が首尾一貫していれば **1.2 meV**（LDA 対照 1.1 meV）。
+その場に**必要なものが全部揃っている**から:
+
+| 要るもの | a3 の中での正体 |
+|---|---|
+| $z^{\psi}(q)$ = 現反復の固有ベクトル | `evec`。**`__VxcEvec` に書かれるのと同一の配列**なので、$\Sigma^{\psi}$ が後で使う基底と必ず一致する |
+| $S^{\rm PMT}(q)$ | `ovlm`。`hambl` が同じ $q$ で返している |
+| $z^{\rm MLO}_0(q)$ | §4.1 で凍結したもの。$H^{\rm LDA}$ で一度だけ作る |
+| GW の q リスト（offset-Γ 込み） | `qplist(1:nqirr)`。a3 はこれを回っている |
+
+**基底の一致が「同じ配列を使う」ことで保証される**のが要点である。
+`mlo` を別プロセスで走らせて `__HamiltonianGW` から作り直すと、
+どの $H$ を書いたかに依存して基底がずれる（§4.1 末尾の実測）。
+
+#### a' の実装（未着手）
+
+a3 の $q$ ループ内、`getsenex` の**前**に $H^{\rm LDA}$ で $z^{\rm MLO}_0$ を作る余地がある
+（§3.2.4 のとおり `hamm` はその時点で $H^{\rm LDA}$）。手順:
+
+1. §4.1 で凍結した $z^{\rm MLO}_0(q)$ を読む（または初回なら `Hreduction(hamm=H^{\rm LDA}, ovlm)` で作って書き出す）
+2. 対角化の**後**（`evec` が出てから）$c'(q) = (z^{\psi})^\dagger\, S^{\rm PMT}(q)\, z^{\rm MLO}_0(q)$
+3. `__cmlo.data` に書く。レコードは現行と同じ `(nbandmx, ndimMTO)`、索引 `isp + nspx*(iq-1)`
+
+これで gwsc から `mlo` の前半呼び出しが消え、**反復ごとの `mlo` は d の 1 回だけ**になる。
 
 ### 段 1 — `zMLO` の書き出し  【2026-09-24 完了】
 
