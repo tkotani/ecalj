@@ -93,6 +93,8 @@ S^{*}_{\mu m}\,\big(O^{\rm MTO}\big)^{-1}_{\mu\rho}\;\Sigma^{\rm MTO}_{\rho\sigm
 $$
 
 コードの `ovliovl` が $\big[(O^{\rm MTO})^{-1}S\big]_{\mu n}$ に当たる。
+`getsenex(qp,isp,ndimh,ovlm)` の呼び出しは **2 箇所だけ**（`m_bandcal.f90`:198,210 と `sugw.f90`:429,440）で、
+どちらも引数 `ovlm` に $S^{\rm PMT}(q)$ を渡している。
 $m,n$ は **MTO と APW の両方**を走るので **APW ブロックも埋まる**。
 `mtosigmaonly` は「$\Sigma$ の行列要素を MTO 部分空間で保持する」の意であって、
 「APW に効かない」ではない。
@@ -271,7 +273,23 @@ MTO では制御できない（§7 の付録）のに対し MLO では窓で制�
 
 ## 4. 実装手順
 
-**(A) バンドのみ**（§3.2.4 A）は段 1'–3 で完結し、**(B) SCF**（同 B）は段 4 が要る。
+### 4.0 結局どこが置き換わるのか
+
+**`sene` を $H$ に足し込む 1 箇所**、すなわち `getsenex`（`rdsigm2.f90`）の中身だけである。
+
+| | 現状 | MLO 版 |
+|---|---|---|
+| 内挿 | `call bloch2(qp,ispsigm,sene)` → $\Sigma^{\rm MTO}(q)$（$L\times L$、$L$=230） | $\Sigma^{\rm MLO}(R)$ を同じ対リストで Bloch 和 → $\Sigma^{\rm MLO}(q)$（$M\times M$、$M$=154 or 12） |
+| 挟む行列 | `ovliovl` $=\big[(O^{\rm MTO})^{-1}S^{\rm PMT}\big]$ ← 引数 `ovlm` から作る | $\big[(O^{\rm MLO})^{-1}A^\dagger\big]$、$A = S^{\rm PMT}(q)\,z^{\rm MLO}(q)$（式 (15)） |
+| 出力 | `senex(ndimh,ndimh)` | 同じ |
+
+インタフェースは変わらない。呼び出し元（`m_bandcal.f90`、`sugw.f90` の 2 箇所）は無改造で、
+**バンドも密度も SCF も同時に MLO 内挿になる**。
+
+新規に要る入力は $z^{\rm MLO}(q)$ ただ 1 つ。$S^{\rm PMT}(q)$ は既に引数 `ovlm` で渡っている。
+
+以下、そこへ至る段を並べる。段 3 は lmf に手を入れずに数字を先に見るための**試験台**で、
+本体は段 4 である。
 
 ### 段 1 — `zMLO` の書き出し  【2026-09-24 完了】
 
@@ -306,7 +324,7 @@ MTO では制御できない（§7 の付録）のに対し MLO では窓で制�
    （`npair(ib1,ib2)` / `nlat` / `nqwgt` の対リスト、`(npairmx, ndimMTO, ndimMTO, nspx)`）。
    `HamPMTtoHamRsMLO` の FFT 部分をそのまま流用できる。
 
-### 段 3 — (A) バンド経路: `calc_ham_eigen` に足す  【最小コスト。先にこれをやる】
+### 段 3 — 試験台: `calc_ham_eigen` に足してバンドだけ見る  【lmf 無改造。先にこれをやる】
 
 `m_mlo_ham.f90` の `read_ham_rs` で `SigRsMLO` も読み、`calc_ham_eigen` の
 `FourierTransform` ブロックで `hammr` と同じ位相で和して `hamm` に加算するだけ。
@@ -314,7 +332,7 @@ $O^{\rm MLO}(k)$ は既に同じ場所で作られている。$\Sigma$ を PMT �
 
 これで「$\Sigma$ の内挿を MLO 空間で行ったバンド」が直接得られ、検証 3・4 がすぐ回せる。
 
-### 段 4 — (B) SCF 経路: `getsenex` の差し替え
+### 段 4 — 本体: `getsenex` の差し替え
 
 `rdsigm2.f90` に分岐を入れる。既定は従来どおり。
 
@@ -322,7 +340,8 @@ $O^{\rm MLO}(k)$ は既に同じ場所で作られている。$\Sigma$ を PMT �
 [gw] sigma_mlo = true     # ctrlg のキー（仮）
 ```
 
-有効時、任意 $k$ で式 (15) の $A(k) = S^{\rm PMT}(k)\,z^{\rm MLO}(k)$ を作る。
+有効時、§4.0 の表のとおり `bloch2` と `ovliovl` を差し替える。任意 $k$ で要るのは
+式 (15) の $A(k) = S^{\rm PMT}(k)\,z^{\rm MLO}(k)$ と $O^{\rm MLO}(k)$ の 2 つだけ。
 
 - $z^{\rm MLO}(k)$ … **内挿しない**。その $k$ で式 (10)(11) の射影を実行する
   （`Hreduction` は任意 $k$ リストで走る）。$k$ ごとに対角化 1 回分の追加コスト。
