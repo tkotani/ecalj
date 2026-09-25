@@ -19,7 +19,7 @@ def chain(d):
     return o
 R=chain('ref'); M=chain('v6')
 fig,ax=plt.subplots(figsize=(7.2,4.2))
-for lab,C,col in [('conventional QSGW (MTO)',R,'tab:blue'),('MLO-QSGW (new scheme, no mixing)',M,'tab:green')]:
+for lab,C,col in [('conventional QSGW (MTO)',R,'tab:blue'),('MLO-QSGW (new scheme, unmixed)',M,'tab:green')]:
     ks=sorted(C); xs=[];ys=[]
     for a,b in zip(ks,ks[1:]):
         if b!=a+1: continue
@@ -29,7 +29,8 @@ for lab,C,col in [('conventional QSGW (MTO)',R,'tab:blue'),('MLO-QSGW (new schem
 ax.set_yscale('log'); ax.set_xlabel('QSGW iteration N  (change from N-1 to N)')
 ax.set_ylabel(r'max$_{k,b}\;|E_N-E_{N-1}|$  [meV]')
 ax.set_title('LiTi$_2$O$_4$ 6$^3$: how much the t$_{2g}$ bands still move each iteration\n'
-             'conventional $\\Sigma$ is Anderson-mixed ($\\beta$=0.5); $\\Sigma^{MLO}$ is NOT mixed yet\n'
+             'conventional $\\Sigma$ is Anderson-mixed ($\\beta$=0.5); $\\Sigma^{MLO}$ is not - and is kept that way,\n'
+             'since the overshoot at 3 damps out by itself\n'
              f'generated {datetime.datetime.now():%Y-%m-%d %H:%M}',fontsize=10)
 ax.grid(alpha=.3,which='both'); ax.legend(fontsize=9); ax.set_xticks(range(1,11))
 plt.tight_layout(); plt.savefig('/home/takao/ecalj/Samples/kBT/LiTi2O4/mlo_conv.png',dpi=120)
