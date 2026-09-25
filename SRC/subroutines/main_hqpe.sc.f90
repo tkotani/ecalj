@@ -314,16 +314,51 @@ contains
     !! chain runs at beta=1 while the conventional chain runs at mixbeta.  On LiTi2O4 6^3
     !! (mixbeta=0.5) that showed up as an overshoot at iteration 3 (band change per
     !! iteration 430 -> 187 -> 347 -> 246 -> 132 meV) which the mixed chain does not have.
-    !! No 'sigin' is passed: gwsc deletes __SigmMLO.q at the top of every iteration, but the
-    !! Anderson history file itself carries x_0 -- amix leaves the mixed vector in a(:,0,2)
-    !! and that is exactly the Sigma^MLO this iteration was run with.  The t_j chosen here
-    !! are those of the MLO representation and need not equal the ones sigm got; that is
-    !! harmless because only Sigma^MLO is read back on the MLO route.
-    MixSigmMLO: if(lmlo) then
+    !! x_0 comes from __SigmMLO.q.prev, which gwsc renames aside at the top of the iteration
+    !! (it used to delete it).  That file is the Sigma^MLO this iteration actually ran with,
+    !! so it plays exactly the role sigm plays for the conventional loop, and reading it means
+    !! the mixing is right on the first iteration after the history file is missing -- a fresh
+    !! chain, a restart from a snapshot, or a chain that ran before mixing existed.  Without it
+    !! amix would take x_0 = 0 and damp the whole Sigma by beta once.  The Anderson history
+    !! carries x_0 too, so this is belt and braces, matching what the sigm path does.
+    !! The t_j chosen here are those of the MLO representation and need not equal the ones sigm
+    !! got; that is harmless because only Sigma^MLO is read back on the MLO route.
+    !! OFF by default (2026-09-25).  On LiTi2O4 6^3 the unmixed chain overshoots at iteration 3
+    !! but damps by itself -- 430 -> 187 -> 347 -> 246 -> 132 -> 52 meV, i.e. down to where the
+    !! mixed conventional chain sits (37) by iteration 6 -- so the damping is not needed to
+    !! converge, only to make the early iterations look tidier.  Set ECALJ_MLO_MIX=1 to enable
+    !! it; everything it needs (the __mixsigMLO history, the __SigmMLO.q.prev handoff) is in
+    !! place and stays correct whether or not it is switched on.
+    MixSigmMLO: if(lmlo .and. mlomix()) then
       block
-        complex(8):: sigmlonoin(1)
+        complex(8),allocatable:: sigmloin(:,:,:,:)
+        real(8),allocatable:: qmloin(:,:,:)
+        logical:: lsigmloin
+        integer:: ifi,nmloin,nqin,nspin_in,n1i,n2i,n3i
+        lsigmloin=.false.
+        inquire(file='__SigmMLO.q.prev',exist=lsigmloin)
+        allocate(sigmloin(nmlo,nmlo,nqibz,nspin),source=(0d0,0d0))
+        if(lsigmloin) then
+          allocate(qmloin(3,nspin,nqibz))
+          open(newunit=ifi,file='__SigmMLO.q.prev',form='UNFORMATTED')
+          read(ifi,err=2101,end=2101) nmloin,nqin,nspin_in,n1i,n2i,n3i
+          if(nmloin/=nmlo.or.nqin/=nqibz.or.nspin_in/=nspin) goto 2101
+          read(ifi,err=2101,end=2101) qmloin
+          read(ifi,err=2101,end=2101) sigmloin
+          goto 2102
+2101      continue
+          write(stdo,ftox)' (warning) __SigmMLO.q.prev unusable; mixing falls back to the history file'
+          lsigmloin=.false.; sigmloin=(0d0,0d0)
+2102      continue
+          close(ifi)
+          deallocate(qmloin)
+        endif
         write(stdo,ftox)"===== Sigma^MLO mixing section using mixsigma ======="
-        call mixsigma(sigmlo, .false., sigmlonoin, nmlo**2*nqibz*nspin, '__mixsigMLO')
+        write(stdo,ftox)' hqpe.sc: x_0 from __SigmMLO.q.prev =',lsigmloin, &
+             ' |SigmMLO_out|=',ftof(sum(abs(sigmlo)))
+        call mixsigma(sigmlo, lsigmloin, sigmloin, nmlo**2*nqibz*nspin, '__mixsigMLO')
+        write(stdo,ftox)' hqpe.sc: |SigmMLO_mixed|=',ftof(sum(abs(sigmlo)))
+        deallocate(sigmloin)
       endblock
     endif MixSigmMLO
     WriteSigmMLO: if(lmlo) then
@@ -363,6 +398,12 @@ contains
     write(stdo,ftox)' === rwsigma:  sum check of sigma_m=',sum(abs(sigma_m))
     print *
   end subroutine rwsigma
+  logical function mlomix() !ECALJ_MLO_MIX=1 turns Anderson mixing of Sigma^MLO on (default off)
+    character(8):: cv
+    integer:: st
+    call get_environment_variable('ECALJ_MLO_MIX',cv,status=st)
+    mlomix = (st==0) .and. (trim(cv)=='1')
+  end function mlomix
   subroutine mixsigma(sss, lsigin, sigin, nda, fname) !sigma file mixing
     use m_GWinput, only: gwinput_init, gwinput_loaded, &
                          tg_mixbeta => mixbeta, tg_mixpriorit => mixpriorit, &

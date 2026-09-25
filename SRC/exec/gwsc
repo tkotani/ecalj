@@ -181,6 +181,11 @@ run_cmd(cluster, MPIParams(command=EXEC_DIR/"qg4gw", args=[target, "--job=1", *o
 ##                       an aborted run once made `mlo` read past EOF.
 ##   __cmlo.*          : written by step a' each iteration.
 ##   __SigmMLO.q       : written by hqpe_sc and consumed by mlo, inside one iteration.
+##                       Renamed to __SigmMLO.q.prev rather than deleted: it is the Sigma^MLO
+##                       this iteration runs with, i.e. x_0 for the Anderson mixing that
+##                       hqpe_sc applies at the end (the same role sigm plays for the
+##                       conventional loop).  Deleting it made the first mixed iteration of
+##                       a fresh or restarted chain damp the whole Sigma by beta once.
 ##   ZmloNew.*         : the chi~ slot step a' fills each iteration; a leftover set from
 ##                       an aborted run would be promoted as if it matched SigRsMLO.
 ##   ZmloRef           : dead file from the 2026-09-25 experiment that persisted chi~
@@ -191,7 +196,10 @@ run_cmd(cluster, MPIParams(command=EXEC_DIR/"qg4gw", args=[target, "--job=1", *o
 ## lmf --jobgw=1 use the MLO route at all; deleting it silently turns the GW input
 ## back into the conventional sigm and the chain is no longer a MLO-QSGW.
 if "--mlo" in options:
-    remove_files('__cmlo.data', '__cmlo.info', '__SigmMLO.q',
+    sigmlo_q = Path('__SigmMLO.q')
+    if sigmlo_q.is_file():
+        sigmlo_q.replace('__SigmMLO.q.prev')
+    remove_files('__cmlo.data', '__cmlo.info',
                  '__HamiltonianGW', '__HamiltonianGW.info', 'ZmloRef')
     for f in Path('.').glob('ZmloNew.*'):
         f.unlink()
