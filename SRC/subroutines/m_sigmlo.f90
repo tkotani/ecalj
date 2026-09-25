@@ -174,11 +174,14 @@ contains
   !> ZmloNew.<procid>: the chi~ of THIS iteration, built by sugw's step a' from the H it
   !> is given.  gwsc renames the set to ZmloSig.* once `mlo` has written the SigRsMLO
   !> that was expressed in it -- that rename is the promotion.
-  subroutine zmlo_new_append(q0, isp0, nm, z0)
+  !> nd is passed in, NOT taken from the module: in the first iteration there is no
+  !> SigRsMLO yet, so sigmlo_init returns early and the module's ndimMTO is still 0.
+  !> Writing that as the header made the file unreadable (nd /= ndimMTO -> ignored).
+  subroutine zmlo_new_append(q0, isp0, nm, nd, z0)
     use m_mpi,only: procid
     real(8),intent(in):: q0(3)
-    integer,intent(in):: isp0, nm
-    complex(8),intent(in):: z0(nm,ndimMTO)
+    integer,intent(in):: isp0, nm, nd
+    complex(8),intent(in):: z0(nm,nd)
     integer:: ifz
     logical:: lex
     character(256):: fn
@@ -189,7 +192,7 @@ contains
       open(newunit=ifz,file=trim(fn),form='unformatted',position='append')
     else
       open(newunit=ifz,file=trim(fn),form='unformatted')
-      write(ifz) ndimMTO
+      write(ifz) nd
     endif
     write(ifz) q0, isp0, nm
     write(ifz) z0

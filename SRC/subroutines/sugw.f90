@@ -545,7 +545,7 @@ contains
                 call Hreduction(mlomethod_a,.false.,ndimhx, hamm_lda(:,1,:,1), ovlm_keep(:,1,:,1), &
                      ndimMTO_a, ix_a, fff1_a, hmo, omo, qp, nev=nxq, zMLO=zm, nskip_auto=nskip_a)
               endif
-              call zmlo_new_append(qp, isp, ndimhx, zm)
+              call zmlo_new_append(qp, isp, ndimhx, ndimMTO_a, zm)
             endblock NewChiForThisIteration
             ZmloDumpA: block !ECALJ_ZMLO_DUMP=1: the a' side of the same comparison
               character(32):: cv
