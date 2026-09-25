@@ -87,7 +87,7 @@ contains
     integer :: ifcmlo, ndimMTO_a, ldim_a, mlomethod_a, nskip_a, mrecbb_a
     integer, allocatable :: ix_a(:)
     real(8) :: fff1_a, eferm_a, ecbot_a
-    complex(8), allocatable :: hamm_lda(:,:,:,:), ovlm_keep(:,:,:,:), zmlo_a(:,:), cmlo_a(:,:)
+    complex(8), allocatable :: hamm_lda(:,:,:,:), hamm_qsgw(:,:,:,:), ovlm_keep(:,:,:,:), zmlo_a(:,:), cmlo_a(:,:)
     complex(8),allocatable:: evec(:,:),evec0(:,:),vxc(:,:,:,:),ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:),pzovl(:,:,:), pwz0(:,:),&
          testcc(:,:),testc(:,:,:),testcd(:,:),ppovld(:),cphi(:,:,:),cphi0(:,:,:),cphi_p(:,:,:),geig(:,:,:),geig_p(:,:,:),sene(:,:),ppovli(:,:)
     logical :: lwvxc,magexist, debug=.false.,sigmamode,wanatom=.false.,once=.true.
@@ -463,8 +463,9 @@ contains
           call hambl(isp,qp,smpot,vconst,osig,otau,oppi,  hamm(:,1,:,1), ovlm(:,1,:,1)) !ham=<F_i|H(LDA)|F_j> and ovl=<F_i|F_j>
           if(lso==2) hamm(:,1,:,1) = hamm(:,1,:,1) + hammhso(:,:,isp) !diagonal part of SOC matrix added for Lz.Sz mode.
           vxc(:,1,:,1) = hamm(:,1,:,1) - vxc(:,1,:,1) ! vxc(LDA) part
-          if(lcmlo) then !design 4.2 a': keep H^LDA(q) and S^PMT(q); zhev_tk4 below destroys them
+          if(lcmlo) then !design 4.2 a': keep H(q) and S^PMT(q); zhev_tk4 below destroys them
             if(allocated(hamm_lda)) deallocate(hamm_lda)
+            if(allocated(hamm_qsgw)) deallocate(hamm_qsgw)
             if(allocated(ovlm_keep)) deallocate(ovlm_keep)
             allocate(hamm_lda, source=hamm)
             allocate(ovlm_keep, source=ovlm)
@@ -473,6 +474,11 @@ contains
             call getsenex(qp,isp,ndimh,ovlm(:,1,:,1), hamm(:,1,:,1))
             hamm(:,1,:, 1) = hamm(:,1,:,1) + ham_scaledsigma*senex !senex= Vxc(QSGW)-Vxc(LDA)
             call dsene()
+            !chi~ must span the manifold of the Hamiltonian it will represent Sigma in,
+            !so from the second iteration on it is built from H WITH Sigma, not from the
+            !Sigma-free one.  H^LDA is only the right thing in the very first iteration,
+            !where there is no Sigma yet (sigmamode is .false. there).
+            if(lcmlo) allocate(hamm_qsgw, source=hamm)
           endif
         endif;    if(debug)write(stdo,ftox)'sumcheck hamm=',sum(abs(hamm)),sum(abs(ovlm))
         if(show_time) call stopwatch_show(sw)
@@ -526,8 +532,13 @@ contains
               !the chi~ of the PREVIOUS Sigma, which getsenex needs to read it back.
               use m_sigmlo,only: sigmlo_init, zmlo_new_append
               call sigmlo_init()
-              call Hreduction(mlomethod_a,.false.,ndimhx, hamm_lda(:,1,:,1), ovlm_keep(:,1,:,1), &
-                   ndimMTO_a, ix_a, fff1_a, hmo, omo, qp, nev=nxq, zMLO=zm, nskip_auto=nskip_a)
+              if(allocated(hamm_qsgw)) then   !iteration 2 onward: the QSGW Hamiltonian
+                call Hreduction(mlomethod_a,.false.,ndimhx, hamm_qsgw(:,1,:,1), ovlm_keep(:,1,:,1), &
+                     ndimMTO_a, ix_a, fff1_a, hmo, omo, qp, nev=nxq, zMLO=zm, nskip_auto=nskip_a)
+              else                            !first iteration: there is no Sigma yet
+                call Hreduction(mlomethod_a,.false.,ndimhx, hamm_lda(:,1,:,1), ovlm_keep(:,1,:,1), &
+                     ndimMTO_a, ix_a, fff1_a, hmo, omo, qp, nev=nxq, zMLO=zm, nskip_auto=nskip_a)
+              endif
               call zmlo_new_append(qp, isp, ndimhx, zm)
             endblock NewChiForThisIteration
             ZmloDumpA: block !ECALJ_ZMLO_DUMP=1: the a' side of the same comparison
