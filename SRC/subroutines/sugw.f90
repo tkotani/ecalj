@@ -519,20 +519,17 @@ contains
             complex(8):: hmo(ndimMTO_a,ndimMTO_a), omo(ndimMTO_a,ndimMTO_a)
             complex(8), allocatable :: zm(:,:), sz(:,:)
             allocate(zm(ndimhx,ndimMTO_a))
-            SameChiAsGetsenex: block !one chi~ per lmf run: take the cached z^MLO if this
-              !(q,isp,ndimh) was already built in this process, otherwise build it here and
-              !put it in the same cache so that getsenex reuses exactly this one.
-              use m_sigmlo,only: sigmlo_init, zmlo_frozen, zmlo_store
-              integer:: nmo
-              logical:: okz
+            NewChiForThisIteration: block !build chi~ for the H of THIS iteration and write
+              !it to the ZmloNew slot.  This is the basis the Sigma^MLO about to be made
+              !will be expressed in; gwsc promotes the slot to ZmloSig once `mlo` has
+              !written that SigRsMLO.  Deliberately NOT the cached one: the cache holds
+              !the chi~ of the PREVIOUS Sigma, which getsenex needs to read it back.
+              use m_sigmlo,only: sigmlo_init, zmlo_new_append
               call sigmlo_init()
-              call zmlo_frozen(qp, isp, ndimhx, nmo, zm, okz)
-              if(.not.okz) then
-                call Hreduction(mlomethod_a,.false.,ndimhx, hamm_lda(:,1,:,1), ovlm_keep(:,1,:,1), &
-                     ndimMTO_a, ix_a, fff1_a, hmo, omo, qp, nev=nxq, zMLO=zm, nskip_auto=nskip_a)
-                call zmlo_store(qp, isp, ndimhx, zm)
-              endif
-            endblock SameChiAsGetsenex
+              call Hreduction(mlomethod_a,.false.,ndimhx, hamm_lda(:,1,:,1), ovlm_keep(:,1,:,1), &
+                   ndimMTO_a, ix_a, fff1_a, hmo, omo, qp, nev=nxq, zMLO=zm, nskip_auto=nskip_a)
+              call zmlo_new_append(qp, isp, ndimhx, zm)
+            endblock NewChiForThisIteration
             ZmloDumpA: block !ECALJ_ZMLO_DUMP=1: the a' side of the same comparison
               character(32):: cv
               integer:: st, ifz

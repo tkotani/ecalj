@@ -13,6 +13,7 @@ module m_sigmlo
   use m_ftox
   implicit none
   public :: sigmlo_init, sigmlo_senex, sigmlo_on, read_mloindex, zmlo_frozen, zmlo_store
+  public :: zmlo_new_append
   logical, protected :: sigmlo_on = .false.
   private
   integer :: ndimMTO=0, npairmx=0, nspx=0, nbas=0, mlomethod=4, nskip=0
@@ -20,24 +21,30 @@ module m_sigmlo
   real(8) :: plat(3,3), fff1=2d0, eferm=0d0, ecbot=0d0
   complex(8), allocatable :: sigmlor(:,:,:,:)   !(npairmx, ndimMTO, ndimMTO, nspx)
   logical :: init = .true.
-  !--- chi~ cache, PROCESS LOCAL.  Sigma^MLO(R) is a matrix IN the chi~ basis, so chi~
-  !    must not move while that matrix is being used.  Rebuilding z^MLO from the current
-  !    H^LDA at every SCF step makes it move and Sigma gets re-read in a rotating basis.
-  !    So z^MLO is built once per (q,isp,ndimh) per lmf run and reused for the rest of
-  !    that run -- the whole SCF loop, sugw's step a' and the band plot then share one
-  !    chi~.  It is NOT persisted: the next lmf rebuilds it from the H it is given, which
-  !    is what the design asks for (eq 17).  Persisting it across the chain was tried and
-  !    is wrong: the energy window that defines chi~ then stays pinned to the band
-  !    positions of the iteration that happened to create each entry, and entries created
-  !    at different iterations do not even form one snapshot.
-  !    ECALJ_MLO_NOCACHE=1 restores the per-call rebuild.
+  !--- chi~: TWO SLOTS.  Sigma^MLO_{ab} = <chi~_a|Sigma|chi~_b> is a matrix IN a basis,
+  !    so putting it back into the PMT basis is only the same operator if the SAME chi~
+  !    is used.  Meanwhile chi~ itself must follow the Hamiltonian, or its energy window
+  !    goes stale as QSGW moves the bands.  Both hold at once with two slots:
+  !
+  !      ZmloSig  the z^MLO the CURRENT SigRsMLO was written in.  getsenex reads Sigma
+  !               back through this one.  Loaded here, never appended to.
+  !      ZmloNew  the z^MLO sugw's step a' builds from the H of THIS iteration and uses
+  !               for c^MLO, so the next Sigma^MLO is written in it.  gwsc promotes it
+  !               to ZmloSig right after `mlo` has written the new SigRsMLO.
+  !
+  !    At a k that is not in ZmloSig (a band plot, or an SCF mesh finer than the Sigma
+  !    mesh) there is nothing to read back exactly -- the H of that iteration is gone --
+  !    so z is rebuilt from the H in hand and kept in memory for the rest of this run.
+  !    ndimh depends on q when pwmode=11, so an entry may only be reused at its own size;
+  !    taking the first rows of a zero-padded entry gave a singular O^MLO and NaN.
+  !    ECALJ_MLO_NOCACHE=1 disables both slots and rebuilds at every call (the 2026-09-25
+  !    failure mode: chi~ then moves inside one SCF loop).
   integer :: nzc = 0
   real(8), allocatable :: qzc(:,:)
   integer, allocatable :: ispzc(:), ndzc(:)   !ndzc: the ndimh each entry was built with.
-  !ndimh depends on q when pwmode=11, so an entry may only be reused at its own size;
-  !taking the first rows of a zero-padded entry gave a singular O^MLO and NaN.
   complex(8), allocatable :: zcache(:,:,:)
   logical :: nocache = .false., cfirst = .true.
+  integer :: nzsig = 0                        !how many entries came from ZmloSig
 contains
   !> The MLO index lives in the trailing records of HamRsMLO (not in a __-prefixed
   !> file, which cleargw would delete).  Skip the four data records, then read it.
@@ -85,6 +92,7 @@ contains
     allocate(ib_tableM(ndimMTO)); read(ifs) ib_tableM, ix
     close(ifs)
     call set_bandedge(eferm, ecbot)   !Hreduction reads these for the MLO window
+    call zmlo_sig_load()              !the chi~ this SigRsMLO was written in
     sigmlo_on = .true.
     write(stdo,ftox)' m_sigmlo: MLO Sigma interpolation ON. ndimMTO nskip=',ndimMTO,nskip, &
          ' |Sigma(R)|=',ftof(sum(abs(sigmlor)))
@@ -108,8 +116,7 @@ contains
     enddo
   end subroutine zmlo_frozen
 
-  !> Put a z^MLO built elsewhere (sugw's step a') into the same process-local cache,
-  !> so that a' and getsenex are guaranteed to use one chi~ inside one lmf run.
+  !> Put a z^MLO built elsewhere into the process-local cache (read side only).
   subroutine zmlo_store(q0, isp0, nm, z0)
     real(8),intent(in):: q0(3)
     integer,intent(in):: isp0, nm
@@ -117,6 +124,77 @@ contains
     if(nocache) return
     call cache_put(q0, isp0, nm, z0)
   end subroutine zmlo_store
+
+  !> ZmloSig.<procid>: the chi~ the current SigRsMLO was written in.  sugw's step a' runs
+  !> under MPI and each rank owns a subset of q, so the slot is a SET of per-rank files
+  !> (ndimh varies with q when pwmode=11, so a fixed-record direct-access file does not
+  !> fit).  The rank count may differ between lmf runs, so scan a range and take what is
+  !> there; every rank loads the whole set, which is a few MB.
+  subroutine zmlo_sig_load()
+    integer,parameter:: maxrank = 4096, gap_stop = 256
+    integer:: ifz, nd, nm, isp0, ios, n, ip, miss
+    real(8):: q0(3)
+    complex(8),allocatable:: z0(:,:)
+    logical:: lex
+    character(256):: fn
+    if(nocache) return
+    n=0; miss=0
+    do ip = 0, maxrank-1
+      write(fn,"('ZmloSig.',i0)") ip
+      inquire(file=trim(fn),exist=lex)
+      if(.not.lex) then
+        miss = miss + 1
+        if(miss >= gap_stop) exit
+        cycle
+      endif
+      miss = 0
+      open(newunit=ifz,file=trim(fn),form='unformatted',status='old',action='read')
+      read(ifz,iostat=ios) nd
+      if(ios/=0 .or. nd/=ndimMTO) then
+        close(ifz)
+        if(ios==0 .and. nd/=ndimMTO) write(stdo,ftox) &
+             ' m_sigmlo: ',trim(fn),' has ndimMTO=',nd,' /= ',ndimMTO,' -> ignored'
+        cycle
+      endif
+      do
+        read(ifz,iostat=ios) q0, isp0, nm
+        if(ios/=0) exit
+        allocate(z0(nm,ndimMTO))
+        read(ifz,iostat=ios) z0
+        if(ios/=0) then; deallocate(z0); exit; endif
+        call cache_put(q0, isp0, nm, z0)
+        deallocate(z0); n=n+1
+      enddo
+      close(ifz)
+    enddo
+    nzsig = n
+    if(n>0) write(stdo,ftox)' m_sigmlo: loaded ZmloSig (chi~ of this SigRsMLO), records=',n
+  end subroutine zmlo_sig_load
+
+  !> ZmloNew.<procid>: the chi~ of THIS iteration, built by sugw's step a' from the H it
+  !> is given.  gwsc renames the set to ZmloSig.* once `mlo` has written the SigRsMLO
+  !> that was expressed in it -- that rename is the promotion.
+  subroutine zmlo_new_append(q0, isp0, nm, z0)
+    use m_mpi,only: procid
+    real(8),intent(in):: q0(3)
+    integer,intent(in):: isp0, nm
+    complex(8),intent(in):: z0(nm,ndimMTO)
+    integer:: ifz
+    logical:: lex
+    character(256):: fn
+    if(nocache) return
+    write(fn,"('ZmloNew.',i0)") procid
+    inquire(file=trim(fn),exist=lex)
+    if(lex) then
+      open(newunit=ifz,file=trim(fn),form='unformatted',position='append')
+    else
+      open(newunit=ifz,file=trim(fn),form='unformatted')
+      write(ifz) ndimMTO
+    endif
+    write(ifz) q0, isp0, nm
+    write(ifz) z0
+    close(ifz)
+  end subroutine zmlo_new_append
 
 
   subroutine cache_put(q0, isp0, nm, z0)
