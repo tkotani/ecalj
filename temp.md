@@ -191,3 +191,46 @@ $\Sigma$ は**書かれた基底以外で読み戻されることが無い**。�
 $z$ を今の $H$ で作り直しても、窓が初回のバンド位置を指していれば部分空間は古いままです。
 ただし `ix` と `ndimMTO` は `SigRsMLO` との整合のため**変えられません**。
 窓だけ現在の計算に追随させるかどうかは未決です。
+
+---
+
+# 7. 図
+
+## 7.1 いまの比較（従来 MTO vs MLO 2 スロット版）
+
+![mlo_rows](Samples/kBT/LiTi2O4/mlo_rows.png)
+
+→ [Samples/kBT/LiTi2O4/mlo_rows.png](Samples/kBT/LiTi2O4/mlo_rows.png)
+（生成: [mlo_rows.py](Samples/kBT/LiTi2O4/mlo_rows.py)。左＝従来 pwmode=1、右＝MLO pwmode=11、
+行は MLO の反復数で下に伸びる）
+
+*表 7.1* t2g b33–44、Γ→X 211 点
+
+| | 帯幅/本 | 弦ずれ | 弦/帯幅 | 前段からの変化 |
+|---|---|---|---|---|
+| LDA（内挿なし＝下限）| 391.6 meV | 30.8 | 7.9 % | — |
+| 従来 MTO iter 1 | 290.7 | 28.7 | 9.9 % | 194.4 |
+| 従来 MTO iter 2 | 223.0 | 25.4 | 11.4 % | 86.1 |
+| **MLO 2 スロット iter 1** | 234.7 | 43.3 | **18.4 %** | 414.7 |
+| **MLO 2 スロット iter 2** | 370.8 | 86.9 | **23.4 %** | 157.8 |
+
+$E_{\rm HF}$ の iter 1→2 の動き: 従来 **2.85 eV**、MLO **8.73 eV**。
+
+**注意**: この 弦/帯幅 には §4.2 ⑦ の**基底混在**が混ざっている。
+メッシュ点では `ZmloSig` の $z$、その間はその場の $H$ から作った $z$ を使うため、
+k 方向に基底の出どころが切り替わる。切り分けは `band3.sh`（混在／全 k 作り直し／
+GW ドライバ状態の 3 通り）で行う。
+
+## 7.2 バグの効果を分離した図（iter 1）
+
+![frozen_vs_not](Samples/kBT/LiTi2O4/frozen_vs_not.png)
+
+→ [Samples/kBT/LiTi2O4/frozen_vs_not.png](Samples/kBT/LiTi2O4/frozen_vs_not.png)
+（$\tilde\chi$ 凍結の有無。凍結なしだと帯幅が 292 → 202 meV に潰れる）
+
+## 7.3 $\Sigma(R)$ の減衰（オンサイト規格化）
+
+![sigr_decay](Samples/kBT/LiTi2O4/sigr_decay.png)
+
+→ [Samples/kBT/LiTi2O4/sigr_decay.png](Samples/kBT/LiTi2O4/sigr_decay.png)
+（絶対値は正規化が違うので比較不可。規格化すると**従来 $\Sigma^{\rm MTO}(R)$ の方が減衰しない**）
