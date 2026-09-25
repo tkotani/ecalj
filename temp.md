@@ -182,6 +182,34 @@ $\Sigma$ は**書かれた基底以外で読み戻されることが無い**。�
 ランクごとのファイルなのは、段 a' が MPI で $q$ を分担するのと、
 `pwmode=11` で `ndimh` が $q$ ごとに変わり固定レコード長が使えないためです。
 
+## 4.4 コード上どこで MLO を作るか
+
+**作る実体は 1 箇所**、[`Hreduction`](SRC/subroutines/m_hreduction.f90#L45)（`m_hreduction.f90`）です。
+`zMLO` を返します。これを 3 種類の場所から呼んでいます。
+
+| 呼ぶ場所 | いつ | 何を決めるか |
+|---|---|---|
+| [m_HamPMT.f90](SRC/subroutines/m_HamPMT.f90) | 段 0d（`mlo --mlo`）、および MLO バンド | **索引**: `ix`（どの MTO チャネルを種にするか）、`ndimMTO`、窓 `nskip`/`eferm`/`ecbot`。`HamRsMLO` の末尾レコードに保存 |
+| [sugw.f90](SRC/subroutines/sugw.f90) 段 a'（`NewChiForThisIteration`）| 反復ごと、`lmf --jobgw=1` の中、各 $q$ で | **書く側の $z_n(q)$**。反復 2 以降は `hamm_qsgw`（Σ 入り $H$）、初段は `hamm_lda` から。`ZmloNew.<procid>` へ |
+| [m_sigmlo.f90](SRC/subroutines/m_sigmlo.f90) `getsenex`（`ChiTildeCache`）| `ZmloSig` に無い $k$ のとき | **読む側の $z(k)$**。その場の $H$ から作り、その `lmf` 実行中だけメモリに保持 |
+
+つまり:
+
+- **索引（どのチャネルか・窓）は連鎖の最初に 1 回**だけ決まり、以後凍結（`--mlofreeze`）。
+  $\Sigma^{\rm MLO}$ はそのチャネル上の行列なので `ndimMTO` を途中で変えられない。
+- **係数 $z^{\rm MLO}(k)$ は各 $k$ で毎回作る**。$\tilde\chi$ は「保存された表」ではなく
+  **$H(k)$ に処方を当てる関数**である。だから任意の $k$（バンドプロット）でも作れる。
+- `ZmloSig`/`ZmloNew` は「その処方を**いつの $H$** で当てたか」を固定するための置き場であって、
+  $\tilde\chi$ そのものの定義ではない。
+
+**$\tilde\chi$ を規定する材料**（`Hreduction` の入力）は
+
+1. $H(k)$, $S^{\rm PMT}(k)$ — その時点のハミルトニアンと重なり
+2. `ix` — 種にする MTO チャネル（凍結）
+3. 窓 $\bar\theta$ のパラメータ `eferm`, `ecbot`, `nskip`, `mlo_w`, `mlo_delta`, `mlo_wfrz`（凍結）
+
+の 3 つだけです。1 が反復ごとに動き、2・3 は固定、という構図。
+
 ---
 
 # 5. 過去の失敗との違い — 4 段階ある
