@@ -99,6 +99,19 @@ $\tilde\chi$ は、これから $\Sigma$ を表現する相手のハミルトニ
 退避して a' で使います（`sugw.f90`）。2 スロット化しているので、`getsenex` 側は `ZmloSig` を
 読むだけであり、a' がどの $H$ を使っても読み戻しは壊れません。
 
+**これは標準の MLO 手法と同じです。** `m_bandcal.f90` では
+
+| 行 | 処理 |
+|---|---|
+| 207 | `hambl` → $H^{\rm LDA}$ |
+| 210–211 | `sigmamode` なら `getsenex` → **`hamm = hamm + senex`** |
+| 221〜 | `if(writeham)` → **`__HamiltonianPMT` に書く** |
+
+の順で、**`__HamiltonianPMT` には senex を足した後の QSGW ハミルトニアンが入ります**。
+`mlo` はこれを読んで `HamRsMLO` を作るので、Si の QSGW バンドなどで使っている標準の MLO は
+**元から QSGW の $H$ で作られています**。段 a' が `hamm_lda` を使っていたのが標準から外れていた
+方であり、今回の変更はそこを揃えたことになります。
+
 ### なぜ①の `getsenex` が前反復の $z_{n-1}$ を使うのか
 
 **前反復で作った MLO から、$c$ も $\Sigma$ も導かれているから**です。反復 $n-1$ の中で:
