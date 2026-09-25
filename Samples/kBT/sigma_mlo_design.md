@@ -1415,6 +1415,8 @@ $\Psi^{\rm MTO}_j$ も $\Psi^{\rm PMT}_i$ も $|\Psi\rangle\langle\Psi|$ の形�
 | **B2** | **`mlo --mlofreeze --mlo` が LDA の $H$ から MLO を作り直している件**（§12 Q4）| `__HamiltonianPMT` は段 0c の LDA のまま。$\Sigma$ の対称化・回転は索引レベルなので汚していないはずだが**未確認** |
 | **B3** | **従来経路の $\Sigma$ の規約整合**（§12 Q1）| `hqpe_sc` は擬似逆、`getsenex` は $S_{\rm sub}^{-1}$。`ECALJ_SIGMLO_CHECK=1` で MLO 版と MTO 版の `senex` を比べれば系統因子として出るはず |
 | **B4** | **窓（`eferm`/`ecbot`）が LDA 固定のまま** | `Hreduction` は QSGW 固有値を LDA の $E_F$ と比べている。正しい直し方は判明済み: `sugw` 側だけで `call set_bandedge(eferm, eferm + (ecbot_a - eferm_a))`。一度誤実装で iter 1 を壊して revert 済み |
+| **B5** | **初回（LDA から）の混合を半歩にするか否か** | `mixsigma` は履歴が無いと $x_0=0$ から線形混合するので、iteration 1 の `sigm` と $\Sigma^{\rm MLO}$ は $\beta\Sigma^{\rm out}$ になる（2026-09-25 v8 で 812.37 → 406.18 を確認）。user の想定は「初回は混合しない」。変えるなら従来チェーンも取り直し |
+| **B6** | **`gwsc N`（N≥2）で `__SigmMLO.q.prev` が退避されない** | MLO の後片付け（`.prev` への退避を含む）が反復ループの外。`gwsc 1` を繰り返す運用では無害だが、`gwsc N` かつ `ECALJ_MLO_MIX=1` では 2 反復目以降 `hqpe_sc` が古い $\Sigma$ を $x_0$ に読む。直し方: 後片付けを関数にしてループ先頭でも呼ぶ（冪等）|
 
 ### C. あとで
 
