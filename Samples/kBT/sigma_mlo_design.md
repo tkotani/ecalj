@@ -744,6 +744,12 @@ LiTi₂O₄ で結果が悪かったとき、実装のどこが悪いかを次�
 
 ## 9. 基底のセットアップと $\Sigma$ の保持形
 
+> **現状（2026-09-26）: MLO-QSGW は動いている。**
+> LiTi₂O₄ 6³（nmlo 126 = 全 14 原子 s+p+d、$\Sigma^{\rm MLO}$ を β=0.5 で混合）が 10 反復で従来と同じように収束し
+> （MLO バンドの反復ごとの変化 rms 3.9 meV、従来 6.5 meV）、**メッシュ点の間のこぶ（リンギング）が MLO バンドでは消えた**。
+> 従来チェーンとの差は rms 46 meV（形と幅は一致、メッシュ点でも 43 meV あるので内挿ではなく状態の差）。
+> 9³ を走行中。経過は [kBT_research.md](kBT_research.md) の 2026-09-25〜26。
+
 2026-09-25 の確認。ここから §13 までが **2 スロット方式**で、§3 の「設計」と §4 の「実装手順」を
 いくつかの点で置き換えている。対応は下表。
 
@@ -753,6 +759,9 @@ LiTi₂O₄ で結果が悪かったとき、実装のどこが悪いかを次�
 | `getsenex` が必要に応じて $z$ を作り直す | **§11.1 I1**: 作り直しを禁止し、保存した $z$ でしか読まない | $\Sigma^{\rm MLO}$ の数値は、それを書いた $\tilde\chi$ の刻印を持つ |
 | $\tilde\chi$ の置き場は 1 つ | **§10.3**: `ZmloSig` / `ZmloNew` の 2 スロット | ①の中で「読む用 $z_{n-1}$」と「書く用 $z_n$」が同時に要る |
 | — | **§11.5**: `nkabc == n1n2n3 == mlo_nkabc` を `gwsc` が事前に要求 | $K_{\rm SCF}\subset K_{\rm GW}$ を成り立たせる |
+| $\Sigma^{\rm MLO}$ は混合しない | **§10.2 ③**: `ECALJ_MLO_MIX=1` で `sigm` と同じ Anderson 混合（β = `[gw] mixbeta`）| 無混合では iter 3 で overshoot。揃えると従来と同じ落ち方になる（2026-09-26）|
+| MLO バンドは `job_mlo --mlofreeze`（凍結 `HamRsMLO` ＋ `SigRsMLO`）| **§11.2.1**: SCF の $H$ の MLO 模型（`draw_mloband.sh`）| 凍結 `HamRsMLO` と今の `SigRsMLO` は別の $\tilde\chi$ の上の行列 |
+| 昇格は `gwsc` が行う | **§10.2 ⑤**: `mlo` の中、`SigRsMLO` を書いた直後 | 2 つを不可分にして取りこぼしを構造的に無くす |
 
 ### 9.1 PMT 基底のセットアップ
 
@@ -833,19 +842,24 @@ MTO ブロックのみ（`ndimsig = nlmto`、APW は入らない）で、しか�
 | ②b | `hbasfp0 --job=3` → `hvccfp0 --job=3` → `hsfp0_sc --job=3` | コアの交換項 $\Sigma_x^{\rm core}$。**①の $\psi$ を使う**。MLO には無関係 |
 | ②c | `hbasfp0 --job=0` → `hvccfp0 --job=0` | 価電子の積基底と Coulomb 行列 $v$ |
 | ②d | **`hgw --jobgw=1`** | ①の $\psi$ から $\chi_0 \to W \to \Sigma_x, \Sigma_c$。出力は**バンド添字の $\Sigma^\psi_{ij}(q)$**（`SEXU`, `SEXcoreU`, `SEC*`）。**まだ MLO は関係しない** |
-| ③ | **`hqpe_sc`** | ここで初めて MLO に落ちる。`__cmlo.data` の $c_n$ を読み、$\Sigma^{\rm MLO}_n = c_n^\dagger\Sigma^\psi c_n$ → `__SigmMLO.q`。**$z_n$ の基底**。同時に従来の `sigm`（MTO）も並行して書く |
-| ④ | **`mlo --mlofreeze --mlo`** | FFT して `SigRsMLO` を書く。**$z_n$ の基底** |
-| ⑤ | **昇格**（`gwsc` が rename） | `ZmloNew.*` → `ZmloSig.*`。**この瞬間に「現行の $\tilde\chi$」が $z_{n-1}$ から $z_n$ に切り替わる** |
+| ③ | **`hqpe_sc`** | ここで初めて MLO に落ちる。`__cmlo.data` の $c_n$ を読み、$\Sigma^{\rm MLO}_n = c_n^\dagger\Sigma^\psi c_n$ → `__SigmMLO.q`。**$z_n$ の基底**。`ECALJ_MLO_MIX=1` なら書く前に Anderson 混合（$x_0$ は反復の頭で `gwsc` が退避した `__SigmMLO.q.prev`、履歴は `__mixsigMLO`）。同時に従来の `sigm`（MTO、常に混合、履歴 `__mixsig`）も書く |
+| ④ | **`mlo --mlofreeze --mlo`** | 対称化・FFT して `SigRsMLO` を書き、**その直後に⑤も行う** |
+| ⑤ | **昇格**（`mlo` の中、[m_HamPMT.f90 `PromoteChiSlot`](../../SRC/subroutines/m_HamPMT.f90)） | `ZmloNew.*` → `ZmloSig.*`。**この瞬間に「現行の $\tilde\chi$」が $z_{n-1}$ から $z_n$ に切り替わる**。`gwsc` にも同じ処理が残っているが、その時点では `ZmloNew` が無いので何もしない |
 | ⑥ | **`lmf`**（Σ 入り SCF） | `getsenex` が `SigRsMLO`（$=\Sigma_n$）を **$z_n$** で読む |
-| ⑦ | **`job_band ... --mlo`**（掘ったディレクトリの中で） | 同じく $z_n$。ただし Σ メッシュ外の $k$ は `ZmloSig` に無いので、その場の $H$ から作る（読み戻す相手が無いため） |
+| ⑦ | **バンド**（`snap/iter<N>/` の中で） | **MLO バンドは `draw_mloband.sh`**（§11.2.1）: 保存済みの $z_n$ で SCF と同じ $H$ をメッシュ点で書き出し、MLO 模型にして解く。**メッシュ点の間で $z$ を作り直さない**。`job_band`（`--mlo` 無し）は従来 `sigm` の描画で、比較用 |
 
-#### ⑦の注意 — 2 つとも今日ハマった
+#### ⑦の注意 — バンドの描き方で 3 回ハマった（2026-09-25〜26）
 
-**(1) `--mlo` を必ず渡す。** `job_band` は `parse_known_args()` で残りの引数をそのまま `lmf` に
-渡します（[job_band:91,93](../../SRC/exec/job_band#L91-L93)）。`--mlo` が無いと `c0_mlo` が偽になり、`sigmlo_init` は
-冒頭の `if(.not.c0_mlo) return` で即座に戻ります。**MLO 経路は完全に無効**になり、`getsenex` は
-従来の `sigm` を使う。`hqpe_sc` は `sigm` と `__SigmMLO.q` を並行して書くので `sigm` は常に
-存在し、**黙って従来内挿のバンドが描かれます**。今日の図はすべてこれでした。
+**(1) `job_band` は MLO バンドを描かない。** `--mlo` が無いと `c0_mlo` が偽で `sigmlo_init` は即座に戻り
+（[job_band:91,93](../../SRC/exec/job_band#L91-L93) は残りの引数を `lmf` に渡すだけ）、`getsenex` は従来の `sigm` を使う。
+`hqpe_sc` は `sigm` も常に書くので、**黙って従来内挿のバンドが描かれる**。これは「MLO チェーンの密度 ＋ 従来 `sigm`」で、
+SCF を駆動した $\Sigma^{\rm MLO}$ のバンドではない（途中の反復では別物、収束すれば近づく）。
+
+**(1') `job_band --mlo`（PMT バンドで Σ だけ MLO）も使えない。** `getsenex` の $\tilde\chi$ 探索は $k$ を文字どおり比べる。
+経路の $k$（例 $(0,-x,0)$）は保存済みの既約代表点 $(0,0,x)$ と対称等価でも一致しないので、Γ 以外は
+$\tilde\chi$ を **Σ 抜きの $H$** から作り直し、$\Sigma$ を違う基底で読む（§13 B7）。
+
+**(1'') `job_mlo --mlofreeze --mlo` も使えない**（§11.2.1）。
 
 **(2) 連鎖ディレクトリの中で走らせない。** `job_band` の第 1 段は `lmf --quit=band` で、
 これは **`efermi.lmf` を書き換えます**（[m_bndfp.f90:274](../../SRC/subroutines/m_bndfp.f90#L274)）。MLO の窓は `efermi.lmf` から
@@ -853,7 +867,7 @@ MTO ブロックのみ（`ndimsig = nlmto`、APW は入らない）で、しか�
 `snap/iter<N>/` を掘って状態一式を置き、その中で走らせる。**そのままスナップショットになります。**
 
 **答え**: MLO（係数 $z$）は **反復ごとに 1 回、①の段 a' で、その反復のハミルトニアンから**作られます。
-そして**⑤で初めて「現行」になります**。
+そして**④の `mlo` が `SigRsMLO` を書いた直後（⑤）に初めて「現行」になります**。
 
 #### どの $H$ から作るか — $H^{\rm LDA}$ は初段だけ
 
@@ -926,7 +940,9 @@ $\Sigma$ は**書かれた基底以外で読み戻されることが無い**。�
 | ファイル | 中身 |
 |---|---|
 | `ZmloSig.<procid>` | 現行 `SigRsMLO` が書かれた $\tilde\chi$。[m_sigmlo.f90 `zmlo_sig_load`](../../SRC/subroutines/m_sigmlo.f90) が読む。追記しない |
-| `ZmloNew.<procid>` | 段 a' がこの反復の $H$ から作った $\tilde\chi$（[m_sigmlo.f90 `zmlo_new_append`](../../SRC/subroutines/m_sigmlo.f90)）。⑤で [gwsc](../../SRC/exec/gwsc) が rename |
+| `ZmloNew.<procid>` | 段 a' がこの反復の $H$ から作った $\tilde\chi$（[m_sigmlo.f90 `zmlo_new_append`](../../SRC/subroutines/m_sigmlo.f90)）。④の直後に `mlo` が rename |
+| `__SigmMLO.q.prev` | この反復が使った $\Sigma^{\rm MLO}$（= 混合の $x_0$）。反復の頭で `gwsc` が `__SigmMLO.q` から改名 |
+| `__mixsigMLO` / `__mixsig` | $\Sigma^{\rm MLO}$ / `sigm` の Anderson 履歴（`__mixsig` は `character(8)` で切り詰められた `__mixsigma`）|
 
 ランクごとのファイルなのは、段 a' が MPI で $q$ を分担するのと、
 `pwmode=11` で `ndimh` が $q$ ごとに変わり固定レコード長が使えないためです。
@@ -1121,27 +1137,36 @@ $$K = K_{\rm GW}\ \cup\ K_{\rm SCF}\ \cup\ K_{\rm band}$$
 $K_{\rm band}$ のためにバンド経路を事前に固定する必要があるが、診断用の固定経路なので問題ない。
 `syml` が無ければ $K_{\rm band}=\emptyset$ とし、バンドは描かない（描くなら `syml` を置く）。
 
-#### 11.2.1 【後回し】MLO 空間で描けば $K_{\rm band}$ は不要になる
+#### 11.2.1 MLO 空間で描く — 正しいのは「SCF の $H$ の MLO 模型」（2026-09-26 実装）
 
 バンドを **PMT 空間**で描く限り、経路上の各 $k$ で $A(k)=S^{\rm PMT}(k)z^{\rm MLO}(k)$ が要るので
-$K_{\rm band}$ を先に回しておく必要がある。
+$K_{\rm band}$ を先に回しておく必要がある。**MLO 空間で描けばその必要が無い** — ここまでは当初の見立てどおり。
 
-しかし **MLO 空間で描けばその必要が無い**。$H^{\rm MLO}(R)$ も $\Sigma^{\rm MLO}(R)$ も
-**どちらも MLO 基底上の行列で q 周期的**なので、両方を任意の $k$ にフーリエ内挿して
+**当初の素朴な方法は 2 スロット方式では成り立たない。** 凍結 `HamRsMLO` の `hammr` と `SigRsMLO` を足して
 
 $$\bigl[H^{\rm MLO}(k)+\Sigma^{\rm MLO}(k)\bigr]\,c = \varepsilon\,O^{\rm MLO}(k)\,c$$
 
-を $n_{\rm MLO}\times n_{\rm MLO}$ で解けばよい。**PMT への引き上げが一切要らない。**
+を解く（`job_mlo --mlofreeze --mlo`、[m_mlo_ham.f90](../../SRC/subroutines/m_mlo_ham.f90) の `hammr + sigmlor`）と、
 
-- $K = K_{\rm GW}\cup K_{\rm SCF}$ だけになる（$K_{\rm band}$ 不要）
-- §11.5 の 3 点目（`syml` を `--jobgw=1` の前に用意）も不要になる
-- 機構は既にある（`job_mlo`、`HamRsMLO` の `hammr`/`ovlmr`）
+- `hammr` = $\langle\tilde\chi_0|H^{\rm LDA}[\rho_0]|\tilde\chi_0\rangle$（**段 0d の LDA 密度、段 0d の $\tilde\chi$**、`--mlofreeze` で書き換わらない）
+- `sigmlor` = $\langle\tilde\chi_n|\Sigma|\tilde\chi_n\rangle$（**反復 $n$ の $\tilde\chi$**、`ZmloSig`）
+
+で、**別の基底の行列を足している**。LiTi₂O₄ v9 iter 3 で PMT バンドから 0.3–0.5 eV ずれた。
+
+**正しい方法**（[draw_mloband.sh](LiTi2O4/draw_mloband.sh)、`run_snap.sh` に組み込み済み）:
+
+1. スナップショットで `lmf --writeham --noinv --mlo`。保存済みの `ZmloSig` で SCF と**同じ** $H=H^{\rm LDA}[\rho_n]+\mathrm{senex}(\Sigma^{\rm MLO}_n)$ をメッシュ点で書き出す。
+   `ECALJ_MLO_ALLOW_REBUILD` は立てない（MISS が 1 つでもあれば止まる）
+2. `SigRsMLO` を退け（$\Sigma$ は 1 の $H$ に既に入っている、二重計上しない）、`HamRsMLO` を消して、**凍結なし**の `mlo --mlo`
+3. その $H$ の MLO 模型を作り、`qplist.dat` の経路で解く
+
+メッシュ点の $H$ は SCF の $H$ そのもので、その間は標準の MLO のフーリエ内挿。**メッシュ点の間で $\tilde\chi$ を作り直さない**ので
+2 スロットの基底整合を壊さない。Γ では、保存済みの $z$ が見つかる `lmf --band --mlo` と 1 meV 以内で一致した。
+v9（6³）ではメッシュ点の間のこぶが消え、`sigm` 描画とはメッシュ点でも rms 31 meV 違った（途中の反復では `sigm` と
+$\Sigma^{\rm MLO}$ は別物）。`mlo` を 1 ランクあたり 2 点以上の q で回すので、`zMLO` の修正（`e9f633d79`）が前提。
 
 描かれるのは「縮約模型のバンド」であって PMT ハミルトニアンのバンドそのものではないが、
-**MLO 模型が $\Sigma$ を再現できているかを見るのが目的**なので、診断としてはむしろ素直。
-
-**2026-09-25 時点では後回し**（user 判断）。まず $K=K_{\rm GW}\cup K_{\rm SCF}$ で実装し、
-バンドは従来どおり PMT 空間で描く（そのぶん経路上は作り直しになる）。
+**MLO 模型が $\Sigma$ を再現できているかを見るのが目的**なので、診断としては素直。
 
 #### 11.2.2 PMT 空間のバンドはどうするか — 3 段階
 
@@ -1170,6 +1195,8 @@ $$\bigl[H^{\rm MLO}(k)+\Sigma^{\rm MLO}(k)\bigr]\,c = \varepsilon\,O^{\rm MLO}(k
 | `ZmloSig.<procid>` | **$k\in K$ 全部**での $z_n(k)$。現行 `SigRsMLO` と対 | 反復をまたぐ |
 | `ZmloNew.<procid>` | 作成中の $z_{n+1}(k)$ | 反復内 |
 | `HamRsMLO` 末尾 | `ix`, `ndimMTO`, `mlomethod`, `nskip`, `eferm`, `ecbot` | 連鎖を通じて固定 |
+| `__SigmMLO.q.prev` | この反復が使った $\Sigma^{\rm MLO}(q)$（混合の $x_0$）| 反復の頭で作られる |
+| `__mixsigMLO` / `__mixsig` | $\Sigma^{\rm MLO}$ / `sigm` の Anderson 履歴。スナップショットに入れないと再開時に $x_0=0$ から入り直す | 反復をまたぐ |
 
 `ZmloSig` の被覆が $K_{\rm GW}$ だけから $K$ 全体に広がるのが、現行との唯一の構造差。
 
@@ -1181,11 +1208,11 @@ $$\bigl[H^{\rm MLO}(k)+\Sigma^{\rm MLO}(k)\bigr]\,c = \varepsilon\,O^{\rm MLO}(k
 | | ├ `getsenex` | `ZmloSig` の **$z_{n-1}(k)$** で $\Sigma_{n-1}$ を読む。$k\in K$ なので**必ず見つかる** |
 | | └ 段 a' | **$K$ の全ての $k$** でその場の $H$ から $z_n(k)$ を作り `ZmloNew` へ。$c^{\rm MLO}$ は $K_{\rm GW}$ でのみ計算して `__cmlo.data` へ |
 | ② | GW 諸段 | $\Sigma^\psi$（MLO と無関係）|
-| ③ | `hqpe_sc` | $\Sigma^{\rm MLO}_n=c_n^\dagger\Sigma^\psi c_n$ → `__SigmMLO.q`。**$z_n$ の基底** |
+| ③ | `hqpe_sc` | $\Sigma^{\rm MLO}_n=c_n^\dagger\Sigma^\psi c_n$、（`ECALJ_MLO_MIX=1` なら）Anderson 混合 → `__SigmMLO.q`。**$z_n$ の基底** |
 | ④ | `mlo --mlofreeze --mlo` | 対称化 → 全 BZ → FFT → `SigRsMLO`。**$z_n$ の基底** |
-| ⑤ | **昇格** | `ZmloNew.*` → `ZmloSig.*` |
+| ⑤ | **昇格**（④の `mlo` の中）| `ZmloNew.*` → `ZmloSig.*` |
 | ⑥ | `lmf`（Σ 入り SCF）| `ZmloSig` の $z_n$ で読む。$K_{\rm SCF}\subset K$ なので作り直し無し |
-| ⑦ | `job_band ... --mlo` | 同じく $z_n$。$K_{\rm band}\subset K$ なので**作り直し無し**（基底混在が消える）|
+| ⑦ | `draw_mloband.sh` | $z_n$ でメッシュ点の $H$ を書き出して MLO 模型を解く（§11.2.1）。$K_{\rm band}$ は要らない |
 
 #### 11.4.1 ①の `getsenex` の式
 
@@ -1237,14 +1264,18 @@ $$\mathrm{senex}_{mn}(k)=\langle\chi^{\rm PMT}_m|\hat P\hat\Sigma\hat P|\chi^{\r
 **新方式で変わるのはここではない。** 式は同じで、**$z^{\rm MLO}(k)$ をどこから持ってくるか**だけが変わる
 （その場で作り直す → $\Sigma$ を作った $H$ で作って保存したものを引く）。
 
-### 11.5 現行コードとの差分と実装状況（2026-09-25 時点）
+### 11.5 現行コードとの差分と実装状況（2026-09-26 時点）
 
 | | 内容 | 状態 |
 |---|---|---|
 | 1 | **`m_sigmlo`** — $k$ が `ZmloSig` に無かったら**黙って作り直さず停止**（`ECALJ_MLO_ALLOW_REBUILD=1` で従来動作）| **実装済み** `fb9662fa0` |
 | 2 | **`gwsc`** — `nkabc == n1n2n3 == mlo_nkabc` を**計算前に**確認し、違えば直し方つきで停止 | **実装済み** `fb9662fa0` |
-| 3 | $K_{\rm band}$ の被覆 | **未実装**。バンドは依然 PMT 空間で作り直し。§11.2.1（MLO 空間で描く）で解消する方針 |
-| 4 | 昇格を `gwsc` から `mlo` 側へ移す | **未実装**。`SigRsMLO` 書き出しと不可分にすると取りこぼしが構造的に消える |
+| 3 | $K_{\rm band}$ の被覆 | **不要になった**。§11.2.1 の MLO 模型（`draw_mloband.sh`）で描く |
+| 4 | 昇格を `gwsc` から `mlo` 側へ移す | **実装済み** `0ceefdb88`（`m_HamPMT` の `PromoteChiSlot`）|
+| 5 | $\Sigma^{\rm MLO}$ の Anderson 混合（`ECALJ_MLO_MIX=1`、既定 OFF）、`mixsigma` の履歴名を引数に | **実装済み** `eec04ddad`, `d8034ad5b` |
+| 6 | `gwsc` が `__SigmMLO.q` を `.prev` に退避し、`hqpe_sc` が $x_0$ として読む | **実装済み** `d8034ad5b`（`gwsc N` で N≥2 だと 2 反復目以降は退避されない → §13 B6）|
+| 7 | `m_HamPMT` の `zMLO` を q ごとに確保し直す（`pwmode=11` で `ndimPMT` が q に依存し、はみ出していた）| **修正** `e9f633d79`。チェーンの段 ④ は 60 ランク ≥ q 点数なので影響なし |
+| 8 | `run_snap.sh` のバンド段: `job_mlo --mlofreeze` をやめ `draw_mloband.sh` に | **実装済み** `ec30b1d3a` |
 
 **$K_{\rm SCF}$ の拡張は不要だった。** 当初は a' のループを $K$ 全体へ広げるつもりだったが、
 任意の $k$ で $z$ を作るにはその $k$ で $H(k)$ を組む必要があり（`hambl` の複製）侵襲的。
@@ -1274,10 +1305,16 @@ SCF の k リストが構築されていない）。そのため `gwsc` で `ctr
 | 見るもの | 期待 |
 |---|---|
 | `llmfgw01` / `llmf` / `llmf_band` の「作り直し」回数 | **0**（1 回でも出たら $K$ の列挙漏れ）|
-| `gwsc: promoted N ZmloNew.* -> ZmloSig.*` | 毎反復 |
+| `m_HamPMT: promoted ZmloNew.* -> ZmloSig.*`（`lmlo_sigr`）| 毎反復 |
 | `loaded ZmloSig ... records=` | 各実行で $\vert K\vert $ 相当 |
 | `ECALJ_ZMLO_DUMP` | a' と `getsenex` の $z$ が一致 |
 | `ECALJ_SIGMLO_RT` | $\Sigma^{\rm MLO}(q)\to R\to q$ の往復誤差 |
+| 印の数 `mloON`（SCF の `llmf`）/ `gwdrv`（`llmfgw01`）| = k（q）点を担当したプロセス数 = $\lceil n_k/\lceil n_k/n_p\rceil\rceil$（§12 Q9）。np=60 で 6³: 16 / 36、9³: 35 / 50。**これより少なければ**一部が従来 `sigm` に落ちた |
+| 混合（`lqpe`）| iter 1: `No mixing file` ×2 で混合後／前 = 0.5 ちょうど。iter 2 以降: `x_0 from __SigmMLO.q.prev = T` |
+| `draw_mloband.sh` の `writeham` | MISS 0（1 つでもあれば止まる）|
+
+1 反復ごとの確認は [check_iter.sh](LiTi2O4/check_iter.sh)（[watch_iter.sh](LiTi2O4/watch_iter.sh) が反復の終わりにログを退避して実行）。
+期待値はメッシュと並列数に依存するので `CHECK_MLOON` / `CHECK_GWDRV` / `CHECK_MAXSECS` で与える。
 
 ### 11.7 残る近似
 
@@ -1291,8 +1328,15 @@ SCF の k リストが構築されていない）。そのため `gwsc` で `ctr
 
 ### 11.8 コスト
 
-$K_{\rm band}$ ぶんの `Hreduction` が増える。1 k あたり PMT の対角化 1 回（$O(n_{\rm dimh}^3)$）。
-211 点の経路なら GW ドライバの実行時間に数分乗る程度で、GW 諸段に比べれば小さい。
+**実測**（kt1、RTX 5090 ×2、`gwsc 1 -np 60 -np2 2 --gpu --mp --fp32`、LiTi₂O₄ nmlo 126）
+
+| | 1 反復 | うち `hgw` | MLO 固有の処理 |
+|---|---|---|---|
+| 6³ | 950–1000 秒 | 836 秒（86%）| 段 a'（`lmf --jobgw=1` の一部）＋ `mlo --mlofreeze` 約 10 秒 ＋ `hqpe_sc` の射影 |
+| 9³ | 約 5320 秒 | 5004 秒（94%）| 同上、`mlo --mlofreeze` 約 24 秒 |
+
+**MLO のためのコストは 1 反復の 1% 程度**で、従来 QSGW とほぼ同じ。MLO バンド（`draw_mloband.sh`）は 1 回 20–30 秒（CPU 8 プロセス）。
+`hgw` の中の GPU の使われ方は kBT_research.md 2026-09-26 07:50（分担は対称、q の切れ目の停止が約 11%）。
 
 ---
 
@@ -1352,7 +1396,7 @@ PMT のうち q 周期的なのは MTO 部分だけで **APW 部分は q 周期�
 
 ### Q4. 1 反復で MLO を何回作っているのか
 
-**3 箇所**（2026-09-25 現在）。
+**3 箇所**（2026-09-25 現在。2026-09-26 に 1 行目の作り直しは禁止済み、3 行目の `zMLO` のはみ出しは修正済み）。
 
 | 場所 | メッシュ上の $q$ | メッシュ外の $k$ |
 |---|---|---|
@@ -1363,7 +1407,10 @@ PMT のうち q 周期的なのは MTO 部分だけで **APW 部分は q 周期�
 3 番目は `--mlofreeze` で `HamRsMLO` を書き直さないため、
 **連鎖の最初の LDA ハミルトニアン**から毎回作り直している。
 $\Sigma$ の対称化・回転・FFT は索引レベルの操作なので $\Sigma$ 自体は汚していないと思われるが、
-**未確認**。新方式では確認する。
+**未確認**（§13 B2）。なお `zMLO` を最初の q の大きさのまま使い回すバグ（`e9f633d79` で修正）はこの 3 番目にあった。
+チェーンでは 60 ランクが q を 1 点ずつ持つので使い回しが起きず無害、1 ランクが 2 点以上持つバンド描画で落ちていた。
+
+バンド用には 4 番目として `draw_mloband.sh` の凍結なしの `mlo`（SCF の $H$ から MLO 模型を作る、§11.2.1）がある。
 
 ### Q5. 窓 $\bar\theta$ を広げれば $\Sigma(R)$ は短距離になるか
 
@@ -1391,49 +1438,87 @@ $\Psi^{\rm MTO}_j$ も $\Psi^{\rm PMT}_i$ も $|\Psi\rangle\langle\Psi|$ の形�
 
 ---
 
+### Q7. LDA から始めた初回は、混合ファイルが無いので混合されないのでは
+
+**されない、ではなく半歩だけ進む。** `mixsigma` はファイルが無いことを認識し（`... No mixing file`、`nitr=0`）、
+履歴を使わない線形混合 $x_{\rm new}=x_0+\beta(f-x_0)$ を $x_0=0$（LDA では $\Sigma=0$）で行うので $\beta f$ になる。
+実測（v9 iter 1）: `sigm` 812.3689202 → 406.1844601、$\Sigma^{\rm MLO}$ 246.856780 → 123.428390、どちらも比 0.5000000。
+「無ければ混合せず出力をそのまま次の $x$ にする」ブロックは 2009 年の最初の版（`15b6b028b`、`fpgw/main/hqpe.sc.m.F` 930–941 行）に
+あるが、既にコメントアウトされている。従来チェーンも同じ経路なので、比較の減衰条件は揃っている。
+初回を混合しない設計に変えるかは §13 B5。
+
+### Q8. MLO のバンドはどう描くのが正しいか
+
+| 経路 | 何を描くか | 可否 |
+|---|---|---|
+| `job_band`（`--mlo` 無し）| MLO チェーンの密度 ＋ 従来 `sigm` の内挿 | 比較用。SCF を駆動した $\Sigma^{\rm MLO}$ のバンドではない |
+| `job_band --mlo` | PMT バンド、$\Sigma$ だけ MLO 経由 | **Γ 以外無効**。経路の $k$ が保存済みの既約代表点と文字どおり一致せず、Σ 抜きの $H$ から $\tilde\chi$ を作り直す（B7）|
+| `job_mlo --mlofreeze --mlo` | 凍結 `HamRsMLO` ＋ `SigRsMLO` | **無効**。基底が 2 つ混ざる（§11.2.1）|
+| **`draw_mloband.sh`** | **SCF の $H$ の MLO 模型** | **正しい**（§11.2.1）|
+
+### Q9. `mloON` や `gwdrv` の数は何を数えているのか
+
+`MLO Sigma interpolation ON` の行は `sigmlo_init` が **プロセスごとに最初の 1 回だけ**出す（`init` フラグ）。
+`sigmlo_init` は `getsenex` から呼ばれ、`getsenex` を呼ぶのは**担当する k 点があるプロセスだけ**。
+`lmf` は k 点を大きさ $\lceil n_k/n_p\rceil$ のかたまりで配るので、行の数 $=\lceil n_k/\lceil n_k/n_p\rceil\rceil$。
+
+| 印 | $n_p$ | $n_k$（6³ → 9³）| かたまり | 行の数（6³ → 9³）|
+|---|---|---|---|---|
+| `mloON`（SCF の `lmf`）| 60 | 既約点 16 → 35（`BZMESH: ngrp nq 48 ...`）| 1 → 1 | 16 → 35 |
+| `gwdrv`（`lmf --jobgw=1`）| 60 | `QPLIST.jobgw1` 72 → 200 | 2 → 4 | 36 → 50 |
+| `draw_mloband.sh` の `writeham` | 8 | 16 → 35 | 2 → 5 | 8 → 7 |
+
+メッシュと並列数で決まる数なので、6³ の期待値を 9³ に当てはめると正常を異常と判定する（2026-09-26 に実際に起きた）。
+
+---
+
 ## 13. TODO
 
+2026-09-26 に見直した。状態は [kBT_research.md](kBT_research.md) の同日エントリと対応している。
 
-優先順に。番号は依存関係ではなく、いまの見立ての順序。
+### A. 完了・進行中
 
-### A. すぐやるもの
-
-| | 内容 | なぜ | 状態 |
-|---|---|---|---|
-| **A1** | **kt1 を同期・再ビルド**して LiTi₂O₄ 6³ を新方式で 3 反復 | `nkabc = n1n2n3 = mlo_nkabc = 6³` なので新チェックは通る。今日の比較対象（従来 194→86→32 meV、旧 MLO 415→158→193 meV）と同じ長さで並べられる | kt1 は `d0ca0aba8`（保護なし）。同期 1 分＋ビルド 6 分＋LDA 3 分＋16 分×3 |
-| **A2** | **バンドを MLO 空間で描く**（§11.2.1）| $H^{\rm MLO}(R)$ も $\Sigma^{\rm MLO}(R)$ も q 周期的なので任意の $k$ で厳密。今日ずっと判定を濁らせた**基底混在が構造的に消える** | **GaAs では動作、LiTi₂O₄ で異常終了**（下記 A2'）|
-| **A2'** | 上の異常終了を直す | `job_mlo` の第 1 段は `lmf --writeham --mkprocar --noinv --mlo` で、**`--noinv`** のため q 集合が段 0c のものと違う。`--mlofreeze` で保持している `HamRsMLO` の対リスト（`npair`/`nlat`、段 0c の q 集合で作成）と食い違い、`HamPMTtoHamRsMLO` の `iqiloop 3/16` で `double free or corruption (out)`。np=1 でも同じなので MPI ではない。GaAs（q が少ない）では通った | **未着手** |
-| **A3** | **昇格を `gwsc` から `mlo` 側へ移す** | `SigRsMLO` の書き出しと不可分になり、今日の「`tbin_frozen/gwsc` が古くて一度も走らなかった」型の取りこぼしが構造的に消える | 数十行 |
-
-**A1 の判定基準**: $E_{\rm HF}$ と反復間の変化で見る。バンドの荒れは A2 が入るまで参考扱い。
+| | 内容 | 状態 |
+|---|---|---|
+| **A1** | LiTi₂O₄ 6³ を新方式で回す | **完了**。v9（nmlo 126、β=0.5）10 反復、全反復で健全性チェック合格。MLO バンドの変化 rms 3.9 meV（従来 6.5）|
+| **A2** | バンドを MLO 空間で描く | **完了**。SCF の $H$ の MLO 模型（`draw_mloband.sh`、§11.2.1）。素朴な方法（凍結 `HamRsMLO` ＋ `SigRsMLO`）は基底が混ざって無効だった |
+| **A2'** | `mlo --mlofreeze --mlo` の異常終了 | **修正** `e9f633d79`。原因は `zMLO` のはみ出し（`pwmode=11` で `ndimPMT` が q に依存）。当初の「`--noinv` で q 集合がずれる」説は誤り（ずれていれば直後の `k-points mismatch` で止まる）|
+| **A3** | 昇格を `mlo` 側へ | **完了** `0ceefdb88` |
+| **A4** | $\Sigma^{\rm MLO}$ の混合 | **完了**（既定 OFF、`ECALJ_MLO_MIX=1`）。無混合（v6/v7）は iter 3 で overshoot、混合（v9）は従来と同じ落ち方 |
+| **A5** | LiTi₂O₄ **9³**（`liti_mlo_k9`、`nkabc = n1n2n3 = mlo_nkabc = 9³`、β=0.5）| **走行中**。2026-09-26 03:07 投入、1 反復 ≈ 89 分、iter 3 まで異常なし |
 
 ### B. 未確認・要検証
 
 | | 内容 | なぜ気になるか |
 |---|---|---|
 | **B1** | **AF（`laf`）で $\Sigma^{\rm MLO}$ のスピン 2 が 0 になっていないか** | `main_hqpe.sc.f90` の `if(laf) exit` でスピンループを抜ける。MLO 分岐に AF の扱いが見当たらない。NiO 系が全滅する可能性 |
-| **B2** | **`mlo --mlofreeze --mlo` が LDA の $H$ から MLO を作り直している件**（§12 Q4）| `__HamiltonianPMT` は段 0c の LDA のまま。$\Sigma$ の対称化・回転は索引レベルなので汚していないはずだが**未確認** |
-| **B3** | **従来経路の $\Sigma$ の規約整合**（§12 Q1）| `hqpe_sc` は擬似逆、`getsenex` は $S_{\rm sub}^{-1}$。`ECALJ_SIGMLO_CHECK=1` で MLO 版と MTO 版の `senex` を比べれば系統因子として出るはず |
-| **B4** | **窓（`eferm`/`ecbot`）が LDA 固定のまま** | `Hreduction` は QSGW 固有値を LDA の $E_F$ と比べている。正しい直し方は判明済み: `sugw` 側だけで `call set_bandedge(eferm, eferm + (ecbot_a - eferm_a))`。一度誤実装で iter 1 を壊して revert 済み |
-| **B5** | **初回（LDA から）の混合を半歩にするか否か** | `mixsigma` は履歴が無いと $x_0=0$ から線形混合するので、iteration 1 の `sigm` と $\Sigma^{\rm MLO}$ は $\beta\Sigma^{\rm out}$ になる（2026-09-25 v8 で 812.37 → 406.18 を確認）。user の想定は「初回は混合しない」。変えるなら従来チェーンも取り直し |
-| **B6** | **`gwsc N`（N≥2）で `__SigmMLO.q.prev` が退避されない** | MLO の後片付け（`.prev` への退避を含む）が反復ループの外。`gwsc 1` を繰り返す運用では無害だが、`gwsc N` かつ `ECALJ_MLO_MIX=1` では 2 反復目以降 `hqpe_sc` が古い $\Sigma$ を $x_0$ に読む。直し方: 後片付けを関数にしてループ先頭でも呼ぶ（冪等）|
+| **B2** | **`mlo --mlofreeze` が LDA の $H$ から MLO を作り直している件**（§12 Q4）| $\Sigma$ の対称化・回転は索引レベルなので汚していないはずだが**未確認** |
+| **B3** | **従来経路の $\Sigma$ の規約整合**（§12 Q1）| `hqpe_sc` は擬似逆、`getsenex` は $S_{\rm sub}^{-1}$。`ECALJ_SIGMLO_CHECK=1` で系統因子として出るはず |
+| **B4** | **窓（`eferm`/`ecbot`）が LDA 固定のまま** | 直し方は判明済み（`sugw` 側だけで `set_bandedge`）。一度誤実装で iter 1 を壊して revert 済み |
+| **B5** | **初回（LDA から）の混合を半歩にするか否か**（§12 Q7）| 今は $\beta\Sigma^{\rm out}$。user の想定は「初回は混合しない」。変えるなら従来チェーンも取り直し |
+| **B6** | **`gwsc N`（N≥2）で `__SigmMLO.q.prev` が退避されない** | 後片付けが反復ループの外。`gwsc 1` を繰り返す運用（`run_snap.sh`）では無害。直し方: 後片付けを関数にしてループ先頭でも呼ぶ（冪等）|
+| **B7** | **対称等価な $k$ の照合** | `getsenex` の $\tilde\chi$ 探索は $k$ を文字どおり比べる。チェーン（SCF・GW とも既約点）では無害で、`job_band --mlo` でだけ問題。直すなら $k$ → 既約代表点に写して $z$ を回転 |
 
 ### C. あとで
 
 | | 内容 |
 |---|---|
-| **C1** | 途中反復でも PMT バンドが欲しくなったら、a' に第二ループを足す（§11.2.2 の 3 段目）|
-| **C2** | 154 軌道での再測定（`--mlo` 付き）。部分空間の広さの効果。kr5 に入力一式を用意済み（`-np 8` に修正済み）|
-| **C3** | kr5 の `gwsc` を通しで動かす（`-np 8` で再開できるはず。LDA は kt1 と完全一致を確認済み）|
-| **C4** | 収束後に PMT バンドを描いて従来法と比較（収束後なら基底は整合する）|
+| **C1** | **`pwmode=11` の従来チェーンを 10 反復**。v9 と従来（`pwmode=1`、`n666_nk6_from_lda`）の差 rms 46 meV を「$\Sigma$ の表現の差」と「`pwmode` の差」に分ける（LDA での `pwmode` の差は rms 5.6 meV）|
+| **C2** | **GEMMul8（Ozaki）で倍精度**。RTX 5090 は FP64 が FP32 の 1/64。Σc では同じ `zmel` に周波数ごとの $W(\omega)$ を掛けるので `enable_skip_A/B` で分解を再利用できる（今は常に 0）。いまの収束の床（rms 4–7 meV）が単精度の丸めかどうかも分かる。単精度の高速化としては上限 1.1–1.5 倍で割に合わない |
+| **C3** | **`hgw` の q の切れ目の GPU 停止（約 11%）**を、次の q の準備と前の q の GPU 計算を重ねて減らす。最後の待ち（約 3.5%）は q の割り振りを重さで詰める |
+| **C4** | 収束後に PMT バンドを MLO 経由で描く（§11.2.2。作り直しを Σ 入りの $H$ で、k ごとに自己無撞着に）|
+| **C5** | 154 軌道（全 MTO）での再測定。部分空間の広さの効果 |
+| **C6** | kr5 で `gwsc` を通しで動かす（`-np 8`。LDA は kt1 と完全一致を確認済み）|
 
-### D. 運用（今日の教訓）
+### D. 運用（教訓）
 
 | | 内容 |
 |---|---|
 | **D1** | ラン投入前に **`sync_ecalj_src.sh --check-all`**（ソース刻印）|
-| **D2** | ビルド後に **`strings <lib> \| grep -c <新機能の文字列>`**（実体は `.so` 側。実行ファイルは thin wrapper）|
+| **D2** | ビルド後に **`strings <lib> \| grep -c <新機能の文字列>`**（実体は `.so` 側）。4 系統（`libecaljF`, `_mp`, `_gpu`, `_mp_gpu`）すべて |
 | **D3** | **`ls -la <tbin>/gwsc`** が symlink か実体コピーか |
-| **D4** | ラン開始直後にログの印（`promoted`, `loaded ZmloSig`, `MISS`, `mloON`）|
-
-今日はこの 4 点を怠って 3 回無駄にした（ソース未同期 / `FC` 取り違えでビルド失敗して古い `.so` が残留 / `tbin` が前日の実体コピー）。**3 回とも見た目は正常**だった。
+| **D4** | ラン開始直後と各反復の終わりにログの印を確認（`check_iter.sh`）。**期待値はメッシュと並列数に依存**（§12 Q9）|
+| **D5** | **図がどう描かれたかを必ず書く**: `sigm` 描画（`job_band`、`mloON=0`）か MLO バンド（`draw_mloband.sh`）か |
+| **D6** | **比較の基準の素性を確かめる**。`refbands211/` は `n666_nk6_from_lda`（`pwmode=1`）で、LDA 行だけ `pwmode=11` に差し替わっていた |
+| **D7** | 書き換えられる図を日付入りの記録に貼らない（凍結版を貼る）|
+| **D8** | `InstallAll.py --gemmul8` は上流 GEMMul8 のレイアウト変更で落ちる。`--gemmul8` 無しでも `libecaljF*.so` は同一。nvfortran の ICE は再試行で通る |
