@@ -12,7 +12,7 @@ set -u
 TAG=$1; NITER=$2; MLO=${3:-}
 S=/mnt/data1/LiTi2O4_kbt_runs
 TB=$S/tbin_frozen
-SRC=$S/liti_src
+SRC=${LITI_SRC:-$S/liti_src}   # override to run the same chain from a different ctrlg
 D=$S/$TAG; T=liti2o4
 rm -rf $D; mkdir -p $D/snap; cd $D
 cp $SRC/ctrlg.$T.toml $SRC/env.sh . 2>/dev/null
