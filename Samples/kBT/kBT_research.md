@@ -39,6 +39,38 @@
 **読み（08:50 版）**: 一発目（iter 1）だけ見れば MLO 76 は従来 MTO より弦ずれが小さい（23.5 vs 29.2）…
 → **09:05 に訂正。下記参照。**
 
+### 2026-09-25 14:45 kr5 を計算機として立ち上げた（一旦停止、再開できる状態）
+
+user が kr5 で GPU を使っているので、そこでも回せるようにした。**2026-09-25 14:45 時点で停止**。
+
+#### 導入したもの（すべて root 不要、`$HOME` 配下）
+
+| | 場所 | 備考 |
+|---|---|---|
+| NVIDIA HPC SDK 26.1 (CUDA 13.1) | `~/opt/nvhpc` | 6.4 GB の tarball を `NVHPC_SILENT=true NVHPC_INSTALL_TYPE=single ./install` |
+| cmake 3.31.6 | `~/opt/cmake-3.31.6-linux-x86_64` | 公式バイナリ（`python3-venv` が無く pip が使えない）|
+| MKL 2025.3 | `~/opt/intel/oneapi/mkl/2025.3` | **kt1 から rsync**（2.8 GB）。`SRC/CMakeLists.txt` が `-lmkl_rt` 固定のため |
+| libiomp5 | `~/opt/intel/lib` | kt1 の `compiler/2025.3/lib` から |
+| 環境 | `~/nvenv.sh` | PATH / LD_LIBRARY_PATH / LIBRARY_PATH / MKLROOT |
+| ecalj | `~/ecalj`（`SRC` と `InstallAll.py` のみ）| `sync_ecalj_src.sh` で配布。`.ecalj_rev` で刻印 |
+| LiTi₂O₄ 入力 | `~/liti/src`（76 軌道）、`~/liti/src154`（全 EH lm）| kt1 の `liti_src` から |
+| bin | `~/liti/bin` | 17 本すべて symlink |
+| ランナー | `~/liti/run_kr5.sh` | `-np 14 -np2 1`、GPU 1 枚、`SRCDIR` で入力切替 |
+
+素性: Ubuntu 24.04、16 コア / 30 GB、RTX 5090 32 GB、driver 595.84、`sudo` 不可。
+ビルドは `source ~/nvenv.sh; cd ~/ecalj; python3 InstallAll.py --fc nvfortran --gpu --bindir ~/bin`。
+最後に `Samples/TestInstall` が無くて `rc=1` になるが、**`.so` 4 本と実行ファイルは出来ている**
+（`Samples` は同期対象外）。
+
+#### 止まっている理由
+
+LDA は通った（$E_{\rm HF} = -109750.177649$ で kt1 と完全一致）が、`gwsc` 内の最初の
+`lmf`（`mpirun -np 14 ... --mlo --ctrlg:iter.b=0.05`）が 1 秒で落ちた。
+**同じディレクトリで `mpirun -np 2 lmf ... --mlo` を直接叩くと正常に収束する**ので、
+プロセス数か `gwsc` 内の環境の問題。未解決。
+
+（`env.sh` が kt1 のパスを持っていて `mpirun` を見失う件は、kr5 用に書き換えて解決済み。）
+
 ### 2026-09-25 13:50 修正版で iter 1 を取り直し。窓の変更は私のバグ、そして**初めて MLO 内挿を通したバンド**
 
 #### 窓の変更（`d6ceabead`）は撤回した
