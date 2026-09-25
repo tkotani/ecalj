@@ -67,7 +67,7 @@ contains
   end subroutine read_mloindex
 
   subroutine sigmlo_init()
-    use m_readqplist,only: readbandedge
+    use m_readqplist,only: set_bandedge
     use m_cmdopt_registry,only: c0_mlo
     integer :: ifs, nd2, ld2
     logical :: lex1, lex2
@@ -91,10 +91,7 @@ contains
     read(ifs) nqwgt
     allocate(ib_tableM(ndimMTO)); read(ifs) ib_tableM, ix
     close(ifs)
-    !Window for the k that are NOT in ZmloSig (band plots): it must be the window this
-    !iteration's chi~ was built with, i.e. the current one, not the LDA one frozen into
-    !HamRsMLO.  Only ix / ndimMTO / nskip stay frozen.
-    call readbandedge()               !eferm is already this run's; add the ecbot offset
+    call set_bandedge(eferm, ecbot)   !Hreduction reads these for the MLO window
     call zmlo_sig_load()              !the chi~ this SigRsMLO was written in
     sigmlo_on = .true.
     write(stdo,ftox)' m_sigmlo: MLO Sigma interpolation ON. ndimMTO nskip=',ndimMTO,nskip, &
