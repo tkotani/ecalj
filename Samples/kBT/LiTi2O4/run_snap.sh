@@ -59,12 +59,18 @@ for it in $(seq 1 $NITER); do
   ## the mesh points with a rebuilt one in between, and that mixture, not the method, is
   ## what made the 2026-09-25 band plots look rough.  --mlofreeze keeps HamRsMLO so the
   ## channel list stays the one SigRsMLO is a matrix over.
+  ## Two stages: job_band writes qplist.dat (the k path `mlo` reads; without it main_mlo
+  ## exits cleanly with an empty band file), then job_mlo solves the reduced problem.
+  ## job_band here runs WITHOUT --mlo on purpose: it is only making the path, and with
+  ## --mlo it would stop at the first band k outside ZmloSig, which is exactly the
+  ## mixture we are avoiding by not drawing in PMT space.
   ( cd $SD && source env.sh && export PATH=$TB:$PATH && CUDA_VISIBLE_DEVICES= \
-      $TB/job_mlo $T -np 8 --mlofreeze --mlo > lb.log 2>&1 )
-  BND=$(ls $SD/band_MLO_spin1.dat $SD/bnd001.spin1 2>/dev/null | head -1)
-  if [ -n "$BND" ]; then
-    cp $BND $D/bnd_iter$it.dat
-    say "   band ok (MLO space, in snap/iter$it; $(basename $BND)); snapshot $(du -sh $SD 2>/dev/null | cut -f1)"
+      $TB/job_band $T -np 8 NoGnuplot > lb_path.log 2>&1
+    CUDA_VISIBLE_DEVICES= $TB/job_mlo $T -np 8 --mlofreeze --mlo > lb.log 2>&1 )
+  if [ -s $SD/band_MLO_spin1.dat ]; then
+    cp $SD/band_MLO_spin1.dat $D/bnd_iter$it.dat
+    say "   band ok (MLO space, snap/iter$it, $(wc -l < $SD/band_MLO_spin1.dat) lines); snapshot $(du -sh $SD 2>/dev/null | cut -f1)"
+    [ -s $SD/bnd001.spin1 ] && cp $SD/bnd001.spin1 $D/bndPMT_iter$it.dat   # PMT band, conventional sigm, for reference
   else
     say "   BAND FAILED: $(tail -2 $SD/lb.log 2>/dev/null | tr '\n' ' ')"
   fi
