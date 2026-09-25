@@ -45,6 +45,8 @@ module m_sigmlo
   complex(8), allocatable :: zcache(:,:,:)
   logical :: nocache = .false., cfirst = .true.
   integer :: nzsig = 0                        !how many entries came from ZmloSig
+  integer :: nmiss = 0                        !k met that were NOT in ZmloSig
+  logical :: allowrb = .false., mfirst = .true.
 contains
   !> The MLO index lives in the trailing records of HamRsMLO (not in a __-prefixed
   !> file, which cleargw would delete).  Skip the four data records, then read it.
@@ -321,6 +323,24 @@ contains
       if(ic>0) then
         zm = zcache(1:ndimh,1:ndimMTO,ic)          !chi~ frozen: reuse
       else
+        !A MISS when ZmloSig was loaded means this k is outside the set that chi~ was
+        !built on when the current SigRsMLO was written.  Rebuilding here would read
+        !Sigma back in a DIFFERENT basis than it was written in -- the 2026-09-25 failure
+        !mode, and silent.  Count it and say so.  ECALJ_MLO_ALLOW_REBUILD=1 keeps the old
+        !behaviour (needed while the k set does not yet cover the band path).
+        if(nzsig>0) then
+          nmiss = nmiss + 1
+          if(mfirst) then
+            mfirst=.false.
+            call get_environment_variable('ECALJ_MLO_ALLOW_REBUILD',cv,status=st)
+            allowrb = (st==0 .and. len_trim(cv)>0)
+            write(stdo,ftox)' m_sigmlo: WARNING chi~ MISS at q=',ftof(qp),' isp ndimh=',isp,ndimh, &
+                 ' -- this k is not in ZmloSig; Sigma would be read in a rebuilt basis.', &
+                 ' allow_rebuild=',allowrb
+          endif
+          if(.not.allowrb) call rx('m_sigmlo: k outside ZmloSig. '// &
+               'Set ECALJ_MLO_ALLOW_REBUILD=1 to rebuild anyway (basis mismatch).')
+        endif
         block
           complex(8):: hl(ndimh,ndimh), ol(ndimh,ndimh)
           hl = hamm; ol = ovlm                     !Hreduction may modify its arguments

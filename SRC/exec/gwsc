@@ -91,6 +91,33 @@ if not _op.isfile(_ctrlg):
     raise SystemExit(2)
 print(f'gwsc: using {_ctrlg} (TOML mode)')
 
+## MLO route: the SCF mesh must lie inside the GW q list, or the final lmf meets a k
+## that step a' never built chi~ on, and Sigma gets read in a basis it was not written
+## in.  Measured on GaAs 2026-09-25: nkabc=4^3 against n1n2n3=2^3 makes the SCF hit
+## q=(0,0,0.5), which is not in the GW list; with both 2^3 there is no miss.  The Fortran
+## side cannot check this (the SCF k list is not built in the GW driver), so check here,
+## before anything runs.
+if "--mlo" in options:
+    def _mesh(sec, key):
+        try:
+            import tomllib
+            with open(f"ctrlg.{target}.toml", "rb") as fh:
+                return tomllib.load(fh).get(sec, {}).get(key)
+        except Exception:
+            return None
+    _nk, _n123 = _mesh("bz", "nkabc"), _mesh("gw", "n1n2n3")
+    _mlonk = _mesh("mlo", "mlo_nkabc")
+    if _nk and _n123 and list(_nk) != list(_n123):
+        raise SystemExit(
+            f"gwsc --mlo: nkabc {_nk} != n1n2n3 {_n123}.\n"
+            "  The MLO route needs the SCF mesh inside the GW q list: step a' builds chi~\n"
+            "  on the GW q only, so any other SCF k would read Sigma^MLO in a rebuilt\n"
+            "  basis.  Set nkabc = n1n2n3 (and mlo_nkabc = n1n2n3).")
+    if _mlonk and _n123 and list(_mlonk) != list(_n123):
+        raise SystemExit(f"gwsc --mlo: mlo_nkabc {_mlonk} != n1n2n3 {_n123}. Set them equal.")
+    print(f" gwsc: MLO k-mesh check OK. nkabc = n1n2n3 = mlo_nkabc = {_n123}")
+
+
 try:
     tmp=[int(s.strip('QPU.').strip('run')) for s in os.listdir() if 'QPU.' in s]
     Iter0=max(tmp) if len(tmp)!=0 else 0

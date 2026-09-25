@@ -399,6 +399,45 @@ contains
           allocate(zmlo_a(nbandmx,ndimMTO_a), cmlo_a(nbandmx,ndimMTO_a))
           lcmlo = .true.
           if(master_mpi) write(stdo,ftox)" sugw: a' active. ndimMTO mlomethod nskip=",ndimMTO_a,mlomethod_a,nskip_a
+          KCoverage: block !Every k that will later READ Sigma^MLO must be one that a'
+            !builds chi~ on here, or that k gets a chi~ made from a different H and the
+            !Sigma is read in the wrong basis (2026-09-25).  a' runs over the GW q list;
+            !the SCF runs over the nkabc irreducible mesh.  They coincide only when
+            !nkabc == n1n2n3.  Measured on GaAs: with nkabc=4^3 against n1n2n3=2^3 the SCF
+            !hits q=(0,0,0.5), which is not in the GW list; with both 2^3 there is no miss.
+            use m_mkqp,only: rv_p_oqp, bz_nkp
+            use m_qplist,only: qplist, nkp
+            integer:: ik, jq, nbad
+            logical:: found
+            nbad = 0
+            do ik = 1, bz_nkp
+              found = .false.
+              do jq = 1, nkp
+                if(sum(abs(qplist(1:3,jq)-rv_p_oqp(1:3,ik))) < 1d-8) then
+                  found = .true.; exit
+                endif
+              enddo
+              if(.not.found) then
+                nbad = nbad + 1
+                if(master_mpi .and. nbad<=3) write(stdo,ftox) &
+                     " sugw a': SCF k NOT in the GW q list:",ftof(rv_p_oqp(1:3,ik))
+              endif
+            enddo
+            if(nbad>0) then
+              if(master_mpi) write(stdo,ftox)" sugw a': ",nbad," of",bz_nkp, &
+                   " SCF k points are outside the GW q list."
+              call rx('sugw: the MLO route needs the SCF mesh inside the GW q list. '// &
+                   'Set nkabc = n1n2n3 (and mlo_nkabc = n1n2n3).')
+            endif
+            if(master_mpi) then
+              if(bz_nkp>0) then
+                write(stdo,ftox)" sugw a': k coverage OK. SCF k GWq=",bz_nkp,nkp
+              else
+                write(stdo,ftox)" sugw a': SCF k list not available here (bz_nkp=0);", &
+                     " coverage is checked by gwsc instead (nkabc vs n1n2n3)."
+              endif
+            endif
+          endblock KCoverage
         elseif(lex) then
           if(master_mpi) write(stdo,ftox)" sugw: HamRsMLO found but nspc=2 (SOC); a' skipped"
         endif
