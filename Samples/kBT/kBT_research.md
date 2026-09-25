@@ -15,46 +15,37 @@
 
 ## 最新の図（走行中のチェーンを映す。ここだけ上書きされる）
 
-**最終更新 2026-09-26 03:15**（v9 iter 10）／ 追っているのは **`liti_mlo_v9`**（nmlo 126、**$\Sigma^{\rm MLO}$ を β=0.5 で混合**、10 反復投入、00:00 開始、混合ファイル無しを検証したクリーンスタート）
+**最終更新 2026-09-26 04:50**（9³ iter 1）／ 追っているのは **`liti_mlo_k9`**（**9³**、nmlo 126、$\Sigma^{\rm MLO}$ を β=0.5 で混合、10 反復投入、03:07 開始）。
+6³ の v9 は 10 反復で完了し、最終図は 03:15 のエントリに凍結した。
 
 | 列 | 何を描いたか | 描き方 |
 |---|---|---|
-| 左 | 従来チェーン `liti_ref`（MTO、`pwmode=1`、`sigm` を β=0.5 混合）| `sigm` の内挿 |
-| 中 | v9 | **`sigm` の内挿**（`job_band`、`mloON=0`）。SCF が使った $\Sigma^{\rm MLO}$ ではない |
-| 右 | **v9 の MLO バンド** | **SCF が解いた $H$ の MLO 模型**（`draw_mloband.sh`、下記）|
+| 左 | `liti_mlo_k9` | 従来 `sigm` の内挿（`job_band`、`mloON=0`）。SCF が使った $\Sigma^{\rm MLO}$ ではない |
+| 右 | **`liti_mlo_k9` の MLO バンド** | SCF が解いた $H$ の MLO 模型（`draw_mloband.sh`）|
 
-**右列の作り方**（01:15 のエントリ）: スナップショットで `lmf --writeham --noinv --mlo` を回し、
-保存済みの χ̃（`ZmloSig`、MISS 0 を確認）で SCF と同じ $H = H_{\rm LDA}[\rho_N] + \mathrm{senex}(\Sigma^{\rm MLO}_N)$ を書き出す →
-`SigRsMLO` を退けて（二重計上しない）凍結なしの `mlo --mlo` で MLO 模型を作り、Γ→X で解く。
-**メッシュ点の間で z を作り直さない**ので、2 スロットの基底整合を壊さない。
+9³ には反復を揃えて比べられる従来チェーンが無いので、従来列は置いていない。
+点線は Γ→X 上の Σ メッシュ点 $x = 2n/9$（0, 2/9, 4/9, 6/9, 8/9。X 点は奇数メッシュに乗らない）。
 
-*図 L-1* t2g（b33–44）、Γ→X 211 点。反復が進むと下へ伸びる。**右列（オレンジ）でメッシュ点間のこぶが消えている**
+*図 L-1* t2g（b33–44）、Γ→X 211 点
 
-[![mlo_rows](LiTi2O4/mlo_rows.png)](LiTi2O4/mlo_rows.png)
+[![mlo_rows_k9](LiTi2O4/mlo_rows_k9.png)](LiTi2O4/mlo_rows_k9.png)
 
-`Samples/kBT/LiTi2O4/mlo_rows.png`
-（生成: `mlo_rows.py . out.png v9,v9mlo 'ラベル1,ラベル2' 'tab:purple,tab:orange'`。v9mlo/bnd_lda.dat は v9 の LDA をそのまま置いた）
+`Samples/kBT/LiTi2O4/mlo_rows_k9.png`（生成: `MESH=9 mlo_rows.py <root> <out> k9,k9mlo 'ラベル,ラベル' 'tab:purple,tab:orange' noref`）
 
-*図 L-2* 反復ごとのバンド変化。左 = max、右 = rms
+*図 L-2* 反復ごとの変化（左 max、右 rms）
 
-[![mlo_conv](LiTi2O4/mlo_conv.png)](LiTi2O4/mlo_conv.png)
+[![mlo_conv_k9](LiTi2O4/mlo_conv_k9.png)](LiTi2O4/mlo_conv_k9.png)
 
-`Samples/kBT/LiTi2O4/mlo_conv.png`（生成: `mlo_conv.py <root>`）
+`Samples/kBT/LiTi2O4/mlo_conv_k9.png`
 
-*表 L-1* 反復ごとのバンド変化 max / rms [meV]
+*表 L-1* 9³ の各反復
 
-| $N$ | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
-|---|---|---|---|---|---|---|---|---|---|---|
-| 従来 MTO max | 398 | 190 | 89 | 68 | 74 | 37 | 51 | 45 | 33 | 45 |
-| 従来 MTO rms | 241 | 97 | 35 | 23 | 13 | 6.7 | 6.7 | 6.6 | 4.7 | 6.5 |
-| MLO 126 無混合 max | 436 | 423 | 434 | | | | | | | |
-| MLO 126 無混合 rms | 260 | 100 | 123 | | | | | | | |
-| **MLO 126 β=0.5 max**（`sigm` 描画）| 389 | 192 | 106 | 70 | 70 | 43 | 14 | 9 | 10 | 8 |
-| **MLO 126 β=0.5 rms**（`sigm` 描画）| 233 | 91 | 31 | 19 | 16 | 11 | 3.8 | 2.0 | 2.3 | 2.1 |
-| **MLO 126 β=0.5 max（MLO バンド）** | — | 265 | 117 | 69 | 87 | 51 | 45 | 12 | 26 | 16 |
-| **MLO 126 β=0.5 rms（MLO バンド）** | — | 104 | 37 | 22 | 20 | 13 | 6.9 | 2.9 | 6.2 | 3.9 |
+| $N$ | 時刻 | 秒 | SCF 回数 | `sigm` 描画 max / rms | MLO バンド max / rms | 備考 |
+|---|---|---|---|---|---|---|
+| 1 | 04:39 | 5314 | 19 | 387 / 231（LDA から）| — | 混合 543.85 → 271.92（半分）、MISS 0 |
 
-（参考・凍結）nmlo 76 無混合: max 430/187/347/246/132/52/18/45、rms 258/59/154/90/45/18/5.2/18
+**9³ での正常値**（6³ と違うので注意）: `mloON` = **35**（= 既約 k 点数 `nqibz`、6³ は 16）、
+1 反復 ≈ 5300 秒（6³ は ≈ 950）、スナップショット 2.4 GB（6³ は 0.9）。`check_iter.sh` は `CHECK_MLOON=35 CHECK_MAXSECS=12000` で使う。
 
 ## 2026-09-25
 
