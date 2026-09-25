@@ -380,14 +380,21 @@ contains
         istat = openm(newunit=ifihh,file='__HamiltonianGW',recl=mrech)
       endblock PrepWriteHamiltonianGW
       PrepCmlo: block !design 4.2 a'
-        use m_readqplist,only: set_bandedge
+        use m_readqplist,only: set_bandedge, readbandedge
         use m_sigmlo,only: read_mloindex
         logical:: lex
         inquire(file='HamRsMLO',exist=lex) !the MLO index is in its trailing records
         lex = lex .and. c0_mlo             !opt-in only
         if(lex .and. nspc==1) then
           call read_mloindex(ndimMTO_a, ldim_a, mlomethod_a, nskip_a, ix_a, fff1_a, eferm_a, ecbot_a)
-          call set_bandedge(eferm_a, ecbot_a) !Hreduction reads these for the MLO window
+          !The channel list ix and ndimMTO must stay frozen -- SigRsMLO is a matrix over
+          !them.  The WINDOW must not: Hreduction compares this iteration's eigenvalues
+          !against eferm (nocc = count(evl < eferm)) and puts its floor at ecbot+delta.
+          !Feeding it the LDA eferm stored in HamRsMLO while evl are QSGW values counts
+          !the wrong states as occupied once the gap has opened.  So take eferm from the
+          !SCF this driver was called with, and the ecbot offset from efermi.lmf.
+          call set_bandedge(eferm, eferm)
+          call readbandedge()
           mrecbb_a = 2*nbandmx*ndimMTO_a*8
           istat = openm(newunit=ifcmlo,file='__cmlo.data',recl=mrecbb_a)
           allocate(zmlo_a(nbandmx,ndimMTO_a), cmlo_a(nbandmx,ndimMTO_a))
