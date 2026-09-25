@@ -132,12 +132,26 @@ contains
   !> there; every rank loads the whole set, which is a few MB.
   subroutine zmlo_sig_load()
     integer,parameter:: maxrank = 4096, gap_stop = 256
-    integer:: ifz, nd, nm, isp0, ios, n, ip, miss
+    integer:: ifz, nd, nm, isp0, ios, n, ip, miss, st
     real(8):: q0(3)
     complex(8),allocatable:: z0(:,:)
     logical:: lex
     character(256):: fn
+    character(32):: cv
     if(nocache) return
+    !ECALJ_MLO_NOSIG=1: ignore the slot and rebuild chi~ at every k from the H in hand.
+    !On the Sigma q mesh the slot is the right thing -- it is the basis Sigma was written
+    !in.  A BAND PLOT is different: its k are not on that mesh, so the slot can only cover
+    !some of them and chi~ then comes from the stored H at the mesh points and from the
+    !band run's H between them.  Mixing the two is worse than being uniformly a little
+    !off: measured on LiTi2O4 iteration 1, chord/width was 11.6 % rebuilding everywhere
+    !against 18.4 % mixed.  Set this for band plots; leave it unset for the chain, where
+    !nkabc = n1n2n3 puts every k on the mesh and the slot is uniform.
+    call get_environment_variable('ECALJ_MLO_NOSIG',cv,status=st)
+    if(st==0 .and. len_trim(cv)>0) then
+      write(stdo,ftox)' m_sigmlo: ECALJ_MLO_NOSIG -> ZmloSig ignored, chi~ rebuilt at every k'
+      return
+    endif
     n=0; miss=0
     do ip = 0, maxrank-1
       write(fn,"('ZmloSig.',i0)") ip
