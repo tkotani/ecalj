@@ -67,7 +67,7 @@ MTO ブロックのみ（`ndimsig = nlmto`、APW は入らない）で、しか�
 
 | # | 実行 | $\tilde\chi$ に関して何が起きるか |
 |---|---|---|
-| ① | **`lmf --jobgw=1`**（`sugw`） | |
+| ① | **`lmf --jobgw=1`**（[sugw.f90](SRC/subroutines/sugw.f90)） | |
 | | ├ 各 $q$ で $H^{\rm LDA}(q)$, $S(q)$ を作る | |
 | | ├ **`getsenex`**: `SigRsMLO`（$=\Sigma_{n-1}$）を読む | **`ZmloSig` の $z_{n-1}$ を使う**。$\Sigma_{n-1}$ はこの基底で書かれたので、これでしか正しく戻せない |
 | | ├ 対角化 → $\psi$（GW に渡る波動関数） | |
@@ -85,13 +85,13 @@ MTO ブロックのみ（`ndimsig = nlmto`、APW は入らない）で、しか�
 ### ⑦の注意 — 2 つとも今日ハマった
 
 **(1) `--mlo` を必ず渡す。** `job_band` は `parse_known_args()` で残りの引数をそのまま `lmf` に
-渡します（`SRC/exec/job_band`:91,93）。`--mlo` が無いと `c0_mlo` が偽になり、`sigmlo_init` は
+渡します（[job_band:91,93](SRC/exec/job_band#L91-L93)）。`--mlo` が無いと `c0_mlo` が偽になり、`sigmlo_init` は
 冒頭の `if(.not.c0_mlo) return` で即座に戻ります。**MLO 経路は完全に無効**になり、`getsenex` は
 従来の `sigm` を使う。`hqpe_sc` は `sigm` と `__SigmMLO.q` を並行して書くので `sigm` は常に
 存在し、**黙って従来内挿のバンドが描かれます**。今日の図はすべてこれでした。
 
 **(2) 連鎖ディレクトリの中で走らせない。** `job_band` の第 1 段は `lmf --quit=band` で、
-これは **`efermi.lmf` を書き換えます**（`m_bndfp.f90`:274）。MLO の窓は `efermi.lmf` から
+これは **`efermi.lmf` を書き換えます**（[m_bndfp.f90:274](SRC/subroutines/m_bndfp.f90#L274)）。MLO の窓は `efermi.lmf` から
 `ecbot` オフセットを読むので、連鎖ディレクトリで描くと窓の基準が動きます。
 `snap/iter<N>/` を掘って状態一式を置き、その中で走らせる。**そのままスナップショットになります。**
 
@@ -109,16 +109,16 @@ $\tilde\chi$ は、これから $\Sigma$ を表現する相手のハミルトニ
 | 2 以降 | $H = H^{\rm LDA} + \mathrm{senex}(\Sigma_{n-1})$ |
 
 コード上は `zhev_tk4` が `hamm` を破壊するため、senex を足した直後の $H$ を `hamm_qsgw` に
-退避して a' で使います（`sugw.f90`）。2 スロット化しているので、`getsenex` 側は `ZmloSig` を
+退避して a' で使います（[sugw.f90](SRC/subroutines/sugw.f90)）。2 スロット化しているので、`getsenex` 側は `ZmloSig` を
 読むだけであり、a' がどの $H$ を使っても読み戻しは壊れません。
 
-**これは標準の MLO 手法と同じです。** `m_bandcal.f90` では
+**これは標準の MLO 手法と同じです。** [m_bandcal.f90](SRC/subroutines/m_bandcal.f90) では
 
 | 行 | 処理 |
 |---|---|
-| 207 | `hambl` → $H^{\rm LDA}$ |
-| 210–211 | `sigmamode` なら `getsenex` → **`hamm = hamm + senex`** |
-| 221〜 | `if(writeham)` → **`__HamiltonianPMT` に書く** |
+| [207](SRC/subroutines/m_bandcal.f90#L207) | `hambl` → $H^{\rm LDA}$ |
+| [210–211](SRC/subroutines/m_bandcal.f90#L210-L211) | `sigmamode` なら `getsenex` → **`hamm = hamm + senex`** |
+| [221〜](SRC/subroutines/m_bandcal.f90#L221) | `if(writeham)` → **`__HamiltonianPMT` に書く** |
 
 の順で、**`__HamiltonianPMT` には senex を足した後の QSGW ハミルトニアンが入ります**。
 `mlo` はこれを読んで `HamRsMLO` を作るので、Si の QSGW バンドなどで使っている標準の MLO は
@@ -168,8 +168,8 @@ $\Sigma$ は**書かれた基底以外で読み戻されることが無い**。�
 
 | ファイル | 中身 |
 |---|---|
-| `ZmloSig.<procid>` | 現行 `SigRsMLO` が書かれた $\tilde\chi$。`getsenex` が読む。追記しない |
-| `ZmloNew.<procid>` | 段 a' がこの反復の $H$ から作った $\tilde\chi$。⑤で `ZmloSig.*` に rename |
+| `ZmloSig.<procid>` | 現行 `SigRsMLO` が書かれた $\tilde\chi$。[m_sigmlo.f90 `zmlo_sig_load`](SRC/subroutines/m_sigmlo.f90) が読む。追記しない |
+| `ZmloNew.<procid>` | 段 a' がこの反復の $H$ から作った $\tilde\chi$（[m_sigmlo.f90 `zmlo_new_append`](SRC/subroutines/m_sigmlo.f90)）。⑤で [gwsc](SRC/exec/gwsc) が rename |
 
 ランクごとのファイルなのは、段 a' が MPI で $q$ を分担するのと、
 `pwmode=11` で `ndimh` が $q$ ごとに変わり固定レコード長が使えないためです。
