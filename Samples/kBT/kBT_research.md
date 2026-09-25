@@ -36,6 +36,18 @@ v7 の iter 1 が 22:48 に出た（`secs=1030`、`cmlo_init: nmlo nbandmx nband
 
 `Samples/kBT/LiTi2O4/mlo_conv.png`（生成: `LiTi2O4/mlo_conv.py`）
 
+**比較の前提（図のキャプションにも入れた）**
+
+| | 従来 MTO | MLO 76 / MLO 126 |
+|---|---|---|
+| APW 打ち切り | `pwmode=1`（$\vert G\vert$）| `pwmode=11`（$\vert q+G\vert$）|
+| $\Sigma$ の減衰 | `sigm` を Anderson 混合（`[gw] mixbeta = 0.5`）| **$\Sigma^{\rm MLO}$ は無混合**（実効 $\beta=1$）|
+| 描画 | 両方とも `mloON=0`、従来 `sigm` 内挿 | 同左 |
+
+MLO 経路で `lmf` が読むのは `SigRsMLO` であって `sigm` ではないので、混合が効くのは従来列だけ。
+これは §21:35 の判断（混合は入れない）による意図的な差で、**バグではない**。
+ただし序盤の反復を比べるときは「減衰あり vs 減衰なし」を見ていることを忘れないこと。
+
 **形状の読み — 荒れが $E_F$ をまたいで反対側へ移った**
 
 | | 上側バンド（$E\simeq0.8$–1.0 eV）| 最下バンド（占有、$E\simeq-0.7\to0$）|
