@@ -12,7 +12,7 @@ module m_sigmlo
   use m_lgunit,only: stdo
   use m_ftox
   implicit none
-  public :: sigmlo_init, sigmlo_senex, sigmlo_on, read_mloindex, zmlo_frozen
+  public :: sigmlo_init, sigmlo_senex, sigmlo_on, read_mloindex, zmlo_frozen, zmlo_store
   logical, protected :: sigmlo_on = .false.
   private
   integer :: ndimMTO=0, npairmx=0, nspx=0, nbas=0, mlomethod=4, nskip=0
@@ -20,11 +20,17 @@ module m_sigmlo
   real(8) :: plat(3,3), fff1=2d0, eferm=0d0, ecbot=0d0
   complex(8), allocatable :: sigmlor(:,:,:,:)   !(npairmx, ndimMTO, ndimMTO, nspx)
   logical :: init = .true.
-  !--- chi~ cache.  Sigma^MLO(R) is a matrix IN the chi~ basis, so chi~ must not move
-  !    while that matrix is being used.  Rebuilding z^MLO from the current H^LDA at every
-  !    SCF step makes it move (NiO: 1.4-1.9 % between the LDA and the QSGW density), and
-  !    Sigma then gets re-read in a rotating basis.  Cache per (q,isp) and reuse.
-  !    ECALJ_MLO_NOCACHE=1 restores the old per-call rebuild.
+  !--- chi~ cache, PROCESS LOCAL.  Sigma^MLO(R) is a matrix IN the chi~ basis, so chi~
+  !    must not move while that matrix is being used.  Rebuilding z^MLO from the current
+  !    H^LDA at every SCF step makes it move and Sigma gets re-read in a rotating basis.
+  !    So z^MLO is built once per (q,isp,ndimh) per lmf run and reused for the rest of
+  !    that run -- the whole SCF loop, sugw's step a' and the band plot then share one
+  !    chi~.  It is NOT persisted: the next lmf rebuilds it from the H it is given, which
+  !    is what the design asks for (eq 17).  Persisting it across the chain was tried and
+  !    is wrong: the energy window that defines chi~ then stays pinned to the band
+  !    positions of the iteration that happened to create each entry, and entries created
+  !    at different iterations do not even form one snapshot.
+  !    ECALJ_MLO_NOCACHE=1 restores the per-call rebuild.
   integer :: nzc = 0
   real(8), allocatable :: qzc(:,:)
   integer, allocatable :: ispzc(:), ndzc(:)   !ndzc: the ndimh each entry was built with.
@@ -79,7 +85,6 @@ contains
     allocate(ib_tableM(ndimMTO)); read(ifs) ib_tableM, ix
     close(ifs)
     call set_bandedge(eferm, ecbot)   !Hreduction reads these for the MLO window
-    call zmlo_ref_load()
     sigmlo_on = .true.
     write(stdo,ftox)' m_sigmlo: MLO Sigma interpolation ON. ndimMTO nskip=',ndimMTO,nskip, &
          ' |Sigma(R)|=',ftof(sum(abs(sigmlor)))
@@ -103,55 +108,16 @@ contains
     enddo
   end subroutine zmlo_frozen
 
-  !> ZmloRef: chi~ persisted across the whole chain.  The SCF k mesh and the GW q list are
-  !> the same at every iteration, so storing z^MLO for the k we meet freezes chi~ exactly
-  !> (design 4.1).  No __ prefix: cleargw must not delete it.  Delete it by hand to
-  !> redefine the model.  ECALJ_MLO_NOCACHE=1 disables both the cache and this file.
-  subroutine zmlo_ref_load()
-    integer:: ifz, nd, nm, isp0, ios, n
-    real(8):: q0(3)
-    complex(8),allocatable:: z0(:,:)
-    logical:: lex
-    inquire(file='ZmloRef',exist=lex)
-    if(.not.lex) return
-    open(newunit=ifz,file='ZmloRef',form='unformatted',status='old',action='read')
-    read(ifz,iostat=ios) nd
-    if(ios/=0 .or. nd/=ndimMTO) then
-      close(ifz)
-      if(nd/=ndimMTO) write(stdo,ftox)' m_sigmlo: ZmloRef has ndimMTO=',nd,' /= ',ndimMTO,' -> ignored'
-      return
-    endif
-    n=0
-    do
-      read(ifz,iostat=ios) q0, isp0, nm
-      if(ios/=0) exit
-      allocate(z0(nm,ndimMTO))
-      read(ifz,iostat=ios) z0
-      if(ios/=0) then; deallocate(z0); exit; endif
-      call cache_put(q0, isp0, nm, z0)
-      deallocate(z0); n=n+1
-    enddo
-    close(ifz)
-    write(stdo,ftox)' m_sigmlo: loaded ZmloRef (frozen chi~), records=',n
-  end subroutine zmlo_ref_load
-
-  subroutine zmlo_ref_append(q0, isp0, nm, z0)
+  !> Put a z^MLO built elsewhere (sugw's step a') into the same process-local cache,
+  !> so that a' and getsenex are guaranteed to use one chi~ inside one lmf run.
+  subroutine zmlo_store(q0, isp0, nm, z0)
     real(8),intent(in):: q0(3)
     integer,intent(in):: isp0, nm
     complex(8),intent(in):: z0(nm,ndimMTO)
-    integer:: ifz
-    logical:: lex
-    inquire(file='ZmloRef',exist=lex)
-    if(lex) then
-      open(newunit=ifz,file='ZmloRef',form='unformatted',position='append')
-    else
-      open(newunit=ifz,file='ZmloRef',form='unformatted')
-      write(ifz) ndimMTO
-    endif
-    write(ifz) q0, isp0, nm
-    write(ifz) z0
-    close(ifz)
-  end subroutine zmlo_ref_append
+    if(nocache) return
+    call cache_put(q0, isp0, nm, z0)
+  end subroutine zmlo_store
+
 
   subroutine cache_put(q0, isp0, nm, z0)
     real(8),intent(in):: q0(3)
@@ -266,10 +232,7 @@ contains
           call Hreduction(mlomethod,.false.,ndimh, hl, ol, ndimMTO, ix, fff1, &
                hmo, omo, qp, nev=nxq, zMLO=zm, nskip_auto=nskip)
         endblock
-        if(.not.nocache) then
-          call cache_put(qp, isp, ndimh, zm)
-          call zmlo_ref_append(qp, isp, ndimh, zm)   !keep chi~ for the whole chain
-        endif
+        if(.not.nocache) call cache_put(qp, isp, ndimh, zm)   !one chi~ for this lmf run
       endif
     endblock ChiTildeCache
     ZmloDump: block !ECALJ_ZMLO_DUMP=1: write z^MLO(k) so it can be compared with the one

@@ -154,13 +154,17 @@ run_cmd(cluster, MPIParams(command=EXEC_DIR/"qg4gw", args=[target, "--job=1", *o
 ##                       an aborted run once made `mlo` read past EOF.
 ##   __cmlo.*          : written by step a' each iteration.
 ##   __SigmMLO.q       : written by hqpe_sc and consumed by mlo, inside one iteration.
+##   ZmloRef           : dead file from the 2026-09-25 experiment that persisted chi~
+##                       across the chain.  Nothing reads it any more (z^MLO is rebuilt
+##                       from the H it is applied to, cached only within one lmf run);
+##                       remove it so an old one cannot mislead.
 ## Do NOT touch SigRsMLO / HamRsMLO.  A chain is driven by
 ## repeated `gwsc 1` calls, and SigRsMLO from the previous iteration is what makes
 ## lmf --jobgw=1 use the MLO route at all; deleting it silently turns the GW input
 ## back into the conventional sigm and the chain is no longer a MLO-QSGW.
 if "--mlo" in options:
     remove_files('__cmlo.data', '__cmlo.info', '__SigmMLO.q',
-                 '__HamiltonianGW', '__HamiltonianGW.info')
+                 '__HamiltonianGW', '__HamiltonianGW.info', 'ZmloRef')
 
 ## MLO route (Samples/kBT/sigma_mlo_design.md 4.1): steps 0c/0d, ONCE per chain.
 ##   lmf --writeham --mlo -> HamiltonianPMTInfo
