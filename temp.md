@@ -519,3 +519,93 @@ $$\mathrm{senex}_{mn}(k)=\langle\chi^{\rm PMT}_m|\hat P\hat\Sigma\hat P|\chi^{\r
 
 $K_{\rm band}$ ぶんの `Hreduction` が増える。1 k あたり PMT の対角化 1 回（$O(n_{\rm dimh}^3)$）。
 211 点の経路なら GW ドライバの実行時間に数分乗る程度で、GW 諸段に比べれば小さい。
+
+---
+
+# 9. Q&A
+
+## Q1. §8.4.1 の $O^{-1}$ は「部分空間の逆」か「PMT 空間の逆」か。どちらがよいか
+
+**候補は 2 つ。**
+
+| | 形 | 次元 |
+|---|---|---|
+| **(a) 部分空間の逆**（現実装）| $O^{\rm MLO}=\langle\tilde\chi|\tilde\chi\rangle=z^\dagger S z$、$\hat P=|\tilde\chi\rangle (O^{\rm MLO})^{-1}\langle\tilde\chi|$ | $n_{\rm MLO}\times n_{\rm MLO}$ |
+| **(b) PMT 空間の逆** | $S^{-1}$ を使う形 | $n_{\rm dimh}\times n_{\rm dimh}$ |
+
+**MLO については (a) しかない。** 理由は 2 つ。
+
+1. $\tilde\chi_\alpha$ は **PMT 基底関数そのものではなく線型結合**である。
+   従来の MTO 経路では部分空間が PMT の**部分ブロック**なので「$S$ の小行列を逆にする」ことに
+   意味があり、実際 [getsenex](SRC/subroutines/rdsigm2.f90#L67) は `ovlm(1:ndimsig,1:ndimsig)` を
+   逆にしている。**MLO には逆にすべき小行列が存在しない。**
+2. $S$ を計量とする非直交基底で $\hat P^2=\hat P$ を満たす射影子は
+   $|\tilde\chi\rangle O^{-1}\langle\tilde\chi|$ に**一意に決まる**。
+   $S^{-1}$ を使う形は、$\Sigma^{\rm MLO}$（$n_{\rm MLO}^2$ 個の拘束）から
+   PMT 係数 $\sigma$（$n_{\rm dimh}^2$ 個）を決めることになり**劣決定**で、
+   最小性条件を課すと結局 (a) に戻る。
+
+**未確認の点（正直に）**: 従来経路で `hqpe_sc` が書く `sene` の規約。
+[main_hqpe.sc.f90](SRC/subroutines/main_hqpe.sc.f90) は**擬似逆**
+$\psi^+=(\psi^\dagger\psi)^{-1}\psi^\dagger$ で挟み、`getsenex` 側は **$S_{\rm sub}^{-1}$** で挟み返す。
+この 2 つが整合して $\langle\chi|\hat\Sigma|\chi\rangle$ を再現するのか、代数的に追い切れていない
+（オンサイトが 73.8 eV という大きさは、行列要素そのものではなく双対側の量であることを示唆する）。
+
+**数値で決着できる**: `ECALJ_SIGMLO_CHECK=1` は各 q で MLO 版と MTO 版の `senex` を直接比較する。
+規約が食い違っていれば**系統的な因子**として現れる。
+2026-09-25 に走らせたときは「全 q で一様に 13〜23 %」だったが、
+あれは基底不整合のあるバイナリでの測定なので、**新方式で測り直す**（§8.6 の検証項目に追加）。
+
+## Q2. なぜ従来法にはこの面倒が無いのか
+
+引き上げ行列 $A$ が**その場の重なり行列の切り出し**だから。
+従来の部分空間は PMT 基底の部分ブロックそのものなので $A=S^{\rm (full,sub)}$ であり、
+保存すべきものが何も無い。MLO は $A=S^{\rm PMT}(k)\,z^{\rm MLO}(k)$ で、
+$z$ が **$k$ 依存かつ $H$ 依存**である。ここが構造的な非対称。
+
+## Q3. $z^{\rm MLO}$ を実空間に落として内挿すればよいのでは
+
+**できない。** $z^{\rm MLO}$ の入った行列は **PMT 基底の行**を持ち、
+PMT のうち q 周期的なのは MTO 部分だけで **APW 部分は q 周期的でない**
+（`pwmode=11` は $|q+G|$ カットなので G の集合自体が q で変わる）。
+行が $k$ ごとに別の関数を指すので実空間に落とせない。
+同じ理由で $H^{\rm PMT}(R)$ を保存して $H^{\rm PMT}(k)$ を再構成する道も無く、
+**$H^{\rm PMT}(k)$ はその密度で実際にハミルトニアンを組む以外に入手できない**。
+→ だから §8 の方式（読む $k$ を全部先に回しておく）になる。
+
+## Q4. 1 反復で MLO を何回作っているのか
+
+**3 箇所**（2026-09-25 現在）。
+
+| 場所 | メッシュ上の $q$ | メッシュ外の $k$ |
+|---|---|---|
+| `getsenex`（読む側）| `ZmloSig` から再利用 | **その場の $H(k)$ から作り直し** ← 新方式で禁止する |
+| `sugw` 段 a'（書く側）| 毎回作り直し（意図的）| — |
+| `mlo --mlofreeze --mlo` | 毎回作り直し。しかも **`__HamiltonianPMT` = 段 0c の LDA の $H$** から | — |
+
+3 番目は `--mlofreeze` で `HamRsMLO` を書き直さないため、
+**連鎖の最初の LDA ハミルトニアン**から毎回作り直している。
+$\Sigma$ の対称化・回転・FFT は索引レベルの操作なので $\Sigma$ 自体は汚していないと思われるが、
+**未確認**。新方式では確認する。
+
+## Q5. 窓 $\bar\theta$ を広げれば $\Sigma(R)$ は短距離になるか
+
+**ならない。** 2026-09-25 に「窓が狭いのでは」と書いたが撤回した。
+
+- `mlomethod=4` では第 1 項が恒等的に 0（[`efrz = -1d99`](SRC/subroutines/m_hreduction.f90#L246)、
+  「active only for mlomethod=3」）。効くのは第 2 項だけ。
+- 第 2 項の位置は $\varepsilon^{\rm cut}_j=\max(\varepsilon_{\rm cbot}+\Delta,\ \varepsilon^{\rm MTO}_j)$。
+  MTO のみの固有値は PMT のそれより上にあるので通常は $\varepsilon^{\rm MTO}_j$ が選ばれ、
+  引数は $(\varepsilon^{\rm PMT}_i-\varepsilon^{\rm MTO}_j)/w$ という**バンド差**になって $k$ について滑らか。
+- 幅も狭くない。LiTi₂O₄ は `mlo_w = 2.0` eV、`mlo_delta = 2.0` eV。
+
+$\hat P(k)$ の $k$ 依存性は窓ではなく、
+**固有ベクトル $|\Psi^{\rm PMT}_i(k)\rangle\langle\Psi^{\rm PMT}_i(k)|$ 自体が $k$ で回ること**から来る。
+
+## Q6. $\tilde\chi$ にゲージ（位相）の任意性は入らないか
+
+**入らない。** [m_hreduction.f90:322](SRC/subroutines/m_hreduction.f90#L322) で
+$|F^{\rm MLO}_k\rangle=\hat P\,|F^{\rm MTO}_k\rangle$ の形になっており、
+$\Psi^{\rm MTO}_j$ も $\Psi^{\rm PMT}_i$ も $|\Psi\rangle\langle\Psi|$ の形でしか現れないので
+対角化の任意位相は相殺する。種は**裸の MTO 基底関数** $\chi^{\rm MTO}_k$（$k$ 非依存の実空間関数の
+ブロッホ和）。
