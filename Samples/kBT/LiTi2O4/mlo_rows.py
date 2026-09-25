@@ -11,7 +11,8 @@ ROOT, OUT = sys.argv[1], sys.argv[2]
 # argv[3] and argv[4] are comma-separated: one MLO chain per column, left to right
 MLODIR = (sys.argv[3] if len(sys.argv) > 3 else 'frozen').split(',')
 MLOLAB = (sys.argv[4] if len(sys.argv) > 4 else 'MLO-QSGW').split(',')
-MLOCOL = ['tab:green', 'tab:red', 'tab:purple', 'tab:orange']
+MLOCOL = (sys.argv[5].split(',') if len(sys.argv) > 5
+          else ['tab:green', 'tab:red', 'tab:purple', 'tab:orange'])
 COLS = [('conventional QSGW (MTO), pwmode=1', f'{ROOT}/ref', 'tab:blue')] + \
        [(MLOLAB[i] if i < len(MLOLAB) else d, f'{ROOT}/{d}', MLOCOL[i % len(MLOCOL)])
         for i, d in enumerate(MLODIR)]
@@ -55,9 +56,8 @@ for a in AX[-1]: a.set_xlabel('$\\Gamma \\to X$')
 stamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
 fig.suptitle('LiTi$_2$O$_4$  6$^3$ (nkabc = n1n2n3 = 6$^3$)   t$_{2g}$ (b33-44) along $\\Gamma\\to X$, 211 points\n'
              'dotted = $\\Sigma$ q-mesh points (interpolation is exact there)\n'
-             'CAUTION 1: different APW cutoffs - MTO chain pwmode=1 (|G|), MLO chains pwmode=11 (|q+G|)\n'
-             'CAUTION 2: different damping - the MTO chain Anderson-mixes sigm ([gw] mixbeta=0.5),\n'
-             'the MLO chains do not mix Sigma^MLO at all (effective beta=1)\n'
+             'CAUTION: different APW cutoffs - MTO chain pwmode=1 (|G|), MLO chains pwmode=11 (|q+G|).\n'
+             'Each column states its own damping; the MTO chain always Anderson-mixes sigm at [gw] mixbeta\n'
              f'generated {stamp}', fontsize=10.5)
 plt.tight_layout(rect=[0, 0, 1, 1 - 0.95/(2.5*n + 1.0)])
 plt.savefig(OUT, dpi=115)
