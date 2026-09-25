@@ -408,7 +408,7 @@ GW ドライバ状態の 3 通り）で行う。
 |---|---|
 | **I1** | $\Sigma^{\rm MLO}_n$ は**必ず $z_n$ で読み戻す**。読む $k$ が何であっても例外を作らない |
 | **I2** | $z_n$ は**$\Sigma_n$ を作ったハミルトニアン**から作る（反復 $n$ 開始時点の $H$）|
-| **I3** | **内挿するのは $\Sigma^{\rm MLO}(R)$ だけ**。$\langle\chi^{\rm PMT}|\tilde\chi\rangle$ は内挿しない（APW 行が q 周期的でないため不可能）|
+| **I3** | **内挿するのは $\Sigma^{\rm MLO}(R)$ だけ**。$\langle\chi^{\rm PMT}\vert \tilde\chi\rangle$ は内挿しない（APW 行が q 周期的でないため不可能）|
 | **I4** | MLO **索引**（`ix`, `ndimMTO`）は連鎖を通じて固定。$\Sigma^{\rm MLO}$ がそのチャネル上の行列だから |
 
 I1 と I2 を両立させるために、$z$ を**後で読む全ての $k$** で先に作っておく。これが新方式の核心。
@@ -501,7 +501,7 @@ $$\mathrm{senex}_{mn}(k)=\langle\chi^{\rm PMT}_m|\hat P\hat\Sigma\hat P|\chi^{\r
 |---|---|
 | `llmfgw01` / `llmf` / `llmf_band` の「作り直し」回数 | **0**（1 回でも出たら $K$ の列挙漏れ）|
 | `gwsc: promoted N ZmloNew.* -> ZmloSig.*` | 毎反復 |
-| `loaded ZmloSig ... records=` | 各実行で $|K|$ 相当 |
+| `loaded ZmloSig ... records=` | 各実行で $\vert K\vert $ 相当 |
 | `ECALJ_ZMLO_DUMP` | a' と `getsenex` の $z$ が一致 |
 | `ECALJ_SIGMLO_RT` | $\Sigma^{\rm MLO}(q)\to R\to q$ の往復誤差 |
 
@@ -530,7 +530,7 @@ $K_{\rm band}$ ぶんの `Hreduction` が増える。1 k あたり PMT の対角
 
 | | 形 | 次元 |
 |---|---|---|
-| **(a) 部分空間の逆**（現実装）| $O^{\rm MLO}=\langle\tilde\chi|\tilde\chi\rangle=z^\dagger S z$、$\hat P=|\tilde\chi\rangle (O^{\rm MLO})^{-1}\langle\tilde\chi|$ | $n_{\rm MLO}\times n_{\rm MLO}$ |
+| **(a) 部分空間の逆**（現実装）| $O^{\rm MLO}=\langle\tilde\chi\vert \tilde\chi\rangle=z^\dagger S z$、$\hat P=\vert \tilde\chi\rangle (O^{\rm MLO})^{-1}\langle\tilde\chi\vert $ | $n_{\rm MLO}\times n_{\rm MLO}$ |
 | **(b) PMT 空間の逆** | $S^{-1}$ を使う形 | $n_{\rm dimh}\times n_{\rm dimh}$ |
 
 **MLO については (a) しかない。** 理由は 2 つ。

@@ -237,7 +237,7 @@ $z^{\rm MLO}$、すなわち **PMT → MLO の展開係数行列**。`Hreduction
 | $\chi^{\rm PMT}_m$ 自体（MT 内の $\phi,\dot\phi$）| 密度とともに変わる |
 | $S^{\rm PMT}(q)$ | 毎回その時点のもの（`amat = matmul(ovlm, zm)`）|
 | $O^{\rm MLO}=z^\dagger S z$ | 毎回作り直し |
-| $c^{\rm MLO}=\langle\psi|\tilde\chi\rangle$ | 毎回作り直し（意図どおり。χ̃ 固定、$\psi$ が動く）|
+| $c^{\rm MLO}=\langle\psi\vert \tilde\chi\rangle$ | 毎回作り直し（意図どおり。χ̃ 固定、$\psi$ が動く）|
 
 **したがって厳密には「係数が固定」であって「関数 $\tilde\chi$ が固定」ではない。**
 基底関数 $\chi^{\rm PMT}$ が自己無撞着な密度に追随するぶん、$\tilde\chi$ は関数としてわずかに動く。
@@ -1033,7 +1033,7 @@ user「たぶん線形独立性の低い自由度がふらついている」。�
 | オフサイトだけゼロ | `ECALJ_SIG_1RAD=2` | **638 / Inf** | — | — |
 | Σ ブロックを丸ごとゼロ（不整合、$O^{-1}$ は 230 のまま） | `ECALJ_SIG_EHONLY=2` | 66 / 0.2385 | **平均 292、max 635 meV** | 5.24（改善するが値が壊れる） |
 | 同上、EH2 全部 | `ECALJ_SIG_EHONLY=-1` | **638 / Inf** | — | — |
-| **部分空間から除外**（整合、$\Sigma_{\rm sub}, O_{\rm sub}, \langle{\rm sub}|{\rm PMT}\rangle$ すべて 210） | `ECALJ_SIG_DROPL=2` | 66 / 0.2927 | 平均 113、max 211 meV | **9.48（改善せず）** |
+| **部分空間から除外**（整合、$\Sigma_{\rm sub}, O_{\rm sub}, \langle{\rm sub}\vert {\rm PMT}\rangle$ すべて 210） | `ECALJ_SIG_DROPL=2` | 66 / 0.2927 | 平均 113、max 211 meV | **9.48（改善せず）** |
 
 [![Sigma dropl test](LiTi2O4/plots/sigma_dropl_test.png)](LiTi2O4/plots/sigma_dropl_test.png)
 *図 13:53-1*  左 = 従来（230）/ 中 = `DROPL=2`（整合した部分空間縮小、210）/ 右 = `EHONLY=2`（不整合）
@@ -2563,7 +2563,7 @@ Drude（帯内）とそれ以外を**バンドで**分けるほうが明快。�
 *表 00:10-9*
 | キー | 既定 | 意味 |
 |---|---|---|
-| `chi0_filterw = [wc, dw]`（eV） | off | dpsion5 の Hilbert 変換の前に $\mathrm{Im}\chi_0(\omega)\to f_c(\omega)\,\mathrm{Im}\chi_0(\omega)$、$f_c=1/(1+e^{(w_c-|\omega|)/d_w})$。$w_c$ 以下の遷移を落とす。実軸の Re χ₀ と χ₀(iω) は同じ Im から作られるので W は整合したまま |
+| `chi0_filterw = [wc, dw]`（eV） | off | dpsion5 の Hilbert 変換の前に $\mathrm{Im}\chi_0(\omega)\to f_c(\omega)\,\mathrm{Im}\chi_0(\omega)$、$f_c=1/(1+e^{(w_c-\vert \omega\vert )/d_w})$。$w_c$ 以下の遷移を落とす。実軸の Re χ₀ と χ₀(iω) は同じ Im から作られるので W は整合したまま |
 | `chi0_filterw_drude` | true | `chi0_filterw` の付属。true: 帯内（E_F を横切る同じバンドの占有部→非占有部）の遷移は**フィルタから外して残す**（Drude 重み・静的金属遮蔽を保持）。false: 帯内にもフィルタを掛ける（2 eV 以下は Drude ごと落ちる）。フィルタ無しでは無意味 |
 
 帯内の判定は誘電関数の `--intrabandonly` / `--interbandonly` と同じ（tetwt5.f90: 四面体の 4 頂点で
