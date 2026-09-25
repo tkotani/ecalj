@@ -684,7 +684,8 @@ $\Psi^{\rm MTO}_j$ も $\Psi^{\rm PMT}_i$ も $|\Psi\rangle\langle\Psi|$ の形�
 | | 内容 | なぜ | 状態 |
 |---|---|---|---|
 | **A1** | **kt1 を同期・再ビルド**して LiTi₂O₄ 6³ を新方式で 3 反復 | `nkabc = n1n2n3 = mlo_nkabc = 6³` なので新チェックは通る。今日の比較対象（従来 194→86→32 meV、旧 MLO 415→158→193 meV）と同じ長さで並べられる | kt1 は `d0ca0aba8`（保護なし）。同期 1 分＋ビルド 6 分＋LDA 3 分＋16 分×3 |
-| **A2** | **バンドを MLO 空間で描く**（§8.2.1）| $H^{\rm MLO}(R)$ も $\Sigma^{\rm MLO}(R)$ も q 周期的なので任意の $k$ で厳密。今日ずっと判定を濁らせた**基底混在が構造的に消える** | `job_mlo` と `HamRsMLO` の機構は既にある |
+| **A2** | **バンドを MLO 空間で描く**（§8.2.1）| $H^{\rm MLO}(R)$ も $\Sigma^{\rm MLO}(R)$ も q 周期的なので任意の $k$ で厳密。今日ずっと判定を濁らせた**基底混在が構造的に消える** | **GaAs では動作、LiTi₂O₄ で異常終了**（下記 A2'）|
+| **A2'** | 上の異常終了を直す | `job_mlo` の第 1 段は `lmf --writeham --mkprocar --noinv --mlo` で、**`--noinv`** のため q 集合が段 0c のものと違う。`--mlofreeze` で保持している `HamRsMLO` の対リスト（`npair`/`nlat`、段 0c の q 集合で作成）と食い違い、`HamPMTtoHamRsMLO` の `iqiloop 3/16` で `double free or corruption (out)`。np=1 でも同じなので MPI ではない。GaAs（q が少ない）では通った | **未着手** |
 | **A3** | **昇格を `gwsc` から `mlo` 側へ移す** | `SigRsMLO` の書き出しと不可分になり、今日の「`tbin_frozen/gwsc` が古くて一度も走らなかった」型の取りこぼしが構造的に消える | 数十行 |
 
 **A1 の判定基準**: $E_{\rm HF}$ と反復間の変化で見る。バンドの荒れは A2 が入るまで参考扱い。
