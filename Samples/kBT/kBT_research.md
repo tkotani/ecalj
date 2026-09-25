@@ -59,6 +59,16 @@ v7 と v8 は iter 1 の GW まで同一で、**書き出す $\Sigma$ が混合�
 
 （図表の番号は `図 HH:MM-n` / `表 HH:MM-n`。HH:MM はそのエントリの時刻、n はエントリ内の通し番号。エントリの時刻は変わらないので番号は安定する。）
 
+### 2026-09-26 01:05 「本当に MLO での計算か」— **SCF は MLO、図のバンドは従来 `sigm` の内挿**（user「それならそれでいい」）
+
+- `getsenex` は MLO が ON なら $\Sigma^{\rm MLO}$ から `senex` を作って **return** し、従来の `bloch2` には到達しない（排他、[rdsigm2.f90:47-79](../../SRC/subroutines/rdsigm2.f90#L47-L79)）
+- v9 iter 3: SCF の `lmf` に `MLO Sigma interpolation ON. ndimMTO nskip= 126 0 |Sigma(R)|= 67.69` × 16、GW ドライバに × 36（`loaded ZmloSig` × 36）
+- 傍証: iter 1 は `sigm` が v7 と v9 で bit 一致なのに、$\Sigma^{\rm MLO}$（1 倍と 0.5 倍）の違いだけでバンドが rms 29 meV 違った。SCF が `sigm` を読んでいたら bit 一致になるはず
+- 図のバンド（`llmf_band`）は `m_sigmlo` の行が 0 で `rdsigm2` 経由。MLO 空間で描く段は `mlo --mlofreeze --mlo` が `munmap_chunk(): invalid pointer` で落ちる（A2'）
+
+したがって MLO 列が従来と似て見えるのは、半分は**描き方が同じ**だから。MLO の本来の狙い（内挿のリンギングを消す）は
+この図ではまだ検証できていない。A2' が直れば描ける。
+
 ### 2026-09-26 00:57 **v9 iter 3: overshoot が消えた。混合を揃えると MLO は従来と同じ落ち方をする**
 
 *表 00:57-1* 反復ごとのバンド変化 max / rms [meV]
