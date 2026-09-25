@@ -52,6 +52,25 @@ iter 1 で埋まったあとは二度と変わらない。
 `ZmloRef` が iter 1 後 6 189 004 B → iter 2 後 27 823 116 B と増えたのは、
 バンドプロットの 211 点など**新しい k** が加わったため。既存レコードは書き換わらない。
 
+#### 正確には何が固定されるのか（user 質問）: **変換行列 $z^{\rm MLO}(q)$**
+
+`ZmloRef` の 1 レコードは キー (q, isp, ndimh) と `z0(ndimh, ndimMTO)` の複素行列。
+これは式 (9) の $\tilde\chi_\alpha(q)=\sum_m \chi^{\rm PMT}_m(q) z^{\rm MLO}_{m\alpha}(q)$ の
+$z^{\rm MLO}$、すなわち **PMT → MLO の展開係数行列**。`Hreduction` の戻り値 `zMLO` をそのまま保存。
+
+| | |
+|---|---|
+| $z^{\rm MLO}(q)$ | **固定** |
+| $\chi^{\rm PMT}_m$ 自体（MT 内の $\phi,\dot\phi$）| 密度とともに変わる |
+| $S^{\rm PMT}(q)$ | 毎回その時点のもの（`amat = matmul(ovlm, zm)`）|
+| $O^{\rm MLO}=z^\dagger S z$ | 毎回作り直し |
+| $c^{\rm MLO}=\langle\psi|\tilde\chi\rangle$ | 毎回作り直し（意図どおり。χ̃ 固定、$\psi$ が動く）|
+
+**したがって厳密には「係数が固定」であって「関数 $\tilde\chi$ が固定」ではない。**
+基底関数 $\chi^{\rm PMT}$ が自己無撞着な密度に追随するぶん、$\tilde\chi$ は関数としてわずかに動く。
+関数として完全に固定するには MT 内の $\phi,\dot\phi$ も凍結する必要があるが、そこまではしていない。
+ただしこのドリフトは、バグ時（$H$ が変わるたびに $z$ を作り直す）とは桁が違う。
+
 #### 残っている非対称（iter 1 限定）
 
 追記しているのは **`getsenex` 側だけ**である。`sugw.f90:527` は `zmlo_frozen` を
