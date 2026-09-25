@@ -67,27 +67,21 @@ for it in $(seq 1 $NITER); do
   cp -f ZmloSig.* $SD/ 2>/dev/null
   tail -400 llmf > $SD/llmf.tail 2>/dev/null
   cp -f $L $SD/steps.log 2>/dev/null
-  ## Band in the MLO space, not the PMT space.  H^MLO(R) and Sigma^MLO(R) are both
-  ## matrices over the MLO channels and therefore q-periodic, so the reduced eigenproblem
-  ## can be solved at ANY k with no lift to PMT and no z^MLO(k) -- which is the one thing
-  ## that cannot be interpolated.  Drawing in PMT space instead mixes the stored chi~ at
-  ## the mesh points with a rebuilt one in between, and that mixture, not the method, is
-  ## what made the 2026-09-25 band plots look rough.  --mlofreeze keeps HamRsMLO so the
-  ## channel list stays the one SigRsMLO is a matrix over.
-  ## Two stages: job_band writes qplist.dat (the k path `mlo` reads; without it main_mlo
-  ## exits cleanly with an empty band file), then job_mlo solves the reduced problem.
-  ## job_band here runs WITHOUT --mlo on purpose: it is only making the path, and with
-  ## --mlo it would stop at the first band k outside ZmloSig, which is exactly the
-  ## mixture we are avoiding by not drawing in PMT space.
+  ## Two bands per iteration, both drawn inside/next to snap/iter<N>:
+  ##  - snap/iter<N>/bnd001.spin1 : PMT band through the conventional sigm (job_band, no --mlo).
+  ##    Not the band of the SCF state -- the SCF runs on Sigma^MLO -- but the same drawing as
+  ##    the conventional chain, and job_band also writes qplist.dat, the k path mlo needs.
+  ##  - $D/mloband/bnd_iter<N>.dat : THE MLO band, draw_mloband.sh = MLO model of the SCF
+  ##    Hamiltonian (written at the mesh points with the stored chi~, SigRsMLO set aside,
+  ##    unfrozen mlo).  NOT job_mlo --mlofreeze: that adds the current SigRsMLO (iteration-N
+  ##    chi~) to the frozen HamRsMLO (step-0d LDA H, step-0d chi~) -- two bases, 0.3-0.5 eV
+  ##    off.  It used to crash (zMLO overrun, e9f633d79); fixed, it would silently succeed
+  ##    with that wrong band, so it is not run here at all.
   ( cd $SD && source env.sh && export PATH=$TB:$PATH && CUDA_VISIBLE_DEVICES= \
-      $TB/job_band $T -np 8 NoGnuplot > lb_path.log 2>&1
-    CUDA_VISIBLE_DEVICES= $TB/job_mlo $T -np 8 --mlofreeze --mlo > lb.log 2>&1 )
-  if [ -s $SD/band_MLO_spin1.dat ]; then
-    cp $SD/band_MLO_spin1.dat $D/bnd_iter$it.dat
-    say "   band ok (MLO space, snap/iter$it, $(wc -l < $SD/band_MLO_spin1.dat) lines); snapshot $(du -sh $SD 2>/dev/null | cut -f1)"
-    [ -s $SD/bnd001.spin1 ] && cp $SD/bnd001.spin1 $D/bndPMT_iter$it.dat   # PMT band, conventional sigm, for reference
-  else
-    say "   BAND FAILED: $(tail -2 $SD/lb.log 2>/dev/null | tr '\n' ' ')"
-  fi
+      $TB/job_band $T -np 8 NoGnuplot > lb_path.log 2>&1 )
+  [ -s $SD/bnd001.spin1 ] && cp $SD/bnd001.spin1 $D/bndPMT_iter$it.dat
+  mkdir -p $D/mloband
+  mb=$(bash $S/draw_mloband.sh $SD $D/mlobandwork/iter$it $D/mloband/bnd_iter$it.dat 2>&1 | tail -1)
+  say "   bands: sigm drawing $( [ -s $SD/bnd001.spin1 ] && echo ok || echo FAILED ); MLO band: $mb; snapshot $(du -sh $SD 2>/dev/null | cut -f1)"
 done
 say done; touch $S/$TAG.done
