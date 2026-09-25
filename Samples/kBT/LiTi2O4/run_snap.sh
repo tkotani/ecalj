@@ -23,7 +23,10 @@ say(){ echo "$(date '+%m-%d %H:%M') $*" >> $L; }
 
 say "tag=$TAG niter=$NITER opt='$MLO'"
 say "binary: ZmloRef in libecaljF.so = $(strings /home/takao/ecalj/SRC/build_nvfortran/libecaljF.so 2>/dev/null | grep -c ZmloRef) (0 = z^MLO rebuilt per lmf run)"
-say "stale: sigm=$(ls sigm* 2>/dev/null|wc -l) mix=$(ls __mix* 2>/dev/null|wc -l) mlo=$(ls HamRsMLO SigRsMLO ZmloRef 2>/dev/null|wc -l)  [must be 0]"
+say "stale: sigm=$(ls sigm* 2>/dev/null|wc -l) mix=$(ls *mix* *MIX* 2>/dev/null|wc -l) mlo=$(ls HamRsMLO SigRsMLO ZmloRef 2>/dev/null|wc -l)  [must be 0]"
+## any mixing history at all -- mix*, __mix*, __mixm, mixsigma -- means this is not a
+## clean start.  Refuse rather than let an inherited history steer iteration 1.
+if ls *mix* *MIX* >/dev/null 2>&1; then say "ABORT: mixing files present at start: $(ls *mix* *MIX* 2>/dev/null | tr '\n' ' ')"; exit 1; fi
 ## ECALJ_MLO_MIX=1 makes hqpe_sc Anderson-mix Sigma^MLO with [gw] mixbeta, the same way
 ## sigm is mixed.  Default is off (the MLO route otherwise runs at an effective beta=1),
 ## so record which way this chain ran -- the two are not comparable.
@@ -37,11 +40,16 @@ printf "211 0.0 0.0 0.0 0.0 -1.0 0.0 GAMMA X\n0 !terminator\n" > syml.$T
 CUDA_VISIBLE_DEVICES= $TB/job_band $T -np 8 NoGnuplot > lb0.log 2>&1
 cp bnd001.spin1 bnd_lda.dat; say "LDA band rc=$?"
 mkdir -p snap/lda && cp rst.$T snap/lda/ 2>/dev/null && cp bnd_lda.dat snap/lda/
+## The LDA lmf leaves its own density-mixing history.  gwsc redoes the LDA at iteration 1
+## (there is no sigm yet) but only removes __mixm*<ext>*, so clear every mixing file here
+## and say what was there.
+say "after LDA, mixing files: $(ls *mix* *MIX* 2>/dev/null | tr '\n' ' ')  -> removed"
+rm -f *mix* *MIX*
 
 for it in $(seq 1 $NITER); do
   t0=$(date +%s)
   CUDA_VISIBLE_DEVICES=0,1 $TB/gwsc 1 -np 60 -np2 2 --gpu --mp --fp32 --ntqxx $MLO $T > g$it.log 2>&1; rc=$?
-  say "iter $it rc=$rc secs=$(( $(date +%s)-t0 )) mloON=$(grep -c 'MLO Sigma interpolation ON' llmf 2>/dev/null) gwdrv=$(grep -c 'MLO Sigma interpolation ON' llmfgw01 2>/dev/null) mlomix=$(grep -c 'Sigma^MLO mixing section' lqpe 2>/dev/null) $(grep ehf llmf | tail -1 | tr -s ' ')"
+  say "iter $it rc=$rc secs=$(( $(date +%s)-t0 )) mloON=$(grep -c 'MLO Sigma interpolation ON' llmf 2>/dev/null) gwdrv=$(grep -c 'MLO Sigma interpolation ON' llmfgw01 2>/dev/null) mlomix=$(grep -c 'Sigma^MLO mixing section' lqpe 2>/dev/null) nofile=$(grep -c 'No mixing file' lqpe 2>/dev/null) mixfiles=[$(ls *mix* 2>/dev/null | tr '\n' ' ')] $(grep ehf llmf | tail -1 | tr -s ' ')"
   if [ $rc -ne 0 ]; then say ABORT; break; fi
   ## --- snapshot + band, both inside snap/iter<N>.  The band run must NOT happen in the
   ## chain directory: job_band's first stage is `lmf --quit=band`, which rewrites

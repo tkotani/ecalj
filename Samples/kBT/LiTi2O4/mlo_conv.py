@@ -25,7 +25,7 @@ def chain(d):
     return o
 C = [('conventional MTO, sigm mixed $\\beta$=0.5',        chain(f'{ROOT}/ref'), 'tab:blue'),
      ('MLO 126, $\\Sigma^{MLO}$ unmixed ($\\beta$=1)',      chain(f'{ROOT}/v7'),  'tab:red'),
-     ('MLO 126, $\\Sigma^{MLO}$ mixed $\\beta$=0.5',        chain(f'{ROOT}/v8'),  'tab:purple')]
+     ('MLO 126, $\\Sigma^{MLO}$ mixed $\\beta$=0.5',        chain(f'{ROOT}/v9'),  'tab:purple')]
 C = [c for c in C if len(c[1]) > 1]
 fig, AX = plt.subplots(1, 2, figsize=(12.4, 4.6), sharex=True)
 for ax, how, lab in [(AX[0], 'max', r'max$_{k,b}\;|E_N-E_{N-1}|$  [meV]'),
