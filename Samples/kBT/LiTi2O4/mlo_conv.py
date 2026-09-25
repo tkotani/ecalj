@@ -23,8 +23,10 @@ def chain(d):
         f = f'{d}/bnd_lda.dat' if i == 0 else f'{d}/bnd_iter{i}.dat'
         if os.path.exists(f): o[i] = rd(f)
     return o
-C = [('conventional QSGW (MTO), $\\beta$=0.5', chain(f'{ROOT}/ref'), 'tab:blue'),
-     ('MLO-QSGW (new scheme, unmixed)',        chain(f'{ROOT}/v6'),  'tab:green')]
+C = [('conventional QSGW (MTO), $\\beta$=0.5',   chain(f'{ROOT}/ref'), 'tab:blue'),
+     ('MLO-QSGW, nmlo 76  (Li/O s+p)',        chain(f'{ROOT}/v6'),  'tab:green'),
+     ('MLO-QSGW, nmlo 126 (all atoms s+p+d)', chain(f'{ROOT}/v7'),  'tab:red')]
+C = [c for c in C if len(c[1]) > 1]
 fig, AX = plt.subplots(1, 2, figsize=(12.4, 4.6), sharex=True)
 for ax, how, lab in [(AX[0], 'max', r'max$_{k,b}\;|E_N-E_{N-1}|$  [meV]'),
                      (AX[1], 'rms', r'rms$_{k,b}\;|E_N-E_{N-1}|$  [meV]')]:
@@ -45,6 +47,7 @@ AX[0].set_title('max - one crossing can dominate it', fontsize=10)
 AX[1].set_title('rms - whether the whole band is still moving', fontsize=10)
 fig.suptitle('LiTi$_2$O$_4$ 6$^3$: how much the t$_{2g}$ bands still move each iteration\n'
              'the conventional chain flattens from N=6 on and stops falling - that is a floor, not convergence\n'
+             'MLO chains are unmixed; the conventional one is Anderson-mixed\n'
              f'generated {datetime.datetime.now():%Y-%m-%d %H:%M}', fontsize=10.5)
 plt.tight_layout(rect=[0, 0, 1, 0.88])
 plt.savefig('/home/takao/ecalj/Samples/kBT/LiTi2O4/mlo_conv.png', dpi=118)

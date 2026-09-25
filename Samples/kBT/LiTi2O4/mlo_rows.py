@@ -8,10 +8,13 @@ import matplotlib.pyplot as plt
 from matplotlib.ticker import MultipleLocator
 
 ROOT, OUT = sys.argv[1], sys.argv[2]
-MLODIR = sys.argv[3] if len(sys.argv) > 3 else 'frozen'
-MLOLAB = sys.argv[4] if len(sys.argv) > 4 else 'MLO-QSGW'
-COLS = [('conventional QSGW (MTO), pwmode=1', f'{ROOT}/ref',    'tab:blue'),
-        (MLOLAB, f'{ROOT}/{MLODIR}', 'tab:green')]
+# argv[3] and argv[4] are comma-separated: one MLO chain per column, left to right
+MLODIR = (sys.argv[3] if len(sys.argv) > 3 else 'frozen').split(',')
+MLOLAB = (sys.argv[4] if len(sys.argv) > 4 else 'MLO-QSGW').split(',')
+MLOCOL = ['tab:green', 'tab:red', 'tab:purple', 'tab:orange']
+COLS = [('conventional QSGW (MTO), pwmode=1', f'{ROOT}/ref', 'tab:blue')] + \
+       [(MLOLAB[i] if i < len(MLOLAB) else d, f'{ROOT}/{d}', MLOCOL[i % len(MLOCOL)])
+        for i, d in enumerate(MLODIR)]
 
 def rd(f):
     xs, es, cx, ce = [], [], [], []
@@ -29,7 +32,7 @@ MESH = [0.0, 1/3, 2/3, 1.0]; IDX = [0, 70, 140, 210]; LO, HI = 32, 44
 def path(d, it): return f'{d}/bnd_lda.dat' if it == 0 else f'{d}/bnd_iter{it}.dat'
 
 # rows are driven by the MLO chain (last column); the MTO column is shown alongside
-iters = [0] + [i for i in range(1, 31) if os.path.exists(path(COLS[-1][1], i))]
+iters = [0] + [i for i in range(1, 31) if any(os.path.exists(path(c[1], i)) for c in COLS[1:])]
 n = len(iters)
 fig, AX = plt.subplots(n, len(COLS), figsize=(4.9 * len(COLS) + 0.4, 2.5 * n + 1.0),
                        sharex=True, sharey=True, squeeze=False)
