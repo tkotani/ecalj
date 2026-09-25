@@ -246,24 +246,29 @@ $\tilde\chi(k)=\hat P(k)\,\chi^{\rm MTO}(k)$ は、「k 非依存の関数のブ
 
 > **実空間で短距離になるかどうかは、$\hat P(k)$ が k についてどれだけ滑らかかで決まる。**
 
-そして $\hat P$ の k 依存性の大半は**窓 $\bar\theta$** から来る。
-[m_hreduction.f90:308](SRC/subroutines/m_hreduction.f90#L308):
+では $\hat P$ の k 依存性はどこから来るか。[m_hreduction.f90:308](SRC/subroutines/m_hreduction.f90#L308):
 
 ```fortran
 Amat(i,j) = fac(i,j) * max( fermidist((evl(i)-efrz)/ewfrz), fermidist((evl(i)-ecut)/ewuse) )
 ```
 
-`fermidist` はバンド $\varepsilon_i(k)$ が窓の縁を横切る k で変化する。
-**幅 $w$（`mlo_w`, `mlo_wfrz`）がバンド分散に比べて狭いほど $\tilde\chi(k)$ は k について急峻になり、
-$\Sigma^{\rm MLO}(R)$ の裾が伸びる。**
+**窓ではない。** 数字で確認した（user 指摘）:
 
-### 試していない一手: 窓を広げる
+- **第 1 項は恒等的に 0**。`mlomethod=4` では [`efrz = -1d99`](SRC/subroutines/m_hreduction.f90#L246)
+  （コメント「hard-freeze edge; active only for mlomethod=3」）。効くのは**第 2 項だけ**。
+- 第 2 項の位置は $\varepsilon^{\rm cut}_j=\max(\varepsilon_{\rm cbot}+\Delta,\ \varepsilon^{\rm MTO}_j)$。
+  **MTO のみの固有値は PMT のそれよりそれなりに上にある**ので、通常は $\varepsilon^{\rm MTO}_j$ が選ばれる。
+  するとシグモイドの引数は $(\varepsilon^{\rm PMT}_i-\varepsilon^{\rm MTO}_j)/w$ という**バンド差**になり、
+  両者が一緒に分散するぶん k について滑らかになる。
+- 幅も狭くない。LiTi₂O₄ の設定は **`mlo_w = 2.0` eV、`mlo_delta = 2.0` eV**（`ctrlg` の
+  `[gw]` 節）で、t2g の帯幅 0.4 eV の **5 倍**。
 
-既定は Δ = 0.18 / `mlo_wfrz` = 0.10 / `mlo_w` = 0.20 Ry。これは **MLO バンドの再現精度**を基準に
-走査して決めた値であって、**内挿の滑らかさを基準に選んだものではない**。
-LiTi₂O₄ の t2g は幅 0.4 eV ≈ 0.03 Ry と非常に狭く、この窓は分散に対して相対的にきつい可能性がある。
+**したがって $\hat P(k)$ の k 依存性は窓由来ではなく、
+固有ベクトル $|\Psi^{\rm PMT}_i(k)\rangle\langle\Psi^{\rm PMT}_i(k)|$ 自体が k で回ることから来る。**
+これは band 多様体の性質であって、窓のパラメータで緩和できるものではない。
 
-再開するなら、**軌道数を増やすより先に窓 $w$ を広げる**方が効くかもしれない。
+（2026-09-25 の初稿では「窓が狭いのではないか、広げてみては」と書いたが、
+`mlo_w = 2.0` eV を確認して撤回した。）
 
 ---
 
