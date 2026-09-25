@@ -576,6 +576,16 @@ contains
                 istat = readm_buf(ifihsoc, rec=iqqisp, buf=buf)
                 call buf_get(buf, hammhsop)
               endif
+              !zMLO is the ACTUAL argument of Hreduction's explicit-shape dummy zMLO(ndimPMT,ndimMTO),
+              !so its leading dimension must be THIS q's ndimPMT.  With pwmode=11 (|q+G| cutoff) ndimPMT
+              !changes from q to q (LiTi2O4 6^3: 319 at Gamma, 313 at the next q).  It used to be allocated
+              !once, at the first q: a later q with a larger ndimPMT then wrote (ndimPMT-first)*ndimMTO
+              !elements past the end -- heap corruption, seen as `double free or corruption` /
+              !`munmap_chunk(): invalid pointer` in `mlo --mlofreeze --mlo` on LiTi2O4 -- and a smaller one
+              !left zMLO with the wrong column stride for the __amlo.data write below.
+              if(allocated(zMLO)) then
+                if(size(zMLO,1)/=ndimPMT) deallocate(zMLO)
+              endif
               if(.not.allocated(zMLO)) allocate(zMLO(ndimPMT,ndimMTO))
               ! write(06,*) 'xxxx: iq, is', iqxx, jspxx, qp(3), ndimPMT, ndimMTO
               iqibz = findloc( [(sum(abs(qibz(:,i)-qp))<tolq(),i=1,nqibz)],value=.true.,dim=1)
