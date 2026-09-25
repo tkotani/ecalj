@@ -206,9 +206,8 @@ $z$ を今の $H$ で作り直しても、窓が初回のバンド位置を指�
 
 ## 7.1 いまの比較（従来 MTO vs MLO 2 スロット版）
 
-![mlo_rows](Samples/kBT/LiTi2O4/mlo_rows.png)
+[![mlo_rows](Samples/kBT/LiTi2O4/mlo_rows.png)](Samples/kBT/LiTi2O4/mlo_rows.png)
 
-→ [Samples/kBT/LiTi2O4/mlo_rows.png](Samples/kBT/LiTi2O4/mlo_rows.png)
 （生成: [mlo_rows.py](Samples/kBT/LiTi2O4/mlo_rows.py)。左＝従来 pwmode=1、右＝MLO pwmode=11、
 行は MLO の反復数で下に伸びる）
 
@@ -231,14 +230,12 @@ GW ドライバ状態の 3 通り）で行う。
 
 ## 7.2 バグの効果を分離した図（iter 1）
 
-![frozen_vs_not](Samples/kBT/LiTi2O4/frozen_vs_not.png)
+[![frozen_vs_not](Samples/kBT/LiTi2O4/frozen_vs_not.png)](Samples/kBT/LiTi2O4/frozen_vs_not.png)
 
-→ [Samples/kBT/LiTi2O4/frozen_vs_not.png](Samples/kBT/LiTi2O4/frozen_vs_not.png)
 （$\tilde\chi$ 凍結の有無。凍結なしだと帯幅が 292 → 202 meV に潰れる）
 
 ## 7.3 $\Sigma(R)$ の減衰（オンサイト規格化）
 
-![sigr_decay](Samples/kBT/LiTi2O4/sigr_decay.png)
+[![sigr_decay](Samples/kBT/LiTi2O4/sigr_decay.png)](Samples/kBT/LiTi2O4/sigr_decay.png)
 
-→ [Samples/kBT/LiTi2O4/sigr_decay.png](Samples/kBT/LiTi2O4/sigr_decay.png)
 （絶対値は正規化が違うので比較不可。規格化すると**従来 $\Sigma^{\rm MTO}(R)$ の方が減衰しない**）
