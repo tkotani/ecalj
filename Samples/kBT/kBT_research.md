@@ -1,6 +1,13 @@
 # kBT_research.md — 有限温度 QSGW の研究ログ
 
-上から新しい順に書き足す。結論が固まったものは
+上から新しい順に書き足す。
+
+**図の貼り方**: `mlo_rows.png` / `mlo_conv.png` は反復が進むたび**上書き**される「生きている図」なので、
+**最新エントリにだけ**貼る。過去のエントリには、その時点の状態に作り直した**凍結版**
+（`mlo_rows_<HHMM>.png` など）を貼る。上書きされる図を日付エントリに貼ると、本文の説明と中身が
+食い違う（2026-09-25 に 15:06 と 22:27 のエントリで実際に起きた）。
+
+結論が固まったものは
 [ecaljdoc manual/kBT](https://ecalj.github.io/ecaljdoc/manual/kBT) と各 README に移す。
 一覧としての「残る課題」は kBT.md §9。
 
@@ -12,7 +19,38 @@
 
 （図表の番号は `図 HH:MM-n` / `表 HH:MM-n`。HH:MM はそのエントリの時刻、n はエントリ内の通し番号。エントリの時刻は変わらないので番号は安定する。）
 
-### 2026-09-25 23:05 `temp.md` を解体 — 設計は設計書へ、ログはここへ（user「ごっちゃになってきた」）
+### 2026-09-25 22:53 **図を 3 列に拡張（従来 / MLO 76 / MLO 126）。リンギングが $E_F$ の上から下へ移っている**（user「うねってるバンドがある」）
+
+v7 の iter 1 が 22:48 に出た（`secs=1030`、`cmlo_init: nmlo nbandmx nband = 126 322 322` で **nmlo=126 を確認**）。
+`mlo_rows.py` / `mlo_conv.py` を複数チェーン対応にし、1 列 1 チェーンで並べた。
+
+*図 22:53-1* 左 = 従来 MTO、中 = MLO 76、右 = MLO 126。**これは生きている図**（反復が進むと上書きされる）
+
+[![mlo_rows](LiTi2O4/mlo_rows.png)](LiTi2O4/mlo_rows.png)
+
+`Samples/kBT/LiTi2O4/mlo_rows.png`（生成: `LiTi2O4/mlo_rows.py . out.png v6,v7 'ラベル1,ラベル2'`）
+
+*図 22:53-2* 反復ごとの変化、3 本。**これも生きている図**
+
+[![mlo_conv](LiTi2O4/mlo_conv.png)](LiTi2O4/mlo_conv.png)
+
+`Samples/kBT/LiTi2O4/mlo_conv.png`（生成: `LiTi2O4/mlo_conv.py`）
+
+**形状の読み — 荒れが $E_F$ をまたいで反対側へ移った**
+
+| | 上側バンド（$E\simeq0.8$–1.0 eV）| 最下バンド（占有、$E\simeq-0.7\to0$）|
+|---|---|---|
+| 従来 MTO、iter 4–8 | $x\simeq0.45$ と $x\simeq0.8$ に**こぶ** | 滑らか |
+| MLO 76、iter 3–8 | **平坦。こぶが消えている** | $x\simeq0.3$–0.5 に**肩／踊り場**（iter 6–8 で S 字）|
+
+こぶの位置は点線（Σ メッシュ点 $0, 1/3, 2/3, 1$）の**ちょうど中間**で、内挿リンギングの位置そのもの。
+MLO はそれを上側で消したが、占有側に別の構造を作っている。
+
+**仮説**: 占有側は O 2p の混成が効くところで、v6 は **O を s+p に切っている**（`mlo_lm` で O は lm 1–4）。
+v7 は O にも d を入れた（nmlo 126）ので、**iter 3 以降でこの肩が減るかどうか**が判定になる。
+iter 2 は 23:05 頃。
+
+### 2026-09-25 22:45 `temp.md` を解体 — 設計は設計書へ、ログはここへ（user「ごっちゃになってきた」）
 
 `temp.md`（798 行）は**設計仕様**と**ログ・図・TODO**が混ざっていて、
 [sigma_mlo_design.md](sigma_mlo_design.md) とも主題が重複していた。種類で分けて解消し、`temp.md` は削除した。
@@ -52,7 +90,7 @@ $z$ を今の $H$ で作り直しても、窓が初回のバンド位置を指�
 
 ---
 
-*図 23:05-1, 23:05-2* `temp.md` §7.2–7.3 から移した図
+*図 22:45-1, 22:45-2* `temp.md` §7.2–7.3 から移した図
 
 **$\tilde\chi$ 凍結の有無（iter 1）**
 
@@ -113,15 +151,15 @@ rms で見る。
 
 *図 22:27-1* 左 = max（一点の交差に支配される）、右 = rms（バンド全体が動いているか）
 
-[![mlo_conv](LiTi2O4/mlo_conv.png)](LiTi2O4/mlo_conv.png)
+[![mlo_conv_2227](LiTi2O4/mlo_conv_2227.png)](LiTi2O4/mlo_conv_2227.png)
 
-`Samples/kBT/LiTi2O4/mlo_conv.png`（生成: `LiTi2O4/mlo_conv.py`）
+`Samples/kBT/LiTi2O4/mlo_conv_2227.png`（このエントリ時点に凍結。生きている図は最新エントリ）
 
-*図 22:27-2* 同じ描き方で LDA〜iter 8 を縦に並べたもの
+*図 22:27-2* 同じ描き方で LDA〜iter 8 を縦に並べたもの（2 列 9 行）
 
-[![mlo_rows](LiTi2O4/mlo_rows.png)](LiTi2O4/mlo_rows.png)
+[![mlo_rows_2227](LiTi2O4/mlo_rows_2227.png)](LiTi2O4/mlo_rows_2227.png)
 
-`Samples/kBT/LiTi2O4/mlo_rows.png`（生成: `LiTi2O4/mlo_rows.py`）
+`Samples/kBT/LiTi2O4/mlo_rows_2227.png`（このエントリ時点に凍結）
 
 **読み**
 
@@ -186,11 +224,12 @@ commit `d8034ad5b` で **既定 OFF**、`ECALJ_MLO_MIX=1` で ON。既定 OFF �
 | ⑥ 最後の `lmf` | `llmf` の `loaded ZmloSig` | 16 |
 | ⑦ バンドが `--mlo` | `llmf_band` の `loaded ZmloSig` | 8 |
 
-*図 15:06-1* 従来 vs MLO、LDA〜iter 3
+*図 15:06-1* 従来 vs MLO、LDA〜iter 3（2 列 4 行）
 
-[![mlo_rows](LiTi2O4/mlo_rows.png)](LiTi2O4/mlo_rows.png)
+[![mlo_rows_1506](LiTi2O4/mlo_rows_1506.png)](LiTi2O4/mlo_rows_1506.png)
 
-`Samples/kBT/LiTi2O4/mlo_rows.png`（生成: `LiTi2O4/mlo_rows.py`）
+`Samples/kBT/LiTi2O4/mlo_rows_1506.png`（生成: `LiTi2O4/mlo_rows.py frz mlo_rows_1506.png v6`。
+このエントリ時点の状態に凍結したもの — `mlo_rows.png` は反復が進むたび上書きされるため）
 
 *表 15:06-1* t2g b33–44、Γ→X 211 点
 

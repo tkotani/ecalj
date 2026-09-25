@@ -55,8 +55,8 @@ for a in AX[-1]: a.set_xlabel('$\\Gamma \\to X$')
 stamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
 fig.suptitle('LiTi$_2$O$_4$  6$^3$ (nkabc = n1n2n3 = 6$^3$)   t$_{2g}$ (b33-44) along $\\Gamma\\to X$, 211 points\n'
              'dotted = $\\Sigma$ q-mesh points (interpolation is exact there)\n'
-             'CAUTION: the two columns use different APW cutoffs - MTO chain pwmode=1 (|G|), '
-             'MLO chain pwmode=11 (|q+G|)\n'
+             'CAUTION: the columns use different APW cutoffs - MTO chain pwmode=1 (|G|), '
+             'MLO chains pwmode=11 (|q+G|)\n'
              f'generated {stamp}', fontsize=10.5)
 plt.tight_layout(rect=[0, 0, 1, 1 - 0.95/(2.5*n + 1.0)])
 plt.savefig(OUT, dpi=115)
