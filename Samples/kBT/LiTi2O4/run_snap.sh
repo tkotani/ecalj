@@ -24,6 +24,10 @@ say(){ echo "$(date '+%m-%d %H:%M') $*" >> $L; }
 say "tag=$TAG niter=$NITER opt='$MLO'"
 say "binary: ZmloRef in libecaljF.so = $(strings /home/takao/ecalj/SRC/build_nvfortran/libecaljF.so 2>/dev/null | grep -c ZmloRef) (0 = z^MLO rebuilt per lmf run)"
 say "stale: sigm=$(ls sigm* 2>/dev/null|wc -l) mix=$(ls __mix* 2>/dev/null|wc -l) mlo=$(ls HamRsMLO SigRsMLO ZmloRef 2>/dev/null|wc -l)  [must be 0]"
+## ECALJ_MLO_MIX=1 makes hqpe_sc Anderson-mix Sigma^MLO with [gw] mixbeta, the same way
+## sigm is mixed.  Default is off (the MLO route otherwise runs at an effective beta=1),
+## so record which way this chain ran -- the two are not comparable.
+say "ECALJ_MLO_MIX=${ECALJ_MLO_MIX:-unset}  (1 = Sigma^MLO is Anderson-mixed at [gw] mixbeta)"
 say "settings: $(grep -hE '^nkabc|^n1n2n3|mlo_nkabc|^pwmode|^nit' ctrlg.$T.toml | tr -s ' ' | tr '\n' ';')"
 
 CUDA_VISIBLE_DEVICES=0,1 mpirun -np 1 $TB/lmfa $T > llmfa 2>&1; say "lmfa rc=$?"
@@ -37,7 +41,7 @@ mkdir -p snap/lda && cp rst.$T snap/lda/ 2>/dev/null && cp bnd_lda.dat snap/lda/
 for it in $(seq 1 $NITER); do
   t0=$(date +%s)
   CUDA_VISIBLE_DEVICES=0,1 $TB/gwsc 1 -np 60 -np2 2 --gpu --mp --fp32 --ntqxx $MLO $T > g$it.log 2>&1; rc=$?
-  say "iter $it rc=$rc secs=$(( $(date +%s)-t0 )) mloON=$(grep -c 'MLO Sigma interpolation ON' llmf 2>/dev/null) gwdrv=$(grep -c 'MLO Sigma interpolation ON' llmfgw01 2>/dev/null) $(grep ehf llmf | tail -1 | tr -s ' ')"
+  say "iter $it rc=$rc secs=$(( $(date +%s)-t0 )) mloON=$(grep -c 'MLO Sigma interpolation ON' llmf 2>/dev/null) gwdrv=$(grep -c 'MLO Sigma interpolation ON' llmfgw01 2>/dev/null) mlomix=$(grep -c 'Sigma^MLO mixing section' lqpe 2>/dev/null) $(grep ehf llmf | tail -1 | tr -s ' ')"
   if [ $rc -ne 0 ]; then say ABORT; break; fi
   ## --- snapshot + band, both inside snap/iter<N>.  The band run must NOT happen in the
   ## chain directory: job_band's first stage is `lmf --quit=band`, which rewrites
