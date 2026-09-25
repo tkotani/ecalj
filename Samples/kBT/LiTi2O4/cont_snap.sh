@@ -13,7 +13,9 @@ for it in $(seq $FROM $TO); do
   say "iter $it rc=$rc secs=$(( $(date +%s)-t0 )) mloON=$(grep -c 'MLO Sigma interpolation ON' llmf 2>/dev/null) gwdrv=$(grep -c 'MLO Sigma interpolation ON' llmfgw01 2>/dev/null) zsig=$(ls ZmloSig.* 2>/dev/null | wc -l) $(grep ehf llmf | tail -1 | tr -s ' ')"
   if [ $rc -ne 0 ]; then say ABORT; break; fi
   SD=$D/snap/iter$it; mkdir -p $SD
-  for f in rst.$T sigm sigm.$T SigRsMLO HamRsMLO ctrlg.$T.toml ctrl.$T env.sh __atm.$T efermi.lmf syml.$T; do cp -f $f $SD/ 2>/dev/null; done
+  ## __mixsig / __mixsigMLO: the Anderson histories.  Losing them on a restart damps
+  ## Sigma by beta against x_0 = 0 once, which reads as a spurious jump in the band.
+  for f in rst.$T sigm sigm.$T SigRsMLO HamRsMLO ctrlg.$T.toml ctrl.$T env.sh __atm.$T efermi.lmf syml.$T __mixsig __mixsigMLO; do cp -f $f $SD/ 2>/dev/null; done
   cp -f ZmloSig.* $SD/ 2>/dev/null
   tail -400 llmf > $SD/llmf.tail 2>/dev/null; cp -f $L $SD/steps.log 2>/dev/null
   ( cd $SD && source env.sh && export PATH=$TB:$PATH && CUDA_VISIBLE_DEVICES= $TB/job_band $T -np 8 NoGnuplot --mlo > lb.log 2>&1 )

@@ -309,6 +309,23 @@ contains
     rewind ifse_out
     call rwsigma ('write',ifse_out,sigma_m,qqqx_m, nspin,ndimsig,n1,n2,n3,nqibz)
     close(ifse_out)
+    !! Sigma^MLO gets the SAME Anderson damping as sigm.  In the MLO route lmf consumes
+    !! SigRsMLO (made from __SigmMLO.q), NOT sigm, so an unmixed Sigma^MLO means the MLO
+    !! chain runs at beta=1 while the conventional chain runs at mixbeta.  On LiTi2O4 6^3
+    !! (mixbeta=0.5) that showed up as an overshoot at iteration 3 (band change per
+    !! iteration 430 -> 187 -> 347 -> 246 -> 132 meV) which the mixed chain does not have.
+    !! No 'sigin' is passed: gwsc deletes __SigmMLO.q at the top of every iteration, but the
+    !! Anderson history file itself carries x_0 -- amix leaves the mixed vector in a(:,0,2)
+    !! and that is exactly the Sigma^MLO this iteration was run with.  The t_j chosen here
+    !! are those of the MLO representation and need not equal the ones sigm got; that is
+    !! harmless because only Sigma^MLO is read back on the MLO route.
+    MixSigmMLO: if(lmlo) then
+      block
+        complex(8):: sigmlonoin(1)
+        write(stdo,ftox)"===== Sigma^MLO mixing section using mixsigma ======="
+        call mixsigma(sigmlo, .false., sigmlonoin, nmlo**2*nqibz*nspin, '__mixsigMLO')
+      endblock
+    endif MixSigmMLO
     WriteSigmMLO: if(lmlo) then
       open(newunit=ifsigmlo,file='__SigmMLO.q',form='UNFORMATTED')
       write(ifsigmlo) nmlo,nqibz,nspin,n1,n2,n3
@@ -346,7 +363,7 @@ contains
     write(stdo,ftox)' === rwsigma:  sum check of sigma_m=',sum(abs(sigma_m))
     print *
   end subroutine rwsigma
-  subroutine mixsigma(sss, lsigin, sigin, nda) !sigma file mixing
+  subroutine mixsigma(sss, lsigin, sigin, nda, fname) !sigma file mixing
     use m_GWinput, only: gwinput_init, gwinput_loaded, &
                          tg_mixbeta => mixbeta, tg_mixpriorit => mixpriorit, &
                          tg_mixtj => mixtj
@@ -370,7 +387,8 @@ contains
     real(8),allocatable::norm(:),a(:,:,:)
     integer,allocatable:: kpvt(:)
     integer::ret
-    character(8) :: fff
+    character(*),intent(in),optional:: fname !Anderson history file; default '__mixsig'
+    character(64) :: fff
     logical :: fexist
     real(8):: acc
     integer:: ido
@@ -383,13 +401,17 @@ contains
        call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
 !       call getkeyvalue("GWinput","mixbeta",beta,default=1d0,status=ret)
     endif
-    write(stdo,ftox)' mixsigma: Anderson mixing sigma with mixing beta =',ftof(beta)
-    allocate ( a(2*nda,0:mxsav+1,2) )
-    fff="__mixsigma"
-    INQUIRE (FILE =fff, EXIST = fexist)
-    if(fexist)      write(stdo,ftox)'... reading file mixsigma'
-    if( .NOT. fexist) write(stdo,ftox)'... No file mixsigma'
-    open(newunit=ifi,file=fff,form='unformatted')
+    write(stdo,ftox)' mixsigma: Anderson mixing sigma with mixing beta =',ftof(beta),' nda=',nda
+    allocate ( a(2*nda,0:mxsav+1,2), source=0d0 ) !a(:,0,2)=x_0 is USED by amix (d_0=f-x_0);
+    ! with no history file that must be a clean zero, which is the right x_0 at iteration 1 (Sigma=0).
+    ! '__mixsig', not '__mixsigma': fff used to be character(8) and silently truncated the name.
+    ! Keep the truncated spelling so chains already running do not lose their history.
+    fff="__mixsig"
+    if(present(fname)) fff=fname
+    INQUIRE (FILE =trim(fff), EXIST = fexist)
+    if(fexist)      write(stdo,ftox)'... reading mixing file '//trim(fff)
+    if( .NOT. fexist) write(stdo,ftox)'... No mixing file '//trim(fff)
+    open(newunit=ifi,file=trim(fff),form='unformatted')
     if(fexist) then
       read(ifi,err=903,end=903) nitr,ndaf
       if (ndaf /= nda) goto 903

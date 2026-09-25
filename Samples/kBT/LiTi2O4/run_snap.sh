@@ -47,8 +47,11 @@ for it in $(seq 1 $NITER); do
   ## without it c0_mlo is false, sigmlo_init returns at once and the band is drawn
   ## through the conventional sigm instead of SigRsMLO.
   SD=$D/snap/iter$it; mkdir -p $SD
+  ## __mixsig / __mixsigMLO are the Anderson histories of sigm and of Sigma^MLO.  Without
+  ## them a restart from this snapshot re-enters mixsigma with x_0 = 0, i.e. it damps the
+  ## whole Sigma by beta once, which looks like a spurious jump in the band.
   for f in rst.$T sigm sigm.$T SigRsMLO HamRsMLO ctrlg.$T.toml ctrl.$T env.sh __atm.$T \
-           efermi.lmf syml.$T; do cp -f $f $SD/ 2>/dev/null; done
+           efermi.lmf syml.$T __mixsig __mixsigMLO; do cp -f $f $SD/ 2>/dev/null; done
   cp -f ZmloSig.* $SD/ 2>/dev/null
   tail -400 llmf > $SD/llmf.tail 2>/dev/null
   cp -f $L $SD/steps.log 2>/dev/null
