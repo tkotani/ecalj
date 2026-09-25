@@ -12,13 +12,16 @@
 # test: kt1's m_sigmlo.f90 had none of it, and nothing in the workflow would have said so.
 #
 # AFTER SYNCING you must rebuild, and the marker does NOT prove the binaries changed:
-#   1) the archive includes SRC/CMakeLists.txt, so cmake re-configures, and this project
-#      refuses to configure without FC.  On kt1:
-#        cd ~/ecalj/SRC/build_nvfortran && \
-#        FC=/opt/nvidia/hpc_sdk/Linux_x86_64/2026/comm_libs/mpi/bin/mpifort \
-#        make -j16 lmf lmf_mp_gpu mlo hqpe_sc
-#      Without FC it stops at "Fortran compiler must be set via FC" and leaves the OLD
-#      .so in place -- a silent no-op that looks like a successful sync.
+#   1) the archive includes SRC/CMakeLists.txt, so cmake re-configures.  REBUILD WITH THE
+#      PROJECT INSTALLER, not a bare make:
+#        cd ~/ecalj && python3 InstallAll.py --fc nvfortran --gpu --gemmul8 --bindir ~/bin
+#      SRC/CMakeLists.txt selects the flag set by MATCHING THE STRING IN $FC, and
+#      BUILD_DIR is SRC/build_$FC, so FC must be the bare compiler name.  A bare
+#      `make` without FC stops at "Fortran compiler must be set via FC" and leaves the
+#      old .so in place; worse, FC=<path>/mpifort silently matches the "ifort" branch
+#      (m-p-*i-f-o-r-t*) and hands nvfortran Intel flags (-assume, -init:snan).  Both
+#      failures leave a stale library that looks like a successful sync.
+#      InstallAll.py also caps parallelism at 8 (nvfortran ICEs above that).
 #   2) confirm the change actually reached the library, e.g.
 #        strings SRC/build_nvfortran/libecaljF.so | grep -c ZmloSig
 #      The executables are thin wrappers; the code lives in libecaljF*.so.
