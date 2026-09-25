@@ -210,6 +210,61 @@ $\Sigma$ は**書かれた基底以外で読み戻されることが無い**。�
 
 の 3 つだけです。1 が反復ごとに動き、2・3 は固定、という構図。
 
+## 4.5 MLO 法の要点 — 入力・作り方・内挿の成立条件
+
+### user のまとめ（そのとおり）
+
+1. 入力として**メッシュ k 点での $H^{\rm PMT}(k)$**（と $S^{\rm PMT}(k)$）が要る。
+2. それがあれば $H^{\rm MTO}(k)$ は部分ブロックとして取り出せる。いま考えている MTO チャネル
+   （索引 `ix`）だけを使って、メッシュ k 点で $|{\rm MLO}\rangle$ を $|{\rm PMT}\rangle$ から作る行列
+   $z^{\rm MLO}(k)$ が得られる。
+3. $\langle {\rm PMT}|X|{\rm PMT}\rangle$ があれば $\langle {\rm MLO}|X|{\rm MLO}\rangle$ に展開でき
+   （部分空間にはなる）、これなら FFT で任意の $k$ に内挿できる。$H$ も $S$ も $\Sigma$ も。
+
+コードと突き合わせると 1・2 は完全に一致する。3 も原理としては正しいが、**成立条件が一つある**。
+
+### 位相（ゲージ）の心配は不要
+
+[m_hreduction.f90:322](SRC/subroutines/m_hreduction.f90#L322):
+
+```fortran
+cmlo_loc = matmul(Amat, matmul(evecmto^dagger, ovlmx(ix,ix)))
+```
+
+コメントどおり $|F^{\rm MLO}_k\rangle = \hat P\,|F^{\rm MTO}_k\rangle$ であり、
+$\Psi^{\rm MTO}_j$ も $\Psi^{\rm PMT}_i$ も **$|\Psi\rangle\langle\Psi|$ の形でしか現れない**ので、
+対角化の任意位相は相殺する。種は**裸の MTO 基底関数** $\chi^{\rm MTO}_k$（k 非依存の実空間関数の
+ブロッホ和）。したがって $\tilde\chi$ にゲージ依存性は無い。
+
+### 成立条件: $\hat P(k)$ の k についての滑らかさ
+
+$$\hat P(k)=\sum_{ij}|\Psi^{\rm PMT}_i(k)\rangle\,\bar\theta_{ij}(k)\,
+\langle\Psi^{\rm PMT}_i(k)|\Psi^{\rm MTO}_j(k)\rangle\langle\Psi^{\rm MTO}_j(k)|$$
+
+$\tilde\chi(k)=\hat P(k)\,\chi^{\rm MTO}(k)$ は、「k 非依存の関数のブロッホ和」を
+**k ごとに違う射影で修正したもの**である。q 周期性は保たれるので FFT 自体は正当だが、
+
+> **実空間で短距離になるかどうかは、$\hat P(k)$ が k についてどれだけ滑らかかで決まる。**
+
+そして $\hat P$ の k 依存性の大半は**窓 $\bar\theta$** から来る。
+[m_hreduction.f90:308](SRC/subroutines/m_hreduction.f90#L308):
+
+```fortran
+Amat(i,j) = fac(i,j) * max( fermidist((evl(i)-efrz)/ewfrz), fermidist((evl(i)-ecut)/ewuse) )
+```
+
+`fermidist` はバンド $\varepsilon_i(k)$ が窓の縁を横切る k で変化する。
+**幅 $w$（`mlo_w`, `mlo_wfrz`）がバンド分散に比べて狭いほど $\tilde\chi(k)$ は k について急峻になり、
+$\Sigma^{\rm MLO}(R)$ の裾が伸びる。**
+
+### 試していない一手: 窓を広げる
+
+既定は Δ = 0.18 / `mlo_wfrz` = 0.10 / `mlo_w` = 0.20 Ry。これは **MLO バンドの再現精度**を基準に
+走査して決めた値であって、**内挿の滑らかさを基準に選んだものではない**。
+LiTi₂O₄ の t2g は幅 0.4 eV ≈ 0.03 Ry と非常に狭く、この窓は分散に対して相対的にきつい可能性がある。
+
+再開するなら、**軌道数を増やすより先に窓 $w$ を広げる**方が効くかもしれない。
+
 ---
 
 # 5. 過去の失敗との違い — 4 段階ある
