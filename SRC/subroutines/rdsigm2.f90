@@ -159,6 +159,47 @@ contains
           close(ifis2) !call fclose(ifis2)
        endif WRITEsig_fbz
        call fftz3(sfz,nk1,nk2,nk3,nk1,nk2,nk3,ndimsig**2*nspsigm,iset,+1) !+1 backward ! FT hrr is on regular mesh points. For bloch2
+       ! ECALJ_SIGMTO_RS=1: write how Sigma^MTO(R) decays with |R|, so it can be
+       ! compared shell by shell with the same measurement on Sigma^MLO(R)
+       ! (SigRsMLO).  One row per lattice translation of the BvK cell; the l=2
+       ! columns restrict both indices to the d channels, which is the block the
+       ! interpolation ringing lives in.
+       SigmaRealSpace: block
+         use m_lattic,only: plat=>lat_plat
+         use m_lmfinit,only: ib_table,l_table
+         character(32):: cval
+         integer:: stat,ifr,n1,n2,n3,m1,m2,m3,i2,j2,nd
+         real(8):: rr(3),rlen,amx,asm,dmx,dsm,a
+         integer:: nall,ndd
+         call get_environment_variable('ECALJ_SIGMTO_RS',cval,status=stat)
+         if(stat==0 .and. procid==master) then
+           open(newunit=ifr,file='SigRsMTO.dat')
+           write(ifr,"('# ndimsig nk1 nk2 nk3 =',4i6)") ndimsig,nk1,nk2,nk3
+           write(ifr,"('# ib_table:',1000i4)") ib_table(1:ndimsig)
+           write(ifr,"('#  l_table:',1000i4)") l_table(1:ndimsig)
+           write(ifr,"('#  n1  n2  n3      |R|(alat)      max_all[meV]     mean_all',&
+                &'       max_dd      mean_dd   nall  ndd')")
+           do n1=1,nk1; do n2=1,nk2; do n3=1,nk3
+             m1=n1-1; if(2*m1>nk1) m1=m1-nk1
+             m2=n2-1; if(2*m2>nk2) m2=m2-nk2
+             m3=n3-1; if(2*m3>nk3) m3=m3-nk3
+             rr = m1*plat(:,1)+m2*plat(:,2)+m3*plat(:,3)
+             rlen = sqrt(sum(rr**2))
+             amx=0d0; asm=0d0; dmx=0d0; dsm=0d0; nall=0; ndd=0
+             do j2=1,ndimsig; do i2=1,ndimsig
+               a = abs(sfz(n1,n2,n3,i2,j2,1))*13605.693d0
+               amx=max(amx,a); asm=asm+a; nall=nall+1
+               if(l_table(i2)==2 .and. l_table(j2)==2) then
+                 dmx=max(dmx,a); dsm=dsm+a; ndd=ndd+1
+               endif
+             enddo; enddo
+             write(ifr,"(3i4,f15.6,4f14.4,2i7)") m1,m2,m3,rlen,amx,asm/max(1,nall), &
+                  dmx,dsm/max(1,ndd),nall,ndd
+           enddo; enddo; enddo
+           close(ifr)
+           write(stdo,ftox)' ECALJ_SIGMTO_RS: wrote SigRsMTO.dat'
+         endif
+       endblock SigmaRealSpace
        ! ---------------------------------------------------------------
        ! Optional: drop the OFF-SITE part of Sigma for the second radial set
        ! (EH2).  The two radial functions of one (atom,l) have the same angular
