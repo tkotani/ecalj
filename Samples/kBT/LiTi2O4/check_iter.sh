@@ -13,6 +13,10 @@
 #   - mloON=0 in the band's llmf_band: bands are drawn through sigm.
 #   - E_HF moving by eV in early iterations.
 D=$1; N=$2; MIX=${3:-1}; L=${4:-.}
+## Expectations measured on the 6^3 chain.  They depend on the mesh and the MPI layout, so a
+## different setup must pass its own (e.g. 9^3: CHECK_MAXSECS=15000).  A hard-coded 6^3 value
+## would call every 9^3 iteration a hang -- normal reported as abnormal.
+EXP_MLOON=${CHECK_MLOON:-16}; EXP_GWDRV=${CHECK_GWDRV:-36}; MAXSECS=${CHECK_MAXSECS:-2000}
 cd "$D" || { echo "ANOMALY: no chain dir $D"; exit 1; }
 S=snap/iter$N
 line=$(grep "iter $N rc=" steps.log | tail -1)
@@ -25,9 +29,9 @@ mlomix=$(echo "$line" | grep -oE "mlomix=[0-9]+" | cut -d= -f2)
 [ -z "$line" ] && echo "ANOMALY: no steps.log line for iter $N"
 [ "${rc:-1}" != 0 ] && echo "ANOMALY: rc=$rc"
 grep -q ABORT steps.log && echo "ANOMALY: ABORT in steps.log"
-[ "${mloON:-0}" != 16 ] && echo "ANOMALY: mloON=$mloON (expect 16)"
-[ "$N" -ge 2 ] && [ "${gwdrv:-0}" != 36 ] && echo "ANOMALY: gwdrv=$gwdrv (expect 36 from N=2)"
-[ "${secs:-0}" -gt 2000 ] && echo "ANOMALY: secs=$secs (typical 930-1030; possible hang)"
+[ "${mloON:-0}" != "$EXP_MLOON" ] && echo "ANOMALY: mloON=$mloON (expect $EXP_MLOON)"
+[ "$N" -ge 2 ] && [ "${gwdrv:-0}" != "$EXP_GWDRV" ] && echo "ANOMALY: gwdrv=$gwdrv (expect $EXP_GWDRV from N=2)"
+[ "${secs:-0}" -gt "$MAXSECS" ] && echo "ANOMALY: secs=$secs (> $MAXSECS; possible hang)"
 if [ "$MIX" = 1 ]; then
   [ "${mlomix:-0}" != 1 ] && echo "ANOMALY: mlomix=$mlomix (expect 1)"
   x0=$(grep -h "x_0 from __SigmMLO.q.prev" $L/lqpe 2>/dev/null | grep -oE "= [TF]" | tr -d '= ')
