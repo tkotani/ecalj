@@ -1,5 +1,13 @@
 # MLO-QSGW の理論確認（2026-09-25）
 
+**図**（クリックで VSCode が開きます）:
+[mlo_rows.png](Samples/kBT/LiTi2O4/mlo_rows.png) 従来 vs MLO の縦比較 ・
+[frozen_vs_not.png](Samples/kBT/LiTi2O4/frozen_vs_not.png) χ̃ 凍結の有無 ・
+[sigr_decay.png](Samples/kBT/LiTi2O4/sigr_decay.png) Σ(R) の減衰 ・
+[three_routes.png](Samples/kBT/LiTi2O4/three_routes.png) 3 経路 × iter1/2 ・
+[mlo_iter_grid.png](Samples/kBT/LiTi2O4/mlo_iter_grid.png) 旧版の 10 反復
+（詳細は [§7 図](#7-図)）
+
 ## 1. PMT 基底のセットアップ
 
 そのとおりです。MT 内の**球対称**ポテンシャルから $\phi_l(r,E_\nu)$, $\dot\phi_l$ を作り、
