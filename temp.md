@@ -452,6 +452,39 @@ $K_{\rm band}$ のためにバンド経路を事前に固定する必要があ�
 | ⑥ | `lmf`（Σ 入り SCF）| `ZmloSig` の $z_n$ で読む。$K_{\rm SCF}\subset K$ なので作り直し無し |
 | ⑦ | `job_band ... --mlo` | 同じく $z_n$。$K_{\rm band}\subset K$ なので**作り直し無し**（基底混在が消える）|
 
+### 8.4.1 ①の `getsenex` の式
+
+既知なのは **MLO で挟んだ $\Sigma$**、すなわち
+$\Sigma^{\rm MLO}_{\alpha\beta}=\langle\tilde\chi_\alpha|\hat\Sigma|\tilde\chi_\beta\rangle$ を実空間にしたもの。
+これを PMT 基底の行列に戻す。**MLO は非直交なので $O^{-1}$ が両側に要る。**
+
+**1. ブロッホ和**（唯一の内挿。$\Sigma^{\rm MLO}$ は MLO 基底上の行列なので実空間に落とせる）
+
+$$\Sigma^{\rm MLO}_{\alpha\beta}(k)=\sum_{R}\Sigma^{\rm MLO}_{\alpha\beta}(R)\,e^{ikR}$$
+
+**2. 引き上げ行列と重なり**（保存済みの $z^{\rm MLO}(k)$ ＋ その場の $S^{\rm PMT}(k)$）
+
+$$A_{m\alpha}(k)=\langle\chi^{\rm PMT}_m|\tilde\chi_\alpha\rangle=\bigl[S^{\rm PMT}(k)\,z^{\rm MLO}(k)\bigr]_{m\alpha},
+\qquad
+O^{\rm MLO}_{\alpha\beta}(k)=\langle\tilde\chi_\alpha|\tilde\chi_\beta\rangle=\bigl[z^\dagger A\bigr]_{\alpha\beta}$$
+
+**3. 非直交基底での射影演算子**
+
+$$\hat P=\sum_{\alpha\beta}|\tilde\chi_\alpha\rangle\,(O^{-1})_{\alpha\beta}\,\langle\tilde\chi_\beta|
+\ \Longrightarrow\
+\hat P\hat\Sigma\hat P=\sum_{\alpha\beta\gamma\delta}|\tilde\chi_\alpha\rangle (O^{-1})_{\alpha\gamma}\,
+\Sigma^{\rm MLO}_{\gamma\delta}\,(O^{-1})_{\delta\beta}\langle\tilde\chi_\beta|$$
+
+**4. PMT 基底で挟む**
+
+$$\mathrm{senex}_{mn}(k)=\langle\chi^{\rm PMT}_m|\hat P\hat\Sigma\hat P|\chi^{\rm PMT}_n\rangle
+=\Bigl[A\,(O^{\rm MLO})^{-1}\,\Sigma^{\rm MLO}\,(O^{\rm MLO})^{-1}A^\dagger\Bigr]_{mn}$$
+
+これが $H(k)$ に足される。設計書の式 (12)(14)(15) に対応。
+
+**新方式で変わるのはここではない。** 式は同じで、**$z^{\rm MLO}(k)$ をどこから持ってくるか**だけが変わる
+（その場で作り直す → $\Sigma$ を作った $H$ で作って保存したものを引く）。
+
 ## 8.5 現行コードとの差分
 
 1. **`sugw` 段 a'** — ループを $K_{\rm GW}$ から $K$ 全体へ。
