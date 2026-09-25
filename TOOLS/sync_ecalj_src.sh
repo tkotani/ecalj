@@ -11,6 +11,18 @@
 # LiTi2O4 runs turned out to have been made with binaries that predated the fix under
 # test: kt1's m_sigmlo.f90 had none of it, and nothing in the workflow would have said so.
 #
+# AFTER SYNCING you must rebuild, and the marker does NOT prove the binaries changed:
+#   1) the archive includes SRC/CMakeLists.txt, so cmake re-configures, and this project
+#      refuses to configure without FC.  On kt1:
+#        cd ~/ecalj/SRC/build_nvfortran && \
+#        FC=/opt/nvidia/hpc_sdk/Linux_x86_64/2026/comm_libs/mpi/bin/mpifort \
+#        make -j16 lmf lmf_mp_gpu mlo hqpe_sc
+#      Without FC it stops at "Fortran compiler must be set via FC" and leaves the OLD
+#      .so in place -- a silent no-op that looks like a successful sync.
+#   2) confirm the change actually reached the library, e.g.
+#        strings SRC/build_nvfortran/libecaljF.so | grep -c ZmloSig
+#      The executables are thin wrappers; the code lives in libecaljF*.so.
+#
 # It deliberately does NOT use git on the remote side.  kt1 and kr5 are separate
 # checkouts (kt1 even carries a commit local does not), so a pull/merge there is a
 # conflict waiting to happen.  The local repo is the single source of truth; a remote
