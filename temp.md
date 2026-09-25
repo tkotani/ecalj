@@ -395,3 +395,94 @@ GW ドライバ状態の 3 通り）で行う。
 [![sigr_decay](Samples/kBT/LiTi2O4/sigr_decay.png)](Samples/kBT/LiTi2O4/sigr_decay.png)
 
 （絶対値は正規化が違うので比較不可。規格化すると**従来 $\Sigma^{\rm MTO}(R)$ の方が減衰しない**）
+
+---
+
+# 8. 新方式 — 実装仕様
+
+§4.6 の結論を実装できる形にしたもの。**これを実装する。**
+
+## 8.1 不変条件
+
+| | 内容 |
+|---|---|
+| **I1** | $\Sigma^{\rm MLO}_n$ は**必ず $z_n$ で読み戻す**。読む $k$ が何であっても例外を作らない |
+| **I2** | $z_n$ は**$\Sigma_n$ を作ったハミルトニアン**から作る（反復 $n$ 開始時点の $H$）|
+| **I3** | **内挿するのは $\Sigma^{\rm MLO}(R)$ だけ**。$\langle\chi^{\rm PMT}|\tilde\chi\rangle$ は内挿しない（APW 行が q 周期的でないため不可能）|
+| **I4** | MLO **索引**（`ix`, `ndimMTO`）は連鎖を通じて固定。$\Sigma^{\rm MLO}$ がそのチャネル上の行列だから |
+
+I1 と I2 を両立させるために、$z$ を**後で読む全ての $k$** で先に作っておく。これが新方式の核心。
+
+## 8.2 k 集合 $K$
+
+$$K = K_{\rm GW}\ \cup\ K_{\rm SCF}\ \cup\ K_{\rm band}$$
+
+| | 中身 | 出どころ |
+|---|---|---|
+| $K_{\rm GW}$ | GW が要求する q（既約 BZ ＋ offset-Γ）| `QGpsi` / `m_qplist` |
+| $K_{\rm SCF}$ | SCF の k メッシュ | `nkabc`（`n1n2n3` と一致するとは限らない）|
+| $K_{\rm band}$ | バンド経路上の k | `syml.<sname>` から生成 |
+
+**$K$ は `lmf --jobgw=1` の中で列挙できなければならない。**
+$K_{\rm band}$ のためにバンド経路を事前に固定する必要があるが、診断用の固定経路なので問題ない。
+`syml` が無ければ $K_{\rm band}=\emptyset$ とし、バンドは描かない（描くなら `syml` を置く）。
+
+## 8.3 ファイル
+
+| ファイル | 中身 | 寿命 |
+|---|---|---|
+| `SigRsMLO` | $\Sigma^{\rm MLO}(R)$ ＋ 対リスト ＋ `ix`, `ib_tableM` | 反復をまたぐ |
+| `ZmloSig.<procid>` | **$k\in K$ 全部**での $z_n(k)$。現行 `SigRsMLO` と対 | 反復をまたぐ |
+| `ZmloNew.<procid>` | 作成中の $z_{n+1}(k)$ | 反復内 |
+| `HamRsMLO` 末尾 | `ix`, `ndimMTO`, `mlomethod`, `nskip`, `eferm`, `ecbot` | 連鎖を通じて固定 |
+
+`ZmloSig` の被覆が $K_{\rm GW}$ だけから $K$ 全体に広がるのが、現行との唯一の構造差。
+
+## 8.4 1 反復の手順
+
+| # | 実行 | $\tilde\chi$ について |
+|---|---|---|
+| ① | `lmf --jobgw=1` | |
+| | ├ `getsenex` | `ZmloSig` の **$z_{n-1}(k)$** で $\Sigma_{n-1}$ を読む。$k\in K$ なので**必ず見つかる** |
+| | └ 段 a' | **$K$ の全ての $k$** でその場の $H$ から $z_n(k)$ を作り `ZmloNew` へ。$c^{\rm MLO}$ は $K_{\rm GW}$ でのみ計算して `__cmlo.data` へ |
+| ② | GW 諸段 | $\Sigma^\psi$（MLO と無関係）|
+| ③ | `hqpe_sc` | $\Sigma^{\rm MLO}_n=c_n^\dagger\Sigma^\psi c_n$ → `__SigmMLO.q`。**$z_n$ の基底** |
+| ④ | `mlo --mlofreeze --mlo` | 対称化 → 全 BZ → FFT → `SigRsMLO`。**$z_n$ の基底** |
+| ⑤ | **昇格** | `ZmloNew.*` → `ZmloSig.*` |
+| ⑥ | `lmf`（Σ 入り SCF）| `ZmloSig` の $z_n$ で読む。$K_{\rm SCF}\subset K$ なので作り直し無し |
+| ⑦ | `job_band ... --mlo` | 同じく $z_n$。$K_{\rm band}\subset K$ なので**作り直し無し**（基底混在が消える）|
+
+## 8.5 現行コードとの差分
+
+1. **`sugw` 段 a'** — ループを $K_{\rm GW}$ から $K$ 全体へ。
+   $K_{\rm SCF}$ は `nkabc` から、$K_{\rm band}$ は `syml` から列挙する。
+   $c^{\rm MLO}$（`__cmlo.data`）は従来どおり $K_{\rm GW}$ のみでよい。
+2. **`m_sigmlo`** — $k$ が `ZmloSig` に無かったとき、いまは**黙って作り直す**。
+   新方式では**それが起きたら異常**なので、**警告して止める**（`ECALJ_MLO_ALLOW_REBUILD=1` で従来動作）。
+   混在を静かに見逃さないための歯止め。
+3. **`gwsc`** — `syml.<sname>` を `lmf --jobgw=1` の前に用意する。
+
+## 8.6 検証（これが揃って初めて「新方式で測った」と言える）
+
+| 見るもの | 期待 |
+|---|---|
+| `llmfgw01` / `llmf` / `llmf_band` の「作り直し」回数 | **0**（1 回でも出たら $K$ の列挙漏れ）|
+| `gwsc: promoted N ZmloNew.* -> ZmloSig.*` | 毎反復 |
+| `loaded ZmloSig ... records=` | 各実行で $|K|$ 相当 |
+| `ECALJ_ZMLO_DUMP` | a' と `getsenex` の $z$ が一致 |
+| `ECALJ_SIGMLO_RT` | $\Sigma^{\rm MLO}(q)\to R\to q$ の往復誤差 |
+
+## 8.7 残る近似
+
+反復 $n$ の最後の `lmf` は SCF で密度を動かすが、$z$ は反復開始時のものを使い続ける。
+したがって SCF ループ内では $z$ と $H$ が厳密には対応しない。ただし
+
+- 同じ $z$ を使い続けるので **$\Sigma$ の読み方は一貫している**（k でも SCF ステップでも揺れない）
+- 自己無撞着に達すれば密度が止まるので、この近似は消える
+
+**途中の反復にのみ残る近似**であり、収束を妨げる種類のものではない、というのが見立て。
+
+## 8.8 コスト
+
+$K_{\rm band}$ ぶんの `Hreduction` が増える。1 k あたり PMT の対角化 1 回（$O(n_{\rm dimh}^3)$）。
+211 点の経路なら GW ドライバの実行時間に数分乗る程度で、GW 諸段に比べれば小さい。
