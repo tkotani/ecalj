@@ -52,11 +52,19 @@ for it in $(seq 1 $NITER); do
   cp -f ZmloSig.* $SD/ 2>/dev/null
   tail -400 llmf > $SD/llmf.tail 2>/dev/null
   cp -f $L $SD/steps.log 2>/dev/null
+  ## Band in the MLO space, not the PMT space.  H^MLO(R) and Sigma^MLO(R) are both
+  ## matrices over the MLO channels and therefore q-periodic, so the reduced eigenproblem
+  ## can be solved at ANY k with no lift to PMT and no z^MLO(k) -- which is the one thing
+  ## that cannot be interpolated.  Drawing in PMT space instead mixes the stored chi~ at
+  ## the mesh points with a rebuilt one in between, and that mixture, not the method, is
+  ## what made the 2026-09-25 band plots look rough.  --mlofreeze keeps HamRsMLO so the
+  ## channel list stays the one SigRsMLO is a matrix over.
   ( cd $SD && source env.sh && export PATH=$TB:$PATH && CUDA_VISIBLE_DEVICES= \
-      $TB/job_band $T -np 8 NoGnuplot --mlo > lb.log 2>&1 )
-  if [ -f $SD/bnd001.spin1 ]; then
-    cp $SD/bnd001.spin1 $D/bnd_iter$it.dat
-    say "   band ok (in snap/iter$it, --mlo, mloON=$(grep -c 'MLO Sigma interpolation ON' $SD/llmf_band 2>/dev/null)); snapshot $(du -sh $SD 2>/dev/null | cut -f1)"
+      $TB/job_mlo $T -np 8 --mlofreeze --mlo > lb.log 2>&1 )
+  BND=$(ls $SD/band_MLO_spin1.dat $SD/bnd001.spin1 2>/dev/null | head -1)
+  if [ -n "$BND" ]; then
+    cp $BND $D/bnd_iter$it.dat
+    say "   band ok (MLO space, in snap/iter$it; $(basename $BND)); snapshot $(du -sh $SD 2>/dev/null | cut -f1)"
   else
     say "   BAND FAILED: $(tail -2 $SD/lb.log 2>/dev/null | tr '\n' ' ')"
   fi

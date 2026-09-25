@@ -780,6 +780,24 @@ contains
           write(ifihmto) ib_tableM(1:ndimMTO), ix(1:ndimMTO)
           close(ifihmto)
           write(stdo,ftox)' Wrote SigRsMLO |Sigma(R)|=',ftof(sum(abs(sigmlor)))
+          PromoteChiSlot: block !The chi~ slot must change over at exactly this moment.
+            !ZmloNew.* is the chi~ that sugw's step a' built for THIS iteration and that
+            !the Sigma just written is expressed in; ZmloSig.* is what getsenex reads
+            !Sigma back through.  Doing the rename here, in the same place that writes
+            !SigRsMLO, makes the two inseparable.  gwsc also does it, which is then a
+            !no-op; that duplication is deliberate -- on 2026-09-25 a stale copy of gwsc
+            !in a bin directory meant the promotion never ran at all, silently.
+            integer:: ncmd
+            character(512):: cmd
+            logical:: lnew
+            inquire(file='ZmloNew.0',exist=lnew)
+            if(lnew) then
+              cmd = 'rm -f ZmloSig.* ; for f in ZmloNew.* ; do '// &
+                    '[ -e "$f" ] && mv -f "$f" "ZmloSig.${f#ZmloNew.}" ; done'
+              call execute_command_line(trim(cmd), wait=.true., exitstat=ncmd)
+              write(stdo,ftox)' m_HamPMT: promoted ZmloNew.* -> ZmloSig.* (chi~ of this SigRsMLO) rc=',ncmd
+            endif
+          endblock PromoteChiSlot
         endif
       endif
    end subroutine HamPMTtoHamRsMLO
