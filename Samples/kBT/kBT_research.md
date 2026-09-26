@@ -86,7 +86,7 @@
 
 **何が起きていたか**: 段 a'（`sugw`）は式 (3) の窓の基準 `eferm`/`ecbot` を `HamRsMLO` の末尾から読んでいた。
 これは連鎖の最初（段 0d `mlo --mlo`）に LDA の SCF が書いた `efermi.lmf` の値で、その後更新されない。
-$	ilde\chi$ を連鎖を通じて凍結していた旧設計の名残（`m_HamPMT` の `FrozenModel`）。各反復の SCF は `efermi.lmf` を書き直し、
+$\tilde\chi$ を連鎖を通じて凍結していた旧設計の名残（`m_HamPMT` の `FrozenModel`）。各反復の SCF は `efermi.lmf` を書き直し、
 段 a' にも今の $E_F$ が渡っていたが、ログに並べて表示するだけだった。
 
 *表 21:42-1* 段 a' のログ（`sugw a' window`）の $E_F$ [Ry]。`HamRsMLO` 側は 6³ で 0.249697、9³ で 0.249596 のまま
