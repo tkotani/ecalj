@@ -14,7 +14,7 @@ module m_zmel
   use m_mpi,only:master_mpi
   use m_mem,only: memused,writemem
   use m_kind, only: kp => kindzmel
-  use m_blas, only: m_op_c, m_op_n, m_op_t, int_split, BACKEND_BLAS
+  use m_blas, only: m_op_c, m_op_n, m_op_t, int_split, BACKEND_BLAS, la_cache_reset
   use m_mpi, only: ipr
 use m_cmdopt_registry, only: c0_debugzmel
 #if defined(__MP) && defined(__GPU)
@@ -66,6 +66,7 @@ contains
     !$acc end kernels
     !$acc end data
     call set_nbb_zmel(npr)
+    call la_cache_reset()   ! matrices kept under gemm keys (this basis, W of the q point) are stale from here
   end subroutine set_m2e_prod_basis
   subroutine set_m2e_prod_basis_chipm(zzr,nmbas1) !Set ppovlz for chipm case
     intent(in)::             zzr,nmbas1
@@ -83,6 +84,7 @@ contains
     !$acc enter data copyin(m2e_prod_basis)
 #endif
     nbb   = nmbas1
+    call la_cache_reset()
   end subroutine set_m2e_prod_basis_chipm
   subroutine mptauof_zmel(symops,ng)! Set miat,tiat,invgx,shtvg
     !> Smart re-allocation: if a previous call already set up state for ng' >= ng,
@@ -575,7 +577,8 @@ contains
           !convert to product basis E
           !$acc host_data use_device(zmel, m2e_prod_basis)
           ierr = gemm(m2e_prod_basis, zmelt(1,nm1,1), zmel(1,nm1,1), nbb, nmtot*ncc, ngb, opA = m_op_C) ! ncc == 0, this is not used 
-          ierr = gemm(m2e_prod_basis, zmelt(1,nm1,ncc+1), zmel(1,nm1,ncc+ini_index), nbb, nmtot*ntp0, ngb, opA = m_op_C)
+          ierr = gemm(m2e_prod_basis, zmelt(1,nm1,ncc+1), zmel(1,nm1,ncc+ini_index), nbb, nmtot*ntp0, ngb, opA = m_op_C, &
+                      key = 1)   ! the basis is fixed until the next set_m2e_prod_basis
           !$acc end host_data
         endif
       endblock MToEBasisTransformation

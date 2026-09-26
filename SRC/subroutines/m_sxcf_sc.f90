@@ -582,7 +582,8 @@ contains
                     !the most time-consuming part in the correlation part
                     beta = CONE
                     if (iw == sxs_wi_ini) beta = CZERO
-                    ierr = gemm(wc, wzmel, czmelwc, ngb, (ns2-ns1+1)*sxs_ntqxx, ngb, beta = beta, opA = m_op_C)
+                    ierr = gemm(wc, wzmel, czmelwc, ngb, (ns2-ns1+1)*sxs_ntqxx, ngb, beta = beta, opA = m_op_C, &
+                                key = 1000 + iw)   ! W(i omega) is fixed for this kx (m_zmel resets the keys)
                   enddo iwimag
                   !$acc end data
                   deallocate(wzmel)
@@ -664,7 +665,7 @@ contains
                       wz_iw(1:ngb,ittp) = cmplx(wgtiw(ittp,iw)*zmel(1:ngb,it,itp), kind=kp)
                     enddo
                     !$acc end kernels
-                    ierr = gemm(wc, wz_iw, czwc_iw, ngb, nttp(iw), ngb, opA=m_op_C)
+                    ierr = gemm(wc, wz_iw, czwc_iw, ngb, nttp(iw), ngb, opA=m_op_C, key = 100000 + iw) ! W(omega)
                     !$acc kernels loop independent
                     do ittp = 1, nttp(iw)
                       it = itw(ittp,iw); itp = itpw(ittp,iw)

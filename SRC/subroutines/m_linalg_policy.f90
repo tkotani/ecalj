@@ -1,0 +1,287 @@
+!> Which implementation (backend) runs each kind of GPU matrix product and the epstilde inverse.
+!>
+!> One table per precision level (tf32 / fp32 / fp64; the level is fixed by the build (MP or not) and --use_fp32).
+!> A row is  <level>.<op>.<small|large> = <backend>[:<moduli>]  plus the size thresholds that separate small from large.
+!>   op      : cgemm (complex single), zgemm (complex double), dgemm (real double), epsinv (inverse of epstilde)
+!>   backend : cublas | realsgemm | gemmul8[:moduli]      (epsinv: lu64 | mixed1 | mixed2)
+!> The table is filled in this order, later ones win:
+!>   1. built-in defaults: cuBLAS everywhere, lu64 (what the code did before the table existed)
+!>   2. the policy file written at installation by linalgtune, <bindir>/ecalj_linalg_policy.toml,
+!>      used only when its gpu line matches this GPU (or the file sets gpu = "any")
+!>   3. --use_gemmul8 (old switch: GEMMul8 for the large products)
+!>   4. --linalg=<row>,<row>,...   e.g. --linalg=fp32.cgemm.large=realsgemm,fp64.zgemm.large=gemmul8:14
+!> The table in use is printed once.  Backends that cannot do a given call (e.g. realsgemm with opB /= N) fall back
+!> to cuBLAS inside m_blas.  2026-09-27.
+module m_linalg_policy
+  implicit none
+  private
+  public :: la_init, la_backend, la_moduli, la_level, la_print, this_gpu
+  integer, parameter, public :: BK_CUBLAS = 0, BK_REALSGEMM = 1, BK_GEMMUL8 = 2
+  integer, parameter, public :: BK_LU64 = 10, BK_MIXED1 = 11, BK_MIXED2 = 12
+  integer, parameter, public :: OP_CGEMM = 1, OP_ZGEMM = 2, OP_DGEMM = 3, OP_EPSINV = 4
+  integer, parameter :: nop = 4
+  character(6), parameter :: opname(nop) = ['cgemm ', 'zgemm ', 'dgemm ', 'epsinv']
+  type rule_t
+    integer :: small = BK_CUBLAS, large = BK_CUBLAS
+    integer :: msmall = 0, mlarge = 0      ! GEMMul8 moduli (0 = the module default)
+    integer :: minm = 256, minn = 512, mink = 256
+    real(8) :: minmnk = 1d9                ! large: m>=minm, n>=minn, k>=mink and m*n*k>=minmnk
+  end type
+  type(rule_t), save :: rule(nop)
+  character(4), save :: level = 'fp64'
+  character(256), save :: source = 'built-in defaults'
+  logical, save :: inited = .false.
+contains
+  subroutine la_init()
+    use m_cmdopt_registry, only: c0_use_fp32, c0_use_gemmul8, c2_linalg
+    if (inited) return
+    inited = .true.
+#ifdef __MP
+    level = merge('fp32', 'tf32', c0_use_fp32)
+#else
+    level = 'fp64'
+#endif
+    rule(OP_EPSINV)%small = BK_LU64
+    rule(OP_EPSINV)%large = BK_LU64
+    call read_policy_file()
+    if (c0_use_gemmul8) then                        ! the old switch: GEMMul8 for the large products
+      rule(OP_CGEMM)%large = BK_GEMMUL8
+      rule(OP_CGEMM)%minm = 1000; rule(OP_CGEMM)%minn = 1000; rule(OP_CGEMM)%mink = 1000; rule(OP_CGEMM)%minmnk = 1d10
+      rule(OP_ZGEMM)%large = BK_GEMMUL8; rule(OP_DGEMM)%large = BK_GEMMUL8
+      rule(OP_ZGEMM)%minm = 64; rule(OP_ZGEMM)%minn = 64; rule(OP_ZGEMM)%mink = 64; rule(OP_ZGEMM)%minmnk = 1d8
+      rule(OP_DGEMM)%minm = 64; rule(OP_DGEMM)%minn = 64; rule(OP_DGEMM)%mink = 64; rule(OP_DGEMM)%minmnk = 1d8
+      source = trim(source)//' + --use_gemmul8'
+    endif
+    if (len_trim(c2_linalg) > 0) then
+      call apply_rows(c2_linalg, ',')
+      source = trim(source)//' + --linalg'
+    endif
+    call print_on_rank0()
+  end subroutine la_init
+
+  subroutine print_on_rank0()
+    !> The table in use, once, from MPI rank 0 (m_mpi is not used here: m_mpi -> m_gpu -> m_blas -> this module).
+    use mpi
+    use m_lgunit, only: stdo
+    logical :: ini
+    integer :: rank, ierr
+    rank = 0
+    call MPI_Initialized(ini, ierr)
+    if (ini) call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierr)
+    if (rank == 0) call la_print(stdo)
+  end subroutine print_on_rank0
+
+  integer function la_backend(op, m, n, k) result(bk)
+    !> Backend for one call: the small or the large row of this level's table.
+    integer, intent(in) :: op, m, n, k
+    call la_init()
+    if (islarge(op, m, n, k)) then
+      bk = rule(op)%large
+    else
+      bk = rule(op)%small
+    endif
+  end function la_backend
+
+  integer function la_moduli(op, m, n, k) result(nm)
+    !> GEMMul8 moduli of the row la_backend used (0 = the default of m_gemmul8).
+    integer, intent(in) :: op, m, n, k
+    call la_init()
+    nm = merge(rule(op)%mlarge, rule(op)%msmall, islarge(op, m, n, k))
+  end function la_moduli
+
+  character(4) function la_level()
+    call la_init()
+    la_level = level
+  end function la_level
+
+  logical function islarge(op, m, n, k)
+    integer, intent(in) :: op, m, n, k
+    islarge = m >= rule(op)%minm .and. n >= rule(op)%minn .and. k >= rule(op)%mink .and. &
+              real(m,8)*real(n,8)*real(k,8) >= rule(op)%minmnk
+  end function islarge
+
+  subroutine la_print(iout)
+    !> The table in use, one line per op.
+    integer, intent(in) :: iout
+    integer :: op
+    write(iout,'(a)') ' linalg policy ('//level//', from '//trim(source)//'):'
+    do op = 1, nop
+      write(iout,'(3x,a,a,a,a,a,i5,i6,i5,es9.1)') opname(op), ' small=', trim(bkname(rule(op)%small, rule(op)%msmall)), &
+           ' large=', trim(bkname(rule(op)%large, rule(op)%mlarge)), rule(op)%minm, rule(op)%minn, rule(op)%mink, rule(op)%minmnk
+    enddo
+  end subroutine la_print
+
+  function bkname(bk, nm) result(s)
+    integer, intent(in) :: bk, nm
+    character(20) :: s
+    select case (bk)
+    case (BK_CUBLAS);    s = 'cublas'
+    case (BK_REALSGEMM); s = 'realsgemm'
+    case (BK_GEMMUL8);   s = 'gemmul8'
+      if (nm > 0) write(s,'(a,i0)') 'gemmul8:', nm
+    case (BK_LU64);      s = 'lu64'
+    case (BK_MIXED1);    s = 'mixed1'
+    case (BK_MIXED2);    s = 'mixed2'
+    case default;        s = '?'
+    end select
+  end function bkname
+
+  subroutine read_policy_file()
+    !> <bindir>/ecalj_linalg_policy.toml: dotted keys, one per line, e.g.
+    !>   gpu = "NVIDIA GeForce RTX 5090"
+    !>   fp32.cgemm.large = "realsgemm"
+    !>   fp32.cgemm.minn = 512
+    !> Rows of other levels are read but only this level's are used.  The file is written once at installation;
+    !> it is only read here.  ECALJ_LINALG_POLICY overrides the path.
+    character(1024) :: path, line
+    character(256) :: gpu
+    integer :: ifi, ios, st, lb
+    call get_environment_variable('ECALJ_LINALG_POLICY', path, status=st)
+    if (st /= 0 .or. len_trim(path) == 0) then
+      call exe_dir(path)
+      path = trim(path)//'/ecalj_linalg_policy.toml'
+    endif
+    open(newunit=ifi, file=trim(path), status='old', action='read', iostat=ios)
+    if (ios /= 0) return
+    gpu = ''
+    do
+      read(ifi,'(a)', iostat=ios) line
+      if (ios /= 0) exit
+      line = adjustl(line)
+      if (line(1:1) == '#' .or. len_trim(line) == 0) cycle
+      if (line(1:3) == 'gpu') then
+        lb = index(line, '=')
+        gpu = unquote(line(lb+1:))
+        if (trim(gpu) /= 'any' .and. trim(gpu) /= trim(this_gpu())) then
+          close(ifi)
+          source = 'built-in defaults (policy file is for "'//trim(gpu)//'")'
+          return
+        endif
+      endif
+    enddo
+    rewind(ifi)
+    do
+      read(ifi,'(a)', iostat=ios) line
+      if (ios /= 0) exit
+      line = adjustl(line)
+      if (line(1:1) == '#' .or. len_trim(line) == 0 .or. line(1:3) == 'gpu') cycle
+      call apply_row(line)
+    enddo
+    close(ifi)
+    source = trim(path)
+  end subroutine read_policy_file
+
+  function this_gpu() result(nm)
+    !> Name of the current CUDA device ('none' without GPU), as nvidia-smi prints it.
+#ifdef __GPU
+    use cudafor
+#endif
+    character(256) :: nm
+#ifdef __GPU
+    type(cudaDeviceProp) :: prop
+    integer :: dev, istat
+    istat = cudaGetDevice(dev)
+    istat = cudaGetDeviceProperties(prop, dev)
+    nm = trim(prop%name)
+#else
+    nm = 'none'
+#endif
+  end function this_gpu
+
+  subroutine exe_dir(dir)
+    !> Directory of the running executable (where InstallAll put the policy file).
+    character(*), intent(out) :: dir
+    character(1024) :: exe
+    integer :: i
+    call get_command_argument(0, exe)
+    i = index(exe, '/', back=.true.)
+    dir = '.'
+    if (i > 1) dir = exe(1:i-1)
+  end subroutine exe_dir
+
+  subroutine apply_rows(rows, sep)
+    character(*), intent(in) :: rows
+    character(1), intent(in) :: sep
+    integer :: i0, i1
+    i0 = 1
+    do while (i0 <= len_trim(rows))
+      i1 = index(rows(i0:), sep)
+      if (i1 == 0) then
+        call apply_row(rows(i0:len_trim(rows)))
+        exit
+      endif
+      call apply_row(rows(i0:i0+i1-2))
+      i0 = i0 + i1
+    enddo
+  end subroutine apply_rows
+
+  subroutine apply_row(row)
+    !> <level>.<op>.<field> = <value>; rows of other levels are ignored.
+    character(*), intent(in) :: row
+    character(64) :: key, lv, opn, field
+    character(64) :: val
+    integer :: ie, i1, i2, op, bk, nm, ios
+    ie = index(row, '=')
+    if (ie == 0) return
+    key = adjustl(row(1:ie-1))
+    val = unquote(row(ie+1:))
+    i1 = index(key, '.')
+    if (i1 == 0) return
+    i2 = index(key(i1+1:), '.')
+    if (i2 == 0) return
+    lv = key(1:i1-1)
+    opn = key(i1+1:i1+i2-1)
+    field = trim(key(i1+i2+1:))
+    if (trim(lv) /= level) return
+    op = findloc(opname, trim(opn), dim=1)
+    if (op == 0) call rx('linalg policy: unknown op in "'//trim(row)//'"')
+    select case (trim(field))
+    case ('small', 'large')
+      call parse_backend(val, bk, nm)
+      if (trim(field) == 'small') then
+        rule(op)%small = bk; rule(op)%msmall = nm
+      else
+        rule(op)%large = bk; rule(op)%mlarge = nm
+      endif
+    case ('minm');   read(val,*,iostat=ios) rule(op)%minm
+    case ('minn');   read(val,*,iostat=ios) rule(op)%minn
+    case ('mink');   read(val,*,iostat=ios) rule(op)%mink
+    case ('minmnk'); read(val,*,iostat=ios) rule(op)%minmnk
+    case default
+      call rx('linalg policy: unknown field in "'//trim(row)//'"')
+    end select
+  end subroutine apply_row
+
+  subroutine parse_backend(val, bk, nm)
+    character(*), intent(in) :: val
+    integer, intent(out) :: bk, nm
+    integer :: ic, ios
+    nm = 0
+    ic = index(val, ':')
+    if (ic > 0) then
+      read(val(ic+1:),*,iostat=ios) nm
+      if (ios /= 0) nm = 0
+    endif
+    select case (val(1:merge(ic-1, len_trim(val), ic > 0)))
+    case ('cublas');    bk = BK_CUBLAS
+    case ('realsgemm'); bk = BK_REALSGEMM
+    case ('gemmul8');   bk = BK_GEMMUL8
+    case ('lu64');      bk = BK_LU64
+    case ('mixed1');    bk = BK_MIXED1
+    case ('mixed2');    bk = BK_MIXED2
+    case default
+      call rx('linalg policy: unknown backend "'//trim(val)//'"')
+    end select
+  end subroutine parse_backend
+
+  function unquote(s) result(u)
+    character(*), intent(in) :: s
+    character(256) :: u
+    integer :: ic
+    u = adjustl(s)
+    ic = index(u, '#')                          ! trailing comment
+    if (ic > 0) u = u(1:ic-1)
+    u = trim(adjustl(u))
+    if (len_trim(u) >= 2 .and. u(1:1) == '"') u = u(2:len_trim(u)-1)
+  end function unquote
+end module m_linalg_policy

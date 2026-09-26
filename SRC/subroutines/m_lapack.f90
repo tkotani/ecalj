@@ -452,38 +452,24 @@ contains
     deallocate(awork)
   end function zminv_d
   integer function zminv_eps_d(a, n, lda) result(istat)
-    !> Inverse of the dielectric matrix epstilde (m_llw).  ECALJ_MATINV_MIXED=1 selects zminv_mixed_d
-    !> (single-precision LU refined in double precision; one Newton step with the mixed-precision build,
-    !> two with the double-precision one); default is zminv_d.  Not validated in hgw yet (2026-09-27).
+    !> Inverse of the dielectric matrix epstilde (m_llw), in place.  m_linalg_policy chooses (row epsinv):
+    !> lu64 = zminv_d (FP64 LU); mixed1 / mixed2 = zminv_mixed_d with 1 / 2 Newton steps.
+    use m_linalg_policy, only: la_backend, OP_EPSINV, BK_MIXED1, BK_MIXED2
     complex(8), device :: a(*)
     integer, intent(in) :: n
     integer, optional :: lda
-    integer, save :: mode = -1
-    character(8) :: cv
-    integer :: st, ios, lda_in
+    integer :: lda_in
     lda_in = n; if (present(lda)) lda_in = lda
-    if (mode < 0) then
-      mode = 0
-      call get_environment_variable('ECALJ_MATINV_MIXED', cv, status=st)
-      if (st == 0) then
-        read(cv, *, iostat=ios) mode
-        if (ios /= 0) mode = 0
-      endif
-    endif
-    if (mode == 1) then
-#ifdef __MP
-      istat = zminv_mixed_d(a, n, lda_in, 1)
-#else
-      istat = zminv_mixed_d(a, n, lda_in, 2)
-#endif
-    else
-      istat = zminv_d(a, n, lda_in)
-    endif
+    select case (la_backend(OP_EPSINV, n, n, n))
+    case (BK_MIXED1); istat = zminv_mixed_d(a, n, lda_in, 1)
+    case (BK_MIXED2); istat = zminv_mixed_d(a, n, lda_in, 2)
+    case default;     istat = zminv_d(a, n, lda_in)
+    end select
   end function zminv_eps_d
   integer function zminv_mixed_d(a, n, lda, nnewton) result(istat)
     !> In-place inverse of a (complex(8), device, leading dimension lda): LU in single precision
     !> (cgetrf + cgetrs on the identity), then nnewton Newton-Schulz steps X <- X (2I - A X) in double
-    !> precision (zmm_d: GEMMul8 with --use_gemmul8, else cuBLAS FP64).  Each step squares the residual.
+    !> precision (zmm_d, whose backend m_linalg_policy chooses).  Each step squares the residual.
     !> Needs cond(a) well below 1e7.  TOOLS/ozbench/matinvbench.cu, n=1053 on RTX 5090 (2026-09-27):
     !> zgetrf+zgetrs 21.6 ms; single LU 3.1 ms (err 2e-6), +1 step 7.0 ms (3e-12), +2 steps 14.6 ms (7e-15)
     !> with emulated FP64 products; zminv_d takes ~31 ms.

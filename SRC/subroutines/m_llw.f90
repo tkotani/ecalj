@@ -26,7 +26,7 @@ module m_llw
   use m_stopwatch
   use m_blas, only: m_op_c, m_op_t
 #ifdef __GPU
-  use m_lapack, only: zminv => zminv_eps_d   ! zminv_d unless ECALJ_MATINV_MIXED=1
+  use m_lapack, only: zminv => zminv_eps_d   ! LU64 or mixed precision, from m_linalg_policy (row epsinv)
 #else
   use m_lapack, only: zminv => zminv_h
 #endif

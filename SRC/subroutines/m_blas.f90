@@ -1,13 +1,12 @@
 module m_blas !wrapper for BLAS and cuBLAS
   !$use omp_lib
-  use m_gemmul8, only: use_gemmul8, gemmul8_init, num_moduli_d, num_moduli_z, num_moduli_c, &
-                       fastmode_gemmul8, gemmul8_worth, gemmul8_worth64
+  use m_gemmul8, only: gemmul8_init, num_moduli_d, num_moduli_z, num_moduli_c, fastmode_gemmul8
 #ifdef __GPU
   use cublas_v2
   use cudafor
 #endif
   implicit none
-  public :: int_split
+  public :: int_split, la_cache_reset
   public :: m_op_n, m_op_t, m_op_c
   public :: cmm_h, cmm_batch_h, zmm_h, zmm_batch_h, dmm_h, dmv_h, zmv_h, zvv_h
 #ifdef __GPU
@@ -15,20 +14,19 @@ module m_blas !wrapper for BLAS and cuBLAS
   public :: cublas_init, cublas_handle, cublas_finalize, cublas_set_stream
   type(cublashandle), target :: cublas_handle
   logical, save :: set_cublas_handle = .false.
-  real(4), device, allocatable, save :: cmm_ap(:)   ! the real (2k x 2m) copy of A for cmm_d's SGEMM route
-  integer, save :: cmm_real_mode = -1                ! ECALJ_CGEMM_REAL: 1 (default) SGEMM route on, 0 off
 #endif
   character, parameter :: m_op_n = 'N', m_op_t = 'T', m_op_c = 'C'
   integer, parameter :: BACKEND_BLAS = 0 !BLAS/cuBLAS
   integer, parameter :: BACKEND_GEMMUL8 = 1
   integer, parameter :: BACKEND_AUTO = 2
 contains
-  integer function cmm_h(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc, policy) result(istat)
+  integer function cmm_h(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc, policy, key) result(istat)
     complex(4) :: a(*), b(*), c(*)
     integer, intent(in) :: m, n, k
     character, intent(in), optional :: opa, opb
     complex(4), intent(in), optional :: alpha, beta
     integer, intent(in), optional :: lda, ldb, ldc, policy !policy is dummy
+    integer, intent(in), optional :: key   ! accepted for the device version's interface; unused on the host
     complex(4) :: alpha_in, beta_in
     integer :: lda_in, ldb_in, ldc_in
     character :: opa_in, opb_in
@@ -202,12 +200,13 @@ contains
     call dgemm(opa_in, opb_in, m, n, k, alpha_in, a, lda_in, b, ldb_in, beta_in, c, ldc_in)
     istat = 0
   end function dmm_h
-  integer function zmm_h(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc, policy) result(istat)
+  integer function zmm_h(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc, policy, key) result(istat)
     complex(8) :: a(*), b(*), c(*)
     integer, intent(in) :: m, n, k
     character, intent(in), optional :: opa, opb
     complex(8), intent(in), optional :: alpha, beta
     integer, intent(in), optional :: lda, ldb, ldc, policy !policy is dummy
+    integer, intent(in), optional :: key   ! accepted for the device version's interface; unused on the host
     complex(8) :: alpha_in, beta_in
     integer :: lda_in, ldb_in, ldc_in
     character :: opa_in, opb_in
@@ -290,18 +289,24 @@ contains
     istat = nbatch
   end function zmm_batch_h
 #ifdef __GPU
-  integer function cmm_d(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc, policy) result(istat)
+  integer function cmm_d(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc, policy, key) result(istat)
+    !> C = alpha op(A) op(B) + beta C, complex single precision on the device.  The backend (cuBLAS, the real-SGEMM
+    !> route or GEMMul8) comes from m_linalg_policy; policy=BACKEND_BLAS / BACKEND_GEMMUL8 forces one.
+    !> key >= 0 (optional): same key = same A until la_cache_reset, so backends may keep their form of A.
     use cublas_v2, m_type =>CUDA_C_32F, algo => cublas_gemm_default
     use m_cmdopt_registry, only: c0_use_fp32  ! --use_fp32 -> true FP32, else TF32
+    use m_linalg_policy, only: la_backend, la_moduli, OP_CGEMM, BK_CUBLAS, BK_REALSGEMM, BK_GEMMUL8
+    use m_la_realsgemm, only: realsgemm_c
     complex(4), device, target :: a(*), b(*), c(*)
     integer, intent(in) :: m, n, k
     character, intent(in), optional :: opa, opb
     complex(4), intent(in), optional :: alpha, beta
-    integer, intent(in), optional :: lda, ldb, ldc, policy
+    integer, intent(in), optional :: lda, ldb, ldc, policy, key
     complex(4) :: alpha_in, beta_in
-    integer :: lda_in, ldb_in, ldc_in, policy_in
+    integer :: lda_in, ldb_in, ldc_in, policy_in, key_in, bk, ctype
     character :: opa_in, opb_in
     integer :: opa_in_cublas, opb_in_cublas
+    istat = 0
     if (m < 1 .or. n < 1 .or. k < 1) return
     alpha_in = (1.0, 0.0); beta_in = (0.0, 0.0)
     if(present(alpha)) alpha_in = alpha
@@ -318,80 +323,43 @@ contains
     if(present(ldc)) ldc_in = ldc
     policy_in = BACKEND_AUTO
     if(present(policy)) policy_in = policy
+    key_in = -1
+    if(present(key)) key_in = key
     istat = cublas_init()
-    istat = gemmul8_init()
     opa_in_cublas = get_m_op_cublas(opa_in)
     opb_in_cublas = get_m_op_cublas(opb_in)
-    if (cmm_real_mode < 0) cmm_real_mode = envint01('ECALJ_CGEMM_REAL', 1)
-    if (.not.(use_gemmul8 .and. gemmul8_worth(m,n,k)) .and. policy_in /= BACKEND_GEMMUL8 .and. cmm_real_mode == 1 &
-        .and. opa_in == m_op_c .and. opb_in == m_op_n .and. alpha_in == (1.0, 0.0) .and. aimag(beta_in) == 0.0 &
-        .and. n >= 512 .and. m >= 256 .and. k >= 256 .and. 4_8*k*m < huge(1)) then
-      ! C = A^H B + beta C as ONE real SGEMM on the same memory: B (k x n complex) read as real (2k x n),
-      ! C (m x n complex) written as real (2m x n).  Ap (2k x 2m real): column 2j-1 = A(:,j) as (re,im),
-      ! column 2j = (-im, re); then Ap^T B is C with Re and Im interleaved.  Same 8mnk flops in FP32.
-      ! cuBLAS cgemm reaches 31 TFLOPS on RTX 5090 (1/3 of FP32 peak); this route was 2.7x faster for
-      ! m=k=1053, n=49928 (Sigma_c imaginary axis) and 1.8x for n=1000 (TOOLS/ozbench/realtrick.cu, 2026-09-27).
-      block
-        integer :: i, j
-        complex(4) :: v
-        real(4) :: one_r, beta_r
-        one_r = 1.0
-        beta_r = real(beta_in)
-        if (allocated(cmm_ap)) then
-          if (size(cmm_ap) < 4*k*m) deallocate(cmm_ap)
-        endif
-        if (.not. allocated(cmm_ap)) allocate(cmm_ap(4*k*m))
-        !$cuf kernel do(2) <<<*,*>>>
-        do j = 1, m
-          do i = 1, k
-            v = a(i + (j-1)*lda_in)
-            cmm_ap(2*i-1 + (2*j-2)*2*k) =  real(v)
-            cmm_ap(2*i   + (2*j-2)*2*k) =  aimag(v)
-            cmm_ap(2*i-1 + (2*j-1)*2*k) = -aimag(v)
-            cmm_ap(2*i   + (2*j-1)*2*k) =  real(v)
-          enddo
-        enddo
-        istat = cublasGemmEX(cublas_handle, CUBLAS_OP_T, CUBLAS_OP_N, 2*m, n, 2*k, &
-                             one_r, cmm_ap, CUDA_R_32F, 2*k, b, CUDA_R_32F, 2*ldb_in, beta_r, c, CUDA_R_32F, 2*ldc_in, &
-                             merge(CUBLAS_COMPUTE_32F, CUBLAS_COMPUTE_32F_FAST_TF32, c0_use_fp32), algo)
-      endblock
-    elseif(use_gemmul8 .and. ((policy_in == BACKEND_AUTO .and. gemmul8_worth(m,n,k)) .or. (policy_in == BACKEND_GEMMUL8))) then
+    ctype = merge(CUBLAS_COMPUTE_32F, CUBLAS_COMPUTE_32F_FAST_TF32, c0_use_fp32)
+    select case (policy_in)
+    case (BACKEND_BLAS);    bk = BK_CUBLAS
+    case (BACKEND_GEMMUL8); bk = BK_GEMMUL8
+    case default;           bk = la_backend(OP_CGEMM, m, n, k)
+    end select
+    if (bk == BK_REALSGEMM) then
+      istat = realsgemm_c(cublas_handle, opa_in, opb_in, m, n, k, alpha_in, a, lda_in, b, ldb_in, beta_in, c, ldc_in, &
+                          ctype, key_in)
+      if (istat /= -1) return
+      bk = BK_CUBLAS                                 ! the route needs opB = N
+    endif
+    if (bk == BK_GEMMUL8) then
 #ifdef __GEMMUL8
       block
         use m_gemmul8, only: gemmul8_handle, gemmul8_cgemm
         use iso_c_binding
-        type(c_ptr) :: devA, devB, devC
-        integer :: fastmode_int, enable_skip_A_int, enable_skip_B_int, skip_a_int, skip_b_int
-        fastmode_int = fastmode_gemmul8
-        enable_skip_A_int = 0
-        enable_skip_B_int = 0
-        skip_a_int = 0
-        skip_b_int = 0
-        devA = c_loc(a)
-        devB = c_loc(b)
-        devC = c_loc(c)
+        integer :: nm
+        istat = gemmul8_init()
+        nm = la_moduli(OP_CGEMM, m, n, k)
+        if (nm <= 0) nm = num_moduli_c
         call gemmul8_cgemm(gemmul8_handle, opa_in_cublas, opb_in_cublas, m, n, k, alpha_in, &
-                           devA, lda_in, devB, ldb_in, beta_in, devC, ldc_in,  &
-                           num_moduli_c, fastmode_int, enable_skip_A_int, enable_skip_B_int, skip_a_int, skip_b_int)
-     endblock
+                           c_loc(a), lda_in, c_loc(b), ldb_in, beta_in, c_loc(c), ldc_in, nm, fastmode_gemmul8, key_in)
+      endblock
+      return
+#else
+      call rx0('Error: the linalg policy chose gemmul8, but the GEMMul8 library is not linked.')
 #endif
-    else
-      istat = cublasGemmEX(cublas_handle, opa_in_cublas, opb_in_cublas, m, n, k,  &
-                           alpha_in, a, m_type, lda_in, b, m_type, ldb_in, beta_in, c, m_type, ldc_in,&
-                           merge(CUBLAS_COMPUTE_32F, CUBLAS_COMPUTE_32F_FAST_TF32, c0_use_fp32), algo)
     endif
+    istat = cublasGemmEX(cublas_handle, opa_in_cublas, opb_in_cublas, m, n, k,  &
+                         alpha_in, a, m_type, lda_in, b, m_type, ldb_in, beta_in, c, m_type, ldc_in, ctype, algo)
   end function cmm_d
-  integer function envint01(name, default)
-    character(*), intent(in) :: name
-    integer, intent(in) :: default
-    character(16) :: cv
-    integer :: st, ios, v
-    envint01 = default
-    call get_environment_variable(name, cv, status=st)
-    if (st /= 0) return
-    read(cv, *, iostat=ios) v
-    if (ios == 0) envint01 = v
-  end function envint01
   integer function cmm_batch_d(a, b, c, m, n, k, nbatch, opa, opb, alpha, beta, lda, ldb, ldc, samea, sameb, comm) result(istat)
     use cublas_v2, m_type =>CUDA_C_32F, algo => cublas_gemm_default
     use m_cmdopt_registry, only: c0_use_fp32  ! --use_fp32 -> true FP32, else TF32
@@ -504,16 +472,19 @@ contains
     istat = cublaszgemv(cublas_handle, opa_in_cublas,  m, n,  &
                       & alpha_in, a, lda_in , x, incx_in, beta_in, y, incy_in)
   end function zmv_d
-  integer function dmm_d(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc, policy) result(istat)
+  integer function dmm_d(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc, policy, key) result(istat)
+    !> Real double precision on the device; backend cuBLAS or GEMMul8 from m_linalg_policy (see cmm_d).
+    use m_linalg_policy, only: la_backend, la_moduli, OP_DGEMM, BK_CUBLAS, BK_GEMMUL8
     real(8), device, target :: a(*), b(*), c(*)
     integer, intent(in) :: m, n, k
     character, intent(in), optional :: opa, opb
     real(8), intent(in), optional :: alpha, beta
-    integer, intent(in), optional :: lda, ldb, ldc, policy
+    integer, intent(in), optional :: lda, ldb, ldc, policy, key
     real(8) :: alpha_in, beta_in
-    integer :: lda_in, ldb_in, ldc_in, policy_in
+    integer :: lda_in, ldb_in, ldc_in, policy_in, key_in, bk
     character :: opa_in, opb_in
     integer :: opa_in_cublas, opb_in_cublas
+    istat = 0
     if (m < 1 .or. n < 1 .or. k < 1) return
     alpha_in = 1d0; beta_in = 0d0
     if(present(alpha)) alpha_in = alpha
@@ -530,47 +501,49 @@ contains
     if(present(ldc)) ldc_in = ldc
     policy_in = BACKEND_AUTO
     if(present(policy)) policy_in = policy
+    key_in = -1
+    if(present(key)) key_in = key
     istat = cublas_init()
-    istat = gemmul8_init()
     opa_in_cublas = get_m_op_cublas(opa_in)
     opb_in_cublas = get_m_op_cublas(opb_in)
-    if(use_gemmul8 .and. ((policy_in == BACKEND_AUTO .and. gemmul8_worth64(m,n,k)) .or. (policy_in == BACKEND_GEMMUL8))) then
+    select case (policy_in)
+    case (BACKEND_BLAS);    bk = BK_CUBLAS
+    case (BACKEND_GEMMUL8); bk = BK_GEMMUL8
+    case default;           bk = la_backend(OP_DGEMM, m, n, k)
+    end select
+    if (bk == BK_GEMMUL8) then
 #ifdef __GEMMUL8
       block
         use m_gemmul8, only: gemmul8_handle, gemmul8_dgemm
         use iso_c_binding
-        type(c_ptr) :: devA, devB, devC
-        integer :: fastmode_int, enable_skip_A_int, enable_skip_B_int, skip_a_int, skip_b_int
-        fastmode_int = fastmode_gemmul8
-        enable_skip_A_int = 0
-        enable_skip_B_int = 0
-        skip_a_int = 0
-        skip_b_int = 0
-        devA = c_loc(a)
-        devB = c_loc(b)
-        devC = c_loc(c)
+        integer :: nm
+        istat = gemmul8_init()
+        nm = la_moduli(OP_DGEMM, m, n, k)
+        if (nm <= 0) nm = num_moduli_d
         call gemmul8_dgemm(gemmul8_handle, opa_in_cublas, opb_in_cublas, m, n, k, alpha_in, &
-                           devA, lda_in, devB, ldb_in, beta_in, devC, ldc_in,  &
-                           num_moduli_d, fastmode_int, enable_skip_A_int, enable_skip_B_int, skip_a_int, skip_b_int)
-     endblock
+                           c_loc(a), lda_in, c_loc(b), ldb_in, beta_in, c_loc(c), ldc_in, nm, fastmode_gemmul8, key_in)
+      endblock
+      return
 #else
-      call rx0('Error: gemmul8 library is not linked.')
+      call rx0('Error: the linalg policy chose gemmul8, but the GEMMul8 library is not linked.')
 #endif
-    else
-      istat = cublasdgemm(cublas_handle, opa_in_cublas, opb_in_cublas,  m, n, k, &
-                        & alpha_in, a, lda_in , b, ldb_in, beta_in, c, ldc_in)
     endif
+    istat = cublasdgemm(cublas_handle, opa_in_cublas, opb_in_cublas,  m, n, k, &
+                      & alpha_in, a, lda_in , b, ldb_in, beta_in, c, ldc_in)
   end function dmm_d
-  integer function zmm_d(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc, policy) result(istat)
+  integer function zmm_d(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc, policy, key) result(istat)
+    !> Complex double precision on the device; backend cuBLAS (zgemm3m) or GEMMul8 from m_linalg_policy (see cmm_d).
+    use m_linalg_policy, only: la_backend, la_moduli, OP_ZGEMM, BK_CUBLAS, BK_GEMMUL8
     complex(8), device, target :: a(*), b(*), c(*)
     integer, intent(in) :: m, n, k
     character, intent(in), optional :: opa, opb
     complex(8), intent(in), optional :: alpha, beta
-    integer, intent(in), optional :: lda, ldb, ldc, policy
+    integer, intent(in), optional :: lda, ldb, ldc, policy, key
     complex(8) :: alpha_in, beta_in
-    integer :: lda_in, ldb_in, ldc_in, policy_in
+    integer :: lda_in, ldb_in, ldc_in, policy_in, key_in, bk
     character :: opa_in, opb_in
     integer :: opa_in_cublas, opb_in_cublas
+    istat = 0
     if (m < 1 .or. n < 1 .or. k < 1) return
     alpha_in = (1d0, 0d0); beta_in = (0d0, 0d0)
     if(present(alpha)) alpha_in = alpha
@@ -587,34 +560,35 @@ contains
     if(present(ldc)) ldc_in = ldc
     policy_in = BACKEND_AUTO
     if(present(policy)) policy_in = policy
+    key_in = -1
+    if(present(key)) key_in = key
     istat = cublas_init()
-    istat = gemmul8_init()
     opa_in_cublas = get_m_op_cublas(opa_in)
     opb_in_cublas = get_m_op_cublas(opb_in)
-    if(use_gemmul8 .and. ((policy_in == BACKEND_AUTO .and. gemmul8_worth64(m,n,k)) .or. policy_in == BACKEND_GEMMUL8)) then
+    select case (policy_in)
+    case (BACKEND_BLAS);    bk = BK_CUBLAS
+    case (BACKEND_GEMMUL8); bk = BK_GEMMUL8
+    case default;           bk = la_backend(OP_ZGEMM, m, n, k)
+    end select
+    if (bk == BK_GEMMUL8) then
 #ifdef __GEMMUL8
       block
         use m_gemmul8, only: gemmul8_handle, gemmul8_zgemm
         use iso_c_binding
-        type(c_ptr) :: devA, devB, devC
-        integer :: fastmode_int, enable_skip_A_int, enable_skip_B_int, skip_a_int, skip_b_int
-        fastmode_int = fastmode_gemmul8
-        enable_skip_A_int = 0
-        enable_skip_B_int = 0
-        skip_a_int = 0
-        skip_b_int = 0
-        devA = c_loc(a)
-        devB = c_loc(b)
-        devC = c_loc(c)
+        integer :: nm
+        istat = gemmul8_init()
+        nm = la_moduli(OP_ZGEMM, m, n, k)
+        if (nm <= 0) nm = num_moduli_z
         call gemmul8_zgemm(gemmul8_handle, opa_in_cublas, opb_in_cublas, m, n, k, alpha_in, &
-                           devA, lda_in, devB, ldb_in, beta_in, devC, ldc_in,  &
-                           num_moduli_z, fastmode_int, enable_skip_A_int, enable_skip_B_int, skip_a_int, skip_b_int)
+                           c_loc(a), lda_in, c_loc(b), ldb_in, beta_in, c_loc(c), ldc_in, nm, fastmode_gemmul8, key_in)
       endblock
+      return
+#else
+      call rx0('Error: the linalg policy chose gemmul8, but the GEMMul8 library is not linked.')
 #endif
-    else
-      istat = cublaszgemm3m(cublas_handle, opa_in_cublas, opb_in_cublas,  m, n, k, &
-                          & alpha_in, a, lda_in , b, ldb_in, beta_in, c, ldc_in)
     endif
+    istat = cublaszgemm3m(cublas_handle, opa_in_cublas, opb_in_cublas,  m, n, k, &
+                        & alpha_in, a, lda_in , b, ldb_in, beta_in, c, ldc_in)
   end function zmm_d
   integer function zmm_batch_d(a, b, c, m, n, k, nbatch, opa, opb, alpha, beta, lda, ldb, ldc, samea, sameb, comm) result(istat)
     complex(8), device :: a(*), b(*), c(*)
@@ -694,6 +668,20 @@ contains
     end select
   end  function get_m_op_cublas
 #endif
+  subroutine la_cache_reset()
+    !> Forget the matrices kept under keys (A' of realsgemm, the split A of GEMMul8).  Call when the matrices
+    !> behind the keys change, e.g. at the start of each q point in hgw.  No-op without GPU.
+#ifdef __GPU
+    use m_la_realsgemm, only: realsgemm_reset
+#ifdef __GEMMUL8
+    use m_gemmul8, only: gemmul8_cache_reset
+#endif
+    call realsgemm_reset()
+#ifdef __GEMMUL8
+    call gemmul8_cache_reset()
+#endif
+#endif
+  end subroutine la_cache_reset
   subroutine int_split(ndata, nsplit, irank, iini, iend, n, start_index)
     integer, intent(in) :: ndata, nsplit, irank
     integer, intent(out) :: iini, iend, n

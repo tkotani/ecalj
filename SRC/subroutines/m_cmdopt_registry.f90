@@ -75,6 +75,9 @@ module m_cmdopt_registry
   ! own name so that efermi.lmf keeps the value of the last self-consistent run, which
   ! the next QSGW iteration reads for the MLO window.  Use efermi_file() to get the name.
   character(len=120), public, protected, save :: c2_efermi = ''
+  ! --linalg=<row>,<row>,...: override rows of the GPU linear-algebra policy (m_linalg_policy), e.g.
+  ! --linalg=fp32.cgemm.large=realsgemm,fp64.zgemm.large=gemmul8:14
+  character(len=512), public, protected, save :: c2_linalg = ''
 
   ! cmdopt0-with-embedded-`=`: --quit={show,ham,mkpot,dmat,band},
   ! --diag={default,tridiag,chefsi}, --dwnb={mlo,wan}. Parsed as cmdopt2.
@@ -303,7 +306,7 @@ contains
     integer,      intent(in) :: narg
     character(*), intent(in) :: arglist(narg)
     logical, save :: done = .false.
-    character(len=120) :: outs
+    character(len=512) :: outs
     if (done) return
     done = .true.
 
@@ -341,6 +344,7 @@ contains
        c2_Wtype_set = .true.
     endif
     if (get2('--efermi', outs, narg, arglist)) c2_efermi = trim(outs)
+    if (get2('--linalg', outs, narg, arglist)) c2_linalg = trim(outs)
     ! cmdopt0-with-enum-value
     if (get2('--quit', outs, narg, arglist)) c2_quit = trim(outs)
     if (get2('--diag', outs, narg, arglist)) c2_diag = trim(outs)
