@@ -45,6 +45,7 @@ module m_cmdopt_registry
   public :: load_cmdopt0_registry
   public :: validate_arglist
   public :: list_cmdopts
+  public :: efermi_file
 
   !========================================================================
   ! Cached cmdopt2 values (=value form). Populated by load_cmdopt2_registry.
@@ -69,6 +70,11 @@ module m_cmdopt_registry
 
   character(len=32), public, protected, save :: c2_Wtype = ''
   logical,           public, protected, save :: c2_Wtype_set = .false.
+  ! --efermi=<file>: the Fermi-level file that lmf writes (and reads in band-plot mode)
+  ! and mlo reads, in place of efermi.lmf.  job_band/job_dos/job_fermisurface give their
+  ! own name so that efermi.lmf keeps the value of the last self-consistent run, which
+  ! the next QSGW iteration reads for the MLO window.  Use efermi_file() to get the name.
+  character(len=120), public, protected, save :: c2_efermi = ''
 
   ! cmdopt0-with-embedded-`=`: --quit={show,ham,mkpot,dmat,band},
   ! --diag={default,tridiag,chefsi}, --dwnb={mlo,wan}. Parsed as cmdopt2.
@@ -262,6 +268,16 @@ contains
 
   !> True if `flag` (bare name, no trailing `=`) was registered by
   !! load_cmdopt2_registry.
+  !> Name of the Fermi-level file: efermi.lmf, or the one given by --efermi=<file>.
+  function efermi_file() result(fn)
+    character(len=:), allocatable :: fn
+    if (len_trim(c2_efermi) > 0) then
+       fn = trim(c2_efermi)
+    else
+       fn = 'efermi.lmf'
+    endif
+  end function efermi_file
+
   function is_known_cmdopt2(flag) result(yes)
     character(*), intent(in) :: flag
     logical :: yes
@@ -324,6 +340,7 @@ contains
        c2_Wtype     = trim(outs)
        c2_Wtype_set = .true.
     endif
+    if (get2('--efermi', outs, narg, arglist)) c2_efermi = trim(outs)
     ! cmdopt0-with-enum-value
     if (get2('--quit', outs, narg, arglist)) c2_quit = trim(outs)
     if (get2('--diag', outs, narg, arglist)) c2_diag = trim(outs)

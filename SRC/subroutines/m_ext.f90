@@ -210,6 +210,7 @@ contains
     write(6,'(a)') '  --band                band plot along syml.<sname>'
     write(6,'(a)') '  --jobgw={0,1}         run as GW driver (replaces lmfgw-MPIK)'
     write(6,'(a)') '  --quit={show,ham,mkpot,dmat,band}   staged stop points'
+    write(6,'(a)') '  --efermi=<file>       Fermi-level file to write/read instead of efermi.lmf'
     write(6,'(a)') '  --writeham            emit HamiltonianPMT.* for downstream tools'
     write(6,'(a)') '  --mkprocar --fullmesh PROCAR / Fermi-surface mesh'
     write(6,'(a)') '  --gpu                 GPU path (grabs /tmp/gpu.lock)'

@@ -25,7 +25,7 @@
 module m_bndfp
   use m_lgunit,only:stdo,stdl
   use m_density,only: orhoat,smrho,eferm            !input/output unprotected  ! NOTE:variable in m_density are not protected
-  use m_cmdopt_registry, only: c0_boltztrap, c0_cls, c0_debugbndfp, c0_density, c0_eigen_at_k, c0_fermisurface, c0_fullmesh, c0_mkprocar, c0_quitecore, c0_tdos, c0_tdostetf, c0_writeeigen, c0_writeham, c0_wsig_fbz, c2_quit
+  use m_cmdopt_registry, only: c0_boltztrap, c0_cls, c0_debugbndfp, c0_density, c0_eigen_at_k, c0_fermisurface, c0_fullmesh, c0_mkprocar, c0_quitecore, c0_tdos, c0_tdostetf, c0_writeeigen, c0_writeham, c0_wsig_fbz, c2_quit, efermi_file
   real(8),protected,public:: ham_ehf, ham_ehk, sev  !output
   real(8),protected,public:: qdiff                  !output
   real(8),protected,allocatable,public:: force(:,:) !output
@@ -132,16 +132,18 @@ contains
     ltet = ntet>0! tetrahedron method or not
     vmag=0d0
     GETefermFORplbndMODE: if(plbnd/=0) then
-      open(newunit=ifi,file='efermi.lmf',status='old',err=113)
+      open(newunit=ifi,file=efermi_file(),status='old',err=113)
       read(ifi,*) eferm,vmag ! efermi is consistent with eferm in rst.* file (iors.f90).
       read(ifi,*) 
       read(ifi,*) 
       read(ifi,*) xxx,vesav
-      !                        However, efermi.lmf can be modified when we do one-shot dense-mesh calculation as is done in job_band.
-      close(ifi)             ! For example, you may change NKABC, and run job_pdos (lmf --quit=band only modify efermi.lmf, without touching rst.*).
+      close(ifi)
+      ! A one-shot band pass (lmf --quit=band, possibly on a denser NKABC) redoes Ef without
+      ! touching rst.*.  job_band/job_dos/job_fermisurface do it with --efermi=<own file>, which
+      ! is written below and read here, so efermi.lmf keeps the value of the last SCF.
       goto 114
 113   continue
-      call rx('No efermi.lmf: need to repeat sc mode of lmf. --quit=band stops without changing rst file')
+      call rx('No '//efermi_file()//': need to repeat sc mode of lmf. --quit=band stops without changing rst file')
 114   continue
     endif GETefermFORplbndMODE
     if(phispinsym) call phispinsym_ssite_set() !pnu,pz are spin symmetrized! Set spin-symmetrized pnu.aug2019. See also in pnunew and locpot
@@ -271,7 +273,7 @@ contains
     endblock GetFermiEnergy
     WriteEfermiFile: if(master_mpi) then
       if(lmet==0) write(stdo,"(' HOMO; Ef; LUMO =',3f11.6)")evtop,eferm,ecbot
-      open(newunit=ifi,file='efermi.lmf')
+      open(newunit=ifi,file=efermi_file())   !efermi.lmf unless --efermi=<file>
       write(ifi,"(2d24.16, ' # (Ry) Fermi energy and Bias vmag; -vmag/2 +vmag/2 for each spin,')") eferm,vmag
       write(ifi,"(d24.16, ' # (Ry) Top of Valence')") evtop
       write(ifi,"(d24.16, ' # (Ry) Bottom of conduction')") ecbot

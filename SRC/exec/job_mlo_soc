@@ -2,10 +2,11 @@
 # job_mlo_soc: MLO Hamiltonian generation with SOC as perturbation.
 #   Steps:
 #     1. lmf --quit=band (with -vso=1 full LS) to determine SOC-corrected Ef
-#        -> save as 'efermi_soc'.
+#        -> written to 'efermi_soc' (--efermi=efermi_soc); efermi.lmf is not touched.
 #     2. lmf --writeham ... --socmatrix (with -vso=0 scalar-rel) to write
 #        __HamiltonianPMT + __HamiltonianPMTsoc.
-#     3. mlo --socmatrix to build HamRsMLO + SOC-included MLO bands on symmetry line.
+#     3. mlo --socmatrix to build HamRsMLO + SOC-included MLO bands on symmetry line
+#        (--efermi=efermi_soc: the MLO window is referenced to the SOC Ef, as before).
 #     4. Rewrite ef= in bandplot_MLO.isp1.glt using efermi_soc.
 #
 # Common settings:
@@ -59,15 +60,14 @@ def cal_mlo_soc(args, extra_args):
 
     # Step 1: SOC-corrected Fermi energy via full LS lmf --quit=band
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
-                               args=[target, "--quit=band",
+                               args=[target, "--quit=band", "--efermi=efermi_soc",
                                      *COMMON_FLAGS, *EF_FLAGS, *extra_args]),
             stdout="llmf_ef_soc")
-    if Path("efermi.lmf").exists():
-        shutil.copy("efermi.lmf", "efermi_soc")
+    if Path("efermi_soc").exists():
         ef_soc = read_eferm("efermi_soc")
-        print(f"SOC Fermi energy = {ef_soc} Ry (saved to efermi_soc)")
+        print(f"SOC Fermi energy = {ef_soc} Ry (written to efermi_soc)")
     else:
-        print("Warning: efermi.lmf not created in Step 1; Ef update skipped.")
+        print("Warning: efermi_soc not created in Step 1; Ef update skipped.")
         ef_soc = None
 
     # Step 2: write scalar-rel H + SOC matrix
@@ -80,7 +80,7 @@ def cal_mlo_soc(args, extra_args):
 
     # Step 3: MLO + SOC-as-perturbation bands on symmetry line
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo",
-                               args=[target, *MLO_FLAGS, *extra_args]),
+                               args=[target, *MLO_FLAGS, "--efermi=efermi_soc", *extra_args]),
             stdout="lmlo")
 
     # Step 4: rewrite ef= in bandplot glt with SOC Ef

@@ -6,6 +6,9 @@ from pylib.run_cmd import run_cmd, MPIParams
 
 EXEC_DIR = Path(__file__).parent
 
+## The Ef of this run goes to its own file; efermi.lmf keeps the value of the last SCF.
+EFERMI_OPT = "--efermi=efermi.lmf.job_fermisurface"
+
 def cal_fermisurface(args, extra_args):
     target = args.extension
     mpi_size = args.np
@@ -14,15 +17,15 @@ def cal_fermisurface(args, extra_args):
     nk2 = args.vnk2
     nk3 = args.vnk3
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
-                               args=[target, "--quit=band", '--skipbstruxinit',
-                                     f"-vnk1={nk1}", f"-vnk2={nk2}", f"-vnk3={nk3}", *extra_args]), stdout="llmf_ef")
+                               args=[target, "--quit=band", '--skipbstruxinit', EFERMI_OPT,
+                                     f"--ctrlg:bz.nkabc=[{nk1},{nk2},{nk3}]", *extra_args]), stdout="llmf_ef")
     nk1 = args.vnk1+1
     nk2 = args.vnk2+1
     nk3 = args.vnk3+1
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
-                               args=[target, "--fermisurface", "--skipbstruxinit", "-pr45",
+                               args=[target, "--fermisurface", "--skipbstruxinit", "--ctrlg:verbose=45", EFERMI_OPT,
                                      f"--emin={args.emin}", f"--emax={args.emax}",
-                                     f"-vnk1={nk1}", f"-vnk2={nk2}", f"-vnk3={nk3}", *extra_args]), stdout="llmf_fs")
+                                     f"--ctrlg:bz.nkabc=[{nk1},{nk2},{nk3}]", *extra_args]), stdout="llmf_fs")
 
     print(f'OK! We got fermiup.bxsf (fermidn.bxsf) for {target}')
     print('Run $xcrysden --bxsf fermiup.bxsf')
@@ -35,7 +38,7 @@ if __name__ == "__main__":
             'Example:\n'
             "  job_fermisurface si -np 4 -vnk1=20 -vnk2=20 -vnk3=20 [options for lmf]\n"
             "  job_fermisurface si -np 4 -d /path/to/workdir -vnk1=20 -vnk2=20 -vnk3=20 [options for lmf]\n"
-            " For example, [options for lmf] is '-vpwemax=4 -vgmax=15 -vxcfun=103'\n"
+            " For example, [options for lmf] is '--ctrlg:ham.pwemax=4 --ctrlg:ham.gmax=15 --ctrlg:ham.xcfun=103'\n"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter
     )

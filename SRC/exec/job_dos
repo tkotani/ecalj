@@ -149,24 +149,29 @@ def plot_pdos_with_gnuplot(target, nognuplot):
             except FileNotFoundError:
                 print("Skip gnuplot")
 
+## The Ef of these runs goes to its own file (job_tdos / job_pdos); efermi.lmf keeps the
+## value of the last self-consistent lmf, which the next QSGW iteration and mlo read.
+def efermi_opt(args):
+    return "--efermi=efermi.lmf." + ("job_pdos" if args.pdos else "job_tdos")
+
 def cal_tdos(args, extra_args):
     target = args.extension
     mpi_size = args.np
     cluster = args.cluster
     # Run the command using run_cmd
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
-                               args=[target, "--tdos", *extra_args]), stdout="llmf_tdos")
+                               args=[target, "--tdos", efermi_opt(args), *extra_args]), stdout="llmf_tdos")
 
 def cal_pdos(args, extra_args):
     target = args.extension
     mpi_size = args.np
     cluster = args.cluster
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
-                               args=[target, "--quit=band", *extra_args]), stdout="llmf_ef")
+                               args=[target, "--quit=band", efermi_opt(args), *extra_args]), stdout="llmf_ef")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
-                               args=[target, "--mkprocar", "--fullmesh", "--writedw", *extra_args]), stdout="llmf_pdosband")
+                               args=[target, "--mkprocar", "--fullmesh", "--writedw", efermi_opt(args), *extra_args]), stdout="llmf_pdosband")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
-                               args=[target, "--writepdos", "--writedw", f"--emin={args.emin}", f"--emax={args.emax}", f"--ndos={args.ndos}", *extra_args]),
+                               args=[target, "--writepdos", "--writedw", f"--emin={args.emin}", f"--emax={args.emax}", f"--ndos={args.ndos}", efermi_opt(args), *extra_args]),
                     stdout="llmf_pdos")
 
 
@@ -177,7 +182,7 @@ if __name__ == "__main__":
             'Example:\n'
             "  job_dos si -np 4 [options for lmf]\n"
             "  job_dos si -np 4 -d /path/to/workdir [options for lmf]\n"
-            " For example, [options for lmf] is ' -vpwemax=4 -vgmax=15 -vxcfun=103'\n"
+            " For example, [options for lmf] is '--ctrlg:ham.pwemax=4 --ctrlg:ham.gmax=15 --ctrlg:ham.xcfun=103'\n"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter
     )

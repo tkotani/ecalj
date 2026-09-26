@@ -421,6 +421,7 @@ end module m_qplist
 
 module m_readqplist 
   use m_lgunit,only:stdo
+  use m_cmdopt_registry,only: efermi_file !efermi.lmf, or the file given by --efermi=<file>
   integer,protected:: ndat
   real(8),allocatable,protected:: xdat(:),qplistsy(:,:)
   real(8),protected:: eferm !<-- temporary use. just as a memo.
@@ -446,9 +447,9 @@ contains
        if(allocated(qplistsy)) deallocate(qplistsy)
        allocate(xdat(1),qplistsy(1:3,1))
        eferm = 0d0
-       inquire(file='efermi.lmf', exist=file_exists)
-       if(.not.file_exists) call rx('readqplistsy: neither qplist.dat nor efermi.lmf')
-       open(newunit=ifqplistsy,file='efermi.lmf')
+       inquire(file=efermi_file(), exist=file_exists)
+       if(.not.file_exists) call rx('readqplistsy: neither qplist.dat nor '//efermi_file())
+       open(newunit=ifqplistsy,file=efermi_file())
        read(ifqplistsy,*) eferm
        close(ifqplistsy)
        call readbandedge()
@@ -486,7 +487,7 @@ contains
     real(8):: eferm_f, evtop_f, ecbot_f
     logical:: file_exists
     ecbot = eferm
-    inquire(file='efermi.lmf', exist=file_exists)
+    inquire(file=efermi_file(), exist=file_exists)
     if(.not.file_exists) then
        ! mlo_method=4 puts its floor at ecbot+mlo_delta, so a missing
        ! efermi.lmf silently degrades the floor to eferm+mlo_delta. For an
@@ -495,15 +496,15 @@ contains
        ! Say so rather than substituting a different model in silence.
        if(master_mpi) then
           write(stdo,'(a)')' '
-          write(stdo,'(a)')' WARNING: no efermi.lmf -- the conduction-band bottom is unknown,'
+          write(stdo,'(a)')' WARNING: no '//efermi_file()//' -- the conduction-band bottom is unknown,'
           write(stdo,'(a)')'          so ecbot falls back to the Fermi level. mlo_method=4'
           write(stdo,'(a)')'          then uses eferm+mlo_delta instead of ecbot+mlo_delta.'
-          write(stdo,'(a)')'          Run job_band first (its 1st stage writes efermi.lmf).'
+          write(stdo,'(a)')'          Run lmf first (any lmf run that finds Ef writes efermi.lmf).'
           write(stdo,'(a)')' '
        endif
        return
     endif
-    open(newunit=ifi,file='efermi.lmf',status='old')
+    open(newunit=ifi,file=efermi_file(),status='old')
     read(ifi,*,err=1013,end=1013) eferm_f   ! eferm (+vmag on the same record)
     read(ifi,*,err=1013,end=1013) evtop_f   ! top of valence
     read(ifi,*,err=1013,end=1013) ecbot_f   ! bottom of conduction
