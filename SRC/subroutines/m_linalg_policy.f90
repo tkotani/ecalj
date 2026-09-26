@@ -266,7 +266,7 @@ contains
     character(*), intent(in) :: row
     character(64) :: key, lv, opn, field
     character(64) :: val
-    integer :: ie, i1, i2, op, bk, nm, ios
+    integer :: ie, i1, i2, op, bk, nm, ios, i
     ie = index(row, '=')
     if (ie == 0) return
     key = adjustl(row(1:ie-1))
@@ -279,7 +279,10 @@ contains
     opn = key(i1+1:i1+i2-1)
     field = trim(key(i1+i2+1:))
     if (trim(lv) /= level) return
-    op = findloc(opname, trim(opn), dim=1)
+    op = 0
+    do i = 1, nop                                ! not findloc: nvfortran compares strings of unequal length unpadded
+      if (trim(opname(i)) == trim(opn)) op = i
+    enddo
     if (op == 0) call rx('linalg policy: unknown op in "'//trim(row)//'"')
     select case (trim(field))
     case ('small', 'large')
