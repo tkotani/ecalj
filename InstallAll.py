@@ -70,13 +70,19 @@ def run_shell(command, cwd=None, env=None, skip_on_error=False):
 def build_and_install_gemmul8(build_dir: Path, bin_dir: Path):
     repo_url = "https://github.com/RIKEN-RCCS/GEMMul8"
     clone_dir = build_dir / "GEMMul8"
-    libfile = clone_dir / "GEMMul8" / "lib" / "libgemmul8.so"
     if not clone_dir.exists():
         run_shell(f"git clone {repo_url} {clone_dir}", skip_on_error=True)
+    # The upstream Makefile moved from GEMMul8/GEMMul8/ to the top of the repository (2026-09).
+    src_dir = clone_dir / "GEMMul8" if (clone_dir / "GEMMul8" / "Makefile").is_file() else clone_dir
+    libfile = src_dir / "lib" / "libgemmul8.so"
     if not libfile.is_file():
-        run_shell("make -j", cwd=clone_dir / "GEMMul8", skip_on_error=True)
+        # ecalj calls only gemm (gemmul8_wrapper.cu); the full library takes far longer to build.
+        run_shell("make -j8 OPS=gemm OZ2_BACKENDS=INT8", cwd=src_dir, skip_on_error=True)
+    dest = bin_dir / "libgemmul8.so"
     try:
-        shutil.copy(libfile, bin_dir)
+        if dest.is_symlink() or dest.exists():
+            dest.unlink()   # an older install left a symlink here (one even pointed at itself)
+        shutil.copy(libfile, dest)
     except Exception as e:
         print(f"Warning: Failed to copy {libfile} to {bin_dir}: {e}", file=sys.stderr)
 

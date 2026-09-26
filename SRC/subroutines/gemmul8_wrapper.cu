@@ -4,6 +4,27 @@
 #include <cuComplex.h>
 #include <type_traits>
 
+// One workspace for all calls, grown on demand.  A cudaMalloc/cudaFree pair per GEMM
+// synchronizes the device each time; Sigma_c issues thousands of GEMMs per q point.
+static void*  g_work      = nullptr;
+static size_t g_work_size = 0;
+
+static void* gemmul8_workspace(size_t need) {
+    if (need <= g_work_size) return g_work;
+    if (g_work != nullptr) cudaFree(g_work);   // cudaFree waits for the GEMMs that used it
+    g_work = nullptr;
+    g_work_size = 0;
+    cudaError_t err = cudaMalloc(&g_work, need);
+    if (err != cudaSuccess || g_work == nullptr) {
+        printf("gemmul8 workspace: cudaMalloc failed: %s (requested %zu bytes)\n",
+               cudaGetErrorString(err), need);
+        g_work = nullptr;
+        return nullptr;
+    }
+    g_work_size = need;
+    return g_work;
+}
+
 template <typename T>
 void gemmul8_gemm_impl(
     void* handle_ptr,
@@ -57,12 +78,8 @@ void gemmul8_gemm_impl(
         &worksizeB
     );
 
-    void* work_total = nullptr;
-    // cudaMalloc(&work_total, worksize);
-    cudaError_t err = cudaMalloc(&work_total, worksize);
-    if (err != cudaSuccess || work_total == nullptr) {
-        printf("cudaMalloc failed: %s (requested %zu bytes)\n",
-        cudaGetErrorString(err), worksize);
+    void* work_total = gemmul8_workspace(worksize);
+    if (work_total == nullptr) {
         printf("gemmul8 workSize inputs: m=%zu n=%zu k=%zu num_moduli=%u\n",
                m, n, k, num_moduli);
         return;
@@ -89,8 +106,6 @@ void gemmul8_gemm_impl(
         (skip_scalA != 0),
         (skip_scalB != 0)
     );
-
-    cudaFree(work_total);
 }
 
 extern "C" {
@@ -218,4 +233,7 @@ extern "C" void gemmul8_finalize_handle_(void* handle_ptr) {
     auto h = reinterpret_cast<cublasHandle_t*>(handle_ptr);
     cublasDestroy(*h);
     delete h;
+    if (g_work != nullptr) cudaFree(g_work);
+    g_work = nullptr;
+    g_work_size = 0;
 }

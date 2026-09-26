@@ -78,8 +78,13 @@ set(MAINS_GPU
     "${CMAKE_SOURCE_DIR}/main/lmf.f90"
 )
 
-# --- GEMMul8 paths --- 
-set(GEMMUL8_DIR "${CMAKE_BINARY_DIR}/GEMMul8/GEMMul8")
+# --- GEMMul8 paths ---
+# InstallAll.py --gemmul8 clones https://github.com/RIKEN-RCCS/GEMMul8 into ${CMAKE_BINARY_DIR}/GEMMul8.
+# The upstream build moved from GEMMul8/GEMMul8/ to the top of the repository (2026-09); accept both.
+set(GEMMUL8_DIR "${CMAKE_BINARY_DIR}/GEMMul8")
+if(EXISTS "${CMAKE_BINARY_DIR}/GEMMul8/GEMMul8/lib/libgemmul8.so")
+  set(GEMMUL8_DIR "${CMAKE_BINARY_DIR}/GEMMul8/GEMMul8")
+endif()
 set(GEMMUL8_LIB "${GEMMUL8_DIR}/lib/libgemmul8.so")
 set(GEMMUL8_INC "${GEMMUL8_DIR}/include")
 set(GEMMUL8_WRAPPER "${CMAKE_SOURCE_DIR}/subroutines/gemmul8_wrapper.cu")
@@ -253,11 +258,12 @@ if(BUILD_GPU OR BUILD_MP_GPU)
     add_library(gemmul8wrap SHARED ${GEMMUL8_WRAPPER})
     set_source_files_properties(${GEMMUL8_WRAPPER} PROPERTIES LANGUAGE CUDA)
     target_include_directories(gemmul8wrap PRIVATE ${GEMMUL8_INC})
+    target_compile_options(gemmul8wrap PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-std=c++20>)  # gemmul8.hpp needs C++20
     target_link_libraries(gemmul8wrap PUBLIC ${GEMMUL8_LIB})
     set_target_properties(gemmul8wrap PROPERTIES
         LINKER_LANGUAGE CUDA
-        BUILD_RPATH "$ORIGIN"
-        INSTALL_RPATH "$ORIGIN"
+        BUILD_RPATH "$ORIGIN;${GEMMUL8_DIR}/lib"
+        INSTALL_RPATH "$ORIGIN;${GEMMUL8_DIR}/lib"
     )
     # m_gemmul8.f90 calls C symbols (gemmul8_*gemm_) defined in this lib;
     # ship it together with libecaljF_gpu.so so the deployed copies stay
