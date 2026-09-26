@@ -82,6 +82,19 @@
 
 （図表の番号は `図 HH:MM-n` / `表 HH:MM-n`。HH:MM はそのエントリの時刻、n はエントリ内の通し番号。エントリの時刻は変わらないので番号は安定する。）
 
+### 2026-09-27 07:20 **TestInstall の GW テストは GPU（fp64・tf32）でも CPU でも全部合格。MLOQSGW の NiO は tf32 だけ不合格で、原因は昨夜 GPU に移した Hilbert 変換が TF32 で回っていたこと。fp32 では参照と 0.5 mRy**
+
+- kt1（`~/bin_dev` = `b649a9ee7`、表を `~/bin_dev` に置き、重みの補助あり）: `testecalj -np 8 -np2 2 --gwall --gpu`（fp64）と `--gpu --mp`（tf32）とも **OK! ALL PASSED**。
+  作業ディレクトリで、hgw が表を `~/bin_dev/ecalj_linalg_policy.toml` から読み（`linalg policy (tf32, from …)`）、重みを `__TETWT` から読み、
+  終わった後にファイルが残っていないことを確認
+- 手元（CPU、gfortran）: `testecalj -np 8 --gwall` も **OK! ALL PASSED**（x0kf の読み込み口と gwsc の変更で CPU の経路が壊れていない）
+- `Samples/MLOQSGW` の `--gpu --mp`（tf32）: GaAs は合格、**NiO は `fp evl` が参照（CPU、FP64）から 0.039〜0.049 Ry ずれて不合格**（許容 0.02。09-26 は 0.0135）。
+  切り分け（GPU 1、`-np2 1`）: 表なし・補助なし / 表だけ / 補助だけの 3 通りとも MaxDiff 0.0391 で同じ → **今日の表と補助は無関係**
+- 同じ NiO を **fp32（`--mp --fp32`）で回すと参照との差は 0.0005 Ry**（GaAs 0.0001）。表（組み替え・GEMMul8 14・mixed1）と補助ありで、`--mp` でない厳しい許容 3e-3 にも入る
+- 原因: 昨夜（`fde20bd6c`）MP 版の Hilbert 変換を GPU に移したとき `cmm_d` を使ったので、tf32 では TF32（仮数 10 bit）で回っていた（以前はホストの FP32）。
+  ~300 ビンにわたる桁落ちのある和で、1 q あたり 0.7 秒しかかからない → どの精度でも FP32 で計算するようにした（`37e0a0f83`、`policy=BACKEND_BLAS_FP32`）。
+  fp32・fp64 ではビット単位で変わらない。tf32 での NiO の確認は chain13（chain12 の後）
+
 ### 2026-09-27 06:20 **自動の表で 6³ の hgw は 438〜443 秒（基準 833 秒の 1.9 倍）、倍精度との差は Re Σc 4.2e-5 eV。重みの書き出しを並走させても時間は変わらない（段 3・5）**
 
 `~/bin_dev` = `b649a9ee7`（GEMMul8 の下限、組み替えのキー無し閾値 n=16）。計測ツールは 3 回目も同じ表（05:45 の表 05:45-1）。
