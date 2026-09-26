@@ -5,8 +5,8 @@
 !> Every backend runs on hgw-like shapes of each size class (small / large, split as in m_linalg_policy).  Its error is
 !> checked against FP64 on the same inputs and it is timed (best of 3 batches).  For each precision level and
 !> operation the fastest backend within the level's error bound is chosen when it is at least 10% faster than cuBLAS
-!> over the class (geometric mean of the time ratios) and not more than 10% slower on any shape of it; otherwise
-!> cuBLAS (lu64 for the inverse) stays.  Error bounds (relative, Frobenius): cgemm 5e-3 at tf32 and 1e-5 at fp32;
+!> over the class (geometric mean of the time ratios, each shape weighted by its rough share of hgw time) and not more
+!> than 10% slower on any shape that carries weight (>= 0.1); otherwise cuBLAS (lu64 for the inverse) stays.  Error bounds (relative, Frobenius): cgemm 5e-3 at tf32 and 1e-5 at fp32;
 !> zgemm and dgemm 1e-12 at every level; the epstilde inverse 1e-6 at tf32/fp32 and 1e-13 at fp64.
 !> The sizes are deliberately not multiples of 64 (as in real GW runs, e.g. 1053 product-basis functions for LiTi2O4):
 !> on sizes like 1024 GEMMul8 is faster than on 1053, and a table measured there chose it where hgw runs slower.
@@ -25,18 +25,21 @@ program linalgtune
     integer :: m, n, k
     character :: opa
     logical :: keyed
+    real(8) :: weight           ! rough share of hgw time within its class (LiTi2O4 6^3 profile)
   end type
   ! The products of hgw (opB = N): Sigma_c on the imaginary / real axis W^H zmel with W kept under a key, chi0 bins
   ! zmel^H (w zmel), the change of basis in m_llw, the final zsec (small m = n, long k).
   integer, parameter :: nshape = 6, minm = 256, minn = 512, mink = 256
   real(8), parameter :: minmnk = 1d9
+  ! Weights: Sigma_c on the imaginary axis ~175 s and on the real axis ~107 s of a ~560 s hgw, the chi0 bins ~25 s,
+  ! the rest a few s.
   type(shape_t), parameter :: shp(nshape) = [ &
-       shape_t('sigma-imag', 1037, 8191,  1037, 'C', .true.),  &
-       shape_t('x0-bin',     1037, 1037,  4099, 'C', .false.), &
-       shape_t('square',     1037, 1037,  1037, 'N', .false.), &
-       shape_t('sigma-real', 1037,  389,  1037, 'C', .true.),  &
-       shape_t('x0-bin-s',   1037, 1037,   263, 'C', .false.), &
-       shape_t('zsec',        131,  131, 65539, 'C', .false.)]
+       shape_t('sigma-imag', 1037, 8191,  1037, 'C', .true.,  0.80d0), &
+       shape_t('x0-bin',     1037, 1037,  4099, 'C', .false., 0.15d0), &
+       shape_t('square',     1037, 1037,  1037, 'N', .false., 0.05d0), &
+       shape_t('sigma-real', 1037,  389,  1037, 'C', .true.,  0.80d0), &
+       shape_t('x0-bin-s',   1037, 1037,   263, 'C', .false., 0.15d0), &
+       shape_t('zsec',        131,  131, 65539, 'C', .false., 0.05d0)]
   integer, parameter :: ninv = 2, ninvn(ninv) = [389, 1037]
   character(4), parameter :: levels(3) = ['tf32', 'fp32', 'fp64']
 #ifdef __GEMMUL8
@@ -96,8 +99,8 @@ program linalgtune
     enddo
   enddo
   do i = 1, 2
-    pick_z(i) = choose(cand_z, tz, ez, 1d-12, merge(large, .not.large, i == 2))
-    pick_d(i) = choose(cand_z, td, ed, 1d-12, merge(large, .not.large, i == 2))
+    pick_z(i) = choose(cand_z, tz, ez, 1d-12, merge(large, .not.large, i == 2), shp%weight)
+    pick_d(i) = choose(cand_z, td, ed, 1d-12, merge(large, .not.large, i == 2), shp%weight)
   enddo
 
   ! cgemm at tf32 and fp32: inputs rounded to single precision, reference FP64 on the rounded inputs
@@ -112,7 +115,8 @@ program linalgtune
   enddo
   do il = 1, 2
     do i = 1, 2
-      pick_c(i,il) = choose(cand_c, tc(:,:,il), ec(:,:,il), merge(5d-3, 1d-5, il == 1), merge(large, .not.large, i == 2))
+      pick_c(i,il) = choose(cand_c, tc(:,:,il), ec(:,:,il), merge(5d-3, 1d-5, il == 1), merge(large, .not.large, i == 2), &
+                          shp%weight)
     enddo
   enddo
   deallocate(a4, b4, c4, a8, b8, c8, cref, ad, bd, cd, crefd)
@@ -170,7 +174,7 @@ program linalgtune
   enddo
   do i = 1, ninv
     do ic = 1, size(cand_e)
-      call line(ifi, 'epsinv', 'fp64', shape_t('eps', ninvn(i), ninvn(i), ninvn(i), 'N', .false.), &
+      call line(ifi, 'epsinv', 'fp64', shape_t('eps', ninvn(i), ninvn(i), ninvn(i), 'N', .false., 1d0), &
                 cand_e(ic), te(ic,i), ee(ic,i))
     enddo
   enddo
@@ -321,26 +325,26 @@ contains
     istat = zminv_d(eref, n, n)
   end subroutine make_eps
 
-  character(10) function choose(cand, t, e, bound, inclass) result(pick)
+  character(10) function choose(cand, t, e, bound, inclass, w) result(pick)
     !> cand(1) (cuBLAS) unless another backend is within the error bound on every shape of the class, at least 10%
-    !> faster over the class (geometric mean of the time ratios) and at most 10% slower on each shape.  Earlier
-    !> candidates win ties within 5%.
+    !> faster over the class (geometric mean of the time ratios, weights w) and at most 10% slower on each shape of
+    !> weight >= 0.1.  Earlier candidates win ties within 5%.
     character(10), intent(in) :: cand(:)
-    real(8), intent(in) :: t(:,:), e(:,:), bound
+    real(8), intent(in) :: t(:,:), e(:,:), bound, w(:)
     logical, intent(in) :: inclass(:)
-    real(8) :: g, best, r
-    integer :: ic, is, ns
+    real(8) :: g, best, r, ws
+    integer :: ic, is
     pick = cand(1); best = 0.9d0
     do ic = 2, size(cand)
       if (any(inclass .and. e(ic,:) > bound)) cycle
-      g = 0d0; ns = 0; r = 0d0
+      g = 0d0; ws = 0d0; r = 0d0
       do is = 1, size(inclass)
         if (.not. inclass(is)) cycle
-        g = g + log(t(ic,is)/t(1,is)); ns = ns + 1
-        r = max(r, t(ic,is)/t(1,is))
+        g = g + w(is)*log(t(ic,is)/t(1,is)); ws = ws + w(is)
+        if (w(is) >= 0.1d0) r = max(r, t(ic,is)/t(1,is))
       enddo
-      if (ns == 0 .or. r > 1.1d0) cycle
-      g = exp(g/ns)
+      if (ws == 0d0 .or. r > 1.1d0) cycle
+      g = exp(g/ws)
       if (g < best*0.95d0 .or. (pick == cand(1) .and. g < best)) then
         pick = cand(ic); best = g
       endif
@@ -352,8 +356,10 @@ contains
     integer, intent(in) :: i
     real(8), intent(in) :: bound
     logical :: one(1)
+    real(8) :: w1(1)
     one = .true.
-    pick = choose(cand_e, te(:,i:i), ee(:,i:i), bound, one)
+    w1 = 1d0
+    pick = choose(cand_e, te(:,i:i), ee(:,i:i), bound, one, w1)
   end function choose_inv
 
   subroutine row(ifi, lv, op, pick)
