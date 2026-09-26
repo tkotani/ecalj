@@ -15,6 +15,8 @@ module m_blas !wrapper for BLAS and cuBLAS
   public :: cublas_init, cublas_handle, cublas_finalize, cublas_set_stream
   type(cublashandle), target :: cublas_handle
   logical, save :: set_cublas_handle = .false.
+  real(4), device, allocatable, save :: cmm_ap(:)   ! the real (2k x 2m) copy of A for cmm_d's SGEMM route
+  integer, save :: cmm_real_mode = -1                ! ECALJ_CGEMM_REAL: 1 (default) SGEMM route on, 0 off
 #endif
   character, parameter :: m_op_n = 'N', m_op_t = 'T', m_op_c = 'C'
   integer, parameter :: BACKEND_BLAS = 0 !BLAS/cuBLAS
@@ -320,7 +322,40 @@ contains
     istat = gemmul8_init()
     opa_in_cublas = get_m_op_cublas(opa_in)
     opb_in_cublas = get_m_op_cublas(opb_in)
-    if(use_gemmul8 .and. ((policy_in == BACKEND_AUTO .and. gemmul8_worth(m,n,k)) .or. (policy_in == BACKEND_GEMMUL8))) then
+    if (cmm_real_mode < 0) cmm_real_mode = envint01('ECALJ_CGEMM_REAL', 1)
+    if (.not.(use_gemmul8 .and. gemmul8_worth(m,n,k)) .and. policy_in /= BACKEND_GEMMUL8 .and. cmm_real_mode == 1 &
+        .and. opa_in == m_op_c .and. opb_in == m_op_n .and. alpha_in == (1.0, 0.0) .and. aimag(beta_in) == 0.0 &
+        .and. n >= 512 .and. m >= 256 .and. k >= 256 .and. 4_8*k*m < huge(1)) then
+      ! C = A^H B + beta C as ONE real SGEMM on the same memory: B (k x n complex) read as real (2k x n),
+      ! C (m x n complex) written as real (2m x n).  Ap (2k x 2m real): column 2j-1 = A(:,j) as (re,im),
+      ! column 2j = (-im, re); then Ap^T B is C with Re and Im interleaved.  Same 8mnk flops in FP32.
+      ! cuBLAS cgemm reaches 31 TFLOPS on RTX 5090 (1/3 of FP32 peak); this route was 2.7x faster for
+      ! m=k=1053, n=49928 (Sigma_c imaginary axis) and 1.8x for n=1000 (TOOLS/ozbench/realtrick.cu, 2026-09-27).
+      block
+        integer :: i, j
+        complex(4) :: v
+        real(4) :: one_r, beta_r
+        one_r = 1.0
+        beta_r = real(beta_in)
+        if (allocated(cmm_ap)) then
+          if (size(cmm_ap) < 4*k*m) deallocate(cmm_ap)
+        endif
+        if (.not. allocated(cmm_ap)) allocate(cmm_ap(4*k*m))
+        !$cuf kernel do(2) <<<*,*>>>
+        do j = 1, m
+          do i = 1, k
+            v = a(i + (j-1)*lda_in)
+            cmm_ap(2*i-1 + (2*j-2)*2*k) =  real(v)
+            cmm_ap(2*i   + (2*j-2)*2*k) =  aimag(v)
+            cmm_ap(2*i-1 + (2*j-1)*2*k) = -aimag(v)
+            cmm_ap(2*i   + (2*j-1)*2*k) =  real(v)
+          enddo
+        enddo
+        istat = cublasGemmEX(cublas_handle, CUBLAS_OP_T, CUBLAS_OP_N, 2*m, n, 2*k, &
+                             one_r, cmm_ap, CUDA_R_32F, 2*k, b, CUDA_R_32F, 2*ldb_in, beta_r, c, CUDA_R_32F, 2*ldc_in, &
+                             merge(CUBLAS_COMPUTE_32F, CUBLAS_COMPUTE_32F_FAST_TF32, c0_use_fp32), algo)
+      endblock
+    elseif(use_gemmul8 .and. ((policy_in == BACKEND_AUTO .and. gemmul8_worth(m,n,k)) .or. (policy_in == BACKEND_GEMMUL8))) then
 #ifdef __GEMMUL8
       block
         use m_gemmul8, only: gemmul8_handle, gemmul8_cgemm
@@ -346,6 +381,17 @@ contains
                            merge(CUBLAS_COMPUTE_32F, CUBLAS_COMPUTE_32F_FAST_TF32, c0_use_fp32), algo)
     endif
   end function cmm_d
+  integer function envint01(name, default)
+    character(*), intent(in) :: name
+    integer, intent(in) :: default
+    character(16) :: cv
+    integer :: st, ios, v
+    envint01 = default
+    call get_environment_variable(name, cv, status=st)
+    if (st /= 0) return
+    read(cv, *, iostat=ios) v
+    if (ios == 0) envint01 = v
+  end function envint01
   integer function cmm_batch_d(a, b, c, m, n, k, nbatch, opa, opb, alpha, beta, lda, ldb, ldc, samea, sameb, comm) result(istat)
     use cublas_v2, m_type =>CUDA_C_32F, algo => cublas_gemm_default
     use m_cmdopt_registry, only: c0_use_fp32  ! --use_fp32 -> true FP32, else TF32

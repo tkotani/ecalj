@@ -104,6 +104,31 @@ int main(int argc, char** argv){
     printf("%-28s %9.3f ms %8.2f TFLOPS  err %.2e\n","cuBLAS cgemm3m",t*1e3,flop/t/1e12,relerr_c(hc,ref));
   }
 
+  // The same complex product as real SGEMMs on the interleaved data, no copy of A:
+  //   A (k x m complex) seen as a real (2k x m) matrix Ah; B likewise as Bh (2k x n) = [Re;Im] rows.
+  //   Re C = Ah^T Bh;  Im C = Ah^T Bv with Bv = [Im; -Re] rows (one elementwise pass over B).
+  //   Two real GEMMs of m x n x 2k = 8mnk flops, as the complex one.  C comes out split (Re, Im).
+  {
+    float *dBv, *dCr, *dCi;
+    CK(cudaMalloc(&dBv,sizeof(float)*2*k*n)); CK(cudaMalloc(&dCr,sizeof(float)*m*n)); CK(cudaMalloc(&dCi,sizeof(float)*m*n));
+    std::vector<float> hBv(2*k*n);
+    for(size_t j=0;j<n;j++) for(size_t i=0;i<k;i++){ hBv[2*i+2*k*j]=hB[i+j*ldb].y; hBv[2*i+1+2*k*j]=-hB[i+j*ldb].x; }
+    CK(cudaMemcpy(dBv,hBv.data(),sizeof(float)*2*k*n,cudaMemcpyHostToDevice));
+    const float one=1.f, zero=0.f;
+    for(int tf=0; tf<=1; tf++){
+      cublasComputeType_t ct = tf? CUBLAS_COMPUTE_32F_FAST_TF32 : CUBLAS_COMPUTE_32F;
+      auto f=[&]{
+        CB(cublasGemmEx(h,CUBLAS_OP_T,CUBLAS_OP_N,m,n,2*k,&one,(float*)dA,CUDA_R_32F,2*lda,(float*)dB,CUDA_R_32F,2*ldb,&zero,dCr,CUDA_R_32F,m,ct,CUBLAS_GEMM_DEFAULT));
+        CB(cublasGemmEx(h,CUBLAS_OP_T,CUBLAS_OP_N,m,n,2*k,&one,(float*)dA,CUDA_R_32F,2*lda,dBv,CUDA_R_32F,2*k,&zero,dCi,CUDA_R_32F,m,ct,CUBLAS_GEMM_DEFAULT)); };
+      double t=timeit(f,reps);
+      std::vector<float> cr(m*n), ci(m*n);
+      CK(cudaMemcpy(cr.data(),dCr,sizeof(float)*m*n,cudaMemcpyDeviceToHost)); CK(cudaMemcpy(ci.data(),dCi,sizeof(float)*m*n,cudaMemcpyDeviceToHost));
+      for(size_t i=0;i<m*n;i++) hc[i]=make_cuComplex(cr[i],ci[i]);
+      printf("%-28s %9.3f ms %8.2f TFLOPS  err %.2e\n", tf?"2 real SGEMM TF32":"2 real SGEMM FP32", t*1e3, flop/t/1e12, relerr_c(hc,ref));
+    }
+    CK(cudaFree(dBv)); CK(cudaFree(dCr)); CK(cudaFree(dCi));
+  }
+
   // cuBLAS built-in emulation (CUDA 13): FP64 via fixed point (Ozaki-type, INT8 tensor cores),
   // FP32 via 3xBF16 (9 BF16 products)
   {
