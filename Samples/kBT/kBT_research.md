@@ -82,6 +82,27 @@
 
 （図表の番号は `図 HH:MM-n` / `表 HH:MM-n`。HH:MM はそのエントリの時刻、n はエントリ内の通し番号。エントリの時刻は変わらないので番号は安定する。）
 
+### 2026-09-27 01:20 **誘電行列の逆行列（matinv、1 q あたり 10 秒）: 単精度の LU ＋ Newton 1 回で 4 倍速く、誤差 3e-12**（未検証の選択肢として `458bd1868`）
+
+W-build は q ごとに約 320 本の $\tilde\epsilon$（$n\approx1050$）を `zminv_d`（FP64 の LU、三角の逆 2 回、積、列の入れ替え）で逆にする。
+RTX 5090 の FP64 は FP32 の 1/64 なので 1 本 31 ms。
+
+*表 01:20-1* $n=1053$ の 1 本（`TOOLS/ozbench/matinvbench.cu`、GPU 0。条件数 1〜1e4 で同じ）
+
+| 方式 | 時間 | 相対誤差 | $\max\vert I-AX\vert$ |
+|---|---|---|---|
+| 今の `zminv_d` | 約 31 ms | FP64 | |
+| zgetrf ＋ zgetrs（FP64） | 21.6 ms | 基準 | 1e-14 |
+| cgetrf ＋ cgetrs（FP32 のみ） | 3.1 ms | 1.8e-6 | 2e-6 |
+| FP32 ＋ Newton 1 回（FP64 エミュレーションの積） | **7.0 ms** | **3.5e-12** | 4e-12 |
+| FP32 ＋ Newton 2 回（同上） | 14.6 ms | 7e-15 | 8e-15 |
+
+- Newton–Schulz $X\leftarrow X(2I-AX)$ は 1 回ごとに残差を 2 乗する。単精度の LU が効くのは条件数が 1e7 よりずっと小さいとき。
+  $\tilde\epsilon = 1 - v^{1/2}\chi_0 v^{1/2}$ はこれに当たるが、MLO の重なり行列（条件数 7e4 の例あり）などは別なので、
+  `zminv` の他の呼び出しは変えず、`m_llw` だけが `zminv_eps_d` を通す
+- `ECALJ_MATINV_MIXED=1` のときだけ有効（混合精度の版は 1 回、倍精度の版は 2 回）。1 q あたり 10 → 約 2.3 秒の見込み。
+  `hgw` での確認は GPU が空いてから（6³ なら `hgw` の約 1 割、9³ なら約 4%）
+
 ### 2026-09-27 00:55 **RTX 5090 の cuBLAS は複素 cgemm が遅い。$A^\dagger B$ を実数 SGEMM 1 回に組み替えると 2.7 倍**（精度は FP32 のまま）
 
 Σc の積はどれも $C = A^\dagger B$（$A$ は小さな $W$、$B$ は大きな zmel）。$B$（$k\times n$ 複素）をそのまま実数 $2k\times n$、
