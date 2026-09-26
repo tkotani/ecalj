@@ -192,10 +192,15 @@ run_cmd(cluster, MPIParams(command=EXEC_DIR/"qg4gw", args=[target, "--job=1", *o
 ##                       across the whole chain.  Nothing reads it any more.
 ## Do NOT touch SigRsMLO / HamRsMLO / ZmloSig.*.  ZmloSig.* is the chi~ the existing
 ## SigRsMLO was written in; losing it means Sigma gets read back in the wrong basis.  A chain is driven by
-## repeated `gwsc 1` calls, and SigRsMLO from the previous iteration is what makes
+## `gwsc` calls (one or N iterations each), and SigRsMLO from the previous iteration is what makes
 ## lmf --jobgw=1 use the MLO route at all; deleting it silently turns the GW input
 ## back into the conventional sigm and the chain is no longer a MLO-QSGW.
-if "--mlo" in options:
+## Called here, before steps 0c/0d (`mlo --mlo` would otherwise pick up a stale
+## __SigmMLO.q), and again at the head of EVERY iteration, so that each iteration of a
+## `gwsc N` hands hqpe_sc the Sigma^MLO it actually runs with as x_0.  Doing it once per
+## call left iterations 2..N mixing against the Sigma^MLO of the call's first iteration.
+## Idempotent: with no __SigmMLO.q there is nothing to rename.
+def mlo_iteration_start():
     sigmlo_q = Path('__SigmMLO.q')
     if sigmlo_q.is_file():
         sigmlo_q.replace('__SigmMLO.q.prev')
@@ -204,14 +209,19 @@ if "--mlo" in options:
     for f in Path('.').glob('ZmloNew.*'):
         f.unlink()
 
+if "--mlo" in options:
+    mlo_iteration_start()
+
 ## MLO route (Samples/kBT/sigma_mlo_design.md 4.1): steps 0c/0d, ONCE per chain.
 ##   lmf --writeham --mlo -> HamiltonianPMTInfo
-##   mlo --mlo            -> HamRsMLO, whose trailing records carry the frozen MLO
-##                           index (ix, mlomethod, nskip, eferm, ecbot).
-## chi~ must be THE SAME function for the whole chain (design 4.1).  A chain is driven
-## by repeated `gwsc 1` calls, so rebuilding HamRsMLO on every call would redefine chi~
-## from the current H and the iterations would no longer share one model.  Skip it when
-## HamRsMLO is already there; delete HamRsMLO by hand to start a new model.
+##   mlo --mlo            -> HamRsMLO, whose trailing records carry the MLO index
+##                           (ix, mlomethod, nskip; also the chain-start eferm, ecbot,
+##                           which step a' no longer uses for its window).
+## The INDEX (which MTO channels, ndimMTO) must stay the same for the whole chain:
+## SigRsMLO is a matrix over those channels.  chi~ itself is rebuilt every iteration by
+## step a' from that iteration's H.  Rebuilding HamRsMLO on every call would redefine the
+## index, so skip it when HamRsMLO is already there; delete HamRsMLO by hand to start a
+## new model.
 if "--mlo" in options:
     if Path('HamRsMLO').is_file():
         print('MLO: HamRsMLO exists -> keep the frozen chi~ (skip --writeham / mlo).', flush=True)
@@ -224,6 +234,8 @@ if(Iter0!=0): print(f'We found QPU.{Iter0} -->start to generate QPU.{Iter0+1}...
 for i in range(1,nloop+1): #nloop is the additional number of iteration
     niter=i+Iter0
     print(f'===== QSGW iteration start iter {niter} ===',flush=True)
+    if "--mlo" in options:
+        mlo_iteration_start()   #x_0 of this iteration's Sigma^MLO mixing; a no-op on the first pass
     #gw initialize (only --jobgw=1; the structure-only part is above the loop)
     run_cmd(cluster, MPIParams(command=EXEC_DIR/"lmf", args=[target, "--jobgw=1", *options], **mpi_params_lmf), stdout="llmfgw01")
 
