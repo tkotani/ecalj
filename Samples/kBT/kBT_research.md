@@ -20,19 +20,20 @@
 
 | 列 | 何を描いたか | 描き方 |
 |---|---|---|
-| 1 | 6³ の `liti_mlo_v9`（10 反復で完了）| 従来 `sigm` の内挿（`job_band`、`mloON=0`）|
-| 2 | 6³ の `liti_mlo_v9` の **MLO バンド** | SCF が解いた $H$ の MLO 模型（`draw_mloband.sh`）|
-| 3 | **9³ の `liti_mlo_k9`**（走行中）| 従来 `sigm` の内挿。SCF が使った $\Sigma^{\rm MLO}$ ではない |
-| 4 | **9³ の `liti_mlo_k9` の MLO バンド** | SCF が解いた $H$ の MLO 模型 |
+| 1 | **従来 QSGW**（MTO、6³、`n666_nk6_from_lda`、`pwmode=1`、β=0.5）| 従来 `sigm` の内挿。LDA 行だけ `pwmode=11`（02:45 のエントリ）|
+| 2 | 6³ の `liti_mlo_v9`（MLO-QSGW、10 反復で完了）| 従来 `sigm` の内挿（`job_band`、`mloON=0`）|
+| 3 | 6³ の `liti_mlo_v9` の **MLO バンド** | SCF が解いた $H$ の MLO 模型（`draw_mloband.sh`）|
+| 4 | **9³ の `liti_mlo_k9`**（MLO-QSGW、走行中）| 従来 `sigm` の内挿。SCF が使った $\Sigma^{\rm MLO}$ ではない |
+| 5 | **9³ の `liti_mlo_k9` の MLO バンド** | SCF が解いた $H$ の MLO 模型 |
 
-9³ には反復を揃えて比べられる従来チェーンが無いので、従来列は置いていない。
+9³ には反復を揃えて比べられる従来チェーンが無いので、従来列は 6³ だけ。
 **赤い ×** は列ごとの Γ→X 上の Σ メッシュ点 $x = 2n/N$ での各バンドの値（6³: 0, 1/3, 2/3, 1、9³: 0, 2/9, 4/9, 6/9, 8/9。X 点は奇数メッシュに乗らない。9³ の点は 211 点の格子に乗らないので前後から内挿）。図の題に MLO 模型の内容（126 軌道 = 14 原子 × (s+p+d)）を書いてある。
 
 *図 L-1* t2g（b33–44）、Γ→X 211 点
 
 [![mlo_rows_k9](LiTi2O4/mlo_rows_k9.png)](LiTi2O4/mlo_rows_k9.png)
 
-`Samples/kBT/LiTi2O4/mlo_rows_k9.png`（生成: `MESH=6,9 MESHCOLS=6,6,9,9 mlo_rows.py <root> <out> v9,v9mlo,k9,k9mlo '…' '…' noref`）
+`Samples/kBT/LiTi2O4/mlo_rows_k9.png`（生成: `MESH=6,9 MESHCOLS=6,6,6,9,9 mlo_rows.py <root> <out> v9,v9mlo,k9,k9mlo '…' '…'`、root の `ref/` が従来列）
 
 *図 L-2* 反復ごとの変化（左 max、右 rms）。**9³ は実線、6³ は破線**
 
@@ -40,12 +41,12 @@
 
 `Samples/kBT/LiTi2O4/mlo_conv_k9.png`
 
-*図 L-3* **6³（v9、iteration 10 まで）と 9³ を並べたもの**。列は左から 6³ `sigm` 描画 / 6³ MLO バンド / 9³ `sigm` 描画 / 9³ MLO バンド。
+*図 L-3* **従来 QSGW（6³）、6³ と 9³ の MLO-QSGW を並べたもの**。列は L-1 と同じ 5 列（従来 / 6³ `sigm` 描画 / 6³ MLO バンド / 9³ `sigm` 描画 / 9³ MLO バンド）。
 **緑 = 一番下のバンド、青 = Γ→X の中央で膨れるバンド**（交差をまたいで追跡、膨らみが 50 meV 未満の段では青を付けない）、灰 = その他、**赤い × = メッシュ点**。（18:15 まで一番下は赤で描いていた。赤をメッシュ点の × に使うため緑に変えた）
 
 [![mlo_rows_6vs9_hilite](LiTi2O4/mlo_rows_6vs9_hilite.png)](LiTi2O4/mlo_rows_6vs9_hilite.png)
 
-`Samples/kBT/LiTi2O4/mlo_rows_6vs9_hilite.png`（生成: `HILITE=1 MESH=6,9 MESHCOLS=6,6,9,9 mlo_rows.py <root> <out> v9,v9mlo,k9,k9mlo '…' '…' noref`）。
+`Samples/kBT/LiTi2O4/mlo_rows_6vs9_hilite.png`（生成: `HILITE=1 MESH=6,9 MESHCOLS=6,6,6,9,9 mlo_rows.py <root> <out> v9,v9mlo,k9,k9mlo '…' '…'`）。従来列では iteration 9–10 で青（中央の膨れ）が出るが、同じ 6³ の MLO-QSGW の 2 列には出ない。
 9³ だけの色分け版は `mlo_rows_k9_hilite.png`
 
 *表 L-1* 9³ の各反復
