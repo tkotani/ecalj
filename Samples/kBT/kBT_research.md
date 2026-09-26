@@ -82,6 +82,23 @@
 
 （図表の番号は `図 HH:MM-n` / `表 HH:MM-n`。HH:MM はそのエントリの時刻、n はエントリ内の通し番号。エントリの時刻は変わらないので番号は安定する。）
 
+### 2026-09-26 22:27 **`job_band` などが `efermi.lmf` を書き換えないようにした**（user「job_band の efermi.lmf は efermi.lmf.job_band として扱った方がいい。efermi.lmf は更新せずに」「job_band, job_fermisurface, job_pdos は直した方がいい。job_mlo_soc は efermi_soc のみいじればいいのでは」「新形式に直して動くようにして」）
+
+`efermi.lmf` は最後の SCF の値で、次の QSGW 反復の段 a'（MLO の窓）と `mlo` が読む。`lmf --quit=band` や `lmf --tdos` の
+1 回だけのバンド計算（別のメッシュ・設定）がこれを上書きしていた。
+
+- `lmf`/`mlo` に `--efermi=<file>`（`m_cmdopt_registry` の `efermi_file()`）。`m_bndfp` の書き込みとバンド描画モードの読み込み、
+  `m_readqplist`（`readqplistsy`、`readbandedge`）がこの名前を使う
+- `job_band` → `efermi.lmf.job_band`、`job_dos` → `efermi.lmf.job_tdos` / `.job_pdos`、`job_fermisurface` → `efermi.lmf.job_fermisurface`
+- `job_mlo_soc`: 1 段目が SOC の $E_F$ を `efermi_soc` に直接書き、3 段目の `mlo` も `--efermi=efermi_soc` で読む（窓の基準は以前と同じ SOC の値）
+- `job_fermisurface` は廃止形式の `-vnk1=`・`-pr45` を `lmf` に渡しており、今の `lmf` は引数検査で弾くので動いていなかった。
+  `--ctrlg:bz.nkabc=[..]`・`--ctrlg:verbose=45` に直した
+
+**確認**: Si で `job_band`・`job_tdos`・`job_pdos`・`job_fermisurface` を順に回し、毎回 `efermi.lmf` の md5 が不変、専用ファイルができ、
+出力（バンド、DOS、PDOS、`fermiup.bxsf`）もそろう。バンドの図の $E_F$ は `efermi.lmf.job_band` の値（0.2336502 Ry、SCF は 0.2336276）。
+`Samples/MLOsamples/GaAsSoc`（`job_mlo`・`job_mlo_soc`）は参照との差 0.0 で合格、作業ディレクトリの `efermi.lmf` は元と同一。
+TestInstall の `co`（`job_pdos`）・`fe`（`job_tdos`）も合格。ecalj `12e9882a7`、ecaljdoc `1ac6097`（どちらも未 push）。
+
 ### 2026-09-26 22:04 **1 反復目の混合を Si で確認: β=0.5 ならちょうど半歩、既定の β=1.0 なら全量**（user「si_gwsc で通常の gwsc を 1 回回して確かめて。mix の値次第でバンドが違うはず」）
 
 `Samples/TestInstall/si_gwsc` の入力を 2 組コピーし、`[gw] mixbeta` だけ変えて LDA から `gwsc 1 -np 8`（MLO なし）。各 26 秒。

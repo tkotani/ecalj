@@ -862,9 +862,11 @@ $\tilde\chi$ を **Σ 抜きの $H$** から作り直し、$\Sigma$ を違う基
 
 **(1'') `job_mlo --mlofreeze --mlo` も使えない**（§11.2.1）。
 
-**(2) 連鎖ディレクトリの中で走らせない。** `job_band` の第 1 段は `lmf --quit=band` で、
+~~**(2) 連鎖ディレクトリの中で走らせない。** `job_band` の第 1 段は `lmf --quit=band` で、
 これは **`efermi.lmf` を書き換えます**（[m_bndfp.f90:274](../../SRC/subroutines/m_bndfp.f90#L274)）。MLO の窓は `efermi.lmf` から
-`ecbot` オフセットを読むので、連鎖ディレクトリで描くと窓の基準が動きます。
+`ecbot` オフセットを読むので、連鎖ディレクトリで描くと窓の基準が動きます。~~
+→ **2026-09-26 修正**: `lmf`/`mlo` に `--efermi=<file>` を足し、`job_band` は `efermi.lmf.job_band` に書いて読む（`job_dos`・`job_fermisurface` も同様）。
+`efermi.lmf` は最後の SCF の値のまま。スナップショットの中で描く運用はそのままでよい。
 `snap/iter<N>/` を掘って状態一式を置き、その中で走らせる。**そのままスナップショットになります。**
 
 **答え**: MLO（係数 $z$）は **反復ごとに 1 回、①の段 a' で、その反復のハミルトニアンから**作られます。
