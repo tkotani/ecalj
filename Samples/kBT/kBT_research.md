@@ -15,24 +15,26 @@
 
 ## 最新の図（走行中のチェーンを映す。ここだけ上書きされる）
 
-**最終更新 2026-09-26 11:15**（9³ iter 5）／ 追っているのは **`liti_mlo_k9`**（**9³**、nmlo 126、$\Sigma^{\rm MLO}$ を β=0.5 で混合、10 反復投入、03:07 開始）。
+**最終更新 2026-09-26 11:20**（9³ iter 5）／ 追っているのは **`liti_mlo_k9`**（**9³**、nmlo 126、$\Sigma^{\rm MLO}$ を β=0.5 で混合、10 反復投入、03:07 開始）。
 6³ の v9 は 10 反復で完了し、最終図は 03:15 のエントリに凍結した。
 
 | 列 | 何を描いたか | 描き方 |
 |---|---|---|
-| 左 | `liti_mlo_k9` | 従来 `sigm` の内挿（`job_band`、`mloON=0`）。SCF が使った $\Sigma^{\rm MLO}$ ではない |
-| 右 | **`liti_mlo_k9` の MLO バンド** | SCF が解いた $H$ の MLO 模型（`draw_mloband.sh`）|
+| 1 | 6³ の `liti_mlo_v9`（10 反復で完了）| 従来 `sigm` の内挿（`job_band`、`mloON=0`）|
+| 2 | 6³ の `liti_mlo_v9` の **MLO バンド** | SCF が解いた $H$ の MLO 模型（`draw_mloband.sh`）|
+| 3 | **9³ の `liti_mlo_k9`**（走行中）| 従来 `sigm` の内挿。SCF が使った $\Sigma^{\rm MLO}$ ではない |
+| 4 | **9³ の `liti_mlo_k9` の MLO バンド** | SCF が解いた $H$ の MLO 模型 |
 
 9³ には反復を揃えて比べられる従来チェーンが無いので、従来列は置いていない。
-点線は Γ→X 上の Σ メッシュ点 $x = 2n/9$（0, 2/9, 4/9, 6/9, 8/9。X 点は奇数メッシュに乗らない）。
+点線は列ごとの Γ→X 上の Σ メッシュ点 $x = 2n/N$（6³: 0, 1/3, 2/3, 1、9³: 0, 2/9, 4/9, 6/9, 8/9。X 点は奇数メッシュに乗らない）。
 
 *図 L-1* t2g（b33–44）、Γ→X 211 点
 
 [![mlo_rows_k9](LiTi2O4/mlo_rows_k9.png)](LiTi2O4/mlo_rows_k9.png)
 
-`Samples/kBT/LiTi2O4/mlo_rows_k9.png`（生成: `MESH=9 mlo_rows.py <root> <out> k9,k9mlo 'ラベル,ラベル' 'tab:purple,tab:orange' noref`）
+`Samples/kBT/LiTi2O4/mlo_rows_k9.png`（生成: `MESH=6,9 MESHCOLS=6,6,9,9 mlo_rows.py <root> <out> v9,v9mlo,k9,k9mlo '…' '…' noref`）
 
-*図 L-2* 反復ごとの変化（左 max、右 rms）
+*図 L-2* 反復ごとの変化（左 max、右 rms）。**9³ は実線、6³ は破線**
 
 [![mlo_conv_k9](LiTi2O4/mlo_conv_k9.png)](LiTi2O4/mlo_conv_k9.png)
 
