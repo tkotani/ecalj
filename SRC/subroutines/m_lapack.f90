@@ -470,7 +470,10 @@ contains
     !> In-place inverse of a (complex(8), device, leading dimension lda): LU in single precision
     !> (cgetrf + cgetrs on the identity), then nnewton Newton-Schulz steps X <- X (2I - A X) in double
     !> precision (zmm_d, whose backend m_linalg_policy chooses).  Each step squares the residual.
-    !> Needs cond(a) well below 1e7.  TOOLS/ozbench/matinvbench.cu, n=1053 on RTX 5090 (2026-09-27):
+    !> Guard: with R = I - A X0 from the single-precision LU, the final residual is at most ||R||_F^(2^nnewton);
+    !> when that bound exceeds 1e-6 (one step, used at fp32) or 1e-13 (two steps, fp64) the matrix is too
+    !> ill-conditioned for this route and zminv_d (FP64 LU) is used instead (a note is printed once).
+    !> TOOLS/ozbench/matinvbench.cu, n=1053 on RTX 5090 (2026-09-27):
     !> zgetrf+zgetrs 21.6 ms; single LU 3.1 ms (err 2e-6), +1 step 7.0 ms (3e-12), +2 steps 14.6 ms (7e-15)
     !> with emulated FP64 products; zminv_d takes ~31 ms.
     complex(8), device :: a(*)
@@ -480,6 +483,8 @@ contains
     integer, device, allocatable :: ipiv(:)
     integer, device :: devinfo
     integer :: lwork, i, j, it
+    real(8) :: rf
+    logical, save :: noted = .false.
     istat = cublas_init()
     istat = cusolver_init()
     allocate(a32(n,n), x32(n,n), ipiv(n))
@@ -507,13 +512,24 @@ contains
     deallocate(x32)
     do it = 1, nnewton
       istat = zmm_d(a, x, t, n, n, n, lda=lda)          ! t = A X
+      rf = 0d0
       !$cuf kernel do(2) <<<*,*>>>
       do j = 1, n
         do i = 1, n
           t(i,j) = -t(i,j)
           if (i == j) t(i,j) = t(i,j) + (2d0, 0d0)
+          rf = rf + abs(t(i,j) - cmplx(merge(1d0, 0d0, i == j), 0d0, kind=8))**2   ! ||R||_F^2, t = I + R
         enddo
       enddo
+      if (it == 1 .and. sqrt(rf)**(2**nnewton) > merge(1d-6, 1d-13, nnewton == 1)) then
+        if (.not. noted) write(6,'(a,es9.2,a)') ' zminv_mixed_d: ||I-A X0||_F =', sqrt(rf), &
+             ' is too large for the mixed inverse; FP64 LU is used for such matrices (noted once)'
+        noted = .true.
+        deallocate(x, t)
+        if (allocated(y)) deallocate(y)
+        istat = zminv_d(a, n, lda)                       ! a is still the input matrix here
+        return
+      endif
       if (it == nnewton) then
         istat = zmm_d(x, t, a, n, n, n, ldc=lda)        ! last step: A^-1 = X (2I - A X) into a
       else

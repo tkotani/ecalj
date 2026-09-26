@@ -11,11 +11,12 @@
 !>   3. --use_gemmul8 (old switch: GEMMul8 for the large products)
 !>   4. --linalg=<row>,<row>,...   e.g. --linalg=fp32.cgemm.large=realsgemm,fp64.zgemm.large=gemmul8:14
 !> The table in use is printed once.  Backends that cannot do a given call (e.g. realsgemm with opB /= N) fall back
-!> to cuBLAS inside m_blas.  2026-09-27.
+!> to cuBLAS inside m_blas.  The level also fixes the arithmetic of cuBLAS single precision (tf32: TF32, else FP32).
+!> linalgtune (SRC/main/linalgtune.f90) sets the level and the rows itself (la_set_level, la_apply).  2026-09-27.
 module m_linalg_policy
   implicit none
   private
-  public :: la_init, la_backend, la_moduli, la_level, la_print, this_gpu
+  public :: la_init, la_backend, la_moduli, la_level, la_print, this_gpu, la_set_level, la_apply, la_policy_path
   integer, parameter, public :: BK_CUBLAS = 0, BK_REALSGEMM = 1, BK_GEMMUL8 = 2
   integer, parameter, public :: BK_LU64 = 10, BK_MIXED1 = 11, BK_MIXED2 = 12
   integer, parameter, public :: OP_CGEMM = 1, OP_ZGEMM = 2, OP_DGEMM = 3, OP_EPSINV = 4
@@ -94,6 +95,20 @@ contains
     la_level = level
   end function la_level
 
+  subroutine la_set_level(lv)
+    !> For linalgtune: work at level lv (tf32, fp32 or fp64) whatever the build.
+    character(*), intent(in) :: lv
+    call la_init()
+    level = lv
+  end subroutine la_set_level
+
+  subroutine la_apply(rows)
+    !> For linalgtune: apply rows '<level>.<op>.<field>=<value>,...' (as --linalg) to the table in use.
+    character(*), intent(in) :: rows
+    call la_init()
+    call apply_rows(rows, ',')
+  end subroutine la_apply
+
   logical function islarge(op, m, n, k)
     integer, intent(in) :: op, m, n, k
     islarge = m >= rule(op)%minm .and. n >= rule(op)%minn .and. k >= rule(op)%mink .and. &
@@ -135,12 +150,8 @@ contains
     !> it is only read here.  ECALJ_LINALG_POLICY overrides the path.
     character(1024) :: path, line
     character(256) :: gpu
-    integer :: ifi, ios, st, lb
-    call get_environment_variable('ECALJ_LINALG_POLICY', path, status=st)
-    if (st /= 0 .or. len_trim(path) == 0) then
-      call exe_dir(path)
-      path = trim(path)//'/ecalj_linalg_policy.toml'
-    endif
+    integer :: ifi, ios, lb
+    path = la_policy_path()
     open(newunit=ifi, file=trim(path), status='old', action='read', iostat=ios)
     if (ios /= 0) return
     gpu = ''
@@ -188,15 +199,50 @@ contains
 #endif
   end function this_gpu
 
+  function la_policy_path() result(path)
+    !> ECALJ_LINALG_POLICY, else ecalj_linalg_policy.toml next to the running executable (where InstallAll puts it).
+    character(1024) :: path
+    integer :: st
+    call get_environment_variable('ECALJ_LINALG_POLICY', path, status=st)
+    if (st == 0 .and. len_trim(path) > 0) return
+    call exe_dir(path)
+    path = trim(path)//'/ecalj_linalg_policy.toml'
+  end function la_policy_path
+
   subroutine exe_dir(dir)
-    !> Directory of the running executable (where InstallAll put the policy file).
+    !> Directory of the running executable as it was called (the bin directory, not the target of its symlink);
+    !> a bare name is looked up in PATH.
     character(*), intent(out) :: dir
     character(1024) :: exe
-    integer :: i
+    character(4096) :: pth
+    integer :: i, i0, i1, st
+    logical :: ex
     call get_command_argument(0, exe)
     i = index(exe, '/', back=.true.)
     dir = '.'
-    if (i > 1) dir = exe(1:i-1)
+    if (i > 1) then
+      dir = exe(1:i-1)
+      return
+    endif
+    call get_environment_variable('PATH', pth, status=st)
+    if (st /= 0) return
+    i0 = 1
+    do while (i0 <= len_trim(pth))
+      i1 = index(pth(i0:), ':')
+      if (i1 == 0) then
+        i1 = len_trim(pth) + 1
+      else
+        i1 = i0 + i1 - 1
+      endif
+      if (i1 > i0) then
+        inquire(file=pth(i0:i1-1)//'/'//trim(exe), exist=ex)
+        if (ex) then
+          dir = pth(i0:i1-1)
+          return
+        endif
+      endif
+      i0 = i1 + 1
+    enddo
   end subroutine exe_dir
 
   subroutine apply_rows(rows, sep)

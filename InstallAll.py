@@ -45,6 +45,8 @@ parser.add_argument('--gpu', help='nvfortran for GPU', action='store_true')
 parser.add_argument('--bindir', help='ecalj binaries and scripts', type=str, default=str(Path.home() / 'bin'))
 parser.add_argument('--fc', help='fortran compiler gfortran/ifort/ifx/nvfortran', type=str, required=True)
 parser.add_argument('--notest', help='no test. only compile', action='store_true')
+parser.add_argument('--notune', help='GPU build: do not run linalgtune (the GPU matrix backends then stay cuBLAS)',
+                    action='store_true')
 parser.add_argument('--no-bashrc', help='do not append source line to ~/.bashrc', action='store_true')
 parser.add_argument('--verbose', help='verbose on for debug', action='store_true')
 parser.add_argument('--debug', help='debug', action='store_true')
@@ -86,6 +88,40 @@ def build_and_install_gemmul8(build_dir: Path, bin_dir: Path):
     except Exception as e:
         print(f"Warning: Failed to copy {libfile} to {bin_dir}: {e}", file=sys.stderr)
 
+def tune_linalg(bin_dir: Path, ecalj_root: Path):
+    """GPU build: measure the GPU matrix backends here and write <bindir>/ecalj_linalg_policy.toml (linalgtune).
+
+    Only on a GPU nobody else is using: times taken beside another job would choose wrongly.  Skipped
+    otherwise, with a note; the programs then use cuBLAS everywhere (the built-in defaults) until
+    linalgtune_gpu is run by hand.
+    """
+    exe = bin_dir / 'linalgtune_gpu'
+    if not exe.exists():
+        print(f'linalgtune: {exe} was not built; skipped.')
+        return
+    sys.path.insert(0, str(ecalj_root / 'SRC' / 'exec'))
+    from pylib.gpu_lock import GpuLock
+    try:
+        with GpuLock(want=1, label='InstallAll linalgtune', wait=0) as g:
+            gpu = str(g.devices[0]) if g.devices else '0'
+            apps = subprocess.run(['nvidia-smi', '-i', gpu, '--query-compute-apps=pid', '--format=csv,noheader'],
+                                  capture_output=True, text=True, timeout=30).stdout.strip()
+            if apps:
+                print(f'linalgtune: GPU {gpu} is running other processes ({apps.split()}); skipped. '
+                      f'Run {exe} later on an idle GPU.')
+                return
+            rev = subprocess.run(['git', 'rev-parse', '--short', 'HEAD'], cwd=ecalj_root,
+                                 capture_output=True, text=True).stdout.strip()
+            env = dict(os.environ, CUDA_VISIBLE_DEVICES=gpu, CUDA_DEVICE_ORDER='PCI_BUS_ID')
+            print(f'linalgtune: measuring the GPU matrix backends on GPU {gpu} (about a minute) ...')
+            with open(bin_dir / 'linalgtune.log', 'w') as log:
+                rc = subprocess.run([str(exe), f'--ecalj={rev}'], env=env, stdout=log, stderr=subprocess.STDOUT).returncode
+            tail = (bin_dir / 'linalgtune.log').read_text().splitlines()[-4:]
+            print('\n'.join(tail) if rc == 0 else f'linalgtune failed (rc={rc}); see {bin_dir / "linalgtune.log"}')
+    except RuntimeError as e:
+        print(f'linalgtune: skipped, {e}.  Run {exe} later on an idle GPU.')
+
+
 ECALJ_BASHRC_MARKER = "# >>> ecalj bash completion (auto-installed by InstallAll.py) >>>"
 ECALJ_BASHRC_END    = "# <<< ecalj bash completion <<<"
 
@@ -111,7 +147,7 @@ def write_install_manifest(bin_dir: Path, ecalj_root: Path):
     manifest = bin_dir / ECALJ_MANIFEST_NAME
     ecalj_root_str = str(ecalj_root)
     entries = []
-    real_file_names = {"ecalj_cmdopts.list", ECALJ_MANIFEST_NAME}
+    real_file_names = {"ecalj_cmdopts.list", ECALJ_MANIFEST_NAME, "ecalj_linalg_policy.toml", "linalgtune.log"}
     for entry in sorted(bin_dir.iterdir()):
         if entry.is_symlink():
             try:
@@ -286,6 +322,10 @@ def main():
     # Install per-user bash completion (one-shot append to ~/.bashrc).
     if not args.no_bashrc:
         install_bash_completion(BIN_DIR)
+
+    # GPU build: choose the matrix backends for this GPU (writes BIN_DIR/ecalj_linalg_policy.toml).
+    if args.gpu and not args.notune:
+        tune_linalg(BIN_DIR, CWD)
 
     # Record every BIN_DIR entry that belongs to this install so
     # uninstall.py can undo it without re-deriving the layout.

@@ -70,6 +70,8 @@ set(GPU_ONLY_SOURCES
 )
 list(REMOVE_ITEM SOURCES ${GPU_ONLY_SOURCES})
 file(GLOB MAINS "${CMAKE_SOURCE_DIR}/main/*.f90")
+# linalgtune measures the GPU backends of m_linalg_policy: built in the gpu variant only (linalgtune_gpu).
+list(REMOVE_ITEM MAINS "${CMAKE_SOURCE_DIR}/main/linalgtune.f90")
 set(MAINS_GPU
     "${CMAKE_SOURCE_DIR}/main/hsfp0_sc.f90"
     "${CMAKE_SOURCE_DIR}/main/hgw.f90"
@@ -233,6 +235,7 @@ function(add_extended_build VARIANT)
   if(VARIANT STREQUAL "gpu")
     # hsfp0_gpu: one-shot Sigma with CUF-offloaded W contractions (gpu variant only).
     list(APPEND MAINS_VARIANT "${CMAKE_SOURCE_DIR}/main/hsfp0.f90")
+    list(APPEND MAINS_VARIANT "${CMAKE_SOURCE_DIR}/main/linalgtune.f90")
   endif()
   foreach(target IN ITEMS ${MAINS_VARIANT})
     get_filename_component(exename ${target} NAME_WE)

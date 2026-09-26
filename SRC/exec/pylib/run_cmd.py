@@ -1,5 +1,6 @@
 from __future__ import annotations
 from .utils import remove_files
+from .gpu_lock import GpuLock
 import os
 import shlex
 import subprocess
@@ -76,14 +77,14 @@ def _build_env(cfg):
     return env
 
 
-# --- GPU slot coordination -------------------------------------------------
-# gwsc runs *_gpu binaries (hvccfp0_mp_gpu, hgw_combined_mp_gpu, hsfp0_sc_mp_gpu,
-# hrcxq_mp_gpu) directly via run_cmd. Without coordination, N parallel gwsc
-# workers all pile onto GPU 0 -> CUDA_ERROR_OUT_OF_MEMORY (vcoulq_4 mkjp.f90:296).
-# When a slot_scheduler_daemon is running we acquire a GPU slot here: it caps
-# concurrency at the number of GPU slots and pins CUDA_VISIBLE_DEVICES to the
-# slot index, so two GPU jobs land on GPU 0 and GPU 1 rather than colliding.
-# No daemon -> no-op, so standalone use is unaffected.
+# --- GPU coordination --------------------------------------------------------
+# gwsc runs *_gpu binaries (hvccfp0_mp_gpu, hgw_mp_gpu, lmf_gpu, ...) directly via
+# run_cmd. Without coordination, jobs pile onto the same GPU ->
+# CUDA_ERROR_OUT_OF_MEMORY (vcoulq_4 mkjp.f90:296).
+# * With a slot_scheduler_daemon running (ecalj_auto) we take a GPU slot from it.
+# * Otherwise we take GPU locks (pylib/gpu_lock.py, /tmp/ecalj_res/gpu<N>.lock):
+#   min(nprocs, candidate GPUs) of them, waiting while they are in use, and pass
+#   only those in CUDA_VISIBLE_DEVICES.  ECALJ_GPU_LOCK=0 turns this off.
 _SLOT_SOCKET = "/tmp/slot_scheduler.sock"
 
 
@@ -156,8 +157,13 @@ def run_cmd(cluster: str,
     cluster = cluster or "default"
     cfg = _load_config(cluster)
     out_stream = open(stdout, "w") if stdout else None
-    gpu_ctx = _GpuSlot(label=f"runcmd:{Path(str(params.command)).name}") \
-        if _needs_gpu_slot(params.command) else None
+    gpu_ctx = None
+    if _needs_gpu_slot(params.command):
+        label = f"runcmd:{Path(str(params.command)).name}"
+        if os.path.exists(_SLOT_SOCKET):
+            gpu_ctx = _GpuSlot(label=label)
+        else:
+            gpu_ctx = GpuLock(want=params.nprocs or 1, label=f"{label} in {os.getcwd()}")
     if gpu_ctx is not None:
         gpu_ctx.__enter__()
     try:
@@ -175,8 +181,11 @@ def run_cmd(cluster: str,
             cmd = _build_command(cfg, p)
             cmd = [str(x) for x in cmd]
             env = _build_env(cfg)
-            if gpu_ctx is not None and gpu_ctx.slot_idx is not None:
+            if isinstance(gpu_ctx, _GpuSlot) and gpu_ctx.slot_idx is not None:
                 env["CUDA_VISIBLE_DEVICES"] = str(gpu_ctx.slot_idx)
+            if isinstance(gpu_ctx, GpuLock) and gpu_ctx.devices is not None:
+                env["CUDA_VISIBLE_DEVICES"] = gpu_ctx.visible
+                env.setdefault("CUDA_DEVICE_ORDER", "PCI_BUS_ID")   # the numbering nvidia-smi uses
             dt = datetime.datetime.now() - START_TIME
             # Build the initial command for logging
             sec = dt.total_seconds()

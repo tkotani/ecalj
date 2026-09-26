@@ -294,8 +294,7 @@ contains
     !> route or GEMMul8) comes from m_linalg_policy; policy=BACKEND_BLAS / BACKEND_GEMMUL8 forces one.
     !> key >= 0 (optional): same key = same A until la_cache_reset, so backends may keep their form of A.
     use cublas_v2, m_type =>CUDA_C_32F, algo => cublas_gemm_default
-    use m_cmdopt_registry, only: c0_use_fp32  ! --use_fp32 -> true FP32, else TF32
-    use m_linalg_policy, only: la_backend, la_moduli, OP_CGEMM, BK_CUBLAS, BK_REALSGEMM, BK_GEMMUL8
+    use m_linalg_policy, only: la_backend, la_moduli, la_level, OP_CGEMM, BK_CUBLAS, BK_REALSGEMM, BK_GEMMUL8
     use m_la_realsgemm, only: realsgemm_c
     complex(4), device, target :: a(*), b(*), c(*)
     integer, intent(in) :: m, n, k
@@ -328,7 +327,7 @@ contains
     istat = cublas_init()
     opa_in_cublas = get_m_op_cublas(opa_in)
     opb_in_cublas = get_m_op_cublas(opb_in)
-    ctype = merge(CUBLAS_COMPUTE_32F, CUBLAS_COMPUTE_32F_FAST_TF32, c0_use_fp32)
+    ctype = merge(CUBLAS_COMPUTE_32F_FAST_TF32, CUBLAS_COMPUTE_32F, la_level() == 'tf32')  ! level tf32: TF32, else FP32
     select case (policy_in)
     case (BACKEND_BLAS);    bk = BK_CUBLAS
     case (BACKEND_GEMMUL8); bk = BK_GEMMUL8
@@ -362,7 +361,7 @@ contains
   end function cmm_d
   integer function cmm_batch_d(a, b, c, m, n, k, nbatch, opa, opb, alpha, beta, lda, ldb, ldc, samea, sameb, comm) result(istat)
     use cublas_v2, m_type =>CUDA_C_32F, algo => cublas_gemm_default
-    use m_cmdopt_registry, only: c0_use_fp32  ! --use_fp32 -> true FP32, else TF32
+    use m_linalg_policy, only: la_level
     complex(4), device :: a(*), b(*), c(*)
     integer, intent(in) :: m, n, k, nbatch
     character, intent(in), optional :: opa, opb
@@ -405,7 +404,7 @@ contains
     istat = cublasGemmStridedBatchedEX(cublas_handle, opa_in_cublas, opb_in_cublas, m, n, k, &
                                        alpha_in, a, m_type, lda_in, stridea, b, m_type, ldb_in, strideb, beta_in, &
                                        c, m_type, ldc_in, stridec, nbatch, &
-                                       merge(CUBLAS_COMPUTE_32F, CUBLAS_COMPUTE_32F_FAST_TF32, c0_use_fp32), algo)
+                                       merge(CUBLAS_COMPUTE_32F_FAST_TF32, CUBLAS_COMPUTE_32F, la_level() == 'tf32'), algo)
   end function cmm_batch_d
   integer function zvv_d(x, y, n, res, incx, incy) result(istat)
     implicit none

@@ -25,6 +25,10 @@ parser.add_argument('--phispinsym',help='spin-symmetrized augmentation',action='
 parser.add_argument('--emptyrun'  ,help='test for gprof for memory',    action='store_true')
 parser.add_argument('--gpu'       ,help='USE GPU version for hsfp0 and hgw',    action='store_true')
 parser.add_argument('--gemmul8'   ,help='USE GEMMul8 valid in GPU without MP',    action='store_true')
+parser.add_argument('--prec'      ,help='precision of the GW programs: fp64 (double precision), fp32 (mixed precision, '
+                    'FP32 products; = --mp --fp32) or tf32 (mixed precision, TF32 products on GPU; = --mp). How each '
+                    'GPU product is done is read from <bindir>/ecalj_linalg_policy.toml (written by linalgtune).',
+                    choices=['tf32', 'fp32', 'fp64'], default=None)
 parser.add_argument('--mp'        ,help='USE mixed precision version for hsfp0 and hgw',    action='store_true')
 parser.add_argument('--fp32'      ,help='With --mp: use true FP32 (not TF32) in GPU GEMMs. Fixes ill-conditioned dielectric (e.g. mp-8196)', action='store_true')
 parser.add_argument('--removeFermiWindowLiTi2O4', help='DIAGNOSTIC: drop bands within +-2eV of EF from chi0 (m_tetwt). Tests if Fermi-surface neighbourhood drives QSGW oscillation', action='store_true')
@@ -34,6 +38,11 @@ parser.add_argument("-c", "--cluster", help="cluster name", default="default", t
 args,unknown=parser.parse_known_args()
 
 target=''.join(re.split('ctrl.',args.extension)) #to accept ctrl.si and si
+if args.prec is not None:     # --prec is the one switch; --mp/--fp32 are its older spelling
+    if (args.mp or args.fp32) and (args.mp != (args.prec != 'fp64') or args.fp32 != (args.prec == 'fp32')):
+        raise SystemExit(f'gwsc: --prec={args.prec} contradicts --mp/--fp32; give only --prec.')
+    args.mp = args.prec != 'fp64'
+    args.fp32 = args.prec == 'fp32'
 cluster = args.cluster
 nloop = args.nloop
 
