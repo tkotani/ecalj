@@ -88,8 +88,10 @@
 - その前に `556b0c9` で、user の指摘（「式 6 の行列 S の定義がない」「行列はインターポレーションできる。そもそも k 空間でのインターポレーションと書く」「読む側は z を作れない、は蛇足」）を反映:
   $S^{\rm PMT}$ と係数行列 $\psi$ を定義して $c=\psi^\dagger S^{\rm PMT}z^{\rm MLO}$ を明記、式 (7) の射影子を $\hat P_{\rm MLO}$ に（式 (1) の $\hat P(k)$ と記号が重なっていた）、
   内挿はすべて「k 空間での内挿」、§1.4 の事実は「MLO 表現の行列は内挿できる／PMT の行を持つ $z^{\rm MLO}(k)$ はできない」の 2 つに
-- VSCode のプレビューで ecaljdoc の図が出ない件: md の相対パスは 3 本とも解決し、同じ Markdown Preview Enhanced で書き出した PDF には図が入っている。
-  ecaljdoc がワークスペース（ecalj）の外にあるため、プレビューが画像を読めないと見ている
+- VSCode のプレビューで ecaljdoc の図が出ない件: md の相対パスは 3 本とも解決し、同じ Markdown Preview Enhanced（MPE）で書き出した PDF には図が入っている。
+  **原因は MPE 0.8.38 の `g1()`**: md の属するワークスペースを `fsPath.startsWith(folder)` の文字列前方一致で探すので、
+  `/home/takao/ecaljdoc/...` を `/home/takao/ecalj` の中と誤認し、webview の `localResourceRoots` が ecalj だけになる。
+  ecaljdoc の画像はパスが正しくても読み込みを拒否される。ecaljdoc を別ウィンドウで開くか、ワークスペースに追加すれば出る
 
 ### 2026-09-26 20:58 ecaljdoc `mlo_gwsc.md` を user の直しに合わせて整理（user「苦労話はいらない。必要な話はいる」「2 スロットは適切でない。イテレーティブ Sigma インターポレーションかな」「バンドのイテレーションの図は埋め込むべき」）
 
