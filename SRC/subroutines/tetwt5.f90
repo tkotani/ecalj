@@ -166,6 +166,7 @@ contains
     logical:: interbandonly=.false.,intrabandonly=.false.
     real(8),parameter:: tolx=1d-5
     integer(8):: tw0, tw1, tw2, twrate
+    integer:: ihlo, ihhi, lo, hi   ! histogram bins a pair's tetrahedron can reach (job=1)
     !---------------------------------------------------------------------
     call gwinput_init()
     if (gwinput_loaded) then
@@ -332,7 +333,14 @@ contains
                       cycle
                    endif
                    x(0:3) = .5d0*(eocc-eunocc) ! + omg !Denominator. unit in Hartree.
-                   wtthis2 = 0d0
+                   ! lindtet6 writes only the bins of -x at points inside the tetrahedron (its sub-tetrahedra
+                   ! interpolate x linearly along edges), i.e. bins between those of minval(-x) and maxval(-x).
+                   ! Zero and accumulate just those, widened by one bin against rounding in the interpolation.
+                   ! Same sums as zeroing all nwhis bins; that zeroing dominated the loop (2026-09-27).
+                   ihlo = max(ibinhis(minval(-x), frhis, nwhis) - 1, 1)
+                   ihhi = min(ibinhis(maxval(-x), frhis, nwhis) + 1, nwhis)
+                   wtthis2(ihlo:ihhi,:) = 0d0
+                   if(chkwrt) wtthis2 = 0d0
                    if(chkwrt) then
                       write(6,"('### Goto lindtet6: itet ib jb Ef=',i8,2i5,d12.4,' ###')" ) itet,ib,jb,efermi
                       write(6,"('  eocc  - Ef= ',4f10.3)") eocc  -efermi
@@ -363,11 +371,13 @@ contains
                       jini = jhw(ibib,kk(ikx),jpm)
                       iini = ihw(ibib,kk(ikx),jpm)
                       nnn =  nhw(ibib,kk(ikx),jpm)
+                      lo = max(ihlo, iini)          ! bins [iini, iini+nnn-1] of this pair at kk(ikx)
+                      hi = min(ihhi, iini+nnn-1)    ! that lindtet6 can have touched
                       if(matrix_linear()) then
-                         whw(jini:jini+nnn-1) = whw(jini:jini+nnn-1) + wtthis2(iini:iini+nnn-1,ikx)*piofvoltot
+                         whw(jini+lo-iini:jini+hi-iini) = whw(jini+lo-iini:jini+hi-iini) + wtthis2(lo:hi,ikx)*piofvoltot
                       else
-                         whw(jini:jini+nnn-1) = whw(jini:jini+nnn-1) &
-                              + wtthis2(iini:iini+nnn-1,0)*piofvoltot*4*wtet(ikx,im,itet) ! piofvoltot= pi/voltot/4
+                         whw(jini+lo-iini:jini+hi-iini) = whw(jini+lo-iini:jini+hi-iini) &
+                              + wtthis2(lo:hi,0)*piofvoltot*4*wtet(ikx,im,itet) ! piofvoltot= pi/voltot/4
                       endif
                    enddo
                 enddo
@@ -547,6 +557,25 @@ contains
        call rx( ' hisrange: wrong')
     endif
   end subroutine hisrange
+  pure integer function ibinhis(w, frhis, nwhis)
+    !> First histogram bin ihis (1..nwhis) with w < frhis(ihis+1), i.e. the bin [frhis(ihis),frhis(ihis+1)) holding w
+    !> for w >= frhis(1); nwhis+1 if w is beyond the last bin.  frhis increases.  Binary search.
+    implicit none
+    integer, intent(in) :: nwhis
+    real(8), intent(in) :: w, frhis(nwhis+1)
+    integer :: lo, hi, mid
+    lo = 1
+    hi = nwhis+1
+    do while (lo < hi)
+       mid = (lo+hi)/2
+       if (w < frhis(mid+1)) then
+          hi = mid
+       else
+          lo = mid+1
+       endif
+    enddo
+    ibinhis = lo
+  end function ibinhis
   subroutine lindtet6(kkv,kvec, ea, eb, x, efermia, efermib, frhis, nwhis, wtthis)! Calculate the imaginary part of \int dk1 dk2 dk3 f(ea)(1-f(eb))/(\omega+x ), that is, the microcell integral of wtthis(ihis) = \int_lower(ihis)^upper(ihis) d\omega \int d^3k f(ea(k)) (1-f(eb(q+k))) \delta (omg + x(k) )
     ! f(E) denote the Fermi distribution funciton. Only for T=0.
     ! Tetrahedon is specified by values at 4 corners; kvec(1:3, 1:4), ea(1:4), eb(1:4), x(1:4)
@@ -818,20 +847,9 @@ contains
     if(chkwrt) then
        write(ichk,"(/,' --- intttvc6: e=',4d23.16)") WW
     endif
-    inihis= -999
-    iedhis= -999
-    ix=1
-    do ihis = 1,nwhis
-       if(ix==1 .AND. WW(ix)<frhis(ihis+1)) then
-          inihis = ihis
-          ix=4
-       endif
-       if(ix==4 .AND. WW(ix)<frhis(ihis+1)) then
-          iedhis = ihis
-          exit
-       endif
-    enddo
-    if(iedhis==-999 .OR. inihis==-999) then
+    inihis = ibinhis(WW(1), frhis, nwhis)   ! first bin with WW < upper edge (was a linear scan)
+    iedhis = ibinhis(WW(4), frhis, nwhis)
+    if(iedhis > nwhis .OR. inihis > nwhis) then
        print *,' intttvc6: can not find inihis iedhis'
        call rx( ' intttvc6: can not find inihis iedhis')
     endif
