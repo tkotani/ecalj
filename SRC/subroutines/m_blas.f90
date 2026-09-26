@@ -20,7 +20,8 @@ module m_blas !wrapper for BLAS and cuBLAS
   integer, parameter :: BACKEND_GEMMUL8 = 1
   integer, parameter :: BACKEND_AUTO = 2
   integer, parameter :: BACKEND_BLAS_FP32 = 3 !cuBLAS with FP32 arithmetic also at level tf32 (single precision only)
-  public :: BACKEND_BLAS_FP32
+  integer, parameter :: BACKEND_AUTO_TF32 = 4 !the table's backend, but TF32 arithmetic (single precision only)
+  public :: BACKEND_BLAS_FP32, BACKEND_AUTO, BACKEND_AUTO_TF32
 contains
   integer function cmm_h(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc, policy, key) result(istat)
     complex(4) :: a(*), b(*), c(*)
@@ -333,6 +334,7 @@ contains
     select case (policy_in)
     case (BACKEND_BLAS);      bk = BK_CUBLAS
     case (BACKEND_BLAS_FP32); bk = BK_CUBLAS; ctype = CUBLAS_COMPUTE_32F
+    case (BACKEND_AUTO_TF32); bk = la_backend(OP_CGEMM, m, n, k); ctype = CUBLAS_COMPUTE_32F_FAST_TF32
     case (BACKEND_GEMMUL8);   bk = BK_GEMMUL8
     case default;             bk = la_backend(OP_CGEMM, m, n, k)
     end select
