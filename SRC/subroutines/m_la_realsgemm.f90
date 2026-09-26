@@ -9,6 +9,8 @@
 !> kept in a pool (ECALJ_LA_CACHE_GB, default 4, and at most 1/4 of the free device memory) and reused.
 !> Without a key A' is built for every call (4km floats written); below n = 256 that costs more than the faster GEMM
 !> saves (break-even n ~ 160 on RTX 5090), so such calls also return -1 and go to cuBLAS.
+!> opA = N also returns -1: A' is then a transpose of A (strided reads), which cost hgw 14 s on the plane-wave
+!> products of build_zmel (LiTi2O4 6^3, 2026-09-27); the products worth it in hgw are A^H B and A^T B.
 module m_la_realsgemm
 #ifdef __GPU
   use cudafor
@@ -38,6 +40,7 @@ contains
     integer :: is
     istat = -1
     if (opb /= 'N' .and. opb /= 'n') return
+    if (opa == 'N' .or. opa == 'n') return             ! A' would be a strided transpose of A
     if (4_8*k*m >= huge(1)) return
     if (key < 0 .and. n < nminkey) return             ! building A' for one small product does not pay
     if (aimag(beta) /= 0.0) then                    ! complex beta: C := beta C first, then add with beta 1
