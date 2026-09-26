@@ -2,7 +2,12 @@ module m_gemmul8
   use iso_c_binding
   use m_cmdopt_registry, only: c0_use_gemmul8
   implicit none
-  integer, parameter :: num_moduli_d = 15, num_moduli_z = 15, num_moduli_c = 7
+  ! Moduli and scaling mode of the Ozaki-II emulation (INT8).  Measured on RTX 5090 for the Sigma_c
+  ! shape m=k=1053, n=49928 (TOOLS/ozbench, 2026-09-27; cuBLAS FP32 cgemm 31 TFLOPS, err 1.3e-6):
+  !   cgemm 7 fast 43 TFLOPS err 4e-7, 8 fast 38 TFLOPS err 4e-8;  zgemm 14 fast 21 TFLOPS err 4e-15.
+  ! Smaller products (n of a few hundred, or m=n=158) run slower than cuBLAS, hence gemmul8_worth.
+  ! ECALJ_GEMMUL8_MODULI_C / _Z / _D and ECALJ_GEMMUL8_FAST (0/1) override these for tests.
+  integer :: num_moduli_d = 14, num_moduli_z = 14, num_moduli_c = 7, fastmode_gemmul8 = 1
   logical :: use_gemmul8 = .false.
   type(c_ptr) :: gemmul8_handle
 #ifdef __GEMMUL8
@@ -56,13 +61,34 @@ contains
     if(is_gemmul8_inited) return
     use_gemmul8 = c0_use_gemmul8
     is_gemmul8_inited = .true.
+    call envint('ECALJ_GEMMUL8_MODULI_C', num_moduli_c)
+    call envint('ECALJ_GEMMUL8_MODULI_Z', num_moduli_z)
+    call envint('ECALJ_GEMMUL8_MODULI_D', num_moduli_d)
+    call envint('ECALJ_GEMMUL8_FAST',     fastmode_gemmul8)
 #ifdef __GEMMUL8
     if(use_gemmul8) call gemmul8_init_handle(gemmul8_handle)
 #endif
-    if(use_gemmul8 .and. ipr) write(stdo,ftox), 'Using gemmul8 for GPU matrix multiplication'
+    if(use_gemmul8 .and. ipr) write(stdo,ftox) 'Using gemmul8 for large GPU matrix products: moduli c z d =', &
+         num_moduli_c, num_moduli_z, num_moduli_d, 'fastmode=', fastmode_gemmul8
 #ifndef __GEMMUL8
     if(use_gemmul8) call rx0('Error: gemmul8 library is not linked.')
 #endif
     istat = 0
+  contains
+    subroutine envint(name, val)
+      character(*), intent(in) :: name
+      integer, intent(inout) :: val
+      character(32) :: cv
+      integer :: st, ios, v
+      call get_environment_variable(name, cv, status=st)
+      if (st /= 0) return
+      read(cv, *, iostat=ios) v
+      if (ios == 0) val = v
+    end subroutine envint
   end function gemmul8_init
+  logical function gemmul8_worth(m, n, k)
+    !> Emulation pays off only for large products: all three sizes >= 1000 and m*n*k >= 1e10.
+    integer, intent(in) :: m, n, k
+    gemmul8_worth = min(m, n, k) >= 1000 .and. real(m,8)*real(n,8)*real(k,8) >= 1d10
+  end function gemmul8_worth
 end module m_gemmul8

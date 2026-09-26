@@ -1,6 +1,7 @@
 module m_blas !wrapper for BLAS and cuBLAS
   !$use omp_lib
-  use m_gemmul8, only: use_gemmul8, gemmul8_init, num_moduli_d, num_moduli_z, num_moduli_c
+  use m_gemmul8, only: use_gemmul8, gemmul8_init, num_moduli_d, num_moduli_z, num_moduli_c, &
+                       fastmode_gemmul8, gemmul8_worth
 #ifdef __GPU
   use cublas_v2
   use cudafor
@@ -319,14 +320,14 @@ contains
     istat = gemmul8_init()
     opa_in_cublas = get_m_op_cublas(opa_in)
     opb_in_cublas = get_m_op_cublas(opb_in)
-    if(use_gemmul8 .and. ((policy_in == BACKEND_AUTO) .or. (policy_in == BACKEND_GEMMUL8))) then
+    if(use_gemmul8 .and. ((policy_in == BACKEND_AUTO .and. gemmul8_worth(m,n,k)) .or. (policy_in == BACKEND_GEMMUL8))) then
 #ifdef __GEMMUL8
       block
         use m_gemmul8, only: gemmul8_handle, gemmul8_cgemm
         use iso_c_binding
         type(c_ptr) :: devA, devB, devC
         integer :: fastmode_int, enable_skip_A_int, enable_skip_B_int, skip_a_int, skip_b_int
-        fastmode_int = 0
+        fastmode_int = fastmode_gemmul8
         enable_skip_A_int = 0
         enable_skip_B_int = 0
         skip_a_int = 0
@@ -487,14 +488,14 @@ contains
     istat = gemmul8_init()
     opa_in_cublas = get_m_op_cublas(opa_in)
     opb_in_cublas = get_m_op_cublas(opb_in)
-    if(use_gemmul8 .and. ((policy_in == BACKEND_AUTO) .or. (policy_in == BACKEND_GEMMUL8))) then
+    if(use_gemmul8 .and. ((policy_in == BACKEND_AUTO .and. gemmul8_worth(m,n,k)) .or. (policy_in == BACKEND_GEMMUL8))) then
 #ifdef __GEMMUL8
       block
         use m_gemmul8, only: gemmul8_handle, gemmul8_dgemm
         use iso_c_binding
         type(c_ptr) :: devA, devB, devC
         integer :: fastmode_int, enable_skip_A_int, enable_skip_B_int, skip_a_int, skip_b_int
-        fastmode_int = 0
+        fastmode_int = fastmode_gemmul8
         enable_skip_A_int = 0
         enable_skip_B_int = 0
         skip_a_int = 0
@@ -544,14 +545,14 @@ contains
     istat = gemmul8_init()
     opa_in_cublas = get_m_op_cublas(opa_in)
     opb_in_cublas = get_m_op_cublas(opb_in)
-    if(use_gemmul8 .and. (policy_in == BACKEND_AUTO .or. policy_in == BACKEND_GEMMUL8)) then
+    if(use_gemmul8 .and. ((policy_in == BACKEND_AUTO .and. gemmul8_worth(m,n,k)) .or. policy_in == BACKEND_GEMMUL8)) then
 #ifdef __GEMMUL8
       block
         use m_gemmul8, only: gemmul8_handle, gemmul8_zgemm
         use iso_c_binding
         type(c_ptr) :: devA, devB, devC
         integer :: fastmode_int, enable_skip_A_int, enable_skip_B_int, skip_a_int, skip_b_int
-        fastmode_int = 0
+        fastmode_int = fastmode_gemmul8
         enable_skip_A_int = 0
         enable_skip_B_int = 0
         skip_a_int = 0

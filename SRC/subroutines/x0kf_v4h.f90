@@ -171,7 +171,8 @@ contains
     use m_readgwinput,only: ecut, ecuts
     use m_dpsion,only: dpsion5, dpsion_init, &
                       dpsion_chiq        => dpsion_chiq_h, &
-                      dpsion_setup_rcxq  => dpsion_setup_rcxq_h
+                      dpsion_setup_rcxq  => dpsion_setup_rcxq_h, &
+                      dpsion_chiq_dev    => dpsion_chiq_d
     use m_freq,only: nw_i, nw_w=>nw, niwt=>niw
     use m_freq,only: nw, niw
     use m_readeigen,only:readeval
@@ -199,7 +200,7 @@ contains
     complex(8),optional:: zzr(:,:)
     real(8):: q(3), schi, ekxx1(nband,nqbz), ekxx2(nband,nqbz)
     character(10) :: i2char
-    logical :: tetwtk = .false.
+    logical :: tetwtk = .false., hilbert_on_device
     real(8) :: zmel_batch_gb
     type(stopwatch) :: t_sw_zmel, t_sw_x0, t_sw_dpsion
 
@@ -336,6 +337,35 @@ contains
       deallocate(whwc, kc, iwini, iwend, itc, itpc, jpmc, icouini, intrac, nkmin, nkmax, nkqmin, nkqmax, icounkmin, icounkmax)
       HilbertTransformation: if (isp_k==nsp .OR. chipm) then
         !Get real part. When chipm=T, do dpsion5 for every isp_k; When =F, do dpsion5 after rxcq accumulated for spins
+        ! One rank per q-group (no k or omega split) on a GPU holds all of chi0 in rcxq on the device: do the
+        ! Hilbert transform there and copy the result into SHM.  The host path copies the histogram to SHM and
+        ! transforms it on one CPU core while the GPU waits (12 s per q for npr~1050, nwhis~330; 2026-09-27).
+        hilbert_on_device = use_gpu .and. mpi__size_k == 1 .and. mpi__size_b == 1 .and. .not.chipm
+        if (hilbert_on_device) then
+          block
+            complex(kind=kp), allocatable :: zxqi_d(:,:,:)
+#ifdef __GPU
+            attributes(device) :: zxqi_d
+#endif
+            integer :: iw
+            call stopwatch_init(t_sw_dpsion, 'dpsion(device)')
+            call stopwatch_start(t_sw_dpsion)
+            allocate(zxqi_d(npr, npr, niw))
+            call dpsion_init(realomega, imagomega, chipm)
+            call dpsion_chiq_dev(realomega, imagomega, chipm, rcxq, zxqi_d, npr, npr, schi, isp_k, ecut)
+            do iw = iw_lo, iw_hi   ! all slices, as the host path leaves them (iw=0: chi0 at omega=0)
+              shm_wvr(:,:, iw - (1-npm)*nwhis + 1) = rcxq(:,:,iw)
+            enddo
+            if (imagomega) shm_wvi(:,:,1:niw) = zxqi_d(:,:,1:niw)
+            deallocate(zxqi_d)
+            deallocate(rcxq)
+            call stopwatch_pause(t_sw_dpsion)
+            call stopwatch_show(t_sw_dpsion)
+          end block
+          call MPI_barrier(comm_q, ierr)
+          if (realomega) zxq(1:,1:,nw_i:) => shm_wvr(1:npr, 1:npr, nw_i-(1-npm)*nwhis+1 : nw_w-(1-npm)*nwhis+1)
+          if (imagomega) zxqi(1:npr, 1:npr, 1:niw) => shm_wvi
+        else
         mpi_k_accumulate: block
           ! Unified: n_kpara=1 uses single-rank comm_k (reduce is no-op); GPU implicit device→host.
           integer :: iw
@@ -378,6 +408,7 @@ contains
             if (imagomega) zxqi(1:npr, 1:npr, 1:niw) => shm_wvi
           end block
         endif
+        endif ! hilbert_on_device
         if (chipm .and. isp_k /= nsp) then
           allocate(rcxq(1:npr, 1:npr, iw_lo:iw_hi))
           !$acc kernels
