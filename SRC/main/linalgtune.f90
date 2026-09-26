@@ -6,8 +6,11 @@
 !> checked against FP64 on the same inputs and it is timed (best of 3 batches).  For each precision level and
 !> operation the fastest backend within the level's error bound is chosen when it is at least 10% faster than cuBLAS
 !> over the class (geometric mean of the time ratios, each shape weighted by its rough share of hgw time) and not more
-!> than 10% slower on any shape that carries weight (>= 0.1); otherwise cuBLAS (lu64 for the inverse) stays.  Error bounds (relative, Frobenius): cgemm 5e-3 at tf32 and 1e-5 at fp32;
-!> zgemm and dgemm 1e-12 at every level; the epstilde inverse 1e-6 at tf32/fp32 and 1e-13 at fp64.
+!> than 10% slower on any shape that carries weight (>= 0.1); otherwise cuBLAS (lu64 for the inverse) stays.
+!> Error bounds (relative, Frobenius): cgemm at most 4 times the error of cuBLAS at the same level on the same shape
+!> (and below 5e-3 at tf32, 1e-5 at fp32): the promise is FP32 (TF32) accuracy, and GEMMul8 with 7 moduli is 5 times
+!> worse on long sums (it quantizes each row against its largest element; in hgw it moved Im Sigma_c by 1e-4 eV);
+!> zgemm and dgemm 1e-12; the epstilde inverse 1e-6 at tf32/fp32 and 1e-13 at fp64.
 !> The sizes are deliberately not multiples of 64 (as in real GW runs, e.g. 1053 product-basis functions for LiTi2O4):
 !> on sizes like 1024 GEMMul8 is faster than on 1053, and a table measured there chose it where hgw runs slower.
 !> The table goes to --out, else to ecalj_linalg_policy.toml next to this executable (ECALJ_LINALG_POLICY overrides),
@@ -116,7 +119,7 @@ program linalgtune
   do il = 1, 2
     do i = 1, 2
       pick_c(i,il) = choose(cand_c, tc(:,:,il), ec(:,:,il), merge(5d-3, 1d-5, il == 1), merge(large, .not.large, i == 2), &
-                          shp%weight)
+                          shp%weight, relcublas=.true.)
     enddo
   enddo
   deallocate(a4, b4, c4, a8, b8, c8, cref, ad, bd, cd, crefd)
@@ -325,18 +328,24 @@ contains
     istat = zminv_d(eref, n, n)
   end subroutine make_eps
 
-  character(10) function choose(cand, t, e, bound, inclass, w) result(pick)
+  character(10) function choose(cand, t, e, bound, inclass, w, relcublas) result(pick)
     !> cand(1) (cuBLAS) unless another backend is within the error bound on every shape of the class, at least 10%
     !> faster over the class (geometric mean of the time ratios, weights w) and at most 10% slower on each shape of
-    !> weight >= 0.1.  Earlier candidates win ties within 5%.
+    !> weight >= 0.1.  Earlier candidates win ties within 5%.  relcublas: the bound on each shape is also 4 times the
+    !> error of cand(1) there.
     character(10), intent(in) :: cand(:)
     real(8), intent(in) :: t(:,:), e(:,:), bound, w(:)
     logical, intent(in) :: inclass(:)
-    real(8) :: g, best, r, ws
+    logical, intent(in), optional :: relcublas
+    real(8) :: g, best, r, ws, bnd(size(inclass))
     integer :: ic, is
+    bnd = bound
+    if (present(relcublas)) then
+      if (relcublas) bnd = min(bound, 4d0*e(1,:))
+    endif
     pick = cand(1); best = 0.9d0
     do ic = 2, size(cand)
-      if (any(inclass .and. e(ic,:) > bound)) cycle
+      if (any(inclass .and. e(ic,:) > bnd)) cycle
       g = 0d0; ws = 0d0; r = 0d0
       do is = 1, size(inclass)
         if (.not. inclass(is)) cycle
