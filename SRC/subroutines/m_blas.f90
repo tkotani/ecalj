@@ -20,8 +20,8 @@ module m_blas !wrapper for BLAS and cuBLAS
   integer, parameter :: BACKEND_GEMMUL8 = 1
   integer, parameter :: BACKEND_AUTO = 2
   integer, parameter :: BACKEND_BLAS_FP32 = 3 !cuBLAS with FP32 arithmetic also at level tf32 (single precision only)
-  integer, parameter :: BACKEND_AUTO_TF32 = 4 !the table's backend, but TF32 arithmetic (single precision only)
-  public :: BACKEND_BLAS_FP32, BACKEND_AUTO, BACKEND_AUTO_TF32
+  integer, parameter :: BACKEND_SIGMA = 4 !a product of Sigma_c: under --sigma_tf32 the rows of level tf32 and TF32
+  public :: BACKEND_BLAS_FP32, BACKEND_SIGMA
 contains
   integer function cmm_h(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc, policy, key) result(istat)
     complex(4) :: a(*), b(*), c(*)
@@ -297,7 +297,7 @@ contains
     !> route or GEMMul8) comes from m_linalg_policy; policy=BACKEND_BLAS / BACKEND_GEMMUL8 forces one.
     !> key >= 0 (optional): same key = same A until la_cache_reset, so backends may keep their form of A.
     use cublas_v2, m_type =>CUDA_C_32F, algo => cublas_gemm_default
-    use m_linalg_policy, only: la_backend, la_moduli, la_level, OP_CGEMM, BK_CUBLAS, BK_REALSGEMM, BK_GEMMUL8
+    use m_linalg_policy, only: la_backend, la_moduli, la_level, la_sigma_tf32, OP_CGEMM, BK_CUBLAS, BK_REALSGEMM, BK_GEMMUL8
     use m_la_realsgemm, only: realsgemm_c
     complex(4), device, target :: a(*), b(*), c(*)
     integer, intent(in) :: m, n, k
@@ -308,6 +308,7 @@ contains
     integer :: lda_in, ldb_in, ldc_in, policy_in, key_in, bk, ctype
     character :: opa_in, opb_in
     integer :: opa_in_cublas, opb_in_cublas
+    logical :: issigma
     istat = 0
     if (m < 1 .or. n < 1 .or. k < 1) return
     alpha_in = (1.0, 0.0); beta_in = (0.0, 0.0)
@@ -331,10 +332,14 @@ contains
     opa_in_cublas = get_m_op_cublas(opa_in)
     opb_in_cublas = get_m_op_cublas(opb_in)
     ctype = merge(CUBLAS_COMPUTE_32F_FAST_TF32, CUBLAS_COMPUTE_32F, la_level() == 'tf32')  ! level tf32: TF32, else FP32
+    issigma = .false.
     select case (policy_in)
     case (BACKEND_BLAS);      bk = BK_CUBLAS
     case (BACKEND_BLAS_FP32); bk = BK_CUBLAS; ctype = CUBLAS_COMPUTE_32F
-    case (BACKEND_AUTO_TF32); bk = la_backend(OP_CGEMM, m, n, k); ctype = CUBLAS_COMPUTE_32F_FAST_TF32
+    case (BACKEND_SIGMA)
+      issigma = la_sigma_tf32()
+      bk = la_backend(OP_CGEMM, m, n, k, sigma=issigma)
+      if (issigma) ctype = CUBLAS_COMPUTE_32F_FAST_TF32
     case (BACKEND_GEMMUL8);   bk = BK_GEMMUL8
     case default;             bk = la_backend(OP_CGEMM, m, n, k)
     end select
@@ -352,7 +357,7 @@ contains
         use iso_c_binding
         integer :: nm
         istat = gemmul8_init()
-        nm = la_moduli(OP_CGEMM, m, n, k)
+        nm = la_moduli(OP_CGEMM, m, n, k, sigma=issigma)
         if (nm <= 0) nm = num_moduli_c
         call gemmul8_cgemm(gemmul8_handle, opa_in_cublas, opb_in_cublas, m, n, k, alpha_in, &
                            c_loc(a), lda_in, c_loc(b), ldb_in, beta_in, c_loc(c), ldc_in, nm, fastmode_gemmul8, key_in)

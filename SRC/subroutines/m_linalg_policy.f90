@@ -13,10 +13,14 @@
 !> The table in use is printed once.  Backends that cannot do a given call (e.g. realsgemm with opB /= N) fall back
 !> to cuBLAS inside m_blas.  The level also fixes the arithmetic of cuBLAS single precision (tf32: TF32, else FP32).
 !> linalgtune (SRC/main/linalgtune.f90) sets the level and the rows itself (la_set_level, la_apply).  2026-09-27.
+!> --sigma_tf32 (gwsc --prec=tf32): the products of Sigma_c (callers pass sigma=.true.) take the rows of level tf32 and
+!> TF32 arithmetic, everything else stays at the level of the run (fp32).  In Sigma_c the TF32 error enters linearly;
+!> in chi0 -> W it is amplified by (1 - v chi0)^-1 (LiTi2O4 6^3: Re Sigma_c within 0.8 meV of FP64 near E_F, against
+!> 5 meV with every product in TF32).
 module m_linalg_policy
   implicit none
   private
-  public :: la_init, la_backend, la_moduli, la_level, la_print, this_gpu, la_set_level, la_apply, la_policy_path
+  public :: la_init, la_backend, la_moduli, la_level, la_print, this_gpu, la_set_level, la_apply, la_policy_path, la_sigma_tf32
   integer, parameter, public :: BK_CUBLAS = 0, BK_REALSGEMM = 1, BK_GEMMUL8 = 2
   integer, parameter, public :: BK_LU64 = 10, BK_MIXED1 = 11, BK_MIXED2 = 12
   integer, parameter, public :: OP_CGEMM = 1, OP_ZGEMM = 2, OP_DGEMM = 3, OP_EPSINV = 4
@@ -28,17 +32,19 @@ module m_linalg_policy
     integer :: minm = 256, minn = 512, mink = 256
     real(8) :: minmnk = 1d9                ! large: m>=minm, n>=minn, k>=mink and m*n*k>=minmnk
   end type
-  type(rule_t), save :: rule(nop)
+  type(rule_t), save :: rule(nop), rule_s(nop)   ! rule_s: rows of level tf32 for the Sigma_c products (--sigma_tf32)
   character(4), save :: level = 'fp64'
+  logical, save :: sigma_tf32 = .false.
   character(256), save :: source = 'built-in defaults'
   logical, save :: inited = .false.
 contains
   subroutine la_init()
-    use m_cmdopt_registry, only: c0_use_fp32, c0_use_gemmul8, c2_linalg
+    use m_cmdopt_registry, only: c0_use_fp32, c0_use_gemmul8, c2_linalg, c0_sigma_tf32
     if (inited) return
     inited = .true.
 #ifdef __MP
     level = merge('fp32', 'tf32', c0_use_fp32)
+    sigma_tf32 = c0_sigma_tf32 .and. level /= 'tf32'
 #else
     level = 'fp64'
 #endif
@@ -72,23 +78,45 @@ contains
     if (rank == 0) call la_print(stdo)
   end subroutine print_on_rank0
 
-  integer function la_backend(op, m, n, k) result(bk)
-    !> Backend for one call: the small or the large row of this level's table.
+  integer function la_backend(op, m, n, k, sigma) result(bk)
+    !> Backend for one call: the small or the large row of this level's table (of level tf32 for a Sigma_c product,
+    !> sigma=.true., under --sigma_tf32).
     integer, intent(in) :: op, m, n, k
+    logical, intent(in), optional :: sigma
+    type(rule_t) :: r
     call la_init()
-    if (islarge(op, m, n, k)) then
-      bk = rule(op)%large
+    r = pick(op, sigma)
+    if (islarge(r, m, n, k)) then
+      bk = r%large
     else
-      bk = rule(op)%small
+      bk = r%small
     endif
   end function la_backend
 
-  integer function la_moduli(op, m, n, k) result(nm)
+  integer function la_moduli(op, m, n, k, sigma) result(nm)
     !> GEMMul8 moduli of the row la_backend used (0 = the default of m_gemmul8).
     integer, intent(in) :: op, m, n, k
+    logical, intent(in), optional :: sigma
+    type(rule_t) :: r
     call la_init()
-    nm = merge(rule(op)%mlarge, rule(op)%msmall, islarge(op, m, n, k))
+    r = pick(op, sigma)
+    nm = merge(r%mlarge, r%msmall, islarge(r, m, n, k))
   end function la_moduli
+
+  logical function la_sigma_tf32()
+    !> Sigma_c products run with TF32 arithmetic (--sigma_tf32 at level fp32).
+    call la_init()
+    la_sigma_tf32 = sigma_tf32
+  end function la_sigma_tf32
+
+  type(rule_t) function pick(op, sigma) result(r)
+    integer, intent(in) :: op
+    logical, intent(in), optional :: sigma
+    r = rule(op)
+    if (present(sigma)) then
+      if (sigma .and. sigma_tf32) r = rule_s(op)
+    endif
+  end function pick
 
   character(4) function la_level()
     call la_init()
@@ -109,10 +137,10 @@ contains
     call apply_rows(rows, ',')
   end subroutine la_apply
 
-  logical function islarge(op, m, n, k)
-    integer, intent(in) :: op, m, n, k
-    islarge = m >= rule(op)%minm .and. n >= rule(op)%minn .and. k >= rule(op)%mink .and. &
-              real(m,8)*real(n,8)*real(k,8) >= rule(op)%minmnk
+  logical function islarge(r, m, n, k)
+    type(rule_t), intent(in) :: r
+    integer, intent(in) :: m, n, k
+    islarge = m >= r%minm .and. n >= r%minn .and. k >= r%mink .and. real(m,8)*real(n,8)*real(k,8) >= r%minmnk
   end function islarge
 
   subroutine la_print(iout)
@@ -124,6 +152,9 @@ contains
       write(iout,'(3x,a,a,a,a,a,i5,i6,i5,es9.1)') opname(op), ' small=', trim(bkname(rule(op)%small, rule(op)%msmall)), &
            ' large=', trim(bkname(rule(op)%large, rule(op)%mlarge)), rule(op)%minm, rule(op)%minn, rule(op)%mink, rule(op)%minmnk
     enddo
+    if (sigma_tf32) write(iout,'(3x,a,a,a,a,a)') 'Sigma_c products in TF32 (--sigma_tf32, rows of tf32): cgemm small=', &
+         trim(bkname(rule_s(OP_CGEMM)%small, rule_s(OP_CGEMM)%msmall)), ' large=', &
+         trim(bkname(rule_s(OP_CGEMM)%large, rule_s(OP_CGEMM)%mlarge)), ''
   end subroutine la_print
 
   function bkname(bk, nm) result(s)
@@ -278,27 +309,33 @@ contains
     lv = key(1:i1-1)
     opn = key(i1+1:i1+i2-1)
     field = trim(key(i1+i2+1:))
-    if (trim(lv) /= level) return
+    if (trim(lv) /= level .and. .not. (sigma_tf32 .and. trim(lv) == 'tf32')) return
     op = 0
     do i = 1, nop                                ! not findloc: nvfortran compares strings of unequal length unpadded
       if (trim(opname(i)) == trim(opn)) op = i
     enddo
     if (op == 0) call rx('linalg policy: unknown op in "'//trim(row)//'"')
-    select case (trim(field))
-    case ('small', 'large')
-      call parse_backend(val, bk, nm)
-      if (trim(field) == 'small') then
-        rule(op)%small = bk; rule(op)%msmall = nm
-      else
-        rule(op)%large = bk; rule(op)%mlarge = nm
-      endif
-    case ('minm');   read(val,*,iostat=ios) rule(op)%minm
-    case ('minn');   read(val,*,iostat=ios) rule(op)%minn
-    case ('mink');   read(val,*,iostat=ios) rule(op)%mink
-    case ('minmnk'); read(val,*,iostat=ios) rule(op)%minmnk
-    case default
-      call rx('linalg policy: unknown field in "'//trim(row)//'"')
-    end select
+    if (trim(lv) == level) call set_field(rule(op))
+    if (sigma_tf32 .and. trim(lv) == 'tf32') call set_field(rule_s(op))
+  contains
+    subroutine set_field(r)
+      type(rule_t), intent(inout) :: r
+      select case (trim(field))
+      case ('small', 'large')
+        call parse_backend(val, bk, nm)
+        if (trim(field) == 'small') then
+          r%small = bk; r%msmall = nm
+        else
+          r%large = bk; r%mlarge = nm
+        endif
+      case ('minm');   read(val,*,iostat=ios) r%minm
+      case ('minn');   read(val,*,iostat=ios) r%minn
+      case ('mink');   read(val,*,iostat=ios) r%mink
+      case ('minmnk'); read(val,*,iostat=ios) r%minmnk
+      case default
+        call rx('linalg policy: unknown field in "'//trim(row)//'"')
+      end select
+    end subroutine set_field
   end subroutine apply_row
 
   subroutine parse_backend(val, bk, nm)

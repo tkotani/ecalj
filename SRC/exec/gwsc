@@ -26,8 +26,9 @@ parser.add_argument('--emptyrun'  ,help='test for gprof for memory',    action='
 parser.add_argument('--gpu'       ,help='USE GPU version for hsfp0 and hgw',    action='store_true')
 parser.add_argument('--gemmul8'   ,help='USE GEMMul8 valid in GPU without MP',    action='store_true')
 parser.add_argument('--prec'      ,help='precision of the GW programs: fp64 (double precision), fp32 (mixed precision, '
-                    'FP32 products; = --mp --fp32) or tf32 (mixed precision, TF32 products on GPU; = --mp). How each '
-                    'GPU product is done is read from <bindir>/ecalj_linalg_policy.toml (written by linalgtune).',
+                    'FP32 products; = --mp --fp32) or tf32 (as fp32, but the products of Sigma_c in TF32 on GPU: '
+                    'about 30%% faster, Sigma within ~1 meV near E_F). How each GPU product is done is read from '
+                    '<bindir>/ecalj_linalg_policy.toml (written by linalgtune). --mp alone is the older all-TF32.',
                     choices=['tf32', 'fp32', 'fp64'], default=None)
 parser.add_argument('--prec-final', help='precision of the last iterations of this run, <prec>[:N] (N=1 if omitted): e.g. '
                     '--prec=tf32 --prec-final=fp32:2 runs all but the last two iterations in tf32 and those in fp32',
@@ -50,7 +51,7 @@ if args.prec is not None:     # --prec is the one switch; --mp/--fp32 are its ol
     args.fp32 = args.prec == 'fp32'
 cluster = args.cluster
 nloop = args.nloop
-base_prec = args.prec or ('fp64' if not args.mp else ('fp32' if args.fp32 else 'tf32'))
+base_prec = args.prec or ('fp64' if not args.mp else ('fp32' if args.fp32 else 'tf32all'))   # tf32all: --mp alone
 final_prec, nfinal = None, 0
 if args.prec_final is not None:      # the last nfinal iterations of this run in another precision
     final_prec, _, _n = args.prec_final.partition(':')
@@ -249,7 +250,8 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
     niter=i+Iter0
     prec_i = final_prec if (final_prec is not None and i > nloop - nfinal) else base_prec
     exec_type = ('_mp' if prec_i != 'fp64' else '') + ('_gpu' if args.gpu else '')   # GW programs of this precision
-    options = [o for o in options if o != '--use_fp32'] + (['--use_fp32'] if prec_i == 'fp32' else [])
+    options = [o for o in options if o not in ('--use_fp32', '--sigma_tf32')] + \
+              {'fp32': ['--use_fp32'], 'tf32': ['--use_fp32', '--sigma_tf32']}.get(prec_i, [])
     print(f'===== QSGW iteration start iter {niter} === (GW precision {prec_i})',flush=True)
     if "--mlo" in options:
         mlo_iteration_start()   #x_0 of this iteration's Sigma^MLO mixing; a no-op on the first pass

@@ -182,6 +182,7 @@ module m_cmdopt_registry
   logical, public, protected, save :: c0_tetraw          = .false.
   logical, public, protected, save :: c0_tetwtk          = .false.
   logical, public, protected, save :: c0_tetwt_write     = .false.  ! hgw: only write the tetrahedron weights (__TETWT.*), CPU, for gwsc
+  logical, public, protected, save :: c0_sigma_tf32      = .false.  ! MP GPU: the Sigma_c products in TF32 (rows of level tf32), the rest at the level
   logical, public, protected, save :: c0_use_fp32        = .false.
   logical, public, protected, save :: c0_use_gemmul8     = .false.
   logical, public, protected, save :: c0_use_sigm_fbz    = .false.
@@ -480,6 +481,7 @@ contains
     call set0('--tetraw',         c0_tetraw, narg, arglist)
     call set0('--tetwtk',         c0_tetwtk, narg, arglist)
     call set0('--tetwt_write',    c0_tetwt_write, narg, arglist)
+    call set0('--sigma_tf32',     c0_sigma_tf32, narg, arglist)
     call set0('--use_fp32',       c0_use_fp32, narg, arglist)
     call set0('--use_gemmul8',    c0_use_gemmul8, narg, arglist)
     call set0('--use_sigm_fbz',   c0_use_sigm_fbz, narg, arglist)

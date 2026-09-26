@@ -94,7 +94,7 @@ module m_sxcf_sc
   use m_sxcf_count,only: kxc, nstti, nstte, nstte2, nwxic, nwxc, icountini, icountend, irkip, ncount
   use m_nvfortran, only: findloc
   use m_hamindex, only: ngrp
-  use m_blas, only: m_op_c, m_op_n, m_op_t, BACKEND_AUTO, BACKEND_AUTO_TF32
+  use m_blas, only: m_op_c, m_op_n, m_op_t, BACKEND_SIGMA
 use m_cmdopt_registry, only: c0_debug, c0_WVR2ptRaxis, c0_wcsmear
 use m_GWinput, only: tg_wcsmear => wcsmear
 use m_wfac, only: pole_weights
@@ -583,7 +583,7 @@ contains
                     beta = CONE
                     if (iw == sxs_wi_ini) beta = CZERO
                     ierr = gemm(wc, wzmel, czmelwc, ngb, (ns2-ns1+1)*sxs_ntqxx, ngb, beta = beta, opA = m_op_C, &
-                                key = 1000 + iw, policy = sigma_policy())   ! W(i omega) fixed for this kx (m_zmel resets keys)
+                                key = 1000 + iw, policy = BACKEND_SIGMA)   ! W(i omega) fixed for this kx (m_zmel resets keys)
                   enddo iwimag
                   !$acc end data
                   deallocate(wzmel)
@@ -666,7 +666,7 @@ contains
                     enddo
                     !$acc end kernels
                     ierr = gemm(wc, wz_iw, czwc_iw, ngb, nttp(iw), ngb, opA=m_op_C, key = 100000 + iw, & ! W(omega)
-                                policy = sigma_policy())
+                                policy = BACKEND_SIGMA)
                     !$acc kernels loop independent
                     do ittp = 1, nttp(iw)
                       it = itw(ittp,iw); itp = itpw(ittp,iw)
@@ -683,7 +683,7 @@ contains
 
                 !$acc host_data use_device(zmel, zsec)
                 ierr = gemm(czmelwc, zmel, zsec, sxs_ntqxx, sxs_ntqxx, nbb*(ns2-ns1+1), opA = m_op_C, beta = CONE, ldC = ntq, &
-                            policy = sigma_policy())
+                            policy = BACKEND_SIGMA)
                 !$acc end host_data
                 !$acc kernels loop independent
                 do itp = 1, sxs_ntqxx
@@ -740,19 +740,5 @@ contains
     call stopwatch_show(sxs_xc)
   end subroutine sxcf_correlation_finalize
 
-  integer function sigma_policy()
-    !> Experiment (2026-09-27): ECALJ_SIGMA_TF32=1 runs the products of Sigma_c (W^H zmel on both axes and the final
-    !> zsec) in TF32 with the table's backend, while chi0, W and zmel stay at the level of the run (fp32).  TF32 error
-    !> enters Sigma_c linearly here, not through (1 - v chi0)^-1 as in W.  Default: the table as it is.
-    integer, save :: pol = -1
-    character(8) :: cv
-    integer :: st
-    if (pol < 0) then
-      call get_environment_variable('ECALJ_SIGMA_TF32', cv, status=st)
-      pol = BACKEND_AUTO
-      if (st == 0 .and. trim(cv) == '1') pol = BACKEND_AUTO_TF32
-    endif
-    sigma_policy = pol
-  end function sigma_policy
 end module m_sxcf_sc
 
