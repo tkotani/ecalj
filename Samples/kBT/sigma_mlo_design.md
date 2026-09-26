@@ -1495,7 +1495,7 @@ $\Psi^{\rm MTO}_j$ も $\Psi^{\rm PMT}_i$ も $|\Psi\rangle\langle\Psi|$ の形�
 | **B1** | **AF（`laf`）で $\Sigma^{\rm MLO}$ のスピン 2 が 0 になっていないか** | `main_hqpe.sc.f90` の `if(laf) exit` でスピンループを抜ける。MLO 分岐に AF の扱いが見当たらない。NiO 系が全滅する可能性 |
 | **B2** | **`mlo --mlofreeze` が LDA の $H$ から MLO を作り直している件**（§12 Q4）| $\Sigma$ の対称化・回転は索引レベルなので汚していないはずだが**未確認** |
 | **B3** | **従来経路の $\Sigma$ の規約整合**（§12 Q1）| `hqpe_sc` は擬似逆、`getsenex` は $S_{\rm sub}^{-1}$。`ECALJ_SIGMLO_CHECK=1` で系統因子として出るはず |
-| **B4** | **窓（`eferm`/`ecbot`）が LDA 固定のまま** | 直し方は判明済み（`sugw` 側だけで `set_bandedge`）。一度誤実装で iter 1 を壊して revert 済み |
+| ~~**B4**~~ | ~~**窓（`eferm`/`ecbot`）が LDA 固定のまま**~~ | ~~直し方は判明済み（`sugw` 側だけで `set_bandedge`）。一度誤実装で iter 1 を壊して revert 済み~~ → **2026-09-26 修正**: 段 a' は各反復の SCF の $E_F$（呼び出し元から）と `efermi.lmf` の伝導帯下端で窓を置く。LiTi₂O₄ では iter 10 までに $E_F$ が +0.0415 Ry 動き、床が 0.56 eV 低かった |
 | **B5** | **初回（LDA から）の混合を半歩にするか否か**（§12 Q7）| 今は $\beta\Sigma^{\rm out}$。user の想定は「初回は混合しない」。変えるなら従来チェーンも取り直し |
 | **B6** | **`gwsc N`（N≥2）で `__SigmMLO.q.prev` が退避されない** | 後片付けが反復ループの外。`gwsc 1` を繰り返す運用（`run_snap.sh`）では無害。直し方: 後片付けを関数にしてループ先頭でも呼ぶ（冪等）|
 | **B7** | **対称等価な $k$ の照合** | `getsenex` の $\tilde\chi$ 探索は $k$ を文字どおり比べる。チェーン（SCF・GW とも既約点）では無害で、`job_band --mlo` でだけ問題。直すなら $k$ → 既約代表点に写して $z$ を回転 |

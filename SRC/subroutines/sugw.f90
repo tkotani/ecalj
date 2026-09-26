@@ -380,20 +380,24 @@ contains
         istat = openm(newunit=ifihh,file='__HamiltonianGW',recl=mrech)
       endblock PrepWriteHamiltonianGW
       PrepCmlo: block !design 4.2 a'
-        use m_readqplist,only: set_bandedge
+        use m_readqplist,only: set_bandedge, readbandedge, ecbot_w=>ecbot
         use m_sigmlo,only: read_mloindex
         logical:: lex
         inquire(file='HamRsMLO',exist=lex) !the MLO index is in its trailing records
         lex = lex .and. c0_mlo             !opt-in only
         if(lex .and. nspc==1) then
           call read_mloindex(ndimMTO_a, ldim_a, mlomethod_a, nskip_a, ix_a, fff1_a, eferm_a, ecbot_a)
-          call set_bandedge(eferm_a, ecbot_a) !Hreduction reads these for the MLO window
-          !Diagnostic for the 2026-09-25 regression: is the eferm frozen into HamRsMLO on
-          !the same zero as the one the SCF hands this driver?  Letting the window follow
-          !`eferm` crushed the t2g width from 292 to 134 meV at iteration 1, which is what
-          !a misplaced window looks like.  Print both so the question is answerable.
-          if(master_mpi) write(stdo,ftox)" sugw a' window: HamRsMLO eferm ecbot=",ftof(eferm_a),ftof(ecbot_a), &
-               " | SCF eferm=",ftof(eferm)," diff(Ry)=",ftof(eferm-eferm_a)
+          !The window that Hreduction applies (eferm, ecbot) is that of THIS iteration's
+          !converged SCF: chi~ is rebuilt here from this iteration's H, so its window has to
+          !sit on the same bands.  EF is the one the caller hands us (the density this driver
+          !runs on); CBM-EF comes from efermi.lmf, which that same SCF wrote.  The eferm/ecbot
+          !in HamRsMLO are the chain-start (LDA) values, a leftover of the design that froze
+          !chi~ for the whole chain; with them the floor of LiTi2O4 sat 0.56 eV too low by
+          !iteration 10 (EF had moved +0.0415 Ry).
+          call set_bandedge(eferm, eferm)  !ecbot is set by the next line
+          call readbandedge()              !ecbot = eferm + (ecbot - eferm) of efermi.lmf
+          if(master_mpi) write(stdo,ftox)" sugw a' window: SCF eferm ecbot=",ftof(eferm),ftof(ecbot_w), &
+               " | HamRsMLO(chain start) eferm ecbot=",ftof(eferm_a),ftof(ecbot_a)
           mrecbb_a = 2*nbandmx*ndimMTO_a*8
           istat = openm(newunit=ifcmlo,file='__cmlo.data',recl=mrecbb_a)
           allocate(zmlo_a(nbandmx,ndimMTO_a), cmlo_a(nbandmx,ndimMTO_a))
