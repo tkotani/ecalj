@@ -41,7 +41,7 @@ args,unknown=parser.parse_known_args()
 
 target=''.join(re.split('ctrl.',args.extension)) #to accept ctrl.si and si
 if args.prec is not None:     # --prec is the one switch; --mp/--fp32 are its older spelling
-    if (args.mp or args.fp32) and (args.mp != (args.prec != 'fp64') or args.fp32 != (args.prec == 'fp32')):
+    if (args.mp and args.prec == 'fp64') or (args.fp32 and args.prec != 'fp32'):
         raise SystemExit(f'gwsc: --prec={args.prec} contradicts --mp/--fp32; give only --prec.')
     args.mp = args.prec != 'fp64'
     args.fp32 = args.prec == 'fp32'
