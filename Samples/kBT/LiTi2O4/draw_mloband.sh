@@ -3,15 +3,15 @@
 #   usage: draw_mloband.sh <snapshot dir> <work dir> <out .dat>
 #
 # Why not the other two routes (2026-09-26, liti_mlo_v9 iter 3):
-#  - job_mlo --mlofreeze adds SigRsMLO (iteration-N chi~) to the FROZEN HamRsMLO (step-0d LDA H in
+#  - job_mlo --mlofreeze adds QMLO_SigRs (iteration-N chi~) to the FROZEN HamRsMLO (step-0d LDA H in
 #    the step-0d chi~): two bases, 0.3-0.5 eV off.
 #  - lmf --band --mlo looks chi~ up by the literal q; path points are symmetry-equivalent to the
 #    stored irreducible q but not equal, so chi~ is rebuilt from the Sigma-free H and Sigma is read
 #    in the wrong basis.  Valid only at Gamma.
 # This route:
 #  1) lmf --writeham --noinv --mlo: H = H_LDA[rho_N] + senex(Sigma^MLO_N) on the SCF mesh, with chi~
-#     taken from ZmloSig.  ECALJ_MLO_ALLOW_REBUILD is NOT set, so a single miss aborts.
-#  2) SigRsMLO set aside (the H from step 1 already contains Sigma), HamRsMLO removed,
+#     taken from QMLO_z.  ECALJ_MLO_ALLOW_REBUILD is NOT set, so a single miss aborts.
+#  2) QMLO_SigRs set aside (the H from step 1 already contains Sigma), HamRsMLO removed,
 #     mlo --mlo WITHOUT --mlofreeze: build the MLO model of that H and solve it on qplist.dat.
 # Needs the zMLO fix (e9f633d79): mlo with fewer ranks than q points overran zMLO before it.
 S=$(realpath "$1"); W=$(realpath -m "$2"); OUT=$(realpath -m "$3"); T=liti2o4   # absolute: we cd below
@@ -21,15 +21,14 @@ unset ECALJ_MLO_ALLOW_REBUILD ECALJ_MLO_NOSIG
 export CUDA_VISIBLE_DEVICES=
 mkdir -p "$(dirname "$OUT")"; rm -f "$OUT"
 rm -rf "$W"; mkdir -p "$W"
-for f in ctrlg.$T.toml rst.$T __atm.$T efermi.lmf syml.$T qplist.dat sigm sigm.$T SigRsMLO HamRsMLO; do
+for f in ctrlg.$T.toml rst.$T __atm.$T efermi.lmf syml.$T qplist.dat sigm sigm.$T QMLO_SigRs QMLO_z HamRsMLO; do
   cp -p "$S/$f" "$W/" || { echo "FAIL: $S/$f missing"; exit 1; }
 done
-cp -p "$S"/ZmloSig.* "$W/"
 cd "$W"
 $MPI -np 8 $B/lmf $T --writeham --mkprocar --noinv --mlo > lwriteham 2>&1 || { echo "FAIL writeham: $(tail -2 lwriteham | tr '\n' ' ')"; exit 1; }
 on=$(grep -c 'MLO Sigma interpolation ON' lwriteham); miss=$(grep -c 'chi~ MISS' lwriteham)
 [ "$on" -gt 0 ] && [ "$miss" -eq 0 ] || { echo "FAIL: mloON=$on miss=$miss"; exit 1; }
-mv SigRsMLO SigRsMLO.hidden; rm -f HamRsMLO
+mv QMLO_SigRs QMLO_SigRs.hidden; rm -f HamRsMLO
 $MPI -np 8 $B/mlo $T --mlo > lmlo 2>&1 || { echo "FAIL mlo: $(tail -2 lmlo | tr '\n' ' ')"; exit 1; }
 [ -f band_MLO_spin1.dat ] || { echo "FAIL: no band_MLO_spin1.dat"; exit 1; }
 # convert to the bnd001.spin1 layout mlo_rows.py reads: "i x E-EF[eV]" per point, blank line per band

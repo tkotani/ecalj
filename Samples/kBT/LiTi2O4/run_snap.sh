@@ -6,7 +6,7 @@
 #   usage: run_snap.sh <tag> <niter> [--mlo]        (add --mlofreeze with --mlo)
 #
 # Each snapshot holds everything needed to resume that iteration:
-#   rst.<T>  sigm  SigRsMLO  bnd_iter<N>.dat  llmf(tail)  steps.log
+#   rst.<T>  sigm  QMLO_SigRs  QMLO_z  bnd_iter<N>.dat  llmf(tail)  steps.log
 # HamRsMLO is written once (it is the frozen model) into snap/HamRsMLO.
 set -u
 TAG=$1; NITER=$2; MLO=${3:-}
@@ -22,8 +22,8 @@ L=$D/steps.log; : > $L
 say(){ echo "$(date '+%m-%d %H:%M') $*" >> $L; }
 
 say "tag=$TAG niter=$NITER opt='$MLO'"
-say "binary: ZmloRef in libecaljF.so = $(strings /home/takao/ecalj/SRC/build_nvfortran/libecaljF.so 2>/dev/null | grep -c ZmloRef) (0 = z^MLO rebuilt per lmf run)"
-say "stale: sigm=$(ls sigm* 2>/dev/null|wc -l) mix=$(ls *mix* *MIX* 2>/dev/null|wc -l) mlo=$(ls HamRsMLO SigRsMLO ZmloRef 2>/dev/null|wc -l)  [must be 0]"
+say "binary: __QMLO_zNew in libecaljF.so = $(strings /home/takao/ecalj/SRC/build_nvfortran/libecaljF.so 2>/dev/null | grep -c __QMLO_zNew) (0 = a binary from before the QMLO_* names)"
+say "stale: sigm=$(ls sigm* 2>/dev/null|wc -l) mix=$(ls *mix* *MIX* 2>/dev/null|wc -l) mlo=$(ls HamRsMLO QMLO_SigRs QMLO_z 2>/dev/null|wc -l)  [must be 0]"
 ## any mixing history at all -- mix*, __mix*, __mixm, mixsigma -- means this is not a
 ## clean start.  Refuse rather than let an inherited history steer iteration 1.
 if ls *mix* *MIX* >/dev/null 2>&1; then say "ABORT: mixing files present at start: $(ls *mix* *MIX* 2>/dev/null | tr '\n' ' ')"; exit 1; fi
@@ -57,14 +57,13 @@ for it in $(seq 1 $NITER); do
   ## its own directory keeps the chain untouched and leaves the whole state kept.
   ## --mlo is essential: job_band forwards unknown args to lmf (parse_known_args), and
   ## without it c0_mlo is false, sigmlo_init returns at once and the band is drawn
-  ## through the conventional sigm instead of SigRsMLO.
+  ## through the conventional sigm instead of QMLO_SigRs.
   SD=$D/snap/iter$it; mkdir -p $SD
-  ## __mixsig / __mixsigMLO are the Anderson histories of sigm and of Sigma^MLO.  Without
+  ## __mixsig / __QMLO_mixsig are the Anderson histories of sigm and of Sigma^MLO.  Without
   ## them a restart from this snapshot re-enters mixsigma with x_0 = 0, i.e. it damps the
   ## whole Sigma by beta once, which looks like a spurious jump in the band.
-  for f in rst.$T sigm sigm.$T SigRsMLO HamRsMLO ctrlg.$T.toml ctrl.$T env.sh __atm.$T \
-           efermi.lmf syml.$T __mixsig __mixsigMLO; do cp -f $f $SD/ 2>/dev/null; done
-  cp -f ZmloSig.* $SD/ 2>/dev/null
+  for f in rst.$T sigm sigm.$T QMLO_SigRs QMLO_z HamRsMLO ctrlg.$T.toml ctrl.$T env.sh __atm.$T \
+           efermi.lmf syml.$T __mixsig __QMLO_mixsig; do cp -f $f $SD/ 2>/dev/null; done
   tail -400 llmf > $SD/llmf.tail 2>/dev/null
   cp -f $L $SD/steps.log 2>/dev/null
   ## Two bands per iteration, both drawn inside/next to snap/iter<N>:
@@ -72,8 +71,8 @@ for it in $(seq 1 $NITER); do
   ##    Not the band of the SCF state -- the SCF runs on Sigma^MLO -- but the same drawing as
   ##    the conventional chain, and job_band also writes qplist.dat, the k path mlo needs.
   ##  - $D/mloband/bnd_iter<N>.dat : THE MLO band, draw_mloband.sh = MLO model of the SCF
-  ##    Hamiltonian (written at the mesh points with the stored chi~, SigRsMLO set aside,
-  ##    unfrozen mlo).  NOT job_mlo --mlofreeze: that adds the current SigRsMLO (iteration-N
+  ##    Hamiltonian (written at the mesh points with the stored chi~, QMLO_SigRs set aside,
+  ##    unfrozen mlo).  NOT job_mlo --mlofreeze: that adds the current QMLO_SigRs (iteration-N
   ##    chi~) to the frozen HamRsMLO (step-0d LDA H, step-0d chi~) -- two bases, 0.3-0.5 eV
   ##    off.  It used to crash (zMLO overrun, e9f633d79); fixed, it would silently succeed
   ##    with that wrong band, so it is not run here at all.

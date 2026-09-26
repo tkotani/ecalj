@@ -8,8 +8,8 @@
 # time as the reverse:
 #   - "BAND FAILED: ... mlo --mlofreeze --mlo": the MLO stage of job_band dies on
 #     LiTi2O4 (A2').  lmf --band runs before it, so bnd001.spin1 is still produced.
-#   - gwdrv=0 at N=1: the GW driver of iteration 1 has no SigRsMLO yet.
-#   - x_0 from __SigmMLO.q.prev = F at N=1: nothing to read yet.
+#   - gwdrv=0 at N=1: the GW driver of iteration 1 has no QMLO_SigRs yet.
+#   - x_0 from QMLO_SigRs = F at N=1: nothing to read yet.
 #   - mloON=0 in the band's llmf_band: bands are drawn through sigm.
 #   - E_HF moving by eV in early iterations.
 D=$1; N=$2; MIX=${3:-1}; L=${4:-.}
@@ -34,16 +34,16 @@ grep -q ABORT steps.log && echo "ANOMALY: ABORT in steps.log"
 [ "${secs:-0}" -gt "$MAXSECS" ] && echo "ANOMALY: secs=$secs (> $MAXSECS; possible hang)"
 if [ "$MIX" = 1 ]; then
   [ "${mlomix:-0}" != 1 ] && echo "ANOMALY: mlomix=$mlomix (expect 1)"
-  x0=$(grep -h "x_0 from __SigmMLO.q.prev" $L/lqpe 2>/dev/null | grep -oE "= [TF]" | tr -d '= ')
+  x0=$(grep -h "x_0 from .*QMLO_SigRs" $L/lqpe 2>/dev/null | grep -oE "= [TF]" | tr -d '= ')
   out=$(grep -h "SigmMLO_out" $L/lqpe 2>/dev/null | grep -oE "[0-9]+\.[0-9]+$")
   mix=$(grep -h "SigmMLO_mixed" $L/lqpe 2>/dev/null | grep -oE "[0-9]+\.[0-9]+$")
-  echo "mix   : x_0 from .prev=$x0  |S_out|=$out  |S_mixed|=$mix"
-  [ "$N" -ge 2 ] && [ "$x0" != T ] && echo "ANOMALY: x_0 not read from __SigmMLO.q.prev at N=$N"
+  echo "mix   : x_0 from QMLO_SigRs=$x0  |S_out|=$out  |S_mixed|=$mix"
+  [ "$N" -ge 2 ] && [ "$x0" != T ] && echo "ANOMALY: x_0 not taken from QMLO_SigRs at N=$N"
 fi
-prom=$(grep -c "promoted ZmloNew" $L/lmlo_sigr 2>/dev/null)
+prom=$(grep -c "promoted .*__QMLO_zNew" $L/lmlo_sigr 2>/dev/null)
 echo "slots : promoted=$prom"
 [ "${prom:-0}" -lt 1 ] && echo "ANOMALY: chi~ slot not promoted in lmlo_sigr"
-miss=$(cat llmf $L/llmfgw01 2>/dev/null | grep -c "outside ZmloSig\|MISS=[1-9]")
+miss=$(cat llmf $L/llmfgw01 2>/dev/null | grep -c "chi~ MISS\|outside QMLO_z")
 [ "$miss" -gt 0 ] && echo "ANOMALY: $miss chi~ misses"
 nan=$(cat $L/lqpe llmf $L/lmlo_sigr 2>/dev/null | grep -ciE "\bnan\b|infinity")
 [ "$nan" -gt 0 ] && echo "ANOMALY: $nan NaN/Inf lines in lqpe/llmf/lmlo_sigr"
