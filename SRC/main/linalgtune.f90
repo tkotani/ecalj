@@ -7,7 +7,9 @@
 !> operation the fastest backend within the level's error bound is chosen when it is at least 10% faster than cuBLAS
 !> over the class (geometric mean of the time ratios) and not more than 10% slower on any shape of it; otherwise
 !> cuBLAS (lu64 for the inverse) stays.  Error bounds (relative, Frobenius): cgemm 5e-3 at tf32 and 1e-5 at fp32;
-!> zgemm and dgemm 1e-12 at every level; the epstilde inverse 1e-6 at tf32/fp32 and 1e-12 at fp64.
+!> zgemm and dgemm 1e-12 at every level; the epstilde inverse 1e-6 at tf32/fp32 and 1e-13 at fp64.
+!> The sizes are deliberately not multiples of 64 (as in real GW runs, e.g. 1053 product-basis functions for LiTi2O4):
+!> on sizes like 1024 GEMMul8 is faster than on 1053, and a table measured there chose it where hgw runs slower.
 !> The table goes to --out, else to ecalj_linalg_policy.toml next to this executable (ECALJ_LINALG_POLICY overrides),
 !> through a temporary file and rename.  Run it on an idle GPU; InstallAll.py does so after a GPU build.  2026-09-27.
 program linalgtune
@@ -29,13 +31,13 @@ program linalgtune
   integer, parameter :: nshape = 6, minm = 256, minn = 512, mink = 256
   real(8), parameter :: minmnk = 1d9
   type(shape_t), parameter :: shp(nshape) = [ &
-       shape_t('sigma-imag', 1024, 8192,  1024, 'C', .true.),  &
-       shape_t('x0-bin',     1024, 1024,  4096, 'C', .false.), &
-       shape_t('square',     1024, 1024,  1024, 'N', .false.), &
-       shape_t('sigma-real', 1024,  256,  1024, 'C', .true.),  &
-       shape_t('x0-bin-s',   1024, 1024,   256, 'C', .false.), &
-       shape_t('zsec',        128,  128, 65536, 'C', .false.)]
-  integer, parameter :: ninv = 2, ninvn(ninv) = [384, 1024]
+       shape_t('sigma-imag', 1037, 8191,  1037, 'C', .true.),  &
+       shape_t('x0-bin',     1037, 1037,  4099, 'C', .false.), &
+       shape_t('square',     1037, 1037,  1037, 'N', .false.), &
+       shape_t('sigma-real', 1037,  389,  1037, 'C', .true.),  &
+       shape_t('x0-bin-s',   1037, 1037,   263, 'C', .false.), &
+       shape_t('zsec',        131,  131, 65539, 'C', .false.)]
+  integer, parameter :: ninv = 2, ninvn(ninv) = [389, 1037]
   character(4), parameter :: levels(3) = ['tf32', 'fp32', 'fp64']
 #ifdef __GEMMUL8
   character(10), parameter :: cand_c(3) = [character(10) :: 'cublas', 'realsgemm', 'gemmul8:7']
@@ -128,8 +130,8 @@ program linalgtune
     enddo
   enddo
   do il = 1, 3
-    pick_e(1,il) = choose_inv(1, merge(1d-12, 1d-6, il == 3))
-    pick_e(2,il) = choose_inv(2, merge(1d-12, 1d-6, il == 3))
+    pick_e(1,il) = choose_inv(1, merge(1d-13, 1d-6, il == 3))
+    pick_e(2,il) = choose_inv(2, merge(1d-13, 1d-6, il == 3))
   enddo
   deallocate(e8, w8, eref)
 
