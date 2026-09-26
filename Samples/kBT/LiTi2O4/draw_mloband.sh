@@ -15,7 +15,7 @@
 #     mlo --mlo WITHOUT --mlofreeze: build the MLO model of that H and solve it on qplist.dat.
 # Needs the zMLO fix (e9f633d79): mlo with fewer ranks than q points overran zMLO before it.
 S=$(realpath "$1"); W=$(realpath -m "$2"); OUT=$(realpath -m "$3"); T=liti2o4   # absolute: we cd below
-B=/mnt/data1/LiTi2O4_kbt_runs/src_mlofix/SRC/build_nv
+B=${MLOBAND_BUILD:-/home/takao/ecalj/SRC/build_nvfortran}   # a build that knows the QMLO_* files (c1b4b097a or later)
 MPI=/opt/nvidia/hpc_sdk/Linux_x86_64/26.1/comm_libs/13.1/hpcx/latest/ompi/bin/mpirun
 unset ECALJ_MLO_ALLOW_REBUILD ECALJ_MLO_NOSIG
 export CUDA_VISIBLE_DEVICES=
