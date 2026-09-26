@@ -186,19 +186,15 @@ run_cmd(cluster, MPIParams(command=EXEC_DIR/"qg4gw", args=[target, "--job=1", *o
 ##                       aborted run would be promoted as if it matched QMLO_SigRs.
 ##   __QMLO_Sig        : Sigma^MLO(q), written by hqpe_sc and read by mlo in one iteration.
 ##                       A stale one must not reach `mlo --mlo` at the start of a chain.
-##                       (Stage A of the 2026-09-26 renaming: still handed to hqpe_sc as
-##                       __QMLO_Sig.prev, the x_0 of the Sigma^MLO mixing.)
+##                       (The x_0 of the Sigma^MLO mixing is the Bloch sum of QMLO_SigRs.)
 ## Do NOT touch QMLO_SigRs / QMLO_z / HamRsMLO.  QMLO_z is the chi~ the existing QMLO_SigRs
 ## was written in; losing it means Sigma gets read back in the wrong basis.  QMLO_SigRs from
 ## the previous iteration is what makes lmf --jobgw=1 use the MLO route at all.
 ## Called before steps 0c/0d and again at the head of EVERY iteration (idempotent), so that
 ## a `gwsc N` treats each of its iterations like a fresh `gwsc 1`.
 def mlo_iteration_start():
-    sigq = Path('__QMLO_Sig')
-    if sigq.is_file():
-        sigq.replace('__QMLO_Sig.prev')
-    remove_files('__cmlo.data', '__cmlo.info',
-                 '__HamiltonianGW', '__HamiltonianGW.info', '__QMLO_zNew')
+    remove_files('__cmlo.data', '__cmlo.info', '__HamiltonianGW', '__HamiltonianGW.info',
+                 '__QMLO_zNew', '__QMLO_Sig')
 
 if "--mlo" in options:
     mlo_iteration_start()

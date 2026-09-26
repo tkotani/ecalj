@@ -309,60 +309,50 @@ contains
     rewind ifse_out
     call rwsigma ('write',ifse_out,sigma_m,qqqx_m, nspin,ndimsig,n1,n2,n3,nqibz)
     close(ifse_out)
-    !! Sigma^MLO gets the SAME Anderson damping as sigm.  In the MLO route lmf consumes
-    !! SigRsMLO (made from __SigmMLO.q), NOT sigm, so an unmixed Sigma^MLO means the MLO
-    !! chain runs at beta=1 while the conventional chain runs at mixbeta.  On LiTi2O4 6^3
-    !! (mixbeta=0.5) that showed up as an overshoot at iteration 3 (band change per
-    !! iteration 430 -> 187 -> 347 -> 246 -> 132 meV) which the mixed chain does not have.
-    !! x_0 comes from __SigmMLO.q.prev, which gwsc renames aside at the top of the iteration
-    !! (it used to delete it).  That file is the Sigma^MLO this iteration actually ran with,
-    !! so it plays exactly the role sigm plays for the conventional loop, and reading it means
-    !! the mixing is right on the first iteration after the history file is missing -- a fresh
-    !! chain, a restart from a snapshot, or a chain that ran before mixing existed.  Without it
-    !! amix would take x_0 = 0 and damp the whole Sigma by beta once.  The Anderson history
-    !! carries x_0 too, so this is belt and braces, matching what the sigm path does.
-    !! The t_j chosen here are those of the MLO representation and need not equal the ones sigm
-    !! got; that is harmless because only Sigma^MLO is read back on the MLO route.
-    !! OFF by default (2026-09-25).  On LiTi2O4 6^3 the unmixed chain overshoots at iteration 3
-    !! but damps by itself -- 430 -> 187 -> 347 -> 246 -> 132 -> 52 meV, i.e. down to where the
-    !! mixed conventional chain sits (37) by iteration 6 -- so the damping is not needed to
-    !! converge, only to make the early iterations look tidier.  Set ECALJ_MLO_MIX=1 to enable
-    !! it; everything it needs (the __mixsigMLO history, the __SigmMLO.q.prev handoff) is in
-    !! place and stays correct whether or not it is switched on.
+    !! Sigma^MLO gets the SAME Anderson damping as sigm (ECALJ_MLO_MIX=1; off by default).
+    !! In the MLO route lmf consumes QMLO_SigRs (made from __QMLO_Sig), NOT sigm, so an
+    !! unmixed Sigma^MLO means the MLO chain runs at beta=1 while sigm runs at mixbeta.  On
+    !! LiTi2O4 6^3 (mixbeta=0.5) that showed up as an overshoot at iteration 3 which the mixed
+    !! chain does not have.
+    !! x_0, the Sigma^MLO this iteration actually ran with, is the Bloch sum of QMLO_SigRs at
+    !! the irreducible q -- exactly the matrix getsenex put into H, since QMLO_SigRs is not
+    !! rewritten until step 4 of this iteration.  It plays the role sigm plays for the
+    !! conventional loop, so the Anderson history (__QMLO_mixsig) may be thrown away without
+    !! damping Sigma by beta on the next iteration.  With no QMLO_SigRs (the first iteration
+    !! from LDA) x_0 = 0, i.e. the first step takes beta of the GW self-energy, as for sigm.
+    !! The t_j chosen here are those of the MLO representation and need not equal the ones
+    !! sigm got; that is harmless because only Sigma^MLO is read back on the MLO route.
     MixSigmMLO: if(lmlo .and. mlomix()) then
       block
+        use m_sigmlo,only: sigmlo_init, sigmlo_on, sigmlo_sigq, sigmlo_nmlo, fn_sigrs, fn_mixsig
         complex(8),allocatable:: sigmloin(:,:,:,:)
-        real(8),allocatable:: qmloin(:,:,:)
         logical:: lsigmloin
-        integer:: ifi,nmloin,nqin,nspin_in,n1i,n2i,n3i
-        lsigmloin=.false.
-        inquire(file='__QMLO_Sig.prev',exist=lsigmloin)
+        integer:: ipx, isx
         allocate(sigmloin(nmlo,nmlo,nqibz,nspin),source=(0d0,0d0))
+        call sigmlo_init(withz=.false.)   !QMLO_SigRs and the MLO index; the z^MLO slot is not needed
+        lsigmloin = sigmlo_on
+        if(lsigmloin .and. sigmlo_nmlo()/=nmlo) then
+          write(stdo,ftox)' (warning) ',fn_sigrs,' has ndimMTO=',sigmlo_nmlo(),' /= nmlo=',nmlo, &
+               '; x_0 from the history file'
+          lsigmloin = .false.
+        endif
         if(lsigmloin) then
-          allocate(qmloin(3,nspin,nqibz))
-          open(newunit=ifi,file='__QMLO_Sig.prev',form='UNFORMATTED')
-          read(ifi,err=2101,end=2101) nmloin,nqin,nspin_in,n1i,n2i,n3i
-          if(nmloin/=nmlo.or.nqin/=nqibz.or.nspin_in/=nspin) goto 2101
-          read(ifi,err=2101,end=2101) qmloin
-          read(ifi,err=2101,end=2101) sigmloin
-          goto 2102
-2101      continue
-          write(stdo,ftox)' (warning) __QMLO_Sig.prev unusable; mixing falls back to the history file'
-          lsigmloin=.false.; sigmloin=(0d0,0d0)
-2102      continue
-          close(ifi)
-          deallocate(qmloin)
+          do isx = 1, nspin
+            do ipx = 1, nqibz
+              call sigmlo_sigq(qqq(1:3,ipx,isx), isx, sigmloin(:,:,ipx,isx))
+            enddo
+          enddo
         endif
         write(stdo,ftox)"===== Sigma^MLO mixing section using mixsigma ======="
-        write(stdo,ftox)' hqpe.sc: x_0 from __QMLO_Sig.prev =',lsigmloin, &
-             ' |SigmMLO_out|=',ftof(sum(abs(sigmlo)))
-        call mixsigma(sigmlo, lsigmloin, sigmloin, nmlo**2*nqibz*nspin, '__QMLO_mixsig')
+        write(stdo,ftox)' hqpe.sc: x_0 from ',fn_sigrs,' =',lsigmloin, &
+             ' |SigmMLO_out|=',ftof(sum(abs(sigmlo))),' |x_0|=',ftof(sum(abs(sigmloin)))
+        call mixsigma(sigmlo, lsigmloin, sigmloin, nmlo**2*nqibz*nspin, fn_mixsig)
         write(stdo,ftox)' hqpe.sc: |SigmMLO_mixed|=',ftof(sum(abs(sigmlo)))
         deallocate(sigmloin)
       endblock
     endif MixSigmMLO
     WriteSigmMLO: if(lmlo) then
-      open(newunit=ifsigmlo,file='__QMLO_Sig',form='UNFORMATTED')
+      open(newunit=ifsigmlo,file='__QMLO_Sig',form='UNFORMATTED') !fn_sigq of m_sigmlo; read by mlo (step 4)
       write(ifsigmlo) nmlo,nqibz,nspin,n1,n2,n3
       write(ifsigmlo) ((qqq(1:3,ip,is),is=1,nspin),ip=1,nqibz)
       write(ifsigmlo) sigmlo
