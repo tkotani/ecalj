@@ -1,16 +1,19 @@
 !> Backend "realsgemm" of m_linalg_policy: complex single-precision C = alpha op(A) B + beta C as ONE real SGEMM
 !> on the same memory.  B (k x n complex, opB = N) is read as a real (2k x n) matrix and C (m x n) is written as a
-!> real (2m x n) one; only op(A) is copied, into A' (2k x 2m real): with a = alpha op(A)(j,l),
-!>   column 2j-1 of A' holds (Re a, -Im a) at rows (2l-1, 2l),  column 2j holds (Im a, Re a).
-!> Then A'^T B is C with Re and Im interleaved; the same 8mnk flops in FP32.  cuBLAS cgemm runs at about 31 TFLOPS
-!> on RTX 5090 against 50-54 for this route (m=k=1053, n >= 1000; TOOLS/ozbench, 2026-09-27).
+!> real (2m x n) one; only op(A) is copied, with a = alpha op(A)(j,l):
+!>   opA = C, T: A' (2k x 2m): column 2j-1 holds (Re a, -Im a) at rows (2l-1, 2l), column 2j holds (Im a, Re a);
+!>               C = A'^T B.
+!>   opA = N:    A'' (2m x 2k): column 2l-1 holds (Re a, Im a) at rows (2j-1, 2j) (column l of A read as real),
+!>               column 2l holds (-Im a, Re a) (i times it); C = A'' B.
+!> Both copies read and write A along its columns (coalesced).  The same 8mnk flops in FP32.  cuBLAS cgemm runs at
+!> about 31 TFLOPS on RTX 5090 against 50-54 for this route (m=k=1053, n >= 1000; TOOLS/ozbench, 2026-09-27), and on
+!> the plane-wave products of build_zmel the real SGEMM also sums more accurately: hgw with this route on every
+!> product was 5.7 times closer to FP64 in Re Sigma_c (LiTi2O4 6^3).
 !> A non-real beta is applied to C first (one pass over C).  opB /= N returns -1 and the caller uses cuBLAS.
 !> key >= 0: the caller promises that the same key means the same A, op and alpha until realsgemm_reset; A' is then
 !> kept in a pool (ECALJ_LA_CACHE_GB, default 4, and at most 1/4 of the free device memory) and reused.
 !> Without a key A' is built for every call (4km floats written); below n = 256 that costs more than the faster GEMM
 !> saves (break-even n ~ 160 on RTX 5090), so such calls also return -1 and go to cuBLAS.
-!> opA = N also returns -1: A' is then a transpose of A (strided reads), which cost hgw 14 s on the plane-wave
-!> products of build_zmel (LiTi2O4 6^3, 2026-09-27); the products worth it in hgw are A^H B and A^T B.
 module m_la_realsgemm
 #ifdef __GPU
   use cudafor
@@ -37,10 +40,9 @@ contains
     complex(4), device :: a(*), b(*), c(*)
     real(4) :: one_r, beta_r
     integer(8) :: off
-    integer :: is
+    integer :: is, opap, ldap
     istat = -1
     if (opb /= 'N' .and. opb /= 'n') return
-    if (opa == 'N' .or. opa == 'n') return             ! A' would be a strided transpose of A
     if (4_8*k*m >= huge(1)) return
     if (key < 0 .and. n < nminkey) return             ! building A' for one small product does not pay
     if (aimag(beta) /= 0.0) then                    ! complex beta: C := beta C first, then add with beta 1
@@ -50,11 +52,16 @@ contains
       beta_r = real(beta)
     endif
     one_r = 1.0
+    if (opa == 'N' .or. opa == 'n') then               ! A'' (2m x 2k), C = A'' B
+      opap = CUBLAS_OP_N; ldap = 2*m
+    else                                               ! A' (2k x 2m), C = A'^T B
+      opap = CUBLAS_OP_T; ldap = 2*k
+    endif
     is = 0
     if (key >= 0) is = findslot(key, opa, m, k, alpha)
     if (is > 0) then                                 ! A' of this key is in the pool
       off = soff(is)
-      istat = cublasGemmEx(handle, CUBLAS_OP_T, CUBLAS_OP_N, 2*m, n, 2*k, one_r, pool(off+1:off+4_8*k*m), CUDA_R_32F, 2*k, &
+      istat = cublasGemmEx(handle, opap, CUBLAS_OP_N, 2*m, n, 2*k, one_r, pool(off+1:off+4_8*k*m), CUDA_R_32F, ldap, &
                            b, CUDA_R_32F, 2*ldb, beta_r, c, CUDA_R_32F, 2*ldc, ctype, CUBLAS_GEMM_DEFAULT)
       return
     endif
@@ -62,7 +69,7 @@ contains
     if (is > 0) then
       off = soff(is)
       call make_ap(pool(off+1:off+4_8*k*m), opa, m, k, alpha, a, lda)
-      istat = cublasGemmEx(handle, CUBLAS_OP_T, CUBLAS_OP_N, 2*m, n, 2*k, one_r, pool(off+1:off+4_8*k*m), CUDA_R_32F, 2*k, &
+      istat = cublasGemmEx(handle, opap, CUBLAS_OP_N, 2*m, n, 2*k, one_r, pool(off+1:off+4_8*k*m), CUDA_R_32F, ldap, &
                            b, CUDA_R_32F, 2*ldb, beta_r, c, CUDA_R_32F, 2*ldc, ctype, CUBLAS_GEMM_DEFAULT)
       return
     endif
@@ -71,12 +78,13 @@ contains
     endif
     if (.not. allocated(ap)) allocate(ap(4_8*k*m))
     call make_ap(ap, opa, m, k, alpha, a, lda)
-    istat = cublasGemmEx(handle, CUBLAS_OP_T, CUBLAS_OP_N, 2*m, n, 2*k, one_r, ap, CUDA_R_32F, 2*k, &
+    istat = cublasGemmEx(handle, opap, CUBLAS_OP_N, 2*m, n, 2*k, one_r, ap, CUDA_R_32F, ldap, &
                          b, CUDA_R_32F, 2*ldb, beta_r, c, CUDA_R_32F, 2*ldc, ctype, CUBLAS_GEMM_DEFAULT)
   end function realsgemm_c
 
   subroutine make_ap(w, opa, m, k, alpha, a, lda)
-    !> A' (2k x 2m) from alpha op(A); op(A)(j,l) = A(j,l) (N), A(l,j) (T), conjg(A(l,j)) (C).
+    !> From alpha op(A): A' (2k x 2m) for opA = T, C (op(A)(j,l) = A(l,j), conjg(A(l,j))), A'' (2m x 2k) for opA = N.
+    !> The inner loop runs down a column of A in both cases (coalesced reads and writes).
     real(4), device :: w(*)
     character, intent(in) :: opa
     integer, intent(in) :: m, k, lda
@@ -89,14 +97,24 @@ contains
     if (opa == 'T' .or. opa == 't') iop = 1
     if (opa == 'C' .or. opa == 'c') iop = 2
     unit = alpha == (1.0, 0.0)
+    if (iop == 0) then
+      !$cuf kernel do(2) <<<*,*>>>
+      do l = 1, k
+        do j = 1, m
+          v = a(j + (l-1)*lda)
+          if (.not. unit) v = alpha*v
+          w(2*j-1 + (2*l-2)*2*m) =  real(v)
+          w(2*j   + (2*l-2)*2*m) =  aimag(v)
+          w(2*j-1 + (2*l-1)*2*m) = -aimag(v)
+          w(2*j   + (2*l-1)*2*m) =  real(v)
+        enddo
+      enddo
+      return
+    endif
     !$cuf kernel do(2) <<<*,*>>>
     do j = 1, m
       do l = 1, k
-        if (iop == 0) then
-          v = a(j + (l-1)*lda)
-        else
-          v = a(l + (j-1)*lda)
-        endif
+        v = a(l + (j-1)*lda)
         if (iop == 2) v = conjg(v)
         if (.not. unit) v = alpha*v
         w(2*l-1 + (2*j-2)*2*k) =  real(v)
