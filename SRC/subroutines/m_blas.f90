@@ -1,6 +1,6 @@
 module m_blas !wrapper for BLAS and cuBLAS
   !$use omp_lib
-  use m_gemmul8, only: gemmul8_init, num_moduli_d, num_moduli_z, num_moduli_c, fastmode_gemmul8
+  use m_gemmul8, only: gemmul8_init, gemmul8_pays, num_moduli_d, num_moduli_z, num_moduli_c, fastmode_gemmul8
 #ifdef __GPU
   use cublas_v2
   use cudafor
@@ -339,6 +339,7 @@ contains
       if (istat /= -1) return
       bk = BK_CUBLAS                                 ! the route needs opB = N
     endif
+    if (bk == BK_GEMMUL8 .and. .not. gemmul8_pays(m, n, k)) bk = BK_CUBLAS   ! too small for the split
     if (bk == BK_GEMMUL8) then
 #ifdef __GEMMUL8
       block
@@ -510,6 +511,7 @@ contains
     case (BACKEND_GEMMUL8); bk = BK_GEMMUL8
     case default;           bk = la_backend(OP_DGEMM, m, n, k)
     end select
+    if (bk == BK_GEMMUL8 .and. .not. gemmul8_pays(m, n, k)) bk = BK_CUBLAS   ! too small for the split
     if (bk == BK_GEMMUL8) then
 #ifdef __GEMMUL8
       block
@@ -569,6 +571,7 @@ contains
     case (BACKEND_GEMMUL8); bk = BK_GEMMUL8
     case default;           bk = la_backend(OP_ZGEMM, m, n, k)
     end select
+    if (bk == BK_GEMMUL8 .and. .not. gemmul8_pays(m, n, k)) bk = BK_CUBLAS   ! too small for the split
     if (bk == BK_GEMMUL8) then
 #ifdef __GEMMUL8
       block

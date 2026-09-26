@@ -190,7 +190,10 @@ def run_cmd(cluster: str,
         else:
             gpu_ctx = GpuLock(want=params.nprocs or 1, label=f"{label} in {os.getcwd()}")
     if gpu_ctx is not None:
-        gpu_ctx.__enter__()
+        try:
+            gpu_ctx.__enter__()
+        except RuntimeError as e:          # GpuLock gave up (ECALJ_GPU_WAIT): stop with its message
+            raise SystemExit(f"run_cmd: {e}")
     try:
         n = params.nprocs
         pnode = params.npernode

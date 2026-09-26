@@ -53,6 +53,13 @@ module m_gemmul8
   endinterface
 #endif
 contains
+  logical function gemmul8_pays(m, n, k)
+    !> GEMMul8 splits A and B into moduli and runs one INT8 GEMM per modulus: a fixed cost per call that a small
+    !> product does not pay back.  The 7x7 x nband rotations in readeigen (thousands per k point) cost hgw 110 s with
+    !> GEMMul8 against cuBLAS (LiTi2O4 6^3, 2026-09-27).  Below this size m_blas uses cuBLAS whatever the table says.
+    integer, intent(in) :: m, n, k
+    gemmul8_pays = min(m, n, k) >= 64 .and. real(m,8)*real(n,8)*real(k,8) >= 1d8
+  end function gemmul8_pays
   integer function gemmul8_init() result(istat)
     !> Create the GEMMul8 handle at the first product routed to it (m_linalg_policy decides which ones).
     use m_lgunit, only: stdo

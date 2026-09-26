@@ -12,8 +12,9 @@
 !> A non-real beta is applied to C first (one pass over C).  opB /= N returns -1 and the caller uses cuBLAS.
 !> key >= 0: the caller promises that the same key means the same A, op and alpha until realsgemm_reset; A' is then
 !> kept in a pool (ECALJ_LA_CACHE_GB, default 4, and at most 1/4 of the free device memory) and reused.
-!> Without a key A' is built for every call (4km floats written); below n = 256 that costs more than the faster GEMM
-!> saves (break-even n ~ 160 on RTX 5090), so such calls also return -1 and go to cuBLAS.
+!> Without a key A' is built for every call (4km floats written, coalesced); that is paid back from n of a few tens
+!> (the plane-wave products of build_zmel, n ~ 50-300, run about as fast as cuBLAS and much more accurately), so only
+!> near-vector products without a key (n < 16) return -1 and go to cuBLAS.
 module m_la_realsgemm
 #ifdef __GPU
   use cudafor
@@ -25,7 +26,7 @@ module m_la_realsgemm
   real(4), device, allocatable, save :: pool(:)      ! A' of keyed calls, back to back
   integer(8), save :: pool_cap = -1, pool_used = 0
   integer, parameter :: maxslot = 4096
-  integer, parameter :: nminkey = 256                ! smallest n worth building A' for without a key
+  integer, parameter :: nminkey = 16                 ! smallest n worth building A' for without a key
   integer, save :: nslot = 0
   integer, save :: skey(maxslot), sm(maxslot), sk(maxslot)
   character, save :: sop(maxslot)
