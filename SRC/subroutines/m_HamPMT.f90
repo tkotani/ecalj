@@ -377,14 +377,15 @@ contains
       ib_tableI = pack(ib_tableM(1:ndimMTO), [(all(ib_tableM(:i-1)/=ib_tableM(i)), i=1,ndimMTO)])
       allocate(ovlmi(1:ndimMTO,1:ndimMTO,nqibz,nspx),hammi(1:ndimMTO,1:ndimMTO,nqibz,nspx),source=(0d0,0d0))
       ReadSigmMLO: block !Sigma^MLO(q) from hqpe_sc (stage 2 of Samples/kBT/sigma_mlo_design.md)
+        use m_sigmlo,only: fn_sigq
         integer:: ifs,nmlof,nqf,nspf,n1f,n2f,n3f,ipx,isx,iqm,iqm2
         real(8),allocatable:: qsig(:,:,:)
-        inquire(file='__SigmMLO.q',exist=lsigmlo)
+        inquire(file=fn_sigq,exist=lsigmlo)
         if(lsigmlo) then
-          open(newunit=ifs,file='__SigmMLO.q',form='unformatted',status='old')
+          open(newunit=ifs,file=fn_sigq,form='unformatted',status='old')
           read(ifs) nmlof,nqf,nspf,n1f,n2f,n3f
           if(nmlof/=ndimMTO .or. nqf/=nqibz) then
-            write(stdo,ftox)' m_HamPMT: __SigmMLO.q mismatch -> ignored. file=',nmlof,nqf,' here=',ndimMTO,nqibz
+            write(stdo,ftox)' m_HamPMT: ',fn_sigq,' mismatch -> ignored. file=',nmlof,nqf,' here=',ndimMTO,nqibz
             lsigmlo=.false.; close(ifs)
           else
             allocate(qsig(3,nspf,nqf))
@@ -397,12 +398,12 @@ contains
               tmp=sigmlo_in
               do ipx=1,nqf
                 iqm = findloc([(sum(abs(qibz(:,iqm2)-qsig(:,1,ipx)))<tolq(),iqm2=1,nqibz)],value=.true.,dim=1)
-                if(iqm<1) call rx('m_HamPMT: __SigmMLO.q has a q not on qibz')
+                if(iqm<1) call rx('m_HamPMT: '//fn_sigq//' has a q not on qibz')
                 forall(isx=1:nspx) sigmlo_in(:,:,iqm,isx)=tmp(:,:,ipx,isx)
               enddo
             endblock ReorderToQibz
             allocate(sigmloi(1:ndimMTO,1:ndimMTO,nqibz,nspx),source=(0d0,0d0))
-            if(master_mpi) write(stdo,ftox)' m_HamPMT: read __SigmMLO.q |Sigma|=',ftof(sum(abs(sigmlo_in)))
+            if(master_mpi) write(stdo,ftox)' m_HamPMT: read ',fn_sigq,' |Sigma|=',ftof(sum(abs(sigmlo_in)))
           endif
         endif
       endblock ReadSigmMLO
@@ -752,7 +753,7 @@ contains
       if(lsigmlo) call mpibc2_complex(sigmlor,size(sigmlor),'m_HamPMT_sigmlor')
       call mpibc2_complex(ovlmr,size(ovlmr),'m_HamPMT_ovlmr') !to master
       if(socmatrix) call mpibc2_complex(hammhsor,size(hammhsor),'m_HamPMT_hammhsor') !to master
-      if(master_mpi .and. lfrozen) write(stdo,ftox)' m_HamPMT: HamRsMLO kept (frozen chi~); only SigRsMLO is (re)written'
+      if(master_mpi .and. lfrozen) write(stdo,ftox)' m_HamPMT: HamRsMLO kept (frozen MLO index); only QMLO_SigRs is (re)written'
       if(master_mpi .and. .not.lfrozen) then ! write RealSpace MTO Hamiltonian
         write(stdo,*)' Writing HamRsMLO... ndimMTO=',ndimMTO
         open(newunit=ifihmto,file='HamRsMLO',form='unformatted')
@@ -780,7 +781,7 @@ contains
       endif
       if(master_mpi) then
         if(lsigmlo) then !self-contained: getsenex Bloch-sums this without m_HamPMT
-          open(newunit=ifihmto,file='SigRsMLO',form='unformatted')
+          open(newunit=ifihmto,file='QMLO_SigRs',form='unformatted')
           write(ifihmto) ndimMTO,npairmx,nspx,nbas
           write(ifihmto) sigmlor(1:npairmx,1:ndimMTO,1:ndimMTO,1:nspx)
           write(ifihmto) plat
@@ -789,23 +790,21 @@ contains
           write(ifihmto) nqwgt(1:npairmx,1:nbas,1:nbas)
           write(ifihmto) ib_tableM(1:ndimMTO), ix(1:ndimMTO)
           close(ifihmto)
-          write(stdo,ftox)' Wrote SigRsMLO |Sigma(R)|=',ftof(sum(abs(sigmlor)))
+          write(stdo,ftox)' Wrote QMLO_SigRs |Sigma(R)|=',ftof(sum(abs(sigmlor)))
           PromoteChiSlot: block !The chi~ slot must change over at exactly this moment.
-            !ZmloNew.* is the chi~ that sugw's step a' built for THIS iteration and that
-            !the Sigma just written is expressed in; ZmloSig.* is what getsenex reads
-            !Sigma back through.  Doing the rename here, in the same place that writes
-            !SigRsMLO, makes the two inseparable.  gwsc also does it, which is then a
+            !__QMLO_zNew is the chi~ that sugw's step a' built for THIS iteration and that
+            !the Sigma just written is expressed in; QMLO_z is what getsenex reads Sigma
+            !back through.  Doing the rename here, in the same place that writes
+            !QMLO_SigRs, makes the two inseparable.  gwsc also does it, which is then a
             !no-op; that duplication is deliberate -- on 2026-09-25 a stale copy of gwsc
             !in a bin directory meant the promotion never ran at all, silently.
+            use m_sigmlo,only: fn_z, fn_znew
             integer:: ncmd
-            character(512):: cmd
             logical:: lnew
-            inquire(file='ZmloNew.0',exist=lnew)
+            inquire(file=fn_znew,exist=lnew)
             if(lnew) then
-              cmd = 'rm -f ZmloSig.* ; for f in ZmloNew.* ; do '// &
-                    '[ -e "$f" ] && mv -f "$f" "ZmloSig.${f#ZmloNew.}" ; done'
-              call execute_command_line(trim(cmd), wait=.true., exitstat=ncmd)
-              write(stdo,ftox)' m_HamPMT: promoted ZmloNew.* -> ZmloSig.* (chi~ of this SigRsMLO) rc=',ncmd
+              call execute_command_line('mv -f '//fn_znew//' '//fn_z, wait=.true., exitstat=ncmd)
+              write(stdo,ftox)' m_HamPMT: promoted ',fn_znew,' -> ',fn_z,' (chi~ of this QMLO_SigRs) rc=',ncmd
             endif
           endblock PromoteChiSlot
         endif

@@ -176,55 +176,52 @@ else:
 run_cmd(cluster, MPIParams(command=EXEC_DIR/"lmf", args=[target, "--jobgw=0", *options], **mpi_params_lmf), stdout="llmfgw00")
 run_cmd(cluster, MPIParams(command=EXEC_DIR/"qg4gw", args=[target, "--job=1", *options], **mpi_params_single), stdout="lqg4gw")
 
-## MLO route: wipe ONLY the files that are rebuilt within every iteration.
+## MLO route.  Files of MLO-QSGW: QMLO_* are kept (results, and what a chain needs to go on);
+## __QMLO_* are rebuilt within one iteration.  At the head of every iteration wipe ONLY
+## the work files that iteration rebuilds:
 ##   __HamiltonianGW*  : written by lmf --jobgw=1 each iteration; a truncated one from
 ##                       an aborted run once made `mlo` read past EOF.
 ##   __cmlo.*          : written by step a' each iteration.
-##   __SigmMLO.q       : written by hqpe_sc and consumed by mlo, inside one iteration.
-##                       Renamed to __SigmMLO.q.prev rather than deleted: it is the Sigma^MLO
-##                       this iteration runs with, i.e. x_0 for the Anderson mixing that
-##                       hqpe_sc applies at the end (the same role sigm plays for the
-##                       conventional loop).  Deleting it made the first mixed iteration of
-##                       a fresh or restarted chain damp the whole Sigma by beta once.
-##   ZmloNew.*         : the chi~ slot step a' fills each iteration; a leftover set from
-##                       an aborted run would be promoted as if it matched SigRsMLO.
-##   ZmloRef           : dead file from the 2026-09-25 experiment that persisted chi~
-##                       across the whole chain.  Nothing reads it any more.
-## Do NOT touch SigRsMLO / HamRsMLO / ZmloSig.*.  ZmloSig.* is the chi~ the existing
-## SigRsMLO was written in; losing it means Sigma gets read back in the wrong basis.  A chain is driven by
-## `gwsc` calls (one or N iterations each), and SigRsMLO from the previous iteration is what makes
-## lmf --jobgw=1 use the MLO route at all; deleting it silently turns the GW input
-## back into the conventional sigm and the chain is no longer a MLO-QSGW.
-## Called here, before steps 0c/0d (`mlo --mlo` would otherwise pick up a stale
-## __SigmMLO.q), and again at the head of EVERY iteration, so that each iteration of a
-## `gwsc N` hands hqpe_sc the Sigma^MLO it actually runs with as x_0.  Doing it once per
-## call left iterations 2..N mixing against the Sigma^MLO of the call's first iteration.
-## Idempotent: with no __SigmMLO.q there is nothing to rename.
+##   __QMLO_zNew       : the chi~ slot step a' fills each iteration; a leftover from an
+##                       aborted run would be promoted as if it matched QMLO_SigRs.
+##   __QMLO_Sig        : Sigma^MLO(q), written by hqpe_sc and read by mlo in one iteration.
+##                       A stale one must not reach `mlo --mlo` at the start of a chain.
+##                       (Stage A of the 2026-09-26 renaming: still handed to hqpe_sc as
+##                       __QMLO_Sig.prev, the x_0 of the Sigma^MLO mixing.)
+## Do NOT touch QMLO_SigRs / QMLO_z / HamRsMLO.  QMLO_z is the chi~ the existing QMLO_SigRs
+## was written in; losing it means Sigma gets read back in the wrong basis.  QMLO_SigRs from
+## the previous iteration is what makes lmf --jobgw=1 use the MLO route at all.
+## Called before steps 0c/0d and again at the head of EVERY iteration (idempotent), so that
+## a `gwsc N` treats each of its iterations like a fresh `gwsc 1`.
 def mlo_iteration_start():
-    sigmlo_q = Path('__SigmMLO.q')
-    if sigmlo_q.is_file():
-        sigmlo_q.replace('__SigmMLO.q.prev')
+    sigq = Path('__QMLO_Sig')
+    if sigq.is_file():
+        sigq.replace('__QMLO_Sig.prev')
     remove_files('__cmlo.data', '__cmlo.info',
-                 '__HamiltonianGW', '__HamiltonianGW.info', 'ZmloRef')
-    for f in Path('.').glob('ZmloNew.*'):
-        f.unlink()
+                 '__HamiltonianGW', '__HamiltonianGW.info', '__QMLO_zNew')
 
 if "--mlo" in options:
     mlo_iteration_start()
 
 ## MLO route (Samples/kBT/sigma_mlo_design.md 4.1): steps 0c/0d, ONCE per chain.
-##   lmf --writeham --mlo -> HamiltonianPMTInfo
+##   lmf --writeham --mlo -> HamiltonianPMTInfo, __HamiltonianPMT(.info)
 ##   mlo --mlo            -> HamRsMLO, whose trailing records carry the MLO index
 ##                           (ix, mlomethod, nskip; also the chain-start eferm, ecbot,
 ##                           which step a' no longer uses for its window).
 ## The INDEX (which MTO channels, ndimMTO) must stay the same for the whole chain:
-## SigRsMLO is a matrix over those channels.  chi~ itself is rebuilt every iteration by
+## QMLO_SigRs is a matrix over those channels.  chi~ itself is rebuilt every iteration by
 ## step a' from that iteration's H.  Rebuilding HamRsMLO on every call would redefine the
 ## index, so skip it when HamRsMLO is already there; delete HamRsMLO by hand to start a
-## new model.
+## new model.  `mlo --mlofreeze` (step 4) still reads the PMT Hamiltonian files every
+## iteration, and they are __-prefixed like any work file, so write them again whenever
+## they are missing: that is what lets every __ file be deleted between gwsc calls.
 if "--mlo" in options:
+    pmtfiles = ['HamiltonianPMTInfo', '__HamiltonianPMT', '__HamiltonianPMT.info']
     if Path('HamRsMLO').is_file():
-        print('MLO: HamRsMLO exists -> keep the frozen chi~ (skip --writeham / mlo).', flush=True)
+        print('MLO: HamRsMLO exists -> keep the MLO index (skip mlo --mlo).', flush=True)
+        if not all(Path(f).is_file() for f in pmtfiles):
+            print('MLO: PMT Hamiltonian files missing -> lmf --writeham again.', flush=True)
+            run_cmd(cluster, MPIParams(command=EXEC_DIR/"lmf", args=[target, "--writeham", "--mkprocar", "--noinv", *options], **mpi_params_lmf), stdout="llmf_writeham")
     else:
         run_cmd(cluster, MPIParams(command=EXEC_DIR/"lmf", args=[target, "--writeham", "--mkprocar", "--noinv", *options], **mpi_params_lmf), stdout="llmf_writeham")
         run_cmd(cluster, MPIParams(command=EXEC_DIR/"mlo", args=[target, *options], **mpi_params_lmf), stdout="lmlo_index")
@@ -259,32 +256,30 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
     run_cmd(cluster, MPIParams(command=EXEC_DIR/f"hgw{exec_type}", args=[target, "--jobgw=1", *options], **mpi_params_gw), stdout="lgw")
     move_files('stdout*', dest_dir='STDOUT')
 
-    ## Make Vxc^QSGW (sigm file).  With --mlo it also writes __SigmMLO.q = Sigma in the MLO basis.
+    ## Make Vxc^QSGW (sigm file).  With --mlo it also writes __QMLO_Sig = Sigma in the MLO basis.
     run_cmd(cluster, MPIParams(command=EXEC_DIR/"hqpe_sc", args=[target, *options], **mpi_params_single), stdout="lqpe")
 
-    ## Sigma^MLO(q) -> Sigma^MLO(R) (SigRsMLO), on the same pair list as HamRsMLO.
+    ## Sigma^MLO(q) -> Sigma^MLO(R) (QMLO_SigRs), on the same pair list as HamRsMLO.
     ## --mlofreeze keeps the HamRsMLO made before the loop, i.e. the MLO INDEX
     ## (ix, ndimMTO, the channel list) is fixed for the whole chain.  It has to be:
-    ## SigRsMLO is a matrix over those channels, so ndimMTO may not change under it.
+    ## QMLO_SigRs is a matrix over those channels, so ndimMTO may not change under it.
     if "--mlo" in options:
         run_cmd(cluster, MPIParams(command=EXEC_DIR/"mlo", args=[target, "--mlofreeze", *options], **mpi_params_lmf), stdout="lmlo_sigr")
 
     ## PROMOTE the chi~ slot.  Sigma^MLO_{ab} = <chi~_a|Sigma|chi~_b> is a matrix in a
     ## basis, so getsenex may only put it back into the PMT basis through the SAME chi~.
-    ## sugw's step a' has just built chi~ for the H of this iteration into ZmloNew.* and
-    ## expressed the Sigma above in it, so ZmloNew.* becomes the basis to read that
-    ## SigRsMLO back in.  Renaming here, right after SigRsMLO is written, keeps the two
-    ## in step: before this line ZmloSig.* belonged to the previous SigRsMLO, after it to
+    ## sugw's step a' has just built chi~ for the H of this iteration into __QMLO_zNew and
+    ## expressed the Sigma above in it, so __QMLO_zNew becomes the basis to read that
+    ## QMLO_SigRs back in.  Renaming here, right after QMLO_SigRs is written, keeps the two
+    ## in step: before this line QMLO_z belonged to the previous QMLO_SigRs, after it to
     ## the new one.  chi~ therefore FOLLOWS the Hamiltonian (its energy window does not
     ## go stale) while Sigma is never re-read in a basis it was not written in.
+    ## `mlo` has normally done this already (m_HamPMT PromoteChiSlot); then it is a no-op.
     if "--mlo" in options:
-        new_slots = sorted(Path('.').glob('ZmloNew.*'))
-        if new_slots:
-            for f in Path('.').glob('ZmloSig.*'):
-                f.unlink()
-            for f in new_slots:
-                f.rename(f.with_name('ZmloSig.' + f.name.split('.', 1)[1]))
-            print(f' gwsc: promoted {len(new_slots)} ZmloNew.* -> ZmloSig.* (chi~ of the new SigRsMLO)')
+        znew = Path('__QMLO_zNew')
+        if znew.is_file():
+            znew.replace('QMLO_z')
+            print(' gwsc: promoted __QMLO_zNew -> QMLO_z (chi~ of the new QMLO_SigRs)')
 
     ## lmf with Vxc^QSGW
     run_lmf(cluster, target, MPIParams(command=EXEC_DIR/"lmf", args=[target, *options], **mpi_params_lmf), bmix_reduction=True, stdout="llmf")

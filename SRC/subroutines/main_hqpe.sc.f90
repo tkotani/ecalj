@@ -77,7 +77,7 @@ contains
       lmlo = lmlo .and. c0_mlo   !opt-in only
       if(lmlo) then
         call cmlo_init()
-        write(stdo,ftox)' hqpe.sc: __cmlo found. Will also write __SigmMLO.q  nmlo=',nmlo
+        write(stdo,ftox)' hqpe.sc: __cmlo found. Will also write __QMLO_Sig  nmlo=',nmlo
       endif
     endblock InitMLO
 !!! open files    
@@ -336,38 +336,38 @@ contains
         logical:: lsigmloin
         integer:: ifi,nmloin,nqin,nspin_in,n1i,n2i,n3i
         lsigmloin=.false.
-        inquire(file='__SigmMLO.q.prev',exist=lsigmloin)
+        inquire(file='__QMLO_Sig.prev',exist=lsigmloin)
         allocate(sigmloin(nmlo,nmlo,nqibz,nspin),source=(0d0,0d0))
         if(lsigmloin) then
           allocate(qmloin(3,nspin,nqibz))
-          open(newunit=ifi,file='__SigmMLO.q.prev',form='UNFORMATTED')
+          open(newunit=ifi,file='__QMLO_Sig.prev',form='UNFORMATTED')
           read(ifi,err=2101,end=2101) nmloin,nqin,nspin_in,n1i,n2i,n3i
           if(nmloin/=nmlo.or.nqin/=nqibz.or.nspin_in/=nspin) goto 2101
           read(ifi,err=2101,end=2101) qmloin
           read(ifi,err=2101,end=2101) sigmloin
           goto 2102
 2101      continue
-          write(stdo,ftox)' (warning) __SigmMLO.q.prev unusable; mixing falls back to the history file'
+          write(stdo,ftox)' (warning) __QMLO_Sig.prev unusable; mixing falls back to the history file'
           lsigmloin=.false.; sigmloin=(0d0,0d0)
 2102      continue
           close(ifi)
           deallocate(qmloin)
         endif
         write(stdo,ftox)"===== Sigma^MLO mixing section using mixsigma ======="
-        write(stdo,ftox)' hqpe.sc: x_0 from __SigmMLO.q.prev =',lsigmloin, &
+        write(stdo,ftox)' hqpe.sc: x_0 from __QMLO_Sig.prev =',lsigmloin, &
              ' |SigmMLO_out|=',ftof(sum(abs(sigmlo)))
-        call mixsigma(sigmlo, lsigmloin, sigmloin, nmlo**2*nqibz*nspin, '__mixsigMLO')
+        call mixsigma(sigmlo, lsigmloin, sigmloin, nmlo**2*nqibz*nspin, '__QMLO_mixsig')
         write(stdo,ftox)' hqpe.sc: |SigmMLO_mixed|=',ftof(sum(abs(sigmlo)))
         deallocate(sigmloin)
       endblock
     endif MixSigmMLO
     WriteSigmMLO: if(lmlo) then
-      open(newunit=ifsigmlo,file='__SigmMLO.q',form='UNFORMATTED')
+      open(newunit=ifsigmlo,file='__QMLO_Sig',form='UNFORMATTED')
       write(ifsigmlo) nmlo,nqibz,nspin,n1,n2,n3
       write(ifsigmlo) ((qqq(1:3,ip,is),is=1,nspin),ip=1,nqibz)
       write(ifsigmlo) sigmlo
       close(ifsigmlo)
-      write(stdo,ftox)' hqpe.sc: wrote __SigmMLO.q  nmlo nqibz nspin=',nmlo,nqibz,nspin, &
+      write(stdo,ftox)' hqpe.sc: wrote __QMLO_Sig  nmlo nqibz nspin=',nmlo,nqibz,nspin, &
            ' |SigmMLO|=',ftof(sum(abs(sigmlo)))
     endif WriteSigmMLO
     if(mpi__rank==0) write(6,ftox) ' OK! hqpe_sc '

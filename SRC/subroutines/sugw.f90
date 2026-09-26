@@ -381,7 +381,7 @@ contains
       endblock PrepWriteHamiltonianGW
       PrepCmlo: block !design 4.2 a'
         use m_readqplist,only: set_bandedge, readbandedge, ecbot_w=>ecbot
-        use m_sigmlo,only: read_mloindex
+        use m_sigmlo,only: read_mloindex, zmlo_new_open
         logical:: lex
         inquire(file='HamRsMLO',exist=lex) !the MLO index is in its trailing records
         lex = lex .and. c0_mlo             !opt-in only
@@ -400,6 +400,7 @@ contains
                " | HamRsMLO(chain start) eferm ecbot=",ftof(eferm_a),ftof(ecbot_a)
           mrecbb_a = 2*nbandmx*ndimMTO_a*8
           istat = openm(newunit=ifcmlo,file='__cmlo.data',recl=mrecbb_a)
+          call zmlo_new_open(nqirr*nspx, nbandmx, ndimMTO_a) !__QMLO_zNew, same records as __cmlo.data
           allocate(zmlo_a(nbandmx,ndimMTO_a), cmlo_a(nbandmx,ndimMTO_a))
           lcmlo = .true.
           if(master_mpi) write(stdo,ftox)" sugw: a' active. ndimMTO mlomethod nskip=",ndimMTO_a,mlomethod_a,nskip_a
@@ -574,12 +575,13 @@ contains
             complex(8):: hmo(ndimMTO_a,ndimMTO_a), omo(ndimMTO_a,ndimMTO_a)
             complex(8), allocatable :: zm(:,:), sz(:,:)
             allocate(zm(ndimhx,ndimMTO_a))
+            iqqisp = isp + nspx*(iq-1)
             NewChiForThisIteration: block !build chi~ for the H of THIS iteration and write
-              !it to the ZmloNew slot.  This is the basis the Sigma^MLO about to be made
-              !will be expressed in; gwsc promotes the slot to ZmloSig once `mlo` has
-              !written that SigRsMLO.  Deliberately NOT the cached one: the cache holds
-              !the chi~ of the PREVIOUS Sigma, which getsenex needs to read it back.
-              use m_sigmlo,only: sigmlo_init, zmlo_new_append
+              !it to __QMLO_zNew.  This is the basis the Sigma^MLO about to be made will be
+              !expressed in; `mlo` promotes it to QMLO_z once it has written that
+              !QMLO_SigRs.  Deliberately NOT the cached one: the cache holds the chi~ of the
+              !PREVIOUS Sigma, which getsenex needs to read it back.
+              use m_sigmlo,only: sigmlo_init, zmlo_new_write
               call sigmlo_init()
               if(allocated(hamm_qsgw)) then   !iteration 2 onward: the QSGW Hamiltonian
                 call Hreduction(mlomethod_a,.false.,ndimhx, hamm_qsgw(:,1,:,1), ovlm_keep(:,1,:,1), &
@@ -588,7 +590,7 @@ contains
                 call Hreduction(mlomethod_a,.false.,ndimhx, hamm_lda(:,1,:,1), ovlm_keep(:,1,:,1), &
                      ndimMTO_a, ix_a, fff1_a, hmo, omo, qp, nev=nxq, zMLO=zm, nskip_auto=nskip_a)
               endif
-              call zmlo_new_append(qp, isp, ndimhx, ndimMTO_a, zm)
+              call zmlo_new_write(iqqisp, qp, isp, ndimhx, zm)
             endblock NewChiForThisIteration
             ZmloDumpA: block !ECALJ_ZMLO_DUMP=1: the a' side of the same comparison
               character(32):: cv
@@ -599,12 +601,12 @@ contains
                 call get_environment_variable('ECALJ_ZMLO_DUMP',cv,status=st)
                 dmp = (st==0 .and. len_trim(cv)>0)
                 if(dmp) then
-                  open(newunit=ifz,file='__zmlo_sugw',form='unformatted')
+                  open(newunit=ifz,file='__QMLO_zdump_sugw',form='unformatted')
                   close(ifz,status='delete')
                 endif
               endif
               if(dmp) then
-                open(newunit=ifz,file='__zmlo_sugw',form='unformatted',position='append')
+                open(newunit=ifz,file='__QMLO_zdump_sugw',form='unformatted',position='append')
                 write(ifz) qp, isp, ndimhx, ndimMTO_a
                 write(ifz) zm(1:ndimhx,1:ndimMTO_a)
                 close(ifz)
@@ -614,7 +616,6 @@ contains
             sz = matmul(ovlm_keep(1:ndimhx,1,1:ndimhx,1), zm)        ! S^PMT z^MLO_0
             cmlo_a = (0d0,0d0)
             cmlo_a(1:nev,1:ndimMTO_a) = matmul(transpose(dconjg(evec(1:ndimhx,1:nev))), sz) ! c' = z^psi^dag S z
-            iqqisp = isp + nspx*(iq-1)
             istat = writem(ifcmlo, rec=iqqisp, data=cmlo_a)
             deallocate(zm, sz)
           endblock
@@ -832,6 +833,10 @@ contains
     if(c0_mlo) istat = closem(ifihh)
     if(lcmlo) then
       istat = closem(ifcmlo)
+      block
+        use m_sigmlo,only: zmlo_new_close
+        call zmlo_new_close()   !__QMLO_zNew (collective, like closem)
+      endblock
       if(master_mpi) then
         block
           integer:: ifi

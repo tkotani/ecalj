@@ -127,7 +127,7 @@ module m_cmdopt_registry
   logical, public, protected, save :: c0_listcmdopt      = .false.  ! dump registered cmdopts and exit (for bash completion)
   logical, public, protected, save :: c0_mkprocar        = .false.
   logical, public, protected, save :: c0_mlo             = .false.
-  logical, public, protected, save :: c0_mlofreeze       = .false.  ! keep the existing HamRsMLO (chi~ frozen for the chain); only (re)write SigRsMLO
+  logical, public, protected, save :: c0_mlofreeze       = .false.  ! keep the existing HamRsMLO (the MLO index is fixed for the chain); only (re)write QMLO_SigRs
   logical, public, protected, save :: c0_mlo_diagnorm    = .false.
   logical, public, protected, save :: c0_mlo_feb4        = .false.
   logical, public, protected, save :: c0_mlo_ortho       = .false.

@@ -11,7 +11,7 @@ module m_mlo_ham
   integer, protected, target :: ndimMTO, npairmx, nspx, nsite
   integer, allocatable, protected:: ib_tableM(:), l_tableM(:), k_tableM(:), ib_tableI(:)
   complex(8),allocatable, protected:: ovlmr(:,:,:,:), hammr(:,:,:,:), hammhsor(:,:,:,:) !npairmx, ndimMTO, ndimMTO, nspx order
-  complex(8),allocatable, protected:: sigmlor(:,:,:,:) !Sigma^MLO(R); added to hamm when SigRsMLO exists
+  complex(8),allocatable, protected:: sigmlor(:,:,:,:) !Sigma^MLO(R); added to hamm when QMLO_SigRs exists
   logical, protected :: socmatrix = .false.
   logical, protected :: lsigmlo = .false.
 contains
@@ -33,19 +33,19 @@ contains
     read(ifihmto) ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO)
     close(ifihmto)
     if(ipr) write(stdo,*)'OK: Read HamRsMLO file! Use i-ioffib for setting mlo_lm'
-    ReadSigRsMLO: block !stage 3 test bed of Samples/kBT/sigma_mlo_design.md
+    ReadSigRsMLO: block !QMLO_SigRs; stage 3 test bed of Samples/kBT/sigma_mlo_design.md
       integer:: ifs,nm,np,ns,nb
-      inquire(file='SigRsMLO',exist=lsigmlo)
+      inquire(file='QMLO_SigRs',exist=lsigmlo)
       if(lsigmlo) then
-        open(newunit=ifs,file='SigRsMLO',form='unformatted',action='read')
+        open(newunit=ifs,file='QMLO_SigRs',form='unformatted',action='read')
         read(ifs) nm,np,ns,nb
         if(nm/=ndimMTO .or. np/=npairmx .or. ns/=nspx) then
-          if(ipr) write(stdo,ftox)'m_mlo_ham: SigRsMLO mismatch -> ignored',nm,np,ns
+          if(ipr) write(stdo,ftox)'m_mlo_ham: QMLO_SigRs mismatch -> ignored',nm,np,ns
           lsigmlo=.false.
         else
           allocate(sigmlor(npairmx,ndimMTO,ndimMTO,nspx))
           read(ifs) sigmlor
-          if(ipr) write(stdo,ftox)'m_mlo_ham: SigRsMLO added to H. |Sigma(R)|=',sum(abs(sigmlor))
+          if(ipr) write(stdo,ftox)'m_mlo_ham: QMLO_SigRs added to H. |Sigma(R)|=',sum(abs(sigmlor))
         endif
         close(ifs)
       endif

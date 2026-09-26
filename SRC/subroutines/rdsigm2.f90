@@ -161,7 +161,7 @@ contains
        call fftz3(sfz,nk1,nk2,nk3,nk1,nk2,nk3,ndimsig**2*nspsigm,iset,+1) !+1 backward ! FT hrr is on regular mesh points. For bloch2
        ! ECALJ_SIGMTO_RS=1: write how Sigma^MTO(R) decays with |R|, so it can be
        ! compared shell by shell with the same measurement on Sigma^MLO(R)
-       ! (SigRsMLO).  One row per lattice translation of the BvK cell; the l=2
+       ! (QMLO_SigRs).  One row per lattice translation of the BvK cell; the l=2
        ! columns restrict both indices to the d channels, which is the block the
        ! interpolation ringing lives in.
        SigmaRealSpace: block
