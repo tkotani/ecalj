@@ -148,6 +148,31 @@ def _run_mpi(cmd, env, stdin_str=None, stdout=None):
     return proc.returncode
 
 
+def start_cmd(cluster: str, params: MPIParams, stdout: str | None = None, cpu_only: bool = False):
+    """Start a command in the background and return its Popen (finish_cmd waits for it).  No GPU lock.
+    cpu_only: hide every GPU (CUDA_VISIBLE_DEVICES="") and leave the ranks unbound, for a CPU helper run of a
+    GPU program next to the real one (e.g. hgw --tetwt_write)."""
+    cfg = _load_config(cluster or "default")
+    cmd = [str(x) for x in _build_command(cfg, params)]
+    env = _build_env(cfg)
+    if cpu_only:
+        env["CUDA_VISIBLE_DEVICES"] = ""
+        env.setdefault("OMPI_MCA_hwloc_base_binding_policy", "none")   # do not pin onto the cores of the GPU job
+    out = open(stdout, "w") if stdout else None
+    print(f"   (background) {' '.join(cmd)}" + (f" stdout={stdout!r}" if stdout else ""), flush=True)
+    proc = subprocess.Popen(cmd, env=env, stdout=out, stderr=subprocess.STDOUT if out else None, text=True)
+    proc.ecalj_out = out
+    return proc
+
+
+def finish_cmd(proc) -> int:
+    """Wait for a command started by start_cmd; returns its exit code."""
+    rc = proc.wait()
+    if getattr(proc, "ecalj_out", None):
+        proc.ecalj_out.close()
+    return rc
+
+
 def run_cmd(cluster: str,
             params: MPIParams,
             retry: bool = False,

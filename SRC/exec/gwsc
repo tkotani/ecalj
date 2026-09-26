@@ -6,7 +6,7 @@ import argparse
 import sys
 from pathlib import Path
 from pylib.utils import ensure_dir, remove_files, copy_files, move_files
-from pylib.run_cmd import run_cmd, MPIParams
+from pylib.run_cmd import run_cmd, start_cmd, finish_cmd, MPIParams
 from pylib.dft import run_lmf
 
 EXEC_DIR = Path(__file__).parent
@@ -32,6 +32,8 @@ parser.add_argument('--prec'      ,help='precision of the GW programs: fp64 (dou
 parser.add_argument('--mp'        ,help='USE mixed precision version for hsfp0 and hgw',    action='store_true')
 parser.add_argument('--fp32'      ,help='With --mp: use true FP32 (not TF32) in GPU GEMMs. Fixes ill-conditioned dielectric (e.g. mp-8196)', action='store_true')
 parser.add_argument('--removeFermiWindowLiTi2O4', help='DIAGNOSTIC: drop bands within +-2eV of EF from chi0 (m_tetwt). Tests if Fermi-surface neighbourhood drives QSGW oscillation', action='store_true')
+parser.add_argument('--no-tetwt-helper', help='with --gpu: compute the tetrahedron weights inside hgw instead of '
+                    'in a CPU helper run (hgw --tetwt_write on -np cores next to hgw)', action='store_true')
 parser.add_argument('--dumpW',     help='Persist screened Coulomb W-V to __WVR.<iq>/__WVI.<iq> (combined hgw SHM dump) for analysis', action='store_true')
 parser.add_argument('--WVR2ptRaxis', help='Sc real-axis (WVR) pole term: 2-point LINEAR Wc(we) interpolation (alagr2zz, no negative-weight overshoot) instead of 3-point Lagrange', action='store_true')
 parser.add_argument("-c", "--cluster", help="cluster name", default="default", type=str)
@@ -254,11 +256,27 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
 
     ## Valence basis + Coulomb matrix ##
     run_cmd(cluster, MPIParams(command=EXEC_DIR/"hbasfp0", args=[target, "--job=0", *options], **mpi_params_single), stdout="lbas")
+
+    ## With the GPU, the CPU cores are idle while hvccfp0 and hgw run: a helper run of the same hgw on them
+    ## (--tetwt_write, no GPU) writes the tetrahedron weights of every q to __TETWT.<iq>.<isp>, and hgw reads
+    ## them instead of computing them (bit-identical; a missing or non-matching file is computed as before).
+    tetwt_helper = None
+    if args.gpu and not args.no_tetwt_helper:
+        for f in Path().glob('__TETWT.*'):
+            f.unlink()
+        tetwt_helper = start_cmd(cluster, MPIParams(command=EXEC_DIR/f"hgw{exec_type}",
+                                                    args=[target, "--jobgw=1", "--tetwt_write", *options],
+                                                    **mpi_params_lmf), stdout="lgw_tetwt", cpu_only=True)
     run_cmd(cluster, MPIParams(command=EXEC_DIR/f"hvccfp0{exec_type}", args=[target, "--job=0", *options], **mpi_params_gw), stdout="lvcc")
-    move_files('stdout*', dest_dir='STDOUT')
 
     ## Valence Sx + Screened W + Correlation Sc (combined, in-process) ##
     run_cmd(cluster, MPIParams(command=EXEC_DIR/f"hgw{exec_type}", args=[target, "--jobgw=1", *options], **mpi_params_gw), stdout="lgw")
+    if tetwt_helper is not None:
+        rc = finish_cmd(tetwt_helper)
+        if rc != 0:
+            print(f'gwsc: the tetrahedron-weight helper ended with rc={rc} (see lgw_tetwt); hgw computed what was missing.')
+        for f in Path().glob('__TETWT.*'):
+            f.unlink()
     move_files('stdout*', dest_dir='STDOUT')
 
     ## Make Vxc^QSGW (sigm file).  With --mlo it also writes __QMLO_Sig = Sigma in the MLO basis.

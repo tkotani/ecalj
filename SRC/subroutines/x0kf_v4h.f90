@@ -5,7 +5,7 @@ module m_x0kf
   use m_GWinput, only: gwinput_init, gwinput_loaded, tg_zmel_batch_gb => zmel_batch_gb
   use m_pkm4crpa,only : Readpkm4crpa
   use m_zmel,only: build_zmel, zmel
-  use m_freq,only: npm, nwhis
+  use m_freq,only: npm, nwhis, frhis
   use m_struct_from_lmf,only: nsp=>nspin, nband; use m_gw_product_basis,only: ndima; use m_core_state,only: nctot
   use m_read_bzdata,only:  nqbz,ginv,nqibz,  rk=>qbz,wk=>wbz
   use m_rdpp,only: nbloch
@@ -19,6 +19,7 @@ module m_x0kf
   use m_mpi,only: ipr, mpi__root_k => mpi__root_k_xq
   use m_wv_storage, only: shm_wvr, shm_wvi, wv_ngb
 use m_cmdopt_registry, only: c0_debugzmel, c0_tetwtk
+  use iso_c_binding, only: c_int, c_char, c_null_char
 #if defined(__MP) && defined(__GPU)
   use m_blas, only: gemm => cmm_d
 #elif defined(__MP)
@@ -29,7 +30,7 @@ use m_cmdopt_registry, only: c0_debugzmel, c0_tetwtk
   use m_blas, only: gemm => zmm_h
 #endif
   implicit none
-  public:: x0kf_zxq, deallocatezxq, deallocatezxqi
+  public:: x0kf_zxq, deallocatezxq, deallocatezxqi, x0kf_tetwt_write
   complex(kind=kp), public, pointer:: zxq(:,:,:) => null()
   complex(kind=kp), public, pointer, contiguous :: zxqi(:,:,:) => null()
   complex(kind=kp), allocatable :: rcxq(:,:,:)
@@ -44,6 +45,18 @@ use m_cmdopt_registry, only: c0_debugzmel, c0_tetwtk
   integer, allocatable :: iwini(:),iwend(:),itc(:),itpc(:),jpmc(:),icouini(:)
   logical, allocatable :: intrac(:)   ! pair is intraband (n1b == n2b): the Drude term, exempt from chi0_filterw
   real(8), allocatable :: fcw(:)      ! [gw] chi0_filterw: factor per histogram bin (1 = off)
+  ! The tetrahedron weights in the form x0kf_zxq uses (the arrays x0kf_v4hz_init makes, all k) can come from a file
+  ! __TETWT.<iq>.<isp> that another run of this program wrote on the CPU cores (hgw --tetwt_write, which gwsc starts
+  ! next to hgw).  x0kf_zxq uses a file only when everything the weights depend on matches: the sizes, q, the band
+  ! energies at every k and k+q (checksum) and the histogram bins; otherwise (no file yet, stale, k split over ranks,
+  ! cRPA, chi+-) it computes them as before.  Same code on the same input: bit-identical either way.  2026-09-27.
+  integer, parameter :: tetwt_tag = 20260927
+  interface
+    integer(c_int) function c_rename(old, new) bind(C, name='rename')
+      import :: c_int, c_char
+      character(kind=c_char), intent(in) :: old(*), new(*)
+    end function c_rename
+  end interface
   logical :: debug = .false.
 contains
   !> [gw] chi0_filterw = [wc, dw] (eV): factor 1/(1+exp((wc-|omega|)/dw)) of each histogram bin
@@ -200,7 +213,7 @@ contains
     complex(8),optional:: zzr(:,:)
     real(8):: q(3), schi, ekxx1(nband,nqbz), ekxx2(nband,nqbz)
     character(10) :: i2char
-    logical :: tetwtk = .false., hilbert_on_device
+    logical :: tetwtk = .false., hilbert_on_device, loaded
     real(8) :: zmel_batch_gb
     type(stopwatch) :: t_sw_zmel, t_sw_x0, t_sw_dpsion
 
@@ -256,10 +269,17 @@ contains
           ! of the full loop.  With one k rank this is the old all-k call.  (2026-09-22; replaces the
           ! OpenMP variant.)  The weights of a k point do not depend on the range (the degenerate-band
           ! symmetrization acts within a k point), so the result is independent of the split.
-          call gettetwt(q, iq, isp_k, isp_kq, ekxx1, ekxx2, nband=nband, ikbz_in=k_lo, fkbz_in=k_hi)
-          ierr = x0kf_v4hz_init(0, q, isp_k, isp_kq, iq, crpa, ikbz_in=k_lo, fkbz_in=k_hi)
-          ierr = x0kf_v4hz_init(1, q, isp_k, isp_kq, iq, crpa, ikbz_in=k_lo, fkbz_in=k_hi)
-          call tetdeallocate()
+          ! All k on this rank: the weights may already be in __TETWT.<iq>.<isp> (hgw --tetwt_write).
+          loaded = .false.
+          if (k_lo == 1 .and. k_hi == nqbz .and. .not.chipm .and. .not.crpa) then
+            loaded = tetwt_load(iq, isp_k, q, ekxx1, ekxx2)
+          endif
+          if (.not.loaded) then
+            call gettetwt(q, iq, isp_k, isp_kq, ekxx1, ekxx2, nband=nband, ikbz_in=k_lo, fkbz_in=k_hi)
+            ierr = x0kf_v4hz_init(0, q, isp_k, isp_kq, iq, crpa, ikbz_in=k_lo, fkbz_in=k_hi)
+            ierr = x0kf_v4hz_init(1, q, isp_k, isp_kq, iq, crpa, ikbz_in=k_lo, fkbz_in=k_hi)
+            call tetdeallocate()
+          endif
         endif
       end block GETtetrahedronWeight
       x0kf_v4hz_block: block
@@ -510,6 +530,123 @@ contains
     deallocate(itw, itpw, hilbert_w, wzw, zw, nttp)
   end subroutine accumulate_chi0
 
+
+  subroutine x0kf_tetwt_write(q, iq)
+    !> hgw --tetwt_write: the tetrahedron weights of q for all k, as x0kf_zxq uses them, to __TETWT.<iq>.<isp>.
+    use m_readeigen,only: readeval
+    real(8), intent(in) :: q(3)
+    integer, intent(in) :: iq
+    real(8) :: ekxx1(nband,nqbz), ekxx2(nband,nqbz)
+    integer :: isp_k, kx, ierr
+    do isp_k = 1, nsp
+      do kx = 1, nqbz
+        ekxx1(1:nband,kx) = readeval(  rk(:,kx), isp_k)
+        ekxx2(1:nband,kx) = readeval(q+rk(:,kx), isp_k)
+      enddo
+      call gettetwt(q, iq, isp_k, isp_k, ekxx1, ekxx2, nband=nband, ikbz_in=1, fkbz_in=nqbz)
+      ierr = x0kf_v4hz_init(0, q, isp_k, isp_k, iq, .false., ikbz_in=1, fkbz_in=nqbz)
+      ierr = x0kf_v4hz_init(1, q, isp_k, isp_k, iq, .false., ikbz_in=1, fkbz_in=nqbz)
+      call tetdeallocate()
+      call tetwt_save(iq, isp_k, q, ekxx1, ekxx2)
+    enddo
+  end subroutine x0kf_tetwt_write
+
+  character(64) function tetwt_file(iq, isp)
+    integer, intent(in) :: iq, isp
+    write(tetwt_file,'("__TETWT.",i0,".",i0)') iq, isp
+  end function tetwt_file
+
+  real(8) function tetwt_ekey(ekxx1, ekxx2) result(key)
+    !> Checksum of the band energies at k and k+q (weights differ by band and k, so a swap also shows).
+    real(8), intent(in) :: ekxx1(:,:), ekxx2(:,:)
+    integer :: ib, kx
+    key = 0d0
+    do kx = 1, size(ekxx1, 2)
+      do ib = 1, size(ekxx1, 1)
+        key = key + ekxx1(ib,kx)*(1d0 + 1d-3*mod(7*ib + 13*kx, 101)) + ekxx2(ib,kx)*(1d0 + 1d-3*mod(11*ib + 17*kx, 103))
+      enddo
+    enddo
+  end function tetwt_ekey
+
+  real(8) function tetwt_pkey() result(key)
+    !> Checksum of the rest the weights depend on: the histogram bins, E_F (and finite T, its shift), the band cut.
+    use m_ReadEfermi, only: ef
+    use m_readgwinput, only: ebmx, nbmx, mtet
+    use m_GWinput, only: t_tetrakbt
+    use m_cmdopt_registry, only: c2_EfermiShifteV, c2_EfermiShifteV_set
+    integer :: i
+    key = 0d0
+    do i = 1, nwhis + 1
+      key = key + frhis(i)*(1d0 + 1d-3*mod(i, 97))
+    enddo
+    key = key + 3.1d0*ef + 5.3d0*t_tetrakbt + 7.1d0*ebmx + 1.3d0*nbmx + 0.7d0*sum(mtet)
+    if (c2_EfermiShifteV_set) key = key + 11.3d0*c2_EfermiShifteV
+  end function tetwt_pkey
+
+  subroutine tetwt_save(iq, isp, q, ekxx1, ekxx2)
+    !> The arrays of x0kf_v4hz_init (all k) to __TETWT.<iq>.<isp>, through a temporary name and rename.
+    integer, intent(in) :: iq, isp
+    real(8), intent(in) :: q(3), ekxx1(:,:), ekxx2(:,:)
+    character(64) :: fn
+    integer :: ifi
+    fn = tetwt_file(iq, isp)
+    open(newunit=ifi, file=trim(fn)//'.tmp', access='stream', form='unformatted', status='replace')
+    write(ifi) tetwt_tag, nqbz, nband, nctot, npm, nwhis, q, tetwt_ekey(ekxx1, ekxx2), tetwt_pkey(), ncount, ncoun
+    write(ifi) nkmin, nkmax, nkqmin, nkqmax, icounkmin, icounkmax
+    write(ifi) kc, iwini, iwend, itc, itpc, jpmc, icouini, intrac, whwc
+    close(ifi)
+    if (c_rename(trim(fn)//'.tmp'//c_null_char, trim(fn)//c_null_char) /= 0) call rx('tetwt_save: rename failed '//trim(fn))
+    if (ipr) write(stdo,'(1x,a,2i8)') 'tetwt: wrote '//trim(fn)//'  ncount ncoun =', ncount, ncoun
+  end subroutine tetwt_save
+
+  logical function tetwt_load(iq, isp, q, ekxx1, ekxx2) result(ok)
+    !> Read __TETWT.<iq>.<isp> into the arrays of x0kf_v4hz_init (all k) when it matches this q and these band
+    !> energies; .false. (and nothing changed that x0kf_v4hz_init would not reset) otherwise.
+    integer, intent(in) :: iq, isp
+    real(8), intent(in) :: q(3), ekxx1(:,:), ekxx2(:,:)
+    character(64) :: fn
+    integer :: ifi, ios, tag, n1, n2, n3, n4, n5, nc, nco
+    real(8) :: qf(3), ek, fk
+    logical :: ex
+    ok = .false.
+    fn = tetwt_file(iq, isp)
+    inquire(file=trim(fn), exist=ex)
+    if (.not.ex) return
+    open(newunit=ifi, file=trim(fn), access='stream', form='unformatted', status='old', action='read', iostat=ios)
+    if (ios /= 0) return
+    read(ifi, iostat=ios) tag, n1, n2, n3, n4, n5, qf, ek, fk, nc, nco
+    if (ios /= 0 .or. tag /= tetwt_tag .or. n1 /= nqbz .or. n2 /= nband .or. n3 /= nctot .or. n4 /= npm .or. &
+        n5 /= nwhis .or. any(qf /= q) .or. ek /= tetwt_ekey(ekxx1, ekxx2) .or. fk /= tetwt_pkey()) then
+      close(ifi)
+      if (ipr) write(stdo,'(1x,a)') 'tetwt: '//trim(fn)//' does not match this q or these bands; computing the weights'
+      return
+    endif
+    ncount = nc
+    ncoun  = nco
+    if (allocated(nkmin))     deallocate(nkmin)
+    if (allocated(nkmax))     deallocate(nkmax)
+    if (allocated(nkqmin))    deallocate(nkqmin)
+    if (allocated(nkqmax))    deallocate(nkqmax)
+    if (allocated(icounkmin)) deallocate(icounkmin)
+    if (allocated(icounkmax)) deallocate(icounkmax)
+    if (allocated(whwc))      deallocate(whwc)
+    if (allocated(kc))        deallocate(kc)
+    if (allocated(iwini))     deallocate(iwini)
+    if (allocated(iwend))     deallocate(iwend)
+    if (allocated(itc))       deallocate(itc)
+    if (allocated(itpc))      deallocate(itpc)
+    if (allocated(jpmc))      deallocate(jpmc)
+    if (allocated(icouini))   deallocate(icouini)
+    if (allocated(intrac))    deallocate(intrac)
+    allocate(nkmin(nqbz), nkmax(nqbz), nkqmin(nqbz), nkqmax(nqbz), icounkmin(nqbz), icounkmax(nqbz))
+    allocate(whwc(ncount), kc(ncoun), iwini(ncoun), iwend(ncoun), itc(ncoun), itpc(ncoun), jpmc(ncoun), &
+             icouini(ncoun), intrac(ncoun))
+    read(ifi, iostat=ios) nkmin, nkmax, nkqmin, nkqmax, icounkmin, icounkmax
+    if (ios == 0) read(ifi, iostat=ios) kc, iwini, iwend, itc, itpc, jpmc, icouini, intrac, whwc
+    close(ifi)
+    ok = ios == 0
+    if (ipr) write(stdo,'(1x,a,l2)') 'tetwt: weights read from '//trim(fn)//':', ok
+  end function tetwt_load
 end module m_x0kf
 
 !! === calculate chi0, or chi0_pm ===

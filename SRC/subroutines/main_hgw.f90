@@ -42,7 +42,7 @@ subroutine hgw(do_correlation, do_exchange)
   use m_screened_coulomb,only: build_screened_coulomb_step_kx
   use m_x0kf,only: deallocatezxq, deallocatezxqi
   use m_wv_storage,only: wv_dealloc, wv_dump_shm_to_file
-  use m_cmdopt_registry,only: c0_dumpW
+  use m_cmdopt_registry,only: c0_dumpW, c0_tetwt_write
   use m_sxcf_sc,only: sxcf_correlation_init, sxcf_correlation_step_kx, &
                       sxcf_correlation_finalize
   use m_sxcf_count,only: iq1_dest, reg_grp_assign, aux_grp_assign
@@ -58,6 +58,7 @@ subroutine hgw(do_correlation, do_exchange)
   logical :: debug=.false., realomega, imagomega
   logical :: hx0, iprintx=.false.
   call MPI__Initialize()
+  if (c0_tetwt_write) call tetwt_write_only()   ! CPU helper run: tetrahedron weights to files, then stops
   call gpu_init(comm, share_gpu=.true.)
   call M_lgunit_init()
   call MPI__consoleout('hgw')
@@ -186,6 +187,38 @@ subroutine hgw(do_correlation, do_exchange)
   call rx0( ' OK! hgw finished')
 
   contains
+  subroutine tetwt_write_only()
+    !> hgw --tetwt_write: the tetrahedron weights of every q, in the form x0kf_zxq uses, to __TETWT.<iq>.<isp>.
+    !> The ranks take the q points in turn, in the order the W-build meets them (iq = iqxend -> 1).  No GPU, no W,
+    !> no Sigma, and none of the other outputs of hgw (console: stdout.<rank>.hgwtet).  gwsc starts it on the CPU
+    !> cores next to hgw on the GPU; x0kf_zxq then reads the weights instead of computing them.
+    use m_x0kf, only: x0kf_tetwt_write
+    integer :: n
+    call M_lgunit_init()
+    call MPI__consoleout('hgwtet')
+    call Genallcf_v3(incwfx=-1)
+    call Read_BZDATA(hx0)
+    call Readefermi()
+    call sigmakbt_setup()
+    call ReadGWinputKeys()
+    call Readngmx2()
+    call Setqbze()
+    call Readhamindex()
+    call Init_readeigen()
+    realomega = .true.
+    imagomega = .true.
+    call Getfreq2(.false.,realomega,imagomega,ua,iprintx)
+    iqxend = nqibz + nq0i + nq0iadd
+    n = 0
+    do iq = iqxend, 1, -1
+      n = n + 1
+      if (mod(n-1, MPI__size) /= MPI__rank) cycle
+      call x0kf_tetwt_write(qibze(:,iq), iq)
+    enddo
+    call MPI_Barrier(comm, ierr)
+    call rx0(' OK! hgw --tetwt_write finished')
+  end subroutine tetwt_write_only
+
   subroutine writewvfreq() !writeonly
      open(newunit=ifwd, file='__WV.d')
      write(ifwd,"(1x,10i14)") nprecx, mrecl, nblochpmx, nw+1,niw, nqibz + nq0i-1, nw_i
