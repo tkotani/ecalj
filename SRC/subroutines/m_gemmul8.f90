@@ -87,8 +87,16 @@ contains
     end subroutine envint
   end function gemmul8_init
   logical function gemmul8_worth(m, n, k)
-    !> Emulation pays off only for large products: all three sizes >= 1000 and m*n*k >= 1e10.
+    !> Single precision: emulation beats cuBLAS FP32 only for large products (all sizes >= 1000 and
+    !> m*n*k >= 1e10); n of a few hundred or m=n=158 run slower emulated.
     integer, intent(in) :: m, n, k
     gemmul8_worth = min(m, n, k) >= 1000 .and. real(m,8)*real(n,8)*real(k,8) >= 1d10
   end function gemmul8_worth
+  logical function gemmul8_worth64(m, n, k)
+    !> Double precision: native FP64 is 1/64 of FP32 on GeForce Blackwell (RTX 5090, 1.7 TFLOPS), and the
+    !> emulation was 2.6-12x faster for every hgw shape measured (down to 1053x319x326); keep only tiny
+    !> products on cuBLAS.
+    integer, intent(in) :: m, n, k
+    gemmul8_worth64 = min(m, n, k) >= 64 .and. real(m,8)*real(n,8)*real(k,8) >= 1d8
+  end function gemmul8_worth64
 end module m_gemmul8
