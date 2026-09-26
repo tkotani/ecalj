@@ -82,6 +82,41 @@
 
 （図表の番号は `図 HH:MM-n` / `表 HH:MM-n`。HH:MM はそのエントリの時刻、n はエントリ内の通し番号。エントリの時刻は変わらないので番号は安定する。）
 
+### 2026-09-26 23:45 **`Samples/MLOQSGW`（GaAs、NiO）を追加。MLOsamples 25 件も新しいコードで全部合格。kt1 でも CPU・GPU で合格**（user「Samples/MLOQSGW/ も作っておいてください。まずは GaAs, NiO などでいいです」「終わったら連続して kt1 でもテストする」）
+
+- `Samples/MLOQSGW/{GaAs,NiO}`: TestInstall の `gas_gwsc`・`nio_gwsc` の ctrlg に `[mlo]` を足したもの（2×2×2、`mlo_nkabc=[2,2,2]`、
+  `mixbeta=0.5`）。`ECALJ_MLO_MIX=1 gwsc 2 --mlo` で LDA から 2 反復。`QPU`（NiO は `QPD` も）と `log` の `fp evl` を参照と比べる。
+  参照は gfortran-14・`-np 4`。ギャップは GaAs 0.723 → 1.030 eV、NiO 1.587 → 2.066 eV（各反復の終わりの lmf）。`134003355`
+- ローカル: `testecalj -np 4 GaAs NiO` 差 0.0。`Samples/MLOsamples` 25 件（通常の MLO、`--all` と同じ集合）も全部合格（12 分）
+- kt1（nvfortran、`c1b4b097a` を再ビルド。InstallAll の `--all` も合格）: CPU・GPU（`-np2 2 --gpu`）とも合格（QPU の差 1e-3 eV）
+- kt1 `--gpu --mp` は **NiO の `fp evl` が 0.0135 Ry ずれて不合格**（許容 0.005）。GaAs は合格。原因は精度の設定:
+  testecalj の `--mp` は `--fp32` を付けないので、行列積は `CUBLAS_COMPUTE_32F_FAST_TF32`（仮数 10 bit）で回る
+  （[m_blas.f90:345](../../SRC/subroutines/m_blas.f90#L345)）。1 反復目の `QPU` で既に SEx が最大 0.03 eV（相対 1e-3、TF32 の丸めの桁）ずれ、
+  lmf のギャップは 0.09 eV 小さい。LiTi2O4 の本番は `--fp32` を付けているのでこの影響はない。TestInstall の `nio_gwsc` が
+  `--mp` で許容を 5e-3 に緩めているのも同じ理由とみられる
+
+### 2026-09-26 23:22 **MLO-QSGW のファイルを `QMLO_*`（残す）と `__QMLO_*`（作業）に改名。$z^{\rm MLO}$ は MPI-IO で 1 ファイル、`__SigmMLO.q.prev` は廃止**（user「QMLO を冒頭につける。テンポラリは __ から」「`ZmloSig.<rank>` は mpiio を使って一つのファイルにしてほしい」「じゃあ、最後までやって」「通常の mlo のサンプルも壊してはいけない」）
+
+*表 23:22-1* 改名
+
+| 旧 | 新 | 中身 |
+|---|---|---|
+| `SigRsMLO` | `QMLO_SigRs` | 実空間の $\Sigma^{\rm MLO}$。次の反復・再開はこれを読む |
+| `ZmloSig.<rank>` | `QMLO_z` | $\Sigma^{\rm MLO}$ を書いたときの $z^{\rm MLO}$。全 k・スピンを 1 ファイル（MPI-IO、固定長レコード、先頭に索引） |
+| `ZmloNew.<rank>` | `__QMLO_zNew` | この反復の lmf が作った $z^{\rm MLO}$。`m_HamPMT` が `QMLO_SigRs` を書くときに `QMLO_z` へ昇格 |
+| `__SigmMLO.q` | `__QMLO_Sig` | `hqpe_sc` が書く k 点の $\Sigma^{\rm MLO}$ |
+| `__SigmMLO.q.prev` | （廃止） | 混合の $x_0$ は `QMLO_SigRs` のブロッホ和で作る |
+| `__mixsigMLO` | `__QMLO_mixsig` | $\Sigma^{\rm MLO}$ の Anderson 履歴（消すと線形混合から） |
+
+- 段階 A（`02bdd9953`、改名＋MPI-IO）・B（`9b2a015e2`、$x_0$ を `QMLO_SigRs` から）は GaAs 2³ の 3 反復で改名前と一致
+  （ギャップ 0.053118 / 0.081210 / 0.094643 Ry、ehf も一致、`-np 4` と `-np 1`）。B の往復 $\vert$ブロッホ和 − `__QMLO_Sig`$\vert$ ≤ 0.001 meV
+- 段階 C（`589747bb2`）: **21:42 の窓の修正は 2 反復目以降効いていなかった**。`sigmlo_init` が `HamRsMLO` の LDA の値で
+  窓の基準を上書きしていた。`efermi.lmf`（最後の SCF）を読むように直した。GaAs のギャップは 2・3 反復目で変わる（1.030 / 1.274 eV）
+- `__` の作業ファイルを混合履歴以外すべて消して再開 → 一致。履歴も消す → 線形混合で走る（ギャップ 1.340 vs 1.320 eV）
+- `gwsc`: 反復の頭で前の反復の作業ファイル（`__cmlo.*`、`__HamiltonianGW*`、`__QMLO_zNew`、`__QMLO_Sig`）を消す。
+  `HamRsMLO` があって `__HamiltonianPMT` が無いときは `lmf --writeham` を回し直す。LiTi2O4 のチェーン用スクリプトも新しい名前に（`c1b4b097a`）
+- 古い名前のファイルは読まない（互換は不要、user「５はいらない」）。旧コードのチェーンは新コードで継続できない
+
 ### 2026-09-26 22:27 **`job_band` などが `efermi.lmf` を書き換えないようにした**（user「job_band の efermi.lmf は efermi.lmf.job_band として扱った方がいい。efermi.lmf は更新せずに」「job_band, job_fermisurface, job_pdos は直した方がいい。job_mlo_soc は efermi_soc のみいじればいいのでは」「新形式に直して動くようにして」）
 
 `efermi.lmf` は最後の SCF の値で、次の QSGW 反復の段 a'（MLO の窓）と `mlo` が読む。`lmf --quit=band` や `lmf --tdos` の
