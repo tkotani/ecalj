@@ -121,7 +121,28 @@ contains
     read(ifs) nqwgt
     allocate(ib_tableM(ndimMTO)); read(ifs) ib_tableM, ix
     close(ifs)
-    call set_bandedge(eferm, ecbot)   !Hreduction reads these for the MLO window
+    WindowReference: block !Hreduction reads eferm/ecbot of m_readqplist for the MLO window:
+      !for a chi~ rebuilt here (diagnostics) and, in lmf --jobgw=1, for the chi~ step a' builds
+      !right after the first getsenex.  Take them from the Ef file of the last SCF, as step a'
+      !does.  HamRsMLO holds the chain-start (LDA) values; setting those here overrode step
+      !a' from iteration 2 on, so its chi~ kept the LDA window (found 2026-09-26).
+      use m_readqplist,only: readbandedge
+      use m_cmdopt_registry,only: efermi_file
+      real(8):: ef
+      integer:: ifi, ios
+      open(newunit=ifi,file=efermi_file(),status='old',action='read',iostat=ios)
+      if(ios==0) then
+        read(ifi,*,iostat=ios) ef
+        close(ifi)
+      endif
+      if(ios==0) then
+        call set_bandedge(ef, ef)
+        call readbandedge()             !ecbot = ef + (ecbot - eferm) of that file
+      else
+        call set_bandedge(eferm, ecbot)
+        write(stdo,ftox)' m_sigmlo: no ',efermi_file(),' -> MLO window from HamRsMLO (chain start)'
+      endif
+    endblock WindowReference
     call get_environment_variable('ECALJ_MLO_NOCACHE',cv,status=st)
     nocache = (st==0 .and. len_trim(cv)>0)
     if(nocache) write(stdo,ftox)' m_sigmlo: chi~ slot and cache DISABLED (ECALJ_MLO_NOCACHE)'

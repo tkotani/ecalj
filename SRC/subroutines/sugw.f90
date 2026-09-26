@@ -582,7 +582,12 @@ contains
               !QMLO_SigRs.  Deliberately NOT the cached one: the cache holds the chi~ of the
               !PREVIOUS Sigma, which getsenex needs to read it back.
               use m_sigmlo,only: sigmlo_init, zmlo_new_write
+              use m_readqplist,only: eferm_w=>eferm, ecbot_w=>ecbot
+              logical,save:: wfirst=.true.
               call sigmlo_init()
+              if(wfirst .and. master_mpi) write(stdo,ftox)" sugw a' window in use: eferm ecbot=", &
+                   ftof(eferm_w),ftof(ecbot_w)
+              wfirst=.false.
               if(allocated(hamm_qsgw)) then   !iteration 2 onward: the QSGW Hamiltonian
                 call Hreduction(mlomethod_a,.false.,ndimhx, hamm_qsgw(:,1,:,1), ovlm_keep(:,1,:,1), &
                      ndimMTO_a, ix_a, fff1_a, hmo, omo, qp, nev=nxq, zMLO=zm, nskip_auto=nskip_a)
