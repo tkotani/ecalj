@@ -5,6 +5,21 @@ email: takaokotani@gmail.com
 ---
 ecalj documents is at [ecaljdoc](https://ecalj.github.io/ecaljdoc/)
 
+## 2026-09-27  GPU GW: one precision switch; the method of each product is measured at installation
+
+    gwsc 5 -np 32 -np2 2 --gpu --prec=fp32 <sname>    # or tf32 / fp64 (= --mp, --mp --fp32, double)
+
+- **Which method runs each GPU matrix product and the epstilde inverse** (cuBLAS, `realsgemm` = a complex
+  product as one real SGEMM, GEMMul8 = Ozaki on INT8, mixed-precision inverse) comes from one table,
+  `<bindir>/ecalj_linalg_policy.toml`. `InstallAll.py --gpu` writes it at the end by measuring every method on
+  this GPU (`linalgtune_gpu`, about a minute; skipped when the GPU is busy, `--notune` to skip). Without the
+  file everything is cuBLAS, as before. `--linalg=fp32.cgemm.large=realsgemm,...` overrides rows.
+- **Jobs on one machine do not collide**: `gwsc` takes a lock per GPU (`/tmp/ecalj_res/gpu<N>.lock`) for its
+  GPU programs and waits while they are in use (`ECALJ_GPU_WAIT=<s>` to give up, `ECALJ_GPU_LOCK=0` to switch off).
+- **Tetrahedron weights on the idle CPU cores**: with `--gpu`, `hgw --tetwt_write` runs next to `hgw` on the
+  `-np` cores and hands the weights over in `__TETWT.*` files (bit-identical; `--no-tetwt-helper` to switch off).
+- Report and numbers: `Samples/kBT/gpu_fp32_report.md`; user guide: ecaljdoc `manual/ecaljgpu.md`.
+
 ## 2026-06-13  Changelog: finite-T chi0, hsfp0 GPU, gw_lmfh GPU/MP flow, fixes
 
 New in the GW chain (commits 37e6fbc2..2a04e767; user guide: FiniteT_and_QPE_HOWTO.md):

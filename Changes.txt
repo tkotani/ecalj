@@ -1,3 +1,37 @@
+2026-09-27 (1)
+  GPU の行列演算を 1 枚の振り分け表 (m_linalg_policy) の下にまとめ、その表をインストール時に測って決める。
+  - 振り分け表: 演算 (cgemm / zgemm / dgemm / 誘電行列の逆行列 epsinv) × 大きさの区分 (small / large) × 精度
+    (tf32 / fp32 / fp64) → 方法。方法は cublas、realsgemm (複素の積を実数 SGEMM 1 回に組み替える、m_la_realsgemm)、
+    gemmul8[:moduli] (Ozaki、INT8)、逆行列は lu64 / mixed1 / mixed2 (FP32 の LU ＋ Newton 1 回 / 2 回)。表の優先順は
+    既定 (全部 cuBLAS、今までと同じ) < <bindir>/ecalj_linalg_policy.toml < --use_gemmul8 < --linalg=<行>,<行>。
+    使った表は標準出力に 1 回出る。精度の level は MP 版と --use_fp32 で決まり、cmm_d の TF32/FP32 も level から取る。
+  - 固定の行列にはキー (m_blas の gemm の key=) を付けられる。realsgemm は組み替えた A'、gemmul8 は分解した A を
+    キーごとに保持して使い回す (ECALJ_LA_CACHE_GB、既定 4 GB)。Σc の W(iω)・W(ω) と M2E の基底に付けた。q ごとに捨てる。
+  - linalgtune_gpu (新、gpu 版だけ): hgw と同じ経路で各方法を hgw 型の形 6 つ (寸法は 64 の倍数を避ける) と逆行列 2 つで
+    測り、精度ごとの誤差の約束 (単精度の複素積は同じ形での cuBLAS の誤差の 4 倍以内) を満たして、hgw での時間の割合で
+    重みを付けた比で cuBLAS より 1 割以上速いものを表に書く。InstallAll.py --gpu が最後に (GPU が空いていれば) 回す
+    (--notune で省く)。RTX 5090 では fp32 = 単精度の積は realsgemm・倍精度の積は gemmul8:14・逆行列 mixed1、
+    fp64 = 逆行列 mixed2、tf32 = cuBLAS。
+  - realsgemm は op(A) = N も転置せずに作る (A の列を実数として読んだ列と i 倍の列、読み書きとも連続)。キー無しで
+    n < 16 の積だけ cuBLAS。GEMMul8 はどれかの辺が 64 未満か m·n·k < 1e8 なら表に関係なく cuBLAS (readeigen の
+    (2l+1)×nband の回転に 14 分解がかかって hgw が 110 秒遅くなった)。
+  - fp32 の hgw の誤差の主因は build_zmel の平面波の積 (cuBLAS cgemm) だった。実数 SGEMM にして倍精度との差が
+    Re Σc で 2.4e-4 → 4.2e-5 eV、SEx で 5.7e-4 → 1.7e-4 eV。LiTi2O4 6³ の hgw (kt1) は 833 秒 → 438 秒。
+  - 混合精度の逆行列は ||I - A X0||_F から Newton 後の誤差の上限を見て、大きすぎる行列は FP64 の LU に回す。
+  - gwsc --prec=tf32|fp32|fp64 (= --mp / --mp --fp32 / 倍精度)。
+  - GPU のロック (pylib/gpu_lock.py): gwsc の *_gpu の実行は /tmp/ecalj_res/gpu<N>.lock を必要な枚数だけ取り、
+    取れた GPU だけを CUDA_VISIBLE_DEVICES で渡す。全部取れるまで待つ (ECALJ_GPU_WAIT=<秒> で止まる、
+    ECALJ_GPU_LOCK=0 で無効)。
+  - 四面体の重み: hgw --tetwt_write が各 q の重みを x0kf_zxq の使う形で __TETWT.<iq>.<isp> に書く。gwsc --gpu は
+    価電子の hbasfp0 の後にこれを -np の CPU コアで GPU なしで並走させ、hgw は合うファイルがあれば読む (ビット一致)。
+    --no-tetwt-helper で使わない。
+  - m_linalg_policy の行の読み取りで findloc を使っていたのを直した (nvfortran は長さの違う文字列を空白で埋めずに比べる)。
+  - GPU の Hilbert 変換 (dpsion_chiq_d、09-26 夜に GPU 化) は tf32 でも FP32 で計算する (policy=BACKEND_BLAS_FP32)。
+    tf32 で TF32 になっていて、Samples/MLOQSGW/NiO の --mp が参照から 0.049 Ry ずれた (直して 0.034、fp32 は 0.0005)。
+  - 結果 (kt1、RTX 5090 ×2): LiTi2O4 6³ の hgw 833 → 438 秒、gwsc 1 反復 12.5 → 9.3 分。9³ の hgw 5004〜5128 → 3180 秒。
+    TestInstall の GW テストは GPU (fp64、tf32) と CPU で全部合格。
+  計画と経過は Samples/kBT/gpu_fp32_plan.md、Samples/kBT/kBT_research.md、報告は Samples/kBT/gpu_fp32_report.md。
+
 2026-09-22 (1)
   tetwt5 の並列化を OpenMP から MPI k 並列に (user 判断)。x0kf_v4h の既定経路で gettetwt / x0kf_v4hz_init を
   自ランクの k 範囲 k_lo:k_hi (comm_k) だけで呼ぶ (tetwt5 は範囲外の四面体を先頭で skip するので、コストは
