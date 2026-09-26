@@ -748,7 +748,8 @@ LiTi₂O₄ で結果が悪かったとき、実装のどこが悪いかを次�
 > LiTi₂O₄ 6³（nmlo 126 = 全 14 原子 s+p+d、$\Sigma^{\rm MLO}$ を β=0.5 で混合）が 10 反復で従来と同じように収束し
 > （MLO バンドの反復ごとの変化 rms 3.9 meV、従来 6.5 meV）、**メッシュ点の間のこぶ（リンギング）が MLO バンドでは消えた**。
 > 従来チェーンとの差は rms 46 meV（形と幅は一致、メッシュ点でも 43 meV あるので内挿ではなく状態の差）。
-> 9³ を走行中。経過は [kBT_research.md](kBT_research.md) の 2026-09-25〜26。
+> 9³ も 10 反復で完了（2026-09-26 18:24、MLO バンドの変化 rms 3.2 meV）。経過は [kBT_research.md](kBT_research.md) の 2026-09-25〜26、
+> 利用者向けのまとめは ecaljdoc の `manual/mlo_gwsc.md`。
 
 2026-09-25 の確認。ここから §13 までが **2 スロット方式**で、§3 の「設計」と §4 の「実装手順」を
 いくつかの点で置き換えている。対応は下表。
@@ -1026,7 +1027,7 @@ Amat(i,j) = fac(i,j) * max( fermidist((evl(i)-efrz)/ewfrz), fermidist((evl(i)-ec
   するとシグモイドの引数は $(\varepsilon^{\rm PMT}_i-\varepsilon^{\rm MTO}_j)/w$ という**バンド差**になり、
   両者が一緒に分散するぶん k について滑らかになる。
 - 幅も狭くない。LiTi₂O₄ の設定は **`mlo_w = 2.0` eV、`mlo_delta = 2.0` eV**（`ctrlg` の
-  `[gw]` 節）で、t2g の帯幅 0.4 eV の **5 倍**。
+  `[mlo]` 節）で、t2g の帯幅 0.4 eV の **5 倍**。
 
 **したがって $\hat P(k)$ の k 依存性は窓由来ではなく、
 固有ベクトル $|\Psi^{\rm PMT}_i(k)\rangle\langle\Psi^{\rm PMT}_i(k)|$ 自体が k で回ることから来る。**
@@ -1485,7 +1486,7 @@ $\Psi^{\rm MTO}_j$ も $\Psi^{\rm PMT}_i$ も $|\Psi\rangle\langle\Psi|$ の形�
 | **A2'** | `mlo --mlofreeze --mlo` の異常終了 | **修正** `e9f633d79`。原因は `zMLO` のはみ出し（`pwmode=11` で `ndimPMT` が q に依存）。当初の「`--noinv` で q 集合がずれる」説は誤り（ずれていれば直後の `k-points mismatch` で止まる）|
 | **A3** | 昇格を `mlo` 側へ | **完了** `0ceefdb88` |
 | **A4** | $\Sigma^{\rm MLO}$ の混合 | **完了**（既定 OFF、`ECALJ_MLO_MIX=1`）。無混合（v6/v7）は iter 3 で overshoot、混合（v9）は従来と同じ落ち方 |
-| **A5** | LiTi₂O₄ **9³**（`liti_mlo_k9`、`nkabc = n1n2n3 = mlo_nkabc = 9³`、β=0.5）| **走行中**。2026-09-26 03:07 投入、1 反復 ≈ 89 分、iter 3 まで異常なし |
+| **A5** | LiTi₂O₄ **9³**（`liti_mlo_k9`、`nkabc = n1n2n3 = mlo_nkabc = 9³`、β=0.5）| **完了**。2026-09-26 03:07 投入 → 18:24 に 10 反復、1 反復 ≈ 89 分、全反復で異常なし。MLO バンドの変化 rms 3.2 meV（iter 10）|
 
 ### B. 未確認・要検証
 

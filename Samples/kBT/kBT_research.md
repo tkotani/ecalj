@@ -82,6 +82,32 @@
 
 （図表の番号は `図 HH:MM-n` / `表 HH:MM-n`。HH:MM はそのエントリの時刻、n はエントリ内の通し番号。エントリの時刻は変わらないので番号は安定する。）
 
+### 2026-09-26 20:06 **ecaljdoc の `manual/mlo_gwsc.md` を書き直した**（user「mlo-gwsc のノートを書いてくれる？ 理論、セッティング、実例という感じ。理論も右往左往したのでまとめて」）
+
+旧版は `ZmloRef` の凍結方式と、撤回済みの LiTi₂O₄ の判定のままだった。構成は §1 理論（最終形、§1.8 に迷った経緯の表）、
+§2 設定と実行、§3 LiTi₂O₄（6³・9³）、§4 落とし穴、§5 未解決。ecaljdoc `937efa2`（未 push）。
+数値・キー名・ログの文言・環境変数の意味は、この研究ログ・設計書・ソースと突き合わせてから書いた。
+
+*表 20:06-1* ecaljdoc `manual/mlo_gwsc/` の図の出どころ
+
+| 図 | 元 |
+|---|---|
+| `liti2o4_5col.png`（本文に貼った縮小版）| 新規。`ROWS=0,1,3,5,10 HILITE=1 MESH=6,9 MESHCOLS=6,6,6,9,9 mlo_rows.py <root> <out> v9,v9mlo,k9,k9mlo '…' '…'`（`ROWS` はこのために足した）|
+| `liti2o4_5col_all.png`（折りたたみ）| `LiTi2O4/mlo_rows_6vs9_hilite_final.png` と同一 |
+| `liti2o4_conv.png` | `LiTi2O4/mlo_conv_k9final.png` と同一 |
+| `liti2o4_fatband.png` | `LiTi2O4/fatchar_k9_iter4.png` と同一 |
+
+**突き合わせで分かったこと・直したこと**
+
+- 設計書 §10.5 の「`mlo_w`・`mlo_delta` は `ctrlg` の `[gw]` 節」は誤りで、実際は `[mlo]` 節（kt1 の `liti_src_full9_k9/ctrlg.liti2o4.toml` で確認）。設計書の状況欄と A5 も「9³ 走行中」から完了に更新
+- ecaljdoc `cmdopts.md` の `--mlofreeze` が「凍結した $\tilde\chi$ と窓」のままだったので、「MLO 索引を使う、$\tilde\chi$ の係数は毎反復作り直す」に直した
+- `run_snap.sh` のスナップショットに `__SigmMLO.q` は入っていないが、そこから再開しても混合の $x_0$ は正しい。
+  `mixsigma` は `amix` の後の $x$（= 次の反復が使う混合結果）を `a(:,0,2)` として履歴に書き、`__SigmMLO.q.prev` が無いときはそれが $x_0$ になる。
+  $x_0=0$（$\Sigma^{\rm MLO}$ が一度 β 倍）になるのは `.prev` も `__mixsigMLO` も無いときだけ
+- 「MLO バンドはメッシュ点の間でも滑らか」は言い過ぎだった。こぶが消えるのは膨れるバンド（青）で、一番下のバンド（緑）の階段状の肩は
+  序盤の反復では MLO バンドにも出る（11:10 のエントリ）。ノートにはそのとおり書いた
+- 76 軌道と 126 軌道の優劣は、$\Sigma^{\rm MLO}$ を混合する前（どちらも iter 3 で行き過ぎ）までしか比べていない。ノートには未決着と書いた
+
 ### 2026-09-26 18:30 **9³ の MLO-QSGW が 10 反復で完了**。MLO バンドは 6³ と同じ床まで収束し、メッシュを変えたときの動きも `sigm` 描画の半分
 
 `liti_mlo_k9`（nmlo 126、β=0.5、`nkabc = n1n2n3 = mlo_nkabc = 9³`）、03:07 投入 → 18:24 完了。**10 反復すべて健全性チェック合格**
