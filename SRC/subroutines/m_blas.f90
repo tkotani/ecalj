@@ -19,6 +19,8 @@ module m_blas !wrapper for BLAS and cuBLAS
   integer, parameter :: BACKEND_BLAS = 0 !BLAS/cuBLAS
   integer, parameter :: BACKEND_GEMMUL8 = 1
   integer, parameter :: BACKEND_AUTO = 2
+  integer, parameter :: BACKEND_BLAS_FP32 = 3 !cuBLAS with FP32 arithmetic also at level tf32 (single precision only)
+  public :: BACKEND_BLAS_FP32
 contains
   integer function cmm_h(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc, policy, key) result(istat)
     complex(4) :: a(*), b(*), c(*)
@@ -329,9 +331,10 @@ contains
     opb_in_cublas = get_m_op_cublas(opb_in)
     ctype = merge(CUBLAS_COMPUTE_32F_FAST_TF32, CUBLAS_COMPUTE_32F, la_level() == 'tf32')  ! level tf32: TF32, else FP32
     select case (policy_in)
-    case (BACKEND_BLAS);    bk = BK_CUBLAS
-    case (BACKEND_GEMMUL8); bk = BK_GEMMUL8
-    case default;           bk = la_backend(OP_CGEMM, m, n, k)
+    case (BACKEND_BLAS);      bk = BK_CUBLAS
+    case (BACKEND_BLAS_FP32); bk = BK_CUBLAS; ctype = CUBLAS_COMPUTE_32F
+    case (BACKEND_GEMMUL8);   bk = BK_GEMMUL8
+    case default;             bk = la_backend(OP_CGEMM, m, n, k)
     end select
     if (bk == BK_REALSGEMM) then
       istat = realsgemm_c(cublas_handle, opa_in, opb_in, m, n, k, alpha_in, a, lda_in, b, ldb_in, beta_in, c, ldc_in, &

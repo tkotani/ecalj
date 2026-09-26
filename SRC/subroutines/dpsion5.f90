@@ -145,7 +145,7 @@ contains
 !    use m_readgwinput, only: egauss
     use m_ftox
     use m_lgunit, only: stdo
-    use m_blas, only: m_op_T
+    use m_blas, only: m_op_T, BACKEND_BLAS_FP32
 #if defined(__MP) && defined(__GPU)
     use m_blas, only: gemm => cmm_d
 #elif defined(__MP)
@@ -193,7 +193,7 @@ contains
         !$acc kernels
         rcxq_work(1:npr,1:nwhis) = rcxq(1:npr,ipr_col,1:nwhis)
         !$acc end kernels
-        istat = gemm(rcxq_work, cgfmat, rcxq(1,ipr_col,1), npr, nwhis, nwhis, ldC=npr*npr_col, opB=m_op_T)
+        istat = gemm(rcxq_work, cgfmat, rcxq(1,ipr_col,1), npr, nwhis, nwhis, ldC=npr*npr_col, opB=m_op_T, policy=BACKEND_BLAS_FP32)
       enddo
       if(npm==2) then
         !$acc kernels
@@ -203,7 +203,8 @@ contains
           !$acc kernels
           rcxq_work(1:npr,1:nwhis) = rcxq(1:npr,ipr_col,-nwhis:-1:1)
           !$acc end kernels
-          istat = gemm(rcxq_work, cgfmat, rcxq(1,ipr_col,-nwhis), npr, nwhis, nwhis, ldC=npr*npr_col, opB=m_op_T)
+          istat = gemm(rcxq_work, cgfmat, rcxq(1,ipr_col,-nwhis), npr, nwhis, nwhis, ldC=npr*npr_col, opB=m_op_T, &
+                     policy=BACKEND_BLAS_FP32)
         enddo
       endif
       !$acc end data
@@ -241,7 +242,7 @@ contains
         ! Above line is replaced by the following loop to reduce internal memory usage on gemmul8
         do ipr_col = 1, npr_col
           istat = gemm(rcxq(1,ipr_col,1), cimatt, zxqi(1,ipr_col,1), m=npr, n=niwt, k=nwhis, &
-                     & ldA=npr*npr_col, opB=m_op_T, ldC=npr*npr_col)
+                     & ldA=npr*npr_col, opB=m_op_T, ldC=npr*npr_col, policy=BACKEND_BLAS_FP32)
         enddo
         !$acc end data
       elseif(npm==2) then
@@ -250,8 +251,9 @@ contains
         cimatt(:,1:nwhis,1) = cmplx(imattC(:,1:nwhis: 1,1), kind=kp)
         cimatt(:,1:nwhis,2) = cmplx(imattC(:,nwhis:1:-1,2), kind=kp)
         !$acc end kernels
-        istat = gemm(rcxq(1,1,     1), cimatt(:,1,1), zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T)
-        istat = gemm(rcxq(1,1,-nwhis), cimatt(:,1,2), zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T, beta=CONE)
+        istat = gemm(rcxq(1,1,     1), cimatt(:,1,1), zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T, policy=BACKEND_BLAS_FP32)
+        istat = gemm(rcxq(1,1,-nwhis), cimatt(:,1,2), zxqi, npr*npr_col, niwt, nwhis, opB=m_op_T, beta=CONE, &
+                   policy=BACKEND_BLAS_FP32)
         !$acc end data
       endif
       if(ipr) write(stdo,ftox)" -- dpsion_chiq_d:end of imagomega"
@@ -264,7 +266,8 @@ contains
         crmatt(:,:,:) = cmplx(rmatt(:,:,:), kind=kp)
         !$acc end kernels
         do ipr_col = 1, npr_col
-          istat = gemm(rcxq(1,ipr_col,1), crmatt, zxq_work, npr, nw_w+1, nwhis, ldA=npr*npr_col, opB=m_op_T)
+          istat = gemm(rcxq(1,ipr_col,1), crmatt, zxq_work, npr, nw_w+1, nwhis, ldA=npr*npr_col, opB=m_op_T, &
+                     policy=BACKEND_BLAS_FP32)
           !$acc kernels
           rcxq(1:npr,ipr_col,0:nw_w) = rcxq(1:npr,ipr_col,0:nw_w)*img + zxq_work(1:npr,0:nw_w)
           !$acc end kernels
@@ -286,7 +289,7 @@ contains
         !$acc kernels
         crmatt(:,:,:) = cmplx(rmattx(:,:,:,ispx), kind=kp)
         !$acc end kernels
-        istat = gemm(rcxq(1,1,1), crmatt, zxq_chipm, npr*npr_col, nw_w+1, nwhis, opB=m_op_T, beta=CONE)
+        istat = gemm(rcxq(1,1,1), crmatt, zxq_chipm, npr*npr_col, nw_w+1, nwhis, opB=m_op_T, beta=CONE, policy=BACKEND_BLAS_FP32)
         !$acc end data
       elseif(npm == 2) then
         !$acc data copyin(rmatt) create(crmatt, zxq_work)
@@ -295,9 +298,10 @@ contains
         crmatt(:,1:nwhis,2) = cmplx(rmatt(:,nwhis:1:-1,2), kind=kp)
         !$acc end kernels
         do ipr_col = 1, npr_col
-          istat = gemm(rcxq(1,ipr_col,     1), crmatt(:,1,1), zxq_work, npr, (nw_w-nw_i)+1, nwhis, ldA=npr*npr_col, opB=m_op_T)
+          istat = gemm(rcxq(1,ipr_col,     1), crmatt(:,1,1), zxq_work, npr, (nw_w-nw_i)+1, nwhis, ldA=npr*npr_col, opB=m_op_T, &
+                     policy=BACKEND_BLAS_FP32)
           istat = gemm(rcxq(1,ipr_col,-nwhis), crmatt(:,1,2), zxq_work, npr, (nw_w-nw_i)+1, nwhis, ldA=npr*npr_col, opB=m_op_T,&
-                       beta=CONE)
+                       beta=CONE, policy=BACKEND_BLAS_FP32)
           !$acc kernels
           rcxq(1:npr,ipr_col,nw_i:nw_w) = rcxq(1:npr,ipr_col,nw_i:nw_w)*img + zxq_work(1:npr,nw_i:nw_w) !override
           !$acc end kernels
