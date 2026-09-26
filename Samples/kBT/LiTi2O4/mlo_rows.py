@@ -79,13 +79,17 @@ for r, it in enumerate(iters):
             T = track(S); bb = bulger(T, x)
             for k, b in enumerate(T):
                 ax.plot(x, b, '-', lw=0.9, color='0.72')
-            ax.plot(x, S[0], '-', lw=2.0, color='tab:red')                   # lowest band (energy-sorted)
+            ax.plot(x, S[0], '-', lw=2.0, color='tab:green')                 # lowest band (energy-sorted)
             if bb is not None: ax.plot(x, T[bb], '-', lw=2.0, color='tab:blue')  # the band bulging mid Gamma-X
         else:
             for b in S: ax.plot(x, b, '-', lw=1.2, color='0.45' if it == 0 else col)
         ax.set_title(f'{lab}   {"LDA" if it == 0 else f"iter {it}"}', fontsize=10)
         ax.set_ylim(-0.9, 1.5); ax.set_xlim(0, 1); ax.axhline(0, color='k', lw=0.9)
-        for q in (qmesh(_MC[c]) if _MC else QMESH): ax.axvline(q, color='k', ls=':', lw=0.9)
+        ## Sigma q-mesh points: a small red cross on every band (where the interpolation is exact).
+        ## On 9^3 the mesh x = 2n/9 is not on the 211-point grid, so the band is interpolated there.
+        _qm = qmesh(_MC[c]) if _MC else QMESH
+        for b in S:
+            ax.plot(_qm, np.interp(_qm, x, b), 'x', color='red', ms=4.5, mew=1.1, zorder=5)
         ax.yaxis.set_major_locator(MultipleLocator(0.5)); ax.yaxis.set_minor_locator(MultipleLocator(0.1))
         ax.grid(axis='y', which='major', color='0.78', lw=0.6)
         ax.grid(axis='y', which='minor', color='0.92', lw=0.4)
@@ -95,8 +99,9 @@ stamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
 MESH = os.environ.get('MESH', '6')
 _ML = ' / '.join(f'{m}$^3$' for m in dict.fromkeys(MESH.split(',')))
 fig.suptitle(f'LiTi$_2$O$_4$  {_ML} (nkabc = n1n2n3 = mesh)   t$_{{2g}}$ (b33-44) along $\\Gamma\\to X$, 211 points\n'
-             'dotted = $\\Sigma$ q-mesh points (interpolation is exact there)\n'
-             + ('red = lowest band, blue = the band that bulges mid Gamma-X (tracked through crossings), grey = the rest\n' if HILITE else '')
+             'red x = $\\Sigma$ q-mesh points (interpolation is exact there)\n'
+             + (os.environ.get('MLOINFO', '') + '\n' if os.environ.get('MLOINFO') else '')
+             + ('green = lowest band, blue = the band that bulges mid Gamma-X (tracked through crossings), grey = the rest\n' if HILITE else '')
              + ('' if NOREF else
                 'CAUTION: different APW cutoffs - MTO chain pwmode=1 (|G|), MLO chains pwmode=11 (|q+G|).\n'
                 'Each column states its own damping; the MTO chain always Anderson-mixes sigm at [gw] mixbeta\n') +
