@@ -82,6 +82,33 @@
 
 （図表の番号は `図 HH:MM-n` / `表 HH:MM-n`。HH:MM はそのエントリの時刻、n はエントリ内の通し番号。エントリの時刻は変わらないので番号は安定する。）
 
+### 2026-09-27 04:30 **段 1 は合格（既定の表で E1 と、`--use_gemmul8` で E2 とビット一致）。段 3〜5 の実装を入れた**（計画書 `gpu_fp32_plan.md` の段 1〜5）
+
+*表 04:30-1* 段 1 の確認（kt1、6³ の `hgw` 1 回、`~/bin_dev` = `5a87377e3`）
+
+| 実行 | 秒 | 比べる相手 | 結果 |
+| --- | --- | --- | --- |
+| S1a 既定の表（cuBLAS、lu64） | 722.4 | E1（721.8 秒） | SECU・SEXU・SEC2U・SEX2U・XCU とも**ビット一致** |
+| S1b `--use_gemmul8`（表の上で GEMMul8、キーで A を使い回し） | 630.6 | E2（629.2 秒） | **ビット一致**（使い回しは同じ分解を再利用するだけなので値は変わらず、速さもほぼ同じ） |
+| S1c・S1d（`--linalg=fp32.cgemm.large=…`） | — | — | 起動直後に停止。下の不具合 |
+
+- **不具合**: `m_linalg_policy` の行の読み取りで `findloc(opname, trim(opn))` が nvfortran では長さの違う文字列を空白で埋めずに比べ、
+  `cgemm`（5 文字）が表の `cgemm `（6 文字）と一致しなかった。`epsinv`（6 文字）だけ通っていた。ループの比較に直した（`f721b79d8`）。
+  方針ファイルと計測ツールも同じ関数を通るので、段 3 の前に見つかった
+- 段 3（`faea7c2fc`）: `linalgtune_gpu`（hgw と同じ `m_blas` の経路で各 backend を測り、`<bindir>/ecalj_linalg_policy.toml` を書く）、
+  `gwsc --prec=tf32|fp32|fp64`、`InstallAll.py` が GPU が空いていれば最後に計測する（`--notune` で省く）。`cmm_d` の TF32/FP32 は
+  表の level から取る（動きは今までと同じ）。混合精度の逆行列は $\lVert I-AX_0\rVert_F$ を見て、Newton 後の上限が 1e-6（1 回）/ 1e-13（2 回）を
+  超える行列は FP64 の LU に回す
+- 段 4（同じコミット）: `pylib/gpu_lock.py`。`run_cmd` が `*_gpu` の実行で GPU ごとのロック `/tmp/ecalj_res/gpu<N>.lock` を
+  min(nprocs, GPU 数) 枚取る（全部取れるまで 1 枚も持たずに待つ）。手元で 4 プロセスを競わせて、待つ・諦める（`ECALJ_GPU_WAIT`）・解放後に取れる、を確認
+- 段 5（`8c6daa7fb`）: `hgw --tetwt_write` が四面体の重みを `x0kf_zxq` が使う形（`x0kf_v4hz_init` の後の配列、全 k）で
+  `__TETWT.<iq>.<isp>` に書く。`gwsc --gpu` は価電子の `hbasfp0` の直後にこれを `-np` の CPU コアで（同じ実行ファイル、GPU なし）並走させ、
+  hgw は一致するファイルがあれば読む。判定: 大きさ、q、k と k+q のバンドエネルギーのチェックサム、frhis、E_F、t_tetrakbt、ebmx、nbmx、mtet、E_F のずらし。
+  MPMD（`mpirun … : …`）にしなかったのは、`m_sharedmem` などが `MPI_COMM_WORLD` を直接使っていて、補助ランクを同じ WORLD に入れると集団通信を書き換える必要があるため。
+  別の `mpirun` にすれば通信は無関係で、並走で重ねる効果は同じ
+- 段 5 の確認（手元、CPU 版、TestInstall `fe_gwsc` の状態、nsp=2 の金属 Fe）: 4 ランクの書き出しは 0.95 秒で 22 ファイル。
+  hgw の SEC/SEX/XC が、ファイルあり・なしで **-np 1、-np 2 ともビット一致**
+
 ### 2026-09-27 03:50 **段 0 の計測: FP32 の誤差は行列積の方法でなく FP32 のデータで決まる（どの方法も倍精度と 0.24 meV）。空いた GPU では組み替えが 1.5〜1.8 倍で最速**（user「計画書を確認の上、実装、ベンチマークをして報告書を書いて仕上げて」「999 を 10 回回すは取り下げる。ベンチマークには使えばよい」、計画書 `Samples/kBT/gpu_fp32_plan.md`）
 
 *表 03:50-1* 6³ の `hgw` 1 回（kt1）。差は倍精度 ＋ GEMMul8 14 分解（E3）に対する最大
