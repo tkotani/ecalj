@@ -10,6 +10,7 @@ module m_lapack
   public :: zhgv_h, zhgv_lindep_h, zhev_h, zminv_h, zsv_h, zgev_h, zggv_h
 #ifdef __GPU
   public :: zhgv_d, zhev_d, zminv_d, zsv_d, cusolver_finalize !, zgev_d
+  public :: zminv_eps_d, zminv_mixed_d
 #endif
   private
 #ifdef __GPU
@@ -450,6 +451,106 @@ contains
     enddo
     deallocate(awork)
   end function zminv_d
+  integer function zminv_eps_d(a, n, lda) result(istat)
+    !> Inverse of the dielectric matrix epstilde (m_llw).  ECALJ_MATINV_MIXED=1 selects zminv_mixed_d
+    !> (single-precision LU refined in double precision; one Newton step with the mixed-precision build,
+    !> two with the double-precision one); default is zminv_d.  Not validated in hgw yet (2026-09-27).
+    complex(8), device :: a(*)
+    integer, intent(in) :: n
+    integer, optional :: lda
+    integer, save :: mode = -1
+    character(8) :: cv
+    integer :: st, ios, lda_in
+    lda_in = n; if (present(lda)) lda_in = lda
+    if (mode < 0) then
+      mode = 0
+      call get_environment_variable('ECALJ_MATINV_MIXED', cv, status=st)
+      if (st == 0) then
+        read(cv, *, iostat=ios) mode
+        if (ios /= 0) mode = 0
+      endif
+    endif
+    if (mode == 1) then
+#ifdef __MP
+      istat = zminv_mixed_d(a, n, lda_in, 1)
+#else
+      istat = zminv_mixed_d(a, n, lda_in, 2)
+#endif
+    else
+      istat = zminv_d(a, n, lda_in)
+    endif
+  end function zminv_eps_d
+  integer function zminv_mixed_d(a, n, lda, nnewton) result(istat)
+    !> In-place inverse of a (complex(8), device, leading dimension lda): LU in single precision
+    !> (cgetrf + cgetrs on the identity), then nnewton Newton-Schulz steps X <- X (2I - A X) in double
+    !> precision (zmm_d: GEMMul8 with --use_gemmul8, else cuBLAS FP64).  Each step squares the residual.
+    !> Needs cond(a) well below 1e7.  TOOLS/ozbench/matinvbench.cu, n=1053 on RTX 5090 (2026-09-27):
+    !> zgetrf+zgetrs 21.6 ms; single LU 3.1 ms (err 2e-6), +1 step 7.0 ms (3e-12), +2 steps 14.6 ms (7e-15)
+    !> with emulated FP64 products; zminv_d takes ~31 ms.
+    complex(8), device :: a(*)
+    integer, intent(in) :: n, lda, nnewton
+    complex(4), device, allocatable :: a32(:,:), x32(:,:), work(:)
+    complex(8), device, allocatable :: x(:,:), y(:,:), t(:,:)
+    integer, device, allocatable :: ipiv(:)
+    integer, device :: devinfo
+    integer :: lwork, i, j, it
+    istat = cublas_init()
+    istat = cusolver_init()
+    allocate(a32(n,n), x32(n,n), ipiv(n))
+    !$cuf kernel do(2) <<<*,*>>>
+    do j = 1, n
+      do i = 1, n
+        a32(i,j) = cmplx(a(i + (j-1)*lda), kind=4)
+        x32(i,j) = (0.0, 0.0)
+        if (i == j) x32(i,j) = (1.0, 0.0)
+      enddo
+    enddo
+    istat = cusolverDnCgetrf_bufferSize(cusolver_handle, n, n, a32, n, lwork)
+    allocate(work(lwork))
+    istat = cusolverDnCgetrf(cusolver_handle, n, n, a32, n, work, ipiv, devinfo)
+    istat = cusolverDnCgetrs(cusolver_handle, CUBLAS_OP_N, n, n, a32, n, ipiv, x32, n, devinfo)
+    deallocate(work, ipiv, a32)
+    allocate(x(n,n), t(n,n))
+    if (nnewton > 1) allocate(y(n,n))
+    !$cuf kernel do(2) <<<*,*>>>
+    do j = 1, n
+      do i = 1, n
+        x(i,j) = cmplx(x32(i,j), kind=8)
+      enddo
+    enddo
+    deallocate(x32)
+    do it = 1, nnewton
+      istat = zmm_d(a, x, t, n, n, n, lda=lda)          ! t = A X
+      !$cuf kernel do(2) <<<*,*>>>
+      do j = 1, n
+        do i = 1, n
+          t(i,j) = -t(i,j)
+          if (i == j) t(i,j) = t(i,j) + (2d0, 0d0)
+        enddo
+      enddo
+      if (it == nnewton) then
+        istat = zmm_d(x, t, a, n, n, n, ldc=lda)        ! last step: A^-1 = X (2I - A X) into a
+      else
+        istat = zmm_d(x, t, y, n, n, n)
+        !$cuf kernel do(2) <<<*,*>>>
+        do j = 1, n
+          do i = 1, n
+            x(i,j) = y(i,j)
+          enddo
+        enddo
+      endif
+    enddo
+    if (nnewton < 1) then                                ! no refinement: the single-precision inverse
+      !$cuf kernel do(2) <<<*,*>>>
+      do j = 1, n
+        do i = 1, n
+          a(i + (j-1)*lda) = x(i,j)
+        enddo
+      enddo
+    endif
+    deallocate(x, t)
+    if (allocated(y)) deallocate(y)
+  end function zminv_mixed_d
   integer function zsv_d(a, b, n, nrhs, lda, ldb) result(istat)
     integer, intent(in) :: n, nrhs
     integer, intent(in), optional :: lda, ldb
