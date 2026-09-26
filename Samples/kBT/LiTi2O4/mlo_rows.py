@@ -56,8 +56,11 @@ def bulger(T, x):
 
 ## Sigma q-mesh points on Gamma->X: (0,0,x) = (n/N)(b1+b2) with (0,0,1) = (b1+b2)/2, so x = 2n/N.
 ## N=6: 0, 1/3, 2/3, 1.  N=9: 0, 2/9, 4/9, 6/9, 8/9 -- X itself is not on an odd mesh.
-_N = int(os.environ.get('MESH', '6'))
-QMESH = [2*n/_N for n in range(_N) if 2*n/_N <= 1 + 1e-9]; LO, HI = 32, 44
+_N = int(os.environ.get('MESH', '6').split(',')[0])
+def qmesh(N): return [2*n/N for n in range(N) if 2*n/N <= 1 + 1e-9]
+QMESH = qmesh(_N); LO, HI = 32, 44
+## MESHCOLS="6,6,9,9": a mesh per column, when chains with different meshes sit side by side
+_MC = [int(v) for v in os.environ['MESHCOLS'].split(',')] if 'MESHCOLS' in os.environ else None
 def path(d, it): return f'{d}/bnd_lda.dat' if it == 0 else f'{d}/bnd_iter{it}.dat'
 
 # rows are driven by the MLO chain (last column); the MTO column is shown alongside
@@ -82,7 +85,7 @@ for r, it in enumerate(iters):
             for b in S: ax.plot(x, b, '-', lw=1.2, color='0.45' if it == 0 else col)
         ax.set_title(f'{lab}   {"LDA" if it == 0 else f"iter {it}"}', fontsize=10)
         ax.set_ylim(-0.9, 1.5); ax.set_xlim(0, 1); ax.axhline(0, color='k', lw=0.9)
-        for q in QMESH: ax.axvline(q, color='k', ls=':', lw=0.9)
+        for q in (qmesh(_MC[c]) if _MC else QMESH): ax.axvline(q, color='k', ls=':', lw=0.9)
         ax.yaxis.set_major_locator(MultipleLocator(0.5)); ax.yaxis.set_minor_locator(MultipleLocator(0.1))
         ax.grid(axis='y', which='major', color='0.78', lw=0.6)
         ax.grid(axis='y', which='minor', color='0.92', lw=0.4)
@@ -90,7 +93,8 @@ for r, it in enumerate(iters):
 for a in AX[-1]: a.set_xlabel('$\\Gamma \\to X$')
 stamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
 MESH = os.environ.get('MESH', '6')
-fig.suptitle(f'LiTi$_2$O$_4$  {MESH}$^3$ (nkabc = n1n2n3 = {MESH}$^3$)   t$_{{2g}}$ (b33-44) along $\\Gamma\\to X$, 211 points\n'
+_ML = ' / '.join(f'{m}$^3$' for m in dict.fromkeys(MESH.split(',')))
+fig.suptitle(f'LiTi$_2$O$_4$  {_ML} (nkabc = n1n2n3 = mesh)   t$_{{2g}}$ (b33-44) along $\\Gamma\\to X$, 211 points\n'
              'dotted = $\\Sigma$ q-mesh points (interpolation is exact there)\n'
              + ('red = lowest band, blue = the band that bulges mid Gamma-X (tracked through crossings), grey = the rest\n' if HILITE else '')
              + ('' if NOREF else
