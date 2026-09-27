@@ -42,6 +42,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
        rojb(:,:,:),sgbb(:,:,:,:),aa(:),bb(:),rofit(:),phi(:),psi(:),wqfac(:),qbzwww(:,:),rkpr(:,:,:),rkmr(:,:,:),rofi(:,:), eb(:)
   real(8),parameter::pi  = 4d0*datan(1d0), fpi = 4d0*pi
   complex(8):: pval,pslo,phasex, phasep,img=(0d0,1d0), xxx,trwv
+  complex(8),allocatable:: vcoulb(:)
   complex(8),allocatable:: geig(:,:),strx(:,:,:,:),sgpb(:,:,:,:),sgpp(:,:,:,:), fouvb(:,:,:,:),fouvp(:,:,:,:),&
        vcoul0(:,:), s(:,:),sd(:,:),rojp(:,:,:) , vcoulnn(:,:), gbvec(:), vcoul_org(:,:),&
        matp(:),matp2(:),ppmt(:,:,:,:),pmat(:,:),pomat(:,:),zzr(:)
@@ -293,9 +294,9 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     endif
 
     qdependentRadialIntegrals:block
-      use m_vcoulq, only: ajr, a1r, sigx_grp, grp_atom
+      use m_vcoulq, only: ajr, a1r, vcoul_termb
       logical :: hasBessel, hasB(nbas)
-      integer :: ibas_order(nbas), ib_prev, isrt, jsrt, ktmp, ngrp, igrp
+      integer :: ibas_order(nbas), ib_prev, isrt, jsrt, ktmp, natg
       allocate( rojp(ngc, nlxx, nbas), sgpb(ngc, nxx, nlxx, nbas), fouvb(ngc, nxx, nlxx, nbas))
       !$acc enter data create(rojp, sgpb, fouvb)    ! made on the device by mkjp_4, used there by vcoulq_4
       ! Sort atoms by (nr, lx) to maximize Bessel function reuse (hasBessel=T)
@@ -318,23 +319,27 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
           endif
         endif
       enddo
-      ngrp = count(.not. hasB)   ! groups of atoms with the same mesh and lx; sigx_grp of each group is for vcoulq_4
-      allocate(grp_atom(nbas))
-      if(eee/=0d0) then
-        allocate(sigx_grp(0:lxx, (ngc*(ngc+1))/2, ngrp))
-        !$acc enter data create(sigx_grp)
-      endif
-      igrp = 0
+      ! eee/=0: vcoul_termb adds the onsite parts of <P_G1|v|P_G2> of each group of atoms (the same mesh and lx) to vcoulb,
+      ! the lower triangle of ngc x ngc, while mkjp_4's tables of the group are there.
+      allocate(vcoulb(merge((ngc*(ngc+1))/2, 1, eee/=0d0)), source=(0d0,0d0))
+      !$acc enter data copyin(vcoulb)
       do isrt = 1, nbas
         ibas = ibas_order(isrt)
         hasBessel = hasB(isrt)
-        if(.not. hasBessel) igrp = igrp + 1
-        grp_atom(ibas) = igrp
         write(aaaw,ftox)'mkjp_4 ibas, hasBessel=',ibas, hasBessel
         call cputm(stdo,aaaw)
         call mkjp_4(q,ngc, ngvecc, alat, qlat, lxx, lx(ibas),nxx, nx(0:lxx,ibas), bas(1,ibas),aa(ibas),bb(ibas),rmax(ibas), &
              nr(ibas), nrx, rprodx(1,1,0,ibas), eee, rofi(1,ibas), rkpr(1,0,ibas), rkmr(1,0,ibas), &
-             rojp(1,1,ibas),               sgpb(1,1,1,ibas),                   fouvb(1,1,1,ibas), hasBessel, igrp)
+             rojp(1,1,ibas),               sgpb(1,1,1,ibas),                   fouvb(1,1,1,ibas), hasBessel)
+        if(.not.hasBessel .and. eee/=0d0) then   ! the group starting at isrt: atoms ibas_order(isrt:jsrt-1)
+          jsrt = isrt + 1
+          do while(jsrt <= nbas)
+            if(.not.hasB(jsrt)) exit
+            jsrt = jsrt + 1
+          enddo
+          natg = jsrt - isrt
+          call vcoul_termb(q,ngc,ngvecc,alat,qlat,lx(ibas),natg,bas(:,ibas_order(isrt:jsrt-1)),rmax(ibas),nr(ibas),eee, vcoulb)
+        endif
       enddo! rojp=<j(e=0)_L|exp(i(q+G)r)>, sgpb=<exp(i(q+G)r)|v(onsite)|B_nL>, fouvb=<exp(i(q+G)r)|v|B_nL>
       if(allocated(ajr)) then
         !$acc exit data delete(ajr)
@@ -350,18 +355,12 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     call cputm(stdo,aaaw)
     allocate( vcoul(ngb,ngb), source=(0d0,0d0) )
     call vcoulq_4(q, nbloch, ngc, nbas, lx,lxx, nx,nxx, alat, qlat, voltot, ngvecc, strx, rojp,rojb, sgbb,sgpb, fouvb, ngb, &
-         bas,rmax, eee, aa,bb,nr,nrx,rkpr,rkmr,rofi, &
+         bas,rmax, eee, aa,bb,nr,nrx,rkpr,rkmr,rofi, vcoulb, &
          vcoul) !the Coulomb matrix
     !$acc exit data delete(strx, rojp, sgpb, fouvb)
     deallocate( strx,rojp,sgpb,fouvb)
-    block
-      use m_vcoulq, only: sigx_grp, grp_atom
-      if(allocated(sigx_grp)) then
-        !$acc exit data delete(sigx_grp)
-        deallocate(sigx_grp)
-      endif
-      deallocate(grp_atom)
-    endblock
+    !$acc exit data delete(vcoulb)
+    deallocate(vcoulb)
     write(aaaw,ftox)'end of vcoulq_4 for iqx=',iqx,'procid=',mpi__rank
     call cputm(stdo,aaaw)
     if(debug) then

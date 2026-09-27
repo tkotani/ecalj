@@ -3,20 +3,17 @@ module  m_vcoulq
   use m_mpi,only: ipr,mpi__rank
   use m_lgunit,only: stdo
   use m_ftox
-  public vcoulq_4,mkjb_4,mkjp_4,genjh, ajr, a1r, sigx_grp, grp_atom
+  public vcoulq_4,mkjb_4,mkjp_4,genjh, ajr, a1r, vcoul_termb
   private
   character(1024):: aaaw
   ! Tables of the group of atoms (same radial mesh and lx) of the last mkjp_4 call, used again for the next atoms
   ! of the group: ajr(r,ig,l) = j_l(|q+G| r) r^(l+1)/|q+G|^l, and a1r (eee/=0, see sigkernel).
   real(8), allocatable  :: ajr(:,:,:), a1r(:,:,:)
-  ! sigx(l) of <P_G1|v|P_G2> for each group (one per atom type), made by mkjp_4 from ajr and a1r for vcoulq_4, which
-  ! made the same tables again (a Bessel table and a1r of each type: 7 of 15 s of GPU time, LiTi2O4 6^3).
-  ! sigx_grp(l,igg,igrp) with igg = ig1*(ig1-1)/2+ig2, ig2<=ig1.  grp_atom(ibas) is the group of atom ibas.
-  real(8), allocatable  :: sigx_grp(:,:,:)
-  integer, allocatable  :: grp_atom(:)
+  ! vcoul_termb uses them for the onsite part of <P_G1|v|P_G2> of the group (vcoulq_4 made the same tables again for
+  ! each type: 7 of 15 s of GPU time, LiTi2O4 6^3).
 contains
   subroutine vcoulq_4(q,nbloch,ngc,nbas,lx,lxx,nx,nxx,alat,qlat,vol,ngvecc, & !Coulmb matrix for each q
-       strx,rojp,rojb,sgbb,sgpb,fouvb,ngb,bas,rmax, eee, aa,bb,nr,nrx,rkpr,rkmr,rofi,    vcoul)
+       strx,rojp,rojb,sgbb,sgpb,fouvb,ngb,bas,rmax, eee, aa,bb,nr,nrx,rkpr,rkmr,rofi, vcoulb,   vcoul)
     use m_ll,only: ll
     use m_blas, only: m_op_T,m_op_C, zmv_h !, zmm_h
 #ifdef __GPU
@@ -55,6 +52,7 @@ contains
     complex(8) :: strx((lxx+1)**2, nbas, (lxx+1)**2,nbas) !structure constant. The multicenter expantion of 1/|r-r'|
     complex(8) :: sgpb(ngc,  nxx,  (lxx+1)**2, nbas)
     complex(8) :: fouvb(ngc,  nxx, (lxx+1)**2, nbas) ,vcoul(ngb, ngb) !<exp(i q+G r)|xxx>
+    complex(8) :: vcoulb(*)   !eee/=0: the onsite parts of <P_G1|v|P_G2> of all groups (vcoul_termb), on the device
     !complex(8),allocatable :: hh(:,:),oo(:,:),zz(:,:),matp(:),matp2(:),pjyl_(:,:),phase(:,:)
     complex(8),allocatable :: hh(:,:),oo(:,:),zz(:,:),matp(:),matp2(:),pjyl_(:,:),phase(:,:),pjyl_p(:,:) !,pjyl_p(:,:,:)
     complex(8) :: xxx, img=(0d0,1d0), fouvp_ig1_ig2, fouvp_ig2_ig1, sgpp_ig1_ig2
@@ -162,44 +160,15 @@ contains
 
     ! <P_G|v|P_G>
     PvP_dev_mo: block
-      use m_bessl, only: wronkj2 => wronkj, radkj2 => radkj
-      use m_keyvalue,only: getkeyvalue
-      use m_GWinput, only: gwinput_init, gwinput_loaded, tg_KeepWronkj => KeepWronkj
 #ifdef __GPU
       use openacc
 #endif
       complex(8) :: rojpstrx((lxx+1)**2,nbas,ngc)
-      logical :: keepWronkj
-      real(8), allocatable :: ajg(:,:), djg(:,:), aje(:,:), dje(:,:)   ! Bessel values and slopes at rmax per G
-      integer :: igrpv
-      real(8) :: akw(lxx+2), ajw(lxx+2), dkw(lxx+2), djw(lxx+2), e1w, e2w, rw, efacw, rjw
-      real(8), allocatable ::  keep_fjj(:,:)
-      integer, allocatable :: iggtable(:,:)
-      integer :: nggc, igg
       integer :: ibas_order(nbas), ib_prev, isrt, jsrt, ktmp, itype_start, itype_end, ib_next
       complex(8) :: cPhi
       complex(8), allocatable :: vcoul_termA(:,:)
-      call gwinput_init()
-      if (gwinput_loaded) then
-         keepWronkj = tg_KeepWronkj
-      else
-         call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
-!         call getkeyvalue("GWinput","KeepWronkj",keepWronkj,default=.true.)
-      endif
       write(aaaw,ftox) " vcoulq_4: goto PvP procid ngc lxx nrx=", mpi__rank,ngc,lxx,nrx
       call cputm(stdo,aaaw)
-
-      !make table for ig1,ig2 from one dimensional index (igg = 1, ..., ngg)
-      nggc = (ngc*(ngc+1))/2
-      allocate(iggtable(2,nggc))
-      igg = 0
-      do ig1 = 1,ngc
-        do ig2 = 1, ig1
-          igg = igg + 1
-          iggtable(1,igg) = ig1
-          iggtable(2,igg) = ig2
-        enddo
-      enddo
 
       lm2x= (lxx+1)**2
 
@@ -214,7 +183,7 @@ contains
         enddo
       enddo
 
-      !$acc data create(rojpstrx,pjyl_p) copyin(absqg2, pjyl_, phase, iggtable, ibas_order)
+      !$acc data create(rojpstrx,pjyl_p) copyin(absqg2, pjyl_, phase, ibas_order)
 
       !$acc host_data use_device(strx, rojp)
       istat = zmm(strx, rojp, rojpstrx, m=nbas*(lxx+1)**2, n=ngc, k=nbas*(lxx+1)**2, opA=m_op_T, opB=m_op_C)
@@ -237,30 +206,36 @@ contains
       !$acc end data
       deallocate(vcoul_termA)
 
-      write(aaaw,ftox) " vcoulq_4: goto igig loop (type-batched)", mpi__rank
-      call cputm(stdo,aaaw)
-
-      ! --- Term B: type-batched computation ---
-      ! Same-type atoms share Bessel/wronkj/sigx; use phase sum (Phi) instead of per-atom loop
-      itype_start = 1
-      do while(itype_start <= nbas)
-        ibas = ibas_order(itype_start)
-        ! Find end of this atom type (same nr, lx, rofi)
-        itype_end = itype_start
-        do while(itype_end < nbas)
-          ib_next = ibas_order(itype_end + 1)
-          if(nr(ib_next) /= nr(ibas) .or. lx(ib_next) /= lx(ibas)) exit
-          if(.not. all(abs(rofi(1:nr(ibas),ibas) - rofi(1:nr(ib_next),ib_next)) < 1d-10)) exit
-          itype_end = itype_end + 1
-        enddo
-        write(aaaw,ftox) " vcoulq_4: type atoms", itype_start, '-', itype_end, 'nr=', nr(ibas), 'lx=', lx(ibas), 'procid=', mpi__rank
+      if(eee/=0d0) then   ! Term B: the onsite parts of each group, made by vcoul_termb
+        write(aaaw,ftox) " vcoulq_4: add the onsite parts (vcoul_termb)", mpi__rank
         call cputm(stdo,aaaw)
-
-        if(eee==0d0) then
+        !$acc parallel loop gang vector collapse(2) present(vcoulb(1:(ngc*(ngc+1))/2))
+        do ig1 = 1, ngc
+          do ig2 = 1, ngc
+            if(ig2 <= ig1) vcoul(nbloch+ig1,nbloch+ig2) = vcoul(nbloch+ig1,nbloch+ig2) + vcoulb((ig1*(ig1-1))/2+ig2)
+          enddo
+        enddo
+      else   ! eee=0: Term B for each atom type, on the host
+        write(aaaw,ftox) " vcoulq_4: goto igig loop (type-batched)", mpi__rank
+        call cputm(stdo,aaaw)
+        itype_start = 1
+        do while(itype_start <= nbas)
+          ibas = ibas_order(itype_start)
+          ! Find end of this atom type (same nr, lx, rofi)
+          itype_end = itype_start
+          do while(itype_end < nbas)
+            ib_next = ibas_order(itype_end + 1)
+            if(nr(ib_next) /= nr(ibas) .or. lx(ib_next) /= lx(ibas)) exit
+            if(.not. all(abs(rofi(1:nr(ibas),ibas) - rofi(1:nr(ib_next),ib_next)) < 1d-10)) exit
+            itype_end = itype_end + 1
+          enddo
+          write(aaaw,ftox) " vcoulq_4: type atoms", itype_start, '-', itype_end, 'nr=', nr(ibas), 'lx=', lx(ibas), 'procid=', mpi__rank
+          call cputm(stdo,aaaw)
           ! CPU path: wronkj + sigintpp once per type, multiply by Phi_type
           !$acc update self(vcoul)
           do ig1 = 1, ngc
             do ig2 = 1, ig1
+              fjj(0:lxx) = 0d0   ! wronkj sets 0:lx; the sum below runs to lxx
               call wronkj( absqg2(ig1), absqg2(ig2), rmax(ibas), lx(ibas), fkk, fkj, fjk, fjj)
               call sigintpp( absqg2(ig1)**.5d0, absqg2(ig2)**.5d0, lx(ibas), rmax(ibas), sigx)
               radsig(0:lxx) = 0d0
@@ -275,98 +250,9 @@ contains
             enddo
           enddo
           !$acc update device(vcoul)
-
-        else ! eee is nonzero
-          igrpv = grp_atom(ibas)   ! sigx of this type: sigx_grp(:,:,igrpv) from mkjp_4
-          if(keepWronkj) then
-            if(allocated(keep_fjj)) then
-              !$acc exit data delete(keep_fjj)
-               deallocate(keep_fjj)
-            endif
-            allocate(keep_fjj(0:lx(ibas),nggc))
-#ifdef __GPU
-            call acc_clear_freelists()
-#endif
-            !$acc enter data create(keep_fjj)
-            ! fjj of wronkj (the only Wronskian used here) from the Bessel values and slopes at rmax of each G
-            ! (radkj job 0, and job 1 for equal energies), not recomputed for each of the ngc(ngc+1)/2 pairs:
-            ! wronkj called radkj twice per pair, 13.9 of 31 s of GPU time in hvccfp0 (LiTi2O4 6^3).  Same
-            ! formulas as wronkj.
-            allocate(ajg(0:lx(ibas),ngc), djg(0:lx(ibas),ngc), aje(0:lx(ibas),ngc), dje(0:lx(ibas),ngc))
-            !$acc data create(ajg, djg, aje, dje)
-            !$acc parallel loop private(akw(1:lxx+2), ajw(1:lxx+2), dkw(1:lxx+2), djw(1:lxx+2))
-            do ig = 1, ngc
-              call radkj2(absqg2(ig), rmax(ibas), lx(ibas), akw, ajw, dkw, djw, 0)
-              ajg(0:lx(ibas),ig) = ajw(1:lx(ibas)+1)
-              djg(0:lx(ibas),ig) = djw(1:lx(ibas)+1)
-              aje(0:lx(ibas),ig) = 0d0
-              dje(0:lx(ibas),ig) = 0d0
-              if (dabs(absqg2(ig)) > 1d-6) then        ! job 1 divides by e; used only for equal nonzero energies
-                call radkj2(absqg2(ig), rmax(ibas), lx(ibas), akw, ajw, dkw, djw, 1)
-                aje(0:lx(ibas),ig) = ajw(1:lx(ibas)+1)
-                dje(0:lx(ibas),ig) = djw(1:lx(ibas)+1)
-              endif
-            enddo
-            !$acc parallel loop private(fjj(0:lxx), e1w, e2w, rw, efacw, rjw)
-            do igg = 1, nggc
-              ig1 = iggtable(1,igg)
-              ig2 = iggtable(2,igg)
-              e1w = absqg2(ig1); e2w = absqg2(ig2); rw = rmax(ibas)
-              if (dabs(e1w) <= 1d-6 .and. dabs(e2w) <= 1d-6) then
-                rjw = 1d0/rw
-                do l = 0, lx(ibas)
-                  rjw = rjw*rw/(2*l+1)
-                  fjj(l) = -rjw*rjw*(rw*rw*rw)/(2*l+3)
-                enddo
-              elseif (dabs(e1w-e2w) > 1d-6) then
-                efacw = 1d0/(e2w-e1w)
-                do l = 0, lx(ibas)
-                  fjj(l) = efacw*rw*rw*(ajg(l,ig1)*djg(l,ig2)-djg(l,ig1)*ajg(l,ig2))
-                enddo
-              else
-                do l = 0, lx(ibas)
-                  fjj(l) = rw*rw*(ajg(l,ig1)*dje(l,ig1)-djg(l,ig1)*aje(l,ig1))
-                enddo
-              endif
-              keep_fjj(0:lx(ibas),igg) = fjj(0:lx(ibas))
-            enddo
-            !$acc end data
-            deallocate(ajg, djg, aje, dje)
-          endif
-
-          ! igg kernel: Term B with Phi_type (phase sum over atoms of this type)
-          write(aaaw,ftox) " vcoulq_4:  igig type kernel procid=", mpi__rank, 'natom_type=', itype_end-itype_start+1
-          call cputm(stdo,aaaw)
-          !$acc parallel loop private(fkk(0:lxx), fkj(0:lxx), fjk(0:lxx), fjj(0:lxx), sigx(0:lxx), radsig(0:lxx), cPhi) present(sigx_grp)
-          do igg = 1, nggc
-            ig1 = iggtable(1,igg)
-            ig2 = iggtable(2,igg)
-            if(keepWronkj) then
-              fjj(0:lx(ibas)) = keep_fjj(0:lx(ibas),igg)
-            else
-              call wronkj2( absqg2(ig1), absqg2(ig2), rmax(ibas),lx(ibas), fkk,fkj,fjk,fjj)
-            endif
-            sigx(0:lx(ibas)) = sigx_grp(0:lx(ibas),igg,igrpv)
-            radsig(0:lxx) = 0d0
-            forall(l = 0:lx(ibas)) radsig(l) = fpi/(2*l+1) * sigx(l)
-            cPhi = (0d0, 0d0)
-            do jsrt = itype_start, itype_end
-              cPhi = cPhi + dconjg(phase(ig1, ibas_order(jsrt))) * phase(ig2, ibas_order(jsrt))
-            enddo
-            vcoul(nbloch+ig1,nbloch+ig2) = vcoul(nbloch+ig1,nbloch+ig2) &
-              + cPhi * sum( dconjg(pjyl_(1:lm2x,ig1)) * pjyl_(1:lm2x,ig2) &
-                * ((fpi/(absqg2(ig1)-eee)+fpi/(absqg2(ig2)-eee))*fjj(llx(1:lm2x)) + radsig(llx(1:lm2x))) )
-          enddo
-          !$acc end parallel
-
-        endif
-        itype_start = itype_end + 1
-      enddo ! type loop
-      if(allocated(keep_fjj)) then
-        !$acc exit data delete(keep_fjj)
-        deallocate(keep_fjj)
+          itype_start = itype_end + 1
+        enddo ! type loop
       endif
-      deallocate(iggtable)
 
       !$acc kernels
       do ig1 = 1, ngc
@@ -444,12 +330,12 @@ contains
   ! endif PlaneWavetest
   !end subroutine vcoulq_4
 
-  subroutine mkjp_4(q,ngc,ngvecc,alat,qlat,lxx,lx,nxx,nx,bas,a,b,rmax,nr,nrx,rprodx,eee,rofi,rkpr,rkmr, rojp,sgpb,fouvb,hasBessel,igrp)! Integrals@MT and fouvb
+  subroutine mkjp_4(q,ngc,ngvecc,alat,qlat,lxx,lx,nxx,nx,bas,a,b,rmax,nr,nrx,rprodx,eee,rofi,rkpr,rkmr, rojp,sgpb,fouvb,hasBessel)! Integrals@MT and fouvb
     ! The integrals rojp, fouvb,fouvp are for  J_L(r)= j_l(sqrt(e) r)/sqrt(e)**l Y_L, which behaves as r^l/(2l+1)!! near r=0.
     ! oniste integral is based on 1/|r-r'| = \sum 4 pi /(2k+1) \frac{r_<^k }{ r_>^{k+1} } Y_L(r) Y_L(r')
     ! See PRB34 5512(1986) for sigma type integral
-    ! hasBessel=F: first atom of group igrp (atoms with the same radial mesh and lx), which makes the tables ajr and
-    ! a1r used by the next atoms of the group, and sigx_grp(:,:,igrp) for vcoulq_4 (eee/=0).
+    ! hasBessel=F: first atom of a group (atoms with the same radial mesh and lx), which makes the tables ajr and a1r
+    ! used by the next atoms of the group and by vcoul_termb.
     use m_ll,only: ll
     use m_bessl, only: bessl2 => bessl, wronkj2 => wronkj
     implicit none
@@ -466,7 +352,6 @@ contains
     complex(8) :: img =(0d0,1d0),phase
     complex(8),allocatable :: pjyl(:,:)
     logical, intent(in) :: hasBessel
-    integer, intent(in) :: igrp
     nlx = (lx+1)**2
     ! allocate(ajr(1:nr,0:lx,ngc),a1(1:nr,0:lx,ngc), qg(3,ngc),absqg(ngc), pjyl((lx+1)**2,ngc) )
     allocate(qg(3,ngc),absqg(ngc), pjyl((lx+1)**2,ngc) )
@@ -513,8 +398,8 @@ contains
 #else
       use m_blas, only: dmm => dmm_h, m_op_T
 #endif
-      real(8), allocatable :: sigg(:,:,:), radintg(:,:,:), sigx_tmp(:,:,:), rprodw(:,:,:)
-      integer :: llist(nlx), istat, ig2
+      real(8), allocatable :: sigg(:,:,:), radintg(:,:,:), rprodw(:,:,:)
+      integer :: llist(nlx), istat
 
       llist(1:nlx) = [(ll(lm), lm=1, nlx)]
       ! rojp, sgpb and fouvb stay on the device for vcoulq_4; rkpr, rkmr and rprodx are there for all q (hvccfp0)
@@ -561,22 +446,6 @@ contains
               call sigkernel(nr, a, b, rofi_nr, rkpr(1,l), rkmr(1,l), ajr(1,ig1,l), fac_integral, a1r(1,ig1,l))
             enddo
           enddo
-          ! sigx(l) of <P_G1|v|P_G2> of this group, for vcoulq_4
-          allocate(sigx_tmp(ngc,ngc,0:lx))
-          !$acc data create(sigx_tmp)
-          !$acc host_data use_device(a1r, ajr, sigx_tmp)
-          do l = 0, lx
-            istat = dmm(a1r(1,1,l), ajr(1,1,l), sigx_tmp(1,1,l), m=ngc, n=ngc, k=nr, opA=m_op_T)
-          enddo
-          !$acc end host_data
-          !$acc parallel loop gang vector collapse(2) present(sigx_grp)
-          do ig1 = 1, ngc
-            do ig2 = 1, ngc
-              if(ig2 <= ig1) sigx_grp(0:lx, (ig1*(ig1-1))/2+ig2, igrp) = sigx_tmp(ig1,ig2,0:lx)
-            enddo
-          enddo
-          !$acc end data
-          deallocate(sigx_tmp)
         endif
       endif setTables
 
@@ -648,6 +517,95 @@ contains
 
     deallocate(absqg, qg, pjyl, cy, yl, rofi_nr, fac_integral)
   end subroutine mkjp_4
+  subroutine vcoul_termb(q,ngc,ngvecc,alat,qlat,lxg,natg,basg,rmaxg,nr,eee, vcoulb) ! Onsite part of <P_G1|v|P_G2> of one group of atoms
+    ! vcoulb(igg) += cPhi(G1,G2) sum_{l<=lxg} sum_m conj(pjyl(lm,G1)) pjyl(lm,G2)
+    !                  * [ (4pi/(|q+G1|^2-e)+4pi/(|q+G2|^2-e)) fjj_l + 4pi/(2l+1) sigx_l ],   igg = ig1*(ig1-1)/2+ig2, ig2<=ig1,
+    ! cPhi = sum_a conj(exp(i(q+G1)R_a)) exp(i(q+G2)R_a) over the atoms basg(:,1:natg) of the group (the same radial mesh
+    ! and lx=lxg).  fjj_l is fjj of wronkj from the Bessel values and slopes at rmax of each G; sigx_l = a1r^T ajr of the
+    ! tables mkjp_4 made for the group.  One l at a time (ngc**2 of work memory); nothing over all groups or all l is
+    ! kept.  The sum stops at lxg (the type loop of vcoulq_4 took fjj of l>lx from an unset array).
+    use m_ll,only: ll
+    use m_bessl, only: radkj2 => radkj
+#ifdef __GPU
+    use m_blas, only: dmm => dmm_d, m_op_T
+#else
+    use m_blas, only: dmm => dmm_h, m_op_T
+#endif
+    implicit none
+    integer,intent(in):: ngc, ngvecc(3,ngc), lxg, natg, nr
+    real(8),intent(in):: q(3), alat, qlat(3,3), basg(3,natg), rmaxg, eee
+    complex(8):: vcoulb((ngc*(ngc+1))/2)
+    real(8),parameter:: pi=4d0*datan(1d0), fpi=4d0*pi
+    complex(8),parameter:: img=(0d0,1d0)
+    integer:: ig, ig1, ig2, igg, l, m, lm, ia, istat, nlmg
+    real(8):: tpiba, qg(3), r2s, e1w, e2w, rw, rjw, fjj
+    real(8):: akw(lxg+2), ajw(lxg+2), dkw(lxg+2), djw(lxg+2)
+    real(8),allocatable:: absqg2(:), cy(:), yl(:), ajg(:,:), djg(:,:), aje(:,:), dje(:,:), sx(:,:)
+    complex(8),allocatable:: pjyl(:,:), phase(:,:)
+    complex(8):: pp, cphi
+    nlmg = (lxg+1)**2
+    allocate(absqg2(ngc), cy(nlmg), yl(nlmg), pjyl(nlmg,ngc), phase(ngc,natg))
+    allocate(ajg(0:lxg,ngc), djg(0:lxg,ngc), aje(0:lxg,ngc), dje(0:lxg,ngc), sx(ngc,ngc))
+    call sylmnc(cy,lxg)
+    tpiba = 2*pi/alat
+    do ig = 1, ngc  ! q+G, the phase of each atom and pjyl as in vcoulq_4; Bessel values and slopes at rmax
+      qg(1:3) = tpiba*(q(1:3) + matmul(qlat, ngvecc(1:3,ig)))
+      absqg2(ig) = sum(qg(1:3)**2)+1d-32
+      phase(ig,1:natg) = exp(img*matmul(qg(1:3),basg(1:3,1:natg))*alat)
+      call sylm(qg/sqrt(absqg2(ig)),yl,lxg,r2s)
+      do lm = 1, nlmg
+        l = ll(lm)
+        pjyl(lm,ig) = fpi*img**l*cy(lm)*yl(lm)*sqrt(absqg2(ig))**l
+      enddo
+      call radkj2(absqg2(ig), rmaxg, lxg, akw, ajw, dkw, djw, 0)
+      ajg(0:lxg,ig) = ajw(1:lxg+1)
+      djg(0:lxg,ig) = djw(1:lxg+1)
+      aje(0:lxg,ig) = 0d0
+      dje(0:lxg,ig) = 0d0
+      if (dabs(absqg2(ig)) > 1d-6) then   ! job 1 divides by e; used only for equal nonzero energies
+        call radkj2(absqg2(ig), rmaxg, lxg, akw, ajw, dkw, djw, 1)
+        aje(0:lxg,ig) = ajw(1:lxg+1)
+        dje(0:lxg,ig) = djw(1:lxg+1)
+      endif
+    enddo
+    rw = rmaxg
+    !$acc data copyin(absqg2, pjyl, phase, ajg, djg, aje, dje) create(sx) present(vcoulb, ajr, a1r)
+    do l = 0, lxg
+      !$acc host_data use_device(a1r, ajr, sx)
+      istat = dmm(a1r(1,1,l), ajr(1,1,l), sx, m=ngc, n=ngc, k=nr, opA=m_op_T)   ! sigx_l
+      !$acc end host_data
+      !$acc parallel loop gang vector collapse(2) private(e1w, e2w, rjw, fjj, pp, cphi, igg, lm, ia, m)
+      do ig1 = 1, ngc
+        do ig2 = 1, ngc
+          if(ig2 > ig1) cycle
+          e1w = absqg2(ig1); e2w = absqg2(ig2)
+          if (dabs(e1w) <= 1d-6 .and. dabs(e2w) <= 1d-6) then   ! the formulas of wronkj for fjj
+            rjw = 1d0/rw
+            do m = 0, l
+              rjw = rjw*rw/(2*m+1)
+            enddo
+            fjj = -rjw*rjw*(rw*rw*rw)/(2*l+3)
+          elseif (dabs(e1w-e2w) > 1d-6) then
+            fjj = 1d0/(e2w-e1w)*rw*rw*(ajg(l,ig1)*djg(l,ig2)-djg(l,ig1)*ajg(l,ig2))
+          else
+            fjj = rw*rw*(ajg(l,ig1)*dje(l,ig1)-djg(l,ig1)*aje(l,ig1))
+          endif
+          pp = 0d0
+          do lm = l*l+1, (l+1)**2
+            pp = pp + dconjg(pjyl(lm,ig1))*pjyl(lm,ig2)
+          enddo
+          cphi = 0d0
+          do ia = 1, natg
+            cphi = cphi + dconjg(phase(ig1,ia))*phase(ig2,ia)
+          enddo
+          igg = (ig1*(ig1-1))/2+ig2
+          vcoulb(igg) = vcoulb(igg) + cphi*pp*((fpi/(e1w-eee)+fpi/(e2w-eee))*fjj + fpi/(2*l+1)*sx(ig1,ig2))
+        enddo
+      enddo
+    enddo
+    !$acc end data
+    deallocate(absqg2, cy, yl, pjyl, phase, ajg, djg, aje, dje, sx)
+  end subroutine vcoul_termb
   real(8) function fac2m(i)   ! A table of (2l-1)!! data fac2l /1,1,3,15,105,945,10395,135135,2027025,34459425/
     integer:: i,l
     logical,save::  init=.true.
