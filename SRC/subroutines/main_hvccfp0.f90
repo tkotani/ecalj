@@ -236,6 +236,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     enddo                              !Onsite integrals rojb=<j(e=0)|B> and sgbb=<B|v(onsite)|B>
   endblock qindependentRadialIntegrals
   call cputm(stdo, 'end of qindependentRadialIntegrals')
+  !$acc enter data copyin(rprodx, rkpr, rkmr)   ! q-independent radial tables of mkjp_4
 
   nlxx= (lxx+1)**2
   allocate(ngvecc0(3,ngcmx))
@@ -290,6 +291,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
       logical :: hasBessel, hasB(nbas)
       integer :: ibas_order(nbas), ib_prev, isrt, jsrt, ktmp, ngrp, igrp
       allocate( rojp(ngc, nlxx, nbas), sgpb(ngc, nxx, nlxx, nbas), fouvb(ngc, nxx, nlxx, nbas))
+      !$acc enter data create(rojp, sgpb, fouvb)    ! made on the device by mkjp_4, used there by vcoulq_4
       ! Sort atoms by (nr, lx) to maximize Bessel function reuse (hasBessel=T)
       do isrt = 1, nbas; ibas_order(isrt) = isrt; enddo
       do isrt = 1, nbas-1
@@ -344,6 +346,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     call vcoulq_4(q, nbloch, ngc, nbas, lx,lxx, nx,nxx, alat, qlat, voltot, ngvecc, strx, rojp,rojb, sgbb,sgpb, fouvb, ngb, &
          bas,rmax, eee, aa,bb,nr,nrx,rkpr,rkmr,rofi, &
          vcoul) !the Coulomb matrix
+    !$acc exit data delete(rojp, sgpb, fouvb)
     deallocate( strx,rojp,sgpb,fouvb)
     block
       use m_vcoulq, only: sigx_grp, grp_atom
@@ -457,6 +460,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
 #endif    
     call cputm(stdo,' end of do 1001')
 1001 enddo mainforiqx
+  !$acc exit data delete(rprodx, rkpr, rkmr)
   call cputm(stdo,'end of hvccfp0')
   if(imode==202) call rx0( ' OK! hvccfp0 imode=202 only for Q0P')
   if(imode==0)   call rx0( ' OK! hvccfp0 imode=0')

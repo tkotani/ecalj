@@ -98,7 +98,7 @@ contains
       enddo
     enddo
     if(ibl1/=nbloch) call rx(' vcoulq: error ibl1/=nbloch', ibl1, nbloch)
-    !$acc enter data copyin(strx, rojb, rojp) create(vcoul) copyin(ibasbl, nbl, lbl, mbl, lmbl)
+    !$acc enter data copyin(strx, rojb) create(vcoul) copyin(ibasbl, nbl, lbl, mbl, lmbl)   ! rojp, sgpb, fouvb: on the device (mkjp_4)
     !$acc kernels
     vcoul(:,:) = 0d0
     !$acc end kernels
@@ -143,7 +143,7 @@ contains
         !$acc end host_data
         !$acc end data
       endblock PvB2
-      !$acc data copyin(fouvb, sgpb) 
+      !$acc data present(fouvb, sgpb)
       !$acc kernels loop present(vcoul, ibasbl, nbl, lbl, lmbl)
       PvB: do ibl2= 1, nbloch
         ibas2= ibasbl(ibl2)
@@ -237,7 +237,6 @@ contains
       !$acc end kernels
       !$acc end data
       deallocate(vcoul_termA)
-      !$acc exit data delete(rojp)
 
       write(aaaw,ftox) " vcoulq_4: goto igig loop (type-batched)", mpi__rank
       call cputm(stdo,aaaw)
@@ -453,7 +452,7 @@ contains
     ! hasBessel=F: first atom of group igrp (atoms with the same radial mesh and lx), which makes the tables ajr and
     ! a1r used by the next atoms of the group, and sigx_grp(:,:,igrp) for vcoulq_4 (eee/=0).
     use m_ll,only: ll
-    use m_bessl, only: bessl2 => bessl
+    use m_bessl, only: bessl2 => bessl, wronkj2 => wronkj
     implicit none
     integer:: ngc,ngvecc(3,ngc), lxx, lx, nxx,nx(0:lxx),nr,nrx, nlx,ig1,ig2,l,n,ir,n1,n2,lm !, ibas
     real(8):: q(3),bas(3), rprodx(nrx,nxx,0:lxx),a,b,rmax,alat, qlat(3,3)
@@ -491,17 +490,8 @@ contains
         pjyl(lm,ig1) = fpi*img**l *cy(lm)*yl(lm) *phase  *absqg1**l ! <jlyl | exp i q+G r> projection of exp(i q+G r) to jl yl  on MT
       enddo
     enddo 
-    ! rojp
     write(aaaw,ftox)' mkjp_4: goto rojploop'
     call cputm(stdo,aaaw)
-    rojp = (0d0, 0d0)
-    rojploop: do ig1 = 1,ngc
-      call wronkj( absqg(ig1)**2, eee, rmax,lx, fkk,fkj,fjk,fjj)
-      do lm = 1,nlx
-        l = ll(lm)
-        rojp(ig1,lm) = (-fjj(l))* pjyl(lm,ig1)
-      enddo
-    enddo rojploop
 
     allocate(rofi_nr, source = rofi(1:nr))
     allocate(fac_integral(nr))
@@ -528,7 +518,19 @@ contains
       integer :: llist(nlx), istat, ig2
 
       llist(1:nlx) = [(ll(lm), lm=1, nlx)]
-      !$acc data copyin(absqg, rofi_nr, fac_integral, rkpr, rkmr, pjyl, rprodx, llist, nx)
+      ! rojp, sgpb and fouvb stay on the device for vcoulq_4; rkpr, rkmr and rprodx are there for all q (hvccfp0)
+      !$acc data copyin(absqg, rofi_nr, fac_integral, pjyl, llist, nx) present(rkpr, rkmr, rprodx, rojp, sgpb, fouvb)
+      !$acc parallel loop gang vector private(fkk(0:lx), fkj(0:lx), fjk(0:lx), fjj(0:lx))
+      rojploop: do ig1 = 1, ngc
+        call wronkj2( absqg(ig1)**2, eee, rmax,lx, fkk,fkj,fjk,fjj)
+        do lm = 1, (lxx+1)**2
+          if(lm <= nlx) then
+            rojp(ig1,lm) = (-fjj(llist(lm)))* pjyl(lm,ig1)
+          else
+            rojp(ig1,lm) = 0d0
+          endif
+        enddo
+      enddo rojploop
       setTables: if(.not.hasBessel) then ! tables of the group of this atom (else the previous atom has the same mesh and lx)
         if(allocated(ajr)) then
           !$acc exit data delete(ajr)
@@ -589,9 +591,10 @@ contains
             enddo
           enddo
         enddo
+        !$acc update device(sgpb)
       else
         allocate(sigg(ngc,nxx,0:lx))
-        !$acc data create(sigg) copyout(sgpb)
+        !$acc data create(sigg)
         !$acc host_data use_device(a1r, rprodx, sigg)
         do l = 0, lx
           if(nx(l) == 0) cycle
@@ -610,13 +613,16 @@ contains
         !$acc end data
         deallocate(sigg)
       endif
-      allocate(radintg(ngc,nxx,0:lx), rprodw(nr,nxx,0:lx), source=0d0)
+      allocate(radintg(ngc,nxx,0:lx), rprodw(nr,nxx,0:lx))
+      !$acc data create(radintg, rprodw)
+      !$acc parallel loop collapse(3)
       do l = 0, lx
-        do n = 1, nx(l)
-          rprodw(1:nr,n,l) = rprodx(1:nr,n,l)*fac_integral(1:nr)
+        do n = 1, nxx
+          do ir = 1, nr
+            rprodw(ir,n,l) = rprodx(ir,n,l)*fac_integral(ir)
+          enddo
         enddo
       enddo
-      !$acc data create(radintg) copyin(rprodw) copyout(fouvb)
       !$acc host_data use_device(ajr, rprodw, radintg)
       do l = 0, lx
         if(nx(l) == 0) cycle
