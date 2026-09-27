@@ -1,7 +1,8 @@
 #!/bin/bash
 # Keep the ecalj source identical on every machine we compute on.
 #
-#   sync_ecalj_src.sh <host> [<remote dir>]      ship this HEAD to <host>
+#   sync_ecalj_src.sh <host> [<remote dir>]      ship this HEAD to <host> (default dir: see default_dir below;
+#                                                on kt1 the development tree ~/ecalj_dev, never the production ~/ecalj)
 #   sync_ecalj_src.sh --check <host> [...]       report what <host> has
 #   sync_ecalj_src.sh --check-all                report local + every known host
 #
@@ -14,7 +15,7 @@
 # AFTER SYNCING you must rebuild, and the marker does NOT prove the binaries changed:
 #   1) the archive includes SRC/CMakeLists.txt, so cmake re-configures.  REBUILD WITH THE
 #      PROJECT INSTALLER, not a bare make:
-#        cd ~/ecalj && python3 InstallAll.py --fc nvfortran --gpu --gemmul8 --bindir ~/bin
+#        cd ~/ecalj_dev && python3 InstallAll.py --fc nvfortran --gpu --gemmul8 --bindir ~/bin_dev   (kt1)
 #      SRC/CMakeLists.txt selects the flag set by MATCHING THE STRING IN $FC, and
 #      BUILD_DIR is SRC/build_$FC, so FC must be the bare compiler name.  A bare
 #      `make` without FC stops at "Fortran compiler must be set via FC" and leaves the
@@ -32,14 +33,16 @@
 # whose .ecalj_rev differs is simply stale and gets overwritten.
 set -u
 HOSTS_DEFAULT="kt1 kr5"
-REMOTE_DIR_DEFAULT=/home/takao/ecalj
+default_dir(){  # 2026-09-28: kt1's /home/takao/ecalj is the production tree (-> ~/bin) and must not be overwritten by a sync
+  case $1 in kt1) echo /home/takao/ecalj_dev ;; *) echo /home/takao/ecalj ;; esac
+}
 LOCAL_DIR=$(cd "$(dirname "$0")/.." && pwd)
 
 rev_local(){ (cd "$LOCAL_DIR" && git rev-parse --short HEAD); }
 dirty_local(){ (cd "$LOCAL_DIR" && git status --porcelain -- SRC InstallAll.py | head -5); }
 
 check_host(){  # $1=host $2=dir
-  local h=$1 d=${2:-$REMOTE_DIR_DEFAULT}
+  local h=$1 d=${2:-$(default_dir $1)}
   local r
   r=$(timeout 25 ssh -o ConnectTimeout=8 -o BatchMode=yes "$h" "cat $d/SRC/.ecalj_rev 2>/dev/null | head -1" 2>/dev/null)
   if [ -z "$r" ]; then
@@ -48,11 +51,11 @@ check_host(){  # $1=host $2=dir
     printf '%-6s %s\n' "$h" "no .ecalj_rev (never synced by this script)"
     return
   fi
-  printf '%-6s %s\n' "$h" "$r"
+  printf '%-6s %s\n' "$h" "$r  ($d)"
 }
 
 ship(){  # $1=host $2=dir
-  local h=$1 d=${2:-$REMOTE_DIR_DEFAULT}
+  local h=$1 d=${2:-$(default_dir $1)}
   local rev tmp tarf
   rev=$(rev_local)
   local dirt; dirt=$(dirty_local)
