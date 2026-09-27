@@ -3,8 +3,9 @@
 
   plot_occ_pair_grid.py <out.png> <title> <N>:<label>:<file pattern with {i}>:<i1>-<i2> [...]
 
-Each run is one row (or two, if more than 5 iterations): N = Sigma mesh (dotted lines at x = 2n/N), the file pattern gives the
-MLO band of iteration i (e.g. liti_mlo_k9/mloband/bnd_iter{i}.dat).  Panel title: the dip of the lowest band below its Gamma value
+Each run is one column and the iterations go down the rows (user, 2026-09-28: side by side per iteration, read top to bottom):
+N = Sigma mesh (dotted lines at x = 2n/N), the file pattern gives the MLO band of iteration i
+(e.g. liti_mlo_k9/mloband/bnd_iter{i}.dat).  Panel title: the dip of the lowest band below its Gamma value
 on x < 0.3 (meV; 0 = rises monotonically) and the roughness of the pair on x < 0.5 (mean |second difference|, meV).
 """
 import sys, os
@@ -39,23 +40,17 @@ def bands(f):
     return np.array([p[0] for p in blocks[0][:nk]]), np.array([[p[1] for p in b[:nk]] for b in blocks])
 
 
-rows = []
-for N, lab, pat, its in specs:
-    for k in range(0, len(its), 5):
-        rows.append((N, lab, pat, its[k:k + 5]))
-fig, axs = plt.subplots(len(rows), 5, figsize=(16, 3.1 * len(rows)), squeeze=False)
-for r, (N, lab, pat, its) in enumerate(rows):
-    for c in range(5):
+ncol = len(specs)
+nrow = max(len(its) for _, _, _, its in specs)
+fig, axs = plt.subplots(nrow, ncol, figsize=(4.6 * ncol, 2.0 * nrow), squeeze=False)
+for c, (N, lab, pat, its) in enumerate(specs):
+    for r in range(nrow):
         a = axs[r][c]
-        if c >= len(its):
+        if r >= len(its) or not os.path.exists(pat.format(i=its[r])):
             a.axis('off')
             continue
-        i = its[c]
-        f = pat.format(i=i)
-        if not os.path.exists(f):
-            a.axis('off')
-            continue
-        x, E = bands(f)
+        i = its[r]
+        x, E = bands(pat.format(i=i))
         B = np.sort(E[32:44], axis=0)
         dip = (B[0][0] - B[0][x < 0.3].min()) * 1e3
         h = x < 0.5
@@ -66,11 +61,12 @@ for r, (N, lab, pat, its) in enumerate(rows):
             if 2 * n / N < 0.5:
                 a.axvline(2 * n / N, color='0.5', ls=':', lw=0.7)
         a.set_xlim(0, 0.5); a.set_ylim(-0.58, -0.15)
-        a.set_xticks([0, 0.5]); a.set_xticklabels([r'$\Gamma$', '0.5'])
-        a.set_title(f'{lab} iter {i}: dip {dip:.1f}, rough {rough:.3f} meV', fontsize=8)
+        a.set_xticks([0, 0.5]); a.set_xticklabels([r'$\Gamma$', '0.5'] if r == nrow - 1 else ['', ''])
+        a.text(0.02, 0.95, f'{lab} iter {i}\ndip {dip:.1f} meV, rough {rough:.3f}', transform=a.transAxes, va='top', fontsize=8)
         if c == 0:
-            a.set_ylabel(r'$E-E_F$ (eV)')
+            a.set_ylabel(r'$E-E_F$ (eV)', fontsize=8)
+        a.tick_params(labelsize=7)
 fig.suptitle(title, fontsize=11)
-fig.tight_layout()
+fig.tight_layout(rect=(0, 0, 1, 1 - 0.35 / (2.0 * nrow)))   # keep the title above the first row
 fig.savefig(out, dpi=110)
 print('->', out)
