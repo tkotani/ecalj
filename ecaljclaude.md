@@ -225,6 +225,9 @@ singleton が禁じている「状態管理 type」とは明確に区別され�
 - subroutine 引数は scalar/array of intrinsic types に限定 (state は use で渡す)
 - comm のような「caller ごとに異なる値」は subroutine 引数の optional として直交化
 - ポインタ配列 (ragged array) が必要な場合のみ m_struc_def のコンテナ型を使用
+- **k 点ごとのデータは引数で明示的に渡す** (2026-03-30, addrbl): 「今の k 点」を module 状態に置く形 (`m_Igv2x_setiq`) は、
+  GPU で複数の k 点を同時に処理すると使えない。`napw, ndimh, igapw` のような k ごとのデータは `m_Igv2x_getiq` で取り、
+  引数で渡す。module 状態に置くのは全 k 共通のものだけ
 
 ### Python/PyTorch への移植性
 
@@ -297,6 +300,12 @@ OpenACC の `!$acc` ディレクティブと構造が対応する。
 - nvfortran は `!$acc data` (structured) スコープ内の Fortran `BLOCK` を許可しない → `!$acc enter/exit data` (unstructured) で回避
 - `attributes(device)` 変数は Fortran スコープで自動解放される → スコープを跨ぐ場合は外部スコープに移動
 - `!$acc wait(1)` は goto パス (エラーハンドリング) でも必要
+- `!$acc routine seq` の中の自動配列は、呼ぶたびにデバイスのヒープ確保になる (2026-09-27: m_bessl の Bessel 表が 1 回 101 ms → 固定長にして 15 ms)。
+  作業配列は固定長 (`lmaxb` のような上限) にし、上限を超えない条件をコメントに書く
+- OpenACC の非同期キュー 1 は non-blocking のストリームで、既定ストリームの cuBLAS の積を待たない (2026-09-27, m_sxcf_sc で NaN)。
+  非同期にするなら m_blas の積も `cublas_set_stream` で同じストリームに揃え、ストリームを替える所で `cudaDeviceSynchronize`
+- `m_stopwatch` の start/pause はデバイスを同期させる。非同期の区間の中のタイマーは `stopwatch_init(..., hostonly=.true.)` にする (2026-09-27)
+- デバイス配列の確保・解放もデバイスを待たせる。非同期の区間の外で行う
 
 ## 入力ファイル: TOML 方式 (2026-05 〜)
 
