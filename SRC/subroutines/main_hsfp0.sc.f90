@@ -144,8 +144,9 @@ contains
     if(t_tetrakbt > 0d0 .and. ixc/=3) ef = ef_kbt
     ! bug fixed 2026-09-27 23:55: CoreEx (ixc=3) keeps its ef below the valence, since the states of the exchange sum
     ! (nt0p) are counted from ef.  From 2026-06-26 (f703cb50a; the condition was t_sigmakbt>0 until 2026-09-20) the
-    ! override hit ixc=3 and SExcore took in the occupied valence states: Fe 3000 K 5^3, off by 3.0 eV on average
-    ! within E_F +-3 eV.
+    ! override hit ixc=3 and the occupied valence states entered the sum for SExcore.  Their weights were taken at the
+    ! energy of the band nctot higher (the sxs_ekc index in m_sxcf_sc, fixed at 23:25), empty unless nctot is below the
+    ! number of occupied bands, so the error came out in full only between the two fixes (Fe 3000 K 5^3: 3.0 eV).
     SchedulingSelfEnergyCalculation: block
       if(abs(sum(qibz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qibz/=0 ')
       if(abs(sum( qbz(:,1)**2))/=0d0) call rx( ' sxcf assumes 1st qbz /=0 ')
