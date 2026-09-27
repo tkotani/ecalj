@@ -7,6 +7,10 @@
   - 有限温度の四面体の重み (lindtet6_kbt) と EFERMI_kbt の熱の核の積分: 20 点の Gauss-Legendre を [-6,-1,0,1,6] の
     4 区間 × 5 点に (m_fpiint の gausq_fd)。以前は E_F の ±0.92 kBT に節点がなかった。Fe 3000 K で EFERMI_kbt の誤差
     9.4 → 1.2 meV。Samples/kBT/Fe の結果を作り直した。
+  - 有限温度の回帰テスト Samples/TestInstall/fe_kbt を足した (Fe 3000 K、t_tetrakbt = t_sigmaw = 3000、gwsc 0、
+    QPU・QPD・log.fe を照合、-np 8 で 40 秒)。--all と --gwall に入る (--all は 26 ターゲット)。
+  - gwsc --mlo の MLO の初回の lmf --writeham から --mkprocar を外した (ランクごとの PROCAR.UP.<rank> を書くだけで、
+    誰も読んでいなかった)。
 
 2026-09-27 (3)
   hgw 以外の段を詰めた (Samples/kBT/gpu_fp32_report.md §10、研究ログ 2026-09-27 夕方・夜)。LiTi2O4 6³ tf32 の QSGW 1 反復
