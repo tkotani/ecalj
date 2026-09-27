@@ -83,6 +83,18 @@
 
 （夜の TODO: 6³・9³ の tf32 の収束、FP16 の確かめ (a)〜(c)、検証、kBT の残り、ファイルの統一、速さの残り、文書の整理）
 
+### 04:00 **記憶の無いエージェントの 2 本目の試験（ジョブの投入）で見つかったことを直した。一番危なかったのは `sync_ecalj_src.sh kt1` が本番の `~/ecalj` に送る作りだったこと**
+
+- `TOOLS/sync_ecalj_src.sh`: 送り先の既定を計算機ごとにし、kt1 は開発の `~/ecalj_dev` にした（`954e1179b`）。`--check-all` も送り先を表示する
+- ForDevelopers §12: 待ちのループの `pgrep` が ssh の先の bash 自身に当たる（`[h]` で避ける）、`steps.log` の反復ごとの行は `gwsc 10` の最後に書かれる、
+  GPU 0 だけの約束と例の `-np2 2`、`InstallAll.py` の最後の計測も GPU を使う、同じ機械の 2 本目（ロックは段ごと、`hgw` は 1 ノード 1 本）、
+  GPU 1 枚の時間は今のコードでは測っていない、精度だけを比べるときのバイナリ、Samples の送り方とチェックサムでの確かめ方、既にある worktree の使い方
+- `draw_mloband.sh` の既定のビルドを本番から開発へ、README_testecalj の古い記述、本番の入力の混合の注（Anderson）、README・gwsc.md・報告 §1 の tf32 の数字、
+  `gwsc N` と `gwsc 1` を N 回の違い、ucgw の pack の送り方
+- kt1 にしか無かったベンチの道具（`bench3.sh`、`cmpef.py`、`cmpse.py`）を `Samples/kBT/bench_hgw/` に写した（`bench3.sh` の既定は GPU 0）
+- 残し: MLOQSGW の NiO の tf32 の差 0.0154 は `log.nio` の `fp evl`（Ry、SCF の各反復の固有値）の最大で、0.21 eV に当たる。どの準位・どの反復かを
+  作業ディレクトリを残して調べる（GPU が空いてから）
+
 ### 03:55 **9³ の続き、反復 11: 沈み込み 6.1 → 9.1 meV、占有の 2 本の荒れ 0.139 → 0.146 meV。まだ縮まない**
 
 ![9^3 continued](LiTi2O4/liti2o4_occpair_k9_cont.png)
