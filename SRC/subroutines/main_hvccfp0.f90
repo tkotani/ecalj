@@ -19,7 +19,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   use m_lgunit,only: m_lgunit_init
   use m_vcoulq,only: vcoulq_4,mkjb_4,mkjp_4,genjh
   use m_pwmat,only: mkppovl2
-  use m_hvccfp0_util,only: mkb0,strxq
+  use m_hvccfp0_util,only: mkb0,strxq,strxq_all
   use m_nvfortran,only:findloc
   use m_gpu,only: gpu_init
   use m_cmdopt_registry, only: c2_job
@@ -262,29 +262,35 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     write(aaaw,'(" do 1001: iq nqibz q ngc =",2i5,3f10.4,i5)') iqx,nqibz,q,ngc
     call cputm(stdo,aaaw)
     allocate( strx(nlxx,nbas,nlxx,nbas), source = (0d0,0d0)) !! strxq: structure factor.
+    !$acc enter data create(strx)    ! for vcoulq_4
     ! strx(L1,ibas1,L2,ibas2) = conj(strx(L2,ibas2,L1,ibas1)) (to 4e-16 of the largest element), and the blocks
     ! ibas1=ibas2 (p=0) are the same for the same lx: strxq for ibas1<ibas2 and for p=0 once per lx.
-    do ibas1 =1,nbas
-      do ibas2 =ibas1,nbas
-        nlx1 = (lx(ibas1)+1)**2
-        nlx2 = (lx(ibas2)+1)**2
-        if(ibas2==ibas1) then
-          do jbas = 1, ibas1-1
-            if(lx(jbas)==lx(ibas1)) exit
-          enddo
-          if(jbas<ibas1) then
-            strx(1:nlx1,ibas1,1:nlx1,ibas1) = strx(1:nlx1,jbas,1:nlx1,jbas)
-            cycle
+    if(eee<0d0) then   ! all pairs at once, on the device in the GPU version
+      call strxq_all(eee,q,nbas,bas,lx,lxx,alat,voltot,awald,nkd,nkq,dlv,qlv,cg,indxcg,jcg, strx)
+    else
+      do ibas1 =1,nbas
+        do ibas2 =ibas1,nbas
+          nlx1 = (lx(ibas1)+1)**2
+          nlx2 = (lx(ibas2)+1)**2
+          if(ibas2==ibas1) then
+            do jbas = 1, ibas1-1
+              if(lx(jbas)==lx(ibas1)) exit
+            enddo
+            if(jbas<ibas1) then
+              strx(1:nlx1,ibas1,1:nlx1,ibas1) = strx(1:nlx1,jbas,1:nlx1,jbas)
+              cycle
+            endif
           endif
-        endif
-        p = bas(:,ibas2)-bas(:,ibas1)
-        allocate( s(nlx1,nlx2),sd(nlx1,nlx2)) !kino add sd----but sd is dummy
-        call strxq(1,eee,q,p,nlx1,nlx2,nlx1,alat,voltot,awald,nkd,nkq,dlv,qlv,cg,indxcg,jcg, s,sd)
-        strx(1:nlx1,ibas1,1:nlx2,ibas2) = fpi*s
-        if(ibas2/=ibas1) strx(1:nlx2,ibas2,1:nlx1,ibas1) = transpose(dconjg(fpi*s))
-        deallocate( s,sd )
+          p = bas(:,ibas2)-bas(:,ibas1)
+          allocate( s(nlx1,nlx2),sd(nlx1,nlx2)) !kino add sd----but sd is dummy
+          call strxq(1,eee,q,p,nlx1,nlx2,nlx1,alat,voltot,awald,nkd,nkq,dlv,qlv,cg,indxcg,jcg, s,sd)
+          strx(1:nlx1,ibas1,1:nlx2,ibas2) = fpi*s
+          if(ibas2/=ibas1) strx(1:nlx2,ibas2,1:nlx1,ibas1) = transpose(dconjg(fpi*s))
+          deallocate( s,sd )
+        enddo
       enddo
-    enddo
+      !$acc update device(strx)
+    endif
 
     qdependentRadialIntegrals:block
       use m_vcoulq, only: ajr, a1r, sigx_grp, grp_atom
@@ -346,7 +352,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     call vcoulq_4(q, nbloch, ngc, nbas, lx,lxx, nx,nxx, alat, qlat, voltot, ngvecc, strx, rojp,rojb, sgbb,sgpb, fouvb, ngb, &
          bas,rmax, eee, aa,bb,nr,nrx,rkpr,rkmr,rofi, &
          vcoul) !the Coulomb matrix
-    !$acc exit data delete(rojp, sgpb, fouvb)
+    !$acc exit data delete(strx, rojp, sgpb, fouvb)
     deallocate( strx,rojp,sgpb,fouvb)
     block
       use m_vcoulq, only: sigx_grp, grp_atom

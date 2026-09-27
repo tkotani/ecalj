@@ -1,5 +1,6 @@
 module m_hvccfp0_util
-  public mkb0,strxq 
+  public mkb0,strxq,strxq_all
+  private
 contains
 subroutine mkb0( q, lxx,lx,nxx,nx, aa,bb, nrr,nrx,rprodx, alat,bas,nbas,nbloch, b0mat)
   !--make the matrix elementes < B_q | exp(iq r)>
@@ -216,4 +217,262 @@ subroutine strxq(mode,e,q,p,nlma,nlmh,ndim,alat,vol,awald,nkd,nkq,dlv,qlv,cg,ind
   if (allocated(dl))deallocate(dl)
   if (allocated(dlp))deallocate(dlp)
 end subroutine strxq
+subroutine strxq_all(e,q,nbas,bas,lx,lxx,alat,vol,awald,nkd,nkq,dlv,qlv,cg,indxcg,jcg, strx)
+  ! strx(L1,ibas1,L2,ibas2) = 4pi*s of strxq for all pairs of atoms at once (e<0), on the device when strx is there
+  ! (hvccfp0 keeps it there for vcoulq_4).  The Ewald sums of hsmq (rsm=0, only the value, not the e-derivative):
+  !   Q-space part: sum_G Y_L(q+G) w(|q+G|) exp(i(q+G).p1) for all pairs p1 as one matrix product,
+  !   real-space part: Y_L(p1-T) chi_l(|p1-T|) (hansr4) for each lattice vector T and pair, summed with exp(iqT),
+  ! then the Clebsch-Gordan sums of strxq.  The pairs are p=0 (once, for the blocks ibas1=ibas2) and ibas1<ibas2;
+  ! strx(L2,ibas2,L1,ibas1) = conj(strx(L1,ibas1,L2,ibas2)).  Y_L is ropyln's (r^l times real harmonics).
+  use m_ll,only: ll
+  use m_hamindex,only: plat,qlat
+  use m_shortn3_plat,only: shortn3_plat,nlatout
+#ifdef __GPU
+  use m_blas, only: zmm => zmm_d, dmm => dmm_d, m_op_T
+#else
+  use m_blas, only: zmm => zmm_h, dmm => dmm_h, m_op_T
+#endif
+  implicit none
+  integer,intent(in):: nbas,lxx,nkd,nkq,lx(nbas),indxcg(*),jcg(*)
+  real(8),intent(in):: e,q(3),bas(3,nbas),alat,vol,awald,dlv(3,nkd),qlv(3,nkq),cg(*)
+  complex(8):: strx((lxx+1)**2,nbas,(lxx+1)**2,nbas)
+  integer,parameter:: lmxs=32
+  real(8),parameter:: pi=4d0*datan(1d0), fpi=4d0*pi, y0=1d0/dsqrt(4d0*pi)
+  integer:: lmax,nlm,nlxx,np,ip,ipc,ib,ib1,ib2,l,m,ilm,it,ig,istat,npc,ip0,ilma,ilmb,la,lh,ii,indx,icg,kk, &
+       lncg,lnxcg,nla,nlb,ncgx
+  integer,allocatable:: ipair(:,:),llx(:),nlat(:),jcgd(:),indxcgd(:)
+  real(8):: tpiba,gam,a,a2,ah,rsm,akap,arsm,earsm,erfcarsm,pp(3),p(3),sp,cx0,f2m,pf,efac(0:lmxs),sgn(0:lmxs), &
+       x,y,z,r2,r,ra,h0,wk,xx,xa,um,up,wk2,w,qq,q1,q2,cm,sm,cmx,chi(-1:lmxs),chi0m1,chi00
+  real(8),allocatable:: p1(:,:),cx1(:,:),ca(:,:),cb(:,:),c0(:),c1(:),phr(:,:),mt(:,:,:),rr(:,:),cgd(:)
+  complex(8),allocatable:: phs(:),aq(:,:),bq(:,:),dl(:,:)
+  complex(8):: cof0,val,sumx
+  complex(8),parameter:: img=(0d0,1d0)
+  lmax = 2*lxx
+  if(lmax>lmxs) call rx('strxq_all: 2*lxx > lmxs')
+  if(e>=0d0)    call rx('strxq_all: e<0 only')
+  nlm  = (lmax+1)**2
+  nlxx = (lxx+1)**2
+  ! --- pairs: p=0, then ibas1<ibas2 with p shortened as in strxq ---
+  np = 1 + (nbas*(nbas-1))/2
+  allocate(ipair(2,np), p1(3,np), phs(np))
+  ipair(:,1) = 0; p1(:,1) = 0d0; phs(1) = 1d0
+  ip = 1
+  do ib1 = 1, nbas
+    do ib2 = ib1+1, nbas
+      ip = ip+1
+      ipair(:,ip) = [ib1,ib2]
+      p = bas(:,ib2)-bas(:,ib1)
+      pp = matmul(transpose(qlat),p)
+      call shortn3_plat(pp)
+      p1(:,ip) = matmul(plat,pp+nlatout(:,1))
+      sp = 2d0*pi*sum(q*(p-p1(:,ip)))
+      phs(ip) = dcmplx(dcos(sp),dsin(sp))
+    enddo
+  enddo
+  ! --- coefficients of the recursion for Y_L in ropyln ---
+  allocate(cx1(0:lmax+1,0:lmax), ca(0:lmax,0:lmax), cb(0:lmax,0:lmax), c0(0:lmax), c1(0:lmax), llx(nlm), nlat(nbas))
+  ca = 0d0; cb = 0d0
+  f2m = 1d0   ! (2m)!
+  pf  = 1d0   ! (2m-1)!!
+  do m = 0, lmax
+    if(m>0) f2m = f2m*(2*m-1)*(2*m)
+    cx0 = dsqrt(1/fpi)
+    if (m >0) cx0 = dsqrt((2*m+1)*2/fpi/f2m)
+    cx1(m,m) = cx0
+    do l = m, lmax
+      cx1(l+1,m) = cx1(l,m)*dsqrt(dble((l+1-m)*(2*l+3))/dble((l+1+m)*(2*l+1)))
+    enddo
+    c0(m) = pf*cx1(m,m)
+    pf = pf*(2*m+1)
+    c1(m) = pf*cx1(m+1,m)
+    do l = m+2, lmax
+      ca(l,m) = -(l+m-1d0)/(l-m)*cx1(l,m)/cx1(l-2,m)
+      cb(l,m) = (2*l-1d0)/(l-m)*cx1(l,m)/cx1(l-1,m)
+    enddo
+  enddo
+  llx = [(ll(ilm),ilm=1,nlm)]
+  nlat = (lx+1)**2
+  efac(0) = 1d0; sgn(0) = 1d0
+  do l = 1, lmax
+    efac(l) = -e*efac(l-1)
+    sgn(l) = -sgn(l-1)
+  enddo
+  ! --- constants of hsmq and hansr4 (a=awald, rsm=1/a) ---
+  a = awald; a2 = a*a; gam = 0.25d0/a2; tpiba = 2d0*pi/alat
+  rsm = 1d0/a; ah = 1d0/rsm
+  akap = dsqrt(-e); arsm = akap*rsm/2; earsm = dexp(-arsm**2)/2
+  erfcarsm = erfc(arsm)
+  chi0m1 = -erfcarsm/akap                                        ! r=0: -h^s_-1 and -h^s_0 (hansr4)
+  chi00  = akap*erfcarsm - 4d0*ah*earsm/dsqrt(4d0*datan(1d0))
+  cof0 = fpi*dexp(gam*e)/vol
+  ncgx = maxval(indxcg(1:(nlxx*(nlxx+1))/2+1))
+  npc = max(1, min(np, int(2.5d8/(8d0*nkd*nlm))))                 ! pairs per chunk of the real-space table mt
+  allocate(aq(nkq,nlm), bq(nkq,np), dl(nlm,np), phr(nkd,2), mt(nkd,nlm,npc), rr(nlm*npc,2))
+  allocate(cgd(ncgx), jcgd(ncgx), indxcgd((nlxx*(nlxx+1))/2+1))
+  cgd = cg(1:ncgx); jcgd = jcg(1:ncgx); indxcgd = indxcg(1:(nlxx*(nlxx+1))/2+1)
+  phr(:,1) = [(dcos(2d0*pi*sum(q*dlv(:,it))), it=1,nkd)]
+  phr(:,2) = [(dsin(2d0*pi*sum(q*dlv(:,it))), it=1,nkd)]
+  !$acc data create(aq,bq,dl,mt,rr) copyin(ipair,p1,phs,cx1,ca,cb,c0,c1,llx,nlat,efac,sgn,phr,qlv,dlv,cgd,jcgd,indxcgd) present(strx)
+  ! --- Q-space part: aq(G,L) = Y_L(q+G) (-exp(-gam |q+G|^2)/(e-|q+G|^2)) (-i)^l cof0 (pvhsmq), bq(G,p) = exp(i(q+G).p) ---
+  !$acc parallel loop gang vector private(cm,sm,cmx,q1,q2,qq,w,x,y,z,r2,kk,l,m,ilm)
+  do ig = 1, nkq
+    x = tpiba*(q(1)+qlv(1,ig)); y = tpiba*(q(2)+qlv(2,ig)); z = tpiba*(q(3)+qlv(3,ig))
+    r2 = x**2+y**2+z**2
+    w = -dexp(-gam*r2)/(e-r2)
+    cm = 1d0; sm = 0d0
+    do m = 0, lmax
+      if(m>0) then
+        cmx = x*cm - y*sm
+        sm  = y*cm + x*sm
+        cm  = cmx
+      endif
+      q1 = 0d0; q2 = 0d0
+      do l = m, lmax
+        kk = l-m
+        if(kk==0) then;     qq = c0(m)
+        elseif(kk==1) then; qq = c1(m)*z
+        else;               qq = ca(l,m)*r2*q2 + cb(l,m)*z*q1
+        endif
+        q2 = q1; q1 = qq
+        aq(ig,l*(l+1)+1+m) = cm*qq*w*(-img)**l*cof0
+        if(m/=0) aq(ig,l*(l+1)+1-m) = sm*qq*w*(-img)**l*cof0
+      enddo
+    enddo
+  enddo
+  !$acc parallel loop gang vector collapse(2)
+  do ip = 1, np
+    do ig = 1, nkq
+      bq(ig,ip) = exp(img*alat*tpiba*sum((q(:)+qlv(:,ig))*p1(:,ip)))
+    enddo
+  enddo
+  !$acc host_data use_device(aq,bq,dl)
+  istat = zmm(aq, bq, dl, m=nlm, n=np, k=nkq, opA=m_op_T)
+  !$acc end host_data
+  ! --- real-space part, chunks of npc pairs: mt(T,L,p) = Y_L(p-T) chi_l(|p-T|), then sum_T mt exp(iqT) ---
+  do ip0 = 1, np, npc
+    npc = min(npc, np-ip0+1)
+    !$acc parallel loop gang vector collapse(2) private(chi,cm,sm,cmx,q1,q2,qq,x,y,z,r2,r,ra,h0,wk,xx,xa,um,up,wk2,kk,l,m,ip)
+    do ipc = 1, npc
+      do it = 1, nkd
+        ip = ip0+ipc-1
+        x = alat*(p1(1,ip)-dlv(1,it)); y = alat*(p1(2,ip)-dlv(2,it)); z = alat*(p1(3,ip)-dlv(3,it))
+        r2 = x**2+y**2+z**2
+        if(r2 < 1d-12) then     ! the unsmoothed Hankel at T=p1 is left out (hansr4)
+          chi(-1) = chi0m1
+          chi(0) = chi00
+          chi(1:lmax) = 0d0
+        else
+          r = dsqrt(r2); ra = r*ah
+          h0 = dexp(-akap*r)/r
+          wk = y0*dexp(-r2*a2)
+          xx = earsm*wk/r
+          xa = ra - arsm
+          if(xa>0d0) then; um = h0-xx*erfcee_d(xa)
+          else;            um = xx*erfcee_d(xa)
+          endif
+          up = xx*erfcee_d(ra + arsm)
+          chi(-1) = (h0 - um - up)*r/akap
+          chi(0) = h0 - um + up
+          wk2 = 8*ah*earsm*wk
+          do l = 1, lmax
+            chi(l) = ((2*l-1)*chi(l-1) - e*chi(l-2) + wk2)/r2
+            wk2 = 2d0*ah**2*wk2
+          enddo
+        endif
+        cm = 1d0; sm = 0d0
+        do m = 0, lmax
+          if(m>0) then
+            cmx = x*cm - y*sm
+            sm  = y*cm + x*sm
+            cm  = cmx
+          endif
+          q1 = 0d0; q2 = 0d0
+          do l = m, lmax
+            kk = l-m
+            if(kk==0) then;     qq = c0(m)
+            elseif(kk==1) then; qq = c1(m)*z
+            else;               qq = ca(l,m)*r2*q2 + cb(l,m)*z*q1
+            endif
+            q2 = q1; q1 = qq
+            mt(it,l*(l+1)+1+m,ipc) = cm*qq*chi(l)
+            if(m/=0) mt(it,l*(l+1)+1-m,ipc) = sm*qq*chi(l)
+          enddo
+        enddo
+      enddo
+    enddo
+    !$acc host_data use_device(mt,phr,rr)
+    istat = dmm(mt, phr, rr, m=nlm*npc, n=2, k=nkd, opA=m_op_T)
+    !$acc end host_data
+    !$acc parallel loop gang vector collapse(2)
+    do ipc = 1, npc
+      do ilm = 1, nlm
+        dl(ilm,ip0+ipc-1) = (dl(ilm,ip0+ipc-1) + dcmplx(rr(ilm+nlm*(ipc-1),1),rr(ilm+nlm*(ipc-1),2)))*phs(ip0+ipc-1)
+      enddo
+    enddo
+  enddo
+  ! --- Clebsch-Gordan sums of strxq for each pair; strx = 4pi*s ---
+  !$acc kernels
+  strx = 0d0
+  !$acc end kernels
+  !$acc parallel loop gang vector collapse(3) private(la,lh,ii,indx,sumx,val,ib1,ib2,nla,nlb)
+  do ip = 1, np
+    do ilmb = 1, nlxx
+      do ilma = 1, nlxx
+        la = llx(ilma); lh = llx(ilmb)
+        ii = max(ilma,ilmb)
+        indx = (ii*(ii-1))/2 + min(ilma,ilmb)
+        sumx = 0d0
+        do icg = indxcgd(indx), indxcgd(indx+1)-1
+          sumx = sumx + cgd(icg)*efac((la+lh-llx(jcgd(icg)))/2)*dl(jcgd(icg),ip)
+        enddo
+        val = fpi*(fpi*sgn(lh)*dconjg(sumx))
+        if(ip==1) then
+          do ib = 1, nbas
+            if(ilma<=nlat(ib) .and. ilmb<=nlat(ib)) strx(ilma,ib,ilmb,ib) = val
+          enddo
+        else
+          ib1 = ipair(1,ip); ib2 = ipair(2,ip)
+          if(ilma<=nlat(ib1) .and. ilmb<=nlat(ib2)) then
+            strx(ilma,ib1,ilmb,ib2) = val
+            strx(ilmb,ib2,ilma,ib1) = dconjg(val)
+          endif
+        endif
+      enddo
+    enddo
+  enddo
+  !$acc end data
+  deallocate(ipair,p1,phs,cx1,ca,cb,c0,c1,llx,nlat,aq,bq,dl,phr,mt,rr,cgd,jcgd,indxcgd)
+end subroutine strxq_all
+pure real(8) function erfcee_d(ra) ! erfcee of util.f90 for the device: erfc(|x|)/y0/exp(-x*x)
+  !$acc routine seq
+  implicit none
+  real(8),intent(in):: ra
+  real(8):: w
+  real(8),parameter:: &
+       t10=2.1825654430601881683921d0, t20=0.9053540999623491587309d0, &
+       t11=3.2797163457851352620353d0, t21=1.3102485359407940304963d0, &
+       t12=2.3678974393517268408614d0, t22=0.8466279145104747208234d0, &
+       t13=1.0222913982946317204515d0, t23=0.3152433877065164584097d0, &
+       t14=0.2817492708611548747612d0, t24=0.0729025653904144545406d0, &
+       t15=0.0492163291970253213966d0, t25=0.0104619982582951874111d0, &
+       t16=0.0050315073901668658074d0, t26=0.0008626481680894703936d0, &
+       t17=0.0002319885125597910477d0, t27=0.0000315486913658202140d0, &
+       b11=2.3353943034936909280688d0, b21=1.8653829878957091311190d0, &
+       b12=2.4459635806045533260353d0, b22=1.5514862329833089585936d0, &
+       b13=1.5026992116669133262175d0, b23=0.7521828681511442158359d0, &
+       b14=0.5932558960613456039575d0, b24=0.2327321308351101798032d0, &
+       b15=0.1544018948749476305338d0, b25=0.0471131656874722813102d0, &
+       b16=0.0259246506506122312604d0, b26=0.0061015346650271900230d0, &
+       b17=0.0025737049320207806669d0, b27=0.0004628727666611496482d0, &
+       b18=0.0001159960791581844571d0, b28=0.0000157743458828120915d0
+  if (abs(ra) > 1.3d0) then   ! y0*dexp(-x*x)*f2(w=x-2) is erfc(x) for x>1.3
+     w = abs(ra) - 2d0
+     erfcee_d = (((((((t27*w+t26)*w+t25)*w+t24)*w+t23)*w+t22)*w+t21)*w+t20) &
+          /  ((((((((b28*w+b27)*w+b26)*w+b25)*w+b24)*w+b23)*w+b22)*w+b21)*w+1)
+  else                        ! y0*dexp(-x*x)*f1(w=x-1/2) is erfc(x) for x<1.3
+     w = abs(ra) - .5d0
+     erfcee_d = (((((((t17*w+t16)*w+t15)*w+t14)*w+t13)*w+t12)*w+t11)*w+t10) &
+          /  ((((((((b18*w+b17)*w+b16)*w+b15)*w+b14)*w+b13)*w+b12)*w+b11)*w+1)
+  endif
+end function erfcee_d
 endmodule m_hvccfp0_util

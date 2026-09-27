@@ -98,7 +98,7 @@ contains
       enddo
     enddo
     if(ibl1/=nbloch) call rx(' vcoulq: error ibl1/=nbloch', ibl1, nbloch)
-    !$acc enter data copyin(strx, rojb) create(vcoul) copyin(ibasbl, nbl, lbl, mbl, lmbl)   ! rojp, sgpb, fouvb: on the device (mkjp_4)
+    !$acc enter data copyin(rojb) create(vcoul) copyin(ibasbl, nbl, lbl, mbl, lmbl)   ! strx, rojp, sgpb, fouvb: on the device (hvccfp0)
     !$acc kernels
     vcoul(:,:) = 0d0
     !$acc end kernels
@@ -219,7 +219,6 @@ contains
       !$acc host_data use_device(strx, rojp)
       istat = zmm(strx, rojp, rojpstrx, m=nbas*(lxx+1)**2, n=ngc, k=nbas*(lxx+1)**2, opA=m_op_T, opB=m_op_C)
       !$acc end host_data
-      !$acc exit data delete(strx)
 
       ! --- Term A: sum over all atoms via single BLAS call ---
       ! vcoul_A(ig1,ig2) = sum_{lm,ibas} rojpstrx(lm,ibas,ig1)*rojp(ig2,lm,ibas)
