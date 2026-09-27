@@ -131,8 +131,10 @@ contains
     real(8) :: xx(n0),p1(3),p2(3)
     complex(8):: h(ndimh,ndimh),vsm(k1,k2,k3,isp)
     complex(8),optional:: vsm2(k1,k2,k3,isp), h2(ndimh,ndimh)
-    logical:: two
-    complex(8),allocatable:: w_oc1b(:,:)
+    logical:: two, fastw2
+    integer:: kmax, ncolall
+    integer,allocatable:: kc(:), nd2(:), cof(:)
+    complex(8),allocatable:: w2(:,:), w2f(:)
     integer :: npmx,nlmto
     integer:: ltop , net, nlmtop , nrt , iprint, ncuti_max
     real(8) ,allocatable :: gg(:), g2(:), gvv(:),he(:,:), hr(:,:),yl(:,:)
@@ -166,9 +168,8 @@ contains
     allocate(gg(ng*3),yl(ng,nlmtop),g2(ng),he(ng,net),hr(ng,nrt),phase(ng,nbas))
     q0=0d0
     call hsibl1(net,etab,nrt,rtab,ltop,alat,q0,ng,gvv,  gg,g2,yl,he,hr)
-    allocate( w_oc1( ng,ndimx), w_ocf1(ndimx), w_ocf2(ndimx), ff(k1*k2*k3)) !w_oc2( ng,ndimx), 
     two = present(vsm2) .and. present(h2)
-    if(two) allocate(w_oc1b(ng,ndimx))
+    allocate( w_oc1( ng,merge(2,1,two)*ndimx), w_ocf1(ndimx), w_ocf2(ndimx), ff(k1*k2*k3)) !w_oc1(:,ndim1+i): vsm2 (two)
     ! w_oc1(ng,ndimx,ibas,iq)
     allocate(cwork(ng))
     ibini=1
@@ -177,6 +178,56 @@ contains
       p1=rv_a_opos(:,ib1)
       phase(:,ib1)=exp(-img*tpi*sum(p1*q)) *exp(-img*tpi*matmul(p1, matmul(qlat, transpose(iv))))
     enddo
+    ! PW coefficients of the basis functions of every site (w_oc2 of the loop over pairs; they do not depend on ib1),
+    ! made once when kmax*ncolall*16 bytes <= 256 MB.  The loop over pairs made them again for every ib1 and its products
+    ! (ndim1 x ndim2 x ~2e4, one per potential) were limited by memory traffic: 0.43 s per call (LiTi2O4, 14 sites).
+    allocate(kc(nbas), nd2(nbas), cof(nbas))
+    ncolall = 0
+    do ib2 = 1, nbas
+      is2 = ispec(ib2)
+      ncut = ngcut(:,:,is2)
+      kc(ib2) = min(maxval(ncut(:,:)), ng)
+      call orblib2(ib2) !norb2,ltab2,ktab2,offl2
+      call uspecb(is2,rsmh2,eh2)
+      call gtbsl1(1,norb2,ltab2,ktab2,rsmh2,eh2,ntab2,blks2)
+      cof(ib2) = ncolall
+      nd2(ib2) = sum(blks2(1:norb2), mask=blks2(1:norb2)>0)
+      ncolall = ncolall + nd2(ib2)
+    enddo
+    kmax = maxval(kc)
+    fastw2 = dble(kmax)*ncolall*16d0 <= 2.56d8
+    if(fastw2) then
+      allocate(w2(kmax,ncolall), w2f(ncolall))
+      do ib2 = 1, nbas
+        is2 = ispec(ib2)
+        ncut = ngcut(:,:,is2)
+        call orblib2(ib2)
+        call uspecb(is2,rsmh2,eh2)
+        call gtbsl1(1,norb2,ltab2,ktab2,rsmh2,eh2,ntab2,blks2)
+        ndim2 = 0
+        do  iorb2 = 1, norb2    ! as iorb2loop below
+          if (blks2(iorb2) == 0) cycle
+          jorb2 = ntab2(iorb2)
+          l2t  = ltab2(jorb2)
+          l2   = ltab2(iorb2)
+          ik2  = ktab2(iorb2)
+          nlm1 = l2**2+1
+          nlm2 = nlm1 + blks2(iorb2)-1
+          ie   = ipet(l2+1,ik2,is2)
+          ir   = iprt(l2+1,ik2,is2)
+          fac1 = -4d0*pi*dexp(etab(ie)*rtab(ir)**2/4)/dsqrt(vol)
+          offi = cof(ib2)+ndim2-nlm1+1
+          ngcut_iorb = min(ncut(l2t+1,ik2), ng)
+          cwork(1:ngcut_iorb) = he(1:ngcut_iorb,ie)*hr(1:ngcut_iorb,ir)*phase(1:ngcut_iorb,ib2)
+          do  ilm = nlm1, nlm2
+            w2(1:ngcut_iorb,ilm+offi) = cwork(1:ngcut_iorb)*yl(1:ngcut_iorb,ilm)
+            w2(ngcut_iorb+1:kmax,ilm+offi) = 0d0
+            w2f(ilm+offi) = (-img)**ll(ilm) * fac1
+          enddo
+          ndim2 = ndim2 + max(nlm2-nlm1+1,0)
+        enddo
+      enddo
+    endif
     ib1loop: do  iloop = ibini,ibend
       ib1=iloop
       ndim1 = 0
@@ -250,7 +301,7 @@ contains
           if(two) then
             f2 = f*vsm2(:,:,:,isp)
             call fftz3(f2,n1,n2,n3,k1,k2,k3,1,0,-1)
-            call gvgetf(ng,1,kv,k1,k2,k3,f2,w_oc1b(1,i))
+            call gvgetf(ng,1,kv,k1,k2,k3,f2,w_oc1(1,ndim1+i))
           endif
           f = f*vsm(:,:,:,isp)
           call fftz3(f,n1,n2,n3,k1,k2,k3,1,0,-1)
@@ -261,6 +312,62 @@ contains
         endif
 #endif
       endblock fvsm
+      if(fastw2) then ! products with the coefficients of all sites ib2>=ib1, one per run of sites with the same G cutoff
+        allsites: block
+          use m_blas, only: gemm => zmm_h, m_op_C
+          integer:: jb, ib, ncols, m2, io1, io2, ofw1, ofw2, c0, istat, nlmb1, nlmb2
+          complex(8),allocatable:: c12(:,:)
+          m2 = merge(2,1,two)*ndim1
+          ib2 = ib1
+          do while(ib2 <= nbas)
+            jb = ib2
+            do while(jb < nbas)
+              if(kc(jb+1) /= kc(ib2)) exit
+              jb = jb + 1
+            enddo
+            ncols = cof(jb) + nd2(jb) - cof(ib2)
+            allocate(c12(m2,ncols))
+            istat = gemm(w_oc1, w2(1,cof(ib2)+1), c12, m=m2, n=ncols, k=kc(ib2), opA=m_op_C, ldA=ng, ldB=kmax)
+            do ib = ib2, jb    ! the same sums into h (and h2) as the loop over pairs below
+              is2 = ispec(ib)
+              call orblib2(ib) !norb2,ltab2,ktab2,offl2
+              call uspecb(is2,rsmh2,eh2)
+              call gtbsl1(1,norb2,ltab2,ktab2,rsmh2,eh2,ntab2,blks2)
+              c0 = cof(ib) - cof(ib2)
+              ofw1 = 0
+              do io1 = 1, norb1
+                if (blks1(io1) == 0) cycle
+                ofh1 = offl1(io1)
+                nlmb1 = blks1(io1)
+                ofw2 = 0
+                do io2 = 1, norb2
+                  if (blks2(io2) == 0) cycle
+                  ofh2 = offl2(io2)
+                  nlmb2 = blks2(io2)
+                  do i1 = 1, nlmb1
+                    do i2 = 1, nlmb2
+                      h(ofh1+i1,ofh2+i2) = h(ofh1+i1,ofh2+i2) &
+                           + dconjg(w_ocf1(ofw1+i1))*c12(ofw1+i1,c0+ofw2+i2)*w2f(cof(ib)+ofw2+i2)
+                    enddo
+                  enddo
+                  if(two) then
+                    do i1 = 1, nlmb1
+                      do i2 = 1, nlmb2
+                        h2(ofh1+i1,ofh2+i2) = h2(ofh1+i1,ofh2+i2) &
+                             + dconjg(w_ocf1(ofw1+i1))*c12(ndim1+ofw1+i1,c0+ofw2+i2)*w2f(cof(ib)+ofw2+i2)
+                      enddo
+                    enddo
+                  endif
+                  ofw2 = ofw2 + nlmb2
+                enddo
+                ofw1 = ofw1 + nlmb1
+              enddo
+            enddo
+            deallocate(c12)
+            ib2 = jb + 1
+          enddo
+        endblock allsites
+      else
       ib2loop: do 1010 ib2 = ib1, nbas ! Loop over second of (ib1,ib2) site pairs
         is2 =ispec(ib2)
         ncut=ngcut(:,:,is2)
@@ -301,7 +408,7 @@ contains
           integer::io1,io2,ofw1,ofw2 !ncut is masked here
           complex(8)::hss(ndim1,ndim2), hss2(ndim1,ndim2)
           complex(8),pointer:: c1(:,:),c2(:),cf1(:),cf2(:)
-          complex(8) :: c12(ndim1,ndim2)
+          complex(8) :: c12(merge(2,1,two)*ndim1,ndim2)
           ! complex(8), allocatable :: oc2_0p(:,:) !zeropadding w_oc2 depending on ncuti
           integer :: istat
           cf1=>w_ocf1(1:ndim1)
@@ -313,12 +420,9 @@ contains
           !    hss(:,i2)= dconjg(cf1)* matmul(dconjg(transpose(c1)),c2) *cf2(i2) ! = phi1*vsm*phi2
           ! enddo
           ! MO the above loop is replaced by gemm dated 2014/11/11
-          istat = gemm(w_oc1, w_oc2, c12, m=ndim1, n=ndim2, k=ncuti_max, opA=m_op_C, ldA=ng)
+          istat = gemm(w_oc1, w_oc2, c12, m=merge(2,1,two)*ndim1, n=ndim2, k=ncuti_max, opA=m_op_C, ldA=ng)
           forall (i1 = 1:ndim1, i2 = 1:ndim2) hss(i1,i2) = dconjg(cf1(i1))*c12(i1,i2)*cf2(i2)
-          if(two) then
-            istat = gemm(w_oc1b, w_oc2, c12, m=ndim1, n=ndim2, k=ncuti_max, opA=m_op_C, ldA=ng)
-            forall (i1 = 1:ndim1, i2 = 1:ndim2) hss2(i1,i2) = dconjg(cf1(i1))*c12(i1,i2)*cf2(i2)
-          endif
+          if(two) forall (i1 = 1:ndim1, i2 = 1:ndim2) hss2(i1,i2) = dconjg(cf1(i1))*c12(ndim1+i1,i2)*cf2(i2)
           ofw1 = 0
           do  io1 = 1, norb1
             if (blks1(io1) ==0) cycle
@@ -348,6 +452,7 @@ contains
         endblock hssblock
         deallocate(w_oc2)
 1010  enddo ib2loop
+      endif
       hsmvsmpw: block !   ... Matrix elements <Hsm| Vsm |PW>
         integer:: i2x,ig,io1,ofw1
         do ig = 1, napw
@@ -363,7 +468,7 @@ contains
             enddo
             if(two) then
               do  i1 = 1, nlm1
-                h2(ofh1+i1,i2)=h2(ofh1+i1,i2) + dconjg( w_ocf1(ofw1+i1)*w_oc1b(i2x, ofw1+i1) )
+                h2(ofh1+i1,i2)=h2(ofh1+i1,i2) + dconjg( w_ocf1(ofw1+i1)*w_oc1(i2x, ndim1+ofw1+i1) )
               enddo
             endif
             ofw1 = ofw1 + blks1(io1)
@@ -389,7 +494,8 @@ contains
     endif
 #endif
     deallocate(hr, he, g2, yl, gg, iv, kv, gvv, w_oc1,w_ocf1, w_ocf2,ff) 
-    if(two) deallocate(w_oc1b)
+    if(allocated(w2)) deallocate(w2, w2f)
+    deallocate(kc, nd2, cof)
     deallocate(cwork)
 333 continue
     if(napw==0) goto 666
