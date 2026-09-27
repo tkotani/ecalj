@@ -83,6 +83,12 @@
 
 （夜の TODO: 6³・9³ の tf32 の収束、FP16 の確かめ (a)〜(c)、検証、kBT の残り、ファイルの統一、速さの残り、文書の整理）
 
+### 03:59 **9³ は継続（user「999 は継続がいる」）。反復 15 の後に 16〜20 が続くよう kt1 に仕込んだ**
+
+- `cont_gwsc.sh qmlo_k9_tf32n 16 20`（tf32、`~/bin_frozen_9e881`、GPU 2 枚）が、`qmlo_k9_tf32n.cont15.done` ができしだい始まる（kt1 で待機中の bash、
+  ログは `qmlo_k9_tf32n.queue16.log`・`qmlo_k9_tf32n.cont2.log`）。反復 20 の終わりは 07:30 ごろの見込み。GPU を使う残りの確かめ（FP16 の (b)(c)、
+  `--prec-final`、NiO の tf32 の差）はその後
+
 ### 03:54 **記憶の無いエージェントの 2 本目の試験（ジョブの投入）で見つかったことを直した。一番危なかったのは `sync_ecalj_src.sh kt1` が本番の `~/ecalj` に送る作りだったこと**
 
 - `TOOLS/sync_ecalj_src.sh`: 送り先の既定を計算機ごとにし、kt1 は開発の `~/ecalj_dev` にした（`954e1179b`）。`--check-all` も送り先を表示する
