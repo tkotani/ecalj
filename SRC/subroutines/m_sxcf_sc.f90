@@ -242,6 +242,7 @@ contains
                     else;                wtff(is1) = wfacx(-1d99, ef, sxs_ekc(is1), esmr)
                     endif   ! bug fixed 2026-09-27 23:25: sxs_ekc(is1+nctot) since 2024-07-25 (245ef9f3f); sxs_ekc is
                             ! [ecore(1:nctot), eval] so state is1 is at is1.  Wrong only with cores in the valence run (nctot>0)
+                            ! and in CoreEx at finite T, where it hid another bug (see the ef_kbt line in main_hsfp0.sc)
                   enddo
                   if(corehole) wtff(ns1:nctot) = wtff(ns1:nctot) * wcorehole(ns1:nctot,isp)
                   allocate(vcoud_buf(ngb))
