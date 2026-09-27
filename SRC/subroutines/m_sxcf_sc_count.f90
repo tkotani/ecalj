@@ -379,11 +379,11 @@ contains
     do iq = iq_ini, iq_end
       wl(iq-iq_ini+1) = count(irk(iq,:) > 0) * nspinmx
     enddo
-    if (naux_in > 0) then
-      ! W-build cost ≈ avg_Sc_cost/3  (W:Sc ≈ 1:3)
-      aux_wt = max(1, sum(wl(1:niq)) / (3 * niq))
-      wl(niq+1:ntotal) = aux_wt
-    endif
+    ! W-build cost ≈ avg_Sc_cost/3  (W:Sc ≈ 1:3).  Every q builds its W once, the regular ones too: without that term
+    ! LiTi2O4 6^3 on 2 GPU ranks got equal star sums but 9 against 8 W-builds, and one rank ended 14 s (5%) later.
+    aux_wt = max(1, sum(wl(1:niq)) / (3 * niq))
+    wl(1:niq) = wl(1:niq) + aux_wt
+    if (naux_in > 0) wl(niq+1:ntotal) = aux_wt
     call lpt_assign(ntotal, wl, n_groups, group_rank, assigned, ga, capacity)
     do iq = iq_ini, iq_end
       qtask(iq) = assigned(iq-iq_ini+1)
