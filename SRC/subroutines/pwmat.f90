@@ -184,6 +184,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
         endif
       enddo
     enddo
+#ifdef __GPU
     !$acc data copyout(pwhovl) copyin(igapw, igvx, qlat, q, bas, ispec(1:nbas), eh_ns, rsmh_ns, blks_nb, mimgl, iapw2ig) &
     !$acc                      copyin(norb_nb, ltab_nb, ktab_nb, offl_nb)
     !$acc kernels
@@ -275,6 +276,80 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
     enddo
     !$acc end kernels
     !$acc end data
+#else
+    pwhovl = (0d0, 0d0)
+    if(show_time) call stopwatch_start(sw3)
+    MTOcolumnsByFFT: block ! pwhovl(G1,j) = sum_G2 ppovl_save(G2-G1) pwh(G2,j) for the MTO columns j (host)
+      ! A correlation over G.  On a grid of nn(k) points >= the extent of G2-G1 in direction k it has no wrap-around:
+      !   pwhovl(G1,j) = [ backward( N forward(T') * forward(P_j) ) ](G1 mod nn),  T'(D)=ppovl_save(-D), P_j(G2)=pwh(G2,j)
+      ! (fftz3's forward includes 1/N).  The same sums as the product of the dense ngp x ngmx matrix built from
+      ! ppovl_save with pwh (1.3 s per k point for LiTi2O4, ngmx=29246), with two FFTs per MTO column and no
+      ! ngp x ngmx array.  pwh(G2,j) is made here as in the loop over G blocks (the GPU path).
+      integer:: nn(3), d1,d2,d3, k, j, lm, ntot, igq
+      complex(8),allocatable:: tt(:,:,:), ff(:,:,:), pg(:)
+      real(8),allocatable:: qpgall(:,:), ylall(:,:), qpg2all(:)
+      do k = 1, 3
+        nn(k) = fftsize235(size(ppovl_save,k))
+      enddo
+      ntot = product(nn)
+      allocate(tt(nn(1),nn(2),nn(3)), ff(nn(1),nn(2),nn(3)), pg(ngmx), qpgall(ngmx,3), ylall(ngmx,nlmax), qpg2all(ngmx))
+      tt = (0d0,0d0)
+      do d3 = lbound(ppovl_save,3), ubound(ppovl_save,3)
+        do d2 = lbound(ppovl_save,2), ubound(ppovl_save,2)
+          do d1 = lbound(ppovl_save,1), ubound(ppovl_save,1)
+            tt(modulo(-d1,nn(1))+1, modulo(-d2,nn(2))+1, modulo(-d3,nn(3))+1) = ppovl_save(d1,d2,d3)
+          enddo
+        enddo
+      enddo
+      call fftz3(tt,nn(1),nn(2),nn(3),nn(1),nn(2),nn(3),1,0,-1)
+      tt = tt*ntot
+      do ig = 1, ngmx
+        do i = 1, 3
+          qpgall(ig,i) = tpiba*(q(i) + sum(qlat(i,:)*igvx(:,ig)))
+        enddo
+      enddo
+      call ropyln(ngmx,qpgall(1,1),qpgall(1,2),qpgall(1,3),lmxax,ngmx,ylall,qpg2all)
+      do ib = 1, nbas
+        is = ispec(ib)
+        do io = 1, norb_nb(ib)
+          l  = ltab_nb(io,ib) ! l,ik = l and kaph indices, needed to address eh,rsmh
+          ik = ktab_nb(io,ib)
+          ol = ltab_nb(io,ib)**2
+          oi = offl_nb(io,ib) ! offh = hamiltonian offset to this block
+          gam = 1d0/4d0*rsmh_ns(l+1,ik,is)**2
+          do ig = 1, ngmx
+            denom = eh_ns(l+1,ik,is) - qpg2all(ig)
+            pg(ig) = (0d0,0d0)
+            if(abs(denom)<1d-10) cycle
+            phase = exp( -img * sum( qpgall(ig,:)*bas(:,ib)*alat )  )
+            pg(ig) = -pi4/vol/denom * phase * mimgl(l) * exp(gam*denom)
+          enddo
+          do lm = 1, blks_nb(io,ib)
+            j = oi + lm
+            ff = (0d0,0d0)
+            do ig = 1, ngmx
+              ff(modulo(igvx(1,ig),nn(1))+1, modulo(igvx(2,ig),nn(2))+1, modulo(igvx(3,ig),nn(3))+1) = pg(ig)*ylall(ig,ol+lm)
+            enddo
+            call fftz3(ff,nn(1),nn(2),nn(3),nn(1),nn(2),nn(3),1,0,-1)
+            ff = ff*tt
+            call fftz3(ff,nn(1),nn(2),nn(3),nn(1),nn(2),nn(3),1,0,1)
+            do igq = 1, ngp
+              pwhovl(igq,j) = ff(modulo(igv(1,igq),nn(1))+1, modulo(igv(2,igq),nn(2))+1, modulo(igv(3,igq),nn(3))+1)
+            enddo
+          enddo
+        enddo
+      enddo
+      deallocate(tt, ff, pg, qpgall, ylall, qpg2all)
+    endblock MTOcolumnsByFFT
+    if(show_time) call stopwatch_pause(sw3)
+    do iga = 1, napw     ! APW columns
+      if(iapw2ig(iga) == 0) cycle
+      do igp = 1, ngp
+        nx(1:3) = igvx(1:3,iapw2ig(iga)) - igv(1:3,igp)
+        pwhovl(igp,nlmto+iga) = ppovl_save(nx(1),nx(2),nx(3)) * (1d0/srvol)
+      enddo
+    enddo
+#endif
     deallocate(ppovl_save)
     if(show_time) call stopwatch_show(sw1)
     if(show_time) call stopwatch_show(sw2)
@@ -290,6 +365,23 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
   ! deallocate(yl,igvx,pwh,ppovlx)
   deallocate(yl,igvx)
 end subroutine pwmat
+integer function fftsize235(n) ! the smallest m >= n whose prime factors are 2, 3, 5 and 7 (a fast FFT size)
+  implicit none
+  integer, intent(in):: n
+  integer:: r, p
+  integer, parameter:: primes(4) = [2,3,5,7]
+  fftsize235 = max(n,1)
+  do
+    r = fftsize235
+    do p = 1, 4
+      do while(mod(r,primes(p)) == 0)
+        r = r/primes(p)
+      enddo
+    enddo
+    if(r == 1) return
+    fftsize235 = fftsize235 + 1
+  enddo
+end function fftsize235
 subroutine ipwovl(alat,plat,qlat,ng1,igv1,ng2,igv2,nbas, rmax,bas,ppovl)
   !- Overlap matrix elements between interstitial plane waves
   ! ----------------------------------------------------------------------
