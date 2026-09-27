@@ -32,7 +32,7 @@ contains
     use m_pwmat,only: pwmat
     use m_ftox
     use m_zhev,only: zhev_tk4
-    use m_hambl,only: hambl
+    use m_hambl,only: hambl, hambl2
     use m_rdata1,only:rdata1init,nradmx,nnc,nrad,nindx_r,lindx_r,iord,nvmax,nrc,mindx,&
          gcore_n,aac,bbc,gval_orth,zzpi,nrmxe=>nrmx ,gval_n
     use m_blas,only: zmm_h, m_op_T, m_op_C
@@ -509,8 +509,12 @@ contains
             enddo
           endif
         else ! lso=0 (No SO) or lso=2(Lz.Sz)  Spin Diagonal case.spin diagonal) nspc=1 only
+#ifdef __GPU
           call hambl(isp,qp,spotx,vconst,osig,otau,oppix, vxc(:,1,:,1),  ovlm(:,1,:,1)) !vxc=<F_i|H(LDA)-vxc(LDA)|F_j>
           call hambl(isp,qp,smpot,vconst,osig,otau,oppi,  hamm(:,1,:,1), ovlm(:,1,:,1)) !ham=<F_i|H(LDA)|F_j> and ovl=<F_i|F_j>
+#else
+          call hambl2(isp,qp,smpot,spotx,vconst,osig,otau,oppi,oppix, hamm(:,1,:,1), vxc(:,1,:,1), ovlm(:,1,:,1)) !both at once
+#endif
           if(lso==2) hamm(:,1,:,1) = hamm(:,1,:,1) + hammhso(:,:,isp) !diagonal part of SOC matrix added for Lz.Sz mode.
           vxc(:,1,:,1) = hamm(:,1,:,1) - vxc(:,1,:,1) ! vxc(LDA) part
           if(lcmlo) then !design 4.2 a': keep H(q) and S^PMT(q); zhev_tk4 below destroys them

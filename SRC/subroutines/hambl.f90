@@ -1,6 +1,6 @@
 module m_hambl
   use m_cmdopt_registry, only: c0_show_time
-  public hambl
+  public hambl, hambl2
 contains
   subroutine hambl(isp,qin,smpot,vconst,osig,otau,oppi, h,s)! Make LDA/GGA Hamiltonian and overlap matrix for a k-point. No SOC added.
     use m_lmfinit,only: nbas , nsp
@@ -61,6 +61,41 @@ contains
     enddo
     call tcx('hambl')
   endsubroutine hambl
+  subroutine hambl2(isp,qin,smpot,smpot2,vconst,osig,otau,oppi,oppi2, h,h2,s) ! hambl for two potentials at once (host)
+    ! h = hambl(smpot,oppi), h2 = hambl(smpot2,oppi2), s = overlap: the same numbers as two hambl calls (lmf --jobgw=1
+    ! makes H and H without xc for Vxc).  hsibl makes the PW coefficients of the basis functions and their FFTs once,
+    ! and smhsbl is called once.
+    use m_lmfinit,only: nbas , nsp
+    use m_igv2x,only: napw, igvapwin=>igv2x, ndimh
+    use m_supot,only: n1,n2,n3
+    use m_struc_def,only: s_rv1,s_rv4,s_cv5
+    use m_augmbl,only: augmbl
+    use m_hsibl,only:hsibl
+    implicit none
+    integer:: isp,i
+    type(s_cv5) :: oppi(3,nbas), oppi2(3,nbas)
+    type(s_rv4) :: otau(3,nbas)
+    type(s_rv4) :: osig(3,nbas)
+    real(8):: vconst, qin(3)
+    complex(8):: smpot(n1,n2,n3,nsp), smpot2(n1,n2,n3,nsp), h(ndimh,ndimh),h2(ndimh,ndimh),s(ndimh,ndimh)
+    complex(8),allocatable:: sdum(:,:), hsm(:,:)
+    call tcn('hambl2')
+    h = 0d0; h2 = 0d0; s = 0d0
+    allocate(sdum(ndimh,ndimh), hsm(ndimh,ndimh), source=(0d0,0d0))
+    call augmbl(isp,qin,osig,otau,oppi, ndimh, h, s)
+    call augmbl(isp,qin,osig,otau,oppi2,ndimh, h2,sdum)
+    call smhsbl(vconst,qin,ndimh,napw,igvapwin, hsm,s)   ! h part, the same for both
+    h  = h  + hsm
+    h2 = h2 + hsm
+    call hsibl(n1,n2,n3,smpot,isp,qin,ndimh,napw,igvapwin, h, vsm2=smpot2, h2=h2)
+    do i=1,ndimh
+       h (i+1:ndimh,i)=dconjg(h (i,i+1:ndimh))
+       h2(i+1:ndimh,i)=dconjg(h2(i,i+1:ndimh))
+       s (i+1:ndimh,i)=dconjg(s (i,i+1:ndimh))
+    enddo
+    deallocate(sdum, hsm)
+    call tcx('hambl2')
+  endsubroutine hambl2
   subroutine smhsbl(vavg,q,ndimh, napw,igapw, h,s)!- Smoothed Bloch Hamiltonian (constant potential) and overlap matrix
     use m_lmfinit,only: alat=>lat_alat,nbas,nkaphh,lhh, ispec,lmxa_i=>lmxa
     use m_lattic,only: lat_plat,rv_a_opos,qlat=>lat_qlat,vol=>lat_vol

@@ -89,7 +89,7 @@ contains
     enddo
   end subroutine scale_batch_gpu
 #endif
-  subroutine hsibl(k1,k2,k3,vsm,isp,q,ndimh,napw,igapw, h)
+  subroutine hsibl(k1,k2,k3,vsm,isp,q,ndimh,napw,igapw, h, vsm2,h2)
     use m_lmfinit,only: alat=>lat_alat,nspec,nbas,ispec
     use m_lattic,only: qlat=>lat_qlat,vol=>lat_vol,rv_a_opos
     use m_supot,only: lat_ng, gmax=>lat_gmax,n1,n2,n3
@@ -111,8 +111,11 @@ contains
     !i   ndimh :dimension of hamiltonian
     !i   napw  :number of augmented PWs in basis
     !i   igapw :vector of APWs, in units of reciprocal lattice vectors
+    !i   vsm2  :(optional, host path) a second potential; its matrix elements go to h2.  The PW coefficients of the
+    !i         :basis functions and their FFT to the mesh are made once for both (lmf --jobgw=1 needs H and H without xc)
     !o Outputs
     !o   h     :interstitial matrix elements of vsm added to h
+    !o   h2    :(optional) the same for vsm2
     !r Remarks
     !r  *How orbital is extracted and employed.  See Remarks in smhsbl.f
     implicit none
@@ -127,6 +130,9 @@ contains
     real(8) :: eh2(n0,nkap0),rsmh2(n0,nkap0)
     real(8) :: xx(n0),p1(3),p2(3)
     complex(8):: h(ndimh,ndimh),vsm(k1,k2,k3,isp)
+    complex(8),optional:: vsm2(k1,k2,k3,isp), h2(ndimh,ndimh)
+    logical:: two
+    complex(8),allocatable:: w_oc1b(:,:)
     integer :: npmx,nlmto
     integer:: ltop , net, nlmtop , nrt , iprint, ncuti_max
     real(8) ,allocatable :: gg(:), g2(:), gvv(:),he(:,:), hr(:,:),yl(:,:)
@@ -161,6 +167,8 @@ contains
     q0=0d0
     call hsibl1(net,etab,nrt,rtab,ltop,alat,q0,ng,gvv,  gg,g2,yl,he,hr)
     allocate( w_oc1( ng,ndimx), w_ocf1(ndimx), w_ocf2(ndimx), ff(k1*k2*k3)) !w_oc2( ng,ndimx), 
+    two = present(vsm2) .and. present(h2)
+    if(two) allocate(w_oc1b(ng,ndimx))
     ! w_oc1(ng,ndimx,ibas,iq)
     allocate(cwork(ng))
     ibini=1
@@ -202,6 +210,7 @@ contains
         integer :: cufft_plan, cufft_stat, nk123, istat
         real(8) :: scale_fwd
         if(use_gpu) then
+        if(two) call rx('hsibl: vsm2 is for the host path only')
         nk123 = k1*k2*k3
         scale_fwd = 1d0/dble(n1*n2*n3)
         if(.not. hsibl_gpu_init) then
@@ -234,10 +243,15 @@ contains
         else
 #endif
         fvsm_cpu: block
-        complex(8):: f(k1,k2,k3)
+        complex(8):: f(k1,k2,k3), f2(k1,k2,k3)
         do  i = 1, ndim1
           call gvputf(ng,1,kv,k1,k2,k3,w_oc1(1,i),f)
           call fftz3(f,n1,n2,n3,k1,k2,k3,1,0,1)
+          if(two) then
+            f2 = f*vsm2(:,:,:,isp)
+            call fftz3(f2,n1,n2,n3,k1,k2,k3,1,0,-1)
+            call gvgetf(ng,1,kv,k1,k2,k3,f2,w_oc1b(1,i))
+          endif
           f = f*vsm(:,:,:,isp)
           call fftz3(f,n1,n2,n3,k1,k2,k3,1,0,-1)
           call gvgetf(ng,1,kv,k1,k2,k3,f,w_oc1(1,i))
@@ -285,7 +299,7 @@ contains
         hssblock: block
           use m_blas, only: gemm => zmm_h, m_op_C
           integer::io1,io2,ofw1,ofw2 !ncut is masked here
-          complex(8)::hss(ndim1,ndim2) 
+          complex(8)::hss(ndim1,ndim2), hss2(ndim1,ndim2)
           complex(8),pointer:: c1(:,:),c2(:),cf1(:),cf2(:)
           complex(8) :: c12(ndim1,ndim2)
           ! complex(8), allocatable :: oc2_0p(:,:) !zeropadding w_oc2 depending on ncuti
@@ -301,6 +315,10 @@ contains
           ! MO the above loop is replaced by gemm dated 2014/11/11
           istat = gemm(w_oc1, w_oc2, c12, m=ndim1, n=ndim2, k=ncuti_max, opA=m_op_C, ldA=ng)
           forall (i1 = 1:ndim1, i2 = 1:ndim2) hss(i1,i2) = dconjg(cf1(i1))*c12(i1,i2)*cf2(i2)
+          if(two) then
+            istat = gemm(w_oc1b, w_oc2, c12, m=ndim1, n=ndim2, k=ncuti_max, opA=m_op_C, ldA=ng)
+            forall (i1 = 1:ndim1, i2 = 1:ndim2) hss2(i1,i2) = dconjg(cf1(i1))*c12(i1,i2)*cf2(i2)
+          endif
           ofw1 = 0
           do  io1 = 1, norb1
             if (blks1(io1) ==0) cycle
@@ -316,6 +334,13 @@ contains
                   h(ofh1+i1,ofh2+i2) = h(ofh1+i1,ofh2+i2) + hss(ofw1+i1,ofw2+i2)
                 enddo
               enddo
+              if(two) then
+                do i1 = 1, nlm1
+                  do  i2 = 1, nlm2
+                    h2(ofh1+i1,ofh2+i2) = h2(ofh1+i1,ofh2+i2) + hss2(ofw1+i1,ofw2+i2)
+                  enddo
+                enddo
+              endif
               ofw2 = ofw2 + blks2(io2)
             enddo
             ofw1 = ofw1 + blks1(io1)
@@ -336,6 +361,11 @@ contains
             do  i1 = 1, nlm1
               h(ofh1+i1,i2)=h(ofh1+i1,i2) + dconjg( w_ocf1(ofw1+i1)*w_oc1(i2x, ofw1+i1) )
             enddo
+            if(two) then
+              do  i1 = 1, nlm1
+                h2(ofh1+i1,i2)=h2(ofh1+i1,i2) + dconjg( w_ocf1(ofw1+i1)*w_oc1b(i2x, ofw1+i1) )
+              enddo
+            endif
             ofw1 = ofw1 + blks1(io1)
           enddo
         enddo
@@ -359,6 +389,7 @@ contains
     endif
 #endif
     deallocate(hr, he, g2, yl, gg, iv, kv, gvv, w_oc1,w_ocf1, w_ocf2,ff) 
+    if(two) deallocate(w_oc1b)
     deallocate(cwork)
 333 continue
     if(napw==0) goto 666
@@ -378,11 +409,31 @@ contains
           h(i1,i2) = h(i1,i2) + vsmf(igx1+1,igx2+1,igx3+1)
         enddo
       enddo
+      if(two) then
+        vsmf = vsm2(:,:,:,isp)
+        call fftz3(vsmf,n1,n2,n3,k1,k2,k3,1,0,-1)
+        do  ig1 = 1, napw
+          i1 = ig1+nlmto
+          do  ig2 = ig1, napw
+            i2 = ig2+nlmto
+            igx = igapw(:,ig1) - igapw(:,ig2)
+            igx1 = mod(igx(1)+10*n1,n1)
+            igx2 = mod(igx(2)+10*n2,n2)
+            igx3 = mod(igx(3)+10*n3,n3)
+            h2(i1,i2) = h2(i1,i2) + vsmf(igx1+1,igx2+1,igx3+1)
+          enddo
+        enddo
+      endif
     endblock qgVqg
 666 continue
     do i = 1, ndimh
       h(i:ndimh,i) = dconjg(h(i,i:ndimh)) ! ... Occupy second half of matrix
     enddo
+    if(two) then
+      do i = 1, ndimh
+        h2(i:ndimh,i) = dconjg(h2(i,i:ndimh))
+      enddo
+    endif
     call tcx('hsibl')
   end subroutine hsibl
   subroutine hsibl1(net,etab,nrt,rtab,ltop,alat,q0,ng,gvv, gg,g2,yl,he,hr) !Make yl's, energy and rsm factors for list of G vectors
