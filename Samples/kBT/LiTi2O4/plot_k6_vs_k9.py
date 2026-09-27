@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """6^3 and 9^3 bands on top of each other near E_F, with the Sigma mesh points marked (2026-09-28).
 
-  plot_k6_vs_k9.py <6^3 MLO band> <6^3 sigm band> <9^3 MLO band> <9^3 sigm band> <out.png> [title]
+  plot_k6_vs_k9.py <6^3 MLO band> <6^3 sigm band> <9^3 MLO band> <9^3 sigm band> <out.png> [title [label 6^3 [label 9^3]]]
 
-Columns: MLO band, sigm band; rows: the t2g bands near E_F, and the O 2p bands.  Thin lines (6^3 blue, 9^3 red).  Dotted
+Columns: MLO band, sigm band; rows: all bands from -9 to 7 eV, the t2g bands near E_F, and the O 2p bands
+(ROWS='lo:hi:label,...' in the environment chooses other windows, e.g. ROWS='-0.7:4.6:Ti 3d (t2g + eg)').  Thin lines (6^3 blue, 9^3 red).  Dotted
 vertical lines are the q points of the Sigma mesh on Gamma-X: x = 2n/N (6^3: 0, 1/3, 2/3, 1; 9^3: 0, 2/9, 4/9, 6/9, 8/9).
 The roughness printed in each title is the mean |E(i-1) - 2E(i) + E(i+1)| over the 211 path points of the bands in the panel (meV).
 """
@@ -15,6 +16,8 @@ import matplotlib.pyplot as plt
 
 f6m, f6s, f9m, f9s, out = sys.argv[1:6]
 title = sys.argv[6] if len(sys.argv) > 6 else ''
+lab6 = sys.argv[7] if len(sys.argv) > 7 else '6$^3$'
+lab9 = sys.argv[8] if len(sys.argv) > 8 else '9$^3$'
 
 
 def bands(f):
@@ -40,13 +43,17 @@ def rough(E, lo, hi):
     return np.mean([np.abs(b[:-2] - 2 * b[1:-1] + b[2:]).mean() for b in sel]) * 1e3 if sel else float('nan')
 
 
-fig, axs = plt.subplots(2, 2, figsize=(13, 11))
+import os
+ROWS = [(-9.0, 7.0, 'all'), (-0.8, 1.3, 't2g near $E_F$'), (-8.9, -3.9, 'O 2p')]
+if os.environ.get('ROWS'):      # e.g. ROWS='-0.7:4.6:Ti 3d (t2g + eg)'
+    ROWS = [(float(a), float(b), c) for a, b, c in (r.split(':', 2) for r in os.environ['ROWS'].split(','))]
+fig, axs = plt.subplots(len(ROWS), 2, figsize=(13, 5.3 * len(ROWS) + 0.5), squeeze=False)
 for col, (f6, f9, name) in enumerate([(f6m, f9m, 'MLO band'), (f6s, f9s, 'sigm band')]):
     x6, e6 = bands(f6)
     x9, e9 = bands(f9)
-    for row, (lo, hi, lab) in enumerate([(-0.8, 1.3, 't2g near $E_F$'), (-8.9, -3.9, 'O 2p')]):
+    for row, (lo, hi, lab) in enumerate(ROWS):
         a = axs[row][col]
-        for x, E, c, l in ((x6, e6, 'C0', '6$^3$'), (x9, E9 if False else e9, 'C3', '9$^3$')):
+        for x, E, c, l in ((x6, e6, 'C0', lab6), (x9, e9, 'C3', lab9)):
             first = True
             for b in E:
                 if b.max() < lo - 0.5 or b.min() > hi + 0.5:
