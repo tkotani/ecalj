@@ -26,7 +26,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   implicit none
   integer :: ifvcfpout,ifhvccfp,is,  if1011,if3011, ifplane,ngpmx, ngcmx, nbloch,&
        ibas,ic,lxx,nxx,nrx,l,n,k,isx,kdummy, nkdmx,nkqmx,lmax,nkdest,nkrest,ngp,ngc,nlxx,i,lnjcg,lnxcg, &
-       nkd,nkq ,ibas1,ibas2,nlx1,nlx2, iqibz,ir,ig1,n1,n2, ngb,nev,nmx,iqx,ipl1,ipl2,igx1,igx2,&
+       nkd,nkq ,ibas1,ibas2,jbas,nlx1,nlx2, iqibz,ir,ig1,n1,n2, ngb,nev,nmx,iqx,ipl1,ipl2,igx1,igx2,&
        igc,igc0,ifgb0vec,ifgb0vec1,ix, iy, iqxini, iqxend,imode, ngc0, ifvcfporg,nqbz_in,&
        ifprodmt,nl_r,lx_,nxx_r,nxdim,ibl1,nn,no,ngbnew, nmatch,ifpmatch,nmatch_q,ifpmatch_q,m,ifpomat,nbln,ibln,ngb_in,nnr,igc2,&
        nnmx ,ngcnn, ifvcoud,idummy,ifiwqfac,iqbz,iqbzx,nnn,ixyz,ifq0p,incwfin, &
@@ -261,15 +261,26 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     write(aaaw,'(" do 1001: iq nqibz q ngc =",2i5,3f10.4,i5)') iqx,nqibz,q,ngc
     call cputm(stdo,aaaw)
     allocate( strx(nlxx,nbas,nlxx,nbas), source = (0d0,0d0)) !! strxq: structure factor.
+    ! strx(L1,ibas1,L2,ibas2) = conj(strx(L2,ibas2,L1,ibas1)) (to 4e-16 of the largest element), and the blocks
+    ! ibas1=ibas2 (p=0) are the same for the same lx: strxq for ibas1<ibas2 and for p=0 once per lx.
     do ibas1 =1,nbas
-      do ibas2 =1,nbas
-        p = bas(:,ibas2)-bas(:,ibas1)
-        phasep =exp(img*2*pi*sum(q*p))
+      do ibas2 =ibas1,nbas
         nlx1 = (lx(ibas1)+1)**2
         nlx2 = (lx(ibas2)+1)**2
+        if(ibas2==ibas1) then
+          do jbas = 1, ibas1-1
+            if(lx(jbas)==lx(ibas1)) exit
+          enddo
+          if(jbas<ibas1) then
+            strx(1:nlx1,ibas1,1:nlx1,ibas1) = strx(1:nlx1,jbas,1:nlx1,jbas)
+            cycle
+          endif
+        endif
+        p = bas(:,ibas2)-bas(:,ibas1)
         allocate( s(nlx1,nlx2),sd(nlx1,nlx2)) !kino add sd----but sd is dummy
         call strxq(1,eee,q,p,nlx1,nlx2,nlx1,alat,voltot,awald,nkd,nkq,dlv,qlv,cg,indxcg,jcg, s,sd)
-        strx(1:nlx1,ibas1,1:nlx2,ibas2) = fpi*s      !!! *phasep
+        strx(1:nlx1,ibas1,1:nlx2,ibas2) = fpi*s
+        if(ibas2/=ibas1) strx(1:nlx2,ibas2,1:nlx1,ibas1) = transpose(dconjg(fpi*s))
         deallocate( s,sd )
       enddo
     enddo
