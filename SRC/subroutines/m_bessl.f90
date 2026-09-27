@@ -10,6 +10,10 @@ module m_bessl
     0.6332659870762850D+19, 0.2216430954766998D+21, 0.8200794532637891D+22, 0.3198309867728778D+24, & !l=17-20
     0.1311307045768799D+26, 0.5638620296805834D+27, 0.2537379133562626D+29, 0.1192568192774434D+31]   !l=21-24
   !$acc declare copyin(fac2l)
+  ! Largest l of bessl (fac2l(lmx+1) with lmx=max(lmax,2)).  The work arrays below have this fixed size: an
+  ! automatic array in an acc routine is allocated on the device heap at every call (the Bessel table of hvccfp0,
+  ! 2 million calls, took 0.1 s per q+G set).
+  integer, parameter :: lmaxb = 23
 contains
 subroutine bessl(y,lmax,fi,gi)! Spherical Bessel  and  Neumann Hankel functions
   !$acc routine seq
@@ -34,7 +38,7 @@ subroutine bessl(y,lmax,fi,gi)! Spherical Bessel  and  Neumann Hankel functions
   integer :: lmax, i,isn,j1,j2,k,l,lmx,lmxp1,lmxp2,nf,tlp1,ll1,ll2,nlmax
   real(8) :: y,fi(0:lmax),gi(0:lmax), dt,dt2,exppr,my,srmy,g1,t
   ! --- A table of fac2l(l)=(2l-1)!!  data fac2l /1,1,3,15,105,945,10395,135135,2027025,34459425/
-  real(8) :: dum(lmax*2+2)
+  real(8) :: dum(2*lmaxb+2)
   real(8),parameter:: tol=1d-15
   if (y == 0) then ! --- Case akap=0 ---
      do l=0,lmax
@@ -118,8 +122,8 @@ subroutine wronkj(e1,e2,r,lmax,fkk,fkj,fjk,fjj)! Wronskians for hankels and bess
   implicit real*8 (a-h,p-z), integer(o)
   integer:: lmax,lp1,l
   dimension fkk(*),fkj(*),fjk(*),fjj(*)
-  real(8) :: ak1(lmax+2),aj1(lmax+2),ak2(lmax+2),aj2(lmax+2), &
-             dk2(lmax+2),dj2(lmax+2),dk1(lmax+2),dj1(lmax+2)
+  real(8) :: ak1(lmaxb+1),aj1(lmaxb+1),ak2(lmaxb+1),aj2(lmaxb+1), &
+             dk2(lmaxb+1),dj2(lmaxb+1),dk1(lmaxb+1),dj1(lmaxb+1)
   ! ------ first: special case e1=e2=0 -------------
   if(dabs(e1) <= 1.d-6 .AND. dabs(e2) <= 1.d-6) then
      r3=r*r*r
@@ -168,7 +172,7 @@ subroutine radkj(e,r,lmax,ak,aj,dk,dj,job)
   implicit real*8 (a-h,p-z), integer(o)
   integer:: lmax,l,lp1,job
   dimension ak(*),aj(*),dk(*),dj(*)
-  real(8) :: phi(lmax+3),psi(lmax+3),php(lmax+3),psp(lmax+3)
+  real(8) :: phi(lmaxb+1),psi(lmaxb+1),php(lmaxb+1),psp(lmaxb+1)
   er2=e*r*r
   if(job == 0) then
      call bessl(er2,lmax+1,phi,psi)
