@@ -194,6 +194,12 @@ extern "C" void gemmul8_init_handle_(void** handle_out) {
     *handle_out = h;
 }
 
+// GEMMul8 launches its kernels and INT8 GEMMs on the stream of its handle; m_blas sets it to the stream of
+// its own cuBLAS handle before each call (cublas_set_stream: Sigma_c runs on OpenACC queue 1).
+extern "C" void gemmul8_set_stream_(void* handle_ptr, cudaStream_t stream) {
+    cublasSetStream(*reinterpret_cast<cublasHandle_t*>(handle_ptr), stream);
+}
+
 extern "C" void gemmul8_finalize_handle_(void* handle_ptr) {
     auto h = reinterpret_cast<cublasHandle_t*>(handle_ptr);
     cublasDestroy(*h);

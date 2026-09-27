@@ -131,7 +131,7 @@ use m_wfac, only: pole_weights
   ! Lifetime: allocated in init / start of exchange, used by step_kx /
   ! kxloop body, deallocated in finalize / end of exchange.
   ! Stopwatches.
-  type(stopwatch) :: sxs_zmel, sxs_xc, sxs_cr, sxs_ci, sxs_setwv, sxs_wim, sxs_pole
+  type(stopwatch) :: sxs_zmel, sxs_xc, sxs_cr, sxs_ci, sxs_setwv, sxs_pole
   ! Shared workspace (used by both exchange and correlation flows).
   real(8), allocatable :: sxs_ekc(:), sxs_eq(:)
   integer :: sxs_ntqxx
@@ -316,6 +316,7 @@ contains
     integer :: kx, irot, ip, isp, kr, izz, icount
     if (nw_i /= 0) call rx('Current version we assume nw_i=0. Time-reversal symmetry')
     allocate(sxs_ekc(nctot+nband), sxs_eq(nband), sxs_omega(ntq))
+    !$acc enter data create(sxs_ekc, sxs_omega) copyin(freqx, wx, expa_)
     call gwinput_init()
     if (gwinput_loaded) then
        sxs_keepwv = tg_KeepWV
@@ -347,11 +348,10 @@ contains
     call flush(stdo)
     call stopwatch_init(sxs_zmel,  'zmel')
     call stopwatch_init(sxs_xc,    'ec')
-    call stopwatch_init(sxs_cr,    'ec realaxis integral')
-    call stopwatch_init(sxs_ci,    'ec imagaxis integral')
+    call stopwatch_init(sxs_cr,    'ec realaxis (host)', hostonly=.true.)   ! inside the async batch: host time only;
+    call stopwatch_init(sxs_ci,    'ec imagaxis (host)', hostonly=.true.)   ! 'ec' (sxs_xc) is the batch with the GPU
     call stopwatch_init(sxs_setwv, 'read wv')
-    call stopwatch_init(sxs_wim,   'imagaxis weights (CPU)')
-    call stopwatch_init(sxs_pole,  'realaxis pole weights (CPU)')
+    call stopwatch_init(sxs_pole,  'realaxis pole weights (CPU)', hostonly=.true.)
     if (allocated(zsecall)) then
        !$acc exit data delete(zsecall)
        deallocate(zsecall)
@@ -460,6 +460,7 @@ contains
           sxs_ekc(1:nctot+nband) = [ecore(1:nctot,isp), readeval(qk, isp)]
           sxs_ntqxx = nbandmx(ip,isp) ! sxs_ntqxx is number of bands for <i|sigma|j>.
           sxs_omega(1:ntq) = sxs_eq(1:ntq)
+          !$acc update device(sxs_ekc, sxs_omega)
           sxs_nt0p = count(sxs_ekc < ef + sig_window(esmr))   ! states that can be partially occupied
           sxs_nt0m = count(sxs_ekc < ef - sig_window(esmr))   ! (kernel tail, 15 kBT of t_sigmaw)
           NMBATCHloop: do icount = icountini(isp,ip,irot,kx), icountend(isp,ip,irot,kx) !batch of middle states.
@@ -481,31 +482,38 @@ contains
             ! call get_correlation(ef, esmr, ns1, ns2, ns2r, nwxi, nwx, zsecall(1,1,ip,isp))
             associate( zsec=>zsecall(:,:,ip,isp) )
               get_correlation_block :block
+                ! On the GPU the whole batch runs on OpenACC queue 1 (sigma_stream_begin): the kernels are async(1) and
+                ! the products of m_blas go to the same stream, so they stay in order and the host waits once, at the
+                ! end.  Meanwhile the host computes the pole weights of the real axis.  Buffers are allocated before
+                ! and freed after (an allocation or a free waits for the device).
                 real(8), parameter :: wfaccut=1d-8
                 complex(kind=kp), parameter :: img=(0_kp,1_kp)
                 complex(kind=kp) :: beta
-                complex(kind=kp), allocatable :: czmelwc(:,:,:)
-                integer :: it, itp, iw, ierr, i, j
+                complex(kind=kp), allocatable :: czmelwc(:,:,:), wzmel(:,:,:), wz_iw(:,:), czwc_iw(:,:)
+                integer :: it, itp, iw, ierr, i, j, nttp_max, nttp(0:nw)
                 complex(kind=kp), allocatable :: wv(:,:), wc(:,:)
+                real(8), allocatable :: wgtim(:,:,:), wgtiw(:,:)
+                integer, allocatable :: itw(:,:), itpw(:,:)
                 real(kind=kp) :: zsec_img
 #ifdef __GPU
-                attributes(device) :: czmelwc, wc
+                attributes(device) :: czmelwc, wc, wzmel, wz_iw, czwc_iw
 #endif
                 if (ns1 > ns2) goto 1114 !instead of return
                 allocate(wv(nblochpmx,nblochpmx))
                 allocate(wc(ngb,ngb))
                 allocate(czmelwc, mold = zmel)
+                allocate(wzmel(1:ngb,ns1:ns2,1:sxs_ntqxx))
+                allocate(wgtim(0:npm*niw,ns1:ns2,sxs_ntqxx))
+                !$acc enter data create(wgtim)
+                nttp = 0
+                nttp_max = 0
+                call sigma_stream_begin()
                 call stopwatch_start(sxs_ci)
                 CorrelationSelfEnergyImagAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)! Integration along ImAxis for zwz(sxs_omega)
                   use m_readfreq_r, only: wt=>wwx, x=>freqx
                   use m_wfac, only: fd_cdf
-                  real(8):: wgtim_(0:npm*niw), wgtim(0:npm*niw,ns1:ns2,sxs_ntqxx), we, cons(niw)
-                  real(8):: wgtim1(0:npm*niw), aw, aw2, u, xk, estep
-                  integer :: igb, jq, nq
-                  complex(kind=kp), allocatable :: wzmel(:,:,:)
-#ifdef __GPU
-                  attributes(device) :: wzmel
-#endif
+                  real(8) :: we, aw, aw2, u, xk, estep, cons, w1, s0, omg, ek, wkkr, uaa, esm
+                  integer :: jq, nq, ntqxx, niwx, npmx, nct, ks1, ks2
                   ! Imaginary-axis weights of one level ekc(it) for Sigma_c(omega(itp)), Eq. 57 of PRB 76, 165106:
                   ! numeric part on the niw mesh with W_c(i w') - W_c(0) exp(-(ua w')^2) (smooth), analytic
                   ! part for the Gaussian fit W_c(0) exp(-(ua w')^2): -sign(we)/2 exp(aw^2) erfc(aw), aw=ua|we|,
@@ -525,44 +533,54 @@ contains
                   ! Smearing the level = averaging BOTH over the kernel; a kernel change here must be the same
                   ! as in wfacx2/pole_weights (contract in m_wfac, wfacx.f90).  Formulae and the NiO numbers:
                   ! https://ecalj.github.io/ecaljdoc/manual/kBT#_3-6-sigma-c-の-contour-分解と準位-smearing-の整合
+                  ! One (it,itp) per GPU thread; on the CPU the same loops run in order.
                   integer, parameter :: nqfd = 40
-                  call stopwatch_start(sxs_wim)
-                  itpdo: do itp = 1, sxs_ntqxx
-                   itpo: do it = ns1, ns2
+                  ntqxx = sxs_ntqxx; niwx = niw; npmx = npm; nct = nctot; ks1 = ns1; ks2 = ns2
+                  wkkr = sxs_wkkr; uaa = ua_; esm = esmr
+                  !$acc parallel loop collapse(2) async(1) present(wgtim, x, wt, expa_, sxs_omega, sxs_ekc) &
+                  !$acc   private(we, aw, aw2, u, xk, estep, cons, w1, s0, omg, ek, jq, nq, iw)
+                  itpdo: do itp = 1, ntqxx
+                    itpo: do it = ks1, ks2
+                      omg = sxs_omega(itp)
+                      ek  = sxs_ekc(it)
                       nq = 1
-                      if (it>nctot .and. esmr>0d0 .and. abs(sxs_omega(itp)-sxs_ekc(it)) < 30d0*esmr) nq = nqfd
-                      wgtim_ = 0d0
+                      if (it>nct .and. esm>0d0 .and. abs(omg-ek) < 30d0*esm) nq = nqfd
+                      do iw = 0, npmx*niwx
+                        wgtim(iw,it,itp) = 0d0
+                      enddo
                       fdnodes: do jq = 1, nq
                         xk = 0d0
                         if (nq > 1) then
                           u  = (jq - .5d0)/nq
-                          xk = esmr*log(u/(1d0-u))
+                          xk = esm*log(u/(1d0-u))
                         endif
-                        we = .5d0*(sxs_omega(itp) - sxs_ekc(it) - xk) !we in hartree unit (atomic unit)
-                        aw = abs(ua_*we)
+                        we = .5d0*(omg - ek - xk) !we in hartree unit (atomic unit)
+                        aw = abs(uaa*we)
                         aw2 = aw*aw
-                        cons = 1d0/(we**2*x**2 + (1d0-x)**2)          ! = 1/(x^2 (w'^2+we^2)), w' = 1/x - 1
-                        wgtim1(1:niw)= we*cons*wt*(-1d0/pi)
+                        s0 = 0d0
+                        do iw = 1, niwx
+                          cons = 1d0/(we**2*x(iw)**2 + (1d0-x(iw))**2)          ! = 1/(x^2 (w'^2+we^2)), w' = 1/x - 1
+                          w1 = we*cons*wt(iw)*(-1d0/pi)
+                          wgtim(iw,it,itp) = wgtim(iw,it,itp) + w1/nq
+                          s0 = s0 + w1*expa_(iw)
+                          if (npmx==2) wgtim(niwx+iw,it,itp) = wgtim(niwx+iw,it,itp) + cons*(1d0/x(iw)-1d0)*wt(iw)/pi/nq !Asymmetric contribution need check
+                        enddo
                         estep = dsign(1d0,we)*dexp(aw2)*erfc(aw)     ! sign(we) exp(aw^2) erfc(aw), -> sign(we) at we=0
                         if (nq > 1) estep = estep - dsign(1d0,we)    ! the step itself is added analytically below
-                        wgtim1(0)=merge(-sum(wgtim1(1:niw)*expa_)-0.5d0*estep, 0d0, mask=dabs(we)<rmax/ua_)
-                        if (npm==2) wgtim1(niw+1:2*niw) = cons*(1d0/x-1d0)*wt/pi !Asymmetric contribution need check
-                        wgtim_ = wgtim_ + wgtim1/nq
+                        if (dabs(we) < rmax/uaa) wgtim(0,it,itp) = wgtim(0,it,itp) + (-s0 - 0.5d0*estep)/nq
                       enddo fdnodes
-                      if (nq > 1) wgtim_(0) = wgtim_(0) - 0.5d0*(2d0*fd_cdf(sxs_omega(itp)-sxs_ekc(it), esmr) - 1d0)
-                      wgtim(:,it,itp) = sxs_wkkr*wgtim_ !! Integration weight wgtim along im axis for zwz(0:niw*npm)
+                      if (nq > 1) wgtim(0,it,itp) = wgtim(0,it,itp) - 0.5d0*(2d0*fd_cdf(omg-ek, esm) - 1d0)
+                      do iw = 0, npmx*niwx
+                        wgtim(iw,it,itp) = wkkr*wgtim(iw,it,itp) !! Integration weight wgtim along im axis for zwz(0:niw*npm)
+                      enddo
                     enddo itpo
                   enddo itpdo
-                  call stopwatch_pause(sxs_wim)
-                  allocate(wzmel(1:ngb,ns1:ns2,1:sxs_ntqxx))
                   if (debug) call writemem('    Goto iwimag')
                   if (debug) write(stdo,ftox) 'mmmmSc size of mm in imagaxis', (ns2-ns1+1)*sxs_ntqxx, ngb, ngb
-                  !$acc data copyin(wgtim)
                   iwimag: do iw = sxs_wi_ini, sxs_wi_fin ! iwimag:do iw = 0, niw !niw is ~10. ixx=0 is for sxs_omega=0 nw_i=0 (Time reversal) or nw_i =-nw
                     if (iw < 0 .or. iw > niw) cycle
-                    call stopwatch_start(sxs_setwv)
                     if (sxs_keepwv) then
-                      !$acc kernels loop independent present(wvi_upper, idx_i, idx_j)
+                      !$acc kernels loop independent present(wvi_upper, idx_i, idx_j) async(1)
                       do tri_idx = 1, ngb*(ngb+1)/2
                         i = idx_i(tri_idx)
                         j = idx_j(tri_idx)
@@ -571,12 +589,14 @@ contains
                       enddo
                       !$acc end kernels
                     else
+                      !$acc wait(1)
+                      call stopwatch_start(sxs_setwv)
                       if (iw == 0) call wv_get_real(iw, wv)
                       if (iw > 0)  call wv_get_imag(iw, wv)
                       wc(1:ngb,1:ngb) = wv(1:ngb,1:ngb)  !copy to GPU
+                      call stopwatch_pause(sxs_setwv)
                     endif
-                    call stopwatch_pause(sxs_setwv)
-                    !$acc kernels loop independent collapse(2) present(zmel)
+                    !$acc kernels loop independent collapse(2) present(zmel, wgtim) async(1)
                     do itp = 1, sxs_ntqxx
                       do it = ns1, ns2
                         wzmel(1:ngb,it,itp) = cmplx(wgtim(iw,it,itp)*zmel(1:ngb,it,itp), kind=kp)
@@ -589,8 +609,6 @@ contains
                     ierr = gemm(wc, wzmel, czmelwc, ngb, (ns2-ns1+1)*sxs_ntqxx, ngb, beta = beta, opA = m_op_C, &
                                 key = 1000 + iw, policy = BACKEND_SIGMA)   ! W(i omega) fixed for this kx (m_zmel resets keys)
                   enddo iwimag
-                  !$acc end data
-                  deallocate(wzmel)
                 EndBlock CorrelationSelfEnergyImagAxis
                 if (debug) call writemem('    endof CorrelationSelfEnergyImagAxis')
                 call stopwatch_pause(sxs_ci)
@@ -598,16 +616,12 @@ contains
                 call stopwatch_start(sxs_cr)
                 CorrelationSelfEnergyRealAxis: Block !Real Axis integral. Fig.1 PHYSICAL REVIEW B 76, 165106(2007)
                   use m_wfac, only: wfacx2
-                  integer :: itini, itend, ittp, nttp_max, nttp(0:nw), i, iw1, iw2, ipass
+                  integer :: itini, itend, ittp, i, iw1, iw2, ipass
                   real(8) :: omg, wfac, wts(0:nw), esmr_it
                   logical :: smear
-                  complex(kind=kp), allocatable :: wz_iw(:,:), czwc_iw(:,:)
-                  real(8), allocatable :: wgtiw(:,:)
-                  integer, allocatable :: itw(:,:), itpw(:,:)
-#ifdef __GPU
-                  attributes(device) :: wz_iw, czwc_iw
-#endif
                   smear = tg_wcsmear .or. c0_wcsmear
+                  ! On the GPU the imaginary-axis products above are still running on queue 1 while the host
+                  ! computes these weights.
                   call stopwatch_start(sxs_pole)
                   PoleWeights: do ipass = 1, 2   ! pass 1 counts the pairs per mesh point, pass 2 stores them
                     nttp = 0
@@ -646,13 +660,12 @@ contains
                   call stopwatch_pause(sxs_pole)
                   n_nttp = count(nttp(sxs_wr_ini:sxs_wr_fin) > 0)
                   allocate(wz_iw(ngb,nttp_max), czwc_iw(ngb,nttp_max))
-                  !$acc data copyin(wgtiw, nttp, itw, itpw)
+                  !$acc enter data copyin(wgtiw, nttp, itw, itpw)
                   iwreal: do iw = sxs_wr_ini, sxs_wr_fin
                     if (iw < nwxi .or. iw > nwx) cycle
                     if (nttp(iw) < 1) cycle
-                    call stopwatch_start(sxs_setwv)
                     if (sxs_keepwv) then
-                      !$acc kernels loop independent present(wvr_upper, idx_i, idx_j)
+                      !$acc kernels loop independent present(wvr_upper, idx_i, idx_j) async(1)
                       do tri_idx = 1, ngb*(ngb+1)/2
                         i = idx_i(tri_idx)
                         j = idx_j(tri_idx)
@@ -661,14 +674,16 @@ contains
                       enddo
                       !$acc end kernels
                     else
+                      !$acc wait(1)
+                      call stopwatch_start(sxs_setwv)
                       call wv_get_real(iw, wv)
                       wc(1:ngb,1:ngb) = wv(1:ngb,1:ngb)  !copy to GPU
                       !$acc kernels
                       wc(:,:) = (wc(:,:) + transpose(conjg(wc(:,:))))*0.5_kp
                       !$acc end kernels
+                      call stopwatch_pause(sxs_setwv)
                     endif
-                    call stopwatch_pause(sxs_setwv)
-                    !$acc kernels loop independent present(zmel)
+                    !$acc kernels loop independent present(zmel, wgtiw, itw, itpw) async(1)
                     do ittp = 1, nttp(iw)
                       it = itw(ittp,iw); itp = itpw(ittp,iw)
                       wz_iw(1:ngb,ittp) = cmplx(wgtiw(ittp,iw)*zmel(1:ngb,it,itp), kind=kp)
@@ -676,15 +691,13 @@ contains
                     !$acc end kernels
                     ierr = gemm(wc, wz_iw, czwc_iw, ngb, nttp(iw), ngb, opA=m_op_C, key = 100000 + iw, & ! W(omega)
                                 policy = BACKEND_SIGMA)
-                    !$acc kernels loop independent
+                    !$acc kernels loop independent present(itw, itpw) async(1)
                     do ittp = 1, nttp(iw)
                       it = itw(ittp,iw); itp = itpw(ittp,iw)
                       czmelwc(1:ngb,it,itp) = czmelwc(1:ngb,it,itp) + czwc_iw(1:ngb,ittp)
                     enddo
                     !$acc end kernels
                   enddo iwreal
-                  !$acc end data
-                  deallocate(wz_iw, czwc_iw)
 1113              continue !endif
                 EndBlock CorrelationSelfEnergyRealAxis
                 if (debug) call writemem('    endof CorrelationSelfEnergyRealAxis')
@@ -694,7 +707,7 @@ contains
                 ierr = gemm(czmelwc, zmel, zsec, sxs_ntqxx, sxs_ntqxx, nbb*(ns2-ns1+1), opA = m_op_C, beta = CONE, ldC = ntq, &
                             policy = BACKEND_SIGMA)
                 !$acc end host_data
-                !$acc kernels loop independent
+                !$acc kernels loop independent async(1)
                 do itp = 1, sxs_ntqxx
                   ! zsec(itp,itp) = real(zsec(itp,itp),kind=kp)+img*min(-real((img*zsec(itp,itp)),kind=kp),0_kp) !enforce Imzsec<0 !does not work in intel
                   zsec_img = -real((img*zsec(itp,itp)), kind=kp)
@@ -702,7 +715,15 @@ contains
                   zsec(itp,itp) = real(zsec(itp,itp), kind=kp) + img*zsec_img
                 enddo
                 !$acc end kernels
-                deallocate(wv, wc, czmelwc)
+                !$acc wait(1)
+                call sigma_stream_end()
+                !$acc exit data delete(wgtim)
+                if (allocated(itw)) then
+                  !$acc exit data delete(wgtiw, nttp, itw, itpw)
+                  deallocate(itw, itpw, wgtiw)
+                endif
+                if (allocated(wz_iw)) deallocate(wz_iw, czwc_iw)
+                deallocate(wv, wc, czmelwc, wzmel, wgtim)
                 if (ipr) call writemem('    endof CorrelationSelfEnergy')
 1114            continue
               endblock get_correlation_block  !end subroutine get_correlation
@@ -739,13 +760,35 @@ contains
     end block ReleaseWV !  end subroutine releasewv
   end subroutine sxcf_correlation_step_kx
 
+  subroutine sigma_stream_begin()
+    !> One batch of Sigma_c on OpenACC queue 1: its kernels are async(1) and the device products of m_blas (cuBLAS,
+    !> realsgemm, GEMMul8) go to the stream of queue 1 too, so they stay in order without a host wait per kernel.
+    !> That stream is non-blocking (it does not wait for work on the default stream by itself), so the device is
+    !> synchronized first: build_zmel ran on the default stream.  sigma_stream_end after !$acc wait(1).
+#ifdef __GPU
+    use openacc, only: acc_get_cuda_stream
+    use cudafor, only: cudaDeviceSynchronize
+    use m_blas, only: cublas_set_stream
+    integer :: istat
+    istat = cudaDeviceSynchronize()
+    call cublas_set_stream(acc_get_cuda_stream(1))
+#endif
+  end subroutine sigma_stream_begin
+  subroutine sigma_stream_end()
+#ifdef __GPU
+    use cudafor, only: cuda_stream_kind
+    use m_blas, only: cublas_set_stream
+    call cublas_set_stream(0_cuda_stream_kind)
+#endif
+  end subroutine sigma_stream_end
+
   ! Post-kxloop teardown: copy zsecall back to host, deallocate workspace, show timers.
   subroutine sxcf_correlation_finalize()
     !$acc exit data copyout(zsecall)
+    !$acc exit data delete(sxs_ekc, sxs_omega, freqx, wx, expa_)
     deallocate(sxs_ekc, sxs_eq, sxs_omega)
     call stopwatch_show(sxs_zmel)
     call stopwatch_show(sxs_ci)
-    call stopwatch_show(sxs_wim)
     call stopwatch_show(sxs_cr)
     call stopwatch_show(sxs_pole)
     call stopwatch_show(sxs_xc)

@@ -50,6 +50,11 @@ module m_gemmul8
     endsubroutine
     subroutine gemmul8_cache_reset() bind(C, name="gemmul8_cache_reset_")
     end subroutine
+    subroutine gemmul8_set_stream(handle, stream) bind(C, name="gemmul8_set_stream_")
+      use iso_c_binding
+      type(c_ptr), value :: handle
+      integer(c_intptr_t), value :: stream   ! a CUDA stream (cuda_stream_kind)
+    end subroutine
   endinterface
 #endif
 contains

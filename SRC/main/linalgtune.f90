@@ -11,6 +11,7 @@
 !> (and below 5e-3 at tf32, 1e-5 at fp32): the promise is FP32 (TF32) accuracy, and GEMMul8 with 7 moduli is 5 times
 !> worse on long sums (it quantizes each row against its largest element; in hgw it moved Im Sigma_c by 1e-4 eV);
 !> zgemm and dgemm 1e-12; the epstilde inverse 1e-6 at tf32/fp32 and 1e-13 at fp64.
+!> realhgemm (FP16 inputs, FP32 accumulation) has the error of TF32, so it can only pass at level tf32.
 !> The sizes are deliberately not multiples of 64 (as in real GW runs, e.g. 1053 product-basis functions for LiTi2O4):
 !> on sizes like 1024 GEMMul8 is faster than on 1053, and a table measured there chose it where hgw runs slower.
 !> The table goes to --out, else to ecalj_linalg_policy.toml next to this executable (ECALJ_LINALG_POLICY overrides),
@@ -46,10 +47,10 @@ program linalgtune
   integer, parameter :: ninv = 2, ninvn(ninv) = [389, 1037]
   character(4), parameter :: levels(3) = ['tf32', 'fp32', 'fp64']
 #ifdef __GEMMUL8
-  character(10), parameter :: cand_c(3) = [character(10) :: 'cublas', 'realsgemm', 'gemmul8:7']
+  character(10), parameter :: cand_c(4) = [character(10) :: 'cublas', 'realsgemm', 'realhgemm', 'gemmul8:7']
   character(10), parameter :: cand_z(2) = [character(10) :: 'cublas', 'gemmul8:14']
 #else
-  character(10), parameter :: cand_c(2) = [character(10) :: 'cublas', 'realsgemm']
+  character(10), parameter :: cand_c(3) = [character(10) :: 'cublas', 'realsgemm', 'realhgemm']
   character(10), parameter :: cand_z(1) = [character(10) :: 'cublas']
 #endif
   character(10), parameter :: cand_e(3) = [character(10) :: 'lu64', 'mixed1', 'mixed2']
@@ -66,6 +67,7 @@ program linalgtune
   character(16) :: sd
   integer :: istat, i, is, ic, il, maxa, maxb, maxc, nmax, ifi, ios, cudaver
   logical :: large(nshape)
+  real(8) :: wsig(nshape)     ! level tf32 serves only the products of Sigma_c (--sigma_tf32): the other shapes weigh 0
   interface
     integer(c_int) function c_rename(old, new) bind(C, name='rename')
       import :: c_int, c_char
@@ -85,6 +87,7 @@ program linalgtune
   do is = 1, nshape
     large(is) = shp(is)%m >= minm .and. shp(is)%n >= minn .and. shp(is)%k >= mink .and. &
                 real(shp(is)%m,8)*shp(is)%n*shp(is)%k >= minmnk
+    wsig(is) = merge(shp(is)%weight, 0d0, index(shp(is)%name, 'sigma') == 1 .or. shp(is)%name == 'zsec')
   enddo
   maxa = maxval(shp%m*shp%k); maxb = maxval(shp%k*shp%n); maxc = maxval(shp%m*shp%n)
   allocate(a4(maxa), b4(maxb), c4(maxc), a8(maxa), b8(maxb), c8(maxc), cref(maxc))
@@ -119,7 +122,7 @@ program linalgtune
   do il = 1, 2
     do i = 1, 2
       pick_c(i,il) = choose(cand_c, tc(:,:,il), ec(:,:,il), merge(5d-3, 1d-5, il == 1), merge(large, .not.large, i == 2), &
-                          shp%weight, relcublas=.true.)
+                          merge(wsig, shp%weight, il == 1), relcublas=.true.)
     enddo
   enddo
   deallocate(a4, b4, c4, a8, b8, c8, cref, ad, bd, cd, crefd)

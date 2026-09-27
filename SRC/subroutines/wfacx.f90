@@ -28,6 +28,7 @@ contains
   !> Fermi-Dirac cumulative (logistic) CDF: Phi(x)=1/(1+exp(-x/kbt)); occupation of a level at ek
   !! for a boundary at e is fd_cdf(e-ek,kbt).  kbt<=0: sharp step.
   pure real(8) function fd_cdf(x, kbt)
+    !$acc routine seq
     real(8), intent(in) :: x, kbt
     real(8) :: t
     if(kbt<=0d0) then

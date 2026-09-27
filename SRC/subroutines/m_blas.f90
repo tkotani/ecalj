@@ -14,6 +14,7 @@ module m_blas !wrapper for BLAS and cuBLAS
   public :: cublas_init, cublas_handle, cublas_finalize, cublas_set_stream
   type(cublashandle), target :: cublas_handle
   logical, save :: set_cublas_handle = .false.
+  integer(cuda_stream_kind), save :: blas_stream = 0   ! stream of all device products (cublas_set_stream)
 #endif
   character, parameter :: m_op_n = 'N', m_op_t = 'T', m_op_c = 'C'
   integer, parameter :: BACKEND_BLAS = 0 !BLAS/cuBLAS
@@ -297,8 +298,9 @@ contains
     !> route or GEMMul8) comes from m_linalg_policy; policy=BACKEND_BLAS / BACKEND_GEMMUL8 forces one.
     !> key >= 0 (optional): same key = same A until la_cache_reset, so backends may keep their form of A.
     use cublas_v2, m_type =>CUDA_C_32F, algo => cublas_gemm_default
-    use m_linalg_policy, only: la_backend, la_moduli, la_level, la_sigma_tf32, OP_CGEMM, BK_CUBLAS, BK_REALSGEMM, BK_GEMMUL8
-    use m_la_realsgemm, only: realsgemm_c
+    use m_linalg_policy, only: la_backend, la_moduli, la_level, la_sigma_tf32, OP_CGEMM, BK_CUBLAS, BK_REALSGEMM, BK_GEMMUL8, &
+                               BK_REALHGEMM
+    use m_la_realsgemm, only: realsgemm_c, realhgemm_c
     complex(4), device, target :: a(*), b(*), c(*)
     integer, intent(in) :: m, n, k
     character, intent(in), optional :: opa, opb
@@ -349,14 +351,20 @@ contains
       if (istat /= -1) return
       bk = BK_CUBLAS                                 ! the route needs opB = N
     endif
+    if (bk == BK_REALHGEMM) then
+      istat = realhgemm_c(cublas_handle, opa_in, opb_in, m, n, k, alpha_in, a, lda_in, b, ldb_in, beta_in, c, ldc_in, key_in)
+      if (istat /= -1) return
+      bk = BK_CUBLAS                                 ! opB /= N or B not contiguous: cuBLAS
+    endif
     if (bk == BK_GEMMUL8 .and. .not. gemmul8_pays(m, n, k)) bk = BK_CUBLAS   ! too small for the split
     if (bk == BK_GEMMUL8) then
 #ifdef __GEMMUL8
       block
-        use m_gemmul8, only: gemmul8_handle, gemmul8_cgemm
+        use m_gemmul8, only: gemmul8_handle, gemmul8_cgemm, gemmul8_set_stream
         use iso_c_binding
         integer :: nm
         istat = gemmul8_init()
+        call gemmul8_set_stream(gemmul8_handle, blas_stream)
         nm = la_moduli(OP_CGEMM, m, n, k, sigma=issigma)
         if (nm <= 0) nm = num_moduli_c
         call gemmul8_cgemm(gemmul8_handle, opa_in_cublas, opb_in_cublas, m, n, k, alpha_in, &
@@ -525,10 +533,11 @@ contains
     if (bk == BK_GEMMUL8) then
 #ifdef __GEMMUL8
       block
-        use m_gemmul8, only: gemmul8_handle, gemmul8_dgemm
+        use m_gemmul8, only: gemmul8_handle, gemmul8_dgemm, gemmul8_set_stream
         use iso_c_binding
         integer :: nm
         istat = gemmul8_init()
+        call gemmul8_set_stream(gemmul8_handle, blas_stream)
         nm = la_moduli(OP_DGEMM, m, n, k)
         if (nm <= 0) nm = num_moduli_d
         call gemmul8_dgemm(gemmul8_handle, opa_in_cublas, opb_in_cublas, m, n, k, alpha_in, &
@@ -585,10 +594,11 @@ contains
     if (bk == BK_GEMMUL8) then
 #ifdef __GEMMUL8
       block
-        use m_gemmul8, only: gemmul8_handle, gemmul8_zgemm
+        use m_gemmul8, only: gemmul8_handle, gemmul8_zgemm, gemmul8_set_stream
         use iso_c_binding
         integer :: nm
         istat = gemmul8_init()
+        call gemmul8_set_stream(gemmul8_handle, blas_stream)
         nm = la_moduli(OP_ZGEMM, m, n, k)
         if (nm <= 0) nm = num_moduli_z
         call gemmul8_zgemm(gemmul8_handle, opa_in_cublas, opb_in_cublas, m, n, k, alpha_in, &
@@ -657,12 +667,16 @@ contains
     endif
   end function cublas_init
   subroutine cublas_set_stream(stream)
+    !> From now on every device product of this module runs on this CUDA stream: cuBLAS, the realsgemm route
+    !> (it takes the stream of the handle) and GEMMul8 (set before each call).  0 = the default stream.
+    !> Sigma_c (m_sxcf_sc) puts them on the stream of OpenACC queue 1 with its async(1) kernels.
     use cudafor
     implicit none
     integer(cuda_stream_kind), intent(in) :: stream
     integer :: istat
     istat = cublas_init()
     istat = cublasSetStream(cublas_handle, stream)
+    blas_stream = stream
   end subroutine
   integer function cublas_finalize() result(istat)
     istat = 0

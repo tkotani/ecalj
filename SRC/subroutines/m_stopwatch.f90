@@ -8,6 +8,7 @@ module m_stopwatch !M.Obata 2024/04/21
     private
     character(len=32) :: task_name = 'task'
     logical :: running = .false.
+    logical :: hostonly = .false.   ! .true.: host time only, no device sync (for timers inside async GPU work)
     real(8) :: elapsed_time = 0d0, stop_time = 0d0, start_time = 0d0, lap_time = 0d0
     ! ???? object-oriented style gets the execution error in intel depending on the case
     ! contains
@@ -28,10 +29,16 @@ module m_stopwatch !M.Obata 2024/04/21
   !   if(present(task_name)) call new_stopwatch%setname(task_name)
   ! end function new_stopwatch
 
-  subroutine stopwatch_init(self, task_name)
+  subroutine stopwatch_init(self, task_name, hostonly)
+    !> hostonly=.true.: the stopwatch reads the clock without synchronizing the device (the GPU build otherwise
+    !> waits for all device work at each start and pause).  For timers inside a stretch of asynchronous GPU work
+    !> (the Sigma_c batch of m_sxcf_sc), where a sync would stop the host from running ahead of the device.
     class(stopwatch), intent(inout) :: self
     character(len=*), intent(in) ::task_name 
+    logical, intent(in), optional :: hostonly
     self%task_name = task_name
+    self%hostonly = .false.
+    if (present(hostonly)) self%hostonly = hostonly
     self%running = .false.
     self%start_time = 0d0
     self%elapsed_time = 0d0
@@ -42,7 +49,7 @@ module m_stopwatch !M.Obata 2024/04/21
   subroutine stopwatch_start(self)
     class(stopwatch), intent(inout) :: self
     call stopwatch_pause(self)
-    self%start_time = measure_time()
+    self%start_time = measure_time(.not. self%hostonly)
     self%running = .true.
   end subroutine stopwatch_start
 
@@ -56,7 +63,7 @@ module m_stopwatch !M.Obata 2024/04/21
   subroutine stopwatch_pause(self)
     class(stopwatch), intent(inout) :: self
     if (self%running) then
-      self%stop_time = measure_time()
+      self%stop_time = measure_time(.not. self%hostonly)
       self%lap_time = self%stop_time - self%start_time
       self%elapsed_time = self%elapsed_time + self%lap_time
       self%running = .false.
@@ -108,18 +115,21 @@ end subroutine stopwatch_pause_and_show
   real(8) function stopwatch_lap_time(self) result(lap_time)
     class(stopwatch), intent(inout) :: self
     if (self%running) then
-      self%lap_time = measure_time() - self%start_time
+      self%lap_time = measure_time(.not. self%hostonly) - self%start_time
     endif
     lap_time = self%lap_time
   endfunction
 
-  real(8) function measure_time() result(time)
+  real(8) function measure_time(sync) result(time)
+    logical, intent(in) :: sync   ! GPU build: wait for the device first (the time then includes the GPU work)
 #ifdef __GPU
-    block
-      use cudafor
-      integer :: ierr
-      ierr = cudadevicesynchronize() 
-    end block
+    if (sync) then
+      block
+        use cudafor
+        integer :: ierr
+        ierr = cudadevicesynchronize() 
+      end block
+    endif
 #endif 
     block
       !$ use omp_lib

@@ -3,7 +3,9 @@
 !> One table per precision level (tf32 / fp32 / fp64; the level is fixed by the build (MP or not) and --use_fp32).
 !> A row is  <level>.<op>.<small|large> = <backend>[:<moduli>]  plus the size thresholds that separate small from large.
 !>   op      : cgemm (complex single), zgemm (complex double), dgemm (real double), epsinv (inverse of epstilde)
-!>   backend : cublas | realsgemm | gemmul8[:moduli]      (epsinv: lu64 | mixed1 | mixed2)
+!>   backend : cublas | realsgemm | realhgemm | gemmul8[:moduli]      (epsinv: lu64 | mixed1 | mixed2)
+!>             realhgemm (m_la_realsgemm) is realsgemm with FP16 inputs and FP32 accumulation: the input precision of
+!>             TF32 (10-bit mantissa) at 1.8 times its speed on RTX 5090, so it belongs to the rows of level tf32.
 !> The table is filled in this order, later ones win:
 !>   1. built-in defaults: cuBLAS everywhere, lu64 (what the code did before the table existed)
 !>   2. the policy file written at installation by linalgtune, <bindir>/ecalj_linalg_policy.toml,
@@ -21,7 +23,7 @@ module m_linalg_policy
   implicit none
   private
   public :: la_init, la_backend, la_moduli, la_level, la_print, this_gpu, la_set_level, la_apply, la_policy_path, la_sigma_tf32
-  integer, parameter, public :: BK_CUBLAS = 0, BK_REALSGEMM = 1, BK_GEMMUL8 = 2
+  integer, parameter, public :: BK_CUBLAS = 0, BK_REALSGEMM = 1, BK_GEMMUL8 = 2, BK_REALHGEMM = 3
   integer, parameter, public :: BK_LU64 = 10, BK_MIXED1 = 11, BK_MIXED2 = 12
   integer, parameter, public :: OP_CGEMM = 1, OP_ZGEMM = 2, OP_DGEMM = 3, OP_EPSINV = 4
   integer, parameter :: nop = 4
@@ -163,6 +165,7 @@ contains
     select case (bk)
     case (BK_CUBLAS);    s = 'cublas'
     case (BK_REALSGEMM); s = 'realsgemm'
+    case (BK_REALHGEMM); s = 'realhgemm'
     case (BK_GEMMUL8);   s = 'gemmul8'
       if (nm > 0) write(s,'(a,i0)') 'gemmul8:', nm
     case (BK_LU64);      s = 'lu64'
@@ -351,6 +354,7 @@ contains
     select case (val(1:merge(ic-1, len_trim(val), ic > 0)))
     case ('cublas');    bk = BK_CUBLAS
     case ('realsgemm'); bk = BK_REALSGEMM
+    case ('realhgemm'); bk = BK_REALHGEMM
     case ('gemmul8');   bk = BK_GEMMUL8
     case ('lu64');      bk = BK_LU64
     case ('mixed1');    bk = BK_MIXED1
