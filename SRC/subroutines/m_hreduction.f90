@@ -86,11 +86,15 @@ contains
    ovlm=ovlmx
    ndimPMTx=nev !obtained. oveps may reduce ndimPMT to be ndimPMTx
    fac = (0d0,0d0)
-   do j=1,ndimMTO !Amat is corrected matrix element of fac=<psi_PMT|psi_MTO>
-      do i=1,nev
-         fac(i,j)= sum(dconjg(evecpmt(:,i))*matmul(ovlmx(:,ix(1:ndimMTO)),evecmto(1:ndimMTO,j))) !<Psi_PMT|Psi_MTO>
-      enddo
-   enddo
+   FacPMTMTO: block !fac(i,j) = <Psi_PMT_i|S|Psi_MTO_j>, the matrix element Amat is made from.  Two products: the
+     !S|Psi_MTO_j> of each j was made again for every i (1 of the 7.5 s per k point of lmf --jobgw=1, LiTi2O4)
+     use m_blas,only: zmm_h, m_op_C
+     complex(8):: sx(ndimPMT,ndimMTO), sv(ndimPMT,ndimMTO)
+     integer:: istat
+     sx = ovlmx(:,ix(1:ndimMTO))
+     istat = zmm_h(sx, evecmto, sv, m=ndimPMT, n=ndimMTO, k=ndimMTO)                              ! S |Psi_MTO_j>
+     istat = zmm_h(evecpmt, sv, fac, m=nev, n=ndimMTO, k=ndimPMT, opA=m_op_C, ldc=ndimPMT)        ! <Psi_PMT_i| S |Psi_MTO_j>
+   endblock FacPMTMTO
    ModifyMatrixElements :block
       use m_nvfortran,only : findloc
       use m_ftox

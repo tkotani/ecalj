@@ -4,7 +4,7 @@ module m_GramSchmidt
 #else
   use m_blas,only: zmm => zmm_h, m_op_C, zmv => zmv_h, zvv => zvv_h
 #endif
-  public GramSchmidt2,CB_GramSchmidt
+  public GramSchmidt2,CB_GramSchmidt,CholQR_GramSchmidt
 contains
   subroutine GramSchmidt2(nspc,n,nv1,nv2,nv2mx, omat1,omat2, zmel1,zmel2)!Modified GramSchmidt. MTpart+IPW. Originally for AHC branch.
     implicit none
@@ -132,6 +132,33 @@ contains
     !$acc end data
     deallocate(q1, q2)
   end subroutine CB_GramSchmidt
+  subroutine CholQR_GramSchmidt(nspc,n,nv1,nv2,nv2mx, omat1,omat2, zmel1,zmel2) !The orthonormalization of CB_GramSchmidt with matrix products (host)
+    ! z = [zmel1; zmel2] (each spin block) becomes orthonormal in the metric diag(omat1,omat2): S = z^H O z = R^H R
+    ! (Cholesky, R upper triangular) and z <- z R^-1.  This is the QR factorization that classical Gram-Schmidt makes
+    ! column by column, with two products by omat2 (ngp x ngp) in place of two matrix-vector products per column
+    ! (2.3 s of the 7.5 s per k point of lmf --jobgw=1 on one core, LiTi2O4).  The columns are eigenvectors, nearly
+    ! orthonormal already, so S is close to 1.
+    use m_blas,only: zmm_h
+    implicit none
+    integer,intent(in):: nspc,n,nv1,nv2,nv2mx
+    complex(8),intent(in):: omat1(nv1,nv1), omat2(nv2,nv2)
+    complex(8),intent(inout):: zmel1(nv1*nspc,n), zmel2(nv2mx*nspc,n)
+    complex(8),allocatable:: s(:,:), oz1(:,:), oz2(:,:)
+    integer:: istat, ispc, info
+    allocate(s(n,n), oz1(nv1,n), oz2(nv2,n))
+    s = (0d0,0d0)
+    do ispc = 1, nspc
+      istat = zmm_h(omat1, zmel1(nv1*(ispc-1)+1,1), oz1, m=nv1, n=n, k=nv1, ldb=nv1*nspc)
+      istat = zmm_h(zmel1(nv1*(ispc-1)+1,1), oz1, s, m=n, n=n, k=nv1, opA=m_op_C, lda=nv1*nspc, beta=(1d0,0d0))
+      istat = zmm_h(omat2, zmel2(nv2mx*(ispc-1)+1,1), oz2, m=nv2, n=n, k=nv2, ldb=nv2mx*nspc)
+      istat = zmm_h(zmel2(nv2mx*(ispc-1)+1,1), oz2, s, m=n, n=n, k=nv2, opA=m_op_C, lda=nv2mx*nspc, beta=(1d0,0d0))
+    enddo
+    call zpotrf('U', n, s, n, info)
+    if(info/=0) call rx('CholQR_GramSchmidt: the overlap of the eigenfunctions is not positive definite')
+    call ztrsm('R','U','N','N', nv1*nspc,   n, (1d0,0d0), s, n, zmel1, nv1*nspc)
+    call ztrsm('R','U','N','N', nv2mx*nspc, n, (1d0,0d0), s, n, zmel2, nv2mx*nspc)
+    deallocate(s, oz1, oz2)
+  end subroutine CholQR_GramSchmidt
   function get_vxv(vvec, xmat, nsize) result(vxv)
     integer, intent(in) :: nsize
     complex(8), intent(in) :: vvec(nsize), xmat(nsize,nsize)

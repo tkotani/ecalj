@@ -778,12 +778,16 @@ contains
         !   geigr(ngp+1:ngpmx,ispc,1:ndimhx)=0d0
         ! enddo ! skip cphi(ix,1:nev,1:nspc) = cphi(ix, 1:nev,1:nspc) /sqrt(1d0+0.1d0*nindx(ix)) here because zzpi includes this factor 2025-5-7
         GramSchmidtCphiGeig :block
-          use m_GramSchmidt,only:GramSchmidt2 ,CB_GramSchmidt
+          use m_GramSchmidt,only:GramSchmidt2 ,CB_GramSchmidt, CholQR_GramSchmidt
           if(.not.c0_skipGS) then
             if(c0_modifiedGS) then !very slow
                call GramSchmidt2(nspc,nev,ndima,ngp,ngpmx, ppj(1:ndima,1:ndima,isp),ppovl, cphix,geigr) !Improve Orthogonalization
             else !faster
+#ifdef __GPU
                call CB_GramSchmidt(nspc,nev,ndima,ngp,ngpmx, ppj(1:ndima,1:ndima,isp),ppovl, cphix,geigr)
+#else
+               call CholQR_GramSchmidt(nspc,nev,ndima,ngp,ngpmx, ppj(1:ndima,1:ndima,isp),ppovl, cphix,geigr) !the same with BLAS3
+#endif
             endif
           endif
           if(c0_normcheck) then
