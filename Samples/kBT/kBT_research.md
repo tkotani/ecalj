@@ -78,6 +78,91 @@
 意味のある異常はこの数より**少ない**場合（一部のプロセスが MLO 経路に入らず従来の `sigm` に落ちた）。
 ほか: 1 反復 ≈ 5300 秒（6³ は ≈ 950）、スナップショット 2.4 GB（6³ は 0.9）。
 
+## 2026-09-27 夜 — hgw 以外の段（lmf --jobgw=1、mlo、hqpe_sc、hsfp0_sc、起動）
+
+（user「lmf --jobgw=1 がなんとか高速化できないかな」「大きな系でも対応できるかな。とくに無駄なメモリ消費とかないかな」
+「全処理のポテンシャル２回もやって」「hsfp0_sc、hqpe_sc, mlo を見てほしい」「じゃあまずそれらをやってみて。コードクリーンアップも兼ねて」）
+
+### 21:34 **QSGW 1 反復（LiTi2O4 6³、tf32、MLO）: 237 → 212 秒。hgw 以外が 66 → 42 秒**
+
+18:34 と同じ出発点（`qmlo_k6_tf32h` の 5 反復目のコピー `/mnt/data1/LiTi2O4_kbt_runs/iter1_0927b`）で同じ `run1.sh`
+（`gwsc 1 -np 60 -np2 2 --gpu --prec=tf32 --ntqxx --mlo`、GPU 2 枚、`ECALJ_MLO_MIX=1`）。コードは `208a65a09`（kt1 の SRC は手元の HEAD と全ファイル一致）。単位は秒。
+
+| 段 | 18:34（`6dbad4ddc`） | 今回（`208a65a09`） |
+|---|---|---|
+| lmf --jobgw=1（CPU 60） | 20.8 | 9.8 |
+| heftet・hbasfp0 ×2 | 1.8 | 1.1 |
+| hvccfp0 --job=3（core、GPU 2） | 3.2 | 3.3 |
+| hsfp0_sc --job=3（GPU 2） | 6.6 | 4.4 |
+| hvccfp0 --job=0（GPU 2） | 4.8 | 4.8 |
+| hgw（GPU 2） | 171 | 170 |
+| hqpe_sc（1 本） | 4.1 | 1.5 |
+| mlo --mlofreeze（CPU 60） | 10.1 | 3.5 |
+| lmf の SCF（CPU 60） | 14.6 | 13.3 |
+| 計 | 237 | 212 |
+
+- 結果: `QPU.6run` の 2544 状態で SEx・SEc などの差は表示の桁（1 meV）で最大 1、Σ の列（0.01 meV の桁）は最大 0.2 meV。
+  SCF の全エネルギーは 6e-5 Ry（0.8 meV）違う（tf32 の Σ の揺らぎと SCF の収束の進み具合）
+- いまの内訳は hgw 80%、lmf（`--jobgw=1` と SCF）11%、その他 9%
+- 残り: hsfp0_sc の `build_zmel` のカーネル起動と同期（GPU 1 枚で約 2 秒）、hqpe_sc の matmul と混合履歴の読み書き（約 0.7 秒）、
+  mlo の初期化（約 0.6 秒）。どれも 1 秒前後なので追わない
+
+### 21:26 **hsfp0_sc --job=3（コアとの交換）: GPU 1 枚で 11.9 → 7.4 秒、CPU 60 本で 153 → 57 秒**（`208a65a09`）
+
+- nsys: GPU の時間の大半は **M 基底から E 基底への変換**（`build_zmel` の最後の積、1 回 36 GFlop、全 ngb = 788 行）と、交換の積
+  （158 × 158、k = 46 状態 × 788）。後者は出力のタイルが数個しかなく、170 SM のうち数 SM しか使っていなかった
+- コア状態の `zmelt` は、その原子（回転後の `iap`）の積基底ブロックの行にしか値が無い（IPW の行も 0）。コアだけの組は原子ごとに
+  そのブロックの行だけで E 基底へ送る（k = 788 → 50〜80）。0 の項を省くだけなので式としては同じ
+- 交換の積は `cmm_d(splitk=)`: k を状態ごとに切った strided-batched の積と足し合わせのカーネル
+- linalg の表を全部 cuBLAS にすると交換は速くなるが zmel が遅くなり全体は 13.5 秒（採らない）
+- 精度: CPU（倍精度）と GPU の fp64 は旧 CPU の結果と 2e-17 / 6e-15 Hartree で一致。mp（fp32）の GPU は 1.2e-5 Hartree（0.3 meV）で、
+  旧コードの np=1 と np=2 の差（0.37 meV、FP32 で 3456 回足し込む揺らぎ）と同じ大きさ
+- 残りは 1 回（q, k）あたり約 130 回のカーネル起動と約 100 回の同期（原子ごとの小さな OpenACC 領域）
+
+### 21:10 **hqpe_sc: 3.9 → 1.5 秒。Σ^MLO(R) の Bloch 和の位相を原子対ごとに**（`1bd21c5d1`）
+
+- `ECALJ_MLO_MIX=1` の $x_0$（QMLO_SigRs の 16 q での Bloch 和）が 2.5 秒: `sigmlo_sigq` が (i, j, R) ごとに exp を計算していた（1 q あたり 860 万回）。
+  位相は原子対と R だけで決まるので原子対ごとに 1 回
+- 同じ関数を lmf の `getsenex` が k 点ごとに呼ぶので、lmf の SCF と `--jobgw=1` も 1 k 点あたり約 0.16 秒短くなる
+- `sigm` はビット一致、`__QMLO_Sig` は相対 5.7e-16（R の和の順序）
+- 残りの 1.5 秒: 起動 0.3、q ごとの 320 次元の matmul 0.5、混合履歴（`__mixsig` 325 MB、`__QMLO_mixsig` 98 MB）の読み書き 0.3
+
+### 21:06 **mlo --mlofreeze: Σ^MLO だけに（単体 5.4 → 3.9 秒）。旧 cmlo の段が sugw の `__cmlo.data` を上書きしていた**（`fff936214`）
+
+- 凍結の回は HamRsMLO を書き直さないので、要るのは Σ^MLO(q) → QMLO_SigRs だけ。PMT の H の既約点での簡約（Hreduction、nskip の下見、
+  誰も読まない `__amlo.data`）と、H・O の回転と Fourier 変換をやめた。MLO の添字は HamRsMLO の末尾から読む（ShallowLO を解き直さない）ので、
+  凍結の回は `__HamiltonianPMT` を読まない。gwsc の再開の判定も `HamiltonianPMTInfo` だけにした
+- 実空間の配列は主ランクだけが書くので、allreduce（LiTi2O4 で 137 MB × 3、0.8 秒）を主ランクへの MPI_Reduce に
+- **見つけたこと**: `__HamiltonianGW.info` があると旧 cmlo の段（`cmlo4GWinput`）が走る。gwsc の流れでは `lmf --jobgw=1` が毎回それを書くので、
+  凍結の mlo は毎反復この段を走らせ、sugw（step a'）が今の反復の窓で書いた `__cmlo.data`/`.info` を**チェーン開始時の窓**で作り直して上書きしていた。
+  gwsc の中では次の反復の頭で消えるので結果には効いていなかったが、チェーンの最後に残る `__cmlo` は食い違っていた。凍結の回はこの段を通らない
+- QMLO_SigRs は旧版と最大 6.9e-18（|Σ| の最大 2.8e-2、ランク間の和の順序）
+- 60 ランクの起動が残りの大半。ランク数を 8〜16 にすると 2.0〜2.2 秒だが、gwsc の設定は変えない（user「もうそれはいいわ」）
+
+### 21:06 **起動: 1 ランクの CPU プログラムだけ GPU を隠す（0.53 → 0.26 秒）**（`9ca76ba03`、`1bd21c5d1`）
+
+- HPC-X の MPI_Init は CPU のプログラムでも全 GPU を調べる。heftet・hbasfp0 ×2・hqpe_sc は `CUDA_VISIBLE_DEVICES=""` で半分になる
+- 60 ランクでは効かない（8 回の中央値: そのまま 1.85 秒、隠すと 2.25 秒、さらに `UCX_TLS=self,sm` で 2.16 秒）。env.sh を読まない
+  mpihello では 2.4 → 1.1 秒に見えたが、実際の環境では再現しなかったので入れない
+- GPU を隠すと UCX が HPC-X の `UCX_CUDA_*` 設定を「未使用」と警告するので `UCX_WARN_UNUSED_ENV_VARS=n` も付ける
+
+### 20:11 **lmf --jobgw=1: 21.1 → 10.2 秒（CPU 60）。xc 抜きの H を別に解かない、ポテンシャルも 1 回で**（`10fe977d4`〜`48975d332`）
+
+| 手 | commit |
+|---|---|
+| cphi・geig の Gram-Schmidt をホストでは Cholesky QR（$S = z^\dagger O z$、zpotrf、ztrsm）に。Hreduction の fac を積 2 回に | `10fe977d4` |
+| H と xc 抜きの H を 1 回で（`hambl2`: augmbl・smhsbl・hsibl がもう一方のポテンシャルの分も同じ所で足す） | `1aaa85442`、`beb83d454` |
+| hsibl: 全サイトの基底関数の PW 係数を 1 回作り、同じ打ち切りのサイトの並びごとに積 1 回（2 つのポテンシャルを同じ積で） | `2a006dac9` |
+| pwmat: IPW との重なりの積は MTO の列だけ、APW の列は表引き。ホストでは MTO の列を FFT の相関で | `ddc30666b`、`c79ff0a09` |
+| mkpot: xc 抜きのポテンシャル（spotx、oppix）を全体と同じ 1 回の mkpot で（smves の後の smpot を写し、oppix は v1es・v2es で potpus〜gaugm を 1 回足す） | `48975d332` |
+
+- SCF の hsibl も 1 回 0.48 → 0.34 秒
+- 大きな系のメモリ: hvccfp0 の原子群ごとの sigx（ngc 4500 で 3.6 GB）をやめて群ごとに vcoul_termb（約 0.3 GB）、hambl2 の ndimh² の一時配列をやめた、
+  strxq_all の q 空間の位相表を対のかたまりごとに、pwmat の FFT は ngp × 4096 のかたまりを持たない
+- mkpot を 1 回にした版は旧版とビット一致しない。旧版は xc 抜きの mkpot を先に呼んでいて、全体のポテンシャルがその呼び出しの後の状態に
+  依存していた（デバッグ出力で確認）。新版は 1 回目の呼び出しの結果と同じ。追わない（user「ちゃんと回る、というのなら突き詰めなくていいだろう」）
+- 手元の gfortran で `--all` は `2a006dac9` と `48975d332` で合格
+
 ## 2026-09-27 夕方 — hvccfp0（クーロン行列）の GPU 化
 
 （user「クーロン行列、やるべきやね」「先に hvccfp0 をなんとかしよう。GPU でやれるほうがいいかな」「先に CPU 時間を詰めて」

@@ -306,3 +306,41 @@ FP16 版の 6³ tf32 で、rank 0 の hgw 本体 227 秒の内訳は Σc 117 秒
 | χ0 の積算（x0_gemm、1 q あたり約 2.8 秒）を FP16 に | 6³ で 4% | 正定値の和で誤差は乗りにくいが、W で $(1-v\chi_0)^{-1}$ に拡大される。Σ で確かめてから |
 | zmel の構築（Σc 側 27 秒）の非同期化 | 数 % | 小さな同期カーネルが多い |
 | q ごとの実測時間を次の回の割り振りに使う | 1〜2%（§9.4 の後） | 反復ごとに hgw の時間をファイルに残す |
+
+## 10. 2026-09-27 夜: hgw 以外の段
+
+hgw に続いて、1 反復の中の hgw 以外の段を詰めた。経過は [`kBT_research.md`](kBT_research.md) の 2026-09-27 夕方・夜。
+
+*表 12* LiTi2O4 6³ の `gwsc 1`（tf32、MLO、GPU 2 枚、CPU 60 本）の段ごとの秒。18:34 と 21:34 は同じ出発点（5 反復目の状態）から、
+15:50 のコードの列は同じ流れの反復 5
+
+| 段 | 15:50 のコード | 18:34（`6dbad4ddc`） | 21:34（`208a65a09`） |
+| --- | --- | --- | --- |
+| lmf --jobgw=1 | 20.7 | 20.8 | 9.8 |
+| heftet・hbasfp0 ×2 | 1.8 | 1.8 | 1.1 |
+| hvccfp0 ×2（core と valence） | 40.7 | 8.0 | 8.1 |
+| hsfp0_sc --job=3 | 7.6 | 6.6 | 4.4 |
+| hgw | 237 | 171 | 170 |
+| hqpe_sc | 4.1 | 4.1 | 1.5 |
+| mlo --mlofreeze | 10.4 | 10.1 | 3.5 |
+| lmf の SCF | 19.7 | 14.6 | 13.3 |
+| 計 | 342 | 237 | 212 |
+
+- hvccfp0: Bessel 表・Wronskian・Ewald 和（全原子対）・CG 和を GPU で、原子群ごとの表は持ち回さない
+- lmf --jobgw=1: xc 抜きの H を別に作らない（augmbl・smhsbl・hsibl が 2 つのポテンシャルを同じ所で足す）、xc 抜きのポテンシャルも同じ mkpot で、
+  pwmat の IPW の重なりは MTO の列だけ（ホストでは FFT の相関）、Gram-Schmidt はホストでは Cholesky QR
+- mlo --mlofreeze: Σ^MLO だけ（H・O の簡約と回転をしない）、実空間の配列は主ランクへの reduce
+- hqpe_sc と lmf の getsenex: Σ^MLO(R) の Bloch 和の位相を原子対ごとに
+- hsfp0_sc（コアとの交換）: コア状態の E 基底への変換を原子ブロックだけで、交換の積は k を分けた batched の積（`cmm_d(splitk=)`）
+- 1 ランクの CPU プログラム（heftet、hbasfp0、hqpe_sc）は GPU を隠して起動（MPI_Init が GPU を調べる分）
+- 結果: QPU の 2544 状態で表示の桁（1 meV）まで、Σ の列で 0.2 meV 以内。コアとの交換は倍精度で旧版と 6e-15 Hartree
+
+### 10.1 残したこと
+
+| 候補 | 見積もり | 注意 |
+| --- | --- | --- |
+| q 点ごと・原子ごと・ランクごとのファイルを MPI-IO で 1 本に（user の提案）。q 点ごと: `__Vcoud.<iq>`（6³ で 17 本）、`__TETWT.<iq>.<isp>`、`PROCAR.UP.<k>`。原子ごと: `__PPBRD_V2_<ic>`、`__BASFP<ic>`。ランクごと: `STDOUT/stdout.<rank>.<prog>`（hgw の四面体の補助だけで 60 本） | 速さはほぼ変わらない。ファイル数、後片付け、スナップショットが楽になる | すでに m_mpiio の固定長レコード（`openm`・`writem`）: `__HamiltonianPMT`、`__CPHI`、`__GEIG`、`__VxcEvec`、`__cmlo.data`、`__QMLO_zNew`。MPI-IO の open は集団操作で全ランクが呼ぶ（k を持たないランクは getsenex を呼ばないので `QMLO_z` はストリームで読んでいる）。OpenMPI 4.1.6 で 2 本目の open が詰まった例がある（hx0fp0）。ランクごとの stdout はデバッグに要るので、1 本にするならランクの印を付ける |
+| hsfp0_sc の `build_zmel`（コア）のカーネル起動と同期 | GPU 1 枚で約 2 秒 | 原子ごとの小さな OpenACC 領域（1 回に約 130 回の起動と 100 回の同期）をまとめる |
+| hqpe_sc の q ごとの matmul と混合履歴（`__mixsig` 325 MB、`__QMLO_mixsig` 98 MB）の読み書き | 約 0.7 秒 | 履歴ファイルの形を変えると走行中のチェーンの履歴が読めなくなる |
+| mlo の初期化 | 約 0.6 秒 | 全ランクが同じ初期化をしている |
+| 60 ランクの起動（1 本 1.5〜2 秒、1 反復に 4 本） | — | MPI の実装次第。GPU を隠す・UCX を絞るは 60 ランクでは効かなかった |
