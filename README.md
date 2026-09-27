@@ -11,8 +11,12 @@ ecalj documents is at [ecaljdoc](https://ecalj.github.io/ecaljdoc/)
     gwsc 10 -np 32 -np2 2 --gpu --prec=tf32 --prec-final=fp32:2 <sname>   # 8 iterations tf32, last 2 fp32
 
 - `--prec`: fp64 = double precision; fp32 = mixed precision with FP32 products (= `--mp --fp32`);
-  tf32 = fp32 but the products of Sigma_c in TF32 (about 30% faster; Sigma within ~1 meV near E_F on
-  LiTi2O4). `--mp` alone keeps the older all-TF32 (5 meV there; W suffers through (1 - v chi0)^-1).
+  tf32 = fp32 but the products of Sigma_c with 10-bit-mantissa inputs (TF32, or FP16 where the table
+  chooses it; about 40% faster than fp32 on RTX 5090; Sigma within ~1 meV near E_F on LiTi2O4).
+  `--mp` alone = tf32 (until 2026-09-27 it was TF32 in every product: 5 meV there, the NiO gap off by
+  0.1 eV, for only 10% less time; W suffers through (1 - v chi0)^-1).
+- Sigma_c runs asynchronously on the GPU (kernels and products on one stream; the pole weights are
+  computed on the CPU meanwhile). LiTi2O4 6^3 `hgw` on 2 RTX 5090: fp32 424 -> 412 s, tf32 293 -> 242 s.
 
 - **Which method runs each GPU matrix product and the epstilde inverse** (cuBLAS, `realsgemm` = a complex
   product as one real SGEMM, GEMMul8 = Ozaki on INT8, mixed-precision inverse) comes from one table,

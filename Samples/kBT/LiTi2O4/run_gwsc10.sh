@@ -4,7 +4,8 @@
 #   usage: run_gwsc10.sh <tag> <input dir> <bindir>
 #   <input dir>: ctrlg.liti2o4.toml + env.sh (liti_src_full9 = 6^3, liti_src_full9_k9 = 9^3)
 #   <bindir>   : where gwsc and the executables are (~/bin -> ~/ecalj, ~/bin_dev -> ~/ecalj_dev)
-#   GWSC_EXTRA : more gwsc options, e.g. --use_gemmul8 (GEMMul8 for the large Sigma_c products)
+#   PREC       : precision of the GW programs, tf32 | fp32 (default) | fp64 (gwsc --prec)
+#   GWSC_EXTRA : more gwsc options, e.g. --prec-final=fp32:2 (the last two iterations in fp32)
 # gwsc keeps llmf.<N>run and QPU.<N>run of every iteration; the state after iteration 10 is copied to
 # snap/final and its bands are drawn there: the conventional sigm band (job_band, also makes qplist.dat)
 # and THE MLO band (draw_mloband_qmlo.sh = Samples/kBT/LiTi2O4/draw_mloband.sh).
@@ -22,10 +23,10 @@ say "tag=$TAG src=$SRC bin=$BIN build=$B rev=$(head -1 $B/../.ecalj_rev 2>/dev/n
 say "binary: __QMLO_zNew in libecaljF_mp_gpu.so = $(strings $B/libecaljF_mp_gpu.so 2>/dev/null | grep -c __QMLO_zNew) (0 = a binary from before the QMLO_* names)"
 say "settings: $(grep -hE '^nkabc|^n1n2n3|mlo_nkabc|^pwmode|^mixbeta' ctrlg.$T.toml | tr -s ' ' | tr '\n' ';')"
 export ECALJ_MLO_MIX=1
-say "extra gwsc options: [${GWSC_EXTRA:-}]"
+say "precision: ${PREC:-fp32}  extra gwsc options: [${GWSC_EXTRA:-}]"
 say "ECALJ_MLO_MIX=$ECALJ_MLO_MIX  GPUs: $(nvidia-smi --query-compute-apps=pid,process_name --format=csv,noheader | wc -l) processes before start"
 t0=$(date +%s)
-CUDA_VISIBLE_DEVICES=0,1 $BIN/gwsc 10 -np 60 -np2 2 --gpu --mp --fp32 --ntqxx --mlo ${GWSC_EXTRA:-} $T > gwsc10.log 2>&1; rc=$?
+CUDA_VISIBLE_DEVICES=0,1 $BIN/gwsc 10 -np 60 -np2 2 --gpu --prec=${PREC:-fp32} --ntqxx --mlo ${GWSC_EXTRA:-} $T > gwsc10.log 2>&1; rc=$?
 say "gwsc 10 rc=$rc secs=$(( $(date +%s)-t0 ))"
 for it in $(seq 1 10); do
   f=llmf.${it}run

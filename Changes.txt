@@ -1,3 +1,24 @@
+2026-09-27 (2)
+  報告書 §8「残したこと」の片付けと、Σc の積の FP16 化 (Samples/kBT/gpu_fp32_report.md §8・§9)。
+  - Σc (m_sxcf_sc) の 1 バッチを OpenACC のキュー 1 に載せる: バッチの頭で cudaDeviceSynchronize、m_blas の積
+    (cuBLAS、realsgemm の CUF カーネル、GEMMul8) を cublas_set_stream でキュー 1 のストリームへ、周波数ループのカーネルは
+    async(1)、最後に !$acc wait(1) で既定ストリームへ戻す。キュー 1 のストリームは non-blocking で既定ストリームの積を
+    待たない (朝の非同期化が NaN になった原因)。虚軸の重みは GPU のカーネル (fd_cdf は acc routine)、実軸の極の重みは
+    虚軸の積を投げた後に CPU で計算して重ねる。バッファの確保・解放はバッチの外。
+  - m_stopwatch が GPU 版で start・pause のたびに cudaDeviceSynchronize していた。stopwatch_init(..., hostonly=.true.)
+    でホストの時間だけにでき、Σc のバッチの中の 3 つをそうした (バッチ全体の ec は GPU 込みのまま)。
+  - realhgemm (m_la_realsgemm): realsgemm の組み替えを FP16 の入力・FP32 の和で。A' と B を 2 のべきで最大要素 < 2^14 に
+    スケール (B の最大は cublasIsamax、スケールと係数はデバイス上、cuBLAS はデバイスポインタモード)。仮数は TF32 と同じ
+    10 ビットで、RTX 5090 では TF32 の 1.75〜1.9 倍速い。linalgtune の候補に入れ、tf32 の行 (Σc の積だけが使う) は
+    Σc の形だけで重み付け。RTX 5090 の表は tf32 = realhgemm。
+  - gwsc --mp (--fp32 なし) を --prec=tf32 と同じにした (すべての積を TF32 にしていたのは誤差 6 倍で 1 割しか速くない)。
+  - hgw の q の割り振り (LPT) の重みに、どの q も W を 1 回作る分を足した (6³ の 2 ランクで W の回数が 9 対 8 だった)。
+  - tf32 の誤差の大半は Σc の一様な縮み (Re Σc の約 −5e-5 倍、FP16 で約 −1e-4 倍)。cuBLAS の TF32 は入力を最近接に
+    丸めていて、偏りはテンソルコアの和の途中の切り捨てから来る。
+  - Samples/kBT/LiTi2O4/run_gwsc10.sh は PREC で精度を選ぶ。
+  - 結果 (LiTi2O4 6³ の hgw、kt1 RTX 5090 ×2): tf32 292.5 → 242 秒 (Re Σc は倍精度から E_F ±1 eV で最大 1.3 meV、
+    TF32 の積なら 0.8)、fp32 423.5 → 411.7 秒 (Σ は前と表示の桁まで一致)。
+
 2026-09-27 (1)
   GPU の行列演算を 1 枚の振り分け表 (m_linalg_policy) の下にまとめ、その表をインストール時に測って決める。
   - 振り分け表: 演算 (cgemm / zgemm / dgemm / 誘電行列の逆行列 epsinv) × 大きさの区分 (small / large) × 精度
