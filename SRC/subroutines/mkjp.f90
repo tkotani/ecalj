@@ -3,14 +3,16 @@ module  m_vcoulq
   use m_mpi,only: ipr,mpi__rank
   use m_lgunit,only: stdo
   use m_ftox
-  public vcoulq_4,mkjb_4,mkjp_4,genjh, ajr, ajr_grp, grp_atom
+  public vcoulq_4,mkjb_4,mkjp_4,genjh, ajr, a1r, sigx_grp, grp_atom
   private
   character(1024):: aaaw
-  real(8), allocatable  :: ajr(:,:,:)
-  ! The Bessel table ajr of each group of atoms with the same radial mesh and lx (one per atom type), kept on the
-  ! device by hvccfp0 from mkjp_4 for vcoulq_4, which needs the same table (it recomputed it: 5.7 of 17 s of GPU
-  ! time, LiTi2O4 6^3).  grp_atom(ibas) is the group of atom ibas.
-  real(8), allocatable  :: ajr_grp(:,:,:,:)
+  ! Tables of the group of atoms (same radial mesh and lx) of the last mkjp_4 call, used again for the next atoms
+  ! of the group: ajr(r,ig,l) = j_l(|q+G| r) r^(l+1)/|q+G|^l, and a1r (eee/=0, see sigkernel).
+  real(8), allocatable  :: ajr(:,:,:), a1r(:,:,:)
+  ! sigx(l) of <P_G1|v|P_G2> for each group (one per atom type), made by mkjp_4 from ajr and a1r for vcoulq_4, which
+  ! made the same tables again (a Bessel table and a1r of each type: 7 of 15 s of GPU time, LiTi2O4 6^3).
+  ! sigx_grp(l,igg,igrp) with igg = ig1*(ig1-1)/2+ig2, ig2<=ig1.  grp_atom(ibas) is the group of atom ibas.
+  real(8), allocatable  :: sigx_grp(:,:,:)
   integer, allocatable  :: grp_atom(:)
 contains
   subroutine vcoulq_4(q,nbloch,ngc,nbas,lx,lxx,nx,nxx,alat,qlat,vol,ngvecc, & !Coulmb matrix for each q
@@ -46,8 +48,7 @@ contains
     real(8) :: sgbb(nxx,  nxx,  0:lxx,      nbas) !i sigma-type onsite integral
     real(8) :: fpivol,tpiba, bas(3,nbas),r2s,rmax(nbas)
     real(8) ::  fkk(0:lxx),fkj(0:lxx),fjk(0:lxx),fjj(0:lxx),sigx(0:lxx),radsig(0:lxx) !,radsig(0:lxx,nbas),fjj(0:lxx,nbas)
-    real(8) :: eee , int1x(nrx),int2x(nrx),phi(0:lxx),psi(0:lxx) &
-         ,aa(nbas),bb(nbas),rkpr(nrx,0:lxx,nbas),rkmr(nrx,0:lxx,nbas),rofi(nrx,nbas)
+    real(8) :: eee, aa(nbas),bb(nbas),rkpr(nrx,0:lxx,nbas),rkmr(nrx,0:lxx,nbas),rofi(nrx,nbas)
     real(8),allocatable  :: eb(:),cy(:),yl(:), a1(:,:,:)
     real(8),parameter:: pi=4d0*datan(1d0),fpi=4d0*pi
     complex(8) :: rojp(ngc, (lxx+1)**2, nbas)   !rho-type onsite integral
@@ -161,29 +162,23 @@ contains
 
     ! <P_G|v|P_G>
     PvP_dev_mo: block
-      use m_bessl, only: bessl2 => bessl, wronkj2 => wronkj, radkj2 => radkj
+      use m_bessl, only: wronkj2 => wronkj, radkj2 => radkj
       use m_keyvalue,only: getkeyvalue
       use m_GWinput, only: gwinput_init, gwinput_loaded, tg_KeepWronkj => KeepWronkj
 #ifdef __GPU
       use openacc
 #endif
-      ! real(8), allocatable :: sigx_tmp(ngc,ngc,0:lxx), a1g(nrx,ngc), aabb_by3
-      ! real(8) :: ajr_tmp(nrx,ngc), phi_rg(nrx,ngc,0:lxx), rofi_tmp(1:nrx) !  complex(8) :: crojp((lxx+1)**2,nbas,ngc)
-      real(8), allocatable :: fac_integral(:), a1g(:,:), ajr_tmp(:,:), phi_rg(:,:,:), rofi_tmp(:)
       complex(8) :: rojpstrx((lxx+1)**2,nbas,ngc)
-      logical :: hasBessel, keepWronkj
+      logical :: keepWronkj
       real(8), allocatable :: ajg(:,:), djg(:,:), aje(:,:), dje(:,:)   ! Bessel values and slopes at rmax per G
       integer :: igrpv
       real(8) :: akw(lxx+2), ajw(lxx+2), dkw(lxx+2), djw(lxx+2), e1w, e2w, rw, efacw, rjw
-      real(8), allocatable ::  keep_fjj(:,:), keep_sigx(:,:), sigx_tmp(:,:)
+      real(8), allocatable ::  keep_fjj(:,:)
       integer, allocatable :: iggtable(:,:)
       integer :: nggc, igg
       integer :: ibas_order(nbas), ib_prev, isrt, jsrt, ktmp, itype_start, itype_end, ib_next
       complex(8) :: cPhi
       complex(8), allocatable :: vcoul_termA(:,:)
-      ! Get integral coefficients of int (a*b) G_1(ir) G_2(ir) exp(a*r))
-      ! simpson rule is used. nr(ibas) was set as odd number
-      !   sigx_tmp(ig1,ig2,l) is int dr (aa(ibas)*bb(ibas)) a1g(r,g1)* ajr(r,l,ibas,g2) exp(aa(ibas)*r))
       call gwinput_init()
       if (gwinput_loaded) then
          keepWronkj = tg_KeepWronkj
@@ -219,7 +214,7 @@ contains
         enddo
       enddo
 
-      !$acc data create(rojpstrx,pjyl_p) copyin(rofi, rkpr, rkmr, aa, bb, nr, absqg2, pjyl_, phase, iggtable, ibas_order)
+      !$acc data create(rojpstrx,pjyl_p) copyin(absqg2, pjyl_, phase, iggtable, ibas_order)
 
       !$acc host_data use_device(strx, rojp)
       istat = zmm(strx, rojp, rojpstrx, m=nbas*(lxx+1)**2, n=ngc, k=nbas*(lxx+1)**2, opA=m_op_T, opB=m_op_C)
@@ -284,12 +279,7 @@ contains
           !$acc update device(vcoul)
 
         else ! eee is nonzero
-          ! The Bessel table of this type comes from mkjp_4 (ajr_grp, kept by hvccfp0)
-          igrpv = grp_atom(ibas)
-          allocate(rofi_tmp(1:nr(ibas)), fac_integral(1:nr(ibas)), a1g(nr(ibas),ngc), ajr_tmp(nr(ibas),ngc))
-          allocate(sigx_tmp(ngc,ngc))
-          !$acc data create(ajr_tmp, a1g, rofi_tmp, fac_integral, sigx_tmp)
-
+          igrpv = grp_atom(ibas)   ! sigx of this type: sigx_grp(:,:,igrpv) from mkjp_4
           if(keepWronkj) then
             if(allocated(keep_fjj)) then
               !$acc exit data delete(keep_fjj)
@@ -346,51 +336,10 @@ contains
             deallocate(ajg, djg, aje, dje)
           endif
 
-          if(allocated(keep_sigx)) then
-            !$acc exit data delete(keep_sigx)
-            deallocate(keep_sigx)
-          endif
-          allocate(keep_sigx(0:lx(ibas),nggc))
-          !$acc enter data create(keep_sigx)
-
-          !$acc kernels
-          do ir = 1, nr(ibas)
-            fac_integral(ir) = aa(ibas)*bb(ibas)*dexp(aa(ibas)*(ir-1))/3d0
-            if( ir /= 1 .and. ir /= nr(ibas)) fac_integral(ir) = fac_integral(ir)*merge(4d0,2d0,mod(ir,2)==0)
-          enddo
-          !$acc end kernels
-          do l = 0, lx(ibas)
-            !$acc kernels
-            rofi_tmp(1:nr(ibas)) = rofi(1:nr(ibas),ibas)**(l+1)
-            !$acc end kernels
-            !$acc kernels loop independent private(int1x, int2x) present(ajr_grp)
-            do ig = 1, ngc
-              ajr_tmp(1:nr(ibas),ig) = ajr_grp(1:nr(ibas),ig,l,igrpv)
-              call intn_smpxxx( rkpr(1,l,ibas), ajr_tmp(1,ig),int1x,aa(ibas),bb(ibas),rofi(1,ibas),nr(ibas))
-              call intn_smpxxx( rkmr(1,l,ibas), ajr_tmp(1,ig),int2x,aa(ibas),bb(ibas),rofi(1,ibas),nr(ibas))
-              a1g(1,ig) = 0d0
-              do ir = 2, nr(ibas)
-                a1g(ir,ig) = (rkmr(ir,l,ibas) * (int1x(1) - int1x(ir)) + rkpr(ir,l,ibas) * int2x(ir)) * fac_integral(ir)
-              enddo
-            enddo
-            !$acc end kernels
-            istat = dmm(a1g, ajr_tmp, sigx_tmp, m=ngc, n=ngc, k=nr(ibas), opA=m_op_T)
-            !$acc kernels
-            do igg = 1, nggc
-              ig1 = iggtable(1,igg)
-              ig2 = iggtable(2,igg)
-              keep_sigx(l,igg) = sigx_tmp(ig1,ig2)
-            enddo
-            !$acc end kernels
-          enddo
-
-          !$acc end data
-          deallocate(ajr_tmp, a1g, rofi_tmp, fac_integral, sigx_tmp)
-
           ! igg kernel: Term B with Phi_type (phase sum over atoms of this type)
           write(aaaw,ftox) " vcoulq_4:  igig type kernel procid=", mpi__rank, 'natom_type=', itype_end-itype_start+1
           call cputm(stdo,aaaw)
-          !$acc parallel loop private(fkk(0:lxx), fkj(0:lxx), fjk(0:lxx), fjj(0:lxx), sigx(0:lxx), radsig(0:lxx), cPhi) present(keep_sigx)
+          !$acc parallel loop private(fkk(0:lxx), fkj(0:lxx), fjk(0:lxx), fjj(0:lxx), sigx(0:lxx), radsig(0:lxx), cPhi) present(sigx_grp)
           do igg = 1, nggc
             ig1 = iggtable(1,igg)
             ig2 = iggtable(2,igg)
@@ -399,7 +348,7 @@ contains
             else
               call wronkj2( absqg2(ig1), absqg2(ig2), rmax(ibas),lx(ibas), fkk,fkj,fjk,fjj)
             endif
-            sigx(0:lx(ibas)) = keep_sigx(0:lx(ibas),igg)
+            sigx(0:lx(ibas)) = sigx_grp(0:lx(ibas),igg,igrpv)
             radsig(0:lxx) = 0d0
             forall(l = 0:lx(ibas)) radsig(l) = fpi/(2*l+1) * sigx(l)
             cPhi = (0d0, 0d0)
@@ -418,10 +367,6 @@ contains
       if(allocated(keep_fjj)) then
         !$acc exit data delete(keep_fjj)
         deallocate(keep_fjj)
-      endif
-      if(allocated(keep_sigx)) then
-        !$acc exit data delete(keep_sigx)
-        deallocate(keep_sigx)
       endif
       deallocate(iggtable)
 
@@ -501,10 +446,12 @@ contains
   ! endif PlaneWavetest
   !end subroutine vcoulq_4
 
-  subroutine mkjp_4(q,ngc,ngvecc,alat,qlat,lxx,lx,nxx,nx,bas,a,b,rmax,nr,nrx,rprodx,eee,rofi,rkpr,rkmr, rojp,sgpb,fouvb,hasBessel)! Integrals@MT and fouvb
+  subroutine mkjp_4(q,ngc,ngvecc,alat,qlat,lxx,lx,nxx,nx,bas,a,b,rmax,nr,nrx,rprodx,eee,rofi,rkpr,rkmr, rojp,sgpb,fouvb,hasBessel,igrp)! Integrals@MT and fouvb
     ! The integrals rojp, fouvb,fouvp are for  J_L(r)= j_l(sqrt(e) r)/sqrt(e)**l Y_L, which behaves as r^l/(2l+1)!! near r=0.
     ! oniste integral is based on 1/|r-r'| = \sum 4 pi /(2k+1) \frac{r_<^k }{ r_>^{k+1} } Y_L(r) Y_L(r')
     ! See PRB34 5512(1986) for sigma type integral
+    ! hasBessel=F: first atom of group igrp (atoms with the same radial mesh and lx), which makes the tables ajr and
+    ! a1r used by the next atoms of the group, and sigx_grp(:,:,igrp) for vcoulq_4 (eee/=0).
     use m_ll,only: ll
     use m_bessl, only: bessl2 => bessl
     implicit none
@@ -514,13 +461,14 @@ contains
          fac,radint,radsigo(0:lx),radsig(0:lx),phi(0:lx),psi(0:lx),r2s,sig,sig1,sig2,sigx(0:lx),sig0(0:lx) ,qg2(3)
     real(8):: rofi(nrx),rkpr(nrx,0:lxx),rkmr(nrx,0:lxx),eee,qg1a(3)
     real(8),allocatable::cy(:),yl(:)
-    real(8),allocatable ::a1(:,:,:), qg(:,:),absqg(:), rofi_nr(:)
+    real(8),allocatable ::a1(:,:,:), qg(:,:),absqg(:), rofi_nr(:), fac_integral(:)
     complex(8) :: rojp(ngc, (lxx+1)**2)        ! rho-type onsite integral
     complex(8) :: sgpb(ngc,  nxx,  (lxx+1)**2) !sigma-type onsite integral
     complex(8) :: fouvb(ngc,  nxx, (lxx+1)**2)
     complex(8) :: img =(0d0,1d0),phase
     complex(8),allocatable :: pjyl(:,:)
     logical, intent(in) :: hasBessel
+    integer, intent(in) :: igrp
     nlx = (lx+1)**2
     ! allocate(ajr(1:nr,0:lx,ngc),a1(1:nr,0:lx,ngc), qg(3,ngc),absqg(ngc), pjyl((lx+1)**2,ngc) )
     allocate(qg(3,ngc),absqg(ngc), pjyl((lx+1)**2,ngc) )
@@ -556,28 +504,11 @@ contains
     enddo rojploop
 
     allocate(rofi_nr, source = rofi(1:nr))
-    !$acc enter data copyin(absqg(1:ngc), rofi_nr(1:nr))
-
-    setBessel: if(.not.hasBessel) then
-      if(allocated(ajr)) then
-        !$acc exit data delete(ajr)
-        deallocate(ajr)
-      endif
-      allocate(ajr(1:nr,ngc,0:lx)) 
-      !$acc enter data create(ajr)
-      !$acc parallel loop collapse(2) private(phi(0:lx), psi(0:lx))
-      do ig1 = 1, ngc
-        do ir = 1, nr
-          call bessl2(absqg(ig1)**2*rofi_nr(ir)**2,lx,phi,psi)
-          do l = 0, lx
-            ajr(ir,ig1,l) = phi(l)* rofi_nr(ir) **(l +1 )  ! ajr = j_l(sqrt(e) r) * r / (sqrt(e))**l
-            !  Sperical Bessel j_l(r) \propto r**l/ (2l+1)!! near r=0.
-          enddo
-        enddo
-      enddo
-      !$acc end parallel
-    endif setBessel
-    !-------------------------
+    allocate(fac_integral(nr))
+    do ir = 1, nr    ! Simpson weights times dr/di
+      fac_integral(ir) = a*b*dexp(a*(ir-1))/3d0
+      if(ir /= 1 .and. ir /= nr) fac_integral(ir) = fac_integral(ir)*merge(4d0,2d0,mod(ir,2)==0)
+    enddo
     if(eee==0d0) then
       allocate(a1(1:nr,0:lx,ngc))
       do ig1 = 1,ngc
@@ -585,7 +516,7 @@ contains
       enddo
       !      else       ! We need to implement a version of sigintAn1 to treat eee/=0 case...
     endif
-    write(aaaw,ftox)' mkjp_4: goto dev_mo block. size of ajr:,nx', size(ajr), nx(:)
+    write(aaaw,ftox)' mkjp_4: goto dev_mo block. nx', nx(:)
     call cputm(stdo,aaaw)
     dev_mo: block
 #ifdef __GPU
@@ -593,19 +524,61 @@ contains
 #else
       use m_blas, only: dmm => dmm_h, m_op_T
 #endif
-      real(8):: a1work(nr), a2work(nr), int1x(nr), int2x(nr), a1g(nr,ngc), fac_integral(1:nr)
-      real(8), allocatable :: sigg(:,:,:), radintg(:,:,:)
-      integer :: llist(nlx)
-      integer:: istat
+      real(8), allocatable :: sigg(:,:,:), radintg(:,:,:), sigx_tmp(:,:,:), rprodw(:,:,:)
+      integer :: llist(nlx), istat, ig2
 
       llist(1:nlx) = [(ll(lm), lm=1, nlx)]
-      fac_integral(1) = a*b/3d0
-      do ir = 2, nr
-        fac_integral(ir) = fac_integral(ir-1)*dexp(a)
-      enddo
-      forall(ir=2:nr-1) fac_integral(ir) = fac_integral(ir)*merge(4d0,2d0,mod(ir,2)==0)
+      !$acc data copyin(absqg, rofi_nr, fac_integral, rkpr, rkmr, pjyl, rprodx, llist, nx)
+      setTables: if(.not.hasBessel) then ! tables of the group of this atom (else the previous atom has the same mesh and lx)
+        if(allocated(ajr)) then
+          !$acc exit data delete(ajr)
+          deallocate(ajr)
+        endif
+        allocate(ajr(1:nr,ngc,0:lx))
+        !$acc enter data create(ajr)
+        !$acc parallel loop collapse(2) private(phi(0:lx), psi(0:lx))
+        do ig1 = 1, ngc
+          do ir = 1, nr
+            call bessl2(absqg(ig1)**2*rofi_nr(ir)**2,lx,phi,psi)
+            do l = 0, lx
+              ajr(ir,ig1,l) = phi(l)* rofi_nr(ir) **(l +1 )  ! ajr = j_l(sqrt(e) r) * r / (sqrt(e))**l
+              !  Sperical Bessel j_l(r) \propto r**l/ (2l+1)!! near r=0.
+            enddo
+          enddo
+        enddo
+        !$acc end parallel
+        if(eee/=0d0) then
+          if(allocated(a1r)) then
+            !$acc exit data delete(a1r)
+            deallocate(a1r)
+          endif
+          allocate(a1r(1:nr,ngc,0:lx))
+          !$acc enter data create(a1r)
+          !$acc parallel loop gang vector collapse(2) present(ajr, a1r)
+          do l = 0, lx
+            do ig1 = 1, ngc
+              call sigkernel(nr, a, b, rofi_nr, rkpr(1,l), rkmr(1,l), ajr(1,ig1,l), fac_integral, a1r(1,ig1,l))
+            enddo
+          enddo
+          ! sigx(l) of <P_G1|v|P_G2> of this group, for vcoulq_4
+          allocate(sigx_tmp(ngc,ngc,0:lx))
+          !$acc data create(sigx_tmp)
+          !$acc host_data use_device(a1r, ajr, sigx_tmp)
+          do l = 0, lx
+            istat = dmm(a1r(1,1,l), ajr(1,1,l), sigx_tmp(1,1,l), m=ngc, n=ngc, k=nr, opA=m_op_T)
+          enddo
+          !$acc end host_data
+          !$acc parallel loop gang vector collapse(2) present(sigx_grp)
+          do ig1 = 1, ngc
+            do ig2 = 1, ngc
+              if(ig2 <= ig1) sigx_grp(0:lx, (ig1*(ig1-1))/2+ig2, igrp) = sigx_tmp(ig1,ig2,0:lx)
+            enddo
+          enddo
+          !$acc end data
+          deallocate(sigx_tmp)
+        endif
+      endif setTables
 
-      !$acc data copyin(fac_integral, rkpr, rkmr, pjyl, rprodx, llist, nx) create(a1g)
       if(eee==0d0) then
         do lm = 1, nlx
           l = llist(lm)
@@ -619,21 +592,12 @@ contains
       else
         allocate(sigg(ngc,nxx,0:lx))
         !$acc data create(sigg) copyout(sgpb)
+        !$acc host_data use_device(a1r, rprodx, sigg)
         do l = 0, lx
           if(nx(l) == 0) cycle
-          !$acc kernels loop independent private(int1x, int2x, a1work, a2work)
-          do ig1 = 1, ngc
-            a1work(1) = 0d0;  a1work(2:nr) = rkpr(2:nr,l)
-            a2work(1) = 0d0;  a2work(2:nr) = rkmr(2:nr,l)
-            call intn_smpxxx(a1work,ajr(1,ig1,l),int1x,a,b,rofi_nr,nr)
-            call intn_smpxxx(a2work,ajr(1,ig1,l),int2x,a,b,rofi_nr,nr)
-            a1g(1,ig1) = 0d0
-            a1g(2:nr,ig1) = rkmr(2:nr,l) *( int1x(1)-int1x(2:nr) )+ rkpr(2:nr,l) * int2x(2:nr)
-            a1g(1:nr,ig1) = a1g(1:nr,ig1)*fac_integral(1:nr)
-          enddo
-          !$acc end kernels
-          istat = dmm(a1g, rprodx(1,1,l), sigg(1,1,l), m=ngc, n=nx(l), k=nr, opA=m_op_T, ldB=nrx)
+          istat = dmm(a1r(1,1,l), rprodx(1,1,l), sigg(1,1,l), m=ngc, n=nx(l), k=nr, opA=m_op_T, ldB=nrx)
         enddo
+        !$acc end host_data
         !$acc kernels loop independent collapse(2)
         do lm = 1, nlx
           do n = 1, nxx
@@ -646,22 +610,23 @@ contains
         !$acc end data
         deallocate(sigg)
       endif
-!      if(ipr) write(stdo,ftox)' mkjp_4: fouvb dev block'
-      allocate(radintg(ngc,nxx,0:lx))
-      !$acc data create(radintg) copyout(fouvb)
+      allocate(radintg(ngc,nxx,0:lx), rprodw(nr,nxx,0:lx), source=0d0)
+      do l = 0, lx
+        do n = 1, nx(l)
+          rprodw(1:nr,n,l) = rprodx(1:nr,n,l)*fac_integral(1:nr)
+        enddo
+      enddo
+      !$acc data create(radintg) copyin(rprodw) copyout(fouvb)
+      !$acc host_data use_device(ajr, rprodw, radintg)
       do l = 0, lx
         if(nx(l) == 0) cycle
-        !$acc kernels loop independent present(ajr)
-        do ig1 = 1, ngc
-          a1g(1:nr,ig1) = ajr(1:nr,ig1,l)*fac_integral(1:nr)
-        enddo
-        !$acc end kernels
-        istat = dmm(a1g, rprodx(1,1,l), radintg(1,1,l), m=ngc, n=nx(l), k=nr, opA=m_op_T, ldB=nrx)
+        istat = dmm(ajr(1,1,l), rprodw(1,1,l), radintg(1,1,l), m=ngc, n=nx(l), k=nr, opA=m_op_T)
       enddo
+      !$acc end host_data
       !$acc kernels
       fouvb(:,:,:) = 0d0
       !$acc end kernels
-      !$acc kernels loop independent collapse(2) present(absqg)
+      !$acc kernels loop independent collapse(2)
       do lm = 1, nlx
         do n = 1, nxx
           l = llist(lm)
@@ -671,13 +636,12 @@ contains
       enddo
       !$acc end kernels
       !$acc end data
-      deallocate(radintg)
+      deallocate(radintg, rprodw)
 
       !$acc end data
     endblock dev_mo
 
-    !$acc exit data delete(absqg, rofi_nr)
-    deallocate(absqg, qg, pjyl, cy, yl, rofi_nr)
+    deallocate(absqg, qg, pjyl, cy, yl, rofi_nr, fac_integral)
   end subroutine mkjp_4
   real(8) function fac2m(i)   ! A table of (2l-1)!! data fac2l /1,1,3,15,105,945,10395,135135,2027025,34459425/
     integer:: i,l
@@ -790,6 +754,36 @@ contains
       intg(ir)=intg(nr)-intg(ir)
     enddo
   end subroutine intn_smpxxx
+  subroutine sigkernel(nr,a,b,rofi,rkp,rkm,aj,fac,a1) ! a1(r)= fac(r)*( rkm(r) \int_0^r rkp*aj dr' + rkp(r) \int_r^rmax rkm*aj dr' )
+    !$acc routine seq
+    ! The integrals of intn_smpxxx (Simpson rule at odd points, three-point rule at even points; nr odd) in two
+    ! passes without work arrays: the total of rkm*aj, then the running integrals.  aj(1)=0 (r=0), and a1(1)=0.
+    implicit none
+    integer :: nr, ir
+    real(8) :: a, b, rofi(nr), rkp(nr), rkm(nr), aj(nr), fac(nr), a1(nr)
+    real(8) :: s2, p1, p2, q1, q2, w, h1o, h2o, h1m, h2m, h1p, h2p
+    real(8), parameter :: c3 = 1d0/3d0, c43 = 4d0/3d0, c512 = 5d0/12d0, c23 = 2d0/3d0, c112 = 1d0/12d0
+    s2 = 0d0; h2o = 0d0
+    do ir = 3, nr, 2
+      h2m = rkm(ir-1)*aj(ir-1)*(a*(b+rofi(ir-1)))
+      h2p = rkm(ir)*aj(ir)*(a*(b+rofi(ir)))
+      s2 = s2 + c3*h2o + c43*h2m + c3*h2p
+      h2o = h2p
+    enddo
+    a1(1) = 0d0
+    p1 = 0d0; p2 = 0d0; h1o = 0d0; h2o = 0d0
+    do ir = 3, nr, 2
+      w = a*(b+rofi(ir-1)); h1m = rkp(ir-1)*aj(ir-1)*w; h2m = rkm(ir-1)*aj(ir-1)*w
+      w = a*(b+rofi(ir));   h1p = rkp(ir)*aj(ir)*w;     h2p = rkm(ir)*aj(ir)*w
+      q1 = p1 + c512*h1o + c23*h1m - c112*h1p
+      q2 = p2 + c512*h2o + c23*h2m - c112*h2p
+      a1(ir-1) = (rkm(ir-1)*q1 + rkp(ir-1)*(s2-q2))*fac(ir-1)
+      p1 = p1 + c3*h1o + c43*h1m + c3*h1p
+      p2 = p2 + c3*h2o + c43*h2m + c3*h2p
+      a1(ir) = (rkm(ir)*p1 + rkp(ir)*(s2-p2))*fac(ir)
+      h1o = h1p; h2o = h2p
+    enddo
+  end subroutine sigkernel
   subroutine sigintAn1( absqg, lx, rofi, nr, a1int) ! a1int(r')= r' * \int_0^a r^2 {r_{<}}^l / (r_{>})^{l+1} * j_l(absqg r)/absqg**l
     implicit none
     integer:: nr,l,ir,lx

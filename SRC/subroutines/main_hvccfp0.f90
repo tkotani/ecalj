@@ -275,9 +275,9 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     enddo
 
     qdependentRadialIntegrals:block
-      use m_vcoulq, only: ajr, ajr_grp, grp_atom
+      use m_vcoulq, only: ajr, a1r, sigx_grp, grp_atom
       logical :: hasBessel, hasB(nbas)
-      integer :: ibas_order(nbas), ib_prev, isrt, jsrt, ktmp, ngrp, igrp, ir, igx, lb
+      integer :: ibas_order(nbas), ib_prev, isrt, jsrt, ktmp, ngrp, igrp
       allocate( rojp(ngc, nlxx, nbas), sgpb(ngc, nxx, nlxx, nbas), fouvb(ngc, nxx, nlxx, nbas))
       ! Sort atoms by (nr, lx) to maximize Bessel function reuse (hasBessel=T)
       do isrt = 1, nbas; ibas_order(isrt) = isrt; enddo
@@ -299,9 +299,12 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
           endif
         endif
       enddo
-      ngrp = count(.not. hasB)                   ! groups of atoms sharing one Bessel table (vcoulq_4 uses them too)
-      allocate(ajr_grp(nrx, ngc, 0:lxx, ngrp), grp_atom(nbas))
-      !$acc enter data create(ajr_grp)
+      ngrp = count(.not. hasB)   ! groups of atoms with the same mesh and lx; sigx_grp of each group is for vcoulq_4
+      allocate(grp_atom(nbas))
+      if(eee/=0d0) then
+        allocate(sigx_grp(0:lxx, (ngc*(ngc+1))/2, ngrp))
+        !$acc enter data create(sigx_grp)
+      endif
       igrp = 0
       do isrt = 1, nbas
         ibas = ibas_order(isrt)
@@ -312,21 +315,15 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
         call cputm(stdo,aaaw)
         call mkjp_4(q,ngc, ngvecc, alat, qlat, lxx, lx(ibas),nxx, nx(0:lxx,ibas), bas(1,ibas),aa(ibas),bb(ibas),rmax(ibas), &
              nr(ibas), nrx, rprodx(1,1,0,ibas), eee, rofi(1,ibas), rkpr(1,0,ibas), rkmr(1,0,ibas), &
-             rojp(1,1,ibas),               sgpb(1,1,1,ibas),                   fouvb(1,1,1,ibas), hasBessel)
-        if(.not. hasBessel) then
-          !$acc parallel loop collapse(3) present(ajr, ajr_grp)
-          do lb = 0, lx(ibas)
-            do igx = 1, ngc
-              do ir = 1, nr(ibas)
-                ajr_grp(ir,igx,lb,igrp) = ajr(ir,igx,lb)
-              enddo
-            enddo
-          enddo
-        endif
+             rojp(1,1,ibas),               sgpb(1,1,1,ibas),                   fouvb(1,1,1,ibas), hasBessel, igrp)
       enddo! rojp=<j(e=0)_L|exp(i(q+G)r)>, sgpb=<exp(i(q+G)r)|v(onsite)|B_nL>, fouvb=<exp(i(q+G)r)|v|B_nL>
       if(allocated(ajr)) then
         !$acc exit data delete(ajr)
         deallocate(ajr)
+      endif
+      if(allocated(a1r)) then
+        !$acc exit data delete(a1r)
+        deallocate(a1r)
       endif
     endblock qdependentRadialIntegrals
 
@@ -338,9 +335,12 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
          vcoul) !the Coulomb matrix
     deallocate( strx,rojp,sgpb,fouvb)
     block
-      use m_vcoulq, only: ajr_grp, grp_atom
-      !$acc exit data delete(ajr_grp)
-      deallocate(ajr_grp, grp_atom)
+      use m_vcoulq, only: sigx_grp, grp_atom
+      if(allocated(sigx_grp)) then
+        !$acc exit data delete(sigx_grp)
+        deallocate(sigx_grp)
+      endif
+      deallocate(grp_atom)
     endblock
     write(aaaw,ftox)'end of vcoulq_4 for iqx=',iqx,'procid=',mpi__rank
     call cputm(stdo,aaaw)
