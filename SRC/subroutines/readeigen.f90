@@ -45,7 +45,41 @@ module m_readeigen
   integer,allocatable,private:: ngvecp(:,:,:), ngvecprev(:,:,:,:)
   integer,allocatable,private:: l_tbl(:),k_tbl(:),ibas_tbl(:),offset_tbl(:),offset_rev_tbl(:,:,:)
   logical,private:: keepqg
+#ifdef __GPU
+  ! Memo of the rotated eigenfunctions on the device, per (iq of qtt, isp): build_zmel asks for the same k points
+  ! thousands of times (LiTi2O4 6^3, one hgw rank: 5200 calls for about 230 k points), and each call copied the
+  ! slice from shared memory to the device and rotated it.  ECALJ_WF_CACHE_GB (default 2, at most 1/4 of the free
+  ! device memory) for geig and cphi together; beyond it the calls work as before.  Not used in mpi_mode.
+  complex(8), device, allocatable, save, private :: memo_g(:,:,:), memo_c(:,:,:)
+  integer, allocatable, save, private :: slot_g(:,:), slot_c(:,:)
+  integer, save, private :: nmemo_g = 0, nmemo_c = 0, capg = -1, capc = -1
+#endif
 contains
+#ifdef __GPU
+  subroutine memo_init()
+    use cudafor, only: cudaMemGetInfo
+    character(32) :: cv
+    integer :: st, ios, istat
+    integer(8) :: free, total
+    real(8) :: gb, bytes
+    gb = 2d0
+    call get_environment_variable('ECALJ_WF_CACHE_GB', cv, status=st)
+    if (st == 0) then
+      read(cv,*,iostat=ios) gb
+      if (ios /= 0) gb = 2d0
+    endif
+    istat = cudaMemGetInfo(free, total)
+    bytes = 0.5d0*min(gb*1d9, 0.25d0*real(free,8))                  ! half for geig, half for cphi
+    capg = int(min(dble(nqtt*nsp), bytes/(16d0*ngpmx*nspc*nband)))
+    capc = int(min(dble(nqtt*nsp), bytes/(16d0*ndima*nspc*nband)))
+    allocate(slot_g(nqtt,nsp), slot_c(nqtt,nsp), source=0)
+    if (capg > 0) allocate(memo_g(ngpmx*nspc, nband, capg), stat=istat)
+    if (capg > 0 .and. istat /= 0) capg = 0
+    if (capc > 0) allocate(memo_c(ndima*nspc, nband, capc), stat=istat)
+    if (capc > 0 .and. istat /= 0) capc = 0
+    if (ipr) write(stdo,ftox) 'readeigen: device memo of rotated eigenfunctions, k points: geig',capg,'cphi',capc,'of',nqtt*nsp
+  end subroutine memo_init
+#endif
   function readcphifq() result(qu)
     real(8):: qu(3)                  ! I think qu=q now.
     qu=quu
@@ -210,6 +244,15 @@ contains
     if(init2) call rx( 'readgeig: modele is not initialized yet')
     call iqindx2_(q, iq, qu) !qu is used q. q-qu is a G vector.
     quu = qu
+#ifdef __GPU
+    if (.not. mpi_mode_in) then
+      if (capg < 0) call memo_init()
+      if (slot_g(iq,isp) > 0) then
+        geigen(:,:) = memo_g(:,:,slot_g(iq,isp))
+        return
+      endif
+    endif
+#endif
     if(debug) write(stdo,*)' readgeig:xxx iq=',iq
     iqq=iqmap(iq)
     iqi=iqimap(iq)
@@ -307,6 +350,13 @@ contains
       endblock rotipw
     enddo
     !$acc exit data delete(geigenr)
+#ifdef __GPU
+    if (.not. mpi_mode_in .and. nmemo_g < capg) then
+      nmemo_g = nmemo_g + 1
+      slot_g(iq,isp) = nmemo_g
+      memo_g(:,:,nmemo_g) = geigen(:,:)
+    endif
+#endif
      if(debug) then
        if(any(ieee_is_nan(dble(geigen)))) write(stdo,ftox) "xxx NaN in Real geig"
        if(any(ieee_is_nan(imag(geigen)))) write(stdo,ftox) "xxx NaN in Imag "
@@ -339,6 +389,15 @@ contains
     ! qtt(:,iqq) = qtti(:,iqi) is satisfied.
     ! we have eigenfunctions calculated only for qtti(:,iqi).
     quu(:) = qu(:)
+#ifdef __GPU
+    if (.not. mpi_mode_in) then
+      if (capc < 0) call memo_init()
+      if (slot_c(iq,isp) > 0) then
+        cphif(:,:) = memo_c(:,:,slot_c(iq,isp))
+        return
+      endif
+    endif
+#endif
     !$acc enter data create(cphifr)
     if(keepeig) then
       cphifr(1:ndima*nspc,1:nband) = cphi(1:ndima*nspc,1:nband,iqi,isp)  ! host SHM slice
@@ -431,6 +490,13 @@ contains
        endblock rotmto
     enddo
     !$acc exit data delete(cphifr)
+#ifdef __GPU
+    if (.not. mpi_mode_in .and. nmemo_c < capc) then
+      nmemo_c = nmemo_c + 1
+      slot_c(iq,isp) = nmemo_c
+      memo_c(:,:,nmemo_c) = cphif(:,:)
+    endif
+#endif
      if(debug) then
        if(any(ieee_is_nan(dble(cphif)))) write(stdo,ftox) "xxx NaN in Real cphi"
        if(any(ieee_is_nan(imag(cphif)))) write(stdo,ftox) "xxx NaN in Imag cphi"
