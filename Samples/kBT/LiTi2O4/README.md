@@ -2,7 +2,7 @@
 
 > **2026-09-28 の注**: このディレクトリの今の主な中身は MLO-QSGW の計算のためのもの:
 > 本番の入力 [`input/qmlo/`](input/qmlo/README.md)（6³・9³、env.sh の作り方、反復ごとの正常値）、LDA から `gwsc 10` を回す `run_gwsc10.sh`、
-> 比べる `cmp_gwsc10.py`、描く `draw_mloband.sh`・`plot_tf32_fp32.py`・`mlo_rows.py` など。手順は ecaljdoc の ForDevelopers §12.2。
+> 比べる `cmp_gwsc10.py`、描く `draw_mloband.sh`・`plot_band_pair.py`・`mlo_rows.py` など。手順は ecaljdoc の ForDevelopers §12.2。
 > 下の本文は 2026-06 の有限温度の計算（`n666_T*`、`n999_T1000`）の説明で、当時のキー（`tetrakbt`、`t_sigmakbt`、`esmr`）で書いてある。
 > 次の解釈は後で覆った: §3.3b の O 2p の荒れと §3.5 の T=0 の落ち込み、§3.6 の K–Γ の異常は offset-Γ の頭や `deltaq_scale` のせいではなく、
 > 第一殻 q の W のプラズモン極を Σc の実軸極項が踏むこと（研究ログ 2026-09-18 23:05、2026-09-19 05:10・06:45・09:55、ecaljdoc kBT.md §3.5）。
