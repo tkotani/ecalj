@@ -193,7 +193,7 @@ phispinsym  = false  # spin-averaged radial wfns; required by m_lmfinit (nreq=1)
 # nband_chi0/emax_chi0: bands/energy window for chi0.
 # Touch only if you know what you are doing -- defaults are sensible.
 [gw]
-mixbeta = 0.5        # linear mixing of sigm (and of Sigma^MLO with ECALJ_MLO_MIX=1); 0.5 since 2026-06-14
+mixbeta = 0.5        # beta of the Anderson mixing of sigm (and of Sigma^MLO with ECALJ_MLO_MIX=1); 0.5 since 2026-06-14
 n1n2n3        = [6, 6, 6]  # BZ mesh for GW
 QpGcut_psi    = 4.0        # |q+G| cutoff for eigenfunctions (a.u. unless unit_2pioa=true)
 QpGcut_cou    = 3.0        # |q+G| cutoff for Coulomb / W

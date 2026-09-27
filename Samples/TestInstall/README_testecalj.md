@@ -1,5 +1,10 @@
 # 2025-10-6 test system in python
 
+> **Note (2026-09-28)**: parts below are from 2025-10. Today: run it in `ecalj/Samples/TestInstall` (not `SRC/TestInstall`);
+> `testecalj --all` runs every target (26, with `fe_kbt`), `--gwall` the GW ones; without a list or `--all` nothing runs.
+> testecalj removes and recreates `<target>_work` itself before each target. The developer's guide (ecaljdoc
+> `manual/ForDevelopers.md` sections 4, 5 and 12) has the current commands for CPU and GPU.
+
 We now install `testecalj` in your ecalj binary directory BINDIR.
 
 ## Usage
