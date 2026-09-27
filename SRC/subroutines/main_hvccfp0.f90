@@ -275,9 +275,9 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     enddo
 
     qdependentRadialIntegrals:block
-      use m_vcoulq, only: ajr
-      logical :: hasBessel
-      integer :: ibas_order(nbas), ib_prev, isrt, jsrt, ktmp
+      use m_vcoulq, only: ajr, ajr_grp, grp_atom
+      logical :: hasBessel, hasB(nbas)
+      integer :: ibas_order(nbas), ib_prev, isrt, jsrt, ktmp, ngrp, igrp, ir, igx, lb
       allocate( rojp(ngc, nlxx, nbas), sgpb(ngc, nxx, nlxx, nbas), fouvb(ngc, nxx, nlxx, nbas))
       ! Sort atoms by (nr, lx) to maximize Bessel function reuse (hasBessel=T)
       do isrt = 1, nbas; ibas_order(isrt) = isrt; enddo
@@ -291,18 +291,38 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
       enddo
       do isrt = 1, nbas
         ibas = ibas_order(isrt)
-        hasBessel = .false.
+        hasB(isrt) = .false.
         if(isrt > 1) then
           ib_prev = ibas_order(isrt-1)
           if(nr(ibas) == nr(ib_prev)) then
-            if( all(abs(rofi(1:nr(ibas),ibas) - rofi(1:nr(ib_prev),ib_prev)) < 1d-10) .and. lx(ibas) == lx(ib_prev) ) hasBessel = .true.
+            if( all(abs(rofi(1:nr(ibas),ibas) - rofi(1:nr(ib_prev),ib_prev)) < 1d-10) .and. lx(ibas) == lx(ib_prev) ) hasB(isrt) = .true.
           endif
         endif
+      enddo
+      ngrp = count(.not. hasB)                   ! groups of atoms sharing one Bessel table (vcoulq_4 uses them too)
+      allocate(ajr_grp(nrx, ngc, 0:lxx, ngrp), grp_atom(nbas))
+      !$acc enter data create(ajr_grp)
+      igrp = 0
+      do isrt = 1, nbas
+        ibas = ibas_order(isrt)
+        hasBessel = hasB(isrt)
+        if(.not. hasBessel) igrp = igrp + 1
+        grp_atom(ibas) = igrp
         write(aaaw,ftox)'mkjp_4 ibas, hasBessel=',ibas, hasBessel
         call cputm(stdo,aaaw)
         call mkjp_4(q,ngc, ngvecc, alat, qlat, lxx, lx(ibas),nxx, nx(0:lxx,ibas), bas(1,ibas),aa(ibas),bb(ibas),rmax(ibas), &
              nr(ibas), nrx, rprodx(1,1,0,ibas), eee, rofi(1,ibas), rkpr(1,0,ibas), rkmr(1,0,ibas), &
              rojp(1,1,ibas),               sgpb(1,1,1,ibas),                   fouvb(1,1,1,ibas), hasBessel)
+        if(.not. hasBessel) then
+          !$acc parallel loop collapse(3) present(ajr, ajr_grp)
+          do lb = 0, lx(ibas)
+            do igx = 1, ngc
+              do ir = 1, nr(ibas)
+                ajr_grp(ir,igx,lb,igrp) = ajr(ir,igx,lb)
+              enddo
+            enddo
+          enddo
+        endif
       enddo! rojp=<j(e=0)_L|exp(i(q+G)r)>, sgpb=<exp(i(q+G)r)|v(onsite)|B_nL>, fouvb=<exp(i(q+G)r)|v|B_nL>
       if(allocated(ajr)) then
         !$acc exit data delete(ajr)
@@ -317,6 +337,11 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
          bas,rmax, eee, aa,bb,nr,nrx,rkpr,rkmr,rofi, &
          vcoul) !the Coulomb matrix
     deallocate( strx,rojp,sgpb,fouvb)
+    block
+      use m_vcoulq, only: ajr_grp, grp_atom
+      !$acc exit data delete(ajr_grp)
+      deallocate(ajr_grp, grp_atom)
+    endblock
     write(aaaw,ftox)'end of vcoulq_4 for iqx=',iqx,'procid=',mpi__rank
     call cputm(stdo,aaaw)
     if(debug) then

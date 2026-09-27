@@ -3,10 +3,15 @@ module  m_vcoulq
   use m_mpi,only: ipr,mpi__rank
   use m_lgunit,only: stdo
   use m_ftox
-  public vcoulq_4,mkjb_4,mkjp_4,genjh, ajr
+  public vcoulq_4,mkjb_4,mkjp_4,genjh, ajr, ajr_grp, grp_atom
   private
   character(1024):: aaaw
   real(8), allocatable  :: ajr(:,:,:)
+  ! The Bessel table ajr of each group of atoms with the same radial mesh and lx (one per atom type), kept on the
+  ! device by hvccfp0 from mkjp_4 for vcoulq_4, which needs the same table (it recomputed it: 5.7 of 17 s of GPU
+  ! time, LiTi2O4 6^3).  grp_atom(ibas) is the group of atom ibas.
+  real(8), allocatable  :: ajr_grp(:,:,:,:)
+  integer, allocatable  :: grp_atom(:)
 contains
   subroutine vcoulq_4(q,nbloch,ngc,nbas,lx,lxx,nx,nxx,alat,qlat,vol,ngvecc, & !Coulmb matrix for each q
        strx,rojp,rojb,sgbb,sgpb,fouvb,ngb,bas,rmax, eee, aa,bb,nr,nrx,rkpr,rkmr,rofi,    vcoul)
@@ -168,6 +173,7 @@ contains
       complex(8) :: rojpstrx((lxx+1)**2,nbas,ngc)
       logical :: hasBessel, keepWronkj
       real(8), allocatable :: ajg(:,:), djg(:,:), aje(:,:), dje(:,:)   ! Bessel values and slopes at rmax per G
+      integer :: igrpv
       real(8) :: akw(lxx+2), ajw(lxx+2), dkw(lxx+2), djw(lxx+2), e1w, e2w, rw, efacw, rjw
       real(8), allocatable ::  keep_fjj(:,:), keep_sigx(:,:), sigx_tmp(:,:)
       integer, allocatable :: iggtable(:,:)
@@ -278,20 +284,11 @@ contains
           !$acc update device(vcoul)
 
         else ! eee is nonzero
-          ! setBessel once per type (first atom)
-          allocate(phi_rg(nr(ibas), ngc, 0:lx(ibas)))
+          ! The Bessel table of this type comes from mkjp_4 (ajr_grp, kept by hvccfp0)
+          igrpv = grp_atom(ibas)
           allocate(rofi_tmp(1:nr(ibas)), fac_integral(1:nr(ibas)), a1g(nr(ibas),ngc), ajr_tmp(nr(ibas),ngc))
           allocate(sigx_tmp(ngc,ngc))
-          !$acc data create(phi_rg, ajr_tmp, a1g, rofi_tmp, fac_integral, sigx_tmp)
-
-          !$acc parallel loop collapse(2) private(phi(0:lxx), psi(0:lxx))
-          do ig = 1, ngc
-            do ir = 1, nr(ibas)
-              call bessl2(absqg2(ig)*rofi(ir,ibas)**2,lx(ibas),phi, psi)
-              phi_rg(ir,ig,0:lx(ibas)) = phi(0:lx(ibas))
-            enddo
-          enddo
-          !$acc end parallel
+          !$acc data create(ajr_tmp, a1g, rofi_tmp, fac_integral, sigx_tmp)
 
           if(keepWronkj) then
             if(allocated(keep_fjj)) then
@@ -366,9 +363,9 @@ contains
             !$acc kernels
             rofi_tmp(1:nr(ibas)) = rofi(1:nr(ibas),ibas)**(l+1)
             !$acc end kernels
-            !$acc kernels loop independent private(int1x, int2x)
+            !$acc kernels loop independent private(int1x, int2x) present(ajr_grp)
             do ig = 1, ngc
-              ajr_tmp(1:nr(ibas),ig) = phi_rg(1:nr(ibas),ig,l)*rofi_tmp(1:nr(ibas))
+              ajr_tmp(1:nr(ibas),ig) = ajr_grp(1:nr(ibas),ig,l,igrpv)
               call intn_smpxxx( rkpr(1,l,ibas), ajr_tmp(1,ig),int1x,aa(ibas),bb(ibas),rofi(1,ibas),nr(ibas))
               call intn_smpxxx( rkmr(1,l,ibas), ajr_tmp(1,ig),int2x,aa(ibas),bb(ibas),rofi(1,ibas),nr(ibas))
               a1g(1,ig) = 0d0
@@ -388,7 +385,7 @@ contains
           enddo
 
           !$acc end data
-          deallocate(ajr_tmp, a1g, rofi_tmp, fac_integral, phi_rg, sigx_tmp)
+          deallocate(ajr_tmp, a1g, rofi_tmp, fac_integral, sigx_tmp)
 
           ! igg kernel: Term B with Phi_type (phase sum over atoms of this type)
           write(aaaw,ftox) " vcoulq_4:  igig type kernel procid=", mpi__rank, 'natom_type=', itype_end-itype_start+1
