@@ -286,7 +286,7 @@ contains
         use m_mem,only: writemem
         integer:: k, jpm, ibib, iw, igb2, igb1, it, itp, nkmax1, nkqmax1, ib1, ib2, ngcx, ix, iy, igb
         integer:: izmel, nmtot, nqtot, iwmax, ifi0, icoucold, icoun, icount, kold
-        integer:: ng, nsg, nqg, kbmax, nq12, iq12, is12, igb
+        integer:: ng, nsg, nqg, kbmax, nq12, iq12, is12
         integer, allocatable :: gk(:), gns1(:)
         complex(kind=kp), allocatable :: zg(:,:,:,:)
 #ifdef __GPU
