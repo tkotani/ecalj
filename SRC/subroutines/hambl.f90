@@ -64,7 +64,7 @@ contains
   subroutine hambl2(isp,qin,smpot,smpot2,vconst,osig,otau,oppi,oppi2, h,h2,s) ! hambl for two potentials at once (host)
     ! h = hambl(smpot,oppi), h2 = hambl(smpot2,oppi2), s = overlap: the same numbers as two hambl calls (lmf --jobgw=1
     ! makes H and H without xc for Vxc).  hsibl makes the PW coefficients of the basis functions and their FFTs once,
-    ! and smhsbl is called once.
+    ! smhsbl is called once, and augmbl makes s only once.
     use m_lmfinit,only: nbas , nsp
     use m_igv2x,only: napw, igvapwin=>igv2x, ndimh
     use m_supot,only: n1,n2,n3
@@ -78,25 +78,21 @@ contains
     type(s_rv4) :: osig(3,nbas)
     real(8):: vconst, qin(3)
     complex(8):: smpot(n1,n2,n3,nsp), smpot2(n1,n2,n3,nsp), h(ndimh,ndimh),h2(ndimh,ndimh),s(ndimh,ndimh)
-    complex(8),allocatable:: sdum(:,:), hsm(:,:)
     call tcn('hambl2')
     h = 0d0; h2 = 0d0; s = 0d0
-    allocate(sdum(ndimh,ndimh), hsm(ndimh,ndimh), source=(0d0,0d0))
     call augmbl(isp,qin,osig,otau,oppi, ndimh, h, s)
-    call augmbl(isp,qin,osig,otau,oppi2,ndimh, h2,sdum)
-    call smhsbl(vconst,qin,ndimh,napw,igvapwin, hsm,s)   ! h part, the same for both
-    h  = h  + hsm
-    h2 = h2 + hsm
+    call augmbl(isp,qin,osig,otau,oppi2,ndimh, h2)          ! h only
+    call smhsbl(vconst,qin,ndimh,napw,igvapwin, h,s, h2=h2)
     call hsibl(n1,n2,n3,smpot,isp,qin,ndimh,napw,igvapwin, h, vsm2=smpot2, h2=h2)
     do i=1,ndimh
        h (i+1:ndimh,i)=dconjg(h (i,i+1:ndimh))
        h2(i+1:ndimh,i)=dconjg(h2(i,i+1:ndimh))
        s (i+1:ndimh,i)=dconjg(s (i,i+1:ndimh))
     enddo
-    deallocate(sdum, hsm)
     call tcx('hambl2')
   endsubroutine hambl2
-  subroutine smhsbl(vavg,q,ndimh, napw,igapw, h,s)!- Smoothed Bloch Hamiltonian (constant potential) and overlap matrix
+  subroutine smhsbl(vavg,q,ndimh, napw,igapw, h,s, h2)!- Smoothed Bloch Hamiltonian (constant potential) and overlap matrix
+
     use m_lmfinit,only: alat=>lat_alat,nbas,nkaphh,lhh, ispec,lmxa_i=>lmxa
     use m_lattic,only: lat_plat,rv_a_opos,qlat=>lat_qlat,vol=>lat_vol
     use m_uspecb,only:uspecb
@@ -175,6 +171,7 @@ contains
     integer :: procid,master, mode,ndimh,napw,igapw(3,napw)
     real(8):: q(3) , vavg
     complex(8):: h(ndimh,ndimh),s(ndimh,ndimh)
+    complex(8),optional:: h2(ndimh,ndimh)   ! the same h terms are added to h2 as well (hambl2)
     integer :: nlmto, i1,i2,ib1,ib2,ilm1,ilm2,io1,io2,is1,is2,nlm1,nlm2,l1,l2,ig,&
          lmxax,lmxa,nlmax, lh1(nkap0),lh2(nkap0),nkap1,nkap2, &
          ik1,blks1(n0*nkap0),ntab1(n0*nkap0), ik2,blks2(n0*nkap0),ntab2(n0*nkap0)
@@ -251,6 +248,8 @@ contains
                          i1 = i1+1
                          s(i1,i2)= s(i1,i2) + s0(ilm1,ilm2,0,ik1,ik2)
                          h(i1,i2)= h(i1,i2) - s0(ilm1,ilm2,1,ik1,ik2) +vavg*s0(ilm1,ilm2,0,ik1,ik2)
+                         if(present(h2)) h2(i1,i2)= h2(i1,i2) - s0(ilm1,ilm2,1,ik1,ik2) +vavg*s0(ilm1,ilm2,0,ik1,ik2)
+
                          !                                 1:kinetic                    !0: constant
                       enddo
                    enddo
@@ -277,6 +276,8 @@ contains
                    ovl = fach * ylv(ig,ilm1)/srvol ! JMP Eq.(9.4)
                    s(i1,i2) = s(i1,i2) + ovl
                    h(i1,i2) = h(i1,i2) + qpg2*ovl + vavg*ovl
+                   if(present(h2)) h2(i1,i2) = h2(i1,i2) + qpg2*ovl + vavg*ovl
+
                 enddo
              enddo
           enddo igloop
@@ -286,6 +287,8 @@ contains
        i2 = ig + nlmto
        s(i2,i2) = s(i2,i2) + 1d0
        h(i2,i2) = h(i2,i2) + qpg2v(ig) + vavg
+       if(present(h2)) h2(i2,i2) = h2(i2,i2) + qpg2v(ig) + vavg
+
     enddo
     if (napw > 0)deallocate(yl,ylv,qpgv,qpg2v,srm1l)
 !    do concurrent( i1 = 1: ndimh) !fill lower half

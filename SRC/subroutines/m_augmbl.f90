@@ -50,7 +50,8 @@ contains
     type(s_rv4),target :: osig(3,nbas)
     integer:: isp,ndimh,napw, initbas, endbas,lm,iq,nh,np,i1,i2,ilm1,ilm2,k1,k2, ibas,isa,kmax,lmxa,lmxb, nglob,nlma, nlmb
     real(8):: q(3),rsma,pa(3),xx 
-    complex(8):: h(ndimh,ndimh),s(ndimh,ndimh)
+    complex(8):: h(ndimh,ndimh)
+    complex(8),optional:: s(ndimh,ndimh)   ! absent: h only (host path; hambl2)
     integer,parameter :: ktop0=20, nlmbx=49, nlmax=49
     logical:: debug=.false.
     call tcn ('augmbl')
@@ -83,8 +84,8 @@ contains
             ik1 = ktab(iorb)
             do  ilm1 = l1**2+1, (l1+1)**2
                i1 = offl(iorb)+ilm1-l1**2  !Two-center terms
-               s(i1,:) = s(i1,:) + [(       sum(sighp(ik1,:,l1,isp)*b(:,ilm1,j)),  j=1,ndimh)]
-               s(:,i1) = s(:,i1) + [(dconjg(sum(b(:,ilm1,j)*sighp(ik1,:,l1,isp))), j=1,ndimh)]
+               if(present(s)) s(i1,:) = s(i1,:) + [(       sum(sighp(ik1,:,l1,isp)*b(:,ilm1,j)),  j=1,ndimh)]
+               if(present(s)) s(:,i1) = s(:,i1) + [(dconjg(sum(b(:,ilm1,j)*sighp(ik1,:,l1,isp))), j=1,ndimh)]
                h(i1,:) = h(i1,:) + [(       sum(ppihp(ik1,:,ilm1,:,isp)*b(:,:,j)), j=1,ndimh)]
                h(:,i1) = h(:,i1) + [(dconjg(sum(b(:,:,j)*ppihp(ik1,:,ilm1,:,isp))),j=1,ndimh)]
             enddo
@@ -96,7 +97,8 @@ contains
                   do  ilm2 = l2**2+1, (l2+1)**2
                      i2 = offl(jorb)+ilm2-l2**2
                      h(i1,i2) = h(i1,i2) + ppihh(ik1,ik2,ilm1,ilm2,isp)
-                     if (ilm1 == ilm2) s(i1,i2) = s(i1,i2) + sighh(ik1,ik2,l1,isp)
+                     if (ilm1 == ilm2 .and. present(s)) s(i1,i2) = s(i1,i2) + sighh(ik1,ik2,l1,isp)
+
                   enddo
                enddo
             enddo
@@ -116,6 +118,7 @@ contains
          ! MO The above two loops were placed in the following blas_mode block 2024-11-07, update 2025-10-23
 #ifdef __GPU
          if(use_gpu) then
+         if(.not.present(s)) call rx('augmbl: s is needed on the GPU path')
          blas_mode_gpu: block
            use m_blas, only: zmm => zmm_d, m_op_C
            use cudafor
@@ -158,6 +161,7 @@ contains
            istat = zmm(ppi_isp, b, ppib, m=(kmax+1)*nlma, n=ndimh, k=(kmax+1)*nlma)
            istat = zmm(b, ppib, h, m=ndimh, n=ndimh, k=(kmax+1)*nlma, beta=(1d0,0d0), opA=m_op_C)
            deallocate(ppib, ppi_isp)
+           if(present(s)) then
            allocate(sigb(0:kmax,nlma,ndimh), csig(0:kmax,0:kmax))
            do ilm=1, nlma
              csig(0:kmax,0:kmax) = sig(0:kmax,0:kmax,ll(ilm),isp) !convert to complex from real
@@ -165,6 +169,7 @@ contains
            enddo
            istat = zmm(b, sigb, s, m=ndimh, n=ndimh, k=(kmax+1)*nlma, beta=(1d0,0d0), opA=m_op_C)
            deallocate(sigb, csig)
+           endif
          endblock blas_mode
 #ifdef __GPU
          endif
