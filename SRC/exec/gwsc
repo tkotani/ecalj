@@ -224,7 +224,7 @@ if "--mlo" in options:
 ## new model.  `mlo --mlofreeze` (step 4) reads the lattice, k mesh and pair list from
 ## HamiltonianPMTInfo and the MLO index from HamRsMLO; the __HamiltonianPMT files are not
 ## needed after the index is made, so they may be deleted between gwsc calls.
-## No --mkprocar here (2026-09-28 00:20): it only wrote PROCAR.UP.<rank> files that nothing read (job_mlo keeps it).
+## No --mkprocar here (2026-09-28 00:00): it only wrote PROCAR.UP.<rank> files that nothing read (job_mlo keeps it).
 if "--mlo" in options:
     pmtfiles = ['HamiltonianPMTInfo']
     if Path('HamRsMLO').is_file():
