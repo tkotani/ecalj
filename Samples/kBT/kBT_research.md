@@ -83,6 +83,15 @@
 user の TODO（14:40）: ①残したことをやる ②`mlo_gwsc.md` を読み直して直す ③さらなる最適化（値がおかしくならない範囲、やるなら実装とテスト）
 ④その上で 6³ の収束テスト、終われば 9³。14:21 に始めた 6³ tf32 の `gwsc 10`（`qmlo_k6_tf32`）は user の指示で 14:24 に止めた（hvccfp0 の途中）。
 
+### 15:50 **検証は 6 本とも合格。q の割り振りの修正で 6³ tf32 は 237.2 秒。6³ の tf32 収束テスト `qmlo_k6_tf32h` を開始**
+
+- 検証（`1cee21762`＋`d00fa4b6f`、新しい表 = tf32 は realhgemm）: TestInstall `--gwall` を GPU の fp64・tf32（`--mp`）・fp32 と CPU で、
+  全部 ALL PASSED。`Samples/MLOQSGW`（GaAs、NiO）は tf32・fp32 とも合格。NiO の `log.nio` の差は tf32 0.0148、fp32 0.0009（許容 0.02）
+- LPT の重みに W の構築分（`0a1d696f7`）: 6³ tf32 は 242 → **237.2 秒**、2 ランクの終わりの差は 14 → 5 秒（見積もりどおり）。
+  Σ は修正前と最大 0.002 meV（ランク間の和の順序）、倍精度との差は変わらず（E_F ±1 eV で最大 1.29 meV）
+- 15:50 `qmlo_k6_tf32h`（`run_gwsc10.sh`、`PREC=tf32`、LDA から `gwsc 10`、`~/bin_dev`）開始。終われば 9³ の `qmlo_k9_tf32h` が続く（chain25）。
+  比べる相手は 6³ fp32 の `qmlo_k6_gwsc10`（新コード、窓は各反復の SCF の $E_F$、`--use_gemmul8`）。`cmp_gwsc10.py` は gwsc 10 同士も比べられるようにした
+
 ### 15:30 **ホストが止まっていた原因は `m_stopwatch` の `cudaDeviceSynchronize`。直して 6³ tf32 273.5 秒（−6.5%）、fp32 411.7 秒。Σc の積を FP16（FP32 で積算）にする backend `realhgemm` を追加**
 
 - nsys（rank 0、最初の 150 秒）: `cudaDeviceSynchronize` 35,359 回・61 秒、`cuStreamSynchronize` 118 万回・31 秒。
