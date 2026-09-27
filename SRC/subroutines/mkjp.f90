@@ -156,7 +156,7 @@ contains
 
     ! <P_G|v|P_G>
     PvP_dev_mo: block
-      use m_bessl, only: bessl2 => bessl, wronkj2 => wronkj
+      use m_bessl, only: bessl2 => bessl, wronkj2 => wronkj, radkj2 => radkj
       use m_keyvalue,only: getkeyvalue
       use m_GWinput, only: gwinput_init, gwinput_loaded, tg_KeepWronkj => KeepWronkj
 #ifdef __GPU
@@ -167,6 +167,8 @@ contains
       real(8), allocatable :: fac_integral(:), a1g(:,:), ajr_tmp(:,:), phi_rg(:,:,:), rofi_tmp(:)
       complex(8) :: rojpstrx((lxx+1)**2,nbas,ngc)
       logical :: hasBessel, keepWronkj
+      real(8), allocatable :: ajg(:,:), djg(:,:), aje(:,:), dje(:,:)   ! Bessel values and slopes at rmax per G
+      real(8) :: akw(lxx+2), ajw(lxx+2), dkw(lxx+2), djw(lxx+2), e1w, e2w, rw, efacw, rjw
       real(8), allocatable ::  keep_fjj(:,:), keep_sigx(:,:), sigx_tmp(:,:)
       integer, allocatable :: iggtable(:,:)
       integer :: nggc, igg
@@ -301,14 +303,50 @@ contains
             call acc_clear_freelists()
 #endif
             !$acc enter data create(keep_fjj)
-            !$acc parallel loop private(fkk(0:lxx), fkj(0:lxx), fjk(0:lxx), fjj(0:lxx))
+            ! fjj of wronkj (the only Wronskian used here) from the Bessel values and slopes at rmax of each G
+            ! (radkj job 0, and job 1 for equal energies), not recomputed for each of the ngc(ngc+1)/2 pairs:
+            ! wronkj called radkj twice per pair, 13.9 of 31 s of GPU time in hvccfp0 (LiTi2O4 6^3).  Same
+            ! formulas as wronkj.
+            allocate(ajg(0:lx(ibas),ngc), djg(0:lx(ibas),ngc), aje(0:lx(ibas),ngc), dje(0:lx(ibas),ngc))
+            !$acc data create(ajg, djg, aje, dje)
+            !$acc parallel loop private(akw(1:lxx+2), ajw(1:lxx+2), dkw(1:lxx+2), djw(1:lxx+2))
+            do ig = 1, ngc
+              call radkj2(absqg2(ig), rmax(ibas), lx(ibas), akw, ajw, dkw, djw, 0)
+              ajg(0:lx(ibas),ig) = ajw(1:lx(ibas)+1)
+              djg(0:lx(ibas),ig) = djw(1:lx(ibas)+1)
+              aje(0:lx(ibas),ig) = 0d0
+              dje(0:lx(ibas),ig) = 0d0
+              if (dabs(absqg2(ig)) > 1d-6) then        ! job 1 divides by e; used only for equal nonzero energies
+                call radkj2(absqg2(ig), rmax(ibas), lx(ibas), akw, ajw, dkw, djw, 1)
+                aje(0:lx(ibas),ig) = ajw(1:lx(ibas)+1)
+                dje(0:lx(ibas),ig) = djw(1:lx(ibas)+1)
+              endif
+            enddo
+            !$acc parallel loop private(fjj(0:lxx), e1w, e2w, rw, efacw, rjw)
             do igg = 1, nggc
               ig1 = iggtable(1,igg)
               ig2 = iggtable(2,igg)
-              call wronkj2( absqg2(ig1), absqg2(ig2), rmax(ibas),lx(ibas), fkk,fkj,fjk,fjj)
+              e1w = absqg2(ig1); e2w = absqg2(ig2); rw = rmax(ibas)
+              if (dabs(e1w) <= 1d-6 .and. dabs(e2w) <= 1d-6) then
+                rjw = 1d0/rw
+                do l = 0, lx(ibas)
+                  rjw = rjw*rw/(2*l+1)
+                  fjj(l) = -rjw*rjw*(rw*rw*rw)/(2*l+3)
+                enddo
+              elseif (dabs(e1w-e2w) > 1d-6) then
+                efacw = 1d0/(e2w-e1w)
+                do l = 0, lx(ibas)
+                  fjj(l) = efacw*rw*rw*(ajg(l,ig1)*djg(l,ig2)-djg(l,ig1)*ajg(l,ig2))
+                enddo
+              else
+                do l = 0, lx(ibas)
+                  fjj(l) = rw*rw*(ajg(l,ig1)*dje(l,ig1)-djg(l,ig1)*aje(l,ig1))
+                enddo
+              endif
               keep_fjj(0:lx(ibas),igg) = fjj(0:lx(ibas))
             enddo
-            !$acc end parallel
+            !$acc end data
+            deallocate(ajg, djg, aje, dje)
           endif
 
           if(allocated(keep_sigx)) then
