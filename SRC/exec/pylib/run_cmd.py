@@ -147,6 +147,7 @@ def _needs_gpu_slot(command) -> bool:
 def _cpu_env(env, nprocs):
     if (nprocs or 1) == 1:
         env["CUDA_VISIBLE_DEVICES"] = ""
+        env.setdefault("UCX_WARN_UNUSED_ENV_VARS", "n")   # else UCX warns of the UCX_CUDA_* settings of HPC-X
 
 
 def _run_mpi(cmd, env, stdin_str=None, stdout=None):

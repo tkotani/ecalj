@@ -314,17 +314,26 @@ contains
     integer :: i, j, it, ib1, ib2, jsp
     real(8),parameter :: pi=4d0*atan(1d0)
     complex(8),parameter :: img=(0d0,1d0)
-    complex(8) :: ph
+    complex(8) :: s
+    complex(8),allocatable :: ph(:,:,:)
     jsp = min(isp, nspx)
-    sigk = (0d0,0d0)       !same phase convention as m_mlo_ham::calc_ham_eigen
-    do i = 1, ndimMTO
-      ib1 = ib_tableM(i)
-      do j = 1, ndimMTO
-        ib2 = ib_tableM(j)
-        do it = 1, npair(ib1,ib2)
-          ph = 1d0/dble(nqwgt(it,ib1,ib2)) * exp(-img*2d0*pi*sum(qp*matmul(plat,dble(nlat(:,it,ib1,ib2)))))
-          sigk(i,j) = sigk(i,j) + sigmlor(it,i,j,jsp)*ph
+    allocate(ph(npairmx,nbas,nbas))
+    do ib2 = 1, nbas       !the phase depends on the atom pair and R only (it was made for every
+      do ib1 = 1, nbas     !(i,j,R): 0.16 s per k for LiTi2O4, 2.5 s of the 4 s of hqpe_sc)
+        do it = 1, npair(ib1,ib2)   !same phase convention as m_mlo_ham::calc_ham_eigen
+          ph(it,ib1,ib2) = 1d0/dble(nqwgt(it,ib1,ib2)) * exp(-img*2d0*pi*sum(qp*matmul(plat,dble(nlat(:,it,ib1,ib2)))))
         enddo
+      enddo
+    enddo
+    do j = 1, ndimMTO
+      ib2 = ib_tableM(j)
+      do i = 1, ndimMTO
+        ib1 = ib_tableM(i)
+        s = (0d0,0d0)
+        do it = 1, npair(ib1,ib2)
+          s = s + sigmlor(it,i,j,jsp)*ph(it,ib1,ib2)
+        enddo
+        sigk(i,j) = s
       enddo
     enddo
     sigk = 0.5d0*(sigk + transpose(dconjg(sigk)))  !kill the residual anti-hermitian part
