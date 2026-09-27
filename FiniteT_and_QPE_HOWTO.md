@@ -1,5 +1,11 @@
 # HOWTO: finite-T chi0 (tetrakbt) and one-shot QP energies on arbitrary k-lines (gw_lmfh + QforGW)
 
+> **Note (2026-09-28)**: this HOWTO describes the June 2026 state. Since then: the logical key `tetrakbt` was removed
+> (`t_tetrakbt > 0` switches the finite-T chi0 on); the Sigma side is no longer T=0 but has its own Fermi-Dirac level
+> width `t_sigmaw` (K, default 1000, replacing `esmr`); and the metallic QSGW instability turned out to come from a sharp
+> plasmon pole of W at the first-shell q that the real-axis pole term of Sigma_c hits, not from nesting, handled by
+> `wcsmear` (default true) and, for W, `SmearX0`. The current description is ecaljdoc `manual/kBT.md` (sections 0, 3.5, 9).
+
 User guide for the features added 2026-06-12/13 (see Changes.txt for the changelog,
 README for the one-paragraph summary). Everything below was exercised on
 LiTi2O4 (metallic spinel) on kt1 (2x RTX5090); concrete numbers quoted come

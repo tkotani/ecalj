@@ -57,6 +57,9 @@ New in the GW chain (commits 37e6fbc2..2a04e767; user guide: FiniteT_and_QPE_HOW
   for chi0 with a consistent finite-T Fermi level (heftet writes `EFERMI_kbt`;
   m_tetwt consumes it). Physically broadens the Fermi surface — the recommended
   regularization for metallic QSGW instabilities (sharp nesting response).
+  (Note 2026-09-28: the instability turned out to come from a sharp plasmon pole of W at the first-shell q
+  hit by the real-axis pole term of Sigma_c, not from nesting; the remedy is `wcsmear` (default) and
+  `t_sigmaw`, with `SmearX0` for W if needed. ecaljdoc manual/kBT.md 3.5.)
 - **hsfp0_gpu** (new binary, gpu variant): CUDA-Fortran offload of the one-shot
   correlation W contractions. Validated against CPU at production scale
   (LiTi2O4 6^3: max |CPU-GPU| 3e-13 eV); ~13x per-rank speedup.
@@ -117,6 +120,8 @@ Fortran binaries (lmf, lmfa, lmchk, gwsc, hsfp0, ...) read one file only:
                                              # (heavy element + molecular anion, e.g.
                                              # NO3/N3/ClO): without it TF32 corrupts
                                              # W/SEc and QSGW diverges or yields NaN.
+                                             # (2026-09-28: since 2026-09-27 --mp alone is
+                                             # --prec=tf32, which keeps W in FP32.)
 
 `ctrlg.<sname>.toml` contains every ctrl/GWinput key with inline
 comments (units, role, defaults).  Edit it directly; no re-conversion

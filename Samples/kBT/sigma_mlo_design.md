@@ -1499,7 +1499,7 @@ $\Psi^{\rm MTO}_j$ も $\Psi^{\rm PMT}_i$ も $|\Psi\rangle\langle\Psi|$ の形�
 | | 内容 | なぜ気になるか |
 |---|---|---|
 | **B1** | **AF（`laf`）で $\Sigma^{\rm MLO}$ のスピン 2 が 0 になっていないか** | `main_hqpe.sc.f90` の `if(laf) exit` でスピンループを抜ける。MLO 分岐に AF の扱いが見当たらない。NiO 系が全滅する可能性 |
-| **B2** | **`mlo --mlofreeze` が LDA の $H$ から MLO を作り直している件**（§12 Q4）| $\Sigma$ の対称化・回転は索引レベルなので汚していないはずだが**未確認** |
+| **B2** | **`mlo --mlofreeze` が LDA の $H$ から MLO を作り直している件**（§12 Q4）| $\Sigma$ の対称化・回転は索引レベルなので汚していないはずだが**未確認**。**2026-09-28 の注: 2026-09-27 21:06 から `mlo --mlofreeze` は $\Sigma^{\rm MLO}(q)\to$ `QMLO_SigRs` だけを行い、$H$・$O$ から MLO を作らない（索引は `HamRsMLO` の末尾から読む）ので、この件は起きない** |
 | **B3** | **従来経路の $\Sigma$ の規約整合**（§12 Q1）| `hqpe_sc` は擬似逆、`getsenex` は $S_{\rm sub}^{-1}$。`ECALJ_SIGMLO_CHECK=1` で系統因子として出るはず |
 | ~~**B4**~~ | ~~**窓（`eferm`/`ecbot`）が LDA 固定のまま**~~ | ~~直し方は判明済み（`sugw` 側だけで `set_bandedge`）。一度誤実装で iter 1 を壊して revert 済み~~ → **2026-09-26 修正**: 段 a' は各反復の SCF の $E_F$（呼び出し元から）と `efermi.lmf` の伝導帯下端で窓を置く。LiTi₂O₄ では iter 10 までに $E_F$ が +0.0415 Ry 動き、床が 0.56 eV 低かった |
 | ~~**B5**~~ | ~~**初回（LDA から）の混合を半歩にするか否か**（§12 Q7）~~ | ~~今は $\beta\Sigma^{\rm out}$。user の想定は「初回は混合しない」。変えるなら従来チェーンも取り直し~~ → **2026-09-26 このまま**（user 判断）: 前の $\Sigma$ が無い初回は $x_0=0$ から混合するので $\beta$ 倍。既定の $\beta=1$ なら全量。Si で確認（kBT_research 22:04）、ecaljdoc の mixbeta の節に記載 |
@@ -1528,4 +1528,4 @@ $\Psi^{\rm MTO}_j$ も $\Psi^{\rm PMT}_i$ も $|\Psi\rangle\langle\Psi|$ の形�
 | **D5** | **図がどう描かれたかを必ず書く**: `sigm` 描画（`job_band`、`mloON=0`）か MLO バンド（`draw_mloband.sh`）か |
 | **D6** | **比較の基準の素性を確かめる**。`refbands211/` は `n666_nk6_from_lda`（`pwmode=1`）で、LDA 行だけ `pwmode=11` に差し替わっていた |
 | **D7** | 書き換えられる図を日付入りの記録に貼らない（凍結版を貼る）|
-| **D8** | `InstallAll.py --gemmul8` は上流 GEMMul8 のレイアウト変更で落ちる。`--gemmul8` 無しでも `libecaljF*.so` は同一。nvfortran の ICE は再試行で通る |
+| **D8** | `InstallAll.py --gemmul8` は上流 GEMMul8 のレイアウト変更で落ちる。`--gemmul8` 無しでも `libecaljF*.so` は同一。nvfortran の ICE は再試行で通る。**2026-09-28 の注: `e75ee4c76`（2026-09-26）で直した** |

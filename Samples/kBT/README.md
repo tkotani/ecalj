@@ -32,7 +32,7 @@
 
 電子温度を χ₀ 側 (`tetrakbt`) と Σ 側 (`t_sigmakbt`) の**両方**に入れた QSGW の
 実例。手法とその限界は
-[ecaljdoc: kBT — 有限温度の自己エネルギー計算](https://ecalj.github.io/manual/kBT)。
+[ecaljdoc: kBT — 有限温度の自己エネルギー計算](https://ecalj.github.io/ecaljdoc/manual/kBT)。
 
 > **これは入力と結果を置いてあるだけである。**
 > GW を何十回も反復するので計算が重く、`testecalj` のターゲットにはしていない。
@@ -90,18 +90,20 @@ sigmakbt_setup: WARNING t_sigmakbt>0 but EFERMI_kbt missing (need tetrakbt/hefte
 (窓 = ±10·esmr)。ここのサンプルの設定では窓が ±7.9 $k_BT$ なので切り捨ては
 3.7e-4 で無害だが、`esmr` を下げたり $T$ を上げたりすると**警告なしに**
 占有数が切り捨てられる (5000 K で 4%、esmr=0.002 で 17%)。
-→ [doc §7.3](https://ecalj.github.io/manual/kBT)
+→ [doc §7.3](https://ecalj.github.io/ecaljdoc/manual/kBT)
 
 ### 高温では `deltaq_scale` も小さくする
 
 3000 K・`deltaq_scale = 0.3` では K–Γ 中央に −1.24 eV の偽のスパイクが出る。
 `deltaq_scale = 0.1` で消える。offset-Gamma の $q\to0$ head が高温 × 大きい
 `deltaq` で破綻するもので、`tetrakbt` のバグではない
-([`LiTi2O4/README.md` §3.5](LiTi2O4/README.md))。
+([`LiTi2O4/README.md` §3.5](LiTi2O4/README.md))。**（→ 2026-09-28 の注: この説明は後で否定された。スパイクは第一殻 q の W のプラズモン極を
+Σc の実軸極項が踏むことによるもので、`deltaq` で変わったのは極踏みの当たり外れ。研究ログ 2026-09-19 09:55、ecaljdoc kBT.md §3.5）**
 
 ### $T$ について収束を確認する
 
-`t_tetrakbt` は物理的な温度というより **QSGW の反復を安定化する正則化**である。
+`t_tetrakbt` は物理的な温度というより **QSGW の反復を安定化する正則化**である。**（→ 2026-09-28 の注: いまは「`t_tetrakbt` は物理の温度」と整理している
+（研究ログ 2026-09-20 12:00）。反復の安定化は `wcsmear` と `SmearX0` の役）**
 求めたい量が $T$ について収束していること、できれば同じ $T$ で 2 つの k メッシュが
 一致することを確認すること (それが `LiTi2O4/` の $6^3$ vs $9^3$)。
 
@@ -197,5 +199,6 @@ kt1 側にあってここに持ってきていないもの:
 - 絶縁体の `EFERMI_kbt` は 2026-09-17 まで書かれていなかった (heftet 修正済み)。
   ギャップ内の $E_F$ の決め方は暫定。
 - `testecalj` に有限温度の回帰ターゲットが無い。
-- $9^3$ 3000 K (kt1) は 2 反復で停止中。再開前に `ctrlg_absorb.py liti2o4`。
+- $9^3$ 3000 K (kt1) は 2 反復で停止中。再開前に `ctrlg_absorb.py liti2o4`。**（→ 2026-09-28 の注: 正しくは上の「9³ の 3000 K は無い」の表のとおりで、
+  `sigmakbt3000` は一度も走っていない。2 反復まであるのは `scf10`）**
 

@@ -12,7 +12,7 @@
 
 LiTi₂O₄ (金属スピネル) の QSGW を、**電子温度**を χ₀ 側と Σ 側の両方に入れて
 回したもの。手法の説明は
-[ecaljdoc: kBT — 有限温度の自己エネルギー計算](https://ecalj.github.io/manual/kBT)。
+[ecaljdoc: kBT — 有限温度の自己エネルギー計算](https://ecalj.github.io/ecaljdoc/manual/kBT)。
 
 > **これは入力と結果を置いてあるだけのサンプルである。**
 > GW を 11〜45 反復するので計算が重く、`testecalj` のターゲットにはしていない。
@@ -58,7 +58,7 @@ esmr         = 0.01      # 数値的な極の平滑化 (有限温度は t_sigmak
 > (窓 = ±10·esmr)。この設定では窓が ±7.9 kBT なので切り捨ては 3.7e-4 で無害だが、
 > `esmr` を下げたり T を 3000 K より上げたりすると警告なしに占有数が切り捨てられる
 > (5000 K で 4%、esmr=0.002 で 17%)。詳細は
-> [ecaljdoc の kBT ページ §7](https://ecalj.github.io/manual/kBT)。
+> [ecaljdoc の kBT ページ §7](https://ecalj.github.io/ecaljdoc/manual/kBT)。
 
 ---
 
