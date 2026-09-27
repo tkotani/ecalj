@@ -231,11 +231,11 @@ if "--mlo" in options:
 ## QMLO_SigRs is a matrix over those channels.  chi~ itself is rebuilt every iteration by
 ## step a' from that iteration's H.  Rebuilding HamRsMLO on every call would redefine the
 ## index, so skip it when HamRsMLO is already there; delete HamRsMLO by hand to start a
-## new model.  `mlo --mlofreeze` (step 4) still reads the PMT Hamiltonian files every
-## iteration, and they are __-prefixed like any work file, so write them again whenever
-## they are missing: that is what lets every __ file be deleted between gwsc calls.
+## new model.  `mlo --mlofreeze` (step 4) reads the lattice, k mesh and pair list from
+## HamiltonianPMTInfo and the MLO index from HamRsMLO; the __HamiltonianPMT files are not
+## needed after the index is made, so they may be deleted between gwsc calls.
 if "--mlo" in options:
-    pmtfiles = ['HamiltonianPMTInfo', '__HamiltonianPMT', '__HamiltonianPMT.info']
+    pmtfiles = ['HamiltonianPMTInfo']
     if Path('HamRsMLO').is_file():
         print('MLO: HamRsMLO exists -> keep the MLO index (skip mlo --mlo).', flush=True)
         if not all(Path(f).is_file() for f in pmtfiles):
