@@ -140,6 +140,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
     logical :: show_time = .false., debug = .false.
     type(stopwatch) :: sw1, sw2, sw3, sw4
     integer:: ig_start, ig_end, igp, i, match_iga, nx(3), istat
+    integer:: iapw2ig(napw)   ! index in igvx of the G of each APW (0: not in the list)
     integer :: blks_nb(n0*nkap0,nbas), ltab_nb(n0*nkap0,nbas), ktab_nb(n0*nkap0,nbas), &
                offl_nb(n0*nkap0,nbas), norb_nb(nbas)
     real(8) :: eh_ns(n0,nkap0,nspec), rsmh_ns(n0,nkap0,nspec)
@@ -172,7 +173,18 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
     enddo
 
     if(debug) write(06,ftox) '**xxx ndimh, ngp, ngmx, napw', ndimh, ngp, ngmx, napw
-    !$acc data copyout(pwhovl) copyin(igapw, igvx, qlat, q, bas, ispec(1:nbas), eh_ns, rsmh_ns, blks_nb, mimgl) &
+    ! An APW column of pwh has one element, 1/srvol at the G of the APW: its column of pwhovl is ppovl_save(G_apw-G1)/srvol,
+    ! looked up below instead of a product over all ngmx G (193 of the 319 columns for LiTi2O4).
+    iapw2ig = 0
+    do iga = 1, napw
+      do ig = 1, ngmx
+        if(all(igapw(:,iga) == igvx(:,ig))) then
+          iapw2ig(iga) = ig
+          exit
+        endif
+      enddo
+    enddo
+    !$acc data copyout(pwhovl) copyin(igapw, igvx, qlat, q, bas, ispec(1:nbas), eh_ns, rsmh_ns, blks_nb, mimgl, iapw2ig) &
     !$acc                      copyin(norb_nb, ltab_nb, ktab_nb, offl_nb)
     !$acc kernels
     pwhovl(:,:) = (0d0, 0d0)
@@ -233,25 +245,6 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
         enddo
       enddo
       !$acc end parallel
-      !$acc kernels
-      pwh(nlmto+1:,:) = 0d0 !is it necessary?
-      !$acc end kernels
-      ! findloc does not work with GPU, so we use a loop
-      ! do iga= 1,napw 
-      !    ig = findloc([(all(igapw(:,iga)==igvx(:,igx)),igx=ig_start, ig_end)],value=.true.,dim=1)
-      !    !if current igx's (ig_start:ig_end) has overlap with iga
-      !    if(1 <= ig .and. ig <= ig_end - ig_start + 1) pwh(iga+nlmto,ig + ig_start - 1) = 1d0/srvol
-      ! enddo
-      !$acc parallel loop gang independent
-      do ig = ig_start, ig_end
-        match_iga = 0
-        !$acc loop vector reduction(max:match_iga)
-        do iga= 1, napw 
-          if (all(igapw(:,iga) == igvx(:,ig))) match_iga = max(match_iga, iga)
-        enddo
-        if (match_iga > 0) pwh(match_iga+nlmto, ig) = 1d0/srvol
-      enddo
-      !$acc end parallel
       if(show_time) call stopwatch_pause(sw2)
       if(show_time) call stopwatch_start(sw1)
       !$acc kernels loop independent collapse(2) private(nx)
@@ -265,12 +258,22 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
       if(show_time) call stopwatch_pause(sw1)
       if(show_time) call stopwatch_start(sw3)
       !$acc host_data use_device(ppovlx, pwh, pwhovl)
-      istat = zmm(ppovlx, pwh, pwhovl, m=ngp, n=ndimh, k=(ig_end-ig_start+1), opB=m_op_T, beta = (1D0, 0d0))
+      istat = zmm(ppovlx, pwh, pwhovl, m=ngp, n=nlmto, k=(ig_end-ig_start+1), opB=m_op_T, ldB=ndimh, beta = (1D0, 0d0)) !MTO columns
       !$acc end host_data
       if(show_time) call stopwatch_pause(sw3)
       !$acc end data
       deallocate(ppovlx, pwh)
     enddo gblock_loop
+    !$acc kernels loop independent collapse(2) private(nx)
+    do iga = 1, napw     ! APW columns
+      do igp = 1, ngp
+        if(iapw2ig(iga) > 0) then
+          nx(1:3) = igvx(1:3,iapw2ig(iga)) - igv(1:3,igp)
+          pwhovl(igp,nlmto+iga) = ppovl_save(nx(1),nx(2),nx(3)) * (1d0/srvol)
+        endif
+      enddo
+    enddo
+    !$acc end kernels
     !$acc end data
     deallocate(ppovl_save)
     if(show_time) call stopwatch_show(sw1)
