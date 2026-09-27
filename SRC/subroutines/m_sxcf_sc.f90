@@ -239,8 +239,9 @@ contains
                   if(ns1 > ns2) goto 1110 !instead of return. Use guard clause coding.
                   do is1=ns1,ns2
                     if(is1<=nctot) then; wtff(is1) = 1d0 !these are for nvfortran24.1
-                    else;                wtff(is1) = wfacx(-1d99, ef, sxs_ekc(is1+nctot), esmr)
-                    endif
+                    else;                wtff(is1) = wfacx(-1d99, ef, sxs_ekc(is1), esmr)
+                    endif   ! bug fixed 2026-09-27 23:25: sxs_ekc(is1+nctot) since 2024-07-25 (245ef9f3f); sxs_ekc is
+                            ! [ecore(1:nctot), eval] so state is1 is at is1.  Wrong only with cores in the valence run (nctot>0)
                   enddo
                   if(corehole) wtff(ns1:nctot) = wtff(ns1:nctot) * wcorehole(ns1:nctot,isp)
                   allocate(vcoud_buf(ngb))
