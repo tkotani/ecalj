@@ -408,11 +408,12 @@ contains
     if (c2_ndos >= 0) ndos = c2_ndos
     bin = (emaxp - eminp) / (ndos - 1)
     vvv = ( 3d0  -  nsp ) / ( nkk1 * nkk2 * nkk3 * 6d0 )/4d0
-    allocate(pdosalla(ndos,nsp,nchanp,nbas))
+    allocate(pdosalla(ndos,nsp,nchanp,nbas), source=0d0)   ! slinz adds to it; the summed garbage depended on the number of ranks
     tetrehedronloop:do itet = iteti, itete
        if(idwmode) then
           do idt = 1, 4
             iq = idtete(idt,itet)
+            dwgt4(:,:,:,:,idt) = 0d0      ! a record (iq, spin) that was never written reads as zero
             istat = readm_d(ifile_dw, rec=iq, data=dwgt4(:,:,:,:,idt))
           enddo
        endif

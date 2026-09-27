@@ -39,7 +39,9 @@ contains
        if(.not.idwmode) allocate(dwgtall(nchanp,nbas,ndhamx,nsp,nkp),source=0d0)
        if(idwmode) then
          allocate(dwgtk(nchanp,nbas,ndhamx,nsp),source=0d0)
-         istat = openm(newunit=ifile_dw,file='__DWGT', recl=8*size(dwgtk))
+         ! one record per (iq, spin), rec = isp + nsp*(iq-1): the same bytes as one record per iq holding both spins,
+         ! which is how writepdos reads it.  See m_procar_add for why a call writes only its own spins.
+         istat = openm(newunit=ifile_dw,file='__DWGT', recl=8*nchanp*nbas*ndhamx)
        endif
     endif
     call m_procar_setlocalaxis_init()
@@ -160,7 +162,14 @@ contains
           enddo ibloop
        enddo ibandloop
     enddo isploop
-    if(allocated(dwgtk)) istat = writem_d(ifile_dw, rec=iq, data=dwgtk)
+    ! Only the spins of this call: bandcal hands out (iq,isp) pairs, so the two spins of one iq can be on two ranks.
+    ! Writing the whole k record put the other rank's spin back to a stale value (zero or the previous iq); the
+    ! partial DOS then depended on the number of ranks (co test: -np 6 off by 2%, -np 8 fine).
+    if(allocated(dwgtk)) then
+      do isp = ispstart, ispend
+        istat = writem_d(ifile_dw, rec=isp+nsp*(iq-1), data=dwgtk(:,:,:,isp))
+      enddo
+    endif
     deallocate( evlm,auspp )
   end subroutine m_procar_add
   
