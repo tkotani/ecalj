@@ -27,7 +27,14 @@ ecalj documents is at [ecaljdoc](https://ecalj.github.io/ecaljdoc/)
   GPU programs and waits while they are in use (`ECALJ_GPU_WAIT=<s>` to give up, `ECALJ_GPU_LOCK=0` to switch off).
 - **Tetrahedron weights on the idle CPU cores**: with `--gpu`, `hgw --tetwt_write` runs next to `hgw` on the
   `-np` cores and hands the weights over in `__TETWT.*` files (bit-identical; `--no-tetwt-helper` to switch off).
-- Report and numbers: `Samples/kBT/gpu_fp32_report.md`; user guide: ecaljdoc `manual/ecaljgpu.md`.
+- **The rest of a QSGW iteration** (evening and night): hvccfp0 on the GPU, lmf --jobgw=1 (H and H without xc in
+  one pass), mlo --mlofreeze (Sigma^MLO only), hqpe_sc, the core exchange. One iteration of LiTi2O4 6^3 (tf32,
+  2 RTX 5090, 60 CPU cores): 342 -> 212 s, 80% of it in `hgw` (LiTi2O4 6^3 `hgw`: fp32 367 s, tf32 173 s).
+- **Console output of the GW programs**: rank 0 writes to the log of the step (`lgw`, `lsxC`, ...: progress and
+  `Memused`), the other ranks write nothing; `--fullstdo` gives the per-rank `stdout.<rank>.<prog>` files as before.
+  Errors of any rank reach stderr with the rank number.
+- Report and numbers: `Samples/kBT/gpu_fp32_report.md`; user guide: ecaljdoc `manual/ecaljgpu.md`; for developers:
+  ecaljdoc `manual/ForDevelopers.md` §11 and `ecaljclaude.md` (read by Claude Code through `CLAUDE.md`).
 
 ## 2026-06-13  Changelog: finite-T chi0, hsfp0 GPU, gw_lmfh GPU/MP flow, fixes
 
