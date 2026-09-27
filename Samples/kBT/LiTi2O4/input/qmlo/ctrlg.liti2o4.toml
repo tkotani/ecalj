@@ -193,7 +193,7 @@ phispinsym  = false  # spin-averaged radial wfns; required by m_lmfinit (nreq=1)
 # nband_chi0/emax_chi0: bands/energy window for chi0.
 # Touch only if you know what you are doing -- defaults are sensible.
 [gw]
-mixbeta = 0.5        # 2026-06-14 changed 1.0 -> 0.5 mid-run (during iter11 hgw) to damp the marginal QSGW mode
+mixbeta = 0.5        # linear mixing of sigm (and of Sigma^MLO with ECALJ_MLO_MIX=1); 0.5 since 2026-06-14
 n1n2n3        = [6, 6, 6]  # BZ mesh for GW
 QpGcut_psi    = 4.0        # |q+G| cutoff for eigenfunctions (a.u. unless unit_2pioa=true)
 QpGcut_cou    = 3.0        # |q+G| cutoff for Coulomb / W
@@ -208,12 +208,12 @@ delta         = -1e-06     # (Ry) small imaginary shift (~1e-6)
 deltaw        = 0.02       # (a.u.) numerical-derivative mesh for Z factor
 GaussSmear    = true       # Gaussian smearing for poles of G^LDA in hsfp0
 # ----------------------------------------------------------------
-# SmearX0   = retired (superseded by tetrakbt / method B-prime)
-# SmearX0q0 = retired (superseded by tetrakbt / method B-prime)
+# 2026-09-28: the two 'retired' notes that stood here were wrong; SmearX0 below is in use (setting P of 2026-09-22,
+# ecaljdoc kBT.md "実用の設定"): chi0 at T=0 with a Gaussian on Im chi0, t_sigmaw for the Sigma levels, wcsmear (default).
 deltaq_scale  = 0.1
 t_tetrakbt = 0.0
 t_sigmaw = 1000.0
-SmearX0 = 0.0057     # (Ha) Gaussian on Im chi0, std = FD 1000 K
+SmearX0 = 0.0057     # (Ha) Gaussian on Im chi0, std = FD 1000 K (0.156 eV); exclusive with t_tetrakbt > 0
 KeepEigen     = false
 wan_out_emin  = -1.05      # (eV, rel. EFermi) Wannier outer window low
 wan_out_emax  = 2.4        # (eV, rel. EFermi) Wannier outer window high
