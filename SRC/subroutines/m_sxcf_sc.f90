@@ -369,6 +369,10 @@ contains
     use m_mpi, only: comm_b => comm_b_sxc, ipr
     use m_gpu, only: use_gpu
     use m_wfac, only: sig_window
+#ifdef __GPU
+    use openacc, only: acc_set_cuda_stream
+    use cudafor, only: cuda_stream_kind
+#endif
     integer, intent(in) :: kx, nspinmx
     real(8), intent(in) :: ef, esmr
     integer :: icount, ns1, ns2, kr, nwxi, ns2r, nwx, izz, n_nttp, tri_idx
@@ -378,6 +382,12 @@ contains
     integer, allocatable :: idx_i(:), idx_j(:)
     character(64) :: charli
     character(8)  :: charext
+#ifdef __GPU
+    ! The small kernels of the frequency loops go on OpenACC queue 1 = the default stream, where cuBLAS and the CUF
+    ! kernels of m_blas run too: they stay in order and the host does not wait after each one (about 5 syncs per
+    ! frequency and kx before, 2.4 million per rank in one hgw of LiTi2O4 6^3).  !$acc wait(1) after each loop.
+    call acc_set_cuda_stream(1, 0_cuda_stream_kind)
+#endif
     debug = c0_debug
     qibz_k = qibz(:,kx)
     call Readvcoud(qibz_k, kx, NoVcou=.false.)   !Readin ngc,ngb,vcoud ! Coulomb matrix
@@ -560,9 +570,8 @@ contains
                   !$acc data copyin(wgtim)
                   iwimag: do iw = sxs_wi_ini, sxs_wi_fin ! iwimag:do iw = 0, niw !niw is ~10. ixx=0 is for sxs_omega=0 nw_i=0 (Time reversal) or nw_i =-nw
                     if (iw < 0 .or. iw > niw) cycle
-                    call stopwatch_start(sxs_setwv)
                     if (sxs_keepwv) then
-                      !$acc kernels loop independent present(wvi_upper, idx_i, idx_j)
+                      !$acc kernels loop independent present(wvi_upper, idx_i, idx_j) async(1)
                       do tri_idx = 1, ngb*(ngb+1)/2
                         i = idx_i(tri_idx)
                         j = idx_j(tri_idx)
@@ -571,12 +580,12 @@ contains
                       enddo
                       !$acc end kernels
                     else
+                      !$acc wait(1)
                       if (iw == 0) call wv_get_real(iw, wv)
                       if (iw > 0)  call wv_get_imag(iw, wv)
                       wc(1:ngb,1:ngb) = wv(1:ngb,1:ngb)  !copy to GPU
                     endif
-                    call stopwatch_pause(sxs_setwv)
-                    !$acc kernels loop independent collapse(2) present(zmel)
+                    !$acc kernels loop independent collapse(2) present(zmel) async(1)
                     do itp = 1, sxs_ntqxx
                       do it = ns1, ns2
                         wzmel(1:ngb,it,itp) = cmplx(wgtim(iw,it,itp)*zmel(1:ngb,it,itp), kind=kp)
@@ -589,6 +598,7 @@ contains
                     ierr = gemm(wc, wzmel, czmelwc, ngb, (ns2-ns1+1)*sxs_ntqxx, ngb, beta = beta, opA = m_op_C, &
                                 key = 1000 + iw, policy = BACKEND_SIGMA)   ! W(i omega) fixed for this kx (m_zmel resets keys)
                   enddo iwimag
+                  !$acc wait(1)
                   !$acc end data
                   deallocate(wzmel)
                 EndBlock CorrelationSelfEnergyImagAxis
@@ -650,9 +660,8 @@ contains
                   iwreal: do iw = sxs_wr_ini, sxs_wr_fin
                     if (iw < nwxi .or. iw > nwx) cycle
                     if (nttp(iw) < 1) cycle
-                    call stopwatch_start(sxs_setwv)
                     if (sxs_keepwv) then
-                      !$acc kernels loop independent present(wvr_upper, idx_i, idx_j)
+                      !$acc kernels loop independent present(wvr_upper, idx_i, idx_j) async(1)
                       do tri_idx = 1, ngb*(ngb+1)/2
                         i = idx_i(tri_idx)
                         j = idx_j(tri_idx)
@@ -661,14 +670,14 @@ contains
                       enddo
                       !$acc end kernels
                     else
+                      !$acc wait(1)
                       call wv_get_real(iw, wv)
                       wc(1:ngb,1:ngb) = wv(1:ngb,1:ngb)  !copy to GPU
                       !$acc kernels
                       wc(:,:) = (wc(:,:) + transpose(conjg(wc(:,:))))*0.5_kp
                       !$acc end kernels
                     endif
-                    call stopwatch_pause(sxs_setwv)
-                    !$acc kernels loop independent present(zmel)
+                    !$acc kernels loop independent present(zmel) async(1)
                     do ittp = 1, nttp(iw)
                       it = itw(ittp,iw); itp = itpw(ittp,iw)
                       wz_iw(1:ngb,ittp) = cmplx(wgtiw(ittp,iw)*zmel(1:ngb,it,itp), kind=kp)
@@ -676,13 +685,14 @@ contains
                     !$acc end kernels
                     ierr = gemm(wc, wz_iw, czwc_iw, ngb, nttp(iw), ngb, opA=m_op_C, key = 100000 + iw, & ! W(omega)
                                 policy = BACKEND_SIGMA)
-                    !$acc kernels loop independent
+                    !$acc kernels loop independent async(1)
                     do ittp = 1, nttp(iw)
                       it = itw(ittp,iw); itp = itpw(ittp,iw)
                       czmelwc(1:ngb,it,itp) = czmelwc(1:ngb,it,itp) + czwc_iw(1:ngb,ittp)
                     enddo
                     !$acc end kernels
                   enddo iwreal
+                  !$acc wait(1)
                   !$acc end data
                   deallocate(wz_iw, czwc_iw)
 1113              continue !endif
