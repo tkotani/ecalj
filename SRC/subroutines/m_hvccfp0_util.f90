@@ -306,8 +306,8 @@ subroutine strxq_all(e,q,nbas,bas,lx,lxx,alat,vol,awald,nkd,nkq,dlv,qlv,cg,indxc
   chi00  = akap*erfcarsm - 4d0*ah*earsm/dsqrt(4d0*datan(1d0))
   cof0 = fpi*dexp(gam*e)/vol
   ncgx = maxval(indxcg(1:(nlxx*(nlxx+1))/2+1))
-  npc = max(1, min(np, int(2.5d8/(8d0*nkd*nlm))))                 ! pairs per chunk of the real-space table mt
-  allocate(aq(nkq,nlm), bq(nkq,np), dl(nlm,np), phr(nkd,2), mt(nkd,nlm,npc), rr(nlm*npc,2))
+  npc = max(1, min(np, int(2.5d8/(8d0*nkd*nlm+16d0*nkq))))        ! pairs per chunk of the tables mt and bq (250 MB)
+  allocate(aq(nkq,nlm), bq(nkq,npc), dl(nlm,np), phr(nkd,2), mt(nkd,nlm,npc), rr(nlm*npc,2))
   allocate(cgd(ncgx), jcgd(ncgx), indxcgd((nlxx*(nlxx+1))/2+1))
   cgd = cg(1:ncgx); jcgd = jcg(1:ncgx); indxcgd = indxcg(1:(nlxx*(nlxx+1))/2+1)
   phr(:,1) = [(dcos(2d0*pi*sum(q*dlv(:,it))), it=1,nkd)]
@@ -339,18 +339,19 @@ subroutine strxq_all(e,q,nbas,bas,lx,lxx,alat,vol,awald,nkd,nkq,dlv,qlv,cg,indxc
       enddo
     enddo
   enddo
-  !$acc parallel loop gang vector collapse(2)
-  do ip = 1, np
-    do ig = 1, nkq
-      bq(ig,ip) = exp(img*alat*tpiba*sum((q(:)+qlv(:,ig))*p1(:,ip)))
-    enddo
-  enddo
-  !$acc host_data use_device(aq,bq,dl)
-  istat = zmm(aq, bq, dl, m=nlm, n=np, k=nkq, opA=m_op_T)
-  !$acc end host_data
-  ! --- real-space part, chunks of npc pairs: mt(T,L,p) = Y_L(p-T) chi_l(|p-T|), then sum_T mt exp(iqT) ---
+  ! --- for chunks of npc pairs: the Q-space part dl = aq^T bq, then the real-space part:
+  !     mt(T,L,p) = Y_L(p-T) chi_l(|p-T|) and dl += sum_T mt exp(iqT) ---
   do ip0 = 1, np, npc
     npc = min(npc, np-ip0+1)
+    !$acc parallel loop gang vector collapse(2)
+    do ipc = 1, npc
+      do ig = 1, nkq
+        bq(ig,ipc) = exp(img*alat*tpiba*sum((q(:)+qlv(:,ig))*p1(:,ip0+ipc-1)))
+      enddo
+    enddo
+    !$acc host_data use_device(aq,bq,dl)
+    istat = zmm(aq, bq, dl(1,ip0), m=nlm, n=npc, k=nkq, opA=m_op_T, ldc=nlm)
+    !$acc end host_data
     !$acc parallel loop gang vector collapse(2) private(chi,cm,sm,cmx,q1,q2,qq,x,y,z,r2,r,ra,h0,wk,xx,xa,um,up,wk2,kk,l,m,ip)
     do ipc = 1, npc
       do it = 1, nkd
