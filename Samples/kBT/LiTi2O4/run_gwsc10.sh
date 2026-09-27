@@ -8,6 +8,8 @@
 #                hours use a copy that a rebuild cannot change: cp -rL ~/bin_dev ~/bin_frozen_<rev>, and write the
 #                revision into <copy>/FROZEN_REV (the executables find the copied .so through RUNPATH $ORIGIN)
 #   RUNS_DIR   : where the run directory <tag> is made (default /mnt/data1/LiTi2O4_kbt_runs, kt1)
+#   GPUS       : the GPUs to use (default 0; kt1's GPU 1 is for the user's jobs, so GPUS=0,1 only when allowed).
+#                -np2 = the number of GPUs.  The runs of 2026-09 used GPUS=0,1 (the times in the log are for two)
 #   PREC       : precision of the GW programs, tf32 | fp32 (default) | fp64 (gwsc --prec)
 #   GWSC_EXTRA : more gwsc options, e.g. --prec-final=fp32:2 (the last two iterations in fp32)
 # gwsc keeps llmf.<N>run and QPU.<N>run of every iteration; the state after iteration 10 is copied to
@@ -32,7 +34,9 @@ export ECALJ_MLO_MIX=1
 say "precision: ${PREC:-fp32}  extra gwsc options: [${GWSC_EXTRA:-}]"
 say "ECALJ_MLO_MIX=$ECALJ_MLO_MIX  GPUs: $(nvidia-smi --query-compute-apps=pid,process_name --format=csv,noheader | wc -l) processes before start"
 t0=$(date +%s)
-CUDA_VISIBLE_DEVICES=0,1 $BIN/gwsc 10 -np 60 -np2 2 --gpu --prec=${PREC:-fp32} --ntqxx --mlo ${GWSC_EXTRA:-} $T > gwsc10.log 2>&1; rc=$?
+GPUS=${GPUS:-0}; NP2=$(echo $GPUS | tr ',' '\n' | wc -l)
+say "GPUS=$GPUS -np2 $NP2"
+CUDA_VISIBLE_DEVICES=$GPUS $BIN/gwsc 10 -np 60 -np2 $NP2 --gpu --prec=${PREC:-fp32} --ntqxx --mlo ${GWSC_EXTRA:-} $T > gwsc10.log 2>&1; rc=$?
 say "gwsc 10 rc=$rc secs=$(( $(date +%s)-t0 ))"
 for it in $(seq 1 10); do
   f=llmf.${it}run
