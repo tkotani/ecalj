@@ -83,6 +83,14 @@
 user の TODO（14:40）: ①残したことをやる ②`mlo_gwsc.md` を読み直して直す ③さらなる最適化（値がおかしくならない範囲、やるなら実装とテスト）
 ④その上で 6³ の収束テスト、終われば 9³。14:21 に始めた 6³ tf32 の `gwsc 10`（`qmlo_k6_tf32`）は user の指示で 14:24 に止めた（hvccfp0 の途中）。
 
+### 16:10 **手元（t14）の gfortran で `d6c6fe115` を確認: `--all` は 747 件合格。`co` の部分 DOS だけ `-np 6` で失敗（午前のコードでも同じ、`-np 8` は合格）**
+
+- user「gfortran 確認はローカルでいい」。別の worktree（`temp/ecalj_check`）と別の bindir（`temp/bin_check`、`--no-bashrc`）でビルド
+  （手元の `~/bin` は作業ツリーの `SRC/build_gfortran` を指すので触らない）。メモリの空きが 5 GB なので worktree の `InstallAll.py` だけ並列 3。ビルド約 7 分
+- `testecalj -np 6 --all`: 747 件 PASSED、`co` の TEST 2（`job_pdos` の `dos.isp2.site002.co`）だけ最大 0.14019 のずれ（許容 0.001）。
+  午前のコードの `~/bin` でも `-np 6` で同じ 0.14019、今回のビルドの `-np 8` は合格 → 今日の変更とは無関係の、部分 DOS のプロセス数依存。未調査
+- kt1 の 6³ tf32 収束テストは反復 2 以降を実行中
+
 ### 15:50 **検証は 6 本とも合格。q の割り振りの修正で 6³ tf32 は 237.2 秒。6³ の tf32 収束テスト `qmlo_k6_tf32h` を開始**
 
 - 検証（`1cee21762`＋`d00fa4b6f`、新しい表 = tf32 は realhgemm）: TestInstall `--gwall` を GPU の fp64・tf32（`--mp`）・fp32 と CPU で、
