@@ -25,7 +25,8 @@ commits and the research log are written; Claude Code reads it through `CLAUDE.m
 
 - `--prec`: fp64 = double precision; fp32 = mixed precision with FP32 products (= `--mp --fp32`);
   tf32 = fp32 but the products of Sigma_c with 10-bit-mantissa inputs (TF32, or FP16 where the table
-  chooses it; about 40% faster than fp32 on RTX 5090; Sigma within ~1 meV near E_F on LiTi2O4).
+  chooses it; on RTX 5090 the LiTi2O4 6^3 `hgw` takes 173 s against 367 s in fp32, and Re Sigma_c near E_F is within
+  1.3 meV of double precision; numbers as of the night of 2026-09-27).
   `--mp` alone = tf32 (until 2026-09-27 it was TF32 in every product: 5 meV there, the NiO gap off by
   0.1 eV, for only 10% less time; W suffers through (1 - v chi0)^-1).
 - Sigma_c runs asynchronously on the GPU (kernels and products on one stream; the pole weights are
@@ -36,8 +37,10 @@ commits and the research log are written; Claude Code reads it through `CLAUDE.m
   `<bindir>/ecalj_linalg_policy.toml`. `InstallAll.py --gpu` writes it at the end by measuring every method on
   this GPU (`linalgtune_gpu`, about a minute; skipped when the GPU is busy, `--notune` to skip). Without the
   file everything is cuBLAS, as before. `--linalg=fp32.cgemm.large=realsgemm,...` overrides rows.
-- **Jobs on one machine do not collide**: `gwsc` takes a lock per GPU (`/tmp/ecalj_res/gpu<N>.lock`) for its
-  GPU programs and waits while they are in use (`ECALJ_GPU_WAIT=<s>` to give up, `ECALJ_GPU_LOCK=0` to switch off).
+- **GPU programs of two jobs on one machine do not collide**: `gwsc` takes a lock per GPU (`/tmp/ecalj_res/gpu<N>.lock`) for
+  its GPU programs and waits while they are in use (`ECALJ_GPU_WAIT=<s>` to give up, `ECALJ_GPU_LOCK=0` to switch off).
+  The lock is taken per step: the CPU steps (lmf with many ranks) of two jobs still compete, and two `hgw` on one node
+  can run out of /dev/shm, so run one QSGW job per node.
 - **Tetrahedron weights on the idle CPU cores**: with `--gpu`, `hgw --tetwt_write` runs next to `hgw` on the
   `-np` cores and hands the weights over in `__TETWT.*` files (bit-identical; `--no-tetwt-helper` to switch off).
 - **The rest of a QSGW iteration** (evening and night): hvccfp0 on the GPU, lmf --jobgw=1 (H and H without xc in
