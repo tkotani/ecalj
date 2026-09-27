@@ -1,3 +1,13 @@
+2026-09-27 (4)
+  有限温度 (t_tetrakbt > 0) の 2 点 (ecaljdoc kBT.md §7.2・§7.5、研究ログ 2026-09-27 23:45)。
+  - CoreEx (hsfp0_sc --job=3、コアとの交換) の Fermi 準位: 有限温度で EFERMI_kbt に上書きされ、交換の和に占有された価電子の
+    状態が入っていた (06-26 から)。同じ日に直した m_sxcf_sc の sxs_ekc(is1+nctot) の添字の誤りで重みが nctot 本上の空の
+    バンドで計算されていたため打ち消し合い、コアの状態が占有バンドより少ない系でだけ SExcore がずれていた。いまは
+    SExcore が温度によらない (Fe 3000 K で T=0 と一致)。
+  - 有限温度の四面体の重み (lindtet6_kbt) と EFERMI_kbt の熱の核の積分: 20 点の Gauss-Legendre を [-6,-1,0,1,6] の
+    4 区間 × 5 点に (m_fpiint の gausq_fd)。以前は E_F の ±0.92 kBT に節点がなかった。Fe 3000 K で EFERMI_kbt の誤差
+    9.4 → 1.2 meV。Samples/kBT/Fe の結果を作り直した。
+
 2026-09-27 (3)
   hgw 以外の段を詰めた (Samples/kBT/gpu_fp32_report.md §10、研究ログ 2026-09-27 夕方・夜)。LiTi2O4 6³ tf32 の QSGW 1 反復
   (GPU 2 枚、CPU 60 本) が 342 → 212 秒。
