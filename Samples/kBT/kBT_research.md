@@ -1,19 +1,20 @@
-# kBT_research.md — 有限温度 QSGW の研究ログ
+# kBT_research.md — 研究ログ（有限温度 QSGW、MLO-QSGW、GW の GPU 高速化）
 
-上から新しい順に書き足す。
+2026-09-16 から。上から新しい順に書き足す。日付の節（`## 2026-09-27 夜 — …`）の下に `### HH:MM **見出し**` で、投入・完了・判断の時刻を書く。
+表と図には番号（*表 23:35-1* など）を付け、本文から番号で参照する。書き方の正本は ecalj の `ecaljclaude.md`「記録の方針」。
 
-**図の貼り方**: `mlo_rows.png` / `mlo_conv.png` は反復が進むたび**上書き**される「生きている図」なので、
-**冒頭の「最新の図」節にだけ**貼る。過去のエントリには、その時点の状態に作り直した**凍結版**
-（`mlo_rows_<HHMM>.png` など）を貼る。上書きされる図を日付エントリに貼ると、本文の説明と中身が
+- **テーマ別の要約と日付の索引**: ecaljdoc の [ForDevelopers](https://ecalj.github.io/ecaljdoc/manual/ForDevelopers) §13（このログを引く入口）
+- **結論が固まったもの**は ecaljdoc の [kBT](https://ecalj.github.io/ecaljdoc/manual/kBT)、[mlo_gwsc](https://ecalj.github.io/ecaljdoc/manual/mlo_gwsc)、
+  [ecaljgpu](https://ecalj.github.io/ecaljdoc/manual/ecaljgpu) と各 README に移す。残る課題の一覧は kBT.md §9 と ForDevelopers §11.8
+- **投入の手順**は ForDevelopers §12、LiTi₂O₄ の入力と 9³ の正常値の表は `LiTi2O4/input/qmlo/README.md`
+
+**図の貼り方**: `mlo_rows.png` / `mlo_conv.png` のように反復が進むたび**上書き**される図は、日付のエントリに貼らない。
+エントリには、その時点の状態に作り直した**凍結版**（`mlo_rows_<HHMM>.png` など）を貼る。上書きされる図を日付エントリに貼ると、本文の説明と中身が
 食い違う（2026-09-25 に 15:06 と 22:27 のエントリで実際に起きた）。
-
-結論が固まったものは
-[ecaljdoc manual/kBT](https://ecalj.github.io/ecaljdoc/manual/kBT) と各 README に移す。
-一覧としての「残る課題」は kBT.md §9。
 
 ---
 
-## 最新の図（走行中のチェーンを映す。ここだけ上書きされる）
+## 2026-09-26 18:30 の図（9³ の 10 反復の完了時。以後は更新していない）
 
 **最終更新 2026-09-26 18:30**（9³ 10 反復完了）／ 追っていたのは **`liti_mlo_k9`**（**9³**、nmlo 126、$\Sigma^{\rm MLO}$ を β=0.5 で混合、03:07 開始、**18:24 に 10 反復完了**）。最終図は 18:30 のエントリに凍結。
 6³ の v9 は 10 反復で完了し、最終図は 03:15 のエントリに凍結した。
