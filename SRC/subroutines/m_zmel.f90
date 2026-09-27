@@ -440,10 +440,12 @@ contains
           integer:: igcgp2,nn(3), iggg, igp1, itp, igc, igp2, igcgp2_start, igcgp2_end, igcgp1_start, igcgp1_end, igcgp1
           integer, parameter :: ngcgp_block = 1024
           complex(8):: phase(ngc)
-          complex(kind=kp), allocatable:: ggitp(:,:), gggmat(:,:), ggitp_work(:,:), ggit(:,:), ggit_work(:,:)
+          complex(kind=kp), allocatable:: ggitp(:,:), gggmat(:,:), ggit(:,:), ggw(:,:,:), zmelp0t(:,:,:)
           integer, allocatable:: igcgp2i_work(:,:), igcgp1i_work(:,:)
+          integer :: nch, nb, ib, itp0, it0, it
+          real(8), parameter :: ipw_work_bytes = 0.5d9      ! gathered states per chunk, at most this size
 #ifdef __GPU
-          attributes(device) :: ggitp, gggmat, ggitp_work, igcgp2i_work, igcgp1i_work, ggit, ggit_work
+          attributes(device) :: ggitp, gggmat, igcgp2i_work, igcgp1i_work, ggit, ggw, zmelp0t
 #endif
           if(debug) write(stdo,ftox)'goto zmelipwif: ngc,ngpmx,ngp1,ngp2,ngcgp,nm1v,nm2v,ntp0=',ngc,ngpmx,ngp1,ngp2,ngcgp,nm1v,nm2v,ntp0
           phase(:)=[(exp( -img*tpi*sum((matmul(symope,kvec)+matmul(qlat,ngveccR(:,igc)))*shtv) ),igc=1,ngc)]  !prepared by CPU
@@ -452,11 +454,12 @@ contains
 
           if(debug) write(stdo,ftox) itq(nqini_rank:nqmax_rank)
           if(debug) call writemem('mmmmm_zmel111aaa')
-          allocate(zmelp0(ngc,nm1v:nm2v,ntp0))
-
+          ! Each order is ONE real SGEMM for all states (realsgemm, opA = T): C_s = A_s B with a gathered A_s and a common B
+          ! is done as C_s^T = B^T A_s^T, so the route restructures B^T once and the gathered A_s^T of all s are more columns.
+          ! (Before: a gather kernel and a product per state, 34 of 58 s of build_zmel in LiTi2O4 6^3.)  zmelp0t is C^T.
           G1G2_Integral: if( nm2v-nm1v + 1 > ntp0) then ! G1 integral first
             if(debug) call writemem('mmmmm_zmel111bbb')
-            allocate( ggitp(ngcgp,ntp0), ggitp_work(ngc, ngp2), igcgp2i_work(ngc,ngp2))
+            allocate( ggitp(ngcgp,ntp0), igcgp2i_work(ngc,ngp2))
             gcgp2_block_loop: do igcgp2_start = 1, ngcgp, ngcgp_block
               igcgp2_end = min(ngcgp, igcgp2_start + ngcgp_block - 1)
               allocate(gggmat(igcgp2_start:igcgp2_end,1:ngp1))
@@ -485,21 +488,34 @@ contains
               enddo
             enddo
             !$acc end kernels
-            do itp = 1, ntp0
-              !$acc kernels loop independent collapse(2)
-              do igp2 = 1, ngp2
+            nch = max(1, min(ntp0, int(ipw_work_bytes/(2d0*kp*ngc*ngp2))))   ! states per gathered chunk
+            allocate(ggw(ngp2,ngc,nch), zmelp0t(nm1v:nm2v,ngc,ntp0))
+            do itp0 = 1, ntp0, nch
+              nb = min(nch, ntp0-itp0+1)
+              !$acc parallel loop collapse(3)
+              do ib = 1, nb
                 do igc = 1, ngc
-                  ggitp_work(igc, igp2) = ggitp(igcgp2i_work(igc,igp2), itp)
+                  do igp2 = 1, ngp2
+                    ggw(igp2,igc,ib) = ggitp(igcgp2i_work(igc,igp2), itp0+ib-1)
+                  enddo
                 enddo
               enddo
-              !$acc end kernels
-              ierr = gemm(ggitp_work, dgeigqk(1,nm1v), zmelp0(1,nm1v,itp), ngc, nm2v-nm1v+1, ngp2, ldB = ngpmx)
+              ierr = gemm(dgeigqk(1,nm1v), ggw, zmelp0t(nm1v,1,itp0), nm2v-nm1v+1, ngc*nb, ngp2, opA=m_op_T, lda=ngpmx)
             enddo
-            deallocate(ggitp_work,ggitp,igcgp2i_work)
+            deallocate(ggw, ggitp, igcgp2i_work)
+            !$acc parallel loop collapse(3) present(phase)
+            do itp = 1, ntp0
+              do it = nm1v, nm2v
+                do igc = 1, ngc
+                  zmelt(nbloch+igc,it,ncc+itp) = cmplx(phase(igc),kind=kp)*zmelp0t(it,igc,itp)
+                enddo
+              enddo
+            enddo
+            deallocate(zmelp0t)
             if(debug) call writemem('mmmmm_zmel111ddd')
           else ! G2 integral first
             if(debug) call writemem('mmmmm_zmel222bbb')
-            allocate(ggit(ngcgp,nm1v:nm2v), ggit_work(ngc, ngp1), igcgp1i_work(ngc,ngp1))
+            allocate(ggit(ngcgp,nm1v:nm2v), igcgp1i_work(ngc,ngp1))
             gcgp1_block_loop: do igcgp1_start = 1, ngcgp, ngcgp_block
               igcgp1_end = min(ngcgp, igcgp1_start + ngcgp_block - 1)
               allocate(gggmat(igcgp1_start:igcgp1_end,1:ngp2))
@@ -528,28 +544,33 @@ contains
               enddo
             enddo
             !$acc end kernels
-            if(debug) call writemem('mmmmm_zmel222ccd')
-            do it = nm1v, nm2v
-              !$acc kernels loop independent collapse(2)
-              do igp1 = 1, ngp1
+            nch = max(1, min(nm2v-nm1v+1, int(ipw_work_bytes/(2d0*kp*ngc*ngp1))))
+            allocate(ggw(ngp1,ngc,nch), zmelp0t(ntp0,ngc,nm1v:nm2v))
+            do it0 = nm1v, nm2v, nch
+              nb = min(nch, nm2v-it0+1)
+              !$acc parallel loop collapse(3)
+              do ib = 1, nb
                 do igc = 1, ngc
-                  ggit_work(igc,igp1) = ggit(igcgp1i_work(igc,igp1),it)
+                  do igp1 = 1, ngp1
+                    ggw(igp1,igc,ib) = ggit(igcgp1i_work(igc,igp1), it0+ib-1)
+                  enddo
                 enddo
               enddo
-              !$acc end kernels
-              ierr = gemm(ggit_work, geigq, zmelp0(1,it,1), ngc, ntp0, ngp1, ldB=ngpmx, ldC=ngc*(nm2v-nm1v+1))
+              ierr = gemm(geigq, ggw, zmelp0t(1,1,it0), ntp0, ngc*nb, ngp1, opA=m_op_T, lda=ngpmx)
             enddo
-            deallocate(ggit_work,ggit,igcgp1i_work)
+            deallocate(ggw, ggit, igcgp1i_work)
+            !$acc parallel loop collapse(3) present(phase)
+            do itp = 1, ntp0
+              do it = nm1v, nm2v
+                do igc = 1, ngc
+                  zmelt(nbloch+igc,it,ncc+itp) = cmplx(phase(igc),kind=kp)*zmelp0t(itp,igc,it)
+                enddo
+              enddo
+            enddo
+            deallocate(zmelp0t)
             if(debug) call writemem('mmmmm_zmel222ddd')
           endif G1G2_Integral
           deallocate(geigq, dgeigqk)
-          ! 2025-10-10: Procedures involving ppovlinv and ppovlz have been removed.
-          !$acc kernels
-          do igc = 1, ngc
-            zmelt(nbloch+igc,nm1v:nm2v,ncc+1:ncc+ntp0) = cmplx(phase(igc),kind=kp)*zmelp0(igc,nm1v:nm2v,1:ntp0)
-          enddo
-          !$acc end kernels
-          deallocate(zmelp0)
           if(debug) call writemem('mmmmm_zmel111iii')
 
           !$acc end data
