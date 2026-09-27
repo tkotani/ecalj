@@ -34,12 +34,11 @@ module m_locpot
   real(8):: df(0:20)
   integer,external :: iprint
 contains
-  subroutine locpot(job,novxc, orhoat,qmom,vval,gpot0, novxcalso)
+  subroutine locpot(job, orhoat,qmom,vval,gpot0, novxcalso)
     implicit none
-    intent(in)::    job,novxc, orhoat,qmom,vval,gpot0
+    intent(in)::    job, orhoat,qmom,vval,gpot0
     !i Inputs
-    !i   novxc
-    !i   novxcalso: (optional) also the augmentation matrices without xc (oppix, as with novxc) in the same pass
+    !i   novxcalso: (optional) also oppix, the augmentation matrices without xc, in the same pass
     !i   orhoat:vector of offsets containing site density
     !i   qmom  :multipole moments of on-site densities (rhomom.f)
     !i   vval  :electrostatic potential at MT boundary; needed to computed matrix elements of local orbitals.
@@ -86,7 +85,7 @@ contains
          qcorg,qcorh,cofg,cofh,rg,rs3,vmtz,qcor(2),qc0,qsc0, ov0mean,pmean,&
          vesint(nbas)
     character spid*8
-    logical :: lfltwf,readov0,v0write,novxc,alsox
+    logical :: lfltwf,readov0,v0write,alsox
     logical,intent(in),optional:: novxcalso
     real(8),pointer:: pnu(:,:),pnz(:,:)
     real(8),allocatable:: wk(:),efg(:,:),zz(:)
@@ -104,7 +103,7 @@ contains
     call stdfac(20,df)
     if(allocated(rhoexc))deallocate(rhoexc,rhoex,rhoec,rhovxc,phzdphz,hab,sab,vab, otau,osig,oppi,ohsozz,ohsopm)
     allocate( oppi(3,nbas),otau(3,nbas),osig(3,nbas),ohsozz(3,nbas),ohsopm(3,nbas))
-    if(novxc .or. alsox) then
+    if(alsox) then
        if(allocated(oppix)) deallocate(oppix)
        allocate(oppix(3,nbas))
     endif
@@ -389,11 +388,7 @@ contains
           nkaph= nkaphh(is)
           if(lpzex(is)==1) rsml=rsmh(:,nkaph)
           if(lpzex(is)==1)  ehl=  eh(:,nkaph)
-          if(novxc) then !  ... Use effective potentials with modified xc
-            v1=v1es 
-            v2=v2es 
-          endif
-          lsox = merge(1, lso, .NOT. novxc .AND. c0_socmatrix )
+          lsox = merge(1, lso, c0_socmatrix )
           if (iprint() >= 20) write(stdo,"('     potential shift to crystal energy zero:',f12.6)") y0*(gpot0(1,ib)-gpotb(1))
           rsmaa=rsma(is)
           nlma = (lmxa+1)**2
@@ -403,8 +398,8 @@ contains
           hab_=>hab(:,:,:,:,ib)
           sab_=>sab(:,:,:,:,ib)
           vab_=>vab(:,:,:,:,ib)
-          if(alsox) then ! oppix, the augmentation matrices without xc, as locpot with novxc=T makes them (v1es, v2es, lso).
-            ! potpus and gaugm fill hab, sab, osig, ... here too; the full potential below gives them their values.
+          if(alsox) then ! oppix: the augmentation matrices without xc (v1es, v2es; lso, not lsox) on the same radial
+            ! functions (v0) as oppi.  potpus and gaugm also write hab, sab, osig, ... here; the full potential below overwrites them.
             allocate(oppix(1,ib)%cv, mold=oppi(1,ib)%cv)
             allocate(oppix(2,ib)%cv, mold=oppi(2,ib)%cv)
             allocate(oppix(3,ib)%cv, mold=oppi(3,ib)%cv)
@@ -459,11 +454,6 @@ contains
                osig(3,ib)%v, otau(3,ib)%v, oppi(3,ib)%cv, ohsozz(3,ib)%sdiag, ohsopm(3,ib)%soffd)
         endblock augmatblock
       endblock locpt2augmat
-      if(novxc) then !novxc pi integral
-        allocate(oppix(1,ib)%cv,source=oppi(1,ib)%cv)
-        allocate(oppix(2,ib)%cv,source=oppi(2,ib)%cv)
-        allocate(oppix(3,ib)%cv,source=oppi(3,ib)%cv)
-      endif
     enddo ibloop
     vesaverage = sum(vesint)/vol ! Integral of electrostatic potential within MT = \int d^3r (Ves1-Ves2)/vol. !2025-6-9
     vvesat = sum(vvesata)

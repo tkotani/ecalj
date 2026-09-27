@@ -6,20 +6,21 @@ module  m_vcoulq
   public vcoulq_4,mkjb_4,mkjp_4,genjh, ajr, a1r, vcoul_termb
   private
   character(1024):: aaaw
-  ! Tables of the group of atoms (same radial mesh and lx) of the last mkjp_4 call, used again for the next atoms
-  ! of the group: ajr(r,ig,l) = j_l(|q+G| r) r^(l+1)/|q+G|^l, and a1r (eee/=0, see sigkernel).
+  ! Tables of one group of atoms (same radial mesh and lx), made by mkjp_4 for the first atom of the group
+  ! (hasBessel=F) and used by the other atoms of the group and by vcoul_termb, which must run before the next group
+  ! replaces them.  ajr(r,ig,l) = j_l(|q+G| r) r/|q+G|^l; for eee/=0, a1r(r,ig,l) of sigkernel, which includes the
+  ! Simpson weights times dr/di (fac_integral), so sum_r a1r(r,ig,l) f(r) is already the radial integral.
+  ! In the GPU build only the device copies are set.
   real(8), allocatable  :: ajr(:,:,:), a1r(:,:,:)
-  ! vcoul_termb uses them for the onsite part of <P_G1|v|P_G2> of the group (vcoulq_4 made the same tables again for
-  ! each type: 7 of 15 s of GPU time, LiTi2O4 6^3).
 contains
   subroutine vcoulq_4(q,nbloch,ngc,nbas,lx,lxx,nx,nxx,alat,qlat,vol,ngvecc, & !Coulmb matrix for each q
-       strx,rojp,rojb,sgbb,sgpb,fouvb,ngb,bas,rmax, eee, aa,bb,nr,nrx,rkpr,rkmr,rofi, vcoulb,   vcoul)
+       strx,rojp,rojb,sgbb,sgpb,fouvb,ngb,bas,rmax, eee, nr,nrx,rofi, vcoulb,   vcoul)
     use m_ll,only: ll
-    use m_blas, only: m_op_T,m_op_C, zmv_h !, zmm_h
+    use m_blas, only: m_op_T,m_op_C
 #ifdef __GPU
-    use m_blas, only: dmm => dmm_d, zmm=>zmm_d
+    use m_blas, only: zmm=>zmm_d
 #else
-    use m_blas, only: dmm => dmm_h, zmm=>zmm_h
+    use m_blas, only: zmm=>zmm_h
 #endif
     !i strx:  Structure factors
     !i nlx corresponds to (lx+1)**2 . lx corresponds to 2*lmxax.
@@ -40,31 +41,30 @@ contains
     integer :: nbloch, ngb, nbas, lxx,lx(nbas), nxx, nx(0:lxx,nbas)
     integer :: ibl1, ibl2,ig1,ig2,ibas,ibas1,ibas2, l,m,n, n1,l1,m1,lm1,n2,l2,m2,lm2,ipl1,ipl2
     integer :: ibasbl(nbloch), nbl(nbloch), lbl(nbloch), mbl(nbloch), lmbl(nbloch)
-    integer :: ngc, ngvecc(3,ngc),nblochngc,nev,nmx,ix,nrx,nr(nbas),ir,ig,lm
-    real(8) :: egtpi,vol,q(3), qlat(3,3),alat,absqg2(ngc),qg(3), rojb(nxx, 0:lxx, nbas)
+    integer :: ngc, ngvecc(3,ngc),nrx,nr(nbas),lm
+    real(8) :: vol,q(3), qlat(3,3),alat,absqg2(ngc),qg(3), rojb(nxx, 0:lxx, nbas)
     real(8) :: sgbb(nxx,  nxx,  0:lxx,      nbas) !i sigma-type onsite integral
     real(8) :: fpivol,tpiba, bas(3,nbas),r2s,rmax(nbas)
     real(8) ::  fkk(0:lxx),fkj(0:lxx),fjk(0:lxx),fjj(0:lxx),sigx(0:lxx),radsig(0:lxx) !,radsig(0:lxx,nbas),fjj(0:lxx,nbas)
-    real(8) :: eee, aa(nbas),bb(nbas),rkpr(nrx,0:lxx,nbas),rkmr(nrx,0:lxx,nbas),rofi(nrx,nbas)
-    real(8),allocatable  :: eb(:),cy(:),yl(:), a1(:,:,:)
+    real(8) :: eee, rofi(nrx,nbas)
+    real(8),allocatable  :: cy(:),yl(:)
     real(8),parameter:: pi=4d0*datan(1d0),fpi=4d0*pi
     complex(8) :: rojp(ngc, (lxx+1)**2, nbas)   !rho-type onsite integral
     complex(8) :: strx((lxx+1)**2, nbas, (lxx+1)**2,nbas) !structure constant. The multicenter expantion of 1/|r-r'|
     complex(8) :: sgpb(ngc,  nxx,  (lxx+1)**2, nbas)
     complex(8) :: fouvb(ngc,  nxx, (lxx+1)**2, nbas) ,vcoul(ngb, ngb) !<exp(i q+G r)|xxx>
-    complex(8) :: vcoulb(*)   !eee/=0: the onsite parts of <P_G1|v|P_G2> of all groups (vcoul_termb), on the device
-    !complex(8),allocatable :: hh(:,:),oo(:,:),zz(:,:),matp(:),matp2(:),pjyl_(:,:),phase(:,:)
-    complex(8),allocatable :: hh(:,:),oo(:,:),zz(:,:),matp(:),matp2(:),pjyl_(:,:),phase(:,:),pjyl_p(:,:) !,pjyl_p(:,:,:)
-    complex(8) :: xxx, img=(0d0,1d0), fouvp_ig1_ig2, fouvp_ig2_ig1, sgpp_ig1_ig2
+    complex(8) :: vcoulb(*)   !eee/=0: the onsite parts of <P_G1|v|P_G2> of all groups (vcoul_termb), on the device;
+                              !packed lower triangle, vcoulb(ig1*(ig1-1)/2+ig2) for ig2<=ig1
+    complex(8),allocatable :: pjyl_(:,:),phase(:,:)
+    complex(8) :: img=(0d0,1d0)
     integer :: istat,lm2x
     integer,allocatable :: llx(:)
     write(aaaw,'(" vcoulq_4: ngb  nbloch ngc nrx procid=",5i6)') ngb,nbloch,ngc,nrx,mpi__rank
     call cputm(stdo,aaaw)
     fpivol = 4*pi*vol
-    allocate( pjyl_((lxx+1)**2,ngc),pjyl_p((lxx+1)**2,ngc),phase(ngc,nbas),source=(0d0,0d0) )!,pjyl_p((lxx+1)**2,ngc,nbas)
+    allocate( pjyl_((lxx+1)**2,ngc),phase(ngc,nbas),source=(0d0,0d0) )
     allocate( cy((lxx+1)**2), yl((lxx+1)**2),source=0d0)
     allocate( llx((lxx+1)**2),source=0)
-    !allocate( pjyl_((lxx+1)**2,ngc),phase(ngc,nbas), cy((lxx+1)**2), yl((lxx+1)**2))
     do lm =1,(lxx+1)**2
       llx(lm) = ll(lm)
     enddo
@@ -160,11 +160,8 @@ contains
 
     ! <P_G|v|P_G>
     PvP_dev_mo: block
-#ifdef __GPU
-      use openacc
-#endif
       complex(8) :: rojpstrx((lxx+1)**2,nbas,ngc)
-      integer :: ibas_order(nbas), ib_prev, isrt, jsrt, ktmp, itype_start, itype_end, ib_next
+      integer :: ibas_order(nbas), isrt, jsrt, ktmp, itype_start, itype_end, ib_next
       complex(8) :: cPhi
       complex(8), allocatable :: vcoul_termA(:,:)
       write(aaaw,ftox) " vcoulq_4: goto PvP procid ngc lxx nrx=", mpi__rank,ngc,lxx,nrx
@@ -183,7 +180,7 @@ contains
         enddo
       enddo
 
-      !$acc data create(rojpstrx,pjyl_p) copyin(absqg2, pjyl_, phase, ibas_order)
+      !$acc data create(rojpstrx) copyin(absqg2)
 
       !$acc host_data use_device(strx, rojp)
       istat = zmm(strx, rojp, rojpstrx, m=nbas*(lxx+1)**2, n=ngc, k=nbas*(lxx+1)**2, opA=m_op_T, opB=m_op_C)
@@ -215,7 +212,7 @@ contains
             if(ig2 <= ig1) vcoul(nbloch+ig1,nbloch+ig2) = vcoul(nbloch+ig1,nbloch+ig2) + vcoulb((ig1*(ig1-1))/2+ig2)
           enddo
         enddo
-      else   ! eee=0: Term B for each atom type, on the host
+      else   ! eee=0: Term B on the host, once per group of atoms (same nr, lx and rofi; "type" below)
         write(aaaw,ftox) " vcoulq_4: goto igig loop (type-batched)", mpi__rank
         call cputm(stdo,aaaw)
         itype_start = 1
@@ -339,11 +336,11 @@ contains
     use m_ll,only: ll
     use m_bessl, only: bessl2 => bessl, wronkj2 => wronkj
     implicit none
-    integer:: ngc,ngvecc(3,ngc), lxx, lx, nxx,nx(0:lxx),nr,nrx, nlx,ig1,ig2,l,n,ir,n1,n2,lm !, ibas
+    integer:: ngc,ngvecc(3,ngc), lxx, lx, nxx,nx(0:lxx),nr,nrx, nlx,ig1,l,n,ir,lm
     real(8):: q(3),bas(3), rprodx(nrx,nxx,0:lxx),a,b,rmax,alat, qlat(3,3)
-    real(8):: pi,fpi,tpiba, qg1(3), fkk(0:lx),fkj(0:lx),fjk(0:lx),fjj(0:lx),absqg1,absqg2, &
-         fac,radint,radsigo(0:lx),radsig(0:lx),phi(0:lx),psi(0:lx),r2s,sig,sig1,sig2,sigx(0:lx),sig0(0:lx) ,qg2(3)
-    real(8):: rofi(nrx),rkpr(nrx,0:lxx),rkmr(nrx,0:lxx),eee,qg1a(3)
+    real(8):: pi,fpi,tpiba, qg1(3), fkk(0:lx),fkj(0:lx),fjk(0:lx),fjj(0:lx),absqg1, &
+         phi(0:lx),psi(0:lx),r2s,sig
+    real(8):: rofi(nrx),rkpr(nrx,0:lxx),rkmr(nrx,0:lxx),eee
     real(8),allocatable::cy(:),yl(:)
     real(8),allocatable ::a1(:,:,:), qg(:,:),absqg(:), rofi_nr(:), fac_integral(:)
     complex(8) :: rojp(ngc, (lxx+1)**2)        ! rho-type onsite integral
@@ -353,7 +350,6 @@ contains
     complex(8),allocatable :: pjyl(:,:)
     logical, intent(in) :: hasBessel
     nlx = (lx+1)**2
-    ! allocate(ajr(1:nr,0:lx,ngc),a1(1:nr,0:lx,ngc), qg(3,ngc),absqg(ngc), pjyl((lx+1)**2,ngc) )
     allocate(qg(3,ngc),absqg(ngc), pjyl((lx+1)**2,ngc) )
 
     pi    = 4d0*datan(1d0)
@@ -388,7 +384,6 @@ contains
       do ig1 = 1,ngc
         call sigintAn1( absqg(ig1), lx, rofi_nr, nr,a1(1:nr, 0:lx,ig1) )
       enddo
-      !      else       ! We need to implement a version of sigintAn1 to treat eee/=0 case...
     endif
     write(aaaw,ftox)' mkjp_4: goto dev_mo block. nx', nx(:)
     call cputm(stdo,aaaw)
@@ -522,8 +517,8 @@ contains
     !                  * [ (4pi/(|q+G1|^2-e)+4pi/(|q+G2|^2-e)) fjj_l + 4pi/(2l+1) sigx_l ],   igg = ig1*(ig1-1)/2+ig2, ig2<=ig1,
     ! cPhi = sum_a conj(exp(i(q+G1)R_a)) exp(i(q+G2)R_a) over the atoms basg(:,1:natg) of the group (the same radial mesh
     ! and lx=lxg).  fjj_l is fjj of wronkj from the Bessel values and slopes at rmax of each G; sigx_l = a1r^T ajr of the
-    ! tables mkjp_4 made for the group.  One l at a time (ngc**2 of work memory); nothing over all groups or all l is
-    ! kept.  The sum stops at lxg (the type loop of vcoulq_4 took fjj of l>lx from an unset array).
+    ! tables mkjp_4 made for the group.  One l at a time, so the work memory is one ngc x ngc matrix (sx).  The sum
+    ! stops at lxg, as rojp (zero for l>lx) and the eee=0 path of vcoulq_4 do.
     use m_ll,only: ll
     use m_bessl, only: radkj2 => radkj
 #ifdef __GPU
@@ -694,7 +689,6 @@ contains
     call gintxx(a1,b1,A,B,NR, sig )
   end subroutine sigint_4
   subroutine intn_smpxxx(g1,g2,intg,a,b,rofi,nr) ! Intergral of two wave function. used in ppdf
-    !$acc routine seq
     ! int(r) = \int_(r)^(rmax) u1(r') u2(r') dr' Simpson rule ,and with higher rule for odd devision.
     IMPLICIT none
     integer :: nr,ir,lr0

@@ -30,9 +30,10 @@ static void* gemmul8_workspace(size_t need) {
 }
 
 // Kept scaled/split A (GEMMul8 skip_scalA) per caller key.  The caller promises that one key means one
-// matrix A (and op) until gemmul8_cache_reset_.  Budget: ECALJ_LA_CACHE_GB (default 4) and at most a
-// quarter of the free device memory; beyond it the call runs without keeping A.
-struct KeptA { void* ptr; size_t size; };
+// matrix A until gemmul8_cache_reset_.  A kept A is reused only with the same type, op(A), m, k, moduli and
+// fast mode (a key may be used with both rows of a table, which can differ in the moduli); otherwise the call
+// runs without keeping A.  Budget: ECALJ_LA_CACHE_GB (default 4) and at most a quarter of the free device memory.
+struct KeptA { void* ptr; size_t size; size_t m, k; unsigned int moduli; int fast; };
 static std::unordered_map<long long, KeptA> g_kept;
 static size_t g_kept_bytes = 0;
 static size_t g_kept_cap   = 0;
@@ -99,12 +100,15 @@ void gemmul8_gemm_impl(
                                                                &worksizeA, &worksizeB, fastmode != 0);
         long long kk = ((long long)key << 4) | (long long)(typecode<T>() * 4 + transa);
         auto it = g_kept.find(kk);
-        if (it != g_kept.end() && it->second.size >= worksizeA) {
-            keptA  = it->second.ptr;
-            reuseA = true;
-        } else if (it == g_kept.end() && g_kept_bytes + worksizeA <= kept_cap()) {
+        if (it != g_kept.end()) {
+            const KeptA& e = it->second;
+            if (e.size >= worksizeA && e.m == m && e.k == k && e.moduli == num_moduli && e.fast == fastmode) {
+                keptA  = e.ptr;
+                reuseA = true;
+            }
+        } else if (g_kept_bytes + worksizeA <= kept_cap()) {
             if (cudaMalloc(&keptA, worksizeA) == cudaSuccess) {
-                g_kept[kk] = KeptA{keptA, worksizeA};
+                g_kept[kk] = KeptA{keptA, worksizeA, m, k, num_moduli, fastmode};
                 g_kept_bytes += worksizeA;
             } else {
                 keptA = nullptr;

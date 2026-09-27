@@ -26,17 +26,15 @@ parser.add_argument('--emptyrun'  ,help='test for gprof for memory',    action='
 parser.add_argument('--gpu'       ,help='USE GPU version for hsfp0 and hgw',    action='store_true')
 parser.add_argument('--gemmul8'   ,help='USE GEMMul8 valid in GPU without MP',    action='store_true')
 parser.add_argument('--prec'      ,help='precision of the GW programs: fp64 (double precision), fp32 (mixed precision, '
-                    'FP32 products; = --mp --fp32) or tf32 (as fp32, but the products of Sigma_c in TF32 on GPU: '
-                    'about 30%% faster, Sigma within ~1 meV near E_F). How each GPU product is done is read from '
-                    '<bindir>/ecalj_linalg_policy.toml (written by linalgtune). --mp alone = tf32 (before 2026-09-27 it '
-                    'meant TF32 in every product: 6 times the error of tf32 for 10%% less time, NiO gap off by 0.1 eV).',
+                    'FP32 products; = --mp --fp32) or tf32 (as fp32, but the Sigma_c products on GPU with 10-bit-mantissa '
+                    'inputs, TF32 or FP16: faster, Sigma slightly less accurate). How each GPU product is done is read from '
+                    '<bindir>/ecalj_linalg_policy.toml (written by linalgtune). --mp alone = tf32.',
                     choices=['tf32', 'fp32', 'fp64'], default=None)
 parser.add_argument('--prec-final', help='precision of the last iterations of this run, <prec>[:N] (N=1 if omitted): e.g. '
                     '--prec=tf32 --prec-final=fp32:2 runs all but the last two iterations in tf32 and those in fp32',
                     default=None)
 parser.add_argument('--mp'        ,help='USE mixed precision version for hsfp0 and hgw',    action='store_true')
-parser.add_argument('--fp32'      ,help='With --mp: use true FP32 (not TF32) in GPU GEMMs. Fixes ill-conditioned dielectric (e.g. mp-8196)', action='store_true')
-parser.add_argument('--removeFermiWindowLiTi2O4', help='DIAGNOSTIC: drop bands within +-2eV of EF from chi0 (m_tetwt). Tests if Fermi-surface neighbourhood drives QSGW oscillation', action='store_true')
+parser.add_argument('--fp32'      ,help='With --mp: FP32 also in the Sigma_c products (= --prec=fp32)', action='store_true')
 parser.add_argument('--no-tetwt-helper', help='with --gpu: compute the tetrahedron weights inside hgw instead of '
                     'in a CPU helper run (hgw --tetwt_write on -np cores next to hgw)', action='store_true')
 parser.add_argument('--dumpW',     help='Persist screened Coulomb W-V to __WVR.<iq>/__WVI.<iq> (combined hgw SHM dump) for analysis', action='store_true')
@@ -73,20 +71,11 @@ mpi_params_lmf = {"nprocs": ncore, "npernode": npernode}
 mpi_params_gw = {"nprocs": ncore2, "npernode": npernode2}
 mpi_params_single = {"nprocs": 1, "npernode": None}
 
-options = []
-exec_type = ""
+options = []   # the precision options (--use_fp32, --sigma_tf32) and exec_type are set per iteration in the loop
 if args.phispinsym:
     options.append("--phispinsym")
 if args.emptyrun:
     options.append("--emptyrun")
-if args.mp:
-    exec_type = "_mp"
-if args.gpu:
-    exec_type = exec_type + "_gpu"
-if args.fp32:
-    options.append("--use_fp32")
-if args.removeFermiWindowLiTi2O4:
-    options.append("--removeFermiWindowLiTi2O4")
 if args.dumpW:
     options.append("--dumpW")
 if args.WVR2ptRaxis:
@@ -275,7 +264,7 @@ for i in range(1,nloop+1): #nloop is the additional number of iteration
 
     ## With the GPU, the CPU cores are idle while hvccfp0 and hgw run: a helper run of the same hgw on them
     ## (--tetwt_write, no GPU) writes the tetrahedron weights of every q to __TETWT.<iq>.<isp>, and hgw reads
-    ## them instead of computing them (bit-identical; a missing or non-matching file is computed as before).
+    ## them instead of computing them (bit-identical; a missing or non-matching file is computed in hgw).
     tetwt_helper = None
     if args.gpu and not args.no_tetwt_helper:
         for f in Path().glob('__TETWT.*'):

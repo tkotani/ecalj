@@ -78,9 +78,8 @@ def _build_env(cfg):
 
 
 # --- GPU coordination --------------------------------------------------------
-# gwsc runs *_gpu binaries (hvccfp0_mp_gpu, hgw_mp_gpu, lmf_gpu, ...) directly via
-# run_cmd. Without coordination, jobs pile onto the same GPU ->
-# CUDA_ERROR_OUT_OF_MEMORY (vcoulq_4 mkjp.f90:296).
+# gwsc runs *_gpu binaries (hvccfp0_mp_gpu, hsfp0_sc_mp_gpu, hgw_mp_gpu, ...) directly via
+# run_cmd. Without coordination, jobs pile onto the same GPU and run out of device memory.
 # * With a slot_scheduler_daemon running (ecalj_auto) we take a GPU slot from it.
 # * Otherwise we take GPU locks (pylib/gpu_lock.py, /tmp/ecalj_res/gpu<N>.lock):
 #   min(nprocs, candidate GPUs) of them, waiting while they are in use, and pass
@@ -140,10 +139,8 @@ def _needs_gpu_slot(command) -> bool:
 
 
 # --- single-rank CPU programs -------------------------------------------------
-# MPI_Init probes every GPU even for a CPU program: a single-rank run (heftet, hbasfp0,
-# hqpe_sc, ...) takes 0.53 s to start on kt1 (HPC-X OpenMPI), 0.26 s with the GPUs hidden.
-# With 60 ranks hiding them did not help (median of 8: 1.85 s as is, 2.25 s hidden; also
-# with UCX_TLS=self,sm 2.16 s), so it is done for nprocs=1 only.
+# MPI_Init probes every visible GPU even for a CPU program; hiding them shortens the start of the many
+# single-rank runs (heftet, hbasfp0, hqpe_sc, ...).  With many ranks it gave nothing, so nprocs=1 only.
 def _cpu_env(env, nprocs):
     if (nprocs or 1) == 1:
         env["CUDA_VISIBLE_DEVICES"] = ""

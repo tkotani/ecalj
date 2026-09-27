@@ -131,11 +131,9 @@ contains
       complex(8),allocatable::ovlmr(:,:,:,:),hammr(:,:,:,:),hammhsor(:,:,:,:)
       complex(8),allocatable::sigmlor(:,:,:,:) !Sigma^MLO(R), same layout as hammr
       logical:: lsigmlo=.false.
-      integer,allocatable:: iqproc(:),isproc(:)
-      logical,allocatable:: lqibz(:)
       logical::debug=.true.
       logical:: socmatrix, lcmlo_legacy, lfrozen=.false.
-      integer:: io, nskip_frozen=-1
+      integer:: io
       socmatrix=c0_socmatrix
       !--mlofreeze: the MLO index was fixed when HamRsMLO was made (design 4.1), and it is read
       !back from there below.  Only Sigma^MLO(q) -> QMLO_SigRs is done then: neither the PMT
@@ -230,6 +228,8 @@ contains
               if (pz > 0d0 .and. int(mod(pz,10d0)) < int(pnu)) has_lo(ib_table(i), l_table(i)) = .true.   ! pz=10+n.m: extended-tail form of shell n
             enddo
           endblock
+          ! frozen run: skipped (use_lo=.false.); ix is read from HamRsMLO below, and its ndimMTO check assumes the
+          ! LO and EH of a shell count alike
           if (any(has_lo) .and. .not.lfrozen) then
             open(newunit=ifih_info, file='__HamiltonianPMT.info', form='unformatted', action='read')
             read(ifih_info) nbandmx, mrech, mrechsoc
@@ -349,10 +349,10 @@ contains
       endblock ReadInfoFromGWinput
       ndimMTO=nn
       if(lso==1) ndimMTO=nn*2 !L.S mode
-      FrozenModel: block !design 4.1: chi~ is defined ONCE per chain.
-        !HamRsMLO already there -> this is a later iteration.  Take the frozen window
-        !(nskip, eferm, ecbot) from its trailing records and do NOT rewrite the file,
-        !so every iteration of the chain uses the same chi~.
+      FrozenModel: block !--mlofreeze (design 4.1): the MLO index is fixed for the whole chain.
+        !Take it (ix and the tables) from the trailing records of HamRsMLO; HamRsMLO is not rewritten.
+        !chi~ itself follows H (sugw step a').  The chain-start eferm, ecbot set here are used only
+        !by the band plot of mlo in this run.
         use m_readqplist,only: set_bandedge
         integer:: nd,ld,mm,nsk,ifh,n1,n2,n3
         integer,allocatable:: ixf(:)
@@ -370,7 +370,6 @@ contains
           ib_tableM(1:nd) = ib_table(ixf)
           k_tableM(1:nd)  = k_table(ixf)
           l_tableM(1:nd)  = l_table(ixf)
-          nskip_frozen = nsk
           call set_bandedge(ef, ec)
           if(master_mpi) write(stdo,ftox)' m_HamPMT: HamRsMLO exists -> frozen model. nskip eferm ecbot=',nsk,ftof(ef),ftof(ec)
         endif
@@ -421,11 +420,10 @@ contains
       if(socmatrix) allocate(hammhsoi(1:ndimMTO,1:ndimMTO,nqibz,3),source=(0d0,0d0))
       allocate(rotmat(nMTO,nMTO))
 
-!2026-1-27      
-      !LEGACY: __cmlo.data is now written by sugw (design 4.2 step a'), which has evec and
-      !S^PMT together and so cannot get the band basis wrong. This block only runs if a
-      !__HamiltonianGW.info from a previous lmf --jobgw=1 happens to be around; on the
-      !first pass (step 0d, before any --jobgw=1) there is none and we skip it.
+      !__cmlo.data/.info from __HamiltonianGW for the W and magnon flows (job_mloW, job_mlo_magnon:
+      !lmf --jobgw=1 --mlo, then mlo --mlo; hwmatK_MPI and huumat_MPI read __cmlo).  It replaces the
+      !__cmlo of sugw's step a' (written only when HamRsMLO exists, nspc=1).  Never in the QSGW
+      !chain: gwsc deletes __HamiltonianGW* before mlo --mlo, and its mlo per iteration is --mlofreeze.
       block
         logical:: lhgw
         integer:: nbyte
@@ -588,7 +586,6 @@ contains
           call MPI_Allreduce(etop, etop_all, nbchk, MPI_DOUBLE_PRECISION, MPI_MAX, MPI_COMM_WORLD, ierr)
           call MPI_Allreduce(ebot, ebot_all, nbchk, MPI_DOUBLE_PRECISION, MPI_MIN, MPI_COMM_WORLD, ierr)
           if(master_mpi) call report_nskip_gap(nskip_global, nsemicore, nbchk, etop_all, ebot_all)
-          if(lfrozen) nskip_global = nskip_frozen !keep the value the chain started with
         endblock NskipPrepass
         iqiloop: do iqxx=1,nqibz !nqibz !xx=1,nqibz !iqini,iqend !iqxx=1,nqibz 
            if(debug)write(6,*)' start iqiloop=',iqxx,nqibz
@@ -835,8 +832,8 @@ contains
       endif
    end subroutine HamPMTtoHamRsMLO
 
-   !> Sum a(:,:,:,:) over the ranks onto the master only (the real-space arrays are written by
-   !! the master; an allreduce of them, 137 MB each for LiTi2O4, cost 0.8 s on 60 ranks).
+   !> Sum a(:,:,:,:) over the ranks onto the master only: only the master writes the real-space
+   !! arrays, so an allreduce would send them to every rank for nothing.
    subroutine reduce_to_master(a)
       use mpi
       implicit none

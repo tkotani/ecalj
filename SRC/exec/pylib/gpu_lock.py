@@ -3,8 +3,7 @@
 A job takes the GPUs it will use with flock and hands only those to its programs in CUDA_VISIBLE_DEVICES.
 flock is released by the kernel when the holder ends, so a job that crashes leaves no stale lock.  All or
 nothing: a job that cannot get every GPU it wants holds none while it waits, so two jobs never hold one
-GPU each and wait for each other.  The same directory is the place for later signals between jobs (none
-yet).  2026-09-27.
+GPU each and wait for each other.
 
     with GpuLock(want=2, label="gwsc hgw") as g:
         if g.devices is not None:

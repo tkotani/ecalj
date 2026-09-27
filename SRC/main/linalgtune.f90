@@ -8,14 +8,14 @@
 !> over the class (geometric mean of the time ratios, each shape weighted by its rough share of hgw time) and not more
 !> than 10% slower on any shape that carries weight (>= 0.1); otherwise cuBLAS (lu64 for the inverse) stays.
 !> Error bounds (relative, Frobenius): cgemm at most 4 times the error of cuBLAS at the same level on the same shape
-!> (and below 5e-3 at tf32, 1e-5 at fp32): the promise is FP32 (TF32) accuracy, and GEMMul8 with 7 moduli is 5 times
-!> worse on long sums (it quantizes each row against its largest element; in hgw it moved Im Sigma_c by 1e-4 eV);
-!> zgemm and dgemm 1e-12; the epstilde inverse 1e-6 at tf32/fp32 and 1e-13 at fp64.
+!> (and below 5e-3 at tf32, 1e-5 at fp32): the promise is FP32 (TF32) accuracy, which GEMMul8 with few moduli can
+!> miss on long sums (it quantizes each row against its largest element); zgemm and dgemm 1e-12; the epstilde
+!> inverse 1e-6 at tf32/fp32 and 1e-13 at fp64.
 !> realhgemm (FP16 inputs, FP32 accumulation) has the error of TF32, so it can only pass at level tf32.
-!> The sizes are deliberately not multiples of 64 (as in real GW runs, e.g. 1053 product-basis functions for LiTi2O4):
-!> on sizes like 1024 GEMMul8 is faster than on 1053, and a table measured there chose it where hgw runs slower.
+!> The sizes are deliberately not multiples of 64, as in real GW runs: aligned sizes favour some backends (GEMMul8)
+!> and would bias the choice.
 !> The table goes to --out, else to ecalj_linalg_policy.toml next to this executable (ECALJ_LINALG_POLICY overrides),
-!> through a temporary file and rename.  Run it on an idle GPU; InstallAll.py does so after a GPU build.  2026-09-27.
+!> through a temporary file and rename.  Run it on an idle GPU; InstallAll.py does so after a GPU build.
 program linalgtune
   use cudafor
   use cublas_v2
@@ -29,14 +29,13 @@ program linalgtune
     integer :: m, n, k
     character :: opa
     logical :: keyed
-    real(8) :: weight           ! rough share of hgw time within its class (LiTi2O4 6^3 profile)
+    real(8) :: weight           ! rough share of hgw time within its class
   end type
   ! The products of hgw (opB = N): Sigma_c on the imaginary / real axis W^H zmel with W kept under a key, chi0 bins
   ! zmel^H (w zmel), the change of basis in m_llw, the final zsec (small m = n, long k).
   integer, parameter :: nshape = 6, minm = 256, minn = 512, mink = 256
   real(8), parameter :: minmnk = 1d9
-  ! Weights: Sigma_c on the imaginary axis ~175 s and on the real axis ~107 s of a ~560 s hgw, the chi0 bins ~25 s,
-  ! the rest a few s.
+  ! Weights: rough shares of hgw time within each class (the Sigma_c products dominate, then the chi0 bins).
   type(shape_t), parameter :: shp(nshape) = [ &
        shape_t('sigma-imag', 1037, 8191,  1037, 'C', .true.,  0.80d0), &
        shape_t('x0-bin',     1037, 1037,  4099, 'C', .false., 0.15d0), &

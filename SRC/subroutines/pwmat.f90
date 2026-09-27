@@ -16,10 +16,8 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
   use m_ftox
   use m_ropyln,only: ropyln
 #ifdef __GPU
-  use m_blas,only: zmm => zmm_d, m_op_T, zmm_h
+  use m_blas,only: zmm => zmm_d, m_op_T
   use cudafor
-#else
-  use m_blas,only: zmm => zmm_h, m_op_T, zmm_h
 #endif
 !  integer,parameter:: n0=10,nkap0=3
 !  real(8),parameter:: pi=4d0*datan(1d0), pi4=4d0*pi
@@ -132,14 +130,13 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
   ! pwh = 0d0
   lmxax = ll(nlmax)
   ! ... Fourier coefficients of smoothed hankels for all LMTOs
-  !     Could be optimized, ala hsibl, but not a critical step for GW.
   block
     use m_stopwatch
     use m_lmfinit, only: nspec, ltabx, ktabx, offlx, norbx
     complex(8), allocatable:: ppovl_save(:,:,:), pwh(:,:), ppovlx(:,:)
     logical :: show_time = .false., debug = .false.
-    type(stopwatch) :: sw1, sw2, sw3, sw4
-    integer:: ig_start, ig_end, igp, i, match_iga, nx(3), istat
+    type(stopwatch) :: sw1, sw2, sw3
+    integer:: ig_start, ig_end, igp, i, nx(3), istat
     integer:: iapw2ig(napw)   ! index in igvx of the G of each APW (0: not in the list)
     integer :: blks_nb(n0*nkap0,nbas), ltab_nb(n0*nkap0,nbas), ktab_nb(n0*nkap0,nbas), &
                offl_nb(n0*nkap0,nbas), norb_nb(nbas)
@@ -152,7 +149,9 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
     show_time = c0_show_time
     debug = c0_debugpwmat
     if(show_time) call stopwatch_init(sw1,'set ppovlx')
-    if(show_time) call stopwatch_init(sw2,'set_pwh')
+#ifdef __GPU
+    if(show_time) call stopwatch_init(sw2,'set_pwh')   ! the host path makes pwh inside get_pwhovl
+#endif
     if(show_time) call stopwatch_init(sw3,'get_pwhovl')
 
     if(show_time) call stopwatch_start(sw1)
@@ -173,8 +172,8 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
     enddo
 
     if(debug) write(06,ftox) '**xxx ndimh, ngp, ngmx, napw', ndimh, ngp, ngmx, napw
-    ! An APW column of pwh has one element, 1/srvol at the G of the APW: its column of pwhovl is ppovl_save(G_apw-G1)/srvol,
-    ! looked up below instead of a product over all ngmx G (193 of the 319 columns for LiTi2O4).
+    ! An APW column of pwh has one element, 1/srvol at the G of the APW (|G> = exp(iGr)/sqrt(vol)), so its column of
+    ! pwhovl is ppovl_save(G_apw-G1)/srvol: looked up below, not a product over all ngmx G.
     iapw2ig = 0
     do iga = 1, napw
       do ig = 1, ngmx
@@ -282,14 +281,13 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
     MTOcolumnsByFFT: block ! pwhovl(G1,j) = sum_G2 ppovl_save(G2-G1) pwh(G2,j) for the MTO columns j (host)
       ! A correlation over G.  On a grid of nn(k) points >= the extent of G2-G1 in direction k it has no wrap-around:
       !   pwhovl(G1,j) = [ backward( N forward(T') * forward(P_j) ) ](G1 mod nn),  T'(D)=ppovl_save(-D), P_j(G2)=pwh(G2,j)
-      ! (fftz3's forward includes 1/N).  The same sums as the product of the dense ngp x ngmx matrix built from
-      ! ppovl_save with pwh (1.3 s per k point for LiTi2O4, ngmx=29246), with two FFTs per MTO column and no
-      ! ngp x ngmx array.  pwh(G2,j) is made here as in the loop over G blocks (the GPU path).
+      ! (fftz3's forward includes 1/N).  The same sums as the GPU path's product ppovlx*pwh, with two FFTs per MTO
+      ! column and no ngp x ngmx matrix.  pwh(G2,j) is made here as in the GPU path's loop over G blocks.
       integer:: nn(3), d1,d2,d3, k, j, lm, ntot, igq
       complex(8),allocatable:: tt(:,:,:), ff(:,:,:), pg(:)
       real(8),allocatable:: qpgall(:,:), ylall(:,:), qpg2all(:)
       do k = 1, 3
-        nn(k) = fftsize235(size(ppovl_save,k))
+        nn(k) = fftsize2357(size(ppovl_save,k))
       enddo
       ntot = product(nn)
       allocate(tt(nn(1),nn(2),nn(3)), ff(nn(1),nn(2),nn(3)), pg(ngmx), qpgall(ngmx,3), ylall(ngmx,nlmax), qpg2all(ngmx))
@@ -352,36 +350,30 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
 #endif
     deallocate(ppovl_save)
     if(show_time) call stopwatch_show(sw1)
+#ifdef __GPU
     if(show_time) call stopwatch_show(sw2)
+#endif
     if(show_time) call stopwatch_show(sw3)
   endblock
-  ! ... Fourier coefficients to APWs. APWs are normalized:  |G> = 1/sqrt(vol) exp[i G.r]
-  ! --- Matrix elements between each (IPW,envelope function) pair ---
-  ! allocate(ppovlx(ngp,ngmx))
-  ! call ipwovl(alat,plat,qlat,ngp,igv,ngmx,igvx,nbas,rmax,bas,ppovlx)
-  ! pwhovl= matmul(ppovlx,pwh)
-  ! 2024-11-09 MO replaced matmul by a BLAS call because matmul in mic(intel) was very slow
-  ! istat = zmm(ppovlx, pwh, pwhovl, m=ngp, n=ndimh, k=ngmx)
-  ! deallocate(yl,igvx,pwh,ppovlx)
   deallocate(yl,igvx)
 end subroutine pwmat
-integer function fftsize235(n) ! the smallest m >= n whose prime factors are 2, 3, 5 and 7 (a fast FFT size)
+integer function fftsize2357(n) ! the smallest m >= n with no prime factor other than 2, 3, 5, 7 (a fast FFT size)
   implicit none
   integer, intent(in):: n
   integer:: r, p
   integer, parameter:: primes(4) = [2,3,5,7]
-  fftsize235 = max(n,1)
+  fftsize2357 = max(n,1)
   do
-    r = fftsize235
+    r = fftsize2357
     do p = 1, 4
       do while(mod(r,primes(p)) == 0)
         r = r/primes(p)
       enddo
     enddo
     if(r == 1) return
-    fftsize235 = fftsize235 + 1
+    fftsize2357 = fftsize2357 + 1
   enddo
-end function fftsize235
+end function fftsize2357
 subroutine ipwovl(alat,plat,qlat,ng1,igv1,ng2,igv2,nbas, rmax,bas,ppovl)
   !- Overlap matrix elements between interstitial plane waves
   ! ----------------------------------------------------------------------

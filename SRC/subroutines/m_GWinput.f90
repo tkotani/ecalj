@@ -285,7 +285,6 @@ module m_GWinput
   logical, protected, public :: KeepWV             = .false.
 #endif
   logical, protected, public :: KeepQG             = .true.
-  logical, protected, public :: KeepWronkj         = .true.
   logical, protected, public :: TimeReversal       = .true.
   logical, protected, public :: rmeshrefine        = .true.
   logical, protected, public :: chi_RegQbz         = .true.
@@ -656,7 +655,6 @@ contains
     call gv_l(gw, 'KeepPpb',                   KeepPpb)
     call gv_l(gw, 'KeepWV',                    KeepWV)
     call gv_l(gw, 'KeepQG',                    KeepQG)
-    call gv_l(gw, 'KeepWronkj',                KeepWronkj)
     call gv_l(gw, 'TimeReversal',              TimeReversal)
     call gv_l(gw, 'rmeshrefine',               rmeshrefine)
     call gv_l(gw, 'chi_RegQbz',                chi_RegQbz)

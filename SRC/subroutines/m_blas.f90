@@ -22,8 +22,8 @@ module m_blas !wrapper for BLAS and cuBLAS
   integer, parameter :: BACKEND_BLAS = 0 !BLAS/cuBLAS
   integer, parameter :: BACKEND_GEMMUL8 = 1
   integer, parameter :: BACKEND_AUTO = 2
-  integer, parameter :: BACKEND_BLAS_FP32 = 3 !cuBLAS with FP32 arithmetic also at level tf32 (single precision only)
-  integer, parameter :: BACKEND_SIGMA = 4 !a product of Sigma_c: under --sigma_tf32 the rows of level tf32 and TF32
+  integer, parameter :: BACKEND_BLAS_FP32 = 3 !cmm_d: cuBLAS in FP32 also at level tf32; zmm_d/dmm_d treat it as BACKEND_AUTO
+  integer, parameter :: BACKEND_SIGMA = 4 !a product of Sigma_c: under --sigma_tf32 it takes the table rows of level tf32
   public :: BACKEND_BLAS_FP32, BACKEND_SIGMA
 contains
   integer function cmm_h(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc, policy, key, splitk) result(istat)
@@ -296,11 +296,12 @@ contains
   end function zmm_batch_h
 #ifdef __GPU
   integer function cmm_d(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc, policy, key, splitk) result(istat)
-    !> C = alpha op(A) op(B) + beta C, complex single precision on the device.  The backend (cuBLAS, the real-SGEMM
-    !> route or GEMMul8) comes from m_linalg_policy; policy=BACKEND_BLAS / BACKEND_GEMMUL8 forces one.
+    !> C = alpha op(A) op(B) + beta C, complex single precision on the device.  The backend (cuBLAS, realsgemm,
+    !> realhgemm or GEMMul8) comes from m_linalg_policy; policy= forces cuBLAS (BACKEND_BLAS; BACKEND_BLAS_FP32 also
+    !> in FP32 at level tf32) or GEMMul8 (BACKEND_GEMMUL8), or marks a Sigma_c product (BACKEND_SIGMA).
     !> key >= 0 (optional): same key = same A until la_cache_reset, so backends may keep their form of A.
-    !> splitk > 1 (optional): k is cut into splitk equal ranges, multiplied in one batched cuBLAS call and summed
-    !> (for a small C with a long k, which as one product runs on a few SMs); see cmm_splitk.
+    !> splitk > 1 (optional): k is cut into equal ranges, multiplied in one batched cuBLAS call and summed (for a
+    !> small C with a long k); see cmm_splitk.  This path ignores policy, key and the table.
     use cublas_v2, m_type =>CUDA_C_32F, algo => cublas_gemm_default
     use m_linalg_policy, only: la_backend, la_moduli, la_level, la_sigma_tf32, OP_CGEMM, BK_CUBLAS, BK_REALSGEMM, BK_GEMMUL8, &
                                BK_REALHGEMM
@@ -356,12 +357,12 @@ contains
       istat = realsgemm_c(cublas_handle, opa_in, opb_in, m, n, k, alpha_in, a, lda_in, b, ldb_in, beta_in, c, ldc_in, &
                           ctype, key_in)
       if (istat /= -1) return
-      bk = BK_CUBLAS                                 ! the route needs opB = N
+      bk = BK_CUBLAS                                 ! declined (opB /= N, n < 16 without key, 4mk >= 2^31)
     endif
     if (bk == BK_REALHGEMM) then
       istat = realhgemm_c(cublas_handle, opa_in, opb_in, m, n, k, alpha_in, a, lda_in, b, ldb_in, beta_in, c, ldc_in, key_in)
       if (istat /= -1) return
-      bk = BK_CUBLAS                                 ! opB /= N or B not contiguous: cuBLAS
+      bk = BK_CUBLAS                                 ! declined (opB /= N, ldb /= k, n < 16 without key, too large)
     endif
     if (bk == BK_GEMMUL8 .and. .not. gemmul8_pays(m, n, k)) bk = BK_CUBLAS   ! too small for the split
     if (bk == BK_GEMMUL8) then
@@ -419,9 +420,8 @@ contains
   end function cmm_h16_d
   logical function cmm_splitk(a, b, c, m, n, k, nsplit0, opa, opb, alpha, beta, lda, ldb, ldc) result(done)
     !> C = alpha op(A) op(B) + beta C as nsplit products over consecutive ranges of k (one strided-batched cuBLAS
-    !> call) and their sum.  One product with few output tiles and a long k runs on a few SMs: the core exchange of
-    !> LiTi2O4 (158 x 158, k = 46 states x 788) took 2.1 ms a call on an RTX 5090.  nsplit is lowered to a divisor
-    !> of k that keeps the partial products within 256 MB; .false. (nothing done) if that leaves 1.
+    !> call) and their sum.  One product with few output tiles and a long k keeps only a few SMs busy.  nsplit is
+    !> lowered to a divisor of k that keeps the partial products within 256 MB; .false. (nothing done) if that leaves 1.
     use cublas_v2, m_type => CUDA_C_32F, algo => cublas_gemm_default
     use m_linalg_policy, only: la_level
     complex(4), device :: a(*), b(*), c(*)
@@ -839,7 +839,7 @@ contains
   end  function get_m_op_cublas
 #endif
   subroutine la_cache_reset()
-    !> Forget the matrices kept under keys (A' of realsgemm, the split A of GEMMul8).  Call when the matrices
+    !> Forget the matrices kept under keys (A' of realsgemm and realhgemm, the split A of GEMMul8).  Call when the matrices
     !> behind the keys change, e.g. at the start of each q point in hgw.  No-op without GPU.
 #ifdef __GPU
     use m_la_realsgemm, only: realsgemm_reset

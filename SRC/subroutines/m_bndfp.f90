@@ -53,7 +53,7 @@ contains
     use m_rdsigm2,only: m_rdsigm2_init
     use m_subzi,only: m_subzi_init,m_subzi_bzintegration
     use m_mpi,only: master_mpi, strprocid, numprocs=>nsize,xmpbnd2,comm,procid
-    use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyterms,m_mkpot_novxc 
+    use m_mkpot,only: m_mkpot_init,m_mkpot_deallocate, m_mkpot_energyterms
     use m_mkpot,only: osmpot, qmom, vconst, qval , qsc , fes1_rv , fes2_rv, amom
     use m_locpot,only: osig,otau,oppi,vesaverage
     use m_clsmode,only: m_clsmode_init,m_clsmode_set1,m_clsmode_finalize
@@ -156,8 +156,7 @@ contains
     t_start = MPI_WTIME()
     GetPotentialFromDensity: block
       ! From smrho and rhoat, get one-particle potential and related quantities. mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
-      ! lmfgw mode: also oppix and spotx, the potential without the XC part for the GW driver, in the same pass (a second
-      ! pass with m_mkpot_novxc repeated the electrostatics and xc: 0.76 s for LiTi2O4).
+      ! lmfgw mode: also oppix and spotx, the potential without the XC part for the GW driver (sugw), in the same pass.
       call m_mkpot_init(smrho,orhoat, withnovxc=llmfgw)
       if((trim(c2_quit) == 'mkpot')) call rx0('--quit=mkpot')
     endblock GetPotentialFromDensity

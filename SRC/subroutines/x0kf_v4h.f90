@@ -48,9 +48,9 @@ use m_cmdopt_registry, only: c0_debugzmel, c0_tetwtk
   ! The tetrahedron weights in the form x0kf_zxq uses (the arrays x0kf_v4hz_init makes, all k) can come from a file
   ! __TETWT.<iq>.<isp> that another run of this program wrote on the CPU cores (hgw --tetwt_write, which gwsc starts
   ! next to hgw).  x0kf_zxq uses a file only when everything the weights depend on matches: the sizes, q, the band
-  ! energies at every k and k+q (checksum) and the histogram bins; otherwise (no file yet, stale, k split over ranks,
-  ! cRPA, chi+-) it computes them as before.  Same code on the same input: bit-identical either way.  2026-09-27.
-  integer, parameter :: tetwt_tag = 20260927
+  ! energies at every k and k+q (checksum), the histogram bins, E_F, kBT and the band cut (tetwt_pkey); otherwise
+  ! (no file yet, stale, k split over ranks, cRPA, chi+-) it computes them.  Same code on the same input: bit-identical.
+  integer, parameter :: tetwt_tag = 20260927   ! format tag of __TETWT.*: change it when the records of tetwt_save change
   interface
     integer(c_int) function c_rename(old, new) bind(C, name='rename')
       import :: c_int, c_char
@@ -298,9 +298,9 @@ contains
         call stopwatch_init(t_sw_zmel, 'zmel_gemm')
         call stopwatch_init(t_sw_x0,   'x0_gemm')
         ! Group up to kbmax k points whose zmel is built in one piece and accumulate them together
-        ! (accumulate_chi0_group); a k point split into NMBATCH pieces, or tetwtk, goes the old way.
+        ! (accumulate_chi0_group); a k point split into NMBATCH pieces, tetwtk, or npm=2 goes the old way.
         ng = 0
-        if (.not. tetwtk) then
+        if (.not. tetwtk .and. npm == 1) then
           nsg = maxval(nkmax(k_lo:k_hi) - nkmin(k_lo:k_hi) + 1)
           nqg = maxval(nkqmax(k_lo:k_hi) - nkqmin(k_lo:k_hi) + 1) + merge(0, nctot, npm==1)
           kbmax = int(min(8d0, 1d9/(real(npr,8)*nsg*nqg*2*kp)))
@@ -591,8 +591,9 @@ contains
   subroutine accumulate_chi0_group(ng, gk, gns1, zg, iw_lo, iw_hi, npr)
     !> accumulate_chi0 for ng k points at once (the zmel of k point gk(i) is zg(:,:,:,i), its middle states from gns1(i)):
     !> one product per histogram bin with the pairs of all ng k points, instead of one per bin and k point.  A bin has
-    !> a few tens of pairs per k point, so the per-k products were small and bound by launches (LiTi2O4 6^3: 480 000
-    !> per rank and q-loop, 22 s).  Only for full zmel (no NMBATCH split) and not tetwtk.  npm = 1 (x0kf_zxq).
+    !> a few tens of pairs per k point, so the per-k products are small and bound by launches.  Only for full zmel
+    !> (no NMBATCH split), not tetwtk, and npm = 1: the pairs go to the positive bins only (jpmc is not looked at).
+    !> npm = 2 (time reversal broken, x0kf_zxq stops for it now) must go through accumulate_chi0.
     use m_blas, only: m_op_c
     use m_GWinput, only: chi0_filterw_drude
     implicit none

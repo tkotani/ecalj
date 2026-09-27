@@ -10,7 +10,7 @@ module m_lapack
   public :: zhgv_h, zhgv_lindep_h, zhev_h, zminv_h, zsv_h, zgev_h, zggv_h
 #ifdef __GPU
   public :: zhgv_d, zhev_d, zminv_d, zsv_d, cusolver_finalize !, zgev_d
-  public :: zminv_eps_d, zminv_mixed_d
+  public :: zminv_eps_d
 #endif
   private
 #ifdef __GPU
@@ -473,9 +473,6 @@ contains
     !> Guard: with R = I - A X0 from the single-precision LU, the final residual is at most ||R||_F^(2^nnewton);
     !> when that bound exceeds 1e-6 (one step, used at fp32) or 1e-13 (two steps, fp64) the matrix is too
     !> ill-conditioned for this route and zminv_d (FP64 LU) is used instead (a note is printed once).
-    !> TOOLS/ozbench/matinvbench.cu, n=1053 on RTX 5090 (2026-09-27):
-    !> zgetrf+zgetrs 21.6 ms; single LU 3.1 ms (err 2e-6), +1 step 7.0 ms (3e-12), +2 steps 14.6 ms (7e-15)
-    !> with emulated FP64 products; zminv_d takes ~31 ms.
     complex(8), device :: a(*)
     integer, intent(in) :: n, lda, nnewton
     complex(4), device, allocatable :: a32(:,:), x32(:,:), work(:)

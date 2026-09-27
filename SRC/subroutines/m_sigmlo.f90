@@ -318,8 +318,8 @@ contains
     complex(8),allocatable :: ph(:,:,:)
     jsp = min(isp, nspx)
     allocate(ph(npairmx,nbas,nbas))
-    do ib2 = 1, nbas       !the phase depends on the atom pair and R only (it was made for every
-      do ib1 = 1, nbas     !(i,j,R): 0.16 s per k for LiTi2O4, 2.5 s of the 4 s of hqpe_sc)
+    do ib2 = 1, nbas       !the phase depends only on the atom pair and R: made once per (ib1,ib2,R),
+      do ib1 = 1, nbas     !not for every (i,j,R)
         do it = 1, npair(ib1,ib2)   !same phase convention as m_mlo_ham::calc_ham_eigen
           ph(it,ib1,ib2) = 1d0/dble(nqwgt(it,ib1,ib2)) * exp(-img*2d0*pi*sum(qp*matmul(plat,dble(nlat(:,it,ib1,ib2)))))
         enddo

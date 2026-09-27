@@ -78,7 +78,7 @@ contains
   call HamPMTtoHamRsMLO()!ecutw,eww) ! MT-projected orbital(MPO) Hamiltoinan. HamRsMPO
   ! Real-space Hamiltonian hammr,ovlmr,ndimMTO are generated,and written to a file HamRsMPO
   call mpi_barrier(comm,ierr)
-  if(ndat==0) call rx0('mlo: no qplist.dat -> HamRsMLO/__mloindex written, band plot skipped')
+  if(ndat==0) call rx0('mlo: no qplist.dat -> band plot skipped')
   call read_ham_rs()     ! HamRsMLO (+ QMLO_SigRs) for the band plot on qplist.dat
   if(master_mpi) open(newunit=ifsy1,file=trim(fband(1)))
   if(master_mpi.and.nspx==2) open(newunit=ifsy2,file=trim(fband(2)))

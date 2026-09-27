@@ -86,8 +86,7 @@ contains
    ovlm=ovlmx
    ndimPMTx=nev !obtained. oveps may reduce ndimPMT to be ndimPMTx
    fac = (0d0,0d0)
-   FacPMTMTO: block !fac(i,j) = <Psi_PMT_i|S|Psi_MTO_j>, the matrix element Amat is made from.  Two products: the
-     !S|Psi_MTO_j> of each j was made again for every i (1 of the 7.5 s per k point of lmf --jobgw=1, LiTi2O4)
+   FacPMTMTO: block !fac(i,j) = <Psi_PMT_i|S|Psi_MTO_j> (rows i>nev stay 0), the matrix element Amat is made from
      use m_blas,only: zmm_h, m_op_C
      complex(8):: sx(ndimPMT,ndimMTO), sv(ndimPMT,ndimMTO)
      integer:: istat

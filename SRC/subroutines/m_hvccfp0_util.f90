@@ -218,8 +218,9 @@ subroutine strxq(mode,e,q,p,nlma,nlmh,ndim,alat,vol,awald,nkd,nkq,dlv,qlv,cg,ind
   if (allocated(dlp))deallocate(dlp)
 end subroutine strxq
 subroutine strxq_all(e,q,nbas,bas,lx,lxx,alat,vol,awald,nkd,nkq,dlv,qlv,cg,indxcg,jcg, strx)
-  ! strx(L1,ibas1,L2,ibas2) = 4pi*s of strxq for all pairs of atoms at once (e<0), on the device when strx is there
-  ! (hvccfp0 keeps it there for vcoulq_4).  The Ewald sums of hsmq (rsm=0, only the value, not the e-derivative):
+  ! strx(L1,ibas1,L2,ibas2) = 4pi*s of strxq for all pairs of atoms at once (e<0).  In the GPU version strx must be
+  ! present on the device (hvccfp0 creates it for vcoulq_4) and only the device copy is written.
+  ! The Ewald sums of hsmq (rsm=0, only the value, not the e-derivative):
   !   Q-space part: sum_G Y_L(q+G) w(|q+G|) exp(i(q+G).p1) for all pairs p1 as one matrix product,
   !   real-space part: Y_L(p1-T) chi_l(|p1-T|) (hansr4) for each lattice vector T and pair, summed with exp(iqT),
   ! then the Clebsch-Gordan sums of strxq.  The pairs are p=0 (once, for the blocks ibas1=ibas2) and ibas1<ibas2;
@@ -238,8 +239,7 @@ subroutine strxq_all(e,q,nbas,bas,lx,lxx,alat,vol,awald,nkd,nkq,dlv,qlv,cg,indxc
   complex(8):: strx((lxx+1)**2,nbas,(lxx+1)**2,nbas)
   integer,parameter:: lmxs=32
   real(8),parameter:: pi=4d0*datan(1d0), fpi=4d0*pi, y0=1d0/dsqrt(4d0*pi)
-  integer:: lmax,nlm,nlxx,np,ip,ipc,ib,ib1,ib2,l,m,ilm,it,ig,istat,npc,ip0,ilma,ilmb,la,lh,ii,indx,icg,kk, &
-       lncg,lnxcg,nla,nlb,ncgx
+  integer:: lmax,nlm,nlxx,np,ip,ipc,ib,ib1,ib2,l,m,ilm,it,ig,istat,npc,ip0,ilma,ilmb,la,lh,ii,indx,icg,kk,ncgx
   integer,allocatable:: ipair(:,:),llx(:),nlat(:),jcgd(:),indxcgd(:)
   real(8):: tpiba,gam,a,a2,ah,rsm,akap,arsm,earsm,erfcarsm,pp(3),p(3),sp,cx0,f2m,pf,efac(0:lmxs),sgn(0:lmxs), &
        x,y,z,r2,r,ra,h0,wk,xx,xa,um,up,wk2,w,qq,q1,q2,cm,sm,cmx,chi(-1:lmxs),chi0m1,chi00
@@ -415,7 +415,7 @@ subroutine strxq_all(e,q,nbas,bas,lx,lxx,alat,vol,awald,nkd,nkq,dlv,qlv,cg,indxc
   !$acc kernels
   strx = 0d0
   !$acc end kernels
-  !$acc parallel loop gang vector collapse(3) private(la,lh,ii,indx,sumx,val,ib1,ib2,nla,nlb)
+  !$acc parallel loop gang vector collapse(3) private(la,lh,ii,indx,sumx,val,ib1,ib2)
   do ip = 1, np
     do ilmb = 1, nlxx
       do ilma = 1, nlxx

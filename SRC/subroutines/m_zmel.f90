@@ -203,14 +203,14 @@ contains
     integer :: mpi_rank, mpi_size, ini_index, end_index, num_index, mpi_ierr, irank
     character(8),external:: charext
     complex(kind=kp), parameter:: CONE = (1_kp, 0_kp), CZERO = (0_kp, 0_kp)
-    complex(kind=kp), allocatable:: zmelp0(:,:,:), zmelt_d(:,:,:), zmelt(:,:,:)
+    complex(kind=kp), allocatable:: zmelt_d(:,:,:), zmelt(:,:,:)
     integer,allocatable:: ngveccR(:,:)
     complex(kind=kp), allocatable:: ppbvphiq_d(:,:,:), cphim_d(:,:), cphiq_d(:,:), ppbc_d(:,:,:), ppbv_d(:,:,:)
     complex(8), allocatable:: wfs(:,:)
     procedure(readgeigf_mpi), pointer :: get_geig => readgeigf_mpi
     procedure(readcphif_mpi), pointer :: get_cphi => readcphif_mpi
 #ifdef __GPU
-    attributes(device) :: zmelp0, cphiq, cphim, geigq, dgeigqk, &
+    attributes(device) :: cphiq, cphim, geigq, dgeigqk, &
                           ppbvphiq_d, cphim_d, cphiq_d, ppbc_d, ppbv_d, ngvecpB1, ngvecpB2, zmelt, zmelt_d, wfs
 #endif
     debug = c0_debugzmel
@@ -443,7 +443,7 @@ contains
           complex(kind=kp), allocatable:: ggitp(:,:), gggmat(:,:), ggit(:,:), ggw(:,:,:), zmelp0t(:,:,:)
           integer, allocatable:: igcgp2i_work(:,:), igcgp1i_work(:,:)
           integer :: nch, nb, ib, itp0, it0, it
-          real(8), parameter :: ipw_work_bytes = 0.5d9      ! gathered states per chunk, at most this size
+          real(8), parameter :: ipw_work_bytes = 0.5d9      ! bytes of one gathered chunk ggw
 #ifdef __GPU
           attributes(device) :: ggitp, gggmat, igcgp2i_work, igcgp1i_work, ggit, ggw, zmelp0t
 #endif
@@ -454,9 +454,8 @@ contains
 
           if(debug) write(stdo,ftox) itq(nqini_rank:nqmax_rank)
           if(debug) call writemem('mmmmm_zmel111aaa')
-          ! Each order is ONE real SGEMM for all states (realsgemm, opA = T): C_s = A_s B with a gathered A_s and a common B
-          ! is done as C_s^T = B^T A_s^T, so the route restructures B^T once and the gathered A_s^T of all s are more columns.
-          ! (Before: a gather kernel and a product per state, 34 of 58 s of build_zmel in LiTi2O4 6^3.)  zmelp0t is C^T.
+          ! C_s = A_s B (A_s gathered per state s, B common) is done as C_s^T = B^T A_s^T (opA = T): the gathered
+          ! A_s^T of a chunk of states (at most ipw_work_bytes) are the columns of one product.  zmelp0t is C^T.
           G1G2_Integral: if( nm2v-nm1v + 1 > ntp0) then ! G1 integral first
             if(debug) call writemem('mmmmm_zmel111bbb')
             allocate( ggitp(ngcgp,ntp0), igcgp2i_work(ngc,ngp2))
@@ -597,7 +596,7 @@ contains
         elseif (nm2v < nm1v .and. ncc == 0) then
           !Core states only (the core exchange).  zmelt of a core state of atom ia is zero outside the product-basis
           !block of iap (ZmelWithinMT; no IPW part), so each atom goes through its block alone: k = nblocha instead
-          !of ngb (LiTi2O4: 50..80 instead of 788; the full product was 36 GFlop per call).
+          !of ngb.
           CoreOnlyToE: block
             complex(kind=kp), allocatable :: zb(:,:,:), ze(:,:,:)
             integer :: nsa

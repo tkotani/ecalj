@@ -132,12 +132,12 @@ contains
     !$acc end data
     deallocate(q1, q2)
   end subroutine CB_GramSchmidt
-  subroutine CholQR_GramSchmidt(nspc,n,nv1,nv2,nv2mx, omat1,omat2, zmel1,zmel2) !The orthonormalization of CB_GramSchmidt with matrix products (host)
+  subroutine CholQR_GramSchmidt(nspc,n,nv1,nv2,nv2mx, omat1,omat2, zmel1,zmel2) !The orthonormalization of CB_GramSchmidt by Cholesky QR (host)
     ! z = [zmel1; zmel2] (each spin block) becomes orthonormal in the metric diag(omat1,omat2): S = z^H O z = R^H R
-    ! (Cholesky, R upper triangular) and z <- z R^-1.  This is the QR factorization that classical Gram-Schmidt makes
-    ! column by column, with two products by omat2 (ngp x ngp) in place of two matrix-vector products per column
-    ! (2.3 s of the 7.5 s per k point of lmf --jobgw=1 on one core, LiTi2O4).  The columns are eigenvectors, nearly
-    ! orthonormal already, so S is close to 1.
+    ! (Cholesky, R upper triangular) and z <- z R^-1.  In exact arithmetic this is classical Gram-Schmidt (column j is
+    ! made from columns 1..j), done with matrix-matrix products instead of matrix-vector products per column.
+    ! Cholesky QR is accurate only for well-conditioned z: the columns are eigenvectors, nearly orthonormal already,
+    ! so S is close to 1.  All n columns are used: no skip of padding columns (|z|>1d6) as in CB_GramSchmidt.
     use m_blas,only: zmm_h
     implicit none
     integer,intent(in):: nspc,n,nv1,nv2,nv2mx

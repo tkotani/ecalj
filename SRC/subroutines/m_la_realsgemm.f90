@@ -5,24 +5,23 @@
 !>               C = A'^T B.
 !>   opA = N:    A'' (2m x 2k): column 2l-1 holds (Re a, Im a) at rows (2j-1, 2j) (column l of A read as real),
 !>               column 2l holds (-Im a, Re a) (i times it); C = A'' B.
-!> Both copies read and write A along its columns (coalesced).  The same 8mnk flops in FP32.  cuBLAS cgemm runs at
-!> about 31 TFLOPS on RTX 5090 against 50-54 for this route (m=k=1053, n >= 1000; TOOLS/ozbench, 2026-09-27), and on
-!> the plane-wave products of build_zmel the real SGEMM also sums more accurately: hgw with this route on every
-!> product was 5.7 times closer to FP64 in Re Sigma_c (LiTi2O4 6^3).
+!> Both copies read and write A along its columns (coalesced).  The same 8mnk flops in FP32; on GPUs where cuBLAS
+!> cgemm runs well below the SGEMM rate this route is faster.  linalgtune measures both (time and error) per shape.
 !> A non-real beta is applied to C first (one pass over C).  opB /= N returns -1 and the caller uses cuBLAS.
-!> The copies run on the stream of the cuBLAS handle, as the SGEMM does (m_blas cublas_set_stream).
-!> key >= 0: the caller promises that the same key means the same A, op and alpha until realsgemm_reset; A' is then
-!> kept in a pool (ECALJ_LA_CACHE_GB, default 4, and at most 1/4 of the free device memory) and reused.
-!> Without a key A' is built for every call (4km floats written, coalesced); that is paid back from n of a few tens
-!> (the plane-wave products of build_zmel, n ~ 50-300, run about as fast as cuBLAS and much more accurately), so only
-!> near-vector products without a key (n < 16) return -1 and go to cuBLAS.
+!> The copies run on the stream of the cuBLAS handle, as the SGEMM does (m_blas cublas_set_stream).  Scratch arrays
+!> and pool slots are reused without a device sync: calls must stay on one stream, with a device sync at each stream
+!> switch (m_sxcf_sc sigma_stream_begin/end).
+!> key >= 0: the caller promises that the same key means the same matrix A until realsgemm_reset; A' is kept per
+!> (key, op, m, k, alpha) in a pool (ECALJ_LA_CACHE_GB, default 4, and at most 1/4 of the free device memory; GEMMul8
+!> has its own pool of the same budget) and reused.
+!> Without a key A' is built for every call (4km floats written, coalesced); that pays back from n of a few tens,
+!> so products without a key and n < nminkey return -1 and go to cuBLAS.
 !>
 !> Backend "realhgemm": the same route with A' and B in FP16, FP32 accumulation and C (tensor cores).  FP16 has the
-!> 10-bit mantissa of TF32, so the error is that of TF32 (3e-4 on 2106 x n x 2106 with values over 3 decades), and on
-!> RTX 5090 it runs 1.75-1.9 times as fast (185 against 98 TFLOPS at n = 16000; BF16 is as fast with 8 times the
-!> error).  FP16 overflows at 65504, so A' and B are scaled by powers of 2 to a largest element in [2^13, 2^14):
-!> elements down to 2^-28 of the largest keep the full relative precision, smaller ones lose it (their absolute
-!> error stays below 2^-39 of the largest, far under the rounding of the large ones).  A': the scale is found on the
+!> 10-bit mantissa of TF32, so the input rounding is that of TF32 (BF16 would give 8 times the error).  FP16
+!> overflows at 65504, so A' and B are scaled by powers of 2 to a largest element in [2^13, 2^14): elements down to
+!> 2^-27 of the largest keep the full relative precision, smaller ones lose it (their absolute error stays below
+!> 2^-38 of the largest, far under the rounding of the large ones).  A': the scale is found on the
 !> host when A' is built (once per key).  B: its largest |element| by cublasIsamax, then the scale and the alpha of
 !> the GEMM on the device (cuBLAS in device pointer mode), so the host never waits (Sigma_c runs asynchronously).
 !> Needs a contiguous B (ldb = k) besides opB = N.  The FP16 pool of kept A' has half the budget of the FP32 one.
@@ -63,7 +62,7 @@ contains
     integer(cuda_stream_kind) :: st
     istat = -1
     if (opb /= 'N' .and. opb /= 'n') return
-    if (4_8*k*m >= huge(1)) return
+    if (4_8*k*m >= huge(1)) return                    ! make_ap indexes A' with default integers
     if (key < 0 .and. n < nminkey) return             ! building A' for one small product does not pay
     ist = cublasGetStream(handle, st)
     if (aimag(beta) /= 0.0) then                    ! complex beta: C := beta C first, then add with beta 1
@@ -273,7 +272,7 @@ contains
 
   subroutine make_aph(w, opa, m, k, alpha, a, lda, st, fa)
     !> make_ap in FP16: the same layout, times fa = 2^(ehalf - exponent(largest element)).  The largest element is a
-    !> reduction returned to the host (one wait per A', i.e. per key).
+    !> reduction returned to the host (one host wait per A' built: once per key, at every call without a key).
     real(2), device :: w(*)
     character, intent(in) :: opa
     integer, intent(in) :: m, k, lda

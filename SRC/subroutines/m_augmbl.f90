@@ -98,7 +98,6 @@ contains
                      i2 = offl(jorb)+ilm2-l2**2
                      h(i1,i2) = h(i1,i2) + ppihh(ik1,ik2,ilm1,ilm2,isp)
                      if (ilm1 == ilm2 .and. present(s)) s(i1,i2) = s(i1,i2) + sighh(ik1,ik2,l1,isp)
-
                   enddo
                enddo
             enddo

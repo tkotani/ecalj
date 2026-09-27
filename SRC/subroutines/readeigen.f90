@@ -47,9 +47,10 @@ module m_readeigen
   logical,private:: keepqg
 #ifdef __GPU
   ! Memo of the rotated eigenfunctions on the device, per (iq of qtt, isp): build_zmel asks for the same k points
-  ! thousands of times (LiTi2O4 6^3, one hgw rank: 5200 calls for about 230 k points), and each call copied the
-  ! slice from shared memory to the device and rotated it.  ECALJ_WF_CACHE_GB (default 2, at most 1/4 of the free
-  ! device memory) for geig and cphi together; beyond it the calls work as before.  Not used in mpi_mode.
+  ! many times, and each call would copy the slice from shared memory to the device and rotate it.
+  ! ECALJ_WF_CACHE_GB (default 2, at most 1/4 of the free device memory) for geig and cphi together; k points
+  ! beyond it are rotated at each call.  Not used in mpi_mode.  Never reset: valid only while the eigenfunctions
+  ! of the process (init_readeigen) do not change.
   complex(8), device, allocatable, save, private :: memo_g(:,:,:), memo_c(:,:,:)
   integer, allocatable, save, private :: slot_g(:,:), slot_c(:,:)
   integer, save, private :: nmemo_g = 0, nmemo_c = 0, capg = -1, capc = -1
@@ -438,8 +439,7 @@ contains
          phase = [(exp(-img2pi*sum(qrot*tiat(:,ibas, igg))),ibas=1,nbas)]
 #ifdef __GPU
          ! All orbital blocks in one kernel: output row r (the i-th row of block iorb, rotated to ini2) is
-         ! phase * sum_p dlmm(i,p) cphifr(ini1+p-1).  One zgemm per block was ~1e6 tiny FP64 GEMMs (17 s of GPU
-         ! time plus as many launches and syncs) in one hgw of LiTi2O4 6^3 (nsys, 2026-09-27).
+         ! phase * sum_p dlmm(i,p) cphifr(ini1+p-1).  (One zgemm per (2l+1) block would be many tiny, launch-bound products.)
          block
            integer :: r, j, p, lr, ir, nr
            integer :: rl(ndima), ri(ndima), rsrc(ndima), rdst(ndima)

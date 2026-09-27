@@ -259,7 +259,7 @@ contains
                   !$acc end kernels
                   !$acc host_data use_device(zmel, zsec)
                   ierr = gemm(zmel, vzmel, zsec, sxs_ntqxx, sxs_ntqxx, (ns2-ns1+1)*nbb, opA = m_op_c, &
-                       alpha = cmplx(-sxs_wkkr,0_kp,kind=kp), beta = CONE, ldC = ntq, splitk = ns2-ns1+1) !k per state
+                       alpha = cmplx(-sxs_wkkr,0_kp,kind=kp), beta = CONE, ldC = ntq, splitk = ns2-ns1+1) !one k range per middle state (nbb each)
                   !$acc end host_data
                   !$acc end data
                   deallocate(vzmel, vcoud_buf)!, wtff)
@@ -486,9 +486,9 @@ contains
             associate( zsec=>zsecall(:,:,ip,isp) )
               get_correlation_block :block
                 ! On the GPU the whole batch runs on OpenACC queue 1 (sigma_stream_begin): the kernels are async(1) and
-                ! the products of m_blas go to the same stream, so they stay in order and the host waits once, at the
-                ! end.  Meanwhile the host computes the pole weights of the real axis.  Buffers are allocated before
-                ! and freed after (an allocation or a free waits for the device).
+                ! the products of m_blas go to the same stream, so they stay in order without a host wait per kernel.
+                ! While the imaginary-axis products run, the host computes the pole weights of the real axis; no device
+                ! allocation or free in that window (it would wait for the device).
                 real(8), parameter :: wfaccut=1d-8
                 complex(kind=kp), parameter :: img=(0_kp,1_kp)
                 complex(kind=kp) :: beta
@@ -821,8 +821,8 @@ contains
             call stopwatch_pause(sxs_xc)
             write(stdo,ftox) '    End of icount:', icount ,' of', ncount, &
                  'zmel:', ftof(stopwatch_lap_time(sxs_zmel),4),     '(sec)', &
-                 'ec(iaxis):', ftof(stopwatch_lap_time(sxs_ci),4),  '(sec)', &
-                 'ec(raxis):', ftof(stopwatch_lap_time(sxs_cr),4),  '(sec)', &
+                 'ec(iaxis,host):', ftof(stopwatch_lap_time(sxs_ci),4),  '(sec)', &
+                 'ec(raxis,host):', ftof(stopwatch_lap_time(sxs_cr),4),  '(sec)', &
                  'ec:', ftof(stopwatch_lap_time(sxs_xc),4),         '(sec)', &
                  'setwv:', ftof(stopwatch_elapsed_time(sxs_setwv),4), '(sec)'
                  ! '# of computed real sxs_omega bin:', n_nttp

@@ -5,20 +5,19 @@
 !>   op      : cgemm (complex single), zgemm (complex double), dgemm (real double), epsinv (inverse of epstilde)
 !>   backend : cublas | realsgemm | realhgemm | gemmul8[:moduli]      (epsinv: lu64 | mixed1 | mixed2)
 !>             realhgemm (m_la_realsgemm) is realsgemm with FP16 inputs and FP32 accumulation: the input precision of
-!>             TF32 (10-bit mantissa) at 1.8 times its speed on RTX 5090, so it belongs to the rows of level tf32.
+!>             TF32 (10-bit mantissa), so it belongs to the rows of level tf32.
 !> The table is filled in this order, later ones win:
-!>   1. built-in defaults: cuBLAS everywhere, lu64 (what the code did before the table existed)
+!>   1. built-in defaults: cuBLAS everywhere, lu64
 !>   2. the policy file written at installation by linalgtune, <bindir>/ecalj_linalg_policy.toml,
-!>      used only when its gpu line matches this GPU (or the file sets gpu = "any")
-!>   3. --use_gemmul8 (old switch: GEMMul8 for the large products)
+!>      skipped when its gpu line names another GPU (gpu = "any", or no gpu line, is used on any GPU)
+!>   3. --use_gemmul8 (GEMMul8 for the large products, fixed thresholds)
 !>   4. --linalg=<row>,<row>,...   e.g. --linalg=fp32.cgemm.large=realsgemm,fp64.zgemm.large=gemmul8:14
 !> The table in use is printed once.  Backends that cannot do a given call (e.g. realsgemm with opB /= N) fall back
 !> to cuBLAS inside m_blas.  The level also fixes the arithmetic of cuBLAS single precision (tf32: TF32, else FP32).
-!> linalgtune (SRC/main/linalgtune.f90) sets the level and the rows itself (la_set_level, la_apply).  2026-09-27.
-!> --sigma_tf32 (gwsc --prec=tf32): the products of Sigma_c (callers pass sigma=.true.) take the rows of level tf32 and
-!> TF32 arithmetic, everything else stays at the level of the run (fp32).  In Sigma_c the TF32 error enters linearly;
-!> in chi0 -> W it is amplified by (1 - v chi0)^-1 (LiTi2O4 6^3: Re Sigma_c within 0.8 meV of FP64 near E_F, against
-!> 5 meV with every product in TF32).
+!> linalgtune (SRC/main/linalgtune.f90) sets the level and the rows itself (la_set_level, la_apply).
+!> --sigma_tf32 (gwsc --prec=tf32): the products of Sigma_c (m_blas policy=BACKEND_SIGMA, here sigma=.true.) take the
+!> rows of level tf32 (10-bit inputs: TF32 in cuBLAS, FP16 in realhgemm); everything else stays at the level of the
+!> run (fp32).  In Sigma_c the input rounding enters linearly; in chi0 -> W it is amplified by (1 - v chi0)^-1.
 module m_linalg_policy
   implicit none
   private
@@ -53,7 +52,7 @@ contains
     rule(OP_EPSINV)%small = BK_LU64
     rule(OP_EPSINV)%large = BK_LU64
     call read_policy_file()
-    if (c0_use_gemmul8) then                        ! the old switch: GEMMul8 for the large products
+    if (c0_use_gemmul8) then                        ! GEMMul8 for the large products, fixed thresholds
       rule(OP_CGEMM)%large = BK_GEMMUL8
       rule(OP_CGEMM)%minm = 1000; rule(OP_CGEMM)%minn = 1000; rule(OP_CGEMM)%mink = 1000; rule(OP_CGEMM)%minmnk = 1d10
       rule(OP_ZGEMM)%large = BK_GEMMUL8; rule(OP_DGEMM)%large = BK_GEMMUL8
@@ -106,7 +105,7 @@ contains
   end function la_moduli
 
   logical function la_sigma_tf32()
-    !> Sigma_c products run with TF32 arithmetic (--sigma_tf32 at level fp32).
+    !> Sigma_c products take the rows of level tf32 (--sigma_tf32 at level fp32).
     call la_init()
     la_sigma_tf32 = sigma_tf32
   end function la_sigma_tf32
@@ -180,8 +179,8 @@ contains
     !>   gpu = "NVIDIA GeForce RTX 5090"
     !>   fp32.cgemm.large = "realsgemm"
     !>   fp32.cgemm.minn = 512
-    !> Rows of other levels are read but only this level's are used.  The file is written once at installation;
-    !> it is only read here.  ECALJ_LINALG_POLICY overrides the path.
+    !> Rows of other levels are read but only this level's are used (and the tf32 rows under --sigma_tf32).
+    !> The file is written once at installation; it is only read here.  ECALJ_LINALG_POLICY overrides the path.
     character(1024) :: path, line
     character(256) :: gpu
     integer :: ifi, ios, lb

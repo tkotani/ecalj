@@ -509,6 +509,7 @@ contains
             enddo
           endif
         else ! lso=0 (No SO) or lso=2(Lz.Sz)  Spin Diagonal case.spin diagonal) nspc=1 only
+          ! hambl2 (H and H without xc in one pass) runs on the host path only; the GPU build calls hambl twice
 #ifdef __GPU
           call hambl(isp,qp,spotx,vconst,osig,otau,oppix, vxc(:,1,:,1),  ovlm(:,1,:,1)) !vxc=<F_i|H(LDA)-vxc(LDA)|F_j>
           call hambl(isp,qp,smpot,vconst,osig,otau,oppi,  hamm(:,1,:,1), ovlm(:,1,:,1)) !ham=<F_i|H(LDA)|F_j> and ovl=<F_i|F_j>
@@ -790,7 +791,7 @@ contains
 #ifdef __GPU
                call CB_GramSchmidt(nspc,nev,ndima,ngp,ngpmx, ppj(1:ndima,1:ndima,isp),ppovl, cphix,geigr)
 #else
-               call CholQR_GramSchmidt(nspc,nev,ndima,ngp,ngpmx, ppj(1:ndima,1:ndima,isp),ppovl, cphix,geigr) !the same with BLAS3
+               call CholQR_GramSchmidt(nspc,nev,ndima,ngp,ngpmx, ppj(1:ndima,1:ndima,isp),ppovl, cphix,geigr) !the same orthonormalization by Cholesky QR (matrix products)
 #endif
             endif
           endif

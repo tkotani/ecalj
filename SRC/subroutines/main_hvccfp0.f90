@@ -19,7 +19,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   use m_lgunit,only: m_lgunit_init
   use m_vcoulq,only: vcoulq_4,mkjb_4,mkjp_4,genjh
   use m_pwmat,only: mkppovl2
-  use m_hvccfp0_util,only: mkb0,strxq,strxq_all
+  use m_hvccfp0_util,only: strxq,strxq_all
   use m_nvfortran,only:findloc
   use m_gpu,only: gpu_init
   use m_cmdopt_registry, only: c2_job
@@ -41,7 +41,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
   real(8),allocatable:: prodmt(:,:,:,:),rdmatch(:,:,:,:), rmax(:), cg(:),rprodx(:,:,:,:),dlv(:,:),qlv(:,:),work(:),ngcn(:), &
        rojb(:,:,:),sgbb(:,:,:,:),aa(:),bb(:),rofit(:),phi(:),psi(:),wqfac(:),qbzwww(:,:),rkpr(:,:,:),rkmr(:,:,:),rofi(:,:), eb(:)
   real(8),parameter::pi  = 4d0*datan(1d0), fpi = 4d0*pi
-  complex(8):: pval,pslo,phasex, phasep,img=(0d0,1d0), xxx,trwv
+  complex(8):: img=(0d0,1d0)
   complex(8),allocatable:: vcoulb(:)
   complex(8),allocatable:: geig(:,:),strx(:,:,:,:),sgpb(:,:,:,:),sgpp(:,:,:,:), fouvb(:,:,:,:),fouvp(:,:,:,:),&
        vcoul0(:,:), s(:,:),sd(:,:),rojp(:,:,:) , vcoulnn(:,:), gbvec(:), vcoul_org(:,:),&
@@ -264,9 +264,9 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     call cputm(stdo,aaaw)
     allocate( strx(nlxx,nbas,nlxx,nbas), source = (0d0,0d0)) !! strxq: structure factor.
     !$acc enter data create(strx)    ! for vcoulq_4
-    ! strx(L1,ibas1,L2,ibas2) = conj(strx(L2,ibas2,L1,ibas1)) (to 4e-16 of the largest element), and the blocks
-    ! ibas1=ibas2 (p=0) are the same for the same lx: strxq for ibas1<ibas2 and for p=0 once per lx.
-    if(eee<0d0) then   ! all pairs at once, on the device in the GPU version
+    ! strx(L1,ibas1,L2,ibas2) = conj(strx(L2,ibas2,L1,ibas1)) (up to rounding), and the blocks ibas1=ibas2 (p=0)
+    ! are the same for the same lx: strxq for ibas1<ibas2 and for p=0 once per lx.
+    if(eee<0d0) then   ! all pairs at once; in the GPU version only the device copy of strx is set (host copy stays 0)
       call strxq_all(eee,q,nbas,bas,lx,lxx,alat,voltot,awald,nkd,nkq,dlv,qlv,cg,indxcg,jcg, strx)
     else
       do ibas1 =1,nbas
@@ -355,7 +355,7 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     call cputm(stdo,aaaw)
     allocate( vcoul(ngb,ngb), source=(0d0,0d0) )
     call vcoulq_4(q, nbloch, ngc, nbas, lx,lxx, nx,nxx, alat, qlat, voltot, ngvecc, strx, rojp,rojb, sgbb,sgpb, fouvb, ngb, &
-         bas,rmax, eee, aa,bb,nr,nrx,rkpr,rkmr,rofi, vcoulb, &
+         bas,rmax, eee, nr,nrx,rofi, vcoulb, &
          vcoul) !the Coulomb matrix
     !$acc exit data delete(strx, rojp, sgpb, fouvb)
     deallocate( strx,rojp,sgpb,fouvb)

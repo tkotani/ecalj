@@ -133,8 +133,8 @@ contains
     complex(8),optional:: vsm2(k1,k2,k3,isp), h2(ndimh,ndimh)
     logical:: two, fastw2
     integer:: kmax, ncolall
-    integer,allocatable:: kc(:), nd2(:), cof(:)
-    complex(8),allocatable:: w2(:,:), w2f(:)
+    integer,allocatable:: kc(:), nd2(:), cof(:)  ! per site: G rows used (max ngcut of its orbitals), no. of orbitals, column offset in w2
+    complex(8),allocatable:: w2(:,:), w2f(:)     ! w2(G,cof(ib)+j), w2f(cof(ib)+j) = w_oc2(G,j), w_ocf2(j) of site ib; w2=0 beyond each cutoff
     integer :: npmx,nlmto
     integer:: ltop , net, nlmtop , nrt , iprint, ncuti_max
     real(8) ,allocatable :: gg(:), g2(:), gvv(:),he(:,:), hr(:,:),yl(:,:)
@@ -147,7 +147,7 @@ contains
     integer:: xxxx(nkap0), ig1,i1,ig2,i2,igx(3),igx1,igx2,igx3,oiv1, iloop,ng
     integer:: ibini,ibend,nnrl,lmri,li,nnrlx,nnrli,ik,ib,ndim,ilm,offi,ixx(1)
     complex(8) ,allocatable :: h_zv(:),phase(:,:), cwork(:)
-    complex(8),allocatable,target:: w_oc1(:,:),w_ocf1(:),w_oc2(:,:),w_ocf2(:),ff(:)
+    complex(8),allocatable,target:: w_oc1(:,:),w_ocf1(:),w_oc2(:,:),w_ocf2(:)
     real(8),allocatable:: w_ocos1(:,:), w_osin1(:,:),w_ocos2(:,:), w_osin2(:,:),w_owk(:,:)
     real(8):: gmin=0d0,fac1
     complex(8):: img=(0d0,1d0)
@@ -169,8 +169,8 @@ contains
     q0=0d0
     call hsibl1(net,etab,nrt,rtab,ltop,alat,q0,ng,gvv,  gg,g2,yl,he,hr)
     two = present(vsm2) .and. present(h2)
-    allocate( w_oc1( ng,merge(2,1,two)*ndimx), w_ocf1(ndimx), w_ocf2(ndimx), ff(k1*k2*k3)) !w_oc1(:,ndim1+i): vsm2 (two)
-    ! w_oc1(ng,ndimx,ibas,iq)
+    allocate( w_oc1( ng,merge(2,1,two)*ndimx), w_ocf1(ndimx), w_ocf2(ndimx))
+    !two: w_oc1(:,ndim1+i) = vsm2*phi_i right after w_oc1(:,i) = vsm*phi_i, so one product (m=2*ndim1) gives both
     allocate(cwork(ng))
     ibini=1
     ibend=nbas
@@ -178,9 +178,9 @@ contains
       p1=rv_a_opos(:,ib1)
       phase(:,ib1)=exp(-img*tpi*sum(p1*q)) *exp(-img*tpi*matmul(p1, matmul(qlat, transpose(iv))))
     enddo
-    ! PW coefficients of the basis functions of every site (w_oc2 of the loop over pairs; they do not depend on ib1),
-    ! made once when kmax*ncolall*16 bytes <= 256 MB.  The loop over pairs made them again for every ib1 and its products
-    ! (ndim1 x ndim2 x ~2e4, one per potential) were limited by memory traffic: 0.43 s per call (LiTi2O4, 14 sites).
+    ! PW coefficients of the basis functions of all sites (w_oc2, w_ocf2 of the loop over pairs; independent of ib1),
+    ! made once when w2 fits in 256 MB (fastw2).  Each ib1 then needs one product per run of sites with the same kc
+    ! instead of a small, memory-bound product per pair.  Both paths must add the same sums to h (and h2).
     allocate(kc(nbas), nd2(nbas), cof(nbas))
     ncolall = 0
     do ib2 = 1, nbas
@@ -493,7 +493,7 @@ contains
       endif
     endif
 #endif
-    deallocate(hr, he, g2, yl, gg, iv, kv, gvv, w_oc1,w_ocf1, w_ocf2,ff) 
+    deallocate(hr, he, g2, yl, gg, iv, kv, gvv, w_oc1,w_ocf1, w_ocf2) 
     if(allocated(w2)) deallocate(w2, w2f)
     deallocate(kc, nd2, cof)
     deallocate(cwork)

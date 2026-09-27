@@ -6,7 +6,7 @@ contains
     use m_lmfinit,only: nbas , nsp
     use m_igv2x,only: napw, igvapwin=>igv2x, ndimh
     use m_supot,only: n1,n2,n3
-    use m_struc_def,only: s_rv1,s_rv4,s_cv5
+    use m_struc_def,only: s_rv4,s_cv5
     use m_lattic,only:plat=>lat_plat,qlat=>lat_qlat
     use m_augmbl,only: augmbl
     use m_hsibl,only:hsibl
@@ -68,7 +68,7 @@ contains
     use m_lmfinit,only: nbas , nsp
     use m_igv2x,only: napw, igvapwin=>igv2x, ndimh
     use m_supot,only: n1,n2,n3
-    use m_struc_def,only: s_rv1,s_rv4,s_cv5
+    use m_struc_def,only: s_rv4,s_cv5
     use m_augmbl,only: augmbl
     use m_hsibl,only:hsibl
     implicit none
@@ -92,7 +92,6 @@ contains
     call tcx('hambl2')
   endsubroutine hambl2
   subroutine smhsbl(vavg,q,ndimh, napw,igapw, h,s, h2)!- Smoothed Bloch Hamiltonian (constant potential) and overlap matrix
-
     use m_lmfinit,only: alat=>lat_alat,nbas,nkaphh,lhh, ispec,lmxa_i=>lmxa
     use m_lattic,only: lat_plat,rv_a_opos,qlat=>lat_qlat,vol=>lat_vol
     use m_uspecb,only:uspecb
@@ -248,9 +247,8 @@ contains
                          i1 = i1+1
                          s(i1,i2)= s(i1,i2) + s0(ilm1,ilm2,0,ik1,ik2)
                          h(i1,i2)= h(i1,i2) - s0(ilm1,ilm2,1,ik1,ik2) +vavg*s0(ilm1,ilm2,0,ik1,ik2)
-                         if(present(h2)) h2(i1,i2)= h2(i1,i2) - s0(ilm1,ilm2,1,ik1,ik2) +vavg*s0(ilm1,ilm2,0,ik1,ik2)
-
                          !                                 1:kinetic                    !0: constant
+                         if(present(h2)) h2(i1,i2)= h2(i1,i2) - s0(ilm1,ilm2,1,ik1,ik2) +vavg*s0(ilm1,ilm2,0,ik1,ik2)
                       enddo
                    enddo
                 enddo
@@ -277,7 +275,6 @@ contains
                    s(i1,i2) = s(i1,i2) + ovl
                    h(i1,i2) = h(i1,i2) + qpg2*ovl + vavg*ovl
                    if(present(h2)) h2(i1,i2) = h2(i1,i2) + qpg2*ovl + vavg*ovl
-
                 enddo
              enddo
           enddo igloop
@@ -288,7 +285,6 @@ contains
        s(i2,i2) = s(i2,i2) + 1d0
        h(i2,i2) = h(i2,i2) + qpg2v(ig) + vavg
        if(present(h2)) h2(i2,i2) = h2(i2,i2) + qpg2v(ig) + vavg
-
     enddo
     if (napw > 0)deallocate(yl,ylv,qpgv,qpg2v,srm1l)
 !    do concurrent( i1 = 1: ndimh) !fill lower half

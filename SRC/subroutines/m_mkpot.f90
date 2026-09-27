@@ -91,7 +91,7 @@ module m_mkpot !How to learn this? Instead of reading all source, understand I/O
   use m_cmdopt_registry, only: c0_espot, c0_estaticall
   integer,external:: iprint
 
-  public:: m_mkpot_init, m_mkpot_energyterms, m_mkpot_novxc , m_mkpot_deallocate 
+  public:: m_mkpot_init, m_mkpot_energyterms, m_mkpot_deallocate
   ! Potential terms, call m_mkpot_init. Generated at mkpot-locpot-augmat-gaugm
   complex(8),allocatable,protected ,public  :: osmpot(:,:,:,:)!0th component of Eq.(34)
   real(8),allocatable,protected,public::  fes1_rv(:), fes2_rv(:) !force terms
@@ -102,15 +102,6 @@ module m_mkpot !How to learn this? Instead of reading all source, understand I/O
   private
   real(8),allocatable,protected,public::  vesrmt(:) !unused now
 contains
-  subroutine m_mkpot_novxc(smrho,orhoat) ! outputs are oppix and spotx (for no vxc terms).
-    logical:: novxc_
-    real(8) :: fes1_xxx(3*nbas)!dummy
-    type(s_rv1):: orhoat(:,:)
-    complex(8) :: smrho(:,:,:,:)
-    write(stdo,"(a)")' m_mkpot_novxc: Making one-particle potential without XC part ...'
-    allocate( spotx(n1,n2,n3,nsp),source=(0d0,0d0)) !smooth potential without XC
-    call mkpot(1, smrho,orhoat, spotx,fes1_xxx, novxc_) !obtain oppix,smpotx without XC (novxc_ mode).
-  end subroutine m_mkpot_novxc
   subroutine m_mkpot_init(smrho,orhoat, withnovxc)
     type(s_rv1):: orhoat(:,:)
     complex(8) :: smrho(:,:,:,:)
@@ -134,7 +125,7 @@ contains
   subroutine m_mkpot_deallocate()
     deallocate(vesrmt,fes1_rv,qmom,osmpot)
   end subroutine m_mkpot_deallocate
-  subroutine mkpot(job,smrho,orhoat, smpot,fes,novxc_,alsonovxc)!- Make the potential from the density (smrho, orhoat) !dipole_) 
+  subroutine mkpot(job,smrho,orhoat, smpot,fes,alsonovxc)!- Make the potential from the density (smrho, orhoat)
     use m_bstrux,only: m_bstrux_init
     use m_elocp,only: elocp
     use m_smvxcm,only: smvxcm
@@ -143,9 +134,7 @@ contains
     implicit none
     type(s_rv1) :: orhoat(3,nbas)
     complex(8):: smrho(n1,n2,n3,nsp),smpot(n1,n2,n3,nsp)
-    logical:: novxc,secondcall=.false.     !      integer,optional:: dipole_
-    logical,optional:: novxc_
-    logical,optional:: alsonovxc  ! also spotx (smpot before xc) and oppix (locpot), as a second call with novxc_ gives them
+    logical,optional:: alsonovxc  ! also spotx (smpot before xc) and oppix (locpot): the potential without xc, for lmf --jobgw=1
     integer:: job,i1,i2,i3,i,isw,isum, ifi,isp,j,k,ix,iy,iz,ismpot(4) 
     real(8):: hpot0_rv(nbas), dq,qsmc,smq,smag,sum2,rhoex,rhoec,rhvsm, uat,usm,valfsm, &
          vsum,zsum,rvvxcv(nsp),rvvxc(nsp),rvmusm(nsp),rmusm(nsp), rvepsm(nsp),vxcavg(nsp),&
@@ -168,7 +157,7 @@ contains
       if(present(alsonovxc)) then
         if(alsonovxc) then
           if(allocated(spotx)) deallocate(spotx)
-          allocate(spotx, source=smpot)   !smooth potential without XC
+          allocate(spotx, source=smpot)   !smooth potential without XC: copied after smves, before smvxcm adds vxc to smpot
         endif
       endif
       if(master_mpi) then !.and.c0_espot) then !writeout electrostatic potential 
@@ -191,17 +180,14 @@ contains
         close(ife)
       endif
       smag = merge(2d0*dreal(sum(smrho(:,:,:,1)))*vol/(n1*n2*n3) - smq,0d0,nsp==2) !mag mom  ! 2*nup-(nup-ndn) = nup-ndn
-      novxc= present(novxc_)
       repsm=0d0;  repsmx=0d0;  repsmc=0d0;   rmusm=0d0;  rvmusm=0d0
-      ADDsmoothExchangeCorrelationPotential: if(.not.novxc) then
-        block
-          complex(8):: smvxc_zv(n1*n2*n3*nsp),smvx_zv(n1*n2*n3*nsp), smvc_zv(n1*n2*n3*nsp),smexc_zv(n1*n2*n3)
-          real(8):: fxc_rv(3,nbas)
-          smvxc_zv=0d0; smvx_zv=0d0; smvc_zv=0d0; smexc_zv=0d0; fxc_rv=0d0 !We use n0+n^sH_a to obtain smpot.
-          call smvxcm(lfrce, smrho,smpot,smvxc_zv,smvx_zv,smvc_zv, smexc_zv,repsm,repsmx,repsmc,rmusm,rvmusm,rvepsm, fxc_rv )
-          if( lfrce /= 0 ) fes = fes+fxc_rv
-        endblock
-      endif ADDsmoothExchangeCorrelationPotential
+      ADDsmoothExchangeCorrelationPotential: block
+        complex(8):: smvxc_zv(n1*n2*n3*nsp),smvx_zv(n1*n2*n3*nsp), smvc_zv(n1*n2*n3*nsp),smexc_zv(n1*n2*n3)
+        real(8):: fxc_rv(3,nbas)
+        smvxc_zv=0d0; smvx_zv=0d0; smvc_zv=0d0; smexc_zv=0d0; fxc_rv=0d0 !We use n0+n^sH_a to obtain smpot.
+        call smvxcm(lfrce, smrho,smpot,smvxc_zv,smvx_zv,smvc_zv, smexc_zv,repsm,repsmx,repsmc,rmusm,rvmusm,rvepsm, fxc_rv )
+        if( lfrce /= 0 ) fes = fes+fxc_rv
+      endblock ADDsmoothExchangeCorrelationPotential
     endblock SmoothPart
     StructureConstantWhenExtendedLO: block
       call elocp() ! set ehl and rsml for extendet local orbitals
@@ -210,7 +196,7 @@ contains
     MTpartsIntegrals: block
       use m_locpot,only: locpot,valvfa=>valvef,xcore_=>xcore,sqloc,saloc,qval_=>qval,qsc_=>qsc,vvesat,&
            repat=>rhoexc, repatx=>rhoex, repatc=>rhoec, rmuat=>rhovxc
-      call locpot(job,novxc,orhoat,qmom,vval,gpot0, novxcalso=alsonovxc)! Make local potential at atomic sites and augmentation matrices 
+      call locpot(job,orhoat,qmom,vval,gpot0, novxcalso=alsonovxc)! Make local potential at atomic sites and augmentation matrices
       xcore=xcore_
       qval =qval_
       qsc  =qsc_
