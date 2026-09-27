@@ -5,6 +5,19 @@ email: takaokotani@gmail.com
 ---
 ecalj documents is at [ecaljdoc](https://ecalj.github.io/ecaljdoc/)
 
+Developers, and AI sessions that start without memory: read ecaljdoc `manual/ForDevelopers.md` first (reading order,
+build and test, machines, how jobs are submitted, a digest of the research log), and `ecaljclaude.md` (how code comments,
+commits and the research log are written; Claude Code reads it through `CLAUDE.md`).
+
+## 2026-09-28  Finite temperature (t_tetrakbt > 0): core exchange and the thermal quadrature
+
+- The core exchange (`hsfp0_sc --job=3`) keeps its Fermi level below the valence. With `t_tetrakbt > 0` it was set
+  to `EFERMI_kbt`, which let occupied valence states into SExcore; a second bug (fixed the same day) had hidden this
+  except where the core states are fewer than the occupied bands. SExcore is now independent of T.
+- The thermal kernel of the finite-T tetrahedron weights and of `EFERMI_kbt` is integrated on 4 panels
+  [-6,-1,0,1,6] x 5-point Gauss-Legendre (20 points as before; one 20-point rule had no node within 0.92 kBT of E_F).
+  bcc Fe at 3000 K: the error of `EFERMI_kbt` 9.4 -> 1.2 meV. Details: ecaljdoc `manual/kBT.md` 7.2 and 7.5.
+
 ## 2026-09-27  GPU GW: one precision switch; the method of each product is measured at installation
 
     gwsc 5 -np 32 -np2 2 --gpu --prec=fp32 <sname>    # or tf32 / fp64
