@@ -18,7 +18,10 @@
   - fp32 の hgw の誤差の主因は build_zmel の平面波の積 (cuBLAS cgemm) だった。実数 SGEMM にして倍精度との差が
     Re Σc で 2.4e-4 → 4.2e-5 eV、SEx で 5.7e-4 → 1.7e-4 eV。LiTi2O4 6³ の hgw (kt1) は 833 秒 → 438 秒。
   - 混合精度の逆行列は ||I - A X0||_F から Newton 後の誤差の上限を見て、大きすぎる行列は FP64 の LU に回す。
-  - gwsc --prec=tf32|fp32|fp64 (= --mp / --mp --fp32 / 倍精度)。
+  - gwsc --prec=tf32|fp32|fp64。fp32 = --mp --fp32、fp64 = 倍精度、tf32 = fp32 のうち Σc の最後の積だけ TF32
+    (Fortran の --sigma_tf32、Σc の積は表の tf32 の行で)。LiTi2O4 6³ で E_F ±1 eV の Re Σc は倍精度から 0.8 meV
+    (全部 TF32 の旧 --mp は 5 meV)、hgw は fp32 の 7 割。--mp だけの指定は従来どおり全部 TF32。
+    --prec-final=<prec>[:N]: その回の最後の N 反復だけ別の精度 (例 --prec=tf32 --prec-final=fp32:2)。
   - GPU のロック (pylib/gpu_lock.py): gwsc の *_gpu の実行は /tmp/ecalj_res/gpu<N>.lock を必要な枚数だけ取り、
     取れた GPU だけを CUDA_VISIBLE_DEVICES で渡す。全部取れるまで待つ (ECALJ_GPU_WAIT=<秒> で止まる、
     ECALJ_GPU_LOCK=0 で無効)。
