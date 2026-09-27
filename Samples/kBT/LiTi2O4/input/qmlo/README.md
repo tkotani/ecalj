@@ -19,7 +19,8 @@ PREC=tf32 RUNS_DIR=/path/to/runs bash ../../run_gwsc10.sh <tag> $PWD/my_input <b
 
 - GPU は既定で GPU 0 の 1 枚（`-np 60 -np2 1`）。2 枚は `GPUS=0,1`（kt1 の GPU 1 は user のジョブ用なので、使ってよいと言われたときだけ。
   ecaljdoc の ForDevelopers §7）
-- かかる時間（kt1、2026-09-27 のコード、GPU 2 枚）: 6³ tf32 は 39 分、9³ tf32 は 1 反復約 23 分（2026-09-28 に実測、全体の値は研究ログ）。1 枚ならおよそ 2 倍
+- かかる時間（kt1、2026-09-27 夜のコード、GPU 2 枚）: 6³ tf32 は 39 分、9³ tf32 は 3.5 時間（1 反復 21 分、うち `hgw` 19.4 分。研究ログ 2026-09-28 03:05）。
+  1 枚ならおよそ 2 倍
 - 結果: `<tag>/steps.log`（反復ごとの ehf、最後にバンドの描画の成否）、`llmf.<N>run`、`QPU.<N>run`、`bnd_mlo_final.dat`（MLO バンド）、
   `bndPMT_final.dat`（従来の sigm バンド）
 - 比べる: `../../cmp_gwsc10.py <new> <old>`（反復ごとの ehf と QP、最後のバンド）、図は `../../plot_band_pair.py`
