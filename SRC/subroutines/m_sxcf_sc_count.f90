@@ -380,7 +380,8 @@ contains
       wl(iq-iq_ini+1) = count(irk(iq,:) > 0) * nspinmx
     enddo
     ! W-build cost ≈ avg_Sc_cost/3  (W:Sc ≈ 1:3).  Every q builds its W once, the regular ones too, so each
-    ! regular q carries that term as well (else equal Sigma loads can hide unequal numbers of W-builds).
+    ! regular q carries that term as well (else equal Sigma loads can hide unequal numbers of W-builds; 2026-09-27
+    ! 15:41, LiTi2O4 6^3 on 2 ranks: 9 against 8 W-builds, one rank ended 14 s later).
     aux_wt = max(1, sum(wl(1:niq)) / (3 * niq))
     wl(1:niq) = wl(1:niq) + aux_wt
     if (naux_in > 0) wl(niq+1:ntotal) = aux_wt

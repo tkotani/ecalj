@@ -156,7 +156,8 @@ contains
     t_start = MPI_WTIME()
     GetPotentialFromDensity: block
       ! From smrho and rhoat, get one-particle potential and related quantities. mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
-      ! lmfgw mode: also oppix and spotx, the potential without the XC part for the GW driver (sugw), in the same pass.
+      ! lmfgw mode: also oppix and spotx, the potential without the XC part for the GW driver (sugw), in the same pass
+      ! (2026-09-27 20:11; before, a second mkpot pass made them, repeating the electrostatics and xc).
       call m_mkpot_init(smrho,orhoat, withnovxc=llmfgw)
       if((trim(c2_quit) == 'mkpot')) call rx0('--quit=mkpot')
     endblock GetPotentialFromDensity

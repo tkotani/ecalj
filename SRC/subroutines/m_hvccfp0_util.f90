@@ -218,7 +218,7 @@ subroutine strxq(mode,e,q,p,nlma,nlmh,ndim,alat,vol,awald,nkd,nkq,dlv,qlv,cg,ind
   if (allocated(dlp))deallocate(dlp)
 end subroutine strxq
 subroutine strxq_all(e,q,nbas,bas,lx,lxx,alat,vol,awald,nkd,nkq,dlv,qlv,cg,indxcg,jcg, strx)
-  ! strx(L1,ibas1,L2,ibas2) = 4pi*s of strxq for all pairs of atoms at once (e<0).  In the GPU version strx must be
+  ! strx(L1,ibas1,L2,ibas2) = 4pi*s of strxq for all pairs of atoms at once (e<0; 2026-09-27 18:26).  In the GPU version strx must be
   ! present on the device (hvccfp0 creates it for vcoulq_4) and only the device copy is written.
   ! The Ewald sums of hsmq (rsm=0, only the value, not the e-derivative):
   !   Q-space part: sum_G Y_L(q+G) w(|q+G|) exp(i(q+G).p1) for all pairs p1 as one matrix product,

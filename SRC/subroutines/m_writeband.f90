@@ -408,7 +408,7 @@ contains
     if (c2_ndos >= 0) ndos = c2_ndos
     bin = (emaxp - eminp) / (ndos - 1)
     vvv = ( 3d0  -  nsp ) / ( nkk1 * nkk2 * nkk3 * 6d0 )/4d0
-    allocate(pdosalla(ndos,nsp,nchanp,nbas), source=0d0)   ! slinz adds to it
+    allocate(pdosalla(ndos,nsp,nchanp,nbas), source=0d0)   ! slinz adds to it (bug fixed 2026-09-27 16:07: not zeroed before)
     tetrehedronloop:do itet = iteti, itete
        if(idwmode) then
           do idt = 1, 4

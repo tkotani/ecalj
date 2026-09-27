@@ -14,10 +14,11 @@
 !>   4. --linalg=<row>,<row>,...   e.g. --linalg=fp32.cgemm.large=realsgemm,fp64.zgemm.large=gemmul8:14
 !> The table in use is printed once.  Backends that cannot do a given call (e.g. realsgemm with opB /= N) fall back
 !> to cuBLAS inside m_blas.  The level also fixes the arithmetic of cuBLAS single precision (tf32: TF32, else FP32).
-!> linalgtune (SRC/main/linalgtune.f90) sets the level and the rows itself (la_set_level, la_apply).
+!> linalgtune (SRC/main/linalgtune.f90) sets the level and the rows itself (la_set_level, la_apply).  2026-09-27.
 !> --sigma_tf32 (gwsc --prec=tf32): the products of Sigma_c (m_blas policy=BACKEND_SIGMA, here sigma=.true.) take the
 !> rows of level tf32 (10-bit inputs: TF32 in cuBLAS, FP16 in realhgemm); everything else stays at the level of the
-!> run (fp32).  In Sigma_c the input rounding enters linearly; in chi0 -> W it is amplified by (1 - v chi0)^-1.
+!> run (fp32).  In Sigma_c the input rounding enters linearly; in chi0 -> W it is amplified by (1 - v chi0)^-1
+!> (2026-09-27, LiTi2O4 6^3: Re Sigma_c within 0.8 meV of FP64 near E_F, 5 meV with every product in TF32).
 module m_linalg_policy
   implicit none
   private

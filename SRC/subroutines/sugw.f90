@@ -509,7 +509,7 @@ contains
             enddo
           endif
         else ! lso=0 (No SO) or lso=2(Lz.Sz)  Spin Diagonal case.spin diagonal) nspc=1 only
-          ! hambl2 (H and H without xc in one pass) runs on the host path only; the GPU build calls hambl twice
+          ! hambl2 (H and H without xc in one pass, 2026-09-27 19:13) runs on the host path only; the GPU build calls hambl twice
 #ifdef __GPU
           call hambl(isp,qp,spotx,vconst,osig,otau,oppix, vxc(:,1,:,1),  ovlm(:,1,:,1)) !vxc=<F_i|H(LDA)-vxc(LDA)|F_j>
           call hambl(isp,qp,smpot,vconst,osig,otau,oppi,  hamm(:,1,:,1), ovlm(:,1,:,1)) !ham=<F_i|H(LDA)|F_j> and ovl=<F_i|F_j>

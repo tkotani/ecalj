@@ -6,7 +6,8 @@
 !>   opA = N:    A'' (2m x 2k): column 2l-1 holds (Re a, Im a) at rows (2j-1, 2j) (column l of A read as real),
 !>               column 2l holds (-Im a, Re a) (i times it); C = A'' B.
 !> Both copies read and write A along its columns (coalesced).  The same 8mnk flops in FP32; on GPUs where cuBLAS
-!> cgemm runs well below the SGEMM rate this route is faster.  linalgtune measures both (time and error) per shape.
+!> cgemm runs well below the SGEMM rate this route is faster (2026-09-27, RTX 5090, m=k=1053: cgemm about 31 TFLOPS,
+!> this route 50-54).  linalgtune measures both (time and error) per shape.
 !> A non-real beta is applied to C first (one pass over C).  opB /= N returns -1 and the caller uses cuBLAS.
 !> The copies run on the stream of the cuBLAS handle, as the SGEMM does (m_blas cublas_set_stream).  Scratch arrays
 !> and pool slots are reused without a device sync: calls must stay on one stream, with a device sync at each stream
@@ -18,7 +19,8 @@
 !> so products without a key and n < nminkey return -1 and go to cuBLAS.
 !>
 !> Backend "realhgemm": the same route with A' and B in FP16, FP32 accumulation and C (tensor cores).  FP16 has the
-!> 10-bit mantissa of TF32, so the input rounding is that of TF32 (BF16 would give 8 times the error).  FP16
+!> 10-bit mantissa of TF32, so the input rounding is that of TF32 (BF16 would give 8 times the error; 2026-09-27,
+!> RTX 5090: 1.75-1.9 times as fast as TF32).  FP16
 !> overflows at 65504, so A' and B are scaled by powers of 2 to a largest element in [2^13, 2^14): elements down to
 !> 2^-27 of the largest keep the full relative precision, smaller ones lose it (their absolute error stays below
 !> 2^-38 of the largest, far under the rounding of the large ones).  A': the scale is found on the

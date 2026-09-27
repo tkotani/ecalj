@@ -146,7 +146,7 @@ contains
     use m_ftox
     use m_lgunit, only: stdo
     use m_blas, only: m_op_T, BACKEND_BLAS_FP32  ! the Hilbert transform in FP32 arithmetic at every level, never TF32
-                                                 ! (with TF32 here Samples/MLOQSGW NiO fails)
+                                                 ! (2026-09-27 07:15; with TF32 here Samples/MLOQSGW NiO fails)
 #if defined(__MP) && defined(__GPU)
     use m_blas, only: gemm => cmm_d
 #elif defined(__MP)

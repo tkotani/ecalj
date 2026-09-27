@@ -2,6 +2,7 @@ module m_gemmul8
   use iso_c_binding
   implicit none
   ! Default moduli and scaling mode of the Ozaki-II emulation (INT8); a policy row gemmul8:<n> sets its own.
+  ! (2026-09-27, RTX 5090, m=k=1053, n=49928: cgemm 7 moduli 43 TFLOPS, error 4e-7; zgemm 14 moduli 21 TFLOPS, 4e-15)
   ! Which products go to GEMMul8 is decided by m_linalg_policy (small products run slower emulated).
   ! ECALJ_GEMMUL8_MODULI_C / _Z / _D and ECALJ_GEMMUL8_FAST (0/1) override these for tests.
   integer :: num_moduli_d = 14, num_moduli_z = 14, num_moduli_c = 7, fastmode_gemmul8 = 1
@@ -58,7 +59,8 @@ module m_gemmul8
 contains
   logical function gemmul8_pays(m, n, k)
     !> GEMMul8 splits A and B into moduli and runs one INT8 GEMM per modulus: a fixed cost per call that a small
-    !> product does not pay back.  Below this size m_blas uses cuBLAS whatever the table says.
+    !> product does not pay back.  Below this size m_blas uses cuBLAS whatever the table says.  (2026-09-27: without
+    !> it the tiny rotation products of readeigen cost hgw 110 s with GEMMul8)
     integer, intent(in) :: m, n, k
     gemmul8_pays = min(m, n, k) >= 64 .and. real(m,8)*real(n,8)*real(k,8) >= 1d8
   end function gemmul8_pays

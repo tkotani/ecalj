@@ -163,7 +163,8 @@ contains
        enddo ibandloop
     enddo isploop
     ! Only the spins of this call: bandcal hands out (iq,isp) pairs, so the two spins of one iq can be on two
-    ! ranks; writing the whole k record would overwrite the other rank's spin with a stale value.
+    ! ranks; writing the whole k record would overwrite the other rank's spin with a stale value.  (Bug fixed
+    ! 2026-09-27 16:07: the partial DOS depended on the number of ranks, co at -np 6 off by 2%.)
     if(allocated(dwgtk)) then
       do isp = ispstart, ispend
         istat = writem_d(ifile_dw, rec=isp+nsp*(iq-1), data=dwgtk(:,:,:,isp))

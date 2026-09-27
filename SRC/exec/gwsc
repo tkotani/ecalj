@@ -28,7 +28,8 @@ parser.add_argument('--gemmul8'   ,help='USE GEMMul8 valid in GPU without MP',  
 parser.add_argument('--prec'      ,help='precision of the GW programs: fp64 (double precision), fp32 (mixed precision, '
                     'FP32 products; = --mp --fp32) or tf32 (as fp32, but the Sigma_c products on GPU with 10-bit-mantissa '
                     'inputs, TF32 or FP16: faster, Sigma slightly less accurate). How each GPU product is done is read from '
-                    '<bindir>/ecalj_linalg_policy.toml (written by linalgtune). --mp alone = tf32.',
+                    '<bindir>/ecalj_linalg_policy.toml (written by linalgtune). --mp alone = tf32 (before 2026-09-27 '
+                    '--mp meant TF32 in every product).',
                     choices=['tf32', 'fp32', 'fp64'], default=None)
 parser.add_argument('--prec-final', help='precision of the last iterations of this run, <prec>[:N] (N=1 if omitted): e.g. '
                     '--prec=tf32 --prec-final=fp32:2 runs all but the last two iterations in tf32 and those in fp32',

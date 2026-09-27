@@ -138,6 +138,7 @@ contains
     ! made from columns 1..j), done with matrix-matrix products instead of matrix-vector products per column.
     ! Cholesky QR is accurate only for well-conditioned z: the columns are eigenvectors, nearly orthonormal already,
     ! so S is close to 1.  All n columns are used: no skip of padding columns (|z|>1d6) as in CB_GramSchmidt.
+    ! (2026-09-27 18:55)
     use m_blas,only: zmm_h
     implicit none
     integer,intent(in):: nspc,n,nv1,nv2,nv2mx

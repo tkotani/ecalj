@@ -11,8 +11,8 @@ module m_bessl
     0.1311307045768799D+26, 0.5638620296805834D+27, 0.2537379133562626D+29, 0.1192568192774434D+31]   !l=21-24
   !$acc declare copyin(fac2l)
   ! Largest l of bessl (fac2l(lmx+1) with lmx=max(lmax,2)).  The work arrays below have this fixed size because an
-  ! automatic array in an acc routine is allocated on the device heap at every call.  radkj(job=1) calls bessl with
-  ! lmax+2, so radkj and wronkj need lmax<=lmaxb-2; nothing checks this.
+  ! automatic array in an acc routine is allocated on the device heap at every call (2026-09-27 18:00).
+  ! radkj(job=1) calls bessl with lmax+2, so radkj and wronkj need lmax<=lmaxb-2; nothing checks this.
   integer, parameter :: lmaxb = 23
 contains
 subroutine bessl(y,lmax,fi,gi)! Spherical Bessel  and  Neumann Hankel functions

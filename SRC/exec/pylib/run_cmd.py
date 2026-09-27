@@ -141,6 +141,7 @@ def _needs_gpu_slot(command) -> bool:
 # --- single-rank CPU programs -------------------------------------------------
 # MPI_Init probes every visible GPU even for a CPU program; hiding them shortens the start of the many
 # single-rank runs (heftet, hbasfp0, hqpe_sc, ...).  With many ranks it gave nothing, so nprocs=1 only.
+# (2026-09-27 21:06, HPC-X OpenMPI on kt1: 1 rank 0.53 -> 0.26 s; 60 ranks 1.85 s as is, 2.25 s hidden)
 def _cpu_env(env, nprocs):
     if (nprocs or 1) == 1:
         env["CUDA_VISIBLE_DEVICES"] = ""

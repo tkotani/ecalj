@@ -488,7 +488,7 @@ contains
                 ! On the GPU the whole batch runs on OpenACC queue 1 (sigma_stream_begin): the kernels are async(1) and
                 ! the products of m_blas go to the same stream, so they stay in order without a host wait per kernel.
                 ! While the imaginary-axis products run, the host computes the pole weights of the real axis; no device
-                ! allocation or free in that window (it would wait for the device).
+                ! allocation or free in that window (it would wait for the device).  (2026-09-27 15:32)
                 real(8), parameter :: wfaccut=1d-8
                 complex(kind=kp), parameter :: img=(0_kp,1_kp)
                 complex(kind=kp) :: beta

@@ -301,7 +301,7 @@ contains
     !> in FP32 at level tf32) or GEMMul8 (BACKEND_GEMMUL8), or marks a Sigma_c product (BACKEND_SIGMA).
     !> key >= 0 (optional): same key = same A until la_cache_reset, so backends may keep their form of A.
     !> splitk > 1 (optional): k is cut into equal ranges, multiplied in one batched cuBLAS call and summed (for a
-    !> small C with a long k); see cmm_splitk.  This path ignores policy, key and the table.
+    !> small C with a long k); see cmm_splitk (2026-09-27 21:26).  This path ignores policy, key and the table.
     use cublas_v2, m_type =>CUDA_C_32F, algo => cublas_gemm_default
     use m_linalg_policy, only: la_backend, la_moduli, la_level, la_sigma_tf32, OP_CGEMM, BK_CUBLAS, BK_REALSGEMM, BK_GEMMUL8, &
                                BK_REALHGEMM
@@ -420,7 +420,8 @@ contains
   end function cmm_h16_d
   logical function cmm_splitk(a, b, c, m, n, k, nsplit0, opa, opb, alpha, beta, lda, ldb, ldc) result(done)
     !> C = alpha op(A) op(B) + beta C as nsplit products over consecutive ranges of k (one strided-batched cuBLAS
-    !> call) and their sum.  One product with few output tiles and a long k keeps only a few SMs busy.  nsplit is
+    !> call) and their sum.  One product with few output tiles and a long k keeps only a few SMs busy (2026-09-27 21:26,
+    !> RTX 5090: the core exchange 158 x 158 x (46 x 788) took 2.1 ms as one product, 0.46 ms split).  nsplit is
     !> lowered to a divisor of k that keeps the partial products within 256 MB; .false. (nothing done) if that leaves 1.
     use cublas_v2, m_type => CUDA_C_32F, algo => cublas_gemm_default
     use m_linalg_policy, only: la_level

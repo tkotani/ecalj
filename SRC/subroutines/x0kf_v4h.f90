@@ -50,6 +50,7 @@ use m_cmdopt_registry, only: c0_debugzmel, c0_tetwtk
   ! next to hgw).  x0kf_zxq uses a file only when everything the weights depend on matches: the sizes, q, the band
   ! energies at every k and k+q (checksum), the histogram bins, E_F, kBT and the band cut (tetwt_pkey); otherwise
   ! (no file yet, stale, k split over ranks, cRPA, chi+-) it computes them.  Same code on the same input: bit-identical.
+  ! (2026-09-27 04:24)
   integer, parameter :: tetwt_tag = 20260927   ! format tag of __TETWT.*: change it when the records of tetwt_save change
   interface
     integer(c_int) function c_rename(old, new) bind(C, name='rename')
@@ -594,6 +595,7 @@ contains
     !> a few tens of pairs per k point, so the per-k products are small and bound by launches.  Only for full zmel
     !> (no NMBATCH split), not tetwtk, and npm = 1: the pairs go to the positive bins only (jpmc is not looked at).
     !> npm = 2 (time reversal broken, x0kf_zxq stops for it now) must go through accumulate_chi0.
+    !> (2026-09-27 17:36; the npm = 1 guard at the call 2026-09-27 22:00)
     use m_blas, only: m_op_c
     use m_GWinput, only: chi0_filterw_drude
     implicit none

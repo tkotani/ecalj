@@ -319,7 +319,7 @@ contains
     jsp = min(isp, nspx)
     allocate(ph(npairmx,nbas,nbas))
     do ib2 = 1, nbas       !the phase depends only on the atom pair and R: made once per (ib1,ib2,R),
-      do ib1 = 1, nbas     !not for every (i,j,R)
+      do ib1 = 1, nbas     !not for every (i,j,R) (2026-09-27 21:10)
         do it = 1, npair(ib1,ib2)   !same phase convention as m_mlo_ham::calc_ham_eigen
           ph(it,ib1,ib2) = 1d0/dble(nqwgt(it,ib1,ib2)) * exp(-img*2d0*pi*sum(qp*matmul(plat,dble(nlat(:,it,ib1,ib2)))))
         enddo

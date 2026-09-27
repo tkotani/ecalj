@@ -265,8 +265,8 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
     allocate( strx(nlxx,nbas,nlxx,nbas), source = (0d0,0d0)) !! strxq: structure factor.
     !$acc enter data create(strx)    ! for vcoulq_4
     ! strx(L1,ibas1,L2,ibas2) = conj(strx(L2,ibas2,L1,ibas1)) (up to rounding), and the blocks ibas1=ibas2 (p=0)
-    ! are the same for the same lx: strxq for ibas1<ibas2 and for p=0 once per lx.
-    if(eee<0d0) then   ! all pairs at once; in the GPU version only the device copy of strx is set (host copy stays 0)
+    ! are the same for the same lx: strxq for ibas1<ibas2 and for p=0 once per lx.  (2026-09-27 18:14)
+    if(eee<0d0) then   ! all pairs at once (2026-09-27 18:26); in the GPU version only the device copy of strx is set (host copy stays 0)
       call strxq_all(eee,q,nbas,bas,lx,lxx,alat,voltot,awald,nkd,nkq,dlv,qlv,cg,indxcg,jcg, strx)
     else
       do ibas1 =1,nbas

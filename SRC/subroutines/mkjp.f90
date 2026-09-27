@@ -6,7 +6,7 @@ module  m_vcoulq
   public vcoulq_4,mkjb_4,mkjp_4,genjh, ajr, a1r, vcoul_termb
   private
   character(1024):: aaaw
-  ! Tables of one group of atoms (same radial mesh and lx), made by mkjp_4 for the first atom of the group
+  ! Tables of one group of atoms (same radial mesh and lx), made by mkjp_4 for the first atom of the group (2026-09-27 19:40)
   ! (hasBessel=F) and used by the other atoms of the group and by vcoul_termb, which must run before the next group
   ! replaces them.  ajr(r,ig,l) = j_l(|q+G| r) r/|q+G|^l; for eee/=0, a1r(r,ig,l) of sigkernel, which includes the
   ! Simpson weights times dr/di (fac_integral), so sum_r a1r(r,ig,l) f(r) is already the radial integral.
@@ -518,7 +518,8 @@ contains
     ! cPhi = sum_a conj(exp(i(q+G1)R_a)) exp(i(q+G2)R_a) over the atoms basg(:,1:natg) of the group (the same radial mesh
     ! and lx=lxg).  fjj_l is fjj of wronkj from the Bessel values and slopes at rmax of each G; sigx_l = a1r^T ajr of the
     ! tables mkjp_4 made for the group.  One l at a time, so the work memory is one ngc x ngc matrix (sx).  The sum
-    ! stops at lxg, as rojp (zero for l>lx) and the eee=0 path of vcoulq_4 do.
+    ! stops at lxg, as rojp (zero for l>lx) and the eee=0 path of vcoulq_4 do.  (2026-09-27 19:40.  Bug fixed then:
+    ! the type loop of vcoulq_4 took fjj of l>lx from an unset array; it now zeroes fjj before wronkj.)
     use m_ll,only: ll
     use m_bessl, only: radkj2 => radkj
 #ifdef __GPU

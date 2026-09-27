@@ -456,6 +456,7 @@ contains
           if(debug) call writemem('mmmmm_zmel111aaa')
           ! C_s = A_s B (A_s gathered per state s, B common) is done as C_s^T = B^T A_s^T (opA = T): the gathered
           ! A_s^T of a chunk of states (at most ipw_work_bytes) are the columns of one product.  zmelp0t is C^T.
+          ! (2026-09-27 17:00; before, one gather kernel and one product per state)
           G1G2_Integral: if( nm2v-nm1v + 1 > ntp0) then ! G1 integral first
             if(debug) call writemem('mmmmm_zmel111bbb')
             allocate( ggitp(ngcgp,ntp0), igcgp2i_work(ngc,ngp2))
@@ -596,7 +597,7 @@ contains
         elseif (nm2v < nm1v .and. ncc == 0) then
           !Core states only (the core exchange).  zmelt of a core state of atom ia is zero outside the product-basis
           !block of iap (ZmelWithinMT; no IPW part), so each atom goes through its block alone: k = nblocha instead
-          !of ngb.
+          !of ngb.  (2026-09-27 21:26)
           CoreOnlyToE: block
             complex(kind=kp), allocatable :: zb(:,:,:), ze(:,:,:)
             integer :: nsa

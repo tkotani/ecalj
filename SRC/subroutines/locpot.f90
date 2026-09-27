@@ -38,7 +38,7 @@ contains
     implicit none
     intent(in)::    job, orhoat,qmom,vval,gpot0
     !i Inputs
-    !i   novxcalso: (optional) also oppix, the augmentation matrices without xc, in the same pass
+    !i   novxcalso: (optional) also oppix, the augmentation matrices without xc, in the same pass (2026-09-27 20:11)
     !i   orhoat:vector of offsets containing site density
     !i   qmom  :multipole moments of on-site densities (rhomom.f)
     !i   vval  :electrostatic potential at MT boundary; needed to computed matrix elements of local orbitals.

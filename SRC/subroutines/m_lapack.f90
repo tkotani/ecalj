@@ -473,6 +473,7 @@ contains
     !> Guard: with R = I - A X0 from the single-precision LU, the final residual is at most ||R||_F^(2^nnewton);
     !> when that bound exceeds 1e-6 (one step, used at fp32) or 1e-13 (two steps, fp64) the matrix is too
     !> ill-conditioned for this route and zminv_d (FP64 LU) is used instead (a note is printed once).
+    !> (2026-09-27, n=1053 on RTX 5090: zgetrf+zgetrs 21.6 ms; single LU + 1 step 7.0 ms, error 3e-12)
     complex(8), device :: a(*)
     integer, intent(in) :: n, lda, nnewton
     complex(4), device, allocatable :: a32(:,:), x32(:,:), work(:)

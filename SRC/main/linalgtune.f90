@@ -9,13 +9,14 @@
 !> than 10% slower on any shape that carries weight (>= 0.1); otherwise cuBLAS (lu64 for the inverse) stays.
 !> Error bounds (relative, Frobenius): cgemm at most 4 times the error of cuBLAS at the same level on the same shape
 !> (and below 5e-3 at tf32, 1e-5 at fp32): the promise is FP32 (TF32) accuracy, which GEMMul8 with few moduli can
-!> miss on long sums (it quantizes each row against its largest element); zgemm and dgemm 1e-12; the epstilde
+!> miss on long sums (it quantizes each row against its largest element; 2026-09-27: 7 moduli were 5 times worse
+!> than cuBLAS and moved Im Sigma_c of hgw by 1e-4 eV); zgemm and dgemm 1e-12; the epstilde
 !> inverse 1e-6 at tf32/fp32 and 1e-13 at fp64.
 !> realhgemm (FP16 inputs, FP32 accumulation) has the error of TF32, so it can only pass at level tf32.
 !> The sizes are deliberately not multiples of 64, as in real GW runs: aligned sizes favour some backends (GEMMul8)
-!> and would bias the choice.
+!> and would bias the choice (2026-09-27: a table measured on 1024 chose GEMMul8 where hgw with 1053 runs slower).
 !> The table goes to --out, else to ecalj_linalg_policy.toml next to this executable (ECALJ_LINALG_POLICY overrides),
-!> through a temporary file and rename.  Run it on an idle GPU; InstallAll.py does so after a GPU build.
+!> through a temporary file and rename.  Run it on an idle GPU; InstallAll.py does so after a GPU build.  2026-09-27.
 program linalgtune
   use cudafor
   use cublas_v2

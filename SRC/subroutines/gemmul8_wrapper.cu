@@ -33,6 +33,8 @@ static void* gemmul8_workspace(size_t need) {
 // matrix A until gemmul8_cache_reset_.  A kept A is reused only with the same type, op(A), m, k, moduli and
 // fast mode (a key may be used with both rows of a table, which can differ in the moduli); otherwise the call
 // runs without keeping A.  Budget: ECALJ_LA_CACHE_GB (default 4) and at most a quarter of the free device memory.
+// (Bug fixed 2026-09-27 22:00: only the key, type and op were compared, so a key used with rows of other moduli
+// could reuse an A split for a different number of moduli.)
 struct KeptA { void* ptr; size_t size; size_t m, k; unsigned int moduli; int fast; };
 static std::unordered_map<long long, KeptA> g_kept;
 static size_t g_kept_bytes = 0;

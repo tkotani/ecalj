@@ -173,7 +173,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
 
     if(debug) write(06,ftox) '**xxx ndimh, ngp, ngmx, napw', ndimh, ngp, ngmx, napw
     ! An APW column of pwh has one element, 1/srvol at the G of the APW (|G> = exp(iGr)/sqrt(vol)), so its column of
-    ! pwhovl is ppovl_save(G_apw-G1)/srvol: looked up below, not a product over all ngmx G.
+    ! pwhovl is ppovl_save(G_apw-G1)/srvol: looked up below, not a product over all ngmx G.  (2026-09-27 19:47)
     iapw2ig = 0
     do iga = 1, napw
       do ig = 1, ngmx
@@ -282,7 +282,7 @@ subroutine pwmat(nbas,ndimh,napw,igapw,q,ngp,nlmax,igv,GcutH,ppovl,pwhovl)
       ! A correlation over G.  On a grid of nn(k) points >= the extent of G2-G1 in direction k it has no wrap-around:
       !   pwhovl(G1,j) = [ backward( N forward(T') * forward(P_j) ) ](G1 mod nn),  T'(D)=ppovl_save(-D), P_j(G2)=pwh(G2,j)
       ! (fftz3's forward includes 1/N).  The same sums as the GPU path's product ppovlx*pwh, with two FFTs per MTO
-      ! column and no ngp x ngmx matrix.  pwh(G2,j) is made here as in the GPU path's loop over G blocks.
+      ! column and no ngp x ngmx matrix.  pwh(G2,j) is made here as in the GPU path's loop over G blocks.  (2026-09-27 19:53)
       integer:: nn(3), d1,d2,d3, k, j, lm, ntot, igq
       complex(8),allocatable:: tt(:,:,:), ff(:,:,:), pg(:)
       real(8),allocatable:: qpgall(:,:), ylall(:,:), qpg2all(:)

@@ -134,7 +134,7 @@ contains
     implicit none
     type(s_rv1) :: orhoat(3,nbas)
     complex(8):: smrho(n1,n2,n3,nsp),smpot(n1,n2,n3,nsp)
-    logical,optional:: alsonovxc  ! also spotx (smpot before xc) and oppix (locpot): the potential without xc, for lmf --jobgw=1
+    logical,optional:: alsonovxc  ! also spotx (smpot before xc) and oppix (locpot): the potential without xc, for lmf --jobgw=1 (2026-09-27 20:11)
     integer:: job,i1,i2,i3,i,isw,isum, ifi,isp,j,k,ix,iy,iz,ismpot(4) 
     real(8):: hpot0_rv(nbas), dq,qsmc,smq,smag,sum2,rhoex,rhoec,rhvsm, uat,usm,valfsm, &
          vsum,zsum,rvvxcv(nsp),rvvxc(nsp),rvmusm(nsp),rmusm(nsp), rvepsm(nsp),vxcavg(nsp),&

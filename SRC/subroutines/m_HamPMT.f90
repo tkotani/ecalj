@@ -137,7 +137,7 @@ contains
       socmatrix=c0_socmatrix
       !--mlofreeze: the MLO index was fixed when HamRsMLO was made (design 4.1), and it is read
       !back from there below.  Only Sigma^MLO(q) -> QMLO_SigRs is done then: neither the PMT
-      !Hamiltonian nor H, O of the model are needed.
+      !Hamiltonian nor H, O of the model are needed.  (2026-09-27 21:06)
       inquire(file='HamRsMLO',exist=lfrozen)
       lfrozen = lfrozen .and. c0_mlofreeze   !explicit: the driver says so (gwsc passes --mlofreeze)
       if(c0_mlofreeze .and. .not.lfrozen) call rx('m_HamPMT: --mlofreeze given but HamRsMLO is not there')
@@ -352,7 +352,7 @@ contains
       FrozenModel: block !--mlofreeze (design 4.1): the MLO index is fixed for the whole chain.
         !Take it (ix and the tables) from the trailing records of HamRsMLO; HamRsMLO is not rewritten.
         !chi~ itself follows H (sugw step a').  The chain-start eferm, ecbot set here are used only
-        !by the band plot of mlo in this run.
+        !by the band plot of mlo in this run.  (2026-09-27 21:06)
         use m_readqplist,only: set_bandedge
         integer:: nd,ld,mm,nsk,ifh,n1,n2,n3
         integer,allocatable:: ixf(:)
@@ -423,7 +423,7 @@ contains
       !__cmlo.data/.info from __HamiltonianGW for the W and magnon flows (job_mloW, job_mlo_magnon:
       !lmf --jobgw=1 --mlo, then mlo --mlo; hwmatK_MPI and huumat_MPI read __cmlo).  It replaces the
       !__cmlo of sugw's step a' (written only when HamRsMLO exists, nspc=1).  Never in the QSGW
-      !chain: gwsc deletes __HamiltonianGW* before mlo --mlo, and its mlo per iteration is --mlofreeze.
+      !chain: gwsc deletes __HamiltonianGW* before mlo --mlo, and its mlo per iteration is --mlofreeze.  (2026-09-27 22:00)
       block
         logical:: lhgw
         integer:: nbyte
@@ -434,7 +434,9 @@ contains
         lhgw = lhgw .and. nbyte > 0
         if(c0_mlo .and. .not.lhgw .and. master_mpi) &
              write(stdo,ftox)' m_HamPMT: no __HamiltonianGW.info -> skip the legacy cmlo block (sugw does it)'
-        lcmlo_legacy = c0_mlo .and. lhgw .and. .not.lfrozen !frozen: keep sugw's __cmlo (window of this iteration)
+        lcmlo_legacy = c0_mlo .and. lhgw .and. .not.lfrozen !frozen: keep sugw's __cmlo (window of this iteration).
+        !Bug fixed 2026-09-27 21:06: the frozen mlo of every gwsc iteration ran this block and rewrote sugw's __cmlo with the
+        !chain-start window (no effect inside gwsc, which deletes __cmlo at the next iteration; the __cmlo left at the end was wrong).
       endblock
       cmlo4GWinput: if(lcmlo_legacy) then !from __Hamiltoniangw to __cmlo.data, __cmlo.info
         HreductionIqibzGWinput: block
@@ -833,7 +835,7 @@ contains
    end subroutine HamPMTtoHamRsMLO
 
    !> Sum a(:,:,:,:) over the ranks onto the master only: only the master writes the real-space
-   !! arrays, so an allreduce would send them to every rank for nothing.
+   !! arrays, so an allreduce would send them to every rank for nothing.  (2026-09-27 21:06)
    subroutine reduce_to_master(a)
       use mpi
       implicit none

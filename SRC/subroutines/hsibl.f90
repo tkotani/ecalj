@@ -180,7 +180,7 @@ contains
     enddo
     ! PW coefficients of the basis functions of all sites (w_oc2, w_ocf2 of the loop over pairs; independent of ib1),
     ! made once when w2 fits in 256 MB (fastw2).  Each ib1 then needs one product per run of sites with the same kc
-    ! instead of a small, memory-bound product per pair.  Both paths must add the same sums to h (and h2).
+    ! instead of a small, memory-bound product per pair.  Both paths must add the same sums to h (and h2).  (2026-09-27 19:57)
     allocate(kc(nbas), nd2(nbas), cof(nbas))
     ncolall = 0
     do ib2 = 1, nbas
