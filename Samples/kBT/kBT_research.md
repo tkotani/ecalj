@@ -83,6 +83,15 @@
 
 （夜の TODO: 6³・9³ の tf32 の収束、FP16 の確かめ (a)〜(c)、検証、kBT の残り、ファイルの統一、速さの残り、文書の整理）
 
+### 08:24 **mlo_gwsc.md の図と同じ描き方（`mlo_rows.py`）で反復 10 の MLO バンドを 3 本並べた（図 08:24-1）。mlo_gwsc.md の 9³ の iter 10 と同じデータ（09-26 fp32）にも、いまの tf32 と同じ Γ 近くのうねりがある**（user「意図が通じにくいような。もしくはプロット用ファイルを失ってるのかな」）
+
+*図 08:24-1* `LiTi2O4/liti2o4_it10_mlorows_3.png`（`HILITE=1 MESH=9,6 MESHCOLS=9,9,6 ROWS=10 ROWH=5 mlo_rows.py <root> <out> k9old,k9tf32,k6fp32 … noref`）:
+左から 09-26 の 9³ fp32（ecaljdoc mlo_gwsc.md の図 liti2o4_5col_all.png の右下の枠と同じ `liti_mlo_k9/mloband/bnd_iter10.dat`）、いまの 9³ tf32、いまの 6³ fp32
+
+- 左と中はほとんど同じ形。緑（一番下のバンド）が Γ〜0.2 で少し沈み、2/9 で灰のバンドと交差する。6³ の緑はなめらか
+- mlo_gwsc.md の図は 5 列 × 11 行で枠が小さく、このうねり（10 meV 級）が見えなかった
+- 作図のデータは失っていない。無いのは tf32 の 9³・6³ の反復 1〜9 の MLO バンドだけ（gwsc 10 を一度に回したため）。`mlo_rows.py` に行の高さ `ROWH` を足した
+
 ### 08:22 **反復ごとの図は MLO バンドだけを描く（1 反復 約 1 分）。qplist.dat は job_band を回さず efermi.lmf の E_F と経路から作る**（user「MLO バンドの比較だけでいい」「先にプロットだけ出せないのか」）
 
 - `draw_iter_bands.sh`・`cont_gwsc.sh` は既定で MLO バンドだけ（`SIGM_BAND=1` で sigm バンドも）。draw_mloband.sh が要る qplist.dat は、

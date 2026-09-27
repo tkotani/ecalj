@@ -68,7 +68,8 @@ iters = [0] + [i for i in range(1, 31) if any(os.path.exists(path(c[1], i)) for 
 ## ROWS="0,1,3,5,10": keep only these iterations (0 = LDA), for a figure that has to stay readable when small
 if 'ROWS' in os.environ: iters = [i for i in iters if i in {int(v) for v in os.environ['ROWS'].split(',')}]
 n = len(iters)
-fig, AX = plt.subplots(n, len(COLS), figsize=(4.9 * len(COLS) + 0.4, 2.5 * n + 1.0),
+ROWH = float(os.environ.get('ROWH', '2.5'))   # height of a row (inch); ROWH=5 for a figure of one or two rows (2026-09-28)
+fig, AX = plt.subplots(n, len(COLS), figsize=(4.9 * len(COLS) + 0.4, ROWH * n + 1.0),
                        sharex=True, sharey=True, squeeze=False)
 store = {}
 for r, it in enumerate(iters):
@@ -109,6 +110,6 @@ fig.suptitle(f'LiTi$_2$O$_4$  {_ML} (nkabc = n1n2n3 = mesh)   t$_{{2g}}$ (b33-44
                 'Each column states its own damping; the MTO chain always Anderson-mixes sigm at [gw] mixbeta\n') +
              
              f'generated {stamp}', fontsize=10.5)
-plt.tight_layout(rect=[0, 0, 1, 1 - 0.95/(2.5*n + 1.0)])
+plt.tight_layout(rect=[0, 0, 1, 1 - 0.95/(ROWH*n + 1.0)])
 plt.savefig(OUT, dpi=115)
 print('wrote', OUT, f'({n} rows x {len(COLS)} cols)')
