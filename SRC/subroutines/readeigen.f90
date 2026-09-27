@@ -377,6 +377,45 @@ contains
          qrot = matmul(symops(:,:,igg),qin)
          if(igxt==-1) qrot=-qrot !july2012takao
          phase = [(exp(-img2pi*sum(qrot*tiat(:,ibas, igg))),ibas=1,nbas)]
+#ifdef __GPU
+         ! All orbital blocks in one kernel: output row r (the i-th row of block iorb, rotated to ini2) is
+         ! phase * sum_p dlmm(i,p) cphifr(ini1+p-1).  One zgemm per block was ~1e6 tiny FP64 GEMMs (17 s of GPU
+         ! time plus as many launches and syncs) in one hgw of LiTi2O4 6^3 (nsys, 2026-09-27).
+         block
+           integer :: r, j, p, lr, ir, nr
+           integer :: rl(ndima), ri(ndima), rsrc(ndima), rdst(ndima)
+           complex(8) :: rph(ndima), sr
+           integer, device, allocatable :: rl_d(:), ri_d(:), rsrc_d(:), rdst_d(:)
+           complex(8), device, allocatable :: rph_d(:)
+           nr = 0
+           do iorb = 1, norbtx
+             ibas = ibas_tbl(iorb)
+             l = l_tbl(iorb)
+             k = k_tbl(iorb)
+             ini1 = offset_tbl(iorb)+1
+             ini2 = offset_rev_tbl(miat(ibas,igg),l,k)+1
+             do i = 1, 2*l+1
+               nr = nr + 1
+               rl(nr) = l; ri(nr) = i; rsrc(nr) = ini1+ioff; rdst(nr) = ini2+ioff+i-1; rph(nr) = phase(ibas)
+             enddo
+           enddo
+           allocate(rl_d(nr), ri_d(nr), rsrc_d(nr), rdst_d(nr), rph_d(nr))
+           rl_d = rl(1:nr); ri_d = ri(1:nr); rsrc_d = rsrc(1:nr); rdst_d = rdst(1:nr); rph_d = rph(1:nr)
+           !$acc parallel loop collapse(2) present(cphifr) private(lr, ir, sr)
+           do j = 1, nband
+             do r = 1, nr
+               lr = rl_d(r); ir = ri_d(r)
+               sr = (0d0, 0d0)
+               !$acc loop seq
+               do p = 1, 2*lr+1
+                 sr = sr + dlmm_tmp(-lr+ir-1, -lr+p-1, lr)*cphifr(rsrc_d(r)+p-1, j)
+               enddo
+               cphif(rdst_d(r), j) = rph_d(r)*sr
+             enddo
+           enddo
+           deallocate(rl_d, ri_d, rsrc_d, rdst_d, rph_d)
+         end block
+#else
          !$acc host_data use_device(cphifr)
          do iorb=1, norbtx
            ibas = ibas_tbl(iorb)
@@ -388,6 +427,7 @@ contains
                         alpha=cmplx(phase(ibas), kind=8), lda=(2*lmxax+1), ldb=ndima*nspc, ldc=ndima*nspc)
          enddo
          !$acc end host_data
+#endif
        endblock rotmto
     enddo
     !$acc exit data delete(cphifr)
