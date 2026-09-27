@@ -14,7 +14,9 @@
 #   GWSC_EXTRA : more gwsc options, e.g. --prec-final=fp32:2 (the last two iterations in fp32)
 # gwsc keeps llmf.<N>run and QPU.<N>run of every iteration; the state after iteration 10 is copied to
 # snap/final and its bands are drawn there: the conventional sigm band (job_band, also makes qplist.dat)
-# and THE MLO band (draw_mloband_qmlo.sh = Samples/kBT/LiTi2O4/draw_mloband.sh).
+# and THE MLO band (draw_mloband_qmlo.sh = Samples/kBT/LiTi2O4/draw_mloband.sh).  While gwsc runs, draw_iter_bands.sh
+# draws the same two for iterations 1-9 from QSGW.<N>run (bndPMT_iter<N>.dat, bnd_mlo_iter<N>.dat; 2026-09-28, needs
+# the gwsc that keeps QMLO_SigRs/QMLO_z/efermi.lmf there, else the sigm band only).  Continue with cont_gwsc.sh.
 set -u
 TAG=$1; SRC=$2; BIN=$3
 S=${RUNS_DIR:-/mnt/data1/LiTi2O4_kbt_runs}; T=liti2o4; D=$S/$TAG
@@ -36,13 +38,25 @@ say "ECALJ_MLO_MIX=$ECALJ_MLO_MIX  GPUs: $(nvidia-smi --query-compute-apps=pid,p
 t0=$(date +%s)
 GPUS=${GPUS:-0}; NP2=$(echo $GPUS | tr ',' '\n' | wc -l)
 say "GPUS=$GPUS -np2 $NP2"
-CUDA_VISIBLE_DEVICES=$GPUS $BIN/gwsc 10 -np 60 -np2 $NP2 --gpu --prec=${PREC:-fp32} --ntqxx --mlo ${GWSC_EXTRA:-} $T > gwsc10.log 2>&1; rc=$?
+CUDA_VISIBLE_DEVICES=$GPUS $BIN/gwsc 10 -np 60 -np2 $NP2 --gpu --prec=${PREC:-fp32} --ntqxx --mlo ${GWSC_EXTRA:-} $T > gwsc10.log 2>&1 &
+gp=$!
+# The bands of iterations 1-9 while gwsc runs (2026-09-28; ITER_BANDS=0 skips it): as soon as gwsc has copied
+# QSGW.<N>run (the line 'QSGW iteration end iter N' follows the copy), draw_iter_bands.sh draws them on the CPU
+# (nice; the next iteration is mostly on the GPU).  Needs the gwsc that keeps QMLO_SigRs/QMLO_z/efermi.lmf there.
+if [ "${ITER_BANDS:-1}" != 0 ]; then
+  ( for it in $(seq 1 9); do
+      until grep -q "iteration end   iter $it ===" gwsc10.log 2>/dev/null; do kill -0 $gp 2>/dev/null || exit 0; sleep 60; done
+      nice -n 10 bash $HERE/draw_iter_bands.sh $TAG $it $it $BIN
+    done ) &
+  wp=$!
+fi
+wait $gp; rc=$?
 say "gwsc 10 rc=$rc secs=$(( $(date +%s)-t0 ))"
 for it in $(seq 1 10); do
   f=llmf.${it}run
   say "iter $it mloON=$(grep -c 'MLO Sigma interpolation ON' $f 2>/dev/null) $(grep ehf $f 2>/dev/null | tail -1 | tr -s ' ') $(grep 'gap' $f 2>/dev/null | tail -1 | tr -s ' ')"
 done
-[ $rc -eq 0 ] || { say ABORT; exit 1; }
+[ $rc -eq 0 ] || { say ABORT; [ -n "${wp:-}" ] && kill $wp 2>/dev/null; exit 1; }
 SD=$D/snap/final; mkdir -p $SD
 for f in rst.$T sigm sigm.$T QMLO_SigRs QMLO_z HamRsMLO ctrlg.$T.toml env.sh __atm.$T efermi.lmf __mixsig __QMLO_mixsig; do
   cp -f $f $SD/ 2>/dev/null
@@ -52,4 +66,8 @@ printf "211 0.0 0.0 0.0 0.0 -1.0 0.0 GAMMA X\n0 !terminator\n" > $SD/syml.$T    
 [ -s $SD/bnd001.spin1 ] && cp $SD/bnd001.spin1 $D/bndPMT_final.dat
 mb=$(MLOBAND_BUILD=$B bash $DRAW $SD $D/mlobandwork $D/bnd_mlo_final.dat 2>&1 | tail -1)
 say "bands: sigm drawing $( [ -s $SD/bnd001.spin1 ] && echo ok || echo FAILED ); MLO band: $mb"
+if [ "${ITER_BANDS:-1}" != 0 ]; then     # iteration 10 is snap/final
+  wait $wp
+  cp -f $D/bndPMT_final.dat $D/bndPMT_iter10.dat 2>/dev/null; cp -f $D/bnd_mlo_final.dat $D/bnd_mlo_iter10.dat 2>/dev/null
+fi
 say done; touch $S/$TAG.done

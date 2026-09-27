@@ -157,7 +157,10 @@ if not sigm_name.is_symlink():
     sigm_name.symlink_to(sigm)
 
 flist=['ctrlg.%s.toml'%target,rst_name,sigm_name,'save.%s'%target,'log.%s'%target,'QPU','QPD','lsxC','lsx','lsc','ECORE',
-       'lgw','lqpe','llmfgw01','lmlo_sigr']   # 2026-09-28: the logs of each iteration, so that a gwsc N run can be checked afterwards
+       'lgw','lqpe','llmfgw01','lmlo_sigr',   # 2026-09-28: the logs of each iteration, so that a gwsc N run can be checked afterwards
+       'efermi.lmf','QMLO_SigRs','QMLO_z']    # 2026-09-28: with rst and sigm, what the bands of each iteration are drawn from
+                                              # afterwards (the MLO band needs QMLO_SigRs in its chi~ QMLO_z; 9^3 LiTi2O4: 600 MB
+                                              # per iteration).  HamRsMLO is not copied: --mlofreeze keeps one for the whole chain.
 
 #initial band structre
 print('===== Ititial band structure ====== ',flush=True)
