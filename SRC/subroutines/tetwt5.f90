@@ -1,6 +1,6 @@
 module m_tetwt5
   use m_tetrakbt,only: tetrakbt_init, tetrakbt, integtetn, kbt
-  use m_fpiint,only: gausq
+  use m_fpiint,only: gausq_fd
   use m_mpi,only:ipr
   use m_lgunit,only:stdo
   use m_ftox
@@ -690,7 +690,7 @@ contains
        call lindtet6(kkv,kvec, ea, eb, x, efermia, efermib, frhis, nwhis, wtthis)
        return
     endif
-    call gausq(NE, -Tcut, Tcut, tg, wg, 0, 0)         ! nodes/weights on t in [-Tcut,Tcut]
+    call gausq_fd(tg, wg)                              ! nodes/weights on t in [-Tcut,Tcut], panels at 0, +-1
     knorm = 0d0                                        ! normalize -> exact sum rule despite truncation
     do ie=1,NE                                         ! (knorm runs over ALL nodes: it normalizes the
        knorm = knorm + wg(ie)*0.5d0/cosh(tg(ie))**2    !  kernel, independent of which nodes vanish below)

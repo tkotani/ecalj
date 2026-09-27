@@ -375,7 +375,7 @@ contains
     ! removing the discrete-staircase O(level spacing) error of fermi_kbt_discrete
     ! at kbt below the coarse-mesh level spacing (e.g. 30K on 4^3/6^3 meshes).
     ! nos(1:npt): tetrahedron NOS on the linear grid [ea,eb] (from bzints2x job=1).
-    use m_fpiint,only: gausq
+    use m_fpiint,only: gausq_fd
     implicit none
     intent(in)::  valn, nos, npt, ea, eb, kbt, ef0
     intent(out):: efkbt
@@ -383,7 +383,7 @@ contains
     integer,parameter:: NE=20
     real(8):: valn, nos(npt), ea, eb, kbt, ef0, efkbt
     real(8):: tg(NE), wg(NE), ker(NE), a,b,c, fc, de, eup, elo
-    call gausq(NE, -6d0, 6d0, tg, wg, 0, 0)
+    call gausq_fd(tg, wg)
     ker = wg*0.5d0/cosh(tg)**2
     ker = ker/sum(ker)
     de  = (eb-ea)/(npt-1)

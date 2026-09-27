@@ -1,6 +1,7 @@
 module m_fpiint !- Points and weights for integration on a sphere surface
   public fpiint
   public gausq   ! Legendre-Gauss quadrature (used by the finite-T tetrahedron convolution)
+  public gausq_fd ! nodes in t=(E-E_F)/(2kBT) for the Fermi-Dirac kernel, 4 panels x GL5
   private
   contains
 subroutine fpiint(nx,np,nxp,x,w) !- Points and weights for integration on a sphere surface
@@ -289,6 +290,19 @@ subroutine gausq(n,x1,x2,xp,wp,mode,ipr)
 400 enddo
 
 end subroutine gausq
+subroutine gausq_fd(tg, wg) !nodes and weights on t in [-6,6] for the kernel 0.5/cosh(t)^2 (t = (E-E_F)/(2 kBT))
+  ! 4 panels [-6,-1,0,1,6] x Gauss-Legendre 5 = 20 nodes.  One GL20 on [-6,6] left |t| < 0.459 (|E-E_F| < 0.92 kBT)
+  ! without a node, and the occupation of a band narrower than a few kBT near E_F was off by up to 0.17; with the
+  ! panels the innermost node is at |t| = 0.047 and the worst error 0.029 (ecaljdoc kBT.md 7.2).  Fe 3000 K 5^3: error of
+  ! EFERMI_kbt against a 600-node rule 9.4 meV -> 1.2 meV.  (2026-09-27 23:30)
+  implicit none
+  real(8), intent(out) :: tg(20), wg(20)
+  real(8), parameter :: edge(5) = [-6d0, -1d0, 0d0, 1d0, 6d0]
+  integer :: ip
+  do ip = 1, 4
+    call gausq(5, edge(ip), edge(ip+1), tg(5*ip-4:5*ip), wg(5*ip-4:5*ip), 0, 0)
+  enddo
+end subroutine gausq_fd
 
 double precision function pnp(n,x)
   !- Calculates derivative of Legendre polynomical from recursion relation
