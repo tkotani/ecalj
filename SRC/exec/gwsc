@@ -156,7 +156,8 @@ if not sigm_name.is_symlink():
     sigm_name.unlink(missing_ok=True)
     sigm_name.symlink_to(sigm)
 
-flist=['ctrlg.%s.toml'%target,rst_name,sigm_name,'save.%s'%target,'log.%s'%target,'QPU','QPD','lsxC','lsx','lsc','ECORE']
+flist=['ctrlg.%s.toml'%target,rst_name,sigm_name,'save.%s'%target,'log.%s'%target,'QPU','QPD','lsxC','lsx','lsc','ECORE',
+       'lgw','lqpe','llmfgw01','lmlo_sigr']   # 2026-09-28: the logs of each iteration, so that a gwsc N run can be checked afterwards
 
 #initial band structre
 print('===== Ititial band structure ====== ',flush=True)
