@@ -154,7 +154,7 @@ contains
       write(iout,'(3x,a,a,a,a,a,i5,i6,i5,es9.1)') opname(op), ' small=', trim(bkname(rule(op)%small, rule(op)%msmall)), &
            ' large=', trim(bkname(rule(op)%large, rule(op)%mlarge)), rule(op)%minm, rule(op)%minn, rule(op)%mink, rule(op)%minmnk
     enddo
-    if (sigma_tf32) write(iout,'(3x,a,a,a,a,a)') 'Sigma_c products in TF32 (--sigma_tf32, rows of tf32): cgemm small=', &
+    if (sigma_tf32) write(iout,'(3x,a,a,a,a,a)') 'Sigma_c products at level tf32 (--sigma_tf32, 10-bit inputs): cgemm small=', &
          trim(bkname(rule_s(OP_CGEMM)%small, rule_s(OP_CGEMM)%msmall)), ' large=', &
          trim(bkname(rule_s(OP_CGEMM)%large, rule_s(OP_CGEMM)%mlarge)), ''
   end subroutine la_print
