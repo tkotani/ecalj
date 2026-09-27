@@ -1,5 +1,10 @@
 # mptf32problem — TF32 breaks QSGW for ill-conditioned dielectrics (mp-8196, AgNO3)
 
+> **Note (2026-09-28)**: this page describes the `--mp` of before 2026-09-27, which ran every GPU product in TF32.
+> Since then `--mp` without `--fp32` is `--prec=tf32`: only the final products of Sigma_c use 10-bit inputs, while W
+> (chi0, the inverse dielectric matrix) is built in FP32 (`Samples/kBT/gpu_fp32_report.md`, ecaljdoc `manual/ecaljgpu.md`).
+> AgNO3 has not been rerun with the new tf32.
+
 This sample documents and reproduces a precision problem in the GPU
 mixed-precision (`--mp`) GW path, and the `--fp32` fix.
 
