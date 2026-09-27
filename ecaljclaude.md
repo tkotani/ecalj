@@ -263,26 +263,14 @@ OpenACC の `!$acc` ディレクティブと構造が対応する。
   状態受け渡しがゼロコストになる。hgw_combined が hrcxq + hsfp0_sc を 1 プロセスに
   統合したのと同じ原理を、gwsc 全体に拡張するもの
 
-## ビルド環境 (kt1)
+## ビルド環境 (kt1)（2026-09-28 に今の形に直した）
 
-### コンパイラ
-- **nvfortran 26.1** (NVIDIA HPC SDK)
-- `FC=nvfortran cmake .. -DBUILD_GPU=ON -DBUILD_MP=OFF -DBUILD_MP_GPU=ON`
-
-### 重要な制約
-- **`BUILD_MP=ON` は使わない**: rdsigm2.f90 で nvfortran が signal 11 (コンパイラクラッシュ) を起こす。`BUILD_MP=OFF`, `BUILD_MP_GPU=ON` のみ使用
-- **nvfortran の間欠的 signal 11**: `-j4` ビルドでランダムにコンパイラがクラッシュする。`make -j4` を数回リトライすれば通る。特定ファイルではなく毎回異なるファイルで起きる
-- **cmake の file(GLOB)**: 新規 .f90 ファイル追加時は必ず cmake 再 configure が必要。make だけでは検出されない
-- **GPU FP 非決定性**: 同コードで GPU0 と GPU1 の run-to-run で md5 が異なる。回帰比較は `CUDA_VISIBLE_DEVICES` 固定で同条件統一すること
-
-### ディレクトリ構成
-```
-~/ecaljdeveloper/SRC/                    Fortran ソース
-                /SRC/exec/build/         ビルド (GPU=ON, MP=OFF, MP_GPU=ON)
-                /SRC/exec/               gwsc, ctrlgenToml.py 等のスクリプト
-~/bin/                                   インストール先 (汎用)
-~/bin2/                                  GW1500 production 用 (slot_scheduler 対応 run_cmd.py)
-```
+- nvfortran 26.1（NVIDIA HPC SDK 2026）、CUDA 13。ビルドは `python3 InstallAll.py --fc nvfortran --gpu --bindir <bindir>`（ecaljdoc の ForDevelopers §4）。
+  `SRC/build_nvfortran` に `libecaljF.so`・`_mp`・`_gpu`・`_mp_gpu` の 4 本ができ、実行ファイルは薄い入口
+- 置き場: 本番 `~/ecalj` → `~/bin`（触らない）、開発 `~/ecalj_dev` → `~/bin_dev`。何時間もかかる計算は実体をコピーした `~/bin_frozen_<rev>` で（ForDevelopers §12.1）
+- **nvfortran の間欠的な signal 11**: 毎回違うファイルで落ちる。同じコマンドを再試行すれば通る
+- **cmake の file(GLOB)**: 新しい .f90 を足したら cmake を configure し直す。make だけでは見つからない
+- **GPU の非決定性**: 同じコードでも GPU0 と GPU1 で下の桁が違うことがある。回帰の比較は `CUDA_VISIBLE_DEVICES` を固定して同じ条件で
 
 ## GPU 開発の教訓
 
@@ -402,6 +390,8 @@ testecalj では PASS したが実物質で sigm を破壊した。詳細は「G
 現在は WB.3e ベース (同期実行) に戻して production 稼働中。
 
 ## GW1500 量産インフラ
+
+（量産をしていた時期の記録。2026-09-28 の時点で kt1 に `~/bin2` はもう無い。仕組みを使い直すときは `ecalj_auto/README_slot_scheduler.md` から）
 
 ### スロットスケジューラ
 - Unix socket ベース (`/tmp/slot_scheduler.sock`)
