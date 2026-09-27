@@ -15,8 +15,8 @@
 # gwsc keeps llmf.<N>run and QPU.<N>run of every iteration; the state after iteration 10 is copied to
 # snap/final and its bands are drawn there: the conventional sigm band (job_band, also makes qplist.dat)
 # and THE MLO band (draw_mloband_qmlo.sh = Samples/kBT/LiTi2O4/draw_mloband.sh).  While gwsc runs, draw_iter_bands.sh
-# draws the same two for iterations 1-9 from QSGW.<N>run (bndPMT_iter<N>.dat, bnd_mlo_iter<N>.dat; 2026-09-28, needs
-# the gwsc that keeps QMLO_SigRs/QMLO_z/efermi.lmf there, else the sigm band only).  Continue with cont_gwsc.sh.
+# draws the MLO band of iterations 1-9 from QSGW.<N>run (bnd_mlo_iter<N>.dat; 2026-09-28, needs the gwsc that keeps
+# QMLO_SigRs/QMLO_z/efermi.lmf there, else the sigm band only).  Continue with cont_gwsc.sh.
 set -u
 TAG=$1; SRC=$2; BIN=$3
 S=${RUNS_DIR:-/mnt/data1/LiTi2O4_kbt_runs}; T=liti2o4; D=$S/$TAG

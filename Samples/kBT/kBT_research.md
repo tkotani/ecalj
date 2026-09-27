@@ -83,6 +83,14 @@
 
 （夜の TODO: 6³・9³ の tf32 の収束、FP16 の確かめ (a)〜(c)、検証、kBT の残り、ファイルの統一、速さの残り、文書の整理）
 
+### 08:22 **反復ごとの図は MLO バンドだけを描く（1 反復 約 1 分）。qplist.dat は job_band を回さず efermi.lmf の E_F と経路から作る**（user「MLO バンドの比較だけでいい」「先にプロットだけ出せないのか」）
+
+- `draw_iter_bands.sh`・`cont_gwsc.sh` は既定で MLO バンドだけ（`SIGM_BAND=1` で sigm バンドも）。draw_mloband.sh が要る qplist.dat は、
+  1 行目を efermi.lmf の E_F にし、2 行目から経路（`$S/qplist_path_GX211.dat` = job_band が書いた Γ–X 211 点、6³・9³ で同じ）を続けて作る
+- mlo は qplist.dat の 1 行目の E_F で窓を決める（gwsc の中では qplist.dat が無く efermi.lmf を読む）。job_band の E_F との差は 9³ 反復 10 で 0.46 meV、6³ で 1.9 meV。
+  6³ の反復 10 で描き比べて、MLO バンドの差は最大 0.136 meV（出力の刻み 1e-5 Ry の 1 つ分）
+- kt1 の `$S` の 2 本を 08:21 に差し替えた（mv で置き換え。走っている run_gwsc10.sh には触れていない）。fp32 の反復 1 から効く
+
 ### 08:16 **反復 10 を重ねずに横に並べた（図 08:16-1）: 修正前の 9³ fp32 といまの 9³ tf32 はほとんど同じ形（占有の 2 本の Γ〜2/9 の S 字と 2/9 での交差、x ≈ 0.78 の 1 eV のこぶ）。6³ fp32 はなめらか。fp32 の 20 反復がいまのコードの基準になる**（user「修正前ということも気になるから、今の fp32 で 15 回ぐらいは回して基準をつくっておくべき」「iter10 を修正前の 999 fp32、999 tf32、666 fp32 で横並びに。見にくいので重ねない」）
 
 *図 08:16-1* `LiTi2O4/liti2o4_it10_k9fp32old_k9tf32_k6fp32.png`（`plot_bands_side.py`）: 反復 10 の MLO バンド。左から 09-26 の 9³ fp32（`liti_mlo_k9`、窓の基準を LDA に固定した修正前）、
