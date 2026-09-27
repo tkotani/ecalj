@@ -95,6 +95,9 @@ module m_sxcf_sc
   use m_nvfortran, only: findloc
   use m_hamindex, only: ngrp
   use m_blas, only: m_op_c, m_op_n, m_op_t, BACKEND_SIGMA
+#if defined(__MP) && defined(__GPU)
+  use m_blas, only: cmm_h16_d, sigma_fp16
+#endif
 use m_cmdopt_registry, only: c0_debug, c0_WVR2ptRaxis, c0_wcsmear
 use m_GWinput, only: tg_wcsmear => wcsmear
 use m_wfac, only: pole_weights
@@ -491,6 +494,18 @@ contains
                 complex(kind=kp) :: beta
                 complex(kind=kp), allocatable :: czmelwc(:,:,:), wzmel(:,:,:), wz_iw(:,:), czwc_iw(:,:)
                 integer :: it, itp, iw, ierr, i, j, nttp_max, nttp(0:nw), igb, ntw
+#if defined(__MP) && defined(__GPU)
+                ! FP16 route of the Sigma_c products (realhgemm): the weighting kernels write B in FP16 themselves, scaled
+                ! by a power of 2 from the bound max|w| max|zmel| (no scan of B, no conversion kernel).  cmm_h16_d.
+                real(2), allocatable :: bh(:)
+                attributes(device) :: bh
+                real(8) :: zmx, wmx
+                real(8), allocatable :: wmaxiw(:)
+                real(4) :: fbw
+                logical :: h16
+                complex(4) :: v16
+                integer :: j16
+#endif
                 complex(kind=kp), allocatable :: wv(:,:), wc(:,:)
                 real(8), allocatable :: wgtim(:,:,:), wgtiw(:,:)
                 integer, allocatable :: itw(:,:), itpw(:,:)
@@ -508,6 +523,18 @@ contains
                 nttp = 0
                 nttp_max = 0
                 call sigma_stream_begin()
+#if defined(__MP) && defined(__GPU)
+                allocate(bh(2*ngb*(ns2-ns1+1)*sxs_ntqxx), wmaxiw(0:npm*niw))
+                zmx = 0d0
+                !$acc parallel loop collapse(3) present(zmel) reduction(max:zmx)
+                do itp = 1, sxs_ntqxx
+                  do it = ns1, ns2
+                    do igb = 1, ngb
+                      zmx = max(zmx, dble(abs(real(zmel(igb,it,itp)))), dble(abs(aimag(zmel(igb,it,itp)))))
+                    enddo
+                  enddo
+                enddo
+#endif
                 call stopwatch_start(sxs_ci)
                 CorrelationSelfEnergyImagAxis: Block !Fig.1 PHYSICAL REVIEW B 76, 165106(2007)! Integration along ImAxis for zwz(sxs_omega)
                   use m_readfreq_r, only: wt=>wwx, x=>freqx
@@ -579,6 +606,20 @@ contains
                       enddo
                     enddo itpo
                   enddo itpdo
+#if defined(__MP) && defined(__GPU)
+                  !$acc wait(1)
+                  !$acc parallel loop gang present(wgtim) copyout(wmaxiw(0:npmx*niwx)) private(wmx)
+                  do iw = 0, npmx*niwx
+                    wmx = 0d0
+                    !$acc loop vector collapse(2) reduction(max:wmx)
+                    do itp = 1, ntqxx
+                      do it = ks1, ks2
+                        wmx = max(wmx, abs(wgtim(iw,it,itp)))
+                      enddo
+                    enddo
+                    wmaxiw(iw) = wmx
+                  enddo
+#endif
                   if (debug) call writemem('    Goto iwimag')
                   if (debug) write(stdo,ftox) 'mmmmSc size of mm in imagaxis', (ns2-ns1+1)*sxs_ntqxx, ngb, ngb
                   iwimag: do iw = sxs_wi_ini, sxs_wi_fin ! iwimag:do iw = 0, niw !niw is ~10. ixx=0 is for sxs_omega=0 nw_i=0 (Time reversal) or nw_i =-nw
@@ -600,6 +641,28 @@ contains
                       wc(1:ngb,1:ngb) = wv(1:ngb,1:ngb)  !copy to GPU
                       call stopwatch_pause(sxs_setwv)
                     endif
+                    beta = CONE
+                    if (iw == sxs_wi_ini) beta = CZERO
+#if defined(__MP) && defined(__GPU)
+                    h16 = sigma_fp16(ngb, (ns2-ns1+1)*sxs_ntqxx, ngb)
+                    if (h16) then
+                      fbw = pow2scale(wmaxiw(iw)*zmx)
+                      !$acc parallel loop collapse(3) present(zmel, wgtim) private(v16, j16) async(1)
+                      do itp = 1, sxs_ntqxx
+                        do it = ns1, ns2
+                          do igb = 1, ngb
+                            v16 = cmplx(real(wgtim(iw,it,itp),4)*fbw*zmel(igb,it,itp), kind=4)
+                            j16 = 2*(igb + ngb*((it-ns1) + (ns2-ns1+1)*(itp-1))) - 1
+                            bh(j16)   = real(real(v16), kind=2)
+                            bh(j16+1) = real(aimag(v16), kind=2)
+                          enddo
+                        enddo
+                      enddo
+                      ierr = cmm_h16_d(wc, bh, fbw, czmelwc, ngb, (ns2-ns1+1)*sxs_ntqxx, ngb, opa=m_op_C, beta=beta, &
+                                       key = 1000 + iw)
+                      cycle
+                    endif
+#endif
                     !$acc parallel loop collapse(3) present(zmel, wgtim) async(1)
                     do itp = 1, sxs_ntqxx
                       do it = ns1, ns2
@@ -609,8 +672,6 @@ contains
                       enddo
                     enddo
                     !the most time-consuming part in the correlation part
-                    beta = CONE
-                    if (iw == sxs_wi_ini) beta = CZERO
                     ierr = gemm(wc, wzmel, czmelwc, ngb, (ns2-ns1+1)*sxs_ntqxx, ngb, beta = beta, opA = m_op_C, &
                                 key = 1000 + iw, policy = BACKEND_SIGMA)   ! W(i omega) fixed for this kx (m_zmel resets keys)
                   enddo iwimag
@@ -689,6 +750,22 @@ contains
                       call stopwatch_pause(sxs_setwv)
                     endif
                     ntw = nttp(iw)
+#if defined(__MP) && defined(__GPU)
+                    h16 = sigma_fp16(ngb, ntw, ngb)
+                    if (h16) then
+                      fbw = pow2scale(maxval(abs(wgtiw(1:ntw,iw)))*zmx)
+                      !$acc parallel loop collapse(2) present(zmel, wgtiw, itw, itpw) private(v16, j16) async(1)
+                      do ittp = 1, ntw
+                        do igb = 1, ngb
+                          v16 = cmplx(real(wgtiw(ittp,iw),4)*fbw*zmel(igb,itw(ittp,iw),itpw(ittp,iw)), kind=4)
+                          j16 = 2*(igb + ngb*(ittp-1)) - 1
+                          bh(j16)   = real(real(v16), kind=2)
+                          bh(j16+1) = real(aimag(v16), kind=2)
+                        enddo
+                      enddo
+                      ierr = cmm_h16_d(wc, bh, fbw, czwc_iw, ngb, ntw, ngb, opa=m_op_C, key = 100000 + iw)
+                    else
+#endif
                     !$acc parallel loop collapse(2) present(zmel, wgtiw, itw, itpw) async(1)
                     do ittp = 1, ntw
                       do igb = 1, ngb
@@ -697,6 +774,9 @@ contains
                     enddo
                     ierr = gemm(wc, wz_iw, czwc_iw, ngb, nttp(iw), ngb, opA=m_op_C, key = 100000 + iw, & ! W(omega)
                                 policy = BACKEND_SIGMA)
+#if defined(__MP) && defined(__GPU)
+                    endif
+#endif
                     !$acc parallel loop collapse(2) present(itw, itpw) async(1)
                     do ittp = 1, ntw
                       do igb = 1, ngb       ! each (it,itp) appears once per mesh point iw: no two ittp write the same column
@@ -730,6 +810,9 @@ contains
                 endif
                 if (allocated(wz_iw)) deallocate(wz_iw, czwc_iw)
                 deallocate(wv, wc, czmelwc, wzmel, wgtim)
+#if defined(__MP) && defined(__GPU)
+                deallocate(bh, wmaxiw)
+#endif
                 if (ipr) call writemem('    endof CorrelationSelfEnergy')
 1114            continue
               endblock get_correlation_block  !end subroutine get_correlation
@@ -766,6 +849,12 @@ contains
     end block ReleaseWV !  end subroutine releasewv
   end subroutine sxcf_correlation_step_kx
 
+  real(4) function pow2scale(bound)
+    !> 2^(14 - exponent(bound)): a value up to bound, times this, is below 2^14 in FP16 (1 for bound 0).
+    real(8), intent(in) :: bound
+    pow2scale = 1.0
+    if (bound > 0d0) pow2scale = scale(1.0, 14 - exponent(bound))
+  end function pow2scale
   subroutine sigma_stream_begin()
     !> One batch of Sigma_c on OpenACC queue 1: its kernels are async(1) and the device products of m_blas (cuBLAS,
     !> realsgemm, GEMMul8) go to the stream of queue 1 too, so they stay in order without a host wait per kernel.

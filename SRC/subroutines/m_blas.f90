@@ -10,7 +10,7 @@ module m_blas !wrapper for BLAS and cuBLAS
   public :: m_op_n, m_op_t, m_op_c
   public :: cmm_h, cmm_batch_h, zmm_h, zmm_batch_h, dmm_h, dmv_h, zmv_h, zvv_h
 #ifdef __GPU
-  public :: cmm_d, cmm_batch_d, zmm_d, zmm_batch_d, dmm_d, dmv_d, zmv_d, zvv_d
+  public :: cmm_d, cmm_batch_d, zmm_d, zmm_batch_d, dmm_d, dmv_d, zmv_d, zvv_d, cmm_h16_d, sigma_fp16
   public :: cublas_init, cublas_handle, cublas_finalize, cublas_set_stream
   type(cublashandle), target :: cublas_handle
   logical, save :: set_cublas_handle = .false.
@@ -378,6 +378,38 @@ contains
     istat = cublasGemmEX(cublas_handle, opa_in_cublas, opb_in_cublas, m, n, k,  &
                          alpha_in, a, m_type, lda_in, b, m_type, ldb_in, beta_in, c, m_type, ldc_in, ctype, algo)
   end function cmm_d
+  logical function sigma_fp16(m, n, k)
+    !> Does the Sigma_c product of this size run on the FP16 route (realhgemm, rows of level tf32 under --sigma_tf32)?
+    !> Then the caller may hand B over in FP16 itself (cmm_h16_d).
+    use m_linalg_policy, only: la_backend, la_sigma_tf32, OP_CGEMM, BK_REALHGEMM
+    integer, intent(in) :: m, n, k
+    sigma_fp16 = .false.
+    if (.not. la_sigma_tf32()) return
+    sigma_fp16 = la_backend(OP_CGEMM, m, n, k, sigma=.true.) == BK_REALHGEMM
+  end function sigma_fp16
+  integer function cmm_h16_d(a, bh, fb, c, m, n, k, opa, beta, key) result(istat)
+    !> C = op(A) B + beta C with B given in FP16 by the caller: bh = the (2k x n) real form of B (complex B read as real,
+    !> column by column) times fb, a power of 2 with |bh| < 2^14.  A is kept under the key in FP16 (m_la_realsgemm).
+    !> Only when sigma_fp16(m,n,k); opB = N, ldb = k, ldc = m.
+    use m_la_realsgemm, only: realhgemm_bh_c
+    complex(4), device :: a(*), c(*)
+    real(2), device :: bh(*)
+    real(4), intent(in) :: fb
+    integer, intent(in) :: m, n, k
+    character, intent(in) :: opa
+    complex(4), intent(in), optional :: beta
+    integer, intent(in), optional :: key
+    complex(4) :: beta_in
+    integer :: lda_in, key_in
+    beta_in = (0.0, 0.0)
+    if (present(beta)) beta_in = beta
+    key_in = -1
+    if (present(key)) key_in = key
+    lda_in = m
+    if (opa == m_op_t .or. opa == m_op_c) lda_in = k
+    istat = cublas_init()
+    istat = realhgemm_bh_c(cublas_handle, opa, m, n, k, (1.0, 0.0), a, lda_in, bh, fb, beta_in, c, m, key_in)
+  end function cmm_h16_d
   integer function cmm_batch_d(a, b, c, m, n, k, nbatch, opa, opb, alpha, beta, lda, ldb, ldc, samea, sameb, comm) result(istat)
     use cublas_v2, m_type =>CUDA_C_32F, algo => cublas_gemm_default
     use m_linalg_policy, only: la_level

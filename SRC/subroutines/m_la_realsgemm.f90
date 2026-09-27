@@ -33,7 +33,7 @@ module m_la_realsgemm
   use iso_c_binding
   implicit none
   private
-  public :: realsgemm_c, realhgemm_c, realsgemm_reset
+  public :: realsgemm_c, realhgemm_c, realhgemm_bh_c, realsgemm_reset
   real(4), device, allocatable, save :: ap(:)        ! A' of a call without key
   real(4), device, allocatable, save :: pool(:)      ! A' of keyed calls, back to back
   real(2), device, allocatable, save :: aph(:), poolh(:), bh(:)   ! realhgemm: the same in FP16, and B in FP16
@@ -169,6 +169,63 @@ contains
     endif
     ist = cublasSetPointerMode(handle, CUBLAS_POINTER_MODE_HOST)
   end function realhgemm_c
+
+  integer function realhgemm_bh_c(handle, opa, m, n, k, alpha, a, lda, bh, fb, beta, c, ldc, key) result(istat)
+    !> realhgemm with B given by the caller already in FP16: bh = the (2k x n) real form of B times fb (a power of 2 the
+    !> caller chose from a bound of |B|, so that |bh| < 2^14).  No scan of B and no conversion here; alpha of the GEMM
+    !> 1/(fa fb) is known on the host.  Sigma_c writes bh in its weighting kernel (m_sxcf_sc).
+    type(cublasHandle) :: handle
+    character, intent(in) :: opa
+    integer, intent(in) :: m, n, k, lda, ldc, key
+    complex(4), intent(in) :: alpha, beta
+    complex(4), device :: a(*), c(*)
+    real(2), device :: bh(*)
+    real(4), intent(in) :: fb
+    real(4) :: beta_r, fa, alpha_r
+    integer(8) :: off
+    integer :: is, opap, ldap, ist
+    integer(cuda_stream_kind) :: st
+    istat = -1
+    if (4_8*k*m >= huge(1)) return
+    ist = cublasGetStream(handle, st)
+    if (aimag(beta) /= 0.0) then
+      call scale_c(c, m, n, ldc, beta, st)
+      beta_r = 1.0
+    else
+      beta_r = real(beta)
+    endif
+    if (opa == 'N' .or. opa == 'n') then
+      opap = CUBLAS_OP_N; ldap = 2*m
+    else
+      opap = CUBLAS_OP_T; ldap = 2*k
+    endif
+    is = 0
+    if (key >= 0) then
+      is = findslot(key, opa, m, k, alpha, ip16)
+      if (is == 0) then
+        is = newslot(key, opa, m, k, alpha, ip16)
+        if (is > 0) call make_aph(poolh(soff(is,ip16)+1:soff(is,ip16)+4_8*k*m), opa, m, k, alpha, a, lda, st, sfa(is))
+      endif
+    endif
+    if (is == 0) then
+      if (allocated(aph)) then
+        if (size(aph, kind=8) < 4_8*k*m) deallocate(aph)
+      endif
+      if (.not. allocated(aph)) allocate(aph(4_8*k*m))
+      call make_aph(aph, opa, m, k, alpha, a, lda, st, fa)
+    else
+      fa = sfa(is)
+    endif
+    alpha_r = 1.0/(fa*fb)
+    if (is > 0) then
+      off = soff(is,ip16)
+      istat = cublasGemmEx(handle, opap, CUBLAS_OP_N, 2*m, n, 2*k, alpha_r, poolh(off+1:off+4_8*k*m), CUDA_R_16F, ldap, &
+                           bh, CUDA_R_16F, 2*k, beta_r, c, CUDA_R_32F, 2*ldc, CUBLAS_COMPUTE_32F, CUBLAS_GEMM_DEFAULT)
+    else
+      istat = cublasGemmEx(handle, opap, CUBLAS_OP_N, 2*m, n, 2*k, alpha_r, aph, CUDA_R_16F, ldap, &
+                           bh, CUDA_R_16F, 2*k, beta_r, c, CUDA_R_32F, 2*ldc, CUBLAS_COMPUTE_32F, CUBLAS_GEMM_DEFAULT)
+    endif
+  end function realhgemm_bh_c
 
   subroutine make_ap(w, opa, m, k, alpha, a, lda, st)
     !> From alpha op(A): A' (2k x 2m) for opA = T, C (op(A)(j,l) = A(l,j), conjg(A(l,j))), A'' (2m x 2k) for opA = N.
