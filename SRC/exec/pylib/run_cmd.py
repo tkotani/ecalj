@@ -139,6 +139,16 @@ def _needs_gpu_slot(command) -> bool:
     return command is not None and str(command).endswith("_gpu")
 
 
+# --- single-rank CPU programs -------------------------------------------------
+# MPI_Init probes every GPU even for a CPU program: a single-rank run (heftet, hbasfp0,
+# hqpe_sc, ...) takes 0.53 s to start on kt1 (HPC-X OpenMPI), 0.26 s with the GPUs hidden.
+# With 60 ranks hiding them did not help (median of 8: 1.85 s as is, 2.25 s hidden; also
+# with UCX_TLS=self,sm 2.16 s), so it is done for nprocs=1 only.
+def _cpu_env(env, nprocs):
+    if (nprocs or 1) == 1:
+        env["CUDA_VISIBLE_DEVICES"] = ""
+
+
 def _run_mpi(cmd, env, stdin_str=None, stdout=None):
     """Execute MPI command"""
     kwargs = dict(env=env, stdout=stdout, text=True)
@@ -214,6 +224,8 @@ def run_cmd(cluster: str,
             if isinstance(gpu_ctx, GpuLock) and gpu_ctx.devices is not None:
                 env["CUDA_VISIBLE_DEVICES"] = gpu_ctx.visible
                 env.setdefault("CUDA_DEVICE_ORDER", "PCI_BUS_ID")   # the numbering nvidia-smi uses
+            if gpu_ctx is None:
+                _cpu_env(env, n)
             dt = datetime.datetime.now() - START_TIME
             # Build the initial command for logging
             sec = dt.total_seconds()
