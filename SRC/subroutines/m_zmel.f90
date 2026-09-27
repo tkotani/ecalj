@@ -594,6 +594,39 @@ contains
           !$acc kernels
           zmel(1:nbb,ns1:ns2,ncc+ini_index:ncc+end_index) = zmelt(1:nbb,ns1:ns2,ncc+1:ncc+ntp0)
           !$acc end kernels
+        elseif (nm2v < nm1v .and. ncc == 0) then
+          !Core states only (the core exchange).  zmelt of a core state of atom ia is zero outside the product-basis
+          !block of iap (ZmelWithinMT; no IPW part), so each atom goes through its block alone: k = nblocha instead
+          !of ngb (LiTi2O4: 50..80 instead of 788; the full product was 36 GFlop per call).
+          CoreOnlyToE: block
+            complex(kind=kp), allocatable :: zb(:,:,:), ze(:,:,:)
+            integer :: nsa
+#ifdef __GPU
+            attributes(device) :: zb, ze
+#endif
+            do ia = 1, natom
+              ics   = icsx(ia)
+              nm1cc = max(nm1c, ics+1)
+              nm2cc = min(nm2c, ics+ncore(iclass(ia)))
+              if (nm2cc < nm1cc) cycle
+              iap  = iatomp(ia)
+              ims  = imdim(iap)
+              mdim = nblocha(iclass(iap))
+              ime  = ims-1+mdim
+              nsa  = nm2cc-nm1cc+1
+              allocate(zb(mdim,nsa,ntp0), ze(nbb,nsa,ntp0))
+              !$acc kernels
+              zb(1:mdim,1:nsa,1:ntp0) = zmelt(ims:ime,nm1cc:nm2cc,ncc+1:ncc+ntp0)
+              !$acc end kernels
+              !$acc host_data use_device(m2e_prod_basis)
+              ierr = gemm(m2e_prod_basis(ims,1), zb, ze, nbb, nsa*ntp0, mdim, opA = m_op_C, lda = ngb)
+              !$acc end host_data
+              !$acc kernels
+              zmel(1:nbb,nm1cc:nm2cc,ncc+ini_index:ncc+end_index) = ze(1:nbb,1:nsa,1:ntp0)
+              !$acc end kernels
+              deallocate(zb, ze)
+            enddo
+          endblock CoreOnlyToE
         else
           !convert to product basis E
           !$acc host_data use_device(zmel, m2e_prod_basis)

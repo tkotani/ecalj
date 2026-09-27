@@ -15,6 +15,8 @@ module m_blas !wrapper for BLAS and cuBLAS
   type(cublashandle), target :: cublas_handle
   logical, save :: set_cublas_handle = .false.
   integer(cuda_stream_kind), save :: blas_stream = 0   ! stream of all device products (cublas_set_stream)
+  complex(4), device, allocatable, save :: splitk_bufc(:)  ! partial products of cmm_d(splitk=)
+  complex(8), device, allocatable, save :: splitk_bufz(:)  ! partial products of zmm_d(splitk=)
 #endif
   character, parameter :: m_op_n = 'N', m_op_t = 'T', m_op_c = 'C'
   integer, parameter :: BACKEND_BLAS = 0 !BLAS/cuBLAS
@@ -24,13 +26,13 @@ module m_blas !wrapper for BLAS and cuBLAS
   integer, parameter :: BACKEND_SIGMA = 4 !a product of Sigma_c: under --sigma_tf32 the rows of level tf32 and TF32
   public :: BACKEND_BLAS_FP32, BACKEND_SIGMA
 contains
-  integer function cmm_h(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc, policy, key) result(istat)
+  integer function cmm_h(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc, policy, key, splitk) result(istat)
     complex(4) :: a(*), b(*), c(*)
     integer, intent(in) :: m, n, k
     character, intent(in), optional :: opa, opb
     complex(4), intent(in), optional :: alpha, beta
     integer, intent(in), optional :: lda, ldb, ldc, policy !policy is dummy
-    integer, intent(in), optional :: key   ! accepted for the device version's interface; unused on the host
+    integer, intent(in), optional :: key, splitk   ! accepted for the device version's interface; unused on the host
     complex(4) :: alpha_in, beta_in
     integer :: lda_in, ldb_in, ldc_in
     character :: opa_in, opb_in
@@ -204,13 +206,13 @@ contains
     call dgemm(opa_in, opb_in, m, n, k, alpha_in, a, lda_in, b, ldb_in, beta_in, c, ldc_in)
     istat = 0
   end function dmm_h
-  integer function zmm_h(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc, policy, key) result(istat)
+  integer function zmm_h(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc, policy, key, splitk) result(istat)
     complex(8) :: a(*), b(*), c(*)
     integer, intent(in) :: m, n, k
     character, intent(in), optional :: opa, opb
     complex(8), intent(in), optional :: alpha, beta
     integer, intent(in), optional :: lda, ldb, ldc, policy !policy is dummy
-    integer, intent(in), optional :: key   ! accepted for the device version's interface; unused on the host
+    integer, intent(in), optional :: key, splitk   ! accepted for the device version's interface; unused on the host
     complex(8) :: alpha_in, beta_in
     integer :: lda_in, ldb_in, ldc_in
     character :: opa_in, opb_in
@@ -293,10 +295,12 @@ contains
     istat = nbatch
   end function zmm_batch_h
 #ifdef __GPU
-  integer function cmm_d(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc, policy, key) result(istat)
+  integer function cmm_d(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc, policy, key, splitk) result(istat)
     !> C = alpha op(A) op(B) + beta C, complex single precision on the device.  The backend (cuBLAS, the real-SGEMM
     !> route or GEMMul8) comes from m_linalg_policy; policy=BACKEND_BLAS / BACKEND_GEMMUL8 forces one.
     !> key >= 0 (optional): same key = same A until la_cache_reset, so backends may keep their form of A.
+    !> splitk > 1 (optional): k is cut into splitk equal ranges, multiplied in one batched cuBLAS call and summed
+    !> (for a small C with a long k, which as one product runs on a few SMs); see cmm_splitk.
     use cublas_v2, m_type =>CUDA_C_32F, algo => cublas_gemm_default
     use m_linalg_policy, only: la_backend, la_moduli, la_level, la_sigma_tf32, OP_CGEMM, BK_CUBLAS, BK_REALSGEMM, BK_GEMMUL8, &
                                BK_REALHGEMM
@@ -305,7 +309,7 @@ contains
     integer, intent(in) :: m, n, k
     character, intent(in), optional :: opa, opb
     complex(4), intent(in), optional :: alpha, beta
-    integer, intent(in), optional :: lda, ldb, ldc, policy, key
+    integer, intent(in), optional :: lda, ldb, ldc, policy, key, splitk
     complex(4) :: alpha_in, beta_in
     integer :: lda_in, ldb_in, ldc_in, policy_in, key_in, bk, ctype
     character :: opa_in, opb_in
@@ -331,6 +335,9 @@ contains
     key_in = -1
     if(present(key)) key_in = key
     istat = cublas_init()
+    if (present(splitk)) then
+      if (cmm_splitk(a, b, c, m, n, k, splitk, opa_in, opb_in, alpha_in, beta_in, lda_in, ldb_in, ldc_in)) return
+    endif
     opa_in_cublas = get_m_op_cublas(opa_in)
     opb_in_cublas = get_m_op_cublas(opb_in)
     ctype = merge(CUBLAS_COMPUTE_32F_FAST_TF32, CUBLAS_COMPUTE_32F, la_level() == 'tf32')  ! level tf32: TF32, else FP32
@@ -410,6 +417,108 @@ contains
     istat = cublas_init()
     istat = realhgemm_bh_c(cublas_handle, opa, m, n, k, (1.0, 0.0), a, lda_in, bh, fb, beta_in, c, m, key_in)
   end function cmm_h16_d
+  logical function cmm_splitk(a, b, c, m, n, k, nsplit0, opa, opb, alpha, beta, lda, ldb, ldc) result(done)
+    !> C = alpha op(A) op(B) + beta C as nsplit products over consecutive ranges of k (one strided-batched cuBLAS
+    !> call) and their sum.  One product with few output tiles and a long k runs on a few SMs: the core exchange of
+    !> LiTi2O4 (158 x 158, k = 46 states x 788) took 2.1 ms a call on an RTX 5090.  nsplit is lowered to a divisor
+    !> of k that keeps the partial products within 256 MB; .false. (nothing done) if that leaves 1.
+    use cublas_v2, m_type => CUDA_C_32F, algo => cublas_gemm_default
+    use m_linalg_policy, only: la_level
+    complex(4), device :: a(*), b(*), c(*)
+    integer, intent(in) :: m, n, k, nsplit0, lda, ldb, ldc
+    character, intent(in) :: opa, opb
+    complex(4), intent(in) :: alpha, beta
+    integer :: nsplit, kc, istat
+    integer(8) :: sa, sb, mn
+    mn = int(m,8)*n
+    nsplit = nsplit0
+    do while (nsplit > 1 .and. (mod(k, nsplit) /= 0 .or. nsplit*mn*8 > 2_8**28))
+      nsplit = nsplit - 1
+    enddo
+    done = nsplit > 1
+    if (.not. done) return
+    kc = k/nsplit
+    sa = kc; if (opa == m_op_n) sa = int(kc,8)*lda   ! k runs down the rows of A for op T/C, along its columns for N
+    sb = kc; if (opb /= m_op_n) sb = int(kc,8)*ldb   ! and down the rows of B for op N
+    if (allocated(splitk_bufc)) then
+      if (size(splitk_bufc,kind=8) < nsplit*mn) deallocate(splitk_bufc)
+    endif
+    if (.not. allocated(splitk_bufc)) allocate(splitk_bufc(nsplit*mn))
+    istat = cublasGemmStridedBatchedEX(cublas_handle, get_m_op_cublas(opa), get_m_op_cublas(opb), m, n, kc, &
+         (1.0,0.0), a, m_type, lda, sa, b, m_type, ldb, sb, (0.0,0.0), splitk_bufc, m_type, m, mn, nsplit, &
+         merge(CUBLAS_COMPUTE_32F_FAST_TF32, CUBLAS_COMPUTE_32F, la_level() == 'tf32'), algo)
+    call splitk_sum_c(splitk_bufc, c, m, n, ldc, nsplit, alpha, beta)
+  end function cmm_splitk
+  subroutine splitk_sum_c(p, c, m, n, ldc, nsplit, alpha, beta)
+    integer, intent(in) :: m, n, ldc, nsplit
+    complex(4), device :: p(m,n,nsplit), c(ldc,*)
+    complex(4), intent(in) :: alpha, beta
+    integer :: i, j, is
+    complex(4) :: s
+    !$cuf kernel do(2) <<<*,*,stream=blas_stream>>>
+    do j = 1, n
+      do i = 1, m
+        s = p(i,j,1)
+        do is = 2, nsplit
+          s = s + p(i,j,is)
+        enddo
+        if (beta == (0.0,0.0)) then
+          c(i,j) = alpha*s
+        else
+          c(i,j) = alpha*s + beta*c(i,j)
+        endif
+      enddo
+    enddo
+  end subroutine splitk_sum_c
+  logical function zmm_splitk(a, b, c, m, n, k, nsplit0, opa, opb, alpha, beta, lda, ldb, ldc) result(done)
+    !> Complex double precision version of cmm_splitk.
+    use cublas_v2, m_type => CUDA_C_64F, algo => cublas_gemm_default
+    complex(8), device :: a(*), b(*), c(*)
+    integer, intent(in) :: m, n, k, nsplit0, lda, ldb, ldc
+    character, intent(in) :: opa, opb
+    complex(8), intent(in) :: alpha, beta
+    integer :: nsplit, kc, istat
+    integer(8) :: sa, sb, mn
+    mn = int(m,8)*n
+    nsplit = nsplit0
+    do while (nsplit > 1 .and. (mod(k, nsplit) /= 0 .or. nsplit*mn*16 > 2_8**28))
+      nsplit = nsplit - 1
+    enddo
+    done = nsplit > 1
+    if (.not. done) return
+    kc = k/nsplit
+    sa = kc; if (opa == m_op_n) sa = int(kc,8)*lda   ! k runs down the rows of A for op T/C, along its columns for N
+    sb = kc; if (opb /= m_op_n) sb = int(kc,8)*ldb   ! and down the rows of B for op N
+    if (allocated(splitk_bufz)) then
+      if (size(splitk_bufz,kind=8) < nsplit*mn) deallocate(splitk_bufz)
+    endif
+    if (.not. allocated(splitk_bufz)) allocate(splitk_bufz(nsplit*mn))
+    istat = cublasGemmStridedBatchedEX(cublas_handle, get_m_op_cublas(opa), get_m_op_cublas(opb), m, n, kc, &
+         (1d0,0d0), a, m_type, lda, sa, b, m_type, ldb, sb, (0d0,0d0), splitk_bufz, m_type, m, mn, nsplit, &
+         CUBLAS_COMPUTE_64F, algo)
+    call splitk_sum_z(splitk_bufz, c, m, n, ldc, nsplit, alpha, beta)
+  end function zmm_splitk
+  subroutine splitk_sum_z(p, c, m, n, ldc, nsplit, alpha, beta)
+    integer, intent(in) :: m, n, ldc, nsplit
+    complex(8), device :: p(m,n,nsplit), c(ldc,*)
+    complex(8), intent(in) :: alpha, beta
+    integer :: i, j, is
+    complex(8) :: s
+    !$cuf kernel do(2) <<<*,*,stream=blas_stream>>>
+    do j = 1, n
+      do i = 1, m
+        s = p(i,j,1)
+        do is = 2, nsplit
+          s = s + p(i,j,is)
+        enddo
+        if (beta == (0d0,0d0)) then
+          c(i,j) = alpha*s
+        else
+          c(i,j) = alpha*s + beta*c(i,j)
+        endif
+      enddo
+    enddo
+  end subroutine splitk_sum_z
   integer function cmm_batch_d(a, b, c, m, n, k, nbatch, opa, opb, alpha, beta, lda, ldb, ldc, samea, sameb, comm) result(istat)
     use cublas_v2, m_type =>CUDA_C_32F, algo => cublas_gemm_default
     use m_linalg_policy, only: la_level
@@ -583,14 +692,14 @@ contains
     istat = cublasdgemm(cublas_handle, opa_in_cublas, opb_in_cublas,  m, n, k, &
                       & alpha_in, a, lda_in , b, ldb_in, beta_in, c, ldc_in)
   end function dmm_d
-  integer function zmm_d(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc, policy, key) result(istat)
+  integer function zmm_d(a, b, c, m, n, k, opa, opb, alpha, beta, lda, ldb, ldc, policy, key, splitk) result(istat)
     !> Complex double precision on the device; backend cuBLAS (zgemm3m) or GEMMul8 from m_linalg_policy (see cmm_d).
     use m_linalg_policy, only: la_backend, la_moduli, OP_ZGEMM, BK_CUBLAS, BK_GEMMUL8
     complex(8), device, target :: a(*), b(*), c(*)
     integer, intent(in) :: m, n, k
     character, intent(in), optional :: opa, opb
     complex(8), intent(in), optional :: alpha, beta
-    integer, intent(in), optional :: lda, ldb, ldc, policy, key
+    integer, intent(in), optional :: lda, ldb, ldc, policy, key, splitk
     complex(8) :: alpha_in, beta_in
     integer :: lda_in, ldb_in, ldc_in, policy_in, key_in, bk
     character :: opa_in, opb_in
@@ -615,6 +724,9 @@ contains
     key_in = -1
     if(present(key)) key_in = key
     istat = cublas_init()
+    if (present(splitk)) then
+      if (zmm_splitk(a, b, c, m, n, k, splitk, opa_in, opb_in, alpha_in, beta_in, lda_in, ldb_in, ldc_in)) return
+    endif
     opa_in_cublas = get_m_op_cublas(opa_in)
     opb_in_cublas = get_m_op_cublas(opb_in)
     select case (policy_in)

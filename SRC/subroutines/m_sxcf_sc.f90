@@ -259,7 +259,7 @@ contains
                   !$acc end kernels
                   !$acc host_data use_device(zmel, zsec)
                   ierr = gemm(zmel, vzmel, zsec, sxs_ntqxx, sxs_ntqxx, (ns2-ns1+1)*nbb, opA = m_op_c, &
-                       alpha = cmplx(-sxs_wkkr,0_kp,kind=kp), beta = CONE, ldC = ntq)
+                       alpha = cmplx(-sxs_wkkr,0_kp,kind=kp), beta = CONE, ldC = ntq, splitk = ns2-ns1+1) !k per state
                   !$acc end host_data
                   !$acc end data
                   deallocate(vzmel, vcoud_buf)!, wtff)
