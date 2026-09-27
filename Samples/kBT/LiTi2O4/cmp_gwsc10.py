@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""Compare a run_gwsc10.sh run (one `gwsc 10`, QMLO_* code) with a run_snap.sh chain (`gwsc 1` x 10).
+"""Compare a run_gwsc10.sh run (one `gwsc 10`, QMLO_* code) with a run_snap.sh chain (`gwsc 1` x 10),
+or with another run_gwsc10.sh run (e.g. tf32 against fp32; recognized by llmf.1run in <old>).
 
-  cmp_gwsc10.py <new run dir> <old chain dir> [window_eV]
+  cmp_gwsc10.py <new run dir> <old chain or run dir> [window_eV]
 
 Per iteration: ehf of the lmf that closes the iteration (new: llmf.<N>run, old: steps.log) and the
 largest change of the QP energies in QPU.<N>run (states within the window around E_F).
@@ -24,8 +25,18 @@ def ehf_new(n):
         if m: v = float(m.group(1))
     return v
 
+oldrun = os.path.isfile(f'{old}/llmf.1run')    # the other is a run_gwsc10.sh run too
+
 def ehf_old():
     d = {}
+    if oldrun:
+        for n in range(1, 11):
+            f = f'{old}/llmf.{n}run'
+            if not os.path.isfile(f): continue
+            for l in open(f, errors='replace'):
+                m = re.search(r'ehf\(eV\)=\s*(-?[\d.]+)', l)
+                if m: d[n] = float(m.group(1))
+        return d
     for l in open(f'{old}/steps.log', errors='replace'):
         m = re.search(r' iter (\d+) .*ehf\(eV\)=\s*(-?[\d.]+)', l)
         if m: d[int(m.group(1))] = float(m.group(2))
@@ -75,8 +86,8 @@ for n in range(1, 11):
     print(f'{n:4d} {en if en is not None else float("nan"):16.6f} {eo_n if eo_n is not None else float("nan"):16.6f} '
           f'{d:14.1f} {de:14.1f} {ds:15.1f}')
 
-for name, fn, fo in [('MLO band', 'bnd_mlo_final.dat', 'mloband/bnd_iter10.dat'),
-                     ('sigm band', 'bndPMT_final.dat', 'bndPMT_iter10.dat')]:
+for name, fn, fo in [('MLO band', 'bnd_mlo_final.dat', 'bnd_mlo_final.dat' if oldrun else 'mloband/bnd_iter10.dat'),
+                     ('sigm band', 'bndPMT_final.dat', 'bndPMT_final.dat' if oldrun else 'bndPMT_iter10.dat')]:
     pn, po = f'{new}/{fn}', f'{old}/{fo}'
     if not (os.path.isfile(pn) and os.path.isfile(po)):
         print(f'{name}: missing {pn if not os.path.isfile(pn) else po}'); continue
