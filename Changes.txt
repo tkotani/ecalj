@@ -31,8 +31,10 @@
   - m_linalg_policy の行の読み取りで findloc を使っていたのを直した (nvfortran は長さの違う文字列を空白で埋めずに比べる)。
   - GPU の Hilbert 変換 (dpsion_chiq_d、09-26 夜に GPU 化) は tf32 でも FP32 で計算する (policy=BACKEND_BLAS_FP32)。
     tf32 で TF32 になっていて、Samples/MLOQSGW/NiO の --mp が参照から 0.049 Ry ずれた (直して 0.034、fp32 は 0.0005)。
-  - 結果 (kt1、RTX 5090 ×2): LiTi2O4 6³ の hgw 833 → 438 秒、gwsc 1 反復 12.5 → 9.3 分。9³ の hgw 5004〜5128 → 3180 秒。
-    TestInstall の GW テストは GPU (fp64、tf32) と CPU で全部合格。
+  - readcphif_mpi (GPU) の MT 係数の回転を全軌道まとめて 1 つのカーネルに (1 回の hgw で 115 万回あった極小の倍精度 GEMM)。
+  - 結果 (kt1、RTX 5090 ×2、hgw 1 回): LiTi2O4 6³ 833 秒 → fp32 424 秒 / tf32 293 秒、9³ 5004〜5128 秒 → fp32 2990 秒 / tf32 1975 秒。
+    6³ の gwsc 1 反復 12.5 → 9.3 分 (fp32)。TestInstall の GW テストは GPU (fp64、fp32、tf32) と CPU で全部合格、
+    Samples/MLOQSGW は fp32・tf32 で合格。
   計画と経過は Samples/kBT/gpu_fp32_plan.md、Samples/kBT/kBT_research.md、報告は Samples/kBT/gpu_fp32_report.md。
 
 2026-09-22 (1)
