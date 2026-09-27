@@ -34,11 +34,12 @@ module m_locpot
   real(8):: df(0:20)
   integer,external :: iprint
 contains
-  subroutine locpot(job,novxc, orhoat,qmom,vval,gpot0)
+  subroutine locpot(job,novxc, orhoat,qmom,vval,gpot0, novxcalso)
     implicit none
     intent(in)::    job,novxc, orhoat,qmom,vval,gpot0
     !i Inputs
     !i   novxc
+    !i   novxcalso: (optional) also the augmentation matrices without xc (oppix, as with novxc) in the same pass
     !i   orhoat:vector of offsets containing site density
     !i   qmom  :multipole moments of on-site densities (rhomom.f)
     !i   vval  :electrostatic potential at MT boundary; needed to computed matrix elements of local orbitals.
@@ -85,7 +86,8 @@ contains
          qcorg,qcorh,cofg,cofh,rg,rs3,vmtz,qcor(2),qc0,qsc0, ov0mean,pmean,&
          vesint(nbas)
     character spid*8
-    logical :: lfltwf,readov0,v0write,novxc
+    logical :: lfltwf,readov0,v0write,novxc,alsox
+    logical,intent(in),optional:: novxcalso
     real(8),pointer:: pnu(:,:),pnz(:,:)
     real(8),allocatable:: wk(:),efg(:,:),zz(:)
     logical,save:: secondcall=.false.
@@ -97,10 +99,12 @@ contains
     real(8):: rhoexca(nsp,nbas),rhoexa(nsp,nbas),rhoeca(nsp,nbas),rhovxca(nsp,nbas)
     real(8):: xcor(nbas),qv(nbas),qsca(nbas)
     call tcn('locpot')
+    alsox = .false.
+    if(present(novxcalso)) alsox = novxcalso
     call stdfac(20,df)
     if(allocated(rhoexc))deallocate(rhoexc,rhoex,rhoec,rhovxc,phzdphz,hab,sab,vab, otau,osig,oppi,ohsozz,ohsopm)
     allocate( oppi(3,nbas),otau(3,nbas),osig(3,nbas),ohsozz(3,nbas),ohsopm(3,nbas))
-    if(novxc) then
+    if(novxc .or. alsox) then
        if(allocated(oppix)) deallocate(oppix)
        allocate(oppix(3,nbas))
     endif
@@ -399,6 +403,36 @@ contains
           hab_=>hab(:,:,:,:,ib)
           sab_=>sab(:,:,:,:,ib)
           vab_=>vab(:,:,:,:,ib)
+          if(alsox) then ! oppix, the augmentation matrices without xc, as locpot with novxc=T makes them (v1es, v2es, lso).
+            ! potpus and gaugm fill hab, sab, osig, ... here too; the full potential below gives them their values.
+            allocate(oppix(1,ib)%cv, mold=oppi(1,ib)%cv)
+            allocate(oppix(2,ib)%cv, mold=oppi(2,ib)%cv)
+            allocate(oppix(3,ib)%cv, mold=oppi(3,ib)%cv)
+            vdif(1:nr,1:nsp) = y0*v1es(1:nr,1,1:nsp) - v0(1:nr,1:nsp)
+            call potpus(z,rmt,lmxa,v0,vdif,a,nr,nsp,lso,pnu,pnz,ehl,rsml,rs3,vmtz, &
+                 phzdphz(:,:,:,ib),hab_,vab_,sab_,sodb,rotp(0:lmxa,:,:,:,ib))
+            call momusl(z,rmt,lmxa,pnu,pnz,rsml,ehl,lmxl,nlml,a,nr,nsp,rofi,rwgt,v0,v1es, qum,vum)
+            call fradhd(nkaph,eh,rsmh,lhh(:,is),lmxh,nr,rofi, fh,xh,vh,dh) !head
+            call fradpk(kmax,rsmaa,lmxa,             nr,rofi, fp,xp,vp,dp) !tail
+            if(lldau(ib)>0)call vlm2us(lmaxu,rmt,idu(:,is),lmxa, count( idu(:,ispec(1:ib-1))>0 ), &
+                 vorb,phzdphz(:,:,:,ib),rotp(0:lmxa,:,:,:,ib), vumm)
+            kmax1=kmax+1
+            call gaugm(nr,nsp,lso,rofi,rwgt,lmxa,lmxl,nlml,v2es,gpot0(1:nlml,ib)-gpotb(1:nlml),hab_,vab_,sab_,sodb,qum,vum,&
+                 lmaxu,vumm,lldau(ib),idu(:,is),  lmxa,nlma,nlma,&
+                 kmax1,kmax1,lmxa,lxa, fp,xp,vp,dp,&
+                 kmax1,kmax1,lmxa,lxa, fp,xp,vp,dp,&
+                 osig(1,ib)%v, otau(1,ib)%v, oppix(1,ib)%cv, ohsozz(1,ib)%sdiag, ohsopm(1,ib)%soffd)
+            call gaugm(nr,nsp,lso,rofi,rwgt,lmxa,lmxl,nlml,v2es,gpot0(1:nlml,ib)-gpotb(1:nlml),hab_,vab_,sab_,sodb,qum,vum,&
+                 lmaxu,vumm,lldau(ib),idu(:,is),  lmxh, nlmh,nlma, &
+                 nkaph,nkapi,lmxh,lhh(:,is),fh,xh,vh,dh,&
+                 kmax1,kmax1,lmxa,lxa,      fp,xp,vp,dp,&
+                 osig(2,ib)%v, otau(2,ib)%v, oppix(2,ib)%cv, ohsozz(2,ib)%sdiag, ohsopm(2,ib)%soffd)
+            call gaugm(nr,nsp,lso,rofi,rwgt,lmxa,lmxl,nlml,v2es,gpot0(1:nlml,ib)-gpotb(1:nlml),hab_,vab_,sab_,sodb,qum,vum,&
+                 lmaxu,vumm,lldau(ib),idu(:,is),  lmxh,nlmh,nlmh,&
+                 nkaph,nkapi,lmxh,lhh(:,is),fh,xh,vh,dh,&
+                 nkaph,nkapi,lmxh,lhh(:,is),fh,xh,vh,dh,&
+                 osig(3,ib)%v, otau(3,ib)%v, oppix(3,ib)%cv, ohsozz(3,ib)%sdiag, ohsopm(3,ib)%soffd)
+          endif
           vdif(1:nr,1:nsp) = y0*v1(1:nr,1,1:nsp) - v0(1:nr,1:nsp) !vdif= extra part of spherical potential for deterimning radial function
           call potpus(z,rmt,lmxa,v0,vdif,a,nr,nsp,lsox,pnu,pnz,ehl,rsml,rs3,vmtz, & !hab,vab,sab and phzdphz, and rotp
                phzdphz(:,:,:,ib),hab_,vab_,sab_,sodb,rotp(0:lmxa,:,:,:,ib)) 

@@ -111,13 +111,14 @@ contains
     allocate( spotx(n1,n2,n3,nsp),source=(0d0,0d0)) !smooth potential without XC
     call mkpot(1, smrho,orhoat, spotx,fes1_xxx, novxc_) !obtain oppix,smpotx without XC (novxc_ mode).
   end subroutine m_mkpot_novxc
-  subroutine m_mkpot_init(smrho,orhoat)
+  subroutine m_mkpot_init(smrho,orhoat, withnovxc)
     type(s_rv1):: orhoat(:,:)
     complex(8) :: smrho(:,:,:,:)
+    logical,optional:: withnovxc   ! also spotx and oppix, the potential without xc (lmf --jobgw=1), in the same pass
     call tcn('m_mkpot_init')
     if(iprint()>=10) write(stdo,"(a)")'m_mkpot_init: Making one-particle potential ...'
     allocate( osmpot(n1,n2,n3,nsp),fes1_rv(3*nbas))
-    call mkpot(1,smrho,orhoat, osmpot,fes1_rv)
+    call mkpot(1,smrho,orhoat, osmpot,fes1_rv, alsonovxc=withnovxc)
     call tcx('m_mkpot_init')
   end subroutine m_mkpot_init
   subroutine m_mkpot_energyterms(smrho_out,orhoat_out) 
@@ -133,7 +134,7 @@ contains
   subroutine m_mkpot_deallocate()
     deallocate(vesrmt,fes1_rv,qmom,osmpot)
   end subroutine m_mkpot_deallocate
-  subroutine mkpot(job,smrho,orhoat, smpot,fes,novxc_)!- Make the potential from the density (smrho, orhoat) !dipole_) 
+  subroutine mkpot(job,smrho,orhoat, smpot,fes,novxc_,alsonovxc)!- Make the potential from the density (smrho, orhoat) !dipole_) 
     use m_bstrux,only: m_bstrux_init
     use m_elocp,only: elocp
     use m_smvxcm,only: smvxcm
@@ -144,6 +145,7 @@ contains
     complex(8):: smrho(n1,n2,n3,nsp),smpot(n1,n2,n3,nsp)
     logical:: novxc,secondcall=.false.     !      integer,optional:: dipole_
     logical,optional:: novxc_
+    logical,optional:: alsonovxc  ! also spotx (smpot before xc) and oppix (locpot), as a second call with novxc_ gives them
     integer:: job,i1,i2,i3,i,isw,isum, ifi,isp,j,k,ix,iy,iz,ismpot(4) 
     real(8):: hpot0_rv(nbas), dq,qsmc,smq,smag,sum2,rhoex,rhoec,rhvsm, uat,usm,valfsm, &
          vsum,zsum,rvvxcv(nsp),rvvxc(nsp),rvmusm(nsp),rmusm(nsp), rvepsm(nsp),vxcavg(nsp),&
@@ -163,6 +165,12 @@ contains
     call rhomom(orhoat, qmom,vsum) ! Multipole moments qmom is calculated
     SmoothPart: block
       call smves(qmom,gpot0,vval,hpot0_rv,smrho,smpot,vconst,smq,qsmc,fes,rhvsm0,rhvsm,zsum,vesrmt,qbg)!0th comp. of Estatic potential Ves and Ees
+      if(present(alsonovxc)) then
+        if(alsonovxc) then
+          if(allocated(spotx)) deallocate(spotx)
+          allocate(spotx, source=smpot)   !smooth potential without XC
+        endif
+      endif
       if(master_mpi) then !.and.c0_espot) then !writeout electrostatic potential 
         ismpot = shape(smpot)
         open(newunit=ife,file='estaticpot.dat')
@@ -202,7 +210,7 @@ contains
     MTpartsIntegrals: block
       use m_locpot,only: locpot,valvfa=>valvef,xcore_=>xcore,sqloc,saloc,qval_=>qval,qsc_=>qsc,vvesat,&
            repat=>rhoexc, repatx=>rhoex, repatc=>rhoec, rmuat=>rhovxc
-      call locpot(job,novxc,orhoat,qmom,vval,gpot0)! Make local potential at atomic sites and augmentation matrices 
+      call locpot(job,novxc,orhoat,qmom,vval,gpot0, novxcalso=alsonovxc)! Make local potential at atomic sites and augmentation matrices 
       xcore=xcore_
       qval =qval_
       qsc  =qsc_

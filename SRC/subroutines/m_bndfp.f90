@@ -155,8 +155,10 @@ contains
     real(8) :: t_mkpot1, t_band, t_fermi, t_band2nd, t_mkpot2, t_start
     t_start = MPI_WTIME()
     GetPotentialFromDensity: block
-      if(llmfgw) call m_mkpot_novxc(smrho,orhoat) !Get osigx,otaux oppix spotx, which are onsite integrals without XC part for GWdriver: lmfgw mode
-      call m_mkpot_init(smrho,orhoat)! From smrho and rhoat, get one-particle potential and related quantities. mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
+      ! From smrho and rhoat, get one-particle potential and related quantities. mkpot->locpot->augmat. augmat calculates sig,tau,ppi.
+      ! lmfgw mode: also oppix and spotx, the potential without the XC part for the GW driver, in the same pass (a second
+      ! pass with m_mkpot_novxc repeated the electrostatics and xc: 0.76 s for LiTi2O4).
+      call m_mkpot_init(smrho,orhoat, withnovxc=llmfgw)
       if((trim(c2_quit) == 'mkpot')) call rx0('--quit=mkpot')
     endblock GetPotentialFromDensity
     t_mkpot1 = MPI_WTIME() - t_start
