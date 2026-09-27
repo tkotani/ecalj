@@ -286,11 +286,28 @@ contains
         use m_mem,only: writemem
         integer:: k, jpm, ibib, iw, igb2, igb1, it, itp, nkmax1, nkqmax1, ib1, ib2, ngcx, ix, iy, igb
         integer:: izmel, nmtot, nqtot, iwmax, ifi0, icoucold, icoun, icount, kold
+        integer:: ng, nsg, nqg, kbmax, nq12, iq12, is12, igb
+        integer, allocatable :: gk(:), gns1(:)
+        complex(kind=kp), allocatable :: zg(:,:,:,:)
+#ifdef __GPU
+        attributes(device) :: zg
+#endif
         real(8):: imagweight, wpw_k, wpw_kq, qa, q0a
         complex(8):: img=(0d0,1d0)
         call cputid(0)
         call stopwatch_init(t_sw_zmel, 'zmel_gemm')
         call stopwatch_init(t_sw_x0,   'x0_gemm')
+        ! Group up to kbmax k points whose zmel is built in one piece and accumulate them together
+        ! (accumulate_chi0_group); a k point split into NMBATCH pieces, or tetwtk, goes the old way.
+        ng = 0
+        if (.not. tetwtk) then
+          nsg = maxval(nkmax(k_lo:k_hi) - nkmin(k_lo:k_hi) + 1)
+          nqg = maxval(nkqmax(k_lo:k_hi) - nkqmin(k_lo:k_hi) + 1) + merge(0, nctot, npm==1)
+          kbmax = int(min(8d0, 1d9/(real(npr,8)*nsg*nqg*2*kp)))
+          if (kbmax >= 2) then
+            allocate(zg(npr, nsg, nqg, kbmax), gk(kbmax), gns1(kbmax))
+          endif
+        endif
         kloop: do k = k_lo, k_hi
           if (tetwtk) then
             call gettetwt(q, iq, isp_k, isp_kq, ekxx1, ekxx2, nband=nband, ikbz_in=k, fkbz_in=k)
@@ -313,6 +330,41 @@ contains
               ns2lists(ibatch) = ns1 + ns12 - 1
               ns1 = ns2lists(ibatch) + 1
             enddo
+            if (nbatch == 1 .and. allocated(zg)) then       ! the whole zmel of k in one piece: into the group
+              ns1 = ns1lists(1)
+              ns2 = ns2lists(1)
+              if (ns2 >= ns1) then
+                call stopwatch_start(t_sw_zmel)
+                call build_zmel(q=q+rk(:,k), kvec=q, irot=1, rkvec=q, ns1=ns1, ns2=ns2, ispm=isp_k, &
+                     nqini=nkqmin(k), nqmax=nkqmax(k), ispq=isp_kq, nctot=nctot, ncc=merge(0,nctot,npm==1), &
+                     zmelconjg=.true., is_m_basis=is_m_basis, mpi_mode=.not.use_gpu, comm=comm_b)
+                call stopwatch_pause(t_sw_zmel)
+                ng = ng + 1
+                gk(ng) = k
+                gns1(ng) = ns1
+                nq12 = nkqmax(k) - nkqmin(k) + 1 + merge(0, nctot, npm==1)
+                !$acc parallel loop collapse(3) present(zmel)
+                do iq12 = 1, nq12
+                  do is12 = 1, ns2-ns1+1
+                    do igb = 1, npr
+                      zg(igb,is12,iq12,ng) = zmel(igb,ns1+is12-1,iq12)
+                    enddo
+                  enddo
+                enddo
+              endif
+              if (ng == kbmax .or. (k == k_hi .and. ng > 0)) then
+                call stopwatch_start(t_sw_x0)
+                call accumulate_chi0_group(ng, gk, gns1, zg, iw_lo, iw_hi, npr)
+                call stopwatch_pause(t_sw_x0)
+                ng = 0
+              endif
+              nbatch = 0                                   ! the loop below does nothing
+            elseif (ng > 0) then                           ! this k is split: accumulate the group first
+              call stopwatch_start(t_sw_x0)
+              call accumulate_chi0_group(ng, gk, gns1, zg, iw_lo, iw_hi, npr)
+              call stopwatch_pause(t_sw_x0)
+              ng = 0
+            endif
             do ibatch = 1, nbatch
               ns1  = ns1lists(ibatch)
               ns2  = ns2lists(ibatch)
@@ -341,6 +393,12 @@ contains
               ' x0:', ftof(stopwatch_lap_time(t_sw_x0),4), '(sec)'
           if(ipr) call flush(stdo)
         enddo kloop
+        if (ng > 0) then                                   ! a group left over (last k was split)
+          call stopwatch_start(t_sw_x0)
+          call accumulate_chi0_group(ng, gk, gns1, zg, iw_lo, iw_hi, npr)
+          call stopwatch_pause(t_sw_x0)
+        endif
+        if (allocated(zg)) deallocate(zg, gk, gns1)
         call stopwatch_show(t_sw_zmel)
         call stopwatch_show(t_sw_x0)
         call cputid(0)
@@ -529,6 +587,79 @@ contains
 
     deallocate(itw, itpw, hilbert_w, wzw, zw, nttp)
   end subroutine accumulate_chi0
+
+  subroutine accumulate_chi0_group(ng, gk, gns1, zg, iw_lo, iw_hi, npr)
+    !> accumulate_chi0 for ng k points at once (the zmel of k point gk(i) is zg(:,:,:,i), its middle states from gns1(i)):
+    !> one product per histogram bin with the pairs of all ng k points, instead of one per bin and k point.  A bin has
+    !> a few tens of pairs per k point, so the per-k products were small and bound by launches (LiTi2O4 6^3: 480 000
+    !> per rank and q-loop, 22 s).  Only for full zmel (no NMBATCH split) and not tetwtk.  npm = 1 (x0kf_zxq).
+    use m_blas, only: m_op_c
+    use m_GWinput, only: chi0_filterw_drude
+    implicit none
+    integer, intent(in) :: ng, gk(ng), gns1(ng), iw_lo, iw_hi, npr
+    complex(kind=kp) :: zg(:,:,:,:)
+#ifdef __GPU
+    attributes(device) :: zg
+#endif
+    integer :: i, k, icoun, iw, it, itp, ittp, nttp_max, igb, ierr, pos_lo, pos_hi, ntw
+    integer, allocatable :: nttp(:), gsl(:,:), git(:,:), gitp(:,:)
+    real(8), allocatable :: gw(:,:)
+    complex(kind=kp), allocatable :: zw(:,:), wzw(:,:)
+    complex(kind=kp), parameter :: CONE = (1_kp, 0_kp)
+#ifdef __GPU
+    attributes(device) :: zw, wzw
+#endif
+    pos_lo = max(iw_lo, 1); pos_hi = min(iw_hi, nwhis)
+    allocate(nttp(nwhis), source = 0)
+    do i = 1, ng
+      k = gk(i)
+      do icoun = icounkmin(k), icounkmax(k)
+        do iw = max(iwini(icoun), pos_lo), min(iwend(icoun), pos_hi)
+          nttp(iw) = nttp(iw) + 1
+        enddo
+      enddo
+    enddo
+    nttp_max = maxval(nttp)
+    if (nttp_max < 1) then
+      deallocate(nttp)
+      return
+    endif
+    allocate(gsl(nttp_max,nwhis), git(nttp_max,nwhis), gitp(nttp_max,nwhis), source = 1)
+    allocate(gw(nttp_max,nwhis), source = 0d0)
+    nttp = 0
+    do i = 1, ng
+      k = gk(i)
+      do icoun = icounkmin(k), icounkmax(k)
+        it  = itc(icoun)
+        itp = itpc(icoun)
+        do iw = max(iwini(icoun), pos_lo), min(iwend(icoun), pos_hi)
+          nttp(iw) = nttp(iw) + 1
+          ittp = nttp(iw)
+          gsl(ittp,iw)  = i
+          git(ittp,iw)  = it - gns1(i) + 1
+          gitp(ittp,iw) = itp
+          gw(ittp,iw)   = whwc(iw-iwini(icoun)+icouini(icoun))
+          if (.not.(intrac(icoun) .and. chi0_filterw_drude)) gw(ittp,iw) = gw(ittp,iw)*fcw(iw)
+        enddo
+      enddo
+    enddo
+    allocate(zw(nttp_max,npr), wzw(nttp_max,npr))
+    !$acc data copyin(gsl, git, gitp, gw)
+    do iw = pos_lo, pos_hi
+      ntw = nttp(iw)
+      if (ntw < 1) cycle
+      !$acc parallel loop collapse(2) present(gsl, git, gitp, gw)
+      do igb = 1, npr
+        do ittp = 1, ntw
+          zw(ittp,igb)  = zg(igb, git(ittp,iw), gitp(ittp,iw), gsl(ittp,iw))
+          wzw(ittp,igb) = cmplx(zw(ittp,igb)*gw(ittp,iw), kind=kp)
+        enddo
+      enddo
+      ierr = gemm(zw, wzw, rcxq(1,1,iw), npr, npr, ntw, opA = m_op_C, beta = CONE, ldA = nttp_max, ldB = nttp_max)
+    enddo
+    !$acc end data
+    deallocate(zw, wzw, nttp, gsl, git, gitp, gw)
+  end subroutine accumulate_chi0_group
 
 
   subroutine x0kf_tetwt_write(q, iq)
