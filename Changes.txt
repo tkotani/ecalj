@@ -1,3 +1,24 @@
+2026-09-27 (3)
+  hgw 以外の段を詰めた (Samples/kBT/gpu_fp32_report.md §10、研究ログ 2026-09-27 夕方・夜)。LiTi2O4 6³ tf32 の QSGW 1 反復
+  (GPU 2 枚、CPU 60 本) が 342 → 212 秒。
+  - hvccfp0: Bessel 表・Wronskian・全原子対の Ewald 和 (strxq_all)・CG 和を GPU で。1 ランク 17 q で 34 → 4 秒。
+  - lmf --jobgw=1: H と xc 抜きの H を 1 回で作る (hambl2)、xc 抜きのポテンシャルも同じ mkpot で、pwmat は MTO の列だけ積
+    (ホストでは FFT の相関)、Gram-Schmidt はホストでは Cholesky QR。21 → 10 秒。
+  - mlo --mlofreeze: Σ^MLO だけを実空間へ (H・O の簡約と回転をしない)、実空間の配列は主ランクへの reduce。凍結の回が
+    sugw の __cmlo をチェーン開始時の窓で上書きしていたのを直した。gwsc の再開の判定は HamiltonianPMTInfo だけ。
+  - hqpe_sc と lmf の getsenex: Σ^MLO(R) の Bloch 和の位相を原子対ごとに (hqpe_sc 3.9 → 1.5 秒)。
+  - hsfp0_sc --job=3 (コアとの交換): コア状態の E 基底への変換を原子ブロックだけで、交換の積は k を分けた batched の積
+    (m_blas の cmm_d/zmm_d(splitk=))。GPU 1 枚で 11.9 → 7.4 秒、CPU 60 本で 153 → 57 秒。
+  - run_cmd: 1 ランクの CPU プログラムは GPU を隠して起動 (MPI_Init が GPU を調べる分、0.53 → 0.26 秒)。
+  - GW のプログラムの画面出力: ランク 0 はそのままログ (lgw など) に、ほかのランクは捨てる。以前は全ランク (ランク 0 も)
+    が stdout.<rank>.<prog> を作っていた (hgw の四面体の補助だけで 60 本)。途中経過とメモリ使用量 (Memused) は
+    ログ 1 本で追える。ランクごとのファイルが欲しいときは --fullstdo。
+  - エラー終了 (rx 系) を 1 つにまとめた: メッセージを stdout と stderr (ランク番号付き) の両方に出して MPI_Abort。
+    ランク 0 以外のエラーも見える。rxs が 120 文字で切っていたのを直した。正常終了 rx0s は MPI_Finalize してから
+    終わる (mpirun が待たされていた)。hwmatK の ixc=10011 でランク 0 以外が mpi_finalize 後も先へ進んでいたのを直した。
+  - コードの点検: コメントに日付時刻、バグ修正の記録を残す方針 (ecaljclaude.md「記録の方針」、CLAUDE.md から読み込む)。
+    使われていないコード (m_mkpot_novxc と novxc の経路、vcoulq_4 の未使用引数など) を削除。
+
 2026-09-27 (2)
   報告書 §8「残したこと」の片付けと、Σc の積の FP16 化 (Samples/kBT/gpu_fp32_report.md §8・§9)。
   - Σc (m_sxcf_sc) の 1 バッチを OpenACC のキュー 1 に載せる: バッチの頭で cudaDeviceSynchronize、m_blas の積

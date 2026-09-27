@@ -642,10 +642,8 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
      write(*,*)'nwf =',nwf
      write(*,*)'init_readeigen_mlw: done'
   endif
-  if(ixc==10011) then
-     call mpi_finalize(ierr)
-     if (master_mpi) call rx0s(' OK! hwmatK_MPI ixc=10011')
-  endif
+  ! All ranks: rx0s finalizes MPI and stops (bug fixed 2026-09-27 22:50: the ranks other than 0 went on after mpi_finalize)
+  if(ixc==10011) call rx0s(' OK! hwmatK_MPI ixc=10011')
   nq         = nqibz
   allocate(q(3,nq))
   call dcopy   (3*nqibz,qibz,1,q,1)

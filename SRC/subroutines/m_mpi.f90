@@ -342,6 +342,10 @@ contains
     mpi_master = (mpi_rank == 0)
   end function get_mpi_master
   subroutine MPI__consoleout(idn)
+    !> Console output of the ranks: rank 0 keeps the standard output (the log of the run, e.g. lgw), so the
+    !> progress and the memory use (writemem) are in one file; the other ranks write to /dev/null.  --fullstdo:
+    !> every rank writes to its own stdout.<rank>.<idn> instead (for debugging).  Errors of any rank reach stderr
+    !> (rx).  (2026-09-27 22:40; before, every rank, rank 0 too, wrote to stdout.<rank>.<idn>.)
     use m_lgunit,only:stdo,stdl
     logical, save :: init = .false.
     character(1024*4) :: cwd, stdout
@@ -349,6 +353,10 @@ contains
     if(init) return
     init = .true.
     if( mpi__size == 1 ) return
+    if( .not. c0_fullstdo ) then
+      if( .not. mpi__root ) open(unit=6,file='/dev/null')
+      return
+    endif
     if( mpi__root ) then
       write(6,"(' MPI outputs in each rank are in stdout.{RankId}.',a)")idn
       call flush(stdo)
