@@ -490,7 +490,7 @@ contains
                 complex(kind=kp), parameter :: img=(0_kp,1_kp)
                 complex(kind=kp) :: beta
                 complex(kind=kp), allocatable :: czmelwc(:,:,:), wzmel(:,:,:), wz_iw(:,:), czwc_iw(:,:)
-                integer :: it, itp, iw, ierr, i, j, nttp_max, nttp(0:nw)
+                integer :: it, itp, iw, ierr, i, j, nttp_max, nttp(0:nw), igb, ntw
                 complex(kind=kp), allocatable :: wv(:,:), wc(:,:)
                 real(8), allocatable :: wgtim(:,:,:), wgtiw(:,:)
                 integer, allocatable :: itw(:,:), itpw(:,:)
@@ -537,7 +537,7 @@ contains
                   integer, parameter :: nqfd = 40
                   ntqxx = sxs_ntqxx; niwx = niw; npmx = npm; nct = nctot; ks1 = ns1; ks2 = ns2
                   wkkr = sxs_wkkr; uaa = ua_; esm = esmr
-                  !$acc parallel loop collapse(2) async(1) present(wgtim, x, wt, expa_, sxs_omega, sxs_ekc) &
+                  !$acc parallel loop gang vector collapse(2) async(1) present(wgtim, x, wt, expa_, sxs_omega, sxs_ekc) &
                   !$acc   private(we, aw, aw2, u, xk, estep, cons, w1, s0, omg, ek, jq, nq, iw)
                   itpdo: do itp = 1, ntqxx
                     itpo: do it = ks1, ks2
@@ -545,9 +545,11 @@ contains
                       ek  = sxs_ekc(it)
                       nq = 1
                       if (it>nct .and. esm>0d0 .and. abs(omg-ek) < 30d0*esm) nq = nqfd
+                      !$acc loop seq
                       do iw = 0, npmx*niwx
                         wgtim(iw,it,itp) = 0d0
                       enddo
+                      !$acc loop seq
                       fdnodes: do jq = 1, nq
                         xk = 0d0
                         if (nq > 1) then
@@ -558,6 +560,7 @@ contains
                         aw = abs(uaa*we)
                         aw2 = aw*aw
                         s0 = 0d0
+                        !$acc loop seq
                         do iw = 1, niwx
                           cons = 1d0/(we**2*x(iw)**2 + (1d0-x(iw))**2)          ! = 1/(x^2 (w'^2+we^2)), w' = 1/x - 1
                           w1 = we*cons*wt(iw)*(-1d0/pi)
@@ -570,6 +573,7 @@ contains
                         if (dabs(we) < rmax/uaa) wgtim(0,it,itp) = wgtim(0,it,itp) + (-s0 - 0.5d0*estep)/nq
                       enddo fdnodes
                       if (nq > 1) wgtim(0,it,itp) = wgtim(0,it,itp) - 0.5d0*(2d0*fd_cdf(omg-ek, esm) - 1d0)
+                      !$acc loop seq
                       do iw = 0, npmx*niwx
                         wgtim(iw,it,itp) = wkkr*wgtim(iw,it,itp) !! Integration weight wgtim along im axis for zwz(0:niw*npm)
                       enddo
@@ -596,13 +600,14 @@ contains
                       wc(1:ngb,1:ngb) = wv(1:ngb,1:ngb)  !copy to GPU
                       call stopwatch_pause(sxs_setwv)
                     endif
-                    !$acc kernels loop independent collapse(2) present(zmel, wgtim) async(1)
+                    !$acc parallel loop collapse(3) present(zmel, wgtim) async(1)
                     do itp = 1, sxs_ntqxx
                       do it = ns1, ns2
-                        wzmel(1:ngb,it,itp) = cmplx(wgtim(iw,it,itp)*zmel(1:ngb,it,itp), kind=kp)
+                        do igb = 1, ngb
+                          wzmel(igb,it,itp) = cmplx(wgtim(iw,it,itp)*zmel(igb,it,itp), kind=kp)
+                        enddo
                       enddo
                     enddo
-                    !$acc end kernels
                     !the most time-consuming part in the correlation part
                     beta = CONE
                     if (iw == sxs_wi_ini) beta = CZERO
@@ -683,20 +688,21 @@ contains
                       !$acc end kernels
                       call stopwatch_pause(sxs_setwv)
                     endif
-                    !$acc kernels loop independent present(zmel, wgtiw, itw, itpw) async(1)
-                    do ittp = 1, nttp(iw)
-                      it = itw(ittp,iw); itp = itpw(ittp,iw)
-                      wz_iw(1:ngb,ittp) = cmplx(wgtiw(ittp,iw)*zmel(1:ngb,it,itp), kind=kp)
+                    ntw = nttp(iw)
+                    !$acc parallel loop collapse(2) present(zmel, wgtiw, itw, itpw) async(1)
+                    do ittp = 1, ntw
+                      do igb = 1, ngb
+                        wz_iw(igb,ittp) = cmplx(wgtiw(ittp,iw)*zmel(igb,itw(ittp,iw),itpw(ittp,iw)), kind=kp)
+                      enddo
                     enddo
-                    !$acc end kernels
                     ierr = gemm(wc, wz_iw, czwc_iw, ngb, nttp(iw), ngb, opA=m_op_C, key = 100000 + iw, & ! W(omega)
                                 policy = BACKEND_SIGMA)
-                    !$acc kernels loop independent present(itw, itpw) async(1)
-                    do ittp = 1, nttp(iw)
-                      it = itw(ittp,iw); itp = itpw(ittp,iw)
-                      czmelwc(1:ngb,it,itp) = czmelwc(1:ngb,it,itp) + czwc_iw(1:ngb,ittp)
+                    !$acc parallel loop collapse(2) present(itw, itpw) async(1)
+                    do ittp = 1, ntw
+                      do igb = 1, ngb       ! each (it,itp) appears once per mesh point iw: no two ittp write the same column
+                        czmelwc(igb,itw(ittp,iw),itpw(ittp,iw)) = czmelwc(igb,itw(ittp,iw),itpw(ittp,iw)) + czwc_iw(igb,ittp)
+                      enddo
                     enddo
-                    !$acc end kernels
                   enddo iwreal
 1113              continue !endif
                 EndBlock CorrelationSelfEnergyRealAxis
