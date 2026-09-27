@@ -131,7 +131,7 @@ use m_wfac, only: pole_weights
   ! Lifetime: allocated in init / start of exchange, used by step_kx /
   ! kxloop body, deallocated in finalize / end of exchange.
   ! Stopwatches.
-  type(stopwatch) :: sxs_zmel, sxs_xc, sxs_cr, sxs_ci, sxs_setwv
+  type(stopwatch) :: sxs_zmel, sxs_xc, sxs_cr, sxs_ci, sxs_setwv, sxs_wim, sxs_pole
   ! Shared workspace (used by both exchange and correlation flows).
   real(8), allocatable :: sxs_ekc(:), sxs_eq(:)
   integer :: sxs_ntqxx
@@ -350,6 +350,8 @@ contains
     call stopwatch_init(sxs_cr,    'ec realaxis integral')
     call stopwatch_init(sxs_ci,    'ec imagaxis integral')
     call stopwatch_init(sxs_setwv, 'read wv')
+    call stopwatch_init(sxs_wim,   'imagaxis weights (CPU)')
+    call stopwatch_init(sxs_pole,  'realaxis pole weights (CPU)')
     if (allocated(zsecall)) then
        !$acc exit data delete(zsecall)
        deallocate(zsecall)
@@ -524,6 +526,7 @@ contains
                   ! as in wfacx2/pole_weights (contract in m_wfac, wfacx.f90).  Formulae and the NiO numbers:
                   ! https://ecalj.github.io/ecaljdoc/manual/kBT#_3-6-sigma-c-の-contour-分解と準位-smearing-の整合
                   integer, parameter :: nqfd = 40
+                  call stopwatch_start(sxs_wim)
                   itpdo: do itp = 1, sxs_ntqxx
                    itpo: do it = ns1, ns2
                       nq = 1
@@ -550,6 +553,7 @@ contains
                       wgtim(:,it,itp) = sxs_wkkr*wgtim_ !! Integration weight wgtim along im axis for zwz(0:niw*npm)
                     enddo itpo
                   enddo itpdo
+                  call stopwatch_pause(sxs_wim)
                   allocate(wzmel(1:ngb,ns1:ns2,1:sxs_ntqxx))
                   if (debug) call writemem('    Goto iwimag')
                   if (debug) write(stdo,ftox) 'mmmmSc size of mm in imagaxis', (ns2-ns1+1)*sxs_ntqxx, ngb, ngb
@@ -604,6 +608,7 @@ contains
                   attributes(device) :: wz_iw, czwc_iw
 #endif
                   smear = tg_wcsmear .or. c0_wcsmear
+                  call stopwatch_start(sxs_pole)
                   PoleWeights: do ipass = 1, 2   ! pass 1 counts the pairs per mesh point, pass 2 stores them
                     nttp = 0
                     do itp = 1, sxs_ntqxx
@@ -629,12 +634,16 @@ contains
                     enddo
                     if (ipass == 1) then
                       nttp_max = maxval(nttp)
-                      if (nttp_max <= 0) goto 1113
+                      if (nttp_max <= 0) then
+                        call stopwatch_pause(sxs_pole)
+                        goto 1113
+                      endif
                       allocate (itw(nttp_max,0:nw),  source = 0)
                       allocate (itpw(nttp_max,0:nw), source = 0)
                       allocate (wgtiw(nttp_max,0:nw),source = 0d0)
                     endif
                   enddo PoleWeights
+                  call stopwatch_pause(sxs_pole)
                   n_nttp = count(nttp(sxs_wr_ini:sxs_wr_fin) > 0)
                   allocate(wz_iw(ngb,nttp_max), czwc_iw(ngb,nttp_max))
                   !$acc data copyin(wgtiw, nttp, itw, itpw)
@@ -736,7 +745,9 @@ contains
     deallocate(sxs_ekc, sxs_eq, sxs_omega)
     call stopwatch_show(sxs_zmel)
     call stopwatch_show(sxs_ci)
+    call stopwatch_show(sxs_wim)
     call stopwatch_show(sxs_cr)
+    call stopwatch_show(sxs_pole)
     call stopwatch_show(sxs_xc)
   end subroutine sxcf_correlation_finalize
 
