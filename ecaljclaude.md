@@ -325,6 +325,8 @@ NEW:  lmf si --ctrlg:bz.nkabc=[8,8,8] --ctrlg:bz.metal=3
 
 ## hgw_combined (in-memory W)
 
+（今のプログラム名は `hgw`（`hgw_mp_gpu` など、エントリは main_hgw.f90）。hgw_combined・hrcxq はこの統合をした 2026-05 の時期の名前）
+
 hrcxq (screened interaction W) + hsfp0_sc (exchange Sx + correlation Sc) を 1 MPI プロセスに統合。
 `__WVR/__WVI` ファイル中継 (30-90 GB/物質) を排除し、module-level buffer で in-memory 受け渡し。
 
@@ -388,6 +390,9 @@ m_wv_storage: W データの橋渡し
 WB.3e の上に GPU async overlap (stream 1 で imagaxis を非同期実行) を追加した WB.4 は、
 testecalj では PASS したが実物質で sigm を破壊した。詳細は「GPU 開発の教訓」セクション参照。
 現在は WB.3e ベース (同期実行) に戻して production 稼働中。
+（2026-09-28 の注: 2026-09-27 に Σc のバッチの非同期化を入れ直した。原因だったのは、OpenACC のキュー 1 が non-blocking のストリームで
+既定ストリームの cuBLAS の積を待たないこと。m_blas の積を同じストリームに揃え、LiTi₂O₄ 6³ の Σ が前の版と表示の桁まで一致し、
+2 回回しても一致することを確かめた。上の「OpenACC 一般注意」と m_sxcf_sc の `sigma_stream_begin/end`）
 
 ## GW1500 量産インフラ
 
