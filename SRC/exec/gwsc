@@ -28,7 +28,8 @@ parser.add_argument('--gemmul8'   ,help='USE GEMMul8 valid in GPU without MP',  
 parser.add_argument('--prec'      ,help='precision of the GW programs: fp64 (double precision), fp32 (mixed precision, '
                     'FP32 products; = --mp --fp32) or tf32 (as fp32, but the products of Sigma_c in TF32 on GPU: '
                     'about 30%% faster, Sigma within ~1 meV near E_F). How each GPU product is done is read from '
-                    '<bindir>/ecalj_linalg_policy.toml (written by linalgtune). --mp alone is the older all-TF32.',
+                    '<bindir>/ecalj_linalg_policy.toml (written by linalgtune). --mp alone = tf32 (before 2026-09-27 it '
+                    'meant TF32 in every product: 6 times the error of tf32 for 10%% less time, NiO gap off by 0.1 eV).',
                     choices=['tf32', 'fp32', 'fp64'], default=None)
 parser.add_argument('--prec-final', help='precision of the last iterations of this run, <prec>[:N] (N=1 if omitted): e.g. '
                     '--prec=tf32 --prec-final=fp32:2 runs all but the last two iterations in tf32 and those in fp32',
@@ -51,7 +52,7 @@ if args.prec is not None:     # --prec is the one switch; --mp/--fp32 are its ol
     args.fp32 = args.prec == 'fp32'
 cluster = args.cluster
 nloop = args.nloop
-base_prec = args.prec or ('fp64' if not args.mp else ('fp32' if args.fp32 else 'tf32all'))   # tf32all: --mp alone
+base_prec = args.prec or ('fp64' if not args.mp else ('fp32' if args.fp32 else 'tf32'))   # --mp alone = tf32
 final_prec, nfinal = None, 0
 if args.prec_final is not None:      # the last nfinal iterations of this run in another precision
     final_prec, _, _n = args.prec_final.partition(':')
