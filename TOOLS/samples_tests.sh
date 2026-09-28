@@ -36,15 +36,16 @@ run(){ # <group> <dir under Samples> <testecalj arguments...>
   local t0=$(date +%s) st n np nf
   echo "=== $g: Samples/$d: $*" >> $SUM
   ( cd $ROOT/Samples/$d && $BIN/testecalj "$@" -np $NP $GPU ${NP2:+-np2 $NP2} ) > $LOG/$g.log 2>&1
-  if grep -q "OK! ALL PASSED" $LOG/$g.log; then st=PASSED
-  elif grep -q "FAILED at some tests" $LOG/$g.log; then st=FAILED
-  else st="STOPPED"; fi
-  # testecalj prints the summary of all targets so far after each target: count only the last one (2026-09-28: the
-  # count of every PASSED line in the log, 832 for TestInstall --all, was 13 times the 64 checks)
+  # testecalj prints the summary of all targets so far, with a status line, after each target: read only the last one
+  # (2026-09-28: counting every PASSED line of the log gave 832 for the 64 checks of TestInstall --all, and a failure in a
+  # later target was hidden behind the "OK! ALL PASSED" of the earlier ones)
+  st=$(grep -E "OK! ALL PASSED|FAILED at some tests" $LOG/$g.log | tail -1)
+  case "$st" in "OK! ALL PASSED"*) st=PASSED ;; "FAILED at some tests"*) st=FAILED ;; *) st=STOPPED ;; esac
   n=$(grep -n "^=== END test at" $LOG/$g.log | tail -1 | cut -d: -f1)
-  np=$(tail -n +${n:-1} $LOG/$g.log | grep -c "^PASSED!"); nf=$(tail -n +${n:-1} $LOG/$g.log | grep -c "^FAILED at")
+  np=$(tail -n +${n:-1} $LOG/$g.log | grep -c "^PASSED!")
+  nf=$(tail -n +${n:-1} $LOG/$g.log | grep -E "^FAILED" | grep -v -c "^FAILED at some tests")
   printf "%-8s %-7s %4d checks passed, %3d failed  %6d s\n" $g $st $np $nf $(( $(date +%s)-t0 )) | tee -a $SUM
-  [ $nf -gt 0 ] && tail -n +${n:-1} $LOG/$g.log | grep "^FAILED at" | sed 's/^/         /' | tee -a $SUM
+  [ $nf -gt 0 ] && tail -n +${n:-1} $LOG/$g.log | grep -E "^FAILED" | grep -v "^FAILED at some tests" | cut -c1-200 | sed 's/^/         /' | tee -a $SUM
   [ $st = STOPPED ] && echo "         no summary: see $g.log" | tee -a $SUM
   return 0
 }
