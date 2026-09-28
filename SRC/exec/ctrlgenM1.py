@@ -26,6 +26,10 @@
 #########################################################################
 import os, sys, string, re, locale
 
+def _bin(prog):  # the executable next to this script (the bindir; symlinks not followed), not whatever PATH finds first
+    p = os.path.join(os.path.dirname(os.path.abspath(__file__)), prog)   # (2026-09-28: a test on mic ran an old ~/bin/lmchk)
+    return p if os.path.exists(p) else prog
+
 # Early exit when invoked as a script.  Importing the module (or
 # regex-reading its source for the atomlist from ctrlgenToml.py) is
 # unaffected.
@@ -595,7 +599,7 @@ rlmchk=0
 if touchingratio>0: rlmchk=1
 # ### Get R= by lmchk ###
 if(rlmchk==1):
-    os.system("mpirun -np 1 lmchk --getwsr tmp > llmchk_getwsr; echo $? >exitcode")
+    os.system("mpirun -np 1 "+_bin("lmchk")+" --getwsr tmp > llmchk_getwsr; echo $? >exitcode")
     f=open("exitcode",'rt')
     iexit=int(f.read())
     f.close()
@@ -726,7 +730,7 @@ f.write(xcfun_val+'\n')
 f.close()
 
 ### check lmfa works OK or not #############################
-os.system("mpirun -np 1 lmfa tmp2 > llmfa.tmp2; echo $? >exitcode")
+os.system("mpirun -np 1 "+_bin("lmfa")+" tmp2 > llmfa.tmp2; echo $? >exitcode")
 f=open("exitcode",'rt')
 iexit=int(f.read())
 f.close()

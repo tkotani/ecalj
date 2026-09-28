@@ -60,6 +60,10 @@ only; ctrlgenM1.py exits immediately with a pointer to this script.
 2026-05-03 T.K. + Claude.
 """
 import os, sys, re
+
+def _bin(prog):  # the executable next to this script (the bindir; symlinks not followed), not whatever PATH finds first
+    p = os.path.join(os.path.dirname(os.path.abspath(__file__)), prog)   # (2026-09-28: a test on mic ran an old ~/bin/lmchk)
+    return p if os.path.exists(p) else prog
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from pylib.toml_comments import fmt_section_header, fmt_key_inline, apply_toml_annotations, ESM_SAMPLE
 from pylib.toml_tidy import tidy_gw_sections
@@ -483,7 +487,7 @@ def main():
             tmp_toml += f'[[spec]]\natom = "{sym}"\nz = {z}\n\n'
         with open('ctrlg.tmp.toml', 'wt') as f:
             f.write(tmp_toml)
-        os.system('mpirun -np 1 lmchk --getwsr tmp > llmchk_getwsr 2>&1')
+        os.system(f'mpirun -np 1 {_bin("lmchk")} --getwsr tmp > llmchk_getwsr 2>&1')
         try:
             for ln in open('rmt.tmp'):
                 parts = ln.split()

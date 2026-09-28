@@ -6,6 +6,9 @@ import sys,string,re,os,math,seekpath
 from math import *
 import getpaths
 np.set_printoptions(precision=16)
+def _bin(prog):  # the executable next to this script (the bindir; symlinks not followed), not whatever PATH finds first
+    p = os.path.join(os.path.dirname(os.path.abspath(__file__)), prog)   # (2026-09-28: a test on mic ran an old ~/bin/lmchk)
+    return p if os.path.exists(p) else prog
 
 if len(sys.argv)<2:
     print (' Usage: >getsyml.py nio [-nobzview]')
@@ -16,7 +19,7 @@ if len(sys.argv)<2:
 
 ### We have to improve lmchk, so that plinfo and siteinfo are directry written.
 #print('lmchk '+sys.argv[1]+'> outlmchk')
-if os.system('mpirun -np 1 lmchk '+sys.argv[1]+'> outlmchk'):
+if os.system('mpirun -np 1 '+_bin('lmchk')+' '+sys.argv[1]+'> outlmchk'):
     print ('ERROR: lmchk failed. Do you have ctrl.'+sys.argv[1]+'?')
     sys.exit(-1)
 
