@@ -3,6 +3,9 @@
 #
 #   sync_ecalj_src.sh <host> [<remote dir>]      ship this HEAD to <host> (default dir: see default_dir below;
 #                                                on kt1 the development tree ~/ecalj_dev, never the production ~/ecalj)
+#   sync_ecalj_src.sh --samples <host> [...]     the whole tracked tree, Samples too (testecalj --all runs in
+#                                                Samples/TestInstall; a new machine, 2026-09-28 kr7)
+#   ALLOW_DIRTY=1 sync_ecalj_src.sh ...          ship HEAD although SRC has uncommitted changes (they are NOT shipped)
 #   sync_ecalj_src.sh --check <host> [...]       report what <host> has
 #   sync_ecalj_src.sh --check-all                report local + every known host
 #
@@ -32,7 +35,7 @@
 # conflict waiting to happen.  The local repo is the single source of truth; a remote
 # whose .ecalj_rev differs is simply stale and gets overwritten.
 set -u
-HOSTS_DEFAULT="kt1 kr5"
+HOSTS_DEFAULT="kt1 kr5 kr7"
 default_dir(){  # 2026-09-28: kt1's /home/takao/ecalj is the production tree (-> ~/bin) and must not be overwritten by a sync
   case $1 in kt1) echo /home/takao/ecalj_dev ;; *) echo /home/takao/ecalj ;; esac
 }
@@ -59,12 +62,14 @@ ship(){  # $1=host $2=dir
   local rev tmp tarf
   rev=$(rev_local)
   local dirt; dirt=$(dirty_local)
-  if [ -n "$dirt" ]; then
+  if [ -n "$dirt" ] && [ "${ALLOW_DIRTY:-0}" != 1 ]; then
     echo "REFUSING: SRC has uncommitted changes -- commit first so the marker means something:"
     echo "$dirt"; return 1
   fi
+  [ -n "$dirt" ] && echo "NOTE: SRC has uncommitted changes; they are NOT shipped (HEAD $rev only)"
+  local paths="SRC InstallAll.py"; [ "$SAMPLES" = 1 ] && paths=""      # "": the whole tracked tree
   tmp=$(mktemp -d); tarf=$tmp/ecalj_src.tar
-  ( cd "$LOCAL_DIR" && git archive --format=tar HEAD SRC InstallAll.py > "$tarf" ) || return 1
+  ( cd "$LOCAL_DIR" && git archive --format=tar HEAD $paths > "$tarf" ) || return 1
   mkdir -p "$tmp/SRC"
   printf '%s  %s  from %s\n' "$rev" "$(date '+%Y-%m-%d %H:%M')" "$(hostname)" > "$tmp/SRC/.ecalj_rev"
   ( cd "$tmp" && tar rf "$tarf" SRC/.ecalj_rev ) || return 1
@@ -75,6 +80,7 @@ ship(){  # $1=host $2=dir
   rm -rf "$tmp"
 }
 
+SAMPLES=0; [ "${1:-}" = --samples ] && { SAMPLES=1; shift; }
 case "${1:-}" in
   --check-all)
     printf '%-6s %s\n' local "$(rev_local)  (HEAD)"
