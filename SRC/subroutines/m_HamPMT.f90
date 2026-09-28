@@ -155,7 +155,8 @@ contains
         integer::lmindex(16,nbas),lmindex2(16,nbas),lmindex3(16,nbas),lm,iw,ibw,nlmw,ibsel,ksel
         logical:: haslo3
         character(256):: aaa
-        logical:: use_lo(nbas,0:3)
+        logical, allocatable:: use_lo(:,:)
+        allocate(use_lo(nbas,0:3))
         call gwinput_init()
         if (gwinput_loaded) then
           mlomethod = tg_mlo_method
@@ -205,32 +206,38 @@ contains
         ! their highest energy over all k is above EF - 10 eV.
         ShallowLO: block
           use mpi
-          use m_lmfinit, only: oveps
+          use m_lmfinit, only: oveps, pzsp, pnusp
           real(8), parameter :: eshallow = -10d0/13.605d0     ! Ry, relative to EF
           integer :: ifih_info, ifih, mrech, mrechsoc, nbandmx, istat, iqxx, jspxx, iqqisp, nev0, nmx, il, ierr, ng, nspxl
           type(mpiio_buf) :: buf
           complex(8), allocatable :: ovlmp(:,:), hammp(:,:), evec(:,:), sc(:,:), s0(:,:)
           real(8), allocatable :: evl(:)
-          real(8) :: etop(nbas,0:3), etop_all(nbas,0:3), w
-          logical :: has_lo(nbas,0:3)
+          ! use_lo, has_lo, etop and etop_all are allocatable: as automatic arrays (nbas,0:3) in these blocks, nvfortran 26.1
+          ! placed the elements one off for any() and the whole-array operations, so the decision below was skipped
+          ! (Bug fixed 2026-09-28 23:25: NiO666lda MLO bands 3.8 meV off with nvfortran; gfortran was right)
+          real(8), allocatable :: etop(:,:), etop_all(:,:)
+          real(8) :: w, pz, pnu
+          logical, allocatable :: has_lo(:,:)
+          logical :: anylo
+          allocate(has_lo(nbas,0:3), etop(nbas,0:3), etop_all(nbas,0:3))
           use_lo = .false.; has_lo = .false.; etop = -1d99
           ! only SEMICORE local orbitals (shell int(mod(pz,10)) below the valence
           ! shell int(pnu); pz = 10+n.m is the extended-tail form) are candidates. An extended LO (pz above the valence shell, e.g. Ru pz=5.5
           ! next to the 4d EH function) is a high-lying tail function, not a band:
           ! with it as the model function RuO2 went 14 -> 254 meV.
-          block
-            use m_lmfinit, only: pzsp, pnusp
-            real(8) :: pz, pnu
+          if (allocated(pzsp) .and. allocated(pnusp)) then
             do i = 1, ldim
               if (k_table(i)/=3 .or. l_table(i)>3) cycle
               pz  = pzsp (l_table(i)+1, 1, ispec_table(i))
               pnu = pnusp(l_table(i)+1, 1, ispec_table(i))
               if (pz > 0d0 .and. int(mod(pz,10d0)) < int(pnu)) has_lo(ib_table(i), l_table(i)) = .true.   ! pz=10+n.m: extended-tail form of shell n
             enddo
-          endblock
+          endif
           ! frozen run: skipped (use_lo=.false.); ix is read from HamRsMLO below, and its ndimMTO check assumes the
           ! LO and EH of a shell count alike
-          if (any(has_lo) .and. .not.lfrozen) then
+          anylo = .false.
+          do il = 0, 3; do ib = 1, nbas; anylo = anylo .or. has_lo(ib,il); enddo; enddo
+          if (anylo .and. .not.lfrozen) then
             open(newunit=ifih_info, file='__HamiltonianPMT.info', form='unformatted', action='read')
             read(ifih_info) nbandmx, mrech, mrechsoc
             close(ifih_info)
