@@ -36,7 +36,7 @@ put(){ # <column> <iteration> <file> <run> [label]: the first candidate that exi
   case $cd in liti_mlo_k9|liti_mlo_v9) rd=$cd/mloband;; lda9) rd=bench_hgw999;; lda6) rd=liti_mlo_v9;; *) rd=$cd;; esac
   echo "kt1:$S/$rd/$(basename $f)" > $dst.src; return 0
 }
-for i in $(seq 1 22); do
+for i in $(seq 1 30); do   # iterations up to 30 (the tf32 continuation)
   put k9tf32 $i $C/qmlo_k9_tf32_i15/bnd_mlo_iter$i.dat qmlo_k9_tf32_i15
   put k9tf32 $i $C/qmlo_k9_tf32n/bnd_mlo_iter$i.dat qmlo_k9_tf32n "gwsc10 run"
   [ $i = 10 ] && put k9tf32 10 $C/qmlo_k9_tf32n/bnd_mlo_final.dat qmlo_k9_tf32n "gwsc10 run"
