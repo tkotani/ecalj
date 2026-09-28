@@ -495,7 +495,10 @@ contains
                 complex(kind=kp), parameter :: img=(0_kp,1_kp)
                 complex(kind=kp) :: beta
                 complex(kind=kp), allocatable :: czmelwc(:,:,:), wzmel(:,:,:), wz_iw(:,:), czwc_iw(:,:)
-                integer :: it, itp, iw, ierr, i, j, nttp_max, nttp(0:nw), igb, ntw
+                integer :: it, itp, iw, ierr, i, j, nttp_max, igb, ntw
+                ! nttp is allocatable, not an automatic array of this BLOCK: nvfortran 26.1 put the elements of such arrays one off
+                ! for the whole-array operations in m_HamPMT (2026-09-28); here nttp = 0 and maxval(nttp) are whole-array operations
+                integer, allocatable :: nttp(:)
 #if defined(__MP) && defined(__GPU)
                 ! FP16 route of the Sigma_c products (realhgemm): the weighting kernels write B in FP16 themselves, scaled
                 ! by a power of 2 from the bound max|w| max|zmel| (no scan of B, no conversion kernel).  cmm_h16_d.
@@ -521,6 +524,7 @@ contains
                 allocate(czmelwc, mold = zmel)
                 allocate(wzmel(1:ngb,ns1:ns2,1:sxs_ntqxx))
                 allocate(wgtim(0:npm*niw,ns1:ns2,sxs_ntqxx))
+                allocate(nttp(0:nw))
                 !$acc enter data create(wgtim)
                 nttp = 0
                 nttp_max = 0
@@ -811,7 +815,7 @@ contains
                   deallocate(itw, itpw, wgtiw)
                 endif
                 if (allocated(wz_iw)) deallocate(wz_iw, czwc_iw)
-                deallocate(wv, wc, czmelwc, wzmel, wgtim)
+                deallocate(wv, wc, czmelwc, wzmel, wgtim, nttp)
 #if defined(__MP) && defined(__GPU)
                 deallocate(bh, wmaxiw)
 #endif
