@@ -73,6 +73,7 @@ MINW = float(os.environ.get('MINW', '9'))     # the title lines need about 9 inc
 fig, AX = plt.subplots(n, len(COLS), figsize=(max(4.9 * len(COLS) + 0.4, MINW), ROWH * n + 1.0),
                        sharex=True, sharey=True, squeeze=False)
 store = {}
+DATA = {}   # the numbers of every panel, written to DATAOUT (2026-09-28, user: the numbers behind a plot must be kept)
 for r, it in enumerate(iters):
     for c, (lab, d, col) in enumerate(COLS):
         ax = AX[r][c]; f = path(d, it)
@@ -89,6 +90,7 @@ for r, it in enumerate(iters):
                 ax.axis('off')
             continue
         x, E = rd(f); S = np.sort(E[LO:HI], axis=0); store[(c, it)] = S
+        DATA[f'{os.path.basename(d)}_{"lda" if it == 0 else f"iter{it}"}'] = (x, S, os.path.realpath(f))
         if HILITE and it > 0:
             T = track(S); bb = bulger(T, x)
             for k, b in enumerate(T):
@@ -100,8 +102,10 @@ for r, it in enumerate(iters):
         ## <band file>.label (one line) marks a panel whose data is not from the column's own run, e.g. an older code
         ## standing in until the run gets there (2026-09-28); the title gets it in orange
         tag = open(f + '.label').read().strip() if os.path.exists(f + '.label') else ''
-        ax.set_title(f'{lab}   {"LDA" if it == 0 else f"iter {it}"}' + (f'  [{tag}]' if tag else ''), fontsize=10,
-                     color='tab:orange' if tag else 'k')
+        ## <band file>.stamp: when the band was made (the date of the source file), added in parentheses (2026-09-28)
+        stamp = open(f + '.stamp').read().strip() if os.path.exists(f + '.stamp') else ''
+        ax.set_title(f'{lab}   {"LDA" if it == 0 else f"iter {it}"}' + (f'  [{tag}]' if tag else '')
+                     + (f'  ({stamp})' if stamp else ''), fontsize=9.5, color='tab:orange' if tag else 'k')
         ax.set_ylim(-0.9, 1.5); ax.set_xlim(0, 1); ax.axhline(0, color='k', lw=0.9)
         ## Sigma q-mesh points: a small red cross on every band (where the interpolation is exact).
         ## On 9^3 the mesh x = 2n/9 is not on the 211-point grid, so the band is interpolated there.
@@ -127,4 +131,17 @@ fig.suptitle(f'LiTi$_2$O$_4$  {_ML} (nkabc = n1n2n3 = mesh)   t$_{{2g}}$ (b33-44
              f'generated {stamp}', fontsize=10.5)
 plt.tight_layout(rect=[0, 0, 1, 1 - 0.95/(ROWH*n + 1.0)])
 plt.savefig(OUT, dpi=float(os.environ.get('DPI', '115')))
+## DATAOUT=<file>.npz: per panel <column dir>_<lda|iterN>: x (Gamma-X = 0..1) and the t2g energies (b33-44 sorted per k, eV from
+## E_F) as plotted, with <key>__src (the band file: its .src if given, e.g. where it lies on the machine that ran it),
+## __label and __stamp (from the .label/.stamp files)
+if os.environ.get('DATAOUT'):
+    arrs = {}
+    for k, (x, S, src) in DATA.items():
+        arrs[k + '__x'] = x; arrs[k + '__E'] = S; arrs[k + '__src'] = np.array(src)
+        base = [c[1] for c in COLS if os.path.basename(c[1]) == k.rsplit('_', 1)[0]][0]   # the .label/.stamp/.src sit
+        it = k.rsplit('_', 1)[1]; link = f'{base}/bnd_lda.dat' if it == 'lda' else f'{base}/bnd_{it}.dat'   # by the panel link
+        for ext in ('label', 'stamp', 'src'):
+            if os.path.exists(link + '.' + ext): arrs[k + '__' + ext] = np.array(open(link + '.' + ext).read().strip())
+    np.savez_compressed(os.environ['DATAOUT'], **arrs)
+    print('wrote', os.environ['DATAOUT'], f'({len(DATA)} panels)')
 print('wrote', OUT, f'({n} rows x {len(COLS)} cols)')
