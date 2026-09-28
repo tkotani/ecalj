@@ -43,12 +43,16 @@ run(){ # <group> <dir under Samples> <testecalj arguments...>
   # later target was hidden behind the "OK! ALL PASSED" of the earlier ones)
   st=$(grep -E "OK! ALL PASSED|FAILED at some tests" $LOG/$g.log | tail -1)
   case "$st" in "OK! ALL PASSED"*) st=PASSED ;; "FAILED at some tests"*) st=FAILED ;; *) st=STOPPED ;; esac
+  # a target whose test stopped (runprogs "Error exit!") leaves a START without an END and no summary of its own, so the
+  # last status line is that of the target before it (2026-09-28: PROCAR/Ni2MnGa on mic counted as passed)
+  local ns ne; ns=$(grep -c "^=== START test at" $LOG/$g.log); ne=$(grep -c "^=== END test at" $LOG/$g.log)
+  [ $ne -lt $ns ] && st=STOPPED
   n=$(grep -n "^=== END test at" $LOG/$g.log | tail -1 | cut -d: -f1)
   np=$(tail -n +${n:-1} $LOG/$g.log | grep -c "^PASSED!")
   nf=$(tail -n +${n:-1} $LOG/$g.log | grep -E "^FAILED" | grep -v -c "^FAILED at some tests")
   printf "%-8s %-7s %4d checks passed, %3d failed  %6d s\n" $g $st $np $nf $(( $(date +%s)-t0 )) | tee -a $SUM
   [ $nf -gt 0 ] && tail -n +${n:-1} $LOG/$g.log | grep -E "^FAILED" | grep -v "^FAILED at some tests" | cut -c1-200 | sed 's/^/         /' | tee -a $SUM
-  [ $st = STOPPED ] && echo "         no summary: see $g.log" | tee -a $SUM
+  [ $st = STOPPED ] && echo "         stopped in $(grep "^=== START test at" $LOG/$g.log | tail -1 | sed 's|.*/||') (no summary of its own): see $g.log" | tee -a $SUM
   return 0
 }
 run_inputs(){ # the inputs group (see the header)
