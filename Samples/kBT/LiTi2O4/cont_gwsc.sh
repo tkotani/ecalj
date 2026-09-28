@@ -4,6 +4,7 @@
 # sigm band by job_band too).  gwsc 1 in the run directory continues from the last QPU.<N>run.
 #   usage: cont_gwsc.sh <tag> <from> <to> <bindir>
 #   PREC (tf32 | fp32 | fp64, default fp32), GPUS (default 0; GPUS=0,1 for two), RUNS_DIR as in run_gwsc10.sh
+#   From LDA: make <RUNS_DIR>/<tag> with ctrlg.liti2o4.toml and env.sh, then FROM=1 (the first gwsc 1 does the LDA).
 # Output in <RUNS_DIR>/<tag>: bnd_mlo_iter<N>.dat, bndPMT_iter<N>.dat, snap/iter<N>/ (the state after iteration N),
 # steps.log (one line per iteration, then the band lines).
 set -u
@@ -21,6 +22,9 @@ say(){ echo "$(date '+%m-%d %H:%M') $*" >> $L; }
 B=$(dirname "$(readlink -f $BIN/lmf)")
 say "continue $FROM..$TO bin=$BIN rev=$(head -1 $B/../.ecalj_rev 2>/dev/null || head -1 $B/FROZEN_REV 2>/dev/null) prec=${PREC:-fp32} GPUS=$GPUS"
 for it in $(seq $FROM $TO); do
+  # <run dir>/stop_after holding N stops the loop after iteration N (2026-09-28): a running chain can be shortened
+  # without editing the chain script (bash reads a running script as it goes).
+  if [ -s $D/stop_after ] && [ $it -gt $(cat $D/stop_after) ]; then say "stop_after $(cat $D/stop_after): stopped before iter $it"; break; fi
   t0=$(date +%s)
   CUDA_VISIBLE_DEVICES=$GPUS $BIN/gwsc 1 -np 60 -np2 $NP2 --gpu --prec=${PREC:-fp32} --ntqxx --mlo $T > gwsc_it$it.log 2>&1; rc=$?
   say "iter $it rc=$rc secs=$(( $(date +%s)-t0 )) mloON=$(grep -c 'MLO Sigma interpolation ON' llmf 2>/dev/null) $(grep ehf llmf 2>/dev/null | tail -1 | tr -s ' ')"
