@@ -351,12 +351,17 @@ for iline in catok.split('\n'):
     else:
         sections.setdefault(sec, {})[key] = (typ, parsed, legacy_sub)
 
-# Auto-fill STRUC_NSPEC / STRUC_NBAS if missing
+# [struc] nspec / nbas are never written (2026-09-28; they used to be auto-filled here, and the TOML loader now stops
+# on them): the numbers of species and sites are those of the [[spec]] / [[site]] tables. A count written beside the
+# tables used to win, so sites added to the tables were silently left out (the LiTi2O4 empty spheres of 2026-09-23).
+# When the legacy ctrl used only the first NBAS sites (or NSPEC species), the rest are written commented out.
 struc = sections.setdefault('struc', {})
-if 'nspec' not in struc:
-    struc['nspec'] = ('int', nspec, 'NSPEC')
-if 'nbas' not in struc:
-    struc['nbas'] = ('int', nbas, 'NBAS')
+first_n = {}
+for key, arr, count in (('nspec', 'spec', nspec), ('nbas', 'site', nbas)):
+    if key in struc:
+        n = struc.pop(key)[1]
+        if n < count:
+            first_n[arr] = n
 
 if unknown_keys:
     warn('skipped dead/unknown keys: ' + ', '.join(sorted(unknown_keys)))
@@ -510,7 +515,11 @@ def emit_array(sec):
     if hdr:
         print(hdr, end='')
     for i in indices:
-        print(f'[[{sec}]]   # @{i}')
+        off = sec in first_n and i > first_n[sec]         # beyond the legacy NBAS / NSPEC: commented out
+        if off and i == first_n[sec] + 1:
+            print(f'# [[{sec}]] {i} and after: commented out; the legacy ctrl used only the first {first_n[sec]} (NBAS/NSPEC)')
+        pre = '# ' if off else ''
+        print(f'{pre}[[{sec}]]   # @{i}')
         present = [k for k in order if k in items[i]]
         if present:
             w = max(len(fmt_key(k)) for k in present)
@@ -521,7 +530,7 @@ def emit_array(sec):
                     c = fmt_key_inline(sec, k)
                     if c and '\n' not in ln:
                         ln = ln + '  ' + c
-                    print(ln)
+                    print('\n'.join(pre + l for l in ln.split('\n')))
         print('')
 
 emit_array('site')

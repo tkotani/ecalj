@@ -8,8 +8,9 @@ The empty sites of the spinel (Fd-3m, origin 1: Li 8a, Ti 16d, O 32e) in the pri
 (kt1 mlo_es_lda): E1 at 16c (1/8,1/8,1/8)-type, 4 sites, r = 1.30; E2 at 8b (1/2,1/2,1/2) and (3/4,3/4,3/4), r = 1.45.
 Each gets s and p MTOs (lmx = 1) and s + p MLOs (mlo_lm 1 2 3 4), so the MLO model grows from 126 to 150 orbitals.
 
-  sites: the [[site]] blocks after the last site, the [[spec]] blocks before '# === BZ', nbas / nspec of [struc] (lmf reads
-         these counts, not the number of tables), and the ES lines at the end of mlo_lm.
+  sites: the [[site]] blocks after the last site, the [[spec]] blocks before '# === BZ', and the ES lines at the end of
+         mlo_lm; nbas / nspec, if [struc] still has them, are removed (the counts are those of the tables; lmf stops on
+         them since 2026-09-28, and before that a stale count silently dropped the added sites).
          The other sections (the [gw] settings of the run, [mlo], [product_basis] of the 14 atoms) are kept as they are.
   merge: the per-atom product-basis rows of the new atoms (pb_lcutmx entries, nlx / valence / core rows with iatom > 14)
          taken from a copy that gwinit has regenerated (lmfa -> lmf --jobgw=0 -> gwinit) are appended to the tables of
@@ -50,9 +51,8 @@ def add_sites(s):
     s = s[:i] + blk + s[i:]
     j = s.index('# === BZ')
     s = s[:j] + SPECS + s[j:]
-    nsp = len(re.findall(r'^\[\[spec\]\]', s, re.M))                         # 3 + E1 + E2
-    s = re.sub(r'^nspec = \d+', f'nspec = {nsp}', s, count=1, flags=re.M)   # [struc] counts them explicitly: lmf reads
-    s = re.sub(r'^nbas  = \d+', f'nbas  = {nat + len(SITES)}', s, count=1, flags=re.M)   # nbas/nspec, not the tables
+    s = re.sub(r'^\s*(nspec|nbas)\s*=.*\n', '', s, flags=re.M)   # [struc] must not carry them (lmf stops; 2026-09-28):
+                                                                   # the counts are those of the tables
     lm = ''.join(f'{nat + 1 + k} {a}   1 2 3 4\n' for k, (a, q) in enumerate(SITES))
     m = re.search(r'^mlo_lm = """\n(.*?)^"""', s, re.M | re.S)
     s = s[:m.end(1)] + lm + s[m.end(1):]

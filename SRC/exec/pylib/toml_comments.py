@@ -27,7 +27,8 @@ SECTION_HEADER = {
     'struc': (
         "# === STRUC: lattice ===",
         "# alat in a.u.; plat is the primitive cell in units of alat (rows = a1,a2,a3).",
-        "# nbas/nspec are filled automatically from the [[site]]/[[spec]] arrays.",
+        "# The numbers of sites and species are those of the [[site]]/[[spec]] tables: do not write",
+        "# nbas/nspec (lmf stops on them). To leave a site out, comment out its [[site]] block.",
     ),
 
     'site': (

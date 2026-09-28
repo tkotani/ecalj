@@ -1,3 +1,17 @@
+2026-09-28
+  ctrlg.<sname>.toml の [struc] に nbas / nspec を書かない。書いてあれば lmf (lmfa なども) がメッセージを出して止まる
+  (m_ctrl_toml_loader)。サイトと種の数は [[site]] / [[spec]] の表の数。以前は書いた数が表より優先され、表に足した
+  サイトが黙って無視されていた (LiTi2O4 の空球の試し、2026-09-23)。
+  - 手持ちの ctrlg は ctrlg_drop_counts.py ctrlg.<sname>.toml で直す (2 行を消す。nbas が表より少なかったとき
+    = 先頭の nbas 個だけを使う古いやり方のときは、残りの [[site]] ブロックをコメントにして同じ計算のままにする。
+    元は .bak_counts に残す)。サイトを外したいときは [[site]] ブロックごとコメントにする。
+  - Legacy2toml.py (ctrl2ctrltoml.py) は nbas / nspec を書かない (以前は数えて書き足していた)。古い ctrl が
+    NBAS で一部だけを使っていたときは、残りのブロックをコメントにして書く。
+  - Samples の ctrlg 106 本を直した (102 本は表と同じ数を消しただけ。TestInstall/te の 4 本は nbas = 3・nspec = 1 で
+    空球 9 個と E 種を外していたので、そのブロックをコメントにした)。
+  gwsc は QSGW.<N>run/ に efermi.lmf・QMLO_SigRs・QMLO_z も残す (MLO-QSGW の反復ごとのバンドを後から描ける。
+  LiTi2O4 9³ で 1 反復 600 MB)。
+
 2026-09-27 (4)
   有限温度 (t_tetrakbt > 0) の 2 点 (ecaljdoc kBT.md §7.2・§7.5、研究ログ 2026-09-27 23:45)。
   - CoreEx (hsfp0_sc --job=3、コアとの交換) の Fermi 準位: 有限温度で EFERMI_kbt に上書きされ、交換の和に占有された価電子の

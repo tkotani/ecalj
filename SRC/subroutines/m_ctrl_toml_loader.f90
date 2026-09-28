@@ -38,13 +38,10 @@ contains
     allocate(lines(0))
     nl = 0
     call walk_table(root, '', '', lines, nl)
-    ! Fallback STRUC_NSPEC / STRUC_NBAS from the [[spec]] / [[site]]
-    ! array lengths so the TOML doesn't have to repeat the count itself.
-    ! Appended AFTER walk_table so any user-written [struc] nspec/nbas
-    ! (intentional subset selector -- e.g. Samples/TestInstall/te has 12
-    ! sites in the arrays but nbas=3 in three of the four variants) still
-    ! wins via rval2's first-match. If the user omitted them, our count
-    ! becomes the value rval2 sees.
+    ! STRUC_NSPEC / STRUC_NBAS are the numbers of the [[spec]] / [[site]] tables, and only that: [struc] nspec / nbas
+    ! are an error (2026-09-28). A count written beside the tables used to win, so sites added to the tables were
+    ! silently left out (LiTi2O4 empty spheres, 2026-09-23). To leave sites out, comment out their [[site]] blocks.
+    call reject_counts(root, filename)
     call emit_array_count(root, 'spec', 'STRUC_NSPEC', lines, nl)
     call emit_array_count(root, 'site', 'STRUC_NBAS',  lines, nl)
 
@@ -114,6 +111,24 @@ contains
 
   !> Count an array-of-tables at the root and emit one synthetic
   !! "<rec_key> <count>" record. No-op if the key is absent or empty.
+  !> Stop when [struc] carries nbas or nspec: the counts are those of the [[site]] / [[spec]] tables (2026-09-28).
+  subroutine reject_counts(root, filename)
+    type(toml_table), pointer, intent(in) :: root
+    character(*),              intent(in) :: filename
+    class(toml_value), pointer :: node
+    if (.not.associated(root)) return
+    call root%get('struc', node)
+    if (.not.associated(node)) return
+    select type (t => node)
+    type is (toml_table)
+       if (t%has_key('nbas') .or. t%has_key('nspec')) call rx('m_ctrl_toml_loader: '//trim(filename)// &
+            ': [struc] nbas / nspec are not allowed. The numbers of sites and species are those of the [[site]] / '// &
+            '[[spec]] tables (a count written beside them silently left out sites added to the tables). '// &
+            'Run  ctrlg_drop_counts.py '//trim(filename)//'  (it removes the two lines; if nbas was smaller than the '// &
+            'tables, it comments out the [[site]] blocks beyond nbas). To leave sites out, comment out their blocks.')
+    end select
+  end subroutine reject_counts
+
   subroutine emit_array_count(root, toml_key_lc, rec_key, lines, nlines)
     type(toml_table), pointer,        intent(in)    :: root
     character(*),                     intent(in)    :: toml_key_lc, rec_key

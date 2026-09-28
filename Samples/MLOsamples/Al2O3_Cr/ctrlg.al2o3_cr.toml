@@ -17,10 +17,9 @@ time    = [0, 0]  # CPU timing log; [depth, on-the-fly]
 
 # === STRUC: lattice ===
 # alat in a.u.; plat is the primitive cell in units of alat (rows = a1,a2,a3).
-# nbas/nspec are filled automatically from the [[site]]/[[spec]] arrays.
+# The numbers of sites and species are those of the [[site]]/[[spec]] tables: do not write
+# nbas/nspec (lmf stops on them). To leave a site out, comment out its [[site]] block.
 [struc]
-nspec = 3
-nbas  = 10
 alat  = 1.88972687777436  # lattice constant (a.u.)
 plat  = [[5.1469402313,          0.0,          0.0],  # primitive vectors in units of alat
          [2.9080791607, 4.2466521655,          0.0],

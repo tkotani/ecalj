@@ -9,6 +9,16 @@ Developers, and AI sessions that start without memory: read ecaljdoc `manual/For
 build and test, machines, how jobs are submitted, a digest of the research log), and `ecaljclaude.md` (how code comments,
 commits and the research log are written; Claude Code reads it through `CLAUDE.md`).
 
+## 2026-09-28  ctrlg: no `nbas` / `nspec` in `[struc]` (lmf stops on them)
+
+- The numbers of sites and species are the numbers of `[[site]]` / `[[spec]]` tables. A count written in `[struc]`
+  used to win over the tables, so sites added to the tables were silently left out. Now `lmf` stops with a message.
+  Fix an older file with `ctrlg_drop_counts.py ctrlg.<sname>.toml` (it removes the two lines, and if `nbas` was
+  smaller than the tables it comments out the `[[site]]` blocks beyond it). To leave a site out, comment out its
+  whole `[[site]]` block. `Legacy2toml.py` no longer writes them. ecaljdoc `manual/lmf.md`.
+- `gwsc` keeps `efermi.lmf`, `QMLO_SigRs` and `QMLO_z` in `QSGW.<N>run/` as well, so that the bands of every
+  iteration can be drawn afterwards (MLO-QSGW; 600 MB per iteration for LiTi2O4 on 9^3).
+
 ## 2026-09-28  Finite temperature (t_tetrakbt > 0): core exchange and the thermal quadrature
 
 - The core exchange (`hsfp0_sc --job=3`) keeps its Fermi level below the valence. With `t_tetrakbt > 0` it was set
