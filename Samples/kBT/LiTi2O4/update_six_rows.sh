@@ -1,10 +1,10 @@
 #!/bin/bash
-# The six patterns {9^3, 6^3} x {tf32, fp32, fp64} side by side, rows = LDA and iterations 1..30 (user 2026-09-28):
+# The six patterns {9^3, 6^3} x {tf32, fp32, fp64} side by side, rows = LDA and iterations 1..40 (user 2026-09-28):
 # (update_six_rows.sh) fetch the MLO bands from kt1, fill each panel from the column's own run (the current code), and where that run has
 # not got there yet, from what exists already, marked [09-26 code] / [09-27 code].  -> liti2o4_six_rows.png
 set -u
 SP=${WORK:-$HOME/data/liti2o4_six}   # the fetched band files (kept: the data behind the figures) and the panel links
-export HEADS="9³  tf32|qmlo_k9_tf32n (from LDA, MLO bands 10-30);9³  tf32 + empty spheres|qmlo_k9_tf32_es_i15 (from LDA, stopped at 7);9³  fp32|qmlo_k9_fp32n (from LDA, stopped at 12);9³  fp64|qmlo_k9_fp64n (from LDA, 3 iterations);6³  tf32|qmlo_k6_tf32n (from LDA, MLO bands 10-30);6³  fp32|stand-ins of older code (orange);6³  fp64|qmlo_k6_fp64n (from LDA, 10 iterations)"   # the headers of the 7 calculations (mlo_rows.py)
+export HEADS="9³  tf32|qmlo_k9_tf32n (from LDA, MLO bands 10-40);9³  tf32 + empty spheres|qmlo_k9_tf32_es_i15 (from LDA, stopped at 7);9³  fp32|qmlo_k9_fp32n (from LDA, stopped at 12);9³  fp64|none valid yet (GEMMul8 bug, fixed b81da2342);6³  tf32|qmlo_k6_tf32n (from LDA, MLO bands 10-40);6³  fp32|stand-ins of older code (orange);6³  fp64|none valid yet (GEMMul8 bug, fixed b81da2342)"   # the headers of the 7 calculations (mlo_rows.py)
 export MLOINFO="all 7 from LDA, [gw] mixbeta 0.5, t_sigmaw 1000 K, Im chi0 smeared by a Gaussian as wide as Fermi-Dirac at 992.4 K (SmearX0 0.0057 Ha; written t_tetrakbt = -992.4 since 2026-09-28), [bz] metal 3"   # the settings the 7 share (a title line)
 S=${RUNS_DIR:-/mnt/data1/LiTi2O4_kbt_runs}   # on kt1
 C=$SP/six_cache; R=$SP/rows_six
@@ -38,19 +38,18 @@ put(){ # <column> <iteration> <file> <run> [label]: the first candidate that exi
   case $cd in liti_mlo_k9|liti_mlo_v9) rd=$cd/mloband;; lda9) rd=bench_hgw999;; lda6) rd=liti_mlo_v9;; *) rd=$cd;; esac
   echo "kt1:$S/$rd/$(basename $f)" > $dst.src; return 0
 }
-for i in $(seq 1 30); do   # iterations up to 30 (the tf32 continuations)
+for i in $(seq 1 40); do   # iterations up to 40 (the tf32 continuations)
   put k9tf32 $i $C/qmlo_k9_tf32n/bnd_mlo_iter$i.dat qmlo_k9_tf32n
   [ $i = 10 ] && put k9tf32 10 $C/qmlo_k9_tf32n/bnd_mlo_final.dat qmlo_k9_tf32n
   put k9tf32es $i $C/qmlo_k9_tf32_es_i15/bnd_mlo_iter$i.dat qmlo_k9_tf32_es_i15   # 9^3 tf32 with empty spheres (2026-09-28 20:10-, stopped at 7)
   put k9fp32 $i $C/qmlo_k9_fp32n/bnd_mlo_iter$i.dat qmlo_k9_fp32n
   put k9fp32 $i $C/liti_mlo_k9/bnd_iter$i.dat liti_mlo_k9 "09-26 code"
-  put k9fp64 $i $C/qmlo_k9_fp64n/bnd_mlo_iter$i.dat qmlo_k9_fp64n
+  # k9fp64, k6fp64: the fp64 runs of chain43 had Sigma_c eV off (kept A of GEMMul8; fixed b81da2342, research log 2026-09-29): not drawn
   put k6tf32 $i $C/qmlo_k6_tf32n/bnd_mlo_iter$i.dat qmlo_k6_tf32n
   [ $i = 10 ] && put k6tf32 10 $C/qmlo_k6_tf32n/bnd_mlo_final.dat qmlo_k6_tf32n
   put k6fp32 $i $C/qmlo_k6_gwsc10/bnd_mlo_iter$i.dat qmlo_k6_gwsc10 "09-27 code"
   [ $i = 10 ] && put k6fp32 10 $C/qmlo_k6_gwsc10/bnd_mlo_final.dat qmlo_k6_gwsc10 "09-27 code"
   put k6fp32 $i $C/liti_mlo_v9/bnd_iter$i.dat liti_mlo_v9 "09-26 code"
-  put k6fp64 $i $C/qmlo_k6_fp64n/bnd_mlo_iter$i.dat qmlo_k6_fp64n
 done
 for c in k9tf32 k9fp32 k9fp64; do put $c 0 $C/lda9/bnd_lda.dat none "job_band"; done    # LDA: the date of the file
 for c in k6tf32 k6fp32 k6fp64; do put $c 0 $C/lda6/bnd_lda.dat none "job_band"; done

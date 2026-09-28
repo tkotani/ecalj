@@ -64,7 +64,7 @@ _MC = [int(v) for v in os.environ['MESHCOLS'].split(',')] if 'MESHCOLS' in os.en
 def path(d, it): return f'{d}/bnd_lda.dat' if it == 0 else f'{d}/bnd_iter{it}.dat'
 
 # rows are driven by the MLO chain (last column); the MTO column is shown alongside
-iters = [0] + [i for i in range(1, 31) if any(os.path.exists(path(c[1], i)) for c in (COLS if NOREF else COLS[1:]))]
+iters = [0] + [i for i in range(1, 101) if any(os.path.exists(path(c[1], i)) for c in (COLS if NOREF else COLS[1:]))]
 ## ROWS="0,1,3,5,10": keep only these iterations (0 = LDA), for a figure that has to stay readable when small
 if 'ROWS' in os.environ: iters = [i for i in iters if i in {int(v) for v in os.environ['ROWS'].split(',')}]
 n = len(iters)
