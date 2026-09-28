@@ -10,6 +10,8 @@
 #   bench    BenchmarkTest/* (with -np2 1: two GW ranks on one 32 GB GPU run out of memory)
 #   heavy    TestInstall cugase2_gwsc222 nio_gwsc444 pdo_gwsc443 gas_gwsc666
 #   magnon   Legacy/Magnon/*  (work dirs of 4-5 GB)
+#   inputs   every Samples/**/ctrlg.<sname>.toml outside the *_work dirs: lmchk reads it (the [struc] rules of the loader), and
+#            the rules of ctrlg_update.py (pylib/ctrlg_rules.py: no nbas/nspec, t_tetrakbt present, no SmearX0) leave it unchanged
 # A target is a subdirectory with test.py (the <target>_work copies that testecalj makes are skipped).
 set -u
 ROOT=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)
@@ -23,7 +25,7 @@ while [ $# -gt 0 ]; do
     *) GRP+=("$1") ;;
   esac; shift
 done
-[ ${#GRP[@]} = 0 ] && GRP=(install eps procar mlo mloqsgw afsym bench heavy magnon)
+[ ${#GRP[@]} = 0 ] && GRP=(inputs install eps procar mlo mloqsgw afsym bench heavy magnon)
 LOG=${LOG:-$ROOT/samples_tests_$(hostname -s)_$(date +%Y%m%d_%H%M)}
 mkdir -p $LOG; SUM=$LOG/summary.txt
 echo "# samples_tests.sh $(date '+%F %T') on $(hostname -s): tree $ROOT ($(head -1 $ROOT/SRC/.ecalj_rev 2>/dev/null || git -C $ROOT rev-parse --short HEAD 2>/dev/null)), BIN=$BIN, -np $NP ${NP2:+-np2 $NP2} $GPU" | tee $SUM
@@ -49,8 +51,23 @@ run(){ # <group> <dir under Samples> <testecalj arguments...>
   [ $st = STOPPED ] && echo "         no summary: see $g.log" | tee -a $SUM
   return 0
 }
+run_inputs(){ # the inputs group (see the header)
+  local t0=$(date +%s) np=0 nf=0 f d s w rc rule
+  echo "=== inputs: every ctrlg.<sname>.toml of Samples: lmchk reads it, and the rules of ctrlg_update.py leave it unchanged" >> $SUM
+  while read f; do
+    d=$(dirname $f); s=$(basename $f .toml); s=${s#ctrlg.}
+    w=$LOG/inputs_work/$(echo ${d#$ROOT/Samples/} | tr / _); rm -rf $w; mkdir -p $w; cp $f $w/
+    ( cd $w && mpirun -np 1 $BIN/lmchk $s > llmchk 2>&1 < /dev/null ); rc=$?   # (mpirun reads stdin: it ate the file list)
+    rule=$(python3 -c "import sys; sys.path.insert(0, sys.argv[1]); from pylib.ctrlg_rules import update
+t = open(sys.argv[2]).read(); n, m = update(t, sys.argv[2]); print('same' if n == t else m)" $ROOT/SRC/exec $f 2>&1 | tail -1)
+    if [ $rc = 0 ] && [ "$rule" = same ]; then np=$((np+1))
+    else nf=$((nf+1)); echo "         FAILED ${f#$ROOT/}: lmchk rc=$rc ($(grep -m1 -i -E "error|abort|stop|rx:" $w/llmchk | cut -c1-80)); rules: $rule" | tee -a $SUM; fi
+  done < <(find $ROOT/Samples -name 'ctrlg.*.toml' -not -path '*_work*' | sort)
+  printf "%-8s %-7s %4d checks passed, %3d failed  %6d s\n" inputs $([ $nf = 0 ] && echo PASSED || echo FAILED) $np $nf $(( $(date +%s)-t0 )) | tee -a $SUM
+}
 for g in "${GRP[@]}"; do
   case $g in
+    inputs)  run_inputs ;;
     install) run install TestInstall --all ;;
     eps)     run eps EPS $(targets EPS) ;;
     procar)  run procar PROCAR $(targets PROCAR) ;;

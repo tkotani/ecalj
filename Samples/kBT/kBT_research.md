@@ -83,6 +83,22 @@
 
 （夜の TODO: 6³・9³ の tf32 の収束、FP16 の確かめ (a)〜(c)、検証、kBT の残り、ファイルの統一、速さの残り、文書の整理）
 
+### 23:25 **kr7・mic で Samples の試験。nvfortran で MLOsamples/NiO666lda の MLO バンドが 3.8 meV ずれていた: m_HamPMT の「浅い局所軌道」の判定が飛ばされていた（`e48a6952a` で直した）**
+
+- `TOOLS/samples_tests.sh`（組ごとに testecalj を回して最後の要約だけを数える）で kr7（nvfortran 26.1、GPU）と mic（ifx 2026、CPU）を回し始めた。
+  kr7 の最初の回（23:01、`792514133`）: EPS 6、MLOQSGW 5、AFsymmetry 2 が合格、MLOsamples は NiO666lda だけ不合格
+  （band_MLO_spin1/2 の最大差 3.8 meV、許容 0.074 meV）。PROCAR と TestInstall は gnuplot が無くて止まる（user に `sudo apt install -y gnuplot-nox` を依頼中）。
+  mic（23:11、`7f1a49cf2`）: TestInstall `--all` 64 件、EPS 6、PROCAR が合格
+- **切り分け**: 手元の gfortran では NiO666lda は通る。job_mlo は CPU 版の lmf・mlo を呼ぶので GPU ではない。mlo のログを比べると、
+  gfortran には `m_HamPMT: local orbital atom 1  l= 2 ... -> SHALLOW: LO is the model function`（Ni 3d の局所軌道をモデル関数にする、
+  09-18 の `67089d67d`）の 2 行があり、nvfortran には無い。nskip の行より前の対角化も 8 回少なく、判定のブロックに入っていなかった
+- **原因**: kr7 に診断の 1 行を入れたビルドで、`has_lo` の (1,2) と (2,2) が立っているのに `any(has_lo)` が F。しかも配列全体を書き出すと
+  T が 1 要素ずれた位置に出た。BLOCK の中の自動配列 `has_lo(nbas,0:3)` を nvfortran 26.1 が正しく扱っていない
+  （小さな再現プログラムでは -O0〜-fast -O3 のどれでも起きなかった）。入れ子の BLOCK をやめるだけでは直らず、
+  `use_lo`・`has_lo`・`etop`・`etop_all` を allocatable にし、入口の判定を明示的なループにして直った（kr7 で SHALLOW の 2 行が gfortran と同じ値、NiO666lda 合格）。
+  手元の gfortran でも NiO666lda・ZnO・RuO2・Cu・GaAs が合格。この BLOCK は gfortran 13.3/14.2 の誤コンパイル（lmindex）の前歴もある
+- 同じ形（下限 0 の自動配列を BLOCK の中で）の配列が他に無いかは、まだ洗っていない
+
 ### 22:58 **SmearX0 をやめて `t_tetrakbt < 0` に（ecalj `0ef0fa5f9`、ecaljdoc `497ce14`）。空球入りの 9³ tf32 は反復 7 で止め、残りを chain43 に組み替えた。kr7 を整えた**
 
 - **smearing のキー**（user の判断、今晩）: 「t_tetrakbt だけにしよう。マイナスの温度で入れると SmearX0 として働く。必ず入れるので覚えやすい」。
