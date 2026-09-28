@@ -30,6 +30,11 @@ while [ $# -gt 0 ]; do
   esac; shift
 done
 [ ${#GRP[@]} = 0 ] && GRP=(inputs install eps procar mlo mloqsgw afsym bench heavy magnon)
+# --gpu without -np2: one GW rank per visible GPU (2026-09-28: 8 GW ranks on the one 32 GB GPU of kr7 ran out of memory in the heavy group)
+if [ -n "$GPU" ] && [ -z "$NP2" ]; then
+  if [ -n "${CUDA_VISIBLE_DEVICES:-}" ]; then NP2=$(echo $CUDA_VISIBLE_DEVICES | tr "," "\n" | grep -c .); else NP2=$(nvidia-smi -L 2>/dev/null | grep -c "^GPU"); fi
+  [ "${NP2:-0}" -ge 1 ] 2>/dev/null || NP2=1
+fi
 LOG=${LOG:-$ROOT/samples_tests_$(hostname -s)_$(date +%Y%m%d_%H%M)}
 mkdir -p $LOG; SUM=$LOG/summary.txt
 echo "# samples_tests.sh $(date '+%F %T') on $(hostname -s): tree $ROOT ($(head -1 $ROOT/SRC/.ecalj_rev 2>/dev/null || git -C $ROOT rev-parse --short HEAD 2>/dev/null)), BIN=$BIN, -np $NP ${NP2:+-np2 $NP2} $GPU $MP ${RUNARGS:+--run-args=$RUNARGS}" | tee $SUM
@@ -83,7 +88,7 @@ for g in "${GRP[@]}"; do
     mlo)     run mlo MLOsamples $(targets MLOsamples) ;;
     mloqsgw) run mloqsgw MLOQSGW $(targets MLOQSGW) ;;
     afsym)   run afsym Legacy/AFsymmetry $(targets Legacy/AFsymmetry) ;;
-    bench)   NP2=1 run bench BenchmarkTest $(targets BenchmarkTest) ;;
+    bench)   NP2=1 run bench BenchmarkTest $(targets BenchmarkTest) ;;   # one GW rank even with two GPUs (README)
     heavy)   run heavy TestInstall cugase2_gwsc222 nio_gwsc444 pdo_gwsc443 gas_gwsc666 ;;
     magnon)  run magnon Legacy/Magnon $(targets Legacy/Magnon) ;;
     *) echo "unknown group $g" | tee -a $SUM ;;
