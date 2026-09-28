@@ -83,6 +83,18 @@
 
 （夜の TODO: 6³・9³ の tf32 の収束、FP16 の確かめ (a)〜(c)、検証、kBT の残り、ファイルの統一、速さの残り、文書の整理）
 
+### 23:55 **kr7 で Samples をすべて回す（user「kr7 でとにかくパッケージの Samples などをフルテスト」）。ここまで全部合格。gwinit の新しい既定（300 K）は GaAs で 1 meV 以下**
+
+- kr7（nvfortran 26.1、`e48a6952a` に道具の修正を足したもの）: inputs 114、TestInstall `--all`（CPU）64、EPS 6、PROCAR 5、MLOsamples 45（NiO666lda も）、
+  MLOQSGW 5、AFsymmetry 2 がすべて合格。いま GPU で BenchmarkTest → 重い GW 4 → Magnon、その後に GPU の TestInstall を
+  fp64（`--all`）、tf32（`--gwall --mp`）、fp32（`--gwall --run-args=--prec=fp32`）で回す（D、予約済み）
+- getsyml（と ctrlgenToml.py・ctrlgenM1.py）が lmchk・lmfa を PATH から呼んでいた。kr7 では PATH に無くて PROCAR/Ni2MnGa が止まり、
+  mic では PATH にあった普段の `~/bin/lmchk`（古い版）を使っていた。自分の bindir のものを呼ぶように直した（`cccc74643`）
+- **gwinit の新しい既定の確かめ**: GetStarted/GaAs の ctrls から ctrlgenToml.py で作ると `t_tetrakbt = 300`・`t_sigmaw = 300` が入り、`gwsc 0` が通る。
+  EFERMI_kbt は 0.15332 Ry（EFERMI 0.15220 Ry、ギャップ 0.0216 Ry の中）。同じ入力の `t_tetrakbt = 0` と比べ、dSEnoZ の差は全 430 準位で最大 1.0 meV、平均 0
+- git の中に、`/home/takao/ecalj/...` を指す絶対パスの symlink が約 30 本ある（`SRC/exec/getsyml`、`SRC/exec/build/*`、`SRC/exec_gfortran/*`、
+  Emacs のロックの `.#*`）。インストールは使っていないが、ほかの場所に置くと行き先が無い。片付けは user の判断待ち
+
 ### 23:25 **kr7・mic で Samples の試験。nvfortran で MLOsamples/NiO666lda の MLO バンドが 3.8 meV ずれていた: m_HamPMT の「浅い局所軌道」の判定が飛ばされていた（`e48a6952a` で直した）**
 
 - `TOOLS/samples_tests.sh`（組ごとに testecalj を回して最後の要約だけを数える）で kr7（nvfortran 26.1、GPU）と mic（ifx 2026、CPU）を回し始めた。
