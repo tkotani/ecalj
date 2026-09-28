@@ -81,6 +81,26 @@
 
 ## 2026-09-29 — fp64 の GPU の Σc がずれる件、Samples の試験の続き
 
+### 07:20 **fp64 のずれの原因は GEMMul8: 同じ凍結したバイナリで積を cuBLAS に替えると、1 反復目の SEc が fp32 と 1 meV で一致（chain45）。`nttp` ではなかった**
+
+- chain44（04:48〜05:26）: 6³ tf32 の 31〜40 を終えた
+- chain45（05:27〜07:13、kt1、GPU 2 枚）: LiTi₂O₄ 6³ を LDA から fp64 で 1 反復、`--linalg=fp64.zgemm.*=cublas,fp64.dgemm.*=cublas`（gwsc は知らない引数を各プログラムへ渡す）。
+  **表 07:20-1**. 1 反復目の SEc の差
+
+  | 比べたもの | 最大 | rms |
+  | --- | --- | --- |
+  | fp64（cuBLAS）− fp32（09-27） | 0.001 eV | 0.000 eV |
+  | fp64（cuBLAS）− tf32 | 0.002 eV | 0.001 eV |
+  | fp64（cuBLAS）− fp64（GEMMul8、`qmlo_k6_fp64n`） | 2.791 eV | 1.496 eV |
+
+  cuBLAS の FP64 は RTX 5090 で遅く、この 1 反復に 1 時間 47 分（GEMMul8 では 930 秒）
+- kt1 の表（`~/bin_frozen_9e881g/ecalj_linalg_policy.toml`）は fp64 の zgemm・dgemm が `gemmul8:14`。fp32・tf32 の Σc の積は単精度（realsgemm・realhgemm）で
+  GEMMul8 を通らないので、fp64 だけが壊れる。W(iω) の積は `key = 1000 + iw` で A（W）の分解を残して使い回す（`gemmul8_wrapper.cu` の g_kept）。
+  この使い回しと Σc の key は 09-27 03:50 の `5a87377e3` で入り、LiTi₂O₄ で fp64 を基準に使った性能比較はそれより前だった → LiTi₂O₄ で GEMMul8 の fp64 は確かめられていなかった
+- `nttp` の件（`962c90d1b`）は外れ（`nttp(0:nw)` は 2024-07 からある形）。変更は害が無いので残す。kr7 の前後比較は「修正前」を取りやめ、
+  kr7 の cuBLAS の fp64（「修正後」）だけ最後まで回す
+- 07:16 chain46: 同じく fp64 だが GEMMul8 のまま、A の使い回しだけを切る（`ECALJ_LA_CACHE_GB=0`）。これで fp32 と合えば使い回しの誤り、合わなければ GEMMul8 の積そのもの
+
 ### 05:05 **6³ fp64（LDA から 10 反復）は全エネルギーが tf32 より 50〜100 eV 低く、1 反復目の SEc が fp32・tf32 と最大 2.8 eV（rms 1.5 eV）ずれていた。
 user の指示で fp64 を止め（04:4x）、6³ tf32 を 31〜40 まで続け、fp64 は kr7 で調べる**（user「fp64 とめて」「tf32 の 666 を 30 の後追加で 10 回回して、
 その後 fp64 の調査。そんなに fp32 からずれない」「調査には kr7 がいいかも」）
