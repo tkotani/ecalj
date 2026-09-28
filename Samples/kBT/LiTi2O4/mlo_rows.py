@@ -97,7 +97,11 @@ for r, it in enumerate(iters):
             if bb is not None: ax.plot(x, T[bb], '-', lw=2.0, color='tab:blue')  # the band bulging mid Gamma-X
         else:
             for b in S: ax.plot(x, b, '-', lw=1.2, color='0.45' if it == 0 else col)
-        ax.set_title(f'{lab}   {"LDA" if it == 0 else f"iter {it}"}', fontsize=10)
+        ## <band file>.label (one line) marks a panel whose data is not from the column's own run, e.g. an older code
+        ## standing in until the run gets there (2026-09-28); the title gets it in orange
+        tag = open(f + '.label').read().strip() if os.path.exists(f + '.label') else ''
+        ax.set_title(f'{lab}   {"LDA" if it == 0 else f"iter {it}"}' + (f'  [{tag}]' if tag else ''), fontsize=10,
+                     color='tab:orange' if tag else 'k')
         ax.set_ylim(-0.9, 1.5); ax.set_xlim(0, 1); ax.axhline(0, color='k', lw=0.9)
         ## Sigma q-mesh points: a small red cross on every band (where the interpolation is exact).
         ## On 9^3 the mesh x = 2n/9 is not on the 211-point grid, so the band is interpolated there.
@@ -122,5 +126,5 @@ fig.suptitle(f'LiTi$_2$O$_4$  {_ML} (nkabc = n1n2n3 = mesh)   t$_{{2g}}$ (b33-44
              
              f'generated {stamp}', fontsize=10.5)
 plt.tight_layout(rect=[0, 0, 1, 1 - 0.95/(ROWH*n + 1.0)])
-plt.savefig(OUT, dpi=115)
+plt.savefig(OUT, dpi=float(os.environ.get('DPI', '115')))
 print('wrote', OUT, f'({n} rows x {len(COLS)} cols)')
