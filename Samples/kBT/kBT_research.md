@@ -109,7 +109,9 @@
   （小さな再現プログラムでは -O0〜-fast -O3 のどれでも起きなかった）。入れ子の BLOCK をやめるだけでは直らず、
   `use_lo`・`has_lo`・`etop`・`etop_all` を allocatable にし、入口の判定を明示的なループにして直った（kr7 で SHALLOW の 2 行が gfortran と同じ値、NiO666lda 合格）。
   手元の gfortran でも NiO666lda・ZnO・RuO2・Cu・GaAs が合格。この BLOCK は gfortran 13.3/14.2 の誤コンパイル（lmindex）の前歴もある
-- 同じ形（下限 0 の自動配列を BLOCK の中で）の配列が他に無いかは、まだ洗っていない
+- 同じ形（BLOCK の中の、下限が 1 でない自動配列）は他に 6 か所: basnfp の `fac2l(0:lxx)`、locpot の `lxa(0:kmax)`、m_bandcal の
+  `nk_all(0:numprocs-1)`（2 か所、mpi_allgather に渡す）、m_sxcf_sc の `nttp(0:nw)`、x0kf_ahc の `inbb(-1:1,nbb,nband_k)`（23:58 に機械的に洗った）。
+  どれも配列全体の操作を含むが TestInstall の経路にあり、nvfortran（kr7 の CPU、kt1 の GPU）で試験は通っている。予防の書き換えはしていない
 - mic（ifx 2026、修正前の `7f1a49cf2`）でも NiO666lda は合格し SHALLOW の 2 行が出ていた: nvfortran だけの問題（23:30 に確認）
 - 試験の仕組みの穴を 3 つ直した（`1b9d4a3df`、`1eeb51128`、`d6468a97e`）:
   1. getsyml は `seekpath` を使う。mic・kr7 の venv に無く、PROCAR/Ni2MnGa の `job_band --fatband` が syml 無しで止まった → 入れた
