@@ -73,6 +73,10 @@ MINW = float(os.environ.get('MINW', '9'))     # the title lines need about 9 inc
 fig, AX = plt.subplots(n, len(COLS), figsize=(max(4.9 * len(COLS) + 0.4, MINW), ROWH * n + 1.0),
                        sharex=True, sharey=True, squeeze=False)
 store = {}
+## OCC=1: only the two lowest t2g bands (the occupied pair near Gamma) on 0 < x < 0.5, with the dip of the lowest band below its
+## Gamma value (x < 0.3) and their roughness (mean |E(k-1) - 2E(k) + E(k+1)| on x < 0.5, sorted per k) in each panel (2026-09-28)
+OCC = os.environ.get('OCC', '0') == '1'
+XMAX, YL = (0.5, (-0.58, -0.18)) if OCC else (1.0, (-0.9, 1.5))
 DATA = {}   # the numbers of every panel, written to DATAOUT (2026-09-28, user: the numbers behind a plot must be kept)
 for r, it in enumerate(iters):
     for c, (lab, d, col) in enumerate(COLS):
@@ -81,17 +85,25 @@ for r, it in enumerate(iters):
             ## EMPTY=frame: an empty frame with the same axes, so that the columns stay aligned when runs
             ## have different iterations (2026-09-28, user: the figure looked shifted); default: no frame
             if os.environ.get('EMPTY', 'off') == 'frame':
-                ax.set_ylim(-0.9, 1.5); ax.set_xlim(0, 1)
+                ax.set_ylim(*YL); ax.set_xlim(0, XMAX)
                 ax.set_title(f'{lab}   iter {it}', fontsize=10, color='0.6')
                 ax.text(0.5, 0.5, 'no band (not run yet / not kept)', transform=ax.transAxes, ha='center', va='center',
                         color='0.6', fontsize=9)
-                ax.yaxis.set_major_locator(MultipleLocator(0.5))
+                ax.yaxis.set_major_locator(MultipleLocator(0.1 if OCC else 0.5))   # the y axis is shared: same ticks
             else:
                 ax.axis('off')
             continue
         x, E = rd(f); S = np.sort(E[LO:HI], axis=0); store[(c, it)] = S
         DATA[f'{os.path.basename(d)}_{"lda" if it == 0 else f"iter{it}"}'] = (x, S, os.path.realpath(f))
-        if HILITE and it > 0:
+        if OCC:
+            ax.plot(x, S[1], '-', lw=1.2, color='0.3')
+            ax.plot(x, S[0], '-', lw=1.6, color='tab:green')
+            h = x < 0.5
+            dip = (S[0][0] - S[0][x < 0.3].min()) * 1e3
+            rough = np.mean([np.abs(b[h][:-2] - 2 * b[h][1:-1] + b[h][2:]).mean() for b in S[:2]]) * 1e3
+            ax.text(0.02, 0.96, f'dip {dip:.1f} meV,  roughness {rough:.3f} meV', transform=ax.transAxes, va='top',
+                    fontsize=9, backgroundcolor='white')
+        elif HILITE and it > 0:
             T = track(S); bb = bulger(T, x)
             for k, b in enumerate(T):
                 ax.plot(x, b, '-', lw=0.9, color='0.72')
@@ -106,13 +118,14 @@ for r, it in enumerate(iters):
         stamp = open(f + '.stamp').read().strip() if os.path.exists(f + '.stamp') else ''
         ax.set_title(f'{lab}   {"LDA" if it == 0 else f"iter {it}"}' + (f'  [{tag}]' if tag else '')
                      + (f'  ({stamp})' if stamp else ''), fontsize=9.5, color='tab:orange' if tag else 'k')
-        ax.set_ylim(-0.9, 1.5); ax.set_xlim(0, 1); ax.axhline(0, color='k', lw=0.9)
+        ax.set_ylim(*YL); ax.set_xlim(0, XMAX); ax.axhline(0, color='k', lw=0.9)
         ## Sigma q-mesh points: a small red cross on every band (where the interpolation is exact).
         ## On 9^3 the mesh x = 2n/9 is not on the 211-point grid, so the band is interpolated there.
-        _qm = qmesh(_MC[c]) if _MC else QMESH
-        for b in S:
+        _qm = [q for q in (qmesh(_MC[c]) if _MC else QMESH) if q <= XMAX + 1e-9]
+        for b in (S[:2] if OCC else S):
             ax.plot(_qm, np.interp(_qm, x, b), 'x', color='red', ms=4.5, mew=1.1, zorder=5)
-        ax.yaxis.set_major_locator(MultipleLocator(0.5)); ax.yaxis.set_minor_locator(MultipleLocator(0.1))
+        if OCC: ax.yaxis.set_major_locator(MultipleLocator(0.1)); ax.yaxis.set_minor_locator(MultipleLocator(0.02))
+        else:   ax.yaxis.set_major_locator(MultipleLocator(0.5)); ax.yaxis.set_minor_locator(MultipleLocator(0.1))
         ax.grid(axis='y', which='major', color='0.78', lw=0.6)
         ax.grid(axis='y', which='minor', color='0.92', lw=0.4)
     AX[r][0].set_ylabel('$E-E_F$ [eV]')
@@ -120,10 +133,13 @@ for a in AX[-1]: a.set_xlabel('$\\Gamma \\to X$')
 stamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
 MESH = os.environ.get('MESH', '6')
 _ML = ' / '.join(f'{m}$^3$' for m in dict.fromkeys(MESH.split(',')))
-fig.suptitle(f'LiTi$_2$O$_4$  {_ML} (nkabc = n1n2n3 = mesh)   t$_{{2g}}$ (b33-44) along $\\Gamma\\to X$, 211 points\n'
-             'red x = $\\Sigma$ q-mesh points (interpolation is exact there)\n'
+fig.suptitle(f'LiTi$_2$O$_4$  {_ML} (nkabc = n1n2n3 = mesh)   '
+             + ('the occupied t$_{{2g}}$ pair (the two lowest of b33-44) on the first half of $\\Gamma\\to X$\n' if OCC else
+                f't$_{{2g}}$ (b33-44) along $\\Gamma\\to X$, 211 points\n')
+             + 'red x = $\\Sigma$ q-mesh points (interpolation is exact there)\n'
              + (os.environ.get('MLOINFO', '') + '\n' if os.environ.get('MLOINFO') else '')
-             + ('green = lowest band, blue = the band that bulges mid Gamma-X (tracked through crossings), grey = the rest\n' if HILITE else '')
+             + ('green = the lowest band, dark grey = the second (energy-sorted at each k)\n' if OCC else
+                ('green = lowest band, blue = the band that bulges mid Gamma-X (tracked through crossings), grey = the rest\n' if HILITE else ''))
              + ('' if NOREF else
                 'CAUTION: different APW cutoffs - MTO chain pwmode=1 (|G|), MLO chains pwmode=11 (|q+G|).\n'
                 'Each column states its own damping; the MTO chain always Anderson-mixes sigm at [gw] mixbeta\n') +

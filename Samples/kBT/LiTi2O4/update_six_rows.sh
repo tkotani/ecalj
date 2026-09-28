@@ -59,6 +59,11 @@ HILITE=1 EMPTY=frame MESH=9,6 MESHCOLS=9,9,9,6,6,6 ROWS=0,$rows DPI=90 DATAOUT=l
   k9tf32,k9fp32,k9fp64,k6tf32,k6fp32,k6fp64 \
   "9^3 tf32  MLO BAND,9^3 fp32  MLO BAND,9^3 fp64  MLO BAND,6^3 tf32  MLO BAND,6^3 fp32  MLO BAND,6^3 fp64  MLO BAND" \
   'tab:green,tab:green,tab:green,tab:green,tab:green,tab:green' noref
+# the occupied t2g pair only (OCC=1, 0 < x < 0.5), same panels (its numbers are in the npz above: the two lowest of the t2g)
+HILITE=1 EMPTY=frame OCC=1 MESH=9,6 MESHCOLS=9,9,9,6,6,6 ROWS=$rows DPI=90 python3 mlo_rows.py $R liti2o4_six_occ.png \
+  k9tf32,k9fp32,k9fp64,k6tf32,k6fp32,k6fp64 \
+  "9^3 tf32  MLO BAND,9^3 fp32  MLO BAND,9^3 fp64  MLO BAND,6^3 tf32  MLO BAND,6^3 fp32  MLO BAND,6^3 fp64  MLO BAND" \
+  'tab:green,tab:green,tab:green,tab:green,tab:green,tab:green' noref
 for c in k9tf32 k9fp32 k9fp64 k6tf32 k6fp32 k6fp64; do
-  echo "$c: $(ls $R/$c | grep -v -E 'label|stamp' | sed 's/bnd_iter//; s/bnd_lda/LDA/; s/.dat//' | sort -n | tr '\n' ' ')"
+  echo "$c: $(ls $R/$c | grep -v -E 'label|stamp|src' | sed 's/bnd_iter//; s/bnd_lda/LDA/; s/.dat//' | sort -n | tr '\n' ' ')"
 done
