@@ -77,7 +77,17 @@ for r, it in enumerate(iters):
     for c, (lab, d, col) in enumerate(COLS):
         ax = AX[r][c]; f = path(d, it)
         if not os.path.exists(f):
-            ax.axis('off'); continue
+            ## EMPTY=frame: an empty frame with the same axes, so that the columns stay aligned when runs
+            ## have different iterations (2026-09-28, user: the figure looked shifted); default: no frame
+            if os.environ.get('EMPTY', 'off') == 'frame':
+                ax.set_ylim(-0.9, 1.5); ax.set_xlim(0, 1)
+                ax.set_title(f'{lab}   iter {it}', fontsize=10, color='0.6')
+                ax.text(0.5, 0.5, 'no band (not run yet / not kept)', transform=ax.transAxes, ha='center', va='center',
+                        color='0.6', fontsize=9)
+                ax.yaxis.set_major_locator(MultipleLocator(0.5))
+            else:
+                ax.axis('off')
+            continue
         x, E = rd(f); S = np.sort(E[LO:HI], axis=0); store[(c, it)] = S
         if HILITE and it > 0:
             T = track(S); bb = bulger(T, x)
