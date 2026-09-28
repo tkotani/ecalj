@@ -76,7 +76,12 @@ YL_EG = (2.6, float(os.environ.get('EGMAX', '8.0')))   # 2026-09-28: up to 8 eV 
 ROWH = float(os.environ.get('ROWH', '2.5'))   # height of a row (inch); ROWH=5 for a figure of one or two rows (2026-09-28)
 MINW = float(os.environ.get('MINW', '9'))     # the title lines need about 9 inch; one column was clipped (2026-09-28)
 COLW = float(os.environ.get('COLW', '4.9'))   # width of a column (inch); COLW=3.6 for the 12-column figure
-FIGH = ROWH * n + 1.5      # 1.5 inch on top for the title of up to 5 lines, whatever the number of rows (2026-09-28)
+## HEADS='big line|small line;...': one header per calculation (GROUP columns each) above the panels, in large type
+## (';' and '|' separate the headers and their lines: the texts must not contain them)
+## (2026-09-28, user: the settings of the 7 calculations written large on top)
+HEADS = [h.split('|') for h in os.environ['HEADS'].split(';')] if os.environ.get('HEADS') else []
+HEADH = 0.9 if HEADS else 0.0
+FIGH = ROWH * n + 1.5 + HEADH   # 1.5 inch on top for the title of up to 5 lines (+ the headers), whatever the number of rows
 fig, AX = plt.subplots(n, len(COLS), figsize=(max(COLW * len(COLS) + 0.4, MINW), FIGH),
                        sharex=True, sharey=('col' if any(is_eg(c[1]) for c in COLS) else True), squeeze=False)
 store = {}
@@ -85,9 +90,16 @@ store = {}
 OCC = os.environ.get('OCC', '0') == '1'
 XMAX, YL = (0.5, (-0.58, -0.18)) if OCC else (1.0, (-0.9, 1.5))
 DATA = {}   # the numbers of every panel, written to DATAOUT (2026-09-28, user: the numbers behind a plot must be kept)
+## GROUP=2: two columns belong to one calculation (the 14-column figure); every other calculation gets a light background
+## and a black line separates the calculations (2026-09-28, user: easier to see which panels go together)
+GROUP = int(os.environ.get('GROUP', '1'))
+TINT = '#e9ecf4'
+LINE = dict(lw=0.6, color='k')      # the bands that are not highlighted: thin black (2026-09-28, user: not grey)
 for r, it in enumerate(iters):
     for c, (lab, d, col) in enumerate(COLS):
         ax = AX[r][c]; f = path(d, it)
+        if GROUP > 1 and (c // GROUP) % 2 == 1:
+            ax.set_facecolor(TINT)
         if not os.path.exists(f):
             ## EMPTY=frame: an empty frame with the same axes, so that the columns stay aligned when runs
             ## have different iterations (2026-09-28, user: the figure looked shifted); default: no frame
@@ -104,11 +116,11 @@ for r, it in enumerate(iters):
         x, E = rd(f); S = np.sort(E, axis=0)[44:58] if EG else np.sort(E[LO:HI], axis=0); store[(c, it)] = S
         DATA[f'{os.path.basename(d)}_{"lda" if it == 0 else f"iter{it}"}'] = (x, S, os.path.realpath(f))
         if EG:
-            for b in S[9:]: ax.plot(x, b, '-', lw=0.8, color='0.75')         # b54-58
-            for b in S[:8]: ax.plot(x, b, '-', lw=0.9, color='0.45')          # eg b45-52
+            for b in S[9:]: ax.plot(x, b, '-', lw=0.5, color='k')            # b54-58
+            for b in S[:8]: ax.plot(x, b, '-', **LINE)                       # eg b45-52
             ax.plot(x, S[8], '-', lw=1.6, color='tab:purple')                 # b53
         elif OCC:
-            ax.plot(x, S[1], '-', lw=1.2, color='0.3')
+            ax.plot(x, S[1], '-', lw=0.9, color='k')
             ax.plot(x, S[0], '-', lw=1.6, color='tab:green')
             h = x < 0.5
             dip = (S[0][0] - S[0][x < 0.3].min()) * 1e3
@@ -118,11 +130,11 @@ for r, it in enumerate(iters):
         elif HILITE and it > 0:
             T = track(S); bb = bulger(T, x)
             for k, b in enumerate(T):
-                ax.plot(x, b, '-', lw=0.9, color='0.72')
+                ax.plot(x, b, '-', **LINE)
             ax.plot(x, S[0], '-', lw=2.0, color='tab:green')                 # lowest band (energy-sorted)
             if bb is not None: ax.plot(x, T[bb], '-', lw=2.0, color='tab:blue')  # the band bulging mid Gamma-X
         else:
-            for b in S: ax.plot(x, b, '-', lw=1.2, color='0.45' if it == 0 else col)
+            for b in S: ax.plot(x, b, '-', **(LINE if it == 0 else dict(lw=1.2, color=col)))
         ## <band file>.label (one line) marks a panel whose data is not from the column's own run, e.g. an older code
         ## standing in until the run gets there (2026-09-28); the title gets it in orange
         tag = open(f + '.label').read().strip() if os.path.exists(f + '.label') else ''
@@ -152,14 +164,28 @@ fig.suptitle(f'LiTi$_2$O$_4$  {_ML} (nkabc = n1n2n3 = mesh)   '
                 f't$_{{2g}}$ (b33-44) along $\\Gamma\\to X$, 211 points\n')
              + 'red x = $\\Sigma$ q-mesh points (interpolation is exact there)\n'
              + (os.environ.get('MLOINFO', '') + '\n' if os.environ.get('MLOINFO') else '')
-             + ('green = the lowest band, dark grey = the second (energy-sorted at each k)\n' if OCC else
-                ('green = lowest band, blue = the band that bulges mid Gamma-X (tracked through crossings), grey = the rest\n' if HILITE else ''))
+             + ('green = the lowest band, black = the second (energy-sorted at each k)\n' if OCC else
+                ('green = lowest band, blue = the band that bulges mid Gamma-X (tracked through crossings), black = the rest\n' if HILITE else ''))
              + ('' if NOREF else
                 'CAUTION: different APW cutoffs - MTO chain pwmode=1 (|G|), MLO chains pwmode=11 (|q+G|).\n'
                 'Each column states its own damping; the MTO chain always Anderson-mixes sigm at [gw] mixbeta\n') +
              
              f'generated {stamp}', fontsize=10.5, y=1 - 0.1 / FIGH, va='top')
-plt.tight_layout(rect=[0, 0, 1, 1 - 1.4 / FIGH])   # the title sits in the top 1.4 inch: no overlap with the first row
+plt.tight_layout(rect=[0, 0, 1, 1 - (1.4 + HEADH) / FIGH])   # the title sits in the top 1.4 inch, the headers below it
+if HEADS:
+    G = max(GROUP, 1)
+    top = max(a.get_position().y1 for a in AX[0])
+    for g, h in enumerate(HEADS[:len(COLS) // G]):
+        xc = 0.5 * (AX[0][g * G].get_position().x0 + AX[0][g * G + G - 1].get_position().x1)
+        fig.text(xc, top + 0.62 / FIGH, h[0], ha='center', va='center', fontsize=22, fontweight='bold')
+        if len(h) > 1:
+            fig.text(xc, top + 0.3 / FIGH, h[1], ha='center', va='center', fontsize=11, color='0.25')
+if GROUP > 1:                                        # a black line between the calculations, over the full height
+    from matplotlib.lines import Line2D
+    top = max(a.get_position().y1 for a in AX[0]); bot = min(a.get_position().y0 for a in AX[-1])
+    for g in range(1, len(COLS) // GROUP):
+        xs = 0.5 * (AX[0][g * GROUP - 1].get_position().x1 + AX[0][g * GROUP].get_position().x0)
+        fig.add_artist(Line2D([xs, xs], [bot - 0.3 / FIGH, top + 0.25 / FIGH], transform=fig.transFigure, color='k', lw=1.2))
 plt.savefig(OUT, dpi=float(os.environ.get('DPI', '115')))
 ## DATAOUT=<file>.npz: per panel <column dir>_<lda|iterN>: x (Gamma-X = 0..1) and the t2g energies (b33-44 sorted per k, eV from
 ## E_F) as plotted, with <key>__src (the band file: its .src if given, e.g. where it lies on the machine that ran it),

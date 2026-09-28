@@ -83,6 +83,33 @@
 
 （夜の TODO: 6³・9³ の tf32 の収束、FP16 の確かめ (a)〜(c)、検証、kBT の残り、ファイルの統一、速さの残り、文書の整理）
 
+### 22:58 **SmearX0 をやめて `t_tetrakbt < 0` に（ecalj `0ef0fa5f9`、ecaljdoc `497ce14`）。空球入りの 9³ tf32 は反復 7 で止め、残りを chain43 に組み替えた。kr7 を整えた**
+
+- **smearing のキー**（user の判断、今晩）: 「t_tetrakbt だけにしよう。マイナスの温度で入れると SmearX0 として働く。必ず入れるので覚えやすい」。
+  必須（0 も可）、gwinit のテンプレートは `t_tetrakbt = 300`・`t_sigmaw = 300`。`SmearX0 = s` と `t_tetrakbt = -T` は
+  $s = \pi k_BT/\sqrt3$ で同じ計算（0.0057 Ha ↔ −992.4 K）。`ctrlg_update.py`（`ctrlg_drop_counts.py` を改名）が変換し、
+  Samples の ctrlg 62 本を変換した。手元の gfortran で `testecalj --all` の照合 64 件がすべて PASSED（22:38）。
+  以前から書いていた件数（08-18 の 766、今晩の 832）は、testecalj がターゲットごとにそれまでの要約を出し直すログの
+  PASSED 行の延べ数だった。`TOOLS/samples_tests.sh` は最後の要約だけを数える
+  ecaljdoc kBT.md §2 に 3 通りの式 (1)〜(9) とキーの変遷の表を書き、式番号の重複（(5)〜(10) が二度）を直した
+  （user「理論式はちゃんと書けてるか」「サボらず正確に」「ecaljdoc を軸に、ecalj には最低限」）
+- **LiTi₂O₄ の図**: 空球入りの列に LDA の枠が無かった（user）。LDA の rst から job_band で描く `draw_lda_band.sh` を足した
+  （空球入りの基底で 325 本）。上に 7 つの計算の見出しと、7 本に共通の設定の 1 行を入れた
+- **22:41 user「空球入りはあまり面白くない。次のところで止めよう」**。22:47「ES は止めて良い」で `stop_after` = 7。
+  chain42 は親の bash だけ止め、22:50 に chain43 を入れた。user の順（22:45）:
+  1. 6³ tf32（`qmlo_k6_tf32n`）を 11 から、おおむね収束するまで（30 まで、20 で止めてもよい）
+  2. 6³ fp64 を LDA から 10 回（tf32 の確かめ）→ `qmlo_k6_fp64n`
+  3. 9³ fp64 を LDA から 3 回（主な問いは効率よく回るか）→ `qmlo_k9_fp64n`
+
+  6³ fp32 の LDA からのやり直しはやめた（user「必要以上にうめるのにこだわらなくていい」）。どれも `~/bin_frozen_9e881g` と
+  SmearX0 = 0.0057 の入力で、新しいコードの `t_tetrakbt = -992.4` と同じ計算（user「完全に等価だから新しいスイッチでもよい」）
+- **kr7**（RTX 5090 32 GB、Zen 5 の 16 スレッド、Ubuntu 24.04）: sudo なしで kr5 と同じ構成にした。
+  - HPC SDK 26.1 を `~/opt/nvhpc` に入れ、cmake 3.31.6、MKL 2025.3 と libiomp5 は kr5 から写した。`~/nvenv.sh` を置いた
+  - uv で `~/venv` を作り、numpy・pandas・matplotlib・pymatgen を入れた
+  - `sync_ecalj_src.sh --samples kr7` で Samples ごと送る（22:55、`792514133`）
+  - テストは gnuplot が要る（job_dos・job_tdos が呼ぶ）。`sudo apt install -y gnuplot-nox` を user に頼んだ
+  - user「パッケージの更新とテストをちゃんと。kr7 を使ってよい、計算の一部を kr7 でもよい」「mic でも空いたときに。Samples のテストをしっかり」
+
 ### 21:42 **user の仮結論: 「tf32 ≈ fp32。666 はスムーズなバンドを示して収束。999 はいくらか振動を持つ収束（とくにバンドの底で交差をもつ形に見える）。収束はする。バンドは概ね一致している」。空球入りの 9³ tf32 は反復 3 まで。図に列を足した**
 
 - 空球入り（`qmlo_k9_tf32_es_i15`）: 反復 1〜3 が 20:36、21:01、21:25 に終わった（1 反復 1425〜1559 秒）。MLO バンドは 150 本。
