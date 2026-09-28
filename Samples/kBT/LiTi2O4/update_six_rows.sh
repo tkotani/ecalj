@@ -38,17 +38,17 @@ put(){ # <column> <iteration> <file> <run> [label]: the first candidate that exi
 }
 for i in $(seq 1 22); do
   put k9tf32 $i $C/qmlo_k9_tf32_i15/bnd_mlo_iter$i.dat qmlo_k9_tf32_i15
-  put k9tf32 $i $C/qmlo_k9_tf32n/bnd_mlo_iter$i.dat qmlo_k9_tf32n "the tf32 gwsc 10 run"
-  [ $i = 10 ] && put k9tf32 10 $C/qmlo_k9_tf32n/bnd_mlo_final.dat qmlo_k9_tf32n "the tf32 gwsc 10 run"
+  put k9tf32 $i $C/qmlo_k9_tf32n/bnd_mlo_iter$i.dat qmlo_k9_tf32n "gwsc10 run"
+  [ $i = 10 ] && put k9tf32 10 $C/qmlo_k9_tf32n/bnd_mlo_final.dat qmlo_k9_tf32n "gwsc10 run"
   put k9fp32 $i $C/qmlo_k9_fp32n/bnd_mlo_iter$i.dat qmlo_k9_fp32n
-  put k9fp32 $i $C/liti_mlo_k9/bnd_iter$i.dat liti_mlo_k9 "09-26 code, provisional"
+  put k9fp32 $i $C/liti_mlo_k9/bnd_iter$i.dat liti_mlo_k9 "09-26 code"
   put k9fp64 $i $C/qmlo_k9_fp64_i15/bnd_mlo_iter$i.dat qmlo_k9_fp64_i15
   put k6tf32 $i $C/qmlo_k6_tf32_i15/bnd_mlo_iter$i.dat qmlo_k6_tf32_i15
-  [ $i = 10 ] && put k6tf32 10 $C/qmlo_k6_tf32n/bnd_mlo_final.dat qmlo_k6_tf32n "the tf32 gwsc 10 run"
+  [ $i = 10 ] && put k6tf32 10 $C/qmlo_k6_tf32n/bnd_mlo_final.dat qmlo_k6_tf32n "gwsc10 run"
   put k6fp32 $i $C/qmlo_k6_fp32_i15/bnd_mlo_iter$i.dat qmlo_k6_fp32_i15
-  put k6fp32 $i $C/qmlo_k6_gwsc10/bnd_mlo_iter$i.dat qmlo_k6_gwsc10 "09-27 code, provisional"
-  [ $i = 10 ] && put k6fp32 10 $C/qmlo_k6_gwsc10/bnd_mlo_final.dat qmlo_k6_gwsc10 "09-27 code, provisional"
-  put k6fp32 $i $C/liti_mlo_v9/bnd_iter$i.dat liti_mlo_v9 "09-26 code, provisional"
+  put k6fp32 $i $C/qmlo_k6_gwsc10/bnd_mlo_iter$i.dat qmlo_k6_gwsc10 "09-27 code"
+  [ $i = 10 ] && put k6fp32 10 $C/qmlo_k6_gwsc10/bnd_mlo_final.dat qmlo_k6_gwsc10 "09-27 code"
+  put k6fp32 $i $C/liti_mlo_v9/bnd_iter$i.dat liti_mlo_v9 "09-26 code"
   put k6fp64 $i $C/qmlo_k6_fp64_i15/bnd_mlo_iter$i.dat qmlo_k6_fp64_i15
 done
 for c in k9tf32 k9fp32 k9fp64; do put $c 0 $C/lda9/bnd_lda.dat none "job_band"; done    # LDA: the date of the file
@@ -59,11 +59,21 @@ HILITE=1 EMPTY=frame MESH=9,6 MESHCOLS=9,9,9,6,6,6 ROWS=0,$rows DPI=90 DATAOUT=l
   k9tf32,k9fp32,k9fp64,k6tf32,k6fp32,k6fp64 \
   "9^3 tf32  MLO BAND,9^3 fp32  MLO BAND,9^3 fp64  MLO BAND,6^3 tf32  MLO BAND,6^3 fp32  MLO BAND,6^3 fp64  MLO BAND" \
   'tab:green,tab:green,tab:green,tab:green,tab:green,tab:green' noref
+# 12 columns (user 2026-09-28): the t2g and, beside it, the eg bands b45-52 with b53 (the band whose part near x = 0.38 ran away
+# in 9^3 tf32 iterations 18-22) of every pattern; an eg column is a link to the t2g column (mlo_rows.py: a name ending in _eg)
+for c in k9tf32 k9fp32 k9fp64 k6tf32 k6fp32 k6fp64; do ln -sfn $c $R/${c}_eg; done
+HILITE=1 EMPTY=frame MESH=9,6 MESHCOLS=9,9,9,9,9,9,6,6,6,6,6,6 ROWS=0,$rows DPI=80 COLW=3.6 TITLEFS=7 DATAOUT=liti2o4_six_rows12_data.npz \
+  python3 mlo_rows.py $R liti2o4_six_rows12.png \
+  k9tf32,k9tf32_eg,k9fp32,k9fp32_eg,k9fp64,k9fp64_eg,k6tf32,k6tf32_eg,k6fp32,k6fp32_eg,k6fp64,k6fp64_eg \
+  "9^3 tf32 t2g,9^3 tf32 eg+b53,9^3 fp32 t2g,9^3 fp32 eg+b53,9^3 fp64 t2g,9^3 fp64 eg+b53,6^3 tf32 t2g,6^3 tf32 eg+b53,6^3 fp32 t2g,6^3 fp32 eg+b53,6^3 fp64 t2g,6^3 fp64 eg+b53" \
+  'tab:green,tab:green,tab:green,tab:green,tab:green,tab:green,tab:green,tab:green,tab:green,tab:green,tab:green,tab:green' noref
 # the occupied t2g pair only (OCC=1, 0 < x < 0.5), same panels (its numbers are in the npz above: the two lowest of the t2g)
 HILITE=1 EMPTY=frame OCC=1 MESH=9,6 MESHCOLS=9,9,9,6,6,6 ROWS=$rows DPI=90 python3 mlo_rows.py $R liti2o4_six_occ.png \
   k9tf32,k9fp32,k9fp64,k6tf32,k6fp32,k6fp64 \
   "9^3 tf32  MLO BAND,9^3 fp32  MLO BAND,9^3 fp64  MLO BAND,6^3 tf32  MLO BAND,6^3 fp32  MLO BAND,6^3 fp64  MLO BAND" \
   'tab:green,tab:green,tab:green,tab:green,tab:green,tab:green' noref
+# how much the MLO bands move per iteration (max |E(N)-E(N-1)|, within one run), with its numbers
+python3 plot_mlo_conv_six.py $R liti2o4_six_conv.png liti2o4_six_conv_data.npz
 for c in k9tf32 k9fp32 k9fp64 k6tf32 k6fp32 k6fp64; do
   echo "$c: $(ls $R/$c | grep -v -E 'label|stamp|src' | sed 's/bnd_iter//; s/bnd_lda/LDA/; s/.dat//' | sort -n | tr '\n' ' ')"
 done

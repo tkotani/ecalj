@@ -68,10 +68,16 @@ iters = [0] + [i for i in range(1, 31) if any(os.path.exists(path(c[1], i)) for 
 ## ROWS="0,1,3,5,10": keep only these iterations (0 = LDA), for a figure that has to stay readable when small
 if 'ROWS' in os.environ: iters = [i for i in iters if i in {int(v) for v in os.environ['ROWS'].split(',')}]
 n = len(iters)
+## A column whose directory name ends in _eg (e.g. a link to the t2g column's directory) shows the eg bands b45-52 (grey) and
+## b53 (magenta; the dispersive band above them, 4-7 eV, whose part near x = 0.38 ran away in 9^3 tf32 iterations 18-22)
+## on 2.6-5.4 eV, so that the t2g and the eg of a run can stand side by side (2026-09-28, user: 12 columns)
+def is_eg(d): return os.path.basename(d.rstrip('/')).endswith('_eg')
+YL_EG = (2.6, 5.4)
 ROWH = float(os.environ.get('ROWH', '2.5'))   # height of a row (inch); ROWH=5 for a figure of one or two rows (2026-09-28)
 MINW = float(os.environ.get('MINW', '9'))     # the title lines need about 9 inch; one column was clipped (2026-09-28)
-fig, AX = plt.subplots(n, len(COLS), figsize=(max(4.9 * len(COLS) + 0.4, MINW), ROWH * n + 1.0),
-                       sharex=True, sharey=True, squeeze=False)
+COLW = float(os.environ.get('COLW', '4.9'))   # width of a column (inch); COLW=3.6 for the 12-column figure
+fig, AX = plt.subplots(n, len(COLS), figsize=(max(COLW * len(COLS) + 0.4, MINW), ROWH * n + 1.0),
+                       sharex=True, sharey=('col' if any(is_eg(c[1]) for c in COLS) else True), squeeze=False)
 store = {}
 ## OCC=1: only the two lowest t2g bands (the occupied pair near Gamma) on 0 < x < 0.5, with the dip of the lowest band below its
 ## Gamma value (x < 0.3) and their roughness (mean |E(k-1) - 2E(k) + E(k+1)| on x < 0.5, sorted per k) in each panel (2026-09-28)
@@ -85,7 +91,7 @@ for r, it in enumerate(iters):
             ## EMPTY=frame: an empty frame with the same axes, so that the columns stay aligned when runs
             ## have different iterations (2026-09-28, user: the figure looked shifted); default: no frame
             if os.environ.get('EMPTY', 'off') == 'frame':
-                ax.set_ylim(*YL); ax.set_xlim(0, XMAX)
+                ax.set_ylim(*(YL_EG if is_eg(d) else YL)); ax.set_xlim(0, 1.0 if is_eg(d) else XMAX)
                 ax.set_title(f'{lab}   iter {it}', fontsize=10, color='0.6')
                 ax.text(0.5, 0.5, 'no band (not run yet / not kept)', transform=ax.transAxes, ha='center', va='center',
                         color='0.6', fontsize=9)
@@ -93,9 +99,13 @@ for r, it in enumerate(iters):
             else:
                 ax.axis('off')
             continue
-        x, E = rd(f); S = np.sort(E[LO:HI], axis=0); store[(c, it)] = S
+        EG = is_eg(d)
+        x, E = rd(f); S = np.sort(E, axis=0)[44:53] if EG else np.sort(E[LO:HI], axis=0); store[(c, it)] = S
         DATA[f'{os.path.basename(d)}_{"lda" if it == 0 else f"iter{it}"}'] = (x, S, os.path.realpath(f))
-        if OCC:
+        if EG:
+            for b in S[:8]: ax.plot(x, b, '-', lw=0.9, color='0.45')
+            ax.plot(x, S[8], '-', lw=1.6, color='tab:purple')
+        elif OCC:
             ax.plot(x, S[1], '-', lw=1.2, color='0.3')
             ax.plot(x, S[0], '-', lw=1.6, color='tab:green')
             h = x < 0.5
@@ -117,14 +127,16 @@ for r, it in enumerate(iters):
         ## <band file>.stamp: when the band was made (the date of the source file), added in parentheses (2026-09-28)
         stamp = open(f + '.stamp').read().strip() if os.path.exists(f + '.stamp') else ''
         ax.set_title(f'{lab}   {"LDA" if it == 0 else f"iter {it}"}' + (f'  [{tag}]' if tag else '')
-                     + (f'  ({stamp})' if stamp else ''), fontsize=9.5, color='tab:orange' if tag else 'k')
-        ax.set_ylim(*YL); ax.set_xlim(0, XMAX); ax.axhline(0, color='k', lw=0.9)
+                     + (f'  ({stamp})' if stamp else ''), fontsize=float(os.environ.get('TITLEFS', '9.5')),
+                     color='tab:orange' if tag else 'k')
+        ax.set_ylim(*(YL_EG if EG else YL)); ax.set_xlim(0, 1.0 if EG else XMAX)
+        if not EG: ax.axhline(0, color='k', lw=0.9)
         ## Sigma q-mesh points: a small red cross on every band (where the interpolation is exact).
         ## On 9^3 the mesh x = 2n/9 is not on the 211-point grid, so the band is interpolated there.
-        _qm = [q for q in (qmesh(_MC[c]) if _MC else QMESH) if q <= XMAX + 1e-9]
-        for b in (S[:2] if OCC else S):
+        _qm = [q for q in (qmesh(_MC[c]) if _MC else QMESH) if q <= (1.0 if EG else XMAX) + 1e-9]
+        for b in (S[:2] if OCC and not EG else S):
             ax.plot(_qm, np.interp(_qm, x, b), 'x', color='red', ms=4.5, mew=1.1, zorder=5)
-        if OCC: ax.yaxis.set_major_locator(MultipleLocator(0.1)); ax.yaxis.set_minor_locator(MultipleLocator(0.02))
+        if OCC and not EG: ax.yaxis.set_major_locator(MultipleLocator(0.1)); ax.yaxis.set_minor_locator(MultipleLocator(0.02))
         else:   ax.yaxis.set_major_locator(MultipleLocator(0.5)); ax.yaxis.set_minor_locator(MultipleLocator(0.1))
         ax.grid(axis='y', which='major', color='0.78', lw=0.6)
         ax.grid(axis='y', which='minor', color='0.92', lw=0.4)
