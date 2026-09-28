@@ -91,7 +91,8 @@
   少なければ余りのブロックをコメントにする）。`ctrl2ctrltoml.py`（`Legacy2toml.py`）は書かない（古い ctrl が一部だけを使っていたときは余りをコメントで書く）。
   Samples の 106 本を直した（te の 4 本は空球 9 個と種 E をコメントに）。kt1 の LiTi₂O₄ の入力 3 つ（`liti_src_full9`・`_k9`・`_k9_es`）も直した
   （走っている chain42 の凍結バイナリには関係しない。数は表から同じに数える）
-- 確かめ: 古い入力で lmfa が止まり（rc=11）、直すと通る。TestInstall の te・zrt・si_gw_lmfh と MLOQSGW の GaAs が合格。手元の `--all` を回している。
+- 確かめ: 古い入力で lmfa が止まり（rc=11）、直すと通る。TestInstall の te・zrt・si_gw_lmfh と MLOQSGW の GaAs が合格。
+  手元の `testecalj --all -np 4`（gfortran）は 832 件すべて合格（17:57、7 分）
   文書: README.md、Changes.txt、ecaljdoc `manual/lmf.md`（119fc82）
 
 ### 17:20 **9³ fp32 を反復 12 で止めた（再開できる形）。9³ tf32 の反復 23〜30 を 17:19 に始めた（chain42）。その後に空球入りの 9³ tf32（LDA から 15）を入れる**（user「fp32 は tf32 をかなり忠実にトレースする」「いったん iter 12 で停止しようか（再起動可能な状態で）」「9³ tf32 Empty sphere 入り（LDA から 15）を入れようかな」「2 を先にやろうか」）
