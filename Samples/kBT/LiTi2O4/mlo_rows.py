@@ -68,11 +68,11 @@ iters = [0] + [i for i in range(1, 31) if any(os.path.exists(path(c[1], i)) for 
 ## ROWS="0,1,3,5,10": keep only these iterations (0 = LDA), for a figure that has to stay readable when small
 if 'ROWS' in os.environ: iters = [i for i in iters if i in {int(v) for v in os.environ['ROWS'].split(',')}]
 n = len(iters)
-## A column whose directory name ends in _eg (e.g. a link to the t2g column's directory) shows the eg bands b45-52 (grey) and
-## b53 (magenta; the dispersive band above them, 4-7 eV, whose part near x = 0.38 ran away in 9^3 tf32 iterations 18-22)
-## on 2.6-5.4 eV, so that the t2g and the eg of a run can stand side by side (2026-09-28, user: 12 columns)
+## A column whose directory name ends in _eg (e.g. a link to the t2g column's directory) shows the eg bands b45-52 (grey),
+## b53 (purple; the dispersive band above them, 4-7 eV, which keeps rising at the 9^3 mesh point 4/9) and b54-58 (light grey)
+## on 2.6-EGMAX eV, so that the t2g and the eg of a run can stand side by side (2026-09-28, user: 12 columns)
 def is_eg(d): return os.path.basename(d.rstrip('/')).endswith('_eg')
-YL_EG = (2.6, 5.4)
+YL_EG = (2.6, float(os.environ.get('EGMAX', '8.0')))   # 2026-09-28: up to 8 eV (user: a bit higher), bands b45-58
 ROWH = float(os.environ.get('ROWH', '2.5'))   # height of a row (inch); ROWH=5 for a figure of one or two rows (2026-09-28)
 MINW = float(os.environ.get('MINW', '9'))     # the title lines need about 9 inch; one column was clipped (2026-09-28)
 COLW = float(os.environ.get('COLW', '4.9'))   # width of a column (inch); COLW=3.6 for the 12-column figure
@@ -100,11 +100,12 @@ for r, it in enumerate(iters):
                 ax.axis('off')
             continue
         EG = is_eg(d)
-        x, E = rd(f); S = np.sort(E, axis=0)[44:53] if EG else np.sort(E[LO:HI], axis=0); store[(c, it)] = S
+        x, E = rd(f); S = np.sort(E, axis=0)[44:58] if EG else np.sort(E[LO:HI], axis=0); store[(c, it)] = S
         DATA[f'{os.path.basename(d)}_{"lda" if it == 0 else f"iter{it}"}'] = (x, S, os.path.realpath(f))
         if EG:
-            for b in S[:8]: ax.plot(x, b, '-', lw=0.9, color='0.45')
-            ax.plot(x, S[8], '-', lw=1.6, color='tab:purple')
+            for b in S[9:]: ax.plot(x, b, '-', lw=0.8, color='0.75')         # b54-58
+            for b in S[:8]: ax.plot(x, b, '-', lw=0.9, color='0.45')          # eg b45-52
+            ax.plot(x, S[8], '-', lw=1.6, color='tab:purple')                 # b53
         elif OCC:
             ax.plot(x, S[1], '-', lw=1.2, color='0.3')
             ax.plot(x, S[0], '-', lw=1.6, color='tab:green')

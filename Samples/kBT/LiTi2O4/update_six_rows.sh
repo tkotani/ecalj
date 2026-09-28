@@ -65,7 +65,7 @@ for c in k9tf32 k9fp32 k9fp64 k6tf32 k6fp32 k6fp64; do ln -sfn $c $R/${c}_eg; do
 HILITE=1 EMPTY=frame MESH=9,6 MESHCOLS=9,9,9,9,9,9,6,6,6,6,6,6 ROWS=0,$rows DPI=80 COLW=3.6 TITLEFS=7 DATAOUT=liti2o4_six_rows12_data.npz \
   python3 mlo_rows.py $R liti2o4_six_rows12.png \
   k9tf32,k9tf32_eg,k9fp32,k9fp32_eg,k9fp64,k9fp64_eg,k6tf32,k6tf32_eg,k6fp32,k6fp32_eg,k6fp64,k6fp64_eg \
-  "9^3 tf32 t2g,9^3 tf32 eg+b53,9^3 fp32 t2g,9^3 fp32 eg+b53,9^3 fp64 t2g,9^3 fp64 eg+b53,6^3 tf32 t2g,6^3 tf32 eg+b53,6^3 fp32 t2g,6^3 fp32 eg+b53,6^3 fp64 t2g,6^3 fp64 eg+b53" \
+  "9^3 tf32 t2g,9^3 tf32 2.6-8 eV,9^3 fp32 t2g,9^3 fp32 2.6-8 eV,9^3 fp64 t2g,9^3 fp64 2.6-8 eV,6^3 tf32 t2g,6^3 tf32 2.6-8 eV,6^3 fp32 t2g,6^3 fp32 2.6-8 eV,6^3 fp64 t2g,6^3 fp64 2.6-8 eV" \
   'tab:green,tab:green,tab:green,tab:green,tab:green,tab:green,tab:green,tab:green,tab:green,tab:green,tab:green,tab:green' noref
 # the occupied t2g pair only (OCC=1, 0 < x < 0.5), same panels (its numbers are in the npz above: the two lowest of the t2g)
 HILITE=1 EMPTY=frame OCC=1 MESH=9,6 MESHCOLS=9,9,9,6,6,6 ROWS=$rows DPI=90 python3 mlo_rows.py $R liti2o4_six_occ.png \
