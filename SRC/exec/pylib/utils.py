@@ -18,6 +18,16 @@ def run_shell(command: str, cwd=None, env=None, skip_on_error: bool = False):
             print("Skipping command.", file=sys.stderr)
 
 
+def run_gnuplot(*args: str, check: bool = False):
+    """gnuplot <args>, or a one-line note when gnuplot is not installed: the .glt file is written anyway, so the plot
+    can be made later, and a headless machine without gnuplot still runs the job (2026-09-28, kr7: job_dos stopped the
+    tests with FileNotFoundError)."""
+    if shutil.which("gnuplot") is None:
+        print(f"gnuplot not found: skipped  gnuplot {' '.join(args)}", file=sys.stderr)
+        return None
+    return subprocess.run(["gnuplot", *args], check=check)
+
+
 def _rank_order(path: Path):
     """Sort key honouring a numeric suffix: PROCAR.UP.2 before PROCAR.UP.10.
 

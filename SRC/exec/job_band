@@ -4,6 +4,7 @@ import contextlib
 import subprocess
 from pathlib import Path
 from pylib.run_cmd import run_cmd, MPIParams
+from pylib.utils import run_gnuplot
 from pylib.dft import cal_dft
 from pylib.utils import merge_files, remove_files
 
@@ -100,7 +101,7 @@ def cal_band(args, extra_args):
         for fname in ['bandplot.isp1.glt', 'bandplot.isp2.glt']:
             if Path(fname).exists():
                 try:
-                    subprocess.run(["gnuplot", "-persist", fname], check=True)
+                    run_gnuplot("-persist", fname, check=True)
                 except FileNotFoundError:
                     print("Skip gnuplot")
     print("If you like, edit and run 'job_band, or gnuplot -persist bandplot.isp1.glt (and isp2)'")

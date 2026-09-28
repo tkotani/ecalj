@@ -4,6 +4,7 @@ import contextlib
 import subprocess
 from pathlib import Path
 from pylib.run_cmd import run_cmd, MPIParams
+from pylib.utils import run_gnuplot
 
 EXEC_DIR = Path(__file__).parent
 RY = 13.605693  # Rydberg in eV
@@ -21,7 +22,7 @@ def _glt_header(title, output):
 def _run_gnuplot(glt, nognuplot):
     if not nognuplot:
         try:
-            subprocess.run(["gnuplot", glt], check=True)
+            run_gnuplot(glt, check=True)
         except FileNotFoundError:
             print("Skip gnuplot")
 

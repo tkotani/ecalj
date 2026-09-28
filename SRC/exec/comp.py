@@ -8,8 +8,12 @@ def rmfiles(workdir, filelists):
         print(f"Deleted: {fullpath}")
 
 def runprogs(runlist,quiet=False):
+    import shutil
     for irun in runlist:
         if(not quiet): print(irun)
+        if irun.split()[0] == 'gnuplot' and shutil.which('gnuplot') is None:   # a plot only: not a failure (2026-09-28)
+            print('gnuplot not found: skipped')
+            continue
         err = os.system(irun)
         if(err): print('Error exit!')
         if(err): sys.exit(-1)

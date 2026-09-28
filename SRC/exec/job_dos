@@ -5,6 +5,7 @@ import textwrap
 import subprocess
 from pathlib import Path
 from pylib.run_cmd import run_cmd, MPIParams
+from pylib.utils import run_gnuplot
 from pylib.dft import cal_dft
 
 EXEC_DIR = Path(__file__).parent
@@ -56,7 +57,7 @@ def plot_dos_with_gnuplot(target, nognuplot):
     Path(gltfile).write_text(header + plot + footer)
     # --- run gnuplot unless disabled ---
     if not nognuplot:
-        subprocess.run(["gnuplot", "-persist", gltfile])
+        run_gnuplot("-persist", gltfile)
 
     print(f"To repeat, gnuplot -persist {gltfile}")
     print("Change BZ_DOS to change plotting range of DOS.")
@@ -145,7 +146,7 @@ def plot_pdos_with_gnuplot(target, nognuplot):
         # --- run gnuplot unless disabled ---
         if not nognuplot:
             try:
-                subprocess.run(["gnuplot", "-persist", gltfile])
+                run_gnuplot("-persist", gltfile)
             except FileNotFoundError:
                 print("Skip gnuplot")
 
