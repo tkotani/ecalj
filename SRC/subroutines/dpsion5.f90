@@ -179,8 +179,8 @@ contains
     !$acc data copyin(his_R, his_L)
     call gwinput_init()
     smearx0 = merge(tg_SmearX0, 0d0, gwinput_loaded)
-    GaussianFilter: if(abs(smearx0)>1d-15) then   ! [gw] SmearX0 (normally 0); device-resident version of smearx0_apply
-      if(ipr) write(stdo,'(" SmearX0 (Ha) = ",es12.4,"  : Gaussian smearing of Im chi0 along omega")') smearx0
+    GaussianFilter: if(abs(smearx0)>1d-15) then   ! [gw] t_tetrakbt < 0 (else 0); device-resident version of smearx0_apply
+      if(ipr) write(stdo,'(" SmearX0 (Ha) = ",es12.4,"  : Gaussian smearing of Im chi0 along omega ([gw] t_tetrakbt < 0)")') smearx0
       allocate(gfmat(nwhis,nwhis))
       allocate(cgfmat(nwhis,nwhis))
       allocate(rcxq_work(npr,nwhis))
@@ -378,7 +378,7 @@ contains
     if (ipr) write(stdo,ftox) " -- dpsion_chiq_h: start... nw_w nwhis=", nw_w, nwhis
     call flush(stdo)
     if (chipm.and.npm==2) call rx('dpsion_chiq_h: npm==2 .AND. chipm is not meaningful')
-    call smearx0_apply(rcxq, npr, npr_col, nwhis, npm, frhis)   ! [gw] SmearX0 (normally 0)
+    call smearx0_apply(rcxq, npr, npr_col, nwhis, npm, frhis)   ! only for [gw] t_tetrakbt < 0
 
     ispx = merge(isp, 3-isp, schi >= 0)
     if (realomega .and. nwhis <= nw_w) call rxii('dpsion_chiq_h: nwhis<=nw_w', nwhis, nw_w)
@@ -480,7 +480,7 @@ contains
     if(ipr) write(stdo,ftox)" -- dpsion5: start... nw_w nwhis=",nw_w,nwhis
     if(chipm.and.npm==2) call rx( 'x0kf_v4h:npm==2 .AND. chipm is not meaningful probably')  ! Note rcxq here is negative 
     call cputid(0)
-    call smearx0_apply(rcxq, nmbas1, nmbas2, nwhis, npm, frhis)   ! [gw] SmearX0 (normally 0)
+    call smearx0_apply(rcxq, nmbas1, nmbas2, nwhis, npm, frhis)   ! only for [gw] t_tetrakbt < 0
        
     ispx = merge(isp,3-isp,schi>=0) !  if(schi<0)  ispx = 3-isp  
     if(realomega.and.nwhis <= nw_w) call rxii('dpsion5: nwhis<=nw_w',nwhis,nw_w)
@@ -569,8 +569,9 @@ contains
     if(ipr) write(stdo,'("         end dpsion5 ",$)')
     call cputid(0)
   end subroutine dpsion5
-  !> [gw] SmearX0: Gaussian smearing of the Im chi0 histogram rcxq(npr,npr_col,bins) along omega
+  !> SmearX0 (m_GWinput): Gaussian smearing of the Im chi0 histogram rcxq(npr,npr_col,bins) along omega
   !! (bin-width weighted, odd extension for npm=1; see gaussianfilterhis).  No-op when SmearX0 = 0.
+  !! SmearX0 is set from [gw] t_tetrakbt < 0 (std = pi kB|T|/sqrt3); the key [gw] SmearX0 is not read (2026-09-28).
   subroutine smearx0_apply(rcxq, npr, npr_col, nwhis, npm, frhis)
     use m_GWinput, only: gwinput_init, gwinput_loaded, tg_SmearX0 => SmearX0
     use m_lgunit, only: stdo
@@ -589,7 +590,7 @@ contains
     call gwinput_init()
     if (.not. gwinput_loaded) return
     if (abs(tg_SmearX0) <= 1d-15) return
-    if (ipr) write(stdo,'(" SmearX0 (Ha) = ",es12.4,"  : Gaussian smearing of Im chi0 along omega")') tg_SmearX0
+    if (ipr) write(stdo,'(" SmearX0 (Ha) = ",es12.4,"  : Gaussian smearing of Im chi0 along omega ([gw] t_tetrakbt < 0)")') tg_SmearX0
     allocate(gf(nwhis,nwhis), cgfmat(nwhis,nwhis), rcxq_work(npr,nwhis))
     gf = gaussianfilterhis(tg_SmearX0, frhis, nwhis, npm)
     cgfmat = cmplx(gf, kind=kp)

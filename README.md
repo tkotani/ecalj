@@ -9,11 +9,20 @@ Developers, and AI sessions that start without memory: read ecaljdoc `manual/For
 build and test, machines, how jobs are submitted, a digest of the research log), and `ecaljclaude.md` (how code comments,
 commits and the research log are written; Claude Code reads it through `CLAUDE.md`).
 
+## 2026-09-28  `[gw] t_tetrakbt` is required; `t_tetrakbt < 0` replaces `SmearX0`
+
+- `t_tetrakbt` (K) must be written in `[gw]`. Its sign selects how chi0 is smeared: `0` none, `T > 0` the finite-T
+  tetrahedron, `-T` Im chi0 smeared along omega by a Gaussian as wide as the Fermi-Dirac distribution at T (what
+  `SmearX0` did; `SmearX0` now stops the program). The gwinit template writes `t_tetrakbt = 300` and `t_sigmaw = 300`.
+- `ctrlg_update.py ctrlg.<sname>.toml` (the former `ctrlg_drop_counts.py`) converts an older file without changing the
+  calculation (`SmearX0 = 0.0057` Ha becomes `t_tetrakbt = -992.4`; a missing `t_tetrakbt` becomes 0). The Samples are converted.
+- The formulas and the history of the keys: ecaljdoc `manual/kBT.md` §2; the key: `manual/gwinput.md`.
+
 ## 2026-09-28  ctrlg: no `nbas` / `nspec` in `[struc]` (lmf stops on them)
 
 - The numbers of sites and species are the numbers of `[[site]]` / `[[spec]]` tables. A count written in `[struc]`
   used to win over the tables, so sites added to the tables were silently left out. Now `lmf` stops with a message.
-  Fix an older file with `ctrlg_drop_counts.py ctrlg.<sname>.toml` (it removes the two lines, and if `nbas` was
+  Fix an older file with `ctrlg_update.py ctrlg.<sname>.toml` (it removes the two lines, and if `nbas` was
   smaller than the tables it comments out the `[[site]]` blocks beyond it). To leave a site out, comment out its
   whole `[[site]]` block. `Legacy2toml.py` no longer writes them. ecaljdoc `manual/lmf.md`.
 - `gwsc` keeps `efermi.lmf`, `QMLO_SigRs` and `QMLO_z` in `QSGW.<N>run/` as well, so that the bands of every
@@ -72,7 +81,7 @@ New in the GW chain (commits 37e6fbc2..2a04e767; user guide: FiniteT_and_QPE_HOW
   regularization for metallic QSGW instabilities (sharp nesting response).
   (Note 2026-09-28: the instability turned out to come from a sharp plasmon pole of W at the first-shell q
   hit by the real-axis pole term of Sigma_c, not from nesting; the remedy is `wcsmear` (default) and
-  `t_sigmaw`, with `SmearX0` for W if needed. ecaljdoc manual/kBT.md 3.5.)
+  `t_sigmaw`, with `t_tetrakbt < 0` (formerly `SmearX0`) for W if needed. ecaljdoc manual/kBT.md 3.5.)
 - **hsfp0_gpu** (new binary, gpu variant): CUDA-Fortran offload of the one-shot
   correlation W contractions. Validated against CPU at production scale
   (LiTi2O4 6^3: max |CPU-GPU| 3e-13 eV); ~13x per-rank speedup.

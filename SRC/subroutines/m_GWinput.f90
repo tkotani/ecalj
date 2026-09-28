@@ -84,7 +84,8 @@ module m_GWinput
   real(8), protected, public :: HistBin_ratio = 1.03d0
   real(8), protected, public :: HistBin_dw   = 1.0d-5  ! legacy m_freq default
   real(8), protected, public :: deltaw       = 0.02d0
-  real(8), protected, public :: SmearX0      = 0.0d0   ! (Ha) Gaussian smearing of Im chi0 along omega (dpsion5); 0=off. Normally not needed: see wcsmear.
+  real(8), protected, public :: SmearX0      = 0.0d0   ! (Ha) Gaussian smearing of Im chi0 along omega (dpsion5); 0=off. Not an input key
+                                                      ! since 2026-09-28: set from t_tetrakbt < 0 (see there).
 
   ! Optional flags
   logical, protected, public :: KeepEigen    = .true.
@@ -95,9 +96,13 @@ module m_GWinput
   logical, protected, public :: QforEPSau    = .false.
   logical, protected, public :: QforEPSunita = .false.
   logical, protected, public :: QforEPSLIncLeft = .false.
-  ! t_tetrakbt: chi0-side electronic temperature in Kelvin (finite-T tetrahedron, method B').
-  !   0 (default) = off (T=0 lindtet6).  >0 = Fermi-Dirac occupations at this T (lindtet6_kbt),
-  !   and heftet also writes EFERMI_kbt.  (The old logical 'tetrakbt' is gone: t_tetrakbt>0 means on.)
+  ! t_tetrakbt (K, required in [gw] since 2026-09-28): how chi0 is smeared, by its sign.
+  !   0  = none (T=0 tetrahedron lindtet6; insulators and semiconductors).
+  !   >0 = finite-T tetrahedron (method B'): Fermi-Dirac occupations at this T (lindtet6_kbt), and heftet writes
+  !        EFERMI_kbt, the Fermi level of chi0 and Sigma.
+  !   <0 = T=0 tetrahedron, Im chi0 smeared along omega by a Gaussian as wide as the Fermi-Dirac distribution at |T|
+  !        (std = pi kB|T|/sqrt3; -1000 K = 0.00574 Ha), i.e. the former [gw] SmearX0, which is no longer read.
+  !   (The old logical 'tetrakbt' is gone.)
   real(8), protected, public :: t_tetrakbt   = 0.0d0
   ! t_sigmaw: width (K) of the Fermi-Dirac kernel that smears the intermediate levels of the
   !   self-energy (Sigma_x = Gv and the pole term of Sigma_c = G(W-v)).  A numerical width, not a
@@ -503,6 +508,10 @@ contains
     call gv_r(gw, 'EMINforGW',     EMINforGW)
     call gv_r(gw, 'EMAXforGW',     EMAXforGW)
     call gv_i(gw, 'BZmesh',        BZmesh)
+    if (.not. gw%has_key('t_tetrakbt')) call rx('m_GWinput: [gw] t_tetrakbt is required (2026-09-28). '// &
+         '0 = no smearing of chi0 (insulators, semiconductors); T > 0 = finite-T tetrahedron at T (K); '// &
+         '-T = Im chi0 smeared by a Gaussian as wide as the Fermi-Dirac distribution at T (the former SmearX0; '// &
+         'metals, e.g. -1000). ctrlg_update.py adds it (0, or -T from SmearX0).')
     call gv_r(gw, 't_tetrakbt',    t_tetrakbt)
     block   ! t_sigmaw, with the retired esmr (Ry, Gaussian) and t_sigmakbt (K) read for compatibility
       real(8) :: tsk, esm
@@ -567,9 +576,11 @@ contains
     call gv_r(gw, 'HistBin_ratio', HistBin_ratio)
     call gv_r(gw, 'HistBin_dw',    HistBin_dw)
     call gv_r(gw, 'deltaw',        deltaw)
-    call gv_r(gw, 'SmearX0',       SmearX0)
-    if (t_tetrakbt > 0d0 .and. SmearX0 > 0d0) call rx('m_GWinput: t_tetrakbt > 0 and SmearX0 > 0 are exclusive: '// &
-         'smooth the poles of W either by the electron temperature or by the omega smearing, not both')
+    if (gw%has_key('SmearX0') .or. gw%has_key('SmearX0q0')) call rx('m_GWinput: [gw] SmearX0 is no longer read '// &
+         '(2026-09-28): write t_tetrakbt = -T instead, T such that pi kB T/sqrt3 is the Gaussian width '// &
+         '(SmearX0 = 0.0057 Ha <-> t_tetrakbt = -992; -1000 K = 0.00574 Ha). ctrlg_update.py converts it.')
+    ! t_tetrakbt < 0: the Gaussian smearing of Im chi0 (dpsion5), std = that of the Fermi-Dirac distribution at |T|
+    if (t_tetrakbt < 0d0) SmearX0 = 4d0*atan(1d0)/sqrt(3d0)*kb_ev*abs(t_tetrakbt)/(2d0*rydberg_ev)   ! Ha
     call gv_r(gw, 'wan_conv_1st',  wan_conv_1st)
     call gv_r(gw, 'wan_conv_end',  wan_conv_end)
     call gv_r(gw, 'wan_max_1st',   wan_max_1st)

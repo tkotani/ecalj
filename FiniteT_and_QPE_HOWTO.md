@@ -5,6 +5,7 @@
 > width `t_sigmaw` (K, default 1000, replacing `esmr`); and the metallic QSGW instability turned out to come from a sharp
 > plasmon pole of W at the first-shell q that the real-axis pole term of Sigma_c hits, not from nesting, handled by
 > `wcsmear` (default true) and, for W, `SmearX0`. The current description is ecaljdoc `manual/kBT.md` (sections 0, 3.5, 9).
+> Since 2026-09-28 `[gw] t_tetrakbt` is required and `t_tetrakbt = -T` replaces `SmearX0` (ecaljdoc `manual/kBT.md` §2).
 
 User guide for the features added 2026-06-12/13 (see Changes.txt for the changelog,
 README for the one-paragraph summary). Everything below was exercised on

@@ -171,6 +171,7 @@ HistBin_ratio = 1.05       # bin: frhis(iw) = (dw/(r-1))*(exp((r-1)*(iw-1)) - 1)
 # t_sigmakbt = 300    # (K) Fermi-Dirac occupations in Sigma too; set equal to t_tetrakbt (needs tetrakbt)
 deltaw        = 0.02       # (a.u.) numerical-derivative mesh for Z factor
 t_sigmaw      = 262        # (K) Fermi-Dirac width of the Sigma levels (from esmr = 0.003 Ry)
+t_tetrakbt = 0   # (K) 0: no smearing of chi0 (the former default; ctrlg_update.py, 2026-09-28)
 # ----- Q for diagonal Sigma=GW (gw_lmfh) -----
 # QforGWIBZ = true   # use IBZ instead of <QforGW>
 EMAXforGW     = 15         # eV (above EFermi) bands cutoff for Sigma=GW

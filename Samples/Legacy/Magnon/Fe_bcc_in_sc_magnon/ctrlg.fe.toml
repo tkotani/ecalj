@@ -130,6 +130,7 @@ HistBin_dw     = 1e-06      # bin width on real-axis at omega=0
 HistBin_ratio  = 1.03       # frhis(iw)=(dw/(r-1))*(exp((r-1)*(iw-1))-1)
 deltaw         = 0.02       # (a.u.) numerical-derivative mesh for Z factor
 t_sigmaw      = 262        # (K) Fermi-Dirac width of the Sigma levels (from esmr = 0.003 Ry)
+t_tetrakbt = 0   # (K) 0: no smearing of chi0 (the former default; ctrlg_update.py, 2026-09-28)
 QforEPSLIncLeft = true
 EMAXforGW      = 15         # (eV, rel. EFermi) upper band cutoff for GW Sigma
 wan_out_emin   = -10        # (eV, rel. EFermi) Wannier outer window low

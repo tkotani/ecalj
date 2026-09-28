@@ -143,7 +143,7 @@ QforEPSunita  = true
 # wan_maxit_2nd = 3000  # 2nd-stage Wannier max iterations
 # wan_max_2nd = 0.3  # 2nd-stage Wannier step size
 # wan_conv_end = 1e-09  # Wannier final convergence threshold
-SmearX0       = 0.0001
+t_tetrakbt = -17.4   # (K) < 0: Im chi0 smeared by a Gaussian as wide as Fermi-Dirac at |T| (was SmearX0 = 0.0001 Ha; ctrlg_update.py, 2026-09-28)
 # ----------------------------------------------------------------
 # zmel_batch_gb = 0.4  # (GB) zmel batch size per rank; increase for large systems
 # ----------------------------------------------------------------

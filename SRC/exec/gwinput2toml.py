@@ -275,6 +275,17 @@ def emit_toml(parsed: dict) -> str:
         if "t_sigmakbt" in gw:
             v = gw.pop("t_sigmakbt")
             if "t_sigmaw" not in gw and v and float(v) > 0: gw["t_sigmaw"] = v
+        # SmearX0 (Ha) -> t_tetrakbt = -T, T with the same Gaussian width pi kB T / sqrt3; t_tetrakbt is required
+        # (2026-09-28: SmearX0 is no longer read; 0 = no smearing of chi0, >0 finite T, <0 the Gaussian).
+        if "SmearX0" in gw:
+            from pylib.ctrlg_rules import smearx0_to_kelvin
+            sx = float(gw.pop("SmearX0") or 0)
+            if sx > 0:
+                if float(gw.get("t_tetrakbt", 0) or 0) > 0:
+                    sys.exit("gwinput2toml: SmearX0 > 0 and t_tetrakbt > 0 are exclusive")
+                gw["t_tetrakbt"] = -smearx0_to_kelvin(sx)
+                sys.stderr.write(f"gwinput2toml: SmearX0 = {sx} -> t_tetrakbt = {gw['t_tetrakbt']} K\n")
+        gw.setdefault("t_tetrakbt", 0)
         for dead in ("GaussianFilterX0", "GaussSmear", "delta", "dw", "omg_c", "WgtQ0P", "SmearX0q0"):
             if dead in gw:
                 gw.pop(dead)

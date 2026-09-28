@@ -175,7 +175,7 @@ emax_sigm     = 3.0        # (Ry) Sigma exact below; extrapolated above
 niw           = 10         # # of imag-axis frequencies (try 6/10/12)
 HistBin_dw    = 0.0001     # bin width on real-axis at omega=0
 HistBin_ratio = 1.05       # frhis(iw)=(dw/(r-1))*(exp((r-1)*(iw-1))-1)
-SmearX0       = 0.01
+t_tetrakbt = -1741.0   # (K) < 0: Im chi0 smeared by a Gaussian as wide as Fermi-Dirac at |T| (was SmearX0 = 0.01 Ha; ctrlg_update.py, 2026-09-28)
 deltaw        = 0.02       # (a.u.) numerical-derivative mesh for Z factor
 t_sigmaw      = 262        # (K) Fermi-Dirac width of the Sigma levels (from esmr = 0.003 Ry)
 QforEPSau     = true       # true = interpret <QforEPS> as a.u.

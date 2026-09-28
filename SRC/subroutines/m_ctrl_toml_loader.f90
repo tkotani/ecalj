@@ -124,7 +124,7 @@ contains
        if (t%has_key('nbas') .or. t%has_key('nspec')) call rx('m_ctrl_toml_loader: '//trim(filename)// &
             ': [struc] nbas / nspec are not allowed. The numbers of sites and species are those of the [[site]] / '// &
             '[[spec]] tables (a count written beside them silently left out sites added to the tables). '// &
-            'Run  ctrlg_drop_counts.py '//trim(filename)//'  (it removes the two lines; if nbas was smaller than the '// &
+            'Run  ctrlg_update.py '//trim(filename)//'  (it removes the two lines; if nbas was smaller than the '// &
             'tables, it comments out the [[site]] blocks beyond nbas). To leave sites out, comment out their blocks.')
     end select
   end subroutine reject_counts

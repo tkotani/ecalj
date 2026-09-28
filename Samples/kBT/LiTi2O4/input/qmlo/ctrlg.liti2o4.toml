@@ -210,9 +210,8 @@ GaussSmear    = true       # Gaussian smearing for poles of G^LDA in hsfp0
 # 2026-09-28: the two 'retired' notes that stood here were wrong; SmearX0 below is in use (setting P of 2026-09-22,
 # ecaljdoc kBT.md "実用の設定"): chi0 at T=0 with a Gaussian on Im chi0, t_sigmaw for the Sigma levels, wcsmear (default).
 deltaq_scale  = 0.1
-t_tetrakbt = 0.0
 t_sigmaw = 1000.0
-SmearX0 = 0.0057     # (Ha) Gaussian on Im chi0, std = FD 1000 K (0.156 eV); exclusive with t_tetrakbt > 0
+t_tetrakbt = -992.4   # (K) < 0: Im chi0 smeared by a Gaussian as wide as Fermi-Dirac at |T| (was SmearX0 = 0.0057 Ha; ctrlg_update.py, 2026-09-28)
 KeepEigen     = false
 wan_out_emin  = -1.05      # (eV, rel. EFermi) Wannier outer window low
 wan_out_emax  = 2.4        # (eV, rel. EFermi) Wannier outer window high
