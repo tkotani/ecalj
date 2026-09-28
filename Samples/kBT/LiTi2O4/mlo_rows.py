@@ -69,7 +69,8 @@ iters = [0] + [i for i in range(1, 31) if any(os.path.exists(path(c[1], i)) for 
 if 'ROWS' in os.environ: iters = [i for i in iters if i in {int(v) for v in os.environ['ROWS'].split(',')}]
 n = len(iters)
 ROWH = float(os.environ.get('ROWH', '2.5'))   # height of a row (inch); ROWH=5 for a figure of one or two rows (2026-09-28)
-fig, AX = plt.subplots(n, len(COLS), figsize=(4.9 * len(COLS) + 0.4, ROWH * n + 1.0),
+MINW = float(os.environ.get('MINW', '9'))     # the title lines need about 9 inch; one column was clipped (2026-09-28)
+fig, AX = plt.subplots(n, len(COLS), figsize=(max(4.9 * len(COLS) + 0.4, MINW), ROWH * n + 1.0),
                        sharex=True, sharey=True, squeeze=False)
 store = {}
 for r, it in enumerate(iters):
