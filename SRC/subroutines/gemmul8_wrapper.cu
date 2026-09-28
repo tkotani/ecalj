@@ -41,9 +41,17 @@ static size_t g_kept_bytes = 0;
 static size_t g_kept_cap   = 0;
 static bool   g_kept_init  = false;
 
+// Keeping A is OFF unless ECALJ_GEMMUL8_KEEP=1 (Bug found 2026-09-29 07:35, not yet understood): with the kept A the fp64
+// Sigma_c of LiTi2O4 6^3 was eV off (SEc at iteration 1 from LDA: max 2.79 eV, rms 1.50 eV against fp32), while GEMMul8
+// without keeping A (ECALJ_LA_CACHE_GB=0) and cuBLAS agree with fp32 within 1 meV (kt1, research log 2026-09-29 07:40).
+// The conditions of GEMMul8 for skip_scalA (same A, op, m, k, moduli, fast mode, INT8) look met, so the cause is still
+// open.  The reuse saved little: iteration 1 from LDA took 1076 s with it and 1109 s without (fp64, kt1, 2 GPUs).
+// realsgemm/realhgemm keep their A' as before (fp32/tf32 are right).
 static size_t kept_cap() {
     if (!g_kept_init) {
         g_kept_init = true;
+        const char* keep = std::getenv("ECALJ_GEMMUL8_KEEP");
+        if (keep == nullptr || std::atoi(keep) != 1) { g_kept_cap = 0; return g_kept_cap; }
         double gb = 4.0;
         if (const char* s = std::getenv("ECALJ_LA_CACHE_GB")) gb = std::atof(s);
         size_t free_b = 0, total_b = 0;
