@@ -98,6 +98,17 @@
   `use_lo`・`has_lo`・`etop`・`etop_all` を allocatable にし、入口の判定を明示的なループにして直った（kr7 で SHALLOW の 2 行が gfortran と同じ値、NiO666lda 合格）。
   手元の gfortran でも NiO666lda・ZnO・RuO2・Cu・GaAs が合格。この BLOCK は gfortran 13.3/14.2 の誤コンパイル（lmindex）の前歴もある
 - 同じ形（下限 0 の自動配列を BLOCK の中で）の配列が他に無いかは、まだ洗っていない
+- mic（ifx 2026、修正前の `7f1a49cf2`）でも NiO666lda は合格し SHALLOW の 2 行が出ていた: nvfortran だけの問題（23:30 に確認）
+- 試験の仕組みの穴を 3 つ直した（`1b9d4a3df`、`1eeb51128`、`d6468a97e`）:
+  1. getsyml は `seekpath` を使う。mic・kr7 の venv に無く、PROCAR/Ni2MnGa の `job_band --fatband` が syml 無しで止まった → 入れた
+  2. testecalj は runprogs が失敗すると `Error exit!` でその場で終わり、前のターゲットの「OK! ALL PASSED」が最後の状態行に残る
+     → `samples_tests.sh` は START と END の数が合わなければ STOPPED とする
+  3. gnuplot の無い機械で job_dos などが例外で止まり、`--all` が fe で終わった → gnuplot が無ければ一行の注記を出して図を飛ばす
+     （`pylib.utils.run_gnuplot`、comp.runprogs）。.glt は書く
+- Samples の ctrlg を全部 lmchk で読み、ctrlg_update.py の規則に照らす組 `inputs` を足した（手元 114 本合格）。
+  古い仕様の残りを片付けた（`aae6b1e88`）: MLOsamples/FeCo の読まれない GWinput（09-17 の片付けの漏れ）、LiTi₂O₄ の入力の `delta`・`GaussSmear`。
+  Al2O3_Cr の CASE*ok・test*、Si666gwsc/temp（開発のときの結果の控え）の GWinput と、TOML 化した組に残る旧 `ctrl.<sname>` 53 本は判断待ちで残した
+- 23:33 mic で `1eeb51128` の全部の組（inputs〜magnon、CPU）を開始。23:35 kr7 で CPU の組 C（inputs、TestInstall、PROCAR）を開始（B は GPU で bench 以降を実行中）
 
 ### 22:58 **SmearX0 をやめて `t_tetrakbt < 0` に（ecalj `0ef0fa5f9`、ecaljdoc `497ce14`）。空球入りの 9³ tf32 は反復 7 で止め、残りを chain43 に組み替えた。kr7 を整えた**
 
