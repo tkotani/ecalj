@@ -1,4 +1,4 @@
-# LiTi₂O₄ MLO-QSGW: {9³, 6³} × {tf32, fp32, fp64} の MLO バンド（2026-09-28 から）
+# LiTi₂O₄ MLO-QSGW: {9³, 6³} × {tf32, fp32, fp64} と空球入りの 9³ tf32 の MLO バンド（2026-09-28 から）
 
 `update_six_rows.sh` が kt1 の run から MLO バンドを取ってきて、下の 4 枚と数値（npz）を作り直す（同じファイル名に上書き）。
 経過と判断は `../kBT_research.md`（2026-09-28 の 14:38 から）。
@@ -8,6 +8,15 @@
 - 赤い × は Σ のメッシュ点（内挿がそこで正確）。9³ は x = 2/9, 4/9, 6/9, 8/9、6³ は 1/3, 2/3
 - 数値: `liti2o4_six_rows12_data.npz`（12 列の図の各枠: x、描いたバンド、元のファイルの kt1 での場所、印、日時）、`liti2o4_six_rows_data.npz`（t2g）、
   `liti2o4_six_conv_data.npz`（反復ごとの動き）
+
+## データの在りか（図を描き直すためのもの）
+
+| 所 | 中身 |
+| --- | --- |
+| この directory（git） | 描いた数値の npz: `liti2o4_six_rows12_data.npz`（t2g と b45〜58）、`liti2o4_six_rows_data.npz`、`liti2o4_six_conv_data.npz`。各枠の x・バンド・元のファイル・日時 |
+| 手元 `~/data/liti2o4_six/six_cache/<run>/` | kt1 から取ってきた MLO バンドのファイル（全バンド）と各 run の反復の終わりの時刻（`<run>.times`）。`update_six_rows.sh` の既定の置き場 |
+| kt1 `/mnt/data1/LiTi2O4_kbt_runs/<run>/` | 元の MLO バンドのファイル `bnd_mlo_iter<N>.dat`（09-26 の鎖は `mloband/bnd_iter<N>.dat`）、描き直しに要る `QSGW.<N>run/`・`snap/iter<N>/` |
+| kt1 `archive/mlo_bands_20260928.tar.gz` | 2026-09-28 21:44 時点のバンドのファイル 62 本の控え |
 
 ## 図 1: 14 列（6 通りと空球入りの 9³ tf32、それぞれに t2g と 2.6〜8 eV）
 

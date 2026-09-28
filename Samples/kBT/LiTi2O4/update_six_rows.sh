@@ -3,7 +3,7 @@
 # (update_six_rows.sh) fetch the MLO bands from kt1, fill each panel from the column's own run (the current code), and where that run has
 # not got there yet, from what exists already, marked [09-26 code] / [09-27 code].  -> liti2o4_six_rows.png
 set -u
-SP=${WORK:-/tmp/liti2o4_six}     # local work: the fetched band files and the panel links
+SP=${WORK:-$HOME/data/liti2o4_six}   # the fetched band files (kept: the data behind the figures) and the panel links
 S=${RUNS_DIR:-/mnt/data1/LiTi2O4_kbt_runs}   # on kt1
 C=$SP/six_cache; R=$SP/rows_six
 mkdir -p $C
