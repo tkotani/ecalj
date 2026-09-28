@@ -76,7 +76,8 @@ YL_EG = (2.6, float(os.environ.get('EGMAX', '8.0')))   # 2026-09-28: up to 8 eV 
 ROWH = float(os.environ.get('ROWH', '2.5'))   # height of a row (inch); ROWH=5 for a figure of one or two rows (2026-09-28)
 MINW = float(os.environ.get('MINW', '9'))     # the title lines need about 9 inch; one column was clipped (2026-09-28)
 COLW = float(os.environ.get('COLW', '4.9'))   # width of a column (inch); COLW=3.6 for the 12-column figure
-fig, AX = plt.subplots(n, len(COLS), figsize=(max(COLW * len(COLS) + 0.4, MINW), ROWH * n + 1.0),
+FIGH = ROWH * n + 1.5      # 1.5 inch on top for the title of up to 5 lines, whatever the number of rows (2026-09-28)
+fig, AX = plt.subplots(n, len(COLS), figsize=(max(COLW * len(COLS) + 0.4, MINW), FIGH),
                        sharex=True, sharey=('col' if any(is_eg(c[1]) for c in COLS) else True), squeeze=False)
 store = {}
 ## OCC=1: only the two lowest t2g bands (the occupied pair near Gamma) on 0 < x < 0.5, with the dip of the lowest band below its
@@ -157,8 +158,8 @@ fig.suptitle(f'LiTi$_2$O$_4$  {_ML} (nkabc = n1n2n3 = mesh)   '
                 'CAUTION: different APW cutoffs - MTO chain pwmode=1 (|G|), MLO chains pwmode=11 (|q+G|).\n'
                 'Each column states its own damping; the MTO chain always Anderson-mixes sigm at [gw] mixbeta\n') +
              
-             f'generated {stamp}', fontsize=10.5)
-plt.tight_layout(rect=[0, 0, 1, 1 - 0.95/(ROWH*n + 1.0)])
+             f'generated {stamp}', fontsize=10.5, y=1 - 0.1 / FIGH, va='top')
+plt.tight_layout(rect=[0, 0, 1, 1 - 1.4 / FIGH])   # the title sits in the top 1.4 inch: no overlap with the first row
 plt.savefig(OUT, dpi=float(os.environ.get('DPI', '115')))
 ## DATAOUT=<file>.npz: per panel <column dir>_<lda|iterN>: x (Gamma-X = 0..1) and the t2g energies (b33-44 sorted per k, eV from
 ## E_F) as plotted, with <key>__src (the band file: its .src if given, e.g. where it lies on the machine that ran it),

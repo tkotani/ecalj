@@ -9,7 +9,7 @@
 - 数値: `liti2o4_six_rows12_data.npz`（12 列の図の各枠: x、描いたバンド、元のファイルの kt1 での場所、印、日時）、`liti2o4_six_rows_data.npz`（t2g）、
   `liti2o4_six_conv_data.npz`（反復ごとの動き）
 
-## 図 1: 12 列（6 通りそれぞれに t2g と 2.6〜8 eV）
+## 図 1: 14 列（6 通りと空球入りの 9³ tf32、それぞれに t2g と 2.6〜8 eV）
 
 右の枠: eg の 8 本（灰）、バンド 53（赤紫、4〜7 eV で分散、9³ のメッシュ点 4/9 で反復ごとに上がる）、54〜58（薄い灰）
 
@@ -27,6 +27,6 @@
 
 ![change per iteration](liti2o4_six_conv.png)
 
-## 図 4: t2g だけの 6 列
+## 図 4: t2g だけの 7 列（空球入りの 9³ tf32 を 9³ tf32 の隣に）
 
 ![six columns](liti2o4_six_rows.png)

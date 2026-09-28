@@ -19,7 +19,8 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 root, out, outnpz = sys.argv[1:4]
-COLS = [('k9tf32', '9$^3$ tf32', 'C0', '-'), ('k9fp32', '9$^3$ fp32', 'C1', '-'), ('k9fp64', '9$^3$ fp64', 'C2', '-'),
+COLS = [('k9tf32', '9$^3$ tf32', 'C0', '-'), ('k9tf32es', '9$^3$ tf32 ES', 'C4', '-'),   # ES: empty spheres (2026-09-28)
+        ('k9fp32', '9$^3$ fp32', 'C1', '-'), ('k9fp64', '9$^3$ fp64', 'C2', '-'),
         ('k6tf32', '6$^3$ tf32', 'C0', '--'), ('k6fp32', '6$^3$ fp32', 'C1', '--'), ('k6fp64', '6$^3$ fp64', 'C2', '--')]
 
 
