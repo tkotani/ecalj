@@ -97,6 +97,10 @@
   `la_cache_reset` で捨てる。fp32・tf32 は同じ key を realsgemm・realhgemm の置き場で使い回して正しい。GEMMul8 の説明の skip_scalA の条件
   （A・op・大きさ・法の数・fastmode・INT8 が同じ）は満たしているように読め、A のスケール `sftA` も workA の中にある。根本の原因は未解決
 - 対処: `gemmul8_wrapper.cu` で使い回しを既定で切った（`ECALJ_GEMMUL8_KEEP=1` で戻せる）。使い回しで得ていた時間はわずか
+- 07:41 単体の試験（`/mnt/data1/tf32test/test_g8keep.cu`、kt1 の GPU 1）: Σc の虚軸と同じ並び（A = W_iw を key 1000+iw で残す、B と n を 3 通り、
+  iw ごとに beta = 1 で足し込む、2 巡目は残した A を使い回す）を cuBLAS の zgemm と比べると、使い回しありでも相対 1.3e-14。**再現しない**。
+  本物の計算にしかない条件（キュー 1 の非同期のストリーム、key の無い GEMMul8 の積との混在、作業領域の伸び、大きさ）で壊れる。
+  key の範囲ごとに使い回しを許して回せば、どの積かまで絞れる（未実施）
 - 07:39 chain47: kt1 の `~/ecalj_dev` を `b81da2342` にして `~/bin_dev` を `--gemmul8` でビルドし、既定のままの fp64 の 1 反復で確かめる
   （`~/ecalj_dev` は HEAD で上書きしたので、09-27 の計測パッチも戻った）
 

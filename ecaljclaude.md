@@ -61,7 +61,8 @@ Claude（や人）が後でコードや記録を読むときの手がかりに�
 ### 計算を回す前の確認
 
 - リモート機のソースが手元と同じか（`SRC/.ecalj_rev`、ファイルのチェックサム）
-- 新しい機能が `.so` に入っているか（`nm -D` や `strings libecaljF*.so`。実行ファイルは薄い wrapper）
+- 新しい機能が `.so` に入っているか（`nm -D` や `strings libecaljF*.so`。実行ファイルは薄い wrapper）。GEMMul8 の包み（`gemmul8_wrapper.cu`）は
+  別の `libgemmul8wrap.so` に入る（2026-09-29: libecaljF だけを見て「入っていない」と取り違えた）
 - インストール先の `gwsc` などが symlink か実体コピーか（実体だと古いスクリプトのまま走る）
 - 走り始めたらログに期待する印が出ているか確かめる
 - `testecalj` の前に `*_work` を消す（前回の失敗の rst が残ると偽の失敗になった。いまは testecalj も走らせる各ターゲットの `_work` を
