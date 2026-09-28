@@ -81,6 +81,25 @@
 
 ## 2026-09-29 — fp64 の GPU の Σc がずれる件、Samples の試験の続き
 
+### 07:40 **誤りは GEMMul8 の「A の分解の使い回し」: 使い回しを切るだけで fp64 が fp32 と 1 meV で一致（chain46）。既定で切った（`b81da2342`）**
+
+- chain46（07:16〜07:34、kt1）: fp64、表のまま GEMMul8（14 法）だが、A の分解を残さない（`ECALJ_LA_CACHE_GB=0`）。
+
+  **表 07:40-1**. LDA からの 1 反復目の SEc の差（kt1、凍結した 9e881 のバイナリ）
+
+  | fp64 の積の方法 | fp32 との最大の差 | 1 反復目の時間 |
+  | --- | --- | --- |
+  | GEMMul8、A の分解を key で使い回す（表のまま、`qmlo_k6_fp64n`） | 2.791 eV | 1076 秒 |
+  | GEMMul8、使い回しなし（chain46） | 0.001 eV | 1109 秒 |
+  | cuBLAS（chain45） | 0.001 eV | 6408 秒 |
+
+- 使い回すのは m_sxcf_sc の虚軸 `key = 1000 + iw`（A = W(iω)）、実軸 `key = 100000 + iw`（A = W(ω)）、m_zmel の `key = 1`（基底）。key は `set_m2e_prod_basis` の
+  `la_cache_reset` で捨てる。fp32・tf32 は同じ key を realsgemm・realhgemm の置き場で使い回して正しい。GEMMul8 の説明の skip_scalA の条件
+  （A・op・大きさ・法の数・fastmode・INT8 が同じ）は満たしているように読め、A のスケール `sftA` も workA の中にある。根本の原因は未解決
+- 対処: `gemmul8_wrapper.cu` で使い回しを既定で切った（`ECALJ_GEMMUL8_KEEP=1` で戻せる）。使い回しで得ていた時間はわずか
+- 07:39 chain47: kt1 の `~/ecalj_dev` を `b81da2342` にして `~/bin_dev` を `--gemmul8` でビルドし、既定のままの fp64 の 1 反復で確かめる
+  （`~/ecalj_dev` は HEAD で上書きしたので、09-27 の計測パッチも戻った）
+
 ### 07:20 **fp64 のずれの原因は GEMMul8: 同じ凍結したバイナリで積を cuBLAS に替えると、1 反復目の SEc が fp32 と 1 meV で一致（chain45）。`nttp` ではなかった**
 
 - chain44（04:48〜05:26）: 6³ tf32 の 31〜40 を終えた
