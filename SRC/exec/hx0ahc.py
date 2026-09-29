@@ -1,9 +1,17 @@
 import sys,os,time,pathlib,shlex
 import numpy as np
-try:                      # without mpi4py: one process computes the points one after another (2026-09-30)
-    from mpi4py import MPI
-except ImportError:
-    MPI = None
+# Two ways to run (2026-09-30):
+#  python3 hx0ahc.py ...             one process; hahc runs through "mpirun -np 1", one point after another.
+#                                    mpi4py is not loaded (it is not needed, and need not be installed).
+#  mpirun -np N python3 hx0ahc.py ...  the points are divided among the N ranks (mpi4py built with the MPI of this
+#                                    mpirun); each rank starts hahc itself, without mpirun.
+under_launcher = any(k in os.environ for k in ('OMPI_COMM_WORLD_SIZE','PMI_SIZE','PMIX_RANK','PMI_RANK'))
+MPI = None
+if under_launcher:
+    try:
+        from mpi4py import MPI
+    except ImportError:
+        MPI = None
 
 start = time.perf_counter()
 usage = """ USAGE: mpirun -np 4 python hx0ahc.py -4. 4. 101 [options for hahc, e.g. --ctrlg:ham.so=1] """
@@ -30,6 +38,8 @@ else:
     comm = MPI.COMM_WORLD
 size = comm.Get_size()
 rank = comm.Get_rank()
+# a program started without mpirun stops in MPI_Init with the OpenMPI of the NVIDIA HPC SDK: one rank through mpirun
+hahc = f"{epath}/hahc" if MPI is not None else f"mpirun -np 1 {epath}/hahc"
 
 if rank == 0:
     pahc = pathlib.Path('ahc_tet.isp11.dat')
@@ -45,13 +55,13 @@ residue = [i for i in range(nd-njob*size)]
 comm.barrier()
 for i in range(njob):
     print('rank=',rank,rank*njob+i,efshift[rank*njob+i],flush=True)
-    print(f"{epath}/hahc --job=202 --ahc --interbandonly --EfermiShifteV={efshift[rank*njob+i]} {options} > lahc.{rank}")
-    os.system("{exe}/hahc --job=202 --ahc --interbandonly --EfermiShifteV={ef} {op} > lahc.{rank}"
-              .format(exe=epath,ef=efshift[rank*njob+i],op=options,rank=rank))
+    print(f"{hahc} --job=202 --ahc --interbandonly --EfermiShifteV={efshift[rank*njob+i]} {options} > lahc.{rank}")
+    os.system("{exe} --job=202 --ahc --interbandonly --EfermiShifteV={ef} {op} > lahc.{rank}"
+              .format(exe=hahc,ef=efshift[rank*njob+i],op=options,rank=rank))
 if rank in residue:
     print('rank=',rank,size*njob+rank,efshift[size*njob+rank],flush=True)
-    os.system("{exe}/hahc --job=202 --ahc --interbandonly --EfermiShifteV={ef} {op} > lahc.{rank}"
-              .format(exe=epath,ef=efshift[size*njob+rank],op=options,rank=rank))
+    os.system("{exe} --job=202 --ahc --interbandonly --EfermiShifteV={ef} {op} > lahc.{rank}"
+              .format(exe=hahc,ef=efshift[size*njob+rank],op=options,rank=rank))
 
 comm.barrier()
 if rank == 0:
