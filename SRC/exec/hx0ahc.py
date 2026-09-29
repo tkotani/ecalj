@@ -1,6 +1,9 @@
 import sys,os,time,pathlib,shlex
 import numpy as np
-from mpi4py import MPI
+try:                      # without mpi4py: one process computes the points one after another (2026-09-30)
+    from mpi4py import MPI
+except ImportError:
+    MPI = None
 
 start = time.perf_counter()
 usage = """ USAGE: mpirun -np 4 python hx0ahc.py -4. 4. 101 [options for hahc, e.g. --ctrlg:ham.so=1] """
@@ -17,7 +20,14 @@ eff = float(args[2])
 nd = int(args[3])
 efshift = np.linspace(efs,eff,nd)
 
-comm = MPI.COMM_WORLD 
+if MPI is None:
+    class _Serial:        # stands for the communicator of one process
+        def Get_size(self): return 1
+        def Get_rank(self): return 0
+        def barrier(self): pass
+    comm = _Serial()
+else:
+    comm = MPI.COMM_WORLD
 size = comm.Get_size()
 rank = comm.Get_rank()
 

@@ -42,7 +42,7 @@ python3 ahc_table.py fe                       # ahc.txt, scf.txt
 - `hx0ahc.py <始点> <終点> <点数> [hahc へのオプション]` は、`hahc` に `--EfermiShifteV=<値>` を付けて点の数だけ走らせ、
   `ahc_tet.isp11.dat` などを $\Delta E_F$ の順に並べ直す。`mpirun -np 4 python3 ...` とすれば点をランクに分けるが、
   これは mpi4py が `mpirun` と同じ MPI で作られているときに限る。違う MPI だと全ランクが全部の点を計算して出力が壊れるので、
-  そのときは上のように `mpirun` なしで走らせる。
+  そのときは上のように `mpirun` なしで走らせる。mpi4py が無い環境でも、`mpirun` なしなら動く。
 - AHC の k 点メッシュを変えるには、`job_AHC` と `hx0ahc.py` の両方に同じオプションを付ける。
 
 ```bash
