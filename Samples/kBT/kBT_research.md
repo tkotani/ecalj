@@ -79,6 +79,68 @@
 意味のある異常はこの数より**少ない**場合（一部のプロセスが MLO 経路に入らず従来の `sigm` に落ちた）。
 ほか: 1 反復 ≈ 5300 秒（6³ は ≈ 950）、スナップショット 2.4 GB（6³ は 0.9）。
 
+## 2026-09-30 — パッケージと文書の整理、温度のスキャン、反強磁性の QSGW の修理、GW1500 の回し直し（user 00:10「明日の朝まで自律的に」）
+
+### 02:10 **テンプレートの温度（`t_tetrakbt = t_sigmaw = 300`）に替えると、ギャップの狭い系と金属では試験の QPU が許容を超えて動く。試験の入力の値（262、0）は変えない**
+
+- kt1（CPU 8 ランク、`~/bin_frozen_b81da2342`）で `testecalj --gwall --run-args="--ctrlg:gw.t_tetrakbt=300 --ctrlg:gw.t_sigmaw=300"`（01:55〜）。
+  参照（`t_sigmaw = 262`、`t_tetrakbt = 0`）との QPU の差の最大（許容 0.011 eV）を表 02:10-1 に
+
+*表 02:10-1* QPU の差の最大（eV）。「いつもの値」は同じ夜の fp64 の試験（入力のまま）
+
+| 試験 | いつもの値 | 300 K | 何が動いたか |
+| --- | --- | --- | --- |
+| si_gw_lmfh | 0.0106 | 0.0106 | — |
+| gas_pw_gw_lmfh | 0.001 | 0.001 | — |
+| si_gwsc | 0.001 | 0.003 | — |
+| gas_gwsc（2×2×2、LDA のギャップ 0.18 eV） | 0.001 | 0.483 | Γ の価電子帯の頂上の SEx +0.483、SEc −0.460（打ち消し合う）。`dSEnoZ` は最大 0.034、eQP は 0.001 |
+| nio_gwsc | 0.001 | 0.031 | |
+| fe_gwsc | 0.001 | 2.23 | |
+
+- gas_gwsc: `EFERMI_kbt` = 0.15252 Ry はテトラヘドロンの `EFERMI` = 0.15473 Ry より 30 meV 低く、価電子帯の頂上が 2.3 k_BT 下になって占有が 0.91 になる。
+  その状態の交換の自己項が減り、SEc が打ち消す
+- 変換の注記（`(from esmr = 0.003 Ry)`、`(the former default; ctrlg_update.py, 2026-09-28)`）は 51 本の入力で素直な説明に置き換えた（`1b549446f`。値は同じ）
+
+### 01:45 **反強磁性の対称性（`symgrpaf`）の QSGW は動いていなかった。直した（`0fcb0045d`、`2c599ce04`）。NiO 2×2×2 の 2 反復で、対称性を使わない計算とギャップが 1.7 meV で一致**
+
+- 確かめ方: `TestInstall/nio_gwsc` の入力に `symgrpaf = "i:( 1 1 1 )"` と `af = ±1` を足して `gwsc 2`（kt1 の CPU、01:17〜）。1 反復目の `hqpe_sc` で止まった
+- 原因 1（`m_qplist`）: GW のドライバ（`lmf --jobgw=1`）で両方のスピンを解く条件が、素の `--jobgw` の有無だった。オプションの照合が完全一致になった
+  2026-03-21（`406586ef2`）から `--jobgw=1` では偽で、スピン 1 だけを書いていた。`c2_jobgw >= 0` に直した
+- 原因 2（`hqpe_sc`）: `laf` のとき、スピン 2 のファイル（SEX2D、QPD など）を開かないまま `do is=1,nspin` で読み書きしていた。
+  また `lmf` は 2 スピン分の `sigm` を読む（`m_rdsigm2_init` の `if(laf) nspsigm=2`）。スピン 1 からスピン 2 を対称操作で作る段は今のコードに無い
+- 直し方: `sugw` が `__MTOindex` に `laf = .false.` を書き、GW のプログラムは両方のスピンを計算する（SCF の `lmf` は対称性でスピン 1 だけを解く）
+- 結果（手元、gfortran、4 ランク）: ギャップ LDA 1.0253 / 1 反復後 2.0018 / 2 反復後 2.9862 eV。`symgrpaf` なしは 1.0253 / 2.0016 / 2.9845 eV。
+  2 反復後の QPU は SEx・SEc で最大 0.003 eV、`dSEnoZ` で 0.001 eV の差
+- 試験 `Samples/AFsymmetry/NiO_gwsc` を足し、`Legacy/AFsymmetry` を `Samples/AFsymmetry` に移した
+
+### 01:30 **温度のスキャン（`Samples/kBT/scanT`）: Si のギャップは 300 K では T = 0 と同じ、3000 K で −157 meV（主に χ0 側）。bcc Fe は 3000 K から交換分裂が減る（主に Σ 側）**
+
+- `scan_T.sh` が同じ入力の `t_tetrakbt`・`t_sigmaw` だけを変えて LDA から `gwsc` を回し、`collect_T.py` が表・npz・図にする。手元（gfortran、8 ランク）
+- Si（4×4×4、5 反復、00:40〜00:56、対照は 〜01:08）: ギャップ 1.223（0 K、300 K）、1.222（1000）、1.188（2000）、1.066（3000）、0.913 eV（5000）。
+  3000 K で χ0 だけ −133 meV、Σ だけ −46 meV、χ0 を Gaussian（−3000）にすると −50 meV
+- Fe（5×5×5、3 反復、01:08〜01:46）: モーメント 2.429（0 K）、2.426（300）、2.443（1000）、2.420（3000）、2.252 μ_B（5000）。Γ の d の交換分裂 2.619 / 2.604 / 2.688 / 2.492 / 1.842 eV。
+  3000 K で Σ だけ −0.17 eV、χ0 だけ +0.06 eV。1000 K までの動き（最大 63 meV）は単調でない
+- `t_tetrakbt` ≤ 0 のときの Σ の Fermi 準位は `EFERMI` ではなく、`efsimplef2ax` が k メッシュの上で数えた値（Gaussian、幅 k_B·`t_sigmaw`）。
+  出力の表示 `ef<-EFERMI` とマニュアルの記述が違っていたので直した（`5d6af3c6c`、ecaljdoc `f2d9656`）
+
+### 01:10 **GW1500: 状態を集計し（収束 1210、未収束 179、失敗 147、ギャップ無し 10）、失敗したものを今のコードで最初から回し直し始めた（kt1、`/mnt/data1/gw1500_rerun/run1`）**
+
+- 集計と原因は `ecalj_auto/GW1500_status.md` と `gw1500_status_20260930.tsv`（件数、`File mismatch: rmt`、05-11 の GPU 1 の空きは kt1 で確かめた）
+- 回し直し: `ecalj_auto/gw1500_rerun.sh`（POSCAR → `vasp2ctrl` → `ctrlgenToml.py --ssig=0.8` → `gwscconv --prec=fp32`）。原子数の少ない順、ワーカー 4 本
+- 00:57 に 5 本で始めたときは進まなかった: OpenMPI がどのジョブのランクもコア 0〜11 に固定し、60 本余りが 12 コアに重なった。
+  01:08 にワーカーごとに `taskset -c` で 12 コアずつ割り当てて始め直した
+- バンドの図の段で `lmf` が segmentation fault: `ham.readp = true` の入力で `atmpnu.*` が無いと、`lmf` が空のファイルを作って未初期化の値を使っていた。
+  メッセージを出して止まるように直し（`m_lmfinit`）、図は `gw1500_bandplot.sh` で後から描く
+- 01:28: mp-8196（AgNO₃、5 月は Σ が壊れて落ちた）が 6 反復で収束、ギャップ 5.056 eV（CPU の参照 5.05 eV）。02:07 までに 27 物質が収束、1 物質（Sr）はギャップ無し
+
+### 00:45 **文書と既定の整理**
+
+- LiTi₂O₄ のまとめ: `LiTi2O4/README.md`（設定の表、精度の比較、6³・9³ の 40 反復）。2026-06 の README は `README_202606_finiteT.md` に
+- `gwsc --mlo` の MLO の Σ の混合を既定にした（`ECALJ_MLO_MIX=0` で切る。`aaabe3df1`）。MLOQSGW の試験は環境変数なしで同じ結果
+- ecaljdoc: kBT.md をいまの仕様だけにし、2026-06〜09 の説明は kBT_history.md へ。15 頁の古い記述を直した（`f2d9656`、`b9c5e99`）
+- 試験（`fc1312ce2`、00:19〜）: kt1・kr7 とも inputs 114、install 64、eps 18、procar 5、mlo 45、mloqsgw 5、afsym 2、gwall（tf32 28、fp32 35、fp64 35）、heavy 8 が合格。
+  magnon は `Fe_bcc_in_sc_magnon` だけ不合格（kt1 と kr7 の結果は互いに一致、参照と K で 0.4 %、山の位置は 2.5 meV で一致）→ 山の位置で比べる試験にした（`b6f0e8af3`）
+
 ## 2026-09-29 — fp64 の GPU の Σc がずれる件、tf32 を 40 まで、Samples の試験の続き
 
 ### 20:55 **6³ fp64（`b81da2342`、kt1）の LDA からの 1 反復目の MLO バンドは、09-26 の fp32（`liti_mlo_v9` の 1 反復目）と t2g で最大 1 meV、2.6〜8 eV で 2 meV の差**
