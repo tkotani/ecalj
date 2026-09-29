@@ -5,7 +5,8 @@ subroutine writeboltztrap(eferm) !write input file for boltztrap !test by gomi a
   use m_qplist,only: nkp,xdatt,qplist
   use m_mkpot,only:  qval
   use m_ext,only: sname
-  use m_hamindex, only: ngrp,symops !,norbmto,ibastab,ltab,ktab,offl, symops_af
+  use m_mksym, only: ngrp,symops   ! the space group of the crystal.  (Bug fixed 2026-09-30 02:30: taken from m_hamindex, which
+                                   ! is filled only when sigm is read, so an LDA run wrote 0 symmetry operations)
   use m_lattic,only: qlat=>lat_qlat, vol=>lat_vol, plat=>lat_plat,pos=>rv_a_opos
   use m_igv2x,only: nbandmx 
 !  real(8):: evlall(:,:,:)
@@ -18,6 +19,8 @@ subroutine writeboltztrap(eferm) !write input file for boltztrap !test by gomi a
   !iqread=0
   !  if( cmdopt('--boltztrap',11,0,strn) .and. master_mpi) then
   !iqindex = index(strn(12:),'nb=')+2
+  if(.not.master_mpi) return   ! one rank writes the files (Bug fixed 2026-09-30 02:30: every rank wrote them, and lmf
+                               ! --boltztrap with two or more ranks ended in a segmentation fault)
   nx = shape(evlall)
   nbandx=nx(1)
   !if(iqindex/=2) then
