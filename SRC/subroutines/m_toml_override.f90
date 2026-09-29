@@ -11,6 +11,14 @@
 !  Each applied override is logged (rank-0 only) so it appears in the
 !  console output of every lmf/lmfa/GW utility. Values are TOML-typed
 !  (so `true`/`false` lowercase, strings quoted, arrays in `[...]`).
+!  A key that the file does not carry is added: below the header of its
+!  section, at the top of the file for a top-level key, or with a new
+!  [section] at the end of the file when the section is absent
+!  (2026-09-30 02:23. Until then such an override was skipped with a note,
+!  and the run went on with the default value). Only an absent [[sec]]
+!  table of an array of tables is still skipped with a warning.
+!  A misspelled key is added too, and no program reads it (as with a
+!  misspelled key in the file); the note in the output names the key.
 !
 !  Strict typo detection for non-ctrlg flags and retired-syntax checks
 !  (-v..., --[...]=, --toml.<path>=, --pr=, --time=, --phispinsym) live
@@ -127,7 +135,9 @@ contains
     character(len=64)             :: idx_str
     integer :: lastdot, second_lastdot, idx
     logical :: is_array_of_tables
-    integer :: sec_start, sec_end
+    integer :: sec_start, sec_end, nl
+    logical :: found
+    character(1), parameter :: lf = achar(10)
     !
     ! Path forms:
     !   key                   -> top-level scalar
@@ -137,7 +147,11 @@ contains
     lastdot = index_last(path, '.')
     if (lastdot == 0) then
        ! top-level
-       call replace_key_in_range(text, 1, len(text), path, val)
+       call replace_key_in_range(text, 1, len(text), path, val, found)
+       if (.not. found) then ! top-level keys stand before the first [section]
+          text = path//' = '//val//lf//text
+          if (master_mpi) write(stdo,'(a)') '   (note) key "'//path//'" is not in the file: added at the top'
+       endif
        return
     endif
     key = path(lastdot+1:len(path))
@@ -155,11 +169,28 @@ contains
     call find_section_range(text, trim(section_pat), is_array_of_tables, idx, &
          sec_start, sec_end)
     if (sec_start <= 0) then
+       if (is_array_of_tables) then
+          if (master_mpi) write(stdo,'(a)') &
+               '   (warn) --ctrlg: override path "'//trim(path)//'": no such table in the file; skipped'
+          return
+       endif
+       text = text//lf//'['//trim(section_pat)//']'//lf//trim(key)//' = '//val//lf
        if (master_mpi) write(stdo,'(a)') &
-            '   (warn) --toml override path "'//trim(path)//'" not found in TOML; skipped'
+            '   (note) section ['//trim(section_pat)//'] is not in the file: added with the key "'//trim(key)//'"'
        return
     endif
-    call replace_key_in_range(text, sec_start, sec_end, trim(key), val)
+    call replace_key_in_range(text, sec_start, sec_end, trim(key), val, found)
+    if (.not. found) then ! the new line goes below the header line of the section
+       nl = index(text(sec_start:), lf)
+       if (nl == 0) then
+          text = text//lf//trim(key)//' = '//val//lf
+       else
+          nl = sec_start + nl - 1
+          text = text(1:nl)//trim(key)//' = '//val//lf//text(nl+1:)
+       endif
+       if (master_mpi) write(stdo,'(a)') &
+            '   (note) key "'//trim(key)//'" is not in its section of the file: added'
+    endif
   end subroutine apply_one_override
 
 
@@ -223,12 +254,15 @@ contains
 
   !> In text(p_start:p_end), find a line starting with `key` (optionally
   !  followed by whitespace then '='), and replace its RHS with `val`.
-  subroutine replace_key_in_range(text, p_start, p_end, key, val)
+  !  found = .false. when there is no such line (the caller adds the key).
+  subroutine replace_key_in_range(text, p_start, p_end, key, val, found)
     character(len=:), allocatable, intent(inout) :: text
     integer,                       intent(in)    :: p_start, p_end
     character(*),                  intent(in)    :: key, val
+    logical,                       intent(out)   :: found
     integer :: i, line_begin, line_eq, line_end, klen, depth
     character :: c
+    found = .false.
     klen = len_trim(key)
     line_begin = p_start
     do while (line_begin <= p_end)
@@ -288,6 +322,7 @@ contains
                    enddo
                    ! splice: keep up to and including '=', insert ' '+val, then newline
                    text = text(1:line_eq) // ' ' // val // text(line_end:)
+                   found = .true.
                    return
                 endif
              endif
@@ -299,16 +334,6 @@ contains
        enddo
        line_begin = line_begin + 1
     enddo
-    ! The override target was not in the cwd's TOML. We print a
-    ! one-line note on the master and continue: the test suite relies
-    ! on being able to pass `--ctrlg:time=...` etc. through cases where
-    ! the TOML happens not to carry the key. A hard abort here would
-    ! be more typo-safe but breaks well-established test workflows;
-    ! the typo-detection net is therefore validate_arglist alone for
-    ! now. (`--ctrlg:verbos=30`-style typos slip through as silent
-    ! skips and the user notices the default-valued behaviour.)
-    if (master_mpi) write(stdo,'(a)') &
-         '   (note) --ctrlg: key "'//trim(key)//'" not in target section; override skipped'
   end subroutine replace_key_in_range
 
 
