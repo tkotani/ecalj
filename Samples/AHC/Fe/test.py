@@ -33,7 +33,7 @@ def test(args,bindir,testdir,workdir):
     # sigma_xy (Ohm^-1 cm^-1), values of 20 to 500. As a function of the shift it is a staircase on this mesh:
     # 0.5 allows for the change of the matrix elements, not for a level that crosses the Fermi energy.
     print('ahc.txt', end=': ')
-    # 60: with the mesh 4x4x4 the mapping of the bands between neighbouring k points depends on the eigenvectors
-    # of degenerate levels, that is on the LAPACK of the build: nvfortran differs from gfortran and ifx by 45 (2026-09-30)
+    # 60: with the mesh 4x4x4 the result depends on the build: nvfortran differs from gfortran and ifx by 45 (18%), and by
+    # 1.5% with 8x8x8 (2026-09-30; README table 4. The cause was not determined)
     tall+= test2_check(testdir+'/ahc.txt', workdir+'/ahc.txt', abs_tol=60)
     return tall
