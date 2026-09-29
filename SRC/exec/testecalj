@@ -11,7 +11,7 @@ parser.add_argument('--gwall', action='store_true', help='Run all GW tests. only
 parser.add_argument('-np', type=str, default='8', help='MPI size (default: 8)')
 parser.add_argument('-np2', type=str, default=None, help='MPI size for GPU GW executables (default: same as -np)')
 parser.add_argument('--gpu', action='store_true', help='Use GPU mode (gwsc only)')
-parser.add_argument('--mp', action='store_true', help='Use MP mode (gwsc only)')
+parser.add_argument('--mp', action='store_true', help='Give --mp to gwsc, i.e. mixed precision tf32 (gwsc only); for fp32 use --run-args=--prec=fp32')
 parser.add_argument('--checkonly', action='store_true', help='File comparison check only')
 parser.add_argument('--run-args', type=str, default='', help='Additional command-line arguments (gwsc only):e.g. --run-args="--debug"')
 parser.add_argument('testdirs', nargs='*', help='Test directories')

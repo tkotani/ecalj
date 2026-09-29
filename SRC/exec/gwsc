@@ -16,14 +16,15 @@ parser = argparse.ArgumentParser(prog='gwsc',description='''
   gwsc allow general options (not described here), which are used in cmdopt in *.f90'
 ''')
 parser.add_argument("nloop",       help='number of QSGW iteration, starting from current result.',default=1,type=int)
-parser.add_argument("extension",   help='extension of ctrl')
+parser.add_argument("extension",   help='<sname> of ctrlg.<sname>.toml')
 parser.add_argument("-np",         help='number of mpi cores in lmf',default=8,type=int)
 parser.add_argument("-ppn",        help='number of mpi cores per node',default=None,type=int)
 parser.add_argument("-np2", "-npgpu", help='number of mpi cores in GPU calculation', type=int, default=None) 
 parser.add_argument("-ppn2", "-ppngpu", help='number of mpi cores per node',default=None,type=int)
-parser.add_argument('--phispinsym',help='spin-symmetrized augmentation',action='store_true')
+parser.add_argument('--phispinsym',help='RETIRED, do not use: gwsc hands it to the programs, and they stop on it. '
+                    'Write [ham] phispinsym = true in ctrlg.<sname>.toml, or give --ctrlg:ham.phispinsym=true',action='store_true')
 parser.add_argument('--emptyrun'  ,help='test for gprof for memory',    action='store_true')
-parser.add_argument('--gpu'       ,help='USE GPU version for hsfp0 and hgw',    action='store_true')
+parser.add_argument('--gpu'       ,help='USE GPU versions of the GW programs (hvccfp0, hsfp0_sc, hgw)',    action='store_true')
 parser.add_argument('--gemmul8'   ,help='USE GEMMul8 valid in GPU without MP',    action='store_true')
 parser.add_argument('--prec'      ,help='precision of the GW programs: fp64 (double precision), fp32 (mixed precision, '
                     'FP32 products; = --mp --fp32) or tf32 (as fp32, but the Sigma_c products on GPU with 10-bit-mantissa '
@@ -34,7 +35,8 @@ parser.add_argument('--prec'      ,help='precision of the GW programs: fp64 (dou
 parser.add_argument('--prec-final', help='precision of the last iterations of this run, <prec>[:N] (N=1 if omitted): e.g. '
                     '--prec=tf32 --prec-final=fp32:2 runs all but the last two iterations in tf32 and those in fp32',
                     default=None)
-parser.add_argument('--mp'        ,help='USE mixed precision version for hsfp0 and hgw',    action='store_true')
+parser.add_argument('--mp'        ,help='mixed precision versions of the GW programs; older spelling of --prec: '
+                    '--mp alone = --prec=tf32, --mp --fp32 = --prec=fp32',    action='store_true')
 parser.add_argument('--fp32'      ,help='With --mp: FP32 also in the Sigma_c products (= --prec=fp32)', action='store_true')
 parser.add_argument('--no-tetwt-helper', help='with --gpu: compute the tetrahedron weights inside hgw instead of '
                     'in a CPU helper run (hgw --tetwt_write on -np cores next to hgw)', action='store_true')
@@ -43,7 +45,10 @@ parser.add_argument('--WVR2ptRaxis', help='Sc real-axis (WVR) pole term: 2-point
 parser.add_argument("-c", "--cluster", help="cluster name", default="default", type=str)
 args,unknown=parser.parse_known_args()
 
-target=''.join(re.split('ctrl.',args.extension)) #to accept ctrl.si and si
+target=args.extension                            # si, ctrlg.si.toml, or ctrl.si (the legacy file name)
+_m=re.fullmatch(r'ctrlg\.(.+)\.toml',target)     # (Bug fixed 2026-09-30 01:35: ctrlg.si.toml became '.si.toml')
+if _m: target=_m.group(1)
+elif target.startswith('ctrl.'): target=target[5:]
 if args.prec is not None:     # --prec is the one switch; --mp/--fp32 are its older spelling
     if (args.mp and args.prec == 'fp64') or (args.fp32 and args.prec != 'fp32'):
         raise SystemExit(f'gwsc: --prec={args.prec} contradicts --mp/--fp32; give only --prec.')
@@ -183,7 +188,7 @@ else:
     remove_files(f'__mixm*{target}*')
 
 ## Structure-only GW setup, hoisted out of the iteration loop.
-##   lmf --jobgw=0 calls m_hamindex0_init() and exits (main_lmf.f90:95) -> HAMindex0,
+##   lmf --jobgw=0 calls m_hamindex0_init() and exits (the jobgw==0 branch of main_lmf.f90) -> HAMindex0,
 ##   which depends on the structure and the basis, not on the density or sigm.
 ##   qg4gw --job=1 turns that plus the q mesh and the cutoffs into QGpsi/QGcou.
 ## Nothing in the loop deletes them, so once is enough.

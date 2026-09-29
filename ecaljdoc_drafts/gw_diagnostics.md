@@ -1,3 +1,5 @@
+> **古い草稿（2026-06）**: いまの説明は ecaljdoc [manual/kBT](https://ecalj.github.io/ecaljdoc/manual/kBT)（§3.5 に `--dumpW` の使用例）と ecalj の `FiniteT_and_QPE_HOWTO.md` §4 にある。この草稿のキー名（`tetrakbt`、`SmearX0`）は古く、いまは `[gw]` の `t_tetrakbt`（> 0 が有限温度、< 0 が Gaussian）。
+
 # GW diagnostics: --dumpW, --WVR2ptRaxis, epsWVR
 
 *(draft for ecaljdoc; target location: manual/gw section)*

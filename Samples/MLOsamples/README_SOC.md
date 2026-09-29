@@ -10,13 +10,13 @@ SOC を摂動として加える方式。lmf の aughsoc を `--socmatrix` で別
 
 `job_mlo_soc <target> -np N` で自動実行される 4 ステップ:
 
-1. **SOC Ef 決定** — `lmf --quit=band --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true --ctrlg:ham.so=1`
-   - フル LS のスピノルハミルトニアンを全 BZ メッシュで解き `efermi.lmf` を生成
-   - これを `efermi_soc` にコピー（以後の lmf 実行でも上書きされない）
+1. **SOC Ef 決定** — `lmf --quit=band --efermi=efermi_soc --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true --ctrlg:ham.so=1`
+   - フル LS のスピノルハミルトニアンを全 BZ メッシュで解き、Fermi 準位を `efermi_soc` に書く
+     （`--efermi=efermi_soc`。`efermi.lmf` は変えない）
 2. **H + V_SO 書き出し** — `lmf --writeham --mkprocar --noinv --mlo --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true --ctrlg:ham.so=0 --socmatrix`
    - スカラー相対論のハミルトニアンを `__HamiltonianPMT` に、SOC 行列を
      `__HamiltonianPMTsoc` に書く
-3. **MLO バンド計算** — `mlo --socmatrix`
+3. **MLO バンド計算** — `mlo --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true --socmatrix --efermi=efermi_soc`
    - Hreduction で MLO 基底、`zMLO = evecpmt * cmlo` で PMT-basis 係数を計算
    - SOC 行列を MLO に射影 → 実空間 `hammhsor` → `HamRsMLO` に追記
    - symmetry line 上で 2N×2N スピノルを対角化 → `band_MLO_spin1.dat` (2N 固有値)
@@ -44,7 +44,7 @@ SOC を摂動として加える方式。lmf の aughsoc を `--socmatrix` で別
 | `FeMgOSoc` | FeMgO 多層 DFT | [-10:15] | 0.0720 | 磁性, Fe 3d + MgO |
 
 共通ファイル構成:
-- 入力: `ctrl.*`, `GWinput`, `syml.*`, `qplist.dat`, `rst.*`, `atmpnu.*.*`
+- 入力: `ctrlg.<sname>.toml`, `syml.*`, `qplist.dat`, `rst.*`, `atmpnu.*.*`
 - QSGW の場合は `sigm.*` も (GaAsSoc のみ)
 - `bnd00N.spin1`: SOC spinor DFT bands (`job_band --ctrlg:ham.nspin=2 --ctrlg:ham.so=1 --ctrlg:ham.phispinsym=true`)
 - `bandplot.isp1.glt`: プロットテンプレート

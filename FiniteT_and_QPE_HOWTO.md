@@ -1,48 +1,26 @@
-# HOWTO: finite-T chi0 (tetrakbt) and one-shot QP energies on arbitrary k-lines (gw_lmfh + QforGW)
-
-> **Note (2026-09-28)**: this HOWTO describes the June 2026 state. Since then: the logical key `tetrakbt` was removed
-> (`t_tetrakbt > 0` switches the finite-T chi0 on); the Sigma side is no longer T=0 but has its own Fermi-Dirac level
-> width `t_sigmaw` (K, default 1000, replacing `esmr`); and the metallic QSGW instability turned out to come from a sharp
-> plasmon pole of W at the first-shell q that the real-axis pole term of Sigma_c hits, not from nesting, handled by
-> `wcsmear` (default true) and, for W, `SmearX0`. The current description is ecaljdoc `manual/kBT.md` (sections 0, 3.5, 9).
-> Since 2026-09-28 `[gw] t_tetrakbt` is required and `t_tetrakbt = -T` replaces `SmearX0` (ecaljdoc `manual/kBT.md` §2).
+# HOWTO: finite-T chi0 (t_tetrakbt) and one-shot QP energies on arbitrary k-lines (gw_lmfh + QforGW)
 
 User guide for the features added 2026-06-12/13 (see Changes.txt for the changelog,
-README for the one-paragraph summary). Everything below was exercised on
+README for the one-paragraph summary). Sections 2 to 4 were exercised on
 LiTi2O4 (metallic spinel) on kt1 (2x RTX5090); concrete numbers quoted come
 from those runs.
 
-## 1. Finite-temperature chi0: `tetrakbt`
+## 1. Finite-temperature chi0: `t_tetrakbt`
 
-Metallic QSGW can oscillate from iteration to iteration when the k-mesh
-resolves a sharp Fermi-surface response (nesting): the tetrahedron method
-samples the FS "exactly", W develops sharp small-q structure, and Sigma reacts
-strongly to FS shifts each iteration. `tetrakbt` broadens the FS physically
-with an electronic temperature, which is the root-level regularization
-(omega-smearing of Im chi0, `SmearX0`, treats only a symptom).
+In `ctrlg.<sname>.toml`, section `[gw]`, both in kelvin:
 
-In `ctrlg.<sname>.toml`, section `[gw]`:
+    t_tetrakbt = 2000    # required. 0: T=0 tetrahedron, no smearing of chi0;
+                         #  T > 0: finite-temperature tetrahedron at T (heftet writes the Fermi level EFERMI_kbt);
+                         # -T: T=0 tetrahedron, Im chi0 smeared by a Gaussian as wide as Fermi-Dirac at T
+    t_sigmaw   = 1000    # Fermi-Dirac width of the levels in Sigma (default 1000; the gwinit template writes 300)
 
-    tetrakbt   = true     # finite-T tetrahedron for chi0 (method B')
-    t_tetrakbt = 2000.0   # electronic temperature in Kelvin (kBT[eV] ~ T/11604)
+Older keys: `SmearX0` stops the programs (`ctrlg_update.py ctrlg.<sname>.toml` turns it into `t_tetrakbt = -T` and
+adds a missing `t_tetrakbt`); `esmr` and `t_sigmakbt` are read only when `t_sigmaw` is absent; `tetrakbt = true` is ignored.
+What the three cases compute, how to choose the temperatures, and what makes metallic QSGW oscillate (a sharp plasmon
+pole of W; `wcsmear`, `t_sigmaw`, `t_tetrakbt < 0`):
+ecaljdoc [manual/kBT](https://ecalj.github.io/ecaljdoc/manual/kBT), sections 0, 2 and 3.
 
-What it does:
-
-  - chi0 occupation factors become Fermi functions at T (tetwt5/lindtet6_kbt,
-    energy-convolution method B'; exact T->0 limit).
-  - heftet (the GW flow, imode=1) solves a bisection for the finite-T Fermi
-    level and writes `EFERMI_kbt`; the chi0 tetrahedron consumes it so the
-    occupations and EF refer to the same temperature.
-  - The Sigma side (G poles, esmr smearing) stays at T=0. A finite-T Sigma
-    (gwkbt Stage A/B) exists only on the `gwkbt-dev` branch and is NOT
-    production-ready.
-
-Choosing T: you want kBT at least comparable to the FS-region energy spacing
-of your k-mesh, kBT >~ vF*(BZ size)/N. For LiTi2O4 6^3/9^3, T=1000-3000K
-(kBT=0.086-0.26 eV) is the useful range; check convergence of your observable
-in T and, ideally, that two k-meshes agree at fixed T.
-
-Sanity check in the output: hx0fp0/hgw stdout prints
+Check in the output: with `t_tetrakbt > 0` the stdout of hx0fp0 / hgw has
 
     tetrakbt_init: T[K], kbt[Ry], kbt[eV]  2000  0.12667E-01 0.17234E+00
 
@@ -85,8 +63,6 @@ interpolation.
     ...
     EMINforGW = -6.0   # eV relative to EF: lowest  Sigma target band
     EMAXforGW =  6.0   # eV relative to EF: highest Sigma target band
-
-    [blocks]
     QforGW = """
      0.000  0.000  0.000
      0.075 -0.075  0.000
@@ -141,7 +117,7 @@ interpolation.
     plasmon structure are sensitive to the local bin width; refine ratio
     (1.03 -> 1.015 -> ...) to test. Point-sampling of a quasi-discrete
     plasmon pole does NOT converge by refinement alone — give the pole a
-    physical width (tetrakbt; or SmearX0 >~ bin width) first.
+    width first (`t_tetrakbt > 0`, or `t_tetrakbt < 0` with a Gaussian wider than the bins).
 
 ## 5. Branch status
 

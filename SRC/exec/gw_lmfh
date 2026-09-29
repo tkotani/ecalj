@@ -11,11 +11,14 @@ parser = argparse.ArgumentParser(prog='gw_lmfh', description='''
   Example: gw_lmfh si -np 4
   for ctrlg.si.toml and rst.si
 ''')
-parser.add_argument("extension",   help='extension of ctrl file')
+parser.add_argument("extension",   help='<sname> of ctrlg.<sname>.toml')
 parser.add_argument("-np",         help='number of MPI cores', default=8, type=int)
 parser.add_argument("-np2", "-npgpu", help='number of MPI cores for GPU steps (hvccfp0/hx0fp0)', type=int, default=None)
-parser.add_argument('--gpu',       help='USE GPU version of hvccfp0/hx0fp0 (hsfp0 has no GPU build)', action='store_true')
-parser.add_argument('--mp',        help='USE mixed precision version of hvccfp0/hx0fp0', action='store_true')
+parser.add_argument('--gpu',       help='USE GPU versions of hvccfp0/hx0fp0, and hsfp0_gpu for the correlation step (--job=12) when '
+                    'that binary is installed; the exchange steps run on the CPU hsfp0', action='store_true')
+parser.add_argument('--mp',        help='USE mixed precision versions of hvccfp0/hx0fp0. Here --mp alone means TF32 in every GPU '
+                    'product (unlike gwsc, where --mp alone is --prec=tf32 and W is built in FP32): combine it with --fp32',
+                    action='store_true')
 parser.add_argument('--fp32',      help='With --mp: true FP32 (not TF32) GPU GEMMs', action='store_true')
 parser.add_argument("-c", "--cluster", help="cluster name", default="default", type=str)
 args, extra_args = parser.parse_known_args()

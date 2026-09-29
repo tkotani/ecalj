@@ -5,8 +5,8 @@ Legacy2toml.py — one-shot migration tool: legacy ecalj input -> TOML.
 ==============================================================================
   IMPORTANT for users of ecalj prior to 2026-05
 ==============================================================================
-  As of 2026-05, the Fortran binaries (lmf / lmfa / lmchk / gwsc / hsfp0 ...)
-  read ONLY structured TOML:
+  As of 2026-05, the Fortran binaries (lmf / lmfa / lmchk / hgw / hsfp0 ...;
+  gwsc and the other scripts run them) read ONLY structured TOML:
       ctrlg.<sname>.toml   (ctrl + GW driver sections; [product_basis] at the
                             end carries the per-atom tables, which were a
                             separate PB.<sname>.toml before 2026-09)
@@ -20,6 +20,7 @@ Legacy2toml.py — one-shot migration tool: legacy ecalj input -> TOML.
   Run-time tunables (-v) have moved from %const to TOML-path syntax:
       OLD:  lmf si -vnk=8 -vmetal=3
       NEW:  lmf si --ctrlg:bz.nkabc=[8,8,8] --ctrlg:bz.metal=3
+  (the programs stop when they are given the OLD form)
   The --ctrlg:<path>=val form is processed in-memory by m_toml_override.f90;
   it never rewrites the .toml file on disk.
 
@@ -47,7 +48,7 @@ Legacy2toml.py — one-shot migration tool: legacy ecalj input -> TOML.
     Legacy2toml.py <sname> -vfoo=bar -vbaz=2  # bake %const overrides
     Legacy2toml.py -h | --help                # show this help
 
-  -v handling (only useful when generating ctrlG variants):
+  -v handling (only useful when generating ctrlg variants):
     Each "-vNAME=VAL" overrides %const NAME=... before {NAME} substitution
     in the legacy ctrl, baking the resulting numbers into ctrlg.<sname>.toml.
 

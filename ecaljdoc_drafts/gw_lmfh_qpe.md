@@ -1,3 +1,5 @@
+> **古い草稿（2026-06）**: いまの説明は ecaljdoc [manual/gwsc](https://ecalj.github.io/ecaljdoc/manual/gwsc)（`gw_lmfh`）と [manual/gwinput](https://ecalj.github.io/ecaljdoc/manual/gwinput)、手順は ecalj の `FiniteT_and_QPE_HOWTO.md` §2・§3 にある。この草稿のキーの書き方は古く、`QforGW` はいまは `[gw]` に書く（`[blocks]` に残したものも読む）。
+
 # gw_lmfh: one-shot GW and QP energies at arbitrary k (QforGW)
 
 *(draft for ecaljdoc; target location: manual/gw section)*

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # job_mlo_soc: MLO Hamiltonian generation with SOC as perturbation.
 #   Steps:
-#     1. lmf --quit=band (with -vso=1 full LS) to determine SOC-corrected Ef
+#     1. lmf --quit=band (with --ctrlg:ham.so=1, full LS) to determine SOC-corrected Ef
 #        -> written to 'efermi_soc' (--efermi=efermi_soc); efermi.lmf is not touched.
-#     2. lmf --writeham ... --socmatrix (with -vso=0 scalar-rel) to write
+#     2. lmf --writeham ... --socmatrix (with --ctrlg:ham.so=0, scalar-rel) to write
 #        __HamiltonianPMT + __HamiltonianPMTsoc.
 #     3. mlo --socmatrix to build HamRsMLO + SOC-included MLO bands on symmetry line
 #        (--efermi=efermi_soc: the MLO window is referenced to the SOC Ef, as before).
@@ -12,8 +12,8 @@
 # Common settings:
 #   --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true
 # Step-specific:
-#   Step 1: -vso=1 (full LS, for Ef determination)
-#   Step 2: -vso=0 --socmatrix (scalar-rel DFT, SOC matrix written separately)
+#   Step 1: --ctrlg:ham.so=1 (full LS, for Ef determination)
+#   Step 2: --ctrlg:ham.so=0 --socmatrix (scalar-rel DFT, SOC matrix written separately)
 #   Step 3: --socmatrix (tells mlo to read hammhso and apply as perturbation)
 #
 # Usage: job_mlo_soc gaas -np 8 [extra lmf/mlo flags]
@@ -31,7 +31,7 @@ from pylib.utils import merge_files, remove_files
 EXEC_DIR = Path(__file__).parent
 
 # TOML-only mode: runtime overrides use --ctrlg:<toml-path>=<value>
-# (m_toml_override; the older -v[path]= / --toml. forms abort at HEAD).
+# (m_toml_override; the programs stop on the older -v...= / --toml. forms).
 COMMON_FLAGS = ["--ctrlg:ham.nspin=2", "--ctrlg:ham.phispinsym=true"]
 EF_FLAGS    = ["--ctrlg:ham.so=1"]
 WRITE_FLAGS = ["--ctrlg:ham.so=0", "--socmatrix"]

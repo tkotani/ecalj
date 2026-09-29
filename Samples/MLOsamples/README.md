@@ -1,7 +1,7 @@
 # MTO-based Localized Orbital (MLO) — sample tests and how to run
 
 > **The method itself** -- what `theta` is, why `mlo_method = 4`, and the
-> measured accuracy of all 18 samples with band plots:
+> measured accuracy of the samples with band plots:
 > **[ecaljdoc manual/mlo](https://ecalj.github.io/ecaljdoc/manual/mlo)**.
 > Past working records (old settings, superseded numbers) are kept under
 > [BackUp_notes/](BackUp_notes/). Figures live in [plots/](plots/) and
@@ -151,7 +151,7 @@ Both DFT and MLO bands plotted on the same panel (`Energy − E_F`, eV).
 - `FeMgO`: Fe/MgO slab with 7 empty spheres (R = 1.9 a.u.) filling the
   30.5 a.u. vacuum. Without them the barrier region carries no basis function
   at all, so the interface states cannot be represented in principle. The
-  `Worb` keeps s,p on the empty spheres and drops 3d from Mg and O, giving a
+  `mlo_lm` keeps s,p on the empty spheres and drops 3d from Mg and O, giving a
   **76-orbital** model. Measured with `mlo_losscheck.py` (window E_F±2 eV):
 
   | | orbitals | dE_win | dE_occ | dv/v |
@@ -171,14 +171,15 @@ Both DFT and MLO bands plotted on the same panel (`Energy − E_F`, eV).
 
 ## Settings to know (in `ctrlg.<sname>.toml`)
 
-As of 2026-05 the Fortran binaries read structured TOML only. Legacy
-`GWinput` is converted on first use by `Legacy2toml.py`; what follows
-shows the converted form actually consumed by `lmf` / `mlo`.
+The Fortran programs read `ctrlg.<sname>.toml` only. A legacy `ctrl.<sname>` +
+`GWinput` has to be converted with `Legacy2toml.py <sname>` beforehand (nothing
+converts it automatically); what follows is the `[mlo]` section that `lmf` / `mlo` read.
 
-All 18 samples use `mlo_method = 4` (since 2026-09-16). It needs no
+All samples use `mlo_method = 4` (since 2026-09-16). It needs no
 per-material tuning -- `mlo_emax` is gone from every sample.
 
 ```toml
+[mlo]
 mlo_method = 4       # theta = sigma((eps - ecut_j)/mlo_w),
                      #   ecut_j = max(CBM + mlo_delta, eps^MTO_j)
 mlo_delta  = 2.0     # (eV) how far above the band edge (E_F in metals) the
@@ -188,13 +189,15 @@ mlo_w      = 2.0     # (eV) width of the fall-off. THIS is the knob to turn
                      #   if the residual is too large. Measured optima:
                      #   semiconductors ~2, Fe/Cu-like metals ~11.
                      # All three are defaults -- you may omit them entirely.
-Worb = """           # which lm orbitals per atom enter the MLO basis
+mlo_nkabc  = [8, 8, 8]  # k mesh the MLO Hamiltonian is built on; required
+mlo_lm = """
   1 Ga   1 2 3 4 5 6 7 8 9
   2 As   1 2 3 4 5 6 7 8 9
 """
 ```
 
-The `Worb` indices map to `(l, m)`: `1 → s; 2..4 → p; 5..9 → d; 10..16 → f`
+`mlo_lm` lists the lm orbitals of each atom that enter the MLO basis (the block was called `Worb`
+until 2026-09-17; the old name is still read). The indices map to `(l, m)`: `1 → s; 2..4 → p; 5..9 → d; 10..16 → f`
 (see `bandplot.isp1.glt` header for the full table).
 
 ## Screened W on the MLO basis (separate flow)
@@ -248,7 +251,8 @@ W on the Fe 3d block comes out around **~1.5 eV**.
 
 #### Reproduction runs (2026-05-08, gfortran-14, ROMIO, `--mlo_feb4` on)
 
-`job_mloW fe -np <N>` in `Samples/MLOsamples/Fe/`, `mlo_method = 4`,
+`job_mloW fe -np <N>` in `Samples/MLOsamples/Fe/`, with `mlo_method = 0` (the setting of
+that time; with the present `mlo_method = 4` the d values differ, see `Fe/test.py`),
 on-site Fe-1 d-block diagonal `⟨i i | W | i i⟩` at R=0, ω=0:
 
 | BZ mesh | parallelism | W (t2g, UP) | W (eg, UP) | W (t2g, DN) | W (eg, DN) |
@@ -292,8 +296,8 @@ post-processing step is needed.
 verifies the on-site diagonal **V** and **W − V** for both spin
 channels against hard-coded reference values (one (V, W−V) tuple per
 orbital, indices 1..9 = s + 3p + 5d).  Reference values live inline in
-`test.py` (generated 2026-05-08 from this directory's `ctrlg.fe.toml`
-+ `GWinput`); **no `Coulomb_v.*` / `Screening_W-v.*` are committed** as
+`test.py` (baseline of 2026-09-16 from this directory's `ctrlg.fe.toml`,
+`mlo_method = 4`); **no `Coulomb_v.*` / `Screening_W-v.*` are committed** as
 test fixtures, so the test is self-contained.  Tolerance: 0.05 eV.
 
 ```
@@ -343,8 +347,8 @@ The MLO + TOML migration introduced two regressions, fixed in commits
 - **`<Worb>` duplicate blocks**: `gwinput2toml.py` last-write-wins silently
   dropped real data when GWinput had a real block plus a commented
   example. Now keeps the first.
-- **`job_mlo_soc` -v overrides**: `-vnspin=2 -vso=0` form is silently
-  ignored under TOML-only mode; replaced with `--ctrlg:ham.nspin=2`,
+- **`job_mlo_soc` -v overrides**: the programs do not take the `-vnspin=2 -vso=0`
+  form (they stop on `-v...=`); `job_mlo_soc` gives `--ctrlg:ham.nspin=2`,
   `--ctrlg:ham.so=0/1`.
 - **gfortran 13.3 / 14.2 codegen bug** in `m_HamPMT.f90`
   (`ReadInfoFromGWinput` block): a "naked" `else: call rx` on the

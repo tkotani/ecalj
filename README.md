@@ -115,7 +115,7 @@ directories), MLO in its final form (`mlo_method = 4`), finite-T QSGW samples,
 
 ## 2026-05  Quick start (the new TOML flow)
 
-Fortran binaries (lmf, lmfa, lmchk, gwsc, hsfp0, ...) read one file only:
+The Fortran programs (lmf, lmfa, lmchk, hgw, hsfp0, ...; `gwsc` and the other scripts run them) read one file only:
 
   - `ctrlg.<sname>.toml`  -- ctrl + GW driver sections ([gw] [mlo] [blocks]);
                              [product_basis] closes the file with the cut-offs
@@ -129,21 +129,15 @@ Fortran binaries (lmf, lmfa, lmchk, gwsc, hsfp0, ...) read one file only:
 ### Starting from scratch (POSCAR or hand-written ctrls)
 
     # 1. prepare ctrls.<sname>  (basic structure: atoms, lattice, ...)
-    # 2. generate the TOML pair:
+    # 2. generate the TOML input:
     ctrlgenToml.py <sname>            # writes ctrlg.<sname>.toml
     #    add --skipgw if you do not need GW (saves ~0.5 s)
     # 3. run as usual:
     lmfa <sname>
     lmf  <sname>
     gwsc 5 -np N <sname>              # GW (when needed)
-    gwsc 5 -np N --gpu --mp --fp32 <sname>   # GPU mixed precision; --fp32 uses
-                                             # true FP32 (not TF32) in the GEMMs.
-                                             # Needed for ill-conditioned dielectrics
-                                             # (heavy element + molecular anion, e.g.
-                                             # NO3/N3/ClO): without it TF32 corrupts
-                                             # W/SEc and QSGW diverges or yields NaN.
-                                             # (2026-09-28: since 2026-09-27 --mp alone is
-                                             # --prec=tf32, which keeps W in FP32.)
+    gwsc 5 -np N -np2 M --gpu --prec=fp32 <sname>   # GPU (M ranks for the GW programs); --prec=fp32,
+                                                    # tf32 or fp64: ecaljdoc manual/ecaljgpu
 
 `ctrlg.<sname>.toml` contains every ctrl/GWinput key with inline
 comments (units, role, defaults).  Edit it directly; no re-conversion
@@ -165,6 +159,7 @@ step is required.
     OLD:  lmf si -vnk=8 -vmetal=3
     NEW:  lmf si --ctrlg:bz.nkabc=[8,8,8] --ctrlg:bz.metal=3
 
+The programs stop when they are given the old `-v...=` form.
 The `--ctrlg:<path>=val` form is text-substituted into the TOML in memory
 before parsing; the file on disk is never modified.
 

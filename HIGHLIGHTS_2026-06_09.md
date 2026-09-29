@@ -6,7 +6,8 @@
 ## 1. 入力は `ctrlg.<sname>.toml` 一つになった（破壊的変更）
 
 - lmf も GW も **`ctrlg.<sname>.toml` だけを読む**。`PB.<sname>.toml`（product basis の表）、
-  `esm_input.dat`（ESM）、`GWinput.toml` は廃止。残っていると abort して変換コマンドを案内する。
+  `esm_input.dat`（ESM）、`GWinput.toml` は廃止。`PB.<sname>.toml` と `esm_input.dat` は残っていると abort して
+  変換コマンドを案内する（`GWinput.toml` は読まれないだけで、止まらない）。
 - セクション順は `[gw]` `[mlo]` `[blocks]` `[product_basis]`（末尾に nlx / valence / core の表）。
   `Worb` → `[mlo] mlo_lm`、`QforEPS` / `QforGW` → `[gw]`。
 - 体裁: 空行は `# === X ===` の大見出しの前だけ、セクション内は `# ----` の罫線で区切る。
@@ -33,7 +34,8 @@
 ## 3. 有限温度 QSGW（試験的）
 
 - `tetrakbt` / `t_tetrakbt`（χ₀ 側の Fermi–Dirac 占有と有限温度 E_F）と
-  `t_sigmakbt`（Σ 側）。**既定は off**。`Samples/kBT/`（LiTi2O4 6³/9³, 1000–3000 K, Fe の対照実験）。
+  `t_sigmakbt`（Σ 側）。**既定は off**（2026-09-28: いまのキーは `t_tetrakbt`（必須。0 / T > 0 / −T）と `t_sigmaw`。
+  下の追記と manual/kBT §0・§2）。`Samples/kBT/`（LiTi2O4 6³/9³, 1000–3000 K, Fe の対照実験）。
 - [manual/kBT](https://ecalj.github.io/ecaljdoc/manual/kBT): 手法、実装レビュー（§7）、
   虚時間を使わない定式化（§8）、**残る課題（§9）**。300 K でも Σ 側を温めると金属で
   Σ−v_xc が 0.1 eV 動くなど、使うには §9 を読んでから。
@@ -44,11 +46,12 @@
   一発 GW の針（−3.4 eV）が消え、9³ の反復の荒れが 48 → 13 meV。極の無い系ではほぼ不変。
 - **2026-09-19 16:30 追記** — `[gw]` の整理: 論理キー `tetrakbt` は廃止し `t_tetrakbt > 0`（既定 0）に。読まれるだけだった
   `GaussSmear, delta, dw, omg_c, WgtQ0P, SmearX0q0` を削除（残っていても無視）。
+  （2026-09-28: `t_tetrakbt` は必須になり既定値は無い。`SmearX0`・`SmearX0q0` は残っていると止まる）
 - **2026-09-20 12:50 追記 — Σ 側の smearing は `[gw] t_sigmaw`（K、既定 1000）の一本に（破壊的変更・互換読みあり）**:
   `esmr`（Ry, Gaussian）と `t_sigmakbt` を廃止し、Σ_x / Σ_c の中間準位の核は常に Fermi–Dirac（幅 kBT）。
-  既定 1000 K は旧 `esmr = 0.01` Ry と同じ標準偏差。`esmr` が残っていれば同じ幅の `t_sigmaw` に換算して読む
+  既定 1000 K は旧 `esmr = 0.01` Ry に近い幅（同じ標準偏差に換算すると 872 K）。`esmr` が残っていれば同じ幅の `t_sigmaw` に換算して読む
   （0.003 Ry → 262 K）。`wcsmear` は既定 true。Fermi 準位は `t_tetrakbt > 0` なら `EFERMI_kbt`（無ければ abort）。
-  `t_tetrakbt > 0` と `SmearX0 > 0` は排他。一発 GW（`gw_lmfh`）も同じ扱い。
+  `t_tetrakbt > 0` と `SmearX0 > 0` は排他（2026-09-28: `SmearX0` は `t_tetrakbt < 0` に置き換えた）。一発 GW（`gw_lmfh`）も同じ扱い。
   **見つけた落とし穴**: Σ_c の虚軸積分（PRB 76, 165106 Eq. 57）の Gaussian 正則化 `sig = esmr/2` は実は
   Gaussian の準位 smearing そのもので、極項だけ核を変えると ω 近傍の準位で段差が打ち消さず
   NiO 2³ の O 2s 対で 0.6 eV の誤差が出た。虚軸側も同じ FD 核で平均する形に直し、Gaussian 参照と 3 桁一致、
@@ -58,7 +61,8 @@
 
 ## 4. 一発 GW と GPU
 
-- `gw_lmfh <sname> -np N --gpu --mp` で G₀W₀ 型の QP エネルギー。`hsfp0_gpu`（W 縮約の CUDA 化）。
+- `gw_lmfh <sname> -np N --gpu --mp` で G₀W₀ 型の QP エネルギー（`gw_lmfh` の `--mp` だけでは全ての積が TF32。
+  精度が要るときは `--fp32` を併せる）。`hsfp0_gpu`（W 縮約の CUDA 化）。
 - 診断: `--dumpW`（W を保存）、`--WVR2ptRaxis`。`FiniteT_and_QPE_HOWTO.md`。
 
 ## 5. 直したバグ
@@ -79,7 +83,7 @@
 
 ## 6. サンプルとテスト
 
-- `testecalj --all` は 25 ターゲット（fe, gdn を追加）。`Samples/Legacy/` 32 ディレクトリ 53 ファイルを
+- `testecalj --all` は 25 ターゲット（fe, gdn を追加）（2026-09-27: `fe_kbt` を加えて 26 ターゲット、チェックは 64 件）。`Samples/Legacy/` 32 ディレクトリ 53 ファイルを
   TOML 化、AFsymmetry の NiO/NiSe を現行文法に。`job_magnon --sp1/--sp2`。
 - `Samples/GetStarted/GaAs/` が構造 → QSGW バンドの最短経路。
 - 検証: ローカル gfortran-14 と kt1 nvfortran GPU+MP（clean clone）で

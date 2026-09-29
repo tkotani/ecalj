@@ -1,4 +1,9 @@
 #originally shota takano 2025
+# NOTE (2026-09-30 01:35): this script still drives the input flow of before 2026-05: ctrlgenM1.py -> ctrl.<id>,
+# mkGWinput -> GWinput.tmp -> GWinput, and -vnit= / -vnk1= / -vso= / -vssig= options. It does not run with the
+# present programs: they read ctrlg.<sname>.toml only and stop on -v...= (overrides are --ctrlg:<section.key>=value),
+# ctrlgenM1.py exits at once, and mkGWinput writes the GW sections into ctrlg.<sname>.toml (no GWinput.tmp).
+# Not ported yet; the new input is made by ctrlgenToml.py.
 import sys
 ppp=sys.executable
 

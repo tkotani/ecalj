@@ -13,7 +13,8 @@ time    = [0, 0]  # CPU timing log; [depth, on-the-fly]
 
 # === STRUC: lattice ===
 # alat in a.u.; plat is the primitive cell in units of alat (rows = a1,a2,a3).
-# nbas/nspec are filled automatically from the [[site]]/[[spec]] arrays.
+# The numbers of sites and species are those of the [[site]]/[[spec]] tables: do not write
+# nbas/nspec (lmf stops on them). To leave a site out, comment out its [[site]] block.
 [struc]
 alat  = 1.88972687777436  # lattice constant (a.u.)
 plat  = [[1.61867551173, -2.80362822728,       0.0],  # primitive vectors in units of alat
@@ -174,11 +175,7 @@ emax_sigm     = 3.0        # (Ry) emax cutoff for Sigma
 niw           = 10         # # of frequencies along Im axis (try 6 or 12 for tests)
 HistBin_dw    = 1e-4       # bin width along real axis at omega=0
 HistBin_ratio = 1.05       # bin: frhis(iw) = (dw/(r-1))*(exp((r-1)*(iw-1)) - 1)
-# ----- Finite electronic temperature (off unless you uncomment; see manual/kBT) -----
-# tetrakbt   = true   # chi0 with Fermi-Dirac occupations at t_tetrakbt (finite-T tetrahedron,
-#                     # method B-prime) and the finite-T Fermi level EFERMI_kbt; false = T=0 tetrahedron
-# t_tetrakbt = 300    # (K) electronic temperature for chi0
-# t_sigmakbt = 300    # (K) Fermi-Dirac occupations in Sigma too; set equal to t_tetrakbt (needs tetrakbt)
+# ----- Smearing of the self-energy levels (t_sigmaw) and of chi0 (t_tetrakbt, required), in K: see manual/kBT -----
 deltaw        = 0.02       # (a.u.) numerical-derivative mesh for Z factor
 t_sigmaw      = 262        # (K) Fermi-Dirac width of the Sigma levels (from esmr = 0.003 Ry)
 t_tetrakbt = 0   # (K) 0: no smearing of chi0 (the former default; ctrlg_update.py, 2026-09-28)

@@ -43,8 +43,14 @@
 !    renamed / retired on the way:
 !      zmel_max_size     -> zmel_batch_gb
 !      MEMnmbatch        -> dropped (different meaning)
-!      SmearX0q0, GaussSmear, dw, omg_c, delta, WgtQ0P, tetrakbt -> removed 2026-09-19 (dead keys; the
-!                           logical tetrakbt is replaced by t_tetrakbt>0). Unknown keys are ignored.
+!      GaussSmear, dw, omg_c, delta, WgtQ0P, tetrakbt -> removed 2026-09-19 (dead keys; the logical tetrakbt
+!                           was replaced by t_tetrakbt > 0). Left in a file they are ignored, as is any key
+!                           that this module does not ask for (there is no check for unknown keys).
+!      SmearX0, SmearX0q0 -> t_tetrakbt = -T (2026-09-28). These two are NOT ignored: load_gw_section stops
+!                           when either is present (ctrlg_update.py converts), and it stops when
+!                           t_tetrakbt is missing.
+!      esmr, t_sigmakbt  -> t_sigmaw (2026-09-20); both are still read when t_sigmaw is absent.
+!                           (Comment corrected 2026-09-30 01:20: it listed SmearX0q0 among the ignored keys.)
 !      mlo_emax          -> retired (mlo_method=4 does not use it)
 !      esm_input.dat     -> [esm] section (see m_lmfinit; migrated in place)
 !

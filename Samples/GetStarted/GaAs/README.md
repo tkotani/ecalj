@@ -18,7 +18,7 @@ hunting for a POSCAR.
 In a clean copy of this directory (say `cp -r GaAs gaas_work && cd gaas_work`):
 
 ```bash
-# Step 2: regenerate the TOML pair from the lightweight seed.
+# Step 2: regenerate the TOML input ctrlg.gaas.toml from the lightweight seed.
 ctrlgenToml.py gaas
 
 # Step 3: LDA self-consistency.
@@ -35,6 +35,11 @@ gwsc -np 8 1 gaas
 
 The tutorial explains each step in detail and shows what to expect
 in the console output.
+
+A newly generated `ctrlg.gaas.toml` carries the values of the template in `[gw]`,
+`t_tetrakbt = 300` and `t_sigmaw = 300` (K); the file shipped here has `t_tetrakbt = 0`
+(chi0 by the T=0 tetrahedron method, no smearing) and `t_sigmaw = 262`. The two keys:
+ecaljdoc [manual/kBT](https://ecalj.github.io/ecaljdoc/manual/kBT).
 
 ## Source
 

@@ -1,3 +1,5 @@
+> **古い草稿（2026-06）**: いまの説明は ecaljdoc [manual/kBT](https://ecalj.github.io/ecaljdoc/manual/kBT)（§0・§2・§3）にある。この草稿のキー名（`tetrakbt = true`、`esmr`、`SmearX0`）は古く、いまは `[gw]` の `t_tetrakbt`（必須。0 / T > 0 / −T）と `t_sigmaw`。
+
 # Finite-temperature polarization: `tetrakbt`
 
 *(draft for ecaljdoc; target location: manual/gw section)*

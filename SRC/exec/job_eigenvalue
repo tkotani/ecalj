@@ -34,7 +34,8 @@ if __name__ == "__main__":
             'The energy range can be specified with the -emin and -emax options.\n'
             'The default range is -100 eV to 30 eV.\n\n'
             'Example:\n'
-            '  job_eigenvalue cu -np 8 --emin=-20 --emax=20 -vpwemax=4 -vgmax=15\n'
+            '  job_eigenvalue cu -np 8 -emin=-20 -emax=20 --ctrlg:ham.pwemax=4 --ctrlg:ham.gmax=15\n'
+            '  (options that this script does not know, such as --ctrlg:<section.key>=value, are handed to lmf)\n'
             'Output: Eigenvalues for the specified k-points and energy range are saved in eigenup.dat (majority spin state) and eigendw.dat (minority spin state).\n'
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter

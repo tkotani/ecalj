@@ -1,15 +1,13 @@
 # 2025-10-6 test system in python
 
-> **Note (2026-09-28)**: parts below are from 2025-10. Today: run it in `ecalj/Samples/TestInstall` (not `SRC/TestInstall`);
-> `testecalj --all` runs every target (26, with `fe_kbt`), `--gwall` the GW ones; without a list or `--all` nothing runs.
-> testecalj removes and recreates `<target>_work` itself before each target. The developer's guide (ecaljdoc
-> `manual/ForDevelopers.md` sections 4, 5 and 12) has the current commands for CPU and GPU.
+The commands for CPU and GPU (`--gpu`, `--mp`, `--run-args=--prec=fp32`), and how the checks are counted, are in
+the developer's guide: ecaljdoc [manual/ForDevelopers](https://ecalj.github.io/ecaljdoc/manual/ForDevelopers) (sections 4, 5 and 12).
+The groups of sample tests (TestInstall, EPS, PROCAR, MLOsamples, ...) are run by `ecalj/TOOLS/samples_tests.sh`.
 
-We now install `testecalj` in your ecalj binary directory BINDIR.
+`testecalj` is installed in your ecalj binary directory BINDIR.
 
 ## Usage
-`testecalj` uses comp.py and difnum0.py internally.
-We now install `testecalj`, `comp.py` and `difnum0.py` in your bin.
+`testecalj` uses `comp.py` and `pylib/diffnum0.py` internally; they are in your bin together with `testecalj`.
 (for developers: we can use `ecalj/SRC/exec/testecalj`. Then we use binaries at  `ecalj/SRC/exec`.)
 
 >testecalj [-np mpi_size] [list of tests]
@@ -19,12 +17,17 @@ Run `testecalj --help`
 
 To run only copt and si_gwsc test with mpi_size=8, run
 >testecalj -np 8 copt si_gwsc
-at ecalj/SRC/TestInstall
+at ecalj/Samples/TestInstall
 
-To run all tests, 
->testecalj -np 8
+To run all tests (26 targets, 64 checks), or the GW tests only,
+>testecalj -np 8 --all
+>testecalj -np 8 --gwall
 
-The name of test directory is now `si_gwsc_work` corresponding to `si_gwsc`.
+Without a list of tests, `--all` or `--gwall`, nothing runs.
+
+The test runs in `si_gwsc_work`, a copy of `si_gwsc`; testecalj removes and recreates it before each run
+(not with `--checkonly`, which only compares the files that are there).
+testecalj prints the summary of all tests so far after each test: count the checks in the last summary only.
 
 -----------
 ## How the testecalj work?
@@ -58,4 +61,4 @@ This is called from `testecalj`. As this shows, we need to
 2. Write steps of computation in runprogs.
 3. Comparison (diffnum is for numerical comparison for lines including 'fp' and 'eval') in this case.
 
-See other SRC/TestInstall/*/test.py as examples.
+See other Samples/TestInstall/*/test.py as examples.

@@ -1,5 +1,8 @@
 # hgw_combined Refactor — Phase 3 + Phase 1-B (2026-04-30)
 
+（2026-09-30 の注: 2026-04-30 時点の記録。いまのプログラム名は `hgw`（`hgw_mp_gpu` など。入口は `SRC/main/hgw.f90`、本体は
+`SRC/subroutines/main_hgw.f90` の `m_hgw`）で、`hgw_combined`・`hrcxq` は当時の名前。）
+
 ## TL;DR
 
 `hrcxq` と `hsfp0_sc --job=2` を 1 つの実行ファイル `hgw_combined` に統合し、
