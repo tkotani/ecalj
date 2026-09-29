@@ -75,6 +75,13 @@ HILITE=1 EMPTY=frame OCC=1 MESH=9,6 MESHCOLS=9,9,9,9,6,6,6 ROWS=$rows DPI=90 pyt
   'tab:green,tab:green,tab:green,tab:green,tab:green,tab:green,tab:green' noref
 # how much the MLO bands move per iteration (max |E(N)-E(N-1)|, within one run), with its numbers
 python3 plot_mlo_conv_six.py $R liti2o4_six_conv.png liti2o4_six_conv_data.npz
+# the two tf32 runs alone, LDA and iterations 10-40 (six_patterns.md figures 5 and 6; user 2026-09-29)
+for m in 9 6; do
+  INFO=$'qmlo_k'$m'_tf32n: gwsc 10 from LDA (MLO bands from 10), continued 11-40\n[gw] mixbeta 0.5, t_sigmaw 1000 K, t_tetrakbt -992.4 (= SmearX0 0.0057 Ha)'
+  HILITE=1 EMPTY=frame GROUP=2 MESH=$m MESHCOLS=$m,$m ROWS=0,$(seq -s, 10 40) DPI=80 COLW=4.5 TITLEFS=8 MLOINFO="$INFO" \
+    DATAOUT=liti2o4_k${m}tf32_10_40_data.npz python3 mlo_rows.py $R liti2o4_k${m}tf32_10_40.png k${m}tf32,k${m}tf32_eg \
+    "${m}^3 tf32 t2g,${m}^3 tf32 2.6-8 eV" 'tab:green,tab:green' noref
+done
 for c in k9tf32 k9tf32es k9fp32 k9fp64 k6tf32 k6fp32 k6fp64; do
   echo "$c: $(ls $R/$c | grep -v -E 'label|stamp|src' | sed 's/bnd_iter//; s/bnd_lda/LDA/; s/.dat//' | sort -n | tr '\n' ' ')"
 done
