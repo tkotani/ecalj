@@ -97,9 +97,20 @@
 | `fix-idu10`（`b13e25edc`） | 2 | 29（収束） | 2.0566 | −252676.315530 | −4.878 |
 | `fix-idu10` | 12 | 29（収束） | 2.0566 | −252676.315530 | −4.878 |
 
-- main に入れなかった理由: `idu` が 10 以上の LDA の結果が変わる。`Samples/MLOsamples` の Al2O3_Cr・GdCo5・GdION・SmP・RuO2（どれも `idu = 12`）の
-  保存してある `rst`・`dmats` と参照は今の動作で作ったもの。直すなら、この 5 本の SCF と参照を作り直すことになる
+- main に入れなかった理由: `idu` が 10 以上の LDA の結果が変わる。`Samples/MLOsamples` で `idu = 12` の 5 本を `fix-idu10` のビルドで回した
+  （03:15 から、手元、4 並列、`Samples` の写しで）結果を表 03:14-2 に。変わるのは GdCo5 と SmP の 2 本で、直すならこの 2 本の SCF と参照を作り直すことになる
 - 新しいサンプル `Samples/LDAU/ReN` は `idu = 2` と書いてあるので、どちらの版でも同じ結果
+- ecaljdoc の記述（lmf.md「+10 disables when sigm.* exists」、UsageDetailed.md「idu > 10 の LDA+U は QSGW の初期条件にだけ使う」）は、修正後の動作と合う
+
+*表 03:14-2* `idu = 12` の MLOsamples を `fix-idu10` のビルドで回したときの、参照（`band_MLO_spin1.dat`、`band_MLO_spin2.dat`）との差の最大（eV。許容 7.4×10⁻⁵）
+
+| サンプル | スピン 1 | スピン 2 | 備考 |
+| --- | --- | --- | --- |
+| Al2O3_Cr | 0.0 | 0.0 | `sigm` があり U は切られる（ログに `For IDU>10 with sigm.*, we set UH=JH=0`） |
+| GdION | 0.0 | 1×10⁻⁵ | |
+| RuO2 | 0.0 | 0.0 | |
+| GdCo5 | 2.054 | 2.403 | 変わる |
+| SmP | — | — | `job_mlo` の `mlo` の段が途中で終わる（main のビルドでは 4 並列で通り、差は 0.0） |
 
 ### 02:49 **kt1 が 02:28〜02:45 の 17 分止まった: 私の CPU のスキャンのランク 0 が、コア 0 で NVIDIA ドライバのロックを待って回り続けた。OpenMPI はワーカーの `taskset` を見ずにランクをコア 0, 1, … に固定する**
 

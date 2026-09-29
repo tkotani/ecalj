@@ -33,18 +33,18 @@ def cal_mae(args, extra_args):
     if Path(f'sigm.{target}').exists():
         get_sigm_fbz(args, extra_args)
 
-    so_directions = {
-        "001": ['-vsoa1=0', '-vsoa2=0', '-vsoa3=1'],
-        "100": ['-vsoa1=1', '-vsoa2=0', '-vsoa3=0'],
-        "010": ['-vsoa1=0', '-vsoa2=1', '-vsoa3=0'],
-        "110": ['-vsoa1=1', '-vsoa2=1', '-vsoa3=0'],
+    so_directions = {   # the spin axis, [ham] socaxis (2026-09-30: the retired -vsoa1.. and -vso=1 stopped lmf)
+        "001": ['--ctrlg:ham.socaxis=[0,0,1]'],
+        "100": ['--ctrlg:ham.socaxis=[1,0,0]'],
+        "010": ['--ctrlg:ham.socaxis=[0,1,0]'],
+        "110": ['--ctrlg:ham.socaxis=[1,1,0]'],
     }
 
     for direction, so_arg_list in so_directions.items():
         run_cmd(cluster,
             MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf", 
                       args=[ target, '--nosym', '--use_sigm_fbz', '--skipbstruxinit',
-                            '--ctrlg:ham.phispinsym=true', '-vso=1', '--quit=band',
+                            '--ctrlg:ham.phispinsym=true', '--ctrlg:ham.so=1', '--quit=band',
                             *so_arg_list, *extra_args]),
             stdout=f'llmf_so{direction}')
     vals = {}

@@ -1,0 +1,28 @@
+Start LMFA fept
+Start LMF fept
+h mmom= 1.6075 ehf(eV)=-535701.238075 ehk(eV)=-535669.255581 sev(eV)=-351.895022
+i mmom= 2.3157 ehf(eV)=-535703.535868 ehk(eV)=-535661.118608 sev(eV)=-325.953710
+i mmom= 3.0119 ehf(eV)=-535698.911869 ehk(eV)=-535696.912655 sev(eV)=-350.184677
+i mmom= 3.0105 ehf(eV)=-535698.760112 ehk(eV)=-535698.679971 sev(eV)=-358.593469
+i mmom= 3.1832 ehf(eV)=-535699.022910 ehk(eV)=-535698.441471 sev(eV)=-377.074366
+i mmom= 3.2410 ehf(eV)=-535698.905626 ehk(eV)=-535698.872050 sev(eV)=-367.129165
+i mmom= 3.2383 ehf(eV)=-535698.903461 ehk(eV)=-535698.868851 sev(eV)=-366.492484
+i mmom= 3.2430 ehf(eV)=-535698.906459 ehk(eV)=-535698.905844 sev(eV)=-367.206674
+i mmom= 3.2480 ehf(eV)=-535698.907233 ehk(eV)=-535698.906488 sev(eV)=-367.230492
+i mmom= 3.2558 ehf(eV)=-535698.910653 ehk(eV)=-535698.906469 sev(eV)=-367.695052
+i mmom= 3.2606 ehf(eV)=-535698.907964 ehk(eV)=-535698.905071 sev(eV)=-367.270146
+i mmom= 3.2582 ehf(eV)=-535698.908627 ehk(eV)=-535698.907886 sev(eV)=-367.552435
+i mmom= 3.2577 ehf(eV)=-535698.908357 ehk(eV)=-535698.907867 sev(eV)=-367.569826
+i mmom= 3.2571 ehf(eV)=-535698.908011 ehk(eV)=-535698.907745 sev(eV)=-367.542335
+i mmom= 3.2571 ehf(eV)=-535698.907832 ehk(eV)=-535698.907679 sev(eV)=-367.524244
+i mmom= 3.2571 ehf(eV)=-535698.907751 ehk(eV)=-535698.907663 sev(eV)=-367.521346
+i mmom= 3.2571 ehf(eV)=-535698.907702 ehk(eV)=-535698.907646 sev(eV)=-367.518803
+i mmom= 3.2571 ehf(eV)=-535698.907665 ehk(eV)=-535698.907640 sev(eV)=-367.518993
+i mmom= 3.2572 ehf(eV)=-535698.907650 ehk(eV)=-535698.907645 sev(eV)=-367.523016
+c mmom= 3.2573 ehf(eV)=-535698.907637 ehk(eV)=-535698.907644 sev(eV)=-367.524187
+Start LMF fept --nosym --quit=band --ctrlg:ham.so=0
+i mmom= 3.2573 ehf(eV)=-535698.907632 ehk(eV)=-535698.907649 sev(eV)=-367.525380
+Start LMF fept --nosym --quit=band --ctrlg:ham.so=1 --ctrlg:ham.socaxis=[0,0,1]
+i mmom= 3.2153 ehf(eV)=-535699.220996 ehk(eV)=-535699.210410 sev(eV)=-367.838744
+Start LMF fept --nosym --quit=band --ctrlg:ham.so=1 --ctrlg:ham.socaxis=[1,1,0]
+i mmom= 3.2312 ehf(eV)=-535699.218095 ehk(eV)=-535699.209679 sev(eV)=-367.835843

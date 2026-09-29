@@ -1,0 +1,4 @@
+# lagao3: end of the self-consistency of each geometry, from save.lagao3
+# geometry iterations       ehf(eV)            ehk(eV)     c=converged x=iter.nit reached
+     1        5    -1159548.659520    -1159548.573577   x
+     2        5    -1159548.673665    -1159548.589525   x

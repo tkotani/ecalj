@@ -1,0 +1,10 @@
+# cprn: written by ldau_result.py from save.cprn, mmom.cprn.chk, orbitalmom.cprn.chk, dmats.cprn
+# total spin moment mmom (Bohr magneton) and total energy ehk (eV): first iteration (h), end of the self-consistency (c)
+h     2.0000    -252669.559621
+c     2.0122    -252676.330746
+# site, spin moment in the MT sphere and orbital moment (Bohr magneton)
+site 1 Pr      2.0273    -4.8911
+site 2 N      -0.0726    -0.0171
+# occupation of the LDA+U orbitals: diagonal of the density matrix (spherical harmonics, m=-l..l)
+occ l=3 site=1 spin=1   0.9949   0.9975   0.0136   0.0214   0.0084   0.0020   0.0044   sum   2.0422
+occ l=3 site=1 spin=2   0.0041   0.0014   0.0094   0.0147   0.0094   0.0015   0.0043   sum   0.0448

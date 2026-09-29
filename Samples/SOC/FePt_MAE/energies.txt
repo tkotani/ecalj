@@ -1,0 +1,6 @@
+# energies (eV) and the magnetic moment (Bohr magneton) from llmf_scf llmf_so0 llmf_so001 llmf_so110
+# run               mmom         ehf(eV)          ehk(eV)         sev(eV)
+SCF_so0            3.2573   -535698.907637   -535698.907644    -367.524187
+oneshot_so0        3.2573   -535698.907632   -535698.907649    -367.525380
+oneshot_so1_001    3.2153   -535699.220996   -535699.210410    -367.838744
+oneshot_so1_110    3.2312   -535699.218095   -535699.209679    -367.835843

@@ -1,0 +1,24 @@
+Start LMFA mnga
+Start LMF mnga
+h mmom= 2.2802 ehf(eV)=-84429.401437 ehk(eV)=-84428.130079 sev(eV)=-420.526276
+i mmom= 2.3628 ehf(eV)=-84429.126924 ehk(eV)=-84428.971888 sev(eV)=-423.656855
+i mmom= 2.3960 ehf(eV)=-84429.143287 ehk(eV)=-84429.002831 sev(eV)=-440.200605
+i mmom= 2.4492 ehf(eV)=-84429.207073 ehk(eV)=-84429.119947 sev(eV)=-449.272468
+i mmom= 2.4578 ehf(eV)=-84429.169371 ehk(eV)=-84429.160118 sev(eV)=-442.028356
+i mmom= 2.4717 ehf(eV)=-84429.166880 ehk(eV)=-84429.160095 sev(eV)=-440.955620
+i mmom= 2.4806 ehf(eV)=-84429.163760 ehk(eV)=-84429.158074 sev(eV)=-440.518117
+i mmom= 2.4813 ehf(eV)=-84429.162122 ehk(eV)=-84429.158660 sev(eV)=-440.593216
+i mmom= 2.4825 ehf(eV)=-84429.161035 ehk(eV)=-84429.158902 sev(eV)=-440.679489
+i mmom= 2.4865 ehf(eV)=-84429.161272 ehk(eV)=-84429.159817 sev(eV)=-441.004965
+i mmom= 2.4867 ehf(eV)=-84429.160502 ehk(eV)=-84429.159600 sev(eV)=-440.921933
+i mmom= 2.4875 ehf(eV)=-84429.160247 ehk(eV)=-84429.159666 sev(eV)=-440.931027
+i mmom= 2.4875 ehf(eV)=-84429.159931 ehk(eV)=-84429.159580 sev(eV)=-440.902868
+i mmom= 2.4875 ehf(eV)=-84429.159714 ehk(eV)=-84429.159509 sev(eV)=-440.886132
+i mmom= 2.4875 ehf(eV)=-84429.159578 ehk(eV)=-84429.159465 sev(eV)=-440.879399
+c mmom= 2.4875 ehf(eV)=-84429.159506 ehk(eV)=-84429.159451 sev(eV)=-440.879464
+Start LMF mnga --nosym --quit=band --ctrlg:ham.so=0
+i mmom= 2.4875 ehf(eV)=-84429.159469 ehk(eV)=-84429.159458 sev(eV)=-440.881396
+Start LMF mnga --nosym --quit=band --ctrlg:ham.so=1 --ctrlg:ham.socaxis=[0,0,1]
+i mmom= 2.4862 ehf(eV)=-84429.179338 ehk(eV)=-84429.179322 sev(eV)=-440.901265
+Start LMF mnga --nosym --quit=band --ctrlg:ham.so=1 --ctrlg:ham.socaxis=[1,1,0]
+i mmom= 2.4864 ehf(eV)=-84429.178947 ehk(eV)=-84429.178932 sev(eV)=-440.900874

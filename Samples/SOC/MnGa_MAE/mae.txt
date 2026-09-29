@@ -1,0 +1,5 @@
+# MAE(meV) = 1000*[sev(so=1,110) - sev(so=1,001)]; positive: 001 is the easy axis
+# sev(so=1,001)-sev(so=0) and sev(so=1,110)-sev(so=0) are the band-energy gains by SOC (meV)
+MAE_meV               0.391
+gain001_meV         -19.869
+gain110_meV         -19.478

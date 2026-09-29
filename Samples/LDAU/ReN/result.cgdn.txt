@@ -1,0 +1,10 @@
+# cgdn: written by ldau_result.py from save.cgdn, mmom.cgdn.chk, orbitalmom.cgdn.chk, dmats.cgdn
+# total spin moment mmom (Bohr magneton) and total energy ehk (eV): first iteration (h), end of the self-consistency (c)
+h     7.0000    -307990.629469
+c     6.9999    -307996.977114
+# site, spin moment in the MT sphere and orbital moment (Bohr magneton)
+site 1 Gd      7.0564    -0.0063
+site 2 N      -0.1294    -0.0018
+# occupation of the LDA+U orbitals: diagonal of the density matrix (spherical harmonics, m=-l..l)
+occ l=3 site=1 spin=1   0.9980   0.9984   0.9987   0.9991   0.9993   0.9996   0.9999   sum   6.9930
+occ l=3 site=1 spin=2   0.0042   0.0011   0.0035   0.0060   0.0036   0.0012   0.0049   sum   0.0246
