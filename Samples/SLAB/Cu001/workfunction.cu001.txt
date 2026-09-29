@@ -1,0 +1,6 @@
+# vacuum level, Fermi energy and work function (eV); flatness = max - min of the potential
+# within +-10% of the vacuum width around its middle, z = 10.8450 angstrom
+vacuum_level        4.04852
+fermi_energy       -0.67744
+work_function       4.72596
+flatness            0.00105

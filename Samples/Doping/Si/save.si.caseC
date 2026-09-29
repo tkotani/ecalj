@@ -1,0 +1,9 @@
+Start LMFA si --ctrlg:spec.1.z=14 --ctrlg:spec.1.q=[2.0,2.0] --ctrlg:bz.zbak=0.2
+Start LMF si --ctrlg:spec.1.z=14 --ctrlg:spec.1.q=[2.0,2.0] --ctrlg:bz.zbak=0.2
+h ehf(eV)=-15732.263771 ehk(eV)=-15732.050247 sev(eV)=-13.515963
+i ehf(eV)=-15732.165854 ehk(eV)=-15732.084157 sev(eV)=-14.320789
+i ehf(eV)=-15732.175142 ehk(eV)=-15732.081388 sev(eV)=-14.220038
+i ehf(eV)=-15732.130645 ehk(eV)=-15732.094569 sev(eV)=-14.776850
+i ehf(eV)=-15732.105665 ehk(eV)=-15732.100544 sev(eV)=-16.060646
+i ehf(eV)=-15732.101803 ehk(eV)=-15732.101797 sev(eV)=-15.967291
+c ehf(eV)=-15732.101789 ehk(eV)=-15732.101786 sev(eV)=-15.974501

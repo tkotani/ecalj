@@ -1,0 +1,8 @@
+Start LMFA si
+Start LMF si
+h ehf(eV)=-15730.961560 ehk(eV)=-15730.658767 sev(eV)=-13.437176
+i ehf(eV)=-15730.763212 ehk(eV)=-15730.727050 sev(eV)=-14.889143
+i ehf(eV)=-15730.745207 ehk(eV)=-15730.730195 sev(eV)=-16.489718
+i ehf(eV)=-15730.734269 ehk(eV)=-15730.734177 sev(eV)=-16.115161
+c ehf(eV)=-15730.734181 ehk(eV)=-15730.734179 sev(eV)=-16.137635
+Start LMF si --boltztrap --ctrlg:bz.nkabc=[12,12,12]

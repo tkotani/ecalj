@@ -1,0 +1,20 @@
+Start LMFA cu001
+Start LMF cu001
+h ehf(eV)=-179864.468779 ehk(eV)=-179847.137703 sev(eV)=-56.925961
+i ehf(eV)=-179861.368315 ehk(eV)=-179859.919956 sev(eV)=-142.391810
+i ehf(eV)=-179861.221015 ehk(eV)=-179860.880863 sev(eV)=-142.281009
+i ehf(eV)=-179865.328644 ehk(eV)=-179821.948368 sev(eV)=-168.497165
+i ehf(eV)=-179861.887658 ehk(eV)=-179854.679112 sev(eV)=-172.690406
+i ehf(eV)=-179861.299616 ehk(eV)=-179858.998940 sev(eV)=-152.487502
+i ehf(eV)=-179861.111584 ehk(eV)=-179860.961117 sev(eV)=-158.632647
+i ehf(eV)=-179861.109144 ehk(eV)=-179861.022642 sev(eV)=-155.341921
+i ehf(eV)=-179861.100850 ehk(eV)=-179861.091011 sev(eV)=-155.518891
+i ehf(eV)=-179861.098665 ehk(eV)=-179861.098214 sev(eV)=-155.378676
+i ehf(eV)=-179861.099195 ehk(eV)=-179861.098508 sev(eV)=-155.015963
+i ehf(eV)=-179861.098809 ehk(eV)=-179861.098703 sev(eV)=-154.992019
+i ehf(eV)=-179861.098893 ehk(eV)=-179861.098880 sev(eV)=-154.978545
+c ehf(eV)=-179861.098901 ehk(eV)=-179861.098895 sev(eV)=-154.982810
+Start LMF cu001 --quit=band --efermi=efermi.lmf.job_band
+i ehf(eV)=-179861.098934 ehk(eV)=-179861.098933 sev(eV)=-154.983790
+Start LMF cu001 --band --efermi=efermi.lmf.job_band
+Start LMF cu001 --tdos --efermi=efermi.lmf.job_tdos

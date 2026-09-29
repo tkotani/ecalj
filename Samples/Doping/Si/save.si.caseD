@@ -1,0 +1,9 @@
+Start LMFA si --ctrlg:spec.1.z=14 --ctrlg:spec.1.q=[2.0,2.0] --ctrlg:bz.zbak=0.2 --ctrlg:ham.nspin=2 --ctrlg:bz.fsmom=0.2
+Start LMF si --ctrlg:spec.1.z=14 --ctrlg:spec.1.q=[2.0,2.0] --ctrlg:bz.zbak=0.2 --ctrlg:ham.nspin=2 --ctrlg:bz.fsmom=0.2
+h mmom= 0.2000 ehf(eV)=-15732.212986 ehk(eV)=-15732.001889 sev(eV)=-13.474921
+i mmom= 0.2000 ehf(eV)=-15732.116349 ehk(eV)=-15732.036374 sev(eV)=-14.280527
+i mmom= 0.2000 ehf(eV)=-15732.122871 ehk(eV)=-15732.034353 sev(eV)=-14.207662
+i mmom= 0.2000 ehf(eV)=-15732.080925 ehk(eV)=-15732.047282 sev(eV)=-14.755599
+i mmom= 0.2007 ehf(eV)=-15732.058155 ehk(eV)=-15732.053186 sev(eV)=-16.018204
+i mmom= 0.2001 ehf(eV)=-15732.054427 ehk(eV)=-15732.054423 sev(eV)=-15.927429
+c mmom= 0.2001 ehf(eV)=-15732.054415 ehk(eV)=-15732.054413 sev(eV)=-15.934219
