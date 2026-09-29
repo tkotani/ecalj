@@ -1,5 +1,10 @@
 # ecalj_auto: Automatic QSGW Calculation System for Materials Project Structures
 
+> **2026-09-30**: the scripts described below (`auto/`, `job*.sh`) drive the input flow of before 2026-05 (`ctrlgenM1.py`, `GWinput`,
+> `-v` options) and do not run with the present programs. The GW1500 calculations and their present state are in
+> [`GW1500_status.md`](GW1500_status.md); `gw1500_rerun.sh` runs materials from a POSCAR with the present programs
+> (`vasp2ctrl`, `ctrlgenToml.py`, `gwscconv`).
+
 This package automates QSGW calculations (using the ecalj package) for crystal structures obtained from the Materials Project (MP).  
 It is designed for systematic, high-throughput calculations on many materials, efficiently utilizing multi-core machines with a qsub job system.
 

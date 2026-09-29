@@ -1,5 +1,9 @@
 # GW1500 QSGW80 Production
 
+> **2026-09-30 の注**: これは 2026-04〜05 の量産のときの記録。いまの状況（物質ごとの状態、落ちたものの原因、回し直し）は
+> [`GW1500_status.md`](GW1500_status.md)。`worker.sh`、`run_gw1500*.sh` は当時の入力（`ctrlG.<sname>.toml` + `PB.toml`、`-v[...]` の指定）を
+> 前提にしていて、いまのプログラムでは動かない。いまのコードで回すスクリプトは `gw1500_rerun.sh`。
+
 ## 概要
 
 1546物質の QSGW80 (scaledsigma=0.8) を kt1 (Dell G15, 64 cores, 2×RTX5090) で量産。
