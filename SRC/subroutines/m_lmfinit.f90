@@ -471,20 +471,22 @@ contains
             enddo
          endif
 1111  enddo PnuQnuSetting
-      SkipLDAUwhenSigmExistFORidu10plus: if(sexist) then
-         do j=1,nspec
-            if(sum(abs(idu(:,j)))/=0) then
-               do lxxx=0+1,3+1
-                  if(idu(lxxx,j)>10) then
-                     if(master_mpi) write(stdo,"(a,2i4)")'For IDU>10 with sigm.*, we set UH=JH=0 for l,ibas=',lxxx,j
-                     uh(lxxx,j) = 0d0
-                     jh(lxxx,j) = 0d0
-                  endif
-               enddo
-               idu(0+1:3+1,j) = mod(idu(0+1:3+1,j),10)
-            endif
-         enddo
-      endif SkipLDAUwhenSigmExistFORidu10plus
+      ! idu = 10 + mode: LDA+U of that mode when sigm.* is absent, no U (UH=JH=0) when sigm.* exists.
+      ! Bug fixed 2026-09-30 02:59: since 2023-09-29 (59bb6dc44) idu was reduced to the mode (mod 10) only when sigm.* exists.
+      ! Without sigm.* the value 12 went to ldau/vldau as it was, which add the double-counting term for the modes 1 and 2
+      ! only: LDA+U ran without the double-counting term.
+      SkipLDAUwhenSigmExistFORidu10plus: do j=1,nspec
+         if(sum(abs(idu(:,j)))/=0) then
+            do lxxx=0+1,3+1
+               if(idu(lxxx,j)>10 .and. sexist) then
+                  if(master_mpi) write(stdo,"(a,2i4)")'For IDU>10 with sigm.*, we set UH=JH=0 for l,ibas=',lxxx,j
+                  uh(lxxx,j) = 0d0
+                  jh(lxxx,j) = 0d0
+               endif
+            enddo
+            idu(0+1:3+1,j) = mod(idu(0+1:3+1,j),10)
+         endif
+      enddo SkipLDAUwhenSigmExistFORidu10plus
       lmxax = maxval(lmxa) !Maximum l for augmentation
       maxit=iter_maxit
       nlmax=(max(lmxbx,lmxax)+1)**2
