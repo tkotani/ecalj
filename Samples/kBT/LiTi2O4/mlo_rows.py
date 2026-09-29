@@ -44,9 +44,9 @@ def track(S):
         T[r, i] = S[c, i]
     return T
 def bulger(T, x):
-    """index of the tracked band that bulges most in the middle of Gamma->X (None if < 50 meV)"""
+    """index of the tracked band that bulges most in the middle of Gamma->X (None if < 50 meV; the legend line says so, 2026-09-29)
+    bulge = max of E over 0.40 < x < 0.70 minus the larger of E(0.30) and E(0.80)"""
     mid = (x > 0.40) & (x < 0.70)
-    e3 = np.interp(0.30, x, T[0]) if False else None
     best, bi = 0.05, None
     for b in range(T.shape[0]):
         ends = max(np.interp(0.30, x, T[b]), np.interp(0.80, x, T[b]))
@@ -165,7 +165,7 @@ fig.suptitle(f'LiTi$_2$O$_4$  {_ML} (nkabc = n1n2n3 = mesh)   '
              + 'red x = $\\Sigma$ q-mesh points (interpolation is exact there)\n'
              + (os.environ.get('MLOINFO', '') + '\n' if os.environ.get('MLOINFO') else '')
              + ('green = the lowest band, black = the second (energy-sorted at each k)\n' if OCC else
-                ('green = lowest band, blue = the band that bulges mid Gamma-X (tracked through crossings), black = the rest\n' if HILITE else ''))
+                ('green = lowest band, blue = the band that bulges mid Gamma-X by more than 50 meV\n(tracked through crossings), black = the rest\n' if HILITE else ''))
              + ('' if NOREF else
                 'CAUTION: different APW cutoffs - MTO chain pwmode=1 (|G|), MLO chains pwmode=11 (|q+G|).\n'
                 'Each column states its own damping; the MTO chain always Anderson-mixes sigm at [gw] mixbeta\n') +

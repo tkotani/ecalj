@@ -76,8 +76,10 @@ HILITE=1 EMPTY=frame OCC=1 MESH=9,6 MESHCOLS=9,9,9,9,6,6,6 ROWS=$rows DPI=90 pyt
 # how much the MLO bands move per iteration (max |E(N)-E(N-1)|, within one run), with its numbers
 python3 plot_mlo_conv_six.py $R liti2o4_six_conv.png liti2o4_six_conv_data.npz
 # the two tf32 runs alone, LDA and iterations 10-40 (six_patterns.md figures 5 and 6; user 2026-09-29)
+# (Bug fixed 2026-09-29 17:24: both figures took the first of the exported HEADS, so the 6^3 figure was headed "9³ tf32")
 for m in 9 6; do
   INFO=$'qmlo_k'$m$'_tf32n: gwsc 10 from LDA (MLO bands from 10), continued 11-40\n[gw] mixbeta 0.5, t_sigmaw 1000 K, t_tetrakbt -992.4 (= SmearX0 0.0057 Ha)'
+  HEADS="${m}³  tf32|qmlo_k${m}_tf32n (from LDA, MLO bands 10-40)" \
   HILITE=1 EMPTY=frame GROUP=2 MESH=$m MESHCOLS=$m,$m ROWS=0,$(seq -s, 10 40) DPI=80 COLW=4.5 TITLEFS=8 MLOINFO="$INFO" \
     DATAOUT=liti2o4_k${m}tf32_10_40_data.npz python3 mlo_rows.py $R liti2o4_k${m}tf32_10_40.png k${m}tf32,k${m}tf32_eg \
     "${m}^3 tf32 t2g,${m}^3 tf32 2.6-8 eV" 'tab:green,tab:green' noref
