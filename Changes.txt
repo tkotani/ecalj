@@ -4,6 +4,29 @@
   混合なし (beta = 1) で回っていた (LiTi2O4 6^3 の 1 反復目で空の t2g が 0.3 eV ずれた)。ECALJ_MLO_MIX=1 を付けた
   これまでの計算は変わらない。説明は ecaljdoc mlo_gwsc.md §1.6。
 
+2026-09-30 (2)
+  直した誤り。
+  - 反強磁性の対称性 (symgrpaf) の QSGW が hqpe_sc で止まっていた。lmf --jobgw=1 が両方のスピンを書くようにし (m_qplist。
+    オプションの照合が完全一致になった 2026-03-21 からスピン 1 だけだった)、GW のプログラムは両方のスピンを計算する
+    (sugw が __MTOindex に laf = .false. を書く)。SCF の lmf はこれまでどおり対称性でスピン 1 だけを解く。
+    NiO 2x2x2 の 2 反復で、symgrpaf を書かない計算とギャップが 1.7 meV で一致。試験 Samples/AFsymmetry/NiO_gwsc。
+  - lmf: [ham] readp = true (ctrlgenToml.py が書く) で atmpnu.<種>.<sname> が無いと、空のファイルを作って未初期化の値を
+    使い segmentation fault になっていた。メッセージを出して止まる (lmfa を回すか、SCF のディレクトリから写す)。
+  - lmf --boltztrap: 2 並列以上で segmentation fault、LDA では対称操作が 0 個と書かれていた。
+  - gwsc: ctrlg.<sname>.toml を名前に与えると '.<sname>.toml' になっていた。--phispinsym は --ctrlg:ham.phispinsym=true を渡す。
+  - Legacy2toml.py (ctrl2ctrltoml.py): 分数の核電荷 (Z=14.2、Z=.0001) を整数に切り捨てていた。
+  - testecalj の照合: test2_check は 0.22D+00 の形の数を読み飛ばしていた。diffnum は両方のファイルの最初の行を比べていなかった。
+  - Sigma の Fermi 準位の表示: t_tetrakbt <= 0 のとき 'ef<-EFERMI' と出していたが、実際は k メッシュの上で数えた値
+    (efsimplef2ax)。表示を直した (計算は変わらない)。
+  サンプル。
+  - Samples/Legacy から組み直したもの: AFsymmetry、Magnon (移動)、FermiSurface/Cu、Doping/Si、HomoGas/es、BoltzTraP/Si、
+    SLAB/Cu001、SOC/FePt_MAE・MnGa_MAE ほか。どれも test.py と参照、README を持つ。一覧は Samples/README.md。
+  - Samples/kBT/scanT: 電子温度のスキャン (Si のギャップ、bcc Fe)。Samples/kBT/LiTi2O4/README.md は MLO-QSGW の 40 反復のまとめ。
+  - Magnon/Fe_bcc_in_sc_magnon はマグノンの山の位置を比べる (comp.py の peak_check)。
+  - TOOLS/samples_tests.sh に組 samples を足した。bench は --gpu のときだけ -np2 1。
+  - 入力の t_sigmaw・t_tetrakbt の横の注記を説明だけにした (値は同じ)。
+  GW1500: 状態の集計 ecalj_auto/GW1500_status.md、今のコードで回し直す ecalj_auto/gw1500_rerun.sh。
+
 2026-09-28 (2)
   [gw] t_tetrakbt を必須にし、符号で chi0 の均し方を選ぶ: 0 = 均さない、T > 0 = 有限温度のテトラヘドロン、
   -T = Im chi0 を温度 T の Fermi-Dirac と同じ幅 (標準偏差 pi kB T/sqrt3) の Gaussian で均す (以前の SmearX0)。
