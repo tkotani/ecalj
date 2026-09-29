@@ -417,11 +417,20 @@ contains
            integer:: ifipnu,lr,iz,nspr,lrmx,isp,ispx
            real(8):: pnur,pzav(n0),pnav(n0),pzsp_r(n0,nsp,nspec),pnusp_r(n0,nsp,nspec)
            character(8):: charext
+           logical:: lpnufile
            if(trim(prgnam)/='LMFA'.and.trim(prgnam)/='LMCHK'.and.ReadPnu) then
               if(master_mpi) write(stdo,*)'READP=T: read pnu from atmpnu.*'
               pzsp_r =0d0
               pnusp_r=0d0
-              open(newunit=ifipnu,file='atmpnu.'//trim(charext(j))//'.'//trim(sname))
+              ! atmpnu.<ispec>.<sname> is written by lmfa.  It must be there and hold the pnu: opened without a check, a missing
+              ! file was created empty, and lrmx and nspr below were used unset (Bug fixed 2026-09-30 01:10: lmf --quit=band in a
+              ! directory holding only ctrlg, rst and sigm ended in a segmentation fault; ham.readp = true is what ctrlgenToml.py writes)
+              inquire(file='atmpnu.'//trim(charext(j))//'.'//trim(sname),exist=lpnufile)
+              if(.not.lpnufile) call rx('ham.readp=true but atmpnu.'//trim(charext(j))//'.'//trim(sname)// &
+                   ' is missing: run lmfa in this directory, or copy atmpnu.* from the directory of the SCF')
+              lrmx=-1
+              nspr=0
+              open(newunit=ifipnu,file='atmpnu.'//trim(charext(j))//'.'//trim(sname),status='old')
               do
                  read(ifipnu,*,end=1015) pnur,iz,lr,isp
                  if(iz==1) pzsp_r (lr+1,isp,j)= pnur ! +10d0 caused probelm for 3P of Fe.
@@ -430,6 +439,8 @@ contains
                  nspr=isp
               enddo
 1015          continue
+              if(lrmx<0) call rx('ham.readp=true but atmpnu.'//trim(charext(j))//'.'//trim(sname)// &
+                   ' is empty: run lmfa again in this directory')
               pzav(1:lrmx+1)=sum(pzsp_r (1:lrmx+1,1:nspr,j), dim=2)/nspr !spin averaged
               pnav(1:lrmx+1)=sum(pnusp_r(1:lrmx+1,1:nspr,j), dim=2)/nspr
               do l=1,lrmx+1
