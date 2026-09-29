@@ -88,9 +88,12 @@ with open(f'{OUT}_table.md', 'w') as o:
                     f"{1e3 * (g[-1] - g[-2]) if len(g) > 1 else float('nan'):+.1f} | "
                     f"{(s['efk'] - s['ef']) * RY if s['tt'] > 0 else 0:+.3f} | {s['secs']} |\n")
     else:
-        o.write('| label | t_tetrakbt (K) | t_sigmaw (K) | E_F(T) − E_F(0) (eV) | magnetic moment (mu_B) | time (s) |\n| --- | --- | --- | --- | --- | --- |\n')
+        mom = NSP == 2      # the column of the magnetic moment only when spin polarized
+        o.write('| label | t_tetrakbt (K) | t_sigmaw (K) | E_F(T) − E_F(0) (eV) | ' + ('magnetic moment (mu_B) | ' if mom else '') + 'time (s) |\n'
+                + '| --- | --- | --- | --- | ' + ('--- | ' if mom else '') + '--- |\n')
         for s in sets:
-            o.write(f"| {s['label']} | {s['tt']:g} | {s['ts']:g} | {(s['efk'] - s['ef']) * RY if s['tt'] > 0 else 0:+.3f} | {s['mmom']:.3f} | {s['secs']} |\n")
+            o.write(f"| {s['label']} | {s['tt']:g} | {s['ts']:g} | {(s['efk'] - s['ef']) * RY if s['tt'] > 0 else 0:+.3f} | "
+                    + (f"{s['mmom']:.3f} | " if mom else '') + f"{s['secs']} |\n")
     # energies at the segment ends, for the bands within [emin, emax] of the zero at that point
     o.write('\n| point | spin | band | ' + ' | '.join(s['label'] for s in sets) + ' |\n| --- | --- | --- | ' + ' | '.join('---' for s in sets) + ' |\n')
     for isp, key in ((1, 'e'), (2, 'e2'))[:NSP]:
