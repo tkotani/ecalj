@@ -4,7 +4,7 @@ def test(args,bindir,testdir,workdir):
         lmf = f'mpirun -np {args.np} {bindir}/lmf '
         outfile='out.lmf.nise'
         message1='''
-        # Case NiSe: Test of AFsymmetry and LDA+U
+        # Case NiSe: Test of AFsymmetry
         '''
         print(message1)
         rmfiles(workdir,[outfile])

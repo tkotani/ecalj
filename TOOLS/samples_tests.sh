@@ -8,7 +8,7 @@
 # Groups (the tracked dirs with a test.py; Samples/README.md "Verification status"):
 #   install  TestInstall --all                      gwall    TestInstall --gwall (the GW targets only)
 #   eps      EPS/*                                  procar   PROCAR/*
-#   mlo      MLOsamples/*                           mloqsgw  MLOQSGW/*        afsym   Legacy/AFsymmetry/*
+#   mlo      MLOsamples/*                           mloqsgw  MLOQSGW/*        afsym   AFsymmetry/*
 #   bench    BenchmarkTest/* (with --gpu: -np2 1, two GW ranks on one 32 GB GPU run out of memory)
 #   heavy    TestInstall cugase2_gwsc222 nio_gwsc444 pdo_gwsc443 gas_gwsc666
 #   magnon   Legacy/Magnon/*  (work dirs of 4-5 GB)
@@ -87,7 +87,7 @@ for g in "${GRP[@]}"; do
     procar)  run procar PROCAR $(targets PROCAR) ;;
     mlo)     run mlo MLOsamples $(targets MLOsamples) ;;
     mloqsgw) run mloqsgw MLOQSGW $(targets MLOQSGW) ;;
-    afsym)   run afsym Legacy/AFsymmetry $(targets Legacy/AFsymmetry) ;;
+    afsym)   run afsym AFsymmetry $(targets AFsymmetry) ;;
     bench)   if [ -n "$GPU" ]; then NP2=1 run bench BenchmarkTest $(targets BenchmarkTest)   # one GW rank even with two GPUs (README)
              else run bench BenchmarkTest $(targets BenchmarkTest); fi ;;  # CPU: -np ranks (2026-09-30: with -np2 1 the GW
                                                                          # programs ran on one core, on mic over 26 hours)

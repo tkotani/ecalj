@@ -345,6 +345,13 @@ contains
           if(ibasf(ibas)/=-999) write(6,"(a,2i5)")' AF pair: ibas ibasf(ibas)=',ibas,ibasf(ibas)
         enddo
         laf= sum(abs(iantiferro))/=0
+        ! The GW programs take both spins also when the SCF uses the antiferromagnetic symmetry (symgrpaf): laf=.false. goes
+        ! into __MTOindex.  With laf=.true. they computed Sigma for spin 1 only and hqpe_sc wrote a one-spin sigm, but lmf reads
+        ! two spins (m_rdsigm2_init), and this driver needs sigm of spin 2 for the eigenfunctions of spin 2 that W is made of;
+        ! the step that made spin 2 from spin 1 by the symmetry is not in the present code.  (2026-09-30 02:00: QSGW with
+        ! symgrpaf stopped in hqpe_sc, which read and wrote the files of spin 2 without opening them)
+        if(laf) write(stdo,ftox)' sugw: antiferromagnetic symmetry in the SCF; the GW programs compute both spins'
+        laf=.false.
         nnv = maxval(nindx(1:ndima))
         write(stdo,ftox)' iantiferro=',iantiferro(1:nbas)
         open(newunit=ifigwin,file='__MTOindex',form='unformatted')    
