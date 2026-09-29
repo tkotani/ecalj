@@ -57,4 +57,4 @@ testecalj NiO NiSe NiO_gwsc -np 8
 2 反復後の `QPU` の差は、SEx・SEc で最大 0.003 eV、QP エネルギーのずれ（`dSEnoZ`）で最大 0.001 eV。`symgrpaf` ありでは `QPU` と `QPD`（2 つのスピン）の
 QP エネルギーが一致する（gfortran、4 コア、2026-09-30）。
 
-2026-03-21 から 2026-09-29 までのコードでは、`symgrpaf` を書いた QSGW は 1 反復目の `hqpe_sc` で止まった（2026-09-30 に直した）。
+2026-09-29 までのコードでは、`symgrpaf` を書いた QSGW は 1 反復目の `hqpe_sc` で止まった（2026-09-30 に直した）。

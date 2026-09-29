@@ -1,23 +1,7 @@
-# Samples/kBT — 有限温度 QSGW、MLO-QSGW、GW の GPU 高速化の研究の置き場
+# Samples/kBT — 2026-06 の有限温度 QSGW の計算の記録
 
-2026-09-28 に今の中身に合わせて書き直した。研究の要約と索引は ecaljdoc の
-[ForDevelopers](https://ecalj.github.io/ecaljdoc/manual/ForDevelopers) §13、残る課題の一覧は
-[kBT](https://ecalj.github.io/ecaljdoc/manual/kBT) §9 と ForDevelopers §11.8。
-
-| ファイル・ディレクトリ | 中身 |
-| --- | --- |
-| [`kBT_research.md`](kBT_research.md) | 研究ログ（2026-09-16〜。有限温度、MLO-QSGW、GPU 高速化）。最新が上、`### HH:MM` の時刻付き |
-| [`gpu_fp32_report.md`](gpu_fp32_report.md)、[`gpu_fp32_plan.md`](gpu_fp32_plan.md) | GW の GPU 高速化の報告（精度、方法の振り分け表、FP16 経路の式、QSGW 1 反復の内訳）と、その計画 |
-| [`sigma_mlo_design.md`](sigma_mlo_design.md) | MLO-QSGW（Σ を MLO で持って内挿する）の設計書。式 (1)–(17)、実装と検証の手順、踏んだバグ |
-| [`fp16acc.cu`](fp16acc.cu) | テンソルコアの和の縮みを切り分ける試験（報告 §2.1） |
-| [`LiTi2O4/`](LiTi2O4/) | 金属スピネル。MLO-QSGW の本番の入力（`input/qmlo`）、投入・比較・描画のスクリプト（`run_gwsc10.sh`、`cmp_gwsc10.py` など）、図。2026-06 の有限温度の計算の抜粋（`n666_T*`、`n999_T1000`） |
-| [`Fe/`](Fe/) | 有限温度の対照実験（bcc Fe 3000 K、Σ 側の温度だけを変える）。手元で 40 秒。結果は 2026-09-27 のコードで作り直した |
-| `NiO/`、`Si/` | MLO-QSGW の図とそれを描くスクリプト |
-| [`contour_test/`](contour_test/) | Σc の積分路の試験 |
-
-計算はほとんど kt1 で回している（作業場所 `/mnt/data1/LiTi2O4_kbt_runs`、投入の手順は ForDevelopers §12）。
-
----
+> **2026-09-30 の注**: このファイルは記録。いまの案内は [`README.md`](README.md)、いまのキーの説明は ecaljdoc の
+> [kBT](https://ecalj.github.io/ecaljdoc/manual/kBT)。下の本文は 2026-06 の計算の説明で、当時のキー（`tetrakbt`、`t_sigmakbt`、`esmr`）で書いてある。
 
 ## 2026-06 の有限温度の計算の記録
 

@@ -486,14 +486,17 @@ module m_ReadEfermi
 contains
   subroutine sigmakbt_setup()
     !> Fermi level of the self-energy: EFERMI_kbt (mu(T) written by heftet) when chi0 is at finite
-    !! temperature (t_tetrakbt > 0), EFERMI otherwise.  The kernel width itself is t_sigmaw
-    !! (m_gw_user_config esmr = kBT), always Fermi-Dirac.
+    !! temperature (t_tetrakbt > 0).  Otherwise this routine sets nothing and the caller keeps the Fermi level that
+    !! efsimplef2ax counted on the k mesh (Gaussian of width kB*t_sigmaw; hsfp0_sc, hsfp0), not the EFERMI of heftet
+    !! that chi0 uses.  The kernel width itself is t_sigmaw (m_gw_user_config esmr = kBT), always Fermi-Dirac.
+    !! (2026-09-30 02:00: the message for t_tetrakbt <= 0 said 'ef<-EFERMI')
     use m_GWinput, only: t_tetrakbt, t_sigmaw, gwinput_init, gwinput_loaded
     logical:: efk_exist
     call gwinput_init()
     if(.not.gwinput_loaded) return
     if(t_tetrakbt <= 0d0) then
-       if(ipr) write(stdo,"(a,f8.1,a)") ' sigmaw_setup: Sigma kernel Fermi-Dirac, t_sigmaw[K]=',t_sigmaw,'  ef<-EFERMI (chi0 at T=0)'
+       if(ipr) write(stdo,"(a,f8.1,a)") ' sigmaw_setup: Sigma kernel Fermi-Dirac, t_sigmaw[K]=',t_sigmaw, &
+            '  ef: counted on the k mesh (efsimplef2ax); chi0 at T=0'
        return
     endif
     inquire(file='EFERMI_kbt', exist=efk_exist)
