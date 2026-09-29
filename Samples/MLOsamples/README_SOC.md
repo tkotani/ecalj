@@ -67,9 +67,11 @@ cd <target>_work
 gnuplot -p bandplot_MLO.isp1.glt
 ```
 - **赤点**: MLO-SOC bands (`job_mlo_soc` 出力)
-- **黒線**: DFT-SOC bands (`job_band --ctrlg:ham.nspin=2 --ctrlg:ham.so=1` 出力)
+- **黒線**: 作業ディレクトリにある `bnd00N.spin1`。試験のあとは同梱のバンドで、GaAsSoc のものは SOC なし
+  (Γ の価電子帯の頂上が 3 重に縮退している)。SOC 入りのバンドと比べるときは
+  `job_band <sname> --ctrlg:ham.nspin=2 --ctrlg:ham.so=1` で `bnd00N.spin1` を描き直してから gnuplot を実行する
 
-両者が SOC 分裂した VBM 周辺で整合することを確認できる。
+描き直すと、両者が SOC 分裂した VBM 周辺で整合することを確認できる。
 
 ## 関連コミット
 

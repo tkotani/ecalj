@@ -28,6 +28,7 @@ testecalj -np 8 Al2O3_Cr      # Cr-doped Al2O3 QSGW80 (CBM ~7 eV above E_F)
 testecalj -np 8 C             # diamond C
 testecalj -np 8 C.sp          # graphite-like C (sp-only)
 testecalj -np 8 Cu            # fcc Cu
+testecalj -np 8 GaAs          # GaAs LDA, from the SCF
 testecalj -np 8 SrTiO3        # perovskite, non-magnetic
 testecalj -np 8 Fe            # bcc Fe (nspin=2, no SOC)
 testecalj -np 8 FeCo          # FeCo alloy (nspin=2)
@@ -58,6 +59,7 @@ Each test runs the full pipeline (lmf → mlo, plus the 4-step
 | `C`          | diamond C              | 1 | – | `band_MLO_spin1.dat` |
 | `C.sp`       | C graphite-like (sp)   | 1 | – | `band_MLO_spin1.dat` |
 | `Cu`         | fcc Cu                 | 1 | – | `band_MLO_spin1.dat` |
+| `GaAs`       | GaAs LDA (SCF, then bands and MLO) | 1 | – | `band_MLO_spin1.dat` |
 | `SrTiO3`     | SrTiO3 perovskite      | 1 | – | `band_MLO_spin1.dat` |
 | `Fe`         | bcc Fe DFT (no SOC)    | 2 | – | `job_mloW` + on-site diagonal V, W−V check (inline in `Fe/test.py`, no file) |
 | `FeCo`       | FeCo alloy             | 2 | – | `band_MLO_spin{1,2}.dat` |
