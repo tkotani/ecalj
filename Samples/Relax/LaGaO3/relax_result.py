@@ -45,8 +45,11 @@ if table is not None: res.append((fmax, table))
 with open('relax_force.txt', 'w') as f:
     f.write(f'# {m}: forces at the end of the self-consistency of each geometry (mRy/bohr), from {log}\n')
     for g, (fm, tab) in enumerate(res):
-        f.write(f'# geometry {g+1}: site, force x y z\n')
-        f.write(f'maxforce {g+1} {fm[0]:12.4f}  site {fm[1]}\n')
+        # the site of the largest force goes to a comment line (test.py does not compare it): sites that are equal by
+        # symmetry have the same force, and which of them lmf names depends on the last digits (2026-09-30: 12 with
+        # gfortran, 11 with nvfortran)
+        f.write(f'# geometry {g+1}: site, force x y z.  The largest force is on site {fm[1]}\n')
+        f.write(f'maxforce {g+1} {fm[0]:12.4f}\n')
         for ib in sorted(tab):
             f.write(f'  {g+1} {ib:4d} {tab[ib][0]:10.2f} {tab[ib][1]:10.2f} {tab[ib][2]:10.2f}\n')
 print(open('relax_energy.txt').read(), end='')

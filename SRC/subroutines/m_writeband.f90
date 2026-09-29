@@ -22,7 +22,7 @@ contains
     character*300::aaa,addx
     real(8):: emin=-20d0,emax=20d0 !eV for default plotting.
     integer:: ikps,ne,ifi,ix,nee,ibb,ilt,imin,imax
-    real(8),allocatable::diffeb(:),diff2eb(:)
+    real(8),allocatable::diffeb(:),diff2eb(:),ebase(:)
     real(8)::polinta,tpiba,eee,eqq,qqq,dEdkatef
     character*100::fname,massfile,fname2,sss=''
     integer,allocatable::ikpoff(:)
@@ -164,7 +164,7 @@ contains
     do 2111 isyml = 1,nsyml
        ne = nqp2n_syml(isyml)
        if(ne==0) cycle
-       allocate(diffeb(ne),diff2eb(ne))
+       allocate(diffeb(ne),diff2eb(ne),ebase(ne))
        !! diffeb and diff2eb are 1st and 2nd derivatives,
        !! dEi(k)/dk d^2Ei(k)/d^2k along a symmetry line (isyml index).
        !! But be careful to determine effective mass, because it is not analytic at Gamma point.
@@ -187,7 +187,12 @@ contains
              !            print *,'jjjjjjjj',jsp,isyml,ikps,i,eee
              semiconband = scd.and.evtop-etolv<eee .and. eee<ecbot+etolv
              ! heck i-th band is neare VCM and CBM
-             metalband = ichangesign(evlall(i,jsp,ikps:ikps+ne-1)-basel,ne) >-1
+             ! idat: the point after which the band crosses basel (-1: no crossing).
+             ! Bug fixed 2026-09-30 03:48: idat was used below but never set, and the array expression was given to ichangesign
+             ! as it was (segmentation fault at the entry of ichangesign with nvfortran 26.1; Samples/EffectiveMass/GaAs).
+             ebase(1:ne) = evlall(i,jsp,ikps:ikps+ne-1)-basel
+             idat = ichangesign(ebase,ne)
+             metalband = idat>-1
              ! or metal crosspoint point across basel
              ! heck i-th band is near VCM and CBM
              if(semiconband .OR. metalband) then
@@ -241,7 +246,7 @@ contains
              endif
 2113      enddo
 2112   enddo
-       deallocate(diffeb,diff2eb)
+       deallocate(diffeb,diff2eb,ebase)
 2111 enddo
     do jsp=1,nspx
        ifglt=ifglts(jsp)

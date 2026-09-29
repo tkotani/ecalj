@@ -3,7 +3,7 @@ subroutine hhomogas()
   use mpi
   use m_readefermi,only: setefermi
   use m_genallcf_v3,only: Genallcf_v3
-  use m_shortn3_qlat,only: shortn3_qlat
+  use m_shortn3_qlat,only: shortn3_qlat,nout,nlatout !nout, nlatout: the results of shortn3_qlat
   use m_ftox
   use m_lgunit,only:stdo,m_lgunit_init
   use m_shortvec,only:shortvec,shortvecinitialize
@@ -204,7 +204,7 @@ subroutine hhomogas()
   logical(8)::init2=.true.,llsym=.true.,gskip
   logical(8)::d100,d110,d111,d1xx,dhpb,dxwf,dhnb,dnpb
   real(8)::rlatp(3,3),xmx2(3),qqin(3),qshort(3),qshort2,ppin(3),qlength,rs
-  integer:: nlatout(3,48),nout,iout
+  integer:: iout ! Bug fixed 2026-09-30 03:50: nout and nlatout were local variables here, never set (segmentation fault with ifx)
   integer,parameter:: noutmx=48
   logical:: initiq
   integer:: ifz,ifi,ifif

@@ -1,6 +1,6 @@
 # lagao3: forces at the end of the self-consistency of each geometry (mRy/bohr), from llmf
-# geometry 1: site, force x y z
-maxforce 1      15.2283  site 12
+# geometry 1: site, force x y z.  The largest force is on site 12
+maxforce 1      15.2283
   1    1      -0.00       0.00       0.00
   1    2       0.00       0.00       0.00
   1    3      -0.00      -0.00       0.00
@@ -21,8 +21,8 @@ maxforce 1      15.2283  site 12
   1   18      -8.08      -4.11       7.75
   1   19       8.08       4.11       7.75
   1   20       8.08      -4.11      -7.75
-# geometry 2: site, force x y z
-maxforce 2      15.1810  site 16
+# geometry 2: site, force x y z.  The largest force is on site 16
+maxforce 2      15.1810
   2    1       0.00       0.00       0.00
   2    2      -0.00       0.00       0.00
   2    3       0.00       0.00       0.00
