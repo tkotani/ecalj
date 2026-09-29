@@ -19,8 +19,10 @@ function run_arg
     $echo_run echo -n 'OK! --> Start'
     $echo_run echo $argin > _IN_
     if [ $MPI_SIZE == '0' ]; then
-        $echo_run echo " echo $argin | $nfpgw$command $TARGET > $output " 
-        $serial_run $nfpgw$command  $TARGET < _IN_ > $output
+        # one rank through mpirun, as the Python scripts do: with the OpenMPI of the NVIDIA HPC SDK a program
+        # started without mpirun stops in MPI_Init (2026-09-30, job_AHC on kt1)
+        $echo_run echo " echo $argin | mpirun -np 1 $nfpgw$command $TARGET > $output "
+        $serial_run mpirun -np 1 $nfpgw$command  $TARGET < _IN_ > $output
     else
         $echo_run echo " echo $argin | mpirun -np $MPI_SIZE $nfpgw$command $TARGET > $output " 
         $mpi_run $nfpgw$command $TARGET < _IN_ > $output
