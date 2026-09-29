@@ -81,6 +81,27 @@
 
 ## 2026-09-30 — パッケージと文書の整理、温度のスキャン、反強磁性の QSGW の修理、GW1500 の回し直し（user 00:10「明日の朝まで自律的に」）
 
+### 04:01 **新しいサンプルを 3 つのコンパイラで回して出た 3 件を直した（`2d6f513ad`）。user 03:47「Legacy も確認して。任せる」→ 残りの組み直しを始め、削除は user の判断待ち**
+
+- 03:45 の時点の試験: 手元（gfortran）は全部 PASSED。kt1（nvfortran、GPU）で EffectiveMass/GaAs が止まり、Relax/LaGaO3 が 1 件不一致。mic（ifx）で HomoGas/es が止まった
+- 表 04:01-1 に原因と直し方。直したあと、手元（gfortran）で EffectiveMass と HomoGas が通り、kt1（03:56 に作り直したビルド）で EffectiveMass が通った
+
+*表 04:01-1* 3 つのコンパイラで回して出た不一致
+
+| サンプル | 機械 | 起きたこと | 原因 | 直し方 |
+| --- | --- | --- | --- | --- |
+| EffectiveMass/GaAs | kt1（nvfortran 26.1） | `lmf --band` が segmentation fault（`m_writeband` の `ichangesign` の入口） | 質量モードで、バンドが基準のエネルギーを横切る点 `idat` に値を入れていなかった。配列の式をそのまま `ichangesign` に渡していた | `idat = ichangesign(ebase,ne)`。`ebase` は確保した配列 |
+| HomoGas/es | mic（ifx 2026） | `hhomogas` が segmentation fault | `nout`・`nlatout` を `m_shortn3_qlat` から取らず、ローカル変数として宣言していた（値が入らない）。ログに `rrrr:` の行が 64048 行 | module の `nout`・`nlatout` を使う |
+| Relax/LaGaO3 | kt1 | `relax_force.txt` の「力が最大の原子」が 11（参照は 12） | 対称性で力が等しい原子のどれを指すかが、下の桁で変わる | 原子の番号は注釈の行に書く（比較しない） |
+
+- kt1 の試験は 02:58 に `-np2 2`（GPU 2 枚）で始めたが、GW1500 のワーカーが 1 枚ずつ使い続けるので「2 枚同時に空く」のを待って 30 分進まなかった。
+  03:31 に `-np2 1` で取り直した。04:01 までに install 64、eps 18、procar 5、mlo 45、mloqsgw 5、afsym 4、gwall（tf32）28 が PASSED
+- Legacy: 残っていた AHC/Fe、IIR、CMDsample（DOS・PDOS）、mass_fit_test の CdS・GaN の組み直しを 03:58 に別のエージェントで始めた。
+  ReNcub の 15 種の窒化物の構造と占有の初期値は `Samples/LDAU/ReN/INIT` に、ISSP の投入スクリプトは今のオプションに直して `Samples/BenchmarkTest/ISSP` に写した（`a7398c71b`）
+- **Legacy の元のディレクトリの削除（`git rm`）は、自動の安全確認に止められたので行っていない。** 消す候補: 組み直し済みの元（FermiSurface、Si_doping_sample、
+  TETRAHEDRON_HomoGas、TETRAHEDRON_HomoGas_test、BOLZTRAP、SLAB、SOCAXIS、AFsymmetry、LaGaO3_relax、ReNcub）、TestInstall と重なるもの（GdNldau、MATERIALS の erasldau・
+  pdo_gwsc443・yh3fcc_gwsc666、SOC、InAsGaSb/n4、Samples_ISSP）、使えないもの（AHCSOCtest、UUmatSOC、TestHomoDimerAtom）。`superlattice` は StructureTool へ移す候補
+
 ### 03:14 **`idu = 12`（「`sigm` があれば U を切る」指定）は、`sigm` が無いとき二重計数の補正なしの LDA+U になっている（2023-09-29 から）。修正はブランチ `fix-idu10` に置き、main には入れていない（メンテナの判断待ち）**
 
 - きっかけ: Legacy の ReNcub の入力は `idu = 12`。組み直しのエージェントが「PrN が別の解になる」と報告。コードと履歴で確かめた
