@@ -415,7 +415,8 @@ contains
     endif
     sumqv(2) = amom
     if(ipr>0) write(stdl,ftox)'bzmet',metal,'tet',tetra,'ef',ftof(efermi),'sev',ftof(sumev),'zval',ftof(zval)
-    if(ipr>0) write(stdl,ftox)'sumqv',ftof(sumqv(1)),'amom',ftof(amom),'egap(eV)',ftof(egap,3)
+    ! egap is in Ry (nulli = no gap). Bug fixed 2026-09-30 02:20: the value in Ry was written under the label egap(eV)
+    if(ipr>0) write(stdl,ftox)'sumqv',ftof(sumqv(1)),'amom',ftof(amom),'egap(eV)',ftof(merge(egap*13.6058d0,egap,egap>nulli+1d0),3)
     e = efermi
     if(.not. lfill .and. .not. tetra) e = efermi + rnge*width/2
     call tcx('bzwts')
