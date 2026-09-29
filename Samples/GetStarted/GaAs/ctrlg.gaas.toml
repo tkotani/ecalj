@@ -152,7 +152,7 @@ HistBin_dw    = 1e-4       # bin width along real axis at omega=0
 HistBin_ratio = 1.05       # bin: frhis(iw) = (dw/(r-1))*(exp((r-1)*(iw-1)) - 1)
 # ----------------------------------------------------------------
 deltaw        = 0.02       # (a.u.) numerical-derivative mesh for Z factor
-t_sigmaw      = 262        # (K) Fermi-Dirac width of the Sigma levels (from esmr = 0.003 Ry)
+t_sigmaw      = 262        # (K) Fermi-Dirac width of the levels in Sigma
 t_tetrakbt    = 0          # (K) required. 0: no smearing of chi0 (semiconductors). Metals: -1000 (Im chi0 smeared by a Gaussian
                            #     as wide as Fermi-Dirac at 1000 K) or 1000 (finite-T tetrahedron at 1000 K)
 # ----- Q for diagonal Sigma=GW (gw_lmfh) -----

@@ -209,7 +209,7 @@ deltaw        = 0.02       # (a.u.) numerical-derivative mesh for Z factor
 # SmearX0 = 0.0057 Ha), t_sigmaw for the Sigma levels, wcsmear (default).  delta and GaussSmear (not read since 2026-09-19) removed.
 deltaq_scale  = 0.1
 t_sigmaw = 1000.0
-t_tetrakbt = -992.4   # (K) < 0: Im chi0 smeared by a Gaussian as wide as Fermi-Dirac at |T| (was SmearX0 = 0.0057 Ha; ctrlg_update.py, 2026-09-28)
+t_tetrakbt    = -992.4     # (K) < 0: Im chi0 smeared by a Gaussian as wide as Fermi-Dirac at |T| (standard deviation 0.0057 Ha)
 KeepEigen     = false
 wan_out_emin  = -1.05      # (eV, rel. EFermi) Wannier outer window low
 wan_out_emax  = 2.4        # (eV, rel. EFermi) Wannier outer window high
