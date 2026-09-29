@@ -46,7 +46,8 @@ rm -f ewindow.${MATERIAL}* qbyl.${MATERIAL}* eigze*.${MATERIAL}* # remove tempor
 ##### preparation of required inputs for GW (mainly prepare required eigenfuncitons) ######
 argin=0; run_arg $argin $NO_MPI   $nfpgw /lmf      llmfgw00 $MATERIAL --jobgw=0 --novxc ${@:4:($#-2)}
 argin=1; run_arg $argin $NO_MPI   $nfpgw /qg4gw    lqg4gw04 --job=4 ${@:4:($#-2)}  #Generate requied q+G vectors.
-argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmf llmfgw01 $MATERIAL --jobgw=1 ${@:4:($#-2)}
+# --wrhomt writes rhoMT.* (spin density in the spheres), which hbasfp0 --job=8 below reads (2026-09-30)
+argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmf llmfgw01 $MATERIAL --jobgw=1 --wrhomt ${@:4:($#-2)}
 #run_arg  '---' $NO_MPI   $nfpgw /lmf2gw     llmf2gw  #reform data for gw
 
 ##### GW related part (up to preparation of MPB) ###########
@@ -58,7 +59,11 @@ argin=1; run_arg $argin $MPI_SIZE $nfpgw /lmf llmfgw01 $MATERIAL --jobgw=1 ${@:4
 #fi
 #rm gwa gwb.* gwb0.*
 argin=1; run_arg $argin $NO_MPI $nfpgw /heftet leftet ${@:4:($#-2)} # A file EFERMI for hx0fp0
-argin=0; run_arg $argin $NO_MPI $nfpgw /hbasfp0 lbas --job=4 ${@:4:($#-2)}  # Product basis generation 
+# hahc runs in the form of the chi^+- mode: it needs MagAtom in [gw] of ctrlg (at least one site; it stops with
+# "MPI__Setnpr_col: use small parallelization" when there is none) and MixSpin.* of these sites, which
+# hbasfp0 writes with --job=8. The AHC itself is made from UUU/UUD and the eigenvalues only.
+# (2026-09-30: --job=4 before; hahc then stopped at the end of the file MixSpin.001)
+argin=0; run_arg $argin $NO_MPI $nfpgw /hbasfp0 lbas --job=8 ${@:4:($#-2)}  # Product basis generation
 
 argin=1 ;run_arg $argin $NO_MPI $nfpgw   /hmaxloc lmaxloc1 ${@:4:($#-2)}    # b-vector BBVEC
 # argin=1 ;run_arg $argin $MPI_SIZE $nfpgw /hpsig_MPI lpsig_MPI # PSIG* =<Psi|Gaussian>.
@@ -83,9 +88,11 @@ argin=2 ;run_arg $argin $MPI_SIZE $nfpgw /huumat_MPI luumat2 $MATERIAL --ahc ${@
 ### Muffin-Tin Orbital generation
 ##########
 
+# huumat_MPI --ahc numbers the files with seven digits (UUU.0000000, ...).
+# Bug fixed 2026-09-30: the test was on UUD.0000, so that UUD was never gathered and hahc stopped for two spin channels (so=0,2).
 cat UUU.* >UUU
 rm -f UUU.*
-if [ -e UUD.0000 ]; then 
+if [ -e UUD.0000000 ]; then
     cat UUD.* >UUD
     rm -f UUD.*
 fi

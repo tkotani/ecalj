@@ -26,11 +26,14 @@ after another and writes one summary (how to read it: ecaljdoc
 | [SLAB/](SLAB/Cu001/README.md) | Cu(001) slab of four layers: bands, DOS, work function | `Cu001` | `samples` |
 | [SOC/](SOC/FePt_MAE/README.md) | magnetic anisotropy energy by the force theorem (SOC for two spin axes on one potential): FePt, MnGa | `FePt_MAE`, `MnGa_MAE` | `samples` |
 | [LDAU/](LDAU/ReN/README.md) | LDA+U on the 4f shell with spin-orbit coupling (`so = 2`) and starting occupations `occnum.<sname>`: GdN, PrN | `ReN` | `samples` |
-| [EffectiveMass/](EffectiveMass/GaAs/README.md) | effective masses of GaAs from the QSGW bands with SOC (the mass mode of `syml.<sname>`, fit by `massfit.py`) | `GaAs` | `samples` |
+| [EffectiveMass/](EffectiveMass/GaAs/README.md) | effective masses from the QSGW bands with SOC (the mass mode of `syml.<sname>`, fit by `massfit.py`): GaAs, CdS, zincblende GaN | `GaAs`, `CdS`, `GaN` | `samples` |
 | [Relax/](Relax/LaGaO3/README.md) | relaxation of the atomic positions: LaGaO3 | `LaGaO3` | `samples` |
+| [DOS/](DOS/ZnS/README.md) | total and partial density of states (`job_tdos`, `job_pdos`): ZnS, bcc Fe | `ZnS`, `Fe` | `samples` |
+| [AHC/](AHC/Fe/README.md) | anomalous Hall conductivity of bcc Fe (`job_AHC`, `hx0ahc.py`) | `Fe` | `samples` |
+| [IIR/](IIR/C/README.md) | impact ionization rate of diamond: the imaginary part of the self-energy (`gw_lmfh`, `QPU_life`) | `C` | `samples` |
 | [BenchmarkTest/](BenchmarkTest/) | one QSGW iteration of InAs/GaSb superlattices (16 and 32 atoms), for GPU | 2 | `bench` |
 | [mptf32problem/](mptf32problem/README.md) | AgNO3 and other cases where the old TF32 mode of the GPU build failed (GW1500) | — | — |
-| [Legacy/](Legacy/) | older examples that are not rebuilt (table 2) | — | `inputs` |
+| [Legacy/](Legacy/) | the older examples: the originals of the samples above, and what is not rebuilt (table 2) | — | `inputs` |
 
 The group `inputs` takes every `ctrlg.<sname>.toml` of this tree: `lmchk` must read it, and the rules of
 `ctrlg_update.py` must leave it unchanged.
@@ -60,12 +63,9 @@ Notes:
 
 | directory | content | state |
 |---|---|---|
-| `AHC/` | anomalous Hall conductivity of bcc Fe (`job_AHC`, `hx0ahc.py`) | to be rebuilt; `hx0ahc.py` loses a single extra option |
-| `IIR/` | impact ionization rate from Im Sigma (diamond, 12x12x12: 200 minutes) | long |
-| `CMDsample/` | tutorial inputs of 2019 (Si, InAs, ZnS, GaN, Fe, NiO, BaTiO3 QSGW) | the commands of its README are gone |
-| `MATERIALS/La2CuO4`, `InAsGaSb/`, `Samples_ISSP/`, `bga2o3deformation/` | QSGW inputs and results of larger systems | long |
-| `ReNcub/`, `mass_fit_test/`, `LaGaO3_relax/` | the older runs behind `LDAU/`, `EffectiveMass/`, `Relax/` | kept for their results |
-| `FermiSurface/`, `Si_doping_sample/`, `TETRAHEDRON_HomoGas/`, `TETRAHEDRON_HomoGas_test/`, `BOLZTRAP/`, `SLAB/`, `SOCAXIS/` | the originals of `FermiSurface/`, `Doping/`, `HomoGas/`, `BoltzTraP/`, `SLAB/`, `SOC/` of table 1 | rebuilt; the originals are kept for now |
-| `GdNldau/`, `MATERIALS/erasldau`, `MATERIALS/pdo_gwsc443`, `MATERIALS/yh3fcc_gwsc666`, `SOC/` | covered by `TestInstall` (`gdn`, `eras`, `pdo_gwsc443`, `felz`) and `MLOsamples/FeSoc` | duplicates |
-| `TestHomoDimerAtom/`, `UUmatSOC/`, `AHCSOCtest/` | scripts of 2012 in Python 2; work files without input; a copy of the AHC README | not usable |
-| `superlattice/` | generator of strained zincblende superlattice POSCARs | a tool, no calculation |
+| `MATERIALS/La2CuO4`, `InAsGaSb/n10` | QSGW inputs and results of larger systems (7 and 40 atoms) | long; kept as inputs |
+| `CMDsample/` | tutorial inputs of 2019 (Si, InAs, ZnS, GaN, Fe, NiO, BaTiO3 QSGW) | the commands of its README are gone; `GetStarted/` and `DOS/` replace it |
+| `AHC/`, `IIR/`, `mass_fit_test/`, `LaGaO3_relax/`, `ReNcub/`, `FermiSurface/`, `Si_doping_sample/`, `TETRAHEDRON_HomoGas/`, `TETRAHEDRON_HomoGas_test/`, `BOLZTRAP/`, `SLAB/`, `SOCAXIS/`, `AFsymmetry/`, `Samples_ISSP/` | the originals of the samples of table 1 (`AHC/`, `IIR/`, `EffectiveMass/`, `Relax/`, `LDAU/`, `FermiSurface/`, `Doping/`, `HomoGas/`, `BoltzTraP/`, `SLAB/`, `SOC/`, `AFsymmetry/`, `BenchmarkTest/ISSP/`) | rebuilt; the originals can be removed |
+| `GdNldau/`, `MATERIALS/erasldau`, `MATERIALS/pdo_gwsc443`, `MATERIALS/yh3fcc_gwsc666`, `SOC/`, `InAsGaSb/n4` | covered by `TestInstall` (`gdn`, `eras`, `pdo_gwsc443`, `felz`), `MLOsamples/FeSoc` and `BenchmarkTest/inas4gasb4` | duplicates; can be removed |
+| `TestHomoDimerAtom/`, `UUmatSOC/`, `AHCSOCtest/` | scripts of 2012 in Python 2; work files without input; a copy of the AHC README | not usable; can be removed |
+| `superlattice/` | generator of strained zincblende superlattice POSCARs | a tool, no calculation; belongs to `StructureTool/` |

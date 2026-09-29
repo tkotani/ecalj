@@ -1,22 +1,17 @@
-import sys,os,time,pathlib
+import sys,os,time,pathlib,shlex
 import numpy as np
 from mpi4py import MPI
 
 start = time.perf_counter()
-usage = """ USAGE: mpirun -np 4 python hx0ahc.py -4. 4. 101 """
+usage = """ USAGE: mpirun -np 4 python hx0ahc.py -4. 4. 101 [options for hahc, e.g. --ctrlg:ham.so=1] """
 epath=os.path.dirname(os.path.abspath(__file__))
-options=""
 args = sys.argv
 if (len(args) < 4):
     print(usage)
     sys.exit()
-elif (len(args) > 4):
-    options = args[4:]
-if (not len(options)==1):
-    op0 = ""
-    for op in options:
-        op0 += op+" "
-    options = op0
+# Options for hahc as one string, each quoted for the shell (--ctrlg:gw.n1n2n3=[4,4,4] has brackets).
+# Bug fixed 2026-09-30: with exactly one option the list itself was formatted into the command, as ['--opt'].
+options = " ".join(shlex.quote(op) for op in args[4:])
 efs = float(args[1])
 eff = float(args[2])
 nd = int(args[3])

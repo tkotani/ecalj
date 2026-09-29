@@ -1,0 +1,31 @@
+# effective mass m*/m from hbar^2 k^2/(2 m*) = |E|(1+|E|/E0), E measured from the band edge at Gamma
+# fitting window 0.01 <= |E| <= 0.05 eV
+# npts = number of points in the window; E0 is ill-determined when the band is nearly parabolic
+# line band  file_ib     mass        E0(eV)   npts
+  111  so      1       0.3185        -0.179     15
+  111  so      2       0.3185        -0.179     15
+  111  lh      3       0.1165         0.023     27
+  111  lh      4       0.1165         0.023     27
+  111  hh      5       1.1578         0.307     43
+  111  hh      6       1.8326        -0.515     42
+  111  e       7       0.1604         2.124     14
+  111  e       8       0.1604         2.124     14
+  100  so      1       0.3487        -0.258     14
+  100  so      2       0.3487        -0.258     14
+  100  lh      3       0.2185         0.122     19
+  100  lh      4       0.2185         0.122     19
+  100  hh      5       0.6873         6.569     25
+  100  hh      6       0.6873         6.571     25
+  100  e       7       0.1604         2.807     12
+  100  e       8       0.1604         2.807     12
+  110  so      1       0.3126        -0.186     12
+  110  so      2       0.3413        -0.197     13
+  110  lh      3       0.1831         0.090     17
+  110  lh      4       0.1488         0.034     21
+  110  hh      5       0.7979         0.046     44
+  110  hh      6       1.6361         0.118     47
+  110  e       7       0.1605         2.147     11
+  110  e       8       0.1603         2.399     11
+# energies at Gamma relative to the valence band maximum (eV): gap and spin-orbit splitting
+  gap_Gamma          2.8425
+  split_off         -0.0683

@@ -9,7 +9,7 @@
 #   install  TestInstall --all                      gwall    TestInstall --gwall (the GW targets only)
 #   eps      EPS/*                                  procar   PROCAR/*
 #   mlo      MLOsamples/*                           mloqsgw  MLOQSGW/*        afsym   AFsymmetry/*
-#   samples  FermiSurface Doping HomoGas BoltzTraP SLAB SOC LDAU EffectiveMass Relax kBT/scanT: one summary line per directory
+#   samples  FermiSurface Doping HomoGas BoltzTraP SLAB SOC LDAU EffectiveMass Relax DOS AHC IIR kBT/scanT: one summary line per directory
 #            (the samples rebuilt from Legacy in 2026-09, and the temperature scan; a directory that is not there is skipped)
 #   bench    BenchmarkTest/* (with --gpu: -np2 1, two GW ranks on one 32 GB GPU run out of memory)
 #   heavy    TestInstall cugase2_gwsc222 nio_gwsc444 pdo_gwsc443 gas_gwsc666
@@ -90,7 +90,7 @@ for g in "${GRP[@]}"; do
     mlo)     run mlo MLOsamples $(targets MLOsamples) ;;
     mloqsgw) run mloqsgw MLOQSGW $(targets MLOQSGW) ;;
     afsym)   run afsym AFsymmetry $(targets AFsymmetry) ;;
-    samples) for d in FermiSurface Doping HomoGas BoltzTraP SLAB SOC LDAU EffectiveMass Relax kBT/scanT; do
+    samples) for d in FermiSurface Doping HomoGas BoltzTraP SLAB SOC LDAU EffectiveMass Relax DOS AHC IIR kBT/scanT; do
                [ -d $ROOT/Samples/$d ] && [ -n "$(targets $d)" ] && run ${d//\//_} $d $(targets $d)
              done ;;
     bench)   if [ -n "$GPU" ]; then NP2=1 run bench BenchmarkTest $(targets BenchmarkTest)   # one GW rank even with two GPUs (README)
