@@ -55,9 +55,9 @@ def compall(f1in,f2in,abs_tol,rel_tol,skipcond):
         vals1 = [v for v in re.split(r'\s+', line.strip()) if v]
         vals2 = [v for v in re.split(r'\s+', f2[ifnum].strip()) if v]
         for v1, v2 in zip(vals1, vals2):
-            try:
-                n1 = float(v1)
-                n2 = float(v2)
+            try:   # Fortran's 0.22D+00 too (2026-09-30 02:45: such numbers were skipped, so a file of them passed whatever it held)
+                n1 = float(re.sub(r'(?<=[0-9.])[dD](?=[+-]?[0-9])', 'E', v1))
+                n2 = float(re.sub(r'(?<=[0-9.])[dD](?=[+-]?[0-9])', 'E', v2))
             except ValueError:
                 continue
             abs_diff = max(abs(n1 - n2), abs_diff)

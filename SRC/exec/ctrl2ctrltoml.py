@@ -257,7 +257,9 @@ def parse_value(val_str: str, typ: str):
         if v.upper() in ('F','FALSE','.FALSE.'):
             return False if typ=='bool' else 0
         try:
-            return int(float(v))
+            # a value of an 'int' key that is not an integer is kept as it is: a fractional nuclear charge, Z=14.2 (virtual
+            # crystal) or Z=.0001 (empty sphere).  (Bug fixed 2026-09-30 02:40: it was cut to 14 and 0; lmf reads z as a real)
+            return int(float(v)) if float(v) == int(float(v)) else float(v)
         except ValueError:
             return None
     if typ == 'real':
@@ -380,7 +382,7 @@ def fmt_real(x):
     return s
 
 def fmt_int(x):
-    return str(int(x))
+    return str(int(x)) if float(x) == int(float(x)) else fmt_real(x)   # a fractional Z stays fractional
 
 def fmt_bool(b):
     return 'true' if b else 'false'
