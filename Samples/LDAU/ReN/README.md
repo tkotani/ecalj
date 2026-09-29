@@ -78,6 +78,12 @@ MPI 4 並列（16 コアの計算機）で GdN が約 45 秒、PrN が約 1.8 �
 
 `result.cgdn.txt` と `result.cprn.txt`（表 2 の量と 4f の軌道ごとの占有）を参照と比べる（許容 1e-3）。
 
+## ほかの希土類窒化物
+
+`INIT/` に、15 種の希土類窒化物（CeN〜LuN と LaN）の構造 `ctrls.<sname>` と、フント則に合わせた 4f の占有の初期値 `occnum.<sname>`、
+バンドを描く経路 `syml.ren` がある。ほかの窒化物は、GdN・PrN と同じ手順で計算する: `ctrls.<sname>` から `ctrlgenToml.py <sname> --skipgw` で
+入力を作り、「入力の要点」の項目（`idu`・`uh`・`jh`、`nspin = 2`、`so = 2`、`symgrp = "r4z"`、`pwmode = 1`）を書き、`occnum.<sname>` を同じ場所に置く。
+
 ## 由来
 
 `Samples/Legacy/ReNcub`（15 種の希土類窒化物を `job` で順に計算するサンプル）から GdN と PrN を取り出し、
