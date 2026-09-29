@@ -21,8 +21,8 @@ parser.add_argument("-np",         help='number of mpi cores in lmf',default=8,t
 parser.add_argument("-ppn",        help='number of mpi cores per node',default=None,type=int)
 parser.add_argument("-np2", "-npgpu", help='number of mpi cores in GPU calculation', type=int, default=None) 
 parser.add_argument("-ppn2", "-ppngpu", help='number of mpi cores per node',default=None,type=int)
-parser.add_argument('--phispinsym',help='RETIRED, do not use: gwsc hands it to the programs, and they stop on it. '
-                    'Write [ham] phispinsym = true in ctrlg.<sname>.toml, or give --ctrlg:ham.phispinsym=true',action='store_true')
+parser.add_argument('--phispinsym',help='spin-symmetrized augmentation: the same as --ctrlg:ham.phispinsym=true '
+                    '(or [ham] phispinsym = true in ctrlg.<sname>.toml)',action='store_true')
 parser.add_argument('--emptyrun'  ,help='test for gprof for memory',    action='store_true')
 parser.add_argument('--gpu'       ,help='USE GPU versions of the GW programs (hvccfp0, hsfp0_sc, hgw)',    action='store_true')
 parser.add_argument('--gemmul8'   ,help='USE GEMMul8 valid in GPU without MP',    action='store_true')
@@ -78,8 +78,8 @@ mpi_params_gw = {"nprocs": ncore2, "npernode": npernode2}
 mpi_params_single = {"nprocs": 1, "npernode": None}
 
 options = []   # the precision options (--use_fp32, --sigma_tf32) and exec_type are set per iteration in the loop
-if args.phispinsym:
-    options.append("--phispinsym")
+if args.phispinsym:   # (Bug fixed 2026-09-30 02:15: '--phispinsym' itself went to the programs, which stop on it since 2026-06)
+    options.append("--ctrlg:ham.phispinsym=true")
 if args.emptyrun:
     options.append("--emptyrun")
 if args.dumpW:
