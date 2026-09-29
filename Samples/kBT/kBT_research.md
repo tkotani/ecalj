@@ -81,6 +81,13 @@
 
 ## 2026-09-29 — fp64 の GPU の Σc がずれる件、tf32 を 40 まで、Samples の試験の続き
 
+### 20:55 **6³ fp64（`b81da2342`、kt1）の LDA からの 1 反復目の MLO バンドは、09-26 の fp32（`liti_mlo_v9` の 1 反復目）と t2g で最大 1 meV、2.6〜8 eV で 2 meV の差**
+
+- 図: `LiTi2O4/liti2o4_k6fp64_iter1.png`（数値は `liti2o4_k6fp64_iter1_data.npz`）。fp64 は `fp64mix_b81da2342`
+- chain47 のワンショットは `ECALJ_MLO_MIX=1` を付けずに回していた（Σ^MLO が混ざらず β = 1）。混合は最後の hqpe_sc だけなので（user）、
+  GW の結果はそのまま使い、hqpe_sc（`ECALJ_MLO_MIX=1`）→ `mlo --mlofreeze` → lmf の SCF だけを回し直した（20:49〜20:51）。sigm は前とバイト一致
+- ワンショットを手で回すときは `ECALJ_MLO_MIX=1` を忘れないこと（run_gwsc10.sh・cont_gwsc.sh は export している）
+
 ### 17:30 **9³ tf32 は 40 まで終わった（chain48、11:36）。6³ tf32 の t2g の中ほどの膨らみは 22 の 131 meV から減り続けて 40 で 49 meV。9³ には膨らみが無い。図を描き直した**
 
 - chain48（kt1、`~/bin_frozen_9e881g`）: 40 が 11:36 に終わった。36〜40 の前の反復からの差の最大は t2g 4.7〜5.1 meV（rms は 0.5〜0.7 meV で、動くのは一部の k だけ）、
