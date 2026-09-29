@@ -27,6 +27,19 @@
   - 入力の t_sigmaw・t_tetrakbt の横の注記を説明だけにした (値は同じ)。
   GW1500: 状態の集計 ecalj_auto/GW1500_status.md、今のコードで回し直す ecalj_auto/gw1500_rerun.sh。
 
+2026-09-30 (3)
+  直した誤り。
+  - lmf: LDA+U の密度行列 (mkdmtu)、スピン軌道相互作用を入れたときの軌道モーメント (mkorbm)、--cls の係数が、
+    [ham] pwmode = 11 (既定。基底の数が k ごとに違う) で別の k の次元を使って固有ベクトルを読んでいた。
+    2026-03-30 (913fb36af) から 2026-09-30 まで。この間の pwmode = 11 での LDA+U の SCF は誤り (全エネルギーが
+    桁違いになり、MPI の並列数で値が変わる)。pwmode = 0, 1 (基底の数が k によらない) の計算は影響を受けない。
+    makusq、mkorbm、mkdmtu、m_clsmode_set1 に、その k の ndimh を引数で渡す。
+    確認: GdN (LDA+U、so=2、pwmode=11、4x4x4) の 2 反復が 1 並列と 4 並列で一致 (ehk = -307996.548249 eV)。
+  - --ctrlg:<path>=<value> で、ファイルに無いキーを指定すると「skipped」の注記だけで既定値のまま走っていた。
+    無いキーは書き足す (節の見出しの下、トップレベルのキーはファイルの先頭、節が無ければ節ごと末尾)。
+  - log.<sname> の 'sumqv ... egap(eV)' の数値が Ry のままだった。eV で書く。
+  - lmf --fermisurface の fermiup.data (fermidn.data) の見出しの単位 [eV] を [Ry] に (値は Ry)。
+
 2026-09-28 (2)
   [gw] t_tetrakbt を必須にし、符号で chi0 の均し方を選ぶ: 0 = 均さない、T > 0 = 有限温度のテトラヘドロン、
   -T = Im chi0 を温度 T の Fermi-Dirac と同じ幅 (標準偏差 pi kB T/sqrt3) の Gaussian で均す (以前の SmearX0)。
