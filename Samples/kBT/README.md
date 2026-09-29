@@ -97,7 +97,7 @@ sigmakbt_setup: WARNING t_sigmakbt>0 but EFERMI_kbt missing (need tetrakbt/hefte
 3000 K・`deltaq_scale = 0.3` では K–Γ 中央に −1.24 eV の偽のスパイクが出る。
 `deltaq_scale = 0.1` で消える。offset-Gamma の $q\to0$ head が高温 × 大きい
 `deltaq` で破綻するもので、`tetrakbt` のバグではない
-([`LiTi2O4/README.md` §3.5](LiTi2O4/README.md))。**（→ 2026-09-28 の注: この説明は後で否定された。スパイクは第一殻 q の W のプラズモン極を
+([`LiTi2O4/README_202606_finiteT.md` §3.5](LiTi2O4/README_202606_finiteT.md))。**（→ 2026-09-28 の注: この説明は後で否定された。スパイクは第一殻 q の W のプラズモン極を
 Σc の実軸極項が踏むことによるもので、`deltaq` で変わったのは極踏みの当たり外れ。研究ログ 2026-09-19 09:55、ecaljdoc kBT.md §3.5）**
 
 ### $T$ について収束を確認する

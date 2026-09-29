@@ -4,9 +4,12 @@ kt1 の `qmlo_k6_*`（6³）と `qmlo_k9_*`（9³）の計算は全部この `ct
 （kt1 では `/mnt/data1/LiTi2O4_kbt_runs/liti_src_full9`、9³ は `liti_src_full9_k9`）。
 
 - 6³: このファイルのまま。**9³ は `nkabc`、`n1n2n3`、`mlo_nkabc` の 3 行を `[9, 9, 9]` にする**（違いはそれだけ）
-- 主な設定: `pwmode = 11`、`mixbeta = 0.5`、`t_tetrakbt = 0`（χ0 は T=0）、`SmearX0 = 0.0057` Ha（Im χ0 の Gaussian、FD 1000 K の幅）、
+- 主な設定: `pwmode = 11`、`mixbeta = 0.5`、`t_tetrakbt = -992.4`（χ0 は T=0 のテトラヘドロン法、Im χ0 を Fermi-Dirac 992.4 K の幅の Gaussian で均す。
+  2026-09-27 までは `t_tetrakbt = 0` と `SmearX0 = 0.0057` Ha と書いた。同じ計算）、
   `t_sigmaw = 1000`、`wcsmear`（既定）、`deltaq_scale = 0.1`、`mlo_method = 4`、
-  MLO は 126 軌道（14 原子 × (s+p+d)）
+  MLO は 126 軌道（14 原子 × (s+p+d)）。設定の表と結果のまとめは [`../../README.md`](../../README.md)
+- **`gwsc --mlo` を手で回すときは `ECALJ_MLO_MIX=1` を付ける**（MLO で持つ Σ も `mixbeta` で混ぜる。下のスクリプトは export している。
+  付けないと MLO の Σ だけ β = 1 になる）
 
 ## 回し方（LDA から `gwsc 10`）
 
