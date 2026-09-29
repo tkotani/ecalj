@@ -81,6 +81,37 @@
 
 ## 2026-09-30 — パッケージと文書の整理、温度のスキャン、反強磁性の QSGW の修理、GW1500 の回し直し（user 00:10「明日の朝まで自律的に」）
 
+### 05:53 **`wcsmear = false` は nvfortran で止まっていた（直した）。bench の参照との差 0.03 eV は `wcsmear` ではなく、バンド端の占有の均し方の違い。Legacy の残り 6 本を組み直し、最終版を 4 つの機械で確認中**
+
+- kr7 の bench（03:50 終了、`fc1312ce2`）は 2026-05-31 の参照と inas2gasb2 で 0.030、inas4gasb4 で 0.028 eV ずれて FAILED。原因の候補だった `wcsmear` を確かめるため、
+  `--run-args=--ctrlg:gw.wcsmear=false` で回したら `hgw_gpu` が `FINDLOC: unimplemented for data type` で止まった（04:56）
+- 原因: `pole_weights`（`wfacx.f90`）だけが組み込みの `findloc` を呼んでいた（ほかは `m_nvfortran` の置き換え）。通るのは `wcsmear = false` と幅 0 の経路だけ。
+  直した（`0dd38b4f8`）。`m_nvfortran` の `findlocl`・`findloci` は `back=.false.` を与えたときに探索の向きを設定していなかったので、それも直した
+- 直したあとの kr7（05:03 のビルド）: install 64、mloqsgw 5、afsym 4、gwall fp32 35・fp64 35 が PASSED。`wcsmear = false` の gwall は最後まで走り、
+  参照（`wcsmear = true`）との差は表 05:53-1。mic（ifx）でも同じ 9 件が不一致
+- **bench は `wcsmear = false` でも同じ 0.030 eV の差**（05:48）。列ごとに見ると、状態 47（inas2gasb2）・93（inas4gasb4）の SEx が 0.029・0.027、SEc が 0.028・0.026 動いて打ち消し合い、
+  `dSEnoZ` の差は 0.001・0.012 eV。LDA のギャップは 0.142 eV。バンド端の占有の均し方（2026-09-20 に Gaussian から Fermi-Dirac に）が効いている形で、
+  参照が古い。kr7 で最終版の bench を入力の設定のまま回し直している（05:53〜）。終わったら `QPU.1run` を作り直す
+
+*表 05:53-1* `wcsmear = false` にしたときの、参照（`wcsmear = true`）との差の最大（eV、kr7、fp64）
+
+| 試験 | SEx | `dSEnoZ` |
+| --- | --- | --- |
+| si_gwsc | 0.000 | 0.076 |
+| gas_gwsc | 0.000 | 0.195 |
+| nio_gwsc | 0.000 | 0.417 |
+| fe_gwsc（スピン 1／2） | 0.000 | 0.021／0.030 |
+| fe_kbt（スピン 1／2） | 0.000 | 0.020／0.049 |
+| si_gw_lmfh、gas_pw_gw_lmfh | 0.005、0.000 | 0.005、0.001 |
+
+- Legacy の残り（別のエージェント、03:58〜05:03）: AHC/Fe、IIR/C、DOS/ZnS・Fe、EffectiveMass/CdS・GaN を `Samples/` 直下に（`b00190018`）。報告の指摘はコードで確かめた
+  （`huumat_MPI --ahc` のファイル名は 7 桁、`hx0ahc.py` のオプション 1 個の場合）。残した問題は `Changes.txt` 2026-09-30 (4) の「既知の問題」
+- 最終版で出た環境の違い 2 件を直した: mic に `mpi4py` が無く `hx0ahc.py` が止まる → 無ければ 1 プロセスで回る（`c17fe73d6`）。kt1 で `job_AHC` の最初の `lmfa` が
+  `MPI_Init` で落ちる（`mpirun` なしの起動）→ `run_arg` の 1 プロセス実行を `mpirun -np 1` に（`80ba95de0`）
+- 最終版（`b00190018`）の試験: 手元は inputs 136 と samples の 13 組が PASSED（05:32）。mic は inputs 142、samples（AHC は直したあと）、install 64、mloqsgw 5、afsym 4 が PASSED（05:33）。
+  kt1 は inputs 136、samples（AHC 以外）、install 64 まで PASSED、続きを実行中
+- GW1500（05:34）: 88 物質まで。収束 86、MAXITER 1（mp-18921）、NOGAP 1（mp-1056418）。87 物質にバンドの図。残り 55
+
 ### 04:54 **試験: 4 つの機械・3 つのコンパイラで全部の組が PASSED。温度のスキャンに GaAs と Cu を足した**
 
 *表 04:54-1* `TOOLS/samples_tests.sh` の結果（PASSED の件数）。kt1 と kr7 は `--gpu -np2 1`。版は試験したツリーのコミット
