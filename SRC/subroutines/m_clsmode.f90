@@ -49,14 +49,13 @@ contains
     endif
   end subroutine m_clsmode_init
 
-  subroutine m_clsmode_set1(nmx,jsp,iq,qp,nev,t_zv)
-    use m_igv2x,only: ndimhx
+  subroutine m_clsmode_set1(nmx,jsp,iq,qp,nev,ndimh,t_zv) !ndimh: dimension of the Hamiltonian at this k, given by the caller (2026-09-30; see makusq)
     use m_makusq,only: makusq
-    integer:: nmx,jsp,iq,nev
+    integer:: nmx,jsp,iq,nev,ndimh
     real(8)::qp(3)
-    complex(8):: t_zv(1:ndimhx,1:nmx)
+    complex(8):: t_zv(1:ndimh,1:nmx)
     call rxx(lso==1,'CLS not implemented in noncoll case')
-    call makusq(nsites,isite, nev,jsp,iq,qp,t_zv, ausc)!ausc_zv is accumulating
+    call makusq(nsites,isite, nev,jsp,iq,qp,ndimh,t_zv, ausc)!ausc_zv is accumulating
     ausc_zv = ausc_zv + ausc
   end subroutine m_clsmode_set1
 

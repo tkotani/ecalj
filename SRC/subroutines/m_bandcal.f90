@@ -835,8 +835,8 @@ contains
         evec(1:kdat%ndimhx, 1:nev) = gpu_evecs_all(1:kdat%ndimhx, 1:nev, idat)
         evl(1:nev,isp) = t_evl(isp,iq)%v(1:nev)
         evl(nev+1:nbandmx,isp) = 1d99
-        if(lso/=0)              call mkorbm(isp, nev, iq, qp, evec, orbtm_rv)
-        if(nlibu>0 .AND. nev>0) call mkdmtu(isp, iq, qp, nev, evec, dmatu)
+        if(lso/=0)              call mkorbm(isp, nev, iq, qp, kdat%ndimh, evec, orbtm_rv)
+        if(nlibu>0 .AND. nev>0) call mkdmtu(isp, iq, qp, nev, kdat%ndimh, evec, dmatu)
         call addrbl(isp,qp,iq, kdat%napw,kdat%ndimh,kdat%ndimhx,kdat%igv2x, osmpot,vconst,osig,otau,oppi,evec,evl,nev, smrho_out, sumqv, sumev, oqkkl,oeqkkl, frcband)
         deallocate(evec)
       enddo gpu_band2nd_loop
@@ -856,9 +856,9 @@ contains
        evl(1:nev,isp)= t_evl(isp,iq)%v(1:nev)
        evl(nev+1:nbandmx,isp)=1d99 !padding
        evec(1:kdat%ndimhx,1:nev)=eveciqis(1:kdat%ndimhx,1:nev,idat)
-       if(lso/=0)              call mkorbm(isp, nev, iq,qp, evec,  orbtm_rv)
-       if(nlibu>0 .AND. nev>0) call mkdmtu(isp, iq,qp, nev, evec,  dmatu)
-       if(c0_cls)    call m_clsmode_set1(nev,isp,iq,qp,nev,evec) !all inputs
+       if(lso/=0)              call mkorbm(isp, nev, iq,qp, kdat%ndimh, evec,  orbtm_rv) !ndimh of this k is given explicitly (2026-09-30)
+       if(nlibu>0 .AND. nev>0) call mkdmtu(isp, iq,qp, nev, kdat%ndimh, evec,  dmatu)
+       if(c0_cls)    call m_clsmode_set1(nev,isp,iq,qp,nev,kdat%ndimh,evec) !all inputs
        call addrbl(isp,qp,iq, kdat%napw,kdat%ndimh,kdat%ndimhx,kdat%igv2x, osmpot,vconst,osig,otau,oppi,evec,evl,nev, smrho_out, sumqv, sumev, oqkkl,oeqkkl, frcband)
        afsymGETevecFROMisponeANDaccumulate:  if(afsym) then !c0_afsym) then
           if(idat==1.and.master_mpi) write(stdo,ftox)'m_bandcal: afsymblock'
@@ -894,9 +894,9 @@ contains
               call m_Igv2x_getiq(ikp, kdat2) ! Get napw, ndimh, ndimhx, igv2x for ikp (explicit)
               call rotevec(igrp,qp, qpr,kdat2%ndimhx,kdat2%napw,nev,evec(:,1:nev), evecrot(:,1:nev))
               call m_subzi_copy_wtkb(isp, iq, isp2, ikp)
-              if( lso/=0)              call mkorbm(isp2, nev, ikp,qpr, evecrot,  orbtm_rv)
-              if( nlibu>0 .AND. nev>0) call mkdmtu(isp2,      ikp,qpr, nev, evecrot,  dmatu)
-              if( c0_cls)    call m_clsmode_set1(nev,isp2,ikp,qpr,nev,evecrot)
+              if( lso/=0)              call mkorbm(isp2, nev, ikp,qpr, kdat2%ndimh, evecrot,  orbtm_rv)
+              if( nlibu>0 .AND. nev>0) call mkdmtu(isp2,      ikp,qpr, nev, kdat2%ndimh, evecrot,  dmatu)
+              if( c0_cls)    call m_clsmode_set1(nev,isp2,ikp,qpr,nev,kdat2%ndimh,evecrot)
               call addrbl(isp2,qpr,ikp, kdat2%napw,kdat2%ndimh,kdat2%ndimhx,kdat2%igv2x, osmpot,vconst,osig,otau,oppi,evecrot,evl,nev, smrho_out, sumqv, sumev, oqkkl,oeqkkl, frcband)
             endblock
           endblock afsymblock
@@ -994,9 +994,8 @@ contains
     call symsmrho(smrho_out)
     call tcx('m_bandcal_symsmrho')
   end subroutine m_bandcal_symsmrho
-  subroutine mkorbm(isp,nev,iq,qp,evec, orbtm) !decomposed orbital moments within MT
+  subroutine mkorbm(isp,nev,iq,qp,ndimh,evec, orbtm) !decomposed orbital moments within MT
     use m_ll,only:ll
-    use m_igv2x,only: napw,ndimh,ndimhx,igvapw=>igv2x
     use m_locpot,only: sab_rv=>sab
     use m_subzi, only: t_wtkb
     use m_qplist,only: nkp
@@ -1006,6 +1005,7 @@ contains
     !i   nlmax :leading dimension of aus
     !i   nev   :number of eigenvectors to accumulate orbital moment
     !i   iq    :current k-point
+    !i   ndimh :dimension of the Hamiltonian at this k (without the spin factor); see the note in makusq
     !i   aus   :values of (phi,phidot,pz) MT sphere boundary; see makusq
     !i   nkp   :number of irreducible k-points
     !o Outputs
@@ -1022,14 +1022,14 @@ contains
     !l         :spins in the spin-uncoupled case only
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: isp,nev,iq,ispx
+    integer :: isp,nev,iq,ispx,ndimh
     integer :: lmxa,lmdim,ichan,ib,is,igetss,iv,ilm,l,m,nlma, lc,em,ispc,ksp
     real(8):: qp(3),diff
     real(8):: suml(11),s11,s22,s12,s33,s31,s32,s13,s23, suma,rmt,orbtm(lmxax+1,nsp,*) 
     complex(8):: au,as,az,iot=(0d0,1d0),evec(ndimh,nsp,nev),auasaz(3)
     complex(8),allocatable ::aus(:,:,:,:,:)
     allocate(aus(nlmax,nbandmx,3,nsp,nbas))
-    call makusq(nbas,[-999], nev, isp,1,qp,evec, aus )
+    call makusq(nbas,[-999], nev, isp,1,qp,ndimh,evec, aus )
     ichan = 0
     ibloop: do  ib = 1, nbas
        is = ispec(ib)
@@ -1077,10 +1077,9 @@ contains
     enddo ibloop
     deallocate(aus)
   end subroutine mkorbm
-  subroutine mkdmtu(isp,iq,qp,nev,evec,dmatu) !Get density matrix dmatu for LDA+U (phi-projected density matrix)
+  subroutine mkdmtu(isp,iq,qp,nev,ndimh,evec,dmatu) !Get density matrix dmatu for LDA+U (phi-projected density matrix)
     use m_locpot,only: phzdphz
     use m_subzi, only: t_wtkb
-    use m_igv2x,only: ndimh
     use m_makusq,only: makusq
     use m_locpot,only: rotp
     !i   wtkb  :eigenvalue weights for BZ integration of occupied states
@@ -1092,6 +1091,7 @@ contains
     !i   nlmax :1st dimension of aus (maximum nlma over all sites)
     !i   nbas  :size of basis
     !i   nev   :actual number of eigenvectors generated
+    !i   ndimh :dimension of the Hamiltonian at this k (without the spin factor); see the note in makusq
     !i   phzdphz  :phz dphz
     !i   aus   :coefficients to phi and phidot made previously by makusqldau
     !i  lldau  :lldau(ib)=0 => no U on this site otherwise
@@ -1099,7 +1099,7 @@ contains
     !o Outputs
     !o   dmatu :density matrix for specified LDA+U channels
     implicit none
-    integer :: isp,iq,nev
+    integer :: isp,iq,nev,ndimh
     double complex dmatu(-lmaxu:lmaxu,-lmaxu:lmaxu,nsp,nlibu)
     double complex add,au,as,az,ap1,ap2
     double precision :: dlphi,rmt,dlphip,phi,phip,dphi,dphip,r(2,2),det,phz,dphz
@@ -1107,7 +1107,7 @@ contains
     complex(8) ::aus(nlmax,nbandmx,3,nsp,nbas), evec(ndimh,nsp,nev)
     real(8)::qp(3)
     complex(8):: auas(2)
-    call makusq(nbas,[0] , nev,  isp, 1, qp, evec, aus )
+    call makusq(nbas,[0] , nev,  isp, 1, qp, ndimh, evec, aus )
     iblu = 0
     do  ib = 1, nbas
        if(lldau(ib) == 0) cycle

@@ -693,7 +693,7 @@ contains
         !o    ichan = 1:ndima, orbital channel, i.e. one of phi,phidot,phiz (phiz is local orbital for a given site, l, and m; see nlindx.
         !o    iv = eigenvector
         !o   cphiw: diagonal matrix elements, one for each eigenvector. only for check  : cphiw(1,iv) = <cphi(iv) | overlap | cphi(iv)>
-        call makusq(nbas,[-999], nev,  isp, 1,qp,reshape(evec(1:ndimhx,1:nev),[ndimh,nspc,nev]), aus_zv ) !    cphiw=0d0
+        call makusq(nbas,[-999], nev,  isp, 1,qp,ndimh,reshape(evec(1:ndimhx,1:nev),[ndimh,nspc,nev]), aus_zv ) !    cphiw=0d0
         cphix=0d0 !   Augmentation wave part. cphix is coefficients for the orthogonalized functions gval_ortrh
         ispcc: do ispc=1,nspc
           ispx = merge(ispc,isp,lso==1)

@@ -84,7 +84,7 @@ contains
     allocate(evlm,source=evl)
     if(lso/=0) evlm(:,ispin)=evl(:,ispin) !+ vmag0*(ispin-1.5d0)
     allocate( auspp(nlmax,ndhamx,3,nsp,nbas),source=(0d0,0d0) ) !3 for three radial funcitons (u,s,gz). ndhamx is the dimension of Hamiltonian.
-    call makusq(nbas,[-999], nev,ispin,1,qp,evec, auspp ) !Get (u,s,gz) !ispin is neglected for lso=1
+    call makusq(nbas,[-999], nev,ispin,1,qp,merge(ndimhx/2,ndimhx,lso==1),evec, auspp ) !Get (u,s,gz) !ispin is neglected for lso=1
 
     isploop: do isp=ispstart,ispend
        if(isp1init .AND. isp==1) then
@@ -332,7 +332,7 @@ contains
     ! evec_reshape=reshape(evec(1:ndhamx*nspc,1:nev),(/ndhamx,nspc,nev/))
     ! write(*,*) evec_reshape(1,1:2,1)
     ! call makusq(nbas,[-999], nev,ispin,1,qp,reshape(evec(1:ndhamx*nspc,1:nev),(/ndhamx,nspc,nev/)),auspp)
-    call makusq(nbas,[-999], nev,ispin,1,qp,evec, auspp ) !Get (u,s,gz) !ispin is neglected for lso=1
+    call makusq(nbas,[-999], nev,ispin,1,qp,merge(ndimhx/2,ndimhx,lso==1),evec, auspp ) !Get (u,s,gz) !ispin is neglected for lso=1
     paulim(:,:,1) = reshape((/img0,img1,img1,img0/),(/2,2/))
     paulim(:,:,2) = reshape((/img0,-img,img,img0/),(/2,2/))
     paulim(:,:,3) = reshape((/img1,img0,img0,-img1/),(/2,2/))

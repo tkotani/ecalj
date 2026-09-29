@@ -4,18 +4,22 @@ module m_makusq !Accumulate coefficients (u,s,z) in all augmentation spheres for
   public makusq
   private
 contains
-  subroutine makusq(nsites,isite,nev,ispin,iq,q,evec, auszall)!Accumulate coefficients (u,s,z) in all augmentation spheres for evec(:,iq,isp)
+  subroutine makusq(nsites,isite,nev,ispin,iq,q,ndimh,evec, auszall)!Accumulate coefficients (u,s,z) in all augmentation spheres for evec(:,iq,isp)
     !note. For SO=1, ispin is neglected (all spin components are calculated simultaneously).
+    ! ndimh (the dimension of the Hamiltonian at q, without the spin factor) depends on q for pwmode=11: the caller gives it.
+    ! Bug fixed 2026-09-30 02:31: ndimh was taken from the state of m_igv2x, which m_bandcal_2nd does not set since 2026-03-30
+    ! (it takes the data of each k by m_Igv2x_getiq). With a k-dependent ndimh the density matrix of LDA+U (mkdmtu), the orbital
+    ! moments (mkorbm) and the core-level mode read the eigenvectors with the dimension of another k.
     use m_lmfinit,only: ispec,nbas,nlmax,nsp,nspc,nkapii,lhh,rsma,lso
-    use m_igv2x,only: ndimh,nbandmx  !ndimh is q dependent
+    use m_igv2x,only: nbandmx
     use m_uspecb,only:uspecb
     use m_orbl,only: Orblib,ktab,ltab,offl,norb,blks
     use m_bstrux,only: bstrux_set,bstr
     implicit none
-    intent(in)::    nsites,isite,nev,ispin,iq,q,evec
+    intent(in)::    nsites,isite,nev,ispin,iq,q,ndimh,evec
     intent(out)::                                   auszall
     integer,parameter:: n0=10,nkap0=3
-    integer:: ispin,iq,nev,nsites,isite(nsites),ib,nkapi,is,nr,kmax,lmxa,lmxl,lmxh,i,nlma
+    integer:: ispin,iq,nev,nsites,isite(nsites),ib,nkapi,is,nr,kmax,lmxa,lmxl,lmxh,i,nlma,ndimh
     real(8):: q(3),eh(n0,nkap0),rsmh(n0,nkap0),a,rmt
     complex(8):: evec(ndimh,nspc,nev) !ndimhx = ndimh*nspc (Hamiltonian dimension). 
     complex(8),target:: auszall(nlmax,nbandmx,3,nsp,nsites,iq)
