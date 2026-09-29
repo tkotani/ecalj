@@ -114,6 +114,8 @@ contains
     !     Phi(b-ek)-Phi(a-ek) over the e' interval mapped from that cell, clipped to the window.
     !  esmr=0 (core levels): sharp step, always the mean-energy path.
     use m_cmdopt_registry, only: c0_WVR2ptRaxis
+    use m_nvfortran, only: findloc ! Bug fixed 2026-09-30 04:59: the intrinsic findloc was called here; with nvfortran 26.1 hgw_gpu stopped
+    !                                with "FINDLOC: unimplemented for data type" in the mean-energy path ([gw] wcsmear = false)
     real(8), intent(in) :: omg, ef, ek, esmr, wfac, scale
     logical, intent(in) :: smear
     integer, intent(in) :: nw

@@ -16,16 +16,15 @@ contains
     logical,optional:: back
     integer,optional:: dim
     nnn=size(lll)
+    ns=1   ! forward search, also for back=.false. (2026-09-30: ns, ne, inc were not set in that case)
+    ne=nnn
+    inc=1
     if(present(back)) then
        if(back) then
           ns=nnn
           ne=1
           inc=-1
        endif
-    else
-       ns=1
-       ne=nnn
-       inc=1
     endif     !   nn1 = findloc([(rsmh1(i,j)>0d0,i=1,nnx)],value=.true.,dim=1,back=.true.)! 1st MTO sets
     findlocl=0
     do i=ns,ne,inc
@@ -48,16 +47,15 @@ contains
     logical,optional:: back
     integer,optional:: dim
     nnn=size(lll)
+    ns=1   ! forward search, also for back=.false.
+    ne=nnn
+    inc=1
     if(present(back)) then
        if(back) then
           ns=nnn
           ne=1
           inc=-1
        endif
-    else
-       ns=1
-       ne=nnn
-       inc=1
     endif
     findloci=0
     do i=ns,ne,inc
