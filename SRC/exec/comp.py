@@ -218,3 +218,34 @@ def test2_check(f1,f2,abs_tol=dosclstol,rel_tol=0.0,skipcond=(lambda line:False)
         out='ok! '
     with open("summary.txt", "a") as aout: print(aaa, file=aout)
     return out
+
+def peak_check(f1,f2,qcol=3,wcol=4,vcol=6,wmin=1e-6,wmax=1.5,rel_tol=0.05,abs_tol=0.002):
+    """Compare the positions of the peaks of a spectrum given on (q, omega): for every q the omega in (wmin, wmax) where
+    |column vcol| is largest, in the reference f1 and in the result f2.  Columns count from 0.  Passes when the two positions
+    agree within max(rel_tol*omega, abs_tol) at every q.
+    For spectra with sharp poles (magnon: Im Tr R of TrRpm), where a comparison point by point fails on a shift of the pole
+    by one frequency step although the peak positions agree (2026-09-30: Fe_bcc_in_sc_magnon, gfortran against nvfortran)."""
+    def peaks(f):
+        rows=[[float(v) for v in l.split()] for l in open(f,'rt') if l.strip() and not l.lstrip().startswith('#')]
+        out={}
+        for r in rows:
+            if wmin < r[wcol] < wmax:
+                q=round(r[qcol],6)
+                if q not in out or abs(r[vcol])>out[q][1]: out[q]=(r[wcol],abs(r[vcol]))
+        return out
+    p1=peaks(f1); p2=peaks(f2)
+    bad=[]; worst=0.
+    for q in sorted(p1):
+        if q not in p2: bad.append((q,p1[q][0],None)); continue
+        w1=p1[q][0]; w2=p2[q][0]; worst=max(worst,abs(w1-w2))
+        if abs(w1-w2) > max(rel_tol*abs(w1),abs_tol): bad.append((q,w1,w2))
+    print('peak positions: %d q points, max |difference| = %g, tolerance = max(%g*omega, %g)'%(len(p1),worst,rel_tol,abs_tol))
+    for q,w1,w2 in bad: print('  ERROR: q=',q,' reference peak at',w1,' result at',w2)
+    if bad:
+        aaa='FAILED! TEST peak positions:'+f1+' and '+f2
+        out='err! '
+    else:
+        aaa='PASSED! TEST peak positions '+os.path.basename(f2)
+        out='ok! '
+    with open("summary.txt", "a") as aout: print(aaa, file=aout)
+    return out

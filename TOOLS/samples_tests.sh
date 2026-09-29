@@ -11,7 +11,7 @@
 #   mlo      MLOsamples/*                           mloqsgw  MLOQSGW/*        afsym   AFsymmetry/*
 #   bench    BenchmarkTest/* (with --gpu: -np2 1, two GW ranks on one 32 GB GPU run out of memory)
 #   heavy    TestInstall cugase2_gwsc222 nio_gwsc444 pdo_gwsc443 gas_gwsc666
-#   magnon   Legacy/Magnon/*  (work dirs of 4-5 GB)
+#   magnon   Magnon/*  (work dirs of 4-5 GB)
 #   inputs   every Samples/**/ctrlg.<sname>.toml outside the *_work dirs: lmchk reads it (the [struc] rules of the loader), and
 #            the rules of ctrlg_update.py (pylib/ctrlg_rules.py: no nbas/nspec, t_tetrakbt present, no SmearX0) leave it unchanged
 # A target is a subdirectory with test.py (the <target>_work copies that testecalj makes are skipped).
@@ -92,7 +92,7 @@ for g in "${GRP[@]}"; do
              else run bench BenchmarkTest $(targets BenchmarkTest); fi ;;  # CPU: -np ranks (2026-09-30: with -np2 1 the GW
                                                                          # programs ran on one core, on mic over 26 hours)
     heavy)   run heavy TestInstall cugase2_gwsc222 nio_gwsc444 pdo_gwsc443 gas_gwsc666 ;;
-    magnon)  run magnon Legacy/Magnon $(targets Legacy/Magnon) ;;
+    magnon)  run magnon Magnon $(targets Magnon) ;;
     *) echo "unknown group $g" | tee -a $SUM ;;
   esac
 done
