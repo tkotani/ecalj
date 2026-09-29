@@ -6,6 +6,10 @@
 # The queue is a text file, one mpid per line (further columns are ignored).  A worker takes the first line under flock,
 # so several workers can share one queue; start as many as the machine carries (the GPU programs of gwsc take the GPU
 # locks of pylib/run_cmd.py, so the workers share the GPUs without a scheduler).
+# Give each worker its own cores by taskset.  The ranks are left unbound (OMPI_MCA_hwloc_base_binding_policy=none below):
+# OpenMPI otherwise binds rank i to core i of the machine whatever the taskset of the worker is, so the ranks of every
+# worker sat on cores 0-11, and every 1-rank GPU program on core 0 (2026-09-30 02:49: a CPU job whose rank 0 was spinning
+# in the NVIDIA driver on core 0 kept them from running, and kt1 stood still for 17 minutes).
 #
 # Env:
 #   RUN_DIR     where <mpid>/ is made (required; a new place, never the directories of the old runs)
@@ -32,6 +36,7 @@ TOOLS_BIN=${TOOLS_BIN:-$HOME/bin_dev}; POSCAR_DIR=${POSCAR_DIR:-$HERE/INPUT/gw15
 NP=${NP:-16}; GPUS=${GPUS:-0,1}; PREC=${PREC:-fp32}; MAXITER=${MAXITER:-10}; TOL=${TOL:-0.1}; SSIG=${SSIG:-0.8}; LIMIT=${LIMIT:-21600}
 [ -n "${ENVSH:-}" ] && source "$ENVSH"
 export PATH=$BIN:$PATH CUDA_VISIBLE_DEVICES=$GPUS OMP_NUM_THREADS=1
+export OMPI_MCA_hwloc_base_binding_policy=${OMPI_MCA_hwloc_base_binding_policy:-none}
 mkdir -p "$RUN_DIR"; LOG=$RUN_DIR/rerun.log
 say(){ echo "$(date '+%F %T') $WK $*" >> "$LOG"; }
 

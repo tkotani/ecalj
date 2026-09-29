@@ -9,6 +9,7 @@ R=$(realpath "$1"); shift
 : "${BIN:?set BIN}"; TOOLS_BIN=${TOOLS_BIN:-$HOME/bin_dev}; NP=${NP:-8}
 [ -n "${ENVSH:-}" ] && source "$ENVSH"
 export PATH=$BIN:$PATH CUDA_VISIBLE_DEVICES= OMP_NUM_THREADS=1
+export OMPI_MCA_hwloc_base_binding_policy=${OMPI_MCA_hwloc_base_binding_policy:-none}   # ranks unbound: they stay in the taskset of the caller (see gw1500_rerun.sh)
 list=("$@"); [ ${#list[@]} -eq 0 ] && list=($(awk '$5=="CONVERGED" || $5=="MAXITER" {print $4}' "$R/rerun.log"))
 for m in "${list[@]}"; do
   D=$R/$m; [ -s "$D/sigm" ] && [ -s "$D/rst.$m" ] || { echo "$m: no sigm or rst"; continue; }
