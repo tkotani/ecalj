@@ -19,8 +19,8 @@ def comparenum(tol,file1,file2,comparekeys,printsw):
 	oxx= file1.split('\n') 
 	oyy= file2.split('\n')
 	errmax=0.0
-	ix1=0
-	ix2=0
+	ix1=-1  # the loops below step to the next line before they read it (Bug fixed 2026-09-30 02:50: with 0 the first
+	ix2=-1  # line of each file was never compared)
 	if(len(comparekeys)>0):
 		oxx=linewithkey(comparekeys+['written','comparing'],oxx)
 		oyy=linewithkey(comparekeys+['written','comparing'],oyy)
