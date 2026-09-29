@@ -36,7 +36,7 @@
 | `[bz]` | `nkabc = [6, 6, 6]`（GW のメッシュと同じ）、`metal = 3` |
 | `[gw]` | `n1n2n3 = [6, 6, 6]`、`mixbeta = 0.5`、`deltaq_scale = 0.1`、`niw = 10`、`emax_sigm = 3.0`、`wcsmear` は既定（true） |
 | `[mlo]` | `mlo_method = 4`、`mlo_nkabc = [6, 6, 6]`、`mlo_delta = 2.0`、`mlo_w = 2.0`、軌道は 14 原子 × (s, p, d) = 126 |
-| 環境変数 | `ECALJ_MLO_MIX=1`: MLO で持つ Σ も `mixbeta` で混ぜる。**付けないと MLO の Σ だけ混合なし（β = 1）になる** |
+| 混合 | MLO で持つ Σ も `sigm` と同じく `mixbeta` で混ぜる（2026-09-30 から既定。この計算のコードでは環境変数 `ECALJ_MLO_MIX=1` で指定した） |
 | 実行 | `gwsc 10 -np 60 -np2 2 --gpu --prec=tf32 --ntqxx --mlo liti2o4`、続きは `gwsc 1` を 1 反復ずつ（§4） |
 
 ## 2. 結果
@@ -121,7 +121,7 @@ PREC=tf32 GPUS=0,1 bash run_gwsc10.sh <tag> <入力のディレクトリ> <bindi
 PREC=tf32 GPUS=0,1 bash cont_gwsc.sh  <tag> 11 40 <bindir>                    # 続き（1 反復ずつ、反復ごとに MLO バンドを描く）
 ```
 
-どちらのスクリプトも `ECALJ_MLO_MIX=1` を export する。`gwsc --mlo` を手で回すときは自分で付ける。
+2026-09-29 までのコードで `gwsc --mlo` を手で回すときは `ECALJ_MLO_MIX=1` を付ける（付けないと MLO の Σ だけ混合なしになる。どちらのスクリプトも export している）。
 
 ## 4. 記録
 

@@ -1,3 +1,9 @@
+2026-09-30
+  gwsc --mlo (MLO-QSGW): MLO で持つ Sigma の Anderson 混合 ([gw] mixbeta、sigm と同じ) を既定にした。切るときは
+  ECALJ_MLO_MIX=0。これまでは ECALJ_MLO_MIX=1 を付けたときだけ混合し、付け忘れると sigm は mixbeta、MLO の Sigma は
+  混合なし (beta = 1) で回っていた (LiTi2O4 6^3 の 1 反復目で空の t2g が 0.3 eV ずれた)。ECALJ_MLO_MIX=1 を付けた
+  これまでの計算は変わらない。説明は ecaljdoc mlo_gwsc.md §1.6。
+
 2026-09-28 (2)
   [gw] t_tetrakbt を必須にし、符号で chi0 の均し方を選ぶ: 0 = 均さない、T > 0 = 有限温度のテトラヘドロン、
   -T = Im chi0 を温度 T の Fermi-Dirac と同じ幅 (標準偏差 pi kB T/sqrt3) の Gaussian で均す (以前の SmearX0)。

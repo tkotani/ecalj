@@ -8,8 +8,8 @@ kt1 の `qmlo_k6_*`（6³）と `qmlo_k9_*`（9³）の計算は全部この `ct
   2026-09-27 までは `t_tetrakbt = 0` と `SmearX0 = 0.0057` Ha と書いた。同じ計算）、
   `t_sigmaw = 1000`、`wcsmear`（既定）、`deltaq_scale = 0.1`、`mlo_method = 4`、
   MLO は 126 軌道（14 原子 × (s+p+d)）。設定の表と結果のまとめは [`../../README.md`](../../README.md)
-- **`gwsc --mlo` を手で回すときは `ECALJ_MLO_MIX=1` を付ける**（MLO で持つ Σ も `mixbeta` で混ぜる。下のスクリプトは export している。
-  付けないと MLO の Σ だけ β = 1 になる）
+- MLO で持つ Σ も `mixbeta` で混ぜる（2026-09-30 から既定。それより前のコードで `gwsc --mlo` を手で回すときは `ECALJ_MLO_MIX=1` を付ける。
+  下のスクリプトは export している）
 
 ## 回し方（LDA から `gwsc 10`）
 

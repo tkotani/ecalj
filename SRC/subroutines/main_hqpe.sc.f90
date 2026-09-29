@@ -309,7 +309,7 @@ contains
     rewind ifse_out
     call rwsigma ('write',ifse_out,sigma_m,qqqx_m, nspin,ndimsig,n1,n2,n3,nqibz)
     close(ifse_out)
-    !! Sigma^MLO gets the SAME Anderson damping as sigm (ECALJ_MLO_MIX=1; off by default).
+    !! Sigma^MLO gets the SAME Anderson damping as sigm (on by default since 2026-09-30; ECALJ_MLO_MIX=0 turns it off).
     !! In the MLO route lmf consumes QMLO_SigRs (made from __QMLO_Sig), NOT sigm, so an
     !! unmixed Sigma^MLO means the MLO chain runs at beta=1 while sigm runs at mixbeta.  On
     !! LiTi2O4 6^3 (mixbeta=0.5) that showed up as an overshoot at iteration 3 which the mixed
@@ -388,11 +388,13 @@ contains
     write(stdo,ftox)' === rwsigma:  sum check of sigma_m=',sum(abs(sigma_m))
     print *
   end subroutine rwsigma
-  logical function mlomix() !ECALJ_MLO_MIX=1 turns Anderson mixing of Sigma^MLO on (default off)
+  logical function mlomix() !Anderson mixing of Sigma^MLO at [gw] mixbeta, as for sigm: on by default, ECALJ_MLO_MIX=0 turns it off
+    ! (2026-09-30: it was off unless ECALJ_MLO_MIX=1, so a gwsc --mlo started by hand mixed sigm at mixbeta but took Sigma^MLO
+    !  unmixed; LiTi2O4 6^3 iteration 1 at mixbeta 0.5: the empty t2g bands 0.3 eV off the mixed run)
     character(8):: cv
     integer:: st
     call get_environment_variable('ECALJ_MLO_MIX',cv,status=st)
-    mlomix = (st==0) .and. (trim(cv)=='1')
+    mlomix = .not. ((st==0) .and. (trim(cv)=='0'))
   end function mlomix
   subroutine mixsigma(sss, lsigin, sigin, nda, fname) !sigma file mixing
     use m_GWinput, only: gwinput_init, gwinput_loaded, &

@@ -21,7 +21,7 @@ testecalj -np 4 GaAs NiO
 中身は次と同じ。
 
 ```bash
-ECALJ_MLO_MIX=1 gwsc 2 -np 4 --mlo gaas
+gwsc 2 -np 4 --mlo gaas
 ```
 
 LDA から 2 反復。2 反復目の lmf は、1 反復目の $\Sigma^{\rm MLO}$ を内挿した $\Sigma$ で解く。
@@ -32,7 +32,7 @@ LDA から 2 反復。2 反復目の lmf は、1 反復目の $\Sigma^{\rm MLO}$
 
 - `mlo_nkabc` は `[bz] nkabc` と同じにする（`gwsc` が開始前に調べて、違えば止まる）。
 - `mlo_lm` に MLO にする軌道を書く。
-- `[gw] mixbeta = 0.5`。`ECALJ_MLO_MIX=1` を付けると $\Sigma^{\rm MLO}$ も `sigm` と同じく混合する。
+- `[gw] mixbeta = 0.5`。$\Sigma^{\rm MLO}$ も `sigm` と同じく混合する（2026-09-30 から既定。それより前のコードでは `ECALJ_MLO_MIX=1` が要った）。
 
 ## 残るファイル
 

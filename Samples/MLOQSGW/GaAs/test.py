@@ -1,8 +1,8 @@
 from comp import runprogs,diffnum,dqpu,rmfiles
 def test(args,bindir,testdir,workdir):
         # MLO-QSGW: two iterations from LDA; the 2nd iteration runs on Sigma
-        # interpolated through the MLO (ECALJ_MLO_MIX=1, mixbeta=0.5). See ../README.md.
-        gwsc = f'ECALJ_MLO_MIX=1 {bindir}/gwsc 2 -np {args.np} --mlo '
+        # interpolated through the MLO (mixbeta=0.5, Sigma^MLO mixed too). See ../README.md.
+        gwsc = f'{bindir}/gwsc 2 -np {args.np} --mlo '
         out1= ["QPU"]
         out2='log.gaas'
         tall=''
