@@ -315,9 +315,9 @@ contains
        write(ifi,*) " # usage xcrysden --bxsf fermiup.bxsf"
        write(ifi,*) " # http://www.xcrysden.org/doc/XSF.html#2l.16"
        write(ifi,'(a,f9.5)') "  Fermi Energy:",eferm
-       write(ififm,'(a,f9.5)') "  # Fermi Energy [eV]:",eferm
+       write(ififm,'(a,f9.5)') "  # Fermi Energy [Ry]:",eferm !energies of both files are in Ry (label fixed 2026-09-30 02:23; it was [eV])
        if(lso==1) sss='                           spinup     spindn'
-       write(ififm,*) " # qshort(3) band_energy[eV]", trim(sss)
+       write(ififm,*) " # qshort(3) band_energy[Ry]", trim(sss)
        write(ifi,*) "END_INFO"
        write(ifi,*)"BEGIN_BLOCK_BANDGRID_3D"
        write(ifi,*)"  this_is_for_xcrysden"
