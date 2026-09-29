@@ -40,6 +40,32 @@
   - log.<sname> の 'sumqv ... egap(eV)' の数値が Ry のままだった。eV で書く。
   - lmf --fermisurface の fermiup.data (fermidn.data) の見出しの単位 [eV] を [Ry] に (値は Ry)。
 
+2026-09-30 (4)
+  直した誤り (3 つのコンパイラで新しいサンプルを回して見つかったもの、ほか)。
+  - lmf --band の質量モード (syml の ndiv2 以下の列): バンドが基準のエネルギーを横切る点 idat に値を入れておらず、
+    nvfortran で segmentation fault になった (m_writeband)。
+  - hhomogas: shortn3_qlat の結果 nout, nlatout を module から取らず、値の入らないローカル変数を使っていた
+    (ifx で segmentation fault)。
+  - [gw] wcsmear = false のとき、nvfortran の hgw が 'FINDLOC: unimplemented for data type' で止まった。
+    pole_weights (wfacx.f90) が組み込みの findloc を呼んでいた。m_nvfortran の findloc を使う。
+  - job_mae: 廃止した -vso=1、-vsoa1.. を渡していた。--ctrlg:ham.so=1、--ctrlg:ham.socaxis=[..] にした。
+  - job_AHC: lmf --jobgw=1 --wrhomt と hbasfp0 --job=8 にした (hahc が MixSpin.* を読む)。huumat_MPI --ahc の
+    ファイルは 7 桁 (UUD.0000000) なのに UUD.0000 を調べていて、スピン 2 チャンネルの計算で UUD が空だった。
+  - hx0ahc.py: hahc へのオプションが 1 個のとき、Python のリストがそのままコマンドに入っていた。
+  サンプル (どれも test.py と参照、README を持つ。一覧は Samples/README.md の表 1)。
+  - Samples/Legacy から組み直したもの: SOC/FePt_MAE・MnGa_MAE、LDAU/ReN (INIT に 15 種の希土類窒化物の構造と
+    占有の初期値)、EffectiveMass/GaAs・CdS・GaN、Relax/LaGaO3、DOS/ZnS・Fe、AHC/Fe、IIR/C。
+    BenchmarkTest/ISSP に ISSP の機械の投入スクリプト。
+  - Samples/kBT/scanT に GaAs と fcc Cu の温度のスキャン。
+  - TOOLS/samples_tests.sh の組 samples に SOC LDAU EffectiveMass Relax DOS AHC IIR。
+  ワーカーを並べるとき (ecalj_auto/gw1500_rerun.sh): ランクを固定しない (OMPI_MCA_hwloc_base_binding_policy=none)。
+  OpenMPI は taskset にかかわらずランク i を機械のコア i に固定するので、固定したままだとジョブが同じコアに重なる。
+  既知の問題 (直していない)。
+  - [[spec]] idu が 10 以上 (sigm があれば U を切る指定) は、sigm が無いとき二重計数の補正なしの LDA+U になる
+    (2023-09-29 から)。修正はブランチ fix-idu10。入れると MLOsamples の GdCo5 と SmP の結果が変わる。
+  - hahc は AHC の計算に要らない MagAtom と MixSpin.* を要求する (job_AHC が用意する)。
+  - 質量モードの書き出すバンドの範囲は、線の上の固有値と E_F から決まる。CdS と GaN では etolv = 0.3 Ry が要る。
+
 2026-09-28 (2)
   [gw] t_tetrakbt を必須にし、符号で chi0 の均し方を選ぶ: 0 = 均さない、T > 0 = 有限温度のテトラヘドロン、
   -T = Im chi0 を温度 T の Fermi-Dirac と同じ幅 (標準偏差 pi kB T/sqrt3) の Gaussian で均す (以前の SmearX0)。
