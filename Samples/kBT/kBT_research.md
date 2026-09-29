@@ -81,6 +81,35 @@
 
 ## 2026-09-30 — パッケージと文書の整理、温度のスキャン、反強磁性の QSGW の修理、GW1500 の回し直し（user 00:10「明日の朝まで自律的に」）
 
+### 06:05 **最終版の確認が 4 つの機械で済んだ。AHC は粗いメッシュではビルドによって 18% 違う（8×8×8 で 1.5%）**
+
+*表 06:05-1* 最終版の試験（PASSED の件数）。Fortran は `0dd38b4f8` 以降変えていない（そのあとの commit はスクリプト、サンプル、文書）
+
+| 組 | 手元 t14（gfortran） | kt1（nvfortran、GPU） | kr7（nvfortran、GPU） | mic（ifx 2026） |
+| --- | --- | --- | --- | --- |
+| 試験したツリー | `b00190018` | `b00190018` | `0dd38b4f8`、samples は `80ba95de0` | `b00190018` |
+| inputs | 136 | 136 | 142 | 142 |
+| install、mloqsgw、afsym | 64、5、4（`2d6f513ad`） | 64、5、4 | 64、5、4 | 64、5、4 |
+| samples（13 組） | 43 | 41 と AHC 2（`f4d8a0366`） | 41（AHC は未確認） | 41 と AHC 2（`c17fe73d6`） |
+| gwall fp32／fp64 | — | 35／— | 35／35 | — |
+
+- eps・procar・mlo・heavy・magnon と gwall tf32 は、一つ前の表（04:55 のエントリ）の版で 4 つの機械とも PASSED。そのあとの Fortran の変更は
+  `m_writeband`（質量モード）、`main_hhomogas`、`wfacx`（`pole_weights` の `findloc`）、`m_nvfortran`
+- AHC/Fe: kt1（nvfortran）の値が gfortran・ifx（この二つは 4 桁まで同じ）と違った。メッシュを変えて比べた（表 06:05-2。06:03、手元と kt1 で同じ SCF から `job_AHC`）。
+  差はメッシュとともに縮む。原因は確かめていない（`x0kf_ahc.f90` が隣の k 点のバンドを重なりの大きさで対応付けるので、固有ベクトルの取り方が効くと見ている）。
+  試験の許容を 60 Ω⁻¹cm⁻¹ にした（`3fe52f001`）
+
+*表 06:05-2* bcc Fe の σ_xy（四面体法、ΔE_F = 0、Ω⁻¹cm⁻¹）
+
+| AHC のメッシュ | スピン 1: gfortran | スピン 1: nvfortran | スピン 2: gfortran | スピン 2: nvfortran |
+| --- | --- | --- | --- | --- |
+| 4×4×4 | 22.79 | 19.63 | 243.32 | 287.87 |
+| 6×6×6 | 125.69 | 137.15 | 236.59 | 246.62 |
+| 8×8×8 | 885.36 | 884.84 | 1131.06 | 1148.30 |
+
+- kt1・kr7（NVIDIA HPC SDK の OpenMPI）では、MPI のプログラムを `mpirun` なしで起動すると `MPI_Init` で止まる。`run_arg`（bash）の 1 プロセス実行と
+  `hx0ahc.py` の `hahc` の起動を `mpirun -np 1` にした（`80ba95de0`、`00d02f013`）
+
 ### 05:53 **`wcsmear = false` は nvfortran で止まっていた（直した）。bench の参照との差 0.03 eV は `wcsmear` ではなく、バンド端の占有の均し方の違い。Legacy の残り 6 本を組み直し、最終版を 4 つの機械で確認中**
 
 - kr7 の bench（03:50 終了、`fc1312ce2`）は 2026-05-31 の参照と inas2gasb2 で 0.030、inas4gasb4 で 0.028 eV ずれて FAILED。原因の候補だった `wcsmear` を確かめるため、
