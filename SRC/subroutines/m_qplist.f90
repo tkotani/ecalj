@@ -4,7 +4,7 @@ module m_qplist
   use m_lgunit,only:stdo
   use m_nvfortran,only: findloc
   use m_sort, only: sort_index, lower_bound, upper_bound
-  use m_cmdopt_registry, only: c0_eigen_at_k, c0_fermisurface, c0_fullmesh, c0_jobgw, c0_mkprocar, c0_onesp, c0_writeham
+  use m_cmdopt_registry, only: c0_eigen_at_k, c0_fermisurface, c0_fullmesh, c2_jobgw, c0_mkprocar, c0_onesp, c0_writeham
   implicit none
   public :: m_qplist_init,m_qplist_qspdivider,m_qplist_redistribute_all,qshortn
   integer,protected,public::   napwmxqp
@@ -349,7 +349,11 @@ contains
     integer:: ndata
     call tcn('m_qplist_qpsdivider')
     nspxx=nspx
-    if((.not.c0_jobgw).and.(.not.c0_writeham).and.afsym) nspxx=1
+    ! With the antiferromagnetic symmetry (afsym) the SCF solves spin 1 only, but the GW driver (lmf --jobgw=1) and --writeham
+    ! write both spins.  c2_jobgw >= 0 means --jobgw=0 or 1 was given.  (Bug fixed 2026-09-30 01:45: the test was for a bare
+    ! '--jobgw', which is false for '--jobgw=1' since the option match became exact on 2026-03-21; the driver then wrote
+    ! spin 1 only and hqpe_sc stopped reading spin 2 of __VxcEvec, so QSGW with symgrpaf did not run)
+    if((c2_jobgw<0).and.(.not.c0_writeham).and.afsym) nspxx=1
     ndata = nkp*nspxx
     allocate(kpproc(0:numprocs))
     ! Distribute k-points to ALL ranks (all ranks do hambl, GPU ranks do batched diag)
@@ -393,7 +397,7 @@ contains
     implicit none
     integer :: ndata, nspxx, iqsi, iqse, jdat, iq, isp, i
     nspxx = nspx
-    if((.not.c0_jobgw).and.(.not.c0_writeham).and.afsym) nspxx=1
+    if((c2_jobgw<0).and.(.not.c0_writeham).and.afsym) nspxx=1   ! as in m_qplist_qspdivider
     ndata = nkp * nspxx
     ! Standard distribution across ALL ranks
     call dstrbp(ndata, numprocs, 1, kpproc(0))
