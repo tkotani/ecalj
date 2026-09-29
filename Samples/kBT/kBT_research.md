@@ -81,6 +81,30 @@
 
 ## 2026-09-30 — パッケージと文書の整理、温度のスキャン、反強磁性の QSGW の修理、GW1500 の回し直し（user 00:10「明日の朝まで自律的に」）
 
+### 04:54 **試験: 4 つの機械・3 つのコンパイラで全部の組が PASSED。温度のスキャンに GaAs と Cu を足した**
+
+*表 04:54-1* `TOOLS/samples_tests.sh` の結果（PASSED の件数）。kt1 と kr7 は `--gpu -np2 1`。版は試験したツリーのコミット
+
+| 組 | 手元 t14（gfortran） | kt1（nvfortran、GPU） | kr7（nvfortran、GPU） | mic（ifx 2026） |
+| --- | --- | --- | --- | --- |
+| 版 | `4832ac3e8`（samples・magnon は `d26afdf51`） | `68a45a8fb`（samples は `2d6f513ad`） | `2d6f513ad` | `68a45a8fb`（samples は `0c514bdce`） |
+| inputs | 127 | 122 | 134 | 134 |
+| install | 64 | 64 | 64（CPU でも 64） | 64 |
+| eps、procar | 18、5 | 18、5 | 18、5 | 18、5 |
+| mlo、mloqsgw | 45、5 | 45、5 | 45、5 | 45、5 |
+| afsym | 4 | 4 | 4 | 4 |
+| samples（10 組） | 33 | 33 | 33 | 33 |
+| gwall tf32／fp32／fp64 | — | 28／35／35 | 28／35／35 | — |
+| heavy | — | 8 | 8 | 8 |
+| magnon | 10 | 10 | 10 | 10 |
+
+- inputs の件数の違いは、その時点のツリーにある `ctrlg.<sname>.toml` の数（サンプルを足したので増えた）
+- `68a45a8fb` と `2d6f513ad` の Fortran の違いは、`m_writeband`（質量モード）と `main_hhomogas` の 2 か所。どちらも samples の組（EffectiveMass、HomoGas）で確かめた
+- 手元は最終版のビルド（`temp/bin_check2`）で install〜afsym を回し直している（04:55 から）
+- kr7 の bench（前の版、03:50 終了）は 2026-05-31 の参照と 0.030・0.028 eV ずれて FAILED（許容 0.011）。`wcsmear = false` での確認を 04:53 から kr7 で実行中
+- 温度のスキャン（手元、gfortran、4 コア）: GaAs（03:03〜04:13）と Cu（04:13〜04:36）。結果は `Samples/kBT/scanT/README.md` の表 3・表 4、ecaljdoc kBT.md §5.1・§5.2。
+  GaAs のギャップは 3000 K で −95 meV、5000 K で −267 meV。Cu の Γ の d バンドは 3000 K で +61 meV、5000 K で +128 meV（E_F に近づく）
+
 ### 04:01 **新しいサンプルを 3 つのコンパイラで回して出た 3 件を直した（`2d6f513ad`）。user 03:47「Legacy も確認して。任せる」→ 残りの組み直しを始め、削除は user の判断待ち**
 
 - 03:45 の時点の試験: 手元（gfortran）は全部 PASSED。kt1（nvfortran、GPU）で EffectiveMass/GaAs が止まり、Relax/LaGaO3 が 1 件不一致。mic（ifx）で HomoGas/es が止まった
