@@ -31,7 +31,7 @@ after another and writes one summary (how to read it: ecaljdoc
 | [DOS/](DOS/ZnS/README.md) | total and partial density of states (`job_tdos`, `job_pdos`): ZnS, bcc Fe | `ZnS`, `Fe` | `samples` |
 | [AHC/](AHC/Fe/README.md) | anomalous Hall conductivity of bcc Fe (`job_AHC`, `hx0ahc.py`) | `Fe` | `samples` |
 | [IIR/](IIR/C/README.md) | impact ionization rate of diamond: the imaginary part of the self-energy (`gw_lmfh`, `QPU_life`) | `C` | `samples` |
-| [BenchmarkTest/](BenchmarkTest/) | one QSGW iteration of InAs/GaSb superlattices (16 and 32 atoms), for GPU | 2 | `bench` |
+| [BenchmarkTest/](BenchmarkTest/README.md) | one QSGW iteration of InAs/GaSb superlattices (8 and 16 atoms), for GPU | 2 | `bench` |
 | [mptf32problem/](mptf32problem/README.md) | AgNO3 and other cases where the old TF32 mode of the GPU build failed (GW1500) | — | — |
 | [Legacy/](Legacy/) | the older examples: the originals of the samples above, and what is not rebuilt (table 2) | — | `inputs` |
 
