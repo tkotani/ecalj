@@ -70,7 +70,7 @@ while :; do
   it=$(ls -d QSGW.*run 2>/dev/null | sed 's/QSGW\.//; s/run//' | sort -n | tail -1)
   glda=$(grep -h 'gap =' llmf_lda 2>/dev/null | tail -1 | sed 's/.*Ry = *//; s/ *eV.*//')
   g=$(grep -h 'gap =' llmf 2>/dev/null | tail -1 | sed 's/.*Ry = *//; s/ *eV.*//')
-  dqp=$(grep -ho 'max QP change[^=]*= *[0-9.]*' osgw.conv.out 2>/dev/null | tail -1 | sed 's/.*= *//')
+  dqp=$(grep -ho 'max QP change[^=]*= *[0-9][0-9.]*' osgw.conv.out 2>/dev/null | tail -1 | sed 's/.*= *//')
   if   grep -q 'gwscconv: CONVERGED.*(metal' osgw.conv.out; then v=CONVERGED_METAL
   elif grep -q 'gwscconv: CONVERGED' osgw.conv.out; then v=CONVERGED
   elif [ $rc -eq 124 ] || [ $rc -eq 137 ]; then v=TIMEOUT
