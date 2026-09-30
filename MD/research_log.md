@@ -88,6 +88,11 @@ user の指示（05:5x）: 「この方針で進めて。TODO も判断がつく
 MATERIALS 以下を MLO で（spd ベース、f があるときに入れる）すべてモデル化。DFT レベルでよい。目視で確認できる図、バンドギャップの違い。
 AFsymmetry のモード（AFTEST）が動くのか、そもそも正しいのかも調べて」。push はしない。
 
+### 07:44 **`TOOLS/samples_tests.sh -np 8 inputs mlo afsym eps procar`（t14、`93d83c63a`、07:30〜07:43）: すべて PASSED**
+
+inputs 174、mlo 45、afsym 4、eps 18、procar 5（失敗 0）。今夜の Python の道具の変更（`job_mlo` の so = 1 の停止、`mlo_bandplot.py`、`ctrlgenToml.py`、
+`SRC/exec` の相対のリンク）と `--cls` の修正の後で、install（07:25）と合わせて試験は通っている。他の機械（kt1・kr7・mic）では回していない
+
 ### 07:29 **main（`--cls` の修正 `7ca6f1caa` を含む）を t14 で build し直し、InstallAll の試験は ALL PASSED（07:19〜07:25）。`SRC/exec` の行き先の無いリンク 12 本を片付けた**
 
 - `python3 InstallAll.py --fc gfortran --bindir ~/bin -np 8`: `OK! ALL PASSED`（testecalj 325 秒）
