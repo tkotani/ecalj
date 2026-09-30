@@ -1,3 +1,10 @@
+2026-09-30 (7)
+  gwscconv: lmf がギャップを出さない反復 (金属・半金属) は、固有値の変化で収束を判定する。QPU.<n>run と
+  QPU.<n-1>run の eQP (E_F 基準) のうち |e| < 5 eV の状態の変化の最大が --conv-qp (既定 0.03 eV) 未満の反復が
+  2 回続いたら停止。これまではギャップが読めないと exit 3 で止まっていた (--no-metal で同じ動作)。
+  ギャップのある物質の判定は変わらない。説明は ecaljdoc gwsc.md。
+  ecalj_auto/gw1500_rerun.sh: 判定 CONVERGED_METAL、ログの行に最後の固有値の変化 dqp。
+
 2026-09-30 (6)
   lmf: [[spec]] の idu = 10 + mode (ctrlgenToml.py が Ce〜Lu の 4f に書く idu = 12 など) は、sigm.* が無いときは mode の
   LDA+U、sigm.* があるときは U を切る (UH = JH = 0)。2023-09-29 から、sigm.* が無いと idu = 12 のまま LDA+U の計算に渡り、
