@@ -29,7 +29,6 @@
   または `MPI__AutoSetup` の GPU メモリの問い合わせを引数で受ける。直したら GPU（kt1・kr7）で clean build と試験
 - **AFTEST のモード（反強磁性の固定モーメント）を確かめて文書にする**（2026-10-01）: `mmtarget.aftest` があると lmf がモーメントを保つ偏りの場をかける（`m_ldau_util.f90`）。2020〜2021 の NiSe の手順は past_log.md §9.3。ecaljdoc の `UsageDetailed.md` には「直す必要がある」と一言だけ
 - **`Samples/MATERIALS/Database` の 62 物質を LDA で一度回して確かめる**（2026-10-01、急がない）: 入力は `lmchk` で読めることだけ確かめた
-- **VSCode の CMake 拡張が最上位に `build/` を作る**（2026-10-01）: `.vscode/settings.json` の設定か、`.gitignore` に `/build/` を入れる
 
 - **`hgw` の残り**（2026-04 の統合の残タスク、2026-10-01 に past_log.md §3.2 から）: ノード内の W の共有を `MPI_Win_allocate_shared` で（メモリの重複を減らす）。
   `hsfp0_sc` の Sx（`--job=1`）・core の交換（`--job=3`）も `hgw` に入れる（時間は小さいので優先度は低い）
@@ -72,6 +71,7 @@
 
 ### 2026-10-01
 
+- `.gitignore` に `/build/`（VSCode の CMake 拡張が最上位に作る）
 - `MD/module_map.md`（生成物）と `TOOLS/module_map.py`: 主プログラム → 入口の module、module の階層（226 module、最大 29 段、`m_lmf` が頂点）、
   依存と被依存の数、module の冒頭のコメント。`ecaljclaude.md` から参照。GPU の build の module の循環が 1 つ見つかった（上の TODO）
 - `GetSyml/README.md`・`StructureTool/README.md`・`Samples/EPS/EPS_GaAs/README_eps.md` を今の形に書き直した（入力は `ctrlg.<sname>.toml`、
