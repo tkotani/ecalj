@@ -8,6 +8,8 @@ ecalj documents is at [ecaljdoc](https://ecalj.github.io/ecaljdoc/)
 Developers, and AI sessions that start without memory: read ecaljdoc `manual/ForDevelopers.md` first (reading order,
 build and test, machines, how jobs are submitted, a digest of the research log), and `ecaljclaude.md` (how code comments,
 commits and the research log are written; Claude Code reads it through `CLAUDE.md`).
+Open items, questions to the maintainer and what was done recently: `TODOandQuestion.md`. Know-how from the files that were
+cleaned out of the repository (to `trash/`, ignored by git): `past_log.md`.
 
 ## 2026-09-28  `[gw] t_tetrakbt` is required; `t_tetrakbt < 0` replaces `SmearX0`
 
