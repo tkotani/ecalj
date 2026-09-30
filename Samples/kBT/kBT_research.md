@@ -81,6 +81,12 @@
 
 ## 2026-09-30 — パッケージと文書の整理、温度のスキャン、反強磁性の QSGW の修理、GW1500 の回し直し（user 00:10「明日の朝まで自律的に」）
 
+### 14:52 **user「AHC は Legacy へ戻して」→ `Samples/AHC/Fe` を `Samples/Legacy/AHC/Fe_rebuilt` に移した。試験の組からも外した**
+
+- 組み直した版（入力、`test.py`、参照、README）はそのまま Legacy の下に置く。`Legacy/AHC` で `testecalj Fe_rebuilt -np 4` は動く。元の `Legacy/AHC/Fe` はそのまま
+- `job_AHC`・`hx0ahc.py`・`run_arg` の修正は残す（スクリプトの誤りの修正）
+- bench の新しい参照との照合は kr7 で通った（09:43、差 0.0）
+
 ### 06:05 **最終版の確認が 4 つの機械で済んだ。AHC は粗いメッシュではビルドによって 18% 違う（8×8×8 で 1.5%）**
 
 *表 06:05-1* 最終版の試験（PASSED の件数）。Fortran は `0dd38b4f8` 以降変えていない（そのあとの commit はスクリプト、サンプル、文書）
