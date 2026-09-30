@@ -134,3 +134,6 @@ BZ*.html
 
 # things to be deleted later, per machine (user 2026-10-01): never tracked
 /trash/
+# build trees and installed copies made inside SRC (2026-09-24 a0c7a7300 committed them by mistake; untracked 2026-10-01)
+/SRC/exec/build*/
+/SRC/exec_*/
