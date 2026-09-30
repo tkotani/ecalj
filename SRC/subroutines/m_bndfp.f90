@@ -348,7 +348,10 @@ contains
     CorelevelSpectroscopy2: if(c0_cls) then !m_clsmode_set1 is called in m_bandcal
       dosw(1)= emin  - 0.5d0     ! lowest energy limit to plot dos
       dosw(2)= eferm + bz_dosmax ! highest energy limit to plot dos
-      call m_clsmode_finalize(eferm,ndimh,nbandmx,nspx,nkp,dosw,evlall)
+      ! vcdmel lays the weights out as s(3,nsite,n,2) and dostet reads them as (3*nsite, nbandmx): n must be nbandmx.
+      ! Bug fixed 2026-10-01: ndimh (the module state of m_igv2x, the last k point) was given; with APW it differs from
+      ! nbandmx (with pwmode=11 even from k to k). ausc_zv holds nbandmx bands, zero above nev; their levels are 1d99.
+      call m_clsmode_finalize(eferm,nbandmx,nbandmx,nspx,nkp,dosw,evlall)
       call rx0('Done cls mode:')
     endif CorelevelSpectroscopy2
     if(lso/=0)   call iorbtm() !Write Orbital Moment
