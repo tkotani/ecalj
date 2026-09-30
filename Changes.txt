@@ -1,44 +1,9 @@
-2026-09-30
-  gwsc --mlo (MLO-QSGW): MLO で持つ Sigma の Anderson 混合 ([gw] mixbeta、sigm と同じ) を既定にした。切るときは
-  ECALJ_MLO_MIX=0。これまでは ECALJ_MLO_MIX=1 を付けたときだけ混合し、付け忘れると sigm は mixbeta、MLO の Sigma は
-  混合なし (beta = 1) で回っていた (LiTi2O4 6^3 の 1 反復目で空の t2g が 0.3 eV ずれた)。ECALJ_MLO_MIX=1 を付けた
-  これまでの計算は変わらない。説明は ecaljdoc mlo_gwsc.md §1.6。
-
-2026-09-30 (2)
-  直した誤り。
-  - 反強磁性の対称性 (symgrpaf) の QSGW が hqpe_sc で止まっていた。lmf --jobgw=1 が両方のスピンを書くようにし (m_qplist。
-    オプションの照合が完全一致になった 2026-03-21 からスピン 1 だけだった)、GW のプログラムは両方のスピンを計算する
-    (sugw が __MTOindex に laf = .false. を書く)。SCF の lmf はこれまでどおり対称性でスピン 1 だけを解く。
-    NiO 2x2x2 の 2 反復で、symgrpaf を書かない計算とギャップが 1.7 meV で一致。試験 Samples/AFsymmetry/NiO_gwsc。
-  - lmf: [ham] readp = true (ctrlgenToml.py が書く) で atmpnu.<種>.<sname> が無いと、空のファイルを作って未初期化の値を
-    使い segmentation fault になっていた。メッセージを出して止まる (lmfa を回すか、SCF のディレクトリから写す)。
-  - lmf --boltztrap: 2 並列以上で segmentation fault、LDA では対称操作が 0 個と書かれていた。
-  - gwsc: ctrlg.<sname>.toml を名前に与えると '.<sname>.toml' になっていた。--phispinsym は --ctrlg:ham.phispinsym=true を渡す。
-  - Legacy2toml.py (ctrl2ctrltoml.py): 分数の核電荷 (Z=14.2、Z=.0001) を整数に切り捨てていた。
-  - testecalj の照合: test2_check は 0.22D+00 の形の数を読み飛ばしていた。diffnum は両方のファイルの最初の行を比べていなかった。
-  - Sigma の Fermi 準位の表示: t_tetrakbt <= 0 のとき 'ef<-EFERMI' と出していたが、実際は k メッシュの上で数えた値
-    (efsimplef2ax)。表示を直した (計算は変わらない)。
-  サンプル。
-  - Samples/Legacy から組み直したもの: AFsymmetry、Magnon (移動)、FermiSurface/Cu、Doping/Si、HomoGas/es、BoltzTraP/Si、
-    SLAB/Cu001、SOC/FePt_MAE・MnGa_MAE ほか。どれも test.py と参照、README を持つ。一覧は Samples/README.md。
-  - Samples/kBT/scanT: 電子温度のスキャン (Si のギャップ、bcc Fe)。Samples/kBT/LiTi2O4/README.md は MLO-QSGW の 40 反復のまとめ。
-  - Magnon/Fe_bcc_in_sc_magnon はマグノンの山の位置を比べる (comp.py の peak_check)。
-  - TOOLS/samples_tests.sh に組 samples を足した。bench は --gpu のときだけ -np2 1。
-  - 入力の t_sigmaw・t_tetrakbt の横の注記を説明だけにした (値は同じ)。
-  GW1500: 状態の集計 ecalj_auto/GW1500_status.md、今のコードで回し直す ecalj_auto/gw1500_rerun.sh。
-
-2026-09-30 (3)
-  直した誤り。
-  - lmf: LDA+U の密度行列 (mkdmtu)、スピン軌道相互作用を入れたときの軌道モーメント (mkorbm)、--cls の係数が、
-    [ham] pwmode = 11 (既定。基底の数が k ごとに違う) で別の k の次元を使って固有ベクトルを読んでいた。
-    2026-03-30 (913fb36af) から 2026-09-30 まで。この間の pwmode = 11 での LDA+U の SCF は誤り (全エネルギーが
-    桁違いになり、MPI の並列数で値が変わる)。pwmode = 0, 1 (基底の数が k によらない) の計算は影響を受けない。
-    makusq、mkorbm、mkdmtu、m_clsmode_set1 に、その k の ndimh を引数で渡す。
-    確認: GdN (LDA+U、so=2、pwmode=11、4x4x4) の 2 反復が 1 並列と 4 並列で一致 (ehk = -307996.548249 eV)。
-  - --ctrlg:<path>=<value> で、ファイルに無いキーを指定すると「skipped」の注記だけで既定値のまま走っていた。
-    無いキーは書き足す (節の見出しの下、トップレベルのキーはファイルの先頭、節が無ければ節ごと末尾)。
-  - log.<sname> の 'sumqv ... egap(eV)' の数値が Ry のままだった。eV で書く。
-  - lmf --fermisurface の fermiup.data (fermidn.data) の見出しの単位 [eV] を [Ry] に (値は Ry)。
+2026-09-30 (6)
+  lmf: [[spec]] の idu = 10 + mode (ctrlgenToml.py が Ce〜Lu の 4f に書く idu = 12 など) は、sigm.* が無いときは mode の
+  LDA+U、sigm.* があるときは U を切る (UH = JH = 0)。2023-09-29 から、sigm.* が無いと idu = 12 のまま LDA+U の計算に渡り、
+  二重計数の項を引かない LDA+U になっていた (4f の準位に U(N-1/2) ほどの余分な持ち上げが残る)。gwsc の最初の lmf
+  (QSGW の出発点) と idu = 11, 12 の LDA+U が変わる。idu < 10 の計算と、sigm.* があるときの計算は変わらない。
+  Samples/MLOsamples の GdCo5 と SmP (idu = 12、sigm.* なし) は SCF をやり直して参照を作り直した。
 
 2026-09-30 (5)
   Samples/Legacy を消した (組み直した元、TestInstall などと重複するもの、今のコードで動かないもの。履歴 e05720ffd 以前にある)。
@@ -77,6 +42,48 @@
     (2023-09-29 から)。修正はブランチ fix-idu10。入れると MLOsamples の GdCo5 と SmP の結果が変わる。
   - hahc は AHC の計算に要らない MagAtom と MixSpin.* を要求する (job_AHC が用意する)。
   - 質量モードの書き出すバンドの範囲は、線の上の固有値と E_F から決まる。CdS と GaN では etolv = 0.3 Ry が要る。
+
+2026-09-30 (3)
+  直した誤り。
+  - lmf: LDA+U の密度行列 (mkdmtu)、スピン軌道相互作用を入れたときの軌道モーメント (mkorbm)、--cls の係数が、
+    [ham] pwmode = 11 (既定。基底の数が k ごとに違う) で別の k の次元を使って固有ベクトルを読んでいた。
+    2026-03-30 (913fb36af) から 2026-09-30 まで。この間の pwmode = 11 での LDA+U の SCF は誤り (全エネルギーが
+    桁違いになり、MPI の並列数で値が変わる)。pwmode = 0, 1 (基底の数が k によらない) の計算は影響を受けない。
+    makusq、mkorbm、mkdmtu、m_clsmode_set1 に、その k の ndimh を引数で渡す。
+    確認: GdN (LDA+U、so=2、pwmode=11、4x4x4) の 2 反復が 1 並列と 4 並列で一致 (ehk = -307996.548249 eV)。
+  - --ctrlg:<path>=<value> で、ファイルに無いキーを指定すると「skipped」の注記だけで既定値のまま走っていた。
+    無いキーは書き足す (節の見出しの下、トップレベルのキーはファイルの先頭、節が無ければ節ごと末尾)。
+  - log.<sname> の 'sumqv ... egap(eV)' の数値が Ry のままだった。eV で書く。
+  - lmf --fermisurface の fermiup.data (fermidn.data) の見出しの単位 [eV] を [Ry] に (値は Ry)。
+
+2026-09-30 (2)
+  直した誤り。
+  - 反強磁性の対称性 (symgrpaf) の QSGW が hqpe_sc で止まっていた。lmf --jobgw=1 が両方のスピンを書くようにし (m_qplist。
+    オプションの照合が完全一致になった 2026-03-21 からスピン 1 だけだった)、GW のプログラムは両方のスピンを計算する
+    (sugw が __MTOindex に laf = .false. を書く)。SCF の lmf はこれまでどおり対称性でスピン 1 だけを解く。
+    NiO 2x2x2 の 2 反復で、symgrpaf を書かない計算とギャップが 1.7 meV で一致。試験 Samples/AFsymmetry/NiO_gwsc。
+  - lmf: [ham] readp = true (ctrlgenToml.py が書く) で atmpnu.<種>.<sname> が無いと、空のファイルを作って未初期化の値を
+    使い segmentation fault になっていた。メッセージを出して止まる (lmfa を回すか、SCF のディレクトリから写す)。
+  - lmf --boltztrap: 2 並列以上で segmentation fault、LDA では対称操作が 0 個と書かれていた。
+  - gwsc: ctrlg.<sname>.toml を名前に与えると '.<sname>.toml' になっていた。--phispinsym は --ctrlg:ham.phispinsym=true を渡す。
+  - Legacy2toml.py (ctrl2ctrltoml.py): 分数の核電荷 (Z=14.2、Z=.0001) を整数に切り捨てていた。
+  - testecalj の照合: test2_check は 0.22D+00 の形の数を読み飛ばしていた。diffnum は両方のファイルの最初の行を比べていなかった。
+  - Sigma の Fermi 準位の表示: t_tetrakbt <= 0 のとき 'ef<-EFERMI' と出していたが、実際は k メッシュの上で数えた値
+    (efsimplef2ax)。表示を直した (計算は変わらない)。
+  サンプル。
+  - Samples/Legacy から組み直したもの: AFsymmetry、Magnon (移動)、FermiSurface/Cu、Doping/Si、HomoGas/es、BoltzTraP/Si、
+    SLAB/Cu001、SOC/FePt_MAE・MnGa_MAE ほか。どれも test.py と参照、README を持つ。一覧は Samples/README.md。
+  - Samples/kBT/scanT: 電子温度のスキャン (Si のギャップ、bcc Fe)。Samples/kBT/LiTi2O4/README.md は MLO-QSGW の 40 反復のまとめ。
+  - Magnon/Fe_bcc_in_sc_magnon はマグノンの山の位置を比べる (comp.py の peak_check)。
+  - TOOLS/samples_tests.sh に組 samples を足した。bench は --gpu のときだけ -np2 1。
+  - 入力の t_sigmaw・t_tetrakbt の横の注記を説明だけにした (値は同じ)。
+  GW1500: 状態の集計 ecalj_auto/GW1500_status.md、今のコードで回し直す ecalj_auto/gw1500_rerun.sh。
+
+2026-09-30
+  gwsc --mlo (MLO-QSGW): MLO で持つ Sigma の Anderson 混合 ([gw] mixbeta、sigm と同じ) を既定にした。切るときは
+  ECALJ_MLO_MIX=0。これまでは ECALJ_MLO_MIX=1 を付けたときだけ混合し、付け忘れると sigm は mixbeta、MLO の Sigma は
+  混合なし (beta = 1) で回っていた (LiTi2O4 6^3 の 1 反復目で空の t2g が 0.3 eV ずれた)。ECALJ_MLO_MIX=1 を付けた
+  これまでの計算は変わらない。説明は ecaljdoc mlo_gwsc.md §1.6。
 
 2026-09-28 (2)
   [gw] t_tetrakbt を必須にし、符号で chi0 の均し方を選ぶ: 0 = 均さない、T > 0 = 有限温度のテトラヘドロン、
