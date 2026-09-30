@@ -60,10 +60,6 @@
 - **`Samples/AFsymmetry/NiO` は `pwmode = 1` で `symgrpaf`**（2026-10-01）: k 点を 4³ にすると `rotwave: q+G rotation error (We have to set PWmode=11 for symgrpAF)`
   で止まる。試験の 3³ では通っているだけ。`pwmode = 11` にして参照を作り直すか
 
-- **`InstallAll.py` が bindir の行き先の無いリンクを消さない**（2026-10-01）: t14 の `~/bin` に 58 本（`uutest`、`genMLWFmod`、`FLEX_interaction.py` など、
-  `SRC/exec` から退かせたファイルと、エディタの一時ファイル `job_mlo~`・`#ctrlgenM1.py#`、`TAGS`）。インストールのときに、自分が作ったリンクのうち
-  行き先の無いものを消すか（install manifest と照らす）
-
 ### 試験と入力
 
 - `MLOsamples/RuO2` の保存してある `rst`・`dmats` は、`pwmode = 11` の LDA+U の誤り（2026-03-30〜09-30、`2498e5283` で修正）の時期に作ったもの。
@@ -95,6 +91,7 @@
 
 ### 2026-10-01
 
+- `InstallAll.py`: リンクを張った後、bindir の中で「この ecalj の木を指していて行き先の無いリンク」だけを消す（`remove_dangling_links`）。SRC/exec のエディタの一時ファイル（`~` で終わる、`#`・`.#` で始まる）はリンクしない。t14 の `~/bin` の 58 本は次のインストールで消える（一時の bindir で試験）
 - ecaljdoc `manual/spectrum.md` に、メッシュの外の q（`QforGW`）の注意 3 点（`EMAXforGW` が必須、窓を変えたら交換から、`epsWVR` の行）を書いた（past_log.md §5 から、ecaljdoc の未 push のコミット）
 - AFTEST を調べた（研究ログ 2026-10-01 朝 06:46）: afsym ではモーメントを目標に保てるが、表示の ehk に −uhx·m_d、ehf に −2·uhx·m_d が残る。afsym なしでは誤り（サイトの電荷が分かれる）。修正はブランチ `aftest-fix`
 - GW1500: kr7 で fp32 と TF32 を同じバイナリ・同じ入力で比べた（8 物質、02:03〜06:24）。最終のギャップの差は 1 meV 未満。5 月との 0.29〜1.48 eV の差は精度ではなく、5 月の振動と設定の違い（`GW1500_status.md` §5.1 の表 7）。GOOD 1120 を精度の理由で見直す必要は無い

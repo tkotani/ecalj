@@ -177,6 +177,28 @@ def write_install_manifest(bin_dir: Path, ecalj_root: Path):
     print(f"Wrote install manifest ({len(entries)} entries) -> {manifest}")
 
 
+def remove_dangling_links(bin_dir: Path, ecalj_root: Path):
+    """Remove the symlinks in bin_dir that point into this ecalj tree and lead nowhere.
+
+    Files moved out of SRC/exec (to trash/ or renamed) left their links in the bindir (t14 ~/bin: 58 on 2026-10-01).
+    Only a symlink whose target lies inside ecalj_root and does not exist is removed; links to elsewhere stay.
+    """
+    root = os.path.join(str(ecalj_root.resolve()), '')
+    removed = []
+    for entry in bin_dir.iterdir():
+        if not entry.is_symlink() or entry.exists():
+            continue
+        target = os.readlink(entry)
+        if not os.path.isabs(target):
+            target = os.path.join(str(bin_dir), target)
+        if os.path.abspath(target).startswith(root):
+            entry.unlink()
+            removed.append(entry.name)
+    if removed:
+        print(f"Removed {len(removed)} dangling links into {ecalj_root} from {bin_dir}: {' '.join(sorted(removed))}")
+    return removed
+
+
 def install_bash_completion(bin_dir):
     """Append a guarded source line to ~/.bashrc so tab-completion for
     Legacy2toml.py, lmf, lmfa, lmchk, gwsc, ... is available in new shells.
@@ -236,7 +258,8 @@ def main():
 
     # --- Symlink everything in exec/ into ~/bin ---
     for item in EXEC_DIR.iterdir():
-        if item.name.startswith('__'):
+        # editor leftovers (job_mlo~, #ctrlgenM1.py#, .#genMLWF) are not linked (2026-10-01)
+        if item.name.startswith(('__', '#', '.#')) or item.name.endswith('~'):
             continue
         link = BIN_DIR / item.name
         if link.is_symlink() or (link.exists() and link.is_file()):
@@ -270,6 +293,7 @@ def main():
             link_path.unlink()
         link_path.symlink_to(src_file)
     print(f"ecalj_auto helper symlinks created in {BIN_DIR}")
+    remove_dangling_links(BIN_DIR, CWD)
 
     # --- Clean up build directory if requested ---
     if args.clean:
