@@ -81,6 +81,17 @@
 
 ## 2026-09-30 — パッケージと文書の整理、温度のスキャン、反強磁性の QSGW の修理、GW1500 の回し直し（user 00:10「明日の朝まで自律的に」）
 
+### 15:23 **user「MLO 版マグノンを作って」→ `job_mlo_magnon` を単独で動くようにし、`Samples/Magnon/Fe_mlo_magnon` を作った。小さい q は Wannier 版と一致、大きい q は 1.5 倍高い**
+
+- 止まっていた理由: `mlo` が読む `HamiltonianPMTInfo`・`__HamiltonianPMT`・`HamRsMLO` は `lmf --writeham --mlo`（`job_mlo`）が書くもので、`job_mlo_magnon` は
+  それを呼んでいなかった（`job_mloW` も同じで、`MLOsamples/Fe` の試験は先に `job_mlo` を回している）。`job_mlo` の段を `job_mlo_magnon` の最初に組み込んだ（`77e05151d`）
+- 出力は Wannier 版と名前が違う: `MagSuscep.symlXXX`（K と R の実部・虚部）、`MagSpec`、`DynMagSuscep`、`InvMagSuscep`、サイトごとの `*SiteNNN`
+- Wannier 版（`Fe_magnon`）との比較（`Fe_mlo_magnon/README.md` の表 2 と図 1、`magnon_peaks.py`）: `mlo_nkabc` = 8³ で q ≤ 0.3 は 20 meV 以内で一致、
+  q ≥ 0.4 は MLO 版が 1.5 倍高い。`mlo_nkabc` = 4³ では小さい q も 1.5 倍。`mlo_w` = 11 eV で高い側が下がる。模型の違いで、どちらが正しいかは決めていない
+- nvfortran（kt1）で `mlo_magnon` が `FIO-F-207`（`__MLOFormFactorQ` を二重に開いた）で止まった。`get_formfactor_q`・`get_ovlppair_q` の「開いたか」の判定が
+  `ifile < 0` で、`newunit` は負の番号を返すので毎回開き直していた（gfortran は読み取り専用の二重の open を黙って許す）。論理変数で判定するようにした（`5cfda277d`）
+- 試験は `MagSuscep.syml001` の値（10%）と Im R の山の位置（5%）。手元（gfortran）で 2 回通過（2 分）。kt1 は 15:23 に作り直して確認中
+
 ### 14:58 **user「magnon を MLO ベースにできないか」→ `job_mlo_magnon` は今の MLO の流れに追随しておらず動かない。「UUmatSOC を残す理由は」→ 無い**
 
 - `Samples/Magnon/Fe_magnon` の入力（写し）で `lmfa`、`lmf`、`job_band` のあと `job_mlo_magnon fe -np 8`（`bin_check3`、14:56）。
