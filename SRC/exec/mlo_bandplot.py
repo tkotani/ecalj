@@ -134,8 +134,10 @@ def main():
     name = a.label or os.path.basename(d).replace('_work', '')
     ef = read_ef(d)
 
+    # an empty band_MLO_spin2.dat (job_mlo_soc: the 2N spinor bands are all in spin1) is not a spin (2026-10-01)
     spins = [s for s in (1, 2)
-             if os.path.exists(os.path.join(d, f'band_MLO_spin{s}.dat'))]
+             if os.path.exists(os.path.join(d, f'band_MLO_spin{s}.dat'))
+             and os.path.getsize(os.path.join(d, f'band_MLO_spin{s}.dat')) > 0]
     if not spins:
         sys.exit(f'{d}: no band_MLO_spin*.dat')
 

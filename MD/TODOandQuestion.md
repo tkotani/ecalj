@@ -55,7 +55,7 @@
 - **`mlo` が so = 1 の入力で NaN**（2026-10-01、GaAs_so）: `job_mlo` を so = 1 の ctrlg で回すと `zhev_tk4: the Hamiltonian contains NaN`。
   SOC は `job_mlo_soc`（摂動）で扱う設計なので、`mlo`（か `job_mlo`）が so = 1 を見て止まり、`job_mlo_soc` を案内するのがよい
 - **`job_mlo_soc` が空の `band_MLO_spin2.dat` を書く**（2026-10-01）: 2N のスピノルの帯は `band_MLO_spin1.dat` に入る。空の spin2 があると
-  `mlo_bandplot.py` が空の枠を描く（`bandplot_MLO.isp2.glt` も残る）
+  `mlo_bandplot.py` が空の枠を描いていた（描く側は 2026-10-01 に空のファイルを飛ばすようにした）。`bandplot_MLO.isp2.glt` も残る
 - **`Samples/AFsymmetry/NiO` は `pwmode = 1` で `symgrpaf`**（2026-10-01）: k 点を 4³ にすると `rotwave: q+G rotation error (We have to set PWmode=11 for symgrpAF)`
   で止まる。試験の 3³ では通っているだけ。`pwmode = 11` にして参照を作り直すか
 
