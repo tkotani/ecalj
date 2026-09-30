@@ -1071,7 +1071,7 @@
     検証 (Na 4x4x4): 全 T で NaN 無し; T->0 で lindtet6 と一致 (ESEAVR 差 ~1e-9,
     Re(Sc) は印字精度で全状態一致); T=300K で物理的な熱シフト。
     旧ルーチン (tetrakbt/eaf_triangle/factri 等) は未使用化、削除候補。
-    詳細: SRC/subroutines/m_tetrakbt_BUGREPORT.md
+    詳細: MD/past_log.md §13（元は SRC/subroutines/m_tetrakbt_BUGREPORT.md）
 
 2026-06-05
   [fix] ctrl2ctrltoml.py: 生成 TOML の [ham] セクションに phispinsym=false を

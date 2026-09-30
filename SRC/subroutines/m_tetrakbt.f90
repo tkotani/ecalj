@@ -5,7 +5,7 @@
 !! they produced a wrong chi0 (NaN W/SEc for metals, up to ~4451x weight misplacement on
 !! Fermi-surface-crossing tetrahedra) and are NO LONGER CALLED. Kept only for reference;
 !! candidates for removal. Only kbt, tetrakbt_init (and integtetn) are still used.
-!! See m_tetrakbt_BUGREPORT.md.
+!! The diagnosis: MD/past_log.md §13 (was m_tetrakbt_BUGREPORT.md, moved 2026-10-01).
 module m_tetrakbt
   use m_keyvalue,only: getkeyvalue
   implicit none

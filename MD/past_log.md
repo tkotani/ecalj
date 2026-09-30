@@ -286,6 +286,18 @@ CALLER_GRAPH         = YES
 
 ---
 
+## 13. 有限温度の四面体法の不具合の報告（`SRC/subroutines/m_tetrakbt_BUGREPORT.md`、2026-06-08〜09、2026-10-01 に trash）
+
+- 症状（2026-06-08）: `[gw] tetrakbt = true` で χ₀ が誤り、金属の一部の q で ε が特異になって W・Σc が NaN（Na 4×4×4 の q = (0.25,0.25,0.5)）。T → 0 でも誤り
+- 診断の手順（再現できる形）: `tetwt5x_dtet4` で `usetetrakbt` のとき T=0 の正しい `lindtet6` も呼び、四面体ごとの `sum(wtthis(:,0))` を比べた。
+  T = 1 K で 34489 個の四面体が 10% 以上ずれ、最大 4451 倍。99.8% が Fermi 面を横切る四面体
+- 原因: 旧 `m_tetrakbt` の重みは W(ω_i) ≈ G(ω_i)·⟨f(e_a) − f(e_b)⟩（幾何の δ 重みに、ビンの中心で評価した占有を掛ける中点分解）。
+  Fermi 面が四面体を横切るか、ビンが遷移エネルギーの広がりより広い（指数の `frhis` 網の高い ω では普通）と、占有を違う ω で評価して、違うビンに大きすぎる重みが入る
+- 効かなかったこと: `factri` の縮退の手当て（`factri = factri0` にしても 34489 個のずれは残った）。ビンの中を細かく積分する (A') は正しいが重い（Na の hgw が 1 分 → 12 分以上）
+- 直し方（2026-06-09、`6b83b86e7`）: (B') エネルギーの畳み込み f(e) = ∫dE (−f′(E)) θ(E − e) により W_T(ω) = ∫dE (−f′(E))·lindtet6(ω; E_F = E)。
+  T=0 の厳密な `lindtet6` を E_F をずらして呼び、熱の核で重みを付ける（`tetwt5.f90` の `lindtet6_kbt`）。Na で T → 0 が `lindtet6` と 1e-9 まで一致
+- `m_tetrakbt.f90` の中点分解のルーチン（`tetrakbt`、`eaf_triangle` など）はもう呼ばれていない。今も使うのは `tetrakbt_init`・`kbt`・`integtetn`（TODO に消す件）
+
 ## 表 1. 片付けたもの（trash に移したもの）
 
 最上位の `MATERIALS/` は trash ではなく `Samples/MATERIALS/` へ移した（§9）。
@@ -309,6 +321,7 @@ CALLER_GRAPH         = YES
 | 2026-10-01 | TOOLS の古い道具（約 60 項目、`samples_tests.sh`・`sync_ecalj_src.sh`・`ozbench/` 以外） | `TOOLS/` | `4d5dd8fed` | §10 |
 | 2026-10-01 | Doxygen の設定 | `Doxygen/`（`Doxyfile`、README） | `da3976b2a` | §11 |
 | 2026-10-01 | GetSyml・StructureTool の例と使わないスクリプト | `GetSyml/ctrl.*`・`syml.*` ほか、`StructureTool/sample/` ほか（257 ファイル） | `2e0756a21` | §12 |
+| 2026-10-01 | 有限温度の四面体法の不具合の報告（2026-06、直し済み） | `SRC/subroutines/m_tetrakbt_BUGREPORT.md` | `c4da6b1f1` | §13 |
 | 2026-10-01 | 旧形式の古いサンプル（30 項目） | `Samples/MATERIALS/`（元は最上位の `MATERIALS/`、624 ファイル） | `3e9548b21` | §9 |
 
 注: サンプルの古い試行と控えは、MLOsamples の `test*`・`temp`・`*.bk`・`*.tmp`（§4.1）、`Samples/TestInstall/TESTunused`、
