@@ -51,6 +51,8 @@ kt1 全体が 17 分止まった）。GPU のプログラムは `SRC/exec/pylib/
 
 **リモートの操作**（2026-09-30、feedback_remote_scripts）: ssh の 1 行に `pkill -f <pattern>` を書くと、その `bash -c` の行自身に当たって接続ごと落ちる。
 kill や起動はスクリプトのファイルにして `scp` し、`ssh host 'bash /path/script.sh'` で実行する。パターンは `name.s[h]` のように最後の文字を括る。
+手元でも同じ（2026-10-01: Claude のシェルで `pkill -f "lmf eute"` がそのコマンド行自身に当たり、後続が走らなかった）。止めるときは `pgrep` で PID を見てから `kill <PID>`。
+待つときは親の PID で `while kill -0 <PID>; do sleep 15; done` のようにし、`pgrep -f` のパターンで待たない（待つ側の行にも一致する）。
 背景ジョブは `nohup setsid ... < /dev/null &`。走っているスクリプトのファイルを書き換えない（bash は少しずつ読む）。
 
 **肥大した `.git` を持つリモートへ main を入れる**（2026-06-05、project_ecalj_install_transfer）: `git push` が相手側の `index-pack --fix-thin` で固まる。
