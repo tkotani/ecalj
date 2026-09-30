@@ -54,10 +54,11 @@
   - hx0ahc.py: hahc へのオプションが 1 個のとき、Python のリストがそのままコマンドに入っていた。
   サンプル (どれも test.py と参照、README を持つ。一覧は Samples/README.md の表 1)。
   - Samples/Legacy から組み直したもの: SOC/FePt_MAE・MnGa_MAE、LDAU/ReN (INIT に 15 種の希土類窒化物の構造と
-    占有の初期値)、EffectiveMass/GaAs・CdS・GaN、Relax/LaGaO3、DOS/ZnS・Fe、AHC/Fe、IIR/C。
+    占有の初期値)、EffectiveMass/GaAs・CdS・GaN、Relax/LaGaO3、DOS/ZnS・Fe、IIR/C。
+    bcc Fe の異常ホール伝導度も今の入力に直したが、粗いメッシュではビルドで値が変わるので Samples/Legacy/AHC/Fe_rebuilt に置く (試験の組には入れない)。
     BenchmarkTest/ISSP に ISSP の機械の投入スクリプト。
   - Samples/kBT/scanT に GaAs と fcc Cu の温度のスキャン。
-  - TOOLS/samples_tests.sh の組 samples に SOC LDAU EffectiveMass Relax DOS AHC IIR。
+  - TOOLS/samples_tests.sh の組 samples に SOC LDAU EffectiveMass Relax DOS IIR。
   ワーカーを並べるとき (ecalj_auto/gw1500_rerun.sh): ランクを固定しない (OMPI_MCA_hwloc_base_binding_policy=none)。
   OpenMPI は taskset にかかわらずランク i を機械のコア i に固定するので、固定したままだとジョブが同じコアに重なる。
   既知の問題 (直していない)。

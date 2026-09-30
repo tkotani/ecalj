@@ -4,7 +4,7 @@ def test(args,bindir,testdir,workdir):
     lmfa= f'mpirun -np 1 {bindir}/lmfa '
     lmf = f'mpirun -np {args.np} {bindir}/lmf '
     message1='''
-    # Case AHC/Fe: anomalous Hall conductivity (AHC) of bcc Fe, magnetization along z
+    # Case Legacy/AHC/Fe_rebuilt: anomalous Hall conductivity (AHC) of bcc Fe, magnetization along z
     #  1. SCF with the spin-orbit coupling LzSz (ham.so=2, ham.phispinsym=true in ctrlg.fe.toml)
     #  2. job_band (job_AHC asks for bnd001.spin1), job_AHC: <u_k|u_k+b> on the mesh gw.n1n2n3 (huumat_MPI --ahc)
     #     and the AHC at the Fermi energy (hahc)

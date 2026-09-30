@@ -1,4 +1,7 @@
-# AHC/Fe: bcc Fe の異常ホール伝導度
+# AHC/Fe_rebuilt: bcc Fe の異常ホール伝導度（2026-09-30 に今の入力で組み直したもの）
+
+`Samples/Legacy` に置く。粗いメッシュでは値がビルドによって変わり（表 4）、試験の組（`TOOLS/samples_tests.sh`）には入れていない。
+試験は `Samples/Legacy/AHC` で `testecalj Fe_rebuilt -np 4`。
 
 磁化を z 方向に向けた bcc Fe の異常ホール伝導度（AHC）$\sigma_{xy}$ を、フェルミエネルギーのずらし量 $\Delta E_F$ の関数として求める。
 k 点メッシュを粗くした動作確認用のサンプルで、**値は収束していない**（§4）。
@@ -113,8 +116,8 @@ python3 ahc_table.py fe
 4 コアで 2〜3 分（SCF 1 分、`job_band` 20 秒、`job_AHC` 50 秒、`hx0ahc.py` 35 秒）。
 
 ```bash
-cd Samples/AHC
-testecalj Fe -np 4
+cd Samples/Legacy/AHC
+testecalj Fe_rebuilt -np 4
 ```
 
 テストは `scf.txt`（磁気モーメントと全エネルギー、許容差 1e-3）と `ahc.txt`（表 2 の全部の数、許容差 60 $\Omega^{-1}{\rm cm}^{-1}$。表 4 のビルドによる差を含む幅）を比べる。

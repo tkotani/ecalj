@@ -29,7 +29,6 @@ after another and writes one summary (how to read it: ecaljdoc
 | [EffectiveMass/](EffectiveMass/GaAs/README.md) | effective masses from the QSGW bands with SOC (the mass mode of `syml.<sname>`, fit by `massfit.py`): GaAs, CdS, zincblende GaN | `GaAs`, `CdS`, `GaN` | `samples` |
 | [Relax/](Relax/LaGaO3/README.md) | relaxation of the atomic positions: LaGaO3 | `LaGaO3` | `samples` |
 | [DOS/](DOS/ZnS/README.md) | total and partial density of states (`job_tdos`, `job_pdos`): ZnS, bcc Fe | `ZnS`, `Fe` | `samples` |
-| [AHC/](AHC/Fe/README.md) | anomalous Hall conductivity of bcc Fe (`job_AHC`, `hx0ahc.py`) | `Fe` | `samples` |
 | [IIR/](IIR/C/README.md) | impact ionization rate of diamond: the imaginary part of the self-energy (`gw_lmfh`, `QPU_life`) | `C` | `samples` |
 | [BenchmarkTest/](BenchmarkTest/README.md) | one QSGW iteration of InAs/GaSb superlattices (8 and 16 atoms), for GPU | 2 | `bench` |
 | [mptf32problem/](mptf32problem/README.md) | AgNO3 and other cases where the old TF32 mode of the GPU build failed (GW1500) | — | — |
@@ -65,7 +64,8 @@ Notes:
 |---|---|---|
 | `MATERIALS/La2CuO4`, `InAsGaSb/n10` | QSGW inputs and results of larger systems (7 and 40 atoms) | long; kept as inputs |
 | `CMDsample/` | tutorial inputs of 2019 (Si, InAs, ZnS, GaN, Fe, NiO, BaTiO3 QSGW) | the commands of its README are gone; `GetStarted/` and `DOS/` replace it |
-| `AHC/`, `IIR/`, `mass_fit_test/`, `LaGaO3_relax/`, `ReNcub/`, `FermiSurface/`, `Si_doping_sample/`, `TETRAHEDRON_HomoGas/`, `TETRAHEDRON_HomoGas_test/`, `BOLZTRAP/`, `SLAB/`, `SOCAXIS/`, `AFsymmetry/`, `Samples_ISSP/` | the originals of the samples of table 1 (`AHC/`, `IIR/`, `EffectiveMass/`, `Relax/`, `LDAU/`, `FermiSurface/`, `Doping/`, `HomoGas/`, `BoltzTraP/`, `SLAB/`, `SOC/`, `AFsymmetry/`, `BenchmarkTest/ISSP/`) | rebuilt; the originals can be removed |
+| `IIR/`, `mass_fit_test/`, `LaGaO3_relax/`, `ReNcub/`, `FermiSurface/`, `Si_doping_sample/`, `TETRAHEDRON_HomoGas/`, `TETRAHEDRON_HomoGas_test/`, `BOLZTRAP/`, `SLAB/`, `SOCAXIS/`, `AFsymmetry/`, `Samples_ISSP/` | the originals of the samples of table 1 (`IIR/`, `EffectiveMass/`, `Relax/`, `LDAU/`, `FermiSurface/`, `Doping/`, `HomoGas/`, `BoltzTraP/`, `SLAB/`, `SOC/`, `AFsymmetry/`, `BenchmarkTest/ISSP/`) | rebuilt; the originals can be removed |
+| `AHC/Fe_rebuilt` (with `AHC/Fe`, the original) | anomalous Hall conductivity of bcc Fe in the present input, with `test.py` (`testecalj Fe_rebuilt -np 4` in `Legacy/AHC`) | kept here, not a test: at the mesh 4x4x4 the value depends on the build (nvfortran differs from gfortran and ifx by 18%) |
 | `GdNldau/`, `MATERIALS/erasldau`, `MATERIALS/pdo_gwsc443`, `MATERIALS/yh3fcc_gwsc666`, `SOC/`, `InAsGaSb/n4` | covered by `TestInstall` (`gdn`, `eras`, `pdo_gwsc443`, `felz`), `MLOsamples/FeSoc` and `BenchmarkTest/inas4gasb4` | duplicates; can be removed |
 | `TestHomoDimerAtom/`, `UUmatSOC/`, `AHCSOCtest/` | scripts of 2012 in Python 2; work files without input; a copy of the AHC README | not usable; can be removed |
 | `superlattice/` | generator of strained zincblende superlattice POSCARs | a tool, no calculation; belongs to `StructureTool/` |
