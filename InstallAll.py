@@ -261,6 +261,10 @@ def main():
         # editor leftovers (job_mlo~, #ctrlgenM1.py#, .#genMLWF) are not linked (2026-10-01)
         if item.name.startswith(('__', '#', '.#')) or item.name.endswith('~'):
             continue
+        # a dangling symlink in SRC/exec would overwrite a good bindir link with a dead one (2026-10-01: links into the
+        # removed SRC/exec/build/ replaced ~/bin/mlo etc. until the CMake deliver target put them back)
+        if item.is_symlink() and not item.exists():
+            continue
         link = BIN_DIR / item.name
         if link.is_symlink() or (link.exists() and link.is_file()):
             link.unlink()
@@ -293,7 +297,6 @@ def main():
             link_path.unlink()
         link_path.symlink_to(src_file)
     print(f"ecalj_auto helper symlinks created in {BIN_DIR}")
-    remove_dangling_links(BIN_DIR, CWD)
 
     # --- Clean up build directory if requested ---
     if args.clean:
@@ -350,6 +353,11 @@ def main():
     # GPU build: choose the matrix backends for this GPU (writes BIN_DIR/ecalj_linalg_policy.toml).
     if args.gpu and not args.notune:
         tune_linalg(BIN_DIR, CWD)
+
+    # Dangling links into this tree are removed after the build, when the CMake deliver target has placed the build
+    # products: removed before it (2026-10-01 07:19, t14), 9 links to build products (mlo, libecaljF.so, ...) were counted
+    # as dangling and only came back through deliver.
+    remove_dangling_links(BIN_DIR, CWD)
 
     # Record every BIN_DIR entry that belongs to this install so
     # uninstall.py can undo it without re-deriving the layout.
