@@ -81,6 +81,15 @@
 
 ## 2026-09-30 — パッケージと文書の整理、温度のスキャン、反強磁性の QSGW の修理、GW1500 の回し直し（user 00:10「明日の朝まで自律的に」）
 
+### 14:58 **user「magnon を MLO ベースにできないか」→ `job_mlo_magnon` は今の MLO の流れに追随しておらず動かない。「UUmatSOC を残す理由は」→ 無い**
+
+- `Samples/Magnon/Fe_magnon` の入力（写し）で `lmfa`、`lmf`、`job_band` のあと `job_mlo_magnon fe -np 8`（`bin_check3`、14:56）。
+  `lmf --jobgw=1 --mlo` のあとの `mlo fe --mlo` が `m_HamPMT.f90` の 42 行目（`__HamiltonianPMT` の読み込み）で End of file。今の流れでは `lmf --writeham --mlo` が書く。
+  入力に `mlo_nkabc`（今の MLO では必須）も無い。`job_mlo_magnon` の最後の更新は 2026-05-31
+- MLO 版にするには: `job_mlo_magnon` を `job_mloW` の前半に合わせる、`mlo_magnon.f90` が読むファイルの形式を確かめる、bcc Fe で Wannier 版の `TrKpm.syml001` と比べる。未着手
+- `Legacy/UUmatSOC`: git に入っているのは 2024-09 の作業ファイル 26 個（`norm.procid.*.chk` = SOC ありの UU 行列の規格化の確認）だけ。入力と手順は git の外、`uutest` は無い。
+  消す候補のまま
+
 ### 14:52 **user「AHC は Legacy へ戻して」→ `Samples/AHC/Fe` を `Samples/Legacy/AHC/Fe_rebuilt` に移した。試験の組からも外した**
 
 - 組み直した版（入力、`test.py`、参照、README）はそのまま Legacy の下に置く。`Legacy/AHC` で `testecalj Fe_rebuilt -np 4` は動く。元の `Legacy/AHC/Fe` はそのまま
