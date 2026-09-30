@@ -81,6 +81,18 @@
 
 ## 2026-09-30 — パッケージと文書の整理、温度のスキャン、反強磁性の QSGW の修理、GW1500 の回し直し（user 00:10「明日の朝まで自律的に」）
 
+### 19:05 **user の指示で ecalj と ecaljdoc を `*_2026sep30` に退避して clone し直した。Legacy を全部消し、TestHomoDimerAtom は `AtomDimer/N2` として作り直した**
+
+- 17:35 `~/ecalj` → `~/ecalj_2026sep30`（worktree 3 つは外してから）、`git clone ecalj_2026sep30 ecalj`、remote（dev、rel、kt1host、ucgwhost、obata）を元どおりに。
+  ecaljdoc も同じ（origin、dev）。git の外にあったのは 8.6 万ファイル・58 GB で、ほぼ作業ファイルとビルドの生成物。欠落と言えそうなのは `ecalj_auto/INPUT`
+  （GW1500 の POSCAR 1546 個、6 MB。文書が参照している）だけで、user の判断待ち。一覧は旧ツリーの `~/ecalj/temp_only_in_old_ecalj.txt`（新 clone の最上位、git 外）
+- 新 clone を `~/bin` にビルドし、試験の組（inputs、install、eps、procar、mlo、mloqsgw、afsym、samples、magnon）を回している（17:41〜）
+- Legacy: `superlattice` → `StructureTool/superlattice`（`e05720ffd`）、AHC は user「消して（別の所から持ってくる）」で削除、
+  La2CuO4・InAsGaSb・BaTiO3 → `Samples/MATERIALS`（`5c94c18de`）、残り 19 ディレクトリを削除（`bce00a68d`）、`TestHomoDimerAtom` を最後に削除（`72cb1fe8b`）
+- `Samples/AtomDimer/N2`: 旧 TestHomoDimerAtom の設定（15 Å の箱、PBE、スピン分極、固定磁気モーメント、Γ 点）で N₂ を結合長 3 点と N 原子。kr7 で 1 回目（18:00〜18:08、7 分）、
+  2 回目（kr7 442 秒、手元 gfortran 3331 秒 ← 別の試験と同時）とも参照と差 0.0。r_e = 1.104 Å、D_e = 10.08 eV（実験 1.098 Å、9.9 eV）。
+  当時の 36 元素の設定は `AtomDimer/elements_2012.txt` に表として残した
+
 ### 17:08 **user「AHC は消して（別の所から持ってくる）。La2CuO4・InAsGaSb・BaTiO3 は Samples/MATERIALS に移す」→ 実行した**
 
 - `git rm -r Samples/Legacy/AHC`（`Fe`、`Fe_rebuilt`、README。82 ファイル）。git の外の `Legacy/AHC/Fe` の作業ファイルと `Legacy/AHC/BK` は手元のディスクに残っている
