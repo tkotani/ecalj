@@ -33,7 +33,7 @@ after another and writes one summary (how to read it: ecaljdoc
 | [MATERIALS/](MATERIALS/README.md) | inputs and results of larger systems, not tests: La2CuO4 (QSGW, 7 atoms), InAs/GaSb superlattices (16 and 40 atoms), BaTiO3 (QSGW in three stages) | — | `inputs` |
 | [BenchmarkTest/](BenchmarkTest/README.md) | one QSGW iteration of InAs/GaSb superlattices (8 and 16 atoms), for GPU | 2 | `bench` |
 | [mptf32problem/](mptf32problem/README.md) | AgNO3 and other cases where the old TF32 mode of the GPU build failed (GW1500) | — | — |
-| [Legacy/](Legacy/) | the older examples: the originals of the samples above, and what is not rebuilt (table 2) | — | `inputs` |
+| [Legacy/](Legacy/) | what is left of the older examples: `TestHomoDimerAtom` (dimers and atoms in a box, 2012), to be rebuilt as `AtomDimer/` | — | — |
 
 The group `inputs` takes every `ctrlg.<sname>.toml` of this tree: `lmchk` must read it, and the rules of
 `ctrlg_update.py` must leave it unchanged.
@@ -58,14 +58,8 @@ Notes:
 
 ## Legacy
 
-**Table 2**. Directories under `Legacy/`. Their inputs are converted to `ctrlg.<sname>.toml` (and are in the group
-`inputs`), but the job scripts and READMEs are of the time before 2026-05 and are not tests. The anomalous Hall
-conductivity (`AHC/`) was removed on 2026-09-30; a new sample of it comes from elsewhere.
-
-| directory | content | state |
-|---|---|---|
-| `CMDsample/` | tutorial inputs of 2019 (Si, InAs, ZnS, GaN, Fe, NiO) | the commands of its README are gone; `GetStarted/` and `DOS/` replace it. `BaTiO3` went to `Samples/MATERIALS/` |
-| `IIR/`, `mass_fit_test/`, `LaGaO3_relax/`, `ReNcub/`, `FermiSurface/`, `Si_doping_sample/`, `TETRAHEDRON_HomoGas/`, `TETRAHEDRON_HomoGas_test/`, `BOLZTRAP/`, `SLAB/`, `SOCAXIS/`, `AFsymmetry/`, `Samples_ISSP/` | the originals of the samples of table 1 (`IIR/`, `EffectiveMass/`, `Relax/`, `LDAU/`, `FermiSurface/`, `Doping/`, `HomoGas/`, `BoltzTraP/`, `SLAB/`, `SOC/`, `AFsymmetry/`, `BenchmarkTest/ISSP/`) | rebuilt; the originals can be removed |
-| `GdNldau/`, `MATERIALS/erasldau`, `MATERIALS/pdo_gwsc443`, `MATERIALS/yh3fcc_gwsc666`, `SOC/` | covered by `TestInstall` (`gdn`, `eras`, `pdo_gwsc443`, `felz`) and `MLOsamples/FeSoc` | duplicates; can be removed |
-| `TestHomoDimerAtom/`, `UUmatSOC/`, `AHCSOCtest/` | scripts of 2012 in Python 2; work files without input; a copy of the AHC README | not usable; can be removed |
-| `superlattice/` | generator of strained zincblende superlattice POSCARs | a tool, no calculation; belongs to `StructureTool/` |
+The older examples under `Legacy/` were rebuilt as the directories of table 1 (2026-09-29 and 30) and the originals were
+removed from the repository on 2026-09-30 (they are in the history before commit `e05720ffd`). What is left is
+`Legacy/TestHomoDimerAtom`: the scripts of 2012 that computed the homonuclear dimers and the atoms of the periodic table
+in a box (PBE, spin polarized, fixed spin moment) and drew their binding curves. They are in Python 2 with retired options
+and do not run; a small sample of a dimer in a box is to be made from them (`AtomDimer/`).

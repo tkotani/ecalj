@@ -40,6 +40,12 @@
   - log.<sname> の 'sumqv ... egap(eV)' の数値が Ry のままだった。eV で書く。
   - lmf --fermisurface の fermiup.data (fermidn.data) の見出しの単位 [eV] を [Ry] に (値は Ry)。
 
+2026-09-30 (5)
+  Samples/Legacy を消した (組み直した元、TestInstall などと重複するもの、今のコードで動かないもの。履歴 e05720ffd 以前にある)。
+  残るのは TestHomoDimerAtom (箱の中の二原子分子と原子、2012) だけで、AtomDimer/ として作り直す。
+  superlattice (歪んだ超格子の POSCAR の生成) は StructureTool/superlattice/ に移した。
+  bcc Fe の異常ホール伝導度 (AHC) も消した (別の所から入れ直す)。
+
 2026-09-30 (4)
   直した誤り (3 つのコンパイラで新しいサンプルを回して見つかったもの、ほか)。
   - lmf --band の質量モード (syml の ndiv2 以下の列): バンドが基準のエネルギーを横切る点 idat に値を入れておらず、

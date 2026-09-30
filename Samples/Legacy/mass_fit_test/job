@@ -1,2 +1,0 @@
-python2 ./jobprepare.py >jobbash;bash jobbash
-python2 ./job_mass.py
