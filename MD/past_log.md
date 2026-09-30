@@ -213,6 +213,24 @@ PROCAR の k 点の順（11 ランク以上で接尾辞の数値ソート）／`
 - `TESTsamples`（157 ファイル、2012 年頃の ctrl の例）、`SYMLsamples`（`syml` の例 22）、`CTRLsample`（Cu・Fe・Si の ctrl）、
   `EPS_Ag`、`LiDOS_Discrete`、`H_atom`、`NiO`、`Materials.ctrls.database`・`job_materials.py`・`job_vbm`・`sortvbm.py`（多くの物質を回す道具）
 
+## 10. `TOOLS/` の古い道具（2026-10-01 に trash。残したのは `samples_tests.sh`・`sync_ecalj_src.sh`・`ozbench/` だけ）
+
+どれも、今のコード・試験・インストール・文書のどこからも使われていなかった（名前の一部が偶然一致したものを除く）。取り出すときは `git show 4d5dd8fed:TOOLS/<名前>`。
+
+| 種類 | もの | 中身と、残す価値のあること |
+| --- | --- | --- |
+| 試験の照合 | `diffnum`・`diffnum2`・`diffnum0.py` | 数値の並ぶ 2 つのファイルを許容幅で比べる。今の試験は `SRC/exec/pylib/diffnum0.py`（`comp.py` の `diffnum`）を使う。TOOLS の版は古く、2026-09-30 に直した誤り（各ファイルの 1 行目を比べていなかった）を含む |
+| | `comp`・`comp.eval`・`compall`、`ddos.py`、`zdiff` | Makefile の試験の頃の照合（出力の中の鍵の行の後の数を比べる、2 つのファイルの数を全部比べる、DOS を比べる）。`zdiff` は圧縮ファイルの diff（1990 年代）。今は `SRC/exec/comp.py` |
+| Fortran の書き換え | `f2f.pl`（Colby Lemon）、`converttof90.py`、`convtof`、`cont.awk`、`int8toint`、`add0` | 固定形式を自由形式に、継続行の変換、`integer*8` の置き換え、Fortran の出力の省かれた 0 を補う。ソースは全部 `.f90` になった |
+| | `checkmodule`、`modifyuse.py`、`delwall.py`、`comment_zeroclear.py`、`find_replace.py`、`Remove_AtypeofCommentLine.py`、`analyze1.py` | module の依存の順にコンパイルする（今は CMake が解く）、`use` の書き換え（fparser）、作業配列 `w` の削除、初期化のコメントアウト、置換の雛形 |
+| 呼び出しの木 | `FparserTools/`（f2py の fparser r58 を使う `f_calltree.py` と試験）、`f_calltree2.py`、`f_subtree.py`・`f_subtree2.py`、`SrcFragments/`（`ANALYZEnotusednow` = 使われていないルーチンを探す） | python2 の頃のもの。今は module の `use m_foo, only:` を grep すればデータの流れが追える（ecaljclaude.md の singleton の方針） |
+| 字下げ | `indentation_tool/`（`findent`、`linenum`）、`findent` | 固定形式の Fortran の字下げの整形 |
+| lm7K の書き換え（木野、2011〜2012） | `KINO/` | Methfessel の lm7K 系のコードを今の Fortran へ移したときの段階ごとの道具: `deleletepointer.*`（pointer による作業配列の除去、2011-12〜2012-01 の各段）、`deleletestrucpointer.*`・`strucpoint`（`struc` の pointer を派生型 `s_*` に）、`del_w1.2.*`（作業配列 `w()` の除去、`delw.py`）、`del_pack`、`delcommonwdef`（`common /w/`）、`change_nglob`（`dglob`・`nglob` を `m_globalvariables` へ）、`fixmake`（gawk で Makefile の依存を作る）、`fpretty`（整形）、`fullmeshpack`、`SphericalBessel`（`ropbes` の実装の比較: Numerical Recipes、NUMPAC、PHASE） |
+| 前処理の変換 | `slatsmconvert/`（`ccomp2cpp`・`convccomp`）、`stop2rx/` | Methfessel の `ccomp` の前処理の指示を cpp に。`stop` を `call rx` に（fpgw、2013） |
+| 例と控え | `script4plot_sample/`（gnuplot のバンドの図、2009）、`LeastSquareSample/`（gnuplot のあてはめ）、`ModuleCodingSample/`（module の例。ecaljdoc の古い `ecaljdetails.tex` が参照） | |
+| | `m_commandline.F`（木野 2014、class を使うコマンド行の読み取り）、`nan.F`、`test2.F`・`testx.F`（gfortran の interface の試験）、`zhev.fast.F`・`zhev.slow.F`（古い `zhevx`）、`UnUsedSource.F`（`suclst` など使われなくなったルーチン）、`stoner.F`（d バンドの一般化した Stoner 模型、未使用）、`Gaunt.F`（core どうしの交換エネルギーのプログラム） | ソースの控え |
+| | `job_intent`（`run_arg` を使う古い MPI の QSGW の反復）、`pss`・`pss1`〜`pss3`（python2 の背景ジョブの見張りと kill）、`absolute-path`（lm7K の試験の補助）、`mpifork.tar.gz`（MPI の fork の試験） | |
+
 ---
 
 ## 表 1. 片付けたもの（trash に移したもの）
@@ -235,6 +253,7 @@ PROCAR の k 点の順（11 ランク以上で接尾辞の数値ソート）／`
 | 2026-10-01 | 2026-06〜09 の更新の要約 | `HIGHLIGHTS_2026-06_09.md` | `c2d9df4aa` | §6 |
 | 2026-10-01 | ジョブの自動実行の試作 | `jobauto/` | `c2d9df4aa` | §7 |
 | 2026-10-01 | 退役したスクリプト | `SRC/exec_legacy/` | `c2d9df4aa` | §8 |
+| 2026-10-01 | TOOLS の古い道具（約 60 項目、`samples_tests.sh`・`sync_ecalj_src.sh`・`ozbench/` 以外） | `TOOLS/` | `4d5dd8fed` | §10 |
 
 注: サンプルの古い試行と控えは、MLOsamples の `test*`・`temp`・`*.bk`・`*.tmp`（§4.1）、`Samples/TestInstall/TESTunused`、
 `Samples/TestInstall/eras/occnum.eras.bk`、`TOOLS/FparserTools/f_calltree.py.bk*`、`TOOLS/SrcFragments/f_calltree.py.bk*`・`ANALYZEnotusednow/analyze_temp~`、

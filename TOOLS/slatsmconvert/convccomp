@@ -1,5 +1,0 @@
-#!/bin/csh
-foreach i (`ls *.for`)
-echo $i ${i:r}.f
-./ccomp2cpp $i > ${i:r}.f
-end

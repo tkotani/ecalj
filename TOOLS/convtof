@@ -1,4 +1,0 @@
-#!/bin/csh
-foreach xxx  (`find . -name '*.F'`)
-mv $xxx  `echo $xxx | sed s/"\.F\>"/.f/g -`
-end

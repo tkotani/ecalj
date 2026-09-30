@@ -43,6 +43,7 @@
 
 ## 2. 質問（メンテナに決めてほしいこと）
 
+- **ecaljdoc の古い文書**（`BackUp/`、`ecaljdetails/` の LaTeX・PS、2019 年以前）は、trash に移した `TOOLS/checkmodule`・`TOOLS/ModuleCodingSample` などを参照している。ecaljdoc の側も同じ決まり（trash へ、要点は過去ログへ）で片付けるか（2026-10-01）
 - **`Samples/MATERIALS` の旧形式の古いサンプル**（2026-10-01 に最上位から移した 30 項目）を、今の形にするか、trash に移すか。
   中身は past_log.md §9。ecaljdoc の `README_tutorial.md` の `jobmaterials.py` の節もこれを前提にした古い説明
 - **GW1500 の `INVALID_STRUCTURE`（12）・`SUSPECT_STRUCTURE`（4）を集合から外すか**。いまは注記だけ
@@ -66,6 +67,7 @@
 
 ### 2026-10-01
 
+- `TOOLS/` の古い道具（約 60 項目、632 ファイル）を trash へ。残したのは `samples_tests.sh`・`sync_ecalj_src.sh`・`ozbench/`。中身は past_log.md §10。`diffnum` は試験で今も使うが、使うのは `SRC/exec/pylib/diffnum0.py`（TOOLS の版は古い）
 - Claude の個人メモリから、引き継ぐ価値があり今も正しいものを [handover.md](handover.md) に写した（user「メモリの内容はパッケージに入らないので MD/ に。混乱を招くものは良くない」）。
   写す前に 5 点をコードと照らした（rel の既定ブランチは `main`、`master` は無い、など）
 - `README.md` を `MD/README.md` へ（user「Claude に読ませて、人間は Claude から情報を取る構造にする。README を人間に読ませるのは好ましくない」）。

@@ -1,5 +1,0 @@
-1. gawk -f fromfile.awk  *.F
- generates make dependency from files
-
-2. gawk -f frommake.awk Makefile
- merge duplicated make dependency in the Makefile

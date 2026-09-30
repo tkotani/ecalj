@@ -1,2 +1,0 @@
-grep "^ .*%iv_p_oidtet" *.F */*.F | less 
-
