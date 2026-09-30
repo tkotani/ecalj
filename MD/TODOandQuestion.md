@@ -60,8 +60,6 @@
 
 - `MLOsamples/RuO2` の保存してある `rst`・`dmats` は、`pwmode = 11` の LDA+U の誤り（2026-03-30〜09-30、`2498e5283` で修正）の時期に作ったもの。
   作り直すか（GdCo5・SmP は 2026-09-30 に作り直した）
-- ecaljdoc に、TOML の流れの最短の手順（新規: `ctrls` → `ctrlgenToml.py` → `lmfa`・`lmf`・`gwsc`、旧い作業ディレクトリの移行、`--ctrlg:` の上書き）を
-  ある程度まとめる（2026-10-01、user「ecaljdoc にある程度は書く」）。元の英語のクイックスタートは `MD/README.md`
 - 試験の入力の温度（`t_tetrakbt = 262`、`t_sigmaw = 0`）をテンプレート（300/300）に揃えるか。揃えると gas_gwsc・fe_gwsc などの参照が動く
 
 ## 2. 質問（メンテナに決めてほしいこと）
@@ -87,6 +85,7 @@
 
 ### 2026-10-01
 
+- ecaljdoc の TOML の流れの最短の手順は、`manual/README_tutorial.md` の GetStarted（Step 0〜6: POSCAR → ctrls → `ctrlgenToml.py` → `lmfa`・`lmf` → バンド → `gwsc`、Step 2-Migration、`--ctrlg:` の上書き）に既にあった。TODO から外した。ecaljdoc `manual/mlo.md` に既定の模型が外れる 2 つの型と表 M1 を書いた（`422dc92`、未 push）
 - `Samples/MATERIALS` の 66 物質で LDA と MLO の自動の模型を回した（n10 は kr7 で走行中）。結果の表は `Samples/MATERIALS/Database/MLOcheck_20261001*.tsv`、一覧のページ https://claude.ai/artifact/VCWpe5W8Fei6umatXGeZGH、研究ログ 2026-10-01 朝 07:16
 - `job_mlo`: ctrlg の `[ham] so = 1` なら `job_mlo_soc` を案内して止まる（`mlo` がハミルトニアンの NaN で止まっていた。GaAs_so）。`--ctrlg:ham.so=` の上書きは尊重。`mlo_bandplot.py` は空の spin2 を描かない
 - `--cls`: `m_clsmode_finalize` に `ndimh`（`m_igv2x` の最後の k 点の値）でなく `nbandmx` を渡す（`vcdmel` の重みの並びと `dostet` の読み方を揃える）。CrN（`Samples/TestInstall/crn`）で APW なし・pwemax 2 と 5・4×4×4（ndimh が 182〜188 と変わる）のどれも `dos-vcdmel.crn` が一致（ずれるのは DOS の窓より上の帯だけだった）。ブランチ `cls-nbandmx` をマージ（`7ca6f1caa`）。試験は `~/work/clstest_20261001`
