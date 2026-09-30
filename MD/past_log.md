@@ -322,7 +322,7 @@ CALLER_GRAPH         = YES
 | 2026-10-01 | Doxygen の設定 | `Doxygen/`（`Doxyfile`、README） | `da3976b2a` | §11 |
 | 2026-10-01 | GetSyml・StructureTool の例と使わないスクリプト | `GetSyml/ctrl.*`・`syml.*` ほか、`StructureTool/sample/` ほか（257 ファイル） | `2e0756a21` | §12 |
 | 2026-10-01 | 有限温度の四面体法の不具合の報告（2026-06、直し済み） | `SRC/subroutines/m_tetrakbt_BUGREPORT.md` | `c4da6b1f1` | §13 |
-| 2026-10-01 | `SRC/exec` の行き先の無いリンク 12 本（`mlo`、`libecaljF.so`、`hgw_combined`、`hrcxq` など、消した `SRC/exec/build/` を指していた。追跡されていたのは `hgw_combined`・`hrcxq` の 2 本で `a0c7a7300` から） | `SRC/exec/` | `22d9c9b24` | — |
+| 2026-10-01 | `SRC/exec` の行き先の無いリンク 12 本（`mlo`、`libecaljF.so`、`hgw_combined`、`hrcxq` など、消した `SRC/exec/build/` を指していた。`.#genMLWF` を除く 11 本と `.#genMLWF` も追跡されていた。`hgw_combined`・`hrcxq` は `a0c7a7300` から） | `SRC/exec/` | `22d9c9b24` | — |
 | 2026-10-01 | 旧形式の古いサンプル（30 項目） | `Samples/MATERIALS/`（元は最上位の `MATERIALS/`、624 ファイル） | `3e9548b21` | §9 |
 
 注: サンプルの古い試行と控えは、MLOsamples の `test*`・`temp`・`*.bk`・`*.tmp`（§4.1）、`Samples/TestInstall/TESTunused`、
