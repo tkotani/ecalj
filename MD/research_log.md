@@ -88,7 +88,7 @@ user の指示（05:5x）: 「この方針で進めて。TODO も判断がつく
 MATERIALS 以下を MLO で（spd ベース、f があるときに入れる）すべてモデル化。DFT レベルでよい。目視で確認できる図、バンドギャップの違い。
 AFsymmetry のモード（AFTEST）が動くのか、そもそも正しいのかも調べて」。push はしない。
 
-### 07:36 **main（`--cls` の修正 `7ca6f1caa` を含む）を t14 で build し直し、InstallAll の試験は ALL PASSED（07:19〜07:25）。`SRC/exec` の行き先の無いリンク 12 本を片付けた**
+### 07:29 **main（`--cls` の修正 `7ca6f1caa` を含む）を t14 で build し直し、InstallAll の試験は ALL PASSED（07:19〜07:25）。`SRC/exec` の行き先の無いリンク 12 本を片付けた**
 
 - `python3 InstallAll.py --fc gfortran --bindir ~/bin -np 8`: `OK! ALL PASSED`（testecalj 325 秒）
 - そのとき、build の前に置いた `remove_dangling_links`（`1042277a2`）が `~/bin` の 67 本を消し、その中に `mlo`・`libecaljF.so` など 9 本の build の産物があった。
