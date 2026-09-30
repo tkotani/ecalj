@@ -68,8 +68,6 @@
 
 - `MLOsamples/RuO2` の保存してある `rst`・`dmats` は、`pwmode = 11` の LDA+U の誤り（2026-03-30〜09-30、`2498e5283` で修正）の時期に作ったもの。
   作り直すか（GdCo5・SmP は 2026-09-30 に作り直した）
-- ecaljdoc に `QforGW`（メッシュの外の q の一発 GW）の落とし穴が無い: `EMAXforGW` が必須（1d20 の詰め物）、窓を変えたら交換からやり直す、
-  `epsWVR` の行で小さい q の誘電関数が見られる（past_log.md §5）。spectrum.md か gwsc.md に書くか
 - ecaljdoc に、TOML の流れの最短の手順（新規: `ctrls` → `ctrlgenToml.py` → `lmfa`・`lmf`・`gwsc`、旧い作業ディレクトリの移行、`--ctrlg:` の上書き）を
   ある程度まとめる（2026-10-01、user「ecaljdoc にある程度は書く」）。元の英語のクイックスタートは `MD/README.md`
 - 試験の入力の温度（`t_tetrakbt = 262`、`t_sigmaw = 0`）をテンプレート（300/300）に揃えるか。揃えると gas_gwsc・fe_gwsc などの参照が動く
@@ -97,6 +95,7 @@
 
 ### 2026-10-01
 
+- ecaljdoc `manual/spectrum.md` に、メッシュの外の q（`QforGW`）の注意 3 点（`EMAXforGW` が必須、窓を変えたら交換から、`epsWVR` の行）を書いた（past_log.md §5 から、ecaljdoc の未 push のコミット）
 - AFTEST を調べた（研究ログ 2026-10-01 朝 06:46）: afsym ではモーメントを目標に保てるが、表示の ehk に −uhx·m_d、ehf に −2·uhx·m_d が残る。afsym なしでは誤り（サイトの電荷が分かれる）。修正はブランチ `aftest-fix`
 - GW1500: kr7 で fp32 と TF32 を同じバイナリ・同じ入力で比べた（8 物質、02:03〜06:24）。最終のギャップの差は 1 meV 未満。5 月との 0.29〜1.48 eV の差は精度ではなく、5 月の振動と設定の違い（`GW1500_status.md` §5.1 の表 7）。GOOD 1120 を精度の理由で見直す必要は無い
 - `SRC/subroutines/m_tetrakbt_BUGREPORT.md`（2026-06、直し済みの不具合の報告）の要点を past_log.md §13 に移して trash へ。空の道標 `SRC/TestInstall_is_moved_to_under_ecaljSamples` も trash へ
