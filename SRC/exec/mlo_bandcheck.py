@@ -1,94 +1,120 @@
 #!/usr/bin/env python3
-"""v6.2 統合評価: [occupied .. CBM+3eV] 窓 rms / ギャップ / 有効質量(曲率比)"""
-import glob, os, re, math, bisect
+"""MLO model bands against the first-principles bands, along the band path.
+
+    mlo_bandcheck.py <dir> [<dir> ...] [--json out.json] [--tsv out.tsv]
+
+<dir> is a directory where job_band and job_mlo (or job_mlo_soc) have run:
+  DFT  bnd*.spin{1,2}           columns: index, x, E - E_F (eV)
+  MLO  band_MLO_spin{1,2}.dat   columns: x, E (Ry, raw; E_F is the ef= of bandplot_MLO.isp1.glt, else qplist.dat)
+  efermi.lmf                    E_F, top of the valence and bottom of the conduction band of the SCF mesh (Ry)
+
+Metal or insulator is decided by efermi.lmf: an insulator has E_F on the top of the valence and the bottom of the
+conduction band above it (gap_mesh > 0.05 eV); a metal has Top < E_F < Bottom (the eigenvalues next to E_F). The path
+alone misjudges metals whose bands jump over E_F between two k points.
+
+Insulator: VBM_D = max{E_D <= 0.02}, CBM_D = min{E_D > 0.02} over both spins along the path; the MLO edges are taken on
+either side of the DFT mid-gap.  gapD, gapM, dVBM = VBM_M - VBM_D, dCBM = CBM_M - CBM_D.
+Accuracy, with the nearest band at the same k (|dx| < 0.01):
+  rms_m2d, max_m2d : each MLO point in [VBM_D - 8, CBM_D + 3] eV -> nearest DFT band   (a wrong band shows up here)
+  rms_d2m, max_d2m : each DFT point in [VBM_D - 8, CBM_D + 1] eV -> nearest MLO band   (a missing band shows up here)
+Metals: the same with VBM_D = CBM_D = E_F = 0.
+
+2026-10-01: rewritten for any directory (the test of Samples/MATERIALS/Database, MD/research_log.md 2026-10-01).
+The earlier version (v6.2, effective-mass ratios, fixed to Samples/MLOsamples/*__m3_work) is in the git history.
+"""
+import argparse, glob, json, os, re, sys
 import numpy as np
 
-RY = 13.605
-BASE = os.path.expanduser('~/ecalj/Samples/MLOsamples')
+RY = 13.6057
 
-def read_ef(g):
-    for l in open(g):
-        m = re.search(r'ef\s*=\s*([-+0-9.eEdD]+)', l)
-        if m: return float(m.group(1).replace('D','E'))
 
-def load_mlo(f, ef):
-    P=[]
-    for l in open(f):
-        t=l.split()
-        if len(t)<2 or l.lstrip().startswith('#'): continue
-        try: P.append((float(t[0]),(float(t[1])-ef)*RY))
-        except: pass
-    return P
+def read_ef(d):
+    p = os.path.join(d, 'bandplot_MLO.isp1.glt')
+    if os.path.exists(p):
+        m = re.search(r'ef=\s*([-+0-9.eEdD]+)', open(p).read())
+        if m: return float(m.group(1).replace('D', 'E'))
+    return float(open(os.path.join(d, 'qplist.dat')).readline().split()[0])
 
-def load_bnd(fs):
-    P=[]
-    for f in fs:
+
+def load(files, conv, bnd=False):
+    P = {}
+    for f in files:
         for l in open(f):
-            t=l.split()
-            if len(t)<3 or l.lstrip().startswith('#'): continue
-            try: P.append((float(t[1]),float(t[2])))
-            except: pass
+            if l.lstrip().startswith('#'): continue
+            t = l.split()
+            if len(t) < 2: continue
+            try: x, e = (float(t[1]), conv(float(t[2]))) if bnd else (float(t[0]), conv(float(t[1])))
+            except (ValueError, IndexError): continue
+            P.setdefault(round(x, 5), []).append(e)
     return P
 
-def edges(P, thr=0.25):
-    occ=[e for _,e in P if e<thr]; uno=[e for _,e in P if e>=thr]
-    return (max(occ) if occ else None, min(uno) if uno else None)
 
-def window_rms(M, B, elo, ehi):
-    bx={}
-    for x,e in B: bx.setdefault(round(x,5),[]).append(e)
-    xs=sorted(bx); dev=[]
-    for x,e in M:
-        if not (elo<=e<=ehi): continue
-        i=bisect.bisect_left(xs,x); best=None
-        for k in (i-1,i,i+1):
-            if 0<=k<len(xs) and (best is None or abs(xs[k]-x)<abs(best-x)): best=xs[k]
-        if best is None or abs(best-x)>0.02: continue
-        dev.append(min(abs(e-b) for b in bx[best]))
-    dev.sort()
-    if not dev: return None,None,0
-    r=math.sqrt(sum(d*d for d in dev)/len(dev))
-    p95=dev[int(0.95*len(dev))-1] if len(dev)>1 else dev[-1]
-    return r,p95,len(dev)
+def nearest(P, Q, lo, hi):
+    """for each point of P in [lo,hi]: |E - nearest E of Q at the same x|"""
+    xs = np.array(sorted(Q)); dev = []
+    for x, es in P.items():
+        i = np.searchsorted(xs, x)
+        cand = [xs[k] for k in (i - 1, i) if 0 <= k < len(xs)]
+        if not cand: continue
+        xq = min(cand, key=lambda c: abs(c - x))
+        if abs(xq - x) > 0.01: continue
+        qe = np.array(Q[xq])
+        dev += [np.min(np.abs(qe - e)) for e in es if lo <= e <= hi]
+    return np.array(dev)
 
-def edge_curv(P, edge, thr=0.25, dx=0.15):
-    if edge=='vbm':
-        cand=[(x,e) for x,e in P if e<thr]; x0,e0=max(cand,key=lambda p:p[1])
-        sel={}
-        for x,e in P:
-            if abs(x-x0)<=dx and e<thr: sel[round(x,5)]=max(sel.get(round(x,5),-1e9),e)
+
+def check(d):
+    ef = read_ef(d)
+    spins = [s for s in (1, 2) if glob.glob(os.path.join(d, f'bnd*.spin{s}'))]
+    D, M = {}, {}
+    for s in spins:
+        for x, es in load(sorted(glob.glob(os.path.join(d, f'bnd*.spin{s}'))), lambda e: e, bnd=True).items():
+            D.setdefault(x, []).extend(es)
+        mf = os.path.join(d, f'band_MLO_spin{s}.dat')
+        if os.path.exists(mf) and os.path.getsize(mf) > 0:
+            for x, es in load([mf], lambda e: (e - ef) * RY).items(): M.setdefault(x, []).extend(es)
+    if not D or not M: return None
+    eD = np.concatenate([np.array(v) for v in D.values()]); eM = np.concatenate([np.array(v) for v in M.values()])
+    vbD = eD[eD <= 0.02].max(); cbD = eD[eD > 0.02].min()
+    ln = [float(l.split()[0].replace('D', 'E')) for l in open(os.path.join(d, 'efermi.lmf')).readlines()[:3]]
+    ins = bool((ln[0] - ln[1]) < 1e-6 and (ln[2] - ln[1]) * RY > 0.05 and cbD - vbD > 0.05)
+    r = dict(insulator=ins, gap_mesh=(ln[2] - ln[1]) * RY if ins else 0.0, nspin=len(spins))
+    if ins:
+        mid = 0.5 * (vbD + cbD)
+        vbM = eM[eM <= mid].max() if (eM <= mid).any() else float('nan')
+        cbM = eM[eM > mid].min() if (eM > mid).any() else float('nan')
+        r.update(gapD=float(cbD - vbD), gapM=float(cbM - vbM), dVBM=float(vbM - vbD), dCBM=float(cbM - cbD))
+        top = cbD
     else:
-        cand=[(x,e) for x,e in P if e>=thr]; x0,e0=min(cand,key=lambda p:p[1])
-        sel={}
-        for x,e in P:
-            if abs(x-x0)<=dx and e>=thr: sel[round(x,5)]=min(sel.get(round(x,5),1e9),e)
-    xs=np.array(sorted(sel)); es=np.array([sel[x] for x in xs])
-    if len(xs)<5: return None
-    return np.polyfit(xs-np.float64(x0),es-e0,2)[0]
+        vbD, top = 0.0, 0.0
+    m2d = nearest(M, D, vbD - 8, top + 3); d2m = nearest(D, M, vbD - 8, top + 1)
+    for k, a in (('m2d', m2d), ('d2m', d2m)):
+        r['rms_' + k] = float(np.sqrt((a ** 2).mean())) if a.size else float('nan')
+        r['max_' + k] = float(a.max()) if a.size else float('nan')
+    return r
 
-INSUL={'C','GaAs','SrTiO3','NiO666lda','Al2O3_Cr','Si666gwsc','C.sp'}
-ALL=['Fe','Cu','C','C.sp','GaAs','SrTiO3','NiO666lda','Al2O3_Cr','RuO2','SmP','FeCo','FeMgO','Si666gwsc','GdCo5','GdION']
-print(f"{'system':12s} | {'rms[occ,CBM+3]':>14s} {'p95':>7s} {'n':>5s} | {'DFTgap':>7s} {'v6.2gap':>8s} {'dVBM':>7s} {'dCBM':>7s} | {'m*VBM':>6s} {'m*CBM':>6s}")
-for s in ALL:
-    w=os.path.join(BASE,s+'__m3_work')
-    try:
-        ef=read_ef(os.path.join(w,'bandplot_MLO.isp1.glt'))
-        M=load_mlo(os.path.join(w,'band_MLO_spin1.dat'),ef)
-        B=load_bnd(sorted(glob.glob(os.path.join(w,'bnd0*.spin1'))))
-        assert M and B
-    except Exception as e:
-        print(f"{s:12s} | (missing)"); continue
-    vd,cd_=edges(B); vm,cm_=edges(M)
-    cbm_ref = cd_ if (s in INSUL and cd_ is not None) else 0.0
-    r,p95,n = window_rms(M,B,-25.0, cbm_ref+3.0)
-    gapstr=f"{'—':>7s} {'—':>8s} {'—':>7s} {'—':>7s}"
-    if s in INSUL and None not in (vd,cd_,vm,cm_):
-        gapstr=f"{cd_-vd:7.3f} {cm_-vm:8.3f} {vm-vd:+7.3f} {cm_-cd_:+7.3f}"
-    ms=[]
-    for edge in ('vbm','cbm'):
-        try:
-            a,b=edge_curv(B,edge),edge_curv(M,edge)
-            ms.append(f"{a/b:6.2f}" if (a and b and abs(b)>1e-9) else f"{'—':>6s}")
-        except Exception:
-            ms.append(f"{'—':>6s}")
-    print(f"{s:12s} | {r if r else float('nan'):14.3f} {p95 if p95 else float('nan'):7.3f} {n:5d} | {gapstr} | {ms[0]} {ms[1]}")
+
+KEYS = ['insulator', 'gap_mesh', 'gapD', 'gapM', 'dVBM', 'dCBM', 'rms_m2d', 'max_m2d', 'rms_d2m', 'max_d2m', 'nspin']
+
+if __name__ == '__main__':
+    ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
+    ap.add_argument('dirs', nargs='+')
+    ap.add_argument('--json'); ap.add_argument('--tsv')
+    a = ap.parse_args()
+    res = {}
+    for d in a.dirs:
+        try: v = check(d)
+        except Exception as e: v = dict(error=str(e))
+        if v is not None: res[os.path.basename(os.path.normpath(d))] = v
+    if a.json: json.dump(res, open(a.json, 'w'), indent=1)
+    if a.tsv:
+        with open(a.tsv, 'w') as f:
+            f.write('name\t' + '\t'.join(KEYS) + '\n')
+            for k, v in res.items():
+                f.write(k + '\t' + '\t'.join(('%.4f' % v[x]) if isinstance(v.get(x), float) else str(v.get(x, '')) for x in KEYS) + '\n')
+    print(f"{'name':14s} {'gap_mesh':>8s} {'gapD':>7s} {'gapM':>7s} {'dVBM':>7s} {'dCBM':>7s} | {'rms_m2d':>7s} {'max':>5s} {'rms_d2m':>7s} {'max':>5s}   (eV)")
+    for k, v in res.items():
+        if 'error' in v: print(f'{k:14s} ERROR {v["error"]}'); continue
+        g = (f"{v['gap_mesh']:8.3f} {v['gapD']:7.3f} {v['gapM']:7.3f} {v['dVBM']:+7.3f} {v['dCBM']:+7.3f}" if v['insulator']
+             else f"{'metal':>8s} {'':7s} {'':7s} {'':7s} {'':7s}")
+        print(f"{k:14s} {g} | {v['rms_m2d']:7.3f} {v['max_m2d']:5.2f} {v['rms_d2m']:7.3f} {v['max_d2m']:5.2f}")
