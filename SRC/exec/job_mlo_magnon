@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 import argparse
 import contextlib
+import sys
 from pathlib import Path
 from pylib.run_cmd import run_cmd, MPIParams
-from pylib.utils import move_files, remove_files
+from pylib.utils import move_files, remove_files, merge_files
 
 EXEC_DIR = Path(__file__).parent
 
@@ -46,6 +47,18 @@ def cal_mlo_vw(args, extra_args):
     mpi_size = args.np
     options = extra_args
 
+    # The MLO Hamiltonian on the mesh [mlo] mlo_nkabc, as job_mlo makes it: HamiltonianPMTInfo, __HamiltonianPMT and HamRsMLO.
+    # mlo (below, after lmf --jobgw=1 --mlo) reads them; without this step it stopped at the end of an empty
+    # HamiltonianPMTInfo (2026-09-30). Needs bnd001.spin1 of job_band for the band window of the MLO.
+    if not Path('bnd001.spin1').exists():
+        sys.exit('job_mlo_magnon: bnd001.spin1 not found: run job_band first')
+    remove_files("__HamiltonianPMT.*")
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
+                               args=[target, "--writeham", "--mkprocar", "--noinv", "--mlo", *options]), stdout="lwriteham")
+    merge_files(pattern="PROCAR.UP.*", output_file="PROCAR.UP", remove_sources=True)
+    merge_files(pattern="PROCAR.DN.*", output_file="PROCAR.DN", remove_sources=True)
+    run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo", args=[target, *options]), stdout="lmlo_ham")
+
     run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"lmf", args=[target, "--jobgw=0", *options]), stdout="llmfgw00")
     run_cmd(cluster, MPIParams(nprocs=1, command=EXEC_DIR/"qg4gw", args=[target, "--job=1", *options]), stdout="lqg4gw")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf", args=[target, "--jobgw=1", "--mlo", *options]), stdout="llmfgw01")
@@ -64,11 +77,12 @@ def main():
     parser = argparse.ArgumentParser(
         prog='magnon',
         description=(
-            'Magnon dispersion calculation using onsite approximation.\n'
-            'genMLWF_vw should be run before this to generate the necessary files.\n'
-            'output files for magnon band: TrKpm.symlXXX (XXX=001 ~)\n'
-            '                              TrRpm.symlXXX (XXX=001 ~)\n'
-            'output files for magnon dos: TrKpm.dos & TrRpm.dos\n'
+            'Magnon spectrum from the MLO model: the MLO Hamiltonian (as job_mlo), the screened W in the MLO basis\n'
+            '(as job_mloW), the overlaps of the MLOs at k and k+q, and chi^+- (mlo_magnon).\n'
+            'Needs ctrlg.<sname>.toml with [mlo] (mlo_nkabc, mlo_lm) and bnd001.spin1 of job_band.\n'
+            'Output for the magnon band: MagSuscep.symlXXX (XXX=001 ~): q, q_position, omega(eV), K (Re, Im), R (Re, Im);\n'
+            '   MagSpec.symlXXX, DynMagSuscep.symlXXX, InvMagSuscep.symlXXX, and the same per site (*SiteNNN.*).\n'
+            'With --dos the spectra are also summed over the BZ mesh (see main_mlo_magnon.f90).\n'
             'Console output files (stdout.*) are moved to STDOUT directory.'
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter
