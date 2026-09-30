@@ -95,7 +95,7 @@ dosmax = 15.0
 # conv: max |dE| between iterations.  convc: max d(rho_out - rho_in).
 # umix/tolu: LDA+U density-matrix mixing parameters.
 [iter]
-nit   = 30  # max self-consistency iterations
+nit   = 60  # max self-consistency iterations (from lmfa: 47 iterations, 2026-09-30)
 mix   = "A2"  # B3 = Broyden hist=3 (default); A3 = Anderson hist=3
 conv  = 1e-05  # max dE between iterations (Ry)
 convc = 1e-05  # max d(rho_out - rho_in) (Ry)

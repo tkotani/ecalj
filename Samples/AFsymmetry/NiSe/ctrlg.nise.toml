@@ -50,9 +50,9 @@ pos  = [0.343339587242026, 0.198227178236398,              0.75]
 # idu/uh/jh (LDA+U), and rsmh/eh (smoothed-Hankel basis).
 # kmxa = radial expansion order at tail sites (default 5).
 # Rule of thumb: kmxa > pwemax (in Ry). r = MT radius (a.u.).
-# NOTE: legacy IDU=(0,0,12) UH=0 removed 2026-08-19: idu>=10 together with
-# symgrpaf crashes zhev_tk4 (nev/=nevout) in the current code; with U=0 the
-# LDA+U block was a no-op anyway. See Samples/README Known issues.
+# NOTE: legacy IDU=(0,0,12) UH=0 removed 2026-08-19 (with U=0 it does nothing): idu>=10 then stopped
+# in zhev_tk4. Cause (2026-09-30 21:31): idu = 10 + mode was not reduced to the mode without sigm.*, fixed in m_lmfinit;
+# now idu=12 with U=0 gives the same numbers as this input.
 [[spec]]   # @1
 atom   = "Niup"
 z      = 28
