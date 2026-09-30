@@ -1,7 +1,7 @@
 # ecalj 過去ログ — 片付けたものに含まれていたノウハウと、役に立つかもしれない情報
 
 リポジトリから外したもの（各計算機の `ecalj/trash/` に移した）の中にあったノウハウや経緯を、話題ごとにまとめる。
-入口は [CLAUDE.md](../CLAUDE.md)（中身は [ecaljclaude.md](ecaljclaude.md)）と [README.md](../README.md)。
+入口は [CLAUDE.md](../CLAUDE.md)（中身は [ecaljclaude.md](ecaljclaude.md)）。
 利用者向けの説明は ecaljdoc が軸なので、ここには開発の側の細かいことだけを書く。
 
 外したファイルの中身は git の履歴から取り出せる（表 1 の「外す前のコミット」を使う）:
@@ -19,7 +19,7 @@ git checkout <コミット> -- <パス>          # 作業ツリーに戻す（�
 
 ### 1.1 `InstallAll.py` の打ち込み（最上位の `g`・`gg`・`i`・`ii`・`n`、2025-10〜2026-02）
 
-1 行だけのシェルの控えだった。いまの使い方は README.md と ecaljdoc の ForDevelopers §4。
+1 行だけのシェルの控えだった。いまの使い方は ecaljdoc の ForDevelopers §4（2026-05 の流れは MD/README.md）。
 
 | ファイル | 中身 |
 | --- | --- |

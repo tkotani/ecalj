@@ -84,6 +84,13 @@
 
 ## 2026-10-01 — GW1500 の問題のある物質から fp32 で回し直し、精度の比較
 
+### 05:05 **user「README も MD へ。Claude に読ませて、人間は Claude から情報を取る構造にする。README を人間に読ませるのは好ましくない。
+クイックスタートももう人間の読むものではない（ecaljdoc にある程度は書く）」→ `README.md` を `MD/README.md` へ、最上位は数行の案内だけ**
+
+- 最上位の `README.md` は、GitHub の公開の表紙が空にならないための 5 行（ecaljdoc と `CLAUDE.md`・`MD/` への案内）。要らなければ消す
+- `ecaljclaude.md` の方針の「使い方が変わるときは Changes.txt と README.md も直す」を「Changes.txt と ecaljdoc」に。
+  ecaljdoc にクイックスタートをある程度書くことは TODO に
+
 ### 04:58 **user「*.md は MD を作ってそこへ。ecalj の最上位は CLAUDE.md と README.md ぐらいに」「研究ログも（案 1）」→ `MD/` に 4 つを移した**
 
 - `ecaljclaude.md`、`TODOandQuestion.md`、`past_log.md` と、このログ（`Samples/kBT/kBT_research.md` → `MD/research_log.md`）を `git mv`。

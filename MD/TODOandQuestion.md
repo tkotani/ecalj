@@ -1,7 +1,7 @@
 # TODO と質問、やったこと
 
 直すべき点は見つけてもその場では直さず、ここに書く（user 2026-10-01）。メンテナに決めてほしいことも、やったことも、ここに書く。
-入口は [CLAUDE.md](../CLAUDE.md)（中身は [ecaljclaude.md](ecaljclaude.md)）と [README.md](../README.md)。片付けたものの中のノウハウは [past_log.md](past_log.md)。
+入口は [CLAUDE.md](../CLAUDE.md)（中身は [ecaljclaude.md](ecaljclaude.md)）。片付けたものの中のノウハウは [past_log.md](past_log.md)。
 細かい経緯と数値は研究ログ [research_log.md](research_log.md)。
 
 書き方: 各項目に見つけた日を付ける。済んだら「やったこと」へ移し、済んだ日とコミットを書く。
@@ -37,13 +37,14 @@
   作り直すか（GdCo5・SmP は 2026-09-30 に作り直した）
 - ecaljdoc に `QforGW`（メッシュの外の q の一発 GW）の落とし穴が無い: `EMAXforGW` が必須（1d20 の詰め物）、窓を変えたら交換からやり直す、
   `epsWVR` の行で小さい q の誘電関数が見られる（past_log.md §5）。spectrum.md か gwsc.md に書くか
+- ecaljdoc に、TOML の流れの最短の手順（新規: `ctrls` → `ctrlgenToml.py` → `lmfa`・`lmf`・`gwsc`、旧い作業ディレクトリの移行、`--ctrlg:` の上書き）を
+  ある程度まとめる（2026-10-01、user「ecaljdoc にある程度は書く」）。元の英語のクイックスタートは `MD/README.md`
 - 試験の入力の温度（`t_tetrakbt = 262`、`t_sigmaw = 0`）をテンプレート（300/300）に揃えるか。揃えると gas_gwsc・fe_gwsc などの参照が動く
 
 ## 2. 質問（メンテナに決めてほしいこと）
 
 - **`Samples/MATERIALS` の旧形式の古いサンプル**（2026-10-01 に最上位から移した 30 項目）を、今の形にするか、trash に移すか。
   中身は past_log.md §9。ecaljdoc の `README_tutorial.md` の `jobmaterials.py` の節もこれを前提にした古い説明
-- **README.md の日付つきの節**（2026-05〜09 の新機能と使い方）は `Changes.txt` と ecaljdoc に重なる。README を入口と要点だけに縮めるか
 - **GW1500 の `INVALID_STRUCTURE`（12）・`SUSPECT_STRUCTURE`（4）を集合から外すか**。いまは注記だけ
 - **5 月（TF32）と fp32 の差**: kr7 の比較（同じバイナリ・同じ入力で fp32 と TF32）の結果しだいで、GOOD の 1120 を見直すか
 - **ビルドの生成物が入ったコミット `a0c7a7300`（78 MB）を、push の前に履歴から消すか**。消すと以後 674 コミットのハッシュが変わり、
@@ -65,6 +66,9 @@
 
 ### 2026-10-01
 
+- `README.md` を `MD/README.md` へ（user「Claude に読ませて、人間は Claude から情報を取る構造にする。README を人間に読ませるのは好ましくない」）。
+  最上位の `README.md` は数行の案内だけ（GitHub の表紙が空にならないように）。`ecaljclaude.md` の方針の文言を直した
+- 開発の文書を `MD/` に（`ecaljclaude.md`、`TODOandQuestion.md`、`past_log.md`、研究ログ `research_log.md`、`bf8985687`）
 - ecalj の片付けの 3 回目: `PHASE1B_REFACTOR.md`、`HIGHLIGHTS_2026-06_09.md`、`FiniteT_and_QPE_HOWTO.md`、`ecaljdoc_drafts/`、`jobauto/`、
   `SRC/exec_legacy/` を trash へ。中身は past_log.md §3.2・§4.3・§5〜§8 に整理し、README と ecaljdoc（ForDevelopers・kBT・README_tutorial）の参照を直した。
   最上位の `MATERIALS/` は trash ではなく `Samples/MATERIALS/` の下へ移した（user「いったん Samples の下へ」、624 ファイル、`git mv`）
