@@ -75,7 +75,7 @@ cleaned out of the repository (to `trash/`, ignored by git): `past_log.md`.
 
 ## 2026-06-13  Changelog: finite-T chi0, hsfp0 GPU, gw_lmfh GPU/MP flow, fixes
 
-New in the GW chain (commits 37e6fbc2..2a04e767; user guide: FiniteT_and_QPE_HOWTO.md):
+New in the GW chain (commits 37e6fbc2..2a04e767; the user guide of that time is summarised in past_log.md §5, the present one is ecaljdoc manual/kBT and manual/gwsc):
 
 - **tetrakbt / t_tetrakbt** (`[gw]` in ctrlg toml): finite-temperature tetrahedron
   for chi0 with a consistent finite-T Fermi level (heftet writes `EFERMI_kbt`;
@@ -110,7 +110,7 @@ New in the GW chain (commits 37e6fbc2..2a04e767; user guide: FiniteT_and_QPE_HOW
 
 ## What's new (2026-06 .. 09)
 
-See `HIGHLIGHTS_2026-06_09.md`: one input file `ctrlg.<sname>.toml`
+See `past_log.md` §6 (the digest that was `HIGHLIGHTS_2026-06_09.md`): one input file `ctrlg.<sname>.toml`
 (PB / esm_input.dat / GWinput.toml retired; `ctrlg_absorb.py` converts old
 directories), MLO in its final form (`mlo_method = 4`), finite-T QSGW samples,
 `gw_lmfh` on GPU, and the bug fixes.

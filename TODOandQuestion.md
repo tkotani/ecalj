@@ -24,14 +24,22 @@
 - **`m_bndfp` が `m_clsmode_finalize` に渡す `ndimh`**（2026-09-30）: module の状態のまま。`--cls` を `pwmode = 11` で使うときに確かめる
 - **VSCode の CMake 拡張が最上位に `build/` を作る**（2026-10-01）: `.vscode/settings.json` の設定か、`.gitignore` に `/build/` を入れる
 
+- **`hgw` の残り**（2026-04 の統合の残タスク、2026-10-01 に past_log.md §3.2 から）: ノード内の W の共有を `MPI_Win_allocate_shared` で（メモリの重複を減らす）。
+  `hsfp0_sc` の Sx（`--job=1`）・core の交換（`--job=3`）も `hgw` に入れる（時間は小さいので優先度は低い）
+
 ### 試験と入力
 
 - `MLOsamples/RuO2` の保存してある `rst`・`dmats` は、`pwmode = 11` の LDA+U の誤り（2026-03-30〜09-30、`2498e5283` で修正）の時期に作ったもの。
   作り直すか（GdCo5・SmP は 2026-09-30 に作り直した）
+- ecaljdoc に `QforGW`（メッシュの外の q の一発 GW）の落とし穴が無い: `EMAXforGW` が必須（1d20 の詰め物）、窓を変えたら交換からやり直す、
+  `epsWVR` の行で小さい q の誘電関数が見られる（past_log.md §5）。spectrum.md か gwsc.md に書くか
 - 試験の入力の温度（`t_tetrakbt = 262`、`t_sigmaw = 0`）をテンプレート（300/300）に揃えるか。揃えると gas_gwsc・fe_gwsc などの参照が動く
 
 ## 2. 質問（メンテナに決めてほしいこと）
 
+- **`Samples/MATERIALS` の旧形式の古いサンプル**（2026-10-01 に最上位から移した 30 項目）を、今の形にするか、trash に移すか。
+  中身は past_log.md §9。ecaljdoc の `README_tutorial.md` の `jobmaterials.py` の節もこれを前提にした古い説明
+- **README.md の日付つきの節**（2026-05〜09 の新機能と使い方）は `Changes.txt` と ecaljdoc に重なる。README を入口と要点だけに縮めるか
 - **GW1500 の `INVALID_STRUCTURE`（12）・`SUSPECT_STRUCTURE`（4）を集合から外すか**。いまは注記だけ
 - **5 月（TF32）と fp32 の差**: kr7 の比較（同じバイナリ・同じ入力で fp32 と TF32）の結果しだいで、GOOD の 1120 を見直すか
 - **ビルドの生成物が入ったコミット `a0c7a7300`（78 MB）を、push の前に履歴から消すか**。消すと以後 674 コミットのハッシュが変わり、
@@ -53,6 +61,9 @@
 
 ### 2026-10-01
 
+- ecalj の片付けの 3 回目: `PHASE1B_REFACTOR.md`、`HIGHLIGHTS_2026-06_09.md`、`FiniteT_and_QPE_HOWTO.md`、`ecaljdoc_drafts/`、`jobauto/`、
+  `SRC/exec_legacy/` を trash へ。中身は past_log.md §3.2・§4.3・§5〜§8 に整理し、README と ecaljdoc（ForDevelopers・kBT・README_tutorial）の参照を直した。
+  最上位の `MATERIALS/` は trash ではなく `Samples/MATERIALS/` の下へ移した（user「いったん Samples の下へ」、624 ファイル、`git mv`）
 - ecalj の片付け（user「いらないものは trash へ。ノウハウは過去ログへ。重複は整理してから trash へ」）:
   ビルドの生成物 1853 ファイル（`3f0771f2f`）、最上位の打ち込み用と古いスクリプト、`.refactor_notes/`、`SRC/exec/BK`、
   MLOsamples の古い試行、`TestInstall/TESTunused`、`*.bk` などを trash へ。ノウハウは [past_log.md](past_log.md)
