@@ -1,8 +1,8 @@
 # TODO と質問、やったこと
 
 直すべき点は見つけてもその場では直さず、ここに書く（user 2026-10-01）。メンテナに決めてほしいことも、やったことも、ここに書く。
-入口は [CLAUDE.md](CLAUDE.md)（中身は [ecaljclaude.md](ecaljclaude.md)）と [README.md](README.md)。片付けたものの中のノウハウは [past_log.md](past_log.md)。
-細かい経緯と数値は研究ログ（`Samples/kBT/kBT_research.md`）。
+入口は [CLAUDE.md](../CLAUDE.md)（中身は [ecaljclaude.md](ecaljclaude.md)）と [README.md](../README.md)。片付けたものの中のノウハウは [past_log.md](past_log.md)。
+細かい経緯と数値は研究ログ [research_log.md](research_log.md)。
 
 書き方: 各項目に見つけた日を付ける。済んだら「やったこと」へ移し、済んだ日とコミットを書く。
 

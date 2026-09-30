@@ -28,7 +28,7 @@ job_band la2cuo4swj -np 32
 
 最上位にあった `MATERIALS/` を、いったんここへ移した（user 2026-10-01）。旧形式（`ctrl.<sname>`、`GWinput`）の入力と結果で、今のプログラムはそのままでは読まない。
 今の入力にするには `Legacy2toml.py <sname>`（`ctrl.<sname>` と `GWinput` から `ctrlg.<sname>.toml`）。各ディレクトリの中身と、近い内容の今のサンプルは
-ecalj の [past_log.md](../../past_log.md) §9。整理（今の形にするか、trash に移すか）は ecalj の [TODOandQuestion.md](../../TODOandQuestion.md)。
+ecalj の [past_log.md](../../MD/past_log.md) §9。整理（今の形にするか、trash に移すか）は ecalj の [TODOandQuestion.md](../../MD/TODOandQuestion.md)。
 
 `CTRLsample`、`EPS_Ag`、`FeMTOHAM`、`Fe_5`、`Fe_HamMTO`、`GdNldau`、`H_atom`、`LaGaO3_relax`、`LiDOS_Discrete`、`Li_atom`、`MLOsamples`、`NiMnSb_magnon`、`NiO`、
 `NiSe_aftest`、`SYMLsamples`、`SiSigma`、`SiSigmaAny`、`Si_HamMTO`、`Si_doping_sample`、`TESTsamples`、`TETRAHEDRON_HomoGas`、`TestHomoDimerAtom`、

@@ -36,7 +36,7 @@ Claude（や人）が後でコードや記録を読むときの手がかりに�
 - git のコミットメッセージは英語（ecalj、ecaljdoc とも）。`Changes.txt`、`README.md`、`manual/*.md`、研究ログの中身は日本語でよい
 - コミットはこまめに、論理的に分ける。使い方が変わるときは `Changes.txt` と `README.md` も直す
 
-### 研究ログ（`Samples/kBT/kBT_research.md` など）
+### 研究ログ（[research_log.md](research_log.md)）
 
 - 最新を上に。日付ごとに `## YYYY-MM-DD — 要約`、その中は `### HH:MM 見出し` を新しい順に積む
 - 投入・完了・停止・判断（誰の判断か）の時刻を書く。古い仮説は消さず、後の判定を添える

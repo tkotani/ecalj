@@ -1,3 +1,9 @@
+2026-10-01 (2)
+  開発の文書を MD/ にまとめた。最上位に残るのは README.md、CLAUDE.md、Changes.txt。
+  ecaljclaude.md → MD/ecaljclaude.md（CLAUDE.md は @MD/ecaljclaude.md）、研究ログ Samples/kBT/kBT_research.md → MD/research_log.md、
+  新しく MD/TODOandQuestion.md（直すべき点、質問、実行中、やったこと）と MD/past_log.md（片付けたものにあったノウハウ）。
+  いらないものは各計算機の ecalj/trash/（git は無視）へ移す。最上位の MATERIALS/ は Samples/MATERIALS/ へ移した。
+
 2026-10-01
   Materials Project の API キーを ecalj_auto/config.ini から外した。config.ini はリポジトリに入っていて、キーが公開の
   リポジトリに載っていた (auto_jobsubmit.py・auto/Job.py が OUTPUT/<run>/config.ini に写し、job_mp.py がログに出していた)。

@@ -12,7 +12,7 @@
 > Fermi 準位は `t_tetrakbt > 0` なら `EFERMI_kbt` (無ければ abort)。下の「使うときの注意」のうち
 > `t_sigmakbt` / `esmr` に関する 3 項は**過去の話**で、いまは (1) `t_sigmaw` は常に有効、
 > (2) `t_tetrakbt` と同じ温度にするのが自然だが必須ではない、(3) `esmr` は無い、である。
-> ディレクトリ名 `Fe/t_sigmakbt*` は当時のまま。最新の経緯は `kBT_research.md` (新しい順)。
+> ディレクトリ名 `Fe/t_sigmakbt*` は当時のまま。最新の経緯は `MD/research_log.md` (新しい順)。
 
 電子温度を χ₀ 側 (`tetrakbt`) と Σ 側 (`t_sigmakbt`) の**両方**に入れた QSGW の
 実例。手法とその限界は
@@ -29,7 +29,7 @@
 > **2026-09-28 の注**: この節は 09-24〜25 に書いたもの。その後 MLO-QSGW（MLO Sigma インターポレーション）は LiTi₂O₄ 6³・9³ の 10 反復と
 > `Samples/MLOQSGW` の回帰まで進んだ。今の案内は冒頭の表、使い方は ecaljdoc の mlo_gwsc。
 
-この下の `kBT_research.md` の 2026-09-24〜25 のエントリは、kBT 本体ではなく
+この下の `MD/research_log.md` の 2026-09-24〜25 のエントリは、kBT 本体ではなく
 **自己エネルギーを MLO 表現で内挿する QSGW** の開発記録である。
 $\Sigma$ の q メッシュ点の「間」にだけ出る数十 meV の凸凹（LiTi₂O₄ で 25〜29 meV）を、
 MTO 基底ではなく MLO の小さな部分空間で $\Sigma$ を保持することで抑えようという試み。
@@ -37,7 +37,7 @@ MTO 基底ではなく MLO の小さな部分空間で $\Sigma$ を保持する�
 | 文書 | 中身 |
 |---|---|
 | [`sigma_mlo_design.md`](sigma_mlo_design.md) | 設計書。出発点 $\langle\psi\|\hat\Sigma\|\psi\rangle$ からの式の導出（式 (1)–(17)）、実装手順、検証手順、踏んだバグの記録 |
-| [`kBT_research.md`](kBT_research.md) | 実測ログ（新しい順）。NiO / Si での検証、LiTi₂O₄ の連鎖 |
+| [`MD/research_log.md`](../../MD/research_log.md) | 実測ログ（新しい順）。NiO / Si での検証、LiTi₂O₄ の連鎖 |
 | [ecaljdoc: MLO-gwsc](https://ecalj.github.io/ecaljdoc/manual/mlo_gwsc) | 使い方（`gwsc --mlo`）、保持すべきファイル、現状の精度 |
 
 **既定では一切動かない。** `gwsc` に `--mlo` を付けたときだけ有効。
@@ -171,7 +171,7 @@ kt1 側にあってここに持ってきていないもの:
 
 ## 4. これから詰めるべき課題
 
-研究ログ（日付順、試したこと・数字・仮説）は [kBT_research.md](kBT_research.md)。
+研究ログ（日付順、試したこと・数字・仮説）は [MD/research_log.md](../../MD/research_log.md)。
 
 一覧は [ecaljdoc: kBT §9](https://ecalj.github.io/ecaljdoc/manual/kBT#9-これから詰めるべき課題-2026-09-17)。
 要点だけ:

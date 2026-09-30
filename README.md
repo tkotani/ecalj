@@ -6,10 +6,10 @@ email: takaokotani@gmail.com
 ecalj documents is at [ecaljdoc](https://ecalj.github.io/ecaljdoc/)
 
 Developers, and AI sessions that start without memory: read ecaljdoc `manual/ForDevelopers.md` first (reading order,
-build and test, machines, how jobs are submitted, a digest of the research log), and `ecaljclaude.md` (how code comments,
+build and test, machines, how jobs are submitted, a digest of the research log), and `MD/ecaljclaude.md` (how code comments,
 commits and the research log are written; Claude Code reads it through `CLAUDE.md`).
-Open items, questions to the maintainer and what was done recently: `TODOandQuestion.md`. Know-how from the files that were
-cleaned out of the repository (to `trash/`, ignored by git): `past_log.md`.
+Open items, questions to the maintainer and what was done recently: `MD/TODOandQuestion.md`. Know-how from the files that were
+cleaned out of the repository (to `trash/`, ignored by git): `MD/past_log.md`.
 
 ## 2026-09-28  `[gw] t_tetrakbt` is required; `t_tetrakbt < 0` replaces `SmearX0`
 
@@ -71,11 +71,11 @@ cleaned out of the repository (to `trash/`, ignored by git): `past_log.md`.
   `Memused`), the other ranks write nothing; `--fullstdo` gives the per-rank `stdout.<rank>.<prog>` files as before.
   Errors of any rank reach stderr with the rank number.
 - Report and numbers: `Samples/kBT/gpu_fp32_report.md`; user guide: ecaljdoc `manual/ecaljgpu.md`; for developers:
-  ecaljdoc `manual/ForDevelopers.md` §11 and `ecaljclaude.md` (read by Claude Code through `CLAUDE.md`).
+  ecaljdoc `manual/ForDevelopers.md` §11 and `MD/ecaljclaude.md` (read by Claude Code through `CLAUDE.md`).
 
 ## 2026-06-13  Changelog: finite-T chi0, hsfp0 GPU, gw_lmfh GPU/MP flow, fixes
 
-New in the GW chain (commits 37e6fbc2..2a04e767; the user guide of that time is summarised in past_log.md §5, the present one is ecaljdoc manual/kBT and manual/gwsc):
+New in the GW chain (commits 37e6fbc2..2a04e767; the user guide of that time is summarised in MD/past_log.md §5, the present one is ecaljdoc manual/kBT and manual/gwsc):
 
 - **tetrakbt / t_tetrakbt** (`[gw]` in ctrlg toml): finite-temperature tetrahedron
   for chi0 with a consistent finite-T Fermi level (heftet writes `EFERMI_kbt`;
@@ -110,7 +110,7 @@ New in the GW chain (commits 37e6fbc2..2a04e767; the user guide of that time is 
 
 ## What's new (2026-06 .. 09)
 
-See `past_log.md` §6 (the digest that was `HIGHLIGHTS_2026-06_09.md`): one input file `ctrlg.<sname>.toml`
+See `MD/past_log.md` §6 (the digest that was `HIGHLIGHTS_2026-06_09.md`): one input file `ctrlg.<sname>.toml`
 (PB / esm_input.dat / GWinput.toml retired; `ctrlg_absorb.py` converts old
 directories), MLO in its final form (`mlo_method = 4`), finite-T QSGW samples,
 `gw_lmfh` on GPU, and the bug fixes.

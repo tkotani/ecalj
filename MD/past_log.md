@@ -1,7 +1,7 @@
 # ecalj 過去ログ — 片付けたものに含まれていたノウハウと、役に立つかもしれない情報
 
 リポジトリから外したもの（各計算機の `ecalj/trash/` に移した）の中にあったノウハウや経緯を、話題ごとにまとめる。
-入口は [CLAUDE.md](CLAUDE.md)（中身は [ecaljclaude.md](ecaljclaude.md)）と [README.md](README.md)。
+入口は [CLAUDE.md](../CLAUDE.md)（中身は [ecaljclaude.md](ecaljclaude.md)）と [README.md](../README.md)。
 利用者向けの説明は ecaljdoc が軸なので、ここには開発の側の細かいことだけを書く。
 
 外したファイルの中身は git の履歴から取り出せる（表 1 の「外す前のコミット」を使う）:
