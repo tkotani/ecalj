@@ -27,6 +27,10 @@
 - **`hgw` の残り**（2026-04 の統合の残タスク、2026-10-01 に past_log.md §3.2 から）: ノード内の W の共有を `MPI_Win_allocate_shared` で（メモリの重複を減らす）。
   `hsfp0_sc` の Sx（`--job=1`）・core の交換（`--job=3`）も `hgw` に入れる（時間は小さいので優先度は低い）
 
+- **`InstallAll.py` が bindir の行き先の無いリンクを消さない**（2026-10-01）: t14 の `~/bin` に 58 本（`uutest`、`genMLWFmod`、`FLEX_interaction.py` など、
+  `SRC/exec` から退かせたファイルと、エディタの一時ファイル `job_mlo~`・`#ctrlgenM1.py#`、`TAGS`）。インストールのときに、自分が作ったリンクのうち
+  行き先の無いものを消すか（install manifest と照らす）
+
 ### 試験と入力
 
 - `MLOsamples/RuO2` の保存してある `rst`・`dmats` は、`pwmode = 11` の LDA+U の誤り（2026-03-30〜09-30、`2498e5283` で修正）の時期に作ったもの。
