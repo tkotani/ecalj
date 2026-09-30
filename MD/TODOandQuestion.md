@@ -21,7 +21,11 @@
 - **GW1500 の選定に構造の確かめを入れる**（2026-10-01）: 別の化合物から副格子を抜き出した MP の項目（ICSD の備考が「〜 part」、
   1 原子の体積が同じ組成の 2 倍以上など）が PBE のギャップ > 0 で選ばれていた（`ecalj_auto/GW1500_status.md` 表 6 の `INVALID_STRUCTURE`）。
   `auto_mpquery.py` で弾くか、印を付ける
-- **`m_bndfp` が `m_clsmode_finalize` に渡す `ndimh`**（2026-09-30）: module の状態のまま。`--cls` を `pwmode = 11` で使うときに確かめる
+- **`m_bndfp` が `m_clsmode_finalize` に渡す `ndimh`**（2026-09-30、2026-10-01 に調べた）: `m_igv2x` の module の状態（最後に設定した k の値）が渡る。
+  `vcdmel` は重みを `s(3, nsite, ndimh, 2)` の並びで作り、`dostet` は `s_rv(1:3·nsite·nbandmx)` を `(3·nsite, nbandmx)` として読むので、
+  `ndimh ≠ nbandmx`（APW あり。`pwmode = 11` では k ごとに違う）だと帯の対応がずれる。案: `ndimh` の代わりに `nbandmx` を渡す。
+  `ausc_zv` は `nbandmx` の大きさでゼロから積むので nev より上の帯の重みは 0、固有値は 1d99 で DOS の外。APW の無い crn の試験（`ndimh = nbandmx`）は変わらないはず。
+  直したら APW ありの `--cls` で確かめる
 - **GPU の build で module が循環している**（2026-10-01、`MD/module_map.md` を作って見つけた）: `m_mpi`（`MPI__AutoSetup` の中で `use m_gpu`）→
   `m_gpu`（`__GPU` のとき `use m_blas`）→ `m_blas`（`use m_gemmul8`）→ `m_gemmul8`（`gemmul8_init` の中で `use m_mpi, only: ipr`）→ `m_mpi`。
   まっさらな状態からは順序が決まらない。いまは `SRC/CMakeLists.txt` が GPU の変種を基本の変種の後に作り、`-I` で基本の `mod/` を見せる回避策で通っている
