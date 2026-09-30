@@ -614,6 +614,12 @@ def main():
         except IndexError:
             ext_str = ''
         if ext_str and not ext_str.startswith('#'):
+            # LDA+U needs nspin=2 (lmf stops with 'LDA+U must be spin-polarized!'). With nspin=1 the IDU/UH/JH of the
+            # atom table are written commented out. (2026-10-01: Database/Ce, nspin=1 with IDU=12, stopped after idu = 10 + mode
+            # became LDA+U without sigm on 2026-09-30.)
+            cmt = '# ' if opts['nspin'] != '2' else ''
+            if cmt and re.search(r'\bIDU\s*=', ext_str):
+                out.append('# LDA+U below is commented out: it needs nspin=2 (--nspin=2)')
             for key in ('IDU', 'UH', 'JH', 'Q', 'MMOM'):
                 m = re.search(rf'\b{key}\s*=\s*([-0-9.,\s]+?)(?=\b[A-Z]+\s*=|$)', ext_str)
                 if not m:
@@ -623,13 +629,13 @@ def main():
                 if not vals:
                     continue
                 if key == 'IDU':
-                    out.append(f'idu    = {fmt_int_vec([int(float(v)) for v in vals])}')
+                    out.append(f'{cmt}idu    = {fmt_int_vec([int(float(v)) for v in vals])}')
                 elif key == 'MMOM':
                     out.append(f'mmom   = {fmt_real_vec([float(v) for v in vals])}')
                 elif key == 'Q':
                     out.append(f'q      = {fmt_real_vec([float(v) for v in vals])}')
                 else:
-                    out.append(f'{key.lower():<6} = {fmt_real_vec([float(v) for v in vals])}')
+                    out.append(f'{cmt if key in ("UH", "JH") else ""}{key.lower():<6} = {fmt_real_vec([float(v) for v in vals])}')
         # Optional initial MMOM from CLI (e.g. --mmom='MMOM=0 0 2 0')
         if not opts['mmom'].startswith('#'):
             mvals = re.findall(r'[-+]?\d+\.?\d*', opts['mmom'])

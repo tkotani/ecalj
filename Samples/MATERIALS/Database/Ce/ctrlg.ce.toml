@@ -45,9 +45,10 @@ lmxa   = 6
 kmxa   = 5
 nmcore = 1
 pz     = [0.0, 5.0, 0.0, 5.0]
-idu    = [ 0,  0,  0, 12]
-uh     = [ 0.0,  0.0,  0.0, 0.63]
-jh     = [   0.0,    0.0,    0.0, 0.0727]
+# LDA+U below is commented out: it needs nspin=2 (--nspin=2)
+# idu    = [ 0,  0,  0, 12]
+# uh     = [ 0.0,  0.0,  0.0, 0.63]
+# jh     = [   0.0,    0.0,    0.0, 0.0727]
 mmom   = [0.0, 0.0, 0.0, 1.0]
 
 # === BZ: Brillouin-zone integration ===
