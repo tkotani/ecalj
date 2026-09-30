@@ -1,7 +1,10 @@
-* Sample of Relaxiation for LaGaO3
+(converted from org to Markdown on 2026-10-01; the text is as it was)
 
+# Sample of Relaxiation for LaGaO3
+
+```
 >mpirun -np 4 lmf-MPIK lagao3 >& output
-
+```
 See 
 save.lagao3.
 and 
@@ -12,7 +15,7 @@ AtomPos.* is written when DYN_MODE/=0
 If AtomPos.* exist, we read atom position at the end of AtomPos.*
 Now, we don't write atomic position in rst file.
 
------
+
 comment of this sample,
 
 After several iteration, 
@@ -21,3 +24,4 @@ by iteration. Forces are small enough (within ~a few mRy/a.u.)
 So I think (not checked) that atomic positions are just fluctuating after 
 several iterations. In other words, numerical accuracy is not so good 
 enouth go atttain XTOL=0.001 a.u. Need check.
+

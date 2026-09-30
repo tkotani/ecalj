@@ -1,34 +1,38 @@
-#+TITLE How to calculate \epsilon(q,omega) in RPA?
+# How to calculate \epsilon(q,omega) in RPA?
 
-* Get rst (and sigm) by a self-consistent calculaiton.
+(converted from org to Markdown on 2026-10-01; the text is as it was)
 
-* Then Run
+
+## Get rst (and sigm) by a self-consistent calculaiton.
+
+## Then Run
+```
 >job_eps --lcf <sname>      (with local-field correction; legacy name: eps_lmfh)
   or
 >job_eps <sname>            (without local-field correction; legacy name: epsPP_lmfh / epsPP0)
-
+```
 job_eps (no --lcf) is much faster than job_eps --lcf.
 
 
-* Setting inof GWinput
+## Setting inof GWinput
 
-** q points of \epsilon(q,omega).
+### q points of \epsilon(q,omega).
 In ecalj, we can not use q=0 (but works even for metal).
 Thus we instead specify q points as
-#+begin_src
+```
 <QforEPS>
  0d0 0d0 0.01d0
  0d0 0d0 0.02d0
  0d0 0d0 0.04d0
 </QforEPS>
-#+end_src
+```
 This means we calculate \epsilon(q,omega) for q=(0,0,0.01),q=(0,0,0.02),q=(0,0,0.04).
 (unit of 2pi/alat).
 At q-> 0 limit, we need to make extrapolation from these data (or just use at smallest q).
 Too small q may cause numerical problem.
 
 
-** number of k point 
+### number of k point 
 We usually need many k points for paper-level calculaitons (as 20x20x20 for GaAs)
 so as to reproduce sharp structures of Im(epsilon).
 
@@ -40,40 +44,38 @@ So, I recommend you to start from 12 12 12 or so for GaAs case if you try job_ep
 (I think 12x12x12 is not so bad to determine epslion(0,0) for MgO). 
 
 
-** Reduce Mixed product basis.
+### Reduce Mixed product basis.
 To do job_eps --lcf, we need to reduce computational time.
 For the purpose, set lcutmx(atom) as 2, and QpGcut_cou can be 2.0 or so.
 But Carefully check these conditions do not change your results; For check, you can use
 smaller number of k points case.
 
 
-** energy mesh.
+### energy mesh.
 To plot detailed energy mesh of epsilon, it is better to use smaller HistBin_ratio as
-#+begin_src
+```
 HistBin_dw    2d-4 ! 1d-5 is fine mesh (good for metal?) !(a.u.) BinWidth along real axis at omega=0.
 HistBin_ratio 1.01 ! 1.03 maybe safer. frhis(iw)= b*(exp(a*(iw-1))-1), where a=ratio-1.0 and dw=b*a
-#+end_src
+```
 . Probably not elnarge computational time so much.
 
-* Epsilon plot.
+## Epsilon plot.
 Corresponding to the seting of q, you have 
 EPS0001.nlfc.dat
 EPS0001.dat
 and so on. 0001 means the 1st q points. nlfc means no local field.
-#+begin_src gnuplot
+```gnuplot
 set datafile fortran
 set xrange [0:20]
 plot "EPS0001.nlfc.dat" u ($4*13.605):($6) lt 1 pt 1 w lp,
-#+end_src gnuplot
+```
 shows epsilon(q,omega). Look into EPS0001.nlfc.dat
 
-* Caution
+## Caution
 It is not so easy to reproduce \sqrt(E-E0) beheavior of band absorption edge of Im(eps),
 because of the numerical nature of the tetrahedron method.
 To reproduce the behevior exactly, we need some special technique (under development),
 or use so many q points (such as 80x80x80 for GaAs, it is hard to do).
 On the other hands, we think that epsilon(q=0,omega=0) is relatively easily determined.
-(because some of 
-
-
+(because some of
 

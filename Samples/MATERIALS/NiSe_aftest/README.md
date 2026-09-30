@@ -1,7 +1,10 @@
-* AFTEST mode (apr2020 for NiSe for Teb) 
+(converted from org to Markdown on 2026-10-01; the text is as it was)
+
+# AFTEST mode (apr2020 for NiSe for Teb) 
 mmtarget.aftest AF QSGW calculation with fixed moment method for AF case.
 
-** ctrl AF setting.
+## ctrl AF setting.
+```
  SYMGRPAF i:(0,0,1)
 
  SITE
@@ -9,17 +12,19 @@ mmtarget.aftest AF QSGW calculation with fixed moment method for AF case.
      ATOM=Nidn POS=     0.00       0.000   0.500 AF=-1
      ATOM=Se   POS=     0.00       2.11310195900/{c}       0.25 
      ATOM=Se   POS=     1.83/{c}   1.05655086000/{c}       0.75 
-** mmtarget.aftest 
+```
+## mmtarget.aftest 
+```
   size of fixed moment
-
-** GWinput setting for metal to stabilize convergence
+```
+## GWinput setting for metal to stabilize convergence
 GaussianFilterX0 0.05
 mixbeta 0.3
 esmr   0.03 
 HistBin_dw    1d-5 
 HistBin_ratio 1.03
 
-** Teb aftest mode
+## Teb aftest mode
 Memo for NiSe 06may2021
 
 === Install ===
@@ -29,7 +34,7 @@ Please git clone it to your directory.
 If you are not so familiar with github,
 move old ecalj to ecalj_backup or something.
 Then run 'git clone' from github.
------
+
 In the new lmf-MPIK, we can run
 (1) keep Antiferromagnetic(AF) symmetry.
 (2) fixed moment method for AF NiSe
@@ -41,36 +46,45 @@ Let me know if something.
 See RUN800 package. It contains a sample as follows.
 
 1.ctrl.nise:
-----------
+
 AF magnetic pair setting (AF=.
+```
   ATOM=Niup POS=     0.00       0.000   0.000 AF=1
   ATOM=Nidn POS=     0.00       0.000   0.500 AF=-1
+```
 In addtion,
+```
   SYMGRPAF  i:(0,0,1)
+```
 (this means inversion with (0,0,1) translation gives AF symmetry).
+```
   We need setting of IDU=0 0 2 for Niup and for Nidn
+```
 I use ScaledSigma=0.8 to rmove overshoot of QSGW.
 https://iopscience.iop.org/article/10.7567/JJAP.55.051201
 
 
 2.GWinput:
---------
+
 Settings to make calculations smoother.
+```
  mixbeta 0.3           <-- self-energy mixing for stabilize convergence.
  GaussianFilterX0 0.05  <-- smoothing the density of state for the polarization fuction chi o
  esmr   0.03            <-- smoothing the pole of G in G \times W.
+```
 You can use my setting
+```
  (try n1n2n3 4 4 4, at first. If you like try 5 5 5 to check stability---but 4 4 4 is probably not so bad).
-
+```
 3. mmtarget.aftest:
-----------------
+
 Set the magnetic moment.
+```
  When a file mmtarget.aftest exist, lmf-MPIK works in the "AFTEST" mode.
  Even if IDU=0 0 2, UH is only meaningful as the initial condition.
  lmf-MPIK is adding bias field (UH) so as to keep the magnetic moment given in mmtrget.aftest.
   Use gwsc_sym (included) instead of gwsc. Probably better to  keep symmetry.
-
-
+```
 === Convergence check === 
 We have two convergence.
 As you know, QSGW made from two iteration cycle.
@@ -79,14 +93,18 @@ lmf-MPIK makes an inner iteration cycle
 (lmf cyle. each line in save.nise. or itr shown in llmf).
 
 check of lmf cycle:
+```
 >grep -n -A2 -B2 'From last ' llmf
+```
 is to monitor iteration cycle of lmf-MPIK.
 For example, it shows
 ...
+```
  2653-   it  8  of 30    ehf=   -1195.278537   ehk=   -1195.278537
  2654: From last iter    ehf=   -1195.278540   ehk=   -1195.278537
  2655- diffe(q)=  0.000003 (0.000013)    tol= 0.000010 (0.000010)   more=T
  2656-i ehf=-1195.2785371 ehk=-1195.2785374
+```
 ...
 Here diffe(q)= 0.000003 (0.000013) show energy and density difference from previous lmf iteration.
 When they become smaller than tol. It is judged as converged. (CONV and CONVC in ctrl).
@@ -97,13 +115,17 @@ magnetic moment check of lmf cycle:
 We need to check the magnetic moments
 are really controlled to be the number given in mmtarget.aftest in lmf.
 To check it, we need to do 
+```
 > grep -A4 'true mm' llmf
+```
 Then read "true mm". If you set 0.2 in mmtarget.aftest, you will see
----------
+
 mkrout:  Qtrue      sm,loc       local        true mm   smooth mm    local mm
+```
    1    8.748453    2.309224    6.439229      0.200175    0.022252    0.177924
    2    8.748458    2.309611    6.438847     -0.199945   -0.021957   -0.177988
----------
+```
+
 You see true mm are almost 0.2 (and -0.2) for ibas=1 (Niup) and ibas=2 (Nidn).
 
 magnetic moment check of RUN cycle.
@@ -111,6 +133,7 @@ Read and check the script hmmom (inlcuded), and run
 ./hhmom
 It shows like (hh802 attached)
 ...
+```
  run ix=,160 ,uhval: 37 0.002732 0.199157 -0.200829 -0.005411 0.004808
  run ix=,161 ,uhval: 72 0.003801 0.200180 -0.199685 -0.003650 0.003424
  run ix=,162 ,uhval: 21 0.005352 0.199403 -0.200113 -0.003975 0.003251
@@ -121,6 +144,7 @@ It shows like (hh802 attached)
  run ix=,167 ,uhval: 100 0.008020 0.202850 -0.197137 -0.001750 0.002638
  run ix=,168 ,uhval: 36 0.008810 0.199701 -0.200316 -0.001170 0.001748
  run ix=,169 ,uhval: 80 0.007699 0.201160 -0.198861 -0.001836 0.002055
+```
 ...
 Here ix is the number of RUN cycle (so I run so many RUN cycle 'gwsc_sym 180 -np 32 nise')
 See the line ix=,169. 0.007699 shows the UH value to keep magnetic moment to be 0.2.
@@ -153,3 +177,4 @@ I found convergence for magnetic moments can be very slow
 and remain oscillations.
 (If QPU.*run do not converege well and remain some oscilltions QPU.*run by QPU.*run,
 it may show a limitation of current ecalj).
+
