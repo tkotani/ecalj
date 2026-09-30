@@ -81,6 +81,13 @@
 
 ## 2026-09-30 — パッケージと文書の整理、温度のスキャン、反強磁性の QSGW の修理、GW1500 の回し直し（user 00:10「明日の朝まで自律的に」）
 
+### 17:08 **user「AHC は消して（別の所から持ってくる）。La2CuO4・InAsGaSb・BaTiO3 は Samples/MATERIALS に移す」→ 実行した**
+
+- `git rm -r Samples/Legacy/AHC`（`Fe`、`Fe_rebuilt`、README。82 ファイル）。git の外の `Legacy/AHC/Fe` の作業ファイルと `Legacy/AHC/BK` は手元のディスクに残っている
+- `git mv` で `Samples/MATERIALS/La2CuO4`・`InAsGaSb`（n4、n10）・`BaTiO3`。BaTiO3 の `QSGW5run` に `Legacy2toml.py` で `ctrlg.batio3.toml` を作った（`lmchk` が読む）。
+  `Samples/MATERIALS/README.md` に表。`inputs` の組は 136 件 PASSED（BaTiO3 の TOML を含む）
+- Legacy に残るのは、組み直し済みの元と重複・使えないもの（`Samples/README.md` 表 2）。全部消してよい候補
+
 ### 15:23 **user「MLO 版マグノンを作って」→ `job_mlo_magnon` を単独で動くようにし、`Samples/Magnon/Fe_mlo_magnon` を作った。小さい q は Wannier 版と一致、大きい q は 1.5 倍高い**
 
 - 止まっていた理由: `mlo` が読む `HamiltonianPMTInfo`・`__HamiltonianPMT`・`HamRsMLO` は `lmf --writeham --mlo`（`job_mlo`）が書くもので、`job_mlo_magnon` は
