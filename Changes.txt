@@ -42,7 +42,8 @@
 
 2026-09-30 (5)
   Samples/Legacy を消した (組み直した元、TestInstall などと重複するもの、今のコードで動かないもの。履歴 e05720ffd 以前にある)。
-  残るのは TestHomoDimerAtom (箱の中の二原子分子と原子、2012) だけで、AtomDimer/ として作り直す。
+  TestHomoDimerAtom (箱の中の二原子分子と原子、2012) は Samples/AtomDimer/N2 として作り直した (N2 と N 原子、15 A の箱、PBE、
+  固定磁気モーメント。結合長 1.104 A、結合エネルギー 10.08 eV)。これで Samples/Legacy は無くなった。
   superlattice (歪んだ超格子の POSCAR の生成) は StructureTool/superlattice/ に移した。
   bcc Fe の異常ホール伝導度 (AHC) も消した (別の所から入れ直す)。
 

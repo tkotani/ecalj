@@ -1,0 +1,8 @@
+# n2: total energy ehk (eV) of the dimer at the bond length d (A), and of the atom
+    1.0500     -2979.470013
+    1.1000     -2979.676172
+    1.1500     -2979.530418
+# atom n
+      -1484.798740
+# parabola through the points nearest to the minimum: r_e (A), E_min (eV), D_e = 2 E_atom - E_min (eV)
+    1.1043     -2979.677468    10.0800

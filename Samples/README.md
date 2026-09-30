@@ -29,11 +29,11 @@ after another and writes one summary (how to read it: ecaljdoc
 | [EffectiveMass/](EffectiveMass/GaAs/README.md) | effective masses from the QSGW bands with SOC (the mass mode of `syml.<sname>`, fit by `massfit.py`): GaAs, CdS, zincblende GaN | `GaAs`, `CdS`, `GaN` | `samples` |
 | [Relax/](Relax/LaGaO3/README.md) | relaxation of the atomic positions: LaGaO3 | `LaGaO3` | `samples` |
 | [DOS/](DOS/ZnS/README.md) | total and partial density of states (`job_tdos`, `job_pdos`): ZnS, bcc Fe | `ZnS`, `Fe` | `samples` |
+| [AtomDimer/](AtomDimer/README.md) | a molecule and an atom in a box: N2 at three bond lengths and the N atom (PBE, fixed spin moment), bond length and binding energy | `N2` | `samples` |
 | [IIR/](IIR/C/README.md) | impact ionization rate of diamond: the imaginary part of the self-energy (`gw_lmfh`, `QPU_life`) | `C` | `samples` |
 | [MATERIALS/](MATERIALS/README.md) | inputs and results of larger systems, not tests: La2CuO4 (QSGW, 7 atoms), InAs/GaSb superlattices (16 and 40 atoms), BaTiO3 (QSGW in three stages) | — | `inputs` |
 | [BenchmarkTest/](BenchmarkTest/README.md) | one QSGW iteration of InAs/GaSb superlattices (8 and 16 atoms), for GPU | 2 | `bench` |
 | [mptf32problem/](mptf32problem/README.md) | AgNO3 and other cases where the old TF32 mode of the GPU build failed (GW1500) | — | — |
-| [Legacy/](Legacy/) | what is left of the older examples: `TestHomoDimerAtom` (dimers and atoms in a box, 2012), to be rebuilt as `AtomDimer/` | — | — |
 
 The group `inputs` takes every `ctrlg.<sname>.toml` of this tree: `lmchk` must read it, and the rules of
 `ctrlg_update.py` must leave it unchanged.
@@ -58,8 +58,6 @@ Notes:
 
 ## Legacy
 
-The older examples under `Legacy/` were rebuilt as the directories of table 1 (2026-09-29 and 30) and the originals were
-removed from the repository on 2026-09-30 (they are in the history before commit `e05720ffd`). What is left is
-`Legacy/TestHomoDimerAtom`: the scripts of 2012 that computed the homonuclear dimers and the atoms of the periodic table
-in a box (PBE, spin polarized, fixed spin moment) and drew their binding curves. They are in Python 2 with retired options
-and do not run; a small sample of a dimer in a box is to be made from them (`AtomDimer/`).
+The older examples of `Samples/Legacy/` were rebuilt as the directories of table 1 (2026-09-29 and 30) and `Legacy/` was
+removed from the repository on 2026-09-30 (its content is in the history before commit `e05720ffd`; the last one,
+`TestHomoDimerAtom`, became `AtomDimer/`).

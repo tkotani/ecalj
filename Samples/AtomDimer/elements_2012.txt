@@ -1,0 +1,43 @@
+# Settings of the runs of 2011-2012 (Samples/Legacy/TestHomoDimerAtom: atomlist.bash, homodimerdistance.bash, jobdimerlist*):
+# element, Z, local orbitals PZ, P of the valence, eh and eh2 of the two MTO sets (Ry), the bond length d0 of the dimer
+# the scan started from (A; twice the half distance of homodimerdistance.bash), and the dimer runs that were planned
+# (commented ones included): fixed spin moment fsmom (mu_B), the scan of the distance relative to d0 (A), the factor
+# rstar of the MT radius, the size of the cubic box (A).  PBE, spin polarized, one k point.
+# Kept as a record; the sample N2/ uses the present tools.
+el   Z  PZ        P         eh    eh2   d0(A)   dimer runs
+H     1 -         -         -0.1  -2     0.752  fsmom 0 (d -0.4;-0.4, rstar 0.8, box 5 A)
+He    2 1.8       2.3       -0.1  -2     2.337  fsmom 0 (d -0.4;1.5, rstar 0.8,0.9,1.0, box 15 A)
+Li    3 1.9       -         -0.1  -2     2.735  fsmom 0 (d -0.4;0.4, rstar 0.6,0.7,0.8,0.9, box 15 A)
+Be    4 1.9       -         -0.1  -2     2.433  fsmom 0 (d -0.2;-0.1, rstar 1.0, box 5 A)
+B     5 1.9       -         -0.1  -2     1.532  fsmom 2 (d -0.4;0.6, rstar 0.8,0.9,1.0, box 15 A); fsmom 4 (d -0.4;0.6, rstar 0.8,0.9,1.0, box 15 A)
+C     6 -         -         -1    -2     1.318  fsmom 0 (d -0.4;-0.1, rstar 0.8,0.9,1.0, box 15 A); fsmom 2 (d -0.4;0.4, rstar 0.8,0.9,1.0, box 15 A)
+N     7 -         -         -1    -2     1.107  fsmom 0 (d -0.4;0.4, rstar 0.8,0.9,1.0, box 15 A)
+O     8 -         -         -1    -2     1.220  fsmom 2 (d -0.4;0.4, rstar 0.8,0.9,1.0, box 15 A)
+F     9 -         -         -1    -2     1.430  fsmom 0 (d -0.4;0.4, rstar 0.8,0.9,1.0, box 15 A)
+Ne   10 2.8,2.8   3.3,3.3   -0.1  -2     2.550  fsmom 0 (d -0.4;1.5, rstar 0.8,0.9,1.0, box 15 A)
+Na   11 2.8,2.8   -         -0.1  -2     3.090  fsmom 0 (d -0.4;0.4, rstar 0.6,0.7,0.8, box 15 A)
+Mg   12 2.8,2.8   -         -0.1  -2     3.503  fsmom 0 (d -0.4;0.4, rstar 0.6,0.7,0.8, box 15 A)
+Al   13 2.9,2.9   -         -0.1  -2     2.492  fsmom 2 (d -0.4;1.1, rstar 0.8,0.9,1.0, box 15 A)
+Si   14 -         -         -1    -2     2.301  fsmom 2 (d -0.4;0.8, rstar 0.8,0.9,1.0, box 15 A)
+P    15 -         -         -1    -2     1.913  fsmom 0 (d -0.4;0.4, rstar 0.8,0.9,1.0, box 15 A)
+S    16 -         -         -1    -2       nan  fsmom 2 (d -0.4;0.4, rstar 0.8,0.9,1.0, box 15 A)
+Cl   17 -         -         -1    -2     2.053  fsmom 0 (d -0.4;0.4, rstar 0.8,0.9,1.0, box 15 A)
+Ar   18 3.9,3.9   4.3,4.3   -0.1  -2     3.439  fsmom 0 (d -0.4;1.5, rstar 0.8,0.9,1.0, box 15 A)
+K    19 3.9,3.9   -         -0.1  -2     4.001  fsmom 0 (d -0.4;0.4, rstar 0.6,0.7,0.8, box 15 A)
+Ca   20 3.9,3.9   -         -0.1  -2     4.157  fsmom 0 (d -0.4;0.4, rstar 0.6,0.7,0.8, box 15 A)
+Sc   21 3.9,3.9   -         -0.1  -2     2.626  fsmom 2 (d -0.3;-0.3, rstar 0.8,0.9, box 15 A); fsmom 4 (d -0.4;-0.2, rstar 0.9,1.0, box 15 A)
+Ti   22 3.9,3.9   -         -0.1  -2     1.897  fsmom 2 (d -0.4;0.4, rstar 0.8,0.9,1.0, box 15 A)
+V    23 3.9,3.9   -         -0.1  -2     1.740  fsmom 0 (d -0.4;0.4, rstar 0.8,0.9,1.0, box 15 A); fsmom 2 (d -0.4;0.4, rstar 0.8,0.9,1.0, box 15 A)
+Cr   24 3.9,3.9   -         -0.1  -2     1.595  fsmom 0 (d -0.4;0.4, rstar 0.8,0.9,1.0, box 15 A); fsmom 2 (d -0.4;0.4, rstar 0.8,0.9,1.0, box 15 A); fsmom 4 (d -0.4;0.4, rstar 0.8,0.9,1.0, box 15 A)
+Mn   25 3.9,3.9   -         -0.1  -2     1.648  fsmom 10 (d -0.4;2.7, rstar 0.8,0.9,1.0, box 15 A); fsmom 2 (d -0.4;1.0, rstar 0.8,0.9,1.0, box 15 A)
+Fe   26 3.9,3.9,3.9 0,0,4.2   -0.1  -2     2.012  fsmom 6 (d -0.4;0.6, rstar 0.8,0.9,1.0, box 15 A); fsmom 8 (d -0.4;0.6, rstar 0.8,0.9,1.0, box 15 A)
+Co   27 3.9,3.9,3.9 0,0,4.2   -0.1  -2     1.984  fsmom 4 (d -0.4;0.5, rstar 0.8,0.9,1.0, box 15 A)
+Ni   28 3.9,3.9,3.9 0,0,4.2   -0.1  -2     2.127  fsmom 2 (d -0.4;0.5, rstar 0.8,0.9,1.0, box 15 A)
+Cu   29 3.9,3.9,3.9 0,0,4.2   -0.1  -2     2.250  fsmom 0 (d -0.4;0.5, rstar 0.8,0.9,1.0, box 15 A)
+Zn   30 0,0,3.9   0,0,4.2   -0.1  -2     3.208  fsmom 0 (d -0.4;0.5, rstar 0.8,0.9,1.0, box 15 A)
+Ga   31 0,0,3.9   0,0,4.2   -0.1  -2     2.738  fsmom 2 (d -0.9;0.5, rstar 0.8,0.9,1.0, box 15 A)
+Ge   32 0,0,3.9   0,0,4.2   -1    -2     2.423  fsmom 2 (d -0.9;0.5, rstar 0.8,0.9,1.0, box 15 A)
+As   33 0,0,3.9   0,0,4.2   -1    -2     2.125  fsmom 0 (d -0.4;0.4, rstar 0.8,0.9,1.0, box 15 A)
+Se   34 -         -         -1    -2     2.207  fsmom 2 (d -0.4;0.4, rstar 0.8,0.9,1.0, box 15 A)
+Br   35 -         -         -1    -2     2.329  fsmom 0 (d -0.4;0.4, rstar 0.8,0.9,1.0, box 15 A)
+Kr   36 4.8,4.8   5.3,5.3   -0.1  -2     3.756  fsmom 0 (d -0.4;1.5, rstar 0.8,0.9,1.0, box 15 A)
