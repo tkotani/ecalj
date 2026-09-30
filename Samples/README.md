@@ -30,6 +30,7 @@ after another and writes one summary (how to read it: ecaljdoc
 | [Relax/](Relax/LaGaO3/README.md) | relaxation of the atomic positions: LaGaO3 | `LaGaO3` | `samples` |
 | [DOS/](DOS/ZnS/README.md) | total and partial density of states (`job_tdos`, `job_pdos`): ZnS, bcc Fe | `ZnS`, `Fe` | `samples` |
 | [IIR/](IIR/C/README.md) | impact ionization rate of diamond: the imaginary part of the self-energy (`gw_lmfh`, `QPU_life`) | `C` | `samples` |
+| [MATERIALS/](MATERIALS/README.md) | inputs and results of larger systems, not tests: La2CuO4 (QSGW, 7 atoms), InAs/GaSb superlattices (16 and 40 atoms), BaTiO3 (QSGW in three stages) | — | `inputs` |
 | [BenchmarkTest/](BenchmarkTest/README.md) | one QSGW iteration of InAs/GaSb superlattices (8 and 16 atoms), for GPU | 2 | `bench` |
 | [mptf32problem/](mptf32problem/README.md) | AgNO3 and other cases where the old TF32 mode of the GPU build failed (GW1500) | — | — |
 | [Legacy/](Legacy/) | the older examples: the originals of the samples above, and what is not rebuilt (table 2) | — | `inputs` |
@@ -58,14 +59,13 @@ Notes:
 ## Legacy
 
 **Table 2**. Directories under `Legacy/`. Their inputs are converted to `ctrlg.<sname>.toml` (and are in the group
-`inputs`), but the job scripts and READMEs are of the time before 2026-05 and are not tests.
+`inputs`), but the job scripts and READMEs are of the time before 2026-05 and are not tests. The anomalous Hall
+conductivity (`AHC/`) was removed on 2026-09-30; a new sample of it comes from elsewhere.
 
 | directory | content | state |
 |---|---|---|
-| `MATERIALS/La2CuO4`, `InAsGaSb/n10` | QSGW inputs and results of larger systems (7 and 40 atoms) | long; kept as inputs |
-| `CMDsample/` | tutorial inputs of 2019 (Si, InAs, ZnS, GaN, Fe, NiO, BaTiO3 QSGW) | the commands of its README are gone; `GetStarted/` and `DOS/` replace it |
+| `CMDsample/` | tutorial inputs of 2019 (Si, InAs, ZnS, GaN, Fe, NiO) | the commands of its README are gone; `GetStarted/` and `DOS/` replace it. `BaTiO3` went to `Samples/MATERIALS/` |
 | `IIR/`, `mass_fit_test/`, `LaGaO3_relax/`, `ReNcub/`, `FermiSurface/`, `Si_doping_sample/`, `TETRAHEDRON_HomoGas/`, `TETRAHEDRON_HomoGas_test/`, `BOLZTRAP/`, `SLAB/`, `SOCAXIS/`, `AFsymmetry/`, `Samples_ISSP/` | the originals of the samples of table 1 (`IIR/`, `EffectiveMass/`, `Relax/`, `LDAU/`, `FermiSurface/`, `Doping/`, `HomoGas/`, `BoltzTraP/`, `SLAB/`, `SOC/`, `AFsymmetry/`, `BenchmarkTest/ISSP/`) | rebuilt; the originals can be removed |
-| `AHC/Fe_rebuilt` (with `AHC/Fe`, the original) | anomalous Hall conductivity of bcc Fe in the present input, with `test.py` (`testecalj Fe_rebuilt -np 4` in `Legacy/AHC`) | kept here, not a test: at the mesh 4x4x4 the value depends on the build (nvfortran differs from gfortran and ifx by 18%) |
-| `GdNldau/`, `MATERIALS/erasldau`, `MATERIALS/pdo_gwsc443`, `MATERIALS/yh3fcc_gwsc666`, `SOC/`, `InAsGaSb/n4` | covered by `TestInstall` (`gdn`, `eras`, `pdo_gwsc443`, `felz`), `MLOsamples/FeSoc` and `BenchmarkTest/inas4gasb4` | duplicates; can be removed |
+| `GdNldau/`, `MATERIALS/erasldau`, `MATERIALS/pdo_gwsc443`, `MATERIALS/yh3fcc_gwsc666`, `SOC/` | covered by `TestInstall` (`gdn`, `eras`, `pdo_gwsc443`, `felz`) and `MLOsamples/FeSoc` | duplicates; can be removed |
 | `TestHomoDimerAtom/`, `UUmatSOC/`, `AHCSOCtest/` | scripts of 2012 in Python 2; work files without input; a copy of the AHC README | not usable; can be removed |
 | `superlattice/` | generator of strained zincblende superlattice POSCARs | a tool, no calculation; belongs to `StructureTool/` |

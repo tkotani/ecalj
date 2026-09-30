@@ -1,2 +1,0 @@
-# first converged SCF of save.fe: magnetic moment (mu_B), Harris-Foulkes and Kohn-Sham energies (eV)
-  2.2755    -34634.394427    -34634.394501

@@ -55,7 +55,8 @@
   サンプル (どれも test.py と参照、README を持つ。一覧は Samples/README.md の表 1)。
   - Samples/Legacy から組み直したもの: SOC/FePt_MAE・MnGa_MAE、LDAU/ReN (INIT に 15 種の希土類窒化物の構造と
     占有の初期値)、EffectiveMass/GaAs・CdS・GaN、Relax/LaGaO3、DOS/ZnS・Fe、IIR/C。
-    bcc Fe の異常ホール伝導度も今の入力に直したが、粗いメッシュではビルドで値が変わるので Samples/Legacy/AHC/Fe_rebuilt に置く (試験の組には入れない)。
+    bcc Fe の異常ホール伝導度 (Legacy/AHC) は、粗いメッシュではビルドで値が変わるので Samples に入れず、Legacy ごと消した (別の所から入れ直す)。
+    Samples/MATERIALS: 大きめの系の入力と結果 (La2CuO4、InAs/GaSb の超格子、BaTiO3) を Legacy から移した。
     BenchmarkTest/ISSP に ISSP の機械の投入スクリプト。
   - Samples/kBT/scanT に GaAs と fcc Cu の温度のスキャン。
   - TOOLS/samples_tests.sh の組 samples に SOC LDAU EffectiveMass Relax DOS IIR。
