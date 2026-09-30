@@ -1,7 +1,0 @@
-rm $1/viewvesta
-rm $1/ctrl2vasp
-rm $1/vasp2ctrl
-
-ln -s ${PWD}/viewvesta.py $1/viewvesta
-ln -s ${PWD}/ctrl2vasp.py $1/ctrl2vasp
-ln -s ${PWD}/vasp2ctrl.py $1/vasp2ctrl

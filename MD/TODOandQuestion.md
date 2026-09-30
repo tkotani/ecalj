@@ -23,6 +23,7 @@
   `auto_mpquery.py` で弾くか、印を付ける
 - **`m_bndfp` が `m_clsmode_finalize` に渡す `ndimh`**（2026-09-30）: module の状態のまま。`--cls` を `pwmode = 11` で使うときに確かめる
 - **module の依存と主プログラムの流れの一覧を `MD/` に置く**（2026-10-01、Doxygen をやめた代わり）: `use m_foo, only:` を拾って、module の DAG と、主プログラム（`SRC/main/*.f90`）から各 module への流れを機械的に書き出す小さなスクリプト。人が大局をつかむ入口として、Claude が説明に使う
+- **`GetSyml/README.md` の冒頭が古い**（2026-10-01）: 「syml.* は ctrl.* から作る」とあるが、今は `ctrlg.<sname>.toml` から（`getsyml` が `lmchk` を走らせる）。README の末尾にある作者の TODO: (a) `lmchk` が道の分割数（ndiv）など要る情報も書き出す、(b) `lmchk` の出力を読むので精度が出力の桁で決まる
 - **VSCode の CMake 拡張が最上位に `build/` を作る**（2026-10-01）: `.vscode/settings.json` の設定か、`.gitignore` に `/build/` を入れる
 
 - **`hgw` の残り**（2026-04 の統合の残タスク、2026-10-01 に past_log.md §3.2 から）: ノード内の W の共有を `MPI_Win_allocate_shared` で（メモリの重複を減らす）。
@@ -68,6 +69,7 @@
 
 ### 2026-10-01
 
+- `GetSyml/`・`StructureTool/` の古い例（旧形式の `ctrl.*` 86 本、`syml.*`、鉱物の POSCAR 135 本）と使わないスクリプトを trash へ（257 ファイル）。本体（`getsyml`、`vasp2ctrl`・`ctrl2vasp`、`viewvesta`、`refineposcar.py`、`superlattice/`）は残し、動くことを確かめた。past_log.md §12
 - `Doxygen/` を trash へ（user「そうしよう」）。コメントを Doxygen 形式に揃えることはしない。作り直し方は past_log.md §11
 - `TOOLS/` の古い道具（約 60 項目、632 ファイル）を trash へ。残したのは `samples_tests.sh`・`sync_ecalj_src.sh`・`ozbench/`。中身は past_log.md §10。`diffnum` は試験で今も使うが、使うのは `SRC/exec/pylib/diffnum0.py`（TOOLS の版は古い）
 - Claude の個人メモリから、引き継ぐ価値があり今も正しいものを [handover.md](handover.md) に写した（user「メモリの内容はパッケージに入らないので MD/ に。混乱を招くものは良くない」）。

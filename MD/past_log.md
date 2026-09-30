@@ -248,6 +248,21 @@ CALL_GRAPH           = YES
 CALLER_GRAPH         = YES
 ```
 
+## 12. `GetSyml/`・`StructureTool/` の例と使わないスクリプト（2026-10-01 に trash）
+
+本体は残した: `getsyml`（`getsyml.py`・`getpaths.py`・`hpkot/`〔seekpath の道の表〕・`brillouinzone/brillouinzone_takao.py`〔BZ の図、plotly〕）、
+`vasp2ctrl`・`ctrl2vasp`（`convctrl.py` を使う）、`viewvesta`、`refineposcar.py`（pymatgen の SpacegroupAnalyzer で POSCAR の対称性を整える単独の道具）、
+`StructureTool/superlattice/`。移したあと、`getsyml gaas --nobzview`、`vasp2ctrl POSCAR`、`ctrl2vasp` が動くことを確かめた。
+取り出すときは `git show 2e0756a21:<パス>`。
+
+- **`GetSyml/ctrl.*`（86 本）・`ctrls.*`（4 本）・`syml.*`（21 本）**: 旧形式の ctrl の例と、それから作った `syml` の例（Si、GaAs、NiO、LaGaO₃、BaTiO₃、4H-SiC など）。
+  `getsyml` は中で `lmchk <sname>` を走らせるので、今の入力は `ctrlg.<sname>.toml`（旧形式の ctrl は読まない）。`syml.*` の例は、道の取り方の見本としては今も同じ
+- `GetSyml/brillouinzone/` の `brillouinzone.py`（元の版）、`brillouinzone_NiOtest1.py`、`test_brillouinzone.py` と例の `syml.*`、`GetSyml/hpkot/test_get_primitive.py`（seekpath の試験）、
+  `GetSyml/util.py`（どこからも import されていない）
+- **`StructureTool/sample/`（135 本）**: 宝石・鉱物の結晶（ガーネット、紫水晶、エメラルド、トパーズ、ダイヤモンドなど）の `*.cif.vasp` など。`vasp2ctrl` と `viewvesta` の例
+- `StructureTool/rescalectrl.py`（python2、旧形式の ctrl の格子定数を変える）、`makelink`（bin へのリンク。今は `InstallAll.py` が作る）、
+  `ctrls.nd2fe14b`（Nd₂Fe₁₄B の構造の例）、`README.org`（`README.txt` の古い版）
+
 ---
 
 ## 表 1. 片付けたもの（trash に移したもの）
@@ -272,6 +287,7 @@ CALLER_GRAPH         = YES
 | 2026-10-01 | 退役したスクリプト | `SRC/exec_legacy/` | `c2d9df4aa` | §8 |
 | 2026-10-01 | TOOLS の古い道具（約 60 項目、`samples_tests.sh`・`sync_ecalj_src.sh`・`ozbench/` 以外） | `TOOLS/` | `4d5dd8fed` | §10 |
 | 2026-10-01 | Doxygen の設定 | `Doxygen/`（`Doxyfile`、README） | `da3976b2a` | §11 |
+| 2026-10-01 | GetSyml・StructureTool の例と使わないスクリプト | `GetSyml/ctrl.*`・`syml.*` ほか、`StructureTool/sample/` ほか（257 ファイル） | `2e0756a21` | §12 |
 
 注: サンプルの古い試行と控えは、MLOsamples の `test*`・`temp`・`*.bk`・`*.tmp`（§4.1）、`Samples/TestInstall/TESTunused`、
 `Samples/TestInstall/eras/occnum.eras.bk`、`TOOLS/FparserTools/f_calltree.py.bk*`、`TOOLS/SrcFragments/f_calltree.py.bk*`・`ANALYZEnotusednow/analyze_temp~`、
