@@ -17,7 +17,7 @@ after another and writes one summary (how to read it: ecaljdoc
 | [MLOsamples/](MLOsamples/README.md) | MLO (muffin-tin localized orbitals, the model Hamiltonian that replaces Wannier functions): semiconductors, metals, SOC, 4f, screened W by `job_mloW` | 25 | `mlo` |
 | [MLOQSGW/](MLOQSGW/README.md) | QSGW with the self-energy interpolated in the MLO representation (`gwsc --mlo`): GaAs, NiO | 2 | `mloqsgw` |
 | [AFsymmetry/](AFsymmetry/README.md) | antiferromagnetic symmetry (`symgrpaf`): NiO and NiSe in LDA, NiO in QSGW | 3 | `afsym` |
-| [Magnon/](Magnon/README.md) | magnon spectra through Wannier functions (`job_magnon`): Fe, Ni, FeCo, Fe in the simple cubic cell | 4 | `magnon` |
+| [Magnon/](Magnon/README.md) | magnon spectra through Wannier functions (`job_magnon`): Fe, Ni, FeCo, Fe in the simple cubic cell; through the MLO model (`job_mlo_magnon`): Fe | 5 | `magnon` |
 | [kBT/](kBT/README.md) | electron temperature and smearing in GW (`t_tetrakbt`, `t_sigmaw`): temperature scans of Si and Fe; MLO-QSGW of LiTi2O4; the research log | `scanT/Si` | `samples` |
 | [FermiSurface/](FermiSurface/Cu/README.md) | Fermi surface of Cu for xcrysden (`job_fermisurface`) | `Cu` | `samples` |
 | [Doping/](Doping/Si/README.md) | doping of Si: fractional nuclear charge, background charge `zbak`, fixed spin moment | `Si` | `samples` |
