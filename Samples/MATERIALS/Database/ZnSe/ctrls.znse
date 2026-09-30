@@ -1,0 +1,9 @@
+#id  = ZnSe
+%const bohr=0.529177 a=10.71
+STRUC
+     ALAT={a} 
+     PLAT=0 0.5 0.5  0.5 0 0.5  0.5 0.5 0 
+SITE
+     ATOM=Zn POS=0.0 0.0 0.0
+     ATOM=Se POS=0.25 0.25 0.25
+

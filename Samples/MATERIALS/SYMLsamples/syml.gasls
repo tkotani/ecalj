@@ -1,6 +1,0 @@
-3  .5 .5 .5     0  0 0                L to Gamma
-0   0  0  0     1  0 0                Gamma to X
-0  1  0  0     1 .5 0                X to W
-0  1 .5  0     0  0 0                W to Gamma
-0    0 0 0  0 0 0
-

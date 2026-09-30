@@ -1,3 +1,0 @@
-lmfa si >llmfa
-gwsigma 1 -np 2 si |tee out
-./plotsigm.gp

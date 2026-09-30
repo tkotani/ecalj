@@ -195,23 +195,44 @@ PROCAR の k 点の順（11 ランク以上で接尾辞の数値ソート）／`
 | GWinput から TOML への移行の道具 | `tomlexpand.py`、`round_trip_check.sh`、`gwinput_xcheck.py`、`gwinput_unit_test.sh`、`check_defaults.py`、`disable_legacy_gwinput.py` |
 | その他 | `Makeinstall`（CMake 以前のインストール）、`gwutil.py`、`a2vec.py`、`qqm`、`uutest` |
 
-## 9. 古いサンプル（最上位の `MATERIALS/`、〜2026-05。2026-10-01 に `Samples/MATERIALS/` へ移した）
+## 9. 古いサンプル（最上位の `MATERIALS/`、〜2026-05。2026-10-01 に `Samples/MATERIALS/` へ移し、同じ日に仕分けた）
 
-旧形式（`ctrl.<sname>`・`GWinput`）の入力と結果。どこからも参照されていなかった。trash ではなく `Samples/MATERIALS/` の下へ移した（user「いったん Samples の下へ」）。
-近い内容のサンプルは `Samples` にある（`TestHomoDimerAtom` → `Samples/AtomDimer/N2`、`LaGaO3_relax` → `Samples/Relax/LaGaO3`、`Si_doping_sample` → `Samples/Doping/Si`、
-`mass_fit_test` → `Samples/EffectiveMass`、`TETRAHEDRON_HomoGas` → `Samples/HomoGas`、`MLOsamples` → `Samples/MLOsamples`（旧形式の古い版）、
-`cugase2_gwsc222`・`pdo_gwsc443`・`yh3fcc_gwsc666` → `Samples/TestInstall`、`GdNldau`・`erasldau` → 同じ系の LDA+U の試験 `TestInstall/gdn`・`eras`）。
+旧形式（`ctrl.<sname>`・`GWinput`）の入力と結果。どこからも参照されていなかった。いったん `Samples/MATERIALS/` の下へ移し（user「いったん Samples の下へ」）、
+その日のうちに仕分けた（user「仕分けプランを出して」「go ahead」）: 構造のデータベースは `Samples/MATERIALS/Database/` に展開し、ほかは trash。
+取り出すときは `git show 3e9548b21:Samples/MATERIALS/<名前>`。
 
-- **原子の全エネルギーは一つに決まらない**（`Li_atom`）: (1) `lmfa` の球対称のスピン分極した原子の `etot`、(2) 胞に入れた球対称の原子の
-  `lmf` の 1 回目の `ehf`、(3) 胞に入れた非球対称の原子の `lmf` の収束値。本来は (3) だが、胞と基底の打ち切りの誤差がある。
-  (3) + ((1) − (2)) が補正したもの（(1) は球対称なら精度がよい）。一辺 6 Å では補正が 0.057 Ry と大きく、胞を大きくすると小さくなる
-- `Fe_5`: Fe の Wannier と遮蔽した相互作用（`Coulomb_v.UP`・`Screening_W-v.UP`、25 MB）
-- `NiMnSb_magnon`: NiMnSb のマグノン（MLWF 用と magnon 用の GWinput、`chipm_mat`、`memo_for_magnon`）
-- `SiSigma`・`SiSigmaAny`: Σ(ω) の計算（`gwsigma`）と、任意の q（`<QPNT>` の AnyQ）
-- `Si_HamMTO`・`Fe_HamMTO`・`FeMTOHAM`: MTO のハミルトニアン（`job_ham`）
-- `NiSe_aftest`: 反強磁性の対称性の試験（`gwsc_sym`）。いまは `Samples/AFsymmetry/NiSe`
-- `TESTsamples`（157 ファイル、2012 年頃の ctrl の例）、`SYMLsamples`（`syml` の例 22）、`CTRLsample`（Cu・Fe・Si の ctrl）、
-  `EPS_Ag`、`LiDOS_Discrete`、`H_atom`、`NiO`、`Materials.ctrls.database`・`job_materials.py`・`job_vbm`・`sortvbm.py`（多くの物質を回す道具）
+**9.1 構造のデータベース（`Materials.ctrls.database`・`job_materials.py`）→ `Samples/MATERIALS/Database/`**
+
+- データベースは、構造の雛形 17 種（BCC、FCC、DIA、ZB、WZ、NACL、NIOAF2・EUSAF2〔AF II〕、HGO、4HSIC、SIO2CRIST、HFO2、ZRO2、PEROVSKITE、BI2TE3 など）と、
+  62 物質の行（雛形の名前、`@1=Ga` のような原子の割り当て、格子定数、`--nk1=8` などの指定、`mkGW-6,6,6`）でできていた。`job_materials.py` がそこから
+  物質ごとに `ctrls` を作り、旧形式の流れ（`ctrlgenM1.py` → `lmf`）を回していた。`job_check`・`job_vbm`・`sortvbm.py` は結果を集める補助
+- 展開の手順: `echo | python3 job_materials.py --noexec --all LaGaO3 4hSiC Bi2Te3`（確認の入力を待つので空行を渡す）で 62 個の `ctrls` を作り、
+  各ディレクトリで `ctrlgenToml.py <sname> --nk1= --nk2= --nk3= [--nspin=2] [--so=1]`、`[gw] n1n2n3` を `mkGW-` の値に、`ctrls` の `MMOM` を
+  `[[spec]] mmom` に書き足した（`ctrlgenToml.py` は `MMOM` を写さない）。62 物質とも `lmchk` で読めた。計算はしていない
+
+**9.2 ほかのディレクトリ（trash）**
+
+- 今のサンプルと重複: `LaGaO3_relax`（`Samples/Relax/LaGaO3`）、`Si_doping_sample`（`Samples/Doping/Si`、メモは ecaljdoc `manual/Memo_bgcharge.md`）、
+  `TestHomoDimerAtom`（`Samples/AtomDimer/N2`）、`TETRAHEDRON_HomoGas`（`Samples/HomoGas`）、`mass_fit_test`（`Samples/EffectiveMass`）、`EPS_Ag`（`Samples/EPS`）、
+  `NiSe_aftest`（`Samples/AFsymmetry/NiSe`）、`cugase2_gwsc222`・`pdo_gwsc443`・`yh3fcc_gwsc666`・`GdNldau`・`erasldau`（`Samples/TestInstall`）、
+  `MLOsamples`（GWinput の頃の `Samples/MLOsamples`）
+- 退役した道具が前提: `SiSigma`・`SiSigmaAny`（`gwsigma`、任意の q の Σ は旧 `AnyQ` → 今は `[gw] QforGW` と `gw_lmfh`）、`Fe_5`（cRPA、25 MB）、
+  `Si_HamMTO`・`Fe_HamMTO`・`FeMTOHAM`（`job_ham`、APW を除いた MTO のハミルトニアン `HamiltonianMTO`）、`NiMnSb_magnon`（MLWF の magnon、ほかの研究者が扱う）
+- 旧形式の例: `CTRLsample`、`SYMLsamples`（`syml` 22 本）、`TESTsamples`（2012、157 本）、`H_atom`、`NiO`、`LiDOS_Discrete`、`Li_atom`
+
+**9.3 メモにあったノウハウ**
+
+- **原子の全エネルギーは一つに決まらない**（`Li_atom`）: (1) `lmfa` の球対称のスピン分極した原子の `etot`、(2) 胞に入れた球対称の原子の `lmf` の 1 回目の `ehf`、
+  (3) 胞に入れた非球対称の原子の `lmf` の収束値。本来は (3) だが胞と基底の打ち切りの誤差がある。(3) + ((1) − (2)) が補正したもの。一辺 6 Å では補正が 0.057 Ry と大きく、胞を大きくすると小さくなる
+- **二原子分子と原子**（`TESTsamples/Dimer`、H₂〜Kr₂ を回した）: 小さい MT が要るので基底を大きくした方がよい。当時の `ctrlgen2.py` は効率のため原子の基底を小さく
+  （O で s,p,d の EH ＋ s,p の EH2）していたが、s,p,d,f ＋ s,p,d の方がよい。今の例は `Samples/AtomDimer/N2`
+- **空隙の大きい結晶**（`TESTsamples/SiO2c`、理想的な β クリストバライト）: 基底の試験によい例。f まで EH・EH2 を二重にすると全エネルギーの収束が速い
+- **構造緩和と `rst`**（`TESTsamples/Dimer/H2O`）: 緩和の最後の位置は `log.<sname>` と `rst` に入り、次の `lmf` は `rst` から構造を読みうる（`lmf --help` でどこから読むかを確かめる）。
+  今は `AtomPos.<sname>` があるとそこから読む（`Samples/Relax/LaGaO3/README.md`）
+- **反強磁性の QSGW を固定モーメントで回す AFTEST のモード**（`NiSe_aftest`、2020〜2021）: `ctrl` に `SYMGRPAF i:(0,0,1)`（並進 (0,0,1) つきの反転で AF の対称性）と
+  原子の `AF=1`・`AF=-1`、`mmtarget.aftest` に保ちたい磁気モーメントを書くと、lmf が「AFTEST」のモードになり、モーメントを保つように偏りの場（UH）をかける
+  （`IDU=0 0 2` の UH は初期値の意味だけ）。`gwsc_sym` で回した。金属の収束の設定は `mixbeta 0.3`、`GaussianFilterX0 0.05`（今は `t_tetrakbt < 0`）、`esmr 0.03`（今は `t_sigmaw`）、
+  `ScaledSigma = 0.8`。コードには今も残っている（`m_ldau_util.f90` の `mmtarget.aftest`・`mixmag.aftest`）。確かめて文書にするのは TODO
 
 ## 10. `TOOLS/` の古い道具（2026-10-01 に trash。残したのは `samples_tests.sh`・`sync_ecalj_src.sh`・`ozbench/` だけ）
 
@@ -288,6 +309,7 @@ CALLER_GRAPH         = YES
 | 2026-10-01 | TOOLS の古い道具（約 60 項目、`samples_tests.sh`・`sync_ecalj_src.sh`・`ozbench/` 以外） | `TOOLS/` | `4d5dd8fed` | §10 |
 | 2026-10-01 | Doxygen の設定 | `Doxygen/`（`Doxyfile`、README） | `da3976b2a` | §11 |
 | 2026-10-01 | GetSyml・StructureTool の例と使わないスクリプト | `GetSyml/ctrl.*`・`syml.*` ほか、`StructureTool/sample/` ほか（257 ファイル） | `2e0756a21` | §12 |
+| 2026-10-01 | 旧形式の古いサンプル（30 項目） | `Samples/MATERIALS/`（元は最上位の `MATERIALS/`、624 ファイル） | `3e9548b21` | §9 |
 
 注: サンプルの古い試行と控えは、MLOsamples の `test*`・`temp`・`*.bk`・`*.tmp`（§4.1）、`Samples/TestInstall/TESTunused`、
 `Samples/TestInstall/eras/occnum.eras.bk`、`TOOLS/FparserTools/f_calltree.py.bk*`、`TOOLS/SrcFragments/f_calltree.py.bk*`・`ANALYZEnotusednow/analyze_temp~`、

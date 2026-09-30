@@ -1,0 +1,17 @@
+#id  = Bi2Te3
+### NOTE!!! we need to change beta=0.3 in ITER_MIX section.
+### Slower mixing is required.
+### Or fixed moment method, probably.
+%const a=4.7825489 coa=4.0154392
+STRUC
+    ALAT={a}
+    PLAT=  1  0  {coa}
+          -0.5  0.8660254  {coa}
+          -0.5 -0.8660254  {coa}
+SITE
+    ATOM=Bi    POS=  0.0000000   0.0000000   0.0000000
+    ATOM=Bi    POS= -0.5000000  -0.8660254   1.4616199
+    ATOM=Te    POS=  0.5000000   0.8660254  -1.4616199
+    ATOM=Te    POS=  0.5000000   0.8660254   0.8030878
+    ATOM=Te    POS= -0.5000000  -0.8660254  -0.8030878
+

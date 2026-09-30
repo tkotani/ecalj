@@ -1,0 +1,10 @@
+#id  = wCdS
+# wurzite structure
+%const bohr=0.529177 a=4.160/bohr c=6.756/bohr q=c/a
+STRUC ALAT={a}
+      PLAT=0 -1 0   sqrt(3)/2 1/2   0 0 0 {q}
+SITE  ATOM=Cd POS=         0   0     0*{q}
+      ATOM=S POS=         0   0   5/8*{q}
+      ATOM=Cd POS= 1/sqrt(3)   0   1/2*{q}
+      ATOM=S POS= 1/sqrt(3)   0   5/8*{q}-{q}/2
+

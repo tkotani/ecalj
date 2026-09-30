@@ -1,6 +1,0 @@
-%show vars
-%const alat=10.0 discenter=2.305 dis=0.1 
-%const dd=(discenter+dis)/alat
-STRUC ALAT={alat} DALAT=0 PLAT=0.9 0 0 0 1 0 0 0 1.1
-SITE  ATOM=O POS={dd}*sqrt(1/3)*.5    {dd}*sqrt(1/3)*.5  {dd}*sqrt(1/3)*.5
-      ATOM=O POS=-{dd}*sqrt(1/3)*.5  -{dd}*sqrt(1/3)*.5 -{dd}*sqrt(1/3)*.5

@@ -1,0 +1,9 @@
+#id  = 3cSiC
+%const bohr=0.529177 a=4.348/bohr # ZincBlend COD 9008856.cif 3C-SiC
+STRUC
+     ALAT={a} 
+     PLAT=0 0.5 0.5  0.5 0 0.5  0.5 0.5 0 
+SITE
+     ATOM=Si POS=0.0 0.0 0.0
+     ATOM=C POS=0.25 0.25 0.25
+

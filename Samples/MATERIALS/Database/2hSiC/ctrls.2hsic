@@ -1,0 +1,10 @@
+#id  = 2hSiC
+# wurzite structure
+%const bohr=0.529177 a=3.076/bohr c=5.048/bohr q=c/a # 2H-SiC COD 9008875.cif
+STRUC ALAT={a}
+      PLAT=0 -1 0   sqrt(3)/2 1/2   0 0 0 {q}
+SITE  ATOM=Si POS=         0   0     0*{q}
+      ATOM=C POS=         0   0   5/8*{q}
+      ATOM=Si POS= 1/sqrt(3)   0   1/2*{q}
+      ATOM=C POS= 1/sqrt(3)   0   5/8*{q}-{q}/2
+

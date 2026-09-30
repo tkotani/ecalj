@@ -1,0 +1,10 @@
+#id  = InN
+# wurzite structure
+%const bohr=0.529177 a=3.545/bohr c=5.703/bohr q=c/a
+STRUC ALAT={a}
+      PLAT=0 -1 0   sqrt(3)/2 1/2   0 0 0 {q}
+SITE  ATOM=In POS=         0   0     0*{q}
+      ATOM=N POS=         0   0   5/8*{q}
+      ATOM=In POS= 1/sqrt(3)   0   1/2*{q}
+      ATOM=N POS= 1/sqrt(3)   0   5/8*{q}-{q}/2
+

@@ -1,1 +1,0 @@
-grep 'c ' save.li |sed -e s/dalat=//g  -e s/ehk=//g 

@@ -24,12 +24,10 @@ job_band la2cuo4swj -np 32
 - `jobgw.sh`（La₂CuO₄）と `job`（BaTiO₃）は当時の投入スクリプトで、旧形式のオプション（`-vssig=1.0`）を含む。上の書き方に読み替える
 - 保存してある `rst.*` は当時の版のもので、今の `lmf` では読めないことがある（`EffectiveMass/GaAs` の例）。`sigm` は読める
 
-## 旧形式の古いサンプル（2026-10-01 に最上位の `MATERIALS/` から移した）
+## Database — 62 物質の入力（2026-10-01）
 
-最上位にあった `MATERIALS/` を、いったんここへ移した（user 2026-10-01）。旧形式（`ctrl.<sname>`、`GWinput`）の入力と結果で、今のプログラムはそのままでは読まない。
-今の入力にするには `Legacy2toml.py <sname>`（`ctrl.<sname>` と `GWinput` から `ctrlg.<sname>.toml`）。各ディレクトリの中身と、近い内容の今のサンプルは
-ecalj の [past_log.md](../../MD/past_log.md) §9。整理（今の形にするか、trash に移すか）は ecalj の [TODOandQuestion.md](../../MD/TODOandQuestion.md)。
+旧 `Materials.ctrls.database` と `job_materials.py` を物質ごとのディレクトリに展開したもの。各ディレクトリに構造の `ctrls.<sname>` と、GW・MLO の節つきの
+`ctrlg.<sname>.toml` がある（計算はしていない）。説明と物質の表は [Database/README.md](Database/README.md)。
 
-`CTRLsample`、`EPS_Ag`、`FeMTOHAM`、`Fe_5`、`Fe_HamMTO`、`GdNldau`、`H_atom`、`LaGaO3_relax`、`LiDOS_Discrete`、`Li_atom`、`MLOsamples`、`NiMnSb_magnon`、`NiO`、
-`NiSe_aftest`、`SYMLsamples`、`SiSigma`、`SiSigmaAny`、`Si_HamMTO`、`Si_doping_sample`、`TESTsamples`、`TETRAHEDRON_HomoGas`、`TestHomoDimerAtom`、
-`cugase2_gwsc222`、`erasldau`、`mass_fit_test`、`pdo_gwsc443`、`yh3fcc_gwsc666`、`Materials.ctrls.database`・`job_materials.py`・`job_check`・`job_vbm`・`sortvbm.py`
+最上位にあった旧形式の古いサンプル（2026-10-01 にここへ移した 30 項目）は、同じ日に仕分けて trash に移した。中身と拾ったノウハウは ecalj の
+[MD/past_log.md](../../MD/past_log.md) §9。

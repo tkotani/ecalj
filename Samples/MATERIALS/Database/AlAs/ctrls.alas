@@ -1,0 +1,9 @@
+#id  = AlAs
+%const bohr=0.529177 a=5.6611/bohr
+STRUC
+     ALAT={a} 
+     PLAT=0 0.5 0.5  0.5 0 0.5  0.5 0.5 0 
+SITE
+     ATOM=Al POS=0.0 0.0 0.0
+     ATOM=As POS=0.25 0.25 0.25
+

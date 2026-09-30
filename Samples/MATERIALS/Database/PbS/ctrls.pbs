@@ -1,0 +1,7 @@
+#id  = PbS
+# NaCl structure
+%const bohr=0.529177 a=5.9362/bohr
+STRUC   ALAT={a} PLAT= 0 .5 .5  .5 0 .5  .5 .5 0
+SITE    ATOM=Pb  POS=  0   0    0
+        ATOM=S  POS= 1/2  1/2  1/2
+

@@ -1,0 +1,7 @@
+#id  = EuO
+# NaCl structure
+%const bohr=0.529177 a=5.14/bohr
+STRUC   ALAT={a} PLAT= 0 .5 .5  .5 0 .5  .5 .5 0
+SITE    ATOM=Eu  POS=  0   0    0
+        ATOM=O  POS= 1/2  1/2  1/2
+

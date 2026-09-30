@@ -26,6 +26,8 @@
 - **`GetSyml/README.md` の冒頭が古い**（2026-10-01）: 「syml.* は ctrl.* から作る」とあるが、今は `ctrlg.<sname>.toml` から（`getsyml` が `lmchk` を走らせる）。README の末尾にある作者の TODO: (a) `lmchk` が道の分割数（ndiv）など要る情報も書き出す、(b) `lmchk` の出力を読むので精度が出力の桁で決まる
 - **`StructureTool/README.md` の説明の誤り**（2026-10-01）: `ctrl2vasp.py` の説明が「POSCAR を ctrl に」と逆、その例が `vasp2ctrl.py` を呼ぶ、`viewvesta` の例のファイル名（`POSCAR_opal` を作って `POSCAR_cugase2` を開く）。例の `sample/` は trash に移した。今の入力は `ctrlg.<sname>.toml` なので ctrl の例も古い
 - **`Samples/EPS/EPS_GaAs/README_eps.md` が旧形式**（2026-10-01）: `GWinput` の `<QforEPS>`・`n1n2n3 20 20 20`・`lcutmx` で説明している。今は `ctrlg.<sname>.toml` の `[gw]`（`QforEPS`、`n1n2n3`）と `[product_basis]`
+- **AFTEST のモード（反強磁性の固定モーメント）を確かめて文書にする**（2026-10-01）: `mmtarget.aftest` があると lmf がモーメントを保つ偏りの場をかける（`m_ldau_util.f90`）。2020〜2021 の NiSe の手順は past_log.md §9.3。ecaljdoc の `UsageDetailed.md` には「直す必要がある」と一言だけ
+- **`Samples/MATERIALS/Database` の 62 物質を LDA で一度回して確かめる**（2026-10-01、急がない）: 入力は `lmchk` で読めることだけ確かめた
 - **VSCode の CMake 拡張が最上位に `build/` を作る**（2026-10-01）: `.vscode/settings.json` の設定か、`.gitignore` に `/build/` を入れる
 
 - **`hgw` の残り**（2026-04 の統合の残タスク、2026-10-01 に past_log.md §3.2 から）: ノード内の W の共有を `MPI_Win_allocate_shared` で（メモリの重複を減らす）。
@@ -47,10 +49,7 @@
 
 ## 2. 質問（メンテナに決めてほしいこと）
 
-- `Samples/MATERIALS` の旧形式のサンプルの中に、拡張子の無い `README` が 18 本ある（`Li_atom`、`TESTsamples/*`、`TestHomoDimerAtom` など）。これも `.md` にするか（旧形式のサンプルをどうするかの質問と一緒に）
 - **ecaljdoc の古い文書**（`BackUp/`、`ecaljdetails/` の LaTeX・PS、2019 年以前）は、trash に移した `TOOLS/checkmodule`・`TOOLS/ModuleCodingSample` などを参照している。ecaljdoc の側も同じ決まり（trash へ、要点は過去ログへ）で片付けるか（2026-10-01）
-- **`Samples/MATERIALS` の旧形式の古いサンプル**（2026-10-01 に最上位から移した 30 項目）を、今の形にするか、trash に移すか。
-  中身は past_log.md §9。ecaljdoc の `README_tutorial.md` の `jobmaterials.py` の節もこれを前提にした古い説明
 - **GW1500 の `INVALID_STRUCTURE`（12）・`SUSPECT_STRUCTURE`（4）を集合から外すか**。いまは注記だけ
 - **5 月（TF32）と fp32 の差**: kr7 の比較（同じバイナリ・同じ入力で fp32 と TF32）の結果しだいで、GOOD の 1120 を見直すか
 - **ビルドの生成物が入ったコミット `a0c7a7300`（78 MB）を、push の前に履歴から消すか**。消すと以後 674 コミットのハッシュが変わり、
@@ -72,6 +71,7 @@
 
 ### 2026-10-01
 
+- `Samples/MATERIALS` を仕分けた: 構造のデータベース（62 物質）を `Database/` に展開（`ctrls` と、GW・MLO の節つきの `ctrlg`、`lmchk` で全部読める）。ほかの旧形式の 30 項目は trash（624 ファイル）。残したのは `La2CuO4`・`InAsGaSb`・`BaTiO3`。拾ったノウハウは past_log.md §9
 - `README.txt` と `.org` を Markdown に（user「README.txt とあるのは md 形式に。org もそう」）: `StructureTool/README.txt`、`Samples/EPS/EPS_GaAs/README_eps.org`、`Samples/MATERIALS/{LaGaO3_relax,MLOsamples,NiSe_aftest}/README.org`、`Samples/MATERIALS/Si_doping_sample/Memo_bgcharge.org`（`git mv`）。pandoc は `_` を下付きに、`--` をダッシュに変えるので使わず、原文を保つ変換（見出し・`#+TITLE`・`#+begin_src`・コマンド行と設定の断片をコードブロックに）
 - `GetSyml/`・`StructureTool/` の古い例（旧形式の `ctrl.*` 86 本、`syml.*`、鉱物の POSCAR 135 本）と使わないスクリプトを trash へ（257 ファイル）。本体（`getsyml`、`vasp2ctrl`・`ctrl2vasp`、`viewvesta`、`refineposcar.py`、`superlattice/`）は残し、動くことを確かめた。past_log.md §12
 - `Doxygen/` を trash へ（user「そうしよう」）。コメントを Doxygen 形式に揃えることはしない。作り直し方は past_log.md §11

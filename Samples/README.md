@@ -31,7 +31,7 @@ after another and writes one summary (how to read it: ecaljdoc
 | [DOS/](DOS/ZnS/README.md) | total and partial density of states (`job_tdos`, `job_pdos`): ZnS, bcc Fe | `ZnS`, `Fe` | `samples` |
 | [AtomDimer/](AtomDimer/README.md) | a molecule and an atom in a box: N2 at three bond lengths and the N atom (PBE, fixed spin moment), bond length and binding energy | `N2` | `samples` |
 | [IIR/](IIR/C/README.md) | impact ionization rate of diamond: the imaginary part of the self-energy (`gw_lmfh`, `QPU_life`) | `C` | `samples` |
-| [MATERIALS/](MATERIALS/README.md) | inputs and results of larger systems, not tests: La2CuO4 (QSGW, 7 atoms), InAs/GaSb superlattices (16 and 40 atoms), BaTiO3 (QSGW in three stages); and the old-format samples of the former top-level MATERIALS/ (moved 2026-10-01, not converted) | — | `inputs` |
+| [MATERIALS/](MATERIALS/README.md) | inputs and results of larger systems, not tests: La2CuO4 (QSGW, 7 atoms), InAs/GaSb superlattices (16 and 40 atoms), BaTiO3 (QSGW in three stages); and Database/, the inputs of 62 materials expanded from the old structure database (2026-10-01, not computed) | — | `inputs` |
 | [BenchmarkTest/](BenchmarkTest/README.md) | one QSGW iteration of InAs/GaSb superlattices (8 and 16 atoms), for GPU | 2 | `bench` |
 | [mptf32problem/](mptf32problem/README.md) | AgNO3 and other cases where the old TF32 mode of the GPU build failed (GW1500) | — | — |
 

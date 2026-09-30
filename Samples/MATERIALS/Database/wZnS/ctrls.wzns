@@ -1,0 +1,10 @@
+#id  = wZnS
+# wurzite structure
+%const bohr=0.529177 a=3.82/bohr c=6.26/bohr q=c/a
+STRUC ALAT={a}
+      PLAT=0 -1 0   sqrt(3)/2 1/2   0 0 0 {q}
+SITE  ATOM=Zn POS=         0   0     0*{q}
+      ATOM=S POS=         0   0   5/8*{q}
+      ATOM=Zn POS= 1/sqrt(3)   0   1/2*{q}
+      ATOM=S POS= 1/sqrt(3)   0   5/8*{q}-{q}/2
+
