@@ -27,7 +27,11 @@
   まっさらな状態からは順序が決まらない。いまは `SRC/CMakeLists.txt` が GPU の変種を基本の変種の後に作り、`-I` で基本の `mod/` を見せる回避策で通っている
   （そのコメントは「CMake の走査が m_gemmul8 → m_mpi を見落とす」と書くが、見落としではなく循環）。案: `m_gemmul8` の `ipr` を下の層から取る、
   または `MPI__AutoSetup` の GPU メモリの問い合わせを引数で受ける。直したら GPU（kt1・kr7）で clean build と試験
-- **AFTEST のモード（反強磁性の固定モーメント）を確かめて文書にする**（2026-10-01）: `mmtarget.aftest` があると lmf がモーメントを保つ偏りの場をかける（`m_ldau_util.f90`）。2020〜2021 の NiSe の手順は past_log.md §9.3。ecaljdoc の `UsageDetailed.md` には「直す必要がある」と一言だけ
+- **AFTEST（`mmtarget.aftest`）の残り**（2026-10-01、研究ログ 2026-10-01 朝 06:46 と表 06:46-1）: 場をスピン 1 にしか入れていなかった誤りはブランチ `aftest-fix`
+  で直した（下の質問）。残り: (a) モーメントを下げる向きで更新が行き過ぎる（利得 2 固定と 0.1(m − m_t)² の項。NiO 1.28 → 1.0 は 70 反復で、途中で符号が反転）。
+  応答を割線で見積もる更新にするか。(b) 対がサイト 1・2、ブロック 1・2 の決め打ち（NiSe だけ 6 ブロック）。`AF=` の印や種の名前から対を決める。
+  (c) `m_ldau_init` が lmf の起動のたびに場を一歩更新して `mmagfield.aftest` を書き直す（`job_band` でも）。(d) ecaljdoc の `UsageDetailed.md` の「直す必要がある」を、
+  使い方（LDA+U のブロックが要る、U = 0 でよい、`SYMGRPAF`、目標のモーメントの定義）に書き直す
 - **`Samples/MATERIALS/Database` の 62 物質を LDA で一度回して確かめる**（2026-10-01、急がない）: 入力は `lmchk` で読めることだけ確かめた
 
 - **`hgw` の残り**（2026-04 の統合の残タスク、2026-10-01 に past_log.md §3.2 から）: ノード内の W の共有を `MPI_Win_allocate_shared` で（メモリの重複を減らす）。
@@ -36,6 +40,25 @@
 - **`m_tetrakbt.f90` の使われていないルーチン**（2026-10-01）: 中点分解の `tetrakbt`・`eaf_triangle`・`eafww`・`factri`・`factri0`・`integral_1t`・
   `integral_0t`・`funcgx`・`numintall`・`funcgx2`・`ndiv_tt`・`int_simpson`（約 300 行）はどこからも呼ばれない（`tetwt5.f90` は `use` の only に
   `tetrakbt` を挙げるだけ）。今も使うのは `tetrakbt_init`・`kbt`・`integtetn`。2026-06 に「参照のため残す」としたもの。消すなら kBT の試験で確かめる（past_log.md §13）
+
+- **MLO の自動の模型の既定**（2026-10-01、`Samples/MATERIALS/Database` の試験。研究ログ 2026-10-01）: 既定（`mlo_lm` が Ne まで s,p・Na から s,p,d、Δ = w = 2 eV）で
+  多くの物質はバンドの rms が 0.01 eV 前後だが、次の 2 つの型で外れる。どちらも追加の動径関数で直る（*表 1*、`~/work/mlocheck_variants`）。
+  (a) 陽イオンの半内殻 d と陰イオンの 2p の混成（GaN、InN、両相）: `m_HamPMT` の「浅い局所軌道」の判定（局所軌道が主の状態の上端が E_F − 10 eV より上）で
+  Ga 3d（−11.8 eV）・In 4d（−12.5 eV）が「深い」とされ、模型から落ちて VBM が 0.33〜0.6 eV 下がる。`mlo_lm3` に d を足すと rms 0.002〜0.008 eV。
+  合っている GaAs・InP・InAs は −13.9〜−14.8 eV。閾値を −13 eV にするか、陰イオンの p との近さで決めるか。
+  (b) 空隙の大きい構造（MgS・MgSe・MgTe・CdTe・ZnTe・AlN・SiO₂ クリストバライト）: 伝導帯の底が高すぎる（+0.04〜+0.29 eV、SiO₂ は +4.1 eV で伝導帯が丸ごと無い）。
+  `mlo_lm2` に全原子の s,p（EH2）を足すと 0.00〜0.05 eV。gwinit が書くコメント「同じ (atom, lm) に 2 本目（mlo_lm2）を足さない。重なりが特異に近くなる」は、
+  これらの系では当たらなかった（`m_hreduction` の規格化の確かめも警告なし）。ただし常に足すのは不可: Cu は s,p の EH2 を足すと**止まらずに**模型が壊れる
+  （rms 0.012 → 0.66 eV、最大 8 eV）。EuO は `Hreduction: PMT completeness loss too large` で止まる。SrTiO₃ は Sr 4p の半内殻を足すと 0.045 → 0.003 eV、
+  La₂CuO₄ は La 5p で 0.094 → 0.001 eV（(a) の型。La₂CuO₄ では判定の表示が `********` で、局所軌道が主の状態が見つかっていない）。
+  足す条件（陰イオンの 2p があるときの半内殻、空隙の大きい構造の EH2）を決めるか、模型を作った後にバンドを確かめて足す仕組み（`mlo_bandcheck.py`）にするか。
+  模型が黙って壊れる場合（Cu）の検知も要る
+- **`mlo` が so = 1 の入力で NaN**（2026-10-01、GaAs_so）: `job_mlo` を so = 1 の ctrlg で回すと `zhev_tk4: the Hamiltonian contains NaN`。
+  SOC は `job_mlo_soc`（摂動）で扱う設計なので、`mlo`（か `job_mlo`）が so = 1 を見て止まり、`job_mlo_soc` を案内するのがよい
+- **`job_mlo_soc` が空の `band_MLO_spin2.dat` を書く**（2026-10-01）: 2N のスピノルの帯は `band_MLO_spin1.dat` に入る。空の spin2 があると
+  `mlo_bandplot.py` が空の枠を描く（`bandplot_MLO.isp2.glt` も残る）
+- **`Samples/AFsymmetry/NiO` は `pwmode = 1` で `symgrpaf`**（2026-10-01）: k 点を 4³ にすると `rotwave: q+G rotation error (We have to set PWmode=11 for symgrpAF)`
+  で止まる。試験の 3³ では通っているだけ。`pwmode = 11` にして参照を作り直すか
 
 - **`InstallAll.py` が bindir の行き先の無いリンクを消さない**（2026-10-01）: t14 の `~/bin` に 58 本（`uutest`、`genMLWFmod`、`FLEX_interaction.py` など、
   `SRC/exec` から退かせたファイルと、エディタの一時ファイル `job_mlo~`・`#ctrlgenM1.py#`、`TAGS`）。インストールのときに、自分が作ったリンクのうち
@@ -61,6 +84,7 @@
 - **trash を空にするか**: t14 の `~/ecalj/trash`（旧ツリー 58 GB ほか）、kt1 の `~/ecalj/trash`（255 GB）。kt1 は空にするまで `/` の空きが 49 GB のまま
 - 試験に使った古いツリー（mic の `~/ecalj_test0928`、kt1 の `/mnt/data1/ecalj_test0930b`・`0930c`）も trash に入れるか
 - ブランチ `fix-idu10`（main にマージ済み）を消すか
+- **ブランチ `aftest-fix`（`6d6f3451b`）をマージするか**: AFTEST の場をスピン 2 にも逆符号で入れる。afsym では SCF の中身は変わらず ehk だけが制約の下の全エネルギーになり、afsym なしでも正しくなる（NiO で afsym の結果と 10⁻⁶ eV で一致）。AFTEST を使う試験は今は無い
 - push: dev・rel とも、t14 の main より 674 コミット遅れ（2026-10-01）
 
 ## 3. 実行中
@@ -73,6 +97,7 @@
 
 ### 2026-10-01
 
+- AFTEST を調べた（研究ログ 2026-10-01 朝 06:46）: afsym ではモーメントを目標に保てるが、表示の ehk に −uhx·m_d、ehf に −2·uhx·m_d が残る。afsym なしでは誤り（サイトの電荷が分かれる）。修正はブランチ `aftest-fix`
 - GW1500: kr7 で fp32 と TF32 を同じバイナリ・同じ入力で比べた（8 物質、02:03〜06:24）。最終のギャップの差は 1 meV 未満。5 月との 0.29〜1.48 eV の差は精度ではなく、5 月の振動と設定の違い（`GW1500_status.md` §5.1 の表 7）。GOOD 1120 を精度の理由で見直す必要は無い
 - `SRC/subroutines/m_tetrakbt_BUGREPORT.md`（2026-06、直し済みの不具合の報告）の要点を past_log.md §13 に移して trash へ。空の道標 `SRC/TestInstall_is_moved_to_under_ecaljSamples` も trash へ
 - `.gitignore` に `/build/`（VSCode の CMake 拡張が最上位に作る）
