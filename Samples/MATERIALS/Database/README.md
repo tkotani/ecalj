@@ -9,10 +9,11 @@ LDA/GGA を回していた。これを物質ごとのディレクトリに展開
 - `ctrls.<sname>`: 構造だけ（`job_materials.py --noexec` がデータベースの雛形から作ったもの。`%const` の式と `{a}` の置き換えを含む）
 - `ctrlg.<sname>.toml`: `ctrlgenToml.py <sname>` で作った入力。データベースの指定を次のように写した: `--nk1..3` → LDA の k 点（`[bz] nkabc`）、
   `--nspin=2`・`lmf-vnspin=2` → `--nspin=2`、`lmf-vso=1` → `--so=1`、`mkGW-a,b,c` → `[gw] n1n2n3`、`ctrls` の `MMOM` → `[[spec]] mmom`
-  （`ctrlgenToml.py` は `MMOM` を写さないので後から書き足した）。GW の節（`[gw]` `[mlo]` `[blocks]` `[product_basis]`）も入れてあり、
+  （`ctrlgenToml.py` は `ctrls` の `MMOM` を写さないので後から書き足した。原子の表に既定の `MMOM` がある Eu では、その既定より `ctrls` の値を優先する。
+  2026-10-01 に直すまで EuS・EuSe・EuTe の `Nidn` が +6 のままだった）。GW の節（`[gw]` `[mlo]` `[blocks]` `[product_basis]`）も入れてあり、
   QSGW と MLO の自動の模型（`mlo_method = 4`、`mlo_lm`、`mlo_nkabc`）がそのまま回せる
 
-**計算はしていない**（2026-10-01 に 62 物質とも `lmchk` で読めることだけを確かめた）。回すときは、このディレクトリを写してその中で:
+**LDA と MLO の自動の模型は 2026-10-01 に全物質で回した**（結果は研究ログ `MD/research_log.md` の 2026-10-01）。GW は回していない。回すときは、このディレクトリを写してその中で:
 
 ```bash
 lmfa <sname>; mpirun -np 4 lmf <sname> > llmf         # LDA/GGA
@@ -23,7 +24,8 @@ job_mlo <sname> -np 4                                 # MLO の自動の模型�
 
 注意:
 
-- Ce と Eu の化合物は、`ctrlgenToml.py` の原子の表の既定で 4f に `idu = 12`・`uh`・`jh` が入る（`sigm` が無いときは FLL の LDA+U、QSGW では U を切る）
+- Eu の化合物は、`ctrlgenToml.py` の原子の表の既定で 4f に `idu = 12`・`uh`・`jh` が入る（`sigm` が無いときは FLL の LDA+U、QSGW では U を切る）。
+  Ce は nspin = 1 なので、その LDA+U はコメントにしてある（LDA+U は nspin = 2 が要る。2026-10-01）
 - AF II の雛形（NiO、MnO、EuS、EuSe、EuTe）は、2 つの磁性の位置を種 `Niup`・`Nidn` として持つ（元素は `z` で決まる。名前は NiO の雛形のまま）
 - `job_materials.py --all` は LaGaO3・4hSiC・Bi2Te3 を重いので外していた。Bi2Te3 はデータベースの注に「混合をゆっくり（beta 0.3）」とある
 - 格子定数は、`Å` と書いたものはデータベースで Å から換算したもの、`bohr` はデータベースが bohr で与えたもの
