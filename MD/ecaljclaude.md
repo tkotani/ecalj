@@ -64,7 +64,9 @@ Claude（や人）が後でコードや記録を読むときの手がかりに�
 - 数式には必ず式番号（`$$ ... \tag{1}$$`）を付け、本文から番号で参照する。図表にも番号を付ける
 - 説明の軸は ecaljdoc。ecalj の Changes.txt・各サンプルの README には要点と ecaljdoc への参照だけを書き、同じ説明を二か所に書かない
 - ecalj は「Claude が読み込んで人間に説明できる」パッケージにする。人間は Claude を通して情報を取る（user 2026-10-01）。最上位は `CLAUDE.md`（入口）と数行の `README.md`、`Changes.txt`。
-  開発の文書は `MD/`（[README.md](README.md) は 2026-05〜09 の新機能のログとクイックスタート）
+  開発の文書は `MD/`（[README.md](README.md) は 2026-05〜09 の新機能のログとクイックスタート）。
+  コードの大局（主プログラム → 入口の module、module の DAG と階層、各 module の依存）は [module_map.md](module_map.md)。
+  `python3 TOOLS/module_map.py` で作り直す生成物で、手では直さない（2026-10-01、Doxygen の代わり）
 - 引き継ぎ: Claude の個人メモリ（`~/.claude/.../memory/`）はパッケージに入らないので、別の機械や記憶の無いセッションに要ること
   （user との取り決め、計算機の癖、ビルドと実行の落とし穴）は [handover.md](handover.md) にも書く。その時点の状況や古くなったことは写さない（混乱の元）
 - `MD/` は基本的に Claude が読むもの（user 2026-10-01）。人に読ませる体裁より、Claude があとで正確に引けることを優先する:

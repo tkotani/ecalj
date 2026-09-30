@@ -22,7 +22,11 @@
   1 原子の体積が同じ組成の 2 倍以上など）が PBE のギャップ > 0 で選ばれていた（`ecalj_auto/GW1500_status.md` 表 6 の `INVALID_STRUCTURE`）。
   `auto_mpquery.py` で弾くか、印を付ける
 - **`m_bndfp` が `m_clsmode_finalize` に渡す `ndimh`**（2026-09-30）: module の状態のまま。`--cls` を `pwmode = 11` で使うときに確かめる
-- **module の依存と主プログラムの流れの一覧を `MD/` に置く**（2026-10-01、Doxygen をやめた代わり）: `use m_foo, only:` を拾って、module の DAG と、主プログラム（`SRC/main/*.f90`）から各 module への流れを機械的に書き出す小さなスクリプト。人が大局をつかむ入口として、Claude が説明に使う
+- **GPU の build で module が循環している**（2026-10-01、`MD/module_map.md` を作って見つけた）: `m_mpi`（`MPI__AutoSetup` の中で `use m_gpu`）→
+  `m_gpu`（`__GPU` のとき `use m_blas`）→ `m_blas`（`use m_gemmul8`）→ `m_gemmul8`（`gemmul8_init` の中で `use m_mpi, only: ipr`）→ `m_mpi`。
+  まっさらな状態からは順序が決まらない。いまは `SRC/CMakeLists.txt` が GPU の変種を基本の変種の後に作り、`-I` で基本の `mod/` を見せる回避策で通っている
+  （そのコメントは「CMake の走査が m_gemmul8 → m_mpi を見落とす」と書くが、見落としではなく循環）。案: `m_gemmul8` の `ipr` を下の層から取る、
+  または `MPI__AutoSetup` の GPU メモリの問い合わせを引数で受ける。直したら GPU（kt1・kr7）で clean build と試験
 - **AFTEST のモード（反強磁性の固定モーメント）を確かめて文書にする**（2026-10-01）: `mmtarget.aftest` があると lmf がモーメントを保つ偏りの場をかける（`m_ldau_util.f90`）。2020〜2021 の NiSe の手順は past_log.md §9.3。ecaljdoc の `UsageDetailed.md` には「直す必要がある」と一言だけ
 - **`Samples/MATERIALS/Database` の 62 物質を LDA で一度回して確かめる**（2026-10-01、急がない）: 入力は `lmchk` で読めることだけ確かめた
 - **VSCode の CMake 拡張が最上位に `build/` を作る**（2026-10-01）: `.vscode/settings.json` の設定か、`.gitignore` に `/build/` を入れる
@@ -68,6 +72,8 @@
 
 ### 2026-10-01
 
+- `MD/module_map.md`（生成物）と `TOOLS/module_map.py`: 主プログラム → 入口の module、module の階層（226 module、最大 29 段、`m_lmf` が頂点）、
+  依存と被依存の数、module の冒頭のコメント。`ecaljclaude.md` から参照。GPU の build の module の循環が 1 つ見つかった（上の TODO）
 - `GetSyml/README.md`・`StructureTool/README.md`・`Samples/EPS/EPS_GaAs/README_eps.md` を今の形に書き直した（入力は `ctrlg.<sname>.toml`、
   `getsyml --nobzview`、StructureTool の各スクリプトの向きと出力のファイル名、EPS は `[gw] QforEPS`・`QforEPSau`・`n1n2n3`・`[product_basis] pb_lcutmx`、
   EPS の出力の列）。`getsyml` の使い方の表示も（`-nobzview` → `--nobzview`、`ctrl.nio` → `ctrlg.nio.toml`）
