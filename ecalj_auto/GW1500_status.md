@@ -150,8 +150,10 @@ MP が圧力ゼロで緩和したもの（「Materials Project Optimized Structu
   5 月との差が TF32 によるものか、入力とコードの版によるものかを分ける
 - 5 月の GOOD（1120）と `DRIFT_GOOD`（61）はやり直さない（user 2026-10-01）。上の比較で TF32 の差が大きいと分かったら、見直しを考える
 - `INVALID_STRUCTURE`・`SUSPECT_STRUCTURE` の扱い（GW1500 の集合から外すか）は未定。表では注記だけ
-- kt1 のディスク（`/` の空きは 50 GB）: `~/DATA/gw1500` の `*_FAILBACKUP`（121 個、69 GB）と、落ちた物質のディレクトリに残った作業ファイル `__*`（59 GB）、
-  `~/DATA/gw1500fp32`・`gw1500_test`・`gw1500_bench`（合わせて 130 GB、ほとんどが `__*`）。消してよいかは未定（何も消していない）
+- kt1 のディスク: 2026-10-01 に user の指示で、5 月の失敗の退避 `*_FAILBACKUP`（69 GB）、`~/DATA/gw1500` の作業ファイル `__*`（60 GB）、
+  `~/DATA/gw1500fp32`・`gw1500_test`・`gw1500_bench` の `__*`（128 GB）、`/mnt/data1/gw1500_rerun` の古いスクリプトと止めた試行、
+  古い凍結バイナリ `~/bin_frozen_9e881*` を `~/ecalj/trash`（255 GB、移した記録は `trash/MOVED_kt1_*.txt`）に移した。
+  同じ `/` の中なので、空き（49 GB）は trash を空にしたときに約 300 GB になる。空にするのは user の指示を待つ
 
 ## 7. `gw1500_status_20260930.tsv` の列
 
