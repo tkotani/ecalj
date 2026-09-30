@@ -1,3 +1,10 @@
+2026-10-01
+  Materials Project の API キーを ecalj_auto/config.ini から外した。config.ini はリポジトリに入っていて、キーが公開の
+  リポジトリに載っていた (auto_jobsubmit.py・auto/Job.py が OUTPUT/<run>/config.ini に写し、job_mp.py がログに出していた)。
+  キーは個人のもので、ecalj の最上位の MaterialProject.key (1 行、.gitignore) に置く。見本は MaterialProject.key.example。
+  環境変数 MP_API_KEY があればそちらが優先。読むのは SRC/exec/pylib/mpkey.py。config.ini の apikey は読まない。
+  gwscconv (2026-09-30 (7)) の続き: gw1500_rerun.sh のログで金属の dqp が none になっていたのを直した。
+
 2026-09-30 (7)
   gwscconv: lmf がギャップを出さない反復 (金属・半金属) は、固有値の変化で収束を判定する。QPU.<n>run と
   QPU.<n-1>run の eQP (E_F 基準) のうち |e| < 5 eV の状態の変化の最大が --conv-qp (既定 0.03 eV) 未満の反復が

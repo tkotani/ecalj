@@ -128,3 +128,6 @@ WVR
 WVI
 *.zip
 BZ*.html
+
+# Materials Project API key: personal, never in the repository (2026-10-01). Template: MaterialProject.key.example
+/MaterialProject.key

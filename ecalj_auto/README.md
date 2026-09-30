@@ -54,8 +54,11 @@ It is designed for systematic, high-throughput calculations on many materials, e
 
 1. **Install ecalj** (see ecalj documentation).
 2. No build process is needed for ecalj_auto (Python-based).
-3. Edit `config.ini` to set:
-    - `api_key` : Your Materials Project API key
+3. Put your Materials Project API key in `<ecalj>/MaterialProject.key` (one line; the file is ignored by git):
+   `cp MaterialProject.key.example MaterialProject.key; chmod 600 MaterialProject.key` at the top of ecalj, then
+   replace the placeholder line by your key. The environment variable `MP_API_KEY` takes precedence.
+   Never write the key into `config.ini`: that file is in the repository.
+4. Edit `config.ini` to set:
     - `epath`   : Path to ecalj binaries
     - `nqsub`   : Number of qsub jobs to run in parallel
     - `ncore`   : Number of cores per qsub job

@@ -31,7 +31,7 @@ parser.add_argument('--dir', type=Path, default=Path(__file__).resolve().parent,
 parser.add_argument('--poscar', type=Path, default=Path(config.get('ppath')))
 parser.add_argument('--file', type=str, default=None, help='Listfile of mpid. only 1 file is allowed')
 parser.add_argument('--auto', type=Path, default=Path(__file__).resolve().parent)
-parser.add_argument('--apikey', type=str, default=config.get('apikey'))
+parser.add_argument('--apikey', type=str, default=None)  # default: MP_API_KEY or <ecalj>/MaterialProject.key, read below
 parser.add_argument('--niter', type=int, default=config.getint('niter'))
 parser.add_argument('--ncore', type=int, default=config.getint('ncore'))
 parser.add_argument('--bnd4all', type=bool, default=config.getboolean('bnd4all'))
@@ -47,6 +47,12 @@ parser.add_argument('--np2', type=int, default=config.getint('np2', fallback=Non
 args = parser.parse_args(sys.argv[1:]) #read auto directory.
 #print('args=',sys.argv[1:])
 print(args)
+# The API key after print(args): not in config.ini (tracked) nor in the job log (2026-10-01). This script runs from a copy in
+# OUTPUT/<run>, so pylib is taken from the ecalj bindir (epath/pylib -> <ecalj>/SRC/exec/pylib).
+if args.apikey is None:
+    sys.path.insert(0, str(args.epath))
+    from pylib.mpkey import mp_api_key
+    args.apikey = mp_api_key(required=False)  # needed only when the magnetic ordering is taken from Materials Project
 
 sys.path.append(str(args.auto))
 import creplot

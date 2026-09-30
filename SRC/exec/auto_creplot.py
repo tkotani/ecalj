@@ -206,7 +206,8 @@ class Calc:
                 shutil.copy(path_poscar, 'POSCAR')
             except: 
                 from pymatgen.ext.matproj import MPRester
-                with MPRester(key) as mpr:
+                from pylib.mpkey import mp_api_key
+                with MPRester(key or mp_api_key()) as mpr:
                     struc = mpr.get_structure_by_material_id(num)
                     struc.to(fmt='poscar', filename='POSCAR')
             run_command([epath/'vasp2ctrl', 'POSCAR'], out='llmf')

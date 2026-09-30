@@ -50,7 +50,8 @@ config = config['RUNjob']
 args.epath = Path(config.get('epath'))
 args.poscar = Path(config.get('ppath'))
 args.autopath = Path(config.get('autopath'))
-args.apikey = config.get('apikey')
+from pylib.mpkey import mp_api_key   # not in config.ini since 2026-10-01 (it went into the repository from there)
+args.apikey = mp_api_key(required=False)  # needed only when the magnetic ordering is taken from Materials Project
 args.niter = config.getint('niter')
 args.ncore = config.getint('ncore')
 args.bnd4all = config.getboolean('bnd4all')

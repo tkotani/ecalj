@@ -87,7 +87,10 @@ class JobQUE:
             f.write(f'autopath : {self.autopath} \n')      
             for attr, value in config.__dict__.items():
                 if(value == None): continue
-                f.write(f'{attr.ljust(max_attr_length)} : {value} \n') 
+                # Bug fixed 2026-10-01: the API key was written here into every OUTPUT/<run>/config.ini (tracked files).
+                # job_mp reads it again from MP_API_KEY or <ecalj>/MaterialProject.key.
+                if attr == 'apikey': continue
+                f.write(f'{attr.ljust(max_attr_length)} : {value} \n')
                 
         if config.nqsub == 1:  pattern = self.fname
         if config.nqsub != 1:  pattern = self.fname + '.[0-9]+'
@@ -144,7 +147,7 @@ if __name__=="__main__":
     parser = argparse.ArgumentParser(description="Run QSGW")
     parser.add_argument('--inpath', type=Path, default=Path(config.get('inpath')), help='Path to the input directory. We automatically have correspoining OUTPUT directory')
     parser.add_argument('--epath', type=Path, default=Path(config.get('epath')), help='Path of ecalj package')
-    parser.add_argument('--apikey', type=str,   default=config.get('apikey'), help='API key for Materials Project')
+    parser.add_argument('--apikey', type=str,   default=None, help='API key for Materials Project (default: MP_API_KEY or <ecalj>/MaterialProject.key)')
     parser.add_argument('--nqsub', type=int,    default=config.getint('nqsub'), help='Number of qsub process to divide the input file')
     parser.add_argument('--niter', type=int,    default=config.getint('niter'), help='Number of iterations for QSGW calculation')
     parser.add_argument('--ncore', type=int,    default=config.getint('ncore'), help='Number of cores per qsub process ')

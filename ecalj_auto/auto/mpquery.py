@@ -27,10 +27,11 @@ args = parser.parse_args(sys.argv[1:])
 
 print('loading MPRester ...')
 from mp_api.client import MPRester
-### Get API-KEY from configuration file
-config = configparser.ConfigParser()
-config.read(args.conf)
-apikey = config['DEFAULT'].get('apikey')
+### API key: MP_API_KEY or <ecalj>/MaterialProject.key (not config.ini, which is tracked; 2026-10-01)
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'SRC' / 'exec'))   # <ecalj>/ecalj_auto/auto/mpquery.py
+from pylib.mpkey import mp_api_key
+apikey = mp_api_key()
 
 ### Set elements: NobleGas, Lanthanoide, Actinoide
 special_elements = {

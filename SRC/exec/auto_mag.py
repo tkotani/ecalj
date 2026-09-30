@@ -35,7 +35,8 @@ class SetMag:
         self.nr = nr
         self.ordering = ordering
 
-        with MPRester(key) as mpr:
+        from pylib.mpkey import mp_api_key
+        with MPRester(key or mp_api_key()) as mpr:   # key: MP_API_KEY or <ecalj>/MaterialProject.key when not given
             struc = mpr.get_structure_by_material_id(num)
         st = CMSA(struc)
         self.msm = st.magnetic_species_and_magmoms

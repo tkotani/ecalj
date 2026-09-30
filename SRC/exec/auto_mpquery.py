@@ -22,16 +22,11 @@ parser.add_argument('--metal', type=str, choices=['true','false','both'], defaul
 parser.add_argument('--mpid', type=str, nargs='+', default=False, help='Enter material_ids like 1 10 100 .... To obtain a dataset for comparison with experimental values, enter "expt"')
 parser.add_argument('--poscar', type=bool, default=True)
 parser.add_argument('--dir', type=str, default='lists')
-parser.add_argument('--conf', type=str, default='./config.ini')
 args = parser.parse_args(sys.argv[1:])
 
-### Get API-KEY from configuration file
-config = configparser.ConfigParser()
-config.read(args.conf)
-apikey = config['DEFAULT'].get('apikey')
-if(apikey == 'YourAPIkeyToMaterialProject') :
-    print('Set correct API key in config.ini')
-    sys.exit()
+### API key: MP_API_KEY or <ecalj>/MaterialProject.key (pylib/mpkey.py; not config.ini since 2026-10-01)
+from pylib.mpkey import mp_api_key
+apikey = mp_api_key()
 
 print('loading MPRester ...')
 from mp_api.client import MPRester

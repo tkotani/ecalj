@@ -79,6 +79,8 @@ class Job:
         with (self.opath / 'config.ini').open('w') as f:
             f.write('[DEFAULT]\n')
             for attr, value in config.__dict__.items():
+                # Bug fixed 2026-10-01: the API key went into every OUTPUT/<run>/config.ini (tracked files) from here
+                if attr == 'apikey': continue
                 f.write(f'{attr.ljust(max_attr_length)} : {value} \n') # Here we obtain opath/config.ini from auto/config.ini
 
         if config.nqsub == 1:  pattern = self.fname
