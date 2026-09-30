@@ -81,6 +81,21 @@
 
 ## 2026-10-01 — GW1500 の問題のある物質から fp32 で回し直し、精度の比較
 
+### 04:17 **Rb8（mp-1179832）は構造が不正と分かり、user の指示で止めた。MP の API キーが公開リポジトリに入っていたのを外した（`290397b34`）**
+
+- 構造: 各 Rb の隣は 2 個（4.63・4.67 Å）、次は 8.59 Å。結合をたどると 8 本で閉じ、結合角はすべて 135° → 一辺 19.9 Å の胞に Rb₈ の正八角形の環が 1 個
+- MP（API、新しい ID `mp-aaacpdie`）: ICSD 109016、備考「High pressure experimental phase」「Rubidium - IV, HP」（McMahon ら PRL 2001）。
+  圧力ゼロで緩和した構造で、体積 4410.6 Å³、密度 0.257 g/cm³、凸包から 0.453 eV/原子、今の MP のギャップ 0.588 eV（選定時は 0.110 eV）
+- メモリ: `sugw` の `GEIGpart` が IPW の重なり行列 `ppovl(ngp,ngp)` とその LU 用の写し `ppovlLU` を持つ。ngp ≈ V·Q³/6π² = 32,000
+  （Q = `QpGcut_psi` 4.0）で 16.6 GB × 2 → 1 ランク 35 GB。1 ランクの量は並列数で減らず、全体は並列数に比例。12 並列（5 月、前回）で 420 GB
+- 時間: LDA 1 時間 38 分、`lmf --jobgw=1` は 3 時間 18 分で 192 k 点のうち 30 点（この段だけで約 21 時間）。1 物質 8 時間の制限で 07:19 に切れる見込みだった。
+  04:17 に止めた（`kt1_stop_rb8.sh`）。つなぎのスクリプトがコア 52〜63 で `run3` の R5 を起こした
+- 減らし方の候補（未着手）: 投入前に 32·ngp² バイトで並列数を決める／O は正定値なので Cholesky の因子だけ持つ（半分）／O·x を FFT で作って反復で解く（ngp に比例）
+- MP の API キー: 確かめる途中で、`ecalj_auto/config.ini`（追跡中）に本物のキーがあり、`rel/main`（公開）にも入っていると分かった。
+  `auto_jobsubmit.py`・`auto/Job.py` が `OUTPUT/<run>/config.ini` に写し、`auto/job_mp.py` がログに出していた。user「リポジトリから外して。個人キーは
+  ecalj/ に MaterialProject.key として置く。中身は自分用と公開用で変える」→ `MaterialProject.key`（.gitignore）＋ 見本 `.example`、読むのは `pylib/mpkey.py`。
+  user にキーの作り直しを頼んだ
+
 ### 02:01 **3 台の試験は全部 PASS。GW1500 の失敗・判定できないもの 12 件は Rb8 を除いて収束。あやしい GOOD のうち 7 件は 5 月（TF32）とギャップが 0.25〜1.5 eV 違う → kr7 で同じバイナリ・同じ入力の fp32 と TF32 を比べる**
 
 - 試験（HEAD `74ba72dad`、新しいツリー `ecalj_test0930d`）: kt1（nvfortran GPU、01:53）・kr7（nvfortran GPU、23:27）・mic（ifx、23:34）とも
