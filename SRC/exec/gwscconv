@@ -18,10 +18,17 @@ Convergence check uses the eV value from llmf's
 "gap = X Ry = Y eV" line (the labeled-eV value, not the Ry-mislabeled
 egap line in log.<target>).
 
+Metals (2026-09-30): an iteration after which llmf prints no gap is judged by the
+change of the QSGW eigenvalues instead: dmax = max |e_n - e_(n-1)| over the states
+of QPU.<n>run and QPU.<n-1>run (column "eQP", relative to E_F) with |e| < 5 eV.
+Converged when dmax < --conv-qp (default 0.03 eV) for 2 consecutive iterations.
+Semiconductors are judged by the gap as before. --no-metal restores the old stop
+(exit 3) when there is no gap.
+
 Exit codes:
     0  converged or max-iter reached normally
     2  bad CLI
-    3  cannot read gap from llmf after a gwsc run
+    3  (--no-metal) cannot read gap from llmf after a gwsc run
     >  whatever gwsc exited with on failure
 """
 import argparse
@@ -68,6 +75,39 @@ def latest_gap_eV():
         return None
 
 
+QP_WINDOW_EV = 5.0
+
+
+def read_qpu(path):
+    """{(isp, q1, q2, q3, state): eQP (eV, relative to E_F)} from a QPU file."""
+    d = {}
+    isp = 0
+    with open(path) as f:
+        for line in f:
+            if "isp=" in line:
+                isp = int(line.split("isp=")[1].split()[0])
+                continue
+            w = line.split()
+            # data line: q1 q2 q3 state SEx SExcore SEc vxc --- dSEnoZ eQP ...
+            if len(w) >= 11 and w[3].isdigit() and re.match(r"^-?\d+\.\d+$", w[0]):
+                try:
+                    d[(isp, w[0], w[1], w[2], int(w[3]))] = float(w[10])
+                except ValueError:
+                    pass
+    return d
+
+
+def qp_change_eV(n):
+    """max |eQP(n) - eQP(n-1)| over the states with |eQP| < QP_WINDOW_EV, or None."""
+    try:
+        cur = read_qpu(f"QPU.{n}run")
+        prev = read_qpu(f"QPU.{n - 1}run")
+    except FileNotFoundError:
+        return None
+    ch = [abs(cur[k] - prev[k]) for k in cur if k in prev and abs(cur[k]) < QP_WINDOW_EV]
+    return max(ch) if ch else None
+
+
 def main():
     ap = argparse.ArgumentParser(
         prog="gwscconv",
@@ -79,6 +119,11 @@ def main():
                     help="convergence tol on max-min of last 3 iter gaps in eV (default 0.1)")
     ap.add_argument("--max-iter", type=int, default=10,
                     help="absolute max QSGW iter incl. pre-existing (default 10)")
+    ap.add_argument("--conv-qp", type=float, default=0.03,
+                    help="metals (no gap): tol on the max change of the eigenvalues within 5 eV of E_F "
+                         "between two iterations, in eV (default 0.03)")
+    ap.add_argument("--no-metal", action="store_true",
+                    help="stop with exit 3 when llmf prints no gap (the behaviour before 2026-09-30)")
     ap.add_argument("--help-conv", action="store_true",
                     help="show gwscconv help and exit (gwsc --help is also forwarded)")
     args, rest = ap.parse_known_args()
@@ -116,8 +161,10 @@ def main():
 
     n0 = existing_iter()
     total_iter = n0
-    history = []  # gaps observed in this run (eV)
-    consec_ok = 0  # consecutive iters with last-3 swing < tol (need 2 to stop)
+    history = []  # gaps observed in this run (eV); None for an iteration without a gap
+    consec_ok = 0  # consecutive iters under tol (gap: last-3 swing; metal: QP change); need 2 to stop
+    mode = None    # "gap" or "metal": the judgement of the last iteration (the count restarts when it changes)
+    fmt = lambda x: "nogap" if x is None else f"{x:.4f}"
     print(f"=== gwscconv start: cwd={os.getcwd()} ===", flush=True)
     print(f"=== gwscconv: conv_tol={args.conv_tol} eV  max_iter={args.max_iter}  Iter0={n0} ===",
           flush=True)
@@ -136,13 +183,31 @@ def main():
             sys.exit(rc)
         total_iter += 1
         g = latest_gap_eV()
+        dqp = qp_change_eV(total_iter)
+        dqp_s = "none" if dqp is None else f"{dqp:.4f}"
         if g is None:
-            print("gwscconv: cannot read gap from llmf after gwsc, abort", file=sys.stderr)
-            sys.exit(3)
+            if args.no_metal:
+                print("gwscconv: cannot read gap from llmf after gwsc, abort", file=sys.stderr)
+                sys.exit(3)
+            # Metal: judged by the change of the eigenvalues near E_F.
+            if mode != "metal":
+                mode, consec_ok = "metal", 0
+            history.append(None)
+            consec_ok = consec_ok + 1 if (dqp is not None and dqp < args.conv_qp) else 0
+            print(f"gwscconv: iter {total_iter} no gap (metal): max QP change within {QP_WINDOW_EV} eV of E_F "
+                  f"= {dqp_s} eV (tol {args.conv_qp}); consec under tol = {consec_ok}/2", flush=True)
+            if consec_ok >= 2:
+                print(f"=== gwscconv: CONVERGED at iter {total_iter} "
+                      f"(metal: max QP change < {args.conv_qp} eV for 2 consecutive iters) ===", flush=True)
+                break
+            continue
+        if mode != "gap":
+            mode, consec_ok = "gap", 0
         history.append(g)
-        tail = ", ".join(f"{x:.4f}" for x in history[-5:])
-        print(f"gwscconv: iter {total_iter} gap = {g:.4f} eV  (recent: {tail})", flush=True)
-        if len(history) >= 3:
+        tail = ", ".join(fmt(x) for x in history[-5:])
+        print(f"gwscconv: iter {total_iter} gap = {g:.4f} eV  (recent: {tail}; "
+              f"max QP change = {dqp_s} eV)", flush=True)
+        if len(history) >= 3 and None not in history[-3:]:
             last3 = history[-3:]
             swing = max(last3) - min(last3)
             if swing < args.conv_tol:
@@ -163,7 +228,7 @@ def main():
               flush=True)
 
     print(f"gwscconv: final iter = {total_iter}, history (eV) = "
-          + ", ".join(f"{x:.4f}" for x in history), flush=True)
+          + ", ".join(fmt(x) for x in history), flush=True)
 
 
 if __name__ == "__main__":
