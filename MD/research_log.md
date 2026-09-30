@@ -88,6 +88,15 @@ user の指示（05:5x）: 「この方針で進めて。TODO も判断がつく
 MATERIALS 以下を MLO で（spd ベース、f があるときに入れる）すべてモデル化。DFT レベルでよい。目視で確認できる図、バンドギャップの違い。
 AFsymmetry のモード（AFTEST）が動くのか、そもそも正しいのかも調べて」。push はしない。
 
+### 07:36 **main（`--cls` の修正 `7ca6f1caa` を含む）を t14 で build し直し、InstallAll の試験は ALL PASSED（07:19〜07:25）。`SRC/exec` の行き先の無いリンク 12 本を片付けた**
+
+- `python3 InstallAll.py --fc gfortran --bindir ~/bin -np 8`: `OK! ALL PASSED`（testecalj 325 秒）
+- そのとき、build の前に置いた `remove_dangling_links`（`1042277a2`）が `~/bin` の 67 本を消し、その中に `mlo`・`libecaljF.so` など 9 本の build の産物があった。
+  原因は `SRC/exec` にあった行き先の無いリンク 12 本（消した `SRC/exec/build/` を指す。10 本と `.#genMLWF` は `a0c7a7300` 以来追跡されていた）で、
+  InstallAll が `SRC/exec` の中身を全部 bindir に張るため、正しい `~/bin/mlo` をいったん死んだリンクで上書きし、CMake の `deliver` が build の後に戻していた（前からの動き）。
+  直した: 掃除は build の後、`SRC/exec` の行き先の無いリンクは張らない（`b4af8ac42`）、12 本は trash（`1b3267da9`）、`ctrl2vasp`・`getsyml`・`vasp2ctrl`・`viewvesta` は相対のリンクに（`61ecb97c9`）。
+  直した後の InstallAll では消すものが無く、`~/bin` の行き先の無いリンクは 0
+
 ### 07:16 **MATERIALS の全物質で MLO の自動の模型（LDA）: 65 物質のうち 41 が 0.02 eV 以内。外れる 14 は 2 つの型で、どちらも動径関数を足すと直る。一覧のページ https://claude.ai/artifact/VCWpe5W8Fei6umatXGeZGH**
 
 投入 06:00（t14、worker 3 本 × np 4、`~/work/mlocheck_20261001`）、重い 5 つは 06:33 から kr7（`~/mlocheck_20261001`、`~/bin_frozen_74ba72dad`。Fortran は t14 の HEAD と
