@@ -12,8 +12,8 @@ Metal or insulator is decided by efermi.lmf: an insulator has E_F on the top of 
 conduction band above it (gap_mesh > 0.05 eV); a metal has Top < E_F < Bottom (the eigenvalues next to E_F). The path
 alone misjudges metals whose bands jump over E_F between two k points.
 
-Insulator: VBM_D = max{E_D <= 0.02}, CBM_D = min{E_D > 0.02} over both spins along the path; the MLO edges are taken on
-either side of the DFT mid-gap.  gapD, gapM, dVBM = VBM_M - VBM_D, dCBM = CBM_M - CBM_D.
+Insulator: VBM_D = max{E_D <= s}, CBM_D = min{E_D > s} over both spins along the path, s = gap_mesh/2 (a coarse mesh can
+miss the VBM of the path); the MLO edges are taken on either side of the DFT mid-gap of the path.  gapD, gapM, dVBM = VBM_M - VBM_D, dCBM = CBM_M - CBM_D.
 Accuracy, with the nearest band at the same k (|dx| < 0.01):
   rms_m2d, max_m2d : each MLO point in [VBM_D - 8, CBM_D + 3] eV -> nearest DFT band   (a wrong band shows up here)
   rms_d2m, max_d2m : each DFT point in [VBM_D - 8, CBM_D + 1] eV -> nearest MLO band   (a missing band shows up here)
@@ -75,9 +75,13 @@ def check(d):
             for x, es in load([mf], lambda e: (e - ef) * RY).items(): M.setdefault(x, []).extend(es)
     if not D or not M: return None
     eD = np.concatenate([np.array(v) for v in D.values()]); eM = np.concatenate([np.array(v) for v in M.values()])
-    vbD = eD[eD <= 0.02].max(); cbD = eD[eD > 0.02].min()
     ln = [float(l.split()[0].replace('D', 'E')) for l in open(os.path.join(d, 'efermi.lmf')).readlines()[:3]]
-    ins = bool((ln[0] - ln[1]) < 1e-6 and (ln[2] - ln[1]) * RY > 0.05 and cbD - vbD > 0.05)
+    gmesh = (ln[2] - ln[1]) * RY
+    # the band edges along the path are separated at the mid-gap of the mesh: with a coarse mesh the path goes through
+    # k points above the mesh VBM (LaGaO3, 3x2x3: E - E_F up to +0.1 eV in the valence band)
+    sep = 0.5 * gmesh if (ln[0] - ln[1]) < 1e-6 and gmesh > 0.05 else 0.02
+    vbD = eD[eD <= sep].max(); cbD = eD[eD > sep].min()
+    ins = bool((ln[0] - ln[1]) < 1e-6 and gmesh > 0.05 and cbD - vbD > 0.05)
     r = dict(insulator=ins, gap_mesh=(ln[2] - ln[1]) * RY if ins else 0.0, nspin=len(spins))
     if ins:
         mid = 0.5 * (vbD + cbD)
