@@ -22,6 +22,7 @@
   1 原子の体積が同じ組成の 2 倍以上など）が PBE のギャップ > 0 で選ばれていた（`ecalj_auto/GW1500_status.md` 表 6 の `INVALID_STRUCTURE`）。
   `auto_mpquery.py` で弾くか、印を付ける
 - **`m_bndfp` が `m_clsmode_finalize` に渡す `ndimh`**（2026-09-30）: module の状態のまま。`--cls` を `pwmode = 11` で使うときに確かめる
+- **module の依存と主プログラムの流れの一覧を `MD/` に置く**（2026-10-01、Doxygen をやめた代わり）: `use m_foo, only:` を拾って、module の DAG と、主プログラム（`SRC/main/*.f90`）から各 module への流れを機械的に書き出す小さなスクリプト。人が大局をつかむ入口として、Claude が説明に使う
 - **VSCode の CMake 拡張が最上位に `build/` を作る**（2026-10-01）: `.vscode/settings.json` の設定か、`.gitignore` に `/build/` を入れる
 
 - **`hgw` の残り**（2026-04 の統合の残タスク、2026-10-01 に past_log.md §3.2 から）: ノード内の W の共有を `MPI_Win_allocate_shared` で（メモリの重複を減らす）。
@@ -67,6 +68,7 @@
 
 ### 2026-10-01
 
+- `Doxygen/` を trash へ（user「そうしよう」）。コメントを Doxygen 形式に揃えることはしない。作り直し方は past_log.md §11
 - `TOOLS/` の古い道具（約 60 項目、632 ファイル）を trash へ。残したのは `samples_tests.sh`・`sync_ecalj_src.sh`・`ozbench/`。中身は past_log.md §10。`diffnum` は試験で今も使うが、使うのは `SRC/exec/pylib/diffnum0.py`（TOOLS の版は古い）
 - Claude の個人メモリから、引き継ぐ価値があり今も正しいものを [handover.md](handover.md) に写した（user「メモリの内容はパッケージに入らないので MD/ に。混乱を招くものは良くない」）。
   写す前に 5 点をコードと照らした（rel の既定ブランチは `main`、`master` は無い、など）

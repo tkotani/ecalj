@@ -231,6 +231,23 @@ PROCAR の k 点の順（11 ランク以上で接尾辞の数値ソート）／`
 | | `m_commandline.F`（木野 2014、class を使うコマンド行の読み取り）、`nan.F`、`test2.F`・`testx.F`（gfortran の interface の試験）、`zhev.fast.F`・`zhev.slow.F`（古い `zhevx`）、`UnUsedSource.F`（`suclst` など使われなくなったルーチン）、`stoner.F`（d バンドの一般化した Stoner 模型、未使用）、`Gaunt.F`（core どうしの交換エネルギーのプログラム） | ソースの控え |
 | | `job_intent`（`run_arg` を使う古い MPI の QSGW の反復）、`pss`・`pss1`〜`pss3`（python2 の背景ジョブの見張りと kill）、`absolute-path`（lm7K の試験の補助）、`mpifork.tar.gz`（MPI の fork の試験） | |
 
+## 11. Doxygen の設定（`Doxygen/`、2025-08、2026-10-01 に trash）
+
+`Doxyfile` と README だけ。コメントを Doxygen 形式に揃えることはせず、設定ごと外した（user「人間はそんなにコードを読まない、大局がわかればいい」。
+Claude はソースを直接読む。大局は module の依存から作れる → TODOandQuestion.md）。ソースの `!>`・`!!` のコメント（268 本中 131 本）は害が無いのでそのまま。
+
+作り直すとき: `Doxygen/` を作って `doxygen -g` で既定の `Doxyfile` を出し、次を書き換えて `doxygen` を実行（graphviz の `dot` が要る）。出力は `html/index.html`。
+
+```
+INPUT                = "../SRC/subroutines/" "../SRC/main/"
+FILE_PATTERNS        = *.f90
+OPTIMIZE_FOR_FORTRAN = YES
+EXTRACT_ALL          = YES     # 特別なコメントが無くても全ルーチンを載せる
+HAVE_DOT             = YES
+CALL_GRAPH           = YES
+CALLER_GRAPH         = YES
+```
+
 ---
 
 ## 表 1. 片付けたもの（trash に移したもの）
@@ -254,6 +271,7 @@ PROCAR の k 点の順（11 ランク以上で接尾辞の数値ソート）／`
 | 2026-10-01 | ジョブの自動実行の試作 | `jobauto/` | `c2d9df4aa` | §7 |
 | 2026-10-01 | 退役したスクリプト | `SRC/exec_legacy/` | `c2d9df4aa` | §8 |
 | 2026-10-01 | TOOLS の古い道具（約 60 項目、`samples_tests.sh`・`sync_ecalj_src.sh`・`ozbench/` 以外） | `TOOLS/` | `4d5dd8fed` | §10 |
+| 2026-10-01 | Doxygen の設定 | `Doxygen/`（`Doxyfile`、README） | `da3976b2a` | §11 |
 
 注: サンプルの古い試行と控えは、MLOsamples の `test*`・`temp`・`*.bk`・`*.tmp`（§4.1）、`Samples/TestInstall/TESTunused`、
 `Samples/TestInstall/eras/occnum.eras.bk`、`TOOLS/FparserTools/f_calltree.py.bk*`、`TOOLS/SrcFragments/f_calltree.py.bk*`・`ANALYZEnotusednow/analyze_temp~`、
