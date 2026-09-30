@@ -21,11 +21,6 @@
 - **GW1500 の選定に構造の確かめを入れる**（2026-10-01）: 別の化合物から副格子を抜き出した MP の項目（ICSD の備考が「〜 part」、
   1 原子の体積が同じ組成の 2 倍以上など）が PBE のギャップ > 0 で選ばれていた（`ecalj_auto/GW1500_status.md` 表 6 の `INVALID_STRUCTURE`）。
   `auto_mpquery.py` で弾くか、印を付ける
-- **`m_bndfp` が `m_clsmode_finalize` に渡す `ndimh`**（2026-09-30、2026-10-01 に調べた）: `m_igv2x` の module の状態（最後に設定した k の値）が渡る。
-  `vcdmel` は重みを `s(3, nsite, ndimh, 2)` の並びで作り、`dostet` は `s_rv(1:3·nsite·nbandmx)` を `(3·nsite, nbandmx)` として読むので、
-  `ndimh ≠ nbandmx`（APW あり。`pwmode = 11` では k ごとに違う）だと帯の対応がずれる。案: `ndimh` の代わりに `nbandmx` を渡す。
-  `ausc_zv` は `nbandmx` の大きさでゼロから積むので nev より上の帯の重みは 0、固有値は 1d99 で DOS の外。APW の無い crn の試験（`ndimh = nbandmx`）は変わらないはず。
-  直したら APW ありの `--cls` で確かめる
 - **GPU の build で module が循環している**（2026-10-01、`MD/module_map.md` を作って見つけた）: `m_mpi`（`MPI__AutoSetup` の中で `use m_gpu`）→
   `m_gpu`（`__GPU` のとき `use m_blas`）→ `m_blas`（`use m_gemmul8`）→ `m_gemmul8`（`gemmul8_init` の中で `use m_mpi, only: ipr`）→ `m_mpi`。
   まっさらな状態からは順序が決まらない。いまは `SRC/CMakeLists.txt` が GPU の変種を基本の変種の後に作り、`-I` で基本の `mod/` を見せる回避策で通っている
@@ -95,6 +90,7 @@
 
 ### 2026-10-01
 
+- `--cls`: `m_clsmode_finalize` に `ndimh`（`m_igv2x` の最後の k 点の値）でなく `nbandmx` を渡す（`vcdmel` の重みの並びと `dostet` の読み方を揃える）。CrN（`Samples/TestInstall/crn`）で APW なし・pwemax 2 と 5・4×4×4（ndimh が 182〜188 と変わる）のどれも `dos-vcdmel.crn` が一致（ずれるのは DOS の窓より上の帯だけだった）。ブランチ `cls-nbandmx` をマージ（`7ca6f1caa`）。試験は `~/work/clstest_20261001`
 - `InstallAll.py`: リンクを張った後、bindir の中で「この ecalj の木を指していて行き先の無いリンク」だけを消す（`remove_dangling_links`）。SRC/exec のエディタの一時ファイル（`~` で終わる、`#`・`.#` で始まる）はリンクしない。t14 の `~/bin` の 58 本は次のインストールで消える（一時の bindir で試験）
 - ecaljdoc `manual/spectrum.md` に、メッシュの外の q（`QforGW`）の注意 3 点（`EMAXforGW` が必須、窓を変えたら交換から、`epsWVR` の行）を書いた（past_log.md §5 から、ecaljdoc の未 push のコミット）
 - AFTEST を調べた（研究ログ 2026-10-01 朝 06:46）: afsym ではモーメントを目標に保てるが、表示の ehk に −uhx·m_d、ehf に −2·uhx·m_d が残る。afsym なしでは誤り（サイトの電荷が分かれる）。修正はブランチ `aftest-fix`
