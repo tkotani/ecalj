@@ -9,10 +9,27 @@ from pylib.utils import merge_files, remove_files
 
 EXEC_DIR = Path(__file__).parent
 
+def so_of_input(target, extra_args):
+    """[ham] so of ctrlg.<target>.toml, or of --ctrlg:ham.so=<n> when given (None if unknown)."""
+    for a in extra_args:
+        if a.startswith('--ctrlg:ham.so='):
+            return a.split('=', 1)[1].strip()
+    try:
+        import tomllib
+        with open(f'ctrlg.{target}.toml', 'rb') as fi:
+            return str(tomllib.load(fi).get('ham', {}).get('so', 0))
+    except Exception:
+        return None
+
 def cal_mlo(args, extra_args):
     target = args.extension
     mpi_size = args.np
     cluster = args.cluster
+    # so = 1 (L.S) is not a model of mlo: the Hamiltonian comes out NaN (2026-10-01, GaAs_so). SOC goes through
+    # job_mlo_soc, which builds the model without SOC and adds the L.S matrix as a perturbation.
+    if so_of_input(target, extra_args) == '1':
+        raise SystemExit(f'job_mlo: ctrlg.{target}.toml has [ham] so = 1. Use job_mlo_soc {target} (SOC added to the MLO model), '
+                         'or give --ctrlg:ham.so=0 for the model without SOC.')
     remove_files("__HamiltonianPMT.*")
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
                                args=[target, "--writeham", "--mkprocar", "--noinv", "--mlo", *extra_args]),
