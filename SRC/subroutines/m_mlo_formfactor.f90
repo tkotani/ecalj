@@ -13,12 +13,15 @@ contains
     integer, intent(in) :: ispin1, ispin2
     complex(8) :: formfactor(nnmlo)
     integer, save :: ifile = -1, nq0i_f = 0
+    logical, save :: opened = .false. ! Bug fixed 2026-09-30 15:19: the test "ifile < 0" was meant as "not opened yet", but newunit gives a
+    !                                  negative number, so the file was opened again at every call (nvfortran: FIO-F-207, file already connected)
     real(8), save, allocatable :: q0i_f(:,:)
     logical, save :: computed_f(4) = .false.
     complex(8) :: formfactor_f(nmlo, nmlo)
     integer :: iq, ifile_info, nmlo_f, nqbz_f, nspin_f, nbb_f, recl, sidx
     sidx = spin_idx(ispin1, ispin2)
-    if(ifile < 0) then
+    if(.not. opened) then
+      opened = .true.
       open(newunit=ifile_info, file='__MLOFormFactorQ.info', form='unformatted', action='read')
       read(ifile_info) computed_f
       read(ifile_info) nmlo_f, nqbz_f, nspin_f, nq0i_f

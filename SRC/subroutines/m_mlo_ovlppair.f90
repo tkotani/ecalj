@@ -139,12 +139,14 @@ contains
     complex(8) :: ovlppair_q(nnmlo, nnmlo)
     complex(8) :: ovlppair4(nmlo,nmlo,nmlo,nmlo)
     integer, save :: ifile = -1
+    logical, save :: opened = .false. ! 2026-09-30: "ifile < 0" was used as "not opened yet", but newunit gives a negative number (see m_mlo_formfactor)
     integer, save :: mrecl_f, nq0i_f
     real(8), save, allocatable :: q0i_f(:,:)
     logical, save :: computed_f(4) = .false.
     integer :: iq, ifile_info, sidx
     sidx = spin_idx(ispin1, ispin2)
-    if(ifile < 0) then
+    if(.not. opened) then
+      opened = .true.
       open(newunit=ifile_info, file='__MLOOvlpPairQ.info', form='unformatted', action='read')
       read(ifile_info) computed_f
       read(ifile_info) mrecl_f, nq0i_f
