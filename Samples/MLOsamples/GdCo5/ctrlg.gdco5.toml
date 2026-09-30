@@ -59,6 +59,7 @@ pos  = [0.0, 0.0, 0.0]
 # Rule of thumb: kmxa > pwemax (in Ry). r = MT radius (a.u.).
 [[spec]]   # @1
 atom   = "Co"
+mmom   = [0.0, 0.0, -1.5]  # Co starts antiparallel to Gd (ferrimagnet). From zero it drifted to a parallel state 0.7 eV higher (2026-09-30)
 z      = 27
 r      = 2.24
 rsmh   = [1.12, 1.12, 1.12, 1.12]
@@ -105,7 +106,7 @@ savdos = true  # write DOS files
 # conv: max |dE| between iterations.  convc: max d(rho_out - rho_in).
 # umix/tolu: LDA+U density-matrix mixing parameters.
 [iter]
-nit   = 80  # max self-consistency iterations
+nit   = 120  # max self-consistency iterations (from lmfa: 77 iterations, 2026-09-30)
 mix   = "B3"  # B3 = Broyden hist=3 (default); A3 = Anderson hist=3
 conv  = 1e-05  # max dE between iterations (Ry)
 convc = 1e-05  # max d(rho_out - rho_in) (Ry)
