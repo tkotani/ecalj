@@ -11,8 +11,8 @@ def _bin(prog):  # the executable next to this script (the bindir; symlinks not 
     return p if os.path.exists(p) else prog
 
 if len(sys.argv)<2:
-    print (' Usage: >getsyml.py nio [-nobzview]')
-    print ('  for ctrl.nio. We run lmchk internally in getsyml !!!')
+    print (' Usage: >getsyml.py nio [--nobzview]')
+    print ('  for ctrlg.nio.toml. We run lmchk internally in getsyml !!!')
     print ('  this is based on https://github.com/giovannipizzi/seekpath')
     print ('  we have to cite Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017) ).')
     sys.exit(-1)
@@ -20,7 +20,7 @@ if len(sys.argv)<2:
 ### We have to improve lmchk, so that plinfo and siteinfo are directry written.
 #print('lmchk '+sys.argv[1]+'> outlmchk')
 if os.system('mpirun -np 1 '+_bin('lmchk')+' '+sys.argv[1]+'> outlmchk'):
-    print ('ERROR: lmchk failed. Do you have ctrl.'+sys.argv[1]+'?')
+    print ('ERROR: lmchk failed. Do you have ctrlg.'+sys.argv[1]+'.toml?')
     sys.exit(-1)
 
 #sys.exit()

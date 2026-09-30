@@ -23,9 +23,6 @@
   `auto_mpquery.py` で弾くか、印を付ける
 - **`m_bndfp` が `m_clsmode_finalize` に渡す `ndimh`**（2026-09-30）: module の状態のまま。`--cls` を `pwmode = 11` で使うときに確かめる
 - **module の依存と主プログラムの流れの一覧を `MD/` に置く**（2026-10-01、Doxygen をやめた代わり）: `use m_foo, only:` を拾って、module の DAG と、主プログラム（`SRC/main/*.f90`）から各 module への流れを機械的に書き出す小さなスクリプト。人が大局をつかむ入口として、Claude が説明に使う
-- **`GetSyml/README.md` の冒頭が古い**（2026-10-01）: 「syml.* は ctrl.* から作る」とあるが、今は `ctrlg.<sname>.toml` から（`getsyml` が `lmchk` を走らせる）。README の末尾にある作者の TODO: (a) `lmchk` が道の分割数（ndiv）など要る情報も書き出す、(b) `lmchk` の出力を読むので精度が出力の桁で決まる
-- **`StructureTool/README.md` の説明の誤り**（2026-10-01）: `ctrl2vasp.py` の説明が「POSCAR を ctrl に」と逆、その例が `vasp2ctrl.py` を呼ぶ、`viewvesta` の例のファイル名（`POSCAR_opal` を作って `POSCAR_cugase2` を開く）。例の `sample/` は trash に移した。今の入力は `ctrlg.<sname>.toml` なので ctrl の例も古い
-- **`Samples/EPS/EPS_GaAs/README_eps.md` が旧形式**（2026-10-01）: `GWinput` の `<QforEPS>`・`n1n2n3 20 20 20`・`lcutmx` で説明している。今は `ctrlg.<sname>.toml` の `[gw]`（`QforEPS`、`n1n2n3`）と `[product_basis]`
 - **AFTEST のモード（反強磁性の固定モーメント）を確かめて文書にする**（2026-10-01）: `mmtarget.aftest` があると lmf がモーメントを保つ偏りの場をかける（`m_ldau_util.f90`）。2020〜2021 の NiSe の手順は past_log.md §9.3。ecaljdoc の `UsageDetailed.md` には「直す必要がある」と一言だけ
 - **`Samples/MATERIALS/Database` の 62 物質を LDA で一度回して確かめる**（2026-10-01、急がない）: 入力は `lmchk` で読めることだけ確かめた
 - **VSCode の CMake 拡張が最上位に `build/` を作る**（2026-10-01）: `.vscode/settings.json` の設定か、`.gitignore` に `/build/` を入れる
@@ -71,6 +68,11 @@
 
 ### 2026-10-01
 
+- `GetSyml/README.md`・`StructureTool/README.md`・`Samples/EPS/EPS_GaAs/README_eps.md` を今の形に書き直した（入力は `ctrlg.<sname>.toml`、
+  `getsyml --nobzview`、StructureTool の各スクリプトの向きと出力のファイル名、EPS は `[gw] QforEPS`・`QforEPSau`・`n1n2n3`・`[product_basis] pb_lcutmx`、
+  EPS の出力の列）。`getsyml` の使い方の表示も（`-nobzview` → `--nobzview`、`ctrl.nio` → `ctrlg.nio.toml`）
+- `ctrlgenToml.py`: nspin=1 のとき原子表の IDU/UH/JH をコメントにして書く（LDA+U は nspin=2 が要る）。`Database/Ce`（nspin=1、idu=12）が
+  09-30 の idu の修正（`78475ea3d`）から lmf で止まっていた（`LDA+U must be spin-polarized!`）ので同じく直した（`2cbeb93d5`）
 - `Samples/MATERIALS` を仕分けた: 構造のデータベース（62 物質）を `Database/` に展開（`ctrls` と、GW・MLO の節つきの `ctrlg`、`lmchk` で全部読める）。ほかの旧形式の 30 項目は trash（624 ファイル）。残したのは `La2CuO4`・`InAsGaSb`・`BaTiO3`。拾ったノウハウは past_log.md §9
 - `README.txt` と `.org` を Markdown に（user「README.txt とあるのは md 形式に。org もそう」）: `StructureTool/README.txt`、`Samples/EPS/EPS_GaAs/README_eps.org`、`Samples/MATERIALS/{LaGaO3_relax,MLOsamples,NiSe_aftest}/README.org`、`Samples/MATERIALS/Si_doping_sample/Memo_bgcharge.org`（`git mv`）。pandoc は `_` を下付きに、`--` をダッシュに変えるので使わず、原文を保つ変換（見出し・`#+TITLE`・`#+begin_src`・コマンド行と設定の断片をコードブロックに）
 - `GetSyml/`・`StructureTool/` の古い例（旧形式の `ctrl.*` 86 本、`syml.*`、鉱物の POSCAR 135 本）と使わないスクリプトを trash へ（257 ファイル）。本体（`getsyml`、`vasp2ctrl`・`ctrl2vasp`、`viewvesta`、`refineposcar.py`、`superlattice/`）は残し、動くことを確かめた。past_log.md §12

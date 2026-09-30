@@ -1,81 +1,65 @@
-# How to calculate \epsilon(q,omega) in RPA?
+# ε(q,ω) in the RPA: GaAs
 
-(converted from org to Markdown on 2026-10-01; the text is as it was)
+The manual is ecaljdoc `manual/optical.md`; this note is about the settings of this sample.
 
+## Run
 
-## Get rst (and sigm) by a self-consistent calculaiton.
+1. Self-consistent calculation first (`lmfa`, `lmf`; for QSGW, `gwsc`, which leaves `sigm.<sname>`).
+2. Then
+   ```
+   job_eps gaas -np 8               # without the local-field correction (fast)
+   job_eps gaas -np 8 --lcf         # with the local-field correction (much slower)
+   job_eps gaas -np 8 --decompose   # interband and intraband parts separately (the test of this sample)
+   ```
 
-## Then Run
+## Settings in `ctrlg.gaas.toml`
+
+### q points: `[gw] QforEPS`
+
+q = 0 cannot be used, so ε is computed at small q along a line and the q → 0 limit is taken from them
+(or the smallest q is used). Too small a q is numerically unstable.
+
+```toml
+[gw]
+QforEPSau = true   # QforEPS in a.u.; false (default): in units of 2π/alat
+QforEPS = """
+ 0 0 0.00050
+ 0 0 0.00100
+ 0 0 0.00200
+"""
 ```
->job_eps --lcf <sname>      (with local-field correction; legacy name: eps_lmfh)
-  or
->job_eps <sname>            (without local-field correction; legacy name: epsPP_lmfh / epsPP0)
+
+### k mesh: `[gw] n1n2n3`
+
+Sharp structures of Im ε need many k points (about 20×20×20 for GaAs). Without `--lcf` this is affordable;
+with `--lcf` start from about 12×12×12 (ε(0,0) of MgO is already reasonable there).
+
+### Mixed product basis (for `--lcf`)
+
+To make `--lcf` affordable, reduce `[product_basis] pb_lcutmx` (e.g. 2 per atom) and `[gw] QpGcut_cou` (about 2.0).
+Check with a small k mesh that the result does not change.
+
+### Energy mesh: `[gw] HistBin_dw`, `HistBin_ratio`
+
+A finer mesh along the real axis (ω_i = b(e^{a(i-1)} − 1), a = ratio − 1, dw = b·a) costs little:
+
+```toml
+HistBin_dw    = 2e-4   # (a.u.) bin width at ω = 0; 1e-5 is fine (metals)
+HistBin_ratio = 1.01   # 1.03 is safer
 ```
-job_eps (no --lcf) is much faster than job_eps --lcf.
 
+## Output
 
-## Setting inof GWinput
+`EPS0001.nlfc.dat`, `EPS0002.nlfc.dat`, … for the 1st, 2nd, … q of `QforEPS` (`nlfc`: no local field; with `--lcf`
+also `EPS000n.dat`). With `--decompose`, `.interbandonly` and `.intrabandonly`. Columns: q (1–3), ω in Ry (4), Re ε and Im ε (5, 6), Re and Im of 1/ε (7, 8):
 
-### q points of \epsilon(q,omega).
-In ecalj, we can not use q=0 (but works even for metal).
-Thus we instead specify q points as
-```
-<QforEPS>
- 0d0 0d0 0.01d0
- 0d0 0d0 0.02d0
- 0d0 0d0 0.04d0
-</QforEPS>
-```
-This means we calculate \epsilon(q,omega) for q=(0,0,0.01),q=(0,0,0.02),q=(0,0,0.04).
-(unit of 2pi/alat).
-At q-> 0 limit, we need to make extrapolation from these data (or just use at smallest q).
-Too small q may cause numerical problem.
-
-
-### number of k point 
-We usually need many k points for paper-level calculaitons (as 20x20x20 for GaAs)
-so as to reproduce sharp structures of Im(epsilon).
-
-But note that job_eps --lcf is very time-consuming, 
-whereas job_eps is not so time consuming even when you use 'n1n2n3 20 20 20' 
-in GWinput.
-
-So, I recommend you to start from 12 12 12 or so for GaAs case if you try job_eps --lcf
-(I think 12x12x12 is not so bad to determine epslion(0,0) for MgO). 
-
-
-### Reduce Mixed product basis.
-To do job_eps --lcf, we need to reduce computational time.
-For the purpose, set lcutmx(atom) as 2, and QpGcut_cou can be 2.0 or so.
-But Carefully check these conditions do not change your results; For check, you can use
-smaller number of k points case.
-
-
-### energy mesh.
-To plot detailed energy mesh of epsilon, it is better to use smaller HistBin_ratio as
-```
-HistBin_dw    2d-4 ! 1d-5 is fine mesh (good for metal?) !(a.u.) BinWidth along real axis at omega=0.
-HistBin_ratio 1.01 ! 1.03 maybe safer. frhis(iw)= b*(exp(a*(iw-1))-1), where a=ratio-1.0 and dw=b*a
-```
-. Probably not elnarge computational time so much.
-
-## Epsilon plot.
-Corresponding to the seting of q, you have 
-EPS0001.nlfc.dat
-EPS0001.dat
-and so on. 0001 means the 1st q points. nlfc means no local field.
 ```gnuplot
 set datafile fortran
 set xrange [0:20]
-plot "EPS0001.nlfc.dat" u ($4*13.605):($6) lt 1 pt 1 w lp,
+plot "EPS0001.nlfc.dat" u ($4*13.605):($6) w lp
 ```
-shows epsilon(q,omega). Look into EPS0001.nlfc.dat
 
 ## Caution
-It is not so easy to reproduce \sqrt(E-E0) beheavior of band absorption edge of Im(eps),
-because of the numerical nature of the tetrahedron method.
-To reproduce the behevior exactly, we need some special technique (under development),
-or use so many q points (such as 80x80x80 for GaAs, it is hard to do).
-On the other hands, we think that epsilon(q=0,omega=0) is relatively easily determined.
-(because some of
 
+The √(E − E0) onset of Im ε at the absorption edge is hard to reproduce with the tetrahedron method unless the k mesh is
+very fine (80×80×80 for GaAs). ε(q → 0, ω = 0) is much easier to converge.

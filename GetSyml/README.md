@@ -1,46 +1,31 @@
-### Get symmetry lines, along which we make band plot,  and Brillouwin zone plot.  syml.* is generated from ctrl.*
+# GetSyml: symmetry lines for band plots
 
-In this directory, we have getsyml.py, which is based on the
-seekpath at https://github.com/giovannipizzi/seekpath/
-and spglib at https://anaconda.org/conda-forge/spglib
+`getsyml <sname>` writes `syml.<sname>`, the k-point path that `job_band` draws the bands along,
+and shows the Brillouin zone with the path (plotly, in the browser).
 
-===========================
-Requirement and Install:
-With python3,
+- The cell is read from `ctrlg.<sname>.toml`: `getsyml` runs `lmchk <sname>` and reads `PlatQlat.chk` and `SiteInfo.lmchk`.
+- The path is the one of seekpath (Hinuma et al., below) on the crystal found by spglib.
+- The number of divisions of each line (the first column of `syml.<sname>`) is set by a simple rule; edit it if needed.
+
 ```
-pip install --user q
-spglib seekpath  plotly
+getsyml nio               # writes syml.nio and opens the Brillouin zone view
+getsyml nio --nobzview    # writes syml.nio only (batch runs)
+job_band nio -np 4        # bands along syml.nio
 ```
 
-===========================
-Usage: 
-Make softlink getsyml.py as getsyml. Then
-```getsyml nio```
-or
-```getsyml ctrls.nio```
-This show 3D Brillouin zone together with symmetry lines for band plot.
-See [BZsamples](https://ecalj.sakura.ne.jp/BZgetsyml/) here.
-The symmetry lines are written into the syml.* file for ecalj.
-You can edit syml.* for bandplot by the job_band command.
-The number of divisions for syml is give by simple algorism, so edit it if necessary.
+Requirements (python3): `pip install spglib seekpath plotly`.
 
-===========================
-Needed citations when we use.
-  In addition to usual ecalj acknowledgement,
-  following citations are required when you make a publication.
+## Citations
 
-   1.Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, 
-     Band structure diagram paths based on crystallography,
-     Comp. Mat. Sci. 128, 140 (2017) 
-   2.You should also cite spglib that is an essential library used in the implementation.
-     https://github.com/atztogo/spglib.git
+When you publish bands along these paths, cite in addition to ecalj:
 
-============
-See Lincence.txt for spglib and seekpath.
+1. Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure diagram paths based on crystallography,
+   Comp. Mat. Sci. 128, 140 (2017).
+2. spglib, https://github.com/spglib/spglib
 
-============
-TODO:
-   a.Modify lmchk to write required information to supply reasonable.
-     For example, ndiv (mesh size along lines).
-   b.Numerical accuracy of calculations. 
-     np.set_printoptions(precision=16) is not meaningful since we read output of lmchk
+Licences of spglib and seekpath: `LICENSE.txt`.
+
+## Known limits
+
+- `getsyml` takes the cell from the text output of `lmchk`, so its precision is that of the printed digits.
+- `lmchk` could write what `getsyml` needs (e.g. the divisions) directly.
