@@ -13,7 +13,7 @@ LDA/GGA を回していた。これを物質ごとのディレクトリに展開
   2026-10-01 に直すまで EuS・EuSe・EuTe の `Nidn` が +6 のままだった）。GW の節（`[gw]` `[mlo]` `[blocks]` `[product_basis]`）も入れてあり、
   QSGW と MLO の自動の模型（`mlo_method = 4`、`mlo_lm`、`mlo_nkabc`）がそのまま回せる
 
-**LDA と MLO の自動の模型は 2026-10-01 に全物質で回した**（結果は研究ログ `MD/research_log.md` の 2026-10-01）。GW は回していない。回すときは、このディレクトリを写してその中で:
+**LDA と MLO の自動の模型は 2026-10-01 に全物質で回した**（MLO と LDA のバンドの比べは `MLOcheck_20261001.tsv`、動径関数を足した模型は `MLOcheck_20261001_variants.tsv`、経緯は `MD/research_log.md` の 2026-10-01 朝）。GW は回していない。回すときは、このディレクトリを写してその中で:
 
 ```bash
 lmfa <sname>; mpirun -np 4 lmf <sname> > llmf         # LDA/GGA

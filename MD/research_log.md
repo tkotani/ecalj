@@ -88,6 +88,54 @@ user の指示（05:5x）: 「この方針で進めて。TODO も判断がつく
 MATERIALS 以下を MLO で（spd ベース、f があるときに入れる）すべてモデル化。DFT レベルでよい。目視で確認できる図、バンドギャップの違い。
 AFsymmetry のモード（AFTEST）が動くのか、そもそも正しいのかも調べて」。push はしない。
 
+### 07:16 **MATERIALS の全物質で MLO の自動の模型（LDA）: 65 物質のうち 41 が 0.02 eV 以内。外れる 14 は 2 つの型で、どちらも動径関数を足すと直る。一覧のページ https://claude.ai/artifact/VCWpe5W8Fei6umatXGeZGH**
+
+投入 06:00（t14、worker 3 本 × np 4、`~/work/mlocheck_20261001`）、重い 5 つは 06:33 から kr7（`~/mlocheck_20261001`、`~/bin_frozen_74ba72dad`。Fortran は t14 の HEAD と
+コメントしか違わない）。06:00〜07:13 に 65 物質が終わり、InAs/GaSb の n10（40 原子）は kr7 で走行中（1 反復 10 分ほど）。
+- 対象: `Samples/MATERIALS/Database` の 62 と La₂CuO₄・InAs/GaSb n4・n10・BaTiO₃（計 66）。入力は各 ctrlg を写し、`[mlo]` だけ書き直した（`prep.py`）:
+  `mlo_method = 4`、Δ = w = 2 eV、`mlo_nkabc` = `[bz] nkabc`、`mlo_lm` は Z ≤ 10 が s,p、Z ≥ 11 が s,p,d、ランタノイドと Hf（4f が価電子の基底にある、P_f = 4.5）は s,p,d,f。
+  HfO₂ は最初 s,p,d で回し（VBM −0.057 eV）、07:15 に f を入れて回し直した。BaTiO₃ は `rdsig = 0`。Eu の化合物は `idu = 12`（sigm が無いので FLL の LDA+U、U = 0.69 Ry）
+- 手順: `lmfa` → `lmf` → `getsyml --nobzview` → `job_band` → `job_mlo`（so = 1 の GaAs_so・Bi2Te3 は `job_mlo_soc`）→ `mlo_bandplot.py`。評価は書き直した
+  `SRC/exec/mlo_bandcheck.py`（`bfecfe979`、ギャップの区切りを直したのは `399c794bc`）: 金属か絶縁体かは efermi.lmf（メッシュ）で、ギャップの区切りはメッシュのギャップの中央、
+  rms は [VBM − 8, CBM + 3] eV の MLO → DFT と [VBM − 8, CBM + 1] eV の DFT → MLO（最寄りの帯との差）。最悪値 = max(両 rms, |ギャップの差|)
+- 数値: `Samples/MATERIALS/Database/MLOcheck_20261001.tsv`（65 物質）と `_variants.tsv`（26 の変種）。図と帯の数値は `~/work/mlocheck_20261001/<物質>/`（mlo_<物質>.png、bnd*、band_MLO*）、
+  変種は `~/work/mlocheck_variants/`
+- 途中で見つけて直した入力: Database の Ce（nspin = 1 で idu = 12、LDA+U が止まる。`2cbeb93d5`）、EuS・EuSe・EuTe（AF II の Eu の初期モーメントが +6/+6、`752424f40`）、
+  `Samples/AFsymmetry` の NiO は k 4³ では pwmode = 11 が要る（TODO）。`job_mlo` は so = 1 で NaN の模型を作っていた（`e29dd6e1d` で止めて `job_mlo_soc` を案内）
+
+結果（最悪値）: good（≤ 0.02 eV）41、fair（≤ 0.05）10、poor（> 0.05）14。s,p の半導体、Zn・Cd・Hg・Pb の化合物、MgO・ZrO₂・BaTiO₃、MnO・NiO、Fe・Ni・Cu・Li・YMn₂、
+Ce、EuS・EuSe・EuTe、GaAs_so・Bi2Te3（SOC）はほぼ 0.01 eV 前後。poor の 14 は全部、次の 2 つの型のどちらかで、追加の動径関数で直る（*表 07:16-1*）:
+- (a) 陽イオンの半内殻（Ga 3d、In 4d、Eu 5p、La 5p、Sr 4s・4p、V 3p）と O・N の 2p の混成。`m_HamPMT` の「浅い局所軌道」の判定（局所軌道が主の状態の上端が E_F − 10 eV より上）で
+  「深い」とされて模型から落ちる。Ga 3d −11.8、In 4d −12.5、Eu 5p −13.5 eV。La₂CuO₄ では判定の表示が `********`（局所軌道が主の状態が見つからない）。`mlo_lm3` で足すと 0.001〜0.008 eV。
+  同じ Eu 5p でも S・Se・Te の化合物では外れない（0.001〜0.003 eV）。合っている GaAs・InP・InAs の半内殻 d は −13.9〜−14.8 eV
+- (b) 空隙の大きい構造の伝導帯の底（閃亜鉛鉱の MgS・MgSe・MgTe・CdTe・ZnTe、wurtzite の AlN、β クリストバライトの SiO₂）。Γ の CBM が高すぎ、SiO₂ は伝導帯の下の方が丸ごと無い。
+  `mlo_lm2` で全原子に EH2 の s,p を足すと 0.00〜0.05 eV
+- 足すのを既定にはできない: s,p の EH2 と半内殻の両方を足すと、Si・NiO・ZnO は少し悪くなり（最悪値 0.013 以下）、Cu は**止まらずに**壊れ（0.012 → 0.802 eV、最大 8 eV）、
+  EuO は `Hreduction: PMT completeness loss too large` で止まる。足す条件は TODO（「MLO の自動の模型の既定」）
+
+*表 07:16-1*. poor・fair の主な物質と、動径関数を足した模型（ギャップの差 = MLO − DFT、rms は MLO → DFT / DFT → MLO、eV）
+| 物質 | ギャップの差 | rms | 足したもの | ギャップの差 | rms |
+|---|---|---|---|---|---|
+| SiO₂ クリストバライト | +4.055 | 0.028 / 0.695 | `lm2sp` | +0.045 | 0.047 / 0.015 |
+| GaN（zb） | +0.353 | 0.196 / 0.205 | `lm3d` | +0.000 | 0.002 / 0.001 |
+| GaN（wz） | +0.334 | 0.164 / 0.175 | `lm3d` | +0.000 | 0.008 / 0.002 |
+| InN（zb） | 金属 | 0.269 / 0.294 | `lm3d` | 金属 | 0.002 / 0.001 |
+| InN（wz） | 金属 | 0.234 / 0.255 | `lm3d` | 金属 | 0.003 / 0.002 |
+| MgTe | +0.287 | 0.091 / 0.069 | `lm2sp` | +0.000 | 0.004 / 0.001 |
+| MgSe | +0.152 | 0.061 / 0.041 | `lm2sp` | −0.000 | 0.003 / 0.002 |
+| MgS | +0.115 | 0.042 / 0.030 | `lm2sp` | −0.000 | 0.003 / 0.001 |
+| La₂CuO₄ | 金属 | 0.094 / 0.103 | `lm3semi` | 金属 | 0.001 / 0.000 |
+| LaGaO₃ | +0.079 | 0.073 / 0.101 | `lm3semi` | −0.005 | 0.003 / 0.003 |
+| SrVO₃ | 金属 | 0.060 / 0.074 | `lm3semi` | 金属 | 0.003 / 0.001 |
+| SrTiO₃ | +0.000 | 0.045 / 0.069 | `both` | +0.000 | 0.003 / 0.002 |
+| AlN（wz） | +0.011 | 0.061 / 0.038 | `lm2sp` | −0.000 | 0.011 / 0.008 |
+| EuO | +0.020 | 0.049 / 0.055 | `lm3semi` | −0.000 | 0.004 / 0.001 |
+| ZnTe | +0.038 | 0.030 / 0.007 | `lm2sp` | +0.000 | 0.003 / 0.002 |
+| CdTe | +0.037 | 0.033 / 0.008 | `lm2sp` | −0.000 | 0.003 / 0.001 |
+
+足した名前: `lm2sp` = 全原子の EH2 の s,p（`mlo_lm2`）、`lm3d` = 陽イオンの d の局所軌道（`mlo_lm3`）、`lm3semi` = 半内殻の局所軌道すべて、`both` = `lm2sp` と `lm3semi`。
+両方を足した場合の最悪値: Si 0.007 → 0.013、GaAs 0.013 → 0.009、Fe 0.005 → 0.005、NiO 0.007 → 0.003、ZnO 0.002 → 0.006、**Cu 0.012 → 0.802**。
+
 ### 06:46 **AFTEST（`mmtarget.aftest`）: afsym ではモーメントを目標に保てるが、表示の全エネルギーに場の項が残る。afsym なしでは誤り。直した（ブランチ `aftest-fix`、`6d6f3451b`、未マージ）**
 
 仕組み（`m_ldau.f90` の `vorbmodifyaftest_experimental`、`mkrout.f90`）:

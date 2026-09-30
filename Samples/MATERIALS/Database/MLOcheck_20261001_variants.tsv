@@ -1,0 +1,31 @@
+# 2026-10-01 MLO automatic model against LDA with extra radial sets (mlo_lm2 = EH2 s,p; mlo_lm3 = semicore local orbitals), variants of the table MLOcheck_20261001.tsv, Samples/MATERIALS (ecalj e29dd6e1d; MD/research_log.md 2026-10-01 朝).
+# Model: mlo_method=4, mlo_delta=mlo_w=2 eV, mlo_nkabc=[bz] nkabc; mlo_lm: Z<=10 s,p; Z>=11 s,p,d; lanthanides and Hf (4f in the valence basis) s,p,d,f.
+# so=1 (GaAs_so, Bi2Te3): job_mlo_soc. Eu compounds LDA+U (idu=12, no sigm). Evaluation: SRC/exec/mlo_bandcheck.py (eV). Work: t14 ~/work/mlocheck_20261001, kr7 ~/mlocheck_20261001.
+# suffix: _lm2sp EH2 s,p on all sites; _lm2s EH2 s; _lm3d cation d LO; _lm3semi all semicore LOs (s,p,d); _both lm2sp+lm3semi; HfO2_spd = the first HfO2 model without f. EuO_both stopped (Hreduction: PMT completeness loss too large).
+variant	insulator	gap_mesh	gapD	gapM	dVBM	dCBM	rms_m2d	max_m2d	rms_d2m	max_d2m	nspin
+AlN_lm2sp	True	4.3351	4.3348	4.3346	0.0000	-0.0001	0.0106	0.0879	0.0076	0.0864	1
+CdTe_lm2sp	True	0.5166	0.5161	0.5161	0.0000	-0.0000	0.0032	0.0254	0.0009	0.0044	1
+Cu_both	False	0.0000					0.6556	2.5288	0.8024	8.1926	1
+EuO_lm3semi	True	1.2320	1.2339	1.2339	0.0000	0.0000	0.0035	0.0552	0.0014	0.0125	2
+Fe_both	False	0.0000					0.0052	0.1209	0.0030	0.0414	2
+GaAs_both	True	0.2935	0.2936	0.2936	-0.0000	0.0000	0.0095	0.0532	0.0049	0.0532	1
+GaN_lm3d	True	1.9072	1.9065	1.9067	0.0000	0.0002	0.0077	0.0806	0.0022	0.0101	1
+GaNzb_lm3	True	1.7698	1.7691	1.7691	0.0000	0.0000	0.0023	0.0214	0.0008	0.0025	1
+GaNzb_lm3d	True	1.7698	1.7691	1.7691	0.0000	0.0000	0.0023	0.0214	0.0008	0.0025	1
+HfO2_lm3semi	True	4.4132	4.4127	4.4691	-0.0570	-0.0006	0.0285	0.4495	0.0142	0.0570	1
+HfO2_spd	True	4.4132	4.4127	4.4691	-0.0570	-0.0006	0.0290	0.4358	0.0142	0.0570	1
+InN_lm3d	False	0.0000					0.0026	0.0130	0.0021	0.0096	1
+InNzb_lm3d	False	0.0000					0.0017	0.0088	0.0011	0.0045	1
+La2CuO4_lm3semi	False	0.0000					0.0011	0.0206	0.0005	0.0079	1
+LaGaO3_lm3semi	True	3.6140	3.5578	3.5531	0.0047	0.0000	0.0033	0.0390	0.0026	0.0240	1
+MgS_lm2sp	True	3.3272	3.3277	3.3277	0.0001	0.0000	0.0028	0.0260	0.0013	0.0116	1
+MgSe_lm2sp	True	2.4984	2.4989	2.4988	0.0000	-0.0000	0.0034	0.0336	0.0015	0.0141	1
+MgTe_lm2s	True	2.3038	2.3049	2.3048	0.0001	0.0000	0.0240	0.1559	0.0041	0.0324	1
+MgTe_lm2sp	True	2.3038	2.3049	2.3049	-0.0000	0.0000	0.0040	0.0270	0.0015	0.0200	1
+NiO_both	True	0.5317	0.6801	0.6766	0.0035	0.0001	0.0034	0.0429	0.0019	0.0131	2
+SiO2c_lm2sp	True	5.4373	5.4367	5.4813	-0.0000	0.0447	0.0475	0.5123	0.0151	0.1686	1
+Si_both	True	0.5202	0.4749	0.4842	0.0000	0.0094	0.0129	0.0826	0.0090	0.0474	1
+SrTiO3_both	True	1.7353	1.7353	1.7353	0.0000	0.0000	0.0027	0.0162	0.0020	0.0133	1
+SrVO3_lm3semi	False	0.0000					0.0034	0.0317	0.0009	0.0057	1
+ZnO_both	True	0.7435	0.7432	0.7433	-0.0001	0.0000	0.0059	0.0993	0.0035	0.0641	1
+ZnTe_lm2sp	True	1.0327	1.0331	1.0331	0.0000	0.0000	0.0034	0.0307	0.0016	0.0235	1

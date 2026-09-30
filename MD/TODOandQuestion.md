@@ -31,7 +31,6 @@
   応答を割線で見積もる更新にするか。(b) 対がサイト 1・2、ブロック 1・2 の決め打ち（NiSe だけ 6 ブロック）。`AF=` の印や種の名前から対を決める。
   (c) `m_ldau_init` が lmf の起動のたびに場を一歩更新して `mmagfield.aftest` を書き直す（`job_band` でも）。(d) ecaljdoc の `UsageDetailed.md` の「直す必要がある」を、
   使い方（LDA+U のブロックが要る、U = 0 でよい、`SYMGRPAF`、目標のモーメントの定義）に書き直す
-- **`Samples/MATERIALS/Database` の 62 物質を LDA で一度回して確かめる**（2026-10-01、急がない）: 入力は `lmchk` で読めることだけ確かめた
 
 - **`hgw` の残り**（2026-04 の統合の残タスク、2026-10-01 に past_log.md §3.2 から）: ノード内の W の共有を `MPI_Win_allocate_shared` で（メモリの重複を減らす）。
   `hsfp0_sc` の Sx（`--job=1`）・core の交換（`--job=3`）も `hgw` に入れる（時間は小さいので優先度は低い）
@@ -41,8 +40,8 @@
   `tetrakbt` を挙げるだけ）。今も使うのは `tetrakbt_init`・`kbt`・`integtetn`。2026-06 に「参照のため残す」としたもの。消すなら kBT の試験で確かめる（past_log.md §13）
 
 - **MLO の自動の模型の既定**（2026-10-01、`Samples/MATERIALS/Database` の試験。研究ログ 2026-10-01）: 既定（`mlo_lm` が Ne まで s,p・Na から s,p,d、Δ = w = 2 eV）で
-  多くの物質はバンドの rms が 0.01 eV 前後だが、次の 2 つの型で外れる。どちらも追加の動径関数で直る（*表 1*、`~/work/mlocheck_variants`）。
-  (a) 陽イオンの半内殻 d と陰イオンの 2p の混成（GaN、InN、両相）: `m_HamPMT` の「浅い局所軌道」の判定（局所軌道が主の状態の上端が E_F − 10 eV より上）で
+  65 物質のうち 41 が最悪値 0.02 eV 以内、外れる 14 は次の 2 つの型で、どちらも追加の動径関数で直る（研究ログ 2026-10-01 朝の *表 07:16-1*、`Samples/MATERIALS/Database/MLOcheck_20261001*.tsv`）。
+  (a) 陽イオンの半内殻と陰イオンの 2p の混成（GaN、InN、EuO、La₂CuO₄、LaGaO₃、SrTiO₃、SrVO₃）: `m_HamPMT` の「浅い局所軌道」の判定（局所軌道が主の状態の上端が E_F − 10 eV より上）で
   Ga 3d（−11.8 eV）・In 4d（−12.5 eV）が「深い」とされ、模型から落ちて VBM が 0.33〜0.6 eV 下がる。`mlo_lm3` に d を足すと rms 0.002〜0.008 eV。
   合っている GaAs・InP・InAs は −13.9〜−14.8 eV。閾値を −13 eV にするか、陰イオンの p との近さで決めるか。
   (b) 空隙の大きい構造（MgS・MgSe・MgTe・CdTe・ZnTe・AlN・SiO₂ クリストバライト）: 伝導帯の底が高すぎる（+0.04〜+0.29 eV、SiO₂ は +4.1 eV で伝導帯が丸ごと無い）。
@@ -88,6 +87,7 @@
 
 ### 2026-10-01
 
+- `Samples/MATERIALS` の 66 物質で LDA と MLO の自動の模型を回した（n10 は kr7 で走行中）。結果の表は `Samples/MATERIALS/Database/MLOcheck_20261001*.tsv`、一覧のページ https://claude.ai/artifact/VCWpe5W8Fei6umatXGeZGH、研究ログ 2026-10-01 朝 07:16
 - `job_mlo`: ctrlg の `[ham] so = 1` なら `job_mlo_soc` を案内して止まる（`mlo` がハミルトニアンの NaN で止まっていた。GaAs_so）。`--ctrlg:ham.so=` の上書きは尊重。`mlo_bandplot.py` は空の spin2 を描かない
 - `--cls`: `m_clsmode_finalize` に `ndimh`（`m_igv2x` の最後の k 点の値）でなく `nbandmx` を渡す（`vcdmel` の重みの並びと `dostet` の読み方を揃える）。CrN（`Samples/TestInstall/crn`）で APW なし・pwemax 2 と 5・4×4×4（ndimh が 182〜188 と変わる）のどれも `dos-vcdmel.crn` が一致（ずれるのは DOS の窓より上の帯だけだった）。ブランチ `cls-nbandmx` をマージ（`7ca6f1caa`）。試験は `~/work/clstest_20261001`
 - `InstallAll.py`: リンクを張った後、bindir の中で「この ecalj の木を指していて行き先の無いリンク」だけを消す（`remove_dangling_links`）。SRC/exec のエディタの一時ファイル（`~` で終わる、`#`・`.#` で始まる）はリンクしない。t14 の `~/bin` の 58 本は次のインストールで消える（一時の bindir で試験）
