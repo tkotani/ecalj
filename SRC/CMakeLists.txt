@@ -219,15 +219,9 @@ function(add_extended_build VARIANT)
   )
   target_compile_options(${LIB} PRIVATE -cpp ${CPP_DEFINITIONS} ${FLAGS_EXTRA})
   target_compile_definitions(${LIB} PRIVATE ${CPP_DEFINITIONS})
-  if(VARIANT STREQUAL "gpu" OR VARIANT STREQUAL "mp_gpu")
-    # Ensure the base ecaljF is fully built before the GPU variant starts.
-    # CMake's Fortran scanner misses some use-dependencies (e.g. m_gemmul8 → m_mpi),
-    # causing "Unable to open MODULE file" in parallel builds.
-    # With this dependency the base mod/ directory is populated first;
-    # the -I below lets GPU sources fall back to those modules when mod_gpu lags.
-    add_dependencies(${LIB} ecaljF)
-    target_include_directories(${LIB} PRIVATE ${CMAKE_BINARY_DIR}/${FC}/mod)
-  endif()
+  # (2026-10-02 05:29) The GPU variants used to wait for the base library and see its mod/ (-I) because of
+  # "Unable to open MODULE file" in parallel builds. The cause was a module cycle in the GPU build
+  # (m_mpi -> m_gpu -> m_blas -> m_gemmul8 -> m_mpi), not CMake's scanner; m_gemmul8 no longer uses m_mpi.
   list(APPEND DELIVER_FILES ${CMAKE_BINARY_DIR}/lib${LIB}.so)
 
   set(MAINS_VARIANT ${MAINS_GPU})
