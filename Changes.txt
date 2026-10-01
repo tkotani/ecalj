@@ -1,3 +1,10 @@
+2026-10-02 (4)
+  対称性は既定で spglib から取る（lmf・lmchk など、symgrp = "find" のとき）。spglib 2.6.0 の C を SRC/external/spglib に同梱してビルドに入れた
+  （Python は要らない）。求めた操作は作業ディレクトリの symmetry.<sname>.json に書き、次からはそれを読む。構造（--ctrlg: の上書きを含む）が
+  変わればその場で作り直す。超格子の純粋な並進、AF（[[site]] af の印）の磁気対称性も含む。symgrp に生成元を書いた入力（対称性を下げる）と
+  ECALJ_SYMFIND=ecalj は従来の探し方。説明は ecaljdoc lmf.md の SYMGRP、設計は MD/symmetry_spglib.md。
+  - 操作の並びが変わるので、並びをそのまま書き出す出力（BoltzTraP の si.struct.boltztrap など）は前と並びが違う。
+
 2026-10-02 (3)
   対称性を spglib から取れるようにした（既定は今までどおり。設計と経過は MD/symmetry_spglib.md）。
   - symfind.py <sname> [--ctrlg:...] が spglib で空間群を求め、symmetry.<sname>.json を書く（操作は格子の基底での整数の回転と分数座標の

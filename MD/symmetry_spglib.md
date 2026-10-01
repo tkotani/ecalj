@@ -158,7 +158,7 @@ GW 側は `__HAMindex`（`m_hamindex0` が書く）から読む今の形のま�
 | S3 | `m_symfind` に `json` の backend（読む、ハッシュを照らす）を足す。`symmetry.json` が無ければ今までどおり | S0 で同じ操作になる入力で、`json` と `ecalj` の全部の試験の組が丸めの範囲で同じ |
 | S4 | 純粋な並進を使う（表 4）。`ngmx` を外す | Si の慣用胞・2×1×1 で表 4 の確かめ。基本格子の入力は変わらない |
 | S5 | AF を spglib の磁気対称性で（`time_reversal`） | afsym、affix、`Samples/AFsymmetry`。NiO・Fe2O3 で今の `SYMGRPAF` と比べる |
-| S6 | 既定を `json`（`symfind.py` を lmf の前段で自動）に。旧 `SYMGRP`・`SYMGRPAF` を廃止（変換の道具）。ecaljdoc。3 台（t14、kt1、kr7）で試験 | 3 台で全部の試験の組 |
+| S6 | 既定を spglib に（2026-10-02 に変えた: lmf が vendored の spglib（C）で求めてファイルを書く。§4.7g）。`SYMGRPAF` は AF の型を入れる印として残し、生成元の `SYMGRP` は対称性を下げる口として残す。ecaljdoc。3 台（t14、kt1、kr7）で試験 | 3 台で全部の試験の組 |
 
 ### 4.7a S0 の結果（2026-10-02 05:15 終了、`TOOLS/symcheck_samples.sh ~/work/symcheck_s0`、symprec 1e-5 Å）
 
@@ -240,6 +240,20 @@ GW 側の二つは `__HAMindex0` から読んだ操作のうち、呼ぶ側が�
   spglib の磁気空間群は UNI 1332、型 4（反ユニタリの操作が並進を伴う黒白群）
 - 試験の組（kr7 GPU、`46b9740bb`、json の口の包み、06:43〜06:57）: inputs・afsym・affix・install・mlo・mloqsgw がすべて PASS。AF の試料は全部 json の
   磁気対称性で回った（NiO・NiO_gwsc・AFfixMMOM は UNI 1332 型 4、NiSe は UNI 1499 型 3、どれも 12 + 12）（06:57）
+
+### 4.7g S6: lmf が spglib（C）で求める（2026-10-02 08:33、user「lmf でつくればいい」「全部このとおりで良い」）
+
+- spglib v2.6.0 の C のソースを `SRC/external/spglib` に置き（BSD-3、`VENDORED_FROM.txt`）、CMake で静的ライブラリ `symspg` として各 `libecaljF*.so` に入れる。
+  Python や外の spglib は要らない。lmf から Python を呼ぶ案（MPI の下での fork、計算ノードの Python）はやめた
+- `m_symfind` の `symfind_spglib` が `bind(C)` で `spg_get_symmetry`（種を分けた結晶の群）、`spg_get_international`（番号と記号）、
+  AF の印があれば `spg_get_symmetry_with_site_tensors`（対をまとめた種、スピン ±1、時間反転あり。返る `spin_flips` が −1 の操作が AF の操作）を呼ぶ。
+  C の並び: `lattice[3][3]` は格子ベクトルが列（Fortran には転置で渡す）、`rotation[n][3][3]` は行優先（Fortran の配列は R の転置）
+- `mksym`（`symgrp = "find"`、結晶の群）: `symmetry.<sname>.json` があり構造が今のものと同じなら読む。無いか違えば spglib で求め、rank 0 が書き直す
+  （出力に `found by spglib, <記号> (<番号>), written to ...（the file: <理由>）` または `read from ...`）。全部の操作（AF の時間反転つきも）は
+  module に持ち、AF の二回目の呼び出しで使う。`symgrp` に生成元を書いた入力と `ECALJ_SYMFIND=ecalj` は gensym
+- `symfind.py` は同じ形式のファイルを作る・照らす道具として残す（`--check` で lmchk の gensym の表と比べる）
+- 確かめ: Fe・NiO（12 + 12）・Si8（192）で Fortran の書いた操作が `symfind.py` と集合として同じ。Samples の 172 入力で 164 が同じ、8 は `symgrp` を
+  指定していて gensym（`TOOLS/symcheck_spglib_c.sh`）。二回目は読み、位置を変えると作り直すことを確かめた
 
 ### 4.8 決めたこと（user 2026-10-02）
 

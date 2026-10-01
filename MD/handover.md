@@ -83,10 +83,9 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
 
 - **t14 の trash は外付けの TAKAOMINI にある**（2026-10-02、ディスクが満杯になったため）: `/media/takao/TAKAOMINI/trash/`（`ecalj_trash/`、`work_20261001/`、`home_trash/`）。t14 のディスクは 468 GB で、試験の作業ディレクトリ（`Samples/*/*_work`、合わせて約 8 GB）や `~/work` の GW の途中のファイルでいっぱいになる。満杯になると Claude Code の Bash の出力も受け取れなくなる（`/tmp` も同じディスク）
 
-- **対称操作の口 `symmetry.<sname>.json`**（2026-10-02 06:27、`MD/symmetry_spglib.md` §4.7）: 作業ディレクトリにこのファイルがあると、lmf・lmchk・mlo などは spglib の操作
-  （`SRC/exec/symfind.py <sname>` が書く。純粋な並進・AF の操作も）を使う。無ければ今までどおり gensym。ファイルの構造（alat、plat、種、`af`、分数座標）が ctrlg と
-  違うと「does not match the ctrlg ... Run symfind.py again」で止まる。`--ctrlg:site.n.pos=` などで構造を上書きして回すときは、symfind.py にも同じ引数を渡す。
-  `ECALJ_SYMFIND=ecalj` で gensym に固定（比べるとき）。既定にするか（S6）は未決（TODOandQuestion.md §2）
+- **対称操作は spglib から**（2026-10-02 08:34、`MD/symmetry_spglib.md` §4.7g）: `symgrp = "find"` のとき lmf・lmchk などは同梱の spglib（`SRC/external/spglib`、C、
+  静的ライブラリ `symspg`）で操作を求め、作業ディレクトリに `symmetry.<sname>.json` を書く。次からは読み、構造が違えば作り直す。`ECALJ_SYMFIND=ecalj` で
+  従来の gensym（比べるとき）。`symgrp` に生成元を書いた入力も gensym。ビルドには C コンパイラが要る（CMake の `project(... Fortran C)`）
 
 ## 4. コンパイラと実行時の落とし穴
 

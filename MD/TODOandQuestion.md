@@ -21,7 +21,7 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 | 2 | 小さい独立の直し: `job_mlo_soc` の空の spin2、`m_tetrakbt` の使われないルーチン、`auto_creplot.py` | 1・3 の試験の待ち時間に | mlo、kBT の組 | 前二つ**済み**。`auto_creplot.py` は移すか捨てるか要判断 |
 | 3 | 対称性 S2（GW 側の `mptauof` の重複を外す） | S3 の前に使う側を一本に | gwall がビット単位で同じ | **済み**（最小の形）`e5d08f008` |
 | 4 | GPU の build の module の循環 | kt1・kr7 で回せる、手元と並行 | kt1・kr7 の clean build と試験 | **済み** `a7f64752e`・`f553b5222` |
-| 5 | 対称性 S3（`symmetry.json` を読む口）→ S4（純粋な並進）→ S5（AF、`AFsymmetry/NiO` の pwmode も）→ S6（既定に） | 設計どおり一段ずつ | 各段の表（`MD/symmetry_spglib.md` §4.7） | S3〜S5 **済み**（Si8 で lmf・MLO・QSGW が一致、試験の組 PASS）。S6 は §2 で判断待ち |
+| 5 | 対称性 S3（`symmetry.json` を読む口）→ S4（純粋な並進）→ S5（AF、`AFsymmetry/NiO` の pwmode も）→ S6（既定に） | 設計どおり一段ずつ | 各段の表（`MD/symmetry_spglib.md` §4.7） | S3〜S6 **済み**（S6: lmf が同梱の spglib で求める、user の判断 2026-10-02。2026-10-02 08:34 から 3 台で試験） |
 | 6 | MLO の最大局在化（Python で試作、Fe・Ni） | 5 の操作を使う | Ω、U、マグノン | 試作**済み**（`mlo_maxloc.py --sym`）。Ω まで。U・マグノンは未 |
 | 7 | マグノンの既定の窓、MLO と Wannier のずれ | 6 の結果で判断 | Fe・Ni・FeCo | 3 物質で比べた（07:10）。Δ = 6 eV を勧め、§2 で判断待ち |
 | 8 | MLO の模型の残り（EH2 の崩れ、§9 の目安の値の測り直し、空格子球の自動化） | 計算機で裏で回せる | MATERIALS | 原因の確かめと測り直し、`ctrlg_addes.py` の直し**済み**。EH2 の直し方は要判断 |
@@ -79,12 +79,6 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 
 - **MLO のマグノンの窓を Δ = 6 eV にするか**（2026-10-02 07:10、研究ログ 07:10）: Fe・FeCo・Ni で、Δ = 6 eV（w = 2）は Wannier のマグノンから 0.02 eV 程度、
   既定（2, 2）は Ni では良いが Fe・FeCo の高い q で 2 倍近く高い。`job_mlo_magnon` が窓を Δ = 6 eV にするか、試料の入力に書くか。`Samples/Magnon/Fe_mlo_magnon` の参照の作り直しを伴う
-- **対称性 S6: `symmetry.<sname>.json` を既定にする方法**（2026-10-02 06:17、`MD/symmetry_spglib.md` §4.7）。S1〜S5 で、ファイルがあれば spglib の操作
-  （純粋な並進・AF も）を使い、無ければ今までどおり gensym、の形になった。既定にするには誰が `symfind.py` を走らせるかを決めたい:
-  (a) `ctrlgenToml.py` が入力を作るときに作る（構造を変えたら作り直し。古いと lmf が止まって知らせる）、(b) `gwsc`・`job_*` が lmf の前に毎回作る
-  （`--ctrlg:` の上書きも渡す。lmf をじかに回すと gensym のまま）、(c) lmf が自分で Python を呼ぶ（MPI の下で fork するのが心配）。
-  案: (a)+(b)。あわせて `SYMGRPAF` を `af` の印から決める形にし、旧 `SYMGRP` の生成元の文字列は残す（対称性を下げる口として。S0 の 6 入力が使う）。
-  json を既定にすると BoltzTraP の `si.struct.boltztrap`（操作の並び）の参照を作り直す
 - **ecaljdoc の古い文書**（`BackUp/`、`ecaljdetails/` の LaTeX・PS、2019 年以前）は、trash に移した `TOOLS/checkmodule`・`TOOLS/ModuleCodingSample` などを参照している。ecaljdoc の側も同じ決まり（trash へ、要点は過去ログへ）で片付けるか（2026-10-01）
 - **GW1500 の `INVALID_STRUCTURE`（12）・`SUSPECT_STRUCTURE`（4）を集合から外すか**。いまは注記だけ
 - **ビルドの生成物が入ったコミット `a0c7a7300`（78 MB）を、push の前に履歴から消すか**。消すと以後 674 コミットのハッシュが変わり、
@@ -105,6 +99,7 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 
 ### 2026-10-02
 
+- 対称性 S6（2026-10-02 08:34、user「lmf でつくればいい」）: spglib 2.6.0 の C を同梱し、lmf・lmchk が操作を求めて `symmetry.<sname>.json` を書く（`89654cc96`）。172 入力で Python 版と同じ
 - ecaljdoc mlo §9 の式 (12) の目安の値を測り直した（06:55、`~/work/ovlp_20261002`、63 物質の MLO の段だけ）: 規格化の後は最小 0.20〜0.42、中央値 0.24〜0.46。FAIL の 10 物質は前と同じ（ecaljdoc `mlo.md`、TODO から外した）
 - 対称性（`MD/symmetry_spglib.md` §4.7）: S0 spglib との照合（`f7c382bed`、172 入力で食い違い 0）、S1 分割（`41c0e3cc7`）、S2（`e5d08f008`）、
   S3 `symmetry.<sname>.json` を読む口（`91f9bdcaf`）、S4a `mptauof` が渡された並進を使う（`bfaae451b`）。S4b（純粋な並進を操作に）は試験中
