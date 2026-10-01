@@ -96,11 +96,11 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
 
 <section class="stats" aria-label="まとめ">
   <div class="stat"><b>@@N@@</b><span>評価した物質</span></div>
-  <div class="stat good"><b>@@NGOOD@@</b><span>good: 最悪値 ≤ 0.02 eV</span></div>
-  <div class="stat fair"><b>@@NFAIR@@</b><span>fair: ≤ 0.05 eV</span></div>
-  <div class="stat poor"><b>@@NPOOR@@</b><span>poor: &gt; 0.05 eV</span></div>
+  <div class="stat good"><b>@@NGOOD@@ → @@AGOOD@@</b><span>good: 最悪値 ≤ 0.02 eV</span></div>
+  <div class="stat fair"><b>@@NFAIR@@ → @@AFAIR@@</b><span>fair: ≤ 0.1 eV</span></div>
+  <div class="stat poor"><b>@@NPOOR@@ → @@APOOR@@</b><span>poor: &gt; 0.1 eV</span></div>
 </section>
-<p class="note"><b>@@AFTERLINE@@</b></p>
+<p class="note"><b>数字は「既定の模型 → 動径関数を足した模型」</b>（足したのは 16 物質。下の「動径関数を足すとは」）。</p>
 <p class="note">最悪値 = max（MLO の各点から最寄りの DFT のバンドまでの rms、DFT の各点から最寄りの MLO のバンドまでの rms、|ギャップの差|）。
   rms の窓は [VBM − 8, CBM + 3] eV（DFT → MLO は CBM + 1 eV まで）、金属は E_F を VBM = CBM とみなす。評価は <code>SRC/exec/mlo_bandcheck.py</code>。</p>
 
@@ -136,7 +136,7 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
 </section>
 
 <section class="panel">
-  <h2>図 2. 物質ごとの最悪値（対数軸、破線は 0.02 と 0.05 eV）</h2>
+  <h2>図 2. 物質ごとの最悪値（既定の模型、対数軸、破線は 0.02 と 0.1 eV）</h2>
   <div class="scroll">@@CHART2@@</div>
 </section>
 
