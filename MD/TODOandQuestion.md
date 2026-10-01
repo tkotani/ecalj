@@ -34,6 +34,7 @@
   (c) `m_ldau_init` が lmf の起動のたびに場を一歩更新して `mmagfield.aftest` を書き直す（`job_band` でも）。(d) ecaljdoc の `UsageDetailed.md` の「直す必要がある」を、
   使い方（LDA+U のブロックが要る、U = 0 でよい、`SYMGRPAF`、目標のモーメントの定義）に書き直す
 
+- **Wannier（`hmaxloc` の経路）を外して MLO だけにする**（user 2026-10-01 夜）: 決めたこと: AHC（`hahc`・`job_AHC`・`hx0ahc.py`・`x0kf_ahc`）は消す。cRPA は MLO で作る（`pkm4crpa` の重み p_kn を MLO の射影 [C (C†C)⁻¹ C†]_nn から、`job_mloW --crpa`。`ni_crpa`・`srvo3_crpa` を MLO 版に）。`wanplot` は消す（MLO 版は将来）。`genMLWFdipoleTEST` は要らない。マグノンは `Fe_mlo_magnon` が Wannier 版と q ≥ 0.4 で 1.5 倍違う（README 図 1）。順番: cRPA の置き換え → AHC・wanplot・dipoleTEST → Wannier の主プログラム・module・`wan_*` のキー・gwinit の節・ecaljdoc
 - **`hgw` の残り**（2026-04 の統合の残タスク、2026-10-01 に past_log.md §3.2 から）: ノード内の W の共有を `MPI_Win_allocate_shared` で（メモリの重複を減らす）。
   `hsfp0_sc` の Sx（`--job=1`）・core の交換（`--job=3`）も `hgw` に入れる（時間は小さいので優先度は低い）
 

@@ -277,7 +277,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
        ,nq0i=>nq0ix,wqt=>wt,q0i
   use m_readeigen,only: init_readeigen,init_readeigen2
   use m_wan_wfs,only: onoff_write_pkm4crpa, init_readeigen_mlw_noeval,  nwf_wannier => nwf, get_geig_wan, get_cphi_wan
-  use m_mlo_wfs, only : cmlo_init, nwf_mlo => nmlo
+  use m_mlo_wfs, only : cmlo_init, nwf_mlo => nmlo, write_pkm4crpa_mlo
   use m_genallcf_v3,only:niwg=>niw,alat,deltaw,esmr,icore,natom,nl,nlnmc,nlnmv,nlnmc,nlnmx,nlnx,laf
   use m_genallcf_v3,only: genallcf_v3,ncore,nn,nnc,nspin,pos,plat, nprecb,mrecb,mrece,nqbzt,nband,mrecg,ndima
   use m_keyvalue,only: getkeyvalue
@@ -633,6 +633,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   if(mlo_mode) then
     call cmlo_init()
     nwf = nwf_mlo
+    if(ixc==10011 .and. master_mpi) call write_pkm4crpa_mlo() !cRPA weights of the MLO model (2026-10-01 23:20)
   else
     call init_readeigen_mlw_noeval()!nwf,nband,mrecb,mrecg)
     nwf = nwf_wannier

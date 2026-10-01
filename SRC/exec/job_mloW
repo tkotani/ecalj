@@ -3,6 +3,7 @@
 
 Runs: lmfa → lmf → lmf(GW prep) → qg4gw → lmf(--jobgw=1 --mlo) →
       heftet → hbasfp0 → mlo → hvccfp0 → hwmatK_MPI(v) → hx0fp0 → hwmatK_MPI(W-v)
+      [--crpa: → hwmatK_MPI(pkm4crpa) → hx0fp0(10011) → hwmatK_MPI(W-v cRPA)]
 
 Requires bnd001.spin1 (run job_band first) and ctrlg.<target>.toml.
 """
@@ -58,6 +59,14 @@ def cal_mloW(args, extra_args):
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/'hx0fp0',     args=[target, *options]), stdin_str='111', stdout='lx0_111')
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/'hwmatK_MPI', args=[target, '--mlo', *options]), stdin_str='2',   stdout='lwmatK2')
 
+    # --- cRPA (--crpa): W with the screening inside the MLO model removed (2026-10-01) ---
+    # pkm4crpa: p_kn = [C (C^+C)^-1 C^+]_nn, the weight of band n in the MLO subspace (m_mlo_wfs);
+    # hx0fp0 10011 weights each transition of chi0 by 1 - p_kn p_k+q,n'; hwmatK 100 writes Screening_W-v_crpa.UP/DN.
+    if args.crpa:
+        run_cmd(cluster, MPIParams(nprocs=1,        command=EXEC_DIR/'hwmatK_MPI', args=[target, '--mlo', *options]), stdin_str='10011', stdout='lpkm4crpa')
+        run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/'hx0fp0',     args=[target, *options]), stdin_str='10011', stdout='lx0_10011')
+        run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/'hwmatK_MPI', args=[target, '--mlo', *options]), stdin_str='100',   stdout='lwmatK2crpa')
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
@@ -69,6 +78,7 @@ if __name__ == '__main__':
     parser.add_argument('-np',            help='MPI cores', default=8, type=int)
     parser.add_argument('-c', '--cluster',help='cluster name', default='default')
     parser.add_argument('-d', '--dir',    help='working directory (default: current)', default='.')
+    parser.add_argument('--crpa',         help='also the cRPA W (screening inside the MLO model removed): Screening_W-v_crpa.UP/DN', action='store_true')
 
     args, extra_args = parser.parse_known_args()
     with contextlib.chdir(args.dir):

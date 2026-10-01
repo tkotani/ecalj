@@ -88,6 +88,30 @@ user の指示（05:5x）: 「この方針で進めて。TODO も判断がつく
 MATERIALS 以下を MLO で（spd ベース、f があるときに入れる）すべてモデル化。DFT レベルでよい。目視で確認できる図、バンドギャップの違い。
 AFsymmetry のモード（AFTEST）が動くのか、そもそも正しいのかも調べて」。push はしない。
 
+### 23:21 cRPA を MLO で（Wannier を外す一歩目。user「Wannier はなくして MLO だけを残したい」「まずは cRPA 置き換え」「AHC は消して良い」「wanplot・dipoleTEST も消してよい」）
+
+- Wannier 版の cRPA（PRB 83, 121101 の重みの方式）: `hwmatK_MPI` 10011 が `pkm4crpa`（バンドの重み p_kn = Σ_m |⟨ψ_kn|w_m⟩|²）を書き、`hx0fp0` 10011 が χ₀ の遷移に 1 − p_kn p_k+q,n′ を掛け、
+  `hwmatK_MPI` 100 が `Screening_W-v_crpa.UP` を書く。MLO の側（`--mlo`）は 10011 で何も書いていなかった
+- MLO 版: MLO は固有状態の展開 |φ_j⟩ = Σ_n |ψ_kn⟩ C_nj（C = `__cmlo`）なので p_kn = [C (C†C)⁻¹ C†]_nn（`m_mlo_wfs` の `write_pkm4crpa_mlo`、ファイルの形は同じ）。
+  `job_mloW --crpa` が 10011 → `hx0fp0` 10011 → 100 を足す。Σ_n p_kn はどの k でも nmlo（Ni 5.000000、SrVO₃ 3.000000）
+- **MLO は既定で長さが 1 でない**: 規格化なしの Ni d の v の U は 3.4 eV（正しくは 20 eV 台）、SrVO₃ t₂g は 0.5 eV。`--mlo_diagnorm` か `--mlo_orthonorm` が要る
+  （`MLOsamples/Fe` の試験は `--mlo_diagnorm` を付けている）。p_kn は射影なので規格化によらない
+- 比較（`TestInstall/{ni,srvo3}_crpa` の入力、Ni は `mlo_nkabc` 8³、SrVO₃ は 6³ を足した。作業場所 `~/work/crpa_mlo`、`ujk.py` で ω = 0、R = 0 の U・U′・J）:
+
+*表 23:21-1*. U = (ii|ii) の平均、J = (ij|ji) の平均（eV）。MLO は `--mlo_orthonorm`（`--mlo_diagnorm` との差は Ni で 0.02 eV、SrVO₃ で 0）
+
+| 系 | 方法 | v の U | RPA の U | cRPA の U | cRPA の U′ | cRPA の J |
+| --- | --- | --- | --- | --- | --- | --- |
+| SrVO₃ t₂g（2³） | Wannier | 16.66 | 0.983 | 3.204 | 2.201 | 0.473 |
+| SrVO₃ t₂g（2³） | MLO | 16.71 | 0.988 | 3.349 | 2.341 | 0.475 |
+| Ni d（4³） | Wannier | 26.00 | 1.575 | 3.779 | 2.239 | 0.768 |
+| Ni d（4³） | MLO（`mlo_w` 2） | 24.19 | 1.434 | 2.898 | 1.571 | 0.661 |
+| Ni d（4³） | MLO（`mlo_w` 11） | 25.36 | 1.524 | 3.279 | 1.834 | 0.720 |
+
+- SrVO₃（t₂g が孤立）は cRPA の U で +4.5 %。Ni（d が s と絡む）は −23 %、`mlo_w` = 11 eV で −13 %。p_kn の集まり方は MLO のほうが d のバンドに集中する
+  （大きい 5 本の和の平均: MLO 4.88、Wannier 4.72）ので、差は重みの集中ではなく、MLO の d の広がり（v で −7 %）と除く遷移の違い。どちらが正しいかは決めていない
+- d だけ・t₂g だけの模型は `mlo_bandcheck` の CHECK が FAIL（窓 [VBM − 8, E_F + Δ] に 4s や O 2p が入るため。検査は全体の模型のためのもの）
+
 ### 22:41 lmfa（`freeat.f90`）の整理、一歩目は等価変換（user「まずは lmfa」「シングルトンの方向で。まずは等価変換、使われていないものはコメントアウト」「後方互換は捨ててよい」）
 
 - lmfa は対称性と無関係（`m_lmfinit_init` は SYMGRP の文字列を読むだけ、`freeat` は種類のデータだけ使う）
