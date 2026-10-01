@@ -84,6 +84,14 @@
 
 ## 2026-10-02 — MLO を実空間で規格化、実験用の MLO オプションを廃止（Wannier を外す作業の続き）
 
+### 04:32 GW1500: NOTCONV の 177 物質が全部収束。`--prec=tf32` の確かめを kt1 で始めた（user「--prec=tf32 と --prec=fp32 の違いを調べないといけない」「30 物質とも正常、のところのチェックはいるのか」）
+
+- kt1 の `run3`（fp32、最大 10 反復）は 2026-10-01 16:43 に終わり、197 物質のうち 196 が収束。残った mp-867515 Na₂Co₂O₄ は `run3x` で延長し、
+  19 反復目に 3.678 eV で収束（2〜6 反復目に金属、10 反復目の 1.82 eV は戻る途中）。`ecalj_auto/GW1500_status.md` §5・§6、`gw1500_notes_20261001.tsv` を更新
+- 5 月に旧 `--mp`（全部の行列積が TF32）で壊れた 36 物質（`NaN_lqpe` 22、`NaN_lsc` 8、`bmix_min` 6）を、今の `--prec=tf32`（Σ_c の最後の積だけ TF32）で
+  LDA から 3 反復（kt1 `/mnt/data1/gw1500_rerun/run_tf32`、`tf32_launch.sh`、ワーカー 2 本、コア 48〜63 と 0〜15、`bin_frozen_b81da2342m`）。
+  比べる相手は 2026-09-30 の fp32 の回し直し（`run1`、同じバイナリと設定）。見ること: NaN が出ないか、各反復のギャップの差、1 反復の時間
+
 ### 04:17 MLO の窓を広げると、Fe のマグノンが Wannier 版に近づく（user「オンサイトの W だけの近似が問題になりうる。a でやってみる」）
 
 - `~/work/magnon_w`: `Fe_mlo_magnon` の入力で、MLO の窓 (`mlo_delta`, `mlo_w`) を 4 通り。SCF・バンドは共通、`job_mlo_magnon fe -np 8`、`mlo_spread.py`。
