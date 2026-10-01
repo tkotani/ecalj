@@ -52,24 +52,24 @@ module m_cmdopt_registry
   !========================================================================
   integer, public, protected, save :: c2_jobgw         = -1
   integer, public, protected, save :: c2_job           = -1
-  integer, public, protected, save :: c2_nb            = -1
+! integer, public, protected, save :: c2_nb            = -1 !removed 2026-10-02 (AHC, hmagnon; see check_retired)
   integer, public, protected, save :: c2_nk            = -1
-  integer, public, protected, save :: c2_nww           = -1
+! integer, public, protected, save :: c2_nww           = -1 !removed 2026-10-02 (AHC, hmagnon; see check_retired)
   integer, public, protected, save :: c2_sp1           = -1
   integer, public, protected, save :: c2_sp2           = -1
   integer, public, protected, save :: c2_ndos          = -1
 
-  real(8), public, protected, save :: c2_cutuu         = 0d0
+! real(8), public, protected, save :: c2_cutuu         = 0d0 !removed 2026-10-02 (AHC, hmagnon; see check_retired)
   real(8), public, protected, save :: c2_emin_eV       = 0d0
   real(8), public, protected, save :: c2_emax_eV       = 0d0
   real(8), public, protected, save :: c2_EfermiShifteV = 0d0
-  logical, public, protected, save :: c2_cutuu_set         = .false.
+! logical, public, protected, save :: c2_cutuu_set         = .false. !removed 2026-10-02 (AHC, hmagnon; see check_retired)
   logical, public, protected, save :: c2_emin_set          = .false.
   logical, public, protected, save :: c2_emax_set          = .false.
   logical, public, protected, save :: c2_EfermiShifteV_set = .false.
 
-  character(len=32), public, protected, save :: c2_Wtype = ''
-  logical,           public, protected, save :: c2_Wtype_set = .false.
+! character(len=32), public, protected, save :: c2_Wtype = '' !removed 2026-10-02 (AHC, hmagnon; see check_retired)
+! logical,           public, protected, save :: c2_Wtype_set = .false. !removed 2026-10-02 (AHC, hmagnon; see check_retired)
   ! --efermi=<file>: the Fermi-level file that lmf writes (and reads in band-plot mode)
   ! and mlo reads, in place of efermi.lmf.  job_band/job_dos/job_fermisurface give their
   ! own name so that efermi.lmf keeps the value of the last self-consistent run, which
@@ -319,17 +319,17 @@ contains
             call rx('m_cmdopt_registry: --jobgw must be 0 or 1')
     endif
     if (get2('--job',   outs, narg, arglist)) read(outs,*) c2_job
-    if (get2('--nb',    outs, narg, arglist)) read(outs,*) c2_nb
+!   if (get2('--nb',    outs, narg, arglist)) read(outs,*) c2_nb !removed 2026-10-02 (AHC, hmagnon; see check_retired)
     if (get2('--nk',    outs, narg, arglist)) read(outs,*) c2_nk
-    if (get2('--nww',   outs, narg, arglist)) read(outs,*) c2_nww
+!   if (get2('--nww',   outs, narg, arglist)) read(outs,*) c2_nww !removed 2026-10-02 (AHC, hmagnon; see check_retired)
     if (get2('--sp1',   outs, narg, arglist)) read(outs,*) c2_sp1
     if (get2('--sp2',   outs, narg, arglist)) read(outs,*) c2_sp2
     if (get2('--ndos',  outs, narg, arglist)) read(outs,*) c2_ndos
 
     ! Real-valued
-    if (get2('--cutuu', outs, narg, arglist)) then
-       read(outs,*) c2_cutuu;          c2_cutuu_set         = .true.
-    endif
+!   if (get2('--cutuu', outs, narg, arglist)) then
+!      read(outs,*) c2_cutuu;          c2_cutuu_set         = .true.
+!   endif
     if (get2('--emin',  outs, narg, arglist)) then
        read(outs,*) c2_emin_eV;        c2_emin_set          = .true.
     endif
@@ -341,10 +341,10 @@ contains
     endif
 
     ! String-valued
-    if (get2('--Wtype', outs, narg, arglist)) then
-       c2_Wtype     = trim(outs)
-       c2_Wtype_set = .true.
-    endif
+!   if (get2('--Wtype', outs, narg, arglist)) then
+!      c2_Wtype     = trim(outs)
+!      c2_Wtype_set = .true.
+!   endif
     if (get2('--efermi', outs, narg, arglist)) c2_efermi = trim(outs)
     if (get2('--linalg', outs, narg, arglist)) c2_linalg = trim(outs)
     ! cmdopt0-with-enum-value
@@ -639,6 +639,8 @@ contains
          call die_retired(arg, arg(1:alen)//' is retired (2026-10-02): the anomalous Hall conductivity (hahc, job_AHC) was removed.')
     if (arg(1:alen) == '--cmlo') call die_retired(arg, '--cmlo is retired (2026-10-02): lmfham2, the old iterative MLO, was removed.')
     if (arg(1:alen) == '--q2q1test') call die_retired(arg, '--q2q1test (a test of huumat) is retired (2026-10-02).')
+    if (index(arg,'--nb=')==1 .or. index(arg,'--nww=')==1 .or. index(arg,'--cutuu=')==1 .or. index(arg,'--Wtype=')==1) &
+         call die_retired(arg, arg(1:alen)//' is retired (2026-10-02): it was for hahc (AHC) and hmagnon (Wannier), which were removed.')
   end subroutine check_retired
 
   subroutine die_unknown(arg)
