@@ -1,38 +1,47 @@
 #!/usr/bin/env python3
-# 2026-10-01 mlocheck page, version 2 (15:xx): the baseline is the model with the semicore local orbitals added
-# automatically (m_HamPMT: band top above EF - 17 eV, weight over the species). Columns per material: the old default
-# (until 2026-10-01 14:4x), the baseline, the baseline + EH2 s,p on the cations, and empty spheres (SiO2 only).
-#   python3 gallery.py <OUT>        (writes OUT/index.html and OUT/img/)
-# Inputs: JSON of SRC/exec/mlo_bandcheck.py --json for each set (made here), the figures of each set.
-# The first version (old default and hand-picked variants) is gallery_v1.py / page_template_v1.html.
-import json, os, shutil, sys, html, math, datetime, subprocess, re, glob
+# 2026-10-01 mlocheck page, version 3 (16:1x, user's layout): the baseline is the model with the semicore local orbitals
+# added automatically (m_HamPMT: band top above EF - 17 eV, weight over the species). Other models: 2. EH2 s,p on the
+# cations, 3. empty spheres (SiO2 only). The old default (until 2026-10-01 14:4x) is shown struck through.
+#   Fig. 1, 2 and 3: the best model per material (smallest error); Table 1: baseline and EH2 per material, SiO2 with and
+#   without ES in two rows; Fig. 4: the baseline against models 2 and 3.
+#   python3 gallery.py <OUT>        (writes OUT/index.html and OUT/img/; the plotted numbers go to page_data/ here)
+# Inputs: JSON of SRC/exec/mlo_bandcheck.py --json for each set (made here), the band files of each work directory.
+# Version 2 (15:xx) is in the git history of Samples/MATERIALS/mlocheck/gallery.py; version 1 is gallery_v1.py.
+import json, os, sys, math, datetime, subprocess, glob, importlib.util
+import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
+plt.rcParams.update({'font.family': ['DejaVu Sans', 'Noto Sans CJK JP'], 'hatch.linewidth': 0.6})
+
 HERE = os.path.dirname(os.path.abspath(__file__))
 W = os.path.dirname(HERE)                                      # ~/work
 SETS = {'old': f'{W}/mlocheck_20261001', 'base': f'{W}/mlocheck_auto_20261001', 'eh2': f'{W}/mlocheck_eh2cat'}
 ES = {'SiO2c': f'{W}/mlocheck_es/SiO2c_ES'}
 OUT = sys.argv[1]
-os.makedirs(os.path.join(OUT, 'img'), exist_ok=True)
+DATA = f'{HERE}/page_data'                                     # the numbers of each figure (npz), next to the scripts
+os.makedirs(os.path.join(OUT, 'img'), exist_ok=True); os.makedirs(DATA, exist_ok=True)
 mats = json.load(open(f'{HERE}/materials.json'))
-CHECK = os.path.expanduser('~/ecalj/SRC/exec/mlo_bandcheck.py')
+EXE = os.path.expanduser('~/ecalj/SRC/exec')
+def mod(name):
+    s = importlib.util.spec_from_file_location(name, f'{EXE}/{name}.py'); m = importlib.util.module_from_spec(s); s.loader.exec_module(m); return m
+BP, BC = mod('mlo_bandplot'), mod('mlo_bandcheck')
 rev = subprocess.run(['git', '-C', os.path.expanduser('~/ecalj'), 'log', '-1', '--format=%h'], capture_output=True, text=True).stdout.strip()
+NOW = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
 
+def has_mlo(d): return os.path.exists(f'{d}/band_MLO_spin1.dat') and os.path.getsize(f'{d}/band_MLO_spin1.dat') > 0
 def evaluate(dirs, out):
-    dirs = [d for d in dirs if os.path.exists(os.path.join(d, 'band_MLO_spin1.dat')) and os.path.getsize(os.path.join(d, 'band_MLO_spin1.dat')) > 0]
-    if dirs: subprocess.run(['python3', CHECK, *dirs, '--json', out], capture_output=True, text=True)
+    dirs = [d for d in dirs if has_mlo(d)]
+    if dirs: subprocess.run(['python3', f'{EXE}/mlo_bandcheck.py', *dirs, '--json', out], capture_output=True, text=True)
     return json.load(open(out)) if dirs and os.path.exists(out) else {}
 
 R = {k: evaluate([f'{p}/{m}' for m in mats], f'{OUT}/{k}.json') for k, p in SETS.items()}
 r_es = evaluate(list(ES.values()), f'{OUT}/es.json')
 R['es'] = {m: r_es[os.path.basename(d)] for m, d in ES.items() if os.path.basename(d) in r_es}
 json.dump(R, open(f'{OUT}/all.json', 'w'), indent=1)
+DIR = {'base': lambda m: f"{SETS['base']}/{m}", 'eh2': lambda m: f"{SETS['eh2']}/{m}", 'es': lambda m: ES[m]}
+LAB = {'base': '1. 基準', 'eh2': '2. 陽イオンに EH2 (s,p)', 'es': '3. 空格子球 2 つ (s,p)'}
 
-def nmlo(d):
-    p = os.path.join(d, 'lmlo')
-    if not os.path.exists(p): return None
-    m = re.findall(r'HamRsMTO=\s*(\d+)', open(p, errors='replace').read())
-    return int(m[-1]) if m else None
-NM = {'base': {m: nmlo(f"{SETS['base']}/{m}") for m in mats}, 'eh2': {m: nmlo(f"{SETS['eh2']}/{m}") for m in mats},
-      'es': {m: nmlo(d) for m, d in ES.items()}}
 fail_eh2 = {}
 st = f"{SETS['eh2']}/status.log"
 if os.path.exists(st):
@@ -40,12 +49,12 @@ if os.path.exists(st):
         t = l.split()
         if len(t) > 3 and t[3] == 'FAIL': fail_eh2[t[2]] = ' '.join(t[4:])
 
-def worst(v):
+def worst(v):   # the error of a model: max(rms MLO->DFT, rms DFT->MLO, |gap error|)
     if not v: return None
     w = [v['rms_m2d'], v['rms_d2m']]
     if v.get('insulator'): w.append(abs(v['gapM'] - v['gapD']))
     return max(w)
-def sev(x):   # good <= 0.02, fair <= 0.05, marginal <= 0.1, poor > 0.1 eV (user 2026-10-01 14:3x)
+def sev(x):     # good <= 0.02, fair <= 0.05, marginal <= 0.1, poor > 0.1 eV (user 2026-10-01 14:3x)
     if x is None: return 'none'
     return 'good' if x <= 0.02 else ('fair' if x <= 0.05 else ('marginal' if x <= 0.1 else 'poor'))
 CL = ['good', 'fair', 'marginal', 'poor']
@@ -61,12 +70,8 @@ GROUPS = [
 ]
 allm = [m for _, _, ms in GROUPS for m in ms.split() if m in R['base']]
 missing = [m for _, _, ms in GROUPS for m in ms.split() if m not in R['base']]
-
 W_ = {k: {m: worst(R[k].get(m)) for m in allm} for k in ('old', 'base', 'eh2', 'es')}
-def best_of(m):
-    c = [(W_['base'][m], 'base')] + [(W_[k][m], k) for k in ('eh2', 'es') if W_[k][m] is not None]
-    return min(c)
-BEST = {m: best_of(m) for m in allm}
+BEST = {m: min([(W_['base'][m], 'base')] + [(W_[k][m], k) for k in ('eh2', 'es') if W_[k][m] is not None]) for m in allm}
 def counts(k):
     c = {x: 0 for x in CL}
     for m in allm:
@@ -77,23 +82,85 @@ CNT = {k: counts(k) for k in ('old', 'base', 'eh2', 'best')}
 
 def fmt(x, n=3, sign=False):
     if x is None or (isinstance(x, float) and x != x): return '—'
-    return f'{x:+.{n}f}' if sign else f'{x:.{n}f}'
-def chip(x): return f'<span class="chip {sev(x)}">{sev(x)}</span>' if x is not None else '—'
+    if abs(x) < 0.5 * 10 ** -n: x = 0.0                       # no "-0.000"
+    return f'{x:+.{n}f}'.replace('-', '−') if sign else f'{x:.{n}f}'
+def gap_small(v): return min(v['gap_mesh'], v['gapD']) if v.get('insulator') else None
+def dgap(v): return (v['gapM'] - v['gapD']) if v and v.get('insulator') else None
 
-# ---------- figures ----------
-def cp(src, dst):
-    if os.path.exists(src): shutil.copy(src, f'{OUT}/img/{dst}'); return f'img/{dst}'
-    return ''
-FIG = {m: cp(f"{SETS['base']}/{m}/mlo_{m}.png", f'{m}.png') for m in allm}
-FIG_EH2 = {m: cp(f"{SETS['eh2']}/{m}/mlo_{m}_eh2cat.png", f'{m}_eh2cat.png') for m in allm}
-FIG_ES = {m: cp(f'{d}/mlo_{os.path.basename(d)}.png', f'{m}_es.png') for m, d in ES.items()}
+# ---------- band figures ----------
+# DFT: grey lines; MLO: red x; hatched: the window of the error, dense [VBM-8, CBM+1] (both directions), sparse
+# [CBM+1, CBM+3] (MLO -> DFT only); orange dots: DFT points with no MLO band within 0.1 eV (a band missing from the
+# model); dark rings: MLO points with no DFT band within 0.1 eV (a wrong band). The matching is that of mlo_bandcheck.py.
+TOL = 0.1
+def spins_of(d): return [s for s in (1, 2) if os.path.exists(f'{d}/band_MLO_spin{s}.dat') and os.path.getsize(f'{d}/band_MLO_spin{s}.dat') > 0]
+def far(P, Q, a, b):
+    """points (x, E) of P in [a, b] whose nearest band of Q at the same x is more than TOL away"""
+    xs = np.array(sorted(Q)); out = []
+    for x, e in P:
+        if not (a <= e <= b): continue
+        i = np.searchsorted(xs, x); c = [xs[k] for k in (i - 1, i) if 0 <= k < len(xs)]
+        if not c: continue
+        xq = min(c, key=lambda t: abs(t - x))
+        if abs(xq - x) <= 0.01 and np.min(np.abs(np.array(Q[xq]) - e)) > TOL: out.append((x, e))
+    return np.array(out).reshape(-1, 2)
+def panel(ax, d, isp, res, title, store):
+    ef = BP.read_ef(d)
+    segs = BP.load_dft(d, isp); m = BP.load_mlo(d, isp, ef)
+    vb, cb = res['VBM'], res['CBM']; lo, h1, h3 = vb - 8, cb + 1, cb + 3
+    ax.axhspan(lo, h1, facecolor='none', edgecolor='#7fa3c7', hatch='////', lw=0, zorder=0)
+    ax.axhspan(h1, h3, facecolor='none', edgecolor='#a9c1d9', hatch='//', lw=0, zorder=0)
+    for s in segs: ax.plot(s[:, 0], s[:, 1], '-', color='0.40', lw=0.9, zorder=2)
+    D, M = {}, {}                                              # both spins together, as mlo_bandcheck.py
+    for s in spins_of(d):
+        for x, es in BC.load(sorted(glob.glob(f'{d}/bnd*.spin{s}')), lambda e: e, bnd=True).items(): D.setdefault(x, []).extend(es)
+        for x, es in BC.load([f'{d}/band_MLO_spin{s}.dat'], lambda e: (e - ef) * BC.RY).items(): M.setdefault(x, []).extend(es)
+    dpts = np.concatenate(segs) if segs else np.zeros((0, 2))
+    miss = far([(round(x, 5), e) for x, e in dpts], M, lo, h1)
+    wrong = far([(round(x, 5), e) for x, e in m], D, lo, h3) if m is not None else np.zeros((0, 2))
+    if len(miss): ax.plot(miss[:, 0], miss[:, 1], 'o', color='#e08a1e', ms=4.2, mew=0, alpha=0.9, zorder=3)
+    if m is not None: ax.plot(m[:, 0], m[:, 1], 'x', color='#c0392b', ms=3.6, mew=0.9, zorder=4)
+    if len(wrong): ax.plot(wrong[:, 0], wrong[:, 1], 'o', mfc='none', mec='#1d2733', ms=6.5, mew=0.9, zorder=5)
+    ax.axhline(0.0, color='#2c3e50', lw=0.7, ls='--', zorder=1)
+    tics = BP.read_xtics(d)
+    if tics:
+        ax.set_xticks([x for x, _ in tics]); ax.set_xticklabels([l for _, l in tics])
+        for x, _ in tics[1:-1]: ax.axvline(x, color='0.82', lw=0.6, zorder=1)
+        ax.set_xlim(tics[0][0], tics[-1][0])
+    ax.set_title(title, fontsize=11)
+    store.update({f'{title}|dft_x': dpts[:, 0], f'{title}|dft_E': dpts[:, 1], f'{title}|mlo_x': m[:, 0] if m is not None else [],
+                  f'{title}|mlo_E': m[:, 1] if m is not None else [], f'{title}|window': np.array([lo, h1, h3]),
+                  f'{title}|missing': miss, f'{title}|wrong': wrong, f'{title}|dir': d})
+    return lo - 1.2, h3 + 1.2
 
-# ---------- chart 1: gap error of the baseline, arrows to the best option ----------
+def figure(m, keys, fname):
+    """one material; keys = models (columns); spins as columns for one model, as rows for several"""
+    pans = [(k, DIR[k](m), R[k][m]) for k in keys if m in R[k]]
+    ns = max(len(spins_of(d)) for _, d, _ in pans)
+    nrow, ncol = (1, ns) if len(pans) == 1 else (ns, len(pans))
+    fig, axes = plt.subplots(nrow, ncol, figsize=(6.2 * ncol, 4.5 * nrow), squeeze=False, sharey=True)
+    store = {}; ylo, yhi = [], []
+    for j, (k, d, res) in enumerate(pans):
+        for i, s in enumerate(spins_of(d)):
+            ax = axes[0][i] if len(pans) == 1 else axes[i][j]
+            a, b = panel(ax, d, s, res, f'{m}  ' + LAB[k] + (f'  spin {s}' if ns > 1 else ''), store); ylo.append(a); yhi.append(b)
+    for ax in axes.flat: ax.set_ylim(min(ylo), max(yhi))
+    for ax in axes[:, 0]: ax.set_ylabel(r'$E-E_F$  (eV)')
+    fig.tight_layout(); fig.savefig(f'{OUT}/img/{fname}', dpi=110); plt.close(fig)
+    np.savez_compressed(f'{DATA}/{fname[:-4]}.npz', **{k: np.asarray(v) for k, v in store.items()},
+                        _made=f'{NOW} by {os.path.abspath(__file__)} (ecalj {rev})')
+    return f'img/{fname}', ns
+
+FIG3 = {m: figure(m, [BEST[m][1]], f'{m}_best.png') for m in allm}
+cmp4 = [m for m in allm if m in ES or sev(W_['base'][m]) != 'good' or (W_['eh2'][m] is not None and sev(W_['eh2'][m]) != sev(W_['base'][m]))]
+cmp4.sort(key=lambda m: (m not in ES, allm.index(m)))
+FIG4 = {m: figure(m, ['base', 'eh2'] + (['es'] if m in ES else []), f'{m}_cmp.png') for m in cmp4}
+
+# ---------- chart 1: gap error of the best model; arrows from the baseline where another model is better ----------
 X0, X1, Y0, Y1 = 0.0, 6.0, -0.10, 0.45
 PW, PH, ML, MR, MT, MB = 720, 360, 56, 18, 16, 44
 def sx(x): return ML + (min(max(x, X0), X1) - X0) / (X1 - X0) * (PW - ML - MR)
 def sy(y): return MT + (Y1 - min(max(y, Y0), Y1)) / (Y1 - Y0) * (PH - MT - MB)
-svg = [f'<svg viewBox="0 0 {PW} {PH}" role="img" aria-labelledby="c1t" class="chart"><title id="c1t">基準の模型のギャップの差</title>']
+svg = [f'<svg viewBox="0 0 {PW} {PH}" role="img" aria-labelledby="c1t" class="chart"><title id="c1t">一番良い模型のギャップの誤差</title>']
 for yt in (-0.1, 0, 0.1, 0.2, 0.3, 0.4):
     svg.append(f'<line x1="{ML}" x2="{PW-MR}" y1="{sy(yt):.1f}" y2="{sy(yt):.1f}" class="{"zero" if yt == 0 else "grid"}"/>'
                f'<text x="{ML-8}" y="{sy(yt)+4:.1f}" class="tick" text-anchor="end">{yt:+.1f}</text>')
@@ -103,99 +170,105 @@ for xt in range(0, 7):
 svg.append(f'<text x="{(ML+PW-MR)/2}" y="{PH-6}" class="axis" text-anchor="middle">DFT のギャップ（対称線の上、eV）</text>')
 svg.append(f'<text x="14" y="{(MT+PH-MB)/2}" class="axis" text-anchor="middle" transform="rotate(-90 14 {(MT+PH-MB)/2})">MLO − DFT（eV）</text>')
 for m in allm:
-    v = R['base'][m]
+    w0, k = BEST[m]; v = R[k][m]
     if not v.get('insulator'): continue
-    d = v['gapM'] - v['gapD']; x, y = sx(v['gapD']), sy(d)
-    w0, k = BEST[m]
-    if k != 'base' and R[k][m].get('insulator'):
-        vv = R[k][m]; y2 = sy(vv['gapM'] - vv['gapD'])
-        if abs(y2 - y) > 6:
-            svg.append(f'<line x1="{x:.1f}" y1="{y:.1f}" x2="{x:.1f}" y2="{y2+5 if y2 > y else y2-5:.1f}" class="arrow" marker-end="url(#ah)"/>')
-        svg.append(f'<circle cx="{x:.1f}" cy="{y2:.1f}" r="4.5" class="pt fixed"><title>{m} {"+ 陽イオン EH2" if k == "eh2" else "+ 空格子球"}: {vv["gapM"]-vv["gapD"]:+.3f} eV</title></circle>')
-    svg.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="5" class="pt {sev(W_["base"][m])}"><title>{m}: DFT {v["gapD"]:.3f}, MLO {v["gapM"]:.3f}, 差 {d:+.3f} eV</title></circle>')
-    if abs(d) > 0.06:
+    x, y = sx(v['gapD']), sy(dgap(v))
+    vb = R['base'][m]; d0 = dgap(vb) if vb.get('insulator') else 0.0
+    if k != 'base' and vb.get('insulator'):
+        y0 = sy(d0)
+        if abs(y0 - y) > 6:
+            svg.append(f'<line x1="{x:.1f}" y1="{y0:.1f}" x2="{x:.1f}" y2="{y-5 if y0 < y else y+5:.1f}" class="arrow" marker-end="url(#ah)"/>')
+        svg.append(f'<circle cx="{x:.1f}" cy="{y0:.1f}" r="4" class="pt was"><title>{m} 1. 基準: {d0:+.3f} eV</title></circle>')
+    svg.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="5" class="pt {sev(w0)}"><title>{m} {LAB[k]}: DFT {v["gapD"]:.3f}, MLO {v["gapM"]:.3f}, 誤差 {dgap(v):+.3f} eV</title></circle>')
+    if abs(dgap(v)) > 0.04 or (k != 'base' and abs(d0) > 0.06):
+        yl = sy(d0) if k != 'base' else y
         right = x > 0.75 * PW
-        svg.append(f'<text x="{x-8 if right else x+8:.1f}" y="{y+4:.1f}" class="lab" text-anchor="{"end" if right else "start"}">{m}{" (+%.2f eV、枠外)" % d if d > Y1 else ""}</text>')
+        svg.append(f'<text x="{x-8 if right else x+8:.1f}" y="{yl+4:.1f}" class="lab" text-anchor="{"end" if right else "start"}">{m}{" (+%.2f eV、枠外)" % d0 if d0 > Y1 else ""}</text>')
 svg.append('<defs><marker id="ah" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ahead"/></marker></defs></svg>')
 chart1 = '\n'.join(svg)
 
-# ---------- chart 2: worst value of the baseline, sorted, log scale ----------
-srt = sorted(allm, key=lambda m: W_['base'][m])
+# ---------- chart 2: error of the best model, sorted, log scale; rings at the baseline value where it improved ----------
+srt = sorted(allm, key=lambda m: BEST[m][0])
 BW, BH, bl, bb, bt = max(720, 11 * len(srt) + 70), 300, 56, 92, 14
 L0, L1 = math.log10(0.0005), math.log10(5.0)
 def by(val): return bt + (L1 - math.log10(min(max(val, 0.0005), 5.0))) / (L1 - L0) * (BH - bt - bb)
-sv = [f'<svg viewBox="0 0 {BW} {BH}" role="img" aria-labelledby="c2t" class="chart"><title id="c2t">基準の模型の物質ごとの最悪値</title>']
+sv = [f'<svg viewBox="0 0 {BW} {BH}" role="img" aria-labelledby="c2t" class="chart"><title id="c2t">物質ごとの一番良い模型の誤差の最大値</title>']
 for val, lab in ((0.001, '0.001'), (0.01, '0.01'), (0.02, '0.02'), (0.05, '0.05'), (0.1, '0.1'), (1, '1')):
     cls = 'thr' if val in (0.02, 0.05, 0.1) else 'grid'
     sv.append(f'<line x1="{bl}" x2="{BW-8}" y1="{by(val):.1f}" y2="{by(val):.1f}" class="{cls}"/><text x="{bl-6}" y="{by(val)+4:.1f}" class="tick" text-anchor="end">{lab}</text>')
 step = (BW - bl - 8) / len(srt)
 for i, m in enumerate(srt):
-    w = W_['base'][m]; x = bl + i * step
-    sv.append(f'<rect x="{x+1:.1f}" y="{by(w):.1f}" width="{max(step-2,2):.1f}" height="{BH-bb-by(w):.1f}" rx="2" class="bar {sev(w)}"><title>{m}: {w:.3f} eV</title></rect>')
+    w, k = BEST[m]; x = bl + i * step
+    sv.append(f'<rect x="{x+1:.1f}" y="{by(w):.1f}" width="{max(step-2,2):.1f}" height="{BH-bb-by(w):.1f}" rx="2" class="bar {sev(w)}"><title>{m} {LAB[k]}: {w:.3f} eV</title></rect>')
+    if k != 'base':
+        sv.append(f'<circle cx="{x+step/2:.1f}" cy="{by(W_["base"][m]):.1f}" r="3.6" class="pt was"><title>{m} 1. 基準: {W_["base"][m]:.3f} eV</title></circle>')
     sv.append(f'<text x="{x+step/2:.1f}" y="{BH-bb+8}" class="blab" transform="rotate(60 {x+step/2:.1f} {BH-bb+8})">{m}</text>')
 sv.append(f'<text x="14" y="{(bt+BH-bb)/2}" class="axis" text-anchor="middle" transform="rotate(-90 14 {(bt+BH-bb)/2})">eV</text></svg>')
 chart2 = '\n'.join(sv)
 
 # ---------- the counts table ----------
-def crow(label, c): return f'<tr><td>{label}</td>' + ''.join(f'<td class="num">{c[x]}</td>' for x in CL) + '</tr>'
+def crow(label, c, old=False):
+    td = (lambda s: f'<td class="num"><del>{s}</del></td>') if old else (lambda s: f'<td class="num">{s}</td>')
+    return f'<tr{" class=old" if old else ""}><td>{label}</td>' + ''.join(td(c[x]) for x in CL) + '</tr>'
 counts_tbl = ('<table class="cnt"><thead><tr><th>模型</th><th class="num">good<br>≤ 0.02</th><th class="num">fair<br>≤ 0.05</th>'
               '<th class="num">marginal<br>≤ 0.1</th><th class="num">poor<br>&gt; 0.1 eV</th></tr></thead><tbody>'
-              + crow('旧既定（〜2026-10-01 14:4x）', CNT['old']) + crow('<b>基準</b>: 自動の半内殻入り', CNT['base'])
-              + crow('基準 + 陽イオンに EH2 の s,p', CNT['eh2']) + crow('物質ごとに一番良いもの（基準・陽イオン EH2・空格子球）', CNT['best'])
+              + crow('<del>旧既定（〜2026-10-01 14:4x）</del>', CNT['old'], old=True) + crow('<b>1. 基準</b>: 自動の半内殻入り', CNT['base'])
+              + crow('2. 基準 + 陽イオンに EH2 の s,p', CNT['eh2']) + crow('<b>物質ごとに一番良いもの</b>（1・2・3 のうち）', CNT['best'])
               + '</tbody></table>')
 
-# ---------- pairs: materials whose verdict an option improves ----------
-pairs = []
-for m in allm:
-    w0, k = BEST[m]
-    if k == 'base' or sev(w0) == sev(W_['base'][m]): continue
-    f2 = FIG_EH2[m] if k == 'eh2' else FIG_ES.get(m, '')
-    what = '陽イオンに EH2 の s,p' if k == 'eh2' else '空隙に空格子球 2 つ（s,p）'
-    pairs.append(f'<figure class="pair"><figcaption><b>{m}</b> + {what}: 最悪値 {W_["base"][m]:.3f} → {w0:.3f} eV</figcaption>'
-                 f'<div class="two"><img loading="lazy" src="{FIG[m]}" alt="{m} 基準"><img loading="lazy" src="{f2}" alt="{m} {what}"></div></figure>')
-
 # ---------- table 1 ----------
+def cells(v, w, best):
+    if v is None: return '<td class="num">—</td><td class="num">—</td>'
+    return (f'<td class="num">{fmt(dgap(v), sign=True) if v.get("insulator") else "—"}</td>'
+            f'<td class="num sev-{sev(w)}{" best" if best else ""}">{fmt(w)}</td>')
+def window(v):
+    return f'{fmt(v["VBM"] - 8, 1, True)} 〜 {fmt(v["CBM"] + 1, 1, True)} ({fmt(v["CBM"] + 3, 1, True)})'
 trs = []
 for m in allm:
-    v = R['base'][m]; md = mats[m]
-    kind = '絶縁体' if v.get('insulator') else '金属'
-    extra = []
-    if md['nspin'] == 2 and not md['so']: extra.append('スピン')
-    if md['so']: extra.append('SOC')
-    if md['f']: extra.append('4f')
-    gd = v.get('gapD'); gm = v.get('gapM')
-    e2 = R['eh2'].get(m); es = R['es'].get(m)
-    e2s = f'{fmt(W_["eh2"][m])} {chip(W_["eh2"][m])}' if e2 else ('止まった' if m in fail_eh2 else '—')
-    ess = f'{fmt(W_["es"][m])} {chip(W_["es"][m])}' if es else ''
-    trs.append(f'<tr data-sev="{sev(W_["base"][m])}"><td class="name"><a href="#fig-{m}">{m}</a></td><td class="num">{md["nsite"]}</td>'
-               f'<td>{kind}{"・"+"・".join(extra) if extra else ""}</td>'
-               f'<td class="num">{fmt(v.get("gap_mesh")) if v.get("insulator") else "—"}</td><td class="num">{fmt(gd)}</td>'
-               f'<td class="num">{fmt(W_["old"].get(m))}</td>'
-               f'<td class="num">{fmt((gm-gd) if gd is not None else None, sign=True)}</td>'
-               f'<td class="num">{fmt(v["rms_m2d"])}</td><td class="num">{fmt(v["max_m2d"],2)}</td><td class="num">{fmt(v["rms_d2m"])}</td>'
-               f'<td class="num">{fmt(W_["base"][m])}</td><td>{chip(W_["base"][m])}</td><td class="num">{NM["base"][m] or "—"}</td>'
-               f'<td class="num">{e2s}</td><td class="num">{NM["eh2"][m] or "—"}</td><td class="num">{ess}</td></tr>')
+    v = R['base'][m]; k = BEST[m][1]; e2 = R['eh2'].get(m); g = gap_small(v)
+    e2c = cells(e2, W_['eh2'][m], k == 'eh2') if e2 else ('<td class="num" colspan="2">止まった</td>' if m in fail_eh2 else cells(None, None, False))
+    trs.append(f'<tr><td class="name"><a href="#fig-{m}">{m}</a></td><td class="num">{fmt(g) if g is not None else "金属"}</td>'
+               f'<td class="num win">{window(v)}</td>{cells(v, W_["base"][m], k == "base")}{e2c}</tr>')
+    if m in R['es']:
+        ve = R['es'][m]
+        trs.append(f'<tr class="sub"><td class="name"><a href="#cmp-{m}">{m} + 空格子球</a></td><td class="num">{fmt(gap_small(ve))}</td>'
+                   f'<td class="num win">{window(ve)}</td>{cells(ve, W_["es"][m], k == "es")}<td class="num">—</td><td class="num">—</td></tr>')
 table = '\n'.join(trs)
 
-# ---------- gallery ----------
+# ---------- fig. 3: the best model per material ----------
+def capnums(v, w):
+    g = gap_small(v)
+    return (f'ギャップ {g:.3f} eV · 誤差 {fmt(dgap(v), sign=True)} · ' if v.get('insulator') else '金属 · ') + f'最大 {w:.3f}'
 gal = []
 for g, gname, ms in GROUPS:
     items = []
     for m in ms.split():
         if m not in R['base']: continue
-        v = R['base'][m]; s = sev(W_['base'][m])
-        gap = f'ギャップ {v["gapD"]:.2f} → {v["gapM"]:.2f} eV' if v.get('insulator') else '金属'
-        items.append(f'<figure class="card" id="fig-{m}" data-sev="{s}"><button class="zoom" aria-label="{m} を拡大" data-src="{FIG[m]}" data-cap="{m}">'
-                     f'<img loading="lazy" src="{FIG[m]}" alt="{m}: DFT（灰）と MLO（赤）"></button>'
-                     f'<figcaption><span class="nm">{m}</span><span class="chip {s}">{s}</span><span class="meta">{gap} · rms {v["rms_m2d"]:.3f} / {v["rms_d2m"]:.3f}</span></figcaption></figure>')
+        w, k = BEST[m]; src, ns = FIG3[m]
+        items.append(f'<figure class="card{" wide" if ns > 1 else ""}" id="fig-{m}" data-sev="{sev(w)}">'
+                     f'<button class="zoom" aria-label="{m} を拡大" data-src="{src}" data-cap="{m} {LAB[k]}"><img loading="lazy" src="{src}" alt="{m}: DFT（灰の線）と MLO（赤の ×）"></button>'
+                     f'<figcaption><span class="nm">{m}</span><span class="mdl{" alt" if k != "base" else ""}">{LAB[k]}</span><span class="chip {sev(w)}">{sev(w)}</span>'
+                     f'<span class="meta">{capnums(R[k][m], w)}</span></figcaption></figure>')
     if items: gal.append(f'<section class="grp"><h3>{gname}</h3><div class="grid">{"".join(items)}</div></section>')
 
+# ---------- fig. 4: models 2 and 3 against the baseline ----------
+NOTE4 = {
+ 'SiO2c': 'クリストバライトの Si は隙間の多いダイヤモンド網で、伝導帯の底は網の空隙に広がった状態。原子の上の関数（1 の EH、2 の EH2）だけでは表しきれず、'
+          '伝導帯に橙の点（模型に無い DFT の帯）が残る。空隙 2 か所（立方体の単位で ½(111) と ¾(111)、r = 2.6 a.u.）に z = 0 の球を置き、その s,p を模型に入れると（3）、伝導帯まで DFT に重なる。',
+}
+cmp = []
+for m in cmp4:
+    src, ns = FIG4[m]
+    nums = ' / '.join(f'{LAB[k].split(".")[0]}: {fmt(W_[k][m])}' for k in ('base', 'eh2', 'es') if W_[k][m] is not None)
+    stop = '（2 は止まった）' if m in fail_eh2 and W_['eh2'][m] is None else ''
+    cmp.append(f'<figure class="cmp{" lead" if m in ES else ""}" id="cmp-{m}"><figcaption><b>{m}</b> · 誤差の最大値 {nums} eV{stop}'
+               + (f'<p>{NOTE4[m]}</p>' if m in NOTE4 else '') + '</figcaption>'
+               f'<button class="zoom" aria-label="{m} を拡大" data-src="{src}" data-cap="{m}"><img loading="lazy" src="{src}" alt="{m}: 模型 1・2・3 の比較"></button></figure>')
+
 page = open(f'{HERE}/page_template.html').read()
-REP = {'@@CHART1@@': chart1, '@@CHART2@@': chart2, '@@TABLE@@': table, '@@PAIRS@@': '\n'.join(pairs), '@@GALLERY@@': '\n'.join(gal),
-       '@@COUNTS@@': counts_tbl, '@@N@@': str(len(allm)), '@@REV@@': rev, '@@DATE@@': datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}
-for x in CL:
-    REP[f'@@B_{x}@@'] = str(CNT['base'][x]); REP[f'@@S_{x}@@'] = str(CNT['best'][x])
+REP = {'@@CHART1@@': chart1, '@@CHART2@@': chart2, '@@TABLE@@': table, '@@CMP@@': '\n'.join(cmp), '@@GALLERY@@': '\n'.join(gal),
+       '@@COUNTS@@': counts_tbl, '@@N@@': str(len(allm)), '@@NCMP@@': str(len(cmp4)), '@@REV@@': rev, '@@DATE@@': NOW}
 for k, val in REP.items(): page = page.replace(k, val)
 open(f'{OUT}/index.html', 'w').write(page)
 print('wrote', OUT, len(allm), 'materials; base', CNT['base'], 'eh2', CNT['eh2'], 'best', CNT['best'], 'missing', missing,
-      'eh2 done', len(R['eh2']), 'eh2 fail', fail_eh2)
+      'fig4', cmp4, 'eh2 fail', fail_eh2)
