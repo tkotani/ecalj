@@ -285,11 +285,12 @@ EUO_O = worst(_e) if _e else None
 NOTE4['C'] = f'基準 2 で {w3("C", "base")} → {w3("C", "eh2")} eV に良くなるが、good（0.02 以下）には届かない。'
 NOTE4['Bi2Te3'] = (f'基準 1 も基準 2 も fair の下の方（{w3("Bi2Te3", "base")}、{w3("Bi2Te3", "eh2")} eV）。抜けた帯・余計な帯は無く（橙の点・黒丸はほとんど無い）、'
                    '窓の中の帯全体に小さなずれが広がるだけで、問題は無い（user 2026-10-01 18:1x）。スピン軌道は <code>job_mlo_soc</code>（摂動）。')
-# the problem cases (user 2026-10-01 18:1x: "Cu 以下は問題のあるケース", "ボトムに"), fig. 5 at the bottom of the page
+# the problem cases (user 2026-10-01 18:1x: "Cu 以下は問題のあるケース", "ボトムに"; 18:5x: titled "基準を変えると問題が出たケース",
+# the cause thought to be the loss of linear independence of the bands made from the MLO seeds), fig. 5 at the bottom of the page
 PROBLEM = {
  'Cu': f'<b>基準 2 で壊れる</b>（{w3("Cu", "base")} → {w3("Cu", "eh2")} eV）。単体の金属なので、陽イオンの規則では全原子に EH2 が入る。'
        'Γ–X の 2〜3 点の k だけで MLO の帯が E_F + 0.3 eV に集まり（黒丸）、その k の DFT の帯が模型から抜ける（橙の点）。ほかの k は重なる。'
-       '決めた既定（遷移金属・4f・5f 以外に EH2 の s,p）では Cu に EH2 は入らない。原因は未確認（同じ原子の EH と EH2 がほぼ一次従属になっているのではと疑っている）。',
+       '決めた既定（遷移金属・4f・5f 以外に EH2 の s,p）では Cu に EH2 は入らない。原因は、シードから作られるバンドの線形独立性の壊れと思われる（同じ原子の EH と EH2 がほぼ一次従属。未確認）。',
  'Ni': f'<b>基準 2 で壊れる</b>（{w3("Ni", "base")} → {w3("Ni", "eh2")} eV）。Cu と同じ壊れ方で、Γ–X の 2〜3 点の k だけ（両方のスピン）。決めた既定では Ni に EH2 は入らない。',
 }
 def cmpfig(m, prob=False):
