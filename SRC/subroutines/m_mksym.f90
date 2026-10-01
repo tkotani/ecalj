@@ -3,7 +3,11 @@ module m_mksym
   use m_cmdopt_registry, only: c0_nosym, c0_pdos
   public :: m_mksym_init
   private:: mksym
-  logical,private:: jsonused=.false. ! the crystal group came from symmetry.<sname>.json (then the AF call uses it too; 2026-10-02 06:16)
+  logical,private:: jsonused=.false. ! the crystal group came from spglib / symmetry.<sname>.json (the AF call uses it too; 2026-10-02 06:16)
+  ! All operations found by spglib or read from symmetry.<sname>.json, the time-reversed (AF) ones last (2026-10-02 08:28).
+  integer,private:: ngall_s=0
+  real(8),allocatable,private:: gall_s(:,:,:),agall_s(:,:)
+  logical,allocatable,private:: trall_s(:)
   integer,allocatable,protected :: oics(:)    ! ispec= ics(iclass) gives spec for iclass.
   real(8),allocatable,protected :: symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:),dlmm(:,:,:,:)
   integer,allocatable,protected :: invgx(:),miat(:,:), oistab (:,:)   ! j= istab(i,ig): site i is mapped to site j by grp op ig
@@ -133,7 +137,7 @@ contains
   subroutine mksym(modeAddinversion,slabl,ssymgr,iv_a_oips, iclass,nclass,npgrp,nsgrp,rv_a_oag,rv_a_osymgr,iv_a_oics,iv_a_oistab,ngmxs,faithful)! Setup symmetry group. Split species into classes, Also assign class labels to each class
     use m_lmfinit,only: nbas,nspec,alat=>lat_alat,symgaf,ipsorg=>iv_a_oips,iantiferro
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat,rv_a_opos
-    use m_symfind,only: gensym,symfind_json,ngmx,ngnmx
+    use m_symfind,only: gensym,symfind_json,symfind_spglib,write_symjson,ngmx,ngnmx
     use m_ext,only: sname
     use m_symderive,only: grpgen,splcls,symtbl
     use m_symop_util,only: asymop
@@ -172,7 +176,12 @@ contains
     character(200):: why
     character(16):: envv
     character(80):: sg
-    integer:: ib
+    integer:: ib,spgnum
+    logical:: lexist
+    character(40):: spgsym
+    character(700):: src
+    integer,allocatable:: rotf(:,:,:)
+    real(8),allocatable:: trf(:,:)
     lfaithful = .false.
     if(present(faithful)) lfaithful = faithful
     ifind = index(ssymgr,'find')
@@ -181,41 +190,70 @@ contains
     if(ifind>0) gens= ssymgr(1:ifind-1)//' '//ssymgr(ifind+4:)
     if(master_mpi) write(stdo,*)' Generators except find: ',trim(gens)
     if(master_mpi) write(stdo,*)' Generators find or not: ',symfind
-    ! Backend of the finder (2026-10-02 05:35, step S3 of MD/symmetry_spglib.md): the operations of symmetry.<sname>.json
-    ! (symfind.py, spglib) when the file is there, SYMGRP is 'find' (the default) and this is the group of the crystal (not the
-    ! lattice+AF group, faithful=.false.); otherwise gensym. Pure translations are used as operations from step S4 on
-    ! (2026-10-02 05:46). AF (2026-10-02 06:16, step S5): the crystal group is the operations without time reversal; the second
-    ! call of m_mksym_init (the AF pairs merged) takes all of them when the first call used the file (jsonused), and
-    ! m_mksym_init picks the AF operations as before. SYMGRPAF then only switches the AF mode on.
-    ! ECALJ_SYMFIND=ecalj in the environment forces gensym (for comparisons).
+    ! The finder (2026-10-02 08:28, MD/symmetry_spglib.md §4.7g): for the group of the crystal (faithful) with SYMGRP 'find' (the default),
+    ! the operations of symmetry.<sname>.json when it is there and its structure is the present one; otherwise spglib (the
+    ! vendored C library, symfind_spglib) finds them and rank 0 writes the file. Pure translations of a supercell are
+    ! operations; AF: the operations with time reversal (from the af labels) are kept for the second, AF call of m_mksym_init
+    ! (the pairs merged), which takes all of them; m_mksym_init picks the AF operations as before (SYMGRPAF only switches the
+    ! AF mode on). SYMGRP with generators (to lower the symmetry on purpose) and ECALJ_SYMFIND=ecalj use gensym.
+    ! (History: 2026-10-02 05:35 S3 read the file of symfind.py when present; 05:46 S4 pure translations; 06:16 S5 AF.)
     usejson = .false.
-    if(.not.lfaithful) usejson = jsonused
     if(lfaithful .and. trim(adjustl(ssymgr))=='find') then
-       fjson = 'symmetry.'//trim(sname)//'.json'
-       inquire(file=trim(fjson),exist=usejson)
        envv = ' '
        call get_environment_variable('ECALJ_SYMFIND',envv)
-       if(trim(envv)=='ecalj') usejson=.false.
+       if(trim(envv)/='ecalj') then
+          fjson = 'symmetry.'//trim(sname)//'.json'
+          if(allocated(gall_s)) deallocate(gall_s,agall_s,trall_s)
+          allocate(gall_s(3,3,ngmxs),agall_s(3,ngmxs),trall_s(ngmxs))
+          inquire(file=trim(fjson),exist=lexist)
+          usejson = .false.
+          why = 'there is no such file'
+          if(lexist) call symfind_json(fjson,nbas,[(slabl(ipsorg(ib)),ib=1,nbas)],iantiferro(1:nbas),rv_a_opos(:,1:nbas), &
+               plat,qlat,alat,ngmxs, ngall_s,gall_s,agall_s,trall_s,usejson,why)
+          if(usejson) then
+             src = 'read from '//trim(fjson)
+          else
+             allocate(rotf(3,3,ngmxs),trf(3,ngmxs))
+             call symfind_spglib(nbas,ipsorg(1:nbas),iantiferro(1:nbas),rv_a_opos(:,1:nbas),plat,qlat,alat,ngmxs, &
+                  ngall_s,rotf,trf,trall_s,spgnum,spgsym)
+             do ig=1,ngall_s
+                gall_s(:,:,ig) = matmul(plat,matmul(dble(rotf(:,:,ig)),transpose(qlat)))
+                agall_s(:,ig)  = matmul(plat,trf(:,ig))
+             enddo
+             if(master_mpi) call write_symjson(fjson,nbas,[(slabl(ipsorg(ib)),ib=1,nbas)],iantiferro(1:nbas), &
+                  rv_a_opos(:,1:nbas),plat,qlat,alat,ngall_s,rotf,trf,trall_s,spgnum,spgsym,'ecalj m_symfind (spglib 2.6.0)')
+             write(src,"(a,i0,a)") 'found by spglib, '//trim(spgsym)//' (',spgnum,'), written to '//trim(fjson)// &
+                  ' (the file: '//trim(why)//')'
+             deallocate(rotf,trf)
+             usejson = .true.
+          endif
+          jsonused = .true.
+       endif
+    elseif(.not.lfaithful .and. jsonused) then
+       usejson = .true.
+       src = 'the operations above with the time-reversed (AF) ones'
     endif
-    if(usejson) then
-       fjson = 'symmetry.'//trim(sname)//'.json'
-       call symfind_json(fjson,nbas,[(slabl(ipsorg(ib)),ib=1,nbas)],iantiferro(1:nbas),rv_a_opos(:,1:nbas),plat,qlat,alat, &
-            ngmxs, .not.lfaithful, nsgrp,rv_a_osymgr,rv_a_oag,usejson,why)
-       if(lfaithful) jsonused = usejson
-       if(master_mpi.and..not.usejson) write(stdo,"(a)")' mksym: '//trim(fjson)//' not used: '//trim(why)//'; gensym'
+    if(usejson) then ! the crystal group (no time reversal) for the first call, all for the AF call
+       nsgrp = 0
+       do ig=1,ngall_s
+          if(lfaithful .and. trall_s(ig)) cycle
+          nsgrp = nsgrp+1
+          rv_a_osymgr(:,:,nsgrp) = gall_s(:,:,ig)
+          rv_a_oag(:,nsgrp)      = agall_s(:,ig)
+       enddo
     endif
     if(usejson) then
        ngen  = 0
        nggen = nsgrp
        call symtbl(0,nbas,rv_a_opos,rv_a_osymgr,rv_a_oag,nsgrp,qlat,iv_a_oistab) !site ib goes to istab(ib,ig), as gensym returns it
        if(master_mpi) then
-          write(stdo,"(a,i0,a)")' mksym: space group from '//trim(fjson)//' (spglib), ',nsgrp,' operations'
-          write(stdo,"(' symfind_json: ig group ops (:vector means translation in cartesian)')")
+          write(stdo,"(a,i0,a)")' mksym: ',nsgrp,' operations, '//trim(src)
+          write(stdo,"(' mksym spglib: ig group ops (:vector means translation in cartesian)')")
           do ig = 1, nsgrp
              call asymop(rv_a_osymgr(:,:,ig),rv_a_oag(1,ig),':',sg)
              write(stdo,'(i5,2x,a)') ig,trim(sg)
           enddo
-          write(stdo,"(a)")' symfind_json: site permutation table for group operations ...'
+          write(stdo,"(a)")' mksym spglib: site permutation table for group operations ...'
           write(stdo,"('  ib/ig:',48i3)")  [(ig,ig=1,nsgrp)]
           do ib = 1, nbas
              write(stdo,"(i7,':',48i3)") ib,(iv_a_oistab(ib+nbas*(ig-1)), ig=1,nsgrp)

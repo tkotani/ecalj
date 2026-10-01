@@ -1,0 +1,9 @@
+spglib (crystal symmetry library, C)
+Vendored from: https://github.com/spglib/spglib
+Tag/version:   v2.6.0 (commit c633404d67b2aa341ae748819c542e81c0c1f55d)
+License:       BSD-3-Clause (COPYING)
+Copied (2026-10-02 08:25): src/*.c, src/*.h, include/spglib.h, COPYING. Not copied: the tests, docs, and the Python, Fortran and Ruby interfaces.
+Local changes: src/version.h is written from src/version.h.in with the version above (spglib's CMake would generate it).
+Built by SRC/CMakeLists.txt as the static library symspg (position independent, linked into libecaljF*.so), with SPG_BUILD and
+SPG_STATIC_LIBRARY; SPGWARNING, SPGINFO and SPGDEBUG are not defined (no messages on stderr).
+ecalj calls spg_get_symmetry and spg_get_symmetry_with_site_tensors from m_symfind (bind(C)); MD/symmetry_spglib.md.

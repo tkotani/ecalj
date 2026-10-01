@@ -8,7 +8,7 @@ module m_symfind
   use m_mpi,only: master_mpi
   use m_symop_util,only: spgcop,spgprd,spgeql,grpeql,latvec,asymop
   use m_symderive,only: symtbl,iclbsjx
-  public gensym,symfind_json,ngmx,ngnmx
+  public gensym,symfind_json,symfind_spglib,write_symjson,ngmx,ngnmx
   private
   real(8),parameter:: toll=1d-4,tiny=1d-4,epsr=1d-12
   integer,parameter:: ngnmx=10
@@ -690,45 +690,47 @@ contains
        enddo
     enddo
   end function distinctrot
-  subroutine symfind_json(fname,nbas,spid,afl,pos,plat,qlat,alat,ngmxj,withtr, ng,g,ag,ok,why) !Space group from symmetry.<sname>.json (symfind.py, spglib)
-    ! (2026-10-02 05:34, step S3 of MD/symmetry_spglib.md) The file holds the operations x' = R x + t in the fractional coordinates
-    ! of plat (R integer) and the structure they belong to. The structure is compared with the one given here (the ctrlg);
-    ! a difference stops the run ("run symfind.py <sname> again"). Returns the Cartesian g = plat R plat^-1 and ag = plat t
-    ! (alat units, r' = g r + ag), the identity first. Pure translations (a supercell) are operations too (2026-10-02 05:46,
-    ! step S4): the group has |point group| x |pure translations| operations, up to ngmxj.
-    ! AF (2026-10-02 06:16, step S5): the operations with "time_reversal" exchange the up and down sites of the AF pairs
-    ! (af = +k, -k). withtr=.false. returns the others only (the group of the crystal), withtr=.true. all of them (the group
-    ! of the crystal with the pairs merged, from which m_mksym_init takes the AF operations). ok is .true. when read.
+  subroutine symfind_json(fname,nbas,spid,afl,pos,plat,qlat,alat,ngmxj, ng,g,ag,trev,ok,why) !Space group read from symmetry.<sname>.json
+    ! The file holds the operations x' = R x + t in the fractional coordinates of plat (R integer) and the structure they belong
+    ! to; it is written by write_symjson (lmf, lmchk) or by symfind.py. The structure is compared with the one given here (the
+    ! ctrlg): ok=.false. with the reason in why when it differs (the caller makes the operations again with spglib).
+    ! Returns all operations: the Cartesian g = plat R plat^-1 and ag = plat t (alat units, r' = g r + ag), the identity first,
+    ! then the rest of the group of the crystal, then (AF) those with time reversal, trev=.true., which exchange the up and down
+    ! sites of the AF pairs (af = +k, -k). Pure translations (a supercell) are operations too. (2026-10-02 05:34 S3, 05:46 S4,
+    ! 06:16 S5; 2026-10-02 08:27: a stale file is reported, not a stop, and trev is returned)
     use tjson_parser, only: json_load
     use tomlf, only: toml_table, toml_array, toml_value, toml_error, get_value, len
     use tomlf_type, only: cast_to_table
     implicit none
     character(*),intent(in):: fname
     integer,intent(in):: nbas,ngmxj,afl(nbas)   ! afl: the af label of each site (0, +k, -k)
-    logical,intent(in):: withtr
     character(*),intent(in):: spid(nbas)      ! species name of each site
     real(8),intent(in):: pos(3,nbas),plat(3,3),qlat(3,3),alat ! pos Cartesian (alat); plat(:,i) the i-th lattice vector
     integer,intent(out):: ng
     real(8),intent(out):: g(3,3,ngmxj),ag(3,ngmxj)
-    logical,intent(out):: ok
+    logical,intent(out):: trev(ngmxj),ok
     character(*),intent(out):: why
     class(toml_value),allocatable,target:: obj
     type(toml_error),allocatable:: err
     type(toml_table),pointer:: root,st,op
     type(toml_array),pointer:: arr,row,ops
     character(:),allocatable:: name
-    integer:: i,j,ib,ig,iop,nop,npure,ival,rot(3,3)
-    logical:: trev
+    integer:: i,j,ib,iop,nop,ival,rot(3,3)
     real(8):: alatj,platj(3,3),fracj(3),frac(3),d(3),tr(3),pinv(3,3)
     real(8),parameter:: tolst=1d-6
     ok=.false.; why=' '; ng=0
     call json_load(obj, fname, error=err)
-    if(allocated(err)) call rx('symfind_json: cannot read '//trim(fname)//': '//err%message)
+    if(allocated(err)) then
+       why='cannot read it: '//err%message; return
+    endif
     root => cast_to_table(obj)
-    if(.not.associated(root)) call rx('symfind_json: '//trim(fname)//' is not a JSON object')
-    ! the structure the operations belong to, against the ctrlg
+    if(.not.associated(root)) then
+       why='not a JSON object'; return
+    endif
     call get_value(root,'structure',st,requested=.false.)
-    if(.not.associated(st)) call rx('symfind_json: no "structure" in '//trim(fname)//'; run symfind.py again')
+    if(.not.associated(st)) then
+       why='no structure in it'; return
+    endif
     call get_value(st,'alat_bohr',alatj)
     call get_value(st,'plat_alat',arr)
     do i=1,3
@@ -737,18 +739,26 @@ contains
           call get_value(row,j,platj(j,i)) ! row i = lattice vector i
        enddo
     enddo
+    if(abs(alatj-alat)>tolst*alat .or. maxval(abs(platj-plat))>tolst) then
+       why='alat or plat differs'; return
+    endif
     call get_value(st,'species',arr)
-    if(len(arr)/=nbas) call stale('the number of sites')
-    if(abs(alatj-alat)>tolst*alat .or. maxval(abs(platj-plat))>tolst) call stale('alat or plat')
+    if(len(arr)/=nbas) then
+       why='the number of sites differs'; return
+    endif
     do ib=1,nbas
        call get_value(arr,ib,name)
-       if(trim(name)/=trim(spid(ib))) call stale('the species of a site')
+       if(trim(name)/=trim(spid(ib))) then
+          why='the species of a site differs'; return
+       endif
     enddo
     call get_value(st,'af',arr,requested=.false.)
     do ib=1,nbas
        ival=0
        if(associated(arr)) call get_value(arr,ib,ival)
-       if(ival/=afl(ib)) call stale('the af label of a site')
+       if(ival/=afl(ib)) then
+          why='the af label of a site differs'; return
+       endif
     enddo
     call get_value(st,'frac',arr)
     do ib=1,nbas
@@ -758,21 +768,17 @@ contains
        enddo
        frac = matmul(transpose(qlat),pos(:,ib))
        d = frac-fracj
-       if(maxval(abs(d-nint(d)))>tolst) call stale('a site position')
+       if(maxval(abs(d-nint(d)))>tolst) then
+          why='a site position differs'; return
+       endif
     enddo
-    ! the operations
-    call get_value(root,'n_pure_translations',npure)
     call get_value(root,'operations',ops)
     nop=len(ops)
+    if(nop>ngmxj) call rx('symfind_json: more operations than ngmxj')
     pinv = transpose(qlat) ! plat^-1
-    ng=0
     do iop=1,nop
        call get_value(ops,iop,op)
-       call get_value(op,'time_reversal',trev)
-       if(trev .and. .not.withtr) cycle
-       ng=ng+1
-       if(ng>ngmxj) call rx('symfind_json: more operations than ngmxj')
-       ig=ng
+       call get_value(op,'time_reversal',trev(iop))
        call get_value(op,'rotation',arr)
        do i=1,3
           call get_value(arr,i,row)
@@ -785,16 +791,220 @@ contains
        do j=1,3
           call get_value(arr,j,tr(j))
        enddo
-       g(:,:,ig) = matmul(plat,matmul(dble(rot),pinv))
-       ag(:,ig)  = matmul(plat,tr)
+       g(:,:,iop) = matmul(plat,matmul(dble(rot),pinv))
+       ag(:,iop)  = matmul(plat,tr)
     enddo
-    if(maxval(abs(g(:,:,1)-reshape([1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0],[3,3])))>1d-10 .or. maxval(abs(ag(:,1)))>1d-10) &
-         call rx('symfind_json: the first operation of '//trim(fname)//' is not the identity')
+    ng=nop
+    if(maxval(abs(g(:,:,1)-reshape([1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0],[3,3])))>1d-10 .or. maxval(abs(ag(:,1)))>1d-10 &
+         .or. trev(1)) call rx('symfind_json: the first operation of '//trim(fname)//' is not the identity')
     ok=.true.
-  contains
-    subroutine stale(what)
-      character(*),intent(in):: what
-      call rx('symfind_json: '//trim(fname)//' does not match the ctrlg ('//what//'). Run symfind.py <sname> again')
-    end subroutine stale
   end subroutine symfind_json
+
+  subroutine symfind_spglib(nbas,ityp,afl,pos,plat,qlat,alat,ngmxj, ng,rot,tr,trev,spgnum,spgsym) !Space group by spglib (C)
+    ! (2026-10-02 08:27, MD/symmetry_spglib.md) The operations x' = R x + t (fractional coordinates of plat, R integer) of the crystal,
+    ! ityp(ib) the species index of each site. With AF labels (afl = +k, -k on the sites of a pair) the pairs are one type with
+    ! the moments +1 and -1, and spg_get_symmetry_with_site_tensors gives the magnetic group: trev=.true. for the operations
+    ! with time reversal (they exchange up and down); those without must be the group of the crystal (spg_get_symmetry with
+    ! the species told apart; checked). Order: the identity, the rest of the crystal group, the time-reversed ones.
+    ! t is reduced to [0,1). symprec 1e-5 angstrom, as symfind.py.
+    use iso_c_binding, only: c_int, c_double, c_char, c_null_char
+    implicit none
+    integer,intent(in):: nbas,ngmxj,ityp(nbas),afl(nbas)
+    real(8),intent(in):: pos(3,nbas),plat(3,3),qlat(3,3),alat
+    integer,intent(out):: ng,rot(3,3,ngmxj),spgnum
+    real(8),intent(out):: tr(3,ngmxj)
+    logical,intent(out):: trev(ngmxj)
+    character(*),intent(out):: spgsym
+    interface
+       integer(c_int) function spg_get_symmetry(rotation,translation,max_size,lattice,position,types,num_atom,symprec) &
+            bind(C,name='spg_get_symmetry')
+         import:: c_int,c_double
+         integer(c_int):: rotation(3,3,*),types(*)
+         real(c_double):: translation(3,*),lattice(3,3),position(3,*)
+         integer(c_int),value:: max_size,num_atom
+         real(c_double),value:: symprec
+       end function spg_get_symmetry
+       integer(c_int) function spg_get_symmetry_with_site_tensors(rotation,translation,equivalent_atoms,primitive_lattice, &
+            spin_flips,max_size,lattice,position,types,tensors,tensor_rank,num_atom,with_time_reversal,is_axial,symprec) &
+            bind(C,name='spg_get_symmetry_with_site_tensors')
+         import:: c_int,c_double
+         integer(c_int):: rotation(3,3,*),equivalent_atoms(*),spin_flips(*),types(*)
+         real(c_double):: translation(3,*),primitive_lattice(3,3),lattice(3,3),position(3,*),tensors(*)
+         integer(c_int),value:: max_size,tensor_rank,num_atom,with_time_reversal,is_axial
+         real(c_double),value:: symprec
+       end function spg_get_symmetry_with_site_tensors
+       integer(c_int) function spg_get_international(symbol,lattice,position,types,num_atom,symprec) &
+            bind(C,name='spg_get_international')
+         import:: c_int,c_double,c_char
+         character(kind=c_char):: symbol(11)
+         real(c_double):: lattice(3,3),position(3,*)
+         integer(c_int):: types(*)
+         integer(c_int),value:: num_atom
+         real(c_double),value:: symprec
+       end function spg_get_international
+    end interface
+    real(8),parameter:: bohr_angstrom=0.529177210903d0, symprec=1d-5
+    real(c_double):: lat(3,3),frac(3,nbas),trc(3,ngmxj),primlat(3,3),spins(nbas)
+    integer(c_int):: rc(3,3,ngmxj),typ(nbas),typm(nbas),equiv(nbas),flips(ngmxj),n,nc
+    integer(c_int):: rcc(3,3,ngmxj)
+    real(c_double):: trcc(3,ngmxj)
+    character(kind=c_char):: sym(11)
+    integer:: ib,jb,i,ig,jg,i0,k,order(ngmxj)
+    logical:: found,anyaf
+    ! C: lattice[3][3] with the lattice vectors as columns -> the Fortran array is its transpose; rotation[n][3][3] row-major
+    ! -> rc(:,:,i) is the transpose of R; position[n][3] and translation[n][3] map directly.
+    lat = transpose(plat*alat*bohr_angstrom)
+    do ib=1,nbas
+       frac(:,ib) = matmul(transpose(qlat),pos(:,ib))
+    enddo
+    typ = ityp
+    nc = spg_get_symmetry(rcc,trcc,ngmxj,lat,frac,typ,nbas,symprec)
+    if(nc<=0) call rx('symfind_spglib: spg_get_symmetry found no operation')
+    spgnum = spg_get_international(sym,lat,frac,typ,nbas,symprec)
+    spgsym = ' '
+    do i=1,11
+       if(sym(i)==c_null_char) exit
+       spgsym(i:i)=sym(i)
+    enddo
+    anyaf = any(afl/=0)
+    if(anyaf) then ! the AF pairs as one type, with the moments +-1
+       typm = typ
+       spins = 0d0
+       do ib=1,nbas
+          if(afl(ib)==0) cycle
+          spins(ib) = sign(1d0,dble(afl(ib)))
+          if(afl(ib)<0) then
+             found=.false.
+             do jb=1,nbas
+                if(afl(jb)==-afl(ib)) then
+                   typm(ib)=typ(jb); found=.true.; exit
+                endif
+             enddo
+             if(.not.found) call rx('symfind_spglib: a site with af<0 has no partner with af>0')
+          endif
+       enddo
+       n = spg_get_symmetry_with_site_tensors(rc,trc,equiv,primlat,flips,ngmxj,lat,frac,typm,spins,0,nbas,1,0,symprec)
+       if(n<=0) call rx('symfind_spglib: spg_get_symmetry_with_site_tensors found no operation')
+       if(count(flips(1:n)==1)/=nc) call rx('symfind_spglib: the magnetic group without time reversal is not the group of the crystal')
+       do ig=1,n ! each operation without time reversal must be one of the crystal group
+          if(flips(ig)/=1) cycle
+          found=.false.
+          do jg=1,nc
+             if(all(rc(:,:,ig)==rcc(:,:,jg)) .and. sameT(trc(:,ig),trcc(:,jg))) then
+                found=.true.; exit
+             endif
+          enddo
+          if(.not.found) call rx('symfind_spglib: the magnetic group without time reversal is not the group of the crystal')
+       enddo
+    else
+       n = nc
+       rc(:,:,1:n) = rcc(:,:,1:n)
+       trc(:,1:n) = trcc(:,1:n)
+       flips(1:n) = 1
+    endif
+    ! the identity first, then the crystal group, then the time-reversed operations
+    i0=0
+    do ig=1,n
+       if(flips(ig)==1 .and. all(rc(:,:,ig)==reshape([1,0,0,0,1,0,0,0,1],[3,3])) .and. sameT(trc(:,ig),[0d0,0d0,0d0])) then
+          i0=ig; exit
+       endif
+    enddo
+    if(i0==0) call rx('symfind_spglib: no identity')
+    k=1; order(1)=i0
+    do ig=1,n
+       if(ig/=i0 .and. flips(ig)==1) then
+          k=k+1; order(k)=ig
+       endif
+    enddo
+    do ig=1,n
+       if(flips(ig)/=1) then
+          k=k+1; order(k)=ig
+       endif
+    enddo
+    ng=n
+    do i=1,n
+       ig=order(i)
+       rot(:,:,i) = transpose(rc(:,:,ig))
+       tr(:,i) = trc(:,ig)-floor(trc(:,ig)+1d-10)          ! [0,1)
+       where(abs(tr(:,i))<1d-10) tr(:,i)=0d0
+       trev(i) = flips(ig)/=1
+    enddo
+  contains
+    logical function sameT(a,b)
+      real(c_double),intent(in):: a(3),b(3)
+      real(8):: d(3)
+      d=a-b
+      sameT = maxval(abs(d-nint(d)))<1d-6
+    end function sameT
+  end subroutine symfind_spglib
+
+  subroutine write_symjson(fname,nbas,spid,afl,pos,plat,qlat,alat,ng,rot,tr,trev,spgnum,spgsym,made_by) !Write symmetry.<sname>.json
+    ! (2026-10-02 08:27) The format read by symfind_json and written by symfind.py ("ecalj-symmetry-1"), units named in the keys.
+    implicit none
+    character(*),intent(in):: fname,spid(nbas),spgsym,made_by
+    integer,intent(in):: nbas,afl(nbas),ng,rot(3,3,ng),spgnum
+    real(8),intent(in):: pos(3,nbas),plat(3,3),qlat(3,3),alat,tr(3,ng)
+    logical,intent(in):: trev(ng)
+    integer:: ifi,ib,ig,i,npure
+    real(8):: frac(3)
+    character(30):: d8
+    character(10):: tm
+    call date_and_time(date=d8,time=tm)
+    npure = count([(all(rot(:,:,ig)==reshape([1,0,0,0,1,0,0,0,1],[3,3])) .and. .not.trev(ig), ig=1,ng)])
+    open(newunit=ifi,file=trim(fname),status='replace')  ! rank 0 only (the caller)
+    write(ifi,'(a)') '{'
+    write(ifi,'(a)') ' "format": "ecalj-symmetry-1",'
+    write(ifi,'(a)') ' "made_by": "'//trim(made_by)//'",'
+    write(ifi,'(a)') ' "date": "'//d8(1:4)//'-'//d8(5:6)//'-'//d8(7:8)//'T'//tm(1:2)//':'//tm(3:4)//'",'
+    write(ifi,'(a)') ' "structure": {'
+    write(ifi,'(a)') '  "alat_bohr": '//r2s(alat)//','
+    write(ifi,'(a)') '  "plat_alat": ['//v2s(plat(:,1))//', '//v2s(plat(:,2))//', '//v2s(plat(:,3))//'],'
+    write(ifi,'(a)') '  "plat_unit": "rows = lattice vectors in alat (as [struc] plat)",'
+    write(ifi,'(a)',advance='no') '  "species": ['
+    do ib=1,nbas
+       write(ifi,'(a)',advance='no') '"'//trim(spid(ib))//'"'//merge(', ','],',ib<nbas)
+    enddo
+    write(ifi,*)
+    write(ifi,'(a)',advance='no') '  "af": ['
+    do ib=1,nbas
+       write(ifi,'(i0,a)',advance='no') afl(ib),merge(', ','],',ib<nbas)
+    enddo
+    write(ifi,*)
+    write(ifi,'(a)') '  "frac": ['
+    do ib=1,nbas
+       frac = matmul(transpose(qlat),pos(:,ib))
+       write(ifi,'(a)') '   '//v2s(frac)//merge(',',' ',ib<nbas)
+    enddo
+    write(ifi,'(a)') '  ],'
+    write(ifi,'(a)') '  "frac_unit": "fractional coordinates of plat"'
+    write(ifi,'(a)') ' },'
+    write(ifi,'(a)') ' "symprec": 1e-05, "symprec_unit": "angstrom",'
+    write(ifi,'(a,i0,a)') ' "spacegroup": {"number": ',spgnum,', "international": "'//trim(spgsym)//'"},'
+    write(ifi,'(a,i0,a,i0,a,i0,a)') ' "n_operations": ',ng,', "n_pure_translations": ',npure,', "n_time_reversed": ',count(trev),','
+    write(ifi,'(a)') ' "rotation_unit": "integer matrix in the basis of plat: x'' = R x + t, x fractional (columns of plat)",'
+    write(ifi,'(a)') ' "translation_unit": "fractional coordinates of plat",'
+    write(ifi,'(a)') ' "operations": ['
+    do ig=1,ng
+       write(ifi,'(a,3(a,i0,a,i0,a,i0,a),a)') '  {"rotation": [', &
+            ('[',rot(i,1,ig),', ',rot(i,2,ig),', ',rot(i,3,ig),merge('], ',']  ',i<3), i=1,3), '], '
+       write(ifi,'(a)') '   "translation": '//v2s(tr(:,ig))//', "time_reversal": '//trim(merge('true ','false',trev(ig)))// &
+            '}'//merge(',',' ',ig<ng)
+    enddo
+    write(ifi,'(a)') ' ]'
+    write(ifi,'(a)') '}'
+    close(ifi)
+  contains
+    function r2s(x) result(s)
+      real(8),intent(in):: x
+      character(:),allocatable:: s
+      character(30):: b
+      write(b,'(es23.15e3)') x
+      s=trim(adjustl(b))
+    end function r2s
+    function v2s(v) result(s)
+      real(8),intent(in):: v(3)
+      character(:),allocatable:: s
+      s='['//r2s(v(1))//', '//r2s(v(2))//', '//r2s(v(3))//']'
+    end function v2s
+  end subroutine write_symjson
 end module m_symfind

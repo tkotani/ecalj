@@ -37,7 +37,7 @@ if(_FC_FULL)
   set(CMAKE_Fortran_COMPILER ${_FC_FULL} CACHE FILEPATH "MPI Fortran wrapper" FORCE)
 endif()
 
-project(ecalj LANGUAGES Fortran)
+project(ecalj LANGUAGES Fortran C)  # C: the vendored spglib (2026-10-02 08:26)
 
 # --- Build Type and Options ---
 if(NOT CMAKE_BUILD_TYPE)
@@ -130,6 +130,16 @@ target_link_libraries(dummy ${LIBM})
 set(BUILD_TESTING OFF CACHE BOOL "Disable toml-f tests" FORCE)
 add_subdirectory(${CMAKE_SOURCE_DIR}/external/toml-f ${CMAKE_BINARY_DIR}/toml-f)
 
+# --- Vendored spglib v2.6.0 (crystal symmetry, C, BSD-3). See SRC/external/spglib/VENDORED_FROM.txt (2026-10-02 08:26) ---
+# A static, position-independent library linked into every libecaljF*.so; m_symfind calls it through bind(C).
+file(GLOB SPGLIB_SOURCES ${CMAKE_SOURCE_DIR}/external/spglib/src/*.c)
+add_library(symspg STATIC ${SPGLIB_SOURCES})
+set_target_properties(symspg PROPERTIES POSITION_INDEPENDENT_CODE ON C_STANDARD 11 C_STANDARD_REQUIRED ON)
+target_include_directories(symspg PRIVATE ${CMAKE_SOURCE_DIR}/external/spglib/src ${CMAKE_SOURCE_DIR}/external/spglib/include)
+target_compile_definitions(symspg PRIVATE SPG_BUILD PUBLIC SPG_STATIC_LIBRARY)
+target_compile_options(symspg PRIVATE -O2)
+target_link_libraries(symspg PUBLIC m)
+
 # --- Main Library and Executables ---
 set(LIB ecaljF)
 add_library(${LIB} SHARED ${SOURCES})
@@ -140,6 +150,7 @@ set_target_properties(${LIB} PROPERTIES
 target_link_options(${LIB} PRIVATE ${LIBM})
 target_compile_options(${LIB} PRIVATE ${FLAGS})
 target_link_libraries(${LIB} PUBLIC toml-f) # PUBLIC: propagates toml-f mod paths to executables
+target_link_libraries(${LIB} PRIVATE symspg)
 
 set(DELIVER_FILES ${CMAKE_BINARY_DIR}/lib${LIB}.so ${CMAKE_BINARY_DIR}/dummy)
 
@@ -205,6 +216,7 @@ function(add_extended_build VARIANT)
 
   target_link_options(${LIB} PRIVATE ${LIBM} ${LINK_EXTRA})
   target_link_libraries(${LIB} PRIVATE toml-f)
+  target_link_libraries(${LIB} PRIVATE symspg)
   if (VARIANT STREQUAL "gpu" OR VARIANT STREQUAL "mp_gpu")
     if(EXISTS ${GEMMUL8_LIB})
       set(CPP_DEFINITIONS ${CPP_DEFINITIONS} -D__GEMMUL8)
