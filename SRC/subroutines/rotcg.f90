@@ -5,7 +5,7 @@ subroutine rotcg(lmxax,symops,ng,cgr)
   !!      cgr(lm1,lm2,lm,ig) = sum(cgn(lx-l:lx+l,lm1,lm2)*dlmm(-l:l,m,l,ig))
   !! Here, dlmm(m,m') is the rotation matrix  of angular momentum space lm
   !! for given symops(3,3,ig).
-  use m_mksym_util,only:rotdlmm
+  use m_symderive,only:rotdlmm
   use m_scg,only:scg
   use m_ll,only: ll
   implicit none

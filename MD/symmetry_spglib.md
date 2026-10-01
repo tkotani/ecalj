@@ -6,7 +6,7 @@ spglib を入れる案と順番をまとめる。コードの場所はルーチ�
 
 ## 1. 今の仕組み
 
-**表 1**. 対称操作を作る流れ（`SRC/subroutines/m_mksym.f90`、`m_mksym_util.f90`）
+**表 1**. 対称操作を作る流れ（`SRC/subroutines/m_mksym.f90`、`m_mksym_util.f90`。2026-10-02 の S1 で `m_symfind.f90`・`m_symderive.f90`・`m_symop_util.f90` に分けた。§4.7b）
 
 | 段 | ルーチン | 何をするか |
 | --- | --- | --- |
@@ -30,7 +30,7 @@ GW（`m_hamindex` が `symops`・`ag` をファイルに書き、`rotwave` の `
   （ctrlgenToml の `lmchk --getwsr` の段階で）。2×1×1 の超格子は、余分の並進が回転と組まず、止まらない
 - 最初の直し（同じ回転なら同じ要素とする）は**誤り**だった: lmchk は通るが、`symprj`（原子ごとの密度の対称化）が群の作用（各原子を最初の原子へ移す
   操作の数がそろう）を前提にするので、8 原子の電荷がばらばらになり NaN（user「対称化操作として足りない」）
-- **採った直し**（`m_mksym_util` の `lfaithful`、`puretrans`、`distinctrot`、`sgroup` の `overflow`）: 結晶の純粋な並進 τ を探し、あるときだけ、
+- **採った直し**（`m_mksym_util` の `lfaithful`〔S1 から `m_symfind` の `gensym(...,faithful)`〕、`puretrans`、`distinctrot`、`sgroup` の `overflow`）: 結晶の純粋な並進 τ を探し、あるときだけ、
   生成元の並進を t + τ から選び直して、**回転がすべて異なる閉じた群**のうち大きいものを選ぶ（最初の 2 つの生成元は総当たり、最大の組から最大 20 組を
   貪欲に伸ばす）。純粋な並進そのものは対称操作として使わない（対称性を低めに使うので正しい）。AF の 2 回目の呼び出しには使わない
   （そこでは上下を入れ替える純粋な並進が AF の操作そのもの）
@@ -124,11 +124,11 @@ GW 側は `__HAMindex`（`m_hamindex0` が書く）から読む今の形のま�
 
 超格子では spglib は |点群| × |純粋な並進| 個の操作を返し、同じ回転の操作が複数ある。これをそのまま使うために、Fortran の使う側で次を確かめて直す。
 
-**表 4**. 確かめる所（2026-10-02 の調べ。上限 48 を固定で持つのは `m_mksym`・`m_mksym_util` の `ngmx` だけで、使う側の配列は `ngrp` で取る）
+**表 4**. 確かめる所（2026-10-02 の調べ。上限 48 を固定で持つのは `m_mksym`・`m_mksym_util`（S1 から `m_symfind`）の `ngmx` だけで、使う側の配列は `ngrp` で取る）
 
 | 所 | 何を確かめるか |
 | --- | --- |
-| `m_mksym`、`m_mksym_util` | `ngmx = 48` を外す（操作の数で配列を取る）。印字の `48i3` などの書式 |
+| `m_mksym`、`m_symfind`（旧 `m_mksym_util`） | `ngmx = 48` を外す（操作の数で配列を取る）。印字の `48i3` などの書式 |
 | k 点（`mkqp`、`bzmesh`） | 同じ回転が重なっても、既約な k と重みが正しいか（回転だけを使うので重なりを除いてよいはず） |
 | 密度の対称化（`symrho` の `symprj`、`totfrc`） | 群なので正しいはず（2 節で分かった前提を満たす）。純粋な並進で原子の密度が平均される |
 | LDA+U（`m_ldau_util`）、SOC（`so3_to_su2`） | 同じ回転の操作が複数あるときの D 行列とスピンの回転 |
@@ -156,6 +156,19 @@ Samples の 172 入力: **166 で ecalj と spglib の操作が集合として�
 部分群の 6 つ（`LDAU/ReN` の cgdn・cprn、`MLOsamples/GdION`、`MLOsamples/SmP`、`TestInstall/eras`、`TestInstall/felz`）は、どれも入力の `SYMGRP` で
 対称性をわざと下げている（SOC の磁化の向き、4f の占有、LDA+U の秩序）。spglib は構造だけから全部を出すので、**入力で対称性を下げる口**が要る:
 磁化の向き（非共線のスピンを spglib の磁気対称性に渡す）か、部分群の指定（生成元、または操作の番号の一覧）。S5 で AF と一緒に設計する。
+
+### 4.7b S1 の分け方（2026-10-02 05:22、等価変換）
+
+`m_mksym_util.f90` を三つに分け、元のファイルは trash へ。DAG は `m_symop_util` ← `m_symderive` ← `m_symfind` ← `m_mksym`。
+
+**表 5**. S1 の module
+
+| module | ルーチン | 役目 |
+| --- | --- | --- |
+| `m_symop_util` | `asymop`（`parsvc2`）、`spgcop`、`spgprd`、`spgeql`、`grpeql`、`latvec` | 一つの操作の道具（積、等しいか、格子ベクトルか、記号） |
+| `m_symderive` | `symtbl`、`splcls`、`grpgen`、`mptauof`、`rotdlmm`、`iclbsjx` | 操作から導く（状態を持たない）。GW 側（`m_zmel`、`m_hamindex0`、`main_hwmatK`）と `rotcg`・`m_procar` もここを `use` する |
+| `m_symfind` | `gensym`、`sgroup`、`psymop`、`parsop`、`parsvc`、`skipbl`、`symlat`、`csymop`、`symcry`、`puretrans`、`distinctrot` | 見つける（ecalj の backend）。`faithful` は module 変数をやめて `gensym` の引数に |
+| `m_mksym` | `mksym`（private に移した）、`m_mksym_init` | 窓口 |
 
 ### 4.8 決めたこと（user 2026-10-02）
 

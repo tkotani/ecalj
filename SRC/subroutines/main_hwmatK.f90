@@ -290,7 +290,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   use m_zmel_old,only: ppbafp_v2
   use m_hamindex0,only: readhamindex0,iclasst
 
-  use m_mksym_util,only:mptauof
+  use m_symderive,only:mptauof
 
   use m_lmfinit,only:  m_lmfinit_init
   use m_lattic,only:   m_lattic_init

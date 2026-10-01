@@ -240,7 +240,7 @@ contains
   end subroutine m_procar_writepdos
 !!--------------------------------------------------------
   subroutine m_procar_setlocalaxis_init()
-    use m_mksym_util,only:rotdlmm
+    use m_symderive,only:rotdlmm
     use m_lmfinit,only: lmax => lmxax, ispec, lmxa_i=>lmxa
     use m_fatom,only:sspec
     implicit none

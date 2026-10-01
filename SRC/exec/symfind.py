@@ -77,7 +77,7 @@ def axis(s):
 
 
 def rot(n, v):
-    """parsop of m_mksym_util: a right-handed rotation by 2 pi / n about v."""
+    """parsop of m_symfind: a right-handed rotation by 2 pi / n about v."""
     v = np.array(v, float); v /= np.linalg.norm(v)
     c, s = np.cos(2 * np.pi / n), np.sin(2 * np.pi / n)
     k = np.array([[0, -v[2], v[1]], [v[2], 0, -v[0]], [-v[1], v[0], 0]])

@@ -2,6 +2,7 @@
 module m_mksym 
   use m_cmdopt_registry, only: c0_nosym, c0_pdos
   public :: m_mksym_init
+  private:: mksym
   integer,allocatable,protected :: oics(:)    ! ispec= ics(iclass) gives spec for iclass.
   real(8),allocatable,protected :: symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:),dlmm(:,:,:,:)
   integer,allocatable,protected :: invgx(:),miat(:,:), oistab (:,:)   ! j= istab(i,ig): site i is mapped to site j by grp op ig
@@ -33,7 +34,7 @@ contains
     use m_lgunit,only:  stdo
     use m_lmfinit,only: nspec,nbas, sstrnsymg,symgaf,ips=>iv_a_oips,slabl,iantiferro,addinv,lmxax
     use m_lattic,only:  plat=>lat_plat,rv_a_opos
-    use m_mksym_util,only: mksym,mptauof,rotdlmm
+    use m_symderive,only: mptauof,rotdlmm
     use m_ftox
     implicit none
     integer,parameter::  ngmx = 48
@@ -56,7 +57,7 @@ contains
     allocate(iclasst(nbas),oics(nbas),oistab(nbas,ngmx))
     if(ipr10) write(stdo,"(a)")  'SpaceGroupSym of Lattice: ========start========================== '
     if(ipr10) write(stdo,"(a)") ' SYMGRP = '//trim(strn)
-    call mksym(lc,slabl,strn,ips, iclasst,nclasst,npgrp,ngrp,oag,osymgr,oics,oistab,faithful=.true.) !closed group with distinct rotations (m_mksym_util lfaithful)
+    call mksym(lc,slabl,strn,ips, iclasst,nclasst,npgrp,ngrp,oag,osymgr,oics,oistab,faithful=.true.) !closed group with distinct rotations (gensym faithful in m_symfind)
     if(ipr10) write(stdo,"(a)") 'SpaceGroupSym of Lattice: ========end =========================== '
     allocate(symops,source=osymgr)
     allocate(ag,source=oag)
@@ -123,4 +124,71 @@ contains
     endblock MiatTiatDlmm
     call tcx('m_mksym_init')
   end subroutine m_mksym_init
+  subroutine mksym(modeAddinversion,slabl,ssymgr,iv_a_oips, iclass,nclass,npgrp,nsgrp,rv_a_oag,rv_a_osymgr,iv_a_oics,iv_a_oistab,faithful)! Setup symmetry group. Split species into classes, Also assign class labels to each class
+    use m_lmfinit,only: nbas,nspec
+    use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat,rv_a_opos
+    use m_symfind,only: gensym,ngmx,ngnmx
+    use m_symderive,only: grpgen,splcls,symtbl
+    use m_lgunit,only: stdo
+    use m_ftox
+    use m_mpi,only: master_mpi
+    implicit none
+    intent(in)::   modeAddinversion,slabl,ssymgr,iv_a_oips
+    intent(out)::                                            iclass,nclass,npgrp,nsgrp,rv_a_oag,rv_a_osymgr,iv_a_oics,iv_a_oistab
+    !i modeAddinversion  : 
+    !i           =0  Not add inversion
+    !i           =1  Add inversion to point group. Make additionally ag,istab for extra operations, using -g for rotation part; see Remarks
+    !i slabl : species labels
+    !i ssymgr: string containing symmetry group generators.
+    !i           if ssymgr contains 'find', mksym will add basis atoms as
+    !i           needed to guarantee generators are valid, and generate
+    !i           internally any additonal group operations needed to
+    !i           complete the space group.
+    !r Remarks
+    !r   In certain cases the inversion operation may be added to the space group, for purposes of k integration.  This is permissible when the
+    !r   hamiltonian has the form h(-k) = h*(k).  In that case, the eigenvectors z(k) of h(k) are related to z(-k) as z(-k) = z*(k).
+    !r
+    !r   Also, the Green's functions are related G(-k) = Gtranspose(k). Thus if g is a space group operation rotating G0(g^-1 k) into G(k),
+    !r   then G(-k) = Gtranspose(k), and the same (g,ag) information is needed for either rotation.
+    integer :: modeAddinversion,nsgrp,npgrp,ibas,iwdummy1(1),idest,ig,iprint,igets,isym(10),j1,j2,lpgf,nclass,ngen, nggen,incli
+    integer:: iv_a_oips(nbas),iclass(nbas),ifind, iv_a_oics(nbas),iv_a_oistab(ngmx*nbas)
+    character(8) :: slabl(*),ssymgr*(*)
+    character(1000) :: gens
+    real(8) :: gen(3,3,ngnmx), rv_a_oag(3,ngmx),rv_a_osymgr(3,3,ngmx)
+    integer,allocatable ::  iv_a_onrc (:), iv_a_oipc(:) 
+    logical:: symfind
+    logical,optional,intent(in):: faithful
+    logical:: lfaithful
+    lfaithful = .false.
+    if(present(faithful)) lfaithful = faithful
+    ifind = index(ssymgr,'find')
+    gens = ssymgr
+    symfind = ifind>0
+    if(ifind>0) gens= ssymgr(1:ifind-1)//' '//ssymgr(ifind+4:)
+    if(master_mpi) write(stdo,*)' Generators except find: ',trim(gens)
+    if(master_mpi) write(stdo,*)' Generators find or not: ',symfind
+    call gensym(slabl,gens,symfind,nbas,nspec,ngmx,plat,plat,rv_a_opos(:,1:nbas),iv_a_oips, & !Generate space group ops
+         nsgrp, rv_a_osymgr,rv_a_oag, ngen,gen,ssymgr, nggen,isym,iv_a_oistab,lfaithful)
+    if(nggen>ngmx) call rx('mksym: nggen>ngmx')
+    incli = -1
+    npgrp = nsgrp
+    if(modeAddinversion /= 0) then !Add inversion to point group
+       ngen = ngen+1
+       gen(:,:,ngen) = reshape([-1d0,0d0,0d0, 0d0,-1d0,0d0, 0d0,0d0,-1d0],[3,3])
+       call pshpr(iprint()-40)
+       call grpgen(gen(1,1,ngen),1, rv_a_osymgr,npgrp, ngmx)
+       call poppr
+       incli = npgrp-nsgrp
+    endif  ! Printout of symmetry operations !    if(master_mpi) write(stdo,ftox)'  mksym: found ',nsgrp,' space group operations'
+    if(master_mpi.and.nsgrp/=npgrp) write(stdo,ftox) &
+         '    adding inversion gives',npgrp,' operations for generating k points; enforce real for dmatu for LDA+U'
+    if(master_mpi.and.incli == -1) write(stdo,*)'  no attempt to add inversion symmetry'
+    allocate(iv_a_onrc(nspec))
+    allocate(iv_a_oipc,source=iv_a_oips(1:nbas))
+    call splcls(rv_a_opos,nbas,nsgrp,iv_a_oistab,nspec,slabl,nclass,iv_a_oipc,iv_a_oics,iv_a_onrc) !Split species into classes
+    !                                                   ibas ==> iclass=ipc(ibas) ==> ispec=ics(iclass)
+    !  allocate(iv_a_oistab(nsgrp*nbas))
+    call symtbl(1, nbas, rv_a_opos , rv_a_osymgr, rv_a_oag, nsgrp, qlat, iv_a_oistab)
+    iclass(1:nbas)=iv_a_oipc(1:nbas) 
+  end subroutine mksym
 end module m_mksym

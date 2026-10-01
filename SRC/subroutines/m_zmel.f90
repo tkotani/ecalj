@@ -92,7 +92,7 @@ contains
     !> deallocate any existing state and rebuild for the new ng. This supports
     !> combined-program flow where hrcxq calls with (identity, ng=1) and hsfp0_sc
     !> calls with (full symgg, ng=ngrp): the larger setup subsumes the smaller.
-    use m_mksym_util,only:mptauof
+    use m_symderive,only:mptauof
     use m_hamindex0,only: Readhamindex0,iclasst
     use m_keyvalue,only: getkeyvalue
     use m_GWinput, only: gwinput_init, gwinput_loaded, tg_KeepPpb => KeepPpb

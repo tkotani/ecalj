@@ -8,7 +8,7 @@ mkdir -p $OUT; : > $OUT/summary.txt
 export OMP_NUM_THREADS=1
 find $ROOT/Samples -name 'ctrlg.*.toml' -not -path '*_work/*' | sort | while read f; do
   rel=${f#$ROOT/Samples/}; tag=$(dirname $rel | tr '/' '_'); s=$(basename $f .toml); s=${s#ctrlg.}
-  w=$OUT/$tag; mkdir -p $w; cp $f $w/
+  w=$OUT/${tag}__$s; mkdir -p $w; cp $f $w/   # one dir per input (2026-10-02 05:23 fix: two ctrlg in one dir overwrote llmchk)
   ( cd $w && mpirun -np 1 lmchk $s > llmchk 2>&1 < /dev/null; rc=$?
     if [ $rc -ne 0 ]; then echo "$tag $s LMCHK_FAILED rc=$rc"; exit; fi
     r=$(python3 $ROOT/SRC/exec/symfind.py $s --symprec $SP --check llmchk 2>&1 < /dev/null | grep -E 'symcheck:|symfind:' | tail -1)
