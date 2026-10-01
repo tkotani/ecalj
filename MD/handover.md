@@ -78,6 +78,8 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
 - **試験の最中に手元で `libecaljF.so` を作り直さない**（2026-10-02）: 走っている試験の次のプログラムが作り直し中のライブラリを読み、`heftet` が空の出力で止まった（`fe_kbt`）。試験が終わるのを待つか、別のビルド場所で
 - **`sync_ecalj_src.sh`** は送り先の `SRC/subroutines`・`main`・`exec` にある HEAD に無いファイルを `trash/` へ移す（2026-10-02 から）。古い `.f90` が残ると CMake の GLOB が拾う。送り先の `bin` に残る古いプログラム（外したもの）は自動では消えない
 
+- **t14 の trash は外付けの TAKAOMINI にある**（2026-10-02、ディスクが満杯になったため）: `/media/takao/TAKAOMINI/trash/`（`ecalj_trash/`、`work_20261001/`、`home_trash/`）。t14 のディスクは 468 GB で、試験の作業ディレクトリ（`Samples/*/*_work`、合わせて約 8 GB）や `~/work` の GW の途中のファイルでいっぱいになる。満杯になると Claude Code の Bash の出力も受け取れなくなる（`/tmp` も同じディスク）
+
 ## 4. コンパイラと実行時の落とし穴
 
 - **Fortran の `.and.` は短絡しない**: `if (present(x) .and. x)` は x が無いときも x を読んで落ちる。入れ子にする（past_log.md §3.2）
