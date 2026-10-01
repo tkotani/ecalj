@@ -90,10 +90,24 @@ AFsymmetry のモード（AFTEST）が動くのか、そもそも正しいのか
 
 ### 12:48 **InAs/GaSb n10（40 原子）の MLO は回さない（user「40 原子の MLO はしなくてもいい」）。kr7 の計算を止めた。MATERIALS の MLO の試験は 65 物質で終わり**
 
-- n10 は kr7（30 GB）で np 8 の LDA の SCF が 36 反復目の 11:03 に OOM killer で止まった（ehf は一定、ehk が 1 反復に 1e-5 Ry ずつ動き収束の判定に届かず）。
-  11:06 に rst から np 4・conv 1e-4 で再開し、12:48 に 11 反復目（RMS DQ 2.2e-4、1 反復に約 1 割ずつ減少）で止めた
-- メモリ: np 4 で 4 ランクの合計が 15〜19 GB を上下し、11 反復の間に増え続けはしなかった（1 分ごとの記録 `kr7:~/mlocheck_20261001/InAsGaSb_n10/mem_n10.log`）。
-  漏れではなく、np 8 では山で 30 GB を超えたと見られる。k 点の割り当ては np 8 で 1 ランクだけ 1 点、ほかは 7 点と偏っていた
+入力: `Samples/MATERIALS/InAsGaSb/n10/ctrlg.inas10gasb10.toml`（`5c94c18de`、Legacy から移したもの）を写し、`[mlo]` だけ `prep.py` で書き直した
+（`mlo_lm` は In・As・Ga・Sb とも s,p,d、`mlo_nkabc = [8, 8, 2]`）。作業場所は kr7 の `~/mlocheck_20261001/InAsGaSb_n10`、バイナリは `~/bin_frozen_74ba72dad`。
+- 構造: InAs 10 層と GaSb 10 層の超格子、40 原子（In 10、As 10、Ga 10、Sb 10）、alat = 11.4923 a.u.、c = 9.945 alat
+- 計算: LDA（VWN）、nspin 1、`pwmode = 1`・`pwemax = 3` Ry、k 点 8×8×2（既約 50 点）、基底の次元 1777（MTO 1150 + APW 627）、混合 A5・b = 0.1、
+  収束の判定 conv = convc = 1e-5
+
+かかった時間とどこまでできたか（*表 12:48-1*）。どちらも LDA の SCF の途中で、バンドと MLO の段には進んでいない。最後の `rst.inas10gasb10`（12:41）は kr7 に残してあり、そこから再開できる
+
+*表 12:48-1*. n10 の LDA の SCF
+| 回 | 期間 | 並列 | 反復 | 1 反復 | ehk の最後（Ry） | RMS DQ | 終わり方 |
+|---|---|---|---|---|---|---|---|
+| 1 | 06:39 → 11:03（4 時間 25 分） | np 8 | 36 | 約 7.4 分（`hambl` 約 470 秒） | −331039.600919（35 反復目） | 2.45e-2 → 6.88e-4 | OOM killer（kr7 30 GB） |
+| 2（rst から、conv = convc = 1e-4） | 11:06 → 12:48（1 時間 42 分） | np 4 | 11 | 約 9.3 分（`hambl` 約 300 秒） | −331039.600980 | 6.19e-4 → 2.16e-4 | user の判断で停止 |
+
+- 1 回目は ehf が 20 反復目あたりから一定（−331039.6008 Ry）で、ehk が 1 反復に 1e-5 Ry ずつ動き続け、conv = 1e-5 を満たさなかった。
+  k 点の割り当てが偏っていた（np 8 で 1 ランクだけ 1 点、ほかは 7 点。`hambl` は 55 秒と 470 秒）
+- メモリ: 2 回目（np 4）は 4 ランクの合計が 15〜19 GB を上下し、11 反復の間に増え続けはしなかった（1 分ごとの記録 `mem_n10.log`）。
+  漏れではなく、np 8 では山で 30 GB を超えたと見られる
 - ページ（https://claude.ai/artifact/VCWpe5W8Fei6umatXGeZGH）は 65 物質で確定（version 2）。n4（16 原子）は 06:55 に終わっていて rms 0.014 eV
 
 ### 09:38 **user「AFTEST と AFsymmetry はマージできるよね」→ `aftest-fix` を main にマージ（`6eff2df53`）。user「良い方を壊さないように」「別ディレクトリに、名前は AFfixMMOM」→ `Samples/AFfixMMOM`（`ca1e4c7fa`）**
