@@ -91,6 +91,7 @@ def check(d):
         top = cbD
     else:
         vbD, top = 0.0, 0.0
+    r.update(VBM=float(vbD), CBM=float(top))   # the windows below are [VBM - 8, CBM + 3] and [VBM - 8, CBM + 1] (2026-10-01)
     m2d = nearest(M, D, vbD - 8, top + 3); d2m = nearest(D, M, vbD - 8, top + 1)
     for k, a in (('m2d', m2d), ('d2m', d2m)):
         r['rms_' + k] = float(np.sqrt((a ** 2).mean())) if a.size else float('nan')
@@ -98,7 +99,7 @@ def check(d):
     return r
 
 
-KEYS = ['insulator', 'gap_mesh', 'gapD', 'gapM', 'dVBM', 'dCBM', 'rms_m2d', 'max_m2d', 'rms_d2m', 'max_d2m', 'nspin']
+KEYS = ['insulator', 'gap_mesh', 'gapD', 'gapM', 'dVBM', 'dCBM', 'VBM', 'CBM', 'rms_m2d', 'max_m2d', 'rms_d2m', 'max_d2m', 'nspin']
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
