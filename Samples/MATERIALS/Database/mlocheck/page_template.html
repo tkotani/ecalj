@@ -100,6 +100,7 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
   <div class="stat fair"><b>@@NFAIR@@</b><span>fair: ≤ 0.05 eV</span></div>
   <div class="stat poor"><b>@@NPOOR@@</b><span>poor: &gt; 0.05 eV</span></div>
 </section>
+<p class="note"><b>@@AFTERLINE@@</b></p>
 <p class="note">最悪値 = max（MLO の各点から最寄りの DFT のバンドまでの rms、DFT の各点から最寄りの MLO のバンドまでの rms、|ギャップの差|）。
   rms の窓は [VBM − 8, CBM + 3] eV（DFT → MLO は CBM + 1 eV まで）、金属は E_F を VBM = CBM とみなす。評価は <code>SRC/exec/mlo_bandcheck.py</code>。</p>
 
@@ -117,6 +118,8 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
     <li><b>2 本目が働くのは、窓の中にその性格の 2 本目の帯が本当にあるときだけ。</b> 無いと 2 本が同じ関数に潰れて、模型が壊れるか止まる（下の 2 つ目の表）。
       どんなときに足すかを既定にどう組み込むかは未定（TODO）。</li>
   </ul>
+  <h3>足す前と後の判定の数</h3>
+  <div class="scroll">@@AFTER@@</div>
   <h3>足した物質（左の図が既定、右が足した模型。図 3）</h3>
   <div class="scroll">@@RADIAL@@</div>
   <p class="note">MLO の数は模型の関数の本数（<code>lmlo</code> の <code>HamRsMTO=</code>）。最悪値は既定 → 足した模型。HfO₂ は動径関数ではなく、4f のチャンネル（10〜16）を <code>mlo_lm</code> に足した（表と図は f 入り）。</p>

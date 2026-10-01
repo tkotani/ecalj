@@ -140,6 +140,20 @@ radial = ('<table><thead><tr><th>物質</th><th>型</th><th>キー</th><th>足�
 radial_bad = ('<table><thead><tr><th>物質</th><th>MLO の数</th><th>最悪値 (eV)</th><th></th></tr></thead><tbody>'
               + ''.join(bad_rows) + '</tbody></table>')
 
+# ---------- after the radial functions: the verdicts with the fixed models in place of the default ones ----------
+best = {m: (worst(var[FIX[m][0]]) if (m in FIX and FIX[m][0] in var) else worst(v)) for m, v in res.items()}
+nbest = {'good': 0, 'fair': 0, 'poor': 0}
+for w in best.values(): nbest[sev(w)] += 1
+left = sorted(((w, m) for m, w in best.items() if w > 0.02), reverse=True)
+after = ('<table><thead><tr><th></th><th>good（≤ 0.02 eV）</th><th>fair（≤ 0.05 eV）</th><th>poor（&gt; 0.05 eV）</th></tr></thead><tbody>'
+         f'<tr><td>既定の模型</td><td class="num">{nsev["good"]}</td><td class="num">{nsev["fair"]}</td><td class="num">{nsev["poor"]}</td></tr>'
+         f'<tr><td>足した後</td><td class="num">{nbest["good"]}</td><td class="num">{nbest["fair"]}</td><td class="num">{nbest["poor"]}</td></tr>'
+         '</tbody></table>'
+         '<p class="note">足した後も fair で残るもの（最悪値 eV）: ' + '、'.join(f'{m} {w:.3f}' for w, m in left) +
+         '。SiO₂ のほかは何も足して試していない（C・AlSb・InSb・Sn・GaSb・SiC は s,p の半導体で、(b) の型が軽く出ている可能性がある）。'
+         '何を足すかは型を見て物質ごとに選んだもので、自動ではない。</p>')
+afterline = f'動径関数を足した後（下の「動径関数を足すとは」）: good {nbest["good"]}、fair {nbest["fair"]}、poor {nbest["poor"]}。'
+
 # ---------- table ----------
 trs = []
 for m, v in rows:
@@ -190,7 +204,7 @@ for g, gname, ms in GROUPS:
     if items: gal.append(f'<section class="grp"><h3>{gname}</h3><div class="grid">{"".join(items)}</div></section>')
 
 page = open(os.path.join(W, 'page_template.html')).read()
-for k, val in {'@@RADIAL@@': radial, '@@RADIALBAD@@': radial_bad, '@@CHART1@@': chart1, '@@CHART2@@': chart2, '@@TABLE@@': table, '@@FIXES@@': '\n'.join(fx), '@@BAD@@': '\n'.join(bad),
+for k, val in {'@@AFTER@@': after, '@@AFTERLINE@@': afterline, '@@RADIAL@@': radial, '@@RADIALBAD@@': radial_bad, '@@CHART1@@': chart1, '@@CHART2@@': chart2, '@@TABLE@@': table, '@@FIXES@@': '\n'.join(fx), '@@BAD@@': '\n'.join(bad),
                '@@GALLERY@@': '\n'.join(gal), '@@N@@': str(len(rows)), '@@NGOOD@@': str(nsev['good']), '@@NFAIR@@': str(nsev['fair']),
                '@@NPOOR@@': str(nsev['poor']), '@@REV@@': rev, '@@MISSING@@': ', '.join(missing) if missing else 'none',
                '@@DATE@@': datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}.items():
