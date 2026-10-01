@@ -19,7 +19,7 @@ To run only copt and si_gwsc test with mpi_size=8, run
 >testecalj -np 8 copt si_gwsc
 at ecalj/Samples/TestInstall
 
-To run all tests (26 targets, 64 checks), or the GW tests only,
+To run all tests (26 targets, 66 checks since 2026-10-02: the cRPA tests compare 3 files each), or the GW tests only,
 >testecalj -np 8 --all
 >testecalj -np 8 --gwall
 

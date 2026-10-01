@@ -11,7 +11,7 @@ after another and writes one summary (how to read it: ecaljdoc
 | directory | what it shows | targets | group of `samples_tests.sh` |
 |---|---|---|---|
 | [GetStarted/](GetStarted/README.md) | the seed of the [tutorial](https://ecalj.github.io/ecaljdoc/manual/README_tutorial): GaAs from `ctrls.gaas` | — | `inputs` |
-| [TestInstall/](TestInstall/README_testecalj.md) | installation tests: LDA (`c`, `co`, `cu`, `fe`, `gdn` with LDA+U, `te` with relaxation, `felz`, `gasls` with SOC, ...), GW and QSGW (`si_gwsc`, `gas_gwsc`, `nio_gwsc`, `fe_gwsc`, `fe_kbt` at 3000 K, `si_gw_lmfh`, ...), dielectric functions, spin susceptibility, cRPA of the MLO model (`ni_crpa`, `srvo3_crpa`) | 26 in `--all` (64 checks); 4 heavy GW targets run by name | `install`, `gwall`, `heavy` |
+| [TestInstall/](TestInstall/README_testecalj.md) | installation tests: LDA (`c`, `co`, `cu`, `fe`, `gdn` with LDA+U, `te` with relaxation, `felz`, `gasls` with SOC, ...), GW and QSGW (`si_gwsc`, `gas_gwsc`, `nio_gwsc`, `fe_gwsc`, `fe_kbt` at 3000 K, `si_gw_lmfh`, ...), dielectric functions, spin susceptibility, cRPA of the MLO model (`ni_crpa`, `srvo3_crpa`) | 26 in `--all` (66 checks since 2026-10-02); 4 heavy GW targets run by name | `install`, `gwall`, `heavy` |
 | [EPS/](EPS/) | dielectric function, `job_eps`: Cu, Ag, GaAs | 3 | `eps` |
 | [PROCAR/](PROCAR/README.md) | fat bands and orbital weights: MgO, Ni2MnGa | 2 | `procar` |
 | [MLOsamples/](MLOsamples/README.md) | MLO (muffin-tin localized orbitals, the model Hamiltonian that replaces Wannier functions): semiconductors, metals, SOC, 4f, screened W by `job_mloW` | 25 | `mlo` |
