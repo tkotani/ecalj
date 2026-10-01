@@ -13,9 +13,10 @@ Reads ctrlg.<sname>.toml. The "void radius" of a point is its distance to the ne
 The basis changes, so the calculation starts again from lmfa. For GW, run gwinit again (the per-atom tables of
 [product_basis] do not list the ES).
 
-Why 3.0 a.u. (2026-10-01, Samples/MATERIALS): the void radius is 4.30 a.u. for SiO2 cristobalite and 3.56 for the
-van der Waals gap of Bi2Te3; zinc blende and wurtzite compounds have 2.0-2.9 (EH2 s,p in mlo_lm2 is enough for
-them), rock salt and perovskite 1.2-1.4, metals below 1.1. SiO2 with ES at its two voids: MLO bands within
+Why 3.0 a.u. (2026-10-01, Samples/MATERIALS): the void radius is 4.30 a.u. for SiO2 cristobalite; zinc blende and
+wurtzite compounds have 2.0-2.9 (EH2 s,p in mlo_lm2 is enough for them), rock salt and perovskite 1.2-1.4, metals below
+1.1. The van der Waals gap of Bi2Te3 is 2.61 a.u. at its centre (1/2,1/2,1/2), 2.68 at the best point (2026-10-02 06:26, with
+enough images; 3.56 written here before was wrong), below 3.0: no ES there. SiO2 with ES at its two voids: MLO bands within
 0.001 eV of DFT (the conduction band was missing from the model without them).
 """
 import argparse, itertools, re, sys
@@ -36,8 +37,14 @@ def structure(d):
     return alat, plat * alat, pos
 
 
-def clearance_fn(plat, pos):
-    shifts = [np.array(t) @ plat for t in itertools.product((-1, 0, 1), repeat=3)]
+def clearance_fn(plat, pos, dcut=8.0):
+    # The images: every lattice translation that can bring an atom within dcut (a.u., > void radius + MT radius) of a point
+    # of the cell, from the spacing of the lattice planes. (2026-10-02 06:26: the images -1..1 along each vector missed near
+    # atoms in the long rhombohedral cell of Bi2Te3, |a_i| = 19.8 a.u.; the void came out larger than it is, and the local
+    # refinement below could walk away from the atoms without end, where the clearance grows without bound.)
+    q = np.linalg.inv(plat).T                                    # rows: 1/|q_i| is the spacing of the lattice planes i
+    nimg = [int(np.ceil(dcut * np.linalg.norm(qi))) + 1 for qi in q]
+    shifts = [np.array(t) @ plat for t in itertools.product(*[range(-k, k + 1) for k in nimg])]
     A = np.array([p + sh for p, _ in pos for sh in shifts]); R = np.array([rr for _, rr in pos for sh in shifts])
     def c(x):
         x = np.atleast_2d(x)
