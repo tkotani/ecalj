@@ -97,6 +97,8 @@ figure { margin: 0; }
 .cmps { display: flex; flex-direction: column; gap: 16px; }
 .cmp { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .cmp.lead { border-color: var(--accent); border-width: 2px; }
+.cmp.prob { border-color: var(--bad); border-width: 2px; }
+h2.probh { color: var(--bad); }
 .cmp figcaption { font-size: .88rem; display: flex; flex-direction: column; gap: 6px; }
 .cmp figcaption p { max-width: 100ch; }
 button:focus-visible, a:focus-visible, th:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -189,9 +191,15 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
 </section>
 
 <section>
-  <h2>図 4. 模型 1・2・3 の比較（@@NCMP@@ 物質）</h2>
-  <p class="note" style="margin-bottom:12px">基準が good でない物質と、2 で判定が変わる物質。左から 1. 基準、2. 陽イオンに EH2、3. 空格子球（SiO₂c だけ）。記号は図 3 と同じ。</p>
+  <h2>図 4. 模型 1・2・3 の比較: 2・3 で良くなる物質（@@NCMP@@ 物質）</h2>
+  <p class="note" style="margin-bottom:12px">基準が good でない物質のうち 2 か 3 で良くなるもの。問題のあるケースはページの最後（図 5）。左から 1. 基準、2. 陽イオンに EH2、3. 空格子球（SiO₂c だけ）。記号は図 3 と同じ。</p>
   <div class="cmps">@@CMP@@</div>
+</section>
+
+<section>
+  <h2 class="probh">図 5. 問題のあるケース（@@NPROB@@ 物質）</h2>
+  <p class="note" style="margin-bottom:12px">2 で模型が壊れる物質（Cu・Ni）と、どの模型でも good に届かない物質（Bi₂Te₃）。原因はどれも未確認。左から 1. 基準、2. 陽イオンに EH2。記号は図 3 と同じ。</p>
+  <div class="cmps">@@CMPPROB@@</div>
 </section>
 
 <section class="note">

@@ -151,6 +151,7 @@ def figure(m, keys, fname):
 
 FIG3 = {m: figure(m, [BEST[m][1]], f'{m}_best.png') for m in allm}
 cmp4 = [m for m in allm if m in ES or sev(W_['base'][m]) != 'good' or (W_['eh2'][m] is not None and sev(W_['eh2'][m]) != sev(W_['base'][m]))]
+cmp4 += [m for m in ('Cu', 'Ni', 'Bi2Te3') if m in allm and m not in cmp4]
 cmp4.sort(key=lambda m: (m not in ES, allm.index(m)))
 FIG4 = {m: figure(m, ['base', 'eh2'] + (['es'] if m in ES else []), f'{m}_cmp.png') for m in cmp4}
 
@@ -262,21 +263,36 @@ NOTE4 = {
  'SiO2c': 'クリストバライトの Si は隙間の多いダイヤモンド網で、伝導帯の底は網の空隙に広がった状態。原子の上の関数（1 の EH、2 の EH2）だけでは表しきれず、'
           '伝導帯に橙の点（模型に無い DFT の帯）が残る。空隙 2 か所（立方体の単位で ½(111) と ¾(111)、r = 2.6 a.u.）に z = 0 の球を置き、その s,p を模型に入れると（3）、伝導帯まで DFT に重なる。',
 }
-cmp = []
-for m in cmp4:
+def w3(m, k): return fmt(W_[k].get(m))
+NOTE4['C'] = f'2 で {w3("C", "base")} → {w3("C", "eh2")} eV に良くなるが、good（0.02 以下）には届かない。'
+# the problem cases (user 2026-10-01 18:1x: "Cu 以下は問題のあるケース", "ボトムに"), fig. 5 at the bottom of the page
+PROBLEM = {
+ 'Cu': f'<b>2 で壊れる</b>（{w3("Cu", "base")} → {w3("Cu", "eh2")} eV）。単体の金属なので、陽イオンの規則では全原子に EH2 が入る。'
+       'Γ–X の 2〜3 点の k だけで MLO の帯が E_F + 0.3 eV に集まり（黒丸）、その k の DFT の帯が模型から抜ける（橙の点）。ほかの k は重なる。'
+       '決めた既定（遷移金属・4f・5f 以外に EH2 の s,p）では Cu に EH2 は入らない。原因は未確認（同じ原子の EH と EH2 がほぼ一次従属になっているのではと疑っている）。',
+ 'Ni': f'<b>2 で壊れる</b>（{w3("Ni", "base")} → {w3("Ni", "eh2")} eV）。Cu と同じ壊れ方で、Γ–X の 2〜3 点の k だけ（両方のスピン）。決めた既定では Ni に EH2 は入らない。',
+ 'Bi2Te3': f'<b>どの模型も good に届かない</b>（1: {w3("Bi2Te3", "base")}、2: {w3("Bi2Te3", "eh2")} eV）。ずれは特定の帯の抜けではなく、窓の中の帯全体に小さく広がる'
+           f'（橙の点・黒丸はほとんど無い）。スピン軌道は <code>job_mlo_soc</code>（摂動）で入れている。同じやり方の GaAs_so は {fmt(BEST["GaAs_so"][0])} eV で問題が無い。'
+           '原因は未確認。van der Waals の隙間に空格子球を置く試験はまだ。',
+}
+def cmpfig(m, prob=False):
     src, ns = FIG4[m]
     nums = ' / '.join(f'{LAB[k].split(".")[0]}: {fmt(W_[k][m])}' for k in ('base', 'eh2', 'es') if W_[k][m] is not None)
     stop = '（2 は止まった）' if m in fail_eh2 and W_['eh2'][m] is None else ''
-    cmp.append(f'<figure class="cmp{" lead" if m in ES else ""}" id="cmp-{m}"><figcaption><b>{m}</b> · 誤差の最大値 {nums} eV{stop}'
-               + (f'<p>{NOTE4[m]}</p>' if m in NOTE4 else '') + '</figcaption>'
-               f'<button class="zoom" aria-label="{m} を拡大" data-src="{src}" data-cap="{m}"><img loading="lazy" src="{src}" alt="{m}: 模型 1・2・3 の比較"></button></figure>')
+    note = PROBLEM.get(m) if prob else NOTE4.get(m)
+    cls = ' lead' if m in ES else (' prob' if prob else '')
+    return (f'<figure class="cmp{cls}" id="cmp-{m}"><figcaption><b>{m}</b> · 誤差の最大値 {nums} eV{stop}'
+            + (f'<p>{note}</p>' if note else '') + '</figcaption>'
+            f'<button class="zoom" aria-label="{m} を拡大" data-src="{src}" data-cap="{m}"><img loading="lazy" src="{src}" alt="{m}: 模型 1・2・3 の比較"></button></figure>')
+cmp = [cmpfig(m) for m in cmp4 if m not in PROBLEM]
+cmp_prob = [cmpfig(m, True) for m in PROBLEM if m in FIG4]
 
 # materials whose best model is 2 or 3 by less than 0.001 eV (the extra seeds lower the error a little anyway)
 tiny = [m for m in allm if BEST[m][1] != 'base' and W_['base'][m] - BEST[m][0] < 0.001]
 TINY = '・'.join(tiny) + f'（{len(tiny)} 物質）'
 page = open(f'{HERE}/page_template.html').read()
-REP = {'@@CHART1@@': chart1, '@@CHART2@@': chart2, '@@TABLE@@': table, '@@CMP@@': '\n'.join(cmp), '@@GALLERY@@': '\n'.join(gal),
-       '@@COUNTS@@': counts_tbl, '@@TINY@@': TINY, '@@N@@': str(len(allm)), '@@NCMP@@': str(len(cmp4)), '@@REV@@': rev, '@@DATE@@': NOW}
+REP = {'@@CHART1@@': chart1, '@@CHART2@@': chart2, '@@TABLE@@': table, '@@CMP@@': '\n'.join(cmp), '@@CMPPROB@@': '\n'.join(cmp_prob), '@@NPROB@@': str(len(cmp_prob)), '@@GALLERY@@': '\n'.join(gal),
+       '@@COUNTS@@': counts_tbl, '@@TINY@@': TINY, '@@N@@': str(len(allm)), '@@NCMP@@': str(len(cmp)), '@@REV@@': rev, '@@DATE@@': NOW}
 for k, val in REP.items(): page = page.replace(k, val)
 open(f'{OUT}/index.html', 'w').write(page)
 print('wrote', OUT, len(allm), 'materials; base', CNT['base'], 'eh2', CNT['eh2'], 'best', CNT['best'], 'missing', missing,
