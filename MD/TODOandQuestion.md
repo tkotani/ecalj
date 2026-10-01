@@ -45,11 +45,8 @@
   (a) 基準 3（空格子球）の自動化。案は空隙の半径（最も近い MT 球の表面までの距離）が 3 a.u. を超える所に置く `SRC/exec/ctrlg_addes.py`（未コミット・未検証）。
   Bi₂Te₃ の空隙の半径は、手早い見積もり 3.56 a.u. と道具の 2.61 a.u. が食い違ったまま（菱面体の長い c で、像の数 ±1 と格子の点の数が足りないのを疑う）。
   SiO₂ は手で置いて 0.001 eV（研究ログ 2026-10-01）。
-  (b) 模型が黙って崩れる場合（基準 2 の Cu・Ni）の検知。`job_mlo` の後に `mlo_bandcheck.py` を自動で回して判定を出すか
-  (c) MLO の窓の基準のバンド端（`m_readqplist` の `eferm`・`ecbot`）は、そのディレクトリで最後に回したバンドの計算の `qplist.dat` から取る
-  （`lmf --writeham` は書かない）。`job_mlo_soc` の後で SOC なしの `job_mlo` を回すと SOC の値を使う（GaAsSoc・FeSoc で 10 meV ほど）。
-  `job_mlo` が自分でバンド端を決めるか、`qplist.dat` を誰が書いたかを確かめて止めるか（2026-10-01 20:3x、調べのエージェントの指摘を確かめた）
-  (d) `Samples/MATERIALS/*/ctrlg.*.toml` の `[mlo]` は古い gwinit のもの（f なし、`mlo_lm2` の行なし、コメントも古い）。今の gwinit で書き直すか
+  (e) 検査（`mlo_bandcheck.py` の CHECK）で、基準 1 の Sn・AlSb・Bi₂Te₃・InSb・Cu が 1 点だけ 0.1 eV を少し超えて FAIL（rms は 0.01〜0.03）。
+  線形独立性の崩れではない（重なりの最小固有値は 3e-3 程度）。帯の交差の付近の形が違う。直すか、目安を見直すか
 - **`job_mlo_soc` が空の `band_MLO_spin2.dat` を書く**（2026-10-01）: 2N のスピノルの帯は `band_MLO_spin1.dat` に入る。空の spin2 があると
   `mlo_bandplot.py` が空の枠を描いていた（描く側は 2026-10-01 に空のファイルを飛ばすようにした）。`bandplot_MLO.isp2.glt` も残る。
   `job_mlo_soc` は始めに古い spin2 を消すが、`mlo` がまた空のものを書く（`mlo_bandcheck.py` は SOC のとき spin1 だけを見る）
@@ -84,6 +81,9 @@
 
 ### 2026-10-01
 
+- MLO の模型の検査（`mlo_bandcheck.py` の CHECK、`job_mlo`・`job_mlo_soc` が最後に回す、`mlo` が `MLO_ovlpmin.dat` を書く）、
+  窓の基準の E_F を `--efermi=` のファイルから取る直し、`Samples/MATERIALS` の 63 の ctrlg の `[mlo]` を今の gwinit で書き直し（研究ログ 2026-10-01 21 時）。
+  試験: mlo 45、MLO-QSGW 5、install 64、inputs 176 が t14 で PASSED
 - MLO の模型を基準 1・2・3 に整理した（user と決めた。ecaljdoc mlo §1・§4・§9、`MD/handover.md` §5、研究ログ 2026-10-01 16〜20 時）:
   半内殻の局所軌道は帯の上端で自動（E_F − 8 eV より上は EH と入れ替え、−17〜−8 eV は加える、`d759110e4`）、gwinit は f と `!` 付きの `mlo_lm2`（基準 2）を書く、
   MLO-QSGW の凍結した模型の本数の誤り（`2053bb5ea`）、`mlo_bandcheck.py` の窓を [VBM − 8, CBM + mlo_delta] に（`bd1b893ec`）、

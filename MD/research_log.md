@@ -88,6 +88,24 @@ user の指示（05:5x）: 「この方針で進めて。TODO も判断がつく
 MATERIALS 以下を MLO で（spd ベース、f があるときに入れる）すべてモデル化。DFT レベルでよい。目視で確認できる図、バンドギャップの違い。
 AFsymmetry のモード（AFTEST）が動くのか、そもそも正しいのかも調べて」。push はしない。
 
+### 21:41 模型の検査、窓の E_F の直し、MATERIALS の `[mlo]` の書き直し（user「(b) のチェックを入れて。最大誤差と誤差のジャンプ、0.1 eV を不合格」「(c) は efermi_soc でやるのでよかったのでは」「(d) は新しいもので、差分も確かめて」）
+
+- (b) 調べ方: 対称線に沿った誤差を DFT の帯（`bnd*` の番号）ごとに追い、隣の k との跳びを測った（窓の中の点の最大で見ると帯が窓の端を出入りして段が出る）。
+  基準 1 の 65 物質: 1 点の最大が 0.1 eV を超えるのは 10（SiO₂・AlN・MgS・MgSe・MgTe と、rms は小さい Sn 0.156・AlSb 0.147・Bi₂Te₃ 0.113・InSb 0.110・Cu 0.107）。
+  帯ごとの跳びは中央値 0.015、9 割 0.055 eV、壊れた基準 2 の Cu 7.3・Ni 5.8 eV。跳びの点を拡大して描き（user「たぶんモデルが壊れてる。プロットしてみ」
+  「線形独立性が壊れてる」）、`mlo` に MLO の重なり行列の最小固有値を対称線に沿って書かせた（`MLO_ovlpmin.dat`）: 基準 1 は 3e-3〜1e-2 でなめらか、
+  基準 2 は 1e-6〜1e-5、Cu・Ni の基準 2 は崩れる k（x ≈ 0.5）で負（−4.9e-7、−2.5e-8）。基準 2 の崩れは線形独立性の崩れと確かめた。基準 1 の Sn などは
+  最小固有値が小さくなく、別の原因（帯の交差の付近の形）。検査: 1 点の最大 > 0.1 eV、帯ごとの跳び > 0.1 eV、最小固有値 ≤ 0 か中央値の 1/100 未満で FAIL。
+  65 物質（古い計算は最小固有値なし）: 基準 1 PASS 55 FAIL 10、基準 2 PASS 59 FAIL 5（Cu・Ni・SiO₂・Bi₂Te₃・C）。
+- (c) `m_readqplist`: E_F は `qplist.dat` の 1 行目（最後のバンドの計算）、CBM は `--efermi=` のファイルの CBM − E_F をそれに足していた。SOC の MLO は
+  非 SOC の E_F（GaAsSoc で SOC より 0.0082 Ry 低い）を使っていた。E_F も CBM も `--efermi=` のファイルから取り、`qplist.dat` の値は図の 0 点（`eplot`）だけに。
+  mlo・MLO-QSGW・install の参照は動かなかった（非 SOC では `job_band` と SCF の E_F がほぼ同じ）
+- (d) `mlocheck/regen_mlo.py`: 写しで `[gw]` 以降を消して `ctrlgenToml.py --addgw`、できた `[mlo]` だけを元の ctrlg に入れ替え。63 本（La₂CuO₄・InAs/GaSb は
+  `[mlo]` が無い）。差分を全部確かめた: キーの値は全部同じ、f は Ce・Eu の化合物・HfO₂ の Hf・LaGaO₃ の La、`!` 付きの `mlo_lm2` は陽イオンだけ
+  （遷移金属だけの Cu・Fe・Ni・MnO・NiO・YMn2・ZrO2 は行なし。SiC の C は陰イオンの表に無いので行あり、基準 2 の試験と同じ扱い）、BaTiO₃ は全行 `!` だった
+  `[mlo]` に既定のキー。EuS・EuSe・EuTe の種の名前 `Niup`・`Nidn`・`O` は README に書いてある雛形の名残でそのまま
+- 試験（21:41 前）: mlo 45、MLO-QSGW 5、install 64、inputs 176 がすべて PASSED
+
 ### 20:40 SOC の MLO の比べ相手を `job_mlo_soc` が描くようにした、パッケージの確かめ（user「2 と 3 で」「おすすめで」「ecaljdoc も含めてパッケージとしてどうか、TODO も」）
 
 - `job_mlo_soc`（`dc66439c5`）: 段 1b で段 1 と同じフラグの `lmf --band`（so=1）を回し、スピン軌道ありの DFT のバンドを `bnd*.spin1` に書く。始めに前の run の

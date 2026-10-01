@@ -121,8 +121,10 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
   - 評価は `mlo_bandcheck.py`: 窓 [VBM − 8, CBM + mlo_delta] の中の固有値のずれ（rms を 2 つの向き）と |Δgap| の最大。2026-10-01 17:54 より前の tsv・表は別の窓（CBM + 3 / + 1）
   - **スピン軌道の MLO（`job_mlo_soc`）はスピン軌道ありの DFT と比べる**。`job_mlo_soc` の段 1b が同じ条件で `lmf --band`（so=1）を回して `bnd*.spin1` を書く
     （2026-10-01）。SOC なしの DFT と比べると Δ_SO/3 ずれて見える（GaAsSoc で −0.1 eV に見えた）。`mlo_bandcheck.py` が WARNING を出す。
-    MLO の窓の基準のバンド端は、最後に回したバンドの計算の `qplist.dat` から取る（`job_mlo` の `lmf --writeham` は書かない）。`job_mlo_soc` の後で SOC なしの
-    `job_mlo` を回すなら先に `job_band`
+    MLO の窓の基準（E_F と CBM）は `--efermi=` のファイル（`efermi.lmf`、SOC は `efermi_soc`）から取る（2026-10-01 の夜まで E_F だけ `qplist.dat` の 1 行目だった）。
+    `qplist.dat` の値は図の 0 点だけ
+  - **模型の検査**: `mlo_bandcheck.py`（`job_mlo`・`job_mlo_soc` が最後に回す）が CHECK PASS/FAIL を出す。FAIL は 1 点のずれ > 0.1 eV、帯ごとのずれの隣の k との跳び > 0.1 eV、
+    MLO の重なりの最小固有値（`mlo` が書く `MLO_ovlpmin.dat`）が 0 以下か中央値の 1/100 未満（線形独立性の崩れ。基準 2 の Cu・Ni はそこで負になった）
 
 ## 6. 道具の癖
 

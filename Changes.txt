@@ -1,3 +1,12 @@
+2026-10-01 (4)
+  MLO の模型の検査と窓の基準。説明は ecaljdoc mlo §4・§9。
+  - mlo_bandcheck.py が模型の破綻を検査する (CHECK PASS/FAIL)。FAIL: 窓の中の 1 点のずれが 0.1 eV を超える (--fail-max)、DFT の帯ごとのずれが
+    対称線の隣の k との間で 0.1 eV を超えて跳ぶ (--fail-jump)、MLO の重なり行列の最小固有値が 0 以下か線に沿った中央値の 1/100 未満 (線形独立性の崩れ)。
+    mlo はバンドを描くとき MLO_ovlpmin.dat (x と最小固有値) を書く。job_mlo・job_mlo_soc は最後に mlo_bandcheck.py を回して結果を出す (DFT のバンドが無ければ飛ばす)。
+  - MLO の窓の基準の E_F と CBM を --efermi= のファイル (efermi.lmf、SOC は efermi_soc) から取る。これまで E_F は qplist.dat の 1 行目
+    (最後に回したバンドの計算の E_F) で、SOC の MLO は前に回した非 SOC の job_band の E_F を使っていた。qplist.dat の値は図の 0 点だけ。
+  - Samples/MATERIALS の 63 の ctrlg の [mlo] を今の gwinit で書き直した (f、! 付きの mlo_lm2。ほかの節は元のまま)。
+
 2026-10-01 (3)
   MLO の模型 (job_mlo) の既定を変えた。説明は ecaljdoc の mlo §1 (入力) と §9 (基準 1・2・3、選び方、Samples/MATERIALS の 65 物質の結果)。
   - 半内殻の局所軌道 ([[spec]] の pz): 帯の上端で決める (m_HamPMT)。E_F - 8 eV より上 (窓の中、価電子の殻そのもの: Ni 3d、Zn 3d) は
