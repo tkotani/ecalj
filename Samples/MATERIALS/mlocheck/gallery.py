@@ -151,7 +151,7 @@ def figure(m, keys, fname):
 
 FIG3 = {m: figure(m, [BEST[m][1]], f'{m}_best.png') for m in allm}
 cmp4 = [m for m in allm if m in ES or sev(W_['base'][m]) != 'good' or (W_['eh2'][m] is not None and sev(W_['eh2'][m]) != sev(W_['base'][m]))]
-cmp4 += [m for m in ('Cu', 'Ni', 'Bi2Te3') if m in allm and m not in cmp4]
+cmp4 += [m for m in ('Cu', 'Ni') if m in allm and m not in cmp4]
 cmp4.sort(key=lambda m: (m not in ES, allm.index(m)))
 FIG4 = {m: figure(m, ['base', 'eh2'] + (['es'] if m in ES else []), f'{m}_cmp.png') for m in cmp4}
 
@@ -265,15 +265,14 @@ NOTE4 = {
 }
 def w3(m, k): return fmt(W_[k].get(m))
 NOTE4['C'] = f'2 で {w3("C", "base")} → {w3("C", "eh2")} eV に良くなるが、good（0.02 以下）には届かない。'
+NOTE4['Bi2Te3'] = (f'1 も 2 も fair の下の方（{w3("Bi2Te3", "base")}、{w3("Bi2Te3", "eh2")} eV）。抜けた帯・余計な帯は無く（橙の点・黒丸はほとんど無い）、'
+                   '窓の中の帯全体に小さなずれが広がるだけで、問題は無い（user 2026-10-01 18:1x）。スピン軌道は <code>job_mlo_soc</code>（摂動）。')
 # the problem cases (user 2026-10-01 18:1x: "Cu 以下は問題のあるケース", "ボトムに"), fig. 5 at the bottom of the page
 PROBLEM = {
  'Cu': f'<b>2 で壊れる</b>（{w3("Cu", "base")} → {w3("Cu", "eh2")} eV）。単体の金属なので、陽イオンの規則では全原子に EH2 が入る。'
        'Γ–X の 2〜3 点の k だけで MLO の帯が E_F + 0.3 eV に集まり（黒丸）、その k の DFT の帯が模型から抜ける（橙の点）。ほかの k は重なる。'
        '決めた既定（遷移金属・4f・5f 以外に EH2 の s,p）では Cu に EH2 は入らない。原因は未確認（同じ原子の EH と EH2 がほぼ一次従属になっているのではと疑っている）。',
  'Ni': f'<b>2 で壊れる</b>（{w3("Ni", "base")} → {w3("Ni", "eh2")} eV）。Cu と同じ壊れ方で、Γ–X の 2〜3 点の k だけ（両方のスピン）。決めた既定では Ni に EH2 は入らない。',
- 'Bi2Te3': f'<b>どの模型も good に届かない</b>（1: {w3("Bi2Te3", "base")}、2: {w3("Bi2Te3", "eh2")} eV）。ずれは特定の帯の抜けではなく、窓の中の帯全体に小さく広がる'
-           f'（橙の点・黒丸はほとんど無い）。スピン軌道は <code>job_mlo_soc</code>（摂動）で入れている。同じやり方の GaAs_so は {fmt(BEST["GaAs_so"][0])} eV で問題が無い。'
-           '原因は未確認。van der Waals の隙間に空格子球を置く試験はまだ。',
 }
 def cmpfig(m, prob=False):
     src, ns = FIG4[m]
