@@ -2,7 +2,7 @@
 """mlo_maxloc.py: maximal localization within the MLO subspace (prototype, 2026-10-02; MD/TODOandQuestion.md, user: "MLO を作った後に
 Marzari の方法で最大局在化させることはありえる。バンドは変えない。Sakuma の方法のように対称性をレスペクトしないといけない").
 
-    mlo_maxloc.py <sname> [--niter 400] [--isp 1|2] [--orb 5,6,7,8,9]
+    mlo_maxloc.py <sname> [--niter 400] [--isp 1|2] [--orb 5,6,7,8,9] [--sym [--lblocks 0,1,2]]
 
 Run it where mlo_spread.py has run (BBVEC, UUU.* / UUD.*, QBZ.chk, PlatQlat.chk, HamRsMLO). It does not change any file of the
 MLO model; it reports the spreads of
@@ -14,8 +14,13 @@ MLO model; it reports the spreads of
       with the spread  Omega = sum_n [ (1/N) sum_kb w_b (1 - |M_nn|^2 + (Im ln M_nn)^2) - r_n^2 ],
       r_n = -(1/N) sum_kb w_b b Im ln M_nn                                                                   (MV eqs. 31, 32)
 The unitary mixing stays in the MLO subspace at each k, so the interpolated bands and the cRPA weights p_kn do not change.
-No symmetry constraint yet (Sakuma, PRB 87, 235109: U(gk) = D(g) U(k) d(g)^-1 is the next step); the result may break the
-site symmetry slightly, which the report shows as the spread of Omega within a shell (t2g, eg).
+Without --sym there is no symmetry constraint; the result may break the site symmetry (Fe spd: s, p and eg mix into
+hybrids off the atom). --sym (06:30) keeps it, as Sakuma (PRB 87, 235109) does: the Loewdin MLOs transform under the point
+group like the orbitals, M~(gk,gb) = X(g) M~(k,b) X(g)^+ with X(g) the rotation of the real harmonics (rotdlmm of libecaljF),
+and the gauge is kept in the form U(gk) = X(g) U(k) X(g)^+ by averaging the gradient over the group,
+    G_s(k) = (1/N_g) sum_g X(g)^+ G(gk) X(g).
+The relation of M~ is checked first (it fixes whether X is D or D^T and catches a wrong k map). --sym handles one atom at the
+origin and a symmorphic group (Ni, Fe); the MLOs ordered by l (--lblocks, default from their number: 5 d, 9 s p d).
 --orb restricts (b),(c) to a subset of MLOs (1-based): their own subspace, e.g. the d of one atom. Without it all MLOs.
 """
 import argparse, sys
@@ -74,12 +79,69 @@ def rotate(M0, U, kb):
     return np.einsum('kmi,kbmn,kbnj->kbij', U.conj(), M0, U[kb])
 
 
+def symmetry_X(sname, plat, nbasis, lblocks):
+    """X(g) (nbasis x nbasis) for the point-group operations of the crystal: blocks of the real-harmonic rotation matrices
+    D^l(R) of ecalj (rotdlmm), one block per l in lblocks. One atom at the origin, no translations."""
+    import ctypes, importlib.util, os
+    spec = importlib.util.spec_from_file_location('symfind', str(Path(__file__).parent / 'symfind.py'))
+    sf = importlib.util.module_from_spec(spec); spec.loader.exec_module(sf)
+    alat_c, plat_c, names, frac, af = sf.read_ctrlg(sname)
+    if len(names) != 1:
+        sys.exit('mlo_maxloc --sym: one atom per cell only (prototype)')
+    _, get = sf.spglib_dataset(alat_c, plat_c, names, frac, 1e-5)
+    R, T = np.array(get('rotations')), np.array(get('translations'))
+    if np.abs(T - np.rint(T)).max() > 1e-8:
+        sys.exit('mlo_maxloc --sym: a non-symmorphic group (prototype)')
+    Rc = np.array([plat_c @ r @ np.linalg.inv(plat_c) for r in R])        # Cartesian rotations
+    if sum(2 * l + 1 for l in lblocks) != nbasis:
+        sys.exit(f'mlo_maxloc --sym: lblocks {lblocks} do not make {nbasis} MLOs')
+    lib = None
+    for d in [Path(__file__).parent, Path(__file__).resolve().parent.parent / 'build_gfortran']:
+        if (d / 'libecaljF.so').exists() and (d / 'lmf').exists():
+            # the libraries lmf is linked with (MKL's FFTW and LAPACK, MPI) first, global: libecaljF.so leaves them to the executable
+            import subprocess
+            for line in subprocess.run(['ldd', str(d / 'lmf')], capture_output=True, text=True).stdout.split('\n'):
+                w = line.split()
+                if len(w) >= 3 and w[1] == '=>' and Path(w[2]).exists() and 'libecaljF' not in w[2]:
+                    ctypes.CDLL(w[2], mode=ctypes.RTLD_GLOBAL)
+            lib = ctypes.CDLL(str(d / 'libecaljF.so')); break
+    if lib is None:
+        sys.exit('mlo_maxloc --sym: libecaljF.so and lmf not found next to the script')
+    ng, nl = len(Rc), max(lblocks) + 1
+    sym = np.asfortranarray(np.transpose(Rc, (1, 2, 0)))                   # symops(3,3,ng)
+    dl = np.zeros((2 * nl - 1, 2 * nl - 1, nl, ng), order='F')
+    lib.__m_symderive_MOD_rotdlmm(sym.ctypes.data_as(ctypes.c_void_p), ctypes.byref(ctypes.c_int(ng)),
+                                  ctypes.byref(ctypes.c_int(nl)), dl.ctypes.data_as(ctypes.c_void_p))
+    X = np.zeros((ng, nbasis, nbasis))
+    for ig in range(ng):
+        o = 0
+        for l in lblocks:
+            X[ig, o:o + 2 * l + 1, o:o + 2 * l + 1] = dl[nl - 1 - l:nl + l, nl - 1 - l:nl + l, l, ig]
+            o += 2 * l + 1
+    return Rc, X
+
+
+def kb_maps(Rc, qbz, qlat, bb):
+    """index of g k on the mesh and of g b in the b list, for each operation."""
+    qinv = np.linalg.inv(qlat)
+    key = lambda q: tuple(np.round((qinv @ q) % 1.0, 6) % 1.0)
+    kidx = {key(k): i for i, k in enumerate(qbz)}
+    gk = np.array([[kidx[key(r @ k)] for k in qbz] for r in Rc])
+    gb = np.array([[int(np.argmin(np.linalg.norm(bb - r @ b, axis=1))) for b in bb] for r in Rc])
+    for r, row in zip(Rc, gb):
+        if np.abs(bb[row] - (r @ bb.T).T).max() > 1e-6:
+            sys.exit('mlo_maxloc --sym: the b shells are not closed under the group')
+    return gk, gb
+
+
 def main():
     p = argparse.ArgumentParser(prog='mlo_maxloc.py', description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument('sname')
     p.add_argument('--niter', type=int, default=400)
     p.add_argument('--isp', type=int, default=1)
     p.add_argument('--orb', default='', help='subset of MLOs (1-based, comma separated)')
+    p.add_argument('--sym', action='store_true', help='keep the point-group symmetry (Sakuma)')
+    p.add_argument('--lblocks', default='', help='l of the MLO blocks in order, e.g. 0,1,2 (with --sym)')
     a = p.parse_args()
     plat, qlat, alat = read_lattice()
     qbz = read_qbz()
@@ -102,12 +164,31 @@ def main():
     om_b, r_b = spread_mv(M0, bbx, wbx, u)
     # (c) MV steepest descent
     nw = len(sel)
+    if a.sym:
+        if a.orb:
+            sys.exit('mlo_maxloc: --sym with all MLOs only (prototype)')
+        lbl = [int(x) for x in a.lblocks.split(',')] if a.lblocks else {5: [2], 9: [0, 1, 2], 4: [0, 1], 1: [0]}[nbasis]
+        Rc, Xd = symmetry_X(a.sname, plat, nbasis, lbl)
+        gk, gb = kb_maps(Rc, qbz, qlat, bbx)
+        best = None
+        for name, Xg in (('D', Xd), ('D^T', np.transpose(Xd, (0, 2, 1)))):
+            err = max(np.abs(M0[gk[ig]][:, gb[ig]] - np.einsum('ij,kbjl,ml->kbim', Xg[ig], M0, Xg[ig])).max() for ig in range(len(Rc)))
+            if best is None or err < best[1]:
+                best = (name, err, Xg)
+        print(f'mlo_maxloc --sym: {len(Rc)} operations, X = {best[0]}, max |M(gk,gb) - X M(k,b) X^+| = {best[1]:.2e}')
+        if best[1] > 1e-4:
+            sys.exit('mlo_maxloc --sym: the MLOs do not transform as assumed (lblocks, origin, or the k map)')
+        Xs = best[2]
+        def symgrad(G):
+            return np.mean([np.einsum('ji,kjl,lm->kim', Xs[ig], G[gk[ig]], Xs[ig]) for ig in range(len(Rc))], axis=0)
+    else:
+        symgrad = lambda G: G
     U = np.tile(np.eye(nw, dtype=complex), (len(qbz), 1, 1))
     Mc = M0.copy()
     om, r = spread_mv(Mc, bbx, wbx, u)
     tot = om.sum()
     step = 0.25 / (4 * wbx.sum())
-    G = gradient(Mc, bbx, wbx, r / u)
+    G = symgrad(gradient(Mc, bbx, wbx, r / u))
     sgn = 1.0                                   # the direction that lowers Omega (conventions differ between papers)
     for s in (1.0, -1.0):
         Ut = np.array([U[k] @ expm(s * 1e-3 * step * G[k]) for k in range(len(qbz))])
@@ -115,7 +196,7 @@ def main():
             sgn = s
             break
     for it in range(a.niter):
-        G = sgn * gradient(Mc, bbx, wbx, r / u)
+        G = sgn * symgrad(gradient(Mc, bbx, wbx, r / u))
         while True:
             Ut = np.array([U[k] @ expm(step * G[k]) for k in range(len(qbz))])
             Mt = rotate(M0, Ut, kbx)

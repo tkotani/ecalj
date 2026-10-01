@@ -55,7 +55,7 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 - **対称性: Fortran の中で「見つける・導く・使う」を分け、spglib を入れる**（2026-10-02、`MD/symmetry_spglib.md` §4.7 の S0〜S6）。S0 済み（`f7c382bed`、食い違い 0）。超格子は暫定で閉じた部分群（Si の慣用胞で 24）、純粋な並進を使うのは S4。2×1×1 の Si の GW は遅いだけだった（§5）
 - **MLO のマグノンの既定の窓**（2026-10-02、研究ログ 04:17）: 窓を広げる（Δ = 6 eV）と d の MLO が局在し、η ≈ 1、高い q のマグノンが Wannier 版に近づく。`job_mlo_magnon` 用に既定を変えるか、`Fe_mlo_magnon` の入力を変えるか（参照を作り直す）。Ni、FeCo でも確かめる
 - **MLO の部分空間の中での最大局在化**（user 2026-10-02 未明）: MLO を作った後に Marzari–Vanderbilt で局在させる（バンドと cRPA の p_kn は変わらない）。MLO は直交していないので、まず Löwdin で直交化し、そこから最小化する。対称性は Sakuma（PRB 87, 235109）のように U(gk) = D(g) U(k) d(g)⁻¹ で拘束する（MLO は MTO と同じに回る、`rotmatMTO`）。`mlo_spread.py` の M(k,b) が材料。比べる量: Fe・Ni の d で Ω（生、Löwdin のみ、Löwdin + MV）、マグノン、U
-  2026-10-02 06:20 試作 `SRC/exec/mlo_maxloc.py`（拘束なし）: Ni d は Ω の 97 % が Ω_I で MV は効かない。Fe spd では拘束なしの MV が対称性を破る（研究ログ 06:20）。次は Sakuma の拘束（勾配を群で平均）
+  2026-10-02 06:20 試作 `SRC/exec/mlo_maxloc.py`（拘束なし）: Ni d は Ω の 97 % が Ω_I で MV は効かない。Fe spd では拘束なしの MV が対称性を破る（研究ログ 06:20）。06:31 に Sakuma の拘束を入れた（`--sym`、1 原子・symmorphic だけ）: Fe t2g 7 % 縮むだけ。残り: 多原子・非 symmorphic、局在させた基底での cRPA の U とマグノン
 - **`hgw` の残り**（2026-04 の統合の残タスク、2026-10-01 に past_log.md §3.2 から）: ノード内の W の共有を `MPI_Win_allocate_shared` で（メモリの重複を減らす）。
   `hsfp0_sc` の Sx（`--job=1`）・core の交換（`--job=3`）も `hgw` に入れる（時間は小さいので優先度は低い）
 
