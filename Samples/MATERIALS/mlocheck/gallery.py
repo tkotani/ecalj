@@ -40,7 +40,7 @@ r_es = evaluate(list(ES.values()), f'{OUT}/es.json')
 R['es'] = {m: r_es[os.path.basename(d)] for m, d in ES.items() if os.path.basename(d) in r_es}
 json.dump(R, open(f'{OUT}/all.json', 'w'), indent=1)
 DIR = {'base': lambda m: f"{SETS['base']}/{m}", 'eh2': lambda m: f"{SETS['eh2']}/{m}", 'es': lambda m: ES[m]}
-LAB = {'base': '基準 1', 'eh2': '基準 2（陽イオンに EH2）', 'es': '基準 3（空格子球）'}   # user 2026-10-01 18:4x: 基準 1, 2, 3
+LAB = {'base': '基準 1', 'eh2': '基準 2（陽イオンに EH2(s,p) シード）', 'es': '基準 3（空格子球）'}   # user 2026-10-01 18:4x: 基準 1, 2, 3
 SHORT = {'base': '基準 1', 'eh2': '基準 2', 'es': '基準 3'}
 
 fail_eh2 = {}
@@ -234,7 +234,7 @@ counts_tbl = ('<table class="cnt"><thead><tr><th>模型</th><th>MLO のシード
               '<th class="num">good<br>≤ 0.02</th><th class="num">fair<br>≤ 0.05</th><th class="num">marginal<br>≤ 0.1</th><th class="num">poor<br>&gt; 0.1 eV</th></tr></thead><tbody>'
   + mrow('', '旧既定（〜2026-10-01 14:4x）', '原子ごと・lm ごとに EH 1 本をシードにする。浅い局所軌道は EH と入れ替え（E_F − 10 eV より上）', '<code>mlo_lm</code>', 'old', 'old')
   + mrow('', '<b>基準 1</b>', 'EH に加えて、半内殻の局所軌道（帯の上端が E_F − 17 eV より上）を MLO のシードとして加える', '自動（<code>m_HamPMT</code>）', 'base')
-  + mrow('', '<b>基準 2</b>: 基準 1 + 陽イオンに EH2', '陽イオンの s,p に第 2 の smooth Hankel 関数（EH2）を MLO のシードとして加える', '<code>mlo_lm2</code>', 'eh2')
+  + mrow('', '<b>基準 2</b>: 基準 1 + 陽イオンに EH2(s,p) シード', '陽イオンの s,p に第 2 の smooth Hankel 関数（EH2）を MLO のシードとして加える', '<code>mlo_lm2</code>', 'eh2')
   + mrow('', '<b>基準 3</b>: 基準 1 + 空格子球', '空隙に置いた z = 0 の球の s,p を MLO のシードとして加える', '<code>[[site]]</code>・<code>[[spec]]</code>・<code>mlo_lm</code>（DFT から回し直す）', 'es')
   + mrow('', '<b>物質ごとに一番良いもの</b>', '基準 1・2・3 のうち誤差の最大値が一番小さい模型（図 1〜3）', '', 'best', 'best')
   + '</tbody></table>')

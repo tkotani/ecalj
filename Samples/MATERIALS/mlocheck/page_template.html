@@ -148,7 +148,7 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
     <dt>EH</dt><dd>PMT の基底の第 1 の smooth Hankel 関数。どの模型も <code>mlo_lm</code> の (原子, lm) ごとに 1 本を MLO のシードにする（s,p,d。4f の原子は f も）。MLO はシードの向きに沿って窓の中の DFT の固有状態から作り直され、シード 1 本が MLO 1 本になる。DFT の基底は模型によらず同じ。</dd>
     <dt>基準 1</dt><dd>入力には何も書かない。半内殻の帯は、同じ種類の原子の局所軌道をまとめた部分空間への重みが 1/2 を超える占有状態で見る
       （La₂CuO₄ の La 5p は 2 つの La に半分ずつ広がる）。Ga 3d・In 4d・Eu 5p・La 5p・Sr 4p が O・N の 2p と混ざる系が直る。</dd>
-    <dt>基準 2（陽イオンに EH2）</dt><dd>空隙の大きい閃亜鉛鉱・wurtzite の化合物（MgX・CdTe・ZnTe・AlN など）で、隙間に広がった伝導帯の底を表す。
+    <dt>基準 2（陽イオンに EH2(s,p) シード）</dt><dd>空隙の大きい閃亜鉛鉱・wurtzite の化合物（MgX・CdTe・ZnTe・AlN など）で、隙間に広がった伝導帯の底を表す。
       単体の金属では全原子が対象になり、Cu・Ni は壊れる。EuO は模型を作る所で止まった（PMT の完全性の損失が大きすぎる）ので 64 物質。</dd>
     <dt>基準 3（空格子球）</dt><dd>いまは SiO₂ クリストバライトだけ: Si のダイヤモンド網の空隙 2 か所（立方体の単位で ½(111) と ¾(111)）に r = 2.6 a.u. の球（図 4 の先頭）。</dd>
   </dl>
@@ -184,7 +184,7 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
   <p class="note">ギャップは DFT の（k メッシュと対称線の上のうち小さい方）。窓は誤差を見る範囲（E_F 基準、VBM − 8 〜 CBM + mlo_delta）。
     誤差は窓の中での固有値のずれ（誤差の最大値は rms の 2 つの向きと |ギャップの誤差| のうち最大）。色は判定、太字と左の線はその物質で一番良い模型。SiO₂c の 2 段目は基準 3（空格子球）の値で、基準 1 の列に書いた。見出しを押すと並べ替え。</p>
   <div class="scroll"><table id="tbl"><thead>
-    <tr><th colspan="3"></th><th class="colgrp" colspan="2">基準 1</th><th class="colgrp" colspan="2">基準 2（陽イオンに EH2）</th></tr>
+    <tr><th colspan="3"></th><th class="colgrp" colspan="2">基準 1</th><th class="colgrp" colspan="2">基準 2（陽イオンに EH2(s,p) シード）</th></tr>
     <tr><th scope="col" tabindex="0">物質</th><th scope="col" tabindex="0" class="num">ギャップ</th><th scope="col" tabindex="0" class="num">誤差を見る窓</th>
     <th scope="col" tabindex="0" class="num">ギャップの誤差</th><th scope="col" tabindex="0" class="num">誤差の最大値</th>
     <th scope="col" tabindex="0" class="num">ギャップの誤差</th><th scope="col" tabindex="0" class="num">誤差の最大値</th></tr></thead>
@@ -214,7 +214,7 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
 
 <section>
   <h2 class="probh">図 5. 基準を変えると問題が出たケース（@@NPROB@@ 物質）</h2>
-  <p class="note" style="margin-bottom:12px">基準 2（陽イオンに EH2）で模型が壊れる物質（Cu・Ni）と、作れない物質（EuO、図なし）。どれも同じ原子の EH と EH2 をどちらもシードにしたもので、<b>基底の MLO シードから作られるバンドの線形独立性が壊れることが原因だと思われる</b>（EuO は止まった所の判定がそれを示す。Cu・Ni は未確認）。左から基準 1、基準 2。記号は図 3 と同じ。</p>
+  <p class="note" style="margin-bottom:12px">基準 2（陽イオンに EH2(s,p) シード）で模型が壊れる物質（Cu・Ni）と、作れない物質（EuO、図なし）。どれも同じ原子の EH と EH2 をどちらもシードにしたもので、<b>基底の MLO シードから作られるバンドの線形独立性が壊れることが原因だと思われる</b>（EuO は止まった所の判定がそれを示す。Cu・Ni は未確認）。左から基準 1、基準 2。記号は図 3 と同じ。</p>
   <div class="cmps">@@CMPPROB@@</div>
 </section>
 
