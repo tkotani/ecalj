@@ -10,19 +10,11 @@
 
 ## 使い方
 
-- 作業ディレクトリに `mmtarget.aftest` を置き、目標のモーメントを 1 つ書く。あると lmf がこのモードになる
-- 場は LDA+U のブロック（`vorb`）に入れるので、対の 2 つのサイトに LDA+U のブロックが要る。`idu = 1`、`uh = jh = 0` でブロックだけ作れる（LDA と同じ結果）。
-  sigm があっても（QSGW）ブロックは残るので効く
-- 対はサイト 1 と 2（ブロック 1 と 2）に決め打ち。NiSe 用に、ブロックが 6 つのときは 1〜3 と 4〜6
-- lmf が書くファイル: `mmagfield.aftest`（場 uhx と各サイトのモーメント）、`mixmag.aftest`（場の混合の履歴）。回し直すときは消す。
-  `lmf` を起動するたびに場を一歩更新して `mmagfield.aftest` を書き直す（`job_band` でも）
-- 標準出力の `mmaftest:` の行が「反復、uhx（Ry）、m₁、m₂、…」、`mmhist:` の行が場とモーメントの履歴
+ecaljdoc `manual/UsageDetailed.md` の「Holding the AF moment at a given value (`mmtarget.aftest`)」。作業ディレクトリの `mmtarget.aftest`（目標のモーメント）で
+このモードになる。対のサイトに LDA+U のブロックが要る（`idu = 1`、`uh = jh = 0` でよい）。回し直すときは `mmagfield.aftest`・`mixmag.aftest` を消す。
 
 ## 注意
 
-- 2026-10-01 に直した（`6eff2df53`）: 場をスピン 1 にしか入れていなかった。`symgrpaf` ありではモーメントとバンドは正しかったが、表示の ehk に場のエネルギーの
-  −uhx·m_d（ehf には −2·uhx·m_d）が残っていた。`symgrpaf` なしでは 2 つのサイトの電荷が分かれていた。いまは ehk が制約の下の全エネルギーで、
-  dE/dm_d = 2·uhx が成り立つ（m_d は `dmats` の d のモーメント）
-- モーメントを下げる向き（NiO で 1.28 → 1.0）は収束が遅い（70 反復、途中でモーメントの符号が反転する）。場の更新の利得が固定のため（TODO）
-- `symgrpaf` と k 点 4³ では `pwmode = 11` が要る（`pwmode = 1` では `rotwave: q+G rotation error`）
+- 2026-10-01 に直した（`6eff2df53`）: 場をスピン 1 にしか入れていなかった。いまは ehk が制約の下の全エネルギー
+- 残り（対の決め打ち、場の更新の利得、lmf の起動ごとの更新）は ecalj の `MD/TODOandQuestion.md`
 - 調べた記録: ecalj の `MD/research_log.md` 2026-10-01 朝 06:46（表 06:46-1）
