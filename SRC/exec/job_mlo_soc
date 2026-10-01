@@ -8,6 +8,10 @@
 #     3. mlo --socmatrix to build HamRsMLO + SOC-included MLO bands on symmetry line
 #        (--efermi=efermi_soc: the MLO window is referenced to the SOC Ef, as before).
 #     4. Rewrite ef= in bandplot_MLO.isp1.glt using efermi_soc.
+#     Step 1 also draws the DFT bands with SOC under the same flags (lmf --band, bnd*.spin1, bandplot.isp1.glt),
+#     so the bands of the directory are always the reference of the SOC MLO bands (2026-10-01 20:1x, user: the
+#     job writes them; before, job_band without SOC was compared with them and GaAs looked 0.1 eV = Delta_SO/3 off).
+#     Band files of an earlier run (bnd*.spin*, band_MLO_spin2.dat: with SOC every band is in spin1) are removed first.
 #
 # Common settings:
 #   --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true
@@ -58,6 +62,8 @@ def cal_mlo_soc(args, extra_args):
     mpi_size = args.np
     cluster = args.cluster
     remove_files("HamiltonianPMT.*")
+    for f in [*Path('.').glob('bnd0*.spin*'), Path('band_MLO_spin2.dat')]:   # left over from a run without SOC
+        f.unlink(missing_ok=True)
 
     # Step 1: SOC-corrected Fermi energy via full LS lmf --quit=band
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
@@ -70,6 +76,16 @@ def cal_mlo_soc(args, extra_args):
     else:
         print("Warning: efermi_soc not created in Step 1; Ef update skipped.")
         ef_soc = None
+
+    # Step 1b: the DFT bands with SOC on the symmetry lines, the reference of the MLO bands (same flags as step 1)
+    if list(Path('.').glob(f'syml.{target}')) and ef_soc is not None:
+        run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
+                                   args=[target, "--band", "--efermi=efermi_soc",
+                                         *COMMON_FLAGS, *EF_FLAGS, *extra_args]),
+                stdout="llmf_band")
+        print("DFT bands with SOC written (bnd*.spin1, bandplot.isp1.glt; log llmf_band)")
+    else:
+        print(f"Warning: no syml.{target} (or no efermi_soc); the DFT bands with SOC are not drawn.")
 
     # Step 2: write scalar-rel H + SOC matrix
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"lmf",
@@ -104,6 +120,7 @@ if __name__ == "__main__":
             "  job_mlo_soc gaas -np 8 [extra options]\n"
             "Common flags: --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true\n"
             "Step 1 (Ef):      lmf --quit=band --ctrlg:ham.so=1  -> efermi_soc\n"
+            "         (bands): lmf --band --ctrlg:ham.so=1  -> bnd*.spin1, the DFT reference with SOC\n"
             "Step 2 (writeham): lmf --writeham ... --ctrlg:ham.so=0 --socmatrix\n"
             "Step 3 (mlo):     mlo --socmatrix\n"
         ),

@@ -22,6 +22,10 @@ mlo_delta is that of [mlo] in ctrlg.*.toml of the directory (2 eV when absent, t
 above the band edge the model is asked to be right, so the model is judged in that same window. Until 2026-10-01 17:54
 the upper edge was CBM + 3 (MLO -> DFT) and CBM + 1 (DFT -> MLO), whatever mlo_delta was.
 
+SOC: the MLO bands of job_mlo_soc (2 N_MLO bands per k in band_MLO_spin1.dat, N_MLO from lmlo) must be compared with DFT bands
+with SOC (job_band <sname> --ctrlg:ham.so=1 --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true; HAM_SO of llmf_band). A mismatch is
+reported as 'warning' (2026-10-01 20:1x: Samples/MLOsamples/GaAsSoc looked 0.1 eV off, it was the non-SOC DFT, Delta_SO/3).
+
 2026-10-01: rewritten for any directory (the test of Samples/MATERIALS, MD/research_log.md 2026-10-01).
 The earlier version (v6.2, effective-mass ratios, fixed to Samples/MLOsamples/*__m3_work) is in the git history.
 """
@@ -50,6 +54,28 @@ def read_delta(d):
         try: return float(tomllib.load(open(f, 'rb')).get('mlo', {}).get('mlo_delta', 2.0))
         except Exception: pass
     return 2.0
+
+
+def soc_of(d):
+    """(MLO with SOC?, DFT with SOC?), None when it cannot be told. MLO: bands per k of band_MLO_spin1.dat against
+    N_MLO of lmlo (2 N with job_mlo_soc); DFT: HAM_SO in llmf_band (the log of job_band), else so of [ham] in the ctrlg."""
+    mso = dso = None
+    try:
+        n = int(re.findall(r'HamRsMTO=\s*(\d+)', open(os.path.join(d, 'lmlo'), errors='replace').read())[-1])
+        xs = [l.split()[0] for l in open(os.path.join(d, 'band_MLO_spin1.dat')) if l.strip() and not l.lstrip().startswith('#')]
+        mso = xs.count(xs[0]) == 2 * n
+    except (OSError, IndexError, ValueError):
+        pass
+    try:
+        m = re.search(r'HAM_SO\s+\S+\s+n=\s*\d+\s+val=\s*([-0-9.]+)', open(os.path.join(d, 'llmf_band'), errors='replace').read())
+        if m: dso = float(m.group(1)) > 0
+    except OSError:
+        pass
+    if dso is None and tomllib is not None:          # no log of job_band: the so of the ctrlg it read by default
+        for f in glob.glob(os.path.join(d, 'ctrlg.*.toml')):
+            try: dso = int(tomllib.load(open(f, 'rb')).get('ham', {}).get('so', 0)) > 0
+            except Exception: pass
+    return mso, dso
 
 
 def load(files, conv, bnd=False):
@@ -82,6 +108,8 @@ def nearest(P, Q, lo, hi):
 def check(d):
     ef = read_ef(d)
     spins = [s for s in (1, 2) if glob.glob(os.path.join(d, f'bnd*.spin{s}'))]
+    mso, dso = soc_of(d)
+    if mso: spins = [1]   # SOC: every band is in spin1, a spin2 file is left over from a run without SOC (2026-10-01 20:1x)
     D, M = {}, {}
     for s in spins:
         for x, es in load(sorted(glob.glob(os.path.join(d, f'bnd*.spin{s}'))), lambda e: e, bnd=True).items():
@@ -98,7 +126,10 @@ def check(d):
     sep = 0.5 * gmesh if (ln[0] - ln[1]) < 1e-6 and gmesh > 0.05 else 0.02
     vbD = eD[eD <= sep].max(); cbD = eD[eD > sep].min()
     ins = bool((ln[0] - ln[1]) < 1e-6 and gmesh > 0.05 and cbD - vbD > 0.05)
-    r = dict(insulator=ins, gap_mesh=(ln[2] - ln[1]) * RY if ins else 0.0, nspin=len(spins))
+    r = dict(insulator=ins, gap_mesh=(ln[2] - ln[1]) * RY if ins else 0.0, nspin=len(spins), soc=bool(mso))
+    if mso is not None and dso is not None and mso != dso:
+        r['warning'] = ('MLO with SOC against DFT without SOC: run job_band <sname> --ctrlg:ham.so=1 --ctrlg:ham.nspin=2 '
+                        '--ctrlg:ham.phispinsym=true' if mso else 'MLO without SOC against DFT with SOC')
     if ins:
         mid = 0.5 * (vbD + cbD)
         vbM = eM[eM <= mid].max() if (eM <= mid).any() else float('nan')
@@ -137,6 +168,7 @@ if __name__ == '__main__':
     print(f"{'name':14s} {'gap_mesh':>8s} {'gapD':>7s} {'gapM':>7s} {'dVBM':>7s} {'dCBM':>7s} | {'rms_m2d':>7s} {'max':>5s} {'rms_d2m':>7s} {'max':>5s}   (eV)")
     for k, v in res.items():
         if 'error' in v: print(f'{k:14s} ERROR {v["error"]}'); continue
+        if 'warning' in v: print(f'{k:14s} WARNING {v["warning"]}')
         g = (f"{v['gap_mesh']:8.3f} {v['gapD']:7.3f} {v['gapM']:7.3f} {v['dVBM']:+7.3f} {v['dCBM']:+7.3f}" if v['insulator']
              else f"{'metal':>8s} {'':7s} {'':7s} {'':7s} {'':7s}")
         print(f"{k:14s} {g} | {v['rms_m2d']:7.3f} {v['max_m2d']:5.2f} {v['rms_d2m']:7.3f} {v['max_d2m']:5.2f}")
