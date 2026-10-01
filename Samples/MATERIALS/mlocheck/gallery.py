@@ -188,7 +188,8 @@ svg.append('<defs><marker id="ah" viewBox="0 0 10 10" refX="5" refY="5" markerWi
 chart1 = '\n'.join(svg)
 
 # ---------- chart 2: error of the best model, sorted, log scale; the bar colour is the model (1, 2, 3; user 2026-10-01 18:0x),
-# the verdict is read from the dashed lines; rings at the baseline value where 2 or 3 is better ----------
+# the verdict is read from the dashed lines; the values of model 2 (EH2 on cations) as a polyline over all materials
+# (user 18:2x: a line, not rings) ----------
 srt = sorted(allm, key=lambda m: BEST[m][0])
 BW, BH, bl, bb, bt = max(720, 11 * len(srt) + 70), 300, 56, 92, 14
 L0, L1 = math.log10(0.0005), math.log10(5.0)
@@ -201,9 +202,19 @@ step = (BW - bl - 8) / len(srt)
 for i, m in enumerate(srt):
     w, k = BEST[m]; x = bl + i * step
     sv.append(f'<rect x="{x+1:.1f}" y="{by(w):.1f}" width="{max(step-2,2):.1f}" height="{BH-bb-by(w):.1f}" rx="2" class="bar m-{k}"><title>{m} {LAB[k]}: {w:.3f} eV ({sev(w)})</title></rect>')
-    if k != 'base':
-        sv.append(f'<circle cx="{x+step/2:.1f}" cy="{by(W_["base"][m]):.1f}" r="3.6" class="pt was"><title>{m} 1. 基準: {W_["base"][m]:.3f} eV</title></circle>')
     sv.append(f'<text x="{x+step/2:.1f}" y="{BH-bb+8}" class="blab" transform="rotate(60 {x+step/2:.1f} {BH-bb+8})">{m}</text>')
+segs, cur = [], []                                     # the line breaks where model 2 has no value (EuO stopped)
+for i, m in enumerate(srt):
+    v = W_['eh2'][m]
+    if v is None:
+        if cur: segs.append(cur); cur = []
+        continue
+    cur.append((bl + (i + 0.5) * step, by(v), m, v))
+if cur: segs.append(cur)
+for s in segs:
+    sv.append('<polyline class="eh2line" points="' + ' '.join(f'{x:.1f},{y:.1f}' for x, y, _, _ in s) + '"/>')
+    for x, y, m, v in s:
+        sv.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="5" class="hit"><title>{m} 2. 陽イオンに EH2: {v:.3f} eV</title></circle>')
 sv.append(f'<text x="14" y="{(bt+BH-bb)/2}" class="axis" text-anchor="middle" transform="rotate(-90 14 {(bt+BH-bb)/2})">eV</text></svg>')
 chart2 = '\n'.join(sv)
 
@@ -264,6 +275,8 @@ NOTE4 = {
           '伝導帯に橙の点（模型に無い DFT の帯）が残る。空隙 2 か所（立方体の単位で ½(111) と ¾(111)、r = 2.6 a.u.）に z = 0 の球を置き、その s,p を模型に入れると（3）、伝導帯まで DFT に重なる。',
 }
 def w3(m, k): return fmt(W_[k].get(m))
+_e = evaluate([f'{W}/mlocheck_eh2main/sp/EuO'], f'{OUT}/euo_eh2o.json').get('EuO')
+EUO_O = worst(_e) if _e else None
 NOTE4['C'] = f'2 で {w3("C", "base")} → {w3("C", "eh2")} eV に良くなるが、good（0.02 以下）には届かない。'
 NOTE4['Bi2Te3'] = (f'1 も 2 も fair の下の方（{w3("Bi2Te3", "base")}、{w3("Bi2Te3", "eh2")} eV）。抜けた帯・余計な帯は無く（橙の点・黒丸はほとんど無い）、'
                    '窓の中の帯全体に小さなずれが広がるだけで、問題は無い（user 2026-10-01 18:1x）。スピン軌道は <code>job_mlo_soc</code>（摂動）。')
@@ -285,6 +298,15 @@ def cmpfig(m, prob=False):
             f'<button class="zoom" aria-label="{m} を拡大" data-src="{src}" data-cap="{m}"><img loading="lazy" src="{src}" alt="{m}: 模型 1・2・3 の比較"></button></figure>')
 cmp = [cmpfig(m) for m in cmp4 if m not in PROBLEM]
 cmp_prob = [cmpfig(m, True) for m in PROBLEM if m in FIG4]
+# a problem case with no figure: model 2 could not be made (user 2026-10-01 18:2x: "EuO も書いておいて、図は無くてもいい")
+PROBLEM_NOFIG = {
+ 'EuO': f'<b>2 で模型が作れない</b>（1: {w3("EuO", "base")} eV、2: 止まった）。陽イオンの規則では Eu（4f）の s,p に EH2 が入り、<code>job_mlo</code> の '
+        '<code>Hreduction</code> が止まる: 「PMT completeness loss too large: band 26 dev= −0.012970」（2 番目の q 点、spin 1）。'
+        '同じ原子の EH と EH2 をどちらもシードにすると、PMT の固有ベクトルが一次従属に近い向きを落とす（<code>zhev_tk4</code> の oveps）ので、'
+        'シードのノルムが減る。減りが 1 % を超えると止める（<code>m_hreduction</code> の NormalizationCheck、1 % 未満なら規格化し直して進む）。'
+        f'決めた既定（遷移金属・4f・5f 以外に EH2 の s,p）では Eu に EH2 は入らない。O だけに入れた模型は {fmt(EUO_O)} eV（good）で、止まらない。',
+}
+cmp_prob += [f'<div class="cmp prob" id="cmp-{m}"><p><b>{m}</b> · 図なし</p><p>{s}</p></div>' for m, s in PROBLEM_NOFIG.items()]
 
 # materials whose best model is 2 or 3 by less than 0.001 eV (the extra seeds lower the error a little anyway)
 tiny = [m for m in allm if BEST[m][1] != 'base' and W_['base'][m] - BEST[m][0] < 0.001]

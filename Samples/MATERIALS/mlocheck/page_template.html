@@ -46,6 +46,9 @@ del { color: var(--muted); text-decoration-thickness: 1.5px; }
 .chart .bar.m-base { fill: var(--m1); } .chart .bar.m-eh2 { fill: var(--m2); } .chart .bar.m-es { fill: var(--m3); }
 .legend i.m-base, .legend i.m-eh2, .legend i.m-es { border-radius: 2px; }
 .legend i.m-base { background: var(--m1); } .legend i.m-eh2 { background: var(--m2); } .legend i.m-es { background: var(--m3); }
+.chart .eh2line { fill: none; stroke: var(--m2); stroke-width: 1.6; stroke-linejoin: round; opacity: .9; }
+.chart .hit { fill: transparent; stroke: none; }
+.legend i.line2 { border-radius: 0; height: 2px; width: 20px; background: var(--m2); vertical-align: 3px; }
 .chart .pt.was { fill: none; stroke: var(--muted); stroke-width: 1.5; }
 .chart .arrow { stroke: var(--muted); stroke-width: 1.2; fill: none; }
 .chart .ahead { fill: var(--muted); }
@@ -98,6 +101,7 @@ figure { margin: 0; }
 .cmp { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .cmp.lead { border-color: var(--accent); border-width: 2px; }
 .cmp.prob { border-color: var(--bad); border-width: 2px; }
+div.cmp.prob p { margin: 0; font-size: .88rem; max-width: 100ch; }
 h2.probh { color: var(--bad); }
 .cmp figcaption { font-size: .88rem; display: flex; flex-direction: column; gap: 6px; }
 .cmp figcaption p { max-width: 100ch; }
@@ -158,9 +162,9 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
 <section class="panel">
   <h2>図 2. 窓の中での固有値のずれ（誤差の最大値）。物質ごとに一番良い模型（対数軸、破線は 0.02・0.05・0.1 eV）</h2>
   <div class="legend"><span><i class="m-base"></i>1. 基準が一番</span><span><i class="m-eh2"></i>2. 陽イオンに EH2 が一番</span><span><i class="m-es"></i>3. 空格子球が一番</span>
-    <span><i class="was"></i>1. 基準の値（2 か 3 の方が良かった物質）</span></div>
+    <span><i class="line2"></i>2. 陽イオンに EH2 の値（全物質、EuO は止まったので切れる）</span></div>
   <div class="scroll">@@CHART2@@</div>
-  <p class="note">棒の色は模型、判定は破線で読む（0.02 以下が good、0.05 以下が fair、0.1 以下が marginal）。2 が一番の物質のうち @@TINY@@ は、1 との差が 0.001 eV に満たない（棒の上端と白丸が重なる）。</p>
+  <p class="note">棒の色は模型、判定は破線で読む（0.02 以下が good、0.05 以下が fair、0.1 以下が marginal）。2 が一番の物質のうち @@TINY@@ は、1 との差が 0.001 eV に満たない。折れ線が棒の上に出ている物質は 1 の方が良い（Cu・Ni は 2 で壊れる、図 5）。</p>
 </section>
 
 <section class="panel">
@@ -198,7 +202,7 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
 
 <section>
   <h2 class="probh">図 5. 問題のあるケース（@@NPROB@@ 物質）</h2>
-  <p class="note" style="margin-bottom:12px">2（陽イオンに EH2）で模型が壊れる物質。原因は未確認。左から 1. 基準、2. 陽イオンに EH2。記号は図 3 と同じ。</p>
+  <p class="note" style="margin-bottom:12px">2（陽イオンに EH2）で模型が壊れる物質（Cu・Ni、原因は未確認）と、作れない物質（EuO、図なし）。左から 1. 基準、2. 陽イオンに EH2。記号は図 3 と同じ。</p>
   <div class="cmps">@@CMPPROB@@</div>
 </section>
 
