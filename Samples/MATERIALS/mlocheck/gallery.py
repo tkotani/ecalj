@@ -40,7 +40,8 @@ r_es = evaluate(list(ES.values()), f'{OUT}/es.json')
 R['es'] = {m: r_es[os.path.basename(d)] for m, d in ES.items() if os.path.basename(d) in r_es}
 json.dump(R, open(f'{OUT}/all.json', 'w'), indent=1)
 DIR = {'base': lambda m: f"{SETS['base']}/{m}", 'eh2': lambda m: f"{SETS['eh2']}/{m}", 'es': lambda m: ES[m]}
-LAB = {'base': '1. 基準', 'eh2': '2. 陽イオンに EH2 (s,p)', 'es': '3. 空格子球 2 つ (s,p)'}
+LAB = {'base': '基準 1', 'eh2': '基準 2（陽イオンに EH2）', 'es': '基準 3（空格子球）'}   # user 2026-10-01 18:4x: 基準 1, 2, 3
+SHORT = {'base': '基準 1', 'eh2': '基準 2', 'es': '基準 3'}
 
 fail_eh2 = {}
 st = f"{SETS['eh2']}/status.log"
@@ -178,7 +179,7 @@ for m in allm:
         y0 = sy(d0)
         if abs(y0 - y) > 6:
             svg.append(f'<line x1="{x:.1f}" y1="{y0:.1f}" x2="{x:.1f}" y2="{y-5 if y0 < y else y+5:.1f}" class="arrow" marker-end="url(#ah)"/>')
-        svg.append(f'<circle cx="{x:.1f}" cy="{y0:.1f}" r="4" class="pt was"><title>{m} 1. 基準: {d0:+.3f} eV</title></circle>')
+        svg.append(f'<circle cx="{x:.1f}" cy="{y0:.1f}" r="4" class="pt was"><title>{m} 基準 1: {d0:+.3f} eV</title></circle>')
     svg.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="5" class="pt {sev(w0)}"><title>{m} {LAB[k]}: DFT {v["gapD"]:.3f}, MLO {v["gapM"]:.3f}, 誤差 {dgap(v):+.3f} eV</title></circle>')
     if abs(dgap(v)) > 0.04 or (k != 'base' and abs(d0) > 0.06):
         yl = sy(d0) if k != 'base' else y
@@ -227,15 +228,15 @@ CNT['es'] = counts('es')
 def nrun(k): return sum(1 for m in allm if (BEST[m][0] if k == 'best' else W_[k][m]) is not None)
 def mrow(no, name, what, where, k, cls=''):
     c = CNT[k]; dl = (lambda s: f'<del>{s}</del>') if cls == 'old' else (lambda s: s)
-    return (f'<tr class="{cls}"><td class="no">{dl(no)}</td><td>{dl(name)}</td><td class="what">{dl(what)}</td><td class="what">{dl(where)}</td>'
+    return (f'<tr class="{cls}"><td>{dl(name)}</td><td class="what">{dl(what)}</td><td class="what">{dl(where)}</td>'
             f'<td class="num">{dl(nrun(k))}</td>' + ''.join(f'<td class="num">{dl(c[x])}</td>' for x in CL) + '</tr>')
-counts_tbl = ('<table class="cnt"><thead><tr><th></th><th>模型</th><th>MLO のシード</th><th>書く所</th><th class="num">物質</th>'
+counts_tbl = ('<table class="cnt"><thead><tr><th>模型</th><th>MLO のシード</th><th>書く所</th><th class="num">物質</th>'
               '<th class="num">good<br>≤ 0.02</th><th class="num">fair<br>≤ 0.05</th><th class="num">marginal<br>≤ 0.1</th><th class="num">poor<br>&gt; 0.1 eV</th></tr></thead><tbody>'
   + mrow('', '旧既定（〜2026-10-01 14:4x）', '原子ごと・lm ごとに EH 1 本をシードにする。浅い局所軌道は EH と入れ替え（E_F − 10 eV より上）', '<code>mlo_lm</code>', 'old', 'old')
-  + mrow('1', '<b>基準</b>', 'EH に加えて、半内殻の局所軌道（帯の上端が E_F − 17 eV より上）を MLO のシードとして加える', '自動（<code>m_HamPMT</code>）', 'base')
-  + mrow('2', '1 + 陽イオンに EH2', '陽イオンの s,p に第 2 の smooth Hankel 関数（EH2）を MLO のシードとして加える', '<code>mlo_lm2</code>', 'eh2')
-  + mrow('3', '1 + 空格子球', '空隙に置いた z = 0 の球の s,p を MLO のシードとして加える', '<code>[[site]]</code>・<code>[[spec]]</code>・<code>mlo_lm</code>（DFT から回し直す）', 'es')
-  + mrow('', '<b>物質ごとに一番良いもの</b>', '1・2・3 のうち誤差の最大値が一番小さい模型（図 1〜3）', '', 'best', 'best')
+  + mrow('', '<b>基準 1</b>', 'EH に加えて、半内殻の局所軌道（帯の上端が E_F − 17 eV より上）を MLO のシードとして加える', '自動（<code>m_HamPMT</code>）', 'base')
+  + mrow('', '<b>基準 2</b>: 基準 1 + 陽イオンに EH2', '陽イオンの s,p に第 2 の smooth Hankel 関数（EH2）を MLO のシードとして加える', '<code>mlo_lm2</code>', 'eh2')
+  + mrow('', '<b>基準 3</b>: 基準 1 + 空格子球', '空隙に置いた z = 0 の球の s,p を MLO のシードとして加える', '<code>[[site]]</code>・<code>[[spec]]</code>・<code>mlo_lm</code>（DFT から回し直す）', 'es')
+  + mrow('', '<b>物質ごとに一番良いもの</b>', '基準 1・2・3 のうち誤差の最大値が一番小さい模型（図 1〜3）', '', 'best', 'best')
   + '</tbody></table>')
 
 # ---------- table 1 ----------
@@ -253,7 +254,7 @@ for m in allm:
                f'<td class="num win">{window(v)}</td>{cells(v, W_["base"][m], k == "base")}{e2c}</tr>')
     if m in R['es']:
         ve = R['es'][m]
-        trs.append(f'<tr class="sub"><td class="name"><a href="#cmp-{m}">{m} + 空格子球</a></td><td class="num">{fmt(gap_small(ve))}</td>'
+        trs.append(f'<tr class="sub"><td class="name"><a href="#cmp-{m}">{m} 基準 3（空格子球）</a></td><td class="num">{fmt(gap_small(ve))}</td>'
                    f'<td class="num win">{window(ve)}</td>{cells(ve, W_["es"][m], k == "es")}<td class="num">—</td><td class="num">—</td></tr>')
 table = '\n'.join(trs)
 
@@ -275,36 +276,36 @@ for g, gname, ms in GROUPS:
 
 # ---------- fig. 4: models 2 and 3 against the baseline ----------
 NOTE4 = {
- 'SiO2c': 'クリストバライトの Si は隙間の多いダイヤモンド網で、伝導帯の底は網の空隙に広がった状態。原子の上の関数（1 の EH、2 の EH2）だけでは表しきれず、'
-          '伝導帯に橙の点（模型に無い DFT の帯）が残る。空隙 2 か所（立方体の単位で ½(111) と ¾(111)、r = 2.6 a.u.）に z = 0 の球を置き、その s,p を模型に入れると（3）、伝導帯まで DFT に重なる。',
+ 'SiO2c': 'クリストバライトの Si は隙間の多いダイヤモンド網で、伝導帯の底は網の空隙に広がった状態。原子の上の関数（基準 1 の EH、基準 2 の EH2）だけでは表しきれず、'
+          '伝導帯に橙の点（模型に無い DFT の帯）が残る。空隙 2 か所（立方体の単位で ½(111) と ¾(111)、r = 2.6 a.u.）に z = 0 の球を置き、その s,p をシードに加えると（基準 3）、伝導帯まで DFT に重なる。',
 }
 def w3(m, k): return fmt(W_[k].get(m))
 _e = evaluate([f'{W}/mlocheck_eh2main/sp/EuO'], f'{OUT}/euo_eh2o.json').get('EuO')
 EUO_O = worst(_e) if _e else None
-NOTE4['C'] = f'2 で {w3("C", "base")} → {w3("C", "eh2")} eV に良くなるが、good（0.02 以下）には届かない。'
-NOTE4['Bi2Te3'] = (f'1 も 2 も fair の下の方（{w3("Bi2Te3", "base")}、{w3("Bi2Te3", "eh2")} eV）。抜けた帯・余計な帯は無く（橙の点・黒丸はほとんど無い）、'
+NOTE4['C'] = f'基準 2 で {w3("C", "base")} → {w3("C", "eh2")} eV に良くなるが、good（0.02 以下）には届かない。'
+NOTE4['Bi2Te3'] = (f'基準 1 も基準 2 も fair の下の方（{w3("Bi2Te3", "base")}、{w3("Bi2Te3", "eh2")} eV）。抜けた帯・余計な帯は無く（橙の点・黒丸はほとんど無い）、'
                    '窓の中の帯全体に小さなずれが広がるだけで、問題は無い（user 2026-10-01 18:1x）。スピン軌道は <code>job_mlo_soc</code>（摂動）。')
 # the problem cases (user 2026-10-01 18:1x: "Cu 以下は問題のあるケース", "ボトムに"), fig. 5 at the bottom of the page
 PROBLEM = {
- 'Cu': f'<b>2 で壊れる</b>（{w3("Cu", "base")} → {w3("Cu", "eh2")} eV）。単体の金属なので、陽イオンの規則では全原子に EH2 が入る。'
+ 'Cu': f'<b>基準 2 で壊れる</b>（{w3("Cu", "base")} → {w3("Cu", "eh2")} eV）。単体の金属なので、陽イオンの規則では全原子に EH2 が入る。'
        'Γ–X の 2〜3 点の k だけで MLO の帯が E_F + 0.3 eV に集まり（黒丸）、その k の DFT の帯が模型から抜ける（橙の点）。ほかの k は重なる。'
        '決めた既定（遷移金属・4f・5f 以外に EH2 の s,p）では Cu に EH2 は入らない。原因は未確認（同じ原子の EH と EH2 がほぼ一次従属になっているのではと疑っている）。',
- 'Ni': f'<b>2 で壊れる</b>（{w3("Ni", "base")} → {w3("Ni", "eh2")} eV）。Cu と同じ壊れ方で、Γ–X の 2〜3 点の k だけ（両方のスピン）。決めた既定では Ni に EH2 は入らない。',
+ 'Ni': f'<b>基準 2 で壊れる</b>（{w3("Ni", "base")} → {w3("Ni", "eh2")} eV）。Cu と同じ壊れ方で、Γ–X の 2〜3 点の k だけ（両方のスピン）。決めた既定では Ni に EH2 は入らない。',
 }
 def cmpfig(m, prob=False):
     src, ns = FIG4[m]
-    nums = ' / '.join(f'{LAB[k].split(".")[0]}: {fmt(W_[k][m])}' for k in ('base', 'eh2', 'es') if W_[k][m] is not None)
-    stop = '（2 は止まった）' if m in fail_eh2 and W_['eh2'][m] is None else ''
+    nums = ' / '.join(f'{SHORT[k]}: {fmt(W_[k][m])}' for k in ('base', 'eh2', 'es') if W_[k][m] is not None)
+    stop = '（基準 2 は止まった）' if m in fail_eh2 and W_['eh2'][m] is None else ''
     note = PROBLEM.get(m) if prob else NOTE4.get(m)
     cls = ' lead' if m in ES else (' prob' if prob else '')
     return (f'<figure class="cmp{cls}" id="cmp-{m}"><figcaption><b>{m}</b> · 誤差の最大値 {nums} eV{stop}'
             + (f'<p>{note}</p>' if note else '') + '</figcaption>'
-            f'<button class="zoom" aria-label="{m} を拡大" data-src="{src}" data-cap="{m}"><img loading="lazy" src="{src}" alt="{m}: 模型 1・2・3 の比較"></button></figure>')
+            f'<button class="zoom" aria-label="{m} を拡大" data-src="{src}" data-cap="{m}"><img loading="lazy" src="{src}" alt="{m}: 基準 1・2・3 の比較"></button></figure>')
 cmp = [cmpfig(m) for m in cmp4 if m not in PROBLEM]
 cmp_prob = [cmpfig(m, True) for m in PROBLEM if m in FIG4]
 # a problem case with no figure: model 2 could not be made (user 2026-10-01 18:2x: "EuO も書いておいて、図は無くてもいい")
 PROBLEM_NOFIG = {
- 'EuO': f'<b>2 で模型が作れない</b>（1: {w3("EuO", "base")} eV、2: 止まった）。陽イオンの規則では Eu（4f）の s,p に EH2 が入り、<code>job_mlo</code> の '
+ 'EuO': f'<b>基準 2 で模型が作れない</b>（基準 1: {w3("EuO", "base")} eV、基準 2: 止まった）。陽イオンの規則では Eu（4f）の s,p に EH2 が入り、<code>job_mlo</code> の '
         '<code>Hreduction</code> が止まる: 「PMT completeness loss too large: band 26 dev= −0.012970」（2 番目の q 点、spin 1）。'
         '同じ原子の EH と EH2 をどちらもシードにすると、PMT の固有ベクトルが一次従属に近い向きを落とす（<code>zhev_tk4</code> の oveps）ので、'
         'シードのノルムが減る。減りが 1 % を超えると止める（<code>m_hreduction</code> の NormalizationCheck、1 % 未満なら規格化し直して進む）。'
