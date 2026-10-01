@@ -60,8 +60,7 @@
 - `MLOsamples/RuO2` の保存してある `rst`・`dmats` は、`pwmode = 11` の LDA+U の誤り（2026-03-30〜09-30、`2498e5283` で修正）の時期に作ったもの。
   作り直すか（GdCo5・SmP は 2026-09-30 に作り直した）
 - 試験の入力の温度（`t_tetrakbt = 262`、`t_sigmaw = 0`）をテンプレート（300/300）に揃えるか。揃えると gas_gwsc・fe_gwsc などの参照が動く
-- `MLOsamples/Al2O3_Cr` に試験が使わない古いファイルが残っている（2026-10-01）: `ctrlp.al2o3`・`ctrlp.al2o3?cr`・`ctrlp.gaas`・`log.al2o3?cr`・`bbb*.glt`・`temp.dos*`・`qsgw80/ctrlp.al2o3_cr` など。`test.py` が使うものを確かめてから trash へ
-- `SRC/exec/auto_creplot.py` がまだ旧形式の `ctrl.<sname>` を書き換える（2026-10-01）。ctrlg に直すか、使われていなければ trash へ
+- `SRC/exec/auto_creplot.py` がまだ旧形式の `ctrl.<sname>` を書き換える（2026-10-01）。ctrlg に直すか、使われていなければ trash へ。（2026-10-02: `auto_job_mp.py` が `import creplot` で使い、`ecalj_auto/auto/creplot.py` に写しがある。GW1500 の回し直しは `ctrlgenToml.py` と `gwscconv` を直接使っていて通らない）
 
 ## 2. 質問（メンテナに決めてほしいこと）
 
@@ -86,6 +85,7 @@
 ### 2026-10-02
 
 - MLO を実空間で規格化（`0e33fbd87`）、`mlo_spread.py` と比較の記録（`ec4361edc`）、比較の一式とタグ `last-wannier`（`f1de3817a`）、cRPA の試験を MLO 版に（`e22bb9075`）、Wannier・AHC・lmfham2 を外した（`6d8b9f05b`、`dfffe0dfd`）。`MD/wannier_vs_mlo.md`、ecaljdoc mlo §6
+- MLOsamples などの古い作業ファイル 68 本（`ctrlp.*`、`lmfham2parameters.check`、`out_lmfham1`、`bandplot_MPO.*` など）を trash へ（past_log 表 1）
 - `TOOLS/sync_ecalj_src.sh`: 送り先の `SRC/subroutines`・`main`・`exec` にあって HEAD に無いファイルを `trash/` へ移す（Wannier を外したとき kt1・kr7 に 30 本残って CMake が拾った）
 
 ### 2026-10-01
