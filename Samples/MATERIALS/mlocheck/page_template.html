@@ -144,7 +144,7 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
   <h2>模型の作り方</h2>
   <div class="scroll">@@COUNTS@@</div>
   <dl class="eval">
-    <dt>EH</dt><dd>PMT の基底の第 1 の smooth Hankel 関数。どの模型も <code>mlo_lm</code> の (原子, lm) ごとに 1 本持つ（s,p,d。4f の原子は f も）。</dd>
+    <dt>EH</dt><dd>PMT の基底の第 1 の smooth Hankel 関数。どの模型も <code>mlo_lm</code> の (原子, lm) ごとに 1 本を MLO のシードにする（s,p,d。4f の原子は f も）。MLO はシードの向きに沿って窓の中の DFT の固有状態から作り直され、シード 1 本が MLO 1 本になる。DFT の基底は模型によらず同じ。</dd>
     <dt>1. 基準</dt><dd>入力には何も書かない。半内殻の帯は、同じ種類の原子の局所軌道をまとめた部分空間への重みが 1/2 を超える占有状態で見る
       （La₂CuO₄ の La 5p は 2 つの La に半分ずつ広がる）。Ga 3d・In 4d・Eu 5p・La 5p・Sr 4p が O・N の 2p と混ざる系が直る。</dd>
     <dt>2. 陽イオンに EH2</dt><dd>空隙の大きい閃亜鉛鉱・wurtzite の化合物（MgX・CdTe・ZnTe・AlN など）で、隙間に広がった伝導帯の底を表す。
@@ -154,7 +154,7 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
 </section>
 
 <section class="panel">
-  <h2>図 1. ギャップの誤差（MLO − DFT）。物質ごとに一番良い模型</h2>
+  <h2>図 1. バンドギャップの誤差（MLO − DFT）。物質ごとに一番良い模型</h2>
   <div class="legend"><span><i class="good"></i>good</span><span><i class="fair"></i>fair</span><span><i class="marginal"></i>marginal</span><span><i class="poor"></i>poor</span>
     <span><i class="was"></i>1. 基準の値（2 か 3 の方が良かった物質。矢印の先が一番良い模型）</span></div>
   <div class="scroll">@@CHART1@@</div>

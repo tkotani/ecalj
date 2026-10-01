@@ -160,7 +160,7 @@ X0, X1, Y0, Y1 = 0.0, 6.0, -0.10, 0.45
 PW, PH, ML, MR, MT, MB = 720, 360, 56, 18, 16, 44
 def sx(x): return ML + (min(max(x, X0), X1) - X0) / (X1 - X0) * (PW - ML - MR)
 def sy(y): return MT + (Y1 - min(max(y, Y0), Y1)) / (Y1 - Y0) * (PH - MT - MB)
-svg = [f'<svg viewBox="0 0 {PW} {PH}" role="img" aria-labelledby="c1t" class="chart"><title id="c1t">一番良い模型のギャップの誤差</title>']
+svg = [f'<svg viewBox="0 0 {PW} {PH}" role="img" aria-labelledby="c1t" class="chart"><title id="c1t">一番良い模型のバンドギャップの誤差</title>']
 for yt in (-0.1, 0, 0.1, 0.2, 0.3, 0.4):
     svg.append(f'<line x1="{ML}" x2="{PW-MR}" y1="{sy(yt):.1f}" y2="{sy(yt):.1f}" class="{"zero" if yt == 0 else "grid"}"/>'
                f'<text x="{ML-8}" y="{sy(yt)+4:.1f}" class="tick" text-anchor="end">{yt:+.1f}</text>')
@@ -229,12 +229,12 @@ def mrow(no, name, what, where, k, cls=''):
     c = CNT[k]; dl = (lambda s: f'<del>{s}</del>') if cls == 'old' else (lambda s: s)
     return (f'<tr class="{cls}"><td class="no">{dl(no)}</td><td>{dl(name)}</td><td class="what">{dl(what)}</td><td class="what">{dl(where)}</td>'
             f'<td class="num">{dl(nrun(k))}</td>' + ''.join(f'<td class="num">{dl(c[x])}</td>' for x in CL) + '</tr>')
-counts_tbl = ('<table class="cnt"><thead><tr><th></th><th>模型</th><th>模型の関数に足すもの</th><th>書く所</th><th class="num">物質</th>'
+counts_tbl = ('<table class="cnt"><thead><tr><th></th><th>模型</th><th>MLO のシード</th><th>書く所</th><th class="num">物質</th>'
               '<th class="num">good<br>≤ 0.02</th><th class="num">fair<br>≤ 0.05</th><th class="num">marginal<br>≤ 0.1</th><th class="num">poor<br>&gt; 0.1 eV</th></tr></thead><tbody>'
-  + mrow('', '旧既定（〜2026-10-01 14:4x）', '原子ごと・lm ごとに EH 1 本。浅い局所軌道は EH と入れ替え（E_F − 10 eV より上）', '<code>mlo_lm</code>', 'old', 'old')
-  + mrow('1', '<b>基準</b>', 'EH に加えて、半内殻の局所軌道（帯の上端が E_F − 17 eV より上）', '自動（<code>m_HamPMT</code>）', 'base')
-  + mrow('2', '1 + 陽イオンに EH2', '陽イオンの s,p に第 2 の smooth Hankel 関数（EH2）', '<code>mlo_lm2</code>', 'eh2')
-  + mrow('3', '1 + 空格子球', '空隙に置いた z = 0 の球の s,p', '<code>[[site]]</code>・<code>[[spec]]</code>・<code>mlo_lm</code>（DFT から回し直す）', 'es')
+  + mrow('', '旧既定（〜2026-10-01 14:4x）', '原子ごと・lm ごとに EH 1 本をシードにする。浅い局所軌道は EH と入れ替え（E_F − 10 eV より上）', '<code>mlo_lm</code>', 'old', 'old')
+  + mrow('1', '<b>基準</b>', 'EH に加えて、半内殻の局所軌道（帯の上端が E_F − 17 eV より上）を MLO のシードとして加える', '自動（<code>m_HamPMT</code>）', 'base')
+  + mrow('2', '1 + 陽イオンに EH2', '陽イオンの s,p に第 2 の smooth Hankel 関数（EH2）を MLO のシードとして加える', '<code>mlo_lm2</code>', 'eh2')
+  + mrow('3', '1 + 空格子球', '空隙に置いた z = 0 の球の s,p を MLO のシードとして加える', '<code>[[site]]</code>・<code>[[spec]]</code>・<code>mlo_lm</code>（DFT から回し直す）', 'es')
   + mrow('', '<b>物質ごとに一番良いもの</b>', '1・2・3 のうち誤差の最大値が一番小さい模型（図 1〜3）', '', 'best', 'best')
   + '</tbody></table>')
 
