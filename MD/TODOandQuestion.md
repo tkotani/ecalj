@@ -51,7 +51,6 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
   使い方（LDA+U のブロックが要る、U = 0 でよい、`SYMGRPAF`、目標のモーメントの定義）に書き直す（2026-10-02 済み: ecaljdoc の UsageDetailed.md に移し、`Samples/AFfixMMOM/README.md` は参照だけに）
 
 - **MLO と Wannier のずれの追跡**（2026-10-02、`MD/wannier_vs_mlo.md`）: Ni d の cRPA の U が MLO で 25 % 低い（d の部分空間の切り出し方の違い）、Fe のマグノンの q ≥ 0.4 で MLO が 1.5〜2.5 倍高い。実験（Fe のマグノン分散）との比較と、MLO の窓（`mlo_delta`、`mlo_w`）への依存を測る
-- **ecaljdoc mlo §9 の式 (12)（MLO の重なりの最小固有値）の目安の値**（2026-10-02）: 規格化する前の MLO で測った値（基準 1 で 3×10⁻³〜10⁻²）。MLO を実空間で規格化した今は大きく出る。判定は中央値との比なので影響しないが、目安の数値は測り直す（MATERIALS の 65 物質）
 - **対称性: Fortran の中で「見つける・導く・使う」を分け、spglib を入れる**（2026-10-02、`MD/symmetry_spglib.md` §4.7 の S0〜S6）。S0 済み（`f7c382bed`、食い違い 0）。超格子は暫定で閉じた部分群（Si の慣用胞で 24）、純粋な並進を使うのは S4。2×1×1 の Si の GW は遅いだけだった（§5）
 - **MLO のマグノンの既定の窓**（2026-10-02、研究ログ 04:17）: 窓を広げる（Δ = 6 eV）と d の MLO が局在し、η ≈ 1、高い q のマグノンが Wannier 版に近づく。`job_mlo_magnon` 用に既定を変えるか、`Fe_mlo_magnon` の入力を変えるか（参照を作り直す）。Ni、FeCo でも確かめる
 - **MLO の部分空間の中での最大局在化**（user 2026-10-02 未明）: MLO を作った後に Marzari–Vanderbilt で局在させる（バンドと cRPA の p_kn は変わらない）。MLO は直交していないので、まず Löwdin で直交化し、そこから最小化する。対称性は Sakuma（PRB 87, 235109）のように U(gk) = D(g) U(k) d(g)⁻¹ で拘束する（MLO は MTO と同じに回る、`rotmatMTO`）。`mlo_spread.py` の M(k,b) が材料。比べる量: Fe・Ni の d で Ω（生、Löwdin のみ、Löwdin + MV）、マグノン、U
@@ -104,6 +103,7 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 
 ### 2026-10-02
 
+- ecaljdoc mlo §9 の式 (12) の目安の値を測り直した（06:55、`~/work/ovlp_20261002`、63 物質の MLO の段だけ）: 規格化の後は最小 0.20〜0.42、中央値 0.24〜0.46。FAIL の 10 物質は前と同じ（ecaljdoc `mlo.md`、TODO から外した）
 - 対称性（`MD/symmetry_spglib.md` §4.7）: S0 spglib との照合（`f7c382bed`、172 入力で食い違い 0）、S1 分割（`41c0e3cc7`）、S2（`e5d08f008`）、
   S3 `symmetry.<sname>.json` を読む口（`91f9bdcaf`）、S4a `mptauof` が渡された並進を使う（`bfaae451b`）。S4b（純粋な並進を操作に）は試験中
 - GPU の build の module の循環を切った（`a7f64752e`）、CMake の回避策を外した（`f553b5222`）。kt1・kr7 でまっさらなビルドが通った（TODO から外した）
