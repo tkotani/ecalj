@@ -1,10 +1,15 @@
-# Samples/MATERIALS — 物質の入力（62 物質）と、大きめの系の QSGW の入力と結果
+# Samples/MATERIALS — LDA の計算と MLO の計算のサンプル（65 物質）と、大きめの系の QSGW の入力と結果
 
-試験（`testecalj`）にはしない入力。どれも `ctrlg.<sname>.toml` が入力で、旧形式（`ctrl.<sname>`、`GWinput`）は読まれない。
+**LDA の計算と MLO の計算のサンプル**。62 物質（1 節）と La₂CuO₄・InAs/GaSb 超格子・BaTiO₃（3 節）の入力があり、その 65 物質で
+LDA（Eu の化合物は LDA+U）と MLO の模型を回して、DFT のバンドと比べた（2 節）。MLO の模型の選び方（基準 1・2・3）、誤差の測り方、
+結果は ecaljdoc の [mlo §9](https://ecalj.github.io/ecaljdoc/manual/mlo)。
+
+試験（`testecalj`）にはしない（`TOOLS/samples_tests.sh` の `inputs` の組が、ctrlg が読めることだけ確かめる）。
+どれも `ctrlg.<sname>.toml` が入力で、旧形式（`ctrl.<sname>`、`GWinput`）は読まれない。
 2026-10-01 まで 62 物質は `Database/` の下にあったが、1 段にした（user「2 段にする必要はない」）。
 
 - 1 節: 62 物質の入力（物質ごとのディレクトリ、表 1）
-- 2 節: MLO の試験（2026-10-01、`MLOcheck_20261001*.tsv`、`mlocheck/`）
+- 2 節: LDA と MLO の計算（2026-10-01、1 物質の回し方、`mlocheck/`）
 - 3 節: 大きめの系の QSGW の入力と結果（`La2CuO4/`、`InAsGaSb/`、`BaTiO3/`、表 2）
 
 ## 1. 62 物質の入力（`Materials.ctrls.database` を展開したもの、2026-10-01）
@@ -106,16 +111,37 @@ job_mlo <sname> -np 4                                 # MLO の自動の模型�
 | wCdS | `wcds` | wurtzite | a=4.160 Å c=6.756 Å | 6×6×4 | 4×4×2 |  |  |
 | wZnS | `wzns` | wurtzite | a=3.82 Å c=6.26 Å | 6×6×4 | 4×4×2 |  |  |
 
-## 2. MLO の試験（2026-10-01）
+## 2. LDA と MLO の計算（2026-10-01）
 
-全物質（InAs/GaSb の n10 を除く 65）で、LDA のあと MLO の模型を作り、対称線の上で DFT のバンドと比べた。基準は半内殻の局所軌道を自動で入れる既定
-（`m_HamPMT`、2026-10-01）。ほかに、陽イオンに EH2 の s,p を足した模型と、SiO₂ に空格子球を置いた模型。
+全物質（InAs/GaSb の n10 を除く 65）で、LDA のあと MLO の模型を作り、対称線の上で DFT のバンドと比べた。
+模型は 3 通り: 基準 1（半内殻の局所軌道を自動で入れる既定）、基準 2（基準 1 + 陽イオンに EH2(s,p) シード）、
+基準 3（基準 1 + 空格子球、SiO₂ だけ）。65 物質のうち基準 1 で 53 が good（誤差の最大値 0.02 eV 以下）、物質ごとに一番良い模型で 63 が good、
+残る 2 つ（C、Bi₂Te₃）も fair（0.05 eV 以下）。表と図と選び方は ecaljdoc の mlo §9。
 
+1 物質の回し方（GaAs の例。`-np` は手元の数に）:
+
+```bash
+cp -r Samples/MATERIALS/GaAs ~/work/ && cd ~/work/GaAs
+mpirun -np 1 lmfa gaas
+mpirun -np 8 lmf gaas                 # LDA
+getsyml gaas --nobzview               # syml.gaas（対称線）
+job_band gaas -np 8                   # DFT のバンド
+job_mlo gaas -np 8                    # MLO の模型とそのバンド（so = 1 の物質は job_mlo_soc）
+mlo_bandcheck.py .                    # 誤差（ecaljdoc mlo の式 (8)〜(10)）
+mlo_bandplot.py . -o mlo_GaAs.png     # DFT（灰）と MLO（赤）の図
+```
+
+注意:
+- 各 ctrlg の `[mlo] mlo_lm` は `gwinit` が書いたもの（H〜Ne は s,p、Na 以降は s,p,d）。4f が価電子の原子（Ce、Eu の化合物、HfO₂ の Hf）は
+  f（10〜16）を手で足す。2026-10-01 の計算では `mlocheck/prep.py` が全物質の `[mlo]` をこの形に書き直し、`rdsig = 0`（DFT のみ）にした
+- 基準 2 は `mlo_lm2` に陽イオンの行（`<番号> <原子>   1 2 3 4`）を書く。陽イオンから遷移金属と 4f・5f の原子は除く（入れると壊れる）
+
+ファイル:
+- `mlocheck/`: 回したスクリプト（`README.md`）と、結果のページを作る `gallery.py`（図に描いた数値は `page_data/*.npz`）
 - `MLOcheck_20261001.tsv`: 最初の版（旧既定）の物質ごとの結果。`MLOcheck_20261001_variants.tsv`: 物質ごとに動径関数を足した変種。
   どちらも 2026-10-01 17:54 までの窓で評価したもの（MLO → DFT が [VBM − 8, CBM + 3]、DFT → MLO が [VBM − 8, CBM + 1] eV）。
   今の `mlo_bandcheck.py` は両方とも [VBM − 8, CBM + mlo_delta]（`mlo_delta` は模型を合わせる範囲の上端、既定 2 eV）
-- `mlocheck/`: 回したスクリプト（`README.md`）と、結果のページを作る `gallery.py`
-- 評価は `SRC/exec/mlo_bandcheck.py`。条件と結果の一覧は ecalj の `MD/research_log.md`（2026-10-01 朝）と、ページ（`mlocheck/gallery.py` で作る）
+- 経緯は ecalj の `MD/research_log.md`（2026-10-01）
 
 ## 3. 大きめの系の QSGW の入力と結果
 

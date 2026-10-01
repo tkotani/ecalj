@@ -1,5 +1,7 @@
 # MLO の自動の模型の試験（2026-10-01）の道具
 
+模型の選び方（基準 1・2・3）・誤差の測り方・結果は ecaljdoc の mlo §9。
+
 `Samples/MATERIALS` の全物質で LDA のあと `job_mlo` の既定の模型を作り、対称線の上で DFT のバンドと比べた（結果は `../MLOcheck_20261001.tsv`、
 `../MLOcheck_20261001_variants.tsv`、経緯は `MD/research_log.md` の 2026-10-01 朝 07:16）。ここにあるのは、そのときに回したままのスクリプト。
 

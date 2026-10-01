@@ -32,7 +32,7 @@ after another and writes one summary (how to read it: ecaljdoc
 | [DOS/](DOS/ZnS/README.md) | total and partial density of states (`job_tdos`, `job_pdos`): ZnS, bcc Fe | `ZnS`, `Fe` | `samples` |
 | [AtomDimer/](AtomDimer/README.md) | a molecule and an atom in a box: N2 at three bond lengths and the N atom (PBE, fixed spin moment), bond length and binding energy | `N2` | `samples` |
 | [IIR/](IIR/C/README.md) | impact ionization rate of diamond: the imaginary part of the self-energy (`gw_lmfh`, `QPU_life`) | `C` | `samples` |
-| [MATERIALS/](MATERIALS/README.md) | inputs and results of larger systems, not tests: La2CuO4 (QSGW, 7 atoms), InAs/GaSb superlattices (16 and 40 atoms), BaTiO3 (QSGW in three stages); and Database/, the inputs of 62 materials expanded from the old structure database (2026-10-01, not computed) | — | `inputs` |
+| [MATERIALS/](MATERIALS/README.md) | samples of LDA and MLO calculations, not tests: the inputs of 62 materials (one directory each, expanded from the old structure database) and of La2CuO4, InAs/GaSb superlattices and BaTiO3; LDA and the MLO model of all 65 compared with the DFT bands (2026-10-01, `mlocheck/`; how to choose the model: ecaljdoc [mlo](https://ecalj.github.io/ecaljdoc/manual/mlo) §9). Also the inputs and results of QSGW of the larger systems (La2CuO4, InAs/GaSb, BaTiO3) | — | `inputs` |
 | [BenchmarkTest/](BenchmarkTest/README.md) | one QSGW iteration of InAs/GaSb superlattices (8 and 16 atoms), for GPU | 2 | `bench` |
 | [mptf32problem/](mptf32problem/README.md) | AgNO3 and other cases where the old TF32 mode of the GPU build failed (GW1500) | — | — |
 
