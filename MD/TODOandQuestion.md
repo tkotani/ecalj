@@ -79,6 +79,11 @@
 
 ### 2026-10-01
 
+- MLO の模型を基準 1・2・3 に整理した（user と決めた。ecaljdoc mlo §1・§4・§9、`MD/handover.md` §5、研究ログ 2026-10-01 16〜20 時）:
+  半内殻の局所軌道は帯の上端で自動（E_F − 8 eV より上は EH と入れ替え、−17〜−8 eV は加える、`d759110e4`）、gwinit は f と `!` 付きの `mlo_lm2`（基準 2）を書く、
+  MLO-QSGW の凍結した模型の本数の誤り（`2053bb5ea`）、`mlo_bandcheck.py` の窓を [VBM − 8, CBM + mlo_delta] に（`bd1b893ec`）、
+  `job_mlo_soc` がスピン軌道ありの DFT のバンドも描く（GaAsSoc の −0.1 eV は比べ方の誤り、`dc66439c5`）。Samples/MATERIALS の結果のページ
+  https://claude.ai/artifact/VCWpe5W8Fei6umatXGeZGH（`Samples/MATERIALS/mlocheck/gallery.py`）。試験: inputs 176、mlo 25 試料、MLO-QSGW、Fe_mlo_magnon が t14 で PASSED
 - AFTEST の修正（`aftest-fix`）を main にマージ（`6eff2df53`、user「マージできるよね」→「良い方を壊さないように」）。AF の対称性ありの計算は ehf・sev・モーメント・場がマージ前と同じで、ehk だけが制約の下の全エネルギーになった。afsym 4・install 64 が PASS。例を `Samples/AFfixMMOM`（user の命名、`NiO_afsym`・`NiO_noafsym`、試験の組 `affix` 12 件 PASS）に置いた（`ca1e4c7fa`）
 - ecaljdoc の TOML の流れの最短の手順は、`manual/README_tutorial.md` の GetStarted（Step 0〜6: POSCAR → ctrls → `ctrlgenToml.py` → `lmfa`・`lmf` → バンド → `gwsc`、Step 2-Migration、`--ctrlg:` の上書き）に既にあった。TODO から外した。ecaljdoc `manual/mlo.md` に既定の模型が外れる 2 つの型と表 M1 を書いた（`422dc92`、未 push）
 - `Samples/MATERIALS` の 65 物質で LDA と MLO の自動の模型を回した（InAs/GaSb n10 の 40 原子は user の判断で回さない）。結果の表は `Samples/MATERIALS/MLOcheck_20261001*.tsv`、一覧のページ https://claude.ai/artifact/VCWpe5W8Fei6umatXGeZGH、研究ログ 2026-10-01 朝 07:16
