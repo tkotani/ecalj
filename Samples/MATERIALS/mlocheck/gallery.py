@@ -271,9 +271,12 @@ for m in cmp4:
                + (f'<p>{NOTE4[m]}</p>' if m in NOTE4 else '') + '</figcaption>'
                f'<button class="zoom" aria-label="{m} を拡大" data-src="{src}" data-cap="{m}"><img loading="lazy" src="{src}" alt="{m}: 模型 1・2・3 の比較"></button></figure>')
 
+# materials whose best model is 2 or 3 by less than 0.001 eV (the extra seeds lower the error a little anyway)
+tiny = [m for m in allm if BEST[m][1] != 'base' and W_['base'][m] - BEST[m][0] < 0.001]
+TINY = '・'.join(tiny) + f'（{len(tiny)} 物質）'
 page = open(f'{HERE}/page_template.html').read()
 REP = {'@@CHART1@@': chart1, '@@CHART2@@': chart2, '@@TABLE@@': table, '@@CMP@@': '\n'.join(cmp), '@@GALLERY@@': '\n'.join(gal),
-       '@@COUNTS@@': counts_tbl, '@@N@@': str(len(allm)), '@@NCMP@@': str(len(cmp4)), '@@REV@@': rev, '@@DATE@@': NOW}
+       '@@COUNTS@@': counts_tbl, '@@TINY@@': TINY, '@@N@@': str(len(allm)), '@@NCMP@@': str(len(cmp4)), '@@REV@@': rev, '@@DATE@@': NOW}
 for k, val in REP.items(): page = page.replace(k, val)
 open(f'{OUT}/index.html', 'w').write(page)
 print('wrote', OUT, len(allm), 'materials; base', CNT['base'], 'eh2', CNT['eh2'], 'best', CNT['best'], 'missing', missing,
