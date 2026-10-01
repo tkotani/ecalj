@@ -88,6 +88,14 @@ user の指示（05:5x）: 「この方針で進めて。TODO も判断がつく
 MATERIALS 以下を MLO で（spd ベース、f があるときに入れる）すべてモデル化。DFT レベルでよい。目視で確認できる図、バンドギャップの違い。
 AFsymmetry のモード（AFTEST）が動くのか、そもそも正しいのかも調べて」。push はしない。
 
+### 20:01 GaAsSoc の「ギャップの誤差 −0.1 eV」は比べ方の誤り: DFT の側がスピン軌道なしだった（user「どうやって治すのか」）
+
+`Samples/MLOsamples/GaAsSoc` の ctrlg は `so = 0` で、試料の `bnd*` はスピン軌道なしの DFT（Γ の頂上が 3 重、CBM 1.804）。MLO は `job_mlo_soc`
+（頂上 4 重、スプリットオフ −0.335、CBM 1.703）。頂上が Δ_SO/3 ≈ 0.11 eV 上がるぶん CBM が下に見えていた。scratchpad の写しで
+`job_band gaas -np 8 --ctrlg:ham.so=1 --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true`（`job_mlo_soc` の段 1 と同じく非 SOC の密度の上で SOC のバンド）と
+比べると、Δ_SO 0.337 / 0.335、ギャップ 1.693 / 1.702（+0.010 eV）、rms 0.010 / 0.010 eV で good。MATERIALS の GaAs_so（ctrlg が `so = 1`、0.004 eV）と同じ。
+ecaljdoc mlo §4 の GaAsSoc の図も灰の線が非 SOC（CBM で × が 0.1 eV 下）。直し方は TODO に 3 つ並べた（user の判断待ち）
+
 ### 19:42 試験の残り: mlo 45 件 PASSED（GaAs・GaAsSoc は参照を作り直し）、MLO-QSGW は凍結の処理を直して PASSED、Fe_mlo_magnon PASSED
 
 - 19:23〜19:32 `samples_tests.sh -np 8 mlo`（三つに分けた規則の build）: 42 件 PASSED、違いは GaAs・GaAsSoc の 3 件だけ（Ga 3d −14.8 eV が加わり

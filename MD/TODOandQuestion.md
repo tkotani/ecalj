@@ -12,7 +12,12 @@
 
 ### コード
 
-- **MLO: `Samples/MLOsamples/GaAsSoc` の SOC の MLO バンドが DFT から 0.1 eV ずれて見える**（2026-10-01 19:4x）: `mlo_bandcheck.py` でギャップの誤差 −0.101 eV、rms 0.119 / 0.086 eV。局所軌道の規則を変える前の参照でも同じ値なので今回の変更ではない。比べている DFT の `bnd*`（SOC の扱い、QSGW の `sigm` の有無）と MLO の側の条件がそろっているかを確かめる。ecaljdoc mlo §4 の「窓型損失 105.9 meV は本数が合っていないだけ」との関係も
+- **MLO: `Samples/MLOsamples/GaAsSoc` の SOC の MLO バンドが DFT から 0.1 eV ずれて見える → 原因は比べ方**（2026-10-01 19:4x 記、20:0x 原因）:
+  試料の `bnd*`・`bandplot.isp1.glt` は ctrlg の `so = 0` で描いた**スピン軌道なし**の DFT。MLO は `job_mlo_soc` でスピン軌道あり。価電子帯の頂上が
+  Δ_SO/3 上がるぶん（0.11 eV）CBM が下に見えていた。写しで `job_band gaas --ctrlg:ham.so=1 --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true` の
+  DFT と比べると Δ_SO 0.337（DFT）/ 0.335（MLO）、ギャップ 1.693 / 1.702（+0.010）、rms 0.010 / 0.010 eV。残っているのは、
+  (1) 試料に SOC の DFT のバンドを置くか（今の `bnd*` は Test 1 の非 SOC の比べ相手）、(2) ecaljdoc mlo §4 の GaAsSoc の図（灰の線が非 SOC）を描き直す、
+  (3) `mlo_bandcheck.py` が SOC の MLO と非 SOC の DFT を比べたら注意を出す、のどれをするか
 - **MLO: EH2 s,p を単体の金属（Cu・Ni）に足すと、Γ–X の 2〜3 点の k だけで模型が崩れる**（2026-10-01、`~/work/mlocheck_eh2cat/{Cu,Ni}`、ページ https://claude.ai/artifact/VCWpe5W8Fei6umatXGeZGH の図 4）: その k で MLO の帯が E_F + 0.3 eV に集まり、DFT の帯が抜ける（Cu 0.012 → 0.802 eV）。同じ原子の EH と EH2 がほぼ一次従属になって `Hreduction` の重なりが特異に近い、と疑っている（未確認: その k の重なり行列の固有値を見る）。既定（遷移金属・4f・5f 以外に s,p）では Cu・Ni に EH2 は入らないので、既定には影響しない。EuO（Eu に EH2 s,p）は模型を作る所で止まる: `m_hreduction` の NormalizationCheck でシードのノルムの減りが 1 % を超えた（band 26、−1.3 %。EH と EH2 の両方をシードにすると `zhev_tk4` が一次従属に近い向きを落とすため）。Cu・Ni も同じ原因で、減りが 1 % 未満なので規格化し直して進み、特定の k で崩れているのかもしれない（未確認）
 - **`sugw`（`lmf --jobgw=1`）のメモリ**（2026-10-01）: `GEIGpart` が IPW の重なり行列 `ppovl(ngp,ngp)` と LU 用の写し `ppovlLU` を
   各ランクで持つ。1 ランクあたり 32·ngp² バイト、全体は並列数に比例。ngp ≈ V·Q³/6π²（Q = `QpGcut_psi`）なので胞の体積の 2 乗で増える
