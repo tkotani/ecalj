@@ -88,6 +88,26 @@ user の指示（05:5x）: 「この方針で進めて。TODO も判断がつく
 MATERIALS 以下を MLO で（spd ベース、f があるときに入れる）すべてモデル化。DFT レベルでよい。目視で確認できる図、バンドギャップの違い。
 AFsymmetry のモード（AFTEST）が動くのか、そもそも正しいのかも調べて」。push はしない。
 
+### 20:40 SOC の MLO の比べ相手を `job_mlo_soc` が描くようにした、パッケージの確かめ（user「2 と 3 で」「おすすめで」「ecaljdoc も含めてパッケージとしてどうか、TODO も」）
+
+- `job_mlo_soc`（`dc66439c5`）: 段 1b で段 1 と同じフラグの `lmf --band`（so=1）を回し、スピン軌道ありの DFT のバンドを `bnd*.spin1` に書く。始めに前の run の
+  `bnd*.spin*`・`band_MLO_spin2.dat` を消す（user は案 A「job_mlo_soc に書かせる」を選んだ。案 B「ctrlg に so=1」は採らず）。
+  副作用: MLO の窓の基準のバンド端は `qplist.dat`（バンドの計算だけが書く。`lmf --writeham` は書かない）から取るので、これまでの SOC の MLO は前に回した
+  非 SOC の `job_band` の値を使っていた。段 1b のあとは SOC の値で、GaAsSoc・FeSoc の SOC の参照が最大 0.00077 Ry 動いた（作り直した。FeMgOSoc は通った）。
+  逆向きの罠（`job_mlo_soc` の後の非 SOC の `job_mlo`）は TODO (c) と文書に書いた
+- `mlo_bandcheck.py`: SOC の MLO（`band_MLO_spin1.dat` の 1 つの k の帯の数 = 2 N、N は `lmlo`）と SOC なしの DFT（`llmf_band` の `HAM_SO`、無ければ ctrlg の `so`）
+  を比べると WARNING。SOC のときは spin1 だけを見る（試料から写した非 SOC の `bnd*.spin2`・`band_MLO_spin2.dat` が混ざって FeSoc・FeMgOSoc の数字が
+  一度おかしかった: FeSoc 0.019 → 正しくは 0.017、FeMgOSoc 0.006 → 0.003）
+- 結果（SOC の DFT と、式 (9)〜(11)）: GaAsSoc ギャップの誤差 +0.010・rms 0.010 / 0.010（Δ_SO 0.337 / 0.335）、FeSoc 0.017 / 0.017、FeMgOSoc 0.003 / 0.003。
+  非 SOC の GaAs 0.007、Fe 0.016、FeMgO 0.001 と同じ程度。ecaljdoc mlo §4 に warning の枠と表 M2、図 3 枚を描き直し（`83d8343`、数値は `mlo/*Soc.npz`）
+- パッケージの確かめ: 調べのエージェント（読むだけ）が 41 項目を挙げ、うち 3 項目は直後の私の変更で済んでいた。残りを今のファイルで確かめて直した
+  （ecalj `cae7285f4`: README_SOC・MLOsamples README・SOC の test.py の表示・plots の SOC の図・MLOQSGW README（GaAs 23 本、ギャップ 0.725 / 1.034）・
+  MATERIALS README（古い ctrlg の `[mlo]`、式の番号）・`m_HamPMT` の注記と表示・handover・TODO。ecaljdoc `a00ec88`: mlo.md の §2・§3・§7 の数値は
+  2026-09-16 のもの、危険の枠は「原則 1 本、例外は基準 2」、深い半芯だけ nskip、MP の窓に日付、105.9 meV の注記の取り下げ、esmsmves のリンク、
+  mlo_gwsc.md、samples.md（MATERIALS、Si666gwsc は SOC でない）、README_tutorial の jobmaterials の節を Samples/MATERIALS に）。
+  手を付けていない: `Samples/MATERIALS/*/ctrlg` の `[mlo]` を今の gwinit で書き直すこと（TODO (d)）、`optical.md` の HTML コメントの中の古い `MATERIALS/` の道
+- 20:40 から t14 で mlo の組を最後の build で回し直し中
+
 ### 20:01 GaAsSoc の「ギャップの誤差 −0.1 eV」は比べ方の誤り: DFT の側がスピン軌道なしだった（user「どうやって治すのか」）
 
 `Samples/MLOsamples/GaAsSoc` の ctrlg は `so = 0` で、試料の `bnd*` はスピン軌道なしの DFT（Γ の頂上が 3 重、CBM 1.804）。MLO は `job_mlo_soc`
