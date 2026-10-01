@@ -26,8 +26,8 @@ contains
     ! readhamindex0 read all module variables in m_hamindex0 from HAMindex0
     !
     ! No floating orbital case  !    ldim  = ham_ldham(1)
-    use m_mksym,only: osymgr=>symops,oag=>ag,ngrpin=>ngrp,iclasstin=>iclasst 
-    use m_symderive,only:mptauof
+    use m_mksym,only: osymgr=>symops,oag=>ag,ngrpin=>ngrp,iclasstin=>iclasst, &
+         miat_s=>miat,tiat_s=>tiat,invgx_s=>invgx,shtvg_s=>shtvg
     use m_mpi,only: master_mpi
     use m_density,only: pnzall,pnuall
     !r As you see in subroutine rotwvigg, the index for Hamiltonian reads as;
@@ -72,7 +72,12 @@ contains
        zz(ib)   =z(is)
     enddo
     allocate(iclasst,source=iclasstin)
-    call mptauof(symops,ngrp,plat,nbas,rv_a_opos, iclasst,miat,tiat,invgx,shtvg ) ! translation informations in miat tiat invgx, shtvg
+    ! Site maps of the operations 1:ngrp (the group without the AF operations), as m_mksym_init made them with the same
+    ! arguments (2026-10-02 05:31, step S2 of MD/symmetry_spglib.md: mptauof was called again here).
+    miat  = miat_s(:,1:ngrp)
+    tiat  = tiat_s(:,:,1:ngrp)
+    invgx = invgx_s(1:ngrp)
+    shtvg = shtvg_s(:,1:ngrp)
     ndima = 0
     norb=0
     do  ib = 1, nbas
