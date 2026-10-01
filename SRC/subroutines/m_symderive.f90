@@ -213,7 +213,7 @@ contains
     logical,optional:: afmode
     ep=1d-3
     if(iprintx>=46) write(6,*)'MPTAUOf: search miat tiat for wave function rotation'
-    if(present(ag)) call inv3(plat,pinv)
+    call inv3(plat,pinv)
     do 10 ig=1,ng
        if(present(ag)) then ! inverse (R^-1, -R^-1 t): R^-1 = R^T (Cartesian), translation equal mod lattice
           invg(ig)=0
@@ -269,19 +269,17 @@ contains
                 b3=am(3,1)*bas(1,ibas)+am(3,2)*bas(2,ibas)+am(3,3)*bas(3,ibas) +tran(3)
                 do 40 mi=1,nbas
                    if( iclass(mi) /= iclass(ibas) ) cycle
-                   do  i1=-3,3
-                      do  i2=-3,3
-                         do  i3=-3,3
-                            dd1 = ( i1 *plat(1,1)+i2 *plat(1,2)+i3 *plat(1,3) )
-                            dd2 = ( i1 *plat(2,1)+i2 *plat(2,2)+i3 *plat(2,3) )
-                            dd3 = ( i1 *plat(3,1)+i2 *plat(3,2)+i3 *plat(3,3) )
-                            t1 = b1 - (bas(1,mi)+dd1)
-                            t2 = b2 - (bas(2,mi)+dd2)
-                            t3 = b3 - (bas(3,mi)+dd3)
-                            if(abs(t1) <= ep .AND. abs(t2) <= ep .AND. abs(t3) <= ep) go to 60
-                         enddo
-                      enddo
-                   enddo
+                   ! the lattice vector from bas(mi) to the image, by rounding its fractional coordinates (2026-10-02 05:50:
+                   ! it was searched in -3..3 along each plat, which a given ag of gensym, many lattice vectors long, overran)
+                   dl = matmul(pinv, [b1,b2,b3]-bas(:,mi))
+                   i1 = nint(dl(1)); i2 = nint(dl(2)); i3 = nint(dl(3))
+                   dd1 = ( i1 *plat(1,1)+i2 *plat(1,2)+i3 *plat(1,3) )
+                   dd2 = ( i1 *plat(2,1)+i2 *plat(2,2)+i3 *plat(2,3) )
+                   dd3 = ( i1 *plat(3,1)+i2 *plat(3,2)+i3 *plat(3,3) )
+                   t1 = b1 - (bas(1,mi)+dd1)
+                   t2 = b2 - (bas(2,mi)+dd2)
+                   t3 = b3 - (bas(3,mi)+dd3)
+                   if(abs(t1) <= ep .AND. abs(t2) <= ep .AND. abs(t3) <= ep) go to 60
 40              enddo
                 goto 121 ! seach failed, Not found mi and dd1. Try next (tr).
 60              continue
