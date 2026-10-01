@@ -159,7 +159,7 @@ mlo_bandplot.py . -o mlo_GaAs.png     # DFT（灰）と MLO（赤）の図
 | `La2CuO4/` | La₂CuO₄（7 原子、`nkabc` 8³、`n1n2n3` 4³）。QSGW 20 反復（`sigm` なし、`-vssig=1.0` = `scaledsigma` 1.0） | `ctrlg.la2cuo4swj.toml`、`ctrls.la2cuo4swj` | `QPU`、バンド `bnd00*.spin1`、`bandplot.isp1.glt`、ログ `out`（2025-08） | 1 反復 35 分（CPU 32 コア） |
 | `InAsGaSb/n10/` | (InAs)₁₀/(GaSb)₁₀ 超格子（40 原子） | `ctrlg.inas10gasb10.toml` | なし | 未計算 |
 | `InAsGaSb/n4/` | (InAs)₄/(GaSb)₄（16 原子）。`BenchmarkTest/inas4gasb4` と同じ系で `nkabc` だけ違う（8×8×2） | `ctrlg.inas4gasb4.toml` | なし | `BenchmarkTest` の表 1 |
-| `BaTiO3/` | BaTiO₃（5 原子、`nkabc` 4³、`n1n2n3` 3³）。`LDA/`、`QSGW0run/`（1 反復）、`QSGW5run/`（5 反復） | `QSGW5run/ctrlg.batio3.toml`（2026-09-30 に `Legacy2toml.py` で作った）。`LDA/` と `QSGW0run/` は旧形式のまま | 各段のバンド、`rst`、`sigm` | 5 反復で数時間（CPU、2019 の記録） |
+| `BaTiO3/` | BaTiO₃（5 原子、`nkabc` 4³、`n1n2n3` 3³）。`LDA/`、`QSGW0run/`（1 反復）、`QSGW5run/`（5 反復） | `QSGW5run/ctrlg.batio3.toml`（2026-09-30 に `Legacy2toml.py` で作った）。`LDA/` と `QSGW0run/` の旧形式の `ctrl.batio3` は `QSGW5run/` のものと同じだったので trash へ（2026-10-01） | 各段のバンド、`rst`、`sigm` | 5 反復で数時間（CPU、2019 の記録） |
 
 回し方（La₂CuO₄）:
 

@@ -308,6 +308,7 @@ CALLER_GRAPH         = YES
 | 2026-10-01 | 古い写し | `SRC/BK`、`SRC/execgfortran`、`SRC/execAHC` | `116254e1d` の前（`4f9332d98`） | — |
 | 2026-10-01 | GW1500 の古いスクリプト・表 | `ecalj_auto/run_gw1500_addrun*.sh`、`jobgw1500.sh`、`gw1500_recheck_*.sh`、`qpu_change.py`、`gw1500_rerun_20260930.tsv` | `116254e1d` の前 | ecalj_auto/GW1500_status.md |
 | 2026-10-01 | TestInstall の旧形式の入力 `ctrl.<sname>`（30 本。試験も Fortran も読まず、試験の入力は横の `ctrlg.<sname>.toml`。中身は `ctrl2ctrltoml.py` (v2) で変換した元で、コメントは古い生成器 ctrlgen2.py・lm7 の一般的な説明だけ） | `Samples/TestInstall/*/ctrl.*` | `49683ffd8` の前 | — |
+| 2026-10-01 | Samples の残りの旧形式の入力 `ctrl.<sname>`（28 本: MLOsamples の各試料、BenchmarkTest、MATERIALS の La₂CuO₄・InAs/GaSb・BaTiO₃。どれも横に `ctrlg.<sname>.toml` があり、BaTiO₃ の `LDA/`・`QSGW0run/` の `ctrl.batio3` は `QSGW5run/` のもの（`ctrlg` の元）と同じ） | `Samples/**/ctrl.*` | `5b0c3207d` の前 | — |
 | 2026-10-01 | ビルドの生成物 | `SRC/exec/build`・`build_gf14`、`SRC/exec_gfortran`・`exec_gfortran-14`・`exec_ifx` | `3f0771f2f` の前 | §1.5 |
 | 2026-10-01 | 打ち込み用・古いスクリプト | `g`・`gg`・`i`・`ii`・`n`、`build_nvfortran.sh`、`gpu_wait_run.sh`、`jobinstall_kugui.sh`・`jobinstall_ohtaka.sh` | `3f0771f2f` | §1.1〜1.3、§2.1 |
 | 2026-10-01 | 古いビルドとソースの控え | `SRC/exec/BK` | `3f0771f2f` | §1.4 |
