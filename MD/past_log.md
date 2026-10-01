@@ -290,6 +290,7 @@ CALLER_GRAPH         = YES
 
 ## 13. 有限温度の四面体法の不具合の報告（`SRC/subroutines/m_tetrakbt_BUGREPORT.md`、2026-06-08〜09、2026-10-01 に trash）
 
+- 2026-10-02 05:26: 旧 `m_tetrakbt` の中点分解のルーチン（`tetrakbt`・`eaf_triangle`・`eafww`・`factri`・`factri0`・`integral_1t`・`integral_0t`・`funcgx`・`numintall`・`funcgx2`・`ndiv_tt`・`int_simpson`、約 410 行）を外した。取り出すときは `git show 41c0e3cc7:SRC/subroutines/m_tetrakbt.f90`
 - 症状（2026-06-08）: `[gw] tetrakbt = true` で χ₀ が誤り、金属の一部の q で ε が特異になって W・Σc が NaN（Na 4×4×4 の q = (0.25,0.25,0.5)）。T → 0 でも誤り
 - 診断の手順（再現できる形）: `tetwt5x_dtet4` で `usetetrakbt` のとき T=0 の正しい `lindtet6` も呼び、四面体ごとの `sum(wtthis(:,0))` を比べた。
   T = 1 K で 34489 個の四面体が 10% 以上ずれ、最大 4451 倍。99.8% が Fermi 面を横切る四面体

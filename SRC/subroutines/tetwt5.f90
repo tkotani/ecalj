@@ -1,5 +1,5 @@
 module m_tetwt5
-  use m_tetrakbt,only: tetrakbt_init, tetrakbt, integtetn, kbt
+  use m_tetrakbt,only: tetrakbt_init, integtetn, kbt
   use m_fpiint,only: gausq_fd
   use m_mpi,only:ipr
   use m_lgunit,only:stdo
