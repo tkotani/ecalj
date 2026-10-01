@@ -2,3 +2,18 @@
 We apply [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html) to ecalj.
 For publications, make a citation to https://github.com/tkotani/ecalj/,
 and/or PMT-QSGW refereces contained below.
+
+## Third-party software in ecalj
+
+ecalj contains, or uses, the following software under their own licences (compatible with AGPLv3).
+Keep their licence files when redistributing.
+
+| Software | Where in ecalj | Licence | Licence file |
+| --- | --- | --- | --- |
+| spglib v2.6.0 (crystal symmetry; A. Togo et al., https://github.com/spglib/spglib) | `SRC/external/spglib` (C sources, built into libecaljF*.so; finds the space group for lmf). The Python spglib is used by `SRC/exec/symfind.py` and `GetSyml` | BSD-3-Clause | `SRC/external/spglib/COPYING` |
+| seekpath (band paths; G. Pizzi et al., https://github.com/giovannipizzi/seekpath) | `GetSyml/hpkot` (copied module) and the Python seekpath used by `GetSyml/getsyml.py` | MIT | `GetSyml/LICENSE.txt` |
+| toml-f v0.5.0 (TOML parser; S. Ehlert et al., https://github.com/toml-f/toml-f) | `SRC/external/toml-f`, and its JSON reader copied to `SRC/subroutines/tjson_*.f90` | Apache-2.0 OR MIT | `SRC/external/toml-f/LICENSE-Apache`, `LICENSE-MIT` |
+
+When publishing results that use these, cite them as well:
+- spglib: A. Togo, K. Shinohara, I. Tanaka, Sci. Technol. Adv. Mater., Meth. 4, 2384822 (2024).
+- seekpath (band paths of getsyml): Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Comp. Mat. Sci. 128, 140 (2017).
