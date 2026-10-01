@@ -56,7 +56,6 @@ del { color: var(--muted); text-decoration-thickness: 1.5px; }
 .legend i.miss { background: var(--miss); width: 8px; height: 8px; }
 .legend i.wrong { background: none; border: 1.5px solid var(--ink); width: 9px; height: 9px; }
 .legend i.hatch { border-radius: 2px; width: 18px; height: 12px; background: repeating-linear-gradient(135deg, #7fa3c7 0 1px, transparent 1px 4px); }
-.legend i.hatch2 { border-radius: 2px; width: 18px; height: 12px; background: repeating-linear-gradient(135deg, #a9c1d9 0 1px, transparent 1px 7px); }
 table { border-collapse: collapse; width: 100%; font-size: .86rem; }
 th, td { padding: 5px 10px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
 th { background: var(--surface); font-weight: 600; }
@@ -120,8 +119,9 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
   <dl class="eval">
     <dt>金属か絶縁体か</dt><dd>SCF の k メッシュ（<code>efermi.lmf</code>）で E_F が価電子帯の頂上にありギャップが 0.05 eV より大きく、対称線の上でもギャップが 0.05 eV より大きいときだけ絶縁体。</dd>
     <dt>ギャップ</dt><dd>表 1 のギャップは DFT の、k メッシュと対称線の上のうち小さい方。<b>ギャップの誤差</b>は対称線の上の MLO − DFT。</dd>
-    <dt>誤差を見る窓</dt><dd>VBM − 8 eV 〜 CBM + 1 eV（金属は E_F − 8 〜 E_F + 1 eV）。DFT の帯が模型にあるか（DFT → MLO）と、模型の帯が DFT にあるか（MLO → DFT）の両方を見る。
-      MLO → DFT だけは CBM + 3 eV まで見る（模型に余計な帯が無いか）。図では窓を斜線で示す（濃い斜線が両方、薄い斜線が MLO → DFT だけ）。</dd>
+    <dt>誤差を見る窓</dt><dd>VBM − 8 eV 〜 CBM + <code>mlo_delta</code>（どの物質も 2 eV。金属は E_F − 8 〜 E_F + 2 eV）。<code>mlo_delta</code> は模型を合わせる範囲の上端
+      （CBM からどこまで上を合わせるか）なので、同じ範囲で評価する。この中で、DFT の帯が模型にあるか（DFT → MLO）と、模型の帯が DFT にあるか（MLO → DFT）の両方を見る。図では窓を斜線で示す。
+      <span class="note">（2026-10-01 16:4x まで、上端は DFT → MLO が CBM + 1、MLO → DFT が CBM + 3 eV だった）</span></dd>
     <dt>誤差の最大値</dt><dd>窓の中の各点について同じ k で最も近い相手の帯との差をとり、その rms を 2 つの向きで出す。<b>誤差の最大値</b> = max（rms MLO → DFT、rms DFT → MLO、|ギャップの誤差|）。
       判定は good ≤ 0.02、fair ≤ 0.05、marginal ≤ 0.1、poor &gt; 0.1 eV。</dd>
   </dl>
@@ -156,7 +156,7 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
 
 <section class="panel">
   <h2>表 1. 物質ごとの結果（eV）</h2>
-  <p class="note">ギャップは DFT の（k メッシュと対称線の上のうち小さい方）。窓は E_F 基準の誤差を見る範囲で、括弧は MLO → DFT の向きの上端。
+  <p class="note">ギャップは DFT の（k メッシュと対称線の上のうち小さい方）。窓は誤差を見る範囲（E_F 基準、VBM − 8 〜 CBM + mlo_delta）。
     誤差の最大値の色は判定、太字と左の線はその物質で一番良い模型。SiO₂c は空格子球の有無を 2 段に書く。見出しを押すと並べ替え。</p>
   <div class="scroll"><table id="tbl"><thead>
     <tr><th colspan="3"></th><th class="grp" colspan="2">1. 基準</th><th class="grp" colspan="2">2. 陽イオンに EH2</th></tr>
@@ -169,7 +169,7 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
 <section>
   <h2>図 3. 物質ごとに一番良い模型のバンド</h2>
   <div class="legend" style="margin-bottom:10px"><span><i class="dft"></i>DFT</span><span><i class="mlo"></i>MLO</span>
-    <span><i class="hatch"></i>誤差を見る窓（両方の向き）</span><span><i class="hatch2"></i>MLO → DFT だけ</span>
+    <span><i class="hatch"></i>誤差を見る窓（VBM − 8 〜 CBM + 2 eV）</span>
     <span><i class="miss"></i>模型に無い DFT の帯（0.1 eV 以内に MLO が無い）</span><span><i class="wrong"></i>DFT に無い MLO の帯（0.1 eV 以内に DFT が無い）</span></div>
   <div class="filters" role="group" aria-label="判定で絞る">
     <button type="button" id="f-all" data-f="all" aria-pressed="true">すべて</button>

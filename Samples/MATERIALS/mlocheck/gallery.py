@@ -88,8 +88,8 @@ def gap_small(v): return min(v['gap_mesh'], v['gapD']) if v.get('insulator') els
 def dgap(v): return (v['gapM'] - v['gapD']) if v and v.get('insulator') else None
 
 # ---------- band figures ----------
-# DFT: grey lines; MLO: red x; hatched: the window of the error, dense [VBM-8, CBM+1] (both directions), sparse
-# [CBM+1, CBM+3] (MLO -> DFT only); orange dots: DFT points with no MLO band within 0.1 eV (a band missing from the
+# DFT: grey lines; MLO: red x; hatched: the window of the error [VBM-8, CBM+mlo_delta] (both directions, 16:4x);
+# orange dots: DFT points with no MLO band within 0.1 eV (a band missing from the
 # model); dark rings: MLO points with no DFT band within 0.1 eV (a wrong band). The matching is that of mlo_bandcheck.py.
 TOL = 0.1
 def spins_of(d): return [s for s in (1, 2) if os.path.exists(f'{d}/band_MLO_spin{s}.dat') and os.path.getsize(f'{d}/band_MLO_spin{s}.dat') > 0]
@@ -106,17 +106,16 @@ def far(P, Q, a, b):
 def panel(ax, d, isp, res, title, store):
     ef = BP.read_ef(d)
     segs = BP.load_dft(d, isp); m = BP.load_mlo(d, isp, ef)
-    vb, cb = res['VBM'], res['CBM']; lo, h1, h3 = vb - 8, cb + 1, cb + 3
-    ax.axhspan(lo, h1, facecolor='none', edgecolor='#7fa3c7', hatch='////', lw=0, zorder=0)
-    ax.axhspan(h1, h3, facecolor='none', edgecolor='#a9c1d9', hatch='//', lw=0, zorder=0)
+    lo, hi = res['emin'], res['emax']
+    ax.axhspan(lo, hi, facecolor='none', edgecolor='#7fa3c7', hatch='////', lw=0, zorder=0)
     for s in segs: ax.plot(s[:, 0], s[:, 1], '-', color='0.40', lw=0.9, zorder=2)
     D, M = {}, {}                                              # both spins together, as mlo_bandcheck.py
     for s in spins_of(d):
         for x, es in BC.load(sorted(glob.glob(f'{d}/bnd*.spin{s}')), lambda e: e, bnd=True).items(): D.setdefault(x, []).extend(es)
         for x, es in BC.load([f'{d}/band_MLO_spin{s}.dat'], lambda e: (e - ef) * BC.RY).items(): M.setdefault(x, []).extend(es)
     dpts = np.concatenate(segs) if segs else np.zeros((0, 2))
-    miss = far([(round(x, 5), e) for x, e in dpts], M, lo, h1)
-    wrong = far([(round(x, 5), e) for x, e in m], D, lo, h3) if m is not None else np.zeros((0, 2))
+    miss = far([(round(x, 5), e) for x, e in dpts], M, lo, hi)
+    wrong = far([(round(x, 5), e) for x, e in m], D, lo, hi) if m is not None else np.zeros((0, 2))
     if len(miss): ax.plot(miss[:, 0], miss[:, 1], 'o', color='#e08a1e', ms=4.2, mew=0, alpha=0.9, zorder=3)
     if m is not None: ax.plot(m[:, 0], m[:, 1], 'x', color='#c0392b', ms=3.6, mew=0.9, zorder=4)
     if len(wrong): ax.plot(wrong[:, 0], wrong[:, 1], 'o', mfc='none', mec='#1d2733', ms=6.5, mew=0.9, zorder=5)
@@ -128,9 +127,9 @@ def panel(ax, d, isp, res, title, store):
         ax.set_xlim(tics[0][0], tics[-1][0])
     ax.set_title(title, fontsize=11)
     store.update({f'{title}|dft_x': dpts[:, 0], f'{title}|dft_E': dpts[:, 1], f'{title}|mlo_x': m[:, 0] if m is not None else [],
-                  f'{title}|mlo_E': m[:, 1] if m is not None else [], f'{title}|window': np.array([lo, h1, h3]),
+                  f'{title}|mlo_E': m[:, 1] if m is not None else [], f'{title}|window': np.array([lo, hi]),
                   f'{title}|missing': miss, f'{title}|wrong': wrong, f'{title}|dir': d})
-    return lo - 1.2, h3 + 1.2
+    return lo - 1.2, hi + 2.5
 
 def figure(m, keys, fname):
     """one material; keys = models (columns); spins as columns for one model, as rows for several"""
@@ -228,7 +227,7 @@ def cells(v, w, best):
     return (f'<td class="num">{fmt(dgap(v), sign=True) if v.get("insulator") else "—"}</td>'
             f'<td class="num sev-{sev(w)}{" best" if best else ""}">{fmt(w)}</td>')
 def window(v):
-    return f'{fmt(v["VBM"] - 8, 1, True)} 〜 {fmt(v["CBM"] + 1, 1, True)} ({fmt(v["CBM"] + 3, 1, True)})'
+    return f'{fmt(v["emin"], 1, True)} 〜 {fmt(v["emax"], 1, True)}'
 trs = []
 for m in allm:
     v = R['base'][m]; k = BEST[m][1]; e2 = R['eh2'].get(m); g = gap_small(v)

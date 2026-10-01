@@ -111,13 +111,13 @@ job_mlo <sname> -np 4                                 # MLO の自動の模型�
 全物質（InAs/GaSb の n10 を除く 65）で、LDA のあと MLO の模型を作り、対称線の上で DFT のバンドと比べた。基準は半内殻の局所軌道を自動で入れる既定
 （`m_HamPMT`、2026-10-01）。ほかに、陽イオンに EH2 の s,p を足した模型と、SiO₂ に空格子球を置いた模型。
 
-- `MLOcheck_20261001.tsv`: 最初の版（旧既定）の物質ごとの結果。`MLOcheck_20261001_variants.tsv`: 物質ごとに動径関数を足した変種
+- `MLOcheck_20261001.tsv`: 最初の版（旧既定）の物質ごとの結果。`MLOcheck_20261001_variants.tsv`: 物質ごとに動径関数を足した変種。
+  どちらも 2026-10-01 16:4x までの窓で評価したもの（MLO → DFT が [VBM − 8, CBM + 3]、DFT → MLO が [VBM − 8, CBM + 1] eV）。
+  今の `mlo_bandcheck.py` は両方とも [VBM − 8, CBM + mlo_delta]（`mlo_delta` は模型を合わせる範囲の上端、既定 2 eV）
 - `mlocheck/`: 回したスクリプト（`README.md`）と、結果のページを作る `gallery.py`
 - 評価は `SRC/exec/mlo_bandcheck.py`。条件と結果の一覧は ecalj の `MD/research_log.md`（2026-10-01 朝）と、ページ（`mlocheck/gallery.py` で作る）
 
 ## 3. 大きめの系の QSGW の入力と結果
-
-時間のかかる計算の入力と、以前の計算の結果。`Samples/Legacy` から 2026-09-30 に移した。
 
 試験（`testecalj`）にはしない、時間のかかる計算の入力と、以前の計算の結果。`Samples/Legacy` から 2026-09-30 に移した。
 どれも `ctrlg.<sname>.toml` が入力で、旧形式（`ctrl.<sname>`、`GWinput`）は読まれない。
