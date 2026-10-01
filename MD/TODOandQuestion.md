@@ -52,6 +52,9 @@
   La₂CuO₄ は La 5p で 0.094 → 0.001 eV（(a) の型。La₂CuO₄ では判定の表示が `********` で、局所軌道が主の状態が見つかっていない）。
   足す条件（陰イオンの 2p があるときの半内殻、空隙の大きい構造の EH2）を決めるか、模型を作った後にバンドを確かめて足す仕組み（`mlo_bandcheck.py`）にするか。
   模型が黙って壊れる場合（Cu）の検知も要る
+  2026-10-01 14:38 の試験（研究ログ *表 14:38-1*）: 局所軌道は「帯の上端が E_F − 17 eV より上なら EH の関数に**加えて**模型の関数にする」で、(a) の型は全部直り、
+  合っていた 16 物質は悪くならない（浅い Zn 3d・Ba 5p も加える形で同じ）。`m_HamPMT` の `eshallow` を −10 → −17 eV にし、浅いときの入れ替えを加える形に変える案。
+  La 5p のように判定で帯が見つからない場合の扱いも要る。既定を変えると MLOsamples の参照（ZnO など）が動く
 - **`job_mlo_soc` が空の `band_MLO_spin2.dat` を書く**（2026-10-01）: 2N のスピノルの帯は `band_MLO_spin1.dat` に入る。空の spin2 があると
   `mlo_bandplot.py` が空の枠を描いていた（描く側は 2026-10-01 に空のファイルを飛ばすようにした）。`bandplot_MLO.isp2.glt` も残る
 - **`Samples/AFsymmetry/NiO` は `pwmode = 1` で `symgrpaf`**（2026-10-01）: k 点を 4³ にすると `rotwave: q+G rotation error (We have to set PWmode=11 for symgrpAF)`
