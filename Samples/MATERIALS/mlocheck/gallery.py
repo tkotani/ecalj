@@ -233,7 +233,7 @@ def mrow(no, name, what, where, k, cls=''):
 counts_tbl = ('<table class="cnt"><thead><tr><th>模型</th><th>MLO のシード</th><th>書く所</th><th class="num">物質</th>'
               '<th class="num">good<br>≤ 0.02</th><th class="num">fair<br>≤ 0.05</th><th class="num">marginal<br>≤ 0.1</th><th class="num">poor<br>&gt; 0.1 eV</th></tr></thead><tbody>'
   + mrow('', '旧既定（〜2026-10-01 14:4x）', '原子ごと・lm ごとに EH 1 本をシードにする。浅い局所軌道は EH と入れ替え（E_F − 10 eV より上）', '<code>mlo_lm</code>', 'old', 'old')
-  + mrow('', '<b>基準 1</b>', 'EH に加えて、半内殻の局所軌道（帯の上端が E_F − 17 eV より上）を MLO のシードとして加える', '自動（<code>m_HamPMT</code>）', 'base')
+  + mrow('', '<b>基準 1</b>', 'EH に加えて、半内殻の局所軌道（帯の上端が E_F − 17〜−8 eV）を MLO のシードとして加える。−8 eV より上（窓の中）の局所軌道は EH と入れ替える', '自動（<code>m_HamPMT</code>）', 'base')
   + mrow('', '<b>基準 2</b>: 基準 1 + 陽イオンに EH2(s,p) シード', '陽イオンの s,p に第 2 の smooth Hankel 関数（EH2）を MLO のシードとして加える', '<code>mlo_lm2</code>', 'eh2')
   + mrow('', '<b>基準 3</b>: 基準 1 + 空格子球', '空隙に置いた z = 0 の球の s,p を MLO のシードとして加える', '<code>[[site]]</code>・<code>[[spec]]</code>・<code>mlo_lm</code>（DFT から回し直す）', 'es')
   + mrow('', '<b>物質ごとに一番良いもの</b>', '基準 1・2・3 のうち誤差の最大値が一番小さい模型（図 1〜3）', '', 'best', 'best')

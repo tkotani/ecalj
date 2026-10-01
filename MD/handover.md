@@ -107,6 +107,19 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
 - **LDA+U**: `idu = 10 + mode` は `sigm` が無ければ mode の LDA+U、あれば U を切る（2026-09-30 に直した）。LDA+U では ehf が U の寄与を含まないので ehf と ehk は合わない（`m_lmfp`、仕様）
 - **`lmf --jobgw=1` のメモリ**: IPW の重なり行列が 1 ランク 32·ngp² バイト（ngp ≈ V·Q³/6π²）。疎な構造（1 原子 500 Å³）で 1 ランク 35 GB。並列数に比例（2026-10-01、TODOandQuestion.md）
 
+- **MLO の模型（基準 1・2・3、2026-10-01、user と決めた）**: 説明の正本は ecaljdoc mlo §9（§1 に入力の書き方）。
+  - 基準 1（既定）: `mlo_lm` の EH ＋ 半内殻の局所軌道。局所軌道は**入力にキーが無く自動**（`m_HamPMT` の ShallowLO: 同じ種類の原子の LO をまとめた
+    部分空間への重みが 1/2 を超える占有状態の上端で決める。E_F − 8 eV より上は EH と**入れ替え**（窓の中、Ni 3d・Zn 3d）、−17〜−8 eV は EH に**加える**
+    （Ga 3d・Eu 5p・La 5p）、それより下は外す）。判定は `lmlo` の `local orbital atom ...` の行で見る。入れ替えにしないと、帯 1 本にシード 2 本が付き、
+    部分バンドの模型（`Samples/MLOsamples/NiO666lda`、Ni d ＋ O p、O 2p と Ni 3d の帯の試験）が `nskip` の検査で止まる（2026-10-01 19:2x）。
+    自動にした理由は、判定に SCF のバンドの位置が要り、gwinit（SCF の前）では書けないため（user 19:1x に同意）。閾値によらず入れるときは `mlo_lm3`（その原子は書いたとおり）
+  - 基準 2: gwinit が `mlo_lm2` に陽イオン（N O F P S Cl As Se Br Sb Te I 以外、遷移金属 Sc–Cu・Y–Ag・La–Au と Ac 以降を除く、Zn・Cd・Hg は含む）の s,p を
+    **`!` 付き**で書く。**何もしなければ基準 1、`!` を外せば基準 2**（`job_mlo` だけ回し直す）。遷移金属・4f に EH2 を入れると壊れる（Cu・Ni は特定の k で崩れ、
+    EuO は `Hreduction: PMT completeness loss too large` で止まる。同じ原子の EH と EH2 の一次従属が原因と思われる）
+  - 基準 3: 空隙に空格子球（SiO₂ が要る。`[[site]]`・`[[spec]]`・`mlo_lm`、`lmfa` から）。自動の置き方は未完（`SRC/exec/ctrlg_addes.py` は未コミット・未検証）
+  - 選び方: 基準 1 で不満足なら基準 2、空隙があれば基準 3（2 と 3 を一緒も）。`mlo_delta`・`mlo_w` の細かい調整はしない
+  - 評価は `mlo_bandcheck.py`: 窓 [VBM − 8, CBM + mlo_delta] の中の固有値のずれ（rms を 2 つの向き）と |Δgap| の最大。2026-10-01 17:54 より前の tsv・表は別の窓（CBM + 3 / + 1）
+
 ## 6. 道具の癖
 
 - **VSCode のチャットのリンク**: md は相対でも絶対でも開くが、画像（png）は開かない。図を見せるときは、図を埋め込んだ md へリンクし、パスは素のテキストで添える。

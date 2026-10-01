@@ -88,6 +88,33 @@ user の指示（05:5x）: 「この方針で進めて。TODO も判断がつく
 MATERIALS 以下を MLO で（spd ベース、f があるときに入れる）すべてモデル化。DFT レベルでよい。目視で確認できる図、バンドギャップの違い。
 AFsymmetry のモード（AFTEST）が動くのか、そもそも正しいのかも調べて」。push はしない。
 
+### 19:25 局所軌道の規則を三つに分けた: 窓の中（E_F − 8 eV より上）は EH と入れ替え、−17〜−8 eV は加える（NiO666lda が止まったため）
+
+- 19:09〜19:18 の `samples_tests.sh -np 8 mlo inputs`（局所軌道を「加える」build）: inputs 176 件 PASSED。mlo は 25 件 PASSED・3 件 FAILED
+  （GaAs・GaAsSoc: Ga 3d（−14.8 eV）が加わって模型が変わった。`mlo_bandcheck.py` で参照 0.006/0.007、新 0.007/0.007、ギャップの誤差 +0.006 で同じ）、
+  **NiO666lda で停止**: `m_HamPMT: the bands dropped from the MLO projector (1..nskip) overlap the kept ones in energy (gap -0.942262 eV)`。
+  Ni の `pz = 3.9`（3d を LO で持ち、d の pnu は 4.x）の帯の上端は E_F + 0.66 eV で、価電子の 3d そのもの。「加える」と Ni 1 つに d のシードが
+  LO 5 ＋ EH 5 の 10 本になり、Ni d ＋ O p だけの模型（O 2p と Ni 3d の帯の試験、user「違うタイプのモデル化」）で nskip の切れ目が O 2s の中を通った
+- 直し（user 了承 19:2x）: 帯の上端が E_F − 8 eV（評価の窓の下端）より上なら EH と入れ替え（9/18〜10/01 の扱い）、−17〜−8 eV は加える、
+  下は外す。`lmlo` に `IN THE WINDOW: LO replaces the EH function` と出る。65 物質で −8 eV より上は Zn の化合物 5 つだけ（ZnO −2.7、ZnS −5.6、
+  ZnSe −6.0、ZnTe −6.5、wZnS −5.6 eV）。新しい規則で `job_mlo` だけ回し直し（`~/work/mlocheck_rule3`）: 誤差は同じ（ZnO 0.001、ZnS 0.012、
+  ZnSe 0.017、ZnTe 0.038、wZnS 0.015）、本数は ZnTe 23 → 18、ZnO 26。ZnTe の基準 2 は 22 本・0.004（加える規則では 27 本・0.003）
+- 書いた所: `m_HamPMT` の注記、gwinit が書くコメント、ecaljdoc mlo §1（規則の表と表 M1 の変遷）・§9（式 (8) の数え方、ZnTe）、
+  `Changes.txt` 2026-10-01 (3)、`MD/handover.md` §5。19:2x から mlo の組を回し直し中
+
+### 19:14 gwinit の `mlo_lm2` は陽イオンの s,p を `!` 付きで書く、半内殻の局所軌道は自動のまま（user と決めた 19:0x〜19:1x）
+
+- `main_gwinit.f90`: `mlo_lm2` の行は陽イオン（N O F P S Cl As Se Br Sb Te I 以外）から遷移金属 Sc–Cu・Y–Ag・La–Au と Ac 以降を除いた原子。
+  Zn・Cd・Hg は残す（ZnTe・CdTe が基準 2 で直るため）。行は `!` 付き: **何もしなければ基準 1、`!` を外せば基準 2**（user「だまってやれば基準 1、
+  びっくりを抜けば基準 2 となっていれば OK」）。SiO₂ には意味が無いがコメントなので OK（user）
+- 確認（t14、scratchpad の写し）: gwinit の出力 GaAs `! 1 Ga 1 2 3 4`、ZnTe `! 1 Zn 1 2 3 4`、Cu と EuO は空、EuO の Eu に f（10–16）。
+  ZnTe をそのまま回すと 23 本・ギャップの誤差 +0.038（基準 1）、`!` を外して `job_mlo` だけ回すと 27 本・+0.001、誤差の最大値 0.003（基準 2）
+- 半内殻の局所軌道を `mlo_lm3` で入力に書くか自動かを user が質問 → 自動のまま（判定に SCF のバンドの位置が要り、gwinit では書けない。
+  65 物質で困った例が無い）。`[mlo]` のコメントで `mlo_lm3` での上書きを案内する。`!` 付きの `mlo_lm3` を gwinit に書かせるのは、
+  「使われない」と読めて実際は自動で使われることがあるので採らない。user「それでいい」「しっかり書いといて。後で困らないように」
+  → `m_HamPMT` の注記、ecaljdoc mlo §1、`Changes.txt` 2026-10-01 (3)、`MD/handover.md` §5 に書いた
+- 19:09 から t14 で `TOOLS/samples_tests.sh -np 8 mlo inputs`（この build）
+
 ### 18:49 MLO の模型の選び方を user が言い直した（18:4x の「両方で作って良い方」は取り消し）
 
 - まず基準 1。**基準 1 で不満足なら基準 2 を試す**（EH2 を入れる陽イオンから遷移金属と 4f・5f の原子を除く）

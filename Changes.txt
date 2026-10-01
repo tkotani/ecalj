@@ -1,3 +1,18 @@
+2026-10-01 (3)
+  MLO の模型 (job_mlo) の既定を変えた。説明は ecaljdoc の mlo §1 (入力) と §9 (基準 1・2・3、選び方、Samples/MATERIALS の 65 物質の結果)。
+  - 半内殻の局所軌道 ([[spec]] の pz): 帯の上端で決める (m_HamPMT)。E_F - 8 eV より上 (窓の中、価電子の殻そのもの: Ni 3d、Zn 3d) は
+    EH 関数と入れ替え、E_F - 17 〜 -8 eV (窓の下の半内殻: GaN の Ga 3d、Eu 5p、La 5p) は EH 関数に加え、それより下は外す。
+    これまでは E_F - 10 eV より上を EH と入れ替え、下は外していた。帯は同じ種類の原子の局所軌道をまとめて見る。入力のキーは無く、
+    判定は lmlo に出る (IN THE WINDOW: LO replaces the EH function / SHALLOW: LO added to the model / deep: LO skipped)。
+    規則によらず入れるなら mlo_lm3 に書く (その原子は書いたとおり)。
+    GaN・InN・EuO・La2CuO4・LaGaO3・SrTiO3・SrVO3 で 0.05-0.6 eV ずれていた O・N の 2p の帯が 0.01 eV 以内に合う。
+    加える局所軌道のぶん MLO の本数が増える (GaAs の Ga 3d で 5 本)。Samples/MLOsamples の GaAs・GaAsSoc は参照を作り直した。
+  - gwinit: mlo_lm に、4f が価電子の原子 (La-Lu、Hf 以降で基底の f が 4f のもの) の f (10-16) も書く。
+    mlo_lm2 に、陽イオン (遷移金属 Sc-Cu・Y-Ag・La-Au と Ac 以降を除く。Zn・Cd・Hg は含む) の s,p の行を ! 付きで書く。
+    何もしなければ基準 1、! を外せば基準 2 (EH2 のシードが加わり、空隙の大きい MgTe・ZnTe・CdTe・AlN などが合う。job_mlo だけ回し直す)。
+  - mlo_bandcheck.py: 誤差を見る窓を両方の向きとも [VBM - 8, CBM + mlo_delta] にした (これまで MLO -> DFT は CBM + 3、DFT -> MLO は CBM + 1)。
+  Samples/MATERIALS は LDA と MLO の計算のサンプル (Samples/MATERIALS/README.md)。
+
 2026-10-01 (2)
   開発の文書を MD/ にまとめた。最上位に残るのは CLAUDE.md（入口）、数行の README.md、Changes.txt。
   README.md の中身（2026-05〜09 の新機能のログと TOML の流れのクイックスタート）は MD/README.md へ。ecalj は Claude が読み、
