@@ -23,7 +23,7 @@ above the band edge the model is asked to be right, so the model is judged in th
 the upper edge was CBM + 3 (MLO -> DFT) and CBM + 1 (DFT -> MLO), whatever mlo_delta was.
 
 SOC: the MLO bands of job_mlo_soc (2 N_MLO bands per k in band_MLO_spin1.dat, N_MLO from lmlo) must be compared with DFT bands
-with SOC (job_band <sname> --ctrlg:ham.so=1 --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true; HAM_SO of llmf_band). A mismatch is
+with SOC; job_mlo_soc draws them itself (step 1b, the same flags; HAM_SO of llmf_band). A mismatch is
 reported as 'warning' (2026-10-01 20:1x: Samples/MLOsamples/GaAsSoc looked 0.1 eV off, it was the non-SOC DFT, Delta_SO/3).
 
 2026-10-01: rewritten for any directory (the test of Samples/MATERIALS, MD/research_log.md 2026-10-01).
@@ -128,8 +128,8 @@ def check(d):
     ins = bool((ln[0] - ln[1]) < 1e-6 and gmesh > 0.05 and cbD - vbD > 0.05)
     r = dict(insulator=ins, gap_mesh=(ln[2] - ln[1]) * RY if ins else 0.0, nspin=len(spins), soc=bool(mso))
     if mso is not None and dso is not None and mso != dso:
-        r['warning'] = ('MLO with SOC against DFT without SOC: run job_band <sname> --ctrlg:ham.so=1 --ctrlg:ham.nspin=2 '
-                        '--ctrlg:ham.phispinsym=true' if mso else 'MLO without SOC against DFT with SOC')
+        r['warning'] = ('MLO with SOC against DFT without SOC: rerun job_mlo_soc (its step 1b draws the DFT bands with SOC)'
+                        if mso else 'MLO without SOC against DFT with SOC: rerun job_band (job_mlo_soc left its SOC bands here)')
     if ins:
         mid = 0.5 * (vbD + cbD)
         vbM = eM[eM <= mid].max() if (eM <= mid).any() else float('nan')

@@ -12,7 +12,7 @@
 
 ### コード
 
-- **MLO: EH2 s,p を単体の金属（Cu・Ni）に足すと、Γ–X の 2〜3 点の k だけで模型が崩れる**（2026-10-01、`~/work/mlocheck_eh2cat/{Cu,Ni}`、ページ https://claude.ai/artifact/VCWpe5W8Fei6umatXGeZGH の図 4）: その k で MLO の帯が E_F + 0.3 eV に集まり、DFT の帯が抜ける（Cu 0.012 → 0.802 eV）。同じ原子の EH と EH2 がほぼ一次従属になって `Hreduction` の重なりが特異に近い、と疑っている（未確認: その k の重なり行列の固有値を見る）。既定（遷移金属・4f・5f 以外に s,p）では Cu・Ni に EH2 は入らないので、既定には影響しない。EuO（Eu に EH2 s,p）は模型を作る所で止まる: `m_hreduction` の NormalizationCheck でシードのノルムの減りが 1 % を超えた（band 26、−1.3 %。EH と EH2 の両方をシードにすると `zhev_tk4` が一次従属に近い向きを落とすため）。Cu・Ni も同じ原因で、減りが 1 % 未満なので規格化し直して進み、特定の k で崩れているのかもしれない（未確認）
+- **MLO: EH2 s,p を単体の金属（Cu・Ni）に足すと、Γ–X の 2〜3 点の k だけで模型が崩れる**（2026-10-01、`~/work/mlocheck_eh2cat/{Cu,Ni}`、ページ https://claude.ai/artifact/VCWpe5W8Fei6umatXGeZGH の図 4）: その k で MLO の帯が E_F + 0.3 eV に集まり、DFT の帯が抜ける（Cu 0.012 → 0.802 eV）。同じ原子の EH と EH2 がほぼ一次従属になって `Hreduction` の重なりが特異に近い、と疑っている（未確認: その k の重なり行列の固有値を見る）。gwinit の `!` 付きの `mlo_lm2` の行は Cu・Ni には書かれない（既定は基準 1 で EH2 なし）ので、既定には影響しない。EuO（Eu に EH2 s,p）は模型を作る所で止まる: `m_hreduction` の NormalizationCheck でシードのノルムの減りが 1 % を超えた（band 26、−1.3 %。EH と EH2 の両方をシードにすると `zhev_tk4` が一次従属に近い向きを落とすため）。Cu・Ni も同じ原因で、減りが 1 % 未満なので規格化し直して進み、特定の k で崩れているのかもしれない（未確認）
 - **`sugw`（`lmf --jobgw=1`）のメモリ**（2026-10-01）: `GEIGpart` が IPW の重なり行列 `ppovl(ngp,ngp)` と LU 用の写し `ppovlLU` を
   各ランクで持つ。1 ランクあたり 32·ngp² バイト、全体は並列数に比例。ngp ≈ V·Q³/6π²（Q = `QpGcut_psi`）なので胞の体積の 2 乗で増える
   （Rb8 の 4410 Å³ で 1 ランク 35 GB）。案: (a) 投入前に ngp から並列数を決める、(b) O は正定値なので Cholesky の因子だけ持つ（半分）、
@@ -46,8 +46,13 @@
   Bi₂Te₃ の空隙の半径は、手早い見積もり 3.56 a.u. と道具の 2.61 a.u. が食い違ったまま（菱面体の長い c で、像の数 ±1 と格子の点の数が足りないのを疑う）。
   SiO₂ は手で置いて 0.001 eV（研究ログ 2026-10-01）。
   (b) 模型が黙って崩れる場合（基準 2 の Cu・Ni）の検知。`job_mlo` の後に `mlo_bandcheck.py` を自動で回して判定を出すか
+  (c) MLO の窓の基準のバンド端（`m_readqplist` の `eferm`・`ecbot`）は、そのディレクトリで最後に回したバンドの計算の `qplist.dat` から取る
+  （`lmf --writeham` は書かない）。`job_mlo_soc` の後で SOC なしの `job_mlo` を回すと SOC の値を使う（GaAsSoc・FeSoc で 10 meV ほど）。
+  `job_mlo` が自分でバンド端を決めるか、`qplist.dat` を誰が書いたかを確かめて止めるか（2026-10-01 20:3x、調べのエージェントの指摘を確かめた）
+  (d) `Samples/MATERIALS/*/ctrlg.*.toml` の `[mlo]` は古い gwinit のもの（f なし、`mlo_lm2` の行なし、コメントも古い）。今の gwinit で書き直すか
 - **`job_mlo_soc` が空の `band_MLO_spin2.dat` を書く**（2026-10-01）: 2N のスピノルの帯は `band_MLO_spin1.dat` に入る。空の spin2 があると
-  `mlo_bandplot.py` が空の枠を描いていた（描く側は 2026-10-01 に空のファイルを飛ばすようにした）。`bandplot_MLO.isp2.glt` も残る
+  `mlo_bandplot.py` が空の枠を描いていた（描く側は 2026-10-01 に空のファイルを飛ばすようにした）。`bandplot_MLO.isp2.glt` も残る。
+  `job_mlo_soc` は始めに古い spin2 を消すが、`mlo` がまた空のものを書く（`mlo_bandcheck.py` は SOC のとき spin1 だけを見る）
 - **`Samples/AFsymmetry/NiO` は `pwmode = 1` で `symgrpaf`**（2026-10-01）: k 点を 4³ にすると `rotwave: q+G rotation error (We have to set PWmode=11 for symgrpAF)`
   で止まる。試験の 3³ では通っているだけ。`pwmode = 11` にして参照を作り直すか
 

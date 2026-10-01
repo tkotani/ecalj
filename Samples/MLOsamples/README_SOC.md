@@ -8,11 +8,15 @@ SOC を摂動として加える方式。lmf の aughsoc を `--socmatrix` で別
 
 ## パイプライン
 
-`job_mlo_soc <target> -np N` で自動実行される 4 ステップ:
+`job_mlo_soc <target> -np N` で自動実行される手順（始めに前の run の `bnd*.spin*` と `band_MLO_spin2.dat` を消す）:
 
 1. **SOC Ef 決定** — `lmf --quit=band --efermi=efermi_soc --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true --ctrlg:ham.so=1`
    - フル LS のスピノルハミルトニアンを全 BZ メッシュで解き、Fermi 準位を `efermi_soc` に書く
      （`--efermi=efermi_soc`。`efermi.lmf` は変えない）
+
+1b. **SOC の DFT のバンド**（2026-10-01 から）— 同じフラグで `lmf --band --efermi=efermi_soc`
+   - 対称線の上のスピン軌道ありの DFT のバンドを `bnd*.spin1`・`bandplot.isp1.glt` に書く。MLO と比べる相手。
+     `qplist.dat` もこの計算が書き、MLO の窓の基準のバンド端になる
 2. **H + V_SO 書き出し** — `lmf --writeham --mkprocar --noinv --mlo --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true --ctrlg:ham.so=0 --socmatrix`
    - スカラー相対論のハミルトニアンを `__HamiltonianPMT` に、SOC 行列を
      `__HamiltonianPMTsoc` に書く
@@ -46,7 +50,7 @@ SOC を摂動として加える方式。lmf の aughsoc を `--socmatrix` で別
 共通ファイル構成:
 - 入力: `ctrlg.<sname>.toml`, `syml.*`, `qplist.dat`, `rst.*`, `atmpnu.*.*`
 - QSGW の場合は `sigm.*` も (GaAsSoc のみ)
-- `bnd00N.spin1`: SOC spinor DFT bands (`job_band --ctrlg:ham.nspin=2 --ctrlg:ham.so=1 --ctrlg:ham.phispinsym=true`)
+- `bnd00N.spin1`: 試料に同梱のものは **SOC なし**の DFT（Test 1 の非 SOC の MLO の比べ相手）。`job_mlo_soc` を回すと段 1b が SOC ありで描き直す
 - `bandplot.isp1.glt`: プロットテンプレート
 - `band_MLO_spin{1,2}.dat`: 非SOC MLO 参照（nspin=2 なら per-spin 2 ファイル）
 - `band_MLO_spin1.soc.dat`: SOC MLO 参照 (2N スピノル)
@@ -67,11 +71,13 @@ cd <target>_work
 gnuplot -p bandplot_MLO.isp1.glt
 ```
 - **赤点**: MLO-SOC bands (`job_mlo_soc` 出力)
-- **黒線**: 作業ディレクトリにある `bnd00N.spin1`。試験のあとは同梱のバンドで、GaAsSoc のものは SOC なし
-  (Γ の価電子帯の頂上が 3 重に縮退している)。SOC 入りのバンドと比べるときは
-  `job_band <sname> --ctrlg:ham.nspin=2 --ctrlg:ham.so=1` で `bnd00N.spin1` を描き直してから gnuplot を実行する
+- **黒線**: `job_mlo_soc` の段 1b が描いたスピン軌道ありの DFT のバンド（`bnd00N.spin1`）
 
-描き直すと、両者が SOC 分裂した VBM 周辺で整合することを確認できる。
+誤差は `mlo_bandcheck.py .`（SOC の MLO と SOC なしの DFT を比べようとすると WARNING を出す）。GaAsSoc は Δ_SO が DFT 0.337 / MLO 0.335 eV、
+ギャップの誤差 +0.010 eV、rms 0.010 eV（ecaljdoc mlo §4 の表 M2）。
+
+注意: 段 1b はディレクトリの `bnd*`・`qplist.dat` を SOC のものにする。同じディレクトリで後から SOC なしの `job_mlo` を回すときは、
+先に `job_band` を回し直す（MLO の窓の基準のバンド端は、最後に回したバンドの計算の `qplist.dat` から取る。2026-10-01、TODO）
 
 ## 関連コミット
 

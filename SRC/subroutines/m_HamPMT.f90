@@ -23,8 +23,9 @@ module m_HamPMT
    ! (k_table=3 with shell int(mod(pz,10)) < int(pnu)). Printed as a diagnostic only:
    ! the projector drops nskip_global lowest PMT states, where nskip_global is the
    ! minimum over all k (and spins) of the per-k count of leading non-model states
-   ! (weight < 1/2 in the model subspace; Hreduction_nskip). That covers semicore
-   ! LOs and low-lying non-model bands (O 2s, ...) alike, and being a minimum over k
+   ! (weight < 1/2 in the model subspace; Hreduction_nskip). That covers the deep semicore
+   ! LOs (band top below EF - 17 eV; the others are taken into the model by ShallowLO,
+   ! 2026-10-01) and low-lying non-model bands (O 2s, ...) alike, and being a minimum over k
    ! it never flips across the mesh (2026-09-18, Cu d-only model).
    integer,protected:: nsemicore = 0
    integer,private:: nskip_global = 0
@@ -87,7 +88,7 @@ contains
               if (pz > 0d0 .and. int(mod(pz,10d0)) < int(pnu)) nsemicore = nsemicore + 1   ! pz=10+n.m: extended-tail form of shell n
            enddo
         endif
-        write(stdo,ftox) 'MHAM: semicore local-orbital functions in the MTO block (dropped from the MLO projector) nsemicore=', nsemicore
+        write(stdo,ftox) 'MHAM: semicore local-orbital functions in the MTO block (deep ones are dropped by nskip; see the local orbital lines) nsemicore=', nsemicore
       endblock CountSemicore
    end subroutine ReadHamPMTInfo
    !c$$$  !! delta fun check for FFT: k --> T --> k
@@ -331,8 +332,8 @@ contains
           ! the old unconditional "skip 2nd".
           if( k_table(i)==2 .and. all(lmindex2(1:16,ib_table(i))==-999) ) cycle
           ! With mlo_lm3 the LO is an ADDITIONAL model function for that atom, so
-          ! the EH function is kept as well; without it the historical either/or
-          ! below applies.
+          ! the EH function is kept as well; without it the ShallowLO rule below applies
+          ! (by the top of the LO band: replace the EH function / add to it / leave out).
           haslo3 = any(lmindex3(1:16,ib_table(i)) /= -999)
           if( .not. haslo3 ) then
             ! semicore local orbital (see ShallowLO above), by the top of its band:

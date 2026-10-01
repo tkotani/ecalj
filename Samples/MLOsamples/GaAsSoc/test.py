@@ -32,10 +32,10 @@ def test(args, bindir, testdir, workdir):
 
     print()
     print('=' * 70)
-    print(f'To view the SOC band plot (last run is job_mlo_soc, 2N=36 spinor):')
+    print(f'To view the SOC band plot (last run is job_mlo_soc, 2N=46 spinor):')
     print(f'  cd {workdir}')
     print(f'  gnuplot -p bandplot_MLO.isp1.glt')
-    print('  (red points = MLO-SOC bands, black lines = non-SOC DFT bands)')
+    print('  (red points = MLO-SOC bands, black lines = DFT bands with SOC (job_mlo_soc step 1b))')
     print(f'SOC Fermi energy saved in: {workdir}/efermi_soc')
     print('=' * 70)
     return tall

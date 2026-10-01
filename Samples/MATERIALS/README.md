@@ -127,14 +127,17 @@ mpirun -np 8 lmf gaas                 # LDA
 getsyml gaas --nobzview               # syml.gaas（対称線）
 job_band gaas -np 8                   # DFT のバンド
 job_mlo gaas -np 8                    # MLO の模型とそのバンド（so = 1 の物質は job_mlo_soc）
-mlo_bandcheck.py .                    # 誤差（ecaljdoc mlo の式 (8)〜(10)）
+mlo_bandcheck.py .                    # 誤差（ecaljdoc mlo の式 (9)〜(11)）
 mlo_bandplot.py . -o mlo_GaAs.png     # DFT（灰）と MLO（赤）の図
 ```
 
 注意:
-- 各 ctrlg の `[mlo] mlo_lm` は `gwinit` が書いたもの（H〜Ne は s,p、Na 以降は s,p,d）。4f が価電子の原子（Ce、Eu の化合物、HfO₂ の Hf）は
-  f（10〜16）を手で足す。2026-10-01 の計算では `mlocheck/prep.py` が全物質の `[mlo]` をこの形に書き直し、`rdsig = 0`（DFT のみ）にした
-- 基準 2 は `mlo_lm2` に陽イオンの行（`<番号> <原子>   1 2 3 4`）を書く。陽イオンから遷移金属と 4f・5f の原子は除く（入れると壊れる）
+- ここの ctrlg の `[mlo]` は 2026-10-01 19:3x より前の `gwinit` が書いたもの（H〜Ne は s,p、Na 以降は s,p,d、`mlo_lm2` の行なし、コメントも古い）。
+  4f が価電子の原子（Ce、Eu の化合物、HfO₂ の Hf）は f（10〜16）を手で足すか、今の `gwinit` で `[mlo]` を書き直す。
+  2026-10-01 の計算では `mlocheck/prep.py` が全物質の `[mlo]` を f 入りの形に書き直し、`rdsig = 0`（DFT のみ）にした
+- 基準 2 は `mlo_lm2` に陽イオン（遷移金属・4f・5f を除く。Zn・Cd・Hg は含む）の s,p の行（`<番号> <原子>   1 2 3 4`）を書く。
+  今の `gwinit` はこの行を `!` 付きで書くので `!` を外すだけ。ここの古い ctrlg には行が無いので手で書く
+- スピン軌道の物質（GaAs_so、Bi₂Te₃）は `job_mlo` でなく `job_mlo_soc`。比べる相手のスピン軌道ありの DFT のバンドも `job_mlo_soc` が描く
 
 ファイル:
 - `mlocheck/`: 回したスクリプト（`README.md`）と、結果のページを作る `gallery.py`（図に描いた数値は `page_data/*.npz`）

@@ -40,8 +40,8 @@ testecalj -np 8 RuO2          # RuO2 QSGW
 testecalj -np 8 SmP           # SmP (Sm 4f + so=2)
 ```
 
-Each test runs the full pipeline (lmf → mlo, plus the 4-step
-`job_mlo_soc` flow on `*Soc` samples), then numerically diffs the produced
+Each test runs the full pipeline (lmf → mlo, plus the `job_mlo_soc` flow on
+`*Soc` samples: steps 1, 1b (the DFT bands with SOC), 2, 3, 4; see `README_SOC.md`), then numerically diffs the produced
 `band_MLO_spin{1,2}*.dat` against committed references with tolerance
 `7.4e-5 Ry ≈ 0.001 eV`. PASS line:
 
@@ -81,7 +81,8 @@ which is the whole point of the method.
 
 All plots are `bandplot_MLO.isp1.glt` rendered after `testecalj`
 finishes. Red dots = MLO bands, lines = full DFT bands. SOC samples
-show the 2N-spinor MLO overlay (post-`job_mlo_soc`).
+show the 2N-spinor MLO overlay (post-`job_mlo_soc`) on the DFT bands with SOC
+(step 1b; `plots/*Soc.png` redrawn 2026-10-01, numbers in `plots/*Soc.npz`).
 
 ### Semiconductors / insulators
 

@@ -119,6 +119,10 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
   - 基準 3: 空隙に空格子球（SiO₂ が要る。`[[site]]`・`[[spec]]`・`mlo_lm`、`lmfa` から）。自動の置き方は未完（`SRC/exec/ctrlg_addes.py` は未コミット・未検証）
   - 選び方: 基準 1 で不満足なら基準 2、空隙があれば基準 3（2 と 3 を一緒も）。`mlo_delta`・`mlo_w` の細かい調整はしない
   - 評価は `mlo_bandcheck.py`: 窓 [VBM − 8, CBM + mlo_delta] の中の固有値のずれ（rms を 2 つの向き）と |Δgap| の最大。2026-10-01 17:54 より前の tsv・表は別の窓（CBM + 3 / + 1）
+  - **スピン軌道の MLO（`job_mlo_soc`）はスピン軌道ありの DFT と比べる**。`job_mlo_soc` の段 1b が同じ条件で `lmf --band`（so=1）を回して `bnd*.spin1` を書く
+    （2026-10-01）。SOC なしの DFT と比べると Δ_SO/3 ずれて見える（GaAsSoc で −0.1 eV に見えた）。`mlo_bandcheck.py` が WARNING を出す。
+    MLO の窓の基準のバンド端は、最後に回したバンドの計算の `qplist.dat` から取る（`job_mlo` の `lmf --writeham` は書かない）。`job_mlo_soc` の後で SOC なしの
+    `job_mlo` を回すなら先に `job_band`
 
 ## 6. 道具の癖
 
