@@ -16,11 +16,7 @@ contains
     use m_lattic,only:lat_plat,rv_a_opos
     use m_ftox
     implicit none
-    integer:: mode=1 !,wksize
-    character(120) :: outs,fnam(8)
-    integer :: NULLI
-    logical :: T,F,swtmp
-    parameter (T=.true., F=.false., NULLI=-99999)
+    character(120) :: outs
 
 !!!!!!!!!!!!!
     real(8):: omax1(3)=0d0,omax2(3)=0d0,wsrmax=0d0
@@ -28,36 +24,21 @@ contains
 !r   omax2   sphere overlap constraints, type 2
 !r   wsrmax  constraint on size of largest WS sphere
     
-    integer :: getdig,i,ip,j,k,m,ifi,iprint,lpbc, &
-         nclasp,nclass,nlspc,modep(3),nbasp, &
-         nbaspp,nkd,nkq,neul,nc,mxcsiz,nttab,igets, & ! & npadl,npadr,
-         iosits,cmplat,ngrp,irs(5),nclspp,bitand,igetss, &
-         nsgrp
-    integer:: oeold  , olmx , opold , owk2 , orham , oamsh &
-         , onrmsh , oalpha , onpr , os , ormx , oip , opgfsl , mxclas
+    integer :: i,ip,j,k,m,iprint, nclasp,nclass,modep(3),nbasp, nkd,nkq,mxcsiz,nttab,nclspp
+    ! (2026-10-02, equivalent transformation: about 30 unused variables of the LMTO era were removed here and below)
     integer,allocatable :: iv_a_ontab(:)
     integer,allocatable :: iv_a_oiax(:,:)
     real(8),allocatable :: rv_a_og(:),rv_a_ormax(:)
-    real(8) ,allocatable :: pos2_rv(:,:)
     real(8) ,allocatable :: rmt_rv(:)
     integer ,allocatable :: lock_iv(:)
-    real(8) ,allocatable :: lockc_rv(:)
-    real(8) ,allocatable :: z_rv(:)
     real(8) ,allocatable :: zz_rv(:)
-    integer ,allocatable :: ips2_iv(:)
-    real(8) ,allocatable :: zc_rv(:)
-    real(8) ,allocatable :: rmtc_rv(:)
-    double precision :: xv(10),xx,plat(3,3),facrmx,facrng, & ! & ,plat2(9)
-         dval,avw,ekap(2),enu,qss(4),ckbas,cksumf,ehterm(4), rmaxs, &
-         qlat(9),emad,trumad,vmtz(2)
-    parameter (mxclas=1000)
+    double precision :: xv(10),xx,plat(3,3),avw,rmaxs,qlat(9)
     integer:: ifx,w_dummy(1)=1
     integer,allocatable:: lmxa(:)
     real(8),allocatable:: z(:),rmax(:)
     print *,' lmaux:'
     nclass=ctrl_nclass
     modep=99999 !bug fix 2022-6-29 (no initialization before. No problem as long as lmchk works.)
-    lpbc = 0
     nclasp=ctrl_nclass 
     avw=lat_avw
     plat=lat_plat
@@ -71,7 +52,6 @@ contains
     lmxa(1:nclasp) = lmxa_i(oics(1:nclasp)) 
     z   (1:nclasp) = z_i(oics(1:nclasp))
     nbasp = nbas !+ npadl + npadr
-    nbaspp = nbas !2*nbasp - nbas
     j = 10
     if (c0_shorten) then
        call shorps ( nbasp , plat , modep , rv_a_opos , rv_a_opos )
@@ -131,13 +111,7 @@ contains
        do  i = 1, nspec
           lock_iv(i)= merge(1,0,cstrmx(i))
        enddo
-       if (lpbc == 0) then
-          i = 3
-       elseif (lpbc == 1 .OR. lpbc == 11) then
-          i = 2
-       else
-          call rx('LMAUX: not implemented for lpbc>1')
-       endif
+       i = 3 !(lpbc = 0, 3 dimensions; the branches for lpbc = 1, 11 were removed 2026-10-02)
        call makrm0 ( 101 , nspec , nbas , alat , plat , rv_a_opos , &
             slabl , iv_a_oips , modep , lock_iv , zz_rv , rmt_rv ) 
        !   ... Scale sphere radii satisfying constraints
@@ -146,7 +120,6 @@ contains
             , omax1 , omax2 , rmt_rv )
        nclspp = max(2*nclasp-nclass,nspec)
        allocate(rmax(nclspp))
-       print *,' zzzz nclspp=',nclspp
        if(allocated(rv_a_ormax)) deallocate(rv_a_ormax) !is this correct???
        do i=1,nclspp
           rmax(i) = rmt_rv(oics(i)) 
@@ -194,12 +167,6 @@ contains
     !C       call coritp(nclass,nsp,w(oclabl),nrmsh,amsh,w(ormax))
     !      endif
     deallocate(lmxa,z)
-    if (allocated(lockc_rv)) deallocate(lockc_rv)
-    if (allocated(rmtc_rv)) deallocate(rmtc_rv)
-    if (allocated(zc_rv)) deallocate(zc_rv)
-    if (allocated(z_rv)) deallocate(z_rv)
-    if (allocated(ips2_iv)) deallocate(ips2_iv)
-    if (allocated(pos2_rv)) deallocate(pos2_rv)
     if (allocated(lock_iv)) deallocate(lock_iv)
     if (allocated(rmt_rv)) deallocate(rmt_rv)
     if (allocated(zz_rv)) deallocate(zz_rv)
@@ -207,7 +174,10 @@ contains
 
   !ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss      
   subroutine makrm0(opt,nspec,nbas,alat,plat,pos,slabl,ips,modep, lock,z,rmt)
-    use m_lmfinit,only: nsp
+    ! The free atoms for the radii are made without spin (nsp=1): the radii do not depend on spin, and v, rho, rhoc below hold
+    ! one spin per species. Bug fixed 2026-10-02: with nsp of the input (2) freats wrote the second spin into the next
+    ! species, and then the nsp=2 branch stopped (rx 'need check this branch'), so lmchk --getwsr failed for every
+    ! spin-polarized input (NiO, Fe, Bi2Te3 with SOC, ...).
     use m_freeat,only:freats
     use m_xclda,only:evxcv
     use m_defpq,only:defpq
@@ -280,6 +250,7 @@ contains
     ! Cu   21 Apr 02 First created.
     ! C ----------------------------------------------------------------------
     ! C     implicit none
+    integer,parameter:: nsp=1
     ! C Passed variables:
     character*8 slabl(*)
     integer opt,nspec,nbas,ips(nbas),modep(3),lock(*)
@@ -373,7 +344,7 @@ contains
        call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,0,-1,qcor,nrmix(1), &   ! lwf,rs3,eh3,vmtz,rtab,etab removed 2026-10-01
             lxcfun,z(is),rmtl(is),a(is),nrmt,pnu,pnz,qat, &
             idmod,lmxa,eref,hfc,hfct,nr,rofi,rho(1,is),rhoc(1, &
-            is),qc,ccof,ceh,sumec,sumtc,v(1,is),etot, 1, ifives=ifives,ifiwv=ifiwv) !nmcore=1 july2012
+            is),qc,ccof,ceh,sumec,sumtc,v(1,is),etot, 1, ifives=ifives,ifiwv=ifiwv, nspin=nsp) !nmcore=1 july2012
        close(ifives)
        close(ifiwv)
        call poppr
@@ -2571,68 +2542,69 @@ contains
     !   50 continue
     !      call rx('done')
   end subroutine siteid
-  subroutine nsitsh(mode,ia,ib,iax,ntab,nlst,lsta,lstb)
-    !- Count the number of sites two clusters share in common
-    ! ----------------------------------------------------------------------
-    !i Inputs
-    !i   mode  :0 count the sites only
-    !i          1 also make a list of the sites
-    !i   ia,ib :pair of sites for which to seek common elements
-    !i   nds   :leading dimension of sid
-    !i   iax   :neighbor table containing pair information (pairc.f)
-    !i   ntab  :ntab(ib)=# pairs in iax table preceding ib (pairc.f)
-    !o Outputs
-    !o   nlst  :number of sites in common
-    !o   lsta  :list of
-    !r Remarks
-    !u Updates
-    ! ----------------------------------------------------------------------
-    !     implicit none
-    !     Passed parameters
-    integer :: mode,ia,ib,ntab(1),niax,lsta(1),lstb(1),nlst
-    parameter (niax=10)
-    integer :: iax(niax,1)
-    !     Local variables
-    integer :: ic,ica,icb,n,na,nb,ipa,ipb,sida,sidb
-
-    ica = ntab(ia)+1
-    icb = ntab(ib)+1
-    ipa = iax(7,ica)
-    ipb = iax(7,icb)
-    sida = iax(10,ipa+ntab(ia))
-    sidb = iax(10,ipb+ntab(ib))
-    na = ntab(ia+1)
-    nb = ntab(ib+1)
-    n = na-ica + nb-icb + 2
-    nlst = 0
-    do  10  ic = 1, n
-       if (ica > na .OR. icb > nb) return
-
-       !   ... A match; increment nlst
-       if (sida == sidb) then
-          print *, sida
-          nlst = nlst+1
-          ica = ica+1
-          icb = icb+1
-          ipa = iax(7,ica)
-          ipb = iax(7,icb)
-          sida = iax(10,ipa+ntab(ia))
-          sidb = iax(10,ipb+ntab(ib))
-          if (mode /= 0) then
-             lsta(nlst) = ica
-             lstb(nlst) = icb
-          endif
-       elseif (sida > sidb) then
-          icb = icb+1
-          ipb = iax(7,icb)
-          sidb = iax(10,ipb+ntab(ib))
-       else
-          ica = ica+1
-          ipa = iax(7,ica)
-          sida = iax(10,ipa+ntab(ia))
-       endif
-10  enddo
-  end subroutine nsitsh
+  ! nsitsh: called from nowhere (2026-10-02, grep); commented out
+!  subroutine nsitsh(mode,ia,ib,iax,ntab,nlst,lsta,lstb)
+!    !- Count the number of sites two clusters share in common
+!    ! ----------------------------------------------------------------------
+!    !i Inputs
+!    !i   mode  :0 count the sites only
+!    !i          1 also make a list of the sites
+!    !i   ia,ib :pair of sites for which to seek common elements
+!    !i   nds   :leading dimension of sid
+!    !i   iax   :neighbor table containing pair information (pairc.f)
+!    !i   ntab  :ntab(ib)=# pairs in iax table preceding ib (pairc.f)
+!    !o Outputs
+!    !o   nlst  :number of sites in common
+!    !o   lsta  :list of
+!    !r Remarks
+!    !u Updates
+!    ! ----------------------------------------------------------------------
+!    !     implicit none
+!    !     Passed parameters
+!    integer :: mode,ia,ib,ntab(1),niax,lsta(1),lstb(1),nlst
+!    parameter (niax=10)
+!    integer :: iax(niax,1)
+!    !     Local variables
+!    integer :: ic,ica,icb,n,na,nb,ipa,ipb,sida,sidb
+!
+!    ica = ntab(ia)+1
+!    icb = ntab(ib)+1
+!    ipa = iax(7,ica)
+!    ipb = iax(7,icb)
+!    sida = iax(10,ipa+ntab(ia))
+!    sidb = iax(10,ipb+ntab(ib))
+!    na = ntab(ia+1)
+!    nb = ntab(ib+1)
+!    n = na-ica + nb-icb + 2
+!    nlst = 0
+!    do  10  ic = 1, n
+!       if (ica > na .OR. icb > nb) return
+!
+!       !   ... A match; increment nlst
+!       if (sida == sidb) then
+!          print *, sida
+!          nlst = nlst+1
+!          ica = ica+1
+!          icb = icb+1
+!          ipa = iax(7,ica)
+!          ipb = iax(7,icb)
+!          sida = iax(10,ipa+ntab(ia))
+!          sidb = iax(10,ipb+ntab(ib))
+!          if (mode /= 0) then
+!             lsta(nlst) = ica
+!             lstb(nlst) = icb
+!          endif
+!       elseif (sida > sidb) then
+!          icb = icb+1
+!          ipb = iax(7,icb)
+!          sidb = iax(10,ipb+ntab(ib))
+!       else
+!          ica = ica+1
+!          ipa = iax(7,ica)
+!          sida = iax(10,ipa+ntab(ia))
+!       endif
+!10  enddo
+!  end subroutine nsitsh
 subroutine defwsr(wsr,z)
   use m_lgunit,only:stdo
   !- Returns default value of radii for given nuclear charge

@@ -87,11 +87,13 @@ contains
   subroutine freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor, &
        nrmix,lxcf,z,rmt,a,nrmt,pnu,pz,qat, &
        idmod,lmxa,eref,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof,ceh, &
-       sec,stc,v,etot,nmcore,ifives,ifiwv)
+       sec,stc,v,etot,nmcore,ifives,ifiwv,nspin)
     ! A computational kernel with explicit inputs: called by freeat (lmfa, species data of the input) and by makrm0
     ! (lmchk, default species to estimate sphere radii). The arguments lwf,rs3,eh3,vmtz,rtab,etab were never used and are
     ! taken out (2026-10-01).
-    use m_lmfinit,only: nsp,lrel
+    ! nspin (optional): the number of spins of this free atom; default nsp of the input. makrm0 passes 1: the radii do not
+    ! depend on spin, and its arrays hold one spin (bug fixed 2026-10-02: lmchk --getwsr stopped for every spin-polarized input).
+    use m_lmfinit,only: nsp_input=>nsp,lrel
     use m_ftox
     use m_ext,only:sname
     use m_getqvc,only: getqvc
@@ -150,6 +152,8 @@ contains
     !u   10 Apr 02 Redimensionsed etab,rtab to accomodate larger lmax
     ! ----------------------------------------------------------------------
     implicit none
+    integer,optional,intent(in):: nspin
+    integer:: nsp
     integer :: nrmt,is,nxi0,nxi,nrmix,lxcf,kcor,lcor
     character(8) :: spid
     real(8) :: rsmfa,rfoca,qc,ccof,ceh,sec,stc,z,rmt,a,eref, v(nrmx*2),rho(nrmx*2),rhoc(nrmx*2),hfc(nxi0,*),hfct(nxi0,*), &
@@ -169,6 +173,8 @@ contains
     real(8):: qcc,qzz, qvalv,qvaltot,qval,vsum,qelectron,qvalz
     real(8),allocatable:: plplus(:,:),qlplus(:,:)
     logical::lfrz=.false.
+    nsp = nsp_input
+    if(present(nspin)) nsp = nspin
     ipr    = iprint()
     lgrad  = lxcf/10
     if(ipr>49) then
@@ -299,8 +305,8 @@ contains
     ! print *,'goto atomc xxx'   ! debug print (commented out 2026-10-01)
     qelectron = z+qtot     !total number of electrons. 22mar2013
     rhozbk = 0d0 !set background charge=0
-    call atomsc(.false.,n0,nsp,lmxa,z,rhozbk,kcor,lcor,qcor,rmax,a,nr, rofi,ec,ev,pl,ql,idmod,v,0d0,rhoin,rho,rhoc,nmix,qc,&
-         sec,stc, sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,dq,exrmax,'gue', nitmax,lfrz,plplus,qlplus,nmcore,qelectron,vsum)
+    call atomsc(n0,nsp,lmxa,z,rhozbk,kcor,lcor,qcor,rmax,a,nr, rofi,ec,ev,pl,ql,v,rhoin,rho,rhoc,nmix,qc,&
+         sec,stc, sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,dq,exrmax, nitmax,lfrz,plplus,qlplus,nmcore,qelectron,vsum)
     ! print *,'end of atomsc xxxxx'   ! debug prints (commented out 2026-10-01)
     ! print *,'vsum=',vsum,is
     if(ifivv) then
@@ -634,8 +640,11 @@ contains
     endif
   end subroutine fctail
   subroutine atomsc(  & !- Makes an atomic sphere self-consistent and get atomic charges
-       lgdd,nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, nr,rofi,ec,ev,pnu,qnu,idmod,v,dv,rhoin,rho,rhoc,nrmix,qc,sumec, &
-       sumtc,sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,qtot,exrmax, job,niter,lfrz,plplus,qlplus,nmcore,qelectron,vsum)
+       nl,nsp,lmax,z,rhozbk,kcor,lcor,qcor,rmax,a, nr,rofi,ec,ev,pnu,qnu,v,rhoin,rho,rhoc,nrmix,qc,sumec, &
+       sumtc,sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,qtot,exrmax, niter,lfrz,plplus,qlplus,nmcore,qelectron,vsum)
+    ! 2026-10-02: equivalent transformation. The only caller (freats) starts from the guessed density (the old job='gue');
+    ! the branches job='pot' and 'rho', and the arguments lgdd (always F, the Stuttgart convention; see newrho), idmod and
+    ! dv (unused) were removed. The descriptions of them below are kept for the record.
     use m_lmfinit,only: lrel
     use m_getqvc
     use m_lgunit,only: stdo
@@ -727,12 +736,11 @@ contains
     use m_ftox
     use m_vxcatom,only: vxc0sp
     implicit none
-    logical :: lfrz,lgdd
-    character job*3
-    integer :: nr,nsp,nl,nrmix,niter,kcor,lcor,ncmx,nvmx,lmax, idmod(0:nl-1)
+    logical :: lfrz
+    integer :: nr,nsp,nl,nrmix,niter,kcor,lcor,ncmx,nvmx,lmax
     parameter (ncmx=50, nvmx=20)
     double precision :: ec(ncmx),ev(nvmx),rofi(nr,2),v(nr,nsp),rho(nr,nsp),rhoc(nr,nsp),rhoin(nr,nsp),pnu(nl,2), &
-         qnu(3,nl,nsp),z,rmax,a,qc,vrmax(nsp),exrmax(2),dv,rhrmx, rhozbk,qcor(2),amgm,ekin,etot,qtot,rhoeps,sumec,sumev,sumtc,utot
+         qnu(3,nl,nsp),z,rmax,a,qc,vrmax(nsp),exrmax(2),rhrmx, rhozbk,qcor(2),amgm,ekin,etot,qtot,rhoeps,sumec,sumev,sumtc,utot
     logical :: last,ltmp
     integer :: iprint,ir,isp,iter,jmix,nglob,ipr1,l,ii
     character strn*10
@@ -770,25 +778,13 @@ contains
     !! initialize ev here(overide getqvc now).feb2011
     ev = -0.5d0
     ec = -5.0d0
-    if (job == 'pot') then !Initial charge density ---
-       call newrho(z,lrel,lgdd,nl,1,lmax,a,b,nr,rofi,v,rhoin,rhoc,kcor, &
-            lcor,qcor,pnu,qnu,sec,stc,sev,ec,ev,tolrsq,nsp,lfrz,000,plplus,qlplus,nmcore)
-       if (niter == 0) then
-          rho=rhoin
-          if(allocated(rho_rv)) deallocate(rho_rv)
-          return
-       endif
-    else if (job == 'gue') then
-       decay = 1d0+z/10d0
-       decay = dmin1(decay,5d0)
-       decay = 5
-       rhoin(:,1) = dexp(-decay*rofi(:,1))*rofi(:,1)**2
-       fac = z/(sum(rhoin(:,1)*a*(rofi(:,1)+b))*nsp)
-       rhoin(:,1)=rhoin(:,1)*fac
-       if(nsp==2) rhoin(:,2)=rhoin(:,1)
-    elseif (job /= 'rho') then
-       call rx('atomsc: job not pot|rho|gue')
-    endif
+    ! Initial charge density: a guessed exponential, normalized to z electrons (the old job='gue').
+    ! (decay was 1+z/10, capped at 5, and then set to 5 regardless.)
+    decay = 5
+    rhoin(:,1) = dexp(-decay*rofi(:,1))*rofi(:,1)**2
+    fac = z/(sum(rhoin(:,1)*a*(rofi(:,1)+b))*nsp)
+    rhoin(:,1)=rhoin(:,1)*fac
+    if(nsp==2) rhoin(:,2)=rhoin(:,1)
     rho_rv(1+nr*nsp*(nmix+2):nr*nsp+nr*nsp*(nmix+2))= reshape(rhoin(1:nr,1:nsp),[nr*nsp])
     drho = 100d0
     last = .false.
@@ -820,7 +816,7 @@ contains
        if (last .AND. iprint()>= 40) ipr1 = 1
        if (last .AND. iprint() > 40) ipr1 = 2
        if( .NOT. last) call pshpr(15) !low print()
-       call newrho(z,lrel,lgdd,nl,1,lmax,a,b,nr,rofi,v,rho,rhoc, &
+       call newrho(z,lrel,nl,lmax,a,b,nr,rofi,v,rho,rhoc, &
             kcor,lcor,qcor,pnu,qnu,sec,stc,sev,ec,ev,tl,nsp,lfrz,ipr1,plplus,qlplus,nmcore)
        if( .NOT. last) call poppr !set back to original print()
        drho = 0d0
@@ -898,8 +894,11 @@ contains
        rho(:,isp) = rho(:,isp) + s*rofi(:)**2
     enddo
   end subroutine addzbk
-  subroutine newrho(z,lrel,lgdd,nl,nlr,lmax,a,b,nr,rofi,v,rho,rhoc, &
+  subroutine newrho(z,lrel,nl,lmax,a,b,nr,rofi,v,rho,rhoc, &
        kcor,lcor,qcor,pnu,qnu,sumec,sumtc,sumev,ec,ev,tol,nsp,lfrz,ipr,plplus,qlplus,nmcore)
+    ! 2026-10-02: equivalent transformation. The only caller (atomsc) had lgdd=F and nlr=1: the branch lgdd=T
+    ! (q2 phi phidotdot, Methfessel) and the l-resolved density (nlr=nl) were removed; rho is (nr,nsp). The
+    ! descriptions of lgdd and nlr below are kept for the record.
     use m_lmfinit,only: c=>cc
     use m_getqvc,only: config
     use m_rhocor,only:rhocor
@@ -975,12 +974,12 @@ contains
     !r          q_2 (phidot*phidot + phi*phidotdot)
     !  ---------------------------------------------------
     implicit none
-    logical :: lgdd,lfrz
-    integer :: nl,nlr,lmax,nr,nsp,lrel,kcor,lcor,ipr,iz
+    logical :: lfrz
+    integer :: nl,lmax,nr,nsp,lrel,kcor,lcor,ipr,iz
     double precision :: z,a,b,tol,sumev(nsp),sumec(nsp),sumtc(nsp),ec(*),ev(*),qcor(2),v(nr,nsp),rofi(nr),&
-         rho(nr,nlr,nsp),rhoc(nr,nsp), qnu(3,nl,nsp),pnu(nl,nsp)
+         rho(nr,nsp),rhoc(nr,nsp), qnu(3,nl,nsp),pnu(nl,nsp)
     logical :: free
-    integer :: konfig(0:10),l,isp,ir,ival,nn,nre,jr,lmaxc,lr,k,nrmx
+    integer :: konfig(0:10),l,isp,ir,ival,nn,nre,jr,lmaxc,nrmx
     parameter (nrmx=1501)
     real(8):: rocrit,eb1,eb2,q0,q1,q2,rmax,eval,dl,val(5),slo(5),sum,ro,phi,dphi,phip,dphip,p,fllp1,r,tmc,gfac,q00,&
          g(2*nrmx),gp(2*nrmx*4)
@@ -988,7 +987,6 @@ contains
     real(8),parameter:: pi = 4d0*datan(1d0)
     integer::nmcore !jun2012
     if (nr > nrmx) call rxi(' newrho: increase nrx, need',nr)
-    lr = 1
     rocrit = 0.002d0/4
     eb1 = -50d0
     eb2 =  50d0
@@ -1000,19 +998,16 @@ contains
        konfig(lcor) = max(konfig(lcor),kcor+1)
     endif
     ! --- Calculate core density ---
-    if (nlr == 1) then
-       if ( .NOT. lfrz) then
-          rhoc=0d0
-          call rhocor(0,z,lmaxc,nsp,konfig,a,b,nr,rofi,v,g,kcor,lcor,qcor,tol,ec,sumec,sumtc,rhoc,nmcore=nmcore,ipr=ipr)
-       endif
-       call dcopy(nr*nsp,rhoc,1,rho,1)
+    if ( .NOT. lfrz) then
+       rhoc=0d0
+       call rhocor(0,z,lmaxc,nsp,konfig,a,b,nr,rofi,v,g,kcor,lcor,qcor,tol,ec,sumec,sumtc,rhoc,nmcore=nmcore,ipr=ipr)
     endif
+    call dcopy(nr*nsp,rhoc,1,rho,1)
     eval=-0.5d0 !initial condition. the same as getqvc ! --- Loop over valence states ---
     sumev= 0d0
     do  202  isp = 1, nsp
        do  201  l = 0, lmax
           izloop: do  20  iz=0,1  !takao feb2011
-             if (nlr == nl) lr = l+1
              q0 = max(qnu(1,l+1,isp),0d0)
              q1 = qnu(2,l+1,isp)
              q2 = qnu(3,l+1,isp)
@@ -1050,28 +1045,16 @@ contains
                 call phidx(0,z,l,v(1,isp),rofi,nr,2,tol,eval,val,slo,nn,g,gp,phi,dphi,phip,dphip,p)!,0d0,[0d0],0d0,[0d0])
              endif
              fllp1 = l*(l+1)
-             !  ...  Case add q2 phi phidd rho
-             if (lgdd) then
-                k = 2*nr
-                do  ir = 2, nre
-                   jr = ir + nr
-                   r = rofi(ir)
-                   tmc = c - (v(ir,isp) - 2d0*z/r - eval)/c
-                   gfac = 1d0 + fllp1/(tmc*r)**2
-                   rho(ir,lr,isp) =  rho(ir,lr,isp) +  q0*(gfac*g(ir)**2 + g(jr)**2) + &
-                        2*q1*(gfac*g(ir)*gp(ir)+g(jr)*gp(jr)) + q2*(gfac*(gp(ir)**2 + g(ir)*gp(ir+k)) + gp(jr)**2 + g(jr)*gp(jr+k))
-                enddo
-             else!Case add -p q2 phi phi into rho
-                q00 = q0-p*q2
-                do ir = 2, nre
-                   jr = ir + nr
-                   r = rofi(ir)
-                   tmc = c - (v(ir,isp) - 2d0*z/r - eval)/c
-                   gfac = 1d0 + fllp1/(tmc*r)**2
-                   rho(ir,lr,isp) = rho(ir,lr,isp) &
-                        + q00*(gfac*g(ir)**2+g(jr)**2) + 2*q1*(gfac*g(ir)*gp(ir)+g(jr)*gp(jr)) + q2*(gfac*gp(ir)**2+gp(jr)**2)
-                enddo
-             endif
+             ! Add -p q2 phi phi into rho (Stuttgart convention, lgdd=F; see Remarks)
+             q00 = q0-p*q2
+             do ir = 2, nre
+                jr = ir + nr
+                r = rofi(ir)
+                tmc = c - (v(ir,isp) - 2d0*z/r - eval)/c
+                gfac = 1d0 + fllp1/(tmc*r)**2
+                rho(ir,isp) = rho(ir,isp) &
+                     + q00*(gfac*g(ir)**2+g(jr)**2) + 2*q1*(gfac*g(ir)*gp(ir)+g(jr)*gp(jr)) + q2*(gfac*gp(ir)**2+gp(jr)**2)
+             enddo
 20        enddo izloop
 201    enddo
 202 enddo
