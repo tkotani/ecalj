@@ -1,3 +1,16 @@
+2026-10-02 (3)
+  対称性を spglib から取れるようにした（既定は今までどおり。設計と経過は MD/symmetry_spglib.md）。
+  - symfind.py <sname> [--ctrlg:...] が spglib で空間群を求め、symmetry.<sname>.json を書く（操作は格子の基底での整数の回転と分数座標の
+    並進、構造の数値とそのハッシュ）。このファイルがあると lmf・lmchk・mlo などはその操作を使う。構造が ctrlg と違えば止まる
+    （作り直すよう言う。--ctrlg: で構造を上書きして回すときは symfind.py にも同じ引数を渡す）。ECALJ_SYMFIND=ecalj で従来の探し方に固定。
+    純粋な並進（超格子）も操作に使う。AF は [[site]] af の印から磁気空間群（時間反転つきの操作が AF の操作）。symgrp を find 以外に
+    した入力（対称性を下げる）では使わない。
+  - 超格子（純粋な並進がある胞、Si の 8 原子の立方胞など）が sgroup で止まっていたのを直した（ファイルが無いときは回転の重ならない閉じた
+    部分群を使う）。
+  - mlo_spread.py の後に mlo_maxloc.py <sname> [--sym] で、MLO の部分空間の中での最大局在化を試せる（試作。模型は変えない。--sym は
+    Sakuma の方式で点群の対称性を保つ、1 原子の symmorphic な結晶だけ）。
+  - ctrlg_addes.py の空隙の探し方を直した（長い胞で格子の像が足りず、終わらないことがあった）。
+
 2026-10-02 (2)
   - lmchk --getwsr（MT 半径の見積もり）が、スピン分極の入力（nspin = 2。NiO、Fe、SOC の Bi2Te3 など）で必ず止まっていた（RSEQ: bad nodes、
     または 'need check this branch'）のを直した。半径を決める自由原子はスピンなしで作る（スピンなしの入力の結果は変わらない）。
