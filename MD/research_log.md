@@ -88,6 +88,18 @@ user の指示（05:5x）: 「この方針で進めて。TODO も判断がつく
 MATERIALS 以下を MLO で（spd ベース、f があるときに入れる）すべてモデル化。DFT レベルでよい。目視で確認できる図、バンドギャップの違い。
 AFsymmetry のモード（AFTEST）が動くのか、そもそも正しいのかも調べて」。push はしない。
 
+### 19:42 試験の残り: mlo 45 件 PASSED（GaAs・GaAsSoc は参照を作り直し）、MLO-QSGW は凍結の処理を直して PASSED、Fe_mlo_magnon PASSED
+
+- 19:23〜19:32 `samples_tests.sh -np 8 mlo`（三つに分けた規則の build）: 42 件 PASSED、違いは GaAs・GaAsSoc の 3 件だけ（Ga 3d −14.8 eV が加わり
+  MLO 18 → 23 本）。窓の中の誤差は参照と同じ（GaAs rms 0.006 → 0.007、GaAsSoc はどちらもギャップの誤差 −0.101・rms 0.119/0.086。
+  GaAsSoc の 0.1 eV は前からで TODO に書いた）。参照を作り直して 2 つとも PASSED。NiO666lda は `IN THE WINDOW: LO replaces the EH function` で PASSED
+- 19:35 MLO-QSGW（`Samples/MLOQSGW`）: GaAs が `mlo --mlofreeze` で `HamRsMLO has a different ndimMTO` で止まった。凍結の run は局所軌道の判定を
+  しないで本数を数え直し、`HamRsMLO` と比べていた。入れ替えだけの規則では本数が同じだったが、加える LO があると 18 と 23 で食い違う。
+  直し: 凍結のときは `HamRsMLO` の本数を使い、食い違いは注意として出す（`lso = 1` と本数が MTO の数を超えるときだけ止める）。
+  回し直すと GaAs は QPU が参照と違う: −10〜5 eV の状態は最大 0.008 eV、Ga 3d（−20〜−10 eV）は 0.023 eV、Γ の VBM・CBM は ±0.361 → ±0.363、
+  lmf の egap 1.034 は同じ。5 eV より上（窓の外）は最大 0.94 eV（縮退した状態の成分の入れ替わりもある）。Ga 3d が Σ の内挿に入った変化として
+  参照を作り直して PASSED。NiO は PASSED。`Samples/Magnon/Fe_mlo_magnon` PASSED（Fe の LO は 3p で深い）
+
 ### 19:25 局所軌道の規則を三つに分けた: 窓の中（E_F − 8 eV より上）は EH と入れ替え、−17〜−8 eV は加える（NiO666lda が止まったため）
 
 - 19:09〜19:18 の `samples_tests.sh -np 8 mlo inputs`（局所軌道を「加える」build）: inputs 176 件 PASSED。mlo は 25 件 PASSED・3 件 FAILED
