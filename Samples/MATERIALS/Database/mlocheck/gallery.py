@@ -106,6 +106,40 @@ for i, (m, v) in enumerate(srt):
 sv.append(f'<text x="14" y="{(bt+BH-bb)/2}" class="axis" text-anchor="middle" transform="rotate(-90 14 {(bt+BH-bb)/2})">eV</text></svg>')
 chart2 = '\n'.join(sv)
 
+# ---------- radial functions added: list (placed above the figures) ----------
+import re as _re
+def nmlo(d):
+    p = os.path.join(d, 'lmlo')
+    if not os.path.exists(p): return None
+    m = _re.search(r'HamRsMTO=\s*(\d+)', open(p, errors='replace').read())
+    return int(m.group(1)) if m else None
+KIND = {'lm2sp': ('<code>mlo_lm2</code>', '第 2 の smooth Hankel 関数（EH2）の s,p を全原子に', '(b)'),
+        'lm2s':  ('<code>mlo_lm2</code>', 'EH2 の s を全原子に', '(b)'),
+        'lm3d':  ('<code>mlo_lm3</code>', '陽イオンの半内殻 d の局所軌道', '(a)'),
+        'lm3semi': ('<code>mlo_lm3</code>', '半内殻の局所軌道（s,p,d）すべて', '(a)'),
+        'both':  ('<code>mlo_lm2</code> と <code>mlo_lm3</code>', 'EH2 の s,p と半内殻の局所軌道', '(a)+(b)')}
+rad = []
+for base, (vn, what) in FIX.items():
+    if base not in res or vn not in var: continue
+    k = vn.split('_', 1)[1] if '_' in vn else ''
+    key, desc, typ = KIND.get(k, ('', '', ''))
+    n0, n1 = nmlo(os.path.join(W, base)), nmlo(os.path.join(V, vn))
+    rad.append(f'<tr><td class="name">{base}</td><td>{typ}</td><td>{key}</td><td>{html.escape(what.replace(" LO", " の局所軌道").replace(" and ", " と ").replace(" + ", " と ").replace("EH2 s,p", "EH2 の s,p（全原子）"))}</td>'
+               f'<td class="num">{n0} → {n1}</td><td class="num">{worst(res[base]):.3f} → {worst(var[vn]):.3f}</td></tr>')
+bad_rows = []
+for vn, note in (('Cu_both', '止まらずに模型が壊れる'), ('EuO_both', '<code>Hreduction: PMT completeness loss too large</code> で止まる'),
+                 ('Si_both', ''), ('GaAs_both', ''), ('Fe_both', ''), ('NiO_both', ''), ('ZnO_both', '')):
+    base = vn.split('_')[0]
+    if base not in res: continue
+    after = f'{worst(var[vn]):.3f}' if vn in var else '止まった'
+    n0, n1 = nmlo(os.path.join(W, base)), nmlo(os.path.join(V, vn))
+    bad_rows.append(f'<tr><td class="name">{base}</td><td class="num">{n0} → {n1 if n1 else "—"}</td>'
+                    f'<td class="num">{worst(res[base]):.3f} → {after}</td><td>{note}</td></tr>')
+radial = ('<table><thead><tr><th>物質</th><th>型</th><th>キー</th><th>足したもの</th><th>MLO の数</th><th>最悪値 (eV)</th></tr></thead><tbody>'
+          + ''.join(rad) + '</tbody></table>')
+radial_bad = ('<table><thead><tr><th>物質</th><th>MLO の数</th><th>最悪値 (eV)</th><th></th></tr></thead><tbody>'
+              + ''.join(bad_rows) + '</tbody></table>')
+
 # ---------- table ----------
 trs = []
 for m, v in rows:
@@ -156,7 +190,7 @@ for g, gname, ms in GROUPS:
     if items: gal.append(f'<section class="grp"><h3>{gname}</h3><div class="grid">{"".join(items)}</div></section>')
 
 page = open(os.path.join(W, 'page_template.html')).read()
-for k, val in {'@@CHART1@@': chart1, '@@CHART2@@': chart2, '@@TABLE@@': table, '@@FIXES@@': '\n'.join(fx), '@@BAD@@': '\n'.join(bad),
+for k, val in {'@@RADIAL@@': radial, '@@RADIALBAD@@': radial_bad, '@@CHART1@@': chart1, '@@CHART2@@': chart2, '@@TABLE@@': table, '@@FIXES@@': '\n'.join(fx), '@@BAD@@': '\n'.join(bad),
                '@@GALLERY@@': '\n'.join(gal), '@@N@@': str(len(rows)), '@@NGOOD@@': str(nsev['good']), '@@NFAIR@@': str(nsev['fair']),
                '@@NPOOR@@': str(nsev['poor']), '@@REV@@': rev, '@@MISSING@@': ', '.join(missing) if missing else 'none',
                '@@DATE@@': datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}.items():

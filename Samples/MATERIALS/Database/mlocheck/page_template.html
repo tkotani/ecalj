@@ -91,7 +91,7 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
   <p>Database の 62 物質と La₂CuO₄・InAs/GaSb 超格子・BaTiO₃ について、LDA（Eu の化合物は LDA+U）の自己無撞着計算のあと、
     <code>job_mlo</code> の既定の模型（<code>mlo_method = 4</code>、Δ = w = 2 eV、<code>mlo_lm</code> は Ne まで s,p・Na から s,p,d・ランタノイドと 4f が価電子にある Hf は s,p,d,f）を作り、
     対称線の上で DFT のバンド（灰色の線）と MLO のバンド（赤の ×）を比べた。スピン軌道を入れる 2 物質は <code>job_mlo_soc</code>（摂動）。</p>
-  <p class="meta">@@DATE@@ · ecalj <span class="mono">@@REV@@</span> · t14（gfortran）と kr7（nvfortran、同じ Fortran の版）· 未完了: @@MISSING@@</p>
+  <p class="meta">@@DATE@@ · ecalj <span class="mono">@@REV@@</span> · t14（gfortran）と kr7（nvfortran、同じ Fortran の版）· InAs/GaSb の n10（40 原子）は回さなかった（user の判断、2026-10-01 12:48）</p>
 </header>
 
 <section class="stats" aria-label="まとめ">
@@ -102,6 +102,27 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
 </section>
 <p class="note">最悪値 = max（MLO の各点から最寄りの DFT のバンドまでの rms、DFT の各点から最寄りの MLO のバンドまでの rms、|ギャップの差|）。
   rms の窓は [VBM − 8, CBM + 3] eV（DFT → MLO は CBM + 1 eV まで）、金属は E_F を VBM = CBM とみなす。評価は <code>SRC/exec/mlo_bandcheck.py</code>。</p>
+
+<section class="panel">
+  <h2>動径関数を足すとは</h2>
+  <p>MLO の模型の 1 本 1 本は原子の位置に置いた軌道で、角度の部分（s・p・d・f、つまり lm）と、原子からの広がり方を決める動径の部分でできている。
+    <b>既定の模型</b>は <code>mlo_lm</code> に書いた (原子, lm) ごとに動径関数を <b>1 本</b>だけ使う（PMT の基底の第 1 の smooth Hankel 関数、EH）。
+    <b>動径関数を足す</b>とは、同じ (原子, lm) に広がり方の違う動径関数をもう 1 本、模型の関数として加えること。角度の性格が同じで動径の形が違う MLO が 2 本になる。
+    PMT の基底にはもともと別の動径関数が 2 種類あり、どちらを足すかで型が分かれる。</p>
+  <ul class="find">
+    <li><b>(a) <code>mlo_lm3</code>: 半内殻の局所軌道（<code>pz</code>）を足す。</b> Ga 3d・In 4d・Eu 5p・La 5p・Sr 4s,4p などは E_F − 10 eV より下にあり、既定では「深い」と判定されて
+      模型から外れる。O・N の 2p と混ざっているので、外すと 2p の帯がずれる。局所軌道を模型の関数として足すと、その混ざりを表せる。</li>
+    <li><b>(b) <code>mlo_lm2</code>: 第 2 の smooth Hankel 関数（EH2）の s,p を足す。</b> 空隙の大きい構造では伝導帯の底が隙間に広がった s,p 的な状態で、
+      原子に強くまとわりつく 1 本だけでは表せない。広がり方の違う EH2 を全原子の s,p に足すと表せる。</li>
+    <li><b>2 本目が働くのは、窓の中にその性格の 2 本目の帯が本当にあるときだけ。</b> 無いと 2 本が同じ関数に潰れて、模型が壊れるか止まる（下の 2 つ目の表）。
+      どんなときに足すかを既定にどう組み込むかは未定（TODO）。</li>
+  </ul>
+  <h3>足した物質（左の図が既定、右が足した模型。図 3）</h3>
+  <div class="scroll">@@RADIAL@@</div>
+  <p class="note">MLO の数は模型の関数の本数（<code>lmlo</code> の <code>HamRsMTO=</code>）。最悪値は既定 → 足した模型。HfO₂ は動径関数ではなく、4f のチャンネル（10〜16）を <code>mlo_lm</code> に足した（表と図は f 入り）。</p>
+  <h3>両方（EH2 の s,p と半内殻）を足した場合</h3>
+  <div class="scroll">@@RADIALBAD@@</div>
+</section>
 
 <section class="panel">
   <h2>図 1. ギャップの差（MLO − DFT）</h2>
