@@ -82,6 +82,7 @@ table.cnt td.what { white-space: normal; min-width: 18ch; max-width: 40ch; } tab
 table.cnt tr.best td { border-top: 2px solid var(--line); }
 table.cnt th, table.cnt td { padding: 6px 14px; }
 table.cnt tr.old td { color: var(--muted); }
+ul.choice { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 6px; max-width: 96ch; }
 dl.eval { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0; max-width: 96ch; }
 dl.eval dt { font-weight: 600; } dl.eval dd { margin: 0; }
 @media (max-width: 560px) { dl.eval { grid-template-columns: 1fr; } dl.eval dd { margin-bottom: 6px; } }
@@ -152,11 +153,14 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
     <dt>基準 3（空格子球）</dt><dd>いまは SiO₂ クリストバライトだけ: Si のダイヤモンド網の空隙 2 か所（立方体の単位で ½(111) と ¾(111)）に r = 2.6 a.u. の球（図 4 の先頭）。</dd>
   </dl>
   <h3 style="margin-top:8px">現在のベストチョイス</h3>
-  <p>基準 1 と基準 2 の両方で作って良い方を取るのがよい。ただし基準 2 で EH2 を入れる陽イオンからは、遷移金属と 4f・5f の原子を除く
-    （このページの基準 2 はそれらにも入れて回したもので、Cu・Ni は壊れ、EuO は作れなかった: 図 5）。あるいは、基準 1 がなんらかの目安
-    （例えば誤差の最大値 0.02 eV 以下）を満たさないときだけ基準 2 を取る。加えて、層状物質や SiO₂ のように空隙の大きい構造では基準 3（空格子球）も要る。
-    まとめると、<b>基準 1 で不満足なら基準 2、もしくは基準 3 を試す</b>。基準 3 が要るかどうかは構造から幾何学的におおよそ予測がつくので、
-    なんらかの自動判定ができるはず（例えば空隙の半径で判定する。まだ試していない）。</p>
+  <ul class="choice">
+    <li>まず基準 1 で作る。<b>基準 1 で不満足なら基準 2 を試す</b>。基準 2 で EH2 を入れる陽イオンからは、遷移金属と 4f・5f の原子を除く
+      （このページの基準 2 はそれらにも入れて回したもので、Cu・Ni は壊れ、EuO は作れなかった: 図 5）。</li>
+    <li><b>基準 1 で不満足で、幾何学的に空隙がある場合</b>（層状物質、SiO₂ など）<b>は、空格子球を入れる（基準 3）のを試す</b>。基準 2 と基準 3 を一緒に使うこともありうる。
+      空隙があるかは構造からおおよそ予測がつくので、自動判定ができるはず（空隙の半径で判定する案。まだ試していない）。</li>
+    <li>あえて言えば、MLO を作るときの 2 つのパラメーター <code>mlo_delta</code> と <code>mlo_w</code>（既定はどちらも 2 eV）を動かすこともありうる。
+      ただし細かく調整しても仕方がない。</li>
+  </ul>
 </section>
 
 <section class="panel">
