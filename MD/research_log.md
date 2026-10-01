@@ -88,6 +88,17 @@ user の指示（05:5x）: 「この方針で進めて。TODO も判断がつく
 MATERIALS 以下を MLO で（spd ベース、f があるときに入れる）すべてモデル化。DFT レベルでよい。目視で確認できる図、バンドギャップの違い。
 AFsymmetry のモード（AFTEST）が動くのか、そもそも正しいのかも調べて」。push はしない。
 
+### 16:14 結果のページを v3 に（user の指示 15:5x〜16:0x）
+
+https://claude.ai/artifact/VCWpe5W8Fei6umatXGeZGH（version 8、生成は `Samples/MATERIALS/mlocheck/gallery.py` v3、コミット 613c2f0ec）。user の指示: 旧既定は見え消し、
+冒頭の成功数のタイルは消す（模型の作り方の表にある）、図 1〜3 は物質ごとに一番良い模型、図 3 のバンドは大きく評価の窓をハッチング、表 1 は
+「小さい方のギャップ・ギャップの誤差・誤差の最大値」だけ（窓も書く。SiO₂ は ES の有無を 2 段）、図 4 は模型 1・2・3 の比較で SiO₂ の ES の役割が見えるように。
+- 番号は 1. 基準（自動セミコア）、2. 陽イオンに EH2 s,p、3. 空格子球（SiO₂ だけ）。「誤差の最大値」は判定に使う最悪値 = max(rms 2 つの向き, |Δgap|)
+  と定義した（1 点ごとの最大のずれは rms の 10 倍ほどになり（GaAs で rms 0.013、点 0.14）判定と食い違うので表に出していない）
+- 図には「模型に無い DFT の点」（0.1 eV 以内に MLO が無い、橙）と「DFT に無い MLO の点」（黒丸）を付けた。SiO₂ は 1・2 で伝導帯の底が橙、
+  2 は MLO の伝導帯が約 0.7 eV 上に浮く、3 で全部重なる
+- 図の数値は `~/work/mlocheck_20261001/page_data/*.npz`。`mlo_bandcheck.py` の JSON に VBM・CBM（窓の端）を足した（f5f9a3d88）
+
 ### 15:38 **`Samples/MATERIALS/Database/` の中身を `Samples/MATERIALS/` に上げて 1 段にした（user「2 段になっているが、その必要はない」）**
 
 62 物質のディレクトリ、`MLOcheck_20261001*.tsv`、`mlocheck/` を `git mv`。README は 1 つにまとめた（1 節 62 物質と表 1、2 節 MLO の試験、3 節 大きめの系と表 2）。
