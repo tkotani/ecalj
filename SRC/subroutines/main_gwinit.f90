@@ -166,28 +166,52 @@ contains
     write(ifi,'(a)') '#   <iatom> <label> <lm1> <lm2> ...   (a row starting with ! is ignored)'
     write(ifi,'(a)') '# lm: 1=s; 2,3,4=py,pz,px; 5..9=dxy,dyz,dz2,dxz,dx2-y2; 10..16=f  (real harmonics,'
     write(ifi,'(a)') '#     the PROCAR order). A partial shell is fine, e.g. 5 6 8 for t2g only.'
-    write(ifi,'(a)') '# Default below: s,p (1..4) up to Ne, s,p,d (1..9) from Na on.  A d on oxygen'
-    write(ifi,'(a)') '#   is a polarization function, not a valence orbital, and an MLO built on it'
-    write(ifi,'(a)') '#   only adds a near-null direction.  f (10..16) is never listed by default:'
-    write(ifi,'(a)') '#   this targets systems without 4f (up to Xe).'
-    write(ifi,'(a)') '# At most ONE MLO per (atom, lm): do not add the second radial set (mlo_lm2) for'
-    write(ifi,'(a)') '#   an lm already listed here -- the projection collapses the two onto the same'
-    write(ifi,'(a)') '#   function and the MLO overlap turns near-singular.'
+    write(ifi,'(a)') '# Default below: s,p (1..4) up to Ne, s,p,d (1..9) from Na on, and f (10..16) for'
+    write(ifi,'(a)') '#   an atom whose 4f is a valence shell (La..Lu, and Hf.. when the basis has 4f).'
+    write(ifi,'(a)') '#   A d on oxygen is a polarization function, not a valence orbital.'
+    write(ifi,'(a)') '# mlo_lm2: the same for the SECOND radial set (EH2), as extra seeds of the model'
+    write(ifi,'(a)') '#   (baseline 2, ecaljdoc mlo section 9). Not used by default: the rows below start'
+    write(ifi,'(a)') '#   with ! and are skipped. Remove the ! when baseline 1 is not good enough; it helps'
+    write(ifi,'(a)') '#   where the conduction band spreads into the voids (zinc blende MgTe: 0.29 -> 0.006 eV).'
+    write(ifi,'(a)') '#   Rows are written for the cations (not N O F P S Cl As Se Br Sb Te I) that are not'
+    write(ifi,'(a)') '#   transition metals Sc-Cu, Y-Ag, La-Au or 5f atoms: there EH2 breaks the model'
+    write(ifi,'(a)') '#   (Cu, Ni) or stops it (EuO). Zn, Cd, Hg keep the row (ZnTe 0.038 -> 0.004 eV).'
+    write(ifi,'(a)') '# Local orbitals (pz) below the valence shell are taken automatically, by the top'
+    write(ifi,'(a)') '#   of their band: above EF - 8 eV the LO replaces the EH function of that l (Ni 3d,'
+    write(ifi,'(a)') '#   Zn 3d), EF - 17 .. -8 eV it is added to it (Ga 3d of GaN, La 5p), deeper it is left'
+    write(ifi,'(a)') '#   out. lmlo prints the decision. To take an LO as written regardless of the rule,'
+    write(ifi,'(a)') '#   list its lm in mlo_lm3 (same syntax; that atom then takes mlo_lm3 as written).'
     write(ifi,'(a)') 'mlo_lm = """'
     do ibas = 1, nbas
-       ! Which lm to list by default: s,p for a main-group atom, s,p,d for a d-block
-       ! one.  Oxygen's d is a polarization function, not a valence orbital, and an
-       ! MLO built on it only adds a near-null direction.  f is never listed: this
-       ! default targets systems without 4f (up to Xe).  Edit the row to change it.
+       ! Which lm to list by default: s,p for H..Ne, s,p,d from Na on.  Oxygen's d is a
+       ! polarization function, not a valence orbital, and an MLO built on it only adds a
+       ! near-null direction.  f when the 4f is a valence shell: La..Lu always; from Hf on
+       ! when the lowest f shell of the basis (konf) is 4 (the 4f not in the core).
+       ! (2026-10-01: f added; HfO2 with s,p,d only was 0.057 eV off at the VBM.)
        block
-         integer :: nz, lmx_mlo
+         integer :: nz
          character(len=64) :: lmlist
          nz = nint(zz(ibas))
-         lmx_mlo = 2                                    ! s,p,d by default
-         if (nz <= 10) lmx_mlo = 1                      ! H..Ne: s,p only (no d valence)
-         lmlist = merge('   1 2 3 4                    ', &
-                        '   1 2 3 4 5 6 7 8 9          ', lmx_mlo==1)
+         lmlist = '   1 2 3 4 5 6 7 8 9'
+         if (nz <= 10) lmlist = '   1 2 3 4'                                  ! H..Ne: s,p only (no d valence)
+         if ((nz >= 57 .and. nz <= 71) .or. (nz >= 72 .and. lmxaa(ibas) >= 3 .and. konf(min(3,lmxax),ibas) == 4)) &
+              lmlist = '   1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16'
          write(ifi,'(i0,1x,a,a)') ibas, trim(spid(ibas)), trim(lmlist)
+       endblock
+    enddo
+    write(ifi,'(a)') '"""'
+    ! EH2 s,p rows, commented out with ! (baseline 1 is the default; user 2026-10-01 19:0x), for the
+    ! cations: not an anion (N O F P S Cl As Se Br Sb Te I), not a transition metal Sc-Cu, Y-Ag,
+    ! La-Au (the 4f atoms included), not Ac- and not an empty sphere. Zn, Cd, Hg (d10) keep the row.
+    write(ifi,'(a)') 'mlo_lm2 = """'
+    do ibas = 1, nbas
+       block
+         integer :: nz
+         nz = nint(zz(ibas))
+         if (nz <= 0) cycle
+         if (any(nz == [7, 8, 9, 15, 16, 17, 33, 34, 35, 51, 52, 53])) cycle
+         if ((nz >= 21 .and. nz <= 29) .or. (nz >= 39 .and. nz <= 47) .or. (nz >= 57 .and. nz <= 79) .or. nz >= 89) cycle
+         write(ifi,'(a,i0,1x,a,a)') '! ', ibas, trim(spid(ibas)), '   1 2 3 4'
        endblock
     enddo
     write(ifi,'(a)') '"""'

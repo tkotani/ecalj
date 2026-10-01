@@ -155,8 +155,8 @@ contains
         integer::lmindex(16,nbas),lmindex2(16,nbas),lmindex3(16,nbas),lm,iw,ibw,nlmw,ibsel,ksel
         logical:: haslo3
         character(256):: aaa
-        logical, allocatable:: use_lo(:,:)
-        allocate(use_lo(nbas,0:3))
+        logical, allocatable:: use_lo(:,:), lo_replace(:,:)
+        allocate(use_lo(nbas,0:3), lo_replace(nbas,0:3))
         call gwinput_init()
         if (gwinput_loaded) then
           mlomethod = tg_mlo_method
@@ -194,20 +194,39 @@ contains
            call rx('m_GWinput: legacy GWinput reader is disabled; ctrlg.<sname>.toml is required.')
            aaa = trim(aaa) // ' '   ! compiler bait, unreachable -- see block header
         endif
-        ! Which function represents a listed l channel: the EH function, or the
-        ! local orbital (k=3) of that atom and l when it has one?  A deep semicore
-        ! LO (Ga 3d at -15 eV) is not part of the model: its states are dropped
-        ! by nskip and the EH function (4d-like) serves the model.  A SHALLOW
-        ! semicore LO (Zn 3d at -6 eV, hybridized with O 2p, inside the window)
-        ! IS the model function; with the EH function instead ZnO came out at
-        ! 476 meV, with the LO at 0.8 meV (2026-09-18, BackUp_notes/mp_20260918).
-        ! Decide per (atom,l) from the PMT Hamiltonian: the LO-dominated states
-        ! (Mulliken weight > 1/2 on that LO block, occupied) are "shallow" when
-        ! their highest energy over all k is above EF - 10 eV.
+        ! Which functions represent a listed l channel that has a semicore local
+        ! orbital (k=3)?  By the top of the band of the LO (2026-10-01 19:2x):
+        !   above EF - 8 eV (in the window; the LO is the valence shell itself, Ni 3d in NiO,
+        !     Zn 3d): the LO REPLACES the EH function of that (atom,l)
+        !   EF - 17 .. -8 eV (SHALLOW semicore below the window): the LO is a model function
+        !     IN ADDITION to the EH function
+        !   below EF - 17 eV (deep): not part of the model (its states are dropped by nskip
+        !     and the EH function serves the model).
+        ! "Shallow": the band of the LO (occupied states with projection weight > 1/2 on
+        ! the LO functions of that l of ALL sites of the species) has its top above
+        ! EF - 17 eV, over all k.
+        ! 2026-10-01 15:0x (Samples/MATERIALS MLO test, MD/research_log.md 14:38): the
+        ! threshold was EF - 10 eV and a shallow LO replaced the EH function. Semicore
+        ! states between -16 and -11 eV that mix with O/N 2p (Ga 3d in GaN, In 4d in
+        ! InN, Eu 5p in EuO, Sr 4p in SrTiO3/SrVO3, La 5p) were then left out and the 2p
+        ! bands moved by 0.05-0.6 eV; added, 0.001-0.008 eV, and the materials that were
+        ! right (GaAs, InP, PbTe, EuS, ZnO with Zn 3d added instead of replaced, ...)
+        ! stay within 0.002 eV. The weight is taken over all sites of the species: the
+        ! La 5p states of La2CuO4 spread 0.45/0.45 over the two La, so no single site
+        ! reached 1/2 and the band was never found.
+        ! (2026-09-18: with the EH function alone ZnO came out at 476 meV, with the Zn 3d
+        ! LO at 0.8 meV; BackUp_notes/mp_20260918.)
+        ! Why here and not in the input (user 2026-10-01 19:1x): the rule needs the band
+        ! energies of the SCF, which gwinit (run before the SCF) does not have. The input
+        ! has no key for it; the decision is printed to lmlo ("SHALLOW: LO added to the
+        ! model" / "deep: LO skipped"). An atom listed in mlo_lm3 is not decided here: its
+        ! LOs are model functions exactly as listed (haslo3 below). A frozen run (MLO-QSGW
+        ! chain) takes the model from HamRsMLO, so the decision of the chain start holds.
         ShallowLO: block
           use mpi
           use m_lmfinit, only: oveps, pzsp, pnusp
-          real(8), parameter :: eshallow = -10d0/13.605d0     ! Ry, relative to EF
+          real(8), parameter :: eshallow = -17d0/13.605d0     ! Ry, relative to EF (-10 eV until 2026-10-01)
+          real(8), parameter :: evalence = -8d0/13.605d0      ! Ry: an LO band above it is in the window (its lower edge VBM - 8 eV)
           integer :: ifih_info, ifih, mrech, mrechsoc, nbandmx, istat, iqxx, jspxx, iqqisp, nev0, nmx, il, ierr, ng, nspxl
           type(mpiio_buf) :: buf
           complex(8), allocatable :: ovlmp(:,:), hammp(:,:), evec(:,:), sc(:,:), s0(:,:)
@@ -219,8 +238,11 @@ contains
           real(8) :: w, pz, pnu
           logical, allocatable :: has_lo(:,:)
           logical :: anylo
-          allocate(has_lo(nbas,0:3), etop(nbas,0:3), etop_all(nbas,0:3))
-          use_lo = .false.; has_lo = .false.; etop = -1d99
+          integer, allocatable :: spc(:)   ! species of each site
+          allocate(has_lo(nbas,0:3), etop(nbas,0:3), etop_all(nbas,0:3), spc(nbas))
+          use_lo = .false.; lo_replace = .false.; has_lo = .false.; etop = -1d99
+          spc = 0
+          do i = 1, ldim; spc(ib_table(i)) = ispec_table(i); enddo
           ! only SEMICORE local orbitals (shell int(mod(pz,10)) below the valence
           ! shell int(pnu); pz = 10+n.m is the extended-tail form) are candidates. An extended LO (pz above the valence shell, e.g. Ru pz=5.5
           ! next to the 4d EH function) is a high-lying tail function, not a band:
@@ -257,16 +279,16 @@ contains
                 sc(1:ndimPMT,1:nev0) = matmul(s0(1:ndimPMT,1:ndimPMT), evec(1:ndimPMT,1:nev0))   ! S c
                 do ib = 1, nbas; do il = 0, 3
                   if (.not. has_lo(ib,il)) cycle
-                  ! projection weight of state i onto span{LO functions of (ib,il)}:
+                  ! projection weight of state i onto span{LO functions of l=il on all sites of the species of ib}:
                   !   w = v^H S_GG^-1 v,  v_g = <chi_g|psi_i> = (S c)_g   (0 <= w <= 1)
                   ! (a Mulliken partition is useless here: MTO/APW overlaps give
                   !  per-function weights of +-100 for states near EF)
-                  ng = count(k_table==3 .and. ib_table==ib .and. l_table==il)
+                  ng = count(k_table==3 .and. spc(ib_table)==spc(ib) .and. l_table==il)
                   block
                     use m_lapack, only: zminv => zminv_h
                     integer :: g(ng), ii, jj
                     complex(8) :: sgg(ng,ng), v(ng)
-                    g = pack([(j, j=1,ldim)], k_table==3 .and. ib_table==ib .and. l_table==il)
+                    g = pack([(j, j=1,ldim)], k_table==3 .and. spc(ib_table)==spc(ib) .and. l_table==il)
                     forall(ii=1:ng, jj=1:ng) sgg(ii,jj) = s0(g(ii), g(jj))
                     istat = zminv(sgg, n=ng)
                     do i = 1, nev0
@@ -284,10 +306,18 @@ contains
             call MPI_Allreduce(etop, etop_all, nbas*4, MPI_DOUBLE_PRECISION, MPI_MAX, MPI_COMM_WORLD, ierr)
             do ib = 1, nbas; do il = 0, 3
               if (.not. has_lo(ib,il)) cycle
-              use_lo(ib,il) = etop_all(ib,il) > eferm + eshallow
-              if (master_mpi) write(stdo,ftox) ' m_HamPMT: local orbital atom',ib,' l=',il,' top of its band EF',&
-                   ftof((etop_all(ib,il)-eferm)*13.605d0),'eV ->', merge('SHALLOW: LO is the model function         ', &
-                   'deep: EH is the model function, LO skipped', use_lo(ib,il))
+              use_lo(ib,il)     = etop_all(ib,il) > eferm + eshallow
+              lo_replace(ib,il) = etop_all(ib,il) > eferm + evalence
+              if (master_mpi .and. etop_all(ib,il) < -1d98) then   ! no occupied state with weight > 1/2: treated as deep
+                write(stdo,ftox) ' m_HamPMT: local orbital atom',ib,' l=',il,' no band of it found -> deep: LO skipped'
+              elseif (master_mpi .and. lo_replace(ib,il)) then
+                write(stdo,ftox) ' m_HamPMT: local orbital atom',ib,' l=',il,' top of its band EF',&
+                   ftof((etop_all(ib,il)-eferm)*13.605d0),'eV -> IN THE WINDOW: LO replaces the EH function'
+              elseif (master_mpi) then
+                write(stdo,ftox) ' m_HamPMT: local orbital atom',ib,' l=',il,' top of its band EF',&
+                   ftof((etop_all(ib,il)-eferm)*13.605d0),'eV ->', merge('SHALLOW: LO added to the model         ', &
+                   'deep: LO skipped                       ', use_lo(ib,il))
+              endif
             enddo; enddo
           endif
         endblock ShallowLO
@@ -305,13 +335,17 @@ contains
           ! below applies.
           haslo3 = any(lmindex3(1:16,ib_table(i)) /= -999)
           if( .not. haslo3 ) then
-            ! shallow local orbital (see ShallowLO above): the LO is the model function
-            ! for that (atom,l) and the EH function is dropped; otherwise the LO is
-            ! skipped (its states are removed by nskip) and the EH function is taken.
-            if( l_table(i)<=3 .and. use_lo(ib_table(i),l_table(i)) ) then
-              if( k_table(i)==1 ) cycle   ! EH dropped, LO taken
-            else
-              if( k_table(i)==3 ) cycle   ! LO skipped, EH taken
+            ! semicore local orbital (see ShallowLO above), by the top of its band:
+            !  above EF - 8 eV (in the window: the LO is the valence shell itself, Ni 3d of NiO, Zn 3d):
+            !    the LO REPLACES the EH function of that (atom,l). Two seeds for one band would break a
+            !    model that takes only that band (Samples/MLOsamples/NiO666lda, Ni d + O p: with both
+            !    seeds the nskip cut ran through the O 2s bands; 2026-10-01 19:2x)
+            !  EF - 17 .. -8 eV (semicore below the window): the LO is a model function BESIDES the EH
+            !    function (2026-10-01; Ga 3d of GaN, Eu 5p, La 5p mixing with O/N 2p)
+            !  below EF - 17 eV: the LO is skipped (its states are removed by nskip).
+            if( k_table(i)==3 .and. .not.(l_table(i)<=3 .and. use_lo(ib_table(i),min(l_table(i),3))) ) cycle
+            if( k_table(i)==1 .and. l_table(i)<=3 ) then
+              if( lo_replace(ib_table(i),l_table(i)) ) cycle
             endif
           endif
           ib=ib_table(i)
