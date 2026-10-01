@@ -62,7 +62,7 @@ def cal_mlo_soc(args, extra_args):
     mpi_size = args.np
     cluster = args.cluster
     remove_files("HamiltonianPMT.*")
-    for f in [*Path('.').glob('bnd0*.spin*'), Path('band_MLO_spin2.dat')]:   # left over from a run without SOC
+    for f in [*Path('.').glob('bnd0*.spin*'), Path('band_MLO_spin2.dat'), Path('bandplot_MLO.isp2.glt')]:   # left over from a run without SOC
         f.unlink(missing_ok=True)
 
     # Step 1: SOC-corrected Fermi energy via full LS lmf --quit=band

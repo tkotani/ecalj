@@ -81,7 +81,8 @@ contains
   if(ndat==0) call rx0('mlo: no qplist.dat -> band plot skipped')
   call read_ham_rs()     ! HamRsMLO (+ QMLO_SigRs) for the band plot on qplist.dat
   if(master_mpi) open(newunit=ifsy1,file=trim(fband(1)))
-  if(master_mpi.and.nspx==2) open(newunit=ifsy2,file=trim(fband(2)))
+  ! With SOC the 2N spinor bands all go to spin1 (bug fixed 2026-10-02 05:25: an empty spin2 file and its .glt were written)
+  if(master_mpi.and.nspx==2.and..not.socmatrix) open(newunit=ifsy2,file=trim(fband(2)))
   nmx = ndimMTO
   ndatx=ndat
   GetEigenvaluesForSYML: block!Get Hamitonian at k points from hammr,ovlmr (Realspace Hamiltonian), then diagnalize.
@@ -174,11 +175,11 @@ contains
        enddo
     endif
     if(master_mpi) close(ifsy1)
-    if(master_mpi.and.nspx==2) close(ifsy2)
+    if(master_mpi.and.nspx==2.and..not.socmatrix) close(ifsy2)
     Writebandplotlmfham1glt: block
       integer:: ifglt1,ifglt
       character(256):: aline,fname,fname1
-      do jsp = 1,nspx
+      do jsp = 1,merge(1,nspx,socmatrix) !SOC: spin1 only (2026-10-02 05:25)
          fname ='bandplot.isp'//char(48+jsp)//'.glt'
          fname1='bandplot_MLO.isp'//char(48+jsp)//'.glt' 
          open(newunit=ifglt1, file=trim(fname1))
