@@ -139,3 +139,5 @@ BZ*.html
 /SRC/exec_*/
 # the build tree that the VSCode CMake extension makes at the top (2026-10-01)
 /build/
+# per-machine logs of TOOLS/samples_tests.sh (2026-10-01)
+/samples_tests_*/

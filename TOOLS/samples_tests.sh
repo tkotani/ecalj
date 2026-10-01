@@ -9,6 +9,7 @@
 #   install  TestInstall --all                      gwall    TestInstall --gwall (the GW targets only)
 #   eps      EPS/*                                  procar   PROCAR/*
 #   mlo      MLOsamples/*                           mloqsgw  MLOQSGW/*        afsym   AFsymmetry/*
+#   affix    AFfixMMOM/*  (AF with the moment held at mmtarget.aftest, 2026-10-01)
 #   samples  FermiSurface Doping HomoGas BoltzTraP SLAB SOC LDAU EffectiveMass Relax DOS IIR AtomDimer kBT/scanT: one summary line per directory
 #            (the samples rebuilt from Legacy in 2026-09, and the temperature scan; a directory that is not there is skipped)
 #   bench    BenchmarkTest/* (with --gpu: -np2 1, two GW ranks on one 32 GB GPU run out of memory)
@@ -31,7 +32,7 @@ while [ $# -gt 0 ]; do
     *) GRP+=("$1") ;;
   esac; shift
 done
-[ ${#GRP[@]} = 0 ] && GRP=(inputs install eps procar mlo mloqsgw afsym samples bench heavy magnon)
+[ ${#GRP[@]} = 0 ] && GRP=(inputs install eps procar mlo mloqsgw afsym affix samples bench heavy magnon)
 # --gpu without -np2: one GW rank per visible GPU (2026-09-28: 8 GW ranks on the one 32 GB GPU of kr7 ran out of memory in the heavy group)
 if [ -n "$GPU" ] && [ -z "$NP2" ]; then
   if [ -n "${CUDA_VISIBLE_DEVICES:-}" ]; then NP2=$(echo $CUDA_VISIBLE_DEVICES | tr "," "\n" | grep -c .); else NP2=$(nvidia-smi -L 2>/dev/null | grep -c "^GPU"); fi
@@ -90,6 +91,7 @@ for g in "${GRP[@]}"; do
     mlo)     run mlo MLOsamples $(targets MLOsamples) ;;
     mloqsgw) run mloqsgw MLOQSGW $(targets MLOQSGW) ;;
     afsym)   run afsym AFsymmetry $(targets AFsymmetry) ;;
+    affix)   run affix AFfixMMOM $(targets AFfixMMOM) ;;
     samples) for d in FermiSurface Doping HomoGas BoltzTraP SLAB SOC LDAU EffectiveMass Relax DOS IIR AtomDimer kBT/scanT; do
                [ -d $ROOT/Samples/$d ] && [ -n "$(targets $d)" ] && run ${d//\//_} $d $(targets $d)
              done ;;
