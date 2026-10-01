@@ -7,18 +7,18 @@
 :root {
   --bg: #f5f7fa; --surface: #ffffff; --ink: #18202b; --muted: #586474; --line: #d6dce4;
   --accent: #2b5d8f; --dft: #7c8591; --mlo: #c0392b;
-  --good: #2e7d4f; --good-bg: #e3f2e9; --warn: #9a6a12; --warn-bg: #fbf0d9; --bad: #b3261e; --bad-bg: #fbe4e2;
+  --good: #2e7d4f; --good-bg: #e3f2e9; --ok: #5f7d12; --ok-bg: #eef4dc; --warn: #9a6a12; --warn-bg: #fbf0d9; --bad: #b3261e; --bad-bg: #fbe4e2;
   --font-body: "IBM Plex Sans", "IBM Plex Sans JP", "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #10141a; --surface: #182029; --ink: #e5eaf1; --muted: #9aa6b4; --line: #2b3542;
   --accent: #82b4e8; --dft: #9aa3ae; --mlo: #f07162;
-  --good: #6cc995; --good-bg: #173326; --warn: #e5b458; --warn-bg: #362a12; --bad: #f28b82; --bad-bg: #3b1c1a; color-scheme: dark } }
+  --good: #6cc995; --good-bg: #173326; --ok: #b5d36a; --ok-bg: #2a3315; --warn: #e5b458; --warn-bg: #362a12; --bad: #f28b82; --bad-bg: #3b1c1a; color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #10141a; --surface: #182029; --ink: #e5eaf1; --muted: #9aa6b4; --line: #2b3542;
   --accent: #82b4e8; --dft: #9aa3ae; --mlo: #f07162;
-  --good: #6cc995; --good-bg: #173326; --warn: #e5b458; --warn-bg: #362a12; --bad: #f28b82; --bad-bg: #3b1c1a; color-scheme: dark }
+  --good: #6cc995; --good-bg: #173326; --ok: #b5d36a; --ok-bg: #2a3315; --warn: #e5b458; --warn-bg: #362a12; --bad: #f28b82; --bad-bg: #3b1c1a; color-scheme: dark }
 body { background: var(--bg); color: var(--ink); font: 15px/1.65 var(--font-body); }
 .wrap { max-width: 1180px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 64px; display: flex; flex-direction: column; gap: 36px; }
 header { display: flex; flex-direction: column; gap: 10px; }
@@ -33,9 +33,9 @@ a { color: var(--accent); }
 .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 16px; min-width: 150px; display: flex; flex-direction: column; }
 .stat b { font-size: 1.5rem; font-variant-numeric: tabular-nums; font-weight: 600; }
 .stat span { color: var(--muted); font-size: .82rem; }
-.stat.good b { color: var(--good); } .stat.fair b { color: var(--warn); } .stat.poor b { color: var(--bad); }
+.stat.good b { color: var(--good); } .stat.fair b { color: var(--ok); } .stat.marginal b { color: var(--warn); } .stat.poor b { color: var(--bad); }
 .chip { display: inline-block; border-radius: 999px; padding: 0 9px; font-size: .75rem; font-weight: 500; line-height: 1.6; letter-spacing: .02em; }
-.chip.good { background: var(--good-bg); color: var(--good); } .chip.fair { background: var(--warn-bg); color: var(--warn); } .chip.poor { background: var(--bad-bg); color: var(--bad); }
+.chip.good { background: var(--good-bg); color: var(--good); } .chip.fair { background: var(--ok-bg); color: var(--ok); } .chip.marginal { background: var(--warn-bg); color: var(--warn); } .chip.poor { background: var(--bad-bg); color: var(--bad); }
 .panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
 .scroll { overflow-x: auto; }
 .chart { width: 100%; height: auto; display: block; font-family: var(--font-body); }
@@ -46,13 +46,13 @@ a { color: var(--accent); }
 .chart .axis { fill: var(--ink); font-size: 12px; }
 .chart .lab { fill: var(--ink); font-size: 11px; }
 .chart .pt { stroke: var(--surface); stroke-width: 2; }
-.chart .pt.good, .chart .bar.good { fill: var(--good); } .chart .pt.fair, .chart .bar.fair { fill: var(--warn); } .chart .pt.poor, .chart .bar.poor { fill: var(--bad); }
+.chart .pt.good, .chart .bar.good { fill: var(--good); } .chart .pt.fair, .chart .bar.fair { fill: var(--ok); } .chart .pt.marginal, .chart .bar.marginal { fill: var(--warn); } .chart .pt.poor, .chart .bar.poor { fill: var(--bad); }
 .chart .pt.fixed { fill: var(--surface); stroke: var(--accent); stroke-width: 2; }
 .chart .arrow { stroke: var(--accent); stroke-width: 1.4; fill: none; }
 .chart .ahead { fill: var(--accent); }
 .legend { display: flex; flex-wrap: wrap; gap: 16px; color: var(--muted); font-size: .82rem; align-items: center; }
 .legend i { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
-.legend i.good { background: var(--good); } .legend i.fair { background: var(--warn); } .legend i.poor { background: var(--bad); }
+.legend i.good { background: var(--good); } .legend i.fair { background: var(--ok); } .legend i.marginal { background: var(--warn); } .legend i.poor { background: var(--bad); }
 .legend i.fixed { background: var(--surface); border: 2px solid var(--accent); width: 9px; height: 9px; }
 ul.find { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 8px; max-width: 80ch; }
 table { border-collapse: collapse; width: 100%; font-size: .84rem; }
@@ -97,7 +97,8 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
 <section class="stats" aria-label="まとめ">
   <div class="stat"><b>@@N@@</b><span>評価した物質</span></div>
   <div class="stat good"><b>@@NGOOD@@ → @@AGOOD@@</b><span>good: 最悪値 ≤ 0.02 eV</span></div>
-  <div class="stat fair"><b>@@NFAIR@@ → @@AFAIR@@</b><span>fair: ≤ 0.1 eV</span></div>
+  <div class="stat fair"><b>@@NFAIR@@ → @@AFAIR@@</b><span>fair: ≤ 0.05 eV</span></div>
+  <div class="stat marginal"><b>@@NMARG@@ → @@AMARG@@</b><span>marginal: ≤ 0.1 eV</span></div>
   <div class="stat poor"><b>@@NPOOR@@ → @@APOOR@@</b><span>poor: &gt; 0.1 eV</span></div>
 </section>
 <p class="note"><b>数字は「既定の模型 → 動径関数を足した模型」</b>（足したのは 16 物質。下の「動径関数を足すとは」）。</p>
@@ -129,14 +130,14 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
 
 <section class="panel">
   <h2>図 1. ギャップの差（MLO − DFT）</h2>
-  <div class="legend"><span><i class="good"></i>good</span><span><i class="fair"></i>fair</span><span><i class="poor"></i>poor</span>
+  <div class="legend"><span><i class="good"></i>good</span><span><i class="fair"></i>fair</span><span><i class="marginal"></i>marginal</span><span><i class="poor"></i>poor</span>
     <span><i class="fixed"></i>動径関数を足した模型（矢印の先）</span></div>
   <div class="scroll">@@CHART1@@</div>
   <p class="note">絶縁体だけ（SCF のメッシュでギャップがあるもの）。点にカーソルを置くと値が出る。</p>
 </section>
 
 <section class="panel">
-  <h2>図 2. 物質ごとの最悪値（既定の模型、対数軸、破線は 0.02 と 0.1 eV）</h2>
+  <h2>図 2. 物質ごとの最悪値（既定の模型、対数軸、破線は 0.02・0.05・0.1 eV）</h2>
   <div class="scroll">@@CHART2@@</div>
 </section>
 
@@ -176,6 +177,7 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
   <div class="filters" role="group" aria-label="判定で絞る">
     <button type="button" id="f-all" data-f="all" aria-pressed="true">すべて</button>
     <button type="button" id="f-poor" data-f="poor" aria-pressed="false">poor</button>
+    <button type="button" id="f-marginal" data-f="marginal" aria-pressed="false">marginal</button>
     <button type="button" id="f-fair" data-f="fair" aria-pressed="false">fair</button>
     <button type="button" id="f-good" data-f="good" aria-pressed="false">good</button>
   </div>

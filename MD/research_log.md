@@ -88,6 +88,12 @@ user の指示（05:5x）: 「この方針で進めて。TODO も判断がつく
 MATERIALS 以下を MLO で（spd ベース、f があるときに入れる）すべてモデル化。DFT レベルでよい。目視で確認できる図、バンドギャップの違い。
 AFsymmetry のモード（AFTEST）が動くのか、そもそも正しいのかも調べて」。push はしない。
 
+### 14:27 **判定を 4 段階に（user「good fair soso poor みたいに」「soso はもうちょっといい英語に」）: good ≤ 0.02、fair ≤ 0.05、marginal ≤ 0.1、poor > 0.1 eV。
+既定の模型 41・10・4・10 → 動径関数を足した模型 56・9・0・0（ページの version 6）**
+
+- marginal（0.05〜0.1 eV）の 4: SrVO₃ 0.074、SrTiO₃ 0.069、AlN 0.061、EuO 0.055（どれも足すと good）
+- ページの冒頭のまとめ・図 1 と図 2 の色・表の判定・絞り込みのボタンを 4 段階に。図 2 の破線は 0.02・0.05・0.1 eV
+
 ### 14:24 **判定の境を変えた（user「fair は < 0.1 でいい、poor は 0.1 <」）: good ≤ 0.02、fair ≤ 0.1、poor > 0.1 eV。既定の模型 41・14・10 → 足した後 56・9・0（ページの version 5）**
 
 - 既定の模型の poor（> 0.1 eV）は 10: SiO₂、GaN（zb・wz）、InN（zb・wz）、MgTe・MgSe・MgS、La₂CuO₄（0.103）、LaGaO₃（0.101）。

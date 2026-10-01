@@ -28,8 +28,8 @@ def worst(v):
     if v.get('insulator'): w.append(abs(v['gapM'] - v['gapD']))
     return max(x for x in w if x == x)
 
-def sev(x):   # good <= 0.02 eV, fair <= 0.1 eV, poor > 0.1 eV (user 2026-10-01 14:2x; fair was <= 0.05 before)
-    return 'good' if x <= 0.02 else ('fair' if x <= 0.1 else 'poor')
+def sev(x):   # good <= 0.02, fair <= 0.05, marginal <= 0.1, poor > 0.1 eV (user 2026-10-01 14:3x: four classes)
+    return 'good' if x <= 0.02 else ('fair' if x <= 0.05 else ('marginal' if x <= 0.1 else 'poor'))
 
 def fmt(x, n=3, sign=False):
     if x is None or (isinstance(x, float) and x != x): return '—'
@@ -50,7 +50,7 @@ for v in var:
 allm = [m for g, _, ms in GROUPS for m in ms.split()]
 missing = [m for m in allm if m not in res]
 rows = [(m, res[m]) for m in allm if m in res]
-nsev = {'good': 0, 'fair': 0, 'poor': 0}
+nsev = {'good': 0, 'fair': 0, 'marginal': 0, 'poor': 0}
 for m, v in rows: nsev[sev(worst(v))] += 1
 
 # ---------- chart 1: gap error against the DFT gap (insulators), arrows to the fixed variants ----------
@@ -95,8 +95,8 @@ BW, BH, bl, bb, bt = max(720, 11 * len(srt) + 70), 300, 56, 92, 14
 L0, L1 = math.log10(0.0005), math.log10(2.0)
 def by(val): return bt + (L1 - math.log10(min(max(val, 0.0005), 2.0))) / (L1 - L0) * (BH - bt - bb)
 sv = [f'<svg viewBox="0 0 {BW} {BH}" role="img" aria-labelledby="c2t" class="chart"><title id="c2t">Worst of the band rms and the gap error, per material (log scale)</title>']
-for val, lab in ((0.001, '0.001'), (0.01, '0.01'), (0.02, '0.02'), (0.1, '0.1'), (1, '1')):
-    cls = 'thr' if val in (0.02, 0.1) else 'grid'
+for val, lab in ((0.001, '0.001'), (0.01, '0.01'), (0.02, '0.02'), (0.05, '0.05'), (0.1, '0.1'), (1, '1')):
+    cls = 'thr' if val in (0.02, 0.05, 0.1) else 'grid'
     sv.append(f'<line x1="{bl}" x2="{BW-8}" y1="{by(val):.1f}" y2="{by(val):.1f}" class="{cls}"/><text x="{bl-6}" y="{by(val)+4:.1f}" class="tick" text-anchor="end">{lab}</text>')
 step = (BW - bl - 8) / len(srt)
 for i, (m, v) in enumerate(srt):
@@ -142,14 +142,14 @@ radial_bad = ('<table><thead><tr><th>物質</th><th>MLO の数</th><th>最悪値
 
 # ---------- after the radial functions: the verdicts with the fixed models in place of the default ones ----------
 best = {m: (worst(var[FIX[m][0]]) if (m in FIX and FIX[m][0] in var) else worst(v)) for m, v in res.items()}
-nbest = {'good': 0, 'fair': 0, 'poor': 0}
+nbest = {'good': 0, 'fair': 0, 'marginal': 0, 'poor': 0}
 for w in best.values(): nbest[sev(w)] += 1
 left = sorted(((w, m) for m, w in best.items() if w > 0.02), reverse=True)
-after = ('<table><thead><tr><th></th><th>good（≤ 0.02 eV）</th><th>fair（≤ 0.1 eV）</th><th>poor（&gt; 0.1 eV）</th></tr></thead><tbody>'
-         f'<tr><td>既定の模型</td><td class="num">{nsev["good"]}</td><td class="num">{nsev["fair"]}</td><td class="num">{nsev["poor"]}</td></tr>'
-         f'<tr><td>足した後</td><td class="num">{nbest["good"]}</td><td class="num">{nbest["fair"]}</td><td class="num">{nbest["poor"]}</td></tr>'
+after = ('<table><thead><tr><th></th><th>good（≤ 0.02 eV）</th><th>fair（≤ 0.05 eV）</th><th>marginal（≤ 0.1 eV）</th><th>poor（&gt; 0.1 eV）</th></tr></thead><tbody>'
+         f'<tr><td>既定の模型</td><td class="num">{nsev["good"]}</td><td class="num">{nsev["fair"]}</td><td class="num">{nsev["marginal"]}</td><td class="num">{nsev["poor"]}</td></tr>'
+         f'<tr><td>足した後</td><td class="num">{nbest["good"]}</td><td class="num">{nbest["fair"]}</td><td class="num">{nbest["marginal"]}</td><td class="num">{nbest["poor"]}</td></tr>'
          '</tbody></table>'
-         '<p class="note">足した後も fair で残るもの（最悪値 eV）: ' + '、'.join(f'{m} {w:.3f}' for w, m in left) +
+         '<p class="note">足した後も good にならないもの（最悪値 eV）: ' + '、'.join(f'{m} {w:.3f}' for w, m in left) +
          '。SiO₂ のほかは何も足して試していない（C・AlSb・InSb・Sn・GaSb・SiC は s,p の半導体で、(b) の型が軽く出ている可能性がある）。'
          '何を足すかは型を見て物質ごとに選んだもので、自動ではない。</p>')
 afterline = f'動径関数を足した後（下の「動径関数を足すとは」）: good {nbest["good"]}、fair {nbest["fair"]}、poor {nbest["poor"]}。'
@@ -204,7 +204,7 @@ for g, gname, ms in GROUPS:
     if items: gal.append(f'<section class="grp"><h3>{gname}</h3><div class="grid">{"".join(items)}</div></section>')
 
 page = open(os.path.join(W, 'page_template.html')).read()
-for k, val in {'@@AGOOD@@': str(nbest['good']), '@@AFAIR@@': str(nbest['fair']), '@@APOOR@@': str(nbest['poor']), '@@AFTER@@': after, '@@AFTERLINE@@': afterline, '@@RADIAL@@': radial, '@@RADIALBAD@@': radial_bad, '@@CHART1@@': chart1, '@@CHART2@@': chart2, '@@TABLE@@': table, '@@FIXES@@': '\n'.join(fx), '@@BAD@@': '\n'.join(bad),
+for k, val in {'@@AGOOD@@': str(nbest['good']), '@@AFAIR@@': str(nbest['fair']), '@@AMARG@@': str(nbest['marginal']), '@@APOOR@@': str(nbest['poor']), '@@NMARG@@': str(nsev['marginal']), '@@AFTER@@': after, '@@AFTERLINE@@': afterline, '@@RADIAL@@': radial, '@@RADIALBAD@@': radial_bad, '@@CHART1@@': chart1, '@@CHART2@@': chart2, '@@TABLE@@': table, '@@FIXES@@': '\n'.join(fx), '@@BAD@@': '\n'.join(bad),
                '@@GALLERY@@': '\n'.join(gal), '@@N@@': str(len(rows)), '@@NGOOD@@': str(nsev['good']), '@@NFAIR@@': str(nsev['fair']),
                '@@NPOOR@@': str(nsev['poor']), '@@REV@@': rev, '@@MISSING@@': ', '.join(missing) if missing else 'none',
                '@@DATE@@': datetime.datetime.now().strftime('%Y-%m-%d %H:%M')}.items():
