@@ -3,7 +3,7 @@ module m_mlo_ham
   use m_lgunit, only: stdo
   use m_mpi, only: ipr
   use m_blas, only: zmm => zmm_h, zmv => zmv_h, m_op_T
-  use m_lapack, only: zhgv => zhgv_h, zsv => zsv_h
+  use m_lapack, only: zhgv => zhgv_h, zsv => zsv_h, zhev => zhev_h
   use m_ftox, only: ftox
   use m_cmdopt_registry, only: c0_socmatrix
   implicit none
@@ -55,11 +55,13 @@ contains
     nsite = size(ib_tableI)
   end subroutine read_ham_rs
 
-  subroutine calc_ham_eigen(isp, q, ev, evec, ovlp_evec, dual_evec)
+  subroutine calc_ham_eigen(isp, q, ev, evec, ovlp_evec, dual_evec, ovmin)
     integer, intent(in) :: isp
     real(8), intent(in) :: q(3)
     real(8), intent(out) :: ev(:)
     complex(8), optional, intent(out) :: evec(:,:), ovlp_evec(:,:), dual_evec(:,:)
+    real(8), optional, intent(out) :: ovmin   ! smallest eigenvalue of the MLO overlap matrix at q: how far the MLOs are
+                                              ! from linear dependence (2026-10-01 21:0x, the check of a model broken at a few k)
     complex(8), allocatable :: ovlm(:,:,:,:)
     complex(8), allocatable, target :: hamm(:,:,:,:)
     complex(8), allocatable :: ovlm_buf(:,:)
@@ -109,6 +111,18 @@ contains
       enddo
     enddo FourierTransform
 
+    if(present(ovmin)) then
+      OverlapMin: block
+        complex(8), allocatable :: obuf(:)
+        real(8), allocatable :: oev(:)
+        integer :: nn
+        nn = nspinor*ndimMTO
+        allocate(obuf(nn*nn), oev(nn))
+        obuf = reshape(ovlm, [nn*nn])
+        istat = zhev(obuf, n=nn, evl=oev)
+        ovmin = minval(oev)
+      endblock OverlapMin
+    endif
     if(socmatrix) then !nspinor == 2
       hamm(:,1,:,1) = hamm(:,1,:,1) + hammhso(:,:,1)
       hamm(:,2,:,2) = hamm(:,2,:,2) + hammhso(:,:,2)

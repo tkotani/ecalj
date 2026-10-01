@@ -38,6 +38,7 @@ def cal_mlo(args, extra_args):
     merge_files(pattern="PROCAR.DN.*", output_file="PROCAR.DN", remove_sources=True)
     run_cmd(cluster, MPIParams(nprocs=mpi_size, command=EXEC_DIR/"mlo",
                                args=[target, *extra_args]), stdout="lmlo")
+    run_bandcheck()
     if not args.nognuplot:
         for fname in ['bandplot_MLO.isp1.glt', 'bandplot_MLO.isp2.glt']:
             if Path(fname).exists():
@@ -45,6 +46,18 @@ def cal_mlo(args, extra_args):
                     run_gnuplot("-persist", fname, check=True)
                 except FileNotFoundError:
                     print("Skip gnuplot")
+
+
+def run_bandcheck():
+    """Check of the MLO model against the DFT bands of the directory (mlo_bandcheck.py; 2026-10-01 21:1x): the error,
+    and FAIL for a broken model (a deviation above 0.1 eV, a jump along a line, MLOs near linear dependence).
+    Skipped without DFT bands (bnd*: job_band, or step 1b of job_mlo_soc). Never stops the job."""
+    import glob, subprocess, sys
+    if not glob.glob('bnd0*.spin1'):
+        print("mlo_bandcheck: no DFT bands (bnd*) here; run job_band to check the model")
+        return
+    out = subprocess.run([sys.executable, str(EXEC_DIR / 'mlo_bandcheck.py'), '.'], capture_output=True, text=True)
+    print(out.stdout.rstrip() or out.stderr.rstrip())
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(

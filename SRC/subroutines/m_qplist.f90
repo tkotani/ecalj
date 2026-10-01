@@ -428,12 +428,19 @@ module m_readqplist
   use m_cmdopt_registry,only: efermi_file !efermi.lmf, or the file given by --efermi=<file>
   integer,protected:: ndat
   real(8),allocatable,protected:: xdat(:),qplistsy(:,:)
-  real(8),protected:: eferm !<-- temporary use. just as a memo.
+  !> Fermi level of the MLO window and of the occupation count: E_F of efermi_file() (efermi.lmf, or the file of
+  !  --efermi=, e.g. efermi_soc of job_mlo_soc). Bug fixed 2026-10-01 21:1x: it was the first line of qplist.dat, i.e. the
+  !  E_F of whatever band run wrote qplist.dat last; the SOC MLO of job_mlo_soc took the E_F of an earlier job_band without
+  !  SOC (GaAsSoc: 0.0082 Ry below the SOC E_F), and only the offset ecbot - E_F from efermi_soc. Falls back to
+  !  qplist.dat when efermi_file() is absent.
+  real(8),protected:: eferm
+  !> Zero of the band files of the band run that wrote qplist.dat (its first line: E_F of that run, or estaticav):
+  !  the 'ef=' of bandplot_MLO.isp*.glt, so that the MLO bands share the zero of the DFT bnd* files.
+  real(8),protected:: eplot
   !> Global conduction-band edge, on the same zero as eferm above.
   !  Metals give the lowest state just above EF, insulators the CBM, so one
-  !  quantity covers both. Read from efermi.lmf as the OFFSET ecbot-eferm and
-  !  added to eferm here, because qplist.dat may use estaticav as its zero.
-  !  Falls back to eferm when efermi.lmf is absent.
+  !  quantity covers both. Read from efermi_file() (absolute, on the zero of eferm; until 2026-10-01 21:1x the offset
+  !  ecbot - E_F of that file was added to the E_F of qplist.dat). Falls back to eferm when the file is absent.
   real(8),protected:: ecbot
 contains
   subroutine readqplistsy()
@@ -456,6 +463,7 @@ contains
        open(newunit=ifqplistsy,file=efermi_file())
        read(ifqplistsy,*) eferm
        close(ifqplistsy)
+       eplot = eferm
        call readbandedge()
        return
     endif
@@ -465,6 +473,7 @@ contains
     if(allocated(qplistsy)) deallocate(qplistsy)
     allocate(xdat(nnn),qplistsy(1:3,nnn))
     read(ifqplistsy,*) eferm
+    eplot = eferm
     ix=0
     do
        ix=ix+1
@@ -482,6 +491,7 @@ contains
     real(8),intent(in):: eferm_in, ecbot_in
     eferm = eferm_in
     ecbot = ecbot_in
+    eplot = eferm_in
   end subroutine set_bandedge
 
   subroutine readbandedge()
@@ -512,7 +522,8 @@ contains
     read(ifi,*,err=1013,end=1013) eferm_f   ! eferm (+vmag on the same record)
     read(ifi,*,err=1013,end=1013) evtop_f   ! top of valence
     read(ifi,*,err=1013,end=1013) ecbot_f   ! bottom of conduction
-    ecbot = eferm + (ecbot_f - eferm_f)
+    eferm = eferm_f      ! E_F of efermi_file(), not that of qplist.dat (2026-10-01 21:1x)
+    ecbot = ecbot_f
 1013 close(ifi)
   end subroutine readbandedge
 end module m_readqplist
