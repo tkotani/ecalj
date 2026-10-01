@@ -1,15 +1,22 @@
-from comp import runprogs,diffnum
+from comp import runprogs,diffnum,rmfiles
+# cRPA of the MLO model (2026-10-02; until then the Wannier path, genMLWFx, git tag last-wannier):
+# DFT -> bands (job_band) -> MLO model (job_mlo) -> v, W-v and the cRPA W-v in the MLO basis (job_mloW --crpa).
+# The MLO subspace is [mlo] mlo_lm (srvo3: V t2g, 3 orbitals); U, J at R=0, omega=0 in the first rows.
 def test(args,bindir,testdir,workdir):
-        genm= bindir + f'/genMLWFx '
-        np4= f'-np {args.np} '
+        np= f'-np {args.np} '
         tall=''
-        dfile= ["Screening_W-v.h", "Screening_W-v_crpa.h"]
+        out1=["Coulomb_v.h","Screening_W-v.h","Screening_W-v_crpa.h"]
+        rmfiles(workdir,out1+['HamRsMLO'])
         runprogs([
-                 *[f"rm -rf {workdir}/{fname}" for fname in dfile],
-                 genm + " srvo3 "+ np4,
+                 f'mpirun -np 1 {bindir}/lmfa srvo3 > llmfa',
+                 f'mpirun {np} {bindir}/lmf srvo3 > llmf',
+                 f'{bindir}/job_band srvo3 {np} --NoGnuplot > ljob_band',
+                 f'{bindir}/job_mlo srvo3 {np} --NoGnuplot > ljob_mlo',
+                 f'{bindir}/job_mloW srvo3 {np} --crpa > ljob_mloW',
+                 "head -300 Coulomb_v.UP > Coulomb_v.h",
                  "head -1000 Screening_W-v.UP > Screening_W-v.h",
                  "head -1000 Screening_W-v_crpa.UP > Screening_W-v_crpa.h"
         ])
-        for outfile in dfile:   
+        for outfile in out1:
                 tall+=diffnum(testdir+'/'+outfile, workdir+'/'+outfile,tol=1e-3,comparekeys=[])
         return tall
