@@ -406,7 +406,17 @@ contains
           allocate(ixf(nd)); read(ifh) ixf
           read(ifh) f1,ef,ec
           close(ifh)
-          if(nd/=ndimMTO) call rx('m_HamPMT: HamRsMLO has a different ndimMTO; delete it to redefine the model')
+          ! The count of this run is made without ShallowLO (not run when frozen), so a semicore LO
+          ! ADDED to the EH function at the chain start (EF - 17 .. -8 eV) is missing from it: the chain's
+          ! count is the one to use. Until 2026-10-01 an LO only replaced the EH function, the counts
+          ! agreed, and a difference meant a changed mlo_lm. (Bug fixed 2026-10-01 19:4x:
+          ! Samples/MLOQSGW/GaAs stopped here once Ga 3d was added, 23 in HamRsMLO against 18.)
+          if(nd/=ndimMTO) then
+            if(lso==1 .or. nd>ldim) call rx('m_HamPMT: HamRsMLO has a different ndimMTO; delete it to redefine the model')
+            if(master_mpi) write(stdo,ftox)' m_HamPMT: frozen model of HamRsMLO,',nd,'MLOs (',ndimMTO, &
+                 'by mlo_lm without the added LOs; a changed mlo_lm is not taken until HamRsMLO is deleted)'
+            ndimMTO = nd
+          endif
           ix(1:nd) = ixf                  !the index of the chain, whatever ShallowLO would say now
           ib_tableM(1:nd) = ib_table(ixf)
           k_tableM(1:nd)  = k_table(ixf)
