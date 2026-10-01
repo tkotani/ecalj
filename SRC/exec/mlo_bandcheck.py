@@ -14,16 +14,23 @@ alone misjudges metals whose bands jump over E_F between two k points.
 
 Insulator: VBM_D = max{E_D <= s}, CBM_D = min{E_D > s} over both spins along the path, s = gap_mesh/2 (a coarse mesh can
 miss the VBM of the path); the MLO edges are taken on either side of the DFT mid-gap of the path.  gapD, gapM, dVBM = VBM_M - VBM_D, dCBM = CBM_M - CBM_D.
-Accuracy, with the nearest band at the same k (|dx| < 0.01):
-  rms_m2d, max_m2d : each MLO point in [VBM_D - 8, CBM_D + 3] eV -> nearest DFT band   (a wrong band shows up here)
-  rms_d2m, max_d2m : each DFT point in [VBM_D - 8, CBM_D + 1] eV -> nearest MLO band   (a missing band shows up here)
+Accuracy, with the nearest band at the same k (|dx| < 0.01), in the window [VBM_D - 8, CBM_D + mlo_delta] eV:
+  rms_m2d, max_m2d : each MLO point in the window -> nearest DFT band   (a wrong band shows up here)
+  rms_d2m, max_d2m : each DFT point in the window -> nearest MLO band   (a missing band shows up here)
 Metals: the same with VBM_D = CBM_D = E_F = 0.
+mlo_delta is that of [mlo] in ctrlg.*.toml of the directory (2 eV when absent, the default of m_GWinput): it is how far
+above the band edge the model is asked to be right, so the model is judged in that same window. Until 2026-10-01 16:4x
+the upper edge was CBM + 3 (MLO -> DFT) and CBM + 1 (DFT -> MLO), whatever mlo_delta was.
 
 2026-10-01: rewritten for any directory (the test of Samples/MATERIALS, MD/research_log.md 2026-10-01).
 The earlier version (v6.2, effective-mass ratios, fixed to Samples/MLOsamples/*__m3_work) is in the git history.
 """
 import argparse, glob, json, os, re, sys
 import numpy as np
+try:
+    import tomllib
+except ImportError:
+    tomllib = None
 
 RY = 13.6057
 
@@ -34,6 +41,15 @@ def read_ef(d):
         m = re.search(r'ef=\s*([-+0-9.eEdD]+)', open(p).read())
         if m: return float(m.group(1).replace('D', 'E'))
     return float(open(os.path.join(d, 'qplist.dat')).readline().split()[0])
+
+
+def read_delta(d):
+    """mlo_delta (eV) of the ctrlg of the directory; 2.0 (the default of m_GWinput) when absent"""
+    for f in glob.glob(os.path.join(d, 'ctrlg.*.toml')):
+        if tomllib is None: break
+        try: return float(tomllib.load(open(f, 'rb')).get('mlo', {}).get('mlo_delta', 2.0))
+        except Exception: pass
+    return 2.0
 
 
 def load(files, conv, bnd=False):
@@ -91,15 +107,16 @@ def check(d):
         top = cbD
     else:
         vbD, top = 0.0, 0.0
-    r.update(VBM=float(vbD), CBM=float(top))   # the windows below are [VBM - 8, CBM + 3] and [VBM - 8, CBM + 1] (2026-10-01)
-    m2d = nearest(M, D, vbD - 8, top + 3); d2m = nearest(D, M, vbD - 8, top + 1)
+    delta = read_delta(d)
+    r.update(VBM=float(vbD), CBM=float(top), emin=float(vbD - 8), emax=float(top + delta), mlo_delta=delta)
+    m2d = nearest(M, D, vbD - 8, top + delta); d2m = nearest(D, M, vbD - 8, top + delta)
     for k, a in (('m2d', m2d), ('d2m', d2m)):
         r['rms_' + k] = float(np.sqrt((a ** 2).mean())) if a.size else float('nan')
         r['max_' + k] = float(a.max()) if a.size else float('nan')
     return r
 
 
-KEYS = ['insulator', 'gap_mesh', 'gapD', 'gapM', 'dVBM', 'dCBM', 'VBM', 'CBM', 'rms_m2d', 'max_m2d', 'rms_d2m', 'max_d2m', 'nspin']
+KEYS = ['insulator', 'gap_mesh', 'gapD', 'gapM', 'dVBM', 'dCBM', 'VBM', 'CBM', 'emin', 'emax', 'rms_m2d', 'max_m2d', 'rms_d2m', 'max_d2m', 'nspin']
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
