@@ -125,10 +125,12 @@ contains
     call tcx('m_mksym_init')
   end subroutine m_mksym_init
   subroutine mksym(modeAddinversion,slabl,ssymgr,iv_a_oips, iclass,nclass,npgrp,nsgrp,rv_a_oag,rv_a_osymgr,iv_a_oics,iv_a_oistab,faithful)! Setup symmetry group. Split species into classes, Also assign class labels to each class
-    use m_lmfinit,only: nbas,nspec
+    use m_lmfinit,only: nbas,nspec,alat=>lat_alat,symgaf
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat,rv_a_opos
-    use m_symfind,only: gensym,ngmx,ngnmx
+    use m_symfind,only: gensym,symfind_json,ngmx,ngnmx
+    use m_ext,only: sname
     use m_symderive,only: grpgen,splcls,symtbl
+    use m_symop_util,only: asymop
     use m_lgunit,only: stdo
     use m_ftox
     use m_mpi,only: master_mpi
@@ -158,7 +160,12 @@ contains
     integer,allocatable ::  iv_a_onrc (:), iv_a_oipc(:) 
     logical:: symfind
     logical,optional,intent(in):: faithful
-    logical:: lfaithful
+    logical:: lfaithful,usejson
+    character(600):: fjson
+    character(200):: why
+    character(16):: envv
+    character(80):: sg
+    integer:: ib
     lfaithful = .false.
     if(present(faithful)) lfaithful = faithful
     ifind = index(ssymgr,'find')
@@ -167,8 +174,46 @@ contains
     if(ifind>0) gens= ssymgr(1:ifind-1)//' '//ssymgr(ifind+4:)
     if(master_mpi) write(stdo,*)' Generators except find: ',trim(gens)
     if(master_mpi) write(stdo,*)' Generators find or not: ',symfind
-    call gensym(slabl,gens,symfind,nbas,nspec,ngmx,plat,plat,rv_a_opos(:,1:nbas),iv_a_oips, & !Generate space group ops
-         nsgrp, rv_a_osymgr,rv_a_oag, ngen,gen,ssymgr, nggen,isym,iv_a_oistab,lfaithful)
+    ! Backend of the finder (2026-10-02 05:35, step S3 of MD/symmetry_spglib.md): the operations of symmetry.<sname>.json
+    ! (symfind.py, spglib) when the file is there, SYMGRP is 'find' (the default) and this is the group of the crystal (not the
+    ! lattice+AF group, faithful=.false.); otherwise, or when the file cannot be used yet (pure translations, AF), gensym.
+    ! Not with SYMGRPAF yet (step S5): gensym returns its generators in ssymgr, and the AF call of m_mksym_init builds the
+    ! lattice+AF group from them; with 'find' left there it would take another path.
+    ! ECALJ_SYMFIND=ecalj in the environment forces gensym (for comparisons).
+    usejson = .false.
+    if(lfaithful .and. trim(adjustl(ssymgr))=='find' .and. len_trim(symgaf)==0) then
+       fjson = 'symmetry.'//trim(sname)//'.json'
+       inquire(file=trim(fjson),exist=usejson)
+       envv = ' '
+       call get_environment_variable('ECALJ_SYMFIND',envv)
+       if(trim(envv)=='ecalj') usejson=.false.
+    endif
+    if(usejson) then
+       call symfind_json(fjson,nbas,[(slabl(iv_a_oips(ib)),ib=1,nbas)],rv_a_opos(:,1:nbas),plat,qlat,alat, &
+            nsgrp,rv_a_osymgr,rv_a_oag,usejson,why)
+       if(master_mpi.and..not.usejson) write(stdo,"(a)")' mksym: '//trim(fjson)//' not used: '//trim(why)//'; gensym'
+    endif
+    if(usejson) then
+       ngen  = 0
+       nggen = nsgrp
+       call symtbl(0,nbas,rv_a_opos,rv_a_osymgr,rv_a_oag,nsgrp,qlat,iv_a_oistab) !site ib goes to istab(ib,ig), as gensym returns it
+       if(master_mpi) then
+          write(stdo,"(a,i0,a)")' mksym: space group from '//trim(fjson)//' (spglib), ',nsgrp,' operations'
+          write(stdo,"(' symfind_json: ig group ops (:vector means translation in cartesian)')")
+          do ig = 1, nsgrp
+             call asymop(rv_a_osymgr(:,:,ig),rv_a_oag(1,ig),':',sg)
+             write(stdo,'(i5,2x,a)') ig,trim(sg)
+          enddo
+          write(stdo,"(a)")' symfind_json: site permutation table for group operations ...'
+          write(stdo,"('  ib/ig:',48i3)")  [(ig,ig=1,nsgrp)]
+          do ib = 1, nbas
+             write(stdo,"(i7,':',48i3)") ib,(iv_a_oistab(ib+nbas*(ig-1)), ig=1,nsgrp)
+          enddo
+       endif
+    else
+       call gensym(slabl,gens,symfind,nbas,nspec,ngmx,plat,plat,rv_a_opos(:,1:nbas),iv_a_oips, & !Generate space group ops
+            nsgrp, rv_a_osymgr,rv_a_oag, ngen,gen,ssymgr, nggen,isym,iv_a_oistab,lfaithful)
+    endif
     if(nggen>ngmx) call rx('mksym: nggen>ngmx')
     incli = -1
     npgrp = nsgrp

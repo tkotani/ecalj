@@ -1,17 +1,21 @@
 #!/usr/bin/env python3
 """symfind.py: the space group of ctrlg.<sname>.toml by spglib, written to symmetry.json (step S0 of MD/symmetry_spglib.md).
 
-    symfind.py <sname> [--symprec 1e-5] [--out symmetry.json] [--check [llmchk]]
+    symfind.py <sname> [--symprec 1e-5] [--out symmetry.<sname>.json] [--check [llmchk]]
 
-symmetry.json holds the operations in the standard notation of spglib: x' = R x + t with R an integer matrix and t a translation,
+symmetry.<sname>.json holds the operations in the standard notation of spglib: x' = R x + t with R an integer matrix and t a translation,
 both in the fractional coordinates of plat (the columns of plat are the lattice vectors), together with the space group number,
 its international symbol and Hall number, and the structure the operations belong to (a normalized string and its SHA-256), so
-that a reader can tell whether symmetry.json still matches the ctrlg. Units are named in the file; alat is not used.
+that a reader can tell whether the file still matches the ctrlg. The structure is also written as numbers ('structure'):
+Fortran (m_symfind) compares them with the ctrlg it reads and stops when they differ (2026-10-02 05:33: comparing the
+normalized string would need the same formatting and rounding in Fortran). Units are named in the file.
+The file name carries <sname>: one directory can hold two ctrlg (Samples/LDAU/ReN).
 The atoms are told apart by the species name of [[site]] atom (so spin-split species such as Niup/Nidn are different).
 
 --check compares with the operations ecalj found (lmchk; the first 'gensym: ig group ops' table of its output, i.e. the
 group without the AF operations): the number of operations and whether each ecalj operation is one of spglib's (mod lattice).
-Without a file name it runs lmchk itself. Fortran is not changed in S0; ecalj does not read symmetry.json yet. (2026-10-02)
+Without a file name it runs lmchk itself. (2026-10-02)
+The file is written to a temporary name and renamed, so that ranks starting at once (a test wrapper) do not read half a file.
 """
 import argparse, hashlib, json, os, re, subprocess, sys, tomllib, datetime
 import numpy as np
@@ -111,12 +115,18 @@ def main():
     p = argparse.ArgumentParser(prog='symfind.py', description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument('sname')
     p.add_argument('--symprec', type=float, default=1e-5, help='spglib tolerance in angstrom (default 1e-5)')
-    p.add_argument('--out', default='symmetry.json')
+    p.add_argument('--out', default=None, help='default symmetry.<sname>.json')
     p.add_argument('--check', nargs='?', const='', default=None, help='compare with the lmchk output (a file, or run lmchk)')
     a = p.parse_args()
+    if a.out is None:
+        a.out = f'symmetry.{a.sname}.json'
     alat, plat, names, frac = read_ctrlg(a.sname)
     spg, get = spglib_dataset(alat, plat, names, frac, a.symprec)
     R, T = np.array(get('rotations')), np.array(get('translations'))
+    T = np.where(np.abs(T - np.rint(T)) < 1e-10, np.rint(T), T) % 1.0      # translations in [0,1)
+    i0 = next(i for i, (r, tt) in enumerate(zip(R, T)) if (r == np.eye(3, dtype=int)).all() and np.abs(tt).max() < 1e-10)
+    order = [i0] + [i for i in range(len(R)) if i != i0]                    # the identity first (ecalj assumes it)
+    R, T = R[order], T[order]
     key = structure_key(alat, plat, names, frac, a.symprec)
     npure = int(sum(1 for r in R if (r == np.eye(3, dtype=int)).all()))
     out = {
@@ -124,6 +134,9 @@ def main():
         'made_by': f'symfind.py (spglib {spg.__version__})', 'date': datetime.datetime.now().isoformat(timespec='minutes'),
         'ctrlg': f'ctrlg.{a.sname}.toml',
         'structure_key': key, 'structure_sha256': hashlib.sha256(key.encode()).hexdigest(),
+        'structure': {'alat_bohr': alat, 'plat_alat': plat.T.tolist(), 'plat_unit': 'rows = lattice vectors in alat (as [struc] plat)',
+                      'species': names, 'frac': [[float(x) for x in p] for p in frac],
+                      'frac_unit': 'fractional coordinates of plat (not reduced mod 1)'},
         'symprec': a.symprec, 'symprec_unit': 'angstrom',
         'spacegroup': {'number': int(get('number')), 'international': str(get('international')), 'hall_number': int(get('hall_number'))},
         'n_operations': int(len(R)), 'n_pure_translations': npure,
@@ -132,7 +145,9 @@ def main():
         'operations': [{'rotation': r.tolist(), 'translation': [round(float(x), 10) for x in t], 'time_reversal': False} for r, t in zip(R, T)],
         'equivalent_atoms': [int(x) for x in get('equivalent_atoms')],
     }
-    json.dump(out, open(a.out, 'w'), indent=1)
+    tmp = f'{a.out}.{os.getpid()}.tmp'
+    json.dump(out, open(tmp, 'w'), indent=1)
+    os.replace(tmp, a.out)
     print(f'symfind: {a.sname}: {out["spacegroup"]["international"]} ({out["spacegroup"]["number"]}), {len(R)} operations '
           f'({npure} pure translations incl. the identity), symprec {a.symprec} angstrom -> {a.out}')
     if a.check is not None:

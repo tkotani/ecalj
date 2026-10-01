@@ -8,7 +8,7 @@ module m_symfind
   use m_mpi,only: master_mpi
   use m_symop_util,only: spgcop,spgprd,spgeql,grpeql,latvec,asymop
   use m_symderive,only: symtbl,iclbsjx
-  public gensym,ngmx,ngnmx
+  public gensym,symfind_json,ngmx,ngnmx
   private
   real(8),parameter:: toll=1d-4,tiny=1d-4,epsr=1d-12
   integer,parameter:: ngnmx=10
@@ -690,4 +690,106 @@ contains
        enddo
     enddo
   end function distinctrot
+  subroutine symfind_json(fname,nbas,spid,pos,plat,qlat,alat, ng,g,ag,ok,why) !Space group from symmetry.<sname>.json (symfind.py, spglib)
+    ! (2026-10-02 05:34, step S3 of MD/symmetry_spglib.md) The file holds the operations x' = R x + t in the fractional coordinates
+    ! of plat (R integer) and the structure they belong to. The structure is compared with the one given here (the ctrlg);
+    ! a difference stops the run ("run symfind.py <sname> again"). Returns the Cartesian g = plat R plat^-1 and ag = plat t
+    ! (alat units, r' = g r + ag), the identity first. ok=.false. (with why) when the file cannot be used yet:
+    ! pure translations (step S4) or time-reversed operations (AF, step S5); the caller then uses gensym.
+    use tjson_parser, only: json_load
+    use tomlf, only: toml_table, toml_array, toml_value, toml_error, get_value, len
+    use tomlf_type, only: cast_to_table
+    implicit none
+    character(*),intent(in):: fname
+    integer,intent(in):: nbas
+    character(*),intent(in):: spid(nbas)      ! species name of each site
+    real(8),intent(in):: pos(3,nbas),plat(3,3),qlat(3,3),alat ! pos Cartesian (alat); plat(:,i) the i-th lattice vector
+    integer,intent(out):: ng
+    real(8),intent(out):: g(3,3,ngmx),ag(3,ngmx)
+    logical,intent(out):: ok
+    character(*),intent(out):: why
+    class(toml_value),allocatable,target:: obj
+    type(toml_error),allocatable:: err
+    type(toml_table),pointer:: root,st,op
+    type(toml_array),pointer:: arr,row,ops
+    character(:),allocatable:: name
+    integer:: i,j,ib,ig,nop,npure,ival,rot(3,3)
+    logical:: trev
+    real(8):: alatj,platj(3,3),fracj(3),frac(3),d(3),tr(3),pinv(3,3)
+    real(8),parameter:: tolst=1d-6
+    ok=.false.; why=' '; ng=0
+    call json_load(obj, fname, error=err)
+    if(allocated(err)) call rx('symfind_json: cannot read '//trim(fname)//': '//err%message)
+    root => cast_to_table(obj)
+    if(.not.associated(root)) call rx('symfind_json: '//trim(fname)//' is not a JSON object')
+    ! the structure the operations belong to, against the ctrlg
+    call get_value(root,'structure',st,requested=.false.)
+    if(.not.associated(st)) call rx('symfind_json: no "structure" in '//trim(fname)//'; run symfind.py again')
+    call get_value(st,'alat_bohr',alatj)
+    call get_value(st,'plat_alat',arr)
+    do i=1,3
+       call get_value(arr,i,row)
+       do j=1,3
+          call get_value(row,j,platj(j,i)) ! row i = lattice vector i
+       enddo
+    enddo
+    call get_value(st,'species',arr)
+    if(len(arr)/=nbas) call stale('the number of sites')
+    if(abs(alatj-alat)>tolst*alat .or. maxval(abs(platj-plat))>tolst) call stale('alat or plat')
+    do ib=1,nbas
+       call get_value(arr,ib,name)
+       if(trim(name)/=trim(spid(ib))) call stale('the species of a site')
+    enddo
+    call get_value(st,'frac',arr)
+    do ib=1,nbas
+       call get_value(arr,ib,row)
+       do j=1,3
+          call get_value(row,j,fracj(j))
+       enddo
+       frac = matmul(transpose(qlat),pos(:,ib))
+       d = frac-fracj
+       if(maxval(abs(d-nint(d)))>tolst) call stale('a site position')
+    enddo
+    ! the operations
+    call get_value(root,'n_pure_translations',npure)
+    if(npure>1) then
+       why='the cell has pure translations (used from step S4 on)'
+       return
+    endif
+    call get_value(root,'operations',ops)
+    nop=len(ops)
+    if(nop>ngmx) call rx('symfind_json: more operations than ngmx')
+    pinv = transpose(qlat) ! plat^-1
+    do ig=1,nop
+       call get_value(ops,ig,op)
+       call get_value(op,'time_reversal',trev)
+       if(trev) then
+          why='time-reversed (AF) operations (step S5)'
+          return
+       endif
+       call get_value(op,'rotation',arr)
+       do i=1,3
+          call get_value(arr,i,row)
+          do j=1,3
+             call get_value(row,j,ival)
+             rot(i,j)=ival
+          enddo
+       enddo
+       call get_value(op,'translation',arr)
+       do j=1,3
+          call get_value(arr,j,tr(j))
+       enddo
+       g(:,:,ig) = matmul(plat,matmul(dble(rot),pinv))
+       ag(:,ig)  = matmul(plat,tr)
+    enddo
+    if(maxval(abs(g(:,:,1)-reshape([1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0],[3,3])))>1d-10 .or. maxval(abs(ag(:,1)))>1d-10) &
+         call rx('symfind_json: the first operation of '//trim(fname)//' is not the identity')
+    ng=nop
+    ok=.true.
+  contains
+    subroutine stale(what)
+      character(*),intent(in):: what
+      call rx('symfind_json: '//trim(fname)//' does not match the ctrlg ('//what//'). Run symfind.py <sname> again')
+    end subroutine stale
+  end subroutine symfind_json
 end module m_symfind

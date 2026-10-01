@@ -170,6 +170,31 @@ Samples の 172 入力: **166 で ecalj と spglib の操作が集合として�
 | `m_symfind` | `gensym`、`sgroup`、`psymop`、`parsop`、`parsvc`、`skipbl`、`symlat`、`csymop`、`symcry`、`puretrans`、`distinctrot` | 見つける（ecalj の backend）。`faithful` は module 変数をやめて `gensym` の引数に |
 | `m_mksym` | `mksym`（private に移した）、`m_mksym_init` | 窓口 |
 
+### 4.7c S2 の判断（2026-10-02 05:31）
+
+`mptauof` を呼ぶ所は 4 つ: `m_mksym_init`（群全体と AF の操作）、`m_hamindex0_init`、GW 側の `m_zmel` の `mptauof_zmel`、`main_hwmatK`。
+`m_hamindex0_init` は `m_mksym_init` と同じ引数（操作 1:ngrp、同じ位置とクラス）で作り直していたので、`m_mksym` の `miat`・`tiat`・`invgx`・`shtvg` の写しに替えた。
+GW 側の二つは `__HAMindex0` から読んだ操作のうち、呼ぶ側が決めた一部（`hgw` の W の段は単位元だけ、`ng=1`）で呼ぶので、そのまま残す。
+どれも同じ `mptauof`（`m_symderive`）を通るので、S4 で同じ回転の操作が重なっても、直すのは `mptauof` の一か所で済む。
+
+### 4.7d S3 の形（2026-10-02 05:39。§4.3・§4.4 の案から変えた所も）
+
+- ファイル名は **`symmetry.<sname>.json`**（§4.3 の `symmetry.json` から変えた）。一つのディレクトリに ctrlg が二つあることがある（`Samples/LDAU/ReN`）。
+  ファイル名に ID を残す決まり（`MD/ecaljclaude.md`「ファイル命名規約」）にも合う
+- 構造の照らし方: JSON に構造を数値で入れ（`structure`: `alat_bohr`、`plat_alat`、`species`、`frac`）、Fortran（`m_symfind` の `symfind_json`）は
+  今の ctrlg と数値で比べる（alat・plat は相対 1e-6、分数座標は 1 を法に 1e-6、種の名前は一致）。§4.3 の「正規化した文字列を比べる」は、Fortran で
+  Python と同じ書式・丸め（`%.10f` と `f0.10` の先頭の 0 など）を作るのが脆いのでやめた。文字列とその SHA-256 は人と Python のために残す
+- JSON の読み手は toml-f の試験用の `json_lexer.f90`・`json_parser.f90` を `SRC/subroutines/tjson_*.f90` に写したもの（`json_load` で toml-f の表になり、
+  ctrlg と同じ `get_value` で読める。`SRC/external/toml-f/VENDORED_FROM.txt`）。lmfa の初期条件などの JSON にも使える
+- 使う条件（`m_mksym` の `mksym`）: ファイルがある、`symgrp` が既定の `find`、結晶の群（AF の二回目の呼び出しではない）、`SYMGRPAF` が無い。
+  使えないとき（純粋な並進がある → S4、時間反転の操作 → S5）は理由を印字して gensym。環境変数 `ECALJ_SYMFIND=ecalj` で gensym に固定（比べるため）
+- `SYMGRPAF` の入力で使わない理由: gensym は見つけた生成元を `ssymgr` に書いて返し、`m_mksym_init` の AF の呼び出しはそれと AF の操作から群を作る。
+  json のときは `find` が残り、AF の群を別の道（`find` と AF の操作）で探すことになって並びが変わる（NiO で確かめた）。S5 で AF ごと spglib にする
+- 操作の並びは spglib の順（恒等を先頭に置き直す）。gensym とは並びが違うだけで集合は同じ（Fe・NiO の lmchk で確かめた）。並びに依る出力（既約な k の代表など）は
+  変わりうるので、S3 の確かめは試験の組（数値の比べ）で行う
+- 古い JSON（ctrlg の位置を 0.001 動かした）は「does not match the ctrlg (a site position). Run symfind.py <sname> again」で止まる。
+  超格子の Si8（192 操作、純粋な並進 4）は「not used: the cell has pure translations」で gensym に戻る
+
 ### 4.8 決めたこと（user 2026-10-02）
 
 1. 口は別ファイル `symmetry.json`（ctrlg に書かない）。ctrlg のハッシュを入れて整合性を保つ
