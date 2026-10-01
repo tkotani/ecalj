@@ -88,6 +88,20 @@ user の指示（05:5x）: 「この方針で進めて。TODO も判断がつく
 MATERIALS 以下を MLO で（spd ベース、f があるときに入れる）すべてモデル化。DFT レベルでよい。目視で確認できる図、バンドギャップの違い。
 AFsymmetry のモード（AFTEST）が動くのか、そもそも正しいのかも調べて」。push はしない。
 
+### 17:58 誤差を見る窓を [VBM − 8, CBM + mlo_delta] の一つにした（user「窓は delta に対応して 2 eV がいいのでは」、17:5x）
+
+`mlo_delta` は「バンド端（絶縁体は CBM、金属は E_F）からどこまで上を合わせたいか」（`m_GWinput.f90` のコメント: 評価も同じ窓で）。それまでの
+`mlo_bandcheck.py` は上端が MLO → DFT で CBM + 3、DFT → MLO で CBM + 1 と、この定義と合っていなかった。17:54 に両方 [VBM − 8, CBM + mlo_delta]
+（ctrlg から読む、無ければ 2 eV）にした（bd1b893ec）。ページ version 10・11、図の斜線は 1 種類に。
+- 判定の数（good/fair/marginal/poor）: 1. 基準 50/10/1/4 → **53/7/1/4**（GaSb 0.023 → 0.012、HfO₂ 0.028 → 0.003、InSb 0.034 → 0.018 が good に）。
+  2. 陽イオン EH2 58/3/0/3 → 59/2/0/3（**Li 0.031 → 0.008**: EH2 で悪くなったのは CBM + 2〜3 eV の所だった）。一番良いもの 63/2/0/0 は同じ。
+  旧既定 41/10/4/10 → 44/7/5/9。ほかの物質の変化は中央値 −0.001 eV
+- `Samples/MATERIALS/MLOcheck_20261001*.tsv` と ecaljdoc mlo.md の表 M1 は前の窓のまま（それぞれに注記した）
+- 時刻を 16:4x と推測で書いてしまい、17:54 に直した（`date` で確かめずに書いた）
+- 同じ時間に user と確認したこと: `mlo_lm2` は EH2 を模型の**シード**として足すだけ（DFT の基底は変わらない、MLO が 1 原子 4 本増える）。
+  決めた既定（遷移金属・4f・5f 以外に s,p）では Cu・Ni に EH2 は入らない。陽イオン EH2 で Cu・Ni が壊れるのは Γ–X の 2〜3 点の k だけ
+  （その k で MLO の帯が E_F + 0.3 eV に集まり、DFT の帯が抜ける。原因は未確認、EH と EH2 の一次従属を疑う）
+
 ### 16:14 結果のページを v3 に（user の指示 15:5x〜16:0x）
 
 https://claude.ai/artifact/VCWpe5W8Fei6umatXGeZGH（version 8、生成は `Samples/MATERIALS/mlocheck/gallery.py` v3、コミット 613c2f0ec）。user の指示: 旧既定は見え消し、
