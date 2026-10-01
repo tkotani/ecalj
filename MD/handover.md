@@ -75,6 +75,9 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
   組ごとの試験は `TOOLS/samples_tests.sh [--gpu] [-np N] [-np2 M] <組>`（組: inputs install gwall eps procar mlo mloqsgw afsym samples bench heavy magnon）（feedback_test_cleanup、project_samples_sweep）
 - **HPC-X の OpenMPI では、プログラムを `mpirun -np 1` なしで起動すると `MPI_Init` で止まる**。スクリプトから 1 プロセスで呼ぶときも `mpirun -np 1` を付ける（2026-09-30、`run_arg`・`hx0ahc.py`）
 
+- **試験の最中に手元で `libecaljF.so` を作り直さない**（2026-10-02）: 走っている試験の次のプログラムが作り直し中のライブラリを読み、`heftet` が空の出力で止まった（`fe_kbt`）。試験が終わるのを待つか、別のビルド場所で
+- **`sync_ecalj_src.sh`** は送り先の `SRC/subroutines`・`main`・`exec` にある HEAD に無いファイルを `trash/` へ移す（2026-10-02 から）。古い `.f90` が残ると CMake の GLOB が拾う。送り先の `bin` に残る古いプログラム（外したもの）は自動では消えない
+
 ## 4. コンパイラと実行時の落とし穴
 
 - **Fortran の `.and.` は短絡しない**: `if (present(x) .and. x)` は x が無いときも x を読んで落ちる。入れ子にする（past_log.md §3.2）
@@ -125,6 +128,9 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
     `qplist.dat` の値は図の 0 点だけ
   - **模型の検査**: `mlo_bandcheck.py`（`job_mlo`・`job_mlo_soc` が最後に回す）が CHECK PASS/FAIL を出す。FAIL は 1 点のずれ > 0.1 eV、帯ごとのずれの隣の k との跳び > 0.1 eV、
     MLO の重なりの最小固有値（`mlo` が書く `MLO_ovlpmin.dat`）が 0 以下か中央値の 1/100 未満（線形独立性の崩れ。基準 2 の Cu・Ni はそこで負になった）
+
+- **MLO は実空間で規格化する**（2026-10-02、ecaljdoc mlo 式 (7a)）: 各 MLO を実空間の 2 乗積分 O_ii(R=0) の平方根で割る（k によらない定数）。`mlo` が `HamRsMLO` を作るときに決めて末尾に書き、以後の `Hreduction`（`__cmlo`、sugw、`m_sigmlo`）は同じ値で割る。k ごとに割る（旧 `--mlo_diagnorm`）と内挿バンドが動き、直交化すると軌道が隣で振動して伸びる。どちらも使わない。古い `HamRsMLO` は読めないので `job_mlo` を回し直す
+- **Wannier 関数・AHC・lmfham2 は外した**（2026-10-02）: git のタグ `last-wannier`（`f1de3817a`）に残る。cRPA は `job_mloW --crpa`、広がりは `mlo_spread.py`、マグノンは `job_mlo_magnon`。MLO と Wannier の違いは `MD/wannier_vs_mlo.md`
 
 ## 6. 道具の癖
 

@@ -84,6 +84,18 @@
 
 ## 2026-10-02 — MLO を実空間で規格化、実験用の MLO オプションを廃止（Wannier を外す作業の続き）
 
+### 02:10 Wannier・AHC・lmfham2 を外した（`6d8b9f05b`〜`c2423efd5`）。3 台で全部の試験の組が PASS
+
+- 外したものと置き換えは `Changes.txt` 2026-10-02 (1)、`MD/past_log.md` 表 1、`MD/wannier_vs_mlo.md`。タグ `last-wannier` = `f1de3817a`
+- 試験（`c2423efd5`）: kt1（nvfortran GPU、01:01〜01:28）と kr7（nvfortran GPU、01:01〜01:28）は inputs・install 66・eps 18・procar 5・mlo 45・mloqsgw 5・
+  afsym 4・affix 12・samples の 13 組・magnon 2 がすべて PASS。t14（gfortran、`6d8b9f05b`、00:49〜02:03）も同じ。ただし t14 の install は 57 件の所で止まった:
+  00:57:30 に私が手元で `libecaljF.so` を作り直し（`m_pkm4crpa` のコメント）、走っていた `fe_kbt` の `heftet` が空の出力で終わった。残りの 3 つ
+  （fe_kbt、ni_crpa、srvo3_crpa）を 02:0x に回し直して PASS（計 66）。試験中に手元でライブラリを作り直さない（`MD/handover.md` §3）
+- nvfortran 26.1 の fort1 が `m_pkm4crpa.f90` で signal 11 を 4 回（kt1 の `ecaljF`・`_mp`・`_mp_gpu`、kr7 の `_gpu`）。単独のコンパイルでは通る。
+  `implicit none` の行の後ろに付けた 132 桁ちょうどのコメントを別の行に分けたら（`c2423efd5`）両方で通った。原因かどうかは決めていない
+- kt1・kr7 には、外した 30 本の `.f90` が残って CMake の GLOB が拾っていた → 手で `trash/` に移し、`sync_ecalj_src.sh` が送り先の HEAD に無い
+  ソースを `trash/` に移すようにした（`46b2886d9`）。送り先の `bin` に残った `hmaxloc` などは `~/bin_stale_20261002/` へ
+
 ### 00:32 MLO と Wannier の比較を記録（cRPA、広がり、マグノン）。user「朝までにパッケージを仕上げる。MLO ですべて、広がりも。Wannier 比較は残す（最後のコミットに戻れば再現できるように）。マグノンもチェック」
 
 - 広がり: `SRC/exec/mlo_spread.py`（新）。`BBVEC`（b ベクトルを近い殻から足し Σ w_b b b^T = 1、b = 0 は重み 0）を書き、`huumat --dwnb=mlo --job=2` で
