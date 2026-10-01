@@ -252,13 +252,21 @@ mlo_nkabc  = [6, 6, 2]  # k mesh the MLO Hamiltonian is built on (lmf --writeham
 #   <iatom> <label> <lm1> <lm2> ...   (a row starting with ! is ignored)
 # lm: 1=s; 2,3,4=py,pz,px; 5..9=dxy,dyz,dz2,dxz,dx2-y2; 10..16=f  (real harmonics,
 #     the PROCAR order). A partial shell is fine, e.g. 5 6 8 for t2g only.
-# Default below: s,p (1..4) up to Ne, s,p,d (1..9) from Na on.  A d on oxygen
-#   is a polarization function, not a valence orbital, and an MLO built on it
-#   only adds a near-null direction.  f (10..16) is never listed by default:
-#   this targets systems without 4f (up to Xe).
-# At most ONE MLO per (atom, lm): do not add the second radial set (mlo_lm2) for
-#   an lm already listed here -- the projection collapses the two onto the same
-#   function and the MLO overlap turns near-singular.
+# Default below: s,p (1..4) up to Ne, s,p,d (1..9) from Na on, and f (10..16) for
+#   an atom whose 4f is a valence shell (La..Lu, and Hf.. when the basis has 4f).
+#   A d on oxygen is a polarization function, not a valence orbital.
+# mlo_lm2: the same for the SECOND radial set (EH2), as extra seeds of the model
+#   (baseline 2, ecaljdoc mlo section 9). Not used by default: the rows below start
+#   with ! and are skipped. Remove the ! when baseline 1 is not good enough; it helps
+#   where the conduction band spreads into the voids (zinc blende MgTe: 0.29 -> 0.006 eV).
+#   Rows are written for the cations (not N O F P S Cl As Se Br Sb Te I) that are not
+#   transition metals Sc-Cu, Y-Ag, La-Au or 5f atoms: there EH2 breaks the model
+#   (Cu, Ni) or stops it (EuO). Zn, Cd, Hg keep the row (ZnTe 0.038 -> 0.004 eV).
+# Local orbitals (pz) below the valence shell are taken automatically, by the top
+#   of their band: above EF - 8 eV the LO replaces the EH function of that l (Ni 3d,
+#   Zn 3d), EF - 17 .. -8 eV it is added to it (Ga 3d of GaN, La 5p), deeper it is left
+#   out. lmlo prints the decision. To take an LO as written regardless of the rule,
+#   list its lm in mlo_lm3 (same syntax; that atom then takes mlo_lm3 as written).
 mlo_lm = """
 1 Si   1 2 3 4 5 6 7 8 9
 2 Si   1 2 3 4 5 6 7 8 9
@@ -268,6 +276,17 @@ mlo_lm = """
 6 Si   1 2 3 4 5 6 7 8 9
 7 C   1 2 3 4
 8 C   1 2 3 4
+"""
+# ----------------------------------------------------------------
+mlo_lm2 = """
+! 1 Si   1 2 3 4
+! 2 Si   1 2 3 4
+! 3 C   1 2 3 4
+! 4 C   1 2 3 4
+! 5 Si   1 2 3 4
+! 6 Si   1 2 3 4
+! 7 C   1 2 3 4
+! 8 C   1 2 3 4
 """
 
 # === BLOCKS: raw multi-line blocks with no better home (QPNT, QforEPSL, hrotr) ===

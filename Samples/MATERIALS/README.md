@@ -132,11 +132,12 @@ mlo_bandplot.py . -o mlo_GaAs.png     # DFT（灰）と MLO（赤）の図
 ```
 
 注意:
-- ここの ctrlg の `[mlo]` は 2026-10-01 19:3x より前の `gwinit` が書いたもの（H〜Ne は s,p、Na 以降は s,p,d、`mlo_lm2` の行なし、コメントも古い）。
-  4f が価電子の原子（Ce、Eu の化合物、HfO₂ の Hf）は f（10〜16）を手で足すか、今の `gwinit` で `[mlo]` を書き直す。
-  2026-10-01 の計算では `mlocheck/prep.py` が全物質の `[mlo]` を f 入りの形に書き直し、`rdsig = 0`（DFT のみ）にした
-- 基準 2 は `mlo_lm2` に陽イオン（遷移金属・4f・5f を除く。Zn・Cd・Hg は含む）の s,p の行（`<番号> <原子>   1 2 3 4`）を書く。
-  今の `gwinit` はこの行を `!` 付きで書くので `!` を外すだけ。ここの古い ctrlg には行が無いので手で書く
+- ここの ctrlg の `[mlo]` は 2026-10-01 に今の `gwinit` で書き直した（`mlocheck/regen_mlo.py`: `ctrlgenToml.py --addgw` で作った `[mlo]` だけを入れ替え、
+  ほかの節は元のまま）。4f が価電子の原子（Ce、Eu の化合物、HfO₂ の Hf、LaGaO₃ の La）には f（10〜16）が入り、`mlo_lm2` には陽イオン
+  （遷移金属・4f・5f を除く。Zn・Cd・Hg は含む）の s,p の行が `!` 付きで入る。`mlo_method`・`mlo_delta`・`mlo_w`・`mlo_nkabc` は変わっていない
+  （BaTiO₃ は全行が `!` だった `[mlo]` に既定のキーが入った）。La₂CuO₄・InAs/GaSb には `[mlo]` が無い。
+  2026-10-01 の計算は、この書き直しの前に `mlocheck/prep.py` が全物質の `[mlo]` を f 入りの形に書き直し、`rdsig = 0`（DFT のみ）にしたもの
+- 基準 2 は、`mlo_lm2` の行の `!` を外す（陽イオンが無い物質、遷移金属だけの物質には行が無い）。SiC の C のように陰イオンの表に無い原子にも行が入る
 - スピン軌道の物質（GaAs_so、Bi₂Te₃）は `job_mlo` でなく `job_mlo_soc`。比べる相手のスピン軌道ありの DFT のバンドも `job_mlo_soc` が描く
 
 ファイル:

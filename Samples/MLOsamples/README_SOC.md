@@ -15,8 +15,7 @@ SOC を摂動として加える方式。lmf の aughsoc を `--socmatrix` で別
      （`--efermi=efermi_soc`。`efermi.lmf` は変えない）
 
 1b. **SOC の DFT のバンド**（2026-10-01 から）— 同じフラグで `lmf --band --efermi=efermi_soc`
-   - 対称線の上のスピン軌道ありの DFT のバンドを `bnd*.spin1`・`bandplot.isp1.glt` に書く。MLO と比べる相手。
-     `qplist.dat` もこの計算が書き、MLO の窓の基準のバンド端になる
+   - 対称線の上のスピン軌道ありの DFT のバンドを `bnd*.spin1`・`bandplot.isp1.glt` に書く。MLO と比べる相手
 2. **H + V_SO 書き出し** — `lmf --writeham --mkprocar --noinv --mlo --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true --ctrlg:ham.so=0 --socmatrix`
    - スカラー相対論のハミルトニアンを `__HamiltonianPMT` に、SOC 行列を
      `__HamiltonianPMTsoc` に書く
@@ -76,8 +75,8 @@ gnuplot -p bandplot_MLO.isp1.glt
 誤差は `mlo_bandcheck.py .`（SOC の MLO と SOC なしの DFT を比べようとすると WARNING を出す）。GaAsSoc は Δ_SO が DFT 0.337 / MLO 0.335 eV、
 ギャップの誤差 +0.010 eV、rms 0.010 eV（ecaljdoc mlo §4 の表 M2）。
 
-注意: 段 1b はディレクトリの `bnd*`・`qplist.dat` を SOC のものにする。同じディレクトリで後から SOC なしの `job_mlo` を回すときは、
-先に `job_band` を回し直す（MLO の窓の基準のバンド端は、最後に回したバンドの計算の `qplist.dat` から取る。2026-10-01、TODO）
+MLO の窓の基準（E_F と CBM）は `--efermi=efermi_soc` から取る（2026-10-01 の夜に直した。それまで E_F だけは最後に回したバンドの計算の
+`qplist.dat` から取っていた）。段 1b はディレクトリの `bnd*` を SOC のものにするので、後から SOC なしの模型と DFT を比べるときは `job_band` を回し直す
 
 ## 関連コミット
 
