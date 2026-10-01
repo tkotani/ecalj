@@ -40,12 +40,6 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 - **GW1500 の選定に構造の確かめを入れる**（2026-10-01）: 別の化合物から副格子を抜き出した MP の項目（ICSD の備考が「〜 part」、
   1 原子の体積が同じ組成の 2 倍以上など）が PBE のギャップ > 0 で選ばれていた（`ecalj_auto/GW1500_status.md` 表 6 の `INVALID_STRUCTURE`）。
   `auto_mpquery.py` で弾くか、印を付ける
-- **GPU の build で module が循環している**（2026-10-01、`MD/module_map.md` を作って見つけた）: `m_mpi`（`MPI__AutoSetup` の中で `use m_gpu`）→
-  `m_gpu`（`__GPU` のとき `use m_blas`）→ `m_blas`（`use m_gemmul8`）→ `m_gemmul8`（`gemmul8_init` の中で `use m_mpi, only: ipr`）→ `m_mpi`。
-  まっさらな状態からは順序が決まらない。いまは `SRC/CMakeLists.txt` が GPU の変種を基本の変種の後に作り、`-I` で基本の `mod/` を見せる回避策で通っている
-  （そのコメントは「CMake の走査が m_gemmul8 → m_mpi を見落とす」と書くが、見落としではなく循環）。案: `m_gemmul8` の `ipr` は
-  `gemmul8_init` の中で既定の moduli を一度表示する判定にしか使っていない（2026-10-01 に確かめた）ので、`use mpi` で rank 0 を見れば切れる。
-  または `MPI__AutoSetup` の GPU メモリの問い合わせを引数で受ける。直したら GPU（kt1・kr7）で clean build と試験。CMake の回避策はその後で外せる
 - **AFTEST（`mmtarget.aftest`、例は `Samples/AFfixMMOM`）の残り**（2026-10-01、研究ログ 2026-10-01 朝 06:46 と表 06:46-1）: 場をスピン 1 にしか入れていなかった誤りは直した
   （`6eff2df53`）。残り: (a) モーメントを下げる向きで更新が行き過ぎる（利得 2 固定と 0.1(m − m_t)² の項。NiO 1.28 → 1.0 は 70 反復で、途中で符号が反転）。
   応答を割線で見積もる更新にするか。(b) 対がサイト 1・2、ブロック 1・2 の決め打ち（NiSe だけ 6 ブロック）。`AF=` の印や種の名前から対を決める。
@@ -57,12 +51,10 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 - **対称性: Fortran の中で「見つける・導く・使う」を分け、spglib を入れる**（2026-10-02、`MD/symmetry_spglib.md` §4.7 の S0〜S6）。S0 済み（`f7c382bed`、食い違い 0）。超格子は暫定で閉じた部分群（Si の慣用胞で 24）、純粋な並進を使うのは S4。2×1×1 の Si の GW は遅いだけだった（§5）
 - **MLO のマグノンの既定の窓**（2026-10-02、研究ログ 04:17）: 窓を広げる（Δ = 6 eV）と d の MLO が局在し、η ≈ 1、高い q のマグノンが Wannier 版に近づく。`job_mlo_magnon` 用に既定を変えるか、`Fe_mlo_magnon` の入力を変えるか（参照を作り直す）。Ni、FeCo でも確かめる
 - **MLO の部分空間の中での最大局在化**（user 2026-10-02 未明）: MLO を作った後に Marzari–Vanderbilt で局在させる（バンドと cRPA の p_kn は変わらない）。MLO は直交していないので、まず Löwdin で直交化し、そこから最小化する。対称性は Sakuma（PRB 87, 235109）のように U(gk) = D(g) U(k) d(g)⁻¹ で拘束する（MLO は MTO と同じに回る、`rotmatMTO`）。`mlo_spread.py` の M(k,b) が材料。比べる量: Fe・Ni の d で Ω（生、Löwdin のみ、Löwdin + MV）、マグノン、U
+  2026-10-02 06:20 試作 `SRC/exec/mlo_maxloc.py`（拘束なし）: Ni d は Ω の 97 % が Ω_I で MV は効かない。Fe spd では拘束なしの MV が対称性を破る（研究ログ 06:20）。次は Sakuma の拘束（勾配を群で平均）
 - **`hgw` の残り**（2026-04 の統合の残タスク、2026-10-01 に past_log.md §3.2 から）: ノード内の W の共有を `MPI_Win_allocate_shared` で（メモリの重複を減らす）。
   `hsfp0_sc` の Sx（`--job=1`）・core の交換（`--job=3`）も `hgw` に入れる（時間は小さいので優先度は低い）
 
-- **`m_tetrakbt.f90` の使われていないルーチン**（2026-10-01）: 中点分解の `tetrakbt`・`eaf_triangle`・`eafww`・`factri`・`factri0`・`integral_1t`・
-  `integral_0t`・`funcgx`・`numintall`・`funcgx2`・`ndiv_tt`・`int_simpson`（約 300 行）はどこからも呼ばれない（`tetwt5.f90` は `use` の only に
-  `tetrakbt` を挙げるだけ）。今も使うのは `tetrakbt_init`・`kbt`・`integtetn`。2026-06 に「参照のため残す」としたもの。消すなら kBT の試験で確かめる（past_log.md §13）
 
 - **MLO の模型の残り**（2026-10-01。既定は基準 1・2・3 の形に決まった: ecaljdoc mlo §1・§9、`MD/handover.md` §5）:
   (a) 基準 3（空格子球）の自動化。案は空隙の半径（最も近い MT 球の表面までの距離）が 3 a.u. を超える所に置く `SRC/exec/ctrlg_addes.py`（未コミット・未検証）。
@@ -70,9 +62,6 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
   SiO₂ は手で置いて 0.001 eV（研究ログ 2026-10-01）。
   (e) 検査（`mlo_bandcheck.py` の CHECK）で、基準 1 の Sn・AlSb・Bi₂Te₃・InSb・Cu が 1 点だけ 0.1 eV を少し超えて FAIL（rms は 0.01〜0.03）。
   線形独立性の崩れではない（重なりの最小固有値は 3e-3 程度）。帯の交差の付近の形が違う。直すか、目安を見直すか
-- **`job_mlo_soc` が空の `band_MLO_spin2.dat` を書く**（2026-10-01）: 2N のスピノルの帯は `band_MLO_spin1.dat` に入る。空の spin2 があると
-  `mlo_bandplot.py` が空の枠を描いていた（描く側は 2026-10-01 に空のファイルを飛ばすようにした）。`bandplot_MLO.isp2.glt` も残る。
-  `job_mlo_soc` は始めに古い spin2 を消すが、`mlo` がまた空のものを書く（`mlo_bandcheck.py` は SOC のとき spin1 だけを見る）
 - **`Samples/AFsymmetry/NiO` は `pwmode = 1` で `symgrpaf`**（2026-10-01）: k 点を 4³ にすると `rotwave: q+G rotation error (We have to set PWmode=11 for symgrpAF)`
   で止まる。試験の 3³ では通っているだけ。`pwmode = 11` にして参照を作り直すか
 
@@ -85,6 +74,12 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 
 ## 2. 質問（メンテナに決めてほしいこと）
 
+- **対称性 S6: `symmetry.<sname>.json` を既定にする方法**（2026-10-02 06:17、`MD/symmetry_spglib.md` §4.7）。S1〜S5 で、ファイルがあれば spglib の操作
+  （純粋な並進・AF も）を使い、無ければ今までどおり gensym、の形になった。既定にするには誰が `symfind.py` を走らせるかを決めたい:
+  (a) `ctrlgenToml.py` が入力を作るときに作る（構造を変えたら作り直し。古いと lmf が止まって知らせる）、(b) `gwsc`・`job_*` が lmf の前に毎回作る
+  （`--ctrlg:` の上書きも渡す。lmf をじかに回すと gensym のまま）、(c) lmf が自分で Python を呼ぶ（MPI の下で fork するのが心配）。
+  案: (a)+(b)。あわせて `SYMGRPAF` を `af` の印から決める形にし、旧 `SYMGRP` の生成元の文字列は残す（対称性を下げる口として。S0 の 6 入力が使う）。
+  json を既定にすると BoltzTraP の `si.struct.boltztrap`（操作の並び）の参照を作り直す
 - **ecaljdoc の古い文書**（`BackUp/`、`ecaljdetails/` の LaTeX・PS、2019 年以前）は、trash に移した `TOOLS/checkmodule`・`TOOLS/ModuleCodingSample` などを参照している。ecaljdoc の側も同じ決まり（trash へ、要点は過去ログへ）で片付けるか（2026-10-01）
 - **GW1500 の `INVALID_STRUCTURE`（12）・`SUSPECT_STRUCTURE`（4）を集合から外すか**。いまは注記だけ
 - **ビルドの生成物が入ったコミット `a0c7a7300`（78 MB）を、push の前に履歴から消すか**。消すと以後 674 コミットのハッシュが変わり、
@@ -105,6 +100,10 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 
 ### 2026-10-02
 
+- 対称性（`MD/symmetry_spglib.md` §4.7）: S0 spglib との照合（`f7c382bed`、172 入力で食い違い 0）、S1 分割（`41c0e3cc7`）、S2（`e5d08f008`）、
+  S3 `symmetry.<sname>.json` を読む口（`91f9bdcaf`）、S4a `mptauof` が渡された並進を使う（`bfaae451b`）。S4b（純粋な並進を操作に）は試験中
+- GPU の build の module の循環を切った（`a7f64752e`）、CMake の回避策を外した（`f553b5222`）。kt1・kr7 でまっさらなビルドが通った（TODO から外した）
+- `m_tetrakbt` の使われないルーチン（`8217b212b`）、SOC の MLO が空の spin2 を書く件（`0a9f1b092`）（TODO から外した）
 - MLO を実空間で規格化（`0e33fbd87`）、`mlo_spread.py` と比較の記録（`ec4361edc`）、比較の一式とタグ `last-wannier`（`f1de3817a`）、cRPA の試験を MLO 版に（`e22bb9075`）、Wannier・AHC・lmfham2 を外した（`6d8b9f05b`、`dfffe0dfd`）。`MD/wannier_vs_mlo.md`、ecaljdoc mlo §6
 - MLOsamples などの古い作業ファイル 68 本（`ctrlp.*`、`lmfham2parameters.check`、`out_lmfham1`、`bandplot_MPO.*` など）を trash へ（past_log 表 1）
 - `TOOLS/sync_ecalj_src.sh`: 送り先の `SRC/subroutines`・`main`・`exec` にあって HEAD に無いファイルを `trash/` へ移す（Wannier を外したとき kt1・kr7 に 30 本残って CMake が拾った）

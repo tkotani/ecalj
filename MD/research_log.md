@@ -84,6 +84,40 @@
 
 ## 2026-10-02 — MLO を実空間で規格化、実験用の MLO オプションを廃止（Wannier を外す作業の続き）
 
+### 06:20 MLO の部分空間の中での最大局在化の試作（`SRC/exec/mlo_maxloc.py`、対称性の拘束なし）
+
+user の問い（MLO を作った後に Marzari で最大局在化、バンドは変えない、Sakuma のように対称性を守る）を受けて、`mlo_spread.py` の M(k,b) から
+(a) 生の MLO、(b) Löwdin、(c) Löwdin のあと MV の最急降下、の Ω を比べた（GW の 4³ の k）。
+
+**表 06:20-1**. Ω の和（bohr²）。Ω_I はユニタリ変換で変わらない部分（MV 式 34）
+
+| 作業場所 | 模型 | 生 | Löwdin | Löwdin + MV | Ω_I | 備考 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `~/work/crpa_mlo/ni_v2` | Ni d 5 本（spin 1） | 9.881 | 9.416 | 9.415 | 9.127 | MV は効かない（t2g 1.93、eg 1.81） |
+| `~/work/magnon_w/d2w11` | Fe spd 9 本（spin 1） | 31.86 | 29.56 | 22.89 | 17.51 | MV が対称性を破る: s・p と eg 2 本が原子から 1.1 bohr ずれた混成軌道に |
+| `~/work/magnon_w/d6w11` | Fe spd 9 本（spin 1） | 32.31 | 29.48 | 28.31 | 17.51 | 対称なまま収束。t2g 1.457 → 1.365、eg 1.535 → 1.520 |
+
+- Ni の d だけの模型では Ω の 97 % が Ω_I（部分空間が決める）。Wannier の t2g 1.47（`MD/wannier_vs_mlo.md`）との差は、ゲージではなく部分空間（窓の選び方）。
+  cRPA の U（Ni で MLO が 25 % 低い）・マグノンのずれも、追うなら部分空間の側
+- 拘束なしの MV は原子の lm の性格を壊しうる（Fe d2w11）。user の言うとおり Sakuma の拘束（U(gk) = D(g) U(k) d(g)⁻¹）が要る。D(g) は MLO の基底での
+  表現（実球面調和の回転 `dlmm`、原子の置換 `miat`、並進の位相）。勾配を群で平均する形で入れるのが次の段
+- 対称なまま縮む場合（Fe d6w11）の利得は t2g で 6 %。Löwdin だけで t2g 1.72 → 1.46（15 %）の方が大きい
+
+### 05:45 対称性 S1〜S4a をコミット、試験を 3 台で並走。TODO の順序を決めた（user「TODO の手順はよく考えて順序立てて」「まかせる」）
+
+- 05:24 TODO の進める順序を `MD/TODOandQuestion.md` §1 の頭に書いた（対称性 → MLO の最大局在化 → マグノンの窓・Wannier とのずれ、の依存の向き）
+- S1（`41c0e3cc7`）: `m_mksym_util` を `m_symop_util`・`m_symderive`・`m_symfind` に分け、`mksym` を `m_mksym` に。172 入力の lmchk が S0 と同じ（05:26）
+- 小さい直し: `m_tetrakbt` の使われない約 410 行を外す（`8217b212b`）、SOC の MLO が空の spin2 を書く件（`0a9f1b092`）
+- GPU の build の module の循環を切った（`a7f64752e`、`m_gemmul8` が `m_mpi` を使わない）。CMake の回避策も外した（`f553b5222`）。
+  kr7（GEMMul8 なし）・kt1（GEMMul8 あり）でまっさらからビルドが通り、MODULE の誤り 0。kr7 の GPU で install 66・afsym 4・mlo 45 PASS（05:40 終了）
+- S2（`e5d08f008`）: `m_hamindex0` の `mptauof` の呼び直しを `m_mksym` の写しに。GW 側の二つは残す（操作の一部で呼ぶ。設計 §4.7c）
+- S3（`91f9bdcaf`）: `symmetry.<sname>.json` を toml-f の JSON の読み手で読む口。構造は数値で照らす（設計 §4.7d）。Fe・NiO で gensym と同じ集合（並びは違う）、
+  AF の NiO は不変、古い JSON は止まる、Si8 は gensym に戻る
+- S4 の要点を見つけた（設計 §4.6）: `mptauof` は渡された並進を使わず自分で探し、逆操作も回転だけで探していた。同じ回転の操作が潰れる。
+  S4a（`bfaae451b`）で `ag` を渡して使うようにした
+- 走っている試験（05:45 の時点）: t14 は S1 の版（`0a9f1b092`、gfortran、05:27 から、inputs〜magnon）、kt1 は S3 の json の口（`91f9bdcaf`、
+  CPU、包みで `symfind.py` を先に走らせる、05:40 から）、kr7 は S4a（`bfaae451b`、GPU、05:45 から）
+
 ### 05:19 対称性: 超格子の暫定の直しの試験が全部通った。S0（spglib との照合）は食い違い 0
 
 - 暫定の直し（`m_mksym_util.f90` の gensym に `faithful`、`m_mksym.f90` の最初の呼び出しだけ `faithful=.true.`）: 純粋な並進を持つ超格子で、
