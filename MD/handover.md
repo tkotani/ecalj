@@ -76,9 +76,17 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
 - **HPC-X の OpenMPI では、プログラムを `mpirun -np 1` なしで起動すると `MPI_Init` で止まる**。スクリプトから 1 プロセスで呼ぶときも `mpirun -np 1` を付ける（2026-09-30、`run_arg`・`hx0ahc.py`）
 
 - **試験の最中に手元で `libecaljF.so` を作り直さない**（2026-10-02）: 走っている試験の次のプログラムが作り直し中のライブラリを読み、`heftet` が空の出力で止まった（`fe_kbt`）。試験が終わるのを待つか、別のビルド場所で
+- **試験の最中に手元で別のものをビルドする**（2026-10-02 06:27）: `rsync -a --exclude 'build_*' ~/ecalj/SRC ~/work/<名前>tree/` で写し、その中で
+  `mkdir build_gfortran && cd build_gfortran && FC=gfortran cmake .. && make -j4`。実行ファイルは同じ場所の `libecaljF.so` を読む（`$ORIGIN`）ので試験と混ざらない。
+  cmake を設定し直すときは `FC` が要る（`FC=gfortran cmake .`。無いと「Fortran compiler must be set via FC」で止まり、古い .so が残る）
 - **`sync_ecalj_src.sh`** は送り先の `SRC/subroutines`・`main`・`exec` にある HEAD に無いファイルを `trash/` へ移す（2026-10-02 から）。古い `.f90` が残ると CMake の GLOB が拾う。送り先の `bin` に残る古いプログラム（外したもの）は自動では消えない
 
 - **t14 の trash は外付けの TAKAOMINI にある**（2026-10-02、ディスクが満杯になったため）: `/media/takao/TAKAOMINI/trash/`（`ecalj_trash/`、`work_20261001/`、`home_trash/`）。t14 のディスクは 468 GB で、試験の作業ディレクトリ（`Samples/*/*_work`、合わせて約 8 GB）や `~/work` の GW の途中のファイルでいっぱいになる。満杯になると Claude Code の Bash の出力も受け取れなくなる（`/tmp` も同じディスク）
+
+- **対称操作の口 `symmetry.<sname>.json`**（2026-10-02 06:27、`MD/symmetry_spglib.md` §4.7）: 作業ディレクトリにこのファイルがあると、lmf・lmchk・mlo などは spglib の操作
+  （`SRC/exec/symfind.py <sname>` が書く。純粋な並進・AF の操作も）を使う。無ければ今までどおり gensym。ファイルの構造（alat、plat、種、`af`、分数座標）が ctrlg と
+  違うと「does not match the ctrlg ... Run symfind.py again」で止まる。`--ctrlg:site.n.pos=` などで構造を上書きして回すときは、symfind.py にも同じ引数を渡す。
+  `ECALJ_SYMFIND=ecalj` で gensym に固定（比べるとき）。既定にするか（S6）は未決（TODOandQuestion.md §2）
 
 ## 4. コンパイラと実行時の落とし穴
 
