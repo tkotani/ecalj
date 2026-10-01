@@ -295,7 +295,7 @@ contains
     double precision a(nspec),b(nspec),xx(5)
     double precision pnu(n0,2),pnz(n0,2),qat(n0,2)
     double precision hfc(nxi0,2),exi(nxi0),hfct(nxi0,2)
-    double precision rtab(n0,2),etab(n0,2)
+    ! double precision rtab(n0,2),etab(n0,2)   ! arguments of freats removed 2026-10-01 (never set)
     double precision v(nrmx,nspec+1),rho(nrmx,nspec+1), rhoc(nrmx,nspec+1),rofi(nrmx*2),range(nbas), &
          rmti(nbas), vp(npmx,0:2),xp(3,npmx),rp(npmx),vxcp(npmx),excp(npmx)
     real(8) ,allocatable :: excx_rv(:)
@@ -370,9 +370,9 @@ contains
        call pshpr(ipr-20)
        open(newunit=ifives,file='vesintatm.'//trim(sname)//'.chk')
        open(newunit=ifiwv,file='veswavatm.'//trim(sname)//'.chk')
-       call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,0,-1,qcor,nrmix(1),0, &
-            lxcfun,z(is),rmtl(is),a(is),nrmt,pnu,pnz,qat,0d0,0d0,0d0,& !rcfa=[0d0,0d0], &
-            idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho(1,is),rhoc(1, &
+       call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,0,-1,qcor,nrmix(1), &   ! lwf,rs3,eh3,vmtz,rtab,etab removed 2026-10-01
+            lxcfun,z(is),rmtl(is),a(is),nrmt,pnu,pnz,qat, &
+            idmod,lmxa,eref,hfc,hfct,nr,rofi,rho(1,is),rhoc(1, &
             is),qc,ccof,ceh,sumec,sumtc,v(1,is),etot, 1, ifives=ifives,ifiwv=ifiwv) !nmcore=1 july2012
        close(ifives)
        close(ifiwv)

@@ -7,10 +7,17 @@ module m_freeat !free-standing spherical atom calculaitons for initial contditio
   public freeat,freats
   private
   logical,private:: ifivv
+  integer,parameter,private:: nrmx=1501, nxi0=10, n0=10
+  ! The free atom of the species being done in lmfa: freeat sets the inputs, freats makes the atom, iofa writes it.
+  ! (2026-10-01: these were local variables of freeat; now the state of this singleton module, values unchanged)
+  character(8),private:: spid
+  integer,private:: nr, nrmt, nxi
+  real(8),private:: z, rmt, a, rsmfa, exi(nxi0), hfc(nxi0,2), hfct(nxi0,2), qc, ccof, ceh, sumec, sumtc, etot, &
+       rofi(nrmx*2), rho(nrmx*2), rhoc(nrmx*2), v(nrmx*2)
 contains
   subroutine freeat() !For all species, we make free atom self-consistent, and get density to files.
     use m_ext,only:sname
-    use m_lmfinit,only: smalit,lxcf,ham_seref,nsp,nspec,idmod,slabl,vmtz,eref,rs3,eh3,nmcore,coreh,coreq,pnux=>pnusp,pzsp,qnu
+    use m_lmfinit,only: smalit,lxcf,ham_seref,nsp,nspec,idmod,slabl,eref,nmcore,coreq,pnux=>pnusp,pzsp,qnu   ! vmtz,rs3,eh3,coreh: not used (2026-10-01)
     use m_ftox
     !Inputs  are module variables of m_lmfinit
     !Outputs are via iofa, atmpnu are pnu (logarismic derivatives of atoms).
@@ -20,13 +27,10 @@ contains
     !   sumtc :core kinetic energy
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: ifi,iprint,is,nglob,nr,nrmt,nrmx, n0,nkap0,nxi,nxi0,nrmix,igets,lmxa,kcor,lcor,iofa, i_dum,ifives,ifiwv
-    character(8) :: spid,chole(8)
-    parameter ( nrmx=1501, nxi0=10, n0=10, nkap0=3)
-    real(8) :: qc,ccof,ceh,z,rmt,rfoca,qcor(2),a,sumec, sumtc,seref,dgets,dgetss,etot
-    real(8) :: hfc(nxi0,2),exi(nxi0),hfct(nxi0,2), v(nrmx*2),rho(nrmx*2),rhoc(nrmx*2),rofi(nrmx*2)
-    real(8) :: pnu(n0,2),pz(n0,2),qat(n0,2), rtab(n0,2),etab(n0,2),rsmfa
-    character strn*120
+    integer :: ifi,iprint,is,nrmix,lmxa,kcor,lcor,iofa, i_dum,ifives,ifiwv
+    real(8) :: rfoca,qcor(2),seref
+    real(8) :: pnu(n0,2),pz(n0,2),qat(n0,2)
+    ! character(8):: chole(8); character strn*120; integer:: nglob,nkap0,igets; real(8):: dgets,dgetss  ! never used (2026-10-01)
     open(newunit=ifi,file='__atm.'//trim(sname))
     ifivv=c0_vesatom
     if(ifivv) open(newunit=ifives,file='vesintatm.'//trim(sname)//'.chk')
@@ -44,7 +48,7 @@ contains
        spid = slabl(is) 
        rfoca= rfoca_i(is) 
        qcor = coreq(:,is)
-       chole= coreh(is)
+       ! chole= coreh(is)   ! never used (2026-10-01)
        call gtpcor(is,kcor,lcor,qcor)
        z   = z_i(is) 
        rmt = rmt_i(is) 
@@ -60,10 +64,10 @@ contains
        if(nsp==2) pz(:,2)= pz(:,1) !       write(6,ftox)'xxx isp pz=',is,ftof(pz(1:lmxa+1,1),6)
        write(stdo,"(a)")'freats:'
        call freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor, &
-            nrmix,1,lxcf,z,rmt,a,nrmt,pnu,pz,qat,rs3(is),eh3(is),vmtz(is),& !rcfa(:,is), &
-            idmod(:,is),lmxa,eref(is),rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof, &
+            nrmix,lxcf,z,rmt,a,nrmt,pnu,pz,qat, &
+            idmod(:,is),lmxa,eref(is),hfc,hfct,nr,rofi,rho,rhoc,qc,ccof, &
             ceh,sumec,sumtc,v,etot,nmcore(is),ifives,ifiwv)
-       print *,'end of freats: spid nmcore=',spid,nmcore(is)
+       ! print *,'end of freats: spid nmcore=',spid,nmcore(is)   ! debug print (commented out 2026-10-01)
        if (iprint()>40) write(stdo,"(a)")' write free atom data for species  '//trim(spid)
        if (nsp == 2 .AND. nr > nrmt) then
           call dcopy(nrmt,rho(1+nr),1,rho(1+nrmt),1)
@@ -81,9 +85,12 @@ contains
     if(ifivv) close(ifiwv)
   end subroutine freeat
   subroutine freats(spid,is,nxi0,nxi,exi,rfoca,rsmfa,kcor,lcor,qcor, &
-       nrmix,lwf,lxcf,z,rmt,a,nrmt,pnu,pz,qat,rs3,eh3,vmtz, & !,rcfa removed 2023feb. rnatm meaninful?
-       idmod,lmxa,eref,rtab,etab,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof,ceh, &
+       nrmix,lxcf,z,rmt,a,nrmt,pnu,pz,qat, &
+       idmod,lmxa,eref,hfc,hfct,nr,rofi,rho,rhoc,qc,ccof,ceh, &
        sec,stc,v,etot,nmcore,ifives,ifiwv)
+    ! A computational kernel with explicit inputs: called by freeat (lmfa, species data of the input) and by makrm0
+    ! (lmchk, default species to estimate sphere radii). The arguments lwf,rs3,eh3,vmtz,rtab,etab were never used and are
+    ! taken out (2026-10-01).
     use m_lmfinit,only: nsp,lrel
     use m_ftox
     use m_ext,only:sname
@@ -103,9 +110,7 @@ contains
     !i   qcor  :(partial core occupation) core charge and moment
     !i   nrmix :nrmix(1) = maximum number of interations in sphere
     !i         :           before giving up on self-consistency
-    !i         :xxx nrmix(2) = no prior iterations Anderson mixing in
-    !i         :           self-consistency cycle.
-    !i   lwf   :1 print information about wave functions
+    ! !i  lwf   :1 print information about wave functions   (argument removed 2026-10-01)
     !i   lxcf:selects local exchange-correlation functional
     !i   z     :nuclear charge
     !i   rmt   :augmentation radius, in a.u.
@@ -115,20 +120,12 @@ contains
     !i          pnu = .5 - atan(Dl)/pi + (princ.quant.number).
     !i   pz    :boundary conditions for local orbitals
     !i   qat   :valence charges for each l channel
-    !i   rs3   :minimum allowed smoothing radius in attaching Hankel tails
-    !i         :to local orbitals
-    !i   eh3   :Hankel energy when attaching Hankel tails to high-lying
-    !i         :local orbitals
-    !i   vmtz  :parameter used in attaching Hankel tails to local orbitals
-    !i         :It is used as a constant shift to Hankel energies for the
-    !i         :fitting of local orbitals to Hankel tails. Thus vmtz
-    !i         :is an estimate for the potential at the MT radius.
+    ! !i  rs3,eh3,vmtz :for Hankel tails of local orbitals (arguments removed 2026-10-01: never used)
     !i   idmod :0,1 or 2, specifing how the enu is set for an l-channel
     !i   lmxa  :augmentation l-cutoff
     !i   eref  :reference energy (used for printout)
     !o Outputs
-    !o   rtab  :smoothing radius for optimized wave function
-    !o   etab  :energy for optimized wave function
+    ! !o  rtab,etab :smoothing radius and energy of optimized wave functions (arguments removed 2026-10-01: never set)
     !o   hfc   :fit coeffs for valence density,
     !o   hfct  :contains fit coeffs for full density (not calc. now)
     !o   nr    :number of radial mesh points for spherical rho
@@ -153,23 +150,21 @@ contains
     !u   10 Apr 02 Redimensionsed etab,rtab to accomodate larger lmax
     ! ----------------------------------------------------------------------
     implicit none
-    integer :: nrmx,nrmt,is,nxi0,nxi,nrmix,lwf,lxcf,n0,kcor,lcor
-    parameter (nrmx=1501,n0=10)
+    integer :: nrmt,is,nxi0,nxi,nrmix,lxcf,kcor,lcor
     character(8) :: spid
     real(8) :: rsmfa,rfoca,qc,ccof,ceh,sec,stc,z,rmt,a,eref, v(nrmx*2),rho(nrmx*2),rhoc(nrmx*2),hfc(nxi0,*),hfct(nxi0,*), &
-         exi(*),rtab(n0,2),etab(n0,2),rofi(nrmx*2),rs3,eh3,vmtz,qcor(2)
+         exi(*),rofi(nrmx*2),qcor(2)
     integer :: ncmx,nvmx
     parameter (ncmx=50, nvmx=20)
     integer :: idmod(n0)
-    character str*8,strn*32
+    ! character str*8,strn*32   ! str: only in the plot branch commented out below; strn: never used (2026-10-01)
     real(8) :: rmax,b,etot,dq, ec(ncmx),ev(nvmx),sumev,vrmax(2),exrmax(2),ekin,utot,rhoeps, &
          amgm,rhrmx,qvt,qtot,qct,qvin,qcin,r,wt0,wt1,qtt,qtin,pnul, pzl,pnu(n0,2),qat(n0,2),pl(n0,2),rhoin(nrmx*2), &
-         rhot(nrmx*2),ql(3,n0,2),pz(n0,2) ,qatbk(n0,2),rhozbk !,rcfa(2)
-    integer :: i,ifi,ipr,iprint,isp,isw,l, lgrad,lmxa,lplfa,nitmax,nmix,nr,lplawv !,irchan(n0)
+         rhot(nrmx*2),ql(3,n0,2),pz(n0,2) ,rhozbk   ! qatbk(n0,2): never used (2026-10-01)
+    integer :: i,ipr,iprint,isp,l, lgrad,lmxa,nitmax,nmix,nr,lplawv   ! ifi,isw,lplfa: not used (2026-10-01)
     real(8) ,allocatable :: g_rv(:)
     real(8) ,allocatable :: psi_rv(:)
-    integer :: itab(n0,2)
-    integer ::iwdummy
+    ! integer :: itab(n0,2), iwdummy   ! never used (2026-10-01)
     integer:: ipl, ipz,iplx,iplv,ix, nmcore, ifives,ifiwv,iplz,miplzipl
     real(8):: qcc,qzz, qvalv,qvaltot,qval,vsum,qelectron,qvalz
     real(8),allocatable:: plplus(:,:),qlplus(:,:)
@@ -196,6 +191,10 @@ contains
           if(nsp==1) qvaltot = qat(l+1,1)
           if(nsp==2) qvaltot = qat(l+1,1)/2d0 - qat(l+1,2)/2d0*dble(2*i-3)
           qval=qvaltot
+          ! When a local orbital PZ exists in this l, the atom has two states of this l. For historical reasons (2011-2012)
+          ! pl(l),ql(l) hold the LOWER of the two (PZ when it is a semicore below P, else P) and plplus(l),qlplus(l) the
+          ! UPPER one with the charge that does not fit into the lower shell (2(2l+1) electrons, 2l+1 per spin). newrho and
+          ! pratfs treat the second state through plplus/qlplus (their loop iz=1). (comment 2026-10-01)
           !!   Make pz the valence state:
           !! NOTE: Because of historical reason,  PZ channel is treated as P; P channel is treated by plplus and qlplus.
           !! plplus and qlplus are for P channel when deeper PZ exits.
@@ -297,13 +296,13 @@ contains
     nitmax = nrmix
     nmix = -30
     ec(1) = 0
-    print *,'goto atomc xxx'
+    ! print *,'goto atomc xxx'   ! debug print (commented out 2026-10-01)
     qelectron = z+qtot     !total number of electrons. 22mar2013
     rhozbk = 0d0 !set background charge=0
     call atomsc(.false.,n0,nsp,lmxa,z,rhozbk,kcor,lcor,qcor,rmax,a,nr, rofi,ec,ev,pl,ql,idmod,v,0d0,rhoin,rho,rhoc,nmix,qc,&
          sec,stc, sumev,ekin,utot,rhoeps,etot,amgm,rhrmx,vrmax,dq,exrmax,'gue', nitmax,lfrz,plplus,qlplus,nmcore,qelectron,vsum)
-    print *,'end of atomsc xxxxx'
-    print *,'vsum=',vsum,is
+    ! print *,'end of atomsc xxxxx'   ! debug prints (commented out 2026-10-01)
+    ! print *,'vsum=',vsum,is
     if(ifivv) then
       write(ifives,"(f23.15,i5,a)") vsum,is,' !spacical integral of electrostatic potential' !The negative integer got error in nvfortran
       write(ifiwv,"(f23.15,' ! total charge')") sum(qlplus(0:lmxa,1:nsp)+ql(1,1:lmxa+1,1:nsp))
@@ -318,11 +317,12 @@ contains
           rho(i+(isp-1)*nr) = rho(i+(isp-1)*nr)-rhoc(i+(isp-1)*nr)
        enddo
     enddo
-    do  isp = 1, nsp
-       do  i = 1, nr
-          rhot(i+(isp-1)*nr) = rho(i+(isp-1)*nr)+rhoc(i+(isp-1)*nr)
-       enddo
-    enddo
+    ! rhot was made a second time here as rho+rhoc (the same total density); tailsm does not use it (lrhot=0). (commented out 2026-10-01)
+    ! do  isp = 1, nsp
+    !    do  i = 1, nr
+    !       rhot(i+(isp-1)*nr) = rho(i+(isp-1)*nr)+rhoc(i+(isp-1)*nr)
+    !    enddo
+    ! enddo
     allocate(g_rv(nr*2))
     allocate(psi_rv(nr*(lmxa+1)*nsp))
     lplawv = 0
@@ -357,16 +357,16 @@ contains
     else
        qvt = 0
     endif
-    lplfa = 0
     if (qvt > 1d-6) then
-       if (lplfa == 1) then
-          write(stdo,"(/' write plot file with valence density..')")
-          if (is < 10) write (str,'(''pl'',i1)') is
-          if (is >= 10) write (str,'(''pl'',i2)') is
-          open(newunit=ifi,file=trim(str)//'.'//trim(sname))
-          write (ifi,"('# fit to fa density: ',a/'# rmt=',f7.3,'   rsm=',f7.3,'   nxi=',i2)") spid,rmt,rsmfa,nxi
-          close(ifi)
-       endif
+       ! lplfa=0 always: the plot file of the valence density was never written (commented out 2026-10-01)
+       ! if (lplfa == 1) then
+       !    write(stdo,"(/' write plot file with valence density..')")
+       !    if (is < 10) write (str,'(''pl'',i1)') is
+       !    if (is >= 10) write (str,'(''pl'',i2)') is
+       !    open(newunit=ifi,file=trim(str)//'.'//trim(sname))
+       !    write (ifi,"('# fit to fa density: ',a/'# rmt=',f7.3,'   rsm=',f7.3,'   nxi=',i2)") spid,rmt,rsmfa,nxi
+       !    close(ifi)
+       ! endif
        call tailsm(0,nr,nrmt,nsp,a,b,rmt,rsmfa,nxi0,nxi,exi,rofi, rho,rhot,hfc,hfct) !Attach smooth Hankel tails to valence density ---
     else
        call dpzero(hfc, nxi0*nsp)
@@ -746,7 +746,7 @@ contains
     double precision :: tolch,tl
     parameter (tolch=5d-5,tolrsq=1d-12)! tolch is tolerance for change in the charge density, tolv for rseq
     integer:: nmcore
-    print *,'atomsc nmcore=',nmcore
+    ! print *,'atomsc nmcore=',nmcore   ! debug print (commented out 2026-10-01)
     if (lmax >= nl) call rx('atomsc:  lmax too large')
     pi = 4d0*datan(1d0)
     b = rmax/(dexp(a*(nr-1)) - 1)
@@ -1124,7 +1124,7 @@ subroutine tailsm(lrhot,nr,nrmt,nsp,a,b,rmt,rsm,nxi0,nxi,exi,rofi, rho,rhot,hfc,
   integer,allocatable :: idx_rv(:)
   real(8) ,allocatable :: xi_rv(:,:)
   double precision :: sr,x0(0:2),xi(0:2),fpi,qout,qcst(20),qcst0(20), err,rsq(nr)
-  print *,'tailsm: init'
+  ! print *,'tailsm: init'   ! debug print (commented out 2026-10-01)
   fpi = 16*datan(1d0)
   call getpr(ipr)
   ! --- Tabulate smoothed Hankels on a radial mesh ---
