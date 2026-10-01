@@ -58,6 +58,8 @@
 - `MLOsamples/RuO2` の保存してある `rst`・`dmats` は、`pwmode = 11` の LDA+U の誤り（2026-03-30〜09-30、`2498e5283` で修正）の時期に作ったもの。
   作り直すか（GdCo5・SmP は 2026-09-30 に作り直した）
 - 試験の入力の温度（`t_tetrakbt = 262`、`t_sigmaw = 0`）をテンプレート（300/300）に揃えるか。揃えると gas_gwsc・fe_gwsc などの参照が動く
+- `MLOsamples/Al2O3_Cr` に試験が使わない古いファイルが残っている（2026-10-01）: `ctrlp.al2o3`・`ctrlp.al2o3?cr`・`ctrlp.gaas`・`log.al2o3?cr`・`bbb*.glt`・`temp.dos*`・`qsgw80/ctrlp.al2o3_cr` など。`test.py` が使うものを確かめてから trash へ
+- `SRC/exec/auto_creplot.py` がまだ旧形式の `ctrl.<sname>` を書き換える（2026-10-01）。ctrlg に直すか、使われていなければ trash へ
 
 ## 2. 質問（メンテナに決めてほしいこと）
 
@@ -81,6 +83,7 @@
 
 ### 2026-10-01
 
+- Samples の旧形式の入力を trash へ（user の指示）: TestInstall の `ctrl.*`（`5b0c3207d`）、残りの Samples の `ctrl.*` 28 本（`f2f79a380`）、MATERIALS の `GWinput`・`ctrlgenM1.ctrl.batio3` と `MLOsamples/Al2O3_Cr/CASE1ok`〜`CASE5ok`（`b9cf99a4a`）。中身の要点は past_log.md 表 1
 - MLO の模型の検査（`mlo_bandcheck.py` の CHECK、`job_mlo`・`job_mlo_soc` が最後に回す、`mlo` が `MLO_ovlpmin.dat` を書く）、
   窓の基準の E_F を `--efermi=` のファイルから取る直し、`Samples/MATERIALS` の 63 の ctrlg の `[mlo]` を今の gwinit で書き直し（研究ログ 2026-10-01 21 時）。
   試験: mlo 45、MLO-QSGW 5、install 64、inputs 176 が t14 で PASSED
