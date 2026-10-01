@@ -232,7 +232,7 @@ PROCAR の k 点の順（11 ランク以上で接尾辞の数値ソート）／`
 - **反強磁性の QSGW を固定モーメントで回す AFTEST のモード**（`NiSe_aftest`、2020〜2021）: `ctrl` に `SYMGRPAF i:(0,0,1)`（並進 (0,0,1) つきの反転で AF の対称性）と
   原子の `AF=1`・`AF=-1`、`mmtarget.aftest` に保ちたい磁気モーメントを書くと、lmf が「AFTEST」のモードになり、モーメントを保つように偏りの場（UH）をかける
   （`IDU=0 0 2` の UH は初期値の意味だけ）。`gwsc_sym` で回した。金属の収束の設定は `mixbeta 0.3`、`GaussianFilterX0 0.05`（今は `t_tetrakbt < 0`）、`esmr 0.03`（今は `t_sigmaw`）、
-  `ScaledSigma = 0.8`。コードには今も残っている（`m_ldau.f90` の `vorbmodifyaftest_experimental`、`m_ldau_util.f90` の `mixmag`）。2026-10-01 に NiO で確かめた: 研究ログ 2026-10-01 朝 06:46
+  `ScaledSigma = 0.8`。コードには今も残っている（`m_ldau.f90` の `vorbmodifyaftest_experimental`、`m_ldau_util.f90` の `mixmag`）。2026-10-01 に NiO で確かめた: 研究ログ 2026-10-01 朝 06:46。今の例は `Samples/AFfixMMOM`（NiO、`symgrpaf` ありとなし）
 
 ## 10. `TOOLS/` の古い道具（2026-10-01 に trash。残したのは `samples_tests.sh`・`sync_ecalj_src.sh`・`ozbench/` だけ）
 

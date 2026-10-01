@@ -88,6 +88,15 @@ user の指示（05:5x）: 「この方針で進めて。TODO も判断がつく
 MATERIALS 以下を MLO で（spd ベース、f があるときに入れる）すべてモデル化。DFT レベルでよい。目視で確認できる図、バンドギャップの違い。
 AFsymmetry のモード（AFTEST）が動くのか、そもそも正しいのかも調べて」。push はしない。
 
+### 09:38 **user「AFTEST と AFsymmetry はマージできるよね」→ `aftest-fix` を main にマージ（`6eff2df53`）。user「良い方を壊さないように」「別ディレクトリに、名前は AFfixMMOM」→ `Samples/AFfixMMOM`（`ca1e4c7fa`）**
+
+- マージ後の main（09:20 に build し直し）: AF の対称性ありの NiO（目標 1.6）は ehf −86708.005449、sev −151.644190 eV がマージ前と同じで、ehk だけが
+  −86705.995033 → −86703.984949 eV。対称性なしも −86703.984948 eV で一致。試験の組 afsym 4・install 64 が PASS（09:28）
+- 変更は `vorbmodifyaftest_experimental` の中だけで、`mmtarget.aftest` が無ければ呼ばれない。AFTEST を使わない計算は変わらない
+- `Samples/AFfixMMOM/NiO_afsym`・`NiO_noafsym`（k 4³、pwmode 11、Ni に idu = 1・U = 0）: 試験は最後の `mmaftest:` の行（uhx、m₁、m₂）と収束した行の
+  ehf・ehk を参照と比べ、m₁ + m₂ = 0 も見る。場の帰還で下の桁が動きやすいので許容は m・uhx 2e-3、エネルギー 1e-3 eV。12 件 PASS（09:35）、
+  inputs の組も 176 件 PASS。`TOOLS/samples_tests.sh` に組 `affix`
+
 ### 07:44 **`TOOLS/samples_tests.sh -np 8 inputs mlo afsym eps procar`（t14、`93d83c63a`、07:30〜07:43）: すべて PASSED**
 
 inputs 174、mlo 45、afsym 4、eps 18、procar 5（失敗 0）。今夜の Python の道具の変更（`job_mlo` の so = 1 の停止、`mlo_bandplot.py`、`ctrlgenToml.py`、

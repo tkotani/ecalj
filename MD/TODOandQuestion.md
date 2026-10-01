@@ -27,8 +27,8 @@
   （そのコメントは「CMake の走査が m_gemmul8 → m_mpi を見落とす」と書くが、見落としではなく循環）。案: `m_gemmul8` の `ipr` は
   `gemmul8_init` の中で既定の moduli を一度表示する判定にしか使っていない（2026-10-01 に確かめた）ので、`use mpi` で rank 0 を見れば切れる。
   または `MPI__AutoSetup` の GPU メモリの問い合わせを引数で受ける。直したら GPU（kt1・kr7）で clean build と試験。CMake の回避策はその後で外せる
-- **AFTEST（`mmtarget.aftest`）の残り**（2026-10-01、研究ログ 2026-10-01 朝 06:46 と表 06:46-1）: 場をスピン 1 にしか入れていなかった誤りはブランチ `aftest-fix`
-  で直した（下の質問）。残り: (a) モーメントを下げる向きで更新が行き過ぎる（利得 2 固定と 0.1(m − m_t)² の項。NiO 1.28 → 1.0 は 70 反復で、途中で符号が反転）。
+- **AFTEST（`mmtarget.aftest`、例は `Samples/AFfixMMOM`）の残り**（2026-10-01、研究ログ 2026-10-01 朝 06:46 と表 06:46-1）: 場をスピン 1 にしか入れていなかった誤りは直した
+  （`6eff2df53`）。残り: (a) モーメントを下げる向きで更新が行き過ぎる（利得 2 固定と 0.1(m − m_t)² の項。NiO 1.28 → 1.0 は 70 反復で、途中で符号が反転）。
   応答を割線で見積もる更新にするか。(b) 対がサイト 1・2、ブロック 1・2 の決め打ち（NiSe だけ 6 ブロック）。`AF=` の印や種の名前から対を決める。
   (c) `m_ldau_init` が lmf の起動のたびに場を一歩更新して `mmagfield.aftest` を書き直す（`job_band` でも）。(d) ecaljdoc の `UsageDetailed.md` の「直す必要がある」を、
   使い方（LDA+U のブロックが要る、U = 0 でよい、`SYMGRPAF`、目標のモーメントの定義）に書き直す
@@ -73,7 +73,6 @@
 - **trash を空にするか**: t14 の `~/ecalj/trash`（旧ツリー 58 GB ほか）、kt1 の `~/ecalj/trash`（255 GB）。kt1 は空にするまで `/` の空きが 49 GB のまま
 - 試験に使った古いツリー（mic の `~/ecalj_test0928`、kt1 の `/mnt/data1/ecalj_test0930b`・`0930c`）も trash に入れるか
 - ブランチ `fix-idu10`（main にマージ済み）を消すか
-- **ブランチ `aftest-fix`（`6d6f3451b`）をマージするか**: AFTEST の場をスピン 2 にも逆符号で入れる。afsym では SCF の中身は変わらず ehk だけが制約の下の全エネルギーになり、afsym なしでも正しくなる（NiO で afsym の結果と 10⁻⁶ eV で一致）。AFTEST を使う試験は今は無い
 - push: dev・rel とも、t14 の main より 674 コミット遅れ（2026-10-01）
 
 ## 3. 実行中
@@ -86,6 +85,7 @@
 
 ### 2026-10-01
 
+- AFTEST の修正（`aftest-fix`）を main にマージ（`6eff2df53`、user「マージできるよね」→「良い方を壊さないように」）。AF の対称性ありの計算は ehf・sev・モーメント・場がマージ前と同じで、ehk だけが制約の下の全エネルギーになった。afsym 4・install 64 が PASS。例を `Samples/AFfixMMOM`（user の命名、`NiO_afsym`・`NiO_noafsym`、試験の組 `affix` 12 件 PASS）に置いた（`ca1e4c7fa`）
 - ecaljdoc の TOML の流れの最短の手順は、`manual/README_tutorial.md` の GetStarted（Step 0〜6: POSCAR → ctrls → `ctrlgenToml.py` → `lmfa`・`lmf` → バンド → `gwsc`、Step 2-Migration、`--ctrlg:` の上書き）に既にあった。TODO から外した。ecaljdoc `manual/mlo.md` に既定の模型が外れる 2 つの型と表 M1 を書いた（`422dc92`、未 push）
 - `Samples/MATERIALS` の 66 物質で LDA と MLO の自動の模型を回した（n10 は kr7 で走行中）。結果の表は `Samples/MATERIALS/Database/MLOcheck_20261001*.tsv`、一覧のページ https://claude.ai/artifact/VCWpe5W8Fei6umatXGeZGH、研究ログ 2026-10-01 朝 07:16
 - `job_mlo`: ctrlg の `[ham] so = 1` なら `job_mlo_soc` を案内して止まる（`mlo` がハミルトニアンの NaN で止まっていた。GaAs_so）。`--ctrlg:ham.so=` の上書きは尊重。`mlo_bandplot.py` は空の spin2 を描かない
