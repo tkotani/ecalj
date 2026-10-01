@@ -71,14 +71,13 @@ td.sev-marginal { background: var(--warn-bg); color: var(--warn); } td.sev-poor 
 td.best { font-weight: 600; box-shadow: inset 3px 0 0 currentColor; }
 tr.sub td { border-top: 0; } tr.sub td.name { padding-left: 22px; }
 th.grp { text-align: center; border-bottom: 2px solid var(--line); }
-table.cnt { width: auto; } table.cnt td:first-child { white-space: normal; max-width: 36ch; }
+table.cnt td.what { white-space: normal; min-width: 18ch; max-width: 40ch; } table.cnt td.no { font-weight: 600; text-align: center; }
+table.cnt tr.best td { border-top: 2px solid var(--line); }
 table.cnt th, table.cnt td { padding: 6px 14px; }
 table.cnt tr.old td { color: var(--muted); }
 dl.eval { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0; max-width: 96ch; }
 dl.eval dt { font-weight: 600; } dl.eval dd { margin: 0; }
 @media (max-width: 560px) { dl.eval { grid-template-columns: 1fr; } dl.eval dd { margin-bottom: 6px; } }
-ol.opts { margin: 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: 8px; max-width: 96ch; }
-ol.opts li.old { list-style: none; margin-left: -1.4em; color: var(--muted); }
 figure { margin: 0; }
 .filters { display: flex; flex-wrap: wrap; gap: 8px; }
 .filters button { font: inherit; font-size: .82rem; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 3px 12px; cursor: pointer; }
@@ -130,17 +129,15 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
 
 <section class="panel">
   <h2>模型の作り方</h2>
-  <ol class="opts">
-    <li class="old"><del><b>旧既定</b>（2026-10-01 14:4x まで）: <code>mlo_lm</code> の (原子, lm) ごとに動径関数を 1 本（PMT の基底の第 1 の smooth Hankel 関数、EH）。
-      半内殻の局所軌道は、帯の上端が E_F − 10 eV より上なら EH と入れ替え、下は外す。</del></li>
-    <li value="1"><b>基準: 半内殻の局所軌道を自動で入れる</b>（<code>m_HamPMT</code>、入力には何も書かない）。帯の上端が E_F − 17 eV より上の半内殻の局所軌道を、EH の関数に<b>加えて</b>模型の関数にする。
-      帯は、同じ種類の原子の局所軌道をまとめた部分空間への重みが 1/2 を超える占有状態で見る。Ga 3d・In 4d・Eu 5p・La 5p・Sr 4p が O・N の 2p と混ざる系が直る。</li>
-    <li><b>陽イオンに EH2 の s,p</b>（<code>mlo_lm2</code> に書く）: 陽イオンの s,p に第 2 の smooth Hankel 関数を加える。空隙の大きい閃亜鉛鉱・wurtzite の化合物の、隙間に広がった伝導帯の底を表す。
-      単体の金属では全原子が対象になり、壊れることがある（Cu・Ni）。</li>
-    <li><b>空格子球</b>（<code>[[site]]</code>・<code>[[spec]]</code> に置き、DFT から回し直す）: 空隙に z = 0 の球を置き、その s,p を模型に入れる。いまは SiO₂ クリストバライトだけ（図 4 の先頭）。</li>
-  </ol>
-  <h3>判定の数（@@N@@ 物質）</h3>
   <div class="scroll">@@COUNTS@@</div>
+  <dl class="eval">
+    <dt>EH</dt><dd>PMT の基底の第 1 の smooth Hankel 関数。どの模型も <code>mlo_lm</code> の (原子, lm) ごとに 1 本持つ（s,p,d。4f の原子は f も）。</dd>
+    <dt>1. 基準</dt><dd>入力には何も書かない。半内殻の帯は、同じ種類の原子の局所軌道をまとめた部分空間への重みが 1/2 を超える占有状態で見る
+      （La₂CuO₄ の La 5p は 2 つの La に半分ずつ広がる）。Ga 3d・In 4d・Eu 5p・La 5p・Sr 4p が O・N の 2p と混ざる系が直る。</dd>
+    <dt>2. 陽イオンに EH2</dt><dd>空隙の大きい閃亜鉛鉱・wurtzite の化合物（MgX・CdTe・ZnTe・AlN など）で、隙間に広がった伝導帯の底を表す。
+      単体の金属では全原子が対象になり、Cu・Ni は壊れる。EuO は模型を作る所で止まった（PMT の完全性の損失が大きすぎる）ので 64 物質。</dd>
+    <dt>3. 空格子球</dt><dd>いまは SiO₂ クリストバライトだけ: Si のダイヤモンド網の空隙 2 か所（立方体の単位で ½(111) と ¾(111)）に r = 2.6 a.u. の球（図 4 の先頭）。</dd>
+  </dl>
 </section>
 
 <section class="panel">

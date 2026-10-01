@@ -206,15 +206,21 @@ for i, m in enumerate(srt):
 sv.append(f'<text x="14" y="{(bt+BH-bb)/2}" class="axis" text-anchor="middle" transform="rotate(-90 14 {(bt+BH-bb)/2})">eV</text></svg>')
 chart2 = '\n'.join(sv)
 
-# ---------- the counts table ----------
-def crow(label, c, old=False):
-    td = (lambda s: f'<td class="num"><del>{s}</del></td>') if old else (lambda s: f'<td class="num">{s}</td>')
-    return f'<tr{" class=old" if old else ""}><td>{label}</td>' + ''.join(td(c[x]) for x in CL) + '</tr>'
-counts_tbl = ('<table class="cnt"><thead><tr><th>模型</th><th class="num">good<br>≤ 0.02</th><th class="num">fair<br>≤ 0.05</th>'
-              '<th class="num">marginal<br>≤ 0.1</th><th class="num">poor<br>&gt; 0.1 eV</th></tr></thead><tbody>'
-              + crow('<del>旧既定（〜2026-10-01 14:4x）</del>', CNT['old'], old=True) + crow('<b>1. 基準</b>: 自動の半内殻入り', CNT['base'])
-              + crow('2. 基準 + 陽イオンに EH2 の s,p', CNT['eh2']) + crow('<b>物質ごとに一番良いもの</b>（1・2・3 のうち）', CNT['best'])
-              + '</tbody></table>')
+# ---------- the models and their counts (one table: what is added, where it is written, the verdicts) ----------
+CNT['es'] = counts('es')
+def nrun(k): return sum(1 for m in allm if (BEST[m][0] if k == 'best' else W_[k][m]) is not None)
+def mrow(no, name, what, where, k, cls=''):
+    c = CNT[k]; dl = (lambda s: f'<del>{s}</del>') if cls == 'old' else (lambda s: s)
+    return (f'<tr class="{cls}"><td class="no">{dl(no)}</td><td>{dl(name)}</td><td class="what">{dl(what)}</td><td class="what">{dl(where)}</td>'
+            f'<td class="num">{dl(nrun(k))}</td>' + ''.join(f'<td class="num">{dl(c[x])}</td>' for x in CL) + '</tr>')
+counts_tbl = ('<table class="cnt"><thead><tr><th></th><th>模型</th><th>模型の関数に足すもの</th><th>書く所</th><th class="num">物質</th>'
+              '<th class="num">good<br>≤ 0.02</th><th class="num">fair<br>≤ 0.05</th><th class="num">marginal<br>≤ 0.1</th><th class="num">poor<br>&gt; 0.1 eV</th></tr></thead><tbody>'
+  + mrow('', '旧既定（〜2026-10-01 14:4x）', '原子ごと・lm ごとに EH 1 本。浅い局所軌道は EH と入れ替え（E_F − 10 eV より上）', '<code>mlo_lm</code>', 'old', 'old')
+  + mrow('1', '<b>基準</b>', 'EH に加えて、半内殻の局所軌道（帯の上端が E_F − 17 eV より上）', '自動（<code>m_HamPMT</code>）', 'base')
+  + mrow('2', '1 + 陽イオンに EH2', '陽イオンの s,p に第 2 の smooth Hankel 関数（EH2）', '<code>mlo_lm2</code>', 'eh2')
+  + mrow('3', '1 + 空格子球', '空隙に置いた z = 0 の球の s,p', '<code>[[site]]</code>・<code>[[spec]]</code>・<code>mlo_lm</code>（DFT から回し直す）', 'es')
+  + mrow('', '<b>物質ごとに一番良いもの</b>', '1・2・3 のうち誤差の最大値が一番小さい模型（図 1〜3）', '', 'best', 'best')
+  + '</tbody></table>')
 
 # ---------- table 1 ----------
 def cells(v, w, best):
