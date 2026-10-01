@@ -1,6 +1,9 @@
 !>read pkmU for cRPA calclaitons ===
 module m_pkm4crpa 
-  implicit none !pkm4crpa: written by m_mlo_wfs write_pkm4crpa_mlo (hwmatK_MPI --mlo, mode 10011), the MLO weights p_kn (2026-10-02)
+  implicit none
+  ! pkm4crpa is written by write_pkm4crpa_mlo of m_mlo_wfs (hwmatK_MPI --mlo, mode 10011): the MLO weights p_kn (2026-10-02).
+  ! (Kept short: nvfortran 26.1 fort1 stopped with signal 11 on this file in the parallel builds of 2026-10-02 00:52-00:57
+  !  when this comment was on the 'implicit none' line, 132 columns long; whether that was the cause is not settled.)
   public:: Readpkm4crpa
   private
   real(8),allocatable:: pkmud(:,:,:),qvecud(:,:,:)
