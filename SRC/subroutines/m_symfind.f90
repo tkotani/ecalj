@@ -690,22 +690,23 @@ contains
        enddo
     enddo
   end function distinctrot
-  subroutine symfind_json(fname,nbas,spid,pos,plat,qlat,alat, ng,g,ag,ok,why) !Space group from symmetry.<sname>.json (symfind.py, spglib)
+  subroutine symfind_json(fname,nbas,spid,pos,plat,qlat,alat,ngmxj, ng,g,ag,ok,why) !Space group from symmetry.<sname>.json (symfind.py, spglib)
     ! (2026-10-02 05:34, step S3 of MD/symmetry_spglib.md) The file holds the operations x' = R x + t in the fractional coordinates
     ! of plat (R integer) and the structure they belong to. The structure is compared with the one given here (the ctrlg);
     ! a difference stops the run ("run symfind.py <sname> again"). Returns the Cartesian g = plat R plat^-1 and ag = plat t
     ! (alat units, r' = g r + ag), the identity first. ok=.false. (with why) when the file cannot be used yet:
-    ! pure translations (step S4) or time-reversed operations (AF, step S5); the caller then uses gensym.
+    ! time-reversed operations (AF, step S5); the caller then uses gensym. Pure translations (a supercell) are operations
+    ! too (2026-10-02 05:46, step S4): the group has |point group| x |pure translations| operations, up to ngmxj.
     use tjson_parser, only: json_load
     use tomlf, only: toml_table, toml_array, toml_value, toml_error, get_value, len
     use tomlf_type, only: cast_to_table
     implicit none
     character(*),intent(in):: fname
-    integer,intent(in):: nbas
+    integer,intent(in):: nbas,ngmxj
     character(*),intent(in):: spid(nbas)      ! species name of each site
     real(8),intent(in):: pos(3,nbas),plat(3,3),qlat(3,3),alat ! pos Cartesian (alat); plat(:,i) the i-th lattice vector
     integer,intent(out):: ng
-    real(8),intent(out):: g(3,3,ngmx),ag(3,ngmx)
+    real(8),intent(out):: g(3,3,ngmxj),ag(3,ngmxj)
     logical,intent(out):: ok
     character(*),intent(out):: why
     class(toml_value),allocatable,target:: obj
@@ -752,13 +753,9 @@ contains
     enddo
     ! the operations
     call get_value(root,'n_pure_translations',npure)
-    if(npure>1) then
-       why='the cell has pure translations (used from step S4 on)'
-       return
-    endif
     call get_value(root,'operations',ops)
     nop=len(ops)
-    if(nop>ngmx) call rx('symfind_json: more operations than ngmx')
+    if(nop>ngmxj) call rx('symfind_json: more operations than ngmxj')
     pinv = transpose(qlat) ! plat^-1
     do ig=1,nop
        call get_value(ops,ig,op)

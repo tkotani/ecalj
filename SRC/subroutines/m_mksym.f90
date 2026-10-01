@@ -37,13 +37,13 @@ contains
     use m_symderive,only: mptauof,rotdlmm
     use m_ftox
     implicit none
-    integer,parameter::  ngmx = 48
+    integer:: ngmx ! size of the operation arrays: 48 rotations x (pure translations <= nbas), x 2 for the added inversion (2026-10-02 05:46, step S4)
 !    character,intent(in)::  prgnam*(*)
     integer:: ibas,lc,j,iprint,nclass,ngrpTotal,k,npgrpAll
     integer,parameter::recln=511
     logical ::ipr10=.false.
     character strn*(recln),strn2*(recln),outs(recln)
-    real(8):: osymgr(3,3,ngmx), oag(3,ngmx)
+    real(8),allocatable:: osymgr(:,:,:), oag(:,:)
     real(8),parameter:: tol=1d-4
     integer,allocatable:: iclasstAll(:)
     call tcn('m_mksym_init')
@@ -54,10 +54,12 @@ contains
     lc=merge(1,0,addinv) ! Add inversion to get sampling k points. phi*. When we have TR with keeping spin \sigma, psi_-k\sigm(r) = (psi_k\sigma(r))^* 
     !lmxax=lmxax
     if(master_mpi) call pshpr(60)
+    ngmx = 96*nbas
+    allocate(osymgr(3,3,ngmx), oag(3,ngmx))
     allocate(iclasst(nbas),oics(nbas),oistab(nbas,ngmx))
     if(ipr10) write(stdo,"(a)")  'SpaceGroupSym of Lattice: ========start========================== '
     if(ipr10) write(stdo,"(a)") ' SYMGRP = '//trim(strn)
-    call mksym(lc,slabl,strn,ips, iclasst,nclasst,npgrp,ngrp,oag,osymgr,oics,oistab,faithful=.true.) !closed group with distinct rotations (gensym faithful in m_symfind)
+    call mksym(lc,slabl,strn,ips, iclasst,nclasst,npgrp,ngrp,oag,osymgr,oics,oistab,ngmx,faithful=.true.) !closed group with distinct rotations (gensym faithful in m_symfind)
     if(ipr10) write(stdo,"(a)") 'SpaceGroupSym of Lattice: ========end =========================== '
     allocate(symops,source=osymgr)
     allocate(ag,source=oag)
@@ -86,7 +88,7 @@ contains
          if(master_mpi) call pshpr(50)
          allocate(iclasstAll(nbas))
          if(ipr10) write(stdo,"(a)")   'SpaceGroupSym of Lattice+AF: ========start========================== '
-         call mksym(lc,slabl,strn2,ipsAF, iclasstAll,nclassAll, npgrpAll,ngrpTotal,oagAll,osymgrAll,oicsAll,oistabAll) !Big symmetry for lattice+AF
+         call mksym(lc,slabl,strn2,ipsAF, iclasstAll,nclassAll, npgrpAll,ngrpTotal,oagAll,osymgrAll,oicsAll,oistabAll,ngmx) !Big symmetry for lattice+AF
          ngrpAF=ngrpTotal-ngrp
          if(ipr10) write(stdo,"(a)")   'SpaceGroupSym of Lattice+AF: ========end========================== '
          if(master_mpi) call poppr()
@@ -127,7 +129,7 @@ contains
     endblock MiatTiatDlmm
     call tcx('m_mksym_init')
   end subroutine m_mksym_init
-  subroutine mksym(modeAddinversion,slabl,ssymgr,iv_a_oips, iclass,nclass,npgrp,nsgrp,rv_a_oag,rv_a_osymgr,iv_a_oics,iv_a_oistab,faithful)! Setup symmetry group. Split species into classes, Also assign class labels to each class
+  subroutine mksym(modeAddinversion,slabl,ssymgr,iv_a_oips, iclass,nclass,npgrp,nsgrp,rv_a_oag,rv_a_osymgr,iv_a_oics,iv_a_oistab,ngmxs,faithful)! Setup symmetry group. Split species into classes, Also assign class labels to each class
     use m_lmfinit,only: nbas,nspec,alat=>lat_alat,symgaf
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat,rv_a_opos
     use m_symfind,only: gensym,symfind_json,ngmx,ngnmx
@@ -156,10 +158,11 @@ contains
     !r   Also, the Green's functions are related G(-k) = Gtranspose(k). Thus if g is a space group operation rotating G0(g^-1 k) into G(k),
     !r   then G(-k) = Gtranspose(k), and the same (g,ag) information is needed for either rotation.
     integer :: modeAddinversion,nsgrp,npgrp,ibas,iwdummy1(1),idest,ig,iprint,igets,isym(10),j1,j2,lpgf,nclass,ngen, nggen,incli
-    integer:: iv_a_oips(nbas),iclass(nbas),ifind, iv_a_oics(nbas),iv_a_oistab(ngmx*nbas)
+    integer,intent(in):: ngmxs ! size of the operation arrays (gensym fills at most ngmx=48 of them)
+    integer:: iv_a_oips(nbas),iclass(nbas),ifind, iv_a_oics(nbas),iv_a_oistab(ngmxs*nbas)
     character(8) :: slabl(*),ssymgr*(*)
     character(1000) :: gens
-    real(8) :: gen(3,3,ngnmx), rv_a_oag(3,ngmx),rv_a_osymgr(3,3,ngmx)
+    real(8) :: gen(3,3,ngnmx), rv_a_oag(3,ngmxs),rv_a_osymgr(3,3,ngmxs)
     integer,allocatable ::  iv_a_onrc (:), iv_a_oipc(:) 
     logical:: symfind
     logical,optional,intent(in):: faithful
@@ -179,7 +182,8 @@ contains
     if(master_mpi) write(stdo,*)' Generators find or not: ',symfind
     ! Backend of the finder (2026-10-02 05:35, step S3 of MD/symmetry_spglib.md): the operations of symmetry.<sname>.json
     ! (symfind.py, spglib) when the file is there, SYMGRP is 'find' (the default) and this is the group of the crystal (not the
-    ! lattice+AF group, faithful=.false.); otherwise, or when the file cannot be used yet (pure translations, AF), gensym.
+    ! lattice+AF group, faithful=.false.); otherwise, or when the file cannot be used yet (AF), gensym. Pure translations are
+    ! used as operations from step S4 on (2026-10-02 05:46).
     ! Not with SYMGRPAF yet (step S5): gensym returns its generators in ssymgr, and the AF call of m_mksym_init builds the
     ! lattice+AF group from them; with 'find' left there it would take another path.
     ! ECALJ_SYMFIND=ecalj in the environment forces gensym (for comparisons).
@@ -192,7 +196,7 @@ contains
        if(trim(envv)=='ecalj') usejson=.false.
     endif
     if(usejson) then
-       call symfind_json(fjson,nbas,[(slabl(iv_a_oips(ib)),ib=1,nbas)],rv_a_opos(:,1:nbas),plat,qlat,alat, &
+       call symfind_json(fjson,nbas,[(slabl(iv_a_oips(ib)),ib=1,nbas)],rv_a_opos(:,1:nbas),plat,qlat,alat, ngmxs, &
             nsgrp,rv_a_osymgr,rv_a_oag,usejson,why)
        if(master_mpi.and..not.usejson) write(stdo,"(a)")' mksym: '//trim(fjson)//' not used: '//trim(why)//'; gensym'
     endif
@@ -217,14 +221,14 @@ contains
        call gensym(slabl,gens,symfind,nbas,nspec,ngmx,plat,plat,rv_a_opos(:,1:nbas),iv_a_oips, & !Generate space group ops
             nsgrp, rv_a_osymgr,rv_a_oag, ngen,gen,ssymgr, nggen,isym,iv_a_oistab,lfaithful)
     endif
-    if(nggen>ngmx) call rx('mksym: nggen>ngmx')
+    if(nggen>ngmxs) call rx('mksym: nggen>ngmxs')
     incli = -1
     npgrp = nsgrp
     if(modeAddinversion /= 0) then !Add inversion to point group
        ngen = ngen+1
        gen(:,:,ngen) = reshape([-1d0,0d0,0d0, 0d0,-1d0,0d0, 0d0,0d0,-1d0],[3,3])
        call pshpr(iprint()-40)
-       call grpgen(gen(1,1,ngen),1, rv_a_osymgr,npgrp, ngmx)
+       call grpgen(gen(1,1,ngen),1, rv_a_osymgr,npgrp, ngmxs)
        call poppr
        incli = npgrp-nsgrp
     endif  ! Printout of symmetry operations !    if(master_mpi) write(stdo,ftox)'  mksym: found ',nsgrp,' space group operations'

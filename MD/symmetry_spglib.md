@@ -205,6 +205,22 @@ GW 側の二つは `__HAMindex0` から読んだ操作のうち、呼ぶ側が�
 - 古い JSON（ctrlg の位置を 0.001 動かした）は「does not match the ctrlg (a site position). Run symfind.py <sname> again」で止まる。
   超格子の Si8（192 操作、純粋な並進 4）は「not used: the cell has pure translations」で gensym に戻る
 
+### 4.7e S3・S4 の確かめで分かったこと（2026-10-02 06:06）
+
+**表 6**. 試験の組を json の口で（kt1、`91f9bdcaf`、CPU、lmf などの前に `symfind.py` を走らせる包み、05:40〜05:59）
+
+| 組 | 結果 | 備考 |
+| --- | --- | --- |
+| inputs 172、afsym 4、affix 12、install 66、mlo 45、mloqsgw 5、procar 5、FermiSurface〜kBT_scanT | PASS | json が使われたことはログの `space group from symmetry` で確かめた |
+| BoltzTraP（Si） | TEST 2 FAIL | `si.struct.boltztrap` は操作の一覧。整数の行列として集合は同じで、並びだけが違う。S6 で json を既定にするとき参照を作り直す |
+| AtomDimer（N₂） | STOPPED | 試験が `--ctrlg:site.n.pos=` で位置を上書きしていた。照らし合わせが止めたのは正しい動き。`symfind.py` が同じ上書きを受け取るようにした（`3572a0859`）。S6 で lmf の前段から呼ぶときも引数をそのまま渡す |
+
+- Si8（Si の 8 原子の立方胞、[bz] 8×8×8、gfortran、t14）: json の口で 192 操作（純粋な並進 4）と、gensym の 24 操作（`ECALJ_SYMFIND=ecalj`）で、
+  収束した ehf・ehk・sev が表示の桁まで一致（ehf −62922.978555 eV、sev −64.768559 eV）。既約な k は両方 35。対称性なしは計算中
+  （以前に見た −62923.0390 eV は収束していない反復の値だった）
+- S4a で LiTi₂O₄（`Samples/kBT/LiTi2O4`）の lmchk が止まった: gensym の `ag` は格子ベクトル何個分も長いことがあり、`mptauof` の格子のずれの探索
+  （各方向 −3〜3）が届かなかった。分数座標を丸めて直接求めるように直した（一致すれば同じ格子ベクトル）
+
 ### 4.8 決めたこと（user 2026-10-02）
 
 1. 口は別ファイル `symmetry.json`（ctrlg に書かない）。ctrlg のハッシュを入れて整合性を保つ
