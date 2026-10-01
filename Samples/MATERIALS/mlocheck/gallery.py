@@ -203,18 +203,22 @@ for i, m in enumerate(srt):
     w, k = BEST[m]; x = bl + i * step
     sv.append(f'<rect x="{x+1:.1f}" y="{by(w):.1f}" width="{max(step-2,2):.1f}" height="{BH-bb-by(w):.1f}" rx="2" class="bar m-{k}"><title>{m} {LAB[k]}: {w:.3f} eV ({sev(w)})</title></rect>')
     sv.append(f'<text x="{x+step/2:.1f}" y="{BH-bb+8}" class="blab" transform="rotate(60 {x+step/2:.1f} {BH-bb+8})">{m}</text>')
-segs, cur = [], []                                     # the line breaks where model 2 has no value (EuO stopped)
-for i, m in enumerate(srt):
-    v = W_['eh2'][m]
-    if v is None:
-        if cur: segs.append(cur); cur = []
-        continue
-    cur.append((bl + (i + 0.5) * step, by(v), m, v))
-if cur: segs.append(cur)
-for s in segs:
-    sv.append('<polyline class="eh2line" points="' + ' '.join(f'{x:.1f},{y:.1f}' for x, y, _, _ in s) + '"/>')
-    for x, y, m, v in s:
-        sv.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="5" class="hit"><title>{m} 2. 陽イオンに EH2: {v:.3f} eV</title></circle>')
+# polylines of model 1 (grey, user 18:3x) and model 2 (blue); a line breaks where the model has no value (EuO stopped
+# in model 2). SiO2c is left out of both lines: its best is model 3 and its 1 and 2 lack the conduction band (user 18:3x).
+for k, cls in (('base', 'line1'), ('eh2', 'eh2line')):
+    segs, cur = [], []
+    for i, m in enumerate(srt):
+        if m in ES: continue
+        v = W_[k][m]
+        if v is None:
+            if cur: segs.append(cur); cur = []
+            continue
+        cur.append((bl + (i + 0.5) * step, by(v), m, v))
+    if cur: segs.append(cur)
+    for s in segs:
+        sv.append(f'<polyline class="{cls}" points="' + ' '.join(f'{x:.1f},{y:.1f}' for x, y, _, _ in s) + '"/>')
+        for x, y, m, v in s:
+            sv.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="5" class="hit"><title>{m} {LAB[k]}: {v:.3f} eV</title></circle>')
 sv.append(f'<text x="14" y="{(bt+BH-bb)/2}" class="axis" text-anchor="middle" transform="rotate(-90 14 {(bt+BH-bb)/2})">eV</text></svg>')
 chart2 = '\n'.join(sv)
 
@@ -313,7 +317,7 @@ tiny = [m for m in allm if BEST[m][1] != 'base' and W_['base'][m] - BEST[m][0] <
 TINY = '・'.join(tiny) + f'（{len(tiny)} 物質）'
 page = open(f'{HERE}/page_template.html').read()
 REP = {'@@CHART1@@': chart1, '@@CHART2@@': chart2, '@@TABLE@@': table, '@@CMP@@': '\n'.join(cmp), '@@CMPPROB@@': '\n'.join(cmp_prob), '@@NPROB@@': str(len(cmp_prob)), '@@GALLERY@@': '\n'.join(gal),
-       '@@COUNTS@@': counts_tbl, '@@TINY@@': TINY, '@@N@@': str(len(allm)), '@@NCMP@@': str(len(cmp)), '@@REV@@': rev, '@@DATE@@': NOW}
+       '@@COUNTS@@': counts_tbl, '@@TINY@@': TINY, '@@SIO2_1@@': fmt(W_['base'].get('SiO2c'), 2), '@@SIO2_2@@': fmt(W_['eh2'].get('SiO2c'), 2), '@@N@@': str(len(allm)), '@@NCMP@@': str(len(cmp)), '@@REV@@': rev, '@@DATE@@': NOW}
 for k, val in REP.items(): page = page.replace(k, val)
 open(f'{OUT}/index.html', 'w').write(page)
 print('wrote', OUT, len(allm), 'materials; base', CNT['base'], 'eh2', CNT['eh2'], 'best', CNT['best'], 'missing', missing,

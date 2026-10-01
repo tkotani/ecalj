@@ -6,18 +6,18 @@
 /* Layout: one reading column for the text; the charts, the table and the band figures take the full width. */
 :root {
   --bg: #f5f7fa; --surface: #ffffff; --ink: #18202b; --muted: #586474; --line: #d6dce4;
-  --accent: #2b5d8f; --dft: #7c8591; --mlo: #c0392b; --miss: #e08a1e; --m1: #9aa5b3; --m2: #2f6db5; --m3: #d9822b;
+  --accent: #2b5d8f; --dft: #7c8591; --mlo: #c0392b; --miss: #e08a1e; --m1: #9aa5b3; --m1l: #5f6a78; --m2: #2f6db5; --m3: #d9822b;
   --good: #2e7d4f; --good-bg: #e3f2e9; --ok: #5f7d12; --ok-bg: #eef4dc; --warn: #9a6a12; --warn-bg: #fbf0d9; --bad: #b3261e; --bad-bg: #fbe4e2;
   --font-body: "IBM Plex Sans", "IBM Plex Sans JP", "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #10141a; --surface: #182029; --ink: #e5eaf1; --muted: #9aa6b4; --line: #2b3542;
-  --accent: #82b4e8; --dft: #9aa3ae; --mlo: #f07162; --miss: #f0a34a; --m1: #6e7988; --m2: #6fa8e6; --m3: #f0a04b;
+  --accent: #82b4e8; --dft: #9aa3ae; --mlo: #f07162; --miss: #f0a34a; --m1: #6e7988; --m1l: #b4bdc8; --m2: #6fa8e6; --m3: #f0a04b;
   --good: #6cc995; --good-bg: #173326; --ok: #b5d36a; --ok-bg: #2a3315; --warn: #e5b458; --warn-bg: #362a12; --bad: #f28b82; --bad-bg: #3b1c1a; color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #10141a; --surface: #182029; --ink: #e5eaf1; --muted: #9aa6b4; --line: #2b3542;
-  --accent: #82b4e8; --dft: #9aa3ae; --mlo: #f07162; --miss: #f0a34a; --m1: #6e7988; --m2: #6fa8e6; --m3: #f0a04b;
+  --accent: #82b4e8; --dft: #9aa3ae; --mlo: #f07162; --miss: #f0a34a; --m1: #6e7988; --m1l: #b4bdc8; --m2: #6fa8e6; --m3: #f0a04b;
   --good: #6cc995; --good-bg: #173326; --ok: #b5d36a; --ok-bg: #2a3315; --warn: #e5b458; --warn-bg: #362a12; --bad: #f28b82; --bad-bg: #3b1c1a; color-scheme: dark }
 body { background: var(--bg); color: var(--ink); font: 15px/1.65 var(--font-body); margin: 0; }
 .wrap { max-width: 1240px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 64px; display: flex; flex-direction: column; gap: 36px; }
@@ -47,6 +47,8 @@ del { color: var(--muted); text-decoration-thickness: 1.5px; }
 .legend i.m-base, .legend i.m-eh2, .legend i.m-es { border-radius: 2px; }
 .legend i.m-base { background: var(--m1); } .legend i.m-eh2 { background: var(--m2); } .legend i.m-es { background: var(--m3); }
 .chart .eh2line { fill: none; stroke: var(--m2); stroke-width: 1.6; stroke-linejoin: round; opacity: .9; }
+.chart .line1 { fill: none; stroke: var(--m1l); stroke-width: 1.6; stroke-linejoin: round; }
+.legend i.line1 { border-radius: 0; height: 2px; width: 20px; background: var(--m1l); vertical-align: 3px; }
 .chart .hit { fill: transparent; stroke: none; }
 .legend i.line2 { border-radius: 0; height: 2px; width: 20px; background: var(--m2); vertical-align: 3px; }
 .chart .pt.was { fill: none; stroke: var(--muted); stroke-width: 1.5; }
@@ -75,7 +77,7 @@ td.sev-good { background: var(--good-bg); color: var(--good); } td.sev-fair { ba
 td.sev-marginal { background: var(--warn-bg); color: var(--warn); } td.sev-poor { background: var(--bad-bg); color: var(--bad); }
 td.best { font-weight: 600; box-shadow: inset 3px 0 0 currentColor; }
 tr.sub td { border-top: 0; } tr.sub td.name { padding-left: 22px; }
-th.grp { text-align: center; border-bottom: 2px solid var(--line); }
+th.colgrp { text-align: center; border-bottom: 2px solid var(--line); }
 table.cnt td.what { white-space: normal; min-width: 18ch; max-width: 40ch; } table.cnt td.no { font-weight: 600; text-align: center; }
 table.cnt tr.best td { border-top: 2px solid var(--line); }
 table.cnt th, table.cnt td { padding: 6px 14px; }
@@ -162,9 +164,9 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
 <section class="panel">
   <h2>図 2. 窓の中での固有値のずれ（誤差の最大値）。物質ごとに一番良い模型（対数軸、破線は 0.02・0.05・0.1 eV）</h2>
   <div class="legend"><span><i class="m-base"></i>1. 基準が一番</span><span><i class="m-eh2"></i>2. 陽イオンに EH2 が一番</span><span><i class="m-es"></i>3. 空格子球が一番</span>
-    <span><i class="line2"></i>2. 陽イオンに EH2 の値（全物質、EuO は止まったので切れる）</span></div>
+    <span><i class="line1"></i>1. 基準の値</span><span><i class="line2"></i>2. 陽イオンに EH2 の値（EuO は止まったので切れる）</span></div>
   <div class="scroll">@@CHART2@@</div>
-  <p class="note">棒の色は模型、判定は破線で読む（0.02 以下が good、0.05 以下が fair、0.1 以下が marginal）。2 が一番の物質のうち @@TINY@@ は、1 との差が 0.001 eV に満たない。折れ線が棒の上に出ている物質は 1 の方が良い（Cu・Ni は 2 で壊れる、図 5）。</p>
+  <p class="note">棒の色は模型、判定は破線で読む（0.02 以下が good、0.05 以下が fair、0.1 以下が marginal）。SiO₂c は線に入れていない（1 は @@SIO2_1@@、2 は @@SIO2_2@@ eV で、どちらも伝導帯が抜ける。棒は 3 の空格子球）。2 が一番の物質のうち @@TINY@@ は、1 との差が 0.001 eV に満たない。折れ線が棒の上に出ている物質は 1 の方が良い（Cu・Ni は 2 で壊れる、図 5）。</p>
 </section>
 
 <section class="panel">
@@ -172,7 +174,7 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
   <p class="note">ギャップは DFT の（k メッシュと対称線の上のうち小さい方）。窓は誤差を見る範囲（E_F 基準、VBM − 8 〜 CBM + mlo_delta）。
     誤差は窓の中での固有値のずれ（誤差の最大値は rms の 2 つの向きと |ギャップの誤差| のうち最大）。色は判定、太字と左の線はその物質で一番良い模型。SiO₂c は空格子球の有無を 2 段に書く。見出しを押すと並べ替え。</p>
   <div class="scroll"><table id="tbl"><thead>
-    <tr><th colspan="3"></th><th class="grp" colspan="2">1. 基準</th><th class="grp" colspan="2">2. 陽イオンに EH2</th></tr>
+    <tr><th colspan="3"></th><th class="colgrp" colspan="2">1. 基準</th><th class="colgrp" colspan="2">2. 陽イオンに EH2</th></tr>
     <tr><th scope="col" tabindex="0">物質</th><th scope="col" tabindex="0" class="num">ギャップ</th><th scope="col" tabindex="0" class="num">誤差を見る窓</th>
     <th scope="col" tabindex="0" class="num">ギャップの誤差</th><th scope="col" tabindex="0" class="num">誤差の最大値</th>
     <th scope="col" tabindex="0" class="num">ギャップの誤差</th><th scope="col" tabindex="0" class="num">誤差の最大値</th></tr></thead>
