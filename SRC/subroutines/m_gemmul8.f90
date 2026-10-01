@@ -68,8 +68,11 @@ contains
     !> Create the GEMMul8 handle at the first product routed to it (m_linalg_policy decides which ones).
     use m_lgunit, only: stdo
     use m_ftox, only: ftox
-    use m_mpi,only: ipr
+    use mpi, only: MPI_COMM_WORLD
+    ! Rank 0 prints, from MPI directly: `use m_mpi` here closed a module cycle in the GPU build
+    ! (m_mpi -> m_gpu -> m_blas -> m_gemmul8 -> m_mpi; 2026-10-02 05:28, MD/module_map.md).
     logical, save :: is_gemmul8_inited = .false.
+    integer :: rank, ierr
     istat = 0
     if(is_gemmul8_inited) return
     is_gemmul8_inited = .true.
@@ -79,7 +82,8 @@ contains
     call envint('ECALJ_GEMMUL8_FAST',     fastmode_gemmul8)
 #ifdef __GEMMUL8
     call gemmul8_init_handle(gemmul8_handle)
-    if(ipr) write(stdo,ftox) 'gemmul8: default moduli c z d =', &
+    call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierr)
+    if(rank==0) write(stdo,ftox) 'gemmul8: default moduli c z d =', &
          num_moduli_c, num_moduli_z, num_moduli_d, 'fastmode=', fastmode_gemmul8
 #endif
   contains
