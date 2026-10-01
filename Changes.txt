@@ -1,3 +1,20 @@
+2026-10-02 (1)
+  Wannier 関数（最大局在化）の経路、AHC、lmfham2 を外し、模型は MLO だけにした。外す前の版は git のタグ last-wannier
+  （そこで Samples/WannierVsMLO/run.sh が MLO との比較を再現する）。比較は ecaljdoc mlo §6 の表 M7 と MD/wannier_vs_mlo.md。
+  - 外したもの: hmaxloc、hpsig_MPI、wanplot、hsocmat、hmagnon（Wannier のマグノン）、hahc（AHC）、lmfham2（反復で作る古い MLO）と
+    genMLWF、genMLWFx、genMLWFdipoleTEST、job_magnon、job_AHC、hx0ahc.py、genMLO。試料 Samples/Magnon の Fe・Ni・FeCo・
+    Fe_bcc_in_sc の Wannier 版。[gw] の wan_* と lmfham2 の mlo_maxit などのキーは読まない（書いてあっても無視）。
+    gwinit は Wannier の節を書かない。オプション --ahc、--mloahc、--AHCMAT、--UUMAT、--cmlo、--nb、--nww、--cutuu、--Wtype、
+    --q2q1test、huumat の --dwnb=wan は廃止（与えると理由を言って止まる）。
+  - cRPA: job_mloW <sname> --crpa（v、W - v に加えて Screening_W-v_crpa.UP/DN）。模型の部分空間 [mlo] mlo_lm の中の遮蔽を除く
+    （バンドの重み p_kn = [C (C^+C)^-1 C^+]_nn、Sasioglu らの重みの方式）。試験 TestInstall/ni_crpa・srvo3_crpa は MLO 版になった。
+  - 広がり: mlo_spread.py <sname> -np N（job_mloW の後）。MLO ごとの <r>、<r^2>、Omega。
+  - MLO の規格化: 実空間の 2 乗積分 O_ii(R=0) で、軌道ごとに k によらない定数で割る（mlo が HamRsMLO を作るとき。HamRsMLO の末尾に
+    その値を書く）。バンドは変わらない。job_mloW の U、J は長さ 1 の軌道の値になった（Fe の d の W は 1-6 % 動いた）。
+    前の HamRsMLO（2026-10-01 以前）は使えないので、job_mlo（mlo）を回し直す。実験用の --mlo_diagnorm、--mlo_feb4、
+    --mlo_ortho、--mlo_orthonorm、--gs は廃止。
+  - __cmlo.info の nqbz が 0 だった誤りを直した（読む所が無かった）。
+
 2026-10-01 (4)
   MLO の模型の検査と窓の基準。説明は ecaljdoc mlo §4・§9。
   - mlo_bandcheck.py が模型の破綻を検査する (CHECK PASS/FAIL)。FAIL: 窓の中の 1 点のずれが 0.1 eV を超える (--fail-max)、DFT の帯ごとのずれが

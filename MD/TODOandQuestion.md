@@ -34,7 +34,8 @@
   (c) `m_ldau_init` が lmf の起動のたびに場を一歩更新して `mmagfield.aftest` を書き直す（`job_band` でも）。(d) ecaljdoc の `UsageDetailed.md` の「直す必要がある」を、
   使い方（LDA+U のブロックが要る、U = 0 でよい、`SYMGRPAF`、目標のモーメントの定義）に書き直す
 
-- **Wannier（`hmaxloc` の経路）を外して MLO だけにする**（user 2026-10-01 夜）: 決めたこと: AHC（`hahc`・`job_AHC`・`hx0ahc.py`・`x0kf_ahc`）は消す。cRPA は MLO で作る（`pkm4crpa` の重み p_kn を MLO の射影 [C (C†C)⁻¹ C†]_nn から、`job_mloW --crpa`。`ni_crpa`・`srvo3_crpa` を MLO 版に）。`wanplot` は消す（MLO 版は将来）。`genMLWFdipoleTEST` は要らない。マグノンは `Fe_mlo_magnon` が Wannier 版と q ≥ 0.4 で 1.5 倍違う（README 図 1）。順番: cRPA の置き換え → AHC・wanplot・dipoleTEST → Wannier の主プログラム・module・`wan_*` のキー・gwinit の節・ecaljdoc
+- **MLO と Wannier のずれの追跡**（2026-10-02、`MD/wannier_vs_mlo.md`）: Ni d の cRPA の U が MLO で 25 % 低い（d の部分空間の切り出し方の違い）、Fe のマグノンの q ≥ 0.4 で MLO が 1.5〜2.5 倍高い。実験（Fe のマグノン分散）との比較と、MLO の窓（`mlo_delta`、`mlo_w`）への依存を測る
+- **ecaljdoc mlo §9 の式 (12)（MLO の重なりの最小固有値）の目安の値**（2026-10-02）: 規格化する前の MLO で測った値（基準 1 で 3×10⁻³〜10⁻²）。MLO を実空間で規格化した今は大きく出る。判定は中央値との比なので影響しないが、目安の数値は測り直す（MATERIALS の 65 物質）
 - **`hgw` の残り**（2026-04 の統合の残タスク、2026-10-01 に past_log.md §3.2 から）: ノード内の W の共有を `MPI_Win_allocate_shared` で（メモリの重複を減らす）。
   `hsfp0_sc` の Sx（`--job=1`）・core の交換（`--job=3`）も `hgw` に入れる（時間は小さいので優先度は低い）
 
@@ -81,6 +82,11 @@
 ---
 
 ## 4. やったこと（新しい順）
+
+### 2026-10-02
+
+- MLO を実空間で規格化（`0e33fbd87`）、`mlo_spread.py` と比較の記録（`ec4361edc`）、比較の一式とタグ `last-wannier`（`f1de3817a`）、cRPA の試験を MLO 版に（`e22bb9075`）、Wannier・AHC・lmfham2 を外した（`6d8b9f05b`、`dfffe0dfd`）。`MD/wannier_vs_mlo.md`、ecaljdoc mlo §6
+- `TOOLS/sync_ecalj_src.sh`: 送り先の `SRC/subroutines`・`main`・`exec` にあって HEAD に無いファイルを `trash/` へ移す（Wannier を外したとき kt1・kr7 に 30 本残って CMake が拾った）
 
 ### 2026-10-01
 

@@ -72,11 +72,16 @@ ship(){  # $1=host $2=dir
   ( cd "$LOCAL_DIR" && git archive --format=tar HEAD $paths > "$tarf" ) || return 1
   mkdir -p "$tmp/SRC"
   printf '%s  %s  from %s\n' "$rev" "$(date '+%Y-%m-%d %H:%M')" "$(hostname)" > "$tmp/SRC/.ecalj_rev"
-  ( cd "$tmp" && tar rf "$tarf" SRC/.ecalj_rev ) || return 1
+  # The list of the shipped sources: on the remote, a file of SRC/subroutines, SRC/main or SRC/exec that is not in it
+  # (removed here since the last sync) is moved to <dir>/trash/, or the CMake GLOB would still compile it.
+  # (2026-10-02: the 30 sources of the Wannier functions removed here stayed on kt1 and kr7.)
+  ( cd "$LOCAL_DIR" && git ls-files SRC/subroutines SRC/main SRC/exec ) > "$tmp/SRC/.ecalj_files"
+  ( cd "$tmp" && tar rf "$tarf" SRC/.ecalj_rev SRC/.ecalj_files ) || return 1
   gzip -1 -f "$tarf"
   echo "shipping $rev to $h:$d  ($(du -h "$tarf.gz" | cut -f1))"
   timeout 900 scp -q "$tarf.gz" "$h:/tmp/ecalj_src.tar.gz" || { echo "scp FAILED"; rm -rf "$tmp"; return 1; }
   timeout 300 ssh -o ConnectTimeout=10 "$h" "mkdir -p $d && tar xzf /tmp/ecalj_src.tar.gz -C $d && rm -f /tmp/ecalj_src.tar.gz && cat $d/SRC/.ecalj_rev"
+  timeout 120 ssh -o ConnectTimeout=10 "$h" "cd $d && find SRC/subroutines SRC/main SRC/exec -maxdepth 1 -type f ! -name '.*' | sort | comm -23 - <(sort SRC/.ecalj_files) | while read f; do mkdir -p trash/\$(dirname \$f) && mv \$f trash/\$f && echo \"moved to trash: \$f\"; done"
   rm -rf "$tmp"
 }
 
