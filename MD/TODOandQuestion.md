@@ -23,7 +23,7 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 | 4 | GPU の build の module の循環 | kt1・kr7 で回せる、手元と並行 | kt1・kr7 の clean build と試験 | **済み** `a7f64752e`・`f553b5222` |
 | 5 | 対称性 S3（`symmetry.json` を読む口）→ S4（純粋な並進）→ S5（AF、`AFsymmetry/NiO` の pwmode も）→ S6（既定に） | 設計どおり一段ずつ | 各段の表（`MD/symmetry_spglib.md` §4.7） | S3〜S5 **済み**（Si8 で lmf・MLO・QSGW が一致、試験の組 PASS）。S6 は §2 で判断待ち |
 | 6 | MLO の最大局在化（Python で試作、Fe・Ni） | 5 の操作を使う | Ω、U、マグノン | 試作**済み**（`mlo_maxloc.py --sym`）。Ω まで。U・マグノンは未 |
-| 7 | マグノンの既定の窓、MLO と Wannier のずれ | 6 の結果で判断 | Fe・Ni・FeCo | 未（6 で、ずれは部分空間の側と分かった） |
+| 7 | マグノンの既定の窓、MLO と Wannier のずれ | 6 の結果で判断 | Fe・Ni・FeCo | 3 物質で比べた（07:10）。Δ = 6 eV を勧め、§2 で判断待ち |
 | 8 | MLO の模型の残り（EH2 の崩れ、§9 の目安の値の測り直し、空格子球の自動化） | 計算機で裏で回せる | MATERIALS | 原因の確かめと測り直し、`ctrlg_addes.py` の直し**済み**。EH2 の直し方は要判断 |
 | 後 | `sugw` のメモリ、`hgw` の残り、MP の API と GW1500 の選定 | 大きい、または外の事情 | — | 未 |
 
@@ -77,6 +77,8 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 
 ## 2. 質問（メンテナに決めてほしいこと）
 
+- **MLO のマグノンの窓を Δ = 6 eV にするか**（2026-10-02 07:10、研究ログ 07:10）: Fe・FeCo・Ni で、Δ = 6 eV（w = 2）は Wannier のマグノンから 0.02 eV 程度、
+  既定（2, 2）は Ni では良いが Fe・FeCo の高い q で 2 倍近く高い。`job_mlo_magnon` が窓を Δ = 6 eV にするか、試料の入力に書くか。`Samples/Magnon/Fe_mlo_magnon` の参照の作り直しを伴う
 - **対称性 S6: `symmetry.<sname>.json` を既定にする方法**（2026-10-02 06:17、`MD/symmetry_spglib.md` §4.7）。S1〜S5 で、ファイルがあれば spglib の操作
   （純粋な並進・AF も）を使い、無ければ今までどおり gensym、の形になった。既定にするには誰が `symfind.py` を走らせるかを決めたい:
   (a) `ctrlgenToml.py` が入力を作るときに作る（構造を変えたら作り直し。古いと lmf が止まって知らせる）、(b) `gwsc`・`job_*` が lmf の前に毎回作る

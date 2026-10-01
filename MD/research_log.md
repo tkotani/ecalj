@@ -84,6 +84,26 @@
 
 ## 2026-10-02 — MLO を実空間で規格化、実験用の MLO オプションを廃止（Wannier を外す作業の続き）
 
+### 07:10 MLO のマグノンの窓: Ni・FeCo でも比べた（TODO の順番 7）
+
+kr7（`46b9740bb`、CPU）、入力はタグ `last-wannier` の `Samples/Magnon/Ni_magnon`・`FeCo_magnon` の ctrlg に `mlo_nkabc = [8,8,8]` を足したもの、
+Wannier のマグノン（同じタグの `TrRpm.syml001`）と比べた。06:59〜07:08。図と数値は t14 の `~/work/magnon_nifeco/{Ni,FeCo}/magnon_peaks.{png,npz}`・`peaks.txt`。
+
+**表 07:10-1**. η（Goldstone の条件で W に掛ける倍率）と、マグノンのピークの Wannier からのずれ（q > 0.05、eV）。Fe は 04:17 の表から
+
+| 物質 | 窓 (Δ, w) | η | 最大のずれ | 平均のずれ |
+| --- | --- | --- | --- | --- |
+| Ni | 既定 (2, 2) | 1.10 | 0.015 | 0.007 |
+| Ni | (6, 2) | 1.70 | 0.022 | 0.010 |
+| FeCo | 既定 (2, 2) | 0.87 | 0.207 | 0.112 |
+| FeCo | (6, 2) | 1.24 | 0.025 | 0.010 |
+| Fe | 既定 (2, 2) | 0.78 | q = 0.6 で 0.49 | — |
+| Fe | (6, 2) | 1.18 | q = 0.6 で 0.01 | — |
+
+- Δ = 6 eV（w = 2）は 3 物質とも Wannier から 0.02 eV 程度。既定の窓は Ni では良いが、bcc の Fe・FeCo では高い q で 2 倍近く高い
+- η が 1 に近いことは目安にならない（Fe の (2, 11) は η 1.05 でも q = 0.4 で 0.37、Wannier 0.20）
+- 勧め: `job_mlo_magnon` の既定（またはマグノンの試料の入力）を Δ = 6 eV に。参照（`Samples/Magnon/Fe_mlo_magnon`）の作り直しを伴うので、判断は TODO §2 へ
+
 ### 06:43 試験の結果（対称性 S1〜S4b）、Si8 の MLO、tf32 の 36 物質
 
 **表 06:43-1**. 試験の組（`TOOLS/samples_tests.sh`）
