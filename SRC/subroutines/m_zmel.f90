@@ -93,7 +93,7 @@ contains
     !> combined-program flow where hrcxq calls with (identity, ng=1) and hsfp0_sc
     !> calls with (full symgg, ng=ngrp): the larger setup subsumes the smaller.
     use m_symderive,only:mptauof
-    use m_hamindex0,only: Readhamindex0,iclasst
+    use m_hamindex0,only: Readhamindex0,iclasst, symops_h0=>symops, shtvg_h0=>shtvg, ngrp_h0=>ngrp
     use m_keyvalue,only: getkeyvalue
     use m_GWinput, only: gwinput_init, gwinput_loaded, tg_KeepPpb => KeepPpb
     intent(in)::          symops,ng
@@ -101,6 +101,7 @@ contains
     real(8):: symops(9,ng)
     integer,allocatable ::  invgx(:)
     integer, save :: ng_done = 0
+    integer:: ig
     if (ng_done >= ng) return ! Existing setup is sufficient
     ! New or larger ng requested: rebuild
     if (allocated(miat))  deallocate(miat)
@@ -113,7 +114,14 @@ contains
     endif
     call readhamindex0()
     allocate(invgx(ng),miat(natom,ng),tiat(3,natom,ng),shtvg(3,ng))
-    call mptauof(symops,ng,plat,natom,pos,iclasst,miat,tiat,invgx,shtvg ) !Set miat,tiat,shtvg for space group.
+    ! The translations are those of __HAMindex0 (shtvg = ag of m_mksym; 2026-10-02 05:44, step S4): the operations given
+    ! must be its first ng (the whole group, or the identity alone).
+    if(ng>ngrp_h0) call rx('mptauof_zmel: ng > ngrp of HAMindex0')
+    do ig=1,ng
+       if(maxval(abs(reshape(symops(:,ig),[3,3])-symops_h0(:,:,ig)))>1d-6) &
+            call rx('mptauof_zmel: the operations are not the first ng of HAMindex0')
+    enddo
+    call mptauof(symops,ng,plat,natom,pos,iclasst,miat,tiat,invgx,shtvg, ag=shtvg_h0(:,1:ng)) !Set miat,tiat,shtvg for space group.
     deallocate(invgx)
     call rdpp(ng,symops)  !return ppbrd:radial integrals and cgr:rotated cg coeffecients.
     ! MO 2024-12-03 ppbir is set in when KeepPpb is .true.

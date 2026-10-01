@@ -108,9 +108,12 @@ contains
     MiatTiatDlmm:block
       allocate(miat(nbas,ngrpTotal),tiat(3,nbas,ngrpTotal),invgx(ngrpTotal),shtvg(3,ngrpTotal),&
            dlmm(-lmxax:lmxax,-lmxax:lmxax,0:lmxax,ngrpTotal))
-      call            mptauof(symops,             ngrp,  plat,nbas,rv_a_opos,iclasst,   miat,tiat,invgx,shtvg)  !for ig=1,ngrp
+      ! The translations ag are given to mptauof (2026-10-02 05:42, step S4): shtvg = ag, and the inverse is found by rotation
+      ! and translation. mptauof used to search a translation of its own, the same one for two operations with the same rotation.
+      call            mptauof(symops,             ngrp,  plat,nbas,rv_a_opos,iclasst,   miat,tiat,invgx,shtvg, &
+           ag=ag(:,1:ngrp))  !for ig=1,ngrp
       if(AFmode) call mptauof(symops(:,:,ngrp+1:),ngrpAF,plat,nbas,rv_a_opos,iclasstAll, & !  ig=ngrp+1,ngrpAF
-           miat(:,ngrp+1:),tiat(:,:,ngrp+1:),invgx(ngrp+1:),shtvg(:,ngrp+1:),afmode) !mapping of sites by spacegrope ops
+           miat(:,ngrp+1:),tiat(:,:,ngrp+1:),invgx(ngrp+1:),shtvg(:,ngrp+1:),afmode, ag=ag(:,ngrp+1:ngrp+ngrpAF)) !mapping of sites by spacegrope ops
 !      write(stdo,ftox)'mmmmm iclasst=',iclasst
 !      do ig=1,ngrp
 !         write(stdo,ftox)'mmmm ig=',ig, 'miat=',miat(1:nbas,ig)

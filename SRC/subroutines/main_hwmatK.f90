@@ -273,7 +273,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   use m_wmatqk,only: wmatqk_mpi
   use m_wigner_seitz,only: wigner_seitz
   use m_readqg,only: readngmx2,ngcmx,ngpmx,readqg0,readqg
-  use m_hamindex,only:   Readhamindex,symgg=>symops,ngrp,invg=>invgx
+  use m_hamindex,only:   Readhamindex,symgg=>symops,ngrp,invg=>invgx,shtvg_h=>shtvg
   use m_read_bzdata,only: Read_bzdata,qibz,irkin=>irk,ginv,n1,n2,n3,nqbz,nqibz,nstar,nstbz,qbas=>qlat,qbz,wibz,wbz &
        ,nq0i=>nq0ix,wqt=>wt,q0i
   use m_readeigen,only: init_readeigen,init_readeigen2
@@ -567,7 +567,7 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   call init_readeigen()!nband,mrece) !initialization of readEigen
   allocate(invgx(ngrp),miat(natom,ngrp),tiat(3,natom,ngrp),shtvg(3,ngrp))
   call readhamindex0()
-  call mptauof(symgg,ngrp,plat,natom,pos,iclasst,miat,tiat,invgx,shtvg )
+  call mptauof(symgg,ngrp,plat,natom,pos,iclasst,miat,tiat,invgx,shtvg, ag=shtvg_h(:,1:ngrp)) !translations of HAMindex (= ag of m_mksym; 2026-10-02 05:44)
   call getsrdpp2( natom,nl,nxx)
   call readngmx2()
   if (master_mpi) write(6,*)' ngcmx ngpmx=',ngcmx,ngpmx

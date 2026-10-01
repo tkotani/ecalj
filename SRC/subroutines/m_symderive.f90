@@ -174,7 +174,7 @@ contains
 99  continue
     call rx('GRPGEN: too many elements nnow ngmx='//trim(xn(nnow))//' '//trim(xn(ngmx)))
   end subroutine grpgen
-  subroutine mptauof(symops,ng,plat,nbas,bas, iclass,miat,tiat,invg,delta,afmode) !- Mapping of atomic sites by points group operations.
+  subroutine mptauof(symops,ng,plat,nbas,bas, iclass,miat,tiat,invg,delta,afmode,ag) !- Mapping of atomic sites by points group operations.
     use  m_lmfinit,only: iantiferro
     !i  Input
     !i     symops(1,ng),ng,plat,nbas,bas(3,nbas)
@@ -192,7 +192,15 @@ contains
     !r    bas( k,miat(ibas,ig) )+ tiat(k,ibas,ig), k=1~3.
     !r
     !r (2) tiat= unit translation
+    !r (3) ag (optional, 2026-10-02 05:42, step S4 of MD/symmetry_spglib.md): the translation of each operation. Given, delta = ag
+    !r     and only the lattice shifts tiat are searched; the inverse invg is the operation with the inverse rotation AND
+    !r     translation (mod lattice). Without ag the translation is searched (the first one mapping every site onto a site of
+    !r     its class) and invg is found from the rotation alone: two operations with the same rotation (a supercell with pure
+    !r     translations) then become the same operation.
     implicit none
+    real(8),optional,intent(in):: ag(3,ng)
+    real(8):: pinv(3,3),dl(3)
+
     integer :: ng,nbas, miat(nbas,ng),iclass(nbas),invg(ng), &
          nbmx, nsymx, ig,igd,i,j,ibas,mi,i1,i2,i3
     double precision :: SYMOPS(9,ng),plat(3,3), &
@@ -205,7 +213,20 @@ contains
     logical,optional:: afmode
     ep=1d-3
     if(iprintx>=46) write(6,*)'MPTAUOf: search miat tiat for wave function rotation'
+    if(present(ag)) call inv3(plat,pinv)
     do 10 ig=1,ng
+       if(present(ag)) then ! inverse (R^-1, -R^-1 t): R^-1 = R^T (Cartesian), translation equal mod lattice
+          invg(ig)=0
+          do igd=1,ng
+             if(maxval(abs(reshape(symops(:,igd),[3,3])-transpose(reshape(symops(:,ig),[3,3]))))>ep) cycle
+             dl = matmul(pinv, ag(:,igd)+matmul(transpose(reshape(symops(:,ig),[3,3])),ag(:,ig)))
+             if(maxval(abs(dl-nint(dl)))>ep) cycle
+             invg(ig)=igd
+             exit
+          enddo
+          if(invg(ig)==0) call rx('mptauof: no inverse in the given operations (not a group?)')
+          goto 16
+       endif
        do igd=1,ng
           ! seach for inverse  ig->igd
           if( abs( symops(1,ig)-symops(1,igd) ) <= ep .AND. &
@@ -229,12 +250,18 @@ contains
        enddo
        do 120 ib1=1,nbas ! trial shift vector tran
           do 121 ib2=1,nbas
+             if(present(ag)) then ! the given translation only
+                if(ib1>1 .or. ib2>1) call rx('mptauof: the given operation does not map the sites onto themselves')
+                tran = ag(:,ig)
+                goto 122
+             endif
              tran =  bas(:,ib2)  - matmul(am,bas(:,ib1))
              if(present(afmode)) then
                 if(iantiferro(ib1)==0) cycle
                 if(iantiferro(ib2)==0) cycle
                 if(iantiferro(ib1)+iantiferro(ib2)/=0) cycle
              endif
+122          continue
              do 30 ibas=1,nbas
                 !bb1=matmul(am,bas(:,ibas))+trans
                 b1=am(1,1)*bas(1,ibas)+am(1,2)*bas(2,ibas)+am(1,3)*bas(3,ibas) +tran(1)
@@ -284,6 +311,17 @@ contains
 123       enddo
        endif
 10  enddo
+  contains
+    subroutine inv3(a,b) ! b = a^-1 (3x3)
+      real(8),intent(in):: a(3,3)
+      real(8),intent(out):: b(3,3)
+      real(8):: det
+      b(1,1)=a(2,2)*a(3,3)-a(2,3)*a(3,2); b(1,2)=a(1,3)*a(3,2)-a(1,2)*a(3,3); b(1,3)=a(1,2)*a(2,3)-a(1,3)*a(2,2)
+      b(2,1)=a(2,3)*a(3,1)-a(2,1)*a(3,3); b(2,2)=a(1,1)*a(3,3)-a(1,3)*a(3,1); b(2,3)=a(1,3)*a(2,1)-a(1,1)*a(2,3)
+      b(3,1)=a(2,1)*a(3,2)-a(2,2)*a(3,1); b(3,2)=a(1,2)*a(3,1)-a(1,1)*a(3,2); b(3,3)=a(1,1)*a(2,2)-a(1,2)*a(2,1)
+      det=a(1,1)*b(1,1)+a(1,2)*b(2,1)+a(1,3)*b(3,1)
+      b=b/det
+    end subroutine inv3
   end subroutine mptauof
 
   subroutine rotdlmm(symops,ng,nl ,dlmm) ! Generate rotation matrix D^l_{m,m'} for L-representaiton,
