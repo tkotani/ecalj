@@ -12,12 +12,6 @@
 
 ### コード
 
-- **MLO: `Samples/MLOsamples/GaAsSoc` の SOC の MLO バンドが DFT から 0.1 eV ずれて見える → 原因は比べ方**（2026-10-01 19:4x 記、20:0x 原因）:
-  試料の `bnd*`・`bandplot.isp1.glt` は ctrlg の `so = 0` で描いた**スピン軌道なし**の DFT。MLO は `job_mlo_soc` でスピン軌道あり。価電子帯の頂上が
-  Δ_SO/3 上がるぶん（0.11 eV）CBM が下に見えていた。写しで `job_band gaas --ctrlg:ham.so=1 --ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true` の
-  DFT と比べると Δ_SO 0.337（DFT）/ 0.335（MLO）、ギャップ 1.693 / 1.702（+0.010）、rms 0.010 / 0.010 eV。残っているのは、
-  (1) 試料に SOC の DFT のバンドを置くか（今の `bnd*` は Test 1 の非 SOC の比べ相手）、(2) ecaljdoc mlo §4 の GaAsSoc の図（灰の線が非 SOC）を描き直す、
-  (3) `mlo_bandcheck.py` が SOC の MLO と非 SOC の DFT を比べたら注意を出す、のどれをするか
 - **MLO: EH2 s,p を単体の金属（Cu・Ni）に足すと、Γ–X の 2〜3 点の k だけで模型が崩れる**（2026-10-01、`~/work/mlocheck_eh2cat/{Cu,Ni}`、ページ https://claude.ai/artifact/VCWpe5W8Fei6umatXGeZGH の図 4）: その k で MLO の帯が E_F + 0.3 eV に集まり、DFT の帯が抜ける（Cu 0.012 → 0.802 eV）。同じ原子の EH と EH2 がほぼ一次従属になって `Hreduction` の重なりが特異に近い、と疑っている（未確認: その k の重なり行列の固有値を見る）。既定（遷移金属・4f・5f 以外に s,p）では Cu・Ni に EH2 は入らないので、既定には影響しない。EuO（Eu に EH2 s,p）は模型を作る所で止まる: `m_hreduction` の NormalizationCheck でシードのノルムの減りが 1 % を超えた（band 26、−1.3 %。EH と EH2 の両方をシードにすると `zhev_tk4` が一次従属に近い向きを落とすため）。Cu・Ni も同じ原因で、減りが 1 % 未満なので規格化し直して進み、特定の k で崩れているのかもしれない（未確認）
 - **`sugw`（`lmf --jobgw=1`）のメモリ**（2026-10-01）: `GEIGpart` が IPW の重なり行列 `ppovl(ngp,ngp)` と LU 用の写し `ppovlLU` を
   各ランクで持つ。1 ランクあたり 32·ngp² バイト、全体は並列数に比例。ngp ≈ V·Q³/6π²（Q = `QpGcut_psi`）なので胞の体積の 2 乗で増える
@@ -47,22 +41,11 @@
   `integral_0t`・`funcgx`・`numintall`・`funcgx2`・`ndiv_tt`・`int_simpson`（約 300 行）はどこからも呼ばれない（`tetwt5.f90` は `use` の only に
   `tetrakbt` を挙げるだけ）。今も使うのは `tetrakbt_init`・`kbt`・`integtetn`。2026-06 に「参照のため残す」としたもの。消すなら kBT の試験で確かめる（past_log.md §13）
 
-- **MLO の自動の模型の既定**（2026-10-01、`Samples/MATERIALS` の試験。研究ログ 2026-10-01）: 既定（`mlo_lm` が Ne まで s,p・Na から s,p,d、Δ = w = 2 eV）で
-  65 物質のうち 41 が最悪値 0.02 eV 以内、外れる 14 は次の 2 つの型で、どちらも追加の動径関数で直る（研究ログ 2026-10-01 朝の *表 07:16-1*、`Samples/MATERIALS/MLOcheck_20261001*.tsv`）。
-  (a) 陽イオンの半内殻と陰イオンの 2p の混成（GaN、InN、EuO、La₂CuO₄、LaGaO₃、SrTiO₃、SrVO₃）: `m_HamPMT` の「浅い局所軌道」の判定（局所軌道が主の状態の上端が E_F − 10 eV より上）で
-  Ga 3d（−11.8 eV）・In 4d（−12.5 eV）が「深い」とされ、模型から落ちて VBM が 0.33〜0.6 eV 下がる。`mlo_lm3` に d を足すと rms 0.002〜0.008 eV。
-  合っている GaAs・InP・InAs は −13.9〜−14.8 eV。閾値を −13 eV にするか、陰イオンの p との近さで決めるか。
-  (b) 空隙の大きい構造（MgS・MgSe・MgTe・CdTe・ZnTe・AlN・SiO₂ クリストバライト）: 伝導帯の底が高すぎる（+0.04〜+0.29 eV、SiO₂ は +4.1 eV で伝導帯が丸ごと無い）。
-  `mlo_lm2` に全原子の s,p（EH2）を足すと 0.00〜0.05 eV。gwinit が書くコメント「同じ (atom, lm) に 2 本目（mlo_lm2）を足さない。重なりが特異に近くなる」は、
-  これらの系では当たらなかった（`m_hreduction` の規格化の確かめも警告なし）。ただし常に足すのは不可: Cu は s,p の EH2 を足すと**止まらずに**模型が壊れる
-  （rms 0.012 → 0.66 eV、最大 8 eV）。EuO は `Hreduction: PMT completeness loss too large` で止まる。SrTiO₃ は Sr 4p の半内殻を足すと 0.045 → 0.003 eV、
-  La₂CuO₄ は La 5p で 0.094 → 0.001 eV（(a) の型。La₂CuO₄ では判定の表示が `********` で、局所軌道が主の状態が見つかっていない）。
-  足す条件（陰イオンの 2p があるときの半内殻、空隙の大きい構造の EH2）を決めるか、模型を作った後にバンドを確かめて足す仕組み（`mlo_bandcheck.py`）にするか。
-  模型が黙って壊れる場合（Cu）の検知も要る
-  2026-10-01 14:38 の試験（研究ログ *表 14:38-1*）: 局所軌道は「帯の上端が E_F − 17 eV より上なら EH の関数に**加えて**模型の関数にする」で、(a) の型は全部直り、
-  合っていた 16 物質は悪くならない（浅い Zn 3d・Ba 5p も加える形で同じ）。`m_HamPMT` の `eshallow` を −10 → −17 eV にし、浅いときの入れ替えを加える形に変える案。
-  La 5p は判定で帯が見つからない: 同等な La が 2 つ（4 つ）あり、5p の状態が各 La に半分ずつ広がるので 1 原子あたりの重みが 1/2 に届かない（研究ログ 14:41）。
-  重みを同じ種類の原子の局所軌道をまとめて測るよう直す。既定を変えると MLOsamples の参照（ZnO など）が動く
+- **MLO の模型の残り**（2026-10-01。既定は基準 1・2・3 の形に決まった: ecaljdoc mlo §1・§9、`MD/handover.md` §5）:
+  (a) 基準 3（空格子球）の自動化。案は空隙の半径（最も近い MT 球の表面までの距離）が 3 a.u. を超える所に置く `SRC/exec/ctrlg_addes.py`（未コミット・未検証）。
+  Bi₂Te₃ の空隙の半径は、手早い見積もり 3.56 a.u. と道具の 2.61 a.u. が食い違ったまま（菱面体の長い c で、像の数 ±1 と格子の点の数が足りないのを疑う）。
+  SiO₂ は手で置いて 0.001 eV（研究ログ 2026-10-01）。
+  (b) 模型が黙って崩れる場合（基準 2 の Cu・Ni）の検知。`job_mlo` の後に `mlo_bandcheck.py` を自動で回して判定を出すか
 - **`job_mlo_soc` が空の `band_MLO_spin2.dat` を書く**（2026-10-01）: 2N のスピノルの帯は `band_MLO_spin1.dat` に入る。空の spin2 があると
   `mlo_bandplot.py` が空の枠を描いていた（描く側は 2026-10-01 に空のファイルを飛ばすようにした）。`bandplot_MLO.isp2.glt` も残る
 - **`Samples/AFsymmetry/NiO` は `pwmode = 1` で `symgrpaf`**（2026-10-01）: k 点を 4³ にすると `rotwave: q+G rotation error (We have to set PWmode=11 for symgrpAF)`

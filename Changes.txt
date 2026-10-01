@@ -12,6 +12,11 @@
     何もしなければ基準 1、! を外せば基準 2 (EH2 のシードが加わり、空隙の大きい MgTe・ZnTe・CdTe・AlN などが合う。job_mlo だけ回し直す)。
   - mlo_bandcheck.py: 誤差を見る窓を両方の向きとも [VBM - 8, CBM + mlo_delta] にした (これまで MLO -> DFT は CBM + 3、DFT -> MLO は CBM + 1)。
   Samples/MATERIALS は LDA と MLO の計算のサンプル (Samples/MATERIALS/README.md)。
+  - job_mlo_soc: 段 1 と同じ条件 (so=1, nspin=2, phispinsym=true, E_F は efermi_soc) で lmf --band も回し、スピン軌道ありの DFT のバンドを
+    bnd*.spin1 に書く (SOC の MLO の比べる相手)。始めに前の run の bnd*.spin* と band_MLO_spin2.dat を消す (ディレクトリの bnd* は SOC の
+    ものになる)。MLO の窓の基準のバンド端 (qplist.dat) もこの SOC のバンドの計算のものになり、SOC の MLO バンドが 10 meV ほど動く
+    (GaAsSoc・FeSoc の参照を作り直した)。mlo_bandcheck.py は SOC の MLO と SOC なしの DFT を比べると WARNING を出す。
+    これまで GaAsSoc がギャップで -0.1 eV ずれて見えたのは、SOC なしの DFT と比べていたため (Delta_SO/3)。ecaljdoc mlo §4。
 
 2026-10-01 (2)
   開発の文書を MD/ にまとめた。最上位に残るのは CLAUDE.md（入口）、数行の README.md、Changes.txt。
