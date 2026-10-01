@@ -10,9 +10,12 @@ module m_mlo_wfs
   implicit none
   public :: cmlo_init, get_geig_cmlo, get_cphi_cmlo, get_cmlo, get_cmlo_qirr, write_pkm4crpa_mlo
   integer, public, protected :: nmlo, nMTO
+  !> rnorm(i,isp): square integral of the real-space MLO i over the GW k mesh, eq. (1) below. A check only: the MLOs of
+  !> __cmlo are normalized in real space already (Hreduction, with the norms of HamRsMLO), so it is close to 1. (2026-10-02)
+  real(8), allocatable, public, protected :: rnorm(:,:)
   private
   complex(8), allocatable :: cmlo(:,:,:,:)
-  integer :: nqirr, ifile_cmlo
+  integer :: nqirr, ifile_cmlo, nqbz_cmlo
   integer :: nbandmx_cmlo !rows per record in __cmlo.data; NOT necessarily nband
   logical :: keep_mlo, init = .true., debug = .false.
   integer, allocatable :: ix(:)
@@ -29,6 +32,7 @@ contains
     endif
     open(newunit=ifihh, file='__cmlo.info', form='unformatted')
     read(ifihh) nmlo, nqbz, nqirr, nMTO, mrecbb
+    nqbz_cmlo = nqbz
     allocate(ix(nmlo), qplistgw(3,nqirr))
     read(ifihh) ix, qplistgw
     close(ifihh)
@@ -80,6 +84,7 @@ contains
       geig = readgeigf(q, isp, mpi_mode, comm)
       cmlo_ik_is = get_cmlo(q, isp)
     endif
+    call set_rnorm()
     geig_cmlo = matmul(geig, cmlo_ik_is)
   end function get_geig_cmlo
 
@@ -101,8 +106,35 @@ contains
       cphi = readcphif(q, isp, mpi_mode, comm)
       cmlo_ik_is = get_cmlo(q, isp)
     endif
+    call set_rnorm()
     cphi_cmlo = matmul(cphi, cmlo_ik_is)
   end function get_cphi_cmlo
+
+  !> The MLO at k is |F_i(k)> = sum_n |psi_kn> C_ni (C = cmlo); the MLO in real space is
+  !> F_i0(r) = (1/N_k) sum_k F_i(k)(r) on the Born-von Karman supercell of the GW k mesh, whose square integral is
+  !>    rnorm_i = int |F_i0(r)|^2 dr = (1/N_k) sum_k <F_i(k)|F_i(k)>_cell = (1/N_k) sum_k O_ii(k)          (1)
+  !> The MLOs are normalized in real space where they are made (Hreduction with the norms of HamRsMLO, 2026-10-02), so this
+  !> is a check: close to 1, apart from the difference of the k meshes (mlo_nkabc for HamRsMLO, the GW mesh here) and the
+  !> bands above nband. (A normalization at each k, 1/sqrt(O_ii(k)), is not a constant: it changes the real-space orbital and
+  !> the interpolated bands, C 0.74 eV off the mesh. It was removed 2026-10-01, user.)
+  subroutine set_rnorm()
+    integer :: ikp, is, j
+    complex(8) :: c(nband,nmlo)
+    if(allocated(rnorm)) return
+    if(nqbz_cmlo < 1 .or. nqbz_cmlo > nqtt) call rx('m_mlo_wfs set_rnorm: nqbz of __cmlo.info is not in 1..nqtt (rerun lmf --jobgw=1 --mlo and mlo --mlo)')
+    allocate(rnorm(nmlo,nspx), source=0d0)
+    do ikp = 1, nqbz_cmlo        !qtt(:,1:nqbz) is the regular BZ mesh (the q0-shifted copies follow)
+      do is = 1, nspx
+        c = get_cmlo(qtt(:,ikp), is)
+        forall(j=1:nmlo) rnorm(j,is) = rnorm(j,is) + sum(abs(c(:,j))**2)
+      enddo
+    enddo
+    rnorm = rnorm/nqbz_cmlo
+    do is = 1, nspx
+      write(stdo,"(' m_mlo_wfs: square integral of the real-space MLOs on the GW mesh (check, ~1), isp=',i2,' nqbz=',i6,' :',100f8.4)") &
+           is, nqbz_cmlo, rnorm(:,is)
+    enddo
+  end subroutine set_rnorm
 
   !> pkm4crpa for the cRPA of the MLO model (hwmatK_MPI --mlo, mode 10011; read by m_pkm4crpa in hx0fp0 10011).
   !> The MLOs at k are |phi_j> = sum_n |psi_kn> C_nj (C = cmlo, nband rows), not orthonormal: O = C^+ C.

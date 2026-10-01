@@ -86,6 +86,7 @@ contains
     logical :: lcmlo = .false.
     integer :: ifcmlo, ndimMTO_a, ldim_a, mlomethod_a, nskip_a, mrecbb_a
     integer, allocatable :: ix_a(:)
+    real(8), allocatable :: rnorm_a(:,:)   !square integral of the real-space MLOs, from HamRsMLO (2026-10-02)
     real(8) :: fff1_a, eferm_a, ecbot_a
     complex(8), allocatable :: hamm_lda(:,:,:,:), hamm_qsgw(:,:,:,:), ovlm_keep(:,:,:,:), zmlo_a(:,:), cmlo_a(:,:)
     complex(8),allocatable:: evec(:,:),evec0(:,:),vxc(:,:,:,:),ppovl(:,:),phovl(:,:),pwh(:,:),pwz(:,:),pzovl(:,:,:), pwz0(:,:),&
@@ -393,7 +394,7 @@ contains
         inquire(file='HamRsMLO',exist=lex) !the MLO index is in its trailing records
         lex = lex .and. c0_mlo             !opt-in only
         if(lex .and. nspc==1) then
-          call read_mloindex(ndimMTO_a, ldim_a, mlomethod_a, nskip_a, ix_a, fff1_a, eferm_a, ecbot_a)
+          call read_mloindex(ndimMTO_a, ldim_a, mlomethod_a, nskip_a, ix_a, fff1_a, eferm_a, ecbot_a, rn=rnorm_a)
           !The window that Hreduction applies (eferm, ecbot) is that of THIS iteration's
           !converged SCF: chi~ is rebuilt here from this iteration's H, so its window has to
           !sit on the same bands.  EF is the one the caller hands us (the density this driver
@@ -602,10 +603,10 @@ contains
               wfirst=.false.
               if(allocated(hamm_qsgw)) then   !iteration 2 onward: the QSGW Hamiltonian
                 call Hreduction(mlomethod_a,.false.,ndimhx, hamm_qsgw(:,1,:,1), ovlm_keep(:,1,:,1), &
-                     ndimMTO_a, ix_a, fff1_a, hmo, omo, qp, nev=nxq, zMLO=zm, nskip_auto=nskip_a)
+                     ndimMTO_a, ix_a, fff1_a, hmo, omo, qp, nev=nxq, zMLO=zm, nskip_auto=nskip_a, rnorm=rnorm_a(:,isp))
               else                            !first iteration: there is no Sigma yet
                 call Hreduction(mlomethod_a,.false.,ndimhx, hamm_lda(:,1,:,1), ovlm_keep(:,1,:,1), &
-                     ndimMTO_a, ix_a, fff1_a, hmo, omo, qp, nev=nxq, zMLO=zm, nskip_auto=nskip_a)
+                     ndimMTO_a, ix_a, fff1_a, hmo, omo, qp, nev=nxq, zMLO=zm, nskip_auto=nskip_a, rnorm=rnorm_a(:,isp))
               endif
               call zmlo_new_write(iqqisp, qp, isp, ndimhx, zm)
             endblock NewChiForThisIteration

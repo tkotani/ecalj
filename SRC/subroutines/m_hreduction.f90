@@ -1,5 +1,5 @@
 module m_hreduction
-use m_cmdopt_registry, only: c0_gs, c0_mlo_diagnorm, c0_mlo_feb4, c0_mlo_ortho, c0_mlo_orthonorm
+! use m_cmdopt_registry, only: c0_gs, c0_mlo_ortho, c0_mlo_orthonorm !the options were removed 2026-10-02
 contains
   !> How many of the lowest PMT eigenstates at this k are NOT model-like: the
   !  count of leading states whose weight sum_j |<Psi^PMT_i|Psi^MTO_j>|^2 in the
@@ -42,7 +42,7 @@ contains
     endif
   end subroutine Hreduction_nskip
 
-  subroutine Hreduction(mlomethod,iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,ovlmout, qp, cmlo,nev, zMLO, nskip_auto) !> Reduce H(ndimPMT) to H(ndimMTO)
+  subroutine Hreduction(mlomethod,iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,ovlmout, qp, cmlo,nev, zMLO, nskip_auto, rnorm) !> Reduce H(ndimPMT) to H(ndimMTO)
     ! cmlo= <Psi^MPT i|F^MLO j>
    use m_zhev,only:zhev_tk4
    use m_nvfortran, only: findloc
@@ -67,6 +67,8 @@ contains
    complex(8),optional,intent(out):: cmlo(ndimPMT,ndimMTO) !<Psi^PMT_i|F^MLO_k>, PMT-eigenstate-basis coefficients
    complex(8),optional,intent(out):: zMLO(ndimPMT,ndimMTO) !|F_MLO_k> = sum_m |chi^PMT_m> zMLO(m,k)
    integer,optional,intent(in):: nskip_auto  ! number of semicore-LO states to drop (k-independent, from m_HamPMT)
+   real(8),optional,intent(in):: rnorm(ndimMTO) ! square integral of the real-space MLOs (HamRsMLO); F^MLO_i/sqrt(rnorm_i): one constant
+                                                ! for all k, so the MLO in real space has norm 1 (2026-10-02)
    complex(8):: cmlo_loc(ndimPMT,ndimMTO) !internal working array
 !   complex(8),optional:: zcplz(ndimPMT,ndimMTO)
    complex(8),allocatable :: Amat(:,:)
@@ -315,7 +317,8 @@ contains
       enddo mloloop
       Amat(1:nskip,:)=0d0
 ! do we need GramSchmidt orthogonalizaition? We expect lower is enphasized more for mode0 and for mode2.
-      if(c0_gs) call GramSchmidt(ndimPMTx,ndimMTO,Amat) !Amat= ¥bar{<Psi_PMT_i |Psi_MTO j>}
+      ! GramSchmidt of Amat (--gs): removed 2026-10-02 (an experimental option)
+      ! if(c0_gs) call GramSchmidt(ndimPMTx,ndimMTO,Amat) !Amat= ¥bar{<Psi_PMT_i |Psi_MTO j>}
       
       ! cmlo(i,k) = \sum_j ¥bar{<Psi_PMT_i |Psi_MTO j>} <Psi_MTO j|F_MTO k> = <Psi_PMT_i|F_MLO k>
       ! |F^MLO_k> = P |F_MTO_k> = (\sum_{i,j} |Psi_PMT_i> ¥bar{<Psi_PMT_i |Psi_MTO j>} <Psi_MTO j|) |F_MTO k>=  |Psi_PMT> C * zMTO 
@@ -325,37 +328,46 @@ contains
       cmlo_loc(1:ndimPMTx,1:ndimMTO) = matmul(Amat(1:ndimPMTx,1:ndimMTO),&
            matmul(transpose(dconjg(evecmto(:,:))),ovlmx(ix(1:ndimMTO),ix(1:ndimMTO)))) ! where <Psi_MTO j|MTO_k> = (evecmto*) @ ovlmx
 
-      ! Per-orbital diagonal normalization: |F^MLO_i> -> |F^MLO_i>/sqrt(<F^MLO_i|F^MLO_i>).
-      ! Diagonal-only; off-diagonal overlap is left untouched. Use --mlo_diagnormalization
-      ! to enable. Matches Feb 2026 commit 464a2d510 behavior when on.
-      ! (--mlo_ortho below performs full Lowdin orthogonalization.)
-      MLODiagonalNormalize: if (c0_mlo_diagnorm .or. c0_mlo_feb4) then
-         do i = 1, ndimMTO
-            ddd = sum(dconjg(cmlo_loc(1:nx,i))*cmlo_loc(1:nx,i)) !<F^MLO|F^MLO>
-            cmlo_loc(1:nx,i) = cmlo_loc(1:nx,i)/sqrt(ddd)
-         enddo
-      endif MLODiagonalNormalize
-      MLOLowdinOrthogonalization:if(c0_mlo_orthonorm .or. c0_mlo_ortho) then
-        block
-          use m_lapack, only: zhev => zhev_h
-          complex(8) :: ovlm_mlo(ndimMTO,ndimMTO), evl_ovl_buf(ndimMTO,ndimMTO), sinv_half(ndimMTO, ndimMTO)
-          real(8) :: eval(ndimMTO), einv_half
-          real(8), parameter :: eps = 1d-12, eps_ovl_chk = 1d-8
-          integer :: istat
-          ovlm_mlo = matmul(dconjg(transpose(cmlo_loc)), cmlo_loc)
-          istat = zhev(ovlm_mlo, n=ndimMTO, evl=eval)
-          do i = 1, ndimMTO
-            einv_half = merge(0d0, 1d0/sqrt(eval(i)), eval(i) < eps)
-            evl_ovl_buf(:,i) = ovlm_mlo(:,i)*einv_half
-          enddo
-          sinv_half = matmul(evl_ovl_buf, transpose(dconjg(ovlm_mlo)))
-          cmlo_loc = matmul(cmlo_loc, sinv_half)
-          !check
-          ovlm_mlo = matmul(dconjg(transpose(cmlo_loc)), cmlo_loc)
-          forall(i=1:ndimMTO) ovlm_mlo(i,i) = ovlm_mlo(i,i) - 1d0
-          if (any(abs(ovlm_mlo) > eps_ovl_chk)) call rx('Hreduction: LowdinOrthogonalization FAILD')
-        endblock
-      endif MLOLowdinOrthogonalization
+      ! Per-orbital diagonal normalization at each k, |F^MLO_i> -> |F^MLO_i>/sqrt(<F^MLO_i|F^MLO_i>) (--mlo_diagnorm,
+      ! --mlo_feb4): removed 2026-10-01 23:46 (user). The factor depends on k, so it changes the real-space orbital and the
+      ! interpolated bands (C 0.74 eV, Al 0.10 eV off the mesh). The MLOs are normalized in real space instead, by one
+      ! constant per orbital where the matrix elements of v and W are made (m_mlo_wfs, set_rnorm).
+      ! MLODiagonalNormalize: if (c0_mlo_diagnorm .or. c0_mlo_feb4) then
+      !    do i = 1, ndimMTO
+      !       ddd = sum(dconjg(cmlo_loc(1:nx,i))*cmlo_loc(1:nx,i)) !<F^MLO|F^MLO>
+      !       cmlo_loc(1:nx,i) = cmlo_loc(1:nx,i)/sqrt(ddd)
+      !    enddo
+      ! endif MLODiagonalNormalize
+      ! Real-space normalization (2026-10-02, user): the MLO in real space, F_i0 = (1/N_k) sum_k F_i(k), has the square integral
+      ! rnorm_i = (1/N_k) sum_k O_ii(k) = O_ii(R=0) of HamRsMLO (m_HamPMT, where the model is defined). Dividing by sqrt(rnorm_i),
+      ! the same at every k, changes neither the shape of the orbital nor any band (H, O -> D H D, D O D), and makes (ii|ii) of v
+      ! and W the U of a normalized orbital (the raw MLOs: rnorm 0.38 for Ni d, 0.18 for SrVO3 t2g).
+      if(present(rnorm)) then
+        forall(i=1:ndimMTO) cmlo_loc(1:nx,i) = cmlo_loc(1:nx,i)/sqrt(rnorm(i))
+      endif
+      ! Lowdin orthogonalization (--mlo_ortho, --mlo_orthonorm): removed 2026-10-02 (user: experimental options go). It mixes
+      ! the neighbours in through O^-1/2, so the orbital oscillates around them and reaches farther.
+!     MLOLowdinOrthogonalization:if(c0_mlo_orthonorm .or. c0_mlo_ortho) then
+!       block
+!         use m_lapack, only: zhev => zhev_h
+!         complex(8) :: ovlm_mlo(ndimMTO,ndimMTO), evl_ovl_buf(ndimMTO,ndimMTO), sinv_half(ndimMTO, ndimMTO)
+!         real(8) :: eval(ndimMTO), einv_half
+!         real(8), parameter :: eps = 1d-12, eps_ovl_chk = 1d-8
+!         integer :: istat
+!         ovlm_mlo = matmul(dconjg(transpose(cmlo_loc)), cmlo_loc)
+!         istat = zhev(ovlm_mlo, n=ndimMTO, evl=eval)
+!         do i = 1, ndimMTO
+!           einv_half = merge(0d0, 1d0/sqrt(eval(i)), eval(i) < eps)
+!           evl_ovl_buf(:,i) = ovlm_mlo(:,i)*einv_half
+!         enddo
+!         sinv_half = matmul(evl_ovl_buf, transpose(dconjg(ovlm_mlo)))
+!         cmlo_loc = matmul(cmlo_loc, sinv_half)
+!         !check
+!         ovlm_mlo = matmul(dconjg(transpose(cmlo_loc)), cmlo_loc)
+!         forall(i=1:ndimMTO) ovlm_mlo(i,i) = ovlm_mlo(i,i) - 1d0
+!         if (any(abs(ovlm_mlo) > eps_ovl_chk)) call rx('Hreduction: LowdinOrthogonalization FAILD')
+!       endblock
+!     endif MLOLowdinOrthogonalization
 
 
       ! |F^MLO j'>= |F^PMT_i'> z^PMT_i'i cmlo(i,j)

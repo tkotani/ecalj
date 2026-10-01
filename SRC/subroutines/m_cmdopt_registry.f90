@@ -121,7 +121,7 @@ module m_cmdopt_registry
   logical, public, protected, save :: c0_getq            = .false.
   logical, public, protected, save :: c0_getwsr          = .false.
   logical, public, protected, save :: c0_gpu             = .false.
-  logical, public, protected, save :: c0_gs              = .false.
+! logical, public, protected, save :: c0_gs              = .false. !removed 2026-10-02 (experimental MLO option, see check_retired)
   logical, public, protected, save :: c0_help            = .false.
   logical, public, protected, save :: c0_interbandonly   = .false.
   logical, public, protected, save :: c0_intrabandonly   = .false.
@@ -131,10 +131,10 @@ module m_cmdopt_registry
   logical, public, protected, save :: c0_mkprocar        = .false.
   logical, public, protected, save :: c0_mlo             = .false.
   logical, public, protected, save :: c0_mlofreeze       = .false.  ! keep the existing HamRsMLO (the MLO index is fixed for the chain); only (re)write QMLO_SigRs
-  logical, public, protected, save :: c0_mlo_diagnorm    = .false.
-  logical, public, protected, save :: c0_mlo_feb4        = .false.
-  logical, public, protected, save :: c0_mlo_ortho       = .false.
-  logical, public, protected, save :: c0_mlo_orthonorm   = .false.
+! logical, public, protected, save :: c0_mlo_diagnorm    = .false. !removed 2026-10-02 (experimental MLO option, see check_retired)
+! logical, public, protected, save :: c0_mlo_feb4        = .false. !removed 2026-10-02 (experimental MLO option, see check_retired)
+! logical, public, protected, save :: c0_mlo_ortho       = .false. !removed 2026-10-02 (experimental MLO option, see check_retired)
+! logical, public, protected, save :: c0_mlo_orthonorm   = .false. !removed 2026-10-02 (experimental MLO option, see check_retired)
   logical, public, protected, save :: c0_mloahc          = .false.
   logical, public, protected, save :: c0_mlog            = .false.
   logical, public, protected, save :: c0_modifiedGS      = .false.
@@ -423,7 +423,7 @@ contains
     call set0('--getq',           c0_getq, narg, arglist)
     call set0('--getwsr',         c0_getwsr, narg, arglist)
     call set0('--gpu',            c0_gpu, narg, arglist)
-    call set0('--gs',             c0_gs, narg, arglist)
+!   call set0('--gs',             c0_gs, narg, arglist)
     call set0('--help',           c0_help, narg, arglist)
     call set0('--interbandonly',  c0_interbandonly, narg, arglist)
     call set0('--intrabandonly',  c0_intrabandonly, narg, arglist)
@@ -433,10 +433,10 @@ contains
     call set0('--mkprocar',       c0_mkprocar, narg, arglist)
     call set0('--mlo',            c0_mlo, narg, arglist)
     call set0('--mlofreeze',      c0_mlofreeze, narg, arglist)
-    call set0('--mlo_diagnorm',   c0_mlo_diagnorm, narg, arglist)
-    call set0('--mlo_feb4',       c0_mlo_feb4, narg, arglist)
-    call set0('--mlo_ortho',      c0_mlo_ortho, narg, arglist)
-    call set0('--mlo_orthonorm',  c0_mlo_orthonorm, narg, arglist)
+!   call set0('--mlo_diagnorm',   c0_mlo_diagnorm, narg, arglist)
+!   call set0('--mlo_feb4',       c0_mlo_feb4, narg, arglist)
+!   call set0('--mlo_ortho',      c0_mlo_ortho, narg, arglist)
+!   call set0('--mlo_orthonorm',  c0_mlo_orthonorm, narg, arglist)
     call set0('--mloahc',         c0_mloahc, narg, arglist)
     call set0('--mlog',           c0_mlog, narg, arglist)
     call set0('--modifiedGS',     c0_modifiedGS, narg, arglist)
@@ -628,6 +628,13 @@ contains
          call die_retired(arg, '-ndos=<value> is retired. Use --ndos=<value> (double dash).')
     if (alen >= 15 .and. arg(1:15) == '-EfermiShifteV=') &
          call die_retired(arg, '-EfermiShifteV=<value> is retired. Use --EfermiShifteV=<value> (double dash).')
+    ! Experimental MLO options removed 2026-10-02 (user: options that confuse go). The MLOs are normalized in real space
+    ! (Hreduction rnorm, from HamRsMLO): one constant per orbital, no orthogonalization.
+    if (arg(1:alen) == '--mlo_diagnorm' .or. arg(1:alen) == '--mlo_feb4') &
+         call die_retired(arg, arg(1:alen)//' is retired (2026-10-02): the MLOs are normalized in real space by default.')
+    if (arg(1:alen) == '--mlo_ortho' .or. arg(1:alen) == '--mlo_orthonorm') &
+         call die_retired(arg, arg(1:alen)//' is retired (2026-10-02): Lowdin orthogonalization makes the MLOs reach farther.')
+    if (arg(1:alen) == '--gs') call die_retired(arg, '--gs (Gram-Schmidt in Hreduction) is retired (2026-10-02).')
   end subroutine check_retired
 
   subroutine die_unknown(arg)

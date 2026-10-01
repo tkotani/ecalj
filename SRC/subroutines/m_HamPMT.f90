@@ -131,6 +131,8 @@ contains
       complex(8),allocatable::sigmloi(:,:,:,:),sigmlo_in(:,:,:,:)
       complex(8),allocatable::ovlmr(:,:,:,:),hammr(:,:,:,:),hammhsor(:,:,:,:)
       complex(8),allocatable::sigmlor(:,:,:,:) !Sigma^MLO(R), same layout as hammr
+      real(8),allocatable::rnormh(:,:) !(ndimMTO,nspx) square integral of the real-space MLOs given to Hreduction: 1 while the model
+                                       !is defined (it is computed from O(R=0) below), that of HamRsMLO in the frozen run (2026-10-02)
       logical:: lsigmlo=.false.
       logical::debug=.true.
       logical:: socmatrix, lcmlo_legacy, lfrozen=.false.
@@ -396,7 +398,7 @@ contains
         !chi~ itself follows H (sugw step a').  The chain-start eferm, ecbot set here are used only
         !by the band plot of mlo in this run.  (2026-09-27 21:06)
         use m_readqplist,only: set_bandedge
-        integer:: nd,ld,mm,nsk,ifh,n1,n2,n3
+        integer:: nd,ld,mm,nsk,ifh,n1,n2,n3,ios
         integer,allocatable:: ixf(:)
         real(8):: f1,ef,ec
         if(lfrozen) then
@@ -406,6 +408,9 @@ contains
           read(ifh) nd,ld,mm,nsk
           allocate(ixf(nd)); read(ifh) ixf
           read(ifh) f1,ef,ec
+          allocate(rnormh(nd,n3))
+          read(ifh,iostat=ios) rnormh
+          if(ios/=0) call rx('m_HamPMT: HamRsMLO has no MLO norms (made before 2026-10-02); delete it to redefine the model')
           close(ifh)
           ! The count of this run is made without ShallowLO (not run when frozen), so a semicore LO
           ! ADDED to the EH function at the chain start (EF - 17 .. -8 eV) is missing from it: the chain's
@@ -431,6 +436,7 @@ contains
       if(lso==1) nspx=1
       nspc=1
       if(lso==1) nspc= 2
+      if(.not.lfrozen) allocate(rnormh(ndimMTO,nspx), source=1d0) !raw MLOs; the norms come from O(R=0) when HamRsMLO is written
       ! Readin Hamiltonian only at iqibz
       ib_tableI = pack(ib_tableM(1:ndimMTO), [(all(ib_tableM(:i-1)/=ib_tableM(i)), i=1,ndimMTO)])
       allocate(ovlmi(1:ndimMTO,1:ndimMTO,nqibz,nspx),hammi(1:ndimMTO,1:ndimMTO,nqibz,nspx),source=(0d0,0d0))
@@ -487,6 +493,12 @@ contains
         if(c0_mlo .and. .not.lhgw .and. master_mpi) &
              write(stdo,ftox)' m_HamPMT: no __HamiltonianGW.info -> skip the legacy cmlo block (sugw does it)'
         lcmlo_legacy = c0_mlo .and. lhgw .and. .not.lfrozen !frozen: keep sugw's __cmlo (window of this iteration).
+        !The MLOs of __cmlo are normalized with the norms of HamRsMLO (job_mlo makes it before job_mloW, job_mlo_magnon). (2026-10-02)
+        if(lcmlo_legacy) then
+          inquire(file='HamRsMLO',exist=lhgw)
+          if(.not.lhgw .and. master_mpi) write(stdo,ftox)' m_HamPMT: no HamRsMLO -> skip __cmlo (run job_mlo first)'
+          lcmlo_legacy = lhgw
+        endif
         !Bug fixed 2026-09-27 21:06: the frozen mlo of every gwsc iteration ran this block and rewrote sugw's __cmlo with the
         !chain-start window (no effect inside gwsc, which deletes __cmlo at the next iteration; the __cmlo left at the end was wrong).
       endblock
@@ -496,10 +508,19 @@ contains
           complex(8):: rotmatt(ndimMTO,ndimMTO), ovlm(1:ndimMTO,1:ndimMTO), hamm(1:ndimMTO,1:ndimMTO)
           real(8),allocatable:: qplistgw(:,:)
           integer :: ifihh_info, mrech, istat
+          real(8),allocatable :: rnormf(:,:)
           type(mpiio_buf) :: buf
           complex(8), allocatable :: ovlmp(:,:), hammp(:,:), cmlo(:,:) !in PMT basis max size array
           ! complex(8), allocatable :: ovlm_(nbandmx,nbandmx), hamm_(nbandmx,nbandmx), cmlo(nbandmx,ndimMTO)
           !for sugw output for GWinput to get zcplz for q point in qg4gw.
+          NormsOfHamRsMLO: block
+            use m_sigmlo,only: read_mloindex
+            integer:: nd_, ld_, mm_, nsk_
+            integer,allocatable:: ix_(:)
+            real(8):: f1_, ef_, ec_
+            call read_mloindex(nd_, ld_, mm_, nsk_, ix_, f1_, ef_, ec_, rn=rnormf)
+            if(nd_/=ndimMTO .or. any(ix_/=ix(1:ndimMTO))) call rx('m_HamPMT: the MLOs of HamRsMLO differ from mlo_lm; run job_mlo again')
+          endblock NormsOfHamRsMLO
           open(newunit=ifihh_info, file='__HamiltonianGW.info', form='unformatted', status='old')
           read(ifihh_info) nqirr, nbandmx, nqbzgw, mrech
           allocate(qplistgw(3,nqirr))
@@ -551,7 +572,8 @@ contains
             ! read(ifihh) hammp
             cmlo=0d0 !zero padding for 1:nbandmx in advance
             call Hreduction(mlomethod,.false.,ndimPMT,hammp(1:ndimPMT,1:ndimPMT),ovlmp(1:ndimPMT,1:ndimPMT), &
-                            ndimMTO,ix,fff1, hamm,ovlm,qp,cmlo=cmlo(1:ndimPMT,1:ndimMTO), nev=nev, nskip_auto=nskip_global)
+                            ndimMTO,ix,fff1, hamm,ovlm,qp,cmlo=cmlo(1:ndimPMT,1:ndimMTO), nev=nev, nskip_auto=nskip_global, &
+                            rnorm=rnormf(:,isp))
               ! iqqisp= isp + nspx*(iq-1)
 !                write(*,*)'cccccccccc cmlowrite',isp,iq,iqqisp, sum(abs(cmlo))
             istat = writem(ifizz,rec=iqqisp,data=cmlo)
@@ -563,7 +585,9 @@ contains
           istat = closem(ifihh)
           if(master_mpi) then
             open(newunit=ifi,file='__cmlo.info',form='unformatted') 
-            write(ifi) ndimMTO,nqbz,nqirr,nMTO,mrecbb
+            !Bug fixed 2026-10-01 23:48: wrote nqbz, a local set only later (writeham mesh), so __cmlo.info had nqbz=0;
+            !nothing read it until m_mlo_wfs set_rnorm (the real-space norm of the MLOs over the GW mesh).
+            write(ifi) ndimMTO,nqbzgw,nqirr,nMTO,mrecbb
             write(stdo,ftox)'nnnnn ndimMTO nqirr=',ndimMTO,nqirr
             write(ifi) ix(1:ndimMTO),qplistgw(1:3,1:nqirr)
             close(ifi)
@@ -673,11 +697,11 @@ contains
               if(socmatrix.and.jspxx==nspx) then
 !                call Hreduction(mlomethod,.false.,ndimPMT,hammp,ovlmp, ndimMTO,ix,fff1, hamm,ovlm,qp,nev=nx, zMLO=zMLO)
                 call Hreduction(mlomethod,.false.,ndimPMT,hammp(1:ndimPMT,1:ndimPMT),ovlmp(1:ndimPMT,1:ndimPMT), &
-                                ndimMTO,ix,fff1, hamm,ovlm,qp,nev=nx, zMLO=zMLO, nskip_auto=nskip_global)
+                                ndimMTO,ix,fff1, hamm,ovlm,qp,nev=nx, zMLO=zMLO, nskip_auto=nskip_global, rnorm=rnormh(:,jsp))
               else
 !                call Hreduction(mlomethod,.false.,ndimPMT,hammp,ovlmp, ndimMTO,ix,fff1, hamm,ovlm,qp,nev=nx)
                 call Hreduction(mlomethod,.false.,ndimPMT,hammp(1:ndimPMT,1:ndimPMT),ovlmp(1:ndimPMT,1:ndimPMT), &
-                                ndimMTO,ix,fff1, hamm,ovlm,qp,nev=nx, zMLO=zMLO, nskip_auto=nskip_global)
+                                ndimMTO,ix,fff1, hamm,ovlm,qp,nev=nx, zMLO=zMLO, nskip_auto=nskip_global, rnorm=rnormh(:,jsp))
               endif
               if(wamlo) istata = writem(ifiamlo,rec=iqqisp,data=zMLO(1:ldim,1:ndimMTO))
 
@@ -827,6 +851,39 @@ contains
         call reduce_to_master(ovlmr)
         if(socmatrix) call reduce_to_master(hammhsor)
       endif
+      RealSpaceNorm: block !(2026-10-02, user) the MLO in real space, F_i0 = (1/N_k) sum_k F_i(k), has the square integral
+        !rnorm_i = (1/N_k) sum_k O_ii(k) = O_ii(R=0). Divide F_i by sqrt(rnorm_i), one constant for all k: H(R), O(R) and V_SO(R)
+        !become D H D etc. (D = diag 1/sqrt(rnorm)), so no band changes, and O_ii(R=0) = 1. The norms are written to HamRsMLO;
+        !every later Hreduction (the __cmlo of job_mloW, sugw step a', m_sigmlo, the frozen run) divides by the same constants.
+        integer:: itz, jsp1, jsp2
+        if(master_mpi .and. .not.lfrozen) then
+          deallocate(rnormh); allocate(rnormh(ndimMTO,nspx))
+          do i = 1, ndimMTO
+            ib1 = ib_tableM(i)
+            itz = findloc([(all(nlat(:,it,ib1,ib1)==0), it=1,npair(ib1,ib1))], value=.true., dim=1)
+            if(itz<1) call rx('m_HamPMT: no R=0 in the pair list')
+            forall(jsp=1:nspx) rnormh(i,jsp) = dreal(ovlmr(itz,i,i,jsp))
+          enddo
+          if(any(rnormh<=0d0)) call rx('m_HamPMT: an MLO has no norm (O_ii(R=0) <= 0)')
+          do jsp = 1, nspx
+            do j = 1, ndimMTO; do i = 1, ndimMTO
+              hammr(:,i,j,jsp) = hammr(:,i,j,jsp)/sqrt(rnormh(i,jsp)*rnormh(j,jsp))
+              ovlmr(:,i,j,jsp) = ovlmr(:,i,j,jsp)/sqrt(rnormh(i,jsp)*rnormh(j,jsp))
+            enddo; enddo
+          enddo
+          if(socmatrix) then !io = 1 up-up, 2 down-down, 3 up-down (m_mlo_ham)
+            do io = 1, 3
+              jsp1 = merge(2,1, io==2 .and. nspx==2); jsp2 = merge(2,1, io>=2 .and. nspx==2)
+              do j = 1, ndimMTO; do i = 1, ndimMTO
+                hammhsor(:,i,j,io) = hammhsor(:,i,j,io)/sqrt(rnormh(i,jsp1)*rnormh(j,jsp2))
+              enddo; enddo
+            enddo
+          endif
+          do jsp = 1, nspx
+            write(stdo,"(' m_HamPMT: square integral of the real-space MLOs (O_ii(R=0)), isp=',i2,':',100f7.4)") jsp, rnormh(:,jsp)
+          enddo
+        endif
+      endblock RealSpaceNorm
       if(lsigmlo) call reduce_to_master(sigmlor)
       if(master_mpi .and. lfrozen) write(stdo,ftox)' m_HamPMT: HamRsMLO kept (frozen MLO index); only QMLO_SigRs is (re)written'
       if(master_mpi .and. .not.lfrozen) then ! write RealSpace MTO Hamiltonian
@@ -849,6 +906,7 @@ contains
           write(ifihmto) ndimMTO, ldim, mlomethod, nskip_global
           write(ifihmto) ix(1:ndimMTO)
           write(ifihmto) fff1, eferm, ecbot
+          write(ifihmto) rnormh(1:ndimMTO,1:nspx) !square integral of the raw real-space MLOs (2026-10-02)
           write(stdo,ftox)' HamRsMLO: appended MLO index. ndimMTO mlomethod nskip=',ndimMTO,mlomethod,nskip_global
         endblock MloIndexRecords
         close(ifihmto)

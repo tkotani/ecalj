@@ -3,6 +3,9 @@ import glob, os, subprocess, sys
 from comp import rmfiles
 
 # Expected on-site diagonal <i i | V/W-V | i i> at R=(0,0,0), omega=0  [eV]
+# Baseline 2026-10-02: the MLOs are normalized in real space (one constant per orbital, the square integral
+# O_ii(R=0) of HamRsMLO; ecaljdoc mlo section 6), no option. The values below 2026-09-16 were with --mlo_diagnorm
+# (normalized at each k, retired): d W moved by 1-6 % (DN e_g 1.48 -> 1.39 eV), s and p by up to 5 %.
 # Baseline: 2026-09-16 job_mloW fe -np 4 (Fe bcc, 1 Fe atom, s+3p+5d = 9 orbitals)
 #           with mlo_method = 4 (Delta = w = 2.0 eV).
 #
@@ -26,12 +29,10 @@ from comp import rmfiles
 # that all 18 samples share one setting; if you use W itself, check its w
 # dependence for your own system rather than taking either value on faith.
 EXPECTED = {
-    'UP': {1:(10.6227,-9.7058), 2:(10.7465,-9.3756), 3:(10.7465,-9.3762),
-           4:(10.7465,-9.3756), 5:(22.9839,-21.4666), 6:(22.9839,-21.4664),
-           7:(23.0628,-21.3852), 8:(22.9839,-21.4663), 9:(23.0628,-21.3853)},
-    'DN': {1:(10.5700,-9.6560), 2:(10.7341,-9.3615), 3:(10.7341,-9.3621),
-           4:(10.7341,-9.3615), 5:(21.4495,-20.0617), 6:(21.4495,-20.0616),
-           7:(20.9761,-19.4960), 8:(21.4495,-20.0614), 9:(20.9762,-19.4962)},
+    'UP': {1:(10.3258,-9.4518), 2:(10.8329,-9.4100), 3:(10.8329,-9.4107), 4:(10.8329,-9.4100), 5:(22.9133,-21.4037),
+           6:(22.9134,-21.4036), 7:(22.9010,-21.2400), 8:(22.9134,-21.4034), 9:(22.9010,-21.2401)},
+    'DN': {1:(10.3507,-9.4693), 2:(10.9718,-9.5242), 3:(10.9718,-9.5249), 4:(10.9718,-9.5242), 5:(21.4778,-20.0970),
+           6:(21.4780,-20.0970), 7:(19.9976,-18.6091), 8:(21.4779,-20.0968), 9:(19.9979,-18.6095)},
 }
 TOL = 0.05  # eV; tighter than physical changes, looser than numerical noise
 
@@ -75,11 +76,11 @@ def test(args, bindir, testdir, workdir):
                       'PROCAR.UP', 'PROCAR.DN', 'lwriteham', 'lmlo',
                       'bandplot_MLO.isp1.glt', 'bandplot_MLO.isp2.glt'])
 
-    cmd = [f'{bindir}/job_mlo', 'fe', '-np', str(args.np), '--mlo_diagnorm']
+    cmd = [f'{bindir}/job_mlo', 'fe', '-np', str(args.np)]
     print('### exec:', ' '.join(cmd), flush=True)
     proc = subprocess.run(cmd, cwd=workdir)
     # Run job_mloW with live-streamed stdout/stderr to terminal
-    cmd = [f'{bindir}/job_mloW', 'fe', '-np', str(args.np), '--mlo_diagnorm']
+    cmd = [f'{bindir}/job_mloW', 'fe', '-np', str(args.np)]
     print('### exec:', ' '.join(cmd), flush=True)
     proc = subprocess.run(cmd, cwd=workdir)
     if proc.returncode != 0:

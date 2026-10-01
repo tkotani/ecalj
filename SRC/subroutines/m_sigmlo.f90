@@ -27,6 +27,7 @@ module m_sigmlo
   private
   integer :: ndimMTO=0, npairmx=0, nspx=0, nbas=0, mlomethod=4, nskip=0
   integer, allocatable :: npair(:,:), nlat(:,:,:,:), nqwgt(:,:,:), ib_tableM(:), ix(:)
+  real(8), allocatable :: rnorm(:,:)      !(ndimMTO,nspx) square integral of the real-space MLOs, from HamRsMLO (2026-10-02)
   real(8) :: plat(3,3), fff1=2d0, eferm=0d0, ecbot=0d0
   complex(8), allocatable :: sigmlor(:,:,:,:)   !(npairmx, ndimMTO, ndimMTO, nspx)
   logical :: init = .true.
@@ -75,12 +76,15 @@ module m_sigmlo
 contains
   !> The MLO index lives in the trailing records of HamRsMLO (not in a __-prefixed
   !> file, which cleargw would delete).  Skip the four data records, then read it.
-  subroutine read_mloindex(nd, ld, mm, nsk, ixo, f1, ef, ec)
+  !> rn(nd,nspx) (optional): the square integral of each real-space MLO, O_ii(R=0) before the normalization (written by
+  !> m_HamPMT since 2026-10-02); Hreduction(rnorm=rn(:,isp)) normalizes the MLOs with it.
+  subroutine read_mloindex(nd, ld, mm, nsk, ixo, f1, ef, ec, rn)
     use m_cmdopt_registry, only: c0_socmatrix
     integer,intent(out):: nd, ld, mm, nsk
     integer,allocatable,intent(out):: ixo(:)
     real(8),intent(out):: f1, ef, ec
-    integer:: ifh, n1,n2,n3
+    real(8),allocatable,intent(out),optional:: rn(:,:)
+    integer:: ifh, n1,n2,n3, ios
     open(newunit=ifh,file='HamRsMLO',form='unformatted',status='old',action='read')
     read(ifh) n1,n2,n3        !ndimMTO,npairmx,nspx
     read(ifh)                 !hammr
@@ -90,6 +94,11 @@ contains
     read(ifh) nd, ld, mm, nsk
     allocate(ixo(nd)); read(ifh) ixo
     read(ifh) f1, ef, ec
+    if(present(rn)) then
+      allocate(rn(nd,n3))
+      read(ifh,iostat=ios) rn
+      if(ios/=0) call rx('read_mloindex: HamRsMLO has no MLO norms (made before 2026-10-02); delete HamRsMLO and run job_mlo (mlo) again')
+    endif
     close(ifh)
   end subroutine read_mloindex
 
@@ -108,7 +117,7 @@ contains
     inquire(file=fn_sigrs, exist=lex1)
     inquire(file='HamRsMLO', exist=lex2)
     if(.not.(lex1.and.lex2)) return
-    call read_mloindex(nd2, ld2, mlomethod, nskip, ix, fff1, eferm, ecbot)
+    call read_mloindex(nd2, ld2, mlomethod, nskip, ix, fff1, eferm, ecbot, rn=rnorm)
     open(newunit=ifs,file=fn_sigrs,form='unformatted',status='old',action='read')
     read(ifs) ndimMTO, npairmx, nspx, nbas
     if(ndimMTO /= nd2) call rx('m_sigmlo: '//fn_sigrs//' and HamRsMLO disagree on ndimMTO')
@@ -424,7 +433,7 @@ contains
             complex(8):: hl(ndimh,ndimh), ol(ndimh,ndimh)
             hl = hamm; ol = ovlm                     !Hreduction may modify its arguments
             call Hreduction(mlomethod,.false.,ndimh, hl, ol, ndimMTO, ix, fff1, &
-                 hmo, omo, qp, nev=nxq, zMLO=zm, nskip_auto=nskip)
+                 hmo, omo, qp, nev=nxq, zMLO=zm, nskip_auto=nskip, rnorm=rnorm(:,isp))
           endblock
         endif
         if(.not.nocache) call cache_put(qp, isp, ndimh, zm)   !one chi~ per k for this lmf run
