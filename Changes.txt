@@ -1,3 +1,8 @@
+2026-10-02 (2)
+  - lmchk --getwsr（MT 半径の見積もり）が、スピン分極の入力（nspin = 2。NiO、Fe、SOC の Bi2Te3 など）で必ず止まっていた（RSEQ: bad nodes、
+    または 'need check this branch'）のを直した。半径を決める自由原子はスピンなしで作る（スピンなしの入力の結果は変わらない）。
+  - lmfa の内部の整理（等価変換。123 の入力で出力はビット単位で同じ）。
+
 2026-10-02 (1)
   Wannier 関数（最大局在化）の経路、AHC、lmfham2 を外し、模型は MLO だけにした。外す前の版は git のタグ last-wannier
   （そこで Samples/WannierVsMLO/run.sh が MLO との比較を再現する）。比較は ecaljdoc mlo §6 の表 M7 と MD/wannier_vs_mlo.md。

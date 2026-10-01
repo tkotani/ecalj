@@ -84,6 +84,19 @@
 
 ## 2026-10-02 — MLO を実空間で規格化、実験用の MLO オプションを廃止（Wannier を外す作業の続き）
 
+### 02:17 lmfa・lmchk の整理の 2 段目（`228982eb2`）。`lmchk --getwsr` が磁性体で止まる不具合を見つけて直した
+
+- `atomsc`・`newrho`（`freeat.f90`）: 呼び出しは 1 つで、`job='gue'`、`lgdd=.false.`、`nlr=1`、`dv=0` だった。使われない枝（`job='pot'`・`'rho'`、
+  Methfessel の `lgdd=.true.`、l ごとの密度 `nlr=nl`）と引数を外した。`decay` は 1+z/10 を 5 で頭打ちにしてから 5 を代入し直していた。
+  123 入力で lmfa の出力 720 ファイルがビット単位で同じ（`llmfa` は処理時間の表示だけ違う。`~/work/lmfa_base/{before2,after2}`）
+- `lmaux`（lmchk の本体）: 使われない変数 30 個ほど、いつも 0 の `lpbc` の枝、デバッグの表示 `zzzz nclspp=`、呼ばれていない `nsitsh` を外した。
+  スピンなしの 9 入力で `lmchk` と `--getwsr` の出力が前後で同じ（`~/work/lmchk_cmp`）
+- **見つけた不具合**: `lmchk --getwsr` がスピン分極の入力（NiO、Fe、Bi₂Te₃、nio_gwsc、eras）で必ず止まった（rc=11、`RSEQ: bad nodes`）。
+  10/1 の整理より前の版（`44bdb702a^`）でも同じ。`makrm0` の配列は種ごとに 1 スピン（`v(nrmx, nspec+1)`）なのに、`freats` が入力の nsp = 2 で 2 本目を
+  隣の種の列に書き、さらに `nsp == 2` の枝が `rx('need check this branch')` だった。半径はスピンによらないので、`makrm0` は nsp = 1 で自由原子を作る
+  （`freats` に省略可能な `nspin`）。NiO で Ni 2.188・O 1.752、Fe 2.346 bohr。ctrlgenToml は磁性体でもスピンなしの最初の入力で `--getwsr` を回すので、
+  これまで表に出なかったと考える
+
 ### 02:06 Wannier・AHC・lmfham2 を外した（`6d8b9f05b`〜`c2423efd5`）。3 台で全部の試験の組が PASS
 
 - 外したものと置き換えは `Changes.txt` 2026-10-02 (1)、`MD/past_log.md` 表 1、`MD/wannier_vs_mlo.md`。タグ `last-wannier` = `f1de3817a`
