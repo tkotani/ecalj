@@ -88,6 +88,14 @@ user の指示（05:5x）: 「この方針で進めて。TODO も判断がつく
 MATERIALS 以下を MLO で（spd ベース、f があるときに入れる）すべてモデル化。DFT レベルでよい。目視で確認できる図、バンドギャップの違い。
 AFsymmetry のモード（AFTEST）が動くのか、そもそも正しいのかも調べて」。push はしない。
 
+### 12:48 **InAs/GaSb n10（40 原子）の MLO は回さない（user「40 原子の MLO はしなくてもいい」）。kr7 の計算を止めた。MATERIALS の MLO の試験は 65 物質で終わり**
+
+- n10 は kr7（30 GB）で np 8 の LDA の SCF が 36 反復目の 11:03 に OOM killer で止まった（ehf は一定、ehk が 1 反復に 1e-5 Ry ずつ動き収束の判定に届かず）。
+  11:06 に rst から np 4・conv 1e-4 で再開し、12:48 に 11 反復目（RMS DQ 2.2e-4、1 反復に約 1 割ずつ減少）で止めた
+- メモリ: np 4 で 4 ランクの合計が 15〜19 GB を上下し、11 反復の間に増え続けはしなかった（1 分ごとの記録 `kr7:~/mlocheck_20261001/InAsGaSb_n10/mem_n10.log`）。
+  漏れではなく、np 8 では山で 30 GB を超えたと見られる。k 点の割り当ては np 8 で 1 ランクだけ 1 点、ほかは 7 点と偏っていた
+- ページ（https://claude.ai/artifact/VCWpe5W8Fei6umatXGeZGH）は 65 物質で確定（version 2）。n4（16 原子）は 06:55 に終わっていて rms 0.014 eV
+
 ### 09:38 **user「AFTEST と AFsymmetry はマージできるよね」→ `aftest-fix` を main にマージ（`6eff2df53`）。user「良い方を壊さないように」「別ディレクトリに、名前は AFfixMMOM」→ `Samples/AFfixMMOM`（`ca1e4c7fa`）**
 
 - マージ後の main（09:20 に build し直し）: AF の対称性ありの NiO（目標 1.6）は ehf −86708.005449、sev −151.644190 eV がマージ前と同じで、ehk だけが
