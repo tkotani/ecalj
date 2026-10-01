@@ -23,7 +23,7 @@ When you publish bands along these paths, cite in addition to ecalj:
    Comp. Mat. Sci. 128, 140 (2017).
 2. spglib, https://github.com/spglib/spglib
 
-Licences of spglib and seekpath: `LICENSE.txt`.
+Licences: seekpath (MIT) `GetSyml/LICENSE.txt`, spglib (BSD-3) `SRC/external/spglib/COPYING`; the list is in the top `LICENCE`.
 
 ## Known limits
 
