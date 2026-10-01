@@ -19,7 +19,7 @@ Accuracy, with the nearest band at the same k (|dx| < 0.01), in the window [VBM_
   rms_d2m, max_d2m : each DFT point in the window -> nearest MLO band   (a missing band shows up here)
 Metals: the same with VBM_D = CBM_D = E_F = 0.
 mlo_delta is that of [mlo] in ctrlg.*.toml of the directory (2 eV when absent, the default of m_GWinput): it is how far
-above the band edge the model is asked to be right, so the model is judged in that same window. Until 2026-10-01 16:4x
+above the band edge the model is asked to be right, so the model is judged in that same window. Until 2026-10-01 17:54
 the upper edge was CBM + 3 (MLO -> DFT) and CBM + 1 (DFT -> MLO), whatever mlo_delta was.
 
 2026-10-01: rewritten for any directory (the test of Samples/MATERIALS, MD/research_log.md 2026-10-01).

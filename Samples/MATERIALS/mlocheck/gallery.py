@@ -88,7 +88,7 @@ def gap_small(v): return min(v['gap_mesh'], v['gapD']) if v.get('insulator') els
 def dgap(v): return (v['gapM'] - v['gapD']) if v and v.get('insulator') else None
 
 # ---------- band figures ----------
-# DFT: grey lines; MLO: red x; hatched: the window of the error [VBM-8, CBM+mlo_delta] (both directions, 16:4x);
+# DFT: grey lines; MLO: red x; hatched: the window of the error [VBM-8, CBM+mlo_delta] (both directions, 17:54);
 # orange dots: DFT points with no MLO band within 0.1 eV (a band missing from the
 # model); dark rings: MLO points with no DFT band within 0.1 eV (a wrong band). The matching is that of mlo_bandcheck.py.
 TOL = 0.1

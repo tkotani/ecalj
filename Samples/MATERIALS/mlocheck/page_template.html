@@ -121,7 +121,7 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
     <dt>ギャップ</dt><dd>表 1 のギャップは DFT の、k メッシュと対称線の上のうち小さい方。<b>ギャップの誤差</b>は対称線の上の MLO − DFT。</dd>
     <dt>誤差を見る窓</dt><dd>VBM − 8 eV 〜 CBM + <code>mlo_delta</code>（どの物質も 2 eV。金属は E_F − 8 〜 E_F + 2 eV）。<code>mlo_delta</code> は模型を合わせる範囲の上端
       （CBM からどこまで上を合わせるか）なので、同じ範囲で評価する。この中で、DFT の帯が模型にあるか（DFT → MLO）と、模型の帯が DFT にあるか（MLO → DFT）の両方を見る。図では窓を斜線で示す。
-      <span class="note">（2026-10-01 16:4x まで、上端は DFT → MLO が CBM + 1、MLO → DFT が CBM + 3 eV だった）</span></dd>
+      <span class="note">（2026-10-01 17:54 まで、上端は DFT → MLO が CBM + 1、MLO → DFT が CBM + 3 eV だった）</span></dd>
     <dt>誤差の最大値</dt><dd>窓の中の各点について同じ k で最も近い相手の帯との差をとり、その rms を 2 つの向きで出す。<b>誤差の最大値</b> = max（rms MLO → DFT、rms DFT → MLO、|ギャップの誤差|）。
       判定は good ≤ 0.02、fair ≤ 0.05、marginal ≤ 0.1、poor &gt; 0.1 eV。</dd>
   </dl>
