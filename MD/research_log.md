@@ -88,6 +88,17 @@ user の指示（05:5x）: 「この方針で進めて。TODO も判断がつく
 MATERIALS 以下を MLO で（spd ベース、f があるときに入れる）すべてモデル化。DFT レベルでよい。目視で確認できる図、バンドギャップの違い。
 AFsymmetry のモード（AFTEST）が動くのか、そもそも正しいのかも調べて」。push はしない。
 
+### 22:41 lmfa（`freeat.f90`）の整理、一歩目は等価変換（user「まずは lmfa」「シングルトンの方向で。まずは等価変換、使われていないものはコメントアウト」「後方互換は捨ててよい」）
+
+- lmfa は対称性と無関係（`m_lmfinit_init` は SYMGRP の文字列を読むだけ、`freeat` は種類のデータだけ使う）
+- `freats` の呼び手は二つ: `freeat`（lmfa、入力の種類）と `lmaux.f90` の `makrm0`（`lmchk --getwsr`、原子番号から作る既定の種類で MT 半径を見積もる。
+  ctrlgenToml が使う）。入力の出どころが違うので `freats` は引数で受ける計算の部品のまま。lmfa の処理中の種類の結果（密度・内殻の密度・ポテンシャル・
+  メッシュ・裾の当てはめ・エネルギー）を `m_freeat` の module 変数に。一度も使われない引数 `lwf`・`rs3`・`eh3`・`vmtz`・`rtab`・`etab` を外した（両方の呼び手）。
+  使われない変数・開かない枝（価電子の密度の図）・二度目の同じ `rhot`・デバッグの表示はコメントアウト。PZ/P の入れ替えに説明のコメント
+- 確かめ: 123 の入力（TestInstall・MATERIALS・MLOsamples、`~/work/lmfa_base/{before,after}`）で `__atm`・`atmpnu` 356 本と `llmfa` のエネルギーが
+  ビット単位で一致。ctrlgenToml で 5 物質を作り直し MT 半径が同じ（`makrm0`）。install 64 PASSED
+- 残り: `atomsc`・`newrho` の整理（lmfa では始め方が一つ）、前からあるコメントアウトの古いコード、`freats` の引数をさらに減らすか
+
 ### 21:41 模型の検査、窓の E_F の直し、MATERIALS の `[mlo]` の書き直し（user「(b) のチェックを入れて。最大誤差と誤差のジャンプ、0.1 eV を不合格」「(c) は efermi_soc でやるのでよかったのでは」「(d) は新しいもので、差分も確かめて」）
 
 - (b) 調べ方: 対称線に沿った誤差を DFT の帯（`bnd*` の番号）ごとに追い、隣の k との跳びを測った（窓の中の点の最大で見ると帯が窓の端を出入りして段が出る）。
