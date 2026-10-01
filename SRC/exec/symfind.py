@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """symfind.py: the space group of ctrlg.<sname>.toml by spglib, written to symmetry.json (step S0 of MD/symmetry_spglib.md).
 
-    symfind.py <sname> [--symprec 1e-5] [--out symmetry.<sname>.json] [--check [llmchk]]
+    symfind.py <sname> [--symprec 1e-5] [--out symmetry.<sname>.json] [--check [llmchk]] [--ctrlg:<path>=<value> ...]
 
 symmetry.<sname>.json holds the operations in the standard notation of spglib: x' = R x + t with R an integer matrix and t a translation,
 both in the fractional coordinates of plat (the columns of plat are the lattice vectors), together with the space group number,
@@ -23,8 +23,27 @@ import numpy as np
 BOHR_ANGSTROM = 0.529177210903
 
 
-def read_ctrlg(sname):
-    c = tomllib.load(open(f'ctrlg.{sname}.toml', 'rb'))
+def apply_overrides(c, overrides):
+    """--ctrlg:<dotted.path>=<value> as lmf takes them (m_toml_override.f90): a TOML value; an integer in the path is a
+    1-based index into an array of tables (site.2.pos). So that symmetry.<sname>.json is made for the structure lmf will
+    read when it is run with such overrides (2026-10-02 06:05: Samples/AtomDimer sets the positions this way)."""
+    for o in overrides:
+        path, val = o[len('--ctrlg:'):].split('=', 1)
+        v = tomllib.loads(f'v = {val}')['v']
+        keys = path.split('.')
+        d = c
+        for k in keys[:-1]:
+            d = d[int(k) - 1] if k.isdigit() else d.setdefault(k, {})
+        k = keys[-1]
+        if k.isdigit():
+            d[int(k) - 1] = v
+        else:
+            d[k] = v
+    return c
+
+
+def read_ctrlg(sname, overrides=()):
+    c = apply_overrides(tomllib.load(open(f'ctrlg.{sname}.toml', 'rb')), overrides)
     st = c['struc']
     alat = float(st['alat'])                                   # bohr
     plat = np.array(st['plat'], float).T                        # columns = lattice vectors, alat units
@@ -117,10 +136,11 @@ def main():
     p.add_argument('--symprec', type=float, default=1e-5, help='spglib tolerance in angstrom (default 1e-5)')
     p.add_argument('--out', default=None, help='default symmetry.<sname>.json')
     p.add_argument('--check', nargs='?', const='', default=None, help='compare with the lmchk output (a file, or run lmchk)')
-    a = p.parse_args()
+    a, rest = p.parse_known_args()       # other arguments of lmf (--quit=band, ...) are ignored; --ctrlg: overrides are applied
+    overrides = [x for x in rest if x.startswith('--ctrlg:')]
     if a.out is None:
         a.out = f'symmetry.{a.sname}.json'
-    alat, plat, names, frac = read_ctrlg(a.sname)
+    alat, plat, names, frac = read_ctrlg(a.sname, overrides)
     spg, get = spglib_dataset(alat, plat, names, frac, a.symprec)
     R, T = np.array(get('rotations')), np.array(get('translations'))
     T = np.where(np.abs(T - np.rint(T)) < 1e-10, np.rint(T), T) % 1.0      # translations in [0,1)
