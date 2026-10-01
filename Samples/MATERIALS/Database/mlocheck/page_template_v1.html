@@ -83,105 +83,97 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
 .note { font-size: .82rem; color: var(--muted); }
 @media (max-width: 480px) { .two { grid-template-columns: 1fr; } h1 { font-size: 1.4rem; } }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
-
-th.num, td.num { text-align: right; }
-table.cnt td:first-child { white-space: normal; max-width: 34ch; }
-table.cnt th, table.cnt td { padding: 6px 12px; }
-th.grp { text-align: center; border-bottom: 2px solid var(--line); }
-dl.eval { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0; max-width: 90ch; }
-dl.eval dt { font-weight: 600; } dl.eval dd { margin: 0; }
-ol.opts { margin: 0; padding-left: 1.4em; display: flex; flex-direction: column; gap: 8px; max-width: 90ch; }
 </style>
 
 <div class="wrap">
 <header>
   <h1>Samples/MATERIALS の全物質で、MLO の自動の模型を LDA のバンドと比べた</h1>
-  <p>Database の 62 物質と La₂CuO₄・InAs/GaSb 超格子（16 原子）・BaTiO₃ について、LDA（Eu の化合物は LDA+U）の自己無撞着計算のあと、
-    MLO の模型を作り、対称線の上で DFT のバンド（灰色の線）と MLO のバンド（赤の ×）を比べた。スピン軌道を入れる 2 物質は <code>job_mlo_soc</code>（摂動）。
-    <b>基準の模型は、半内殻の局所軌道を自動で入れる既定</b>（2026-10-01 の変更。下の「模型の作り方」の 2）。</p>
-  <p class="meta">@@DATE@@ · ecalj <span class="mono">@@REV@@</span>（局所軌道の自動化はコミット前の build）· t14（gfortran）と kr7（nvfortran、同じ Fortran の版）· InAs/GaSb の n10（40 原子）は回さなかった（user の判断）</p>
+  <p>Database の 62 物質と La₂CuO₄・InAs/GaSb 超格子・BaTiO₃ について、LDA（Eu の化合物は LDA+U）の自己無撞着計算のあと、
+    <code>job_mlo</code> の既定の模型（<code>mlo_method = 4</code>、Δ = w = 2 eV、<code>mlo_lm</code> は Ne まで s,p・Na から s,p,d・ランタノイドと 4f が価電子にある Hf は s,p,d,f）を作り、
+    対称線の上で DFT のバンド（灰色の線）と MLO のバンド（赤の ×）を比べた。スピン軌道を入れる 2 物質は <code>job_mlo_soc</code>（摂動）。</p>
+  <p class="meta">@@DATE@@ · ecalj <span class="mono">@@REV@@</span> · t14（gfortran）と kr7（nvfortran、同じ Fortran の版）· InAs/GaSb の n10（40 原子）は回さなかった（user の判断、2026-10-01 12:48）</p>
 </header>
 
 <section class="stats" aria-label="まとめ">
   <div class="stat"><b>@@N@@</b><span>評価した物質</span></div>
-  <div class="stat good"><b>@@B_good@@ → @@S_good@@</b><span>good: 最悪値 ≤ 0.02 eV</span></div>
-  <div class="stat fair"><b>@@B_fair@@ → @@S_fair@@</b><span>fair: ≤ 0.05 eV</span></div>
-  <div class="stat marginal"><b>@@B_marginal@@ → @@S_marginal@@</b><span>marginal: ≤ 0.1 eV</span></div>
-  <div class="stat poor"><b>@@B_poor@@ → @@S_poor@@</b><span>poor: &gt; 0.1 eV</span></div>
+  <div class="stat good"><b>@@NGOOD@@ → @@AGOOD@@</b><span>good: 最悪値 ≤ 0.02 eV</span></div>
+  <div class="stat fair"><b>@@NFAIR@@ → @@AFAIR@@</b><span>fair: ≤ 0.05 eV</span></div>
+  <div class="stat marginal"><b>@@NMARG@@ → @@AMARG@@</b><span>marginal: ≤ 0.1 eV</span></div>
+  <div class="stat poor"><b>@@NPOOR@@ → @@APOOR@@</b><span>poor: &gt; 0.1 eV</span></div>
 </section>
-<p class="note"><b>数字は「基準 → 物質ごとに一番良いやり方」</b>（基準・陽イオンに EH2・空格子球のうち、最悪値の一番小さいもの）。</p>
+<p class="note"><b>数字は「既定の模型 → 動径関数を足した模型」</b>（足したのは 16 物質。下の「動径関数を足すとは」）。</p>
+<p class="note">最悪値 = max（MLO の各点から最寄りの DFT のバンドまでの rms、DFT の各点から最寄りの MLO のバンドまでの rms、|ギャップの差|）。
+  rms の窓は [VBM − 8, CBM + 3] eV（DFT → MLO は CBM + 1 eV まで）、金属は E_F を VBM = CBM とみなす。評価は <code>SRC/exec/mlo_bandcheck.py</code>。</p>
 
 <section class="panel">
-  <h2>評価のしかた</h2>
-  <p>道具は <code>SRC/exec/mlo_bandcheck.py</code>。対称線の上の同じ k 点で、DFT のバンド（<code>job_band</code> の <code>bnd*</code>）と MLO のバンド（<code>band_MLO_spin*.dat</code>）を、
-    どちらも E_F 基準の eV で比べる（BZ 全体ではなく対称線の上だけ）。</p>
-  <dl class="eval">
-    <dt>金属か絶縁体か</dt><dd>次の両方を満たしたときだけ絶縁体。(i) SCF の k メッシュ（<code>efermi.lmf</code>）で E_F が価電子帯の頂上にあり、メッシュのギャップが 0.05 eV より大きい。
-      (ii) 対称線の上の DFT の CBM − VBM が 0.05 eV より大きい。</dd>
-    <dt>ギャップ</dt><dd>メッシュのギャップ（gap_mesh）と、対称線の上の DFT のギャップ（gapD）を両方出す。VBM と CBM の区切りはメッシュのギャップの中央
-      （メッシュが粗いと線の上の VBM がメッシュの E_F より上に出るため）。MLO と比べるのは線の上どうし: gapM は DFT の線の上のギャップの中央より下の最高点と上の最低点の差。
-      ギャップの差 = gapM − gapD。</dd>
-    <dt>rms MLO → DFT</dt><dd>[VBM − 8, CBM + 3] eV にある MLO の各点について、同じ k で最も近い DFT のバンドとの差の rms（余計な帯・外れた帯が出る）。最大のずれも表に出す。</dd>
-    <dt>rms DFT → MLO</dt><dd>[VBM − 8, CBM + 1] eV にある DFT の各点について、同じ k で最も近い MLO のバンドとの差の rms（模型から抜けた帯が出る）。</dd>
-    <dt>金属</dt><dd>VBM = CBM = E_F として同じ窓。</dd>
-    <dt>最悪値と判定</dt><dd>最悪値 = max（rms MLO → DFT、rms DFT → MLO、|ギャップの差|）。判定に使うのは rms で、1 点ごとの最大のずれは入れていない
-      （帯の一部だけ大きく外れても rms が小さければ good・fair になりうる。表の max の列で確かめる）。good ≤ 0.02、fair ≤ 0.05、marginal ≤ 0.1、poor &gt; 0.1 eV。</dd>
-    <dt>限界</dt><dd>「最も近い帯」で対応づけるので、帯の密なところでは別の帯と組になって誤差を小さく見積もりうる。窓の上は CBM + 3 eV まで（模型の合わせる範囲
-      <code>mlo_delta</code> = 2 eV とその上の減衰を少し超えるところ）。有効質量は見ていない。</dd>
-  </dl>
-</section>
-
-<section class="panel">
-  <h2>模型の作り方（4 つ）</h2>
-  <ol class="opts">
-    <li><b>旧既定</b>（2026-10-01 14:4x まで）: <code>mlo_lm</code> の (原子, lm) ごとに動径関数を 1 本（PMT の基底の第 1 の smooth Hankel 関数、EH）。
-      半内殻の局所軌道は、帯の上端が E_F − 10 eV より上なら EH と入れ替え、下は外す。表 1 の「旧既定」の列。</li>
-    <li><b>基準: 半内殻の局所軌道を自動で入れる</b>（<code>m_HamPMT</code> の変更、入力には何も書かない）。帯の上端が E_F − 17 eV より上の半内殻の局所軌道を、EH の関数に
-      <b>加えて</b>模型の関数にする。帯は「同じ種類の原子の局所軌道をまとめた部分空間への重みが 1/2 を超える占有状態」で見る（La₂CuO₄ の La 5p は 2 つの La に半分ずつ広がり、
-      1 原子ずつでは見つからなかった）。Ga 3d・In 4d・Eu 5p・La 5p・Sr 4p が O・N の 2p と混ざる系が直る。</li>
-    <li><b>陽イオンに EH2 の s,p</b>（手で <code>mlo_lm2</code> に書く）: 陽イオン（N・O・F・P・S・Cl・As・Se・Br・Sb・Te・I 以外の原子）の s,p に第 2 の smooth Hankel 関数を加える。
-      空隙の大きい閃亜鉛鉱・wurtzite の化合物で、隙間に広がった伝導帯の底を表す。単体の金属などでは全原子が対象になり、壊れることがある（Cu）。</li>
-    <li><b>空格子球</b>（手で <code>[[site]]</code>・<code>[[spec]]</code> に置く。DFT から回し直す）: 空隙に z = 0 の球を置き、その s,p を模型に入れる。いまは SiO₂ クリストバライトだけ
-      （Si のダイヤモンド網の空隙、立方体の単位で ½(111) と ¾(111)、r = 2.6 a.u.）。</li>
-  </ol>
-  <h3>判定の数</h3>
-  <div class="scroll">@@COUNTS@@</div>
+  <h2>動径関数を足すとは</h2>
+  <p>MLO の模型の 1 本 1 本は原子の位置に置いた軌道で、角度の部分（s・p・d・f、つまり lm）と、原子からの広がり方を決める動径の部分でできている。
+    <b>既定の模型</b>は <code>mlo_lm</code> に書いた (原子, lm) ごとに動径関数を <b>1 本</b>だけ使う（PMT の基底の第 1 の smooth Hankel 関数、EH）。
+    <b>動径関数を足す</b>とは、同じ (原子, lm) に広がり方の違う動径関数をもう 1 本、模型の関数として加えること。角度の性格が同じで動径の形が違う MLO が 2 本になる。
+    PMT の基底にはもともと別の動径関数が 2 種類あり、どちらを足すかで型が分かれる。</p>
+  <ul class="find">
+    <li><b>(a) <code>mlo_lm3</code>: 半内殻の局所軌道（<code>pz</code>）を足す。</b> Ga 3d・In 4d・Eu 5p・La 5p・Sr 4s,4p などは E_F − 10 eV より下にあり、既定では「深い」と判定されて
+      模型から外れる。O・N の 2p と混ざっているので、外すと 2p の帯がずれる。局所軌道を模型の関数として足すと、その混ざりを表せる。</li>
+    <li><b>(b) <code>mlo_lm2</code>: 第 2 の smooth Hankel 関数（EH2）の s,p を足す。</b> 空隙の大きい構造では伝導帯の底が隙間に広がった s,p 的な状態で、
+      原子に強くまとわりつく 1 本だけでは表せない。広がり方の違う EH2 を全原子の s,p に足すと表せる。</li>
+    <li><b>2 本目が働くのは、窓の中にその性格の 2 本目の帯が本当にあるときだけ。</b> 無いと 2 本が同じ関数に潰れて、模型が壊れるか止まる（下の 2 つ目の表）。
+      どんなときに足すかを既定にどう組み込むかは未定（TODO）。</li>
+  </ul>
+  <h3>足す前と後の判定の数</h3>
+  <div class="scroll">@@AFTER@@</div>
+  <h3>足した物質（左の図が既定、右が足した模型。図 3）</h3>
+  <div class="scroll">@@RADIAL@@</div>
+  <p class="note">MLO の数は模型の関数の本数（<code>lmlo</code> の <code>HamRsMTO=</code>）。最悪値は既定 → 足した模型。HfO₂ は動径関数ではなく、4f のチャンネル（10〜16）を <code>mlo_lm</code> に足した（表と図は f 入り）。</p>
+  <h3>両方（EH2 の s,p と半内殻）を足した場合</h3>
+  <div class="scroll">@@RADIALBAD@@</div>
 </section>
 
 <section class="panel">
-  <h2>図 1. 基準の模型のギャップの差（MLO − DFT）</h2>
+  <h2>図 1. ギャップの差（MLO − DFT）</h2>
   <div class="legend"><span><i class="good"></i>good</span><span><i class="fair"></i>fair</span><span><i class="marginal"></i>marginal</span><span><i class="poor"></i>poor</span>
-    <span><i class="fixed"></i>陽イオン EH2 か空格子球で一番良くなった模型（矢印の先）</span></div>
+    <span><i class="fixed"></i>動径関数を足した模型（矢印の先）</span></div>
   <div class="scroll">@@CHART1@@</div>
-  <p class="note">絶縁体だけ。点にカーソルを置くと値が出る。</p>
+  <p class="note">絶縁体だけ（SCF のメッシュでギャップがあるもの）。点にカーソルを置くと値が出る。</p>
 </section>
 
 <section class="panel">
-  <h2>図 2. 基準の模型の物質ごとの最悪値（対数軸、破線は 0.02・0.05・0.1 eV）</h2>
+  <h2>図 2. 物質ごとの最悪値（既定の模型、対数軸、破線は 0.02・0.05・0.1 eV）</h2>
   <div class="scroll">@@CHART2@@</div>
 </section>
 
 <section>
-  <h2>図 3. 基準（左）と、陽イオンに EH2 または空格子球を入れた模型（右）。判定が上がった物質</h2>
-  <div class="pairs">@@PAIRS@@</div>
+  <h2>分かったこと</h2>
+  <ul class="find">
+    <li><b>多くの物質で模型はよく合う</b>: s,p の半導体、ZnO・CdS などの d¹⁰ の化合物、MgO・ZrO₂・BaTiO₃、MnO・NiO、Fe・Ni・Cu では、バンドの rms が 0.01 eV 前後、ギャップの差は 0.01 eV 以下。</li>
+    <li><b>外れ方 (a): 半内殻と陰イオンの 2p の混成</b>（GaN・InN・EuO・La₂CuO₄・LaGaO₃・SrTiO₃・SrVO₃）。Ga 3d・In 4d・Eu 5p・La 5p・Sr 4p などの局所軌道が「深い」と判定されて
+      模型から落ち、O・N の 2p の帯が 0.05〜0.6 eV ずれる。<code>mlo_lm3</code> で局所軌道を足すと 0.001〜0.008 eV。同じ Eu でも S・Se・Te の化合物は外れない（0.001〜0.003 eV）。</li>
+    <li><b>HfO₂ は Hf の 4f が価電子の基底にある</b>（P_f = 4.5）。最初の s,p,d の模型では VBM が 0.057 eV ずれ、f を入れて 0.000 eV（表と図は f 入り）。</li>
+    <li><b>外れ方 (b): 空隙の大きい構造の伝導帯の底</b>（MgS・MgSe・MgTe・CdTe・ZnTe・AlN・SiO₂ クリストバライト）。Γ の CBM が 0.04〜0.29 eV 高く、SiO₂ は伝導帯の下の方が丸ごと無い（+4.1 eV）。
+      <code>mlo_lm2</code> で全原子に第 2 の動径関数（EH2）の s,p を足すと 0.00〜0.05 eV。</li>
+    <li><b>ただし常に足すのは不可</b>: Cu に EH2 の s,p を足すと模型が止まらずに壊れる（最大 8 eV）。EuO に足すと <code>Hreduction: PMT completeness loss too large</code> で止まる。足す条件を決めるのは TODO。</li>
+  </ul>
+</section>
+
+<section>
+  <h2>図 3. 既定の模型（左）と、動径関数を足した模型（右）</h2>
+  <div class="pairs">@@FIXES@@</div>
+  <h3 style="margin-top:16px">反例</h3>
+  <div class="pairs">@@BAD@@</div>
 </section>
 
 <section class="panel">
   <h2>表 1. 物質ごとの結果（eV）</h2>
-  <p class="note">見出しを押すと並べ替え。gap_mesh・gapD は DFT（メッシュ・対称線の上）。「旧既定」は最悪値だけ。基準の列はギャップの差、rms と最大のずれ、最悪値、判定、MLO の本数。
-    「陽イオン EH2」「空格子球」は最悪値と判定（空格子球は SiO₂ だけ）。</p>
-  <div class="scroll"><table id="tbl"><thead>
-    <tr><th colspan="5"></th><th class="grp">1. 旧既定</th><th class="grp" colspan="7">2. 基準（自動の半内殻入り）</th><th class="grp" colspan="2">3. 陽イオン EH2</th><th class="grp">4. 空格子球</th></tr>
-    <tr><th scope="col" tabindex="0">物質</th><th scope="col" tabindex="0" class="num">原子数</th><th scope="col" tabindex="0">種類</th>
-    <th scope="col" tabindex="0" class="num">gap_mesh</th><th scope="col" tabindex="0" class="num">gapD</th><th scope="col" tabindex="0" class="num">最悪値</th>
-    <th scope="col" tabindex="0" class="num">gapM − gapD</th><th scope="col" tabindex="0" class="num">rms MLO→DFT</th><th scope="col" tabindex="0" class="num">max</th>
-    <th scope="col" tabindex="0" class="num">rms DFT→MLO</th><th scope="col" tabindex="0" class="num">最悪値</th><th scope="col" tabindex="0">判定</th><th scope="col" tabindex="0" class="num">MLO 数</th>
-    <th scope="col" tabindex="0" class="num">最悪値・判定</th><th scope="col" tabindex="0" class="num">MLO 数</th><th scope="col" tabindex="0" class="num">最悪値・判定</th></tr></thead>
+  <p class="note">見出しを押すと並べ替え。gap_mesh は SCF の k メッシュのギャップ、gapD・gapM は対称線の上の DFT と MLO のギャップ、dVBM・dCBM は MLO − DFT。</p>
+  <div class="scroll"><table id="tbl"><thead><tr>
+    <th scope="col" tabindex="0">物質</th><th scope="col" tabindex="0">群</th><th scope="col" tabindex="0">原子数</th><th scope="col" tabindex="0">種類</th>
+    <th scope="col" tabindex="0">gap_mesh</th><th scope="col" tabindex="0">gapD</th><th scope="col" tabindex="0">gapM</th><th scope="col" tabindex="0">gapM − gapD</th>
+    <th scope="col" tabindex="0">dVBM</th><th scope="col" tabindex="0">dCBM</th><th scope="col" tabindex="0">rms MLO→DFT</th><th scope="col" tabindex="0">max</th>
+    <th scope="col" tabindex="0">rms DFT→MLO</th><th scope="col" tabindex="0">判定</th></tr></thead>
   <tbody>@@TABLE@@</tbody></table></div>
 </section>
 
 <section>
-  <h2>図 4. 全物質のバンド（基準の模型。灰色: DFT、赤: MLO）</h2>
+  <h2>図 4. 全物質のバンド（灰色: DFT、赤: MLO）</h2>
   <div class="filters" role="group" aria-label="判定で絞る">
     <button type="button" id="f-all" data-f="all" aria-pressed="true">すべて</button>
     <button type="button" id="f-poor" data-f="poor" aria-pressed="false">poor</button>
@@ -193,10 +185,10 @@ ol.opts { margin: 0; padding-left: 1.4em; display: flex; flex-direction: column;
 </section>
 
 <section class="note">
-  <h2 style="font-size:1rem">ファイル</h2>
-  <p>入力は <code>Samples/MATERIALS/Database/&lt;物質&gt;/ctrlg.&lt;sname&gt;.toml</code>（ほかはそれぞれの場所の ctrlg）を写し、<code>[mlo]</code> だけ書き直したもの
-    （<code>Samples/MATERIALS/Database/mlocheck/prep.py</code>）。作業場所は t14 の <code>~/work/mlocheck_20261001</code>（旧既定と DFT）、<code>~/work/mlocheck_auto_20261001</code>（基準）、
-    <code>~/work/mlocheck_eh2cat</code>（陽イオン EH2）、<code>~/work/mlocheck_es/SiO2c_ES</code>（空格子球）。記録は ecalj の <code>MD/research_log.md</code>（2026-10-01）。</p>
+  <h2 style="font-size:1rem">方法とファイル</h2>
+  <p>入力は <code>Samples/MATERIALS/Database/&lt;物質&gt;/ctrlg.&lt;sname&gt;.toml</code>（ほかの 3 つはそれぞれの場所の ctrlg）を写し、<code>[mlo]</code> だけ上の規則で書き直した。
+    手順は <code>lmfa</code> → <code>lmf</code> → <code>getsyml --nobzview</code> → <code>job_band</code> → <code>job_mlo</code>（SOC は <code>job_mlo_soc</code>）→ <code>mlo_bandplot.py</code>。
+    作業場所は t14 の <code>~/work/mlocheck_20261001</code>（変種は <code>~/work/mlocheck_variants</code>）、記録は ecalj の <code>MD/research_log.md</code>（2026-10-01 朝）と <code>MD/TODOandQuestion.md</code>。</p>
 </section>
 </div>
 
