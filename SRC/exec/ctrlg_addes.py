@@ -1,0 +1,128 @@
+#!/usr/bin/env python3
+"""Put empty spheres (ES) at the large voids of a structure, for the MLO model (and for the basis).
+
+    ctrlg_addes.py <sname> [--rmin 3.0] [--dry-run]
+
+Reads ctrlg.<sname>.toml. The "void radius" of a point is its distance to the nearest MT sphere surface
+(|r - R_a| - r_a, over all atoms a). Every local maximum of it above --rmin (a.u.) gets an ES:
+  - its position is snapped to a multiple of 1/48 in the plat basis when that is within 0.02, to keep the symmetry;
+  - its radius is 0.6 x the void radius, but at most half the distance to the next ES;
+  - the ES are added as the LAST sites (the indices of the atoms, and the mlo_lm rows, do not change), with one
+    [[spec]] "E" (z = 0, lmx = lmxa = 2, rsmh = r/2, eh = -0.3: the form of Samples/MLOsamples/FeMgO), and a row
+    "<i> E 1 2 3 4" (s,p) in [mlo] mlo_lm.
+The basis changes, so the calculation starts again from lmfa. For GW, run gwinit again (the per-atom tables of
+[product_basis] do not list the ES).
+
+Why 3.0 a.u. (2026-10-01, Samples/MATERIALS): the void radius is 4.30 a.u. for SiO2 cristobalite and 3.56 for the
+van der Waals gap of Bi2Te3; zinc blende and wurtzite compounds have 2.0-2.9 (EH2 s,p in mlo_lm2 is enough for
+them), rock salt and perovskite 1.2-1.4, metals below 1.1. SiO2 with ES at its two voids: MLO bands within
+0.001 eV of DFT (the conduction band was missing from the model without them).
+"""
+import argparse, itertools, re, sys
+import numpy as np
+try:
+    import tomllib
+except ImportError:
+    sys.exit('ctrlg_addes.py: python 3.11 or later is needed (tomllib)')
+
+
+def structure(d):
+    alat = d['struc']['alat']; plat = np.array(d['struc']['plat'], float)
+    r = {s['atom']: s['r'] for s in d['spec']}
+    pos = []
+    for s in d['site']:
+        p = np.array(s['pos'], float) if 'pos' in s else np.array(s['xpos'], float) @ plat
+        pos.append((p * alat if 'pos' in s else p * alat, r[s['atom']]))
+    return alat, plat * alat, pos
+
+
+def clearance_fn(plat, pos):
+    shifts = [np.array(t) @ plat for t in itertools.product((-1, 0, 1), repeat=3)]
+    A = np.array([p + sh for p, _ in pos for sh in shifts]); R = np.array([rr for _, rr in pos for sh in shifts])
+    def c(x):
+        x = np.atleast_2d(x)
+        return (np.linalg.norm(x[:, None, :] - A[None, :, :], axis=2) - R[None, :]).min(axis=1)
+    return c
+
+
+def grid(plat):
+    # about 0.6 a.u. between the points along each axis (a long axis, e.g. c of Bi2Te3, needs more than a fixed 24;
+    # 2026-10-01: 24 missed the van der Waals gap of Bi2Te3)
+    return [max(16, int(np.ceil(np.linalg.norm(a) / 0.6))) for a in plat]
+
+
+def find_voids(plat, pos, rmin):
+    c = clearance_fn(plat, pos)
+    n = grid(plat)
+    frac = np.array(list(itertools.product(range(n[0]), range(n[1]), range(n[2]))), float) / np.array(n)
+    val = np.concatenate([c(frac[i:i + 20000] @ plat) for i in range(0, len(frac), 20000)]).reshape(n)
+    peaks = []
+    for i, j, k in zip(*np.where(val > rmin - 1.0)):   # refined below; a peak may rise above rmin
+        v = val[i, j, k]
+        nb = [val[(i + a) % n[0], (j + b) % n[1], (k + e) % n[2]] for a, b, e in itertools.product((-1, 0, 1), repeat=3) if (a, b, e) != (0, 0, 0)]
+        if v >= max(nb) - 1e-12: peaks.append(np.array([i, j, k], float) / np.array(n))
+    out = []
+    inv = np.linalg.inv(plat)
+    for f in peaks:
+        x = f @ plat; best = c(x)[0]
+        for step in (0.25, 0.12, 0.06, 0.03, 0.015):   # local refinement (a.u.)
+            moved = True
+            while moved:
+                moved = False
+                for t in itertools.product((-1, 0, 1), repeat=3):
+                    y = x + np.array(t) * step; v = c(y)[0]
+                    if v > best + 1e-9: best, x, moved = v, y, True
+        fr = (x @ inv) % 1.0
+        snap = np.round(fr * 48) / 48
+        if np.all(np.abs(snap - fr) < 0.02): fr = snap % 1.0
+        x = fr @ plat; best = c(x)[0]
+        if best <= rmin: continue
+        if any(np.linalg.norm(((fr - g + 0.5) % 1.0 - 0.5) @ plat) < 0.5 for g, _ in out): continue
+        out.append((fr, best))
+    return out
+
+
+def main():
+    ap = argparse.ArgumentParser(description='put empty spheres at the voids larger than --rmin (a.u.)')
+    ap.add_argument('sname'); ap.add_argument('--rmin', type=float, default=3.0); ap.add_argument('--dry-run', action='store_true')
+    a = ap.parse_args()
+    f = f'ctrlg.{a.sname}.toml'; t = open(f).read(); d = tomllib.loads(t)
+    if any(s['z'] == 0 for s in d['spec']): sys.exit(f'{f} has an empty sphere already (z = 0); nothing done')
+    alat, plat, pos = structure(d)
+    voids = find_voids(plat, pos, a.rmin)
+    if not voids:
+        print(f'no void larger than {a.rmin} a.u.; nothing done')
+        return
+    cart = [fr @ plat for fr, _ in voids]
+    dmin = min([np.linalg.norm(((voids[i][0] - voids[j][0] + 0.5) % 1.0 - 0.5) @ plat)
+                for i in range(len(voids)) for j in range(len(voids)) if i != j], default=1e9)
+    rES = round(min(min(0.6 * v for _, v in voids), 0.5 * dmin - 0.01), 2)
+    nat = len(d['site'])
+    for i, ((fr, v), x) in enumerate(zip(voids, cart), nat + 1):
+        print(f'ES site {i}: plat fraction {np.round(fr, 4).tolist()}  pos/alat {np.round(x / alat, 5).tolist()}  void radius {v:.2f} a.u.')
+    print(f'ES radius {rES} a.u. ({len(voids)} spheres)')
+    if a.dry_run: return
+    sites = ''.join(f'[[site]]   # empty sphere at a void, void radius {v:.2f} a.u. (ctrlg_addes.py)\natom = "E"\n'
+                    f'pos  = [{x[0]/alat:.8f}, {x[1]/alat:.8f}, {x[2]/alat:.8f}]\n'
+                    '# ----------------------------------------------------------------\n' for (fr, v), x in zip(voids, cart))
+    # after the last [[site]] table
+    last = [m.start() for m in re.finditer(r'(?m)^\[\[site\]\]', t)][-1]
+    m = re.search(r'(?m)^(\[|# ===)', t[last + 8:]); end = last + 8 + (m.start() if m else len(t) - last - 8)
+    t = t[:end] + sites + t[end:]
+    spec = (f'[[spec]]   # empty sphere (ctrlg_addes.py; the form of Samples/MLOsamples/FeMgO)\natom   = "E"\nz      = 0\nr      = {rES}\n'
+            f'lmx    = 2\nlmxa   = 2\nrsmh   = [{rES/2:.3f}, {rES/2:.3f}, {rES/2:.3f}]\neh     = [-0.3, -0.3, -0.3]\n'
+            '# ----------------------------------------------------------------\n')
+    last = [m.start() for m in re.finditer(r'(?m)^\[\[spec\]\]', t)][-1]
+    m = re.search(r'(?m)^(\[|# ===)', t[last + 8:]); end = last + 8 + (m.start() if m else len(t) - last - 8)
+    t = t[:end] + spec + t[end:]
+    rows = ''.join(f'{i} E    1 2 3 4\n' for i in range(nat + 1, nat + 1 + len(voids)))
+    if re.search(r'(?m)^mlo_lm = """\n', t):
+        t = re.sub(r'(?ms)^(mlo_lm = """\n.*?)^"""', lambda mm: mm.group(1) + rows + '"""', t, count=1)
+    open(f + '.bak_addes', 'w').write(open(f).read())
+    open(f, 'w').write(t)
+    tomllib.loads(t)
+    print(f'{f} rewritten (the old one is {f}.bak_addes). Start again from lmfa; for GW run gwinit again.')
+
+
+if __name__ == '__main__':
+    main()

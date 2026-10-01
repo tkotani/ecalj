@@ -113,16 +113,7 @@ contains
     write(ifi,'(a)') ' 0.3 0.0 0.0'
     write(ifi,'(a)') '"""'
     write(ifi,'(a)')
-    write(ifi,'(a)') '# ----- Wannier (hmaxloc: cRPA, job_magnon). Not used by MLO. Uncomment to use. -----'
-    write(ifi,'(a)') '# wan_out_emin  = -1.05   # eV relative to EFermi'
-    write(ifi,'(a)') '# wan_out_emax  =  2.4'
-    write(ifi,'(a)') '# wan_maxit_1st = 300'
-    write(ifi,'(a)') '# wan_conv_1st  = 1e-7'
-    write(ifi,'(a)') '# wan_max_1st   = 0.1'
-    write(ifi,'(a)') '# wan_maxit_2nd = 1500'
-    write(ifi,'(a)') '# wan_max_2nd   = 0.3'
-    write(ifi,'(a)') '# wan_conv_end  = 1e-8'
-    write(ifi,'(a)')
+    !(the commented Wannier block, wan_* keys for hmaxloc, was removed 2026-10-02 with the Wannier functions; tag last-wannier)
 
     !! ----- [mlo] -----
     write(ifi,'(a)') '[mlo]'

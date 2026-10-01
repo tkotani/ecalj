@@ -226,71 +226,18 @@ The full ω-dependence is stored on disk (frequency mesh from
 `HistBin_dw` / `HistBin_ratio`), but for typical use cases only the
 ω = 0 slice and the on-site sub-block need post-processing.
 
-### ⚠️ Important flag: `--mlo_feb4` (controls V/W definition)
+### Normalization of the MLOs, cRPA and the spread (2026-10-02)
 
-`job_mloW` passes `--mlo_feb4` to `mlo` and `hwmatK_MPI`. **Keep this
-flag on** for the Hubbard-U-like interpretation that matches the
-original 2026-02 implementation (commit `6e4d7500a`, reference value
-~1.5 eV). Two things change with the flag:
-
-| Step | with `--mlo_feb4` (Feb 2026 behavior) | without (Today default) |
-|---|---|---|
-| `mlo` (m_hreduction) | per-orbital diagonal normalization `\|F_i⟩ → \|F_i⟩/√⟨F_i\|F_i⟩` so `⟨F_i\|F_i⟩ = 1` | no normalization |
-| `hwmatK_MPI` (readcmlo) | `ovlm_inv = I` ⇒ V = `⟨F F \| V \| F F⟩` non-dual | `ovlm_inv = ⟨F\|F⟩⁻¹` ⇒ V uses dual basis `⟨F̃ F \| V \| F̃ F⟩` |
-
-The dual-basis (off-flag) variant was introduced in commit `415b6e625`
-(2026-03-12) for the magnon path; it changes per-orbital `V_iiii` by
-~5–17 % (largest in the p block) without affecting MLO bands. For
-Hubbard-style on-site U/J interpretation the historical `--mlo_feb4`
-form is the natural choice.
-
-Note: MLO bands themselves are **bit-identical** with or without
-`--mlo_feb4` — the flag only affects the V/W tensor extraction.
-
-### Reference value: bcc Fe, Fe-3d on-site W (with `--mlo_feb4`)
-
-Original 2026-02-04 follow-up (commit `6e4d7500a`): on-site screened
-W on the Fe 3d block comes out around **~1.5 eV**.
-
-#### Reproduction runs (2026-05-08, gfortran-14, ROMIO, `--mlo_feb4` on)
-
-`job_mloW fe -np <N>` in `Samples/MLOsamples/Fe/`, with `mlo_method = 0` (the setting of
-that time; with the present `mlo_method = 4` the d values differ, see `Fe/test.py`),
-on-site Fe-1 d-block diagonal `⟨i i | W | i i⟩` at R=0, ω=0:
-
-| BZ mesh | parallelism | W (t2g, UP) | W (eg, UP) | W (t2g, DN) | W (eg, DN) |
-|---|---|---|---|---|---|
-| 2×2×2 | -np 8 | 2.20 eV | 2.34 eV | 2.09 eV | 2.21 eV |
-| **4×4×4** | **-np 8** | **1.60 eV** | **1.76 eV** | **1.54 eV** | **1.68 eV** |
-
-Trend: denser BZ mesh → smaller W (more screening channels). 4×4×4
-already lands within ~10 % of Takao's 1.5 eV ballpark. The 2×2×2
-values agree bit-by-bit with a fresh build of `464a2d510` (Feb 4),
-verifying the `--mlo_feb4` mode reproduces the original calculation.
-
-Full 4×4×4 / `-np 8` table (UP / DN spins, all nine MLO indices on
-atom 1; printed automatically at the end of `job_mloW`):
-
-```text
-=== On-site diagonal <i i | V/W | i i> at R=0, omega=0 (spin UP) ===
-  i      V (eV)    W-V (eV)     W (eV)
-  1      10.70     -9.77         0.92    (s)
-  2-4    10.70     -9.38         1.32    (p)
-  5,6,8  23.95    -22.34         1.60    (d t2g)
-  7,9    23.92    -22.16         1.76    (d eg)
-
-=== On-site diagonal <i i | V/W | i i> at R=0, omega=0 (spin DN) ===
-  i      V (eV)    W-V (eV)     W (eV)
-  1      10.69     -9.76         0.93    (s)
-  2-4    10.72     -9.38         1.33    (p)
-  5,6,8  23.19    -21.66         1.54    (d t2g)
-  7,9    23.10    -21.42         1.68    (d eg)
-```
-
-The job script ends with an awk block that parses `Coulomb_v.{UP,DN}` and
-`Screening_W-v.{UP,DN}` (filter: R=0, all four orbital indices equal,
-ω=0 record) and prints V / W−V / W per Wannier index — no separate
-post-processing step is needed.
+- The MLOs are normalized in real space: each is divided by the square root of its square integral
+  O_ii(R=0), one constant per orbital, when `mlo` defines the model (HamRsMLO). No band changes; U and J of
+  `job_mloW` are those of normalized orbitals. The old options `--mlo_feb4`, `--mlo_diagnorm`, `--mlo_ortho`,
+  `--mlo_orthonorm` are retired (they normalized at each k or orthogonalized, which changes the orbitals).
+- `job_mloW <sname> --crpa` also writes the cRPA W (`Screening_W-v_crpa.{UP,DN}`): the screening inside the
+  MLO subspace (`mlo_lm`) is removed. Tests: `TestInstall/ni_crpa`, `srvo3_crpa`.
+- `mlo_spread.py <sname> -np N` after `job_mloW`: <r>, <r^2> and the spread of each MLO.
+- Explanations and the comparison with the Wannier functions (removed 2026-10-02): ecaljdoc
+  [mlo](https://ecalj.github.io/ecaljdoc/manual/mlo) section 6. The values of 2026-05 with `--mlo_feb4`
+  (bcc Fe d W about 1.6 eV at 4x4x4) are in the git history before this change.
 
 ### Regression test: `testecalj Fe`
 
@@ -313,8 +260,7 @@ then `test.py`'s comparison table (`V_exp / V_act / dV / WmV_exp /
 WmV_act / dWmV / status`).  Final `PASSED!` summaries are appended to
 `Fe_work/summary.txt`.
 
-This is plain RPA, not cRPA: the cRPA block in `job_mloW` is
-commented out (a minor follow-up is needed to enable it cleanly).
+This test is plain RPA; cRPA (`job_mloW --crpa`) is tested by `TestInstall/ni_crpa` and `srvo3_crpa`.
 Running `testecalj Fe` (or `job_mloW fe -np <N>` directly inside
 `Fe/`) produces `Coulomb_v.{UP,DN}` and `Screening_W-v.{UP,DN}` on
 the Fe-3d MLO basis as the live reference state for the regression

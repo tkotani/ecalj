@@ -17,7 +17,7 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   use m_zmel_old,only: drvmelp3
   use m_ftox
   use m_readqg,only: readqg0
-  use m_wan_wfs,only:readcphiw
+  ! use m_wan_wfs,only:readcphiw !the Wannier functions, removed 2026-10-02 (tag last-wannier)
   use m_keyvalue,only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, &
                        tg_nbcutlow_sig => nbcutlow_sig, &
@@ -147,7 +147,8 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   logical :: mlo_mode
   debug=.false.
   mlo_mode = c0_mlo
-  if(mlo_mode) call cmlo_init()
+  if(.not.mlo_mode) call rx('the Wannier functions path was removed 2026-10-02 (tag last-wannier): run with --mlo')
+  call cmlo_init()
   if(verbose()>=90) debug= .TRUE. 
   if(debug) write(6,ftox)' nnnnnnnnnn wmatqk_mpi: nrws nrws1 nrws2       ',nrws,nrws1,nrws2
   call gwinput_init()
@@ -275,13 +276,8 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
     do iq = 1,nqbz
       q(:) = qbz(:,iq)
       qk =  q - qbz_kr          ! qbz(:,kr)
-      if(mlo_mode) then
-        cphiq = get_cphi_cmlo(qbz(:,iq), is)
-        cphikq = get_cphi_cmlo(qk, is)
-      else
-        call readcphiW(qbz(:,iq), nlmto,is, quu, cphiq)
-        call readcphiW(qk,        nlmto,is, quu, cphikq)
-      endif
+      cphiq = get_cphi_cmlo(qbz(:,iq), is)
+      cphikq = get_cphi_cmlo(qk, is)
       do ia = 1,natom
         expikt(ia) = exp(img*tpi* sum(qibz_k*tr(:,ia)) ) !  write(6,'(" phase ",i3,2d12.4)')ia,expikt(ia)
       end do

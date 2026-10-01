@@ -90,16 +90,16 @@ module m_cmdopt_registry
   ! load_cmdopt0_registry. Variable names mirror the flag name, with
   ! `-` -> `_` and `:` -> `_` for Fortran identifier rules.
   !========================================================================
-  logical, public, protected, save :: c0_AHCMAT          = .false.
-  logical, public, protected, save :: c0_UUMAT           = .false.
+! logical, public, protected, save :: c0_AHCMAT          = .false. !removed 2026-10-02 (AHC, lmfham2, test option; see check_retired)
+! logical, public, protected, save :: c0_UUMAT           = .false. !removed 2026-10-02 (AHC, lmfham2, test option; see check_retired)
   logical, public, protected, save :: c0_afsym           = .false.
-  logical, public, protected, save :: c0_ahc             = .false.
+! logical, public, protected, save :: c0_ahc             = .false. !removed 2026-10-02 (AHC, lmfham2, test option; see check_retired)
   logical, public, protected, save :: c0_allband         = .false.
   logical, public, protected, save :: c0_avoidgamma      = .false.
   logical, public, protected, save :: c0_band            = .false.
   logical, public, protected, save :: c0_boltztrap       = .false.
   logical, public, protected, save :: c0_cls             = .false.
-  logical, public, protected, save :: c0_cmlo            = .false.
+! logical, public, protected, save :: c0_cmlo            = .false. !removed 2026-10-02 (AHC, lmfham2, test option; see check_retired)
   logical, public, protected, save :: c0_corehole        = .false.
   logical, public, protected, save :: c0_cvK             = .false.  ! --cvK:
   logical, public, protected, save :: c0_debug           = .false.
@@ -135,7 +135,7 @@ module m_cmdopt_registry
 ! logical, public, protected, save :: c0_mlo_feb4        = .false. !removed 2026-10-02 (experimental MLO option, see check_retired)
 ! logical, public, protected, save :: c0_mlo_ortho       = .false. !removed 2026-10-02 (experimental MLO option, see check_retired)
 ! logical, public, protected, save :: c0_mlo_orthonorm   = .false. !removed 2026-10-02 (experimental MLO option, see check_retired)
-  logical, public, protected, save :: c0_mloahc          = .false.
+! logical, public, protected, save :: c0_mloahc          = .false. !removed 2026-10-02 (AHC, lmfham2, test option; see check_retired)
   logical, public, protected, save :: c0_mlog            = .false.
   logical, public, protected, save :: c0_modifiedGS      = .false.
   logical, public, protected, save :: c0_n1n2n3eps       = .false.
@@ -149,7 +149,7 @@ module m_cmdopt_registry
   logical, public, protected, save :: c0_onesp           = .false.
   logical, public, protected, save :: c0_pdos            = .false.
   logical, public, protected, save :: c0_phispinsym      = .false.
-  logical, public, protected, save :: c0_q2q1test        = .false.
+! logical, public, protected, save :: c0_q2q1test        = .false. !removed 2026-10-02 (AHC, lmfham2, test option; see check_retired)
   logical, public, protected, save :: c0_qibzonly        = .false.
   logical, public, protected, save :: c0_quitecore       = .false.
   logical, public, protected, save :: c0_readQforGW      = .false.
@@ -389,16 +389,16 @@ contains
     logical, save :: done = .false.
     if (done) return
     done = .true.
-    call set0('--AHCMAT',         c0_AHCMAT, narg, arglist)
-    call set0('--UUMAT',          c0_UUMAT, narg, arglist)
+!   call set0('--AHCMAT',         c0_AHCMAT, narg, arglist)
+!   call set0('--UUMAT',          c0_UUMAT, narg, arglist)
     call set0('--afsym',          c0_afsym, narg, arglist)
-    call set0('--ahc',            c0_ahc, narg, arglist)
+!   call set0('--ahc',            c0_ahc, narg, arglist)
     call set0('--allband',        c0_allband, narg, arglist)
     call set0('--avoidgamma',     c0_avoidgamma, narg, arglist)
     call set0('--band',           c0_band, narg, arglist)
     call set0('--boltztrap',      c0_boltztrap, narg, arglist)
     call set0('--cls',            c0_cls, narg, arglist)
-    call set0('--cmlo',           c0_cmlo, narg, arglist)
+!   call set0('--cmlo',           c0_cmlo, narg, arglist)
     call set0('--corehole',       c0_corehole, narg, arglist)
     call set0('--cvK:',           c0_cvK, narg, arglist)
     call set0('--debug',          c0_debug, narg, arglist)
@@ -437,7 +437,7 @@ contains
 !   call set0('--mlo_feb4',       c0_mlo_feb4, narg, arglist)
 !   call set0('--mlo_ortho',      c0_mlo_ortho, narg, arglist)
 !   call set0('--mlo_orthonorm',  c0_mlo_orthonorm, narg, arglist)
-    call set0('--mloahc',         c0_mloahc, narg, arglist)
+!   call set0('--mloahc',         c0_mloahc, narg, arglist)
     call set0('--mlog',           c0_mlog, narg, arglist)
     call set0('--modifiedGS',     c0_modifiedGS, narg, arglist)
     call set0('--n1n2n3eps',      c0_n1n2n3eps, narg, arglist)
@@ -451,7 +451,7 @@ contains
     call set0('--onesp',          c0_onesp, narg, arglist)
     call set0('--pdos',           c0_pdos, narg, arglist)
     call set0('--phispinsym',     c0_phispinsym, narg, arglist)
-    call set0('--q2q1test',       c0_q2q1test, narg, arglist)
+!   call set0('--q2q1test',       c0_q2q1test, narg, arglist)
     call set0('--qibzonly',       c0_qibzonly, narg, arglist)
     call set0('--quitecore',      c0_quitecore, narg, arglist)
     call set0('--readQforGW',     c0_readQforGW, narg, arglist)
@@ -635,6 +635,10 @@ contains
     if (arg(1:alen) == '--mlo_ortho' .or. arg(1:alen) == '--mlo_orthonorm') &
          call die_retired(arg, arg(1:alen)//' is retired (2026-10-02): Lowdin orthogonalization makes the MLOs reach farther.')
     if (arg(1:alen) == '--gs') call die_retired(arg, '--gs (Gram-Schmidt in Hreduction) is retired (2026-10-02).')
+    if (arg(1:alen) == '--ahc' .or. arg(1:alen) == '--mloahc' .or. arg(1:alen) == '--AHCMAT' .or. arg(1:alen) == '--UUMAT') &
+         call die_retired(arg, arg(1:alen)//' is retired (2026-10-02): the anomalous Hall conductivity (hahc, job_AHC) was removed.')
+    if (arg(1:alen) == '--cmlo') call die_retired(arg, '--cmlo is retired (2026-10-02): lmfham2, the old iterative MLO, was removed.')
+    if (arg(1:alen) == '--q2q1test') call die_retired(arg, '--q2q1test (a test of huumat) is retired (2026-10-02).')
   end subroutine check_retired
 
   subroutine die_unknown(arg)

@@ -136,7 +136,7 @@ contains
        rmel, cmel, nbloch,noccx,nctot, &
        zmelt)
     use m_readqg,only: readqg
-    use m_wan_wfs, only:readgeigw
+    ! use m_wan_wfs, only:readgeigw !the Wannier functions, removed 2026-10-02 (tag last-wannier)
     use m_mlo_wfs, only: get_geig_cmlo, cmlo_init
     ! this is for Wanner (readeigW, drvmelp3)
     implicit none
@@ -159,18 +159,12 @@ contains
     integer::verbose
     logical :: mlo_mode
     mlo_mode = c0_mlo
-    if(mlo_mode) call cmlo_init()
+    if(.not.mlo_mode) call rx('the Wannier functions path was removed 2026-10-02 (tag last-wannier): run with --mlo')
+    call cmlo_init()
     call readqg('QGpsi', q,    qt,   ngp1, ngvecpB1)
     call readqg('QGpsi', q_rk, q_rkt,ngp2, ngvecpB2)
-    if(mlo_mode) then
-      geig1 = get_geig_cmlo(q   , isp)
-      geig2 = get_geig_cmlo(q_rk, isp)
-    else
-      call readgeigW(q,    ngpmx, isp, qu1, geig1)
-      call readgeigW(q_rk, ngpmx, isp, qu2, geig2)
-      if(sum(abs(qt-qu1))>1d-10) stop 'drvmelp3;qu1/=qu1x'
-      if(sum(abs(q_rkt-qu2))>1d-10) stop 'drvmelp3;qu2/=qu2x'
-    endif
+    geig1 = get_geig_cmlo(q   , isp)
+    geig2 = get_geig_cmlo(q_rk, isp)
     if(verbose()>=100) write(6,*)' end of read geig '
     qdiff = matmul(symope,qik)  - qt + q_rkt ! rk    -q  +(q-rk) is not zero.
     nadd  = nint(matmul(qlatinv,qdiff))

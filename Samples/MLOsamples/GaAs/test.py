@@ -1,5 +1,5 @@
 from comp import test2_check,runprogs,rmfiles
-def test(args,bindir,testdir,workdir): #Fixed. called as >testecalj Fe_magnon
+def test(args,bindir,testdir,workdir):
     MATERIAL="gaas"
     ncore=args.np
     lmfa= f'mpirun -np 1 {bindir}/lmfa '

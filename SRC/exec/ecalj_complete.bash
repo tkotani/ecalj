@@ -9,7 +9,7 @@
 #   lmf / lmfa / lmchk /
 #   gwsc / gw_lmfh /
 #   eps_lmfh / epsPP_lmfh /
-#   genMLWF / genMLWFx     -> ctrlg.*.toml (TOML inputs)
+#   job_band / job_mlo / job_mloW / job_mlo_magnon -> ctrlg.*.toml (TOML inputs)
 #
 # All globs are scoped to the current working directory; completion only
 # shows candidates that actually exist for the script you are about to run.
@@ -182,7 +182,7 @@ complete -F _ecalj_legacy_sname    Legacy2toml.py
 complete -F _ecalj_ctrls_sname     ctrlgenToml.py
 complete -F _ecalj_toml_sname \
     gwsc gw_lmfh eps_lmfh epsPP_lmfh \
-    genMLWF genMLWFx
+    job_band job_mlo job_mloW job_mlo_magnon
 complete -F _ecalj_fortran_complete lmf lmfa lmchk
 
 # Delegate to _ecalj_fortran_complete when the user types

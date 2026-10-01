@@ -4,7 +4,7 @@
 !! self-energy / chi0 codepaths:
 !!
 !!   itq(:)      : index array. itq(i) = band index for self-energy output index i.
-!!                  - QSGW (sc) and chi0/WV calculators (hrcxq, hx0fp0, hahc):
+!!                  - QSGW (sc) and chi0/WV calculators (hrcxq, hx0fp0):
 !!                    identity, size = nband. itq(i) = i for i = 1..nband.
 !!                  - Single-pass non-sc hsfp0: size = nbmax-nbmin+1, values =
 !!                    [nbmin..nbmax]. Possibly non-trivial mapping.

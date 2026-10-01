@@ -1,6 +1,6 @@
 !> Return eigenvalus and eigenfunctions for given q and isp.
 ! -----------------------------------------------------------
-! We can get eigenfunctions for Wannier, as well. See hmagnon.F
+! (The Wannier-function version of these readers was in m_wan_wfs; removed 2026-10-02, tag last-wannier.)
 ! note: we have to call init_foobar to call readeval, readcphi, readgeig.
 ! ----------------
 module m_readeigen

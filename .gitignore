@@ -24,15 +24,11 @@ core*
 */*.mod
 *.mod
 TAGS
-hmaxloc
-hpsig
-hpsig_MPI
 htbplot
 huumat
 huumat_MPI
 hwmatK
 hwmatK_MPI
-wanplot
 convgwin
 eout
 eout2

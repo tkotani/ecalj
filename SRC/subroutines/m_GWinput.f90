@@ -163,19 +163,19 @@ module m_GWinput
   !   an accident of band counting rather than a window; that is why 0/1 needed a
   !   hand-set value per material and why 4 exists.
   real(8), protected, public :: mlo_emax     = huge(0d0)  ! sentinel: key absent ⇒ runtime default
-  integer, protected, public :: wan_maxit_1st = 100
-  integer, protected, public :: wan_maxit_2nd = 100
-  real(8), protected, public :: wan_tb_cut   = 1.01d0
-  real(8), protected, public :: wan_conv_1st = 1.0d-5
-  real(8), protected, public :: wan_conv_end = 1.0d-8
-  real(8), protected, public :: wan_max_1st  = 0.1d0
-  real(8), protected, public :: wan_max_2nd  = 0.3d0
+! integer, protected, public :: wan_maxit_1st = 100 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! integer, protected, public :: wan_maxit_2nd = 100 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! real(8), protected, public :: wan_tb_cut   = 1.01d0 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! real(8), protected, public :: wan_conv_1st = 1.0d-5 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! real(8), protected, public :: wan_conv_end = 1.0d-8 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! real(8), protected, public :: wan_max_1st  = 0.1d0 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! real(8), protected, public :: wan_max_2nd  = 0.3d0 !removed 2026-10-02 (the Wannier functions / lmfham2)
   ! wan_*_emin/emax sentinels: legacy uses 999/-999 to force user spec via leout/lein gate.
-  real(8), protected, public :: wan_in_emin  = 999.0d0
-  real(8), protected, public :: wan_in_emax  = -999.0d0
-  real(8), protected, public :: wan_out_emin = 999.0d0
-  real(8), protected, public :: wan_out_emax = -999.0d0
-  logical, protected, public :: wan_in_ewin  = .false.
+! real(8), protected, public :: wan_in_emin  = 999.0d0 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! real(8), protected, public :: wan_in_emax  = -999.0d0 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! real(8), protected, public :: wan_out_emin = 999.0d0 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! real(8), protected, public :: wan_out_emax = -999.0d0 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! logical, protected, public :: wan_in_ewin  = .false. !removed 2026-10-02 (the Wannier functions / lmfham2)
 
   !-----------------------------------------------------------------
   ! Additional keys (batch 2 -- 2026-05-02 migration of remaining callers)
@@ -237,41 +237,41 @@ module m_GWinput
   real(8), protected, public :: magnon_HistBin_ratio = 1.03d0
   real(8), protected, public :: magnon_HistBin_dw  = 1.0d-5
   ! mlo
-  real(8), protected, public :: mlo_conv           = 1.0d-6
-  real(8), protected, public :: mlo_mix            = 0.5d0
-  real(8), protected, public :: mlo_EUinner        = 1.0d8
-  real(8), protected, public :: mlo_CUouter        = 0.0d0
-  real(8), protected, public :: mlo_CUinner        = 0.9d0
-  real(8), protected, public :: mlo_WTinner        = 2048.0d0
-  real(8), protected, public :: mlo_WTband         = 64.0d0
-  real(8), protected, public :: mlo_WTseed         = 32.0d0
-  real(8), protected, public :: mlo_ELinner        = -1.0d8
-  real(8), protected, public :: mlo_ewid           = 1.0d0
-  real(8), protected, public :: mlo_WTouter        = 32768.0d0
-  real(8), protected, public :: mlo_CLhard         = 0.33d0
-  real(8), protected, public :: mlo_ELhard         = -1.0d8
+! real(8), protected, public :: mlo_conv           = 1.0d-6 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! real(8), protected, public :: mlo_mix            = 0.5d0 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! real(8), protected, public :: mlo_EUinner        = 1.0d8 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! real(8), protected, public :: mlo_CUouter        = 0.0d0 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! real(8), protected, public :: mlo_CUinner        = 0.9d0 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! real(8), protected, public :: mlo_WTinner        = 2048.0d0 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! real(8), protected, public :: mlo_WTband         = 64.0d0 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! real(8), protected, public :: mlo_WTseed         = 32.0d0 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! real(8), protected, public :: mlo_ELinner        = -1.0d8 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! real(8), protected, public :: mlo_ewid           = 1.0d0 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! real(8), protected, public :: mlo_WTouter        = 32768.0d0 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! real(8), protected, public :: mlo_CLhard         = 0.33d0 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! real(8), protected, public :: mlo_ELhard         = -1.0d8 !removed 2026-10-02 (the Wannier functions / lmfham2)
   ! wmat
   real(8), protected, public :: wmat_rcut1         = 0.01d0
   real(8), protected, public :: wmat_rcut2         = 0.01d0
   ! wan
-  real(8), protected, public :: wan_mix_1st        = 0.1d0
-  real(8), protected, public :: wan_mix_2nd        = 0.1d0
-  real(8), protected, public :: wan_conv_2nd       = 1.0d-5
-  real(8), protected, public :: wan_tbcut_rcut     = -1.0d50  ! sentinel; default=rcut
-  real(8), protected, public :: wan_tbcut_heps     = 0.0d0
+! real(8), protected, public :: wan_mix_1st        = 0.1d0 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! real(8), protected, public :: wan_mix_2nd        = 0.1d0 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! real(8), protected, public :: wan_conv_2nd       = 1.0d-5 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! real(8), protected, public :: wan_tbcut_rcut     = -1.0d50  ! sentinel; default=rcut !removed 2026-10-02 (the Wannier functions / lmfham2)
+! real(8), protected, public :: wan_tbcut_heps     = 0.0d0 !removed 2026-10-02 (the Wannier functions / lmfham2)
 
   ! Integers
   integer, protected, public :: ngcell             = 1
   integer, protected, public :: nkeep_wfs          = 2
   integer, protected, public :: mlo_nskip          = -huge(0)  ! sentinel
   integer, protected, public :: nbcutlow_sig       = 0
-  integer, protected, public :: mlo_maxit          = 100
-  integer, protected, public :: wan_nb_below       = 0
-  integer, protected, public :: wan_nb_above       = 0
-  integer, protected, public :: wan_out_bmin       = 999
-  integer, protected, public :: wan_out_bmax       = -999
-  integer, protected, public :: wan_in_bmin        = 999
-  integer, protected, public :: wan_in_bmax        = -999
+! integer, protected, public :: mlo_maxit          = 100 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! integer, protected, public :: wan_nb_below       = 0 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! integer, protected, public :: wan_nb_above       = 0 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! integer, protected, public :: wan_out_bmin       = 999 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! integer, protected, public :: wan_out_bmax       = -999 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! integer, protected, public :: wan_in_bmin        = 999 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! integer, protected, public :: wan_in_bmax        = -999 !removed 2026-10-02 (the Wannier functions / lmfham2)
   integer, protected, public :: mixpriorit         = 3
   integer, protected, public :: Q0Pchoice          = 1
   real(8), protected, public :: DeltaQscale        = -1.0d0  ! >0: directly set offset-Gamma deltaq_scale; <0: use Q0Pchoice (1->0.1, 2->1/sqrt3)
@@ -303,19 +303,19 @@ module m_GWinput
   logical, protected, public :: magnon_w_onsite_dddd = .true.
   logical, protected, public :: magnon_negative_cut = .false.
   logical, protected, public :: allq0i             = .false.
-  logical, protected, public :: wan_out_ewin       = .true.
-  logical, protected, public :: wan_in_bwin        = .false.
+! logical, protected, public :: wan_out_ewin       = .true. !removed 2026-10-02 (the Wannier functions / lmfham2)
+! logical, protected, public :: wan_in_bwin        = .false. !removed 2026-10-02 (the Wannier functions / lmfham2)
   logical, protected, public :: wmat_static        = .false.
   logical, protected, public :: wmat_all           = .false.
   logical, protected, public :: wmat_WSsuper       = .true.
-  logical, protected, public :: wan_gauss_head     = .false.
-  logical, protected, public :: wan_truncate       = .false.
-  logical, protected, public :: mlo_EUinnerAUTOsp  = .false.
-  logical, protected, public :: wan_out_emax_auto  = .false.
-  logical, protected, public :: wan_in_emax_auto   = .false.
-  logical, protected, public :: wan_small_ham      = .false.
-  integer, protected, public :: wan_nsh1           = 1
-  integer, protected, public :: wan_nsh2           = 2
+! logical, protected, public :: wan_gauss_head     = .false. !removed 2026-10-02 (the Wannier functions / lmfham2)
+! logical, protected, public :: wan_truncate       = .false. !removed 2026-10-02 (the Wannier functions / lmfham2)
+! logical, protected, public :: mlo_EUinnerAUTOsp  = .false. !removed 2026-10-02 (the Wannier functions / lmfham2)
+! logical, protected, public :: wan_out_emax_auto  = .false. !removed 2026-10-02 (the Wannier functions / lmfham2)
+! logical, protected, public :: wan_in_emax_auto   = .false. !removed 2026-10-02 (the Wannier functions / lmfham2)
+! logical, protected, public :: wan_small_ham      = .false. !removed 2026-10-02 (the Wannier functions / lmfham2)
+! integer, protected, public :: wan_nsh1           = 1 !removed 2026-10-02 (the Wannier functions / lmfham2)
+! integer, protected, public :: wan_nsh2           = 2 !removed 2026-10-02 (the Wannier functions / lmfham2)
   ! MPI layout overrides: 0 = auto (MPI__AutoSetup decides)
   integer, protected, public :: mpi_worker_exch    = 0
   integer, protected, public :: mpi_worker_corr    = 0
@@ -564,9 +564,9 @@ contains
     ! a [gw] that still carries them is read the old way, with a one-line notice,
     ! and any [mlo] value loaded afterwards overrides it.
     call load_mlo_keys(gw, legacy=.true.)
-    call gv_i(gw, 'wan_maxit_1st', wan_maxit_1st)
-    call gv_i(gw, 'wan_maxit_2nd', wan_maxit_2nd)
-    call gv_r(gw, 'wan_tb_cut',    wan_tb_cut)      ! legacy reads as REAL (default 1.01)
+!   call gv_i(gw, 'wan_maxit_1st', wan_maxit_1st) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_i(gw, 'wan_maxit_2nd', wan_maxit_2nd) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_r(gw, 'wan_tb_cut',    wan_tb_cut)      ! legacy reads as REAL (default 1.01) !removed 2026-10-02 (the Wannier functions / lmfham2)
     ! nband_sigm: legacy reads as integer; TOML may have list[float] -- take first as int
     call gv_iv_first(gw, 'nband_sigm', nband_sigm)
     ! MagAtom: VLA -- accept scalar or vector
@@ -587,14 +587,14 @@ contains
          '(SmearX0 = 0.0057 Ha <-> t_tetrakbt = -992; -1000 K = 0.00574 Ha). ctrlg_update.py converts it.')
     ! t_tetrakbt < 0: the Gaussian smearing of Im chi0 (dpsion5), std = that of the Fermi-Dirac distribution at |T|
     if (t_tetrakbt < 0d0) SmearX0 = 4d0*atan(1d0)/sqrt(3d0)*kb_ev*abs(t_tetrakbt)/(2d0*rydberg_ev)   ! Ha
-    call gv_r(gw, 'wan_conv_1st',  wan_conv_1st)
-    call gv_r(gw, 'wan_conv_end',  wan_conv_end)
-    call gv_r(gw, 'wan_max_1st',   wan_max_1st)
-    call gv_r(gw, 'wan_max_2nd',   wan_max_2nd)
-    call gv_r(gw, 'wan_in_emin',   wan_in_emin)
-    call gv_r(gw, 'wan_in_emax',   wan_in_emax)
-    call gv_r(gw, 'wan_out_emin',  wan_out_emin)
-    call gv_r(gw, 'wan_out_emax',  wan_out_emax)
+!   call gv_r(gw, 'wan_conv_1st',  wan_conv_1st) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_r(gw, 'wan_conv_end',  wan_conv_end) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_r(gw, 'wan_max_1st',   wan_max_1st) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_r(gw, 'wan_max_2nd',   wan_max_2nd) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_r(gw, 'wan_in_emin',   wan_in_emin) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_r(gw, 'wan_in_emax',   wan_in_emax) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_r(gw, 'wan_out_emin',  wan_out_emin) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_r(gw, 'wan_out_emax',  wan_out_emax) !removed 2026-10-02 (the Wannier functions / lmfham2)
 
     ! Newly added (m_readgwinput migration)
     call gv_r(gw, 'ecut_p',          ecut_p)
@@ -626,22 +626,22 @@ contains
     call gv_r(gw, 'magnon_HistBin_dw',  magnon_HistBin_dw)
     call gv_r(gw, 'wmat_rcut1',         wmat_rcut1)
     call gv_r(gw, 'wmat_rcut2',         wmat_rcut2)
-    call gv_r(gw, 'wan_mix_1st',        wan_mix_1st)
-    call gv_r(gw, 'wan_mix_2nd',        wan_mix_2nd)
-    call gv_r(gw, 'wan_conv_2nd',       wan_conv_2nd)
-    call gv_r(gw, 'wan_tbcut_rcut',     wan_tbcut_rcut)
-    call gv_r(gw, 'wan_tbcut_heps',     wan_tbcut_heps)
+!   call gv_r(gw, 'wan_mix_1st',        wan_mix_1st) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_r(gw, 'wan_mix_2nd',        wan_mix_2nd) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_r(gw, 'wan_conv_2nd',       wan_conv_2nd) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_r(gw, 'wan_tbcut_rcut',     wan_tbcut_rcut) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_r(gw, 'wan_tbcut_heps',     wan_tbcut_heps) !removed 2026-10-02 (the Wannier functions / lmfham2)
 
     ! Batch 2 integers
     call gv_i(gw, 'ngcell',             ngcell)
     call gv_i(gw, 'nkeep_wfs',          nkeep_wfs)
     call gv_i(gw, 'nbcutlow_sig',       nbcutlow_sig)
-    call gv_i(gw, 'wan_nb_below',       wan_nb_below)
-    call gv_i(gw, 'wan_nb_above',       wan_nb_above)
-    call gv_i(gw, 'wan_out_bmin',       wan_out_bmin)
-    call gv_i(gw, 'wan_out_bmax',       wan_out_bmax)
-    call gv_i(gw, 'wan_in_bmin',        wan_in_bmin)
-    call gv_i(gw, 'wan_in_bmax',        wan_in_bmax)
+!   call gv_i(gw, 'wan_nb_below',       wan_nb_below) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_i(gw, 'wan_nb_above',       wan_nb_above) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_i(gw, 'wan_out_bmin',       wan_out_bmin) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_i(gw, 'wan_out_bmax',       wan_out_bmax) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_i(gw, 'wan_in_bmin',        wan_in_bmin) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_i(gw, 'wan_in_bmax',        wan_in_bmax) !removed 2026-10-02 (the Wannier functions / lmfham2)
     call gv_i(gw, 'mixpriorit',         mixpriorit)
     call gv_i(gw, 'Q0Pchoice',          Q0Pchoice)
     call gv_r(gw, 'deltaq_scale',       DeltaQscale)
@@ -659,7 +659,7 @@ contains
     call gv_l(gw, 'QforEPSau',       QforEPSau)
     call gv_l(gw, 'QforEPSunita',    QforEPSunita)
     call gv_l(gw, 'QforEPSLIncLeft', QforEPSLIncLeft)
-    call gv_l(gw, 'wan_in_ewin',     wan_in_ewin)
+!   call gv_l(gw, 'wan_in_ewin',     wan_in_ewin) !removed 2026-10-02 (the Wannier functions / lmfham2)
     call gv_l(gw, 'KeepPositiveCou', KeepPositiveCou)
 
     ! Batch 2 logicals
@@ -679,18 +679,18 @@ contains
     call gv_l(gw, 'magnon_w_onsite_dddd',      magnon_w_onsite_dddd)
     call gv_l(gw, 'magnon_negative_cut',       magnon_negative_cut)
     call gv_l(gw, 'allq0i',                    allq0i)
-    call gv_l(gw, 'wan_out_ewin',              wan_out_ewin)
-    call gv_l(gw, 'wan_in_bwin',               wan_in_bwin)
+!   call gv_l(gw, 'wan_out_ewin',              wan_out_ewin) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_l(gw, 'wan_in_bwin',               wan_in_bwin) !removed 2026-10-02 (the Wannier functions / lmfham2)
     call gv_l(gw, 'wmat_static',               wmat_static)
     call gv_l(gw, 'wmat_all',                  wmat_all)
     call gv_l(gw, 'wmat_WSsuper',              wmat_WSsuper)
-    call gv_l(gw, 'wan_gauss_head',            wan_gauss_head)
-    call gv_l(gw, 'wan_truncate',              wan_truncate)
-    call gv_l(gw, 'wan_out_emax_auto',         wan_out_emax_auto)
-    call gv_l(gw, 'wan_in_emax_auto',          wan_in_emax_auto)
-    call gv_l(gw, 'wan_small_ham',             wan_small_ham)
-    call gv_i(gw, 'wan_nsh1',                  wan_nsh1)
-    call gv_i(gw, 'wan_nsh2',                  wan_nsh2)
+!   call gv_l(gw, 'wan_gauss_head',            wan_gauss_head) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_l(gw, 'wan_truncate',              wan_truncate) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_l(gw, 'wan_out_emax_auto',         wan_out_emax_auto) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_l(gw, 'wan_in_emax_auto',          wan_in_emax_auto) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_l(gw, 'wan_small_ham',             wan_small_ham) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_i(gw, 'wan_nsh1',                  wan_nsh1) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_i(gw, 'wan_nsh2',                  wan_nsh2) !removed 2026-10-02 (the Wannier functions / lmfham2)
     call gv_i(gw, 'mpi_worker_exch',           mpi_worker_exch)
     call gv_i(gw, 'mpi_worker_corr',           mpi_worker_corr)
 
@@ -730,22 +730,22 @@ contains
     !call gv_r(tbl, 'mlo_wlow',           mlo_wlow)
     !call gv_r(tbl, 'mlo_pcut',           mlo_pcut)   ! hidden character cut, see the comment at the declaration
     !call gv_r(tbl, 'mlo_pw',             mlo_pw)
-    call gv_r(tbl, 'mlo_conv',           mlo_conv)
-    call gv_r(tbl, 'mlo_mix',            mlo_mix)
-    call gv_r(tbl, 'mlo_EUinner',        mlo_EUinner)
-    call gv_r(tbl, 'mlo_CUouter',        mlo_CUouter)
-    call gv_r(tbl, 'mlo_CUinner',        mlo_CUinner)
-    call gv_r(tbl, 'mlo_WTinner',        mlo_WTinner)
-    call gv_r(tbl, 'mlo_WTband',         mlo_WTband)
-    call gv_r(tbl, 'mlo_WTseed',         mlo_WTseed)
-    call gv_r(tbl, 'mlo_ELinner',        mlo_ELinner)
-    call gv_r(tbl, 'mlo_ewid',           mlo_ewid)
-    call gv_r(tbl, 'mlo_WTouter',        mlo_WTouter)
-    call gv_r(tbl, 'mlo_CLhard',         mlo_CLhard)
-    call gv_r(tbl, 'mlo_ELhard',         mlo_ELhard)
+!   call gv_r(tbl, 'mlo_conv',           mlo_conv) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_r(tbl, 'mlo_mix',            mlo_mix) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_r(tbl, 'mlo_EUinner',        mlo_EUinner) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_r(tbl, 'mlo_CUouter',        mlo_CUouter) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_r(tbl, 'mlo_CUinner',        mlo_CUinner) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_r(tbl, 'mlo_WTinner',        mlo_WTinner) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_r(tbl, 'mlo_WTband',         mlo_WTband) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_r(tbl, 'mlo_WTseed',         mlo_WTseed) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_r(tbl, 'mlo_ELinner',        mlo_ELinner) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_r(tbl, 'mlo_ewid',           mlo_ewid) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_r(tbl, 'mlo_WTouter',        mlo_WTouter) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_r(tbl, 'mlo_CLhard',         mlo_CLhard) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_r(tbl, 'mlo_ELhard',         mlo_ELhard) !removed 2026-10-02 (the Wannier functions / lmfham2)
     !call gv_i(tbl, 'mlo_nskip',          mlo_nskip)   ! retired 2026-09-18: nskip is automatic (min over k of the non-model count)
-    call gv_i(tbl, 'mlo_maxit',          mlo_maxit)
-    call gv_l(tbl, 'mlo_EUinnerAUTOsp',         mlo_EUinnerAUTOsp)
+!   call gv_i(tbl, 'mlo_maxit',          mlo_maxit) !removed 2026-10-02 (the Wannier functions / lmfham2)
+!   call gv_l(tbl, 'mlo_EUinnerAUTOsp',         mlo_EUinnerAUTOsp) !removed 2026-10-02 (the Wannier functions / lmfham2)
   end subroutine load_mlo_keys
 
   !> [mlo] section: everything that defines the MLO model -- the mlo_* keys and

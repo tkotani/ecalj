@@ -1,6 +1,6 @@
 !>  Calculate <u|u> matrix . u_kj(r) is the perodic part of eigencuntion.
 module m_uumat
-  use m_cmdopt_registry, only: c0_ahc, c0_q2q1test, c0_qibzonly, c2_dwnb, c2_job, c2_sp1, c2_sp2
+  use m_cmdopt_registry, only: c0_qibzonly, c2_dwnb, c2_job, c2_sp1, c2_sp2
   public uumatrix
   private
 contains
@@ -24,7 +24,7 @@ subroutine uumatrix()
   use m_setqibz_lmfham,only: set_qibz, irotg
   use m_mlo_ham, only: mlo_read_hma_rs => read_ham_rs, nmlo => ndimMTO
   use m_mlo_wfs, only: cmlo_init, get_geig_cmlo, get_cphi_cmlo
-  use m_wan_wfs, only: get_geig_wan, get_cphi_wan, Init_readeigen_mlw_noeval, nwf
+  ! use m_wan_wfs, only: get_geig_wan, get_cphi_wan, Init_readeigen_mlw_noeval, nwf !the Wannier functions, removed 2026-10-02 (tag last-wannier)
   use m_mpiio, only: openm, writem, closem
   use m_lmfinit,only: m_lmfinit_init
   use m_lattic,only: m_lattic_init
@@ -149,10 +149,7 @@ subroutine uumatrix()
   call init_readeigen2()
   nbasis = nband
   if((trim(c2_dwnb) == 'wan')) then
-    call Init_readeigen_mlw_noeval()
-    get_geig => get_geig_wan
-    get_cphi => get_cphi_wan
-    nbasis = nwf
+    call rx('huumat: --dwnb=wan, the Wannier functions, was removed 2026-10-02 (tag last-wannier); use --dwnb=mlo')
   elseif((trim(c2_dwnb) == 'mlo')) then
     call mlo_read_hma_rs() !set ndimMTO -> nmlo
     get_geig => get_geig_cmlo
@@ -229,11 +226,7 @@ subroutine uumatrix()
     head(3,1:2)=['UUq0U.','UUq0D.']
     if(mpi__root) then
       do isp=1,nspx
-        if(c0_ahc) then
-          open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum7(0),form='unformatted')
-        else
-          open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum4(0),form='unformatted')
-        endif
+        open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum4(0),form='unformatted') !(--ahc, 7-digit names: removed 2026-10-02 with AHC)
         if(ixc==2)then
           write(ifuu(isp))'nqbz,nbb,iko_ixs(isp),iko_fxs(isp)',isp
           write(ifuu(isp))nqbz,nbb,iko_ixs(isp),iko_fxs(isp)
@@ -267,7 +260,7 @@ subroutine uumatrix()
     if(ixc == 4) dq=-bbv(:,ibb) !q1(:) = qbz(:,iqbz)         !q2(:) = qbz(:,iqbz) + qbz(:,ibb)
     if(ixc == 5) dq = 0d0
     if(sum(abs(dq))<1d-8) dq=(/1d-10,0d0,0d0/)
-    if(c0_q2q1test) dq=1d-10
+    ! if(c0_q2q1test) dq=1d-10 !(--q2q1test removed 2026-10-02)
     absdq = sqrt(sum(dq**2))
     absqg2 = (2*pi/alat)**2 *sum(dq**2)
     absqg =sqrt(absqg2)
@@ -339,22 +332,14 @@ subroutine uumatrix()
     endif
     if(ixc == 2 .or. ixc == 3)  then
     do isp=1,nspx
-      if(c0_ahc) then
-        open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum7(iqbz),form='unformatted')
-      else
-        open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum4(iqbz),form='unformatted')
-      endif
+      open(newunit=ifuu(isp),file=trim(head(ixc,isp))//charnum4(iqbz),form='unformatted')
     enddo
     endif
     ibbloop: do 1080 ibb = 1,nbbloop
       if(ixc == 2) then
         iqb = ikbidx(ibb,iqbz)
         q1(:) = qbz(:,iqbz)
-        if(c0_q2q1test) then
-          q2(:) = qbz(:,iqbz)
-        else
-          q2(:) = qbz(:,iqbz) + bbv(:,ibb)
-        endif
+        q2(:) = qbz(:,iqbz) + bbv(:,ibb)  !(--q2q1test, q2 = q1, removed 2026-10-02)
         if (iqb < iqbz) then
           iqtmp = iqb
           do ibb2 = 1,nbb

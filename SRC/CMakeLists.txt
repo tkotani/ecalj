@@ -166,7 +166,6 @@ function(add_extended_build VARIANT)
   endif()
   # Exclude sources not implemented for GPU or MP
   if(VARIANT STREQUAL "mp" OR VARIANT STREQUAL "gpu" OR VARIANT STREQUAL "mp_gpu")
-    list(FILTER SOURCES_EXT EXCLUDE REGEX "main_hmagnon.f90")
     list(FILTER SOURCES_EXT EXCLUDE REGEX "main_mlo_magnon.f90")
     list(FILTER SOURCES_EXT EXCLUDE REGEX "main_hhomogas.f90")
     list(FILTER SOURCES_EXT EXCLUDE REGEX "main_huumat.f90")

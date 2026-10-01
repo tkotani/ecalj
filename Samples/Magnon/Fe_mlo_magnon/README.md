@@ -1,12 +1,12 @@
 # Fe_mlo_magnon: bcc Fe のマグノン（MLO による模型。`job_mlo_magnon`）
 
-`Fe_magnon`（Wannier 関数による模型、`job_magnon`）と同じ bcc Fe の入力で、模型の基底を MLO（muffin-tin localized orbital）に替えたもの。
+`Fe_magnon`（Wannier 関数による模型、`job_magnon`。2026-10-02 に外した。git のタグ `last-wannier`）と同じ bcc Fe の入力で、模型の基底を MLO（muffin-tin localized orbital）に替えたもの。
 横磁化率 $\chi^{+-}(\mathbf q,\omega)$ を、MLO の模型ハミルトニアン、MLO 基底での遮蔽相互作用 $W$、$\mathbf k$ と $\mathbf k+\mathbf q$ の MLO の重なりから作る。
 Wannier 関数の窓や最大局在化の反復は要らず、`[mlo]` の設定だけで決まる。
 
 ## 入力の要点（`ctrlg.fe.toml`）
 
-`Fe_magnon/ctrlg.fe.toml` に `mlo_nkabc` を足したもの。
+Wannier 版（`Fe_magnon`）の入力 `ctrlg.fe.toml` に `mlo_nkabc` を足したもの。
 
 | キー | 値 | 意味 |
 | --- | --- | --- |
@@ -24,7 +24,7 @@ lmfa fe > llmfa
 mpirun -np 8 lmf fe > llmf
 job_band fe -np 8 --NoGnuplot          # MLO の合わせに使うバンド（bnd001.spin1）
 job_mlo_magnon fe -np 8                # 下の 4 段。8 コアで 1.5 分
-python3 magnon_peaks.py "MLO=MagSuscep.syml001" "Wannier=../Fe_magnon/TrRpm.syml001"   # 図 1 と表 2 の値
+python3 magnon_peaks.py "MLO=MagSuscep.syml001" "Wannier=wannier_TrRpm.syml001"   # 図 1 と表 2 の値
 ```
 
 `job_mlo_magnon` の段:
@@ -51,6 +51,8 @@ python3 magnon_peaks.py "MLO=MagSuscep.syml001" "Wannier=../Fe_magnon/TrRpm.syml
 マグノンのエネルギーは、各 q での $\mathrm{Im}\,R(\mathbf q,\omega)$ の極大の位置（`magnon_peaks.py`）。
 
 ## Wannier 版との比較
+
+Wannier 版（`Fe_magnon`、`job_magnon`）の結果は `wannier_TrRpm.syml001`（2026-08-19、kt1 の参照）として添えてある。
 
 ![図 1](magnon_peaks.png)
 

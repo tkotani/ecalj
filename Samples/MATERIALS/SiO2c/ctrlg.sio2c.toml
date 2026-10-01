@@ -214,15 +214,6 @@ QforGW = """
  0.2 0.0 0.0
  0.3 0.0 0.0
 """
-# ----- Wannier (hmaxloc: cRPA, job_magnon). Not used by MLO. Uncomment to use. -----
-# wan_out_emin  = -1.05   # eV relative to EFermi
-# wan_out_emax  =  2.4
-# wan_maxit_1st = 300
-# wan_conv_1st  = 1e-7
-# wan_max_1st   = 0.1
-# wan_maxit_2nd = 1500
-# wan_max_2nd   = 0.3
-# wan_conv_end  = 1e-8
 
 # === MLO: muffin-tin based localized orbitals (see manual/mlo) ===
 # mlo_method / mlo_delta / mlo_w shape the weight theta; mlo_lm lists the

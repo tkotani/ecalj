@@ -11,14 +11,14 @@ after another and writes one summary (how to read it: ecaljdoc
 | directory | what it shows | targets | group of `samples_tests.sh` |
 |---|---|---|---|
 | [GetStarted/](GetStarted/README.md) | the seed of the [tutorial](https://ecalj.github.io/ecaljdoc/manual/README_tutorial): GaAs from `ctrls.gaas` | — | `inputs` |
-| [TestInstall/](TestInstall/README_testecalj.md) | installation tests: LDA (`c`, `co`, `cu`, `fe`, `gdn` with LDA+U, `te` with relaxation, `felz`, `gasls` with SOC, ...), GW and QSGW (`si_gwsc`, `gas_gwsc`, `nio_gwsc`, `fe_gwsc`, `fe_kbt` at 3000 K, `si_gw_lmfh`, ...), dielectric functions, spin susceptibility, cRPA | 26 in `--all` (64 checks); 4 heavy GW targets run by name | `install`, `gwall`, `heavy` |
+| [TestInstall/](TestInstall/README_testecalj.md) | installation tests: LDA (`c`, `co`, `cu`, `fe`, `gdn` with LDA+U, `te` with relaxation, `felz`, `gasls` with SOC, ...), GW and QSGW (`si_gwsc`, `gas_gwsc`, `nio_gwsc`, `fe_gwsc`, `fe_kbt` at 3000 K, `si_gw_lmfh`, ...), dielectric functions, spin susceptibility, cRPA of the MLO model (`ni_crpa`, `srvo3_crpa`) | 26 in `--all` (64 checks); 4 heavy GW targets run by name | `install`, `gwall`, `heavy` |
 | [EPS/](EPS/) | dielectric function, `job_eps`: Cu, Ag, GaAs | 3 | `eps` |
 | [PROCAR/](PROCAR/README.md) | fat bands and orbital weights: MgO, Ni2MnGa | 2 | `procar` |
 | [MLOsamples/](MLOsamples/README.md) | MLO (muffin-tin localized orbitals, the model Hamiltonian that replaces Wannier functions): semiconductors, metals, SOC, 4f, screened W by `job_mloW` | 25 | `mlo` |
 | [MLOQSGW/](MLOQSGW/README.md) | QSGW with the self-energy interpolated in the MLO representation (`gwsc --mlo`): GaAs, NiO | 2 | `mloqsgw` |
 | [AFsymmetry/](AFsymmetry/README.md) | antiferromagnetic symmetry (`symgrpaf`): NiO and NiSe in LDA, NiO in QSGW | 3 | `afsym` |
 | [AFfixMMOM/](AFfixMMOM/README.md) | antiferromagnet with the moment of the pair held at a given value (`mmtarget.aftest`, the AFTEST mode of the code): NiO with and without `symgrpaf` | 2 | `affix` |
-| [Magnon/](Magnon/README.md) | magnon spectra through Wannier functions (`job_magnon`): Fe, Ni, FeCo, Fe in the simple cubic cell; through the MLO model (`job_mlo_magnon`): Fe | 5 | `magnon` |
+| [Magnon/](Magnon/README.md) | magnon spectra through the MLO model (`job_mlo_magnon`): bcc Fe, with the comparison against the Wannier functions (removed 2026-10-02, tag `last-wannier`) | 1 | `magnon` |
 | [kBT/](kBT/README.md) | electron temperature and smearing in GW (`t_tetrakbt`, `t_sigmaw`): temperature scans of Si and Fe; MLO-QSGW of LiTi2O4; the research log | `scanT/Si` | `samples` |
 | [FermiSurface/](FermiSurface/Cu/README.md) | Fermi surface of Cu for xcrysden (`job_fermisurface`) | `Cu` | `samples` |
 | [Doping/](Doping/Si/README.md) | doping of Si: fractional nuclear charge, background charge `zbak`, fixed spin moment | `Si` | `samples` |

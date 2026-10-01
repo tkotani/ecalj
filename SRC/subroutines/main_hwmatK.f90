@@ -1,6 +1,6 @@
 module util_hwmatK
   use mpi
-  use m_maxloc0,only: sortvec2
+  use m_wigner_seitz,only: sortvec2
   contains
 subroutine wwmat (is,nw_i,nw,nwf, &
      rws1,rws2,irws1,irws2,nrws1,nrws2,nrws, &
@@ -148,57 +148,58 @@ subroutine chkrot ()
   enddo
 end subroutine chkrot
 !-----------------------------------------------------------------------
-subroutine wigner_seitz(alat,plat,n1,n2,n3,nrws,rws,irws,drws)
-  implicit real*8(a-h,o-z)
-  implicit integer (i-n)
-  integer :: n1,n2,n3,nrws
-  real(8) :: alat,plat(3,3)
-  integer :: irws(n1*n2*n3*8)
-  real(8) :: rws(3,n1*n2*n3*8),drws(n1*n2*n3*8)
-  integer(4):: ii0(3,8),isort(8), &
-       iwork1(n1*n2*n3*8),iwork2(n1*n2*n3*8)
-  real(8):: rr(3,8),dd(8)
-  parameter (tol=1.d-6)
-  nrws = 0
-  do i1=0,n1-1
-     do i2=0,n2-1
-        do i3=0,n3-1
-           n = 0
-           do j1=0,1
-              do j2=0,1
-                 do j3=0,1
-                    n = n+1
-                    ii0(1,n) = i1 - j1*n1
-                    ii0(2,n) = i2 - j2*n2
-                    ii0(3,n) = i3 - j3*n3
-                 enddo ! j3
-              enddo ! j2
-           enddo ! j1
-           do n=1,8
-              rr(1:3,n) =  ( plat(1:3,1)*dble(ii0(1,n)) &
-                   +   plat(1:3,2)*dble(ii0(2,n)) &
-                   +   plat(1:3,3)*dble(ii0(3,n)) )
-           enddo
-           call sortvec2(8,rr,dd,isort)
-           ndegen = 1
-           do n=2,8
-              if ((dd(n)-dd(1)) <= tol) ndegen = n
-           enddo
-           do n=1,ndegen
-              nrws = nrws + 1
-              rws(1:3,nrws) = rr(1:3,n)
-              drws(nrws) = dd(n)
-              irws(nrws) = ndegen
-           enddo
-        enddo ! i3
-     enddo ! i2
-  enddo ! i1
-  call sortvec2(nrws,rws,drws,iwork1)
-  iwork2(1:nrws) = irws(1:nrws)
-  do n=1,nrws
-     irws(n) = iwork2(iwork1(n))
-  enddo
-end subroutine wigner_seitz
+! wigner_seitz: the copy that was here is in m_wigner_seitz (2026-10-02)
+!subroutine wigner_seitz(alat,plat,n1,n2,n3,nrws,rws,irws,drws)
+!  implicit real*8(a-h,o-z)
+!  implicit integer (i-n)
+!  integer :: n1,n2,n3,nrws
+!  real(8) :: alat,plat(3,3)
+!  integer :: irws(n1*n2*n3*8)
+!  real(8) :: rws(3,n1*n2*n3*8),drws(n1*n2*n3*8)
+!  integer(4):: ii0(3,8),isort(8), &
+!       iwork1(n1*n2*n3*8),iwork2(n1*n2*n3*8)
+!  real(8):: rr(3,8),dd(8)
+!  parameter (tol=1.d-6)
+!  nrws = 0
+!  do i1=0,n1-1
+!     do i2=0,n2-1
+!        do i3=0,n3-1
+!           n = 0
+!           do j1=0,1
+!              do j2=0,1
+!                 do j3=0,1
+!                    n = n+1
+!                    ii0(1,n) = i1 - j1*n1
+!                    ii0(2,n) = i2 - j2*n2
+!                    ii0(3,n) = i3 - j3*n3
+!                 enddo ! j3
+!              enddo ! j2
+!           enddo ! j1
+!           do n=1,8
+!              rr(1:3,n) =  ( plat(1:3,1)*dble(ii0(1,n)) &
+!                   +   plat(1:3,2)*dble(ii0(2,n)) &
+!                   +   plat(1:3,3)*dble(ii0(3,n)) )
+!           enddo
+!           call sortvec2(8,rr,dd,isort)
+!           ndegen = 1
+!           do n=2,8
+!              if ((dd(n)-dd(1)) <= tol) ndegen = n
+!           enddo
+!           do n=1,ndegen
+!              nrws = nrws + 1
+!              rws(1:3,nrws) = rr(1:3,n)
+!              drws(nrws) = dd(n)
+!              irws(nrws) = ndegen
+!           enddo
+!        enddo ! i3
+!     enddo ! i2
+!  enddo ! i1
+!  call sortvec2(nrws,rws,drws,iwork1)
+!  iwork2(1:nrws) = irws(1:nrws)
+!  do n=1,nrws
+!     irws(n) = iwork2(iwork1(n))
+!  enddo
+!end subroutine wigner_seitz
 subroutine super_cell(alat,plat,n1,n2,n3,nrws,rws,irws,drws)
   implicit real*8(a-h,o-z)
   implicit integer (i-n)
@@ -270,13 +271,13 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   use mpi
   use util_hwmatK,only: super_cell,chkrot,wwmat,wvmat
   use m_wmatqk,only: wmatqk_mpi
-  use m_maxloc0,only:wigner_seitz
+  use m_wigner_seitz,only: wigner_seitz
   use m_readqg,only: readngmx2,ngcmx,ngpmx,readqg0,readqg
   use m_hamindex,only:   Readhamindex,symgg=>symops,ngrp,invg=>invgx
   use m_read_bzdata,only: Read_bzdata,qibz,irkin=>irk,ginv,n1,n2,n3,nqbz,nqibz,nstar,nstbz,qbas=>qlat,qbz,wibz,wbz &
        ,nq0i=>nq0ix,wqt=>wt,q0i
   use m_readeigen,only: init_readeigen,init_readeigen2
-  use m_wan_wfs,only: onoff_write_pkm4crpa, init_readeigen_mlw_noeval,  nwf_wannier => nwf, get_geig_wan, get_cphi_wan
+  ! use m_wan_wfs,only: onoff_write_pkm4crpa, init_readeigen_mlw_noeval,  nwf_wannier => nwf, get_geig_wan, get_cphi_wan !removed 2026-10-02 (tag last-wannier)
   use m_mlo_wfs, only : cmlo_init, nwf_mlo => nmlo, write_pkm4crpa_mlo
   use m_genallcf_v3,only:niwg=>niw,alat,deltaw,esmr,icore,natom,nl,nlnmc,nlnmv,nlnmc,nlnmx,nlnx,laf
   use m_genallcf_v3,only: genallcf_v3,ncore,nn,nnc,nspin,pos,plat, nprecb,mrecb,mrece,nqbzt,nband,mrecg,ndima
@@ -627,17 +628,11 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
 1018 continue
   call init_readeigen2()!mrecb,nlmto,mrecg) !initialize m_readeigen
   write(*,*)'nband =',nband
-  lll=.false.
-  if(ixc==10011 .AND. master_mpi) lll= .TRUE. 
-  call onoff_write_pkm4crpa(lll)
-  if(mlo_mode) then
-    call cmlo_init()
-    nwf = nwf_mlo
-    if(ixc==10011 .and. master_mpi) call write_pkm4crpa_mlo() !cRPA weights of the MLO model (2026-10-01 23:20)
-  else
-    call init_readeigen_mlw_noeval()!nwf,nband,mrecb,mrecg)
-    nwf = nwf_wannier
-  endif
+  !The Wannier functions (init_readeigen_mlw_noeval, m_wan_wfs) were removed 2026-10-02 (tag last-wannier): MLO only
+  if(.not.mlo_mode) call rx('the Wannier functions path was removed 2026-10-02 (tag last-wannier): run with --mlo')
+  call cmlo_init()
+  nwf = nwf_mlo
+  if(ixc==10011 .and. master_mpi) call write_pkm4crpa_mlo() !cRPA weights of the MLO model (2026-10-01 23:20)
   if (master_mpi) then
      write(*,*)'Caution! evals are zero hereafter.'
      write(*,*)'nwf =',nwf

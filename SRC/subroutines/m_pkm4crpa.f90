@@ -1,6 +1,6 @@
 !>read pkmU for cRPA calclaitons ===
 module m_pkm4crpa 
-  implicit none !!! subroutine wmaxloc in maxloc2.F write pkmU file.
+  implicit none !pkm4crpa: written by m_mlo_wfs write_pkm4crpa_mlo (hwmatK_MPI --mlo, mode 10011), the MLO weights p_kn (2026-10-02)
   public:: Readpkm4crpa
   private
   real(8),allocatable:: pkmud(:,:,:),qvecud(:,:,:)
