@@ -6,18 +6,18 @@
 /* Layout: one reading column for the text; the charts, the table and the band figures take the full width. */
 :root {
   --bg: #f5f7fa; --surface: #ffffff; --ink: #18202b; --muted: #586474; --line: #d6dce4;
-  --accent: #2b5d8f; --dft: #7c8591; --mlo: #c0392b; --miss: #e08a1e;
+  --accent: #2b5d8f; --dft: #7c8591; --mlo: #c0392b; --miss: #e08a1e; --m1: #9aa5b3; --m2: #2f6db5; --m3: #d9822b;
   --good: #2e7d4f; --good-bg: #e3f2e9; --ok: #5f7d12; --ok-bg: #eef4dc; --warn: #9a6a12; --warn-bg: #fbf0d9; --bad: #b3261e; --bad-bg: #fbe4e2;
   --font-body: "IBM Plex Sans", "IBM Plex Sans JP", "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
   --bg: #10141a; --surface: #182029; --ink: #e5eaf1; --muted: #9aa6b4; --line: #2b3542;
-  --accent: #82b4e8; --dft: #9aa3ae; --mlo: #f07162; --miss: #f0a34a;
+  --accent: #82b4e8; --dft: #9aa3ae; --mlo: #f07162; --miss: #f0a34a; --m1: #6e7988; --m2: #6fa8e6; --m3: #f0a04b;
   --good: #6cc995; --good-bg: #173326; --ok: #b5d36a; --ok-bg: #2a3315; --warn: #e5b458; --warn-bg: #362a12; --bad: #f28b82; --bad-bg: #3b1c1a; color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #10141a; --surface: #182029; --ink: #e5eaf1; --muted: #9aa6b4; --line: #2b3542;
-  --accent: #82b4e8; --dft: #9aa3ae; --mlo: #f07162; --miss: #f0a34a;
+  --accent: #82b4e8; --dft: #9aa3ae; --mlo: #f07162; --miss: #f0a34a; --m1: #6e7988; --m2: #6fa8e6; --m3: #f0a04b;
   --good: #6cc995; --good-bg: #173326; --ok: #b5d36a; --ok-bg: #2a3315; --warn: #e5b458; --warn-bg: #362a12; --bad: #f28b82; --bad-bg: #3b1c1a; color-scheme: dark }
 body { background: var(--bg); color: var(--ink); font: 15px/1.65 var(--font-body); margin: 0; }
 .wrap { max-width: 1240px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 64px; display: flex; flex-direction: column; gap: 36px; }
@@ -43,6 +43,9 @@ del { color: var(--muted); text-decoration-thickness: 1.5px; }
 .chart .lab { fill: var(--ink); font-size: 11px; }
 .chart .pt { stroke: var(--surface); stroke-width: 2; }
 .chart .pt.good, .chart .bar.good { fill: var(--good); } .chart .pt.fair, .chart .bar.fair { fill: var(--ok); } .chart .pt.marginal, .chart .bar.marginal { fill: var(--warn); } .chart .pt.poor, .chart .bar.poor { fill: var(--bad); }
+.chart .bar.m-base { fill: var(--m1); } .chart .bar.m-eh2 { fill: var(--m2); } .chart .bar.m-es { fill: var(--m3); }
+.legend i.m-base, .legend i.m-eh2, .legend i.m-es { border-radius: 2px; }
+.legend i.m-base { background: var(--m1); } .legend i.m-eh2 { background: var(--m2); } .legend i.m-es { background: var(--m3); }
 .chart .pt.was { fill: none; stroke: var(--muted); stroke-width: 1.5; }
 .chart .arrow { stroke: var(--muted); stroke-width: 1.2; fill: none; }
 .chart .ahead { fill: var(--muted); }
@@ -150,8 +153,10 @@ dialog::backdrop { background: rgba(10, 14, 20, .6); }
 
 <section class="panel">
   <h2>図 2. 誤差の最大値。物質ごとに一番良い模型（対数軸、破線は 0.02・0.05・0.1 eV）</h2>
-  <div class="legend"><span><i class="was"></i>1. 基準の値（2 か 3 の方が良かった物質）</span></div>
+  <div class="legend"><span><i class="m-base"></i>1. 基準が一番</span><span><i class="m-eh2"></i>2. 陽イオンに EH2 が一番</span><span><i class="m-es"></i>3. 空格子球が一番</span>
+    <span><i class="was"></i>1. 基準の値（2 か 3 の方が良かった物質）</span></div>
   <div class="scroll">@@CHART2@@</div>
+  <p class="note">棒の色は模型、判定は破線で読む（0.02 以下が good、0.05 以下が fair、0.1 以下が marginal）。2 が一番の物質には、1 との差が 0.001 eV に満たないものもある（棒の上端と白丸が重なる）。</p>
 </section>
 
 <section class="panel">

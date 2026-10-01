@@ -186,7 +186,8 @@ for m in allm:
 svg.append('<defs><marker id="ah" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ahead"/></marker></defs></svg>')
 chart1 = '\n'.join(svg)
 
-# ---------- chart 2: error of the best model, sorted, log scale; rings at the baseline value where it improved ----------
+# ---------- chart 2: error of the best model, sorted, log scale; the bar colour is the model (1, 2, 3; user 2026-10-01 18:0x),
+# the verdict is read from the dashed lines; rings at the baseline value where 2 or 3 is better ----------
 srt = sorted(allm, key=lambda m: BEST[m][0])
 BW, BH, bl, bb, bt = max(720, 11 * len(srt) + 70), 300, 56, 92, 14
 L0, L1 = math.log10(0.0005), math.log10(5.0)
@@ -198,7 +199,7 @@ for val, lab in ((0.001, '0.001'), (0.01, '0.01'), (0.02, '0.02'), (0.05, '0.05'
 step = (BW - bl - 8) / len(srt)
 for i, m in enumerate(srt):
     w, k = BEST[m]; x = bl + i * step
-    sv.append(f'<rect x="{x+1:.1f}" y="{by(w):.1f}" width="{max(step-2,2):.1f}" height="{BH-bb-by(w):.1f}" rx="2" class="bar {sev(w)}"><title>{m} {LAB[k]}: {w:.3f} eV</title></rect>')
+    sv.append(f'<rect x="{x+1:.1f}" y="{by(w):.1f}" width="{max(step-2,2):.1f}" height="{BH-bb-by(w):.1f}" rx="2" class="bar m-{k}"><title>{m} {LAB[k]}: {w:.3f} eV ({sev(w)})</title></rect>')
     if k != 'base':
         sv.append(f'<circle cx="{x+step/2:.1f}" cy="{by(W_["base"][m]):.1f}" r="3.6" class="pt was"><title>{m} 1. 基準: {W_["base"][m]:.3f} eV</title></circle>')
     sv.append(f'<text x="{x+step/2:.1f}" y="{BH-bb+8}" class="blab" transform="rotate(60 {x+step/2:.1f} {BH-bb+8})">{m}</text>')
