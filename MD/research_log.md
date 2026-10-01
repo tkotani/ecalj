@@ -84,6 +84,21 @@
 
 ## 2026-10-02 — MLO を実空間で規格化、実験用の MLO オプションを廃止（Wannier を外す作業の続き）
 
+### 06:43 試験の結果（対称性 S1〜S4b）、Si8 の MLO、tf32 の 36 物質
+
+**表 06:43-1**. 試験の組（`TOOLS/samples_tests.sh`）
+
+| 計算機 | 版 | 対称性の口 | 結果 |
+| --- | --- | --- | --- |
+| kr7（GPU） | `9d60130fc`（S4b） | gensym（既定） | 22 組すべて PASS（inputs 172、afsym 4、affix 12、install 66、mlo 45、mloqsgw 5、procar 5、eps 18、samples の 13 組、magnon 2）。06:41 終了 |
+| kt1（CPU） | `9d60130fc`（S4b） | json（lmf などの前に `symfind.py`、引数ごと） | BoltzTraP の TEST 2（`si.struct.boltztrap` の操作の並びだけ）のほかすべて PASS。AtomDimer は上書きの直し（`3572a0859`）で通った。06:40 終了 |
+| kr7（GPU） | `46b9740bb`（S5 まで） | json | inputs afsym affix install mlo mloqsgw、06:43 から |
+
+- Si8 の MLO（S5 の版）: 192 操作と 24 操作で MLO の帯の差は印字の桁（1.4×10⁻⁴ eV）、DFT の帯は 7×10⁻⁵ eV 以下（`MD/symmetry_spglib.md` §4.7e）
+- tf32（kt1 `run_tf32`、06:32 に全部終わった）: 5 月に旧 `--mp` で壊れた 36 物質で NaN 0、3 反復目のギャップは 35 物質が fp32 と 0.8 meV 以内、
+  mp-27419 は揺れの途中で −25 meV。反復あたり中央値 95 s（fp32 158 s、条件が違うので目安）。`ecalj_auto/GW1500_status.md` §5.2
+- Si8 の GW（192 操作と 24 操作、kt1 GPU 0・1）は 06:32 から
+
 ### 06:31 MLO の最大局在化に Sakuma 型の対称性の拘束を入れた（`mlo_maxloc.py --sym`）
 
 - Löwdin の MLO は点群で軌道と同じに回る: M̃(gk, gb) = X(g) M̃(k, b) X(g)⁺、X = rotdlmm（`libecaljF.so` を ctypes で呼ぶ）の D^l のブロック対角。
