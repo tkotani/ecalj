@@ -47,15 +47,16 @@ def read_ctrlg(sname, overrides=()):
     st = c['struc']
     alat = float(st['alat'])                                   # bohr
     plat = np.array(st['plat'], float).T                        # columns = lattice vectors, alat units
-    names, frac = [], []
+    names, frac, af = [], [], []
     pinv = np.linalg.inv(plat)
     for s in c['site']:
         names.append(s['atom'])
+        af.append(int(s.get('af', 0)))                          # AF pair label: +k and -k are exchanged by the AF operations
         if 'xpos' in s:
             frac.append(np.array(s['xpos'], float))
         else:                                                   # pos: Cartesian, alat units
             frac.append(pinv @ np.array(s['pos'], float))
-    return alat, plat, names, np.array(frac)
+    return alat, plat, names, np.array(frac), af
 
 
 def structure_key(alat, plat, names, frac, symprec):
@@ -66,6 +67,35 @@ def structure_key(alat, plat, names, frac, symprec):
     lines += [f'site {n} ' + ' '.join(f'{x:.10f}' for x in p) for n, p in zip(names, f)]
     lines += [f'symprec {symprec:.3e}']
     return '\n'.join(lines)
+
+
+def magnetic_operations(alat, plat, names, frac, af, symprec):
+    """AF (step S5, 2026-10-02 06:14): the sites +k and -k of an AF pair are one type with the magnetic moments +1 and -1
+    (other sites 0), as ecalj merges their species for the lattice+AF group (ipsAF of m_mksym). Returns (R, T, time_reversal)
+    of the magnetic space group: the operations without time reversal keep the spins (the group of the crystal), those with
+    it exchange up and down (the AF operations that SYMGRPAF generated)."""
+    import spglib
+    rep = {}
+    for i, a in enumerate(af):
+        if a > 0:
+            rep[a] = names[i]
+    tnames = []
+    for i, a in enumerate(af):
+        if a < 0:
+            if -a not in rep:
+                sys.exit(f'symfind: site {i+1} has af={a} but no site has af={-a}')
+            tnames.append(rep[-a])
+        else:
+            tnames.append(names[i])
+    species = sorted(set(tnames), key=tnames.index)
+    numbers = [species.index(n) + 1 for n in tnames]
+    magmoms = [float(np.sign(a)) for a in af]
+    lattice = (alat * BOHR_ANGSTROM * plat).T
+    ds = spglib.get_magnetic_symmetry_dataset((lattice, frac, numbers, magmoms), symprec=symprec)
+    if ds is None:
+        sys.exit('symfind: spglib found no magnetic symmetry')
+    get = (lambda k: getattr(ds, k)) if not isinstance(ds, dict) else (lambda k: ds[k])
+    return np.array(get('rotations')), np.array(get('translations')), np.array(get('time_reversals'), bool), get
 
 
 def spglib_dataset(alat, plat, names, frac, symprec):
@@ -140,29 +170,44 @@ def main():
     overrides = [x for x in rest if x.startswith('--ctrlg:')]
     if a.out is None:
         a.out = f'symmetry.{a.sname}.json'
-    alat, plat, names, frac = read_ctrlg(a.sname, overrides)
+    alat, plat, names, frac, af = read_ctrlg(a.sname, overrides)
     spg, get = spglib_dataset(alat, plat, names, frac, a.symprec)
     R, T = np.array(get('rotations')), np.array(get('translations'))
+    TR = np.zeros(len(R), bool)
+    magnetic = None
+    if any(af):
+        Rm, Tm, TRm, gm = magnetic_operations(alat, plat, names, frac, af, a.symprec)
+        # the operations without time reversal must be those of the crystal with up and down told apart
+        same = sorted(map(lambda x: (tuple(x[0].ravel()), tuple(np.round(x[1] % 1.0, 6) % 1.0)), zip(Rm[~TRm], Tm[~TRm]))) == \
+               sorted(map(lambda x: (tuple(x[0].ravel()), tuple(np.round(x[1] % 1.0, 6) % 1.0)), zip(R, T)))
+        if not same:
+            sys.exit('symfind: the magnetic group without time reversal differs from the group of the crystal (check af= and the species)')
+        R, T, TR = Rm, Tm, TRm
+        magnetic = {'uni_number': int(gm('uni_number')), 'msg_type': int(gm('msg_type')),
+                    'n_time_reversed': int(TRm.sum())}
     T = np.where(np.abs(T - np.rint(T)) < 1e-10, np.rint(T), T) % 1.0      # translations in [0,1)
-    i0 = next(i for i, (r, tt) in enumerate(zip(R, T)) if (r == np.eye(3, dtype=int)).all() and np.abs(tt).max() < 1e-10)
-    order = [i0] + [i for i in range(len(R)) if i != i0]                    # the identity first (ecalj assumes it)
-    R, T = R[order], T[order]
+    i0 = next(i for i, (r, tt, tr) in enumerate(zip(R, T, TR))
+              if (r == np.eye(3, dtype=int)).all() and np.abs(tt).max() < 1e-10 and not tr)
+    order = [i0] + [i for i in range(len(R)) if i != i0 and not TR[i]] + [i for i in range(len(R)) if TR[i]]
+    R, T, TR = R[order], T[order], TR[order]          # the identity first (ecalj assumes it), then the rest of the crystal group, then AF
     key = structure_key(alat, plat, names, frac, a.symprec)
-    npure = int(sum(1 for r in R if (r == np.eye(3, dtype=int)).all()))
+    npure = int(sum(1 for r, tr in zip(R, TR) if (r == np.eye(3, dtype=int)).all() and not tr))
     out = {
         'format': 'ecalj-symmetry-1',
         'made_by': f'symfind.py (spglib {spg.__version__})', 'date': datetime.datetime.now().isoformat(timespec='minutes'),
         'ctrlg': f'ctrlg.{a.sname}.toml',
         'structure_key': key, 'structure_sha256': hashlib.sha256(key.encode()).hexdigest(),
         'structure': {'alat_bohr': alat, 'plat_alat': plat.T.tolist(), 'plat_unit': 'rows = lattice vectors in alat (as [struc] plat)',
-                      'species': names, 'frac': [[float(x) for x in p] for p in frac],
+                      'species': names, 'af': af, 'frac': [[float(x) for x in p] for p in frac],
                       'frac_unit': 'fractional coordinates of plat (not reduced mod 1)'},
         'symprec': a.symprec, 'symprec_unit': 'angstrom',
         'spacegroup': {'number': int(get('number')), 'international': str(get('international')), 'hall_number': int(get('hall_number'))},
         'n_operations': int(len(R)), 'n_pure_translations': npure,
         'rotation_unit': "integer matrix in the basis of plat: x' = R x + t, x fractional (columns of plat)",
         'translation_unit': 'fractional coordinates of plat',
-        'operations': [{'rotation': r.tolist(), 'translation': [round(float(x), 10) for x in t], 'time_reversal': False} for r, t in zip(R, T)],
+        'magnetic': magnetic,
+        'operations': [{'rotation': r.tolist(), 'translation': [round(float(x), 10) for x in t], 'time_reversal': bool(tr)}
+                       for r, t, tr in zip(R, T, TR)],
         'equivalent_atoms': [int(x) for x in get('equivalent_atoms')],
     }
     tmp = f'{a.out}.{os.getpid()}.tmp'
@@ -176,6 +221,7 @@ def main():
             f = 'llmchk_symfind'
             with open(f, 'w') as fo:
                 subprocess.run(['mpirun', '-np', '1', 'lmchk', a.sname], stdout=fo, stderr=subprocess.STDOUT)
+        R, T = R[~TR], T[~TR]                         # ecalj's first gensym table is the group of the crystal (no AF)
         E = ecalj_ops(f)
         pinv = np.linalg.inv(plat)
         miss = 0

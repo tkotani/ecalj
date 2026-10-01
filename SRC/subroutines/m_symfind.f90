@@ -690,19 +690,22 @@ contains
        enddo
     enddo
   end function distinctrot
-  subroutine symfind_json(fname,nbas,spid,pos,plat,qlat,alat,ngmxj, ng,g,ag,ok,why) !Space group from symmetry.<sname>.json (symfind.py, spglib)
+  subroutine symfind_json(fname,nbas,spid,afl,pos,plat,qlat,alat,ngmxj,withtr, ng,g,ag,ok,why) !Space group from symmetry.<sname>.json (symfind.py, spglib)
     ! (2026-10-02 05:34, step S3 of MD/symmetry_spglib.md) The file holds the operations x' = R x + t in the fractional coordinates
     ! of plat (R integer) and the structure they belong to. The structure is compared with the one given here (the ctrlg);
     ! a difference stops the run ("run symfind.py <sname> again"). Returns the Cartesian g = plat R plat^-1 and ag = plat t
-    ! (alat units, r' = g r + ag), the identity first. ok=.false. (with why) when the file cannot be used yet:
-    ! time-reversed operations (AF, step S5); the caller then uses gensym. Pure translations (a supercell) are operations
-    ! too (2026-10-02 05:46, step S4): the group has |point group| x |pure translations| operations, up to ngmxj.
+    ! (alat units, r' = g r + ag), the identity first. Pure translations (a supercell) are operations too (2026-10-02 05:46,
+    ! step S4): the group has |point group| x |pure translations| operations, up to ngmxj.
+    ! AF (2026-10-02 06:16, step S5): the operations with "time_reversal" exchange the up and down sites of the AF pairs
+    ! (af = +k, -k). withtr=.false. returns the others only (the group of the crystal), withtr=.true. all of them (the group
+    ! of the crystal with the pairs merged, from which m_mksym_init takes the AF operations). ok is .true. when read.
     use tjson_parser, only: json_load
     use tomlf, only: toml_table, toml_array, toml_value, toml_error, get_value, len
     use tomlf_type, only: cast_to_table
     implicit none
     character(*),intent(in):: fname
-    integer,intent(in):: nbas,ngmxj
+    integer,intent(in):: nbas,ngmxj,afl(nbas)   ! afl: the af label of each site (0, +k, -k)
+    logical,intent(in):: withtr
     character(*),intent(in):: spid(nbas)      ! species name of each site
     real(8),intent(in):: pos(3,nbas),plat(3,3),qlat(3,3),alat ! pos Cartesian (alat); plat(:,i) the i-th lattice vector
     integer,intent(out):: ng
@@ -714,7 +717,7 @@ contains
     type(toml_table),pointer:: root,st,op
     type(toml_array),pointer:: arr,row,ops
     character(:),allocatable:: name
-    integer:: i,j,ib,ig,nop,npure,ival,rot(3,3)
+    integer:: i,j,ib,ig,iop,nop,npure,ival,rot(3,3)
     logical:: trev
     real(8):: alatj,platj(3,3),fracj(3),frac(3),d(3),tr(3),pinv(3,3)
     real(8),parameter:: tolst=1d-6
@@ -741,6 +744,12 @@ contains
        call get_value(arr,ib,name)
        if(trim(name)/=trim(spid(ib))) call stale('the species of a site')
     enddo
+    call get_value(st,'af',arr,requested=.false.)
+    do ib=1,nbas
+       ival=0
+       if(associated(arr)) call get_value(arr,ib,ival)
+       if(ival/=afl(ib)) call stale('the af label of a site')
+    enddo
     call get_value(st,'frac',arr)
     do ib=1,nbas
        call get_value(arr,ib,row)
@@ -755,15 +764,15 @@ contains
     call get_value(root,'n_pure_translations',npure)
     call get_value(root,'operations',ops)
     nop=len(ops)
-    if(nop>ngmxj) call rx('symfind_json: more operations than ngmxj')
     pinv = transpose(qlat) ! plat^-1
-    do ig=1,nop
-       call get_value(ops,ig,op)
+    ng=0
+    do iop=1,nop
+       call get_value(ops,iop,op)
        call get_value(op,'time_reversal',trev)
-       if(trev) then
-          why='time-reversed (AF) operations (step S5)'
-          return
-       endif
+       if(trev .and. .not.withtr) cycle
+       ng=ng+1
+       if(ng>ngmxj) call rx('symfind_json: more operations than ngmxj')
+       ig=ng
        call get_value(op,'rotation',arr)
        do i=1,3
           call get_value(arr,i,row)
@@ -781,7 +790,6 @@ contains
     enddo
     if(maxval(abs(g(:,:,1)-reshape([1d0,0d0,0d0,0d0,1d0,0d0,0d0,0d0,1d0],[3,3])))>1d-10 .or. maxval(abs(ag(:,1)))>1d-10) &
          call rx('symfind_json: the first operation of '//trim(fname)//' is not the identity')
-    ng=nop
     ok=.true.
   contains
     subroutine stale(what)

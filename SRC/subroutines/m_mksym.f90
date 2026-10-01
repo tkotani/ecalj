@@ -3,6 +3,7 @@ module m_mksym
   use m_cmdopt_registry, only: c0_nosym, c0_pdos
   public :: m_mksym_init
   private:: mksym
+  logical,private:: jsonused=.false. ! the crystal group came from symmetry.<sname>.json (then the AF call uses it too; 2026-10-02 06:16)
   integer,allocatable,protected :: oics(:)    ! ispec= ics(iclass) gives spec for iclass.
   real(8),allocatable,protected :: symops(:,:,:),ag(:,:),tiat(:,:,:),shtvg(:,:),dlmm(:,:,:,:)
   integer,allocatable,protected :: invgx(:),miat(:,:), oistab (:,:)   ! j= istab(i,ig): site i is mapped to site j by grp op ig
@@ -130,7 +131,7 @@ contains
     call tcx('m_mksym_init')
   end subroutine m_mksym_init
   subroutine mksym(modeAddinversion,slabl,ssymgr,iv_a_oips, iclass,nclass,npgrp,nsgrp,rv_a_oag,rv_a_osymgr,iv_a_oics,iv_a_oistab,ngmxs,faithful)! Setup symmetry group. Split species into classes, Also assign class labels to each class
-    use m_lmfinit,only: nbas,nspec,alat=>lat_alat,symgaf
+    use m_lmfinit,only: nbas,nspec,alat=>lat_alat,symgaf,ipsorg=>iv_a_oips,iantiferro
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat,rv_a_opos
     use m_symfind,only: gensym,symfind_json,ngmx,ngnmx
     use m_ext,only: sname
@@ -182,13 +183,14 @@ contains
     if(master_mpi) write(stdo,*)' Generators find or not: ',symfind
     ! Backend of the finder (2026-10-02 05:35, step S3 of MD/symmetry_spglib.md): the operations of symmetry.<sname>.json
     ! (symfind.py, spglib) when the file is there, SYMGRP is 'find' (the default) and this is the group of the crystal (not the
-    ! lattice+AF group, faithful=.false.); otherwise, or when the file cannot be used yet (AF), gensym. Pure translations are
-    ! used as operations from step S4 on (2026-10-02 05:46).
-    ! Not with SYMGRPAF yet (step S5): gensym returns its generators in ssymgr, and the AF call of m_mksym_init builds the
-    ! lattice+AF group from them; with 'find' left there it would take another path.
+    ! lattice+AF group, faithful=.false.); otherwise gensym. Pure translations are used as operations from step S4 on
+    ! (2026-10-02 05:46). AF (2026-10-02 06:16, step S5): the crystal group is the operations without time reversal; the second
+    ! call of m_mksym_init (the AF pairs merged) takes all of them when the first call used the file (jsonused), and
+    ! m_mksym_init picks the AF operations as before. SYMGRPAF then only switches the AF mode on.
     ! ECALJ_SYMFIND=ecalj in the environment forces gensym (for comparisons).
     usejson = .false.
-    if(lfaithful .and. trim(adjustl(ssymgr))=='find' .and. len_trim(symgaf)==0) then
+    if(.not.lfaithful) usejson = jsonused
+    if(lfaithful .and. trim(adjustl(ssymgr))=='find') then
        fjson = 'symmetry.'//trim(sname)//'.json'
        inquire(file=trim(fjson),exist=usejson)
        envv = ' '
@@ -196,8 +198,10 @@ contains
        if(trim(envv)=='ecalj') usejson=.false.
     endif
     if(usejson) then
-       call symfind_json(fjson,nbas,[(slabl(iv_a_oips(ib)),ib=1,nbas)],rv_a_opos(:,1:nbas),plat,qlat,alat, ngmxs, &
-            nsgrp,rv_a_osymgr,rv_a_oag,usejson,why)
+       fjson = 'symmetry.'//trim(sname)//'.json'
+       call symfind_json(fjson,nbas,[(slabl(ipsorg(ib)),ib=1,nbas)],iantiferro(1:nbas),rv_a_opos(:,1:nbas),plat,qlat,alat, &
+            ngmxs, .not.lfaithful, nsgrp,rv_a_osymgr,rv_a_oag,usejson,why)
+       if(lfaithful) jsonused = usejson
        if(master_mpi.and..not.usejson) write(stdo,"(a)")' mksym: '//trim(fjson)//' not used: '//trim(why)//'; gensym'
     endif
     if(usejson) then
