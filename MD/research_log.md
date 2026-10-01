@@ -106,7 +106,7 @@ AFsymmetry のモード（AFTEST）が動くのか、そもそも正しいのか
   2026-09-16 のもの、危険の枠は「原則 1 本、例外は基準 2」、深い半芯だけ nskip、MP の窓に日付、105.9 meV の注記の取り下げ、esmsmves のリンク、
   mlo_gwsc.md、samples.md（MATERIALS、Si666gwsc は SOC でない）、README_tutorial の jobmaterials の節を Samples/MATERIALS に）。
   手を付けていない: `Samples/MATERIALS/*/ctrlg` の `[mlo]` を今の gwinit で書き直すこと（TODO (d)）、`optical.md` の HTML コメントの中の古い `MATERIALS/` の道
-- 20:40 から t14 で mlo の組を最後の build で回し直し中
+- 20:40 から t14 で mlo の組を最後の build（`abecfa510`）で回し直し → 20:50 に PASSED（25 試料、45 件）
 
 ### 20:01 GaAsSoc の「ギャップの誤差 −0.1 eV」は比べ方の誤り: DFT の側がスピン軌道なしだった（user「どうやって治すのか」）
 
