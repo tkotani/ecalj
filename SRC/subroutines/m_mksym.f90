@@ -56,7 +56,7 @@ contains
     allocate(iclasst(nbas),oics(nbas),oistab(nbas,ngmx))
     if(ipr10) write(stdo,"(a)")  'SpaceGroupSym of Lattice: ========start========================== '
     if(ipr10) write(stdo,"(a)") ' SYMGRP = '//trim(strn)
-    call mksym(lc,slabl,strn,ips, iclasst,nclasst,npgrp,ngrp,oag,osymgr,oics,oistab)
+    call mksym(lc,slabl,strn,ips, iclasst,nclasst,npgrp,ngrp,oag,osymgr,oics,oistab,faithful=.true.) !closed group with distinct rotations (m_mksym_util lfaithful)
     if(ipr10) write(stdo,"(a)") 'SpaceGroupSym of Lattice: ========end =========================== '
     allocate(symops,source=osymgr)
     allocate(ag,source=oag)

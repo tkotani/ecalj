@@ -9,8 +9,17 @@ module m_mksym_util
   real(8),parameter:: toll=1d-4,tiny=1d-4,epsr=1d-12
   integer,parameter:: ngnmx=10
   integer,parameter:: ngmx = 48
+  ! lfaithful (2026-10-02): the space group used is one with distinct rotations (one translation per rotation, closed as a group).
+  ! A cell with pure translations other than its lattice vectors (a supercell; e.g. diamond Si in the 8-atom cubic cell has the
+  ! 3 fcc centerings) has more operations than ngmx (48 rotations x 4 translations) and stopped in sgroup ("probably bad
+  ! translation"). With lfaithful, gensym chooses the translations of the generators among t + (pure translations) so that the
+  ! generated group has distinct rotations (for Si: Pn-3m, 48 operations); the pure translations are not used as symmetries
+  ! (a lower but valid symmetry: the density symmetrization in symprj needs a closed group, which a mere choice of one
+  ! translation per rotation is not). Set by mksym(..., faithful=.true.) for the symmetry of the crystal; not for the
+  ! lattice+AF group of m_mksym, where a pure translation that exchanges up and down spins is the point.
+  logical,private:: lfaithful=.false.
 contains
-  subroutine mksym(modeAddinversion,slabl,ssymgr,iv_a_oips, iclass,nclass,npgrp,nsgrp,rv_a_oag,rv_a_osymgr,iv_a_oics,iv_a_oistab)! Setup symmetry group. Split species into classes, Also assign class labels to each class
+  subroutine mksym(modeAddinversion,slabl,ssymgr,iv_a_oips, iclass,nclass,npgrp,nsgrp,rv_a_oag,rv_a_osymgr,iv_a_oics,iv_a_oistab,faithful)! Setup symmetry group. Split species into classes, Also assign class labels to each class
     use m_lmfinit,only: nbas,nspec
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat,rv_a_opos
     implicit none
@@ -38,6 +47,9 @@ contains
     real(8) :: gen(3,3,ngnmx), rv_a_oag(3,ngmx),rv_a_osymgr(3,3,ngmx)
     integer,allocatable ::  iv_a_onrc (:), iv_a_oipc(:) 
     logical:: symfind
+    logical,optional,intent(in):: faithful
+    lfaithful = .false.
+    if(present(faithful)) lfaithful = faithful
     ifind = index(ssymgr,'find')
     gens = ssymgr
     symfind = ifind>0
@@ -140,9 +152,78 @@ contains
          !o   nwgens  :ascii representation of generators
          integer :: imax,isop,ngloc,ngmax,iprint,ngen0,i1,i2,j1,j2,icount,ngmax2
          real(8)::gloc(3,3,ngmx),agloc(3,ngmx),xx,vec(3)
+         integer :: ntau,it,itmax,ngbest
+         real(8) :: tau(3,nbas),gbest(3,3,ngmx),agbest(3,ngmx),gtry(3,3,ngmx),agtry(3,ngmx)
+         logical :: ovf
          call pshpr(1)
          ngen0 = ngen
          call sgroup(gen,agen,ngen, gloc,agloc,nggen, ngmx,qlat)
+         call puretrans(nbas,bas,ips,qlat,plat,ntau,tau) !pure translations of the crystal (2026-10-02)
+         FaithfulSubgroup: if(lfaithful .and. ntau>0) then
+           ! The cell has ntau pure translations other than lattice vectors. Choose generators among (g, ag + tau) so that the
+           ! generated group has distinct rotations (closed, no pure translation in it); greedy, the largest such group.
+           if(iprint()>0) write(stdo,ftox)' gensym: the cell has',ntau,'pure translations other than lattice vectors (a supercell);', &
+                ' they are not used as symmetries, and the translations of the operations are chosen to close the group'
+           ngmax2=nggen
+           gbest(:,:,1:nggen)=gloc(:,:,1:nggen); agbest(:,1:nggen)=agloc(:,1:nggen); ngbest=nggen
+           PairStart: block ! the first two generators by trying every pair, then the greedy from each best pair; the largest group wins
+             ! (the greedy alone found 12 of 48 operations for Si in the cubic cell; one best pair, 24)
+             integer,parameter:: npmx=20 !the best pairs extended (400 took 11 s for Si in the cubic cell and found nothing larger)
+             integer:: is1,is2,it1,it2,n1,np,ip,ngenb,ngen1
+             real(8):: a1(3),a2(3),pg(3,3,2,npmx),pa(3,2,npmx),genb(3,3,ngmx),agenb(3,ngmx)
+             n1=0; np=0
+             do is1 = 1, ng; do it1 = 0, ntau
+                a1 = ag(:,is1) + merge([0d0,0d0,0d0], tau(:,max(it1,1)), it1==0)
+                do is2 = is1+1, ng; do it2 = 0, ntau
+                   a2 = ag(:,is2) + merge([0d0,0d0,0d0], tau(:,max(it2,1)), it2==0)
+                   gen(:,:,ngen+1)=g(:,:,is1); agen(:,ngen+1)=a1
+                   gen(:,:,ngen+2)=g(:,:,is2); agen(:,ngen+2)=a2
+                   call sgroup(gen,agen,ngen+2, gloc,agloc,ngloc,ngmx,qlat, overflow=ovf)
+                   if(ovf) cycle
+                   if(.not.distinctrot(gloc,ngloc)) cycle
+                   if(ngloc>n1) then; n1=ngloc; np=0; endif
+                   if(ngloc==n1 .and. np<npmx) then
+                      np=np+1; pg(:,:,1,np)=g(:,:,is1); pg(:,:,2,np)=g(:,:,is2); pa(:,1,np)=a1; pa(:,2,np)=a2
+                   endif
+                enddo; enddo
+             enddo; enddo
+             ngen1=ngen; ngenb=ngen
+             do ip = 1, np !greedy extension of each best pair
+                ngen=ngen1+2
+                gen(:,:,ngen1+1:ngen1+2)=pg(:,:,:,ip); agen(:,ngen1+1:ngen1+2)=pa(:,:,ip)
+                call sgroup(gen,agen,ngen, gloc,agloc,ngloc,ngmx,qlat, overflow=ovf)
+                ngmax2=ngloc; gtry(:,:,1:ngloc)=gloc(:,:,1:ngloc); agtry(:,1:ngloc)=agloc(:,1:ngloc)
+                do
+                   imax=0; itmax=-1; ngmax=0
+                   do isop = 1, ng
+                      do it = 0, ntau
+                         gen(:,:,ngen+1)= g(:,:,isop)
+                         agen(:,ngen+1) = ag(:,isop) + merge([0d0,0d0,0d0], tau(:,max(it,1)), it==0)
+                         call sgroup(gen,agen,ngen+1, gloc,agloc,ngloc,ngmx,qlat, overflow=ovf)
+                         if(ovf) cycle
+                         if(.not.distinctrot(gloc,ngloc)) cycle
+                         if (ngloc > ngmax) then; imax = isop; itmax = it; ngmax = ngloc; endif
+                      enddo
+                   enddo
+                   if(ngmax<=ngmax2) exit
+                   ngen = ngen+1
+                   gen(:,:,ngen)= g(:,:,imax)
+                   agen(:,ngen) = ag(:,imax) + merge([0d0,0d0,0d0], tau(:,max(itmax,1)), itmax==0)
+                   call sgroup(gen,agen,ngen, gloc,agloc,ngloc,ngmx,qlat, overflow=ovf)
+                   ngmax2=ngloc; gtry(:,:,1:ngloc)=gloc(:,:,1:ngloc); agtry(:,1:ngloc)=agloc(:,1:ngloc)
+                enddo
+                if(ngmax2>ngbest) then
+                   ngbest=ngmax2; gbest(:,:,1:ngbest)=gtry(:,:,1:ngbest); agbest(:,1:ngbest)=agtry(:,1:ngbest)
+                   ngenb=ngen; genb(:,:,1:ngen)=gen(:,:,1:ngen); agenb(:,1:ngen)=agen(:,1:ngen)
+                endif
+                if(ngbest==ng) exit !all rotations: cannot do better
+             enddo
+             ngen=ngenb; gen(:,:,1:ngen)=genb(:,:,1:ngen); agen(:,1:ngen)=agenb(:,1:ngen)
+           endblock PairStart
+           nggen=ngbest
+           gloc(:,:,1:nggen)=gbest(:,:,1:nggen); agloc(:,1:nggen)=agbest(:,1:nggen)
+           if(iprint()>0) write(stdo,ftox)' gensym: a closed group of',nggen,'operations with distinct rotations (of',ng,'rotations)'
+         else
          icount=0
          ngmax2=0
          do ! a set of generators (gen,agen) to maximize number of spc operations
@@ -169,6 +250,7 @@ contains
             agen(: ,ngen)= ag(: ,imax) 
             if(iprint()>0) write(stdo,ftox)'   Enlarging ngen=',ngen,' ng nggen=',ng,nggen
          enddo
+         endif FaithfulSubgroup
          call poppr
          if(iprint()>0.and. ngen0 == 0) then
             write(stdo,ftox)' groupg: the following are sufficient to generate the space group:'
@@ -211,7 +293,8 @@ contains
        enddo
     endif
   end subroutine gensym
-  subroutine sgroup(gen,agen,ngen, g,ag,ng, ngmx,qb)  !Get space group ops for given generators (gen,agen,ngen)
+  subroutine sgroup(gen,agen,ngen, g,ag,ng, ngmx,qb, overflow)  !Get space group ops for given generators (gen,agen,ngen)
+    ! overflow (optional): set .true. and return, instead of stopping, when the group exceeds ngmx (2026-10-02, gensym lfaithful)
     !i Inputs
     !i   gen   :rotation part of generators of the group
     !i   agen  :translation part of space group generator
@@ -232,10 +315,12 @@ contains
     character:: sout*80,sg*35
     real(8),parameter:: e(9)=[1d0,0d0,0d0, 0d0,1d0,0d0, 0d0,0d0,1d0],ae(3)=0d0
     character(8):: xt,xn
+    logical,optional,intent(out):: overflow
     call getpr(ipr)
     sout = ' '
     ag=0d0
     g(:,:,1)=reshape(e,[3,3])
+    if(present(overflow)) overflow=.false.
     ng = 1
     igenloop: do 80 igen=1, ngen
 !       if(master_mpi) write(stdo,ftox)'Generator: ',igen,ftof(reshape(gen(:,:,igen),shape=[9]),3),'  ',ftof(agen(:,igen),3)
@@ -305,6 +390,10 @@ contains
     endif
     return
 99  continue
+    if(present(overflow)) then
+       overflow=.true.
+       return
+    endif
     call rx('SGROUP: ng='//trim(xn(ng))//' > '//trim(xn(ngmx))//' probably bad translation')
   end subroutine sgroup
   subroutine grpgen(gen,ngen,symops,ng,ngmx) !Generate all point symmetry operations from the generation group
@@ -1190,6 +1279,51 @@ contains
     if (i >= nt) return
     goto 99
   end subroutine skipbl
+  subroutine puretrans(nbas,bas,ips,qlat,plat,ntau,tau) !Pure translations of the crystal that are not lattice vectors (2026-10-02)
+    ! tau(:,1:ntau), Cartesian (alat units): bas(:,j)-bas(:,1) for the sites j of the species of site 1 such that every site moved by
+    ! it lands on a site of the same species (mod lattice). Lattice vectors are not counted.
+    implicit none
+    integer,intent(in):: nbas,ips(nbas)
+    real(8),intent(in):: bas(3,nbas),qlat(3,3),plat(3,3)
+    integer,intent(out):: ntau
+    real(8),intent(out):: tau(3,nbas)
+    integer:: j,i,k
+    real(8):: v(3),d(3)
+    logical:: ok,found
+    ntau=0
+    do j = 2, nbas
+       if(ips(j)/=ips(1)) cycle
+       v = bas(:,j)-bas(:,1)
+       d = matmul(v,qlat); if(sum(abs(d-nint(d)))<toll) cycle !a lattice vector
+       ok=.true.
+       do i = 1, nbas
+          found=.false.
+          do k = 1, nbas
+             if(ips(k)/=ips(i)) cycle
+             d = matmul(bas(:,i)+v-bas(:,k),qlat)
+             if(sum(abs(d-nint(d)))<toll) then; found=.true.; exit; endif
+          enddo
+          if(.not.found) then; ok=.false.; exit; endif
+       enddo
+       if(.not.ok) cycle
+       do k = 1, ntau !already counted (mod lattice)?
+          d = matmul(v-tau(:,k),qlat); if(sum(abs(d-nint(d)))<toll) then; ok=.false.; exit; endif
+       enddo
+       if(ok) then; ntau=ntau+1; tau(:,ntau)=v; endif
+    enddo
+  end subroutine puretrans
+  logical function distinctrot(g,ng) !No two operations with the same rotation (2026-10-02)
+    implicit none
+    integer,intent(in):: ng
+    real(8),intent(in):: g(3,3,ng)
+    integer:: i,j
+    distinctrot=.true.
+    do i = 1, ng
+       do j = i+1, ng
+          if(all(abs(g(:,:,i)-g(:,:,j))<toll)) then; distinctrot=.false.; return; endif
+       enddo
+    enddo
+  end function distinctrot
 end module m_mksym_util
 
 integer function iclbsjx(ipc,nbas, ic,nrbas) !the nrbas-th atom belonging to class ic (ipc(ibas)==ic)

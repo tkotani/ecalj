@@ -84,6 +84,16 @@
 
 ## 2026-10-02 — MLO を実空間で規格化、実験用の MLO オプションを廃止（Wannier を外す作業の続き）
 
+### 05:19 対称性: 超格子の暫定の直しの試験が全部通った。S0（spglib との照合）は食い違い 0
+
+- 暫定の直し（`m_mksym_util.f90` の gensym に `faithful`、`m_mksym.f90` の最初の呼び出しだけ `faithful=.true.`）: 純粋な並進を持つ超格子で、
+  回転が重ならない閉じた群を選ぶ。手元の試験 17 組（inputs 172、afsym 4、affix 12、install 66、FermiSurface〜kBT_scanT）が全部通った（05:19 終了、
+  `~/work/tests_sym/summary.txt`）。Si8（Si の 2×2×2 の単純立方）は 24 操作で、対称性無しと ehf が −62923.038966 と −62923.038969
+- S0（05:15 終了）: `SRC/exec/symfind.py` で Samples の ctrlg 172 個を spglib（symprec 1e-5 Å）にかけ、lmchk の操作と集合で比べた
+  （`TOOLS/symcheck_samples.sh`、結果は `~/work/symcheck_s0/summary.txt`）。166 で同じ、6 で ecalj が部分群、食い違い 0。部分群の 6 つは
+  入力の SYMGRP で対称性を下げている例（ReN の cgdn・cprn、GdION、SmP、eras、felz）。spglib 版にも対称性を下げる口が要る（`MD/symmetry_spglib.md` §4.7a）
+- user の話（この夜の問い）: MLO を作った後に Marzari の最大局在化、対称性は Sakuma の方法で。TODO に入れた
+
 ### 04:32 GW1500: NOTCONV の 177 物質が全部収束。`--prec=tf32` の確かめを kt1 で始めた（user「--prec=tf32 と --prec=fp32 の違いを調べないといけない」「30 物質とも正常、のところのチェックはいるのか」）
 
 - kt1 の `run3`（fp32、最大 10 反復）は 2026-10-01 16:43 に終わり、197 物質のうち 196 が収束。残った mp-867515 Na₂Co₂O₄ は `run3x` で延長し、
@@ -133,7 +143,7 @@
 - 試験（`c2423efd5`）: kt1（nvfortran GPU、01:01〜01:28）と kr7（nvfortran GPU、01:01〜01:28）は inputs・install 66・eps 18・procar 5・mlo 45・mloqsgw 5・
   afsym 4・affix 12・samples の 13 組・magnon 2 がすべて PASS。t14（gfortran、`6d8b9f05b`、00:49〜02:03）も同じ。ただし t14 の install は 57 件の所で止まった:
   00:57:30 に私が手元で `libecaljF.so` を作り直し（`m_pkm4crpa` のコメント）、走っていた `fe_kbt` の `heftet` が空の出力で終わった。残りの 3 つ
-  （fe_kbt、ni_crpa、srvo3_crpa）を 02:0x に回し直して PASS（計 66）。試験中に手元でライブラリを作り直さない（`MD/handover.md` §3）
+  （fe_kbt、ni_crpa、srvo3_crpa）を 02:03〜02:06 に回し直して PASS（計 66）。試験中に手元でライブラリを作り直さない（`MD/handover.md` §3）
 - nvfortran 26.1 の fort1 が `m_pkm4crpa.f90` で signal 11 を 4 回（kt1 の `ecaljF`・`_mp`・`_mp_gpu`、kr7 の `_gpu`）。単独のコンパイルでは通る。
   `implicit none` の行の後ろに付けた 132 桁ちょうどのコメントを別の行に分けたら（`c2423efd5`）両方で通った。原因かどうかは決めていない
 - kt1・kr7 には、外した 30 本の `.f90` が残って CMake の GLOB が拾っていた → 手で `trash/` に移し、`sync_ecalj_src.sh` が送り先の HEAD に無い
@@ -167,7 +177,7 @@
 
 - 経緯（23:21 の続き）: 生の MLO は長さが 1 でない（実空間の 2 乗積分 N_i: Ni d 0.375〜0.381、SrVO₃ t₂g 0.184）。最初に
   `--mlo_diagnorm`（k ごとに 1/√O_ii(k)）を既定にしてみたが、k ごとの因子は実空間の軌道の形を変え、メッシュから外れた k の
-  内挿バンドが動いた（mlo の試験で C 0.74 eV、Al 0.10 eV、Cu・CdTe は 1 meV 未満。23:4x）。Löwdin の直交化は隣を混ぜて軌道が
+  内挿バンドが動いた（mlo の試験で C 0.74 eV、Al 0.10 eV、Cu・CdTe は 1 meV 未満。23:41 に始めた試験）。Löwdin の直交化は隣を混ぜて軌道が
   振動し到達距離が伸びる（user）。W の側（`m_mlo_wfs`）だけで割る形も試したが、`mlo_magnon` は生の `HamRsMLO` と一緒に使うので不整合
 - 採った形: 模型を定義する `mlo`（凍結なし）で `HamRsMLO` を書くとき、N_i = O_ii(R=0)（`mlo_nkabc` のメッシュの平均、
   = 実空間の 2 乗積分）を取り、H(R)・O(R)・V_SO(R) を D = diag(1/√N_i) で挟む。N_i を `HamRsMLO` の末尾の記録に足し、
