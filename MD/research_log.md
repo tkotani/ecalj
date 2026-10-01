@@ -92,7 +92,7 @@
 | --- | --- | --- | --- |
 | kr7（GPU） | `9d60130fc`（S4b） | gensym（既定） | 22 組すべて PASS（inputs 172、afsym 4、affix 12、install 66、mlo 45、mloqsgw 5、procar 5、eps 18、samples の 13 組、magnon 2）。06:41 終了 |
 | kt1（CPU） | `9d60130fc`（S4b） | json（lmf などの前に `symfind.py`、引数ごと） | BoltzTraP の TEST 2（`si.struct.boltztrap` の操作の並びだけ）のほかすべて PASS。AtomDimer は上書きの直し（`3572a0859`）で通った。06:40 終了 |
-| kr7（GPU） | `46b9740bb`（S5 まで） | json | inputs afsym affix install mlo mloqsgw、06:43 から |
+| kr7（GPU） | `46b9740bb`（S5 まで） | json | inputs 172、afsym 4、affix 12、install 66、mlo 45、mloqsgw 5 すべて PASS（06:57 終了、06:57 追記）。AF の組は json の磁気対称性（結晶の群 12 + AF の操作 12）で回った（NiO・NiSe・NiO_gwsc の lmf 6 回・AFfixMMOM） |
 
 - Si8 の MLO（S5 の版）: 192 操作と 24 操作で MLO の帯の差は印字の桁（1.4×10⁻⁴ eV）、DFT の帯は 7×10⁻⁵ eV 以下（`MD/symmetry_spglib.md` §4.7e）
 - tf32（kt1 `run_tf32`、06:32 に全部終わった）: 5 月に旧 `--mp` で壊れた 36 物質で NaN 0、3 反復目のギャップは 35 物質が fp32 と 0.8 meV 以内、

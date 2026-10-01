@@ -238,6 +238,8 @@ GW 側の二つは `__HAMindex0` から読んだ操作のうち、呼ぶ側が�
 - `SYMGRPAF` は AF の型を入れる印として残る（何を書いても json の操作が使われる）。S6 で `af` の印から決めるようにして廃止
 - NiO（`Samples/AFsymmetry/NiO`）: 結晶の群 12、AF をまとめた群 24 が、gensym の群と集合として一致（lmchk、格子を法として）。
   spglib の磁気空間群は UNI 1332、型 4（反ユニタリの操作が並進を伴う黒白群）
+- 試験の組（kr7 GPU、`46b9740bb`、json の口の包み、06:43〜06:57）: inputs・afsym・affix・install・mlo・mloqsgw がすべて PASS。AF の試料は全部 json の
+  磁気対称性で回った（NiO・NiO_gwsc・AFfixMMOM は UNI 1332 型 4、NiSe は UNI 1499 型 3、どれも 12 + 12）（06:57）
 
 ### 4.8 決めたこと（user 2026-10-02）
 
