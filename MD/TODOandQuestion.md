@@ -40,8 +40,8 @@
   `integral_0t`・`funcgx`・`numintall`・`funcgx2`・`ndiv_tt`・`int_simpson`（約 300 行）はどこからも呼ばれない（`tetwt5.f90` は `use` の only に
   `tetrakbt` を挙げるだけ）。今も使うのは `tetrakbt_init`・`kbt`・`integtetn`。2026-06 に「参照のため残す」としたもの。消すなら kBT の試験で確かめる（past_log.md §13）
 
-- **MLO の自動の模型の既定**（2026-10-01、`Samples/MATERIALS/Database` の試験。研究ログ 2026-10-01）: 既定（`mlo_lm` が Ne まで s,p・Na から s,p,d、Δ = w = 2 eV）で
-  65 物質のうち 41 が最悪値 0.02 eV 以内、外れる 14 は次の 2 つの型で、どちらも追加の動径関数で直る（研究ログ 2026-10-01 朝の *表 07:16-1*、`Samples/MATERIALS/Database/MLOcheck_20261001*.tsv`）。
+- **MLO の自動の模型の既定**（2026-10-01、`Samples/MATERIALS` の試験。研究ログ 2026-10-01）: 既定（`mlo_lm` が Ne まで s,p・Na から s,p,d、Δ = w = 2 eV）で
+  65 物質のうち 41 が最悪値 0.02 eV 以内、外れる 14 は次の 2 つの型で、どちらも追加の動径関数で直る（研究ログ 2026-10-01 朝の *表 07:16-1*、`Samples/MATERIALS/MLOcheck_20261001*.tsv`）。
   (a) 陽イオンの半内殻と陰イオンの 2p の混成（GaN、InN、EuO、La₂CuO₄、LaGaO₃、SrTiO₃、SrVO₃）: `m_HamPMT` の「浅い局所軌道」の判定（局所軌道が主の状態の上端が E_F − 10 eV より上）で
   Ga 3d（−11.8 eV）・In 4d（−12.5 eV）が「深い」とされ、模型から落ちて VBM が 0.33〜0.6 eV 下がる。`mlo_lm3` に d を足すと rms 0.002〜0.008 eV。
   合っている GaAs・InP・InAs は −13.9〜−14.8 eV。閾値を −13 eV にするか、陰イオンの p との近さで決めるか。
@@ -91,7 +91,7 @@
 
 - AFTEST の修正（`aftest-fix`）を main にマージ（`6eff2df53`、user「マージできるよね」→「良い方を壊さないように」）。AF の対称性ありの計算は ehf・sev・モーメント・場がマージ前と同じで、ehk だけが制約の下の全エネルギーになった。afsym 4・install 64 が PASS。例を `Samples/AFfixMMOM`（user の命名、`NiO_afsym`・`NiO_noafsym`、試験の組 `affix` 12 件 PASS）に置いた（`ca1e4c7fa`）
 - ecaljdoc の TOML の流れの最短の手順は、`manual/README_tutorial.md` の GetStarted（Step 0〜6: POSCAR → ctrls → `ctrlgenToml.py` → `lmfa`・`lmf` → バンド → `gwsc`、Step 2-Migration、`--ctrlg:` の上書き）に既にあった。TODO から外した。ecaljdoc `manual/mlo.md` に既定の模型が外れる 2 つの型と表 M1 を書いた（`422dc92`、未 push）
-- `Samples/MATERIALS` の 65 物質で LDA と MLO の自動の模型を回した（InAs/GaSb n10 の 40 原子は user の判断で回さない）。結果の表は `Samples/MATERIALS/Database/MLOcheck_20261001*.tsv`、一覧のページ https://claude.ai/artifact/VCWpe5W8Fei6umatXGeZGH、研究ログ 2026-10-01 朝 07:16
+- `Samples/MATERIALS` の 65 物質で LDA と MLO の自動の模型を回した（InAs/GaSb n10 の 40 原子は user の判断で回さない）。結果の表は `Samples/MATERIALS/MLOcheck_20261001*.tsv`、一覧のページ https://claude.ai/artifact/VCWpe5W8Fei6umatXGeZGH、研究ログ 2026-10-01 朝 07:16
 - `job_mlo`: ctrlg の `[ham] so = 1` なら `job_mlo_soc` を案内して止まる（`mlo` がハミルトニアンの NaN で止まっていた。GaAs_so）。`--ctrlg:ham.so=` の上書きは尊重。`mlo_bandplot.py` は空の spin2 を描かない
 - `--cls`: `m_clsmode_finalize` に `ndimh`（`m_igv2x` の最後の k 点の値）でなく `nbandmx` を渡す（`vcdmel` の重みの並びと `dostet` の読み方を揃える）。CrN（`Samples/TestInstall/crn`）で APW なし・pwemax 2 と 5・4×4×4（ndimh が 182〜188 と変わる）のどれも `dos-vcdmel.crn` が一致（ずれるのは DOS の窓より上の帯だけだった）。ブランチ `cls-nbandmx` をマージ（`7ca6f1caa`）。試験は `~/work/clstest_20261001`
 - `InstallAll.py`: build の後に、bindir の中で「この ecalj の木を指していて行き先の無いリンク」だけを消す（`remove_dangling_links`）。`SRC/exec` の行き先の無いリンク（消した `SRC/exec/build/` を指す 12 本）は張らず、trash に移した。これが `~/bin/mlo` などを一時的に死んだリンクで上書きしていた（CMake の deliver が build の後に戻していた）。SRC/exec のエディタの一時ファイル（`~` で終わる、`#`・`.#` で始まる）はリンクしない。t14 の `~/bin` の 58 本は次のインストールで消える（一時の bindir で試験）

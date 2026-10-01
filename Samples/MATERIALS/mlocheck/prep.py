@@ -6,7 +6,7 @@
 import os, re, glob, shutil, tomllib, json
 REPO = os.path.expanduser('~/ecalj/Samples/MATERIALS')
 WORK = os.path.dirname(os.path.abspath(__file__))
-src = {os.path.basename(os.path.dirname(f)): f for f in glob.glob(f'{REPO}/Database/*/ctrlg.*.toml')}
+src = {os.path.basename(os.path.dirname(f)): f for f in glob.glob(f'{REPO}/*/ctrlg.*.toml')}   # (the 62 were under Database/ until 2026-10-01 15:4x)
 src['La2CuO4'] = glob.glob(f'{REPO}/La2CuO4/ctrlg.*.toml')[0]
 src['InAsGaSb_n4'] = glob.glob(f'{REPO}/InAsGaSb/n4/ctrlg.*.toml')[0]
 src['InAsGaSb_n10'] = glob.glob(f'{REPO}/InAsGaSb/n10/ctrlg.*.toml')[0]

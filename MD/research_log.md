@@ -88,6 +88,11 @@ user の指示（05:5x）: 「この方針で進めて。TODO も判断がつく
 MATERIALS 以下を MLO で（spd ベース、f があるときに入れる）すべてモデル化。DFT レベルでよい。目視で確認できる図、バンドギャップの違い。
 AFsymmetry のモード（AFTEST）が動くのか、そもそも正しいのかも調べて」。push はしない。
 
+### 15:38 **`Samples/MATERIALS/Database/` の中身を `Samples/MATERIALS/` に上げて 1 段にした（user「2 段になっているが、その必要はない」）**
+
+62 物質のディレクトリ、`MLOcheck_20261001*.tsv`、`mlocheck/` を `git mv`。README は 1 つにまとめた（1 節 62 物質と表 1、2 節 MLO の試験、3 節 大きめの系と表 2）。
+文書（TODO、past_log、`mlo_bandcheck.py`、ecaljdoc の README_tutorial・mlo）の `Samples/MATERIALS/Database` も直した。このログの前の項の `Database/` は、その時点の場所
+
 ### 15:25 **基準を「自動の半内殻入り」にして 65 物質をやり直し、陽イオンに EH2 の s,p も全物質で回した。good・fair・marginal・poor = 基準 50・10・1・4 → 物質ごとに一番良いもの 63・2・0・0（ページの version 7）**
 
 user（15:0x）「物質ごとに、ベースラインを自動セミコア入りに。EH2 を陽イオン、エンプティ（SiO₂ だけ？）も含めて表 1 に。評価の条件もちゃんと書いて。足す前と後の表の桁がずれている」。

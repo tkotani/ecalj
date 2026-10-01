@@ -198,10 +198,10 @@ PROCAR の k 点の順（11 ランク以上で接尾辞の数値ソート）／`
 ## 9. 古いサンプル（最上位の `MATERIALS/`、〜2026-05。2026-10-01 に `Samples/MATERIALS/` へ移し、同じ日に仕分けた）
 
 旧形式（`ctrl.<sname>`・`GWinput`）の入力と結果。どこからも参照されていなかった。いったん `Samples/MATERIALS/` の下へ移し（user「いったん Samples の下へ」）、
-その日のうちに仕分けた（user「仕分けプランを出して」「go ahead」）: 構造のデータベースは `Samples/MATERIALS/Database/` に展開し、ほかは trash。
+その日のうちに仕分けた（user「仕分けプランを出して」「go ahead」）: 構造のデータベースは `Samples/MATERIALS/` に展開し、ほかは trash。
 取り出すときは `git show 3e9548b21:Samples/MATERIALS/<名前>`。
 
-**9.1 構造のデータベース（`Materials.ctrls.database`・`job_materials.py`）→ `Samples/MATERIALS/Database/`**
+**9.1 構造のデータベース（`Materials.ctrls.database`・`job_materials.py`）→ `Samples/MATERIALS/`**
 
 - データベースは、構造の雛形 17 種（BCC、FCC、DIA、ZB、WZ、NACL、NIOAF2・EUSAF2〔AF II〕、HGO、4HSIC、SIO2CRIST、HFO2、ZRO2、PEROVSKITE、BI2TE3 など）と、
   62 物質の行（雛形の名前、`@1=Ga` のような原子の割り当て、格子定数、`--nk1=8` などの指定、`mkGW-6,6,6`）でできていた。`job_materials.py` がそこから

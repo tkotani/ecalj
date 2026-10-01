@@ -19,7 +19,7 @@ Accuracy, with the nearest band at the same k (|dx| < 0.01):
   rms_d2m, max_d2m : each DFT point in [VBM_D - 8, CBM_D + 1] eV -> nearest MLO band   (a missing band shows up here)
 Metals: the same with VBM_D = CBM_D = E_F = 0.
 
-2026-10-01: rewritten for any directory (the test of Samples/MATERIALS/Database, MD/research_log.md 2026-10-01).
+2026-10-01: rewritten for any directory (the test of Samples/MATERIALS, MD/research_log.md 2026-10-01).
 The earlier version (v6.2, effective-mass ratios, fixed to Samples/MLOsamples/*__m3_work) is in the git history.
 """
 import argparse, glob, json, os, re, sys
