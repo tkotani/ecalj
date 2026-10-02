@@ -4,13 +4,73 @@
 入口は [CLAUDE.md](../CLAUDE.md)（中身は [ecaljclaude.md](ecaljclaude.md)）。片付けたものの中のノウハウは [past_log.md](past_log.md)。
 細かい経緯と数値は研究ログ [research_log.md](research_log.md)。
 
-書き方: 各項目に見つけた日を付ける。済んだら「やったこと」へ移し、済んだ日とコミットを書く。
+書き方: §1 はまだのものだけ（各項目に見つけた日）。済んだら §2 へ移し、済んだ日とコミットを書く（user 2026-10-02「まだのものを冒頭に、終わったものは 2. TODO（済）に」）。
+計算機ごとの片付け（trash の削除、ディスクの空き）はここに書かない（user 2026-10-02「ローカル情報はコミットに入れなくていい」）。
 
 ---
 
-## 1. TODO（直すべき点）
+## 1. TODO（未）（2026-10-02 14:35 に組み直した）
 
-### 進める順序（2026-10-02 05:24 に決めた。user「TODO の手順はよく考えて順序立てて」「まかせる」）
+### MLO
+
+- **Löwdin を標準にした後のメッシュの外の悪化**（2026-10-02、研究ログ 12:16 の表 12:16-1）: Fe の 4s 帯の底（−8〜−3 eV で 0.03 → 0.096 eV）、E_F 近くの 2H-SiC（0.035 → 0.051）・
+  MnO（0.007 → 0.030）。MLOsamples の Fe 系の検査も 0.217 → 0.284。原因を調べる（その k・帯、H̃(R) の切り方）
+- **`mlo_bandcheck.py` の判定 (3)**（2026-10-02）: 模型の O が 1 になり、重なりの最小固有値（`MLO_ovlpmin.dat`）は常に 1。`mlo` の出力の
+  "Smallest eigenvalue of the normalized raw overlap"（メッシュ上の直交化の前）を判定に使うように替えるか
+- **EH2 を足した模型の崩れ**（2026-10-01、`~/work/eh2cu`、Cu・Ni、EuO）: 生の模型では実空間で打ち切った O(k) が正定値でなくなり `zhgv` が壊れた。
+  Löwdin の模型は O(k) を内挿しないので様子が変わるはず。測り直してから直し方（(i) 正準直交化、(ii) 一次従属に近い EH2 を自動で外す）を決める（要判断）
+- **η ≠ 1 の原因**（2026-10-02）: Goldstone の条件の倍率が Löwdin で Fe 1.24、FeCo 1.28、Ni 1.75。Ni が大きい理由は未確認
+- **MLO と Wannier のずれ**（2026-10-02、`MD/wannier_vs_mlo.md`）: Ni d の cRPA の U が Wannier より低い（Löwdin で 2.90 対 3.78 eV、部分空間の違い）。
+  Fe のマグノンは Löwdin で近づいた（q ≤ 0.3 で 2 割高いのは残る）。実験（Fe のマグノン分散）との比較
+- **最大局在化（MV）の試作の残り**（2026-10-02、メインにはしない）: `mlo_maxloc.py --sym` は 1 原子・symmorphic だけ。多原子・非 symmorphic、局在させた基底での
+  U とマグノン。`mlo_cmlo_transform.py lowdin` は恒等変換になった。続けないなら試作の道具をまとめて trash へ
+- **空格子球の自動化（基準 3）**（2026-10-01）: `SRC/exec/ctrlg_addes.py`（`8c158ee96`、像の数を面間隔から決める直しは済み）を ctrlg の生成に組み込むか。
+  Bi₂Te₃ の空隙は 2.61 a.u. で 3.0 未満、SiO₂ は手で置いて 0.001 eV
+- **検査の FAIL の残り**（2026-10-01）: 基準 1 で Sn・AlSb・InSb が 1 点だけ 0.1 eV を少し超える（Löwdin の模型で Bi₂Te₃・Cu は通るようになった。表 M8）。
+  AlN・MgS・MgSe・MgTe・SiO₂ は誤差が大きい。直すか、目安を見直すか
+- **`Samples/AFsymmetry/NiO` は `pwmode = 1` で `symgrpaf`**（2026-10-01）: 4³ にすると `rotwave: q+G rotation error` で止まる。`pwmode = 11` にして参照を作り直すか
+
+### コード
+
+- **HEAD に残っている生成物らしいもの**（2026-10-02、旧 `a0c7a7300` で入り今も追跡）: `SRC/.#Memo4rotation`、`SRC/exec/cmake_install.cmake`、`hello.py`、`platform`（800 KB）、
+  `lmf2.py`・`lmchk.py`・`pylmfa`・`pysample`・`ohtaka`・`epsPPd`・`epsPPsaito`・`job_senefbz`・`readeps_dig2.py`・`auto_kauto.py`。使われているかを確かめて trash へ
+- **`sugw`（`lmf --jobgw=1`）のメモリ**（2026-10-01）: `GEIGpart` の `ppovl(ngp,ngp)` と `ppovlLU` を各ランクで持つ（32·ngp² バイト、胞の体積の 2 乗）。
+  案: (a) ngp から並列数を決める、(b) Cholesky の因子だけ持つ、(c) O·x を FFT で作り反復法で解く
+- **`hgw` の残り**（2026-04、past_log.md §3.2）: ノード内の W の共有（`MPI_Win_allocate_shared`）、`hsfp0_sc` の Sx・core の交換も `hgw` に（優先度は低い）
+- **AFTEST の残り**（2026-10-01、研究ログ 2026-10-01 06:46）: (a) モーメントを下げる向きで更新が行き過ぎる（割線で見積もるか）、(b) 対がサイト 1・2、ブロック 1・2 の決め打ち、
+  (c) `m_ldau_init` が lmf の起動のたびに場を更新して `mmagfield.aftest` を書き直す（`job_band` でも）
+- **`SRC/exec/auto_creplot.py`**（2026-10-01）: 旧形式の `ctrl.<sname>` を書き換える。`auto_job_mp.py` が使う。ctrlg に直すか、使わないなら trash へ
+
+### GW1500 と Materials Project
+
+- **`auto_mpquery.py` が今の MP で動かない**（2026-10-01）: 新しい ID の形で `mp_api` の検証が止まる。`mp_api` を上げるか、REST を直接読む
+- **GW1500 の選定に構造の確かめを入れる**（2026-10-01）: 副格子を抜き出した MP の項目が選ばれていた（`ecalj_auto/GW1500_status.md` §5.3 の表 8・9）。`auto_mpquery.py` で弾くか印を付ける
+
+### 試験と入力
+
+- `MLOsamples/RuO2` の `rst`・`dmats` は `pwmode = 11` の LDA+U の誤りの時期（2026-03-30〜09-30）に作ったもの。作り直すか
+- 試験の入力の温度（`t_tetrakbt = 262`、`t_sigmaw = 0`）をテンプレート（300/300）に揃えるか。揃えると gas_gwsc・fe_gwsc などの参照が動く
+
+### メンテナに決めてほしいこと
+
+- **GW1500 の `INVALID_STRUCTURE`（12）・`SUSPECT_STRUCTURE`（4）を集合から外すか**。いまは注記だけ
+- 試験に使った古いツリー（mic の `~/ecalj_test0928`、kt1 の `/mnt/data1/ecalj_test0930b`・`0930c`）も trash に入れるか
+- ブランチ `fix-idu10`（main にマージ済み）を消すか
+- push: dev・rel とも、t14 の main より 859 コミット遅れ（2026-10-02 14:35。2026-10-02 に未公開の範囲の履歴を書き換えた）
+
+### 実行中
+
+- Löwdin を標準にした版（`2ffb0331f`）の全部の試験の組: kr7 `~/ecalj_testL`、kt1 `/mnt/data1/ecalj_testL`（2026-10-02 14:35 の時点で bench の組の途中）。
+  済んだ組は両方で PASS（inputs、install、eps、procar、afsym、affix、samples の 13）。mlo・mloqsgw は古い参照と比べて FAIL（予想どおり）→ 終わったら新しい参照で
+  mlo・mloqsgw・magnon を回し直す。t14 は新しい参照で mlo 45・mloqsgw 5・magnon 2・install 66 が PASS（`~/work/tests_lowdin3`）
+
+---
+
+## 2. TODO（済）（新しい順）
+
+### 2026-10-02 の TODO の進め方と結果（05:24 の計画、2026-10-02 14:35 に済みとした）
+
+計画（user「TODO の手順はよく考えて順序立てて」「まかせる」）:
 
 依存の向き: 対称性の整理（S1〜S6）が、MLO の最大局在化（Sakuma 型の拘束に操作が要る）と AF の項目の土台。最大局在化の結果で、マグノンの窓と
 Wannier とのずれの項目の判断が変わる。だから対称性 → 最大局在化 → マグノン・ずれの順。長い試験の間に、独立した小さな項目を挟む。
@@ -27,87 +87,10 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 | 8 | MLO の模型の残り（EH2 の崩れ、§9 の目安の値の測り直し、空格子球の自動化） | 計算機で裏で回せる | MATERIALS | 原因の確かめと測り直し、`ctrlg_addes.py` の直し**済み**。EH2 の直し方は要判断 |
 | 後 | `sugw` のメモリ、`hgw` の残り、MP の API と GW1500 の選定 | 大きい、または外の事情 | — | 未 |
 
+- 済んだ項目（2026-10-02 14:35 に §1 から移した）: Löwdin の後の文書（ecaljdoc mlo §6・表 M8、Changes.txt (6)、handover、`Fe_mlo_magnon/README.md`）。AFTEST の (d)（使い方を ecaljdoc の UsageDetailed.md へ）。
+  マグノンの既定の窓（窓は (2, 2) のまま。Löwdin で窓によらない）。対称性 S0〜S6（`MD/symmetry_spglib.md` §4.7）。kt1 の GW1500 の run3（2026-10-01 16:43 に終了）
 
-### コード
-
-- **HEAD に残っている生成物らしいもの**（2026-10-02、履歴の書き換えのときに見つけた。旧 `a0c7a7300` で入り、今も追跡している）: `SRC/.#Memo4rotation`（エディタのロック）、
-  `SRC/exec/cmake_install.cmake`、`SRC/exec/hello.py`、`SRC/exec/platform`（800 KB）、`SRC/exec/lmf2.py`・`lmchk.py`・`pylmfa`・`pysample`・`ohtaka`・`epsPPd`・`epsPPsaito`・
-  `job_senefbz`・`readeps_dig2.py`・`auto_kauto.py`。使われているかを確かめて trash へ（普通のコミットで）
-
-- **Löwdin を MLO の標準にした後の残り**（2026-10-02 12:19、`d10a63716`、研究ログ 2026-10-02 12:16）:
-  (a) メッシュの外で悪くなった所を調べる: Fe の 4s 帯の底（−8〜−3 eV で 0.03 → 0.096 eV）、E_F 近くの 2H-SiC（0.035 → 0.051）・MnO（0.007 → 0.030）。
-  (b) `mlo_bandcheck.py` の判定 (3)（MLO の重なりの最小固有値）は模型の O が 1 になって意味を失った。m_HamPMT がメッシュ上の直交化の前の値を出す
-  （"Smallest eigenvalue of the normalized raw overlap"）ので、判定をそれに替えるか。メッシュの外の一次従属は、もう O(k) を内挿しないので模型の側では起きない。
-  (c) 下の EH2 の項目は、O(k) の内挿が正定値でなくなって `zhgv` が壊れる、という形だった。Löwdin の模型では O(k) を内挿しないので様子が変わるはず。
-  `~/work/eh2cu` で測り直す（メッシュ上の重なりが特異に近ければ m_HamPMT の Löwdin が止まる）。
-  (d) `mlo_cmlo_transform.py lowdin` は恒等変換になった（`mv` だけ意味がある。説明に注記した 2026-10-02）。`mlo_maxloc.py` の (a) 生の MLO の Ω は __cmlo からは出なくなった
-  （UUU が Löwdin の基底）。説明を直すか、MV の試作をまとめて trash へ移すか。
-  (e) 文書: ecaljdoc mlo §6（「模型の H(R) には Löwdin を使わない」と書いてある所を直す、式 (7f)）、Changes.txt、handover、
-  `Samples/Magnon/Fe_mlo_magnon/README.md` の表（Löwdin の値が模型から直接になる）。参照の作り直しは全部の試験の結果を見てから（§3）
-
-- **MLO: EH2 s,p を単体の金属（Cu・Ni）に足すと、Γ–X の 2〜3 点の k だけで模型が崩れる**（2026-10-01、`~/work/mlocheck_eh2cat/{Cu,Ni}`、ページ https://claude.ai/artifact/VCWpe5W8Fei6umatXGeZGH の図 4）: その k で MLO の帯が E_F + 0.3 eV に集まり、DFT の帯が抜ける（Cu 0.012 → 0.802 eV）。同じ原子の EH と EH2 がほぼ一次従属になって `Hreduction` の重なりが特異に近い、と疑っている（未確認: その k の重なり行列の固有値を見る）。gwinit の `!` 付きの `mlo_lm2` の行は Cu・Ni には書かれない（既定は基準 1 で EH2 なし）ので、既定には影響しない。EuO（Eu に EH2 s,p）は模型を作る所で止まる: `m_hreduction` の NormalizationCheck でシードのノルムの減りが 1 % を超えた（band 26、−1.3 %。EH と EH2 の両方をシードにすると `zhev_tk4` が一次従属に近い向きを落とすため）。Cu・Ni も同じ原因で、減りが 1 % 未満なので規格化し直して進み、特定の k で崩れているのかもしれない（未確認）
-  2026-10-02 06:22 確かめた（`~/work/eh2cu`、前日の DFT から今の版で `job_mlo`）: 帯の道筋の x = 0.429 で MLO の重なり O(k) の最小固有値が **負**（−1.26×10⁻⁴、
-  道筋の中央値 3.2×10⁻⁴）、その近く x = 0.381 で帯が最大 8.2 eV 外れる。実空間で打ち切った O(k) のフーリエ和が、EH と EH2 がほぼ一次従属だと正定値で
-  なくなり、`m_mlo_ham` の `calc_ham_eigen` の `zhgv`（Cholesky）が壊れる。案: (i) 対角化で O(k) の小さい固有値の向きを捨てる（正準直交化。帯の数が k で
-  変わるので出力の形を決める要あり）、(ii) 模型を作るとき（`Hreduction`）一次従属に近い EH2 を自動で外す。既定（基準 1、EH2 なし）には影響しない。どちらにするか要判断
-- **`sugw`（`lmf --jobgw=1`）のメモリ**（2026-10-01）: `GEIGpart` が IPW の重なり行列 `ppovl(ngp,ngp)` と LU 用の写し `ppovlLU` を
-  各ランクで持つ。1 ランクあたり 32·ngp² バイト、全体は並列数に比例。ngp ≈ V·Q³/6π²（Q = `QpGcut_psi`）なので胞の体積の 2 乗で増える
-  （Rb8 の 4410 Å³ で 1 ランク 35 GB）。案: (a) 投入前に ngp から並列数を決める、(b) O は正定値なので Cholesky の因子だけ持つ（半分）、
-  (c) O·x を FFT で作り反復法で解く（ngp に比例）
-- **`auto_mpquery.py` が今の Materials Project で動かない**（2026-10-01）: MP の API が新しい ID（`mp-aaacpdie` の形、古い番号の 26 進）を返し、
-  手元の `mp_api` の検証（pydantic）が止まる。`mp_api` を上げるか、REST を直接読む（requests、`x-api-key`、User-Agent が要る。urllib の既定は 403）
-- **GW1500 の選定に構造の確かめを入れる**（2026-10-01）: 別の化合物から副格子を抜き出した MP の項目（ICSD の備考が「〜 part」、
-  1 原子の体積が同じ組成の 2 倍以上など）が PBE のギャップ > 0 で選ばれていた（`ecalj_auto/GW1500_status.md` 表 6 の `INVALID_STRUCTURE`）。
-  `auto_mpquery.py` で弾くか、印を付ける
-- **AFTEST（`mmtarget.aftest`、例は `Samples/AFfixMMOM`）の残り**（2026-10-01、研究ログ 2026-10-01 朝 06:46 と表 06:46-1）: 場をスピン 1 にしか入れていなかった誤りは直した
-  （`aa4c24129`）。残り: (a) モーメントを下げる向きで更新が行き過ぎる（利得 2 固定と 0.1(m − m_t)² の項。NiO 1.28 → 1.0 は 70 反復で、途中で符号が反転）。
-  応答を割線で見積もる更新にするか。(b) 対がサイト 1・2、ブロック 1・2 の決め打ち（NiSe だけ 6 ブロック）。`AF=` の印や種の名前から対を決める。
-  (c) `m_ldau_init` が lmf の起動のたびに場を一歩更新して `mmagfield.aftest` を書き直す（`job_band` でも）。(d) ecaljdoc の `UsageDetailed.md` の「直す必要がある」を、
-  使い方（LDA+U のブロックが要る、U = 0 でよい、`SYMGRPAF`、目標のモーメントの定義）に書き直す（2026-10-02 済み: ecaljdoc の UsageDetailed.md に移し、`Samples/AFfixMMOM/README.md` は参照だけに）
-
-- **MLO と Wannier のずれの追跡**（2026-10-02、`MD/wannier_vs_mlo.md`）: Ni d の cRPA の U が MLO で 25 % 低い（d の部分空間の切り出し方の違い）、Fe のマグノンの q ≥ 0.4 で MLO が 1.5〜2.5 倍高い。実験（Fe のマグノン分散）との比較と、MLO の窓（`mlo_delta`、`mlo_w`）への依存を測る
-- **対称性: Fortran の中で「見つける・導く・使う」を分け、spglib を入れる**（2026-10-02、`MD/symmetry_spglib.md` §4.7 の S0〜S6）。S0 済み（`b889a00b8`、食い違い 0）。超格子は暫定で閉じた部分群（Si の慣用胞で 24）、純粋な並進を使うのは S4。2×1×1 の Si の GW は遅いだけだった（§5）
-- **MLO のマグノンの既定の窓**（2026-10-02、研究ログ 04:17）: 窓を広げる（Δ = 6 eV）と d の MLO が局在し、η ≈ 1、高い q のマグノンが Wannier 版に近づく。`job_mlo_magnon` 用に既定を変えるか、`Fe_mlo_magnon` の入力を変えるか（参照を作り直す）。Ni、FeCo でも確かめる
-- **MLO の部分空間の中での最大局在化**（user 2026-10-02 未明）: MLO を作った後に Marzari–Vanderbilt で局在させる（バンドと cRPA の p_kn は変わらない）。MLO は直交していないので、まず Löwdin で直交化し、そこから最小化する。対称性は Sakuma（PRB 87, 235109）のように U(gk) = D(g) U(k) d(g)⁻¹ で拘束する（MLO は MTO と同じに回る、`rotmatMTO`）。`mlo_spread.py` の M(k,b) が材料。比べる量: Fe・Ni の d で Ω（生、Löwdin のみ、Löwdin + MV）、マグノン、U
-  2026-10-02 06:20 試作 `SRC/exec/mlo_maxloc.py`（拘束なし）: Ni d は Ω の 97 % が Ω_I で MV は効かない。Fe spd では拘束なしの MV が対称性を破る（研究ログ 06:20）。06:31 に Sakuma の拘束を入れた（`--sym`、1 原子・symmorphic だけ）: Fe t2g 7 % 縮むだけ。残り: 多原子・非 symmorphic、局在させた基底での cRPA の U とマグノン
-- **`hgw` の残り**（2026-04 の統合の残タスク、2026-10-01 に past_log.md §3.2 から）: ノード内の W の共有を `MPI_Win_allocate_shared` で（メモリの重複を減らす）。
-  `hsfp0_sc` の Sx（`--job=1`）・core の交換（`--job=3`）も `hgw` に入れる（時間は小さいので優先度は低い）
-
-
-- **MLO の模型の残り**（2026-10-01。既定は基準 1・2・3 の形に決まった: ecaljdoc mlo §1・§9、`MD/handover.md` §5）:
-  (a) 基準 3（空格子球）の自動化。案は空隙の半径（最も近い MT 球の表面までの距離）が 3 a.u. を超える所に置く `SRC/exec/ctrlg_addes.py`（未コミット・未検証）。
-  Bi₂Te₃ の空隙の半径は 2.61 a.u.（中心 (½,½,½)、最大の点で 2.68）で 3.0 より小さい。前の 3.56 は誤り（2026-10-02 06:26 に確かめ、道具の像の数を面間隔から決めるように直した）。
-  SiO₂ は手で置いて 0.001 eV（研究ログ 2026-10-01）。
-  (e) 検査（`mlo_bandcheck.py` の CHECK）で、基準 1 の Sn・AlSb・Bi₂Te₃・InSb・Cu が 1 点だけ 0.1 eV を少し超えて FAIL（rms は 0.01〜0.03）。
-  線形独立性の崩れではない（重なりの最小固有値は 3e-3 程度）。帯の交差の付近の形が違う。直すか、目安を見直すか
-- **`Samples/AFsymmetry/NiO` は `pwmode = 1` で `symgrpaf`**（2026-10-01）: k 点を 4³ にすると `rotwave: q+G rotation error (We have to set PWmode=11 for symgrpAF)`
-  で止まる。試験の 3³ では通っているだけ。`pwmode = 11` にして参照を作り直すか
-
-### 試験と入力
-
-- `MLOsamples/RuO2` の保存してある `rst`・`dmats` は、`pwmode = 11` の LDA+U の誤り（2026-03-30〜09-30、`a24d7e06d` で修正）の時期に作ったもの。
-  作り直すか（GdCo5・SmP は 2026-09-30 に作り直した）
-- 試験の入力の温度（`t_tetrakbt = 262`、`t_sigmaw = 0`）をテンプレート（300/300）に揃えるか。揃えると gas_gwsc・fe_gwsc などの参照が動く
-- `SRC/exec/auto_creplot.py` がまだ旧形式の `ctrl.<sname>` を書き換える（2026-10-01）。ctrlg に直すか、使われていなければ trash へ。（2026-10-02: `auto_job_mp.py` が `import creplot` で使い、`ecalj_auto/auto/creplot.py` に写しがある。GW1500 の回し直しは `ctrlgenToml.py` と `gwscconv` を直接使っていて通らない）
-
-## 2. 質問（メンテナに決めてほしいこと）
-
-- **GW1500 の `INVALID_STRUCTURE`（12）・`SUSPECT_STRUCTURE`（4）を集合から外すか**。いまは注記だけ
-- 試験に使った古いツリー（mic の `~/ecalj_test0928`、kt1 の `/mnt/data1/ecalj_test0930b`・`0930c`）も trash に入れるか
-- ブランチ `fix-idu10`（main にマージ済み）を消すか
-- push: dev・rel とも、t14 の main より 674 コミット遅れ（2026-10-01）
-
-## 3. 実行中
-
-- Löwdin を標準にした版（`2ffb0331f`）の全部の試験の組（2026-10-02 12:19 の時点で走行中）: kr7 `~/ecalj_testL`（`--gpu -np 8 -np2 1`、`fulltest.out`、`tests_full/`）、
-  kt1 `/mnt/data1/ecalj_testL`（GEMMul8 入り、同じ）。t14 では mlo・install・mloqsgw・magnon の組（`~/work/tests_lowdin2`）
-- kt1 `/mnt/data1/gw1500_rerun/run3`: GW1500 の NOTCONV の残り（fp32、5 本）。2026-10-01 04:40 に約 17 時間の見積もり
-
----
-
-## 4. やったこと（新しい順）
-
-### 2026-10-02
+### 2026-10-02（やったこと）
 
 - user の判断（2026-10-02）を実行した（2026-10-02 12:59）: (1) 旧 `a0c7a7300`（新 `6e2903731`）に誤って入っていたビルドの生成物 3197 本を、未公開の範囲の書き換えで履歴から除いた
   （main のツリーは同じ、dev・rel のコミットは同じ。文書とコミットメッセージのハッシュは直した、対応表 `MD/commit_map_20261002.txt`、控えは TAKAOMINI）。`.git` 1.1 GB → 776 MB。
