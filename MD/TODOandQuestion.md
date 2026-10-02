@@ -88,18 +88,17 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 
 ## 2. 質問（メンテナに決めてほしいこと）
 
-- **ecaljdoc の古い文書**（`BackUp/`、`ecaljdetails/` の LaTeX・PS、2019 年以前）は、trash に移した `TOOLS/checkmodule`・`TOOLS/ModuleCodingSample` などを参照している。ecaljdoc の側も同じ決まり（trash へ、要点は過去ログへ）で片付けるか（2026-10-01）
 - **GW1500 の `INVALID_STRUCTURE`（12）・`SUSPECT_STRUCTURE`（4）を集合から外すか**。いまは注記だけ
-- **ビルドの生成物が入ったコミット `a0c7a7300`（78 MB）を、push の前に履歴から消すか**。消すと以後 674 コミットのハッシュが変わり、
-  研究ログなどに書いたハッシュが合わなくなる。消さなければ、公開のリポジトリの履歴に 78 MB が残る
-- **Materials Project の API キーの作り直し**（user の作業）: 2025-04〜2026-09 の公開リポジトリの履歴に入っていた
-- **trash を空にするか**: t14 の `~/ecalj/trash`（旧ツリー 58 GB ほか）、kt1 の `~/ecalj/trash`（255 GB）。kt1 は空にするまで `/` の空きが 49 GB のまま
 - 試験に使った古いツリー（mic の `~/ecalj_test0928`、kt1 の `/mnt/data1/ecalj_test0930b`・`0930c`）も trash に入れるか
 - ブランチ `fix-idu10`（main にマージ済み）を消すか
 - push: dev・rel とも、t14 の main より 674 コミット遅れ（2026-10-01）
 
 ## 3. 実行中
 
+- user の判断（2026-10-02 12:32）を実行中: (1) ビルドの生成物が入ったコミット `a0c7a7300`（3220 本、78 MB、未公開）を履歴から消す。`git filter-repo --refs` で
+  未公開の範囲だけを書き換え、文書・メモリ・アーティファクトのハッシュを新旧の対応表で直す（控えは TAKAOMINI）。(2) ecaljdoc の古い文書（`BackUp/`、`ecaljdetails/`）を
+  ecaljdoc の trash へ、要点は past_log.md へ。(3) trash は適宜減らす（`ecaljclaude.md`「記録の方針」）。
+  API キーは「過去はよい、新しいものからは隠す」: `290397b34` 以後のコミットと今のツリーに無いことを確かめた（2026-10-02 12:32）
 - Löwdin を標準にした版（`fd5407b39`）の全部の試験の組（2026-10-02 12:19 の時点で走行中）: kr7 `~/ecalj_testL`（`--gpu -np 8 -np2 1`、`fulltest.out`、`tests_full/`）、
   kt1 `/mnt/data1/ecalj_testL`（GEMMul8 入り、同じ）。t14 では mlo・install・mloqsgw・magnon の組（`~/work/tests_lowdin2`）
 - kt1 `/mnt/data1/gw1500_rerun/run3`: GW1500 の NOTCONV の残り（fp32、5 本）。2026-10-01 04:40 に約 17 時間の見積もり
