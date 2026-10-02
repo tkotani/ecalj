@@ -59,6 +59,10 @@ git merge-base --is-ancestor ecaljdoc/main $S && echo fast-forward   # 早送り
 git log --oneline ecaljdoc/main..$S                                   # 送られるコミットの一覧
 ```
 
+- 公開のタイミングは ecalj の push（dev・rel）と独立に決めてよい（user 2026-10-02）。`subtree push` はその時点の ecalj の HEAD までの文書の変更を
+  全部送る（まだ push していないコードの機能を説明した文書も出る）。途中の時点までを出すときは、そのコミットで切り出して送る:
+  `git push ecaljdoc $(git subtree split --prefix=ecaljdoc <ecalj のコミット>):main`
+- バックアップは ecalj だけでよい（文書と開発の記録も入っている）
 - `subtree split` は ecalj の全履歴をたどるので、履歴が長くなると遅くなる。遅いときは `git subtree split --prefix=ecaljdoc --rejoin` で
   切り出した点を ecalj に記録しておく（次からそこより後だけをたどる）
 
