@@ -1,3 +1,13 @@
+2026-10-02 (6)
+  MLO は Löwdin で直交化した関数（MLO の部分空間の射影 Wannier 関数）になった。模型は H(R) だけ（重なり O(R) は単位行列）で、
+  SOC、__cmlo（job_mloW の U・J・cRPA、job_mlo_magnon）、MLO-QSGW の Σ もこの基底。メッシュ上のバンドは変わらず、メッシュの外は E_F 近くで
+  よくなる（63 物質で最大の誤差の中央値 0.019 → 0.011 eV）。説明は ecaljdoc mlo §6（表 M8）。
+  - job_mlo <sname> --mlo_raw で直交化しない以前の模型（比べるときだけ）。job_mloW・job_mlo_magnon の --mlo_raw と、中の --mlo_lowdin は廃止
+    （(5) の読み込み時の直交化は、模型の側に移った）。
+  - 古い HamRsMLO（直交化の印が無い）は読まずに止まる。job_mlo（mlo）を回し直す。
+  - mlo_bandcheck.py の重なりの最小固有値（MLO_ovlpmin.dat）は 1 になる。直交化の前の値は mlo の出力の
+    "Smallest eigenvalue of the normalized raw overlap"。
+
 2026-10-02 (5)
   job_mloW（U、J、cRPA）と job_mlo_magnon は、MLO を Löwdin で直交化した関数（MLO の部分空間の射影 Wannier 関数）を基底にする
   （中のプログラムに --mlo_lowdin を渡す。--mlo_raw で直交していない MLO のまま）。模型のバンドは変わらない。軌道の名前と対称性を保つ。

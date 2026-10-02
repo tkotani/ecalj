@@ -87,7 +87,10 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
   静的ライブラリ `symspg`）で操作を求め、作業ディレクトリに `symmetry.<sname>.json` を書く。次からは読み、構造が違えば作り直す。`ECALJ_SYMFIND=ecalj` で
   従来の gensym（比べるとき）。`symgrp` に生成元を書いた入力も gensym。ビルドには C コンパイラが要る（CMake の `project(... Fortran C)`）
 
-- **MLO の基底**（2026-10-02 11:35、user の判断）: オンサイトの量（U・J、マグノン）を取る基底は Löwdin の関数（射影 Wannier、`--mlo_lowdin`）をメインにする。対称性と軌道の名前を保ち、窓によらない。
+- **MLO は Löwdin で直交化した関数**（2026-10-02、user の判断。`34a22e6de`）: 実空間で規格化した MLO を各 k で O(k)^(−1/2) で直交化したもの（射影 Wannier）が
+  ecalj の MLO。模型は H̃(R) だけ（O(R) = δ）、__cmlo（U・J・cRPA・マグノン）、MLO-QSGW の Σ、SOC もこの基底。対称性と軌道の名前を保ち、窓によらない。
+  メッシュの外のバンドは生の (H, O) の模型より E_F 近くで良い（ecaljdoc mlo §6 表 M8）。`job_mlo --mlo_raw` は比べるためだけの以前の模型。
+  HamRsMLO に直交化の印があり、それが無い古い HamRsMLO は読まずに止まる（job_mlo を回し直す）。
   最大局在化（MV、Sakuma の拘束つき）は試作の道具（`mlo_maxloc.py --sym`）として残すがメインにしない。拘束なしの MV は結合の方向にずれた混成軌道になる
 
 ## 4. コンパイラと実行時の落とし穴
