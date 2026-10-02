@@ -60,5 +60,5 @@ Notes:
 ## Legacy
 
 The older examples of `Samples/Legacy/` were rebuilt as the directories of table 1 (2026-09-29 and 30) and `Legacy/` was
-removed from the repository on 2026-09-30 (its content is in the history before commit `e05720ffd`; the last one,
+removed from the repository on 2026-09-30 (its content is in the history before commit `932c59a6d`; the last one,
 `TestHomoDimerAtom`, became `AtomDimer/`).

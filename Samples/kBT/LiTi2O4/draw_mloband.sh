@@ -13,9 +13,9 @@
 #     taken from QMLO_z.  ECALJ_MLO_ALLOW_REBUILD is NOT set, so a single miss aborts.
 #  2) QMLO_SigRs set aside (the H from step 1 already contains Sigma), HamRsMLO removed,
 #     mlo --mlo WITHOUT --mlofreeze: build the MLO model of that H and solve it on qplist.dat.
-# Needs the zMLO fix (e9f633d79): mlo with fewer ranks than q points overran zMLO before it.
+# Needs the zMLO fix (c0e17f444): mlo with fewer ranks than q points overran zMLO before it.
 S=$(realpath "$1"); W=$(realpath -m "$2"); OUT=$(realpath -m "$3"); T=liti2o4   # absolute: we cd below
-B=${MLOBAND_BUILD:-/home/takao/ecalj_dev/SRC/build_nvfortran}   # a build that knows the QMLO_* files (c1b4b097a or later);
+B=${MLOBAND_BUILD:-/home/takao/ecalj_dev/SRC/build_nvfortran}   # a build that knows the QMLO_* files (4fb6df3ba or later);
                                                               # kt1's development tree (2026-09-28; was the production ~/ecalj)
 MPI=/opt/nvidia/hpc_sdk/Linux_x86_64/26.1/comm_libs/13.1/hpcx/latest/ompi/bin/mpirun
 unset ECALJ_MLO_ALLOW_REBUILD ECALJ_MLO_NOSIG

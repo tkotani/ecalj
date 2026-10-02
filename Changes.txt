@@ -115,7 +115,7 @@
   Samples/MLOsamples の GdCo5 と SmP (idu = 12、sigm.* なし) は SCF をやり直して参照を作り直した。
 
 2026-09-30 (5)
-  Samples/Legacy を消した (組み直した元、TestInstall などと重複するもの、今のコードで動かないもの。履歴 e05720ffd 以前にある)。
+  Samples/Legacy を消した (組み直した元、TestInstall などと重複するもの、今のコードで動かないもの。履歴 932c59a6d 以前にある)。
   TestHomoDimerAtom (箱の中の二原子分子と原子、2012) は Samples/AtomDimer/N2 として作り直した (N2 と N 原子、15 A の箱、PBE、
   固定磁気モーメント。結合長 1.104 A、結合エネルギー 10.08 eV)。これで Samples/Legacy は無くなった。
   superlattice (歪んだ超格子の POSCAR の生成) は StructureTool/superlattice/ に移した。
@@ -203,7 +203,7 @@
     t_tetrakbt = -T に (0.0057 Ha → -992.4 K)、t_tetrakbt の無い [gw] に 0 (以前の既定) を足す。計算は変わらない。
     gwinput2toml.py (Legacy2toml.py) も同じ換算をする。
   - Samples の ctrlg 62 本を変換 (SmearX0 から 4 本、t_tetrakbt の追加 58 本)。testecalj --all (gfortran) の照合 64 件が
-    すべて PASSED (コミット 0ef0fa5f9 のメッセージの「832」はログの PASSED 行の延べ数。testecalj がターゲットごとに
+    すべて PASSED (コミット b4b64be66 のメッセージの「832」はログの PASSED 行の延べ数。testecalj がターゲットごとに
     それまでの要約を出し直すため。2026-08 の「766」も延べ数)。
   - 式と変遷は ecaljdoc kBT.md §2 (式 (1)〜(9)、表 1〜3)。kBT.md の式番号を重複の無い通し番号に直した。
 

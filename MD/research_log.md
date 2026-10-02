@@ -86,7 +86,7 @@
 
 ### 12:55 Löwdin の模型の参照を作り直した、試験
 
-- t14（gfortran、`34a22e6de` の版）: install 66 PASS（cRPA の参照は読み込み時の Löwdin の版のままで通る。メッシュ上は同じ基底）。mlo は `band_MLO_spin*.dat` の
+- t14（gfortran、`d10a63716` の版）: install 66 PASS（cRPA の参照は読み込み時の Löwdin の版のままで通る。メッシュ上は同じ基底）。mlo は `band_MLO_spin*.dat` の
   比較で 31 FAIL（メッシュの外のバンドが変わる。予想どおり）、mloqsgw は GaAs・NiO の log と NiO の QPU・QPD（0.017 eV）、magnon は Fe のピーク
   → 参照を作り直して（FeSoc・FeMgOSoc・GaAsSoc の非 SOC の参照は job_mlo を別に回して取った。試験は同じ場所で job_mlo の後に job_mlo_soc を回すため）
   mlo 45、mloqsgw 5、magnon 2 が PASS
@@ -101,17 +101,17 @@
 | 0.7 | 0.532 | 0.599 | 0.599 | 0.913 |
 
   η = 1.239（前と同じ）。他の q は前と同じ
-- kr7・kt1 の全部の組（`fd5407b39`）: inputs 172、install 66、eps 18 が両方で PASS（途中の記録）。MLO の 3 組は古い参照と比べるので、参照を送り直して回し直す
+- kr7・kt1 の全部の組（`2ffb0331f`）: inputs 172、install 66、eps 18 が両方で PASS（途中の記録）。MLO の 3 組は古い参照と比べるので、参照を送り直して回し直す
 
-### 12:16 判断（user）: MLO の標準は Löwdin で直交化した関数、模型は H̃(R) だけ（O(R) = δ）。`34a22e6de`
+### 12:16 判断（user）: MLO の標準は Löwdin で直交化した関数、模型は H̃(R) だけ（O(R) = δ）。`d10a63716`
 
 user の依頼「Löwdin 直交化は使う、のをスタンダードに。振動は許して局在化させる、というのを MLO の標準とする（バンドは変わらない）」。
 途中で「FFT 内挿の意味では重なり行列を残した方がスムーズかもしれない（振動するから）」との迷いがあり、「全体的に調べて、O なしで OK ならそっちをメインに」
 → 63 物質で比べて O なしに決めた（user「やれた範囲での決断として、O なし」）。
 
-- 実装（`34a22e6de`）: m_HamPMT の LowdinModel で、対称化した既約 k の生の H, O から、生の MLO の実空間ノルム rnorm_i = O_ii(R=0)（全 BZ の平均）を出し、
+- 実装（`d10a63716`）: m_HamPMT の LowdinModel で、対称化した既約 k の生の H, O から、生の MLO の実空間ノルム rnorm_i = O_ii(R=0)（全 BZ の平均）を出し、
   X = D (D O D)^(−1/2)（D = diag rnorm^(−1/2)）で H ← X⁺HX、O ← 1、V_SO ← X⁺VX としてから R へ。Hreduction も同じ X を掛ける（__cmlo、sugw の a'、
-  m_sigmlo。HamRsMLO の新しいレコードで直交化の有無を読む）。`--mlo_raw`（lmf、job_mlo に付ける）で前の非直交の模型。読み込み時の `--mlo_lowdin`（`50476d2f8`）は消した
+  m_sigmlo。HamRsMLO の新しいレコードで直交化の有無を読む）。`--mlo_raw`（lmf、job_mlo に付ける）で前の非直交の模型。読み込み時の `--mlo_lowdin`（`d46c4014d`）は消した
 - Löwdin は入力の軌道の尺度で結果が変わる（対称直交化は入力に最も近い正規直交系なので、先に各軌道のノルムをそろえる）。前のマグノン・cRPA の Löwdin
   （11:12 のエントリ）も、規格化した __cmlo に掛けていたので同じ定義
 - 63 物質（`~/work/lowdin_20261002`、DFT は `~/work/ovlp_20261002` と同じ、MLO の段だけ。11:56 投入、12:15 完了）。`compare.py`・`efcompare.py` と
@@ -147,7 +147,7 @@ user の依頼「Löwdin 直交化は使う、のをスタンダードに。振�
 - 関数の広がりも Löwdin で縮む（Ω: Fe t2g 1.72 → 1.46、Ni d 9.88 → 9.42 bohr²。表 06:20-1）。直交のための振動はあるが、中心に寄る
 - 直交化すると mlo の MLO_ovlpmin（判定 (3)）は 1 になって意味を失う。代わりに m_HamPMT が直交化の前の重なりの最小固有値（メッシュ上）を出す
   （"Smallest eigenvalue of the normalized raw overlap"）。63 物質で 0.22〜0.31
-- t14 の試験（11:44〜、`fa60ef829`）の install の crpa と magnon の FAIL は、走っている最中に `SRC/exec/job_mloW`・`job_mlo_magnon`（~/bin から symlink）を
+- t14 の試験（11:44〜、`c2cf33ccb`）の install の crpa と magnon の FAIL は、走っている最中に `SRC/exec/job_mloW`・`job_mlo_magnon`（~/bin から symlink）を
   書き換えたため（後半が生の MLO で走った）。別ツリーの kr7 は全部 PASS。新しい版の試験は t14 で投入済み（`~/work/tests_lowdin2`）
 
 ### 11:35 判断（user）: マグノン・U の基底は Löwdin（射影 Wannier）をメインに、MV は残すがメインにしない
@@ -166,7 +166,7 @@ Wannier 化すると中央に集まってオンサイトが大きくなり、裾
 
 - Fe（既定の窓、hwmatK、ω = 0、d、`~/work/magnon_w/w_{raw,low,mv}`、10:17〜10:20）: オンサイトの W の U は 1.564（生）→ 1.704（Löwdin）→ 1.801（Löwdin + MV 拘束つき）eV。
   最近接のサイト間の V（(ii|jj)、R = (½,½,½)）は 0.037 eV のまま（U の 2 %）。裸の v の最近接は 6.0 eV で点電荷のクーロンどおり
-- 実装（`50476d2f8`）: `--mlo_lowdin` で `read_cmlo`（W の側）が C·(C⁺C)^(−1/2)、`calc_ham_eigen`（K の側）が O^(1/2)·z を返す。`job_mlo_magnon` が全部のプログラムに渡す
+- 実装（`d46c4014d`）: `--mlo_lowdin` で `read_cmlo`（W の側）が C·(C⁺C)^(−1/2)、`calc_ham_eigen`（K の側）が O^(1/2)·z を返す。`job_mlo_magnon` が全部のプログラムに渡す
 
 **表 11:12-1**. η と Wannier 版からのずれ（平均 / 最大、eV、q > 0.05）。Fe は t14、Ni・FeCo は kr7（10:41〜11:12）
 
@@ -198,12 +198,12 @@ kr7、09:16〜09:25、`job_mlo_magnon -np 2`。表と図は t14 `~/work/magnon_n
 - η ≈ 1 を物質ごとの基準にすると Fe・FeCo は (4, 2)、Ni は (2, 2)。Wannier 版に一番近いのは Fe・FeCo とも (6, 2)（η は 1 から離れる）。
   Wannier 版も基底の選び方に依存するので、模型の中で閉じた指標 η を採る方が筋（user）
 - Fe の (4, 2) は η が同じ (2, 11) とほぼ同じ分散（q = 0.6〜0.8 で Wannier より高い）。オンサイトの W だけの近似の側の残り
-- `magnon_peaks.py` は Γ の近くで音響の枝を追うように直した（`079de3bc7`。FeCo の Wannier 版の Tr R で光学の枝を拾っていた）
+- `magnon_peaks.py` は Γ の近くで音響の枝を追うように直した（`1e8849b26`。FeCo の Wannier 版の Tr R で光学の枝を拾っていた）
 - 63 物質（例のページ https://claude.ai/artifact/VCWpe5W8Fei6umatXGeZGH と同じ DFT・基準 1）を (4, 2) で回し直し中（`~/work/ovlp_d4w2`、09:37 から）
 
 ### 07:10 MLO のマグノンの窓: Ni・FeCo でも比べた（TODO の順番 7）
 
-kr7（`46b9740bb`、CPU）、入力はタグ `last-wannier` の `Samples/Magnon/Ni_magnon`・`FeCo_magnon` の ctrlg に `mlo_nkabc = [8,8,8]` を足したもの、
+kr7（`95be8b8b5`、CPU）、入力はタグ `last-wannier` の `Samples/Magnon/Ni_magnon`・`FeCo_magnon` の ctrlg に `mlo_nkabc = [8,8,8]` を足したもの、
 Wannier のマグノン（同じタグの `TrRpm.syml001`）と比べた。06:59〜07:08。図と数値は t14 の `~/work/magnon_nifeco/{Ni,FeCo}/magnon_peaks.{png,npz}`・`peaks.txt`。
 
 **表 07:10-1**. η（Goldstone の条件で W に掛ける倍率）と、マグノンのピークの Wannier からのずれ（q > 0.05、eV）。Fe は 04:17 の表から
@@ -229,10 +229,10 @@ Wannier のマグノン（同じタグの `TrRpm.syml001`）と比べた。06:59
 
 | 計算機 | 版 | 対称性の口 | 結果 |
 | --- | --- | --- | --- |
-| t14（gfortran） | `0a9f1b092`（S1 と小さい直し） | gensym（既定） | 22 組すべて PASS（05:27〜07:03、07:10 追記） |
-| kr7（GPU） | `9d60130fc`（S4b） | gensym（既定） | 22 組すべて PASS（inputs 172、afsym 4、affix 12、install 66、mlo 45、mloqsgw 5、procar 5、eps 18、samples の 13 組、magnon 2）。06:41 終了 |
-| kt1（CPU） | `9d60130fc`（S4b） | json（lmf などの前に `symfind.py`、引数ごと） | BoltzTraP の TEST 2（`si.struct.boltztrap` の操作の並びだけ）のほかすべて PASS。AtomDimer は上書きの直し（`3572a0859`）で通った。06:40 終了 |
-| kr7（GPU） | `46b9740bb`（S5 まで） | json | inputs 172、afsym 4、affix 12、install 66、mlo 45、mloqsgw 5 すべて PASS（06:57 終了、06:57 追記）。AF の組は json の磁気対称性（結晶の群 12 + AF の操作 12）で回った（NiO・NiSe・NiO_gwsc の lmf 6 回・AFfixMMOM） |
+| t14（gfortran） | `65a5c903f`（S1 と小さい直し） | gensym（既定） | 22 組すべて PASS（05:27〜07:03、07:10 追記） |
+| kr7（GPU） | `9767afd5b`（S4b） | gensym（既定） | 22 組すべて PASS（inputs 172、afsym 4、affix 12、install 66、mlo 45、mloqsgw 5、procar 5、eps 18、samples の 13 組、magnon 2）。06:41 終了 |
+| kt1（CPU） | `9767afd5b`（S4b） | json（lmf などの前に `symfind.py`、引数ごと） | BoltzTraP の TEST 2（`si.struct.boltztrap` の操作の並びだけ）のほかすべて PASS。AtomDimer は上書きの直し（`953f7bb05`）で通った。06:40 終了 |
+| kr7（GPU） | `95be8b8b5`（S5 まで） | json | inputs 172、afsym 4、affix 12、install 66、mlo 45、mloqsgw 5 すべて PASS（06:57 終了、06:57 追記）。AF の組は json の磁気対称性（結晶の群 12 + AF の操作 12）で回った（NiO・NiSe・NiO_gwsc の lmf 6 回・AFfixMMOM） |
 
 - Si8 の MLO（S5 の版）: 192 操作と 24 操作で MLO の帯の差は印字の桁（1.4×10⁻⁴ eV）、DFT の帯は 7×10⁻⁵ eV 以下（`MD/symmetry_spglib.md` §4.7e）
 - tf32（kt1 `run_tf32`、06:32 に全部終わった）: 5 月に旧 `--mp` で壊れた 36 物質で NaN 0、3 反復目のギャップは 35 物質が fp32 と 0.8 meV 以内、
@@ -276,17 +276,17 @@ user の問い（MLO を作った後に Marzari で最大局在化、バンド�
 ### 05:45 対称性 S1〜S4a をコミット、試験を 3 台で並走。TODO の順序を決めた（user「TODO の手順はよく考えて順序立てて」「まかせる」）
 
 - 05:24 TODO の進める順序を `MD/TODOandQuestion.md` §1 の頭に書いた（対称性 → MLO の最大局在化 → マグノンの窓・Wannier とのずれ、の依存の向き）
-- S1（`41c0e3cc7`）: `m_mksym_util` を `m_symop_util`・`m_symderive`・`m_symfind` に分け、`mksym` を `m_mksym` に。172 入力の lmchk が S0 と同じ（05:26）
-- 小さい直し: `m_tetrakbt` の使われない約 410 行を外す（`8217b212b`）、SOC の MLO が空の spin2 を書く件（`0a9f1b092`）
-- GPU の build の module の循環を切った（`a7f64752e`、`m_gemmul8` が `m_mpi` を使わない）。CMake の回避策も外した（`f553b5222`）。
+- S1（`1472f3ad7`）: `m_mksym_util` を `m_symop_util`・`m_symderive`・`m_symfind` に分け、`mksym` を `m_mksym` に。172 入力の lmchk が S0 と同じ（05:26）
+- 小さい直し: `m_tetrakbt` の使われない約 410 行を外す（`4e2ea8957`）、SOC の MLO が空の spin2 を書く件（`65a5c903f`）
+- GPU の build の module の循環を切った（`dad040932`、`m_gemmul8` が `m_mpi` を使わない）。CMake の回避策も外した（`8d8f7b880`）。
   kr7（GEMMul8 なし）・kt1（GEMMul8 あり）でまっさらからビルドが通り、MODULE の誤り 0。kr7 の GPU で install 66・afsym 4・mlo 45 PASS（05:40 終了）
-- S2（`e5d08f008`）: `m_hamindex0` の `mptauof` の呼び直しを `m_mksym` の写しに。GW 側の二つは残す（操作の一部で呼ぶ。設計 §4.7c）
-- S3（`91f9bdcaf`）: `symmetry.<sname>.json` を toml-f の JSON の読み手で読む口。構造は数値で照らす（設計 §4.7d）。Fe・NiO で gensym と同じ集合（並びは違う）、
+- S2（`7f725713b`）: `m_hamindex0` の `mptauof` の呼び直しを `m_mksym` の写しに。GW 側の二つは残す（操作の一部で呼ぶ。設計 §4.7c）
+- S3（`7902490e4`）: `symmetry.<sname>.json` を toml-f の JSON の読み手で読む口。構造は数値で照らす（設計 §4.7d）。Fe・NiO で gensym と同じ集合（並びは違う）、
   AF の NiO は不変、古い JSON は止まる、Si8 は gensym に戻る
 - S4 の要点を見つけた（設計 §4.6）: `mptauof` は渡された並進を使わず自分で探し、逆操作も回転だけで探していた。同じ回転の操作が潰れる。
-  S4a（`bfaae451b`）で `ag` を渡して使うようにした
-- 走っている試験（05:45 の時点）: t14 は S1 の版（`0a9f1b092`、gfortran、05:27 から、inputs〜magnon）、kt1 は S3 の json の口（`91f9bdcaf`、
-  CPU、包みで `symfind.py` を先に走らせる、05:40 から）、kr7 は S4a（`bfaae451b`、GPU、05:45 から）
+  S4a（`6ff09964e`）で `ag` を渡して使うようにした
+- 走っている試験（05:45 の時点）: t14 は S1 の版（`65a5c903f`、gfortran、05:27 から、inputs〜magnon）、kt1 は S3 の json の口（`7902490e4`、
+  CPU、包みで `symfind.py` を先に走らせる、05:40 から）、kr7 は S4a（`6ff09964e`、GPU、05:45 から）
 
 ### 05:19 対称性: 超格子の暫定の直しの試験が全部通った。S0（spglib との照合）は食い違い 0
 
@@ -328,7 +328,7 @@ user の問い（MLO を作った後に Marzari で最大局在化、バンド�
 - 解釈: 計算式はオンサイトの W だけを使う。既定の窓（Δ = w = 2 eV）では MLO の d が広く、オンサイトに切る近似が悪い（η = 0.78 は、その W のまま
   では Goldstone の条件を満たさないことの表れ）。窓を広げて局在させると近似がよくなる。マグノンには既定より広い窓（Δ = 6 eV）を勧める候補
 
-### 02:17 lmfa・lmchk の整理の 2 段目（`228982eb2`）。`lmchk --getwsr` が磁性体で止まる不具合を見つけて直した
+### 02:17 lmfa・lmchk の整理の 2 段目（`d72ecb7eb`）。`lmchk --getwsr` が磁性体で止まる不具合を見つけて直した
 
 - `atomsc`・`newrho`（`freeat.f90`）: 呼び出しは 1 つで、`job='gue'`、`lgdd=.false.`、`nlr=1`、`dv=0` だった。使われない枝（`job='pot'`・`'rho'`、
   Methfessel の `lgdd=.true.`、l ごとの密度 `nlr=nl`）と引数を外した。`decay` は 1+z/10 を 5 で頭打ちにしてから 5 を代入し直していた。
@@ -336,22 +336,22 @@ user の問い（MLO を作った後に Marzari で最大局在化、バンド�
 - `lmaux`（lmchk の本体）: 使われない変数 30 個ほど、いつも 0 の `lpbc` の枝、デバッグの表示 `zzzz nclspp=`、呼ばれていない `nsitsh` を外した。
   スピンなしの 9 入力で `lmchk` と `--getwsr` の出力が前後で同じ（`~/work/lmchk_cmp`）
 - **見つけた不具合**: `lmchk --getwsr` がスピン分極の入力（NiO、Fe、Bi₂Te₃、nio_gwsc、eras）で必ず止まった（rc=11、`RSEQ: bad nodes`）。
-  10/1 の整理より前の版（`44bdb702a^`）でも同じ。`makrm0` の配列は種ごとに 1 スピン（`v(nrmx, nspec+1)`）なのに、`freats` が入力の nsp = 2 で 2 本目を
+  10/1 の整理より前の版（`a049a7574^`）でも同じ。`makrm0` の配列は種ごとに 1 スピン（`v(nrmx, nspec+1)`）なのに、`freats` が入力の nsp = 2 で 2 本目を
   隣の種の列に書き、さらに `nsp == 2` の枝が `rx('need check this branch')` だった。半径はスピンによらないので、`makrm0` は nsp = 1 で自由原子を作る
   （`freats` に省略可能な `nspin`）。NiO で Ni 2.188・O 1.752、Fe 2.346 bohr。ctrlgenToml は磁性体でもスピンなしの最初の入力で `--getwsr` を回すので、
   これまで表に出なかったと考える
 
-### 02:06 Wannier・AHC・lmfham2 を外した（`6d8b9f05b`〜`c2423efd5`）。3 台で全部の試験の組が PASS
+### 02:06 Wannier・AHC・lmfham2 を外した（`5e7244eff`〜`a9c9a91b5`）。3 台で全部の試験の組が PASS
 
-- 外したものと置き換えは `Changes.txt` 2026-10-02 (1)、`MD/past_log.md` 表 1、`MD/wannier_vs_mlo.md`。タグ `last-wannier` = `f1de3817a`
-- 試験（`c2423efd5`）: kt1（nvfortran GPU、01:01〜01:28）と kr7（nvfortran GPU、01:01〜01:28）は inputs・install 66・eps 18・procar 5・mlo 45・mloqsgw 5・
-  afsym 4・affix 12・samples の 13 組・magnon 2 がすべて PASS。t14（gfortran、`6d8b9f05b`、00:49〜02:03）も同じ。ただし t14 の install は 57 件の所で止まった:
+- 外したものと置き換えは `Changes.txt` 2026-10-02 (1)、`MD/past_log.md` 表 1、`MD/wannier_vs_mlo.md`。タグ `last-wannier` = `dbcd6e51d`
+- 試験（`a9c9a91b5`）: kt1（nvfortran GPU、01:01〜01:28）と kr7（nvfortran GPU、01:01〜01:28）は inputs・install 66・eps 18・procar 5・mlo 45・mloqsgw 5・
+  afsym 4・affix 12・samples の 13 組・magnon 2 がすべて PASS。t14（gfortran、`5e7244eff`、00:49〜02:03）も同じ。ただし t14 の install は 57 件の所で止まった:
   00:57:30 に私が手元で `libecaljF.so` を作り直し（`m_pkm4crpa` のコメント）、走っていた `fe_kbt` の `heftet` が空の出力で終わった。残りの 3 つ
   （fe_kbt、ni_crpa、srvo3_crpa）を 02:03〜02:06 に回し直して PASS（計 66）。試験中に手元でライブラリを作り直さない（`MD/handover.md` §3）
 - nvfortran 26.1 の fort1 が `m_pkm4crpa.f90` で signal 11 を 4 回（kt1 の `ecaljF`・`_mp`・`_mp_gpu`、kr7 の `_gpu`）。単独のコンパイルでは通る。
-  `implicit none` の行の後ろに付けた 132 桁ちょうどのコメントを別の行に分けたら（`c2423efd5`）両方で通った。原因かどうかは決めていない
+  `implicit none` の行の後ろに付けた 132 桁ちょうどのコメントを別の行に分けたら（`a9c9a91b5`）両方で通った。原因かどうかは決めていない
 - kt1・kr7 には、外した 30 本の `.f90` が残って CMake の GLOB が拾っていた → 手で `trash/` に移し、`sync_ecalj_src.sh` が送り先の HEAD に無い
-  ソースを `trash/` に移すようにした（`46b2886d9`）。送り先の `bin` に残った `hmaxloc` などは `~/bin_stale_20261002/` へ
+  ソースを `trash/` に移すようにした（`934370083`）。送り先の `bin` に残った `hmaxloc` などは `~/bin_stale_20261002/` へ
 
 ### 00:32 MLO と Wannier の比較を記録（cRPA、広がり、マグノン）。user「朝までにパッケージを仕上げる。MLO ですべて、広がりも。Wannier 比較は残す（最後のコミットに戻れば再現できるように）。マグノンもチェック」
 
@@ -464,7 +464,7 @@ AFsymmetry のモード（AFTEST）が動くのか、そもそも正しいのか
 
 ### 20:40 SOC の MLO の比べ相手を `job_mlo_soc` が描くようにした、パッケージの確かめ（user「2 と 3 で」「おすすめで」「ecaljdoc も含めてパッケージとしてどうか、TODO も」）
 
-- `job_mlo_soc`（`dc66439c5`）: 段 1b で段 1 と同じフラグの `lmf --band`（so=1）を回し、スピン軌道ありの DFT のバンドを `bnd*.spin1` に書く。始めに前の run の
+- `job_mlo_soc`（`ab9570ead`）: 段 1b で段 1 と同じフラグの `lmf --band`（so=1）を回し、スピン軌道ありの DFT のバンドを `bnd*.spin1` に書く。始めに前の run の
   `bnd*.spin*`・`band_MLO_spin2.dat` を消す（user は案 A「job_mlo_soc に書かせる」を選んだ。案 B「ctrlg に so=1」は採らず）。
   副作用: MLO の窓の基準のバンド端は `qplist.dat`（バンドの計算だけが書く。`lmf --writeham` は書かない）から取るので、これまでの SOC の MLO は前に回した
   非 SOC の `job_band` の値を使っていた。段 1b のあとは SOC の値で、GaAsSoc・FeSoc の SOC の参照が最大 0.00077 Ry 動いた（作り直した。FeMgOSoc は通った）。
@@ -475,12 +475,12 @@ AFsymmetry のモード（AFTEST）が動くのか、そもそも正しいのか
 - 結果（SOC の DFT と、式 (9)〜(11)）: GaAsSoc ギャップの誤差 +0.010・rms 0.010 / 0.010（Δ_SO 0.337 / 0.335）、FeSoc 0.017 / 0.017、FeMgOSoc 0.003 / 0.003。
   非 SOC の GaAs 0.007、Fe 0.016、FeMgO 0.001 と同じ程度。ecaljdoc mlo §4 に warning の枠と表 M2、図 3 枚を描き直し（`83d8343`、数値は `mlo/*Soc.npz`）
 - パッケージの確かめ: 調べのエージェント（読むだけ）が 41 項目を挙げ、うち 3 項目は直後の私の変更で済んでいた。残りを今のファイルで確かめて直した
-  （ecalj `cae7285f4`: README_SOC・MLOsamples README・SOC の test.py の表示・plots の SOC の図・MLOQSGW README（GaAs 23 本、ギャップ 0.725 / 1.034）・
+  （ecalj `93c4f30c4`: README_SOC・MLOsamples README・SOC の test.py の表示・plots の SOC の図・MLOQSGW README（GaAs 23 本、ギャップ 0.725 / 1.034）・
   MATERIALS README（古い ctrlg の `[mlo]`、式の番号）・`m_HamPMT` の注記と表示・handover・TODO。ecaljdoc `a00ec88`: mlo.md の §2・§3・§7 の数値は
   2026-09-16 のもの、危険の枠は「原則 1 本、例外は基準 2」、深い半芯だけ nskip、MP の窓に日付、105.9 meV の注記の取り下げ、esmsmves のリンク、
   mlo_gwsc.md、samples.md（MATERIALS、Si666gwsc は SOC でない）、README_tutorial の jobmaterials の節を Samples/MATERIALS に）。
   手を付けていない: `Samples/MATERIALS/*/ctrlg` の `[mlo]` を今の gwinit で書き直すこと（TODO (d)）、`optical.md` の HTML コメントの中の古い `MATERIALS/` の道
-- 20:40 から t14 で mlo の組を最後の build（`abecfa510`）で回し直し → 20:50 に PASSED（25 試料、45 件）
+- 20:40 から t14 で mlo の組を最後の build（`6fe2d15f6`）で回し直し → 20:50 に PASSED（25 試料、45 件）
 
 ### 20:01 GaAsSoc の「ギャップの誤差 −0.1 eV」は比べ方の誤り: DFT の側がスピン軌道なしだった（user「どうやって治すのか」）
 
@@ -551,7 +551,7 @@ ecaljdoc mlo §4 の GaAsSoc の図も灰の線が非 SOC（CBM で × が 0.1 e
 
 `mlo_delta` は「バンド端（絶縁体は CBM、金属は E_F）からどこまで上を合わせたいか」（`m_GWinput.f90` のコメント: 評価も同じ窓で）。それまでの
 `mlo_bandcheck.py` は上端が MLO → DFT で CBM + 3、DFT → MLO で CBM + 1 と、この定義と合っていなかった。17:54 に両方 [VBM − 8, CBM + mlo_delta]
-（ctrlg から読む、無ければ 2 eV）にした（bd1b893ec）。ページ version 10・11、図の斜線は 1 種類に。
+（ctrlg から読む、無ければ 2 eV）にした（760d22467）。ページ version 10・11、図の斜線は 1 種類に。
 - 判定の数（good/fair/marginal/poor）: 1. 基準 50/10/1/4 → **53/7/1/4**（GaSb 0.023 → 0.012、HfO₂ 0.028 → 0.003、InSb 0.034 → 0.018 が good に）。
   2. 陽イオン EH2 58/3/0/3 → 59/2/0/3（**Li 0.031 → 0.008**: EH2 で悪くなったのは CBM + 2〜3 eV の所だった）。一番良いもの 63/2/0/0 は同じ。
   旧既定 41/10/4/10 → 44/7/5/9。ほかの物質の変化は中央値 −0.001 eV
@@ -563,14 +563,14 @@ ecaljdoc mlo §4 の GaAsSoc の図も灰の線が非 SOC（CBM で × が 0.1 e
 
 ### 16:14 結果のページを v3 に（user の指示 15:5x〜16:0x）
 
-https://claude.ai/artifact/VCWpe5W8Fei6umatXGeZGH（version 8、生成は `Samples/MATERIALS/mlocheck/gallery.py` v3、コミット 613c2f0ec）。user の指示: 旧既定は見え消し、
+https://claude.ai/artifact/VCWpe5W8Fei6umatXGeZGH（version 8、生成は `Samples/MATERIALS/mlocheck/gallery.py` v3、コミット cc4c75670）。user の指示: 旧既定は見え消し、
 冒頭の成功数のタイルは消す（模型の作り方の表にある）、図 1〜3 は物質ごとに一番良い模型、図 3 のバンドは大きく評価の窓をハッチング、表 1 は
 「小さい方のギャップ・ギャップの誤差・誤差の最大値」だけ（窓も書く。SiO₂ は ES の有無を 2 段）、図 4 は模型 1・2・3 の比較で SiO₂ の ES の役割が見えるように。
 - 番号は 1. 基準（自動セミコア）、2. 陽イオンに EH2 s,p、3. 空格子球（SiO₂ だけ）。「誤差の最大値」は判定に使う最悪値 = max(rms 2 つの向き, |Δgap|)
   と定義した（1 点ごとの最大のずれは rms の 10 倍ほどになり（GaAs で rms 0.013、点 0.14）判定と食い違うので表に出していない）
 - 図には「模型に無い DFT の点」（0.1 eV 以内に MLO が無い、橙）と「DFT に無い MLO の点」（黒丸）を付けた。SiO₂ は 1・2 で伝導帯の底が橙、
   2 は MLO の伝導帯が約 0.7 eV 上に浮く、3 で全部重なる
-- 図の数値は `~/work/mlocheck_20261001/page_data/*.npz`。`mlo_bandcheck.py` の JSON に VBM・CBM（窓の端）を足した（f5f9a3d88）
+- 図の数値は `~/work/mlocheck_20261001/page_data/*.npz`。`mlo_bandcheck.py` の JSON に VBM・CBM（窓の端）を足した（f6ae20601）
 
 ### 15:38 **`Samples/MATERIALS/Database/` の中身を `Samples/MATERIALS/` に上げて 1 段にした（user「2 段になっているが、その必要はない」）**
 
@@ -674,8 +674,8 @@ EH の関数と入れ替え、下は外している。
 
 ### 12:48 **InAs/GaSb n10（40 原子）の MLO は回さない（user「40 原子の MLO はしなくてもいい」）。kr7 の計算を止めた。MATERIALS の MLO の試験は 65 物質で終わり**
 
-入力: `Samples/MATERIALS/InAsGaSb/n10/ctrlg.inas10gasb10.toml`（`5c94c18de`、Legacy から移したもの）を写し、`[mlo]` だけ `prep.py` で書き直した
-（`mlo_lm` は In・As・Ga・Sb とも s,p,d、`mlo_nkabc = [8, 8, 2]`）。作業場所は kr7 の `~/mlocheck_20261001/InAsGaSb_n10`、バイナリは `~/bin_frozen_74ba72dad`。
+入力: `Samples/MATERIALS/InAsGaSb/n10/ctrlg.inas10gasb10.toml`（`f46d623c0`、Legacy から移したもの）を写し、`[mlo]` だけ `prep.py` で書き直した
+（`mlo_lm` は In・As・Ga・Sb とも s,p,d、`mlo_nkabc = [8, 8, 2]`）。作業場所は kr7 の `~/mlocheck_20261001/InAsGaSb_n10`、バイナリは `~/bin_frozen_b695fa65c`。
 - 構造: InAs 10 層と GaSb 10 層の超格子、40 原子（In 10、As 10、Ga 10、Sb 10）、alat = 11.4923 a.u.、c = 9.945 alat
 - 計算: LDA（VWN）、nspin 1、`pwmode = 1`・`pwemax = 3` Ry、k 点 8×8×2（既約 50 点）、基底の次元 1777（MTO 1150 + APW 627）、混合 A5・b = 0.1、
   収束の判定 conv = convc = 1e-5
@@ -694,7 +694,7 @@ EH の関数と入れ替え、下は外している。
   漏れではなく、np 8 では山で 30 GB を超えたと見られる
 - ページ（https://claude.ai/artifact/VCWpe5W8Fei6umatXGeZGH）は 65 物質で確定（version 2）。n4（16 原子）は 06:55 に終わっていて rms 0.014 eV
 
-### 09:38 **user「AFTEST と AFsymmetry はマージできるよね」→ `aftest-fix` を main にマージ（`6eff2df53`）。user「良い方を壊さないように」「別ディレクトリに、名前は AFfixMMOM」→ `Samples/AFfixMMOM`（`ca1e4c7fa`）**
+### 09:38 **user「AFTEST と AFsymmetry はマージできるよね」→ `aftest-fix` を main にマージ（`aa4c24129`）。user「良い方を壊さないように」「別ディレクトリに、名前は AFfixMMOM」→ `Samples/AFfixMMOM`（`aaa944368`）**
 
 - マージ後の main（09:20 に build し直し）: AF の対称性ありの NiO（目標 1.6）は ehf −86708.005449、sev −151.644190 eV がマージ前と同じで、ehk だけが
   −86705.995033 → −86703.984949 eV。対称性なしも −86703.984948 eV で一致。試験の組 afsym 4・install 64 が PASS（09:28）
@@ -703,34 +703,34 @@ EH の関数と入れ替え、下は外している。
   ehf・ehk を参照と比べ、m₁ + m₂ = 0 も見る。場の帰還で下の桁が動きやすいので許容は m・uhx 2e-3、エネルギー 1e-3 eV。12 件 PASS（09:35）、
   inputs の組も 176 件 PASS。`TOOLS/samples_tests.sh` に組 `affix`
 
-### 07:44 **`TOOLS/samples_tests.sh -np 8 inputs mlo afsym eps procar`（t14、`93d83c63a`、07:30〜07:43）: すべて PASSED**
+### 07:44 **`TOOLS/samples_tests.sh -np 8 inputs mlo afsym eps procar`（t14、`de11a87d8`、07:30〜07:43）: すべて PASSED**
 
 inputs 174、mlo 45、afsym 4、eps 18、procar 5（失敗 0）。今夜の Python の道具の変更（`job_mlo` の so = 1 の停止、`mlo_bandplot.py`、`ctrlgenToml.py`、
 `SRC/exec` の相対のリンク）と `--cls` の修正の後で、install（07:25）と合わせて試験は通っている。他の機械（kt1・kr7・mic）では回していない
 
-### 07:29 **main（`--cls` の修正 `7ca6f1caa` を含む）を t14 で build し直し、InstallAll の試験は ALL PASSED（07:19〜07:25）。`SRC/exec` の行き先の無いリンク 12 本を片付けた**
+### 07:29 **main（`--cls` の修正 `f2e298ac3` を含む）を t14 で build し直し、InstallAll の試験は ALL PASSED（07:19〜07:25）。`SRC/exec` の行き先の無いリンク 12 本を片付けた**
 
 - `python3 InstallAll.py --fc gfortran --bindir ~/bin -np 8`: `OK! ALL PASSED`（testecalj 325 秒）
-- そのとき、build の前に置いた `remove_dangling_links`（`1042277a2`）が `~/bin` の 67 本を消し、その中に `mlo`・`libecaljF.so` など 9 本の build の産物があった。
-  原因は `SRC/exec` にあった行き先の無いリンク 12 本（消した `SRC/exec/build/` を指す。10 本と `.#genMLWF` は `a0c7a7300` 以来追跡されていた）で、
+- そのとき、build の前に置いた `remove_dangling_links`（`b7c20cbb1`）が `~/bin` の 67 本を消し、その中に `mlo`・`libecaljF.so` など 9 本の build の産物があった。
+  原因は `SRC/exec` にあった行き先の無いリンク 12 本（消した `SRC/exec/build/` を指す。10 本と `.#genMLWF` は `6e2903731` 以来追跡されていた）で、
   InstallAll が `SRC/exec` の中身を全部 bindir に張るため、正しい `~/bin/mlo` をいったん死んだリンクで上書きし、CMake の `deliver` が build の後に戻していた（前からの動き）。
-  直した: 掃除は build の後、`SRC/exec` の行き先の無いリンクは張らない（`b4af8ac42`）、12 本は trash（`1b3267da9`）、`ctrl2vasp`・`getsyml`・`vasp2ctrl`・`viewvesta` は相対のリンクに（`61ecb97c9`）。
+  直した: 掃除は build の後、`SRC/exec` の行き先の無いリンクは張らない（`f64301f2f`）、12 本は trash（`ed2d014fb`）、`ctrl2vasp`・`getsyml`・`vasp2ctrl`・`viewvesta` は相対のリンクに（`850f080ed`）。
   直した後の InstallAll では消すものが無く、`~/bin` の行き先の無いリンクは 0
 
 ### 07:16 **MATERIALS の全物質で MLO の自動の模型（LDA）: 65 物質のうち 41 が 0.02 eV 以内。外れる 14 は 2 つの型で、どちらも動径関数を足すと直る。一覧のページ https://claude.ai/artifact/VCWpe5W8Fei6umatXGeZGH**
 
-投入 06:00（t14、worker 3 本 × np 4、`~/work/mlocheck_20261001`）、重い 5 つは 06:33 から kr7（`~/mlocheck_20261001`、`~/bin_frozen_74ba72dad`。Fortran は t14 の HEAD と
+投入 06:00（t14、worker 3 本 × np 4、`~/work/mlocheck_20261001`）、重い 5 つは 06:33 から kr7（`~/mlocheck_20261001`、`~/bin_frozen_b695fa65c`。Fortran は t14 の HEAD と
 コメントしか違わない）。06:00〜07:13 に 65 物質が終わり、InAs/GaSb の n10（40 原子）は kr7 で走行中（1 反復 10 分ほど）。
 - 対象: `Samples/MATERIALS/Database` の 62 と La₂CuO₄・InAs/GaSb n4・n10・BaTiO₃（計 66）。入力は各 ctrlg を写し、`[mlo]` だけ書き直した（`prep.py`）:
   `mlo_method = 4`、Δ = w = 2 eV、`mlo_nkabc` = `[bz] nkabc`、`mlo_lm` は Z ≤ 10 が s,p、Z ≥ 11 が s,p,d、ランタノイドと Hf（4f が価電子の基底にある、P_f = 4.5）は s,p,d,f。
   HfO₂ は最初 s,p,d で回し（VBM −0.057 eV）、07:15 に f を入れて回し直した。BaTiO₃ は `rdsig = 0`。Eu の化合物は `idu = 12`（sigm が無いので FLL の LDA+U、U = 0.69 Ry）
 - 手順: `lmfa` → `lmf` → `getsyml --nobzview` → `job_band` → `job_mlo`（so = 1 の GaAs_so・Bi2Te3 は `job_mlo_soc`）→ `mlo_bandplot.py`。評価は書き直した
-  `SRC/exec/mlo_bandcheck.py`（`bfecfe979`、ギャップの区切りを直したのは `399c794bc`）: 金属か絶縁体かは efermi.lmf（メッシュ）で、ギャップの区切りはメッシュのギャップの中央、
+  `SRC/exec/mlo_bandcheck.py`（`939d563c4`、ギャップの区切りを直したのは `55cc71ec5`）: 金属か絶縁体かは efermi.lmf（メッシュ）で、ギャップの区切りはメッシュのギャップの中央、
   rms は [VBM − 8, CBM + 3] eV の MLO → DFT と [VBM − 8, CBM + 1] eV の DFT → MLO（最寄りの帯との差）。最悪値 = max(両 rms, |ギャップの差|)
 - 数値: `Samples/MATERIALS/Database/MLOcheck_20261001.tsv`（65 物質）と `_variants.tsv`（26 の変種）。図と帯の数値は `~/work/mlocheck_20261001/<物質>/`（mlo_<物質>.png、bnd*、band_MLO*）、
   変種は `~/work/mlocheck_variants/`
-- 途中で見つけて直した入力: Database の Ce（nspin = 1 で idu = 12、LDA+U が止まる。`2cbeb93d5`）、EuS・EuSe・EuTe（AF II の Eu の初期モーメントが +6/+6、`752424f40`）、
-  `Samples/AFsymmetry` の NiO は k 4³ では pwmode = 11 が要る（TODO）。`job_mlo` は so = 1 で NaN の模型を作っていた（`e29dd6e1d` で止めて `job_mlo_soc` を案内）
+- 途中で見つけて直した入力: Database の Ce（nspin = 1 で idu = 12、LDA+U が止まる。`66d3edbee`）、EuS・EuSe・EuTe（AF II の Eu の初期モーメントが +6/+6、`b42bc892f`）、
+  `Samples/AFsymmetry` の NiO は k 4³ では pwmode = 11 が要る（TODO）。`job_mlo` は so = 1 で NaN の模型を作っていた（`84408f565` で止めて `job_mlo_soc` を案内）
 
 結果（最悪値）: good（≤ 0.02 eV）41、fair（≤ 0.05）10、poor（> 0.05）14。s,p の半導体、Zn・Cd・Hg・Pb の化合物、MgO・ZrO₂・BaTiO₃、MnO・NiO、Fe・Ni・Cu・Li・YMn₂、
 Ce、EuS・EuSe・EuTe、GaAs_so・Bi2Te3（SOC）はほぼ 0.01 eV 前後。poor の 14 は全部、次の 2 つの型のどちらかで、追加の動径関数で直る（*表 07:16-1*）:
@@ -765,7 +765,7 @@ Ce、EuS・EuSe・EuTe、GaAs_so・Bi2Te3（SOC）はほぼ 0.01 eV 前後。poo
 足した名前: `lm2sp` = 全原子の EH2 の s,p（`mlo_lm2`）、`lm3d` = 陽イオンの d の局所軌道（`mlo_lm3`）、`lm3semi` = 半内殻の局所軌道すべて、`both` = `lm2sp` と `lm3semi`。
 両方を足した場合の最悪値: Si 0.007 → 0.013、GaAs 0.013 → 0.009、Fe 0.005 → 0.005、NiO 0.007 → 0.003、ZnO 0.002 → 0.006、**Cu 0.012 → 0.802**。
 
-### 06:46 **AFTEST（`mmtarget.aftest`）: afsym ではモーメントを目標に保てるが、表示の全エネルギーに場の項が残る。afsym なしでは誤り。直した（ブランチ `aftest-fix`、`6d6f3451b`、未マージ）**
+### 06:46 **AFTEST（`mmtarget.aftest`）: afsym ではモーメントを目標に保てるが、表示の全エネルギーに場の項が残る。afsym なしでは誤り。直した（ブランチ `aftest-fix`、`b744396d3`、未マージ）**
 
 仕組み（`m_ldau.f90` の `vorbmodifyaftest_experimental`、`mkrout.f90`）:
 - `mmtarget.aftest` に目標のモーメント m_t（1 行）。`mkrout` が各反復の出力密度の球内のモーメント（−`sums1`）を `mmagfield.aftest` の 2 行目に書き、
@@ -806,7 +806,7 @@ E = ehk + uhx·m_d（下の検算）を u0 から測ったもの。修正版は 
 4. 決め打ち: 対はサイト 1・2（モーメント）とブロック 1・2（場）、NiSe だけ 6 ブロック。目標は 1 つの数。`m_ldau_init` は lmf の起動のたびに場を一歩更新して
    `mmagfield.aftest` を書き直す（`--quit=band` の `job_band` でも）
 
-修正（`aftest-fix`、`6d6f3451b`、作業ツリー `~/work/ecalj_aftest`、ビルド `~/work/bin_aftest`）: 場をスピン 2 にも逆符号で入れる（スピン 1 に −uhx·fac、スピン 2 に +uhx·fac）。
+修正（`aftest-fix`、`b744396d3`、作業ツリー `~/work/ecalj_aftest`、ビルド `~/work/bin_aftest`）: 場をスピン 2 にも逆符号で入れる（スピン 1 に −uhx·fac、スピン 2 に +uhx·fac）。
 afsym では SCF の中身（反復の数、モーメント、場、ehf、sev）は変わらず、ehk だけがちょうど uhx·m_d（+2.0101 eV）動いて E になる。afsym なしの NiO も afsym の結果と
 10⁻⁶ eV で一致する（表 06:46-1）。マージは user の判断（TODO の質問）。残る TODO: 下げる向きの更新の利得、対の決め打ち、ecaljdoc の `UsageDetailed.md` の「直す必要がある」
 
@@ -827,7 +827,7 @@ afsym では SCF の中身（反復の数、モーメント、場、ehf、sev）
   `MD/research_log.md` に（コードの注記 3 か所を含む）。このログの古い日付の記述と `Changes.txt` の古い項は、その時点の記録なので直していない
 - サブディレクトリの md（各サンプルの README、`ecalj_auto/*.md`）は、説明する物の隣に置いたまま
 
-### 04:45 **user「5 月にやったものはやり直さなくていい」「失敗例、怪しい例、NOTCONV などにコメントをつける形で整理。特徴と条件の違いも」→ 注記の表 `gw1500_notes_20261001.tsv`（`40ffd89e8`）**
+### 04:45 **user「5 月にやったものはやり直さなくていい」「失敗例、怪しい例、NOTCONV などにコメントをつける形で整理。特徴と条件の違いも」→ 注記の表 `gw1500_notes_20261001.tsv`（`b0fdfda19`）**
 
 - `run3` のキューから 5 月の GOOD（ドリフト 63、残り 1128）を外し、NOTCONV だけにした（04:3x、ワーカーの `flock` の中で。外した行は `run3_queue_removed_good.txt`）
 - MP の API で 1546 物質の凸包からの距離・密度・体積・ICSD の備考を読んだ（新しい ID は古い番号の 26 進、`mp-1179832` = `mp-aaacpdie`）。
@@ -837,7 +837,7 @@ afsym では SCF の中身（反復の数、モーメント、場、ehf、sev）
 - 分類: `INVALID_STRUCTURE` 12、`SUSPECT_STRUCTURE` 4、`MAY_WRONG` 1、`FAILED_MAY` 144（全部収束）、`UNKNOWN_MAY` 10（全部収束）、`SUSPECT_GOOD` 17（全部収束）、
   `NOTCONV_MAY` 177（45 収束、132 実行中）、`DRIFT_GOOD` 61、`GOOD` 1120。`GW1500_status.md` §5 の表 5（条件の違い）・表 6（分類）
 
-### 04:17 **Rb8（mp-1179832）は構造が不正と分かり、user の指示で止めた。MP の API キーが公開リポジトリに入っていたのを外した（`290397b34`）**
+### 04:17 **Rb8（mp-1179832）は構造が不正と分かり、user の指示で止めた。MP の API キーが公開リポジトリに入っていたのを外した（`cb9b2d7b7`）**
 
 - 構造: 各 Rb の隣は 2 個（4.63・4.67 Å）、次は 8.59 Å。結合をたどると 8 本で閉じ、結合角はすべて 135° → 一辺 19.9 Å の胞に Rb₈ の正八角形の環が 1 個
 - MP（API、新しい ID `mp-aaacpdie`）: ICSD 109016、備考「High pressure experimental phase」「Rubidium - IV, HP」（McMahon ら PRL 2001）。
@@ -854,18 +854,18 @@ afsym では SCF の中身（反復の数、モーメント、場、ehf、sev）
 
 ### 02:01 **3 台の試験は全部 PASS。GW1500 の失敗・判定できないもの 12 件は Rb8 を除いて収束。あやしい GOOD のうち 7 件は 5 月（TF32）とギャップが 0.25〜1.5 eV 違う → kr7 で同じバイナリ・同じ入力の fp32 と TF32 を比べる**
 
-- 試験（HEAD `74ba72dad`、新しいツリー `ecalj_test0930d`）: kt1（nvfortran GPU、01:53）・kr7（nvfortran GPU、23:27）・mic（ifx、23:34）とも
+- 試験（HEAD `b695fa65c`、新しいツリー `ecalj_test0930d`）: kt1（nvfortran GPU、01:53）・kr7（nvfortran GPU、23:27）・mic（ifx、23:34）とも
   inputs 112、mlo 45、afsym 4、install 64、samples の 13 組がすべて PASS。kt1 の install は GW1500 と GPU を分け合って 2.3 時間
 - `run2m`（金属の判定、fp32）: 表 02:01-1。判定できなかった 10 件は、8 件が金属として 5〜8 反復で収束、TlSbTe2 と SrSn2As2 は小さいギャップ（0.29、0.04 eV）で収束。
   Sr（mp-1056418）は 11 Å × 11 Å × 4.4 Å の胞に 1 原子の疎な構造で、3 反復目に固有値が 7.9 eV 動くほど荒れてから 1.67 eV に収束。NaCoO2 は 14 反復で 3.375 eV に収束
-- `gw1500_rerun.sh` のログで金属の `dqp` が none になっていた（収束の行にも同じ語がある）。手元は直した（`88a3a79f0`）。kt1 で走っている v3 は触らず、集計のとき `osgw.conv.out` から読む
+- `gw1500_rerun.sh` のログで金属の `dqp` が none になっていた（収束の行にも同じ語がある）。手元は直した（`4c1ebb349`）。kt1 で走っている v3 は触らず、集計のとき `osgw.conv.out` から読む
 - Rb8（mp-1179832）: `lmf --jobgw=1` が 1 ランク 35 GB、6 ランクで 212 GB（kt1 は 251 GB）。1 ランクの量が並列数で減らないので、5 月・前回の 12 並列ではメモリが足りなかった。いま 6 並列で実行中
 - `run3`（あやしい GOOD から）: 表 02:01-2。振動していたものは fp32 では 5〜6 反復で素直に収束した。ギャップは 7 件が 5 月と 0.25 eV 以上違う。
   ただし 5 月とは入力（途中から TOML、K などの MT 半径 3.0/2.8）とコードも違うので、精度だけの差は分からない
-- 01:59 kr7 で比較を投入（`~/gw1500ab/kr7_ab_1001.sh`）: 差の大きい 7 件と一致した KAuC2 を、同じバイナリ（`~/bin_frozen_74ba72dad`）・同じ入力で fp32 → TF32 の順に。
+- 01:59 kr7 で比較を投入（`~/gw1500ab/kr7_ab_1001.sh`）: 差の大きい 7 件と一致した KAuC2 を、同じバイナリ（`~/bin_frozen_b695fa65c`）・同じ入力で fp32 → TF32 の順に。
   最初は凍結の `cp -rL` が壊れたリンク `.#genMLWF` で止まり、写した `vasp2ctrl` が `convctrl` を読めずに全部 FAIL(input)。直して流し直した
 
-*表 02:01-1* 失敗と判定できないものの回し直し（kt1、fp32、`b81da2342`＋金属の判定）
+*表 02:01-1* 失敗と判定できないものの回し直し（kt1、fp32、`989a18637`＋金属の判定）
 
 | mpid | 組成 | 5 月 | 今回 | 反復 | LDA のギャップ (eV) | ギャップ (eV) |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -906,7 +906,7 @@ afsym では SCF の中身（反復の数、モーメント、場、ehf、sev）
 - kt1 はコア 0〜63 だけ（SMT は切ってある）。23:14 に `taskset -c 64-` で起動しようとして失敗した。空いたコアから順に `run3` のワーカーを起こす
   `kt1_chain_0930.sh` を 23:15 に置いた（試験が終わったら 0〜11、`run2m` のワーカーが終わるたびにそのコア、NaCoO2 のあとは Rb8 を 6 並列で単独に、そのあと 52〜63）
 
-### 23:10 **user「失敗と、判定できない、を見ないといけない」→ 13 物質を調べ、金属の判定を `gwscconv` に入れて（`ecfac2c6b`）kt1 で回し直しを投入。user「以前の tf32 は怪しいかも。新しいやつでチェックを」→ GOOD・NOTCONV の 1389 物質の回し直しは、これが終わってから**
+### 23:10 **user「失敗と、判定できない、を見ないといけない」→ 13 物質を調べ、金属の判定を `gwscconv` に入れて（`1730f7e7e`）kt1 で回し直しを投入。user「以前の tf32 は怪しいかも。新しいやつでチェックを」→ GOOD・NOTCONV の 1389 物質の回し直しは、これが終わってから**
 
 - 5 月の `QPU.<n>run` の `eQP`（E_F 基準）から、E_F ±5 eV の状態の反復ごとの変化の最大を数えた（`qpu_change.py`）。表 23:10-1
 - 5 月の TF32 の結果は、判定できない 10 件もすべて `gwscconv` が「ギャップが読めない」で止まっていた
@@ -923,21 +923,21 @@ afsym では SCF の中身（反復の数、モーメント、場、ehf、sev）
 | mp-18921 | NaCoO2 | FAILED（MAXITER） | 振動ではなく、ギャップが 2.49 → 2.98 → 3.06 → 3.15 → 3.35 → 3.36 eV とゆっくり上がり続けていた |
 | mp-1179832 | Rb8 | FAILED | 疎な構造（平面波 3 万）で `lmf --jobgw=1` がメモリ不足。単独で少ない並列で回す（未投入） |
 
-- `gwscconv` の金属の判定（`ecfac2c6b`）: ギャップの無い反復は、E_F ±5 eV の固有値の変化の最大が `--conv-qp`（0.03 eV）未満の反復が 2 回続いたら収束。
+- `gwscconv` の金属の判定（`1730f7e7e`）: ギャップの無い反復は、E_F ±5 eV の固有値の変化の最大が `--conv-qp`（0.03 eV）未満の反復が 2 回続いたら収束。
   偽の `gwsc` に 5 月の NbP の `QPU` を流すと 5 反復目で収束と出る。ギャップのある場合の判定は変わらない（同じ偽物で確認）。`gw1500_rerun.sh` は判定 `CONVERGED_METAL` とログの `dqp=`
 - 23:09 kt1 で投入（`kt1_metal_0930.sh`、コア 16〜63、`~/bin_frozen_b81da2342m` = 147 件と同じ Fortran ＋ 新しい `gwscconv`）:
   - 判定できない 10 件と Sr: `run2m/`、ワーカー 3 本、最大 15 反復
   - NaCoO2: `run1/mp-18921` で 11 反復目から 20 反復まで
-- 同じ時刻に 3 台で試験（HEAD `74ba72dad`、新しいツリー `ecalj_test0930d`）: kt1 はコア 0〜15、kr7、mic（ifx）
+- 同じ時刻に 3 台で試験（HEAD `b695fa65c`、新しいツリー `ecalj_test0930d`）: kt1 はコア 0〜15、kr7、mic（ifx）
 
-### 22:26 **GW1500 の回し直しが 22:23 に全部終わった。FAILED の 147 物質のうち 144 が収束（`d00b9778e`、`ecalj_auto/GW1500_status.md` 表 4）**
+### 22:26 **GW1500 の回し直しが 22:23 に全部終わった。FAILED の 147 物質のうち 144 が収束（`70f79b23b`、`ecalj_auto/GW1500_status.md` 表 4）**
 
 - 収束しなかったのは 3 物質で、どれも 09:04 の時点と同じ: MAXITER mp-18921、NOGAP mp-1056418（Sr）、FAIL mp-1179832（Rb 8 原子）
 - mp-1087 は本番のキューに無かったが、00:55 の試運転（`try/`、同じバイナリと設定）で CONVERGED だったので、その行を tsv に入れた
 - mp-546711（CsClO₄、5 月は GOOD でギャップ 0.26 eV）は 8.95 eV（LDA 5.41 eV）。5 月の値は誤り
 - 1 物質の中央値 12.5 分、最長 4.5 時間（原子数の多いものを最後に回した）
 
-### 22:09 **SmP・GdCo5 の LDA+U を直したコードで作り直した（`e547b81e0`、`a7b19be75`）。どちらも `mlo` まで通り、試験は 4 並列・8 並列で PASS**
+### 22:09 **SmP・GdCo5 の LDA+U を直したコードで作り直した（`6e5817ffe`、`23429f0a3`）。どちらも `mlo` まで通り、試験は 4 並列・8 並列で PASS**
 
 *表 22:09-1* 直したコードで `lmfa` から回した SCF（手元、gfortran）。旧は保存してあった状態（二重計数なし）
 
@@ -955,9 +955,9 @@ afsym では SCF の中身（反復の数、モーメント、場、ehf、sev）
 - LDA+U で ehf と ehk が合わない（SmP 9.3 eV、PrN 1.3 eV）のは仕様: `m_lmfp` のコメントのとおり ehf は U の寄与を含まない。全エネルギーは ehk + eorb
 - 二つのディレクトリは、試験に要るもの（入力、`rst`・`dmats`・`atmpnu`、`qplist.dat`・`efermi.lmf`、`bnd*`、参照、`save`）と構造の出所だけにした。
   古い作業の残り（`aaa`、`bbb`、空の `0.62`・`level:`、クラスタの投入スクリプト、旧 MLO のパラメータの控えなど）は消した
-- 22:08 手元で試験の組を投入、22:29 に全部 PASS（`a7b19be75`、gfortran、8 並列）: inputs 112、mlo 45、afsym 4、install 64
+- 22:08 手元で試験の組を投入、22:29 に全部 PASS（`23429f0a3`、gfortran、8 並列）: inputs 112、mlo 45、afsym 4、install 64
 
-### 21:33 **user「fix-idu10 をマージして、おすすめのとおりで」→ マージした（`78475ea3d`）。NiSe の `zhev_tk4` 停止も同じ原因。SmP・GdCo5 の SCF を作り直し中**
+### 21:33 **user「fix-idu10 をマージして、おすすめのとおりで」→ マージした（`f14270e83`）。NiSe の `zhev_tk4` 停止も同じ原因。SmP・GdCo5 の SCF を作り直し中**
 
 - 21:16 `fix-idu10` を main にマージし、手元の gfortran を作り直した（`libecaljF.so` に `For IDU>10 with sigm` があることを確認）
 - 03:15 の「SmP は `mlo` の段が途中で終わる」は、`m_HamPMT` の意図した停止だった: 射影から外す半内殻（Sm 5p、3 本、上端 −24.25 eV）と
@@ -979,8 +979,8 @@ afsym では SCF の中身（反復の数、モーメント、場、ehf、sev）
   ecaljdoc も同じ（origin、dev）。git の外にあったのは 8.6 万ファイル・58 GB で、ほぼ作業ファイルとビルドの生成物。欠落と言えそうなのは `ecalj_auto/INPUT`
   （GW1500 の POSCAR 1546 個、6 MB。文書が参照している）だけで、user の判断待ち。一覧は旧ツリーの `~/ecalj/temp_only_in_old_ecalj.txt`（新 clone の最上位、git 外）
 - 新 clone を `~/bin` にビルドし、試験の組（inputs、install、eps、procar、mlo、mloqsgw、afsym、samples、magnon）を回している（17:41〜）
-- Legacy: `superlattice` → `StructureTool/superlattice`（`e05720ffd`）、AHC は user「消して（別の所から持ってくる）」で削除、
-  La2CuO4・InAsGaSb・BaTiO3 → `Samples/MATERIALS`（`5c94c18de`）、残り 19 ディレクトリを削除（`bce00a68d`）、`TestHomoDimerAtom` を最後に削除（`72cb1fe8b`）
+- Legacy: `superlattice` → `StructureTool/superlattice`（`932c59a6d`）、AHC は user「消して（別の所から持ってくる）」で削除、
+  La2CuO4・InAsGaSb・BaTiO3 → `Samples/MATERIALS`（`f46d623c0`）、残り 19 ディレクトリを削除（`db6c592a9`）、`TestHomoDimerAtom` を最後に削除（`fbd2fb2a9`）
 - `Samples/AtomDimer/N2`: 旧 TestHomoDimerAtom の設定（15 Å の箱、PBE、スピン分極、固定磁気モーメント、Γ 点）で N₂ を結合長 3 点と N 原子。kr7 で 1 回目（18:00〜18:08、7 分）、
   2 回目（kr7 442 秒、手元 gfortran 3331 秒 ← 別の試験と同時）とも参照と差 0.0。r_e = 1.104 Å、D_e = 10.08 eV（実験 1.098 Å、9.9 eV）。
   当時の 36 元素の設定は `AtomDimer/elements_2012.txt` に表として残した
@@ -995,12 +995,12 @@ afsym では SCF の中身（反復の数、モーメント、場、ehf、sev）
 ### 15:23 **user「MLO 版マグノンを作って」→ `job_mlo_magnon` を単独で動くようにし、`Samples/Magnon/Fe_mlo_magnon` を作った。小さい q は Wannier 版と一致、大きい q は 1.5 倍高い**
 
 - 止まっていた理由: `mlo` が読む `HamiltonianPMTInfo`・`__HamiltonianPMT`・`HamRsMLO` は `lmf --writeham --mlo`（`job_mlo`）が書くもので、`job_mlo_magnon` は
-  それを呼んでいなかった（`job_mloW` も同じで、`MLOsamples/Fe` の試験は先に `job_mlo` を回している）。`job_mlo` の段を `job_mlo_magnon` の最初に組み込んだ（`77e05151d`）
+  それを呼んでいなかった（`job_mloW` も同じで、`MLOsamples/Fe` の試験は先に `job_mlo` を回している）。`job_mlo` の段を `job_mlo_magnon` の最初に組み込んだ（`a9fc71012`）
 - 出力は Wannier 版と名前が違う: `MagSuscep.symlXXX`（K と R の実部・虚部）、`MagSpec`、`DynMagSuscep`、`InvMagSuscep`、サイトごとの `*SiteNNN`
 - Wannier 版（`Fe_magnon`）との比較（`Fe_mlo_magnon/README.md` の表 2 と図 1、`magnon_peaks.py`）: `mlo_nkabc` = 8³ で q ≤ 0.3 は 20 meV 以内で一致、
   q ≥ 0.4 は MLO 版が 1.5 倍高い。`mlo_nkabc` = 4³ では小さい q も 1.5 倍。`mlo_w` = 11 eV で高い側が下がる。模型の違いで、どちらが正しいかは決めていない
 - nvfortran（kt1）で `mlo_magnon` が `FIO-F-207`（`__MLOFormFactorQ` を二重に開いた）で止まった。`get_formfactor_q`・`get_ovlppair_q` の「開いたか」の判定が
-  `ifile < 0` で、`newunit` は負の番号を返すので毎回開き直していた（gfortran は読み取り専用の二重の open を黙って許す）。論理変数で判定するようにした（`5cfda277d`）
+  `ifile < 0` で、`newunit` は負の番号を返すので毎回開き直していた（gfortran は読み取り専用の二重の open を黙って許す）。論理変数で判定するようにした（`f446b06af`）
 - 試験は `MagSuscep.syml001` の値（10%）と Im R の山の位置（5%）。手元（gfortran）で 2 回通過（2 分）。kt1 は 15:23 に作り直して確認中
 
 ### 14:58 **user「magnon を MLO ベースにできないか」→ `job_mlo_magnon` は今の MLO の流れに追随しておらず動かない。「UUmatSOC を残す理由は」→ 無い**
@@ -1020,21 +1020,21 @@ afsym では SCF の中身（反復の数、モーメント、場、ehf、sev）
 
 ### 06:05 **最終版の確認が 4 つの機械で済んだ。AHC は粗いメッシュではビルドによって 18% 違う（8×8×8 で 1.5%）**
 
-*表 06:05-1* 最終版の試験（PASSED の件数）。Fortran は `0dd38b4f8` 以降変えていない（そのあとの commit はスクリプト、サンプル、文書）
+*表 06:05-1* 最終版の試験（PASSED の件数）。Fortran は `273e48764` 以降変えていない（そのあとの commit はスクリプト、サンプル、文書）
 
 | 組 | 手元 t14（gfortran） | kt1（nvfortran、GPU） | kr7（nvfortran、GPU） | mic（ifx 2026） |
 | --- | --- | --- | --- | --- |
-| 試験したツリー | `b00190018` | `b00190018` | `0dd38b4f8`、samples は `80ba95de0` | `b00190018` |
+| 試験したツリー | `d4150d2a6` | `d4150d2a6` | `273e48764`、samples は `596b61af7` | `d4150d2a6` |
 | inputs | 136 | 136 | 142 | 142 |
-| install、mloqsgw、afsym | 64、5、4（`2d6f513ad`） | 64、5、4 | 64、5、4 | 64、5、4 |
-| samples（13 組） | 43 | 41 と AHC 2（`f4d8a0366`） | 41（AHC は未確認） | 41 と AHC 2（`c17fe73d6`） |
+| install、mloqsgw、afsym | 64、5、4（`1c188a480`） | 64、5、4 | 64、5、4 | 64、5、4 |
+| samples（13 組） | 43 | 41 と AHC 2（`0fd05ca5a`） | 41（AHC は未確認） | 41 と AHC 2（`4a5eb3b7b`） |
 | gwall fp32／fp64 | — | 35／— | 35／35 | — |
 
 - eps・procar・mlo・heavy・magnon と gwall tf32 は、一つ前の表（04:55 のエントリ）の版で 4 つの機械とも PASSED。そのあとの Fortran の変更は
   `m_writeband`（質量モード）、`main_hhomogas`、`wfacx`（`pole_weights` の `findloc`）、`m_nvfortran`
 - AHC/Fe: kt1（nvfortran）の値が gfortran・ifx（この二つは 4 桁まで同じ）と違った。メッシュを変えて比べた（表 06:05-2。06:03、手元と kt1 で同じ SCF から `job_AHC`）。
   差はメッシュとともに縮む。原因は確かめていない（`x0kf_ahc.f90` が隣の k 点のバンドを重なりの大きさで対応付けるので、固有ベクトルの取り方が効くと見ている）。
-  試験の許容を 60 Ω⁻¹cm⁻¹ にした（`3fe52f001`）
+  試験の許容を 60 Ω⁻¹cm⁻¹ にした（`3211a8ab2`）
 
 *表 06:05-2* bcc Fe の σ_xy（四面体法、ΔE_F = 0、Ω⁻¹cm⁻¹）
 
@@ -1045,14 +1045,14 @@ afsym では SCF の中身（反復の数、モーメント、場、ehf、sev）
 | 8×8×8 | 885.36 | 884.84 | 1131.06 | 1148.30 |
 
 - kt1・kr7（NVIDIA HPC SDK の OpenMPI）では、MPI のプログラムを `mpirun` なしで起動すると `MPI_Init` で止まる。`run_arg`（bash）の 1 プロセス実行と
-  `hx0ahc.py` の `hahc` の起動を `mpirun -np 1` にした（`80ba95de0`、`00d02f013`）
+  `hx0ahc.py` の `hahc` の起動を `mpirun -np 1` にした（`596b61af7`、`97c969644`）
 
 ### 05:53 **`wcsmear = false` は nvfortran で止まっていた（直した）。bench の参照との差 0.03 eV は `wcsmear` ではなく、バンド端の占有の均し方の違い。Legacy の残り 6 本を組み直し、最終版を 4 つの機械で確認中**
 
-- kr7 の bench（03:50 終了、`fc1312ce2`）は 2026-05-31 の参照と inas2gasb2 で 0.030、inas4gasb4 で 0.028 eV ずれて FAILED。原因の候補だった `wcsmear` を確かめるため、
+- kr7 の bench（03:50 終了、`0f389489d`）は 2026-05-31 の参照と inas2gasb2 で 0.030、inas4gasb4 で 0.028 eV ずれて FAILED。原因の候補だった `wcsmear` を確かめるため、
   `--run-args=--ctrlg:gw.wcsmear=false` で回したら `hgw_gpu` が `FINDLOC: unimplemented for data type` で止まった（04:56）
 - 原因: `pole_weights`（`wfacx.f90`）だけが組み込みの `findloc` を呼んでいた（ほかは `m_nvfortran` の置き換え）。通るのは `wcsmear = false` と幅 0 の経路だけ。
-  直した（`0dd38b4f8`）。`m_nvfortran` の `findlocl`・`findloci` は `back=.false.` を与えたときに探索の向きを設定していなかったので、それも直した
+  直した（`273e48764`）。`m_nvfortran` の `findlocl`・`findloci` は `back=.false.` を与えたときに探索の向きを設定していなかったので、それも直した
 - 直したあとの kr7（05:03 のビルド）: install 64、mloqsgw 5、afsym 4、gwall fp32 35・fp64 35 が PASSED。`wcsmear = false` の gwall は最後まで走り、
   参照（`wcsmear = true`）との差は表 05:53-1。mic（ifx）でも同じ 9 件が不一致
 - **bench は `wcsmear = false` でも同じ 0.030 eV の差**（05:48）。列ごとに見ると、状態 47（inas2gasb2）・93（inas4gasb4）の SEx が 0.029・0.027、SEc が 0.028・0.026 動いて打ち消し合い、
@@ -1070,11 +1070,11 @@ afsym では SCF の中身（反復の数、モーメント、場、ehf、sev）
 | fe_kbt（スピン 1／2） | 0.000 | 0.020／0.049 |
 | si_gw_lmfh、gas_pw_gw_lmfh | 0.005、0.000 | 0.005、0.001 |
 
-- Legacy の残り（別のエージェント、03:58〜05:03）: AHC/Fe、IIR/C、DOS/ZnS・Fe、EffectiveMass/CdS・GaN を `Samples/` 直下に（`b00190018`）。報告の指摘はコードで確かめた
+- Legacy の残り（別のエージェント、03:58〜05:03）: AHC/Fe、IIR/C、DOS/ZnS・Fe、EffectiveMass/CdS・GaN を `Samples/` 直下に（`d4150d2a6`）。報告の指摘はコードで確かめた
   （`huumat_MPI --ahc` のファイル名は 7 桁、`hx0ahc.py` のオプション 1 個の場合）。残した問題は `Changes.txt` 2026-09-30 (4) の「既知の問題」
-- 最終版で出た環境の違い 2 件を直した: mic に `mpi4py` が無く `hx0ahc.py` が止まる → 無ければ 1 プロセスで回る（`c17fe73d6`）。kt1 で `job_AHC` の最初の `lmfa` が
-  `MPI_Init` で落ちる（`mpirun` なしの起動）→ `run_arg` の 1 プロセス実行を `mpirun -np 1` に（`80ba95de0`）
-- 最終版（`b00190018`）の試験: 手元は inputs 136 と samples の 13 組が PASSED（05:32）。mic は inputs 142、samples（AHC は直したあと）、install 64、mloqsgw 5、afsym 4 が PASSED（05:33）。
+- 最終版で出た環境の違い 2 件を直した: mic に `mpi4py` が無く `hx0ahc.py` が止まる → 無ければ 1 プロセスで回る（`4a5eb3b7b`）。kt1 で `job_AHC` の最初の `lmfa` が
+  `MPI_Init` で落ちる（`mpirun` なしの起動）→ `run_arg` の 1 プロセス実行を `mpirun -np 1` に（`596b61af7`）
+- 最終版（`d4150d2a6`）の試験: 手元は inputs 136 と samples の 13 組が PASSED（05:32）。mic は inputs 142、samples（AHC は直したあと）、install 64、mloqsgw 5、afsym 4 が PASSED（05:33）。
   kt1 は inputs 136、samples（AHC 以外）、install 64 まで PASSED、続きを実行中
 - GW1500（05:34）: 88 物質まで。収束 86、MAXITER 1（mp-18921）、NOGAP 1（mp-1056418）。87 物質にバンドの図。残り 55
 
@@ -1084,7 +1084,7 @@ afsym では SCF の中身（反復の数、モーメント、場、ehf、sev）
 
 | 組 | 手元 t14（gfortran） | kt1（nvfortran、GPU） | kr7（nvfortran、GPU） | mic（ifx 2026） |
 | --- | --- | --- | --- | --- |
-| 版 | `4832ac3e8`（samples・magnon は `d26afdf51`） | `68a45a8fb`（samples は `2d6f513ad`） | `2d6f513ad` | `68a45a8fb`（samples は `0c514bdce`） |
+| 版 | `cbbfa6ffb`（samples・magnon は `6a7a36be9`） | `1ad0931a7`（samples は `1c188a480`） | `1c188a480` | `1ad0931a7`（samples は `68a341013`） |
 | inputs | 127 | 122 | 134 | 134 |
 | install | 64 | 64 | 64（CPU でも 64） | 64 |
 | eps、procar | 18、5 | 18、5 | 18、5 | 18、5 |
@@ -1096,13 +1096,13 @@ afsym では SCF の中身（反復の数、モーメント、場、ehf、sev）
 | magnon | 10 | 10 | 10 | 10 |
 
 - inputs の件数の違いは、その時点のツリーにある `ctrlg.<sname>.toml` の数（サンプルを足したので増えた）
-- `68a45a8fb` と `2d6f513ad` の Fortran の違いは、`m_writeband`（質量モード）と `main_hhomogas` の 2 か所。どちらも samples の組（EffectiveMass、HomoGas）で確かめた
+- `1ad0931a7` と `1c188a480` の Fortran の違いは、`m_writeband`（質量モード）と `main_hhomogas` の 2 か所。どちらも samples の組（EffectiveMass、HomoGas）で確かめた
 - 手元は最終版のビルド（`temp/bin_check2`）で install〜afsym を回し直している（04:55 から）
 - kr7 の bench（前の版、03:50 終了）は 2026-05-31 の参照と 0.030・0.028 eV ずれて FAILED（許容 0.011）。`wcsmear = false` での確認を 04:53 から kr7 で実行中
 - 温度のスキャン（手元、gfortran、4 コア）: GaAs（03:03〜04:13）と Cu（04:13〜04:36）。結果は `Samples/kBT/scanT/README.md` の表 3・表 4、ecaljdoc kBT.md §5.1・§5.2。
   GaAs のギャップは 3000 K で −95 meV、5000 K で −267 meV。Cu の Γ の d バンドは 3000 K で +61 meV、5000 K で +128 meV（E_F に近づく）
 
-### 04:01 **新しいサンプルを 3 つのコンパイラで回して出た 3 件を直した（`2d6f513ad`）。user 03:47「Legacy も確認して。任せる」→ 残りの組み直しを始め、削除は user の判断待ち**
+### 04:01 **新しいサンプルを 3 つのコンパイラで回して出た 3 件を直した（`1c188a480`）。user 03:47「Legacy も確認して。任せる」→ 残りの組み直しを始め、削除は user の判断待ち**
 
 - 03:45 の時点の試験: 手元（gfortran）は全部 PASSED。kt1（nvfortran、GPU）で EffectiveMass/GaAs が止まり、Relax/LaGaO3 が 1 件不一致。mic（ifx）で HomoGas/es が止まった
 - 表 04:01-1 に原因と直し方。直したあと、手元（gfortran）で EffectiveMass と HomoGas が通り、kt1（03:56 に作り直したビルド）で EffectiveMass が通った
@@ -1118,7 +1118,7 @@ afsym では SCF の中身（反復の数、モーメント、場、ehf、sev）
 - kt1 の試験は 02:58 に `-np2 2`（GPU 2 枚）で始めたが、GW1500 のワーカーが 1 枚ずつ使い続けるので「2 枚同時に空く」のを待って 30 分進まなかった。
   03:31 に `-np2 1` で取り直した。04:01 までに install 64、eps 18、procar 5、mlo 45、mloqsgw 5、afsym 4、gwall（tf32）28 が PASSED
 - Legacy: 残っていた AHC/Fe、IIR、CMDsample（DOS・PDOS）、mass_fit_test の CdS・GaN の組み直しを 03:58 に別のエージェントで始めた。
-  ReNcub の 15 種の窒化物の構造と占有の初期値は `Samples/LDAU/ReN/INIT` に、ISSP の投入スクリプトは今のオプションに直して `Samples/BenchmarkTest/ISSP` に写した（`a7398c71b`）
+  ReNcub の 15 種の窒化物の構造と占有の初期値は `Samples/LDAU/ReN/INIT` に、ISSP の投入スクリプトは今のオプションに直して `Samples/BenchmarkTest/ISSP` に写した（`a69abfee6`）
 - **Legacy の元のディレクトリの削除（`git rm`）は、自動の安全確認に止められたので行っていない。** 消す候補: 組み直し済みの元（FermiSurface、Si_doping_sample、
   TETRAHEDRON_HomoGas、TETRAHEDRON_HomoGas_test、BOLZTRAP、SLAB、SOCAXIS、AFsymmetry、LaGaO3_relax、ReNcub）、TestInstall と重なるもの（GdNldau、MATERIALS の erasldau・
   pdo_gwsc443・yh3fcc_gwsc666、SOC、InAsGaSb/n4、Samples_ISSP）、使えないもの（AHCSOCtest、UUmatSOC、TestHomoDimerAtom）。`superlattice` は StructureTool へ移す候補
@@ -1134,9 +1134,9 @@ afsym では SCF の中身（反復の数、モーメント、場、ehf、sev）
 
 | ビルド | `idu`（4f） | 反復 | mmom | ehk (eV) | Pr の軌道モーメント（f、スピン 1）(μ_B) |
 | --- | --- | --- | --- | --- | --- |
-| main（`2498e5283`） | 2 | 29（収束） | 2.0566 | −252676.315530 | −4.878 |
+| main（`a24d7e06d`） | 2 | 29（収束） | 2.0566 | −252676.315530 | −4.878 |
 | main | 12 | 80（収束せず） | 1.6612 | −252667.823373 | −2.847 |
-| `fix-idu10`（`b13e25edc`） | 2 | 29（収束） | 2.0566 | −252676.315530 | −4.878 |
+| `fix-idu10`（`587707974`） | 2 | 29（収束） | 2.0566 | −252676.315530 | −4.878 |
 | `fix-idu10` | 12 | 29（収束） | 2.0566 | −252676.315530 | −4.878 |
 
 - main に入れなかった理由: `idu` が 10 以上の LDA の結果が変わる。`Samples/MLOsamples` で `idu = 12` の 5 本を `fix-idu10` のビルドで回した
@@ -1172,7 +1172,7 @@ afsym では SCF の中身（反復の数、モーメント、場、ehf、sev）
   バンドを描くループも同じ設定の `kt1_bandplot_loop3.sh`（コア 8〜15）に替えた
 - スキャンはワーカーの入れ替えのあとで、固定なし・コア 0〜7 で入れ直す
 
-### 02:41 **`pwmode = 11` での LDA+U の密度行列と軌道モーメントが 2026-03-30 から壊れていた。直した（`2498e5283`）。ほかに `--ctrlg:` の無いキー、`egap(eV)` の単位**
+### 02:41 **`pwmode = 11` での LDA+U の密度行列と軌道モーメントが 2026-03-30 から壊れていた。直した（`a24d7e06d`）。ほかに `--ctrlg:` の無いキー、`egap(eV)` の単位**
 
 - きっかけ: Legacy の ReNcub（GdN、PrN の LDA+U）と SOCAXIS（FePt）を組み直していたエージェントが、`pwmode = 11` だと
   1 反復目の ehk が 10⁸ eV 台になり並列数で値が変わる、軌道モーメントの表が NaN になる、と報告した。コードで確かめた
@@ -1187,21 +1187,21 @@ afsym では SCF の中身（反復の数、モーメント、場、ehf、sev）
 
 | ビルド | 並列数 | mmom | ehk (eV) |
 | --- | --- | --- | --- |
-| 修正後（`2498e5283`） | 1 | 7.0000 | −307996.548249 |
+| 修正後（`a24d7e06d`） | 1 | 7.0000 | −307996.548249 |
 | 修正後 | 4 | 7.0000 | −307996.548249 |
-| 修正前（`4832ac3e8`） | 1 | 0.4702 | （数値にならない） |
+| 修正前（`cbbfa6ffb`） | 1 | 0.4702 | （数値にならない） |
 | 修正前 | 4 | 2.3339 | −267308717483.68 |
 
 - 残り: `m_bndfp` が `m_clsmode_finalize` に渡す `ndimh`（`vcdmel` のバンドの数）は module 状態のまま。`--cls` を `pwmode = 11` で使うときは要確認
 - 残り: `MLOsamples/GdCo5`・`RuO2`（`idu = 12`、`pwmode = 11`）の `rst`・`dmats` は 2026-05 に保存したもの。試験は保存した状態からバンドを描くだけなので通るが、
   保存した状態そのものを作り直すかは未判断（GdCo5 の `save` は ehf と ehk が 93 eV 違う）
-- `--ctrlg:` でファイルに無いキーを指定すると注記だけで読み飛ばしていた → 書き足すようにした（`e518a766f`）。`t_sigmaw` の行の無い Si の入力に
+- `--ctrlg:` でファイルに無いキーを指定すると注記だけで読み飛ばしていた → 書き足すようにした（`1cac2ca0e`）。`t_sigmaw` の行の無い Si の入力に
   `--ctrlg:gw.t_sigmaw=777` を付けて `gwsc 1`、`sigmaw_setup: ... t_sigmaw[K]= 777.0` を確認
-- `log.<sname>` の `egap(eV)` は Ry の値だった → eV に（`afbffde59`）。`fermiup.data` の見出しの単位も Ry に（`19a31536e`）
+- `log.<sname>` の `egap(eV)` は Ry の値だった → eV に（`16a217a71`）。`fermiup.data` の見出しの単位も Ry に（`41462328a`）
 
 ### 02:10 **テンプレートの温度（`t_tetrakbt = t_sigmaw = 300`）に替えると、ギャップの狭い系と金属では試験の QPU が許容を超えて動く。試験の入力の値（262、0）は変えない**
 
-- kt1（CPU 8 ランク、`~/bin_frozen_b81da2342`）で `testecalj --gwall --run-args="--ctrlg:gw.t_tetrakbt=300 --ctrlg:gw.t_sigmaw=300"`（01:55〜）。
+- kt1（CPU 8 ランク、`~/bin_frozen_989a18637`）で `testecalj --gwall --run-args="--ctrlg:gw.t_tetrakbt=300 --ctrlg:gw.t_sigmaw=300"`（01:55〜）。
   参照（`t_sigmaw = 262`、`t_tetrakbt = 0`）との QPU の差の最大（許容 0.011 eV）を表 02:10-1 に
 
 *表 02:10-1* 参照（入力のまま）との QPU の差の最大（eV）。「いつもの値」は同じ夜の fp64 の試験（入力のまま）での差の最大。
@@ -1222,9 +1222,9 @@ afsym では SCF の中身（反復の数、モーメント、場、ehf、sev）
   その状態の交換の自己項が減り、SEc が打ち消す
 - `log.<sname>` の `egap(eV)` の数値は Ry のままだった（gas の `0.013` は 0.176 eV）。元の lm7K は `egap*13.6` を書いていた。eV に直した
   （02:20、`m_bzintegration2.f90`。試験は `log` の `fp evl` の行しか比べないので参照は変えない）
-- 変換の注記（`(from esmr = 0.003 Ry)`、`(the former default; ctrlg_update.py, 2026-09-28)`）は 51 本の入力で素直な説明に置き換えた（`1b549446f`。値は同じ）
+- 変換の注記（`(from esmr = 0.003 Ry)`、`(the former default; ctrlg_update.py, 2026-09-28)`）は 51 本の入力で素直な説明に置き換えた（`8ff5e2bba`。値は同じ）
 
-### 01:45 **反強磁性の対称性（`symgrpaf`）の QSGW は動いていなかった。直した（`0fcb0045d`、`2c599ce04`）。NiO 2×2×2 の 2 反復で、対称性を使わない計算とギャップが 1.7 meV で一致**
+### 01:45 **反強磁性の対称性（`symgrpaf`）の QSGW は動いていなかった。直した（`4eb16a741`、`c99c83a4c`）。NiO 2×2×2 の 2 反復で、対称性を使わない計算とギャップが 1.7 meV で一致**
 
 - 確かめ方: `TestInstall/nio_gwsc` の入力に `symgrpaf = "i:( 1 1 1 )"` と `af = ±1` を足して `gwsc 2`（kt1 の CPU、01:17〜）。1 反復目の `hqpe_sc` で止まった
 - 原因 1（`m_qplist`）: GW のドライバ（`lmf --jobgw=1`）で両方のスピンを解く条件が、素の `--jobgw` の有無だった。オプションの照合が完全一致になった
@@ -1244,7 +1244,7 @@ afsym では SCF の中身（反復の数、モーメント、場、ehf、sev）
 - Fe（5×5×5、3 反復、01:08〜01:46）: モーメント 2.429（0 K）、2.426（300）、2.443（1000）、2.420（3000）、2.252 μ_B（5000）。Γ の d の交換分裂 2.619 / 2.604 / 2.688 / 2.492 / 1.842 eV。
   3000 K で Σ だけ −0.17 eV、χ0 だけ +0.06 eV。1000 K までの動き（最大 63 meV）は単調でない
 - `t_tetrakbt` ≤ 0 のときの Σ の Fermi 準位は `EFERMI` ではなく、`efsimplef2ax` が k メッシュの上で数えた値（Gaussian、幅 k_B·`t_sigmaw`）。
-  出力の表示 `ef<-EFERMI` とマニュアルの記述が違っていたので直した（`5d6af3c6c`、ecaljdoc `f2d9656`）
+  出力の表示 `ef<-EFERMI` とマニュアルの記述が違っていたので直した（`27860c1bb`、ecaljdoc `f2d9656`）
 
 ### 01:10 **GW1500: 状態を集計し（収束 1210、未収束 179、失敗 147、ギャップ無し 10）、失敗したものを今のコードで最初から回し直し始めた（kt1、`/mnt/data1/gw1500_rerun/run1`）**
 
@@ -1259,16 +1259,16 @@ afsym では SCF の中身（反復の数、モーメント、場、ehf、sev）
 ### 00:45 **文書と既定の整理**
 
 - LiTi₂O₄ のまとめ: `LiTi2O4/README.md`（設定の表、精度の比較、6³・9³ の 40 反復）。2026-06 の README は `README_202606_finiteT.md` に
-- `gwsc --mlo` の MLO の Σ の混合を既定にした（`ECALJ_MLO_MIX=0` で切る。`aaabe3df1`）。MLOQSGW の試験は環境変数なしで同じ結果
+- `gwsc --mlo` の MLO の Σ の混合を既定にした（`ECALJ_MLO_MIX=0` で切る。`6d04f8116`）。MLOQSGW の試験は環境変数なしで同じ結果
 - ecaljdoc: kBT.md をいまの仕様だけにし、2026-06〜09 の説明は kBT_history.md へ。15 頁の古い記述を直した（`f2d9656`、`b9c5e99`）
-- 試験（`fc1312ce2`、00:19〜）: kt1・kr7 とも inputs 114、install 64、eps 18、procar 5、mlo 45、mloqsgw 5、afsym 2、gwall（tf32 28、fp32 35、fp64 35）、heavy 8 が合格。
-  magnon は `Fe_bcc_in_sc_magnon` だけ不合格（kt1 と kr7 の結果は互いに一致、参照と K で 0.4 %、山の位置は 2.5 meV で一致）→ 山の位置で比べる試験にした（`b6f0e8af3`）
+- 試験（`0f389489d`、00:19〜）: kt1・kr7 とも inputs 114、install 64、eps 18、procar 5、mlo 45、mloqsgw 5、afsym 2、gwall（tf32 28、fp32 35、fp64 35）、heavy 8 が合格。
+  magnon は `Fe_bcc_in_sc_magnon` だけ不合格（kt1 と kr7 の結果は互いに一致、参照と K で 0.4 %、山の位置は 2.5 meV で一致）→ 山の位置で比べる試験にした（`caf5ea50c`）
 
 ## 2026-09-29 — fp64 の GPU の Σc がずれる件、tf32 を 40 まで、Samples の試験の続き
 
-### 20:55 **6³ fp64（`b81da2342`、kt1）の LDA からの 1 反復目の MLO バンドは、09-26 の fp32（`liti_mlo_v9` の 1 反復目）と t2g で最大 1 meV、2.6〜8 eV で 2 meV の差**
+### 20:55 **6³ fp64（`989a18637`、kt1）の LDA からの 1 反復目の MLO バンドは、09-26 の fp32（`liti_mlo_v9` の 1 反復目）と t2g で最大 1 meV、2.6〜8 eV で 2 meV の差**
 
-- 図: `LiTi2O4/liti2o4_k6fp64_iter1.png`（数値は `liti2o4_k6fp64_iter1_data.npz`）。fp64 は `fp64mix_b81da2342`
+- 図: `LiTi2O4/liti2o4_k6fp64_iter1.png`（数値は `liti2o4_k6fp64_iter1_data.npz`）。fp64 は `fp64mix_989a18637`
 - chain47 のワンショットは `ECALJ_MLO_MIX=1` を付けずに回していた（Σ^MLO が混ざらず β = 1）。混合は最後の hqpe_sc だけなので（user）、
   GW の結果はそのまま使い、hqpe_sc（`ECALJ_MLO_MIX=1`）→ `mlo --mlofreeze` → lmf の SCF だけを回し直した（20:49〜20:51）。sigm は前とバイト一致
 - ワンショットを手で回すときは `ECALJ_MLO_MIX=1` を忘れないこと（run_gwsc10.sh・cont_gwsc.sh は export している）
@@ -1286,16 +1286,16 @@ afsym では SCF の中身（反復の数、モーメント、場、ehf、sev）
 
 ### 08:30 **修正した版の fp64 が fp32 と一致（kt1 chain47、kr7）。6³ tf32 は 40 まででほぼ収束。9³ tf32 を 31〜40 に続けている（chain48）**
 
-- chain47（kt1、`b81da2342` を `~/bin_dev` に `--gemmul8` でビルド、既定＝使い回しなし）: fp64 の 1 反復目の SEc は fp32 と最大 0.001 eV、tf32 と 0.002 eV。1 反復 20 分。
+- chain47（kt1、`989a18637` を `~/bin_dev` に `--gemmul8` でビルド、既定＝使い回しなし）: fp64 の 1 反復目の SEc は fp32 と最大 0.001 eV、tf32 と 0.002 eV。1 反復 20 分。
   GEMMul8 の包みは別の `libgemmul8wrap.so` に入る（`strings libecaljF_gpu.so` では見えず、取り違えかけた）
-- kr7（`962c90d1b`、GEMMul8 なし＝cuBLAS の FP64、GPU 1 枚）: fp64 の 1 反復目の SEc は kt1 の fp32 と最大 0.001 eV（dSEnoZ は 0.003 eV、LDA を別の機械で解いた差）。1 反復 3 時間半
+- kr7（`66793571d`、GEMMul8 なし＝cuBLAS の FP64、GPU 1 枚）: fp64 の 1 反復目の SEc は kt1 の fp32 と最大 0.001 eV（dSEnoZ は 0.003 eV、LDA を別の機械で解いた差）。1 反復 3 時間半
 - 6³ tf32（chain44、31〜40）: 前の反復からの差は t2g 1.6〜4.7 meV、占有の 2 本 0.8〜2.4 meV（37 以降 1 meV 以下）。反復 14〜18 に上がり続けた t2g の 9 本目（x = 0.53）は
   29 の 0.942 eV で折り返し 40 で 0.908 eV（1 反復 3〜4 meV で下がる）。six_patterns.md の図 6・表 6
 - 9³ tf32（user 08:0x「31 以後がみたい」、chain48 を 08:03 に開始、`~/bin_frozen_9e881g`）: 31 は 08:24（1257 秒）。30 → 31 の差は t2g 5.7 meV、占有の 2 本 0.3 meV、
   b45〜52 5.1 meV、バンド 53（x = 4/9）5.577 → 5.579 eV
-- `mlo_rows.py` は反復を 30 までしか描かなかった（`range(1, 31)` の決め打ち、`d9854bebc` で 100 まで）
+- `mlo_rows.py` は反復を 30 までしか描かなかった（`range(1, 31)` の決め打ち、`004eb72ff` で 100 まで）
 
-### 07:40 **誤りは GEMMul8 の「A の分解の使い回し」: 使い回しを切るだけで fp64 が fp32 と 1 meV で一致（chain46）。既定で切った（`b81da2342`）**
+### 07:40 **誤りは GEMMul8 の「A の分解の使い回し」: 使い回しを切るだけで fp64 が fp32 と 1 meV で一致（chain46）。既定で切った（`989a18637`）**
 
 - chain46（07:16〜07:34、kt1）: fp64、表のまま GEMMul8（14 法）だが、A の分解を残さない（`ECALJ_LA_CACHE_GB=0`）。
 
@@ -1315,7 +1315,7 @@ afsym では SCF の中身（反復の数、モーメント、場、ehf、sev）
   iw ごとに beta = 1 で足し込む、2 巡目は残した A を使い回す）を cuBLAS の zgemm と比べると、使い回しありでも相対 1.3e-14。**再現しない**。
   本物の計算にしかない条件（キュー 1 の非同期のストリーム、key の無い GEMMul8 の積との混在、作業領域の伸び、大きさ）で壊れる。
   key の範囲ごとに使い回しを許して回せば、どの積かまで絞れる（未実施）
-- 07:39 chain47: kt1 の `~/ecalj_dev` を `b81da2342` にして `~/bin_dev` を `--gemmul8` でビルドし、既定のままの fp64 の 1 反復で確かめる
+- 07:39 chain47: kt1 の `~/ecalj_dev` を `989a18637` にして `~/bin_dev` を `--gemmul8` でビルドし、既定のままの fp64 の 1 反復で確かめる
   （`~/ecalj_dev` は HEAD で上書きしたので、09-27 の計測パッチも戻った）
 
 ### 07:20 **fp64 のずれの原因は GEMMul8: 同じ凍結したバイナリで積を cuBLAS に替えると、1 反復目の SEc が fp32 と 1 meV で一致（chain45）。`nttp` ではなかった**
@@ -1333,8 +1333,8 @@ afsym では SCF の中身（反復の数、モーメント、場、ehf、sev）
   cuBLAS の FP64 は RTX 5090 で遅く、この 1 反復に 1 時間 47 分（GEMMul8 では 930 秒）
 - kt1 の表（`~/bin_frozen_9e881g/ecalj_linalg_policy.toml`）は fp64 の zgemm・dgemm が `gemmul8:14`。fp32・tf32 の Σc の積は単精度（realsgemm・realhgemm）で
   GEMMul8 を通らないので、fp64 だけが壊れる。W(iω) の積は `key = 1000 + iw` で A（W）の分解を残して使い回す（`gemmul8_wrapper.cu` の g_kept）。
-  この使い回しと Σc の key は 09-27 03:50 の `5a87377e3` で入り、LiTi₂O₄ で fp64 を基準に使った性能比較はそれより前だった → LiTi₂O₄ で GEMMul8 の fp64 は確かめられていなかった
-- `nttp` の件（`962c90d1b`）は外れ（`nttp(0:nw)` は 2024-07 からある形）。変更は害が無いので残す。kr7 の前後比較は「修正前」を取りやめ、
+  この使い回しと Σc の key は 09-27 03:50 の `6f5b39ba2` で入り、LiTi₂O₄ で fp64 を基準に使った性能比較はそれより前だった → LiTi₂O₄ で GEMMul8 の fp64 は確かめられていなかった
+- `nttp` の件（`66793571d`）は外れ（`nttp(0:nw)` は 2024-07 からある形）。変更は害が無いので残す。kr7 の前後比較は「修正前」を取りやめ、
   kr7 の cuBLAS の fp64（「修正後」）だけ最後まで回す
 - 07:16 chain46: 同じく fp64 だが GEMMul8 のまま、A の使い回しだけを切る（`ECALJ_LA_CACHE_GB=0`）。これで fp32 と合えば使い回しの誤り、合わなければ GEMMul8 の積そのもの
 
@@ -1354,12 +1354,12 @@ user の指示で fp64 を止め（04:4x）、6³ tf32 を 31〜40 まで続け�
 
   SEx・SExcore・vxc は fp64 でも 1 meV で合う。ずれは SEc だけで、一番大きいのは −20 eV の深い準位（state 1: fp64 8.111、tf32 10.902 eV）
 - **見立て**: Σc の実軸の極の項の配列 `nttp(0:nw)` が、m_HamPMT と同じ形（BLOCK の中の、下限 0 の自動配列）。`nttp = 0`・`maxval(nttp)` は配列全体の操作。
-  MP の版はこのブロックの宣言が多く配置が違う → fp64（MP でない hgw_gpu）でだけ出る、と考えた。allocatable にした（`962c90d1b`、手元 gfortran の `--gwall` 35 件合格）
-- **kr7 で確かめる**（05:0x〜）: 修正前のビルドを `~/bin_before_e48a6952a` に凍結し、`962c90d1b` をビルド。LiTi₂O₄ 6³ を LDA から 1 反復、fp64 で「修正後」→「修正前」
+  MP の版はこのブロックの宣言が多く配置が違う → fp64（MP でない hgw_gpu）でだけ出る、と考えた。allocatable にした（`66793571d`、手元 gfortran の `--gwall` 35 件合格）
+- **kr7 で確かめる**（05:0x〜）: 修正前のビルドを `~/bin_before_35a04d6f8` に凍結し、`66793571d` をビルド。LiTi₂O₄ 6³ を LDA から 1 反復、fp64 で「修正後」→「修正前」
   （`~/liti_fp64test`、入力は kt1 の liti_src_full9 を ctrlg_update.py で `t_tetrakbt = -992.4` に）。kt1 の fp32・tf32・fp64 の QPU.1run と比べる
 - chain44（04:48〜）: 6³ tf32 の 31〜40
 - kr7 の B（09-28 23:24〜09-29 02:28）の残り: BenchmarkTest は fp64 で QPU が最大 0.030・0.028 eV ずれ（許容 0.011）→ fp64 の件の小さな現れかもしれない。
-  重い GW 4 件は 1 枚の GPU に GW 8 ランクでメモリ不足（試験の設定の誤り。`samples_tests.sh` は `--gpu` なら見えている GPU の数を `-np2` に、`03544a81c`）。
+  重い GW 4 件は 1 枚の GPU に GW 8 ランクでメモリ不足（試験の設定の誤り。`samples_tests.sh` は `--gpu` なら見えている GPU の数を `-np2` に、`cfb4849aa`）。
   Magnon の Fe_bcc_in_sc は TrKpm が相対 20%、TrRpm が相対 195%（共鳴の近く、README の注意の箇所）で不合格。GPU の TestInstall は fp64（`--all`）64、tf32 28、fp32 35 がすべて合格
 - mic（ifx、CPU）: inputs 114、TestInstall 64、EPS 18、PROCAR 5、MLOsamples 45、MLOQSGW 5、AFsymmetry 2 が合格。BenchmarkTest 以降を実行中
 
@@ -1369,22 +1369,22 @@ user の指示で fp64 を止め（04:4x）、6³ tf32 を 31〜40 まで続け�
 
 ### 23:55 **kr7 で Samples をすべて回す（user「kr7 でとにかくパッケージの Samples などをフルテスト」）。ここまで全部合格。gwinit の新しい既定（300 K）は GaAs で 1 meV 以下**
 
-- kr7（nvfortran 26.1、`e48a6952a` に道具の修正を足したもの）: inputs 114、TestInstall `--all`（CPU）64、EPS 6、PROCAR 5、MLOsamples 45（NiO666lda も）、
+- kr7（nvfortran 26.1、`35a04d6f8` に道具の修正を足したもの）: inputs 114、TestInstall `--all`（CPU）64、EPS 6、PROCAR 5、MLOsamples 45（NiO666lda も）、
   MLOQSGW 5、AFsymmetry 2 がすべて合格。いま GPU で BenchmarkTest → 重い GW 4 → Magnon、その後に GPU の TestInstall を
   fp64（`--all`）、tf32（`--gwall --mp`）、fp32（`--gwall --run-args=--prec=fp32`）で回す（D、予約済み）
 - getsyml（と ctrlgenToml.py・ctrlgenM1.py）が lmchk・lmfa を PATH から呼んでいた。kr7 では PATH に無くて PROCAR/Ni2MnGa が止まり、
-  mic では PATH にあった普段の `~/bin/lmchk`（古い版）を使っていた。自分の bindir のものを呼ぶように直した（`cccc74643`）
+  mic では PATH にあった普段の `~/bin/lmchk`（古い版）を使っていた。自分の bindir のものを呼ぶように直した（`0c462010c`）
 - **gwinit の新しい既定の確かめ**: GetStarted/GaAs の ctrls から ctrlgenToml.py で作ると `t_tetrakbt = 300`・`t_sigmaw = 300` が入り、`gwsc 0` が通る。
   EFERMI_kbt は 0.15332 Ry（EFERMI 0.15220 Ry、ギャップ 0.0216 Ry の中）。同じ入力の `t_tetrakbt = 0` と比べ、dSEnoZ の差は全 430 準位で最大 1.0 meV、平均 0
 - git の中に、`/home/takao/ecalj/...` を指す絶対パスの symlink が約 30 本ある（`SRC/exec/getsyml`、`SRC/exec/build/*`、`SRC/exec_gfortran/*`、
   Emacs のロックの `.#*`）。インストールは使っていないが、ほかの場所に置くと行き先が無い。片付けは user の判断待ち
 
-### 23:25 **kr7・mic で Samples の試験。nvfortran で MLOsamples/NiO666lda の MLO バンドが 3.8 meV ずれていた: m_HamPMT の「浅い局所軌道」の判定が飛ばされていた（`e48a6952a` で直した）**
+### 23:25 **kr7・mic で Samples の試験。nvfortran で MLOsamples/NiO666lda の MLO バンドが 3.8 meV ずれていた: m_HamPMT の「浅い局所軌道」の判定が飛ばされていた（`35a04d6f8` で直した）**
 
 - `TOOLS/samples_tests.sh`（組ごとに testecalj を回して最後の要約だけを数える）で kr7（nvfortran 26.1、GPU）と mic（ifx 2026、CPU）を回し始めた。
   kr7 の最初の回（23:01、`792514133`）: EPS 6、MLOQSGW 5、AFsymmetry 2 が合格、MLOsamples は NiO666lda だけ不合格
   （band_MLO_spin1/2 の最大差 3.8 meV、許容 0.074 meV）。PROCAR と TestInstall は gnuplot が無くて止まる（user に `sudo apt install -y gnuplot-nox` を依頼中）。
-  mic（23:11、`7f1a49cf2`）: TestInstall `--all` 64 件、EPS 6、PROCAR が合格
+  mic（23:11、`903f2ef3d`）: TestInstall `--all` 64 件、EPS 6、PROCAR が合格
 - **切り分け**: 手元の gfortran では NiO666lda は通る。job_mlo は CPU 版の lmf・mlo を呼ぶので GPU ではない。mlo のログを比べると、
   gfortran には `m_HamPMT: local orbital atom 1  l= 2 ... -> SHALLOW: LO is the model function`（Ni 3d の局所軌道をモデル関数にする、
   09-18 の `67089d67d`）の 2 行があり、nvfortran には無い。nskip の行より前の対角化も 8 回少なく、判定のブロックに入っていなかった
@@ -1396,19 +1396,19 @@ user の指示で fp64 を止め（04:4x）、6³ tf32 を 31〜40 まで続け�
 - 同じ形（BLOCK の中の、下限が 1 でない自動配列）は他に 6 か所: basnfp の `fac2l(0:lxx)`、locpot の `lxa(0:kmax)`、m_bandcal の
   `nk_all(0:numprocs-1)`（2 か所、mpi_allgather に渡す）、m_sxcf_sc の `nttp(0:nw)`、x0kf_ahc の `inbb(-1:1,nbb,nband_k)`（23:58 に機械的に洗った）。
   どれも配列全体の操作を含むが TestInstall の経路にあり、nvfortran（kr7 の CPU、kt1 の GPU）で試験は通っている。予防の書き換えはしていない
-- mic（ifx 2026、修正前の `7f1a49cf2`）でも NiO666lda は合格し SHALLOW の 2 行が出ていた: nvfortran だけの問題（23:30 に確認）
-- 試験の仕組みの穴を 3 つ直した（`1b9d4a3df`、`1eeb51128`、`d6468a97e`）:
+- mic（ifx 2026、修正前の `903f2ef3d`）でも NiO666lda は合格し SHALLOW の 2 行が出ていた: nvfortran だけの問題（23:30 に確認）
+- 試験の仕組みの穴を 3 つ直した（`00b53815a`、`f47180125`、`cc032b52e`）:
   1. getsyml は `seekpath` を使う。mic・kr7 の venv に無く、PROCAR/Ni2MnGa の `job_band --fatband` が syml 無しで止まった → 入れた
   2. testecalj は runprogs が失敗すると `Error exit!` でその場で終わり、前のターゲットの「OK! ALL PASSED」が最後の状態行に残る
      → `samples_tests.sh` は START と END の数が合わなければ STOPPED とする
   3. gnuplot の無い機械で job_dos などが例外で止まり、`--all` が fe で終わった → gnuplot が無ければ一行の注記を出して図を飛ばす
      （`pylib.utils.run_gnuplot`、comp.runprogs）。.glt は書く
 - Samples の ctrlg を全部 lmchk で読み、ctrlg_update.py の規則に照らす組 `inputs` を足した（手元 114 本合格）。
-  古い仕様の残りを片付けた（`aae6b1e88`）: MLOsamples/FeCo の読まれない GWinput（09-17 の片付けの漏れ）、LiTi₂O₄ の入力の `delta`・`GaussSmear`。
+  古い仕様の残りを片付けた（`80188dbb1`）: MLOsamples/FeCo の読まれない GWinput（09-17 の片付けの漏れ）、LiTi₂O₄ の入力の `delta`・`GaussSmear`。
   Al2O3_Cr の CASE*ok・test*、Si666gwsc/temp（開発のときの結果の控え）の GWinput と、TOML 化した組に残る旧 `ctrl.<sname>` 53 本は判断待ちで残した
-- 23:33 mic で `1eeb51128` の全部の組（inputs〜magnon、CPU）を開始。23:35 kr7 で CPU の組 C（inputs、TestInstall、PROCAR）を開始（B は GPU で bench 以降を実行中）
+- 23:33 mic で `f47180125` の全部の組（inputs〜magnon、CPU）を開始。23:35 kr7 で CPU の組 C（inputs、TestInstall、PROCAR）を開始（B は GPU で bench 以降を実行中）
 
-### 22:58 **SmearX0 をやめて `t_tetrakbt < 0` に（ecalj `0ef0fa5f9`、ecaljdoc `497ce14`）。空球入りの 9³ tf32 は反復 7 で止め、残りを chain43 に組み替えた。kr7 を整えた**
+### 22:58 **SmearX0 をやめて `t_tetrakbt < 0` に（ecalj `b4b64be66`、ecaljdoc `497ce14`）。空球入りの 9³ tf32 は反復 7 で止め、残りを chain43 に組み替えた。kr7 を整えた**
 
 - **smearing のキー**（user の判断、今晩）: 「t_tetrakbt だけにしよう。マイナスの温度で入れると SmearX0 として働く。必ず入れるので覚えやすい」。
   必須（0 も可）、gwinit のテンプレートは `t_tetrakbt = 300`・`t_sigmaw = 300`。`SmearX0 = s` と `t_tetrakbt = -T` は
@@ -1468,7 +1468,7 @@ user の指示で fp64 を止め（04:4x）、6³ tf32 を 31〜40 まで続け�
 - 空球入りの 9³ tf32（`qmlo_k9_tf32_es_i15`）は 20:10 に始まった。lmf は 20 原子、MLO は 150（`ndimMTO= 150`）、LDA の ehf は試しと一致。
   反復 1 の hgw は 20:14 から、GPU のメモリは 21 GB
 
-### 17:49 **ctrlg の `[struc]` に `nbas`・`nspec` を書かない。書いてあれば lmf が止まる（c00876edb）。数は `[[site]]`・`[[spec]]` の表の数。サイトを外すときはブロックごとコメントにする**（user「nbas/nspec は読み込まれないのではないか」「書かないほうがいいですよね」「書いてたらエラーにしましょう」「もし必要ならブロックごとコメントアウトすることで原子数は調整することとします。そうしとかないと事故が起こる」「ecaljdoc にも書く」）
+### 17:49 **ctrlg の `[struc]` に `nbas`・`nspec` を書かない。書いてあれば lmf が止まる（a00b856e0）。数は `[[site]]`・`[[spec]]` の表の数。サイトを外すときはブロックごとコメントにする**（user「nbas/nspec は読み込まれないのではないか」「書かないほうがいいですよね」「書いてたらエラーにしましょう」「もし必要ならブロックごとコメントアウトすることで原子数は調整することとします。そうしとかないと事故が起こる」「ecaljdoc にも書く」）
 
 - 経緯: TOML の読み手（`m_ctrl_toml_loader`）は表の数を数えるが、`[struc]` に数が書いてあればそちらが勝つ作り（表の一部だけを使う選び方のため。
   TestInstall/te が 12 サイトを `nbas = 3` で絞っていた）。古い ctrl から変換した入力には数が書かれていて、表だけを足した 2026-09-23 の空球の試しは 14 原子のまま回っていた
@@ -1742,7 +1742,7 @@ user の指示で fp64 を止め（04:4x）、6³ tf32 を 31〜40 まで続け�
 | 2/9 での 2 本の差（meV） | 12.2 | 3.4 | 7.3 |
 
 - 08:11 に始めた 9³ fp32 の 20 反復（`qmlo_k9_fp32n`）が、いまのコードの fp32 の基準になる。バイナリの 9e881 と HEAD の Fortran の違い
-  （dadf4c095 の sxs_ekc の添字、c9d811b89 の CoreEx の E_F と熱の核の積分点）は、LiTi₂O₄ の設定（t_tetrakbt = 0、core の表がすべて 0 で価電子の交換の nctot = 0、
+  （260dbd12a の sxs_ekc の添字、8545a6938 の CoreEx の E_F と熱の核の積分点）は、LiTi₂O₄ の設定（t_tetrakbt = 0、core の表がすべて 0 で価電子の交換の nctot = 0、
   CoreEx の E_F は価電子より下の −1.357 Ry）では効かない。9e881 の結果は HEAD と同じ
 
 ### 08:13 **反復 10 の占有の 2 本の 6³ とのずれは、09-26 の fp32 の 9³ でもいまの tf32 の 9³ でも同じ大きさ（rms 11.6 と 11.7 meV）。6³ では tf32 と fp32 の差は 0.3 meV。tf32 が原因とは考えにくい**（user「mlo_gwsc.md の 9³ では iteration 10 で 6³ と占有バンドが一致していたように見えた。この不一致は tf32 のせいかなと」）
@@ -1769,13 +1769,13 @@ user の指示で fp64 を止め（04:4x）、6³ tf32 を 31〜40 まで続け�
 
 - 止めた: tf32 の続き（`cont_gwsc.sh qmlo_k9_tf32n 21 25`）は反復 22 が 08:05 に終わった（rc=0、1273 秒、ehf −109763.428 eV、21 から −0.035 eV）。
   08:07 にループだけ止めた。22 のバンドは後始末で描く。続けるなら `cont_gwsc.sh qmlo_k9_tf32n 23 <N>`
-- 始めた: `qmlo_k9_fp32n`。バイナリは tf32 と同じ 9e881（`~/bin_frozen_9e881g` = `~/bin_frozen_9e881` に 688bc2b1e の gwsc を入れたもの）。
+- 始めた: `qmlo_k9_fp32n`。バイナリは tf32 と同じ 9e881（`~/bin_frozen_9e881g` = `~/bin_frozen_9e881` に e1cf8e50f の gwsc を入れたもの）。
   手順も同じで、反復 1〜10 は `run_gwsc10.sh`（gwsc 10）、11〜20 は `cont_gwsc.sh`。違うのは `--prec=fp32` だけ。GPU 2 枚
 - 投入前の確認: FROZEN_REV、.so の `__QMLO_zNew` 2、ctrlg は tf32 の run と md5 一致、GPU 2 枚とも空き、/dev/shm に OMPIO の残骸なし。ログの各段に `--use_fp32`
 - 見込み: hgw の fp32/tf32 の比 1.5（2026-09-27 11:40）から 1 反復 約 31 分。反復 10 が 13 時半ごろ、20 が 19 時ごろ。
   反復 1〜9 のバンドは gwsc が走っている間に `run_gwsc10.sh` が描く（`bnd_mlo_iter<N>.dat`、`bndPMT_iter<N>.dat`）
 
-### 08:07 **反復ごとのバンドを後から描けるようにした: gwsc が QSGW.<N>run に efermi.lmf・QMLO_SigRs・QMLO_z も残す（`688bc2b1e`）**（user「それは残すように改良しておく、プロットデータ残してないのか」）
+### 08:07 **反復ごとのバンドを後から描けるようにした: gwsc が QSGW.<N>run に efermi.lmf・QMLO_SigRs・QMLO_z も残す（`e1cf8e50f`）**（user「それは残すように改良しておく、プロットデータ残してないのか」）
 
 - いまの tf32 の 6³・9³ は gwsc 10 を一度に回したので、描いたのは反復 10 の後のバンドだけだった（9³ の 11〜22 は `cont_gwsc.sh` が反復ごとに描いた）。
   QSGW.<N>run には rst・sigm・QPU・ログしかなく、MLO バンドに要る QMLO_SigRs（9³ で 469 MB）と QMLO_z（131 MB）が無いので、反復 1〜9 の MLO バンドは描き直せない。
@@ -1948,7 +1948,7 @@ MLO バンド、1 行に 1 反復。左から 09-26 の fp32 の 9³（`liti_mlo
 
 ### 03:54 **記憶の無いエージェントの 2 本目の試験（ジョブの投入）で見つかったことを直した。一番危なかったのは `sync_ecalj_src.sh kt1` が本番の `~/ecalj` に送る作りだったこと**
 
-- `TOOLS/sync_ecalj_src.sh`: 送り先の既定を計算機ごとにし、kt1 は開発の `~/ecalj_dev` にした（`954e1179b`）。`--check-all` も送り先を表示する
+- `TOOLS/sync_ecalj_src.sh`: 送り先の既定を計算機ごとにし、kt1 は開発の `~/ecalj_dev` にした（`e36b1545b`）。`--check-all` も送り先を表示する
 - ForDevelopers §12: 待ちのループの `pgrep` が ssh の先の bash 自身に当たる（`[h]` で避ける）、`steps.log` の反復ごとの行は `gwsc 10` の最後に書かれる、
   GPU 0 だけの約束と例の `-np2 2`、`InstallAll.py` の最後の計測も GPU を使う、同じ機械の 2 本目（ロックは段ごと、`hgw` は 1 ノード 1 本）、
   GPU 1 枚の時間は今のコードでは測っていない、精度だけを比べるときのバイナリ、Samples の送り方とチェックサムでの確かめ方、既にある worktree の使い方
@@ -1994,7 +1994,7 @@ MLO バンド、1 行に 1 反復。左から 09-26 の fp32 の 9³（`liti_mlo
   9³ の一発（従来 QSGW の反復 1）も 0。6³ の MLO の鎖も反復 3〜4 に 2.7・4.1 meV 出て 9〜10 で 0 に戻った。6³ の従来 QSGW の反復 10 は 0。
   自己無撞着の反復の途中で出て、ゆっくり消えるうねりに見える（9³ は消え方が遅い）
 
-### 03:29 **kt1 の検証（chain34、`c046a0974` の SRC）は全部合格。9³ の続き（反復 11〜15）を開始**
+### 03:29 **kt1 の検証（chain34、`24e3b6068` の SRC）は全部合格。9³ の続き（反復 11〜15）を開始**
 
 - kt1 の `~/ecalj_dev` の計測パッチを戻し、夜の変更（有限温度の 2 つの修正、GL の区間分け、`fe_kbt`、gwsc の反復ごとのログ）を送ってビルド。
   SRC の全ファイル（3633 本）のチェックサムが手元と一致、4 本の `.so` に計測パッチの文字列が無いことを確かめた
@@ -2115,9 +2115,9 @@ MLO バンド、1 行に 1 反復。左から 09-26 の fp32 の 9³（`liti_mlo
   - 本番の入力に「SmearX0 = retired」という誤った注（実際は 0.0057 Ha を使っている）→ 直した
   - mlo_gwsc: 窓の基準を「索引の一部で連鎖を通じて固定」と読める文、古い hgw の時間、tf32 の 10 反復は「確かめている途中」→ 直した
   - ecaljgpu の 06 月の `--mp`（すべて TF32）の節、`--prec-final` の「最後の fp32 で消える」は走らせて確かめていない → 注を付けた
-  - 付録の「Σ^MLO(R) の局在は従来より良い（09-25 09:45）」は同日 10:30 に無効とされた数字 → 外した。`--gemmul8` の不具合は `e75ee4c76` で直っている
+  - 付録の「Σ^MLO(R) の局在は従来より良い（09-25 09:45）」は同日 10:30 に無効とされた数字 → 外した。`--gemmul8` の不具合は `20a9aa329` で直っている
   - ecaljclaude.md の「非同期は同期実行に戻したまま」、kBT §7.3 の「未修正」、§9-8 の 9³ 3000 K の説明、ecaljdoc へのリンクの `/ecaljdoc/` 抜け
-  - `gwsc N` では各反復の `lqpe`・`lmlo_sigr`・`llmfgw01` が上書きされて後から確かめられない → gwsc が `QSGW.<N>run/` に `lgw` などを写すようにした（`4cc1b3dd5`）
+  - `gwsc N` では各反復の `lqpe`・`lmlo_sigr`・`llmfgw01` が上書きされて後から確かめられない → gwsc が `QSGW.<N>run/` に `lgw` などを写すようにした（`daf41c19d`）
 - 9³ の比較の注意（試験の指摘）: 比べる相手の `liti_mlo_k9` は 09-26 の旧コード・fp32・窓の基準が LDA に固定。`qmlo_k9_tf32n` との差には精度・窓・コードの
   違いが混ざる（6³ では窓の違いだけで 9 反復後の MLO バンドが rms 8.4 meV 動いた、2026-09-27 02:45）。新コードの 9³ fp32 は無い
 - 9³ の `hgw` は凍結したバイナリの表で Σc の積を `realhgemm`（FP16 経路）で回している（`lgw` の `linalg policy` の行で確かめた）。GPU 2 枚を使っているのは、
@@ -2135,10 +2135,10 @@ MLO バンド、1 行に 1 反復。左から 09-26 の fp32 の 9³（`liti_mlo
 
   `hgw` の間は 2 枚とも電力の上限（500 W）の 93% で回っていて、左右差は無い
 
-### 00:20 **有限温度の回帰テスト `fe_kbt` を足した（`a874e5c9b`）。GPU 0・1 の使用率は 1 分平均でそろっている**
+### 00:20 **有限温度の回帰テスト `fe_kbt` を足した（`e13118138`）。GPU 0・1 の使用率は 1 分平均でそろっている**
 
 - `Samples/TestInstall/fe_kbt`: `fe_gwsc` の入力に `t_tetrakbt = t_sigmaw = 3000`。`gwsc 0`、QPU・QPD・`log.fe` を照合、`-np 8` で 40 秒。
-  参照は `a874e5c9b` のコード（SExcore は T=0 と同じ値）。23:45 の CoreEx のバグは SExcore を eV 動かすのでこれで捕まる。手元で合格
+  参照は `e13118138` のコード（SExcore は T=0 と同じ値）。23:45 の CoreEx のバグは SExcore を eV 動かすのでこれで捕まる。手元で合格
 - 9³ の反復 2 の `hgw`（23:59〜00:19、19.5 分）の終わりの 4 分間を 1 秒ごとに見た（`nvidia-smi`）: 1 分平均で GPU 0・1 とも 90〜95%、478〜500 W
   （電力の上限 500 W）。user が見た非対称（GPU 0 72%・413 W、GPU 1 96%・499 W）は瞬間値で、2 つのランクが別の q を別の順に処理しているため。
   `hgw` の最後の約 1 分は先に終わったランクの GPU が空く（00:19 に 49% と 31%）。lmf・mlo の段（1 反復 23 分のうち 3〜4 分）は両方空く
@@ -2148,8 +2148,8 @@ MLO バンド、1 行に 1 反復。左から 09-26 の fp32 の 9³（`liti_mlo
 
 ### 00:05 **手元の検証は全部合格。gwsc の MLO の初回が書いていた `PROCAR.UP.<rank>` を止めた。ファイルの統一は調べて見送り。文書を記憶の無いセッション向けに**
 
-- `testecalj -np 12 --all`（`b119d1722`、有限温度の 2 つの修正と GL の区間分けの入った版）: 766 件合格（23:59 に終了）
-- `gwsc --mlo` の MLO の初回の `lmf --writeham --mkprocar` から `--mkprocar` を外した（`ad4aa6104`）。ランクごとの `PROCAR.UP.<rank>` を書くだけで
+- `testecalj -np 12 --all`（`05ad933c7`、有限温度の 2 つの修正と GL の区間分けの入った版）: 766 件合格（23:59 に終了）
+- `gwsc --mlo` の MLO の初回の `lmf --writeham --mkprocar` から `--mkprocar` を外した（`f7e52b6c4`）。ランクごとの `PROCAR.UP.<rank>` を書くだけで
   誰も読んでいなかった（MLO-QSGW の実行ディレクトリに 16〜60 本残っていた）。`Samples/MLOQSGW` の GaAs・NiO（CPU、fp64）は合格し、PROCAR は 0 本
 - ファイルの統一: `__Vcoud.<iq>`、`__TETWT.<iq>.<isp>`、`__PPBRD_V2_<ic>`、`__BASFP<ic>` の書き手と読み手を調べて見送り（報告 §10.1 の箇条）
 - 文書: ForDevelopers に §12「ジョブの投入」（投入前の確認、kt1 の長い計算と凍結したバイナリ、ucgw の SGE の雛形、結果の残し方）、
@@ -2161,11 +2161,11 @@ MLO バンド、1 行に 1 反復。左から 09-26 の fp32 の 9³（`liti_mlo
 （user「lmf --jobgw=1 がなんとか高速化できないかな」「大きな系でも対応できるかな。とくに無駄なメモリ消費とかないかな」
 「全処理のポテンシャル２回もやって」「hsfp0_sc、hqpe_sc, mlo を見てほしい」「じゃあまずそれらをやってみて。コードクリーンアップも兼ねて」）
 
-### 23:45 **有限温度の E 積分を 4 区間 × GL5 に（`c9d811b89`）。その試験で CoreEx の E_F の上書きが見つかった。23:25 の sxs_ekc の修正で、隠れていた誤りが全部出ていた**
+### 23:45 **有限温度の E 積分を 4 区間 × GL5 に（`8545a6938`）。その試験で CoreEx の E_F の上書きが見つかった。23:25 の sxs_ekc の修正で、隠れていた誤りが全部出ていた**
 
 - GL: Fe 3000 K 5³（`Samples/kBT/Fe`、`gwsc 1`、手元の gfortran 8 rank、1 回 40 秒）。`EFERMI_kbt` の誤差（幅 0.1 の 120 区間 × GL5 = 600 点に対して）は
   GL20 −9.4 meV → 4 区間 −1.2 meV。QP（dSEnoZ）は SEx と SEc がそれぞれ最大 70 meV 動くが、和は 6 meV 以内
-- CoreEx: 修正前のバイナリ（`dadf4c095`）で SExcore が T=0 から平均 3.0 eV（E_F ±3 eV、最大 5.0 eV）ずれていた。`main_hsfp0.sc` の
+- CoreEx: 修正前のバイナリ（`260dbd12a`）で SExcore が T=0 から平均 3.0 eV（E_F ±3 eV、最大 5.0 eV）ずれていた。`main_hsfp0.sc` の
   `if(t_tetrakbt > 0) ef = ef_kbt` が ixc=3 の ef（価電子の底の下）を上書きし、ef から数える `nt0p` に占有された価電子の状態が入る。
   以前は sxs_ekc の添字のずれで、その重みが nctot 本上の（空の）バンドのエネルギーで計算されて 0 になっていたので、09-20 の結果は T=0 と一致していた。
   23:25 に添字だけを直したことで全部出た。push していないので外には出ていない
@@ -2190,7 +2190,7 @@ MLO バンド、1 行に 1 反復。左から 09-26 の fp32 の 9³（`liti_mlo
 
 ### 23:35 **LDA から tf32 で `gwsc 10` が終わった（39 分）。10 反復目の MLO バンドと sigm バンドは fp32 と rms 0.3 meV、最大 0.8 meV（±3 eV）**（user「tf32 のバンドできたら見たい」）
 
-*表 23:35-1* `qmlo_k6_tf32n`（tf32、`9e881bc63`）− `qmlo_k6_gwsc10`（fp32、09-26 のコード）。`cmp_gwsc10.py`、QPU の $\vert e-E_F\vert<3$ eV の最大
+*表 23:35-1* `qmlo_k6_tf32n`（tf32、`b4bcb7adf`）− `qmlo_k6_gwsc10`（fp32、09-26 のコード）。`cmp_gwsc10.py`、QPU の $\vert e-E_F\vert<3$ eV の最大
 
 | 反復 | ehf の差 | 出発の固有値の差 | QP シフトの差 | 反復の終わり |
 | --- | --- | --- | --- | --- |
@@ -2220,17 +2220,17 @@ MLO バンド、1 行に 1 反復。左から 09-26 の fp32 の 9³（`liti_mlo
   書き方の方針と GPU の教訓は `ecaljclaude.md`（`ForDevelopers` §2・§6 はそこを指すだけにした）
 - 報告書 §2.1: tf32 の FP16 経路（Σc の積、実数形、スケール、key、精度、範囲）を式番号付きで。§9.3・§9.5 の古い記述（B は走査して変換）を直した
 
-### 22:50 **LDA から tf32 で `gwsc 10`（`qmlo_k6_tf32n`、`9e881bc63`）を開始**（user「LDA スタートで 10 反復で収束まで持っていって。ログにある結果と比較する」）
+### 22:50 **LDA から tf32 で `gwsc 10`（`qmlo_k6_tf32n`、`b4bcb7adf`）を開始**（user「LDA スタートで 10 反復で収束まで持っていって。ログにある結果と比較する」）
 
 - `run_gwsc10.sh`（`PREC=tf32`、入力 `liti_src_full9`、`~/bin_dev`、GPU 2 枚）。比べる相手は fp32 の `qmlo_k6_gwsc10`（09-26 のコード、10 反復）と、
   5 反復で止めた tf32 の `qmlo_k6_tf32h`（15:50 のコード）。表 16:25-1 の形で比べる
 
-### 22:47 **画面出力を変えた版（`9e881bc63`）の 1 反復: 212.8 秒、QPU はバイト一致。この反復で STDOUT にできたファイルは 0 本（旧版は 68 本）**
+### 22:47 **画面出力を変えた版（`b4bcb7adf`）の 1 反復: 212.8 秒、QPU はバイト一致。この反復で STDOUT にできたファイルは 0 本（旧版は 68 本）**
 
 - `lgw` にランク 0 の出力（32068 行、3.2 MB）: (q, k) ごとの進み具合と `Memused` 10464 行。旧版の `STDOUT/stdout.0000.hgw` と同じ中身
 - ランク 0 のタイマーの合計（8 q）: Σc 115 秒（うち積とカーネル 97、zmel 17）、W の構築 40 秒（逆行列 11、χ0 の積 9、zmel 7、Hilbert 5、基底の変換 2）
 
-### 22:25 **画面出力と rx を整理（`9e881bc63`）**（user「ファイルが多くて面倒」「途中経過やメモリは見たい」「rx はうまくできてないかも、直して」）
+### 22:25 **画面出力と rx を整理（`b4bcb7adf`）**（user「ファイルが多くて面倒」「途中経過やメモリは見たい」「rx はうまくできてないかも、直して」）
 
 - `MPI__consoleout`: ランク 0 はそのままログへ、ほかのランクは /dev/null。`--fullstdo` で従来のランクごとのファイル
 - `rx.f90`: エラー終了を `rx_stop` にまとめ、stdout と stderr（ランク番号付き）に出して MPI_Abort（MPI が動いていなければ exit）。
@@ -2238,7 +2238,7 @@ MLO バンド、1 行に 1 反復。左から 09-26 の fp32 の 9³（`liti_mlo
   `rx0` は MPI__Initialize を通らないプログラムで m_mpi の comm を使っていた。`hwmatK` の ixc=10011 ではランク 0 以外が mpi_finalize の後も先へ進んでいた
 - 手元: si_gwsc・gas_gwsc（-np 4）合格、stdout.* は 0 本。`lmf nosuchmaterial` は rc=11 で stderr に `rank 0:`・`rank 1:`、`lmf --help` は 0.74 秒で正常終了
 
-### 22:20 **kt1 の GPU 検証（chain33、`1bdbe315c`）は全部合格**
+### 22:20 **kt1 の GPU 検証（chain33、`d409f1958`）は全部合格**
 
 - TestInstall の `--gwall`: GPU fp64・tf32・fp32、CPU とも ALL PASSED。`Samples/MLOQSGW`: tf32（NiO 0.0154、許容 0.02）、fp32（0.0008）
 - 手元の gfortran `--all`（`-np 12`）: 766 件合格
@@ -2249,14 +2249,14 @@ MLO バンド、1 行に 1 反復。左から 09-26 の fp32 の 9³（`liti_mlo
   上限を超えた候補を組ごと外す）。表は形ごとではなく組ごとに決まる。効いても hgw 全体で 1〜2%
 - RTX 5090 は INT8/FP32 のピーク比が約 8 倍で、7 分解の Ozaki と SGEMM が並ぶ。比の大きい GPU では違いうる（未確認）
 
-### 22:10 **記録の方針を `ecaljclaude.md` に（`7077fe1d8`、`8e7f23364`）、`CLAUDE.md` から毎回読み込む（`2fac9ab06`）**（user「メモリの方針も ecalj/ 下に配布できるように」「おいて」）
+### 22:10 **記録の方針を `ecaljclaude.md` に（`39edbffa6`、`9f877c9cd`）、`CLAUDE.md` から毎回読み込む（`3a70f702f`）**（user「メモリの方針も ecalj/ 下に配布できるように」「おいて」）
 
 - コメント: 変更・判断・計測・バグ修正の注記に日付時刻。経緯・計測は設計の理由になるものだけ、将来混乱を招くものは書かない、バグ修正は書く
   （user「コメントには日付時刻は書いて。経緯や計測値は必要なものは書いて。ただ整合性を保ち続けるのはしんどいでしょうから将来的に混乱を招くものは書かない」
   「バグフィックスならかいてもいいかも」）。整合性のメモ（近くのコメントを読み直す、名前を変えたら grep、行番号を書かない、エージェントの指摘は確かめる）
 - 適用ガイドラインに「k 点ごとのデータは引数で明示的に渡す」（addrbl）、OpenACC の今日の教訓 4 つ
 
-### 21:59 **コード点検（今日の 87 コミット、41 ファイル、約 4000 行）: `1bdbe315c`（コメント・死んだコード）、`2844563b7`（日付時刻付きに）**（user「コードはクリーンになっているか？」）
+### 21:59 **コード点検（今日の 87 コミット、41 ファイル、約 4000 行）: `d409f1958`（コメント・死んだコード）、`7c03c8409`（日付時刻付きに）**（user「コードはクリーンになっているか？」）
 
 - 4 つのエージェントに読ませ、指摘は全部コードで確かめてから反映。誤報が 1 つ: 「x0kf の k まとめが npm=2 で壊れる」は `x0kf_zxq` の冒頭で止まっていた。
   ただし将来 npm=2（時間反転が破れた場合、user「jpm は将来のために残している」）を許したときの罠なので、k まとめを npm=1 のときだけにした
@@ -2268,9 +2268,9 @@ MLO バンド、1 行に 1 反復。左から 09-26 の fp32 の 9³（`liti_mlo
 ### 21:34 **QSGW 1 反復（LiTi2O4 6³、tf32、MLO）: 237 → 212 秒。hgw 以外が 66 → 42 秒**
 
 18:34 と同じ出発点（`qmlo_k6_tf32h` の 5 反復目のコピー `/mnt/data1/LiTi2O4_kbt_runs/iter1_0927b`）で同じ `run1.sh`
-（`gwsc 1 -np 60 -np2 2 --gpu --prec=tf32 --ntqxx --mlo`、GPU 2 枚、`ECALJ_MLO_MIX=1`）。コードは `208a65a09`（kt1 の SRC は手元の HEAD と全ファイル一致）。単位は秒。
+（`gwsc 1 -np 60 -np2 2 --gpu --prec=tf32 --ntqxx --mlo`、GPU 2 枚、`ECALJ_MLO_MIX=1`）。コードは `e2cb402ef`（kt1 の SRC は手元の HEAD と全ファイル一致）。単位は秒。
 
-| 段 | 18:34（`6dbad4ddc`） | 今回（`208a65a09`） |
+| 段 | 18:34（`a74c9d118`） | 今回（`e2cb402ef`） |
 |---|---|---|
 | lmf --jobgw=1（CPU 60） | 20.8 | 9.8 |
 | heftet・hbasfp0 ×2 | 1.8 | 1.1 |
@@ -2289,7 +2289,7 @@ MLO バンド、1 行に 1 反復。左から 09-26 の fp32 の 9³（`liti_mlo
 - 残り: hsfp0_sc の `build_zmel` のカーネル起動と同期（GPU 1 枚で約 2 秒）、hqpe_sc の matmul と混合履歴の読み書き（約 0.7 秒）、
   mlo の初期化（約 0.6 秒）。どれも 1 秒前後なので追わない
 
-### 21:26 **hsfp0_sc --job=3（コアとの交換）: GPU 1 枚で 11.9 → 7.4 秒、CPU 60 本で 153 → 57 秒**（`208a65a09`）
+### 21:26 **hsfp0_sc --job=3（コアとの交換）: GPU 1 枚で 11.9 → 7.4 秒、CPU 60 本で 153 → 57 秒**（`e2cb402ef`）
 
 - nsys: GPU の時間の大半は **M 基底から E 基底への変換**（`build_zmel` の最後の積、1 回 36 GFlop、全 ngb = 788 行）と、交換の積
   （158 × 158、k = 46 状態 × 788）。後者は出力のタイルが数個しかなく、170 SM のうち数 SM しか使っていなかった
@@ -2301,7 +2301,7 @@ MLO バンド、1 行に 1 反復。左から 09-26 の fp32 の 9³（`liti_mlo
   旧コードの np=1 と np=2 の差（0.37 meV、FP32 で 3456 回足し込む揺らぎ）と同じ大きさ
 - 残りは 1 回（q, k）あたり約 130 回のカーネル起動と約 100 回の同期（原子ごとの小さな OpenACC 領域）
 
-### 21:10 **hqpe_sc: 3.9 → 1.5 秒。Σ^MLO(R) の Bloch 和の位相を原子対ごとに**（`1bd21c5d1`）
+### 21:10 **hqpe_sc: 3.9 → 1.5 秒。Σ^MLO(R) の Bloch 和の位相を原子対ごとに**（`2e77ad6b6`）
 
 - `ECALJ_MLO_MIX=1` の $x_0$（QMLO_SigRs の 16 q での Bloch 和）が 2.5 秒: `sigmlo_sigq` が (i, j, R) ごとに exp を計算していた（1 q あたり 860 万回）。
   位相は原子対と R だけで決まるので原子対ごとに 1 回
@@ -2309,7 +2309,7 @@ MLO バンド、1 行に 1 反復。左から 09-26 の fp32 の 9³（`liti_mlo
 - `sigm` はビット一致、`__QMLO_Sig` は相対 5.7e-16（R の和の順序）
 - 残りの 1.5 秒: 起動 0.3、q ごとの 320 次元の matmul 0.5、混合履歴（`__mixsig` 325 MB、`__QMLO_mixsig` 98 MB）の読み書き 0.3
 
-### 21:06 **mlo --mlofreeze: Σ^MLO だけに（単体 5.4 → 3.9 秒）。旧 cmlo の段が sugw の `__cmlo.data` を上書きしていた**（`fff936214`）
+### 21:06 **mlo --mlofreeze: Σ^MLO だけに（単体 5.4 → 3.9 秒）。旧 cmlo の段が sugw の `__cmlo.data` を上書きしていた**（`cc8c7101d`）
 
 - 凍結の回は HamRsMLO を書き直さないので、要るのは Σ^MLO(q) → QMLO_SigRs だけ。PMT の H の既約点での簡約（Hreduction、nskip の下見、
   誰も読まない `__amlo.data`）と、H・O の回転と Fourier 変換をやめた。MLO の添字は HamRsMLO の末尾から読む（ShallowLO を解き直さない）ので、
@@ -2321,29 +2321,29 @@ MLO バンド、1 行に 1 反復。左から 09-26 の fp32 の 9³（`liti_mlo
 - QMLO_SigRs は旧版と最大 6.9e-18（|Σ| の最大 2.8e-2、ランク間の和の順序）
 - 60 ランクの起動が残りの大半。ランク数を 8〜16 にすると 2.0〜2.2 秒だが、gwsc の設定は変えない（user「もうそれはいいわ」）
 
-### 21:06 **起動: 1 ランクの CPU プログラムだけ GPU を隠す（0.53 → 0.26 秒）**（`9ca76ba03`、`1bd21c5d1`）
+### 21:06 **起動: 1 ランクの CPU プログラムだけ GPU を隠す（0.53 → 0.26 秒）**（`9a47a50f5`、`2e77ad6b6`）
 
 - HPC-X の MPI_Init は CPU のプログラムでも全 GPU を調べる。heftet・hbasfp0 ×2・hqpe_sc は `CUDA_VISIBLE_DEVICES=""` で半分になる
 - 60 ランクでは効かない（8 回の中央値: そのまま 1.85 秒、隠すと 2.25 秒、さらに `UCX_TLS=self,sm` で 2.16 秒）。env.sh を読まない
   mpihello では 2.4 → 1.1 秒に見えたが、実際の環境では再現しなかったので入れない
 - GPU を隠すと UCX が HPC-X の `UCX_CUDA_*` 設定を「未使用」と警告するので `UCX_WARN_UNUSED_ENV_VARS=n` も付ける
 
-### 20:11 **lmf --jobgw=1: 21.1 → 10.2 秒（CPU 60）。xc 抜きの H を別に解かない、ポテンシャルも 1 回で**（`10fe977d4`〜`48975d332`）
+### 20:11 **lmf --jobgw=1: 21.1 → 10.2 秒（CPU 60）。xc 抜きの H を別に解かない、ポテンシャルも 1 回で**（`b2e631714`〜`e15b1a993`）
 
 | 手 | commit |
 |---|---|
-| cphi・geig の Gram-Schmidt をホストでは Cholesky QR（$S = z^\dagger O z$、zpotrf、ztrsm）に。Hreduction の fac を積 2 回に | `10fe977d4` |
-| H と xc 抜きの H を 1 回で（`hambl2`: augmbl・smhsbl・hsibl がもう一方のポテンシャルの分も同じ所で足す） | `1aaa85442`、`beb83d454` |
-| hsibl: 全サイトの基底関数の PW 係数を 1 回作り、同じ打ち切りのサイトの並びごとに積 1 回（2 つのポテンシャルを同じ積で） | `2a006dac9` |
-| pwmat: IPW との重なりの積は MTO の列だけ、APW の列は表引き。ホストでは MTO の列を FFT の相関で | `ddc30666b`、`c79ff0a09` |
-| mkpot: xc 抜きのポテンシャル（spotx、oppix）を全体と同じ 1 回の mkpot で（smves の後の smpot を写し、oppix は v1es・v2es で potpus〜gaugm を 1 回足す） | `48975d332` |
+| cphi・geig の Gram-Schmidt をホストでは Cholesky QR（$S = z^\dagger O z$、zpotrf、ztrsm）に。Hreduction の fac を積 2 回に | `b2e631714` |
+| H と xc 抜きの H を 1 回で（`hambl2`: augmbl・smhsbl・hsibl がもう一方のポテンシャルの分も同じ所で足す） | `6171a7d12`、`1fa85e8f9` |
+| hsibl: 全サイトの基底関数の PW 係数を 1 回作り、同じ打ち切りのサイトの並びごとに積 1 回（2 つのポテンシャルを同じ積で） | `f2e26cf63` |
+| pwmat: IPW との重なりの積は MTO の列だけ、APW の列は表引き。ホストでは MTO の列を FFT の相関で | `e2ce2e880`、`5a8d2c0e5` |
+| mkpot: xc 抜きのポテンシャル（spotx、oppix）を全体と同じ 1 回の mkpot で（smves の後の smpot を写し、oppix は v1es・v2es で potpus〜gaugm を 1 回足す） | `e15b1a993` |
 
 - SCF の hsibl も 1 回 0.48 → 0.34 秒
 - 大きな系のメモリ: hvccfp0 の原子群ごとの sigx（ngc 4500 で 3.6 GB）をやめて群ごとに vcoul_termb（約 0.3 GB）、hambl2 の ndimh² の一時配列をやめた、
   strxq_all の q 空間の位相表を対のかたまりごとに、pwmat の FFT は ngp × 4096 のかたまりを持たない
 - mkpot を 1 回にした版は旧版とビット一致しない。旧版は xc 抜きの mkpot を先に呼んでいて、全体のポテンシャルがその呼び出しの後の状態に
   依存していた（デバッグ出力で確認）。新版は 1 回目の呼び出しの結果と同じ。追わない（user「ちゃんと回る、というのなら突き詰めなくていいだろう」）
-- 手元の gfortran で `--all` は `2a006dac9` と `48975d332` で合格
+- 手元の gfortran で `--all` は `f2e26cf63` と `e15b1a993` で合格
 
 ## 2026-09-27 夕方 — hvccfp0（クーロン行列）の GPU 化
 
@@ -2353,7 +2353,7 @@ MLO バンド、1 行に 1 反復。左から 09-26 の fp32 の 9³（`liti_mlo
 ### 18:34 **QSGW 1 反復（LiTi2O4 6³、tf32、MLO）: 342 → 237 秒。hvccfp0 は 2 本で 40.7 → 8.0 秒、hgw は 237 → 171 秒**
 
 `qmlo_k6_tf32h`（15:50 のコードで 5 反復）の状態をコピーした `/mnt/data1/LiTi2O4_kbt_runs/iter1_0927` で `gwsc 1`
-（`-np 60 -np2 2 --gpu --prec=tf32 --ntqxx --mlo`、GPU 2 枚、`6dbad4ddc`）。比較は同じ流れの反復 5（15:50 のコード）。単位は秒。
+（`-np 60 -np2 2 --gpu --prec=tf32 --ntqxx --mlo`、GPU 2 枚、`a74c9d118`）。比較は同じ流れの反復 5（15:50 のコード）。単位は秒。
 
 | 段 | 前回（反復 5） | 今回（反復 6） |
 |---|---|---|
@@ -2371,8 +2371,8 @@ MLO バンド、1 行に 1 反復。左から 09-26 の fp32 の 9³（`liti_mlo
 lmf の SCF の差は収束の進み具合によるもので、コードの違いではない。hvccfp0 の 2 本の時間には 1 本あたり約 1 秒の起動が入る。
 いまの内訳は hgw 72%、lmf 15%、mlo 4%、hvccfp0 3%、hsfp0_sc 3%、hqpe 2%。
 
-手元の gfortran ビルドで、午後の `bb6de0128`（χ0 の k まとめ）に `igb` の二重宣言があり CPU 版がビルドできないことが分かった
-（nvfortran は通す）。`ccb849bc6` で直し、`--all` をやり直している。
+手元の gfortran ビルドで、午後の `33c7b01b7`（χ0 の k まとめ）に `igb` の二重宣言があり CPU 版がビルドできないことが分かった
+（nvfortran は通す）。`f50457250` で直し、`--all` をやり直している。
 
 ### 18:30 **hvccfp0 は 1 ランク 17 q で 34 → 4.1 秒。`__Vcoud` の固有値は旧コードと最大固有値比 2.6e-13**
 
@@ -2381,14 +2381,14 @@ LiTi2O4 6³、`hvccfp0 --job=0`、1 ランク（RTX 5090 1 枚）、17 q。ngc �
 
 | 手 | commit | 秒 |
 |---|---|---|
-| 開始時点（午後の hgw 改修まで） | `2431e1c44` | 34 |
-| fjj（Wronskian）を q+G ごとの Bessel 値・傾きの表から作る（対ごとの radkj 2 回をやめた） | `322a59566` | 21.0 |
-| vcoulq_4 が Bessel 表を mkjp_4 から受け取る | `6685f2054` | 15.3 |
-| m_bessl の作業配列を固定長に（`acc routine` 内の自動配列は呼ぶたびにデバイスのヒープ確保。Bessel 表 1 回 101 ms → 15 ms） | `fc132f70a` | 10.8 |
-| a1r（`r_<^l / r_>^(l+1)` の核を掛けた表）と sigx を原子群ごとに 1 回、(l, G) 並列で作る。全群の Bessel 表（480 MB）は持たない | `f73567fdf` | 6.4 |
-| strx のエルミート性と p=0 ブロックの再利用（strxq 196 → 92 回） | `9bb091f8e` | 5.4 |
-| rojp・sgpb・fouvb を GPU に置いたまま vcoulq_4 へ（1 q あたり約 170 MB の往復をやめた） | `aaa22b8e4` | 5.0 |
-| `strxq_all`: 全原子対の Ewald 和（q 空間は ZGEMM 1 回、実空間は (T, 対) ごとのスレッド＋DGEMM）と CG 和を GPU で | `6dbad4ddc` | 4.1 |
+| 開始時点（午後の hgw 改修まで） | `9bfea3432` | 34 |
+| fjj（Wronskian）を q+G ごとの Bessel 値・傾きの表から作る（対ごとの radkj 2 回をやめた） | `ec82badef` | 21.0 |
+| vcoulq_4 が Bessel 表を mkjp_4 から受け取る | `4dd2c8028` | 15.3 |
+| m_bessl の作業配列を固定長に（`acc routine` 内の自動配列は呼ぶたびにデバイスのヒープ確保。Bessel 表 1 回 101 ms → 15 ms） | `795cee1fd` | 10.8 |
+| a1r（`r_<^l / r_>^(l+1)` の核を掛けた表）と sigx を原子群ごとに 1 回、(l, G) 並列で作る。全群の Bessel 表（480 MB）は持たない | `87ae1626b` | 6.4 |
+| strx のエルミート性と p=0 ブロックの再利用（strxq 196 → 92 回） | `2aaeabe75` | 5.4 |
+| rojp・sgpb・fouvb を GPU に置いたまま vcoulq_4 へ（1 q あたり約 170 MB の往復をやめた） | `2560b8175` | 5.0 |
+| `strxq_all`: 全原子対の Ewald 和（q 空間は ZGEMM 1 回、実空間は (T, 対) ごとのスレッド＋DGEMM）と CG 和を GPU で | `a74c9d118` | 4.1 |
 
 精度:
 - `__Vcoud` の固有値の差は最大固有値の 2.6e-13。個々の固有値で見た相対差 1.5e-6 は最小付近（0.02〜0.2、最大は 3e5）だけで、
@@ -2411,11 +2411,11 @@ user の TODO（14:40）: ①残したことをやる ②`mlo_gwsc.md` を読み
 
 | 手 | commit | tf32 | fp32 |
 | --- | --- | --- | --- |
-| Σc の重み付けカーネルを平たい並列ループに（虚軸の重みがメモリ帯域の約 15% しか出ていなかった） | `2208fe949` | 237.2 → 233.3 | — |
-| `build_zmel` の平面波の積を全状態で実数 SGEMM 1 回に（状態ごとの gather と積が build_zmel 58 秒のうち 34 秒） | `88eaaa131` | → 217.6 | 411.7 → 388.1 |
-| FP16 経路の B を重み付けのカーネルが直接 FP16 で書く（B の走査と変換が 1 回の hgw で GPU 17.7 秒） | `cd8641b2d` | → 197.2 | 変わらず |
-| readeigen: 回転した固有関数を k 点ごとにデバイスに取り置く（1 ランクで 5200 回の呼び出しに 432 の k 点） | `2431e1c44` | → 186.9 | 388.7 → 380.5 |
-| χ0 を最大 8 k 点まとめてビンごとに積 1 回（k・ビンごとの小さな積が 1 ランク 1 q ループで 48 万回） | `bb6de0128` | → 172.6 | 380.5 → 367.4 |
+| Σc の重み付けカーネルを平たい並列ループに（虚軸の重みがメモリ帯域の約 15% しか出ていなかった） | `ed946023e` | 237.2 → 233.3 | — |
+| `build_zmel` の平面波の積を全状態で実数 SGEMM 1 回に（状態ごとの gather と積が build_zmel 58 秒のうち 34 秒） | `d49bc8d78` | → 217.6 | 411.7 → 388.1 |
+| FP16 経路の B を重み付けのカーネルが直接 FP16 で書く（B の走査と変換が 1 回の hgw で GPU 17.7 秒） | `cc9113900` | → 197.2 | 変わらず |
+| readeigen: 回転した固有関数を k 点ごとにデバイスに取り置く（1 ランクで 5200 回の呼び出しに 432 の k 点） | `9bfea3432` | → 186.9 | 388.7 → 380.5 |
+| χ0 を最大 8 k 点まとめてビンごとに積 1 回（k・ビンごとの小さな積が 1 ランク 1 q ループで 48 万回） | `33c7b01b7` | → 172.6 | 380.5 → 367.4 |
 
 - どれも Σ は前の版と表示の桁で一致（FP16 の B は Re Σc の倍精度との差 1.282 → 1.283 meV）
 
@@ -2435,7 +2435,7 @@ user の TODO（14:40）: ①残したことをやる ②`mlo_gwsc.md` を読み
 - ehf の −20〜−33 meV は Σc の一様な縮み（tf32 の誤差の性質）が占有状態の和に効くもの
 - user の指示で 16:22 に止めた（反復 6 の hvccfp0 の途中）。9³ は始めていない。次は Σc 以外の時間（W の構築、zmel の構築）を nsys で調べて削る
 
-### 16:25 **部分 DOS のプロセス数依存を直した（`8bd2513b6`）。`co` は -np 5・6・8 で合格**
+### 16:25 **部分 DOS のプロセス数依存を直した（`3fa93489d`）。`co` は -np 5・6・8 で合格**
 
 - `pdosalla` の未初期化（`slinz` は足し込み）を先に疑って 0 初期化を入れたが、ずれは同じ 0.14019 → 本筋ではない（初期化は残した）
 - 原因: `bandcal` は (k, スピン) の組をランクに配る。-np 6 では 512×2 = 1024 組が割り切れず、1 つの k の 2 スピンが別ランクに分かれる。
@@ -2445,7 +2445,7 @@ user の TODO（14:40）: ①残したことをやる ②`mlo_gwsc.md` を読み
   バイトの並びは前と同じなので `writepdos` は 1 k ずつ読むまま。読む前にバッファを 0 に（書かれないスピンのレコードは 0）
 - 修正を入れた手元の gfortran ビルドで `testecalj -np 6 --all` は全部合格（791 件）
 
-### 16:10 **手元（t14）の gfortran で `d6c6fe115` を確認: `--all` は 747 件合格。`co` の部分 DOS だけ `-np 6` で失敗（午前のコードでも同じ、`-np 8` は合格）**
+### 16:10 **手元（t14）の gfortran で `5c35edb55` を確認: `--all` は 747 件合格。`co` の部分 DOS だけ `-np 6` で失敗（午前のコードでも同じ、`-np 8` は合格）**
 
 - user「gfortran 確認はローカルでいい」。別の worktree（`temp/ecalj_check`）と別の bindir（`temp/bin_check`、`--no-bashrc`）でビルド
   （手元の `~/bin` は作業ツリーの `SRC/build_gfortran` を指すので触らない）。メモリの空きが 5 GB なので worktree の `InstallAll.py` だけ並列 3。ビルド約 7 分
@@ -2455,9 +2455,9 @@ user の TODO（14:40）: ①残したことをやる ②`mlo_gwsc.md` を読み
 
 ### 15:50 **検証は 6 本とも合格。q の割り振りの修正で 6³ tf32 は 237.2 秒。6³ の tf32 収束テスト `qmlo_k6_tf32h` を開始**
 
-- 検証（`1cee21762`＋`d00fa4b6f`、新しい表 = tf32 は realhgemm）: TestInstall `--gwall` を GPU の fp64・tf32（`--mp`）・fp32 と CPU で、
+- 検証（`69c0da53f`＋`a64c28cab`、新しい表 = tf32 は realhgemm）: TestInstall `--gwall` を GPU の fp64・tf32（`--mp`）・fp32 と CPU で、
   全部 ALL PASSED。`Samples/MLOQSGW`（GaAs、NiO）は tf32・fp32 とも合格。NiO の `log.nio` の差は tf32 0.0148、fp32 0.0009（許容 0.02）
-- LPT の重みに W の構築分（`0a1d696f7`）: 6³ tf32 は 242 → **237.2 秒**、2 ランクの終わりの差は 14 → 5 秒（見積もりどおり）。
+- LPT の重みに W の構築分（`c01c36837`）: 6³ tf32 は 242 → **237.2 秒**、2 ランクの終わりの差は 14 → 5 秒（見積もりどおり）。
   Σ は修正前と最大 0.002 meV（ランク間の和の順序）、倍精度との差は変わらず（E_F ±1 eV で最大 1.29 meV）
 - 15:50 `qmlo_k6_tf32h`（`run_gwsc10.sh`、`PREC=tf32`、LDA から `gwsc 10`、`~/bin_dev`）開始。終われば 9³ の `qmlo_k9_tf32h` が続く（chain25）。 **（→ 2026-09-28 の注: 16:25 に 6³ を 5 反復で止め、9³ は始めなかった。9³ は 23:36 に `qmlo_k9_tf32n` として開始）**
   比べる相手は 6³ fp32 の `qmlo_k6_gwsc10`（新コード、窓は各反復の SCF の $E_F$、`--use_gemmul8`）。`cmp_gwsc10.py` は gwsc 10 同士も比べられるようにした
@@ -2525,7 +2525,7 @@ user の TODO（14:40）: ①残したことをやる ②`mlo_gwsc.md` を読み
 | cuBLAS のハンドル、CUF カーネル（realsgemm） | 0 = レガシー既定ストリーム |
 | GEMMul8 | ハンドルのストリーム（`cublasGetStream`） |
 
-- 09:57 の非同期化（`70e7c0549`、NaN）は、キュー 1 のカーネルが既定ストリームの cuBLAS の積を待たなかったため。275 秒は誤った重なりを含む値
+- 09:57 の非同期化（`73f50ebdd`、NaN）は、キュー 1 のカーネルが既定ストリームの cuBLAS の積を待たなかったため。275 秒は誤った重なりを含む値
 - 今回: バッチごとに `cudaDeviceSynchronize` → cuBLAS・GEMMul8・realsgemm をキュー 1 のストリームへ（`cublas_set_stream`、realsgemm は
   ハンドルのストリームを取る、GEMMul8 は呼ぶ前にハンドルへ設定）→ カーネルは全部 `async(1)` → 最後に `!$acc wait(1)` で戻す。
   バッファの確保・解放はバッチの外（確保・解放はデバイスを待たせる）。虚軸の重みは GPU のカーネル、実軸の極の重みは虚軸の積を投げた後に CPU で
@@ -2536,7 +2536,7 @@ user の TODO（14:40）: ①残したことをやる ②`mlo_gwsc.md` を読み
 
 （2026-09-28 に節を分けた。それまではこの節のエントリが「## 2026-09-26」の下に入っていた。）
 
-### 2026-09-27 11:40 **最終版（`2b2497c45`）: hgw は 6³ で fp32 424 秒 / tf32 293 秒、9³ で fp32 2990 秒（50 分）/ tf32 1975 秒（33 分）。MLOQSGW は fp32・tf32 で合格。報告書を仕上げた**
+### 2026-09-27 11:40 **最終版（`b55ae2c7b`）: hgw は 6³ で fp32 424 秒 / tf32 293 秒、9³ で fp32 2990 秒（50 分）/ tf32 1975 秒（33 分）。MLOQSGW は fp32・tf32 で合格。報告書を仕上げた**
 
 *表 11:40-1* `hgw` 1 回（kt1、`-np2 2`、重みの補助あり）
 
@@ -2545,26 +2545,26 @@ user の TODO（14:40）: ①残したことをやる ②`mlo_gwsc.md` を読み
 | 6³ | 833 秒 | 424 秒 | 293 秒 |
 | 9³ | 5004〜5128 秒 | 2990 秒 | 1975 秒 |
 
-- 9³ の最終版 fp32 と `b649a9ee7` の fp32 の差は Re Σc 0.001 meV（回転の和の順序）。tf32 と fp32 の差は 0.85 meV、SEx は一致。
+- 9³ の最終版 fp32 と `d830378a7` の fp32 の差は Re Σc 0.001 meV（回転の和の順序）。tf32 と fp32 の差は 0.85 meV、SEx は一致。
   rank 0: fp32 Σc 虚軸 1425・実軸 833・zmel 202 秒、tf32 718・565・202 秒（zmel は回転を 1 カーネルにして 267 → 202 秒）
 - `Samples/MLOQSGW`: `--prec=fp32` NiO MaxDiff 0.0009 Ry・ギャップ 1.586 / 2.071 eV、`--prec=tf32` 0.0146 Ry・1.585 / 2.088 eV（参照 1.587 / 2.066）、GaAs は両方 1e-4
-- 報告書 `Samples/kBT/gpu_fp32_report.md`（`3e1c6fd16`）
+- 報告書 `Samples/kBT/gpu_fp32_report.md`（`3b77826d0`）
 
 ### 2026-09-27 10:15 **9³ の tf32 は 2121 秒（35 分）。nsys で見た残りの無駄: readeigen の極小の倍精度 GEMM 115 万回をカーネル 1 つにして 6³ で 5〜7% 短縮。1 GPU 2 ランクは 38% 遅く、Σc ループの非同期化は NaN で取り消し**
 
-- 9³ の `--prec=tf32`（`fc55b16da`、重みの補助あり）: **2121 秒**（fp32 3180、旧 5004〜5128）。fp32 との差は Re Σc 最大 0.85 meV、SEx は一致。
+- 9³ の `--prec=tf32`（`6f8f1d838`、重みの補助あり）: **2121 秒**（fp32 3180、旧 5004〜5128）。fp32 との差は Re Σc 最大 0.85 meV、SEx は一致。
   rank 0 の Σc 虚軸 716 秒（fp32 1375）、実軸 565 秒（879）
 - 1 GPU 2 ランク（6³、tf32、`-np2 4`）: 433 秒（`-np2 2` は 314 秒）。GPU の使用率は 75〜79% → 92〜96% に上がるが、2 プロセスの時分割とメモリ上限（31 GB）で遅い。
   計画どおり GPU 1 枚に 1 プロセス
-- Σc の CPU の部分（タイマーを追加、`0ce23d7f1`）: 6³ tf32 の rank 0 で虚軸の重み 5.6 秒、実軸の極の重み 12.2 秒（Σc の 1 割強）
+- Σc の CPU の部分（タイマーを追加、`43d5fae62`）: 6³ tf32 の rank 0 で虚軸の重み 5.6 秒、実軸の極の重み 12.2 秒（Σc の 1 割強）
 - nsys（6³、tf32、rank 0）: GPU のカーネル時間の合計 223 秒（wall の約 7 割）。上位は Σc 虚軸の TF32 積 79 秒、実軸の積 32 秒、
   **倍精度の極小の積（`readeigen` の MT 係数の回転、(2l+1)×nband×(2l+1)）17 秒・115 万回**。API は同期が 560 万回（OpenACC の kernels 1 つごと）
-- → 回転を全軌道まとめて 1 つの OpenACC ループにした（`b8101dcb1`）: 6³ の hgw は tf32 313.6 → **292.5 秒**、fp32 441.5 → **423.5 秒**。
+- → 回転を全軌道まとめて 1 つの OpenACC ループにした（`5d5875553`）: 6³ の hgw は tf32 313.6 → **292.5 秒**、fp32 441.5 → **423.5 秒**。
   Σ は表示の桁で前回と同じ、TestInstall の GW（GPU の fp64・tf32）は全部合格
-- Σc の周波数ループの小さなカーネルを `async(1)` にし、`acc_set_cuda_stream(1, 0)` で既定ストリームに結んだ版（`70e7c0549`）は 6³ tf32 で 275 秒と速かったが、
-  **Σc が NaN**。キュー 1 が cuBLAS のストリームに乗らず、次の周波数のカーネルが積の最中の wc / czwc_iw を書き換えた。取り消した（`2b2497c45`）。
+- Σc の周波数ループの小さなカーネルを `async(1)` にし、`acc_set_cuda_stream(1, 0)` で既定ストリームに結んだ版（`73f50ebdd`）は 6³ tf32 で 275 秒と速かったが、
+  **Σc が NaN**。キュー 1 が cuBLAS のストリームに乗らず、次の周波数のカーネルが積の最中の wc / czwc_iw を書き換えた。取り消した（`b55ae2c7b`）。
   正しくやるには cuBLAS のハンドル（と GEMMul8 のハンドル、realsgemm の CUF カーネル）をキュー 1 のストリームに揃える必要がある。6% 程度の見込み、未着手 **（→ 2026-09-28 の注: 14:55 に実装した）**
-- 最終版（`2b2497c45`）で MLOQSGW と 9³ の tf32・fp32 を取り直し中（chain19）
+- 最終版（`b55ae2c7b`）で MLOQSGW と 9³ の tf32・fp32 を取り直し中（chain19）
 
 ### 2026-09-27 08:20 **9³ をさらに速く: TF32 は Σc の積だけなら E_F まわりで 1 meV 未満。Ozaki の分解数で精度は連続に選べるが、この GPU では同じ精度で TF32 か FP32 より速くならない。`--prec=tf32` を「Σc の積だけ TF32」にした**（user「999 の高速化を考えて。tf32 では精度でないか？ozaki で tf32 だと遅いか」「0.1 eV のギャップ差で EF まわりが良好なら用途により問題ない」「正定値行列の積算はエラーが乗りにくい」「Ozaki で精度制御して高速化する」）
 
@@ -2580,7 +2580,7 @@ NiO（`Samples/MLOQSGW`、2×2×2、LDA から 2 反復）のギャップ: 参�
 
 - 大きいのは W の側の誤差: χ0 の足し合わせ自体は正定値の和で誤差が乗りにくい（user の指摘）が、そこでできた W の小さな誤差が (1−vχ0)^{-1} で拡大される。
   Σc の最後の積では誤差がそのまま入るだけ
-- → **`gwsc --prec=tf32` を「Σc の積だけ TF32（表の tf32 の行）、ほかは FP32」にした**（`fc55b16da`、Fortran は `--sigma_tf32`）。従来の `--mp` だけの指定（全部 TF32）は残す
+- → **`gwsc --prec=tf32` を「Σc の積だけ TF32（表の tf32 の行）、ほかは FP32」にした**（`6f8f1d838`、Fortran は `--sigma_tf32`）。従来の `--mp` だけの指定（全部 TF32）は残す
 
 *表 08:20-2* Ozaki（GEMMul8、INT8、fast）の分解数と速さ・誤差（`ozscan`、1053 の寸法、行・列の値の幅 2 桁、誤差は倍精度との最大の相対差）
 
@@ -2601,7 +2601,7 @@ NiO（`Samples/MLOQSGW`、2×2×2、LDA から 2 反復）のギャップ: 参�
 
 ### 2026-09-27 07:25 **9³ の hgw は 3180 秒（09-26 の本番は 5004〜5128 秒、1.6 倍）。残りの 81% は Σc**
 
-`bench_hgw999`（`liti_mlo_k9` の 10 反復後の状態）、`~/bin_dev` = `b649a9ee7` の表、重みの書き出しを hgw と同時に開始（`-np 32`、GPU なし）。
+`bench_hgw999`（`liti_mlo_k9` の 10 反復後の状態）、`~/bin_dev` = `d830378a7` の表、重みの書き出しを hgw と同時に開始（`-np 32`、GPU なし）。
 06:26 開始、07:19 終了。rank 0 は 18 個の q すべてで重みをファイルから読んだ。
 
 *表 07:25-1* rank 0 の内訳（秒）。旧 = `liti_mlo_k9/STDOUT/stdout.0000.hgw`（10 反復目、旧コード）
@@ -2617,20 +2617,20 @@ NiO（`Samples/MLOQSGW`、2×2×2、LDA から 2 反復）のギャップ: 参�
 
 ### 2026-09-27 07:20 **TestInstall の GW テストは GPU（fp64・tf32）でも CPU でも全部合格。MLOQSGW の NiO は tf32 だけ不合格で、原因は昨夜 GPU に移した Hilbert 変換が TF32 で回っていたこと。fp32 では参照と 0.5 mRy**
 
-- kt1（`~/bin_dev` = `b649a9ee7`、表を `~/bin_dev` に置き、重みの補助あり）: `testecalj -np 8 -np2 2 --gwall --gpu`（fp64）と `--gpu --mp`（tf32）とも **OK! ALL PASSED**。
+- kt1（`~/bin_dev` = `d830378a7`、表を `~/bin_dev` に置き、重みの補助あり）: `testecalj -np 8 -np2 2 --gwall --gpu`（fp64）と `--gpu --mp`（tf32）とも **OK! ALL PASSED**。
   作業ディレクトリで、hgw が表を `~/bin_dev/ecalj_linalg_policy.toml` から読み（`linalg policy (tf32, from …)`）、重みを `__TETWT` から読み、
   終わった後にファイルが残っていないことを確認
 - 手元（CPU、gfortran）: `testecalj -np 8 --gwall` も **OK! ALL PASSED**（x0kf の読み込み口と gwsc の変更で CPU の経路が壊れていない）
 - `Samples/MLOQSGW` の `--gpu --mp`（tf32）: GaAs は合格、**NiO は `fp evl` が参照（CPU、FP64）から 0.039〜0.049 Ry ずれて不合格**（許容 0.02。09-26 は 0.0135）。
   切り分け（GPU 1、`-np2 1`）: 表なし・補助なし / 表だけ / 補助だけの 3 通りとも MaxDiff 0.0391 で同じ → **今日の表と補助は無関係**
 - 同じ NiO を **fp32（`--mp --fp32`）で回すと参照との差は 0.0005 Ry**（GaAs 0.0001）。表（組み替え・GEMMul8 14・mixed1）と補助ありで、`--mp` でない厳しい許容 3e-3 にも入る
-- 原因: 昨夜（`fde20bd6c`）MP 版の Hilbert 変換を GPU に移したとき `cmm_d` を使ったので、tf32 では TF32（仮数 10 bit）で回っていた（以前はホストの FP32）。
-  ~300 ビンにわたる桁落ちのある和で、1 q あたり 0.7 秒しかかからない → どの精度でも FP32 で計算するようにした（`37e0a0f83`、`policy=BACKEND_BLAS_FP32`）。
+- 原因: 昨夜（`1fd5b4a70`）MP 版の Hilbert 変換を GPU に移したとき `cmm_d` を使ったので、tf32 では TF32（仮数 10 bit）で回っていた（以前はホストの FP32）。
+  ~300 ビンにわたる桁落ちのある和で、1 q あたり 0.7 秒しかかからない → どの精度でも FP32 で計算するようにした（`15182e25f`、`policy=BACKEND_BLAS_FP32`）。
   fp32・fp64 ではビット単位で変わらない。tf32 での NiO の確認は chain13（chain12 の後）
 
 ### 2026-09-27 06:20 **自動の表で 6³ の hgw は 438〜443 秒（基準 833 秒の 1.9 倍）、倍精度との差は Re Σc 4.2e-5 eV。重みの書き出しを並走させても時間は変わらない（段 3・5）**
 
-`~/bin_dev` = `b649a9ee7`（GEMMul8 の下限、組み替えのキー無し閾値 n=16）。計測ツールは 3 回目も同じ表（05:45 の表 05:45-1）。
+`~/bin_dev` = `d830378a7`（GEMMul8 の下限、組み替えのキー無し閾値 n=16）。計測ツールは 3 回目も同じ表（05:45 の表 05:45-1）。
 
 *表 06:20-1* 6³ の `hgw` 1 回。差は倍精度 E3 に対する最大（eV）
 
@@ -2651,7 +2651,7 @@ NiO（`Samples/MLOQSGW`、2×2×2、LDA から 2 反復）のギャップ: 参�
   軌道ごとに (2l+1)×nband×(2l+1) の倍精度の積で回す（k 点ごとに数千回）。これに 14 分解の分割がかかって 110 秒。
   **S3 の遅れも GEMMul8 7 のせいではなかった**（ただし GEMMul8 7 の誤差の問題は残る）
 - 段 1 で `--use_gemmul8` の大きさの下限（64×64×64 かつ m·n·k ≥ 1e8）を表の閾値に移したので、表から GEMMul8 を選ぶと下限が無くなっていた。
-  → 下限は GEMMul8 自身の性質なので backend に戻した（`gemmul8_pays`、`b649a9ee7`）。表が何を言っても、それより小さい積は cuBLAS
+  → 下限は GEMMul8 自身の性質なので backend に戻した（`gemmul8_pays`、`d830378a7`）。表が何を言っても、それより小さい積は cuBLAS
 - 精度も元に戻っていた（Re Σc 2.39e-4）: キー無しで n < 256 の積を cuBLAS に回す規則が、`build_zmel` の平面波の積（n ≈ 50〜300）を cgemm に戻していた。
   A'' の写しは連続なので n が数十でも元が取れる。閾値を n < 16 に下げた（同じコミット）
 - **段 4（GPU ロック）の試験は合格**（05:52、`locktest_kt1.sh`、GaAs `gwsc 0 --gpu --mp -np2 1` を `CUDA_VISIBLE_DEVICES=0` で 2 本同時）:
@@ -2661,7 +2661,7 @@ NiO（`Samples/MLOQSGW`、2×2×2、LDA から 2 反復）のギャップ: 参�
 
 ### 2026-09-27 05:45 **計測ツールが手で選んだ最良と同じ表を 2 回続けて出した（段 3）。決め手は「FP32 の精度」の約束を cuBLAS との比で課したこと**
 
-計測ツールの直し（`107c748b9`、`78012e25e`、`ee3f2f97b`）:
+計測ツールの直し（`6e66f30c7`、`6d572bf5a`、`bb8cf8f6d`）:
 寸法を 64 の倍数から外す（1037 など）、形ごとに hgw での時間の割合で重みを付ける（大きい区分: Σc 虚軸 0.8・x0 0.15・正方 0.05、
 小さい区分: Σc 実軸 0.8・x0 0.15・zsec 0.05）、単精度の複素積の誤差の上限を「同じ形での cuBLAS の誤差の 4 倍」にする。
 3 つ目が効いた: 寸法と重みを直しても GEMMul8 7 は大きい区分で速く見えた（1037×8191×1037 で 1.547 対 1.576 ms、1037×1037×4099 で 0.619 対 0.958 ms）が、
@@ -2680,11 +2680,11 @@ NiO（`Samples/MLOQSGW`、2×2×2、LDA から 2 反復）のギャップ: 参�
 
 ### 2026-09-27 05:40 **hgw での比較（段 2）: 組み替えを全部 ＋ mixed1 で 532 秒。最初の計測表（GEMMul8 7）では 741 秒と遅く、Im Σc も 1e-4 ずれる。FP32 の誤差の主因は build_zmel の平面波の積で、実数 SGEMM にすると倍精度との差が 1/5 になる**
 
-*表 05:40-1* 6³ の `hgw` 1 回（kt1、`~/bin_dev2` = `f721b79d8`）。差は倍精度 E3 に対する最大（eV）
+*表 05:40-1* 6³ の `hgw` 1 回（kt1、`~/bin_dev2` = `86a79980b`）。差は倍精度 E3 に対する最大（eV）
 
 | 実行 | 表の中身 | 秒 | Re Σc | Im Σc | SEx |
 | --- | --- | --- | --- | --- | --- |
-| E4（参考、`0e2ca543d`） | opA=C だけ組み替え | 570.0 | 2.39e-4 | 1.0e-6 | 5.69e-4 |
+| E4（参考、`ef0603458`） | opA=C だけ組み替え | 570.0 | 2.39e-4 | 1.0e-6 | 5.69e-4 |
 | S1c | 組み替えは大きい積だけ | 599.0 | 2.38e-4 | 8.3e-7 | 5.69e-4 |
 | S1c2 | 組み替えを全部（opA=N も、転置で） | 581.4 | **4.23e-5** | 1.0e-6 | **1.68e-4** |
 | S1d | S1c2 ＋ 逆行列 mixed1 | **532.1** | 4.23e-5 | 1.0e-6 | 1.68e-4 |
@@ -2703,14 +2703,14 @@ NiO（`Samples/MLOQSGW`、2×2×2、LDA から 2 反復）のギャップ: 参�
 - **その opA=N の積が FP32 の誤差の主因だった**: 組み替え（実数 SGEMM）で計算すると、倍精度との差が Re Σc で 2.4e-4 → 4.2e-5、SEx で 5.7e-4 → 1.7e-4。
   03:50 の「誤差は FP32 のデータで決まり積の方法に依らない」は、opA=C の積と大きい積だけを変えて比べた結論だった。
   cuBLAS の cgemm と実数 SGEMM では和の取り方が違い、ここでは後者が正確（桁落ちのある長い和）
-- → opA=N も転置せずに組み替える形にした（`e30b241a8`: 列 2l−1 に A の列 l を実数として、列 2l に i 倍を置いた A''（2m×2k）で N-N の SGEMM。読み書きとも連続）
+- → opA=N も転置せずに組み替える形にした（`e6a8f6880`: 列 2l−1 に A の列 l を実数として、列 2l に i 倍を置いた A''（2m×2k）で N-N の SGEMM。読み書きとも連続）
 - mixed1 の逆行列は 49 秒短縮、Σc の差 8e-7 eV、FP64 LU への退避は 0 回
 - 最初の計測表（S3）は、奇数の寸法の中くらいの積に GEMMul8 7 を使って遅く（741 秒）、どこかの積の誤差が Im Σc に 1e-4 で出た。
-  計測の寸法と重みを直した（05:00、`107c748b9`、`78012e25e`）。直した計測ツールで作り直した表で chain9 が測っている
+  計測の寸法と重みを直した（05:00、`6e66f30c7`、`6d572bf5a`）。直した計測ツールで作り直した表で chain9 が測っている
 
 ### 2026-09-27 05:00 **倍精度（段 6）: 表を通した GEMMul8 は E3 とビット一致、逆行列を mixed2 にすると 6.5% 速く差は 9e-14 eV。計測ツールは同じ選択を 2 回返したが、揃った寸法（1024）で測ると GEMMul8 に偏る**
 
-*表 05:00-1* 6³ の `hgw_gpu`（倍精度）1 回、`zmel_batch_gb=1`（kt1、`~/bin_dev` = `5a87377e3`）
+*表 05:00-1* 6³ の `hgw_gpu`（倍精度）1 回、`zmel_batch_gb=1`（kt1、`~/bin_dev` = `6f5b39ba2`）
 
 | 実行 | 秒 | E3 との差 |
 | --- | --- | --- |
@@ -2718,7 +2718,7 @@ NiO（`Samples/MLOQSGW`、2×2×2、LDA から 2 反復）のギャップ: 参�
 | S1e（`--use_gemmul8`、表を通し A をキーで使い回し） | 1186.6 | **ビット一致** |
 | S1f（S1e ＋ `--linalg=fp64.epsinv…=mixed2`） | 1109.8 | Re Σc 最大 9.2e-14 eV、SEx はビット一致 |
 
-*表 05:00-2* 計測ツール `linalgtune_gpu` の 1 回目（`107c748b9` より前の寸法、1024 など、単位 ms、空いた GPU 0）。2 回目も同じ選択
+*表 05:00-2* 計測ツール `linalgtune_gpu` の 1 回目（`6e66f30c7` より前の寸法、1024 など、単位 ms、空いた GPU 0）。2 回目も同じ選択
 
 | 形 $m\times n\times k$ | fp32 cuBLAS | fp32 realsgemm | fp32 GEMMul8 7 | tf32 cuBLAS | fp64 cuBLAS（zgemm3m） | fp64 GEMMul8 14（誤差） |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -2733,7 +2733,7 @@ NiO（`Samples/MLOQSGW`、2×2×2、LDA から 2 反復）のギャップ: 参�
 
 - 選ばれた表: fp32 は小さい積 cuBLAS・大きい積 GEMMul8 7、tf32 は全部 cuBLAS、zgemm/dgemm は全部 GEMMul8 14、逆行列は全部 mixed1
 - **問題 1**: 1024 の寸法では GEMMul8 7 が組み替えより速いが、LiTi2O4 の 1053 では逆（hgw で E4 571 秒 ＜ E2 629 秒、マイクロベンチで 53 対 43 TFLOPS）。
-  揃った寸法は INT8 GEMM に有利に出る。→ 計測の寸法を 1037・8191・389・263・131 に変えた（`107c748b9`）
+  揃った寸法は INT8 GEMM に有利に出る。→ 計測の寸法を 1037・8191・389・263・131 に変えた（`6e66f30c7`）
 - **問題 2**: fp64 の逆行列の上限 1e-12 に mixed1（3.7e-13）が入ってしまった。fp64 は 1e-13 にした（mixed2 か lu64 になる）
 - **問題 3**: キー無しの組み替えは積のたびに A' を作る。n が小さい（zsec 128×128×65536）と cuBLAS より 1.6 倍遅く、小さい積の区分全体の拒否につながった。
   キー無しで n < 256 の積は組み替えずに cuBLAS に回す（損益分岐は n ≈ 160）
@@ -2741,7 +2741,7 @@ NiO（`Samples/MLOQSGW`、2×2×2、LDA から 2 反復）のギャップ: 参�
 
 ### 2026-09-27 04:30 **段 1 は合格（既定の表で E1 と、`--use_gemmul8` で E2 とビット一致）。段 3〜5 の実装を入れた**（計画書 `gpu_fp32_plan.md` の段 1〜5）
 
-*表 04:30-1* 段 1 の確認（kt1、6³ の `hgw` 1 回、`~/bin_dev` = `5a87377e3`）
+*表 04:30-1* 段 1 の確認（kt1、6³ の `hgw` 1 回、`~/bin_dev` = `6f5b39ba2`）
 
 | 実行 | 秒 | 比べる相手 | 結果 |
 | --- | --- | --- | --- |
@@ -2750,15 +2750,15 @@ NiO（`Samples/MLOQSGW`、2×2×2、LDA から 2 反復）のギャップ: 参�
 | S1c・S1d（`--linalg=fp32.cgemm.large=…`） | — | — | 起動直後に停止。下の不具合 |
 
 - **不具合**: `m_linalg_policy` の行の読み取りで `findloc(opname, trim(opn))` が nvfortran では長さの違う文字列を空白で埋めずに比べ、
-  `cgemm`（5 文字）が表の `cgemm `（6 文字）と一致しなかった。`epsinv`（6 文字）だけ通っていた。ループの比較に直した（`f721b79d8`）。
+  `cgemm`（5 文字）が表の `cgemm `（6 文字）と一致しなかった。`epsinv`（6 文字）だけ通っていた。ループの比較に直した（`86a79980b`）。
   方針ファイルと計測ツールも同じ関数を通るので、段 3 の前に見つかった
-- 段 3（`faea7c2fc`）: `linalgtune_gpu`（hgw と同じ `m_blas` の経路で各 backend を測り、`<bindir>/ecalj_linalg_policy.toml` を書く）、
+- 段 3（`b18230480`）: `linalgtune_gpu`（hgw と同じ `m_blas` の経路で各 backend を測り、`<bindir>/ecalj_linalg_policy.toml` を書く）、
   `gwsc --prec=tf32|fp32|fp64`、`InstallAll.py` が GPU が空いていれば最後に計測する（`--notune` で省く）。`cmm_d` の TF32/FP32 は
   表の level から取る（動きは今までと同じ）。混合精度の逆行列は $\lVert I-AX_0\rVert_F$ を見て、Newton 後の上限が 1e-6（1 回）/ 1e-13（2 回）を
   超える行列は FP64 の LU に回す
 - 段 4（同じコミット）: `pylib/gpu_lock.py`。`run_cmd` が `*_gpu` の実行で GPU ごとのロック `/tmp/ecalj_res/gpu<N>.lock` を
   min(nprocs, GPU 数) 枚取る（全部取れるまで 1 枚も持たずに待つ）。手元で 4 プロセスを競わせて、待つ・諦める（`ECALJ_GPU_WAIT`）・解放後に取れる、を確認
-- 段 5（`8c6daa7fb`）: `hgw --tetwt_write` が四面体の重みを `x0kf_zxq` が使う形（`x0kf_v4hz_init` の後の配列、全 k）で
+- 段 5（`e1eb918ae`）: `hgw --tetwt_write` が四面体の重みを `x0kf_zxq` が使う形（`x0kf_v4hz_init` の後の配列、全 k）で
   `__TETWT.<iq>.<isp>` に書く。`gwsc --gpu` は価電子の `hbasfp0` の直後にこれを `-np` の CPU コアで（同じ実行ファイル、GPU なし）並走させ、
   hgw は一致するファイルがあれば読む。判定: 大きさ、q、k と k+q のバンドエネルギーのチェックサム、frhis、E_F、t_tetrakbt、ebmx、nbmx、mtet、E_F のずらし。
   MPMD（`mpirun … : …`）にしなかったのは、`m_sharedmem` などが `MPI_COMM_WORLD` を直接使っていて、補助ランクを同じ WORLD に入れると集団通信を書き換える必要があるため。
@@ -2815,7 +2815,7 @@ NiO（`Samples/MLOQSGW`、2×2×2、LDA から 2 反復）のギャップ: 参�
 
 ### 2026-09-27 01:57 **6³ の `gwsc 10`（新コード）は 1 反復目で旧 v9 と一致、2 反復目から分かれる。窓の基準が 0.55 eV 違うため**（user「LiTi2O4 の 666 と 999 を新しいコードで gwsc 10 でランして再現する」）
 
-`qmlo_k6_gwsc10`（`run_gwsc10.sh`、`74e8f0925`、`--use_gemmul8`、00:37 開始、1 反復 14〜16 分）と `liti_mlo_v9`（`gwsc 1` × 10、旧コード）を
+`qmlo_k6_gwsc10`（`run_gwsc10.sh`、`e5b46df5d`、`--use_gemmul8`、00:37 開始、1 反復 14〜16 分）と `liti_mlo_v9`（`gwsc 1` × 10、旧コード）を
 `cmp_gwsc10.py` で比べる。
 
 *表 01:57-1* 反復ごとの差（新 − 旧）。固有値と QP シフトは `QPU.<N>run` の $\vert e-E_F\vert<3$ eV の状態の最大
@@ -2835,7 +2835,7 @@ NiO（`Samples/MLOQSGW`、2×2×2、LDA から 2 反復）のギャップ: 参�
   修正（21:42、23:22 段階 C）で意図した変更
 - QP シフトの差が出発の固有値の差より 1 桁大きいのは、窓の縁（$E_F$＋2 eV 付近）の状態とみられる。$E_F$ 付近のバンドの一致は 10 反復後に見る
 
-### 2026-09-27 01:20 **誘電行列の逆行列（matinv、1 q あたり 10 秒）: 単精度の LU ＋ Newton 1 回で 4 倍速く、誤差 3e-12**（未検証の選択肢として `458bd1868`）
+### 2026-09-27 01:20 **誘電行列の逆行列（matinv、1 q あたり 10 秒）: 単精度の LU ＋ Newton 1 回で 4 倍速く、誤差 3e-12**（未検証の選択肢として `d992caefc`）
 
 W-build は q ごとに約 320 本の $\tilde\epsilon$（$n\approx1050$）を `zminv_d`（FP64 の LU、三角の逆 2 回、積、列の入れ替え）で逆にする。
 RTX 5090 の FP64 は FP32 の 1/64 なので 1 本 31 ms。
@@ -2872,7 +2872,7 @@ $C$ を実数 $2m\times n$ とみなし、$A$ だけを実数 $A'$（$2k\times 2
 | 1053 × 400 × 1053（実軸） | 27.3 | 28.5 | 1.0 | 1.1e-6 |
 
 - 空いた GPU での cgemm は 31 TFLOPS（表 00:35-2）なので、SGEMM 側は 80 TFLOPS 前後が見込める。GEMMul8（42.6）より速く、精度も FP32 のまま
-- `m_blas` の `cmm_d` に入れた（`0e2ca543d`）: opA=C・opB=N・alpha=1・実数 beta で $n\ge512$、$m,k\ge256$ のとき。`ECALJ_CGEMM_REAL=0` で切れる
+- `m_blas` の `cmm_d` に入れた（`ef0603458`）: opA=C・opB=N・alpha=1・実数 beta で $n\ge512$、$m,k\ge256$ のとき。`ECALJ_CGEMM_REAL=0` で切れる
 - `hgw` での確認（E4）は 6³ の本番の後。E2（GEMMul8）より 1 割以上速く、Re Σc が E1 と 2e-5 eV 以内で合えば、
   9³ の本番をこの版で回す（`chain4.sh` が自動で判定）。合わなければ予定どおり `--use_gemmul8`
 
@@ -2884,7 +2884,7 @@ $C$ を実数 $2m\times n$ とみなし、$A$ だけを実数 $A'$（$2k\times 2
 
 | 実行 | 変更 | 秒 | W-build / q | Σc 虚軸 / KXloop | SECU（Re Σc）の基準との差 |
 |---|---|---|---|---|---|
-| 基準 | `c1b4b097a` | 833 | 36.1 | 0.168 | — |
+| 基準 | `4fb6df3ba` | 833 | 36.1 | 0.168 | — |
 | 1 枚に 4 ランク（`-np2 8`） | 設定のみ | GPU メモリ不足で停止 | | | |
 | MKL 16 スレッド | 環境変数 | dpsion が 12 → 35 秒に悪化、打ち切り | | | |
 | E1 | tetwt5 の修正 ＋ Hilbert 変換を GPU | 722 | 23.9 | 0.169 | 5.3e-6 eV |
@@ -2894,8 +2894,8 @@ $C$ を実数 $2m\times n$ とみなし、$A$ だけを実数 $A'$（$2k\times 2
 
 - **q の切れ目の停止**の中身（9³、1 q あたり約 35 秒）: Hilbert 変換 `dpsion` 12 秒（CPU 1 コアの MKL）＋四面体の重み `tetwt5` 21.6 秒（CPU 1 コア）。
   - `dpsion`: GPU の実行でランクが q グループに 1 つなら、$\chi_0$ は累積したまま GPU 上の `rcxq` に丸ごとある。
-    そこで `dpsion_chiq_d` をかけてから SHM に写すようにした（`fde20bd6c`）。12 秒が **0.7 秒**
-  - `tetwt5`: 組ごとに 326 ビン × 4 頂点を 0 にしていたのを、届くビンだけにした（和は同じ。GaAs・NiO でビット一致、`cfc7321fa`）。
+    そこで `dpsion_chiq_d` をかけてから SHM に写すようにした（`1fd5b4a70`）。12 秒が **0.7 秒**
+  - `tetwt5`: 組ごとに 326 ビン × 4 頂点を 0 にしていたのを、届くビンだけにした（和は同じ。GaAs・NiO でビット一致、`7ec65704a`）。
     効果は 5.7 → 5.3 秒（6³）止まりで、主因は四面体 × バンド対の判定ループと `lindtet6` 本体。
     9³ では 1 q あたり約 20 秒の CPU 待ちが残る。k 点をスレッドに割り振る OpenMP なら whw のコピー無しで決定的に並列化できるが、
     OpenMP は 09-22 に意図して外したので、戻すかは user 判断
@@ -2905,7 +2905,7 @@ $C$ を実数 $2m\times n$ とみなし、$A$ だけを実数 $A'$（$2k\times 2
 - 1 枚の GPU に複数ランク: 各ランクが GPU を丸ごと使う前提でメモリを見積もる（AutoSetup）ので不足する。1 ランクで 29 GB を見た
 - MKL のスレッド: nvfortran の OpenMP 実行時とかみ合わず、CPU 使用率 100% のまま遅くなった
 
-*表 00:35-2* 行列積 1 回（RTX 5090、`TOOLS/ozbench`、`394a360a9`）。誤差は FP64 zgemm に対する最大相対誤差
+*表 00:35-2* 行列積 1 回（RTX 5090、`TOOLS/ozbench`、`3058a5e55`）。誤差は FP64 zgemm に対する最大相対誤差
 
 | 方式 | Σc 虚軸（1053×49928×1053） | 実軸（1053×400×1053） | 最後の縮約（158×158×332748） | 誤差 |
 |---|---|---|---|---|
@@ -2920,9 +2920,9 @@ $C$ を実数 $2m\times n$ とみなし、$A$ だけを実数 $A'$（$2k\times 2
 - **Σc の主役（虚軸の行列積）は cuBLAS の FP32 で頭打ち**（31 TFLOPS、FP32 ピーク 105 の 3 割）。`hgw` 内でも実効 32〜37 TFLOPS で、行列積そのものが律速
 - **Ozaki の結論**: 大きな積（3 辺とも 1000 以上）では単精度の模擬が cuBLAS FP32 より 1.36 倍速く、しかも 3 倍正確。
   小さな積は遅いので、`--use_gemmul8` は大きな積だけに効かせた。**倍精度の模擬は 21 TFLOPS（誤差 4e-15）で、FP32 の 0.7 倍の速さで倍精度**。
-  ネイティブ FP64 の 12 倍、cuBLAS 組み込みのエミュレーションの 2 倍。倍精度では全部の形でネイティブより速いので閾値を下げた（`ef4056a35`）
+  ネイティブ FP64 の 12 倍、cuBLAS 組み込みのエミュレーションの 2 倍。倍精度では全部の形でネイティブより速いので閾値を下げた（`20a1aaf26`）
 - GEMMul8 は上流の構成が変わってビルドできていなかった（kt1 の `~/bin/libgemmul8.so` は自分を指すリンク）。ビルドと、
-  毎回の cudaMalloc/cudaFree をやめる修正（`e75ee4c76`）
+  毎回の cudaMalloc/cudaFree をやめる修正（`20a9aa329`）
 - 9³ の見込み: Σc が約 2 割、dpsion の分と合わせて `hgw` は 5000 → 約 4000 秒
 - 本番の 666・999（`gwsc 10`）は E2 の構成（`--use_gemmul8`）で回す **（→ 2026-09-28 の注: 方法の表による自動選択に置き換えた（2026-09-27 05:45）。fp32 では GEMMul8 は選ばれない）**
 
@@ -2936,7 +2936,7 @@ $C$ を実数 $2m\times n$ とみなし、$A$ だけを実数 $A'$（$2k\times 2
   `mixbeta=0.5`）。`ECALJ_MLO_MIX=1 gwsc 2 --mlo` で LDA から 2 反復。`QPU`（NiO は `QPD` も）と `log` の `fp evl` を参照と比べる。
   参照は gfortran-14・`-np 4`。ギャップは GaAs 0.723 → 1.030 eV、NiO 1.587 → 2.066 eV（各反復の終わりの lmf）。`134003355`
 - ローカル: `testecalj -np 4 GaAs NiO` 差 0.0。`Samples/MLOsamples` 25 件（通常の MLO、`--all` と同じ集合）も全部合格（12 分）
-- kt1（nvfortran、`c1b4b097a` を再ビルド。InstallAll の `--all` も合格）: CPU・GPU（`-np2 2 --gpu`）とも合格（QPU の差 1e-3 eV）
+- kt1（nvfortran、`4fb6df3ba` を再ビルド。InstallAll の `--all` も合格）: CPU・GPU（`-np2 2 --gpu`）とも合格（QPU の差 1e-3 eV）
 - kt1 `--gpu --mp` は **NiO の `fp evl` が 0.0135 Ry ずれて不合格**（許容 0.005）。GaAs は合格。原因は精度の設定:
   testecalj の `--mp` は `--fp32` を付けないので、行列積は `CUBLAS_COMPUTE_32F_FAST_TF32`（仮数 10 bit）で回る
   （[m_blas.f90:345](../SRC/subroutines/m_blas.f90#L345)）。1 反復目の `QPU` で既に SEx が最大 0.03 eV（相対 1e-3、TF32 の丸めの桁）ずれ、
@@ -2956,13 +2956,13 @@ $C$ を実数 $2m\times n$ とみなし、$A$ だけを実数 $A'$（$2k\times 2
 | `__SigmMLO.q.prev` | （廃止） | 混合の $x_0$ は `QMLO_SigRs` のブロッホ和で作る |
 | `__mixsigMLO` | `__QMLO_mixsig` | $\Sigma^{\rm MLO}$ の Anderson 履歴（消すと線形混合から） |
 
-- 段階 A（`02bdd9953`、改名＋MPI-IO）・B（`9b2a015e2`、$x_0$ を `QMLO_SigRs` から）は GaAs 2³ の 3 反復で改名前と一致
+- 段階 A（`9a159e9cd`、改名＋MPI-IO）・B（`539ed7b4e`、$x_0$ を `QMLO_SigRs` から）は GaAs 2³ の 3 反復で改名前と一致
   （ギャップ 0.053118 / 0.081210 / 0.094643 Ry、ehf も一致、`-np 4` と `-np 1`）。B の往復 $\vert$ブロッホ和 − `__QMLO_Sig`$\vert$ ≤ 0.001 meV
-- 段階 C（`589747bb2`）: **21:42 の窓の修正は 2 反復目以降効いていなかった**。`sigmlo_init` が `HamRsMLO` の LDA の値で
+- 段階 C（`65600899b`）: **21:42 の窓の修正は 2 反復目以降効いていなかった**。`sigmlo_init` が `HamRsMLO` の LDA の値で
   窓の基準を上書きしていた。`efermi.lmf`（最後の SCF）を読むように直した。GaAs のギャップは 2・3 反復目で変わる（1.030 / 1.274 eV）
 - `__` の作業ファイルを混合履歴以外すべて消して再開 → 一致。履歴も消す → 線形混合で走る（ギャップ 1.340 vs 1.320 eV）
 - `gwsc`: 反復の頭で前の反復の作業ファイル（`__cmlo.*`、`__HamiltonianGW*`、`__QMLO_zNew`、`__QMLO_Sig`）を消す。
-  `HamRsMLO` があって `__HamiltonianPMT` が無いときは `lmf --writeham` を回し直す。LiTi2O4 のチェーン用スクリプトも新しい名前に（`c1b4b097a`）
+  `HamRsMLO` があって `__HamiltonianPMT` が無いときは `lmf --writeham` を回し直す。LiTi2O4 のチェーン用スクリプトも新しい名前に（`4fb6df3ba`）
 - 古い名前のファイルは読まない（互換は不要、user「５はいらない」）。旧コードのチェーンは新コードで継続できない
 
 ### 2026-09-26 22:27 **`job_band` などが `efermi.lmf` を書き換えないようにした**（user「job_band の efermi.lmf は efermi.lmf.job_band として扱った方がいい。efermi.lmf は更新せずに」「job_band, job_fermisurface, job_pdos は直した方がいい。job_mlo_soc は efermi_soc のみいじればいいのでは」「新形式に直して動くようにして」）
@@ -2980,7 +2980,7 @@ $C$ を実数 $2m\times n$ とみなし、$A$ だけを実数 $A'$（$2k\times 2
 **確認**: Si で `job_band`・`job_tdos`・`job_pdos`・`job_fermisurface` を順に回し、毎回 `efermi.lmf` の md5 が不変、専用ファイルができ、
 出力（バンド、DOS、PDOS、`fermiup.bxsf`）もそろう。バンドの図の $E_F$ は `efermi.lmf.job_band` の値（0.2336502 Ry、SCF は 0.2336276）。
 `Samples/MLOsamples/GaAsSoc`（`job_mlo`・`job_mlo_soc`）は参照との差 0.0 で合格、作業ディレクトリの `efermi.lmf` は元と同一。
-TestInstall の `co`（`job_pdos`）・`fe`（`job_tdos`）も合格。ecalj `12e9882a7`、ecaljdoc `1ac6097`（どちらも未 push）。
+TestInstall の `co`（`job_pdos`）・`fe`（`job_tdos`）も合格。ecalj `928662f43`、ecaljdoc `1ac6097`（どちらも未 push）。
 
 ### 2026-09-26 22:04 **1 反復目の混合を Si で確認: β=0.5 ならちょうど半歩、既定の β=1.0 なら全量**（user「si_gwsc で通常の gwsc を 1 回回して確かめて。mix の値次第でバンドが違うはず」）
 
@@ -3228,7 +3228,7 @@ $W(\omega)$ を掛けるので、`enable_skip_A/B` で分解を使い回せる�
 - チェーン本体のバイナリにも `zMLO` 修正を入れた（02:56 再ビルド、4 系統とも `m_HamPMT` 再コンパイル）。
   9³ では q 点が増え、ランク数を超えると段 ④ ではみ出しが起こりうるため
 - `run_snap.sh` のバンド段: `job_mlo --mlofreeze --mlo` を**やめて** `draw_mloband.sh` に。修正後は落ちずに
-  基底が混ざった誤ったバンドを「MLO バンド」として保存してしまうため（`ec30b1d3a`）
+  基底が混ざった誤ったバンドを「MLO バンド」として保存してしまうため（`e83eb1dc4`）
 - `check_iter.sh` の閾値を外から与える形に（`CHECK_MAXSECS` など）。6³ の 2000 秒のままだと 9³ の全反復を
   「ハング」と誤判定する
 
@@ -3266,7 +3266,7 @@ MLO バンドは従来より**系統的に 35–40 meV 高く**、rms 50 meV 違
 
 ### 2026-09-26 01:15 **MLO バンドが描けた。メッシュ点間のこぶが消えている**（user「MLO のバンド書けないと行けないな」）
 
-**1. クラッシュの原因**（commit `e9f633d79`）: `m_HamPMT.f90` の `iqiloop` で `zMLO` を**最初の q の `ndimPMT` で確保したまま**使い回していた。
+**1. クラッシュの原因**（commit `c0e17f444`）: `m_HamPMT.f90` の `iqiloop` で `zMLO` を**最初の q の `ndimPMT` で確保したまま**使い回していた。
 `Hreduction` の仮引数は明示形状 `zMLO(ndimPMT,ndimMTO)` で丸ごと書き込むので、`pwmode=11` で `ndimPMT` が大きい q
 （LiTi2O4 は Γ 319、次の点 313）に来ると**はみ出して書く** → `munmap_chunk(): invalid pointer`。
 以前の仮説（`--noinv` で q 集合がずれる）は誤り — ずれていれば直後の `k-points mismatch` で綺麗に止まる。
@@ -3517,9 +3517,9 @@ iter 2 は 23:05 頃。
 | | 挙動 | 結果 |
 |---|---|---|
 | (a) 当初 | `getsenex` の**呼び出しごと**に作り直し。SCF ステップごとに基底が揺れる。読み書きの一致という概念すら無い | iter 2 で破綻 |
-| (b) 凍結 `01b9ea4df` | 永久固定。しかも `getsenex` だけが追記するので iter 1（SCF メッシュ）と iter 2（GW の q）の**継ぎ接ぎ** | iter 1・2 は正常化、iter 3 で破綻 |
-| (c) `5885ea2bb` | `lmf` 1 回の中で固定、次の `lmf` で作り直し。churn と継ぎ接ぎは消えた | **読み基底が 1 反復ずれたまま** |
-| (d) **`b3dfecc89`（現行）** | 上記 2 スロット。$\tilde\chi$ は毎反復更新、$\Sigma$ は書かれた基底でのみ読む | **未検証** |
+| (b) 凍結 `cd56d6ecf` | 永久固定。しかも `getsenex` だけが追記するので iter 1（SCF メッシュ）と iter 2（GW の q）の**継ぎ接ぎ** | iter 1・2 は正常化、iter 3 で破綻 |
+| (c) `580d93f55` | `lmf` 1 回の中で固定、次の `lmf` で作り直し。churn と継ぎ接ぎは消えた | **読み基底が 1 反復ずれたまま** |
+| (d) **`a21250a2c`（現行）** | 上記 2 スロット。$\tilde\chi$ は毎反復更新、$\Sigma$ は書かれた基底でのみ読む | **未検証** |
 
 **残っている論点**
 
@@ -3574,7 +3574,7 @@ d を持っている（Li `rsmh=[1.04,1.04,1.04]`、O `[0.79,0.79,0.79]`、Ti �
 | 1 反復 | 約 16 分（934–1006 s）+ バンド 1 分 |
 
 投入 22:28、LDA 22:30（`ehf = -109750.177649 eV`、v6 と完全一致 — `mlo_lm` は LDA に効かない）。
-`LITI_SRC` を `run_snap.sh` に足して、共有の `liti_src` を触らずに別 `ctrlg` から回せるようにした（commit `31b8756c7`）。
+`LITI_SRC` を `run_snap.sh` に足して、共有の `liti_src` を触らずに別 `ctrlg` から回せるようにした（commit `3cef05e79`）。
 10 本で 01:40 頃の見込み。
 
 ### 2026-09-25 22:27 **収束判定は rms で。どちらのチェーンも収束していない**（user「収束していると見るか」）
@@ -3635,7 +3635,7 @@ iter 5 までの比較は「減衰あり vs 減衰なし」を比べていたこ
 
 **結論: 入れない。** 無混合でも 430 → 187 → **347** → 246 → 132 → **52** meV（max）と自力で落ち、
 iter 6 で混合ありの従来チェーン（37）に並ぶ。収束に効くのは減衰ではなく反復数。
-commit `d8034ad5b` で **既定 OFF**、`ECALJ_MLO_MIX=1` で ON。既定 OFF なので走行中のチェーンは
+commit `18c28dd6f` で **既定 OFF**、`ECALJ_MLO_MIX=1` で ON。既定 OFF なので走行中のチェーンは
 そのまま継続できる（v6 は iter 7 から継続した）。
 
 実装は残してあり、ON にすればそのまま効く:
@@ -3745,7 +3745,7 @@ OpenMPI がスロット不足で即座に拒否していた（`-np 2` で直接�
 
 ### 2026-09-25 13:50 修正版で iter 1 を取り直し。窓の変更は私のバグ、そして**初めて MLO 内挿を通したバンド**
 
-#### 窓の変更（`d6ceabead`）は撤回した
+#### 窓の変更（`ddecbd43e`）は撤回した
 
 修正版の最初の iter 1 で帯幅が 292 → **134 meV**、従来から **532 meV**、$E_{\rm HF}$ が LDA より
 **上がる**という壊れ方をした。iter 1 で発火する変更は窓だけ（2 スロットは `ZmloSig` が無いので、
@@ -3823,7 +3823,7 @@ MLO 連鎖が作った密度と `sigm` を、従来経路で内挿して描い�
 
 1. `--mlo` が無いと MLO 内挿を通らない（上記）。
 2. `job_band` の第 1 段 `lmf --quit=band` は **`efermi.lmf` を書き換える**
-   （`m_bndfp.f90`:274）。今日 `d6ceabead` で MLO の窓が `efermi.lmf` を読むように
+   （`m_bndfp.f90`:274）。今日 `ddecbd43e` で MLO の窓が `efermi.lmf` を読むように
    したので、連鎖ディレクトリでバンドを描くと窓の基準が動く。
 
 `run_snap.sh` を、反復ごとに `snap/iter<N>/` を掘って状態一式を置き、
@@ -3995,8 +3995,8 @@ user「まずはイテレーションの不整合を疑ってる」「バンド�
 
 | | 時刻 |
 |---|---|
-| `01b9ea4df` $\tilde\chi$ 凍結（`ZmloRef`）| 09-25 **05:25** |
-| `09ffdf09d` ndimh 完全一致（NaN 修正）| 09-25 **05:31** |
+| `cd56d6ecf` $\tilde\chi$ 凍結（`ZmloRef`）| 09-25 **05:25** |
+| `40308cb02` ndimh 完全一致（NaN 修正）| 09-25 **05:31** |
 | kt1 の `lmf` バイナリ | 09-25 **05:13** |
 | kt1 の `SRC/subroutines/m_sigmlo.f90` | 09-25 **05:13**、`ZmloRef` の出現数 **0** |
 
@@ -4294,7 +4294,7 @@ $O^{\rm MLO}$ の条件数も健全（76 軌道で 36、154 軌道で 111。NiO 
 基底の漂流は説明にならない。
 
 （$\tilde\chi$ の凍結自体は設計 §4.1 どおりなので実装は残した。`ZmloRef` に永続化、
-commit `01b9ea4df`。NiO で 3 反復通ることを確認済み。`ECALJ_MLO_NOCACHE=1` で従来動作。）
+commit `cd56d6ecf`。NiO で 3 反復通ることを確認済み。`ECALJ_MLO_NOCACHE=1` で従来動作。）
 
 #### 真因: $\Sigma^{\rm MLO}(R)$ が減衰しない
 
@@ -4409,10 +4409,10 @@ MLO 50 軌道（MTO 全体 `ldim` = 76 の部分空間）への**射影誤差**�
 
 | # | 症状 | 原因 | 対処 |
 |---|---|---|---|
-| 1 | `gwsc 1` を繰り返す連鎖で GW 入力が従来 $\Sigma$ に戻る | 起動時クリーンアップが `SigRsMLO` まで消していた | 消すのは `__cmlo.*` / `__SigmMLO.q` / `__HamiltonianGW*` だけに限定（commit `c506d35f5`） |
-| 2 | `__mloindex` という名前 | `__` 始まりは `cleargw` が消す対象。連鎖を通じて凍結すべきものに付けてはいけない | **`HamRsMLO` の末尾レコードに畳み込む**。既存の読み手は前方のレコードで止まるので後方互換（commit `71dd86a7d`） |
-| 3 | `SigmMLO.q` という名前 | 反復内の一時受け渡し（`hqpe_sc`→`mlo`）なので `__` を付けるべき | **`__SigmMLO.q`** に改名（commit `334e4707e`） |
-| 4 | 反復ごとに $\tilde\chi$ が作り直される | `mlo` が毎回 `HamRsMLO` を書き直していた | **`--mlofreeze`** を新設。`gwsc` が反復内の `mlo` に渡し、既存の `HamRsMLO` と凍結した窓を使う（commit `aaa5cb236`） |
+| 1 | `gwsc 1` を繰り返す連鎖で GW 入力が従来 $\Sigma$ に戻る | 起動時クリーンアップが `SigRsMLO` まで消していた | 消すのは `__cmlo.*` / `__SigmMLO.q` / `__HamiltonianGW*` だけに限定（commit `094b8cc1f`） |
+| 2 | `__mloindex` という名前 | `__` 始まりは `cleargw` が消す対象。連鎖を通じて凍結すべきものに付けてはいけない | **`HamRsMLO` の末尾レコードに畳み込む**。既存の読み手は前方のレコードで止まるので後方互換（commit `30cd68cc0`） |
+| 3 | `SigmMLO.q` という名前 | 反復内の一時受け渡し（`hqpe_sc`→`mlo`）なので `__` を付けるべき | **`__SigmMLO.q`** に改名（commit `dc2e328b9`） |
+| 4 | 反復ごとに $\tilde\chi$ が作り直される | `mlo` が毎回 `HamRsMLO` を書き直していた | **`--mlofreeze`** を新設。`gwsc` が反復内の `mlo` に渡し、既存の `HamRsMLO` と凍結した窓を使う（commit `f79e1c160`） |
 
 #### 運用の教訓
 
@@ -4576,7 +4576,7 @@ Si の MLO は 18 軌道（2 Si × spd）で MTO 50 チャネルの部分空間�
 **Si では判定できない**ことも確かめた（`si_gwsc` 2³）。従来法の粗さが既に 0.02〜0.11 meV しかなく、
 取り除くべきリンギングが存在しない。Si の Σ は滑らかで、Ti 3d の EH2 のような準線形従属も無い。
 
-**実装**（commit `a0c7a7300` 〜 `1d0094c4e`）。踏んだバグ 10 件は設計書 §8 に記録した。主なもの:
+**実装**（commit `6e2903731` 〜 `a83e9e583`）。踏んだバグ 10 件は設計書 §8 に記録した。主なもの:
 `sigmloi` の MPI 集約漏れ（一部の k で Σ が消える）、`hqpe_sc` からの `rotmatMTO` segfault、
 そして**基底の不整合**（$\tilde\chi$ を LDA で作り $\Sigma^{\psi}$ を QSGW 基底のまま縮約 → メッシュ点で 44〜218 meV、
 逆向きなら 312 meV）。最後のものは **a' を `sugw` に実装**して解決した（設計書 §4.2）:
@@ -4594,7 +4594,7 @@ Si の MLO は 18 軌道（2 Si × spd）で MTO 50 チャネルの部分空間�
 [sigma_mlo_design.md](../Samples/kBT/sigma_mlo_design.md) の段 1'〜3 を実装し、Si（`nkabc = n1n2n3 = mlo_nkabc = [2,2,2]`、`pwmode=11`、
 MLO 18 軌道 = 2 Si × spd）で端から端まで通した。
 
-**実装（commit `a0c7a7300`, `3bf449a11`, `409ccf9d6`, `7039157fa`）**
+**実装（commit `6e2903731`, `7fee41587`, `ea3ba4215`, `ffff894b6`）**
 
 | 段 | 変更 |
 |---|---|

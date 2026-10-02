@@ -46,7 +46,7 @@ SUSPECT_STRUCT = {
 }
 MAY_WRONG = {'mp-546711': '5 月は GOOD でギャップ 0.26 eV（LDA 5.41 より小さい）。回し直しで 8.95 eV。5 月の値は誤り'}
 
-COND_RERUN = 'fp32; b81da2342 (2026-09-29); POSCAR→vasp2ctrl→ctrlgenToml --ssig=0.8 (2026-09 の雛形); t_tetrakbt=300 t_sigmaw=300; LDA から; 最大 10 反復 (NaCoO2 20、金属 15)'
+COND_RERUN = 'fp32; 989a18637 (2026-09-29); POSCAR→vasp2ctrl→ctrlgenToml --ssig=0.8 (2026-09 の雛形); t_tetrakbt=300 t_sigmaw=300; LDA から; 最大 10 反復 (NaCoO2 20、金属 15)'
 
 
 def f(x):

@@ -74,7 +74,7 @@ for it in $(seq 1 $NITER); do
   ##    Hamiltonian (written at the mesh points with the stored chi~, QMLO_SigRs set aside,
   ##    unfrozen mlo).  NOT job_mlo --mlofreeze: that adds the current QMLO_SigRs (iteration-N
   ##    chi~) to the frozen HamRsMLO (step-0d LDA H, step-0d chi~) -- two bases, 0.3-0.5 eV
-  ##    off.  It used to crash (zMLO overrun, e9f633d79); fixed, it would silently succeed
+  ##    off.  It used to crash (zMLO overrun, c0e17f444); fixed, it would silently succeed
   ##    with that wrong band, so it is not run here at all.
   ( cd $SD && source env.sh && export PATH=$TB:$PATH && CUDA_VISIBLE_DEVICES= \
       $TB/job_band $T -np 8 NoGnuplot > lb_path.log 2>&1 )

@@ -58,7 +58,7 @@ git checkout <コミット> -- <パス>          # 作業ツリーに戻す（�
 ### 1.5 SRC の中のビルドの生成物（2026-10-01 に外した）
 
 `SRC/exec/build`・`SRC/exec/build_gf14`（CMake の作業ツリー）、`SRC/exec_gfortran`・`SRC/exec_gfortran-14`・`SRC/exec_ifx`（`libecaljF.so` の写し）の
-1853 ファイル・78 MB が、2026-09-24 のコミット `a0c7a7300` で誤って追跡されていた（公開のリポジトリへの push の前に見つけた）。
+1853 ファイル・78 MB が、2026-09-24 のコミット `6e2903731` で誤って追跡されていた（公開のリポジトリへの push の前に見つけた）。
 `.gitignore` に `/SRC/exec/build*/`・`/SRC/exec_*/` を足した。ビルドの置き場は `SRC/build_<コンパイラ>`（既に無視されている）。
 
 ## 2. GPU と計算機
@@ -186,7 +186,7 @@ PROCAR の k 点の順（11 ランク以上で接尾辞の数値ソート）／`
 
 ## 8. 退役したスクリプト（`SRC/exec_legacy/`、2026-06-04 に退役、2026-10-01 に trash）
 
-インストールされず、どこからも呼ばれていなかった。取り出すときは `git show c2d9df4aa:SRC/exec_legacy/<名前>`（表 1 の次のコミットの前）。
+インストールされず、どこからも呼ばれていなかった。取り出すときは `git show a1c30d1a1:SRC/exec_legacy/<名前>`（表 1 の次のコミットの前）。
 
 | 種類 | スクリプト |
 | --- | --- |
@@ -201,7 +201,7 @@ PROCAR の k 点の順（11 ランク以上で接尾辞の数値ソート）／`
 
 旧形式（`ctrl.<sname>`・`GWinput`）の入力と結果。どこからも参照されていなかった。いったん `Samples/MATERIALS/` の下へ移し（user「いったん Samples の下へ」）、
 その日のうちに仕分けた（user「仕分けプランを出して」「go ahead」）: 構造のデータベースは `Samples/MATERIALS/` に展開し、ほかは trash。
-取り出すときは `git show 3e9548b21:Samples/MATERIALS/<名前>`。
+取り出すときは `git show 52a14ecea:Samples/MATERIALS/<名前>`。
 
 **9.1 構造のデータベース（`Materials.ctrls.database`・`job_materials.py`）→ `Samples/MATERIALS/`**
 
@@ -238,7 +238,7 @@ PROCAR の k 点の順（11 ランク以上で接尾辞の数値ソート）／`
 
 ## 10. `TOOLS/` の古い道具（2026-10-01 に trash。残したのは `samples_tests.sh`・`sync_ecalj_src.sh`・`ozbench/` だけ）
 
-どれも、今のコード・試験・インストール・文書のどこからも使われていなかった（名前の一部が偶然一致したものを除く）。取り出すときは `git show 4d5dd8fed:TOOLS/<名前>`。
+どれも、今のコード・試験・インストール・文書のどこからも使われていなかった（名前の一部が偶然一致したものを除く）。取り出すときは `git show c6a1b6b7f:TOOLS/<名前>`。
 
 | 種類 | もの | 中身と、残す価値のあること |
 | --- | --- | --- |
@@ -276,7 +276,7 @@ CALLER_GRAPH         = YES
 本体は残した: `getsyml`（`getsyml.py`・`getpaths.py`・`hpkot/`〔seekpath の道の表〕・`brillouinzone/brillouinzone_takao.py`〔BZ の図、plotly〕）、
 `vasp2ctrl`・`ctrl2vasp`（`convctrl.py` を使う）、`viewvesta`、`refineposcar.py`（pymatgen の SpacegroupAnalyzer で POSCAR の対称性を整える単独の道具）、
 `StructureTool/superlattice/`。移したあと、`getsyml gaas --nobzview`、`vasp2ctrl POSCAR`、`ctrl2vasp` が動くことを確かめた。
-取り出すときは `git show 2e0756a21:<パス>`。
+取り出すときは `git show 35628a89d:<パス>`。
 
 - **`GetSyml/ctrl.*`（86 本）・`ctrls.*`（4 本）・`syml.*`（21 本）**: 旧形式の ctrl の例と、それから作った `syml` の例（Si、GaAs、NiO、LaGaO₃、BaTiO₃、4H-SiC など）。
   `getsyml` は中で `lmchk <sname>` を走らせるので、今の入力は `ctrlg.<sname>.toml`（旧形式の ctrl は読まない）。`syml.*` の例は、道の取り方の見本としては今も同じ
@@ -290,7 +290,7 @@ CALLER_GRAPH         = YES
 
 ## 13. 有限温度の四面体法の不具合の報告（`SRC/subroutines/m_tetrakbt_BUGREPORT.md`、2026-06-08〜09、2026-10-01 に trash）
 
-- 2026-10-02 05:26: 旧 `m_tetrakbt` の中点分解のルーチン（`tetrakbt`・`eaf_triangle`・`eafww`・`factri`・`factri0`・`integral_1t`・`integral_0t`・`funcgx`・`numintall`・`funcgx2`・`ndiv_tt`・`int_simpson`、約 410 行）を外した。取り出すときは `git show 41c0e3cc7:SRC/subroutines/m_tetrakbt.f90`
+- 2026-10-02 05:26: 旧 `m_tetrakbt` の中点分解のルーチン（`tetrakbt`・`eaf_triangle`・`eafww`・`factri`・`factri0`・`integral_1t`・`integral_0t`・`funcgx`・`numintall`・`funcgx2`・`ndiv_tt`・`int_simpson`、約 410 行）を外した。取り出すときは `git show 1472f3ad7:SRC/subroutines/m_tetrakbt.f90`
 - 症状（2026-06-08）: `[gw] tetrakbt = true` で χ₀ が誤り、金属の一部の q で ε が特異になって W・Σc が NaN（Na 4×4×4 の q = (0.25,0.25,0.5)）。T → 0 でも誤り
 - 診断の手順（再現できる形）: `tetwt5x_dtet4` で `usetetrakbt` のとき T=0 の正しい `lindtet6` も呼び、四面体ごとの `sum(wtthis(:,0))` を比べた。
   T = 1 K で 34489 個の四面体が 10% 以上ずれ、最大 4451 倍。99.8% が Fermi 面を横切る四面体
@@ -351,37 +351,38 @@ ecaljdoc の `BackUp/`（148 本、35 MB: 初版の GW マニュアル `man-gw.t
 
 | 日 | もの | 元の場所 | 外す前のコミット | 過去ログの節 |
 | --- | --- | --- | --- | --- |
+| 2026-10-02 | 旧 `a0c7a7300` に入っていたビルドの生成物 3197 本を**履歴から**除いた（user の指示。ハッシュの対応は `MD/commit_map_20261002.txt`） | `SRC/exec/build`、`build_gf14`、`SRC/execAHC`、`SRC/BK`、`SRC/exec/BK`、`SRC/execgfortran` | 控え `/media/takao/TAKAOMINI/ecalj_mirror_before_filter_20261002.git` | §1.5 |
 | 2026-10-02 | ecaljdoc の古い文書（157 本、38 MB） | ecaljdoc の `BackUp/`、`ecaljdetails/` | ecaljdoc `3284d0b` | §14 |
 | 2026-10-02 | ecaljdoc の古い書き出し（md より古い `README.pdf`・`index.pdf`・`install/install.pdf`・`installISSP.pdf`）、空の雛形 `list.md`、エディタのファイル | ecaljdoc の最上位、`install/`、`presentations/` | ecaljdoc `6715169` | — |
-| 2026-10-01 | Materials Project の API キーを含む設定の写し | `ecalj_auto/OUTPUT/*/config.ini` の `apikey` 行 | `290397b34` の前 | ecalj_auto/README.md |
-| 2026-10-01 | 古い写し | `SRC/BK`、`SRC/execgfortran`、`SRC/execAHC` | `116254e1d` の前（`4f9332d98`） | — |
-| 2026-10-01 | GW1500 の古いスクリプト・表 | `ecalj_auto/run_gw1500_addrun*.sh`、`jobgw1500.sh`、`gw1500_recheck_*.sh`、`qpu_change.py`、`gw1500_rerun_20260930.tsv` | `116254e1d` の前 | ecalj_auto/GW1500_status.md |
-| 2026-10-01 | TestInstall の旧形式の入力 `ctrl.<sname>`（30 本。試験も Fortran も読まず、試験の入力は横の `ctrlg.<sname>.toml`。中身は `ctrl2ctrltoml.py` (v2) で変換した元で、コメントは古い生成器 ctrlgen2.py・lm7 の一般的な説明だけ） | `Samples/TestInstall/*/ctrl.*` | `49683ffd8` の前 | — |
-| 2026-10-01 | Samples の残りの旧形式の入力 `ctrl.<sname>`（28 本: MLOsamples の各試料、BenchmarkTest、MATERIALS の La₂CuO₄・InAs/GaSb・BaTiO₃。どれも横に `ctrlg.<sname>.toml` があり、BaTiO₃ の `LDA/`・`QSGW0run/` の `ctrl.batio3` は `QSGW5run/` のもの（`ctrlg` の元）と同じ） | `Samples/**/ctrl.*` | `5b0c3207d` の前 | — |
-| 2026-10-02 | MLOsamples などの古い作業ファイル 68 本: 旧形式の前処理の出力 `ctrlp.*`（`ctrl2ctrlp.py`）、lmfham2 の `lmfham2parameters.check`・`out_lmfham1`、古い MPO・MLO0 のバンドの図 `bandplot_MPO.*`・`bandplot_MLO0.*`、`bbb*.glt`、`temp.*`（Al2O3_Cr、RuO2、SrTiO3、Si666gwsc、NiO666lda、GdION、Cu、C、C.sp、Fe、FeCo、MATERIALS/La2CuO4）。試験と README は使っていない | 各ディレクトリ | `dec7ea6ee` の前 | — |
-| 2026-10-02 | **Wannier 関数（最大局在化）の経路**: Fortran `main_wannier_hmaxloc`・`main_wannier_hpsig`・`main_wannier_wanplot`・`main_wannier_hsocmat`・`main_hmagnon`（Wannier のマグノン）・`m_wannier_maxloc`（`m_maxloc0`）・`m_wan_wfs`・`m_readwan`・`m_iqindx_wan`・`m_read_Worb` と入口 `SRC/main/{hmaxloc,hpsig_MPI,wanplot,hsocmat,hmagnon}.f90`、スクリプト `genMLWF`・`genMLWFx`・`genMLWFdipoleTEST`・`job_magnon`、試料 `Samples/Magnon/{Fe,Ni,FeCo,Fe_bcc_in_sc}_magnon`（`eps/` の図も）、Wannier 版の `TestInstall/ni_crpa`・`srvo3_crpa` の参照と `bnds.*`、比較の一式 `Samples/WannierVsMLO`、`[gw] wan_*` のキーと gwinit の Wannier の節。cRPA・広がり・マグノンは MLO で置き換えた（`job_mloW --crpa`、`mlo_spread.py`、`job_mlo_magnon`）。比較は `MD/wannier_vs_mlo.md`。`hwmatK` が使っていた `wigner_seitz`・`sortvec2` は `m_wigner_seitz.f90` に、`m_wannier_wmatqk`・`m_wannier_zmel_old`・`main_wannier_hwmatK` は MLO だけにして `m_wmatqk`・`m_zmel_old`・`main_hwmatK` に改名。`huumat --dwnb=wan` は `readgeig_mlw: ngpmx<ngp(iq)` で止まる状態だった | 各ファイル | タグ `last-wannier`（`f1de3817a`）。そこで `Samples/WannierVsMLO/run.sh` が比較を再現する | — |
+| 2026-10-01 | Materials Project の API キーを含む設定の写し | `ecalj_auto/OUTPUT/*/config.ini` の `apikey` 行 | `cb9b2d7b7` の前 | ecalj_auto/README.md |
+| 2026-10-01 | 古い写し | `SRC/BK`、`SRC/execgfortran`、`SRC/execAHC` | `0c8dbaaf2` の前（`47ce04cc5`） | — |
+| 2026-10-01 | GW1500 の古いスクリプト・表 | `ecalj_auto/run_gw1500_addrun*.sh`、`jobgw1500.sh`、`gw1500_recheck_*.sh`、`qpu_change.py`、`gw1500_rerun_20260930.tsv` | `0c8dbaaf2` の前 | ecalj_auto/GW1500_status.md |
+| 2026-10-01 | TestInstall の旧形式の入力 `ctrl.<sname>`（30 本。試験も Fortran も読まず、試験の入力は横の `ctrlg.<sname>.toml`。中身は `ctrl2ctrltoml.py` (v2) で変換した元で、コメントは古い生成器 ctrlgen2.py・lm7 の一般的な説明だけ） | `Samples/TestInstall/*/ctrl.*` | `9262e462c` の前 | — |
+| 2026-10-01 | Samples の残りの旧形式の入力 `ctrl.<sname>`（28 本: MLOsamples の各試料、BenchmarkTest、MATERIALS の La₂CuO₄・InAs/GaSb・BaTiO₃。どれも横に `ctrlg.<sname>.toml` があり、BaTiO₃ の `LDA/`・`QSGW0run/` の `ctrl.batio3` は `QSGW5run/` のもの（`ctrlg` の元）と同じ） | `Samples/**/ctrl.*` | `d436935ce` の前 | — |
+| 2026-10-02 | MLOsamples などの古い作業ファイル 68 本: 旧形式の前処理の出力 `ctrlp.*`（`ctrl2ctrlp.py`）、lmfham2 の `lmfham2parameters.check`・`out_lmfham1`、古い MPO・MLO0 のバンドの図 `bandplot_MPO.*`・`bandplot_MLO0.*`、`bbb*.glt`、`temp.*`（Al2O3_Cr、RuO2、SrTiO3、Si666gwsc、NiO666lda、GdION、Cu、C、C.sp、Fe、FeCo、MATERIALS/La2CuO4）。試験と README は使っていない | 各ディレクトリ | `b23c04224` の前 | — |
+| 2026-10-02 | **Wannier 関数（最大局在化）の経路**: Fortran `main_wannier_hmaxloc`・`main_wannier_hpsig`・`main_wannier_wanplot`・`main_wannier_hsocmat`・`main_hmagnon`（Wannier のマグノン）・`m_wannier_maxloc`（`m_maxloc0`）・`m_wan_wfs`・`m_readwan`・`m_iqindx_wan`・`m_read_Worb` と入口 `SRC/main/{hmaxloc,hpsig_MPI,wanplot,hsocmat,hmagnon}.f90`、スクリプト `genMLWF`・`genMLWFx`・`genMLWFdipoleTEST`・`job_magnon`、試料 `Samples/Magnon/{Fe,Ni,FeCo,Fe_bcc_in_sc}_magnon`（`eps/` の図も）、Wannier 版の `TestInstall/ni_crpa`・`srvo3_crpa` の参照と `bnds.*`、比較の一式 `Samples/WannierVsMLO`、`[gw] wan_*` のキーと gwinit の Wannier の節。cRPA・広がり・マグノンは MLO で置き換えた（`job_mloW --crpa`、`mlo_spread.py`、`job_mlo_magnon`）。比較は `MD/wannier_vs_mlo.md`。`hwmatK` が使っていた `wigner_seitz`・`sortvec2` は `m_wigner_seitz.f90` に、`m_wannier_wmatqk`・`m_wannier_zmel_old`・`main_wannier_hwmatK` は MLO だけにして `m_wmatqk`・`m_zmel_old`・`main_hwmatK` に改名。`huumat --dwnb=wan` は `readgeig_mlw: ngpmx<ngp(iq)` で止まる状態だった | 各ファイル | タグ `last-wannier`（`dbcd6e51d`）。そこで `Samples/WannierVsMLO/run.sh` が比較を再現する | — |
 | 2026-10-02 | **AHC（異常ホール伝導度）**: `main_hahc`・`x0kf_ahc`・入口 `hahc.f90`、`job_AHC`・`hx0ahc.py`、オプション `--ahc`・`--mloahc`・`--AHCMAT`・`--UUMAT`（`huumat` の 7 桁のファイル名）。試料は 2026-10-01 に外していた（新しい AHC は別のところから来る、user） | 各ファイル | `last-wannier` | — |
 | 2026-10-02 | **lmfham2（反復で作る古い MLO）**: `main_lmfham2`・入口 `lmfham2.f90`、`genMLO`、キー `mlo_maxit`・`mlo_conv`・`mlo_WTinner`・`mlo_CUinner` など 15 個、`--cmlo`、`MLOsamples/*/bandplot.lmfham2.*.glt`、`job_ham` を呼ぶ古い `job`（NiO666lda、Si666gwsc）と `BBVEC`（Al2O3_Cr、RuO2、Si666gwsc、SrTiO3）。MLO は `mlo`（`Hreduction`）で一度に作る | 各ファイル | `last-wannier` | — |
-| 2026-10-02 | 実験用の MLO のオプション `--mlo_diagnorm`（k ごとの規格化、内挿バンドを動かす）・`--mlo_feb4`・`--mlo_ortho`・`--mlo_orthonorm`（Löwdin）・`--gs`、`huumat` の `--q2q1test`。コードは日付付きのコメントで残し、与えると `check_retired` が止める。MLO は実空間で規格化（ecaljdoc mlo 式 (7a)） | `m_hreduction.f90`、`m_cmdopt_registry.f90` | `0e33fbd87` の前 | — |
-| 2026-10-02 | `m_mksym_util.f90`（対称性のルーチン一式）。中身は全部 `m_symop_util`・`m_symderive`・`m_symfind` と `m_mksym` の `mksym` に移した（S1、`MD/symmetry_spglib.md` §4.7b）。ノウハウは移した先のコメントに残っている | `SRC/subroutines/m_mksym_util.f90` → `trash/symmetry_split_20261002/` | `f7c382bed` | — |
-| 2026-10-01 | 旧形式の GW の入力 `GWinput`（MATERIALS の BaTiO₃ `QSGW0run`・`QSGW5run`、InAs/GaSb `n4`・`n10`、La₂CuO₄。GW の設定は横の ctrlg の `[gw]`）と `BaTiO3/QSGW5run/ctrlgenM1.ctrl.batio3`（古い生成器の出力）。MLOsamples の `Al2O3_Cr/CASE1ok`〜`CASE5ok`（入力は `GWinput` だけ、ほかはそのバンドの出力）: 旧 MLO（反復の方法、`mlo_maxit`・`mlo_WTinner`）の 5 通りの模型の記録。CASE1 は全原子 s,p,d、CASE2 は Al s,p,d・Cr d・O p、CASE3 は O を s,p に、CASE4・5 は CASE2 と同じ模型で `mlo_maxit` 10/50・`mlo_WTinner` 16384/8182 | 各ディレクトリ | `f2f79a380` の前 | — |
-| 2026-10-01 | ビルドの生成物 | `SRC/exec/build`・`build_gf14`、`SRC/exec_gfortran`・`exec_gfortran-14`・`exec_ifx` | `3f0771f2f` の前 | §1.5 |
-| 2026-10-01 | 打ち込み用・古いスクリプト | `g`・`gg`・`i`・`ii`・`n`、`build_nvfortran.sh`、`gpu_wait_run.sh`、`jobinstall_kugui.sh`・`jobinstall_ohtaka.sh` | `3f0771f2f` | §1.1〜1.3、§2.1 |
-| 2026-10-01 | 古いビルドとソースの控え | `SRC/exec/BK` | `3f0771f2f` | §1.4 |
-| 2026-10-01 | リファクタの調査と回帰の控え | `.refactor_notes/` | `3f0771f2f` | §3.1 |
-| 2026-10-01 | サンプルの古い試行と控え | 表の下の注 | `3f0771f2f` | §4.1、§4.2 |
-| 2026-10-01 | hgw の統合の記録 | `PHASE1B_REFACTOR.md` | `c2d9df4aa` | §3.2 |
-| 2026-10-01 | ecaljdoc の古い下書き | `ecaljdoc_drafts/` | `c2d9df4aa` | §4.3 |
-| 2026-10-01 | 一発 GW と有限温度の手引き | `FiniteT_and_QPE_HOWTO.md` | `c2d9df4aa` | §5 |
-| 2026-10-01 | 2026-06〜09 の更新の要約 | `HIGHLIGHTS_2026-06_09.md` | `c2d9df4aa` | §6 |
-| 2026-10-01 | ジョブの自動実行の試作 | `jobauto/` | `c2d9df4aa` | §7 |
-| 2026-10-01 | 退役したスクリプト | `SRC/exec_legacy/` | `c2d9df4aa` | §8 |
-| 2026-10-01 | TOOLS の古い道具（約 60 項目、`samples_tests.sh`・`sync_ecalj_src.sh`・`ozbench/` 以外） | `TOOLS/` | `4d5dd8fed` | §10 |
-| 2026-10-01 | Doxygen の設定 | `Doxygen/`（`Doxyfile`、README） | `da3976b2a` | §11 |
-| 2026-10-01 | GetSyml・StructureTool の例と使わないスクリプト | `GetSyml/ctrl.*`・`syml.*` ほか、`StructureTool/sample/` ほか（257 ファイル） | `2e0756a21` | §12 |
-| 2026-10-01 | 有限温度の四面体法の不具合の報告（2026-06、直し済み） | `SRC/subroutines/m_tetrakbt_BUGREPORT.md` | `c4da6b1f1` | §13 |
-| 2026-10-01 | `SRC/exec` の行き先の無いリンク 12 本（`mlo`、`libecaljF.so`、`hgw_combined`、`hrcxq` など、消した `SRC/exec/build/` を指していた。`.#genMLWF` を除く 11 本と `.#genMLWF` も追跡されていた。`hgw_combined`・`hrcxq` は `a0c7a7300` から） | `SRC/exec/` | `22d9c9b24` | — |
-| 2026-10-01 | 旧形式の古いサンプル（30 項目） | `Samples/MATERIALS/`（元は最上位の `MATERIALS/`、624 ファイル） | `3e9548b21` | §9 |
+| 2026-10-02 | 実験用の MLO のオプション `--mlo_diagnorm`（k ごとの規格化、内挿バンドを動かす）・`--mlo_feb4`・`--mlo_ortho`・`--mlo_orthonorm`（Löwdin）・`--gs`、`huumat` の `--q2q1test`。コードは日付付きのコメントで残し、与えると `check_retired` が止める。MLO は実空間で規格化（ecaljdoc mlo 式 (7a)） | `m_hreduction.f90`、`m_cmdopt_registry.f90` | `cbb81dede` の前 | — |
+| 2026-10-02 | `m_mksym_util.f90`（対称性のルーチン一式）。中身は全部 `m_symop_util`・`m_symderive`・`m_symfind` と `m_mksym` の `mksym` に移した（S1、`MD/symmetry_spglib.md` §4.7b）。ノウハウは移した先のコメントに残っている | `SRC/subroutines/m_mksym_util.f90` → `trash/symmetry_split_20261002/` | `b889a00b8` | — |
+| 2026-10-01 | 旧形式の GW の入力 `GWinput`（MATERIALS の BaTiO₃ `QSGW0run`・`QSGW5run`、InAs/GaSb `n4`・`n10`、La₂CuO₄。GW の設定は横の ctrlg の `[gw]`）と `BaTiO3/QSGW5run/ctrlgenM1.ctrl.batio3`（古い生成器の出力）。MLOsamples の `Al2O3_Cr/CASE1ok`〜`CASE5ok`（入力は `GWinput` だけ、ほかはそのバンドの出力）: 旧 MLO（反復の方法、`mlo_maxit`・`mlo_WTinner`）の 5 通りの模型の記録。CASE1 は全原子 s,p,d、CASE2 は Al s,p,d・Cr d・O p、CASE3 は O を s,p に、CASE4・5 は CASE2 と同じ模型で `mlo_maxit` 10/50・`mlo_WTinner` 16384/8182 | 各ディレクトリ | `b54a11003` の前 | — |
+| 2026-10-01 | ビルドの生成物 | `SRC/exec/build`・`build_gf14`、`SRC/exec_gfortran`・`exec_gfortran-14`・`exec_ifx` | `df4968a5e` の前 | §1.5 |
+| 2026-10-01 | 打ち込み用・古いスクリプト | `g`・`gg`・`i`・`ii`・`n`、`build_nvfortran.sh`、`gpu_wait_run.sh`、`jobinstall_kugui.sh`・`jobinstall_ohtaka.sh` | `df4968a5e` | §1.1〜1.3、§2.1 |
+| 2026-10-01 | 古いビルドとソースの控え | `SRC/exec/BK` | `df4968a5e` | §1.4 |
+| 2026-10-01 | リファクタの調査と回帰の控え | `.refactor_notes/` | `df4968a5e` | §3.1 |
+| 2026-10-01 | サンプルの古い試行と控え | 表の下の注 | `df4968a5e` | §4.1、§4.2 |
+| 2026-10-01 | hgw の統合の記録 | `PHASE1B_REFACTOR.md` | `a1c30d1a1` | §3.2 |
+| 2026-10-01 | ecaljdoc の古い下書き | `ecaljdoc_drafts/` | `a1c30d1a1` | §4.3 |
+| 2026-10-01 | 一発 GW と有限温度の手引き | `FiniteT_and_QPE_HOWTO.md` | `a1c30d1a1` | §5 |
+| 2026-10-01 | 2026-06〜09 の更新の要約 | `HIGHLIGHTS_2026-06_09.md` | `a1c30d1a1` | §6 |
+| 2026-10-01 | ジョブの自動実行の試作 | `jobauto/` | `a1c30d1a1` | §7 |
+| 2026-10-01 | 退役したスクリプト | `SRC/exec_legacy/` | `a1c30d1a1` | §8 |
+| 2026-10-01 | TOOLS の古い道具（約 60 項目、`samples_tests.sh`・`sync_ecalj_src.sh`・`ozbench/` 以外） | `TOOLS/` | `c6a1b6b7f` | §10 |
+| 2026-10-01 | Doxygen の設定 | `Doxygen/`（`Doxyfile`、README） | `d6907c911` | §11 |
+| 2026-10-01 | GetSyml・StructureTool の例と使わないスクリプト | `GetSyml/ctrl.*`・`syml.*` ほか、`StructureTool/sample/` ほか（257 ファイル） | `35628a89d` | §12 |
+| 2026-10-01 | 有限温度の四面体法の不具合の報告（2026-06、直し済み） | `SRC/subroutines/m_tetrakbt_BUGREPORT.md` | `d0dfe3085` | §13 |
+| 2026-10-01 | `SRC/exec` の行き先の無いリンク 12 本（`mlo`、`libecaljF.so`、`hgw_combined`、`hrcxq` など、消した `SRC/exec/build/` を指していた。`.#genMLWF` を除く 11 本と `.#genMLWF` も追跡されていた。`hgw_combined`・`hrcxq` は `6e2903731` から） | `SRC/exec/` | `9fdb8adda` | — |
+| 2026-10-01 | 旧形式の古いサンプル（30 項目） | `Samples/MATERIALS/`（元は最上位の `MATERIALS/`、624 ファイル） | `52a14ecea` | §9 |
 
 注: サンプルの古い試行と控えは、MLOsamples の `test*`・`temp`・`*.bk`・`*.tmp`（§4.1）、`Samples/TestInstall/TESTunused`、
 `Samples/TestInstall/eras/occnum.eras.bk`、`TOOLS/FparserTools/f_calltree.py.bk*`、`TOOLS/SrcFragments/f_calltree.py.bk*`・`ANALYZEnotusednow/analyze_temp~`、

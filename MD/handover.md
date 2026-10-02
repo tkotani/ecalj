@@ -87,7 +87,7 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
   静的ライブラリ `symspg`）で操作を求め、作業ディレクトリに `symmetry.<sname>.json` を書く。次からは読み、構造が違えば作り直す。`ECALJ_SYMFIND=ecalj` で
   従来の gensym（比べるとき）。`symgrp` に生成元を書いた入力も gensym。ビルドには C コンパイラが要る（CMake の `project(... Fortran C)`）
 
-- **MLO は Löwdin で直交化した関数**（2026-10-02、user の判断。`34a22e6de`）: 実空間で規格化した MLO を各 k で O(k)^(−1/2) で直交化したもの（射影 Wannier）が
+- **MLO は Löwdin で直交化した関数**（2026-10-02、user の判断。`d10a63716`）: 実空間で規格化した MLO を各 k で O(k)^(−1/2) で直交化したもの（射影 Wannier）が
   ecalj の MLO。模型は H̃(R) だけ（O(R) = δ）、__cmlo（U・J・cRPA・マグノン）、MLO-QSGW の Σ、SOC もこの基底。対称性と軌道の名前を保ち、窓によらない。
   メッシュの外のバンドは生の (H, O) の模型より E_F 近くで良い（ecaljdoc mlo §6 表 M8）。`job_mlo --mlo_raw` は比べるためだけの以前の模型。
   HamRsMLO に直交化の印があり、それが無い古い HamRsMLO は読まずに止まる（job_mlo を回し直す）。
@@ -147,7 +147,7 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
     MLO の重なりの最小固有値（`mlo` が書く `MLO_ovlpmin.dat`）が 0 以下か中央値の 1/100 未満（線形独立性の崩れ。基準 2 の Cu・Ni はそこで負になった）
 
 - **MLO は実空間で規格化する**（2026-10-02、ecaljdoc mlo 式 (7a)）: 各 MLO を実空間の 2 乗積分 O_ii(R=0) の平方根で割る（k によらない定数）。`mlo` が `HamRsMLO` を作るときに決めて末尾に書き、以後の `Hreduction`（`__cmlo`、sugw、`m_sigmlo`）は同じ値で割る。k ごとに割る（旧 `--mlo_diagnorm`）と内挿バンドが動き、直交化すると軌道が隣で振動して伸びる。どちらも使わない。古い `HamRsMLO` は読めないので `job_mlo` を回し直す
-- **Wannier 関数・AHC・lmfham2 は外した**（2026-10-02）: git のタグ `last-wannier`（`f1de3817a`）に残る。cRPA は `job_mloW --crpa`、広がりは `mlo_spread.py`、マグノンは `job_mlo_magnon`。MLO と Wannier の違いは `MD/wannier_vs_mlo.md`
+- **Wannier 関数・AHC・lmfham2 は外した**（2026-10-02）: git のタグ `last-wannier`（`dbcd6e51d`）に残る。cRPA は `job_mloW --crpa`、広がりは `mlo_spread.py`、マグノンは `job_mlo_magnon`。MLO と Wannier の違いは `MD/wannier_vs_mlo.md`
 
 ## 6. 道具の癖
 
@@ -159,3 +159,8 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
   （`x-api-key` と User-Agent。urllib の既定は 403）（2026-10-01、reference_mp_api_key、TODOandQuestion.md）
 - **Python から libecaljF を呼ぶ**（構想、2026-03）: ctypes でシンボルを直接呼べる（nvfortran の名前は `<module>_<routine>_`、例 `m_bndfp_bndfp_`）。
   `bind(C)` は要らない（project_python_integration）
+
+- **履歴の書き換え**（2026-10-02 12:59、user の指示）: 未公開の範囲の 657 コミットを書き換え、旧 `a0c7a7300`（新 `6e2903731`）に誤って入っていたビルドの生成物 3197 本を
+  履歴から除いた。main のツリーは変わらない。dev・rel にあるコミットは変わらない。ecalj・ecaljdoc の文書とコミットメッセージの中のハッシュは新しいものに直した。
+  古いハッシュ（他の機械の `SRC/.ecalj_rev`、作業場所のメモ、古いアーティファクト）は `MD/commit_map_20261002.txt` で引く。書き換え前の丸ごとの控えは
+  `/media/takao/TAKAOMINI/ecalj_mirror_before_filter_20261002.git`

@@ -1,5 +1,5 @@
 # ctrlg.<sname>.toml -- converted by ctrl2ctrltoml.py (v2) from the legacy ctrl.<sname> (moved to trash 2026-10-01;
-#   in the git history before 49683ffd8)
+#   in the git history before 9262e462c)
 # Schema-typed TOML; m_lmfinit::ReadCtrlp walks this file generically.
 
 # === Top-level keys ===

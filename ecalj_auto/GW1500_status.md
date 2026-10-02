@@ -67,12 +67,12 @@ FAILED の 147 物質と mp-546711 を、今のコードで最初から回し直
   バンドの図は [`gw1500_bandplot.sh`](gw1500_bandplot.sh)
 - 設定: `--prec=fp32`、収束の条件 0.1 eV（2 回続けて）、最大 10 反復、1 物質 8 時間まで。`[gw]` はテンプレートのまま（`t_tetrakbt = 300`、`t_sigmaw = 300`）。
   4〜5 月の計算は χ0 が T = 0、`esmr = 0.003` Ry（262 K に当たる）で、ギャップのある物質ではこの違いは 1 meV 程度
-- 場所: kt1 の `/mnt/data1/gw1500_rerun/run1/<mpid>/`、ログは `run1/rerun.log`。バイナリは `~/bin_frozen_b81da2342`（実体のコピー）
+- 場所: kt1 の `/mnt/data1/gw1500_rerun/run1/<mpid>/`、ログは `run1/rerun.log`。バイナリは `~/bin_frozen_989a18637`（実体のコピー）
 - 順番: 原子数の少ないものから
 
 ```bash
 # kt1 での起動（4 本のワーカー、1 本に 12 コア）
-export RUN_DIR=/mnt/data1/gw1500_rerun/run1 BIN=$HOME/bin_frozen_b81da2342 NP=12 GPUS=0,1 PREC=fp32 LIMIT=28800
+export RUN_DIR=/mnt/data1/gw1500_rerun/run1 BIN=$HOME/bin_frozen_989a18637 NP=12 GPUS=0,1 PREC=fp32 LIMIT=28800
 export ENVSH=<PATH と LD_LIBRARY_PATH を設定するファイル>
 for i in 0 1 2 3; do
   a=$((16+12*i)); nohup setsid taskset -c $a-$((a+11)) bash gw1500_rerun.sh queue.txt W$i > worker_W$i.out 2>&1 < /dev/null &
@@ -119,7 +119,7 @@ MP が圧力ゼロで緩和したもの（「Materials Project Optimized Structu
 | 項目 | 5 月（2026-04〜05） | 回し直し（2026-09-30〜） |
 | --- | --- | --- |
 | GPU の精度 | TF32（`--gpu --mp`） | fp32（`--gpu --prec=fp32`） |
-| バイナリ | `~/bin2`（1439 物質）、`~/bin2_dev`（107） | `~/bin_frozen_b81da2342`（2026-09-29）。`gwscconv` だけ `ecfac2c6b`（金属の判定） |
+| バイナリ | `~/bin2`（1439 物質）、`~/bin2_dev`（107） | `~/bin_frozen_989a18637`（2026-09-29）。`gwscconv` だけ `1730f7e7e`（金属の判定） |
 | 入力 | 本計算は旧形式 ctrl+GWinput（1380）か TOML（166）。追加の計算は 05-11 の TOML で続き（Rb・Cs・K・Ba・Sr などの MT 半径 3.0 → 2.8） | POSCAR から `ctrlgenToml.py --ssig=0.8` で作り直し（2026-09 の雛形） |
 | 始め方 | 本計算の続き（REDO の 115 物質は最初から） | LDA から |
 | χ0 の均し | T=0 の四面体法 | `t_tetrakbt = 300`（有限温度の四面体法） |
@@ -144,7 +144,7 @@ MP が圧力ゼロで緩和したもの（「Materials Project Optimized Structu
 
 ### 5.1 精度だけの差（kr7、2026-10-01 02:03〜06:24）
 
-同じバイナリ（`~/bin_frozen_74ba72dad`、`gwscconv` は `ecfac2c6b`）と同じ入力で、物質ごとに fp32 と TF32 を続けて回した（RTX 5090 1 枚、`gw1500_rerun.sh` の設定、
+同じバイナリ（`~/bin_frozen_b695fa65c`、`gwscconv` は `1730f7e7e`）と同じ入力で、物質ごとに fp32 と TF32 を続けて回した（RTX 5090 1 枚、`gw1500_rerun.sh` の設定、
 `~/gw1500ab`）。**最終の QSGW80 のギャップの差は 8 物質とも 1 meV 未満**（最大 0.67 meV）。kt1 の run3（fp32、別の GPU）とも 0.3 meV 以内で一致する。
 5 月の値との 0.29〜1.48 eV の差は TF32 の精度ではなく、5 月の計算の振動（表 6 の `SUSPECT_GOOD`: 2 反復目以降に 0.5 eV を超えて振動したまま収束と判定）と、
 入力・コードの版・温度の設定の違い（表 5）による。

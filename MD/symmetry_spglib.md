@@ -207,13 +207,13 @@ GW 側の二つは `__HAMindex0` から読んだ操作のうち、呼ぶ側が�
 
 ### 4.7e S3・S4 の確かめで分かったこと（2026-10-02 06:06）
 
-**表 6**. 試験の組を json の口で（kt1、`91f9bdcaf`、CPU、lmf などの前に `symfind.py` を走らせる包み、05:40〜05:59）
+**表 6**. 試験の組を json の口で（kt1、`7902490e4`、CPU、lmf などの前に `symfind.py` を走らせる包み、05:40〜05:59）
 
 | 組 | 結果 | 備考 |
 | --- | --- | --- |
 | inputs 172、afsym 4、affix 12、install 66、mlo 45、mloqsgw 5、procar 5、FermiSurface〜kBT_scanT | PASS | json が使われたことはログの `space group from symmetry` で確かめた |
 | BoltzTraP（Si） | TEST 2 FAIL | `si.struct.boltztrap` は操作の一覧。整数の行列として集合は同じで、並びだけが違う。S6 で json を既定にするとき参照を作り直す |
-| AtomDimer（N₂） | STOPPED | 試験が `--ctrlg:site.n.pos=` で位置を上書きしていた。照らし合わせが止めたのは正しい動き。`symfind.py` が同じ上書きを受け取るようにした（`3572a0859`）。S6 で lmf の前段から呼ぶときも引数をそのまま渡す |
+| AtomDimer（N₂） | STOPPED | 試験が `--ctrlg:site.n.pos=` で位置を上書きしていた。照らし合わせが止めたのは正しい動き。`symfind.py` が同じ上書きを受け取るようにした（`953f7bb05`）。S6 で lmf の前段から呼ぶときも引数をそのまま渡す |
 
 - Si8（Si の 8 原子の立方胞、[bz] 8×8×8、gfortran、t14）: json の口で 192 操作（純粋な並進 4）と、gensym の 24 操作（`ECALJ_SYMFIND=ecalj`）で、
   収束した ehf・ehk・sev が表示の桁まで一致（ehf −62922.978555 eV、sev −64.768559 eV）。既約な k は両方 35。対称性なし（`--nosym`、512 k 点、
@@ -221,7 +221,7 @@ GW 側の二つは `__HAMindex0` から読んだ操作のうち、呼ぶ側が�
 - Si8 の MLO（06:41、t14、S5 の版、`job_band`・`job_mlo` -np 2）: 192 操作と 24 操作で、MLO の帯の差は最大 1.4×10⁻⁴ eV（`band_MLO_spin1.dat` の印字の桁、
   10⁻⁵ Ry）、DFT の帯の差は 7×10⁻⁵ eV 以下、検査（ギャップ 0.476 eV、誤差、重なりの最小固有値 0.23）は同じ。純粋な並進の操作での H(k) の平均（`m_HamPMT`、
   `rotmatMTO`）は正しく働いている
-- Si8 の QSGW 1 反復（06:55 にまとめ、kt1 GPU 0・1、`9d60130fc`（S4b）のビルド、[gw] 4³、06:32〜06:54）: 192 操作（json）と 24 操作（gensym）で
+- Si8 の QSGW 1 反復（06:55 にまとめ、kt1 GPU 0・1、`9767afd5b`（S4b）のビルド、[gw] 4³、06:32〜06:54）: 192 操作（json）と 24 操作（gensym）で
   QSGW のあとのギャップ 1.198018 / 1.198020 eV、ehf の差 0.44 meV、QPU の準粒子のエネルギーは 10 個の既約な q・1450 準位で印字の桁まで一致
   （eQP の差 0、SEc の差は最後の桁の 0.002 eV）。GW の側（`__HAMindex0`、`m_zmel` の `mptauof`、回転した固有関数）も純粋な並進の操作で正しい
   （以前に見た −62923.0390 eV は収束していない反復の値だった）
@@ -238,7 +238,7 @@ GW 側の二つは `__HAMindex0` から読んだ操作のうち、呼ぶ側が�
 - `SYMGRPAF` は AF の型を入れる印として残る（何を書いても json の操作が使われる）。S6 で `af` の印から決めるようにして廃止
 - NiO（`Samples/AFsymmetry/NiO`）: 結晶の群 12、AF をまとめた群 24 が、gensym の群と集合として一致（lmchk、格子を法として）。
   spglib の磁気空間群は UNI 1332、型 4（反ユニタリの操作が並進を伴う黒白群）
-- 試験の組（kr7 GPU、`46b9740bb`、json の口の包み、06:43〜06:57）: inputs・afsym・affix・install・mlo・mloqsgw がすべて PASS。AF の試料は全部 json の
+- 試験の組（kr7 GPU、`95be8b8b5`、json の口の包み、06:43〜06:57）: inputs・afsym・affix・install・mlo・mloqsgw がすべて PASS。AF の試料は全部 json の
   磁気対称性で回った（NiO・NiO_gwsc・AFfixMMOM は UNI 1332 型 4、NiSe は UNI 1499 型 3、どれも 12 + 12）（06:57）
 
 ### 4.7g S6: lmf が spglib（C）で求める（2026-10-02 08:33、user「lmf でつくればいい」「全部このとおりで良い」）

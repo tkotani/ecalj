@@ -112,7 +112,7 @@ t2g の中ほどの膨らみは反復 16 から現れ、22 の 131 meV が最大
 
 ## 図 7: 6³ fp64 の LDA からの 1 反復目（2026-09-29）
 
-左が fp64（`fp64mix_b81da2342`、`b81da2342`、kt1）、右が fp32（`liti_mlo_v9` の 1 反復目、09-26 のコード）。上の行が LDA、下の行が 1 反復目。
+左が fp64（`fp64mix_989a18637`、`989a18637`、kt1）、右が fp32（`liti_mlo_v9` の 1 反復目、09-26 のコード）。上の行が LDA、下の行が 1 反復目。
 MLO バンドの差は t2g で最大 1 meV、2.6〜8 eV で 2 meV。数値は `liti2o4_k6fp64_iter1_data.npz`
 
 ![6^3 fp64 iteration 1](liti2o4_k6fp64_iter1.png)

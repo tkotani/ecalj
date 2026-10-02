@@ -637,7 +637,7 @@ $$
 2. **既約 $q$ → 全 BZ の回転** — 段 2-2。`ix(α)` と回転則の対応を誤ると全部壊れる。同じく検証 2 で捕まる。
 3. **【重大・2026-09-25 09:50 判明／運用ミス】$\tilde\chi$ 凍結の入っていないバイナリで
    LiTi₂O₄ を全部回していた** — kt1 の `m_sigmlo.f90` に `ZmloRef` が 1 行も無く、
-   どの run も `ZmloRef` を書いていなかった。凍結コミット `01b9ea4df` は 09-25 05:25、
+   どの run も `ZmloRef` を書いていなかった。凍結コミット `cd56d6ecf` は 09-25 05:25、
    kt1 のソース／バイナリは 05:13。凍結が無いと `getsenex` は呼ばれるたびに
    **その時点の $H$** から $z^{\rm MLO}$ を作り直す一方、$\Sigma^{\rm MLO}(R)$ は
    **前の反復の $\tilde\chi$** で書かれている。式 (14) の $A$ と $\Sigma^{\rm MLO}$ が
@@ -657,7 +657,7 @@ $$
    軌道ごとの重なり $\langle\tilde\chi^{\rm LDA}\mid\tilde\chi^{\rm QSGW}\rangle$ 最小 0.977〜0.992。
    LiTi₂O₄ 6³ で弦からのずれが 10 反復で 23.5 → 146.5 meV に育つ症状を、これで説明できる。
    `--mlofreeze` は窓（`ix`, `nskip`, `eferm`, `ecbot`）しか凍結しておらず不十分。
-   → **`ZmloRef` に $z^{\rm MLO}$ を永続化して凍結した**（commit `01b9ea4df`）。
+   → **`ZmloRef` に $z^{\rm MLO}$ を永続化して凍結した**（commit `cd56d6ecf`）。
    なお LiTi₂O₄ の連鎖では $\tilde\chi$ は後半でほぼ収束しており（反復間 0.15〜0.5 %、重なり 0.99998 以上）、
    **荒れが育つ原因ではなかった**。凍結は設計どおりなので実装は残す。
 5. **(B) のコスト** — 段 4。`getsenex` の中で $k$ ごとに `Hreduction` を呼ぶので対角化 2 回分増える。
@@ -703,8 +703,8 @@ MLO 表現だけがそれを可能にする、というのが本設計の根拠�
 
 | # | 症状 | 原因 | 対処 |
 |---|---|---|---|
-| 1 | $\Sigma$ が一部の $k$ で消え、バンドが X 点で LDA に戻る | `sigmloi` を全 BZ ループの前に **MPI 集約していなかった**。`hammi`/`ovlmi` は `mpibc2_complex` されているのに見落とした | `m_HamPMT` に `mpibc2_complex(sigmloi,...)` を追加（`2ac1552c0`） |
-| 2 | `hqpe_sc` が `rotmatMTO` で segfault | `m_mlo_wfs::read_cmlo` は対称操作で回転するが、その `rotmatMTO` は `m_hamindex` の状態を要求する。`hqpe_sc` はそれを用意していない | `get_cmlo_qirr` を新設。`qplistgw` に**そのまま在る** $q$ だけを扱い回転しない（`7039157fa`） |
+| 1 | $\Sigma$ が一部の $k$ で消え、バンドが X 点で LDA に戻る | `sigmloi` を全 BZ ループの前に **MPI 集約していなかった**。`hammi`/`ovlmi` は `mpibc2_complex` されているのに見落とした | `m_HamPMT` に `mpibc2_complex(sigmloi,...)` を追加（`d4d978896`） |
+| 2 | `hqpe_sc` が `rotmatMTO` で segfault | `m_mlo_wfs::read_cmlo` は対称操作で回転するが、その `rotmatMTO` は `m_hamindex` の状態を要求する。`hqpe_sc` はそれを用意していない | `get_cmlo_qirr` を新設。`qplistgw` に**そのまま在る** $q$ だけを扱い回転しない（`ffff894b6`） |
 | 3 | （潜在）`__cmlo.data` のレコードは `(nbandmx, nmlo)` なのに `(nband, nmlo)` の配列へ直接 read していた | `nband < nbandmx` のとき列がずれる。今回は `nband = nbandmx = 322` で顕在化しなかった | 正しい大きさの緩衝を介して読む `read_cmlo_rec` を新設 |
 | 4 | メッシュ点で 44〜218 meV ずれる | `__HamiltonianGW` に $H^{\rm LDA}$ を書いたため `cmlo` が $\langle\psi^{\rm LDA}\mid\tilde\chi\rangle$ になり、$\Sigma^{\psi}$（QSGW 固有基底）と**異なる基底を縮約**していた | いったん差し戻し、最終的に a' を `sugw` に実装して解決 |
 | 5 | 同 312 meV | 逆の不整合。$\tilde\chi$ を QSGW で作り、$H^{\rm MLO}$ を LDA で作った | 同上 |
@@ -1170,7 +1170,7 @@ $$\bigl[H^{\rm MLO}(k)+\Sigma^{\rm MLO}(k)\bigr]\,c = \varepsilon\,O^{\rm MLO}(k
 メッシュ点の $H$ は SCF の $H$ そのもので、その間は標準の MLO のフーリエ内挿。**メッシュ点の間で $\tilde\chi$ を作り直さない**ので
 2 スロットの基底整合を壊さない。Γ では、保存済みの $z$ が見つかる `lmf --band --mlo` と 1 meV 以内で一致した。
 v9（6³）ではメッシュ点の間のこぶが消え、`sigm` 描画とはメッシュ点でも rms 31 meV 違った（途中の反復では `sigm` と
-$\Sigma^{\rm MLO}$ は別物）。`mlo` を 1 ランクあたり 2 点以上の q で回すので、`zMLO` の修正（`e9f633d79`）が前提。
+$\Sigma^{\rm MLO}$ は別物）。`mlo` を 1 ランクあたり 2 点以上の q で回すので、`zMLO` の修正（`c0e17f444`）が前提。
 
 描かれるのは「縮約模型のバンド」であって PMT ハミルトニアンのバンドそのものではないが、
 **MLO 模型が $\Sigma$ を再現できているかを見るのが目的**なので、診断としては素直。
@@ -1275,14 +1275,14 @@ $$\mathrm{senex}_{mn}(k)=\langle\chi^{\rm PMT}_m|\hat P\hat\Sigma\hat P|\chi^{\r
 
 | | 内容 | 状態 |
 |---|---|---|
-| 1 | **`m_sigmlo`** — $k$ が `ZmloSig` に無かったら**黙って作り直さず停止**（`ECALJ_MLO_ALLOW_REBUILD=1` で従来動作）| **実装済み** `fb9662fa0` |
-| 2 | **`gwsc`** — `nkabc == n1n2n3 == mlo_nkabc` を**計算前に**確認し、違えば直し方つきで停止 | **実装済み** `fb9662fa0` |
+| 1 | **`m_sigmlo`** — $k$ が `ZmloSig` に無かったら**黙って作り直さず停止**（`ECALJ_MLO_ALLOW_REBUILD=1` で従来動作）| **実装済み** `d29499d86` |
+| 2 | **`gwsc`** — `nkabc == n1n2n3 == mlo_nkabc` を**計算前に**確認し、違えば直し方つきで停止 | **実装済み** `d29499d86` |
 | 3 | $K_{\rm band}$ の被覆 | **不要になった**。§11.2.1 の MLO 模型（`draw_mloband.sh`）で描く |
-| 4 | 昇格を `gwsc` から `mlo` 側へ移す | **実装済み** `0ceefdb88`（`m_HamPMT` の `PromoteChiSlot`）|
-| 5 | $\Sigma^{\rm MLO}$ の Anderson 混合（`ECALJ_MLO_MIX=1`、既定 OFF）、`mixsigma` の履歴名を引数に | **実装済み** `eec04ddad`, `d8034ad5b` |
-| 6 | `gwsc` が `__SigmMLO.q` を `.prev` に退避し、`hqpe_sc` が $x_0$ として読む | **実装済み** `d8034ad5b`（`gwsc N` で N≥2 だと 2 反復目以降は退避されない → §13 B6）|
-| 7 | `m_HamPMT` の `zMLO` を q ごとに確保し直す（`pwmode=11` で `ndimPMT` が q に依存し、はみ出していた）| **修正** `e9f633d79`。チェーンの段 ④ は 60 ランク ≥ q 点数なので影響なし |
-| 8 | `run_snap.sh` のバンド段: `job_mlo --mlofreeze` をやめ `draw_mloband.sh` に | **実装済み** `ec30b1d3a` |
+| 4 | 昇格を `gwsc` から `mlo` 側へ移す | **実装済み** `dcbcde28a`（`m_HamPMT` の `PromoteChiSlot`）|
+| 5 | $\Sigma^{\rm MLO}$ の Anderson 混合（`ECALJ_MLO_MIX=1`、既定 OFF）、`mixsigma` の履歴名を引数に | **実装済み** `f25a49c73`, `18c28dd6f` |
+| 6 | `gwsc` が `__SigmMLO.q` を `.prev` に退避し、`hqpe_sc` が $x_0$ として読む | **実装済み** `18c28dd6f`（`gwsc N` で N≥2 だと 2 反復目以降は退避されない → §13 B6）|
+| 7 | `m_HamPMT` の `zMLO` を q ごとに確保し直す（`pwmode=11` で `ndimPMT` が q に依存し、はみ出していた）| **修正** `c0e17f444`。チェーンの段 ④ は 60 ランク ≥ q 点数なので影響なし |
+| 8 | `run_snap.sh` のバンド段: `job_mlo --mlofreeze` をやめ `draw_mloband.sh` に | **実装済み** `e83eb1dc4` |
 
 **$K_{\rm SCF}$ の拡張は不要だった。** 当初は a' のループを $K$ 全体へ広げるつもりだったが、
 任意の $k$ で $z$ を作るにはその $k$ で $H(k)$ を組む必要があり（`hambl` の複製）侵襲的。
@@ -1414,7 +1414,7 @@ PMT のうち q 周期的なのは MTO 部分だけで **APW 部分は q 周期�
 3 番目は `--mlofreeze` で `HamRsMLO` を書き直さないため、
 **連鎖の最初の LDA ハミルトニアン**から毎回作り直している。
 $\Sigma$ の対称化・回転・FFT は索引レベルの操作なので $\Sigma$ 自体は汚していないと思われるが、
-**未確認**（§13 B2）。なお `zMLO` を最初の q の大きさのまま使い回すバグ（`e9f633d79` で修正）はこの 3 番目にあった。
+**未確認**（§13 B2）。なお `zMLO` を最初の q の大きさのまま使い回すバグ（`c0e17f444` で修正）はこの 3 番目にあった。
 チェーンでは 60 ランクが q を 1 点ずつ持つので使い回しが起きず無害、1 ランクが 2 点以上持つバンド描画で落ちていた。
 
 バンド用には 4 番目として `draw_mloband.sh` の凍結なしの `mlo`（SCF の $H$ から MLO 模型を作る、§11.2.1）がある。
@@ -1489,8 +1489,8 @@ $\Psi^{\rm MTO}_j$ も $\Psi^{\rm PMT}_i$ も $|\Psi\rangle\langle\Psi|$ の形�
 |---|---|---|
 | **A1** | LiTi₂O₄ 6³ を新方式で回す | **完了**。v9（nmlo 126、β=0.5）10 反復、全反復で健全性チェック合格。MLO バンドの変化 rms 3.9 meV（従来 6.5）|
 | **A2** | バンドを MLO 空間で描く | **完了**。SCF の $H$ の MLO 模型（`draw_mloband.sh`、§11.2.1）。素朴な方法（凍結 `HamRsMLO` ＋ `SigRsMLO`）は基底が混ざって無効だった |
-| **A2'** | `mlo --mlofreeze --mlo` の異常終了 | **修正** `e9f633d79`。原因は `zMLO` のはみ出し（`pwmode=11` で `ndimPMT` が q に依存）。当初の「`--noinv` で q 集合がずれる」説は誤り（ずれていれば直後の `k-points mismatch` で止まる）|
-| **A3** | 昇格を `mlo` 側へ | **完了** `0ceefdb88` |
+| **A2'** | `mlo --mlofreeze --mlo` の異常終了 | **修正** `c0e17f444`。原因は `zMLO` のはみ出し（`pwmode=11` で `ndimPMT` が q に依存）。当初の「`--noinv` で q 集合がずれる」説は誤り（ずれていれば直後の `k-points mismatch` で止まる）|
+| **A3** | 昇格を `mlo` 側へ | **完了** `dcbcde28a` |
 | **A4** | $\Sigma^{\rm MLO}$ の混合 | **完了**（既定 OFF、`ECALJ_MLO_MIX=1`）。無混合（v6/v7）は iter 3 で overshoot、混合（v9）は従来と同じ落ち方 |
 | **A5** | LiTi₂O₄ **9³**（`liti_mlo_k9`、`nkabc = n1n2n3 = mlo_nkabc = 9³`、β=0.5）| **完了**。2026-09-26 03:07 投入 → 18:24 に 10 反復、1 反復 ≈ 89 分、全反復で異常なし。MLO バンドの変化 rms 3.2 meV（iter 10）|
 
@@ -1528,4 +1528,4 @@ $\Psi^{\rm MTO}_j$ も $\Psi^{\rm PMT}_i$ も $|\Psi\rangle\langle\Psi|$ の形�
 | **D5** | **図がどう描かれたかを必ず書く**: `sigm` 描画（`job_band`、`mloON=0`）か MLO バンド（`draw_mloband.sh`）か |
 | **D6** | **比較の基準の素性を確かめる**。`refbands211/` は `n666_nk6_from_lda`（`pwmode=1`）で、LDA 行だけ `pwmode=11` に差し替わっていた |
 | **D7** | 書き換えられる図を日付入りの記録に貼らない（凍結版を貼る）|
-| **D8** | `InstallAll.py --gemmul8` は上流 GEMMul8 のレイアウト変更で落ちる。`--gemmul8` 無しでも `libecaljF*.so` は同一。nvfortran の ICE は再試行で通る。**2026-09-28 の注: `e75ee4c76`（2026-09-26）で直した** |
+| **D8** | `InstallAll.py --gemmul8` は上流 GEMMul8 のレイアウト変更で落ちる。`--gemmul8` 無しでも `libecaljF*.so` は同一。nvfortran の ICE は再試行で通る。**2026-09-28 の注: `20a9aa329`（2026-09-26）で直した** |

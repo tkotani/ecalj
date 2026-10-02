@@ -2,7 +2,7 @@
 
 ecalj は 2026-10-02 に Wannier 関数（最大局在化、`genMLWFx`・`hmaxloc`・`hpsig_MPI`・`wanplot`・`hmagnon`）の経路を外し、
 cRPA（`job_mloW --crpa`）・広がり（`mlo_spread.py`）・マグノン（`job_mlo_magnon`）を MLO だけで行うことにした（user の判断）。
-その前に両者を同じ入力で比べた。比較の一式は git のタグ `last-wannier`（`f1de3817a`）の `Samples/WannierVsMLO`（`run.sh`、`ujk.py`、`wan_spread.py`）。
+その前に両者を同じ入力で比べた。比較の一式は git のタグ `last-wannier`（`dbcd6e51d`）の `Samples/WannierVsMLO`（`run.sh`、`ujk.py`、`wan_spread.py`）。
 図つきのページ: https://claude.ai/artifact/EKfcmW1oGuWfcZygjVeqV1 （private）。利用者向けの要約は ecaljdoc mlo §6 の表 M7。
 細かい経緯は研究ログ 2026-10-02 00:04・00:32。
 

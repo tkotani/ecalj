@@ -4,7 +4,7 @@
 # not got there yet, from what exists already, marked [09-26 code] / [09-27 code].  -> liti2o4_six_rows.png
 set -u
 SP=${WORK:-$HOME/data/liti2o4_six}   # the fetched band files (kept: the data behind the figures) and the panel links
-export HEADS="9³  tf32|qmlo_k9_tf32n (from LDA, MLO bands 10-40);9³  tf32 + empty spheres|qmlo_k9_tf32_es_i15 (from LDA, stopped at 7);9³  fp32|qmlo_k9_fp32n (from LDA, stopped at 12);9³  fp64|none valid yet (GEMMul8 bug, fixed b81da2342);6³  tf32|qmlo_k6_tf32n (from LDA, MLO bands 10-40);6³  fp32|stand-ins of older code (orange);6³  fp64|none valid yet (GEMMul8 bug, fixed b81da2342)"   # the headers of the 7 calculations (mlo_rows.py)
+export HEADS="9³  tf32|qmlo_k9_tf32n (from LDA, MLO bands 10-40);9³  tf32 + empty spheres|qmlo_k9_tf32_es_i15 (from LDA, stopped at 7);9³  fp32|qmlo_k9_fp32n (from LDA, stopped at 12);9³  fp64|none valid yet (GEMMul8 bug, fixed 989a18637);6³  tf32|qmlo_k6_tf32n (from LDA, MLO bands 10-40);6³  fp32|stand-ins of older code (orange);6³  fp64|none valid yet (GEMMul8 bug, fixed 989a18637)"   # the headers of the 7 calculations (mlo_rows.py)
 export MLOINFO="all 7 from LDA, [gw] mixbeta 0.5, t_sigmaw 1000 K, Im chi0 smeared by a Gaussian as wide as Fermi-Dirac at 992.4 K (SmearX0 0.0057 Ha; written t_tetrakbt = -992.4 since 2026-09-28), [bz] metal 3"   # the settings the 7 share (a title line)
 S=${RUNS_DIR:-/mnt/data1/LiTi2O4_kbt_runs}   # on kt1
 C=$SP/six_cache; R=$SP/rows_six
@@ -44,7 +44,7 @@ for i in $(seq 1 40); do   # iterations up to 40 (the tf32 continuations)
   put k9tf32es $i $C/qmlo_k9_tf32_es_i15/bnd_mlo_iter$i.dat qmlo_k9_tf32_es_i15   # 9^3 tf32 with empty spheres (2026-09-28 20:10-, stopped at 7)
   put k9fp32 $i $C/qmlo_k9_fp32n/bnd_mlo_iter$i.dat qmlo_k9_fp32n
   put k9fp32 $i $C/liti_mlo_k9/bnd_iter$i.dat liti_mlo_k9 "09-26 code"
-  # k9fp64, k6fp64: the fp64 runs of chain43 had Sigma_c eV off (kept A of GEMMul8; fixed b81da2342, research log 2026-09-29): not drawn
+  # k9fp64, k6fp64: the fp64 runs of chain43 had Sigma_c eV off (kept A of GEMMul8; fixed 989a18637, research log 2026-09-29): not drawn
   put k6tf32 $i $C/qmlo_k6_tf32n/bnd_mlo_iter$i.dat qmlo_k6_tf32n
   [ $i = 10 ] && put k6tf32 10 $C/qmlo_k6_tf32n/bnd_mlo_final.dat qmlo_k6_tf32n
   put k6fp32 $i $C/qmlo_k6_gwsc10/bnd_mlo_iter$i.dat qmlo_k6_gwsc10 "09-27 code"

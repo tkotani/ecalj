@@ -49,9 +49,9 @@ backend:    cublas │ realsgemm │ gemmul8 │ （将来の追加）      逆�
 | backend | 中身 | 状態 |
 | --- | --- | --- |
 | `cublas` | cuBLAS そのまま（FP32 / TF32 / FP64） | 今のコード |
-| `realsgemm` | 複素の $A^\dagger B$ を実数 SGEMM 1 回に組み替え（$A$ だけ写す） | `0e2ca543d`（opA=C・opB=N のみ）→ 任意の opA、複素 alpha/beta に広げる |
+| `realsgemm` | 複素の $A^\dagger B$ を実数 SGEMM 1 回に組み替え（$A$ だけ写す） | `ef0603458`（opA=C・opB=N のみ）→ 任意の opA、複素 alpha/beta に広げる |
 | `gemmul8` | Ozaki（INT8）。分解数は精度ごとに固定。固定の行列は分解した形をキーで使い回す | 使い回しは未実装 |
-| `lu64` / `mixed` | 逆行列: FP64 の LU ／ FP32 の LU ＋ Newton（1 回か 2 回） | `458bd1868`（既定は無効） |
+| `lu64` / `mixed` | 逆行列: FP64 の LU ／ FP32 の LU ＋ Newton（1 回か 2 回） | `d992caefc`（既定は無効） |
 
 新しい方法を試すときは、backend のファイルを 1 つ足して表に 1 行足すだけ。呼び出し側は触らない。
 
@@ -133,10 +133,10 @@ hgw の中では「重みをもらう」口を 1 つにし、中身を 3 通り�
 
 | 構成 | 秒 | Σc（Re）の差 |
 | --- | --- | --- |
-| 基準（`c1b4b097a`） | 833 | — |
-| Hilbert 変換を GPU へ（E1、`fde20bd6c`） | 722 | 5e-6 eV |
+| 基準（`4fb6df3ba`） | 833 | — |
+| Hilbert 変換を GPU へ（E1、`1fd5b4a70`） | 722 | 5e-6 eV |
 | ＋ GEMMul8 単精度 7 分解（E2） | 629 | 6e-6 eV |
-| ＋ 実数 SGEMM への組み替え（E4、GEMMul8 なし、`0e2ca543d`） | 571 | 2e-6 eV |
+| ＋ 実数 SGEMM への組み替え（E4、GEMMul8 なし、`ef0603458`） | 571 | 2e-6 eV |
 
 KXloop あたり（虚軸 / 実軸）: E1 0.169 / 0.085 s、E2 0.120 / 0.078 s、E4 0.103 / 0.064 s。
 6³ の `gwsc 10`（E2 の構成）は 1 反復 12.6 分（従来 16 分）、9 反復後の MLO バンドは旧 v9 と rms 8 meV。

@@ -40,7 +40,7 @@ bash ../../draw_iter_bands.sh <tag> <from> <to> <bindir>                   # QSG
 ```
 
 - LDA から `cont_gwsc.sh` で回すときは、`<runs>/<tag>/` に `ctrlg.liti2o4.toml` と `env.sh` を置いて `<from>` = 1
-- 後から描けるのは、gwsc が `QSGW.<N>run/` に efermi.lmf・QMLO_SigRs・QMLO_z も残すようになった `688bc2b1e` 以降の計算（9³ で 1 反復 600 MB）。
+- 後から描けるのは、gwsc が `QSGW.<N>run/` に efermi.lmf・QMLO_SigRs・QMLO_z も残すようになった `e1cf8e50f` 以降の計算（9³ で 1 反復 600 MB）。
   それより前の計算は sigm バンドしか描き直せない
 - MLO バンドだけを描くのが既定（1 反復 約 1 分）。mlo が読む qplist.dat は、efermi.lmf の E_F と Γ–X の経路（`$S/qplist_path_GX211.dat`）から作る。
   従来の sigm バンドも要るときは `SIGM_BAND=1`（job_band を回す）
