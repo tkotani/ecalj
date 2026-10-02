@@ -1,0 +1,18 @@
+mp-1079694	N timed out (2 h) at iteration 3 with 5.43 eV, agreeing with M 5.41; bands from that iteration (the May band plot was of the April iteration 5, 3.30 eV)
+mp-867515	bands drawn again from the converged sigm (the plot was of iteration 10, before the extension to 19)
+mp-1087	bands drawn again (job_band had failed without atmpnu)
+mp-169	graphite-like: the bands cross E_F at K, which the 8x8x8 mesh misses; a semimetal, the gap on the mesh is not physical
+mp-2516584	graphite-like: the bands cross E_F on the path, which the 8x8x8 mesh misses; a semimetal, the gap on the mesh is not physical
+mp-569304	graphite-like fragment (invalid structure); the bands cross E_F on the path
+mp-569416	graphite-like fragment (invalid structure); the bands cross E_F on the path
+mp-1008505	the bands cross E_F on the path while the mesh gives 0.29 eV
+mp-1265	May 8.33 vs 8.18 eV: traced to the old all-TF32 --mp of the May production (README, reliability of M)
+mp-632291	2025 values equal to LDA (the 2025 QSGW of H2 had not run)
+mp-24504	2025 values equal to LDA (the 2025 QSGW of H4 had not run)
+mp-23703	2025 values equal to LDA (the 2025 QSGW of LiH had not run)
+mp-7650	the 2025 2nd-shot value (1.64 eV) is below LDA (3.35 eV): the 2025 value is wrong
+mp-8002	May value 4.75 eV wrong (N 6.18, 2025 6.55)
+mp-863745	May value 5.33 eV wrong (N 7.26, 2025 8.01)
+mp-796276	the CBM at Γ is a strongly dispersive interlayer (nearly-free-electron-like) state, which QSGW80 leaves near 1 eV while the Mo d bands go up: hence QSGW < LDA. Depends on how the basis describes the interlayer space (no empty spheres); to be checked
+mp-3829	CdSnAs2: QSGW80 (0.05-0.06 eV in M, R and N) below LDA (0.11 eV); experiment 0.26 eV. A small-gap chalcopyrite with s-p band ordering at Γ; to be checked
+mp-22526	N 3.30 vs R 3.19 eV (NOTCONV in May): slow convergence within the 0.1 eV criterion

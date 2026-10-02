@@ -16,7 +16,7 @@ from collections import Counter, defaultdict
 import numpy as np
 
 ECALJ = os.path.expanduser('~/ecalj/ecalj_auto')
-WORK = os.path.expanduser('~/work/gw1500db')
+WORK = os.path.expanduser('~/work/gw1500db')   # replaced by <db dir> in main(): side files live next to the database
 AGREE, LARGE = 0.05, 0.2      # eV: |difference| <= AGREE is written as one number; > LARGE is marked to be checked
 
 COND = {
@@ -227,7 +227,9 @@ def figure(db, m, title, curves, path):
 
 
 def main():
+    global WORK
     db = sys.argv[1]
+    WORK = db                     # db_notes.tsv, front1.txt, front2.txt, dosnp_README_2025.md (2026-10-03)
     figs = '--figs' in sys.argv
     only = None
     if '--only' in sys.argv:
@@ -513,6 +515,25 @@ first, then those whose May value is far from the 2025 values, then a random sam
             for r in L:
                 f.write(f"| [{r['mpid']}](bands_{r['natom']}atoms.md#{r['mpid']}) | {r['formula']} | {fmt(r['lda'])} | {gapcell(r)} | "
                         f"{fmt(r['mp_pbe'])} | {fmt(r['gap_path'])} | {r['flag']} | {r['category']} | {r['note'][:140].replace('|', '/')} |\n")
+        f.write('''
+## Limits
+
+- k mesh: the gap is that of lmf on the 8x8x8 mesh. When the band extremum is not on the mesh (layered and hexagonal
+  materials, K and M points), the true gap is nearer the gap along the band path (`· path` in the table, check
+  `path<mesh(mesh)`). Graphite-like carbons are semimetals although the mesh shows a gap (`path-metal`).
+- GW mesh 4x4x4, QSGW80 (80 % of the QSGW self-energy, which corrects the overestimate of QSGW gaps for the average of
+  materials), no spin polarization, no spin-orbit coupling, LDA starting point, structures of Materials Project.
+- The DOS of the figures is that of lmf, written up to a little above E_F (the conduction-band DOS is not shown).
+- Band plots interpolate the self-energy between the mesh points; a check compares the same k points met twice.
+
+## Files and how this was made
+
+- `gw1500db.tsv`: one row per material (all columns of the table, the other results in `others`, notes in `dbnote`)
+- `fig/<mpid>.png`, `npz/<mpid>.<tag>.npz` (bands and DOS; tags `may_qsgw`, `may_lda`, `rr_<run>`, `db_qsgw`, `db_lda`), `logs/*.log`
+- ecalj `ecalj_auto/`: `gw1500_rerun.sh` (the runs, `T_TETRAKBT`), `gw1500db_extract.py`, `gw1500db_build.py`,
+  `gw1500_reorder.py`; the status of the earlier runs `GW1500_status.md`, `gw1500_status_20260930.tsv`, `gw1500_notes_20261001.tsv`
+- Machines: kt1 (RTX 5090 x2, 64 cores, 4 workers x 16 cores), kr7 (RTX 5090, 16 cores, 2 workers x 8 cores)
+''')
         f.write('''
 ## Categories (from the May production, `ecalj_auto/GW1500_status.md`)
 
