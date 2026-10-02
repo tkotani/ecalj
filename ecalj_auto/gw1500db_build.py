@@ -89,6 +89,72 @@ def spacegroups():
     return out
 
 
+def spikes(d, lo=-3.0, hi=5.0, thr=1.0):
+    """largest |E_k - (E_k-1 + E_k+1)/2| within one segment, for levels in [lo, hi] eV (bands jumping at one point)"""
+    if d is None:
+        return 0.0
+    E = d['E']; seg = d['seg']; sh = 0.0
+    mx = 0.0
+    for sgi in np.unique(seg):
+        k = np.where(seg == sgi)[0]
+        if len(k) < 3:
+            continue
+        e = E[:, k] - sh
+        dd = np.abs(e[:, 1:-1] - 0.5 * (e[:, :-2] + e[:, 2:]))
+        w = (e[:, 1:-1] > lo) & (e[:, 1:-1] < hi)
+        if w.any():
+            mx = max(mx, float(dd[w].max()))
+    return mx
+
+
+def kmismatch(d, lo=-3.0, hi=5.0):
+    """the same k-point label met more than once on the path (Γ mostly): largest difference of the levels in [lo, hi] eV
+    between its occurrences (the bands are the same at the same k; a difference is an artifact of the band plot)"""
+    if d is None or len(d['lab']) == 0:
+        return 0.0
+    E = d['E']; x = d['x']; sh = 0.0
+    seg = d['seg']
+    cols = defaultdict(list)          # label -> columns of E; at 'A|B' the end of a segment is A, the start of the next is B
+    for name, lx in zip(d['lab'], d['labx']):
+        idx = sorted(np.where(np.abs(x - float(lx)) < 1e-5)[0], key=lambda i: (seg[i], i))
+        parts = str(name).split('|')
+        if len(parts) == 2 and len(idx) >= 2:
+            cols[parts[0]].append(idx[0]); cols[parts[1]].append(idx[-1])
+        else:
+            cols[parts[0]].extend(idx)
+    mx = 0.0
+    for name, cs in cols.items():
+        if len(cs) < 2:
+            continue
+        lev = [np.sort(E[:, i] - sh) for i in cs]
+        ref = lev[0]; w = (ref > lo) & (ref < hi)
+        for l in lev[1:]:
+            if w.any():
+                mx = max(mx, float(np.abs(l[w] - ref[w]).max()))
+    return mx
+
+
+def pathgap(d, insul):
+    """gap along the band path of an insulator (insul: the k mesh of lmf gives a gap): the band count n with
+    max(E[:n]) < min(E[n:]) whose window is nearest to E_F (within 0.5 eV; the VBM on the path can lie above the E_F of the
+    mesh when the mesh misses it). None: no such window (a band crosses E_F on the path, or a metal)."""
+    if d is None or not insul:
+        return None
+    E = np.sort(d['E'], axis=0)
+    best = None
+    for n in range(1, len(E)):
+        t, b = float(E[:n].max()), float(E[n:].min())
+        if t < b:
+            dist = 0.0 if t <= 0 <= b else min(abs(t), abs(b))
+            if dist <= 0.5 and (best is None or dist < best[0]):
+                best = (dist, n)
+    if best is None:
+        return None
+    n = best[1]; v = E[:n].max(axis=0); c = E[n:].min(axis=0)
+    iv, ic = int(v.argmax()), int(c.argmin())
+    return dict(vbm=float(v[iv]), cbm=float(c[ic]), gap=float(c[ic] - v[iv]), direct=float((c - v).min()))
+
+
 def npz(db, m, tag):
     f = f'{db}/npz/{m}.{tag}.npz'
     return np.load(f) if os.path.exists(f) else None
@@ -128,11 +194,10 @@ def figure(db, m, title, curves, path):
     import matplotlib.pyplot as plt
     fig, (ax, ad) = plt.subplots(1, 2, figsize=(7.2, 4.2), gridspec_kw=dict(width_ratios=[4, 1], wspace=0.04), sharey=True)
     ref = None
-    for (d, color, ls, lw, label) in curves:
+    for (d, color, ls, lw, label, sh) in curves:
         if d is None:
             continue
-        x, E = d['x'], d['E']
-        sh = 0.0 if bool(d['metal']) else float(d['vbm'])   # VBM at 0 for an insulator, E_F for a metal
+        x, E = d['x'], d['E']                                 # sh: the VBM on the path (insulators), 0 = E_F (metals)
         seg = d['seg']
         for b in E:
             for s in np.unique(seg):
@@ -175,29 +240,59 @@ def main():
         gap = v[adopt]['gap'] if adopt else None
         others = {k: v[k]['gap'] for k in v if k != adopt and v[k]['gap'] is not None}
         diff = max((abs(g - gap) for g in others.values()), default=0.0) if gap is not None else 0.0
-        if adopt is None:
-            flag = 'no result'
-        elif diff > LARGE:
-            flag = 'CHECK'
-        elif diff > AGREE:
-            flag = 'differs'
-        else:
-            flag = ''
         tagq = {'N': 'db_qsgw', 'R': rr_tag(db, m), 'M': 'may_qsgw'}
         dq = npz(db, m, tagq[adopt]) if adopt and tagq[adopt] else None
         dl = npz(db, m, 'db_lda') or npz(db, m, 'may_lda')
+        insul = gap is not None and gap > 0.05
+        pq = pathgap(dq, insul)
+        pl = pathgap(dl, lda is not None and lda > 0.05)
         di = ''
-        if dq is not None and not bool(dq['metal']):
-            di = 'D' if abs(float(dq['gap_path']) - float(dq['gap_direct_path'])) < 0.01 else 'I'
-        elif dq is not None:
+        if pq is not None:
+            di = 'D' if abs(pq['gap'] - pq['direct']) < 0.01 else 'I'
+        elif dq is not None and not insul:
             di = 'metal'
         o = OLD.get(m, {})
-        mp = MP.get(m, {})
+        mp = MP.get(m, {}) or {}
+        an = []
+        if diff > LARGE:
+            an.append('CHECK')
+        elif diff > AGREE:
+            an.append('differs')
+        if adopt is None:
+            an.append('no-result')
+        if pq is not None and pq['gap'] < gap - 0.1:
+            if pl is None or lda is None:
+                an.append('path<mesh(noLDA)')
+            elif pl['gap'] < lda - 0.05:
+                an.append('path<mesh(mesh)')          # LDA (no interpolation) shows it too: the k mesh misses the extremum
+            else:
+                an.append('path<mesh(Σ)')
+        sp = spikes(dq)
+        if sp > 1.0:
+            an.append('spike')
+        km = kmismatch(dq)
+        if km > 0.2:
+            an.append('kmismatch')
+        if dq is not None and insul and pq is None:
+            an.append('path-metal')
+        if gap is not None and lda is not None and gap < lda - 0.05:
+            an.append('QSGW<LDA')
+        if lda is not None and mp.get('band_gap') is not None and abs(lda - mp['band_gap']) > 1.0:
+            an.append('LDA≠PBE')
+        if gap is not None and o.get('shot2') is not None and o.get('lda') is not None:
+            exp80 = o['lda'] + 0.8 * (o['shot2'] - o['lda'])     # QSGW80 expected from the 2025 QSGW100 (2nd shot)
+            if abs(gap - exp80) > 0.5:
+                an.append('vs2025')
+        dn = D.get(m)
+        if dn and dn['verdict'] not in ('CONVERGED', 'CONVERGED_METAL'):
+            an.append(f"N:{dn['verdict']}")
+        flag = ' '.join(an)
         rows.append(dict(mpid=m, formula=s['formula'], natom=int(s['natom']), sg=f'{SG.get(m, ("", ""))[1]} ({SG.get(m, ("", ""))[0]})',
                          category=cat, lda=lda, gap=gap, adopt=adopt or '', others=others, flag=flag, di=di,
                          iters={k: v[k].get('iter') for k in v}, mp_pbe=mp.get('band_gap'), ehull=mp.get('energy_above_hull'),
                          icsd=bool((mp.get('database_IDs') or {}).get('icsd')), old2=o.get('shot2'), old1=o.get('shot1'),
-                         note=n['note'], host=v.get('N', {}).get('host', '')))
+                         note=n['note'], host=v.get('N', {}).get('host', ''), spike=sp, km=km,
+                         gap_path=pq['gap'] if pq else None))
         if figs and (only is None or m in only):
             spec = [('db_lda' if os.path.exists(f'{db}/npz/{m}.db_lda.npz') else 'may_lda', '0.6', '-', 0.7, 'LDA')]
             spec.append((tagq[adopt] if adopt else None, 'tab:red', '-', 0.9, f'QSGW80 ({adopt})'))
@@ -205,7 +300,7 @@ def main():
                 if gap is not None and abs(g - gap) > 0.1 and tagq.get(k):
                     spec.append((tagq[k], 'tab:blue', '--', 0.7, f'QSGW80 ({k}) {g:.2f} eV'))
             title = f'{m}  {s["formula"]}  {SG.get(m, ("", ""))[1]}   LDA {fmt(lda)} eV,  QSGW80 {fmt(gap)} eV ({adopt}) {di}'
-            jobs.append((db, m, title, spec))
+            jobs.append((db, m, title, spec, insul, lda is not None and lda > 0.05))
     if jobs:
         from multiprocessing import Pool
         with Pool(8) as p:
@@ -214,8 +309,12 @@ def main():
 
 
 def figjob(job):
-    db, m, title, spec = job
-    curves = [(npz(db, m, t) if t else None, c, ls, lw, lab) for (t, c, ls, lw, lab) in spec]
+    db, m, title, spec, insul, insul_lda = job
+    curves = []
+    for (t, c, ls, lw, lab) in spec:
+        d = npz(db, m, t) if t else None
+        pg = pathgap(d, insul_lda if lab == 'LDA' else insul) if d is not None else None
+        curves.append((d, c, ls, lw, lab, pg['vbm'] if pg else 0.0))
     if any(c[0] is not None for c in curves):
         try:
             figure(db, m, title, curves, f'{db}/fig/{m}.png')
@@ -229,12 +328,16 @@ def gapcell(r):
     s = f"**{r['gap']:.2f}** {r['adopt']}"
     for k, g in sorted(r['others'].items()):
         s += f" / {k} {g:.2f}" if abs(g - r['gap']) > AGREE else f" / {k} ≈"
+    if 'path<mesh(mesh)' in r['flag'] and r['gap_path'] is not None:
+        s += f" · path {r['gap_path']:.2f}"
+    if 'path-metal' in r['flag']:
+        s += " · path 0 (semimetal?)"
     return s
 
 
 def write_pages(db, rows, D):
     cnt = Counter(r['adopt'] or 'none' for r in rows)
-    fl = Counter(r['flag'] for r in rows)
+    fl = Counter(x for r in rows for x in r['flag'].split())
     with open(f'{db}/gw1500db.tsv', 'w') as f:
         keys = ['mpid', 'formula', 'natom', 'sg', 'category', 'lda', 'gap', 'adopt', 'di', 'flag', 'mp_pbe', 'ehull', 'icsd', 'old1', 'old2', 'host']
         f.write('\t'.join(keys + ['others']) + '\n')
@@ -245,12 +348,12 @@ def write_pages(db, rows, D):
     with open(f'{db}/table.md', 'w') as f:
         f.write('# GW1500 QSGW80 — table\n\n[README](README.md) for the conditions M, R, N and how to read this table. '
                 'Bands: ' + ', '.join(f'[{n} atoms](bands_{n}atoms.md)' for n in pages) + '.\n\n')
-        f.write('| mpid | formula | atoms | space group | LDA (eV) | QSGW80 (eV) | D/I | check | MP PBE | 2025 2shot | category | fig |\n')
-        f.write('| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n')
+        f.write('| mpid | formula | atoms | space group | LDA (eV) | QSGW80 (eV) | on path | D/I | check | MP PBE | 2025 2shot | category | fig |\n')
+        f.write('| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n')
         for r in rows:
             link = f"[fig](bands_{r['natom']}atoms.md#{r['mpid']})" if os.path.exists(f"{db}/fig/{r['mpid']}.png") else ''
             mpl = f"[{r['mpid']}](https://next-gen.materialsproject.org/materials/{r['mpid']})"
-            f.write(f"| {mpl} | {r['formula']} | {r['natom']} | {r['sg']} | {fmt(r['lda'])} | {gapcell(r)} | {r['di']} | {r['flag']} | "
+            f.write(f"| {mpl} | {r['formula']} | {r['natom']} | {r['sg']} | {fmt(r['lda'])} | {gapcell(r)} | {fmt(r['gap_path'])} | {r['di']} | {r['flag']} | "
                     f"{fmt(r['mp_pbe'])} | {fmt(r['old2'])} | {r['category']} | {link} |\n")
     for n in pages:
         with open(f'{db}/bands_{n}atoms.md', 'w') as f:
@@ -315,6 +418,9 @@ Common to all: LDA (VWN) as the starting point and for the LDA column, PMT basis
 `**2.96** N / M ≈` : 2.96 eV from N; M agrees within {AGREE} eV. `**3.04** R / M 2.75` : M differs, its value written.
 Column *check*: `differs` = some other result differs by {AGREE}–{LARGE} eV; `CHECK` = by more than {LARGE} eV (to be looked at).
 D/I: direct or indirect gap along the band path of the figure (the gap value itself is from the k mesh of lmf).
+`· path 0.04`: the gap along the band path, written when it is smaller than the gap on the 8x8x8 k mesh in LDA too
+(`path<mesh(mesh)`: the mesh misses the band extremum, so the true gap is nearer the path value; e.g. rocksalt SnS 0.79 on
+the mesh, 0.04 on the path, 0.08 in 2025). `· path 0 (semimetal?)`: the bands cross E_F on the path (graphite-like carbons).
 
 ## Status ({now})
 
@@ -338,15 +444,63 @@ two-atom GOOD on the second machine. The 16 materials with invalid or suspect st
             p = pairstats(rows, a, b)
             if p:
                 f.write(f"| {a} − {b} | {p['n']} | {p['med']:.3f} | {p['mean']:+.3f} | {p['n005']} | {p['n02']} | {p['mx']:.2f} |\n")
-        chk = [r for r in rows if r['flag'] == 'CHECK']
-        f.write(f'''
-## Materials to check ({len(chk)}): results differ by more than {LARGE} eV
+        susp = set()
+        for fn in ('front2.txt', 'front1.txt'):
+            pth = os.path.join(WORK, fn)
+            if os.path.exists(pth):
+                susp |= set(open(pth).read().split())
+        pick = [r for r in rows if r['adopt'] == 'N' and 'M' in r['others']]
+        nm = [r['gap'] - r['others']['M'] for r in pick]
+        bins = [0, 0.02, 0.05, 0.1, 0.2, 0.5, 100]
+        def hist(L):
+            return np.histogram(np.abs(np.array(L)), bins=bins)[0] if L else [0] * 6
+        hs = hist([r['gap'] - r['others']['M'] for r in pick if r['mpid'] in susp or r['category'] != 'GOOD'])
+        hr = hist([r['gap'] - r['others']['M'] for r in pick if not (r['mpid'] in susp or r['category'] != 'GOOD')])
+        if nm:
+            h = hist(nm)
+            f.write(f"""
+## How reliable are the May values (M)?
 
-| mpid | formula | QSGW80 | category | note |
-| --- | --- | --- | --- | --- |
-''')
-        for r in chk:
-            f.write(f"| [{r['mpid']}](bands_{r['natom']}atoms.md#{r['mpid']}) | {r['formula']} | {gapcell(r)} | {r['category']} | {r['note'][:160].replace('|', '/')} |\n")
+The May production (April: the ecalj of that time with all GPU products in TF32, the old `--mp`; then continued in May)
+can differ from a run from scratch with the present code. For MgO (mp-1265, May 8.33 eV, now 8.18 eV) the inputs, the
+smearing, `pb_lcutmx` and the precision of the present code were ruled out, and the ecalj of 2026-05-10 run from scratch on
+the May inputs (CPU) gives 8.18 eV as the present code: the May value comes from the history of the May run, not from a
+change of the code. Materials with both M and N so far: {len(nm)}; |N − M| (eV):
+
+| | < 0.02 | 0.02–0.05 | 0.05–0.1 | 0.1–0.2 | 0.2–0.5 | > 0.5 |
+| --- | --- | --- | --- | --- | --- | --- |
+| suspected in May, run first (category not GOOD, or far from 2025) | {' | '.join(str(x) for x in hs)} |
+| others (random sample of the GOOD, all two-atom GOOD) | {' | '.join(str(x) for x in hr)} |
+| all | {' | '.join(str(x) for x in h)} |
+
+So a May value (M) without a check by N carries an uncertainty of typically a few 10 meV, sometimes 0.2–0.5 eV, and in rare
+cases more (LiGaO₂ 4.75 → 6.18 eV, RbSrCO₃F 5.33 → 7.26 eV). The database run checked the materials with trouble in May
+first, then those whose May value is far from the 2025 values, then a random sample.
+""")
+        EXPL = {'CHECK': f'QSGW80 results of different conditions differ by more than {LARGE} eV',
+                'differs': f'they differ by {AGREE}–{LARGE} eV',
+                'QSGW<LDA': 'the QSGW80 gap is smaller than the LDA gap by more than 0.05 eV',
+                'path<mesh(mesh)': 'the gap along the band path is smaller than the gap on the k mesh of lmf by more than 0.1 eV, and in LDA by more than 0.05 eV: the 8x8x8 mesh misses the band extremum (the true gap is nearer the path value)',
+                'path<mesh(noLDA)': 'the gap along the path is smaller than on the k mesh by more than 0.1 eV; no LDA bands to tell the mesh from Σ',
+                'path<mesh(Σ)': 'the gap along the band path is smaller than on the k mesh by more than 0.1 eV in QSGW80 only: suspect the interpolation of Σ between the mesh points',
+                'spike': 'a band jumps at one point by more than 1 eV within [-3, 5] eV of the VBM (linear dependence, or a bad band plot)',
+                'kmismatch': 'the same k point (Γ mostly) met twice on the band path has levels differing by more than 0.2 eV in [-3, 5] eV: an artifact of the band plot (interpolation of Σ)',
+                'path-metal': 'the bands along the path cross E_F while the k mesh of lmf gives a gap > 0.1 eV (the mesh misses the point where the gap closes, e.g. K of graphite)',
+                'LDA≠PBE': 'the LDA gap and the PBE gap of MP differ by more than 1 eV (MP uses GGA+U for oxides and fluorides of Co, Cr, Fe, Mn, Mo, Ni, V, W; or structure, basis)',
+                'vs2025': 'the QSGW80 gap differs by more than 0.5 eV from LDA + 0.8 (QSGW100 − LDA) of the 2025 2nd shot',
+                'no-result': 'no QSGW80 result'}
+        f.write('\n## Automatic checks\n\n| check | materials | meaning |\n| --- | --- | --- |\n')
+        for k in list(EXPL) + sorted(x for x in fl if x.startswith('N:')):
+            if fl.get(k):
+                f.write(f"| {k} | {fl[k]} | {EXPL.get(k, 'database run did not converge (' + k[2:] + ')')} |\n")
+        for k in ('CHECK', 'kmismatch', 'path-metal', 'path<mesh(Σ)', 'path<mesh(noLDA)', 'QSGW<LDA', 'path<mesh(mesh)', 'spike', 'LDA≠PBE', 'no-result'):
+            L = [r for r in rows if k in r['flag'].split()]
+            if not L:
+                continue
+            f.write(f'\n### {k} ({len(L)})\n\n| mpid | formula | LDA | QSGW80 | PBE (MP) | path gap | checks | category | note |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- |\n')
+            for r in L:
+                f.write(f"| [{r['mpid']}](bands_{r['natom']}atoms.md#{r['mpid']}) | {r['formula']} | {fmt(r['lda'])} | {gapcell(r)} | "
+                        f"{fmt(r['mp_pbe'])} | {fmt(r['gap_path'])} | {r['flag']} | {r['category']} | {r['note'][:140].replace('|', '/')} |\n")
         f.write('''
 ## Categories (from the May production, `ecalj_auto/GW1500_status.md`)
 
