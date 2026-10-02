@@ -10,30 +10,13 @@ $$ E_{\rm MAE} = E_{\rm band}^{\rm SOC}(110) - E_{\rm band}^{\rm SOC}(001) \tag{
 
 正なら 001（c 軸）が磁化容易軸である。FePt に比べて MAE が一桁小さいので、k メッシュと SCF の収束がより効く。
 
-## 入力の要点（`ctrlg.mnga.toml`）
+## 入力と実行
 
-- `[ham] phispinsym = true`: 動径関数を上向きと下向きのスピンで共通にする。`so=1` でスピン軸を 001 以外にするときに必要で、
-  SCF も同じ設定で行う。
-- `[ham] so = 0`: SCF は SOC なし。一回計算のときだけコマンド行で `--ctrlg:ham.so=1` と `--ctrlg:ham.socaxis=[..]` を与える。
-- `[bz] nkabc = [6, 6, 6]`: 試験用の粗いメッシュで、**MAE は収束していない**（旧サンプルは 12×12×12。表 2）。
-- `lmxa = 6`, `pwmode = 11`, `xcfun = 103`（GGA-PBE）。
+入力の要点（`phispinsym = true`、SCF は `so = 0`、一回計算でだけ `--ctrlg:ham.so=1 --ctrlg:ham.socaxis=[..]`）、実行の手順、
+試験の回し方は [../FePt_MAE/README.md](../FePt_MAE/README.md) と同じ（`fept` を `mnga` に読み替える）。MnGa に固有なのは次の 2 点:
 
-## 実行
-
-```bash
-lmfa mnga > llmfa
-# 1. SCF (SOC なし)
-mpirun -np 4 lmf mnga > llmf_scf
-# 2. 一回計算。--nosym で空間群の対称性を使わず、--quit=band でバンドエネルギーまでで止める（rst.mnga は書き換えない）
-mpirun -np 4 lmf mnga --nosym --quit=band --ctrlg:ham.so=0 > llmf_so0
-mpirun -np 4 lmf mnga --nosym --quit=band --ctrlg:ham.so=1 --ctrlg:ham.socaxis=[0,0,1] > llmf_so001
-mpirun -np 4 lmf mnga --nosym --quit=band --ctrlg:ham.so=1 --ctrlg:ham.socaxis=[1,1,0] > llmf_so110
-# 3. sev を拾って式 (1) を計算する
-python3 mae.py
-```
-
-試験は `Samples/SOC` で `testecalj MnGa_MAE -np 4`。手で実行するときは、このディレクトリを別の場所に写してその中で行う
-（`testecalj` はこのディレクトリをまるごと写して使うので、`rst.*` などをここに残さない）。
+- `[bz] nkabc = [6, 6, 6]`: 試験用の粗いメッシュで、**MAE は収束していない**（旧サンプルは 12×12×12。表 2）
+- `lmxa = 6`, `pwmode = 11`, `xcfun = 103`（GGA-PBE）
 
 ## 結果の見方
 
@@ -60,8 +43,7 @@ python3 mae.py
 | 6×6×6 | 0.391 | このサンプル |
 | 12×12×12 | 0.399 | 旧サンプルの `save.mnga` |
 
-`llmf_so001` などの `IORBTM: orbital moments` の表は、MT 球の中の軌道モーメントの z 成分（μB）を l ごとに示す。
-2026-03-30 から 2026-09-30 までの版は、`pwmode = 11` でこの表に誤った値を出す（sev と mmom はどの版でも同じ）。
+軌道モーメントの表（`IORBTM`）の読み方と、2026-09-30 までの版の誤りの注意は [../FePt_MAE/README.md](../FePt_MAE/README.md) と同じ。
 
 ## 計算時間
 

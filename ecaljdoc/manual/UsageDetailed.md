@@ -279,9 +279,7 @@ See [the keys of `[gw]`](gwinput.md), [kBT](kBT.md) for the temperature keys `t_
 ## getsyml: automatic symmetry line and BZ for band plot
 See [syml](syml.md)
 
-These citations are required.
-1.Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Band structure diagram paths based on crystallography, Comp. Mat. Sci. 128, 140 (2017)
-2.Cite spglib that is essential for getsyml.
+The citations required for a publication (seekpath, spglib) are in [syml](syml.md), "Needed citations for getsyml".
 
 ### ecalj/Samples/
 For the canonical layout and per-tree role table see the

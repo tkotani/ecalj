@@ -36,7 +36,7 @@ The number of divisions for `syml` is give by a crude algorism, so edit it if ne
    2.You should also cite spglib that is an essential library used in the implementation.
      https://github.com/atztogo/spglib.git
 
-* See Lincence.txt for spglib and seekpath.
+* The licences of spglib and seekpath: [LICENCE](https://github.com/tkotani/ecalj/blob/main/LICENCE) of ecalj.
 
 ### (memo for developer)
    a.Modify lmchk to write required information to supply reasonable.
