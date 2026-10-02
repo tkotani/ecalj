@@ -142,6 +142,7 @@ def main():
     p.add_argument('--orb', default='', help='subset of MLOs (1-based, comma separated)')
     p.add_argument('--sym', action='store_true', help='keep the point-group symmetry (Sakuma)')
     p.add_argument('--lblocks', default='', help='l of the MLO blocks in order, e.g. 0,1,2 (with --sym)')
+    p.add_argument('--save-u', default='', help='write qbz, the overlap O(k) and U(k) to this npz (2026-10-02 10:00; mlo_cmlo_transform.py applies them)')
     a = p.parse_args()
     plat, qlat, alat = read_lattice()
     qbz = read_qbz()
@@ -219,6 +220,9 @@ def main():
     # gauge-invariant part (MV eq. 34): Omega_I = (1/N) sum_kb w_b (n_w - sum_mn |M_mn|^2); no unitary mixing lowers it
     omI = np.einsum('b,kb->', wbx, nw - np.sum(np.abs(M0) ** 2, axis=(2, 3))) / len(qbz) * u * u
     print(f'   Omega_I (gauge invariant) = {omI:.4f} bohr^2;  Omega - Omega_I: Loewdin {om_b.sum() - omI:.4f}, Loewdin+MV {om.sum() - omI:.4f}')
+    if a.save_u:
+        np.savez(a.save_u, qbz=qbz, O=Os, U=U, isp=a.isp, orb=np.array(sel), sym=a.sym)
+        print(f'   wrote {a.save_u}: qbz, O(k), U(k) (U from the Loewdin MLOs; C -> C O^-1/2 U)')
 
 
 if __name__ == '__main__':

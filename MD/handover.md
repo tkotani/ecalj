@@ -89,6 +89,8 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
 
 ## 4. コンパイラと実行時の落とし穴
 
+- **S6 より前（2026-10-02 08:30 以前）に作った GW・MLO の中間ファイル**（`__HAMindex`、`__cmlo.*`、`__WV*` など）を今の版のプログラムで読むと、対称操作の並びが違って
+  `rotwvigg: qtarget is not a star of q` や `rppovl: qi is not found` で止まる（2026-10-02 10:15、Fe のマグノンの作業場所で）。作り直すか、`ECALJ_SYMFIND=ecalj` で回す（それでも合わない所がある）
 - **Fortran の `.and.` は短絡しない**: `if (present(x) .and. x)` は x が無いときも x を読んで落ちる。入れ子にする（past_log.md §3.2）
 - **確保しただけの配列の中身**: gfortran は 0 になっていることが多く、ifort・ifx はごみが残る。未初期化に頼る誤りは Intel で初めて出る
   （2026-05-09 `iors.f90` の readrho: 基底を広げたとき新しい部分を 0 にしていなかった、`-1.32e124` の負の密度から `RSEQ : nit gt 80 and bad nodes`）（project_iors_nlm0_bug）
