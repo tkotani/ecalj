@@ -67,6 +67,9 @@
 
 ### コード
 
+- **【未着手】AHC コード（齋藤）の取り込み**（2026-10-02 21:53、user）: 異常ホール伝導度。前の AHC（`hahc`、`job_AHC`、`hx0ahc.py`、Wannier と UU の行列を使う）は
+  2026-10-02 に Wannier の経路と一緒に外した（git のタグ `last-wannier` に残る。Changes.txt 2026-10-02 (1)）。bcc Fe の AHC のサンプルは、粗いメッシュでは
+  ビルドで値が変わるので 2026-09-30 に外し、「別の所から入れ直す」としていた（Changes.txt 2026-09-30 (4)・(5)、研究ログ 2026-09-30 06:05 の表 06:05-2）
 - **【未着手】HEAD に残っている生成物らしいもの**（2026-10-02、旧 `a0c7a7300` で入り今も追跡）: `SRC/.#Memo4rotation`、[`SRC/exec/cmake_install.cmake`](../SRC/exec/cmake_install.cmake)、`hello.py`、`platform`（800 KB）、
   `lmf2.py`・`lmchk.py`・`pylmfa`・`pysample`・`ohtaka`・`epsPPd`・`epsPPsaito`・`job_senefbz`・`readeps_dig2.py`・`auto_kauto.py`。使われているかを確かめて trash へ
 - **【未着手】[`SRC/exec/auto_creplot.py`](../SRC/exec/auto_creplot.py)**（2026-10-01）: 旧形式の `ctrl.<sname>` を書き換える。`auto_job_mp.py` が使う。ctrlg に直すか、使わないなら trash へ
