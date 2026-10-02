@@ -30,6 +30,10 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 
 ### コード
 
+- **HEAD に残っている生成物らしいもの**（2026-10-02、履歴の書き換えのときに見つけた。旧 `a0c7a7300` で入り、今も追跡している）: `SRC/.#Memo4rotation`（エディタのロック）、
+  `SRC/exec/cmake_install.cmake`、`SRC/exec/hello.py`、`SRC/exec/platform`（800 KB）、`SRC/exec/lmf2.py`・`lmchk.py`・`pylmfa`・`pysample`・`ohtaka`・`epsPPd`・`epsPPsaito`・
+  `job_senefbz`・`readeps_dig2.py`・`auto_kauto.py`。使われているかを確かめて trash へ（普通のコミットで）
+
 - **Löwdin を MLO の標準にした後の残り**（2026-10-02 12:19、`d10a63716`、研究ログ 2026-10-02 12:16）:
   (a) メッシュの外で悪くなった所を調べる: Fe の 4s 帯の底（−8〜−3 eV で 0.03 → 0.096 eV）、E_F 近くの 2H-SiC（0.035 → 0.051）・MnO（0.007 → 0.030）。
   (b) `mlo_bandcheck.py` の判定 (3)（MLO の重なりの最小固有値）は模型の O が 1 になって意味を失った。m_HamPMT がメッシュ上の直交化の前の値を出す
@@ -95,10 +99,6 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 
 ## 3. 実行中
 
-- user の判断（2026-10-02 12:32）を実行中: (1) ビルドの生成物が入ったコミット `6e2903731`（3220 本、78 MB、未公開）を履歴から消す。`git filter-repo --refs` で
-  未公開の範囲だけを書き換え、文書・メモリ・アーティファクトのハッシュを新旧の対応表で直す（控えは TAKAOMINI）。(2) ecaljdoc の古い文書（`BackUp/`、`ecaljdetails/`）を
-  ecaljdoc の trash へ、要点は past_log.md へ。(3) trash は適宜減らす（`ecaljclaude.md`「記録の方針」）。
-  API キーは「過去はよい、新しいものからは隠す」: `cb9b2d7b7` 以後のコミットと今のツリーに無いことを確かめた（2026-10-02 12:32）
 - Löwdin を標準にした版（`2ffb0331f`）の全部の試験の組（2026-10-02 12:19 の時点で走行中）: kr7 `~/ecalj_testL`（`--gpu -np 8 -np2 1`、`fulltest.out`、`tests_full/`）、
   kt1 `/mnt/data1/ecalj_testL`（GEMMul8 入り、同じ）。t14 では mlo・install・mloqsgw・magnon の組（`~/work/tests_lowdin2`）
 - kt1 `/mnt/data1/gw1500_rerun/run3`: GW1500 の NOTCONV の残り（fp32、5 本）。2026-10-01 04:40 に約 17 時間の見積もり
@@ -109,6 +109,10 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 
 ### 2026-10-02
 
+- user の判断（2026-10-02）を実行した（2026-10-02 12:59）: (1) 旧 `a0c7a7300`（新 `6e2903731`）に誤って入っていたビルドの生成物 3197 本を、未公開の範囲の書き換えで履歴から除いた
+  （main のツリーは同じ、dev・rel のコミットは同じ。文書とコミットメッセージのハッシュは直した、対応表 `MD/commit_map_20261002.txt`、控えは TAKAOMINI）。`.git` 1.1 GB → 776 MB。
+  (2) ecaljdoc の古い文書（`BackUp/`、`ecaljdetails/`、古い書き出しの pdf）を ecaljdoc の trash へ、要点は past_log.md §14。(3) trash は適宜減らす（`ecaljclaude.md`）。
+  API キーは今のツリーと `cb9b2d7b7` 以後のコミットに無いことを確かめた
 - **Löwdin で直交化した MLO を標準に**（2026-10-02 12:19、user「Löwdin 直交化を MLO の標準に（バンドは変わらない）」「全体的に調べて、O なしで OK ならそっちをメイン」
   「やれた範囲での決断として O なし」）: 模型は H̃(R) だけ（O(R) = δ）、__cmlo・sugw の a'・m_sigmlo も同じ基底（`d10a63716`）。63 物質で E_F 近くの最大のずれの中央値
   0.019 → 0.011 eV、PASS 53 → 55（研究ログ 12:16、表 12:16-1）。読み込み時の `--mlo_lowdin`（`d46c4014d`、11:12 のマグノン・cRPA）は消した。前の非直交の模型は `--mlo_raw`。
