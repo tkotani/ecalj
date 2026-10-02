@@ -356,6 +356,7 @@ ecaljdoc の `BackUp/`（148 本、35 MB: 初版の GW マニュアル `man-gw.t
 | --- | --- | --- | --- | --- |
 | 2026-10-02 | 旧 `a0c7a7300` に入っていたビルドの生成物 3197 本を**履歴から**除いた（user の指示。ハッシュの対応は `MD/commit_map_20261002.txt`） | `SRC/exec/build`、`build_gf14`、`SRC/execAHC`、`SRC/BK`、`SRC/exec/BK`、`SRC/execgfortran` | 控え `/media/takao/TAKAOMINI/ecalj_mirror_before_filter_20261002.git` | §1.5 |
 | 2026-10-02 | ecaljdoc の古い文書（157 本、38 MB） | ecaljdoc の `BackUp/`、`ecaljdetails/` | ecaljdoc `3284d0b` | §14 |
+| 2026-10-02 | `ecaljdoc/MD/README.md`（もとの最上位の README。2026-05〜09 の新機能の英語のログと TOML のクイックスタート）。新機能は `Changes.txt`（正本）、クイックスタートは ecaljdoc の `README_tutorial.md`・`cmdopts.md`・`toml_migration.md` にある（user「移し終えたら trash へ」） | `ecaljdoc/MD/README.md` | `85cdee981` | — |
 | 2026-10-02 | ecaljdoc の古い書き出し（md より古い `README.pdf`・`index.pdf`・`install/install.pdf`・`installISSP.pdf`）、空の雛形 `list.md`、エディタのファイル | ecaljdoc の最上位、`install/`、`presentations/` | ecaljdoc `6715169` | — |
 | 2026-10-01 | Materials Project の API キーを含む設定の写し | `ecalj_auto/OUTPUT/*/config.ini` の `apikey` 行 | `cb9b2d7b7` の前 | ecalj_auto/README.md |
 | 2026-10-01 | 古い写し | `SRC/BK`、`SRC/execgfortran`、`SRC/execAHC` | `0c8dbaaf2` の前（`47ce04cc5`） | — |

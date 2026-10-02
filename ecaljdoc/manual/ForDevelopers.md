@@ -12,7 +12,6 @@
 
 | 文書 | 中身 |
 | --- | --- |
-| ecalj `ecaljdoc/MD/README.md` | 2026-05〜09 の日付ごとの新機能（ログ）と TOML の流れのクイックスタート（英語）。2026-10-01 に最上位から移した（ecalj は Claude が読み、人間は Claude を通して情報を取る構造） |
 | ecalj `Changes.txt` | 変更の記録（日本語）。上が新しい |
 | ecalj `ecaljdoc/MD/handover.md` | 引き継ぎ: user との取り決め、計算機の癖、ビルド・試験・コンパイラ・数値の落とし穴（Claude の個人メモリから今も正しいものを写したもの、2026-10-01） |
 | ecalj `ecaljdoc/MD/TODOandQuestion.md` | 直すべき点、メンテナへの質問、実行中のこと、やったこと（2026-10-01〜） |

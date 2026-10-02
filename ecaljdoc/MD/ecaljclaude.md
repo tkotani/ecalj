@@ -13,7 +13,7 @@ ecalj を Claude (LLM) で開発する際のガイドライン。
 | まだやっていないこと（やりかけ・未着手・判断待ち）と、やったこと | [TODOandQuestion.md](TODOandQuestion.md) |
 | 経緯、計測、判断の時刻（最新が上） | [research_log.md](research_log.md) |
 | 片付けたものに入っていたノウハウ、trash に移したものの表 | [past_log.md](past_log.md) |
-| 2026-05〜09 の新機能の要約とクイックスタート | [README.md](README.md) |
+| 新機能と変更（利用者向け、正本） | `Changes.txt`（最上位） |
 | 主プログラム → module の階層（生成物） | [module_map.md](module_map.md) |
 | 個別の設計・手順: 対称性 [symmetry_spglib.md](symmetry_spglib.md)、Wannier と MLO の比較 [wannier_vs_mlo.md](wannier_vs_mlo.md)、ecaljdoc の管理と公開 [ecaljdoc_subtree.md](ecaljdoc_subtree.md)、履歴の書き換えのハッシュの対応 `commit_map_20261002.txt` | `ecaljdoc/MD/` |
 | 使い方と理論の本体（公開サイト https://ecalj.github.io/ecaljdoc/ の元） | `ecaljdoc/manual/`（入口 [../index.md](../index.md)、サンプルの一覧 [../manual/samples.md](../manual/samples.md)）、`ecaljdoc/theory/` |
@@ -95,7 +95,7 @@ Claude（や人）が後でコードや記録を読むときの手がかりに�
   - 文書を直したら `python3 TOOLS/doclinks.py` で確かめる（切れた相対リンク、サイトから `../` で出るリンク、本体へのリンクの無い Samples の README、
     入口から名指しされない MD のファイル。2026-10-02）
 - ecalj は「Claude が読み込んで人間に説明できる」パッケージにする。人間は Claude を通して情報を取る（user 2026-10-01）。最上位は `CLAUDE.md`（入口）と数行の `README.md`、`Changes.txt`。
-  開発の文書は `ecaljdoc/MD/`（[README.md](README.md) は 2026-05〜09 の新機能のログとクイックスタート）。
+  開発の文書は `ecaljdoc/MD/`（新機能の正本は `Changes.txt`。2026-05〜09 の英語のログとクイックスタートだった `MD/README.md` は 2026-10-02 に trash へ）。
   コードの大局（主プログラム → 入口の module、module の DAG と階層、各 module の依存）は [module_map.md](module_map.md)。
   `python3 TOOLS/module_map.py` で作り直す生成物で、手では直さない（2026-10-01、Doxygen の代わり）
 - 引き継ぎ: Claude の個人メモリ（`~/.claude/.../memory/`）はパッケージに入らないので、別の機械や記憶の無いセッションに要ること
