@@ -218,7 +218,7 @@ $$
 | **構成法** | 固定した MTO 種 $\chi^{\rm MTO}_{ix(\alpha)}$ を、**エネルギー窓付きで** band 多様体へ射影する（`Amat` = 重なり × 窓の重み、`nskip` 以下は捨てる）。窓の具体形とパラメータ（`mlo_delta`, `mlo_wfrz`, `mlo_w`）は `m_hreduction.f90` を見ること。**冪等な射影ではない** |
 | **窓** | $\Sigma^{\rm MLO}$ は**窓の中でのみ $\hat\Sigma$ を忠実に表す**。窓の外は鋭く切れるのではなく連続に落ちる。これは欠陥ではなく設計意図（§3.3） |
 | **ゲージ** | 種が $q$ に依らず固定 ⇒ **射影ゲージ**。固有ベクトルの任意位相・縮退内の任意回転は相殺し、$z^{\rm MLO}(q)$ は $q$ の滑らかな関数（Wannier の gauge fixing が要らない） |
-| **直交性** | 既定では**非直交**。$O^{\rm MLO}(q) = (z^{\rm MLO})^\dagger S^{\rm PMT}(q)\, z^{\rm MLO}$。`--mlo_ortho` のときだけ Löwdin 直交化 |
+| **直交性** | 既定では**非直交**。$O^{\rm MLO}(q) = (z^{\rm MLO})^\dagger S^{\rm PMT}(q)\, z^{\rm MLO}$。`--mlo_ortho` のときだけ Löwdin 直交化（設計の時点。2026-10-02 から MLO は実空間で規格化してから Löwdin で直交化したものが標準で $O^{\rm MLO}=1$、`--mlo_ortho` は廃止。ecaljdoc mlo §6） |
 | **次元** | $\alpha = 1\ldots M$、$M$ = `ndimMTO`（LiTi2O4 全 EH lm で 154、t2g 模型で 12）。$i$ はバンド指標、$m$ は PMT 指標 |
 | **出力** | 段 1 で `zMLO` の MTO 行を `__amlo.data` に書き出し済み。**この先で要るのは `cmlo` の方**（式 (11)）で、まだ外に出していない → 段 1' |
 
