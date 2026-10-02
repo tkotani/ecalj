@@ -167,7 +167,7 @@ def overlap_min(d, soc):
     return float(v.min()), float(a[v.argmin(), 0]), float(np.median(v))
 
 
-def check(d, fail_max=0.1, fail_jump=0.1):
+def check(d, fail_max=0.1, fail_jump=0.1, delta=None):
     ef = read_ef(d)
     spins = [s for s in (1, 2) if glob.glob(os.path.join(d, f'bnd*.spin{s}'))]
     mso, dso = soc_of(d)
@@ -200,7 +200,7 @@ def check(d, fail_max=0.1, fail_jump=0.1):
         top = cbD
     else:
         vbD, top = 0.0, 0.0
-    delta = read_delta(d)
+    delta = read_delta(d) if delta is None else delta
     r.update(VBM=float(vbD), CBM=float(top), emin=float(vbD - 8), emax=float(top + delta), mlo_delta=delta)
     m2d = nearest(M, D, vbD - 8, top + delta); d2m = nearest(D, M, vbD - 8, top + delta)
     for k, a in (('m2d', m2d), ('d2m', d2m)):
@@ -234,10 +234,11 @@ if __name__ == '__main__':
     ap.add_argument('--json'); ap.add_argument('--tsv')
     ap.add_argument('--fail-max', type=float, default=0.1, help='largest single deviation allowed (eV)')
     ap.add_argument('--fail-jump', type=float, default=0.1, help='largest jump of the deviation of a band between neighbouring k (eV)')
+    ap.add_argument('--delta', type=float, default=None, help='upper edge of the window CBM + DELTA (eV) instead of mlo_delta of the ctrlg (2026-10-02 09:37: to compare windows on the same range)')
     a = ap.parse_args()
     res = {}
     for d in a.dirs:
-        try: v = check(d, a.fail_max, a.fail_jump)
+        try: v = check(d, a.fail_max, a.fail_jump, a.delta)
         except Exception as e: v = dict(error=str(e))
         if v is not None: res[os.path.basename(os.path.normpath(d))] = v
     if a.json: json.dump(res, open(a.json, 'w'), indent=1)
