@@ -100,7 +100,7 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 
 ## 3. 実行中
 
-- Löwdin を標準にした版（`fd5407b39`）の全部の試験の組（2026-10-02 12:19 投入）: kr7 `~/ecalj_testL`（`--gpu -np 8 -np2 1`、`fulltest.out`、`tests_full/`）、
+- Löwdin を標準にした版（`fd5407b39`）の全部の試験の組（2026-10-02 12:19 の時点で走行中）: kr7 `~/ecalj_testL`（`--gpu -np 8 -np2 1`、`fulltest.out`、`tests_full/`）、
   kt1 `/mnt/data1/ecalj_testL`（GEMMul8 入り、同じ）。t14 では mlo・install・mloqsgw・magnon の組（`~/work/tests_lowdin2`）
 - kt1 `/mnt/data1/gw1500_rerun/run3`: GW1500 の NOTCONV の残り（fp32、5 本）。2026-10-01 04:40 に約 17 時間の見積もり
 
