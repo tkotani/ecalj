@@ -101,7 +101,7 @@ Claude（や人）が後でコードや記録を読むときの手がかりに�
 - 必要な理由と注意だけ。どこで迷ったかの経緯（苦労話）は書かない（研究ログへ）
 - 数式には必ず式番号（`$$ ... \tag{1}$$`）を付け、本文から番号で参照する。図表にも番号を付ける
 - 説明の軸は ecaljdoc。ecalj の Changes.txt・各サンプルの README には要点と ecaljdoc への参照だけを書き、同じ説明を二か所に書かない。
-  ecaljdoc の正本は 2026-10-02 から `ecalj/ecaljdoc/`（git subtree。公開は `tkotani/ecaljdoc` へ `git subtree push`、手順は [ecaljdoc_subtree.md](ecaljdoc_subtree.md)）。
+  ecaljdoc の正本は 2026-10-02 から `ecalj/ecaljdoc/`（git subtree。公開は GitHub の `ecalj/ecaljdoc` へ `git subtree push`、手順は [ecaljdoc_subtree.md](ecaljdoc_subtree.md)）。
   古いクローン `~/ecaljdoc` では作業しない
 - 文書の置き場（2026-10-02、user）:
   - `ecaljdoc/`（公開サイト）: 使い方と理論の本体。サイトは `ecaljdoc/` だけから作られる
