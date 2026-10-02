@@ -636,9 +636,10 @@ Example (cubic):
 symgrp = "R4X MX R3D"        # 4-fold around X, mirror in X, 3-fold around (1,1,1) ⇒ 48 symops
 ```
 
-Mix-and-find:
+Generators with `find` (an old form, still accepted): spglib finds the whole group, and the generators must be operations
+of it (lmf stops otherwise); they do not change the group.
 ```toml
-symgrp = "R4X find"          # force 4-fold around X then let lmf find the rest
+symgrp = "R4Z*I MX*I R3D find"   # zinc blende: the same 24 operations as symgrp = "find"
 ```
 
 Disable symmetry entirely:
@@ -664,12 +665,13 @@ the file is rewritten. The console tells which: `mksym: N operations, read from 
 * Pure translations of a supercell (a cell larger than the primitive one, e.g. the 8-atom cubic cell of Si) are operations
   too: 192 for Si8. Total energies, MLO bands and QSGW quasiparticle energies agree with those of the primitive operations.
 * AF: with `af = ±k` on the sites of the AF pairs, the magnetic symmetry of spglib gives the operations; those with time
-  reversal exchange up and down. `symgrpaf = "find"` switches the AF mode on with these operations (2026-10-02); generators in
-  `symgrpaf` are used only by the old search (`ECALJ_SYMFIND=ecalj`), where `"find"` stops with a message. Use `pwmode = 11` with it.
+  reversal exchange up and down. `symgrpaf = "find"` switches the AF mode on with these operations (2026-10-02). Generators in
+  `symgrpaf` (the old form, e.g. `"i:( 1 1 1 )"` for NiO) are accepted and must be among these AF operations. Use `pwmode = 11` with it.
 * `symgrp` with generators (to lower the symmetry on purpose, e.g. `"r4z"` for an orbital-ordered 4f state) uses the
-  generators as before and writes no file. `ECALJ_SYMFIND=ecalj` in the environment forces the old search (to compare).
-* `symfind.py <sname>` (Python spglib) makes the same file outside lmf; `symfind.py <sname> --check llmchk` compares it with
-  the operations printed by lmchk.
+  generators: the group they generate, as before, and writes no file. With such a `symgrp`, `symgrpaf` needs generators (not `"find"`).
+* The old search of ecalj (the operations of the lattice and those leaving the crystal invariant, `ECALJ_SYMFIND=ecalj`) was removed
+  on 2026-10-02; spglib is the only finder. The input forms above are all still accepted.
+* `symfind.py <sname>` (Python spglib) makes the same file outside lmf.
 
 # Q: Should the Harris-Foulkes and Hohenberg-Kohn Sham functionals agree at self-consistency?
 (due to Mark van Schilfgaarde)

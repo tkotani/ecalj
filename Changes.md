@@ -3,6 +3,15 @@
 2026-10-02 に `Changes.txt` から改名した（中身は同じ。日付の行を見出しにし、本文の字下げを外しただけ）。
 新しい項目は一番上に `## YYYY-MM-DD (n)` で書く。要約は ecaljdoc の [manual/whatsnew.md](ecaljdoc/manual/whatsnew.md)。
 
+## 2026-10-02 (9)
+
+対称性の古い探し方（格子の点群から結晶の対称性を探す symlat・symcry、生成元の選び直し、超格子の部分群、ECALJ_SYMFIND=ecalj）を外した。
+探すのは spglib だけ。入力の書き方はどれも今のまま使える:
+- symgrp = "find"（既定）: spglib。symgrp に生成元だけ（"r4z mz" など、対称性を下げる）: その生成元から群を閉じる（gensym）。
+- 生成元と find の混ぜ書き（"R4Z\*I MX\*I R3D find"）: spglib で群を求め、生成元がその中にあるかを確かめる（無ければ止まる）。
+- symgrpaf の生成元（"i:( 1 1 1 )" など）: spglib の AF の操作の中にあるかを確かめる（無ければ止まる）。symgrpaf = "find" と同じ結果。
+説明は ecaljdoc lmf.md の SYMGRP。
+
 ## 2026-10-02 (8)
 
 反強磁性の対称性は symgrpaf = "find" と書けば、spglib が af の印から磁気空間群を求めて使う（生成元を書かなくてよい）。生成元は

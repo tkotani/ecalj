@@ -40,7 +40,7 @@ ecalj の新しい機能と、結果が変わる修正の要約。新しい順�
   - 模型の検査（`mlo_bandcheck.py`）の判定 3 は「帯のとげ」（模型のバンドが 1 点で跳ぶ。一次従属の崩れ）になった → [MLO](./mlo.md) §9 式 (12)
 - **対称性は spglib から**（`symgrp = "find"` のとき。spglib 2.6.0 を同梱、Python は要らない）。求めた操作は作業ディレクトリの
   `symmetry.<sname>.json` に書き、次からはそれを読む。超格子の純粋な並進、反強磁性（`[[site]]` の `af`）の磁気対称性も含む。
-  `symgrp` に生成元を書いた入力は従来どおり → [lmf](./lmf.md) の SYMGRP
+  `symgrp` に生成元を書いた入力は従来どおり。古い探し方（`ECALJ_SYMFIND=ecalj`）は外した（入力の書き方はどれも今のまま使える）→ [lmf](./lmf.md) の SYMGRP
   - 操作の並びが前と違うので、並びをそのまま書き出す出力（BoltzTraP の `.struct` など）は並びが変わる
 - **反強磁性の対称性は `symgrpaf = "find"`** と書けば、spglib が `af` の印から求める（生成元を書かなくてよい）。`symgrpaf` を使うときは `pwmode = 11`
   → [UsageDetailed](./UsageDetailed.md) の Antiferro symmetry

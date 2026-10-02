@@ -39,7 +39,7 @@ atom did, and the rms hides it): FAIL when
       as ovlp_min; mlo prints the smallest eigenvalue of the normalized raw overlap on the mesh.
 The verdict is 'check' (PASS/FAIL) with the reasons in 'fail'.
 
-2026-10-01: rewritten for any directory (the test of Samples/MATERIALS, MD/research_log.md 2026-10-01).
+2026-10-01: rewritten for any directory (the test of Samples/MATERIALS, MD/research_kotani_log.md 2026-10-01).
 The earlier version (v6.2, effective-mass ratios, fixed to Samples/MLOsamples/*__m3_work) is in the git history.
 """
 import argparse, glob, json, os, re, sys

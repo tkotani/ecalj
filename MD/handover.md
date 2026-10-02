@@ -80,8 +80,8 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
 - **t14 の trash は外付けの TAKAOMINI にある**（2026-10-02、ディスクが満杯になったため）: `/media/takao/TAKAOMINI/trash/`（`ecalj_trash/`、`work_20261001/`、`home_trash/`）。t14 のディスクは 468 GB で、試験の作業ディレクトリ（`Samples/*/*_work`、合わせて約 8 GB）や `~/work` の GW の途中のファイルでいっぱいになる。満杯になると Claude Code の Bash の出力も受け取れなくなる（`/tmp` も同じディスク）
 
 - **対称操作は spglib から**（2026-10-02 08:34、[`MD/symmetry_spglib.md`](symmetry_spglib.md) §4.7g）: `symgrp = "find"` のとき lmf・lmchk などは同梱の spglib（[`SRC/external/spglib`](../SRC/external/spglib)、C、
-  静的ライブラリ `symspg`）で操作を求め、作業ディレクトリに `symmetry.<sname>.json` を書く。次からは読み、構造が違えば作り直す。`ECALJ_SYMFIND=ecalj` で
-  従来の gensym（比べるとき）。`symgrp` に生成元を書いた入力も gensym。ビルドには C コンパイラが要る（CMake の `project(... Fortran C)`）
+  静的ライブラリ `symspg`）で操作を求め、作業ディレクトリに `symmetry.<sname>.json` を書く。次からは読み、構造が違えば作り直す。`symgrp` に生成元だけを
+  書いた入力（対称性を下げる）は、その生成元から群を閉じる（`gensym`）。古い探し方（`symlat`・`symcry`、`ECALJ_SYMFIND=ecalj`）は 2026-10-02 21:33 に外した。ビルドには C コンパイラが要る（CMake の `project(... Fortran C)`）
 
 - **MLO は Löwdin で直交化した関数**（2026-10-02、user の判断。`d10a63716`）: 実空間で規格化した MLO を各 k で O(k)^(−1/2) で直交化したもの（射影 Wannier）が
   ecalj の MLO。模型は H̃(R) だけ（O(R) = δ）、__cmlo（U・J・cRPA・マグノン）、MLO-QSGW の Σ、SOC もこの基底。対称性と軌道の名前を保ち、窓によらない。

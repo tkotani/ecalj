@@ -251,7 +251,7 @@ GW 側の二つは `__HAMindex0` から読んだ操作のうち、呼ぶ側が�
 - `mksym`（`symgrp = "find"`、結晶の群）: `symmetry.<sname>.json` があり構造が今のものと同じなら読む。無いか違えば spglib で求め、rank 0 が書き直す
   （出力に `found by spglib, <記号> (<番号>), written to ...（the file: <理由>）` または `read from ...`）。全部の操作（AF の時間反転つきも）は
   module に持ち、AF の二回目の呼び出しで使う。`symgrp` に生成元を書いた入力と `ECALJ_SYMFIND=ecalj` は gensym
-- `symfind.py` は同じ形式のファイルを作る・照らす道具として残す（`--check` で lmchk の gensym の表と比べる）
+- `symfind.py` は同じ形式のファイルを作る・照らす道具として残す（`--check` で lmchk の gensym の表と比べる）。**2026-10-02 22:43 に `--check` を外した**（比べる相手の古い探し方を外したため。作る道具としては残る）
 - 確かめ: Fe・NiO（12 + 12）・Si8（192）で Fortran の書いた操作が `symfind.py` と集合として同じ。Samples の 172 入力で 164 が同じ、8 は `symgrp` を
   指定していて gensym（[`TOOLS/symcheck_spglib_c.sh`](../TOOLS/symcheck_spglib_c.sh)）。二回目は読み、位置を変えると作り直すことを確かめた
 
@@ -267,3 +267,11 @@ GW 側の二つは `__HAMindex0` から読んだ操作のうち、呼ぶ側が�
 - （済み 2026-10-02 05:11）2×1×1 の Si の超格子の GW（`hgw`）が手元（t14、4 コア）で 30 分で終わらなかったのは遅いだけ: kt1 の 32 コアでは 1 反復が 3 分半で終わった（`/mnt/data1/symtest_si2`、今のコード）
 - spglib の許容（`symprec`）と ecalj の `toll = 1e-4` の合わせ方
 - AF で、spglib の磁気空間群の操作と `SYMGRPAF` の操作が一致するか（NiO、Fe2O3 などで比べる）
+
+## 追記（2026-10-02 21:33）: 古い探し方を外した
+
+user「古い探し方を全部外す。古い書き方がダメというわけではない」。`m_symfind` から `symlat`・`csymop`・`symcry`・`puretrans`・`distinctrot` と、`gensym` の
+探す枝（生成元の選び直し `groupg`、超格子の `FaithfulSubgroup`）を外した（1010 → 649 行）。`gensym` は「生成元から閉じる」だけ。`ECALJ_SYMFIND=ecalj` は無い。
+新しく `gens_in_group`: 混ぜ書きの生成元（`symgrp = "R4Z*I MX*I R3D find"`）と `symgrpaf` の生成元を、spglib の群（AF は時間反転つきの操作）の中にあるか確かめる。
+外す前の版は git の履歴（この追記の前のコミット）。NiO の 15 meV（操作の並び）は、外す前に `ECALJ_SYMFIND=ecalj` で切り分けた（TODOandQuestion.md）。
+

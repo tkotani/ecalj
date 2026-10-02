@@ -128,7 +128,8 @@ symgrpaf = "find"  # Antiferro symmetry: spglib finds the operations (2026-10-02
 With `symgrpaf = "find"` (and `symgrp = "find"`, the default), spglib finds the magnetic space group from the `af` labels below;
 its operations with time reversal map the up site of a pair on the down site and switch the AF mode on.
 A generator such as `symgrpaf = "i:( 1 1 1 )"` (for NiO: `g = i:(1,1,1) * $i \sigma_y$` generates the magnetic space group)
-is needed only with the old search (`ECALJ_SYMFIND=ecalj`, or `symgrp` with generators); there `"find"` stops with a message. In any case 
+is still accepted (it must be one of the AF operations spglib finds); with `symgrp` of generators (to lower the symmetry), write the
+AF generators, since `"find"` is not possible there. In any case 
 ```toml
 [[site]]
 atom = "Niup"

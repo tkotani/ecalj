@@ -40,6 +40,7 @@ contains
     use m_lmfinit,only: nspec,nbas, sstrnsymg,symgaf,ips=>iv_a_oips,slabl,iantiferro,addinv,lmxax
     use m_lattic,only:  plat=>lat_plat,rv_a_opos
     use m_symderive,only: mptauof,rotdlmm
+    use m_symfind,only: gens_in_group
     use m_ftox
     implicit none
     integer:: ngmx ! size of the operation arrays: 48 rotations x (pure translations <= nbas), x 2 for the added inversion (2026-10-02 05:46, step S4)
@@ -64,7 +65,7 @@ contains
     allocate(iclasst(nbas),oics(nbas),oistab(nbas,ngmx))
     if(ipr10) write(stdo,"(a)")  'SpaceGroupSym of Lattice: ========start========================== '
     if(ipr10) write(stdo,"(a)") ' SYMGRP = '//trim(strn)
-    call mksym(lc,slabl,strn,ips, iclasst,nclasst,npgrp,ngrp,oag,osymgr,oics,oistab,ngmx,faithful=.true.) !closed group with distinct rotations (gensym faithful in m_symfind)
+    call mksym(lc,slabl,strn,ips, iclasst,nclasst,npgrp,ngrp,oag,osymgr,oics,oistab,ngmx,faithful=.true.) !the group of the crystal (spglib, or the generators of symgrp)
     if(ipr10) write(stdo,"(a)") 'SpaceGroupSym of Lattice: ========end =========================== '
     allocate(symops,source=osymgr)
     allocate(ag,source=oag)
@@ -73,13 +74,22 @@ contains
       integer:: oicsAll(nbas),oistabAll(nbas,ngmx),ipsAF(nbas),iga,igall,nclassAll,ig
       AFmode=len_trim(symgaf)>0 
       if(AFmode) then
-         ! symgrpaf = "find" (2026-10-02, user: let spglib find the AF operations too): the operations with time reversal come from the
-         ! af labels (the magnetic space group of spglib, symmetry.<sname>.json). Generators in symgrpaf matter only for gensym
-         ! (ECALJ_SYMFIND=ecalj or SYMGRP with generators).
-         ! gensym cannot: merging the pairs loses the order of the moments (NiO becomes cubic, 48 operations, and wrong AF ones).
+         ! symgrpaf (2026-10-02, user: let spglib find the AF operations too): with symgrp = "find" the operations with time reversal
+         ! come from the af labels (the magnetic space group of spglib, symmetry.<sname>.json); symgrpaf = "find" is the plain form,
+         ! generators written in symgrpaf (the old form, e.g. "i:( 1 1 1 )" for NiO) must be among those AF operations (2026-10-02 21:31).
+         ! With symgrp of generators (no "find"), the generators of symgrpaf are added and the group is generated (gensym); "find" is
+         ! not possible there (merging the pairs loses the order of the moments: NiO becomes cubic, 48 operations, wrong AF ones).
          if(trim(adjustl(symgaf))=='find') then
-            if(.not.jsonused) call rx('m_mksym: symgrpaf = "find" needs the spglib finder (symgrp = "find", no ECALJ_SYMFIND=ecalj); '// &
-                 'with gensym write the generators, e.g. symgrpaf = "i:( 1 1 1 )" for NiO')
+            if(.not.jsonused) call rx('m_mksym: symgrpaf = "find" needs symgrp = "find"; '// &
+                 'with symgrp of generators write the AF generators, e.g. symgrpaf = "i:( 1 1 1 )" for NiO')
+            strn2=trim(strn)
+         elseif(jsonused) then
+            AFgens: block
+              logical:: okaf
+              character(300):: whyaf
+              call gens_in_group(symgaf,plat,ngall_s,gall_s(:,:,1:ngall_s),agall_s(:,1:ngall_s),trall_s(1:ngall_s),.true.,okaf,whyaf)
+              if(.not.okaf) call rx('m_mksym: symgrpaf = "'//trim(symgaf)//'": '//trim(whyaf)//'. Write symgrpaf = "find"')
+            endblock AFgens
             strn2=trim(strn)
          else
             strn2=trim(strn)//' '//trim(symgaf)
@@ -147,7 +157,7 @@ contains
   subroutine mksym(modeAddinversion,slabl,ssymgr,iv_a_oips, iclass,nclass,npgrp,nsgrp,rv_a_oag,rv_a_osymgr,iv_a_oics,iv_a_oistab,ngmxs,faithful)! Setup symmetry group. Split species into classes, Also assign class labels to each class
     use m_lmfinit,only: nbas,nspec,alat=>lat_alat,symgaf,ipsorg=>iv_a_oips,iantiferro
     use m_lattic,only: plat=>lat_plat,qlat=>lat_qlat,rv_a_opos
-    use m_symfind,only: gensym,symfind_json,symfind_spglib,write_symjson,ngmx,ngnmx
+    use m_symfind,only: gensym,gens_in_group,symfind_json,symfind_spglib,write_symjson,ngmx,ngnmx
     use m_ext,only: sname
     use m_symderive,only: grpgen,splcls,symtbl
     use m_symop_util,only: asymop
@@ -184,7 +194,8 @@ contains
     logical:: lfaithful,usejson
     character(600):: fjson
     character(200):: why
-    character(16):: envv
+    logical:: okg
+    character(300):: whyg
     character(80):: sg
     integer:: ib,spgnum
     logical:: lexist
@@ -200,48 +211,50 @@ contains
     if(ifind>0) gens= ssymgr(1:ifind-1)//' '//ssymgr(ifind+4:)
     if(master_mpi) write(stdo,*)' Generators except find: ',trim(gens)
     if(master_mpi) write(stdo,*)' Generators find or not: ',symfind
-    ! The finder (2026-10-02 08:28, MD/symmetry_spglib.md §4.7g): for the group of the crystal (faithful) with SYMGRP 'find' (the default),
-    ! the operations of symmetry.<sname>.json when it is there and its structure is the present one; otherwise spglib (the
-    ! vendored C library, symfind_spglib) finds them and rank 0 writes the file. Pure translations of a supercell are
-    ! operations; AF: the operations with time reversal (from the af labels) are kept for the second, AF call of m_mksym_init
-    ! (the pairs merged), which takes all of them; m_mksym_init picks the AF operations as before (SYMGRPAF only switches the
-    ! AF mode on). SYMGRP with generators (to lower the symmetry on purpose) and ECALJ_SYMFIND=ecalj use gensym.
-    ! (History: 2026-10-02 05:35 S3 read the file of symfind.py when present; 05:46 S4 pure translations; 06:16 S5 AF.)
+    ! The group of the crystal (2026-10-02 08:28, MD/symmetry_spglib.md §4.7g; 2026-10-02 21:31: the old search was removed):
+    ! SYMGRP with "find" (the default): the operations of symmetry.<sname>.json when it is there and its structure is the present one,
+    ! otherwise spglib (the vendored C library, symfind_spglib) finds them and rank 0 writes the file. Pure translations of a supercell
+    ! are operations. AF: the operations with time reversal (from the af labels) are kept for the second, AF call of m_mksym_init,
+    ! which takes all of them. Generators written together with "find" (the old mixed form "R4Z*I MX*I R3D find") must be operations
+    ! of the group found (gens_in_group), else stop. SYMGRP with generators only (to lower the symmetry on purpose, "r4z mz"): the
+    ! group they generate (gensym).
     usejson = .false.
-    if(lfaithful .and. trim(adjustl(ssymgr))=='find') then
-       envv = ' '
-       call get_environment_variable('ECALJ_SYMFIND',envv)
-       if(trim(envv)/='ecalj') then
-          fjson = 'symmetry.'//trim(sname)//'.json'
-          if(allocated(gall_s)) deallocate(gall_s,agall_s,trall_s)
-          allocate(gall_s(3,3,ngmxs),agall_s(3,ngmxs),trall_s(ngmxs))
-          inquire(file=trim(fjson),exist=lexist)
-          usejson = .false.
-          why = 'there is no such file'
-          if(lexist) call symfind_json(fjson,nbas,[(slabl(ipsorg(ib)),ib=1,nbas)],iantiferro(1:nbas),rv_a_opos(:,1:nbas), &
-               plat,qlat,alat,ngmxs, ngall_s,gall_s,agall_s,trall_s,usejson,why)
-          if(usejson) then
-             src = 'read from '//trim(fjson)
-          else
-             allocate(rotf(3,3,ngmxs),trf(3,ngmxs))
-             call symfind_spglib(nbas,ipsorg(1:nbas),iantiferro(1:nbas),rv_a_opos(:,1:nbas),plat,qlat,alat,ngmxs, &
-                  ngall_s,rotf,trf,trall_s,spgnum,spgsym)
-             do ig=1,ngall_s
-                gall_s(:,:,ig) = matmul(plat,matmul(dble(rotf(:,:,ig)),transpose(qlat)))
-                agall_s(:,ig)  = matmul(plat,trf(:,ig))
-             enddo
-             if(master_mpi) call write_symjson(fjson,nbas,[(slabl(ipsorg(ib)),ib=1,nbas)],iantiferro(1:nbas), &
-                  rv_a_opos(:,1:nbas),plat,qlat,alat,ngall_s,rotf,trf,trall_s,spgnum,spgsym,'ecalj m_symfind (spglib 2.6.0)')
-             write(src,"(a,i0,a)") 'found by spglib, '//trim(spgsym)//' (',spgnum,'), written to '//trim(fjson)// &
-                  ' (the file: '//trim(why)//')'
-             deallocate(rotf,trf)
-             usejson = .true.
-          endif
-          jsonused = .true.
+    if(lfaithful .and. symfind) then
+       fjson = 'symmetry.'//trim(sname)//'.json'
+       if(allocated(gall_s)) deallocate(gall_s,agall_s,trall_s)
+       allocate(gall_s(3,3,ngmxs),agall_s(3,ngmxs),trall_s(ngmxs))
+       inquire(file=trim(fjson),exist=lexist)
+       why = 'there is no such file'
+       if(lexist) call symfind_json(fjson,nbas,[(slabl(ipsorg(ib)),ib=1,nbas)],iantiferro(1:nbas),rv_a_opos(:,1:nbas), &
+            plat,qlat,alat,ngmxs, ngall_s,gall_s,agall_s,trall_s,usejson,why)
+       if(usejson) then
+          src = 'read from '//trim(fjson)
+       else
+          allocate(rotf(3,3,ngmxs),trf(3,ngmxs))
+          call symfind_spglib(nbas,ipsorg(1:nbas),iantiferro(1:nbas),rv_a_opos(:,1:nbas),plat,qlat,alat,ngmxs, &
+               ngall_s,rotf,trf,trall_s,spgnum,spgsym)
+          do ig=1,ngall_s
+             gall_s(:,:,ig) = matmul(plat,matmul(dble(rotf(:,:,ig)),transpose(qlat)))
+             agall_s(:,ig)  = matmul(plat,trf(:,ig))
+          enddo
+          if(master_mpi) call write_symjson(fjson,nbas,[(slabl(ipsorg(ib)),ib=1,nbas)],iantiferro(1:nbas), &
+               rv_a_opos(:,1:nbas),plat,qlat,alat,ngall_s,rotf,trf,trall_s,spgnum,spgsym,'ecalj m_symfind (spglib 2.6.0)')
+          write(src,"(a,i0,a)") 'found by spglib, '//trim(spgsym)//' (',spgnum,'), written to '//trim(fjson)// &
+               ' (the file: '//trim(why)//')'
+          deallocate(rotf,trf)
+          usejson = .true.
+       endif
+       jsonused = .true.
+       if(len_trim(gens)>0) then
+          call gens_in_group(gens,plat,ngall_s,gall_s(:,:,1:ngall_s),agall_s(:,1:ngall_s),trall_s(1:ngall_s),.false.,okg,whyg)
+          if(.not.okg) call rx('mksym: symgrp = "'//trim(ssymgr)//'": '//trim(whyg)//'. Write symgrp = "find", or the generators alone to lower the symmetry')
+          if(master_mpi) write(stdo,*)' mksym: the generators "'//trim(gens)//'" written with find are operations of the group found'
        endif
     elseif(.not.lfaithful .and. jsonused) then
        usejson = .true.
        src = 'the operations above with the time-reversed (AF) ones'
+    elseif(symfind) then
+       call rx('mksym: "find" here needs symgrp = "find" for the crystal (symgrpaf = "find" with symgrp of generators is not possible)')
     endif
     if(usejson) then ! the crystal group (no time reversal) for the first call, all for the AF call
        nsgrp = 0
@@ -251,11 +264,9 @@ contains
           rv_a_osymgr(:,:,nsgrp) = gall_s(:,:,ig)
           rv_a_oag(:,nsgrp)      = agall_s(:,ig)
        enddo
-    endif
-    if(usejson) then
        ngen  = 0
        nggen = nsgrp
-       call symtbl(0,nbas,rv_a_opos,rv_a_osymgr,rv_a_oag,nsgrp,qlat,iv_a_oistab) !site ib goes to istab(ib,ig), as gensym returns it
+       call symtbl(0,nbas,rv_a_opos,rv_a_osymgr,rv_a_oag,nsgrp,qlat,iv_a_oistab) !site ib goes to istab(ib,ig)
        if(master_mpi) then
           write(stdo,"(a,i0,a)")' mksym: ',nsgrp,' operations, '//trim(src)
           write(stdo,"(' mksym spglib: ig group ops (:vector means translation in cartesian)')")
@@ -270,8 +281,9 @@ contains
           enddo
        endif
     else
-       call gensym(slabl,gens,symfind,nbas,nspec,ngmx,plat,plat,rv_a_opos(:,1:nbas),iv_a_oips, & !Generate space group ops
-            nsgrp, rv_a_osymgr,rv_a_oag, ngen,gen,ssymgr, nggen,isym,iv_a_oistab,lfaithful)
+       call gensym(gens,nbas,plat,rv_a_opos(:,1:nbas), nsgrp,rv_a_osymgr,rv_a_oag,iv_a_oistab,ngmxs) !the group of the generators
+       ngen  = 0
+       nggen = nsgrp
     endif
     if(nggen>ngmxs) call rx('mksym: nggen>ngmxs')
     incli = -1

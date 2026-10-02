@@ -356,6 +356,7 @@ ecaljdoc の `BackUp/`（148 本、35 MB: 初版の GW マニュアル `man-gw.t
 | --- | --- | --- | --- | --- |
 | 2026-10-02 | 旧 `a0c7a7300` に入っていたビルドの生成物 3197 本を**履歴から**除いた（user の指示。ハッシュの対応は `MD/commit_map_20261002.txt`） | `SRC/exec/build`、`build_gf14`、`SRC/execAHC`、`SRC/BK`、`SRC/exec/BK`、`SRC/execgfortran` | 控え `/media/takao/TAKAOMINI/ecalj_mirror_before_filter_20261002.git` | §1.5 |
 | 2026-10-02 | ecaljdoc の古い文書（157 本、38 MB） | ecaljdoc の `BackUp/`、`ecaljdetails/` | ecaljdoc `3284d0b` | §14 |
+| 2026-10-02 | 古い探し方（gensym の表）と spglib の対称操作を比べる道具（S0 の照合、172 入力で食い違い 0）。古い探し方を外したので役目を終えた | `TOOLS/symcheck_samples.sh` | `034c2b739` | — |
 | 2026-10-02 | エディタのロック（行き先の無いリンク） | `Samples/TestInstall/.#testecalj.py` | `e607303ce` | — |
 | 2026-10-02 | VitePress の見本のページ（中身は無い） | `ecaljdoc/theory/markdown-examples.md` | `` | — |
 | 2026-10-02 | `MD/README.md`（もとの最上位の README。2026-05〜09 の新機能の英語のログと TOML のクイックスタート）。新機能は `Changes.txt`（正本）、クイックスタートは ecaljdoc の `README_tutorial.md`・`cmdopts.md`・`toml_migration.md` にある（user「移し終えたら trash へ」） | `MD/README.md` | `85cdee981` | — |
