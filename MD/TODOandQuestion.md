@@ -30,6 +30,13 @@
   AlN・MgS・MgSe・MgTe・SiO₂ は誤差が大きい。直すか、目安を見直すか
 - **`Samples/AFsymmetry/NiO` は `pwmode = 1` で `symgrpaf`**（2026-10-01）: 4³ にすると `rotwave: q+G rotation error` で止まる。`pwmode = 11` にして参照を作り直すか
 
+### 有限温度
+
+- **有限温度の四面体法（`t_tetrakbt > 0`、`m_tetrakbt`）と従来の T = 0 の四面体法（`t_tetrakbt = 0`、`tetwt5`）の関係を確かめる**（2026-10-02 16:02、user）:
+  T → 0 で有限温度の重みが従来の重みに一致するか（同じ k メッシュ・同じ対称性で、χ0 の虚部と QP のエネルギーを比べる。T を 300、100、30、10 K と下げる）。
+  Σ 側の Fermi–Dirac の幅（`t_sigmaw`）と χ0 側の温度の組み合わせも。きっかけ: heavy の `nio_gwsc444`（`t_tetrakbt = 0`、`t_sigmaw = 262`）の QPU が
+  2026-10-02 の版で 15 meV ずれた（kr7・kt1 で同じ値）。原因は確かめ中（従来の対称性の探し方で回し直して切り分け）
+
 ### コード
 
 - **HEAD に残っている生成物らしいもの**（2026-10-02、旧 `a0c7a7300` で入り今も追跡）: `SRC/.#Memo4rotation`、`SRC/exec/cmake_install.cmake`、`hello.py`、`platform`（800 KB）、
