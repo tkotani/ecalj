@@ -19,16 +19,14 @@
   一次従属が壊れるとき、対称線の上で固有値が急に跳ぶ（user）。模型のバンドの 2 階差分 Δ_n(k) = |ε_n(k) − (ε_n(k₋) + ε_n(k₊))/2| を窓 [VBM − 3, CBM + 2]
   （第一原理のバンドが無ければ E_F − 3〜+2）で見る。試作（scratchpad の `spike.py`）で、壊れた Ni・Cu（EH2、生の模型）は 926・24 eV、健全な 35 物質は最大 0.56 eV。
   残り: しきい値 2 eV で `mlo_bandcheck.py` に入れる（基準 2・3 の確かめが終わってから。走行中の試験が `~/bin` のそれを使うため）
-- **【やりかけ】EH2 を足した模型（基準 2）と空格子球（基準 3）を Löwdin の模型で確かめる**（2026-10-02）: `~/work/lowdin_crit23_20261002` で回している
-  （`mlocheck_eh2cat` の約 60 物質と `mlocheck_es` の Bi₂Te₃・SiO₂、同じ DFT から MLO の段だけ）。見ること: 前に壊れた Cu・Ni（EH2）、EuO（模型を作る所で止まった）、
-  基準 1 で 0.1 eV を超える 8 物質（AlN、AlSb、InSb、MgS、MgSe、MgTe、SiO₂、Sn。生の模型では基準 2・3 で通っていた）。
-  壊れるものが残れば直し方（(i) 正準直交化、(ii) 一次従属に近い EH2 を自動で外す）を決める
+- **【やりかけ】EH2・空格子球の後始末**（2026-10-02）: Löwdin の模型で確かめた（2026-10-02 16:39、`~/work/lowdin_crit23_20261002`）。前に壊れた Cu・Ni（EH2）は PASS（0.045、0.055 eV）、
+  基準 1 で 0.1 eV を超えた 7 物質は基準 2 で PASS（0.007〜0.049）、SiO₂ は基準 3 で 0.005。残り: EuO（EH2）は模型を作る所の規格化の確かめで止まる（band 26、前と同じ）。
+  Bi₂Te₃ の空格子球は入力の `atmpnu.*` が無く回らなかった（入力の問題）
 - **【残す】η ≠ 1 の原因**（2026-10-02）: Goldstone の条件の倍率が Löwdin で Fe 1.24、FeCo 1.28、Ni 1.75。Ni が大きい理由は未確認
 - **【残す】空格子球の自動化（基準 3）**（2026-10-01）: `SRC/exec/ctrlg_addes.py`（`8c158ee96`、像の数を面間隔から決める直しは済み）を ctrlg の生成に組み込むか。
   Bi₂Te₃ の空隙は 2.61 a.u. で 3.0 未満、SiO₂ は手で置いて 0.001 eV
 - **【未着手】MLO と Wannier のずれ**（2026-10-02、`MD/wannier_vs_mlo.md`）: Ni d の cRPA の U が Wannier より低い（Löwdin で 2.90 対 3.78 eV、部分空間の違い）。
   Fe のマグノンは Löwdin で近づいた（q ≤ 0.3 で 2 割高いのは残る）。実験（Fe のマグノン分散）との比較
-- **【未着手】`Samples/AFsymmetry/NiO` は `pwmode = 1` で `symgrpaf`**（2026-10-01）: 4³ にすると `rotwave: q+G rotation error` で止まる。`pwmode = 11` にして参照を作り直すか
 
 ### 対称性
 
@@ -103,6 +101,8 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 - Löwdin を標準にした後の内挿のずれは許容範囲とした（2026-10-02 16:13、user「許容範囲というべき。Löwdin でいい」）。窓 [VBM − 3, CBM + 2] eV で 63 物質の最大のずれの中央値
   0.035 → 0.027、rms 0.0067 → 0.0051、0.1 eV を超えるもの 10 → 8（どれも生の模型でも超える）。悪くなったのは 2H-SiC 0.055 → 0.072、GaAs 0.044 → 0.056、
   GaSb 0.078 → 0.091、MnO 0.010 → 0.030、NiO 0.011 → 0.025。Fe の 4s 帯の底（−8〜−3 eV）は窓の外（`~/work/lowdin_20261002/win3_2.tsv`）
+- `Samples/AFsymmetry/NiO` を `pwmode = 11` に、AF の入力を `symgrpaf = "find"`（spglib が AF の操作を見つける）に（2026-10-02 16:39、`6f3642d8f`、user「symgrpAF も spglib に見つけさせたい」）。
+  従来の探し方で `"find"` は理由を言って止まる。afsym 4・affix 12・mlo 45 が PASS
 - 済んだ項目（2026-10-02 14:35 に §1 から移した）: Löwdin の後の文書（ecaljdoc mlo §6・表 M8、Changes.txt (6)、handover、`Fe_mlo_magnon/README.md`）。AFTEST の (d)（使い方を ecaljdoc の UsageDetailed.md へ）。
   マグノンの既定の窓（窓は (2, 2) のまま。Löwdin で窓によらない）。対称性 S0〜S6（`MD/symmetry_spglib.md` §4.7）。kt1 の GW1500 の run3（2026-10-01 16:43 に終了）
 
