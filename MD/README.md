@@ -8,6 +8,6 @@ ecalj の開発者と Claude のための文書。公開サイト（ecaljdoc）�
 2. [handover.md](handover.md) — 引き継ぎ: 計算機、user との取り決め、ビルドと実行の落とし穴
 3. [TODOandQuestion.md](TODOandQuestion.md) — やりかけ・未着手・判断待ち、やったこと
 4. [research_log.md](research_log.md) — 経緯と計測（最新が上）
-5. 変更の正本: 最上位の [`Changes.txt`](../Changes.txt)（新しい順）。その要約は ecaljdoc の [manual/whatsnew.md](../ecaljdoc/manual/whatsnew.md)
+5. 変更の正本: 最上位の [`Changes.md`](../Changes.md)（新しい順）。その要約は ecaljdoc の [manual/whatsnew.md](../ecaljdoc/manual/whatsnew.md)
 
 サブディレクトリにはそれぞれ案内がある: [kBT/](kBT/README.md)、[mlo_notes/](mlo_notes/README.md)、[implementation/](implementation/README.md)。

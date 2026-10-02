@@ -121,7 +121,7 @@ kt1 で複数のジョブを並べるときの `taskset` と `OMPI_MCA_hwloc_bas
 ## 11. GW の GPU 高速化と QSGW 1 反復の短縮（2026-09-27）
 
 報告は ecalj の [`MD/kBT/gpu_fp32_report.md`](kBT/gpu_fp32_report.md)（§1〜10、FP16 経路の式は §2.1）、経過は [`MD/research_log.md`](research_log.md)、
-変更の一覧は ecalj の `Changes.txt`（2026-09-27 (1)〜(3)）、利用者向けは [ecaljgpu](../ecaljdoc/manual/ecaljgpu.md)。数値はすべて kt1（RTX 5090 ×2、電力上限 500 W）。
+変更の一覧は ecalj の `Changes.md`（2026-09-27 (1)〜(3)）、利用者向けは [ecaljgpu](../ecaljdoc/manual/ecaljgpu.md)。数値はすべて kt1（RTX 5090 ×2、電力上限 500 W）。
 
 ### 11.1 結果
 
@@ -414,7 +414,7 @@ gwsc 10 -np 64 <sname> > gwsc.log 2>&1
 - 研究ログ（ecalj の [`MD/research_log.md`](research_log.md)）に `### HH:MM` で、最新を上に。表と図には番号（*表 23:35-1* など）、図は png を
   `Samples/kBT/<系>/` に置いて md に埋め込み、描いたスクリプトも同じ所に
 - 結論が固まったら ecaljdoc の該当ページ（[kBT](../ecaljdoc/manual/kBT)、[mlo_gwsc](../ecaljdoc/manual/mlo_gwsc)、[ecaljgpu](../ecaljdoc/manual/ecaljgpu.md) など）と、このページの §9・§13 に移す
-- コードを変えたら `Changes.txt`。commit はその場で、push は指示を待つ（§1）
+- コードを変えたら `Changes.md`。commit はその場で、push は指示を待つ（§1）
 
 ## 13. 研究ログの要約と索引（2026-09-28）
 

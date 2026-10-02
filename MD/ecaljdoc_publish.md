@@ -56,7 +56,7 @@ TOOLS/publish_ecaljdoc.sh --push   # そのうえで push（GitHub Actions が�
 
 ## 5. 文書の中の書き方
 
-- ecalj の文書（`MD/`、`Changes.txt`、各 README）から ecaljdoc を指すときは、`ecaljdoc/manual/mlo.md` のようにリポジトリの中の相対パスで書く。
+- ecalj の文書（`MD/`、`Changes.md`、各 README）から ecaljdoc を指すときは、`ecaljdoc/manual/mlo.md` のようにリポジトリの中の相対パスで書く。
   公開サイトの URL（`https://ecalj.github.io/ecaljdoc/manual/mlo`）も使える
 - 2026-10-02 より前の記録にある「ecaljdoc のコミット `xxxxxxx`」は、`ecalj/ecaljdoc`・`tkotani/ecaljdoc`（と `~/ecaljdoc`）の履歴のハッシュ。ecalj の中には無い
   （ecalj の中の ecaljdoc の最初は、`e6bb431` をまとめたコミット）

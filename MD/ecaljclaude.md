@@ -13,11 +13,11 @@ ecalj を Claude (LLM) で開発する際のガイドライン。
 | まだやっていないこと（やりかけ・未着手・判断待ち）と、やったこと | [TODOandQuestion.md](TODOandQuestion.md) |
 | 経緯、計測、判断の時刻（最新が上） | [research_log.md](research_log.md) |
 | 片付けたものに入っていたノウハウ、trash に移したものの表 | [past_log.md](past_log.md) |
-| 新機能と変更（利用者向け、正本） | `Changes.txt`（最上位） |
+| 新機能と変更（利用者向け、正本） | [`Changes.md`](../Changes.md)（最上位。2026-10-02 に `Changes.txt` から改名） |
 | 主プログラム → module の階層（生成物） | [module_map.md](module_map.md) |
 | 個別の設計・手順: 対称性 [symmetry_spglib.md](symmetry_spglib.md)、Wannier と MLO の比較 [wannier_vs_mlo.md](wannier_vs_mlo.md)、ecaljdoc の管理と公開 [ecaljdoc_publish.md](ecaljdoc_publish.md)、履歴の書き換えのハッシュの対応 `commit_map_20261002.txt` | [`MD/`](.) |
 | 使い方と理論の本体（公開サイト https://ecalj.github.io/ecaljdoc/ の元） | [`ecaljdoc/manual/`](../ecaljdoc/manual)（入口 [../index.md](../ecaljdoc/index.md)、サンプルの一覧 [../manual/samples.md](../ecaljdoc/manual/samples.md)）、[`ecaljdoc/theory/`](../ecaljdoc/theory) |
-| 変更の記録（利用者向け） | `Changes.txt` |
+| 変更の記録（利用者向け） | [`Changes.md`](../Changes.md) |
 | サンプルと試験 | `Samples/<dir>/README.md`（各 README の冒頭に本体の節へのリンク）、試験の組は [`TOOLS/samples_tests.sh`](../TOOLS/samples_tests.sh) |
 | 標準の流れに入れない試作の道具 | [`TOOLS/gadget/README.md`](../TOOLS/gadget/README.md) |
 
@@ -69,8 +69,8 @@ Claude（や人）が後でコードや記録を読むときの手がかりに�
 
 ### コミットと文書の言語
 
-- git のコミットメッセージは英語（ecalj、ecaljdoc とも）。`Changes.txt`、`MD/*.md`、`manual/*.md` の中身は日本語でよい
-- コミットはこまめに、論理的に分ける。使い方が変わるときは `Changes.txt` と ecaljdoc も直す
+- git のコミットメッセージは英語（ecalj、ecaljdoc とも）。`Changes.md`、`MD/*.md`、`manual/*.md` の中身は日本語でよい
+- コミットはこまめに、論理的に分ける。使い方が変わるときは `Changes.md` と ecaljdoc も直す
 
 ### 研究ログ（[research_log.md](research_log.md)）
 
@@ -100,7 +100,7 @@ Claude（や人）が後でコードや記録を読むときの手がかりに�
 
 - 必要な理由と注意だけ。どこで迷ったかの経緯（苦労話）は書かない（研究ログへ）
 - 数式には必ず式番号（`$$ ... \tag{1}$$`）を付け、本文から番号で参照する。図表にも番号を付ける
-- 説明の軸は ecaljdoc。ecalj の Changes.txt・各サンプルの README には要点と ecaljdoc への参照だけを書き、同じ説明を二か所に書かない。
+- 説明の軸は ecaljdoc。ecalj の Changes.md・各サンプルの README には要点と ecaljdoc への参照だけを書き、同じ説明を二か所に書かない。
   ecaljdoc の正本は 2026-10-02 から [`ecalj/ecaljdoc/`](../ecaljdoc/README.md)（公開は GitHub の `ecalj/ecaljdoc` へ `TOOLS/publish_ecaljdoc.sh` で写して出す、手順は [ecaljdoc_publish.md](ecaljdoc_publish.md)）。
   古いクローン `~/ecaljdoc` では作業しない
 - 文書の置き場（2026-10-02、user）:
@@ -114,8 +114,8 @@ Claude（や人）が後でコードや記録を読むときの手がかりに�
     コードの印で書いたパスは `python3 TOOLS/mdlinkify.py <md>` がリンクに直す（実在するものだけ。生成物の `module_map.md` には使わない。2026-10-02、user）
   - 文書を直したら `python3 TOOLS/doclinks.py` で確かめる（切れた相対リンク、サイトから `../` で出るリンク、本体へのリンクの無い Samples の README、
     入口から名指しされない MD のファイル。2026-10-02）
-- ecalj は「Claude が読み込んで人間に説明できる」パッケージにする。人間は Claude を通して情報を取る（user 2026-10-01）。最上位は [`CLAUDE.md`](../CLAUDE.md)（入口）と数行の [`README.md`](../README.md)、`Changes.txt`。
-  開発の文書は [`MD/`](.)（新機能の正本は `Changes.txt`。2026-05〜09 の英語のログとクイックスタートだった `MD/README.md` は 2026-10-02 に trash へ）。
+- ecalj は「Claude が読み込んで人間に説明できる」パッケージにする。人間は Claude を通して情報を取る（user 2026-10-01）。最上位は [`CLAUDE.md`](../CLAUDE.md)（入口）と数行の [`README.md`](../README.md)、`Changes.md`。
+  開発の文書は [`MD/`](.)（新機能の正本は `Changes.md`。2026-05〜09 の英語のログとクイックスタートだった `MD/README.md` は 2026-10-02 に trash へ）。
   コードの大局（主プログラム → 入口の module、module の DAG と階層、各 module の依存）は [module_map.md](module_map.md)。
   `python3 TOOLS/module_map.py` で作り直す生成物で、手では直さない（2026-10-01、Doxygen の代わり）
 - 引き継ぎ: Claude の個人メモリ（`~/.claude/.../memory/`）はパッケージに入らないので、別の機械や記憶の無いセッションに要ること

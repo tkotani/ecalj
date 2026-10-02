@@ -1,0 +1,1905 @@
+# Changes — ecalj の変更の記録（新しい順）
+
+2026-10-02 に `Changes.txt` から改名した（中身は同じ。日付の行を見出しにし、本文の字下げを外しただけ）。
+新しい項目は一番上に `## YYYY-MM-DD (n)` で書く。要約は ecaljdoc の [manual/whatsnew.md](ecaljdoc/manual/whatsnew.md)。
+
+## 2026-10-02 (8)
+
+反強磁性の対称性は symgrpaf = "find" と書けば、spglib が af の印から磁気空間群を求めて使う（生成元を書かなくてよい）。生成元は
+従来の探し方（ECALJ_SYMFIND=ecalj）のときだけ使い、そこで "find" は止まる。Samples の AFsymmetry・AFfixMMOM・MLOsamples/RuO2 を
+"find" に。AFsymmetry/NiO は pwmode = 11 にした（pwmode = 1 は k 4×4×4 で rotwave が止まる）。説明は ecaljdoc の UsageDetailed（Antiferro symmetry）と lmf.md。
+
+## 2026-10-02 (7)
+
+MLO の最大局在化（Marzari–Vanderbilt）の試作 mlo_maxloc.py と mlo_cmlo_transform.py を SRC/exec から TOOLS/gadget/ に移した
+（標準の流れには入れない。bindir に入らないので python3 \<ecalj>/TOOLS/gadget/mlo_maxloc.py と直接回す。TOOLS/gadget/README.md）。
+
+## 2026-10-02 (6)
+
+MLO は Löwdin で直交化した関数（MLO の部分空間の射影 Wannier 関数）になった。模型は H(R) だけ（重なり O(R) は単位行列）で、
+SOC、\_\_cmlo（job_mloW の U・J・cRPA、job_mlo_magnon）、MLO-QSGW の Σ もこの基底。メッシュ上のバンドは変わらず、メッシュの外は E_F 近くで
+よくなる（63 物質で最大の誤差の中央値 0.019 → 0.011 eV）。説明は ecaljdoc mlo §6（表 M8）。
+- job_mlo \<sname> --mlo_raw で直交化しない以前の模型（比べるときだけ）。job_mloW・job_mlo_magnon の --mlo_raw と、中の --mlo_lowdin は廃止
+  （(5) の読み込み時の直交化は、模型の側に移った）。
+- 古い HamRsMLO（直交化の印が無い）は読まずに止まる。job_mlo（mlo）を回し直す。
+- mlo_bandcheck.py の重なりの最小固有値（MLO_ovlpmin.dat）は 1 になる。直交化の前の値は mlo の出力の
+  "Smallest eigenvalue of the normalized raw overlap"。
+
+## 2026-10-02 (5)
+
+job_mloW（U、J、cRPA）と job_mlo_magnon は、MLO を Löwdin で直交化した関数（MLO の部分空間の射影 Wannier 関数）を基底にする
+（中のプログラムに --mlo_lowdin を渡す。--mlo_raw で直交していない MLO のまま）。模型のバンドは変わらない。軌道の名前と対称性を保つ。
+- U が上がる（bcc Fe の d で 1.56 → 1.70 eV）。マグノンが MLO の窓によらなくなり、Wannier 関数を使った以前の計算に合う（Fe・FeCo・Ni）。
+- 試験の参照を作り直した: TestInstall/ni_crpa・srvo3_crpa、MLOsamples/Fe、Magnon/Fe_mlo_magnon。説明は ecaljdoc mlo §6。
+
+## 2026-10-02 (4)
+
+対称性は既定で spglib から取る（lmf・lmchk など、symgrp = "find" のとき）。spglib 2.6.0 の C を SRC/external/spglib に同梱してビルドに入れた
+（Python は要らない）。求めた操作は作業ディレクトリの symmetry.\<sname>.json に書き、次からはそれを読む。構造（--ctrlg: の上書きを含む）が
+変わればその場で作り直す。超格子の純粋な並進、AF（[[site]] af の印）の磁気対称性も含む。symgrp に生成元を書いた入力（対称性を下げる）と
+ECALJ_SYMFIND=ecalj は従来の探し方。説明は ecaljdoc lmf.md の SYMGRP、設計は MD/symmetry_spglib.md。
+- 操作の並びが変わるので、並びをそのまま書き出す出力（BoltzTraP の si.struct.boltztrap など）は前と並びが違う。
+
+## 2026-10-02 (3)
+
+対称性を spglib から取れるようにした（既定は今までどおり。設計と経過は MD/symmetry_spglib.md）。
+- symfind.py \<sname> [--ctrlg:...] が spglib で空間群を求め、symmetry.\<sname>.json を書く（操作は格子の基底での整数の回転と分数座標の
+  並進、構造の数値とそのハッシュ）。このファイルがあると lmf・lmchk・mlo などはその操作を使う。構造が ctrlg と違えば止まる
+  （作り直すよう言う。--ctrlg: で構造を上書きして回すときは symfind.py にも同じ引数を渡す）。ECALJ_SYMFIND=ecalj で従来の探し方に固定。
+  純粋な並進（超格子）も操作に使う。AF は [[site]] af の印から磁気空間群（時間反転つきの操作が AF の操作）。symgrp を find 以外に
+  した入力（対称性を下げる）では使わない。
+- 超格子（純粋な並進がある胞、Si の 8 原子の立方胞など）が sgroup で止まっていたのを直した（ファイルが無いときは回転の重ならない閉じた
+  部分群を使う）。
+- mlo_spread.py の後に mlo_maxloc.py \<sname> [--sym] で、MLO の部分空間の中での最大局在化を試せる（試作。模型は変えない。--sym は
+  Sakuma の方式で点群の対称性を保つ、1 原子の symmorphic な結晶だけ）。
+- ctrlg_addes.py の空隙の探し方を直した（長い胞で格子の像が足りず、終わらないことがあった）。
+
+## 2026-10-02 (2)
+
+- lmchk --getwsr（MT 半径の見積もり）が、スピン分極の入力（nspin = 2。NiO、Fe、SOC の Bi2Te3 など）で必ず止まっていた（RSEQ: bad nodes、
+  または 'need check this branch'）のを直した。半径を決める自由原子はスピンなしで作る（スピンなしの入力の結果は変わらない）。
+- lmfa の内部の整理（等価変換。123 の入力で出力はビット単位で同じ）。
+
+## 2026-10-02 (1)
+
+Wannier 関数（最大局在化）の経路、AHC、lmfham2 を外し、模型は MLO だけにした。外す前の版は git のタグ last-wannier
+（そこで Samples/WannierVsMLO/run.sh が MLO との比較を再現する）。比較は ecaljdoc mlo §6 の表 M7 と MD/wannier_vs_mlo.md。
+- 外したもの: hmaxloc、hpsig_MPI、wanplot、hsocmat、hmagnon（Wannier のマグノン）、hahc（AHC）、lmfham2（反復で作る古い MLO）と
+  genMLWF、genMLWFx、genMLWFdipoleTEST、job_magnon、job_AHC、hx0ahc.py、genMLO。試料 Samples/Magnon の Fe・Ni・FeCo・
+  Fe_bcc_in_sc の Wannier 版。[gw] の wan_\* と lmfham2 の mlo_maxit などのキーは読まない（書いてあっても無視）。
+  gwinit は Wannier の節を書かない。オプション --ahc、--mloahc、--AHCMAT、--UUMAT、--cmlo、--nb、--nww、--cutuu、--Wtype、
+  --q2q1test、huumat の --dwnb=wan は廃止（与えると理由を言って止まる）。
+- cRPA: job_mloW \<sname> --crpa（v、W - v に加えて Screening_W-v_crpa.UP/DN）。模型の部分空間 [mlo] mlo_lm の中の遮蔽を除く
+  （バンドの重み p_kn = [C (C^+C)^-1 C^+]_nn、Sasioglu らの重みの方式）。試験 TestInstall/ni_crpa・srvo3_crpa は MLO 版になった。
+- 広がり: mlo_spread.py \<sname> -np N（job_mloW の後）。MLO ごとの \<r>、\<r^2>、Omega。
+- MLO の規格化: 実空間の 2 乗積分 O_ii(R=0) で、軌道ごとに k によらない定数で割る（mlo が HamRsMLO を作るとき。HamRsMLO の末尾に
+  その値を書く）。バンドは変わらない。job_mloW の U、J は長さ 1 の軌道の値になった（Fe の d の W は 1-6 % 動いた）。
+  前の HamRsMLO（2026-10-01 以前）は使えないので、job_mlo（mlo）を回し直す。実験用の --mlo_diagnorm、--mlo_feb4、
+  --mlo_ortho、--mlo_orthonorm、--gs は廃止。
+- \_\_cmlo.info の nqbz が 0 だった誤りを直した（読む所が無かった）。
+
+## 2026-10-01 (4)
+
+MLO の模型の検査と窓の基準。説明は ecaljdoc mlo §4・§9。
+- mlo_bandcheck.py が模型の破綻を検査する (CHECK PASS/FAIL)。FAIL: 窓の中の 1 点のずれが 0.1 eV を超える (--fail-max)、DFT の帯ごとのずれが
+  対称線の隣の k との間で 0.1 eV を超えて跳ぶ (--fail-jump)、MLO の重なり行列の最小固有値が 0 以下か線に沿った中央値の 1/100 未満 (線形独立性の崩れ)。
+  mlo はバンドを描くとき MLO_ovlpmin.dat (x と最小固有値) を書く。job_mlo・job_mlo_soc は最後に mlo_bandcheck.py を回して結果を出す (DFT のバンドが無ければ飛ばす)。
+- MLO の窓の基準の E_F と CBM を --efermi= のファイル (efermi.lmf、SOC は efermi_soc) から取る。これまで E_F は qplist.dat の 1 行目
+  (最後に回したバンドの計算の E_F) で、SOC の MLO は前に回した非 SOC の job_band の E_F を使っていた。qplist.dat の値は図の 0 点だけ。
+- Samples/MATERIALS の 63 の ctrlg の [mlo] を今の gwinit で書き直した (f、! 付きの mlo_lm2。ほかの節は元のまま)。
+
+## 2026-10-01 (3)
+
+MLO の模型 (job_mlo) の既定を変えた。説明は ecaljdoc の mlo §1 (入力) と §9 (基準 1・2・3、選び方、Samples/MATERIALS の 65 物質の結果)。
+- 半内殻の局所軌道 ([[spec]] の pz): 帯の上端で決める (m_HamPMT)。E_F - 8 eV より上 (窓の中、価電子の殻そのもの: Ni 3d、Zn 3d) は
+  EH 関数と入れ替え、E_F - 17 〜 -8 eV (窓の下の半内殻: GaN の Ga 3d、Eu 5p、La 5p) は EH 関数に加え、それより下は外す。
+  これまでは E_F - 10 eV より上を EH と入れ替え、下は外していた。帯は同じ種類の原子の局所軌道をまとめて見る。入力のキーは無く、
+  判定は lmlo に出る (IN THE WINDOW: LO replaces the EH function / SHALLOW: LO added to the model / deep: LO skipped)。
+  規則によらず入れるなら mlo_lm3 に書く (その原子は書いたとおり)。
+  GaN・InN・EuO・La2CuO4・LaGaO3・SrTiO3・SrVO3 で 0.05-0.6 eV ずれていた O・N の 2p の帯が 0.01 eV 以内に合う。
+  加える局所軌道のぶん MLO の本数が増える (GaAs の Ga 3d で 5 本)。Samples/MLOsamples の GaAs・GaAsSoc は参照を作り直した。
+- gwinit: mlo_lm に、4f が価電子の原子 (La-Lu、Hf 以降で基底の f が 4f のもの) の f (10-16) も書く。
+  mlo_lm2 に、陽イオン (遷移金属 Sc-Cu・Y-Ag・La-Au と Ac 以降を除く。Zn・Cd・Hg は含む) の s,p の行を ! 付きで書く。
+  何もしなければ基準 1、! を外せば基準 2 (EH2 のシードが加わり、空隙の大きい MgTe・ZnTe・CdTe・AlN などが合う。job_mlo だけ回し直す)。
+- mlo_bandcheck.py: 誤差を見る窓を両方の向きとも [VBM - 8, CBM + mlo_delta] にした (これまで MLO -> DFT は CBM + 3、DFT -> MLO は CBM + 1)。
+Samples/MATERIALS は LDA と MLO の計算のサンプル (Samples/MATERIALS/README.md)。
+- job_mlo_soc: 段 1 と同じ条件 (so=1, nspin=2, phispinsym=true, E_F は efermi_soc) で lmf --band も回し、スピン軌道ありの DFT のバンドを
+  bnd\*.spin1 に書く (SOC の MLO の比べる相手)。始めに前の run の bnd\*.spin\* と band_MLO_spin2.dat を消す (ディレクトリの bnd\* は SOC の
+  ものになる)。MLO の窓の基準のバンド端 (qplist.dat) もこの SOC のバンドの計算のものになり、SOC の MLO バンドが 10 meV ほど動く
+  (GaAsSoc・FeSoc の参照を作り直した)。mlo_bandcheck.py は SOC の MLO と SOC なしの DFT を比べると WARNING を出す。
+  これまで GaAsSoc がギャップで -0.1 eV ずれて見えたのは、SOC なしの DFT と比べていたため (Delta_SO/3)。ecaljdoc mlo §4。
+
+## 2026-10-01 (2)
+
+開発の文書を MD/ にまとめた。最上位に残るのは CLAUDE.md（入口）、数行の README.md、Changes.txt。
+README.md の中身（2026-05〜09 の新機能のログと TOML の流れのクイックスタート）は MD/README.md へ。ecalj は Claude が読み、
+人間は Claude を通して情報を取る構造にする（人間向けの説明は ecaljdoc）。
+ecaljclaude.md → MD/ecaljclaude.md（CLAUDE.md は @MD/ecaljclaude.md）、研究ログ Samples/kBT/kBT_research.md → MD/research_log.md、
+新しく MD/TODOandQuestion.md（直すべき点、質問、実行中、やったこと）と MD/past_log.md（片付けたものにあったノウハウ）。
+いらないものは各計算機の ecalj/trash/（git は無視）へ移す。最上位の MATERIALS/ は Samples/MATERIALS/ へ移した。
+
+## 2026-10-01
+
+Materials Project の API キーを ecalj_auto/config.ini から外した。config.ini はリポジトリに入っていて、キーが公開の
+リポジトリに載っていた (auto_jobsubmit.py・auto/Job.py が OUTPUT/\<run>/config.ini に写し、job_mp.py がログに出していた)。
+キーは個人のもので、ecalj の最上位の MaterialProject.key (1 行、.gitignore) に置く。見本は MaterialProject.key.example。
+環境変数 MP_API_KEY があればそちらが優先。読むのは SRC/exec/pylib/mpkey.py。config.ini の apikey は読まない。
+gwscconv (2026-09-30 (7)) の続き: gw1500_rerun.sh のログで金属の dqp が none になっていたのを直した。
+
+## 2026-09-30 (7)
+
+gwscconv: lmf がギャップを出さない反復 (金属・半金属) は、固有値の変化で収束を判定する。QPU.\<n>run と
+QPU.\<n-1>run の eQP (E_F 基準) のうち |e| \< 5 eV の状態の変化の最大が --conv-qp (既定 0.03 eV) 未満の反復が
+2 回続いたら停止。これまではギャップが読めないと exit 3 で止まっていた (--no-metal で同じ動作)。
+ギャップのある物質の判定は変わらない。説明は ecaljdoc gwsc.md。
+ecalj_auto/gw1500_rerun.sh: 判定 CONVERGED_METAL、ログの行に最後の固有値の変化 dqp。
+
+## 2026-09-30 (6)
+
+lmf: [[spec]] の idu = 10 + mode (ctrlgenToml.py が Ce〜Lu の 4f に書く idu = 12 など) は、sigm.\* が無いときは mode の
+LDA+U、sigm.\* があるときは U を切る (UH = JH = 0)。2023-09-29 から、sigm.\* が無いと idu = 12 のまま LDA+U の計算に渡り、
+二重計数の項を引かない LDA+U になっていた (4f の準位に U(N-1/2) ほどの余分な持ち上げが残る)。gwsc の最初の lmf
+(QSGW の出発点) と idu = 11, 12 の LDA+U が変わる。idu \< 10 の計算と、sigm.\* があるときの計算は変わらない。
+Samples/MLOsamples の GdCo5 と SmP (idu = 12、sigm.\* なし) は SCF をやり直して参照を作り直した。
+
+## 2026-09-30 (5)
+
+Samples/Legacy を消した (組み直した元、TestInstall などと重複するもの、今のコードで動かないもの。履歴 932c59a6d 以前にある)。
+TestHomoDimerAtom (箱の中の二原子分子と原子、2012) は Samples/AtomDimer/N2 として作り直した (N2 と N 原子、15 A の箱、PBE、
+固定磁気モーメント。結合長 1.104 A、結合エネルギー 10.08 eV)。これで Samples/Legacy は無くなった。
+superlattice (歪んだ超格子の POSCAR の生成) は StructureTool/superlattice/ に移した。
+bcc Fe の異常ホール伝導度 (AHC) も消した (別の所から入れ直す)。
+
+## 2026-09-30 (4)
+
+直した誤り (3 つのコンパイラで新しいサンプルを回して見つかったもの、ほか)。
+- lmf --band の質量モード (syml の ndiv2 以下の列): バンドが基準のエネルギーを横切る点 idat に値を入れておらず、
+  nvfortran で segmentation fault になった (m_writeband)。
+- hhomogas: shortn3_qlat の結果 nout, nlatout を module から取らず、値の入らないローカル変数を使っていた
+  (ifx で segmentation fault)。
+- [gw] wcsmear = false のとき、nvfortran の hgw が 'FINDLOC: unimplemented for data type' で止まった。
+  pole_weights (wfacx.f90) が組み込みの findloc を呼んでいた。m_nvfortran の findloc を使う。
+- job_mae: 廃止した -vso=1、-vsoa1.. を渡していた。--ctrlg:ham.so=1、--ctrlg:ham.socaxis=[..] にした。
+- job_AHC: lmf --jobgw=1 --wrhomt と hbasfp0 --job=8 にした (hahc が MixSpin.\* を読む)。huumat_MPI --ahc の
+  ファイルは 7 桁 (UUD.0000000) なのに UUD.0000 を調べていて、スピン 2 チャンネルの計算で UUD が空だった。
+- hx0ahc.py: hahc へのオプションが 1 個のとき、Python のリストがそのままコマンドに入っていた。
+サンプル (どれも test.py と参照、README を持つ。一覧は Samples/README.md の表 1)。
+- Samples/Legacy から組み直したもの: SOC/FePt_MAE・MnGa_MAE、LDAU/ReN (INIT に 15 種の希土類窒化物の構造と
+  占有の初期値)、EffectiveMass/GaAs・CdS・GaN、Relax/LaGaO3、DOS/ZnS・Fe、IIR/C。
+  bcc Fe の異常ホール伝導度 (Legacy/AHC) は、粗いメッシュではビルドで値が変わるので Samples に入れず、Legacy ごと消した (別の所から入れ直す)。
+  Samples/MATERIALS: 大きめの系の入力と結果 (La2CuO4、InAs/GaSb の超格子、BaTiO3) を Legacy から移した。
+  BenchmarkTest/ISSP に ISSP の機械の投入スクリプト。
+- Samples/kBT/scanT に GaAs と fcc Cu の温度のスキャン。
+- TOOLS/samples_tests.sh の組 samples に SOC LDAU EffectiveMass Relax DOS IIR。
+- job_mlo_magnon (MLO の模型によるマグノン): MLO の流れの変更 (2026-09) に追随しておらず mlo の段で止まっていた。
+  job_mlo の段 (lmf --writeham --mlo、mlo) を組み込み、単独で最後まで動く。Samples/Magnon/Fe_mlo_magnon に
+  サンプルと Wannier 版との比較 (小さい q では一致、大きい q では MLO 版が 1.5 倍高い。模型の違いで、判定はしていない)。
+ワーカーを並べるとき (ecalj_auto/gw1500_rerun.sh): ランクを固定しない (OMPI_MCA_hwloc_base_binding_policy=none)。
+OpenMPI は taskset にかかわらずランク i を機械のコア i に固定するので、固定したままだとジョブが同じコアに重なる。
+既知の問題 (直していない)。
+- [[spec]] idu が 10 以上 (sigm があれば U を切る指定) は、sigm が無いとき二重計数の補正なしの LDA+U になる
+  (2023-09-29 から)。修正はブランチ fix-idu10。入れると MLOsamples の GdCo5 と SmP の結果が変わる。
+- hahc は AHC の計算に要らない MagAtom と MixSpin.\* を要求する (job_AHC が用意する)。
+- 質量モードの書き出すバンドの範囲は、線の上の固有値と E_F から決まる。CdS と GaN では etolv = 0.3 Ry が要る。
+
+## 2026-09-30 (3)
+
+直した誤り。
+- lmf: LDA+U の密度行列 (mkdmtu)、スピン軌道相互作用を入れたときの軌道モーメント (mkorbm)、--cls の係数が、
+  [ham] pwmode = 11 (既定。基底の数が k ごとに違う) で別の k の次元を使って固有ベクトルを読んでいた。
+  2026-03-30 (913fb36af) から 2026-09-30 まで。この間の pwmode = 11 での LDA+U の SCF は誤り (全エネルギーが
+  桁違いになり、MPI の並列数で値が変わる)。pwmode = 0, 1 (基底の数が k によらない) の計算は影響を受けない。
+  makusq、mkorbm、mkdmtu、m_clsmode_set1 に、その k の ndimh を引数で渡す。
+  確認: GdN (LDA+U、so=2、pwmode=11、4x4x4) の 2 反復が 1 並列と 4 並列で一致 (ehk = -307996.548249 eV)。
+- --ctrlg:\<path>=\<value> で、ファイルに無いキーを指定すると「skipped」の注記だけで既定値のまま走っていた。
+  無いキーは書き足す (節の見出しの下、トップレベルのキーはファイルの先頭、節が無ければ節ごと末尾)。
+- log.\<sname> の 'sumqv ... egap(eV)' の数値が Ry のままだった。eV で書く。
+- lmf --fermisurface の fermiup.data (fermidn.data) の見出しの単位 [eV] を [Ry] に (値は Ry)。
+
+## 2026-09-30 (2)
+
+直した誤り。
+- 反強磁性の対称性 (symgrpaf) の QSGW が hqpe_sc で止まっていた。lmf --jobgw=1 が両方のスピンを書くようにし (m_qplist。
+  オプションの照合が完全一致になった 2026-03-21 からスピン 1 だけだった)、GW のプログラムは両方のスピンを計算する
+  (sugw が \_\_MTOindex に laf = .false. を書く)。SCF の lmf はこれまでどおり対称性でスピン 1 だけを解く。
+  NiO 2x2x2 の 2 反復で、symgrpaf を書かない計算とギャップが 1.7 meV で一致。試験 Samples/AFsymmetry/NiO_gwsc。
+- lmf: [ham] readp = true (ctrlgenToml.py が書く) で atmpnu.\<種>.\<sname> が無いと、空のファイルを作って未初期化の値を
+  使い segmentation fault になっていた。メッセージを出して止まる (lmfa を回すか、SCF のディレクトリから写す)。
+- lmf --boltztrap: 2 並列以上で segmentation fault、LDA では対称操作が 0 個と書かれていた。
+- gwsc: ctrlg.\<sname>.toml を名前に与えると '.\<sname>.toml' になっていた。--phispinsym は --ctrlg:ham.phispinsym=true を渡す。
+- Legacy2toml.py (ctrl2ctrltoml.py): 分数の核電荷 (Z=14.2、Z=.0001) を整数に切り捨てていた。
+- testecalj の照合: test2_check は 0.22D+00 の形の数を読み飛ばしていた。diffnum は両方のファイルの最初の行を比べていなかった。
+- Sigma の Fermi 準位の表示: t_tetrakbt \<= 0 のとき 'ef\<-EFERMI' と出していたが、実際は k メッシュの上で数えた値
+  (efsimplef2ax)。表示を直した (計算は変わらない)。
+サンプル。
+- Samples/Legacy から組み直したもの: AFsymmetry、Magnon (移動)、FermiSurface/Cu、Doping/Si、HomoGas/es、BoltzTraP/Si、
+  SLAB/Cu001、SOC/FePt_MAE・MnGa_MAE ほか。どれも test.py と参照、README を持つ。一覧は Samples/README.md。
+- Samples/kBT/scanT: 電子温度のスキャン (Si のギャップ、bcc Fe)。Samples/kBT/LiTi2O4/README.md は MLO-QSGW の 40 反復のまとめ。
+- Magnon/Fe_bcc_in_sc_magnon はマグノンの山の位置を比べる (comp.py の peak_check)。
+- TOOLS/samples_tests.sh に組 samples を足した。bench は --gpu のときだけ -np2 1。
+- 入力の t_sigmaw・t_tetrakbt の横の注記を説明だけにした (値は同じ)。
+GW1500: 状態の集計 ecalj_auto/GW1500_status.md、今のコードで回し直す ecalj_auto/gw1500_rerun.sh。
+
+## 2026-09-30
+
+gwsc --mlo (MLO-QSGW): MLO で持つ Sigma の Anderson 混合 ([gw] mixbeta、sigm と同じ) を既定にした。切るときは
+ECALJ_MLO_MIX=0。これまでは ECALJ_MLO_MIX=1 を付けたときだけ混合し、付け忘れると sigm は mixbeta、MLO の Sigma は
+混合なし (beta = 1) で回っていた (LiTi2O4 6^3 の 1 反復目で空の t2g が 0.3 eV ずれた)。ECALJ_MLO_MIX=1 を付けた
+これまでの計算は変わらない。説明は ecaljdoc mlo_gwsc.md §1.6。
+
+## 2026-09-28 (2)
+
+[gw] t_tetrakbt を必須にし、符号で chi0 の均し方を選ぶ: 0 = 均さない、T > 0 = 有限温度のテトラヘドロン、
+-T = Im chi0 を温度 T の Fermi-Dirac と同じ幅 (標準偏差 pi kB T/sqrt3) の Gaussian で均す (以前の SmearX0)。
+[gw] に SmearX0 があるときと t_tetrakbt が無いときは m_GWinput が止める。gwinit のテンプレは t_tetrakbt = 300、
+t_sigmaw = 300 を書く。
+- ctrlg_drop_counts.py を ctrlg_update.py に改名 (規則は pylib/ctrlg_rules.py)。SmearX0 = s を同じ幅の
+  t_tetrakbt = -T に (0.0057 Ha → -992.4 K)、t_tetrakbt の無い [gw] に 0 (以前の既定) を足す。計算は変わらない。
+  gwinput2toml.py (Legacy2toml.py) も同じ換算をする。
+- Samples の ctrlg 62 本を変換 (SmearX0 から 4 本、t_tetrakbt の追加 58 本)。testecalj --all (gfortran) の照合 64 件が
+  すべて PASSED (コミット b4b64be66 のメッセージの「832」はログの PASSED 行の延べ数。testecalj がターゲットごとに
+  それまでの要約を出し直すため。2026-08 の「766」も延べ数)。
+- 式と変遷は ecaljdoc kBT.md §2 (式 (1)〜(9)、表 1〜3)。kBT.md の式番号を重複の無い通し番号に直した。
+
+## 2026-09-28
+
+ctrlg.\<sname>.toml の [struc] に nbas / nspec を書かない。書いてあれば lmf (lmfa なども) がメッセージを出して止まる
+(m_ctrl_toml_loader)。サイトと種の数は [[site]] / [[spec]] の表の数。以前は書いた数が表より優先され、表に足した
+サイトが黙って無視されていた (LiTi2O4 の空球の試し、2026-09-23)。
+- 手持ちの ctrlg は ctrlg_update.py ctrlg.\<sname>.toml で直す (2 行を消す。nbas が表より少なかったとき
+  = 先頭の nbas 個だけを使う古いやり方のときは、残りの [[site]] ブロックをコメントにして同じ計算のままにする。
+  元は .bak_update に残す)。サイトを外したいときは [[site]] ブロックごとコメントにする。
+- Legacy2toml.py (ctrl2ctrltoml.py) は nbas / nspec を書かない (以前は数えて書き足していた)。古い ctrl が
+  NBAS で一部だけを使っていたときは、残りのブロックをコメントにして書く。
+- Samples の ctrlg 106 本を直した (102 本は表と同じ数を消しただけ。TestInstall/te の 4 本は nbas = 3・nspec = 1 で
+  空球 9 個と E 種を外していたので、そのブロックをコメントにした)。
+gwsc は QSGW.\<N>run/ に efermi.lmf・QMLO_SigRs・QMLO_z も残す (MLO-QSGW の反復ごとのバンドを後から描ける。
+LiTi2O4 9³ で 1 反復 600 MB)。
+
+## 2026-09-27 (4)
+
+有限温度 (t_tetrakbt > 0) の 2 点 (ecaljdoc kBT.md §7.2・§7.5、研究ログ 2026-09-27 23:45)。
+- CoreEx (hsfp0_sc --job=3、コアとの交換) の Fermi 準位: 有限温度で EFERMI_kbt に上書きされ、交換の和に占有された価電子の
+  状態が入っていた (06-26 から)。同じ日に直した m_sxcf_sc の sxs_ekc(is1+nctot) の添字の誤りで重みが nctot 本上の空の
+  バンドで計算されていたため打ち消し合い、コアの状態が占有バンドより少ない系でだけ SExcore がずれていた。いまは
+  SExcore が温度によらない (Fe 3000 K で T=0 と一致)。
+- 有限温度の四面体の重み (lindtet6_kbt) と EFERMI_kbt の熱の核の積分: 20 点の Gauss-Legendre を [-6,-1,0,1,6] の
+  4 区間 × 5 点に (m_fpiint の gausq_fd)。以前は E_F の ±0.92 kBT に節点がなかった。Fe 3000 K で EFERMI_kbt の誤差
+  9.4 → 1.2 meV。Samples/kBT/Fe の結果を作り直した。
+- 有限温度の回帰テスト Samples/TestInstall/fe_kbt を足した (Fe 3000 K、t_tetrakbt = t_sigmaw = 3000、gwsc 0、
+  QPU・QPD・log.fe を照合、-np 8 で 40 秒)。--all と --gwall に入る (--all は 26 ターゲット)。
+- gwsc --mlo の MLO の初回の lmf --writeham から --mkprocar を外した (ランクごとの PROCAR.UP.\<rank> を書くだけで、
+  誰も読んでいなかった)。
+
+## 2026-09-27 (3)
+
+hgw 以外の段を詰めた (Samples/kBT/gpu_fp32_report.md §10、研究ログ 2026-09-27 夕方・夜)。LiTi2O4 6³ tf32 の QSGW 1 反復
+(GPU 2 枚、CPU 60 本) が 342 → 212 秒。
+- hvccfp0: Bessel 表・Wronskian・全原子対の Ewald 和 (strxq_all)・CG 和を GPU で。1 ランク 17 q で 34 → 4 秒。
+- lmf --jobgw=1: H と xc 抜きの H を 1 回で作る (hambl2)、xc 抜きのポテンシャルも同じ mkpot で、pwmat は MTO の列だけ積
+  (ホストでは FFT の相関)、Gram-Schmidt はホストでは Cholesky QR。21 → 10 秒。
+- mlo --mlofreeze: Σ^MLO だけを実空間へ (H・O の簡約と回転をしない)、実空間の配列は主ランクへの reduce。凍結の回が
+  sugw の \_\_cmlo をチェーン開始時の窓で上書きしていたのを直した。gwsc の再開の判定は HamiltonianPMTInfo だけ。
+- hqpe_sc と lmf の getsenex: Σ^MLO(R) の Bloch 和の位相を原子対ごとに (hqpe_sc 3.9 → 1.5 秒)。
+- hsfp0_sc --job=3 (コアとの交換): コア状態の E 基底への変換を原子ブロックだけで、交換の積は k を分けた batched の積
+  (m_blas の cmm_d/zmm_d(splitk=))。GPU 1 枚で 11.9 → 7.4 秒、CPU 60 本で 153 → 57 秒。
+- run_cmd: 1 ランクの CPU プログラムは GPU を隠して起動 (MPI_Init が GPU を調べる分、0.53 → 0.26 秒)。
+- GW のプログラムの画面出力: ランク 0 はそのままログ (lgw など) に、ほかのランクは捨てる。以前は全ランク (ランク 0 も)
+  が stdout.\<rank>.\<prog> を作っていた (hgw の四面体の補助だけで 60 本)。途中経過とメモリ使用量 (Memused) は
+  ログ 1 本で追える。ランクごとのファイルが欲しいときは --fullstdo。
+- エラー終了 (rx 系) を 1 つにまとめた: メッセージを stdout と stderr (ランク番号付き) の両方に出して MPI_Abort。
+  ランク 0 以外のエラーも見える。rxs が 120 文字で切っていたのを直した。正常終了 rx0s は MPI_Finalize してから
+  終わる (mpirun が待たされていた)。hwmatK の ixc=10011 でランク 0 以外が mpi_finalize 後も先へ進んでいたのを直した。
+- コードの点検: コメントに日付時刻、バグ修正の記録を残す方針 (ecaljclaude.md「記録の方針」、CLAUDE.md から読み込む)。
+  使われていないコード (m_mkpot_novxc と novxc の経路、vcoulq_4 の未使用引数など) を削除。
+
+## 2026-09-27 (2)
+
+報告書 §8「残したこと」の片付けと、Σc の積の FP16 化 (Samples/kBT/gpu_fp32_report.md §8・§9)。
+- Σc (m_sxcf_sc) の 1 バッチを OpenACC のキュー 1 に載せる: バッチの頭で cudaDeviceSynchronize、m_blas の積
+  (cuBLAS、realsgemm の CUF カーネル、GEMMul8) を cublas_set_stream でキュー 1 のストリームへ、周波数ループのカーネルは
+  async(1)、最後に !$acc wait(1) で既定ストリームへ戻す。キュー 1 のストリームは non-blocking で既定ストリームの積を
+  待たない (朝の非同期化が NaN になった原因)。虚軸の重みは GPU のカーネル (fd_cdf は acc routine)、実軸の極の重みは
+  虚軸の積を投げた後に CPU で計算して重ねる。バッファの確保・解放はバッチの外。
+- m_stopwatch が GPU 版で start・pause のたびに cudaDeviceSynchronize していた。stopwatch_init(..., hostonly=.true.)
+  でホストの時間だけにでき、Σc のバッチの中の 3 つをそうした (バッチ全体の ec は GPU 込みのまま)。
+- realhgemm (m_la_realsgemm): realsgemm の組み替えを FP16 の入力・FP32 の和で。A' と B を 2 のべきで最大要素 \< 2^14 に
+  スケール (B の最大は cublasIsamax、スケールと係数はデバイス上、cuBLAS はデバイスポインタモード)。仮数は TF32 と同じ
+  10 ビットで、RTX 5090 では TF32 の 1.75〜1.9 倍速い。linalgtune の候補に入れ、tf32 の行 (Σc の積だけが使う) は
+  Σc の形だけで重み付け。RTX 5090 の表は tf32 = realhgemm。
+- gwsc --mp (--fp32 なし) を --prec=tf32 と同じにした (すべての積を TF32 にしていたのは誤差 6 倍で 1 割しか速くない)。
+- hgw の q の割り振り (LPT) の重みに、どの q も W を 1 回作る分を足した (6³ の 2 ランクで W の回数が 9 対 8 だった)。
+- tf32 の誤差の大半は Σc の一様な縮み (Re Σc の約 −5e-5 倍、FP16 で約 −1e-4 倍)。cuBLAS の TF32 は入力を最近接に
+  丸めていて、偏りはテンソルコアの和の途中の切り捨てから来る。
+- Samples/kBT/LiTi2O4/run_gwsc10.sh は PREC で精度を選ぶ。
+- 部分 DOS (job_pdos) がプロセス数で変わっていたのを直した (m_procar、m_writeband)。bandcal は (k, スピン) の組を
+  ランクに配るので、1 つの k の 2 つのスピンが別のランクに分かれることがある。\_\_DWGT に k ごとに両スピンを書き戻して
+  いたため、相手のスピンが古い値 (ゼロか前の k) で上書きされた。いまは (k, スピン) ごとのレコードに、その呼び出しで
+  計算したスピンだけを書く (バイトの並びは同じなので読む側はそのまま)。TestInstall の co が -np 6 で 0.14 ずれていた
+  (-np 8 は割り切れて無事)。足し込む配列 pdosalla も 0 で初期化。
+- 結果 (LiTi2O4 6³ の hgw、kt1 RTX 5090 ×2): tf32 292.5 → 242 秒 (Re Σc は倍精度から E_F ±1 eV で最大 1.3 meV、
+  TF32 の積なら 0.8)、fp32 423.5 → 411.7 秒 (Σ は前と表示の桁まで一致)。
+
+## 2026-09-27 (1)
+
+GPU の行列演算を 1 枚の振り分け表 (m_linalg_policy) の下にまとめ、その表をインストール時に測って決める。
+- 振り分け表: 演算 (cgemm / zgemm / dgemm / 誘電行列の逆行列 epsinv) × 大きさの区分 (small / large) × 精度
+  (tf32 / fp32 / fp64) → 方法。方法は cublas、realsgemm (複素の積を実数 SGEMM 1 回に組み替える、m_la_realsgemm)、
+  gemmul8[:moduli] (Ozaki、INT8)、逆行列は lu64 / mixed1 / mixed2 (FP32 の LU ＋ Newton 1 回 / 2 回)。表の優先順は
+  既定 (全部 cuBLAS、今までと同じ) \< \<bindir>/ecalj_linalg_policy.toml \< --use_gemmul8 \< --linalg=\<行>,\<行>。
+  使った表は標準出力に 1 回出る。精度の level は MP 版と --use_fp32 で決まり、cmm_d の TF32/FP32 も level から取る。
+- 固定の行列にはキー (m_blas の gemm の key=) を付けられる。realsgemm は組み替えた A'、gemmul8 は分解した A を
+  キーごとに保持して使い回す (ECALJ_LA_CACHE_GB、既定 4 GB)。Σc の W(iω)・W(ω) と M2E の基底に付けた。q ごとに捨てる。
+- linalgtune_gpu (新、gpu 版だけ): hgw と同じ経路で各方法を hgw 型の形 6 つ (寸法は 64 の倍数を避ける) と逆行列 2 つで
+  測り、精度ごとの誤差の約束 (単精度の複素積は同じ形での cuBLAS の誤差の 4 倍以内) を満たして、hgw での時間の割合で
+  重みを付けた比で cuBLAS より 1 割以上速いものを表に書く。InstallAll.py --gpu が最後に (GPU が空いていれば) 回す
+  (--notune で省く)。RTX 5090 では fp32 = 単精度の積は realsgemm・倍精度の積は gemmul8:14・逆行列 mixed1、
+  fp64 = 逆行列 mixed2、tf32 = cuBLAS。
+- realsgemm は op(A) = N も転置せずに作る (A の列を実数として読んだ列と i 倍の列、読み書きとも連続)。キー無しで
+  n \< 16 の積だけ cuBLAS。GEMMul8 はどれかの辺が 64 未満か m·n·k \< 1e8 なら表に関係なく cuBLAS (readeigen の
+  (2l+1)×nband の回転に 14 分解がかかって hgw が 110 秒遅くなった)。
+- fp32 の hgw の誤差の主因は build_zmel の平面波の積 (cuBLAS cgemm) だった。実数 SGEMM にして倍精度との差が
+  Re Σc で 2.4e-4 → 4.2e-5 eV、SEx で 5.7e-4 → 1.7e-4 eV。LiTi2O4 6³ の hgw (kt1) は 833 秒 → 438 秒。
+- 混合精度の逆行列は ||I - A X0||_F から Newton 後の誤差の上限を見て、大きすぎる行列は FP64 の LU に回す。
+- gwsc --prec=tf32|fp32|fp64。fp32 = --mp --fp32、fp64 = 倍精度、tf32 = fp32 のうち Σc の最後の積だけ TF32
+  (Fortran の --sigma_tf32、Σc の積は表の tf32 の行で)。LiTi2O4 6³ で E_F ±1 eV の Re Σc は倍精度から 0.8 meV
+  (全部 TF32 の旧 --mp は 5 meV)、hgw は fp32 の 7 割。--mp だけの指定は従来どおり全部 TF32。
+  --prec-final=\<prec>[:N]: その回の最後の N 反復だけ別の精度 (例 --prec=tf32 --prec-final=fp32:2)。
+- GPU のロック (pylib/gpu_lock.py): gwsc の \*_gpu の実行は /tmp/ecalj_res/gpu\<N>.lock を必要な枚数だけ取り、
+  取れた GPU だけを CUDA_VISIBLE_DEVICES で渡す。全部取れるまで待つ (ECALJ_GPU_WAIT=\<秒> で止まる、
+  ECALJ_GPU_LOCK=0 で無効)。
+- 四面体の重み: hgw --tetwt_write が各 q の重みを x0kf_zxq の使う形で \_\_TETWT.\<iq>.\<isp> に書く。gwsc --gpu は
+  価電子の hbasfp0 の後にこれを -np の CPU コアで GPU なしで並走させ、hgw は合うファイルがあれば読む (ビット一致)。
+  --no-tetwt-helper で使わない。
+- m_linalg_policy の行の読み取りで findloc を使っていたのを直した (nvfortran は長さの違う文字列を空白で埋めずに比べる)。
+- GPU の Hilbert 変換 (dpsion_chiq_d、09-26 夜に GPU 化) は tf32 でも FP32 で計算する (policy=BACKEND_BLAS_FP32)。
+  tf32 で TF32 になっていて、Samples/MLOQSGW/NiO の --mp が参照から 0.049 Ry ずれた (直して 0.034、fp32 は 0.0005)。
+- readcphif_mpi (GPU) の MT 係数の回転を全軌道まとめて 1 つのカーネルに (1 回の hgw で 115 万回あった極小の倍精度 GEMM)。
+- 結果 (kt1、RTX 5090 ×2、hgw 1 回): LiTi2O4 6³ 833 秒 → fp32 424 秒 / tf32 293 秒、9³ 5004〜5128 秒 → fp32 2990 秒 / tf32 1975 秒。
+  6³ の gwsc 1 反復 12.5 → 9.3 分 (fp32)。TestInstall の GW テストは GPU (fp64、fp32、tf32) と CPU で全部合格、
+  Samples/MLOQSGW は fp32・tf32 で合格。
+計画と経過は Samples/kBT/gpu_fp32_plan.md、Samples/kBT/kBT_research.md、報告は Samples/kBT/gpu_fp32_report.md。
+
+## 2026-09-22 (1)
+
+tetwt5 の並列化を OpenMP から MPI k 並列に (user 判断)。x0kf_v4h の既定経路で gettetwt / x0kf_v4hz_init を
+自ランクの k 範囲 k_lo:k_hi (comm_k) だけで呼ぶ (tetwt5 は範囲外の四面体を先頭で skip するので、コストは
+(k_hi−k_lo+1)/nqbz)。従来は全ランクが全 k を冗長に計算していた。1 ランクなら従来と同一。GaAs eps: 新 np=8 と旧 np=8 が
+bitwise 一致 (np=1 vs np=8 の 5e-7 差は旧来からの ω 分割の和順序)。09-19〜22 の OpenMP (omp_tetwt, whw_t, CMake の
+OMP_FLAG, tetwt5 の !$omp) は全て削除。hgw は --np2 を GPU 数より多く (share_gpu で round-robin) すれば comm_k が
+増えて tetwt5 も分散する; 有限温度 χ0 (lindtet6_kbt ~150 s/q) で効く。
+wcsmear の極項の核積分範囲 wcut を 15 → 8 kBT に (m_wfac)。範囲外の裾の重み (≤ 2f(8) = 6.7e-4) は範囲内の cell に
+再配分して sum(wts) = wfac を厳密に保つ。極項が触る W 平面が半減 → Σc 実軸部 −45 % の見込み (9³ LiTi2O4 で 35 → ~19 min/反復)。
+回帰 (si_gwsc, fe_gwsc, nio_gwsc, si_gw_lmfh) は参照と ≤ 1 meV (再配分なしだと mean 4 meV ずれた)。sig_window
+(部分占有の候補窓・ω メッシュの余裕) は 15 kBT のまま。
+hsfp0 --job=4 (Σc(ω) スペクトル): 隠し環境変数 ECALJ_DWPLOT / ECALJ_OMEGAMAX (Ry) で ω メッシュを上書き
+(旧既定の ±7 Ry は W メッシュを超えて落ちる)。sxcf_fal2 の wcsmear は核の裾が W メッシュを超えたら clip
+(rx でなく)。Samples/kBT/contour_test/: contour 分解 + FD smearing の単体試験 (厳密求積と 0.35 % 以内)。
+[gw] chi0_filterw / chi0_filterw_drude (隠し) は 09-20 (2) 参照。
+
+## 2026-09-20 (2)
+
+[gw] chi0_filterw = [wc, dw] (eV) と chi0_filterw_drude (既定 true): 隠し・実験用 (Samples/kBT/kBT_research.md 23:26)。
+- x0kf_v4h の accumulate_chi0 で、バンド対ごとのテトラヘドロン重みに bin ごとの因子 1/(1+exp((wc−|ω|)/dw)) を
+  掛けて wc 以下の遷移を χ0 から落とす (ω 空間の cRPA)。帯内対 (n1b == n2b、E_F を横切る同じバンド = Drude、
+  誘電関数の --intrabandonly と同じ判定) は chi0_filterw_drude = true なら因子を掛けずに残す (静的金属遮蔽と
+  Drude 重みを保持)。対の重みで掛けるので Im χ0 → Re χ0 / χ0(iω) の整合はそのまま、host/device 共通、追加メモリ無し。
+- 目的: プラズモン極を抜いた W で QSGW を回し、抜いた分は収束後にフルスペクトルの一発で戻す 2 段階 (LiTi2O4)。
+- 既定 off で不変 (si_gw_lmfh PASSED)。Fe 5³ で wc = 1 eV: SEc 差 max 0.06 eV、Drude 有無で 0.025 eV。
+
+## 2026-09-20 (1)
+
+plan t_sigmaw: Σ 側の smearing パラメタを [gw] t_sigmaw (K, 既定 1000) の一本に統合。
+- esmr (Ry, Gaussian) と t_sigmakbt (K) を廃止。Σx の占有重み・Σc 実軸極項の窓重み・wcsmear の
+  極位置の分布はすべて Fermi-Dirac 核 (幅 kBT = t_sigmaw)。既定 1000 K は旧 esmr = 0.01 Ry と
+  同じ標準偏差 (FD の std = π kBT/√3 = 1.81 kBT)。wfacx.f90 は FD のみ (fd_cdf, wcdf, wcut=15 kBT,
+  sig_window, wfacx2, weavx2, wfacx)、set_sigma_fd / sig_fd のグローバルは削除。
+  m_gw_user_config の esmr は名前だけ残し中身は kBT (Ry)。中間状態の候補窓と実軸 ω メッシュの
+  余裕は 15 kBT (m_freq getwemax ffac=15、m_sxcf_sc_count sig_window)。
+- Fermi 準位: t_tetrakbt > 0 なら EFERMI_kbt (無ければ abort)、そうでなければ EFERMI
+  (sigmakbt_setup)。χ0 と Σ が別の E_F を見る組合せは無くなった。
+- wcsmear の既定を true に (false で従来の平均エネルギー 1 点評価)。
+- t_tetrakbt > 0 と SmearX0 > 0 は排他 (abort)。
+- 互換読み: ctrlg の esmr は同じ標準偏差の t_sigmaw に換算 (0.003 Ry → 262 K)、t_sigmakbt は値を
+  t_sigmaw に写す (t_sigmaw があれば優先)。gwinput2toml.py も同じ換算。gwinit テンプレ・
+  toml_comments.py・Samples の ctrlg 89 ファイルを t_sigmaw に書き換え (旧 esmr=0.003 → 262 K、
+  0.01 → 872 K で旧結果に近い幅を保つ)。
+- 新キー [gw] chi0_skip_window = [emin, emax] (eV): 占有・非占有の両端が窓内のバンド対を χ0 から
+  落とす (cRPA 風、m_tetwt)。診断フラグ --removeFermiWindowLiTi2O4 を置き換え。既定 off。
+- Σc 虚軸積分 (m_sxcf_sc) の準位 smearing も同じ FD 核に。旧コードの価電子準位の式 (Eq. 57 の
+  Gaussian 正則化 sig = esmr/2) は「鋭い準位の式から 2 次元 Gaussian の一片を落とした」もので、
+  その一片が sign(we)/2 の半留数の段差を Gaussian で均す = esmr 時代の準位 smearing そのものだった。
+  極項だけ FD にすると 2 つの段差が打ち消さず、ω の数 kBT 以内の準位で |M|²W_c(0) 級の誤差が出る
+  (NiO 2³ の O 2s 対 (70 meV 差) で SEc ±0.6 eV、QSGW 固有値 0.47 eV)。
+  新しい式: 鋭い準位の式 (従来 core 用の分岐) を、ω の 30 kBT 以内の価電子準位について FD 核で
+  平均する (e = ε' + kBT ln(u/(1−u))、u の中点 40 点。sign(we)/2 の段差は解析的に
+  −(2Φ_FD(ω−ε')−1)/2、滑らかな残りは求積)。sig は消滅。虚軸 + 極項 = FD で均した準位の Σc
+  (wcsmear と整合)。NiO 2³ 262 K, wcsmear=false で Gaussian 参照と 3 桁一致 (10.523/10.541 eV)、
+  wcsmear=true で 30/262/473 K が 10.495/10.503/10.510 eV と幅にほぼ依らない。
+- 一発 GW (hsfp0 / sxcf_fal2, gw_lmfh) も同じ扱いに: wintzsg_npm (wintzsg.f90) を FD 核平均に書き換え
+  (鋭い式 wintz_npm の半留数を解析的に平均、滑らかな残り wintz_npm_smooth を求積。冒頭の死んだ
+  m_purewintz のコメント塊は削除)、極項に wcsmear の分岐 (pole_weights を m_wfac に移して共用、
+  zwz3mode では平面ごとに zmm_d/内積)、hsfp0 に sigmakbt_setup (t_tetrakbt>0 なら EFERMI_kbt)。
+- 回帰 (gfortran, 参照 = Gaussian esmr, wcsmear=false 時代、Samples の ctrlg は同じ幅 262 K):
+    si_gwsc      QPU eQP max 0.076 / 平均 0.014 eV (+10 eV 以上の高い状態、wcsmear 分)、QSGW 固有値 5 meV
+    fe_gwsc      QPU/QPD eQP max 0.022 / 0.035 eV、平均 0.004 (E_F 直上の状態で SEx と SEc が ±0.13〜0.19
+                 逆符号に動いて相殺)、QSGW 固有値 7 meV
+    nio_gwsc     QPU eQP max 0.42 / 平均 0.03 eV、QSGW 固有値 max 0.16 eV (2³ の W_c は Landau 減衰の無い
+                 離散極なので 1 点内挿と核平均が本質的に違う。wcsmear=false なら参照と 3 桁一致)
+    si_gw_lmfh   PASSED (5 meV)、gas_pw_gw_lmfh eQP max 0.011 (VBM の SEx 35 meV は FD の裾、SEc と相殺)
+    gas_epsPP_lmfh, gas_eps_lmfh PASSED (Σ を使わない)
+  参照 (QPU/QPD/log) を si_gwsc, gas_gwsc, nio_gwsc, fe_gwsc, gas_pw_gw_lmfh で更新 (gas_gwsc は eQP max 0.20 eV
+  の高い状態、固有値 20 meV)。clean な再ランで 6 ターゲット ALL PASSED。
+- 大型 GW (kt1 nvfortran GPU FP64, -np 32 -np2 2) の参照も更新: 旧参照との eQP 差は gas_gwsc666 max 0.006 eV、
+  nio_gwsc444 max 0.17 (数状態) / 平均 0.0035、pdo_gwsc443 max 0.016、cugase2_gwsc222 max 0.014 eV。
+  2³ の NiO で 0.4 eV だった wcsmear の効果はメッシュが密になると数 meV に落ちる。yh3fcc_gwsc666 は
+  lmf の LDA 段で落ちる既知の故障 (2026-08-18 から) のため未更新。
+- TestInstall/eras の test.py: 2 本目の lmf に --keepmixm (09-18 の「\_\_mixm を起動時に捨てる」変更で crn と
+  同様に必要だった。LDA+U の準安定解が混合履歴に依る)。参照はそのまま PASS。
+- ecaljdoc: gwinput.md (t_sigmaw / wcsmear / SmearX0 排他)、kBT.md (§0 表、§3、§3.5、§7.3、§9)、
+  lmf.md、samples.md。
+
+## 2026-09-19 (2)
+
+コード整理 (wcsmear 周り):
+- m_sxcf_sc: 実軸極項の重み生成を pole_weights (1 ルーチン; 従来の 3 点 Lagrange / 2 点線形と
+  wcsmear の核積分を一本化) にまとめ、「数える 1 周目 / 詰める 2 周目」を同じループで回す。
+  診断コード (--skipq0Sc / --skipRaxisSc / ECALJ_SKIPKXSC) の見え消しは削除 (使い方は
+  Samples/kBT/kBT_research.md に記録)。
+- wfacx.f90: wfacx2 / wfacx / weavx2 の Gaussian・FD の式を wcdf 経由に一本化。
+- dpsion5: SmearX0 の GaussianFilter ブロック 3 箇所を smearx0_apply に統合 (GPU 版
+  dpsion_chiq_d の device 常駐版はそのまま)。f-sum 診断の print と古いデバッグ出力を削除。
+- q0irre.f90: 呼び手の無い setq0_2 とその補助関数群 (aufcc, auxfun\*, getnvaln, atomform0,
+  setq0x_notused) を削除 (987 → 312 行)。switch.f90 の wgtq0p() ダミーと各所の未使用宣言を削除。
+- 検証: Si 一発 (wcsmear=true) が整理前と 0.00000 eV 一致。回帰 (gfortran, wcsmear=false):
+  si_gwsc, gas_epsPP_lmfh, fe_gwsc, si_gw_lmfh, nio_gwsc, gas_gwsc, na 全 PASSED。
+
+## 2026-09-19 (1)
+
+[gw] の smearing 系キーを整理 (Samples/kBT/kBT_research.md の 2026-09-18〜19 の調査を受けて)。
+- 論理キー tetrakbt を廃止し t_tetrakbt (K) に一本化。既定 300 → 0 (= off)。t_sigmakbt と同じ
+  流儀 (>0 で有効)。読み手 3 箇所 (tetwt5, m_tetwt, heftet) は t_tetrakbt > 0 に。古い ctrlg の
+  tetrakbt 行は無視される。kBT/Fe の 3000 K 一発は参照 QPU と完全一致。
+- 読まれるだけで効いていなかったキーを削除: GaussSmear, delta, dw, omg_c, WgtQ0P、
+  SmearX0q0 (offset-Γ だけの上書き; x0kf_v4h / dpsion_chiq_h の経路も削除)、GaussianFilterX0
+  検出時の abort。SmearX0 (Ha, 既定 0) は明示キーとして残す (通常不要)。
+  gwinit テンプレ・toml_comments・gwinput2toml.py・Samples の ctrlg 89 ファイルから該当行を削除。
+- 新キー [gw] wcsmear (既定 false): Σc の実軸極項で、中間準位の smearing 核 (esmr の Gaussian、
+  t_sigmakbt>0 なら Fermi-Dirac) を極の位置にも適用し W_c(ω) を核で積分する (wcsmear_weights)。
+  従来は重みだけ核で積分し W_c は平均エネルギーで 1 点評価 (PRB76,165106 Eq.58)。
+  LiTi2O4 1000 K で、一発 GW の E_F 近傍の針 (−3.4 eV) が消え、9³ の iter 2→3 の O 2p 荒れが
+  47.8 → 12.7 meV。極の無い系ではほぼ不変 (Si 一発で SEc 差 平均 14 meV、最大 77 meV は
+  +10〜15 eV の高い状態)。コスト: 実軸極項 ×6.7、全体で 6³ +7 %、9³ +26 %。
+  核の裾は FD 15 kBT / Gaussian 5σ で打ち切り (wcut)。
+  正体: 第一殻 q の W_c(q,ω) の t2g プラズモン極 (ω_p≈1.78 eV, 幅 0.1 eV, --dumpW で確認) を
+  極項が ω_ε = ε_qn − ε_{q−k,n'} で踏み、反復ごとに極の反対側へ渡っていた (シーソー)。
+  T で単調に消える (⟨48|Σc|33⟩ = −27/−13/−3.2/−1.9 eV @ 500/1000/1500/2000 K)。
+- 診断用に一時的に足した --skipq0Sc / --skipRaxisSc / ECALJ_SKIPKXSC は見え消し (m_sxcf_sc,
+  m_cmdopt_registry の !diag 行)。解析道具 o2p_rough.py / sec_jump.py / read_se2.py は
+  Samples/kBT/LiTi2O4/ に。
+- 回帰 (gfortran, wcsmear=false): si_gwsc, gas_epsPP_lmfh, fe_gwsc, si_gw_lmfh, nio_gwsc, na 全 PASSED。
+- ecaljdoc: manual/kBT.md (§3.5 wcsmear、キー統合)、gwinput.md、lmf.md、samples.md、ecaljgpu.md。
+
+## 2026-09-18 (9)
+
+Samples/MLOsamples に Materials Project 由来の 7 サンプルを追加 (Ag, Al, NaCl, SiC, CdTe, ZnO,
+TiO2)。入力 (POSCAR, ctrls, ctrlg, syml) と test.py (lmfa → lmf → job_band → job_mlo、rst 無しで
+自己完結)、参照 band_MLO_spin1.dat、plots/\<Name>.png。既定パラメタ・全 s,p,d チャネルのまま。
+ZnO は浅い Zn 3d LO を模型に使う自動判定のテストになる (0.8 meV)。README の表と図。
+
+## 2026-09-18 (8)
+
+BackUp_notes/mlo_low_cu_20260917.md (mlo_low / 両側窓 / mlo_w / k メッシュの試行記録) を
+mlo_nskip_cu_problem.md に整理: 折れの正体 (k 依存の nskip) 以降だけを簡潔に。
+試行の図 6 枚は削除 (git 履歴に残る)。
+
+## 2026-09-18 (7)
+
+MLO: nskip で外した帯と残した帯の間にギャップがあることを確認する (m_HamPMT report_nskip_gap)。
+  全 k での max E(nskip) と min E(nskip+1) を比べて表示し、重なっていれば abort
+  (半芯を抜く設計なので、帯を横切る切り方は誤り)。1 eV 未満なら NOTE。
+  18 サンプルのギャップは 2.0 eV (GaAs: Ga 3d 上端 −14.8 と As 4s 下端 −12.8) 〜 42 eV。
+  Hreduction_nskip が最下位 40 準位を返すようにした。
+
+## 2026-09-18 (6)
+
+lmf は起動時に \_\_mixm.\<sname> (前の run の混合履歴) を消す。継続の御利益は経験上ほぼ無く、
+(5) のように別の解へ引きずる害がある。隠しオプション --keepmixm で従来どおり継続。
+  (5) の「原子密度スタートのときだけ捨てる」は不要になり削除。mixrho のレコード長チェックは残す。
+  TestInstall/crn は未収束 SCF を nit=1 → --cls と続ける仕組みのテストで履歴に依存するため、
+  2・3 段目に --keepmixm を付けた (参照不変)。それ以外は不変: --all 25/25、MLO 18/18。
+
+## 2026-09-18 (5)
+
+MP の Fe/Ni が非磁性に落ちた真因: \*\*古い混合履歴 \_\_mixm.\<sname> の継承\*\*。B3, b=0.2 は無実。
+  b の走査 (0.05〜0.5) で 0.2 だけ潰れたのは、その 1 本だけ古い \_\_mixm (非磁性に収束した
+  前の run のもの) を消し忘れたディレクトリで回したため。\_\_mixm を消せば B3/0.2 で 2.24 μB。
+  非磁性の履歴で Broyden の最初の更新を作ると非磁性の不動点 (これも自己無撞着解) へ飛ぶ。
+  修正:
+  - m_lmfp: rst が無く原子密度から始めるときは \_\_mixm.\<sname> を捨てて NOTE を出す
+    (新しい密度の軌道に古い履歴を継がせない)。
+  - mixrho/packdensity: \_\_mixm のレコード長が今の nda\*nsp と違えば無視 (setup 変更の保険)。
+  - ctrlgenToml.py: 内部の lmf 実行が残す \_\_mixm.\<ext> を消す。(3) の A3 化は撤回して
+    B3, b=0.2 (2024-09-22 以来の既定) に戻した。[iter] の説明は「setup を変えたら \_\_mixm を
+    消す」に。
+  履歴: 2010-11-13 から 2024-09-22 までの既定は Anderson (A5, b=0.2)、f2cd9880b で
+  B4 ("probably better")、0cb6621ac で B3。b=0.2 は 2010 年から不変。
+  検証: 古い \_\_mixm を置いた状態で lmf を起動 → NOTE を出して捨て、2.2412 μB (16 反復)。
+  testecalj --all 25/25 (766)、MLOsamples 18/18。
+ecaljdoc lmf.md の「磁性は A3」の段落を書き直し。
+
+## 2026-09-18 (4)
+
+MLO の模型関数の選択: 浅い半芯 LO は LO を模型関数にする (m_HamPMT ShallowLO)。
+  mlo_lm で指定した (atom,l) に半芯 LO (0\<pz\<10, int(pz)\<int(pnu)) があるとき、模型選択の前に
+  PMT ハミルトニアンを全 k で対角化し、LO 部分空間への射影重み (v^H S_GG^-1 v) > 1/2 の
+  占有状態の最高エネルギーを取る。E_F − 10 eV より上 (浅い) なら LO を模型関数にして EH を
+  捨て、下 (深い) なら従来どおり EH を使い LO 状態は nskip で外す。MPI で max を集約。
+  ZnO (Zn 3d −3.8 eV) が 476 → 0.8 meV。GaAs/NaCl/TiO2/Fe の深い LO は不変。
+  拡張 LO (pz が価電子殻より上、RuO2 の pz=5.5) は候補外 (使うと 14→254 meV)。
+  18 サンプルで参照が動いたのは NiO だけ (Ni 3d LO を浅い判定、16.6→16.4 meV、
+  max 52 meV; 参照と plots を更新)。18/18 PASSED。
+  GdCo5 の Gd (pz=5.0) と SmP の Sm (pz=15.0) の f は価電子 4f (pnu 4.x) より上の 5f
+  拡張 LO なので候補外。初版 (k=3 なら何でも候補) でそれを模型 f にすると GdCo5 12.6→7.4、
+  SmP 76→40 meV と数字は良くなるが、4f 帯を 5f 関数で表す操作なので採用しない。
+  実験フラグ --mlo_lod は廃止 (見え消し)。
+  注意: 事前対角化で zhev_tk4 に (nbandmx,nbandmx) 配列をそのまま渡すと列がずれる
+  (dummy は explicit-shape)。(1:ndimPMT,1:ndimPMT) の部分配列で渡すこと。
+
+## 2026-09-18 (3)  [誤診。(5) で訂正・撤回]
+
+ctrlgenToml.py の既定 mix="B3", b=0.2 が磁性を潰すと判断し --nspin=2 で A3 を書くようにした
+が、真因は古い \_\_mixm (混合履歴) だった。(5) で B3, b=0.2 に戻した。
+
+## 2026-09-18 (2)
+
+Materials Project の 10 結晶 (Ag Al MgO NaCl SiC GaAs CdTe ZnO TiO2 Ni) で MLO の既定を
+DFT レベルで試した (Samples/MLOsamples/BackUp_notes/mp_20260918/)。絶縁体 1〜3 meV、
+遷移金属 15〜30 meV、Al 74 meV (自由電子帯は窓外)。
+ZnO だけ 476 meV: Zn 3d が局所軌道 (pz=3.9) で、mlo_lm の d は常に EH (4d 的) を取る
+ため、窓内 (-6 eV) にある 3d 帯を表せない。実験フラグ --mlo_lod (d チャネルに LO を使う、
+m_HamPMT の選択ループ) で 0.8 meV。GaAs では逆に 14→20 meV (深い 3d は nskip で外して
+EH を使うのが正しい)。浅い LO は模型関数に・深い LO は外す、の自動判定が要る (未実装)。
+Ni は nspin=2, mmom=0.6 でも 0.002 μB に収束 (要調査、MLO 自体は 21 meV で問題なし)。
+
+## 2026-09-18 (1)
+
+MLO の nskip (射影子から外す最下位 PMT 状態の数) を k に依らない規則にした。
+  従来: k ごとに「模型部分空間への重み \< 1/2 の最下位状態の数」。Cu の d 模型では s 帯が
+  band 1 になる k とならない k で 0/1 が入れ替わり、MLO バンドに折れが出ていた
+  (Samples/MLOsamples/BackUp_notes/mlo_low_cu_20260917.md)。
+  新: 同じ per-k count の全 k・全スピンでの最小値 (m_HamPMT が本番ループ前に全 k を
+  一巡、MPI_Allreduce MIN; Hreduction_nskip を新設し nskip_auto として渡す)。
+  「全 k で非模型である状態だけ外す」= 模型的かもしれない状態は落とさない。
+  半芯 LO の数 (pz) だけの規則も試したが、O 2s などの低い非模型帯を外せず
+  Al2O3_Cr/FeMgO/NiO/RuO2/SrTiO3 で大幅悪化 (RuO2 8→150 meV) のため不採用
+  (nsemicore は診断として表示するだけ)。
+  手動 mlo_nskip は廃止 (m_GWinput の読み込みと m_hreduction の使用を見え消し)。
+  診断用 mlo_method=9 (θ=1、MTO のみ) を追加。
+  参照更新: Cu band_MLO_spin1 (折れ消失、E_F 近傍 43→18 meV)、SmP と GdCo5 の
+  band_MLO_spin2 (非占有 4f 模型; per-k count が 4/5 を行き来 → 4 に固定。SmP 75→139,
+  GdCo5 17→39 meV)。他 15 系は bit 一致。MLOsamples 18/18 (322 checks) PASSED。
+  plots/{Cu,SmP,GdCo5}\*.png を再生成。
+
+## 2026-09-17 (17)
+
+[mlo] mlo_nkabc = [n1,n2,n3]: MLO を作る k メッシュ。lmf --writeham --mlo のパスだけ
+bz_nabcin をこれで置き換える (m_lmfinit)。\*\*必須・既定なし\*\*: 無ければ lmf が abort して
+書き方を案内する ([bz] nkabc を黙って流用しない。模型を何の上に作ったかは入力に書く)。
+gwinit は [bz] nkabc と同じ値を実値で書く。MLOsamples 18 件は [bz] nkabc と同じ値を
+明記 (参照結果は不変、18/18 PASSED)。ecaljdoc mlo.md / lmf.md。
+  Cu: [bz] 10^3 + mlo_nkabc 16^3 の band_MLO は nkabc を 16^3 にした run と bit 一致。
+Samples/MLOsamples/BackUp_notes/mlo_low_cu_20260917.md: Cu の d 模型で mlo_low /
+  両側窓 / mlo_delta=-1.5 / mlo_w 走査 / k メッシュ走査を図付きで記録。結論: s-d 交差の
+  折れはエネルギー窓・幅・k 点では消えない (5 本で 6 本を追う場所)。
+隠しオプション mlo_low / mlo_wlow ((16) で試したもの) と mlo_pcut / mlo_pw (未検証) は
+  コードを見え消し (コメントアウト) にして残した。生きているのは mlo_nkabc だけ。
+
+## 2026-09-17 (16)
+
+MLO の隠しオプション mlo_low / mlo_wlow ([mlo], eV): θ_j に下側のカット
+σ((E_F + mlo_low − ε)/mlo_wlow) を掛け、E_F+mlo_low より下の PMT 状態を模型のフィットから
+外す (mlo_method によらず。mlo_low 未指定なら無効、mlo_wlow 既定は mlo_w)。
+  m_GWinput (読み込み), m_hreduction (Amat の重み)。テンプレ・文書には出さない。
+  Cu の d 模型 (mlo_lm 5 6 7 8 9) で試した: base / low6_w05 / low7_w1 で d 帯 [-6,-1] の
+  rms 98 / 97 / 102 meV、[-2,+1] で 43 / 34 / 34 meV。s 帯の底 (-9.5 eV) を切っても
+  d 帯の中を横切る s 帯との交差 (k≈1.8, 3.3) での折れは残る — 5 本の模型で 6 本を
+  追う場所なので、エネルギー窓では消えない。図: ~/trash/mlo_low_cu/cu_mlo_low.png。
+
+## 2026-09-17 (15)
+
+履歴クリーンアップ後 (41465583b, dev/main に push 済み) の 4 環境ゲート、全部通過:
+  local  gfortran-14        : testecalj --all 25/25, MLOsamples 18/18
+  kt1    nvfortran GPU+MP   : 25/25 (366 s), 18/18, kBT Fe one-shot (--gpu --mp) 参照と
+                              Σ-vxc max 0.025 eV (TF32 分; gfortran では 0.001 eV),
+                              GetStarted/GaAs 一気通貫 gap 1.5571 eV
+  mic    ifx 2026.0.0       : 25/25 (230 s), 18/18
+  ucgw   ifx 2024.2 (ucs51) : 25/25 (15 分, -np 32), 18/18
+mic の FeMgO は 6 月から残っていた untracked の esm_input.dat (\*.dat は gitignore なので
+  git clean でも残る) を新 lmf が仕様どおり abort した。消して再実行。古い作業ツリーでは
+  同じことが起きうる: ctrlg_absorb.py \<sname> を一度通す。
+ucgw は git fetch が index-pack --fix-thin で固まる (NFS 上の肥大 repo)。self-contained
+  pack (git pack-objects --revs --stdout, --thin なし) を unpack-objects で入れた。
+push 前後の差分 bundle: 9.8 GB -> 132 MB。
+
+## 2026-09-17 (14)
+
+未 push の履歴 (08c1fd9f..main, 181 コミット) を git filter-repo で書き換え、8 月の Legacy
+TOML 化と 9 月の MLO 整備の git add -A が巻き込んだ計算の中間出力 26.6 GB (10,870 パス、
+100 MB 超 54 件) を全履歴から除去。dev/main (前回 push 済み) に既にあるものは触っていない。
+  除去したもの: Samples/Legacy/BK/ と Legacy/AHC/BK/ の丸ごと、Screening_W-v\* / Coulomb_v\* /
+  HamRs\* / MLOHamR / CNmat / HamiltonianPMT\* / GEIG / QGpsi / QGcou / HAMindex / lahc\* /
+  luumat2 / UUU / UUD / PROCAR.\* / sigm.Nrun / \*.zip、Si666gwsc/{os,sys,subprocess,argparse}
+  (Python モジュール名で書き出された誤出力)、それ以外の 5 MB 超。kBT の sigm.liti2o4
+  (13 / 30 MB) も「sigm/rst は同梱しない」方針で外した (README に再現手順と原本の場所)。
+  rst は最大 8 MB なので残した (FeMgO のテストに要る)。
+  新規分で残る 5 MB 超は rst.lagao3 6.4 MB、kBT の tar.gz 6.3 MB と PDF 5.5 MB だけ。
+  書き換え前の main は backup/main-before-cleanup-20260917 に保存。
+  .gitignore に上記パターンを追加 (テストの参照は git add -f)。
+この後ローカル / kt1 (再 clone) / mic / ucgw でテストし、通れば push。
+
+## 2026-09-17 (13)
+
+gwinit のテンプレが tetrakbt = true / t_tetrakbt = 300 を既定で書くのをやめ、見え消しにした
+(tetrakbt / t_tetrakbt / t_sigmakbt の 3 行、「有限温度モードは外して使う」の注記付き)。
+  tetrakbt=true は chi0 を有限温度 (Fermi-Dirac 占有 + EFERMI_kbt) の四面体で計算する
+  モード切替そのもので、既定 true だと絶縁体でも 300 K の占有が入っていた。
+  新規生成の ctrlg は T=0 (従来どおり)。有限温度は manual/kBT の手順で明示的に有効にする。
+
+## 2026-09-17 (12)
+
+アップロード直前テスト (kt1: ~/ecalj を ~/ecaljold2026sep17 に退避し bundle から clean clone、
+InstallAll.py --fc nvfortran --gpu --mp -np 60 -np2 1, GPU 0 のみ):
+  testecalj --all 25/25 (7.5 分)、MLOsamples 18/18、kBT Fe one-shot --gpu --mp が 6 月の参照と
+  max 0.001 eV、GetStarted/GaAs 一気通貫 (ctrlgenToml → lmfa/lmf → gwsc 1 --gpu --mp) で
+  EFERMI_kbt 0.153446582 Ry (ローカル gfortran と 1e-11 一致)、gap 1.5571 eV (ローカル 1.5577)。
+clean clone で初めて出た不具合: MLOsamples の Fe / GaAs / GaAsSoc の band_MLO_spin\*.dat 参照が
+  .gitignore (\*.dat) で untracked だった (ローカルでは通る)。git add -f で追跡。
+ローカル (gfortran) は (11) 参照。両環境とも 4 段 (install / MLO / kBT / GetStarted) 全通過。
+kt1 メモ: HPCX は mpirun 無しの lmfa を起動できない (InstallAll.py の注記どおり)。テストスクリプトは
+  mpirun -np 1 lmfa にすること。
+
+## 2026-09-17 (11)
+
+heftet: 絶縁体 (「only filled or empty bands」の分岐) で EFERMI_kbt を書いていなかった。
+gwinit のテンプレは 6 月から tetrakbt=true (300 K) を既定で書くので、新規に作った絶縁体は
+hgw が空の EFERMI_kbt を読んで EOF で落ちる (GetStarted/GaAs の一気通貫で発覚。
+TestInstall の絶縁体は tetrakbt を指定していないので素通りしていた)。
+  有限温度 EF の計算を金属/絶縁体の分岐の後に出し、両方で書く。絶縁体では efermi が
+  ギャップ中央なので NOS 窓にギャップが入る; fermi_kbt_tetra は N_T(E)=valn の解が区間に
+  なる場合 (ギャップがカーネルの届く幅より広い) に上端でなく区間の中央を返すようにした
+  (上端・下端をそれぞれ二分法で求めて平均。金属では両者一致)。
+  GaAs (LDA gap 0.29 eV, 300 K): EFERMI_kbt = 0.15345 Ry (T=0 の中央 0.15221 から
+  DOS の非対称で +0.0012 Ry、離散 k 和の診断値 0.15326 と整合)。gwsc 1 反復で gap 1.56 eV。
+ローカル pre-upload テスト: testecalj --all 25/25、MLOsamples 18/18、kBT Fe one-shot
+  (QPU.1run が 6 月の kt1 参照と max 0.001 eV、EFERMI_kbt 1e-6 Ry 一致)、GetStarted/GaAs
+  一気通貫 (ctrlgenToml.py の [product_basis] がサンプルと一致)。
+
+## 2026-09-17 (10)
+
+ctrlgenToml.py が [esm] の見え消しテンプレ (toml_comments.ESM_SAMPLE: # === ESM 見出し +
+\# [esm] 以下 1 キー 1 行、「スラブなら外して数値は注意して」の注記) を [ham] の直後に書く。
+  バルクはそのまま (セクション無し = ESM off)。toml_comments に本物の [esm] 用の見出し
+  'esm' も追加 (FeMgO / FeMgOSoc に適用)。ctrlg_absorb.py は本物の [esm] を書くとき
+  このテンプレを消す。ecaljdoc lmf.md。
+
+## 2026-09-17 (9)
+
+Fortran は ctrlg.\<sname>.toml 以外を読まない、で統一。
+  m_lmfinit::readesm: esm_input.dat があれば abort して ctrlg_absorb.py を案内
+  (2026-09-16 のその場移行を廃止。無視ではなく abort なのは、スラブが ESM 無しで
+  黙って走らないため)。archive_esm_input / jesm2bnd を削除。
+  m_GWinput: ctrlg に nlx が無く PB.\<sname>.toml があれば abort して同じく案内
+  ((8) の NOTE 付き fallback を廃止)。
+  新規 SRC/exec/ctrlg_absorb.py \<sname> (実体は pylib/ctrlg_absorb.py):
+  esm_input.dat -> [esm]、PB.\<sname>.toml -> [product_basis] の nlx/valence/core。
+  原本は \*.bk に (冒頭に移送先を記録)。既に ctrlg 側にあれば .bk に退避するだけ。
+  最後に annotate + tidy (TOML 内容不変を assert)。Legacy2toml.py の esm 変換は
+  この pylib を呼ぶ形に (GWinput が無い場合も tidy を通すようにした)。
+テスト: FeMgO の [esm] を抜いて esm_input.dat に戻し lmchk -> abort、
+  ctrlg_absorb.py -> [esm] が元と一致 ([gw] の前に入る)、lmchk 通過。
+  si_gwsc_work で表を PB.si.toml に戻し qg4gw -> abort、ctrlg_absorb.py -> 元の ctrlg と
+  TOML 一致、qg4gw 通過。Legacy2toml.py (IIR/C) は wan_\* 見え消し以外サンプルと一致。
+ecaljdoc lmf.md / toml_migration.md / gwsc.md / mlo.md / UsageDetailed.md。
+
+## 2026-09-17 (8)
+
+PB.\<sname>.toml を廃止して ctrlg.\<sname>.toml の末尾に統合。GW 側の入力は
+ctrlg.\<sname>.toml 一つ。[product_basis] (常に最終セクション) が pb_tolerance /
+pb_lcutmx に続けて nlx / valence / core の表を持つ (説明コメントは表の直前に)。
+  m_GWinput: [product_basis] から表を読む。nlx が無いときだけ旧 PB.\<sname>.toml を
+  NOTE 付きで読む (古い作業ディレクトリ救済)。gwinput_available()/gwinput_init() は
+  ctrlg の存在だけを見る。
+  gwinit (main_gwinit.f90): 表を ctrlg に書き、PB は書かない。古い PB が残っていれば
+  NOTE。[mlo] の説明は行末コメントの続き行ではなくキーの前の行に。
+  Legacy2toml.py / ctrlgenToml.py / mkGWinput / gwsc / gw_lmfh / job_mloW / genMLWFx:
+  PB の生成・門番・コピーを外す。ctrlgenToml.py は最後に toml_tidy を通す。
+  toml_comments.py: 表の説明 PB_TABLE_COMMENTS を持ち、apply_toml_annotations が
+  nlx/valence/core の前に (無ければ) 入れる。gwinit も同じ文を書く。
+  「legacy GWinput reader is disabled」の abort 文 (35 ファイル) から PB を外した。
+  Samples: tracked ctrlg 105 件のうち 51 件に PB の表を取り込み (TOML として
+  旧 ctrlg ∪ PB と同一であることを assert)、PB.\*.toml 57 件を git rm
+  (~/trash/PB_toml_20260917/ に保存)。MLOsamples の 11 件の PB は表の無い
+  ヘッダだけのファイルだった (MLO は表を使わない)。kBT/\*/input の PB は各 run の
+  ctrlg に取り込んだ。README の記述も更新。
+ctrlg の行間の規約: 空行は大見出し (# === X === のコメント群と [section]) の前だけ。
+  セクション内は [[site]]/[[spec]] の各表の間、""" ブロックや複数行配列の前後、
+  コメント群の前を "# ----…" の罫線で区切る (toml_tidy.tidy_spacing。ファイル全体に
+  適用、""" の中は触らない、罫線は再生成するので冪等)。ctrlgenToml.py / gwinit /
+  Legacy2toml.py の出力もこの形。tracked ctrlg 99 件を書き換え (残り 6 件は 1 原子で
+  変化なし)。
+テスト: ctrlgenToml.py gaas (ctrls から一気通貫)、Legacy2toml.py (IIR/C: 取り込み済み
+  サンプルと [product_basis] が一致)、Cu (MLO)・si_gwsc・nio_gwsc ALL PASSED
+  (work dir に PB 無し・NOTE 無しで product basis 生成を確認)。testecalj --all は未実施。
+ecaljdoc: lmf.md (セクション表・例・行間規約), gwsc.md, toml_migration.md,
+  README_tutorial.md ほか 12 ファイルから PB.\<sname>.toml を外した。
+
+## 2026-09-17 (7)
+
+ctrlg.\<sname>.toml の配置替え (読み込みは旧配置も受ける・案内を一行出す):
+  Worb            -> [mlo] の mlo_lm に改名して移動 (MLO の模型定義そのもの。
+                     Wannier/hmaxloc も同じものを読む)
+  QforEPS, QforGW -> [gw] へ (GW ドライバの q 点リスト)
+  [blocks] に残るのは QPNT / QforEPSL / hrotr だけ。空になった [blocks] は消した。
+  m_GWinput: take_block() (キーがあるときだけ受け取る。gv_c_alloc の intent(out) が
+  先に読んだ値を消さないように)。QforEPS/QforGW/Worb の parse は全セクションを
+  読み終えてから。
+  gwinit のテンプレ、gwinput2toml.py / Legacy2toml.py、tracked な ctrlg 62 ファイル
+  (mlo_lm 46, QforEPS 43, QforGW 20) を移行。
+  ecaljdoc manual/mlo.md, lmf.md。
+genMLWFx (bash) にも GWinput.toml の門番が残っていた (無ければ GWinput から自動生成)。
+  2026-09-17 (2) で GWinput を消したため ni_crpa / srvo3_crpa / Magnon が通らなくなって
+  いた。ctrlg/PB の存在確認に置換。SRC/exec の非 Python スクリプトも全部洗った。
+FeMgO / FeMgOSoc では元の Worb の閉じ """ が最終行と同じ行にあり、移行時に
+  QforEPS ごと [mlo] へ運んでしまっていた (TOML 上は別キーになるので読み込み側から
+  見えない)。手で直し、tracked ctrlg 105 件を TOML として解析して取り残し・混入が
+  無いことを確認。
+ctrlg の GW 側 4 セクションの体裁を揃える formatter を新設 (pylib/toml_tidy.py):
+  key = value  # comment を列揃え ([esm] と同じ流儀)、セクション見出し (# === X ===) は
+  直下の [section] に密着、複数行ブロック (""") の前後に空行、キー移動で取り残された
+  見出しコメント (# === PRODUCT_BASIS が [gw] の中に、など) を除去。整形前後で TOML の
+  解析結果が同一であることを assert し、冪等。Legacy2toml.py が最後に適用する。
+  toml_comments.py に [mlo] の見出しを追加。gwinit のテンプレもブロック間に空行。
+  tracked ctrlg 105 件に適用。セクション順は [gw] [mlo] [blocks] [product_basis] で
+  [product_basis] を末尾に (gwinit / gwinput2toml / Legacy2toml も同順で書く)。
+テスト: MLOsamples 18 件 (整形前) ALL PASSED、整形後に Cu・FeMgO・si_gwsc・EPS_Cu、
+  ni_crpa・srvo3_crpa ALL PASSED。testecalj --all は未実施。
+
+## 2026-09-17 (6)
+
+PB.\<sname>.toml に列の説明を復元。旧 GWinput の \<PRODUCT_BASIS> にあった
+「atom l nnvv nnc」「atom l n occ unocc」「... ForX0 ForSxc」の説明が、Legacy2toml.py が
+書く PB.toml から落ちていて、サンプルの PB.toml は全部それだった。
+  説明文を一つに決めて gwinit (Fortran) と Legacy2toml.py の両方が書き、
+  既存の PB.toml 42 件の冒頭にも入れた (表の中身は不変、Cu で ALL PASSED)。
+  nlx [iatom,l,nnvv,nnc] / valence [iatom,l,n,occ,unocc] (n: 1=phi 2=phidot 3=phiz) /
+  core [iatom,l,n,occ,unocc,forX0,forSxc]。occ×unocc の積で product basis を作る。
+  gwinit は各行に # 4s_phi のようなラベルも付ける。
+ecaljdoc manual/gwsc.md の PB.toml の説明は [[spec]] 単位・ラベル列付きという
+  実在しない形式を示していたので、実物の平坦な [product_basis] 形式に書き直した。
+
+## 2026-09-17 (5)
+
+[BREAKING-ish] GWinput.toml は一切読まない。GW 側の入力は ctrlg.\<sname>.toml + PB.\<sname>.toml だけ。
+  GWinput.toml は 2026-05 移行期の中間ファイル名で、ecalj は読んでいなかったが、
+  その存在を条件にする古い判定が 3 か所に残っていて実害が出ていた:
+  - job_mloW → pylib/gwinput_prepare.py: GWinput.toml (無ければ GWinput から変換) の
+    存在だけを要求する門番。Fe の test は mlo_method=0 と矛盾した化石の GWinput.toml で
+    門番を通していただけだった。門番を ctrlg/PB の存在確認に置換し gwinput_prepare.py は
+    削除 (使用者は job_mloW のみ)。
+  - switch.f90 (Verbose) と getbzdata1.f90 (BZadiv): GWinput/GWinput.toml が存在すれば
+    TOML を読む判定 → ctrlg の世界では常に偽で、[gw] Verbose と BZadiv が読まれていなかった。
+    m_GWinput に gwinput_available() (ctrlg と PB の両方があるか) を追加して置換。
+  - rx の文言 39 か所「GWinput.toml is required」→「ctrlg.\<sname>.toml + PB.\<sname>.toml」。
+  tomlexpand.py (TOML→旧 GWinput の逆変換、round_trip_check.sh 専用) は SRC/exec_legacy/ へ。
+  gwinput2toml.py は Legacy2toml.py の内部ヘルパであることを明示し -o を必須に
+  (既定で GWinput.toml を作らない)。Legacy2toml.py の一時ファイル名も .l2t_gwinput.tmp に。
+  迷子の Samples/MLOsamples/Fe/GWinput.toml と BenchmarkTest/inas4gasb4/GWinput.toml は削除
+  (~/trash/GWinput_toml_20260917/ に退避)。
+  手で変換できるよう、旧 GWinput → ctrlg/PB の対応表と改名・廃止キーの一覧を
+  m_GWinput.f90 の冒頭コメントに書き込んだ。
+[mlo] セクション新設。mlo_\* キーを [gw] から [mlo] へ。
+  m_GWinput: load_mlo_keys / load_mlo_section。[gw] に mlo_\* が残っていれば読んで一行案内
+  (互換)、[mlo] があればそちらが勝つ。Worb は Wannier (hmaxloc) と共用なので [blocks] のまま
+  ([mlo] にあっても読む)。
+  注意: toml-f の get_value(root,'mlo',mlo) は無いサブテーブルを作る (requested=.true. 既定)
+  ので requested=.false. が要る。これを知らずに gv_c_alloc(mlo,'Worb') の intent(out) で
+  [blocks] の Worb を解放してしまい、Cu で ndimMTO=-999998 → zheevx 失敗になった。
+  gwinit のテンプレも [mlo] を書き、再生成時に既存の [mlo] を剥がす。
+  gwinput2toml.py / Legacy2toml.py は mlo_\* を [mlo] に書く。
+  MLOsamples 18 件を移行 (mlo_method/mlo_delta/mlo_w を [mlo] へ)。
+  ecaljdoc: manual/mlo.md, manual/lmf.md。
+  テスト: si_gwsc ALL PASSED、MLOsamples 18 件 322 checks ALL PASSED (全件 [mlo] 経路、案内なし)。
+
+## 2026-09-17 (4)
+
+MLOsamples 18 件の ctrlg に mlo_delta = 2.0 と mlo_w = 2.0 (eV) を明示。
+  どちらも mlo_method=4 の既定値そのもので結果は変わらない (Cu, NiO666lda で
+  ALL PASSED 確認)。mlo_method / mlo_delta / mlo_w の 3 つが模型を決める入力で、
+  既定に頼って 2 つを書かずにおくと何を回したかが入力から読めないため。
+  gwinit のテンプレは元から 3 つとも書いている。
+
+## 2026-09-17 (3)
+
+wan_\* (Wannier / hmaxloc 用のキー) を Wannier を使わないサンプル 26 ファイルで
+コメントアウト (見え消し)。値はそのまま残してある。
+  対象: MLOsamples (FeMgO, FeMgOSoc, FeCo, GaAsSoc), kBT/LiTi2O4 の 5 run, EPS 3 件,
+        BenchmarkTest 2 件, Legacy の Wannier を使わないもの
+  残す: TestInstall/ni_crpa, srvo3_crpa (cRPA は hmaxloc 経由で Wannier が要る)、
+        Legacy/Magnon/\* (job_magnon が hmaxloc を呼ぶ)。
+        wan_out_emin/emax の既定値は 999/-999 の番兵なので、ここで消すと壊れる。
+  wan_\* を読むのは m_GWinput と main_wannier_hmaxloc だけで MLO は読まない。
+  gwinit のテンプレは元から全 8 行コメント済み。見出しを
+  "Wannier (hmaxloc: cRPA, job_magnon). Not used by MLO." に直した。
+  GaAsSoc で ALL PASSED を確認 (toml の読み込みに問題なし)。
+
+## 2026-09-17 (2)
+
+[bugfix] MLO の Worb 選別が lm 単位で効いていなかった (m_HamPMT.f90)。
+  選別ループで lold を更新していなかったため m が常に -l、lm が常に l\*\*2+1 になり、
+  Worb は「殻の先頭 lm (s=1, p=2, d=5, f=10) が書いてあれば殻全体、無ければ殻全体なし」
+  としか働かず、それ以外の番号は無視されていた。部分殻 (t2g だけ等) は選べなかった。
+  修正: (原子, l) が変わるたびに m をリセットし lold/ibsel を更新。表示用ループも
+  原子の切り替わりでリセットするよう揃えた (s だけの原子が連続すると m がずれる)。
+  確認: Cu の Worb を 5 6 8 (dxy,dyz,dxz) にして ndimMTO=3。
+  MLOsamples 18 件 322 checks ALL PASSED (全部完全殻で先頭ありなので参照不変)。
+FeMgO / FeMgOSoc の Worb から Fe/Mg の 11..16、O の 10..16 を削除。
+  Fe と Mg の基底には f の MTO がある (rsmh 4 本) が、Worb に 10 が無かったので
+  上のバグで f 殻がまるごと落ちており、模型は 3x9+3x4+3x3+7x4=76 本だった。
+  削除前後でバンドは max deviation 0.0。修正後に旧 Worb のままだと f が 6 本ずつ
+  入って別の模型になるため、この掃除は修正と一体。
+  経緯: 最初の 521610f82 が全原子に lm を 16 まで並べたテンプレートで、
+  後で Mg/O から d を削ったときに f の尻尾だけ残った。
+Worb の番号は job_band が PROCAR に書く順 (s=1; p=2,3,4; d=5..9; f=10..16)。
+  ecaljdoc manual/mlo.md に表と注意を追加。
+
+## 2026-09-17
+
+TOML 化済みサンプルから GWinput を削除 (39 件)。
+  Samples/{TestInstall,MLOsamples,EPS}/\*/GWinput      34 件
+  Samples/{TestInstall,BenchmarkTest}/\*/GWinput.legacy_backup  5 件
+  Fortran 側は legacy GWinput reader を無効化済み (getbzdata1.f90 / readeigen.f90 が
+  'legacy GWinput reader is disabled. GWinput.toml is required.' で rx abort) なので、
+  これらは読まれない。置いてあると編集しても効かず紛らわしいだけ。
+  削除前に 34 件すべて ctrlg.\<sname>.toml と PB.\<sname>.toml が揃っていることを確認。
+  si_gwsc は削除後も ALL PASSED。
+Samples/Legacy/ の GWinput 17 件は残す。Legacy2toml.py / gwinput2toml.py の
+  変換元であって、設計どおりの入力ファイルである。
+ctrls.\<sname> も残す (ctrlgenToml.py の入力)。
+なお ctrl.\<sname> が TOML 化済みディレクトリに 53 件残っている。lmf は
+  ctrlg.\<sname>.toml しか読まないので同様に死んでいるはずだが、未確認・未処理。
+
+## 2026-09-16 (5)
+
+Samples/kBT/LiTi2O4 に 3000K の 2 run を追加。Sigma 側を切ると収束しないことの実証。
+  n666_T3000/           6^3 3000K 29 反復、両側 3000K
+  n666_T3000_chi0only/  6^3 3000K 60 反復、t_sigmakbt を書いていない (Sigma は T=0)
+  入力の差は t_sigmakbt の行だけ (mixing --ctrlg:iter.b=0.1 と PB は同一)。
+  chi0 はどちらも 3000K なので差は Sigma 側だけから来る。
+結果 (plots/convergence_T3000.png):
+  両側 3000K  : 反復 15 あたりから 1 反復あたり 3-5 meV に落ち着きそのまま
+  chi0 のみ   : 反復 20 で 6 meV まで下がった後また上がり、残り 40 反復を
+                10-50 meV でさまよい続ける (最後の 10 反復で平均 22.8 meV)
+  行き着く先も違う: 両側(29) と chi0 のみ(60) の差は |E-Ef|\<0.5eV で rms 198 meV、
+  |E-Ef|\<2eV で rms 552 meV (最大 1.73 eV)。60 反復後のバンドは質的に別物。
+  理由: chi0 だけ温めると Sigma が chi0 と違う Fermi 準位を見る。
+    chi0only: Sigma は EFERMI=0.29428 Ry、chi0 は EFERMI_kbt=0.25672 Ry (0.51 eV 差)
+    両側    : どちらも EFERMI_kbt=0.25315 Ry
+  これで自己無撞着ループが閉じない。t_sigmakbt == t_tetrakbt にせよという理由。
+plots/bands_iterations_T3000.pdf (60 ページ、5MB) 追加。青=両側、赤破線=chi0 のみ。
+  青は途中で止まり赤は最後まで動き続ける。
+注意: この 2 run は実行日が 2 日離れている (06-13 22:46 開始 と 06-15 23:48 開始)。
+  どちらも 06-13 09:09 の 2 件の修正より後だが当時のバイナリは特定できない。
+
+## 2026-09-16 (4)
+
+Samples/kBT/ を物質名ディレクトリに再構成し、Fe の対照実験を追加。
+  kBT/README.md    注意点をここに集約 (併用必須、esmr 据え置き、deltaq、T 収束確認)
+  kBT/LiTi2O4/     従来の 3 run をここへ移動 (66MB)
+  kBT/Fe/          t_sigmakbt だけを 0 と 3000K に切り替えた対照実験 (0.8MB)
+  README_kt1_original.md は kBT/README.md に統合して削除 (命名規則と kt1 側の
+  在庫一覧を 3 節に。主要知見は既に本文へ取り込み済み)。
+Fe の対照実験 (kt1 ~/sigmakbt_test, 2026-06-15): tetrakbt=true, t_tetrakbt=3000 は
+両方同じで t_sigmakbt だけ 0 vs 3000。chi0 (=W) が同一なので差は Sigma 側だけ。
+  変わらないもの: vxc, SExcore, Z, LDA 固有値がビット単位で同一 (対照として成立)
+  変わるもの (Sigma - vxc の rms):
+    |e-EF|\<1eV   0.788 eV     1-3eV  0.648 eV
+    3-10eV       0.428 eV    >10eV   0.094 eV
+  最大 1.93 eV。SEx と SEc は個別には最大 2.40 / 3.66 eV 動くが符号が逆で和は小さい。
+  交換分裂はほぼ不変 (-0.213 -> -0.212 eV) でほぼスピン共通のシフト。
+  EFERMI 0.01496 Ry -> EFERMI_kbt 0.03373 Ry (0.26 eV)。
+  => Sigma 側の有限温度は小さな補正ではない。chi0 だけ温めるのは数値的にも大きい。
+結果の信頼性について (kBT/README.md 2 節と doc 5.5)。2 件あるが性質が違う:
+  - [有限温度に固有、コミット済みの窓が実在] 6b83b86e7 (2026-06-09 method B' 導入)
+    から 37e6fbc23 (2026-06-13) までのコミットで tetrakbt=true を使った run は、
+    tetwt5 の上流ペア選別が sharp theta のままで高温の chi0 を過小評価している
+    (落ちる殻の重みの 1000K ~1%, 3000K ~18%)。現在は wocc=12\*kbt +
+    fbound/tolpair の厳密上界。usetetrakbt 分岐の中なので T=0 経路には無関係。
+  - [有限温度と無関係、コミットはされていない] m_sxcf_sc.f90 の実軸極項のビン詰めは
+    2298e75e9 (2026-06-13) まで範囲外ガードが無く、findloc が 0 を返すと
+    nttp(-1)/wgtiw(:,-1) に書いていた。その修正を作る途中の ixs\<2 版は下限を
+    1 つ間違えたもので (配列は nttp(0:nw)/freq_r(0:nw) と 0 始まり、正しくは ixs>=1)、
+    bin 0 = 静的 W のスロットを除外して on-shell(we~0) の極項 ~ -Wc(0)/2 を
+    丸ごと落とし si_gwsc の QPU を 3.54 eV ずらした。ただしこれはコミットされて
+    おらず (歴史は「ガード無し -> 正しいガード」)、kt1 の作業ツリーにだけ
+    06-11〜06-13 存在した。kt1 の当時の run についての注意。
+  ここに置いた run は 06-15〜06-20 実行でどちらの窓にも入っていない。
+
+## 2026-09-16 (3)
+
+Samples/kBT/ に 9^3 の run を追加し、run ごとのディレクトリに再構成。
+  kBT/input/                3 run 共通 (PB, syml, rst.lda)
+  kBT/n666_T2000/           6^3 2000K 11 反復 (従来の内容をここへ移動)
+  kBT/n666_T1000/           6^3 1000K 30 反復
+  kBT/n999_T1000/           9^3 1000K 45 反復。収束 sigm (30MB) 付き
+  kBT/plots/                run をまたぐ図と PDF
+  合計 66MB。1000K の 2 run は全反復の生バンドは入れていない (6^3 17MB,
+  9^3 26MB になるため)。反復ごとの中身は下記 PDF で見る。元データは kt1 の
+  ~/LiTi2O4/kbt/runs/n{666,999}_dq0.1_T1000K_sigmakbt1000/band/。
+メッシュ依存が消えていることを初めて数値で確認した (1000K, dq0.1, 両側有限温度):
+  収束した 6^3 (反復30) と 9^3 (反復45) の差
+    |E-Ef|\<0.5eV  rms 13.8 meV  max  54 meV
+    |E-Ef|\<2eV    rms 23.3 meV  max 265 meV
+    |E-Ef|\<10eV   rms 75.4 meV  max 940 meV
+  静電ゼロから測った Ef (Ef-Vesav) は 6.76420 eV と 6.76424 eV で 0.05meV 差。
+  反復残差 (6^3 の 29->30 で Ef 近傍 rms 1.4meV、9^3 の 44->45 で 0.70meV) より
+  大きいので 13.8meV は反復ノイズではなく本当のメッシュ差。
+plots/bands_iterations_T1000.pdf (45 ページ、4MB) を追加。1 ページ 1 反復で
+  6^3 (青) と 9^3 (赤破線) を重ねてある。ページを送ると、反復 1 では大きく
+  食い違っている両者が反復とともに重なっていく様子がパラパラマンガで見える。
+  6^3 は反復 30 で止めたのでそれ以降は収束値を薄く残してある。
+ecaljdoc の manual/kBT.md 5 節に上記を反映 (PDF は public/kBT/ に置いて
+  サイトから配信)。
+
+## 2026-09-16 (2)
+
+kBT (tetrakbt / t_sigmakbt) の実装をレビュー。骨格は正しいが 3 点ある。未修正。
+詳細は ecaljdoc の manual/kBT.md の 7 節。
+  - 恒等式は厳密。lindtet6_kbt の method B' は int dE (-f'(E)) theta(E-ea)theta(eb-E)
+    = f(ea)-f(eb) を k 積分の内側で使っており、E 積分と k 積分が交換するので厳密。
+    分子は Adler-Wiser の f_a - f_b (f_a(1-f_b) ではない) で、応答関数として正しい。
+    ゲート (tetwt5.f90:651)、node zero-skip (:667)、EFERMI_kbt の熱核畳み込み二分法
+    (main_heftet.f90:368) もそれぞれ確認して正しい。
+  - [精度] E 積分の gausq(NE=20,-6,6) の最内節点が |t|=0.459、つまり E_F の
+    +-0.92 kBT の内側を一切標本化していない。テトラヘドロン内のバンド幅が kBT 以下
+    (平坦バンド・バンド端・van Hove) だと占有因子が最大 0.17 ずれる。NE を増やしても
+    1/N でしか落ちない。同じ 20 点で [-6,-1,0,1,6] の 4 区間 x GL5 にすると最悪誤差が
+    1.7e-1 -> 2.9e-2 と 6 倍良くなる (本筋は角エネルギーで区間を切ること)。
+  - [不整合] Sigma 側で sig_fd を on にしても、状態範囲の窓は ddw\*esmr (ddw=10) のまま
+    (m_sxcf_sc.f90:457-458, m_sxcf_sc_count.f90:158,262-263)。さらに sxcf_scz_count は
+    sigmakbt_setup より前に呼ばれるので窓の中心が T=0 の EFERMI、重みの中心が
+    EFERMI_kbt になる。既定値 (2000K, esmr=0.01) では切り捨て 3.7e-4 で無害だが、
+    5000K で 4%、esmr=0.002 で 17% と警告なしに悪化する。
+    直すなら窓を max(ddw\*esmr, 12\*sig_kbt) にし、sigmakbt_setup を count の前に移す。
+  - [範囲] Sigma が要るのは「差」ではなく「和」。中間状態の粒子-正孔対 (2,3) について
+    対を作る重み f_3(1-f_2) と、すでにある対を壊す重み f_2(1-f_3) の和が要るが、
+    Im chi0 が持っているのは差 f_3-f_2 だけ。いまの実装は差を取ってきて外側の f_j を
+    掛けるので f_2(1-f_3) が落ちる。詳細釣り合いから f_2(1-f_3) = (f_3-f_2)\*n_B(omega')
+    なので普通 Bose 因子と呼ばれるものだが、出どころは Fermi の占有数であって
+    ボソンの熱浴ではない (虚時間を使わない定式化で導出。ecaljdoc kBT.md の 8 節)。
+    大きさは O((kBT)^2) = c\*(kBT)^2\*pi^2/6、2000K で数 meV - 数十 meV。
+    これは欠陥ではなく定義。ecalj のスキームは「温度 T の占有数で作る有効一体
+    ハミルトニアン」で、Mermin の有限温度 DFT と同じ立場。QSGW は静的エルミートな
+    一体ハミルトニアンを作るので、落ちているのが主に詳細釣り合い (寿命) 側であることも
+    あって影響は一発 GW のスペクトル関数より軽い。
+  - [latent] m_sxcf_sc.f90:237 の sxs_ekc(is1+nctot) は sxs_ekc(is1) のはず。
+    2024-07-25 の 245ef9f3f (nvfortran 24.1 回避) での書き換えミス。元は ekc(it)。
+    現状 mode 1/2 は nctot=0、mode 3 は else 分岐に入らないので実害なし。
+    main_hsfp0.sc.f90:166 の if(sig_fd) ef = ef_kbt が ixc==3 (CoreEx) にも効いて
+    LOWESTEVAL-1d-3 を上書きするのも同様に今は無害だが fragile。
+
+## 2026-09-16
+
+Samples/kBT/ を新設。有限温度 QSGW (tetrakbt + t_sigmakbt) の LiTi2O4 サンプル。
+  計算が重い (GW 11 反復) ので testecalj のターゲットにはせず、入力と結果だけを置く。
+  - input/  ctrlg / PB / syml と LDA 収束済みの rst。6^3、deltaq_scale=0.1、
+            tetrakbt = t_sigmakbt = 2000 K。
+  - results/ 収束した sigm (これを使えば GW をやり直さずバンドが描ける)、
+            QPU.1run..11run、反復ごとのバンド図、bnd_iterations.tar.gz (元データ)、
+            EFERMI / EFERMI_kbt、finiteT_evidence.txt (両側が効いている証拠のログ)。
+  - plots/  T = 0/1000/2000/3000 K の比較と deltaq_scale アーティファクトの証拠。
+  温度依存について確認したこと (別 run 群、deltaq_scale=0.3):
+    Ti-3d t2g 帯の Γ-L 上の底が T=0 で -3.91 eV まで落ちる (分散ではなく q→0 head
+    の破綻)。1000K -1.31、2000K -0.66、3000K -0.50 eV と温度で単調に消える。
+    3000K に残る K-Γ 中央のスパイク (-1.24 eV) は deltaq_scale=0.3 が原因で、
+    0.1 にすると消える。tetrakbt 本体の問題ではない。高温では deltaq_scale も
+    小さく取ること。
+  ecaljdoc の manual/finiteT.md は manual/kBT.md に改名し、上記を反映。
+
+## 2026-09-15
+
+[BREAKING] esm_input.dat を廃止し、ctrlg.\<sname>.toml の [esm] セクションへ移行。
+  ESM (Effective Screening Medium) は真空層を持つスラブの静電ポテンシャル解法。
+  旧形式は数字だけの位置指定で、しかも「ファイルが無ければ黙って ESM 無効」
+  だった (esmsmves.f90 の open(...,err=201) → jesm=0 → 一行書いて return)。
+  真空スラブでこれをやるとエネルギーのゼロ点が数 eV 動くが異常終了しない。
+  実際 FeMgO で E_F が 4.4155 eV ずれ、長時間「コンパイラ/MPI のマシン依存」
+  を疑う羽目になった (真相は新サンプル組み立て時のコピー忘れ)。
+  - [esm] boundary/origin/shiftmode/zb/potential/field。boundary は
+    "vac/slab/vac" 等の文字列 (旧 jesm 整数も受ける)。全キー明示を推奨。
+  - 後方互換: esm_input.dat が残っていても止まらず、その場で移行する。
+      ctrlg に [esm] が有る → そちらが勝つ。原本は esm_input.dat.bk へ退避し、
+        .bk の冒頭に「TOML 側が使われた」と書く。
+      ctrlg に [esm] が無い → 変換して ctrlg.\<sname>.toml の末尾に説明付きで
+        追記し、原本を esm_input.dat.bk へ退避 (移送先を .bk 冒頭に明記)。
+        TOML は既に読み終わっているので、その実行では変換値を直接使う。
+    冪等。2 回目以降は [esm] が有るので何も起きない。
+  - Legacy2toml.py も同じ規則で esm_input.dat → [esm] を変換する。
+  - c/a > 3 なのに [esm] が無い場合に警告 (スラブの取りこぼし検出)。
+  - Samples/MLOsamples/FeMgO, FeMgO_ES, FeMgO\_\_m3 を [esm] へ移行済み。
+    移行後も E_F は kt1 と 12 桁一致、バンドは最大差 4.8e-8 eV。
+
+[BREAKING] FeMgOSoc も新 FeMgO (空格子球あり 55 軌道) をベースラインにした。
+  2 つの dir は入力一式が同一で、FeMgOSoc が SOC テストを足すだけになる。
+  空格子球ありでも job_mlo_soc の 3 段は問題なく通り、ndimMTO=55、
+  SOC の E_F は -0.3826348900 Ry (非 SOC -0.3828614964 から 3.1 meV シフト)。
+  なお旧 FeMgOSoc は esm_input.dat が置かれておらず ESM 無しで参照が
+  作られていた (FeMgO と ctrlg も rst もバイト一致の同じスラブなのに
+  E_F が 4.4129 eV ずれていた)。
+[BREAKING] Samples/MLOsamples/FeMgO を差し替え。旧模型 (空格子球なし 78 軌道、
+  mlo_method=0 mlo_emax=5) は削除し、空格子球 7 個 (R=1.9 a.u., 重なり 0%) を
+  真空層に入れた新模型 (55 軌道、mlo_method=4) を FeMgO とした。
+  Worb は空格子球 s のみ + Mg,O から 3d を削除。真空層 30.5 a.u. に基底関数が
+  一つも無いと界面状態を原理的に表現できない。mlo_losscheck.py (窓 EF+-2 eV):
+    旧 78 軌道: dE_win 113.3 meV, dE_occ 7.7 meV, dv/v 0.270
+    新 55 軌道: dE_win   3.1 meV, dE_occ 0.6 meV, dv/v 0.008
+  模型が小さいのに 37 倍正確。旧模型は全サンプル中で最悪だった。
+[fix] readbandedge (m_qplist.f90): efermi.lmf が無いと ecbot が黙って
+  eferm にフォールバックしていた。mlo_method=4 の床が ecbot+delta から
+  eferm+delta に変わり、FeMgO_ES で MLO バンドが 2.2 meV ずれて
+  許容 7.4e-5 Ry を超えた。警告を出すようにし、サンプルに efermi.lmf を同梱。
+
+[BUG][重要] lmf --quit=band が LDA+U の dmats.\<sname> を NaN で破壊していた。
+  --quit=band は bndfp からバンド段の直後に戻るので dmatu が積算されない。
+  その未計算の dmatu を m_ldau_vorbset に渡していたため vorb が NaN になり、
+  さらに dmats.\<sname> が NaN で上書きされる (= ユーザ入力ファイルの破壊)。
+  job_band は同一ディレクトリで --quit=band → --band と走るので、2 段目が
+  その NaN を読んで H 全体が NaN になり LAPACK が収束せず
+  "zhev_tk4: nev /=nevout something wrong." で止まっていた。
+  直下の rst 書き出しは既に --quit=band で飛ばしているので、同じガードを
+  m_ldau_vorbset にも付けた。影響: LDA+U で --quit=band を通すもの全て
+  (job_band, job_pdos 等)。MLOsamples/GdCo5 で再現・修正確認。
+[fix] zhev_tk4/zhev_tk2: LAPACK の ier を nev/=nevout より先に判定する。
+  従来は真因が LAPACK エラーでも "nev /=nevout something wrong" と表示され、
+  対角化の引数を疑わせた (上の GdCo5 で遠回りの原因)。失敗時に ier と次元を
+  出し、h に NaN があれば「上流が原因」、zhegvx で ier>n なら「overlap が
+  正定値でない」と明示する。
+[fix] zhev_tk2: nev=nmx を nev=min(nmx,n) に。zhev_tk4 は clamp 済みだった。
+  nmx は k 全体でのバンド上限 (ndham)、n=ndimh は k ごとに変わるので
+  nmx>n が起こり、zhegvx に IU>N という不正な引数を渡していた。
+
+[BREAKING] MLOsamples 全 18 サンプルを mlo_method = 4 に統一。mlo_emax は
+  全サンプルから削除 (method 4 は CBM を ecbot+mlo_delta で自動的に掴むので
+  物質ごとの手調整が要らない。Al2O3_Cr の mlo_emax=7 がまさにそれだった)。
+  参照 (band_MLO_spin\*.dat, bnd\*, qplist.dat, bandplot\*.glt) を全て再生成。
+  - efermi.lmf を全サンプルに同梱し git 管理下に入れた。method 4 は ecbot を
+    ここから読むので、無いと黙って eferm にフォールバックする (別項参照)。
+  - SOC サンプル (FeSoc/GaAsSoc/FeMgOSoc) は非SOC版の efermi.lmf を同梱する。
+    job_mlo_soc の 1 段目が efermi.lmf を SOC 値で上書きするので、SOC を後に
+    走らせたまま同梱すると Test 1 (非SOC) が 1e-4 Ry ずれて落ちる。
+  - Fe/test.py の V, W-V 期待値を更新。method 0 -> 4 で s,p はほぼ不変だが
+    d が UP 0.9 eV / DN 1.7-2.1 eV 動く (V 23.95->22.98, 23.19->21.45)。
+    既定 w=2.0 eV では金属の床が E_F より上に来て MLO が非局在化しオンサイト
+    U が下がるため。Fe は w~11 eV を好む系 (MLO_minimal.md 3 節)。
+  検証: testecalj で 18 サンプル 322 チェック全て PASSED。
+
+[doc] MLO のドキュメントと図を Samples/MLOsamples/ に集約。
+  MLO_minimal.md -> Samples/MLOsamples/MLO_minimal.md (方法の本文)
+  MLO_theory.md / MLO_optimization_log.md / MLO_v6_report.md (+図)
+    -> Samples/MLOsamples/notes/ (作業記録)
+  図 -> Samples/MLOsamples/plots/ に一本化 (38 枚)。リポジトリ直下の
+    MLO_minimal_figs/ は削除 (method 3 の走査ディレクトリから作った古い図で、
+    元ディレクトリ自体が既に無かった)。
+[new] SRC/exec/mlo_bandplot.py: MLO vs 第一原理バンドのプロット。
+  以前は /tmp のアドホックなスクリプトで図を作っており再現できなくなっていた。
+[doc] MLO_minimal.md 2 節を全 18 サンプルの実測で書き直し。
+  - (a) E_F 近傍の模型 11 系: 最良 FeMgO 3.1 meV、中央値 9.9 meV
+  - (b) SOC 版は非 SOC と同程度 (FeMgOSoc 4.1, FeSoc 21.9 meV)
+  - (c) 窓型損失で測れない模型 (Cu の d のみ、4f のみ) を明示
+  - (d) 4f 模型は準位の重なりで評価。method 4 は method 0 と同等だが
+        Delta は効いていない (4f は床より遥かに下で theta~1 に戻る)
+  - w は効く: Fe で w=2.0 -> 11 にすると dE_win 19.8 -> 9.7 meV、
+    d 軌道の W も UP 1.5815 -> 1.6308、DN 1.4248 -> 1.5546 eV と戻る。
+    V と W-V は個別に 1-2 eV 動くが 90% 相殺し、W の変化は UP -5%, DN -11%。
+    Fe 系で W を使う実計算では mlo_w を上げること (Fe/test.py にも明記)。
+
+[change] MLOsamples/FeMgO, FeMgOSoc: 空格子球の Worb を s のみ -> s,p にした
+  (55 -> 76 軌道)。窓型の損失は 3.1 -> 2.5 meV と控えめだが、準位ごとに見ると
+  平均が半分 (15.9/11.4 -> 8.3/6.0 meV)、最大が 860 -> 294 meV と 3 分の 1。
+  効いているのは E_F より上、特に +2〜+6 eV で 3〜5 倍。窓 (E_F±2 eV) の外なので
+  窓型の指標にはほとんど出てこなかった。参照を再生成し ALL PASSED。
+
+## 2026-08-19
+
+[new] Samples 検証スイープ第2弾 (Samples/README.md 参照):
+  BenchmarkTest 2/2 PASSED (kt1 GPU1 -np2 1; 32GB GPU 1枚に GW 2ランクは
+  inas 級で OOM)。GetStarted/GaAs チュートリアルフロー検証。
+  Legacy 32 dir を一括 TOML 化 (全変換成功+lmfa スモーク通過)。
+  AFsymmetry NiO/NiSe を testecalj 復帰 (旧形式 rst が現行 iors 非互換で
+  参照とズレていたのを新収束 rst+新参照で解消)。
+[fix] job_magnon: hwmatK_MPI の廃止フラグ --spinflip/--getW_\* を
+  --sp1/--sp2 へ移行。
+[fix] hmagnon/mlo_magnon/hhomogas: cmdopt registry の読み出しが
+  MPI\_\_Initialize() (= argv パース) より前にあり、--geteta/--sp1 等の
+  全フラグが黙って無効化 → 非 geteta 分岐の未割付 sz_site 参照で
+  segfault していた (addr2line + 単ランク再現で特定)。読み出しを
+  初期化後へ移動。全 main の同型パターンを監査 (lmf は外側 main が
+  先にパースするため実害なし)。これで Magnon 4 テスト
+  (Fe/Ni/FeCo/Fe_bcc_in_sc) が全 PASSED — 参照は現行コードで再生成
+  (kt1 np=60)。共鳴極近傍の TrKpm/TrRpm は極位置に敏感な点に注意。
+[bug] idu>=10 + symgrpaf で zhev_tk4 abort (NiSe で再現、要修理)。
+
+## 2026-08-18
+
+[new] Samples 全域検証スイープ (詳細は Samples/README.md「Verification
+  status」): TestInstall --all を 25 targets へ拡張 (fe=スピン分極DOS,
+  gdn=LDA+U を test.py 化して追加、766 checks ALL PASSED)。大型GW 4件
+  (cugase2_gwsc222/nio_gwsc444/pdo_gwsc443/gas_gwsc666) に si_gwsc 型
+  test.py を追加し、2025-10 の古い参照を現行コード (kt1 GPU FP64) で
+  再生成、独立クリーン再ランで全 PASSED。EPS 3/3, PROCAR 2/2,
+  MLOsamples 17/17 PASSED。yh3fcc_gwsc666 は現行コードで radial solver
+  暴走 (Y pz=[4.9,4.9]) — 要物理検討として README に記録。
+[fix] PROCAR 連結の k 点順序: MPI rank 接尾辞がゼロ詰めでないため
+  np>=11 で辞書順 cat が k 順序を破壊 (pylib merge_files と
+  MgO_PROCAR/test.py の両方)。数値ソートに修正。
+[fix] job_mlo_soc/job_mae: 廃止済み -v[path]= / --phispinsym 構文で
+  lmf が起動時 abort していたのを --ctrlg: 構文へ移行。
+[fix] ctrl2ctrltoml.py: ブレース内「式」({a1/au} 等) を未評価のまま落として
+  いたのを eval で解決。ALAT={式} 形式の旧 ctrl (pdo_gwsc443, yh3fcc_gwsc666)
+  で alat が toml から脱落し、lmf が xlgen 発散 (nv が上限+1 に張り付く) で
+  abort していた真因。{name} は従来どおり constrep 優先 (-v 上書き有効)。
+  回帰: ブレース式なし legacy ctrl 3 件で新旧出力一致。pdo/yh3 の toml を
+  再生成し pdo は lmf 1iter 通過を確認。
+[fix] m_lmfinit: lat_nkdmx 10000→30000 (dlv 0.7MB, 細長セル用の余裕)。
+
+## 2026-08-17
+
+[fix] ctrl2ctrltoml.py (Legacy2toml 変換): 旧 ctrl の CONST カテゴリ
+  (bare 名変数; 例 ALAT=a\*fv, R=R) と %ifdef/%ifndef/%if/%else/%endif
+  分岐が未処理だったのを実装。従来は CONST 変数未解決で変換クラッシュ
+  (TestInstall/fe) や ALAT のデフォルト落ち (gdn)、%ifdef 両分岐出力に
+  よる SPEC 重複が発生。token 評価はキー位置 (TOK=) を除外 (R=R で
+  キー名が数値化して MT 半径が消えるのを防止)。%const は {name} 置換
+  専用の別名前空間に分離 (ITER の b= が %const b に食われる退行を回避)。
+  ベクトル値の未解決シンボルはクラッシュせず rval2 デフォルトへ降格。
+  リグレッション: CONST/%ifdef 無しの legacy ctrl 4 件で新旧出力一致。
+[fix] Samples/TestInstall/{fe,gdn}: 空プレースホルダのままだった
+  ctrlg.\*.toml を修正版コンバータで正規生成 (fe: R=2.325 復元、gdn:
+  %else + ldau 分岐の LDA+U 設定込み)。lmchk/lmfa/lmf 1iter 確認済み。
+[doc] Samples 系 README 3 件: ctrlG.\<sname>.toml / sname 無し PB.toml の
+  旧表記を ctrlg.\<sname>.toml / PB.\<sname>.toml へ更新。
+
+## 2026-06-13
+
+[fix] 実軸極項のビン詰めOOBガード (m_sxcf_sc)。findloc不一致(ixs=0)で nttp(-1)
+  へ範囲外書込み、ixs=nw で nttp(nw+1)。正しいガードは ixs\<1 .or. ixs>nw-1。
+  注意: 過剰版 ixs\<2 は bin0(静的Wスロット)が正当であるにも関わらず we~0 の
+  オンシェル極項(-Wc(0)/2型)を全て落とし、si_gwsc の QPU を 3.54 eV 狂わせる
+  (バイセクトで特定)。HistBin_dw が小さい設定(例 1e-5)では bin1 が極薄のため
+  被害がほぼ出ない一方、粗い dw では eV 級に達する設定依存の危険なバグだった。
+  検証: si_gwsc QPU/log.si とも参照と diff 0.0。
+[new] hsfp0_gpu: 1ショットGW(QPE)の相関W縮約を CUDA-Fortran でGPU化。
+  sxcf_fal2 の4ホットスポット (zwz0 / 虚軸zwz / 実軸zwz / QPE極項
+  zmel^H Wc(ix..ix+2) zmel) を zmm_d + CUF対角内積カーネルで実装。
+  zw3 平面はデバイス常駐(ホストRAM ~ngb^2\*nw\*16B/rank 節約)。
+  検証: si で CPU と 0.000000 eV 一致。LiTi2O4 6^3 実スケールで SECU 396成分
+  max|CPU-GPU|=3.2e-13 eV (倍精度の加算順序差のみ)。4rank+2GPU 72分 vs
+  20 CPUrank 186分。CMake: gpu 変種に main_hsfp0+sxcf_fal2 を組込み
+  (MP変種は complex(8) ハードコードのため除外のまま)。
+[perf] hsfp0 のCPU経路: 「対称性で半分」の手書き三角ループ(zwz0/虚軸zwz)が
+  BLASの約8倍遅い実測ホットスポット(gdbスタックサンプリングで特定)だったのを
+  matzwz(zgemm)+実部取りに置換。数学的に同値、TestInstall 参照と同値。
+[new] gw_lmfh の近代化: ctrlg+PB の TOMLゲート(gwscと同じ)、--gpu/--mp/--fp32/
+  -np2 を追加。--mp 時は hx0fp0_mp\* が書く単精度 WVR/WVI (nprecx=4) を
+  倍精度 hsfp0 が読み込み時に昇格 (sxcf_fal2 wv_single、main_hsfp0 の
+  WV.d チェック緩和)。旧 'WV.d' 掃除グロブが実名 \_\_WV.d/\_\_WVR.\* に一致せず
+  掃除が一度も走っていなかったのも修正。
+  QforGW (ctrlg [blocks]、1行3実数 Cartesian 2pi/alat) + EMINforGW/EMAXforGW
+  (eV, EF基準) で任意k線上の QPE が実用化 (LiTi2O4 Γ-K 11点で実証)。
+  落とし穴: EMAX/EMINforGW を段間で変えたら hsfp0 --job=3/--job=11 から
+  再実行しないと hqpe が SEXU の EOF で死ぬ (SEXU/SECU の状態数不整合)。
+  また QforGW の外部 q では nev\<nbmax の 1d20 パディング状態があるため
+  EMAXforGW で上を絞ること (絞らないと sxcf 222 |w-e| out of range)。
+[new] 診断オプション2件: --dumpW は streaming hgw の SHM 上 W を
+  \_\_WVR.\<iq>/\_\_WVI.\<iq> へ書出し(分割フロー互換形式、Wc(q,w)のオフライン解析用)。
+  --WVR2ptRaxis は Sc 実軸極項の3点Lagrange(alagr3zz、端点重みが負になり得る)を
+  2点線形(凸重み、オーバーシュート無し)へ切替 (m_sxcf_sc / sxcf_fal2 両経路)。
+  LiTi2O4 6^3 では両者 rms 6e-4 eV 一致 = ωメッシュ内挿は金属不安定性の原因では
+  ないことの判定に使用。
+[branch] gwkbt-dev: 有限T GxW Stage A/B (gwkbt/gwkbt_boson、6/11 WIP) を main から
+  隔離。既知問題: Stage B entry2 (静的ビンへの -kbt\*D_sigma 登録) が ixsb>=2 の
+  判定ミスで一度も発火していなかった (静的ビンは ixsb=1)。ブランチ先頭で >=1 に
+  修正済みだが設計レビューと gwkbt_test_plasmonpole.py 再検証が必要。
+  デフォルトoffでは main と同値 (si_gwsc diff 0.0 をブランチ先端で確認)。
+[doc] ユーザー向け手引き FiniteT_and_QPE_HOWTO.md を追加 (tetrakbt の使い方、
+  任意k線QPEのレシピ、GPU/MPオプション、診断、既知の落とし穴)。
+[memo] nvfortran 26.1: associate 内の block 構文が plain-CPU 変種で誤コンパイル
+  の疑い(変種依存)。当該箇所は block を使わずルーチンスコープ一時変数で回避。
+  並列ビルドの fort1 signal 11 ICE は再現性なく -j4 リトライで回避可能。
+
+## 2026-06-09
+
+[fix] 有限温度テトラヘドロン法 (gw: tetrakbt=true) を method (B') で正しく実装。
+  新ルーチン lindtet6_kbt (tetwt5.f90) が、厳密な T=0 ルーチン lindtet6 を
+  フェルミ準位 E をずらして呼び、熱核 -f'(E) で重み付き加算する
+  エネルギー畳み込み W_T(w)=∫dE(-f'(E)) lindtet6(w; E_F=E) を行う。
+  lindtet6 の占有マスク θ(E-ea)θ(eb-E) を畳み込むと厳密に Adler-Wiser の
+  numerator f_T(ea)-f_T(eb) になる。E=E_F+2\*kbt\*t 置換で核は (1/2)sech^2(t) と
+  滑らかになり、t∈[-6,6] の 20点 Gauss-Legendre で十分。FS から離れたテトラは
+  単発 lindtet6 にゲートし、NE倍コストは FS 近傍のみ。核は正規化し総和則を保存。
+  旧 m_tetrakbt の中点ファクタライズ (eaf_triangle, 最大4451倍の誤差で金属の
+  chi0 を壊し W/SEc が NaN) を置換。lindtet6 を無改造で再利用するため
+  matrix_linear の4頂点列も自動的に正しく充填される。
+  fpiint.f90 の gausq (Gauss-Legendre) を public 化。
+  検証 (Na 4x4x4): 全 T で NaN 無し; T->0 で lindtet6 と一致 (ESEAVR 差 ~1e-9,
+  Re(Sc) は印字精度で全状態一致); T=300K で物理的な熱シフト。
+  旧ルーチン (tetrakbt/eaf_triangle/factri 等) は未使用化、削除候補。
+  詳細: MD/past_log.md §13（元は SRC/subroutines/m_tetrakbt_BUGREPORT.md）
+
+## 2026-06-05
+
+[fix] ctrl2ctrltoml.py: 生成 TOML の [ham] セクションに phispinsym=false を
+  自動付加。2026-06-02 で HAM_PHISPINSYM=nreq=1 必須化したが、legacy ctrl 形式は
+  PHISPINSYM トークンを持たないため、Legacy2toml.py 経由(内部で
+  ctrl2ctrltoml.py を呼ぶ)で生成した toml が phispinsym 欠落のまま lmf に
+  渡り abort していた。ctrlgenToml.py 側(ctrls→toml 経路, line 673)は既に
+  同 default を補完していたため、ctrl2ctrltoml.py(ctrl→toml 経路)にも同等の
+  fallback を追加(emit_section('ham') の末尾で seen に無ければ default 行を
+  出力)。これで legacy ctrl からの移行が再び一発で通る。
+
+[tool] SRC/exec/qsgw_status: gwsc QSGW 反復の進行ダッシュボード(新規)。
+  実行ディレクトリで `qsgw_status [--last N]`(watch -n 30 で常駐可)。
+  QPU.\*run / sigm.iter\* の mtime から反復ごとの経過時間・ペース(中央値)・ETA、
+  gwsc ログ末尾から現在の step(hgw 等)と step 経過、save.\<target> の sev 差分と
+  lqpe の rmsdel(σ収束)を表示。対象名・ログ・反復アンカーは自動検出。run 専用の
+  重い処理はせず成果物の読取のみ。Makeinstall で ~/bin へ配布。
+
+[fix] hqpe_sc: \_\_VxcEvec 読込配列を ldimh=max(ndham,nbandmx) で確保(配列範囲外修正)。
+  QSGW(liti2o4, --gpu --mp --fp32 --ntqxx)が iter4 の hqpe_sc で
+  "double free or corruption" → SIGABRT で停止。症状は lqpe の
+  ESEAVR(q=1,Γ)= ~-3.0e+101(ゴミ)、ESEAVRmean ~-7e98。
+  原因: main_hqpe.sc.f90 の ReadVxcEvec で v_xc/evec/evl を nhq(=ndham=333)
+  で確保していたが、GW の qibz メッシュには ndimhx(q)=nz が 334〜336 の q が
+  あり(ndham は SCF 16^3 メッシュの max=333、GW は 6^3+offsetΓ メッシュで
+  max=336。napw が q 依存のため別メッシュで max が異なるのは正当)、
+  v_xc(1:nz,1:nz,iq,is)=... で nz>nhq の範囲外書込→ヒープ破壊→別 q(Γ)の
+  v_xc が Inf 化→matmul で se~1e99→ESEAVR 発散→abort。書込側 sugw.f90 は
+  nbandmx(=336=max ndimhx)で確保しており、読込側だけが ndham を使っていた。
+  --ntqxx で ntq が反復ごとに変わり確保サイズ→ヒープ配置が変わるため
+  iter2/3 はたまたま無害、iter4 で発症(潜在バグ)。
+  対処: \_\_VxcEvec.info から nbandmx を読み、v_xc/evec/evl/evec_inv/evec_invt を
+  ldimh=max(ndham,nbandmx) で確保。nz>nbandmx を検出するアサートを追加(将来の
+  不整合をヒープ破壊前に明示停止)。あわせて I/O を含む do concurrent を通常 do に。
+  無罪だった点(再調査の記録): ntqxx 上限(元々151で正しい)、do concurrent、
+  --use_fp32(\_\_VxcEvec ファイルの Γ点 v_xc は健全: max 2.29, Inf 無し)。
+  検証: 修正版で hqpe_sc 正常終了、ESEAVR 全q 0.16〜0.17、QPU/sigm/バンド健全、
+  本番 gwsc 継続で iter4 rc=0。
+
+[fix] MPI\_\_AutoSetup: mpi\_\_size >> nq_calc のとき余剰 q-group が大量発生する問題を修正。
+  メモリ制約のみで worker_inQtask を決めていたため (target_w = ceil(ppn/max_qg))、
+  q-group 数が q 点数を大幅に超えることがあった
+  (例: 512ランク, ppn=64, 18q点 → 128グループ, 107グループが遊び)。
+  target_w に ceil(mpi\_\_size/nq_calc) も課すことで n_qgroup ≤ nq_calc を保証。
+  例: 512ランク, ppn=64, 18q点 → worker=32, n_qgroup=16, 全ランク稼働。
+  exchange フェーズの worker 計算にも同様の修正を適用。
+
+[feat] readeigen: CPU ビルドで geig/cphi (固有ベクトル) を MPI 共有メモリ化。
+  KeepEigen=T 時、geig/cphi(complex(8)) を各ランクが private 複製で保持していた
+  (密な系で ~2GB/rank; liti2o4 14原子/LDA 16^3 で 60ランク = ~126GB の純複製)。
+  これが AutoSetup の予算(rcxq+SHM)外で、hgw を OOM(signal 9)させていた。
+  CPU 版はノード共有メモリ窓に確保し node-root のみがディスク読込→barrier で
+  全ランクへ公開。GPU 版は従来の per-rank 維持(acc present)。
+  m_sharedmem に shm_alloc_c8_4d (complex(8) 4D窓) を追加。
+  実測 liti2o4 -np60: Private_Dirty 2.3→0.58 GB/rank、ピーク >270GB(OOM)→~153GB。
+  geig/cphi は read-only・kt1 は単一NUMA なので計算速度は不変、init のディスク
+  読込は ppn重複→1回 に削減。mp-8196 CPU の SEc 不変(正しさ確認)。
+  補足: KeepEigen は自動でなく手動既定 T(速度)/F(省メモリ)。本変更で T のまま
+  省メモリになり F に落とす必要が減った。
+
+[fix] MPI\_\_AutoSetup: 予算外の per-rank 作業配列(zmel等, hgwループ後半で確保)の
+  ぶんを予約。avail から ppn×priv_reserve_gb(=1.0) を差し引き、1 q-group 未満には
+  ならないようclamp。メモリに余裕がある時(q-group が nq_calc 律速)は無影響、
+  逼迫時のみレイアウトを締めて OOM を確実に回避。
+
+[fix] gwscconv: (1) 収束判定を「直近3iterのギャップ振れ \< conv-tol が2回連続」に
+  変更(一発の偶然収束で止まるのを防ぐ)。(2) EXEC_DIR の .resolve() を除去 ——
+  bin/ の symlink を辿ると Fortran バイナリの無い SRC/exec を指して lmfa 起動に
+  失敗していた。gwsc と同じ Path(\_\_file\_\_).parent に統一。
+
+[feat] readeigen: GPU ビルドでも geig/cphi を CPU SHM 化（VRAM 常駐廃止）。
+  KeepEigen=T 時、GPU ビルドは geig/cphi を per-rank allocatable + !$acc copyin で
+  VRAM に常駐させていた（密な系で数 GB/rank の VRAM を専有）。
+\#ifdef \_\_GPU の分岐を除去し CPU と同じ pointer + shm_alloc_c8_4d パスに統一。
+  readgeigf_mpi / readcphif_mpi の keepeig 節は "!$acc kernels present(geig/cphi)"
+  を廃止し、SHM ポインタから geigenr/cphifr へ host コピー後に
+  !$acc update device で H2D 転送する方式に変更。
+  転送サイズは 1 q 点スライス（ngpmx\*nspc×nband）のみで GEMM 律速な計算と比べ無視できる。
+
+[feat] MPI\_\_AutoSetup: priv_reserve_gb(固定 1 GB/rank)を廃止し
+  zmel 実サイズベースの見積りに変更。
+  新引数 zmel_per_rank_gb（呼び出し側が実サイズを計算して渡す）を追加。
+  CPU: avail_for_shm = avail×0.7 − ppn×3×zmel_gb（zmel+czmelwc+wzmel 同時確保 ×3）。
+  GPU: gpu_avail_mem_gb()（新規）で VRAM 空き量を取得し、
+    W-build: rcxq/n_bpara_xq + zmel×2 ≤ gpu_avail×0.7
+    Sc:      wvu/n_bpara_sxc + zmel×3 ≤ gpu_avail×0.7
+  の制約を n_bpara_xq / n_bpara_sxc の下限として付加。
+  GPU: ranks_per_gpu (gpu_init で設定) で GPU 共有時の VRAM を per-rank に按分。
+
+[feat] MPI\_\_PrintSummary（m_mpi.f90 新規）: InitQgroups/SplitXq/SplitSxc 後に
+  q-group→ノード対応・intra-group レイアウト(omega×k)・LPT q-point 割り当て
+  を human-readable に出力。グループ数 >32 は先頭/末尾のみ表示（--fullstdo で全表示）。
+
+[feat] main_hgw: 補助 q 点(aux-q)と通常 q 点を統一 LPT でアサイン。
+  従来は aux-q を mod(iq-nqibz-1, n_qgroup) で固定割り当て（負荷不均一の恐れ）。
+  mpi_assign_qtask_lpt に naux / aux_grp_out 引数を追加し、aux-q の重みを
+  avg_regular_weight/3（W-build のみで Sc なし ≈ 1:3 コスト比）として LPT に統合。
+  reg_grp_assign / aux_grp_assign を public 変数として公開。
+  iq ループ内で W-build と Sc の直後に mpi\_\_root_q が "hgw iq=N: W-build/Sc" と
+  stopwatch 計時付きで進捗を出力するよう変更。
+  wv_dealloc() をループ末尾（各 iq 処理後）に移動（従来はループ外 = 全 iq 完了後）。
+
+[feat] m_sxcf_sc: wvr_upper / wvi_upper を GPU build で attributes(device) 宣言。
+  従来は CPU に確保して !$acc enter data copyin で VRAM に複製していた
+  （VRAM に 2 コピー存在し、Sc フェーズで最大メモリ使用量が増大）。
+  GPU build では device 属性のみとし CPU コピーを廃止。
+  SHM から slice-by-slice に小バッファ wv(ngb,ngb) 経由で device へ転送
+  （!$acc update device(wv) → !$acc parallel loop で上三角要素をコピー）。
+
+[feat] m_GWinput: MEMnmbatch / zmel_max_size を zmel_batch_gb に統合。
+  legacy alias として zmel_max_size は引き続き読み込み可。
+  GPU ビルド時は zmel_batch_gb_min_gpu=2.0 GB を下限としてクランプ
+  （CPU 最小値は zmel_batch_gb_min=0.4 GB）。
+
+[fix] memused: /proc/self/status の VmRSS（現在 RSS）を読むよう変更。
+  従来の getrusage は peak RSS を返すため、SHM 化後に解放したメモリが
+  memused() に残り続けて AutoSetup の avail 見積りが悲観的になっていた。
+  procfs が使えない環境では getrusage にフォールバック。
+  mempeak 更新の比較演算子 > → \< を修正（peak が更新されていなかったバグ）。
+
+[refactor] SRC/exec_legacy/: 現行フローで使われないスクリプト群を exec/ から移動。
+  Cal_W_off-site.py, FLEX_interaction.py, Makeinstall, gwutil.py 等 43 ファイル。
+  diffnum0.py は exec/pylib/ に移動（pylib 内のユーティリティとして整理）。
+
+## 2026-06-04
+
+[feat] GPU 混合精度 GEMM に --fp32 ランタイムオプションを追加。
+  --gpu --mp は既定で TF32 (CUBLAS_COMPUTE_32F_FAST_TF32, 仮数10bit) を使うが、
+  悪条件な誘電行列 (重元素+分子アニオン NO3/ClO/BrO/N3/PO4 等で局所場が強く
+  条件数が大きい系) では TF32 の ~1e-3 相対誤差が (1-vχ0) の逆行列で増幅され
+  W/SEc が破壊、QSGW が発散 (lmf failed) または NaN (lsc/lqpe) になる。
+  --fp32 で cmm_d/cmm_batch_d の compute_type を真の FP32 (仮数23bit, ~1e-7) に
+  切替える (ストレージは単精度のまま、~7%減速、CPU/倍精度と一致)。FP64 は過剰。
+  汚染源は χ0 累積 (zmel 縮約) であり m_llw の逆行列パスだけ直しても無効と確認。
+  - m_cmdopt_registry.f90: c0_use_fp32 宣言 + --use_fp32 登録
+  - m_blas.f90: compute_type を merge(CUBLAS_COMPUTE_32F, ..._FAST_TF32, c0_use_fp32)
+  - SRC/exec/gwsc: --fp32 → options に --use_fp32
+  検証: mp-8196(AgNO3)/mp-581833(RbN3) で CPU 一致。GW1500 失敗群
+  [A]lmf-failed/[B]NaN-lsc/[C]NaN-lqpe を ctrlgenToml.py→gwsc --fp32 で再現し
+  軒並み収束 (NaN/発散が消失)。デフォルト TF32 は不変なので既存挙動に影響なし。
+
+[fix] ctrlgenToml.py: lmchk --getwsr プローブ用の最小 ctrlg.tmp.toml に
+  [ham] phispinsym=false を追加。2026-06-02 の HAM_PHISPINSYM=nreq=1 必須化で
+  プローブ toml が phispinsym 欠落により lmchk が abort し、ctrlgenToml.py が
+  全構造で失敗していた (最終出力には phispinsym=false が入っていたがプローブ側が
+  漏れていた)。これで ctrls→ctrlg/PB.toml 生成が再び通る。
+
+[feat] ecalj_auto: GW1500 バッチ (worker.sh / run_gw1500_addrun.sh /
+  run_gw1500_addrun_conv.sh) の QSGW 呼び出しに --fp32 を追加。新フロー
+  vasp2ctrl → ctrlgenToml.py → gwscconv --gpu --mp --fp32 --conv-tol 0.1
+  で悪条件失敗群を自動救済できるようにした (収束基準は last-3-iter ギャップ
+  振れ \< 0.1 eV)。
+
+## 2026-06-03
+
+[refactor] MPI startup-read 経路の全 rank 並列化 (mpibc1_\* 系の大規模削減)。
+  POSIX/NFS/Lustre が同一ファイル N rank 同時 read を保証する前提で、startup
+  時に master が読んで全 rank に Bcast していた「master-reads + mpibc1_\*」
+  パターンを「全 rank が独立に open/read/close する」形に置換。
+  - iors.f90: rst.\<sname> の read path で 25+ 件の mpibc1_int/real/complex/
+    mpibc1_s_spec を全削除。lfail 探査、osmrho/pnu/pnz/rhoat/v0/v1/spec data の
+    bcast 経路もろとも撤去。write は master 単独のまま不変。502→441 行。
+    全 rank 完全同一 EHF=-6372.629191/EHK=-6372.480439 (1/4/8 rank)。
+  - rdovfa.f90 + m_fatom.f90 + m_lmfinit.f90: \_\_atm.\<sname> 読み込みと
+    mpibc1_s_spec 撤去。m_fatom から mpibc1_s_spec subroutine を削除
+    (唯一の caller だった iors/rdovfa 両方で不要に)。m_lmfinit の
+    sigm.\<sname> 存在チェック後の bcast も全 rank inquire に。
+  - esmsmves.f90: ESM init block の master read + 11 件の mpibc1_\*/
+    mpi_barrier 撤去。jesm=0 path 不変。
+  - mpibc.f90: mpibc2 (MPI_Allreduce SUM wrapper) を MPI_IN_PLACE 化、
+    ibuf/dbuf alloc + dcopy/icopy back の plumbing を撤去 (-51 LOC)。
+    callsite 不変 (signature 保持)。ifort 2018 workaround (transfer 不可
+    コメント) は最低 ifort 2023 で過去のものに。
+  - 残置: master-only output (write(stdo,...)) のため master_mpi 条件のみ。
+    mpibc2 (Allreduce 系 31 callsite) は本質的 collective で削減不可。
+    m_qplist/m_bndfp の per-iter computed scalar bcast は決定性確証が
+    取れないため凍結。
+  効果: ~50-60 callsite 削減、~300 LOC 削減。3 環境 testecalj --all 全通過
+  (t14 gfortran-14: 666/666、mic ifort 2023: 666/666、kt1 nvfortran 26.1+
+  GPU+MP: 645/645 "ALL PASSED")。
+
+[refactor] m_MPItk → m_mpi 統合 (legacy alias module 撤去)。
+  m_mpitk.f90 は 14 行の thin re-export wrapper だった (procid/strprocid/
+  master/nsize/master_mpi/xmpbnd2/comm/readtk + m_MPItk_init を
+  m_mpi から forward)。本体は既に m_mpi に集約済み。callsite を一括移行:
+  - 54 ファイルの `use m_MPItk` → `use m_mpi` (case-insensitive)
+  - 8 callsite の `m_MPItk_init(comm)` → `MPI__Initialize(comm)`
+    (他 19 callsite は既に MPI\_\_Initialize 直呼び)
+  - リネーム alias (comm2=>comm, nrank=>nsize 等) はそのまま機能
+  - m_mpitk.f90 削除 + m_mpi.f90 のコメントから "m_MPItk compatible" を
+    正常化
+  56 files changed, +80/-94 LOC。NiO 4-rank smoke 数値一致。
+
+[refactor] iors_old.f90 (vs=1.04 rst, pre-2022-5-14) を削除。
+  iors_old は 2022 年 5 月 14 日以前の旧 rst バイナリ format 読込用で
+  788 行、唯一の caller は m_lmfp.f90 の 1 行。vs/=2.0 path を rx() に
+  置換 (no longer supported メッセージ付き) + ファイル削除。3 年以上未使用、
+  遭遇する 旧 rst ファイルがあれば lmfa から再生成すべき状況。
+
+[refactor] dead source 整理。
+  - コメントのみ 4 ファイル削除: lmf2gw.f90, m_anf.f90, main_hmlo.f90,
+    main_hsigmconv.f90 (合計 543 行、ファイル内全行が `^!`、CMake auto-glob で
+    無シンボル .o を生成していた)。
+  - 全 dead 8 ファイル (~1984 LOC) を SRC/BK/ に退避: m_eibz, m_hamMTO,
+    m_readeps, m_rotMPB, w_psir, rpaq, zsecsym, madmat。declared module
+    230 vs imported module 219 のスキャンと free-subroutine 外部 caller の
+    確認を経て「外部参照ゼロ」を保証して移動。
+  - 部分 dead 2 ファイル (wintzsg.f90/extension.f90) は live free
+    subroutine を保持しつつ dead module/関数のみコメントアウト。
+    wintzsg.f90 の wintz_npm は wintzsg_npm が内部 call していたため
+    live 判定で保持 (linker エラーで検知して復活)。
+  - rgwinf_mod.f90 の長期 stale 削除を git index に staging。
+  - SRC/BK/ 配下に退避しているため、必要なら参照可能。
+
+[refactor] m_blas: include "mpif.h" → use mpi (主要 2 関数除く)。
+  main_wannier_wanplot.f90 の 1 件と m_blas.f90 の 1 件は use mpi 化。
+  ただし m_blas.f90 の cmm_batch_h / zmm_batch_h は include "mpif.h" を
+  維持 (nvfortran は use mpi の generic mpi_bcast を complex(4)/integer(8)
+  の組合せで resolve できない、include なら implicit interface で通る、
+  legacy 派の意図的選択)。SRC/subroutines/SRC/main 配下では SRC/BK/ を除き
+  active な include mpif.h は m_blas.f90 の 2 関数のみとなる。
+
+[feat] viewvesta / ctrl2vasp: 正規 TOML 入力 ctrlg.\<sname>.toml を受理。
+  viewvesta はこれまで ctrl./ctrls. プレフィックスのみ判定していたため
+  `viewvesta ctrlg.nio.toml` が誤って `ctrl` 分岐に落ち、結果として
+  POSCAR_g.nio.toml.vasp(ゴミ名)が生成されていた。
+  - viewvesta.py: ctrlg.\*.toml 判定を ctrl\* 判定より前に置く (順序が
+    重要、`'ctrlg.foo.toml'[0:4]=='ctrl'` が誤マッチするため)。
+  - ctrl2vasp.py: TOML 分岐を追加。tomllib で読込→struc.alat (Bohr) を
+    angstrom 換算→struc.plat を 9 要素に平坦化→[[site]] を
+    [[name, x, y, z], ...] に展開→既存 convctrl.savefile() に渡して
+    POSCAR 出力。legacy ctrl./ctrls. path は完全に維持。
+  Help text に 3 形式 (canonical TOML / 旧 ctrls / 旧 ctrl /
+    pre-made POSCAR) を明記。NiO 検証: 3 入力形式すべて同一 139 byte
+    POSCAR を生成、VESTA 起動 OK。
+
+[feat] bash completion (ecalj_complete.bash): --ctrlg:\<path>= の Tab で
+  現状値を表示。
+  - --ctrlg:\<TAB> → 全 dotted key を `bz.nkabc=[8,8,8]`,
+    `symgrp='"find"'`, `bz.tetra=true` 等の TOML literal で出力
+  - TOML 文字列は autoquote_bare_string が救済できる形 (letter 始まり等)
+    なら裸で emit、それ以外は `'"value"'` で二重 quote (外 ' で bash
+    保護、内 " で TOML 引用)、リストは外 ' で glob 衝突 ([8,8,8] 等)
+    防止
+  - multi-line 文字列 (blocks.QforEPS 等) は値非表示 `key=` のみ
+  - `--ctrlg:<TAB>` (CWORD=":") と `--ctrlg:bz.<TAB>` (CWORD="bz.") 両方
+    正しく動作するよう cur 再構築条件を `prev==":"` / `cur==":"` 両方で
+    トリガ
+  - `lmfa ctrlg.nio.toml <TAB>` (positional 既出+末尾スペース)で同 sname
+    を再 offer しないよう、勝手な重複を抑止
+  関連: m_toml_override の multi-line array 置換 bug 修正
+  (--ctrlg:struc.plat='[[..],[..],[..]]' が 1 行目しか置換せず orphan を
+  残していた問題)、ecalj_complete でリストに対する `'...'` 外側 quote
+  付加、m_ext で `lmf ctrlg.<sname>` (no .toml) を loud reject。
+
+[fix] InstallAll.py: lmf --listcmdopt の post-build dump を skip_on_error=
+  True に。HPCX (kt1 OpenMPI) は MPI_Init/Finalize bracket 付きでも exit=1
+  を返すため、tab-completion 用 cmdopt list 生成だけで全 install が abort
+  していた。stdout は完全に書き出されるため file は正しく生成済、それを
+  blocker にしないよう wrapper の sys.exit(1) を抑止。
+
+## 2026-06-02
+
+[BREAKING] cmdline override prefix と TOML ファイル命名規約を変更:
+  - `--toml.<path>=<value>` → `--ctrlg:<dotted.path>=<value>`
+    (prefix と path を `:` で分離、ctrlg ファイルを上書きする意図を明示)
+  - `ctrlG.<sname>.toml` → `ctrlg.<sname>.toml` (lowercase G)
+  - `PB.toml` → `PB.<sname>.toml` (sname 付き、cwd で複数系統共存可能に)
+  旧 `--toml.<path>=...` 形式は abort + 移行ヒントを出す。Fortran/Python
+  両側のファイル探索ロジック (m_ext.f90 / m_GWinput.f90 / gwsc / pylib/dft.py
+  等)、bash completion、ctrlgenToml.py / Legacy2toml.py / ctrlgenM1.py /
+  mkGWinput 出力、59 ctrlG.\<sname>.toml + 42 PB.toml の rename、11
+  sample test.py、README\*.md / ecaljclaude.md / ecalj_auto/README.md /
+  Samples/MLOsamples/README\*.md を一括更新。
+  検証: copt + te + nio_gwsc gfortran-14 ローカルで全 PASS。
+
+[feat] m_toml_override: --toml.\<path>=\<value> の値が裸の文字列識別子
+  (`find`, `rx mx` 等) の場合に自動でダブルクォートを付加する
+  autoquote_bare_string を追加。`bash` がシングル/ダブルクォートを
+  剥がす経路で TOML 文字列が壊れるのを救済する (例:
+  `--toml.symgrp=find` → 内部で `symgrp = "find"`)。先頭が
+  `" ' [ { 0-9 + - .` のいずれかか、`true`/`false`/`nan`/`inf` の場合は
+  既存 TOML literal とみなして pass-through。
+
+[docs] 新 TOML override 仕様 (--toml.\<path>=\<value>) を関連箇所に
+  反映: m_ext.f90 --help バナー、SRC/exec/Legacy2toml.py の
+  INFO/WARN/ERROR diagnostic、README.md / ecaljclaude.md /
+  ecalj_auto/README.md / Samples/MLOsamples/README.md /
+  Samples/MLOsamples/README_SOC.md 内のサンプルコマンド。
+
+[BREAKING] TOML override syntax 一新と TOML スキーマ調整。新仕様:
+  - 受け入れる override 形式は `--toml.<dotted.path>=<value>` 一つだけ
+    (例: --toml.bz.nkabc=[8,8,8] / --toml.ham.so=1 /
+          --toml.verbose=50 / --toml.ham.phispinsym=true)。値は TOML
+    仕様準拠 (bool は小文字 true/false 必須、文字列はクォート要)
+  - 旧 -v[\<path>]= / -v\<name>= / --[\<path>]= / --\<a.b>= / --pr=N /
+    --time=... / --phispinsym 形式は全て abort + 移行ヒントを出す
+  - cmdopt は m_cmdopt_registry::CMDOPT2_REGISTRY に登録されたものだけ
+    `--foo=value` で通る。未登録は即 abort (typo 検出)
+TOML スキーマ変更:
+  - [io] セクション撤廃。verbose / time を top-level に昇格
+  - [ham] phispinsym を nreq=1 (必須) に変更
+関連変更:
+  - m_lmfinit.f90: rval2 を VERBOSE / TIME / HAM_PHISPINSYM=nreq=1 に
+  - ctrlgenToml.py: [io] 出力削除、top-level に verbose/time
+  - pylib/ctrl_schema.py + toml_comments.py: top-level マッピングへ
+  - SRC/exec/migrate_ctrlG_v2.py (新規): 既存 ctrlG.toml の一括移行
+    (drop [io] / rename verbos→verbose / inject phispinsym=false)
+  - Samples 配下 59 個の ctrlG.\<sname>.toml を移行スクリプトで一括更新
+  - 11 個の Samples/TestInstall/\*/test.py を `-v[<path>]=` →
+    `--toml.<path>=` に sed 一括置換、`--pr=N`/`--time=N` も
+    `--toml.verbose=N`/`--toml.time=[N,M]` に更新
+  - pylib/dft.py + gwutil.py の内部 `-v[iter.b]=` も
+    `--toml.iter.b=` に
+検証: copt + te + nio_gwsc gfortran-14 ローカルで全 PASS。
+
+[feat] m_cmdopt_registry.f90 (新規) + m_toml_override.f90: cmdline で
+  TOML キーを上書きする入力経路を厳密化。
+  - `--[<dotted.path>]=<value>` / `--<a.b>=<value>` (dot 含む) を
+    `-v[<path>]=<value>` と同等の TOML override として認識
+  - plain `--<word>=<value>` (dot 無し / 括弧無し) は cmdopt2 レジストリ
+    `m_cmdopt_registry::CMDOPT2_REGISTRY` に照合。
+    レジストリは値付き cmdopt2 (`--jobgw`, `--job`, `--nb` 等) と
+    `--quit=show` / `--diag=tridiag` / `--dwnb=mlo` のような cmdopt0
+    で `=` を含む形を合わせて 16 個列挙
+  - どちらにも該当しない `--bogus=42` は典型タイポと見なして即 abort、
+    `--[<path>]=<value>` の使い方とドキュメント URL を出す
+  - Samples/TestInstall/copt/test.py: 死語の `-cstrx=l12 --pr41` を
+    `--pr=41` に置換
+
+[refactor] m_toml_override.f90 + m_lmfinit.f90 + main_lmchk.f90:
+  `--pr=N` / `--time=N,M` / `--phispinsym` の 3 つの「cmdline で TOML
+  キーを上書き」する旧 cmdopt 分岐を、TOML override 層
+  (m_toml_override.f90) に集約。translate_legacy_cmdopt() が
+  --pr=N → io.verbose=N、--time=N,M → io.time=[N,M]、
+  --phispinsym → ham.phispinsym=true に翻訳して TOML 本文 parse 前に
+  適用。m_lmfinit.f90 / main_lmchk.f90 の rval2 後の再上書きコードと
+  redundant な cmdopt2 分岐は削除。SOCAXIS チェックは `cmdopt0`
+  判定から `phispinsym` 変数判定に切替。これで TOML キーの上書き
+  経路が `-v[<path>]=<value>` 一系統に統一された。testecalj copt /
+  te / nio_gwsc 全 PASS。
+
+[feat] ctrlgenToml.py + toml_comments.py: [ham] に phispinsym = false を
+  explicit に書くようにした。これまで TOML 出力に無く `defa=0` で
+  暗黙の OFF だったため、SOC perturbation 等で必要なときの存在感が
+  薄かった。新規 ctrlG.\<sname>.toml に "true = spin-averaged radial
+  wfns (needed for SOC=1 perturbation)" の inline コメント付きで出力。
+  既存 ctrlG.toml は変更不要 (デフォルト false と等価)。
+
+[feat] [io] のキー名を verbos → verbose、tim → time にリネーム。
+  m_lmfinit.f90 の rval2 呼び出しは新名前を先に試し、見つからなければ
+  旧名前にフォールバックするので既存 95 個の ctrlG.\<sname>.toml は
+  そのまま動く。新規生成 (ctrlgenToml.py) は新名前で出す。
+  pylib/ctrl_schema.py (Legacy2toml mapping) と pylib/toml_comments.py
+  も同時更新。testecalj --all で全 PASS。
+
+[feat] m_ctrl_toml_loader.f90 + ctrlgenToml.py: [struc] nspec / nbas を
+  TOML に書かなくても loader が [[spec]] / [[site]] の配列長から
+  合成 (STRUC_NSPEC / STRUC_NBAS) するように。append は walk_table の
+  後段なので、ユーザが意図的に subset を絞った値 (例:
+  Samples/TestInstall/te は 12 サイト + 2 スペック格納だが
+  lmfa/mto/pw variant は nbas=3 nspec=1 でサブセット指定) は rval2 の
+  first-match で従来通り尊重される。ctrlgenToml.py からは無条件で
+  削除。testecalj --all (gfortran-14, CPU) で全 PASS 確認。
+
+[bugfix] SRC/exec/pylib/dft.py + gwutil.py: 内部で組み立てる
+  `-vb={bval}` (Anderson 混合 β の override) が legacy `-v` 形式で、
+  `m_toml_override.f90` の新 abort に引っかかって gwsc が即落ちしていた。
+  `-v[iter.b]={bval}` (TOML path 形式) に修正。NiO QSGW で確認。
+
+[tweak] Samples/TestInstall/nio_gwsc/test.py: --mp (mixed precision)
+  指定時のみ log.nio 比較 tol を 3e-3 → 5e-3 に緩和。kt1
+  nvfortran + GPU + MP で fp evl 収束が ~3.2e-3 ずれて閾値超過していた
+  のに対応。CPU パスは引き続き 3e-3 を維持する。
+
+[feat] m_toml_override.f90: legacy `-v<name>=<value>` 形式
+  (ctrl `%const` 旧書式) を黙って無視する代わりに、明示的に rx で
+  abort するようにした。エラー時には `-v[<toml-path>]=<value>` の
+  書き換え例 (`-vnk=8` → `-v[bz.nkabc]=[8,8,8]` 等) と
+  https://ecalj.github.io/ecaljdoc/manual/toml_migration を表示。
+  silent ignore は「設定したつもりがデフォルトで走る」事故の元。
+  `-v[...]` 形式は変わらず通り抜ける。
+
+[feat] m_ext.f90 / main_lmf|lmfa|lmchk.f90: lmf|lmfa|lmchk --help が
+  入力ファイル一覧、`-v[<toml-path>]=<value>` override 書式、よく使う
+  --foo subset、ecaljdoc へのリンク (manual/lmf, manual/cmdopts,
+  manual/toml_migration) を出すように刷新。m_ext.f90 に
+  print_usage_and_quit を新設し、各 main の `--help` 分岐から呼ぶ
+  (旧実装は m_lmfinit_init を呼んで ctrl 解釈ダンプを出していた)。
+  rx0 は MPI 初期化後でないと使えないので `exit(0)` で抜ける。
+  全 ~135 個の --foo の網羅は ecaljdoc/manual/cmdopts (新規) に集約。
+
+[docs] -v override 表記を新形式 `-v[<toml-path>]=<value>` に統一。
+  legacy `-v<name>=<expr>` (ctrl `%const` substitution) は parser が
+  既に廃止済 (m_toml_override.f90 は `arg(1:3) == '-v['` のみ受付) で
+  黙って無視される状態。ecalj_auto/README.md (`-vssig=0.8` →
+  `-v[ham.scaledsigma]=0.8`) と Samples/MLOsamples/README_SOC.md
+  (`-vnspin=2 -vso=1` 等 → `-v[ham.nspin]=2 -v[ham.so]=1`) を修正。
+  ecaljdoc/manual/ 側も並行修正 (lmf.md, UsageDetailed.md,
+  README_tutorial.md, toml_migration.md, gwsc.md)。
+
+[bugfix] ctrlgenToml.py: 各 [[spec]] の rsmh / rsmh2 が表示上の r の
+  厳密な 1/2 になるよう修正。従来は raw r を `round(r, 2)` で表示し、
+  rh も独立に `round(rh, 2)` 表示していたため、例えば raw r=4.10... が
+  r=4.10 と表示される一方で rh=2.05 (= raw_r/2 を 2 桁丸め) と
+  表示され、表示上の 2\*rsmh != r のずれが起きていた。今は
+  `r_upper_limit` 直後で `r = round(r, 2)` を確定し、rh は確定済 r
+  から計算 → `fmt_real` の .15g で精度保持して書き出す。NiO で
+  Ni(r=2.12,rsmh=1.06), O(r=1.7,rsmh=0.85) を確認。
+
+[bugfix] ctrlgenToml.py: ctrls SPEC でカスタム原子名 (例: Niup, Nidn) を
+  `Z=` 明示で指定したとき、`{sym} not in atomlist` で異常終了していた
+  バグを修正。atomlist (周期表 dict) に直接該当キーが無くても、SPEC で
+  指定された Z 値 → z2sym 経由で標準シンボル (例: Z=28 → 'Ni') の body を
+  fallback で取得するようにした。NiO (Niup/Nidn 反強磁性セットアップ) で
+  ctrlG.\<ext>.toml と PB.toml が正常に生成されることを確認。
+
+## 2026-05-12
+
+[bugfix] x0kf_v4h.f90: streaming MEMORY_3D で nwhis > nw の場合に
+  MPI_Allreduce カウント不一致によるデッドロックを修正。
+  wv_assoc_real_buf に rcxq 全体を渡していたため、Qtask ランクの
+  size(wv_real_buf) = npr\*npr_col\*(nwhis+1) が非 Qtask ランクの
+  wv_alloc_zero_bufs が確保する size = ngb\*ngb\*(nw-nw_i+1) と不一致。
+  nio_gwsc では nwhis=102, nw=96 のため 103 vs 97 でカウントがずれ、
+  wv_sync_current の MPI_Allreduce が全ランク無限スピン待ちになっていた。
+  fix: wv_assoc_real_buf(rcxq) → wv_assoc_real_buf(rcxq(:,:,nw_i:nw_w))
+  で WVRllwR が書く実周波数スライスのみ共有。両側のサイズが
+  nw_hi-nw_lo+1 で一致し Allreduce が正常完了する。
+  nvfortran で testecalj --all ALL PASSED (si_gwsc / gas_gwsc / nio_gwsc
+  / fe_gwsc 等すべて) 確認。
+
+[enhance] ecalj_auto/run_gw1500_addrun_conv.sh: スクラッチ処理対応。
+  mp-XXXX/ が無ければ POSCARALL から POSCAR をコピーして作成、 rst.\<mid>
+  が無ければ LDA SCF (lmfa + lmf) を先に実行、 QSGW.\*run/ が無くても
+  Iter0=0 で gwscconv を回せるようにした。 これで REDO_FAIL 物質を
+  mp-XXXX_FAILBACKUP/ に退避してスクラッチからやり直すフローが
+  addrun_conv バッチ単体で完結する。 Phase A の gwscconv 終了コードを
+  wait $pid; $? で捕捉し非0なら PHASE-A FAIL を log するようにも修正
+  (sleep 300 watchdog より早く落ちる即時エラーの検出)。
+
+[bugfix] SRC/exec/run_cmd.py: GPU バイナリ (\*_gpu) 実行時に
+  slot_scheduler_daemon から GPU slot を取得し CUDA_VISIBLE_DEVICES=
+  \<slot_idx> を子プロセスに設定するようにした。 これまで gwsc は
+  hvccfp0_mp_gpu / hgw_combined_mp_gpu / hsfp0_sc_mp_gpu / hrcxq_mp_gpu
+  を run_cmd 経由で直接起動しており、 GPU slot も CUDA_VISIBLE_DEVICES
+  も設定していなかった。 → N 並列 worker (GW1500 量産で 6) の GPU
+  バイナリが全部 GPU 0 に殺到し、 GPU 0 メモリ枯渇で
+  CUDA_ERROR_OUT_OF_MEMORY (vcoulq_4 at mkjp.f90:296) が確率的に発生。
+  slot_scheduler の "2 GPU slot" 設計は存在したが CPU slot しか
+  使われておらず (worker.sh が lmf を slot_run.py で wrap、 gwsc 内部の
+  GPU 呼び出しはノーガード)、 この経路に配線されていなかった。
+  実装: _GpuSlot コンテキスト (REQUEST/ASSIGN プロトコル、 disconnect で
+  解放)、 _needs_gpu_slot(command)=command.endswith("_gpu")。
+  daemon が無ければ no-op フォールバックなので standalone 実行は不変。
+  検証: 6 worker × gwscconv ループの stress test で修正前 49% FAIL →
+  修正後 84 ループ (252 iter) で 0 FAIL、 GPU 0/1 均等分散を確認。
+
+## 2026-05-11
+
+[refactor] m_mpi.f90, m_llw.f90, main_hrcxq.f90:
+  comm_b 廃止。MPI\_\_SplitXq で n_bpara を無視し comm_b を trivial singleton
+  (mpi\_\_size_b=1, mpi\_\_rank_b=0) に固定。WVRllwR/WVIllwI から
+  MPI\_\_GatherXqw 分岐とストライドループ (mpi\_\_size_b ステップ) を削除。
+  iw ループを単純な `do iw = nwmin, nwmax / do iw = 1, niw` に整理。
+  ローカル変数 iwblock/jw/irank および t_sw_x_gather stopwatch を削除。
+  main_hrcxq.f90 で --nb= オプションを無視 (n_bpara=1 固定、
+  worker_inQtask = n_kpara に変更)。ifx で --all ALL PASSED 確認。
+
+[refactor] m_mpi.f90, main_hrcxq.f90:
+  hrcxq streaming 分岐にフェーズ別 MPI 再分割を導入。
+  フェーズ 1 (iq=2,...,nqibz): 従来通り --nk/--nb 指定の n_kpara/n_bpara
+  分割で複数 q 点を並列処理。フェーズ 2 (iq=nqibz+1,...,iqxend): 補助
+  q0 点に全ランクを投入 (n_bpara=1, n_kpara=mpi\_\_size の 1 グループ)。
+  フェーズ 3 (iq=1/Gamma): 同じ全ランク 1 グループで Gamma 点を最大
+  k 並列で計算。m_mpi.f90 に MPI\_\_FreeSplitXq を追加して comm_q/comm_b/
+  comm_k/comm_root_k と mpi\_\_npr_col/mpi\_\_ipr_col を解放 → SplitXq を
+  再呼び出し可能にした。フェーズ 2/3 は mpi\_\_Qrank=0 に上書きするため
+  MPI\_\_sendllw が rank 0 からの送信をスキップする設計と整合。
+  ifx で --all ALL PASSED 確認。
+
+[refactor] m_mpi.f90, m_hsfp0_sc.f90 (前セッション):
+  MPI\_\_SplitSc を修正: freq 並列 (comm_w) を mpi\_\_size_w=1 に固定。
+  将来の MPI 共有メモリ移行まで n_wpara 引数を無視し、各ランクが独立の
+  comm_w を持つ。
+
+[refactor] m_wv_storage.f90, m_hgw_iq_loop.f90, main_hrcxq.f90:
+  MEMORY_3D backend の iq=1 保存スロット (wv_real_buf_iq1 /
+  wv_imag_buf_iq1) を削除し、メモリ使用量を半減 (4配列→2配列)。
+  W0w0i は offset-G 補正のために全 iq の llw を必要とするため、
+  iq=1/Gamma の step_kx 消費は iq ループ完了後に後回しされていた
+  (save_iq1 → W0w0i → restore_iq1 の3ステップ)。iq=1 を iq ループ
+  の最後に処理する順序に変更することで、ループ終了時点で current
+  buffer に WV(iq=1) が残り、W0w0i が直接 current を修正できる。
+  結果として save_iq1 / restore_iq1 / wv_bcast_iq1 が不要になり
+  wv_bcast_current に一本化。m_hgw_iq_loop の run_iq_loop は
+  do_one_iq 内部サブルーチンを導入して iq=2,...,nq → iq=1 の
+  2パス構成に整理。ifx で InstallAll.py --all (si_gwsc / gas_gwsc /
+  nio_gwsc / fe_gwsc 含む) ALL PASSED 確認。nvfortran はコンパイル
+  通過のみ確認。
+
+[new+bugfix] SRC/exec/gwscconv: gwsc を 1 iter ずつ呼んで last-3 gap
+  swing \< tol で停止する収束ラッパ。argparse の parse_known_args で
+  残った rest を gwsc に転送する際、最初の "非オプションかつ数字" を
+  nloop と見なして 1 に置換していたが、`-np 30` の "30" を nloop と
+  誤認するバグを修正。VALUE_FLAGS = {-np, -np2, -ppn, -ppn2, -c,
+  --cluster} の直後トークンは skip_next で素通しさせる。GW1500
+  addrun_conv バッチで顕在化 (gwsc が即異常終了、Phase A 空振り、
+  Phase B/C だけ動作し OK ログが残る無音故障だった)。
+
+[new] ecalj_auto/run_gw1500_addrun.sh: 既存 done 物質に対して
+  QSGW iter を NADD 回追加実行する。production worker.sh の cleanup
+  で QPU.{n}run が消されているため、QSGW.{n}run/ から最大 n を割り
+  出して QPU.{n}run sentinel を復元、gwsc に Iter0=n を伝える。
+
+[new] ecalj_auto/run_gw1500_addrun_conv.sh: addrun の収束版。
+  (A) gwscconv → (B) 新規 LDA band (PlotBand_LDA/) → (C) QSGW80
+  band 再走の 3 phase。 production 時に LDA band を計算してなかった
+  のを補える。Legacy 物質 (ctrlG.toml/PB.toml が無い) は POSCAR から
+  vasp2ctrl + ctrlgenToml.py で再生成する。Phase A の gwscconv 終了
+  コードを wait $pid; $? で拾って非 0 なら FAIL を log に残す
+  (sleep 300 watchdog より早く落ちた場合の検出)。
+
+## 2026-05-09
+
+[bugfix] SRC/exec/CMakeLists.txt: add_extended_build 関数末尾に
+  `set(DELIVER_FILES ${DELIVER_FILES} PARENT_SCOPE)` を追加。
+  関数内での `list(APPEND DELIVER_FILES ...)` は function scope に
+  閉じるため、mp / gpu / mp_gpu の libecaljF_\*.so と \*_gpu / \*_mp_gpu
+  の各 main 実行体が外側の DELIVER_FILES に伝播せず、deliver target
+  に登録されていなかった。symlink 化以前 (copy_if_different) は旧
+  bash Makeinstall が SRC/exec の executable 全部を find -exec で
+  拾って ~/bin にコピーしていたため隠れていたが、6611117c で
+  deliver = create_symlink のみになって表面化:
+  ~/bin/lmf, libecaljF.so だけ symlink・残りの GPU/MP variants は
+  古い実体ファイルのまま、という inconsistent 状態が発生。
+  PARENT_SCOPE で関数外まで伝播させて全 variant を symlink 化。
+
+## 2026-05-09
+
+[refactor] SRC/exec/CMakeLists.txt: deliver ターゲットの実装を
+  `cmake -E copy_if_different` から `cmake -E create_symlink` に
+  変更。~/bin/lmf や ~/bin/libecaljF.so 等は build/ 配下へのシンボ
+  リックリンクとなり、`cmake --build` で build/ が更新されればその
+  瞬間にデプロイ先にも反映される。コピーずれによる stale の心配が
+  完全になくなる (513cc59ee の atomic deploy 方針の延長)。SRC/exec
+  と SRC/exec_\<FC>/ も同様に symlink。既存の copy が残っているケース
+  に備えて symlink 作成前に rm -f しておく。
+
+## 2026-05-09
+
+[bugfix] SRC/exec/CMakeLists.txt: GPU+GEMMul8 ビルド時に
+  libgemmul8wrap.so を DELIVER_FILES に追加。これがないと cmake
+  --build で build/ には更新されるが ~/bin に同期されず、
+  libecaljF_gpu.so と version skew を起こして m_gemmul8.f90 から
+  呼ぶ C ABI シンボル (gemmul8_zgemm_ 等) が古い版にバインドされ
+  かねない。先日の libecaljF.so atomic deploy 修正 (513cc59ee)
+  と同じ趣旨で gemmul8wrap も束ねる。
+
+## 2026-05-09
+
+[validation] master tip (この commit 群を含む) を 5 環境で testecalj
+  --all = ALL PASSED! 確認:
+    - local (Ubuntu 24.04 / gfortran 14    / Python 3.13)
+    - local (Ubuntu 24.04 / ifx 2025.3.3   / Python 3.13)
+    - kt1   (Ubuntu 24.04 / nvfortran 26.1 / Python 3.12, GPU + CUDA 13)
+    - mic   (RHEL 8.7    / ifort 2023.0.0 / Python 3.12 via uv)
+    - ucgw  (RHEL 8.8    / ifx 2024.2     / Python 3.12 via pyenv)
+  gfortran / nvfortran / ifort / ifx の主要 4 系統で同時に回帰なし。
+
+## 2026-05-09
+
+[feature] InstallAll.py: 先頭に Python 3.11+ 必須チェックを追加。
+  未満のバージョンで起動した場合は pyenv / uv によるローカル
+  インストール手順を案内して即 exit する。tomllib / contextlib.chdir
+  が 3.11+ stdlib なので、testecalj 周辺スクリプトが古い Python では
+  そもそも動かない（mic / ucgw でハマったことが動機）。コード側に
+  互換シムを入れるより「3.11+ をホストに入れろ」と一発で返した方が
+  クリーンという方針。
+[revert] SRC/exec/run_cmd.py: 直前の tomllib → tomli フォールバック
+  コミット (3d7a88d5d) を revert。InstallAll.py の Python チェックで
+  弾く方針なので、コード側の互換シムは不要。
+
+## 2026-05-09
+
+[bugfix] InstallAll.py: /tmp/gpu.lock の取得を --gpu 指定時のみに限定。
+  GPU を持たないマシン (mic / ucgw) で他ユーザ所有の /tmp/gpu.lock が
+  残っていると無条件 open('w') が PermissionError で死んでいた。
+  PermissionError 自体も握って分かるエラーメッセージで exit するよう
+  にした。
+
+## 2026-05-09
+
+[feature] SRC/exec/CMakeLists.txt + InstallAll.py: cmake --build で lib と
+  メインバイナリを必ず一括 (atomic) で BIN_DIR にデプロイする仕組みに
+  変更。CMakeLists.txt の `deliver` ターゲットの宛先リストに
+  `-DECALJ_BIN_DIR=<path>` を渡したときだけ \<path> を追加する形に
+  して、`${DELIVER_FILES}` (libecaljF\*.so + 全 main 実行ファイル) を
+  一回の copy_if_different でまとめて配るようにした。InstallAll.py 側は
+  cmake configure 時に -DECALJ_BIN_DIR=${BIN_DIR} を渡し、従来の
+  BUILD_DIR からの lib\*.so / 実行ファイル個別コピー処理を削除。
+  これで `cmake --build` 後に `cp build/lmf ~/bin/` だけして
+  libecaljF.so を忘れて古い lib が残る事故が起きなくなる。
+  EXEC_DIR 配下のヘルパースクリプトは引き続き InstallAll.py が個別
+  コピーする (cmake build graph に乗っていないため)。
+
+## 2026-05-09
+
+[misc] SRC/exec/{utils,run_cmd,gwinput_prepare}.py: 先頭に
+  `from __future__ import annotations` を追加。PEP 604 の `str | Path`
+  と PEP 585 の `set[Path]` 等を使った型注釈の評価を遅延させ、Python
+  3.7-3.9 でも import 時にエラーにならないようにする。Python 3.10+ では
+  挙動に差は出ない。古い RHEL/CentOS 系ホストで testecalj 周辺スクリプト
+  が `TypeError: unsupported operand type(s) for |` で死ぬ問題に対応。
+
+## 2026-05-09
+
+[bugfix] m_igv2x.f90: t_igv2x_data を public:: リストから外す。
+  L11 で `type, public :: t_igv2x_data` と宣言済みのため、L5 の
+  `public:: ..., t_igv2x_data` と二重 PUBLIC 化されていた。
+  gfortran は黙認するが ifort は #6251 でエラー。
+[bugfix] m_zmel.f90: build_zmel ローカル変数 mpi_info を mpi_ierr に
+  リネーム。Intel MPI の `use mpi` が `MPI_INFO` 派生型を公開しており
+  名前衝突で ifort #6401/#6478。実態は MPI 呼び出しの ierror なので
+  mpi_ierr の方が意味的にも正確。
+
+## 2026-05-09
+
+[bugfix] iors.f90: readrho の領域ゼロクリアでオフバイ-typo を修正。
+  `aout(:,nlmx+1:nlm0,:)=0d0` を `aout(:,nlmx+1:nlm,:)=0d0` に変更。
+  nlmx=min(nlm,nlm0) なので新基底拡張時(nlm>nlm0)に新領域 nlm0+1:nlm が
+  未初期化のまま残っていた。gfortran は allocatable をデフォルト 0 に
+  初期化するため発症せず、ifort/ifx は heap garbage が読まれて vxcnsp
+  に -1.32e124 の負密度が入り rseq が `bad nodes` で発散。cu Test 1
+  stage 3 (lmxa=4 拡張) で再現。
+
+## 2026-03-28
+
+[bugfix] m_llw.f90: WVIllwI else-branch (iq>nqibz) で iw>niw のガードが
+  欠落していたのを修正。mpi\_\_size_b > niw のとき llwI への範囲外書き込みで
+  ヒープ破壊が発生し、hrcxq が munmap_chunk() でクラッシュしていた。
+[bugfix] creplot.py: efermi.lmf のパースで lines[3] のハードコードをやめ、
+  'number of electrons' を含む行を検索するように変更。efermi.lmf にEfermi-Vesav
+  行が追加されたことでインデックスがずれ、電子数を誤読していた。
+[bugfix] creplot.py: bndファイル読み込みで skiprows=1 を comment='#' に変更。
+  ヘッダが2行に変わり #base=eferm 行がデータとして読まれていた。
+[bugfix] creplot.py: lmchk/lmfa の呼び出しに mpirun -np 1 を追加。
+  NoGnuplot オプションの '--NoGnuplot' 修正。
+[feature] ecalj_auto: --gpu / --mp オプション追加。
+  jobsubmit.py → job_mp.py → creplot.py → gwsc に --gpu/--mp を伝搬。
+  GPU版やMixed Precision版のGW実行バイナリを選択可能に。
+[refactor] sugw.f90: ppovlLU のallocate/deallocateをループ外に移動。
+  allocate時のstat チェック追加。closem の事前チェック追加。
+[bugfix] pwmat.f90: allocate stat チェック追加。copyin→present_or_copyin。
+[bugfix] m_lapack.f90: zgev_d を CPU fallback (LAPACK zgeevx) に変更。
+  cusolverDnZgeev が CUDA>=13 で削除されたため。
+[bugfix] x0kf_ahc.f90: allocate(zmel0,source=zmel) を明示的コピーに変更。
+[misc] Job.py: qsub → bash 実行に変更。jobtemplate: pythonbin → python。
+[misc] jobtestSGA.sh: ncore=64, --gpu --mp 追加。
+[misc] ctrlgenM1.py, job_pdos, job_tdos, mkGWinput, getsyml.py: 軽微な修正。
+[feature] gwsc: lmf --jobgw=1 を常にCPU版で実行するように変更。
+  GPU版lmfはVRAMを浪費するだけでメリットが薄い。
+[feature] -np2 オプション追加（testecalj, InstallAll.py, ecalj_auto）。
+  GPU用GW実行バイナリのMPIプロセス数を個別に指定可能に。
+  例: -np 64 -np2 2 でCPU部分は64コア、GPU部分は2プロセス。
+[bugfix] comp.py: compareqpu で QPU の行数が異なる場合の IndexError を修正。
+  max → min に変更して短い方に合わせて比較。

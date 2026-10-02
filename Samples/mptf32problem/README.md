@@ -80,4 +80,4 @@ builds W in FP32 as well and uses 10-bit inputs only in the products of Sigma_c;
 been tested on AgNO3. When in doubt, `--prec=fp32`. The GW1500 batch drivers
 (`ecalj_auto/`) pass `--mp --fp32` for this reason.
 
-See `Changes.txt` (2026-06-04) for the implementation.
+See `Changes.md` (2026-06-04) for the implementation.

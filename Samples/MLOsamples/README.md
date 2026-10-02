@@ -170,7 +170,7 @@ Both DFT and MLO bands plotted on the same panel (`Energy − E_F`, eV).
   `FeMgOSoc` uses exactly these inputs plus the SOC test, so the two dirs
   share one baseline. Both carry an `[esm]` section: this is a slab with a
   vacuum layer, and without ESM the energy zero moves by ~4.4 eV (silently,
-  before 2026-09-15 -- see Changes.txt).
+  before 2026-09-15 -- see Changes.md).
 
 ## Settings to know (in `ctrlg.<sname>.toml`)
 

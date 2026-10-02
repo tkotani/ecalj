@@ -1,7 +1,7 @@
 # 更新履歴（要約）
 
 ecalj の新しい機能と、結果が変わる修正の要約。新しい順。詳しい記録（全部の変更）は ecalj の
-[Changes.txt](https://github.com/tkotani/ecalj/blob/main/Changes.txt)。各項目の説明はリンク先のページ。
+[Changes.md](https://github.com/tkotani/ecalj/blob/main/Changes.md)。各項目の説明はリンク先のページ。
 
 ## 最近の大きな話題（2026-09〜10）
 
