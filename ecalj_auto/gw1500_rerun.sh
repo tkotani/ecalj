@@ -1,5 +1,7 @@
 #!/bin/bash
 # Run GW1500 materials again from scratch with the present ecalj (2026-09-30; GW1500_status.md).
+# 2026-10-02 23:15 (the GW1500 database run): T_TETRAKBT (K) replaces t_tetrakbt of the template in ctrlg (user: -300 with
+#    t_sigmaw 300), and the LDA bands are drawn too, in PlotBand_LDA/ from LDA/ (rst of the LDA step).
 #
 #   gw1500_rerun.sh <queue file> <worker name>
 #
@@ -20,6 +22,7 @@
 #   PREC        fp32 (default) | tf32 | fp64;  MAXITER 10;  TOL 0.1 (eV);  CONV_QP 0.03 (eV, metals);  SSIG 0.8 (QSGW80)
 #   GWSCCONV    default $BIN/gwscconv. It calls the gwsc of its own directory, so give a bindir that has both
 #   LIMIT       seconds per material (default 21600); a material over the limit is logged TIMEOUT
+#   T_TETRAKBT  if set, t_tetrakbt of the generated ctrlg (K; < 0: T=0 tetrahedron with a Gaussian smoothing of Im chi0)
 #   ENVSH       a file to source first (PATH and LD_LIBRARY_PATH of the compiler and MPI)
 #
 # Per material, in $RUN_DIR/<mpid>:
@@ -64,6 +67,10 @@ while :; do
   "$TOOLS_BIN/vasp2ctrl" POSCAR > lvasp2ctrl 2>&1 && cp ctrls.POSCAR.vasp2ctrl ctrls.$m
   "$BIN/ctrlgenToml.py" --ssig=$SSIG $m > lctrlgen 2>&1
   [ -s ctrlg.$m.toml ] || { say "$m FAIL(input) $(tail -1 lctrlgen | cut -c1-80)"; continue; }
+  if [ -n "${T_TETRAKBT:-}" ]; then
+    sed -i "s/^t_tetrakbt *= *[-+0-9.eE]*/t_tetrakbt    = $T_TETRAKBT/" ctrlg.$m.toml
+    grep -Eq "^t_tetrakbt *= *$T_TETRAKBT( |$)" ctrlg.$m.toml || { say "$m FAIL(t_tetrakbt not set)"; continue; }
+  fi
   timeout -k 60 $LIMIT "$GWSCCONV" -np $NP -np2 1 --gpu --prec=$PREC $m --conv-tol $TOL --conv-qp $CONV_QP --max-iter $MAXITER \
     ${GWSCCONV_OPT:-} > osgw.conv.out 2>&1
   rc=$?
@@ -83,7 +90,13 @@ while :; do
     mkdir -p PlotBand && cp -f ctrlg.$m.toml rst.$m sigm __atm.$m atmpnu.*.$m PlotBand/ 2>/dev/null
     ( cd PlotBand && ln -sf sigm sigm.$m && "$TOOLS_BIN/getsyml" $m --nobzview > lgetsyml 2>&1 \
       && "$BIN/job_band" $m -np $NP --NoGnuplot > ljob_band 2>&1 )
+    if [ -s LDA/rst.$m ]; then
+      mkdir -p PlotBand_LDA && cp -f LDA/ctrlg.$m.toml LDA/rst.$m LDA/atmpnu.*.$m PlotBand_LDA/ 2>/dev/null
+      cp -f __atm.$m PlotBand_LDA/ 2>/dev/null
+      ( cd PlotBand_LDA && "$TOOLS_BIN/getsyml" $m --nobzview > lgetsyml 2>&1 \
+        && "$BIN/job_band" $m -np $NP --NoGnuplot > ljob_band 2>&1 )
+    fi
   fi
-  rm -rf __* SEBK STDOUT PlotBand/__* 2>/dev/null
+  rm -rf __* SEBK STDOUT PlotBand/__* PlotBand_LDA/__* 2>/dev/null
   say "$m $v iter=${it:-0} gapLDA=${glda:-none} gap=${g:-none} $(( $(date +%s)-t0 ))s dqp=${dqp:-none}"
 done
