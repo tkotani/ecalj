@@ -84,6 +84,14 @@
 
 ## 2026-10-02 — MLO を実空間で規格化、実験用の MLO オプションを廃止（Wannier を外す作業の続き）
 
+### 11:35 判断（user）: マグノン・U の基底は Löwdin（射影 Wannier）をメインに、MV は残すがメインにしない
+
+- Löwdin: 対称性と軌道の名前（t2g・eg など）を保つ。O(gk) = D O(k) D⁺ なので O^(−1/2) も同じ表現で回る。同じサイトでは同じ既約表現の軌道しか混ざらない。
+  Fe で t2g・eg の縮退が保たれ（Ω 1.467 ×3、1.544 ×2）、M̃(gk,gb) = D M̃(k,b) D⁺ が 8.5×10⁻⁷ で成り立つ。どの k でも厳密に作れる（内挿が要らない）
+- MV（Sakuma の拘束つき）は `mlo_maxloc.py --sym`・`mlo_cmlo_transform.py` の試作として残す（拘束なしは混成軌道になり軌道の名前を失う）
+- 友人に見せるページ: https://claude.ai/artifact/A9r4CEPHgD1UkYsVA5XQKH（`~/work/magnon_nifeco/magnon_window.md` と同じ内容、窓の比較は付録 A。
+  Fe の q ≈ 0.4 は Stoner 励起の連続体に入る所でピークの位置は定義しにくい、という注も（user））
+
 ### 11:12 マグノンを Löwdin の基底（射影 Wannier、`--mlo_lowdin`）で: 窓によらなくなり、Wannier 版に合う
 
 user の議論（10 時台）: スピン波は低エネルギーの現象。問題は窓より、KWKW… の間に挟む ⟨w1 w2|W|w3 w4⟩ の基底がどれだけ局在し、オフサイトを小さくできているか。

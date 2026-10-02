@@ -87,6 +87,9 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
   静的ライブラリ `symspg`）で操作を求め、作業ディレクトリに `symmetry.<sname>.json` を書く。次からは読み、構造が違えば作り直す。`ECALJ_SYMFIND=ecalj` で
   従来の gensym（比べるとき）。`symgrp` に生成元を書いた入力も gensym。ビルドには C コンパイラが要る（CMake の `project(... Fortran C)`）
 
+- **MLO の基底**（2026-10-02 11:35、user の判断）: オンサイトの量（U・J、マグノン）を取る基底は Löwdin の関数（射影 Wannier、`--mlo_lowdin`）をメインにする。対称性と軌道の名前を保ち、窓によらない。
+  最大局在化（MV、Sakuma の拘束つき）は試作の道具（`mlo_maxloc.py --sym`）として残すがメインにしない。拘束なしの MV は結合の方向にずれた混成軌道になる
+
 ## 4. コンパイラと実行時の落とし穴
 
 - **S6 より前（2026-10-02 08:30 以前）に作った GW・MLO の中間ファイル**（`__HAMindex`、`__cmlo.*`、`__WV*` など）を今の版のプログラムで読むと、対称操作の並びが違って
