@@ -58,24 +58,26 @@ Wannier 版（`Fe_magnon`、`job_magnon`）の結果は `wannier_TrRpm.syml001`�
 
 **図 1**. Γ→H のマグノンのエネルギー（$\mathrm{Im}\,R$ の極大の位置）。Wannier 版（`Fe_magnon`）、MLO 版（Löwdin の基底、既定）、MLO 版（生の MLO、`--mlo_raw`）。数値は `magnon_peaks.npz`
 
-`job_mlo_magnon` は 2026-10-02 11:44 から、MLO を Löwdin で直交化した関数（MLO の部分空間の射影 Wannier 関数）を基底にして $K$ と $W$ を作る
-（`--mlo_lowdin`。`--mlo_raw` で以前の、直交していない MLO のまま）。ecaljdoc [mlo](https://ecalj.github.io/ecaljdoc/manual/mlo) §6。
+2026-10-02 から、ecalj の MLO は Löwdin で直交化した関数（MLO の部分空間の射影 Wannier 関数）で、模型も $K$ と $W$ もこの基底
+（`job_mlo fe --mlo_raw` で以前の、直交していない MLO の模型）。ecaljdoc [mlo](https://ecalj.github.io/ecaljdoc/manual/mlo) §6。
+「生」の列は直交化しない MLO の計算（2026-10-02、`~/work/magnon_w/L_d2w2_raw`）。
 
 **表 2**. 図 1 の値（eV）。q は $2\pi/a$ 単位、`mlo_nkabc` 8×8×8、gfortran、8 コア。$\omega$ のメッシュは高い側で粗く（0.4 eV で 0.06 eV 刻み）、q ≥ 0.4 では山が広いので、極大の位置は目安
 
 | q | Wannier（`Fe_magnon`） | MLO（Löwdin、このサンプル） | MLO（生、`--mlo_raw`） |
 | --- | --- | --- | --- |
-| 0.1 | 0.068 | 0.087 | 0.075 |
+| 0.1 | 0.068 | 0.085 | 0.075 |
 | 0.2 | 0.133 | 0.164 | 0.133 |
 | 0.3 | 0.197 | 0.229 | 0.216 |
-| 0.4 | 0.197 | 0.349 | 0.431 |
+| 0.4 | 0.197 | 0.159 | 0.431 |
 | 0.5 | 0.209 | 0.209 | 0.431 |
-| 0.6 | 0.319 | 0.371 | 0.810 |
+| 0.6 | 0.319 | 0.339 | 0.810 |
 | 0.7 | 0.532 | 0.599 | 0.913 |
 | 0.8 | 0.740 | 0.762 | 0.999 |
 | 1.0 | 0.637 | 0.637 | 0.969 |
 
-- q ≥ 0.5 では、Löwdin の MLO 版は Wannier 版とほぼ重なる。生の MLO は 1.5 倍ほど高かった
+- q ≥ 0.5 では、Löwdin の MLO 版は Wannier 版とほぼ重なる。生の MLO は 1.5 倍ほど高かった。
+  模型を Löwdin の $\tilde H(\mathbf R)$ にした（2026-10-02）ことで、q = 0.4 は 0.349 → 0.159、0.6 は 0.371 → 0.339 eV と Wannier 版に近づいた（$K$ はメッシュの外の k + q の模型の固有ベクトルで作るので、内挿の違いが出る）
 - q ≤ 0.3 では、Löwdin の MLO 版が Wannier 版より 2 割ほど高い（生の MLO は 20 meV 以内で合っていた）
 - q ≈ 0.4 はマグノンが Stoner 励起の連続体に入る所で、山が広く割れ、極大の位置は定義しにくい
 - Löwdin の基底では MLO の窓（`mlo_delta`、`mlo_w`）を変えても結果がほとんど動かない（Fe・FeCo・Ni で確かめた、ecalj `MD/research_log.md` 2026-10-02 11:12）。
