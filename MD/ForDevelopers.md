@@ -82,6 +82,40 @@ cd Samples/MLOQSGW;    testecalj -np 8 -np2 2 --gpu --mp GaAs NiO  # MLO-QSGW
 - Samples の組ごとの試験は ecalj の `TOOLS/samples_tests.sh [--gpu] -np 8 [組 ...]`（inputs、TestInstall、EPS、PROCAR、MLOsamples、MLOQSGW、
   AFsymmetry、BenchmarkTest、重い GW、Magnon）。件数は testecalj の最後の要約で数え、途中で止まったターゲットは STOPPED にする
   （ログの PASSED 行は延べ数。2026-09-28）
+- **組ごとの時間の目安**（2026-10-03 08:38 に、各マシンの `samples_tests_*/summary.txt` から、標準の回し方〔t14・mic は CPU、kt1・kr7 は `--gpu`、
+  `--run-args`・`--mp` 無し、`-np 8`〕で PASS した記録の一番速いものを拾った。t14 は 2026-10-02、ほかは 2026-09-30 の記録で、Wannier を外す前の
+  magnon〔4 試料〕など、対象の数が今と違う組がある。✗ は PASS が無いもの〔bench は参照が古い〕。kt1 は GW1500 と同時に回すと install が 2 時間を超えた）
+
+*表 5-1*. 試験の組ごとの時間
+
+| 課題（組） | t14 gfortran（CPU） | mic ifx（CPU） | kt1（GPU） | kr7（GPU） |
+| --- | --- | --- | --- | --- |
+| inputs | 2 分 | 56 秒 | 58 秒 | 56 秒 |
+| install | 6 分 | 4 分 | 4 分 | 4 分 |
+| eps | 2 分 | 15 秒 | 53 秒 | 12 秒 |
+| procar | 47 秒 | 19 秒 | 22 秒 | 20 秒 |
+| mlo | 11 分 | 5 分 | 4 分 | 4 分 |
+| mloqsgw | 2 分 | 54 秒 | 54 秒 | 47 秒 |
+| afsym | 55 秒 | 12 秒 | 9 秒 | 7 秒 |
+| affix | 2 分 | — | — | — |
+| FermiSurface | 9 秒 | 6 秒 | 4 秒 | 5 秒 |
+| Doping | 22 秒 | 14 秒 | 9 秒 | 10 秒 |
+| HomoGas | 5 秒 | 3 秒 | 3 秒 | 3 秒 |
+| BoltzTraP | 6 秒 | 4 秒 | 3 秒 | 3 秒 |
+| SLAB | 32 秒 | 18 秒 | 11 秒 | 12 秒 |
+| SOC | 4 分 | 2 分 | 1 分 | 1 分 |
+| LDAU | 2 分 | 1 分 | 40 秒 | 42 秒 |
+| EffectiveMass | 2 分 | 42 秒 | 33 秒 | 26 秒 |
+| Relax | 4 分 | 2 分 | 2 分 | 2 分 |
+| DOS | 57 秒 | 32 秒 | 22 秒 | 21 秒 |
+| IIR | 45 秒 | 35 秒 | 21 秒 | 19 秒 |
+| AtomDimer | 27 分 | 11 分 | 7 分 | 7 分 |
+| kBT_scanT | 28 秒 | 15 秒 | 27 秒 | 16 秒 |
+| magnon | 2 分 | 11 分 | 8 分 | 8 分 |
+| heavy | — | 25 分 | 7 分 | 14 分 |
+| bench | — | 25.9 時間 ✗ | — | 2.8 時間 ✗ |
+| **合計（bench・heavy を除く）** | **71 分** | **41 分** | **32 分** | **31 分** |
+
 - 試験に要る Python: numpy、pandas、matplotlib、pymatgen、seekpath（getsyml）、spglib、scipy、plotly。gnuplot は無くてもよい
   （図は飛ばして .glt だけ書く、2026-09-28 から）
 
