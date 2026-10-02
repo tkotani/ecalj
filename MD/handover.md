@@ -30,7 +30,7 @@ ecaljclaude.md「記録の方針」「Claude の作業の進め方」にある�
 
 ## 2. 計算機と環境
 
-原本は t14 の `~/ecalj`・`~/ecaljdoc`。ほかの機械へは `TOOLS/sync_ecalj_src.sh <host> [<dir>]` で送る（git archive + `SRC/.ecalj_rev` の刻印、送り先に git は無い。
+原本は t14 の `~/ecalj`（文書の ecaljdoc も 2026-10-02 から `~/ecalj/ecaljdoc/`。`~/ecaljdoc` は古いクローンで使わない。[ecaljdoc_subtree.md](ecaljdoc_subtree.md)）。ほかの機械へは `TOOLS/sync_ecalj_src.sh <host> [<dir>]` で送る（git archive + `SRC/.ecalj_rev` の刻印、送り先に git は無い。
 `--samples` で Samples ごと、`--check-all` で各機の版。SRC に未コミットの変更があると止まる → `ALLOW_DIRTY=1`）。
 数ファイルだけの差分なら `scp` で置いて `SRC/.ecalj_rev` を打ち直すと増分ビルドで済む（全部送ると mtime が変わって全部ビルドし直す）（reference_build）。
 
