@@ -1,0 +1,3 @@
+# to invoke vitepress
+npm run docs:dev
+#firefox http://localhost:5173/ecaljdoc/
