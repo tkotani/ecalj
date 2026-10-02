@@ -12,7 +12,7 @@ Wannier 版（`Fe_magnon`）の入力 `ctrlg.fe.toml` に `mlo_nkabc` を足し�
 | --- | --- | --- |
 | `[bz] nkabc` | 20×20×20 | SCF の k メッシュ |
 | `[gw] n1n2n3` | 4×4×4 | $W$ と $\chi^{+-}$ の k メッシュ |
-| `[mlo] mlo_nkabc` | 8×8×8 | MLO の模型ハミルトニアンを作る k メッシュ（必須）。4×4×4 では小さい q のマグノンのエネルギーが 1.5 倍になる（表 2） |
+| `[mlo] mlo_nkabc` | 8×8×8 | MLO の模型ハミルトニアンを作る k メッシュ（必須）。4×4×4 では小さい q のマグノンのエネルギーが 1.5 倍になる |
 | `[mlo] mlo_lm` | Fe の s、p、d（9 軌道） | MLO にする軌道 |
 | `[mlo] mlo_method`、`mlo_delta`、`mlo_w` | 既定 | MLO の重み（ecaljdoc [mlo](https://ecalj.github.io/ecaljdoc/manual/mlo)） |
 | `[gw] magnon_*` | 既定 | `mlo_magnon` の均し幅など（`m_GWinput`） |
@@ -24,7 +24,7 @@ lmfa fe > llmfa
 mpirun -np 8 lmf fe > llmf
 job_band fe -np 8 --NoGnuplot          # MLO の合わせに使うバンド（bnd001.spin1）
 job_mlo_magnon fe -np 8                # 下の 4 段。8 コアで 1.5 分
-python3 magnon_peaks.py "MLO=MagSuscep.syml001" "Wannier=wannier_TrRpm.syml001"   # 図 1 と表 2 の値
+python3 magnon_peaks.py "Wannier=wannier_TrRpm.syml001" "MLO=MagSuscep.syml001"   # 図 1 と表 2 の値
 ```
 
 `job_mlo_magnon` の段:
@@ -56,25 +56,31 @@ Wannier 版（`Fe_magnon`、`job_magnon`）の結果は `wannier_TrRpm.syml001`�
 
 ![図 1](magnon_peaks.png)
 
-**図 1**. Γ→H のマグノンのエネルギー（$\mathrm{Im}\,R$ の極大の位置）。Wannier 版（`Fe_magnon`）と、MLO 版の 3 つの設定。数値は `magnon_peaks.npz`
+**図 1**. Γ→H のマグノンのエネルギー（$\mathrm{Im}\,R$ の極大の位置）。Wannier 版（`Fe_magnon`）、MLO 版（Löwdin の基底、既定）、MLO 版（生の MLO、`--mlo_raw`）。数値は `magnon_peaks.npz`
 
-**表 2**. 図 1 の値（eV）。q は $2\pi/a$ 単位。gfortran、8 コア、2026-09-30。$\omega$ のメッシュは高い側で粗く（0.4 eV で 0.06 eV 刻み）、q ≥ 0.4 では山が広いので、極大の位置は目安
+`job_mlo_magnon` は 2026-10-02 11:44 から、MLO を Löwdin で直交化した関数（MLO の部分空間の射影 Wannier 関数）を基底にして $K$ と $W$ を作る
+（`--mlo_lowdin`。`--mlo_raw` で以前の、直交していない MLO のまま）。ecaljdoc [mlo](https://ecalj.github.io/ecaljdoc/manual/mlo) §6。
 
-| q | Wannier（`Fe_magnon`） | MLO、`mlo_nkabc` 8（このサンプル） | MLO、`mlo_nkabc` 4 | MLO、`mlo_nkabc` 4、`mlo_w` 11 eV |
-| --- | --- | --- | --- | --- |
-| 0.1 | 0.068 | 0.075 | 0.122 | 0.093 |
-| 0.2 | 0.133 | 0.133 | 0.203 | 0.175 |
-| 0.3 | 0.197 | 0.216 | 0.251 | 0.236 |
-| 0.4 | 0.197 | 0.431 | 0.486 | 0.371 |
-| 0.5 | 0.209 | 0.431 | 0.431 | 0.300 |
-| 0.6 | 0.319 | 0.810 | 0.860 | 0.676 |
-| 0.7 | 0.532 | 0.913 | 0.913 | 0.740 |
-| 0.8 | 0.740 | 0.999 | 1.029 | 0.913 |
-| 1.0 | 0.637 | 0.969 | 0.969 | 0.834 |
+**表 2**. 図 1 の値（eV）。q は $2\pi/a$ 単位、`mlo_nkabc` 8×8×8、gfortran、8 コア。$\omega$ のメッシュは高い側で粗く（0.4 eV で 0.06 eV 刻み）、q ≥ 0.4 では山が広いので、極大の位置は目安
 
-- q ≤ 0.3 では、`mlo_nkabc` = 8×8×8 の MLO 版は Wannier 版と 20 meV 以内で一致する。4×4×4 では 1.5 倍になる
-- q ≥ 0.4 では MLO 版のほうが 1.5 倍ほど高い。`mlo_w` を 11 eV（bcc Fe の MLO のバンドの合わせがよくなる値。`MLOsamples/Fe/test.py`）にすると下がる。
-  二つの模型（Wannier 関数と MLO、それぞれの $W$）の違いによるもので、どちらが正しいかはここでは決めていない
+| q | Wannier（`Fe_magnon`） | MLO（Löwdin、このサンプル） | MLO（生、`--mlo_raw`） |
+| --- | --- | --- | --- |
+| 0.1 | 0.068 | 0.087 | 0.075 |
+| 0.2 | 0.133 | 0.164 | 0.133 |
+| 0.3 | 0.197 | 0.229 | 0.216 |
+| 0.4 | 0.197 | 0.349 | 0.431 |
+| 0.5 | 0.209 | 0.209 | 0.431 |
+| 0.6 | 0.319 | 0.371 | 0.810 |
+| 0.7 | 0.532 | 0.599 | 0.913 |
+| 0.8 | 0.740 | 0.762 | 0.999 |
+| 1.0 | 0.637 | 0.637 | 0.969 |
+
+- q ≥ 0.5 では、Löwdin の MLO 版は Wannier 版とほぼ重なる。生の MLO は 1.5 倍ほど高かった
+- q ≤ 0.3 では、Löwdin の MLO 版が Wannier 版より 2 割ほど高い（生の MLO は 20 meV 以内で合っていた）
+- q ≈ 0.4 はマグノンが Stoner 励起の連続体に入る所で、山が広く割れ、極大の位置は定義しにくい
+- Löwdin の基底では MLO の窓（`mlo_delta`、`mlo_w`）を変えても結果がほとんど動かない（Fe・FeCo・Ni で確かめた、ecalj `MD/research_log.md` 2026-10-02 11:12）。
+  生の MLO では窓で大きく変わった（以前の表にあった `mlo_w` 11 eV で下がる、など）
+- `mlo_nkabc` = 4×4×4 では小さい q のマグノンのエネルギーが 1.5 倍になる（2026-09-30、生の MLO で確かめた）
 - 符号の約束が違う: Wannier 版の $\mathrm{Im}\,\mathrm{Tr}\,R$ は負、MLO 版の $\mathrm{Im}\,R$ は正
 
 ## 試験の内容（`test.py`）

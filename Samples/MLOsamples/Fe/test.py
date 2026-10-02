@@ -28,11 +28,11 @@ from comp import rmfiles
 # depends on mlo_w at the 10% level. This sample keeps the default w = 2.0 so
 # that all 18 samples share one setting; if you use W itself, check its w
 # dependence for your own system rather than taking either value on faith.
+# 2026-10-02 11:42: job_mloW uses the Loewdin orthonormalized MLOs (projected Wannier functions) by default (--mlo_raw for the old
+# basis); the values below are in that basis. The 2026-09-16 numbers quoted above were for the raw MLOs.
 EXPECTED = {
-    'UP': {1:(10.3258,-9.4518), 2:(10.8329,-9.4100), 3:(10.8329,-9.4107), 4:(10.8329,-9.4100), 5:(22.9133,-21.4037),
-           6:(22.9134,-21.4036), 7:(22.9010,-21.2400), 8:(22.9134,-21.4034), 9:(22.9010,-21.2401)},
-    'DN': {1:(10.3507,-9.4693), 2:(10.9718,-9.5242), 3:(10.9718,-9.5249), 4:(10.9718,-9.5242), 5:(21.4778,-20.0970),
-           6:(21.4780,-20.0970), 7:(19.9976,-18.6091), 8:(21.4779,-20.0968), 9:(19.9979,-18.6095)},
+    'UP': {1:(10.3574,-9.5044), 2:(10.6886,-9.2731), 3:(10.6886,-9.2744), 4:(10.6886,-9.2735), 5:(24.5213,-22.8651), 6:(24.5213,-22.8623), 7:(24.1782,-22.3860), 8:(24.5213,-22.8602), 9:(24.1782,-22.3905)},
+    'DN': {1:(10.2496,-9.4103), 2:(10.6459,-9.2354), 3:(10.6459,-9.2367), 4:(10.6459,-9.2357), 5:(23.8060,-22.2135), 6:(23.8060,-22.2109), 7:(23.1723,-21.4787), 8:(23.8060,-22.2088), 9:(23.1723,-21.4829)},
 }
 TOL = 0.05  # eV; tighter than physical changes, looser than numerical noise
 

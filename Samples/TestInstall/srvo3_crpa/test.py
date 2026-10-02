@@ -1,6 +1,8 @@
 from comp import runprogs,diffnum,rmfiles
 # cRPA of the MLO model (2026-10-02; until then the Wannier path, genMLWFx, git tag last-wannier):
 # DFT -> bands (job_band) -> MLO model (job_mlo) -> v, W-v and the cRPA W-v in the MLO basis (job_mloW --crpa).
+# Since 2026-10-02 11:44 job_mloW takes the Loewdin orthonormalized MLOs (projected Wannier functions of the MLO subspace;
+# --mlo_raw for the raw MLOs); the reference files are in that basis.
 # The MLO subspace is [mlo] mlo_lm (srvo3: V t2g, 3 orbitals); U, J at R=0, omega=0 in the first rows.
 def test(args,bindir,testdir,workdir):
         np= f'-np {args.np} '
