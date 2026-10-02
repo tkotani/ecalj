@@ -301,12 +301,57 @@ CALLER_GRAPH         = YES
   T=0 の厳密な `lindtet6` を E_F をずらして呼び、熱の核で重みを付ける（`tetwt5.f90` の `lindtet6_kbt`）。Na で T → 0 が `lindtet6` と 1e-9 まで一致
 - `m_tetrakbt.f90` の中点分解のルーチン（`tetrakbt`、`eaf_triangle` など）はもう呼ばれていない。今も使うのは `tetrakbt_init`・`kbt`・`integtetn`（TODO に消す件）
 
+## 14. ecaljdoc の古い文書（`BackUp/`、`ecaljdetails/`、2002〜2022、2026-10-02 に ecaljdoc の trash）
+
+ecaljdoc の `BackUp/`（148 本、35 MB: 初版の GW マニュアル `man-gw.tex`、fpgw033 の `fpgwdoc/man033_ver1.tex`、`GWmanual/ecaljnote.tex`、
+`temp/ecaljmanual.pdf`（2022-03）、`LMF@2009/`（Methfessel・van Schilfgaarde の lmf v6.x の html と論文）、講習会の pptx、Gd の 4f の設定 `GdQSGW4.pdf`）と
+`ecaljdetails/`（`ecaljdetails.tex` 178 KB、開発者向けの理論メモ 2015〜2022）。外す前の ecaljdoc のコミットは `3284d0b`
+（`git -C ecaljdoc show 3284d0b:ecaljdetails/ecaljdetails.tex`）。ほかの文書（ecaljdoc の manual・theory・implementation）に無く、今も通じる要点を残す。
+コードの名前は 2026-10-02 に今の SRC と照らした（無いものはそう書いた）。
+
+- **改良 offset-Γ 法**（`ecaljdetails.tex` §Offset-Γ method）: Γ のセルの補正を w_L（Freysoldt の式）で表し、補助関数 F_L(k) = Σ_G e^{−α|k−G|²} Y_L/|k−G|²。
+  W ≈ W̃(0) + 4π/(kᵀLk) δ_{1μ}δ_{1ν} とし、L テンソルを不変テンソル μ^g_ij（1〜6 個）の和で書いて Q0P の点の ε から決める。
+  **2016-03-18 から w_L は L = (0,0) だけ**: 全部の L を使うと La2CuO4 の W(ω) の実部が単調でなくなり因果律に反した。今の `m_q0p` の `lxklm = 0` がこれ。金属の ω = 0 では L が発散する
+- **クーロン行列**（同 §The Coulomb matrix、`main_hvccfp0`）: Bessel は Methfessel の約束 J̄_l = j_l(i|κ|r)/(i|κ|)^l、H̄_l = h_l·i(i|κ|)^{l+1}。`strxq` は 4π を含まず、
+  呼んだ直後に掛ける。⟨B|v|B⟩ は `rojb`（ρ^l）と `sgbb`（同じ球の項）から。E = −1e−5（`screenfac`）が既定、GWinput の `TFscreen` で遮蔽したクーロン。
+  検算は ⟨e^{iqr}|v|e^{iqr}⟩ = 4πΩ/|q|²。⟨P|v|P⟩ の射影は l_Pmax = 2·LMXA
+- **積基底**（同 §Product basis、`basnfp` の `phiav`）: 動径関数の積 u u'/r はスピン平均の φ で作る。重なり行列を対角化し、固有値が許容（tolopt）より小さいものを捨てて
+  1/√ε で規格化する。数は `lbas` の `nbloch`。tolopt の目安は 1e−3（1e−2 は速いが危ない、1e−4 で安定を確かめる。`ecaljnote.tex`）
+- **ΔVxc の BZ 内挿**（同 §Interpolation of the self-energy）: MTO の部分だけを実空間に移し、APW の部分は MTO に射影して捨てる。emax_sigm より上は対角の平均（`ESEAVR`、
+  今もある）。実空間の T の縮退には 1/n_T の重み（`RSRNGE` は今のコードに無い）
+- **EIBZ**（同 §IBZ and EIBZ scheme）: 式 (eibz1–3)、重み `nwgt` は `eibzgen`。Σ の対称化は縮退した帯ごとに区切って回す（当時の `zsecsym`、今は無い）
+- **E_HF と E_HK**（同 §Harris-Foulkner energy）: 収束すれば一致し、差が数値誤差の目安。save の行頭 `c`（収束）と `h`（1 反復目）。論文の式 (B.1)(B.2) の誤り:
+  E_xc は n_c + n_in の汎関数で n_Z を含まない
+- **実球面調和関数 y_lm**（同 §Spherical Harmonics and Real harmonics）: Y_lm との変換、並びは m = −l..l（y00, y1−1, y10, y11, …）。出典 Edmonds・Rose
+- **空間群の回転の約束**（同 §Rotation of eigenfunctions and MPB）: g(R) + Δ = R' + ΔT_R（`miat`・`tiat`）、g[F](r) = F(g⁻¹r + Δ⁻¹)。PMT の固有関数と積基底の回し方
+- **Z = 1 を選ぶ理由**（`man-gw.tex` §Whether the renormalization factor Z is included）: 二準位模型で、Z を掛けずに ⟨Σ(e_k) − Vxc⟩ を足す方法 (II) が、
+  固有値だけを自己無撞着にした (IV) に近い
+- **χ+− の定義**（`fpgwdoc/man033_ver1.tex` §χ+− calculation〜J(q) and Tc）: 符号は 2007-07 に変えた。移動バンド模型で χ0+− → m/(ω − Δex)、常磁性で χ0 = 2χ0+−。
+  和則 ∫ω χ+− = M_z、ω → ∞ で M/ω。原子あたり 1 自由度の近似は剛体モーメント近似と別物。Heisenberg の J̄(q) と ∫J_nn(k) = 0 で対角を決める。MLO のマグノンの下敷き
+- **ε の収束**（同 §How to calculate correct epsilon?）: k は 20³〜30³。q0 は 0.02〜0.03（2π/a。0.01 は高エネルギーで乱れる）。芯を ε に入れない（16 eV 以上の芯 → 伝導帯は
+  危ない。局所軌道で価電子に）。局所場ありは lcutmx = 2 でよい。nk = 16, 18, 20 から外挿。収束の確かめの一覧（§Check list for convergence）: niw を 6 → 10, 12, 16、
+  deltaw ~0.01、dw/omg_c 0.01/0.05、d のある原子で lcutmx ≥ 4
+- **CoreOrth**（同 §Overview）: 芯と価電子の直交が不完全だと Π(q → 0) → 0 が崩れる。QP のエネルギーへの影響は小さい（`CoreOrth` のスイッチは今もある）
+- **EXX + RPA の全エネルギー**（同）は数値的に満足できなかった、という記録
+- **4f 系の設定**（`GdQSGW4.pdf`、2018-12-01）: f に `IDMOD = 1`（または FRZWF）。4f の MTO が多いと役割が入れ替わるシーソー型の不安定。PWMODE = 1（q によらない G の組）で
+  Σ の内挿が滑らか。R を 3.3 に、EH と EH2、LMXA = 6、5p は PZ = 15.9 で局所軌道、lcutmx = 6、積基底に 4f_d・5f_l を unocc で。1 反復 45 分（24 コア）
+- **局所軌道の P**（`ecaljnote.tex` §How to set local orbitals）: P = n + 0.5 − atan(r φ'/φ)/π。自由電子の小数部は l = 0..4 で .5、.25、.147584、.102416、.077979。
+  Ga の p・d: PZ = 3.9 は半内殻、5.5 は高い準位、5.2 は線形従属で失敗
+- **旧マニュアルの Q&A の残り**（`temp/ecaljmanual.pdf` §7・§12.12）: GW の中の Fermi エネルギーは smear 版と tetra 版の 2 種（`EFERMI`）。NPWPAD = 100（CuAlTe2 のように
+  APW の数の見積もりが外れる系）と RSRNG を広げる対処は、今のコードに無いキー。§1.1.1「QSGW に何を期待するか」: ハイブリッド汎関数の α や LDA+U の U を QSGW が決める見方
+- **将来の構想**（`ecaljdetails.tex` §Phonon project・§Magnon project）: フォノン（Π̄ = Π√v(1 − √vΠ√v)⁻¹√vΠ、Q0P を k·p の数値微分に、非解析項は Born 有効電荷）、
+  マグノン（一般化した K^{αβ} の虚部を四面体法で、ヒルベルト変換）
+- **lmf の基底の経験則**（`LMF@2009/fp.html`、v6.17）で `manual/lmf_legacy_ctrl.md` に無いもの: ELIND = −0.7（d・f の系）、RSMG = R/4、密度の 3 成分 n0 + n1 − n2
+- **MTO だけの模型**（`README_HamMTO.html`、2019）: Si で pwmode = 0 にするとギャップが約 0.2 eV 大きすぎる（既定の MTO が局在しすぎ）
+- 文献の bib（`GWmanual/ecaljrefs.bib` 499 KB、`ecaljdetails/ecaljrefs_detail.bib`、`refsk.bib`）は参照の元に使える
+
 ## 表 1. 片付けたもの（trash に移したもの）
 
 最上位の `MATERIALS/` は trash ではなく `Samples/MATERIALS/` へ移した（§9）。
 
 | 日 | もの | 元の場所 | 外す前のコミット | 過去ログの節 |
 | --- | --- | --- | --- | --- |
+| 2026-10-02 | ecaljdoc の古い文書（157 本、38 MB） | ecaljdoc の `BackUp/`、`ecaljdetails/` | ecaljdoc `3284d0b` | §14 |
 | 2026-10-01 | Materials Project の API キーを含む設定の写し | `ecalj_auto/OUTPUT/*/config.ini` の `apikey` 行 | `290397b34` の前 | ecalj_auto/README.md |
 | 2026-10-01 | 古い写し | `SRC/BK`、`SRC/execgfortran`、`SRC/execAHC` | `116254e1d` の前（`4f9332d98`） | — |
 | 2026-10-01 | GW1500 の古いスクリプト・表 | `ecalj_auto/run_gw1500_addrun*.sh`、`jobgw1500.sh`、`gw1500_recheck_*.sh`、`qpu_change.py`、`gw1500_rerun_20260930.tsv` | `116254e1d` の前 | ecalj_auto/GW1500_status.md |
