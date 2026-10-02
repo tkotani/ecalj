@@ -2,8 +2,9 @@
 
 Failed calculations from the GW1500 QSGW80 production run on kt1
 (`~/DATA/gw1500/`, snapshot 2026-05-10). These crashes are valuable evidence:
-most trace to the TF32 mixed-precision bug documented in this sample
-([`README.md`](../README.md)). Raw signatures are in `GW1500_failed.log` (verbatim copy of the
+most trace to the TF32 mixed-precision bug documented in the sample
+[`Samples/mptf32problem/README.md`](../Samples/mptf32problem/README.md) (this file was there until 2026-10-02).
+Raw signatures are in [`Samples/mptf32problem/GW1500_failed.log`](../Samples/mptf32problem/GW1500_failed.log) (verbatim copy of the
 production `failed.log`).
 
 ## Categories (62 total)

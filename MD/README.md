@@ -64,7 +64,7 @@ ecalj の開発者と Claude のための文書。公開サイト（ecaljdoc）�
 | 対称性（spglib） | [symmetry_spglib.md](symmetry_spglib.md)、ecaljdoc [manual/lmf.md](../ecaljdoc/manual/lmf.md) の SYMGRP |
 | GW の実装の覚え書き（χ0・W・Σ） | メニュー [implementation/README.md](implementation/README.md)、[MemoCode.md](MemoCode.md)、コードの大局 [module_map.md](module_map.md) |
 | 試験（`testecalj`、Samples の組） | [developer.md](developer.md)、[testecalj_2025.md](testecalj_2025.md)、[`TOOLS/samples_tests.sh`](../TOOLS/samples_tests.sh) |
-| GW1500（量産と失敗の分類） | [GW1500_failures.md](GW1500_failures.md)、[auto.md](auto.md)、[`ecalj_auto/GW1500_status.md`](../ecalj_auto/GW1500_status.md) |
+| GW1500（量産と失敗の分類） | まとめの正本 [`ecalj_auto/GW1500_status.md`](../ecalj_auto/GW1500_status.md)（経過、最終の状態の表 2、失敗の分類と回し直し、構造の不正な 16 物質）、分類ごとの一覧 [`ecalj_auto/GW1500_by_category.md`](../ecalj_auto/GW1500_by_category.md)、5 月の失敗の生の記録 [GW1500_failures.md](GW1500_failures.md)、自動の流れ [auto.md](auto.md) |
 | 開発の手引き（push、ビルド、ジョブの投入） | [ForDevelopers.md](ForDevelopers.md)、研究の要約 [ForDevelopers_research.md](ForDevelopers_research.md) |
 | ecaljdoc の公開 | [ecaljdoc_publish.md](ecaljdoc_publish.md) |
 | 片付けたもの（trash の表、ノウハウ） | [past_log.md](past_log.md)、履歴の書き換えのハッシュの対応 [commit_map_20261002.txt](commit_map_20261002.txt) |
