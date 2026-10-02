@@ -3,6 +3,9 @@
 ## What is ecaljdoc?
 
 ecaljdoc is a suite of documents for the [ecalj package](https://github.com/tkotani/ecalj/).
+
+Since 2026-10-02 the source of these documents lives in the ecalj repository as the directory `ecalj/ecaljdoc/`
+(edit it there). This repository receives it by `git subtree push` and publishes the site (procedure: `ecalj/MD/ecaljdoc_subtree.md`).
 Since we use VitePress for ecaljdoc, we have:
 
 * Read ecaljdoc — <https://ecalj.github.io/ecaljdoc>
