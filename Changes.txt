@@ -1,3 +1,7 @@
+2026-10-02 (7)
+  MLO の最大局在化（Marzari–Vanderbilt）の試作 mlo_maxloc.py と mlo_cmlo_transform.py を SRC/exec から TOOLS/gadget/ に移した
+  （標準の流れには入れない。bindir に入らないので python3 <ecalj>/TOOLS/gadget/mlo_maxloc.py と直接回す。TOOLS/gadget/README.md）。
+
 2026-10-02 (6)
   MLO は Löwdin で直交化した関数（MLO の部分空間の射影 Wannier 関数）になった。模型は H(R) だけ（重なり O(R) は単位行列）で、
   SOC、__cmlo（job_mloW の U・J・cRPA、job_mlo_magnon）、MLO-QSGW の Σ もこの基底。メッシュ上のバンドは変わらず、メッシュの外は E_F 近くで

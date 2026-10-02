@@ -22,8 +22,6 @@
 - **η ≠ 1 の原因**（2026-10-02）: Goldstone の条件の倍率が Löwdin で Fe 1.24、FeCo 1.28、Ni 1.75。Ni が大きい理由は未確認
 - **MLO と Wannier のずれ**（2026-10-02、`MD/wannier_vs_mlo.md`）: Ni d の cRPA の U が Wannier より低い（Löwdin で 2.90 対 3.78 eV、部分空間の違い）。
   Fe のマグノンは Löwdin で近づいた（q ≤ 0.3 で 2 割高いのは残る）。実験（Fe のマグノン分散）との比較
-- **最大局在化（MV）の試作の残り**（2026-10-02、メインにはしない）: `mlo_maxloc.py --sym` は 1 原子・symmorphic だけ。多原子・非 symmorphic、局在させた基底での
-  U とマグノン。`mlo_cmlo_transform.py lowdin` は恒等変換になった。続けないなら試作の道具をまとめて trash へ
 - **空格子球の自動化（基準 3）**（2026-10-01）: `SRC/exec/ctrlg_addes.py`（`8c158ee96`、像の数を面間隔から決める直しは済み）を ctrlg の生成に組み込むか。
   Bi₂Te₃ の空隙は 2.61 a.u. で 3.0 未満、SiO₂ は手で置いて 0.001 eV
 - **検査の FAIL の残り**（2026-10-01）: 基準 1 で Sn・AlSb・InSb が 1 点だけ 0.1 eV を少し超える（Löwdin の模型で Bi₂Te₃・Cu は通るようになった。表 M8）。
@@ -94,6 +92,8 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 | 8 | MLO の模型の残り（EH2 の崩れ、§9 の目安の値の測り直し、空格子球の自動化） | 計算機で裏で回せる | MATERIALS | 原因の確かめと測り直し、`ctrlg_addes.py` の直し**済み**。EH2 の直し方は要判断 |
 | 後 | `sugw` のメモリ、`hgw` の残り、MP の API と GW1500 の選定 | 大きい、または外の事情 | — | 未 |
 
+- 最大局在化（MV）の試作は `TOOLS/gadget/`（README つき、bindir に入らない）に移して残した（2026-10-02 16:05、user「メインにしない。役に立ちうるなら TOOLS の下に gadget」）。
+  役に立ちうる所: 結合の上の局在関数、Wannier90 との比較、Löwdin の局在の目安
 - 済んだ項目（2026-10-02 14:35 に §1 から移した）: Löwdin の後の文書（ecaljdoc mlo §6・表 M8、Changes.txt (6)、handover、`Fe_mlo_magnon/README.md`）。AFTEST の (d)（使い方を ecaljdoc の UsageDetailed.md へ）。
   マグノンの既定の窓（窓は (2, 2) のまま。Löwdin で窓によらない）。対称性 S0〜S6（`MD/symmetry_spglib.md` §4.7）。kt1 の GW1500 の run3（2026-10-01 16:43 に終了）
 

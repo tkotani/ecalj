@@ -29,7 +29,8 @@ import argparse, sys
 from pathlib import Path
 import numpy as np
 from scipy.linalg import expm
-sys.path.insert(0, str(Path(__file__).parent))
+EXEC = Path(__file__).resolve().parents[2] / 'SRC' / 'exec'   # mlo_spread.py, symfind.py (2026-10-02: moved to TOOLS/gadget)
+sys.path.insert(0, str(EXEC))
 from mlo_spread import read_lattice, read_qbz, read_uu
 from scipy.io import FortranFile
 
@@ -85,7 +86,7 @@ def symmetry_X(sname, plat, nbasis, lblocks):
     """X(g) (nbasis x nbasis) for the point-group operations of the crystal: blocks of the real-harmonic rotation matrices
     D^l(R) of ecalj (rotdlmm), one block per l in lblocks. One atom at the origin, no translations."""
     import ctypes, importlib.util, os
-    spec = importlib.util.spec_from_file_location('symfind', str(Path(__file__).parent / 'symfind.py'))
+    spec = importlib.util.spec_from_file_location('symfind', str(EXEC / 'symfind.py'))
     sf = importlib.util.module_from_spec(spec); spec.loader.exec_module(sf)
     alat_c, plat_c, names, frac, af = sf.read_ctrlg(sname)
     if len(names) != 1:
@@ -98,7 +99,9 @@ def symmetry_X(sname, plat, nbasis, lblocks):
     if sum(2 * l + 1 for l in lblocks) != nbasis:
         sys.exit(f'mlo_maxloc --sym: lblocks {lblocks} do not make {nbasis} MLOs')
     lib = None
-    for d in [Path(__file__).parent, Path(__file__).resolve().parent.parent / 'build_gfortran']:
+    import shutil
+    lmf = shutil.which('lmf')   # the bindir (~/bin) holds lmf and a link to libecaljF.so
+    for d in ([Path(lmf).parent] if lmf else []) + [EXEC.parent / 'build_gfortran']:
         if (d / 'libecaljF.so').exists() and (d / 'lmf').exists():
             # the libraries lmf is linked with (MKL's FFTW and LAPACK, MPI) first, global: libecaljF.so leaves them to the executable
             import subprocess
@@ -108,7 +111,7 @@ def symmetry_X(sname, plat, nbasis, lblocks):
                     ctypes.CDLL(w[2], mode=ctypes.RTLD_GLOBAL)
             lib = ctypes.CDLL(str(d / 'libecaljF.so')); break
     if lib is None:
-        sys.exit('mlo_maxloc --sym: libecaljF.so and lmf not found next to the script')
+        sys.exit('mlo_maxloc --sym: libecaljF.so and lmf not found (lmf on PATH, or SRC/build_gfortran)')
     ng, nl = len(Rc), max(lblocks) + 1
     sym = np.asfortranarray(np.transpose(Rc, (1, 2, 0)))                   # symops(3,3,ng)
     dl = np.zeros((2 * nl - 1, 2 * nl - 1, nl, ng), order='F')

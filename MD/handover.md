@@ -91,7 +91,7 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
   ecalj の MLO。模型は H̃(R) だけ（O(R) = δ）、__cmlo（U・J・cRPA・マグノン）、MLO-QSGW の Σ、SOC もこの基底。対称性と軌道の名前を保ち、窓によらない。
   メッシュの外のバンドは生の (H, O) の模型より E_F 近くで良い（ecaljdoc mlo §6 表 M8）。`job_mlo --mlo_raw` は比べるためだけの以前の模型。
   HamRsMLO に直交化の印があり、それが無い古い HamRsMLO は読まずに止まる（job_mlo を回し直す）。
-  最大局在化（MV、Sakuma の拘束つき）は試作の道具（`mlo_maxloc.py --sym`）として残すがメインにしない。拘束なしの MV は結合の方向にずれた混成軌道になる
+  最大局在化（MV、Sakuma の拘束つき）は試作の道具（`TOOLS/gadget/mlo_maxloc.py --sym`、2026-10-02 に SRC/exec から移した。bindir には入らない）として残すがメインにしない。拘束なしの MV は結合の方向にずれた混成軌道になる
 
 ## 4. コンパイラと実行時の落とし穴
 
