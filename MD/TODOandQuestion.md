@@ -47,6 +47,15 @@
   （user「zsecsym は遅かった」）。手間は速さより正しさの細部（縮退の判定の許容、帯の数の上限が多重項の途中で切れるとき、AF の操作）。
   まず numpy で NiO 4³ の Σ を対称化して、15 meV が消えるかと時間を見る
 
+- **【未着手】時間反転の無い GW（`npm = 2`）: χ0・W・Σ の負の振動数**（2026-10-02 21:49、user「そうなんです。これも TODO に」）:
+  時間順序の W はいつも $W_{\mu\nu}(\omega)=W_{\nu\mu}(-\omega)$、q の表現では $W_{\mathbf G\mathbf G'}(\mathbf q,-\omega)=W_{-\mathbf G',-\mathbf G}(-\mathbf q,\omega)$。
+  時間反転（非磁性、またはスピン軌道の無い共線的な磁性）か空間反転があれば、ω ≥ 0 だけで足りる（`npm = 1`）。スピン軌道を GW の中に入れた磁性体で
+  空間反転も無いと、負の振動数の χ0・W・Σc が別に要る。今のコード: `timereversal()` が偽で `npm = 2`（[`m_freq.f90`](../SRC/subroutines/m_freq.f90)）、
+  W の置き場には負の側がある（`m_wv_storage`）が、Σ は [`m_sxcf_sc_count.f90`](../SRC/subroutines/m_sxcf_sc_count.f90) の `npm=2 need to be examined` で止まり、
+  χ0 も `x0kf_zxq` の冒頭で止まる（2026-09-27 に確かめた）。普段はスピン軌道なしの GW（時間反転あり）にスピン軌道を lmf の側で足すので困らない。
+  手順の案: (a) 空間反転があるときは、負の振動数の W(q) を W(q) の転置で作る（`npm = 2` の計算は要らない）、(b) 無いときは χ0（`dpsion5` の負の側）・W・Σc の
+  振動数の積分を負の側まで通す（Σ の `wgtim` の負の側の重みは「need check」の注のまま）
+
 ### 有限温度
 
 - **【未着手】有限温度の四面体法（`t_tetrakbt > 0`、`m_tetrakbt`）と従来の T = 0 の四面体法（`t_tetrakbt = 0`、`tetwt5`）の関係を確かめる**（2026-10-02、user）:
