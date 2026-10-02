@@ -13,7 +13,7 @@
 # verbose / time: console verbosity and CPU timing log.
 #   Override at run time with --ctrlg:verbose=50 / --ctrlg:time=[5,5].
 symgrp = "find"  # 'find' = auto-detect from lattice (see header)
-symgrpaf = "i:( 1 1 1 )"  # with symgrpaf, pwmode = 11 (pwmode = 1 stops at k 4^3: rotwave q+G rotation error)
+symgrpaf = "find"  # with symgrpaf, pwmode = 11 (pwmode = 1 stops at k 4^3: rotwave q+G rotation error)
 verbose = 35  # 31 default, 35 verbose, 41+ debug
 time = [0, 0]  # CPU timing log; [depth, on-the-fly]
 

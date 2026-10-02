@@ -10,7 +10,7 @@
 # verbose / time: console verbosity and CPU timing log.
 #   Override at run time with --ctrlg:verbose=50 / --ctrlg:time=[5,5].
 symgrp = "find"  # 'find' = auto-detect from lattice (see header)
-symgrpaf = "i:( 1 1 1 )"
+symgrpaf = "find"
 verbose = 35  # 31 default, 35 verbose, 41+ debug
 time = [0, 0]  # CPU timing log; [depth, on-the-fly]
 
@@ -152,7 +152,7 @@ forces      = 0  # 0 none, 1 compute forces
 rdsig       = 12
 scaledsigma = 1.0  # QSGW mixing: 1.0 full, 0.8 = QSGW80
 oveps       = 1e-08  # overlap-eps for (H-eO)z=0; 1d-8 default
-pwmode      = 1  # 0=MTO 1=PMT 2=APW 11=PMT(|q+G|, default) 12=LAPW
+pwmode      = 11  # 0=MTO 1=PMT 2=APW 11=PMT(|q+G|, default) 12=LAPW
 pwemax      = 3.0  # APW cutoff (Ry)
 readp       = true  # read P,PZ from atom calc results
 pnufix      = true  # fix B.C. of radial functions

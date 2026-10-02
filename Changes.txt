@@ -1,3 +1,8 @@
+2026-10-02 (8)
+  反強磁性の対称性は symgrpaf = "find" と書けば、spglib が af の印から磁気空間群を求めて使う（生成元を書かなくてよい）。生成元は
+  従来の探し方（ECALJ_SYMFIND=ecalj）のときだけ使い、そこで "find" は止まる。Samples の AFsymmetry・AFfixMMOM・MLOsamples/RuO2 を
+  "find" に。AFsymmetry/NiO は pwmode = 11 にした（pwmode = 1 は k 4×4×4 で rotwave が止まる）。説明は ecaljdoc の UsageDetailed（Antiferro symmetry）と lmf.md。
+
 2026-10-02 (7)
   MLO の最大局在化（Marzari–Vanderbilt）の試作 mlo_maxloc.py と mlo_cmlo_transform.py を SRC/exec から TOOLS/gadget/ に移した
   （標準の流れには入れない。bindir に入らないので python3 <ecalj>/TOOLS/gadget/mlo_maxloc.py と直接回す。TOOLS/gadget/README.md）。

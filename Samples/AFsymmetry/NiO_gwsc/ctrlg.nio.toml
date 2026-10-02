@@ -9,7 +9,7 @@
 # verbose / time: console verbosity and CPU timing log.
 #   Override at run time with --ctrlg:verbose=50 / --ctrlg:time=[5,5].
 symgrp = "find"  # 'find' = auto-detect from lattice (see header)
-symgrpaf = "i:( 1 1 1 )"  # antiferromagnetic symmetry: this operation with the spin flip maps Niup on Nidn
+symgrpaf = "find"  # antiferromagnetic symmetry: spglib finds the operations that, with the spin flip, map Niup on Nidn (af labels)
 # ----------------------------------------------------------------
 verbose = 35  # 31 default, 35 verbose, 41+ debug
 time    = [0, 0]  # CPU timing log; [depth, on-the-fly]

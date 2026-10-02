@@ -8,7 +8,7 @@
 #   the symmetry by hand. 'lmchk foobar --pr60' lists generators.
 #   See https://ecalj.github.io/ecaljdoc/manual/lmf#symgrp
 symgrp = "find"  # 'find' = auto-detect from lattice (see header)
-symgrpaf = "r4z:( 0.0 0.5 0.3450563852 )"
+symgrpaf = "find"
 
 # === IO ===
 # verbos: console verbosity (default 31). Larger -> more diagnostic

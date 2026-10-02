@@ -73,7 +73,17 @@ contains
       integer:: oicsAll(nbas),oistabAll(nbas,ngmx),ipsAF(nbas),iga,igall,nclassAll,ig
       AFmode=len_trim(symgaf)>0 
       if(AFmode) then
-         strn2=trim(strn)//' '//trim(symgaf)
+         ! symgrpaf = "find" (2026-10-02, user: let spglib find the AF operations too): the operations with time reversal come from the
+         ! af labels (the magnetic space group of spglib, symmetry.<sname>.json). Generators in symgrpaf matter only for gensym
+         ! (ECALJ_SYMFIND=ecalj or SYMGRP with generators).
+         ! gensym cannot: merging the pairs loses the order of the moments (NiO becomes cubic, 48 operations, and wrong AF ones).
+         if(trim(adjustl(symgaf))=='find') then
+            if(.not.jsonused) call rx('m_mksym: symgrpaf = "find" needs the spglib finder (symgrp = "find", no ECALJ_SYMFIND=ecalj); '// &
+                 'with gensym write the generators, e.g. symgrpaf = "i:( 1 1 1 )" for NiO')
+            strn2=trim(strn)
+         else
+            strn2=trim(strn)//' '//trim(symgaf)
+         endif
          if(ipr10) then
             write(stdo,*)
             write(stdo,"(a)") 'Add SpaceGroupSym ops by AF symmetry===start========= '
