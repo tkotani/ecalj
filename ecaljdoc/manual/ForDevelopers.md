@@ -133,14 +133,8 @@ cd Samples/MLOQSGW;    testecalj -np 8 -np2 2 --gpu --mp GaAs NiO  # MLO-QSGW
 
 ## 7. 計算機
 
-| 機械 | 中身 | 注意 |
-| --- | --- | --- |
-| t14（手元） | 16 コア、メモリ 30 GB（普段 20 GB 以上使用中）、gfortran（`mpif90` は Intel MPI のラッパー） | `~/bin` は作業ツリーの `SRC/build_gfortran` への symlink。確認用のビルドは §4 のとおり別の worktree で |
-| kt1 | RTX 5090 ×2（32 GB）、64 コア、メモリ 251 GB、nvfortran 26.1（NVIDIA HPC SDK 2026）、CUDA 13。gfortran 13/14 はあるが gfortran 用の MPI は無い（HPCX は nvfortran 用） | GPU は 2 枚とも使ってよい（2026-09-30 から。それまでは GPU 1 を user のジョブ用に空けていた）。GW のジョブと並べる試験は `-np2 1`。本番 `~/ecalj`→`~/bin` は触らず、開発は `~/ecalj_dev`→`~/bin_dev`。作業は `/mnt/data1`。HPCX の `mpirun` 無しで `lmfa` は動かない（`mpirun -np 1 lmfa`）。`lmf --listcmdopt` は正常でも exit 1 |
-| kr5 | Ubuntu 24.04、Ryzen 7 9700X（**8 物理コア**／16 スレッド）、メモリ 30 GB、RTX 5090 32 GB、`sudo` 不可。NVIDIA HPC SDK 26.1 を `~/opt/nvhpc` に、環境は `~/nvenv.sh`、MKL は kt1 から `~/opt/intel` に（研究ログ 2026-09-25 14:45） | user が GPU を使う機械。2026-09-25 に LiTi₂O₄ を回せるようにして停止中（`~/liti/run_kr5.sh`、`-np 8 -np2 1`。`nproc` の 16 で `-np 14` にすると OpenMPI がスロット不足で落ちる）。ソースは `sync_ecalj_src.sh` で `SRC` と `InstallAll.py` だけ |
-| kr7 | Ubuntu 24.04、Zen 5 の 16 スレッド、RTX 5090 32 GB、`sudo` は user が打つ。kr5 と同じ構成（`~/opt/nvhpc`、`~/opt/intel`、`~/nvenv.sh`）、Python は uv の `~/venv`（研究ログ 2026-09-28 22:58） | 試験用（2026-09-28 から）。`sync_ecalj_src.sh --samples kr7` で Samples ごと送り、`-np 8` |
-| mic | RHEL 8.7、ifort/ifx 2023（ifx 2026 は `~/.local/bin/mpiifx`） | Python は uv の 3.12（`~/.local/bin` を先に）。試験用のツリーは `~/ecalj_test0928`、環境は `~/ecalj_test0928_env.sh`（ifx 2026 と venv `~/venv_ecalj`） |
-| ucgw | SGE クラスタ、ifx 2024.2（`module load intel/2024.2 intelMKL/2024.2 intelMPI/2021.13`） | 64 コアは `-pe x32 64`、大きな GW は `#$ -l mem_free=150G`、ジョブで `module load` と `I_MPI_HYDRA_BOOTSTRAP=sge`。`qsub` には `PATH` に `/usr/sge/bin/linux-x64`。`.git` が大きく `git push` が固まる → `git pack-objects --revs --stdout`（thin にしない）を送って `git unpack-objects` |
+計算機ごとの中身と使い方（t14、kt1、kr7、kr5、mic、ucgw）の表は ecalj の `ecaljdoc/MD/handover.md` §2 にまとめてある（2026-10-02。二か所にあった表を一つにした）。
+kt1 で複数のジョブを並べるときの `taskset` と `OMPI_MCA_hwloc_base_binding_policy=none`、リモートの操作の注意も同じ節。
 
 - `pkill -f <パターン>` は ssh 越しだと自分のコマンド行にも当たる。PID で止めるか `pgrep -f "pat[t]ern"` の形で
 - 走っているシェル脚本を書き換えない（bash は脚本を逐次読む）。変えるなら止めて起動し直す

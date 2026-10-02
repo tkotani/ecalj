@@ -30,18 +30,20 @@ ecaljclaude.md「記録の方針」「Claude の作業の進め方」にある�
 
 ## 2. 計算機と環境
 
+計算機の表の正本はここ（2026-10-02 20:51、user「handover に取りまとめて」。ecaljdoc の ForDevelopers §7 にあった表をまとめた）。
+
 原本は t14 の `~/ecalj`（文書の ecaljdoc も 2026-10-02 から `~/ecalj/ecaljdoc/`。`~/ecaljdoc` は古いクローンで使わない。[ecaljdoc_subtree.md](ecaljdoc_subtree.md)）。ほかの機械へは `TOOLS/sync_ecalj_src.sh <host> [<dir>]` で送る（git archive + `SRC/.ecalj_rev` の刻印、送り先に git は無い。
 `--samples` で Samples ごと、`--check-all` で各機の版。SRC に未コミットの変更があると止まる → `ALLOW_DIRTY=1`）。
 数ファイルだけの差分なら `scp` で置いて `SRC/.ecalj_rev` を打ち直すと増分ビルドで済む（全部送ると mtime が変わって全部ビルドし直す）（reference_build）。
 
 | 機械 | 中身 | 使い方の要点 |
 | --- | --- | --- |
-| t14（手元） | gfortran-14、Python 3.13（mise） | `SRC/build_gfortran` → `~/bin`（シンボリックリンク）。`~/bin` には `SRC/exec` から退かせたファイルを指す行き先の無いリンクが 58 本ある（TODO） |
-| kt1 | RTX 5090 ×2、コア 0〜63（SMT 無し）、メモリ 251 GB、nvfortran 26.1・CUDA 13、HPC-X の OpenMPI | 本番 `~/ecalj` → `~/bin` は触らない。開発 `~/ecalj_dev` → `~/bin_dev`。何時間もかかる計算は実体をコピーした `~/bin_frozen_<rev>`。試験用のツリーは `/mnt/data1/ecalj_test*`。環境 `source /mnt/data1/LiTi2O4_kbt_runs/liti_src_full9/env.sh`。GPU は 2 枚とも使ってよい（2026-09-30 から） |
-| kr7 | RTX 5090 ×1、16 スレッド、メモリ 30 GB | sudo なし。`source ~/nvenv.sh`（HPC SDK 26.1 を `~/opt/nvhpc`、MKL、uv の venv）。`python3 InstallAll.py --fc nvfortran --gpu --bindir ~/bin --notest --no-bashrc`、`-np 8`。試験に gnuplot が要る |
-| kr5 | kr7 と同じ sudo なしの構成（kr7 の MKL は kr5 から写した） | 最後に送った版は 2026-09-25（`sync_ecalj_src.sh --check-all`） |
-| mic | RHEL 8.7、ifx・ifort（oneAPI）、ホーム `/home/cp/tkotani` | sudo なし、Python は uv（3.12）。ifx の MPI は `~/.local/bin/mpiifx` の包み。試験のときの環境は `~/ecalj_test0928_env.sh` |
-| ucgw | SGE のクラスタ（ログインは 4 コア） | ifx: `module load intel/2024.2 intelMKL/2024.2 intelMPI/2021.13`。ジョブは `-pe x32 64`（x56・x64 は使えない）、`#$ -l mem_free=150G`（93 GB の機械で swap で死ぬ）、`I_MPI_HYDRA_BOOTSTRAP=sge`、ジョブの中で `module load` |
+| t14（手元） | 16 コア、メモリ 30 GB（普段 20 GB 以上使用中）、gfortran-14（`mpif90` は Intel MPI のラッパー）、Python 3.13（mise） | `SRC/build_gfortran` → `~/bin`（シンボリックリンク）。確かめのビルドは別の木（`~/work/<x>tree`）で（試験中は `~/bin` の先を変えない）。`~/bin` には `SRC/exec` から退かせたファイルを指す行き先の無いリンクが残ることがある（`InstallAll.py` の次の実行で消える） |
+| kt1 | RTX 5090 ×2（32 GB）、コア 0〜63（SMT 無し）、メモリ 251 GB、nvfortran 26.1（NVIDIA HPC SDK 2026）・CUDA 13、HPC-X の OpenMPI。gfortran 13/14 はあるが gfortran 用の MPI は無い | 本番 `~/ecalj` → `~/bin` は触らない。開発 `~/ecalj_dev` → `~/bin_dev`。何時間もかかる計算は実体をコピーした `~/bin_frozen_<rev>`。作業と試験用のツリーは `/mnt/data1`（`/mnt/data1/ecalj_test*`）。環境 `source /mnt/data1/LiTi2O4_kbt_runs/liti_src_full9/env.sh`。GPU は 2 枚とも使ってよい（2026-09-30 から。それまでは GPU 1 を user のジョブ用に空けていた）。GW のジョブと並べる試験は `-np2 1`。HPC-X の `mpirun` 無しで `lmfa` は動かない（`mpirun -np 1 lmfa`）。`lmf --listcmdopt` は正常でも exit 1 |
+| kr7 | Ubuntu 24.04、Zen 5 の 16 スレッド、RTX 5090 32 GB、メモリ 30 GB | 試験用（2026-09-28 から）。sudo は user が打つ。kr5 と同じ構成: `source ~/nvenv.sh`（HPC SDK 26.1 を `~/opt/nvhpc`、MKL を `~/opt/intel`、uv の venv `~/venv`）。`python3 InstallAll.py --fc nvfortran --gpu --bindir ~/bin --notest --no-bashrc`、`sync_ecalj_src.sh --samples kr7` で Samples ごと送る、`-np 8`。試験に gnuplot が要る |
+| kr5 | Ubuntu 24.04、Ryzen 7 9700X（**8 物理コア**／16 スレッド）、メモリ 30 GB、RTX 5090 32 GB、sudo 不可。kr7 と同じ構成（kr7 の MKL は kr5 から写した） | user が GPU を使う機械。2026-09-25 に LiTi₂O₄ を回せるようにして停止中（`~/liti/run_kr5.sh`、`-np 8 -np2 1`。`nproc` の 16 で `-np 14` にすると OpenMPI がスロット不足で落ちる）。ソースは `sync_ecalj_src.sh` で `SRC` と `InstallAll.py` だけ。最後に送った版は 2026-09-25（`sync_ecalj_src.sh --check-all`） |
+| mic | RHEL 8.7、ifx・ifort（oneAPI 2023。ifx 2026 は `~/.local/bin/mpiifx` の包み）、ホーム `/home/cp/tkotani` | sudo なし、Python は uv の 3.12（`~/.local/bin` を先に）。試験用のツリーは `~/ecalj_test0928`、環境は `~/ecalj_test0928_env.sh`（ifx 2026 と venv `~/venv_ecalj`） |
+| ucgw | SGE のクラスタ（ログインは 4 コア）、ifx 2024.2 | `module load intel/2024.2 intelMKL/2024.2 intelMPI/2021.13`。ジョブは `-pe x32 64`（x56・x64 は使えない）、`#$ -l mem_free=150G`（93 GB の機械で swap で死ぬ）、`I_MPI_HYDRA_BOOTSTRAP=sge`、ジョブの中で `module load`。`qsub` には `PATH` に `/usr/sge/bin/linux-x64`。`.git` が大きく `git push` が固まる（下の「肥大した `.git`」） |
 | ISSP（kugui・ohtaka） | | past_log.md §1.3、ecaljdoc `UsageISSP.md`、`Samples/BenchmarkTest/ISSP/` |
 
 **kt1 で複数のジョブを並べるとき**（2026-09-30、reference_kt1_taskset）: ジョブごとに `taskset -c 16-27 ...` で別のコアの組を与え、**`export OMPI_MCA_hwloc_base_binding_policy=none` を必ず付ける**。
