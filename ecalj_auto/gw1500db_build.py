@@ -462,10 +462,11 @@ two-atom GOOD on the second machine. The 16 materials with invalid or suspect st
 ## How reliable are the May values (M)?
 
 The May production (April: the ecalj of that time with all GPU products in TF32, the old `--mp`; then continued in May)
-can differ from a run from scratch with the present code. For MgO (mp-1265, May 8.33 eV, now 8.18 eV) the inputs, the
-smearing, `pb_lcutmx` and the precision of the present code were ruled out, and the ecalj of 2026-05-10 run from scratch on
-the May inputs (CPU) gives 8.18 eV as the present code: the May value comes from the history of the May run, not from a
-change of the code. Materials with both M and N so far: {len(nm)}; |N − M| (eV):
+differs from a run from scratch with the present code. For MgO (mp-1265, May 8.33 eV, now 8.18 eV) the inputs, the smearing,
+`pb_lcutmx` and the precision of the present code were ruled out, and the ecalj of 2026-05-10 run from scratch on the May
+inputs in double precision gives 8.18 eV, iteration by iteration as the present code. The sigm of the first May iterations,
+read by that same lmf, gives gaps off by 0.05–0.26 eV already at iteration 1 (MgO, BeO, LiF, NaCl; CdS 0.01 eV), with signs
+changing from material to material and from iteration to iteration: the precision of the old all-TF32 `--mp`. Materials with both M and N so far: {len(nm)}; |N − M| (eV):
 
 | | < 0.02 | 0.02–0.05 | 0.05–0.1 | 0.1–0.2 | 0.2–0.5 | > 0.5 |
 | --- | --- | --- | --- | --- | --- | --- |
