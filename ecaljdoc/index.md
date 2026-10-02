@@ -7,6 +7,9 @@ hero:
   tagline: This is for ecalj package, a first-principles electronic-structure calculations
   actions:
     - theme: alt
+      text: What's new (2026-10)
+      link: /manual/whatsnew
+    - theme: alt
       text: Tutorial
       link: /manual/README_tutorial
     - theme: alt
@@ -22,8 +25,8 @@ hero:
       text: Download ecalj package
       link: https://github.com/tkotani/ecalj
     - theme: brand
-      text: Download ecaljdoc (this document)
-      link: https://github.com/ecalj/ecaljdoc
+      text: Source of this document (ecalj/ecaljdoc)
+      link: https://github.com/tkotani/ecalj/tree/main/ecaljdoc
 
 features:
   - title: Quasiparticle self-consistent GW methods (QSGW)

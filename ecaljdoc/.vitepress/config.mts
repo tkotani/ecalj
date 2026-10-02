@@ -54,6 +54,7 @@ export default withMermaid({
       {
         text: 'Manual',
         items: [
+          { text: '更新履歴（要約）/ What\'s new', link: '/manual/whatsnew' },
           { text: 'TOML migration (2026-05)', link: '/manual/toml_migration' },
           { text: 'Samples (where what lives)', link: '/manual/samples' },
           { text: 'DFT  calculation : lmf part', link: '/manual/lmf' },
