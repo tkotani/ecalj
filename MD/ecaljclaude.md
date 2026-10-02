@@ -16,6 +16,7 @@ ecalj を Claude (LLM) で開発する際のガイドライン。
 | 新機能と変更（利用者向け、正本） | [`Changes.md`](../Changes.md)（最上位。2026-10-02 に `Changes.txt` から改名） |
 | 主プログラム → module の階層（生成物） | [module_map.md](module_map.md) |
 | 個別の設計・手順: 対称性 [symmetry_spglib.md](symmetry_spglib.md)、Wannier と MLO の比較 [wannier_vs_mlo.md](wannier_vs_mlo.md)、ecaljdoc の管理と公開 [ecaljdoc_publish.md](ecaljdoc_publish.md)、履歴の書き換えのハッシュの対応 `commit_map_20261002.txt` | [`MD/`](.) |
+| 利用者を AI が案内するときの入口（読む順、説明の進め方、試験の時間の表） | [`ecaljdoc/manual/getstartedAI.md`](../ecaljdoc/manual/getstartedAI.md)（サイトのトップの「GetStarted with AI (New!)」、2026-10-03） |
 | 使い方と理論の本体（公開サイト https://ecalj.github.io/ecaljdoc/ の元） | [`ecaljdoc/manual/`](../ecaljdoc/manual)（入口 [../index.md](../ecaljdoc/index.md)、サンプルの一覧 [../manual/samples.md](../ecaljdoc/manual/samples.md)）、[`ecaljdoc/theory/`](../ecaljdoc/theory) |
 | 変更の記録（利用者向け） | [`Changes.md`](../Changes.md) |
 | サンプルと試験 | `Samples/<dir>/README.md`（各 README の冒頭に本体の節へのリンク）、試験の組は [`TOOLS/samples_tests.sh`](../TOOLS/samples_tests.sh) |

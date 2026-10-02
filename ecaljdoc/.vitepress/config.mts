@@ -40,6 +40,7 @@ export default withMermaid({
     sidebar: [
       {
         items: [
+          { text: 'GetStarted with AI (New!)', link: '/manual/getstartedAI' },
           { text: 'MainDocument', link: '/manual/README_tutorial' },
         ]
       },

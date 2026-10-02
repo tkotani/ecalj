@@ -29,6 +29,11 @@ ecalj の新しい機能と、結果が変わる修正の要約。新しい順�
   → [Fe のマグノンのサンプル](https://github.com/tkotani/ecalj/blob/main/Samples/Magnon/Fe_mlo_magnon/README.md)（表 2・図 1）
 - **cRPA の $U$**: Ni の d で MLO 2.90 eV、Wannier 3.78 eV（部分空間の取り方の違い。遮蔽をすべて入れた RPA の $U$ は 1.43 と 1.58 eV で近い）→ [MLO](./mlo.md) §6
 
+## 2026-10-03
+
+- **[GetStarted with AI](./getstartedAI.md)（New!）**: この頁の URL を AI（Claude Code など）に渡すと、ecalj の要約、何ができるか、読む順、
+  インストールと最初の計算と試験（マシンごとの時間の表）を、対話で案内する。頁は AI が読む前提で書いてある
+
 ## 2026-10-02
 
 - **MLO は Löwdin で直交化した関数になった**。MLO の部分空間の射影 Wannier 関数で、軌道の名前（t₂g、e_g など）と対称性を保つ。
