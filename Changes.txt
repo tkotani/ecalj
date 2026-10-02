@@ -1,3 +1,9 @@
+2026-10-02 (5)
+  job_mloW（U、J、cRPA）と job_mlo_magnon は、MLO を Löwdin で直交化した関数（MLO の部分空間の射影 Wannier 関数）を基底にする
+  （中のプログラムに --mlo_lowdin を渡す。--mlo_raw で直交していない MLO のまま）。模型のバンドは変わらない。軌道の名前と対称性を保つ。
+  - U が上がる（bcc Fe の d で 1.56 → 1.70 eV）。マグノンが MLO の窓によらなくなり、Wannier 関数を使った以前の計算に合う（Fe・FeCo・Ni）。
+  - 試験の参照を作り直した: TestInstall/ni_crpa・srvo3_crpa、MLOsamples/Fe、Magnon/Fe_mlo_magnon。説明は ecaljdoc mlo §6。
+
 2026-10-02 (4)
   対称性は既定で spglib から取る（lmf・lmchk など、symgrp = "find" のとき）。spglib 2.6.0 の C を SRC/external/spglib に同梱してビルドに入れた
   （Python は要らない）。求めた操作は作業ディレクトリの symmetry.<sname>.json に書き、次からはそれを読む。構造（--ctrlg: の上書きを含む）が
