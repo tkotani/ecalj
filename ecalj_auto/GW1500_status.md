@@ -4,6 +4,11 @@ GW1500 は 1546 物質の QSGW80（`scaledsigma = 0.8`）の計算で、2026-04�
 落ちたものの分類と原因、2026-09-30 の回し直しの結果を書く。物質ごとの表は [`gw1500_status_20260930.tsv`](gw1500_status_20260930.tsv)
 （1546 行）。計算の仕組み（スロットスケジューラなど）は [`README_slot_scheduler.md`](README_slot_scheduler.md)。
 
+以前の大きなまとめ（2025-07、arXiv:2507.19189 の補遺）は GitHub の [tkotani/DOSnpSupplement](https://github.com/tkotani/DOSnpSupplement):
+1516 物質の LDA・1shot・2shot QSGW のギャップの表（`README.md`）と、バンドと全 DOS の図（`bandpng.md`、`bandpng.py` で作った）。
+ここの計算（2026-04〜10、QSGW80 を収束まで）とは別の計算で、反復の数と `scaledsigma` が違う。ecaljdoc のトップの「QSGW database」はそちらを指す。
+補遺の README の再現の手順は `jobgw1500.sh` を回すと書いているが、そのスクリプトは 2026-10-01 に trash へ移した（`MD/past_log.md` の表 1、外す前は `0c8dbaaf2` の前のコミット）。
+
 ## 1. 計算の設定と経過
 
 - 入力: Materials Project の構造（`INPUT/gw1500/POSCARALL/POSCAR.<mpid>`、1〜8 原子）から `vasp2ctrl` と `ctrlgenToml.py`（4 月は `ctrlgenM1.py`）で作る。
