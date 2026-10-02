@@ -42,4 +42,4 @@
 
 GPU の高速化の記録は [gpu/](../gpu/README.md)。
 
-history.md の §3 と Samples/kBT/LiTi2O4/finiteT_202606.md の §1・§3 は、同じ 2026-06 の run の説明で一部が重なる（別々に注記が足されていて、行で 24 % が同じ）。
+2026-06 の run の説明はサンプル側（表 3 の 2 つと Fe の README）にまとめた。history.md §3 は行き先の表だけ（2026-10-02 22:30）。

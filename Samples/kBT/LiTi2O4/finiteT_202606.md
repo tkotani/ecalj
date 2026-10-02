@@ -175,6 +175,9 @@ PDF ビューアでページ送りすれば動画として見える。
 - **`deltaq_scale` は両方 0.1 固定。** offset-Gamma head は別系統の q 依存で、
   そこは振っていない。
 
+9³ 単独の反復の重ね描きは [`n999_T1000/results/band_iterations.png`](n999_T1000/results/band_iterations.png)。45 反復かかっているが、$E_F$ 近傍は
+10 反復あたりでほぼ決まっている（2026-10-02 22:30 に MD/kBT/history.md の旧 §5.3 から写した）。
+
 ### 3.3b 9³ は O 2p 帯の底が荒れている (2026-09-18 に気づいた)
 
 ![O 2p region, 6^3 vs 9^3](plots/o2p_666_vs_999_T1000.png)
@@ -221,6 +224,7 @@ state 7,8) は一致。offset-Γ (`deltaq_scale` = 0.1 は 9³ の間隔 1/9 に
 | `n666_T3000/` | `EFERMI_kbt` = 0.25315 Ry | 同じ |
 
 3000 K では両者が **0.51 eV** も離れる。それで自己無撞着ループが閉じない。
+（2026-09-20 から Σ 側も `t_tetrakbt > 0` なら必ず `EFERMI_kbt` を使うので、この食い違いはもう起きない。ecaljdoc kBT.md §0）
 
 パラパラマンガ: **[`plots/bands_iterations_T3000.pdf`](plots/bands_iterations_T3000.pdf)**
 (60 ページ、5 MB)。青が両側、赤破線が χ₀ のみ。青は途中で止まり、赤は最後まで動き続ける。
