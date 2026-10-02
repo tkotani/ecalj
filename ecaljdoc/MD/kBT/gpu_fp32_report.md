@@ -25,7 +25,7 @@
   その GPU で測って表にする。3 回とも同じ表になり、hgw で手で選んだ最速の組み合わせと一致した
 - **同じ機械の別のジョブとぶつからない**: GPU ごとのロック。1 枚の GPU に小さな計算を 2 本同時に流すと、片方が待って両方とも正常に終わった
 - **四面体の重み**を GPU の計算と並べて CPU で計算する（ファイルで受け渡し、ビット一致）
-- **回帰テスト**: TestInstall の GW テストは GPU の fp64・tf32・fp32 と CPU で全部合格。`Samples/MLOQSGW`（NiO、GaAs）は fp32・tf32 とも合格
+- **回帰テスト**: TestInstall の GW テストは GPU の fp64・tf32・fp32 と CPU で全部合格。[`Samples/MLOQSGW`](../../../Samples/MLOQSGW/README.md)（NiO、GaAs）は fp32・tf32 とも合格
   （NiO のギャップは参照 2.066 eV に対し fp32 2.071、tf32 2.088 eV）
 - **Ozaki（GEMMul8）**: 分解数で精度を 1 桁ずつ選べる。この GPU で速さに効くのは倍精度の積（7〜13 倍）。単精度では同じ精度の TF32 や実数 SGEMM に勝たない（§6）
 
@@ -44,13 +44,13 @@
 
 | 部品 | ファイル | 役割 |
 | --- | --- | --- |
-| 振り分け表 | `SRC/subroutines/m_linalg_policy.f90` | 表の読み込み（既定 < 方針ファイル < `--use_gemmul8` < `--linalg`）、1 回表示 |
-| 組み替え | `SRC/subroutines/m_la_realsgemm.f90` | 複素の積を実数 SGEMM 1 回に（A だけ写す）。キーで写しを保持 |
-| Ozaki | `SRC/subroutines/gemmul8_wrapper.cu`、`m_gemmul8.f90` | GEMMul8（INT8）。キーで分解した A を保持 |
-| 逆行列 | `SRC/subroutines/m_lapack.f90` | lu64 / mixed1 / mixed2（残差の上限を見て、悪条件なら FP64 の LU に回す） |
-| 計測ツール | `SRC/main/linalgtune.f90`（`linalgtune_gpu`） | 各方法を hgw と同じ経路で測り、表を書く |
-| GPU ロック | `SRC/exec/pylib/gpu_lock.py`、`run_cmd.py` | `/tmp/ecalj_res/gpu<N>.lock` を flock、`CUDA_VISIBLE_DEVICES` を渡す |
-| 四面体の重み | `SRC/subroutines/x0kf_v4h.f90`、`main_hgw.f90`、`gwsc` | `hgw --tetwt_write` が `__TETWT.<iq>.<isp>` を書き、hgw が読む |
+| 振り分け表 | [`SRC/subroutines/m_linalg_policy.f90`](../../../SRC/subroutines/m_linalg_policy.f90) | 表の読み込み（既定 < 方針ファイル < `--use_gemmul8` < `--linalg`）、1 回表示 |
+| 組み替え | [`SRC/subroutines/m_la_realsgemm.f90`](../../../SRC/subroutines/m_la_realsgemm.f90) | 複素の積を実数 SGEMM 1 回に（A だけ写す）。キーで写しを保持 |
+| Ozaki | [`SRC/subroutines/gemmul8_wrapper.cu`](../../../SRC/subroutines/gemmul8_wrapper.cu)、`m_gemmul8.f90` | GEMMul8（INT8）。キーで分解した A を保持 |
+| 逆行列 | [`SRC/subroutines/m_lapack.f90`](../../../SRC/subroutines/m_lapack.f90) | lu64 / mixed1 / mixed2（残差の上限を見て、悪条件なら FP64 の LU に回す） |
+| 計測ツール | [`SRC/main/linalgtune.f90`](../../../SRC/main/linalgtune.f90)（`linalgtune_gpu`） | 各方法を hgw と同じ経路で測り、表を書く |
+| GPU ロック | [`SRC/exec/pylib/gpu_lock.py`](../../../SRC/exec/pylib/gpu_lock.py)、`run_cmd.py` | `/tmp/ecalj_res/gpu<N>.lock` を flock、`CUDA_VISIBLE_DEVICES` を渡す |
+| 四面体の重み | [`SRC/subroutines/x0kf_v4h.f90`](../../../SRC/subroutines/x0kf_v4h.f90)、`main_hgw.f90`、`gwsc` | `hgw --tetwt_write` が `__TETWT.<iq>.<isp>` を書き、hgw が読む |
 
 実数 SGEMM への組み替え: $C=\alpha\,\mathrm{op}(A)B$ の $B$（$k\times n$ 複素）と $C$（$m\times n$）をそのまま実数の $2k\times n$、$2m\times n$ とみなし、
 $a=\alpha\,\mathrm{op}(A)_{jl}$ から実数行列を作る。
@@ -106,7 +106,7 @@ $$
   （E 基底の W は行・列が $\sqrt{v_I}$ に比例、$v$ の条件数は約 1e7 で要素の幅は $2^{-23}$ 程度の見込み）。足りなければ ω に依らない行スケール（A' 側）と
   列スケール（B 側）。(c) $f_B$ の上限 $\max|w|\cdot\max|\mathrm{zmel}|$ と実際の最大の比をログに出す（列ごとの厳密な最大 $|w(\omega,n)|\max_J|\mathrm{zmel}_{J,n}|$ は
   バッチに 1 回の縮約で出せる）。(d) 最大を $[2^{14},2^{15})$ に置けば下側に 1 ビット増える（(b) で足りないときだけ）
-- (a) の結果（2026-09-27 23:40、`Samples/kBT/fp16acc.cu`（`nvcc -O2 -arch=sm_120 -lcublas`、kt1）、m = 1037、n = 8191、値は 3 桁の幅）。a は同じ FP16 の入力の倍精度の積に対する一様な縮み
+- (a) の結果（2026-09-27 23:40、[`Samples/kBT/fp16acc.cu`](../../../Samples/kBT/fp16acc.cu)（`nvcc -O2 -arch=sm_120 -lcublas`、kt1）、m = 1037、n = 8191、値は 3 桁の幅）。a は同じ FP16 の入力の倍精度の積に対する一様な縮み
 
   | k | 値 | CUDA コアの SGEMM | テンソルコア FP16 | テンソルコア TF32 |
   | --- | --- | --- | --- | --- |
@@ -198,7 +198,7 @@ k 点が 6³ の 216 から 9³ の 729 に増えると、方法を替えても 
 3. **この GPU の fp32 では GEMMul8 は選ばれない**。Ozaki が効くのは倍精度（大きな積でネイティブ FP64 の 7〜13 倍、誤差 1e-14 級）。
    逆行列の Newton の積もこれで速くなり、mixed1 は FP64 の LU の 7.5 倍速い（hgw の matinv は 83 → 11 秒）
 4. 固定の行列をキーで保持する仕組みは、組み替えでは効く（Σc 実軸の小さな積が cuBLAS より速くなる）。GEMMul8 では大きな積で差が出ない
-5. **tf32 の精度**: 昨夜（`1fd5b4a70`）GPU に移した Hilbert 変換が、tf32 では TF32 の積になっていた。`Samples/MLOQSGW` の NiO（2 反復）で
+5. **tf32 の精度**: 昨夜（`1fd5b4a70`）GPU に移した Hilbert 変換が、tf32 では TF32 の積になっていた。[`Samples/MLOQSGW`](../../../Samples/MLOQSGW/README.md) の NiO（2 反復）で
    参照からのずれが 0.0135 → 0.04〜0.05 Ry に増えた（fp32 では 0.0005 Ry）。Hilbert 変換は 1 q あたり 0.7 秒なので、どの精度でも FP32 にした（`15182e25f`）
 6. `findloc` は nvfortran では長さの違う文字列を空白で埋めずに比べる（表の行が読めなかった。ループで比べるように直した）
 7. **nsys で見た残りの無駄**（6³、tf32、rank 0）: GPU がカーネルを実行していた時間は wall の約 7 割。`readeigen` が固有ベクトルの MT 係数を
@@ -218,8 +218,8 @@ k 点が 6³ の 216 から 9³ の 729 に増えると、方法を替えても 
 | **Σc の積だけ TF32（新しい `--prec=tf32`）** | **313.6** | **0.82 / 0.42** | 0.92 | 0.060 |
 | 全部 TF32（旧来の `--mp`） | 284.0 | 5.1 / 2.2 | 24.2 | 3.2 |
 
-NiO（`Samples/MLOQSGW`）のギャップ（2 反復後）: 参照 2.066 eV、fp32 2.069、Σc だけ TF32 2.088（+22 meV）、全部 TF32 2.035（1 反復後は −93 meV）。
-新しい `--prec=tf32` で `Samples/MLOQSGW`（NiO、GaAs）と TestInstall の GW テスト（GPU）は全部合格（旧来の全部 TF32 では NiO が不合格だった）。
+NiO（[`Samples/MLOQSGW`](../../../Samples/MLOQSGW/README.md)）のギャップ（2 反復後）: 参照 2.066 eV、fp32 2.069、Σc だけ TF32 2.088（+22 meV）、全部 TF32 2.035（1 反復後は −93 meV）。
+新しい `--prec=tf32` で [`Samples/MLOQSGW`](../../../Samples/MLOQSGW/README.md)（NiO、GaAs）と TestInstall の GW テスト（GPU）は全部合格（旧来の全部 TF32 では NiO が不合格だった）。
 
 - 誤差を大きくするのは W を作る側（χ0 → 誘電行列の逆）。χ0 の足し合わせは正定値の和で誤差が乗りにくいが、W の小さな誤差が $(1-v\chi_0)^{-1}$ で拡大される。
   Σc の最後の積では誤差がそのまま入るだけなので、TF32 でも E_F まわりで 1 meV 未満に収まる
@@ -364,7 +364,7 @@ tf32 と倍精度の Re Σc の差を Re Σc に当てはめると、差の 9 �
 ### 9.6 検証
 
 `69c0da53f`＋`a64c28cab`（RTX 5090 の表: tf32 = realhgemm）で、TestInstall の `--gwall` を GPU の fp64・tf32・fp32 と CPU で回して全部合格。
-`Samples/MLOQSGW`（GaAs、NiO）も tf32・fp32 とも合格（NiO の `log.nio` の差は tf32 0.0148、fp32 0.0009、許容 0.02）。
+[`Samples/MLOQSGW`](../../../Samples/MLOQSGW/README.md)（GaAs、NiO）も tf32・fp32 とも合格（NiO の `log.nio` の差は tf32 0.0148、fp32 0.0009、許容 0.02）。
 
 ### 9.5 次の候補（見積もり、未着手）
 

@@ -123,7 +123,7 @@ pip3 install pymatgen mp-api --user
 ```
 Materials Project の API key が必要。個人のものなので、ecalj の最上位に `MaterialProject.key`（1 行、git には入らない）として置く。
 公開用の見本 `MaterialProject.key.example` を写して、置き換え用の行を自分のキーにする。環境変数 `MP_API_KEY` があればそちらが優先。
-`ecalj_auto/config.ini` はリポジトリに入っているので、キーを書かない（2026-10-01 まではここに書く形で、キーが公開リポジトリに入っていた）。
+[`ecalj_auto/config.ini`](../../ecalj_auto/config.ini) はリポジトリに入っているので、キーを書かない（2026-10-01 まではここに書く形で、キーが公開リポジトリに入っていた）。
 
 ```bash
 cd ~/ecalj; cp MaterialProject.key.example MaterialProject.key; chmod 600 MaterialProject.key   # そして最後の行を自分のキーに

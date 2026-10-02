@@ -56,7 +56,7 @@ ecalj/SRC/main/hsfp0_sc.f90:   call rotwvigg(igrp, q(:,iqxx), q(:,iqxx), nhdim, 
  /home/takao/ecalj/SRC/subroutines/readeigen.f90: call rotipw(qtt(:,iqq),
  /home/takao/ecalj/SRC/subroutines/readeigen.f90: call rotmto(qtt(:,iqq),cphifr,ldim2,nband,
     * gvector rotation  rotgvec
- (the historical `ppbafp.fal.F` was merged into `ecalj/SRC/subroutines/m_zmel.f90`; rotgvec is invoked from there now.)
+ (the historical `ppbafp.fal.F` was merged into [`ecalj/SRC/subroutines/m_zmel.f90`](../../SRC/subroutines/m_zmel.f90); rotgvec is invoked from there now.)
 
 (Wannier-based matrix elements are implemented in `SRC/subroutines/hwmatK_MPI.f90`
 — in principle only `readeigenW` and `cphieigW` differ from the standard path.)

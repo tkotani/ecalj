@@ -2,7 +2,7 @@
 
 結果のまとめは [`README.md`](../../../Samples/kBT/LiTi2O4/README.md)。このファイルはすべての反復の図と表の記録。
 `update_six_rows.sh` が kt1 の run から MLO バンドを取ってきて、下の 4 枚と数値（npz）を作り直す（同じファイル名に上書き）。
-経過と判断は `ecaljdoc/MD/research_log.md`（2026-09-28 の 14:38 から）。
+経過と判断は [`ecaljdoc/MD/research_log.md`](../research_log.md)（2026-09-28 の 14:38 から）。
 
 - 枠の題の黒: その列の run（いまのコード）。橙: 代わりのもの（`[09-26 code]`・`[09-27 code]` は前のコードの仮、`[job_band]` は LDA のバンド）。
   括弧の日時はその反復が終わった時刻（`llmf.<N>run`）。灰色の「no band」はまだ無いところ

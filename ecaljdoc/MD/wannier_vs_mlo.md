@@ -37,7 +37,7 @@ cRPA（`job_mloW --crpa`）・広がり（`mlo_spread.py`）・マグノン（`j
 | Ni d（4³） | 0.407（N 0.38） | 2.875 | 2.841 | 2.838 | 3.779 |
 | SrVO₃ t₂g（2³） | 0.106（N 0.18） | 3.349 | 3.124 | 3.512 | 3.204 |
 
-*表 3*. bcc Fe のマグノン、Γ→H の Im R の極大（eV）。`Samples/Magnon/Fe_mlo_magnon/magnon_peaks.npz`。MLO の値は規格化の前後で同じ
+*表 3*. bcc Fe のマグノン、Γ→H の Im R の極大（eV）。[`Samples/Magnon/Fe_mlo_magnon/magnon_peaks.npz`](../../Samples/Magnon/Fe_mlo_magnon/magnon_peaks.npz)。MLO の値は規格化の前後で同じ
 
 | q (2π/a) | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 | 0.6 | 0.7 | 0.8 | 0.9 | 1.0 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -61,7 +61,7 @@ cRPA（`job_mloW --crpa`）・広がり（`mlo_spread.py`）・マグノン（`j
    MLO の d が広く W が小さいこと（2 と同じ向き）と関係がありそうだが、確かめていない
 
 **判断**: ずれは、d が他のバンドと絡む系で模型の部分空間をどう切り出すかの違い。どちらが正しいかは決めていない。
-次の手は、実験（Fe のマグノン分散）との比較と、MLO の窓（`mlo_delta`、`mlo_w`）への依存の測定（`ecaljdoc/MD/TODOandQuestion.md`）。
+次の手は、実験（Fe のマグノン分散）との比較と、MLO の窓（`mlo_delta`、`mlo_w`）への依存の測定（[`ecaljdoc/MD/TODOandQuestion.md`](TODOandQuestion.md)）。
 （2026-10-02 の追記: 窓への依存は Löwdin にすると消えた。§3a）
 
 ## 3a. Löwdin を標準にした後（2026-10-02 20:08 追記）
@@ -81,7 +81,7 @@ cRPA（`job_mloW --crpa`）・広がり（`mlo_spread.py`）・マグノン（`j
   直すものではなく、部分空間の定義の違いとして扱う
 - **Fe のマグノン**: q ≥ 0.4 は Löwdin で Wannier 版にほぼ合う（生の MLO の 1.5〜2.5 倍のずれが消えた。生の MLO の窓への依存は MLO が直交していないことから来ていた）。
   q ≤ 0.3 は Löwdin が 2 割高い。q ≈ 0.4 は Stoner の連続体に入る所でピークの位置は定義しにくい。Goldstone の倍率 η は Fe 1.24（η ≠ 1 の原因は TODO）
-- **残り**: 実験（Fe のマグノン分散）との比較（`ecaljdoc/MD/TODOandQuestion.md`）
+- **残り**: 実験（Fe のマグノン分散）との比較（[`ecaljdoc/MD/TODOandQuestion.md`](TODOandQuestion.md)）
 
 ## 4. 再現
 

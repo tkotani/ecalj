@@ -2,13 +2,13 @@
 
 The commands for CPU and GPU (`--gpu`, `--mp`, `--run-args=--prec=fp32`), and how the checks are counted, are in
 the developer's guide: ecaljdoc [manual/ForDevelopers](https://github.com/tkotani/ecalj/blob/main/ecaljdoc/MD/ForDevelopers.md) (sections 4, 5 and 12).
-The groups of sample tests (TestInstall, EPS, PROCAR, MLOsamples, ...) are run by `ecalj/TOOLS/samples_tests.sh`.
+The groups of sample tests (TestInstall, EPS, PROCAR, MLOsamples, ...) are run by [`ecalj/TOOLS/samples_tests.sh`](../../TOOLS/samples_tests.sh).
 
 `testecalj` is installed in your ecalj binary directory BINDIR.
 
 ## Usage
 `testecalj` uses `comp.py` and `pylib/diffnum0.py` internally; they are in your bin together with `testecalj`.
-(for developers: we can use `ecalj/SRC/exec/testecalj`. Then we use binaries at  `ecalj/SRC/exec`.)
+(for developers: we can use [`ecalj/SRC/exec/testecalj`](../../SRC/exec/testecalj). Then we use binaries at  [`ecalj/SRC/exec`](../../SRC/exec).)
 
 >testecalj [-np mpi_size] [list of tests]
 

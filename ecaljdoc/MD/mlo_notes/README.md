@@ -10,6 +10,6 @@
 
 | ファイル | 時期 | 中身 |
 |---|---|---|
-| `MLO_theory.md` | 2026-09-13 | method 0/1/2/3 が同じ一本の式だと気づいた回。§4 の結論はその後 Al₂O₃:Cr で覆された |
-| `MLO_optimization_log.md` | 2026-09 | パラメータ走査の生ログ |
-| `MLO_v6_report.md` (+ `MLO_v6_figs/`) | 2026-09 | v6(自動窓)段階の報告。method 3 を採っていた頃のもので、method 3 は最終的に不採用 |
+| [`MLO_theory.md`](MLO_theory.md) | 2026-09-13 | method 0/1/2/3 が同じ一本の式だと気づいた回。§4 の結論はその後 Al₂O₃:Cr で覆された |
+| [`MLO_optimization_log.md`](MLO_optimization_log.md) | 2026-09 | パラメータ走査の生ログ |
+| [`MLO_v6_report.md`](MLO_v6_report.md) (+ `MLO_v6_figs/`) | 2026-09 | v6(自動窓)段階の報告。method 3 を採っていた頃のもので、method 3 は最終的に不採用 |

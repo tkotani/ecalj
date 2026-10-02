@@ -1292,7 +1292,7 @@ QSGW では密度に $\Sigma$ の内挿を入れないため元々メッシュ�
 なお Fortran 側では $K_{\rm SCF}$ を確認できない（GW ドライバでは `bz_nkp = 0`、
 SCF の k リストが構築されていない）。そのため `gwsc` で `ctrlg` を読んで確認している。
 
-#### GaAs での実測（`Samples/GetStarted/GaAs`、2 原子、`pwmode=11`）
+#### GaAs での実測（[`Samples/GetStarted/GaAs`](../../../Samples/GetStarted/GaAs/README.md)、2 原子、`pwmode=11`）
 
 | 設定 | 結果 |
 |---|---|
@@ -1304,7 +1304,7 @@ SCF の k リストが構築されていない）。そのため `gwsc` で `ctr
 
 **テストに使えなかった系**: NiO は AF（`AF=1/-1`）で SCF が重く、さらに `hqpe_sc` の
 `if(laf) exit` でスピン 2 の $\Sigma^{\rm MLO}$ が 0 になる懸念がある（**未確認の問題**）。
-`Samples/MLOsamples/C` は MLO 専用サンプルで `[product_basis]` が GW 用に整っておらず
+[`Samples/MLOsamples/C`](../../../Samples/MLOsamples/C) は MLO 専用サンプルで `[product_basis]` が GW 用に整っておらず
 `hbasfp0 --job=3` が segfault する。
 
 ### 11.6 検証（これが揃って初めて「新方式で測った」と言える）

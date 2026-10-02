@@ -45,7 +45,7 @@ python3 InstallAll.py --fc nvfortran --gpu --bindir ~/bin       # GPU（kt1）�
   `--notest`、`--clean`、`--notune`（計測を省く）
 - 実体は `libecaljF.so` / `_mp` / `_gpu` / `_mp_gpu` の **4 本**で、実行ファイルは薄い入口。新しい機能が入ったかは
   `strings <build>/libecaljF*.so | grep -c <新しい文字列>` で 4 本とも確かめる（GEMMul8 の包みは別の `libgemmul8wrap.so`）
-- `<bindir>` の実行ファイルとスクリプト（`gwsc` など）は build と `SRC/exec` への symlink。実体のコピーだと古いまま走る
+- `<bindir>` の実行ファイルとスクリプト（`gwsc` など）は build と [`SRC/exec`](../../SRC/exec) への symlink。実体のコピーだと古いまま走る
 - 新しい `.f90` を足したら cmake を configure し直す（`file(GLOB)`）
 - nvfortran の `signal 11`（コンパイラの間欠的な落ち）は同じコマンドの再試行で通る
 - 数ファイルだけ変えたときは、そのファイルを送って `make -j8`（全部送ると mtime が変わってフルビルド約 15 分）。
@@ -89,7 +89,7 @@ cd Samples/MLOQSGW;    testecalj -np 8 -np2 2 --gpu --mp GaAs NiO  # MLO-QSGW
 
 - **行列積は `m_blas` の `gemm` を通す**。固定の行列には `key=` を付ける（変換した形を使い回す）。どの方法で計算するかは `m_linalg_policy` の表
   （精度 × 演算 × 大きさ → cublas / realsgemm / realhgemm / gemmul8 / 逆行列 lu64・mixed1・mixed2）。上書きは `--linalg=`
-- **ストリームと非同期、`m_stopwatch` の同期、`acc routine` の中の自動配列**は ecalj の `ecaljdoc/MD/ecaljclaude.md`「OpenACC 一般注意」
+- **ストリームと非同期、`m_stopwatch` の同期、`acc routine` の中の自動配列**は ecalj の [`ecaljdoc/MD/ecaljclaude.md`](ecaljclaude.md)「OpenACC 一般注意」
   （非同期の区間の作り方は `m_sxcf_sc` の `sigma_stream_begin/end`）
 - `!$acc update host` を Σc のループの中で使うと GPU 版の Σc が壊れた。hgw を同じ GPU で 2 本同時に走らせると W-build で segfault（未追跡）
 - GEMMul8（Ozaki、INT8）は小さな積（辺 < 64 か m·n·k < 1e8）には使わない。計測は 64 の倍数を避けた寸法で（1024 などは GEMMul8 に有利に出る）
@@ -102,7 +102,7 @@ cd Samples/MLOQSGW;    testecalj -np 8 -np2 2 --gpu --mp GaAs NiO  # MLO-QSGW
 
 ## 7. 計算機
 
-計算機ごとの中身と使い方（t14、kt1、kr7、kr5、mic、ucgw）の表は ecalj の `ecaljdoc/MD/handover.md` §2 にまとめてある（2026-10-02。二か所にあった表を一つにした）。
+計算機ごとの中身と使い方（t14、kt1、kr7、kr5、mic、ucgw）の表は ecalj の [`ecaljdoc/MD/handover.md`](handover.md) §2 にまとめてある（2026-10-02。二か所にあった表を一つにした）。
 kt1 で複数のジョブを並べるときの `taskset` と `OMPI_MCA_hwloc_base_binding_policy=none`、リモートの操作の注意も同じ節。
 
 - 長いビルドは ssh を張ったまま走らせる（`nohup setsid` でも切断で死ぬことがある）
@@ -120,7 +120,7 @@ kt1 で複数のジョブを並べるときの `taskset` と `OMPI_MCA_hwloc_bas
 
 ## 11. GW の GPU 高速化と QSGW 1 反復の短縮（2026-09-27）
 
-報告は ecalj の `ecaljdoc/MD/kBT/gpu_fp32_report.md`（§1〜10、FP16 経路の式は §2.1）、経過は `ecaljdoc/MD/research_log.md`、
+報告は ecalj の [`ecaljdoc/MD/kBT/gpu_fp32_report.md`](kBT/gpu_fp32_report.md)（§1〜10、FP16 経路の式は §2.1）、経過は [`ecaljdoc/MD/research_log.md`](research_log.md)、
 変更の一覧は ecalj の `Changes.txt`（2026-09-27 (1)〜(3)）、利用者向けは [ecaljgpu](../manual/ecaljgpu.md)。数値はすべて kt1（RTX 5090 ×2、電力上限 500 W）。
 
 ### 11.1 結果
@@ -262,27 +262,27 @@ GPU・ドライバ・CUDA を替えたら `linalgtune_gpu` を実行し直す。
 
 ### 11.6 検証
 
-- 2026-09-27 22:20（`d409f1958`、点検の反映の後）: TestInstall の `--gwall` を GPU の fp64・tf32・fp32 と CPU で回して全部合格。`Samples/MLOQSGW`（GaAs、NiO）も
+- 2026-09-27 22:20（`d409f1958`、点検の反映の後）: TestInstall の `--gwall` を GPU の fp64・tf32・fp32 と CPU で回して全部合格。[`Samples/MLOQSGW`](../../Samples/MLOQSGW/README.md)（GaAs、NiO）も
   tf32・fp32 で合格（NiO の `log.nio` の差は tf32 0.0154、fp32 0.0008、許容 0.02）。手元の gfortran の `--all` は全部合格。
   LiTi₂O₄ 6³ の 1 反復は点検の前後と、画面出力の変更の前後で QPU がバイト単位で一致
 - 2026-09-28 03:29（`24e3b6068`、有限温度の 2 つの修正・GL の区間分け・`fe_kbt` の入った版）: 手元の `--all` と、kt1 の TestInstall `--gwall`
-  （`fe_kbt` を含む）を GPU の fp64・tf32・fp32 と CPU で、`Samples/MLOQSGW` を tf32・fp32 で、どれも合格
+  （`fe_kbt` を含む）を GPU の fp64・tf32・fp32 と CPU で、[`Samples/MLOQSGW`](../../Samples/MLOQSGW/README.md) を tf32・fp32 で、どれも合格
 - 実行順を変える改良（非同期化など）は、LiTi₂O₄ 6³ の `hgw` で Σ が前の版と表示の桁（0.001 meV）まで一致し、2 回回しても一致することを確かめた
 - 2026-09-28 22:38（`b4b64be66`、`t_tetrakbt` の必須化）: 手元の gfortran の `--all` の照合 64 件がすべて合格。件数は testecalj の最後の要約で数える（testecalj は
   ターゲットごとにそれまでの要約を出し直すので、ログ全体の PASSED 行は延べ数になる）。Samples の組ごとの試験は
-  ecalj の `TOOLS/samples_tests.sh`（最後の要約だけを数える）
+  ecalj の [`TOOLS/samples_tests.sh`](../../TOOLS/samples_tests.sh)（最後の要約だけを数える）
 - 収束テスト（2026-09-27 23:35）: LiTi₂O₄ 6³ を LDA から tf32 で `gwsc 10`（`qmlo_k6_tf32n`、39 分）。fp32 の 10 反復（`qmlo_k6_gwsc10`）との差は
   10 反復目の後のバンドで rms 0.3 meV・最大 0.8 meV（MLO バンド、±3 eV）、QP シフトは毎反復 5 meV 以内で膨らまない。ehf は −22〜−91 meV
-  （Σc の一様な縮みが占有状態の和に効く分）。表と図は ecalj の `ecaljdoc/MD/research_log.md` の 23:35
+  （Σc の一様な縮みが占有状態の和に効く分）。表と図は ecalj の [`ecaljdoc/MD/research_log.md`](research_log.md) の 23:35
 
 ### 11.7 測り方（kt1）
 
 - 1 反復: `/mnt/data1/LiTi2O4_kbt_runs/qmlo_k6_tf32h`（5 反復済み）をコピーして `run1.sh`（`gwsc 1 -np 60 -np2 2 --gpu --prec=tf32 --ntqxx --mlo`。Σ^MLO の混合は既定）
 - `hgw` だけ: `/mnt/data1/LiTi2O4_kbt_runs/bench_hgw666`（6³）、`bench_hgw999`（9³）。10 反復後の状態で `hgw` を 1 回だけ回す（道具の写しと使い方は
-  ecalj の `Samples/kBT/bench_hgw/`。`bench3.sh` の既定は GPU 0 の 1 枚、2026-09-27 の計測は `GPUS=0,1`）。
+  ecalj の [`Samples/kBT/bench_hgw/`](../../Samples/kBT/bench_hgw/README.md)。`bench3.sh` の既定は GPU 0 の 1 枚、2026-09-27 の計測は `GPUS=0,1`）。
   `BENCH_BIN=~/bin_dev BENCH_PREC="--use_fp32 --sigma_tf32" ./bench3.sh <tag> 2`、その前に `hgw --tetwt_write` で重みを書いておく。
   倍精度の基準は `res_fp64_oz`、比較は `cmpef.py`（E_F からの窓ごとの最大と rms）、`cmpse.py`
-- 行列積だけ: `/mnt/data1/tf32test/hgemmbench.cu`（FP32/TF32/FP16/BF16）、`TOOLS/ozbench`
+- 行列積だけ: `/mnt/data1/tf32test/hgemmbench.cu`（FP32/TF32/FP16/BF16）、[`TOOLS/ozbench`](../../TOOLS/ozbench)
 - 各段の中身: GW のプログラムはランク 0 のタイマー（`Time:`）がログにそのまま出る。nsys は §6
 
 ### 11.8 残り
@@ -329,8 +329,8 @@ push はしていない（ecalj・ecaljdoc とも。push の前に §1 のゲー
 
 ### 12.2 kt1: 長い GPU の計算（例: LiTi₂O₄ の MLO-QSGW を LDA から 10 反復）
 
-入力は ecalj の `Samples/kBT/LiTi2O4/input/qmlo`（6³。9³ はメッシュの 3 行を変える。README に env.sh の作り方）、スクリプトは
-`Samples/kBT/LiTi2O4/run_gwsc10.sh`。kt1 では作業場所 `/mnt/data1/LiTi2O4_kbt_runs`（`$S`）にスクリプトのコピーと入力
+入力は ecalj の [`Samples/kBT/LiTi2O4/input/qmlo`](../../Samples/kBT/LiTi2O4/input/qmlo/README.md)（6³。9³ はメッシュの 3 行を変える。README に env.sh の作り方）、スクリプトは
+[`Samples/kBT/LiTi2O4/run_gwsc10.sh`](../../Samples/kBT/LiTi2O4/run_gwsc10.sh)。kt1 では作業場所 `/mnt/data1/LiTi2O4_kbt_runs`（`$S`）にスクリプトのコピーと入力
 （`liti_src_full9`、`liti_src_full9_k9`）がある。**走っているスクリプトは書き換えない**（bash は逐次読む）。
 
 ```bash
@@ -400,25 +400,25 @@ gwsc 10 -np 64 <sname> > gwsc.log 2>&1
   チェックアウトを邪魔する未追跡のファイルがあれば退避してから。版は `SRC/.ecalj_rev` ではなく `git log -1`（ucgw は `sync_ecalj_src.sh` の対象に入っていない）
 - ジョブの中の Python は 3.11 以上が要る（gwsc が tomllib を使う）。ucgw の計算ノードでどれを使うかはここには記録が無いので、最初に
   `qsub` の小さなジョブで `python3 --version` を確かめる
-- `ecalj_auto/jobtemplate.ucgw`（GW1500 の量産に使った雛形）は `-pe smp`（1 ノード）と `-V`、`-q` でノードを並べる別の形。上の形は多ノードの 1 本用
-- 本番の NiO の入力（メッシュ、時間とメモリの目安）はまだ無い。試験の `Samples/TestInstall/nio_gwsc444`（AF II、4³）が出発点になる
+- [`ecalj_auto/jobtemplate.ucgw`](../../ecalj_auto/jobtemplate.ucgw)（GW1500 の量産に使った雛形）は `-pe smp`（1 ノード）と `-V`、`-q` でノードを並べる別の形。上の形は多ノードの 1 本用
+- 本番の NiO の入力（メッシュ、時間とメモリの目安）はまだ無い。試験の [`Samples/TestInstall/nio_gwsc444`](../../Samples/TestInstall/nio_gwsc444)（AF II、4³）が出発点になる
 
 ### 12.4 mic と手元
 
 - mic: ifort/ifx 2023（ifx 2026 は `~/.local/bin/mpiifx`）。Python はシステムが 3.6 なので uv の 3.12 を `~/.local/bin` に置き、`PATH` で先にする。
   2026-09-17 に ifx 2026 で `testecalj --all` が通っている
-- 手元（t14）: 確認用のビルドとテストは §4・§5。小さな有限温度の試験は `Samples/kBT/Fe`（bcc Fe 3000 K、GW 5³、`gwsc 1 -np 8 fe` が 40 秒）
+- 手元（t14）: 確認用のビルドとテストは §4・§5。小さな有限温度の試験は [`Samples/kBT/Fe`](../../Samples/kBT/Fe/README.md)（bcc Fe 3000 K、GW 5³、`gwsc 1 -np 8 fe` が 40 秒）
 
 ### 12.5 結果を残す
 
-- 研究ログ（ecalj の `ecaljdoc/MD/research_log.md`）に `### HH:MM` で、最新を上に。表と図には番号（*表 23:35-1* など）、図は png を
+- 研究ログ（ecalj の [`ecaljdoc/MD/research_log.md`](research_log.md)）に `### HH:MM` で、最新を上に。表と図には番号（*表 23:35-1* など）、図は png を
   `Samples/kBT/<系>/` に置いて md に埋め込み、描いたスクリプトも同じ所に
 - 結論が固まったら ecaljdoc の該当ページ（[kBT](../manual/kBT)、[mlo_gwsc](../manual/mlo_gwsc)、[ecaljgpu](../manual/ecaljgpu.md) など）と、このページの §9・§13 に移す
 - コードを変えたら `Changes.txt`。commit はその場で、push は指示を待つ（§1）
 
 ## 13. 研究ログの要約と索引（2026-09-28）
 
-研究ログ（ecalj の `ecaljdoc/MD/research_log.md`、2026-09-16〜、最新が上）のテーマ別の要約・日付の索引・計算の置き場所は
+研究ログ（ecalj の [`ecaljdoc/MD/research_log.md`](research_log.md)、2026-09-16〜、最新が上）のテーマ別の要約・日付の索引・計算の置き場所は
 付録 [ForDevelopers_research](ForDevelopers_research.md) にまとめた。ここはその見出しだけ。
 
 | テーマ | いま成り立っていること（要点） | 残っていること |

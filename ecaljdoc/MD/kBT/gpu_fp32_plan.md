@@ -111,7 +111,7 @@ hgw の中では「重みをもらう」口を 1 つにし、中身を 3 通り�
 
 各段の確認:
 (a) 6³ ベンチ（kt1 `bench_hgw666`）で SECU が基準と合う（ビット一致を狙う段はビット一致、FP32 の方法を変える段は 1e-5 eV 以内）。
-(b) TestInstall の GPU テスト（`--gpu`、`--gpu --mp`）と `Samples/MLOQSGW` に通る。
+(b) TestInstall の GPU テスト（`--gpu`、`--gpu --mp`）と [`Samples/MLOQSGW`](../../../Samples/MLOQSGW/README.md) に通る。
 (c) `hgw` の時間を測る。
 (d) 研究ログに書いてコミットする（push は指示があってから）。
 開発は kt1 の `~/ecalj_dev`（`~/bin_dev`）で行い、本番の `~/ecalj` は走行中に触らない。

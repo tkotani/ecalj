@@ -1,6 +1,6 @@
 # ForDevelopers 付録 — 研究ログの要約と索引（2026-09-16〜09-28）
 
-> ecalj の研究ログ `ecaljdoc/MD/research_log.md`（最新が上、`### HH:MM` の時刻付き、約 5200 行）を、記憶の無いセッションや引き継ぐ人が
+> ecalj の研究ログ [`ecaljdoc/MD/research_log.md`](research_log.md)（最新が上、`### HH:MM` の時刻付き、約 5200 行）を、記憶の無いセッションや引き継ぐ人が
 > 引けるようにまとめたもの。[ForDevelopers](ForDevelopers.md) の §13 から来る。2026-09-28 に作成（元はエージェントの下読み、確かめて手を入れた）。
 > **研究ログが正本**で、ここは入口。食い違ったら研究ログを見て、ここを直す。
 
@@ -92,10 +92,10 @@
 - hgw を 1 ノードで 2 本走らせると W-build で segfault（`__c_mcopy8`）、未追跡（2026-09-18 23:05、2026-09-19 06:45）。/dev/shm 枯渇の SIGBUS もあり
   「hgw は 1 ノード 1 本」で回避（2026-09-19 21:15）
 - kBT.md §9 の残り（番号は 2026-09-30 に付け直したもの）: 絶縁体の EFERMI_kbt の決め方（§9 の 2）、O((kBT)²) の Bose 項（§9 の 3）、
-  E 積分を折れ点で切ること（§9 の 4）、9³ 3000 K（§9 の 7）。有限温度の回帰テストは `fe_kbt` と `Samples/kBT/scanT/Si` がある
+  E 積分を折れ点で切ること（§9 の 4）、9³ 3000 K（§9 の 7）。有限温度の回帰テストは `fe_kbt` と [`Samples/kBT/scanT/Si`](../../Samples/kBT/scanT/Si) がある
 
 **詳しい所**: ecaljdoc `kBT.md` §0（T=0/有限温度の表）、§3（t_sigmaw）、§3.5（荒れの正体と wcsmear）、§3.6（contour と smearing の整合）、
-§7.5（CoreEx）、§9。`Samples/kBT/contour_test/README.md`、`Samples/kBT/Fe/`。解析スクリプト `LiTi2O4/o2p_rough.py`、`sec_jump.py`、
+§7.5（CoreEx）、§9。[`Samples/kBT/contour_test/README.md`](../../Samples/kBT/contour_test/README.md)、[`Samples/kBT/Fe/`](../../Samples/kBT/Fe/README.md)。解析スクリプト `LiTi2O4/o2p_rough.py`、`sec_jump.py`、
 `read_se2.py`、`se_asym.py`、`se_pairs.py`、`wc_head.py`、`t2g_rough.py`。
 
 ### 1.2 従来 QSGW の Σ(k) 内挿のリンギング（LiTi₂O₄ の E_F 直上の凸凹、6³/9³、nkabc）
@@ -165,7 +165,7 @@ GX_br5_meshpoints、ripple_vs_iteration、nk6_rows）。
 - MLO_v6_report.md §9 の残課題（損失関数にフェルミ速度、C の CBM、FeMgO のスパン外状態）。MP 10 結晶の LDA 試験で ZnO は窓 rms 476 meV
   （ecaljdoc/MD/mlo_notes/mp_20260918/README.md）
 
-**詳しい所**: ecaljdoc `mlo`、`mlo_backup`。`ecaljdoc/MD/mlo_notes/`（MLO_theory、MLO_v6_report、MLO_optimization_log、mlo_nskip_cu_problem、
+**詳しい所**: ecaljdoc `mlo`、`mlo_backup`。[`ecaljdoc/MD/mlo_notes/`](mlo_notes/README.md)（MLO_theory、MLO_v6_report、MLO_optimization_log、mlo_nskip_cu_problem、
 mp_20260918）。図 `LiTi2O4/plots/mlo_*`（t2g_meshdep、vs_sigm_meshpoints、3d_nk9、3d_O2p_nk9、fullMTO_nk9、fullMTO_wide）。
 
 ### 1.4 MLO-QSGW（MLO Sigma インターポレーション）: Σ を MLO で持つ、メッシュ点間のこぶ、LiTi₂O₄ 6³/9³、混合 β、凍結
@@ -184,7 +184,7 @@ mp_20260918）。図 `LiTi2O4/plots/mlo_*`（t2g_meshdep、vs_sigm_meshpoints、
 - （Σ^MLO(R) の局在を従来と比べた 2026-09-25 09:45 の数字は、同日 10:30 に「凍結なしで取ったので無効」とされ、測り直していない）
 - 新コード（QMLO_* 名、窓は各反復の SCF）の `gwsc 10` は 1 反復目で旧 v9 と一致し、窓の基準の違い（0.55 eV）で 2 反復目から分かれ、
   9 反復後の MLO バンドは旧 v9 と rms 8.4 / 最大 23 meV（2026-09-27 01:57、02:45）。tf32 で LDA から 10 反復 39 分、fp32 と rms 0.3 / 最大 0.8 meV（2026-09-27 23:35）
-- 検証: Si 2³（2026-09-24 20:43）、NiO 3³ の iter 2 でギャップ差 −223 meV（2026-09-25 00:06）。回帰サンプル `Samples/MLOQSGW`（GaAs、NiO、2³、LDA から 2 反復）（2026-09-26 23:45）
+- 検証: Si 2³（2026-09-24 20:43）、NiO 3³ の iter 2 でギャップ差 −223 meV（2026-09-25 00:06）。回帰サンプル [`Samples/MLOQSGW`](../../Samples/MLOQSGW/README.md)（GaAs、NiO、2³、LDA から 2 反復）（2026-09-26 23:45）
 - 図の描き方: `job_band` を `--mlo` 無しで回すと MLO 内挿を通らない（2026-09-25 12:35）。SCF が MLO でも `sigm` 描画は従来の内挿（2026-09-26 01:05）。
   `job_mlo --mlofreeze` と `lmf --band --mlo` は正しい MLO バンドにならない → `draw_mloband.sh`（2026-09-26 01:15）
 
@@ -225,7 +225,7 @@ mp_20260918）。図 `LiTi2O4/plots/mlo_*`（t2g_meshdep、vs_sigm_meshpoints、
 - `n666_mloqsgw`（154 軌道、2026-09-24 20:43 投入）の結果は記録が無い
 
 **詳しい所**: `sigma_mlo_design.md` §9〜§13（現行方式、§11 実装仕様、§12 Q&A、§13 TODO）、§8（踏んだバグ）。ecaljdoc `mlo_gwsc.md`
-（2026-09-26 20:06 に書き直し）。`Samples/MLOQSGW`。`LiTi2O4/input/qmlo/README.md`（本番の入力、9³ の正常値）。図 `LiTi2O4/mlo_rows_*`、`mlo_conv_*`。
+（2026-09-26 20:06 に書き直し）。[`Samples/MLOQSGW`](../../Samples/MLOQSGW/README.md)。`LiTi2O4/input/qmlo/README.md`（本番の入力、9³ の正常値）。図 `LiTi2O4/mlo_rows_*`、`mlo_conv_*`。
 
 ### 1.5 GPU（fp32・tf32・fp64）と QSGW 1 反復の高速化
 
@@ -285,8 +285,8 @@ mp_20260918）。図 `LiTi2O4/plots/mlo_*`（t2g_meshdep、vs_sigm_meshpoints、
 - 「W-build を CPU 版 hx0fp0（-np 60）で先に回し hgw は Σc だけ」（2026-09-22 12:40）と極項の W 平面のバッチ GEMM（2026-09-22 13:45）は未着手
 - push していない（報告書 §8、ForDevelopers §9）
 
-**詳しい所**: `ecaljdoc/MD/kBT/gpu_fp32_report.md`（§1 まとめ、§2.1 FP16 経路、§5 分かったこと、§7 使い方、§8〜§10）、`gpu_fp32_plan.md`、`fp16acc.cu`。
-ecaljdoc `ForDevelopers` §6・§11、`ecaljgpu`、`cmdopts`。`ecaljdoc/MD/ecaljclaude.md`「OpenACC 一般注意」。背景: `Samples/mptf32problem`
+**詳しい所**: [`ecaljdoc/MD/kBT/gpu_fp32_report.md`](kBT/gpu_fp32_report.md)（§1 まとめ、§2.1 FP16 経路、§5 分かったこと、§7 使い方、§8〜§10）、`gpu_fp32_plan.md`、`fp16acc.cu`。
+ecaljdoc `ForDevelopers` §6・§11、`ecaljgpu`、`cmdopts`。[`ecaljdoc/MD/ecaljclaude.md`](ecaljclaude.md)「OpenACC 一般注意」。背景: [`Samples/mptf32problem`](../../Samples/mptf32problem/README.md)
 （2026-06: TF32 で AgNO3 の QSGW が発散し `--fp32` で回復、GW1500 の 36 件）。
 
 ### 1.6 運用・ファイル・記録（落とし穴と決めごと）
@@ -308,7 +308,7 @@ ecaljdoc `ForDevelopers` §6・§11、`ecaljgpu`、`cmdopts`。`ecaljdoc/MD/ecal
 - 旧 cmlo の段が sugw の `__cmlo.data` をチェーン開始時の窓で上書きしていた（結果には効かず、凍結の回は通らないようにした、2026-09-27 21:06）
 - ビルド: `FC=nvfortran` で渡す、`m_mlo_wfs.f90` の nvfortran ICE は `-O1`（2026-09-23 20:49）、`InstallAll.py --gemmul8` が上流の変更で落ちた（2026-09-25 21:35。`20a9aa329` で直した）、
   nvfortran の `findloc` が長さの違う文字列を空白で埋めない（2026-09-27 04:30）、CPU 版の `igb` 二重宣言（2026-09-27 18:34）
-- 記録: 上書きされる図は日付のエントリに貼らない（ログ冒頭）、記録の方針は `ecaljdoc/MD/ecaljclaude.md`（2026-09-27 22:10）、コード点検 87 コミット（2026-09-27 21:59）
+- 記録: 上書きされる図は日付のエントリに貼らない（ログ冒頭）、記録の方針は [`ecaljdoc/MD/ecaljclaude.md`](ecaljclaude.md)（2026-09-27 22:10）、コード点検 87 コミット（2026-09-27 21:59）
 - 検証の到達点: 手元 gfortran `--all` 全部合格（2026-09-27 22:20、2026-09-28 00:05。照合は 64 件、2026-09-28 22:38）、kt1 GPU の chain33 全合格（2026-09-27 22:20）
 
 ---
@@ -454,7 +454,7 @@ ecaljdoc `ForDevelopers` §6・§11、`ecaljgpu`、`cmdopts`。`ecaljdoc/MD/ecal
 - 研究ログ: 撤回・訂正された見出しと本文 26 か所に「2026-09-28 の注」で後の判定を添えた（本文は消していない）。
   09-27 未明〜朝のエントリ（「## 2026-09-26」の下にあった）と 09-23 のエントリ（「## 2026-09-24」の下にあった）には日付の節を付けた
 - 研究ログの図表番号のうち 09-17〜09-21 の 46 個は、エントリの時刻でなく一律「00:10-n」になっている（そのまま）
-- `Samples/kBT/README.md`・`Samples/kBT/LiTi2O4/README.md` の 6 月の記述と、`sigma_mlo_design.md` の旧ファイル名は、各ファイルの冒頭の注で案内した
+- [`Samples/kBT/README.md`](../../Samples/kBT/README.md)・[`Samples/kBT/LiTi2O4/README.md`](../../Samples/kBT/LiTi2O4/README.md) の 6 月の記述と、`sigma_mlo_design.md` の旧ファイル名は、各ファイルの冒頭の注で案内した
 
 ## 4. 計算の置き場所（ログに書かれているとおり）
 
@@ -464,7 +464,7 @@ ecaljdoc `ForDevelopers` §6・§11、`ecaljgpu`、`cmdopts`。`ecaljdoc/MD/ecal
 | --- | --- | --- |
 | kt1 | RTX 5090 ×2（32 GB）、CPU 64 コア、nvfortran 26.1（ForDevelopers §7） | 本番の計算すべて。`-np 60 -np2 2`（GPU 2 枚）が標準。ForDevelopers §12.1 の今の約束は GPU 0 だけ（2 枚は user の許可があるとき、`run_gwsc10.sh` の既定も GPU 0 の 1 枚、2026-09-28 00:05） |
 | kr5 | Ryzen 7 9700X（8 物理コア）、30 GB、RTX 5090 32 GB、sudo 不可 | 2026-09-25 14:45 に立ち上げて停止中（`~/opt/nvhpc`、`~/nvenv.sh`、`~/ecalj`、`~/liti/{src,src154,bin,run_kr5.sh}`、`-np 8`）。LDA は kt1 と完全一致。ForDevelopers §7 の表には無い |
-| t14（手元） | gfortran | `testecalj --all`（26 ターゲット、照合 64 件）、小さな有限温度の試験 `Samples/kBT/Fe`（40 秒）、別 worktree `temp/ecalj_check` と `temp/bin_check` での確認ビルド（2026-09-27 16:10） |
+| t14（手元） | gfortran | `testecalj --all`（26 ターゲット、照合 64 件）、小さな有限温度の試験 [`Samples/kBT/Fe`](../../Samples/kBT/Fe/README.md)（40 秒）、別 worktree `temp/ecalj_check` と `temp/bin_check` での確認ビルド（2026-09-27 16:10） |
 
 ### 4.2 kt1 のディレクトリとバイナリ
 
@@ -486,7 +486,7 @@ ecaljdoc `ForDevelopers` §6・§11、`ecaljgpu`、`cmdopts`。`ecaljdoc/MD/ecal
 
 ### 4.3 スクリプト
 
-**リポジトリにあるもの**（`Samples/kBT/LiTi2O4/` ほか）
+**リポジトリにあるもの**（[`Samples/kBT/LiTi2O4/`](../../Samples/kBT/LiTi2O4/README.md) ほか）
 
 | スクリプト | 用途（ログの記述） |
 | --- | --- |
@@ -503,9 +503,9 @@ ecaljdoc `ForDevelopers` §6・§11、`ecaljgpu`、`cmdopts`。`ecaljdoc/MD/ecal
 | `sigr_decay.py`、`wiggle.py`、`three_routes.py`、`frozen_vs_not.py`、`mlo_iter_*.py`、`mlo_vs_mto_grid.py` | 09-25 の MLO の判定（多くは撤回された判定の図） |
 | `cont_gwsc.sh`（2026-09-28） | `run_gwsc10.sh` の計算を `gwsc 1` ずつ続け、反復ごとに MLO バンドと sigm バンドを描く（`PREC`、`GPUS`） |
 | `plot_band_pair.py`・`plot_k6_vs_k9.py`（2026-09-28） | 2 つの計算のバンドを細い線で重ね E_F 近くを拡大／6³ と 9³ をメッシュ点の印付きで重ね、荒れ（2 階差分）を出す |
-| `input/qmlo/`（`ctrlg.liti2o4.toml`、`README.md`） | 本番の入力（6³、9³ はメッシュの 3 行）と 9³ の正常値（2026-09-28 00:05） |
-| `Samples/kBT/contour_test/`、`NiO/mloqsgw_rows.py`、`Si/mloqsgw_si.py`、`fp16acc.cu` | contour の単体試験、NiO・Si の MLO-QSGW の図、テンソルコアの和の試験 |
-| `TOOLS/ozbench/`（`realtrick.cu`、`matinvbench.cu`、`ozbench.cu`、`ozreuse.cu`）、`TOOLS/sync_ecalj_src.sh`、`pylib/gpu_lock.py`、`linalgtune_gpu` | 行列積・逆行列のベンチ、リモートのソース刻印の確認、GPU ロック、方法の表の計測 |
+| `input/qmlo/`（`ctrlg.liti2o4.toml`、[`README.md`](../../README.md)） | 本番の入力（6³、9³ はメッシュの 3 行）と 9³ の正常値（2026-09-28 00:05） |
+| [`Samples/kBT/contour_test/`](../../Samples/kBT/contour_test/README.md)、`NiO/mloqsgw_rows.py`、`Si/mloqsgw_si.py`、`fp16acc.cu` | contour の単体試験、NiO・Si の MLO-QSGW の図、テンソルコアの和の試験 |
+| [`TOOLS/ozbench/`](../../TOOLS/ozbench)（`realtrick.cu`、`matinvbench.cu`、`ozbench.cu`、`ozreuse.cu`）、[`TOOLS/sync_ecalj_src.sh`](../../TOOLS/sync_ecalj_src.sh)、`pylib/gpu_lock.py`、`linalgtune_gpu` | 行列積・逆行列のベンチ、リモートのソース刻印の確認、GPU ロック、方法の表の計測 |
 
 **kt1 にだけあるもの**（リポジトリに無い）
 - `~/trash/chain999.sh`（9³ P の連鎖、2026-09-22 09:20）、`chain999_cont.sh`（setup をやり直さない続き、2026-09-22 22:25）、`chain_v2.sh`（6³ P・Q、2026-09-22 01:40）、

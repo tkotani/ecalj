@@ -6,7 +6,7 @@ spglib を入れる案と順番をまとめる。コードの場所はルーチ�
 
 ## 1. 今の仕組み
 
-**表 1**. 対称操作を作る流れ（`SRC/subroutines/m_mksym.f90`、`m_mksym_util.f90`。2026-10-02 の S1 で `m_symfind.f90`・`m_symderive.f90`・`m_symop_util.f90` に分けた。§4.7b）
+**表 1**. 対称操作を作る流れ（[`SRC/subroutines/m_mksym.f90`](../../SRC/subroutines/m_mksym.f90)、`m_mksym_util.f90`。2026-10-02 の S1 で `m_symfind.f90`・`m_symderive.f90`・`m_symop_util.f90` に分けた。§4.7b）
 
 | 段 | ルーチン | 何をするか |
 | --- | --- | --- |
@@ -66,7 +66,7 @@ spglib に替える前に、**見つける部分**と、それから**導く部�
   （整数の回転行列と分数座標の並進の組、空間群の番号・国際記号・Hall 番号、`symprec`）にする。(3) 超格子（純粋な並進がある胞）と反強磁性も、同じ仕組みで扱う
 - しないこと: 対称操作を「使う」側（21 ファイル）の計算の中身は変えない。受け取る配列の形と意味も、移行の間は今と同じにする（3 節の表 2 の「使う」層）
 
-### 4.2 module の形（singleton、`ecaljdoc/MD/ecaljclaude.md` のコーディング規約に従う。4.5 も見る）
+### 4.2 module の形（singleton、[`ecaljdoc/MD/ecaljclaude.md`](ecaljclaude.md) のコーディング規約に従う。4.5 も見る）
 
 | module | 役目 | 公開するもの（`protected`） | 入力 |
 | --- | --- | --- | --- |
@@ -157,7 +157,7 @@ GW 側は `__HAMindex`（`m_hamindex0` が書く）から読む今の形のま�
 | S2 | `mptauof` などの重複を外し、GW 側は `__HAMindex` から読む | 同上と gwall がビット単位で同じ |
 | S3 | `m_symfind` に `json` の backend（読む、ハッシュを照らす）を足す。`symmetry.json` が無ければ今までどおり | S0 で同じ操作になる入力で、`json` と `ecalj` の全部の試験の組が丸めの範囲で同じ |
 | S4 | 純粋な並進を使う（表 4）。`ngmx` を外す | Si の慣用胞・2×1×1 で表 4 の確かめ。基本格子の入力は変わらない |
-| S5 | AF を spglib の磁気対称性で（`time_reversal`） | afsym、affix、`Samples/AFsymmetry`。NiO・Fe2O3 で今の `SYMGRPAF` と比べる |
+| S5 | AF を spglib の磁気対称性で（`time_reversal`） | afsym、affix、[`Samples/AFsymmetry`](../../Samples/AFsymmetry/README.md)。NiO・Fe2O3 で今の `SYMGRPAF` と比べる |
 | S6 | 既定を spglib に（2026-10-02 に変えた: lmf が vendored の spglib（C）で求めてファイルを書く。§4.7g）。`SYMGRPAF` は AF の型を入れる印として残し、生成元の `SYMGRP` は対称性を下げる口として残す。ecaljdoc。3 台（t14、kt1、kr7）で試験 | 3 台で全部の試験の組 |
 
 ### 4.7a S0 の結果（2026-10-02 05:15 終了、`TOOLS/symcheck_samples.sh ~/work/symcheck_s0`、symprec 1e-5 Å）
@@ -189,13 +189,13 @@ GW 側の二つは `__HAMindex0` から読んだ操作のうち、呼ぶ側が�
 
 ### 4.7d S3 の形（2026-10-02 05:39。§4.3・§4.4 の案から変えた所も）
 
-- ファイル名は **`symmetry.<sname>.json`**（§4.3 の `symmetry.json` から変えた）。一つのディレクトリに ctrlg が二つあることがある（`Samples/LDAU/ReN`）。
-  ファイル名に ID を残す決まり（`ecaljdoc/MD/ecaljclaude.md`「ファイル命名規約」）にも合う
+- ファイル名は **`symmetry.<sname>.json`**（§4.3 の `symmetry.json` から変えた）。一つのディレクトリに ctrlg が二つあることがある（[`Samples/LDAU/ReN`](../../Samples/LDAU/ReN/README.md)）。
+  ファイル名に ID を残す決まり（[`ecaljdoc/MD/ecaljclaude.md`](ecaljclaude.md)「ファイル命名規約」）にも合う
 - 構造の照らし方: JSON に構造を数値で入れ（`structure`: `alat_bohr`、`plat_alat`、`species`、`frac`）、Fortran（`m_symfind` の `symfind_json`）は
   今の ctrlg と数値で比べる（alat・plat は相対 1e-6、分数座標は 1 を法に 1e-6、種の名前は一致）。§4.3 の「正規化した文字列を比べる」は、Fortran で
   Python と同じ書式・丸め（`%.10f` と `f0.10` の先頭の 0 など）を作るのが脆いのでやめた。文字列とその SHA-256 は人と Python のために残す
 - JSON の読み手は toml-f の試験用の `json_lexer.f90`・`json_parser.f90` を `SRC/subroutines/tjson_*.f90` に写したもの（`json_load` で toml-f の表になり、
-  ctrlg と同じ `get_value` で読める。`SRC/external/toml-f/VENDORED_FROM.txt`）。lmfa の初期条件などの JSON にも使える
+  ctrlg と同じ `get_value` で読める。[`SRC/external/toml-f/VENDORED_FROM.txt`](../../SRC/external/toml-f/VENDORED_FROM.txt)）。lmfa の初期条件などの JSON にも使える
 - 使う条件（`m_mksym` の `mksym`）: ファイルがある、`symgrp` が既定の `find`、結晶の群（AF の二回目の呼び出しではない）、`SYMGRPAF` が無い。
   使えないとき（純粋な並進がある → S4、時間反転の操作 → S5）は理由を印字して gensym。環境変数 `ECALJ_SYMFIND=ecalj` で gensym に固定（比べるため）
 - `SYMGRPAF` の入力で使わない理由: gensym は見つけた生成元を `ssymgr` に書いて返し、`m_mksym_init` の AF の呼び出しはそれと AF の操作から群を作る。
@@ -225,7 +225,7 @@ GW 側の二つは `__HAMindex0` から読んだ操作のうち、呼ぶ側が�
   QSGW のあとのギャップ 1.198018 / 1.198020 eV、ehf の差 0.44 meV、QPU の準粒子のエネルギーは 10 個の既約な q・1450 準位で印字の桁まで一致
   （eQP の差 0、SEc の差は最後の桁の 0.002 eV）。GW の側（`__HAMindex0`、`m_zmel` の `mptauof`、回転した固有関数）も純粋な並進の操作で正しい
   （以前に見た −62923.0390 eV は収束していない反復の値だった）
-- S4a で LiTi₂O₄（`Samples/kBT/LiTi2O4`）の lmchk が止まった: gensym の `ag` は格子ベクトル何個分も長いことがあり、`mptauof` の格子のずれの探索
+- S4a で LiTi₂O₄（[`Samples/kBT/LiTi2O4`](../../Samples/kBT/LiTi2O4/README.md)）の lmchk が止まった: gensym の `ag` は格子ベクトル何個分も長いことがあり、`mptauof` の格子のずれの探索
   （各方向 −3〜3）が届かなかった。分数座標を丸めて直接求めるように直した（一致すれば同じ格子ベクトル）
 
 ### 4.7f S5 の形（2026-10-02 06:16）
@@ -236,14 +236,14 @@ GW 側の二つは `__HAMindex0` から読んだ操作のうち、呼ぶ側が�
 - Fortran（`m_mksym` の `mksym`）: 一回目（結晶の群）は時間反転なしの操作だけを読む。それを使ったら（`jsonused`）、二回目（AF の対をまとめた種類の群）は
   全部の操作を読む。AF の操作を選ぶのは今までどおり `m_mksym_init`（二回目の群のうち一回目に無いもの）。構造の照らし合わせに `af` の印も加えた
 - `SYMGRPAF` は AF の型を入れる印として残る（何を書いても json の操作が使われる）。S6 で `af` の印から決めるようにして廃止
-- NiO（`Samples/AFsymmetry/NiO`）: 結晶の群 12、AF をまとめた群 24 が、gensym の群と集合として一致（lmchk、格子を法として）。
+- NiO（[`Samples/AFsymmetry/NiO`](../../Samples/AFsymmetry/NiO)）: 結晶の群 12、AF をまとめた群 24 が、gensym の群と集合として一致（lmchk、格子を法として）。
   spglib の磁気空間群は UNI 1332、型 4（反ユニタリの操作が並進を伴う黒白群）
 - 試験の組（kr7 GPU、`95be8b8b5`、json の口の包み、06:43〜06:57）: inputs・afsym・affix・install・mlo・mloqsgw がすべて PASS。AF の試料は全部 json の
   磁気対称性で回った（NiO・NiO_gwsc・AFfixMMOM は UNI 1332 型 4、NiSe は UNI 1499 型 3、どれも 12 + 12）（06:57）
 
 ### 4.7g S6: lmf が spglib（C）で求める（2026-10-02 08:33、user「lmf でつくればいい」「全部このとおりで良い」）
 
-- spglib v2.6.0 の C のソースを `SRC/external/spglib` に置き（BSD-3、`VENDORED_FROM.txt`）、CMake で静的ライブラリ `symspg` として各 `libecaljF*.so` に入れる。
+- spglib v2.6.0 の C のソースを [`SRC/external/spglib`](../../SRC/external/spglib) に置き（BSD-3、`VENDORED_FROM.txt`）、CMake で静的ライブラリ `symspg` として各 `libecaljF*.so` に入れる。
   Python や外の spglib は要らない。lmf から Python を呼ぶ案（MPI の下での fork、計算ノードの Python）はやめた
 - `m_symfind` の `symfind_spglib` が `bind(C)` で `spg_get_symmetry`（種を分けた結晶の群）、`spg_get_international`（番号と記号）、
   AF の印があれば `spg_get_symmetry_with_site_tensors`（対をまとめた種、スピン ±1、時間反転あり。返る `spin_flips` が −1 の操作が AF の操作）を呼ぶ。
@@ -253,7 +253,7 @@ GW 側の二つは `__HAMindex0` から読んだ操作のうち、呼ぶ側が�
   module に持ち、AF の二回目の呼び出しで使う。`symgrp` に生成元を書いた入力と `ECALJ_SYMFIND=ecalj` は gensym
 - `symfind.py` は同じ形式のファイルを作る・照らす道具として残す（`--check` で lmchk の gensym の表と比べる）
 - 確かめ: Fe・NiO（12 + 12）・Si8（192）で Fortran の書いた操作が `symfind.py` と集合として同じ。Samples の 172 入力で 164 が同じ、8 は `symgrp` を
-  指定していて gensym（`TOOLS/symcheck_spglib_c.sh`）。二回目は読み、位置を変えると作り直すことを確かめた
+  指定していて gensym（[`TOOLS/symcheck_spglib_c.sh`](../../TOOLS/symcheck_spglib_c.sh)）。二回目は読み、位置を変えると作り直すことを確かめた
 
 ### 4.8 決めたこと（user 2026-10-02）
 

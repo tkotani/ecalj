@@ -5,7 +5,7 @@ ecalj を Claude (LLM) で開発する際のガイドライン。
 
 ## 文書の地図（まずここから。2026-10-02）
 
-`CLAUDE.md`（この文書を読み込む）から次の順にたどる。パスはリポジトリの最上位から。リンクの切れは `python3 TOOLS/doclinks.py` で確かめる。
+[`CLAUDE.md`](../../CLAUDE.md)（この文書を読み込む）から次の順にたどる。パスはリポジトリの最上位から。リンクの切れは `python3 TOOLS/doclinks.py` で確かめる。
 
 | 何を知りたいか | 文書 |
 | --- | --- |
@@ -15,29 +15,29 @@ ecalj を Claude (LLM) で開発する際のガイドライン。
 | 片付けたものに入っていたノウハウ、trash に移したものの表 | [past_log.md](past_log.md) |
 | 新機能と変更（利用者向け、正本） | `Changes.txt`（最上位） |
 | 主プログラム → module の階層（生成物） | [module_map.md](module_map.md) |
-| 個別の設計・手順: 対称性 [symmetry_spglib.md](symmetry_spglib.md)、Wannier と MLO の比較 [wannier_vs_mlo.md](wannier_vs_mlo.md)、ecaljdoc の管理と公開 [ecaljdoc_subtree.md](ecaljdoc_subtree.md)、履歴の書き換えのハッシュの対応 `commit_map_20261002.txt` | `ecaljdoc/MD/` |
-| 使い方と理論の本体（公開サイト https://ecalj.github.io/ecaljdoc/ の元） | `ecaljdoc/manual/`（入口 [../index.md](../index.md)、サンプルの一覧 [../manual/samples.md](../manual/samples.md)）、`ecaljdoc/theory/` |
+| 個別の設計・手順: 対称性 [symmetry_spglib.md](symmetry_spglib.md)、Wannier と MLO の比較 [wannier_vs_mlo.md](wannier_vs_mlo.md)、ecaljdoc の管理と公開 [ecaljdoc_subtree.md](ecaljdoc_subtree.md)、履歴の書き換えのハッシュの対応 `commit_map_20261002.txt` | [`ecaljdoc/MD/`](.) |
+| 使い方と理論の本体（公開サイト https://ecalj.github.io/ecaljdoc/ の元） | [`ecaljdoc/manual/`](../manual)（入口 [../index.md](../index.md)、サンプルの一覧 [../manual/samples.md](../manual/samples.md)）、[`ecaljdoc/theory/`](../theory) |
 | 変更の記録（利用者向け） | `Changes.txt` |
-| サンプルと試験 | `Samples/<dir>/README.md`（各 README の冒頭に本体の節へのリンク）、試験の組は `TOOLS/samples_tests.sh` |
-| 標準の流れに入れない試作の道具 | `TOOLS/gadget/README.md` |
+| サンプルと試験 | `Samples/<dir>/README.md`（各 README の冒頭に本体の節へのリンク）、試験の組は [`TOOLS/samples_tests.sh`](../../TOOLS/samples_tests.sh) |
+| 標準の流れに入れない試作の道具 | [`TOOLS/gadget/README.md`](../../TOOLS/gadget/README.md) |
 
-**開発者向けの文書を `ecaljdoc/MD/` に集めた**（2026-10-02 20:59、user「開発者用で ecaljdoc からたどらなくてもいいもの（余計に混乱を招くもの）は ecaljdoc/MD へ」。
+**開発者向けの文書を [`ecaljdoc/MD/`](.) に集めた**（2026-10-02 20:59、user「開発者用で ecaljdoc からたどらなくてもいいもの（余計に混乱を招くもの）は ecaljdoc/MD へ」。
 ファイルはまとめずにそのまま移した。中身の重複と整合の整理はこの後）。元の場所は次のとおり（`git log --follow` で前の履歴もたどれる）:
 
-| いまの場所（`ecaljdoc/MD/` の下） | 元の場所 | 中身 |
+| いまの場所（[`ecaljdoc/MD/`](.) の下） | 元の場所 | 中身 |
 | --- | --- | --- |
-| [ForDevelopers.md](ForDevelopers.md) | `ecaljdoc/manual/`（サイトにあった） | 開発の引き継ぎの手引き: リポジトリと push、ビルド、試験、GPU、ジョブの投入、研究の現在地 |
-| [ForDevelopers_research.md](ForDevelopers_research.md) | `ecaljdoc/manual/` | 研究ログの要約と日付の索引 |
-| [developer.md](developer.md) | `ecaljdoc/manual/` | 試験の仕組み `testecalj`（2025-10） |
-| [auto.md](auto.md) | `ecaljdoc/manual/` | `ecalj_auto`（GW1500 の自動の流れ） |
-| [kBT_history.md](kBT_history.md) | `ecaljdoc/manual/` | 有限温度の 2026-06〜09 の経緯と誤り（今の仕様は `ecaljdoc/manual/kBT.md`） |
-| [mlo_backup.md](mlo_backup.md) | `ecaljdoc/manual/` | MLO の経緯と作業記録（今の仕様は `ecaljdoc/manual/mlo.md`） |
-| `implementation/`（hsfp0、hx0fp、issue） | `ecaljdoc/implementation/` | 自己エネルギーと W の実装の覚え書き |
-| [MemoCode.md](MemoCode.md) | `ecaljdoc/theory/` | m_zmel などのコードの覚え書き |
-| `kBT/`（sigma_mlo_design、gpu_fp32_plan、gpu_fp32_report、finiteT_202606、LiTi2O4_finiteT_202606、LiTi2O4_six_patterns） | `Samples/kBT/`、`Samples/kBT/LiTi2O4/`（finiteT は `README_202606_finiteT.md`、six_patterns は `six_patterns.md` だった） | MLO-QSGW の設計書、GW の GPU 高速化の計画と報告、有限温度と LiTi₂O₄ の計算の記録 |
-| `mlo_notes/`（[README.md](mlo_notes/README.md) ほか、図も） | `Samples/MLOsamples/BackUp_notes/`、`Samples/MLOsamples/README_SOC.md`（→ `mlo_soc_memo.md`） | MLO の理論の整理、自動窓の探索の報告、最適化の覚え書き、nskip の問題、MP の比較、SOC の覚え書き |
+| [ForDevelopers.md](ForDevelopers.md) | [`ecaljdoc/manual/`](../manual)（サイトにあった） | 開発の引き継ぎの手引き: リポジトリと push、ビルド、試験、GPU、ジョブの投入、研究の現在地 |
+| [ForDevelopers_research.md](ForDevelopers_research.md) | [`ecaljdoc/manual/`](../manual) | 研究ログの要約と日付の索引 |
+| [developer.md](developer.md) | [`ecaljdoc/manual/`](../manual) | 試験の仕組み `testecalj`（2025-10） |
+| [auto.md](auto.md) | [`ecaljdoc/manual/`](../manual) | `ecalj_auto`（GW1500 の自動の流れ） |
+| [kBT_history.md](kBT_history.md) | [`ecaljdoc/manual/`](../manual) | 有限温度の 2026-06〜09 の経緯と誤り（今の仕様は [`ecaljdoc/manual/kBT.md`](../manual/kBT.md)） |
+| [mlo_backup.md](mlo_backup.md) | [`ecaljdoc/manual/`](../manual) | MLO の経緯と作業記録（今の仕様は [`ecaljdoc/manual/mlo.md`](../manual/mlo.md)） |
+| `implementation/`（hsfp0、hx0fp、issue） | [`ecaljdoc/implementation/`](../implementation) | 自己エネルギーと W の実装の覚え書き |
+| [MemoCode.md](MemoCode.md) | [`ecaljdoc/theory/`](../theory) | m_zmel などのコードの覚え書き |
+| `kBT/`（sigma_mlo_design、gpu_fp32_plan、gpu_fp32_report、finiteT_202606、LiTi2O4_finiteT_202606、LiTi2O4_six_patterns） | [`Samples/kBT/`](../../Samples/kBT/README.md)、[`Samples/kBT/LiTi2O4/`](../../Samples/kBT/LiTi2O4/README.md)（finiteT は `README_202606_finiteT.md`、six_patterns は `six_patterns.md` だった） | MLO-QSGW の設計書、GW の GPU 高速化の計画と報告、有限温度と LiTi₂O₄ の計算の記録 |
+| `mlo_notes/`（[README.md](mlo_notes/README.md) ほか、図も） | [`Samples/MLOsamples/BackUp_notes/`](../../Samples/MLOsamples/BackUp_notes)、`Samples/MLOsamples/README_SOC.md`（→ `mlo_soc_memo.md`） | MLO の理論の整理、自動窓の探索の報告、最適化の覚え書き、nskip の問題、MP の比較、SOC の覚え書き |
 | [testecalj_2025.md](testecalj_2025.md) | `Samples/TestInstall/README_testecalj.md` | 試験の仕組み（2025-10） |
-| [GW1500_failures.md](GW1500_failures.md) | `Samples/mptf32problem/` | GW1500 の失敗と fp32 での回し直しの記録 |
+| [GW1500_failures.md](GW1500_failures.md) | [`Samples/mptf32problem/`](../../Samples/mptf32problem/README.md) | GW1500 の失敗と fp32 での回し直しの記録 |
 
 ## 記録の方針: コードのコメント、コミット、研究ログ、文書（2026-09-27）
 
@@ -84,7 +84,7 @@ Claude（や人）が後でコードや記録を読むときの手がかりに�
 
 - 直すべき点は見つけてもその場では直さず、[TODOandQuestion.md](TODOandQuestion.md) に書く。メンテナに決めてほしいこと、実行中のこと、
   やったこと（日付とコミット）も同じファイルに書く
-- いらないものは消さずに各計算機の `ecalj/trash/` に移す（リポジトリのものは `git rm --cached` で追跡も外す。`/trash/` は `.gitignore`）。
+- いらないものは消さずに各計算機の [`ecalj/trash/`](../../trash) に移す（リポジトリのものは `git rm --cached` で追跡も外す。`/trash/` は `.gitignore`）。
   trash は適宜減らしていく（user 2026-10-02。作り直せるもの、要点を past_log に写したものから消す。消したものは past_log の表 1 に書く）
 - 移すものの中にあるノウハウや役に立ちそうな情報は、移す前に読んで [past_log.md](past_log.md) に話題ごとに整理して書く。
   情報が重複しているものは、まとめてから trash へ。past_log.md の表 1 に、元の場所と外す前のコミットを書く（`git show <コミット>:<パス>` で取り出せる）
@@ -92,7 +92,7 @@ Claude（や人）が後でコードや記録を読むときの手がかりに�
 ### 図と数値（2026-09-28）
 
 - 図には、描いた数値をファイルで添える。図を作るスクリプトが npz や dat を図の隣に書き、元のファイルの場所・日時も入れる
-  （例: `Samples/kBT/LiTi2O4/mlo_rows.py` の `DATAOUT`）。手元の作業場所（/tmp など）は消える
+  （例: [`Samples/kBT/LiTi2O4/mlo_rows.py`](../../Samples/kBT/LiTi2O4/mlo_rows.py) の `DATAOUT`）。手元の作業場所（/tmp など）は消える
 - 反復ごとの結果（バンドなど）は、その反復のうちに描いてファイルに残す。次の反復で上書きされる作業ファイル（QMLO_SigRs など）に頼らない
   （2026-09-28: `gwsc 10` で回した tf32 の反復 1〜9 の MLO バンドは、あとから作れなかった）
 
@@ -101,24 +101,26 @@ Claude（や人）が後でコードや記録を読むときの手がかりに�
 - 必要な理由と注意だけ。どこで迷ったかの経緯（苦労話）は書かない（研究ログへ）
 - 数式には必ず式番号（`$$ ... \tag{1}$$`）を付け、本文から番号で参照する。図表にも番号を付ける
 - 説明の軸は ecaljdoc。ecalj の Changes.txt・各サンプルの README には要点と ecaljdoc への参照だけを書き、同じ説明を二か所に書かない。
-  ecaljdoc の正本は 2026-10-02 から `ecalj/ecaljdoc/`（git subtree。公開は GitHub の `ecalj/ecaljdoc` へ `git subtree push`、手順は [ecaljdoc_subtree.md](ecaljdoc_subtree.md)）。
+  ecaljdoc の正本は 2026-10-02 から [`ecalj/ecaljdoc/`](../README.md)（git subtree。公開は GitHub の [`ecalj/ecaljdoc`](../README.md) へ `git subtree push`、手順は [ecaljdoc_subtree.md](ecaljdoc_subtree.md)）。
   古いクローン `~/ecaljdoc` では作業しない
 - 文書の置き場（2026-10-02、user）:
   - `ecaljdoc/`（公開サイト）: 使い方と理論の本体。サイトは `ecaljdoc/` だけから作られる
-  - `ecaljdoc/MD/`: 開発の記録（Claude が読む）。VitePress の `srcExclude` でサイトには出さない（本文の `<sname>` などを Vue がタグと読んで壊れるため）
+  - [`ecaljdoc/MD/`](.): 開発の記録（Claude が読む）。VitePress の `srcExclude` でサイトには出さない（本文の `<sname>` などを Vue がタグと読んで壊れるため）
   - `Samples/<dir>/README.md`: そのサンプルのそばに要るもの（何の例か、回し方、試験が比べるもの、そのサンプルの数値と図）。冒頭に本体の節へのリンクを置く
   - リンクの向き: ecaljdoc の本体（manual・theory）から外（Samples、ソース）へは GitHub の URL（`https://github.com/tkotani/ecalj/tree/main/...`。サイトで
-    `../` の相対リンクは切れる）。外から ecaljdoc へはリポジトリの中の相対パス（`../../ecaljdoc/manual/mlo.md`）
+    `../` の相対リンクは切れる）。外から ecaljdoc へはリポジトリの中の相対パス（[`../../ecaljdoc/manual/mlo.md`](../manual/mlo.md)）
   - ecaljdoc の本文で `<...>` や `{{` をコードの印（バッククォート）の外に書かない。VitePress のビルドが止まる（2026-10-02 に 3 か所あった）
+  - `ecaljdoc/MD` の文書の中のファイルのパスは、開けるように相対リンクで書く（`[`Samples/.../README.md`](../../Samples/.../README.md)`）。
+    コードの印で書いたパスは `python3 TOOLS/mdlinkify.py <md>` がリンクに直す（実在するものだけ。生成物の `module_map.md` には使わない。2026-10-02、user）
   - 文書を直したら `python3 TOOLS/doclinks.py` で確かめる（切れた相対リンク、サイトから `../` で出るリンク、本体へのリンクの無い Samples の README、
     入口から名指しされない MD のファイル。2026-10-02）
-- ecalj は「Claude が読み込んで人間に説明できる」パッケージにする。人間は Claude を通して情報を取る（user 2026-10-01）。最上位は `CLAUDE.md`（入口）と数行の `README.md`、`Changes.txt`。
-  開発の文書は `ecaljdoc/MD/`（新機能の正本は `Changes.txt`。2026-05〜09 の英語のログとクイックスタートだった `MD/README.md` は 2026-10-02 に trash へ）。
+- ecalj は「Claude が読み込んで人間に説明できる」パッケージにする。人間は Claude を通して情報を取る（user 2026-10-01）。最上位は [`CLAUDE.md`](../../CLAUDE.md)（入口）と数行の [`README.md`](../../README.md)、`Changes.txt`。
+  開発の文書は [`ecaljdoc/MD/`](.)（新機能の正本は `Changes.txt`。2026-05〜09 の英語のログとクイックスタートだった `MD/README.md` は 2026-10-02 に trash へ）。
   コードの大局（主プログラム → 入口の module、module の DAG と階層、各 module の依存）は [module_map.md](module_map.md)。
   `python3 TOOLS/module_map.py` で作り直す生成物で、手では直さない（2026-10-01、Doxygen の代わり）
 - 引き継ぎ: Claude の個人メモリ（`~/.claude/.../memory/`）はパッケージに入らないので、別の機械や記憶の無いセッションに要ること
   （user との取り決め、計算機の癖、ビルドと実行の落とし穴）は [handover.md](handover.md) にも書く。その時点の状況や古くなったことは写さない（混乱の元）
-- `ecaljdoc/MD/` は基本的に Claude が読むもの（user 2026-10-01）。人に読ませる体裁より、Claude があとで正確に引けることを優先する:
+- [`ecaljdoc/MD/`](.) は基本的に Claude が読むもの（user 2026-10-01）。人に読ませる体裁より、Claude があとで正確に引けることを優先する:
   日付時刻、コミット、ファイルのパス、数値、式番号・表番号を省かない。人への説明は Claude がそこから組み立てる
   （メンテしにくくなる。2026-09-28）。ecaljdoc の中でも、同じ式や表を二度書かずに番号で参照する
 - 理論は、式とアルゴリズムが追えるように正確に書く: 何を計算するか、離散化と規格化、その結果をどこで使うか。
@@ -133,11 +135,11 @@ Claude（や人）が後でコードや記録を読むときの手がかりに�
 - 走り始めたらログに期待する印が出ているか確かめる
 - `testecalj` の前に `*_work` を消す（前回の失敗の rst が残ると偽の失敗になった。いまは testecalj も走らせる各ターゲットの `_work` を
   作り直す〔2025-10-09 から〕ので念のため）
-- 試験の最中は、`~/bin` が symlink で指すもの（`SRC/exec` のスクリプト、`libecaljF.so`）を変えない。別の木でビルドする
+- 試験の最中は、`~/bin` が symlink で指すもの（[`SRC/exec`](../../SRC/exec) のスクリプト、`libecaljF.so`）を変えない。別の木でビルドする
   （2026-10-02: 試験の途中で `job_mloW` を書き換え、後半の組が別の版で走って偽の FAIL になった）
 - コミットはファイルを名指しで（`git commit -a` を使わない。2026-10-02: 確かめる前の参照のファイルを別のコミットに混ぜた）
 - `testecalj` の件数は最後の要約だけで数える。ターゲットごとにそれまでの要約を出し直すので、ログ全体の PASSED 行は延べ数
-  （2026-09-28: `--all` の 64 件を 832 件と数えていた）。Samples の組ごとの試験は `TOOLS/samples_tests.sh`
+  （2026-09-28: `--all` の 64 件を 832 件と数えていた）。Samples の組ごとの試験は [`TOOLS/samples_tests.sh`](../../TOOLS/samples_tests.sh)
 
 ### Claude の作業の進め方
 
@@ -476,5 +478,5 @@ testecalj では PASS したが実物質で sigm を破壊した。詳細は「G
 
 ## GW1500 量産インフラ
 
-量産の仕組み（スロットスケジューラ、NaN の監視）は `ecalj_auto/README_slot_scheduler.md`、結果と失敗の分類は `ecalj_auto/GW1500_status.md`
+量産の仕組み（スロットスケジューラ、NaN の監視）は [`ecalj_auto/README_slot_scheduler.md`](../../ecalj_auto/README_slot_scheduler.md)、結果と失敗の分類は [`ecalj_auto/GW1500_status.md`](../../ecalj_auto/GW1500_status.md)
 （2026-10-02 21:06 にこの節の写しを外した。5 月の NaN は「物質に固有」と書いていたが、旧 `--mp` の TF32 の精度が原因だった。GW1500_status §3・§5.2）。

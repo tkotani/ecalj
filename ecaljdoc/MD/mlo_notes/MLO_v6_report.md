@@ -261,7 +261,7 @@ $v_{\rm ref}=\langle (db/dx)^2\rangle^{1/2}$ は DFT 側の傾きの rms(速度�
 「その誤差ひとつで損失 1」と読める。$\sigma_E=20$ meV は室温 $k_BT$ 程度、
 $\sigma_v=5\%$ は輸送係数で実用上許される速度誤差という目安。
 
-実装は `SRC/exec/mlo_losscheck.py`。
+実装は [`SRC/exec/mlo_losscheck.py`](../../../SRC/exec/mlo_losscheck.py)。
 
 ## 7. バンドプロット(灰線: 第一原理 PMT、赤×: MLO)
 
@@ -326,6 +326,6 @@ FeMgO スラブ — 二相系。rms 0.054 eV。MTO エンベロープ(減衰長 
 ---
 
 再現: branch `mlo3` / `mlo_method = 3`(既定値のみ)/ ベンチ `Samples/MLOsamples/*__m3`
-(+ `Cu__spd`, `Si666gwsc__m3k8/k10`)/ 評価 `SRC/exec/mlo_bandcheck.py`。
+(+ `Cu__spd`, `Si666gwsc__m3k8/k10`)/ 評価 [`SRC/exec/mlo_bandcheck.py`](../../../SRC/exec/mlo_bandcheck.py)。
 走査用キー `mlo_dwin` (現 `mlo_delta`) / `mlo_wfrz` / `mlo_eww` (現 `mlo_w`) / `mlo_down` / `mlo_ewalpha` / `mlo_ewmin` は
 再調査用に残してある(既定値が最適値)。

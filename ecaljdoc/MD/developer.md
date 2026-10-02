@@ -1,6 +1,6 @@
 # For developer
 
-> ⚠️ Test directories ship `ctrlg.<sname>.toml` as the input (see [Samples/EPS/](https://github.com/tkotani/ecalj/tree/main/Samples/EPS), [Samples/PROCAR/](https://github.com/tkotani/ecalj/tree/main/Samples/PROCAR), [Samples/MLOsamples/](https://github.com/tkotani/ecalj/tree/main/Samples/MLOsamples), [Samples/TestInstall/](https://github.com/tkotani/ecalj/tree/main/Samples/TestInstall)). (The older examples of `Samples/Legacy/` were rebuilt as samples with `ctrlg.<sname>.toml` or removed on 2026-09-30.) See [TOML migration](../manual/toml_migration.md) and [Samples](../manual/samples.md). The present procedure of the tests (`testecalj --all` with 26 targets and 66 checks, `TOOLS/samples_tests.sh` for the groups of samples) is in [ForDevelopers](ForDevelopers.md) §5.
+> ⚠️ Test directories ship `ctrlg.<sname>.toml` as the input (see [Samples/EPS/](https://github.com/tkotani/ecalj/tree/main/Samples/EPS), [Samples/PROCAR/](https://github.com/tkotani/ecalj/tree/main/Samples/PROCAR), [Samples/MLOsamples/](https://github.com/tkotani/ecalj/tree/main/Samples/MLOsamples), [Samples/TestInstall/](https://github.com/tkotani/ecalj/tree/main/Samples/TestInstall)). (The older examples of `Samples/Legacy/` were rebuilt as samples with `ctrlg.<sname>.toml` or removed on 2026-09-30.) See [TOML migration](../manual/toml_migration.md) and [Samples](../manual/samples.md). The present procedure of the tests (`testecalj --all` with 26 targets and 66 checks, [`TOOLS/samples_tests.sh`](../../TOOLS/samples_tests.sh) for the groups of samples) is in [ForDevelopers](ForDevelopers.md) §5.
 
 ## Test system `testecalj` (2025-10-8).
 
@@ -11,11 +11,11 @@ SRC/exec
 └── testecalj   main program for test
 ```
 
-* Install test described in InstallAll.py is performed at `ecalj/Samples/TestInstall`.
+* Install test described in InstallAll.py is performed at [`ecalj/Samples/TestInstall`](../../Samples/TestInstall).
 * We can run testecalj as `>testecalj foobar`, where `foobar/` is the name of a test directory.
 `testecalj` creates `foobar_work/` directory and do test in it. 
 * `foobar/` should contain initial settings (`ctrlg.<sname>.toml`) and files to be compared. In addition, we have to write `test.py` which describe schedules to run programs and to compare files. `ecalj/Samples/TestInstall/foobar` contains samples of test directories.
-* For any test directory `foobar`, we can perform the test by `testecalj foobar`. For example, `Fe_mlo_magnon` lives at `ecalj/Samples/Magnon/Fe_mlo_magnon` with its `test.py`.
+* For any test directory `foobar`, we can perform the test by `testecalj foobar`. For example, `Fe_mlo_magnon` lives at [`ecalj/Samples/Magnon/Fe_mlo_magnon`](../../Samples/Magnon/Fe_mlo_magnon/README.md) with its `test.py`.
 * We can write your own `test.py` easily. 
 
 * `testecalj` use binaries such as `lmfa,lmf,qg4gw...` in the directory containing the `testecalj`. 
@@ -28,7 +28,7 @@ workdir= "/home/takao/ecalj/Samples/Magnon/Fe_mlo_magnon_work/"
 dat='MagSuscep.syml001'
 tall=test2_check(testdir+'/'+dat, workdir+'/'+dat,abs_tol=0.01)
 ```
-where, we need to import `ecalj/SRC/exec/comp.py`.
+where, we need to import [`ecalj/SRC/exec/comp.py`](../../SRC/exec/comp.py).
 
 ---
 
