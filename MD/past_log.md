@@ -352,6 +352,7 @@ ecaljdoc の `BackUp/`（148 本、35 MB: 初版の GW マニュアル `man-gw.t
 | 日 | もの | 元の場所 | 外す前のコミット | 過去ログの節 |
 | --- | --- | --- | --- | --- |
 | 2026-10-02 | ecaljdoc の古い文書（157 本、38 MB） | ecaljdoc の `BackUp/`、`ecaljdetails/` | ecaljdoc `3284d0b` | §14 |
+| 2026-10-02 | ecaljdoc の古い書き出し（md より古い `README.pdf`・`index.pdf`・`install/install.pdf`・`installISSP.pdf`）、空の雛形 `list.md`、エディタのファイル | ecaljdoc の最上位、`install/`、`presentations/` | ecaljdoc `6715169` | — |
 | 2026-10-01 | Materials Project の API キーを含む設定の写し | `ecalj_auto/OUTPUT/*/config.ini` の `apikey` 行 | `290397b34` の前 | ecalj_auto/README.md |
 | 2026-10-01 | 古い写し | `SRC/BK`、`SRC/execgfortran`、`SRC/execAHC` | `116254e1d` の前（`4f9332d98`） | — |
 | 2026-10-01 | GW1500 の古いスクリプト・表 | `ecalj_auto/run_gw1500_addrun*.sh`、`jobgw1500.sh`、`gw1500_recheck_*.sh`、`qpu_change.py`、`gw1500_rerun_20260930.tsv` | `116254e1d` の前 | ecalj_auto/GW1500_status.md |
