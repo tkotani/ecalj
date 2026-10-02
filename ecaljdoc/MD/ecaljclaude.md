@@ -348,14 +348,9 @@ OpenACC の `!$acc` ディレクティブと構造が対応する。
   状態受け渡しがゼロコストになる。hgw_combined が hrcxq + hsfp0_sc を 1 プロセスに
   統合したのと同じ原理を、gwsc 全体に拡張するもの
 
-## ビルド環境 (kt1)（2026-09-28 に今の形に直した）
+## ビルド環境
 
-- nvfortran 26.1（NVIDIA HPC SDK 2026）、CUDA 13。ビルドは `python3 InstallAll.py --fc nvfortran --gpu --bindir <bindir>`（ecaljdoc の ForDevelopers §4）。
-  `SRC/build_nvfortran` に `libecaljF.so`・`_mp`・`_gpu`・`_mp_gpu` の 4 本ができ、実行ファイルは薄い入口
-- 置き場: 本番 `~/ecalj` → `~/bin`（触らない）、開発 `~/ecalj_dev` → `~/bin_dev`。何時間もかかる計算は実体をコピーした `~/bin_frozen_<rev>` で（ForDevelopers §12.1）
-- **nvfortran の間欠的な signal 11**: 毎回違うファイルで落ちる。同じコマンドを再試行すれば通る
-- **cmake の file(GLOB)**: 新しい .f90 を足したら cmake を configure し直す。make だけでは見つからない
-- **GPU の非決定性**: 同じコードでも GPU0 と GPU1 で下の桁が違うことがある。回帰の比較は `CUDA_VISIBLE_DEVICES` を固定して同じ条件で
+手順は [ForDevelopers.md](ForDevelopers.md) §4、計算機ごとの中身と落とし穴は [handover.md](handover.md) §2〜§4（2026-10-02 21:06 に重複を外した）。
 
 ## GPU 開発の教訓
 
@@ -481,23 +476,5 @@ testecalj では PASS したが実物質で sigm を破壊した。詳細は「G
 
 ## GW1500 量産インフラ
 
-（量産をしていた時期の記録。2026-09-28 の時点で kt1 に `~/bin2` はもう無い。仕組みを使い直すときは `ecalj_auto/README_slot_scheduler.md` から）
-
-### スロットスケジューラ
-- Unix socket ベース (`/tmp/slot_scheduler.sock`)
-- CPU slot ×2 (lmf, np=30 each) + GPU slot ×2
-- 6 workers が FIFO 順にスロット取得
-- `~/bin2/run_cmd.py` が自動でバイナリ種別を検出し slot request
-- `~/bin2/slot_scheduler_daemon.py` が割当管理
-- 詳細: `ecalj_auto/README_slot_scheduler.md`
-
-### NaN watchdog
-- worker.sh が 5 分ごとに `lsc`, `lsx`, `lqpe`, `llmf` の NaN をチェック
-- 8 時間ハードタイムアウト
-- 検出時は gwsc + 子プロセスを kill
-
-### 既知の失敗パターン
-- NaN in lsc/lqpe: 物質固有の計算困難性 (リトライ不要)
-- TIMEOUT 8h: 8 原子系の VRAM 不足等
-- bmix minimum: SCF 収束不良
-- `/dev/shm/sem.OMPIO*` 残骸: kill 後に残存 → 次の hrcxq がハング。`rm` で即解決
+量産の仕組み（スロットスケジューラ、NaN の監視）は `ecalj_auto/README_slot_scheduler.md`、結果と失敗の分類は `ecalj_auto/GW1500_status.md`
+（2026-10-02 21:06 にこの節の写しを外した。5 月の NaN は「物質に固有」と書いていたが、旧 `--mp` の TF32 の精度が原因だった。GW1500_status §3・§5.2）。

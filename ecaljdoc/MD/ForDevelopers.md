@@ -1,68 +1,38 @@
 # ForDevelopers — ecalj 開発の引き継ぎメモ
 
-> 読者: ecalj の開発を引き継ぐ人と、次に作業する Claude のセッション（前の会話の記憶が無くても、ecalj と ecaljdoc だけで研究とジョブの投入ができることを目指す）。
-> 約束ごと・ビルドとテストの手順・計算機ごとの注意・ジョブの投入・落とし穴・研究の現在地と経過を 1 枚にまとめ、詳しくはリンク先に任せる。
-> 2026-09-28 時点。ここに書いたことが古くなったら、このページを直す。
-
-**初めて読むときの順**: ecalj の `CLAUDE.md`（`ecaljdoc/MD/ecaljclaude.md` を読み込む。「記録の方針」が書き方の正本）→ このページの §1（push の約束）・§2 →
-§9（研究の現在地）と §13（研究ログの要約）→ 作業に応じて §4・§5（ビルドとテスト）、§7・§12（計算機とジョブの投入）→ 各テーマの ecaljdoc のページ。
-研究の細部は ecalj の研究ログ（§13 の索引から日付と時刻で引く）。
+> 読者: ecalj の開発を引き継ぐ人と、次に作業する Claude のセッション。**手順の正本**（push のやり方、ビルド、試験、GPU の開発、ジョブの投入）と、
+> GPU の高速化の記録（§11）。user との取り決め・計算機・落とし穴は [handover.md](handover.md)、決まり（記録の書き方、コードの方針）と設計は
+> [ecaljclaude.md](ecaljclaude.md)、文書の地図は ecaljclaude.md の冒頭（2026-10-02 21:06 に役割を分けて重複を外した。それまでは 2026-09-28 時点の 1 枚のまとめで、
+> サイトの `manual/ForDevelopers.md` だった）。
 
 ## 0. どこに何があるか
 
-| 文書 | 中身 |
-| --- | --- |
-| ecalj `Changes.txt` | 変更の記録（日本語）。上が新しい |
-| ecalj `ecaljdoc/MD/handover.md` | 引き継ぎ: user との取り決め、計算機の癖、ビルド・試験・コンパイラ・数値の落とし穴（Claude の個人メモリから今も正しいものを写したもの、2026-10-01） |
-| ecalj `ecaljdoc/MD/TODOandQuestion.md` | 直すべき点、メンテナへの質問、実行中のこと、やったこと（2026-10-01〜） |
-| ecalj `ecaljdoc/MD/past_log.md` | リポジトリから外したもの（`trash/`）にあったノウハウと経緯。2026-06〜09 の要点（§6）、一発 GW と任意の k 線の落とし穴（§5）、hgw の統合の設計判断（§3.2） |
-| ecalj `ecaljdoc/MD/ecaljclaude.md` | 設計方針（singleton module）、GPU 開発の教訓、hgw の構成（節の名前は hgw_combined）、GW1500 量産 |
-| ecalj `ecalj_auto/README_slot_scheduler.md` | GW1500 量産（kt1、スロットスケジューラ、NaN 監視） |
-| ecalj `ecaljdoc/MD/testecalj_2025.md`、[developer](developer.md) | テストの仕組み（`testecalj`、`test.py`） |
-| ecalj `ecaljdoc/MD/research_log.md` | 研究ログ（有限温度、MLO-QSGW、GPU 高速化、GW1500、片付け。2026-10-01 に `Samples/kBT/kBT_research.md` から移した）。上が新しく、時刻付き |
-| ecaljdoc [ForDevelopers_research](ForDevelopers_research.md) | 研究ログのテーマ別の要約（結論、訂正、未解決）、日付の索引、計算の置き場所（§13） |
-| ecalj `ecaljdoc/MD/kBT/gpu_fp32_report.md` | GW の GPU 高速化の報告（2026-09-27、§11 に要約） |
-| ecalj `ecaljdoc/MD/kBT/sigma_mlo_design.md` | MLO-QSGW の設計 |
-| ecaljdoc [ecaljgpu](../manual/ecaljgpu.md)、[gwsc](../manual/gwsc.md)、[cmdopts](../manual/cmdopts.md) | GPU 版の使い方、gwsc のオプション、コマンドラインの一覧 |
-| ecaljdoc [mlo](../manual/mlo)、[mlo_gwsc](../manual/mlo_gwsc)、[kBT](../manual/kBT)、[toml_migration](../manual/toml_migration.md) | MLO、MLO-QSGW、有限温度、TOML 入力への移行 |
-| ecalj `Samples/kBT/LiTi2O4/`（`input/qmlo`、`run_gwsc10.sh`、`cmp_gwsc10.py`、描画のスクリプト） | LiTi₂O₄ の MLO-QSGW の入力と、投入・比較・描画の道具（§12.2） |
-| Claude のメモリ（t14 の `~/.claude/projects/-home-takao-ecalj/memory/`、索引は `MEMORY.md`） | 補助。約束・計算機・落とし穴で要るものはこのページと `ecaljdoc/MD/ecaljclaude.md` に移してある（§10） |
+文書の地図は [ecaljclaude.md](ecaljclaude.md) の冒頭（「文書の地図」）。
 
 ## 1. リポジトリと push
 
 | リモート | 場所 | 使い方 |
 | --- | --- | --- |
-| `dev` | github.com/tkotani/ecaljdeveloper | 開発。まずここへ |
-| `rel` | github.com/tkotani/ecalj（`main`） | 公開。dev で寝かせてから |
-| ecaljdoc `origin` | github.com/ecalj/ecaljdoc | GitHub Pages で公開される文書 |
-| ecaljdoc `dev` | github.com/tkotani/ecaljdoc | 文書の開発用 |
+| `dev` | github.com/tkotani/ecaljdeveloper（`main`、private） | 開発。まずここへ |
+| `rel` | github.com/tkotani/ecalj（`main`、公開） | 公開。dev で寝かせてから |
+| `ecaljdoc` | github.com/ecalj/ecaljdoc（`main`） | 文書の公開（GitHub Pages）。ecalj の `ecaljdoc/` を `git subtree push` で送る（[ecaljdoc_subtree.md](ecaljdoc_subtree.md)） |
+| `ecaljdoc-dev` | github.com/tkotani/ecaljdoc | 文書の開発用の写し（任意） |
 
-- **commit はその場で、push は指示があってから**（dev も）。まとめて `git push dev main` で出す
-- **rel は慎重に**: dev で寝かせ、同じコミットで 3 環境（手元 gfortran、kt1 nvfortran GPU、ucgw か mic の ifx）の `testecalj --all` が通ってから
-  `git push rel main`（fast-forward のみ、force は使わない）。破壊的変更は dev で警告だけの期間を置いてから止めるようにする。
-  rel が壊れているときの修正だけは例外
-- commit メッセージは**英語**（ecalj・ecaljdoc とも）。`Changes.txt`、ecaljdoc、研究ログの中身は日本語
-- コミットには `Changes.txt`（日本語）と、使い方が変わるなら `README.md` の追記を含める
-- `Samples/` の下の計算の出力（`*_work` など）はコミットしない
-- local の main が dev よりどれだけ先かは `git rev-list --count dev/main..main`
+いつ push してよいか、rel のゲート（3 環境の試験）、早送りだけ、は [handover.md](handover.md) §1 が正本。コマンド:
 
-## 2. 書き方の約束
+```bash
+git rev-list --count dev/main..main              # dev よりいくつ先か
+git push dev main                                # 指示があってから
+git merge-base --is-ancestor rel/main main && git push rel main   # 早送りのときだけ。force は使わない
+git subtree push --prefix=ecaljdoc ecaljdoc main # 文書の公開（ecaljdoc_subtree.md §3）
+```
 
-コードのコメント、コミット、研究ログ、文書の方針は ecalj の `ecaljdoc/MD/ecaljclaude.md` の「記録の方針」が正本（ecalj の `CLAUDE.md` から
-Claude Code に毎回読み込まれる。2026-09-27）。要点: コメントの注記には日付時刻、バグ修正は書く、将来混乱を招く数値は書かない、
-コミットメッセージは英語、研究ログは最新が上で `### HH:MM`、数式に番号、利用者向けノートに苦労話を書かない。ここには ecaljdoc の書式だけ:
+- `Samples/` の下の計算の出力（`*_work` など）はコミットしない。コミットはファイルを名指しで（ecaljclaude.md「計算を回す前の確認」）
 
-- Markdown の表のセルの中で `|` を生で書かない（`\vert`、`\mid` を使う）
-- 図は md に埋め込んでその md を示す（VSCode のチャットでは png へのリンクは開かない）
+## 2. 書き方の約束、3. コードの方針
 
-## 3. コードの方針（詳しくは `ecaljdoc/MD/ecaljclaude.md`）
-
-- **Fortran の module を singleton として使う**: 1 module = 1 責務 = 1 状態。状態は `protected, public` の module 変数、import は `use m_foo, only: ...`、
-  subroutine の引数は指示的な値（`ef`, `qp`, `isp` など）だけで、配列データは `use` で取る。`type`（derived type）で状態を持たない
-  （例外は `m_struc_def` の ragged array 用コンテナ）。module 間の `use` は DAG
-- OpenACC: structured `!$acc data` の中で `BLOCK` を使えない（→ `enter/exit data`）。`goto` の経路でも `!$acc wait` が要る
-- 入力は `ctrlg.<sname>.toml` だけ（`PB.<sname>.toml`、`esm_input.dat`、`GWinput`、`GWinput.toml` は読まない。`PB.<sname>.toml` と `esm_input.dat` は残っていれば止まるので `ctrlg_absorb.py <sname>`）。
-  上書きは `--ctrlg:<path>=<value>`
+正本は [ecaljclaude.md](ecaljclaude.md)（「記録の方針」、「コーディング規約: Fortran Singleton Pattern」、「GPU 開発の教訓」、「入力ファイル: TOML 方式」）。
+Markdown の表の `|`、図の見せ方などの道具の癖は [handover.md](handover.md) §6。
 
 ## 4. ビルド
 
@@ -74,7 +44,7 @@ python3 InstallAll.py --fc nvfortran --gpu --bindir ~/bin       # GPU（kt1）�
 - `--fc` は**コンパイラの裸の名前**（`mpifort` のパスを渡すと `CMakeLists.txt` の判定を誤る）。ビルドは `SRC/build_$FC`、並列は 8 まで。
   `--notest`、`--clean`、`--notune`（計測を省く）
 - 実体は `libecaljF.so` / `_mp` / `_gpu` / `_mp_gpu` の **4 本**で、実行ファイルは薄い入口。新しい機能が入ったかは
-  `strings <build>/libecaljF*.so | grep -c <新しい文字列>` で 4 本とも確かめる
+  `strings <build>/libecaljF*.so | grep -c <新しい文字列>` で 4 本とも確かめる（GEMMul8 の包みは別の `libgemmul8wrap.so`）
 - `<bindir>` の実行ファイルとスクリプト（`gwsc` など）は build と `SRC/exec` への symlink。実体のコピーだと古いまま走る
 - 新しい `.f90` を足したら cmake を configure し直す（`file(GLOB)`）
 - nvfortran の `signal 11`（コンパイラの間欠的な落ち）は同じコマンドの再試行で通る
@@ -135,49 +105,18 @@ cd Samples/MLOQSGW;    testecalj -np 8 -np2 2 --gpu --mp GaAs NiO  # MLO-QSGW
 計算機ごとの中身と使い方（t14、kt1、kr7、kr5、mic、ucgw）の表は ecalj の `ecaljdoc/MD/handover.md` §2 にまとめてある（2026-10-02。二か所にあった表を一つにした）。
 kt1 で複数のジョブを並べるときの `taskset` と `OMPI_MCA_hwloc_base_binding_policy=none`、リモートの操作の注意も同じ節。
 
-- `pkill -f <パターン>` は ssh 越しだと自分のコマンド行にも当たる。PID で止めるか `pgrep -f "pat[t]ern"` の形で
-- 走っているシェル脚本を書き換えない（bash は脚本を逐次読む）。変えるなら止めて起動し直す
 - 長いビルドは ssh を張ったまま走らせる（`nohup setsid` でも切断で死ぬことがある）
 
 ## 8. 既知の落とし穴
 
-| 症状 | 原因・対処 |
-| --- | --- |
-| スラブで E_F が数 eV ずれる（止まらない） | ESM が効いていない。`ctrlg` の `[esm]`（`llmf` で `effective screening medium` の行を確認） |
-| 磁性が消える・非磁性に落ちる | 前の run の混合履歴 `__mixm` を継いでいた。lmf は起動時に捨てる（続けるときだけ `--keepmixm`） |
-| `mpi_file_open` で固まる | `/dev/shm/sem.OMPIO_*` の残骸（kill したジョブの）。消す |
-| ifort/ifx だけ巨大な負の密度で落ちる | 未初期化の allocatable（gfortran は 0 で隠す）。例: `iors.f90` の基底拡張時の `nlm0`（修正済み） |
-| `testecalj` が偽の失敗 | 前の `*_work` の `rst` |
-| MLO-QSGW のバンドがおかしい | `job_band --mlo`、`job_mlo --mlofreeze` は MLO-QSGW のバンドにならない。[mlo_gwsc](../manual/mlo_gwsc) §1.7 の方法で |
-| QSGW とバンド描画で平面波の打ち切りが合わない | QSGW は `pwmode = 11`（$\vert q+G\vert$）、バンドは $\vert G\vert$。両立しない |
-| 64 プロセスで hgw（W を作る部分、以前の hrcxq）がヒープ破壊 | `m_llw` の `WVIllwI` の `iw > niw` ガード（MPI の集団通信の後に置く。修正済み） |
-| GPU の Σc が NaN | 非同期のカーネルと cuBLAS が別ストリーム（§6） |
-| 部分 DOS（`job_pdos`）がプロセス数で変わる（`co` の TEST 2 が `-np 6` で 0.14 ずれ、`-np 8` は合格） | `bandcal` は (k, スピン) の組をランクに配るので、1 つの k の 2 スピンが別ランクに分かれる。重みのファイル `__DWGT` に k ごとに両スピンを書き戻して相手のスピンを古い値で上書きしていた。(k, スピン) ごとのレコードに自分のスピンだけ書くよう直した（`3fa93489d`）。**(k, スピン) を配る処理で、k ごとのファイルに全スピンを書くと同じことが起きる** |
+[handover.md](handover.md) §4（コンパイラと実行時）・§5（計算の中身）が正本（2026-10-02 21:06 にこの節の表をそちらへ合わせた）。
 
-## 9. 研究の現在地（2026-09-28）
+## 9. 研究の現在地、10. Claude と作業するとき
 
-テーマごとの結論・経過・未解決と研究ログの索引は §13。ここは一覧だけ。
-
-- **MLO**（局在軌道の模型）: `mlo_method = 4` が既定、パラメタは `mlo_delta`・`mlo_w`。`Samples/MLOsamples` の系を `testecalj` で回帰。[mlo](../manual/mlo)
-- **MLO-QSGW**（Σ を MLO で持って k 空間で内挿）: LiTi₂O₄ 6³・9³ で 10 反復で収束し、メッシュ点の間のこぶが消えた。`gwsc N --mlo`
-  （Σ^MLO は既定で `[gw] mixbeta` で混合する。`ECALJ_MLO_MIX=0` で切る）。6³ は tf32 と fp32 で LDA から 10 反復したバンドが rms 0.3 meV で一致（2026-09-27）。9³ の tf32 も LDA から 10 反復（3.5 時間）し、
-  09-26 の fp32 の鎖と MLO バンドが rms 5.7 meV（窓の基準の違いを含む）、なめらかさは同じ（2026-09-28）。
-  反強磁性は未確認。[mlo_gwsc](../manual/mlo_gwsc)、ecalj の `ecaljdoc/MD/kBT/sigma_mlo_design.md`
-- **有限温度**: χ0 側（`t_tetrakbt`）と Σ 側の準位の幅（`t_sigmaw`、既定 1000 K）。金属の QSGW が反復で荒れる正体は、第一殻の q（offset-Γ ではない）の W のプラズモン極を
-  Σc の実軸極項が踏むことで、`wcsmear`（既定 true）で均す。2026-09-27 に CoreEx の 2 つのバグと熱の核の積分（4 区間 × GL5）を直し、
-  回帰テスト `fe_kbt` を足した。残る課題は [kBT](../manual/kBT) §9
-- **GPU の高速化**（§11）: 精度は `gwsc --prec=tf32|fp32|fp64` の 1 つで選び、方法は表で自動。LiTi₂O₄ 6³ の QSGW 1 反復は 342 → 212 秒（tf32）、
-  `hgw` は 833 → 173 秒。hgw の間は GPU 2 枚とも 90〜95%・電力の上限（500 W）で回っている
-- push していない仕事が多い（2026-09-28 に ecalj は dev より約 480、ecaljdoc も約 100 先）。push の前に §1 のゲートを通す
-
-## 10. Claude と作業するとき
-
-- 会話は日本語。**着手前に何をするかを一〜三行で言う**（長い作業ほど。途中で方針を変えられるように）
-- **待つときに `sleep` を書かない**。完了の印（`steps.log` の `done`、ログの行、ファイル）が出たら終わるループを背景で走らせ、終わりの知らせで受ける（§12.2 に例）
-- 投入の前の確認は §12.1、結果の残し方は §12.5。自律で作業したら、研究ログ（時刻付き）と報告書に残し、`Changes.txt` を更新してコミット（push は待つ）
-- user の取り決め: kt1 の GPU 1 は user のジョブ用、kt1 の本番 `~/ecalj`・`~/bin` は触らない（開発は `~/ecalj_dev`・`~/bin_dev`）、push は指示があってから
-- Claude のメモリ（t14 の `~/.claude/projects/-home-takao-ecalj/memory/`、索引 `MEMORY.md`）は補助。そこにしか無い約束や手順を見つけたら、
-  `ecaljdoc/MD/ecaljclaude.md` かこのページに移す（記憶の無いセッションや別の機械のセッションが困らないように）
+- 現在地: [TODOandQuestion.md](TODOandQuestion.md) の §1（やりかけ・未着手・判断待ち）と研究ログ [research_log.md](research_log.md) の先頭。テーマごとの要約は
+  [ForDevelopers_research.md](ForDevelopers_research.md)（2026-09-28 までの 1 枚の要約は、この節にあった。git の履歴）
+- Claude と作業するとき: [ecaljclaude.md](ecaljclaude.md)「Claude の作業の進め方」と [handover.md](handover.md) §1 が正本（着手前に計画を言う、`sleep` を書かない、
+  push は指示があってから、など）。kt1 の GPU は 2 枚とも使ってよい（2026-09-30 から）
 
 ## 11. GW の GPU 高速化と QSGW 1 反復の短縮（2026-09-27）
 

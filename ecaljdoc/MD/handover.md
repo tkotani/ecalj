@@ -63,18 +63,12 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
 
 ## 3. ビルドと試験
 
-- **ビルド**: `python3 InstallAll.py --fc <gfortran|ifx|ifort|nvfortran> [--gpu] --bindir <dir> [--notest] [--no-bashrc]`。`--fc` は裸のコンパイラ名
-  （`FC=<path>/mpifort` は CMake の `MATCHES "ifort"` に当たって Intel のフラグになる）。ビルドの置き場は `SRC/build_<fc>`、並列度は 8 まで（nvfortran の ICE を避ける）。
-  Python 3.11 以上が要る（`tomllib`・`contextlib.chdir`）。新しい `.f90` を足したら cmake の configure からやり直す（`file(GLOB)`）（reference_build、project_master_validation_20260509）
-- **nvfortran の signal 11**: 毎回違うファイルで落ちる。同じコマンドをやり直せば通る。ループで回し、`libecaljF.so`・`_mp`・`_gpu`・`_mp_gpu` の 4 本すべてに新しい印が
-  入ったかを `strings ... | grep -c <文字列>` で確かめる（実体は `.so`、実行ファイルは薄い包み。GEMMul8 の包みは `libgemmul8wrap.so`）（reference_build）
+- **ビルドと試験の手順**は [ForDevelopers.md](ForDevelopers.md) §4・§5 が正本（2026-10-02 21:06 に重複を外した）。ここは落とし穴と、手順書に無い事実だけ
 - **投入の前の 4 点**: (1) `sync_ecalj_src.sh --check-all` で版が HEAD と同じか、(2) `.so` に新しい印があるか、(3) 使う bindir の `gwsc` などがリンクか実体のコピーか（実体だと古いまま）、
   (4) 走り出したらログに期待する印が出ているか。2026-09-25 に三つとも見た目は正常なまま無効な計算を回した（feedback_verify_before_run）
 - **凍結した bindir の作り方**（2026-10-01）: `cp -rL <bindir> ~/bin_frozen_<rev>`。開発ツリーに壊れたリンク（エディタの `.#name`）があると `cp -rL` が途中で失敗するので、
   失敗を見てから足りないものを入れる。Python の道具（`vasp2ctrl`・`getsyml`）は写すと隣のモジュール（`convctrl` など）を読めないので、元のツリーの bin から使う。
   `gwscconv` は自分と同じディレクトリの `gwsc` を呼ぶ
-- **試験**: `testecalj` の前に `*_work` を消す（testecalj も各ターゲットの `_work` を作り直すが念のため）。件数は最後の要約で数える（ログの PASSED 行は延べ数）。
-  組ごとの試験は `TOOLS/samples_tests.sh [--gpu] [-np N] [-np2 M] <組>`（組: inputs install gwall eps procar mlo mloqsgw afsym samples bench heavy magnon）（feedback_test_cleanup、project_samples_sweep）
 - **HPC-X の OpenMPI では、プログラムを `mpirun -np 1` なしで起動すると `MPI_Init` で止まる**。スクリプトから 1 プロセスで呼ぶときも `mpirun -np 1` を付ける（2026-09-30、`run_arg`・`hx0ahc.py`）
 
 - **試験の最中に手元で `libecaljF.so` を作り直さない**（2026-10-02）: 走っている試験の次のプログラムが作り直し中のライブラリを読み、`heftet` が空の出力で止まった（`fe_kbt`）。試験が終わるのを待つか、別のビルド場所で
@@ -110,6 +104,11 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
 - **OpenMPI の MPI-IO が固まる**: SIGKILL されたプロセスが `/dev/shm/sem.OMPIO_<file>` を残すと、次の同じ名前の `mpi_file_open` が永久に待つ。
   固まったら `/proc/<pid>/wchan` が `futex_do_wait`、`ls /dev/shm/sem.OMPIO_*` を消す（2026-05-08、project_mpiio_hang）
 - **`nvfortran` と `mpi_bcast`**: `m_blas` の 2 関数だけ `include 'mpif.h'` のまま（generic の `mpi_bcast` が complex(4)+integer(8) を解決できない）（project_main_validation_20260603）
+- **64 プロセスで hgw（W を作る部分、以前の hrcxq）がヒープ破壊**: `m_llw` の `WVIllwI` の `iw > niw` のガードが無かった（MPI の集団通信の後に置く。修正済み、project_hrcxq_fix）
+- **部分 DOS（`job_pdos`）がプロセス数で変わった**（`co` の TEST 2 が `-np 6` で 0.14 ずれ）: `bandcal` は (k, スピン) の組をランクに配るので、1 つの k の 2 スピンが別ランクに
+  分かれる。重みのファイル `__DWGT` に k ごとに両スピンを書き戻して相手のスピンを古い値で上書きしていた。(k, スピン) ごとのレコードに自分のスピンだけ書くよう直した
+  （`3fa93489d`）。**(k, スピン) を配る処理で、k ごとのファイルに全スピンを書くと同じことが起きる**
+- **GPU の Σc が NaN**: 非同期のカーネルと cuBLAS が別のストリーム（ecaljclaude.md「OpenACC 一般注意」）
 
 ## 5. 計算の中身の落とし穴（物理と数値）
 
@@ -136,9 +135,9 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
     部分バンドの模型（`Samples/MLOsamples/NiO666lda`、Ni d ＋ O p、O 2p と Ni 3d の帯の試験）が `nskip` の検査で止まる（2026-10-01 19:2x）。
     自動にした理由は、判定に SCF のバンドの位置が要り、gwinit（SCF の前）では書けないため（user 19:1x に同意）。閾値によらず入れるときは `mlo_lm3`（その原子は書いたとおり）
   - 基準 2: gwinit が `mlo_lm2` に陽イオン（N O F P S Cl As Se Br Sb Te I 以外、遷移金属 Sc–Cu・Y–Ag・La–Au と Ac 以降を除く、Zn・Cd・Hg は含む）の s,p を
-    **`!` 付き**で書く。**何もしなければ基準 1、`!` を外せば基準 2**（`job_mlo` だけ回し直す）。遷移金属・4f に EH2 を入れると壊れる（Cu・Ni は特定の k で崩れ、
-    EuO は `Hreduction: PMT completeness loss too large` で止まる。同じ原子の EH と EH2 の一次従属が原因と思われる）
-  - 基準 3: 空隙に空格子球（SiO₂ が要る。`[[site]]`・`[[spec]]`・`mlo_lm`、`lmfa` から）。自動の置き方は未完（`SRC/exec/ctrlg_addes.py` は未コミット・未検証）
+    **`!` 付き**で書く。**何もしなければ基準 1、`!` を外せば基準 2**（`job_mlo` だけ回し直す）。遷移金属・4f に EH2 を入れると、生の MLO の模型では壊れた（Cu・Ni は特定の k で崩れた）。
+    Löwdin の模型（2026-10-02 から）では Cu・Ni も通る（重なりを内挿しないため。ecaljdoc mlo §9）。EuO は `Hreduction` の規格化の確かめで止まる（同じ原子の EH と EH2 の一次従属）
+  - 基準 3: 空隙に空格子球（SiO₂ が要る。`[[site]]`・`[[spec]]`・`mlo_lm`、`lmfa` から）。自動の置き方は未完（`SRC/exec/ctrlg_addes.py` は空隙を探す道具。ctrlg の生成への組み込みは TODO）
   - 選び方: 基準 1 で不満足なら基準 2、空隙があれば基準 3（2 と 3 を一緒も）。`mlo_delta`・`mlo_w` の細かい調整はしない
   - 評価は `mlo_bandcheck.py`: 窓 [VBM − 8, CBM + mlo_delta] の中の固有値のずれ（rms を 2 つの向き）と |Δgap| の最大。2026-10-01 17:54 より前の tsv・表は別の窓（CBM + 3 / + 1）
   - **スピン軌道の MLO（`job_mlo_soc`）はスピン軌道ありの DFT と比べる**。`job_mlo_soc` の段 1b が同じ条件で `lmf --band`（so=1）を回して `bnd*.spin1` を書く
@@ -156,8 +155,8 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
 
 - **VSCode のチャットのリンク**: md は相対でも絶対でも開くが、画像（png）は開かない。図を見せるときは、図を埋め込んだ md へリンクし、パスは素のテキストで添える。
   md では画像をリンクで包む `[![名前](パス.png)](パス.png)`。md の表の中の数式で `|` を生で書かない（`\vert` か `\mid`）（reference_vscode_links）
-- **ecaljdoc の図が ecalj のワークスペースのプレビューに出ない**: Markdown Preview Enhanced がワークスペースを文字列の前方一致で判定するため（`/home/takao/ecalj` と `/home/takao/ecaljdoc`）。
-  パスは正しいので書き換えない。`code -n /home/takao/ecaljdoc <md>` で別ウィンドウに開いてもらう（reference_vscode_links）
+- **ecaljdoc の図が ecalj のワークスペースのプレビューに出なかった**: Markdown Preview Enhanced がワークスペースを文字列の前方一致で判定したため（`/home/takao/ecalj` と
+  `/home/takao/ecaljdoc`）。2026-10-02 に ecaljdoc を `ecalj/ecaljdoc/` に入れたので、この問題は無くなったはず（未確認）
 - **Materials Project の API**: 新しい ID（`mp-aaacpdie` の形、古い番号の 26 進）を返し、手元の `mp_api` の検証が止まる。読むだけなら requests で REST を直接
   （`x-api-key` と User-Agent。urllib の既定は 403）（2026-10-01、reference_mp_api_key、TODOandQuestion.md）
 - **Python から libecaljF を呼ぶ**（構想、2026-03）: ctypes でシンボルを直接呼べる（nvfortran の名前は `<module>_<routine>_`、例 `m_bndfp_bndfp_`）。
