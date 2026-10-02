@@ -194,6 +194,7 @@ def figure(db, m, title, curves, path):
     import matplotlib.pyplot as plt
     fig, (ax, ad) = plt.subplots(1, 2, figsize=(7.2, 4.2), gridspec_kw=dict(width_ratios=[4, 1], wspace=0.04), sharey=True)
     ref = None
+    dmax = 0.0
     for (d, color, ls, lw, label, sh) in curves:
         if d is None:
             continue
@@ -205,7 +206,11 @@ def figure(db, m, title, curves, path):
                 ax.plot(x[k], b[k] - sh, color=color, ls=ls, lw=lw)
         ax.plot([], [], color=color, ls=ls, lw=1.2, label=label)
         if len(d['dos']):
-            ad.plot(d['dos'], d['dosE'] - sh, color=color, ls=ls, lw=lw)
+            e = d['dosE'] - sh
+            ad.plot(d['dos'], e, color=color, ls=ls, lw=lw)
+            w = (e > -8) & (e < 10)
+            if w.any():
+                dmax = max(dmax, float(d['dos'][w].max()))
         if ref is None:
             ref = d
     if ref is not None:
@@ -215,7 +220,7 @@ def figure(db, m, title, curves, path):
         ax.set_xlim(float(ref['x'].min()), float(ref['x'].max()))
     ax.axhline(0, color='0.5', lw=0.5, ls=':'); ad.axhline(0, color='0.5', lw=0.5, ls=':')
     ax.set_ylim(-8, 10); ax.set_ylabel('E (eV), VBM (or E_F) = 0')
-    ad.set_xlabel('DOS'); ad.set_xticks([]); ad.set_xlim(left=0)
+    ad.set_xlabel('DOS'); ad.set_xticks([]); ad.set_xlim(0, 1.05 * dmax if dmax > 0 else None)
     ax.set_title(title, fontsize=9, loc='left')
     ax.legend(fontsize=7, loc='upper right', framealpha=0.8)
     fig.savefig(path, dpi=80, bbox_inches='tight'); plt.close(fig)
@@ -228,6 +233,11 @@ def main():
     if '--only' in sys.argv:
         only = set(sys.argv[sys.argv.index('--only') + 1].split(','))
     S, N, MP, OLD = load()
+    DBN = {}
+    if os.path.exists(f'{WORK}/db_notes.tsv'):
+        for l in open(f'{WORK}/db_notes.tsv'):
+            if '\t' in l:
+                k, v = l.rstrip('\n').split('\t', 1); DBN[k] = v
     D = load_db_logs(db)
     SG = spacegroups()
     os.makedirs(f'{db}/fig', exist_ok=True)
@@ -240,7 +250,8 @@ def main():
         gap = v[adopt]['gap'] if adopt else None
         others = {k: v[k]['gap'] for k in v if k != adopt and v[k]['gap'] is not None}
         diff = max((abs(g - gap) for g in others.values()), default=0.0) if gap is not None else 0.0
-        tagq = {'N': 'db_qsgw', 'R': rr_tag(db, m), 'M': 'may_qsgw'}
+        tagq = {'N': 'db_qsgw', 'R': rr_tag(db, m),
+                'M': 'may_qsgw_fixed' if os.path.exists(f'{db}/npz/{m}.may_qsgw_fixed.npz') else 'may_qsgw'}
         dq = npz(db, m, tagq[adopt]) if adopt and tagq[adopt] else None
         dl = npz(db, m, 'db_lda') or npz(db, m, 'may_lda')
         insul = gap is not None and gap > 0.05
@@ -291,7 +302,7 @@ def main():
                          category=cat, lda=lda, gap=gap, adopt=adopt or '', others=others, flag=flag, di=di,
                          iters={k: v[k].get('iter') for k in v}, mp_pbe=mp.get('band_gap'), ehull=mp.get('energy_above_hull'),
                          icsd=bool((mp.get('database_IDs') or {}).get('icsd')), old2=o.get('shot2'), old1=o.get('shot1'),
-                         note=n['note'], host=v.get('N', {}).get('host', ''), spike=sp, km=km,
+                         note=n['note'], dbnote=DBN.get(m, ''), host=v.get('N', {}).get('host', ''), spike=sp, km=km,
                          gap_path=pq['gap'] if pq else None))
         if figs and (only is None or m in only):
             spec = [('db_lda' if os.path.exists(f'{db}/npz/{m}.db_lda.npz') else 'may_lda', '0.6', '-', 0.7, 'LDA')]
@@ -339,7 +350,7 @@ def write_pages(db, rows, D):
     cnt = Counter(r['adopt'] or 'none' for r in rows)
     fl = Counter(x for r in rows for x in r['flag'].split())
     with open(f'{db}/gw1500db.tsv', 'w') as f:
-        keys = ['mpid', 'formula', 'natom', 'sg', 'category', 'lda', 'gap', 'adopt', 'di', 'flag', 'mp_pbe', 'ehull', 'icsd', 'old1', 'old2', 'host']
+        keys = ['mpid', 'formula', 'natom', 'sg', 'category', 'lda', 'gap', 'adopt', 'di', 'flag', 'mp_pbe', 'ehull', 'icsd', 'old1', 'old2', 'host', 'dbnote']
         f.write('\t'.join(keys + ['others']) + '\n')
         for r in rows:
             f.write('\t'.join('' if r[k] is None else (f'{r[k]:.4f}' if isinstance(r[k], float) else str(r[k])) for k in keys)
@@ -348,13 +359,13 @@ def write_pages(db, rows, D):
     with open(f'{db}/table.md', 'w') as f:
         f.write('# GW1500 QSGW80 — table\n\n[README](README.md) for the conditions M, R, N and how to read this table. '
                 'Bands: ' + ', '.join(f'[{n} atoms](bands_{n}atoms.md)' for n in pages) + '.\n\n')
-        f.write('| mpid | formula | atoms | space group | LDA (eV) | QSGW80 (eV) | on path | D/I | check | MP PBE | 2025 2shot | category | fig |\n')
-        f.write('| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n')
+        f.write('| mpid | formula | atoms | space group | LDA (eV) | QSGW80 (eV) | on path | D/I | check | MP PBE | 2025 2shot | category | fig | note |\n')
+        f.write('| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n')
         for r in rows:
             link = f"[fig](bands_{r['natom']}atoms.md#{r['mpid']})" if os.path.exists(f"{db}/fig/{r['mpid']}.png") else ''
             mpl = f"[{r['mpid']}](https://next-gen.materialsproject.org/materials/{r['mpid']})"
             f.write(f"| {mpl} | {r['formula']} | {r['natom']} | {r['sg']} | {fmt(r['lda'])} | {gapcell(r)} | {fmt(r['gap_path'])} | {r['di']} | {r['flag']} | "
-                    f"{fmt(r['mp_pbe'])} | {fmt(r['old2'])} | {r['category']} | {link} |\n")
+                    f"{fmt(r['mp_pbe'])} | {fmt(r['old2'])} | {r['category']} | {link} | {r['dbnote']} |\n")
     for n in pages:
         with open(f'{db}/bands_{n}atoms.md', 'w') as f:
             f.write(f'# GW1500 QSGW80 — bands and DOS, {n} atoms per cell\n\n[README](README.md) · [table](table.md)\n\n'
@@ -363,7 +374,7 @@ def write_pages(db, rows, D):
             for r in rows:
                 if r['natom'] == n and os.path.exists(f"{db}/fig/{r['mpid']}.png"):
                     f.write(f'<a id="{r["mpid"]}"></a>\n**{r["mpid"]}** {r["formula"]} — QSGW80 {gapcell(r)} eV {r["di"]} {r["flag"]}\n\n'
-                            f'<img src="fig/{r["mpid"]}.png" width="70%">\n\n')
+                            + (f'*{r["dbnote"]}*\n\n' if r['dbnote'] else '') + f'<img src="fig/{r["mpid"]}.png" width="70%">\n\n')
     with open(f'{db}/summary_counts.json', 'w') as f:
         json.dump(dict(adopt=cnt, flag=fl, n=len(rows), db_logged=len(D)), f, indent=1)
     readme(db, rows, D, cnt, fl, pages)
