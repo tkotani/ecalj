@@ -98,14 +98,8 @@ def main():
     parser.add_argument("--skip_geteta", help='Skip uovlpq calculation', action='store_true', default=False)
     parser.add_argument("--stop_ovlp", help='Stop after uovlpq calculation', action='store_true')
     parser.add_argument("--dos",      help='carry out dos calculation', action='store_true')
-    parser.add_argument('--mlo_raw', action='store_true',
-                        help='the MLOs as they are (not orthonormal) for v, W and the kernels; by default their Loewdin orthonormalized '
-                             'combinations (projected Wannier functions of the MLO subspace, --mlo_lowdin), which keep the symmetry and '
-                             'the orbital labels and make U, J and the magnons independent of the window (2026-10-02 11:36)')
     parser.add_argument("-d", "--dir", help="execution directory (default: current directory)", default=".", type=str)
     args, extra_args = parser.parse_known_args()
-    if not args.mlo_raw and '--mlo_lowdin' not in extra_args:
-        extra_args.append('--mlo_lowdin')
 
     with contextlib.chdir(args.dir):
         if not args.skip_vw:

@@ -14,7 +14,7 @@ module m_HamPMT
                         tg_worb3_lm => worb3_lm, tg_worb3_nlm => worb3_nlm
    use m_hreduction,only: hreduction, hreduction_nskip
    use m_nvfortran, only: findloc
-   use m_cmdopt_registry, only: c0_mlo, c0_mlofreeze, c0_skip1d, c0_skip2nd, c0_skip2ndd, c0_skip2ndp, c0_skip2nds, c0_skipd, c0_skipf, c0_skiplo, c0_socmatrix
+   use m_cmdopt_registry, only: c0_mlo, c0_mlofreeze, c0_skip1d, c0_skip2nd, c0_skip2ndd, c0_skip2ndp, c0_skip2nds, c0_skipd, c0_skipf, c0_skiplo, c0_socmatrix, c0_mlo_raw
    real(8),external::tolq !eps=1d-8
    real(8),allocatable,protected:: plat(:,:),pos(:,:),qlat(:,:),symops(:,:,:)
    real(8),allocatable,protected,target:: qplist(:,:)
@@ -509,6 +509,7 @@ contains
           real(8),allocatable:: qplistgw(:,:)
           integer :: ifihh_info, mrech, istat
           real(8),allocatable :: rnormf(:,:)
+          logical :: lw_
           type(mpiio_buf) :: buf
           complex(8), allocatable :: ovlmp(:,:), hammp(:,:), cmlo(:,:) !in PMT basis max size array
           ! complex(8), allocatable :: ovlm_(nbandmx,nbandmx), hamm_(nbandmx,nbandmx), cmlo(nbandmx,ndimMTO)
@@ -518,7 +519,7 @@ contains
             integer:: nd_, ld_, mm_, nsk_
             integer,allocatable:: ix_(:)
             real(8):: f1_, ef_, ec_
-            call read_mloindex(nd_, ld_, mm_, nsk_, ix_, f1_, ef_, ec_, rn=rnormf)
+            call read_mloindex(nd_, ld_, mm_, nsk_, ix_, f1_, ef_, ec_, rn=rnormf, lowdin=lw_)
             if(nd_/=ndimMTO .or. any(ix_/=ix(1:ndimMTO))) call rx('m_HamPMT: the MLOs of HamRsMLO differ from mlo_lm; run job_mlo again')
           endblock NormsOfHamRsMLO
           open(newunit=ifihh_info, file='__HamiltonianGW.info', form='unformatted', status='old')
@@ -573,7 +574,7 @@ contains
             cmlo=0d0 !zero padding for 1:nbandmx in advance
             call Hreduction(mlomethod,.false.,ndimPMT,hammp(1:ndimPMT,1:ndimPMT),ovlmp(1:ndimPMT,1:ndimPMT), &
                             ndimMTO,ix,fff1, hamm,ovlm,qp,cmlo=cmlo(1:ndimPMT,1:ndimMTO), nev=nev, nskip_auto=nskip_global, &
-                            rnorm=rnormf(:,isp))
+                            rnorm=rnormf(:,isp), lowdin=lw_)
               ! iqqisp= isp + nspx*(iq-1)
 !                write(*,*)'cccccccccc cmlowrite',isp,iq,iqqisp, sum(abs(cmlo))
             istat = writem(ifizz,rec=iqqisp,data=cmlo)
@@ -785,6 +786,58 @@ contains
       endif
       !iqend = min(nqbz,ndiv*procid+ndiv) !end  for each procid
       write(stdo,ftox)'nnnn nsize procid iqini iqend=',nsize,procid,iqini,iqend,'  ',ndiv
+      if(.not.lfrozen .and. .not.c0_mlo_raw) then
+      LowdinModel: block
+        ! The standard MLO is Loewdin orthonormalized (2026-10-02, user; Hreduction, LowdinOrthonormal). hammi, ovlmi above are
+        ! of the raw MLOs. (1) The real-space norm of the raw MLO i, rnorm_i = (1/N_k) sum_k O_ii(k) = O_ii(R=0), summed over the
+        ! full BZ by rotating the irreducible O. (2) At each irreducible k, X = D (D O D)^-1/2 with D = diag rnorm^-1/2:
+        ! H <- X^+ H X, O <- 1, V_SO <- X_s1^+ V X_s2. Then the model is H(R) alone (O(R) = delta), the bands are unchanged on
+        ! the mesh, and the later Hreduction (__cmlo, sugw a', m_sigmlo) takes the same X from the rnorm written to HamRsMLO.
+        ! X commutes with the rotations within the subspace, so it can be applied after the symmetrization.
+        use m_lapack, only: zhev => zhev_h
+        complex(8) :: rotmx(ndimMTO,ndimMTO), oo(ndimMTO,ndimMTO), zo(ndimMTO,ndimMTO), xs(ndimMTO,ndimMTO,nspx)
+        real(8) :: eo(ndimMTO), eomin
+        integer :: istat, io_, jsp1, jsp2
+        eomin = 1d99
+        deallocate(rnormh); allocate(rnormh(ndimMTO,nspx), source=0d0)
+        do iqbz = 1, nkp
+          iqibz = irotq(iqbz)
+          call rotmatMTO(igg=irotg(iqbz),q=qibz(:,iqibz),qtarget=qplist(:,iqbz)+matmul(qlat,ndiff(:,iqibz)),ndimh=nMTO,rotmat=rotmat)
+          forall(i=1:ndimMTO,j=1:ndimMTO) rotmx(i,j)=rotmat(ix(i),ix(j))
+          do jsp = 1, nspx
+            oo = matmul(rotmx,matmul(ovlmi(:,:,iqibz,jsp),dconjg(transpose(rotmx))))
+            forall(i=1:ndimMTO) rnormh(i,jsp) = rnormh(i,jsp) + dreal(oo(i,i))/nkp
+          enddo
+        enddo
+        if(any(rnormh<=0d0)) call rx('m_HamPMT: an MLO has no norm (O_ii(R=0) <= 0)')
+        do iqibz = 1, nqibz
+          do jsp = 1, nspx
+            forall(i=1:ndimMTO,j=1:ndimMTO) oo(i,j) = ovlmi(i,j,iqibz,jsp)/sqrt(rnormh(i,jsp)*rnormh(j,jsp))
+            istat = zhev(oo, n=ndimMTO, evl=eo)
+            if(minval(eo) <= 0d0) call rx('m_HamPMT: the MLO overlap is not positive definite (Loewdin)')
+            eomin = min(eomin, minval(eo))
+            forall(i=1:ndimMTO) zo(:,i) = oo(:,i)/sqrt(eo(i))
+            xs(:,:,jsp) = matmul(zo, dconjg(transpose(oo)))
+            forall(i=1:ndimMTO) xs(i,:,jsp) = xs(i,:,jsp)/sqrt(rnormh(i,jsp))
+            hammi(:,:,iqibz,jsp) = matmul(dconjg(transpose(xs(:,:,jsp))), matmul(hammi(:,:,iqibz,jsp), xs(:,:,jsp)))
+            ovlmi(:,:,iqibz,jsp) = 0d0
+            forall(i=1:ndimMTO) ovlmi(i,i,iqibz,jsp) = 1d0
+          enddo
+          if(socmatrix) then !io = 1 up-up, 2 down-down, 3 up-down (m_mlo_ham)
+            do io_ = 1, 3
+              jsp1 = merge(2,1, io_==2 .and. nspx==2); jsp2 = merge(2,1, io_>=2 .and. nspx==2)
+              hammhsoi(:,:,iqibz,io_) = matmul(dconjg(transpose(xs(:,:,jsp1))), matmul(hammhsoi(:,:,iqibz,io_), xs(:,:,jsp2)))
+            enddo
+          endif
+        enddo
+        do jsp = 1, nspx
+          if(master_mpi) write(stdo,"(' m_HamPMT: square integral of the raw real-space MLOs (O_ii(R=0)), isp=',i2,':',100f7.4)") &
+               jsp, rnormh(:,jsp)
+        enddo
+        if(master_mpi) write(stdo,ftox)' m_HamPMT: Loewdin orthonormalized MLOs (the standard; --mlo_raw for the raw ones).', &
+             ' Smallest eigenvalue of the normalized raw overlap on the mesh:',ftof(eomin,4)
+      endblock LowdinModel
+      endif
       qploop: do iqbz=iqini,iqend
         qp     = qbz(:,iqbz)
         iqibz  = irotq(iqbz)
@@ -856,7 +909,7 @@ contains
         !become D H D etc. (D = diag 1/sqrt(rnorm)), so no band changes, and O_ii(R=0) = 1. The norms are written to HamRsMLO;
         !every later Hreduction (the __cmlo of job_mloW, sugw step a', m_sigmlo, the frozen run) divides by the same constants.
         integer:: itz, jsp1, jsp2
-        if(master_mpi .and. .not.lfrozen) then
+        if(master_mpi .and. .not.lfrozen .and. c0_mlo_raw) then !(the standard Loewdin model is normalized in LowdinModel)
           deallocate(rnormh); allocate(rnormh(ndimMTO,nspx))
           do i = 1, ndimMTO
             ib1 = ib_tableM(i)
@@ -907,6 +960,7 @@ contains
           write(ifihmto) ix(1:ndimMTO)
           write(ifihmto) fff1, eferm, ecbot
           write(ifihmto) rnormh(1:ndimMTO,1:nspx) !square integral of the raw real-space MLOs (2026-10-02)
+          write(ifihmto) .not.c0_mlo_raw          !the MLOs are Loewdin orthonormalized: the standard (2026-10-02)
           write(stdo,ftox)' HamRsMLO: appended MLO index. ndimMTO mlomethod nskip=',ndimMTO,mlomethod,nskip_global
         endblock MloIndexRecords
         close(ifihmto)

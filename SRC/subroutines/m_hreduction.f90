@@ -42,7 +42,7 @@ contains
     endif
   end subroutine Hreduction_nskip
 
-  subroutine Hreduction(mlomethod,iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,ovlmout, qp, cmlo,nev, zMLO, nskip_auto, rnorm) !> Reduce H(ndimPMT) to H(ndimMTO)
+  subroutine Hreduction(mlomethod,iprx,ndimPMT,hamm,ovlm,ndimMTO,ix,fff1, hammout,ovlmout, qp, cmlo,nev, zMLO, nskip_auto, rnorm, lowdin) !> Reduce H(ndimPMT) to H(ndimMTO)
     ! cmlo= <Psi^MPT i|F^MLO j>
    use m_zhev,only:zhev_tk4
    use m_nvfortran, only: findloc
@@ -67,6 +67,7 @@ contains
    complex(8),optional,intent(out):: cmlo(ndimPMT,ndimMTO) !<Psi^PMT_i|F^MLO_k>, PMT-eigenstate-basis coefficients
    complex(8),optional,intent(out):: zMLO(ndimPMT,ndimMTO) !|F_MLO_k> = sum_m |chi^PMT_m> zMLO(m,k)
    integer,optional,intent(in):: nskip_auto  ! number of semicore-LO states to drop (k-independent, from m_HamPMT)
+   logical,optional,intent(in):: lowdin ! Loewdin orthonormalization after the rnorm normalization (the standard MLO, 2026-10-02)
    real(8),optional,intent(in):: rnorm(ndimMTO) ! square integral of the real-space MLOs (HamRsMLO); F^MLO_i/sqrt(rnorm_i): one constant
                                                 ! for all k, so the MLO in real space has norm 1 (2026-10-02)
    complex(8):: cmlo_loc(ndimPMT,ndimMTO) !internal working array
@@ -345,29 +346,29 @@ contains
       if(present(rnorm)) then
         forall(i=1:ndimMTO) cmlo_loc(1:nx,i) = cmlo_loc(1:nx,i)/sqrt(rnorm(i))
       endif
-      ! Lowdin orthogonalization (--mlo_ortho, --mlo_orthonorm): removed 2026-10-02 (user: experimental options go). It mixes
-      ! the neighbours in through O^-1/2, so the orbital oscillates around them and reaches farther.
-!     MLOLowdinOrthogonalization:if(c0_mlo_orthonorm .or. c0_mlo_ortho) then
-!       block
-!         use m_lapack, only: zhev => zhev_h
-!         complex(8) :: ovlm_mlo(ndimMTO,ndimMTO), evl_ovl_buf(ndimMTO,ndimMTO), sinv_half(ndimMTO, ndimMTO)
-!         real(8) :: eval(ndimMTO), einv_half
-!         real(8), parameter :: eps = 1d-12, eps_ovl_chk = 1d-8
-!         integer :: istat
-!         ovlm_mlo = matmul(dconjg(transpose(cmlo_loc)), cmlo_loc)
-!         istat = zhev(ovlm_mlo, n=ndimMTO, evl=eval)
-!         do i = 1, ndimMTO
-!           einv_half = merge(0d0, 1d0/sqrt(eval(i)), eval(i) < eps)
-!           evl_ovl_buf(:,i) = ovlm_mlo(:,i)*einv_half
-!         enddo
-!         sinv_half = matmul(evl_ovl_buf, transpose(dconjg(ovlm_mlo)))
-!         cmlo_loc = matmul(cmlo_loc, sinv_half)
-!         !check
-!         ovlm_mlo = matmul(dconjg(transpose(cmlo_loc)), cmlo_loc)
-!         forall(i=1:ndimMTO) ovlm_mlo(i,i) = ovlm_mlo(i,i) - 1d0
-!         if (any(abs(ovlm_mlo) > eps_ovl_chk)) call rx('Hreduction: LowdinOrthogonalization FAILD')
-!       endblock
-!     endif MLOLowdinOrthogonalization
+      ! Loewdin orthonormalization, the standard MLO (2026-10-02 user: "Loewdin orthogonalization is the standard of the MLO
+      ! model; the functions may oscillate, they are localized, the bands do not change"). With the MLOs normalized above,
+      !   |F~_j(k)> = sum_i |F_i(k)> X_ij(k),  X = O(k)^-1/2,  O = C^+ C                                       (Loewdin)
+      ! the projected Wannier functions of the MLO subspace: orthonormal at every k (O~ = 1), the same subspace and bands, and
+      ! they keep the symmetry and orbital labels (X commutes with the rotations within the subspace). Loewdin is not invariant
+      ! under a rescaling of the input orbitals, so it is taken after the real-space normalization (rnorm): the model of
+      ! m_HamPMT (LowdinModel) applies the same X = D (D O D)^-1/2 to its raw H and O, D = diag rnorm^-1/2.
+      ! The old --mlo_ortho/--mlo_orthonorm (removed earlier on 2026-10-02) did the same without the normalization.
+      if(present(lowdin)) then
+        if(lowdin) then
+          LowdinOrthonormal: block
+            use m_lapack, only: zhev => zhev_h
+            complex(8) :: oo(ndimMTO,ndimMTO), zo(ndimMTO,ndimMTO)
+            real(8) :: eo(ndimMTO)
+            integer :: istat
+            oo = matmul(dconjg(transpose(cmlo_loc(1:nx,:))), cmlo_loc(1:nx,:))
+            istat = zhev(oo, n=ndimMTO, evl=eo)
+            if(minval(eo) <= 0d0) call rx('Hreduction: the MLO overlap is not positive definite (Loewdin)')
+            forall(i=1:ndimMTO) zo(:,i) = oo(:,i)/sqrt(eo(i))
+            cmlo_loc(1:nx,:) = matmul(cmlo_loc(1:nx,:), matmul(zo, dconjg(transpose(oo))))
+          endblock LowdinOrthonormal
+        endif
+      endif
 
 
       ! |F^MLO j'>= |F^PMT_i'> z^PMT_i'i cmlo(i,j)

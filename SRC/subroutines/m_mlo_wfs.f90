@@ -6,7 +6,6 @@ module m_mlo_wfs
   use m_genallcf_v3, only: nsp => nspin, ndima, nband, nspc, nspx
   use m_readeigen,   only: readgeigf => readgeigf_mpi, readcphif => readcphif_mpi
   use m_GWinput,     only: gwinput_init, gwinput_loaded,  tg_KeepCMLO => KeepCMLO
-  use m_cmdopt_registry, only: c0_mlo_lowdin
   use m_ftox
   implicit none
   public :: cmlo_init, get_geig_cmlo, get_cphi_cmlo, get_cmlo, get_cmlo_qirr, write_pkm4crpa_mlo
@@ -241,33 +240,10 @@ contains
     call rotmatMTO(igg, qp, qtarget, nMTO, rotmat)
     forall(i=1:nmlo, j=1:nmlo) rotmatt(i,j) = rotmat(ix(i),ix(j))
     cmlo_out = matmul(cmlo_out, dconjg(transpose(rotmatt)))
-    ! --mlo_lowdin (2026-10-02 10:39): the Loewdin orthonormalized MLOs, |F~(k)> = |F(k)> O(k)^-1/2 with O = C^+ C, i.e. the projected
-    ! Wannier functions of the MLO subspace (same subspace and bands; symmetric). W, the pair overlaps and the magnon kernel
-    ! then refer to them; mlo_magnon takes the same basis for its eigenvectors (calc_ham_eigen of m_mlo_ham).
-    if(c0_mlo_lowdin) then
-       ovlm = matmul(dconjg(transpose(cmlo_out)), cmlo_out)
-       cmlo_out = matmul(cmlo_out, hpow(ovlm, nmlo, -0.5d0))
-    endif
     if(present(ovlm_inv)) then
       ovlm = matmul(dconjg(transpose(cmlo_out)), cmlo_out)
       istat = zminv(ovlm, n=nmlo)
       ovlm_inv = ovlm
     endif
   end subroutine read_cmlo
-  function hpow(a, n, p) result(b) ! a^p of a Hermitian positive-definite matrix
-    use m_lapack, only: zhev => zhev_h
-    integer, intent(in) :: n
-    complex(8), intent(in) :: a(n,n)
-    real(8), intent(in) :: p
-    complex(8) :: b(n,n), z(n,n)
-    real(8) :: e(n)
-    integer :: istat, i
-    z = a
-    istat = zhev(z, n=n, evl=e)
-    if(minval(e) <= 0d0) call rx('hpow: the MLO overlap is not positive definite')
-    do i = 1, n
-       b(:,i) = z(:,i)*e(i)**p
-    enddo
-    b = matmul(b, dconjg(transpose(z)))
-  end function hpow
 end module m_mlo_wfs

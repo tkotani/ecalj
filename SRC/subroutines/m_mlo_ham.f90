@@ -5,7 +5,7 @@ module m_mlo_ham
   use m_blas, only: zmm => zmm_h, zmv => zmv_h, m_op_T
   use m_lapack, only: zhgv => zhgv_h, zsv => zsv_h, zhev => zhev_h
   use m_ftox, only: ftox
-  use m_cmdopt_registry, only: c0_socmatrix, c0_mlo_lowdin
+  use m_cmdopt_registry, only: c0_socmatrix
   implicit none
   public :: read_ham_rs, calc_ham_eigen
   integer, protected, target :: ndimMTO, npairmx, nspx, nsite
@@ -123,7 +123,6 @@ contains
         ovmin = minval(oev)
       endblock OverlapMin
     endif
-    if(socmatrix .and. c0_mlo_lowdin) call rx('calc_ham_eigen: --mlo_lowdin is not for the SOC matrix yet')
     if(socmatrix) then !nspinor == 2
       hamm(:,1,:,1) = hamm(:,1,:,1) + hammhso(:,:,1)
       hamm(:,2,:,2) = hamm(:,2,:,2) + hammhso(:,:,2)
@@ -144,28 +143,6 @@ contains
         endif
       endif
     else !nspinor == 1
-      if(c0_mlo_lowdin) then
-        ! --mlo_lowdin (2026-10-02 10:40): the eigenvectors in the Loewdin basis (projected Wannier functions of the MLO subspace,
-        ! as read_cmlo of m_mlo_wfs gives them to W): coefficients O^1/2 z, orthonormal, so evec = ovlp_evec = dual_evec.
-        LowdinEvec: block
-          complex(8) :: o0(ndimMTO,ndimMTO), zz(ndimMTO,ndimMTO), ztmp(ndimMTO,ndimMTO)
-          real(8) :: eo(ndimMTO)
-          integer :: i
-          o0 = ovlm(:,1,:,1)
-          istat = zhgv(hamm, ovlm, n=ndimMTO, evl=ev)
-          zz = o0
-          istat = zhev(zz, n=ndimMTO, evl=eo)
-          if(minval(eo) <= 0d0) call rx('calc_ham_eigen: the MLO overlap is not positive definite (--mlo_lowdin)')
-          do i = 1, ndimMTO
-             ztmp(:,i) = zz(:,i)*sqrt(eo(i))
-          enddo
-          zz = matmul(matmul(ztmp, dconjg(transpose(zz))), hamm(:,1,:,1))   ! O^1/2 z
-          if(present(evec))      evec(:,:) = zz
-          if(present(ovlp_evec)) ovlp_evec(:,:) = zz
-          if(present(dual_evec)) dual_evec(:,:) = zz
-        endblock LowdinEvec
-        return
-      endif
       if(present(ovlp_evec) .or. present(dual_evec)) then
         allocate(ovlm_buf(ndimMTO, ndimMTO))
         ovlm_buf = ovlm(:,1,:,1)
