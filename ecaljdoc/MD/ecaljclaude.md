@@ -3,6 +3,24 @@
 ecalj を Claude (LLM) で開発する際のガイドライン。
 コーディング規約、ビルドの罠、GPU 開発の教訓、アーキテクチャ方針をまとめる。
 
+## 文書の地図（まずここから。2026-10-02）
+
+`CLAUDE.md`（この文書を読み込む）から次の順にたどる。パスはリポジトリの最上位から。リンクの切れは `python3 TOOLS/doclinks.py` で確かめる。
+
+| 何を知りたいか | 文書 |
+| --- | --- |
+| いまの状況、記憶の無いセッションへの引き継ぎ（計算機、取り決め、落とし穴） | [handover.md](handover.md) |
+| まだやっていないこと（やりかけ・未着手・判断待ち）と、やったこと | [TODOandQuestion.md](TODOandQuestion.md) |
+| 経緯、計測、判断の時刻（最新が上） | [research_log.md](research_log.md) |
+| 片付けたものに入っていたノウハウ、trash に移したものの表 | [past_log.md](past_log.md) |
+| 2026-05〜09 の新機能の要約とクイックスタート | [README.md](README.md) |
+| 主プログラム → module の階層（生成物） | [module_map.md](module_map.md) |
+| 個別の設計・手順: 対称性 [symmetry_spglib.md](symmetry_spglib.md)、Wannier と MLO の比較 [wannier_vs_mlo.md](wannier_vs_mlo.md)、ecaljdoc の管理と公開 [ecaljdoc_subtree.md](ecaljdoc_subtree.md)、履歴の書き換えのハッシュの対応 `commit_map_20261002.txt` | `ecaljdoc/MD/` |
+| 使い方と理論の本体（公開サイト https://ecalj.github.io/ecaljdoc/ の元） | `ecaljdoc/manual/`（入口 [../index.md](../index.md)、サンプルの一覧 [../manual/samples.md](../manual/samples.md)）、`ecaljdoc/theory/` |
+| 変更の記録（利用者向け） | `Changes.txt` |
+| サンプルと試験 | `Samples/<dir>/README.md`（各 README の冒頭に本体の節へのリンク）、試験の組は `TOOLS/samples_tests.sh` |
+| 標準の流れに入れない試作の道具 | `TOOLS/gadget/README.md` |
+
 ## 記録の方針: コードのコメント、コミット、研究ログ、文書（2026-09-27）
 
 Claude（や人）が後でコードや記録を読むときの手がかりになるように、何をどこに書くかを決めておく。
