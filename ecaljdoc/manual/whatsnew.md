@@ -3,6 +3,28 @@
 ecalj の新しい機能と、結果が変わる修正の要約。新しい順。詳しい記録（全部の変更）は ecalj の
 [Changes.txt](https://github.com/tkotani/ecalj/blob/main/Changes.txt)。各項目の説明はリンク先のページ。
 
+## 最近の大きな話題（2026-09〜10）
+
+### 1. 均し方のキー `t_*` と、LiTi₂O₄ の反復の結果（tf32・fp32・fp64）
+
+- **温度（均し方）を `[gw]` の `t_*` のキーで指定する**（単位は K）。χ0 側は `t_tetrakbt`: 0 は T = 0 のテトラヘドロン法、正の値は有限温度のテトラヘドロン法、
+  負の値（−T）は Im χ0 を温度 T の Fermi–Dirac と同じ幅の Gaussian で均す（以前の `SmearX0` に代わる。`SmearX0` が残っていると止まり、
+  `ctrlg_update.py` が書き換える）。Σ 側は `t_sigmaw`（既定 1000 K、Σ の中間準位を均す Fermi–Dirac の核）。金属で反復や k メッシュによって
+  バンドが荒れる原因（小さい q の W のプラズモン極を Σc の実軸の極の項が拾う）は `wcsmear`（既定）で均す → [kBT](./kBT) §0・§2・§3・§3.5
+- **LiTi₂O₄（金属スピネル、14 原子）の MLO-QSGW を LDA から 40 反復**（6³ と 9³、`gwsc --mlo`）。GPU の行列積の精度（`gwsc --prec=tf32|fp32|fp64`）を変えても、
+  MLO バンドの差は数 meV 以下（6³ の 10 反復で tf32 と fp32 が t2g で 0.8 meV、1 反復目の fp64 と fp32 が 1 meV）で、反復やメッシュによる差（数十 meV）より
+  1 桁小さい。速い tf32 で回してよい（1 反復: 6³ で tf32 3.7 分、fp64 17 分。kt1、RTX 5090 × 2）。反復を 10 回で止めると収束の途中で、30〜40 反復が要る
+  → [LiTi₂O₄ のまとめ](https://github.com/tkotani/ecalj/blob/main/Samples/kBT/LiTi2O4/README.md)（表 3〜5、図 1・2）、[MLO-gwsc](./mlo_gwsc)、[GPU version](./ecaljgpu)
+
+### 2. MLO とマグノン
+
+- **MLO は Löwdin で直交化した関数（射影 Wannier 関数）を標準にした**（2026-10-02）。軌道の名前と対称性を保ち、模型は直交した基底の $H(\mathbf R)$ だけ。
+  $U$・$J$・cRPA（`job_mloW`）とマグノン（`job_mlo_magnon`）もこの基底で、Wannier 関数（最大局在化）の経路は外した → [MLO](./mlo) §6
+- **マグノン**（bcc Fe、FeCo、Ni）: MLO の窓によらなくなり、Wannier 関数による以前の計算に近づいた。bcc Fe では q ≥ 0.4 でほぼ重なり、q ≤ 0.3 では
+  MLO が 2 割ほど高い。Goldstone の条件のための $W$ の倍率は Fe 1.24、FeCo 1.28、Ni 1.75
+  → [Fe のマグノンのサンプル](https://github.com/tkotani/ecalj/blob/main/Samples/Magnon/Fe_mlo_magnon/README.md)（表 2・図 1）
+- **cRPA の $U$**: Ni の d で MLO 2.90 eV、Wannier 3.78 eV（部分空間の取り方の違い。遮蔽をすべて入れた RPA の $U$ は 1.43 と 1.58 eV で近い）→ [MLO](./mlo) §6
+
 ## 2026-10-02
 
 - **MLO は Löwdin で直交化した関数になった**。MLO の部分空間の射影 Wannier 関数で、軌道の名前（t₂g、e_g など）と対称性を保つ。
