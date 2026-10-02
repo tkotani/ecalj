@@ -555,4 +555,4 @@ The site index `iatom` follows the order of `[[site]]` in `ctrlg.<sname>.toml`;
 
 # MEMO
 * We need to explain how to set Gamma-cell averaged $\tilde{W}({\bf q}=0,\omega)$.
-* 旧い開発者向けの理論メモ ecaljdetails（2015〜2022、offset-Γ 法・クーロン行列・EIBZ など）は 2026-10-02 に外した。今も通じる要点は ecalj の `MD/past_log.md` §14、原文は ecaljdoc のコミット `3284d0b` の `ecaljdetails/ecaljdetails.tex`。
+* 旧い開発者向けの理論メモ ecaljdetails（2015〜2022、offset-Γ 法・クーロン行列・EIBZ など）は 2026-10-02 に外した。今も通じる要点は ecalj の `ecaljdoc/MD/past_log.md` §14、原文は ecaljdoc のコミット `3284d0b` の `ecaljdetails/ecaljdetails.tex`。

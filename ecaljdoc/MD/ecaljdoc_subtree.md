@@ -17,6 +17,12 @@ git subtree add --prefix=ecaljdoc /home/takao/ecaljdoc main --squash
 - 確かめ: `git subtree split --prefix=ecaljdoc` で切り出したツリーが ecaljdoc の `e6bb431` と同じ（d0f9cdb46b3a）。その後 ecalj の側で直した文書を
   切り出すと、`e6bb431` を親に持つコミットになり、`tkotani/ecaljdoc` の main へは早送りで送れる
 
+## 1a. 開発の記録 `MD/` も ecaljdoc の中に（2026-10-02 の後半）
+
+`ecalj/MD/` を `ecalj/ecaljdoc/MD/` に移した（user「MD ごと ecaljdoc に、vitepress は無視してくれたらいい」）。`ecaljdoc/.vitepress/config.mts` の
+`srcExclude: ['MD/**', 'trash/**']` でサイトには出さない（MD の本文は `<sname>` などを Vue がタグと読んでビルドが止まる。2026-10-02 に確かめた）。
+`git subtree push` で `tkotani/ecaljdoc` にも送られる（ecalj の公開リポジトリにも入っているので同じ）。
+
 ## 2. ふだんの作業
 
 - 文書は `ecalj/ecaljdoc/` の下を直す。コードと文書を同じコミットで直してよい。コミットメッセージは英語（ecalj の決まり）
@@ -72,7 +78,7 @@ git subtree pull --prefix=ecaljdoc ecaljdoc main --squash
 
 ## 6. 文書の中の書き方
 
-- ecalj の文書（`MD/`、`Changes.txt`、各 README）から ecaljdoc を指すときは、`ecaljdoc/manual/mlo.md` のようにリポジトリの中のパスで書けばよい。
+- ecalj の文書（`ecaljdoc/MD/`、`Changes.txt`、各 README）から ecaljdoc を指すときは、`ecaljdoc/manual/mlo.md` のようにリポジトリの中のパスで書けばよい。
   公開サイトの URL（`https://ecalj.github.io/ecaljdoc/manual/mlo`）も今までどおり使える
 - 2026-10-02 より前の記録にある「ecaljdoc のコミット `xxxxxxx`」は、`tkotani/ecaljdoc`（と `~/ecaljdoc`）の履歴のハッシュ。ecalj の中には無い
   （ecalj の中の ecaljdoc の最初は、`e6bb431` をまとめたコミット）

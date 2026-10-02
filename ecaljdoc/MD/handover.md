@@ -1,10 +1,10 @@
 # handover.md — 引き継ぎ（Claude の個人メモリから、今も有効なものを写したもの）
 
 2026-10-01 に、t14 の Claude の個人メモリ（`~/.claude/projects/-home-takao-ecalj/memory/`、パッケージに入らない）から、別の機械や
-記憶の無いセッションに引き継ぐ価値があり、今も正しいものだけを写した（user「メモリの内容はパッケージに入らないので MD/ に。ただし混乱を招くものは良くない」）。
+記憶の無いセッションに引き継ぐ価値があり、今も正しいものだけを写した（user「メモリの内容はパッケージに入らないので ecaljdoc/MD/ に。ただし混乱を招くものは良くない」）。
 その時点の状況（push の状況、夜間作業の途中経過）、古くなったもの、研究ログや TODO と重なるものは写していない。各項目の終わりの（ ）は確かめた日と元のメモの名前。
 
-読む順: [../CLAUDE.md](../CLAUDE.md) → [ecaljclaude.md](ecaljclaude.md)（方針、記録の方針） → このファイル → [TODOandQuestion.md](TODOandQuestion.md)（未決と実行中） →
+読む順: [../CLAUDE.md](../../CLAUDE.md) → [ecaljclaude.md](ecaljclaude.md)（方針、記録の方針） → このファイル → [TODOandQuestion.md](TODOandQuestion.md)（未決と実行中） →
 [research_log.md](research_log.md) の先頭（最新の経過）。片付けたもののノウハウは [past_log.md](past_log.md)。人向けの手引きは ecaljdoc（`manual/ForDevelopers.md` など）。
 
 ---
@@ -21,7 +21,7 @@ ecaljclaude.md「記録の方針」「Claude の作業の進め方」にある�
 - **待つときに `sleep` を書かない**: 完了のファイルやログの行が出たら終わる背景タスクか Monitor で受ける。状態は待たずに 1 回だけ問い合わせる（2026-09-25、feedback_no_sleep）
 - **壊れた run は報告に持ち出さない**: 報告・図・表は有効な run だけで組み、無効の経緯は研究ログに短く残す（2026-09-29、feedback_skip_broken_runs）
 - **片付け**: 消さずに各計算機の `ecalj/trash/` へ（リポジトリのものは追跡も外す）。ノウハウは past_log.md、直すべき点は直さずに TODOandQuestion.md。
-  `MD/` は Claude が読むもの、人向けは ecaljdoc（2026-10-01、feedback_trash・feedback_doc_axis）
+  `ecaljdoc/MD/` は Claude が読むもの、人向けは ecaljdoc（2026-10-01、feedback_trash・feedback_doc_axis）
 - **バンドの比較の図**（MLO-QSGW）: MLO バンドだけで比べる（sigm の内挿のバンドは出さない）。複数の run は重ねず横に並べる（`Samples/kBT/LiTi2O4/plot_bands_side.py`）、
   反復の推移は縦に並べる（`plot_runs_iter_grid.py` など）。重ねるときも線は細く（0.6〜0.7 pt）。枠の題に計算の日時（`llmf.<N>run` の時刻）。
   図の数値を npz で隣に残す（2026-09-28、feedback_band_plots）
@@ -83,7 +83,7 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
 
 - **t14 の trash は外付けの TAKAOMINI にある**（2026-10-02、ディスクが満杯になったため）: `/media/takao/TAKAOMINI/trash/`（`ecalj_trash/`、`work_20261001/`、`home_trash/`）。t14 のディスクは 468 GB で、試験の作業ディレクトリ（`Samples/*/*_work`、合わせて約 8 GB）や `~/work` の GW の途中のファイルでいっぱいになる。満杯になると Claude Code の Bash の出力も受け取れなくなる（`/tmp` も同じディスク）
 
-- **対称操作は spglib から**（2026-10-02 08:34、`MD/symmetry_spglib.md` §4.7g）: `symgrp = "find"` のとき lmf・lmchk などは同梱の spglib（`SRC/external/spglib`、C、
+- **対称操作は spglib から**（2026-10-02 08:34、`ecaljdoc/MD/symmetry_spglib.md` §4.7g）: `symgrp = "find"` のとき lmf・lmchk などは同梱の spglib（`SRC/external/spglib`、C、
   静的ライブラリ `symspg`）で操作を求め、作業ディレクトリに `symmetry.<sname>.json` を書く。次からは読み、構造が違えば作り直す。`ECALJ_SYMFIND=ecalj` で
   従来の gensym（比べるとき）。`symgrp` に生成元を書いた入力も gensym。ビルドには C コンパイラが要る（CMake の `project(... Fortran C)`）
 
@@ -148,7 +148,7 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
     模型が直交化した MLO で O = 1 なので替えた。ecaljdoc mlo §9 式 (12)）
 
 - **MLO は実空間で規格化する**（2026-10-02、ecaljdoc mlo 式 (7a)）: 各 MLO を実空間の 2 乗積分 O_ii(R=0) の平方根で割る（k によらない定数）。`mlo` が `HamRsMLO` を作るときに決めて末尾に書き、以後の `Hreduction`（`__cmlo`、sugw、`m_sigmlo`）は同じ値で割る。k ごとに割る（旧 `--mlo_diagnorm`）と内挿バンドが動くので使わない。規格化の後に Löwdin で直交化するのが標準（上の「MLO は Löwdin で直交化した関数」）。古い `HamRsMLO` は読めないので `job_mlo` を回し直す
-- **Wannier 関数・AHC・lmfham2 は外した**（2026-10-02）: git のタグ `last-wannier`（`dbcd6e51d`）に残る。cRPA は `job_mloW --crpa`、広がりは `mlo_spread.py`、マグノンは `job_mlo_magnon`。MLO と Wannier の違いは `MD/wannier_vs_mlo.md`
+- **Wannier 関数・AHC・lmfham2 は外した**（2026-10-02）: git のタグ `last-wannier`（`dbcd6e51d`）に残る。cRPA は `job_mloW --crpa`、広がりは `mlo_spread.py`、マグノンは `job_mlo_magnon`。MLO と Wannier の違いは `ecaljdoc/MD/wannier_vs_mlo.md`
 
 ## 6. 道具の癖
 
@@ -163,5 +163,5 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
 
 - **履歴の書き換え**（2026-10-02 12:59、user の指示）: 未公開の範囲の 657 コミットを書き換え、旧 `a0c7a7300`（新 `6e2903731`）に誤って入っていたビルドの生成物 3197 本を
   履歴から除いた。main のツリーは変わらない。dev・rel にあるコミットは変わらない。ecalj・ecaljdoc の文書とコミットメッセージの中のハッシュは新しいものに直した。
-  古いハッシュ（他の機械の `SRC/.ecalj_rev`、作業場所のメモ、古いアーティファクト）は `MD/commit_map_20261002.txt` で引く。書き換え前の丸ごとの控えは
+  古いハッシュ（他の機械の `SRC/.ecalj_rev`、作業場所のメモ、古いアーティファクト）は `ecaljdoc/MD/commit_map_20261002.txt` で引く。書き換え前の丸ごとの控えは
   `/media/takao/TAKAOMINI/ecalj_mirror_before_filter_20261002.git`

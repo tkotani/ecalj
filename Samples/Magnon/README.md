@@ -2,7 +2,7 @@
 
 強磁性体の横スピン帯磁率 χ^{+-}(q, ω) を、MLO の模型の上で作った相互作用 W から計算し、マグノンの分散を出す（`job_mlo_magnon`）。
 2026-10-02 までは最局在 Wannier 関数による版（`job_magnon`、試料 `Fe_magnon`・`Ni_magnon`・`FeCo_magnon`・`Fe_bcc_in_sc_magnon`）もあった。
-それは git のタグ `last-wannier` にある（`MD/past_log.md` 表 1）。両者の比較は `MD/wannier_vs_mlo.md` と ecaljdoc mlo §6。
+それは git のタグ `last-wannier` にある（`ecaljdoc/MD/past_log.md` 表 1）。両者の比較は `ecaljdoc/MD/wannier_vs_mlo.md` と ecaljdoc mlo §6。
 
 **表 1**. サンプル（`testecalj <名前> -np 8`）
 

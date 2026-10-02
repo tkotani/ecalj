@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""mlo_maxloc.py: maximal localization within the MLO subspace (prototype, 2026-10-02; MD/TODOandQuestion.md, user: "MLO を作った後に
+"""mlo_maxloc.py: maximal localization within the MLO subspace (prototype, 2026-10-02; ecaljdoc/MD/TODOandQuestion.md, user: "MLO を作った後に
 Marzari の方法で最大局在化させることはありえる。バンドは変えない。Sakuma の方法のように対称性をレスペクトしないといけない").
 
     mlo_maxloc.py <sname> [--niter 400] [--isp 1|2] [--orb 5,6,7,8,9] [--sym [--lblocks 0,1,2]]

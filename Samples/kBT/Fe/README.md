@@ -9,7 +9,7 @@
 > dSEnoZ max 0.22 / 平均 0.09 eV (E_F が EFERMI → EFERMI_kbt に変わった分と wcsmear)、
 > 3000 K 側は max 1.6 / 平均 0.25 eV。後者が大きいのは、旧 `t_sigmakbt` 実装が極項だけ FD で
 > 虚軸積分は Gaussian (esmr = 0.003 Ry ≪ kBT) のままという不整合を抱えていたため
-> (MD/research_log.md 2026-09-20 12:17)。**下の本文の「Σ 側で 2 eV 動く」はその不整合を含んだ
+> (ecaljdoc/MD/research_log.md 2026-09-20 12:17)。**下の本文の「Σ 側で 2 eV 動く」はその不整合を含んだ
 > 数字**であり、整合した現在のコードでは 262 K と 3000 K の差は dSEnoZ max 0.15 / 平均 0.06 eV。
 > `plots/fe_sigmakbt_shift.png` は旧結果の図のまま。
 

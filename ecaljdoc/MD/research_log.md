@@ -1,5 +1,8 @@
 # research_log.md — ecalj の研究・開発ログ（有限温度 QSGW、MLO-QSGW、GW の GPU 高速化、GW1500、片付け）
 
+> 2026-10-02 20:29: このディレクトリは `ecalj/MD/` から `ecalj/ecaljdoc/MD/` に移った（user「MD ごと ecaljdoc に、vitepress は無視」）。
+> 下の古い記述の `MD/...` はその時点の場所で、今は `ecaljdoc/MD/...`。
+
 2026-10-01 に `Samples/kBT/kBT_research.md` から `MD/research_log.md` へ移した（user の指示。中身は同じで、相対リンクだけ直した）。
 下の古い日付の記述にある `kBT_research.md` はこのファイルのこと。
 
@@ -35,20 +38,20 @@
 
 *図 L-1* t2g（b33–44）、Γ→X 211 点
 
-[![mlo_rows_k9](../Samples/kBT/LiTi2O4/mlo_rows_k9.png)](../Samples/kBT/LiTi2O4/mlo_rows_k9.png)
+[![mlo_rows_k9](../../Samples/kBT/LiTi2O4/mlo_rows_k9.png)](../../Samples/kBT/LiTi2O4/mlo_rows_k9.png)
 
 `Samples/kBT/LiTi2O4/mlo_rows_k9.png`（生成: `MESH=6,9 MESHCOLS=6,6,6,9,9 mlo_rows.py <root> <out> v9,v9mlo,k9,k9mlo '…' '…'`、root の `ref/` が従来列）
 
 *図 L-2* 反復ごとの変化（左 max、右 rms）。**9³ は実線、6³ は破線**
 
-[![mlo_conv_k9](../Samples/kBT/LiTi2O4/mlo_conv_k9.png)](../Samples/kBT/LiTi2O4/mlo_conv_k9.png)
+[![mlo_conv_k9](../../Samples/kBT/LiTi2O4/mlo_conv_k9.png)](../../Samples/kBT/LiTi2O4/mlo_conv_k9.png)
 
 `Samples/kBT/LiTi2O4/mlo_conv_k9.png`
 
 *図 L-3* **従来 QSGW（6³）、6³ と 9³ の MLO-QSGW を並べたもの**。列は L-1 と同じ 5 列（従来 / 6³ `sigm` 描画 / 6³ MLO バンド / 9³ `sigm` 描画 / 9³ MLO バンド）。
 **緑 = 一番下のバンド、青 = Γ→X の中央で膨れるバンド**（交差をまたいで追跡、膨らみが 50 meV 未満の段では青を付けない）、灰 = その他、**赤い × = メッシュ点**。（18:15 まで一番下は赤で描いていた。赤をメッシュ点の × に使うため緑に変えた）
 
-[![mlo_rows_6vs9_hilite](../Samples/kBT/LiTi2O4/mlo_rows_6vs9_hilite.png)](../Samples/kBT/LiTi2O4/mlo_rows_6vs9_hilite.png)
+[![mlo_rows_6vs9_hilite](../../Samples/kBT/LiTi2O4/mlo_rows_6vs9_hilite.png)](../../Samples/kBT/LiTi2O4/mlo_rows_6vs9_hilite.png)
 
 `Samples/kBT/LiTi2O4/mlo_rows_6vs9_hilite.png`（生成: `HILITE=1 MESH=6,9 MESHCOLS=6,6,6,9,9 mlo_rows.py <root> <out> v9,v9mlo,k9,k9mlo '…' '…'`）。従来列では iteration 9–10 で青（中央の膨れ）が出るが、同じ 6³ の MLO-QSGW の 2 列には出ない。
 9³ だけの色分け版は `mlo_rows_k9_hilite.png`
@@ -1654,19 +1657,19 @@ user の指示で fp64 を止め（04:4x）、6³ tf32 を 31〜40 まで続け�
   LDA の行は job_band の LDA のバンド（9³ は `bench_hgw999`、6³ は `liti_mlo_v9`。LDA は精度によらない）。何も無い枠は灰色の「no band」
 - `mlo_rows.py` に、枠ごとの印（`<band file>.label`）、空の枠（`EMPTY=frame`）、`DPI` を足した
 
-![six patterns](../Samples/kBT/LiTi2O4/liti2o4_six_rows.png)
+![six patterns](../../Samples/kBT/LiTi2O4/liti2o4_six_rows.png)
 
 ### 14:12 **9³ fp32（いまのコード）も反復 5〜7 で Γ の底がひずむ（沈み込み 13 → 27 → 24 meV、曲率 −1.7 → −3.5）。09-26 の fp32 の鎖（9.5 → 28.6 → 28.7 meV）と同じ動き。底のひずみは tf32 のせいではない**（user「999 tf32、999 fp32、666 tf32、666 fp32 の MLO バンドの横並びの図をみせて」）
 
 *図 14:12-1* `LiTi2O4/liti2o4_cmp15_rows.png`（`update_cmp15.sh`、反復ごとに上書き）: 列は 999 tf32・999 fp32・666 tf32・666 fp32、行は反復。
 この時点では 999 fp32 が反復 1〜7、999 tf32 が 10〜15（`qmlo_k9_tf32n`）、666 は反復 10 だけ（tf32 は `qmlo_k6_tf32n`、fp32 は 09-27 のコードの `qmlo_k6_gwsc10`）
 
-![fp32 iterations 4-7](../Samples/kBT/LiTi2O4/liti2o4_k9fp32_it4_7.png)
+![fp32 iterations 4-7](../../Samples/kBT/LiTi2O4/liti2o4_k9fp32_it4_7.png)
 
 *図 14:12-2* `LiTi2O4/liti2o4_k9fp32_it4_7.png`（`mlo_rows.py`）: 反復 4〜7。左からいまの 9³ fp32、09-26 の 9³ fp32（修正前）、09-26 の 6³。
 緑（一番下のバンド）が反復 5〜7 で Γ のすぐ先（x ≈ 0.1）でいったん下がる
 
-![four columns](../Samples/kBT/LiTi2O4/liti2o4_cmp15_rows.png)
+![four columns](../../Samples/kBT/LiTi2O4/liti2o4_cmp15_rows.png)
 
 *表 14:12-1* 9³ の一番下の t2g のバンド（曲率は x < 0.06 の 2 次式の係数、表 12:09-1 と同じ）
 
@@ -1902,11 +1905,11 @@ MLO バンド、1 行に 1 反復。左から 09-26 の fp32 の 9³（`liti_mlo
 
 ### 05:37 **全体と d 全体の図（9³ 反復 15 と 6³ 反復 10）: 9³ のうねりは t2g だけでなく eg 側にもある**（user「全体見せて」「d 全体見せて」）
 
-![whole](../Samples/kBT/LiTi2O4/liti2o4_k6_it10_vs_k9_it15.png)
+![whole](../../Samples/kBT/LiTi2O4/liti2o4_k6_it10_vs_k9_it15.png)
 
 *図 05:37-1* 9³ の反復 15（赤）と 6³ の反復 10（青）、全範囲・E_F 近くの t2g・O 2p（`plot_k6_vs_k9.py`）
 
-![d](../Samples/kBT/LiTi2O4/liti2o4_d_k6_it10_vs_k9_it15.png)
+![d](../../Samples/kBT/LiTi2O4/liti2o4_d_k6_it10_vs_k9_it15.png)
 
 *図 05:37-2* Ti 3d 全体（−0.7〜4.6 eV、`ROWS='-0.7:4.6:Ti 3d (t2g + eg)' plot_k6_vs_k9.py`）
 
@@ -1975,7 +1978,7 @@ MLO バンド、1 行に 1 反復。左から 09-26 の fp32 の 9³（`liti_mlo
 
 ### 03:53 **9³ の続き、反復 11: 沈み込み 6.1 → 9.1 meV、占有の 2 本の荒れ 0.139 → 0.146 meV。まだ縮まない**
 
-![9^3 continued](../Samples/kBT/LiTi2O4/liti2o4_occpair_k9_cont.png)
+![9^3 continued](../../Samples/kBT/LiTi2O4/liti2o4_occpair_k9_cont.png)
 
 *図 03:53-1* 9³ tf32 の続き（左、反復 10 から下へ）と 6³ tf32 の反復 10（右）。Γ 近くの占有の t2g の 2 本（反復ごとに足していく）
 
@@ -1984,7 +1987,7 @@ MLO バンド、1 行に 1 反復。左から 09-26 の fp32 の 9³（`liti_mlo
 
 ### 03:34 **反復ごとの変化: 6³ も途中の反復ではメッシュ点 1/3 のあたりで交差し、反復 10 で交差が消えた。9³ は交差の位置が反復ごとに動き、反復 10 でまだ落ち着いていない**（user「イテレーションでどうかわって行くか」）
 
-![occupied pair per iteration](../Samples/kBT/LiTi2O4/liti2o4_occpair_iter_k9_k6.png)
+![occupied pair per iteration](../../Samples/kBT/LiTi2O4/liti2o4_occpair_iter_k9_k6.png)
 
 *図 03:34-1* 09-26 の鎖（fp32）の MLO バンドの、Γ 近くの占有の t2g の 2 本（青が下、赤が上、k ごとに並べ替え）。上の 2 段が 9³、下の 2 段が 6³、点線は Σ のメッシュ点（`plot_occ_pair_grid.py`）
 
@@ -2019,7 +2022,7 @@ MLO バンド、1 行に 1 反復。左から 09-26 の fp32 の 9³（`liti_mlo
 
 ### 03:26 **6³ と 9³ の比較: 9³ は 1 eV 付近の t2g のバンドにメッシュ点の中点のこぶ（0.1〜0.15 eV）が残る。09-26 の鎖では 9³ の荒れは反復 6 以降横ばいで、育ちも減りもしない。9³ を反復 11〜15 まで続けて確かめる**（user「999 のバンドに振動が乗ってるように見える。666 はどうだったか、イテレーションを続けると改善するか」「666 と 999 の比較が先」）
 
-![6^3 vs 9^3](../Samples/kBT/LiTi2O4/liti2o4_k6_vs_k9_tf32.png)
+![6^3 vs 9^3](../../Samples/kBT/LiTi2O4/liti2o4_k6_vs_k9_tf32.png)
 
 *図 03:26-1* tf32 で LDA から 10 反復した 6³（青、`qmlo_k6_tf32n`）と 9³（赤、`qmlo_k9_tf32n`）。点線は Σ のメッシュ点（`plot_k6_vs_k9.py`）
 
@@ -2089,7 +2092,7 @@ MLO バンド、1 行に 1 反復。左から 09-26 の fp32 の 9³（`liti_mlo
   6³ で窓の基準を変えたとき（2026-09-27 02:45、7〜10 meV の一様な下がり）と同じ形。こぶや振動は無い。tf32 と fp32 だけの差は 6³ で rms 0.3 meV（23:35）
 - 精度だけを比べるには、いまのコードの 9³ fp32 が要る（約 5〜7 時間、未実施）
 
-![LiTi2O4 9^3 tf32 vs the fp32 chain](../Samples/kBT/LiTi2O4/liti2o4_k9_tf32_vs_k9chain.png)
+![LiTi2O4 9^3 tf32 vs the fp32 chain](../../Samples/kBT/LiTi2O4/liti2o4_k9_tf32_vs_k9chain.png)
 
 *表 03:11-2* `hgw` 1 回（反復 10、1164 秒）の中身。ランク 0 のタイマーの合計（18 q）
 
@@ -2227,7 +2230,7 @@ MLO バンド、1 行に 1 反復。左から 09-26 の fp32 の 9³（`liti_mlo
 - 5 反復で止めた tf32 の `qmlo_k6_tf32h`（15:50 のコード）とは ehf 1.0〜3.3 meV、QP 1 meV 以内。午後から夜のコードの変更で結果は動いていない
 - 図: `plot_tf32_fp32.py`（左 MLO バンド、中 sigm バンド、右 tf32 − fp32）。**（→ 2026-09-28 の注: 線が太くて重なりが見えないと user に言われ、`plot_band_pair.py`（細い線と E_F 近くの拡大）で描き直した。`plot_tf32_fp32.py` は消した）**
 
-![LiTi2O4 6^3 tf32 vs fp32 bands](../Samples/kBT/LiTi2O4/liti2o4_k6_tf32_vs_fp32_bands.png)
+![LiTi2O4 6^3 tf32 vs fp32 bands](../../Samples/kBT/LiTi2O4/liti2o4_k6_tf32_vs_fp32_bands.png)
 
 ### 23:05 **文書を夜の版に（ecaljdoc `d029751`、ecalj の README・報告 §2.1）**（user「もれなく書いといて。ecalj, ecaljdoc に（あまり重複はないように）」）
 
@@ -2817,7 +2820,7 @@ NiO（`Samples/MLOQSGW`、2×2×2、LDA から 2 反復）のギャップ: 参�
 
 ### 2026-09-27 02:45 **6³ `gwsc 10` は正常。9 反復後の MLO バンドは旧 v9 と rms 8 meV**（user「現在、666 のテストは正常か。バンド見せて」）
 
-![MLO band after iteration 9](../Samples/kBT/LiTi2O4/mlo_gwsc10_iter9_vs_v9.png)
+![MLO band after iteration 9](../../Samples/kBT/LiTi2O4/mlo_gwsc10_iter9_vs_v9.png)
 
 *図 02:45-1* 9 反復後の MLO バンド（Γ–X）。灰の太線 = 旧 v9（`gwsc 1` × 10、窓は LDA の $E_F$）、赤 = 新（`gwsc 10`、QMLO_*、窓は各反復の SCF の $E_F$）。
 右は新 − 旧（$\vert E-E_F\vert<3$ eV のバンド）: **rms 8.4 meV、最大 23 meV**。ほぼ一様に 7〜10 meV 下がっているだけで、こぶ・振動は無い。
@@ -2954,7 +2957,7 @@ $C$ を実数 $2m\times n$ とみなし、$A$ だけを実数 $A'$（$2k\times 2
 - kt1（nvfortran、`4fb6df3ba` を再ビルド。InstallAll の `--all` も合格）: CPU・GPU（`-np2 2 --gpu`）とも合格（QPU の差 1e-3 eV）
 - kt1 `--gpu --mp` は **NiO の `fp evl` が 0.0135 Ry ずれて不合格**（許容 0.005）。GaAs は合格。原因は精度の設定:
   testecalj の `--mp` は `--fp32` を付けないので、行列積は `CUBLAS_COMPUTE_32F_FAST_TF32`（仮数 10 bit）で回る
-  （[m_blas.f90:345](../SRC/subroutines/m_blas.f90#L345)）。1 反復目の `QPU` で既に SEx が最大 0.03 eV（相対 1e-3、TF32 の丸めの桁）ずれ、
+  （[m_blas.f90:345](../../SRC/subroutines/m_blas.f90#L345)）。1 反復目の `QPU` で既に SEx が最大 0.03 eV（相対 1e-3、TF32 の丸めの桁）ずれ、
   lmf のギャップは 0.09 eV 小さい。LiTi2O4 の本番は `--fp32` を付けているのでこの影響はない。TestInstall の `nio_gwsc` が
   `--mp` で許容を 5e-3 に緩めているのも同じ理由とみられる
 
@@ -3097,11 +3100,11 @@ iteration 10 で +0.0415 Ry（+0.56 eV）。LiTi₂O₄ は金属で `ecbot` ≈
 
 *図 18:30-1〜3* 完了時点で凍結（左から 従来 6³ / 6³ `sigm` / 6³ MLO バンド / 9³ `sigm` / 9³ MLO バンド、赤い × はメッシュ点）
 
-[![mlo_rows_k9final](../Samples/kBT/LiTi2O4/mlo_rows_k9final.png)](../Samples/kBT/LiTi2O4/mlo_rows_k9final.png)
+[![mlo_rows_k9final](../../Samples/kBT/LiTi2O4/mlo_rows_k9final.png)](../../Samples/kBT/LiTi2O4/mlo_rows_k9final.png)
 
-[![mlo_rows_6vs9_hilite_final](../Samples/kBT/LiTi2O4/mlo_rows_6vs9_hilite_final.png)](../Samples/kBT/LiTi2O4/mlo_rows_6vs9_hilite_final.png)
+[![mlo_rows_6vs9_hilite_final](../../Samples/kBT/LiTi2O4/mlo_rows_6vs9_hilite_final.png)](../../Samples/kBT/LiTi2O4/mlo_rows_6vs9_hilite_final.png)
 
-[![mlo_conv_k9final](../Samples/kBT/LiTi2O4/mlo_conv_k9final.png)](../Samples/kBT/LiTi2O4/mlo_conv_k9final.png)
+[![mlo_conv_k9final](../../Samples/kBT/LiTi2O4/mlo_conv_k9final.png)](../../Samples/kBT/LiTi2O4/mlo_conv_k9final.png)
 
 `Samples/kBT/LiTi2O4/mlo_rows_k9final.png`, `mlo_rows_6vs9_hilite_final.png`, `mlo_conv_k9final.png`
 
@@ -3145,7 +3148,7 @@ iteration 10 で +0.0415 Ry（+0.56 eV）。LiTi₂O₄ は金属で `ecbot` ≈
 *図 11:10-1* 9³ iteration 4 の fat band（`job_band --fatband`、`sigm` 描画の PMT バンド）。上: t2g、中: 赤の軌道成分、下: 青の軌道成分。
 1 との差は射影されない部分（MT 球の外）。青の x ≈ 0.43, 0.46 のとげは交差点で縮退した 2 本の重みが混ざったもの
 
-[![fatchar_k9_iter4](../Samples/kBT/LiTi2O4/fatchar_k9_iter4.png)](../Samples/kBT/LiTi2O4/fatchar_k9_iter4.png)
+[![fatchar_k9_iter4](../../Samples/kBT/LiTi2O4/fatchar_k9_iter4.png)](../../Samples/kBT/LiTi2O4/fatchar_k9_iter4.png)
 
 `Samples/kBT/LiTi2O4/fatchar_k9_iter4.png`（生成: `LiTi2O4/fatchar.py`）
 
@@ -3199,7 +3202,7 @@ iteration 10 で +0.0415 Ry（+0.56 eV）。LiTi₂O₄ は金属で `ecbot` ≈
 
 **数値精度と速さの関連メモ**（RTX 5090、NVIDIA 白書 Appendix A Table 3）: FP32 104.8、**TF32 テンソル 104.8（密）**、
 BF16/FP16（FP32 累積）209.5、INT8 838 TOPS、**FP64 は FP32 の 1/64**。混合精度 GPU 版の行列積は既定で
-`CUBLAS_COMPUTE_32F_FAST_TF32`、`--use_fp32`（`gwsc --fp32` が渡す）で本当の FP32（[m_blas.f90:345](../SRC/subroutines/m_blas.f90#L345)）。
+`CUBLAS_COMPUTE_32F_FAST_TF32`、`--use_fp32`（`gwsc --fp32` が渡す）で本当の FP32（[m_blas.f90:345](../../SRC/subroutines/m_blas.f90#L345)）。
 GEMMul8（Ozaki）の差し込み口は `m_blas` にあり、分解数は単精度複素 7、倍精度 15。単精度では上限 1.1–1.5 倍どまり、
 倍精度ならネイティブ FP64 の約 35 倍（＝いまの FP32 の 0.5–0.7 倍の速さで倍精度）。Σc では同じ `zmel` に周波数ごとの
 $W(\omega)$ を掛けるので、`enable_skip_A/B` で分解を使い回せる（今は常に 0）。**試すのは後日**（user）。 **（→ 2026-09-28 の注: `--prec` に整理し、GEMMul8 は 2026-09-27 08:20 に試した（得なのは倍精度だけ））**
@@ -3208,9 +3211,9 @@ $W(\omega)$ を掛けるので、`enable_skip_A/B` で分解を使い回せる�
 
 *図 03:15-1, 03:15-2* v9 最終（凍結）。左 = 従来（`pwmode=1`）、中 = v9 を `sigm` で描画、右 = **v9 の MLO バンド**
 
-[![mlo_rows_v9final](../Samples/kBT/LiTi2O4/mlo_rows_v9final.png)](../Samples/kBT/LiTi2O4/mlo_rows_v9final.png)
+[![mlo_rows_v9final](../../Samples/kBT/LiTi2O4/mlo_rows_v9final.png)](../../Samples/kBT/LiTi2O4/mlo_rows_v9final.png)
 
-[![mlo_conv_v9final](../Samples/kBT/LiTi2O4/mlo_conv_v9final.png)](../Samples/kBT/LiTi2O4/mlo_conv_v9final.png)
+[![mlo_conv_v9final](../../Samples/kBT/LiTi2O4/mlo_conv_v9final.png)](../../Samples/kBT/LiTi2O4/mlo_conv_v9final.png)
 
 `Samples/kBT/LiTi2O4/mlo_rows_v9final.png`, `mlo_conv_v9final.png`
 
@@ -3310,13 +3313,13 @@ MLO バンドは従来より**系統的に 35–40 meV 高く**、rms 50 meV 違
 
 **4. 「収束後ならあとから描いても z は一致する」（設計書 §11.2.2）について**（user「セルフコンシステントなら正しいのではないか」）:
 **段 a' と同じ Σ 入りの $H$ から作り直すなら正しい**。ただし今の作り直し（`getsenex` の MISS 時）は **Σ 抜きの $H$** を使う
-（`getsenex` → `hamm = hamm + senex` の順、[m_bandcal.f90:210-211](../SRC/subroutines/m_bandcal.f90#L210-L211)）。
+（`getsenex` → `hamm = hamm + senex` の順、[m_bandcal.f90:210-211](../../SRC/subroutines/m_bandcal.f90#L210-L211)）。
 収束しても $\Sigma\neq0$ なので一致しない。収束後に限れば、k ごとに z → senex → Σ 入り $H$ → z と数回回せば揃うはず。
 右列の MLO 模型は途中の k で z を作り直さないので、この問題の影響を受けない。
 
 ### 2026-09-26 01:05 「本当に MLO での計算か」— **SCF は MLO、図のバンドは従来 `sigm` の内挿**（user「それならそれでいい」）
 
-- `getsenex` は MLO が ON なら $\Sigma^{\rm MLO}$ から `senex` を作って **return** し、従来の `bloch2` には到達しない（排他、[rdsigm2.f90:47-79](../SRC/subroutines/rdsigm2.f90#L47-L79)）
+- `getsenex` は MLO が ON なら $\Sigma^{\rm MLO}$ から `senex` を作って **return** し、従来の `bloch2` には到達しない（排他、[rdsigm2.f90:47-79](../../SRC/subroutines/rdsigm2.f90#L47-L79)）
 - v9 iter 3: SCF の `lmf` に `MLO Sigma interpolation ON. ndimMTO nskip= 126 0 |Sigma(R)|= 67.69` × 16、GW ドライバに × 36（`loaded ZmloSig` × 36）
 - 傍証: iter 1 は `sigm` が v7 と v9 で bit 一致なのに、$\Sigma^{\rm MLO}$（1 倍と 0.5 倍）の違いだけでバンドが rms 29 meV 違った。SCF が `sigm` を読んでいたら bit 一致になるはず
 - 図のバンド（`llmf_band`）は `m_sigmlo` の行が 0 で `rdsigm2` 経由。MLO 空間で描く段は `mlo --mlofreeze --mlo` が `munmap_chunk(): invalid pointer` で落ちる（A2'）
@@ -3456,9 +3459,9 @@ v6（nmlo 76）と同じく iter 3 で盛り上がる overshoot の形だが、v
 
 *図 23:26-1, 23:26-2* この時点に凍結した図（左 = 従来、中 = MLO 76、右 = MLO 126 無混合）
 
-[![mlo_rows_2326](../Samples/kBT/LiTi2O4/mlo_rows_2326.png)](../Samples/kBT/LiTi2O4/mlo_rows_2326.png)
+[![mlo_rows_2326](../../Samples/kBT/LiTi2O4/mlo_rows_2326.png)](../../Samples/kBT/LiTi2O4/mlo_rows_2326.png)
 
-[![mlo_conv_2326](../Samples/kBT/LiTi2O4/mlo_conv_2326.png)](../Samples/kBT/LiTi2O4/mlo_conv_2326.png)
+[![mlo_conv_2326](../../Samples/kBT/LiTi2O4/mlo_conv_2326.png)](../../Samples/kBT/LiTi2O4/mlo_conv_2326.png)
 
 `Samples/kBT/LiTi2O4/mlo_rows_2326.png`, `mlo_conv_2326.png`
 
@@ -3510,11 +3513,11 @@ iter 2 は 23:05 頃。
 ### 2026-09-25 22:45 `temp.md` を解体 — 設計は設計書へ、ログはここへ（user「ごっちゃになってきた」）
 
 `temp.md`（798 行）は**設計仕様**と**ログ・図・TODO**が混ざっていて、
-[sigma_mlo_design.md](../Samples/kBT/sigma_mlo_design.md) とも主題が重複していた。種類で分けて解消し、`temp.md` は削除した。
+[sigma_mlo_design.md](../../Samples/kBT/sigma_mlo_design.md) とも主題が重複していた。種類で分けて解消し、`temp.md` は削除した。
 
 | `temp.md` の節 | 行き先 |
 |---|---|
-| §1–3 基底のセットアップと $\Sigma$ の保持形 | [設計書 §9](../Samples/kBT/sigma_mlo_design.md) |
+| §1–3 基底のセットアップと $\Sigma$ の保持形 | [設計書 §9](../../Samples/kBT/sigma_mlo_design.md) |
 | §4 いつ MLO を作るのか（1 反復のタイムライン）| 設計書 §10 |
 | §8 新方式 — 実装仕様 | 設計書 §11 |
 | §9 Q&A | 設計書 §12 |
@@ -3551,13 +3554,13 @@ $z$ を今の $H$ で作り直しても、窓が初回のバンド位置を指�
 
 **$\tilde\chi$ 凍結の有無（iter 1）**
 
-[![frozen_vs_not](../Samples/kBT/LiTi2O4/frozen_vs_not.png)](../Samples/kBT/LiTi2O4/frozen_vs_not.png)
+[![frozen_vs_not](../../Samples/kBT/LiTi2O4/frozen_vs_not.png)](../../Samples/kBT/LiTi2O4/frozen_vs_not.png)
 
 （$\tilde\chi$ 凍結の有無。凍結なしだと帯幅が 292 → 202 meV に潰れる）
 
 **$\Sigma(R)$ の減衰（オンサイト規格化）**
 
-[![sigr_decay](../Samples/kBT/LiTi2O4/sigr_decay.png)](../Samples/kBT/LiTi2O4/sigr_decay.png)
+[![sigr_decay](../../Samples/kBT/LiTi2O4/sigr_decay.png)](../../Samples/kBT/LiTi2O4/sigr_decay.png)
 
 （絶対値は正規化が違うので比較不可。規格化すると**従来 $\Sigma^{\rm MTO}(R)$ の方が減衰しない**）
 
@@ -3608,13 +3611,13 @@ rms で見る。
 
 *図 22:27-1* 左 = max（一点の交差に支配される）、右 = rms（バンド全体が動いているか）
 
-[![mlo_conv_2227](../Samples/kBT/LiTi2O4/mlo_conv_2227.png)](../Samples/kBT/LiTi2O4/mlo_conv_2227.png)
+[![mlo_conv_2227](../../Samples/kBT/LiTi2O4/mlo_conv_2227.png)](../../Samples/kBT/LiTi2O4/mlo_conv_2227.png)
 
 `Samples/kBT/LiTi2O4/mlo_conv_2227.png`（このエントリ時点に凍結。生きている図は最新エントリ）
 
 *図 22:27-2* 同じ描き方で LDA〜iter 8 を縦に並べたもの（2 列 9 行）
 
-[![mlo_rows_2227](../Samples/kBT/LiTi2O4/mlo_rows_2227.png)](../Samples/kBT/LiTi2O4/mlo_rows_2227.png)
+[![mlo_rows_2227](../../Samples/kBT/LiTi2O4/mlo_rows_2227.png)](../../Samples/kBT/LiTi2O4/mlo_rows_2227.png)
 
 `Samples/kBT/LiTi2O4/mlo_rows_2227.png`（このエントリ時点に凍結）
 
@@ -3685,7 +3688,7 @@ commit `18c28dd6f` で **既定 OFF**、`ECALJ_MLO_MIX=1` で ON。既定 OFF �
 
 *図 15:06-1* 従来 vs MLO、LDA〜iter 3（2 列 4 行）
 
-[![mlo_rows_1506](../Samples/kBT/LiTi2O4/mlo_rows_1506.png)](../Samples/kBT/LiTi2O4/mlo_rows_1506.png)
+[![mlo_rows_1506](../../Samples/kBT/LiTi2O4/mlo_rows_1506.png)](../../Samples/kBT/LiTi2O4/mlo_rows_1506.png)
 
 `Samples/kBT/LiTi2O4/mlo_rows_1506.png`（生成: `LiTi2O4/mlo_rows.py frz mlo_rows_1506.png v6`。
 このエントリ時点の状態に凍結したもの — `mlo_rows.png` は反復が進むたび上書きされるため）
@@ -3918,7 +3921,7 @@ QSGW には 11、バンドプロットには 1 が要るという既知の二律
 
 *図 10:45-1* 3 通り × iter 1/2
 
-[![three_routes](../Samples/kBT/LiTi2O4/three_routes.png)](../Samples/kBT/LiTi2O4/three_routes.png)
+[![three_routes](../../Samples/kBT/LiTi2O4/three_routes.png)](../../Samples/kBT/LiTi2O4/three_routes.png)
 
 `Samples/kBT/LiTi2O4/three_routes.png`（生成: `LiTi2O4/three_routes.py`）
 
@@ -3966,7 +3969,7 @@ kt1 を同期・再ビルド（`libecaljF.so` に `ZmloRef` 7 個、`libecaljF_m
 
 *図 10:30-1* iter 1 の 4 本並べ
 
-[![frozen_vs_not](../Samples/kBT/LiTi2O4/frozen_vs_not.png)](../Samples/kBT/LiTi2O4/frozen_vs_not.png)
+[![frozen_vs_not](../../Samples/kBT/LiTi2O4/frozen_vs_not.png)](../../Samples/kBT/LiTi2O4/frozen_vs_not.png)
 
 `Samples/kBT/LiTi2O4/frozen_vs_not.png`（生成: `LiTi2O4/frozen_vs_not.py`）
 
@@ -4081,7 +4084,7 @@ $O^{-1}$ を `getsenex`（式 (14)）に回しているので **オンサイト�
 
 *図 09:45-1* オンサイトで規格化した減衰
 
-[![sigr_decay](../Samples/kBT/LiTi2O4/sigr_decay.png)](../Samples/kBT/LiTi2O4/sigr_decay.png)
+[![sigr_decay](../../Samples/kBT/LiTi2O4/sigr_decay.png)](../../Samples/kBT/LiTi2O4/sigr_decay.png)
 
 `Samples/kBT/LiTi2O4/sigr_decay.png`（生成: `LiTi2O4/sigr_decay.py`）
 
@@ -4124,13 +4127,13 @@ $O^{-1}$ を `getsenex`（式 (14)）に回しているので **オンサイト�
 
 *図 09:15-1* 反復ごとの t2g バンド（LDA と iter 1〜10、76 軌道）
 
-[![mlo_iter_grid](../Samples/kBT/LiTi2O4/mlo_iter_grid.png)](../Samples/kBT/LiTi2O4/mlo_iter_grid.png)
+[![mlo_iter_grid](../../Samples/kBT/LiTi2O4/mlo_iter_grid.png)](../../Samples/kBT/LiTi2O4/mlo_iter_grid.png)
 
 `Samples/kBT/LiTi2O4/mlo_iter_grid.png`（生成: `LiTi2O4/mlo_iter_grid.py`）
 
 *図 09:15-2* 反復間の差 $\Delta E(k)$ がどこに集中するか
 
-[![mlo_iter_diff](../Samples/kBT/LiTi2O4/mlo_iter_diff.png)](../Samples/kBT/LiTi2O4/mlo_iter_diff.png)
+[![mlo_iter_diff](../../Samples/kBT/LiTi2O4/mlo_iter_diff.png)](../../Samples/kBT/LiTi2O4/mlo_iter_diff.png)
 
 `Samples/kBT/LiTi2O4/mlo_iter_diff.png`（生成: `LiTi2O4/mlo_iter_diff.py`）
 
@@ -4230,7 +4233,7 @@ SCF は `c` 収束（01:23、ehf = −109750.1776 eV）、バンドも滑らか�
 
 *図 08:50-1* 上段 = 一発目の比較、中段 = MLO 76 軌道の反復 2/4/7/10、下段 = 弦ずれ vs 反復。
 
-[![mlo_vs_mto_666](../Samples/kBT/LiTi2O4/mlo_vs_mto_666.png)](../Samples/kBT/LiTi2O4/mlo_vs_mto_666.png)
+[![mlo_vs_mto_666](../../Samples/kBT/LiTi2O4/mlo_vs_mto_666.png)](../../Samples/kBT/LiTi2O4/mlo_vs_mto_666.png)
 
 `Samples/kBT/LiTi2O4/mlo_vs_mto_666.png`（生成: `LiTi2O4/mlo_vs_mto_grid.py`）
 
@@ -4259,7 +4262,7 @@ SCF は `c` 収束（01:23、ehf = −109750.1776 eV）、バンドも滑らか�
 *図 05:05-1* t2g バンド（b33–44）Γ–X 211 点。上から LDA / iter 1 / iter 4 / iter 7 / iter 10。
 点線が 6³ の Σ メッシュ点。
 
-[![liti_mlo_chain](../Samples/kBT/LiTi2O4/liti_mlo_chain.png)](../Samples/kBT/LiTi2O4/liti_mlo_chain.png)
+[![liti_mlo_chain](../../Samples/kBT/LiTi2O4/liti_mlo_chain.png)](../../Samples/kBT/LiTi2O4/liti_mlo_chain.png)
 
 `Samples/kBT/LiTi2O4/liti_mlo_chain.png`（生成: `LiTi2O4/mlo_chain_rows.py`）
 
@@ -4390,9 +4393,9 @@ $\tilde\chi$ は非直交なので素直ではない。**次の一手はここ�
 *図 00:06-1* NiO 2³、*図 00:06-2* NiO 3³。行＝LDA / QSGW iter 1 / iter 2、列＝全域 / $-4\sim+3$ eV ズーム。
 青実線＝従来（$\Sigma^{\rm MTO}$ 内挿）、赤破線＝MLO 50 軌道。両者をその行の従来の $E_F$ で揃えてある。
 
-[![mloqsgw_nio222_rows](../Samples/kBT/NiO/mloqsgw_nio222_rows.png)](../Samples/kBT/NiO/mloqsgw_nio222_rows.png)
+[![mloqsgw_nio222_rows](../../Samples/kBT/NiO/mloqsgw_nio222_rows.png)](../../Samples/kBT/NiO/mloqsgw_nio222_rows.png)
 
-[![mloqsgw_nio333_rows](../Samples/kBT/NiO/mloqsgw_nio333_rows.png)](../Samples/kBT/NiO/mloqsgw_nio333_rows.png)
+[![mloqsgw_nio333_rows](../../Samples/kBT/NiO/mloqsgw_nio333_rows.png)](../../Samples/kBT/NiO/mloqsgw_nio333_rows.png)
 
 `Samples/kBT/NiO/mloqsgw_nio222_rows.png`, `mloqsgw_nio333_rows.png`（生成: `NiO/mloqsgw_rows.py`）
 
@@ -4456,7 +4459,7 @@ kt1 GPU で 1 反復 ≈ 25 秒、`nkabc = n1n2n3 = mlo_nkabc = [3,3,3]`、MLO �
 *図 23:02-1* 行＝LDA / QSGW iter 1 / iter 2、列＝全域 / $-4\sim+3$ eV ズーム。
 青実線＝従来（$\Sigma^{\rm MTO}$ 内挿）、赤破線＝MLO 50。両者を**その行の従来の $E_F$** で揃えてある。
 
-[![mloqsgw_nio_rows](../Samples/kBT/NiO/mloqsgw_nio_rows.png)](../Samples/kBT/NiO/mloqsgw_nio_rows.png)
+[![mloqsgw_nio_rows](../../Samples/kBT/NiO/mloqsgw_nio_rows.png)](../../Samples/kBT/NiO/mloqsgw_nio_rows.png)
 
 `Samples/kBT/NiO/mloqsgw_nio_rows.png`（生成: `NiO/mloqsgw_rows.py`）
 
@@ -4508,7 +4511,7 @@ LDA 行が両者で完全一致することを毎回の健全性チェックに�
 
 ### 2026-09-24 20:43 段 4 実装 — **MLO-QSGW が自己無撞着に回るようになった**（Si で検証）
 
-設計書 [sigma_mlo_design.md](../Samples/kBT/sigma_mlo_design.md) の段 4（`getsenex` の差し替え）を実装し、
+設計書 [sigma_mlo_design.md](../../Samples/kBT/sigma_mlo_design.md) の段 4（`getsenex` の差し替え）を実装し、
 `gwsc` で MLO 内挿の QSGW が最後まで回ることを Si 2³ で確認した。
 
 **実装**（commit `408436715`）
@@ -4525,7 +4528,7 @@ LDA 行が両者で完全一致することを毎回の健全性チェックに�
 
 *図 20:43-1* Si 2³、2 反復後の自己無撞着バンド。左＝両者の重ね書き、右＝差。点線が Σ メッシュ点（Γ, X）。
 
-[![mloqsgw_si](../Samples/kBT/Si/mloqsgw_si.png)](../Samples/kBT/Si/mloqsgw_si.png)
+[![mloqsgw_si](../../Samples/kBT/Si/mloqsgw_si.png)](../../Samples/kBT/Si/mloqsgw_si.png)
 
 `Samples/kBT/Si/mloqsgw_si.png`（生成: `Si/mloqsgw_si.py`）
 
@@ -4564,12 +4567,12 @@ Si の MLO は 18 軌道（2 Si × spd）で MTO 50 チャネルの部分空間�
 
 ### 2026-09-24 20:10 MLO 内挿の実装（段 1'〜3 + a'）と LiTi₂O₄ 6³ での最初の比較
 
-設計書 [sigma_mlo_design.md](../Samples/kBT/sigma_mlo_design.md) の実装を進め、LiTi₂O₄ 6³ で従来法と比べた。
+設計書 [sigma_mlo_design.md](../../Samples/kBT/sigma_mlo_design.md) の実装を進め、LiTi₂O₄ 6³ で従来法と比べた。
 **出発点は `n666_nk6_from_lda` の iter 10（6³ 収束済み）**で、そこから `gwsc 1 --mlo` を 1 反復。
 
 *図 20:10-1* t2g バンド（b33–44）Γ–X 211 点。左＝バンド、右＝差。点線が 6³ の Σ メッシュ点。
 
-[![mlosig_666](../Samples/kBT/LiTi2O4/mlosig_666.png)](../Samples/kBT/LiTi2O4/mlosig_666.png)
+[![mlosig_666](../../Samples/kBT/LiTi2O4/mlosig_666.png)](../../Samples/kBT/LiTi2O4/mlosig_666.png)
 
 `Samples/kBT/LiTi2O4/mlosig_666.png`（生成: `LiTi2O4/mlosig_rows.py`）
 
@@ -4606,7 +4609,7 @@ Si の MLO は 18 軌道（2 Si × spd）で MTO 50 チャネルの部分空間�
 
 ### 2026-09-24 17:40 設計書の実装（段 1'〜3）— Si 2³ でスモークテスト通過、メッシュ点で 1.4〜21.5 meV
 
-[sigma_mlo_design.md](../Samples/kBT/sigma_mlo_design.md) の段 1'〜3 を実装し、Si（`nkabc = n1n2n3 = mlo_nkabc = [2,2,2]`、`pwmode=11`、
+[sigma_mlo_design.md](../../Samples/kBT/sigma_mlo_design.md) の段 1'〜3 を実装し、Si（`nkabc = n1n2n3 = mlo_nkabc = [2,2,2]`、`pwmode=11`、
 MLO 18 軌道 = 2 Si × spd）で端から端まで通した。
 
 **実装（commit `6e2903731`, `7fee41587`, `ea3ba4215`, `ffff894b6`）**
@@ -4664,7 +4667,7 @@ MLO 18 軌道 = 2 Si × spd）で端から端まで通した。
 **基底そのものを縮めた場合でも**到達した。
 
 → 原因は「特定の動径関数が余分」ではなく、**MTO 表現全体の自由度の持たせ方**である。
-設計書 [sigma_mlo_design.md](../Samples/kBT/sigma_mlo_design.md) の前提（§1 の表）を実験的に裏付ける結果。
+設計書 [sigma_mlo_design.md](../../Samples/kBT/sigma_mlo_design.md) の前提（§1 の表）を実験的に裏付ける結果。
 以後は MLO 表現の実装（段 1' → 段 2 → 段 3）に進む。
 
 ### 2026-09-24 13:53 **Ti の d を EH2 から外して LDA から 6³ を回す**（user「ctrlg で 3d に 2 枚入れるのが入れ過ぎ」）
@@ -4676,7 +4679,7 @@ MLO 18 軌道 = 2 Si × spd）で端から端まで通した。
 | iter | 開始→終了 | 秒 | o2p | t2g（非占有） | **t2gocc (b33/b34)** | 底 |
 |---|---|---|---|---|---|---|
 
-[![tiNoD2 rows](../Samples/kBT/LiTi2O4/plots/tinod2_rows.png)](../Samples/kBT/LiTi2O4/plots/tinod2_rows.png)
+[![tiNoD2 rows](../../Samples/kBT/LiTi2O4/plots/tinod2_rows.png)](../../Samples/kBT/LiTi2O4/plots/tinod2_rows.png)
 *図 13:53-3*  行 = LDA, iter 1, …（反復ごとに伸ばす）
 
 **判定の見方**: (1) 補間の荒れが従来の 9.2 meV から落ちれば「near-null 方向のふらつきが原因」が確定、
@@ -4698,7 +4701,7 @@ user「たぶん線形独立性の低い自由度がふらついている」。�
 | 同上、EH2 全部 | `ECALJ_SIG_EHONLY=-1` | **638 / Inf** | — | — |
 | **部分空間から除外**（整合、$\Sigma_{\rm sub}, O_{\rm sub}, \langle{\rm sub}\vert {\rm PMT}\rangle$ すべて 210） | `ECALJ_SIG_DROPL=2` | 66 / 0.2927 | 平均 113、max 211 meV | **9.48（改善せず）** |
 
-[![Sigma dropl test](../Samples/kBT/LiTi2O4/plots/sigma_dropl_test.png)](../Samples/kBT/LiTi2O4/plots/sigma_dropl_test.png)
+[![Sigma dropl test](../../Samples/kBT/LiTi2O4/plots/sigma_dropl_test.png)](../../Samples/kBT/LiTi2O4/plots/sigma_dropl_test.png)
 *図 13:53-1*  左 = 従来（230）/ 中 = `DROPL=2`（整合した部分空間縮小、210）/ 右 = `EHONLY=2`（不整合）
 
 整合させても**荒れは減らず値だけ 100〜200 meV 動く** → **Ti 3d の EH2 は Σ が実際に使っている自由度**であり、
@@ -4706,7 +4709,7 @@ user「たぶん線形独立性の低い自由度がふらついている」。�
 
 `getsenex` が既に
 $\hat\Sigma = |{\rm PMT}\rangle\langle{\rm PMT}|{\rm MTO}\rangle O_{\rm MTO}^{-1}\Sigma^{\rm MTO}O_{\rm MTO}^{-1}\langle{\rm MTO}|{\rm PMT}\rangle\langle{\rm PMT}|$
-の形（非直交の双対基底）で展開しており、APW ブロックも埋まっている（[rdsigm2.f90:18](../SRC/subroutines/rdsigm2.f90)）。
+の形（非直交の双対基底）で展開しており、APW ブロックも埋まっている（[rdsigm2.f90:18](../../SRC/subroutines/rdsigm2.f90)）。
 **変えられるのは「どの部分空間で Σ を保持・内挿するか」だけ**である。
 
 **基底そのものを縮める試験（09-24 13:30 LDA、13:53 QSGW 投入）**
@@ -4714,7 +4717,7 @@ $\hat\Sigma = |{\rm PMT}\rangle\langle{\rm PMT}|{\rm MTO}\rangle O_{\rm MTO}^{-1
 MTO は **230 → 210**（`ndimh = nmto+napw = 299 = 210+89`）。
 run: `/mnt/data1/LiTi2O4_kbt_runs/n666_tiNoD2`、`nkabc = n1n2n3 = 6³`、P 設定、LDA から 10 反復。
 
-[![Ti d EH2 removed, LDA](../Samples/kBT/LiTi2O4/plots/tinod2_lda.png)](../Samples/kBT/LiTi2O4/plots/tinod2_lda.png)
+[![Ti d EH2 removed, LDA](../../Samples/kBT/LiTi2O4/plots/tinod2_lda.png)](../../Samples/kBT/LiTi2O4/plots/tinod2_lda.png)
 *図 13:53-2*  LDA。左 = Ti d を EH2 に入れた従来（230）/ 右 = 外した版（210）。上段 O 2p、下段 E_F 近傍（緑 t2g、青 eg）
 
 *表 13:53-2*  LDA バンドの差（210 − 230）
@@ -4736,12 +4739,12 @@ user「基本的には MTO の自由度全てでの MLO を考えてモデル化
 `ndimMTO = 154`（MTO ブロック全体は 230 なので完全ではない — `mlo_lm` は lm チャネルの選択で、
 EH/EH2 の 2 組の動径関数をすべて拾えているわけではない）。run: `/mnt/data1/LiTi2O4_kbt_runs/mlo_fullMTO_nk9`、09-24 00:02。
 
-[![full-MTO MLO](../Samples/kBT/LiTi2O4/plots/mlo_fullMTO_nk9.png)](../Samples/kBT/LiTi2O4/plots/mlo_fullMTO_nk9.png)
+[![full-MTO MLO](../../Samples/kBT/LiTi2O4/plots/mlo_fullMTO_nk9.png)](../../Samples/kBT/LiTi2O4/plots/mlo_fullMTO_nk9.png)
 *図 00:05-1*  線 = 154 軌道 MLO の補間、○ = Σ メッシュ点上の厳密な QSGW 値。O 2p / t2g / eg / 格子間バンド
 
 **全体像**（user 05:00「上のほうのバンドもあるんですね、全体像みたい」）:
 
-[![full-MTO MLO, whole picture](../Samples/kBT/LiTi2O4/plots/mlo_fullMTO_wide.png)](../Samples/kBT/LiTi2O4/plots/mlo_fullMTO_wide.png)
+[![full-MTO MLO, whole picture](../../Samples/kBT/LiTi2O4/plots/mlo_fullMTO_wide.png)](../../Samples/kBT/LiTi2O4/plots/mlo_fullMTO_wide.png)
 *図 00:05-2*  154 準位すべて（細い赤）を QSGW バンド（太い灰）に重ねたもの。左 −24〜+26 eV / 中 −10〜+12 / 右 −1〜+6 eV
 
 *表 00:05-3*  各 QSGW バンドに最も近い MLO 準位までの距離（211 k 平均）[meV]
@@ -4800,7 +4803,7 @@ user「酸素 2p を加えたモデルにして」。`mlo_lm` の O 8 サイト�
 （24 = O 2p + 12 = t2g + 8 = eg）、`mlo_nkabc = 9³`、`mlo_delta` は既定の 2.0 のまま。48 秒。
 run: `/mnt/data1/LiTi2O4_kbt_runs/mlo_3d_Op_nk9`。
 
-[![Ti 3d + O 2p MLO](../Samples/kBT/LiTi2O4/plots/mlo_3d_O2p_nk9.png)](../Samples/kBT/LiTi2O4/plots/mlo_3d_O2p_nk9.png)
+[![Ti 3d + O 2p MLO](../../Samples/kBT/LiTi2O4/plots/mlo_3d_O2p_nk9.png)](../../Samples/kBT/LiTi2O4/plots/mlo_3d_O2p_nk9.png)
 *図 23:18-1*  線 = 44 軌道 MLO、○ = Σ メッシュ点上の厳密な QSGW 値。左から O 2p / t2g / eg ブロック
 
 *表 23:18-1*  **メッシュ点での** MLO − exact [meV]（模型の誤差そのもの。MLO は射影なので Wannier 補間と違い
@@ -4826,7 +4829,7 @@ run: `/mnt/data1/LiTi2O4_kbt_runs/mlo_3d_Op_nk9`。
 `mlo_lm` の Ti を **5 6 7 8 9**（d 殻全部）にしただけ。`ndimMTO = 20`、実空間の原子対 1823（t2g 版と同じ）、31 秒。
 run: `/mnt/data1/LiTi2O4_kbt_runs/mlo_3d_nk9`。
 
-[![full 3d MLO](../Samples/kBT/LiTi2O4/plots/mlo_3d_nk9.png)](../Samples/kBT/LiTi2O4/plots/mlo_3d_nk9.png)
+[![full 3d MLO](../../Samples/kBT/LiTi2O4/plots/mlo_3d_nk9.png)](../../Samples/kBT/LiTi2O4/plots/mlo_3d_nk9.png)
 *図 22:50-1*  線 = 3d MLO（20 軌道）の補間、○ = **Σ メッシュ点上の厳密な QSGW 値**（x = 2m/9）。左 = t2g ブロック、右 = eg ブロック
 
 *表 22:50-1*  MLO − QSGW（Γ–X 211 点、準位をエネルギー順に対応づけ）
@@ -4849,7 +4852,7 @@ run: `/mnt/data1/LiTi2O4_kbt_runs/mlo_3d_nk9`。
 user「MLO 9³ のプロットだが、メッシュ点で図 22:00-1 と対応するものを作って」。
 `mlo_t2g_nk9` の `syml` を Γ–X 211 点にして `job_band` → `job_mlo` を回し直した（09-23 22:42、約 40 秒）。
 
-[![MLO vs sigm at the mesh points](../Samples/kBT/LiTi2O4/plots/mlo_vs_sigm_meshpoints.png)](../Samples/kBT/LiTi2O4/plots/mlo_vs_sigm_meshpoints.png)
+[![MLO vs sigm at the mesh points](../../Samples/kBT/LiTi2O4/plots/mlo_vs_sigm_meshpoints.png)](../../Samples/kBT/LiTi2O4/plots/mlo_vs_sigm_meshpoints.png)
 *図 22:45-1*  上 = QSGW（MTO の `sigm` 補間、図 22:00-1 の 1 行目と同じ）、下 = **同じ 9³ メッシュから作った t2g MLO の補間**。
 ○ = Σ q メッシュ点（x = 2m/9）、点線 = ○ を結んだ線。
 
@@ -4877,7 +4880,7 @@ user「MLO のメッシュをもう少し大きくしてみるか」。`mlo_nkab
 （09-23 22:26–22:28、各 15–60 秒。`mlo` の段には `qplist.dat` が要るので `job_band` 済みのディレクトリから
 コピーすること。無いと "qplist.dat do not exist!" で落ちる）。
 
-[![MLO mesh dependence](../Samples/kBT/LiTi2O4/plots/mlo_t2g_meshdep.png)](../Samples/kBT/LiTi2O4/plots/mlo_t2g_meshdep.png)
+[![MLO mesh dependence](../../Samples/kBT/LiTi2O4/plots/mlo_t2g_meshdep.png)](../../Samples/kBT/LiTi2O4/plots/mlo_t2g_meshdep.png)
 *図 22:35-1*  灰 = QSGW（9³ iter 15）、赤破線 = t2g MLO 12 軌道。左から `mlo_nkabc` = 6³ / 9³ / 12³
 
 *表 22:35-1*  MLO − QSGW（全 97 k 点、準位をエネルギー順に対応づけ）
@@ -4936,7 +4939,7 @@ PROCAR（Γ–X 平均）のキャラクター: t2g 帯は **Ti t2g 80–89 %**�
 `mlo_lm` は Ti の 4 サイト（3–6）に **5 6 8**（dxy, dyz, dxz）、Li と O は空）→ `job_mlo liti2o4 -np 8`。
 所要 15 秒（lmf --writeham --mlo 12 s + mlo 3 s）。`ndimMTO = 12`、実空間の原子対 540。
 
-[![t2g MLO vs QSGW](../Samples/kBT/LiTi2O4/plots/mlo_t2g_vs_qsgw.png)](../Samples/kBT/LiTi2O4/plots/mlo_t2g_vs_qsgw.png)
+[![t2g MLO vs QSGW](../../Samples/kBT/LiTi2O4/plots/mlo_t2g_vs_qsgw.png)](../../Samples/kBT/LiTi2O4/plots/mlo_t2g_vs_qsgw.png)
 *図 22:20-1*  灰 = QSGW（9³ iter 15、バンド 33–44）、赤破線 = t2g MLO 12 軌道
 
 *表 22:20-2*  MLO − QSGW（同じ 97 k 点、準位をエネルギー順に対応づけ）
@@ -4962,7 +4965,7 @@ PROCAR（Γ–X 平均）のキャラクター: t2g 帯は **Ti t2g 80–89 %**�
 X も L もメッシュ上に無い。6³ は 0, 1/3, 2/3, 1 で X・L はメッシュ上）。Γ–L 用の 211 点バンドは
 `/mnt/data1/LiTi2O4_kbt_runs/gl_fine_{999,666}`（09-23 21:40 前後、`job_band -np 6`、lmf のみ）。
 
-[![mesh points vs interpolation](../Samples/kBT/LiTi2O4/plots/mesh_points_vs_interpolation.png)](../Samples/kBT/LiTi2O4/plots/mesh_points_vs_interpolation.png)
+[![mesh points vs interpolation](../../Samples/kBT/LiTi2O4/plots/mesh_points_vs_interpolation.png)](../../Samples/kBT/LiTi2O4/plots/mesh_points_vs_interpolation.png)
 *図 22:00-1*
 
 - **○ を結んだ点線はどのケースでも滑らか**。実線の山・谷はすべて○と○の間にある。
@@ -5075,12 +5078,12 @@ kt1 側に commit（`183ac817f`）してから再ビルド。
 | 9 | 23:58→00:14 | 959 | 7.1 / 11.1 | 3.0 / 5.3 | **2.02 / 6.39** | −8.757 |
 | 10 | 00:14→00:30 | 960 | 7.4 / 11.4 | 3.1 / 5.9 | **2.92 / 7.65** | −8.762 |
 
-[![final t2g](../Samples/kBT/LiTi2O4/plots/t2g_final_nk6.png)](../Samples/kBT/LiTi2O4/plots/t2g_final_nk6.png)
+[![final t2g](../../Samples/kBT/LiTi2O4/plots/t2g_final_nk6.png)](../../Samples/kBT/LiTi2O4/plots/t2g_final_nk6.png)
 *図 20:49-2*  収束した t2g（バンド 33–44、緑）。左 LDA / 中 nk6 iter 10 / 右 旧 6³（nkabc 16³）iter 8
 
 **同じ反復回数での比較**（user 04:20）:
 
-[![same iteration](../Samples/kBT/LiTi2O4/plots/t2g_same_iteration.png)](../Samples/kBT/LiTi2O4/plots/t2g_same_iteration.png)
+[![same iteration](../../Samples/kBT/LiTi2O4/plots/t2g_same_iteration.png)](../../Samples/kBT/LiTi2O4/plots/t2g_same_iteration.png)
 *図 20:49-3*  反復 8 どうしの t2g（バンド 33–44）。左 旧（nkabc 16³）/ 右 新（nkabc = 6³）、
 上段 = 全体（−0.62〜1.12 eV）、下段 = **上部ブロックの拡大（0.60〜1.05 eV）**
 
@@ -5096,7 +5099,7 @@ kt1 側に commit（`183ac817f`）してから再ビルド。
 
 **ただし 1 か所だけ差がある**（user 04:45「new より old のほうが −0.5 あたりの縮退がよい」）:
 
-[![t2g doublet splitting](../Samples/kBT/LiTi2O4/plots/t2g_doublet_splitting.png)](../Samples/kBT/LiTi2O4/plots/t2g_doublet_splitting.png)
+[![t2g doublet splitting](../../Samples/kBT/LiTi2O4/plots/t2g_doublet_splitting.png)](../../Samples/kBT/LiTi2O4/plots/t2g_doublet_splitting.png)
 *図 20:49-5*  Γ–X の下 2 本（33, 34）を Γ 近傍で拡大。左 旧 / 中 新 / 右 分裂 |E34−E33|（灰線 = Σ メッシュ点 x = m/3）
 
 *表 20:49-8*  t2g 下 2 本の分裂 |E34 − E33| [meV]
@@ -5115,7 +5118,7 @@ kt1 側に commit（`183ac817f`）してから再ビルド。
 
 user「old のほうがバンドの底でスムーズに見える」→ O 2p を並べて確認（04:30）:
 
-[![O 2p same iteration](../Samples/kBT/LiTi2O4/plots/o2p_same_iteration.png)](../Samples/kBT/LiTi2O4/plots/o2p_same_iteration.png)
+[![O 2p same iteration](../../Samples/kBT/LiTi2O4/plots/o2p_same_iteration.png)](../../Samples/kBT/LiTi2O4/plots/o2p_same_iteration.png)
 *図 20:49-4*  iter 8 どうしの O 2p（上段 = 帯全体、下段 = 底 b9–12）。左 旧 / 中 新 / 右 重ね描き
 
 *表 20:49-6*  O 2p の荒れ（2 階差分 平均 / max、全対称線）
@@ -5165,7 +5168,7 @@ user「old のほうがバンドの底でスムーズに見える」→ O 2p を
 `Samples/kBT/LiTi2O4/plots/nk6_rows.png`（`nk6_rows.py`、引数 OUT TITLE DIR "0,1,2,…"、0 = LDA）。
 9³ を後から加えるときは列を 2 ラン分（6³ | 9³）に拡張する。
 
-[![nk6 series rows](../Samples/kBT/LiTi2O4/plots/nk6_rows.png)](../Samples/kBT/LiTi2O4/plots/nk6_rows.png)
+[![nk6 series rows](../../Samples/kBT/LiTi2O4/plots/nk6_rows.png)](../../Samples/kBT/LiTi2O4/plots/nk6_rows.png)
 *図 20:49-1*
 
 ### 2026-09-23 19:51 新シリーズ: 6³ を `nkabc = n1n2n3 = 6³` で LDA から（まず LDA のみ）
@@ -5178,7 +5181,7 @@ run: `/mnt/data1/LiTi2O4_kbt_runs/n666_nk6_from_lda`。設定は P のまま
 → `job_band -np 8`。所要 2 分。ehf = −109750.1692 eV。
 （注: `lmfa` は MPI バイナリなので `mpirun` 経由で起動する必要がある。素で叩くと MPI_Init で abort する。）
 
-[![LDA nk6 vs nk16](../Samples/kBT/LiTi2O4/plots/nk6_lda_vs_nk16.png)](../Samples/kBT/LiTi2O4/plots/nk6_lda_vs_nk16.png)
+[![LDA nk6 vs nk16](../../Samples/kBT/LiTi2O4/plots/nk6_lda_vs_nk16.png)](../../Samples/kBT/LiTi2O4/plots/nk6_lda_vs_nk16.png)
 *図 19:51-1*
 
 （このシリーズの行並びバンドプロットは最新エントリ 20:49 にまとめた。）
@@ -5213,7 +5216,7 @@ run: `/mnt/data1/LiTi2O4_kbt_runs/n666_nk6_from_lda`。設定は P のまま
 | 14 | 09-23 08:41 | — | 3.3 / 19.3 |
 | 15 | 09-23 10:20 | — | 7.2 / **21.9** |
 
-[![ripple vs iteration](../Samples/kBT/LiTi2O4/plots/ripple_vs_iteration.png)](../Samples/kBT/LiTi2O4/plots/ripple_vs_iteration.png)
+[![ripple vs iteration](../../Samples/kBT/LiTi2O4/plots/ripple_vs_iteration.png)](../../Samples/kBT/LiTi2O4/plots/ripple_vs_iteration.png)
 *図 17:10-1*
 
 **9³ の band 34 は iter 6 の 3.1 meV から iter 15 の 21.9 meV へ、ほぼ直線的に（~2 meV/反復）増え続けている。**
@@ -5252,7 +5255,7 @@ E_F が 1.6 meV しか動かないので、self-consistency への効きも小�
 
 **占有 t2g（band 33/34）の振動**: `Samples/kBT/LiTi2O4/plots/GX_t2g_occupied.png`（`t2g_occ.py`、09-23 16:45 作成）
 
-[![occupied t2g along Gamma-X](../Samples/kBT/LiTi2O4/plots/GX_t2g_occupied.png)](../Samples/kBT/LiTi2O4/plots/GX_t2g_occupied.png)
+[![occupied t2g along Gamma-X](../../Samples/kBT/LiTi2O4/plots/GX_t2g_occupied.png)](../../Samples/kBT/LiTi2O4/plots/GX_t2g_occupied.png)
 *図 16:50-1*
 
 滑らかな 5 次フィットを引いた残差:
@@ -5272,7 +5275,7 @@ E_F が 1.6 meV しか動かないので、self-consistency への効きも小�
 
 **全対称線のバンド図**（LDA / 6³ iter 8 = 09-22 22:51 / 9³ iter 15 = 09-23 10:20）: `Samples/kBT/LiTi2O4/plots/bands_lda_666_999.png`（`full_bands.py`）
 
-[![bands LDA vs 6^3 vs 9^3](../Samples/kBT/LiTi2O4/plots/bands_lda_666_999.png)](../Samples/kBT/LiTi2O4/plots/bands_lda_666_999.png)
+[![bands LDA vs 6^3 vs 9^3](../../Samples/kBT/LiTi2O4/plots/bands_lda_666_999.png)](../../Samples/kBT/LiTi2O4/plots/bands_lda_666_999.png)
 *図 16:50-2*
 
 ### 2026-09-23 14:00 br5 の大振動の起源が確定: **Σ の q メッシュ点の「間」だけで起きる補間のオーバーシュート**
@@ -5295,7 +5298,7 @@ Qlat = (−1,1,1),(1,−1,1),(1,1,−1)（2π/a）なので、Γ→X = (0,−t,0
 | 6³ iter 8 | 0.725, 0.757, 0.847, 0.870（単調増加） | x=0.17 −43、**x=0.50 +155**、x=0.83 +74 meV |
 | 9³ iter 15 | 0.748, 0.763, 0.798, 0.871, 0.900（単調増加） | x=0.11 −23、x=0.33 −64、**x=0.56 +220**、x=0.78 +6 meV |
 
-[![br5 and the sigma mesh points](../Samples/kBT/LiTi2O4/plots/GX_br5_meshpoints.png)](../Samples/kBT/LiTi2O4/plots/GX_br5_meshpoints.png)
+[![br5 and the sigma mesh points](../../Samples/kBT/LiTi2O4/plots/GX_br5_meshpoints.png)](../../Samples/kBT/LiTi2O4/plots/GX_br5_meshpoints.png)
 *図 14:00-1*
 
 （○ = Σ メッシュ点、点線 = その間を直線で結んだもの、灰 = LDA の同じ枝を −0.53 eV ずらして重ねたもの。）
@@ -5332,7 +5335,7 @@ Qlat = (−1,1,1),(1,−1,1),(1,1,−1)（2π/a）なので、Γ→X = (0,−t,0
 **枝の番号は「x = 0.10（Γ のすぐ外、Γ の多重縮退が解けた位置）でのエネルギー順」**に付けてあり、3 枚のパネルで
 同じ番号が同じ枝を指す（9³ の大振動枝も 6³ と同じ **br5**）。レンジは LDA の多重項 1.0〜1.45 eV が入る 0.30〜1.55 eV。
 
-[![Gamma-X traced branches](../Samples/kBT/LiTi2O4/plots/GX_traced_lda_666_999.png)](../Samples/kBT/LiTi2O4/plots/GX_traced_lda_666_999.png)
+[![Gamma-X traced branches](../../Samples/kBT/LiTi2O4/plots/GX_traced_lda_666_999.png)](../../Samples/kBT/LiTi2O4/plots/GX_traced_lda_666_999.png)
 *図 13:20-1*
 
 LDA では Γ 0.53 → X 0.94 eV に上がる枝（br5）、1.39 → 0.96 に下がる枝、1.39 → 0.68 に急降下する枝がいずれも滑らか。
@@ -5370,7 +5373,7 @@ QSGW ではこの多重項全体が 0.7〜1.0 eV に圧縮され、そのうち 
 `gx_fine_lda`（LDA、211 点、**09-23 12:54 に kt1 で実行**）を追加し、−0.6〜1.15 eV で 3 枚並べた。**隣と 5 meV 以内の枝は太い灰色で重ね描き**して
 2 重縮退枝を交差を越えて追えるようにした（`zoom_gx_fine2.py`）。
 
-[![Gamma-X fine, wide range](../Samples/kBT/LiTi2O4/plots/GX_fine_wide_lda_666_999.png)](../Samples/kBT/LiTi2O4/plots/GX_fine_wide_lda_666_999.png)
+[![Gamma-X fine, wide range](../../Samples/kBT/LiTi2O4/plots/GX_fine_wide_lda_666_999.png)](../../Samples/kBT/LiTi2O4/plots/GX_fine_wide_lda_666_999.png)
 *図 13:00-1*
 
 - 灰色の帯を追うと、Γ の 0.46 eV（3 重縮退の一部）から X の 0.70 eV まで **2 重縮退枝が Γ–X 全域で連続**している
@@ -5389,7 +5392,7 @@ QSGW ではこの多重項全体が 0.7〜1.0 eV に圧縮され、そのうち 
 run: `/mnt/data1/LiTi2O4_kbt_runs/gx_fine_999_iter15`, `gx_fine_666_iter8`。
 図: `Samples/kBT/LiTi2O4/plots/GX_fine_666_999.png`、スクリプト `zoom_gx_fine.py`。
 
-[![Gamma-X fine](../Samples/kBT/LiTi2O4/plots/GX_fine_666_999.png)](../Samples/kBT/LiTi2O4/plots/GX_fine_666_999.png)
+[![Gamma-X fine](../../Samples/kBT/LiTi2O4/plots/GX_fine_666_999.png)](../../Samples/kBT/LiTi2O4/plots/GX_fine_666_999.png)
 *図 11:10-1*
 
 **分かったこと（22 点では見えなかった）**
@@ -5441,7 +5444,7 @@ QSGW は多重項を 2.6 倍に圧縮しているので、同じ枝なら 1 点�
 
 **ズーム図（縦 −0.6〜1.65 eV、枝ごとに色とインデックス、点 = バンドプロットの k 点）**
 
-[![Gamma-X zoom with band indices](../Samples/kBT/LiTi2O4/plots/GX_zoom_lda_666_999.png)](../Samples/kBT/LiTi2O4/plots/GX_zoom_lda_666_999.png)
+[![Gamma-X zoom with band indices](../../Samples/kBT/LiTi2O4/plots/GX_zoom_lda_666_999.png)](../../Samples/kBT/LiTi2O4/plots/GX_zoom_lda_666_999.png)
 *図 11:10-2*
 
 スクリプト: `Samples/kBT/LiTi2O4/zoom_gx.py`（引数 OUT TITLE DIR LABEL [DIR LABEL ...]）。
@@ -5548,11 +5551,11 @@ user: 「過去の 1000 K では 6³ と 9³ の振る舞いがかなり違っ�
 `n999_dq0.1_T1000K_sigmakbt1000`（45 反復、30 まで）を LDA + iter 1〜30 の行並びで。設定: χ₀ 1000 K（`t_tetrakbt`）+ `t_sigmakbt` 1000、
 **wcsmear なし**、mixbeta 0.5（6³ は iter 11 まで 1.0）。
 
-[![June 1000 K rows a](../Samples/kBT/LiTi2O4/plots/June_666_999_rows_a.png)](../Samples/kBT/LiTi2O4/plots/June_666_999_rows_a.png)
+[![June 1000 K rows a](../../Samples/kBT/LiTi2O4/plots/June_666_999_rows_a.png)](../../Samples/kBT/LiTi2O4/plots/June_666_999_rows_a.png)
 *図 15:40-1*
-[![June 1000 K rows b](../Samples/kBT/LiTi2O4/plots/June_666_999_rows_b.png)](../Samples/kBT/LiTi2O4/plots/June_666_999_rows_b.png)
+[![June 1000 K rows b](../../Samples/kBT/LiTi2O4/plots/June_666_999_rows_b.png)](../../Samples/kBT/LiTi2O4/plots/June_666_999_rows_b.png)
 *図 15:40-2*
-[![June 1000 K rows c](../Samples/kBT/LiTi2O4/plots/June_666_999_rows_c.png)](../Samples/kBT/LiTi2O4/plots/June_666_999_rows_c.png)
+[![June 1000 K rows c](../../Samples/kBT/LiTi2O4/plots/June_666_999_rows_c.png)](../../Samples/kBT/LiTi2O4/plots/June_666_999_rows_c.png)
 *図 15:40-3*
 
 - iter 1: 6³ は Γ–L の針（−2 eV）、9³ は Γ 近傍で −1 eV の針（別の場所）。**一発の時点で 6³ と 9³ が違う**（極踏みの事故がメッシュで別の対に出る）。
@@ -5618,7 +5621,7 @@ SmearX0 → 0 では差が開くはず。検証 = SmearX0 なし（χ₀ T=0、w
 
 user: 「以前は目視で大きくずれていた所が多かった」→ q 点の Σ だけでなく**バンド（k パス上の補間）の差**を直接見る（12:05）:
 
-[![6^3 vs 9^3 one-shot bands](../Samples/kBT/LiTi2O4/plots/P_666_vs_999_iter1.png)](../Samples/kBT/LiTi2O4/plots/P_666_vs_999_iter1.png)
+[![6^3 vs 9^3 one-shot bands](../../Samples/kBT/LiTi2O4/plots/P_666_vs_999_iter1.png)](../../Samples/kBT/LiTi2O4/plots/P_666_vs_999_iter1.png)
 *図 11:45-1*
 
 $E(9^3)-E(6^3)$ をパス上で: O 2p（9–12）max 11 / rms 6 meV、t2g（33–40）max **34** / rms 6 meV。t2g の 30 meV 級の差は Γ 近傍と
@@ -5725,21 +5728,21 @@ $\varepsilon'$ = t2g 占有底 −0.6 eV なら $\omega = +1.2$ eV — 03:40 の
 | | 14 | 07:03→08:41 | 8.0 / 12.5 | **4.0 / 8.4** | −8.765 |
 | | 15 | 08:41→10:20 | 8.0 / 12.7 | **4.1 / 8.9** | −8.764 |（09-23 10:22 に user 指示で停止）
 
-[![6^3 vs 9^3 per iteration](../Samples/kBT/LiTi2O4/plots/P_666_999_rows.png)](../Samples/kBT/LiTi2O4/plots/P_666_999_rows.png)
+[![6^3 vs 9^3 per iteration](../../Samples/kBT/LiTi2O4/plots/P_666_999_rows.png)](../../Samples/kBT/LiTi2O4/plots/P_666_999_rows.png)
 *図 11:15-1*
 
 （行 = LDA, iter 1, 2, …; 列 = 6³ O 2p | 9³ O 2p | 6³ E_F 近傍 | 9³ E_F 近傍。9³ の行は反復が出るごとに埋まる。
 `LiTi2O4/plot_band_rows_666_999.py Pchain P999 NITER`。）
 9³ iter 2 は 6³ iter 2 とほぼ同じ形。t2g の max 15 meV は Γ–X 中程 +0.5〜+0.7 eV の交差点（6³ でも同じ場所に小さな凸凹）。
 
-[![9^3 iter 1 vs 6^3](../Samples/kBT/LiTi2O4/plots/P999_iter1.png)](../Samples/kBT/LiTi2O4/plots/P999_iter1.png)
+[![9^3 iter 1 vs 6^3](../../Samples/kBT/LiTi2O4/plots/P999_iter1.png)](../../Samples/kBT/LiTi2O4/plots/P999_iter1.png)
 *図 11:15-2*
 
 6³ iter 1 と 9³ iter 1 は目で区別できない（一発ではメッシュ収束している）。
 
 ### 2026-09-22 10:35 offset-Γ の Im $W_c$ の ω → 0（user の問い）
 
-[![low-omega W_c](../Samples/kBT/LiTi2O4/plots/wc_lowomega_nofilter_20260922.png)](../Samples/kBT/LiTi2O4/plots/wc_lowomega_nofilter_20260922.png)
+[![low-omega W_c](../../Samples/kBT/LiTi2O4/plots/wc_lowomega_nofilter_20260922.png)](../../Samples/kBT/LiTi2O4/plots/wc_lowomega_nofilter_20260922.png)
 *図 10:35-1*
 
 - offset-Γ（\|q\| = 0.008）: Im $W_c(1,1)$ は ω ≈ 0.03 eV までに −0.2 へ急峻に立ち上がりその後平ら。$-\mathrm{Im}W_c/\omega$ は 0.03 eV に
@@ -5793,12 +5796,12 @@ P2（2000 K 相当）は iter 1 途中で停止（結果なし、9³ の後に�
 R（フィルタ + Drude 残す）は 6 反復で t2g 7.3 / 16.4、底 −9.63 と沈み続け、P より悪い → 段階 2 路線は当面保留。
 P2（2000 K 相当）は 08:34 に GPU 0 で自動開始（`SmearX0 = 0.0114`, `t_sigmaw = 2000` 確認）。R2 は R の後（~10:00）。
 
-[![P converged](../Samples/kBT/LiTi2O4/plots/P_converged.png)](../Samples/kBT/LiTi2O4/plots/P_converged.png)
+[![P converged](../../Samples/kBT/LiTi2O4/plots/P_converged.png)](../../Samples/kBT/LiTi2O4/plots/P_converged.png)
 *図 08:40-1*
 
 全反復（LDA + iter 1〜8）:
 
-[![P all iterations](../Samples/kBT/LiTi2O4/plots/P_all_iterations.png)](../Samples/kBT/LiTi2O4/plots/P_all_iterations.png)
+[![P all iterations](../../Samples/kBT/LiTi2O4/plots/P_all_iterations.png)](../../Samples/kBT/LiTi2O4/plots/P_all_iterations.png)
 *図 08:40-2*
 
 LDA → iter 1 → 4 → 8（右端は iter 7 と 8 の重ね描き: 青と赤が完全に重なる）。収束解: t2g 幅は LDA 2.2 eV（−0.85〜+1.35）→ 1.4 eV
@@ -5820,7 +5823,7 @@ LDA → iter 1 → 4 → 8（右端は iter 7 と 8 の重ね描き: 青と赤�
 `t0_secomg_filt3_drude/SEComg.UP`（hsfp0 --job=4、`ECALJ_DWPLOT=0.002 ECALJ_OMEGAMAX=0.3`、EMIN/EMAX −2/+2 → 12 状態、3 q、00:49〜03:29 CPU 30 rank）。
 データ `LiTi2O4/secomg_20260922/SEComg.UP`。
 
-[![Sigma_c(omega) states 33-44](../Samples/kBT/LiTi2O4/plots/secomg_t2g_oneshot_filt3_drude_20260922.png)](../Samples/kBT/LiTi2O4/plots/secomg_t2g_oneshot_filt3_drude_20260922.png)
+[![Sigma_c(omega) states 33-44](../../Samples/kBT/LiTi2O4/plots/secomg_t2g_oneshot_filt3_drude_20260922.png)](../../Samples/kBT/LiTi2O4/plots/secomg_t2g_oneshot_filt3_drude_20260922.png)
 *図 03:40-1*
 
 1. $\Sigma_c(\omega)$ は 27 meV 刻みで滑らか、LDA 準位（灰線）の位置に段差なし → **contour 実装は実系でも正しい**（01:35 の単体試験と整合）。
@@ -5856,7 +5859,7 @@ P（フィルタなし、SmearX0 1000 K 相当）iter 1（01:12〜02:30）: O 2p
 
 P は反復ごとに t2g が滑らかになり（4.9 → 3.3、LDA 4.8 を下回る）、O 2p 底は iter 5→6 で 0.006 eV と**収束**。
 
-[![P iter 1-6](../Samples/kBT/LiTi2O4/plots/P_iter1-6.png)](../Samples/kBT/LiTi2O4/plots/P_iter1-6.png)
+[![P iter 1-6](../../Samples/kBT/LiTi2O4/plots/P_iter1-6.png)](../../Samples/kBT/LiTi2O4/plots/P_iter1-6.png)
 *図 03:40-2*
 
 iter 4 以降、E_F 直上 +0.8〜+1.0 eV の非占有 t2g に小さな凸凹（0.05 eV 級、Γ–X 中程・W–X）はまだ見えるが反復で育たない。
@@ -5949,7 +5952,7 @@ T0 の粗いメッシュ（0.136 eV）で第一判定 → dwplot 0.002 Ry（27 m
 `dumpw_nofilter_v3`（22:47〜23:35、GPU 0）。抽出 `LiTi2O4/wc_head.py`（record = nblochpmx² × complex(4)、**nblochpmx = 1053**、
 `freq_r` の D 指数対応）。iq=2 の頭は 09-19 と一致: 1.69 eV Re −54.3 / Im −27、1.75 −49 / −52、1.80 −4.7 / −54、1.85 +3.9 / −21。
 
-[![W_c head no filter](../Samples/kBT/LiTi2O4/plots/wc_head_nofilter_20260921.png)](../Samples/kBT/LiTi2O4/plots/wc_head_nofilter_20260921.png)
+[![W_c head no filter](../../Samples/kBT/LiTi2O4/plots/wc_head_nofilter_20260921.png)](../../Samples/kBT/LiTi2O4/plots/wc_head_nofilter_20260921.png)
 *図 00:10-1*
 
 - 第一殻（iq=2, 5）: $\omega_p$ = 1.78 eV、幅 0.1 eV の鋭い極。第二殻（iq=3）は 1.8 と 2.2 eV に 2 本、Γ セル（iq=1）は 3.6 と 4.7 eV。
@@ -6023,7 +6026,7 @@ MAIN（Drude 残す、mixbeta 0.5）は iter 4 待ち（〜18:10）。
 | 2 | 14:32 | 15:46 | 12.1 / 13.8 | −8.88 | 5（max 2.85 eV Γ st50） |
 | 3 | 15:46 | 16:57 | 9.7 / 13.4 | −9.37 | 9（max 1.93 eV） |
 
-[![MAIN iter 1-3](../Samples/kBT/LiTi2O4/plots/MAIN_iter1-3.png)](../Samples/kBT/LiTi2O4/plots/MAIN_iter1-3.png)
+[![MAIN iter 1-3](../../Samples/kBT/LiTi2O4/plots/MAIN_iter1-3.png)](../../Samples/kBT/LiTi2O4/plots/MAIN_iter1-3.png)
 *図 00:10-2*
 
 **(F)**（Drude 落とす、同条件、mixbeta 1、GPU 1）
@@ -6036,7 +6039,7 @@ MAIN（Drude 残す、mixbeta 0.5）は iter 4 待ち（〜18:10）。
 | 3 | 14:20 | 15:20 | 7.7 / 9.6 | −10.59 |
 | 4 | 15:20 | 16:16 | 7.7 / 9.8 | −10.64 |
 
-[![F iter 1-4](../Samples/kBT/LiTi2O4/plots/F_iter1-4.png)](../Samples/kBT/LiTi2O4/plots/F_iter1-4.png)
+[![F iter 1-4](../../Samples/kBT/LiTi2O4/plots/F_iter1-4.png)](../../Samples/kBT/LiTi2O4/plots/F_iter1-4.png)
 *図 00:10-3*
 
 - MAIN: iter 2 から E_F 直上（+0.8〜+1.5 eV）の非占有 t2g に 0.1〜0.3 eV の凸凹（Γ–X 中程、Γ 近傍、W–X）。iter 3 では O 2p にも
@@ -6106,7 +6109,7 @@ Drude とプラズモンを 3 eV で抜いても残る → W の低エネルギ�
   チェーン (E) の後に Drude 残しで再 dump（`dumpw_T1000_filt3_drude_v2`、キュー済み）。
 - チェーン (E)（標準案、6 反復）: 11:26 開始、iter 1 = 6.4 / 8.1 meV（11:53）。
 
-[![LDA / Drude 落とす / Drude 残す（標準）/ フィルタなし](../Samples/kBT/LiTi2O4/plots/bands_standard_20260921.png)](../Samples/kBT/LiTi2O4/plots/bands_standard_20260921.png)
+[![LDA / Drude 落とす / Drude 残す（標準）/ フィルタなし](../../Samples/kBT/LiTi2O4/plots/bands_standard_20260921.png)](../../Samples/kBT/LiTi2O4/plots/bands_standard_20260921.png)
 *図 00:10-4*
 
 一発（LDA から、mixbeta 1）4 枚: Drude を落とすと t2g の帯幅が 3.5 eV（−1.5〜+2.0）まで広がり O 2p が −9.8 eV まで沈む。
@@ -6130,7 +6133,7 @@ iter 1（10:00〜10:27、27 分）O 2p 荒れ 7.4 / 9.9 meV、底 −9.03 eV、�
 Re −54 → +4）が消えているかの直接確認**。dump（46 GB）は頭の抽出後に削除する（`~/trash/wc_head.py`、
 `__WVR.<iq>` は direct access・record = nblochpmx² complex(4)、nblochpmx = 582）。
 
-[![LDA vs (D) iter 1](../Samples/kBT/LiTi2O4/plots/chainD_lda_vs_iter1.png)](../Samples/kBT/LiTi2O4/plots/chainD_lda_vs_iter1.png)
+[![LDA vs (D) iter 1](../../Samples/kBT/LiTi2O4/plots/chainD_lda_vs_iter1.png)](../../Samples/kBT/LiTi2O4/plots/chainD_lda_vs_iter1.png)
 *図 00:10-5*
 
 LDA（`rst.liti2o4.lda`、sigm 無しで job_band）と (D) の iter 1。全部入りの一発は滑らか。LDA に対して t2g 帯幅が
@@ -6156,7 +6159,7 @@ kt1 `/mnt/data1/LiTi2O4_kbt_runs/n666_filterw2_drude_20260921`（06:02〜07:55�
 | 5 | 14.6 / 17.4 | −9.64 | 8 | 2.48（Γ st11） |
 | 6 | 12.9 / 17.1 | −9.51 | 0 | 1.17 |
 
-[![6 反復のバンド](../Samples/kBT/LiTi2O4/plots/chain_666_filterw_iter1-5_and_D1.png)](../Samples/kBT/LiTi2O4/plots/chain_666_filterw_iter1-5_and_D1.png)
+[![6 反復のバンド](../../Samples/kBT/LiTi2O4/plots/chain_666_filterw_iter1-5_and_D1.png)](../../Samples/kBT/LiTi2O4/plots/chain_666_filterw_iter1-5_and_D1.png)
 *図 00:10-6*
 
 （左 5 枚: Drude 残しチェーン iter 1–5。右端: (D) 全部入り（χ₀ 1000 K、filterw [3,0.2]、Drude 落とす）の iter 1、10:40 差し替え。元の 6 枚版は `chain_666_filterw_iter1-6.png`。）
@@ -6206,7 +6209,7 @@ kt1 `oneshot1_666_skipq0_20260918/FILT2_DRUDE`（23:34〜23:57、21.9 分）。6
 | 同 O 2p（ε_LDA ∈ [−9, −4.5], 294 状態） | | | 平均 **−0.25**（−0.54〜+0.05） |
 | 同 高い状態（ε_LDA > 3 eV, 1830） | | | 平均 +0.12（−0.68〜+1.18） |
 
-[![REF / NEW / FILT2_DRUDE](../Samples/kBT/LiTi2O4/plots/oneshot_666_filterw_drude_20260921.png)](../Samples/kBT/LiTi2O4/plots/oneshot_666_filterw_drude_20260921.png)
+[![REF / NEW / FILT2_DRUDE](../../Samples/kBT/LiTi2O4/plots/oneshot_666_filterw_drude_20260921.png)](../../Samples/kBT/LiTi2O4/plots/oneshot_666_filterw_drude_20260921.png)
 *図 00:10-7*
 
 - **針の震源は消えた**: ⟨48|Σ|33⟩ が 6.69（REF）→ 2.18（wcsmear）→ 1 eV 未満。E_F 近傍のバンドは滑らか、O 2p の荒れは
@@ -6283,7 +6286,7 @@ $\varepsilon_{ib}=\varepsilon_{jb}$）。t2g 3 本が交差する四面体では
 - 昨日の結論（第一殻 q のプラズモン極が震源、wcsmear で針が消え O 2p 荒れ 12 → 7 meV、残る限界は極を挟む対の非対角）は
   今日のコードでも成立。
 
-[![REF / 昨日 / 今日 の一発バンド比較](../Samples/kBT/LiTi2O4/plots/oneshot_666_REF_OMP01_NEW_20260920.png)](../Samples/kBT/LiTi2O4/plots/oneshot_666_REF_OMP01_NEW_20260920.png)
+[![REF / 昨日 / 今日 の一発バンド比較](../../Samples/kBT/LiTi2O4/plots/oneshot_666_REF_OMP01_NEW_20260920.png)](../../Samples/kBT/LiTi2O4/plots/oneshot_666_REF_OMP01_NEW_20260920.png)
 *図 00:10-8*
 
 上段 O 2p の底（bands 9–12 赤）、下段 E_F 近傍 t2g（bands 25–52 緑）、右列は重ね描き（灰 REF、青 昨日、赤 今日）。
@@ -6317,7 +6320,7 @@ $u_a\to0$ なら $-\tfrac12\mathrm{sign}(w_e) + \tfrac12\mathrm{sign}(w_e)\mathr
 $\Phi_G(\varepsilon'-\omega)$(Gaussian の累積、同じ $\sigma$)で均していたから、両側が同じ核で整合し
 「Gaussian で均した準位の $\Sigma_c$」を計算していた(§3 の Eq. (1))。**`sig` は数値正則化ではなく準位 smearing そのもの。**
 
-**今回やったこと**(極項の核を FD にしたら虚軸側が Gaussian のまま → 段差の不一致 $[\Phi_{FD}-\Phi_G](../Samples/kBT/\varepsilon'-\omega)\times|M|^2W_c(0)$)。
+**今回やったこと**(極項の核を FD にしたら虚軸側が Gaussian のまま → 段差の不一致 $[\Phi_{FD}-\Phi_G](../../Samples/kBT/\varepsilon'-\omega)\times|M|^2W_c(0)$)。
 準位を FD 核 $g(x)=-\partial f/\partial x$(幅 $k_BT$ = `t_sigmaw`)で均した $\Sigma_c$ を、**両側とも**
 
 $$
@@ -6441,7 +6444,7 @@ wcsmear=true で Ni d (E_F 上) の QSGW 固有値が 0.15〜0.2 eV 動く (−0
 
 ### 2026-09-20 11:20 メモ: 極項で $W_c$ を拾う位置 — 従来（1 点）と `wcsmear`（核で積分）
 
-[![pole position scheme](../Samples/kBT/LiTi2O4/plots/pole_position_scheme.png)](../Samples/kBT/LiTi2O4/plots/pole_position_scheme.png)
+[![pole position scheme](../../Samples/kBT/LiTi2O4/plots/pole_position_scheme.png)](../../Samples/kBT/LiTi2O4/plots/pole_position_scheme.png)
 *図 00:10-9*
 
 **記号の定義**
@@ -6558,7 +6561,7 @@ mixbeta=1）。比較: 修正前の同じ 1 反復は band 33 が −0.90（針�
 | band 33 の荒れ（E_F 近傍） | 10.6（iter 2）, 7.9（iter 3） | **47.4**（iter 2） |
 | band 33 の底 | −0.55 | **−0.90**（Γ–X, K–Γ, W 付近に針） |
 
-[![wcsmear chain vs reference](../Samples/kBT/LiTi2O4/plots/wcsmear_chain_999.png)](../Samples/kBT/LiTi2O4/plots/wcsmear_chain_999.png)
+[![wcsmear chain vs reference](../../Samples/kBT/LiTi2O4/plots/wcsmear_chain_999.png)](../../Samples/kBT/LiTi2O4/plots/wcsmear_chain_999.png)
 *図 00:10-10*
 
 iter 2 の SEBK を見ると、band 33（E_F 直下の t2g）と **+3 eV の st 45/46** の非対角が
@@ -6626,7 +6629,7 @@ CPU hgw は 9³ GPU の 10 倍遅い）。**T0_wcs は 18:42 に hgw が SIGBUS�
 | Γ–L band 33 の底 | −0.75（K–Γ で −1.02） | −0.68 |
 | E_F 近傍の最大差（band 30〜44） | — | 0.2〜0.4 eV（針の解消と、band 44 の 1.03 → 0.75 など） |
 
-[![9^3 one-shot REF vs wcsmear](../Samples/kBT/LiTi2O4/plots/wcsmear_bands_999_iter1.png)](../Samples/kBT/LiTi2O4/plots/wcsmear_bands_999_iter1.png)
+[![9^3 one-shot REF vs wcsmear](../../Samples/kBT/LiTi2O4/plots/wcsmear_bands_999_iter1.png)](../../Samples/kBT/LiTi2O4/plots/wcsmear_bands_999_iter1.png)
 *図 00:10-11*
 
 → 9³ の一発では針は元々小さく（6³ の −1.9〜−3.4 eV に対し −1.0）、`wcsmear` で消える。
@@ -6697,7 +6700,7 @@ SmearX0 について: 6 月に 2000〜3000 K の K–Γ キンク安定化で系
 | O 2p 荒れ（平均 / 最大 meV） | 8.9 / 10.8 | 47.8 / 56.1 | **12.7 / 16.0** |
 | 所要時間 | — | 7313 s | 9209 s（+26 %） |
 
-[![REF9 vs WCS9](../Samples/kBT/LiTi2O4/plots/wcsmear_bands_999_iter3.png)](../Samples/kBT/LiTi2O4/plots/wcsmear_bands_999_iter3.png)
+[![REF9 vs WCS9](../../Samples/kBT/LiTi2O4/plots/wcsmear_bands_999_iter3.png)](../../Samples/kBT/LiTi2O4/plots/wcsmear_bands_999_iter3.png)
 *図 00:10-12*
 
 （左 REF9、右 WCS9。上 O 2p、下 E_F 近傍。右は O 2p の波が消え、E_F 近傍の小さなこぶ
@@ -6832,7 +6835,7 @@ $\omega-\varepsilon'(\mathbf{k})$ も同じ $\varepsilon'(\mathbf{k})$ の関数
 | O 2p 荒れ（平均 / 最大 meV） | 12.2 / 13.6 | **7.2 / 10.5** | 11.3 / 14.0 |
 | 対角 SEc の変化（state 9〜52） | — | 平均 0.05 eV、最大 2.6（病的だった state 48 系） | |
 
-[![REF vs --wcsmear](../Samples/kBT/LiTi2O4/plots/wcsmear_bands_666_T1000.png)](../Samples/kBT/LiTi2O4/plots/wcsmear_bands_666_T1000.png)
+[![REF vs --wcsmear](../../Samples/kBT/LiTi2O4/plots/wcsmear_bands_666_T1000.png)](../../Samples/kBT/LiTi2O4/plots/wcsmear_bands_666_T1000.png)
 *図 00:10-13*
 
 （左 REF、右 `--wcsmear`。下段: E_F 近傍の針（Γ–L, K–Γ, X, W）が全部消え、t2g が素直な分散に。
@@ -6945,7 +6948,7 @@ W_c(ω_ε = ε − ε′) を**実軸で拾う**]
 `--dumpW` の `__WVR.<iq>`（direct access、record = nblochpmx² complex(4)）から頭 (1,1) 成分を抜いた
 （`LiTi2O4/wc_head_iq{1,2,3,5}.dat`）:
 
-[![W_c head vs omega](../Samples/kBT/LiTi2O4/plots/wc_head_666_T1000.png)](../Samples/kBT/LiTi2O4/plots/wc_head_666_T1000.png)
+[![W_c head vs omega](../../Samples/kBT/LiTi2O4/plots/wc_head_666_T1000.png)](../../Samples/kBT/LiTi2O4/plots/wc_head_666_T1000.png)
 *図 00:10-14*
 
 *表 00:10-21*
@@ -7039,7 +7042,7 @@ SKIPQ0 は 2 本同居時に hgw が W-build で segfault（`__c_mcopy8`、夕�
 | Σc₄₈,₄₈ / Σc₃₃,₃₃ | −3.22 / −1.55 | −2.56 / −2.19 |
 | O 2p 荒れ | 12.2 / 13.6 | 12.1 / 13.4 |
 
-[![REF vs --skipq0Sc](../Samples/kBT/LiTi2O4/plots/skipq0_bands_666_T1000.png)](../Samples/kBT/LiTi2O4/plots/skipq0_bands_666_T1000.png)
+[![REF vs --skipq0Sc](../../Samples/kBT/LiTi2O4/plots/skipq0_bands_666_T1000.png)](../../Samples/kBT/LiTi2O4/plots/skipq0_bands_666_T1000.png)
 *図 00:10-15*
 
 （左 REF、右 `--skipq0Sc`。上 O 2p、下 E_F 近傍。右でも Γ–L / K–Γ / X / W の針は全部残り、
@@ -7112,10 +7115,10 @@ kt1 `runs/oneshot3_666_T1000_20260918/`（20:25 投入、A′ 21:15・C 21:33 �
 各反復で上段 O 2p（−10〜−4 eV、赤 = band 9〜12、青 = 13〜19）、下段 E_F±2.5 eV（緑 = t2g、
 band 25〜52）。`plot_band_history.py` / `plot_band_history_666.py`。
 
-[![O 2p bands per iteration, 9^3 1000 K](../Samples/kBT/LiTi2O4/plots/bands_history_999_T1000.png)](../Samples/kBT/LiTi2O4/plots/bands_history_999_T1000.png)
+[![O 2p bands per iteration, 9^3 1000 K](../../Samples/kBT/LiTi2O4/plots/bands_history_999_T1000.png)](../../Samples/kBT/LiTi2O4/plots/bands_history_999_T1000.png)
 *図 00:10-16*
 
-[![O 2p bands per iteration, 6^3 1000 K](../Samples/kBT/LiTi2O4/plots/bands_history_666_T1000.png)](../Samples/kBT/LiTi2O4/plots/bands_history_666_T1000.png)
+[![O 2p bands per iteration, 6^3 1000 K](../../Samples/kBT/LiTi2O4/plots/bands_history_666_T1000.png)](../../Samples/kBT/LiTi2O4/plots/bands_history_666_T1000.png)
 *図 00:10-17*
 
 - 9³: iter 1, 2 は滑らか、**iter 3 で全 k 路に細かい波が乗り**（Γ だけではない）、iter 17〜18 で
@@ -7146,7 +7149,7 @@ iter 1〜3 の状態（rst, sigm, QPU, EFERMI*, hgw の stdout）は kt1
 
 `plot_band_final_june.py`、−10.5〜+3.5 eV、赤 = band 9〜12、青 = 13〜24、灰 = Ti t2g/eg:
 
-[![final-iteration bands of the June runs](../Samples/kBT/LiTi2O4/plots/bands_final_june_runs.png)](../Samples/kBT/LiTi2O4/plots/bands_final_june_runs.png)
+[![final-iteration bands of the June runs](../../Samples/kBT/LiTi2O4/plots/bands_final_june_runs.png)](../../Samples/kBT/LiTi2O4/plots/bands_final_june_runs.png)
 *図 00:10-18*
 
 - χ₀+Σ（t_sigmakbt あり）の 6³ 1000/2000/3000 K と 9³ 3000 K は O 2p も t2g も素直。

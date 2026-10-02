@@ -1,6 +1,6 @@
 # 報告書: GW（hgw）の GPU 高速化と、方法の自動選択
 
-2026-09-27。計画書 [`gpu_fp32_plan.md`](gpu_fp32_plan.md) の段 0〜6 を実装・計測した結果。経過の記録は [`MD/research_log.md`](../../MD/research_log.md) の 03:50〜。
+2026-09-27。計画書 [`gpu_fp32_plan.md`](gpu_fp32_plan.md) の段 0〜6 を実装・計測した結果。経過の記録は [`ecaljdoc/MD/research_log.md`](../../MD/research_log.md) の 03:50〜。
 計測は kt1（RTX 5090 ×2、CPU 64 コア）、LiTi2O4 の `hgw` 1 回（6³ は `bench_hgw666`、9³ は `bench_hgw999`、`-np2 2`、`--use_fp32`）。
 
 ## 1. まとめ
@@ -379,7 +379,7 @@ FP16 版の 6³ tf32 で、rank 0 の hgw 本体 227 秒の内訳は Σc 117 秒
 
 ## 10. 2026-09-27 夜: hgw 以外の段
 
-hgw に続いて、1 反復の中の hgw 以外の段を詰めた。経過は [`MD/research_log.md`](../../MD/research_log.md) の 2026-09-27 夕方・夜。
+hgw に続いて、1 反復の中の hgw 以外の段を詰めた。経過は [`ecaljdoc/MD/research_log.md`](../../MD/research_log.md) の 2026-09-27 夕方・夜。
 
 *表 12* LiTi2O4 6³ の `gwsc 1`（tf32、MLO、GPU 2 枚、CPU 60 本）の段ごとの秒。18:34 と 21:34 は同じ出発点（5 反復目の状態）から、
 15:50 のコードの列は同じ流れの反復 5

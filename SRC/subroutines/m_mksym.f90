@@ -200,7 +200,7 @@ contains
     if(ifind>0) gens= ssymgr(1:ifind-1)//' '//ssymgr(ifind+4:)
     if(master_mpi) write(stdo,*)' Generators except find: ',trim(gens)
     if(master_mpi) write(stdo,*)' Generators find or not: ',symfind
-    ! The finder (2026-10-02 08:28, MD/symmetry_spglib.md §4.7g): for the group of the crystal (faithful) with SYMGRP 'find' (the default),
+    ! The finder (2026-10-02 08:28, ecaljdoc/MD/symmetry_spglib.md §4.7g): for the group of the crystal (faithful) with SYMGRP 'find' (the default),
     ! the operations of symmetry.<sname>.json when it is there and its structure is the present one; otherwise spglib (the
     ! vendored C library, symfind_spglib) finds them and rank 0 writes the file. Pure translations of a supercell are
     ! operations; AF: the operations with time reversal (from the af labels) are kept for the second, AF call of m_mksym_init

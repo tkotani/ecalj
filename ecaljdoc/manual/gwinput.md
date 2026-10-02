@@ -58,7 +58,7 @@ http://doi.org/10.7567/JJAP.55.051201
 - **type** : float
 - **default** : 0.4（CPU では 0.4 未満、GPU では 2.0 未満を書いても、それぞれ 0.4、2.0 に上げられる）
 
-系に対して値が小さいと"sxcf_fal2_count.sc. Too small memory for nmbatch. Enlarge zmel_batch_gb in ctrlg.<sname>.toml [gw]" と出て計算が終了する場合がある。その場合は大きくする。
+系に対して値が小さいと`sxcf_fal2_count.sc. Too small memory for nmbatch. Enlarge zmel_batch_gb in ctrlg.<sname>.toml [gw]` と出て計算が終了する場合がある。その場合は大きくする。
 
 ### `zmel_max_size`
 `zmel_batch_gb` の古い名前。今も `zmel_batch_gb` として読まれる。古い入力にある `MEMnmbatch` は読まれない（`zmel_batch_gb` を書く）。

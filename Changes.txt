@@ -27,11 +27,11 @@
   対称性は既定で spglib から取る（lmf・lmchk など、symgrp = "find" のとき）。spglib 2.6.0 の C を SRC/external/spglib に同梱してビルドに入れた
   （Python は要らない）。求めた操作は作業ディレクトリの symmetry.<sname>.json に書き、次からはそれを読む。構造（--ctrlg: の上書きを含む）が
   変わればその場で作り直す。超格子の純粋な並進、AF（[[site]] af の印）の磁気対称性も含む。symgrp に生成元を書いた入力（対称性を下げる）と
-  ECALJ_SYMFIND=ecalj は従来の探し方。説明は ecaljdoc lmf.md の SYMGRP、設計は MD/symmetry_spglib.md。
+  ECALJ_SYMFIND=ecalj は従来の探し方。説明は ecaljdoc lmf.md の SYMGRP、設計は ecaljdoc/MD/symmetry_spglib.md。
   - 操作の並びが変わるので、並びをそのまま書き出す出力（BoltzTraP の si.struct.boltztrap など）は前と並びが違う。
 
 2026-10-02 (3)
-  対称性を spglib から取れるようにした（既定は今までどおり。設計と経過は MD/symmetry_spglib.md）。
+  対称性を spglib から取れるようにした（既定は今までどおり。設計と経過は ecaljdoc/MD/symmetry_spglib.md）。
   - symfind.py <sname> [--ctrlg:...] が spglib で空間群を求め、symmetry.<sname>.json を書く（操作は格子の基底での整数の回転と分数座標の
     並進、構造の数値とそのハッシュ）。このファイルがあると lmf・lmchk・mlo などはその操作を使う。構造が ctrlg と違えば止まる
     （作り直すよう言う。--ctrlg: で構造を上書きして回すときは symfind.py にも同じ引数を渡す）。ECALJ_SYMFIND=ecalj で従来の探し方に固定。
@@ -50,7 +50,7 @@
 
 2026-10-02 (1)
   Wannier 関数（最大局在化）の経路、AHC、lmfham2 を外し、模型は MLO だけにした。外す前の版は git のタグ last-wannier
-  （そこで Samples/WannierVsMLO/run.sh が MLO との比較を再現する）。比較は ecaljdoc mlo §6 の表 M7 と MD/wannier_vs_mlo.md。
+  （そこで Samples/WannierVsMLO/run.sh が MLO との比較を再現する）。比較は ecaljdoc mlo §6 の表 M7 と ecaljdoc/MD/wannier_vs_mlo.md。
   - 外したもの: hmaxloc、hpsig_MPI、wanplot、hsocmat、hmagnon（Wannier のマグノン）、hahc（AHC）、lmfham2（反復で作る古い MLO）と
     genMLWF、genMLWFx、genMLWFdipoleTEST、job_magnon、job_AHC、hx0ahc.py、genMLO。試料 Samples/Magnon の Fe・Ni・FeCo・
     Fe_bcc_in_sc の Wannier 版。[gw] の wan_* と lmfham2 の mlo_maxit などのキーは読まない（書いてあっても無視）。
@@ -95,11 +95,11 @@
     これまで GaAsSoc がギャップで -0.1 eV ずれて見えたのは、SOC なしの DFT と比べていたため (Delta_SO/3)。ecaljdoc mlo §4。
 
 2026-10-01 (2)
-  開発の文書を MD/ にまとめた。最上位に残るのは CLAUDE.md（入口）、数行の README.md、Changes.txt。
-  README.md の中身（2026-05〜09 の新機能のログと TOML の流れのクイックスタート）は MD/README.md へ。ecalj は Claude が読み、
+  開発の文書を ecaljdoc/MD/ にまとめた。最上位に残るのは CLAUDE.md（入口）、数行の README.md、Changes.txt。
+  README.md の中身（2026-05〜09 の新機能のログと TOML の流れのクイックスタート）は ecaljdoc/MD/README.md へ。ecalj は Claude が読み、
   人間は Claude を通して情報を取る構造にする（人間向けの説明は ecaljdoc）。
-  ecaljclaude.md → MD/ecaljclaude.md（CLAUDE.md は @MD/ecaljclaude.md）、研究ログ Samples/kBT/kBT_research.md → MD/research_log.md、
-  新しく MD/TODOandQuestion.md（直すべき点、質問、実行中、やったこと）と MD/past_log.md（片付けたものにあったノウハウ）。
+  ecaljclaude.md → ecaljdoc/MD/ecaljclaude.md（CLAUDE.md は @ecaljdoc/MD/ecaljclaude.md）、研究ログ Samples/kBT/kBT_research.md → ecaljdoc/MD/research_log.md、
+  新しく ecaljdoc/MD/TODOandQuestion.md（直すべき点、質問、実行中、やったこと）と ecaljdoc/MD/past_log.md（片付けたものにあったノウハウ）。
   いらないものは各計算機の ecalj/trash/（git は無視）へ移す。最上位の MATERIALS/ は Samples/MATERIALS/ へ移した。
 
 2026-10-01
@@ -1167,7 +1167,7 @@
     検証 (Na 4x4x4): 全 T で NaN 無し; T->0 で lindtet6 と一致 (ESEAVR 差 ~1e-9,
     Re(Sc) は印字精度で全状態一致); T=300K で物理的な熱シフト。
     旧ルーチン (tetrakbt/eaf_triangle/factri 等) は未使用化、削除候補。
-    詳細: MD/past_log.md §13（元は SRC/subroutines/m_tetrakbt_BUGREPORT.md）
+    詳細: ecaljdoc/MD/past_log.md §13（元は SRC/subroutines/m_tetrakbt_BUGREPORT.md）
 
 2026-06-05
   [fix] ctrl2ctrltoml.py: 生成 TOML の [ham] セクションに phispinsym=false を

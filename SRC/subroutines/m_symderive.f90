@@ -192,7 +192,7 @@ contains
     !r    bas( k,miat(ibas,ig) )+ tiat(k,ibas,ig), k=1~3.
     !r
     !r (2) tiat= unit translation
-    !r (3) ag (optional, 2026-10-02 05:42, step S4 of MD/symmetry_spglib.md): the translation of each operation. Given, delta = ag
+    !r (3) ag (optional, 2026-10-02 05:42, step S4 of ecaljdoc/MD/symmetry_spglib.md): the translation of each operation. Given, delta = ag
     !r     and only the lattice shifts tiat are searched; the inverse invg is the operation with the inverse rotation AND
     !r     translation (mod lattice). Without ag the translation is searched (the first one mapping every site onto a site of
     !r     its class) and invg is found from the rotation alone: two operations with the same rotation (a supercell with pure

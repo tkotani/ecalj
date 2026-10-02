@@ -66,7 +66,7 @@ spglib に替える前に、**見つける部分**と、それから**導く部�
   （整数の回転行列と分数座標の並進の組、空間群の番号・国際記号・Hall 番号、`symprec`）にする。(3) 超格子（純粋な並進がある胞）と反強磁性も、同じ仕組みで扱う
 - しないこと: 対称操作を「使う」側（21 ファイル）の計算の中身は変えない。受け取る配列の形と意味も、移行の間は今と同じにする（3 節の表 2 の「使う」層）
 
-### 4.2 module の形（singleton、`MD/ecaljclaude.md` のコーディング規約に従う。4.5 も見る）
+### 4.2 module の形（singleton、`ecaljdoc/MD/ecaljclaude.md` のコーディング規約に従う。4.5 も見る）
 
 | module | 役目 | 公開するもの（`protected`） | 入力 |
 | --- | --- | --- | --- |
@@ -190,7 +190,7 @@ GW 側の二つは `__HAMindex0` から読んだ操作のうち、呼ぶ側が�
 ### 4.7d S3 の形（2026-10-02 05:39。§4.3・§4.4 の案から変えた所も）
 
 - ファイル名は **`symmetry.<sname>.json`**（§4.3 の `symmetry.json` から変えた）。一つのディレクトリに ctrlg が二つあることがある（`Samples/LDAU/ReN`）。
-  ファイル名に ID を残す決まり（`MD/ecaljclaude.md`「ファイル命名規約」）にも合う
+  ファイル名に ID を残す決まり（`ecaljdoc/MD/ecaljclaude.md`「ファイル命名規約」）にも合う
 - 構造の照らし方: JSON に構造を数値で入れ（`structure`: `alat_bohr`、`plat_alat`、`species`、`frac`）、Fortran（`m_symfind` の `symfind_json`）は
   今の ctrlg と数値で比べる（alat・plat は相対 1e-6、分数座標は 1 を法に 1e-6、種の名前は一致）。§4.3 の「正規化した文字列を比べる」は、Fortran で
   Python と同じ書式・丸め（`%.10f` と `f0.10` の先頭の 0 など）を作るのが脆いのでやめた。文字列とその SHA-256 は人と Python のために残す

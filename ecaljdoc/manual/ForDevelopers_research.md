@@ -1,6 +1,6 @@
 # ForDevelopers 付録 — 研究ログの要約と索引（2026-09-16〜09-28）
 
-> ecalj の研究ログ `MD/research_log.md`（最新が上、`### HH:MM` の時刻付き、約 5200 行）を、記憶の無いセッションや引き継ぐ人が
+> ecalj の研究ログ `ecaljdoc/MD/research_log.md`（最新が上、`### HH:MM` の時刻付き、約 5200 行）を、記憶の無いセッションや引き継ぐ人が
 > 引けるようにまとめたもの。[ForDevelopers](./ForDevelopers) の §13 から来る。2026-09-28 に作成（元はエージェントの下読み、確かめて手を入れた）。
 > **研究ログが正本**で、ここは入口。食い違ったら研究ログを見て、ここを直す。
 
@@ -286,7 +286,7 @@ mp_20260918）。図 `LiTi2O4/plots/mlo_*`（t2g_meshdep、vs_sigm_meshpoints、
 - push していない（報告書 §8、ForDevelopers §9）
 
 **詳しい所**: `Samples/kBT/gpu_fp32_report.md`（§1 まとめ、§2.1 FP16 経路、§5 分かったこと、§7 使い方、§8〜§10）、`gpu_fp32_plan.md`、`fp16acc.cu`。
-ecaljdoc `ForDevelopers` §6・§11、`ecaljgpu`、`cmdopts`。`MD/ecaljclaude.md`「OpenACC 一般注意」。背景: `Samples/mptf32problem`
+ecaljdoc `ForDevelopers` §6・§11、`ecaljgpu`、`cmdopts`。`ecaljdoc/MD/ecaljclaude.md`「OpenACC 一般注意」。背景: `Samples/mptf32problem`
 （2026-06: TF32 で AgNO3 の QSGW が発散し `--fp32` で回復、GW1500 の 36 件）。
 
 ### 1.6 運用・ファイル・記録（落とし穴と決めごと）
@@ -308,7 +308,7 @@ ecaljdoc `ForDevelopers` §6・§11、`ecaljgpu`、`cmdopts`。`MD/ecaljclaude.m
 - 旧 cmlo の段が sugw の `__cmlo.data` をチェーン開始時の窓で上書きしていた（結果には効かず、凍結の回は通らないようにした、2026-09-27 21:06）
 - ビルド: `FC=nvfortran` で渡す、`m_mlo_wfs.f90` の nvfortran ICE は `-O1`（2026-09-23 20:49）、`InstallAll.py --gemmul8` が上流の変更で落ちた（2026-09-25 21:35。`20a9aa329` で直した）、
   nvfortran の `findloc` が長さの違う文字列を空白で埋めない（2026-09-27 04:30）、CPU 版の `igb` 二重宣言（2026-09-27 18:34）
-- 記録: 上書きされる図は日付のエントリに貼らない（ログ冒頭）、記録の方針は `MD/ecaljclaude.md`（2026-09-27 22:10）、コード点検 87 コミット（2026-09-27 21:59）
+- 記録: 上書きされる図は日付のエントリに貼らない（ログ冒頭）、記録の方針は `ecaljdoc/MD/ecaljclaude.md`（2026-09-27 22:10）、コード点検 87 コミット（2026-09-27 21:59）
 - 検証の到達点: 手元 gfortran `--all` 全部合格（2026-09-27 22:20、2026-09-28 00:05。照合は 64 件、2026-09-28 22:38）、kt1 GPU の chain33 全合格（2026-09-27 22:20）
 
 ---
@@ -324,7 +324,7 @@ ecaljdoc `ForDevelopers` §6・§11、`ecaljgpu`、`cmdopts`。`MD/ecaljclaude.m
 - 03:05 — 9³ tf32 の 1 反復は 1253 秒、hgw 93%
 - 00:50 — 記憶の無いエージェントの試験で見つかった食い違いを直した。9³ の hgw の間の GPU は 2 枚とも 88%・466 W
 - 00:20 — 有限温度の回帰テスト fe_kbt、9³ の hgw の間の GPU 2 枚の使用率、kt1 の ~/ecalj_dev に計測パッチ（9³ の後に戻す）
-- 00:05 — 手元 --all 全部合格（ログの「766 件」は PASSED 行の延べ数で、照合は 64 件）、PROCAR.UP.<rank> を止めた、ファイル統一は見送り、文書整理
+- 00:05 — 手元 --all 全部合格（ログの「766 件」は PASSED 行の延べ数で、照合は 64 件）、`PROCAR.UP.<rank>` を止めた、ファイル統一は見送り、文書整理
 
 **## 2026-09-27 夜**
 - 23:45 — E 積分を 4 区間 × GL5、CoreEx の E_F 上書きを修正（`8545a6938`）
@@ -332,7 +332,7 @@ ecaljdoc `ForDevelopers` §6・§11、`ecaljgpu`、`cmdopts`。`MD/ecaljclaude.m
 - 23:36 — 9³ tf32 を LDA から gwsc 10（qmlo_k9_tf32n、~/bin_frozen_9e881）
 - 23:35 — 6³ tf32 の gwsc 10 は 39 分、10 反復後のバンドは fp32 と rms 0.3 meV
 - 22:25 — 画面出力をランク 0 だけに、rx をまとめる（`b4bcb7adf`）
-- 22:10 — 記録の方針を MD/ecaljclaude.md に（CLAUDE.md から読む）
+- 22:10 — 記録の方針を ecaljdoc/MD/ecaljclaude.md に（CLAUDE.md から読む）
 - 21:34 — QSGW 1 反復（6³ tf32 MLO）237 → 212 秒
 - 20:11 — lmf --jobgw=1 21.1 → 10.2 秒
 

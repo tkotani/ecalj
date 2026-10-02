@@ -1,7 +1,7 @@
 !>finite-temperature tetrahedron method: the temperature kbt (tetrakbt_init) and integtetn.
 !! `[gw] tetrakbt=true` is served by lindtet6_kbt (in tetwt5.f90), the exact energy convolution of the T=0 lindtet6.
 !! (2026-10-02 05:26) The old midpoint-factorization routines (tetrakbt, eaf_triangle, factri, ... ; they gave a wrong
-!! chi0 and were no longer called) are removed; the diagnosis and how to get them back: MD/past_log.md §13.
+!! chi0 and were no longer called) are removed; the diagnosis and how to get them back: ecaljdoc/MD/past_log.md §13.
 module m_tetrakbt
   use m_keyvalue,only: getkeyvalue
   implicit none

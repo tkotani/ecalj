@@ -9,6 +9,7 @@ export default withMermaid({
   description: "document of ecalj",
   cleanUrls: true,
   ignoreDeadLinks: true,
+  srcExclude: ['MD/**', 'trash/**'],   // MD/: the development records of ecalj (read by Claude), not pages of the site (2026-10-02)
   lastUpdated: true,
   // markdown: {
   //   math: true,

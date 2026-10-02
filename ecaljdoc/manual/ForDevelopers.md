@@ -4,7 +4,7 @@
 > 約束ごと・ビルドとテストの手順・計算機ごとの注意・ジョブの投入・落とし穴・研究の現在地と経過を 1 枚にまとめ、詳しくはリンク先に任せる。
 > 2026-09-28 時点。ここに書いたことが古くなったら、このページを直す。
 
-**初めて読むときの順**: ecalj の `CLAUDE.md`（`MD/ecaljclaude.md` を読み込む。「記録の方針」が書き方の正本）→ このページの §1（push の約束）・§2 →
+**初めて読むときの順**: ecalj の `CLAUDE.md`（`ecaljdoc/MD/ecaljclaude.md` を読み込む。「記録の方針」が書き方の正本）→ このページの §1（push の約束）・§2 →
 §9（研究の現在地）と §13（研究ログの要約）→ 作業に応じて §4・§5（ビルドとテスト）、§7・§12（計算機とジョブの投入）→ 各テーマの ecaljdoc のページ。
 研究の細部は ecalj の研究ログ（§13 の索引から日付と時刻で引く）。
 
@@ -12,22 +12,22 @@
 
 | 文書 | 中身 |
 | --- | --- |
-| ecalj `MD/README.md` | 2026-05〜09 の日付ごとの新機能（ログ）と TOML の流れのクイックスタート（英語）。2026-10-01 に最上位から移した（ecalj は Claude が読み、人間は Claude を通して情報を取る構造） |
+| ecalj `ecaljdoc/MD/README.md` | 2026-05〜09 の日付ごとの新機能（ログ）と TOML の流れのクイックスタート（英語）。2026-10-01 に最上位から移した（ecalj は Claude が読み、人間は Claude を通して情報を取る構造） |
 | ecalj `Changes.txt` | 変更の記録（日本語）。上が新しい |
-| ecalj `MD/handover.md` | 引き継ぎ: user との取り決め、計算機の癖、ビルド・試験・コンパイラ・数値の落とし穴（Claude の個人メモリから今も正しいものを写したもの、2026-10-01） |
-| ecalj `MD/TODOandQuestion.md` | 直すべき点、メンテナへの質問、実行中のこと、やったこと（2026-10-01〜） |
-| ecalj `MD/past_log.md` | リポジトリから外したもの（`trash/`）にあったノウハウと経緯。2026-06〜09 の要点（§6）、一発 GW と任意の k 線の落とし穴（§5）、hgw の統合の設計判断（§3.2） |
-| ecalj `MD/ecaljclaude.md` | 設計方針（singleton module）、GPU 開発の教訓、hgw の構成（節の名前は hgw_combined）、GW1500 量産 |
+| ecalj `ecaljdoc/MD/handover.md` | 引き継ぎ: user との取り決め、計算機の癖、ビルド・試験・コンパイラ・数値の落とし穴（Claude の個人メモリから今も正しいものを写したもの、2026-10-01） |
+| ecalj `ecaljdoc/MD/TODOandQuestion.md` | 直すべき点、メンテナへの質問、実行中のこと、やったこと（2026-10-01〜） |
+| ecalj `ecaljdoc/MD/past_log.md` | リポジトリから外したもの（`trash/`）にあったノウハウと経緯。2026-06〜09 の要点（§6）、一発 GW と任意の k 線の落とし穴（§5）、hgw の統合の設計判断（§3.2） |
+| ecalj `ecaljdoc/MD/ecaljclaude.md` | 設計方針（singleton module）、GPU 開発の教訓、hgw の構成（節の名前は hgw_combined）、GW1500 量産 |
 | ecalj `ecalj_auto/README_slot_scheduler.md` | GW1500 量産（kt1、スロットスケジューラ、NaN 監視） |
 | ecalj `Samples/TestInstall/README_testecalj.md`、[developer](./developer) | テストの仕組み（`testecalj`、`test.py`） |
-| ecalj `MD/research_log.md` | 研究ログ（有限温度、MLO-QSGW、GPU 高速化、GW1500、片付け。2026-10-01 に `Samples/kBT/kBT_research.md` から移した）。上が新しく、時刻付き |
+| ecalj `ecaljdoc/MD/research_log.md` | 研究ログ（有限温度、MLO-QSGW、GPU 高速化、GW1500、片付け。2026-10-01 に `Samples/kBT/kBT_research.md` から移した）。上が新しく、時刻付き |
 | ecaljdoc [ForDevelopers_research](./ForDevelopers_research) | 研究ログのテーマ別の要約（結論、訂正、未解決）、日付の索引、計算の置き場所（§13） |
 | ecalj `Samples/kBT/gpu_fp32_report.md` | GW の GPU 高速化の報告（2026-09-27、§11 に要約） |
 | ecalj `Samples/kBT/sigma_mlo_design.md` | MLO-QSGW の設計 |
 | ecaljdoc [ecaljgpu](./ecaljgpu)、[gwsc](./gwsc)、[cmdopts](./cmdopts) | GPU 版の使い方、gwsc のオプション、コマンドラインの一覧 |
 | ecaljdoc [mlo](./mlo)、[mlo_gwsc](./mlo_gwsc)、[kBT](./kBT)、[toml_migration](./toml_migration) | MLO、MLO-QSGW、有限温度、TOML 入力への移行 |
 | ecalj `Samples/kBT/LiTi2O4/`（`input/qmlo`、`run_gwsc10.sh`、`cmp_gwsc10.py`、描画のスクリプト） | LiTi₂O₄ の MLO-QSGW の入力と、投入・比較・描画の道具（§12.2） |
-| Claude のメモリ（t14 の `~/.claude/projects/-home-takao-ecalj/memory/`、索引は `MEMORY.md`） | 補助。約束・計算機・落とし穴で要るものはこのページと `MD/ecaljclaude.md` に移してある（§10） |
+| Claude のメモリ（t14 の `~/.claude/projects/-home-takao-ecalj/memory/`、索引は `MEMORY.md`） | 補助。約束・計算機・落とし穴で要るものはこのページと `ecaljdoc/MD/ecaljclaude.md` に移してある（§10） |
 
 ## 1. リポジトリと push
 
@@ -49,14 +49,14 @@
 
 ## 2. 書き方の約束
 
-コードのコメント、コミット、研究ログ、文書の方針は ecalj の `MD/ecaljclaude.md` の「記録の方針」が正本（ecalj の `CLAUDE.md` から
+コードのコメント、コミット、研究ログ、文書の方針は ecalj の `ecaljdoc/MD/ecaljclaude.md` の「記録の方針」が正本（ecalj の `CLAUDE.md` から
 Claude Code に毎回読み込まれる。2026-09-27）。要点: コメントの注記には日付時刻、バグ修正は書く、将来混乱を招く数値は書かない、
 コミットメッセージは英語、研究ログは最新が上で `### HH:MM`、数式に番号、利用者向けノートに苦労話を書かない。ここには ecaljdoc の書式だけ:
 
 - Markdown の表のセルの中で `|` を生で書かない（`\vert`、`\mid` を使う）
 - 図は md に埋め込んでその md を示す（VSCode のチャットでは png へのリンクは開かない）
 
-## 3. コードの方針（詳しくは `MD/ecaljclaude.md`）
+## 3. コードの方針（詳しくは `ecaljdoc/MD/ecaljclaude.md`）
 
 - **Fortran の module を singleton として使う**: 1 module = 1 責務 = 1 状態。状態は `protected, public` の module 変数、import は `use m_foo, only: ...`、
   subroutine の引数は指示的な値（`ef`, `qp`, `isp` など）だけで、配列データは `use` で取る。`type`（derived type）で状態を持たない
@@ -120,7 +120,7 @@ cd Samples/MLOQSGW;    testecalj -np 8 -np2 2 --gpu --mp GaAs NiO  # MLO-QSGW
 
 - **行列積は `m_blas` の `gemm` を通す**。固定の行列には `key=` を付ける（変換した形を使い回す）。どの方法で計算するかは `m_linalg_policy` の表
   （精度 × 演算 × 大きさ → cublas / realsgemm / realhgemm / gemmul8 / 逆行列 lu64・mixed1・mixed2）。上書きは `--linalg=`
-- **ストリームと非同期、`m_stopwatch` の同期、`acc routine` の中の自動配列**は ecalj の `MD/ecaljclaude.md`「OpenACC 一般注意」
+- **ストリームと非同期、`m_stopwatch` の同期、`acc routine` の中の自動配列**は ecalj の `ecaljdoc/MD/ecaljclaude.md`「OpenACC 一般注意」
   （非同期の区間の作り方は `m_sxcf_sc` の `sigma_stream_begin/end`）
 - `!$acc update host` を Σc のループの中で使うと GPU 版の Σc が壊れた。hgw を同じ GPU で 2 本同時に走らせると W-build で segfault（未追跡）
 - GEMMul8（Ozaki、INT8）は小さな積（辺 < 64 か m·n·k < 1e8）には使わない。計測は 64 の倍数を避けた寸法で（1024 などは GEMMul8 に有利に出る）
@@ -184,11 +184,11 @@ cd Samples/MLOQSGW;    testecalj -np 8 -np2 2 --gpu --mp GaAs NiO  # MLO-QSGW
 - 投入の前の確認は §12.1、結果の残し方は §12.5。自律で作業したら、研究ログ（時刻付き）と報告書に残し、`Changes.txt` を更新してコミット（push は待つ）
 - user の取り決め: kt1 の GPU 1 は user のジョブ用、kt1 の本番 `~/ecalj`・`~/bin` は触らない（開発は `~/ecalj_dev`・`~/bin_dev`）、push は指示があってから
 - Claude のメモリ（t14 の `~/.claude/projects/-home-takao-ecalj/memory/`、索引 `MEMORY.md`）は補助。そこにしか無い約束や手順を見つけたら、
-  `MD/ecaljclaude.md` かこのページに移す（記憶の無いセッションや別の機械のセッションが困らないように）
+  `ecaljdoc/MD/ecaljclaude.md` かこのページに移す（記憶の無いセッションや別の機械のセッションが困らないように）
 
 ## 11. GW の GPU 高速化と QSGW 1 反復の短縮（2026-09-27）
 
-報告は ecalj の `Samples/kBT/gpu_fp32_report.md`（§1〜10、FP16 経路の式は §2.1）、経過は `MD/research_log.md`、
+報告は ecalj の `Samples/kBT/gpu_fp32_report.md`（§1〜10、FP16 経路の式は §2.1）、経過は `ecaljdoc/MD/research_log.md`、
 変更の一覧は ecalj の `Changes.txt`（2026-09-27 (1)〜(3)）、利用者向けは [ecaljgpu](./ecaljgpu)。数値はすべて kt1（RTX 5090 ×2、電力上限 500 W）。
 
 ### 11.1 結果
@@ -341,7 +341,7 @@ GPU・ドライバ・CUDA を替えたら `linalgtune_gpu` を実行し直す。
   ecalj の `TOOLS/samples_tests.sh`（最後の要約だけを数える）
 - 収束テスト（2026-09-27 23:35）: LiTi₂O₄ 6³ を LDA から tf32 で `gwsc 10`（`qmlo_k6_tf32n`、39 分）。fp32 の 10 反復（`qmlo_k6_gwsc10`）との差は
   10 反復目の後のバンドで rms 0.3 meV・最大 0.8 meV（MLO バンド、±3 eV）、QP シフトは毎反復 5 meV 以内で膨らまない。ehf は −22〜−91 meV
-  （Σc の一様な縮みが占有状態の和に効く分）。表と図は ecalj の `MD/research_log.md` の 23:35
+  （Σc の一様な縮みが占有状態の和に効く分）。表と図は ecalj の `ecaljdoc/MD/research_log.md` の 23:35
 
 ### 11.7 測り方（kt1）
 
@@ -386,7 +386,7 @@ push はしていない（ecalj・ecaljdoc とも。push の前に §1 のゲー
    先客は `nvidia-smi --query-compute-apps=pid,process_name --format=csv` で見る（瞬間の使用率ではどれが user のものか分からない）。
    このページや他のページの例の `-np2 2` は、2 枚を使ってよいときの形。`InstallAll.py --gpu` の最後の計測（`linalgtune_gpu`）も
    空いている GPU を使うので、kt1 では `CUDA_VISIBLE_DEVICES=0` を付けて走らせる。`/tmp/slot_scheduler.sock` があると `run_cmd` は
-   量産用のスロットの GPU を使う（GW1500 の仕組み、MD/ecaljclaude.md。普段は無い）
+   量産用のスロットの GPU を使う（GW1500 の仕組み、ecaljdoc/MD/ecaljclaude.md。普段は無い）
 6. **同じ機械の 2 本目**: GPU のロックは段ごとにしか取らないので、2 本の計算は GPU を交互に取り合い、CPU の段（`lmf -np 60` など）は
    ぶつかる。`hgw` は 1 ノードに 1 本（2 本だと /dev/shm の MPI の共有窓が足りなくなる、研究ログ 2026-09-19 21:15）。先客があれば終わるのを待つか、順番を user に聞く
 7. **何時間もかかる計算**は、ビルドしても変わらないバイナリで（`<bindir>` はビルドディレクトリへの symlink なので、途中でビルドすると後の段が新しい版で走る）:
@@ -479,14 +479,14 @@ gwsc 10 -np 64 <sname> > gwsc.log 2>&1
 
 ### 12.5 結果を残す
 
-- 研究ログ（ecalj の `MD/research_log.md`）に `### HH:MM` で、最新を上に。表と図には番号（*表 23:35-1* など）、図は png を
+- 研究ログ（ecalj の `ecaljdoc/MD/research_log.md`）に `### HH:MM` で、最新を上に。表と図には番号（*表 23:35-1* など）、図は png を
   `Samples/kBT/<系>/` に置いて md に埋め込み、描いたスクリプトも同じ所に
 - 結論が固まったら ecaljdoc の該当ページ（[kBT](./kBT)、[mlo_gwsc](./mlo_gwsc)、[ecaljgpu](./ecaljgpu) など）と、このページの §9・§13 に移す
 - コードを変えたら `Changes.txt`。commit はその場で、push は指示を待つ（§1）
 
 ## 13. 研究ログの要約と索引（2026-09-28）
 
-研究ログ（ecalj の `MD/research_log.md`、2026-09-16〜、最新が上）のテーマ別の要約・日付の索引・計算の置き場所は
+研究ログ（ecalj の `ecaljdoc/MD/research_log.md`、2026-09-16〜、最新が上）のテーマ別の要約・日付の索引・計算の置き場所は
 付録 [ForDevelopers_research](./ForDevelopers_research) にまとめた。ここはその見出しだけ。
 
 | テーマ | いま成り立っていること（要点） | 残っていること |

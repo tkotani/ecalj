@@ -80,7 +80,7 @@ Wannier 版（`Fe_magnon`、`job_magnon`）の結果は `wannier_TrRpm.syml001`�
   模型を Löwdin の $\tilde H(\mathbf R)$ にした（2026-10-02）ことで、q = 0.4 は 0.349 → 0.159、0.6 は 0.371 → 0.339 eV と Wannier 版に近づいた（$K$ はメッシュの外の k + q の模型の固有ベクトルで作るので、内挿の違いが出る）
 - q ≤ 0.3 では、Löwdin の MLO 版が Wannier 版より 2 割ほど高い（生の MLO は 20 meV 以内で合っていた）
 - q ≈ 0.4 はマグノンが Stoner 励起の連続体に入る所で、山が広く割れ、極大の位置は定義しにくい
-- Löwdin の基底では MLO の窓（`mlo_delta`、`mlo_w`）を変えても結果がほとんど動かない（Fe・FeCo・Ni で確かめた、ecalj `MD/research_log.md` 2026-10-02 11:12）。
+- Löwdin の基底では MLO の窓（`mlo_delta`、`mlo_w`）を変えても結果がほとんど動かない（Fe・FeCo・Ni で確かめた、ecalj `ecaljdoc/MD/research_log.md` 2026-10-02 11:12）。
   生の MLO では窓で大きく変わった（以前の表にあった `mlo_w` 11 eV で下がる、など）
 - `mlo_nkabc` = 4×4×4 では小さい q のマグノンのエネルギーが 1.5 倍になる（2026-09-30、生の MLO で確かめた）
 - 符号の約束が違う: Wannier 版の $\mathrm{Im}\,\mathrm{Tr}\,R$ は負、MLO 版の $\mathrm{Im}\,R$ は正

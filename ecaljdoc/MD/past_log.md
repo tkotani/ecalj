@@ -1,9 +1,12 @@
 # ecalj 過去ログ — 片付けたものに含まれていたノウハウと、役に立つかもしれない情報
 
+> 2026-10-02 20:29: このディレクトリは `ecalj/MD/` から `ecalj/ecaljdoc/MD/` に移った（user「MD ごと ecaljdoc に、vitepress は無視」）。
+> 下の古い記述の `MD/...` はその時点の場所で、今は `ecaljdoc/MD/...`。
+
 **2026-10-02**: ローカルのディスクが満杯になったので（user「TAKAOMINI の trash に動かしていい」「とにかくローカルは掃除して」）、`ecalj/trash` の中身を外付けの `/media/takao/TAKAOMINI/trash/ecalj_trash/` に移した（`ecalj_2026sep30`、`ecaljdoc_2026sep30`、残りは `ecalj_trash_rest/`）。下の表 1 の「置き場」が `trash/...` のものは、t14 ではそこにある。各計算機の `ecalj/trash/WHERE_IS_TRASH.txt` に行き先を書いた。追跡していたファイルは git にもある。
 
 リポジトリから外したもの（各計算機の `ecalj/trash/` に移した）の中にあったノウハウや経緯を、話題ごとにまとめる。
-入口は [CLAUDE.md](../CLAUDE.md)（中身は [ecaljclaude.md](ecaljclaude.md)）。
+入口は [CLAUDE.md](../../CLAUDE.md)（中身は [ecaljclaude.md](ecaljclaude.md)）。
 利用者向けの説明は ecaljdoc が軸なので、ここには開発の側の細かいことだけを書く。
 
 外したファイルの中身は git の履歴から取り出せる（表 1 の「外す前のコミット」を使う）:

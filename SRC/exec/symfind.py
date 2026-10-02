@@ -2,7 +2,7 @@
 """symfind.py: the space group of ctrlg.<sname>.toml by spglib (Python), written to symmetry.<sname>.json.
 
 lmf and lmchk make the same file themselves with the vendored spglib (C) when it is missing or its structure differs
-(2026-10-02 08:33, MD/symmetry_spglib.md 4.7g); this tool makes or checks it outside them (S0 of the design: --check).
+(2026-10-02 08:33, ecaljdoc/MD/symmetry_spglib.md 4.7g); this tool makes or checks it outside them (S0 of the design: --check).
 
     symfind.py <sname> [--symprec 1e-5] [--out symmetry.<sname>.json] [--check [llmchk]] [--ctrlg:<path>=<value> ...]
 

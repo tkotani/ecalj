@@ -1,6 +1,6 @@
 !> Finding the space group of the crystal: gensym (generators from the input string, operations of the lattice, those
 !> leaving the crystal invariant, the group they generate). Split from m_mksym_util (2026-10-02): this is the ecalj backend
-!> of the finder in MD/symmetry_spglib.md; spglib through symmetry.json is to come as another backend.
+!> of the finder in ecaljdoc/MD/symmetry_spglib.md; spglib through symmetry.json is to come as another backend.
 module m_symfind
   use m_lgunit,only:stdo
   use m_ftox
@@ -801,7 +801,7 @@ contains
   end subroutine symfind_json
 
   subroutine symfind_spglib(nbas,ityp,afl,pos,plat,qlat,alat,ngmxj, ng,rot,tr,trev,spgnum,spgsym) !Space group by spglib (C)
-    ! (2026-10-02 08:27, MD/symmetry_spglib.md) The operations x' = R x + t (fractional coordinates of plat, R integer) of the crystal,
+    ! (2026-10-02 08:27, ecaljdoc/MD/symmetry_spglib.md) The operations x' = R x + t (fractional coordinates of plat, R integer) of the crystal,
     ! ityp(ib) the species index of each site. With AF labels (afl = +k, -k on the sites of a pair) the pairs are one type with
     ! the moments +1 and -1, and spg_get_symmetry_with_site_tensors gives the magnetic group: trev=.true. for the operations
     ! with time reversal (they exchange up and down); those without must be the group of the crystal (spg_get_symmetry with

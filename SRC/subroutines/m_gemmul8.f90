@@ -70,7 +70,7 @@ contains
     use m_ftox, only: ftox
     use mpi, only: MPI_COMM_WORLD
     ! Rank 0 prints, from MPI directly: `use m_mpi` here closed a module cycle in the GPU build
-    ! (m_mpi -> m_gpu -> m_blas -> m_gemmul8 -> m_mpi; 2026-10-02 05:28, MD/module_map.md).
+    ! (m_mpi -> m_gpu -> m_blas -> m_gemmul8 -> m_mpi; 2026-10-02 05:28, ecaljdoc/MD/module_map.md).
     logical, save :: is_gemmul8_inited = .false.
     integer :: rank, ierr
     istat = 0

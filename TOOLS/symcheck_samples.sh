@@ -1,5 +1,5 @@
 #!/bin/bash
-# Step S0 of MD/symmetry_spglib.md (2026-10-02): for every ctrlg.<sname>.toml of Samples (outside *_work), run lmchk and
+# Step S0 of ecaljdoc/MD/symmetry_spglib.md (2026-10-02): for every ctrlg.<sname>.toml of Samples (outside *_work), run lmchk and
 # symfind.py --check in a scratch copy, and list whether ecalj and spglib find the same operations.
 #   TOOLS/symcheck_samples.sh <out dir> [symprec]      -> <out dir>/summary.txt (one line per input), and the work dirs
 OUT=${1:?usage: symcheck_samples.sh <out dir> [symprec]}; SP=${2:-1e-5}

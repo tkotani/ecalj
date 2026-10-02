@@ -104,7 +104,7 @@ contains
     ! Bug fixed 2026-10-01: only spin 1 was shifted. With SYMGRPAF (afsym) the bands of spin 2 are made from spin 1, so the
     ! moments and bands were right, but ehk kept -uhx*m_d of the field energy (the double counting saw no field in spin 2),
     ! and without afsym the shift acted as a site-dependent scalar potential (NiO: d charges 8.00/7.71 on the two Ni).
-    ! (MD/research_log.md 2026-10-01)
+    ! (ecaljdoc/MD/research_log.md 2026-10-01)
     if(nlibu==6) then !experimental part for a specific system NiSe and so on.
        do iblu =1,6
           fac=1d0

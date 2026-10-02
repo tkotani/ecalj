@@ -1,7 +1,7 @@
 # TODO と質問、やったこと
 
 直すべき点は見つけてもその場では直さず、ここに書く（user 2026-10-01）。メンテナに決めてほしいことも、やったことも、ここに書く。
-入口は [CLAUDE.md](../CLAUDE.md)（中身は [ecaljclaude.md](ecaljclaude.md)）。片付けたものの中のノウハウは [past_log.md](past_log.md)。
+入口は [CLAUDE.md](../../CLAUDE.md)（中身は [ecaljclaude.md](ecaljclaude.md)）。片付けたものの中のノウハウは [past_log.md](past_log.md)。
 細かい経緯と数値は研究ログ [research_log.md](research_log.md)。
 
 書き方: §1 はまだのものだけ（各項目に見つけた日）。済んだら §2 へ移し、済んだ日とコミットを書く（user 2026-10-02「まだのものを冒頭に、終わったものは 2. TODO（済）に」）。
@@ -21,7 +21,7 @@
 - **【残す】空格子球の自動化（基準 3）**（2026-10-01）: `SRC/exec/ctrlg_addes.py`（`8c158ee96`、像の数を面間隔から決める直しは済み）を ctrlg の生成に組み込むか。
   Bi₂Te₃ の空隙は 2.61 a.u. で 3.0 未満、SiO₂ は手で置いて 0.001 eV
 - **【未着手】Fe のマグノン: 小さい q で 2 割高い件と、実験との比較**（2026-10-02）: Löwdin の MLO は q ≤ 0.3 で Wannier 版より 2 割高い（q = 0.1 で 0.085 対 0.068 eV）。
-  q ≥ 0.4 は合う。見る所: `Samples/Magnon/Fe_mlo_magnon/README.md`（表 2・図 1、`magnon_peaks.npz`）、`MD/wannier_vs_mlo.md` §3a（表 3a）、研究ログ 2026-10-02 11:12・
+  q ≥ 0.4 は合う。見る所: `Samples/Magnon/Fe_mlo_magnon/README.md`（表 2・図 1、`magnon_peaks.npz`）、`ecaljdoc/MD/wannier_vs_mlo.md` §3a（表 3a）、研究ログ 2026-10-02 11:12・
   09:42・07:10・04:17（窓と Löwdin）、作業の場所 `~/work/magnon_nifeco/magnon_window.md`（Fe・FeCo・Ni の窓と Löwdin の図、ページ https://claude.ai/artifact/A9r4CEPHgD1UkYsVA5XQKH）。
   実験の分散（中性子散乱）のデータはリポジトリに無い。文献から取る
 
@@ -87,7 +87,7 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 | 2 | 小さい独立の直し: `job_mlo_soc` の空の spin2、`m_tetrakbt` の使われないルーチン、`auto_creplot.py` | 1・3 の試験の待ち時間に | mlo、kBT の組 | 前二つ**済み**。`auto_creplot.py` は移すか捨てるか要判断 |
 | 3 | 対称性 S2（GW 側の `mptauof` の重複を外す） | S3 の前に使う側を一本に | gwall がビット単位で同じ | **済み**（最小の形）`7f725713b` |
 | 4 | GPU の build の module の循環 | kt1・kr7 で回せる、手元と並行 | kt1・kr7 の clean build と試験 | **済み** `dad040932`・`8d8f7b880` |
-| 5 | 対称性 S3（`symmetry.json` を読む口）→ S4（純粋な並進）→ S5（AF、`AFsymmetry/NiO` の pwmode も）→ S6（既定に） | 設計どおり一段ずつ | 各段の表（`MD/symmetry_spglib.md` §4.7） | S3〜S6 **済み**（S6: lmf が同梱の spglib で求める、user の判断 2026-10-02。2026-10-02 08:34 から 3 台で試験） |
+| 5 | 対称性 S3（`symmetry.json` を読む口）→ S4（純粋な並進）→ S5（AF、`AFsymmetry/NiO` の pwmode も）→ S6（既定に） | 設計どおり一段ずつ | 各段の表（`ecaljdoc/MD/symmetry_spglib.md` §4.7） | S3〜S6 **済み**（S6: lmf が同梱の spglib で求める、user の判断 2026-10-02。2026-10-02 08:34 から 3 台で試験） |
 | 6 | MLO の最大局在化（Python で試作、Fe・Ni） | 5 の操作を使う | Ω、U、マグノン | 試作**済み**（`mlo_maxloc.py --sym`）。Ω まで。U・マグノンは未 |
 | 7 | マグノンの既定の窓、MLO と Wannier のずれ | 6 の結果で判断 | Fe・Ni・FeCo | **済み**: 窓は既定 (2, 2) のまま。Löwdin にすると窓によらず Wannier 版に合う（研究ログ 11:12）。Löwdin を MLO の標準にした（`d10a63716`、研究ログ 12:16） |
 | 8 | MLO の模型の残り（EH2 の崩れ、§9 の目安の値の測り直し、空格子球の自動化） | 計算機で裏で回せる | MATERIALS | 原因の確かめと測り直し、`ctrlg_addes.py` の直し**済み**。EH2 の直し方は要判断 |
@@ -105,14 +105,14 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 - 基準 2・3 を Löwdin の模型で確かめた（2026-10-02、`~/work/lowdin_crit23_20261002`）: 生の模型で壊れた Cu・Ni の EH2 は PASS（0.045、0.055 eV）、基準 1 で外れた 7 物質は基準 2 で PASS、
   SiO₂ は基準 3 で 0.005 eV。EH2 の崩れの直し方（正準直交化など）は要らなくなった（EuO だけ §1 に残る）
 - MLO と Wannier の cRPA の U の差（Ni の d、Löwdin 2.90 対 Wannier 3.78 eV）は、部分空間の取り方の違いで、直すものではないとした（2026-10-02 20:13、user）。RPA の U は
-  基底にほとんど依らない（1.43 対 1.58）。`MD/wannier_vs_mlo.md` §3a、ecaljdoc mlo §6
+  基底にほとんど依らない（1.43 対 1.58）。`ecaljdoc/MD/wannier_vs_mlo.md` §3a、ecaljdoc mlo §6
 - 済んだ項目（2026-10-02 14:35 に §1 から移した）: Löwdin の後の文書（ecaljdoc mlo §6・表 M8、Changes.txt (6)、handover、`Fe_mlo_magnon/README.md`）。AFTEST の (d)（使い方を ecaljdoc の UsageDetailed.md へ）。
-  マグノンの既定の窓（窓は (2, 2) のまま。Löwdin で窓によらない）。対称性 S0〜S6（`MD/symmetry_spglib.md` §4.7）。kt1 の GW1500 の run3（2026-10-01 16:43 に終了）
+  マグノンの既定の窓（窓は (2, 2) のまま。Löwdin で窓によらない）。対称性 S0〜S6（`ecaljdoc/MD/symmetry_spglib.md` §4.7）。kt1 の GW1500 の run3（2026-10-01 16:43 に終了）
 
 ### 2026-10-02（やったこと）
 
 - user の判断（2026-10-02）を実行した（2026-10-02 12:59）: (1) 旧 `a0c7a7300`（新 `6e2903731`）に誤って入っていたビルドの生成物 3197 本を、未公開の範囲の書き換えで履歴から除いた
-  （main のツリーは同じ、dev・rel のコミットは同じ。文書とコミットメッセージのハッシュは直した、対応表 `MD/commit_map_20261002.txt`、控えは TAKAOMINI）。`.git` 1.1 GB → 776 MB。
+  （main のツリーは同じ、dev・rel のコミットは同じ。文書とコミットメッセージのハッシュは直した、対応表 `ecaljdoc/MD/commit_map_20261002.txt`、控えは TAKAOMINI）。`.git` 1.1 GB → 776 MB。
   (2) ecaljdoc の古い文書（`BackUp/`、`ecaljdetails/`、古い書き出しの pdf）を ecaljdoc の trash へ、要点は past_log.md §14。(3) trash は適宜減らす（`ecaljclaude.md`）。
   API キーは今のツリーと `cb9b2d7b7` 以後のコミットに無いことを確かめた
 - **Löwdin で直交化した MLO を標準に**（2026-10-02 12:19、user「Löwdin 直交化を MLO の標準に（バンドは変わらない）」「全体的に調べて、O なしで OK ならそっちをメイン」
@@ -121,11 +121,11 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
   §2 の質問「マグノン・U の既定を Löwdin にするか」はこれで閉じた
 - 対称性 S6（2026-10-02 08:34、user「lmf でつくればいい」）: spglib 2.6.0 の C を同梱し、lmf・lmchk が操作を求めて `symmetry.<sname>.json` を書く（`67f9c1b03`）。172 入力で Python 版と同じ
 - ecaljdoc mlo §9 の式 (12) の目安の値を測り直した（06:55、`~/work/ovlp_20261002`、63 物質の MLO の段だけ）: 規格化の後は最小 0.20〜0.42、中央値 0.24〜0.46。FAIL の 10 物質は前と同じ（ecaljdoc `mlo.md`、TODO から外した）
-- 対称性（`MD/symmetry_spglib.md` §4.7）: S0 spglib との照合（`b889a00b8`、172 入力で食い違い 0）、S1 分割（`1472f3ad7`）、S2（`7f725713b`）、
+- 対称性（`ecaljdoc/MD/symmetry_spglib.md` §4.7）: S0 spglib との照合（`b889a00b8`、172 入力で食い違い 0）、S1 分割（`1472f3ad7`）、S2（`7f725713b`）、
   S3 `symmetry.<sname>.json` を読む口（`7902490e4`）、S4a `mptauof` が渡された並進を使う（`6ff09964e`）。S4b（純粋な並進を操作に）は試験中
 - GPU の build の module の循環を切った（`dad040932`）、CMake の回避策を外した（`8d8f7b880`）。kt1・kr7 でまっさらなビルドが通った（TODO から外した）
 - `m_tetrakbt` の使われないルーチン（`4e2ea8957`）、SOC の MLO が空の spin2 を書く件（`65a5c903f`）（TODO から外した）
-- MLO を実空間で規格化（`cbb81dede`）、`mlo_spread.py` と比較の記録（`6e0520052`）、比較の一式とタグ `last-wannier`（`dbcd6e51d`）、cRPA の試験を MLO 版に（`17ac5f104`）、Wannier・AHC・lmfham2 を外した（`5e7244eff`、`4d0989151`）。`MD/wannier_vs_mlo.md`、ecaljdoc mlo §6
+- MLO を実空間で規格化（`cbb81dede`）、`mlo_spread.py` と比較の記録（`6e0520052`）、比較の一式とタグ `last-wannier`（`dbcd6e51d`）、cRPA の試験を MLO 版に（`17ac5f104`）、Wannier・AHC・lmfham2 を外した（`5e7244eff`、`4d0989151`）。`ecaljdoc/MD/wannier_vs_mlo.md`、ecaljdoc mlo §6
 - MLOsamples などの古い作業ファイル 68 本（`ctrlp.*`、`lmfham2parameters.check`、`out_lmfham1`、`bandplot_MPO.*` など）を trash へ（past_log 表 1）
 - `TOOLS/sync_ecalj_src.sh`: 送り先の `SRC/subroutines`・`main`・`exec` にあって HEAD に無いファイルを `trash/` へ移す（Wannier を外したとき kt1・kr7 に 30 本残って CMake が拾った）
 
@@ -135,7 +135,7 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 - MLO の模型の検査（`mlo_bandcheck.py` の CHECK、`job_mlo`・`job_mlo_soc` が最後に回す、`mlo` が `MLO_ovlpmin.dat` を書く）、
   窓の基準の E_F を `--efermi=` のファイルから取る直し、`Samples/MATERIALS` の 63 の ctrlg の `[mlo]` を今の gwinit で書き直し（研究ログ 2026-10-01 21 時）。
   試験: mlo 45、MLO-QSGW 5、install 64、inputs 176 が t14 で PASSED
-- MLO の模型を基準 1・2・3 に整理した（user と決めた。ecaljdoc mlo §1・§4・§9、`MD/handover.md` §5、研究ログ 2026-10-01 16〜20 時）:
+- MLO の模型を基準 1・2・3 に整理した（user と決めた。ecaljdoc mlo §1・§4・§9、`ecaljdoc/MD/handover.md` §5、研究ログ 2026-10-01 16〜20 時）:
   半内殻の局所軌道は帯の上端で自動（E_F − 8 eV より上は EH と入れ替え、−17〜−8 eV は加える、`1ef5c7a68`）、gwinit は f と `!` 付きの `mlo_lm2`（基準 2）を書く、
   MLO-QSGW の凍結した模型の本数の誤り（`5daa42f42`）、`mlo_bandcheck.py` の窓を [VBM − 8, CBM + mlo_delta] に（`760d22467`）、
   `job_mlo_soc` がスピン軌道ありの DFT のバンドも描く（GaAsSoc の −0.1 eV は比べ方の誤り、`ab9570ead`）。Samples/MATERIALS の結果のページ
@@ -151,7 +151,7 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 - GW1500: kr7 で fp32 と TF32 を同じバイナリ・同じ入力で比べた（8 物質、02:03〜06:24）。最終のギャップの差は 1 meV 未満。5 月との 0.29〜1.48 eV の差は精度ではなく、5 月の振動と設定の違い（`GW1500_status.md` §5.1 の表 7）。GOOD 1120 を精度の理由で見直す必要は無い
 - `SRC/subroutines/m_tetrakbt_BUGREPORT.md`（2026-06、直し済みの不具合の報告）の要点を past_log.md §13 に移して trash へ。空の道標 `SRC/TestInstall_is_moved_to_under_ecaljSamples` も trash へ
 - `.gitignore` に `/build/`（VSCode の CMake 拡張が最上位に作る）
-- `MD/module_map.md`（生成物）と `TOOLS/module_map.py`: 主プログラム → 入口の module、module の階層（226 module、最大 29 段、`m_lmf` が頂点）、
+- `ecaljdoc/MD/module_map.md`（生成物）と `TOOLS/module_map.py`: 主プログラム → 入口の module、module の階層（226 module、最大 29 段、`m_lmf` が頂点）、
   依存と被依存の数、module の冒頭のコメント。`ecaljclaude.md` から参照。GPU の build の module の循環が 1 つ見つかった（上の TODO）
 - `GetSyml/README.md`・`StructureTool/README.md`・`Samples/EPS/EPS_GaAs/README_eps.md` を今の形に書き直した（入力は `ctrlg.<sname>.toml`、
   `getsyml --nobzview`、StructureTool の各スクリプトの向きと出力のファイル名、EPS は `[gw] QforEPS`・`QforEPSau`・`n1n2n3`・`[product_basis] pb_lcutmx`、
@@ -163,11 +163,11 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 - `GetSyml/`・`StructureTool/` の古い例（旧形式の `ctrl.*` 86 本、`syml.*`、鉱物の POSCAR 135 本）と使わないスクリプトを trash へ（257 ファイル）。本体（`getsyml`、`vasp2ctrl`・`ctrl2vasp`、`viewvesta`、`refineposcar.py`、`superlattice/`）は残し、動くことを確かめた。past_log.md §12
 - `Doxygen/` を trash へ（user「そうしよう」）。コメントを Doxygen 形式に揃えることはしない。作り直し方は past_log.md §11
 - `TOOLS/` の古い道具（約 60 項目、632 ファイル）を trash へ。残したのは `samples_tests.sh`・`sync_ecalj_src.sh`・`ozbench/`。中身は past_log.md §10。`diffnum` は試験で今も使うが、使うのは `SRC/exec/pylib/diffnum0.py`（TOOLS の版は古い）
-- Claude の個人メモリから、引き継ぐ価値があり今も正しいものを [handover.md](handover.md) に写した（user「メモリの内容はパッケージに入らないので MD/ に。混乱を招くものは良くない」）。
+- Claude の個人メモリから、引き継ぐ価値があり今も正しいものを [handover.md](handover.md) に写した（user「メモリの内容はパッケージに入らないので ecaljdoc/MD/ に。混乱を招くものは良くない」）。
   写す前に 5 点をコードと照らした（rel の既定ブランチは `main`、`master` は無い、など）
-- `README.md` を `MD/README.md` へ（user「Claude に読ませて、人間は Claude から情報を取る構造にする。README を人間に読ませるのは好ましくない」）。
+- `README.md` を `ecaljdoc/MD/README.md` へ（user「Claude に読ませて、人間は Claude から情報を取る構造にする。README を人間に読ませるのは好ましくない」）。
   最上位の `README.md` は数行の案内だけ（GitHub の表紙が空にならないように）。`ecaljclaude.md` の方針の文言を直した
-- 開発の文書を `MD/` に（`ecaljclaude.md`、`TODOandQuestion.md`、`past_log.md`、研究ログ `research_log.md`、`d72216e17`）
+- 開発の文書を `ecaljdoc/MD/` に（`ecaljclaude.md`、`TODOandQuestion.md`、`past_log.md`、研究ログ `research_log.md`、`d72216e17`）
 - ecalj の片付けの 3 回目: `PHASE1B_REFACTOR.md`、`HIGHLIGHTS_2026-06_09.md`、`FiniteT_and_QPE_HOWTO.md`、`ecaljdoc_drafts/`、`jobauto/`、
   `SRC/exec_legacy/` を trash へ。中身は past_log.md §3.2・§4.3・§5〜§8 に整理し、README と ecaljdoc（ForDevelopers・kBT・README_tutorial）の参照を直した。
   最上位の `MATERIALS/` は trash ではなく `Samples/MATERIALS/` の下へ移した（user「いったん Samples の下へ」、624 ファイル、`git mv`）

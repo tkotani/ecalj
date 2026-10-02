@@ -1,4 +1,4 @@
-# 2026-10-01 MLO automatic model against LDA with extra radial sets (mlo_lm2 = EH2 s,p; mlo_lm3 = semicore local orbitals), variants of the table MLOcheck_20261001.tsv, Samples/MATERIALS (ecalj e29dd6e1d; MD/research_log.md 2026-10-01 朝).
+# 2026-10-01 MLO automatic model against LDA with extra radial sets (mlo_lm2 = EH2 s,p; mlo_lm3 = semicore local orbitals), variants of the table MLOcheck_20261001.tsv, Samples/MATERIALS (ecalj e29dd6e1d; ecaljdoc/MD/research_log.md 2026-10-01 朝).
 # Model: mlo_method=4, mlo_delta=mlo_w=2 eV, mlo_nkabc=[bz] nkabc; mlo_lm: Z<=10 s,p; Z>=11 s,p,d; lanthanides and Hf (4f in the valence basis) s,p,d,f.
 # so=1 (GaAs_so, Bi2Te3): job_mlo_soc. Eu compounds LDA+U (idu=12, no sigm). Evaluation: SRC/exec/mlo_bandcheck.py (eV). Work: t14 ~/work/mlocheck_20261001, kr7 ~/mlocheck_20261001.
 # suffix: _lm2sp EH2 s,p on all sites; _lm2s EH2 s; _lm3d cation d LO; _lm3semi all semicore LOs (s,p,d); _both lm2sp+lm3semi; HfO2_spd = the first HfO2 model without f. EuO_both stopped (Hreduction: PMT completeness loss too large).
