@@ -221,7 +221,7 @@ def mlo_iteration_start():
 if "--mlo" in options:
     mlo_iteration_start()
 
-## MLO route (ecaljdoc/MD/kBT/sigma_mlo_design.md 4.1): steps 0c/0d, ONCE per chain.
+## MLO route (MD/kBT/sigma_mlo_design.md 4.1): steps 0c/0d, ONCE per chain.
 ##   lmf --writeham --mlo -> HamiltonianPMTInfo, __HamiltonianPMT(.info)
 ##   mlo --mlo            -> HamRsMLO, whose trailing records carry the MLO index
 ##                           (ix, mlomethod, nskip; also the chain-start eferm, ecbot,

@@ -299,7 +299,7 @@ Highlights touched in this page:
 
 ## ecalj_auto
 This is a suit of python scripts to run thousands of gwsc calculations automatically.
-`ecaljdoc/MD/auto.md`
+`MD/auto.md`
 
 ## Background charge and fractional Z
 [backcround charge](Memo_bgcharge.md)

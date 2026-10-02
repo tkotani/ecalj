@@ -73,7 +73,7 @@ contains
     enddo
     allocate(iclasst,source=iclasstin)
     ! Site maps of the operations 1:ngrp (the group without the AF operations), as m_mksym_init made them with the same
-    ! arguments (2026-10-02 05:31, step S2 of ecaljdoc/MD/symmetry_spglib.md: mptauof was called again here).
+    ! arguments (2026-10-02 05:31, step S2 of MD/symmetry_spglib.md: mptauof was called again here).
     miat  = miat_s(:,1:ngrp)
     tiat  = tiat_s(:,:,1:ngrp)
     invgx = invgx_s(1:ngrp)

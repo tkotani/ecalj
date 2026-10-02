@@ -208,7 +208,7 @@ contains
         ! "Shallow": the band of the LO (occupied states with projection weight > 1/2 on
         ! the LO functions of that l of ALL sites of the species) has its top above
         ! EF - 17 eV, over all k.
-        ! 2026-10-01 15:0x (Samples/MATERIALS MLO test, ecaljdoc/MD/research_log.md 14:38): the
+        ! 2026-10-01 15:0x (Samples/MATERIALS MLO test, MD/research_log.md 14:38): the
         ! threshold was EF - 10 eV and a shallow LO replaced the EH function. Semicore
         ! states between -16 and -11 eV that mix with O/N 2p (Ga 3d in GaN, In 4d in
         ! InN, Eu 5p in EuO, Sr 4p in SrTiO3/SrVO3, La 5p) were then left out and the 2p
@@ -218,7 +218,7 @@ contains
         ! La 5p states of La2CuO4 spread 0.45/0.45 over the two La, so no single site
         ! reached 1/2 and the band was never found.
         ! (2026-09-18: with the EH function alone ZnO came out at 476 meV, with the Zn 3d
-        ! LO at 0.8 meV; ecaljdoc/MD/mlo_notes/mp_20260918.)
+        ! LO at 0.8 meV; MD/mlo_notes/mp_20260918.)
         ! Why here and not in the input (user 2026-10-01 19:1x): the rule needs the band
         ! energies of the SCF, which gwinit (run before the SCF) does not have. The input
         ! has no key for it; the decision is printed to lmlo ("SHALLOW: LO added to the
@@ -440,7 +440,7 @@ contains
       ! Readin Hamiltonian only at iqibz
       ib_tableI = pack(ib_tableM(1:ndimMTO), [(all(ib_tableM(:i-1)/=ib_tableM(i)), i=1,ndimMTO)])
       allocate(ovlmi(1:ndimMTO,1:ndimMTO,nqibz,nspx),hammi(1:ndimMTO,1:ndimMTO,nqibz,nspx),source=(0d0,0d0))
-      ReadSigmMLO: block !Sigma^MLO(q) from hqpe_sc (stage 2 of ecaljdoc/MD/kBT/sigma_mlo_design.md)
+      ReadSigmMLO: block !Sigma^MLO(q) from hqpe_sc (stage 2 of MD/kBT/sigma_mlo_design.md)
         use m_sigmlo,only: fn_sigq
         integer:: ifs,nmlof,nqf,nspf,n1f,n2f,n3f,ipx,isx,iqm,iqm2
         real(8),allocatable:: qsig(:,:,:)

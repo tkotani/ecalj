@@ -15,7 +15,7 @@
 役に立ちうる所:
 - 共有結合の系（Si・C の sp³ など）で、原子の上でなく結合の上の局在関数が要るとき（拘束なしの MV は結合の方向にずれた混成軌道を作る）
 - Wannier90 などの最大局在 Wannier 関数と、同じ部分空間で比べるとき（U、J、マグノン）
-- Löwdin の関数がどれだけ最大局在に近いかの目安（Fe の t₂g で MV がさらに 7 % 縮めるだけ、Ni の d では Ω の 97 % が Ω_I で効かない。ecalj `ecaljdoc/MD/research_log.md` 2026-10-02 06:20）
+- Löwdin の関数がどれだけ最大局在に近いかの目安（Fe の t₂g で MV がさらに 7 % 縮めるだけ、Ni の d では Ω の 97 % が Ω_I で効かない。ecalj `MD/research_log.md` 2026-10-02 06:20）
 
 制限: `--sym` は 1 原子・symmorphic な結晶だけ。`mlo_cmlo_transform.py mv` はメッシュの外の q（GW の q0、マグノンのずらしたメッシュ）では一番近いメッシュの点の U を使う。
 `mlo_maxloc.py` は `SRC/exec` の `mlo_spread.py`・`symfind.py` を読み、`--sym` では PATH の上の `lmf` の場所（bindir）の `libecaljF.so` の `rotdlmm` を呼ぶ。

@@ -123,7 +123,7 @@ QSGW 反復の停止条件を指定する。**収束判定 (2026-06 改定)**: �
 `QPU.<n>run` と `QPU.<n-1>run` の `eQP` (E_F 基準) のうち |e| < 5 eV の状態について、変化の最大が
 `--conv-qp <eV>` (既定 0.03) 未満の反復が 2 回続いたら停止。以前のようにギャップが無いところで止める (exit 3) には
 `--no-metal`。`--gpu --mp --fp32` を渡せばそのまま `gwsc` に流される。
-ecalj_auto の GW1500 バッチもこの script を呼んでいる (`ecaljdoc/MD/auto.md`)。
+ecalj_auto の GW1500 バッチもこの script を呼んでいる (`MD/auto.md`)。
 
 `qsgw_status` (2026-06): 走行中の `gwsc` (または gwscconv) 反復の進行
 ダッシュボード。実行ディレクトリで以下のように使う:
@@ -555,4 +555,4 @@ The site index `iatom` follows the order of `[[site]]` in `ctrlg.<sname>.toml`;
 
 # MEMO
 * We need to explain how to set Gamma-cell averaged $\tilde{W}({\bf q}=0,\omega)$.
-* 旧い開発者向けの理論メモ ecaljdetails（2015〜2022、offset-Γ 法・クーロン行列・EIBZ など）は 2026-10-02 に外した。今も通じる要点は ecalj の `ecaljdoc/MD/past_log.md` §14、原文は ecaljdoc のコミット `3284d0b` の `ecaljdetails/ecaljdetails.tex`。
+* 旧い開発者向けの理論メモ ecaljdetails（2015〜2022、offset-Γ 法・クーロン行列・EIBZ など）は 2026-10-02 に外した。今も通じる要点は ecalj の `MD/past_log.md` §14、原文は ecaljdoc のコミット `3284d0b` の `ecaljdetails/ecaljdetails.tex`。

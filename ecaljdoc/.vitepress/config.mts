@@ -9,7 +9,7 @@ export default withMermaid({
   description: "document of ecalj",
   cleanUrls: true,
   ignoreDeadLinks: true,
-  srcExclude: ['MD/**', 'trash/**'],   // MD/: the development records of ecalj (read by Claude), not pages of the site (2026-10-02)
+  srcExclude: ['trash/**'],
   lastUpdated: true,
   // markdown: {
   //   math: true,
@@ -72,7 +72,7 @@ export default withMermaid({
           // { text: 'Structural optimization', link: '/manual/opts' },
           // { text: 'Quasi-particle\'s life time', link: '/manual/lifetime' },
           // { text: 'Spectrum function', link: '/manual/spec' },
-          // developer pages (ForDevelopers, developer, auto, kBT_history, mlo_backup, implementation) moved to ecaljdoc/MD on 2026-10-02 (not on the site)
+          // developer pages (ForDevelopers, developer, auto, kBT_history, mlo_backup, implementation) moved to ecalj/MD on 2026-10-02 (not on the site)
         ]
       },
       {

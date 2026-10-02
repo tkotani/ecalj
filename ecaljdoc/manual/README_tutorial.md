@@ -884,7 +884,7 @@ Run Si for example (copy the directory first):
   mpirun -np 8 lmf si
   ```
 (Until 2026-10-01 these inputs were made on the fly by `jobmaterials.py` from `Materials.ctrls.database` in the top-level
-`MATERIALS/`, which is gone; its contents are described in ecalj `ecaljdoc/MD/past_log.md` §9.)
+`MATERIALS/`, which is gone; its contents are described in ecalj `MD/past_log.md` §9.)
 
 * Key input files are
 ```ctrls.si,ctrlg.si.toml```

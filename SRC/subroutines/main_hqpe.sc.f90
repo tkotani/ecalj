@@ -60,7 +60,7 @@ contains
     integer:: ntq,it,n1x,n2x,n3x,nqx,nspinx,nx
     real(8):: ehf,ehfx,eshift,eshift2,fwhm,exx,elow=1d-2
     real(8) :: wex 
-    !--- Sigma in the MLO representation (design: ecaljdoc/MD/kBT/sigma_mlo_design.md, stage 2)
+    !--- Sigma in the MLO representation (design: MD/kBT/sigma_mlo_design.md, stage 2)
     logical:: lmlo
     integer:: ifsigmlo
     complex(8),allocatable:: cmloq(:,:),sigmlo(:,:,:,:)

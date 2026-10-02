@@ -45,7 +45,7 @@ For your own directory with the legacy `ctrl.<sname>` + `GWinput`, see
 | **EPS/EPS_Cu** | dielectric ε(q,ω), `job_eps`, FCC metal | [EPS_Cu/](https://github.com/tkotani/ecalj/tree/main/Samples/EPS/EPS_Cu) (no README; see test.py) | [Dielectric function: job_eps](./optical) |
 | **EPS/EPS_GaAs** | ε(q,ω), GaAs zinc-blende semiconductor | [EPS_GaAs/](https://github.com/tkotani/ecalj/tree/main/Samples/EPS/EPS_GaAs) (no README; see test.py) | [./optical](./optical) |
 | **EPS/EPS_Ag** | ε(q,ω), Ag (FCC, no LFC) | [EPS_Ag/](https://github.com/tkotani/ecalj/tree/main/Samples/EPS/EPS_Ag) (no README; see test.py) | [./optical](./optical) |
-| **MLOsamples/** (25 test targets) | MTO Localized Orbitals (Wannier replacement); SOC variants; on-site W via `job_mloW` | [MLOsamples/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md) | README_SOC.md (`ecaljdoc/MD/mlo_notes/mlo_soc_memo.md`) |
+| **MLOsamples/** (25 test targets) | MTO Localized Orbitals (Wannier replacement); SOC variants; on-site W via `job_mloW` | [MLOsamples/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md) | README_SOC.md (`MD/mlo_notes/mlo_soc_memo.md`) |
 | **PROCAR/MgO_PROCAR** | fat-band weight; O-2p projection on MgO bands | [MgO_PROCAR/](https://github.com/tkotani/ecalj/tree/main/Samples/PROCAR/MgO_PROCAR) (no README; see test.py) | [./UsageDetailed § PROCAR mode](./UsageDetailed#procar-mode) |
 | **PROCAR/Ni2MnGa_L21_PROCAR** | per-atom fat band; FM Heusler; ships converged `rst.ni2mnga` | [Ni2MnGa_L21_PROCAR/](https://github.com/tkotani/ecalj/tree/main/Samples/PROCAR/Ni2MnGa_L21_PROCAR) (no README; see test.py) | [./UsageDetailed § PROCAR mode](./UsageDetailed#procar-mode) |
 | **TestInstall/** (26 targets in `testecalj --all`, 66 checks) | install validation: ground-state, GW (`gwsc`, `gw_lmfh`), finite-T (`fe_kbt`), eps (`job_eps`), ChiPM, cRPA of the MLO model. The heavy GW targets `cugase2_gwsc222`, `nio_gwsc444`, `pdo_gwsc443`, `gas_gwsc666` are run one by one | (per dir; driven by `testecalj --all`) | [./gwsc](./gwsc), [./optical](./optical) |
@@ -130,8 +130,8 @@ page; this Samples page only points:
 | Dielectric ε(q,ω) (`job_eps`) | [./optical](./optical) |
 | Fat-band weights / `PROCAR` (`MgO_PROCAR`, `Ni2MnGa_L21_PROCAR`) | [./UsageDetailed § PROCAR mode](./UsageDetailed#procar-mode) |
 | MLO bands + on-site W (`job_mloW`) | [MLOsamples/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md) |
-| `ecalj_auto` batch runner | `ecaljdoc/MD/auto.md` |
+| `ecalj_auto` batch runner | `MD/auto.md` |
 | End-to-end tutorial (POSCAR → QSGW) | [./README_tutorial](./README_tutorial) |
 
 If you want to add a new Samples directory, the conventions live in
-`ecaljdoc/MD/developer.md` (`testecalj`, `comp.py`, naming).
+`MD/developer.md` (`testecalj`, `comp.py`, naming).

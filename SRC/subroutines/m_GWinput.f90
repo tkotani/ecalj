@@ -121,7 +121,7 @@ module m_GWinput
   ! wcsmear (default true): in the real-axis pole term of Sigma_c, apply the Fermi-Dirac smearing of
   !   the intermediate level (t_sigmaw) to W_c(omega) itself instead of evaluating W_c at the mean
   !   energy (false = the old 3-point interpolation at the mean energy).  Removes the knife-edge sensitivity to sharp plasmon poles of W
-  !   (LiTi2O4 at <=1000 K, ecaljdoc/MD/research_log.md 2026-09-19).  Unchanged where W_c is smooth.
+  !   (LiTi2O4 at <=1000 K, MD/research_log.md 2026-09-19).  Unchanged where W_c is smooth.
   logical, protected, public :: wcsmear      = .true.
   ! chi0_skip_window = [emin, emax] (eV, relative to E_F): band pairs whose occupied AND unoccupied
   !   states both lie inside the window are left out of chi0 (cRPA-like removal of the intraband /
@@ -134,7 +134,7 @@ module m_GWinput
   ! chi0_filterw_drude (default true): the intraband pairs (same band, occupied part -> unoccupied part
   !   across E_F; the Drude term, same test as --intrabandonly of the eps code) are exempt from the
   !   filter, so the static metallic screening and the Drude weight stay.  false: filtered as well.
-  !   Meaningless without chi0_filterw.  Experimental (2026-09-20, ecaljdoc/MD/research_log.md 23:26).
+  !   Meaningless without chi0_filterw.  Experimental (2026-09-20, MD/research_log.md 23:26).
   real(8), protected, public :: chi0_filterw(2) = 0d0
   logical, protected, public :: chi0_filterw_set = .false.
   logical, protected, public :: chi0_filterw_drude = .true.

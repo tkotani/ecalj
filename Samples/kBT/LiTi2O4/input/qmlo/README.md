@@ -45,7 +45,7 @@ bash ../../draw_iter_bands.sh <tag> <from> <to> <bindir>                   # QSG
 - MLO バンドだけを描くのが既定（1 反復 約 1 分）。mlo が読む qplist.dat は、efermi.lmf の E_F と Γ–X の経路（`$S/qplist_path_GX211.dat`）から作る。
   従来の sigm バンドも要るときは `SIGM_BAND=1`（job_band を回す）
 
-経過と結果は `ecaljdoc/MD/research_log.md`（2026-09-27 22:50、23:35 など）。
+経過と結果は `MD/research_log.md`（2026-09-27 22:50、23:35 など）。
 
 ## 反復ごとの確認（`check_iter.sh`）と 9³ の正常値
 

@@ -48,7 +48,7 @@ FeMgO は真空層を持つスラブで空格子球が要る。**§5 に独立�
 | §7 | [誤差の測り方](#_7-誤差の測り方-—-一方向では決まらない) | 一方向では決まらない |
 | §8 | [残る問題](#_8-残る問題) | |
 | §9 | [**模型の選び方**](#_9-模型の選び方-—-基準-1・2・3) | 基準 1・2・3 と現在のベストチョイス。`Samples/MATERIALS` の 65 物質 |
-| `ecaljdoc/MD/mlo_backup.md` | 経緯と作業記録(backup) | |
+| `MD/mlo_backup.md` | 経緯と作業記録(backup) | |
 
 ---
 
@@ -180,7 +180,7 @@ MLO は固定した MTO 種を**バンド多様体へ射影**したものなの�
 バンドが 1 本しか無ければ、種を 2 本与えても**射影で同じ関数に潰れる**。
 NiO で Ni の d に EH2 を足したところ、MLO の重なり行列 $O^{\rm MLO}$ の条件数が
 $1.3\times10^2 \to 7.4\times10^4$ に悪化し、伝導帯が 1 eV 動いた
-(2026-09-24、`ecaljdoc/MD/research_log.md`)。
+(2026-09-24、`MD/research_log.md`)。
 本当に 2 本要るなら、窓を広げて第 2 のバンドを窓の中に入れるしかない。
 
 例外は、窓の中に**同じ性格の第 2 のバンドが実際にある**とき。空隙の大きい構造（閃亜鉛鉱の MgS・MgSe・MgTe・CdTe・ZnTe、
@@ -287,7 +287,7 @@ MLO-QSGW の連鎖（`HamRsMLO` で模型を凍結する）では、連鎖の最
 - 空格子球: `[[site]]`・`[[spec]]` に置き、`mlo_lm` に行を書く（基準 3、§5・§9）。基底が変わるので `lmfa` から回し直す
 
 Cu の d 模型で 10³ → 16³ にすると d 帯の rms は 98 → 90 meV
-(`ecaljdoc/MD/mlo_notes/mlo_nskip_cu_problem.md`)。
+(`MD/mlo_notes/mlo_nskip_cu_problem.md`)。
 
 **通常はこのまま使える。** `Samples/MLOsamples` の 18 サンプルは全部この既定値
 ($\Delta=w=2.0$ eV)で、物質ごとに変えていない(§2)。3 つとも既定値なので、
@@ -528,7 +528,7 @@ FeCo(18 軌道、窓 8.3 meV)— 磁性金属で両スピンとも良く乗る�
 回すものと同じ入力・同じ参照。図は `SRC/exec/mlo_bandplot.py <sampledir>_work` で再生成。
 表の後半 7 系は Materials Project の構造をそのまま `ctrlgenToml.py` に通し、
 `mlo_lm` に全原子の s,p,d を入れて既定（$\Delta = w = 2$ eV）で回したもの
-（2026-09-18、[ecaljdoc/MD/mlo_notes/mp_20260918](https://github.com/tkotani/ecalj/tree/main/Samples/MLOsamples/BackUp_notes/mp_20260918)）。
+（2026-09-18、[MD/mlo_notes/mp_20260918](https://github.com/tkotani/ecalj/tree/main/Samples/MLOsamples/BackUp_notes/mp_20260918)）。
 
 | 半導体・絶縁体 | | | |
 |---|---|---|---|
@@ -1628,7 +1628,7 @@ rms は MLO → DFT / DFT → MLO（eV）。窓は MLO → DFT が [VBM − 8, C
 最終形に至る 3 つの設計判断の実測根拠、および途中で見つかった評価器と
 `m_hreduction.f90` のバグ — は別頁にまとめてある:
 
-**`ecaljdoc/MD/mlo_backup.md`**
+**`MD/mlo_backup.md`**
 
 本文の結論を読むだけなら不要だが、なぜこの式なのかを疑うときはそちらを見よ。
 

@@ -4,11 +4,11 @@
     python3 TOOLS/doclinks.py            (from the top of ecalj)
 
 1. relative links [..](path) and ![..](path) in the tracked *.md (not *_work, not trash): the target must exist.
-   In ecaljdoc/ (the site, not ecaljdoc/MD) links without an extension are VitePress pages: path.md must exist.
+   In ecaljdoc/ (the site) links without an extension are VitePress pages: path.md must exist.
 2. links in the site pages that leave ecaljdoc/ with ../ (they break on the site; use a GitHub URL)
 3. Samples/*/README.md without a link to the main documents (ecaljdoc/ or the site URL)
-4. files of ecaljdoc/MD not linked or named from CLAUDE.md, ecaljclaude.md, handover.md or README.md (MD)
-5. links from the site pages (ecaljdoc/ but not ecaljdoc/MD) to ecaljdoc/MD: not allowed (MD is not on the site; a path in code
+4. files of MD/ not linked or named from CLAUDE.md, ecaljclaude.md, handover.md or README.md (MD)
+5. links from the site pages (ecaljdoc/) to MD/ (the development notes, not published): not allowed (a path in code
    quotes is fine). The other way, from MD to the site pages, is fine (user 2026-10-02)
 """
 import os, re, subprocess, sys
@@ -20,7 +20,7 @@ files = [f for f in subprocess.run(['git', 'ls-files', '*.md'], capture_output=T
 rx = re.compile(r'!?\[[^\]]*\]\(([^)\s]+)(?:\s+"[^"]*")?\)')
 broken, leave, nolink, tomd = [], [], [], []
 for f in files:
-    d = os.path.dirname(f); site = f.startswith('ecaljdoc/') and not f.startswith('ecaljdoc/MD/')
+    d = os.path.dirname(f); site = f.startswith('ecaljdoc/')
     fence = False
     for n, l in enumerate(open(f, encoding='utf-8', errors='replace'), 1):
         if re.match(r'\s*(```|~~~)', l): fence = not fence; continue
@@ -36,7 +36,7 @@ for f in files:
                 q = os.path.normpath(os.path.join('ecaljdoc', p.lstrip('/').replace('ecaljdoc/', '', 1)))
             else:
                 q = os.path.normpath(os.path.join(d, p))
-            if site and (q.startswith('ecaljdoc/MD') or '/ecaljdoc/MD/' in u or re.search(r'tkotani/ecalj[^/]*/(tree|blob)/[^/]+/(ecaljdoc/)?MD/', u)):
+            if site and (q.startswith('MD/') or re.search(r'tkotani/ecalj[^/]*/(tree|blob)/[^/]+/(ecaljdoc/)?MD/', u)):
                 tomd.append(f'{f}:{n}: {u}')
             if site and not os.path.normpath(q).startswith('ecaljdoc'):
                 leave.append(f'{f}:{n}: {u}')
@@ -48,10 +48,10 @@ for f in files:
 for r in sorted(set(os.path.dirname(f) for f in files if f.startswith('Samples/') and f.endswith('README.md'))):
     s = open(os.path.join(r, 'README.md'), encoding='utf-8', errors='replace').read()
     if 'ecaljdoc' not in s: nolink.append(os.path.join(r, 'README.md'))
-entry = ''.join(open(p, encoding='utf-8').read() for p in ['CLAUDE.md', 'ecaljdoc/MD/ecaljclaude.md', 'ecaljdoc/MD/handover.md'] if os.path.exists(p))
-orphan = [m for m in sorted(os.listdir('ecaljdoc/MD')) if m not in entry]
+entry = ''.join(open(p, encoding='utf-8').read() for p in ['CLAUDE.md', 'MD/ecaljclaude.md', 'MD/handover.md'] if os.path.exists(p))
+orphan = [m for m in sorted(os.listdir('MD')) if m not in entry]
 print(f'1. broken relative links: {len(broken)}'); print('\n'.join('   ' + b for b in broken[:60]))
 print(f'2. site links leaving ecaljdoc/ with ../: {len(leave)}'); print('\n'.join('   ' + b for b in leave[:30]))
 print(f'3. Samples README without a link to the main documents: {len(nolink)}'); print('\n'.join('   ' + b for b in nolink))
-print(f'4. ecaljdoc/MD files not named from the entry documents: {orphan}')
-print(f'5. links from the site pages to ecaljdoc/MD: {len(tomd)}'); print('\n'.join('   ' + b for b in tomd))
+print(f'4. MD/ files not named from the entry documents: {orphan}')
+print(f'5. links from the site pages to MD/: {len(tomd)}'); print('\n'.join('   ' + b for b in tomd))

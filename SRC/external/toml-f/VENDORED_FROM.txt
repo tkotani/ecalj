@@ -16,7 +16,7 @@ Local modifications (minimal):
 
 Both files have .orig backups in this directory.
 
-Copied out of the toml-f tree (2026-10-02 05:32, ecalj symmetry.json, ecaljdoc/MD/symmetry_spglib.md 4.3):
+Copied out of the toml-f tree (2026-10-02 05:32, ecalj symmetry.json, MD/symmetry_spglib.md 4.3):
   test/compliance/json_lexer.f90  -> SRC/subroutines/tjson_lexer.f90   (unchanged)
   test/compliance/json_parser.f90 -> SRC/subroutines/tjson_parser.f90  (unchanged)
   They read a JSON file into a toml_table (json_load), so that ecalj reads its JSON side files with the

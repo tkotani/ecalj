@@ -33,7 +33,7 @@ contains
     read(ifihmto) ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO)
     close(ifihmto)
     if(ipr) write(stdo,*)'OK: Read HamRsMLO file! Use i-ioffib for setting mlo_lm'
-    ReadSigRsMLO: block !QMLO_SigRs; stage 3 test bed of ecaljdoc/MD/kBT/sigma_mlo_design.md
+    ReadSigRsMLO: block !QMLO_SigRs; stage 3 test bed of MD/kBT/sigma_mlo_design.md
       integer:: ifs,nm,np,ns,nb
       inquire(file='QMLO_SigRs',exist=lsigmlo)
       if(lsigmlo) then

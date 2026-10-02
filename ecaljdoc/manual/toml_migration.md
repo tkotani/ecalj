@@ -170,14 +170,14 @@ legacy form are converted as described above.
 
 - [MLOsamples/README.md § Reference value: bcc Fe Fe-3d on-site W](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md#reference-value-bcc-fe-fe-3d-on-site-w-with---mlo_feb4) — bcc Fe Fe-3d on-site screened W ~1.5 eV (job_mloW reproduction, 2×2×2 vs 4×4×4 BZ)
 - [MLOsamples/README.md § Regression test (testecalj Fe)](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md#regression-test-testecalj-fe) — automated diagonal V/W-V check against inline reference values
-- MLOsamples/README_SOC.md (`ecaljdoc/MD/mlo_notes/mlo_soc_memo.md`) — SOC-as-perturbation variant (`job_mlo_soc`)
+- MLOsamples/README_SOC.md (`MD/mlo_notes/mlo_soc_memo.md`) — SOC-as-perturbation variant (`job_mlo_soc`)
 
 ## Auto-job runner (`ecalj_auto`)
 
 For batch QSGW / GW jobs across many materials, see
 [ecalj_auto/README.md](https://github.com/tkotani/ecalj/blob/main/ecalj_auto/README.md)
 and [ecalj_auto/README_slot_scheduler.md](https://github.com/tkotani/ecalj/blob/main/ecalj_auto/README_slot_scheduler.md).
-`ecaljdoc/MD/auto.md` says which of its drivers run with the present
+`MD/auto.md` says which of its drivers run with the present
 programs; `jobtemplate.{kugui,ohtaka,ucgw,...}` are the templates for
 SLURM/PBS clusters.
 

@@ -16,7 +16,7 @@ LDA（Eu の化合物は LDA+U）と MLO の模型を回して、DFT のバン�
 
 以前は `job_materials.py` が `Materials.ctrls.database`（構造の雛形 17 種と物質ごとの格子定数・指定）から、その場でディレクトリと入力を作って
 LDA/GGA を回していた。これを物質ごとのディレクトリに展開した（user「展開してしまうのが便利かも」）。元の `job_materials.py` とデータベースは
-`trash/`（中身は ecalj の `ecaljdoc/MD/past_log.md` §9）。
+`trash/`（中身は ecalj の `MD/past_log.md` §9）。
 
 各ディレクトリ `<物質>/` には 2 つだけ置く:
 
@@ -145,7 +145,7 @@ mlo_bandplot.py . -o mlo_GaAs.png     # DFT（灰）と MLO（赤）の図
 - `MLOcheck_20261001.tsv`: 最初の版（旧既定）の物質ごとの結果。`MLOcheck_20261001_variants.tsv`: 物質ごとに動径関数を足した変種。
   どちらも 2026-10-01 17:54 までの窓で評価したもの（MLO → DFT が [VBM − 8, CBM + 3]、DFT → MLO が [VBM − 8, CBM + 1] eV）。
   今の `mlo_bandcheck.py` は両方とも [VBM − 8, CBM + mlo_delta]（`mlo_delta` は模型を合わせる範囲の上端、既定 2 eV）
-- 経緯は ecalj の `ecaljdoc/MD/research_log.md`（2026-10-01）
+- 経緯は ecalj の `MD/research_log.md`（2026-10-01）
 
 ## 3. 大きめの系の QSGW の入力と結果
 
@@ -174,4 +174,4 @@ job_band la2cuo4swj -np 32
 - 保存してある `rst.*` は当時の版のもので、今の `lmf` では読めないことがある（`EffectiveMass/GaAs` の例）。`sigm` は読める
 
 最上位にあった旧形式の古いサンプル（2026-10-01 にここへ移した 30 項目）は、同じ日に仕分けて trash に移した。中身と拾ったノウハウは ecalj の
-[ecaljdoc/MD/past_log.md](../../ecaljdoc/MD/past_log.md) §9。
+[MD/past_log.md](../../MD/past_log.md) §9。

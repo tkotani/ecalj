@@ -1,1 +1,1 @@
-@ecaljdoc/MD/ecaljclaude.md
+@MD/ecaljclaude.md
