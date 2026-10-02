@@ -20,8 +20,10 @@
 - **【残す】η ≠ 1 の原因**（2026-10-02）: Goldstone の条件の倍率が Löwdin で Fe 1.24、FeCo 1.28、Ni 1.75。Ni が大きい理由は未確認
 - **【残す】空格子球の自動化（基準 3）**（2026-10-01）: `SRC/exec/ctrlg_addes.py`（`8c158ee96`、像の数を面間隔から決める直しは済み）を ctrlg の生成に組み込むか。
   Bi₂Te₃ の空隙は 2.61 a.u. で 3.0 未満、SiO₂ は手で置いて 0.001 eV
-- **【未着手】MLO と Wannier のずれ**（2026-10-02、`MD/wannier_vs_mlo.md`）: Ni d の cRPA の U が Wannier より低い（Löwdin で 2.90 対 3.78 eV、部分空間の違い）。
-  Fe のマグノンは Löwdin で近づいた（q ≤ 0.3 で 2 割高いのは残る）。実験（Fe のマグノン分散）との比較
+- **【未着手】Fe のマグノン: 小さい q で 2 割高い件と、実験との比較**（2026-10-02）: Löwdin の MLO は q ≤ 0.3 で Wannier 版より 2 割高い（q = 0.1 で 0.085 対 0.068 eV）。
+  q ≥ 0.4 は合う。見る所: `Samples/Magnon/Fe_mlo_magnon/README.md`（表 2・図 1、`magnon_peaks.npz`）、`MD/wannier_vs_mlo.md` §3a（表 3a）、研究ログ 2026-10-02 11:12・
+  09:42・07:10・04:17（窓と Löwdin）、作業の場所 `~/work/magnon_nifeco/magnon_window.md`（Fe・FeCo・Ni の窓と Löwdin の図、ページ https://claude.ai/artifact/A9r4CEPHgD1UkYsVA5XQKH）。
+  実験の分散（中性子散乱）のデータはリポジトリに無い。文献から取る
 
 ### 対称性
 
@@ -102,6 +104,8 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
   壊れた Cu・Ni（EH2、生の模型）は 24・926 eV、健全な 63 物質は最大 0.56 eV。ecaljdoc mlo §9 式 (12)
 - 基準 2・3 を Löwdin の模型で確かめた（2026-10-02、`~/work/lowdin_crit23_20261002`）: 生の模型で壊れた Cu・Ni の EH2 は PASS（0.045、0.055 eV）、基準 1 で外れた 7 物質は基準 2 で PASS、
   SiO₂ は基準 3 で 0.005 eV。EH2 の崩れの直し方（正準直交化など）は要らなくなった（EuO だけ §1 に残る）
+- MLO と Wannier の cRPA の U の差（Ni の d、Löwdin 2.90 対 Wannier 3.78 eV）は、部分空間の取り方の違いで、直すものではないとした（2026-10-02 20:13、user）。RPA の U は
+  基底にほとんど依らない（1.43 対 1.58）。`MD/wannier_vs_mlo.md` §3a、ecaljdoc mlo §6
 - 済んだ項目（2026-10-02 14:35 に §1 から移した）: Löwdin の後の文書（ecaljdoc mlo §6・表 M8、Changes.txt (6)、handover、`Fe_mlo_magnon/README.md`）。AFTEST の (d)（使い方を ecaljdoc の UsageDetailed.md へ）。
   マグノンの既定の窓（窓は (2, 2) のまま。Löwdin で窓によらない）。対称性 S0〜S6（`MD/symmetry_spglib.md` §4.7）。kt1 の GW1500 の run3（2026-10-01 16:43 に終了）
 
