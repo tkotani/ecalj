@@ -1,5 +1,7 @@
 # BoltzTraP の入力ファイル（Si、LDA）
 
+> 説明の本体: ecaljdoc の [manual/UsageDetailed.md](../../../ecaljdoc/manual/UsageDetailed.md)「BoltTrap」（サイト https://ecalj.github.io/ecaljdoc/manual/UsageDetailed）。サンプルの一覧は [manual/samples.md](../../../ecaljdoc/manual/samples.md)。
+
 `lmf --boltztrap` は、輸送係数を計算するプログラム BoltzTraP の一般形式（GENE）の入力を三つ書いて止まります（表 1）。
 自己無撞着計算のあと、細かい k メッシュを指定して一度だけ走らせます。ここでは Si を LDA で計算します。
 

@@ -1,5 +1,7 @@
 # AtomDimer/N2: 箱の中の N₂ 分子と N 原子 — 結合長と結合エネルギー
 
+> 説明の本体: ecaljdoc の [manual/UsageDetailed.md](../../../ecaljdoc/manual/UsageDetailed.md)「For molecules, we may use --systype=molecule for ctrlgenToml.py.」（サイト https://ecalj.github.io/ecaljdoc/manual/UsageDetailed）。サンプルの一覧は [manual/samples.md](../../../ecaljdoc/manual/samples.md)。
+
 孤立した分子と原子を大きな立方体の箱に入れて計算する例。N₂ の全エネルギーを結合長 d の 3 点で計算し、放物線で最小を求めて
 平衡結合長 $r_e$ と、同じ箱の N 原子の全エネルギーから結合エネルギー
 

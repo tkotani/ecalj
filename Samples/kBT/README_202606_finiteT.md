@@ -37,7 +37,7 @@ MTO 基底ではなく MLO の小さな部分空間で $\Sigma$ を保持する�
 | 文書 | 中身 |
 |---|---|
 | [`sigma_mlo_design.md`](sigma_mlo_design.md) | 設計書。出発点 $\langle\psi\|\hat\Sigma\|\psi\rangle$ からの式の導出（式 (1)–(17)）、実装手順、検証手順、踏んだバグの記録 |
-| [`ecaljdoc/MD/research_log.md`](../../MD/research_log.md) | 実測ログ（新しい順）。NiO / Si での検証、LiTi₂O₄ の連鎖 |
+| [`ecaljdoc/MD/research_log.md`](../../ecaljdoc/MD/research_log.md) | 実測ログ（新しい順）。NiO / Si での検証、LiTi₂O₄ の連鎖 |
 | [ecaljdoc: MLO-gwsc](https://ecalj.github.io/ecaljdoc/manual/mlo_gwsc) | 使い方（`gwsc --mlo`）、保持すべきファイル、現状の精度 |
 
 **既定では一切動かない。** `gwsc` に `--mlo` を付けたときだけ有効。
@@ -171,7 +171,7 @@ kt1 側にあってここに持ってきていないもの:
 
 ## 4. これから詰めるべき課題
 
-研究ログ（日付順、試したこと・数字・仮説）は [ecaljdoc/MD/research_log.md](../../MD/research_log.md)。
+研究ログ（日付順、試したこと・数字・仮説）は [ecaljdoc/MD/research_log.md](../../ecaljdoc/MD/research_log.md)。
 
 一覧は [ecaljdoc: kBT §9](https://ecalj.github.io/ecaljdoc/manual/kBT#9-これから詰めるべき課題-2026-09-17)。
 要点だけ:

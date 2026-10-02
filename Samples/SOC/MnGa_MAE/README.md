@@ -1,5 +1,7 @@
 # MnGa_MAE: L1₀ MnGa の磁気異方性エネルギー（力の定理）
 
+> 説明の本体: ecaljdoc の [manual/UsageDetailed.md](../../../ecaljdoc/manual/UsageDetailed.md)「Spin-orbit coupling」（サイト https://ecalj.github.io/ecaljdoc/manual/UsageDetailed）。サンプルの一覧は [manual/samples.md](../../../ecaljdoc/manual/samples.md)。
+
 `Samples/SOC/FePt_MAE` と同じ手順を MnGa に適用する。スピン軌道相互作用（SOC）を入れない自己無撞着計算（SCF）の
 ポテンシャルの上で、SOC を入れたバンドエネルギー（`sev(eV)=`、占有状態の固有値の和）をスピン軸 001 と 110 について
 一回ずつ計算し、差から磁気異方性エネルギー（MAE）を求める（Liqin Ke, Phys. Rev. B 99, 054418 (2019) の付録 A）。

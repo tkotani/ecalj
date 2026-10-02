@@ -1,5 +1,7 @@
 # Relax/LaGaO3: 原子位置の緩和（LaGaO3、20 原子）
 
+> 説明の本体: ecaljdoc の [manual/UsageDetailed.md](../../../ecaljdoc/manual/UsageDetailed.md)「Forces and Atomic position relaxiation」（サイト https://ecalj.github.io/ecaljdoc/manual/UsageDetailed）。サンプルの一覧は [manual/samples.md](../../../ecaljdoc/manual/samples.md)。
+
 斜方晶ペロブスカイト LaGaO3（単位胞に 20 原子）の原子位置を、力を使って緩和する。`lmf` は二重のループで動く:
 内側が電子状態の自己無撞着計算、外側が原子を動かすループである。`[dyn]` を書くと力の計算は自動で入る。
 格子定数と単位胞の形は動かさない。

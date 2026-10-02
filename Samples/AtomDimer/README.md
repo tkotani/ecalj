@@ -1,5 +1,7 @@
 # Samples/AtomDimer — 箱の中の分子と原子
 
+> 説明の本体: ecaljdoc の [manual/UsageDetailed.md](../../ecaljdoc/manual/UsageDetailed.md)「For molecules, we may use --systype=molecule for ctrlgenToml.py.」（サイト https://ecalj.github.io/ecaljdoc/manual/UsageDetailed）。サンプルの一覧は [manual/samples.md](../../ecaljdoc/manual/samples.md)。
+
 | ディレクトリ | 内容 | 試験 |
 | --- | --- | --- |
 | [`N2/`](N2/README.md) | N₂ 分子と N 原子を 15 Å の箱で（PBE、スピン分極、固定磁気モーメント）。結合長 3 点から平衡結合長と結合エネルギー | `testecalj N2 -np 8`（7 分） |

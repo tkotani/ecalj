@@ -1,5 +1,7 @@
 # Si666gwsc — MLO bands on top of converged QSGW (Si, 6x6x6)
 
+> Main documentation: ecaljdoc [manual/mlo.md](../../../ecaljdoc/manual/mlo.md) (site https://ecalj.github.io/ecaljdoc/manual/mlo). The list of samples: [manual/samples.md](../../../ecaljdoc/manual/samples.md).
+
 Bands and MLO (muffin-tin localized orbitals) for Si generated on top of
 a **converged QSGW self-energy**. Unlike TestInstall/si_gwsc (which runs
 the gwsc cycle itself), this sample ships the converged state:

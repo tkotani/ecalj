@@ -1,5 +1,7 @@
 # ReN: 希土類窒化物 GdN, PrN の LDA+U とスピン軌道相互作用
 
+> 説明の本体: ecaljdoc の [manual/UsageDetailed.md](../../../ecaljdoc/manual/UsageDetailed.md)「LDA+U」（サイト https://ecalj.github.io/ecaljdoc/manual/UsageDetailed）。サンプルの一覧は [manual/samples.md](../../../ecaljdoc/manual/samples.md)。
+
 岩塩構造の希土類窒化物 GdN（`cgdn`）と PrN（`cprn`）で、4f 殻に LDA+U をかけ、スピン軌道相互作用を
 $L_z S_z$ の形（`so = 2`）で入れて自己無撞着に解く。LDA+U は 4f の占有の初期値によって違う解に落ちるので、
 初期値を `occnum.<sname>` でフント則に合わせて与える。`Samples/TestInstall/gdn` が LDA+U だけを試すのに対し、

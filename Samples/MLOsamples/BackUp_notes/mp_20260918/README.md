@@ -1,5 +1,7 @@
 # Materials Project から取った 10 結晶で MLO の既定を試す（DFT レベル、2026-09-18 未明）
 
+> 説明の本体: ecaljdoc の [manual/mlo.md](../../../../ecaljdoc/manual/mlo.md)（サイト https://ecalj.github.io/ecaljdoc/manual/mlo）。サンプルの一覧は [manual/samples.md](../../../../ecaljdoc/manual/samples.md)。
+
 目的: `mlo_method = 4` の既定（`mlo_delta = mlo_w = 2.0 eV`、`nskip` は k に依らない自動決定）が
 サンプル以外の結晶でもそのまま動くかを、QSGW 抜き（LDA）で見る。
 

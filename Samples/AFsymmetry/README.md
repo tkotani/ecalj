@@ -1,5 +1,7 @@
 # Samples/AFsymmetry — 反強磁性の対称性（`symgrpaf`）を使う計算
 
+> 説明の本体: ecaljdoc の [manual/UsageDetailed.md](../../ecaljdoc/manual/UsageDetailed.md)「Antiferro symmetry without SOC」（サイト https://ecalj.github.io/ecaljdoc/manual/UsageDetailed）。サンプルの一覧は [manual/samples.md](../../ecaljdoc/manual/samples.md)。
+
 反強磁性体では、「空間の操作 g とスピンの反転」の組が対称操作になる。これを `symgrpaf` に書くと、`lmf` はスピン 1 だけを解き、
 スピン 2 の固有関数と密度を対称操作で作る（SCF の計算が約半分になる）。
 

@@ -1,5 +1,7 @@
 # DOS/ZnS: 全状態密度と部分状態密度（非磁性の半導体）
 
+> 説明の本体: ecaljdoc の [manual/README_tutorial.md](../../../ecaljdoc/manual/README_tutorial.md)「job_tdos, job_pdos」（サイト https://ecalj.github.io/ecaljdoc/manual/README_tutorial）。サンプルの一覧は [manual/samples.md](../../../ecaljdoc/manual/samples.md)。
+
 閃亜鉛鉱構造の ZnS（GGA）の全状態密度（total DOS）と、原子球の中の角運動量ごとの部分状態密度（partial DOS）を求める。
 磁性のある例は `../Fe`。
 

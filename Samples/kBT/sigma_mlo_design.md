@@ -1,7 +1,7 @@
 # 自己エネルギーの MLO 表現による内挿 — 設計書
 
 2026-09-24 起草、2026-09-25 に **§9〜§13 を追加**（`temp.md` を解体して統合）。対象: ecalj 開発者。
-背景データは [ecaljdoc/MD/research_log.md](../../MD/research_log.md) の各日エントリ（図表番号はそちらを参照）。
+背景データは [ecaljdoc/MD/research_log.md](../../ecaljdoc/MD/research_log.md) の各日エントリ（図表番号はそちらを参照）。
 
 > **現行の方式は §9〜§13**（2 スロット方式）。§3「設計」と §4「実装手順」は 2026-09-24 版で、
 > 一部が置き換わっている。どこが置き換わったかは §9 冒頭の表にまとめてある。
@@ -752,7 +752,7 @@ LiTi₂O₄ で結果が悪かったとき、実装のどこが悪いかを次�
 > LiTi₂O₄ 6³（nmlo 126 = 全 14 原子 s+p+d、$\Sigma^{\rm MLO}$ を β=0.5 で混合）が 10 反復で従来と同じように収束し
 > （MLO バンドの反復ごとの変化 rms 3.9 meV、従来 6.5 meV）、**メッシュ点の間のこぶ（リンギング）が MLO バンドでは消えた**。
 > 従来チェーンとの差は rms 46 meV（形と幅は一致、メッシュ点でも 43 meV あるので内挿ではなく状態の差）。
-> 9³ も 10 反復で完了（2026-09-26 18:24、MLO バンドの変化 rms 3.2 meV）。経過は [ecaljdoc/MD/research_log.md](../../MD/research_log.md) の 2026-09-25〜26、
+> 9³ も 10 反復で完了（2026-09-26 18:24、MLO バンドの変化 rms 3.2 meV）。経過は [ecaljdoc/MD/research_log.md](../../ecaljdoc/MD/research_log.md) の 2026-09-25〜26、
 > 利用者向けのまとめは ecaljdoc の `manual/mlo_gwsc.md`。
 
 2026-09-25 の確認。ここから §13 までが **2 スロット方式**で、§3 の「設計」と §4 の「実装手順」を
@@ -1481,7 +1481,7 @@ $\Psi^{\rm MTO}_j$ も $\Psi^{\rm PMT}_i$ も $|\Psi\rangle\langle\Psi|$ の形�
 
 ## 13. TODO
 
-2026-09-26 に見直した。状態は [ecaljdoc/MD/research_log.md](../../MD/research_log.md) の同日エントリと対応している。
+2026-09-26 に見直した。状態は [ecaljdoc/MD/research_log.md](../../ecaljdoc/MD/research_log.md) の同日エントリと対応している。
 
 ### A. 完了・進行中
 

@@ -1,5 +1,7 @@
 # IIR/C: ダイヤモンドの衝突イオン化率（自己エネルギーの虚部）
 
+> 説明の本体: ecaljdoc の [manual/UsageDetailed.md](../../../ecaljdoc/manual/UsageDetailed.md)「Impact ionization rate」（サイト https://ecalj.github.io/ecaljdoc/manual/UsageDetailed）。サンプルの一覧は [manual/samples.md](../../../ecaljdoc/manual/samples.md)。
+
 ダイヤモンドの電子と正孔の衝突イオン化率（impact ionization rate）を、one-shot GW の自己エネルギーの虚部から求める。
 k 点メッシュを粗くした動作確認用のサンプルで、**値は収束していない**（§4 の表 2）。
 

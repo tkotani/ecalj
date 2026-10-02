@@ -174,4 +174,4 @@ job_band la2cuo4swj -np 32
 - 保存してある `rst.*` は当時の版のもので、今の `lmf` では読めないことがある（`EffectiveMass/GaAs` の例）。`sigm` は読める
 
 最上位にあった旧形式の古いサンプル（2026-10-01 にここへ移した 30 項目）は、同じ日に仕分けて trash に移した。中身と拾ったノウハウは ecalj の
-[ecaljdoc/MD/past_log.md](../../MD/past_log.md) §9。
+[ecaljdoc/MD/past_log.md](../../ecaljdoc/MD/past_log.md) §9。

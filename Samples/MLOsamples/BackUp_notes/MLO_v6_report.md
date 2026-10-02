@@ -4,7 +4,7 @@ ecalj branch `mlo3` / MLOsamples 16 系 / 2026-09-13 14:00 JST(探索記録。�
 
 > **注意: 本書の `mlo_method = 3`(二段シグモイド)は採用されなかった。**
 > 確定形は単一シグモイドの `mlo_method = 4` で、
-> **[MLO_minimal.md](MLO_minimal.md)** にある。本書は探索の記録として残す。
+> **[MLO_minimal.md](../../../ecaljdoc/manual/mlo.md)** にある。本書は探索の記録として残す。
 > §6b の損失関数の定義は現在も有効。
 手調整パラメータゼロの MLO 構成。v1〜v10 の探索と、約 45 設定 × 16 系の走査による最終化。
 
@@ -116,7 +116,7 @@ $$
 > なお本書全体が扱う `mlo_method = 3`(二段シグモイド)は、その後の検討で
 > **採用されなかった**。$\varepsilon_{\rm frz}\le e^{\rm cut}_{n''}$ が常に成り立つため
 > $\varepsilon^{\rm MTO}_{n''}$ が裾からしか入らず、単一シグモイドの
-> `mlo_method = 4` の方が良い。経緯と確定形は **[MLO_minimal.md](MLO_minimal.md)** を見よ。
+> `mlo_method = 4` の方が良い。経緯と確定形は **[MLO_minimal.md](../../../ecaljdoc/manual/mlo.md)** を見よ。
 
 $\Delta$ を 0.15–0.24 Ry で 10 点、半導体・酸化物 6 系について走査した
 (ギャップ誤差 meV / m\* 比):

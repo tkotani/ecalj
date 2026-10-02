@@ -1,5 +1,7 @@
 # EffectiveMass/GaAs: バンドの有効質量（QSGW + スピン軌道相互作用）
 
+> 説明の本体: ecaljdoc の [manual/UsageDetailed.md](../../../ecaljdoc/manual/UsageDetailed.md)「ecalj/Samples/」（サイト https://ecalj.github.io/ecaljdoc/manual/UsageDetailed）。サンプルの一覧は [manual/samples.md](../../../ecaljdoc/manual/samples.md)。
+
 GaAs の Γ 点のまわりの有効質量を、Γ から [111], [100], [110] の三方向へ伸びる短い線の上の細かい k 点の
 バンドから求める。バンドは、保存してある QSGW の自己エネルギー `sigm.gaas` を使い、スピン軌道相互作用（SOC）を
 入れて計算する。`syml.gaas` を「質量モード」で書くと、lmf がギャップの近くのバンドを 1 本ずつファイルに書き出すので、

@@ -1,5 +1,7 @@
 # Cu のフェルミ面（xcrysden 用の bxsf ファイル）
 
+> 説明の本体: ecaljdoc の [manual/UsageDetailed.md](../../../ecaljdoc/manual/UsageDetailed.md)「Fermi surface」（サイト https://ecalj.github.io/ecaljdoc/manual/UsageDetailed）。サンプルの一覧は [manual/samples.md](../../../ecaljdoc/manual/samples.md)。
+
 fcc Cu を LDA で自己無撞着に解いたあと、`job_fermisurface` でブリルアンゾーン全体の格子点の固有値を求め、
 xcrysden が読む `fermiup.bxsf` を作ります。Cu のフェルミ面は 6 番目のバンド（sp バンド）一枚で、
 L 点のまわりでゾーン境界に届いて「ネック」を作ります（図 1）。

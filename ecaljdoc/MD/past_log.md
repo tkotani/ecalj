@@ -326,7 +326,7 @@ ecaljdoc の `BackUp/`（148 本、35 MB: 初版の GW マニュアル `man-gw.t
 - **E_HF と E_HK**（同 §Harris-Foulkner energy）: 収束すれば一致し、差が数値誤差の目安。save の行頭 `c`（収束）と `h`（1 反復目）。論文の式 (B.1)(B.2) の誤り:
   E_xc は n_c + n_in の汎関数で n_Z を含まない
 - **実球面調和関数 y_lm**（同 §Spherical Harmonics and Real harmonics）: Y_lm との変換、並びは m = −l..l（y00, y1−1, y10, y11, …）。出典 Edmonds・Rose
-- **空間群の回転の約束**（同 §Rotation of eigenfunctions and MPB）: g(R) + Δ = R' + ΔT_R（`miat`・`tiat`）、g[F](r) = F(g⁻¹r + Δ⁻¹)。PMT の固有関数と積基底の回し方
+- **空間群の回転の約束**（同 §Rotation of eigenfunctions and MPB）: g(R) + Δ = R' + ΔT_R（`miat`・`tiat`）、`g[F](r) = F(g⁻¹r + Δ⁻¹)`。PMT の固有関数と積基底の回し方
 - **Z = 1 を選ぶ理由**（`man-gw.tex` §Whether the renormalization factor Z is included）: 二準位模型で、Z を掛けずに ⟨Σ(e_k) − Vxc⟩ を足す方法 (II) が、
   固有値だけを自己無撞着にした (IV) に近い
 - **χ+− の定義**（`fpgwdoc/man033_ver1.tex` §χ+− calculation〜J(q) and Tc）: 符号は 2007-07 に変えた。移動バンド模型で χ0+− → m/(ω − Δex)、常磁性で χ0 = 2χ0+−。

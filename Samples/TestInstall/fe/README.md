@@ -1,5 +1,7 @@
 # fe — bcc Fe, spin-polarized LDA + total DOS
 
+> Main documentation: ecaljdoc [manual/samples.md](../../../ecaljdoc/manual/samples.md) (site https://ecalj.github.io/ecaljdoc/manual/samples). The list of samples: [manual/samples.md](../../../ecaljdoc/manual/samples.md).
+
 Ferromagnetic bcc Fe (1 atom/cell, nspin=2, tetrahedron METAL=3,
 nkabc=10). Self-consistency runs from scratch (`lmfa` start) to
 conv=1e-4 Ry; the converged moment is mmom ~ -2.30 mu_B (sign follows

@@ -1,5 +1,7 @@
 # gdn — GdN (rocksalt), LDA+U on Gd 4f + total DOS
 
+> Main documentation: ecaljdoc [manual/samples.md](../../../ecaljdoc/manual/samples.md) (site https://ecalj.github.io/ecaljdoc/manual/samples). The list of samples: [manual/samples.md](../../../ecaljdoc/manual/samples.md).
+
 GdN in the rocksalt structure (Gd + N, nspin=2) with LDA+U on the Gd 4f
 shell: `idu=[0,0,0,2]`, `uh=[0,0,0,0.515]` Ry (around-mean-field type 2).
 The spin moment is mmom = 7 (Gd f^7). By design the run is a short fixed

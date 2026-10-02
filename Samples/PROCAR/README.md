@@ -1,5 +1,7 @@
 # PROCAR: band weight decomposition samples
 
+> 説明の本体: ecaljdoc の [manual/UsageDetailed.md](../../ecaljdoc/manual/UsageDetailed.md)「PROCAR mode」（サイト https://ecalj.github.io/ecaljdoc/manual/UsageDetailed）。サンプルの一覧は [manual/samples.md](../../ecaljdoc/manual/samples.md)。
+
 ecalj で band structure と同時に、各原子/軌道からの **weight**（fat band）を
 書き出すサンプル。`lmf --mkprocar --band:fn=syml` で `PROCAR.UP[.DN]` が生成され、
 後処理で atom/spin 別に重みを可視化する。

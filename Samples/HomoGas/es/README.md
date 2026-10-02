@@ -1,5 +1,7 @@
 # 一様電子ガスの Lindhard 関数（四面体法の確認）
 
+> 説明の本体: ecaljdoc の [manual/samples.md](../../../ecaljdoc/manual/samples.md)（サイト https://ecalj.github.io/ecaljdoc/manual/samples）。サンプルの一覧は [manual/samples.md](../../../ecaljdoc/manual/samples.md)。
+
 GW や誘電関数で使う四面体法（分極関数の虚部を四面体の重みで積み、実部を Hilbert 変換で求める）を、
 答えが解析的に分かっている一様電子ガスで確かめる例です。プログラム `hhomogas` は、格子、k メッシュ、振動数のメッシュを入力から取り、
 バンドは自由電子 $\varepsilon_{\mathbf k} = |\mathbf{k}|^2$（Ry）として、相互作用の無い分極関数 $\chi_0(\mathbf{q}, \omega)$ を計算します。

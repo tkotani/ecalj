@@ -1,5 +1,7 @@
 # contour_test — Σc の contour 分解（虚軸積分 + 実軸極項）と準位 smearing の単体試験
 
+> 説明の本体: ecaljdoc の [manual/kBT.md](../../../ecaljdoc/manual/kBT.md)「3.6 Σc の contour 分解と準位 smearing の整合」（サイト https://ecalj.github.io/ecaljdoc/manual/kBT）。サンプルの一覧は [manual/samples.md](../../../ecaljdoc/manual/samples.md)。
+
 2026-09-22 01:30。1 中間準位 ε′、モデル $W_c(z) = -v\,\omega_p^2/(\omega_p^2 - z^2 - i\gamma z)$（Drude–Lorentz、上半面で解析的、
 $W_c(i\omega') = -v\omega_p^2/(\omega_p^2+\omega'^2+\gamma\omega')$ は $\omega'$ の 1 次項を持つ = 金属型）、行列要素 = 1、
 $\omega_p$ = 1.8 eV。実コードの経路そのもの — `m_wfac::pole_weights`（窓重み Φ、wcsmear の bin 重み）と

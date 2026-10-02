@@ -1,5 +1,7 @@
 # FePt_MAE: L1₀ FePt の磁気異方性エネルギー（力の定理）
 
+> 説明の本体: ecaljdoc の [manual/UsageDetailed.md](../../../ecaljdoc/manual/UsageDetailed.md)「Spin-orbit coupling」（サイト https://ecalj.github.io/ecaljdoc/manual/UsageDetailed）。サンプルの一覧は [manual/samples.md](../../../ecaljdoc/manual/samples.md)。
+
 スピン軌道相互作用（SOC）を入れない自己無撞着計算（SCF）のポテンシャルの上で、SOC を入れたバンドエネルギーを
 スピン軸 001 と 110 について一回ずつ計算し、その差から磁気異方性エネルギー（MAE）を求める
 （力の定理。Liqin Ke, Phys. Rev. B 99, 054418 (2019) の付録 A）。

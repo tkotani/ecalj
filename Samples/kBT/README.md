@@ -33,7 +33,7 @@
 
 | ファイル | 中身 |
 | --- | --- |
-| [`ecaljdoc/MD/research_log.md`](../../MD/research_log.md) | 研究ログ（2026-09-16〜。有限温度、MLO-QSGW、GPU 高速化）。新しいものが上、時刻付き |
+| [`ecaljdoc/MD/research_log.md`](../../ecaljdoc/MD/research_log.md) | 研究ログ（2026-09-16〜。有限温度、MLO-QSGW、GPU 高速化）。新しいものが上、時刻付き |
 | [`gpu_fp32_report.md`](gpu_fp32_report.md)、[`gpu_fp32_plan.md`](gpu_fp32_plan.md) | GW の GPU 高速化の報告と計画（精度、行列積の方法の表、QSGW 1 反復の内訳） |
 | [`sigma_mlo_design.md`](sigma_mlo_design.md) | MLO-QSGW（Σ を MLO で持って内挿する）の設計 |
 | [`README_202606_finiteT.md`](README_202606_finiteT.md) | 2026-06 の有限温度 QSGW の計算の記録（キーの名前は当時のもの） |

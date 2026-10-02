@@ -1,5 +1,7 @@
 # EffectiveMass/CdS: 閃亜鉛鉱型 CdS の有効質量（QSGW + スピン軌道相互作用）
 
+> 説明の本体: ecaljdoc の [manual/UsageDetailed.md](../../../ecaljdoc/manual/UsageDetailed.md)「ecalj/Samples/」（サイト https://ecalj.github.io/ecaljdoc/manual/UsageDetailed）。サンプルの一覧は [manual/samples.md](../../../ecaljdoc/manual/samples.md)。
+
 閃亜鉛鉱型 CdS の Γ 点のまわりの有効質量を求める。方法、`syml` の質量モードの書き方、出力ファイルの列、`massfit.py` の式は
 `../GaAs/README.md`（式 (1)）と同じで、スクリプト `massfit.py`, `massplot.py` も同じものである。ここには CdS で違うところだけを書く。
 

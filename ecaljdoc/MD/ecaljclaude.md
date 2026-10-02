@@ -74,6 +74,8 @@ Claude（や人）が後でコードや記録を読むときの手がかりに�
   - リンクの向き: ecaljdoc の本体（manual・theory）から外（Samples、ソース）へは GitHub の URL（`https://github.com/tkotani/ecalj/tree/main/...`。サイトで
     `../` の相対リンクは切れる）。外から ecaljdoc へはリポジトリの中の相対パス（`../../ecaljdoc/manual/mlo.md`）
   - ecaljdoc の本文で `<...>` や `{{` をコードの印（バッククォート）の外に書かない。VitePress のビルドが止まる（2026-10-02 に 3 か所あった）
+  - 文書を直したら `python3 TOOLS/doclinks.py` で確かめる（切れた相対リンク、サイトから `../` で出るリンク、本体へのリンクの無い Samples の README、
+    入口から名指しされない MD のファイル。2026-10-02）
 - ecalj は「Claude が読み込んで人間に説明できる」パッケージにする。人間は Claude を通して情報を取る（user 2026-10-01）。最上位は `CLAUDE.md`（入口）と数行の `README.md`、`Changes.txt`。
   開発の文書は `ecaljdoc/MD/`（[README.md](README.md) は 2026-05〜09 の新機能のログとクイックスタート）。
   コードの大局（主プログラム → 入口の module、module の DAG と階層、各 module の依存）は [module_map.md](module_map.md)。
