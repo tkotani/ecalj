@@ -176,6 +176,7 @@ module m_cmdopt_registry
   !logical, public, protected, save :: c0_mlo_lod         = .false.  ! 2026-09-18 experiment, superseded by the automatic shallow-LO rule in m_HamPMT
   logical, public, protected, save :: c0_slat            = .false.
   logical, public, protected, save :: c0_socmatrix       = .false.
+  logical, public, protected, save :: c0_mlo_lowdin      = .false. ! MLO in the Loewdin basis (projected Wannier functions) for W and the magnon kernel (2026-10-02 10:39)
   logical, public, protected, save :: c0_tdos            = .false.
   logical, public, protected, save :: c0_tdostetf        = .false.
   logical, public, protected, save :: c0_testso          = .false.
@@ -475,6 +476,7 @@ contains
     !call set0('--mlo_lod',        c0_mlo_lod, narg, arglist)   ! superseded by the automatic shallow-LO rule
     call set0('--slat',           c0_slat, narg, arglist)
     call set0('--socmatrix',      c0_socmatrix, narg, arglist)
+    call set0('--mlo_lowdin',     c0_mlo_lowdin, narg, arglist)
     call set0('--tdos',           c0_tdos, narg, arglist)
     call set0('--tdostetf',       c0_tdostetf, narg, arglist)
     call set0('--testso',         c0_testso, narg, arglist)
