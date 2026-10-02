@@ -9,70 +9,71 @@
 
 ---
 
-## 1. TODO（未）（2026-10-02 14:35 に組み直した）
+## 1. TODO（未）（2026-10-02 16:19 に書き直した）
+
+各項目の頭の印: **【やりかけ】** 手を付けて途中、**【未着手】**、**【判断待ち】** user に決めてほしい、**【残す】** user が残すと決めたもの（急がない）。
 
 ### MLO
 
-- **`mlo_bandcheck.py` の判定 (3)**（2026-10-02）: 模型の O が 1 になり、重なりの最小固有値（`MLO_ovlpmin.dat`）は常に 1。`mlo` の出力の
-  "Smallest eigenvalue of the normalized raw overlap"（メッシュ上の直交化の前）を判定に使うように替えるか
-- **EH2 を足した模型の崩れ**（2026-10-01、`~/work/eh2cu`、Cu・Ni、EuO）: 生の模型では実空間で打ち切った O(k) が正定値でなくなり `zhgv` が壊れた。
-  Löwdin の模型は O(k) を内挿しないので様子が変わるはず。測り直してから直し方（(i) 正準直交化、(ii) 一次従属に近い EH2 を自動で外す）を決める（要判断）
-- **η ≠ 1 の原因**（2026-10-02）: Goldstone の条件の倍率が Löwdin で Fe 1.24、FeCo 1.28、Ni 1.75。Ni が大きい理由は未確認
-- **MLO と Wannier のずれ**（2026-10-02、`MD/wannier_vs_mlo.md`）: Ni d の cRPA の U が Wannier より低い（Löwdin で 2.90 対 3.78 eV、部分空間の違い）。
-  Fe のマグノンは Löwdin で近づいた（q ≤ 0.3 で 2 割高いのは残る）。実験（Fe のマグノン分散）との比較
-- **空格子球の自動化（基準 3）**（2026-10-01）: `SRC/exec/ctrlg_addes.py`（`8c158ee96`、像の数を面間隔から決める直しは済み）を ctrlg の生成に組み込むか。
+- **【やりかけ】`mlo_bandcheck.py` の判定 (3) を「とげ」の検査に替える**（2026-10-02）: 模型の O が 1 になり、重なりの最小固有値の判定は効かない。
+  一次従属が壊れるとき、対称線の上で固有値が急に跳ぶ（user）。模型のバンドの 2 階差分 Δ_n(k) = |ε_n(k) − (ε_n(k₋) + ε_n(k₊))/2| を窓 [VBM − 3, CBM + 2]
+  （第一原理のバンドが無ければ E_F − 3〜+2）で見る。試作（scratchpad の `spike.py`）で、壊れた Ni・Cu（EH2、生の模型）は 926・24 eV、健全な 35 物質は最大 0.56 eV。
+  残り: しきい値 2 eV で `mlo_bandcheck.py` に入れる（基準 2・3 の確かめが終わってから。走行中の試験が `~/bin` のそれを使うため）
+- **【やりかけ】EH2 を足した模型（基準 2）と空格子球（基準 3）を Löwdin の模型で確かめる**（2026-10-02）: `~/work/lowdin_crit23_20261002` で回している
+  （`mlocheck_eh2cat` の約 60 物質と `mlocheck_es` の Bi₂Te₃・SiO₂、同じ DFT から MLO の段だけ）。見ること: 前に壊れた Cu・Ni（EH2）、EuO（模型を作る所で止まった）、
+  基準 1 で 0.1 eV を超える 8 物質（AlN、AlSb、InSb、MgS、MgSe、MgTe、SiO₂、Sn。生の模型では基準 2・3 で通っていた）。
+  壊れるものが残れば直し方（(i) 正準直交化、(ii) 一次従属に近い EH2 を自動で外す）を決める
+- **【残す】η ≠ 1 の原因**（2026-10-02）: Goldstone の条件の倍率が Löwdin で Fe 1.24、FeCo 1.28、Ni 1.75。Ni が大きい理由は未確認
+- **【残す】空格子球の自動化（基準 3）**（2026-10-01）: `SRC/exec/ctrlg_addes.py`（`8c158ee96`、像の数を面間隔から決める直しは済み）を ctrlg の生成に組み込むか。
   Bi₂Te₃ の空隙は 2.61 a.u. で 3.0 未満、SiO₂ は手で置いて 0.001 eV
-- **検査の FAIL の残り**（2026-10-01）: 基準 1 で Sn・AlSb・InSb が 1 点だけ 0.1 eV を少し超える（Löwdin の模型で Bi₂Te₃・Cu は通るようになった。表 M8）。
-  AlN・MgS・MgSe・MgTe・SiO₂ は誤差が大きい。直すか、目安を見直すか
-- **`Samples/AFsymmetry/NiO` は `pwmode = 1` で `symgrpaf`**（2026-10-01）: 4³ にすると `rotwave: q+G rotation error` で止まる。`pwmode = 11` にして参照を作り直すか
+- **【未着手】MLO と Wannier のずれ**（2026-10-02、`MD/wannier_vs_mlo.md`）: Ni d の cRPA の U が Wannier より低い（Löwdin で 2.90 対 3.78 eV、部分空間の違い）。
+  Fe のマグノンは Löwdin で近づいた（q ≤ 0.3 で 2 割高いのは残る）。実験（Fe のマグノン分散）との比較
+- **【未着手】`Samples/AFsymmetry/NiO` は `pwmode = 1` で `symgrpaf`**（2026-10-01）: 4³ にすると `rotwave: q+G rotation error` で止まる。`pwmode = 11` にして参照を作り直すか
 
 ### 対称性
 
-- **操作の順番で QSGW の結果が変わる**（2026-10-02 16:18）: heavy の `nio_gwsc444`（AF NiO、R-3m、操作 12）で、spglib（今の既定）と従来の探し方は同じ 12 個の操作を
-  違う順番で並べる（従来 e, i·r3d, r3, i, …、spglib e, i, r3d, i·r3d, …）。既約な k・重み・四面体・LDA は一致するが、QSGW の 1 反復の QP が最大 15 meV 違う
-  （kr7・kt1 で同じ。従来の探し方なら参照と 3 meV）。物理は順番によらないはずなので、GW のどこかが操作の選び方に依っている
-  （候補: q を代表へ移す回転に最初の操作を使う所と、縮退や `emax_sigm` の切れ目、オフセット Γ の点）。特定するまで、参照を新しい値にするかは user の判断待ち
+- **【やりかけ】操作の順番で QSGW の結果が変わる**（2026-10-02）: heavy の `nio_gwsc444`（AF NiO、R-3m、操作 12）で、spglib（今の既定）と従来の探し方は同じ 12 個の操作を
+  違う順番で並べる（従来 e, i·r3d, r3, i, …、spglib e, i, r3d, i·r3d, …）。既約な k・重み・四面体の数・LDA は一致するが、QSGW の 1 反復の QP が最大 15 meV 違う
+  （kr7・kt1 で同じ。従来の探し方なら参照と 3 meV）。有限温度の四面体法ではない（この試験は χ0 が T = 0）。物理は順番によらないはずなので、GW のどこかが
+  操作の選び方に依っている（候補: q を代表へ移す回転に最初の操作を使う所、縮退や `emax_sigm` の切れ目、オフセット Γ の点）。どこかは未特定。
+  **【判断待ち】** 特定するまで、参照を新しい値にするか
 
 ### 有限温度
 
-- **有限温度の四面体法（`t_tetrakbt > 0`、`m_tetrakbt`）と従来の T = 0 の四面体法（`t_tetrakbt = 0`、`tetwt5`）の関係を確かめる**（2026-10-02 16:02、user）:
+- **【未着手】有限温度の四面体法（`t_tetrakbt > 0`、`m_tetrakbt`）と従来の T = 0 の四面体法（`t_tetrakbt = 0`、`tetwt5`）の関係を確かめる**（2026-10-02、user）:
   T → 0 で有限温度の重みが従来の重みに一致するか（同じ k メッシュ・同じ対称性で、χ0 の虚部と QP のエネルギーを比べる。T を 300、100、30、10 K と下げる）。
-  Σ 側の Fermi–Dirac の幅（`t_sigmaw`）と χ0 側の温度の組み合わせも。きっかけ: heavy の `nio_gwsc444`（`t_tetrakbt = 0`、`t_sigmaw = 262`）の QPU が
-  2026-10-02 の版で 15 meV ずれた（kr7・kt1 で同じ値）。原因は確かめ中（従来の対称性の探し方で回し直して切り分け）
+  Σ 側の Fermi–Dirac の幅（`t_sigmaw`）と χ0 側の温度の組み合わせも
 
 ### コード
 
-- **HEAD に残っている生成物らしいもの**（2026-10-02、旧 `a0c7a7300` で入り今も追跡）: `SRC/.#Memo4rotation`、`SRC/exec/cmake_install.cmake`、`hello.py`、`platform`（800 KB）、
+- **【未着手】HEAD に残っている生成物らしいもの**（2026-10-02、旧 `a0c7a7300` で入り今も追跡）: `SRC/.#Memo4rotation`、`SRC/exec/cmake_install.cmake`、`hello.py`、`platform`（800 KB）、
   `lmf2.py`・`lmchk.py`・`pylmfa`・`pysample`・`ohtaka`・`epsPPd`・`epsPPsaito`・`job_senefbz`・`readeps_dig2.py`・`auto_kauto.py`。使われているかを確かめて trash へ
-- **`sugw`（`lmf --jobgw=1`）のメモリ**（2026-10-01）: `GEIGpart` の `ppovl(ngp,ngp)` と `ppovlLU` を各ランクで持つ（32·ngp² バイト、胞の体積の 2 乗）。
+- **【未着手】`SRC/exec/auto_creplot.py`**（2026-10-01）: 旧形式の `ctrl.<sname>` を書き換える。`auto_job_mp.py` が使う。ctrlg に直すか、使わないなら trash へ
+- **【未着手】`sugw`（`lmf --jobgw=1`）のメモリ**（2026-10-01）: `GEIGpart` の `ppovl(ngp,ngp)` と `ppovlLU` を各ランクで持つ（32·ngp² バイト、胞の体積の 2 乗）。
   案: (a) ngp から並列数を決める、(b) Cholesky の因子だけ持つ、(c) O·x を FFT で作り反復法で解く
-- **`hgw` の残り**（2026-04、past_log.md §3.2）: ノード内の W の共有（`MPI_Win_allocate_shared`）、`hsfp0_sc` の Sx・core の交換も `hgw` に（優先度は低い）
-- **AFTEST の残り**（2026-10-01、研究ログ 2026-10-01 06:46）: (a) モーメントを下げる向きで更新が行き過ぎる（割線で見積もるか）、(b) 対がサイト 1・2、ブロック 1・2 の決め打ち、
+- **【未着手】`hgw` の残り**（2026-04、past_log.md §3.2）: ノード内の W の共有（`MPI_Win_allocate_shared`）、`hsfp0_sc` の Sx・core の交換も `hgw` に（優先度は低い）
+- **【未着手】AFTEST の残り**（2026-10-01、研究ログ 2026-10-01 06:46）: (a) モーメントを下げる向きで更新が行き過ぎる（割線で見積もるか）、(b) 対がサイト 1・2、ブロック 1・2 の決め打ち、
   (c) `m_ldau_init` が lmf の起動のたびに場を更新して `mmagfield.aftest` を書き直す（`job_band` でも）
-- **`SRC/exec/auto_creplot.py`**（2026-10-01）: 旧形式の `ctrl.<sname>` を書き換える。`auto_job_mp.py` が使う。ctrlg に直すか、使わないなら trash へ
 
 ### GW1500 と Materials Project
 
-- **`auto_mpquery.py` が今の MP で動かない**（2026-10-01）: 新しい ID の形で `mp_api` の検証が止まる。`mp_api` を上げるか、REST を直接読む
-- **GW1500 の選定に構造の確かめを入れる**（2026-10-01）: 副格子を抜き出した MP の項目が選ばれていた（`ecalj_auto/GW1500_status.md` §5.3 の表 8・9）。`auto_mpquery.py` で弾くか印を付ける
+- **【未着手】`auto_mpquery.py` が今の MP で動かない**（2026-10-01）: 新しい ID の形で `mp_api` の検証が止まる。`mp_api` を上げるか、REST を直接読む
+- **【未着手】GW1500 の選定に構造の確かめを入れる**（2026-10-01）: 副格子を抜き出した MP の項目が選ばれていた（`ecalj_auto/GW1500_status.md` §5.3 の表 8・9）。`auto_mpquery.py` で弾くか印を付ける
 
 ### 試験と入力
 
-- `MLOsamples/RuO2` の `rst`・`dmats` は `pwmode = 11` の LDA+U の誤りの時期（2026-03-30〜09-30）に作ったもの。作り直すか
-- 試験の入力の温度（`t_tetrakbt = 262`、`t_sigmaw = 0`）をテンプレート（300/300）に揃えるか。揃えると gas_gwsc・fe_gwsc などの参照が動く
+- **【やりかけ】Löwdin を標準にした版の試験**（2026-10-02）: kr7・kt1 で全部の組を回した。両方で PASS: inputs 172、install 66、eps 18、procar 5、afsym 4、affix 12、
+  samples の 13、bench 2。mlo・mloqsgw・magnon は古い参照と比べて FAIL（予想どおり）→ kt1 は新しい参照で 3 組とも PASS。kr7 は新しい参照で回し直しが残る。
+  heavy の `nio_gwsc444` は上の「対称性」。t14 は新しい参照で mlo 45・mloqsgw 5・magnon 2・install 66 が PASS
+- **【未着手】`MLOsamples/RuO2` の `rst`・`dmats`** は `pwmode = 11` の LDA+U の誤りの時期（2026-03-30〜09-30）に作ったもの。作り直すか
+- **【判断待ち】試験の入力の温度**（`t_tetrakbt = 262`、`t_sigmaw = 0`）をテンプレート（300/300）に揃えるか。揃えると gas_gwsc・fe_gwsc などの参照が動く
 
-### メンテナに決めてほしいこと
+### 判断待ち（ほかに）
 
 - **GW1500 の `INVALID_STRUCTURE`（12）・`SUSPECT_STRUCTURE`（4）を集合から外すか**。いまは注記だけ
 - 試験に使った古いツリー（mic の `~/ecalj_test0928`、kt1 の `/mnt/data1/ecalj_test0930b`・`0930c`）も trash に入れるか
 - ブランチ `fix-idu10`（main にマージ済み）を消すか
-- push: dev・rel とも、t14 の main より 859 コミット遅れ（2026-10-02 14:35。2026-10-02 に未公開の範囲の履歴を書き換えた）
-
-### 実行中
-
-- Löwdin を標準にした版（`2ffb0331f`）の全部の試験の組: kr7 `~/ecalj_testL`、kt1 `/mnt/data1/ecalj_testL`（2026-10-02 14:35 の時点で bench の組の途中）。
-  済んだ組は両方で PASS（inputs、install、eps、procar、afsym、affix、samples の 13）。mlo・mloqsgw は古い参照と比べて FAIL（予想どおり）→ 終わったら新しい参照で
-  mlo・mloqsgw・magnon を回し直す。t14 は新しい参照で mlo 45・mloqsgw 5・magnon 2・install 66 が PASS（`~/work/tests_lowdin3`）
+- push: dev・rel とも、t14 の main より 862 コミット遅れ（2026-10-02 16:19。2026-10-02 に未公開の範囲の履歴を書き換えた）
 
 ---
 
