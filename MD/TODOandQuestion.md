@@ -26,6 +26,13 @@
   AlN・MgS・MgSe・MgTe・SiO₂ は誤差が大きい。直すか、目安を見直すか
 - **`Samples/AFsymmetry/NiO` は `pwmode = 1` で `symgrpaf`**（2026-10-01）: 4³ にすると `rotwave: q+G rotation error` で止まる。`pwmode = 11` にして参照を作り直すか
 
+### 対称性
+
+- **操作の順番で QSGW の結果が変わる**（2026-10-02 16:18）: heavy の `nio_gwsc444`（AF NiO、R-3m、操作 12）で、spglib（今の既定）と従来の探し方は同じ 12 個の操作を
+  違う順番で並べる（従来 e, i·r3d, r3, i, …、spglib e, i, r3d, i·r3d, …）。既約な k・重み・四面体・LDA は一致するが、QSGW の 1 反復の QP が最大 15 meV 違う
+  （kr7・kt1 で同じ。従来の探し方なら参照と 3 meV）。物理は順番によらないはずなので、GW のどこかが操作の選び方に依っている
+  （候補: q を代表へ移す回転に最初の操作を使う所と、縮退や `emax_sigm` の切れ目、オフセット Γ の点）。特定するまで、参照を新しい値にするかは user の判断待ち
+
 ### 有限温度
 
 - **有限温度の四面体法（`t_tetrakbt > 0`、`m_tetrakbt`）と従来の T = 0 の四面体法（`t_tetrakbt = 0`、`tetwt5`）の関係を確かめる**（2026-10-02 16:02、user）:
