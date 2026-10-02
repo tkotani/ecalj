@@ -57,9 +57,6 @@
 
 ### 試験と入力
 
-- **【やりかけ】Löwdin を標準にした版の試験**（2026-10-02）: kr7・kt1 で全部の組。両方で PASS: inputs 172、install 66、eps 18、procar 5、afsym 4、affix 12、samples の 13、bench 2。
-  MLO の 3 組（mlo・mloqsgw・magnon）は新しい参照で kt1 が PASS、kr7 は回し直し中。heavy の `nio_gwsc444` は「対称性」の項目。
-  t14 は新しい参照で mlo 45・mloqsgw 5・magnon 2・install 66、AF の変更の後に afsym 4・affix 12・mlo 45 が PASS
 - **【未着手】`MLOsamples/RuO2` の `rst`・`dmats`** は `pwmode = 11` の LDA+U の誤りの時期（2026-03-30〜09-30）に作ったもの。作り直すか
 - **【判断待ち】試験の入力の温度**（`t_tetrakbt = 262`、`t_sigmaw = 0`）をテンプレート（300/300）に揃えるか。揃えると gas_gwsc・fe_gwsc などの参照が動く
 
@@ -68,7 +65,7 @@
 - **GW1500 の `INVALID_STRUCTURE`（12）・`SUSPECT_STRUCTURE`（4）を集合から外すか**。いまは注記だけ
 - 試験に使った古いツリー（mic の `~/ecalj_test0928`、kt1 の `/mnt/data1/ecalj_test0930b`・`0930c`）も trash に入れるか
 - ブランチ `fix-idu10`（main にマージ済み）を消すか
-- push: dev・rel とも、t14 の main より 865 コミット遅れ（2026-10-02 16:19。2026-10-02 に未公開の範囲の履歴を書き換えた）
+- push: dev・rel とも、t14 の main より 888 コミット遅れ（2026-10-02 21:07。2026-10-02 に未公開の範囲の履歴を書き換えた）。文書の公開（ecalj/ecaljdoc への subtree push）も同じとき
 
 ---
 
@@ -106,6 +103,8 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
   SiO₂ は基準 3 で 0.005 eV。EH2 の崩れの直し方（正準直交化など）は要らなくなった（EuO だけ §1 に残る）
 - MLO と Wannier の cRPA の U の差（Ni の d、Löwdin 2.90 対 Wannier 3.78 eV）は、部分空間の取り方の違いで、直すものではないとした（2026-10-02 20:13、user）。RPA の U は
   基底にほとんど依らない（1.43 対 1.58）。`ecaljdoc/MD/wannier_vs_mlo.md` §3a、ecaljdoc mlo §6
+- Löwdin を標準にした版の試験（2026-10-02 21:07）: kr7・kt1 で全部の組が PASS（inputs 172、install 66、eps 18、procar 5、afsym 4、affix 12、samples の 13、bench 2、
+  新しい参照で mlo 45・mloqsgw 5・magnon 2）。heavy の `nio_gwsc444` だけ 15 meV（§1「対称性」）
 - 済んだ項目（2026-10-02 14:35 に §1 から移した）: Löwdin の後の文書（ecaljdoc mlo §6・表 M8、Changes.txt (6)、handover、`Fe_mlo_magnon/README.md`）。AFTEST の (d)（使い方を ecaljdoc の UsageDetailed.md へ）。
   マグノンの既定の窓（窓は (2, 2) のまま。Löwdin で窓によらない）。対称性 S0〜S6（`ecaljdoc/MD/symmetry_spglib.md` §4.7）。kt1 の GW1500 の run3（2026-10-01 16:43 に終了）
 
