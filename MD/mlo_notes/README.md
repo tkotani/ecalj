@@ -15,6 +15,7 @@
 | [`MLO_v6_report.md`](MLO_v6_report.md) (+ `MLO_v6_figs/`) | 2026-09 | v6(自動窓)段階の報告。method 3 を採っていた頃のもので、method 3 は最終的に不採用 |
 | [`mlo_nskip_cu_problem.md`](mlo_nskip_cu_problem.md) (+ `mlo_nskip_*.png`) | 2026-09-17/18 | Cu の d 模型の折れの正体（`nskip` の k 依存）。`nskip` を k の最小にした理由 |
 | [`mp_20260918/README.md`](mp_20260918/README.md) (+ 図) | 2026-09-18 | Materials Project の 10 結晶で MLO の既定を試した記録 |
+| [`sigma_mlo_design.md`](sigma_mlo_design.md) | 2026-09-24〜 | MLO-QSGW（Σ を MLO で持って内挿する）の設計書。現行は §9〜§13。2026-10-02 に MD/kBT/ から移した |
 | [`mlo_soc_memo.md`](mlo_soc_memo.md) | 2026-09 | スピン軌道を摂動で入れる MLO の覚え書き（もとは `Samples/MLOsamples/README_SOC.md`） |
 
 ## サンプルのそばにある記録（2026-10-02）

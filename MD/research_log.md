@@ -3513,11 +3513,11 @@ iter 2 は 23:05 頃。
 ### 2026-09-25 22:45 `temp.md` を解体 — 設計は設計書へ、ログはここへ（user「ごっちゃになってきた」）
 
 `temp.md`（798 行）は**設計仕様**と**ログ・図・TODO**が混ざっていて、
-[sigma_mlo_design.md](kBT/sigma_mlo_design.md) とも主題が重複していた。種類で分けて解消し、`temp.md` は削除した。
+[sigma_mlo_design.md](mlo_notes/sigma_mlo_design.md) とも主題が重複していた。種類で分けて解消し、`temp.md` は削除した。
 
 | `temp.md` の節 | 行き先 |
 |---|---|
-| §1–3 基底のセットアップと $\Sigma$ の保持形 | [設計書 §9](kBT/sigma_mlo_design.md) |
+| §1–3 基底のセットアップと $\Sigma$ の保持形 | [設計書 §9](mlo_notes/sigma_mlo_design.md) |
 | §4 いつ MLO を作るのか（1 反復のタイムライン）| 設計書 §10 |
 | §8 新方式 — 実装仕様 | 設計書 §11 |
 | §9 Q&A | 設計書 §12 |
@@ -4511,7 +4511,7 @@ LDA 行が両者で完全一致することを毎回の健全性チェックに�
 
 ### 2026-09-24 20:43 段 4 実装 — **MLO-QSGW が自己無撞着に回るようになった**（Si で検証）
 
-設計書 [sigma_mlo_design.md](kBT/sigma_mlo_design.md) の段 4（`getsenex` の差し替え）を実装し、
+設計書 [sigma_mlo_design.md](mlo_notes/sigma_mlo_design.md) の段 4（`getsenex` の差し替え）を実装し、
 `gwsc` で MLO 内挿の QSGW が最後まで回ることを Si 2³ で確認した。
 
 **実装**（commit `408436715`）
@@ -4567,7 +4567,7 @@ Si の MLO は 18 軌道（2 Si × spd）で MTO 50 チャネルの部分空間�
 
 ### 2026-09-24 20:10 MLO 内挿の実装（段 1'〜3 + a'）と LiTi₂O₄ 6³ での最初の比較
 
-設計書 [sigma_mlo_design.md](kBT/sigma_mlo_design.md) の実装を進め、LiTi₂O₄ 6³ で従来法と比べた。
+設計書 [sigma_mlo_design.md](mlo_notes/sigma_mlo_design.md) の実装を進め、LiTi₂O₄ 6³ で従来法と比べた。
 **出発点は `n666_nk6_from_lda` の iter 10（6³ 収束済み）**で、そこから `gwsc 1 --mlo` を 1 反復。
 
 *図 20:10-1* t2g バンド（b33–44）Γ–X 211 点。左＝バンド、右＝差。点線が 6³ の Σ メッシュ点。
@@ -4609,7 +4609,7 @@ Si の MLO は 18 軌道（2 Si × spd）で MTO 50 チャネルの部分空間�
 
 ### 2026-09-24 17:40 設計書の実装（段 1'〜3）— Si 2³ でスモークテスト通過、メッシュ点で 1.4〜21.5 meV
 
-[sigma_mlo_design.md](kBT/sigma_mlo_design.md) の段 1'〜3 を実装し、Si（`nkabc = n1n2n3 = mlo_nkabc = [2,2,2]`、`pwmode=11`、
+[sigma_mlo_design.md](mlo_notes/sigma_mlo_design.md) の段 1'〜3 を実装し、Si（`nkabc = n1n2n3 = mlo_nkabc = [2,2,2]`、`pwmode=11`、
 MLO 18 軌道 = 2 Si × spd）で端から端まで通した。
 
 **実装（commit `6e2903731`, `7fee41587`, `ea3ba4215`, `ffff894b6`）**
@@ -4667,7 +4667,7 @@ MLO 18 軌道 = 2 Si × spd）で端から端まで通した。
 **基底そのものを縮めた場合でも**到達した。
 
 → 原因は「特定の動径関数が余分」ではなく、**MTO 表現全体の自由度の持たせ方**である。
-設計書 [sigma_mlo_design.md](kBT/sigma_mlo_design.md) の前提（§1 の表）を実験的に裏付ける結果。
+設計書 [sigma_mlo_design.md](mlo_notes/sigma_mlo_design.md) の前提（§1 の表）を実験的に裏付ける結果。
 以後は MLO 表現の実装（段 1' → 段 2 → 段 3）に進む。
 
 ### 2026-09-24 13:53 **Ti の d を EH2 から外して LDA から 6³ を回す**（user「ctrlg で 3d に 2 枚入れるのが入れ過ぎ」）

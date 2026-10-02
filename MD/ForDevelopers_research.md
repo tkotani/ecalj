@@ -285,7 +285,7 @@ mp_20260918）。図 `LiTi2O4/plots/mlo_*`（t2g_meshdep、vs_sigm_meshpoints、
 - 「W-build を CPU 版 hx0fp0（-np 60）で先に回し hgw は Σc だけ」（2026-09-22 12:40）と極項の W 平面のバッチ GEMM（2026-09-22 13:45）は未着手
 - push していない（報告書 §8、ForDevelopers §9）
 
-**詳しい所**: [`MD/kBT/gpu_fp32_report.md`](kBT/gpu_fp32_report.md)（§1 まとめ、§2.1 FP16 経路、§5 分かったこと、§7 使い方、§8〜§10）、`gpu_fp32_plan.md`、`fp16acc.cu`。
+**詳しい所**: [`MD/gpu/gpu_fp32_report.md`](gpu/gpu_fp32_report.md)（§1 まとめ、§2.1 FP16 経路、§5 分かったこと、§7 使い方、§8〜§10）、`gpu_fp32_plan.md`、`fp16acc.cu`。
 ecaljdoc `ForDevelopers` §6・§11、`ecaljgpu`、`cmdopts`。[`MD/ecaljclaude.md`](ecaljclaude.md)「OpenACC 一般注意」。背景: [`Samples/mptf32problem`](../Samples/mptf32problem/README.md)
 （2026-06: TF32 で AgNO3 の QSGW が発散し `--fp32` で回復、GW1500 の 36 件）。
 

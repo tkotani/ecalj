@@ -30,12 +30,13 @@ ecalj を Claude (LLM) で開発する際のガイドライン。
 | [ForDevelopers_research.md](ForDevelopers_research.md) | [`ecaljdoc/manual/`](../ecaljdoc/manual) | 研究ログの要約と日付の索引 |
 | [developer.md](developer.md) | [`ecaljdoc/manual/`](../ecaljdoc/manual) | 試験の仕組み `testecalj`（2025-10） |
 | [auto.md](auto.md) | [`ecaljdoc/manual/`](../ecaljdoc/manual) | `ecalj_auto`（GW1500 の自動の流れ） |
-| [kBT_history.md](kBT_history.md) | [`ecaljdoc/manual/`](../ecaljdoc/manual) | 有限温度の 2026-06〜09 の経緯と誤り（今の仕様は [`ecaljdoc/manual/kBT.md`](../ecaljdoc/manual/kBT.md)） |
+| [kBT/history.md](kBT/history.md)（もと `kBT_history.md`、2026-10-02 22:15 に kBT/ へ） | [`ecaljdoc/manual/`](../ecaljdoc/manual) | 有限温度の 2026-06〜09 の経緯と誤り（今の仕様は [`ecaljdoc/manual/kBT.md`](../ecaljdoc/manual/kBT.md)） |
 | [mlo_backup.md](mlo_backup.md) | [`ecaljdoc/manual/`](../ecaljdoc/manual) | MLO の経緯と作業記録（今の仕様は [`ecaljdoc/manual/mlo.md`](../ecaljdoc/manual/mlo.md)） |
 | [`implementation/`](implementation/README.md)（hsfp0、hx0fp、issue） | [`ecaljdoc/implementation/`](../ecaljdoc/implementation) | 自己エネルギーと W の実装の覚え書き |
 | [MemoCode.md](MemoCode.md) | [`ecaljdoc/theory/`](../ecaljdoc/theory) | m_zmel などのコードの覚え書き |
-| [`kBT/`](kBT/README.md)（sigma_mlo_design、gpu_fp32_plan、gpu_fp32_report、finiteT_202606、LiTi2O4_finiteT_202606。案内は [kBT/README.md](kBT/README.md)） | [`Samples/kBT/`](../Samples/kBT/README.md)、[`Samples/kBT/LiTi2O4/`](../Samples/kBT/LiTi2O4/README.md)（finiteT は `README_202606_finiteT.md` だった。six_patterns は 2026-10-02 22:03 にサンプルのそば [`Samples/kBT/LiTi2O4/six_patterns.md`](../Samples/kBT/LiTi2O4/six_patterns.md) に戻した。図と表がそこにあり、README から上のディレクトリへのリンクが VSCode で開けなかったため） | MLO-QSGW の設計書、GW の GPU 高速化の計画と報告、有限温度と LiTi₂O₄ の計算の記録 |
-| `mlo_notes/`（[README.md](mlo_notes/README.md) ほか、図も） | [`Samples/MLOsamples/BackUp_notes/`](../Samples/MLOsamples/BackUp_notes)、`Samples/MLOsamples/README_SOC.md`（→ `mlo_soc_memo.md`） | MLO の理論の整理、自動窓の探索の報告、最適化の覚え書き、nskip の問題、MP の比較、SOC の覚え書き |
+| [`kBT/`](kBT/README.md)（メニュー [kBT/README.md](kBT/README.md)、[history.md](kBT/history.md)） | [`Samples/kBT/`](../Samples/kBT/README.md)、[`Samples/kBT/LiTi2O4/`](../Samples/kBT/LiTi2O4/README.md) | 有限温度の記録。2026-10-02 22:15 に整理: サンプルの run の説明はサンプルのそばに戻した（[`Samples/kBT/finiteT_202606.md`](../Samples/kBT/finiteT_202606.md)、[`Samples/kBT/LiTi2O4/finiteT_202606.md`](../Samples/kBT/LiTi2O4/finiteT_202606.md)、[`six_patterns.md`](../Samples/kBT/LiTi2O4/six_patterns.md)。README から上のディレクトリへのリンクが VSCode で開けなかったため）。GPU の 2 つは `gpu/`、MLO-QSGW の設計書は `mlo_notes/` へ |
+| [`gpu/`](gpu/README.md)（gpu_fp32_plan、gpu_fp32_report） | もと `MD/kBT/`（その前は `Samples/kBT/`） | GW（hgw）の GPU 高速化の計画と報告（2026-09-27） |
+| [`mlo_notes/`](mlo_notes/README.md)（ほかに図も） | [`Samples/MLOsamples/BackUp_notes/`](../Samples/MLOsamples/BackUp_notes)、`Samples/MLOsamples/README_SOC.md`（→ `mlo_soc_memo.md`）、`sigma_mlo_design.md` はもと `MD/kBT/` | MLO の理論の整理、自動窓の探索の報告、最適化の覚え書き、nskip の問題、MP の比較、SOC の覚え書き、MLO-QSGW の設計書 |
 | [testecalj_2025.md](testecalj_2025.md) | `Samples/TestInstall/README_testecalj.md` | 試験の仕組み（2025-10） |
 | [GW1500_failures.md](GW1500_failures.md) | [`Samples/mptf32problem/`](../Samples/mptf32problem/README.md) | GW1500 の失敗と fp32 での回し直しの記録 |
 

@@ -1,6 +1,6 @@
 # Samples/kBT — 2026-06 の有限温度 QSGW の計算の記録
 
-> **2026-09-30 の注**: このファイルは記録。いまの案内は [`README.md`](../../Samples/kBT/README.md)、いまのキーの説明は ecaljdoc の
+> **2026-09-30 の注**: このファイルは記録。いまの案内は [`README.md`](README.md)、いまのキーの説明は ecaljdoc の
 > [kBT](https://ecalj.github.io/ecaljdoc/manual/kBT)。下の本文は 2026-06 の計算の説明で、当時のキー（`tetrakbt`、`t_sigmakbt`、`esmr`）で書いてある。
 
 ## 2026-06 の有限温度の計算の記録
@@ -12,7 +12,7 @@
 > Fermi 準位は `t_tetrakbt > 0` なら `EFERMI_kbt` (無ければ abort)。下の「使うときの注意」のうち
 > `t_sigmakbt` / `esmr` に関する 3 項は**過去の話**で、いまは (1) `t_sigmaw` は常に有効、
 > (2) `t_tetrakbt` と同じ温度にするのが自然だが必須ではない、(3) `esmr` は無い、である。
-> ディレクトリ名 `Fe/t_sigmakbt*` は当時のまま。最新の経緯は [`MD/research_log.md`](../research_log.md) (新しい順)。
+> ディレクトリ名 `Fe/t_sigmakbt*` は当時のまま。最新の経緯は [`MD/research_log.md`](../../MD/research_log.md) (新しい順)。
 
 電子温度を χ₀ 側 (`tetrakbt`) と Σ 側 (`t_sigmakbt`) の**両方**に入れた QSGW の
 実例。手法とその限界は
@@ -27,17 +27,17 @@
 ## MLO-gwsc（開発中）
 
 > **2026-09-28 の注**: この節は 09-24〜25 に書いたもの。その後 MLO-QSGW（MLO Sigma インターポレーション）は LiTi₂O₄ 6³・9³ の 10 反復と
-> [`Samples/MLOQSGW`](../../Samples/MLOQSGW/README.md) の回帰まで進んだ。今の案内は冒頭の表、使い方は ecaljdoc の mlo_gwsc。
+> [`Samples/MLOQSGW`](../MLOQSGW/README.md) の回帰まで進んだ。今の案内は冒頭の表、使い方は ecaljdoc の mlo_gwsc。
 
-この下の [`MD/research_log.md`](../research_log.md) の 2026-09-24〜25 のエントリは、kBT 本体ではなく
+この下の [`MD/research_log.md`](../../MD/research_log.md) の 2026-09-24〜25 のエントリは、kBT 本体ではなく
 **自己エネルギーを MLO 表現で内挿する QSGW** の開発記録である。
 $\Sigma$ の q メッシュ点の「間」にだけ出る数十 meV の凸凹（LiTi₂O₄ で 25〜29 meV）を、
 MTO 基底ではなく MLO の小さな部分空間で $\Sigma$ を保持することで抑えようという試み。
 
 | 文書 | 中身 |
 |---|---|
-| [`sigma_mlo_design.md`](sigma_mlo_design.md) | 設計書。出発点 $\langle\psi\|\hat\Sigma\|\psi\rangle$ からの式の導出（式 (1)–(17)）、実装手順、検証手順、踏んだバグの記録 |
-| [`MD/research_log.md`](../research_log.md) | 実測ログ（新しい順）。NiO / Si での検証、LiTi₂O₄ の連鎖 |
+| [`sigma_mlo_design.md`](../../MD/mlo_notes/sigma_mlo_design.md) | 設計書。出発点 $\langle\psi\|\hat\Sigma\|\psi\rangle$ からの式の導出（式 (1)–(17)）、実装手順、検証手順、踏んだバグの記録 |
+| [`MD/research_log.md`](../../MD/research_log.md) | 実測ログ（新しい順）。NiO / Si での検証、LiTi₂O₄ の連鎖 |
 | [ecaljdoc: MLO-gwsc](https://ecalj.github.io/ecaljdoc/manual/mlo_gwsc) | 使い方（`gwsc --mlo`）、保持すべきファイル、現状の精度 |
 
 **既定では一切動かない。** `gwsc` に `--mlo` を付けたときだけ有効。
@@ -45,8 +45,8 @@ MTO 基底ではなく MLO の小さな部分空間で $\Sigma$ を保持する�
 
 | | 中身 | 大きさ |
 |---|---|---|
-| [`LiTi2O4/`](../../Samples/kBT/LiTi2O4) | 金属スピネル。$6^3$/$9^3$ のメッシュ収束、反復収束、温度依存、`deltaq` の罠 | 66 MB |
-| [`Fe/`](../../Samples/kBT/Fe) | **`t_sigmakbt` だけを切り替えた対照実験。** Σ 側が効くことの最短の証拠 | 0.8 MB |
+| [`LiTi2O4/`](LiTi2O4) | 金属スピネル。$6^3$/$9^3$ のメッシュ収束、反復収束、温度依存、`deltaq` の罠 | 66 MB |
+| [`Fe/`](Fe) | **`t_sigmakbt` だけを切り替えた対照実験。** Σ 側が効くことの最短の証拠 | 0.8 MB |
 
 ---
 
@@ -81,7 +81,7 @@ sigmakbt_setup: WARNING t_sigmakbt>0 but EFERMI_kbt missing (need tetrakbt/hefte
 3000 K・`deltaq_scale = 0.3` では K–Γ 中央に −1.24 eV の偽のスパイクが出る。
 `deltaq_scale = 0.1` で消える。offset-Gamma の $q\to0$ head が高温 × 大きい
 `deltaq` で破綻するもので、`tetrakbt` のバグではない
-([`LiTi2O4/README_202606_finiteT.md` §3.5](LiTi2O4_finiteT_202606.md))。**（→ 2026-09-28 の注: この説明は後で否定された。スパイクは第一殻 q の W のプラズモン極を
+([`LiTi2O4/finiteT_202606.md` §3.5](LiTi2O4/finiteT_202606.md))。**（→ 2026-09-28 の注: この説明は後で否定された。スパイクは第一殻 q の W のプラズモン極を
 Σc の実軸極項が踏むことによるもので、`deltaq` で変わったのは極踏みの当たり外れ。研究ログ 2026-09-19 09:55、ecaljdoc kBT.md §3.5）**
 
 ### $T$ について収束を確認する
@@ -171,7 +171,7 @@ kt1 側にあってここに持ってきていないもの:
 
 ## 4. これから詰めるべき課題
 
-研究ログ（日付順、試したこと・数字・仮説）は [MD/research_log.md](../research_log.md)。
+研究ログ（日付順、試したこと・数字・仮説）は [MD/research_log.md](../../MD/research_log.md)。
 
 一覧は [ecaljdoc: kBT §9](https://ecalj.github.io/ecaljdoc/manual/kBT#9-これから詰めるべき課題-2026-09-17)。
 要点だけ:

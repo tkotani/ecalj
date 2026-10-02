@@ -10,4 +10,4 @@ ecalj の開発者と Claude のための文書。公開サイト（ecaljdoc）�
 4. [research_log.md](research_log.md) — 経緯と計測（最新が上）
 5. 変更の正本: 最上位の [`Changes.md`](../Changes.md)（新しい順）。その要約は ecaljdoc の [manual/whatsnew.md](../ecaljdoc/manual/whatsnew.md)
 
-サブディレクトリにはそれぞれ案内がある: [kBT/](kBT/README.md)、[mlo_notes/](mlo_notes/README.md)、[implementation/](implementation/README.md)。
+サブディレクトリの README は、要点とジャンプのメニュー: [kBT/](kBT/README.md)、[gpu/](gpu/README.md)、[mlo_notes/](mlo_notes/README.md)、[implementation/](implementation/README.md)。

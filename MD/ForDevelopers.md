@@ -120,7 +120,7 @@ kt1 で複数のジョブを並べるときの `taskset` と `OMPI_MCA_hwloc_bas
 
 ## 11. GW の GPU 高速化と QSGW 1 反復の短縮（2026-09-27）
 
-報告は ecalj の [`MD/kBT/gpu_fp32_report.md`](kBT/gpu_fp32_report.md)（§1〜10、FP16 経路の式は §2.1）、経過は [`MD/research_log.md`](research_log.md)、
+報告は ecalj の [`MD/gpu/gpu_fp32_report.md`](gpu/gpu_fp32_report.md)（§1〜10、FP16 経路の式は §2.1）、経過は [`MD/research_log.md`](research_log.md)、
 変更の一覧は ecalj の `Changes.md`（2026-09-27 (1)〜(3)）、利用者向けは [ecaljgpu](../ecaljdoc/manual/ecaljgpu.md)。数値はすべて kt1（RTX 5090 ×2、電力上限 500 W）。
 
 ### 11.1 結果

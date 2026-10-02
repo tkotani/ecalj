@@ -129,6 +129,6 @@ PREC=tf32 GPUS=0,1 bash cont_gwsc.sh  <tag> 11 40 <bindir>                    # 
 | --- | --- |
 | [`six_patterns.md`](six_patterns.md) | {6³, 9³} × {tf32, fp32, fp64} のすべての反復の図と表（図 1〜7、表 5・6） |
 | [`MD/research_log.md`](../../../MD/research_log.md) | 研究ログ（日付と時刻の順、新しいものが上）。この計算は 2026-09-27〜29 |
-| [`README_202606_finiteT.md`](../../../MD/kBT/LiTi2O4_finiteT_202606.md) | 2026-06 の有限温度 QSGW（`n666_T*`、`n999_T1000`）の記録。キーの名前は当時のもの |
+| [`finiteT_202606.md`](finiteT_202606.md) | 2026-06 の有限温度 QSGW（`n666_T*`、`n999_T1000`）の記録。キーの名前は当時のもの |
 | `liti2o4_*_data.npz` | 図に描いた数値（x、バンド、元のファイルの場所と日時） |
 | `update_six_rows.sh`、`mlo_rows.py`、`band_wiggle.py` | 図と表を作り直すスクリプト |

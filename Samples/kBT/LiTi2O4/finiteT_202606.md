@@ -1,9 +1,9 @@
 # LiTi₂O₄ — 有限温度 QSGW の 2026-06 の記録
 
-> **2026-09-30 の注**: このファイルは記録。いまの計算のまとめは [`README.md`](../../Samples/kBT/LiTi2O4/README.md)。
+> **2026-09-30 の注**: このファイルは記録。いまの計算のまとめは [`README.md`](README.md)。
 
 > **2026-09-28 の注**: このディレクトリの今の主な中身は MLO-QSGW の計算のためのもの:
-> 本番の入力 [`input/qmlo/`](../../Samples/kBT/LiTi2O4/input/qmlo/README.md)（6³・9³、env.sh の作り方、反復ごとの正常値）、LDA から `gwsc 10` を回す `run_gwsc10.sh`、
+> 本番の入力 [`input/qmlo/`](input/qmlo/README.md)（6³・9³、env.sh の作り方、反復ごとの正常値）、LDA から `gwsc 10` を回す `run_gwsc10.sh`、
 > 比べる `cmp_gwsc10.py`、描く `draw_mloband.sh`・`plot_band_pair.py`・`mlo_rows.py` など。手順は ecaljdoc の ForDevelopers §12.2。
 > 下の本文は 2026-06 の有限温度の計算（`n666_T*`、`n999_T1000`）の説明で、当時のキー（`tetrakbt`、`t_sigmakbt`、`esmr`）で書いてある。
 > 次の解釈は後で覆った: §3.3b の O 2p の荒れと §3.5 の T=0 の落ち込み、§3.6 の K–Γ の異常は offset-Γ の頭や `deltaq_scale` のせいではなく、
@@ -110,7 +110,7 @@ run ごとに追加で置いてあるもの:
 
 ### 3.1 QSGW 反復の収束 (2000 K, 6³)
 
-![band iterations](../../Samples/kBT/LiTi2O4/n666_T2000/results/band_iterations.png)
+![band iterations](n666_T2000/results/band_iterations.png)
 
 紫 (反復 1) から黄 (反復 11) へ。反復 3–4 以降は $E_F$ 近傍でも線が重なり、
 金属にもかかわらず QSGW が振動せずに収束している。これが `tetrakbt` +
@@ -123,7 +123,7 @@ cd n666_T2000/results && tar xzf bnd_iterations.tar.gz   # -> bnd/iter1 .. iter1
 
 ### 3.2 パラパラマンガ — 1000 K の 6³ と 9³ が反復でどう近づくか
 
-**[`plots/bands_iterations_T1000.pdf`](../../Samples/kBT/LiTi2O4/plots/bands_iterations_T1000.pdf)**
+**[`plots/bands_iterations_T1000.pdf`](plots/bands_iterations_T1000.pdf)**
 (45 ページ、4 MB)
 
 1 ページ = 1 反復。青が 6³、赤破線が 9³。ページを送ると
@@ -136,7 +136,7 @@ PDF ビューアでページ送りすれば動画として見える。
 
 ### 3.3 メッシュ依存が消えていること (1000 K)
 
-![6^3 vs 9^3](../../Samples/kBT/LiTi2O4/plots/mesh_666_vs_999_T1000.png)
+![6^3 vs 9^3](plots/mesh_666_vs_999_T1000.png)
 
 収束した 6³ (反復 30) と 9³ (反復 45) の重ね描き。差は
 
@@ -171,13 +171,13 @@ PDF ビューアでページ送りすれば動画として見える。
   `sigm` 経由だけなので、これは BZ サンプリングの独立な検証にはなっていない。
 - **温度は 1000 K の 1 点だけ。** 「T を上げるほどメッシュ依存が減る」という主張
   そのものは、この対では確かめていない (9³ の 3000 K が無い。
-  [../README.md](../../Samples/kBT/README.md) の 3 節)。
+  [../README.md](../README.md) の 3 節)。
 - **`deltaq_scale` は両方 0.1 固定。** offset-Gamma head は別系統の q 依存で、
   そこは振っていない。
 
 ### 3.3b 9³ は O 2p 帯の底が荒れている (2026-09-18 に気づいた)
 
-![O 2p region, 6^3 vs 9^3](../../Samples/kBT/LiTi2O4/plots/o2p_666_vs_999_T1000.png)
+![O 2p region, 6^3 vs 9^3](plots/o2p_666_vs_999_T1000.png)
 
 上の図の −8 eV 付近、9³ (赤) が Γ 付近で −9 eV まで落ちて跳ね返る、L–W で持ち上がる。
 バンド線上の 2 階差分の rms は band 9 で 6³ 6.8 → 9³ 82 meV (band 10: 17 → 78)。
@@ -198,7 +198,7 @@ state 7,8) は一致。offset-Γ (`deltaq_scale` = 0.1 は 9³ の間隔 1/9 に
 `n666_T3000/` と `n666_T3000_chi0only/` は、**入力上は `t_sigmakbt` の行があるか
 ないかだけが違う**。χ₀ はどちらも 3000 K なので、差は Σ 側だけから来る。
 
-![収束](../../Samples/kBT/LiTi2O4/plots/convergence_T3000.png)
+![収束](plots/convergence_T3000.png)
 
 縦軸は 1 反復あたりのバンドの変化 (E_F の ±2 eV 以内の rms)。
 
@@ -222,7 +222,7 @@ state 7,8) は一致。offset-Γ (`deltaq_scale` = 0.1 は 9³ の間隔 1/9 に
 
 3000 K では両者が **0.51 eV** も離れる。それで自己無撞着ループが閉じない。
 
-パラパラマンガ: **[`plots/bands_iterations_T3000.pdf`](../../Samples/kBT/LiTi2O4/plots/bands_iterations_T3000.pdf)**
+パラパラマンガ: **[`plots/bands_iterations_T3000.pdf`](plots/bands_iterations_T3000.pdf)**
 (60 ページ、5 MB)。青が両側、赤破線が χ₀ のみ。青は途中で止まり、赤は最後まで動き続ける。
 青は反復 29 で止めたので、それ以降は収束値を薄く残してある。
 
@@ -233,7 +233,7 @@ state 7,8) は一致。offset-Γ (`deltaq_scale` = 0.1 は 9³ の間隔 1/9 に
 
 ### 3.5 温度依存 — 何が直るか
 
-![T 依存](../../Samples/kBT/LiTi2O4/plots/T_dependence.png)
+![T 依存](plots/T_dependence.png)
 
 T = 0 / 1000 / 2000 / 3000 K を重ねたもの (QSGW 第 1 反復、6³、`deltaq_scale = 0.3`。
 共通の静電ゼロで揃え、T=0 の E_F を原点に取った)。これは上の 3 つの run とは
@@ -260,7 +260,7 @@ T=0 (`tetrakbt` off = 従来の `lindtet6`) では Ti-3d t2g 帯が Γ–L 上�
 
 ### 3.6 3000 K の K–Γ 異常は `deltaq_scale` のアーティファクト
 
-![deltaq artifact](../../Samples/kBT/LiTi2O4/plots/deltaq_artifact_3000K.png)
+![deltaq artifact](plots/deltaq_artifact_3000K.png)
 
 上の図の 3000 K は Γ–L では収まっているのに K–Γ の中央に別のスパイクが残る。
 `deltaq_scale = 0.3` (赤) では **−1.24 eV のスパイク**が出るが、

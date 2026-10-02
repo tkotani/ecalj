@@ -1,8 +1,8 @@
 # kBT の記録 — 2026-06〜09 の経緯と当時の計算
 
-[kBT](../ecaljdoc/manual/kBT) はいまの仕様を書いた頁で、ここはその前の説明と、直した誤りの記録である。**キーの名前と解釈は当時のもの**で、
+[kBT](../../ecaljdoc/manual/kBT) はいまの仕様を書いた頁で、ここはその前の説明と、直した誤りの記録である。**キーの名前と解釈は当時のもの**で、
 いまは使えないもの(`tetrakbt = true`、`t_sigmakbt`、`esmr`、`SmearX0`)、後で否定された説明(ネスティング、`deltaq_scale`)を含む。
-それぞれの節の冒頭の注に、いまの理解を書いてある。キーの変遷は kBT §2.5 の表 2、時刻入りの研究ログは ecalj の [`MD/research_log.md`](research_log.md)。
+それぞれの節の冒頭の注に、いまの理解を書いてある。キーの変遷は kBT §2.5 の表 2、時刻入りの研究ログは ecalj の [`MD/research_log.md`](../research_log.md)。
 式の番号は kBT の頁のもの(2026-09-30 の番号)。
 
 | 節 | 中身 | もとの場所(2026-09-29 までの kBT の頁) |
@@ -46,7 +46,7 @@ LiTi₂O₄ の QSGW 第 1 反復を $T$ だけ変えて重ねたもの
 (いずれも $6^3$、`deltaq_scale = 0.3`。共通の静電ゼロで揃え、$T=0$ の
 $E_F$ を原点に取った)。
 
-![T 依存](../ecaljdoc/manual/kBT/T_dependence.png)
+![T 依存](../../ecaljdoc/manual/kBT/T_dependence.png)
 
 *図をクリックすると拡大する。*
 
@@ -77,7 +77,7 @@ $T=0$($T=0$ テトラヘドロン `lindtet6`、黒)では Ti-3d $t_{2g}$ 帯が
 シフト量)が大きすぎるためで、**温度の問題ではない**。同じ 3000 K で
 `deltaq_scale` を 0.3 から 0.1 に下げると消える:
 
-![deltaq artifact](../ecaljdoc/manual/kBT/deltaq_artifact_3000K.png)
+![deltaq artifact](../../ecaljdoc/manual/kBT/deltaq_artifact_3000K.png)
 
 赤 = `deltaq_scale = 0.3`(K–Γ 中央に −1.24 eV のスパイク)、
 青 = `deltaq_scale = 0.1`(消える)。$6^3$、$T$ = 3000 K、QSGW 第 1 反復。
@@ -91,7 +91,7 @@ $q\to0$ head が高温 × 大きい `deltaq` で破綻する**。
 
 ## 3. 2026-06 の計算の説明
 
-[`ecalj/Samples/kBT/`](../Samples/kBT/README.md) に**収束した計算一式**(入力と結果)がある。物質ごとに
+[`ecalj/Samples/kBT/`](../../Samples/kBT/README.md) に**収束した計算一式**(入力と結果)がある。物質ごとに
 `LiTi2O4/`(66 MB)と `Fe/`(0.8 MB)に分かれている。GW を何十回も反復するので
 計算が重く、`testecalj` のターゲットにはしていない。
 **手法が何を変えるかを、収束した結果そのもので見るためのもの。**
@@ -110,7 +110,7 @@ $q\to0$ head が高温 × 大きい `deltaq` で破綻する**。
 
 ### (旧 §5.1) 反復の収束 ($6^3$, 2000 K)
 
-![QSGW 反復](../ecaljdoc/manual/kBT/band_iterations.png)
+![QSGW 反復](../../ecaljdoc/manual/kBT/band_iterations.png)
 
 QSGW 反復 1(紫)から 11(黄)まで。反復 3–4 以降は $E_F$ 近傍でも線が重なり、
 金属にもかかわらず振動せずに収束している。
@@ -119,7 +119,7 @@ QSGW 反復 1(紫)から 11(黄)まで。反復 3–4 以降は $E_F$ 近傍で�
 
 ### (旧 §5.2) パラパラマンガ — $6^3$ と $9^3$ が反復で近づいていく
 
-**[bands_iterations_T1000.pdf](../ecaljdoc/public/kBT/bands_iterations_T1000.pdf)**(45 ページ、4 MB)
+**[bands_iterations_T1000.pdf](../../ecaljdoc/public/kBT/bands_iterations_T1000.pdf)**(45 ページ、4 MB)
 
 1 ページ = 1 反復。青が $6^3$、赤破線が $9^3$。ページを送ると
 
@@ -133,7 +133,7 @@ PDF ビューアでページを送れば動画として見える。
 
 ### (旧 §5.3) メッシュ依存が消えていること (1000 K)
 
-![6^3 vs 9^3](../ecaljdoc/manual/kBT/mesh_666_vs_999_T1000.png)
+![6^3 vs 9^3](../../ecaljdoc/manual/kBT/mesh_666_vs_999_T1000.png)
 
 収束した $6^3$(反復 30)と $9^3$(反復 45)の重ね描き。差は
 
@@ -175,7 +175,7 @@ $9^3$ が 6.76424 eV で、**0.05 meV しか違わない**。
 $9^3$ 単独の反復の重ね描きは以下。45 反復かかっているが、$E_F$ 近傍は
 10 反復あたりでほぼ決まっている。
 
-![9^3 反復](../ecaljdoc/manual/kBT/band_iterations_n999_T1000.png)
+![9^3 反復](../../ecaljdoc/manual/kBT/band_iterations_n999_T1000.png)
 
 ---
 
@@ -218,7 +218,7 @@ $9^3$ 単独の反復の重ね描きは以下。45 反復かかっているが�
 あるかないかだけが違う**。$\chi_0$ はどちらも 3000 K なので、差は $\Sigma$ 側
 だけから来る。
 
-![収束](../ecaljdoc/manual/kBT/convergence_T3000.png)
+![収束](../../ecaljdoc/manual/kBT/convergence_T3000.png)
 
 縦軸は 1 反復あたりのバンドの変化($E_F$ の $\pm2$ eV 以内の rms)。
 
@@ -243,7 +243,7 @@ Fermi 準位を見る。**
 (2026-09-20 から $\Sigma$ 側も `t_tetrakbt > 0` なら必ず `EFERMI_kbt` を使うので、この食い違いはもう起きない。§0)
 
 パラパラマンガ:
-**[bands_iterations_T3000.pdf](../ecaljdoc/public/kBT/bands_iterations_T3000.pdf)**(60 ページ、5 MB)。
+**[bands_iterations_T3000.pdf](../../ecaljdoc/public/kBT/bands_iterations_T3000.pdf)**(60 ページ、5 MB)。
 青が両側、赤破線が $\chi_0$ のみ。青は途中で止まり、赤は最後まで動き続ける。
 
 ---
@@ -257,7 +257,7 @@ Fermi 準位を見る。**
 
 ### (旧 §5.5) Fe — $\Sigma$ 側が効くことの対照実験
 
-[`Samples/kBT/Fe/`](../Samples/kBT/Fe/README.md) は **`t_sigmakbt` の値以外まったく同じ入力**の 2 つの run である。
+[`Samples/kBT/Fe/`](../../Samples/kBT/Fe/README.md) は **`t_sigmakbt` の値以外まったく同じ入力**の 2 つの run である。
 
 | | `t_sigmakbt0/` | `t_sigmakbt3000/` |
 |---|---|---|
@@ -271,7 +271,7 @@ $\chi_0$(したがって $W$)は**両方とも 3000 K で同一**なので、差
 まず、変わってはいけないものは変わっていない — `vxc`・`SExcore`・$Z$・LDA
 固有値は**ビット単位で同一**である。対照実験として成立している。
 
-![Fe の Sigma シフト](../ecaljdoc/manual/kBT/fe_sigmakbt_shift.png)
+![Fe の Sigma シフト](../../ecaljdoc/manual/kBT/fe_sigmakbt_shift.png)
 
 QSGW が使う $\Sigma-v_{xc}$ の変化:
 
@@ -287,7 +287,7 @@ QSGW が使う $\Sigma-v_{xc}$ の変化:
 **$\Sigma$ 側の有限温度は小さな補正ではない。** $E_F$ 近傍で rms 0.7 eV、
 最大 1.93 eV 動く。(**2026-09-28 の注**: この数字は当時の実装の不整合 — 極項だけ Fermi-Dirac、虚軸積分は Gaussian — を含む。
 整合したコードでは 262 K と 3000 K の差は `dSEnoZ` 最大 0.15 eV・平均 0.06 eV(研究ログ 2026-09-20 12:58)、
-2026-09-27 の結果の作り直しで最大 0.144・平均 0.054 eV。ecalj [`Samples/kBT/Fe/README.md`](../Samples/kBT/Fe/README.md))$\chi_0$ だけ温めて $\Sigma$ を $T=0$ に置き去りにするのは、
+2026-09-27 の結果の作り直しで最大 0.144・平均 0.054 eV。ecalj [`Samples/kBT/Fe/README.md`](../../Samples/kBT/Fe/README.md))$\chi_0$ だけ温めて $\Sigma$ を $T=0$ に置き去りにするのは、
 つじつまが合わないだけでなく数値的にも大きい。これが `t_sigmakbt` を
 作った理由である。
 
@@ -401,7 +401,7 @@ $T$ 依存図(§4)と `deltaq` 比較図(§4)は QSGW 第 1 反復の別 run 群
    `esmr` の Gauss 拡がりとの関係**を数値で押さえないと、300 K の既定として勧められない。
    (だから gwinit のテンプレは 2026-09-17 に見え消しに戻した。)
    **2026-09-20 追記**: この数字は当時の `t_sigmakbt` 実装の不整合(極項だけ FD、虚軸積分は Gaussian
-   `esmr`)を含む。整合した現在のコードで [`Samples/kBT/Fe`](../Samples/kBT/Fe/README.md) を回し直すと 262 K と 3000 K の差は
+   `esmr`)を含む。整合した現在のコードで [`Samples/kBT/Fe`](../../Samples/kBT/Fe/README.md) を回し直すと 262 K と 3000 K の差は
    dSEnoZ max 0.15 / 平均 0.06 eV(旧 3000 K 結果との差は max 1.6 eV)。要再評価。
 2. **$\Sigma$ 側の状態窓 `ddw*esmr` (§7.3)** — **2026-09-20 に解消**: 窓は `sig_window`
    = 15 $k_BT$(`t_sigmaw`)、`sigmakbt_setup` は `sxcf_scz_count` より先に走る。
@@ -419,12 +419,12 @@ $T$ 依存図(§4)と `deltaq` 比較図(§4)は QSGW 第 1 反復の別 run 群
    3000 K で効くかを LiTi2O4 で見積もる。
 7. **回帰テストが無い。** `testecalj` に有限温度のターゲットが一つも無く、上の 1 の
    数字も手作業。Fe $5^3$ の 1 反復 (T=0 / 300 K χ₀のみ / 300 K χ₀+Σ) を
-   [`Samples/TestInstall`](../Samples/TestInstall) の軽いターゲットにして、少なくとも落ちないこと・数字が
+   [`Samples/TestInstall`](../../Samples/TestInstall) の軽いターゲットにして、少なくとも落ちないこと・数字が
    変わらないことを固定する。
    **2026-09-28 に `fe_kbt` を足した**(Fe 3000 K、`t_tetrakbt = t_sigmaw = 3000`、`gwsc 0`、QPU・QPD・`log.fe` を照合、
    `-np 8` で 40 秒。`--all` と `--gwall` に入っている)。§7.5 の CoreEx のバグは SExcore を eV 動かすので、これで捕まる。
 8. **$9^3$ 3000 K の LiTi2O4 (kt1)** — 反復を追える run は無い。`n999_dq0.1_T3000K_sigmakbt3000` は一度も走っておらず、
-   `n999_dq0.1_T3000K_scf10` が 2 反復、`n999_dq0.1_T3000K_baseline` は反復 1 の途中で止まっている(ecalj [`Samples/kBT/README.md`](../Samples/kBT/README.md) の
+   `n999_dq0.1_T3000K_scf10` が 2 反復、`n999_dq0.1_T3000K_baseline` は反復 1 の途中で止まっている(ecalj [`Samples/kBT/README.md`](../../Samples/kBT/README.md) の
    「9³ の 3000 K は無い」の表。2026-09-28 に直した。それまでここは「2 反復で止めてある、`ITER0=3` で再開」と書いていた)。走らせる前に `ctrlg_absorb.py liti2o4` で
    旧 `PB.liti2o4.toml` を取り込むこと。§5.3 の「メッシュ依存が消えている」は
    1000 K の話で、3000 K では未確認。
@@ -439,7 +439,7 @@ $T$ 依存図(§4)と `deltaq` 比較図(§4)は QSGW 第 1 反復の別 run 群
     $E_F$ 近傍の収束判定には掛からず居座る。有限温度が絡むかは $9^3$ の T=0 反復が無いので
     不明 (候補: $9^3$ T=0 を 10 反復、`scaledsigma=0.8`)。§5.3 の
     「メッシュ依存が消えている」は $E_F \pm 0.5$ eV の話で、O 2p の底には当てはまらない
-    ([`MD/kBT/LiTi2O4_finiteT_202606.md`](kBT/LiTi2O4_finiteT_202606.md) §3.3b)。
+    ([`MD/kBT/LiTi2O4_finiteT_202606.md`](../../Samples/kBT/LiTi2O4/finiteT_202606.md) §3.3b)。
     **2026-09-19 に原因が分かった**: 小さな $q$ の $W_c$ のプラズモン極を $\Sigma_c$ の実軸極項が踏んでいた(§3.5)。
     `wcsmear = true`(2026-09-20 から既定)で均す。2 準位の間に極が挟まる対の非対角は残る(§3.5 の限界)。
 
