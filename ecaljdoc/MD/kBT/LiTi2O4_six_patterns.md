@@ -1,6 +1,6 @@
 # LiTi₂O₄ MLO-QSGW: {9³, 6³} × {tf32, fp32, fp64} と空球入りの 9³ tf32 の MLO バンド（2026-09-28 から）
 
-結果のまとめは [`README.md`](README.md)。このファイルはすべての反復の図と表の記録。
+結果のまとめは [`README.md`](../../../Samples/kBT/LiTi2O4/README.md)。このファイルはすべての反復の図と表の記録。
 `update_six_rows.sh` が kt1 の run から MLO バンドを取ってきて、下の 4 枚と数値（npz）を作り直す（同じファイル名に上書き）。
 経過と判断は `ecaljdoc/MD/research_log.md`（2026-09-28 の 14:38 から）。
 
@@ -25,30 +25,30 @@
 
 右の枠: eg の 8 本と 54〜58（黒の細線）、バンド 53（赤紫、4〜7 eV で分散）。計算ごとに 2 枚組で、黒い縦線が計算の境、1 つおきに背景を薄く塗った
 
-![12 columns](liti2o4_six_rows12.png)
+![12 columns](../../../Samples/kBT/LiTi2O4/liti2o4_six_rows12.png)
 
 ## 図 2: 占有の t2g の 2 本（Γ から x = 0.5）
 
 緑が一番下、黒が 2 本目。各枠に沈み込み（x < 0.3）とガタつき（x < 0.5 の 2 階差分の平均）
 
-![occupied pair](liti2o4_six_occ.png)
+![occupied pair](../../../Samples/kBT/LiTi2O4/liti2o4_six_occ.png)
 
 ## 図 3: MLO バンドの反復ごとの動き
 
 前の反復からの差の最大（meV、対数）。左から t2g、占有の 2 本、eg（2.5〜4.8 eV）。点線は前のコードの代わり
 
-![change per iteration](liti2o4_six_conv.png)
+![change per iteration](../../../Samples/kBT/LiTi2O4/liti2o4_six_conv.png)
 
 ## 図 4: t2g だけの 7 列（空球入りの 9³ tf32 を 9³ tf32 の隣に）
 
-![six columns](liti2o4_six_rows.png)
+![six columns](../../../Samples/kBT/LiTi2O4/liti2o4_six_rows.png)
 
 ## 図 5: 9³ tf32 の続き（反復 10〜40、`qmlo_k9_tf32n`、31〜40 は 09-29 08:03〜11:36 の chain48）
 
 `gwsc 10` を LDA から回し（MLO バンドは 10 から）、11〜30、31〜40 を続けたもの。左が t2g、右が 2.6〜8 eV（赤紫がバンド 53）。数値は `liti2o4_k9tf32_10_40_data.npz`。
 t2g の中ほどの膨らみは反復 10 の 9 meV から減り、15 以後は −4〜−1 meV（膨らまない）ので、青の線は無い
 
-![9^3 tf32 10-40](liti2o4_k9tf32_10_40.png)
+![9^3 tf32 10-40](../../../Samples/kBT/LiTi2O4/liti2o4_k9tf32_10_40.png)
 
 **表 5**. 前の反復からの MLO バンドの変化の最大と、メッシュ点 x = 4/9 でのバンド 53（2026-09-29 に描き直し）
 
@@ -91,7 +91,7 @@ t2g の中ほどの膨らみは反復 10 の 9 meV から減り、15 以後は �
 `gwsc 10` を LDA から回し（MLO バンドは 10 から）、11〜30（chain43）と 31〜40（chain44、user 09-29 04:5x）を続けたもの。数値は `liti2o4_k6tf32_10_40_data.npz`。
 t2g の中ほどの膨らみは反復 16 から現れ、22 の 131 meV が最大で、以後は減り続けて 40 で 49 meV（50 meV を切ったので 40 の枠には青の線が無い）
 
-![6^3 tf32 10-40](liti2o4_k6tf32_10_40.png)
+![6^3 tf32 10-40](../../../Samples/kBT/LiTi2O4/liti2o4_k6tf32_10_40.png)
 
 **表 6**. 前の反復からの MLO バンドの変化の最大、t2g の 9 本目（x = 0.53、反復 14〜18 に 1 反復 22〜26 meV ずつ上がっていた所）、t2g の中ほどの膨らみ（上の定義、2026-09-29 17:30 に足した）
 
@@ -115,4 +115,4 @@ t2g の中ほどの膨らみは反復 16 から現れ、22 の 131 meV が最大
 左が fp64（`fp64mix_989a18637`、`989a18637`、kt1）、右が fp32（`liti_mlo_v9` の 1 反復目、09-26 のコード）。上の行が LDA、下の行が 1 反復目。
 MLO バンドの差は t2g で最大 1 meV、2.6〜8 eV で 2 meV。数値は `liti2o4_k6fp64_iter1_data.npz`
 
-![6^3 fp64 iteration 1](liti2o4_k6fp64_iter1.png)
+![6^3 fp64 iteration 1](../../../Samples/kBT/LiTi2O4/liti2o4_k6fp64_iter1.png)

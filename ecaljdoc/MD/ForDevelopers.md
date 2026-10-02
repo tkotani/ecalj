@@ -18,13 +18,13 @@
 | ecalj `ecaljdoc/MD/past_log.md` | リポジトリから外したもの（`trash/`）にあったノウハウと経緯。2026-06〜09 の要点（§6）、一発 GW と任意の k 線の落とし穴（§5）、hgw の統合の設計判断（§3.2） |
 | ecalj `ecaljdoc/MD/ecaljclaude.md` | 設計方針（singleton module）、GPU 開発の教訓、hgw の構成（節の名前は hgw_combined）、GW1500 量産 |
 | ecalj `ecalj_auto/README_slot_scheduler.md` | GW1500 量産（kt1、スロットスケジューラ、NaN 監視） |
-| ecalj `Samples/TestInstall/README_testecalj.md`、[developer](./developer) | テストの仕組み（`testecalj`、`test.py`） |
+| ecalj `ecaljdoc/MD/testecalj_2025.md`、[developer](developer.md) | テストの仕組み（`testecalj`、`test.py`） |
 | ecalj `ecaljdoc/MD/research_log.md` | 研究ログ（有限温度、MLO-QSGW、GPU 高速化、GW1500、片付け。2026-10-01 に `Samples/kBT/kBT_research.md` から移した）。上が新しく、時刻付き |
-| ecaljdoc [ForDevelopers_research](./ForDevelopers_research) | 研究ログのテーマ別の要約（結論、訂正、未解決）、日付の索引、計算の置き場所（§13） |
-| ecalj `Samples/kBT/gpu_fp32_report.md` | GW の GPU 高速化の報告（2026-09-27、§11 に要約） |
-| ecalj `Samples/kBT/sigma_mlo_design.md` | MLO-QSGW の設計 |
-| ecaljdoc [ecaljgpu](./ecaljgpu)、[gwsc](./gwsc)、[cmdopts](./cmdopts) | GPU 版の使い方、gwsc のオプション、コマンドラインの一覧 |
-| ecaljdoc [mlo](./mlo)、[mlo_gwsc](./mlo_gwsc)、[kBT](./kBT)、[toml_migration](./toml_migration) | MLO、MLO-QSGW、有限温度、TOML 入力への移行 |
+| ecaljdoc [ForDevelopers_research](ForDevelopers_research.md) | 研究ログのテーマ別の要約（結論、訂正、未解決）、日付の索引、計算の置き場所（§13） |
+| ecalj `ecaljdoc/MD/kBT/gpu_fp32_report.md` | GW の GPU 高速化の報告（2026-09-27、§11 に要約） |
+| ecalj `ecaljdoc/MD/kBT/sigma_mlo_design.md` | MLO-QSGW の設計 |
+| ecaljdoc [ecaljgpu](../manual/ecaljgpu.md)、[gwsc](../manual/gwsc.md)、[cmdopts](../manual/cmdopts.md) | GPU 版の使い方、gwsc のオプション、コマンドラインの一覧 |
+| ecaljdoc [mlo](../manual/mlo)、[mlo_gwsc](../manual/mlo_gwsc)、[kBT](../manual/kBT)、[toml_migration](../manual/toml_migration.md) | MLO、MLO-QSGW、有限温度、TOML 入力への移行 |
 | ecalj `Samples/kBT/LiTi2O4/`（`input/qmlo`、`run_gwsc10.sh`、`cmp_gwsc10.py`、描画のスクリプト） | LiTi₂O₄ の MLO-QSGW の入力と、投入・比較・描画の道具（§12.2） |
 | Claude のメモリ（t14 の `~/.claude/projects/-home-takao-ecalj/memory/`、索引は `MEMORY.md`） | 補助。約束・計算機・落とし穴で要るものはこのページと `ecaljdoc/MD/ecaljclaude.md` に移してある（§10） |
 
@@ -80,7 +80,7 @@ python3 InstallAll.py --fc nvfortran --gpu --bindir ~/bin       # GPU（kt1）�
 - nvfortran の `signal 11`（コンパイラの間欠的な落ち）は同じコマンドの再試行で通る
 - 数ファイルだけ変えたときは、そのファイルを送って `make -j8`（全部送ると mtime が変わってフルビルド約 15 分）。
   リモートのソースの版は `SRC/.ecalj_rev`、`TOOLS/sync_ecalj_src.sh --check-all`
-- GPU の行列演算の表（`<bindir>/ecalj_linalg_policy.toml`）は GPU・ドライバ・CUDA を替えたら `linalgtune_gpu` で作り直す（[ecaljgpu](./ecaljgpu)）
+- GPU の行列演算の表（`<bindir>/ecalj_linalg_policy.toml`）は GPU・ドライバ・CUDA を替えたら `linalgtune_gpu` で作り直す（[ecaljgpu](../manual/ecaljgpu.md)）
 - **`m_HamPMT.f90` の `aaa = trim(aaa) // ' '` の行を消さない**（gfortran 13/14 の誤コンパイルを避ける「えさ」。消すと MLO が `zhev_tk2 nev` で落ちる）
 - **確認用のビルドは別の worktree と別の bindir で**（`<bindir>` は build への symlink なので、作業ツリーで作り直すと使っている `~/bin` が変わる）:
   ```bash
@@ -148,7 +148,7 @@ kt1 で複数のジョブを並べるときの `taskset` と `OMPI_MCA_hwloc_bas
 | `mpi_file_open` で固まる | `/dev/shm/sem.OMPIO_*` の残骸（kill したジョブの）。消す |
 | ifort/ifx だけ巨大な負の密度で落ちる | 未初期化の allocatable（gfortran は 0 で隠す）。例: `iors.f90` の基底拡張時の `nlm0`（修正済み） |
 | `testecalj` が偽の失敗 | 前の `*_work` の `rst` |
-| MLO-QSGW のバンドがおかしい | `job_band --mlo`、`job_mlo --mlofreeze` は MLO-QSGW のバンドにならない。[mlo_gwsc](./mlo_gwsc) §1.7 の方法で |
+| MLO-QSGW のバンドがおかしい | `job_band --mlo`、`job_mlo --mlofreeze` は MLO-QSGW のバンドにならない。[mlo_gwsc](../manual/mlo_gwsc) §1.7 の方法で |
 | QSGW とバンド描画で平面波の打ち切りが合わない | QSGW は `pwmode = 11`（$\vert q+G\vert$）、バンドは $\vert G\vert$。両立しない |
 | 64 プロセスで hgw（W を作る部分、以前の hrcxq）がヒープ破壊 | `m_llw` の `WVIllwI` の `iw > niw` ガード（MPI の集団通信の後に置く。修正済み） |
 | GPU の Σc が NaN | 非同期のカーネルと cuBLAS が別ストリーム（§6） |
@@ -158,14 +158,14 @@ kt1 で複数のジョブを並べるときの `taskset` と `OMPI_MCA_hwloc_bas
 
 テーマごとの結論・経過・未解決と研究ログの索引は §13。ここは一覧だけ。
 
-- **MLO**（局在軌道の模型）: `mlo_method = 4` が既定、パラメタは `mlo_delta`・`mlo_w`。`Samples/MLOsamples` の系を `testecalj` で回帰。[mlo](./mlo)
+- **MLO**（局在軌道の模型）: `mlo_method = 4` が既定、パラメタは `mlo_delta`・`mlo_w`。`Samples/MLOsamples` の系を `testecalj` で回帰。[mlo](../manual/mlo)
 - **MLO-QSGW**（Σ を MLO で持って k 空間で内挿）: LiTi₂O₄ 6³・9³ で 10 反復で収束し、メッシュ点の間のこぶが消えた。`gwsc N --mlo`
   （Σ^MLO は既定で `[gw] mixbeta` で混合する。`ECALJ_MLO_MIX=0` で切る）。6³ は tf32 と fp32 で LDA から 10 反復したバンドが rms 0.3 meV で一致（2026-09-27）。9³ の tf32 も LDA から 10 反復（3.5 時間）し、
   09-26 の fp32 の鎖と MLO バンドが rms 5.7 meV（窓の基準の違いを含む）、なめらかさは同じ（2026-09-28）。
-  反強磁性は未確認。[mlo_gwsc](./mlo_gwsc)、ecalj の `Samples/kBT/sigma_mlo_design.md`
+  反強磁性は未確認。[mlo_gwsc](../manual/mlo_gwsc)、ecalj の `ecaljdoc/MD/kBT/sigma_mlo_design.md`
 - **有限温度**: χ0 側（`t_tetrakbt`）と Σ 側の準位の幅（`t_sigmaw`、既定 1000 K）。金属の QSGW が反復で荒れる正体は、第一殻の q（offset-Γ ではない）の W のプラズモン極を
   Σc の実軸極項が踏むことで、`wcsmear`（既定 true）で均す。2026-09-27 に CoreEx の 2 つのバグと熱の核の積分（4 区間 × GL5）を直し、
-  回帰テスト `fe_kbt` を足した。残る課題は [kBT](./kBT) §9
+  回帰テスト `fe_kbt` を足した。残る課題は [kBT](../manual/kBT) §9
 - **GPU の高速化**（§11）: 精度は `gwsc --prec=tf32|fp32|fp64` の 1 つで選び、方法は表で自動。LiTi₂O₄ 6³ の QSGW 1 反復は 342 → 212 秒（tf32）、
   `hgw` は 833 → 173 秒。hgw の間は GPU 2 枚とも 90〜95%・電力の上限（500 W）で回っている
 - push していない仕事が多い（2026-09-28 に ecalj は dev より約 480、ecaljdoc も約 100 先）。push の前に §1 のゲートを通す
@@ -181,8 +181,8 @@ kt1 で複数のジョブを並べるときの `taskset` と `OMPI_MCA_hwloc_bas
 
 ## 11. GW の GPU 高速化と QSGW 1 反復の短縮（2026-09-27）
 
-報告は ecalj の `Samples/kBT/gpu_fp32_report.md`（§1〜10、FP16 経路の式は §2.1）、経過は `ecaljdoc/MD/research_log.md`、
-変更の一覧は ecalj の `Changes.txt`（2026-09-27 (1)〜(3)）、利用者向けは [ecaljgpu](./ecaljgpu)。数値はすべて kt1（RTX 5090 ×2、電力上限 500 W）。
+報告は ecalj の `ecaljdoc/MD/kBT/gpu_fp32_report.md`（§1〜10、FP16 経路の式は §2.1）、経過は `ecaljdoc/MD/research_log.md`、
+変更の一覧は ecalj の `Changes.txt`（2026-09-27 (1)〜(3)）、利用者向けは [ecaljgpu](../manual/ecaljgpu.md)。数値はすべて kt1（RTX 5090 ×2、電力上限 500 W）。
 
 ### 11.1 結果
 
@@ -404,7 +404,7 @@ cat $S/<tag>/steps.log                # 版、.so の印、設定、精度、先
 
 - 進み: `$S/<tag>/gwsc10.log`（段ごとの経過時間と `QSGW iteration end iter N`）と `llmf.<N>run` の時刻。`steps.log` の反復ごとの行（`mloON=` と ehf）は
   `gwsc 10` が終わってから書かれる。反復ごとの中身は、`gwsc` が各反復の終わりに
-  `QSGW.<N>run/` へ写す `lgw`・`lqpe`・`llmfgw01`・`lmlo_sigr`（2026-09-28 から）と `llmf.<N>run` を、[mlo_gwsc](./mlo_gwsc) §2.3 の表のとおりに見る
+  `QSGW.<N>run/` へ写す `lgw`・`lqpe`・`llmfgw01`・`lmlo_sigr`（2026-09-28 から）と `llmf.<N>run` を、[mlo_gwsc](../manual/mlo_gwsc) §2.3 の表のとおりに見る
   （6³・9³ の正常値は `input/qmlo/README.md`）。`check_iter.sh` は `run_snap.sh` の鎖（`gwsc 1` を繰り返す形）用
 - 終わり: `steps.log` の最後が `done`（失敗なら `ABORT`）。待つ間は自分のセッションを `sleep` で止めず、条件が成り立ったら終わるループ
   （中の `sleep` は見に行く間隔）を背景のタスクで走らせ、終わりの知らせで受ける:
@@ -419,7 +419,7 @@ cat $S/<tag>/steps.log                # 版、.so の印、設定、精度、先
 - 続き: `cont_gwsc.sh <tag> <from> <to> <bindir>`（`gwsc 1` を 1 反復ずつ、反復ごとに `snap/iter<N>` と MLO バンド）。LDA からも回せる（`$S/<tag>/` に ctrlg と env.sh を置いて `<from>` = 1）。
   **途中で止める**: `$S/<tag>/stop_after` に N を書くと、反復 N の後で止まる（走っている鎖の脚本を書き換えずに短くできる）
 - 比べる: `python3 cmp_gwsc10.py <new> <old>`（反復ごとの ehf と QP、最後の MLO バンドと sigm バンド）。**バンドの図は MLO バンドで、複数の計算は重ねずに横に並べる**
-  （user の指定、2026-09-28）: `mlo_rows.py`（[mlo_gwsc](./mlo_gwsc) の図と同じ描き方。`<root>/<列>/bnd_iter<N>.dat`、行 = 反復、`HILITE=1 MESHCOLS=… ROWS=… ROWH=…`）、
+  （user の指定、2026-09-28）: `mlo_rows.py`（[mlo_gwsc](../manual/mlo_gwsc) の図と同じ描き方。`<root>/<列>/bnd_iter<N>.dat`、行 = 反復、`HILITE=1 MESHCOLS=… ROWS=… ROWH=…`）、
   `plot_bands_side.py`（占有の 2 本の拡大つき）。2 本だけ重ねるなら `plot_band_pair.py`（細い線）
 - かかる時間（2026-09-27 夜のコード、GPU 2 枚）: 6³ tf32 39 分、9³ tf32 3.5 時間（1 反復 21 分、うち `hgw` 19.4 分）。fp32 の `hgw` は tf32 の約 2 倍（6³ で 367 対 173 秒、
   9³ で 43.5 分、1 反復 47 分。2026-09-28）。
@@ -474,17 +474,17 @@ gwsc 10 -np 64 <sname> > gwsc.log 2>&1
 
 - 研究ログ（ecalj の `ecaljdoc/MD/research_log.md`）に `### HH:MM` で、最新を上に。表と図には番号（*表 23:35-1* など）、図は png を
   `Samples/kBT/<系>/` に置いて md に埋め込み、描いたスクリプトも同じ所に
-- 結論が固まったら ecaljdoc の該当ページ（[kBT](./kBT)、[mlo_gwsc](./mlo_gwsc)、[ecaljgpu](./ecaljgpu) など）と、このページの §9・§13 に移す
+- 結論が固まったら ecaljdoc の該当ページ（[kBT](../manual/kBT)、[mlo_gwsc](../manual/mlo_gwsc)、[ecaljgpu](../manual/ecaljgpu.md) など）と、このページの §9・§13 に移す
 - コードを変えたら `Changes.txt`。commit はその場で、push は指示を待つ（§1）
 
 ## 13. 研究ログの要約と索引（2026-09-28）
 
 研究ログ（ecalj の `ecaljdoc/MD/research_log.md`、2026-09-16〜、最新が上）のテーマ別の要約・日付の索引・計算の置き場所は
-付録 [ForDevelopers_research](./ForDevelopers_research) にまとめた。ここはその見出しだけ。
+付録 [ForDevelopers_research](ForDevelopers_research.md) にまとめた。ここはその見出しだけ。
 
 | テーマ | いま成り立っていること（要点） | 残っていること |
 | --- | --- | --- |
-| 有限温度と金属 QSGW の荒れ | 荒れの正体は第一殻 q の $W_c$ のプラズモン極を Σc の実軸極項が踏むこと（09-19）。`wcsmear`（既定）と `t_sigmaw` で均す。2 準位の間に極が挟まる非対角の針は静的 QSGW の限界（09-20）。LiTi₂O₄ の実用設定 P（χ0 T=0 で Im χ0 を Gaussian で均す `t_tetrakbt = -992.4` + `t_sigmaw = 1000`）で 6³ が収束（09-22） | 300 K で Σ 側が 0.1 eV 動く件の再評価、絶縁体の `EFERMI_kbt`、Bose 項（[kBT](./kBT) §9） |
+| 有限温度と金属 QSGW の荒れ | 荒れの正体は第一殻 q の $W_c$ のプラズモン極を Σc の実軸極項が踏むこと（09-19）。`wcsmear`（既定）と `t_sigmaw` で均す。2 準位の間に極が挟まる非対角の針は静的 QSGW の限界（09-20）。LiTi₂O₄ の実用設定 P（χ0 T=0 で Im χ0 を Gaussian で均す `t_tetrakbt = -992.4` + `t_sigmaw = 1000`）で 6³ が収束（09-22） | 300 K で Σ 側が 0.1 eV 動く件の再評価、絶縁体の `EFERMI_kbt`、Bose 項（[kBT](../manual/kBT) §9） |
 | 従来 QSGW の Σ(k) 内挿 | E_F 直上の凸凹はメッシュ点の間の内挿のはみ出し。Σ(R) がセル端まで減らないのが本体（09-23、09-25） | Σ(R) の窓掛けは未実施（MLO-QSGW へ移った） |
 | MLO 模型 | `mlo_method = 4`、`mlo_nkabc` は Σ のメッシュに合わせる、(サイト, lm) あたり EH 1 枚、LiTi₂O₄ は全原子 s+p+d の 126 軌道（09-23〜25） | 76 と 126 軌道の比較、損失関数（MLO_v6_report §9） |
 | MLO-QSGW | Σ を MLO の実空間 `QMLO_SigRs` で持つ。Σ^MLO も混合が要る（β=0.5）。6³・9³ で 10 反復、MLO バンドでメッシュ点の間のこぶが消える（09-26）。tf32 と fp32 は rms 0.3 meV（09-27） | 反強磁性、pwmode の違いの切り分け、`sigma_mlo_design.md` §13 |

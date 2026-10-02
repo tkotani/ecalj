@@ -1,7 +1,7 @@
 # 自己エネルギーの MLO 表現による内挿 — 設計書
 
 2026-09-24 起草、2026-09-25 に **§9〜§13 を追加**（`temp.md` を解体して統合）。対象: ecalj 開発者。
-背景データは [ecaljdoc/MD/research_log.md](../../ecaljdoc/MD/research_log.md) の各日エントリ（図表番号はそちらを参照）。
+背景データは [ecaljdoc/MD/research_log.md](../research_log.md) の各日エントリ（図表番号はそちらを参照）。
 
 > **現行の方式は §9〜§13**（2 スロット方式）。§3「設計」と §4「実装手順」は 2026-09-24 版で、
 > 一部が置き換わっている。どこが置き換わったかは §9 冒頭の表にまとめてある。
@@ -752,7 +752,7 @@ LiTi₂O₄ で結果が悪かったとき、実装のどこが悪いかを次�
 > LiTi₂O₄ 6³（nmlo 126 = 全 14 原子 s+p+d、$\Sigma^{\rm MLO}$ を β=0.5 で混合）が 10 反復で従来と同じように収束し
 > （MLO バンドの反復ごとの変化 rms 3.9 meV、従来 6.5 meV）、**メッシュ点の間のこぶ（リンギング）が MLO バンドでは消えた**。
 > 従来チェーンとの差は rms 46 meV（形と幅は一致、メッシュ点でも 43 meV あるので内挿ではなく状態の差）。
-> 9³ も 10 反復で完了（2026-09-26 18:24、MLO バンドの変化 rms 3.2 meV）。経過は [ecaljdoc/MD/research_log.md](../../ecaljdoc/MD/research_log.md) の 2026-09-25〜26、
+> 9³ も 10 反復で完了（2026-09-26 18:24、MLO バンドの変化 rms 3.2 meV）。経過は [ecaljdoc/MD/research_log.md](../research_log.md) の 2026-09-25〜26、
 > 利用者向けのまとめは ecaljdoc の `manual/mlo_gwsc.md`。
 
 2026-09-25 の確認。ここから §13 までが **2 スロット方式**で、§3 の「設計」と §4 の「実装手順」を
@@ -838,7 +838,7 @@ MTO ブロックのみ（`ndimsig = nlmto`、APW は入らない）で、しか�
 
 | # | 実行 | $\tilde\chi$ に関して何が起きるか |
 |---|---|---|
-| ① | **`lmf --jobgw=1`**（[sugw.f90](../../SRC/subroutines/sugw.f90)） | |
+| ① | **`lmf --jobgw=1`**（[sugw.f90](../../../SRC/subroutines/sugw.f90)） | |
 | | ├ 各 $q$ で $H^{\rm LDA}(q)$, $S(q)$ を作る | |
 | | ├ **`getsenex`**: `SigRsMLO`（$=\Sigma_{n-1}$）を読む | **`ZmloSig` の $z_{n-1}$ を使う**。$\Sigma_{n-1}$ はこの基底で書かれたので、これでしか正しく戻せない |
 | | ├ 対角化 → $\psi$（GW に渡る波動関数） | |
@@ -849,14 +849,14 @@ MTO ブロックのみ（`ndimsig = nlmto`、APW は入らない）で、しか�
 | ②d | **`hgw --jobgw=1`** | ①の $\psi$ から $\chi_0 \to W \to \Sigma_x, \Sigma_c$。出力は**バンド添字の $\Sigma^\psi_{ij}(q)$**（`SEXU`, `SEXcoreU`, `SEC*`）。**まだ MLO は関係しない** |
 | ③ | **`hqpe_sc`** | ここで初めて MLO に落ちる。`__cmlo.data` の $c_n$ を読み、$\Sigma^{\rm MLO}_n = c_n^\dagger\Sigma^\psi c_n$ → `__SigmMLO.q`。**$z_n$ の基底**。`ECALJ_MLO_MIX=1` なら書く前に Anderson 混合（$x_0$ は反復の頭で `gwsc` が退避した `__SigmMLO.q.prev`、履歴は `__mixsigMLO`）。同時に従来の `sigm`（MTO、常に混合、履歴 `__mixsig`）も書く |
 | ④ | **`mlo --mlofreeze --mlo`** | 対称化・FFT して `SigRsMLO` を書き、**その直後に⑤も行う** |
-| ⑤ | **昇格**（`mlo` の中、[m_HamPMT.f90 `PromoteChiSlot`](../../SRC/subroutines/m_HamPMT.f90)） | `ZmloNew.*` → `ZmloSig.*`。**この瞬間に「現行の $\tilde\chi$」が $z_{n-1}$ から $z_n$ に切り替わる**。`gwsc` にも同じ処理が残っているが、その時点では `ZmloNew` が無いので何もしない |
+| ⑤ | **昇格**（`mlo` の中、[m_HamPMT.f90 `PromoteChiSlot`](../../../SRC/subroutines/m_HamPMT.f90)） | `ZmloNew.*` → `ZmloSig.*`。**この瞬間に「現行の $\tilde\chi$」が $z_{n-1}$ から $z_n$ に切り替わる**。`gwsc` にも同じ処理が残っているが、その時点では `ZmloNew` が無いので何もしない |
 | ⑥ | **`lmf`**（Σ 入り SCF） | `getsenex` が `SigRsMLO`（$=\Sigma_n$）を **$z_n$** で読む |
 | ⑦ | **バンド**（`snap/iter<N>/` の中で） | **MLO バンドは `draw_mloband.sh`**（§11.2.1）: 保存済みの $z_n$ で SCF と同じ $H$ をメッシュ点で書き出し、MLO 模型にして解く。**メッシュ点の間で $z$ を作り直さない**。`job_band`（`--mlo` 無し）は従来 `sigm` の描画で、比較用 |
 
 #### ⑦の注意 — バンドの描き方で 3 回ハマった（2026-09-25〜26）
 
 **(1) `job_band` は MLO バンドを描かない。** `--mlo` が無いと `c0_mlo` が偽で `sigmlo_init` は即座に戻り
-（[job_band:91,93](../../SRC/exec/job_band#L91-L93) は残りの引数を `lmf` に渡すだけ）、`getsenex` は従来の `sigm` を使う。
+（[job_band:91,93](../../../SRC/exec/job_band#L91-L93) は残りの引数を `lmf` に渡すだけ）、`getsenex` は従来の `sigm` を使う。
 `hqpe_sc` は `sigm` も常に書くので、**黙って従来内挿のバンドが描かれる**。これは「MLO チェーンの密度 ＋ 従来 `sigm`」で、
 SCF を駆動した $\Sigma^{\rm MLO}$ のバンドではない（途中の反復では別物、収束すれば近づく）。
 
@@ -867,7 +867,7 @@ $\tilde\chi$ を **Σ 抜きの $H$** から作り直し、$\Sigma$ を違う基
 **(1'') `job_mlo --mlofreeze --mlo` も使えない**（§11.2.1）。
 
 ~~**(2) 連鎖ディレクトリの中で走らせない。** `job_band` の第 1 段は `lmf --quit=band` で、
-これは **`efermi.lmf` を書き換えます**（[m_bndfp.f90:274](../../SRC/subroutines/m_bndfp.f90#L274)）。MLO の窓は `efermi.lmf` から
+これは **`efermi.lmf` を書き換えます**（[m_bndfp.f90:274](../../../SRC/subroutines/m_bndfp.f90#L274)）。MLO の窓は `efermi.lmf` から
 `ecbot` オフセットを読むので、連鎖ディレクトリで描くと窓の基準が動きます。~~
 → **2026-09-26 修正**: `lmf`/`mlo` に `--efermi=<file>` を足し、`job_band` は `efermi.lmf.job_band` に書いて読む（`job_dos`・`job_fermisurface` も同様）。
 `efermi.lmf` は最後の SCF の値のまま。スナップショットの中で描く運用はそのままでよい。
@@ -887,16 +887,16 @@ $\tilde\chi$ は、これから $\Sigma$ を表現する相手のハミルトニ
 | 2 以降 | $H = H^{\rm LDA} + \mathrm{senex}(\Sigma_{n-1})$ |
 
 コード上は `zhev_tk4` が `hamm` を破壊するため、senex を足した直後の $H$ を `hamm_qsgw` に
-退避して a' で使います（[sugw.f90](../../SRC/subroutines/sugw.f90)）。2 スロット化しているので、`getsenex` 側は `ZmloSig` を
+退避して a' で使います（[sugw.f90](../../../SRC/subroutines/sugw.f90)）。2 スロット化しているので、`getsenex` 側は `ZmloSig` を
 読むだけであり、a' がどの $H$ を使っても読み戻しは壊れません。
 
-**これは標準の MLO 手法と同じです。** [m_bandcal.f90](../../SRC/subroutines/m_bandcal.f90) では
+**これは標準の MLO 手法と同じです。** [m_bandcal.f90](../../../SRC/subroutines/m_bandcal.f90) では
 
 | 行 | 処理 |
 |---|---|
-| [207](../../SRC/subroutines/m_bandcal.f90#L207) | `hambl` → $H^{\rm LDA}$ |
-| [210–211](../../SRC/subroutines/m_bandcal.f90#L210-L211) | `sigmamode` なら `getsenex` → **`hamm = hamm + senex`** |
-| [221〜](../../SRC/subroutines/m_bandcal.f90#L221) | `if(writeham)` → **`__HamiltonianPMT` に書く** |
+| [207](../../../SRC/subroutines/m_bandcal.f90#L207) | `hambl` → $H^{\rm LDA}$ |
+| [210–211](../../../SRC/subroutines/m_bandcal.f90#L210-L211) | `sigmamode` なら `getsenex` → **`hamm = hamm + senex`** |
+| [221〜](../../../SRC/subroutines/m_bandcal.f90#L221) | `if(writeham)` → **`__HamiltonianPMT` に書く** |
 
 の順で、**`__HamiltonianPMT` には senex を足した後の QSGW ハミルトニアンが入ります**。
 `mlo` はこれを読んで `HamRsMLO` を作るので、Si の QSGW バンドなどで使っている標準の MLO は
@@ -946,8 +946,8 @@ $\Sigma$ は**書かれた基底以外で読み戻されることが無い**。�
 
 | ファイル | 中身 |
 |---|---|
-| `ZmloSig.<procid>` | 現行 `SigRsMLO` が書かれた $\tilde\chi$。[m_sigmlo.f90 `zmlo_sig_load`](../../SRC/subroutines/m_sigmlo.f90) が読む。追記しない |
-| `ZmloNew.<procid>` | 段 a' がこの反復の $H$ から作った $\tilde\chi$（[m_sigmlo.f90 `zmlo_new_append`](../../SRC/subroutines/m_sigmlo.f90)）。④の直後に `mlo` が rename |
+| `ZmloSig.<procid>` | 現行 `SigRsMLO` が書かれた $\tilde\chi$。[m_sigmlo.f90 `zmlo_sig_load`](../../../SRC/subroutines/m_sigmlo.f90) が読む。追記しない |
+| `ZmloNew.<procid>` | 段 a' がこの反復の $H$ から作った $\tilde\chi$（[m_sigmlo.f90 `zmlo_new_append`](../../../SRC/subroutines/m_sigmlo.f90)）。④の直後に `mlo` が rename |
 | `__SigmMLO.q.prev` | この反復が使った $\Sigma^{\rm MLO}$（= 混合の $x_0$）。反復の頭で `gwsc` が `__SigmMLO.q` から改名 |
 | `__mixsigMLO` / `__mixsig` | $\Sigma^{\rm MLO}$ / `sigm` の Anderson 履歴（`__mixsig` は `character(8)` で切り詰められた `__mixsigma`）|
 
@@ -956,14 +956,14 @@ $\Sigma$ は**書かれた基底以外で読み戻されることが無い**。�
 
 ### 10.4 コード上どこで MLO を作るか
 
-**作る実体は 1 箇所**、[`Hreduction`](../../SRC/subroutines/m_hreduction.f90#L45)（`m_hreduction.f90`）です。
+**作る実体は 1 箇所**、[`Hreduction`](../../../SRC/subroutines/m_hreduction.f90#L45)（`m_hreduction.f90`）です。
 `zMLO` を返します。これを 3 種類の場所から呼んでいます。
 
 | 呼ぶ場所 | いつ | 何を決めるか |
 |---|---|---|
-| [m_HamPMT.f90](../../SRC/subroutines/m_HamPMT.f90) | 段 0d（`mlo --mlo`）、および MLO バンド | **索引**: `ix`（どの MTO チャネルを種にするか）、`ndimMTO`、窓 `nskip`/`eferm`/`ecbot`。`HamRsMLO` の末尾レコードに保存 |
-| [sugw.f90](../../SRC/subroutines/sugw.f90) 段 a'（`NewChiForThisIteration`）| 反復ごと、`lmf --jobgw=1` の中、各 $q$ で | **書く側の $z_n(q)$**。反復 2 以降は `hamm_qsgw`（Σ 入り $H$）、初段は `hamm_lda` から。`ZmloNew.<procid>` へ |
-| [m_sigmlo.f90](../../SRC/subroutines/m_sigmlo.f90) `getsenex`（`ChiTildeCache`）| `ZmloSig` に無い $k$ のとき | **読む側の $z(k)$**。その場の $H$ から作り、その `lmf` 実行中だけメモリに保持 |
+| [m_HamPMT.f90](../../../SRC/subroutines/m_HamPMT.f90) | 段 0d（`mlo --mlo`）、および MLO バンド | **索引**: `ix`（どの MTO チャネルを種にするか）、`ndimMTO`、窓 `nskip`/`eferm`/`ecbot`。`HamRsMLO` の末尾レコードに保存 |
+| [sugw.f90](../../../SRC/subroutines/sugw.f90) 段 a'（`NewChiForThisIteration`）| 反復ごと、`lmf --jobgw=1` の中、各 $q$ で | **書く側の $z_n(q)$**。反復 2 以降は `hamm_qsgw`（Σ 入り $H$）、初段は `hamm_lda` から。`ZmloNew.<procid>` へ |
+| [m_sigmlo.f90](../../../SRC/subroutines/m_sigmlo.f90) `getsenex`（`ChiTildeCache`）| `ZmloSig` に無い $k$ のとき | **読む側の $z(k)$**。その場の $H$ から作り、その `lmf` 実行中だけメモリに保持 |
 
 つまり:
 
@@ -997,7 +997,7 @@ $\Sigma$ は**書かれた基底以外で読み戻されることが無い**。�
 
 #### 位相（ゲージ）の心配は不要
 
-[m_hreduction.f90:322](../../SRC/subroutines/m_hreduction.f90#L322):
+[m_hreduction.f90:322](../../../SRC/subroutines/m_hreduction.f90#L322):
 
 ```fortran
 cmlo_loc = matmul(Amat, matmul(evecmto^dagger, ovlmx(ix,ix)))
@@ -1018,7 +1018,7 @@ $\tilde\chi(k)=\hat P(k)\,\chi^{\rm MTO}(k)$ は、「k 非依存の関数のブ
 
 > **実空間で短距離になるかどうかは、$\hat P(k)$ が k についてどれだけ滑らかかで決まる。**
 
-では $\hat P$ の k 依存性はどこから来るか。[m_hreduction.f90:308](../../SRC/subroutines/m_hreduction.f90#L308):
+では $\hat P$ の k 依存性はどこから来るか。[m_hreduction.f90:308](../../../SRC/subroutines/m_hreduction.f90#L308):
 
 ```fortran
 Amat(i,j) = fac(i,j) * max( fermidist((evl(i)-efrz)/ewfrz), fermidist((evl(i)-ecut)/ewuse) )
@@ -1026,7 +1026,7 @@ Amat(i,j) = fac(i,j) * max( fermidist((evl(i)-efrz)/ewfrz), fermidist((evl(i)-ec
 
 **窓ではない。** 数字で確認した（user 指摘）:
 
-- **第 1 項は恒等的に 0**。`mlomethod=4` では [`efrz = -1d99`](../../SRC/subroutines/m_hreduction.f90#L246)
+- **第 1 項は恒等的に 0**。`mlomethod=4` では [`efrz = -1d99`](../../../SRC/subroutines/m_hreduction.f90#L246)
   （コメント「hard-freeze edge; active only for mlomethod=3」）。効くのは**第 2 項だけ**。
 - 第 2 項の位置は $\varepsilon^{\rm cut}_j=\max(\varepsilon_{\rm cbot}+\Delta,\ \varepsilon^{\rm MTO}_j)$。
   **MTO のみの固有値は PMT のそれよりそれなりに上にある**ので、通常は $\varepsilon^{\rm MTO}_j$ が選ばれる。
@@ -1153,14 +1153,14 @@ $K_{\rm band}$ を先に回しておく必要がある。**MLO 空間で描け�
 
 $$\bigl[H^{\rm MLO}(k)+\Sigma^{\rm MLO}(k)\bigr]\,c = \varepsilon\,O^{\rm MLO}(k)\,c$$
 
-を解く（`job_mlo --mlofreeze --mlo`、[m_mlo_ham.f90](../../SRC/subroutines/m_mlo_ham.f90) の `hammr + sigmlor`）と、
+を解く（`job_mlo --mlofreeze --mlo`、[m_mlo_ham.f90](../../../SRC/subroutines/m_mlo_ham.f90) の `hammr + sigmlor`）と、
 
 - `hammr` = $\langle\tilde\chi_0|H^{\rm LDA}[\rho_0]|\tilde\chi_0\rangle$（**段 0d の LDA 密度、段 0d の $\tilde\chi$**、`--mlofreeze` で書き換わらない）
 - `sigmlor` = $\langle\tilde\chi_n|\Sigma|\tilde\chi_n\rangle$（**反復 $n$ の $\tilde\chi$**、`ZmloSig`）
 
 で、**別の基底の行列を足している**。LiTi₂O₄ v9 iter 3 で PMT バンドから 0.3–0.5 eV ずれた。
 
-**正しい方法**（[draw_mloband.sh](LiTi2O4/draw_mloband.sh)、`run_snap.sh` に組み込み済み）:
+**正しい方法**（[draw_mloband.sh](../../../Samples/kBT/LiTi2O4/draw_mloband.sh)、`run_snap.sh` に組み込み済み）:
 
 1. スナップショットで `lmf --writeham --noinv --mlo`。保存済みの `ZmloSig` で SCF と**同じ** $H=H^{\rm LDA}[\rho_n]+\mathrm{senex}(\Sigma^{\rm MLO}_n)$ をメッシュ点で書き出す。
    `ECALJ_MLO_ALLOW_REBUILD` は立てない（MISS が 1 つでもあれば止まる）
@@ -1186,7 +1186,7 @@ $\Sigma^{\rm MLO}$ は別物）。`mlo` を 1 ランクあたり 2 点以上の 
 | **途中でも PMT が欲しいとき** | 同上 | — | **可能**。下記 |
 
 **3 段目は実装できる。** `sugw` は各 q で自分で `hambl` を呼んでいる
-（[sugw.f90:492-508](../../SRC/subroutines/sugw.f90#L492-L508)）。つまり GW ドライバの中で
+（[sugw.f90:492-508](../../../SRC/subroutines/sugw.f90#L492-L508)）。つまり GW ドライバの中で
 バンド経路の $k$ についても `hambl` → `getsenex` → `Hreduction` → `zmlo_new_append` を
 回せば、**$\Sigma$ を作ったのと同じ $H$ で**経路上の $z$ が得られる。
 機構は同じ subroutine 内に揃っているので「a' の第二ループを足す」程度の作業
@@ -1320,7 +1320,7 @@ SCF の k リストが構築されていない）。そのため `gwsc` で `ctr
 | 混合（`lqpe`）| iter 1: `No mixing file` ×2 で混合後／前 = 0.5 ちょうど。iter 2 以降: `x_0 from __SigmMLO.q.prev = T` |
 | `draw_mloband.sh` の `writeham` | MISS 0（1 つでもあれば止まる）|
 
-1 反復ごとの確認は [check_iter.sh](LiTi2O4/check_iter.sh)（[watch_iter.sh](LiTi2O4/watch_iter.sh) が反復の終わりにログを退避して実行）。
+1 反復ごとの確認は [check_iter.sh](../../../Samples/kBT/LiTi2O4/check_iter.sh)（[watch_iter.sh](../../../Samples/kBT/LiTi2O4/watch_iter.sh) が反復の終わりにログを退避して実行）。
 期待値はメッシュと並列数に依存するので `CHECK_MLOON` / `CHECK_GWDRV` / `CHECK_MAXSECS` で与える。
 
 ### 11.7 残る近似
@@ -1365,7 +1365,7 @@ SCF の k リストが構築されていない）。そのため `gwsc` で `ctr
 
 1. $\tilde\chi_\alpha$ は **PMT 基底関数そのものではなく線型結合**である。
    従来の MTO 経路では部分空間が PMT の**部分ブロック**なので「$S$ の小行列を逆にする」ことに
-   意味があり、実際 [getsenex](../../SRC/subroutines/rdsigm2.f90#L67) は `ovlm(1:ndimsig,1:ndimsig)` を
+   意味があり、実際 [getsenex](../../../SRC/subroutines/rdsigm2.f90#L67) は `ovlm(1:ndimsig,1:ndimsig)` を
    逆にしている。**MLO には逆にすべき小行列が存在しない。**
 2. $S$ を計量とする非直交基底で $\hat P^2=\hat P$ を満たす射影子は
    $|\tilde\chi\rangle O^{-1}\langle\tilde\chi|$ に**一意に決まる**。
@@ -1374,7 +1374,7 @@ SCF の k リストが構築されていない）。そのため `gwsc` で `ctr
    最小性条件を課すと結局 (a) に戻る。
 
 **未確認の点（正直に）**: 従来経路で `hqpe_sc` が書く `sene` の規約。
-[main_hqpe.sc.f90](../../SRC/subroutines/main_hqpe.sc.f90) は**擬似逆**
+[main_hqpe.sc.f90](../../../SRC/subroutines/main_hqpe.sc.f90) は**擬似逆**
 $\psi^+=(\psi^\dagger\psi)^{-1}\psi^\dagger$ で挟み、`getsenex` 側は **$S_{\rm sub}^{-1}$** で挟み返す。
 この 2 つが整合して $\langle\chi|\hat\Sigma|\chi\rangle$ を再現するのか、代数的に追い切れていない
 （オンサイトが 73.8 eV という大きさは、行列要素そのものではなく双対側の量であることを示唆する）。
@@ -1423,7 +1423,7 @@ $\Sigma$ の対称化・回転・FFT は索引レベルの操作なので $\Sigm
 
 **ならない。** 2026-09-25 に「窓が狭いのでは」と書いたが撤回した。
 
-- `mlomethod=4` では第 1 項が恒等的に 0（[`efrz = -1d99`](../../SRC/subroutines/m_hreduction.f90#L246)、
+- `mlomethod=4` では第 1 項が恒等的に 0（[`efrz = -1d99`](../../../SRC/subroutines/m_hreduction.f90#L246)、
   「active only for mlomethod=3」）。効くのは第 2 項だけ。
 - 第 2 項の位置は $\varepsilon^{\rm cut}_j=\max(\varepsilon_{\rm cbot}+\Delta,\ \varepsilon^{\rm MTO}_j)$。
   MTO のみの固有値は PMT のそれより上にあるので通常は $\varepsilon^{\rm MTO}_j$ が選ばれ、
@@ -1435,7 +1435,7 @@ $\hat P(k)$ の $k$ 依存性は窓ではなく、
 
 ### Q6. $\tilde\chi$ にゲージ（位相）の任意性は入らないか
 
-**入らない。** [m_hreduction.f90:322](../../SRC/subroutines/m_hreduction.f90#L322) で
+**入らない。** [m_hreduction.f90:322](../../../SRC/subroutines/m_hreduction.f90#L322) で
 $|F^{\rm MLO}_k\rangle=\hat P\,|F^{\rm MTO}_k\rangle$ の形になっており、
 $\Psi^{\rm MTO}_j$ も $\Psi^{\rm PMT}_i$ も $|\Psi\rangle\langle\Psi|$ の形でしか現れないので
 対角化の任意位相は相殺する。種は**裸の MTO 基底関数** $\chi^{\rm MTO}_k$（$k$ 非依存の実空間関数の
@@ -1481,7 +1481,7 @@ $\Psi^{\rm MTO}_j$ も $\Psi^{\rm PMT}_i$ も $|\Psi\rangle\langle\Psi|$ の形�
 
 ## 13. TODO
 
-2026-09-26 に見直した。状態は [ecaljdoc/MD/research_log.md](../../ecaljdoc/MD/research_log.md) の同日エントリと対応している。
+2026-09-26 に見直した。状態は [ecaljdoc/MD/research_log.md](../research_log.md) の同日エントリと対応している。
 
 ### A. 完了・進行中
 

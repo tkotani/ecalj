@@ -123,7 +123,7 @@ QSGW 反復の停止条件を指定する。**収束判定 (2026-06 改定)**: �
 `QPU.<n>run` と `QPU.<n-1>run` の `eQP` (E_F 基準) のうち |e| < 5 eV の状態について、変化の最大が
 `--conv-qp <eV>` (既定 0.03) 未満の反復が 2 回続いたら停止。以前のようにギャップが無いところで止める (exit 3) には
 `--no-metal`。`--gpu --mp --fp32` を渡せばそのまま `gwsc` に流される。
-ecalj_auto の GW1500 バッチもこの script を呼んでいる ([auto.md](./auto))。
+ecalj_auto の GW1500 バッチもこの script を呼んでいる (`ecaljdoc/MD/auto.md`)。
 
 `qsgw_status` (2026-06): 走行中の `gwsc` (または gwscconv) 反復の進行
 ダッシュボード。実行ディレクトリで以下のように使う:

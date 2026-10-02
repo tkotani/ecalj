@@ -5,7 +5,7 @@
 > MLO 表現で描いたバンドでは、`sigm` の内挿で出ていたメッシュ点の間のこぶ（内挿のリンギング）が大きく減る（§3.2）。
 
 > 既定では何も変わらない（`gwsc --mlo` を付けたときだけ有効）。反強磁性の対称性（`symgrpaf`）との併用は確かめていない（§5）。
-> 経過の記録は ecalj の `ecaljdoc/MD/research_log.md`（2026-09-24〜29）、設計の詳細は `Samples/kBT/sigma_mlo_design.md` §9–13。
+> 経過の記録は ecalj の `ecaljdoc/MD/research_log.md`（2026-09-24〜29）、設計の詳細は `ecaljdoc/MD/kBT/sigma_mlo_design.md` §9–13。
 
 このページは **§1 理論**、**§2 設定と実行**、**§3 実例: LiTi₂O₄** の 3 部です。
 
@@ -205,7 +205,7 @@ gwsc 10 -np 60 -np2 2 --gpu --prec=tf32 --prec-final=fp32:2 --ntqxx --mlo liti2o
 `gwsc N --mlo` はそのまま N 反復まとめて回してよい（`gwsc 1` を N 回回すのとは厳密には同じでないが、収束させれば ehf で 0.1〜0.2 meV の差、研究ログ 2026-09-25 00:06）。
 GPU の精度 `--prec=tf32|fp32|fp64` と、行列積の方法の自動選択は [ecaljgpu](./ecaljgpu) と [gwsc](./gwsc) を参照（`--prec=fp32` は旧来の `--mp --fp32` と同じ）。
 LiTi₂O₄ の `hgw` 1 回は、6³ で fp32 367 秒・tf32 173 秒（kt1、RTX 5090 × 2、2026-09-27 夜）、9³ で fp32 2990 秒・tf32 1975 秒（同日午前の版）。
-tf32 は Σc の最後の行列積だけを 10 ビットの仮数の入力（RTX 5090 では FP16）にしたもので、$E_F$ ±1 eV の Re Σc は倍精度と 1.3 meV 以内（[ForDevelopers](./ForDevelopers) §11.2）。
+tf32 は Σc の最後の行列積だけを 10 ビットの仮数の入力（RTX 5090 では FP16）にしたもので、$E_F$ ±1 eV の Re Σc は倍精度と 1.3 meV 以内（`ecaljdoc/MD/ForDevelopers.md` §11.2）。
 
 - ecalj の `Samples/kBT/LiTi2O4/run_gwsc10.sh <tag> <入力> <bindir>` は `gwsc 10` を回し、最後の状態で `sigm` 描画と MLO バンドを描く。
   `run_snap.sh <tag> <niter> --mlo` は `gwsc 1` を繰り返しながら毎反復のスナップショット（再開に要るもの一式）と 2 つのバンドを残す

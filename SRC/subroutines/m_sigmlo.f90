@@ -1,5 +1,5 @@
 !> Sigma in the MLO representation: read QMLO_SigRs, Bloch-sum it at any k, and
-!> build the PMT matrix element (design: Samples/kBT/sigma_mlo_design.md, stage 4).
+!> build the PMT matrix element (design: ecaljdoc/MD/kBT/sigma_mlo_design.md, stage 4).
 !>
 !>   Sigma^MLO(k)   = sum_R Sigma^MLO(R) exp(-ikR)          eq (12)
 !>   z^MLO(k)       = Hreduction(H(k), S^PMT(k))            eq (17), never interpolated

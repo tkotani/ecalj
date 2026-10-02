@@ -1,7 +1,7 @@
 # 2025-10-6 test system in python
 
 The commands for CPU and GPU (`--gpu`, `--mp`, `--run-args=--prec=fp32`), and how the checks are counted, are in
-the developer's guide: ecaljdoc [manual/ForDevelopers](https://ecalj.github.io/ecaljdoc/manual/ForDevelopers) (sections 4, 5 and 12).
+the developer's guide: ecaljdoc [manual/ForDevelopers](https://github.com/tkotani/ecalj/blob/main/ecaljdoc/MD/ForDevelopers.md) (sections 4, 5 and 12).
 The groups of sample tests (TestInstall, EPS, PROCAR, MLOsamples, ...) are run by `ecalj/TOOLS/samples_tests.sh`.
 
 `testecalj` is installed in your ecalj binary directory BINDIR.

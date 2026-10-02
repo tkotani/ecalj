@@ -1,6 +1,6 @@
 # 自己エネルギー計算の実装について
 
-> ⚠️ **TOML migration (2026-05)** — `hsfp0_sc` / `hsfp0` now read `ctrlg.<sname>.toml` only. See [TOML migration](../manual/toml_migration).
+> ⚠️ **TOML migration (2026-05)** — `hsfp0_sc` / `hsfp0` now read `ctrlg.<sname>.toml` only. See [TOML migration](../../manual/toml_migration.md).
 
 ## 実行プログラム
 - `hsfp0_sc` : QSGW計算で使用。$W$はエルミート化される。off-diagonal を含めた自己エネルギーを計算する。
@@ -28,7 +28,7 @@ $ω'$についての積分($G$と$W$の畳み込み)を数値的にどのよう�
 これを計算する方法として、解析接続を用いる手法、周回積分を用いる手法が知られている。ecaljでは後者を使用している。
 複素数に拡張した$ω'$空間で, 以下のような周回積分を考える。$W^\mathrm{c}(ω) → 0 (|ω| → ∞)$より$Γ^±$上の積分値はゼロとなる。この経路は$W$の極を避けるようにしている。
 
-![積分経路](../theory/figures/integral_path.png){ width=100% class="centered-image" }
+![積分経路](../../theory/figures/integral_path.png){ width=100% class="centered-image" }
 
 よって, 虚軸積分寄与と留数の寄与から実軸積分が計算できる。
 $$

@@ -1,14 +1,14 @@
 # ForDevelopers 付録 — 研究ログの要約と索引（2026-09-16〜09-28）
 
 > ecalj の研究ログ `ecaljdoc/MD/research_log.md`（最新が上、`### HH:MM` の時刻付き、約 5200 行）を、記憶の無いセッションや引き継ぐ人が
-> 引けるようにまとめたもの。[ForDevelopers](./ForDevelopers) の §13 から来る。2026-09-28 に作成（元はエージェントの下読み、確かめて手を入れた）。
+> 引けるようにまとめたもの。[ForDevelopers](ForDevelopers.md) の §13 から来る。2026-09-28 に作成（元はエージェントの下読み、確かめて手を入れた）。
 > **研究ログが正本**で、ここは入口。食い違ったら研究ログを見て、ここを直す。
 
 - 参照は `2026-09-19 05:10` の形で、研究ログのその日の `### 05:10` のエントリ（`### 2026-09-27 11:40` のように見出しに日付が入っているものもある）。
   `## 2026-09-17`・`## 2026-09-16` の節には時刻の見出しが無いので日付だけ
 - 「→」は後のエントリで訂正・置き換えられたこと。研究ログの該当箇所には「2026-09-28 の注」で後の判定を添えてある
-- 結論が固まったものの説明は ecaljdoc の [kBT](./kBT)（有限温度）、[mlo](./mlo)・[mlo_gwsc](./mlo_gwsc)（MLO、MLO-QSGW）、[ecaljgpu](./ecaljgpu)（GPU）、
-  残る課題の一覧は [kBT](./kBT) §9 と [ForDevelopers](./ForDevelopers) §11.8
+- 結論が固まったものの説明は ecaljdoc の [kBT](../manual/kBT)（有限温度）、[mlo](../manual/mlo)・[mlo_gwsc](../manual/mlo_gwsc)（MLO、MLO-QSGW）、[ecaljgpu](../manual/ecaljgpu.md)（GPU）、
+  残る課題の一覧は [kBT](../manual/kBT) §9 と [ForDevelopers](ForDevelopers.md) §11.8
 
 ## 0. 全体の流れ
 
@@ -38,7 +38,7 @@
 - キー（2026-09-20 11:45、12:00 に整理、2026-09-28 に `t_tetrakbt` を必須に）: Σ 側は `t_sigmaw`（K、既定 1000、中間準位の FD 幅。フルの有限温度 Σ ではない）。
   `esmr` と `t_sigmakbt` は、`t_sigmaw` が無いときだけ換算して読む。χ0 側は `t_tetrakbt`（K、必須）で、0 は均さない、$T>0$ は χ0 の**物理の温度**
   （有限温度のテトラヘドロン、`EFERMI_kbt` を書く）、$-T$ は Im χ0 を温度 $T$ の FD と同じ幅の Gaussian で均す（以前の `SmearX0`。書いてあると止まる）。
-  `t_tetrakbt > 0` なら Σ も `EFERMI_kbt`（無ければ abort、kBT.md §0 の表 5）。3 通りの式は [kBT](./kBT) §2 の表 1
+  `t_tetrakbt > 0` なら Σ も `EFERMI_kbt`（無ければ abort、kBT.md §0 の表 5）。3 通りの式は [kBT](../manual/kBT) §2 の表 1
 - 虚軸積分側の準位 smearing も FD 核に揃えた（極項だけ FD にすると NiO 2³ の O 2s 対で SEc が ±0.6 eV ずれた）（2026-09-20 12:17、13:10）。
   contour 分解 + FD smearing は単体試験で厳密求積と 0.35 % 以内、niw = 10 で十分（2026-09-22 01:35）、実系の Σc(ω) も段差なし（2026-09-22 03:40）
 - Σ 側の状態窓は `sig_window` = 15 kBT（旧 10·esmr、`899ce008d`、2026-09-20 05:30）、極項の核の範囲は 8 kBT（`093d5f08e`、2026-09-22 13:45）
@@ -143,8 +143,8 @@ GX_br5_meshpoints、ripple_vs_iteration、nk6_rows）。
 
 **結論**
 - 方法は `mlo_method = 4`（単一シグモイド）、既定 `mlo_delta = mlo_w = 2.0` eV。キーは ctrlg の `[mlo]` 節（`[gw]` ではない、2026-09-26 20:06）。
-  二段シグモイドの method 3 は不採用（BackUp_notes/MLO_v6_report.md）。`nskip` は全 k・全スピンの最小値（`f49c6640b`、2026-09-18、
-  BackUp_notes/mlo_nskip_cu_problem.md）
+  二段シグモイドの method 3 は不採用（ecaljdoc/MD/mlo_notes/MLO_v6_report.md）。`nskip` は全 k・全スピンの最小値（`f49c6640b`、2026-09-18、
+  ecaljdoc/MD/mlo_notes/mlo_nskip_cu_problem.md）
 - MLO を作る k メッシュ `mlo_nkabc` は Σ の q メッシュに一致させる: 9³ で内挿の荒れ 9.8 → 3.4 meV、12³ は入力が内挿済みの Σ になり 9.8 meV に戻る
   （2026-09-23 22:35）。ずれると gwsc が事前チェックで止める（2026-09-25 22:35 の設定表）
 - 同じ 9³ の Σ でも MLO で内挿するだけで t2g の荒れ 9.8 → 3.5 meV（t2g 12 軌道、2026-09-23 22:45）
@@ -163,9 +163,9 @@ GX_br5_meshpoints、ripple_vs_iteration、nk6_rows）。
 **未解決**
 - 76 軌道と 126 軌道の優劣は、Σ^MLO を混合する前（どちらも iter 3 で行き過ぎ）までしか比べていない（2026-09-26 20:06）。154 軌道での再測定（設計書 §13 C5）
 - MLO_v6_report.md §9 の残課題（損失関数にフェルミ速度、C の CBM、FeMgO のスパン外状態）。MP 10 結晶の LDA 試験で ZnO は窓 rms 476 meV
-  （BackUp_notes/mp_20260918/README.md）
+  （ecaljdoc/MD/mlo_notes/mp_20260918/README.md）
 
-**詳しい所**: ecaljdoc `mlo`、`mlo_backup`。`Samples/MLOsamples/BackUp_notes/`（MLO_theory、MLO_v6_report、MLO_optimization_log、mlo_nskip_cu_problem、
+**詳しい所**: ecaljdoc `mlo`、`mlo_backup`。`ecaljdoc/MD/mlo_notes/`（MLO_theory、MLO_v6_report、MLO_optimization_log、mlo_nskip_cu_problem、
 mp_20260918）。図 `LiTi2O4/plots/mlo_*`（t2g_meshdep、vs_sigm_meshpoints、3d_nk9、3d_O2p_nk9、fullMTO_nk9、fullMTO_wide）。
 
 ### 1.4 MLO-QSGW（MLO Sigma インターポレーション）: Σ を MLO で持つ、メッシュ点間のこぶ、LiTi₂O₄ 6³/9³、混合 β、凍結
@@ -285,7 +285,7 @@ mp_20260918）。図 `LiTi2O4/plots/mlo_*`（t2g_meshdep、vs_sigm_meshpoints、
 - 「W-build を CPU 版 hx0fp0（-np 60）で先に回し hgw は Σc だけ」（2026-09-22 12:40）と極項の W 平面のバッチ GEMM（2026-09-22 13:45）は未着手
 - push していない（報告書 §8、ForDevelopers §9）
 
-**詳しい所**: `Samples/kBT/gpu_fp32_report.md`（§1 まとめ、§2.1 FP16 経路、§5 分かったこと、§7 使い方、§8〜§10）、`gpu_fp32_plan.md`、`fp16acc.cu`。
+**詳しい所**: `ecaljdoc/MD/kBT/gpu_fp32_report.md`（§1 まとめ、§2.1 FP16 経路、§5 分かったこと、§7 使い方、§8〜§10）、`gpu_fp32_plan.md`、`fp16acc.cu`。
 ecaljdoc `ForDevelopers` §6・§11、`ecaljgpu`、`cmdopts`。`ecaljdoc/MD/ecaljclaude.md`「OpenACC 一般注意」。背景: `Samples/mptf32problem`
 （2026-06: TF32 で AgNO3 の QSGW が発散し `--fp32` で回復、GW1500 の 36 件）。
 

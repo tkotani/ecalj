@@ -1,6 +1,6 @@
 # Samples/kBT — 2026-06 の有限温度 QSGW の計算の記録
 
-> **2026-09-30 の注**: このファイルは記録。いまの案内は [`README.md`](README.md)、いまのキーの説明は ecaljdoc の
+> **2026-09-30 の注**: このファイルは記録。いまの案内は [`README.md`](../../../Samples/kBT/README.md)、いまのキーの説明は ecaljdoc の
 > [kBT](https://ecalj.github.io/ecaljdoc/manual/kBT)。下の本文は 2026-06 の計算の説明で、当時のキー（`tetrakbt`、`t_sigmakbt`、`esmr`）で書いてある。
 
 ## 2026-06 の有限温度の計算の記録
@@ -37,7 +37,7 @@ MTO 基底ではなく MLO の小さな部分空間で $\Sigma$ を保持する�
 | 文書 | 中身 |
 |---|---|
 | [`sigma_mlo_design.md`](sigma_mlo_design.md) | 設計書。出発点 $\langle\psi\|\hat\Sigma\|\psi\rangle$ からの式の導出（式 (1)–(17)）、実装手順、検証手順、踏んだバグの記録 |
-| [`ecaljdoc/MD/research_log.md`](../../ecaljdoc/MD/research_log.md) | 実測ログ（新しい順）。NiO / Si での検証、LiTi₂O₄ の連鎖 |
+| [`ecaljdoc/MD/research_log.md`](../research_log.md) | 実測ログ（新しい順）。NiO / Si での検証、LiTi₂O₄ の連鎖 |
 | [ecaljdoc: MLO-gwsc](https://ecalj.github.io/ecaljdoc/manual/mlo_gwsc) | 使い方（`gwsc --mlo`）、保持すべきファイル、現状の精度 |
 
 **既定では一切動かない。** `gwsc` に `--mlo` を付けたときだけ有効。
@@ -45,8 +45,8 @@ MTO 基底ではなく MLO の小さな部分空間で $\Sigma$ を保持する�
 
 | | 中身 | 大きさ |
 |---|---|---|
-| [`LiTi2O4/`](LiTi2O4/) | 金属スピネル。$6^3$/$9^3$ のメッシュ収束、反復収束、温度依存、`deltaq` の罠 | 66 MB |
-| [`Fe/`](Fe/) | **`t_sigmakbt` だけを切り替えた対照実験。** Σ 側が効くことの最短の証拠 | 0.8 MB |
+| [`LiTi2O4/`](../../../Samples/kBT/LiTi2O4) | 金属スピネル。$6^3$/$9^3$ のメッシュ収束、反復収束、温度依存、`deltaq` の罠 | 66 MB |
+| [`Fe/`](../../../Samples/kBT/Fe) | **`t_sigmakbt` だけを切り替えた対照実験。** Σ 側が効くことの最短の証拠 | 0.8 MB |
 
 ---
 
@@ -81,7 +81,7 @@ sigmakbt_setup: WARNING t_sigmakbt>0 but EFERMI_kbt missing (need tetrakbt/hefte
 3000 K・`deltaq_scale = 0.3` では K–Γ 中央に −1.24 eV の偽のスパイクが出る。
 `deltaq_scale = 0.1` で消える。offset-Gamma の $q\to0$ head が高温 × 大きい
 `deltaq` で破綻するもので、`tetrakbt` のバグではない
-([`LiTi2O4/README_202606_finiteT.md` §3.5](LiTi2O4/README_202606_finiteT.md))。**（→ 2026-09-28 の注: この説明は後で否定された。スパイクは第一殻 q の W のプラズモン極を
+([`LiTi2O4/README_202606_finiteT.md` §3.5](LiTi2O4_finiteT_202606.md))。**（→ 2026-09-28 の注: この説明は後で否定された。スパイクは第一殻 q の W のプラズモン極を
 Σc の実軸極項が踏むことによるもので、`deltaq` で変わったのは極踏みの当たり外れ。研究ログ 2026-09-19 09:55、ecaljdoc kBT.md §3.5）**
 
 ### $T$ について収束を確認する
@@ -171,7 +171,7 @@ kt1 側にあってここに持ってきていないもの:
 
 ## 4. これから詰めるべき課題
 
-研究ログ（日付順、試したこと・数字・仮説）は [ecaljdoc/MD/research_log.md](../../ecaljdoc/MD/research_log.md)。
+研究ログ（日付順、試したこと・数字・仮説）は [ecaljdoc/MD/research_log.md](../research_log.md)。
 
 一覧は [ecaljdoc: kBT §9](https://ecalj.github.io/ecaljdoc/manual/kBT#9-これから詰めるべき課題-2026-09-17)。
 要点だけ:

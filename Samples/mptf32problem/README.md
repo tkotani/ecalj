@@ -3,7 +3,7 @@
 > The TF32 of this page is the `--mp` of June 2026, which ran every GPU product in TF32, also those that build W.
 > In the present `gwsc` (`--prec=tf32|fp32|fp64`) `--mp` alone means `--prec=tf32`: W (chi0, the inverse dielectric
 > matrix) is built in FP32 and only the final products of Sigma_c take 10-bit inputs; `--mp --fp32` is `--prec=fp32`
-> (`Samples/kBT/gpu_fp32_report.md`, ecaljdoc [manual/ecaljgpu](https://ecalj.github.io/ecaljdoc/manual/ecaljgpu)).
+> (`ecaljdoc/MD/kBT/gpu_fp32_report.md`, ecaljdoc [manual/ecaljgpu](https://ecalj.github.io/ecaljdoc/manual/ecaljgpu)).
 > AgNO3 has not been rerun with the present tf32: the `tf32` numbers below, and `reference/`, are those of the old mode.
 
 This sample documents a precision problem of the GPU mixed-precision GW path with TF32 in every

@@ -120,7 +120,7 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
 - **GPU の精度**: TF32（旧 `--mp` だけ）は条件の悪い誘電行列を壊す。既定は fp32（`--prec=fp32`、`--prec=tf32` は Σ_c の最後の積だけ TF32）。GEMMul8 は小さい積（辺 < 64 か mnk < 1e8）に使わない。
   OpenACC の非同期キュー 1 は既定ストリームの cuBLAS を待たないので、非同期にするなら m_blas の積も同じストリームに（project_hgw_speedup_20260927、ecaljclaude.md「OpenACC 一般注意」）
 - **APW の G の選び方**（`m_igv2x.f90`）: `pwmode` の 10 の位が 0（`pwmode = 1`）なら |G| < √pwemax で q によらない基底、1（`pwmode = 11`）なら |q+G|。
-  QSGW（Σ の実空間の内挿）は |q+G| で、バンドの図は |G| でないと基底の入れ替わりが跳びとして見える。両立しない（2026-09-24、project_pwmode_qgcut。`Samples/kBT/sigma_mlo_design.md` §3.4）
+  QSGW（Σ の実空間の内挿）は |q+G| で、バンドの図は |G| でないと基底の入れ替わりが跳びとして見える。両立しない（2026-09-24、project_pwmode_qgcut。`ecaljdoc/MD/kBT/sigma_mlo_design.md` §3.4）
 - **MLO-QSGW のバンドの描き方**: `Samples/kBT/LiTi2O4/draw_mloband.sh`（SCF の H を保存した χ̃ で書き出し、`SigRsMLO` を退けて凍結なしの `mlo --mlo`）。
   `job_mlo --mlofreeze`（凍結した `HamRsMLO` と今の `SigRsMLO` で基底が混ざり 0.3〜0.5 eV ずれる）と `lmf --band --mlo`（Γ 以外無効）は使わない（project_mlo_qsgw_sigma）
 - **混合の履歴 `__mixm` の継承**: 前の run の履歴を継ぐと、Broyden の 1 歩目で非磁性の解へ落ちることがある（Fe 2.13 → 0.02 μB）。lmf は起動時に捨てる（`--keepmixm` で従来どおり）。

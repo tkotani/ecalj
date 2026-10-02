@@ -41,7 +41,7 @@ contains
     allocate(sene(ndimsig,ndimsig))
     ispsigm=isp
     if(isp>nspsigm) ispsigm = nspsigm
-    MLOroute: block !stage 4 of Samples/kBT/sigma_mlo_design.md: interpolate Sigma in the MLO space
+    MLOroute: block !stage 4 of ecaljdoc/MD/kBT/sigma_mlo_design.md: interpolate Sigma in the MLO space
       use m_sigmlo,only: sigmlo_init, sigmlo_senex, sigmlo_on
       call sigmlo_init()
       if(sigmlo_on .and. present(hamm)) then

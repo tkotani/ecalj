@@ -5,7 +5,7 @@ $\Sigma$ 側の `t_sigmaw` は常に有効な数値的な幅、$\chi_0$ 側の `
 負なら $\mathrm{Im}\chi_0$ を均す Gaussian の幅(温度で書く)、0 なら均さない。
 
 この頁にはいまの仕様を書く。古い入力や記録を読むときのキーの変遷は §2.5 の表 2。2026-06〜09 の経緯と当時の計算の説明は
-[kBT の記録](./kBT_history)。
+`ecaljdoc/MD/kBT_history.md`。
 
 **表 4**. `[gw]` のキー(温度の単位は K)
 
@@ -629,7 +629,7 @@ LDA から 40 反復まで回した。まとめは ecalj の `Samples/kBT/LiTi2O
 中間状態の候補の窓と実軸の $\omega$ メッシュの余裕は、核の裾 $E_F\pm15\,k_BT$($k_BT$ は `t_sigmaw`、`sig_window`)で決まる。
 切り捨てられる占有は $f(15)=3\times10^{-7}$ で、`t_sigmaw` を上げれば窓も広がる。窓の中心と重みの中心は同じ Fermi 準位
 (`t_tetrakbt > 0` なら `EFERMI_kbt`)である。2026-09-19 までのコードでは窓が `esmr` で決まっていて、高温で占有が切り捨てられた
-([記録](./kBT_history) §4)。
+(`ecaljdoc/MD/kBT_history.md` §4)。
 
 ### 7.4 範囲 — $\Sigma$ が要るのは「差」ではなく「和」
 
@@ -687,7 +687,7 @@ core の準位は $k_BT$ よりずっと深いので、温度によらず T=0 �
 core の状態の数 $n_\mathrm{ctot}$ が占有バンドの数より少ない系(1s だけが core の軽元素の化合物など)では、core との交換に
 価電子の状態の一部が入っていた。`lsxC` の `CoreEx mode: ef nspin nctot=` と `valn=`(価電子数)を比べれば判定できる
 (semicore を価電子に入れた系は core が減るので注意)。Fe($n_\mathrm{ctot}=9$)と LiTi₂O₄($n_\mathrm{ctot}=46$)には影響が無い。
-誤りの中身は [記録](./kBT_history) §5。
+誤りの中身は `ecaljdoc/MD/kBT_history.md` §5。
 
 ---
 
@@ -935,7 +935,7 @@ $[t_0,\,t_0-i\beta]$ を足した Kadanoff–Baym 径路を使い、そこに初
 
 - [QSGW の計算 (gwsc)](./gwsc)
 - サンプル `ecalj/Samples/kBT/`(§5)
-- [kBT の記録](./kBT_history): 2026-06〜09 の経緯、当時の計算の説明、直した誤り
+- `ecaljdoc/MD/kBT_history.md`: 2026-06〜09 の経緯、当時の計算の説明、直した誤り
 - [`ctrlg.<sname>.toml` の `[gw]` セクション](./lmf#file-structure-sections)
 - 一発 GW の QP エネルギー、任意 k 線上の評価、$W$ と実軸積分の診断は
   ecalj の `ecaljdoc/MD/past_log.md` §5 を見よ(2026-06 の手引き `FiniteT_and_QPE_HOWTO.md` の要点。本頁はその §1 を発展させたもの)

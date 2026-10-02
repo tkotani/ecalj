@@ -11,14 +11,14 @@ For the GW1500 production run details and slot scheduler, see:
 > `gw1500_rerun.sh` (POSCAR → `vasp2ctrl` → `ctrlgenToml.py --ssig=0.8` → `gwscconv --gpu --prec=fp32`) runs with the present programs.
 > `jobsubmit.py` (`auto/creplot.py`: `ctrlgenM1.py`, `GWinput`, `-vnit=...`) and `worker.sh` / `run_gw1500*.sh`
 > (`-v[ham.scaledsigma]=0.8`) still carry the retired syntax, on which the present programs stop; write the overrides as
-> `--ctrlg:<section.key>=<value>` before using them. Templates: `jobtemplate{,.kugui,.ohtaka,.ucgw}` for SLURM/PBS dispatch. See [TOML migration](./toml_migration).
+> `--ctrlg:<section.key>=<value>` before using them. Templates: `jobtemplate{,.kugui,.ohtaka,.ucgw}` for SLURM/PBS dispatch. See [TOML migration](../manual/toml_migration.md).
 >
 > ⚠️ **GW1500 batch: fp32** — the batch runs `gwscconv --gpu --prec=fp32 --conv-tol 0.1`
 > (`--gpu --mp --fp32` is the older spelling of the same precision).
 > fp32 では、悪条件な誘電行列 (重元素 + 分子アニオン NO3 / N3 /
 > ClO など) でも QSGW が NaN / 発散しない。詳細は
-> [gwsc § `--fp32`](./gwsc#fp32-2026-06) および
-> [GPU マニュアル § 混合精度](./ecaljgpu#混合精度-mp-と-fp32)。
+> [gwsc § `--fp32`](../manual/gwsc.md#fp32-2026-06) および
+> [GPU マニュアル § 混合精度](../manual/ecaljgpu.md#混合精度-mp-と-fp32)。
 > 失敗事例の再現は [`Samples/mptf32problem/`](https://github.com/tkotani/ecalj/tree/main/Samples/mptf32problem)。
 
 

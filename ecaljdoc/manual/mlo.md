@@ -48,7 +48,7 @@ FeMgO は真空層を持つスラブで空格子球が要る。**§5 に独立�
 | §7 | [誤差の測り方](#_7-誤差の測り方-—-一方向では決まらない) | 一方向では決まらない |
 | §8 | [残る問題](#_8-残る問題) | |
 | §9 | [**模型の選び方**](#_9-模型の選び方-—-基準-1・2・3) | 基準 1・2・3 と現在のベストチョイス。`Samples/MATERIALS` の 65 物質 |
-| [別頁](./mlo_backup) | 経緯と作業記録(backup) | |
+| `ecaljdoc/MD/mlo_backup.md` | 経緯と作業記録(backup) | |
 
 ---
 
@@ -287,7 +287,7 @@ MLO-QSGW の連鎖（`HamRsMLO` で模型を凍結する）では、連鎖の最
 - 空格子球: `[[site]]`・`[[spec]]` に置き、`mlo_lm` に行を書く（基準 3、§5・§9）。基底が変わるので `lmfa` から回し直す
 
 Cu の d 模型で 10³ → 16³ にすると d 帯の rms は 98 → 90 meV
-(`Samples/MLOsamples/BackUp_notes/mlo_nskip_cu_problem.md`)。
+(`ecaljdoc/MD/mlo_notes/mlo_nskip_cu_problem.md`)。
 
 **通常はこのまま使える。** `Samples/MLOsamples` の 18 サンプルは全部この既定値
 ($\Delta=w=2.0$ eV)で、物質ごとに変えていない(§2)。3 つとも既定値なので、
@@ -528,7 +528,7 @@ FeCo(18 軌道、窓 8.3 meV)— 磁性金属で両スピンとも良く乗る�
 回すものと同じ入力・同じ参照。図は `SRC/exec/mlo_bandplot.py <sampledir>_work` で再生成。
 表の後半 7 系は Materials Project の構造をそのまま `ctrlgenToml.py` に通し、
 `mlo_lm` に全原子の s,p,d を入れて既定（$\Delta = w = 2$ eV）で回したもの
-（2026-09-18、[Samples/MLOsamples/BackUp_notes/mp_20260918](https://github.com/tkotani/ecalj/tree/main/Samples/MLOsamples/BackUp_notes/mp_20260918)）。
+（2026-09-18、[ecaljdoc/MD/mlo_notes/mp_20260918](https://github.com/tkotani/ecalj/tree/main/Samples/MLOsamples/BackUp_notes/mp_20260918)）。
 
 | 半導体・絶縁体 | | | |
 |---|---|---|---|
@@ -1628,7 +1628,7 @@ rms は MLO → DFT / DFT → MLO（eV）。窓は MLO → DFT が [VBM − 8, C
 最終形に至る 3 つの設計判断の実測根拠、および途中で見つかった評価器と
 `m_hreduction.f90` のバグ — は別頁にまとめてある:
 
-**[MLO — 経緯と作業記録(backup)](./mlo_backup)**
+**`ecaljdoc/MD/mlo_backup.md`**
 
 本文の結論を読むだけなら不要だが、なぜこの式なのかを疑うときはそちらを見よ。
 

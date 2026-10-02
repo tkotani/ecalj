@@ -21,6 +21,24 @@ ecalj を Claude (LLM) で開発する際のガイドライン。
 | サンプルと試験 | `Samples/<dir>/README.md`（各 README の冒頭に本体の節へのリンク）、試験の組は `TOOLS/samples_tests.sh` |
 | 標準の流れに入れない試作の道具 | `TOOLS/gadget/README.md` |
 
+**開発者向けの文書を `ecaljdoc/MD/` に集めた**（2026-10-02 20:59、user「開発者用で ecaljdoc からたどらなくてもいいもの（余計に混乱を招くもの）は ecaljdoc/MD へ」。
+ファイルはまとめずにそのまま移した。中身の重複と整合の整理はこの後）。元の場所は次のとおり（`git log --follow` で前の履歴もたどれる）:
+
+| いまの場所（`ecaljdoc/MD/` の下） | 元の場所 | 中身 |
+| --- | --- | --- |
+| [ForDevelopers.md](ForDevelopers.md) | `ecaljdoc/manual/`（サイトにあった） | 開発の引き継ぎの手引き: リポジトリと push、ビルド、試験、GPU、ジョブの投入、研究の現在地 |
+| [ForDevelopers_research.md](ForDevelopers_research.md) | `ecaljdoc/manual/` | 研究ログの要約と日付の索引 |
+| [developer.md](developer.md) | `ecaljdoc/manual/` | 試験の仕組み `testecalj`（2025-10） |
+| [auto.md](auto.md) | `ecaljdoc/manual/` | `ecalj_auto`（GW1500 の自動の流れ） |
+| [kBT_history.md](kBT_history.md) | `ecaljdoc/manual/` | 有限温度の 2026-06〜09 の経緯と誤り（今の仕様は `ecaljdoc/manual/kBT.md`） |
+| [mlo_backup.md](mlo_backup.md) | `ecaljdoc/manual/` | MLO の経緯と作業記録（今の仕様は `ecaljdoc/manual/mlo.md`） |
+| `implementation/`（hsfp0、hx0fp、issue） | `ecaljdoc/implementation/` | 自己エネルギーと W の実装の覚え書き |
+| [MemoCode.md](MemoCode.md) | `ecaljdoc/theory/` | m_zmel などのコードの覚え書き |
+| `kBT/`（sigma_mlo_design、gpu_fp32_plan、gpu_fp32_report、finiteT_202606、LiTi2O4_finiteT_202606、LiTi2O4_six_patterns） | `Samples/kBT/`、`Samples/kBT/LiTi2O4/`（finiteT は `README_202606_finiteT.md`、six_patterns は `six_patterns.md` だった） | MLO-QSGW の設計書、GW の GPU 高速化の計画と報告、有限温度と LiTi₂O₄ の計算の記録 |
+| `mlo_notes/`（[README.md](mlo_notes/README.md) ほか、図も） | `Samples/MLOsamples/BackUp_notes/`、`Samples/MLOsamples/README_SOC.md`（→ `mlo_soc_memo.md`） | MLO の理論の整理、自動窓の探索の報告、最適化の覚え書き、nskip の問題、MP の比較、SOC の覚え書き |
+| [testecalj_2025.md](testecalj_2025.md) | `Samples/TestInstall/README_testecalj.md` | 試験の仕組み（2025-10） |
+| [GW1500_failures.md](GW1500_failures.md) | `Samples/mptf32problem/` | GW1500 の失敗と fp32 での回し直しの記録 |
+
 ## 記録の方針: コードのコメント、コミット、研究ログ、文書（2026-09-27）
 
 Claude（や人）が後でコードや記録を読むときの手がかりになるように、何をどこに書くかを決めておく。

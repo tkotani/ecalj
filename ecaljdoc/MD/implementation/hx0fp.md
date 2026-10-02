@@ -1,6 +1,6 @@
 # Implementation of $W$ with RPA response function
 
-> ⚠️ **TOML migration (2026-05)** — `hx0fp0` / `hrcxq` now read `ctrlg.<sname>.toml` only. See [TOML migration](../manual/toml_migration).
+> ⚠️ **TOML migration (2026-05)** — `hx0fp0` / `hrcxq` now read `ctrlg.<sname>.toml` only. See [TOML migration](../../manual/toml_migration.md).
 
 ## 実行プログラム
 - `hrcxq` : QSGW で使用

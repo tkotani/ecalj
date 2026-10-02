@@ -3,7 +3,7 @@
 **これは記録であって手引きではない。** 現在の方法と推奨値は
 [ecaljdoc manual/mlo](https://ecalj.github.io/ecaljdoc/manual/mlo) を見よ。
 経緯(method 0〜4 の関係、否定された案、途中で見つかったバグ)は
-[manual/mlo_backup](https://ecalj.github.io/ecaljdoc/manual/mlo_backup) にまとめてある。
+[manual/mlo_backup](https://github.com/tkotani/ecalj/blob/main/ecaljdoc/MD/mlo_backup.md) にまとめてある。
 
 ここにあるのはさらにその前段階の生の作業記録で、**古い設定や古い評価器で
 測った数値を含む**。現行の実測値と食い違うときは manual/mlo が正しい。

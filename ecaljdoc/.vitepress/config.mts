@@ -61,9 +61,7 @@ export default withMermaid({
           { text: 'QSGW calculation: gwsc part', link: '/manual/gwsc' },
           { text: 'GPU version of QSGW',link: '/manual/ecaljgpu.md' },
           { text: 'kBT — 有限温度と均し方 (t_tetrakbt / t_sigmaw)', link: '/manual/kBT' },
-          { text: 'kBT の記録 (2026-06〜09)', link: '/manual/kBT_history' },
           { text: 'MLO — 最大局在化などに代わる自動モデル化法', link: '/manual/mlo' },
-          { text: 'MLO — 経緯と作業記録 (backup)', link: '/manual/mlo_backup' },
           { text: 'MLO-gwsc — Sigma を MLO 表現で内挿する QSGW（開発中）', link: '/manual/mlo_gwsc' },
           { text: 'UsageDetailed ', link: '/manual/UsageDetailed' },
           // { text: 'Density of states', link: '/manual/dos' },
@@ -74,10 +72,7 @@ export default withMermaid({
           // { text: 'Structural optimization', link: '/manual/opts' },
           // { text: 'Quasi-particle\'s life time', link: '/manual/lifetime' },
           // { text: 'Spectrum function', link: '/manual/spec' },
-          { text: 'developer', link: '/manual/developer' },
-          { text: 'ForDevelopers', link: '/manual/ForDevelopers' },
-          { text: 'ForDevelopers: research log digest', link: '/manual/ForDevelopers_research' },
-          { text: 'ecalj auto', link: '/manual/auto' }
+          // developer pages (ForDevelopers, developer, auto, kBT_history, mlo_backup, implementation) moved to ecaljdoc/MD on 2026-10-02 (not on the site)
         ]
       },
       {
@@ -102,13 +97,6 @@ export default withMermaid({
           { text: 'Optical properties', link: '/theory/optical_properties' },
           { text: 'Basic  I', link: '/theory/basic' },
           { text: 'Basic II', link: '/theory/basic2' },
-        ]
-      },
-      {
-        text: 'Implementation',
-        items: [
-          { text: 'hrcxq/hx0fp', link: '/implementation/hx0fp' },
-          { text: 'hsfp0_sc', link: '/implementation/hsfp0' },
         ]
       },
     ],
