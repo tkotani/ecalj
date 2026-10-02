@@ -362,3 +362,4 @@ run3/rerun.log 2026-10-01 16:20:46 R2 mp-9821 CONVERGED iter=6 gapLDA=5.106297 g
 run3/rerun.log 2026-10-01 16:20:46 R2 - queue empty, worker ends
 run3/rerun.log 2026-10-01 16:43:18 R5 mp-867515 MAXITER iter=10 gapLDA=0.723683 gap=1.819165 2426s dqp=0.1140
 run3/rerun.log 2026-10-01 16:43:18 R5 - queue empty, worker ends
+run3x/osgw.conv20.out 2026-10-02 04:28:44 EXT mp-867515 CONVERGED iter=19 gapLDA=0.723683 gap=3.678100 7704s (continued from iter 10; kt1 /mnt/data1/gw1500_rerun/run3x, the seconds are from the end of iter 11 to iter 19; added 2026-10-02 from osgw.conv20.out)

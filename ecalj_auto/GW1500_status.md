@@ -1,4 +1,4 @@
-# GW1500 の状況（2026-09-30）
+# GW1500 の状況（2026-09-30、2026-10-02 に追記）
 
 GW1500 は 1546 物質の QSGW80（`scaledsigma = 0.8`）の計算で、2026-04〜05 に kt1 で回した。ここには物質ごとの最終の状態、
 落ちたものの分類と原因、2026-09-30 の回し直しの結果を書く。物質ごとの表は [`gw1500_status_20260930.tsv`](gw1500_status_20260930.tsv)
@@ -171,15 +171,51 @@ MP が圧力ゼロで緩和したもの（「Materials Project Optimized Structu
 - 反復あたりの時間（作業者の記録の秒を反復数で割ったもの）: 中央値 tf32 95 s、fp32 158 s、合計の比 0.45。fp32 の回とバイナリ・並走の条件が違うので目安
 - 結論: 5 月の NaN は旧 `--mp` の全 TF32 によるもので、今の `--prec=tf32` では出ない。精度は fp32 と 1 meV 以内（§5.1 の kr7 の 8 物質とも合う）
 
+### 5.3 分類で見る、構造の不正な 16 物質（2026-10-02）
+
+物質を分類ごとに並べた一覧は [`GW1500_by_category.md`](GW1500_by_category.md)（[`gw1500_bycat.py`](gw1500_bycat.py) が表 `gw1500_notes_20261001.tsv` から作る。
+手で直さない）。分類ごとの数・意味（表 6 と同じ）と、物質ごとの採用のギャップ（回し直しが収束していればその値、金属は 0、でなければ 5 月の GOOD の値）、
+LDA のギャップ、注記、Materials Project へのリンク。
+
+構造が物質でないもの（`INVALID_STRUCTURE`、表 8）と、その疑いがあるもの（`SUSPECT_STRUCTURE`、表 9）は、確かめられるように全部をここに並べる。
+判定の手がかりは MP の項目の ICSD の備考（「〜 part」、「nitrated」など）、1 原子の体積（同じ組成の普通の結晶との比）、凸包からの距離、配位数。
+MP のページで構造（胞の形、層の間隔）を見れば確かめられる。GW1500 の集合から外すかは未定（§6）。
+
+*表 8*. `INVALID_STRUCTURE`（12）。5 月・回し直しの欄はギャップ（eV）
+
+| mpid | 組成 | 原子 | 1 原子の体積 (Å³) | 凸包から (eV/原子) | 5 月 | 回し直し | 何か |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| [mp-1056418](https://next-gen.materialsproject.org/materials/mp-1056418) | Sr | 1 | 462.2 | 1.400 | FAILED | CONVERGED 1.671738 | Sr–Co–O の「(Sr) part」を抜き出したもの。10.99×10.99×4.42 Å の胞に Sr 1 個（Sr の鎖、隣 2 個、4.42 Å）。1 原子 462 Å³（fcc Sr 56）、凸包から 1.40 eV/原子 |
+| [mp-1062030](https://next-gen.materialsproject.org/materials/mp-1062030) | TiS2 | 3 | 37.9 | 0.004 | GOOD 2.321 | — | Pb–Ti–S の非整合層状化合物の「Ti S2-part」。c=11.25 Å（1T-TiS2 は 5.70）、1 原子 37.9 Å³（約 19）。5 月は 1 反復目に 0.65 → 2.49 eV と跳んだ |
+| [mp-569304](https://next-gen.materialsproject.org/materials/mp-569304) | C4 | 4 | 14.5 | 0.009 | NOTCONV 3.868 | CONVERGED 3.677225 | 硝酸を挿入した黒鉛（Graphite, nitrated）から N・O を除いたもの。密度 1.38（黒鉛 2.26）、層間が開いたまま |
+| [mp-726184](https://next-gen.materialsproject.org/materials/mp-726184) | Pb2S2 | 4 | 73.6 | 0.059 | GOOD 3.737 | — | Pb–Ti–S の非整合層状化合物の PbS 層。a=4.22、c=16.6 Å、1 原子 73.6 Å³（岩塩型 PbS 26.7、最近接 2.99 Å・配位 6 に対し 2.66 Å・配位 5） |
+| [mp-727323](https://next-gen.materialsproject.org/materials/mp-727323) | Pb2S2 | 4 | 49.7 | 0.058 | GOOD 3.231 | — | Pb–Ti–S の非整合層状化合物の「Pb S-part」。a=4.22、c=11.2 Å、1 原子 49.7 Å³（岩塩型 PbS 26.7） |
+| [mp-554134](https://next-gen.materialsproject.org/materials/mp-554134) | Sn2S2 | 4 | 95.7 | 0.079 | NOTCONV 3.779 | CONVERGED 3.997399 | Gd–Sn–Nb–S の非整合層状化合物の SnS 層。a=4.13、c=22.4 Å、1 原子 95.7 Å³（SnS 約 24）、配位 4 |
+| [mp-727322](https://next-gen.materialsproject.org/materials/mp-727322) | Sn2S2 | 4 | 45.3 | 0.085 | GOOD 2.691 | — | Sn–Ti–S の非整合層状化合物の SnS 層。a=4.09、c=11.0 Å、1 原子 45.3 Å³ |
+| [mp-8781](https://next-gen.materialsproject.org/materials/mp-8781) | Sn2S2 | 4 | 46.8 | 0.078 | GOOD 3.030 | — | Sn–Nb–S の非整合層状化合物の SnS 層。a=4.12、c=11.0 Å、1 原子 46.8 Å³ |
+| [mp-569416](https://next-gen.materialsproject.org/materials/mp-569416) | C8 | 8 | 11.9 | 0.002 | GOOD 4.968 | — | 硝酸を挿入した黒鉛から N・O を除いたもの。密度 1.67（黒鉛 2.26） |
+| [mp-1079707](https://next-gen.materialsproject.org/materials/mp-1079707) | Ca4O4 | 8 | 23.3 | 0.210 | GOOD 4.723 | CONVERGED 4.848429 | Ca–Co 水酸化物の「(Ca(OH))-part」から H を除いたもの（Ca4O4）。c=16.75 Å の層、密度 2.00（岩塩型 CaO 3.34）。5 月は 9.97 → 3.31 → 4.78 eV と荒れた |
+| [mp-730101](https://next-gen.materialsproject.org/materials/mp-730101) | H8 | 8 | 46.5 | 0.000 | FAILED 15.220 | CONVERGED 15.230640 | NH4D2PO4 の H（D）だけを抜き出したもの。H2 分子 4 個（H–H 0.74 Å）、密度 0.04 g/cm³ |
+| [mp-1179832](https://next-gen.materialsproject.org/materials/mp-1179832) | Rb8 | 8 | 551.3 | 0.453 | FAILED | FAIL(143) none | Rb-IV（高圧相、ICSD 109016）を MP が圧力ゼロで緩和。一辺 19.9 Å の胞に Rb8 の正八角形の環（Rb–Rb 4.63 Å、隣 2 個）。1 原子 551 Å³（bcc Rb 93）、凸包から 0.45 eV/原子。ギャップは環の HOMO–LUMO。平面波 3.2 万で lmf --jobgw=1 が 1 ランク 35 GB |
+
+*表 9*. `SUSPECT_STRUCTURE`（4）。ICSD の備考は普通の名前（Lead sulfide など）だが、形が表 8 の層の副格子と同じ
+
+| mpid | 組成 | 原子 | 1 原子の体積 (Å³) | 凸包から (eV/原子) | 5 月 | 回し直し | 何か |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| [mp-20526](https://next-gen.materialsproject.org/materials/mp-20526) | Pb2S2 | 4 | 50.2 | 0.058 | GOOD 3.238 | — | PbS。a=4.22、c=11.3 Å、1 原子 50.2 Å³、配位 4。非整合層状化合物の PbS 層と同じ形 |
+| [mp-561320](https://next-gen.materialsproject.org/materials/mp-561320) | Pb2S2 | 4 | 98.9 | 0.058 | GOOD 4.120 | — | PbS。a=4.22、c=22.3 Å、1 原子 98.9 Å³（岩塩型 26.7）、配位 5。非整合層状化合物の PbS 層と同じ形 |
+| [mp-22009](https://next-gen.materialsproject.org/materials/mp-22009) | Pb2Se2 | 4 | 58.5 | 0.073 | GOOD 2.926 | — | PbSe。1 原子 58.5 Å³、配位 5（岩塩型 PbSe は約 29.5、配位 6）。層状化合物の副格子と見られる |
+| [mp-8936](https://next-gen.materialsproject.org/materials/mp-8936) | Sn2Se2 | 4 | 50.5 | 0.088 | GOOD 1.952 | — | SnSe。a=4.29、c=11.0 Å、1 原子 50.5 Å³、配位 5。非整合層状化合物の SnSe 層と同じ形 |
+
 ## 6. 残っていること
 
 - NOTCONV の残り: kt1 の `run3`（fp32、最大 10 反復）は 2026-10-01 16:43 に全部終わり、197 物質のうち 196 が収束（ログ `gw1500_rerun_logs_20261001.txt`、
   表 `gw1500_notes_20261001.tsv` を 2026-10-02 に更新）。収束しなかった 1 つは mp-867515 Na₂Co₂O₄（8 原子）: 1 反復目のギャップ 2.02 eV のあと 2〜6 反復目で
   金属になり（3 反復目は E_F ± 5 eV の固有値が 29 eV も動く）、7 反復目から 0.67 → 1.46 → 1.53 → 1.82 eV と開き直す途中で上限（最後の変化 0.114 eV）。
-  5 月は 3.65 eV で収束せず。kt1 の `run3x/mp-867515` で同じバイナリと設定のまま延長し（2026-10-02）、11〜19 反復目に 2.88 → 3.25 → 3.38 → 3.56 → 3.61 → 3.65 → 3.66 → 3.68 → 3.68 eV と上がって **19 反復目に収束（3.678 eV）**。10 反復目の 1.82 eV は、金属になってから戻る途中の値だった。これで NOTCONV_MAY の 177 物質は全部収束した（176 は `run3`、1 は延長で）
+  5 月は 3.65 eV で収束せず。kt1 の `run3x/mp-867515` で同じバイナリと設定のまま延長し（2026-10-02）、11〜19 反復目に 2.88 → 3.25 → 3.38 → 3.56 → 3.61 → 3.65 → 3.66 → 3.68 → 3.68 eV と上がって **19 反復目に収束（3.678 eV）**。10 反復目の 1.82 eV は、金属になってから戻る途中の値だった。これで NOTCONV_MAY の 177 物質は全部収束した（176 は `run3`、1 は延長で。延長の結果は 2026-10-02 に `gw1500_rerun_logs_20261001.txt` に足して表を作り直した）
 - 5 月の GOOD（1120）と `DRIFT_GOOD`（61）はやり直さない（user 2026-10-01）。TF32 と fp32 の差は 1 meV 未満だった（§5.1）ので、精度を理由にした見直しは要らない。
   見直すなら、5 月の反復の履歴の振動（`SUSPECT_GOOD` と同じ判定）で選ぶ
-- `INVALID_STRUCTURE`・`SUSPECT_STRUCTURE` の扱い（GW1500 の集合から外すか）は未定。表では注記だけ
+- `INVALID_STRUCTURE`・`SUSPECT_STRUCTURE` の扱い（GW1500 の集合から外すか）は未定。一覧は §5.3 の表 8・表 9
 - kt1 のディスク: 2026-10-01 に user の指示で、5 月の失敗の退避 `*_FAILBACKUP`（69 GB）、`~/DATA/gw1500` の作業ファイル `__*`（60 GB）、
   `~/DATA/gw1500fp32`・`gw1500_test`・`gw1500_bench` の `__*`（128 GB）、`/mnt/data1/gw1500_rerun` の古いスクリプトと止めた試行、
   古い凍結バイナリ `~/bin_frozen_9e881*` を `~/ecalj/trash`（255 GB、移した記録は `trash/MOVED_kt1_*.txt`）に移した。
