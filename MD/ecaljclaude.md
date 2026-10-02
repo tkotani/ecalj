@@ -5,7 +5,7 @@ ecalj を Claude (LLM) で開発する際のガイドライン。
 
 ## 文書の地図（まずここから。2026-10-02）
 
-[`CLAUDE.md`](../CLAUDE.md)（この文書を読み込む）から次の順にたどる。パスはリポジトリの最上位から。リンクの切れは `python3 TOOLS/doclinks.py` で確かめる。
+[`CLAUDE.md`](../CLAUDE.md)（この文書を読み込む）から次の順にたどる。人が MD/ を開いたときの入口は [README.md](README.md)（読む順だけ）。パスはリポジトリの最上位から。リンクの切れは `python3 TOOLS/doclinks.py` で確かめる。
 
 | 何を知りたいか | 文書 |
 | --- | --- |
