@@ -77,7 +77,7 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 
 ## 2. 質問（メンテナに決めてほしいこと）
 
-- **MLO のマグノンの窓を Δ = 6 eV にするか**（2026-10-02 07:10、研究ログ 07:10）: Fe・FeCo・Ni で、Δ = 6 eV（w = 2）は Wannier のマグノンから 0.02 eV 程度、
+- **MLO のマグノンの窓を Δ = 6 eV にするか**（2026-10-02 07:10、研究ログ 07:10）: Δ = 6 eV（w = 2）は Wannier のマグノンから FeCo・Ni で平均 0.01 eV、Fe で平均 0.04・最大 0.12 eV（09:03 に訂正）、
   既定（2, 2）は Ni では良いが Fe・FeCo の高い q で 2 倍近く高い。`job_mlo_magnon` が窓を Δ = 6 eV にするか、試料の入力に書くか。`Samples/Magnon/Fe_mlo_magnon` の参照の作り直しを伴う
 - **ecaljdoc の古い文書**（`BackUp/`、`ecaljdetails/` の LaTeX・PS、2019 年以前）は、trash に移した `TOOLS/checkmodule`・`TOOLS/ModuleCodingSample` などを参照している。ecaljdoc の側も同じ決まり（trash へ、要点は過去ログへ）で片付けるか（2026-10-01）
 - **GW1500 の `INVALID_STRUCTURE`（12）・`SUSPECT_STRUCTURE`（4）を集合から外すか**。いまは注記だけ
