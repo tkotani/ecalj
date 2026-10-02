@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """mlo_cmlo_transform.py: change the basis of the MLO subspace in __cmlo.data (prototype, 2026-10-02).
 
+(2026-10-02, later the same day: the MLOs themselves are now the Loewdin orthonormalized ones (Hreduction, m_HamPMT), so
+__cmlo.data already has C^+ C = 1 and `lowdin` is the identity; only `mv` changes anything.)
+
     mlo_cmlo_transform.py lowdin                      C(k) -> C(k) O(k)^-1/2,           O = C^+ C
     mlo_cmlo_transform.py mv  U_isp1.npz [U_isp2.npz]  C(k) -> C(k) O(k)^-1/2 U(k)     (U of mlo_maxloc.py --save-u)
 

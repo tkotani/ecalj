@@ -13,6 +13,8 @@ MLO model; it reports the spreads of
         R_mn = M_mn M_nn^*,  T_mn = (M_mn / M_nn) q_n,  q_n = Im ln M_nn + b.r_n,  A[X] = (X - X^+)/2,  S[X] = (X + X^+)/2i
       with the spread  Omega = sum_n [ (1/N) sum_kb w_b (1 - |M_nn|^2 + (Im ln M_nn)^2) - r_n^2 ],
       r_n = -(1/N) sum_kb w_b b Im ln M_nn                                                                   (MV eqs. 31, 32)
+(2026-10-02, later the same day: the MLOs are now the Loewdin orthonormalized ones, and so are the M(k,b) of mlo_spread.py;
+(a) and (b) then coincide. The spread of the raw MLOs needs a model made with job_mlo --mlo_raw.)
 The unitary mixing stays in the MLO subspace at each k, so the interpolated bands and the cRPA weights p_kn do not change.
 Without --sym there is no symmetry constraint; the result may break the site symmetry (Fe spd: s, p and eg mix into
 hybrids off the atom). --sym (06:30) keeps it, as Sakuma (PRB 87, 235109) does: the Loewdin MLOs transform under the point

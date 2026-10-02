@@ -40,7 +40,7 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
   （"Smallest eigenvalue of the normalized raw overlap"）ので、判定をそれに替えるか。メッシュの外の一次従属は、もう O(k) を内挿しないので模型の側では起きない。
   (c) 下の EH2 の項目は、O(k) の内挿が正定値でなくなって `zhgv` が壊れる、という形だった。Löwdin の模型では O(k) を内挿しないので様子が変わるはず。
   `~/work/eh2cu` で測り直す（メッシュ上の重なりが特異に近ければ m_HamPMT の Löwdin が止まる）。
-  (d) `mlo_cmlo_transform.py lowdin` は恒等変換になった（`mv` だけ意味がある）。`mlo_maxloc.py` の (a) 生の MLO の Ω は __cmlo からは出なくなった
+  (d) `mlo_cmlo_transform.py lowdin` は恒等変換になった（`mv` だけ意味がある。説明に注記した 2026-10-02）。`mlo_maxloc.py` の (a) 生の MLO の Ω は __cmlo からは出なくなった
   （UUU が Löwdin の基底）。説明を直すか、MV の試作をまとめて trash へ移すか。
   (e) 文書: ecaljdoc mlo §6（「模型の H(R) には Löwdin を使わない」と書いてある所を直す、式 (7f)）、Changes.txt、handover、
   `Samples/Magnon/Fe_mlo_magnon/README.md` の表（Löwdin の値が模型から直接になる）。参照の作り直しは全部の試験の結果を見てから（§3）
