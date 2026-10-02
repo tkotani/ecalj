@@ -15,7 +15,7 @@
 依存の向き: 対称性の整理（S1〜S6）が、MLO の最大局在化（Sakuma 型の拘束に操作が要る）と AF の項目の土台。最大局在化の結果で、マグノンの窓と
 Wannier とのずれの項目の判断が変わる。だから対称性 → 最大局在化 → マグノン・ずれの順。長い試験の間に、独立した小さな項目を挟む。
 
-| 順 | 項目 | なぜこの位置か | 確かめ | 状況（2026-10-02 06:57） |
+| 順 | 項目 | なぜこの位置か | 確かめ | 状況（2026-10-02 12:19） |
 | --- | --- | --- | --- | --- |
 | 1 | 対称性 S1（分ける、等価変換） | 以後の対称性の段の土台 | 172 入力の lmchk が S0 と同じ、試験の組 | **済み** `41c0e3cc7` |
 | 2 | 小さい独立の直し: `job_mlo_soc` の空の spin2、`m_tetrakbt` の使われないルーチン、`auto_creplot.py` | 1・3 の試験の待ち時間に | mlo、kBT の組 | 前二つ**済み**。`auto_creplot.py` は移すか捨てるか要判断 |
@@ -23,12 +23,23 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 | 4 | GPU の build の module の循環 | kt1・kr7 で回せる、手元と並行 | kt1・kr7 の clean build と試験 | **済み** `a7f64752e`・`f553b5222` |
 | 5 | 対称性 S3（`symmetry.json` を読む口）→ S4（純粋な並進）→ S5（AF、`AFsymmetry/NiO` の pwmode も）→ S6（既定に） | 設計どおり一段ずつ | 各段の表（`MD/symmetry_spglib.md` §4.7） | S3〜S6 **済み**（S6: lmf が同梱の spglib で求める、user の判断 2026-10-02。2026-10-02 08:34 から 3 台で試験） |
 | 6 | MLO の最大局在化（Python で試作、Fe・Ni） | 5 の操作を使う | Ω、U、マグノン | 試作**済み**（`mlo_maxloc.py --sym`）。Ω まで。U・マグノンは未 |
-| 7 | マグノンの既定の窓、MLO と Wannier のずれ | 6 の結果で判断 | Fe・Ni・FeCo | 3 物質で比べた（07:10）。Δ = 6 eV を勧め、§2 で判断待ち |
+| 7 | マグノンの既定の窓、MLO と Wannier のずれ | 6 の結果で判断 | Fe・Ni・FeCo | **済み**: 窓は既定 (2, 2) のまま。Löwdin にすると窓によらず Wannier 版に合う（研究ログ 11:12）。Löwdin を MLO の標準にした（`34a22e6de`、研究ログ 12:16） |
 | 8 | MLO の模型の残り（EH2 の崩れ、§9 の目安の値の測り直し、空格子球の自動化） | 計算機で裏で回せる | MATERIALS | 原因の確かめと測り直し、`ctrlg_addes.py` の直し**済み**。EH2 の直し方は要判断 |
 | 後 | `sugw` のメモリ、`hgw` の残り、MP の API と GW1500 の選定 | 大きい、または外の事情 | — | 未 |
 
 
 ### コード
+
+- **Löwdin を MLO の標準にした後の残り**（2026-10-02 12:19、`34a22e6de`、研究ログ 2026-10-02 12:16）:
+  (a) メッシュの外で悪くなった所を調べる: Fe の 4s 帯の底（−8〜−3 eV で 0.03 → 0.096 eV）、E_F 近くの 2H-SiC（0.035 → 0.051）・MnO（0.007 → 0.030）。
+  (b) `mlo_bandcheck.py` の判定 (3)（MLO の重なりの最小固有値）は模型の O が 1 になって意味を失った。m_HamPMT がメッシュ上の直交化の前の値を出す
+  （"Smallest eigenvalue of the normalized raw overlap"）ので、判定をそれに替えるか。メッシュの外の一次従属は、もう O(k) を内挿しないので模型の側では起きない。
+  (c) 下の EH2 の項目は、O(k) の内挿が正定値でなくなって `zhgv` が壊れる、という形だった。Löwdin の模型では O(k) を内挿しないので様子が変わるはず。
+  `~/work/eh2cu` で測り直す（メッシュ上の重なりが特異に近ければ m_HamPMT の Löwdin が止まる）。
+  (d) `mlo_cmlo_transform.py lowdin` は恒等変換になった（`mv` だけ意味がある）。`mlo_maxloc.py` の (a) 生の MLO の Ω は __cmlo からは出なくなった
+  （UUU が Löwdin の基底）。説明を直すか、MV の試作をまとめて trash へ移すか。
+  (e) 文書: ecaljdoc mlo §6（「模型の H(R) には Löwdin を使わない」と書いてある所を直す、式 (7f)）、Changes.txt、handover、
+  `Samples/Magnon/Fe_mlo_magnon/README.md` の表（Löwdin の値が模型から直接になる）。参照の作り直しは全部の試験の結果を見てから（§3）
 
 - **MLO: EH2 s,p を単体の金属（Cu・Ni）に足すと、Γ–X の 2〜3 点の k だけで模型が崩れる**（2026-10-01、`~/work/mlocheck_eh2cat/{Cu,Ni}`、ページ https://claude.ai/artifact/VCWpe5W8Fei6umatXGeZGH の図 4）: その k で MLO の帯が E_F + 0.3 eV に集まり、DFT の帯が抜ける（Cu 0.012 → 0.802 eV）。同じ原子の EH と EH2 がほぼ一次従属になって `Hreduction` の重なりが特異に近い、と疑っている（未確認: その k の重なり行列の固有値を見る）。gwinit の `!` 付きの `mlo_lm2` の行は Cu・Ni には書かれない（既定は基準 1 で EH2 なし）ので、既定には影響しない。EuO（Eu に EH2 s,p）は模型を作る所で止まる: `m_hreduction` の NormalizationCheck でシードのノルムの減りが 1 % を超えた（band 26、−1.3 %。EH と EH2 の両方をシードにすると `zhev_tk4` が一次従属に近い向きを落とすため）。Cu・Ni も同じ原因で、減りが 1 % 未満なので規格化し直して進み、特定の k で崩れているのかもしれない（未確認）
   2026-10-02 06:22 確かめた（`~/work/eh2cu`、前日の DFT から今の版で `job_mlo`）: 帯の道筋の x = 0.429 で MLO の重なり O(k) の最小固有値が **負**（−1.26×10⁻⁴、
@@ -77,7 +88,6 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 
 ## 2. 質問（メンテナに決めてほしいこと）
 
-- **マグノン・U の既定を Löwdin（`--mlo_lowdin`）にするか**（2026-10-02 11:35、user は「Löwdin をメインに、MV はオプション」）: `job_mlo_magnon`・`job_mloW` で既定にすると、`Samples/Magnon/Fe_mlo_magnon` と cRPA の試験（`TestInstall/ni_crpa`・`srvo3_crpa`）の参照を作り直す。窓は既定 (2, 2) のままでよい（Löwdin なら窓によらない。研究ログ 11:12）
 - **ecaljdoc の古い文書**（`BackUp/`、`ecaljdetails/` の LaTeX・PS、2019 年以前）は、trash に移した `TOOLS/checkmodule`・`TOOLS/ModuleCodingSample` などを参照している。ecaljdoc の側も同じ決まり（trash へ、要点は過去ログへ）で片付けるか（2026-10-01）
 - **GW1500 の `INVALID_STRUCTURE`（12）・`SUSPECT_STRUCTURE`（4）を集合から外すか**。いまは注記だけ
 - **ビルドの生成物が入ったコミット `a0c7a7300`（78 MB）を、push の前に履歴から消すか**。消すと以後 674 コミットのハッシュが変わり、
@@ -90,6 +100,8 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 
 ## 3. 実行中
 
+- Löwdin を標準にした版（`fd5407b39`）の全部の試験の組（2026-10-02 12:19 投入）: kr7 `~/ecalj_testL`（`--gpu -np 8 -np2 1`、`fulltest.out`、`tests_full/`）、
+  kt1 `/mnt/data1/ecalj_testL`（GEMMul8 入り、同じ）。t14 では mlo・install・mloqsgw・magnon の組（`~/work/tests_lowdin2`）
 - kt1 `/mnt/data1/gw1500_rerun/run3`: GW1500 の NOTCONV の残り（fp32、5 本）。2026-10-01 04:40 に約 17 時間の見積もり
 
 ---
@@ -98,6 +110,10 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 
 ### 2026-10-02
 
+- **Löwdin で直交化した MLO を標準に**（2026-10-02 12:19、user「Löwdin 直交化を MLO の標準に（バンドは変わらない）」「全体的に調べて、O なしで OK ならそっちをメイン」
+  「やれた範囲での決断として O なし」）: 模型は H̃(R) だけ（O(R) = δ）、__cmlo・sugw の a'・m_sigmlo も同じ基底（`34a22e6de`）。63 物質で E_F 近くの最大のずれの中央値
+  0.019 → 0.011 eV、PASS 53 → 55（研究ログ 12:16、表 12:16-1）。読み込み時の `--mlo_lowdin`（`50476d2f8`、11:12 のマグノン・cRPA）は消した。前の非直交の模型は `--mlo_raw`。
+  §2 の質問「マグノン・U の既定を Löwdin にするか」はこれで閉じた
 - 対称性 S6（2026-10-02 08:34、user「lmf でつくればいい」）: spglib 2.6.0 の C を同梱し、lmf・lmchk が操作を求めて `symmetry.<sname>.json` を書く（`89654cc96`）。172 入力で Python 版と同じ
 - ecaljdoc mlo §9 の式 (12) の目安の値を測り直した（06:55、`~/work/ovlp_20261002`、63 物質の MLO の段だけ）: 規格化の後は最小 0.20〜0.42、中央値 0.24〜0.46。FAIL の 10 物質は前と同じ（ecaljdoc `mlo.md`、TODO から外した）
 - 対称性（`MD/symmetry_spglib.md` §4.7）: S0 spglib との照合（`f7c382bed`、172 入力で食い違い 0）、S1 分割（`41c0e3cc7`）、S2（`e5d08f008`）、
