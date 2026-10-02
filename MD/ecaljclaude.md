@@ -32,7 +32,7 @@ ecalj を Claude (LLM) で開発する際のガイドライン。
 | [auto.md](auto.md) | [`ecaljdoc/manual/`](../ecaljdoc/manual) | `ecalj_auto`（GW1500 の自動の流れ） |
 | [kBT_history.md](kBT_history.md) | [`ecaljdoc/manual/`](../ecaljdoc/manual) | 有限温度の 2026-06〜09 の経緯と誤り（今の仕様は [`ecaljdoc/manual/kBT.md`](../ecaljdoc/manual/kBT.md)） |
 | [mlo_backup.md](mlo_backup.md) | [`ecaljdoc/manual/`](../ecaljdoc/manual) | MLO の経緯と作業記録（今の仕様は [`ecaljdoc/manual/mlo.md`](../ecaljdoc/manual/mlo.md)） |
-| `implementation/`（hsfp0、hx0fp、issue） | [`ecaljdoc/implementation/`](../ecaljdoc/implementation) | 自己エネルギーと W の実装の覚え書き |
+| [`implementation/`](implementation/README.md)（hsfp0、hx0fp、issue） | [`ecaljdoc/implementation/`](../ecaljdoc/implementation) | 自己エネルギーと W の実装の覚え書き |
 | [MemoCode.md](MemoCode.md) | [`ecaljdoc/theory/`](../ecaljdoc/theory) | m_zmel などのコードの覚え書き |
 | [`kBT/`](kBT/README.md)（sigma_mlo_design、gpu_fp32_plan、gpu_fp32_report、finiteT_202606、LiTi2O4_finiteT_202606。案内は [kBT/README.md](kBT/README.md)） | [`Samples/kBT/`](../Samples/kBT/README.md)、[`Samples/kBT/LiTi2O4/`](../Samples/kBT/LiTi2O4/README.md)（finiteT は `README_202606_finiteT.md` だった。six_patterns は 2026-10-02 22:03 にサンプルのそば [`Samples/kBT/LiTi2O4/six_patterns.md`](../Samples/kBT/LiTi2O4/six_patterns.md) に戻した。図と表がそこにあり、README から上のディレクトリへのリンクが VSCode で開けなかったため） | MLO-QSGW の設計書、GW の GPU 高速化の計画と報告、有限温度と LiTi₂O₄ の計算の記録 |
 | `mlo_notes/`（[README.md](mlo_notes/README.md) ほか、図も） | [`Samples/MLOsamples/BackUp_notes/`](../Samples/MLOsamples/BackUp_notes)、`Samples/MLOsamples/README_SOC.md`（→ `mlo_soc_memo.md`） | MLO の理論の整理、自動窓の探索の報告、最適化の覚え書き、nskip の問題、MP の比較、SOC の覚え書き |
