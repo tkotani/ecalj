@@ -144,9 +144,8 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
     MLO の窓の基準（E_F と CBM）は `--efermi=` のファイル（`efermi.lmf`、SOC は `efermi_soc`）から取る（2026-10-01 の夜まで E_F だけ `qplist.dat` の 1 行目だった）。
     `qplist.dat` の値は図の 0 点だけ
   - **模型の検査**: `mlo_bandcheck.py`（`job_mlo`・`job_mlo_soc` が最後に回す）が CHECK PASS/FAIL を出す。FAIL は 1 点のずれ > 0.1 eV、帯ごとのずれの隣の k との跳び > 0.1 eV、
-    MLO の重なりの最小固有値（`mlo` が書く `MLO_ovlpmin.dat`）が 0 以下か中央値の 1/100 未満（線形独立性の崩れ。基準 2 の Cu・Ni はそこで負になった）。
-    2026-10-02 から模型は直交化した MLO なので `MLO_ovlpmin.dat` は 1 になり、この判定は効かない。直交化の前の値は `mlo` の出力の
-    `Smallest eigenvalue of the normalized raw overlap`（メッシュ上）
+    模型のバンドの帯のとげ（2 階差分、窓 [VBM − 3, CBM + 2] で 2 eV 超。線形独立性の崩れ。2026-10-02 から。それまでは重なりの最小固有値で見ていたが、
+    模型が直交化した MLO で O = 1 なので替えた。ecaljdoc mlo §9 式 (12)）
 
 - **MLO は実空間で規格化する**（2026-10-02、ecaljdoc mlo 式 (7a)）: 各 MLO を実空間の 2 乗積分 O_ii(R=0) の平方根で割る（k によらない定数）。`mlo` が `HamRsMLO` を作るときに決めて末尾に書き、以後の `Hreduction`（`__cmlo`、sugw、`m_sigmlo`）は同じ値で割る。k ごとに割る（旧 `--mlo_diagnorm`）と内挿バンドが動くので使わない。規格化の後に Löwdin で直交化するのが標準（上の「MLO は Löwdin で直交化した関数」）。古い `HamRsMLO` は読めないので `job_mlo` を回し直す
 - **Wannier 関数・AHC・lmfham2 は外した**（2026-10-02）: git のタグ `last-wannier`（`dbcd6e51d`）に残る。cRPA は `job_mloW --crpa`、広がりは `mlo_spread.py`、マグノンは `job_mlo_magnon`。MLO と Wannier の違いは `MD/wannier_vs_mlo.md`

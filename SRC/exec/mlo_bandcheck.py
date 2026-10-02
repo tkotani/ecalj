@@ -31,9 +31,12 @@ atom did, and the rms hides it): FAIL when
   (1) the largest single deviation in the window (both directions) exceeds --fail-max (0.1 eV);
   (2) the deviation of a DFT band (bnd* band index, D -> M) jumps between neighbouring k of a line by more than --fail-jump
       (0.1 eV);
-  (3) the MLOs lose linear independence: the smallest eigenvalue of the MLO overlap matrix along the path (MLO_ovlpmin.dat,
-      written by mlo) is <= 0 or below 1/100 of its median along the path. (Cu and Ni with EH2: it went negative where the
-      bands collapsed; baseline-1 models stay at 3e-3..1e-2.)
+  (3) a band of the model jumps at one k (the MLOs lose linear independence): the largest second difference
+      |e_n(k) - (e_n(k-) + e_n(k+))/2| of the MLO bands along a line, in [VBM - 3, CBM + 2], exceeds --fail-spike (2 eV)
+      (2026-10-02, user. Cu and Ni with EH2 and the raw MLO model: 24 and 926 eV; sound models up to 0.56 eV, 63 materials).
+      Until 2026-10-02 (3) was the smallest eigenvalue of the MLO overlap along the path (MLO_ovlpmin.dat, <= 0 or below 1/100
+      of its median); the model is now of the Loewdin orthonormalized MLOs (O = 1), so that file holds 1. It is still read and reported
+      as ovlp_min; mlo prints the smallest eigenvalue of the normalized raw overlap on the mesh.
 The verdict is 'check' (PASS/FAIL) with the reasons in 'fail'.
 
 2026-10-01: rewritten for any directory (the test of Samples/MATERIALS, MD/research_log.md 2026-10-01).
@@ -167,7 +170,27 @@ def overlap_min(d, soc):
     return float(v.min()), float(a[v.argmin(), 0]), float(np.median(v))
 
 
-def check(d, fail_max=0.1, fail_jump=0.1, delta=None):
+def band_spike(M, lo, hi):
+    """largest second difference of the MLO bands along the path inside one line, |e_n(k) - (e_n(k-) + e_n(k+))/2| with the
+    bands sorted at each k, for e_n(k) in [lo,hi]: (spike, x, E). A broken model (linear dependence of the MLOs) makes a band jump
+    at one k (2026-10-02, user): EH2 on Cu and Ni with the raw MLO model gave 24 and 926 eV, sound models up to 0.56 eV (63 materials)."""
+    from collections import Counter
+    xs = sorted(M); E = [np.sort(np.array(M[x])) for x in xs]; best = (0.0, None, None)
+    if len(xs) < 3: return best
+    nmode = Counter(len(e) for e in E).most_common(1)[0][0]      # the x of a line junction holds the bands twice
+    for i in range(1, len(xs) - 1):
+        h1, h2 = xs[i] - xs[i - 1], xs[i + 1] - xs[i]
+        if h1 <= 0 or h2 <= 0 or abs(h1 - h2) > 0.2 * max(h1, h2): continue   # a line end
+        if not (len(E[i - 1]) == len(E[i]) == len(E[i + 1]) == nmode): continue
+        for n in range(nmode):
+            e0 = E[i][n]
+            if lo <= e0 <= hi:
+                dd = float(abs(e0 - 0.5 * (E[i - 1][n] + E[i + 1][n])))
+                if dd > best[0]: best = (dd, xs[i], float(e0))
+    return best
+
+
+def check(d, fail_max=0.1, fail_jump=0.1, delta=None, fail_spike=2.0):
     ef = read_ef(d)
     spins = [s for s in (1, 2) if glob.glob(os.path.join(d, f'bnd*.spin{s}'))]
     mso, dso = soc_of(d)
@@ -216,17 +239,19 @@ def check(d, fail_max=0.1, fail_jump=0.1, delta=None):
     fail = []
     if w[0] > fail_max: fail.append(f'max {w[0]:.3f} eV at x={w[1]:.3f} E={w[2]:+.2f} (> {fail_max})')
     if j[0] > fail_jump: fail.append(f'jump {j[0]:.3f} eV at x={j[1]:.3f} E={j[2]:+.2f} (> {fail_jump})')
+    sp = band_spike(M, vbD - 3, top + 2)
+    r.update(spike=sp[0], spike_x=sp[1], spike_E=sp[2])
+    if sp[0] > fail_spike: fail.append(f'spike {sp[0]:.3f} eV at x={sp[1]:.3f} E={sp[2]:+.2f} (> {fail_spike}): a band jumps at one k (linear dependence)')
     if ov is not None:
         r.update(ovlp_min=ov[0], ovlp_min_x=ov[1], ovlp_median=ov[2])
-        if ov[0] <= 0 or ov[0] < 1e-2 * ov[2]:
-            fail.append(f'MLO overlap min {ov[0]:.2e} at x={ov[1]:.3f} (median {ov[2]:.2e}): linear dependence')
+        # (3) of the overlap removed 2026-10-02: the model is of the Loewdin orthonormalized MLOs (O = 1); the spike check replaces it
     r['check'] = 'FAIL' if fail else 'PASS'
     r['fail'] = fail
     return r
 
 
 KEYS = ['insulator', 'gap_mesh', 'gapD', 'gapM', 'dVBM', 'dCBM', 'VBM', 'CBM', 'emin', 'emax', 'rms_m2d', 'max_m2d', 'rms_d2m', 'max_d2m', 'nspin',
-        'max', 'jump', 'ovlp_min', 'check']
+        'max', 'jump', 'spike', 'ovlp_min', 'check']
 
 if __name__ == '__main__':
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
@@ -234,11 +259,12 @@ if __name__ == '__main__':
     ap.add_argument('--json'); ap.add_argument('--tsv')
     ap.add_argument('--fail-max', type=float, default=0.1, help='largest single deviation allowed (eV)')
     ap.add_argument('--fail-jump', type=float, default=0.1, help='largest jump of the deviation of a band between neighbouring k (eV)')
+    ap.add_argument('--fail-spike', type=float, default=2.0, help='largest second difference of an MLO band along a line (eV): a broken model')
     ap.add_argument('--delta', type=float, default=None, help='upper edge of the window CBM + DELTA (eV) instead of mlo_delta of the ctrlg (2026-10-02 09:37: to compare windows on the same range)')
     a = ap.parse_args()
     res = {}
     for d in a.dirs:
-        try: v = check(d, a.fail_max, a.fail_jump, a.delta)
+        try: v = check(d, a.fail_max, a.fail_jump, a.delta, a.fail_spike)
         except Exception as e: v = dict(error=str(e))
         if v is not None: res[os.path.basename(os.path.normpath(d))] = v
     if a.json: json.dump(res, open(a.json, 'w'), indent=1)
@@ -254,5 +280,4 @@ if __name__ == '__main__':
         g = (f"{v['gap_mesh']:8.3f} {v['gapD']:7.3f} {v['gapM']:7.3f} {v['dVBM']:+7.3f} {v['dCBM']:+7.3f}" if v['insulator']
              else f"{'metal':>8s} {'':7s} {'':7s} {'':7s} {'':7s}")
         print(f"{k:14s} {g} | {v['rms_m2d']:7.3f} {v['max_m2d']:5.2f} {v['rms_d2m']:7.3f} {v['max_d2m']:5.2f}")
-        ovs = f", overlap min {v['ovlp_min']:.1e}" if 'ovlp_min' in v else ', no MLO_ovlpmin.dat'
-        print(f"{'':14s} CHECK {v['check']}: max {v['max']:.3f}, jump {v['jump']:.3f} eV{ovs}" + ''.join('\n' + ' ' * 21 + '- ' + s for s in v['fail']))
+        print(f"{'':14s} CHECK {v['check']}: max {v['max']:.3f}, jump {v['jump']:.3f}, spike {v['spike']:.3f} eV" + ''.join('\n' + ' ' * 21 + '- ' + s for s in v['fail']))
