@@ -1,0 +1,98 @@
+/* ---------------------------------------------------------------------------
+   MathJax display equations
+   ---------------------------------------------------------------------------
+   VitePress ships `mjx-container { overflow-x: auto }`. For an equation with
+   \tag{n}, MathJax emits the container as
+       display="true" width="full"  style="display:flex; min-width:<natural>ex"
+   i.e. it stretches to the full text width so the tag can sit at the right
+   margin. That full-width box plus overflow-x:auto turns every numbered
+   equation into a scroll box, even when the math itself fits comfortably.
+
+   Let numbered equations lay out normally, and keep the scrollbar only for
+   math that genuinely does not fit (`max-width: 100%` still clips, so wide
+   untagged math keeps VitePress's default behaviour).
+--------------------------------------------------------------------------- */
+.vp-doc mjx-container[display="true"][width="full"] {
+  overflow-x: visible;
+  max-width: 100%;
+}
+
+/* Genuinely wide math (tagged or not) may still need to scroll; scope the
+   scrollbar to the horizontal axis so it never adds a vertical one. */
+.vp-doc mjx-container {
+  overflow-y: hidden;
+}
+
+/* The tag itself should not be pushed off-screen on a narrow window. */
+@media (max-width: 640px) {
+  .vp-doc mjx-container[display="true"][width="full"] {
+    overflow-x: auto;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Click-to-enlarge (see lightbox.js)
+--------------------------------------------------------------------------- */
+.vp-doc img {
+  cursor: zoom-in;
+}
+
+.ecalj-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, .88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ecalj-lightbox-scroll {
+  max-width: 100%;
+  max-height: 100%;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ecalj-lightbox img {
+  display: block;
+  max-width: 97vw;
+  max-height: 92vh;
+  background: #fff;
+  cursor: zoom-in;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, .6);
+}
+
+/* second click: 1:1, pan with the scroll container */
+.ecalj-lightbox img.full {
+  max-width: none;
+  max-height: none;
+  cursor: zoom-out;
+}
+
+.ecalj-lightbox-close {
+  position: absolute;
+  top: 12px;
+  right: 18px;
+  font-size: 34px;
+  line-height: 1;
+  color: #fff;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  opacity: .75;
+}
+.ecalj-lightbox-close:hover { opacity: 1; }
+
+.ecalj-lightbox-hint {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  opacity: .65;
+  font-size: 13px;
+  pointer-events: none;
+}
