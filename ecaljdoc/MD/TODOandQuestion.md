@@ -20,7 +20,7 @@
 - **【残す】η ≠ 1 の原因**（2026-10-02）: Goldstone の条件の倍率が Löwdin で Fe 1.24、FeCo 1.28、Ni 1.75。Ni が大きい理由は未確認
 - **【残す】空格子球の自動化（基準 3）**（2026-10-01）: [`SRC/exec/ctrlg_addes.py`](../../SRC/exec/ctrlg_addes.py)（`8c158ee96`、像の数を面間隔から決める直しは済み）を ctrlg の生成に組み込むか。
   Bi₂Te₃ の空隙は 2.61 a.u. で 3.0 未満、SiO₂ は手で置いて 0.001 eV
-- **【未着手】Fe のマグノン: 小さい q で 2 割高い件と、実験との比較**（2026-10-02）: Löwdin の MLO は q ≤ 0.3 で Wannier 版より 2 割高い（q = 0.1 で 0.085 対 0.068 eV）。
+- **【未着手】<u>Fe のマグノン: 小さい q で 2 割高い件</u>と、実験との比較**（2026-10-02）: Löwdin の MLO は q ≤ 0.3 で Wannier 版より 2 割高い（q = 0.1 で 0.085 対 0.068 eV）。
   q ≥ 0.4 は合う。見る所: [`Samples/Magnon/Fe_mlo_magnon/README.md`](../../Samples/Magnon/Fe_mlo_magnon/README.md)（表 2・図 1、`magnon_peaks.npz`）、[`ecaljdoc/MD/wannier_vs_mlo.md`](wannier_vs_mlo.md) §3a（表 3a）、研究ログ 2026-10-02 11:12・
   09:42・07:10・04:17（窓と Löwdin）、作業の場所 `~/work/magnon_nifeco/magnon_window.md`（Fe・FeCo・Ni の窓と Löwdin の図、ページ https://claude.ai/artifact/A9r4CEPHgD1UkYsVA5XQKH）。
   実験の分散（中性子散乱）のデータはリポジトリに無い。文献から取る
