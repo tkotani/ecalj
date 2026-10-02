@@ -2,5 +2,6 @@
 
 First-principles electronic-structure package (PMT = APW + MTO basis; LDA/GGA and QSGW).
 
+- Manual: https://ecalj.github.io/ecaljdoc/
 - Start here: [MD/README.md](MD/README.md)
 - Changes: [Changes.md](Changes.md)
