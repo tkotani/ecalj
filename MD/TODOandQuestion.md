@@ -13,8 +13,6 @@
 
 ### MLO
 
-- **Löwdin を標準にした後のメッシュの外の悪化**（2026-10-02、研究ログ 12:16 の表 12:16-1）: Fe の 4s 帯の底（−8〜−3 eV で 0.03 → 0.096 eV）、E_F 近くの 2H-SiC（0.035 → 0.051）・
-  MnO（0.007 → 0.030）。MLOsamples の Fe 系の検査も 0.217 → 0.284。原因を調べる（その k・帯、H̃(R) の切り方）
 - **`mlo_bandcheck.py` の判定 (3)**（2026-10-02）: 模型の O が 1 になり、重なりの最小固有値（`MLO_ovlpmin.dat`）は常に 1。`mlo` の出力の
   "Smallest eigenvalue of the normalized raw overlap"（メッシュ上の直交化の前）を判定に使うように替えるか
 - **EH2 を足した模型の崩れ**（2026-10-01、`~/work/eh2cu`、Cu・Ni、EuO）: 生の模型では実空間で打ち切った O(k) が正定値でなくなり `zhgv` が壊れた。
@@ -94,6 +92,9 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
 
 - 最大局在化（MV）の試作は `TOOLS/gadget/`（README つき、bindir に入らない）に移して残した（2026-10-02 16:05、user「メインにしない。役に立ちうるなら TOOLS の下に gadget」）。
   役に立ちうる所: 結合の上の局在関数、Wannier90 との比較、Löwdin の局在の目安
+- Löwdin を標準にした後の内挿のずれは許容範囲とした（2026-10-02 16:13、user「許容範囲というべき。Löwdin でいい」）。窓 [VBM − 3, CBM + 2] eV で 63 物質の最大のずれの中央値
+  0.035 → 0.027、rms 0.0067 → 0.0051、0.1 eV を超えるもの 10 → 8（どれも生の模型でも超える）。悪くなったのは 2H-SiC 0.055 → 0.072、GaAs 0.044 → 0.056、
+  GaSb 0.078 → 0.091、MnO 0.010 → 0.030、NiO 0.011 → 0.025。Fe の 4s 帯の底（−8〜−3 eV）は窓の外（`~/work/lowdin_20261002/win3_2.tsv`）
 - 済んだ項目（2026-10-02 14:35 に §1 から移した）: Löwdin の後の文書（ecaljdoc mlo §6・表 M8、Changes.txt (6)、handover、`Fe_mlo_magnon/README.md`）。AFTEST の (d)（使い方を ecaljdoc の UsageDetailed.md へ）。
   マグノンの既定の窓（窓は (2, 2) のまま。Löwdin で窓によらない）。対称性 S0〜S6（`MD/symmetry_spglib.md` §4.7）。kt1 の GW1500 の run3（2026-10-01 16:43 に終了）
 
