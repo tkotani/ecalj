@@ -65,7 +65,7 @@ contains
   !! (and of the intraband ones too when chi0_filterw_drude = false) in accumulate_chi0.
   !! Filtering the weights pair by pair is the same as filtering the Im chi0 histogram of those
   !! pairs; Re chi0(omega) and chi0(i omega) then follow from the same Im chi0 (dpsion5), so W stays
-  !! consistent on both axes.  MD/research_log.md 2026-09-20 23:26.
+  !! consistent on both axes.  MD/research_kotani_log.md 2026-09-20 23:26.
   subroutine chi0_filterw_setup()
     use m_GWinput, only: chi0_filterw, chi0_filterw_set, chi0_filterw_drude
     use m_freq, only: frhis

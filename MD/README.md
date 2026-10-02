@@ -7,7 +7,7 @@ ecalj の開発者と Claude のための文書。公開サイト（ecaljdoc）�
 1. [ecaljclaude.md](ecaljclaude.md) — 決まり（記録の方針、コーディング規約）と**文書の地図**。どの文書に何があるかはここで引く
 2. [handover.md](handover.md) — 引き継ぎ: 計算機、user との取り決め、ビルドと実行の落とし穴
 3. [TODOandQuestion.md](TODOandQuestion.md) — やりかけ・未着手・判断待ち、やったこと
-4. [research_log.md](research_log.md) — 経緯と計測。ローカルなメモを含む（最新が上、`## 日付` の下に `### 時刻`）
+4. [research_kotani_log.md](research_kotani_log.md) — 経緯と計測。ローカルなメモを含む（最新が上、`## 日付` の下に `### 時刻`）
 5. 変更の正本: 最上位の [`Changes.md`](../Changes.md)（新しい順）。その要約は ecaljdoc の [manual/whatsnew.md](../ecaljdoc/manual/whatsnew.md)
 
 ## 話題ごとのジャンプ
@@ -54,7 +54,7 @@ ecalj の開発者と Claude のための文書。公開サイト（ecaljdoc）�
 | [Samples/Magnon/README.md](../Samples/Magnon/README.md) | サンプルの一覧。Wannier 版（`job_magnon`）は git のタグ `last-wannier` |
 | [Samples/Magnon/Fe_mlo_magnon/README.md](../Samples/Magnon/Fe_mlo_magnon/README.md) | bcc Fe。回し方、Wannier 版との比較の表 2・図 1（q ≤ 0.3 で MLO が 2 割高い、q ≥ 0.4 はほぼ重なる） |
 | [TODOandQuestion.md](TODOandQuestion.md) §1 | 未着手「Fe のマグノン: 小さい q で 2 割高い件と、実験との比較」と、見る所 |
-| [research_log.md](research_log.md) 2026-10-02 | 04:17・07:10・09:42（MLO の窓）、11:12（Löwdin の基底で窓によらなくなった）、11:35（Löwdin をメインにする判断） |
+| [research_kotani_log.md](research_kotani_log.md) 2026-10-02 | 04:17・07:10・09:42（MLO の窓）、11:12（Löwdin の基底で窓によらなくなった）、11:35（Löwdin をメインにする判断） |
 
 ### そのほか
 

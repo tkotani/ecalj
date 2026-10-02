@@ -5,7 +5,7 @@
 その時点の状況（push の状況、夜間作業の途中経過）、古くなったもの、研究ログや TODO と重なるものは写していない。各項目の終わりの（ ）は確かめた日と元のメモの名前。
 
 読む順: [../CLAUDE.md](../CLAUDE.md) → [ecaljclaude.md](ecaljclaude.md)（方針、記録の方針） → このファイル → [TODOandQuestion.md](TODOandQuestion.md)（未決と実行中） →
-[research_log.md](research_log.md) の先頭（最新の経過）。片付けたもののノウハウは [past_log.md](past_log.md)。人向けの手引きは ecaljdoc（`manual/ForDevelopers.md` など）。
+[research_kotani_log.md](research_kotani_log.md) の先頭（最新の経過）。片付けたもののノウハウは [past_log.md](past_log.md)。人向けの手引きは ecaljdoc（`manual/ForDevelopers.md` など）。
 
 ---
 

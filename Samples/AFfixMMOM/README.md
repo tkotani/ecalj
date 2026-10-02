@@ -17,4 +17,4 @@ ecaljdoc `manual/UsageDetailed.md` の「Holding the AF moment at a given value 
 
 - 2026-10-01 に直した（`aa4c24129`）: 場をスピン 1 にしか入れていなかった。いまは ehk が制約の下の全エネルギー
 - 残り（対の決め打ち、場の更新の利得、lmf の起動ごとの更新）は ecalj の `MD/TODOandQuestion.md`
-- 調べた記録: ecalj の `MD/research_log.md` 2026-10-01 朝 06:46（表 06:46-1）
+- 調べた記録: ecalj の `MD/research_kotani_log.md` 2026-10-01 朝 06:46（表 06:46-1）

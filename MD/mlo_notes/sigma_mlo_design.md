@@ -1,7 +1,7 @@
 # 自己エネルギーの MLO 表現による内挿 — 設計書
 
 2026-09-24 起草、2026-09-25 に **§9〜§13 を追加**（`temp.md` を解体して統合）。対象: ecalj 開発者。
-背景データは [MD/research_log.md](../research_log.md) の各日エントリ（図表番号はそちらを参照）。
+背景データは [MD/research_kotani_log.md](../research_kotani_log.md) の各日エントリ（図表番号はそちらを参照）。
 
 > **現行の方式は §9〜§13**（2 スロット方式）。§3「設計」と §4「実装手順」は 2026-09-24 版で、
 > 一部が置き換わっている。どこが置き換わったかは §9 冒頭の表にまとめてある。
@@ -752,7 +752,7 @@ LiTi₂O₄ で結果が悪かったとき、実装のどこが悪いかを次�
 > LiTi₂O₄ 6³（nmlo 126 = 全 14 原子 s+p+d、$\Sigma^{\rm MLO}$ を β=0.5 で混合）が 10 反復で従来と同じように収束し
 > （MLO バンドの反復ごとの変化 rms 3.9 meV、従来 6.5 meV）、**メッシュ点の間のこぶ（リンギング）が MLO バンドでは消えた**。
 > 従来チェーンとの差は rms 46 meV（形と幅は一致、メッシュ点でも 43 meV あるので内挿ではなく状態の差）。
-> 9³ も 10 反復で完了（2026-09-26 18:24、MLO バンドの変化 rms 3.2 meV）。経過は [MD/research_log.md](../research_log.md) の 2026-09-25〜26、
+> 9³ も 10 反復で完了（2026-09-26 18:24、MLO バンドの変化 rms 3.2 meV）。経過は [MD/research_kotani_log.md](../research_kotani_log.md) の 2026-09-25〜26、
 > 利用者向けのまとめは ecaljdoc の `manual/mlo_gwsc.md`。
 
 2026-09-25 の確認。ここから §13 までが **2 スロット方式**で、§3 の「設計」と §4 の「実装手順」を
@@ -1343,7 +1343,7 @@ SCF の k リストが構築されていない）。そのため `gwsc` で `ctr
 | 9³ | 約 5320 秒 | 5004 秒（94%）| 同上、`mlo --mlofreeze` 約 24 秒 |
 
 **MLO のためのコストは 1 反復の 1% 程度**で、従来 QSGW とほぼ同じ。MLO バンド（`draw_mloband.sh`）は 1 回 20–30 秒（CPU 8 プロセス）。
-`hgw` の中の GPU の使われ方は MD/research_log.md 2026-09-26 07:50（分担は対称、q の切れ目の停止が約 11%）。
+`hgw` の中の GPU の使われ方は MD/research_kotani_log.md 2026-09-26 07:50（分担は対称、q の切れ目の停止が約 11%）。
 
 ---
 
@@ -1481,7 +1481,7 @@ $\Psi^{\rm MTO}_j$ も $\Psi^{\rm PMT}_i$ も $|\Psi\rangle\langle\Psi|$ の形�
 
 ## 13. TODO
 
-2026-09-26 に見直した。状態は [MD/research_log.md](../research_log.md) の同日エントリと対応している。
+2026-09-26 に見直した。状態は [MD/research_kotani_log.md](../research_kotani_log.md) の同日エントリと対応している。
 
 ### A. 完了・進行中
 
@@ -1502,7 +1502,7 @@ $\Psi^{\rm MTO}_j$ も $\Psi^{\rm PMT}_i$ も $|\Psi\rangle\langle\Psi|$ の形�
 | **B2** | **`mlo --mlofreeze` が LDA の $H$ から MLO を作り直している件**（§12 Q4）| $\Sigma$ の対称化・回転は索引レベルなので汚していないはずだが**未確認**。**2026-09-28 の注: 2026-09-27 21:06 から `mlo --mlofreeze` は $\Sigma^{\rm MLO}(q)\to$ `QMLO_SigRs` だけを行い、$H$・$O$ から MLO を作らない（索引は `HamRsMLO` の末尾から読む）ので、この件は起きない** |
 | **B3** | **従来経路の $\Sigma$ の規約整合**（§12 Q1）| `hqpe_sc` は擬似逆、`getsenex` は $S_{\rm sub}^{-1}$。`ECALJ_SIGMLO_CHECK=1` で系統因子として出るはず |
 | ~~**B4**~~ | ~~**窓（`eferm`/`ecbot`）が LDA 固定のまま**~~ | ~~直し方は判明済み（`sugw` 側だけで `set_bandedge`）。一度誤実装で iter 1 を壊して revert 済み~~ → **2026-09-26 修正**: 段 a' は各反復の SCF の $E_F$（呼び出し元から）と `efermi.lmf` の伝導帯下端で窓を置く。LiTi₂O₄ では iter 10 までに $E_F$ が +0.0415 Ry 動き、床が 0.56 eV 低かった |
-| ~~**B5**~~ | ~~**初回（LDA から）の混合を半歩にするか否か**（§12 Q7）~~ | ~~今は $\beta\Sigma^{\rm out}$。user の想定は「初回は混合しない」。変えるなら従来チェーンも取り直し~~ → **2026-09-26 このまま**（user 判断）: 前の $\Sigma$ が無い初回は $x_0=0$ から混合するので $\beta$ 倍。既定の $\beta=1$ なら全量。Si で確認（MD/research_log.md 22:04）、ecaljdoc の mixbeta の節に記載 |
+| ~~**B5**~~ | ~~**初回（LDA から）の混合を半歩にするか否か**（§12 Q7）~~ | ~~今は $\beta\Sigma^{\rm out}$。user の想定は「初回は混合しない」。変えるなら従来チェーンも取り直し~~ → **2026-09-26 このまま**（user 判断）: 前の $\Sigma$ が無い初回は $x_0=0$ から混合するので $\beta$ 倍。既定の $\beta=1$ なら全量。Si で確認（MD/research_kotani_log.md 22:04）、ecaljdoc の mixbeta の節に記載 |
 | ~~**B6**~~ | ~~**`gwsc N`（N≥2）で `__SigmMLO.q.prev` が退避されない**~~ | ~~後片付けが反復ループの外。`gwsc 1` を繰り返す運用（`run_snap.sh`）では無害。直し方: 後片付けを関数にしてループ先頭でも呼ぶ（冪等）~~ → **2026-09-26 修正**: `gwsc` の `mlo_iteration_start()` を段 0c/0d の前と毎反復の頭で呼ぶ |
 | **B7** | **対称等価な $k$ の照合** | `getsenex` の $\tilde\chi$ 探索は $k$ を文字どおり比べる。チェーン（SCF・GW とも既約点）では無害で、`job_band --mlo` でだけ問題。直すなら $k$ → 既約代表点に写して $z$ を回転 |
 

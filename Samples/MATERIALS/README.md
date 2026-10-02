@@ -145,7 +145,7 @@ mlo_bandplot.py . -o mlo_GaAs.png     # DFT（灰）と MLO（赤）の図
 - `MLOcheck_20261001.tsv`: 最初の版（旧既定）の物質ごとの結果。`MLOcheck_20261001_variants.tsv`: 物質ごとに動径関数を足した変種。
   どちらも 2026-10-01 17:54 までの窓で評価したもの（MLO → DFT が [VBM − 8, CBM + 3]、DFT → MLO が [VBM − 8, CBM + 1] eV）。
   今の `mlo_bandcheck.py` は両方とも [VBM − 8, CBM + mlo_delta]（`mlo_delta` は模型を合わせる範囲の上端、既定 2 eV）
-- 経緯は ecalj の `MD/research_log.md`（2026-10-01）
+- 経緯は ecalj の `MD/research_kotani_log.md`（2026-10-01）
 
 ## 3. 大きめの系の QSGW の入力と結果
 

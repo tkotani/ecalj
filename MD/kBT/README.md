@@ -38,7 +38,7 @@
 | [history.md](history.md) | 2026-06〜09 の経緯、当時の計算の説明、直した誤り（もとは ecaljdoc の kBT の頁の一部） |
 | [Samples/kBT/finiteT_202606.md](../../Samples/kBT/finiteT_202606.md) | 2026-06 の計算の注意と、kt1 に残っているもの |
 | [Samples/kBT/LiTi2O4/finiteT_202606.md](../../Samples/kBT/LiTi2O4/finiteT_202606.md) | LiTi₂O₄ の 2026-06 の run（`n666_T*`、`n999_T1000`）の説明と結果 |
-| [research_log.md](../research_log.md) | 時刻入りの経緯（2026-09-16〜） |
+| [research_kotani_log.md](../research_kotani_log.md) | 時刻入りの経緯（2026-09-16〜） |
 
 GPU の高速化の記録は [gpu/](../gpu/README.md)。
 

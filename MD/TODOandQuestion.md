@@ -2,7 +2,7 @@
 
 直すべき点は見つけてもその場では直さず、ここに書く（user 2026-10-01）。メンテナに決めてほしいことも、やったことも、ここに書く。
 入口は [CLAUDE.md](../CLAUDE.md)（中身は [ecaljclaude.md](ecaljclaude.md)）。片付けたものの中のノウハウは [past_log.md](past_log.md)。
-細かい経緯と数値は研究ログ [research_log.md](research_log.md)。
+細かい経緯と数値は研究ログ [research_kotani_log.md](research_kotani_log.md)。
 
 書き方: §1 はまだのものだけ（各項目に見つけた日）。済んだら §2 へ移し、済んだ日とコミットを書く（user 2026-10-02「まだのものを冒頭に、終わったものは 2. TODO（済）に」）。
 計算機ごとの片付け（trash の削除、ディスクの空き）はここに書かない（user 2026-10-02「ローカル情報はコミットに入れなくていい」）。
@@ -195,7 +195,7 @@ Wannier とのずれの項目の判断が変わる。だから対称性 → 最�
   写す前に 5 点をコードと照らした（rel の既定ブランチは `main`、`master` は無い、など）
 - [`README.md`](../README.md) を `MD/README.md` へ（user「Claude に読ませて、人間は Claude から情報を取る構造にする。README を人間に読ませるのは好ましくない」）。
   最上位の [`README.md`](../README.md) は数行の案内だけ（GitHub の表紙が空にならないように）。[`ecaljclaude.md`](ecaljclaude.md) の方針の文言を直した
-- 開発の文書を [`MD/`](.) に（[`ecaljclaude.md`](ecaljclaude.md)、[`TODOandQuestion.md`](TODOandQuestion.md)、[`past_log.md`](past_log.md)、研究ログ [`research_log.md`](research_log.md)、`d72216e17`）
+- 開発の文書を [`MD/`](.) に（[`ecaljclaude.md`](ecaljclaude.md)、[`TODOandQuestion.md`](TODOandQuestion.md)、[`past_log.md`](past_log.md)、研究ログ [`research_kotani_log.md`](research_kotani_log.md)、`d72216e17`）
 - ecalj の片付けの 3 回目: `PHASE1B_REFACTOR.md`、`HIGHLIGHTS_2026-06_09.md`、`FiniteT_and_QPE_HOWTO.md`、`ecaljdoc_drafts/`、`jobauto/`、
   `SRC/exec_legacy/` を trash へ。中身は past_log.md §3.2・§4.3・§5〜§8 に整理し、README と ecaljdoc（ForDevelopers・kBT・README_tutorial）の参照を直した。
   最上位の `MATERIALS/` は trash ではなく [`Samples/MATERIALS/`](../Samples/MATERIALS/README.md) の下へ移した（user「いったん Samples の下へ」、624 ファイル、`git mv`）

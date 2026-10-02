@@ -208,7 +208,7 @@ contains
         ! "Shallow": the band of the LO (occupied states with projection weight > 1/2 on
         ! the LO functions of that l of ALL sites of the species) has its top above
         ! EF - 17 eV, over all k.
-        ! 2026-10-01 15:0x (Samples/MATERIALS MLO test, MD/research_log.md 14:38): the
+        ! 2026-10-01 15:0x (Samples/MATERIALS MLO test, MD/research_kotani_log.md 14:38): the
         ! threshold was EF - 10 eV and a shallow LO replaced the EH function. Semicore
         ! states between -16 and -11 eV that mix with O/N 2p (Ga 3d in GaN, In 4d in
         ! InN, Eu 5p in EuO, Sr 4p in SrTiO3/SrVO3, La 5p) were then left out and the 2p

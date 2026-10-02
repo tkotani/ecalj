@@ -114,7 +114,7 @@ Samples/MATERIALS は LDA と MLO の計算のサンプル (Samples/MATERIALS/RE
 開発の文書を MD/ にまとめた。最上位に残るのは CLAUDE.md（入口）、数行の README.md、Changes.txt。
 README.md の中身（2026-05〜09 の新機能のログと TOML の流れのクイックスタート）は MD/README.md へ。ecalj は Claude が読み、
 人間は Claude を通して情報を取る構造にする（人間向けの説明は ecaljdoc）。
-ecaljclaude.md → MD/ecaljclaude.md（CLAUDE.md は @MD/ecaljclaude.md）、研究ログ Samples/kBT/kBT_research.md → MD/research_log.md、
+ecaljclaude.md → MD/ecaljclaude.md（CLAUDE.md は @MD/ecaljclaude.md）、研究ログ Samples/kBT/kBT_research.md → MD/research_kotani_log.md、
 新しく MD/TODOandQuestion.md（直すべき点、質問、実行中、やったこと）と MD/past_log.md（片付けたものにあったノウハウ）。
 いらないものは各計算機の ecalj/trash/（git は無視）へ移す。最上位の MATERIALS/ は Samples/MATERIALS/ へ移した。
 

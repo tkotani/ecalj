@@ -1,9 +1,9 @@
-# research_log.md — ecalj の研究・開発ログ（有限温度 QSGW、MLO-QSGW、GW の GPU 高速化、GW1500、片付け）
+# research_kotani_log.md — ecalj の研究・開発ログ（有限温度 QSGW、MLO-QSGW、GW の GPU 高速化、GW1500、片付け）
 
 > 2026-10-02 20:29 にこのディレクトリを `ecalj/MD/` から `ecalj/ecaljdoc/MD/` に移し、同じ日の 21:17 に `ecalj/MD/` に戻した
 > （user「公開リポジトリに MD は送らないなら ecaljdoc の下にする必要はない」）。下の記述の `MD/...` はそのまま読める。
 
-2026-10-01 に `Samples/kBT/kBT_research.md` から `MD/research_log.md` へ移した（user の指示。中身は同じで、相対リンクだけ直した）。
+2026-10-01 に `Samples/kBT/kBT_research.md` から `MD/research_kotani_log.md` へ移した（user の指示。中身は同じで、相対リンクだけ直した）。
 下の古い日付の記述にある `kBT_research.md` はこのファイルのこと。
 
 2026-09-16 から。上から新しい順に書き足す。日付の節（`## 2026-09-27 夜 — …`）の下に `### HH:MM **見出し**` で、投入・完了・判断の時刻を書く。
@@ -839,10 +839,10 @@ afsym では SCF の中身（反復の数、モーメント、場、ehf、sev）
 
 ### 04:58 **user「*.md は MD を作ってそこへ。ecalj の最上位は CLAUDE.md と README.md ぐらいに」「研究ログも（案 1）」→ `MD/` に 4 つを移した**
 
-- `ecaljclaude.md`、`TODOandQuestion.md`、`past_log.md` と、このログ（`Samples/kBT/kBT_research.md` → `MD/research_log.md`）を `git mv`。
+- `ecaljclaude.md`、`TODOandQuestion.md`、`past_log.md` と、このログ（`Samples/kBT/kBT_research.md` → `MD/research_kotani_log.md`）を `git mv`。
   `CLAUDE.md` は `@MD/ecaljclaude.md`。最上位に残る文書は `README.md`、`CLAUDE.md`、`Changes.txt`
 - 相対リンクは、元の場所から解いた位置を新しい場所から見た形に直した（このログの中 187、ほかの md 13）。本文の `kBT_research.md` という書き方も
-  `MD/research_log.md` に（コードの注記 3 か所を含む）。このログの古い日付の記述と `Changes.txt` の古い項は、その時点の記録なので直していない
+  `MD/research_kotani_log.md` に（コードの注記 3 か所を含む）。このログの古い日付の記述と `Changes.txt` の古い項は、その時点の記録なので直していない
 - サブディレクトリの md（各サンプルの README、`ecalj_auto/*.md`）は、説明する物の隣に置いたまま
 
 ### 04:45 **user「5 月にやったものはやり直さなくていい」「失敗例、怪しい例、NOTCONV などにコメントをつける形で整理。特徴と条件の違いも」→ 注記の表 `gw1500_notes_20261001.tsv`（`b0fdfda19`）**

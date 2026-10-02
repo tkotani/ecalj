@@ -1,6 +1,6 @@
 # ForDevelopers 付録 — 研究ログの要約と索引（2026-09-16〜09-28）
 
-> ecalj の研究ログ [`MD/research_log.md`](research_log.md)（最新が上、`### HH:MM` の時刻付き、約 5200 行）を、記憶の無いセッションや引き継ぐ人が
+> ecalj の研究ログ [`MD/research_kotani_log.md`](research_kotani_log.md)（最新が上、`### HH:MM` の時刻付き、約 5200 行）を、記憶の無いセッションや引き継ぐ人が
 > 引けるようにまとめたもの。[ForDevelopers](ForDevelopers.md) の §13 から来る。2026-09-28 に作成（元はエージェントの下読み、確かめて手を入れた）。
 > **研究ログが正本**で、ここは入口。食い違ったら研究ログを見て、ここを直す。
 

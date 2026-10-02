@@ -11,7 +11,7 @@ ecalj を Claude (LLM) で開発する際のガイドライン。
 | --- | --- |
 | いまの状況、記憶の無いセッションへの引き継ぎ（計算機、取り決め、落とし穴） | [handover.md](handover.md) |
 | まだやっていないこと（やりかけ・未着手・判断待ち）と、やったこと | [TODOandQuestion.md](TODOandQuestion.md) |
-| 経緯、計測、判断の時刻（最新が上。ローカルなメモを含む） | [research_log.md](research_log.md) |
+| 経緯、計測、判断の時刻（最新が上。ローカルなメモを含む） | [research_kotani_log.md](research_kotani_log.md) |
 | 片付けたものに入っていたノウハウ、trash に移したものの表 | [past_log.md](past_log.md) |
 | 新機能と変更（利用者向け、正本） | [`Changes.md`](../Changes.md)（最上位。2026-10-02 に `Changes.txt` から改名） |
 | 主プログラム → module の階層（生成物） | [module_map.md](module_map.md) |
@@ -73,7 +73,7 @@ Claude（や人）が後でコードや記録を読むときの手がかりに�
 - git のコミットメッセージは英語（ecalj、ecaljdoc とも）。`Changes.md`、`MD/*.md`、`manual/*.md` の中身は日本語でよい
 - コミットはこまめに、論理的に分ける。使い方が変わるときは `Changes.md` と ecaljdoc も直す
 
-### 研究ログ（[research_log.md](research_log.md)）
+### 研究ログ（[research_kotani_log.md](research_kotani_log.md)）
 
 - ローカルなメモを含む（その機械での投入・作業の場所・途中の数値など。user 2026-10-02）。その時点の記録として読み、いまの状況や決まりは handover・TODO・各文書で確かめる
 - 最新を上に。日付ごとに `## YYYY-MM-DD — 要約`、その中は `### HH:MM 見出し` を新しい順に積む

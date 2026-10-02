@@ -113,14 +113,14 @@ kt1 で複数のジョブを並べるときの `taskset` と `OMPI_MCA_hwloc_bas
 
 ## 9. 研究の現在地、10. Claude と作業するとき
 
-- 現在地: [TODOandQuestion.md](TODOandQuestion.md) の §1（やりかけ・未着手・判断待ち）と研究ログ [research_log.md](research_log.md) の先頭。テーマごとの要約は
+- 現在地: [TODOandQuestion.md](TODOandQuestion.md) の §1（やりかけ・未着手・判断待ち）と研究ログ [research_kotani_log.md](research_kotani_log.md) の先頭。テーマごとの要約は
   [ForDevelopers_research.md](ForDevelopers_research.md)（2026-09-28 までの 1 枚の要約は、この節にあった。git の履歴）
 - Claude と作業するとき: [ecaljclaude.md](ecaljclaude.md)「Claude の作業の進め方」と [handover.md](handover.md) §1 が正本（着手前に計画を言う、`sleep` を書かない、
   push は指示があってから、など）。kt1 の GPU は 2 枚とも使ってよい（2026-09-30 から）
 
 ## 11. GW の GPU 高速化と QSGW 1 反復の短縮（2026-09-27）
 
-報告は ecalj の [`MD/gpu/gpu_fp32_report.md`](gpu/gpu_fp32_report.md)（§1〜10、FP16 経路の式は §2.1）、経過は [`MD/research_log.md`](research_log.md)、
+報告は ecalj の [`MD/gpu/gpu_fp32_report.md`](gpu/gpu_fp32_report.md)（§1〜10、FP16 経路の式は §2.1）、経過は [`MD/research_kotani_log.md`](research_kotani_log.md)、
 変更の一覧は ecalj の `Changes.md`（2026-09-27 (1)〜(3)）、利用者向けは [ecaljgpu](../ecaljdoc/manual/ecaljgpu.md)。数値はすべて kt1（RTX 5090 ×2、電力上限 500 W）。
 
 ### 11.1 結果
@@ -273,7 +273,7 @@ GPU・ドライバ・CUDA を替えたら `linalgtune_gpu` を実行し直す。
   ecalj の [`TOOLS/samples_tests.sh`](../TOOLS/samples_tests.sh)（最後の要約だけを数える）
 - 収束テスト（2026-09-27 23:35）: LiTi₂O₄ 6³ を LDA から tf32 で `gwsc 10`（`qmlo_k6_tf32n`、39 分）。fp32 の 10 反復（`qmlo_k6_gwsc10`）との差は
   10 反復目の後のバンドで rms 0.3 meV・最大 0.8 meV（MLO バンド、±3 eV）、QP シフトは毎反復 5 meV 以内で膨らまない。ehf は −22〜−91 meV
-  （Σc の一様な縮みが占有状態の和に効く分）。表と図は ecalj の [`MD/research_log.md`](research_log.md) の 23:35
+  （Σc の一様な縮みが占有状態の和に効く分）。表と図は ecalj の [`MD/research_kotani_log.md`](research_kotani_log.md) の 23:35
 
 ### 11.7 測り方（kt1）
 
@@ -411,14 +411,14 @@ gwsc 10 -np 64 <sname> > gwsc.log 2>&1
 
 ### 12.5 結果を残す
 
-- 研究ログ（ecalj の [`MD/research_log.md`](research_log.md)）に `### HH:MM` で、最新を上に。表と図には番号（*表 23:35-1* など）、図は png を
+- 研究ログ（ecalj の [`MD/research_kotani_log.md`](research_kotani_log.md)）に `### HH:MM` で、最新を上に。表と図には番号（*表 23:35-1* など）、図は png を
   `Samples/kBT/<系>/` に置いて md に埋め込み、描いたスクリプトも同じ所に
 - 結論が固まったら ecaljdoc の該当ページ（[kBT](../ecaljdoc/manual/kBT)、[mlo_gwsc](../ecaljdoc/manual/mlo_gwsc)、[ecaljgpu](../ecaljdoc/manual/ecaljgpu.md) など）と、このページの §9・§13 に移す
 - コードを変えたら `Changes.md`。commit はその場で、push は指示を待つ（§1）
 
 ## 13. 研究ログの要約と索引（2026-09-28）
 
-研究ログ（ecalj の [`MD/research_log.md`](research_log.md)、2026-09-16〜、最新が上）のテーマ別の要約・日付の索引・計算の置き場所は
+研究ログ（ecalj の [`MD/research_kotani_log.md`](research_kotani_log.md)、2026-09-16〜、最新が上）のテーマ別の要約・日付の索引・計算の置き場所は
 付録 [ForDevelopers_research](ForDevelopers_research.md) にまとめた。ここはその見出しだけ。
 
 | テーマ | いま成り立っていること（要点） | 残っていること |
