@@ -184,6 +184,16 @@ def decide(m, S, N, D):
     return v, adopt
 
 
+VERSION = {'M': '2026-04/05 (~/bin2, all-TF32 --mp)', 'R': '989a18637 (fp32, t_tetrakbt +300)',
+           'N_kt1': '989a18637 (tf32, t_tetrakbt -300)', 'N_kr7': 'b695fa65c (tf32, t_tetrakbt -300)'}
+
+
+def version(adopt, host):
+    if adopt == 'N':
+        return VERSION.get(f'N_{host}', 'N')
+    return VERSION.get(adopt, '')
+
+
 def fmt(x, nd=2):
     return '' if x is None else f'{x:.{nd}f}'
 
@@ -304,7 +314,8 @@ def main():
                          category=cat, lda=lda, gap=gap, adopt=adopt or '', others=others, flag=flag, di=di,
                          iters={k: v[k].get('iter') for k in v}, mp_pbe=mp.get('band_gap'), ehull=mp.get('energy_above_hull'),
                          icsd=bool((mp.get('database_IDs') or {}).get('icsd')), old2=o.get('shot2'), old1=o.get('shot1'),
-                         note=n['note'], dbnote=DBN.get(m, ''), host=v.get('N', {}).get('host', ''), spike=sp, km=km,
+                         note=n['note'], dbnote=DBN.get(m, ''), host=v.get('N', {}).get('host', ''),
+                         version=version(adopt, v.get('N', {}).get('host', '')), spike=sp, km=km,
                          gap_path=pq['gap'] if pq else None))
         if figs and (only is None or m in only):
             spec = [('db_lda' if os.path.exists(f'{db}/npz/{m}.db_lda.npz') else 'may_lda', '0.6', '-', 0.7, 'LDA')]
@@ -352,7 +363,7 @@ def write_pages(db, rows, D):
     cnt = Counter(r['adopt'] or 'none' for r in rows)
     fl = Counter(x for r in rows for x in r['flag'].split())
     with open(f'{db}/gw1500db.tsv', 'w') as f:
-        keys = ['mpid', 'formula', 'natom', 'sg', 'category', 'lda', 'gap', 'adopt', 'di', 'flag', 'mp_pbe', 'ehull', 'icsd', 'old1', 'old2', 'host', 'dbnote']
+        keys = ['mpid', 'formula', 'natom', 'sg', 'category', 'lda', 'gap', 'adopt', 'di', 'flag', 'mp_pbe', 'ehull', 'icsd', 'old1', 'old2', 'host', 'version', 'dbnote']
         f.write('\t'.join(keys + ['others']) + '\n')
         for r in rows:
             f.write('\t'.join('' if r[k] is None else (f'{r[k]:.4f}' if isinstance(r[k], float) else str(r[k])) for k in keys)
@@ -361,12 +372,12 @@ def write_pages(db, rows, D):
     with open(f'{db}/table.md', 'w') as f:
         f.write('# GW1500 QSGW80 — table\n\n[README](README.md) for the conditions M, R, N and how to read this table. '
                 'Bands: ' + ', '.join(f'[{n} atoms](bands_{n}atoms.md)' for n in pages) + '.\n\n')
-        f.write('| mpid | formula | atoms | space group | LDA (eV) | QSGW80 (eV) | on path | D/I | check | MP PBE | 2025 2shot | category | fig | note |\n')
-        f.write('| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n')
+        f.write('| mpid | formula | atoms | space group | LDA (eV) | QSGW80 (eV) | ecalj version (of the bold value) | on path | D/I | check | MP PBE | 2025 2shot | category | fig | note |\n')
+        f.write('| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n')
         for r in rows:
             link = f"[fig](bands_{r['natom']}atoms.md#{r['mpid']})" if os.path.exists(f"{db}/fig/{r['mpid']}.png") else ''
             mpl = f"[{r['mpid']}](https://next-gen.materialsproject.org/materials/{r['mpid']})"
-            f.write(f"| {mpl} | {r['formula']} | {r['natom']} | {r['sg']} | {fmt(r['lda'])} | {gapcell(r)} | {fmt(r['gap_path'])} | {r['di']} | {r['flag']} | "
+            f.write(f"| {mpl} | {r['formula']} | {r['natom']} | {r['sg']} | {fmt(r['lda'])} | {gapcell(r)} | {r['version']} | {fmt(r['gap_path'])} | {r['di']} | {r['flag']} | "
                     f"{fmt(r['mp_pbe'])} | {fmt(r['old2'])} | {r['category']} | {link} | {r['dbnote']} |\n")
     for n in pages:
         with open(f'{db}/bands_{n}atoms.md', 'w') as f:
@@ -375,7 +386,7 @@ def write_pages(db, rows, D):
                     'by more than 0.1 eV. Energies from the VBM (insulators) or E_F (metals). Right: total DOS.\n\n')
             for r in rows:
                 if r['natom'] == n and os.path.exists(f"{db}/fig/{r['mpid']}.png"):
-                    f.write(f'<a id="{r["mpid"]}"></a>\n**{r["mpid"]}** {r["formula"]} — QSGW80 {gapcell(r)} eV {r["di"]} {r["flag"]}\n\n'
+                    f.write(f'<a id="{r["mpid"]}"></a>\n**{r["mpid"]}** {r["formula"]} — QSGW80 {gapcell(r)} eV {r["di"]} {r["flag"]} — ecalj {r["version"]}\n\n'
                             + (f'*{r["dbnote"]}*\n\n' if r['dbnote'] else '') + f'<img src="fig/{r["mpid"]}.png" width="70%">\n\n')
     with open(f'{db}/summary_counts.json', 'w') as f:
         json.dump(dict(adopt=cnt, flag=fl, n=len(rows), db_logged=len(D)), f, indent=1)
@@ -414,6 +425,11 @@ and results of different conditions are compared.
   (structures `ecalj_auto/INPUT/gw1500/POSCARALL`). The structures of MP are not always the experimental ones.
 
 ## Conditions
+
+**Each material: check which ecalj made its value before comparing it with your own calculation.** The table gives, per
+material, the version of ecalj and the conditions of the bold value (column *ecalj version*), and the letters of the other
+results. Different versions and conditions can differ by 0.05–0.3 eV, M by more in some materials (see "How reliable are the
+May values"); the present ecalj may differ again.
 
 Every gap carries the letter of its conditions. **Bold** is the value adopted: N if the database run converged, else R, else M.
 

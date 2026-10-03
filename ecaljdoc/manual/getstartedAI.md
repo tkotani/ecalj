@@ -235,6 +235,10 @@ a material, the extension of its files (`ctrlg.gaas.toml` → `gaas`).
 - The GW1500 database: QSGW80 band gaps, bands and DOS of 1546 materials of Materials Project,
   https://github.com/tkotani/DOSnpSupplement/tree/main/QSGW80_2026 (its README gives the conditions of each value and the checks).
   The 2025 tables there are the supplement of arXiv:2507.19189.
+  **For each material, check which version of ecalj made its value before comparing it with a new calculation.** The table of
+  the database gives it per material (column *ecalj version*, and the letters M, R, N of the other results); the conditions of
+  each letter are in the database README. Values of different versions and conditions can differ by 0.05–0.3 eV (more for some
+  of M, the production of April–May 2026), and the present ecalj may differ again.
 - An old `ctrl.<sname>` or `GWinput`: not read any more; convert with `Legacy2toml.py`. An old `ctrlg` with `SmearX0` stops;
   `ctrlg_update.py` rewrites it. `t_tetrakbt` must be in `[gw]`.
 - Numbers off from a README: check the k mesh, `scaledsigma`, and the number of iterations first; then `Changes.md` for a change
