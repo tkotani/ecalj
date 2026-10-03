@@ -325,7 +325,7 @@ to check the structure in the viewer. In `/StructureTool`, we have converters:
 In addition, you may need to install `getsyml.py` to obtain symmetry lines for band plots.
 Generated `syml.*` files are used for band plots in ecalj.
 As long as you have `spglib` and `seekpath`, you usually do not need extra steps.
-For more details, see the upstream memo: [ecalj/GetSyml/README.org](https://github.com/tkotani/ecalj/blob/main/GetSyml/README.org).
+For more details, see the upstream memo: [ecalj/GetSyml/README.md](https://github.com/tkotani/ecalj/blob/main/GetSyml/README.md).
 
 
 

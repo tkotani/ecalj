@@ -469,7 +469,7 @@ viewvesta ctrlg.si.toml      # canonical (post-2026-05)
 viewvesta ctrls.si           # legacy structure-only seed file
 ```
 to see the structure in VESTA. The converters `vasp2ctrl` / `ctrl2vasp` (also in `/StructureTool`) accept the same TOML / ctrls / ctrl input forms.
-<small>(We have ~/ecalj/GetSyml/README.org. but Users do not need to read this.)</small>
+<small>(We have ~/ecalj/GetSyml/README.md. but Users do not need to read this.)</small>
 
 
 
@@ -529,7 +529,7 @@ to see the structure in VESTA. The converters `vasp2ctrl` / `ctrl2vasp` (also in
    diffe(q)= -0.000001 (0.000004)    tol= 0.000010 (0.000010)   more=F
    c ehf(eV)=-114268.304015 ehk(eV)=-114268.304037 sev(eV)
    ```
-   Here `c ` is the sign that `diffe(q)`,which shows the changes of energy and charge from the previous iteration, is less than the criterion, that is, converged. save.mp-2534 contains a line per iteration. We see it takes 10 times to have convergence. We show [two energies](./lmf.md/#q-should-the-harris-foulkes-and-hohenberg-kohn-sham-functionals-agree-at-self-consistency), which should be the same.
+   Here `c ` is the sign that `diffe(q)`,which shows the changes of energy and charge from the previous iteration, is less than the criterion, that is, converged. save.mp-2534 contains a line per iteration. We see it takes 10 times to have convergence. We show [two energies](./lmf.md#q-should-the-harris-foulkes-and-hohenberg-kohn-sham-functionals-agree-at-self-consistency), which should be the same.
    * Note: mp-2534 (GaAs) gives 5.75 $\AA$ for GaAs, while the experimental value is 5.65$\AA$. I guess this is a PBEsol problem.
    * llmf contains information of iterations (since I use tee command above), check eigenvalue and fermi energies, band gap.
    * rst.mp-2534 is generated. Self-consistent charge included.

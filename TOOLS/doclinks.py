@@ -42,6 +42,7 @@ for f in files:
                 leave.append(f'{f}:{n}: {u}')
             cands = [q]
             if p.startswith('/'): cands.append(os.path.normpath(os.path.join('ecaljdoc', 'public', p.lstrip('/'))))   # assets of public/
+            if site and q.startswith('ecaljdoc/'): cands.append(os.path.join('ecaljdoc', 'public', q[len('ecaljdoc/'):]))   # VitePress serves public/ at the root of the site (2026-10-03)
             if site and not os.path.splitext(q)[1]: cands += [q + '.md', os.path.join(q, 'index.md')]
             if site and q.endswith('.html'): cands += [q[:-5] + '.md']
             if not any(os.path.exists(c) for c in cands): broken.append(f'{f}:{n}: {u}')

@@ -528,7 +528,7 @@ FeCo(18 軌道、窓 8.3 meV)— 磁性金属で両スピンとも良く乗る�
 回すものと同じ入力・同じ参照。図は `SRC/exec/mlo_bandplot.py <sampledir>_work` で再生成。
 表の後半 7 系は Materials Project の構造をそのまま `ctrlgenToml.py` に通し、
 `mlo_lm` に全原子の s,p,d を入れて既定（$\Delta = w = 2$ eV）で回したもの
-（2026-09-18、[MD/mlo_notes/mp_20260918](https://github.com/tkotani/ecalj/tree/main/Samples/MLOsamples/BackUp_notes/mp_20260918)）。
+（2026-09-18、開発の記録 `MD/mlo_notes/mp_20260918/`）。
 
 | 半導体・絶縁体 | | | |
 |---|---|---|---|
