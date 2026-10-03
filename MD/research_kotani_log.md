@@ -87,6 +87,15 @@
 
 ## 2026-10-02 夜 — GW1500 のデータベース
 
+### 14:06 **ecaljdoc の esbuild を 0.25 に（Dependabot GHSA-67mh-4wv8-2f99、開発用サーバーだけの弱点）**
+
+- 手元で 0.21.5 と 0.25.12 のビルドを比べた: HTML 38 頁はハッシュを伏せて同一、画像 66 個同一、CSS は空白の詰め方だけ、JS は縮め方が違う
+- user「公開のサブサイトで相手のエンジンで試す」→ `tkotani/ecaljdoc-sub`（base `/ecaljdoc-sub/`）を同じ GitHub Actions でビルド・公開し、本家と Chrome で比べた:
+  kBT の頁（数式 522、表 12、図 1、本文の長さ）、theory/qsgw（mermaid ノード 11、数式 22）、検索 4 語（magnon 16、QSGW80 14、t_tetrakbt 16、spglib 11）、
+  トップのボタン、JS のエラー無し — すべて同じ
+- 本家へ（`603257e64`、ecaljdoc `698af9f`、05:03 GMT のデプロイ）→ 同じ点を本家で確かめ直して同じ。サブの Pages は止めた。リポジトリの削除は
+  gh の `delete_repo` の権限が要るので未（TODO）。Dependabot の通知は再走査待ち
+
 ### 13:26 **push と公開（user「1、2、3 をやってください」）**
 
 - 試験: `1414c5886` を mic（ifx 2026）と ucgw（ifx 2024.2）で Samples の bench 以外の全部。22 組 PASS、heavy は `nio_gwsc444` の QPU だけ FAIL

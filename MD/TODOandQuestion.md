@@ -97,6 +97,9 @@
   ギャップをメッシュではなく経路も含めて決めるか、メッシュを細かくするか
 - **【未着手】QSGW80 が LDA より小さい物質の確かめ**: Mo₂O₆（mp-796276、Γ の層間の自由電子的な状態が伝導帯の底）、CdSnAs₂（mp-3829、実験 0.26 eV）
 
+- **【未着手】テスト用のリポジトリ `tkotani/ecaljdoc-sub` を消す**（2026-10-03）: Pages は止めた。削除は `gh auth refresh -h github.com -s delete_repo` のあと
+  `gh repo delete tkotani/ecaljdoc-sub --yes`、または GitHub の画面の Settings から。ecaljdoc の Dependabot の通知（esbuild）が閉じたかも見る
+
 ### 試験と入力
 
 - **【未着手】`MLOsamples/RuO2` の `rst`・`dmats`** は `pwmode = 11` の LDA+U の誤りの時期（2026-03-30〜09-30）に作ったもの。作り直すか
