@@ -153,3 +153,87 @@ the tests slow down a lot (on kt1, install took over 2 hours next to production 
 - MLO are orthonormalized (Löwdin) localized orbitals; models, U/J, cRPA and magnons use them ([MLO](./mlo.md) §6).
 - GPU precision: `--prec=tf32` changes gaps by about 1 meV against fp32; the old option `--mp` (all products in TF32, before 2026-09)
   could shift gaps by 0.1–0.3 eV.
+
+## 6. Exploring the repository without cloning it
+
+Every file of ecalj can be read on GitHub. For an AI that fetches web pages, the raw text is at
+
+```text
+https://raw.githubusercontent.com/tkotani/ecalj/main/<path>        e.g. .../main/Changes.md, .../main/Samples/README.md
+https://github.com/tkotani/ecalj/tree/main/<directory>             the listing of a directory
+```
+
+*Table 3*. The top of the repository
+
+| path | what is there |
+| --- | --- |
+| `README.md`, `CLAUDE.md`, `Changes.md` | entry (three links and the publishing steps), the entry for an AI working on the code, every change (newest first) |
+| `InstallAll.py` | build and install (`--fc` with `gfortran`, `ifx` or `nvfortran`; `--gpu`; `--bindir`) |
+| `SRC/subroutines/` | the Fortran library `libecaljF.so` (modules `m_*.f90`; the programs are thin entries) |
+| `SRC/main/` | the entries of the Fortran programs (table 4) |
+| `SRC/exec/` | the Python and shell drivers (`gwsc`, `job_*`, `ctrlgenToml.py`, `testecalj`, ...) and `pylib/` |
+| `Samples/` | worked examples and tests, one directory per topic, each with a README (`Samples/README.md` lists them) |
+| `ecaljdoc/` | the source of this site |
+| `ecalj_auto/` | automatic runs of many materials (GW1500), the database builder `gw1500db_build.py` |
+| `TOOLS/` | maintenance scripts: `samples_tests.sh` (tests by group), `publish_*.sh`, `doclinks.py`, `module_map.py` |
+| `MD/` | development notes (not on this site; `MD/README.md` first) |
+| `GetSyml/`, `StructureTool/` | k paths for band plots, structure conversion |
+
+## 7. Programs and drivers
+
+*Table 4*. What runs what (installed into the bin directory by `InstallAll.py`)
+
+| command | what it does |
+| --- | --- |
+| `vasp2ctrl POSCAR` | POSCAR → `ctrls.POSCAR.vasp2ctrl` (structure in ecalj form; copy it to `ctrls.<sname>`) |
+| `ctrlgenToml.py <sname>` | `ctrls.<sname>` → the input `ctrlg.<sname>.toml` (basis, k meshes, GW settings; `--ssig=0.8` for QSGW80) |
+| `lmfa <sname>` | free atoms (the starting density and the atom files) |
+| `lmf <sname>` | the DFT self-consistency (also the QSGW one-body part when `sigm` exists); `lmchk <sname>` checks the structure |
+| `getsyml <sname>` | the k path for band plots |
+| `job_band <sname> -np N` | band plot (files `bnd*.spin*`, `bandplot.isp1.glt`); `job_tdos`, `job_pdos`: densities of states |
+| `gwsc <n> -np N <sname>` | `n` QSGW iterations: lmf → GW inputs → W and Σ (`hgw`) → `hqpe_sc` (QP energies, `sigm`) → lmf |
+| `gwscconv -np N <sname> --conv-tol 0.1` | QSGW repeated until the gap (or, for metals, the levels near E_F) stops changing |
+| `job_eps <sname>` | dielectric function (RPA) |
+| `job_mlo <sname>`, `job_mlo_soc`, `job_mloW <sname> [--crpa]`, `job_mlo_magnon` | MLO model, with SOC, U/J/cRPA, magnons |
+| `testecalj [--all] [targets]` | the tests (in `Samples/TestInstall`, or in a sample directory) |
+| `ctrlg_update.py`, `Legacy2toml.py` | update an older `ctrlg`, convert the old `ctrl` + `GWinput` |
+
+Every program prints its options with `--help`; [Command-line options](./cmdopts.md) lists them.
+
+## 8. The input file and the output files
+
+`ctrlg.<sname>.toml` has the sections `[struc]` (lattice), `[[site]]` (atoms), `[[spec]]` (species: basis, radii, LDA+U),
+`[bz]` (k mesh, metal or not), `[iter]` (mixing), `[ham]` (functional, spin, SOC, `scaledsigma`, plane waves), `[options]`,
+`[gw]` (GW meshes and cut-offs, `t_tetrakbt`, `t_sigmaw`), `[mlo]`, and at the end `[product_basis]` (made automatically).
+Any key can be overridden on the command line: `lmf <sname> --ctrlg:bz.nkabc=[8,8,8]` ([TOML migration](./toml_migration.md)).
+
+*Table 5*. Output files to look at
+
+| file | what |
+| --- | --- |
+| `llmf` (stdout of lmf in gwsc), `log.<sname>` | the course of the run; the gap line `VBmax= ... CBmin= ... gap = ... eV`; `efermi.lmf` the Fermi level |
+| `rst.<sname>` | the density (restart) |
+| `sigm`, `sigm.<sname>` | the QSGW self-energy (static, Hermitian) used by lmf |
+| `QPU`, `QPD` | QP energies of the last iteration (spin up, down) |
+| `bnd*.spin1` | band lines of `job_band` |
+| `dos.tot.<sname>*` | total DOS |
+| `QSGW.<n>run/` | the files of each iteration (`gwsc`, `gwscconv`) |
+
+## 9. Words
+
+PMT: the basis, augmented plane waves plus muffin-tin orbitals. QSGW: quasiparticle self-consistent GW; the static
+Hermitian part of Σ replaces the exchange-correlation potential and is iterated to self-consistency. QSGW80: 80 % of the QSGW Σ
+and 20 % of LDA (`scaledsigma = 0.8`). MLO: localized orbitals made from the muffin-tin orbitals, orthonormalized (Löwdin),
+for models. cRPA: the constrained RPA for the screened U. ESM: the effective screening medium for slabs. `<sname>`: the name of
+a material, the extension of its files (`ctrlg.gaas.toml` → `gaas`).
+
+## 10. Data, and where to look when something goes wrong
+
+- The GW1500 database: QSGW80 band gaps, bands and DOS of 1546 materials of Materials Project,
+  https://github.com/tkotani/DOSnpSupplement/tree/main/QSGW80_2026 (its README gives the conditions of each value and the checks).
+  The 2025 tables there are the supplement of arXiv:2507.19189.
+- An old `ctrl.<sname>` or `GWinput`: not read any more; convert with `Legacy2toml.py`. An old `ctrlg` with `SmearX0` stops;
+  `ctrlg_update.py` rewrites it. `t_tetrakbt` must be in `[gw]`.
+- Numbers off from a README: check the k mesh, `scaledsigma`, and the number of iterations first; then `Changes.md` for a change
+  of defaults since the README was written.
+- Questions and reports: the GitHub repository, https://github.com/tkotani/ecalj
