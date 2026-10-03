@@ -87,6 +87,13 @@
 
 ## 2026-10-02 夜 — GW1500 のデータベース
 
+### 13:26 **push と公開（user「1、2、3 をやってください」）**
+
+- 試験: `1414c5886` を mic（ifx 2026）と ucgw（ifx 2024.2）で Samples の bench 以外の全部。22 組 PASS、heavy は `nio_gwsc444` の QPU だけ FAIL
+  （spglib の操作の並びによる 15 meV。両機は 0.001 eV で一致）→ 参照を作り直した（`8f8fa3fac`）。t14（gfortran）は 10-02 に同じコードで 19 組 PASS
+- `TOOLS/publish_all.sh --push --rel`: ① ecalj dev・rel とも `eb964c1d1`（09-25 の `1e38c1c58` から約 940 コミット）、② ecaljdoc `2cd1f99`
+  （サイトのビルド成功）、③ DOSnpSupplement `725e9d5`（`QSGW80_2026/`、13:01 のデータベース: N 465、R 277、M 803）
+
 ### 07:29 構造の不正・疑わしい 10 物質もキューの最後に（user「構造が不正・疑わしい 10 物質も最後まで回して」）
 
 - 5 月の値しか無い 10: TiS₂ mp-1062030、Pb₂S₂ mp-20526・mp-561320・mp-726184・mp-727323、Pb₂Se₂ mp-22009、Sn₂S₂ mp-727322・mp-8781、
