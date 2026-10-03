@@ -49,6 +49,12 @@ TOOLS/publish_ecaljdoc.sh --push   # そのうえで push（GitHub Actions が�
 - 最初の公開（2026-10-02 以後の最初）では、サイトから外したページ（ForDevelopers など、今は `MD/`）と trash に移したもの（`BackUp/`、`ecaljdetails/` など）が
   公開側から消える
 
+### 3.1 三つを順に出す（2026-10-03、user）
+
+公開するリポジトリは三つで、順番がある（サイトとデータベースは GitHub の ecalj のファイルを指す）: ① ecalj の push（dev、試験のあと rel）、
+② ecaljdoc の公開（この文書）、③ GW1500 のデータベース（`TOOLS/publish_gw1500db.sh`、github.com/tkotani/DOSnpSupplement の `QSGW80_2026/`、
+2025 年の補遺の中身は残す）。一括は [`TOOLS/publish_all.sh`](../TOOLS/publish_all.sh)（`--push` で push、`--rel` で rel も）。説明は最上位の [`README.md`](../README.md)
+
 ## 4. ほかの機械
 
 - [`TOOLS/sync_ecalj_src.sh`](../TOOLS/sync_ecalj_src.sh) `--samples <host>` は追跡しているツリーを全部送るので、`ecaljdoc/` と `MD/` も送られる。`--samples` なしは SRC と InstallAll.py だけ

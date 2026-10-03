@@ -529,7 +529,9 @@ first, then those whose May value is far from the 2025 values, then a random sam
 ## Files and how this was made
 
 - `gw1500db.tsv`: one row per material (all columns of the table, the other results in `others`, notes in `dbnote`)
-- `fig/<mpid>.png`, `npz/<mpid>.<tag>.npz` (bands and DOS; tags `may_qsgw`, `may_lda`, `rr_<run>`, `db_qsgw`, `db_lda`), `logs/*.log`
+- `fig/<mpid>.png`. The raw data behind the figures (`npz/<mpid>.<tag>.npz`, bands and DOS; tags `may_qsgw`, `may_lda`, `rr_<run>`,
+  `db_qsgw`, `db_lda`) and the logs of the runs are kept by the maintainers and are not in the published copy
+- Published at https://github.com/tkotani/DOSnpSupplement/tree/main/QSGW80_2026 (by `TOOLS/publish_gw1500db.sh` of ecalj)
 - ecalj `ecalj_auto/`: `gw1500_rerun.sh` (the runs, `T_TETRAKBT`), `gw1500db_extract.py`, `gw1500db_build.py`,
   `gw1500_reorder.py`; the status of the earlier runs `GW1500_status.md`, `gw1500_status_20260930.tsv`, `gw1500_notes_20261001.tsv`
 - Machines: kt1 (RTX 5090 x2, 64 cores, 4 workers x 16 cores), kr7 (RTX 5090, 16 cores, 2 workers x 8 cores)
