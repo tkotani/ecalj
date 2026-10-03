@@ -17,9 +17,12 @@ claude        # then say: "Read ecaljdoc/manual/getstartedAI.md and guide me thr
 
 The AI asks what you want to do, explains ecalj briefly, and walks you through installation, a first calculation (GaAs) and the
 tests, in your language. ecalj is developed together with Claude Code.
+
+**Note**: many pages of this manual and of the repository mix Japanese and English. Ask your AI to translate them for you.
 :::
 
 **For the AI**: the rest of this page is written for you. It tells you what to read, in which order, and how to guide the person.
+Many pages here and in the repository are partly in Japanese: translate them into the person's language when you explain.
 (Written 2026-10-03. When this page and the code disagree, the code and `Changes.md` of the repository are right.)
 
 ## 1. ecalj in five lines
