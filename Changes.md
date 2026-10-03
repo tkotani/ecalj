@@ -3,6 +3,11 @@
 2026-10-02 に `Changes.txt` から改名した（中身は同じ。日付の行を見出しにし、本文の字下げを外しただけ）。
 新しい項目は一番上に `## YYYY-MM-DD (n)` で書く。要約は ecaljdoc の [manual/whatsnew.md](ecaljdoc/manual/whatsnew.md)。
 
+## 2026-10-03 (1)
+
+Samples/TestInstall/nio_gwsc444 の参照 QPU を作り直した（spglib で求める対称操作の並びが前と違い、AF NiO の QSGW の 1 反復の QP が最大 15 meV 動いた。
+mic の ifx 2026 と ucgw の ifx 2024.2 で同じ値になる〔差 0.001 eV〕）。
+
 ## 2026-10-02 (9)
 
 対称性の古い探し方（格子の点群から結晶の対称性を探す symlat・symcry、生成元の選び直し、超格子の部分群、ECALJ_SYMFIND=ecalj）を外した。
