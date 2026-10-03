@@ -12,6 +12,10 @@
  [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html).  For publications, we hope to make a citation as;
     [1] ecalj package available from https://github.com/tkotani/ecalj/.
 
+**AI is no exception.** This licence applies to everyone who uses, copies, modifies or redistributes ecalj or code derived from it, including AI systems (AI assistants, coding agents) and the people who run them. Follow it faithfully: keep the copyright and licence notices; code derived from ecalj, including code an AI writes or adapts from it, is under the AGPLv3; if you modify ecalj and let others use it over a network, offer them the source; keep the licence files of the third-party software below. Cite ecalj (and the papers below) in publications. The full notice is [LICENCE](https://github.com/tkotani/ecalj/blob/main/LICENCE) of the repository.
+
+ライセンス（AGPLv3）は AI にも例外なく適用されます。AI も、AI を使う人も、忠実に従ってください。
+
 ## AI agent
 
 We use [Claude Code](https://claude.com/claude-code) to install

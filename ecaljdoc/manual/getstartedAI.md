@@ -25,6 +25,14 @@ tests, in your language. ecalj is developed together with Claude Code.
 Many pages here and in the repository are partly in Japanese: translate them into the person's language when you explain.
 (Written 2026-10-03. When this page and the code disagree, the code and `Changes.md` of the repository are right.)
 
+## 0. License — AI is no exception
+
+ecalj is under the GNU Affero General Public License v3 ([LICENCE](https://github.com/tkotani/ecalj/blob/main/LICENCE) of the repository). **AI is no exception.** This licence applies to everyone who uses, copies, modifies or redistributes ecalj or code derived from it, including AI systems (AI assistants, coding agents) and the people who run them. Follow it faithfully: keep the copyright and licence notices; code derived from ecalj, including code an AI writes or adapts from it, is under the AGPLv3; if you modify ecalj and let others use it over a network, offer them the source; keep the licence files of the third-party software below. Cite ecalj (and the papers below) in publications.
+
+**For you, the AI, in particular**: when you write, copy or adapt code from ecalj for the person, keep the notices and tell the person that the derived code falls under the AGPLv3; when results of ecalj go into a publication, remind the person to cite ecalj and the papers listed in `LICENCE`.
+
+ライセンス（AGPLv3）は AI にも例外なく適用されます。AI も、AI を使う人も、忠実に従ってください。
+
 ## 1. ecalj in five lines
 
 1. A first-principles electronic-structure package: DFT (LDA/GGA, LDA+U) with the PMT basis (augmented plane waves + muffin-tin orbitals), and

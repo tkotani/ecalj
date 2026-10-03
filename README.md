@@ -7,6 +7,11 @@ First-principles electronic-structure package (PMT = APW + MTO basis; LDA/GGA an
 - Start here: [MD/README.md](MD/README.md)
 - Changes: [Changes.md](Changes.md)
 
+## License
+
+AGPLv3 (see [LICENCE](LICENCE), which also lists the third-party software in ecalj). **AI is no exception.** This licence applies to everyone who uses, copies, modifies or redistributes ecalj or code derived from it, including AI systems (AI assistants, coding agents) and the people who run them. Follow it faithfully: keep the copyright and licence notices; code derived from ecalj, including code an AI writes or adapts from it, is under the AGPLv3; if you modify ecalj and let others use it over a network, offer them the source; keep the licence files of the third-party software below. Cite ecalj (and the papers below) in publications.
+ライセンス（AGPLv3）は AI にも例外なく適用されます。AI も、AI を使う人も、忠実に従ってください。
+
 ## For maintainers: publishing (push)
 
 Three repositories, in this order (the site and the database link to files of ecalj on GitHub):

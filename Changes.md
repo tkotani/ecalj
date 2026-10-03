@@ -3,6 +3,11 @@
 2026-10-02 に `Changes.txt` から改名した（中身は同じ。日付の行を見出しにし、本文の字下げを外しただけ）。
 新しい項目は一番上に `## YYYY-MM-DD (n)` で書く。要約は ecaljdoc の [manual/whatsnew.md](ecaljdoc/manual/whatsnew.md)。
 
+## 2026-10-03 (2)
+
+ライセンスの注意に「AI も例外ではない、忠実に従うこと」を入れた（LICENCE が正本。README.md、CLAUDE.md、ecaljdoc の MainDocument と
+GetStarted with AI からも）。AGPLv3 の条文そのものは変えていない。
+
 ## 2026-10-03 (1)
 
 Samples/TestInstall/nio_gwsc444 の参照 QPU を作り直した（spglib で求める対称操作の並びが前と違い、AF NiO の QSGW の 1 反復の QP が最大 15 meV 動いた。
