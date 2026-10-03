@@ -1,9 +1,23 @@
 # GetStarted with AI
 
-**For people**: give the address of this page (or of the ecalj repository, https://github.com/tkotani/ecalj) to an AI assistant
-— Claude Code is what ecalj is developed with — and ask, for example, *"Read this and guide me through ecalj"*. The AI then
-explains what ecalj is, asks what you want to do, and walks you through installation, a first calculation and the tests,
-in your language.
+::: tip How to use this page (for people) / このページの使い方
+**1. With an AI chat (no install).** Open an AI assistant that can read web pages (Claude, for example) and paste:
+
+`Read https://ecalj.github.io/ecaljdoc/manual/getstartedAI and guide me through ecalj.`
+
+日本語なら: `https://ecalj.github.io/ecaljdoc/manual/getstartedAI を読んで、ecalj を日本語で案内してください。`
+
+**2. With Claude Code on your computer (to run calculations together; recommended).**
+
+```bash
+git clone https://github.com/tkotani/ecalj
+cd ecalj
+claude        # then say: "Read ecaljdoc/manual/getstartedAI.md and guide me through ecalj"
+```
+
+The AI asks what you want to do, explains ecalj briefly, and walks you through installation, a first calculation (GaAs) and the
+tests, in your language. ecalj is developed together with Claude Code.
+:::
 
 **For the AI**: the rest of this page is written for you. It tells you what to read, in which order, and how to guide the person.
 (Written 2026-10-03. When this page and the code disagree, the code and `Changes.md` of the repository are right.)
