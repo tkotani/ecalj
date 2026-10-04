@@ -86,7 +86,19 @@ def find_voids(plat, pos, rmin):
         if best <= rmin: continue
         if any(np.linalg.norm(((fr - g + 0.5) % 1.0 - 0.5) @ plat) < 0.5 for g, _ in out): continue
         out.append((fr, best))
-    return out
+    return select_voids(out, plat)
+
+
+def select_voids(voids, plat):
+    """Keep the largest voids first; a smaller one only when its ES would not overlap the kept ones, i.e. the centres are at
+    least 0.6 (v_i + v_j) apart (0.6 v is the ES radius). Bug fixed 2026-10-05: all local maxima above rmin were kept, so a wide
+    void (a molecular crystal, a slab-like structure) got up to 24 ES whose common radius, half the distance to the next ES,
+    fell to 0.25 a.u. (53 of the 209 GW1500 structures with a void above 3.0 a.u. got ES below 1.5 a.u.)."""
+    kept = []
+    for fr, v in sorted(voids, key=lambda a: -a[1]):
+        if all(np.linalg.norm(((fr - g + 0.5) % 1.0 - 0.5) @ plat) >= 0.6 * (v + w) for g, w in kept):
+            kept.append((fr, v))
+    return kept
 
 
 def main():
