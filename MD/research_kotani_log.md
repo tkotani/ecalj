@@ -93,6 +93,16 @@
 - user「それならそれでいい」: 5 月の値（旧 `--mp`、χ0 まで TF32）は全部置き換える。今の tf32 は fp32 と 0.00 eV で一致しており信頼できる（user「たぶん今の tf32 は信頼性が高い」）
 - 23:41 t14 で `~/work/gw1500db/rebalance6.sh` を開始（ローカル）: kr7 の列が 6 以下になったら kt1 の列の後ろから 6 原子を 10 ずつ移す。試しに Ca2Br4（mp-571166）・Cs4Se2（mp-569272）を kr7 の列の先頭へ（kr7 は 30 GB）。kr7 で落ちたら kt1 に戻して移すのをやめる。7〜8 原子は kt1 に残す
 
+### 10-04 11:11 **GW1500: MLO の標準処方を確立し、全物質に回し始めた（user「処方箋をまず確立する。みなが再現できるように」「1500 個でトラブルを出し切るのも目標」）**
+
+- 図を 3 枚に: LDA | QSGW80（+ DOS）| MLO（QSGW80 を灰色で敷いて MLO を赤、窓の外に影、条件と判定を見出しに）。user が選んだ並び
+- 処方: `ecalj_auto/gw1500_mlo.sh`（3c6d849d1）。[mlo] を今の gwinit で書き直し（`gw1500_mlo_regen.py`）→ `job_mlo`（Löwdin、method 4、Δ = w = 2 eV、ssig 0.8 で QSGW80 の模型）→ `mlo_bandcheck.py`。版を `mlo_version.txt` に。`gw1500_rerun.sh` が既定でバンドの後に回す（`MLO=1`）。ecaljdoc mlo.md「GW1500 の標準処方」（bc247f23c）
+- `job_mlo` には `efermi.lmf` が要る（無いと CBM が分からず窓が決まらない。PlotBand/ には無いので QSGW の作業場所から写す）
+- 手元のビルドが 10-02 21:32 のままで adb18bced（22:43）が入っていなかった → 11:01 に作り直した。MLO はこのビルド（a4d08b7b8 のソース）
+- 試した 5 物質: CdGa2S4・Na2H2S2・MgBe2As2 は PASS、K2Te2Pt は窓の上端（+3.9 eV）で 0.2 eV、Y2Zn2P2O2 は CBM が 0.23 eV 上（FAIL）
+- 11:06 t14 で 4 本（`~/work/gw1500mlo`、feed.sh が kt1・kr7 の収束した物質を 20 分ごとに列へ、worker.sh が PlotBand/ と efermi.lmf を写して回し、模型の行列は消す）。1 物質 5〜180 s
+- 11:11 作り直しの処理を `sync_loop3.sh` に替えた（MLO を npz `db_mlo` に、リポジトリの builder を使う）。builder の 3 枚組・MLO の列・README の MLO 節・MLO-FAIL の表は b2214b31e
+
 ### 10-04 09:46 **GW1500: kr7 で 6 原子は kt1 の約 1/4 の速さ、上限 3 h で回し直す（user「それでいいです」）**
 
 - 試しの 2 つ: Ca2Br4（mp-571166）は kr7 で 3197 s で収束、Cs4Se2（mp-569272）は上限 5400 s で TIMEOUT → kt1 に戻した（01:26、監視が移すのを止めた）
