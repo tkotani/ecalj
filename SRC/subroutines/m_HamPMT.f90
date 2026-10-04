@@ -200,7 +200,8 @@ contains
         ! Which functions represent a listed l channel that has a semicore local
         ! orbital (k=3)?  By the top of the band of the LO (2026-10-01 19:2x):
         !   above EF - 8 eV (in the window; the LO is the valence shell itself, Ni 3d in NiO,
-        !     Zn 3d): the LO REPLACES the EH function of that (atom,l)
+        !     Zn 3d): the LO REPLACES the EH function of that (atom,l) -- for d only (2026-10-05);
+        !     a semicore s or p in the window (Cs 5p) is added, as below
         !   EF - 17 .. -8 eV (SHALLOW semicore below the window): the LO is a model function
         !     IN ADDITION to the EH function
         !   below EF - 17 eV (deep): not part of the model (its states are dropped by nskip
@@ -330,7 +331,10 @@ contains
               ! stops mlo on the overlap check of nskip. (Tried 2026-10-05: comparing with the bottom of the LO band minus
               ! 0.5 eV, against states mixed with an anion s; CaO2, whose Ca 3p and O2 2s bands overlap, stopped again.)
               if (.not. use_lo(ib,il) .and. etop_all(ib,il) > -1d98 .and. elow_all < etop_all(ib,il)) use_lo(ib,il) = .true.
-              lo_replace(ib,il) = etop_all(ib,il) > eferm + evalence
+              ! Replace only a d LO (the valence d shell itself: Ni 3d, Zn 3d). A semicore s or p LO in the window (Cs 5p at EF -7.9 eV
+              ! in Cs2Ag2C4, K 3p, Rb 4p, Ba 5p) is added: the EH function of that l (Cs 6p) makes the conduction band, and
+              ! replacing it left the top of the window 0.46 eV off (0.11 eV added; 2026-10-05, user: "related to Cs?").
+              lo_replace(ib,il) = etop_all(ib,il) > eferm + evalence .and. il >= 2
               if (master_mpi .and. etop_all(ib,il) < -1d98) then   ! no occupied state with weight > 1/2: treated as deep
                 write(stdo,ftox) ' m_HamPMT: local orbital atom',ib,' l=',il,' no band of it found -> deep: LO skipped'
               elseif (master_mpi .and. lo_replace(ib,il)) then

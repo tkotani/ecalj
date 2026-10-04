@@ -13,7 +13,7 @@
 #   3. mlo_bandcheck.py: the model against the QSGW80 bands on the path -> bandcheck.json, lbandcheck; the grade PASS/OK/FAIL
 #      of gw1500_mlo_grade.py -> grade.json
 # Writes mlo_version.txt (ecalj revision of the binaries) and one line to stdout: <m> DONE|FAIL ...
-# Env: ECALJ_BIN (default ~/bin); MLO_LM2=1: baseline 2 (the mlo_lm2 rows of gwinit taken, gw1500_mlo_regen.py --lm2);
+# Env: ECALJ_BIN (default ~/bin); ECALJ_REV (the revision written to mlo_version.txt, for a tree outside git); MLO_LM2=1: baseline 2 (the mlo_lm2 rows of gwinit taken, gw1500_mlo_regen.py --lm2);
 #      MLO_LM2=all: EH2 s,p on every atom but the transition metals, 4f and 5f (--lm2all, a test of 2026-10-04);
 #      MLO_LM2=noae: as all, but Ca, Sr, Ba left out too (--lm2noae, a test);
 #      MLO_DELTA=<eV>: mlo_delta of the model (the check stays on CBM + 2 eV; a test of 2026-10-05: the weight falls off
@@ -25,7 +25,7 @@ m=$(ls ctrlg.*.toml 2>/dev/null | head -1 | sed 's/^ctrlg\.//; s/\.toml$//')
 [ -n "$m" ] || { echo "$d FAIL no ctrlg"; exit 1; }
 for f in ctrlg.$m.toml rst.$m sigm efermi.lmf syml.$m bnd001.spin1; do [ -e $f ] || { echo "$m FAIL missing $f"; exit 1; }; done
 export OMP_NUM_THREADS=1
-src=$(dirname "$(readlink -f "$B/lmf")"); rev=$(git -C "$src" rev-parse --short=9 HEAD 2>/dev/null || echo unknown)
+src=$(dirname "$(readlink -f "$B/lmf")"); rev=${ECALJ_REV:-$(git -C "$src" rev-parse --short=9 HEAD 2>/dev/null || echo unknown)}   # ECALJ_REV: a tree outside git
 dirty=$(git -C "$src" status --porcelain --untracked-files=no -- . 2>/dev/null | head -1)
 echo "ecalj $rev${dirty:+ (modified)} binaries $(readlink -f "$B/lmf") $(date '+%F %T')" > mlo_version.txt
 case "${MLO_LM2:-}" in 1) o=--lm2;; all) o=--lm2all;; noae) o=--lm2noae;; *:*) o=--lm2sel=$MLO_LM2;; *) o=;; esac
