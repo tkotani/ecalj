@@ -325,6 +325,10 @@ contains
               ! GW1500): in SnF4 the F 2s bands lie below the Sn 4d (EF -18.3 eV), nskip came out 0, and the 5 Sn 4d bands
               ! stayed in the projector with no MLO for them: the F 2p bands 0.40 eV off; with the Sn 4d LO 0.019 eV.
               ! CaO2 (O2 2s below the Ca 3p) stopped on the overlap check of nskip.
+              ! The condition is not a rule of thumb: nskip can drop only bands below every model band, so once a model state
+              ! lies below the top of the LO band, the LO band cannot be dropped, and leaving the LO out breaks the model or
+              ! stops mlo on the overlap check of nskip. (Tried 2026-10-05: comparing with the bottom of the LO band minus
+              ! 0.5 eV, against states mixed with an anion s; CaO2, whose Ca 3p and O2 2s bands overlap, stopped again.)
               if (.not. use_lo(ib,il) .and. etop_all(ib,il) > -1d98 .and. elow_all < etop_all(ib,il)) use_lo(ib,il) = .true.
               lo_replace(ib,il) = etop_all(ib,il) > eferm + evalence
               if (master_mpi .and. etop_all(ib,il) < -1d98) then   ! no occupied state with weight > 1/2: treated as deep

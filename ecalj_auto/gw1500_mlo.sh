@@ -10,7 +10,8 @@
 #   1. [mlo] of the ctrlg rewritten with the present gwinit rules (gw1500_mlo_regen.py)
 #   2. job_mlo (lmf --writeham --mlo, mlo): mlo_method 4, mlo_delta = mlo_w = 2 eV, Lowdin-orthogonalized MLOs. The
 #      ctrlg has [ham] ssig 0.8, so the model is that of the QSGW80 Hamiltonian
-#   3. mlo_bandcheck.py: the model against the QSGW80 bands on the path -> bandcheck.json, lbandcheck
+#   3. mlo_bandcheck.py: the model against the QSGW80 bands on the path -> bandcheck.json, lbandcheck; the grade PASS/OK/FAIL
+#      of gw1500_mlo_grade.py -> grade.json
 # Writes mlo_version.txt (ecalj revision of the binaries) and one line to stdout: <m> DONE|FAIL ...
 # Env: ECALJ_BIN (default ~/bin); MLO_LM2=1: baseline 2 (the mlo_lm2 rows of gwinit taken, gw1500_mlo_regen.py --lm2);
 #      MLO_LM2=all: EH2 s,p on every atom but the transition metals, 4f and 5f (--lm2all, a test of 2026-10-04);
@@ -33,4 +34,5 @@ s=$(date +%s)
 timeout 2h "$B/job_mlo" $m -np $np --nognuplot ${MLO_DELTA:+--ctrlg:mlo.mlo_delta=$MLO_DELTA} > ljob_mlo 2>&1; rc=$?
 [ -s band_MLO_spin1.dat ] || { echo "$m FAIL job_mlo rc=$rc $(grep -m1 -i -E 'error|abort|stop' ljob_mlo lmlo lwriteham 2>/dev/null | cut -c1-100)"; exit 1; }
 python3 "$B/mlo_bandcheck.py" . --json bandcheck.json ${MLO_DELTA:+--delta 2.0} > lbandcheck 2>&1
-echo "$m DONE $(( $(date +%s) - s ))s $(grep -m1 -o 'CHECK [A-Z]*' lbandcheck)"
+g=$(python3 "$H/gw1500_mlo_grade.py" . "$B" 2>/dev/null)
+echo "$m DONE $(( $(date +%s) - s ))s $(grep -m1 -o 'CHECK [A-Z]*' lbandcheck) GRADE ${g:-?}"
