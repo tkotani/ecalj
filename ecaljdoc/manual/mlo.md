@@ -1619,6 +1619,20 @@ rms は MLO → DFT / DFT → MLO（eV）。窓は MLO → DFT が [VBM − 8, C
 - 評価: `mlo_bandcheck.py <dir> ... --json out.json`（式 (9)〜(11)）
 - 一覧のページ（表 M4・M5 と全物質のバンドの図）: `Samples/MATERIALS/mlocheck/gallery.py <出力先>`。図に描いた数値は `page_data/*.npz` に書く
 
+### GW1500 の標準処方 — QSGW80 の模型
+
+GW1500 のデータベース（QSGW80 のバンド）の各物質に、同じ処方で MLO の模型を作る。物質ごとの調整はしない（基準 1 だけ）。
+
+1. QSGW80 を回す: [`ecalj_auto/gw1500_rerun.sh`](https://github.com/tkotani/ecalj/tree/main/ecalj_auto/gw1500_rerun.sh)
+   （POSCAR → `ctrlgenToml.py --ssig=0.8` → `gwscconv` → `job_band`）。既定（`MLO=1`）で続けて 2 を回す
+2. 模型を作る: [`ecalj_auto/gw1500_mlo.sh`](https://github.com/tkotani/ecalj/tree/main/ecalj_auto/gw1500_mlo.sh) `<dir> [np]`。
+   `<dir>` は 1 の `PlotBand/`（ctrlg、rst、sigm、atmpnu、syml、QSGW80 のバンド）に QSGW の最後の `efermi.lmf` を足したもの。
+   - `[mlo]` を今の `gwinit` の規則で書き直す（`gw1500_mlo_regen.py`。前の規則で書いた ctrlg のため。元は `.orig` に残る）
+   - `job_mlo`: `mlo_method = 4`、`mlo_delta = mlo_w = 2` eV、Löwdin で直交化した MLO（§6）。ctrlg の `[ham] ssig = 0.8` により QSGW80 のハミルトニアンの模型になる
+   - `mlo_bandcheck.py` で QSGW80 のバンドと比べる（式 (9)〜(11)、判定は「模型が壊れていないかの検査」）。結果は `bandcheck.json`
+   - 使った ecalj の版を `mlo_version.txt` に書く
+3. 模型の行列（`HamRsMLO`、`__HamiltonianPMT`）は大きい（1 物質で数百 MB）ので、データベースには入れない。要るときは 2 を回し直せば同じものができる
+
 ---
 
 ## 経緯(記録)
