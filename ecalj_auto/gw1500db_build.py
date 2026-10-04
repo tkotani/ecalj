@@ -198,41 +198,76 @@ def fmt(x, nd=2):
     return '' if x is None else f'{x:.{nd}f}'
 
 
-def figure(db, m, title, curves, path):
+def bands(ax, d, sh, color, ls, lw, label=None):
+    x, E, seg = d['x'], d['E'], d['seg']
+    for bnd in E:
+        for sg in np.unique(seg):
+            k = seg == sg
+            ax.plot(x[k], bnd[k] - sh, color=color, ls=ls, lw=lw)
+    if label:
+        ax.plot([], [], color=color, ls=ls, lw=1.2, label=label)
+
+
+def mlo_title(dm, gap):
+    """the conditions and the check of the MLO model, for the right panel (2026-10-04)"""
+    dl = float(dm['mlo_delta']) if 'mlo_delta' in dm else 2.0
+    t = f"MLO model ({int(dm['nmlo'])} MLOs): Löwdin, Δ = w = {dl:g} eV\n"
+    if 'gapM' in dm and gap is not None and gap > 0.05:
+        t += f"gap {float(dm['gapM']):.2f} (QSGW80 {float(dm['gapD']):.2f}) eV, "
+    if 'rms_m2d' in dm:
+        t += f"rms {float(dm['rms_m2d']):.3f}, max {float(dm['max']):.2f} eV: {dm['check']}"
+    return t
+
+
+def figure(db, m, title, curves, dm, gap, path):
+    """LDA | QSGW80 (+ total DOS) | MLO model on QSGW80 (2026-10-04, user: three panels, the MLO model of the standard
+    recipe, gw1500_mlo.sh, on the right with its conditions). Shaded in the right panel: outside the window of the check."""
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
-    fig, (ax, ad) = plt.subplots(1, 2, figsize=(7.2, 4.2), gridspec_kw=dict(width_ratios=[4, 1], wspace=0.04), sharey=True)
-    ref = None
-    dmax = 0.0
-    for (d, color, ls, lw, label, sh) in curves:
+    fig, (al, aq, ad, am) = plt.subplots(1, 4, figsize=(12.0, 4.4), sharey=True,
+                                         gridspec_kw=dict(width_ratios=[3, 3, 0.8, 3], wspace=0.05))
+    dmax = 0.0; dq = None; qsh = 0.0; dl = None
+    for (d, color, ls, lw, label, sh, panel) in curves:
         if d is None:
             continue
-        x, E = d['x'], d['E']                                 # sh: the VBM on the path (insulators), 0 = E_F (metals)
-        seg = d['seg']
-        for b in E:
-            for s in np.unique(seg):
-                k = seg == s
-                ax.plot(x[k], b[k] - sh, color=color, ls=ls, lw=lw)
-        ax.plot([], [], color=color, ls=ls, lw=1.2, label=label)
+        bands(al if panel == 'L' else aq, d, sh, color, ls, lw, label)
+        if panel == 'Q' and dq is None:
+            dq, qsh = d, sh
+        if panel == 'L' and dl is None:
+            dl = d
         if len(d['dos']):
             e = d['dosE'] - sh
             ad.plot(d['dos'], e, color=color, ls=ls, lw=lw)
             w = (e > -8) & (e < 10)
             if w.any():
                 dmax = max(dmax, float(d['dos'][w].max()))
-        if ref is None:
-            ref = d
+    ref = dq if dq is not None else dl
+    if dq is not None:
+        bands(am, dq, qsh, '0.75', '-', 1.6, 'QSGW80')
+        if dm is not None:
+            bands(am, dm, qsh, 'tab:red', '-', 0.7, 'MLO')
+            if 'emin' in dm and 'emax' in dm:
+                am.axhspan(-8, float(dm['emin']) - qsh, color='0.93', zorder=0)
+                am.axhspan(float(dm['emax']) - qsh, 10, color='0.93', zorder=0)
+            am.set_title(mlo_title(dm, gap), fontsize=7, loc='left')
+        else:
+            am.set_title('MLO model: not yet made', fontsize=7, loc='left')
+        am.legend(fontsize=7, loc='upper right', framealpha=0.8)
+    for ax, t in ((al, 'LDA'), (aq, 'QSGW80')):
+        ax.text(0.02, 0.98, t, transform=ax.transAxes, fontsize=8, va='top', bbox=dict(fc='w', ec='none', alpha=0.7))
     if ref is not None:
-        for lx, lb in zip(ref['labx'], ref['lab']):
-            ax.axvline(float(lx), color='0.75', lw=0.5)
-        ax.set_xticks([float(v) for v in ref['labx']]); ax.set_xticklabels([str(v) for v in ref['lab']], fontsize=8)
-        ax.set_xlim(float(ref['x'].min()), float(ref['x'].max()))
-    ax.axhline(0, color='0.5', lw=0.5, ls=':'); ad.axhline(0, color='0.5', lw=0.5, ls=':')
-    ax.set_ylim(-8, 10); ax.set_ylabel('E (eV), VBM (or E_F) = 0')
-    ad.set_xlabel('DOS'); ad.set_xticks([]); ad.set_xlim(0, 1.05 * dmax if dmax > 0 else None)
-    ax.set_title(title, fontsize=9, loc='left')
-    ax.legend(fontsize=7, loc='upper right', framealpha=0.8)
+        for ax in (al, aq, am):
+            for lx in ref['labx']:
+                ax.axvline(float(lx), color='0.8', lw=0.5)
+            ax.set_xticks([float(v) for v in ref['labx']]); ax.set_xticklabels([str(v) for v in ref['lab']], fontsize=7)
+            ax.set_xlim(float(ref['x'].min()), float(ref['x'].max()))
+    for ax in (al, aq, ad, am):
+        ax.axhline(0, color='0.5', lw=0.5, ls=':')
+    al.set_ylim(-8, 10); al.set_ylabel('E (eV), VBM (or E_F) = 0')
+    ad.set_xlabel('DOS', fontsize=8); ad.set_xticks([]); ad.set_xlim(0, 1.05 * dmax if dmax > 0 else None)
+    fig.suptitle(title, fontsize=9, x=0.12, ha='left')
+    aq.legend(fontsize=7, loc='upper right', framealpha=0.8)
     fig.savefig(path, dpi=80, bbox_inches='tight'); plt.close(fig)
 
 
@@ -309,6 +344,13 @@ def main():
         dn = D.get(m)
         if dn and dn['verdict'] not in ('CONVERGED', 'CONVERGED_METAL'):
             an.append(f"N:{dn['verdict']}")
+        dm = npz(db, m, 'db_mlo')
+        ml = {}
+        if dm is not None:
+            ml = dict(mlo_n=int(dm['nmlo']), mlo_check=str(dm['check']), mlo_fail=str(dm['fail']), mlo_version=str(dm['version']),
+                      **{f'mlo_{k}': float(dm[k]) for k in ('gapM', 'gapD', 'dVBM', 'dCBM', 'rms_m2d', 'max') if k in dm})
+            if ml['mlo_check'] == 'FAIL':
+                an.append('MLO-FAIL')
         flag = ' '.join(an)
         rows.append(dict(mpid=m, formula=s['formula'], natom=int(s['natom']), sg=f'{SG.get(m, ("", ""))[1]} ({SG.get(m, ("", ""))[0]})',
                          category=cat, lda=lda, gap=gap, adopt=adopt or '', others=others, flag=flag, di=di,
@@ -316,15 +358,15 @@ def main():
                          icsd=bool((mp.get('database_IDs') or {}).get('icsd')), old2=o.get('shot2'), old1=o.get('shot1'),
                          note=n['note'], dbnote=DBN.get(m, ''), host=v.get('N', {}).get('host', ''),
                          version=version(adopt, v.get('N', {}).get('host', '')), spike=sp, km=km,
-                         gap_path=pq['gap'] if pq else None))
+                         gap_path=pq['gap'] if pq else None, **ml))
         if figs and (only is None or m in only):
-            spec = [('db_lda' if os.path.exists(f'{db}/npz/{m}.db_lda.npz') else 'may_lda', '0.6', '-', 0.7, 'LDA')]
-            spec.append((tagq[adopt] if adopt else None, 'tab:red', '-', 0.9, f'QSGW80 ({adopt})'))
+            spec = [('db_lda' if os.path.exists(f'{db}/npz/{m}.db_lda.npz') else 'may_lda', '0.3', '-', 0.7, 'LDA', 'L')]
+            spec.append((tagq[adopt] if adopt else None, 'tab:blue', '-', 0.8, f'QSGW80 ({adopt})', 'Q'))
             for k, g in others.items():
                 if gap is not None and abs(g - gap) > 0.1 and tagq.get(k):
-                    spec.append((tagq[k], 'tab:blue', '--', 0.7, f'QSGW80 ({k}) {g:.2f} eV'))
+                    spec.append((tagq[k], 'tab:green', '--', 0.7, f'QSGW80 ({k}) {g:.2f} eV', 'Q'))
             title = f'{m}  {s["formula"]}  {SG.get(m, ("", ""))[1]}   LDA {fmt(lda)} eV,  QSGW80 {fmt(gap)} eV ({adopt}) {di}'
-            jobs.append((db, m, title, spec, insul, lda is not None and lda > 0.05))
+            jobs.append((db, m, title, spec, insul, lda is not None and lda > 0.05, gap))
     if jobs:
         from multiprocessing import Pool
         with Pool(8) as p:
@@ -333,17 +375,25 @@ def main():
 
 
 def figjob(job):
-    db, m, title, spec, insul, insul_lda = job
+    db, m, title, spec, insul, insul_lda, gap = job
     curves = []
-    for (t, c, ls, lw, lab) in spec:
+    for (t, c, ls, lw, lab, panel) in spec:
         d = npz(db, m, t) if t else None
-        pg = pathgap(d, insul_lda if lab == 'LDA' else insul) if d is not None else None
-        curves.append((d, c, ls, lw, lab, pg['vbm'] if pg else 0.0))
+        pg = pathgap(d, insul_lda if panel == 'L' else insul) if d is not None else None
+        curves.append((d, c, ls, lw, lab, pg['vbm'] if pg else 0.0, panel))
     if any(c[0] is not None for c in curves):
         try:
-            figure(db, m, title, curves, f'{db}/fig/{m}.png')
+            figure(db, m, title, curves, npz(db, m, 'db_mlo'), gap, f'{db}/fig/{m}.png')
         except Exception as e:
             print(m, 'figure failed', e)
+
+
+def mlocell(r):
+    """the MLO model in one cell: check, number of MLOs, gap of the model when an insulator, rms and max error (eV)"""
+    if not r.get('mlo_check'):
+        return ''
+    g = f" gap {r['mlo_gapM']:.2f}" if r.get('gap') and r['gap'] > 0.05 and r.get('mlo_gapM') is not None else ''
+    return f"{r['mlo_check']} {r['mlo_n']}{g} rms {r.get('mlo_rms_m2d', 0):.3f} max {r.get('mlo_max', 0):.2f}"
 
 
 def gapcell(r):
@@ -363,30 +413,34 @@ def write_pages(db, rows, D):
     cnt = Counter(r['adopt'] or 'none' for r in rows)
     fl = Counter(x for r in rows for x in r['flag'].split())
     with open(f'{db}/gw1500db.tsv', 'w') as f:
-        keys = ['mpid', 'formula', 'natom', 'sg', 'category', 'lda', 'gap', 'adopt', 'di', 'flag', 'mp_pbe', 'ehull', 'icsd', 'old1', 'old2', 'host', 'version', 'dbnote']
+        keys = ['mpid', 'formula', 'natom', 'sg', 'category', 'lda', 'gap', 'adopt', 'di', 'flag', 'mp_pbe', 'ehull', 'icsd', 'old1', 'old2', 'host', 'version', 'dbnote',
+                'mlo_n', 'mlo_gapM', 'mlo_dVBM', 'mlo_dCBM', 'mlo_rms_m2d', 'mlo_max', 'mlo_check', 'mlo_version']
         f.write('\t'.join(keys + ['others']) + '\n')
         for r in rows:
-            f.write('\t'.join('' if r[k] is None else (f'{r[k]:.4f}' if isinstance(r[k], float) else str(r[k])) for k in keys)
+            f.write('\t'.join('' if r.get(k) is None else (f'{r[k]:.4f}' if isinstance(r[k], float) else str(r[k])) for k in keys)
                     + '\t' + ';'.join(f'{k}={g:.4f}' for k, g in sorted(r['others'].items())) + '\n')
     pages = sorted({r['natom'] for r in rows})
     with open(f'{db}/table.md', 'w') as f:
         f.write('# GW1500 QSGW80 — table\n\n[README](README.md) for the conditions M, R, N and how to read this table. '
                 'Bands: ' + ', '.join(f'[{n} atoms](bands_{n}atoms.md)' for n in pages) + '.\n\n')
-        f.write('| mpid | formula | atoms | space group | LDA (eV) | QSGW80 (eV) | ecalj version (of the bold value) | on path | D/I | check | MP PBE | 2025 2shot | category | fig | note |\n')
-        f.write('| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n')
+        f.write('| mpid | formula | atoms | space group | LDA (eV) | QSGW80 (eV) | ecalj version (of the bold value) | on path | D/I | check | MP PBE | 2025 2shot | category | MLO model | fig | note |\n')
+        f.write('| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n')
         for r in rows:
             link = f"[fig](bands_{r['natom']}atoms.md#{r['mpid']})" if os.path.exists(f"{db}/fig/{r['mpid']}.png") else ''
             mpl = f"[{r['mpid']}](https://next-gen.materialsproject.org/materials/{r['mpid']})"
             f.write(f"| {mpl} | {r['formula']} | {r['natom']} | {r['sg']} | {fmt(r['lda'])} | {gapcell(r)} | {r['version']} | {fmt(r['gap_path'])} | {r['di']} | {r['flag']} | "
-                    f"{fmt(r['mp_pbe'])} | {fmt(r['old2'])} | {r['category']} | {link} | {r['dbnote']} |\n")
+                    f"{fmt(r['mp_pbe'])} | {fmt(r['old2'])} | {r['category']} | {mlocell(r)} | {link} | {r['dbnote']} |\n")
     for n in pages:
         with open(f'{db}/bands_{n}atoms.md', 'w') as f:
             f.write(f'# GW1500 QSGW80 — bands and DOS, {n} atoms per cell\n\n[README](README.md) · [table](table.md)\n\n'
-                    'Gray: LDA. Red: QSGW80 adopted (condition in parentheses). Blue dashed: another QSGW80 result when its gap differs '
-                    'by more than 0.1 eV. Energies from the VBM (insulators) or E_F (metals). Right: total DOS.\n\n')
+                    'Left: LDA. Middle: QSGW80 adopted (blue, condition in parentheses; green dashed: another QSGW80 result when its gap '
+                    'differs by more than 0.1 eV) and the total DOS. Right: the MLO model of the standard recipe (red) on the QSGW80 bands '
+                    '(gray), with its conditions and check; shaded: outside the window of the check ([README](README.md#mlo-models)). '
+                    'Energies from the VBM (insulators) or E_F (metals).\n\n')
             for r in rows:
                 if r['natom'] == n and os.path.exists(f"{db}/fig/{r['mpid']}.png"):
-                    f.write(f'<a id="{r["mpid"]}"></a>\n**{r["mpid"]}** {r["formula"]} — QSGW80 {gapcell(r)} eV {r["di"]} {r["flag"]} — ecalj {r["version"]}\n\n'
+                    f.write(f'<a id="{r["mpid"]}"></a>\n**{r["mpid"]}** {r["formula"]} — QSGW80 {gapcell(r)} eV {r["di"]} {r["flag"]} — ecalj {r["version"]}'
+                            + (f' — MLO {mlocell(r)} (ecalj {r["mlo_version"]})' if r.get('mlo_check') else '') + '\n\n'
                             + (f'*{r["dbnote"]}*\n\n' if r['dbnote'] else '') + f'<img src="fig/{r["mpid"]}.png" width="70%">\n\n')
     with open(f'{db}/summary_counts.json', 'w') as f:
         json.dump(dict(adopt=cnt, flag=fl, n=len(rows), db_logged=len(D)), f, indent=1)
@@ -507,6 +561,21 @@ So a May value (M) without a check by N carries an uncertainty of typically a fe
 cases more (LiGaO₂ 4.75 → 6.18 eV, RbSrCO₃F 5.33 → 7.26 eV). The database run checked the materials with trouble in May
 first, then those whose May value is far from the 2025 values, then a random sample.
 """)
+        ml = [r for r in rows if r.get('mlo_check')]
+        mc = Counter(r['mlo_check'] for r in ml)
+        f.write(f'''
+## MLO models
+
+The right panel of every figure is the MLO model (muffin-tin-orbital based localized orbitals) of the QSGW80 Hamiltonian,
+made by one recipe for all materials, without per-material tuning (ecalj `ecalj_auto/gw1500_mlo.sh`, described in the ecalj
+manual, MLO, "GW1500 の標準処方": https://ecalj.github.io/ecaljdoc/manual/mlo.html):
+the `[mlo]` section written by the present `gwinit` (s,p up to Ne, s,p,d from Na on; semicore local orbitals taken by the
+position of their band), `mlo_method = 4`, `mlo_delta = mlo_w = 2` eV, Löwdin-orthogonalized MLOs, the k mesh of lmf (8x8x8).
+The model is checked against the QSGW80 bands along the path in the window [VBM − 8 eV, CBM + 2 eV] (metals: E_F):
+`rms` and `max` are the deviations of the model bands from the QSGW80 bands (eV); FAIL: a deviation above 0.1 eV, a jump of
+the deviation above 0.1 eV between neighbouring k, or a broken band. The model matrices (hundreds of MB per material) are not kept;
+the recipe makes them again. Models so far: {len(ml)} ({', '.join(f'{k} {v}' for k, v in mc.most_common())}).
+''')
         EXPL = {'CHECK': f'QSGW80 results of different conditions differ by more than {LARGE} eV',
                 'differs': f'they differ by {AGREE}–{LARGE} eV',
                 'QSGW<LDA': 'the QSGW80 gap is smaller than the LDA gap by more than 0.05 eV',
@@ -518,11 +587,20 @@ first, then those whose May value is far from the 2025 values, then a random sam
                 'path-metal': 'the bands along the path cross E_F while the k mesh of lmf gives a gap > 0.1 eV (the mesh misses the point where the gap closes, e.g. K of graphite)',
                 'LDA≠PBE': 'the LDA gap and the PBE gap of MP differ by more than 1 eV (MP uses GGA+U for oxides and fluorides of Co, Cr, Fe, Mn, Mo, Ni, V, W; or structure, basis)',
                 'vs2025': 'the QSGW80 gap differs by more than 0.5 eV from LDA + 0.8 (QSGW100 − LDA) of the 2025 2nd shot',
-                'no-result': 'no QSGW80 result'}
+                'no-result': 'no QSGW80 result',
+                'MLO-FAIL': 'the MLO model of the standard recipe fails its check (see MLO models)'}
         f.write('\n## Automatic checks\n\n| check | materials | meaning |\n| --- | --- | --- |\n')
         for k in list(EXPL) + sorted(x for x in fl if x.startswith('N:')):
             if fl.get(k):
                 f.write(f"| {k} | {fl[k]} | {EXPL.get(k, 'database run did not converge (' + k[2:] + ')')} |\n")
+        L = [r for r in rows if r.get('mlo_check') == 'FAIL']
+        if L:
+            f.write(f'\n### MLO-FAIL ({len(L)})\n\n| mpid | formula | MLOs | QSGW80 gap | model gap | dVBM | dCBM | rms | max | why |\n'
+                    '| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n')
+            for r in L:
+                f.write(f"| [{r['mpid']}](bands_{r['natom']}atoms.md#{r['mpid']}) | {r['formula']} | {r['mlo_n']} | {fmt(r.get('mlo_gapD'))} | "
+                        f"{fmt(r.get('mlo_gapM'))} | {fmt(r.get('mlo_dVBM'), 3)} | {fmt(r.get('mlo_dCBM'), 3)} | {fmt(r.get('mlo_rms_m2d'), 3)} | "
+                        f"{fmt(r.get('mlo_max'))} | {r['mlo_fail'][:160].replace('|', '/')} |\n")
         for k in ('CHECK', 'kmismatch', 'path-metal', 'path<mesh(Σ)', 'path<mesh(noLDA)', 'QSGW<LDA', 'path<mesh(mesh)', 'spike', 'LDA≠PBE', 'no-result'):
             L = [r for r in rows if k in r['flag'].split()]
             if not L:
@@ -546,9 +624,9 @@ first, then those whose May value is far from the 2025 values, then a random sam
 
 - `gw1500db.tsv`: one row per material (all columns of the table, the other results in `others`, notes in `dbnote`)
 - `fig/<mpid>.png`. The raw data behind the figures (`npz/<mpid>.<tag>.npz`, bands and DOS; tags `may_qsgw`, `may_lda`, `rr_<run>`,
-  `db_qsgw`, `db_lda`) and the logs of the runs are kept by the maintainers and are not in the published copy
+  `db_qsgw`, `db_lda`, `db_mlo`) and the logs of the runs are kept by the maintainers and are not in the published copy
 - Published at https://github.com/tkotani/DOSnpSupplement/tree/main/QSGW80_2026 (by `TOOLS/publish_gw1500db.sh` of ecalj)
-- ecalj `ecalj_auto/`: `gw1500_rerun.sh` (the runs, `T_TETRAKBT`), `gw1500db_extract.py`, `gw1500db_build.py`,
+- ecalj `ecalj_auto/`: `gw1500_rerun.sh` (the runs, `T_TETRAKBT`), `gw1500_mlo.sh` (the MLO models), `gw1500db_extract.py`, `gw1500db_build.py`,
   `gw1500_reorder.py`; the status of the earlier runs `GW1500_status.md`, `gw1500_status_20260930.tsv`, `gw1500_notes_20261001.tsv`
 - Machines: kt1 (RTX 5090 x2, 64 cores, 4 workers x 16 cores), kr7 (RTX 5090, 16 cores, 2 workers x 8 cores)
 ''')

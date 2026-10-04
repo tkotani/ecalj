@@ -2,6 +2,8 @@
 """Extract the band lines and the total DOS of GW1500 runs into one small npz per (material, source).  2026-10-02.
 
     gw1500db_extract.py <out dir> < list        list lines: <mpid> <tag> <PlotBand dir>
+A tag ending in 'mlo' (2026-10-04) reads the MLO bands of gw1500_mlo.sh in that directory (band_MLO_spin{1,2}.dat, E_F the
+ef= of bandplot_MLO.isp1.glt, the same reference as the bnd files) with the check bandcheck.json and mlo_version.txt.
 Writes <out dir>/<mpid>.<tag>.npz with
     x (nx,), E (nb, nx) eV from E_F (bands with any point within [-25, 25] eV), seg (nx,) segment index,
     lab, labx (k-point labels and positions), ef_ry, dosE (eV from E_F), dos (states/eV, both spins), nspin,
@@ -9,7 +11,7 @@ Writes <out dir>/<mpid>.<tag>.npz with
 The bnd files of job_band: one file per segment of the path; columns: band index, x, E - E_F (eV), dE/dx, q.
 The header '#   97   <E_F in Ry>  QPE(ev)'.  dos.tot.<mpid>.chk: E (Ry, absolute), DOS (per Ry), per spin.
 """
-import glob, os, re, sys
+import glob, json, os, re, sys
 import numpy as np
 
 RY = 13.605693122994
@@ -75,6 +77,51 @@ def gaps(x, E):
     return dict(metal=True, vbm=np.nan, cbm=np.nan, gap_path=0.0, gap_direct_path=0.0, xv=np.nan, xc=np.nan, nocc=0)
 
 
+def read_mlo(d):
+    """MLO bands of job_mlo: rows x, E (Ry, raw), spin, band index; one block of N_MLO rows per k point.
+    A segment boundary repeats its x."""
+    g = open(os.path.join(d, 'bandplot_MLO.isp1.glt')).read()
+    ef = float(re.search(r'ef=\s*([-+0-9.eEdD]+)', g).group(1).replace('D', 'E'))
+    Es = []
+    for spin in (1, 2):
+        f = os.path.join(d, f'band_MLO_spin{spin}.dat')
+        if not os.path.exists(f):
+            continue
+        a = np.loadtxt(f, ndmin=2)
+        nb = int(a[:, 3].max()); nk = len(a) // nb
+        if nk * nb != len(a) or not (a[:nb, 3] == np.arange(1, nb + 1)).all():
+            return None
+        E = ((a[:, 1] - ef) * RY).reshape(nk, nb).T
+        x = a[::nb, 0]
+        Es.append(E)
+    if not Es:
+        return None
+    nk = min(e.shape[1] for e in Es)
+    E = np.concatenate([e[:, :nk] for e in Es], axis=0); x = x[:nk]
+    seg = np.concatenate([[0], np.cumsum(np.diff(x) <= 1e-9)])
+    return x, E, seg, len(Es)
+
+
+def mlo_npz(out, mpid, tag, d):
+    r = read_mlo(d)
+    if r is None:
+        print(f'{mpid} {tag} NOBAND'); return
+    x, E, seg, nspin = r
+    c = {}
+    jf = os.path.join(d, 'bandcheck.json')
+    if os.path.exists(jf):
+        c = next(iter(json.load(open(jf)).values()), {})
+    vf = os.path.join(d, 'mlo_version.txt')
+    ver = open(vf).read().split()[1] if os.path.exists(vf) else ''
+    keep = (np.abs(E) < 25).any(axis=1)
+    kw = {k: float(c[k]) for k in ('gap_mesh', 'gapD', 'gapM', 'dVBM', 'dCBM', 'rms_m2d', 'max_m2d', 'rms_d2m', 'max_d2m', 'max',
+                                    'jump', 'spike', 'emin', 'emax', 'mlo_delta', 'ovlp_min') if c.get(k) is not None}
+    np.savez_compressed(f'{out}/{mpid}.{tag}.npz', x=x.astype(np.float32), E=E[keep].astype(np.float32), seg=seg.astype(np.int16),
+                        nmlo=int(E.shape[0] // nspin), nspin=nspin, check=c.get('check', ''), fail=' / '.join(c.get('fail', [])),
+                        version=ver, **kw)
+    print(f'{mpid} {tag} OK nmlo={E.shape[0] // nspin} check={c.get("check", "")}')
+
+
 def main():
     out = sys.argv[1]; os.makedirs(out, exist_ok=True)
     for line in sys.stdin:
@@ -83,6 +130,8 @@ def main():
             continue
         mpid, tag, d = p[:3]
         try:
+            if tag.endswith('mlo'):
+                mlo_npz(out, mpid, tag, d); continue
             r1 = read_bnd(d, 1)
             if r1 is None:
                 print(f'{mpid} {tag} NOBAND'); continue
