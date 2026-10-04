@@ -113,13 +113,17 @@ def mlo_npz(out, mpid, tag, d):
         c = next(iter(json.load(open(jf)).values()), {})
     vf = os.path.join(d, 'mlo_version.txt')
     ver = open(vf).read().split()[1] if os.path.exists(vf) else ''
+    gf = os.path.join(d, 'grade.json')     # gw1500_mlo_grade.py (2026-10-05): PASS / OK / FAIL
+    grade = json.load(open(gf))['grade'] if os.path.exists(gf) else c.get('check', '')
+    variant = os.path.basename(os.path.normpath(d))            # b1, b2, b2all of gw1500_mlo_std.sh
+    es = '/run_es/' in os.path.abspath(d)                        # the model of the ES run
     keep = (np.abs(E) < 25).any(axis=1)
     kw = {k: float(c[k]) for k in ('gap_mesh', 'gapD', 'gapM', 'dVBM', 'dCBM', 'rms_m2d', 'max_m2d', 'rms_d2m', 'max_d2m', 'max',
                                     'jump', 'spike', 'emin', 'emax', 'mlo_delta', 'ovlp_min') if c.get(k) is not None}
     np.savez_compressed(f'{out}/{mpid}.{tag}.npz', x=x.astype(np.float32), E=E[keep].astype(np.float32), seg=seg.astype(np.int16),
                         nmlo=int(E.shape[0] // nspin), nspin=nspin, check=c.get('check', ''), fail=' / '.join(c.get('fail', [])),
-                        version=ver, **kw)
-    print(f'{mpid} {tag} OK nmlo={E.shape[0] // nspin} check={c.get("check", "")}')
+                        version=ver, grade=grade, variant=variant, es=es, **kw)
+    print(f'{mpid} {tag} OK nmlo={E.shape[0] // nspin} grade={grade} {variant}{" ES" if es else ""}')
 
 
 def main():

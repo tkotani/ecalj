@@ -30,6 +30,10 @@ COND = {
     'N': ('2026-10-02 night', 'database run: as R, but --prec=tf32 and t_tetrakbt = -300 K (chi0 by the T=0 tetrahedron method, '
           'Im chi0 smoothed by a Gaussian of the width of a 300 K Fermi-Dirac), t_sigmaw = 300 K; ecalj 989a18637 (kt1) or '
           'b695fa65c (2026-09-30, kr7) with the same gwscconv'),
+    'E': ('2026-10-05', 'as N on kr7 (b695fa65c), with empty spheres (ES) at the voids: radius of the void above 3.0 a.u., or 2.0 a.u. in '
+          'a molecular crystal; ES radius 0.9 x the void radius, at most 4.0 a.u. (ecalj_auto/gw1500_addes.py, ctrlg_addes.py). '
+          'Bands tied to the vacuum level, the nearly free states in the voids, need them; the basis changes, so LDA and QSGW80 '
+          'start again'),
 }
 
 
@@ -52,10 +56,11 @@ def load():
     return S, N, MP, old
 
 
-def load_db_logs(db):
-    """rerun.log lines of the database run: <date> <time> <worker> <mpid> <verdict> iter=.. gapLDA=.. gap=.. <s>s dqp=.."""
+def load_db_logs(db, sub='logs'):
+    """rerun.log lines of the database run: <date> <time> <worker> <mpid> <verdict> iter=.. gapLDA=.. gap=.. <s>s dqp=..
+    sub = logs_es: the ES run (condition E, 2026-10-05)"""
     D = {}
-    for f in glob.glob(f'{db}/logs/*.log'):
+    for f in glob.glob(f'{db}/{sub}/*.log'):
         host = os.path.basename(f).split('.')[0]
         for l in open(f):
             p = l.split()
@@ -167,7 +172,7 @@ def rr_tag(db, m):
     return None
 
 
-def decide(m, S, N, D):
+def decide(m, S, N, D, E={}):
     """values per condition set and the one adopted"""
     s, n = S[m], N[m]
     v = {}
@@ -180,12 +185,17 @@ def decide(m, S, N, D):
     if d and d['verdict'] in ('CONVERGED', 'CONVERGED_METAL'):
         g = 0.0 if d['verdict'] == 'CONVERGED_METAL' else d['gap']
         v['N'] = dict(gap=g, lda=d['gaplda'], state=d['verdict'], iter=d['iter'], host=d['host'])
-    adopt = next((k for k in ('N', 'R', 'M') if k in v and v[k]['gap'] is not None), None)
+    e = E.get(m)
+    if e and e['verdict'] in ('CONVERGED', 'CONVERGED_METAL'):
+        g = 0.0 if e['verdict'] == 'CONVERGED_METAL' else e['gap']
+        v['E'] = dict(gap=g, lda=e['gaplda'], state=e['verdict'], iter=e['iter'], host=e['host'])
+    adopt = next((k for k in ('E', 'N', 'R', 'M') if k in v and v[k]['gap'] is not None), None)
     return v, adopt
 
 
 VERSION = {'M': '2026-04/05 (~/bin2, all-TF32 --mp)', 'R': '989a18637 (fp32, t_tetrakbt +300)',
-           'N_kt1': '989a18637 (tf32, t_tetrakbt -300)', 'N_kr7': 'b695fa65c (tf32, t_tetrakbt -300)'}
+           'N_kt1': '989a18637 (tf32, t_tetrakbt -300)', 'N_kr7': 'b695fa65c (tf32, t_tetrakbt -300)',
+           'E': 'b695fa65c (tf32, t_tetrakbt -300) with ES'}
 
 
 def version(adopt, host):
@@ -209,13 +219,15 @@ def bands(ax, d, sh, color, ls, lw, label=None):
 
 
 def mlo_title(dm, gap):
-    """the conditions and the check of the MLO model, for the right panel (2026-10-04)"""
-    dl = float(dm['mlo_delta']) if 'mlo_delta' in dm else 2.0
-    t = f"MLO model ({int(dm['nmlo'])} MLOs): Löwdin, Δ = w = {dl:g} eV\n"
+    """the conditions and the grade of the MLO model, for the right panel (2026-10-04; variant and grade 2026-10-05)"""
+    VN = {'b1': 'baseline', 'b2': '+EH2 s,p cations', 'b2all': '+EH2 s,p all'}
+    var = str(dm['variant']) if 'variant' in dm else 'b1'
+    es = ', ES' if 'es' in dm and bool(dm['es']) else ''
+    t = f"MLO model ({int(dm['nmlo'])} MLOs, {VN.get(var, var)}{es}): Löwdin, Δ = w = 2 eV\n"
     if 'gapM' in dm and gap is not None and gap > 0.05:
         t += f"gap {float(dm['gapM']):.2f} (QSGW80 {float(dm['gapD']):.2f}) eV, "
     if 'rms_m2d' in dm:
-        t += f"rms {float(dm['rms_m2d']):.3f}, max {float(dm['max']):.2f} eV: {dm['check']}"
+        t += f"rms {float(dm['rms_m2d']):.3f}, max {float(dm['max']):.2f} eV: {dm['grade'] if 'grade' in dm else dm['check']}"
     return t
 
 
@@ -286,21 +298,22 @@ def main():
             if '\t' in l:
                 k, v = l.rstrip('\n').split('\t', 1); DBN[k] = v
     D = load_db_logs(db)
+    E = load_db_logs(db, 'logs_es')
     SG = spacegroups()
     os.makedirs(f'{db}/fig', exist_ok=True)
     rows = []; jobs = []
     for m in sorted(S, key=lambda k: (int(S[k]['natom']), S[k]['formula'], k)):
         s, n = S[m], N[m]
-        v, adopt = decide(m, S, N, D)
+        v, adopt = decide(m, S, N, D, E)
         cat = n['category']
-        lda = next((v[k]['lda'] for k in ('N', 'R', 'M') if k in v and v[k]['lda'] is not None), fnum(s['gap_LDA_eV']))
+        lda = next((v[k]['lda'] for k in ('E', 'N', 'R', 'M') if k in v and v[k]['lda'] is not None), fnum(s['gap_LDA_eV']))
         gap = v[adopt]['gap'] if adopt else None
         others = {k: v[k]['gap'] for k in v if k != adopt and v[k]['gap'] is not None}
         diff = max((abs(g - gap) for g in others.values()), default=0.0) if gap is not None else 0.0
-        tagq = {'N': 'db_qsgw', 'R': rr_tag(db, m),
+        tagq = {'E': 'es_qsgw', 'N': 'db_qsgw', 'R': rr_tag(db, m),
                 'M': 'may_qsgw_fixed' if os.path.exists(f'{db}/npz/{m}.may_qsgw_fixed.npz') else 'may_qsgw'}
         dq = npz(db, m, tagq[adopt]) if adopt and tagq[adopt] else None
-        dl = npz(db, m, 'db_lda') or npz(db, m, 'may_lda')
+        dl = (npz(db, m, 'es_lda') if adopt == 'E' else None) or npz(db, m, 'db_lda') or npz(db, m, 'may_lda')
         insul = gap is not None and gap > 0.05
         pq = pathgap(dq, insul)
         pl = pathgap(dl, lda is not None and lda > 0.05)
@@ -347,7 +360,9 @@ def main():
         dm = npz(db, m, 'db_mlo')
         ml = {}
         if dm is not None:
-            ml = dict(mlo_n=int(dm['nmlo']), mlo_check=str(dm['check']), mlo_fail=str(dm['fail']), mlo_version=str(dm['version']),
+            ml = dict(mlo_n=int(dm['nmlo']), mlo_check=str(dm['grade'] if 'grade' in dm else dm['check']), mlo_fail=str(dm['fail']),
+                      mlo_version=str(dm['version']), mlo_variant=str(dm['variant']) if 'variant' in dm else 'b1',
+                      mlo_es=bool(dm['es']) if 'es' in dm else False,
                       **{f'mlo_{k}': float(dm[k]) for k in ('gapM', 'gapD', 'dVBM', 'dCBM', 'rms_m2d', 'max') if k in dm})
             if ml['mlo_check'] == 'FAIL':
                 an.append('MLO-FAIL')
@@ -393,7 +408,7 @@ def mlocell(r):
     if not r.get('mlo_check'):
         return ''
     g = f" gap {r['mlo_gapM']:.2f}" if r.get('gap') and r['gap'] > 0.05 and r.get('mlo_gapM') is not None else ''
-    return f"{r['mlo_check']} {r['mlo_n']}{g} rms {r.get('mlo_rms_m2d', 0):.3f} max {r.get('mlo_max', 0):.2f}"
+    return f"{r['mlo_check']} ({r.get('mlo_variant', 'b1')}{', ES' if r.get('mlo_es') else ''}) {r['mlo_n']}{g} rms {r.get('mlo_rms_m2d', 0):.3f} max {r.get('mlo_max', 0):.2f}"
 
 
 def gapcell(r):
@@ -414,7 +429,7 @@ def write_pages(db, rows, D):
     fl = Counter(x for r in rows for x in r['flag'].split())
     with open(f'{db}/gw1500db.tsv', 'w') as f:
         keys = ['mpid', 'formula', 'natom', 'sg', 'category', 'lda', 'gap', 'adopt', 'di', 'flag', 'mp_pbe', 'ehull', 'icsd', 'old1', 'old2', 'host', 'version', 'dbnote',
-                'mlo_n', 'mlo_gapM', 'mlo_dVBM', 'mlo_dCBM', 'mlo_rms_m2d', 'mlo_max', 'mlo_check', 'mlo_version']
+                'mlo_n', 'mlo_gapM', 'mlo_dVBM', 'mlo_dCBM', 'mlo_rms_m2d', 'mlo_max', 'mlo_check', 'mlo_variant', 'mlo_es', 'mlo_version']
         f.write('\t'.join(keys + ['others']) + '\n')
         for r in rows:
             f.write('\t'.join('' if r.get(k) is None else (f'{r[k]:.4f}' if isinstance(r[k], float) else str(r[k])) for k in keys)
@@ -485,7 +500,8 @@ material, the version of ecalj and the conditions of the bold value (column *eca
 results. Different versions and conditions can differ by 0.05–0.3 eV, M by more in some materials (see "How reliable are the
 May values"); the present ecalj may differ again.
 
-Every gap carries the letter of its conditions. **Bold** is the value adopted: N if the database run converged, else R, else M.
+Every gap carries the letter of its conditions. **Bold** is the value adopted: E if the run with empty spheres converged, else N if the
+database run converged, else R, else M.
 
 | | when | conditions |
 | --- | --- | --- |
@@ -510,7 +526,7 @@ the mesh, 0.04 on the path, 0.08 in 2025). `· path 0 (semimetal?)`: the bands c
 | adopted from | materials |
 | --- | --- |
 ''')
-        for k in ('N', 'R', 'M', 'none'):
+        for k in ('E', 'N', 'R', 'M', 'none'):
             f.write(f'| {k} | {cnt.get(k, 0)} |\n')
         f.write(f'''
 Database run (N) so far: {len(D)} materials logged ({', '.join(f'{k} {v}' for k, v in st.most_common())}).
@@ -523,7 +539,7 @@ two-atom GOOD on the second machine. The 16 materials with invalid or suspect st
 | pair | materials | median | mean (first − second) | > {AGREE} | > {LARGE} | max |
 | --- | --- | --- | --- | --- | --- | --- |
 ''')
-        for a, b in (('N', 'M'), ('N', 'R'), ('R', 'M')):
+        for a, b in (('E', 'N'), ('N', 'M'), ('N', 'R'), ('R', 'M')):
             p = pairstats(rows, a, b)
             if p:
                 f.write(f"| {a} − {b} | {p['n']} | {p['med']:.3f} | {p['mean']:+.3f} | {p['n005']} | {p['n02']} | {p['mx']:.2f} |\n")
@@ -566,15 +582,23 @@ first, then those whose May value is far from the 2025 values, then a random sam
         f.write(f'''
 ## MLO models
 
-The right panel of every figure is the MLO model (muffin-tin-orbital based localized orbitals) of the QSGW80 Hamiltonian,
-made by one recipe for all materials, without per-material tuning (ecalj `ecalj_auto/gw1500_mlo.sh`, described in the ecalj
-manual, MLO, "GW1500 の標準処方": https://ecalj.github.io/ecaljdoc/manual/mlo.html):
-the `[mlo]` section written by the present `gwinit` (s,p up to Ne, s,p,d from Na on; semicore local orbitals taken by the
-position of their band), `mlo_method = 4`, `mlo_delta = mlo_w = 2` eV, Löwdin-orthogonalized MLOs, the k mesh of lmf (8x8x8).
-The model is checked against the QSGW80 bands along the path in the window [VBM − 8 eV, CBM + 2 eV] (metals: E_F):
-`rms` and `max` are the deviations of the model bands from the QSGW80 bands (eV); FAIL: a deviation above 0.1 eV, a jump of
-the deviation above 0.1 eV between neighbouring k, or a broken band. The model matrices (hundreds of MB per material) are not kept;
-the recipe makes them again. Models so far: {len(ml)} ({', '.join(f'{k} {v}' for k, v in mc.most_common())}).
+The right panel of every figure is the MLO model (muffin-tin-orbital based localized orbitals) of the QSGW80 Hamiltonian, made
+by one recipe for all materials (ecalj `ecalj_auto/gw1500_mlo_std.sh`; the ecalj manual, MLO, "GW1500 の標準処方":
+https://ecalj.github.io/ecaljdoc/manual/mlo.html). Löwdin-orthogonalized MLOs, `mlo_method = 4`, `mlo_delta = mlo_w = 2` eV,
+the k mesh of lmf (8x8x8). The rule:
+
+1. Empty spheres (ES, condition E) at the voids with radius above 3.0 a.u., or above 2.0 a.u. in a molecular crystal, before LDA.
+2. Baseline: the `[mlo]` of the present `gwinit` (s,p up to Ne, s,p,d from Na on, f of 4f atoms; ES s,p). A semicore local
+   orbital whose band lies above E_F − 17 eV, or above a model band, is added to the model; a d one in the window replaces the
+   d function of the atom.
+3. When the baseline is not PASS: the same with EH2 s,p added to the cations (variant `+EH2 s,p cations`) and to every atom
+   but the transition metals, 4f and 5f (`+EH2 s,p all`); the best grade is taken, the simpler one on a tie.
+
+Grade, against the QSGW80 bands along the path in the window [VBM − 8 eV, CBM + 2 eV] (metals: E_F): PASS = largest deviation
+≤ 0.1 eV, no jump > 0.1 eV between neighbouring k, no broken band; OK = PASS in the inner window up to CBM + 1.5 eV and the
+largest deviation in the whole window ≤ 0.2 eV (the top of the window, where steep bands enter); FAIL = otherwise.
+The model matrices (hundreds of MB per material) are not kept; the recipe makes them again.
+Models so far: {len(ml)} ({', '.join(f'{k} {v}' for k, v in mc.most_common())}).
 ''')
         EXPL = {'CHECK': f'QSGW80 results of different conditions differ by more than {LARGE} eV',
                 'differs': f'they differ by {AGREE}–{LARGE} eV',
@@ -588,7 +612,7 @@ the recipe makes them again. Models so far: {len(ml)} ({', '.join(f'{k} {v}' for
                 'LDA≠PBE': 'the LDA gap and the PBE gap of MP differ by more than 1 eV (MP uses GGA+U for oxides and fluorides of Co, Cr, Fe, Mn, Mo, Ni, V, W; or structure, basis)',
                 'vs2025': 'the QSGW80 gap differs by more than 0.5 eV from LDA + 0.8 (QSGW100 − LDA) of the 2025 2nd shot',
                 'no-result': 'no QSGW80 result',
-                'MLO-FAIL': 'the MLO model of the standard recipe fails its check (see MLO models)'}
+                'MLO-FAIL': 'the MLO model of the standard recipe has the grade FAIL (see MLO models)'}
         f.write('\n## Automatic checks\n\n| check | materials | meaning |\n| --- | --- | --- |\n')
         for k in list(EXPL) + sorted(x for x in fl if x.startswith('N:')):
             if fl.get(k):
@@ -626,7 +650,7 @@ the recipe makes them again. Models so far: {len(ml)} ({', '.join(f'{k} {v}' for
 - `fig/<mpid>.png`. The raw data behind the figures (`npz/<mpid>.<tag>.npz`, bands and DOS; tags `may_qsgw`, `may_lda`, `rr_<run>`,
   `db_qsgw`, `db_lda`, `db_mlo`) and the logs of the runs are kept by the maintainers and are not in the published copy
 - Published at https://github.com/tkotani/DOSnpSupplement/tree/main/QSGW80_2026 (by `TOOLS/publish_gw1500db.sh` of ecalj)
-- ecalj `ecalj_auto/`: `gw1500_rerun.sh` (the runs, `T_TETRAKBT`), `gw1500_mlo.sh` (the MLO models), `gw1500db_extract.py`, `gw1500db_build.py`,
+- ecalj `ecalj_auto/`: `gw1500_rerun.sh` (the runs, `T_TETRAKBT`, `ES_RMIN`), `gw1500_mlo_std.sh` (the MLO models), `gw1500db_extract.py`, `gw1500db_build.py`,
   `gw1500_reorder.py`; the status of the earlier runs `GW1500_status.md`, `gw1500_status_20260930.tsv`, `gw1500_notes_20261001.tsv`
 - Machines: kt1 (RTX 5090 x2, 64 cores, 4 workers x 16 cores), kr7 (RTX 5090, 16 cores, 2 workers x 8 cores)
 ''')
