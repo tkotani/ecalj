@@ -1621,17 +1621,28 @@ rms は MLO → DFT / DFT → MLO（eV）。窓は MLO → DFT が [VBM − 8, C
 
 ### GW1500 の標準処方 — QSGW80 の模型
 
-GW1500 のデータベース（QSGW80 のバンド）の各物質に、同じ処方で MLO の模型を作る。物質ごとの調整はしない（基準 1 だけ）。
+GW1500 のデータベース（QSGW80 のバンド）の全物質に、同じ処方で MLO の模型を作る。物質ごとに手で調整はせず、次の規則だけで決める。
 
-1. QSGW80 を回す: [`ecalj_auto/gw1500_rerun.sh`](https://github.com/tkotani/ecalj/tree/main/ecalj_auto/gw1500_rerun.sh)
-   （POSCAR → `ctrlgenToml.py --ssig=0.8` → `gwscconv` → `job_band`）。既定（`MLO=1`）で続けて 2 を回す
-2. 模型を作る: [`ecalj_auto/gw1500_mlo.sh`](https://github.com/tkotani/ecalj/tree/main/ecalj_auto/gw1500_mlo.sh) `<dir> [np]`。
-   `<dir>` は 1 の `PlotBand/`（ctrlg、rst、sigm、atmpnu、syml、QSGW80 のバンド）に QSGW の最後の `efermi.lmf` を足したもの。
-   - `[mlo]` を今の `gwinit` の規則で書き直す（`gw1500_mlo_regen.py`。前の規則で書いた ctrlg のため。元は `.orig` に残る）
-   - `job_mlo`: `mlo_method = 4`、`mlo_delta = mlo_w = 2` eV、Löwdin で直交化した MLO（§6）。ctrlg の `[ham] ssig = 0.8` により QSGW80 のハミルトニアンの模型になる
-   - `mlo_bandcheck.py` で QSGW80 のバンドと比べる（式 (9)〜(11)、判定は「模型が壊れていないかの検査」）。結果は `bandcheck.json`
-   - 使った ecalj の版を `mlo_version.txt` に書く
-3. 模型の行列（`HamRsMLO`、`__HamiltonianPMT`）は大きい（1 物質で数百 MB）ので、データベースには入れない。要るときは 2 を回し直せば同じものができる
+**表 M7**. 標準処方の規則
+
+| | 何を決めるか | 規則 | 理由 |
+|---|---|---|---|
+| 1 | 空格子球（ES） | すき間の半径（最も近い MT 球の表面までの距離）の極大が 3.0 a.u. 以上、分子性の結晶では 2.0 a.u. 以上なら、計算の前に ES を置く。半径はすき間の 0.9 倍（上限 4.0 a.u.）、重ならないものだけ | 真空準位につながる、すき間に広がる状態は原子の上の関数では表せない。基底が変わるので LDA から回し直す |
+| 2 | 基準 1 | `gwinit` の `[mlo]`（Ne まで s,p、Na から s,p,d、4f の原子は f、ES は s,p） | |
+| 3 | 半内殻の局所軌道 | 帯の上端が $E_F-17$ eV より上、またはその下に模型の帯があるなら模型に加える。窓の中（$E_F-8$ eV より上）の d は EH の関数と入れ替える | `nskip` で落とせるのは模型のどの帯よりも下の帯だけ。窓の中の s,p の半内殻（Cs 5p）は EH（Cs 6p）が伝導帯を作るので残す |
+| 4 | 基底を足す | 基準 1 が PASS でなければ、EH2 の s,p を陽イオンに足した版と、遷移金属・4f・5f 以外の全原子に足した版も作り、判定の良い方を採る（同じなら単純な方） | イオン性の強い物質の伝導帯は陽イオン（と陰イオン）の外に広がった状態で、MTO 1 組では足りない |
+| 5 | 判定 | PASS: 窓 $[{\rm VBM}-8, {\rm CBM}+2]$ eV で最大のずれ ≤ 0.1 eV（跳び・壊れた帯なし）。OK: CBM + 1.5 eV までは PASS で、窓全体で ≤ 0.2 eV。FAIL: それ以外 | 窓の上端は分散の大きい帯が入ってきてずれやすい |
+
+分子性の結晶は、共有結合半径の和の 1.2 倍で結合をたどったとき、無限につながる塊が無く、孤立した原子も無い構造（`ecalj_auto/gw1500_molecular.py`）。
+
+回し方:
+
+1. QSGW80: [`ecalj_auto/gw1500_rerun.sh`](https://github.com/tkotani/ecalj/tree/main/ecalj_auto/gw1500_rerun.sh)
+   （POSCAR → `ctrlgenToml.py --ssig=0.8` → `ES_RMIN=auto` なら `gw1500_addes.py` で ES → `gwscconv` → `job_band`）
+2. MLO: [`ecalj_auto/gw1500_mlo_std.sh`](https://github.com/tkotani/ecalj/tree/main/ecalj_auto/gw1500_mlo_std.sh) `<src> <out> [np]`。
+   `<src>` は 1 の `PlotBand/` に QSGW の最後の `efermi.lmf` を足したもの。版ごとに `gw1500_mlo.sh`（`[mlo]` を今の `gwinit` で書き直し、
+   `job_mlo`、`mlo_bandcheck.py`、`gw1500_mlo_grade.py`）を回し、採った版と判定を `best.txt` に書く。ctrlg の `[ham] scaledsigma = 0.8` により QSGW80 の模型になる
+3. 模型の行列（`HamRsMLO`、`__HamiltonianPMT`）は 1 物質で数百 MB なのでデータベースには入れない。2 を回し直せば同じものができる
 
 ---
 
