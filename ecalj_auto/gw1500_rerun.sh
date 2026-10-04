@@ -23,7 +23,7 @@
 #   GWSCCONV    default $BIN/gwscconv. It calls the gwsc of its own directory, so give a bindir that has both
 #   LIMIT       seconds per material (default 21600); a material over the limit is logged TIMEOUT
 #   ES_RMIN     if set (a.u.): empty spheres at the voids larger than this, before LDA (gw1500_addes.py; 2026-10-04: bands tied
-#               to the vacuum level need them). The log line gets ES=<n>
+#               to the vacuum level need them). auto: 2.0 for a molecular crystal, else 3.0 (2026-10-05). The log line gets ES=<n>
 #   GPU_OPT     default --gpu; empty for a machine without GPU
 #   MLO         1 (default): make the MLO model after the band plot (gw1500_mlo.sh); 0: skip
 #   T_TETRAKBT  if set, t_tetrakbt of the generated ctrlg (K; < 0: T=0 tetrahedron with a Gaussian smoothing of Im chi0)

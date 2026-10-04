@@ -119,7 +119,7 @@ def main():
         return
     cart = [fr @ plat for fr, _ in voids]
     rad = [np.floor(min(a.scale * v, a.rmax) / 0.05) * 0.05 for _, v in voids]          # on a 0.05 a.u. grid: one [[spec]] per radius
-    radii = sorted(set(round(r, 2) for r in rad), reverse=True)
+    radii = sorted(set(round(float(r), 2) for r in rad), reverse=True)
     name = {r: ('E' if len(radii) == 1 else f'E{k + 1}') for k, r in enumerate(radii)}
     nat = len(d['site'])
     for i, ((fr, v), x, r) in enumerate(zip(voids, cart, rad), nat + 1):
