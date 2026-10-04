@@ -22,6 +22,7 @@
 #   PREC        fp32 (default) | tf32 | fp64;  MAXITER 10;  TOL 0.1 (eV);  CONV_QP 0.03 (eV, metals);  SSIG 0.8 (QSGW80)
 #   GWSCCONV    default $BIN/gwscconv. It calls the gwsc of its own directory, so give a bindir that has both
 #   LIMIT       seconds per material (default 21600); a material over the limit is logged TIMEOUT
+#   MLO         1 (default): make the MLO model after the band plot (gw1500_mlo.sh); 0: skip
 #   T_TETRAKBT  if set, t_tetrakbt of the generated ctrlg (K; < 0: T=0 tetrahedron with a Gaussian smoothing of Im chi0)
 #   ENVSH       a file to source first (PATH and LD_LIBRARY_PATH of the compiler and MPI)
 #
@@ -30,6 +31,8 @@
 #   gwscconv (LDA, then one QSGW iteration at a time until the gap of the last 3 iterations stays within TOL twice;
 #   a metal, with no gap, until the eigenvalues within 5 eV of E_F change by less than CONV_QP twice, 2026-09-30)
 #   band plot in PlotBand/ (getsyml, job_band), then the work files __* SEBK STDOUT are removed
+#   MLO (MLO=1, default; 2026-10-04): the standard MLO model on the QSGW80 bands in PlotBand/ (gw1500_mlo.sh with the
+#   binaries of BIN; result PlotBand/bandcheck.json, band_MLO_spin1.dat)
 # Log: $RUN_DIR/rerun.log, one line per material:
 #   <date time> <worker> <mpid> <verdict> iter=<n> gapLDA=<eV> gap=<eV> <seconds>s dqp=<eV>
 #   verdict: CONVERGED | CONVERGED_METAL (no gap; judged by the eigenvalues) | MAXITER (no crash, not converged) |
@@ -41,7 +44,7 @@ HERE=$(dirname "$(readlink -f "$0")")
 : "${RUN_DIR:?set RUN_DIR}" "${BIN:?set BIN}"
 TOOLS_BIN=${TOOLS_BIN:-$HOME/bin_dev}; POSCAR_DIR=${POSCAR_DIR:-$HERE/INPUT/gw1500/POSCARALL}
 NP=${NP:-16}; GPUS=${GPUS:-0,1}; PREC=${PREC:-fp32}; MAXITER=${MAXITER:-10}; TOL=${TOL:-0.1}; SSIG=${SSIG:-0.8}; LIMIT=${LIMIT:-21600}
-CONV_QP=${CONV_QP:-0.03}; GWSCCONV=${GWSCCONV:-$BIN/gwscconv}
+CONV_QP=${CONV_QP:-0.03}; GWSCCONV=${GWSCCONV:-$BIN/gwscconv}; MLO=${MLO:-1}
 [ -n "${ENVSH:-}" ] && source "$ENVSH"
 export PATH=$BIN:$PATH CUDA_VISIBLE_DEVICES=$GPUS OMP_NUM_THREADS=1
 export OMPI_MCA_hwloc_base_binding_policy=${OMPI_MCA_hwloc_base_binding_policy:-none}
@@ -90,6 +93,8 @@ while :; do
     mkdir -p PlotBand && cp -f ctrlg.$m.toml rst.$m sigm __atm.$m atmpnu.*.$m PlotBand/ 2>/dev/null
     ( cd PlotBand && ln -sf sigm sigm.$m && "$TOOLS_BIN/getsyml" $m --nobzview > lgetsyml 2>&1 \
       && "$BIN/job_band" $m -np $NP --NoGnuplot > ljob_band 2>&1 )
+    cp -f efermi.lmf PlotBand/ 2>/dev/null
+    [ "$MLO" = 1 ] && [ -s PlotBand/bnd001.spin1 ] && ECALJ_BIN=$BIN "$HERE/gw1500_mlo.sh" PlotBand $NP > PlotBand/lmlo_recipe 2>&1
     if [ -s LDA/rst.$m ]; then
       mkdir -p PlotBand_LDA && cp -f LDA/ctrlg.$m.toml LDA/rst.$m LDA/atmpnu.*.$m PlotBand_LDA/ 2>/dev/null
       cp -f __atm.$m PlotBand_LDA/ 2>/dev/null
