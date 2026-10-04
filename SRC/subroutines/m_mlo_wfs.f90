@@ -131,7 +131,8 @@ contains
     enddo
     rnorm = rnorm/nqbz_cmlo
     do is = 1, nspx
-      write(stdo,"(' m_mlo_wfs: square integral of the real-space MLOs on the GW mesh (check, ~1), isp=',i2,' nqbz=',i6,' :',100f8.4)") &
+      ! *(...): more than 100 MLOs (2026-10-04)
+      write(stdo,"(' m_mlo_wfs: square integral of the real-space MLOs on the GW mesh (check, ~1), isp=',i2,' nqbz=',i6,' :',*(f8.4))") &
            is, nqbz_cmlo, rnorm(:,is)
     enddo
   end subroutine set_rnorm

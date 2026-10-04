@@ -830,8 +830,8 @@ contains
             enddo
           endif
         enddo
-        do jsp = 1, nspx
-          if(master_mpi) write(stdo,"(' m_HamPMT: square integral of the raw real-space MLOs (O_ii(R=0)), isp=',i2,':',100f7.4)") &
+        do jsp = 1, nspx  ! Bug fixed 2026-10-04: with 100f7.4, more than 100 MLOs ran the format into i2 and stopped mlo
+          if(master_mpi) write(stdo,"(' m_HamPMT: square integral of the raw real-space MLOs (O_ii(R=0)), isp=',i2,':',*(f7.4))") &
                jsp, rnormh(:,jsp)
         enddo
         if(master_mpi) write(stdo,ftox)' m_HamPMT: Loewdin orthonormalized MLOs (the standard; --mlo_raw for the raw ones).', &
@@ -933,7 +933,7 @@ contains
             enddo
           endif
           do jsp = 1, nspx
-            write(stdo,"(' m_HamPMT: square integral of the real-space MLOs (O_ii(R=0)), isp=',i2,':',100f7.4)") jsp, rnormh(:,jsp)
+            write(stdo,"(' m_HamPMT: square integral of the real-space MLOs (O_ii(R=0)), isp=',i2,':',*(f7.4))") jsp, rnormh(:,jsp)  ! *(...): more than 100 MLOs (2026-10-04)
           enddo
         endif
       endblock RealSpaceNorm
