@@ -15,6 +15,8 @@
 # Env: ECALJ_BIN (default ~/bin); MLO_LM2=1: baseline 2 (the mlo_lm2 rows of gwinit taken, gw1500_mlo_regen.py --lm2);
 #      MLO_LM2=all: EH2 s,p on every atom but the transition metals, 4f and 5f (--lm2all, a test of 2026-10-04);
 #      MLO_LM2=noae: as all, but Ca, Sr, Ba left out too (--lm2noae, a test);
+#      MLO_DELTA=<eV>: mlo_delta of the model (the check stays on CBM + 2 eV; a test of 2026-10-05: the weight falls off
+#      from CBM + mlo_delta, so the top of the checked window was the worst place).
 #      MLO_LM2=<atoms>:<lm>, atoms cation|all|noae, lm s|sp (gw1500_mlo_regen.py --lm2sel, tests of the rule).
 d=$1; np=${2:-4}; H=$(dirname "$(readlink -f "$0")"); B=${ECALJ_BIN:-$HOME/bin}
 cd "$d" || { echo "$d FAIL nodir"; exit 1; }
@@ -28,7 +30,7 @@ echo "ecalj $rev${dirty:+ (modified)} binaries $(readlink -f "$B/lmf") $(date '+
 case "${MLO_LM2:-}" in 1) o=--lm2;; all) o=--lm2all;; noae) o=--lm2noae;; *:*) o=--lm2sel=$MLO_LM2;; *) o=;; esac
 python3 "$H/gw1500_mlo_regen.py" . $m $o > lregen 2>&1 || { echo "$m FAIL regen"; exit 1; }
 s=$(date +%s)
-timeout 2h "$B/job_mlo" $m -np $np --nognuplot > ljob_mlo 2>&1; rc=$?
+timeout 2h "$B/job_mlo" $m -np $np --nognuplot ${MLO_DELTA:+--ctrlg:mlo.mlo_delta=$MLO_DELTA} > ljob_mlo 2>&1; rc=$?
 [ -s band_MLO_spin1.dat ] || { echo "$m FAIL job_mlo rc=$rc $(grep -m1 -i -E 'error|abort|stop' ljob_mlo lmlo lwriteham 2>/dev/null | cut -c1-100)"; exit 1; }
-python3 "$B/mlo_bandcheck.py" . --json bandcheck.json > lbandcheck 2>&1
+python3 "$B/mlo_bandcheck.py" . --json bandcheck.json ${MLO_DELTA:+--delta 2.0} > lbandcheck 2>&1
 echo "$m DONE $(( $(date +%s) - s ))s $(grep -m1 -o 'CHECK [A-Z]*' lbandcheck)"
