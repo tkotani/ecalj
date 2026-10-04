@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 """Put empty spheres (ES) at the large voids of a structure, for the MLO model (and for the basis).
 
-    ctrlg_addes.py <sname> [--rmin 3.0] [--dry-run]
+    ctrlg_addes.py <sname> [--rmin 3.0] [--scale 0.9] [--rmax 4.0] [--dry-run]
 
 Reads ctrlg.<sname>.toml. The "void radius" of a point is its distance to the nearest MT sphere surface
 (|r - R_a| - r_a, over all atoms a). Every local maximum of it above --rmin (a.u.) gets an ES:
   - its position is snapped to a multiple of 1/48 in the plat basis when that is within 0.02, to keep the symmetry;
-  - its radius is 0.6 x the void radius, but at most half the distance to the next ES;
+  - its radius is --scale x its own void radius, at most --rmax (2026-10-05: 0.9 and 4.0 a.u.: an ES is expanded up to l = 2,
+    too little for a sphere of 6-15 a.u. in a molecular crystal; the APWs of PMT take the rest of a wide void; before, 0.6 x the smallest void radius for all ES, which
+    left ES of 1.8 a.u. in voids of 3-6 a.u.); the largest voids are taken first, a smaller one only when its ES does
+    not overlap the kept ones;
   - the ES are added as the LAST sites (the indices of the atoms, and the mlo_lm rows, do not change), with one
-    [[spec]] "E" (z = 0, lmx = lmxa = 2, rsmh = r/2, eh = -0.3: the form of Samples/MLOsamples/FeMgO), and a row
-    "<i> E 1 2 3 4" (s,p) in [mlo] mlo_lm.
+    [[spec]] per radius, "E" (or E1, E2, ... for several radii; z = 0, lmx = lmxa = 2, rsmh = r/2, eh = -0.3: the form of
+    Samples/MLOsamples/FeMgO), and a row "<i> E 1 2 3 4" (s,p) in [mlo] mlo_lm.
 The basis changes, so the calculation starts again from lmfa. For GW, run gwinit again (the per-atom tables of
 [product_basis] do not list the ES).
 
@@ -86,17 +89,17 @@ def find_voids(plat, pos, rmin):
         if best <= rmin: continue
         if any(np.linalg.norm(((fr - g + 0.5) % 1.0 - 0.5) @ plat) < 0.5 for g, _ in out): continue
         out.append((fr, best))
-    return select_voids(out, plat)
+    return out
 
 
-def select_voids(voids, plat):
+def select_voids(voids, plat, scale, rmax=4.0):
     """Keep the largest voids first; a smaller one only when its ES would not overlap the kept ones, i.e. the centres are at
-    least 0.6 (v_i + v_j) apart (0.6 v is the ES radius). Bug fixed 2026-10-05: all local maxima above rmin were kept, so a wide
+    least r_i + r_j apart, r = min(scale v, rmax) the ES radius. Bug fixed 2026-10-05: all local maxima above rmin were kept, so a wide
     void (a molecular crystal, a slab-like structure) got up to 24 ES whose common radius, half the distance to the next ES,
     fell to 0.25 a.u. (53 of the 209 GW1500 structures with a void above 3.0 a.u. got ES below 1.5 a.u.)."""
     kept = []
     for fr, v in sorted(voids, key=lambda a: -a[1]):
-        if all(np.linalg.norm(((fr - g + 0.5) % 1.0 - 0.5) @ plat) >= 0.6 * (v + w) for g, w in kept):
+        if all(np.linalg.norm(((fr - g + 0.5) % 1.0 - 0.5) @ plat) >= min(scale * v, rmax) + min(scale * w, rmax) for g, w in kept):
             kept.append((fr, v))
     return kept
 
@@ -104,37 +107,40 @@ def select_voids(voids, plat):
 def main():
     ap = argparse.ArgumentParser(description='put empty spheres at the voids larger than --rmin (a.u.)')
     ap.add_argument('sname'); ap.add_argument('--rmin', type=float, default=3.0); ap.add_argument('--dry-run', action='store_true')
+    ap.add_argument('--scale', type=float, default=0.9, help='ES radius / void radius')
+    ap.add_argument('--rmax', type=float, default=4.0, help='largest ES radius (a.u.)')
     a = ap.parse_args()
     f = f'ctrlg.{a.sname}.toml'; t = open(f).read(); d = tomllib.loads(t)
     if any(s['z'] == 0 for s in d['spec']): sys.exit(f'{f} has an empty sphere already (z = 0); nothing done')
     alat, plat, pos = structure(d)
-    voids = find_voids(plat, pos, a.rmin)
+    voids = select_voids(find_voids(plat, pos, a.rmin), plat, a.scale, a.rmax)
     if not voids:
         print(f'no void larger than {a.rmin} a.u.; nothing done')
         return
     cart = [fr @ plat for fr, _ in voids]
-    dmin = min([np.linalg.norm(((voids[i][0] - voids[j][0] + 0.5) % 1.0 - 0.5) @ plat)
-                for i in range(len(voids)) for j in range(len(voids)) if i != j], default=1e9)
-    rES = round(min(min(0.6 * v for _, v in voids), 0.5 * dmin - 0.01), 2)
+    rad = [np.floor(min(a.scale * v, a.rmax) / 0.05) * 0.05 for _, v in voids]          # on a 0.05 a.u. grid: one [[spec]] per radius
+    radii = sorted(set(round(r, 2) for r in rad), reverse=True)
+    name = {r: ('E' if len(radii) == 1 else f'E{k + 1}') for k, r in enumerate(radii)}
     nat = len(d['site'])
-    for i, ((fr, v), x) in enumerate(zip(voids, cart), nat + 1):
-        print(f'ES site {i}: plat fraction {np.round(fr, 4).tolist()}  pos/alat {np.round(x / alat, 5).tolist()}  void radius {v:.2f} a.u.')
-    print(f'ES radius {rES} a.u. ({len(voids)} spheres)')
+    for i, ((fr, v), x, r) in enumerate(zip(voids, cart, rad), nat + 1):
+        print(f'ES site {i}: plat fraction {np.round(fr, 4).tolist()}  pos/alat {np.round(x / alat, 5).tolist()}  void radius {v:.2f} a.u.'
+              f'  ES {name[round(r, 2)]} radius {r:.2f} a.u.')
+    print(f'ES radius {min(radii):.2f} a.u. (smallest; {len(voids)} spheres, radii {radii})')
     if a.dry_run: return
-    sites = ''.join(f'[[site]]   # empty sphere at a void, void radius {v:.2f} a.u. (ctrlg_addes.py)\natom = "E"\n'
+    sites = ''.join(f'[[site]]   # empty sphere at a void, void radius {v:.2f} a.u. (ctrlg_addes.py)\natom = "{name[round(r, 2)]}"\n'
                     f'pos  = [{x[0]/alat:.8f}, {x[1]/alat:.8f}, {x[2]/alat:.8f}]\n'
-                    '# ----------------------------------------------------------------\n' for (fr, v), x in zip(voids, cart))
+                    '# ----------------------------------------------------------------\n' for (fr, v), x, r in zip(voids, cart, rad))
     # after the last [[site]] table
     last = [m.start() for m in re.finditer(r'(?m)^\[\[site\]\]', t)][-1]
     m = re.search(r'(?m)^(\[|# ===)', t[last + 8:]); end = last + 8 + (m.start() if m else len(t) - last - 8)
     t = t[:end] + sites + t[end:]
-    spec = (f'[[spec]]   # empty sphere (ctrlg_addes.py; the form of Samples/MLOsamples/FeMgO)\natom   = "E"\nz      = 0\nr      = {rES}\n'
-            f'lmx    = 2\nlmxa   = 2\nrsmh   = [{rES/2:.3f}, {rES/2:.3f}, {rES/2:.3f}]\neh     = [-0.3, -0.3, -0.3]\n'
-            '# ----------------------------------------------------------------\n')
+    spec = ''.join(f'[[spec]]   # empty sphere (ctrlg_addes.py; the form of Samples/MLOsamples/FeMgO)\natom   = "{name[r]}"\nz      = 0\nr      = {r:.2f}\n'
+                   f'lmx    = 2\nlmxa   = 2\nrsmh   = [{r/2:.3f}, {r/2:.3f}, {r/2:.3f}]\neh     = [-0.3, -0.3, -0.3]\n'
+                   '# ----------------------------------------------------------------\n' for r in radii)
     last = [m.start() for m in re.finditer(r'(?m)^\[\[spec\]\]', t)][-1]
     m = re.search(r'(?m)^(\[|# ===)', t[last + 8:]); end = last + 8 + (m.start() if m else len(t) - last - 8)
     t = t[:end] + spec + t[end:]
-    rows = ''.join(f'{i} E    1 2 3 4\n' for i in range(nat + 1, nat + 1 + len(voids)))
+    rows = ''.join(f'{i} {name[round(r, 2)]}    1 2 3 4\n' for i, r in zip(range(nat + 1, nat + 1 + len(voids)), rad))
     if re.search(r'(?m)^mlo_lm = """\n', t):
         t = re.sub(r'(?ms)^(mlo_lm = """\n.*?)^"""', lambda mm: mm.group(1) + rows + '"""', t, count=1)
     open(f + '.bak_addes', 'w').write(open(f).read())
