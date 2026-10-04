@@ -204,7 +204,9 @@ contains
         !   EF - 17 .. -8 eV (SHALLOW semicore below the window): the LO is a model function
         !     IN ADDITION to the EH function
         !   below EF - 17 eV (deep): not part of the model (its states are dropped by nskip
-        !     and the EH function serves the model).
+        !     and the EH function serves the model), unless a model band lies below it
+        !     (an anion 2s below Sn 4d in SnF4): then the LO is added as for a shallow one
+        !     (2026-10-05), since nskip can drop only the lowest bands.
         ! "Shallow": the band of the LO (occupied states with projection weight > 1/2 on
         ! the LO functions of that l of ALL sites of the species) has its top above
         ! EF - 17 eV, over all k.
@@ -238,12 +240,14 @@ contains
           ! placed the elements one off for any() and the whole-array operations, so the decision below was skipped
           ! (Bug fixed 2026-09-28 23:25: NiO666lda MLO bands 3.8 meV off with nvfortran; gfortran was right)
           real(8), allocatable :: etop(:,:), etop_all(:,:)
-          real(8) :: w, pz, pnu
+          real(8) :: w, pz, pnu, elow, elow_all
+          real(8), allocatable :: wlo(:)
           logical, allocatable :: has_lo(:,:)
           logical :: anylo
           integer, allocatable :: spc(:)   ! species of each site
           allocate(has_lo(nbas,0:3), etop(nbas,0:3), etop_all(nbas,0:3), spc(nbas))
           use_lo = .false.; lo_replace = .false.; has_lo = .false.; etop = -1d99
+          elow = 1d99   ! lowest occupied state with no LO of weight > 1/2 (a model band, e.g. an anion 2s)
           spc = 0
           do i = 1, ldim; spc(ib_table(i)) = ispec_table(i); enddo
           ! only SEMICORE local orbitals (shell int(mod(pz,10)) below the valence
@@ -267,6 +271,7 @@ contains
             read(ifih_info) nbandmx, mrech, mrechsoc
             close(ifih_info)
             allocate(ovlmp(nbandmx,nbandmx), hammp(nbandmx,nbandmx), evec(nbandmx,nbandmx), evl(nbandmx), sc(nbandmx,nbandmx), s0(nbandmx,nbandmx))
+            allocate(wlo(nbandmx))
             istat = openm(newunit=ifih, file='__HamiltonianPMT', recl=mrech)
             nspxl = nsp; if (lso==1) nspxl = 1      ! nspx of the module is set only later
             do iqxx = 1, nqibz
@@ -280,6 +285,7 @@ contains
                 call zhev_tk4(ndimPMT, hammp(1:ndimPMT,1:ndimPMT), ovlmp(1:ndimPMT,1:ndimPMT), nmx, nev0, evl(1:ndimPMT), &
                      evec(1:ndimPMT,1:ndimPMT), oveps)   ! sections: the dummies are explicit-shape (ndimPMT,*)
                 sc(1:ndimPMT,1:nev0) = matmul(s0(1:ndimPMT,1:ndimPMT), evec(1:ndimPMT,1:nev0))   ! S c
+                wlo(1:nev0) = 0d0
                 do ib = 1, nbas; do il = 0, 3
                   if (.not. has_lo(ib,il)) cycle
                   ! projection weight of state i onto span{LO functions of l=il on all sites of the species of ib}:
@@ -300,22 +306,36 @@ contains
                       ! occupied states only: the LO function also has weight in
                       ! unphysical states far above EF, which are not the band.
                       if (w > 0.5d0 .and. evl(i) < eferm + 0.05d0) etop(ib,il) = max(etop(ib,il), evl(i))
+                      wlo(i) = max(wlo(i), w)
                     enddo
                   endblock
                 enddo; enddo
+                do i = 1, nev0
+                  if (wlo(i) <= 0.5d0 .and. evl(i) < eferm) elow = min(elow, evl(i))
+                enddo
               enddo
             enddo
             istat = closem(ifih)
             call MPI_Allreduce(etop, etop_all, nbas*4, MPI_DOUBLE_PRECISION, MPI_MAX, MPI_COMM_WORLD, ierr)
+            call MPI_Allreduce(elow, elow_all, 1, MPI_DOUBLE_PRECISION, MPI_MIN, MPI_COMM_WORLD, ierr)
             do ib = 1, nbas; do il = 0, 3
               if (.not. has_lo(ib,il)) cycle
               use_lo(ib,il)     = etop_all(ib,il) > eferm + eshallow
+              ! A deep LO is left out only when its band lies below every model band, so that nskip drops it (2026-10-05,
+              ! GW1500): in SnF4 the F 2s bands lie below the Sn 4d (EF -18.3 eV), nskip came out 0, and the 5 Sn 4d bands
+              ! stayed in the projector with no MLO for them: the F 2p bands 0.40 eV off; with the Sn 4d LO 0.019 eV.
+              ! CaO2 (O2 2s below the Ca 3p) stopped on the overlap check of nskip.
+              if (.not. use_lo(ib,il) .and. etop_all(ib,il) > -1d98 .and. elow_all < etop_all(ib,il)) use_lo(ib,il) = .true.
               lo_replace(ib,il) = etop_all(ib,il) > eferm + evalence
               if (master_mpi .and. etop_all(ib,il) < -1d98) then   ! no occupied state with weight > 1/2: treated as deep
                 write(stdo,ftox) ' m_HamPMT: local orbital atom',ib,' l=',il,' no band of it found -> deep: LO skipped'
               elseif (master_mpi .and. lo_replace(ib,il)) then
                 write(stdo,ftox) ' m_HamPMT: local orbital atom',ib,' l=',il,' top of its band EF',&
                    ftof((etop_all(ib,il)-eferm)*13.605d0),'eV -> IN THE WINDOW: LO replaces the EH function'
+              elseif (master_mpi .and. use_lo(ib,il) .and. etop_all(ib,il) <= eferm + eshallow) then
+                write(stdo,ftox) ' m_HamPMT: local orbital atom',ib,' l=',il,' top of its band EF',&
+                   ftof((etop_all(ib,il)-eferm)*13.605d0),'eV -> deep, but a model band lies below it (EF', &
+                   ftof((elow_all-eferm)*13.605d0),'eV): LO added to the model'
               elseif (master_mpi) then
                 write(stdo,ftox) ' m_HamPMT: local orbital atom',ib,' l=',il,' top of its band EF',&
                    ftof((etop_all(ib,il)-eferm)*13.605d0),'eV ->', merge('SHALLOW: LO added to the model         ', &
