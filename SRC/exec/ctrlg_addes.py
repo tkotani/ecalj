@@ -13,9 +13,10 @@ Reads ctrlg.<sname>.toml. The "void radius" of a point is its distance to the ne
     left ES of 1.8 a.u. in voids of 3-6 a.u.); the largest voids are taken first, a smaller one only when its ES does
     not overlap the kept ones;
   - the ES are added as the LAST sites (the indices of the atoms, and the mlo_lm rows, do not change), with one
-    [[spec]] per radius, "E" (or E1, E2, ... for several radii; z = 0, an s function only: lmx = 0, lmxa = 2, rsmh = r/2,
-    eh = -0.3; 2026-10-05, user: "rather four ES with s only"; s,p,d before, the form of Samples/MLOsamples/FeMgO), and a row
-    "<i> E 1" (s) in [mlo] mlo_lm.
+    [[spec]] per radius, "E" (or E1, E2, ... for several radii; z = 0, lmxa = 2, rsmh = r/2, eh = -0.3; the basis s only
+    (lmx = 0) below --rsp = 3.0 a.u., s,p (lmx = 1) from there; 2026-10-05, user: "keep the Wyckoff positions, fill by number
+    when they get small, s only when small" -- the number of orbitals sets the time; s,p,d for every ES before), and a row
+    "<i> E 1" or "<i> E 1 2 3 4" in [mlo] mlo_lm.
 The basis changes, so the calculation starts again from lmfa. For GW, run gwinit again (the per-atom tables of
 [product_basis] do not list the ES).
 
@@ -164,6 +165,7 @@ def main():
     ap.add_argument('sname'); ap.add_argument('--rmin', type=float, default=3.0); ap.add_argument('--dry-run', action='store_true')
     ap.add_argument('--scale', type=float, default=0.9, help='ES radius / void radius')
     ap.add_argument('--rmax', type=float, default=4.0, help='largest ES radius (a.u.)')
+    ap.add_argument('--rsp', type=float, default=3.0, help='an ES of this radius (a.u.) or larger gets s,p; a smaller one s only')
     a = ap.parse_args()
     f = f'ctrlg.{a.sname}.toml'; t = open(f).read(); d = tomllib.loads(t)
     if any(s['z'] == 0 for s in d['spec']): sys.exit(f'{f} has an empty sphere already (z = 0); nothing done')
@@ -192,13 +194,14 @@ def main():
     last = [m.start() for m in re.finditer(r'(?m)^\[\[site\]\]', t)][-1]
     m = re.search(r'(?m)^(\[|# ===)', t[last + 8:]); end = last + 8 + (m.start() if m else len(t) - last - 8)
     t = t[:end] + sites + t[end:]
-    spec = ''.join(f'[[spec]]   # empty sphere (ctrlg_addes.py; s only, 2026-10-05)\natom   = "{name[r]}"\nz      = 0\nr      = {r:.2f}\n'
-                   f'lmx    = 0\nlmxa   = 2\nrsmh   = [{r/2:.3f}]\neh     = [-0.3]\n'
+    LSP = lambda r: 1 if r >= a.rsp else 0     # s,p for a large ES, s only for a small one (2026-10-05, user)
+    spec = ''.join(f'[[spec]]   # empty sphere (ctrlg_addes.py; {"s,p" if LSP(r) else "s only"}, 2026-10-05)\natom   = "{name[r]}"\nz      = 0\nr      = {r:.2f}\n'
+                   f'lmx    = {LSP(r)}\nlmxa   = 2\nrsmh   = [{", ".join([f"{r/2:.3f}"] * (LSP(r) + 1))}]\neh     = [{", ".join(["-0.3"] * (LSP(r) + 1))}]\n'
                    '# ----------------------------------------------------------------\n' for r in radii)
     last = [m.start() for m in re.finditer(r'(?m)^\[\[spec\]\]', t)][-1]
     m = re.search(r'(?m)^(\[|# ===)', t[last + 8:]); end = last + 8 + (m.start() if m else len(t) - last - 8)
     t = t[:end] + spec + t[end:]
-    rows = ''.join(f'{i} {name[round(r, 2)]}    1\n' for i, r in zip(range(nat + 1, nat + 1 + len(voids)), rad))
+    rows = ''.join(f'{i} {name[round(r, 2)]}    {"1 2 3 4" if LSP(round(r, 2)) else "1"}\n' for i, r in zip(range(nat + 1, nat + 1 + len(voids)), rad))
     if re.search(r'(?m)^mlo_lm = """\n', t):
         t = re.sub(r'(?ms)^(mlo_lm = """\n.*?)^"""', lambda mm: mm.group(1) + rows + '"""', t, count=1)
     open(f + '.bak_addes', 'w').write(open(f).read())
