@@ -21,7 +21,8 @@ except Exception:
 if not os.path.exists(f + '.orig'): shutil.copy(f, f + '.orig')
 mlo = tn[an:bn]
 # EH2 rows (mlo_lm2), --lm2sel=<atoms>:<lm> (2026-10-04, tests of the rule; user: too much basis or s only).
-#   atoms: alld = all, and K Ca Rb Sr Cs Ba get s,p,d; cation = the gwinit rule (not N O F P S Cl As Se Br Sb Te I, not a transition metal Sc-Cu Y-Ag La-Au, not Ac-);
+#   atoms: alld = all, and K Ca Rb Sr Cs Ba get s,p,d, Cu Ag Au s,p (CsCu3O2 0.30 -> 0.01, Cu3N 0.87 -> 0.08, AgCN 0.26 -> 0.03 eV);
+#          cation = the gwinit rule (not N O F P S Cl As Se Br Sb Te I, not a transition metal Sc-Cu Y-Ag La-Au, not Ac-);
 #          all = every atom but the transition metals, 4f and 5f; noae = all without Ca Sr Ba too.   lm: s (1) or sp (1 2 3 4).
 #   --lm2 = cation:sp (the rows of gwinit), --lm2all = all:sp, --lm2noae = noae:sp. alld = all, with d too on K Ca Rb Sr Cs Ba
 #   (2026-10-05, the third variant of gw1500_mlo_std.sh).
@@ -41,7 +42,8 @@ if sel:
             continue
         el = re.match(r'[A-Z][a-z]?', c[1]).group(0)
         z = EL.index(el) + 1 if el in EL else 0
-        if z == 0 or 21 <= z <= 29 or 39 <= z <= 47 or 57 <= z <= 79 or z >= 89:
+        noble = atoms == 'alld' and z in (29, 47, 79)    # Cu Ag Au in alld: EH2 s,p (2026-10-05; d sunk, the conduction band is their s,p)
+        if (z == 0 or 21 <= z <= 29 or 39 <= z <= 47 or 57 <= z <= 79 or z >= 89) and not noble:
             continue
         if (atoms == 'noae' and z in (20, 38, 56)) or (atoms == 'cation' and z in ANION):
             continue
