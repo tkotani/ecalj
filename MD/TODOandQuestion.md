@@ -114,10 +114,29 @@
 
 ---
 
-- 【未着手】**k 点のメッシュを密度で決める規則を戻す**（2026-10-05、user「以前は逆格子ベクトルの長さに合わせて、k 点の密度で決めていた」）。
-  5 月の量産（`ecalj_auto/auto/change_k.py` の `get_kpoints`・`get_q`、config.ini の `koption = 8`・`kratio = 4/8`）は各軸 ∝ |b_i|、
-  Si 8×8×8 の密度、GW は × 4/8 切り上げ、最低 3。今の `ctrlgenToml.py`（既定 8×8×8）・`gwinit`（`n1q = 4` の定数）・`gw1500_rerun.sh` は一律。
-  GW1500 の今回の回し直し（R、N、E）は一律のまま続ける（user「今はこのままやって」）。データベースの M と N の差には k 点の違いも入る
+- 【未着手】**k 点のメッシュを密度で決める規則（既定の ctrl の lmf のメッシュと GW のメッシュ）**（2026-10-05、user「以前のルールを
+  しっかり調べて。正しいかどうか不明。そのルールでデフォルトの ctrl・GW 用メッシュを書く。GW 用は少ない目にする」）。
+  - 今: `ctrlgenToml.py` の既定 8×8×8、`gwinit` の `n1q = n2q = n3q = 4`（定数）。GW1500 の R・N・E はこれで一律（user「今はこのまま」）
+  - 以前（5 月の量産、[`ecalj_auto/auto/change_k.py`](../ecalj_auto/auto/change_k.py) の `get_kpoints`・`get_q`、config.ini の `koption = 8`・`kratio = 4/8`）:
+    PlatQlat.chk の QLAT（Å⁻¹、2π なし）から |b_i| と BZ の体積 V_BZ。k_i ∝ |b_i| にし、積 ∏k_i を (8 c)³（c = (V_BZ / 0.0209)^{1/3}）にそろえて
+    丸め、最低 3。GW は ⌈k_i × 4/8⌉、最低 3
+  - 調べて分かった問題（2026-10-05）:
+    1. 基準の 0.0209 Å⁻³ は Si ではない。fcc の V_BZ = 4/a³ で、Si（a = 5.43〜5.47 Å）は 0.0245〜0.0250。0.0209 は a = 5.76 Å に当たる。
+       Si が 8.4 → 8 になるので実害は小さいが、注記（`#Si`）は誤り
+    2. 積で体積をそろえるので、点の間隔は格子の角度で変わる。∏|b_i| ≥ V_BZ（等号は直交のとき）なので、斜めの格子ほど各軸の点が減る。
+       同じ結晶でも基本格子と慣用格子で密度が変わる（形によらない規則になっていない）
+    3. `round` と最低 3 の後で密度を確かめていない。`decide_k0` は使われていない古い版
+  - 直す形の案: 間隔 Δk で決める。n_i = max(n_min, ⌈|b_i| / Δk⌉)。lmf は Δk をいまの Si 8×8×8 に合わせ（Si で 8）、GW は Δk を 2 倍
+    （点は約半分、少ない目）、最低 lmf 4・GW 2〜3。`ctrlgenToml.py` が nkabc を、`gwinit` が n1n2n3 を、どちらも PlatQlat から書く。偶奇は今のまま
+- 【未着手】**混合のパラメータ b の自動の調整を lmf の中で完結させる**（2026-10-05、user「デフォルトでは落ちる場合もある、そのリカバリを
+  スマートにしてほしい。lmf の中で完結するように。save ファイルにはそのログを行末に書く」）。
+  - 今: [`SRC/exec/pylib/dft.py`](../SRC/exec/pylib/dft.py) の `run_lmf`（`bmix_reduction`）が、lmf が収束しない・落ちるたびに rst を戻し、
+    `__mixm` を消して b を 0.05 ずつ下げて lmf を最初からやり直す（最小 0.05）。`ecalj_auto/auto/creplot.py` の `set_bmix` も同じ形。
+    やり直しのたびに lmf を初めから回すので遅く、Python の外（lmf を直接回す人）には効かない
+  - 案: `m_lmfp.f90` の `ElectronicStructureSelfConsistencyLoop` で、発散の兆候（qdiff が数回続けて増える、NaN、ehf の急変）を見たら、反復の
+    初めの密度（rst を読んだ直後に控える）に戻し、混合の履歴（`__mixm`）を捨てて b を半分にし、反復を続ける。`nwit` が save の行末に
+    `b=0.20->0.10 at it 7` のように書く。bndfp の中の `rx`（Fermi 準位が電子数を囲めない、など）で止まる場合は、その前に兆候で拾う
+
 
 ## 2. TODO（済）（新しい順）
 
