@@ -13,8 +13,9 @@ Reads ctrlg.<sname>.toml. The "void radius" of a point is its distance to the ne
     left ES of 1.8 a.u. in voids of 3-6 a.u.); the largest voids are taken first, a smaller one only when its ES does
     not overlap the kept ones;
   - the ES are added as the LAST sites (the indices of the atoms, and the mlo_lm rows, do not change), with one
-    [[spec]] per radius, "E" (or E1, E2, ... for several radii; z = 0, lmx = lmxa = 2, rsmh = r/2, eh = -0.3: the form of
-    Samples/MLOsamples/FeMgO), and a row "<i> E 1 2 3 4" (s,p) in [mlo] mlo_lm.
+    [[spec]] per radius, "E" (or E1, E2, ... for several radii; z = 0, an s function only: lmx = 0, lmxa = 2, rsmh = r/2,
+    eh = -0.3; 2026-10-05, user: "rather four ES with s only"; s,p,d before, the form of Samples/MLOsamples/FeMgO), and a row
+    "<i> E 1" (s) in [mlo] mlo_lm.
 The basis changes, so the calculation starts again from lmfa. For GW, run gwinit again (the per-atom tables of
 [product_basis] do not list the ES).
 
@@ -191,13 +192,13 @@ def main():
     last = [m.start() for m in re.finditer(r'(?m)^\[\[site\]\]', t)][-1]
     m = re.search(r'(?m)^(\[|# ===)', t[last + 8:]); end = last + 8 + (m.start() if m else len(t) - last - 8)
     t = t[:end] + sites + t[end:]
-    spec = ''.join(f'[[spec]]   # empty sphere (ctrlg_addes.py; the form of Samples/MLOsamples/FeMgO)\natom   = "{name[r]}"\nz      = 0\nr      = {r:.2f}\n'
-                   f'lmx    = 2\nlmxa   = 2\nrsmh   = [{r/2:.3f}, {r/2:.3f}, {r/2:.3f}]\neh     = [-0.3, -0.3, -0.3]\n'
+    spec = ''.join(f'[[spec]]   # empty sphere (ctrlg_addes.py; s only, 2026-10-05)\natom   = "{name[r]}"\nz      = 0\nr      = {r:.2f}\n'
+                   f'lmx    = 0\nlmxa   = 2\nrsmh   = [{r/2:.3f}]\neh     = [-0.3]\n'
                    '# ----------------------------------------------------------------\n' for r in radii)
     last = [m.start() for m in re.finditer(r'(?m)^\[\[spec\]\]', t)][-1]
     m = re.search(r'(?m)^(\[|# ===)', t[last + 8:]); end = last + 8 + (m.start() if m else len(t) - last - 8)
     t = t[:end] + spec + t[end:]
-    rows = ''.join(f'{i} {name[round(r, 2)]}    1 2 3 4\n' for i, r in zip(range(nat + 1, nat + 1 + len(voids)), rad))
+    rows = ''.join(f'{i} {name[round(r, 2)]}    1\n' for i, r in zip(range(nat + 1, nat + 1 + len(voids)), rad))
     if re.search(r'(?m)^mlo_lm = """\n', t):
         t = re.sub(r'(?ms)^(mlo_lm = """\n.*?)^"""', lambda mm: mm.group(1) + rows + '"""', t, count=1)
     open(f + '.bak_addes', 'w').write(open(f).read())

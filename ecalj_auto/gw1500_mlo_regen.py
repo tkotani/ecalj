@@ -51,5 +51,20 @@ if sel:
         mlo = mlo[:a2] + body + mlo[b2:]
     else:
         mlo = mlo.rstrip('\n') + '\n' + body
+# ES (z = 0): gwinit writes s,p rows; take the lm of the basis of the species (an ES of ctrlg_addes.py has s only, 2026-10-05)
+try:
+    import tomllib
+    dd = tomllib.loads(t); lmx = {sp['atom']: sp.get('lmx', 2) for sp in dd['spec'] if sp.get('z', 1) == 0}
+    if lmx:
+        i = mlo.index('mlo_lm = """'); j = mlo.index('"""', i + 13)
+        rows = []
+        for l in mlo[i + 13:j].split('\n'):
+            c = l.split()
+            if len(c) >= 2 and c[1] in lmx:
+                l = f"{c[0]} {c[1]}   " + ' '.join(str(k) for k in range(1, (min(lmx[c[1]], 1) + 1) ** 2 + 1))
+            rows.append(l)
+        mlo = mlo[:i + 13] + '\n'.join(rows) + mlo[j:]
+except Exception as e:
+    print('ES rows not adjusted:', e)
 open(f, 'w').write(t[:a] + mlo + t[b:]); shutil.rmtree(w)
 print('ok')
