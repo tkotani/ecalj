@@ -127,7 +127,10 @@
        同じ結晶でも基本格子と慣用格子で密度が変わる（形によらない規則になっていない）
     3. `round` と最低 3 の後で密度を確かめていない。`decide_k0` は使われていない古い版
   - 直す形の案: 間隔 Δk で決める。n_i = max(n_min, ⌈|b_i| / Δk⌉)。lmf は Δk をいまの Si 8×8×8 に合わせ（Si で 8）、GW は Δk を 2 倍
-    （点は約半分、少ない目）、最低 lmf 4・GW 2〜3。`ctrlgenToml.py` が nkabc を、`gwinit` が n1n2n3 を、どちらも PlatQlat から書く。偶奇は今のまま
+    （点は約半分、少ない目）、最低 lmf 4・GW 2〜3。偶奇は今のまま
+  - 置き場（user 2026-10-05「change_k.py の内容は exec/ へ移動。デフォルトにも反映させるから」）: `SRC/exec/` に k 点の規則の
+    モジュール（例 `kmesh.py`）を置き、`ctrlgenToml.py` が ctrlg の `[bz] nkabc` と `[gw] n1n2n3` の既定をそれで書く（`gwinit` の定数
+    `n1q = 4` は使わなくなる）。`ecalj_auto/auto/change_k.py` は移したあと trash へ（past_log に要点）
 - 【未着手】**混合のパラメータ b の自動の調整を lmf の中で完結させる**（2026-10-05、user「デフォルトでは落ちる場合もある、そのリカバリを
   スマートにしてほしい。lmf の中で完結するように。save ファイルにはそのログを行末に書く」）。
   - 今: [`SRC/exec/pylib/dft.py`](../SRC/exec/pylib/dft.py) の `run_lmf`（`bmix_reduction`）が、lmf が収束しない・落ちるたびに rst を戻し、
