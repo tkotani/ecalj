@@ -6,6 +6,8 @@
 Reads ctrlg.<sname>.toml. The "void radius" of a point is its distance to the nearest MT sphere surface
 (|r - R_a| - r_a, over all atoms a). Every local maximum of it above --rmin (a.u.) gets an ES:
   - its position is snapped to a multiple of 1/48 in the plat basis when that is within 0.02, to keep the symmetry;
+  - whole Wyckoff orbits (2026-10-05, wyckoff_voids: spglib; user: "ES at the Wyckoff positions"; an ES on part of an orbit
+    lowers the symmetry, which makes GW heavier and spoils the band plot); the space-group operations with and without ES are printed;
   - its radius is --scale x its own void radius, at most --rmax (2026-10-05: 0.9 and 4.0 a.u.: an ES is expanded up to l = 2,
     too little for a sphere of 6-15 a.u. in a molecular crystal; the APWs of PMT take the rest of a wide void; before, 0.6 x the smallest void radius for all ES, which
     left ES of 1.8 a.u. in voids of 3-6 a.u.); the largest voids are taken first, a smaller one only when its ES does
@@ -104,6 +106,58 @@ def select_voids(voids, plat, scale, rmax=4.0):
     return kept
 
 
+
+def wyckoff_voids(voids, plat, d, scale, rmax, clear, rfloor=1.5):
+    """ES on whole Wyckoff orbits (2026-10-05, user: "ES at the Wyckoff positions"; a part of an orbit lowers the symmetry,
+    and the GW of the ES runs of GW1500 got 1.4-2.7 times the irreducible q points). For each void, from the largest: the images
+    by the space group (spglib), the centre moved to the special position (the mean over its site symmetry), the orbit taken
+    whole when it overlaps no ES taken before. ES radius: min(scale x void radius, rmax, half the shortest distance in the
+    orbit); an orbit whose radius would fall below rfloor (a.u.) is left out. Returns [(fractional position, void radius,
+    ES radius)]."""
+    import spglib
+    lab = [s['atom'] for s in d['site']]; ids = {a: i + 1 for i, a in enumerate(dict.fromkeys(lab))}
+    alat = d['struc']['alat']; inv = np.linalg.inv(plat)
+    frac = [(np.array(s['pos'], float) * alat) @ inv if 'pos' in s else np.array(s['xpos'], float) for s in d['site']]
+    sym = spglib.get_symmetry((plat, frac, [ids[a] for a in lab]), symprec=1e-3)
+    ops = list(zip(sym['rotations'], sym['translations']))
+    dist = lambda f, g: np.linalg.norm(((f - g + 0.5) % 1.0 - 0.5) @ plat)
+    kept, seen = [], []
+    for fr, v in sorted(voids, key=lambda a: -a[1]):
+        if any(dist(fr, g) < 0.3 for g in seen):
+            continue
+        x = fr
+        for _ in range(4):   # images closer than an ES diameter are merged into their centre, a position of higher symmetry
+            stab = [R @ x + t for R, t in ops if dist(R @ x + t, x) < 2 * rfloor]
+            x = (x + np.mean([((y - x + 0.5) % 1.0 - 0.5) for y in stab], axis=0)) % 1.0     # the special position
+            orb = []
+            for R, t in ops:
+                y = (R @ x + t) % 1.0
+                if all(dist(y, g) > 1e-3 for g in orb):
+                    orb.append(y)
+            dmin = min([dist(a, b) for i, a in enumerate(orb) for b in orb[i + 1:]], default=1e9)
+            if dmin >= 2 * rfloor:
+                break
+        v = float(clear(x @ plat)[0])                                                              # the void radius there
+        seen += orb + [fr]
+        r = min(scale * v, rmax, 0.5 * dmin - 0.01)
+        if r < rfloor:
+            continue
+        if any(dist(y, g) < r + rg for y in orb for g, _, rg in kept):
+            continue
+        kept += [(y, v, r) for y in orb]
+    return kept, len(ops)
+
+
+def nops_with_es(plat, d, es):
+    """number of space-group operations of the structure with the ES (each ES radius a species of its own)"""
+    import spglib
+    lab = [s['atom'] for s in d['site']]; alat = d['struc']['alat']; inv = np.linalg.inv(plat)
+    frac = [(np.array(s['pos'], float) * alat) @ inv if 'pos' in s else np.array(s['xpos'], float) for s in d['site']]
+    ids = {a: i + 1 for i, a in enumerate(dict.fromkeys(lab))}; n0 = len(ids)
+    rs = sorted({round(r, 2) for _, _, r in es})
+    num = [ids[a] for a in lab] + [n0 + 1 + rs.index(round(r, 2)) for _, _, r in es]
+    return len(spglib.get_symmetry((plat, frac + [f for f, _, _ in es], num), symprec=1e-3)['rotations'])
+
 def main():
     ap = argparse.ArgumentParser(description='put empty spheres at the voids larger than --rmin (a.u.)')
     ap.add_argument('sname'); ap.add_argument('--rmin', type=float, default=3.0); ap.add_argument('--dry-run', action='store_true')
@@ -113,12 +167,15 @@ def main():
     f = f'ctrlg.{a.sname}.toml'; t = open(f).read(); d = tomllib.loads(t)
     if any(s['z'] == 0 for s in d['spec']): sys.exit(f'{f} has an empty sphere already (z = 0); nothing done')
     alat, plat, pos = structure(d)
-    voids = select_voids(find_voids(plat, pos, a.rmin), plat, a.scale, a.rmax)
+    es, nops = wyckoff_voids(find_voids(plat, pos, a.rmin), plat, d, a.scale, a.rmax, clearance_fn(plat, pos))
+    voids = [(f, v) for f, v, _ in es]
     if not voids:
         print(f'no void larger than {a.rmin} a.u.; nothing done')
         return
     cart = [fr @ plat for fr, _ in voids]
-    rad = [np.floor(min(a.scale * v, a.rmax) / 0.05) * 0.05 for _, v in voids]          # on a 0.05 a.u. grid: one [[spec]] per radius
+    rad = [np.floor(r / 0.05) * 0.05 for _, _, r in es]          # on a 0.05 a.u. grid: one [[spec]] per radius
+    n2 = nops_with_es(plat, d, es)
+    print(f'space-group operations: {nops} without ES, {n2} with ES' + ('' if n2 == nops else '  (LOWER: check)'))
     radii = sorted(set(round(float(r), 2) for r in rad), reverse=True)
     name = {r: ('E' if len(radii) == 1 else f'E{k + 1}') for k, r in enumerate(radii)}
     nat = len(d['site'])
