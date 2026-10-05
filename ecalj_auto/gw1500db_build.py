@@ -32,10 +32,13 @@ COND = {
     'N': ('2026-10-02 night', 'database run: as R, but --prec=tf32 and t_tetrakbt = -300 K (chi0 by the T=0 tetrahedron method, '
           'Im chi0 smoothed by a Gaussian of the width of a 300 K Fermi-Dirac), t_sigmaw = 300 K; ecalj 989a18637 (kt1) or '
           'b695fa65c (2026-09-30, kr7) with the same gwscconv'),
+    'E1': ('2026-10-05', 'the first ES runs (kept as a record): ES at the largest voids, part of a Wyckoff orbit possible (lower '
+           'symmetry), s,p,d basis on every ES, radius 0.9 x void radius (at most 4.0 a.u.); b695fa65c (workers E*) or 614ab5eb8 (F*) on kr7'),
     'E': ('2026-10-05', 'as N on kr7 (b695fa65c), with empty spheres (ES) at the voids: radius of the void above 3.0 a.u., or 2.0 a.u. in '
           'a molecular crystal; ES radius 0.9 x the void radius, at most 4.0 a.u. (ecalj_auto/gw1500_addes.py, ctrlg_addes.py). '
           'Bands tied to the vacuum level, the nearly free states in the voids, need them; the basis changes, so LDA and QSGW80 '
-          'start again'),
+          'start again. ES on whole Wyckoff orbits (the symmetry kept), s,p basis for an ES of 3.0 a.u. or more, s only below; '
+          'ecalj 614ab5eb8 (kr7) or 0601771b4 (kt1)'),
 }
 
 
@@ -71,7 +74,7 @@ def load_db_logs(db, sub='logs'):
             kv = dict(x.split('=', 1) for x in p[5:] if '=' in x)
             sec = next((x[:-1] for x in p[5:] if re.fullmatch(r'\d+s', x)), None)
             D[p[3]] = dict(verdict=p[4], iter=kv.get('iter'), gaplda=fnum(kv.get('gapLDA')), gap=fnum(kv.get('gap')),
-                           sec=fnum(sec), host=host, when=f'{p[0]} {p[1]}')
+                           sec=fnum(sec), host=host, when=f'{p[0]} {p[1]}', worker=p[2], es=kv.get('ES', ''))
     return D
 
 
@@ -174,7 +177,7 @@ def rr_tag(db, m):
     return None
 
 
-def decide(m, S, N, D, E={}):
+def decide(m, S, N, D, E={}, E1={}):
     """values per condition set and the one adopted"""
     s, n = S[m], N[m]
     v = {}
@@ -187,10 +190,14 @@ def decide(m, S, N, D, E={}):
     if d and d['verdict'] in ('CONVERGED', 'CONVERGED_METAL'):
         g = 0.0 if d['verdict'] == 'CONVERGED_METAL' else d['gap']
         v['N'] = dict(gap=g, lda=d['gaplda'], state=d['verdict'], iter=d['iter'], host=d['host'])
+    e1 = E1.get(m)
+    if e1 and e1['verdict'] in ('CONVERGED', 'CONVERGED_METAL'):       # a record, never adopted
+        v['E1'] = dict(gap=0.0 if e1['verdict'] == 'CONVERGED_METAL' else e1['gap'], lda=e1['gaplda'], state=e1['verdict'],
+                       iter=e1['iter'], host=e1['host'])
     e = E.get(m)
     if e and e['verdict'] in ('CONVERGED', 'CONVERGED_METAL'):
         g = 0.0 if e['verdict'] == 'CONVERGED_METAL' else e['gap']
-        v['E'] = dict(gap=g, lda=e['gaplda'], state=e['verdict'], iter=e['iter'], host=e['host'])
+        v['E'] = dict(gap=g, lda=e['gaplda'], state=e['verdict'], iter=e['iter'], host=e['host'], worker=e['worker'], es=e['es'])
     adopt = next((k for k in ('E', 'N', 'R', 'M') if k in v and v[k]['gap'] is not None), None)
     return v, adopt
 
@@ -200,9 +207,12 @@ VERSION = {'M': '2026-04/05 (~/bin2, all-TF32 --mp)', 'R': '989a18637 (fp32, t_t
            'E': 'b695fa65c (tf32, t_tetrakbt -300) with ES'}
 
 
-def version(adopt, host):
+def version(adopt, host, worker=''):
     if adopt == 'N':
         return VERSION.get(f'N_{host}', 'N')
+    if adopt == 'E':   # by the worker: E* the frozen b695fa65c of kr7, F* 614ab5eb8 (kr7), G* 0601771b4 (kt1)
+        b = 'b695fa65c' if worker.startswith('E') else ('0601771b4' if worker.startswith('G') else '614ab5eb8')
+        return f'{b} (tf32, t_tetrakbt -300) with ES'
     return VERSION.get(adopt, '')
 
 
@@ -285,6 +295,62 @@ def figure(db, m, title, curves, dm, gap, path):
     fig.savefig(path, dpi=80, bbox_inches='tight'); plt.close(fig)
 
 
+
+def history(db, S):
+    """Every run of every material, from all the logs (2026-10-05, user: "results of various conditions cannot be avoided; keep
+    them in the database with the past logs, as notes"): history.tsv (one row per run) and a short history per material.
+    Sets: M (the May status table), R (the reruns of 09-30..10-02), N, E1, E (rerun.log of the database run, the first and the
+    present ES runs). The version comes from the set, the machine and the worker."""
+    rows = []
+    for m, r in S.items():
+        if r.get('prod_date'):
+            rows.append(dict(mpid=m, set='M', when=r['prod_date'], host='', worker='', verdict=r.get('final_state', ''),
+                             iter=r.get('qsgw_iter_final', ''), gaplda=r.get('gap_LDA_eV', ''), gap=r.get('gap_QSGW80_last_llmf_eV', ''),
+                             sec='', es='', version=r.get('prod_bindir', ''), note=r.get('final_detail', '')))
+    def parse(f, st, host):
+        for l in open(f):
+            p = l.split()
+            if p and p[0].endswith('rerun.log'):
+                p = p[1:]
+            if len(p) < 5 or not p[3].startswith('mp-'):
+                continue
+            kv = dict(x.split('=', 1) for x in p[5:] if '=' in x)
+            sec = next((x[:-1] for x in p[5:] if re.fullmatch(r'\d+s', x)), '')
+            w = p[2]
+            ver = {'R': '989a18637'}.get(st, '')
+            if st == 'N':
+                ver = '989a18637' if host == 'kt1' else 'b695fa65c'
+            elif st in ('E1', 'E'):
+                ver = 'b695fa65c' if w.startswith('E') else ('0601771b4' if host.startswith('kt1') else '614ab5eb8')
+            rows.append(dict(mpid=p[3], set=st, when=f'{p[0]} {p[1]}', host=host, worker=w, verdict=p[4], iter=kv.get('iter', ''),
+                             gaplda=kv.get('gapLDA', ''), gap=kv.get('gap', ''), sec=sec, es=kv.get('ES', ''), version=ver, note=''))
+    if os.path.exists(f'{ECALJ}/gw1500_rerun_logs_20261001.txt'):
+        parse(f'{ECALJ}/gw1500_rerun_logs_20261001.txt', 'R', 'kt1')
+    for sub, st in (('logs', 'N'), ('logs_e1', 'E1'), ('logs_es', 'E')):
+        for f in sorted(glob.glob(f'{db}/{sub}/*.log')):
+            parse(f, st, os.path.basename(f).split('.')[0])
+    keys = ['mpid', 'set', 'when', 'host', 'worker', 'verdict', 'iter', 'gaplda', 'gap', 'sec', 'es', 'version', 'note']
+    rows.sort(key=lambda r: (r['mpid'], r['when']))
+    with open(f'{db}/history.tsv', 'w') as f:
+        f.write('# every run of every material (gw1500db_build.py): set M = May production (status table), R = reruns 09-30..10-02,\n'
+                '# N = database run, E1 = first ES runs (kept as a record), E = ES runs; version = ecalj of the binaries\n')
+        f.write('\t'.join(keys) + '\n')
+        for r in rows:
+            f.write('\t'.join(str(r[k]) for k in keys) + '\n')
+    short = defaultdict(list)
+    for r in rows:
+        g = r['gap']
+        try:
+            g = f'{float(g):.2f}'
+        except ValueError:
+            g = r['verdict'] if r['verdict'] not in ('CONVERGED', 'GOOD') else ''
+        if r['set'] == 'M':
+            short[r['mpid']].append(f"M {g or r['verdict']}")
+        else:
+            v = '' if r['verdict'].startswith('CONVERGED') else ' ' + r['verdict']
+            short[r['mpid']].append(f"{r['set']} {g}{v} ({r['when'][5:10]}{', ES ' + r['es'] if r['es'] else ''})".replace('  ', ' '))
+    return {m: ' · '.join(v) for m, v in short.items()}
+
 def main():
     global WORK
     db = sys.argv[1]
@@ -301,18 +367,20 @@ def main():
                 k, v = l.rstrip('\n').split('\t', 1); DBN[k] = v
     D = load_db_logs(db)
     E = load_db_logs(db, 'logs_es')
+    E1 = load_db_logs(db, 'logs_e1')
+    H = history(db, S)
     SG = spacegroups()
     os.makedirs(f'{db}/fig', exist_ok=True)
     rows = []; jobs = []
     for m in sorted(S, key=lambda k: (int(S[k]['natom']), S[k]['formula'], k)):
         s, n = S[m], N[m]
-        v, adopt = decide(m, S, N, D, E)
+        v, adopt = decide(m, S, N, D, E, E1)
         cat = n['category']
         lda = next((v[k]['lda'] for k in ('E', 'N', 'R', 'M') if k in v and v[k]['lda'] is not None), fnum(s['gap_LDA_eV']))
         gap = v[adopt]['gap'] if adopt else None
         others = {k: v[k]['gap'] for k in v if k != adopt and v[k]['gap'] is not None}
         diff = max((abs(g - gap) for g in others.values()), default=0.0) if gap is not None else 0.0
-        tagq = {'E': 'es_qsgw', 'N': 'db_qsgw', 'R': rr_tag(db, m),
+        tagq = {'E': 'es_qsgw', 'E1': 'e1_qsgw', 'N': 'db_qsgw', 'R': rr_tag(db, m),
                 'M': 'may_qsgw_fixed' if os.path.exists(f'{db}/npz/{m}.may_qsgw_fixed.npz') else 'may_qsgw'}
         dq = npz(db, m, tagq[adopt]) if adopt and tagq[adopt] else None
         dl = (npz(db, m, 'es_lda') if adopt == 'E' else None) or npz(db, m, 'db_lda') or npz(db, m, 'may_lda')
@@ -374,8 +442,8 @@ def main():
                          iters={k: v[k].get('iter') for k in v}, mp_pbe=mp.get('band_gap'), ehull=mp.get('energy_above_hull'),
                          icsd=bool((mp.get('database_IDs') or {}).get('icsd')), old2=o.get('shot2'), old1=o.get('shot1'),
                          note=n['note'], dbnote=DBN.get(m, ''), host=v.get('N', {}).get('host', ''),
-                         version=version(adopt, v.get('N', {}).get('host', '')), spike=sp, km=km,
-                         gap_path=pq['gap'] if pq else None, **ml))
+                         version=version(adopt, v.get(adopt, {}).get('host', '') if adopt else '', v.get(adopt, {}).get('worker', '') if adopt else ''), spike=sp, km=km,
+                         gap_path=pq['gap'] if pq else None, hist=H.get(m, ''), **ml))
         if figs and (only is None or m in only):
             spec = [('db_lda' if os.path.exists(f'{db}/npz/{m}.db_lda.npz') else 'may_lda', '0.3', '-', 0.7, 'LDA', 'L')]
             spec.append((tagq[adopt] if adopt else None, 'tab:blue', '-', 0.8, f'QSGW80 ({adopt})', 'Q'))
@@ -458,7 +526,8 @@ def write_pages(db, rows, D):
                 if r['natom'] == n and os.path.exists(f"{db}/fig/{r['mpid']}.png"):
                     f.write(f'<a id="{r["mpid"]}"></a>\n**{r["mpid"]}** {r["formula"]} — QSGW80 {gapcell(r)} eV {r["di"]} {r["flag"]} — ecalj {r["version"]}'
                             + (f' — MLO {mlocell(r)} (ecalj {r["mlo_version"]})' if r.get('mlo_check') else '') + '\n\n'
-                            + (f'*{r["dbnote"]}*\n\n' if r['dbnote'] else '') + f'<img src="fig/{r["mpid"]}.png" width="70%">\n\n')
+                            + (f'*{r["dbnote"]}*\n\n' if r['dbnote'] else '') + (f'<small>runs: {r["hist"]}</small>\n\n' if r.get('hist') else '')
+                            + f'<img src="fig/{r["mpid"]}.png" width="70%">\n\n')
     with open(f'{db}/summary_counts.json', 'w') as f:
         json.dump(dict(adopt=cnt, flag=fl, n=len(rows), db_logged=len(D)), f, indent=1)
     readme(db, rows, D, cnt, fl, pages)
@@ -648,6 +717,8 @@ Models so far: {len(ml)} ({', '.join(f'{k} {v}' for k, v in mc.most_common())}).
 
 ## Files and how this was made
 
+- `history.tsv`: one row per run (every condition set, every attempt, failures included; from the logs of the runs and the
+  May status table), and under each figure a short history of the runs of the material
 - `gw1500db.tsv`: one row per material (all columns of the table, the other results in `others`, notes in `dbnote`)
 - `fig/<mpid>.png`. The raw data behind the figures (`npz/<mpid>.<tag>.npz`, bands and DOS; tags `may_qsgw`, `may_lda`, `rr_<run>`,
   `db_qsgw`, `db_lda`, `db_mlo`) and the logs of the runs are kept by the maintainers and are not in the published copy

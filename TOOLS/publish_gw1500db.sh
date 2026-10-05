@@ -8,7 +8,7 @@
 # Env: GW1500DB (default /media/takao/TAKAOMINI/gw1500db: made by ecalj_auto/gw1500db_build.py),
 #      DOSNP_PUBLISH_DIR (default ~/work/DOSnpSupplement_publish, a clone, made if missing),
 #      DOSNP_REMOTE (default git@github.com:tkotani/DOSnpSupplement.git).
-# Published: README.md, table.md, bands_*.md, fig/, gw1500db.tsv, summary_counts.json. Not published: npz/ and logs/ (raw data,
+# Published: README.md, table.md, bands_*.md, fig/, gw1500db.tsv, history.tsv, summary_counts.json. Not published: npz/ and logs/ (raw data,
 # kept by the maintainers), the side files of the builder.
 set -eu
 TOP=$(git -C "$(dirname "$(readlink -f "$0")")" rev-parse --show-toplevel)
@@ -27,7 +27,7 @@ git -C "$PUB" reset -q --hard origin/main
 
 mkdir -p "$PUB/$SUB"
 rsync -a --delete --include='README.md' --include='table.md' --include='bands_*.md' --include='gw1500db.tsv' \
-  --include='summary_counts.json' --include='fig/' --include='fig/*.png' --exclude='*' "$DB/" "$PUB/$SUB/"
+  --include='summary_counts.json' --include='history.tsv' --include='fig/' --include='fig/*.png' --exclude='*' "$DB/" "$PUB/$SUB/"
 
 # one link line in the top README (once)
 LINK="**New (2026): [QSGW80 band gaps, bands and DOS of 1546 materials, iterated to convergence]($SUB/README.md)** — the GW1500 database of ecalj; the 2025 tables below are kept as the supplement of arXiv:2507.19189."
