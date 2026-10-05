@@ -21,9 +21,10 @@ except Exception:
 if not os.path.exists(f + '.orig'): shutil.copy(f, f + '.orig')
 mlo = tn[an:bn]
 # EH2 rows (mlo_lm2), --lm2sel=<atoms>:<lm> (2026-10-04, tests of the rule; user: too much basis or s only).
-#   atoms: cation = the gwinit rule (not N O F P S Cl As Se Br Sb Te I, not a transition metal Sc-Cu Y-Ag La-Au, not Ac-);
+#   atoms: alld = all, and K Ca Rb Sr Cs Ba get s,p,d; cation = the gwinit rule (not N O F P S Cl As Se Br Sb Te I, not a transition metal Sc-Cu Y-Ag La-Au, not Ac-);
 #          all = every atom but the transition metals, 4f and 5f; noae = all without Ca Sr Ba too.   lm: s (1) or sp (1 2 3 4).
-#   --lm2 = cation:sp (the rows of gwinit), --lm2all = all:sp, --lm2noae = noae:sp. With sp, K Ca Rb Sr Cs Ba get s,p,d (2026-10-05).
+#   --lm2 = cation:sp (the rows of gwinit), --lm2all = all:sp, --lm2noae = noae:sp. alld = all, with d too on K Ca Rb Sr Cs Ba
+#   (2026-10-05, the third variant of gw1500_mlo_std.sh).
 sel = next((x.split('=', 1)[1] for x in sys.argv if x.startswith('--lm2sel=')), None)
 sel = sel or {'--lm2': 'cation:sp', '--lm2all': 'all:sp', '--lm2noae': 'noae:sp'}.get(next((x for x in sys.argv[3:] if x.startswith('--lm2')), ''), None)
 if sel:
@@ -45,8 +46,8 @@ if sel:
         if (atoms == 'noae' and z in (20, 38, 56)) or (atoms == 'cation' and z in ANION):
             continue
         lms = '1' if lmk == 's' else '1 2 3 4'
-        if lmk != 's' and z in (19, 20, 37, 38, 55, 56):   # K Ca Rb Sr Cs Ba: EH2 d too (2026-10-05; their empty d spans the conduction
-            lms += ' 5 6 7 8 9'                              # band: Cs2S2 0.44 -> 0.05, Rb2Te 0.16 -> 0.015 eV; f did little)
+        if atoms == 'alld' and lmk != 's' and z in (19, 20, 37, 38, 55, 56):   # K Ca Rb Sr Cs Ba: EH2 d too (2026-10-05; their
+            lms += ' 5 6 7 8 9'                              # empty d spans the conduction band: Cs2S2 0.44 -> 0.05, Rb2Te 0.16 -> 0.015 eV)
         rows.append(f"{c[0]} {c[1]}   {lms}")
     body = 'mlo_lm2 = """\n' + '\n'.join(rows) + '\n"""\n'
     if 'mlo_lm2 = """' in mlo:
