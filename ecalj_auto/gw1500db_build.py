@@ -22,12 +22,12 @@ AGREE, LARGE = 0.05, 0.2      # eV: |difference| <= AGREE is written as one numb
 COND = {
     'M': ('2026-04/05', 'production of April-May 2026: ecalj of that time (~/bin2), input ctrl+GWinput (most) or the first TOML; '
           'GPU products all TF32 (--mp); chi0 by the T=0 tetrahedron method; Sigma levels Gaussian-smeared (esmr = 0.003 Ry); '
-          'QSGW80 (scaledsigma 0.8); k mesh by density (ecalj_auto/auto/change_k.py: points per axis in proportion to |b_i|, the '
-          'density of Si 8x8x8 for lmf, x 4/8 rounded up for GW, at least 3 per axis); 5 iterations, then gwscconv until the gap of the last 3 '
+          'QSGW80 (scaledsigma 0.8), k 8x8x8 for lmf and 4x4x4 for GW for every material (checked 2026-10-05 in the May '
+          'inputs on kt1: all 1261 ctrl and all 1547 lqg4gw); 5 iterations, then gwscconv until the gap of the last 3 '
           'iterations stays within 0.1 eV (at most 10)'),
     'R': ('2026-09-30/10-02', 'reruns from scratch: ecalj 989a18637 (2026-09-29); POSCAR -> vasp2ctrl -> ctrlgenToml.py --ssig=0.8; '
           '--prec=fp32; [gw] t_tetrakbt = +300 K (finite-T tetrahedron), t_sigmaw = 300 K; k 8x8x8 for lmf and 4x4x4 for GW for every '
-          'material (the defaults of ctrlgenToml.py and gwinit; not the density rule of M); gwscconv: gap of the '
+          'material, as M (the defaults of ctrlgenToml.py and gwinit); gwscconv: gap of the '
           'last 3 iterations within 0.1 eV twice (metals: eigenvalues within 5 eV of E_F change < 0.03 eV twice), at most 10'),
     'N': ('2026-10-02 night', 'database run: as R, but --prec=tf32 and t_tetrakbt = -300 K (chi0 by the T=0 tetrahedron method, '
           'Im chi0 smoothed by a Gaussian of the width of a 300 K Fermi-Dirac), t_sigmaw = 300 K; ecalj 989a18637 (kt1) or '

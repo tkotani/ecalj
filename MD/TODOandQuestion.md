@@ -117,7 +117,12 @@
 - 【未着手】**k 点のメッシュを密度で決める規則（既定の ctrl の lmf のメッシュと GW のメッシュ）**（2026-10-05、user「以前のルールを
   しっかり調べて。正しいかどうか不明。そのルールでデフォルトの ctrl・GW 用メッシュを書く。GW 用は少ない目にする」）。
   - 今: `ctrlgenToml.py` の既定 8×8×8、`gwinit` の `n1q = n2q = n3q = 4`（定数）。GW1500 の R・N・E はこれで一律（user「今はこのまま」）
-  - 以前（5 月の量産、[`ecalj_auto/auto/change_k.py`](../ecalj_auto/auto/change_k.py) の `get_kpoints`・`get_q`、config.ini の `koption = 8`・`kratio = 4/8`）:
+  - 実際（2026-10-05 に確かめた）: 2026 年 5 月の量産も一律（kt1 `~/DATA/gw1500` の ctrl 1261 個すべて 8×8×8、lqg4gw 1547 個すべて 4×4×4）。
+    `change_k.py` を使ったのは 2025 年のデータベース（DOSnpSupplement の README「Si で 4×4×4 の水準、一体は 8×8×8」）
+  - 1546 物質で比べた（`~/work/gw1500mlo/kcheck_20261005.py`、ローカル）。いちばん粗い軸の間隔 / Si 8×8×8 の間隔: 一律 中央値 0.81・最大 1.53
+    （ダイヤモンド mp-66 など小さい単位胞が粗く、530 物質は 0.75 未満で取りすぎ）、change_k 中央値 0.95・最大 1.97（斜めの格子、mp-569416 は 6×6×6
+    で 2 倍。GW は 652 物質が 3×3×3）、間隔の規則 最大 1.00（GW も最大 1.00、GW の点の数 中央値 34、最大 343）
+  - 2025 年の規則（[`ecalj_auto/auto/change_k.py`](../ecalj_auto/auto/change_k.py) の `get_kpoints`・`get_q`、config.ini の `koption = 8`・`kratio = 4/8`）:
     PlatQlat.chk の QLAT（Å⁻¹、2π なし）から |b_i| と BZ の体積 V_BZ。k_i ∝ |b_i| にし、積 ∏k_i を (8 c)³（c = (V_BZ / 0.0209)^{1/3}）にそろえて
     丸め、最低 3。GW は ⌈k_i × 4/8⌉、最低 3
   - 調べて分かった問題（2026-10-05）:
