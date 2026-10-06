@@ -21,13 +21,39 @@ if rmin == 'auto':
     mol = r.stdout.split()[1:2] == ['molecular']
     rmin = '2.0' if mol else '3.0'
     print(f'{"molecular" if mol else "extended"} crystal: rmin {rmin} a.u.')
-addes = next(p for p in (os.environ.get('ADDES', ''), f'{here}/ctrlg_addes.py', f'{here}/../SRC/exec/ctrlg_addes.py', f'{B}/ctrlg_addes.py')
-             if p and os.path.exists(p))
-r = subprocess.run([sys.executable, addes, m, '--rmin', rmin], capture_output=True, text=True)
-print(r.stdout.strip())
-if r.returncode != 0:
-    print(r.stderr[-500:]); sys.exit(1)
-n = len(re.findall(r'(?m)^ES site', r.stdout))
+custom = os.path.join(os.environ.get('ES_CUSTOM_DIR', f'{here}/es_custom'), f'ctrlg.{m}.toml')
+if os.path.exists(custom):
+    # 2026-10-07 03:11: ES placed by hand for this material (the E* tables of [[site]] and [[spec]] in es_custom/ctrlg.<sname>.toml),
+    # e.g. just outside the surface of a slab (PbS, SnS: ES at the centre of the vacuum missed the state the MLO needs) or below
+    # the void threshold (C3N4, a void of 2.96 a.u.). The atoms of the custom file must be those of this ctrlg.
+    import tomllib
+    f = f'ctrlg.{m}.toml'; t = open(f).read(); tc = open(custom).read()
+    at = [(x['atom'], x.get('pos')) for x in tomllib.loads(t)['site']]
+    atc = [(x['atom'], x.get('pos')) for x in tomllib.loads(tc)['site'] if not x['atom'].startswith('E')]
+    if len(at) != len(atc) or any(a != b or (p is not None and max(abs(u - v) for u, v in zip(p, q)) > 1e-4)
+                                  for (a, p), (b, q) in zip(at, atc)):
+        print(f'{custom}: its atoms differ from {f}'); sys.exit(1)
+    blocks = lambda head, key: ''.join(re.findall(r'(?ms)^' + re.escape(head) + r'[^\n]*\n' + key + r' *= "E[0-9]*"\n.*?(?=^\[|^# ===|\Z)', tc))
+    sites, specs = blocks('[[site]]', 'atom'), blocks('[[spec]]', 'atom')
+
+    def after_last(t, head, add):
+        i = [mm.start() for mm in re.finditer(r'(?m)^' + re.escape(head), t)][-1]
+        mm = re.search(r'(?m)^(\[|# ===)', t[i + len(head):])
+        e = i + len(head) + (mm.start() if mm else len(t) - i - len(head))
+        return t[:e] + add + t[e:]
+    open(f + '.bak_addes', 'w').write(t)
+    t = after_last(after_last(t, '[[site]]', sites), '[[spec]]', specs)
+    open(f, 'w').write(t); tomllib.loads(t)
+    n = sites.count('[[site]]')
+    print(f'ES from {custom}: {n} sites')
+else:
+    addes = next(p for p in (os.environ.get('ADDES', ''), f'{here}/ctrlg_addes.py', f'{here}/../SRC/exec/ctrlg_addes.py', f'{B}/ctrlg_addes.py')
+                 if p and os.path.exists(p))
+    r = subprocess.run([sys.executable, addes, m, '--rmin', rmin], capture_output=True, text=True)
+    print(r.stdout.strip())
+    if r.returncode != 0:
+        print(r.stderr[-500:]); sys.exit(1)
+    n = len(re.findall(r'(?m)^ES site', r.stdout))
 if n == 0:
     print('ES 0'); sys.exit(0)
 f = f'ctrlg.{m}.toml'; t = open(f).read()
