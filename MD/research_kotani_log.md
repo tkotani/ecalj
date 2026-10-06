@@ -107,7 +107,7 @@
   （作業場所は `/mnt/data1/gw1500es/failed_overlap/`）。TODO の「GPU の単精度でほぼ特異なクーロン行列」という見立ては誤りで、訂正を書いた
 - 回し直しのキュー（user「まずは回し直し」）: kt1 の本体が終わったら D4（ES なし、本体と同じビルド、LIMIT 6 h・MAXITER 20: Cs₄I₄、Cs₄Se₂、Na₂H₂O₂、NaCoO₂、
   Na₂Co₂O₄）と G4（層状 BN mp-685145・mp-7991 を ES のしきい値 2.0 a.u. で）。それぞれ終わると ES のワーカー 0・1 に替わる（t14 の `watch_kt1_final.sh`）
-- hvccfp0 の側: `zhgv_d` が devInfo を返し、hvccfp0 が 0 でない状態で止まるようにした（手元の gfortran のビルドで確かめ中）
+- hvccfp0 の側: `zhgv_d` が devInfo を返し、hvccfp0 が 0 でない状態で止まるようにした（t14 の gfortran のビルドで、重なった ES の Ba₂CuClO₂ が「Cholesky failed at minor 944」ではっきり止まるのを確かめた。CPU の倍精度でも同じ壊れ方で、fp32 とは関係が無い。nvfortran でもコンパイルを確かめた）
 
 ### 10-06 11:56 **kt1 の ES の 6 物質が「policy が gemmul8 を選んだが GEMMul8 がリンクされていない」で止まっていた: 写した policy を直して入れ直した**
 
