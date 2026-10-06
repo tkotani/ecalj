@@ -93,12 +93,24 @@
 - user「それならそれでいい」: 5 月の値（旧 `--mp`、χ0 まで TF32）は全部置き換える。今の tf32 は fp32 と 0.00 eV で一致しており信頼できる（user「たぶん今の tf32 は信頼性が高い」）
 - 23:41 t14 で `~/work/gw1500db/rebalance6.sh` を開始（ローカル）: kr7 の列が 6 以下になったら kt1 の列の後ろから 6 原子を 10 ずつ移す。試しに Ca2Br4（mp-571166）・Cs4Se2（mp-569272）を kr7 の列の先頭へ（kr7 は 30 GB）。kr7 で落ちたら kt1 に戻して移すのをやめる。7〜8 原子は kt1 に残す
 
+### 10-06 11:56 **kt1 の ES の 6 物質が「policy が gemmul8 を選んだが GEMMul8 がリンクされていない」で止まっていた: 写した policy を直して入れ直した**
+
+- kt1 の `~/bin_frozen_es_0601771b4` は GEMMul8 なしでビルドしてある（`ldd libecaljF_mp_gpu.so` に libgemmul8wrap が無い）。10:34 に写した policy
+  （`~/bin` の、GEMMul8 入りのビルドで測ったもの）は zgemm・dgemm の 12 行が `gemmul8:14` で、写した後に始まった hvccfp0 が冒頭で止まった（m_blas の rx0）。
+  止まったのは mp-554134・mp-730101・mp-30068・mp-1525634・mp-22848（lvccC の最後の行で確かめた）。mp-1179832 は 10:51 に lmf --jobgw=1 が
+  メッセージなしで止まった（rank 0 以外で同じ rx0 と見て同じ扱い）。11:53 の定時の確認で、gap=none の FAIL が続いたので見つけた
+- 直し方: kt1 の写しだけ `gemmul8:14` → `cublas`（行が無いときの既定と同じ）。cgemm（realhgemm・realsgemm）と epsinv（mixed1・mixed2）の調整はそのまま。
+  kr7 の写しには gemmul8 の行が無い（0 行）ので直していない
+- 6 物質の作業ディレクトリを `/mnt/data1/gw1500es/failed_gemmul8/` に移し、`es_queue_kt1.txt` の先頭に戻した（キューの残りは 84）。
+  10:52 の確認で「構造が怪しい」と見た mp-730101 も policy のせいだった。mp-569304（C4、lmf で gapLDA=none）は別の原因
+- 教訓: policy の表はビルドと組で写す。GEMMul8 を選ぶ行があるときは、写す先の .so が libgemmul8wrap を引いているか `ldd` で確かめる
+
 ### 10-06 10:34 **ES 入りが遅かったのは、新しい固定ビルドに GPU の行列演算の調整（linalgtune）が無かったため**（user「コードの新旧があるのかな」「乗り換えるとき済んだものを 1 つ余分にやって見るだけで良い」）
 
 - kr7 で K₂S（mp-1022、ES なし）を新しい版（614ab5eb8）で回し直した: ギャップ 4.346019 eV（古い版 b695fa65c で 4.346004）、5 反復は同じ。hgw の 1 回が
   33.0 s（古い版 15.5 s）、lmf 7.7 s（5.4 s）。古い版は `ecalj_linalg_policy.toml`（linalgtune、09-30）を読み、新しい版は `InstallAll.py --notune` で作ったので既定のまま
 - ES 入りの 1 反復が ES なしの 1.67 倍（中央値、対称性は保たれている）だったのは、主にこれ。kr7 の `bin_frozen_es_614ab5eb8` と kt1 の `bin_frozen_es_0601771b4` に、
-  同じ RTX 5090 の古い版の policy を写した（10:3x）。ボタンのスクリプト（ブランチ kmesh）は linalgtune を回す形に（`--notune` を外した）
+  同じ RTX 5090 の古い版の policy を写した（10:34 の記述の時刻まで）。ボタンのスクリプト（ブランチ kmesh）は linalgtune を回す形に（`--notune` を外した）
 
 ### 10-05 22:46 **GW1500 の MLO: 標準処方で 98 % が PASS（手元の 1401 物質: PASS 1372、OK 3、FAIL 26）**
 
