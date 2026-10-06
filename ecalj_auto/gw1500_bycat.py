@@ -14,7 +14,7 @@ D = Path(__file__).parent
 notes = list(csv.DictReader(open(D/'gw1500_notes_20261001.tsv'), delimiter='\t'))
 lda = {r['mpid']: r['gap_LDA_eV'] for r in csv.DictReader(open(D/'gw1500_status_20260930.tsv'), delimiter='\t')}
 ORDER = [
- ('INVALID_STRUCTURE', '物質でない構造（別の化合物の副格子の抜き出し 11、高圧相を圧力ゼロで緩和 1）。ギャップに物理的な意味は無い'),
+ ('INVALID_STRUCTURE', 'Rb8 だけ（Rb-IV の高圧相を MP が圧力ゼロで緩和、Rb8 の環が離れて並ぶ）。別の化合物の副格子を抜き出した 11 件は 2026-10-06 から 5 月のカテゴリに戻し、注記の「構造:」に書く（user「Rb8 だけ INVALID_STRUCTURE にしておこう」）'),
  ('SUSPECT_STRUCTURE', 'ICSD の備考には出ないが、非整合層状化合物の副格子と同じ形（1 原子の体積が岩塩型の約 2〜4 倍、配位 4〜5）'),
  ('MAY_WRONG', '5 月のギャップが誤り（LDA より小さい）。回し直しの値を使う'),
  ('FAILED_MAY', '5 月に使える結果が無かった。回し直しで全部収束'),

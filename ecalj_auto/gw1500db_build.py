@@ -829,8 +829,10 @@ Models so far: {len(ml)} ({', '.join(f'{k} {v}' for k, v in mc.most_common())}).
 GOOD: converged in May. DRIFT_GOOD: converged but the gap drifted over the iterations. SUSPECT_GOOD: converged, but the
 iterations oscillated. NOTCONV_MAY: not converged within 10 iterations in May. FAILED_MAY: crashed in May (mostly the
 all-TF32 precision of that time). UNKNOWN_MAY: no gap (metals, semimetals). MAY_WRONG: the May value was wrong.
-INVALID_STRUCTURE / SUSPECT_STRUCTURE: the MP structure is a fragment cut out of another compound, or doubtful
-(listed with their values, which have no physical meaning).
+INVALID_STRUCTURE: Rb8 (mp-1179832) only, the high-pressure Rb-IV relaxed by MP at zero pressure (Rb8 rings far apart);
+not run with empty spheres. Until 2026-10-06 also 11 sublattices cut out of other compounds (misfit layer compounds,
+a hydroxide, nitrated graphite); they now have the category of their May runs, the structure is written in the note
+("構造: ..."). SUSPECT_STRUCTURE: doubtful (the same shape as those sublattices). Their values are listed as they are.
 ''')
 
 

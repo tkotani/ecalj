@@ -6,36 +6,25 @@
 
 | 分類 | 数 | 意味 |
 | --- | --- | --- |
-| [`INVALID_STRUCTURE`](#invalid-structure) | 12 | 物質でない構造（別の化合物の副格子の抜き出し 11、高圧相を圧力ゼロで緩和 1）。ギャップに物理的な意味は無い |
+| [`INVALID_STRUCTURE`](#invalid-structure) | 1 | Rb8 だけ（Rb-IV の高圧相を MP が圧力ゼロで緩和、Rb8 の環が離れて並ぶ）。別の化合物の副格子を抜き出した 11 件は 2026-10-06 から 5 月のカテゴリに戻し、注記の「構造:」に書く（user「Rb8 だけ INVALID_STRUCTURE にしておこう」） |
 | [`SUSPECT_STRUCTURE`](#suspect-structure) | 4 | ICSD の備考には出ないが、非整合層状化合物の副格子と同じ形（1 原子の体積が岩塩型の約 2〜4 倍、配位 4〜5） |
 | [`MAY_WRONG`](#may-wrong) | 1 | 5 月のギャップが誤り（LDA より小さい）。回し直しの値を使う |
-| [`FAILED_MAY`](#failed-may) | 144 | 5 月に使える結果が無かった。回し直しで全部収束 |
+| [`FAILED_MAY`](#failed-may) | 146 | 5 月に使える結果が無かった。回し直しで全部収束 |
 | [`UNKNOWN_MAY`](#unknown-may) | 10 | LDA でもギャップが無いか 0.1 eV 程度（金属・半金属） |
-| [`SUSPECT_GOOD`](#suspect-good) | 17 | 5 月は GOOD だが、QSGW80 < LDA または 2 反復目以降に 0.5 eV を超えて振動。回し直しで全部収束 |
-| [`NOTCONV_MAY`](#notconv-may) | 177 | 5 月は 10 反復で収束しなかった。回し直しで全部収束 |
-| [`DRIFT_GOOD`](#drift-good) | 61 | 5 月は収束の基準を満たしたが、最後の 3 反復が同じ向きに 0.08 eV 以上動いた。回し直していない |
-| [`GOOD`](#good) | 1120 | 5 月に収束、注記なし。回し直していない |
+| [`SUSPECT_GOOD`](#suspect-good) | 18 | 5 月は GOOD だが、QSGW80 < LDA または 2 反復目以降に 0.5 eV を超えて振動。回し直しで全部収束 |
+| [`NOTCONV_MAY`](#notconv-may) | 179 | 5 月は 10 反復で収束しなかった。回し直しで全部収束 |
+| [`DRIFT_GOOD`](#drift-good) | 62 | 5 月は収束の基準を満たしたが、最後の 3 反復が同じ向きに 0.08 eV 以上動いた。回し直していない |
+| [`GOOD`](#good) | 1125 | 5 月に収束、注記なし。回し直していない |
 | 計 | 1546 | |
 
 ## INVALID_STRUCTURE
 
-物質でない構造（別の化合物の副格子の抜き出し 11、高圧相を圧力ゼロで緩和 1）。ギャップに物理的な意味は無い。12 物質。
+Rb8 だけ（Rb-IV の高圧相を MP が圧力ゼロで緩和、Rb8 の環が離れて並ぶ）。別の化合物の副格子を抜き出した 11 件は 2026-10-06 から 5 月のカテゴリに戻し、注記の「構造:」に書く（user「Rb8 だけ INVALID_STRUCTURE にしておこう」）。1 物質。
 
 **表 2**. 1 原子の体積（Å³）・凸包からの距離（eV/原子）は MP の値。ICSD の備考は MP の項目のもの
 
 | mpid | 組成 | 原子 | 1 原子の体積 | 凸包から | 5 月 | 回し直し | ICSD の備考 | 特徴 |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| [mp-1056418](https://next-gen.materialsproject.org/materials/mp-1056418) | Sr | 1 | 462.2 | 1.400 | FAILED | CONVERGED 1.671738 | Strontium; Strontium cobalt oxide (1.26/0.98/2.91) - (Sr) part | Sr–Co–O の「(Sr) part」を抜き出したもの。10.99×10.99×4.42 Å の胞に Sr 1 個（Sr の鎖、隣 2 個、4.42 Å）。1 原子 462 Å³（fcc Sr 56）、凸包から 1.40 eV/原子 / 回し直し(run2m): CONVERGED 10 反復、ギャップ 1.671738 eV（LDA 0.436487）。構造が不正なので値に物理的な意味は無い |
-| [mp-1062030](https://next-gen.materialsproject.org/materials/mp-1062030) | TiS2 | 3 | 37.9 | 0.004 | GOOD 2.321 |  | Lead titanium sulfide (1.18/1/3.18) - Ti S2-part, basic structure | Pb–Ti–S の非整合層状化合物の「Ti S2-part」。c=11.25 Å（1T-TiS2 は 5.70）、1 原子 37.9 Å³（約 19）。5 月は 1 反復目に 0.65 → 2.49 eV と跳んだ |
-| [mp-569304](https://next-gen.materialsproject.org/materials/mp-569304) | C4 | 4 | 14.5 | 0.009 | NOTCONV 3.868 | CONVERGED 3.677225 | Graphite, nitrated; Carbon | 硝酸を挿入した黒鉛（Graphite, nitrated）から N・O を除いたもの。密度 1.38（黒鉛 2.26）、層間が開いたまま / 回し直し(run3): CONVERGED 5 反復、ギャップ 3.677225 eV（LDA 1.848254）、5 月との差 -0.19 eV。構造が不正なので値に物理的な意味は無い |
-| [mp-726184](https://next-gen.materialsproject.org/materials/mp-726184) | Pb2S2 | 4 | 73.6 | 0.059 | GOOD 3.737 |  | Lead titanium sulfide (1/1.7/4.39) | Pb–Ti–S の非整合層状化合物の PbS 層。a=4.22、c=16.6 Å、1 原子 73.6 Å³（岩塩型 PbS 26.7、最近接 2.99 Å・配位 6 に対し 2.66 Å・配位 5） |
-| [mp-727323](https://next-gen.materialsproject.org/materials/mp-727323) | Pb2S2 | 4 | 49.7 | 0.058 | GOOD 3.231 |  | Lead titanium sulfide (1.18/1/3.18) - Pb S-part, basic structure | Pb–Ti–S の非整合層状化合物の「Pb S-part」。a=4.22、c=11.2 Å、1 原子 49.7 Å³（岩塩型 PbS 26.7） |
-| [mp-554134](https://next-gen.materialsproject.org/materials/mp-554134) | Sn2S2 | 4 | 95.7 | 0.079 | NOTCONV 3.779 | CONVERGED 3.997399 | Gadolinium tin niobium sulfide (0.20/0.99/3/7.16) | Gd–Sn–Nb–S の非整合層状化合物の SnS 層。a=4.13、c=22.4 Å、1 原子 95.7 Å³（SnS 約 24）、配位 4 / 回し直し(run3): CONVERGED 6 反復、ギャップ 3.997399 eV（LDA 1.510139）、5 月との差 +0.22 eV。構造が不正なので値に物理的な意味は無い |
-| [mp-727322](https://next-gen.materialsproject.org/materials/mp-727322) | Sn2S2 | 4 | 45.3 | 0.085 | GOOD 2.691 |  | Tin titanium sulfide (1/0.83/2.67) | Sn–Ti–S の非整合層状化合物の SnS 層。a=4.09、c=11.0 Å、1 原子 45.3 Å³ |
-| [mp-8781](https://next-gen.materialsproject.org/materials/mp-8781) | Sn2S2 | 4 | 46.8 | 0.078 | GOOD 3.030 |  | Tin niobium sulfide (1/0.85/2.71); Tin sulfide | Sn–Nb–S の非整合層状化合物の SnS 層。a=4.12、c=11.0 Å、1 原子 46.8 Å³ |
-| [mp-569416](https://next-gen.materialsproject.org/materials/mp-569416) | C8 | 8 | 11.9 | 0.002 | GOOD 4.968 |  | Graphite, nitrated; Carbon | 硝酸を挿入した黒鉛から N・O を除いたもの。密度 1.67（黒鉛 2.26） |
-| [mp-1079707](https://next-gen.materialsproject.org/materials/mp-1079707) | Ca4O4 | 8 | 23.3 | 0.210 | GOOD 4.723 | CONVERGED 4.848429 | Calcium cobalt hydroxide oxide (2/1.74/2/3.47) - (Ca (O H))-part | Ca–Co 水酸化物の「(Ca(OH))-part」から H を除いたもの（Ca4O4）。c=16.75 Å の層、密度 2.00（岩塩型 CaO 3.34）。5 月は 9.97 → 3.31 → 4.78 eV と荒れた / 回し直し(run3): CONVERGED 6 反復、ギャップ 4.848429 eV（LDA 2.128723）、5 月との差 +0.13 eV。構造が不正なので値に物理的な意味は無い |
-| [mp-730101](https://next-gen.materialsproject.org/materials/mp-730101) | H8 | 8 | 46.5 | 0.000 | FAILED 15.220 | CONVERGED 15.230640 | Ammonium dideuteriumphosphate | NH4D2PO4 の H（D）だけを抜き出したもの。H2 分子 4 個（H–H 0.74 Å）、密度 0.04 g/cm³ / 回し直し(run1): CONVERGED 4 反復、ギャップ 15.230640 eV（LDA 9.710196）、5 月との差 +0.01 eV。構造が不正なので値に物理的な意味は無い |
 | [mp-1179832](https://next-gen.materialsproject.org/materials/mp-1179832) | Rb8 | 8 | 551.3 | 0.453 | FAILED | FAIL(143) none | High pressure experimental phase; Rubidium - IV, HP | Rb-IV（高圧相、ICSD 109016）を MP が圧力ゼロで緩和。一辺 19.9 Å の胞に Rb8 の正八角形の環（Rb–Rb 4.63 Å、隣 2 個）。1 原子 551 Å³（bcc Rb 93）、凸包から 0.45 eV/原子。ギャップは環の HOMO–LUMO。平面波 3.2 万で lmf --jobgw=1 が 1 ランク 35 GB / 回し直し(run2m): FAIL(143) 0 反復、ギャップ none eV（LDA 0.104062）。構造が不正なので値に物理的な意味は無い |
 
 ## SUSPECT_STRUCTURE
@@ -63,12 +52,13 @@ ICSD の備考には出ないが、非整合層状化合物の副格子と同じ
 
 ## FAILED_MAY
 
-5 月に使える結果が無かった。回し直しで全部収束。144 物質。
+5 月に使える結果が無かった。回し直しで全部収束。146 物質。
 
 **表 5**
 
 | mpid | 組成 | 原子 | 採用のギャップ | どちらの値 | LDA | 注記 |
 | --- | --- | --- | --- | --- | --- | --- |
+| [mp-1056418](https://next-gen.materialsproject.org/materials/mp-1056418) | Sr | 1 | 1.671738 | 回し直し | 0.436487 | 構造: Sr–Co–O の「(Sr) part」を抜き出したもの。10.99×10.99×4.42 Å の胞に Sr 1 個（Sr の鎖、隣 2 個、4.42 Å）。1 原子 462 Å³（fcc Sr 56）、凸包から 1.40 eV/原子 / 5 月の失敗: NOGAP_GAP_COLLAPSED(LDA gap 0.43 eV) / 回し直し(run2m): CONVERGED 10 反復、ギャップ 1.671738 eV（LDA 0.436487） |
 | [mp-1342](https://next-gen.materialsproject.org/materials/mp-1342) | BaO | 2 | 4.188265 | 回し直し | 1.992176 | 5 月の失敗: AC_rst-rmt-mismatch@llmf_start(lmf) / 回し直し(run1): CONVERGED 5 反復、ギャップ 4.188265 eV（LDA 1.992176）、5 月との差 -0.00 eV |
 | [mp-1500](https://next-gen.materialsproject.org/materials/mp-1500) | BaS | 2 | 3.920177 | 回し直し | 2.052343 | 5 月の失敗: AC_rst-rmt-mismatch@llmf_start(lmf) / 回し直し(run1): CONVERGED 5 反復、ギャップ 3.920177 eV（LDA 2.052343）、5 月との差 +0.10 eV |
 | [mp-1253](https://next-gen.materialsproject.org/materials/mp-1253) | BaSe | 2 | 3.573376 | 回し直し | 1.872121 | 5 月の失敗: AC_rst-rmt-mismatch@llmf_start(lmf) / 回し直し(run1): CONVERGED 5 反復、ギャップ 3.573376 eV（LDA 1.872121）、5 月との差 +0.04 eV |
@@ -176,6 +166,7 @@ ICSD の備考には出ないが、非整合層状化合物の副格子と同じ
 | [mp-510557](https://next-gen.materialsproject.org/materials/mp-510557) | Cs2N6 | 8 | 6.648357 | 回し直し | 4.079606 | 5 月の失敗: PROD_NaN_lqpe / 回し直し(run1): CONVERGED 5 反復、ギャップ 6.648357 eV（LDA 4.079606） |
 | [mp-8361](https://next-gen.materialsproject.org/materials/mp-8361) | Cs4Te4 | 8 | 2.528535 | 回し直し | 0.930500 | 5 月の失敗: PROD_TIMEOUT_8h / 回し直し(run1): CONVERGED 5 反復、ギャップ 2.528535 eV（LDA 0.930500）、5 月との差 +0.09 eV |
 | [mp-571266](https://next-gen.materialsproject.org/materials/mp-571266) | Ga2Cl6 | 8 | 7.681157 | 回し直し | 3.919182 | 5 月の失敗: PROD_TIMEOUT_8h / 回し直し(run1): CONVERGED 6 反復、ギャップ 7.681157 eV（LDA 3.919182）、5 月との差 +0.23 eV |
+| [mp-730101](https://next-gen.materialsproject.org/materials/mp-730101) | H8 | 8 | 15.230640 | 回し直し | 9.710196 | 構造: NH4D2PO4 の H（D）だけを抜き出したもの。H2 分子 4 個（H–H 0.74 Å）、密度 0.04 g/cm³ / 5 月の失敗: PROD_TIMEOUT_8h / 回し直し(run1): CONVERGED 4 反復、ギャップ 15.230640 eV（LDA 9.710196）、5 月との差 +0.01 eV |
 | [mp-9922](https://next-gen.materialsproject.org/materials/mp-9922) | Hf2S6 | 8 | 2.295576 | 回し直し | 0.875094 | 5 月の失敗: PROD_TIMEOUT_8h / 回し直し(run1): CONVERGED 5 反復、ギャップ 2.295576 eV（LDA 0.875094）、5 月との差 +0.04 eV |
 | [mp-570219](https://next-gen.materialsproject.org/materials/mp-570219) | In2Br6 | 8 | 4.612794 | 回し直し | 2.334327 | 5 月の失敗: PROD_TIMEOUT_8h / 回し直し(run1): CONVERGED 5 反復、ギャップ 4.612794 eV（LDA 2.334327）、5 月との差 +0.04 eV |
 | [mp-22604](https://next-gen.materialsproject.org/materials/mp-22604) | InAsF6 | 8 | 6.950402 | 回し直し | 3.347954 | 5 月の失敗: PROD_NaN_lsc / 回し直し(run1): CONVERGED 6 反復、ギャップ 6.950402 eV（LDA 3.347954） |
@@ -235,7 +226,7 @@ LDA でもギャップが無いか 0.1 eV 程度（金属・半金属）。10 �
 
 ## SUSPECT_GOOD
 
-5 月は GOOD だが、QSGW80 < LDA または 2 反復目以降に 0.5 eV を超えて振動。回し直しで全部収束。17 物質。
+5 月は GOOD だが、QSGW80 < LDA または 2 反復目以降に 0.5 eV を超えて振動。回し直しで全部収束。18 物質。
 
 **表 7**
 
@@ -251,6 +242,7 @@ LDA でもギャップが無いか 0.1 eV 程度（金属・半金属）。10 �
 | [mp-1066131](https://next-gen.materialsproject.org/materials/mp-1066131) | YTlS2 | 4 | 2.285675 | 回し直し | 1.374162 | 5 月は GOOD だが 2 反復目以降に 0.5 eV を超えて振動（履歴 1.8727, 2.4057, 3.0360, 2.6476, 2.5802, 2.5215, 2.5781） / 回し直し(run3): CONVERGED 5 反復、ギャップ 2.285675 eV（LDA 1.374162）、5 月との差 -0.29 eV |
 | [mp-29585](https://next-gen.materialsproject.org/materials/mp-29585) | K4CdAs2 | 7 | 1.617516 | 回し直し | 0.499491 | 5 月は GOOD だが 2 反復目以降に 0.5 eV を超えて振動（履歴 1.4420, 0.4743, 1.0255, 1.1139, 1.1070） / 回し直し(run3): CONVERGED 5 反復、ギャップ 1.617516 eV（LDA 0.499491）、5 月との差 +0.51 eV |
 | [mp-8753](https://next-gen.materialsproject.org/materials/mp-8753) | K4HgP2 | 7 | 1.931914 | 回し直し | 0.802632 | 5 月は GOOD だが 2 反復目以降に 0.5 eV を超えて振動（履歴 1.8568, 0.7993, 1.6384, 1.6377, 1.6410） / 回し直し(run3): CONVERGED 5 反復、ギャップ 1.931914 eV（LDA 0.802632）、5 月との差 +0.29 eV |
+| [mp-1079707](https://next-gen.materialsproject.org/materials/mp-1079707) | Ca4O4 | 8 | 4.848429 | 回し直し | 2.128723 | 構造: Ca–Co 水酸化物の「(Ca(OH))-part」から H を除いたもの（Ca4O4）。c=16.75 Å の層、密度 2.00（岩塩型 CaO 3.34）。5 月は 9.97 → 3.31 → 4.78 eV と荒れた / 5 月は GOOD だが 2 反復目以降に 0.5 eV を超えて振動（履歴 9.9672, 3.3138, 4.7837, 4.7766, 4.7229） / 回し直し(run3): CONVERGED 6 反復、ギャップ 4.848429 eV（LDA 2.128723）、5 月との差 +0.13 eV |
 | [mp-3829](https://next-gen.materialsproject.org/materials/mp-3829) | Cd2Sn2As4 | 8 | 0.051696 | 回し直し | 0.111058 | 5 月は GOOD だが QSGW80 のギャップが LDA より小さい（履歴 0.0595, 0.0628, 0.0628） / 回し直し(run3): CONVERGED 4 反復、ギャップ 0.051696 eV（LDA 0.111058）、5 月との差 -0.01 eV |
 | [mp-9636](https://next-gen.materialsproject.org/materials/mp-9636) | CsSbF6 | 8 | 10.198779 | 回し直し | 5.227938 | 5 月は GOOD だが 2 反復目以降に 0.5 eV を超えて振動（履歴 9.5758, 10.1857, 9.4742, 9.5269, 9.5218） / 回し直し(run3): CONVERGED 6 反復、ギャップ 10.198779 eV（LDA 5.227938）、5 月との差 +0.68 eV |
 | [mp-27999](https://next-gen.materialsproject.org/materials/mp-27999) | K5CuSb2 | 8 | 1.646245 | 回し直し | 0.635402 | 5 月は GOOD だが 2 反復目以降に 0.5 eV を超えて振動（履歴 1.6216, 2.5315, 1.9968, 1.9250, 1.8993） / 回し直し(run3): CONVERGED 5 反復、ギャップ 1.646245 eV（LDA 0.635402）、5 月との差 -0.25 eV |
@@ -261,7 +253,7 @@ LDA でもギャップが無いか 0.1 eV 程度（金属・半金属）。10 �
 
 ## NOTCONV_MAY
 
-5 月は 10 反復で収束しなかった。回し直しで全部収束。177 物質。
+5 月は 10 反復で収束しなかった。回し直しで全部収束。179 物質。
 
 **表 8**
 
@@ -285,6 +277,7 @@ LDA でもギャップが無いか 0.1 eV 程度（金属・半金属）。10 �
 | [mp-8039](https://next-gen.materialsproject.org/materials/mp-8039) | AlF3 | 4 | 12.837351 | 回し直し | 7.533142 | 5 月は 10 反復で収束せず（最後の 3 反復の幅 0.2283 eV、履歴 12.3337, 13.8761, 13.2156, 13.2866, 13.0583） / 回し直し(run3): CONVERGED 6 反復、ギャップ 12.837351 eV（LDA 7.533142）、5 月との差 -0.22 eV |
 | [mp-1018098](https://next-gen.materialsproject.org/materials/mp-1018098) | Ba2BrN | 4 | 2.317010 | 回し直し | 1.013612 | 5 月は 10 反復で収束せず（最後の 3 反復の幅 0.2522 eV、履歴 2.9441, 2.3783, 2.2058, 2.6218, 2.9607, 3.1497, 2.4695, 2.4604, 2.2082, 2.4238） / 回し直し(run3): CONVERGED 5 反復、ギャップ 2.317010 eV（LDA 1.013612）、5 月との差 -0.11 eV |
 | [mp-3915](https://next-gen.materialsproject.org/materials/mp-3915) | BaHgO2 | 4 | 4.623286 | 回し直し | 2.244048 | 5 月は 10 反復で収束せず（最後の 3 反復の幅 0.2914 eV、履歴 4.3522, 3.9422, 3.7591, 4.0073, 4.0505） / 回し直し(run3): CONVERGED 5 反復、ギャップ 4.623286 eV（LDA 2.244048）、5 月との差 +0.57 eV |
+| [mp-569304](https://next-gen.materialsproject.org/materials/mp-569304) | C4 | 4 | 3.677225 | 回し直し | 1.848254 | 構造: 硝酸を挿入した黒鉛（Graphite, nitrated）から N・O を除いたもの。密度 1.38（黒鉛 2.26）、層間が開いたまま / 5 月は 10 反復で収束せず（最後の 3 反復の幅 0.1754 eV、履歴 3.9831, 3.6407, 3.6924, 3.8422, 3.8678） / 回し直し(run3): CONVERGED 5 反復、ギャップ 3.677225 eV（LDA 1.848254）、5 月との差 -0.19 eV |
 | [mp-22936](https://next-gen.materialsproject.org/materials/mp-22936) | Ca2NCl | 4 | 4.152573 | 回し直し | 2.222162 | 5 月は 10 反復で収束せず（最後の 3 反復の幅 0.1008 eV、履歴 2.6339, 3.7728, 3.1456, 3.2463, 3.2232） / 回し直し(run3): CONVERGED 5 反復、ギャップ 4.152573 eV（LDA 2.222162）、5 月との差 +0.93 eV |
 | [mp-23040](https://next-gen.materialsproject.org/materials/mp-23040) | Ca2PI | 4 | 2.937550 | 回し直し | 1.547321 | 5 月は 10 反復で収束せず（最後の 3 反復の幅 0.2151 eV、履歴 2.8001, 2.7499, 2.4916, 2.4856, 2.2765） / 回し直し(run3): CONVERGED 5 反復、ギャップ 2.937550 eV（LDA 1.547321）、5 月との差 +0.66 eV |
 | [mp-4124](https://next-gen.materialsproject.org/materials/mp-4124) | CaCN2 | 4 | 5.475552 | 回し直し | 3.255472 | 5 月は 10 反復で収束せず（最後の 3 反復の幅 0.1802 eV、履歴 5.1758, 6.4096, 5.7632, 5.8667, 5.6865） / 回し直し(run3): CONVERGED 5 反復、ギャップ 5.475552 eV（LDA 3.255472）、5 月との差 -0.21 eV |
@@ -313,6 +306,7 @@ LDA でもギャップが無いか 0.1 eV 程度（金属・半金属）。10 �
 | [mp-999460](https://next-gen.materialsproject.org/materials/mp-999460) | NaScS2 | 4 | 3.412194 | 回し直し | 1.508017 | 5 月は 10 反復で収束せず（最後の 3 反復の幅 0.2816 eV、履歴 3.6025, 2.3776, 2.6084, 2.6808, 2.8900） / 回し直し(run3): CONVERGED 6 反復、ギャップ 3.412194 eV（LDA 1.508017）、5 月との差 +0.52 eV |
 | [mp-30041](https://next-gen.materialsproject.org/materials/mp-30041) | RbBiS2 | 4 | 2.213998 | 回し直し | 1.241437 | 5 月は 10 反復で収束せず（最後の 3 反復の幅 0.7592 eV、履歴 2.5212, 6.2073, 4.0482, 3.5214, 3.2890） / 回し直し(run3): CONVERGED 5 反復、ギャップ 2.213998 eV（LDA 1.241437）、5 月との差 -1.08 eV |
 | [mp-559092](https://next-gen.materialsproject.org/materials/mp-559092) | ScF3 | 4 | 11.882829 | 回し直し | 5.908148 | 5 月は 10 反復で収束せず（最後の 3 反復の幅 0.8750 eV、履歴 11.8695, 17.7027, 14.7861, 14.2379, 13.9110） / 回し直し(run3): CONVERGED 6 反復、ギャップ 11.882829 eV（LDA 5.908148）、5 月との差 -2.03 eV |
+| [mp-554134](https://next-gen.materialsproject.org/materials/mp-554134) | Sn2S2 | 4 | 3.997399 | 回し直し | 1.510139 | 構造: Gd–Sn–Nb–S の非整合層状化合物の SnS 層。a=4.13、c=22.4 Å、1 原子 95.7 Å³（SnS 約 24）、配位 4 / 5 月は 10 反復で収束せず（最後の 3 反復の幅 0.1797 eV、履歴 1.3981, 4.3999, 3.8971, 3.7174, 3.7793） / 回し直し(run3): CONVERGED 6 反復、ギャップ 3.997399 eV（LDA 1.510139）、5 月との差 +0.22 eV |
 | [mp-23056](https://next-gen.materialsproject.org/materials/mp-23056) | Sr2BrN | 4 | 3.280951 | 回し直し | 1.851198 | 5 月は 10 反復で収束せず（最後の 3 反復の幅 0.6348 eV、履歴 3.1119, 2.7926, 2.7474, 3.1918, 2.5570） / 回し直し(run3): CONVERGED 5 反復、ギャップ 3.280951 eV（LDA 1.851198）、5 月との差 +0.72 eV |
 | [mp-6972](https://next-gen.materialsproject.org/materials/mp-6972) | YCuO2 | 4 | 4.370518 | 回し直し | 2.701063 | 5 月は 10 反復で収束せず（最後の 3 反復の幅 0.1619 eV、履歴 3.4850, 4.4042, 4.1165, 3.9546, 3.9658） / 回し直し(run3): CONVERGED 6 反復、ギャップ 4.370518 eV（LDA 2.701063）、5 月との差 +0.40 eV |
 | [mp-9307](https://next-gen.materialsproject.org/materials/mp-9307) | Ba2ZnN2 | 5 | 1.535281 | 回し直し | 0.462578 | 5 月は 10 反復で収束せず（最後の 3 反復の幅 0.1027 eV、履歴 1.3642, 2.7823, 1.8641, 1.7912, 1.7614） / 回し直し(run3): CONVERGED 5 反復、ギャップ 1.535281 eV（LDA 0.462578）、5 月との差 -0.23 eV |
@@ -447,7 +441,7 @@ LDA でもギャップが無いか 0.1 eV 程度（金属・半金属）。10 �
 
 ## DRIFT_GOOD
 
-5 月は収束の基準を満たしたが、最後の 3 反復が同じ向きに 0.08 eV 以上動いた。回し直していない。61 物質。
+5 月は収束の基準を満たしたが、最後の 3 反復が同じ向きに 0.08 eV 以上動いた。回し直していない。62 物質。
 
 **表 9**
 
@@ -506,6 +500,7 @@ LDA でもギャップが無いか 0.1 eV 程度（金属・半金属）。10 �
 | [mp-8861](https://next-gen.materialsproject.org/materials/mp-8861) | Rb2MgF4 | 7 | 10.584 | 5 月 | 6.249 | 5 月は収束の基準を満たしたが、最後の 3 反復が同じ向きに -0.09 eV 動いていた（履歴 10.2663, 10.8874, 10.6697, 10.6195, 10.5837）。回し直していない |
 | [mp-567655](https://next-gen.materialsproject.org/materials/mp-567655) | Sr2CN2Cl2 | 7 | 6.286 | 5 月 | 4.010 | 5 月は収束の基準を満たしたが、最後の 3 反復が同じ向きに +0.09 eV 動いていた（履歴 6.5630, 6.1031, 6.1981, 6.2642, 6.2857）。回し直していない |
 | [mp-23297](https://next-gen.materialsproject.org/materials/mp-23297) | Br2F6 | 8 | 5.760 | 5 月 | 2.032 | 5 月は収束の基準を満たしたが、最後の 3 反復が同じ向きに +0.10 eV 動いていた（履歴 5.8202, 5.6641, 5.7471, 5.7597）。回し直していない |
+| [mp-569416](https://next-gen.materialsproject.org/materials/mp-569416) | C8 | 8 | 4.968 | 5 月 | 1.797 | 構造: 硝酸を挿入した黒鉛から N・O を除いたもの。密度 1.67（黒鉛 2.26） / 5 月は収束の基準を満たしたが、最後の 3 反復が同じ向きに -0.08 eV 動いていた（履歴 5.0504, 4.9883, 4.9684）。回し直していない |
 | [mp-23364](https://next-gen.materialsproject.org/materials/mp-23364) | Cs2Li2Cl4 | 8 | 7.838 | 5 月 | 4.882 | 5 月は収束の基準を満たしたが、最後の 3 反復が同じ向きに +0.09 eV 動いていた（履歴 7.8795, 7.7507, 7.8048, 7.8384）。回し直していない |
 | [mp-5518](https://next-gen.materialsproject.org/materials/mp-5518) | Ga2Ag2Se4 | 8 | 1.554 | 5 月 | 0.162 | 5 月は収束の基準を満たしたが、最後の 3 反復が同じ向きに -0.09 eV 動いていた（履歴 1.4928, 1.6482, 1.5575, 1.5543）。回し直していない |
 | [mp-23803](https://next-gen.materialsproject.org/materials/mp-23803) | Ga2H2O4 | 8 | 5.849 | 5 月 | 3.334 | 5 月は収束の基準を満たしたが、最後の 3 反復が同じ向きに +0.10 eV 動いていた（履歴 5.8770, 5.7502, 5.8429, 5.8492）。回し直していない |
@@ -517,7 +512,7 @@ LDA でもギャップが無いか 0.1 eV 程度（金属・半金属）。10 �
 
 ## GOOD
 
-5 月に収束、注記なし。回し直していない。1120 物質。
+5 月に収束、注記なし。回し直していない。1125 物質。
 
 **表 10**
 
@@ -673,6 +668,7 @@ LDA でもギャップが無いか 0.1 eV 程度（金属・半金属）。10 �
 | [mp-5967](https://next-gen.materialsproject.org/materials/mp-5967) | TiCoSb | 3 | 1.310 | 5 月 | 1.072 |  |
 | [mp-1008680](https://next-gen.materialsproject.org/materials/mp-1008680) | TiGePt | 3 | 1.228 | 5 月 | 0.852 |  |
 | [mp-924130](https://next-gen.materialsproject.org/materials/mp-924130) | TiNiSn | 3 | 0.589 | 5 月 | 0.458 |  |
+| [mp-1062030](https://next-gen.materialsproject.org/materials/mp-1062030) | TiS2 | 3 | 2.321 | 5 月 | 0.010 | 構造: Pb–Ti–S の非整合層状化合物の「Ti S2-part」。c=11.25 Å（1T-TiS2 は 5.70）、1 原子 37.9 Å³（約 19）。5 月は 1 反復目に 0.65 → 2.49 eV と跳んだ |
 | [mp-30847](https://next-gen.materialsproject.org/materials/mp-30847) | TiSnPt | 3 | 1.059 | 5 月 | 0.765 |  |
 | [mp-567636](https://next-gen.materialsproject.org/materials/mp-567636) | VFeSb | 3 | 0.568 | 5 月 | 0.279 |  |
 | [mp-31455](https://next-gen.materialsproject.org/materials/mp-31455) | VSbRu | 3 | 0.421 | 5 月 | 0.137 |  |
@@ -796,6 +792,8 @@ LDA でもギャップが無いか 0.1 eV 程度（金属・半金属）。10 �
 | [mp-157](https://next-gen.materialsproject.org/materials/mp-157) | P4 | 4 | 0.747 | 5 月 | 0.015 |  |
 | [mp-19921](https://next-gen.materialsproject.org/materials/mp-19921) | Pb2O2 | 4 | 2.414 | 5 月 | 1.440 |  |
 | [mp-1018115](https://next-gen.materialsproject.org/materials/mp-1018115) | Pb2S2 | 4 | 1.619 | 5 月 | 0.989 |  |
+| [mp-726184](https://next-gen.materialsproject.org/materials/mp-726184) | Pb2S2 | 4 | 3.737 | 5 月 | 1.730 | 構造: Pb–Ti–S の非整合層状化合物の PbS 層。a=4.22、c=16.6 Å、1 原子 73.6 Å³（岩塩型 PbS 26.7、最近接 2.99 Å・配位 6 に対し 2.66 Å・配位 5） |
+| [mp-727323](https://next-gen.materialsproject.org/materials/mp-727323) | Pb2S2 | 4 | 3.231 | 5 月 | 1.729 | 構造: Pb–Ti–S の非整合層状化合物の「Pb S-part」。a=4.22、c=11.2 Å、1 原子 49.7 Å³（岩塩型 PbS 26.7） |
 | [mp-288](https://next-gen.materialsproject.org/materials/mp-288) | Pt2S2 | 4 | 1.199 | 5 月 | 0.210 |  |
 | [mp-7895](https://next-gen.materialsproject.org/materials/mp-7895) | Rb2O2 | 4 | 4.534 | 5 月 | 1.624 |  |
 | [mp-558071](https://next-gen.materialsproject.org/materials/mp-558071) | Rb2S2 | 4 | 4.063 | 5 月 | 1.463 |  |
@@ -816,6 +814,8 @@ LDA でもギャップが無いか 0.1 eV 程度（金属・半金属）。10 �
 | [mp-545552](https://next-gen.materialsproject.org/materials/mp-545552) | Sn2O2 | 4 | 2.375 | 5 月 | 1.392 |  |
 | [mp-1379](https://next-gen.materialsproject.org/materials/mp-1379) | Sn2S2 | 4 | 1.917 | 5 月 | 0.925 |  |
 | [mp-559676](https://next-gen.materialsproject.org/materials/mp-559676) | Sn2S2 | 4 | 0.847 | 5 月 | 0.365 |  |
+| [mp-727322](https://next-gen.materialsproject.org/materials/mp-727322) | Sn2S2 | 4 | 2.691 | 5 月 | 1.394 | 構造: Sn–Ti–S の非整合層状化合物の SnS 層。a=4.09、c=11.0 Å、1 原子 45.3 Å³ |
+| [mp-8781](https://next-gen.materialsproject.org/materials/mp-8781) | Sn2S2 | 4 | 3.030 | 5 月 | 1.491 | 構造: Sn–Nb–S の非整合層状化合物の SnS 層。a=4.12、c=11.0 Å、1 原子 46.8 Å³ |
 | [mp-2168](https://next-gen.materialsproject.org/materials/mp-2168) | Sn2Se2 | 4 | 0.641 | 5 月 | 0.291 |  |
 | [mp-690794](https://next-gen.materialsproject.org/materials/mp-690794) | Sr2HN | 4 | 2.797 | 5 月 | 1.719 |  |
 | [mp-569677](https://next-gen.materialsproject.org/materials/mp-569677) | Sr2IN | 4 | 2.796 | 5 月 | 1.764 |  |

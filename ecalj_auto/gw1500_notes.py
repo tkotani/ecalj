@@ -22,8 +22,12 @@ OUT = 'gw1500_notes_20261001.tsv'
 # Structures that are not a material (checked 2026-10-01 by the MP API, the POSCARs and the ICSD remarks).
 # Most are one sublattice cut out of another compound (misfit layer compounds, hydroxides, intercalated graphite):
 # isolated, it gets a molecular HOMO-LUMO gap, which is how it passed the selection (PBE gap > 0).
+# 2026-10-06 14:56, user: "Rb8 だけ INVALID_STRUCTURE にしておこう": only Rb8 keeps the category; the sublattices below keep their
+# note (SUBLATTICE) and the category of their May runs.
 INVALID = {
  'mp-1179832': 'Rb-IV（高圧相、ICSD 109016）を MP が圧力ゼロで緩和。一辺 19.9 Å の胞に Rb8 の正八角形の環（Rb–Rb 4.63 Å、隣 2 個）。1 原子 551 Å³（bcc Rb 93）、凸包から 0.45 eV/原子。ギャップは環の HOMO–LUMO。平面波 3.2 万で lmf --jobgw=1 が 1 ランク 35 GB',
+}
+SUBLATTICE = {
  'mp-1056418': 'Sr–Co–O の「(Sr) part」を抜き出したもの。10.99×10.99×4.42 Å の胞に Sr 1 個（Sr の鎖、隣 2 個、4.42 Å）。1 原子 462 Å³（fcc Sr 56）、凸包から 1.40 eV/原子',
  'mp-730101': 'NH4D2PO4 の H（D）だけを抜き出したもの。H2 分子 4 個（H–H 0.74 Å）、密度 0.04 g/cm³',
  'mp-554134': 'Gd–Sn–Nb–S の非整合層状化合物の SnS 層。a=4.13、c=22.4 Å、1 原子 95.7 Å³（SnS 約 24）、配位 4',
@@ -118,6 +122,8 @@ def main():
             cat = 'GOOD'
         if not x.get('formula_pretty'):
             notes.append('MP の summary が無い（ID が消えたか統合された）')
+        if m in SUBLATTICE:
+            notes.insert(0, '構造: ' + SUBLATTICE[m])
         if R:
             g, gm = f(R['gap']), f(r['gap_QSGW80_last_llmf_eV'])
             s = f"回し直し({R['place']}): {R['verdict']} {R['iter']} 反復、ギャップ {R['gap']} eV（LDA {R['gapLDA']}）"
