@@ -655,6 +655,16 @@ contains
                                           CUSOLVER_EIG_RANGE_I,  CUBLAS_FILL_MODE_UPPER, &
                                           n, a, lda_in, b, ldb_in, vl, vu, il_in, iu_in, m, evl, work, lwork, devInfo)
     deallocate(work)
+    ! Return devInfo as zhgv_h returns info (2026-10-06: it was dropped, and a B that is not positive definite gave
+    ! eigenvalues 0 and NaN without a word; hvccfp0 with overlapping empty spheres)
+    if(istat == CUSOLVER_STATUS_SUCCESS) then
+      istat = devInfo
+    else
+      write(*,'(a,i0)') 'zhgv_d: cusolverDnZhegvdx status ', istat
+      istat = -1000 - istat
+    endif
+    if(istat > n) write(*,'(a,i0,a)') 'zhgv_d: B is not positive definite (Cholesky failed at minor ', istat-n, ')'
+    if(istat > 0 .and. istat <= n) write(*,'(a,i0,a)') 'zhgv_d: ', istat, ' off-diagonal elements did not converge'
   end function zhgv_d
   integer function cusolver_init() result(istat)
     istat = 0

@@ -414,6 +414,12 @@ subroutine hvccfp0() bind(C)  ! Coulomb matrix. <f_i | v| f_j>_q.  ! output  VCC
           !$acc data copy(vcoul) copyin(oo) copyout(eb)
           istat = zhgv(vcoul, oo, ngb, eb)
           !$acc end data
+          ! 2026-10-06: stop here; the status was not looked at, and a failure went on as eigenvalues 0 and NaN
+          if(istat /= 0) then
+            write(aaaw,ftox)'hvccfp0: the generalized eigenproblem of the Coulomb matrix failed: status',istat,'ngb',ngb, &
+                 '(status > ngb: the overlap matrix is not positive definite; overlapping MT spheres?)'
+            call rx(trim(aaaw))
+          endif
           exit
         endif
         call sleep(3)
