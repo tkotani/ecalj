@@ -35,7 +35,7 @@ COND = {
     'E1': ('2026-10-05', 'the first ES runs (kept as a record): ES at the largest voids, part of a Wyckoff orbit possible (lower '
            'symmetry), s,p,d basis on every ES, radius 0.9 x void radius (at most 4.0 a.u.); b695fa65c (workers E*) or 614ab5eb8 (F*) on kr7'),
     'E': ('2026-10-05', 'as N on kr7 (b695fa65c), with empty spheres (ES) at the voids: radius of the void above 3.0 a.u., or 2.0 a.u. in '
-          'a molecular crystal; ES radius 0.9 x the void radius, at most 4.0 a.u. (ecalj_auto/gw1500_addes.py, ctrlg_addes.py). '
+          'a molecular crystal; ES radius 0.9 x the void radius, at most 4.0 a.u. (3.5 a.u. from 2026-10-06 13:08), never overlapping (the nearest images from 2026-10-06 12:05) (ecalj_auto/gw1500_addes.py, ctrlg_addes.py). '
           'Bands tied to the vacuum level, the nearly free states in the voids, need them; the basis changes, so LDA and QSGW80 '
           'start again. ES on whole Wyckoff orbits (the symmetry kept), s,p basis for an ES of 3.0 a.u. or more, s only below; '
           'ecalj 614ab5eb8 (kr7) or 0601771b4 (kt1)'),

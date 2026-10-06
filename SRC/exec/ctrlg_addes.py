@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Put empty spheres (ES) at the large voids of a structure, for the MLO model (and for the basis).
 
-    ctrlg_addes.py <sname> [--rmin 3.0] [--scale 0.9] [--rmax 4.0] [--dry-run]
+    ctrlg_addes.py <sname> [--rmin 3.0] [--scale 0.9] [--rmax 3.5] [--dry-run]
 
 Reads ctrlg.<sname>.toml. The "void radius" of a point is its distance to the nearest MT sphere surface
 (|r - R_a| - r_a, over all atoms a). Every local maximum of it above --rmin (a.u.) gets an ES:
@@ -9,7 +9,9 @@ Reads ctrlg.<sname>.toml. The "void radius" of a point is its distance to the ne
   - whole Wyckoff orbits (2026-10-05, wyckoff_voids: spglib; user: "ES at the Wyckoff positions"; an ES on part of an orbit
     lowers the symmetry, which makes GW heavier and spoils the band plot); the space-group operations with and without ES are printed;
   - its radius is --scale x its own void radius, at most --rmax (2026-10-05: 0.9 and 4.0 a.u.: an ES is expanded up to l = 2,
-    too little for a sphere of 6-15 a.u. in a molecular crystal; the APWs of PMT take the rest of a wide void; before, 0.6 x the smallest void radius for all ES, which
+    too little for a sphere of 6-15 a.u. in a molecular crystal; the cap is 3.5 a.u. from 2026-10-06 13:08: with ES of 3.9-4.0 a.u. the LDA broke
+    (K2PdBr4 mp-27138, ZnSO4 mp-545756; for K2PdBr4 ehf - ehk = 224 Ry at iteration 9 also on CPU, against 1e-5 Ry with 3.5 a.u.),
+    and the GW1500 ES runs up to 3.85 a.u. all converged; the APWs of PMT take the rest of a wide void; before, 0.6 x the smallest void radius for all ES, which
     left ES of 1.8 a.u. in voids of 3-6 a.u.); the largest voids are taken first, a smaller one only when its ES does
     not overlap the kept ones;
   - the ES are added as the LAST sites (the indices of the atoms, and the mlo_lm rows, do not change), with one
@@ -179,7 +181,7 @@ def main():
     ap = argparse.ArgumentParser(description='put empty spheres at the voids larger than --rmin (a.u.)')
     ap.add_argument('sname'); ap.add_argument('--rmin', type=float, default=3.0); ap.add_argument('--dry-run', action='store_true')
     ap.add_argument('--scale', type=float, default=0.9, help='ES radius / void radius')
-    ap.add_argument('--rmax', type=float, default=4.0, help='largest ES radius (a.u.)')
+    ap.add_argument('--rmax', type=float, default=3.5, help='largest ES radius (a.u.)')   # 4.0 until 2026-10-06 13:08 (see the docstring)
     ap.add_argument('--rsp', type=float, default=3.0, help='an ES of this radius (a.u.) or larger gets s,p; a smaller one s only')
     a = ap.parse_args()
     f = f'ctrlg.{a.sname}.toml'; t = open(f).read(); d = tomllib.loads(t)
