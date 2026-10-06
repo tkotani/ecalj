@@ -825,8 +825,9 @@ contains
         use m_lapack, only: zhev => zhev_h
         complex(8) :: rotmx(ndimMTO,ndimMTO), oo(ndimMTO,ndimMTO), zo(ndimMTO,ndimMTO), xs(ndimMTO,ndimMTO,nspx)
         real(8) :: eo(ndimMTO), eomin
-        integer :: istat, io_, jsp1, jsp2
-        eomin = 1d99
+        complex(8) :: vmin(ndimMTO)
+        integer :: istat, io_, jsp1, jsp2, kmin, order(ndimMTO)
+        eomin = 1d99; kmin = 0
         deallocate(rnormh); allocate(rnormh(ndimMTO,nspx), source=0d0)
         do iqbz = 1, nkp
           iqibz = irotq(iqbz)
@@ -843,6 +844,7 @@ contains
             forall(i=1:ndimMTO,j=1:ndimMTO) oo(i,j) = ovlmi(i,j,iqibz,jsp)/sqrt(rnormh(i,jsp)*rnormh(j,jsp))
             istat = zhev(oo, n=ndimMTO, evl=eo)
             if(minval(eo) <= 0d0) call rx('m_HamPMT: the MLO overlap is not positive definite (Loewdin)')
+            if(minval(eo) < eomin) then; vmin = oo(:,1); kmin = iqibz; endif   ! oo holds the eigenvectors, eo ascending
             eomin = min(eomin, minval(eo))
             forall(i=1:ndimMTO) zo(:,i) = oo(:,i)/sqrt(eo(i))
             xs(:,:,jsp) = matmul(zo, dconjg(transpose(oo)))
@@ -864,6 +866,22 @@ contains
         enddo
         if(master_mpi) write(stdo,ftox)' m_HamPMT: Loewdin orthonormalized MLOs (the standard; --mlo_raw for the raw ones).', &
              ' Smallest eigenvalue of the normalized raw overlap on the mesh:',ftof(eomin,4)
+        ! 2026-10-07 03:08: which MLOs are nearly dependent. A tiny eigenvalue makes the Loewdin step amplify noise (the model bands of
+        ! solid H2 wiggled with EH2 s,p on H: eigenvalue 0.0000; EH2 s only: 0.0012 and smooth). Printed when below 0.01: the
+        ! MLOs with the largest weight |c|^2 in the eigenvector of the smallest eigenvalue (atom, radial set 1 EH 2 EH2 3 LO, l).
+        if(master_mpi .and. eomin < 1d-2) then
+          order = [(i, i=1,ndimMTO)]
+          do i = 1, ndimMTO-1   ! by |c|^2, largest first (selection sort; ndimMTO is small)
+            j = maxloc(abs(vmin(order(i:)))**2, dim=1) + i - 1
+            order([i,j]) = order([j,i])
+          enddo
+          write(stdo,ftox)' m_HamPMT: nearly dependent MLOs (smallest eigenvalue',ftof(eomin,6),'at the irreducible k',kmin, &
+               '); the eigenvector, |c|^2 > 0.02, as atom:set:l:|c|^2 ='
+          do i = 1, ndimMTO
+            if(abs(vmin(order(i)))**2 < 0.02d0) exit
+            write(stdo,"('   ',i4,':',i1,':',i1,':',f6.3)") ib_tableM(order(i)), k_tableM(order(i)), l_tableM(order(i)), abs(vmin(order(i)))**2
+          enddo
+        endif
       endblock LowdinModel
       endif
       qploop: do iqbz=iqini,iqend
