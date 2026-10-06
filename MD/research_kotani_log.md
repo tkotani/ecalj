@@ -93,6 +93,22 @@
 - user「それならそれでいい」: 5 月の値（旧 `--mp`、χ0 まで TF32）は全部置き換える。今の tf32 は fp32 と 0.00 eV で一致しており信頼できる（user「たぶん今の tf32 は信頼性が高い」）
 - 23:41 t14 で `~/work/gw1500db/rebalance6.sh` を開始（ローカル）: kr7 の列が 6 以下になったら kt1 の列の後ろから 6 原子を 10 ずつ移す。試しに Ca2Br4（mp-571166）・Cs4Se2（mp-569272）を kr7 の列の先頭へ（kr7 は 30 GB）。kr7 で落ちたら kt1 に戻して移すのをやめる。7〜8 原子は kt1 に残す
 
+### 10-06 12:15 **ES 入りで止まった型の大半は ES 同士の重なり: `ctrlg_addes.py` の距離の誤り（fp32 ではなかった）**（user「hvccfp0 の NaN はデバッグが必要」「h-BN なんかそんなに難しくないはず」）
+
+- Ba₂CuClO₂（mp-551456、kr7）の `lvcc`: 「eigen check1」の固有値が全部 0 で 1 つだけ NaN。hvccfp0 は fp64 の `zhgv_d`（cusolverDnZhegvdx）で、
+  devInfo を見ていない。B（積基底の重なり、格子間の平面波の部分 ppovl）が正定値でないと黙って壊れる
+- 球の重なりを数えた（ES 入りの run 58 件、kr7・kt1）: **ES 同士が重なった 7 件はすべて FAIL、重ならない 51 件は ZnSO₄ の 1 件を除いて CONVERGED**。
+  重なり: NiO₂ mp-35925 142 %、C4 mp-569304 72 %、SiO₂ mp-7905 34 %、h-BN mp-984 22 %、C4 mp-2516584 19 %、Ba₂CuClO₂ 4.9 %、Ba₂CuBrO₂ 4.1 %
+- 原因: `wyckoff_voids` の距離が分数座標を成分ごとに [-1/2, 1/2) へ折り返すだけで、斜めのセル（六方晶、体心の基本格子）の最近接の像を見落とし、
+  軌道の中の最短距離を長く見積もっていた。最短の像（±2 の並進）に直し、ES 自身の格子の像（最短の格子ベクトル）も半径の上限に入れた（`967a9d03b`）
+- 確かめ: 7 件を直した版で置き直すと重なりは無く（最大 -0.8 %）、空間群の操作の数も ES の有る無しで同じ。キューの 169 件を新旧で比べると 161 件は同じ、
+  8 件は旧版で重なっていた（CuCSN mp-672285 38 %、TiS₂ mp-1062030 24 %、C8 mp-569416 72 %、NaN₃、Ca₄O₄、CSO、Pb₂S₂、Sn₂S₂）。新版で重なるものは 0
+- 写しを差し替えた（kt1 `/mnt/data1/gw1500es/ctrlg_addes.py`、kr7 `~/gw1500db/es/ctrlg_addes.py`、md5 c02bf650）。止まった 7 件は kt1 の ES のキューの先頭へ
+  （作業場所は `/mnt/data1/gw1500es/failed_overlap/`）。TODO の「GPU の単精度でほぼ特異なクーロン行列」という見立ては誤りで、訂正を書いた
+- 回し直しのキュー（user「まずは回し直し」）: kt1 の本体が終わったら D4（ES なし、本体と同じビルド、LIMIT 6 h・MAXITER 20: Cs₄I₄、Cs₄Se₂、Na₂H₂O₂、NaCoO₂、
+  Na₂Co₂O₄）と G4（層状 BN mp-685145・mp-7991 を ES のしきい値 2.0 a.u. で）。それぞれ終わると ES のワーカー 0・1 に替わる（t14 の `watch_kt1_final.sh`）
+- hvccfp0 の側: `zhgv_d` が devInfo を返し、hvccfp0 が 0 でない状態で止まるようにした（手元の gfortran のビルドで確かめ中）
+
 ### 10-06 11:56 **kt1 の ES の 6 物質が「policy が gemmul8 を選んだが GEMMul8 がリンクされていない」で止まっていた: 写した policy を直して入れ直した**
 
 - kt1 の `~/bin_frozen_es_0601771b4` は GEMMul8 なしでビルドしてある（`ldd libecaljF_mp_gpu.so` に libgemmul8wrap が無い）。10:34 に写した policy
