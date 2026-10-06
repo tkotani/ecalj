@@ -102,7 +102,7 @@ def main():
         m = r['mpid']; x = mp.get(m, {}); R = rr.get(m)
         notes = []
         if m in INVALID:
-            cat = 'INVALID_STRUCTURE'; notes.append(INVALID[m])
+            cat = 'TOO_LARGE'; notes.append(INVALID[m])   # INVALID_STRUCTURE until 2026-10-06 19:28 (user: "大きすぎる、というべきかな")
         elif m in SUSPECT_STRUCT:
             cat = 'SUSPECT_STRUCTURE'; notes.append(SUSPECT_STRUCT[m])
         elif m in MAY_WRONG:
@@ -129,7 +129,7 @@ def main():
             s = f"回し直し({R['place']}): {R['verdict']} {R['iter']} 反復、ギャップ {R['gap']} eV（LDA {R['gapLDA']}）"
             if g is not None and gm is not None:
                 s += f"、5 月との差 {g - gm:+.2f} eV"
-            if cat == 'INVALID_STRUCTURE':
+            if cat == 'TOO_LARGE':
                 s += '。構造が不正なので値に物理的な意味は無い'
             notes.append(s)
         elif cat in ('NOTCONV_MAY',):
@@ -151,7 +151,7 @@ def main():
     from collections import Counter
     c = Counter(r['category'] for r in rows)
     print(OUT, len(rows), dict(c))
-    for cat in ('FAILED_MAY', 'UNKNOWN_MAY', 'SUSPECT_GOOD', 'NOTCONV_MAY', 'INVALID_STRUCTURE', 'SUSPECT_STRUCTURE'):
+    for cat in ('FAILED_MAY', 'UNKNOWN_MAY', 'SUSPECT_GOOD', 'NOTCONV_MAY', 'TOO_LARGE', 'SUSPECT_STRUCTURE'):
         sub = [r for r in rows if r['category'] == cat]
         print(f"{cat:18s} {len(sub):4d}  rerun: {dict(Counter(r['rerun_verdict'] or 'not yet' for r in sub))}")
 
