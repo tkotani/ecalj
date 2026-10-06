@@ -612,7 +612,9 @@ def later_list(rows, D):
     out = []
     for r in rows:
         d = D.get(r['mpid']); last = f" (last database run: {d['verdict']}, iteration {d['iter']}, dqp {d['dqp']})" if d else ''
-        if not r['adopt']:
+        if not r['adopt'] and r['category'] == 'TOO_LARGE':
+            out.append((r, 'not computed: TOO_LARGE (the cell is too large for the present runs)'))
+        elif not r['adopt']:
             out.append((r, 'no QSGW80 result' + last))
         elif r.get('mlo_check') == 'FAIL':
             out.append((r, f"MLO FAIL (max {fmt(r.get('mlo_max'))} eV, {r.get('mlo_variant', '')})"))
