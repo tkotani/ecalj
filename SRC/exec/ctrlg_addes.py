@@ -65,6 +65,20 @@ def grid(plat):
     return [max(16, int(np.ceil(np.linalg.norm(a) / 0.6))) for a in plat]
 
 
+def min_image(df, plat):
+    """The fractional vector equal to df modulo the lattice that is shortest in Cartesian space. Bug fixed 2026-10-06 12:05:
+    the distances were taken after wrapping each fractional component into [-1/2, 1/2), which misses the nearest image in an
+    oblique cell (hexagonal, the primitive cell of a centred lattice); the shortest distance in a Wyckoff orbit came out too
+    long and the ES overlapped one another (Ba2CuClO2 4.9 %, h-BN 22 %, NiO2 142 %). Those ES runs of GW1500 all stopped:
+    a NaN in hvccfp0 (the overlap matrix of the interstitial plane waves is not positive definite) or CholQR in lmf."""
+    w = (np.asarray(df, float) + 0.5) % 1.0 - 0.5
+    c = w + _SHIFTS
+    return c[np.argmin(np.linalg.norm(c @ plat, axis=1))]
+
+
+_SHIFTS = np.array(list(itertools.product((-2, -1, 0, 1, 2), repeat=3)), float)
+
+
 def find_voids(plat, pos, rmin):
     c = clearance_fn(plat, pos)
     n = grid(plat)
@@ -91,7 +105,7 @@ def find_voids(plat, pos, rmin):
         if np.all(np.abs(snap - fr) < 0.02): fr = snap % 1.0
         x = fr @ plat; best = c(x)[0]
         if best <= rmin: continue
-        if any(np.linalg.norm(((fr - g + 0.5) % 1.0 - 0.5) @ plat) < 0.5 for g, _ in out): continue
+        if any(np.linalg.norm(min_image(fr - g, plat) @ plat) < 0.5 for g, _ in out): continue
         out.append((fr, best))
     return out
 
@@ -103,7 +117,7 @@ def select_voids(voids, plat, scale, rmax=4.0):
     fell to 0.25 a.u. (53 of the 209 GW1500 structures with a void above 3.0 a.u. got ES below 1.5 a.u.)."""
     kept = []
     for fr, v in sorted(voids, key=lambda a: -a[1]):
-        if all(np.linalg.norm(((fr - g + 0.5) % 1.0 - 0.5) @ plat) >= min(scale * v, rmax) + min(scale * w, rmax) for g, w in kept):
+        if all(np.linalg.norm(min_image(fr - g, plat) @ plat) >= min(scale * v, rmax) + min(scale * w, rmax) for g, w in kept):
             kept.append((fr, v))
     return kept
 
@@ -122,7 +136,8 @@ def wyckoff_voids(voids, plat, d, scale, rmax, clear, rfloor=1.5):
     frac = [(np.array(s['pos'], float) * alat) @ inv if 'pos' in s else np.array(s['xpos'], float) for s in d['site']]
     sym = spglib.get_symmetry((plat, frac, [ids[a] for a in lab]), symprec=1e-3)
     ops = list(zip(sym['rotations'], sym['translations']))
-    dist = lambda f, g: np.linalg.norm(((f - g + 0.5) % 1.0 - 0.5) @ plat)
+    dist = lambda f, g: np.linalg.norm(min_image(f - g, plat) @ plat)
+    lmin = min(np.linalg.norm(n @ plat) for n in _SHIFTS if np.any(n))   # the shortest lattice vector
     kept, seen = [], []
     for fr, v in sorted(voids, key=lambda a: -a[1]):
         if any(dist(fr, g) < 0.3 for g in seen):
@@ -130,7 +145,7 @@ def wyckoff_voids(voids, plat, d, scale, rmax, clear, rfloor=1.5):
         x = fr
         for _ in range(4):   # images closer than an ES diameter are merged into their centre, a position of higher symmetry
             stab = [R @ x + t for R, t in ops if dist(R @ x + t, x) < 2 * rfloor]
-            x = (x + np.mean([((y - x + 0.5) % 1.0 - 0.5) for y in stab], axis=0)) % 1.0     # the special position
+            x = (x + np.mean([min_image(y - x, plat) for y in stab], axis=0)) % 1.0     # the special position
             orb = []
             for R, t in ops:
                 y = (R @ x + t) % 1.0
@@ -141,7 +156,7 @@ def wyckoff_voids(voids, plat, d, scale, rmax, clear, rfloor=1.5):
                 break
         v = float(clear(x @ plat)[0])                                                              # the void radius there
         seen += orb + [fr]
-        r = min(scale * v, rmax, 0.5 * dmin - 0.01)
+        r = min(scale * v, rmax, 0.5 * min(dmin, lmin) - 0.01)   # lmin: an ES and its own lattice images (2026-10-06)
         if r < rfloor:
             continue
         if any(dist(y, g) < r + rg for y in orb for g, _, rg in kept):
