@@ -73,9 +73,31 @@ def load_db_logs(db, sub='logs'):
                 continue
             kv = dict(x.split('=', 1) for x in p[5:] if '=' in x)
             sec = next((x[:-1] for x in p[5:] if re.fullmatch(r'\d+s', x)), None)
-            D[p[3]] = dict(verdict=p[4], iter=kv.get('iter'), gaplda=fnum(kv.get('gapLDA')), gap=fnum(kv.get('gap')),
-                           sec=fnum(sec), host=host, when=f'{p[0]} {p[1]}', worker=p[2], es=kv.get('ES', ''))
+            new = dict(verdict=p[4], iter=kv.get('iter'), gaplda=fnum(kv.get('gapLDA')), gap=fnum(kv.get('gap')),
+                       sec=fnum(sec), host=host, when=f'{p[0]} {p[1]}', worker=p[2], es=kv.get('ES', ''), dqp=fnum(kv.get('dqp')),
+                       rule=es_rule(f'{p[0]} {p[1]}', sec) if sub == 'logs_es' else '')
+            # 2026-10-06: a later SKIP or a stopped rerun must not hide a converged or a truncated run of the material
+            old = D.get(p[3])
+            if old and rank(old) > rank(new):
+                continue
+            D[p[3]] = new
     return D
+
+
+TRUNC_DQP = 0.1   # eV: a TIMEOUT or MAXITER run whose last iteration moved the QP levels by at most this is taken, as "truncated"
+
+
+def rank(d):
+    """converged 2 > truncated (TIMEOUT or MAXITER with a gap) 1 > anything else 0; equal ranks: the later line wins"""
+    if d['verdict'] in ('CONVERGED', 'CONVERGED_METAL'):
+        return 2
+    return 1 if d['verdict'] in ('TIMEOUT', 'MAXITER') and d['gap'] is not None else 0
+
+
+def truncated(d):
+    """user 2026-10-06: "打ち切り（xxx まで収束）でもいい" -- a run stopped by the time limit or MAXITER is taken when its last iteration
+    changed the QP levels by at most TRUNC_DQP"""
+    return d['verdict'] in ('TIMEOUT', 'MAXITER') and d['gap'] is not None and d['dqp'] is not None and d['dqp'] <= TRUNC_DQP
 
 
 def spacegroups():
@@ -190,6 +212,8 @@ def decide(m, S, N, D, E={}, E1={}):
     if d and d['verdict'] in ('CONVERGED', 'CONVERGED_METAL'):
         g = 0.0 if d['verdict'] == 'CONVERGED_METAL' else d['gap']
         v['N'] = dict(gap=g, lda=d['gaplda'], state=d['verdict'], iter=d['iter'], host=d['host'])
+    elif d and truncated(d):
+        v['N'] = dict(gap=d['gap'], lda=d['gaplda'], state='TRUNCATED', iter=d['iter'], host=d['host'], dqp=d['dqp'], why=d['verdict'])
     e1 = E1.get(m)
     if e1 and e1['verdict'] in ('CONVERGED', 'CONVERGED_METAL'):       # a record, never adopted
         v['E1'] = dict(gap=0.0 if e1['verdict'] == 'CONVERGED_METAL' else e1['gap'], lda=e1['gaplda'], state=e1['verdict'],
@@ -197,8 +221,13 @@ def decide(m, S, N, D, E={}, E1={}):
     e = E.get(m)
     if e and e['verdict'] in ('CONVERGED', 'CONVERGED_METAL'):
         g = 0.0 if e['verdict'] == 'CONVERGED_METAL' else e['gap']
-        v['E'] = dict(gap=g, lda=e['gaplda'], state=e['verdict'], iter=e['iter'], host=e['host'], worker=e['worker'], es=e['es'])
-    adopt = next((k for k in ('E', 'N', 'R', 'M') if k in v and v[k]['gap'] is not None), None)
+        v['E'] = dict(gap=g, lda=e['gaplda'], state=e['verdict'], iter=e['iter'], host=e['host'], worker=e['worker'], es=e['es'], rule=e['rule'])
+    elif e and truncated(e):
+        v['E'] = dict(gap=e['gap'], lda=e['gaplda'], state='TRUNCATED', iter=e['iter'], host=e['host'], worker=e['worker'], es=e['es'], rule=e['rule'],
+                      dqp=e['dqp'], why=e['verdict'])
+    # a converged result of any set first (E > N > R > M), then a truncated one (2026-10-06)
+    adopt = next((k for k in ('E', 'N', 'R', 'M') if k in v and v[k]['gap'] is not None and v[k]['state'] != 'TRUNCATED'), None) or \
+        next((k for k in ('E', 'N') if k in v and v[k]['gap'] is not None), None)
     return v, adopt
 
 
@@ -207,12 +236,12 @@ VERSION = {'M': '2026-04/05 (~/bin2, all-TF32 --mp)', 'R': '989a18637 (fp32, t_t
            'E': 'b695fa65c (tf32, t_tetrakbt -300) with ES'}
 
 
-def version(adopt, host, worker=''):
+def version(adopt, host, worker='', rule=''):
     if adopt == 'N':
         return VERSION.get(f'N_{host}', 'N')
     if adopt == 'E':   # by the worker: E* the frozen b695fa65c of kr7, F* 614ab5eb8 (kr7), G* 0601771b4 (kt1)
         b = 'b695fa65c' if worker.startswith('E') else ('0601771b4' if worker.startswith('G') else '614ab5eb8')
-        return f'{b} (tf32, t_tetrakbt -300) with ES'
+        return f'{b} (tf32, t_tetrakbt -300) with ES' + (f', ES rule {rule}' if rule else '')
     return VERSION.get(adopt, '')
 
 
@@ -296,6 +325,29 @@ def figure(db, m, title, curves, dm, gap, path):
 
 
 
+# The ES placement changed during the ES runs (user 2026-10-06: "rules change on the way; write by which rule and code"). A run
+# took the rule in force when it started (log time minus its seconds); the time is when ctrlg_addes.py was replaced on kt1 and kr7.
+ES_RULES = [('2026-10-05 00:00', 'es-a', 'ES on whole Wyckoff orbits, radius 0.9 x void (at most 4.0 a.u.); distances by wrapping each '
+             'fractional coordinate (the ES of oblique cells could overlap)'),
+            ('2026-10-06 12:12', 'es-b', 'as es-a with the distances to the nearest images, also bounded by the shortest lattice vector '
+             '(ecalj 967a9d03b)'),
+            ('2026-10-06 13:09', 'es-c', 'as es-b with the ES radius at most 3.5 a.u. (ecalj 15363a7e3)')]
+
+
+def es_rule(when, sec):
+    """the ES rule in force at the start of a run that ended at when (YYYY-MM-DD HH:MM:SS) after sec seconds"""
+    import datetime
+    try:
+        t0 = datetime.datetime.strptime(when[:19], '%Y-%m-%d %H:%M:%S') - datetime.timedelta(seconds=float(sec or 0))
+    except ValueError:
+        return ''
+    r = ''
+    for t, k, _ in ES_RULES:
+        if t0 >= datetime.datetime.strptime(t, '%Y-%m-%d %H:%M'):
+            r = k
+    return r
+
+
 def history(db, S):
     """Every run of every material, from all the logs (2026-10-05, user: "results of various conditions cannot be avoided; keep
     them in the database with the past logs, as notes"): history.tsv (one row per run) and a short history per material.
@@ -306,7 +358,7 @@ def history(db, S):
         if r.get('prod_date'):
             rows.append(dict(mpid=m, set='M', when=r['prod_date'], host='', worker='', verdict=r.get('final_state', ''),
                              iter=r.get('qsgw_iter_final', ''), gaplda=r.get('gap_LDA_eV', ''), gap=r.get('gap_QSGW80_last_llmf_eV', ''),
-                             sec='', es='', version=r.get('prod_bindir', ''), note=r.get('final_detail', '')))
+                             sec='', es='', version=r.get('prod_bindir', ''), rule='', dqp='', note=r.get('final_detail', '')))
     def parse(f, st, host):
         for l in open(f):
             p = l.split()
@@ -322,18 +374,21 @@ def history(db, S):
                 ver = '989a18637' if host == 'kt1' else 'b695fa65c'
             elif st in ('E1', 'E'):
                 ver = 'b695fa65c' if w.startswith('E') else ('0601771b4' if host.startswith('kt1') else '614ab5eb8')
+            rule = es_rule(f'{p[0]} {p[1]}', sec) if st == 'E' else ''
             rows.append(dict(mpid=p[3], set=st, when=f'{p[0]} {p[1]}', host=host, worker=w, verdict=p[4], iter=kv.get('iter', ''),
-                             gaplda=kv.get('gapLDA', ''), gap=kv.get('gap', ''), sec=sec, es=kv.get('ES', ''), version=ver, note=''))
+                             gaplda=kv.get('gapLDA', ''), gap=kv.get('gap', ''), sec=sec, es=kv.get('ES', ''), version=ver, rule=rule,
+                             dqp=kv.get('dqp', ''), note=''))
     if os.path.exists(f'{ECALJ}/gw1500_rerun_logs_20261001.txt'):
         parse(f'{ECALJ}/gw1500_rerun_logs_20261001.txt', 'R', 'kt1')
     for sub, st in (('logs', 'N'), ('logs_e1', 'E1'), ('logs_es', 'E')):
         for f in sorted(glob.glob(f'{db}/{sub}/*.log')):
             parse(f, st, os.path.basename(f).split('.')[0])
-    keys = ['mpid', 'set', 'when', 'host', 'worker', 'verdict', 'iter', 'gaplda', 'gap', 'sec', 'es', 'version', 'note']
+    keys = ['mpid', 'set', 'when', 'host', 'worker', 'verdict', 'iter', 'gaplda', 'gap', 'dqp', 'sec', 'es', 'rule', 'version', 'note']
     rows.sort(key=lambda r: (r['mpid'], r['when']))
     with open(f'{db}/history.tsv', 'w') as f:
         f.write('# every run of every material (gw1500db_build.py): set M = May production (status table), R = reruns 09-30..10-02,\n'
-                '# N = database run, E1 = first ES runs (kept as a record), E = ES runs; version = ecalj of the binaries\n')
+                '# N = database run, E1 = first ES runs (kept as a record), E = ES runs; version = ecalj of the binaries;\n'
+                '# rule = the ES placement in force when the run started (README, ES rules)\n')
         f.write('\t'.join(keys) + '\n')
         for r in rows:
             f.write('\t'.join(str(r[k]) for k in keys) + '\n')
@@ -348,7 +403,7 @@ def history(db, S):
             short[r['mpid']].append(f"M {g or r['verdict']}")
         else:
             v = '' if r['verdict'].startswith('CONVERGED') else ' ' + r['verdict']
-            short[r['mpid']].append(f"{r['set']} {g}{v} ({r['when'][5:10]}{', ES ' + r['es'] if r['es'] else ''})".replace('  ', ' '))
+            short[r['mpid']].append(f"{r['set']} {g}{v} ({r['when'][5:10]}{', ES ' + r['es'] if r['es'] else ''}{', ' + r['rule'] if r['rule'] else ''})".replace('  ', ' '))
     return {m: ' · '.join(v) for m, v in short.items()}
 
 def main():
@@ -401,6 +456,8 @@ def main():
             an.append('differs')
         if adopt is None:
             an.append('no-result')
+        elif v[adopt]['state'] == 'TRUNCATED':
+            an.append('truncated')
         if pq is not None and pq['gap'] < gap - 0.1:
             if pl is None or lda is None:
                 an.append('path<mesh(noLDA)')
@@ -442,8 +499,11 @@ def main():
                          iters={k: v[k].get('iter') for k in v}, mp_pbe=mp.get('band_gap'), ehull=mp.get('energy_above_hull'),
                          icsd=bool((mp.get('database_IDs') or {}).get('icsd')), old2=o.get('shot2'), old1=o.get('shot1'),
                          note=n['note'], dbnote=DBN.get(m, ''), host=v.get('N', {}).get('host', ''),
-                         version=version(adopt, v.get(adopt, {}).get('host', '') if adopt else '', v.get(adopt, {}).get('worker', '') if adopt else ''), spike=sp, km=km,
-                         gap_path=pq['gap'] if pq else None, hist=H.get(m, ''), **ml))
+                         version=version(adopt, v.get(adopt, {}).get('host', '') if adopt else '', v.get(adopt, {}).get('worker', '') if adopt else '',
+                                         v.get(adopt, {}).get('rule', '') if adopt else ''), spike=sp, km=km,
+                         gap_path=pq['gap'] if pq else None, hist=H.get(m, ''),
+                         trunc=(f"{v[adopt]['why']} at iteration {v[adopt]['iter']}, dqp {v[adopt]['dqp']:.3f} eV"
+                                if adopt and v[adopt]['state'] == 'TRUNCATED' else ''), **ml))
         if figs and (only is None or m in only):
             spec = [('db_lda' if os.path.exists(f'{db}/npz/{m}.db_lda.npz') else 'may_lda', '0.3', '-', 0.7, 'LDA', 'L')]
             spec.append((tagq[adopt] if adopt else None, 'tab:blue', '-', 0.8, f'QSGW80 ({adopt})', 'Q'))
@@ -547,6 +607,20 @@ def pairstats(rows, a, b):
                 n02=int((np.abs(d) > LARGE).sum()), mx=float(np.abs(d).max()))
 
 
+def later_list(rows, D):
+    """[(row, why)]: no adopted QSGW80, or no MLO model of grade PASS/OK (2026-10-06)"""
+    out = []
+    for r in rows:
+        d = D.get(r['mpid']); last = f" (last database run: {d['verdict']}, iteration {d['iter']}, dqp {d['dqp']})" if d else ''
+        if not r['adopt']:
+            out.append((r, 'no QSGW80 result' + last))
+        elif r.get('mlo_check') == 'FAIL':
+            out.append((r, f"MLO FAIL (max {fmt(r.get('mlo_max'))} eV, {r.get('mlo_variant', '')})"))
+        elif not r.get('mlo_check'):
+            out.append((r, f"no MLO model yet (QSGW80 from {r['adopt']})"))
+    return out
+
+
 def readme(db, rows, D, cnt, fl, pages):
     import datetime
     now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
@@ -572,13 +646,19 @@ results. Different versions and conditions can differ by 0.05–0.3 eV, M by mor
 May values"); the present ecalj may differ again.
 
 Every gap carries the letter of its conditions. **Bold** is the value adopted: E if the run with empty spheres converged, else N if the
-database run converged, else R, else M.
+database run converged, else R, else M; if none converged, an E or N run stopped by the time limit or MAXITER whose last iteration
+moved the QP levels by at most {TRUNC_DQP} eV (check `truncated`, from 2026-10-06).
 
 | | when | conditions |
 | --- | --- | --- |
 ''')
         for k, (w, t) in COND.items():
             f.write(f'| **{k}** | {w} | {t} |\n')
+        f.write('\n**Rules that changed during the runs** (user 2026-10-06: a value is "by the rule and the code of that date"). '
+                'A run of E took the ES rule in force when it started (column *rule* of `history.tsv`, and the version column of the table).\n\n'
+                '| rule | from | ES placement |\n| --- | --- | --- |\n')
+        for t, k, d in ES_RULES:
+            f.write(f'| {k} | {t} | {d} |\n')
         f.write(f'''
 Common to all: LDA (VWN) as the starting point and for the LDA column, PMT basis (APW + MTO) made by `ctrlgenToml.py`
 (M: its predecessors), no spin polarization, no spin-orbit coupling.
@@ -683,6 +763,7 @@ Models so far: {len(ml)} ({', '.join(f'{k} {v}' for k, v in mc.most_common())}).
                 'LDA≠PBE': 'the LDA gap and the PBE gap of MP differ by more than 1 eV (MP uses GGA+U for oxides and fluorides of Co, Cr, Fe, Mn, Mo, Ni, V, W; or structure, basis)',
                 'vs2025': 'the QSGW80 gap differs by more than 0.5 eV from LDA + 0.8 (QSGW100 − LDA) of the 2025 2nd shot',
                 'no-result': 'no QSGW80 result',
+                'truncated': f'the adopted run stopped at the time limit or at MAXITER, its last iteration moving the QP levels by at most {TRUNC_DQP} eV (dqp); taken as it is (打ち切り)',
                 'MLO-FAIL': 'the MLO model of the standard recipe has the grade FAIL (see MLO models)'}
         f.write('\n## Automatic checks\n\n| check | materials | meaning |\n| --- | --- | --- |\n')
         for k in list(EXPL) + sorted(x for x in fl if x.startswith('N:')):
@@ -696,6 +777,21 @@ Models so far: {len(ml)} ({', '.join(f'{k} {v}' for k, v in mc.most_common())}).
                 f.write(f"| [{r['mpid']}](bands_{r['natom']}atoms.md#{r['mpid']}) | {r['formula']} | {r['mlo_n']} | {fmt(r.get('mlo_gapD'))} | "
                         f"{fmt(r.get('mlo_gapM'))} | {fmt(r.get('mlo_dVBM'), 3)} | {fmt(r.get('mlo_dCBM'), 3)} | {fmt(r.get('mlo_rms_m2d'), 3)} | "
                         f"{fmt(r.get('mlo_max'))} | {r['mlo_fail'][:160].replace('|', '/')} |\n")
+        L = [r for r in rows if 'truncated' in r['flag'].split()]
+        if L:
+            f.write(f'\n### truncated ({len(L)})\n\n| mpid | formula | QSGW80 | stopped |\n| --- | --- | --- | --- |\n')
+            for r in L:
+                f.write(f"| [{r['mpid']}](bands_{r['natom']}atoms.md#{r['mpid']}) | {r['formula']} | {gapcell(r)} | {r['trunc']} |\n")
+        later = later_list(rows, D)
+        if later:
+            f.write(f'\n## Later list ({len(later)})\n\nMaterials left for later (user 2026-10-06: the hard ones go to a list): no adopted '
+                    'QSGW80 result, or no MLO model of grade PASS/OK. Also in `later_list.tsv`.\n\n| mpid | formula | atoms | why |\n| --- | --- | --- | --- |\n')
+            for r, why in later:
+                f.write(f"| [{r['mpid']}](bands_{r['natom']}atoms.md#{r['mpid']}) | {r['formula']} | {r['natom']} | {why} |\n")
+            with open(f'{db}/later_list.tsv', 'w') as g:
+                g.write('mpid\tformula\tnatom\twhy\n')
+                for r, why in later:
+                    g.write(f"{r['mpid']}\t{r['formula']}\t{r['natom']}\t{why}\n")
         for k in ('CHECK', 'kmismatch', 'path-metal', 'path<mesh(Σ)', 'path<mesh(noLDA)', 'QSGW<LDA', 'path<mesh(mesh)', 'spike', 'LDA≠PBE', 'no-result'):
             L = [r for r in rows if k in r['flag'].split()]
             if not L:
