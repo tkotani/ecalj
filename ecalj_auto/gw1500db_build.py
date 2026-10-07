@@ -3,7 +3,7 @@
 
     gw1500db_build.py <db dir> [--figs] [--only mp-1,mp-2]
 
-Inputs (paths below): <db dir>/npz/<mpid>.<tag>.npz (gw1500db_extract.py; tags may_qsgw, may_lda, rr_<run>, db_qsgw, db_lda),
+Inputs (paths below): <db dir>/npz/<mpid>.<tag>.npz (gw1500db_extract.py; tags may_qsgw, may_lda, rr_<run>, rr_<run>_lda, db_qsgw, db_lda, es_qsgw, es_lda),
 <db dir>/logs/*.log (rerun.log of the database run on kt1 and kr7), ecalj_auto tables, MP json, POSCARs, the 2025 table of
 tkotani/DOSnpSupplement (dosnp_README_2025.md).
 Outputs: <db dir>/README.md (conditions, summary, how to read), table.md and gw1500db.tsv (one row per material),
@@ -198,6 +198,19 @@ def rr_tag(db, m):
         if os.path.exists(f'{db}/npz/{m}.rr_{r}.npz'):
             return f'rr_{r}'
     return None
+
+
+def lda_tag(db, m, adopt):
+    """The LDA bands drawn and checked with the adopted QSGW80 run (2026-10-07 21:04, one rule for the table, the figure and the
+    snapshot; the figure had drawn the LDA of N also for E, whose basis has the ES): E -> es_lda; R -> the LDA of that rerun
+    (rr_<run>_lda, made afterwards for the runs that had none); else db_lda, else may_lda."""
+    c = []
+    if adopt == 'E':
+        c.append('es_lda')
+    if adopt == 'R' and rr_tag(db, m):
+        c.append(rr_tag(db, m) + '_lda')
+    c += ['db_lda', 'may_lda']
+    return next((k for k in c if os.path.exists(f'{db}/npz/{m}.{k}.npz')), None)
 
 
 def decide(m, S, N, D, E={}, E1={}):
@@ -458,7 +471,7 @@ def main():
         tagq = {'E': 'es_qsgw', 'E1': 'e1_qsgw', 'N': 'db_qsgw', 'R': rr_tag(db, m),
                 'M': 'may_qsgw_fixed' if os.path.exists(f'{db}/npz/{m}.may_qsgw_fixed.npz') else 'may_qsgw'}
         dq = npz(db, m, tagq[adopt]) if adopt and tagq[adopt] else None
-        dl = (npz(db, m, 'es_lda') if adopt == 'E' else None) or npz(db, m, 'db_lda') or npz(db, m, 'may_lda')
+        tl = lda_tag(db, m, adopt); dl = npz(db, m, tl) if tl else None
         insul = gap is not None and gap > 0.05
         pq = pathgap(dq, insul)
         pl = pathgap(dl, lda is not None and lda > 0.05)
@@ -531,7 +544,7 @@ def main():
                          trunc=(f"{v[adopt]['why']} at iteration {v[adopt]['iter']}, dqp {v[adopt]['dqp']:.3f} eV"
                                 if adopt and v[adopt]['state'] == 'TRUNCATED' else ''), **ml))
         if figs and (only is None or m in only):
-            spec = [('db_lda' if os.path.exists(f'{db}/npz/{m}.db_lda.npz') else 'may_lda', '0.3', '-', 0.7, 'LDA', 'L')]
+            spec = [(tl, '0.3', '-', 0.7, 'LDA', 'L')]
             spec.append((tagq[adopt] if adopt else None, 'tab:blue', '-', 0.8, f'QSGW80 ({adopt})', 'Q'))
             for k, g in others.items():
                 if gap is not None and abs(g - gap) > 0.1 and tagq.get(k):

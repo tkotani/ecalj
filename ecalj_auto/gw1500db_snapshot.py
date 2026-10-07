@@ -16,6 +16,7 @@ import sys, os, csv, shutil, glob
 import numpy as np
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from gw1500db_extract import gaps
+from gw1500db_build import lda_tag
 
 db, inp, out, label = sys.argv[1:5]
 os.makedirs(out, exist_ok=True)
@@ -59,7 +60,7 @@ for r in rows:
         nin += 1
     # bands: QSGW80 of the adopted run, LDA, the MLO model
     tq = {'E': 'es_qsgw', 'N': 'db_qsgw', 'R': rr_tag(m), 'M': 'may_qsgw_fixed' if os.path.exists(f'{db}/npz/{m}.may_qsgw_fixed.npz') else 'may_qsgw'}[a]
-    tl = 'es_lda' if a == 'E' else ('db_lda' if os.path.exists(f'{db}/npz/{m}.db_lda.npz') else 'may_lda')
+    tl = lda_tag(db, m, a)
     parts = {'qsgw80': load(m, tq), 'lda': load(m, tl), 'mlo': load(m, 'db_mlo')}
     pack = {}
     def fnum(s):
