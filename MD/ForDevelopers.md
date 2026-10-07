@@ -400,11 +400,10 @@ gwsc 10 -np 64 <sname> > gwsc.log 2>&1
   git unpack-objects < /tmp/main.pack && git update-ref refs/heads/main <new> && git checkout main
   ```
   チェックアウトを邪魔する未追跡のファイルがあれば退避してから。版は `SRC/.ecalj_rev` ではなく `git log -1`（ucgw は `sync_ecalj_src.sh` の対象に入っていない）
-- ジョブの中の Python は 3.11 以上が要る（gwsc が tomllib を使う）。`~/.pyenv` の 3.12 には numpy・matplotlib が無く、試験の 7 組
-  （EPS、PROCAR、SLAB、EffectiveMass、DOS、IIR、AtomDimer）が止まった（2026-10-07）。`~/anaconda3/bin`（3.12.2: numpy、scipy、matplotlib。
-  getsyml の spglib・seekpath は 2026-10-07 に pip で足した）の python3 だけを使う: `~/anaconda3/bin` を丸ごと `PATH` の先に置くと、その中の
-  OpenMPI の `mpirun`（orterun）が Intel MPI の `mpirun` の代わりに走り、8 本が別々の rank 0 として同じファイルを書いて壊れた（2026-10-08、job 36723）。
-  python3 へのリンクだけのディレクトリを作って先に置く
+- ジョブの中の Python は 3.11 以上が要る（gwsc が tomllib を使う）。venv `~/venv_ecalj`（`~/.pyenv/versions/3.12.13` から、numpy・scipy・matplotlib・
+  spglib・seekpath・pandas・plotly・pymatgen。2026-10-08 に作った、mic と同じ構成）を `PATH` の先にする: `export PATH=$HOME/venv_ecalj/bin:$PATH`。
+  pyenv の 3.12 そのものには numpy が無い（試験の 7 組が止まった）。anaconda3 は使わない（user 2026-10-08）: その bin に OpenMPI の `mpirun`（orterun）があり、
+  先に置くと Intel MPI のプログラムを 8 本の別々の rank 0 として起動して壊した（job 36723）
 - [`ecalj_auto/jobtemplate.ucgw`](../ecalj_auto/jobtemplate.ucgw)（GW1500 の量産に使った雛形）は `-pe smp`（1 ノード）と `-V`、`-q` でノードを並べる別の形。上の形は多ノードの 1 本用
 - 本番の NiO の入力（メッシュ、時間とメモリの目安）はまだ無い。試験の [`Samples/TestInstall/nio_gwsc444`](../Samples/TestInstall/nio_gwsc444)（AF II、4³）が出発点になる
 
