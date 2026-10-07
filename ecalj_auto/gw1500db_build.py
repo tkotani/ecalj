@@ -261,7 +261,8 @@ def bands(ax, d, sh, color, ls, lw, label=None):
 
 def mlo_title(dm, gap):
     """the conditions and the grade of the MLO model, for the right panel (2026-10-04; variant and grade 2026-10-05)"""
-    VN = {'b1': 'baseline', 'b2': '+EH2 s,p cations', 'b2all': '+EH2 s,p all'}
+    VN = {'b1': 'baseline', 'b2': '+EH2 s,p cations', 'b2all': '+EH2 s,p all', 'b2d': '+EH2 s,p all, d on K-Ba, s,p on Cu Ag Au',
+          'x_s_only': 'BY HAND: s only (H s + EH2 s + ES s)'}   # x_*: made by hand outside the recipe (2026-10-07), see the note
     var = str(dm['variant']) if 'variant' in dm else 'b1'
     es = ', ES' if 'es' in dm and bool(dm['es']) else ''
     t = f"MLO model ({int(dm['nmlo'])} MLOs, {VN.get(var, var)}{es}): Löwdin, Δ = w = 2 eV\n"
@@ -750,6 +751,9 @@ the k mesh of lmf (8x8x8). The rule:
 Grade, against the QSGW80 bands along the path in the window [VBM − 8 eV, CBM + 2 eV] (metals: E_F): PASS = largest deviation
 ≤ 0.1 eV, no jump > 0.1 eV between neighbouring k, no broken band; OK = PASS in the inner window up to CBM + 1.5 eV and the
 largest deviation in the whole window ≤ 0.2 eV (the top of the window, where steep bands enter); FAIL = otherwise.
+Variants whose name starts with `x_` were made by hand outside the recipe for materials it does not pass (user 2026-10-07:
+"標準手法でないやりかたでもいいからまずはつくって"); what was changed is in the variant name, the figure title and the note of the
+material (e.g. `x_s_only`: solid H2 with H s, EH2 s and ES s only; the EH2 p of the recipe made the MLO overlap singular).
 The model matrices (hundreds of MB per material) are not kept; the recipe makes them again.
 Models so far: {len(ml)} ({', '.join(f'{k} {v}' for k, v in mc.most_common())}).
 ''')
