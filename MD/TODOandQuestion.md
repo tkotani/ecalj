@@ -73,7 +73,7 @@
   ビルドで値が変わるので 2026-09-30 に外し、「別の所から入れ直す」としていた（Changes.md 2026-09-30 (4)・(5)、研究ログ 2026-09-30 06:05 の表 06:05-2）
 - **【未着手】HEAD に残っている生成物らしいもの**（2026-10-02、旧 `a0c7a7300` で入り今も追跡）: `SRC/.#Memo4rotation`、[`SRC/exec/cmake_install.cmake`](../SRC/exec/cmake_install.cmake)、`hello.py`、`platform`（800 KB）、
   `lmf2.py`・`lmchk.py`・`pylmfa`・`pysample`・`ohtaka`・`epsPPd`・`epsPPsaito`・`job_senefbz`・`readeps_dig2.py`・`auto_kauto.py`。使われているかを確かめて trash へ
-- **【未着手】[`SRC/exec/auto_creplot.py`](../SRC/exec/auto_creplot.py)**（2026-10-01）: 旧形式の `ctrl.<sname>` を書き換える。`auto_job_mp.py` が使う。ctrlg に直すか、使わないなら trash へ
+- **【済み 2026-10-07】`SRC/exec/auto_creplot.py`**（2026-10-01）: `auto_job_mp.py`・`ctrlgenM1.py` と一緒に trash へ（user「もういらないよね」、past_log §15）
 - **【未着手】`sugw`（`lmf --jobgw=1`）のメモリ**（2026-10-01）: `GEIGpart` の `ppovl(ngp,ngp)` と `ppovlLU` を各ランクで持つ（32·ngp² バイト、胞の体積の 2 乗）。
   案: (a) ngp から並列数を決める、(b) Cholesky の因子だけ持つ、(c) O·x を FFT で作り反復法で解く
 - **【未着手】`hgw` の残り**（2026-04、past_log.md §3.2）: ノード内の W の共有（`MPI_Win_allocate_shared`）、`hsfp0_sc` の Sx・core の交換も `hgw` に（優先度は低い）

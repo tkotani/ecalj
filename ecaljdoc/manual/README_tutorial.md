@@ -260,8 +260,7 @@ SITE
    ATOM=O POS= 0 0 1/2
 ```
 
-`%const` lines define run-time variables expanded by `ctrlgenToml.py`
-(and the legacy `ctrlgenM1.py`).  Multiple definitions on one line are
+`%const` lines define run-time variables expanded by `ctrlgenToml.py`.  Multiple definitions on one line are
 fine, math operators (`+ - * / ** ^`) and `sin / cos / log / sqrt / pi`
 are evaluated, and earlier defines are visible to later ones (so
 `a0=2*1.95/au` works because `au` was defined on the previous
@@ -339,7 +338,7 @@ that ships in that directory.)
 This single command:
 
 1. fills top-level (`symgrp` / `verbose` / `time`) and `[struc] / [[site]] / [[spec]]` from the periodic-table
-   defaults (the same `atomlist` table that `ctrlgenM1.py` uses);
+   defaults (the `atomlist` table, `SRC/exec/pylib/atomlist.py`);
 2. internally runs `lmfa → lmf --jobgw=0 → gwinit` to populate
    `[gw] / [mlo] / [blocks] / [product_basis]` (the last one including the
    per-atom tables `nlx` / `valence` / `core`);
@@ -434,11 +433,9 @@ At this point, you can visually check:
 
 [Detailed reference for every key in `ctrlg.<sname>.toml`](./lmf).
 
-> **`ctrlgenToml.py` ↔ `ctrlgenM1.py` (legacy)** — `ctrlgenToml.py`
-> takes the periodic-table defaults from the file `ctrlgenM1.py` (atomlist
-> extracted at runtime).  `ctrlgenM1.py` itself does not generate
-> `ctrl.<sname>` any more: it prints a pointer to `ctrlgenToml.py` and
-> exits.  Old directories that already have
+> **`ctrlgenToml.py`** takes the periodic-table defaults from
+> `SRC/exec/pylib/atomlist.py` (the legacy `ctrlgenM1.py`, which wrote
+> `ctrl.<sname>` before 2026-05, was removed on 2026-10-07).  Old directories that already have
 > hand-edited `ctrl.<sname>` (or `ctrl.<sname>` + `GWinput`) decks are
 > converted by `Legacy2toml.py <sname>`.  See
 > Step 2-Migration below.

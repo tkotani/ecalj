@@ -3,6 +3,11 @@
 2026-10-02 に `Changes.txt` から改名した（中身は同じ。日付の行を見出しにし、本文の字下げを外しただけ）。
 新しい項目は一番上に `## YYYY-MM-DD (n)` で書く。要約は ecaljdoc の [manual/whatsnew.md](ecaljdoc/manual/whatsnew.md)。
 
+## 2026-10-07 (1)
+
+旧い入力の流れのスクリプト `ctrlgenM1.py`、`auto_creplot.py`、`auto_job_mp.py` を外した（2026-05 から動いていなかった）。
+`ctrlgenToml.py` が使う元素ごとの既定の表は `SRC/exec/pylib/atomlist.py` に移した（中身は同じ、作る ctrlg も同じ）。
+
 ## 2026-10-03 (2)
 
 ライセンスの注意に「AI も例外ではない、忠実に従うこと」を入れた（LICENCE が正本。README.md、CLAUDE.md、ecaljdoc の MainDocument と

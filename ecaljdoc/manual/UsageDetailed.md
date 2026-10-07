@@ -314,8 +314,8 @@ In cases, it is easy, but in cases not so easy. So, it is better to use your own
 ## 4f and 5f atoms
 We need special care to treat atoms where 4f and 5f are fractionally filled.
 The atomlist defaults for 4f atoms were updated 2025-08-21 (5f not yet);
-the same defaults are picked up by `ctrlgenToml.py` (which extracts the
-atomlist from `ctrlgenM1.py` at runtime). Only limited tests yet —
+the same defaults are used by `ctrlgenToml.py` (the table `SRC/exec/pylib/atomlist.py`;
+until 2026-10-07 it was read from `ctrlgenM1.py`, now removed). Only limited tests yet —
 make sure by yourself.
 
 Here is the setting for RareEarth rocksalt nitrides ReN such as ErN.

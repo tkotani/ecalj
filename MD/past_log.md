@@ -348,6 +348,15 @@ ecaljdoc の `BackUp/`（148 本、35 MB: 初版の GW マニュアル `man-gw.t
 - **MTO だけの模型**（`README_HamMTO.html`、2019）: Si で pwmode = 0 にするとギャップが約 0.2 eV 大きすぎる（既定の MTO が局在しすぎ）
 - 文献の bib（`GWmanual/ecaljrefs.bib` 499 KB、`ecaljdetails/ecaljrefs_detail.bib`、`refsk.bib`）は参照の元に使える
 
+## 15. 2026-05 より前の入力の流れのスクリプト（`ctrlgenM1.py`、`auto_creplot.py`、`auto_job_mp.py`、2026-10-07 に trash）
+
+- `ctrlgenM1.py`（T. Kotani・H. Kino、2013〜）: `ctrls.<ext>` から旧形式の `ctrl` の雛形を作っていた。2026-05 から Fortran は `ctrlg.<ext>.toml` だけを読み、起動するとすぐ終わる形にしてあった。
+  元素ごとの既定の表（`atomlist`、R は Å）だけを `ctrlgenToml.py` が実行時に読み出していたので、その表を `SRC/exec/pylib/atomlist.py` に移した（`72967dec5`、出力は一字一句同じ）。
+  MT 半径の上限（`r_upper_limit`）は `ctrlgenToml.py` にある
+- `auto_creplot.py`・`auto_job_mp.py`（originally Shota Takano 2025）: Materials Project の構造から LDA・QSGW を自動で回す旧い流れ（ctrlgenM1.py → `ctrl.<id>` → GWinput）。
+  2026-05 以降は動かない。GW1500 の 2026 年の量産は `ecalj_auto/gw1500_rerun.sh` などで回した。同じ系統の `ecalj_auto/auto/`（job_mp.py、creplot.py、jobsubmit.py、mpquery.py など）は残してある
+  （mpquery.py の MP からの取得はまだ役に立ちうる。捨てるかは user が決める）
+
 ## 表 1. 片付けたもの（trash に移したもの）
 
 最上位の `MATERIALS/` は trash ではなく `Samples/MATERIALS/` へ移した（§9）。
@@ -392,6 +401,7 @@ ecaljdoc の `BackUp/`（148 本、35 MB: 初版の GW マニュアル `man-gw.t
 | 2026-10-01 | `SRC/exec` の行き先の無いリンク 12 本（`mlo`、`libecaljF.so`、`hgw_combined`、`hrcxq` など、消した `SRC/exec/build/` を指していた。`.#genMLWF` を除く 11 本と `.#genMLWF` も追跡されていた。`hgw_combined`・`hrcxq` は `6e2903731` から） | `SRC/exec/` | `9fdb8adda` | — |
 | 2026-10-01 | 旧形式の古いサンプル（30 項目） | `Samples/MATERIALS/`（元は最上位の `MATERIALS/`、624 ファイル） | `52a14ecea` | §9 |
 
+| 2026-10-07 | 2026-05 より前の入力の流れのスクリプト 3 本（user「ctrlgenM1.py 消そう」「もういらないよね」） | `SRC/exec/ctrlgenM1.py`、`SRC/exec/auto_creplot.py`、`SRC/exec/auto_job_mp.py` | `72967dec5` | §15 |
 注: サンプルの古い試行と控えは、MLOsamples の `test*`・`temp`・`*.bk`・`*.tmp`（§4.1）、`Samples/TestInstall/TESTunused`、
 `Samples/TestInstall/eras/occnum.eras.bk`、`TOOLS/FparserTools/f_calltree.py.bk*`、`TOOLS/SrcFragments/f_calltree.py.bk*`・`ANALYZEnotusednow/analyze_temp~`、
 `ecalj_auto/INPUT/testSGA/joblist.bk`。

@@ -27,7 +27,7 @@ lmchk gives useful information of space group symmetry recognized by lmf. In add
 
 ### MT radius determined by lmchk
 The ideal choice of sphere radii best approximates a potential that is spherical within the MT spheres and flat outside. Program lmchk has implemented one algorithm that makes a reasonable initial choice for MT radii. The algorithm works by computing the (electrostatic) potential obtained from overlapping free-atom densities along all connecting vectors between a given site and its relatively near neighbors. The MT radius is taken as the first potential maximum along any ray. This choice is a pretty reasonable estimate for the potential being approximately spherical inside. Also, note that for a completely symmetric bond, the potential maximum will fall exactly midway between the bond, so for that case the two sphere radii will exactly touch and have equal potentials. To tell lmchk to find these radii, invoke lmchk as
-`lmchk --getwsr`. This is performed automatically in `ctrlgenToml.py` (and the legacy `ctrlgenM1.py`).
+`lmchk --getwsr`. This is performed automatically in `ctrlgenToml.py`.
 * In addition, `ctrlgenToml.py` enforces a limit on the maximum radius for alkali atoms, to avoid the linear-dependency problem between APWs and MTOs.
 
 * When we treat molecules (especially dimers), we have to use very small size of MT radius. T.Kotani checked PMT works well even for such systems. However, we need examination a little more.
