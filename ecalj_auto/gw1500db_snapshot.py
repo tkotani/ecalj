@@ -95,6 +95,8 @@ sec = f'''
   Read with `numpy.load`.
 - `history.tsv`: every run of every material; `later_list.tsv`: the materials left for later (and runs still RUNNING).
 - The raw run directories (wave functions, self-energies) are not published; they are kept by the maintainers.
+- Terms of use: the data CC BY 4.0, the code and the inputs AGPLv3 (as ecalj); cite this database with its version, ecalj and the papers
+  ([LICENSE.md](../LICENSE.md) of the repository).
 '''
 i = t.find('\n## ')
 t = (t[:i] + '\n' + sec + t[i:]) if i > 0 else t + sec

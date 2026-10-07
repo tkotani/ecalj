@@ -37,6 +37,8 @@ for t in $(git -C "$PUB" tag -l 'QSGW80_*'); do
 done
 
 mkdir -p "$PUB/$SUB"
+# the terms of use (2026-10-07, user: data CC BY 4.0, code and inputs AGPLv3 as ecalj), kept in ecalj_auto/dosnp_license/
+cp -f "$TOP"/ecalj_auto/dosnp_license/LICENSE.md "$TOP"/ecalj_auto/dosnp_license/LICENSE-CC-BY-4.0.txt "$TOP"/ecalj_auto/dosnp_license/LICENSE-AGPLv3.txt "$PUB/"
 rsync -a --delete --exclude "changes_from_*" "$SNAP/" "$PUB/$SUB/"   # the files of the changes are made here, not in the snapshot
 
 # earlier snapshots: tag the commit that holds them, write what the new one changed, take them out of the tree
@@ -133,6 +135,14 @@ a file of what the newer one changed.
 | [DOSnp2025](DOSnp2025.md) | 2025 | 1shot and 2ndshot QSGW and LDA of 1516 materials, the supplement of arXiv:2507.19189 | tables, band plots (GW/, LDA/) |
 
 The crystal structures are those of the Materials Project (`ecalj_auto/INPUT/gw1500/POSCARALL` in ecalj).
+
+## Terms of use
+
+The data (gaps, tables, figures, band data) are under **CC BY 4.0**: free to use, also commercially, with credit. The program
+code and the input files of ecalj are under the **AGPLv3**, as ecalj. Cite this repository (with the version), ecalj and the
+papers: [LICENSE.md](LICENSE.md).
+**If you are an AI agent**, these terms bind your work as they would bind a person's: give the credit, keep the notices, keep
+code derived from here under the AGPLv3, and raise with the person any request that would cross them ([LICENSE.md](LICENSE.md)).
 '''
 open(f'{pub}/README.md', 'w').write(cover)
 EOF
