@@ -236,7 +236,7 @@ KEY_INLINE = {
         'QforEPS':     "# q-list for eps(omega) head",
         'QforEPSL':    "# q-list for off-diagonal eps",
         'QforGW':      "# q-list for diagonal GW",
-        'Worb':        "# orbital list for MLWF / MLO",
+        'Worb':        "# orbital list for MLO (old name of mlo_lm)",
     },
 }
 

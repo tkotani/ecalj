@@ -24,8 +24,8 @@
 !                                 syntax: 1d-7 -> 1e-7, "on"/"off" -> true/false,
 !                                 "n1n2n3 4 4 4" -> n1n2n3 = [4, 4, 4])
 !    mlo_*  (any)              -> [mlo]     key = value   (MLO model)
-!    wan_*  (any)              -> [gw]      only needed by hmaxloc (cRPA, magnon);
-!                                 comment them out otherwise
+!    wan_*  (any)              -> not read since 2026-10-02 (the Wannier functions were removed with hmaxloc;
+!                                 tag last-wannier); cRPA and magnons use the MLO model
 !    <PRODUCT_BASIS> tolerance -> [product_basis] pb_tolerance = [..]
 !    <PRODUCT_BASIS> lcutmx    -> [product_basis] pb_lcutmx    = [..]
 !    <PRODUCT_BASIS> nlx / valence / core tables
