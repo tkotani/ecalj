@@ -22,8 +22,8 @@ hero:
       text: Theory
       link: /theory/gw
     - theme: alt
-      text: QSGW database (under construction)
-      link: https://github.com/tkotani/DOSnpSupplement/blob/main/bandpng.md#band-structure--total-dos
+      text: GW1500 database (QSGW80)
+      link: https://github.com/tkotani/DOSnpSupplement#readme
     - theme: brand
       text: Download ecalj package
       link: https://github.com/tkotani/ecalj

@@ -87,7 +87,7 @@ As a rule of thumb, it takes about 10 hours for 20 atoms
 * Here is the QSGW cycle shown in Figure 1 in https://arxiv.org/abs/2506.03477 . MPB meand the mixed product basis to expand products of eigenfunctions. 
 ![alt text](image-4.png) 
 * We have [GPU acceleration for QSGW](https://arxiv.org/abs/2506.03477), which also describe basics of QSGW.  QSGW algorism fits to GPU computations very well. With four GPUs, we can compute systems with 40 atoms per cell. (As for lmf part, GPUs are not efficiently used yet.). Our PMT allows us to handle large vaccum region for slab model.
-* We can perform QSGW virtually without parameter settings by hands. Thus I think ecalj is one of the easiest to perform GW/QSGW. See band database in QSGW at https://github.com/tkotani/DOSnpSupplement/blob/main/bandpng.md (this is a supplement of https://arxiv.org/abs/2507.19189).  This is away from complete database, but showing the ability of ecalj.
+* We can perform QSGW virtually without parameter settings by hands. Thus I think ecalj is one of the easiest to perform GW/QSGW. See the band database in QSGW at https://github.com/tkotani/DOSnpSupplement (GW1500: QSGW80 of 1546 materials, from 2026-10; the 2025 version, a supplement of https://arxiv.org/abs/2507.19189, is its `DOSnp2025.md`).
 
 ![alt text](image-2.png) This is taken from  [4][D.Deguchi](https://github.com/ecalj/ecaljdoc/blob/main/presentations/deguchi2016.pdf)
 
