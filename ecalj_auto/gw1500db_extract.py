@@ -6,10 +6,11 @@ A tag ending in 'mlo' (2026-10-04) reads the MLO bands of gw1500_mlo.sh in that 
 ef= of bandplot_MLO.isp1.glt, the same reference as the bnd files) with the check bandcheck.json and mlo_version.txt.
 Writes <out dir>/<mpid>.<tag>.npz with
     x (nx,), E (nb, nx) eV from E_F (bands with any point within [-25, 25] eV), seg (nx,) segment index,
-    lab, labx (k-point labels and positions), ef_ry, dosE (eV from E_F), dos (states/eV, both spins), nspin,
+    lab, labx (k-point labels and positions), ef_ry, dosE (eV from E_F; dos_ref='E_F' marks the files after the fix of 2026-10-07),
+    dos (states/eV, both spins), nspin,
     and the gap along the path: vbm, cbm (eV), gap_path, gap_direct_path, xv, xc (where VBM and CBM sit), metal (bool).
 The bnd files of job_band: one file per segment of the path; columns: band index, x, E - E_F (eV), dE/dx, q.
-The header '#   97   <E_F in Ry>  QPE(ev)'.  dos.tot.<mpid>.chk: E (Ry, absolute), DOS (per Ry), per spin.
+The header '#   97   <E_F in Ry>  QPE(ev)'.  dos.tot.<mpid>.chk: E - E_F (Ry), DOS (per Ry), per spin.
 """
 import glob, json, os, re, sys
 import numpy as np
@@ -59,22 +60,33 @@ def read_dos(d, mpid, ef_ry):
             if a.ndim != 2:
                 return None, None, 0
             nsp = a.shape[1] - 1
-            return ((a[:, 0] - ef_ry) * RY).astype(np.float32), (a[:, 1:].sum(axis=1) / RY).astype(np.float32), nsp
+            # the first column is already E - E_F (Ry): m_bndfp writes eee = ... - eferm.
+            # Bug fixed 2026-10-07 19:14: E_F was subtracted again, so every DOS panel was shifted by ef_ry (N8 +5.0 eV);
+            # npz files of before carry no dos_ref and are corrected by gw1500db_fixdos.py
+            return (a[:, 0] * RY).astype(np.float32), (a[:, 1:].sum(axis=1) / RY).astype(np.float32), nsp
     return None, None, 0
 
 
-def gaps(x, E):
-    """The band gap along the path: the band count n where max(E[:n]) < min(E[n:]) with E_F (0) inside or within 0.05 eV
-    of that window (the VBM on the path can sit a few meV above the E_F fixed on the k mesh). No such n: a metal."""
+def gaps(x, E, insul=True):
+    """The band gap along the path: the band count n with max(E[:n]) < min(E[n:]) whose window is nearest to E_F (0), within
+    0.5 eV (the VBM on the path can lie above the E_F fixed on the k mesh when the mesh misses it), the same rule as pathgap of
+    gw1500db_build.py. No such window, or insul=False (the k mesh gives no gap): a metal.
+    Bug fixed 2026-10-07 19:09: the window had to hold E_F within 0.05 eV, so 61 insulators (h-BN mp-685145 5.95 eV: its VBM at K
+    on the path is 0.06 eV above E_F) were written as metals."""
     E = np.sort(E, axis=0)
-    top = np.maximum.accumulate(E.max(axis=1)); bot = np.minimum.accumulate(E.min(axis=1)[::-1])[::-1]
-    for n in range(1, len(E)):
-        if top[n - 1] < bot[n] and top[n - 1] <= 0.05 and bot[n] >= -0.05:
-            v = E[:n].max(axis=0); c = E[n:].min(axis=0)
-            iv, ic = int(v.argmax()), int(c.argmin())
-            return dict(metal=False, vbm=float(v[iv]), cbm=float(c[ic]), gap_path=float(c[ic] - v[iv]),
-                        gap_direct_path=float((c - v).min()), xv=float(x[iv]), xc=float(x[ic]), nocc=n)
-    return dict(metal=True, vbm=np.nan, cbm=np.nan, gap_path=0.0, gap_direct_path=0.0, xv=np.nan, xc=np.nan, nocc=0)
+    best = None
+    for n in range(1, len(E)) if insul else ():
+        t, b = float(E[:n].max()), float(E[n:].min())
+        if t < b:
+            dist = 0.0 if t <= 0 <= b else min(abs(t), abs(b))
+            if dist <= 0.5 and (best is None or dist < best[0]):
+                best = (dist, n)
+    if best is None:
+        return dict(metal=True, vbm=np.nan, cbm=np.nan, gap_path=0.0, gap_direct_path=0.0, xv=np.nan, xc=np.nan, nocc=0)
+    n = best[1]; v = E[:n].max(axis=0); c = E[n:].min(axis=0)
+    iv, ic = int(v.argmax()), int(c.argmin())
+    return dict(metal=False, vbm=float(v[iv]), cbm=float(c[ic]), gap_path=float(c[ic] - v[iv]),
+                gap_direct_path=float((c - v).min()), xv=float(x[iv]), xc=float(x[ic]), nocc=n)
 
 
 def read_mlo(d):
@@ -150,7 +162,7 @@ def main():
             g = gaps(x, E)
             np.savez_compressed(f'{out}/{mpid}.{tag}.npz', x=x.astype(np.float32), E=E[keep].astype(np.float32),
                                 seg=seg.astype(np.int16), lab=np.array(lab), labx=np.array(labx, np.float32), ef_ry=ef,
-                                dosE=dE if dE is not None else np.zeros(0, np.float32),
+                                dosE=dE if dE is not None else np.zeros(0, np.float32), dos_ref='E_F',
                                 dos=dos if dos is not None else np.zeros(0, np.float32), nspin=nspin, **g)
             print(f'{mpid} {tag} OK gap_path={g["gap_path"]:.3f} direct={g["gap_direct_path"]:.3f} metal={g["metal"]}')
         except Exception as e:

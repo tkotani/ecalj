@@ -14,6 +14,8 @@ needed to reproduce it: the input ctrlg, the band data, the gaps and the conditi
 """
 import sys, os, csv, shutil, glob
 import numpy as np
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from gw1500db_extract import gaps
 
 db, inp, out, label = sys.argv[1:5]
 os.makedirs(out, exist_ok=True)
@@ -49,6 +51,8 @@ for r in rows:
         how = {'N': 'the database run N (2026-10-02..07)', 'E': 'the run with empty spheres E (2026-10-05..07)',
                'R': f'the rerun R ({open(d + "/run.txt").read().strip() if os.path.exists(d + "/run.txt") else ""}, 2026-09-30..10-02)',
                'M': 'the May 2026 production M (legacy ctrl of before the TOML input)'}[a]
+        if a == 'E' and m in eh and eh[m]['es'] == '0':
+            how += ' (the rule found no void: no ES, the same input as N run again with the later ecalj)'
         open(f'{o}/source.txt', 'w').write(f'{m}: input of {how}; ecalj {r["version"]}; host {eh[m]["host"] if a == "E" and m in eh else r["host"]}\n'
                                            'ctrlg.<mpid>.toml is the input as it was at the end of the run (gwsc may have set keys such as readp);\n'
                                            'syml.<mpid> is the band path of the figure. See README.md, "Files for reproducing".\n')
@@ -58,9 +62,18 @@ for r in rows:
     tl = 'es_lda' if a == 'E' else ('db_lda' if os.path.exists(f'{db}/npz/{m}.db_lda.npz') else 'may_lda')
     parts = {'qsgw80': load(m, tq), 'lda': load(m, tl), 'mlo': load(m, 'db_mlo')}
     pack = {}
+    def fnum(s):
+        try: return float(s)
+        except (TypeError, ValueError): return None
+    gq, gl = fnum(r['gap']), fnum(r['lda'])
     for k, v in parts.items():
         if v is None: continue
         for key in v.files: pack[f'{k}_{key}'] = v[key]
+        if k in ('qsgw80', 'lda') and 'x' in v.files:
+            # the gap keys again by the rule of the table (gw1500db_build.pathgap): npz files extracted before 2026-10-07 19:09
+            # have metal=True for 61 insulators (gaps of gw1500db_extract)
+            g = gq if k == 'qsgw80' else gl
+            for key, val in gaps(v['x'], v['E'], insul=g is not None and g > 0.05).items(): pack[f'{k}_{key}'] = np.array(val)
     if pack:
         os.makedirs(f'{out}/bands', exist_ok=True)
         pack['source'] = np.array(f'{m}: qsgw80 from {tq}, lda from {tl}, mlo from db_mlo (adopted set {a}); energies in eV from the VBM '
