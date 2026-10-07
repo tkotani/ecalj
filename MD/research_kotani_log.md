@@ -87,6 +87,19 @@
 
 ## 2026-10-07 — 板と真空の構造の MLO: ES は真空の中央ではなく、表面のすぐ外に積層を延ばして置く（GW1500 の続き。10-06 までは下の「2026-10-02 夜」の節）
 
+### 10-07 14:11 **全物質の MLO を、標準でないやり方も使って作る**（user「標準手法でないやりかたでもいいからまずはつくってくれたらいいわ」）
+
+- **誤りの修正**: feed4 が ES 入りの MAXITER の run も MLO にし、同期は `run_es/<m>` を優先していたので、QSGW80 を N から採っている NaPF₆・C₄O₄ mp-11875・N8・Sr の
+  MLO が収束していない ES 入りの run のものだった。t14 の `run_es/<m>` を `old_es_maxiter/` へ、データベースの `<m>.db_mlo.npz` を `.from_es_maxiter` へよけ、
+  feed4 を CONVERGED だけに（再起動）。NaPF₆ は N の MLO（PASS）に戻る
+- **MLO の無い 6 件**（Cs₄Se₂ mp-569272・Na₂H₂O₂ mp-23891（run3）、Bi₄Te₂I₂ mp-23435・Cs₄Te₄ mp-8361（run1）、Sr mp-1056418（run2m）、Cs₄I₄ mp-1079694（N の時間切れ、
+  10-03 に描いたバンド））を、採った QSGW80 の run の PlotBand から標準の処方で作っている（t14 `~/work/gw1500mlo2/mlo_from_old_runs.sh`、status.log に OLD の行）
+- **H₂ mp-632291**: 関数を減らすほど良い。H s + EH2 s + ES s（6 軌道）で **0.114 eV**（内側 0.109、PASS の基準のすぐ外）。さらに減らすと崩れる（H s + EH2 s 4.77、
+  H s + ES s 2.92）。標準でない版 `x_s_only` としてデータベースに載せた（`run_es/mp-632291/x_s_only`、best.txt、db_notes、`722819fa9` で図と README に「BY HAND」）
+- **H8**: 同じく s だけにすると 0.807 eV（伝導帯 16〜17 eV に p が要る）。本番の b2（0.154）のまま
+- **C₄O₄・N8**（N の run の上）: EH2 の組を変えても b2all（0.21、0.52）より良くならない（C₄O₄ 0.29〜1.76、N8 0.51〜1.57）。ES 入りの QSGW80 は、N8 が 10 反復とも
+  nogap（dqp 68.8 eV）、C₄O₄ がギャップ 7.7〜9.6 eV で振れ続けた。どちらも ES 3.45〜3.5 a.u.。ES を 2.5 a.u.（s）にして kt1 で回し直し（es_custom、キューの最後）
+
 ### 10-07 12:01 **K₄BeP₂: K の大きい球の間の ES（2.9 a.u.）で LDA が壊れる。augmentation を厚くしても直らず、ES を小さく（2.2）すれば通る**（user「Sr とかアルカリ、アルカリ土類において半径が大きいと PMT 法がうまく行かない場合がある。augmentation によって内部自由度が捨てられるのだがその部分がまるまる不定な要素がある」）
 
 - kt1 の ES 入り mp-9872（10:08）が LDA で FAIL（負の密度、「fermi does not encompass qval」）。ES 1 個（すき間 3.25 a.u.、半径 2.9、s、lmxa 2）が K（2.6 a.u.）と K の間
