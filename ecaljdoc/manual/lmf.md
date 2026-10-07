@@ -28,7 +28,12 @@ lmchk gives useful information of space group symmetry recognized by lmf. In add
 ### MT radius determined by lmchk
 The ideal choice of sphere radii best approximates a potential that is spherical within the MT spheres and flat outside. Program lmchk has implemented one algorithm that makes a reasonable initial choice for MT radii. The algorithm works by computing the (electrostatic) potential obtained from overlapping free-atom densities along all connecting vectors between a given site and its relatively near neighbors. The MT radius is taken as the first potential maximum along any ray. This choice is a pretty reasonable estimate for the potential being approximately spherical inside. Also, note that for a completely symmetric bond, the potential maximum will fall exactly midway between the bond, so for that case the two sphere radii will exactly touch and have equal potentials. To tell lmchk to find these radii, invoke lmchk as
 `lmchk --getwsr`. This is performed automatically in `ctrlgenToml.py`.
-* In addition, `ctrlgenToml.py` enforces a limit on the maximum radius for alkali atoms, to avoid the linear-dependency problem between APWs and MTOs.
+* In addition, `ctrlgenToml.py` enforces upper limits of the radius (a.u.): H 1.4, Li and Be 2.7, Na and Mg 2.4, K and Ca 2.6, Rb and Cs 2.4,
+  Sr and Ba 2.8, others 3.0 (`r_upper_limit`; H, Rb and Cs from 2026-10-07, before H had none and Rb, Cs 2.8).
+  A large sphere around an atom whose valence states are spread out (alkali s, H 1s) gains nothing: those states are carried by the
+  envelope functions outside. It can instead make ghost levels, because the part of the envelope functions that augmentation throws
+  away inside the sphere is left undetermined (Rb2Sc2O4 with Rb 2.8 a.u. had them in LDA). Atoms with a bound d (Sr 4d, Ba 5d) keep a
+  larger sphere: the d must sit inside it.
 
 * When we treat molecules (especially dimers), we have to use very small size of MT radius. T.Kotani checked PMT works well even for such systems. However, we need examination a little more.
 

@@ -3,6 +3,12 @@
 2026-10-02 に `Changes.txt` から改名した（中身は同じ。日付の行を見出しにし、本文の字下げを外しただけ）。
 新しい項目は一番上に `## YYYY-MM-DD (n)` で書く。要約は ecaljdoc の [manual/whatsnew.md](ecaljdoc/manual/whatsnew.md)。
 
+## 2026-10-07 (2)
+
+`ctrlgenToml.py` の MT 半径の上限を変えた: H 1.4 a.u.（今までは全体の上限 3.0 だけ）、Rb・Cs 2.8 → 2.4 a.u.（Sr・Ba は 2.8 のまま）。
+アルカリの s や H の 1s のように広がった状態の原子では、大きい球は得るものが無く、球の中で捨てる包絡関数の成分が不定になって偽の準位を作ることがある
+（Rb₂Sc₂O₄ で LDA にも QSGW80 にも出た）。Rb・Cs・H を含む物質で作り直した ctrlg は、球と rsmh（= r/2）が前と違う。説明は ecaljdoc lmf.md の MT 半径の節。
+
 ## 2026-10-07 (1)
 
 旧い入力の流れのスクリプト `ctrlgenM1.py`、`auto_creplot.py`、`auto_job_mp.py` を外した（2026-05 から動いていなかった）。

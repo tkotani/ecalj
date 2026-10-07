@@ -324,12 +324,21 @@ def fmt_mat3x3(rows):
 # ---------------------------------------------------------------------------
 
 def r_upper_limit(z, r):
+    """Upper limits of the MT radius (a.u.). A large sphere of an atom whose valence states are spread out (alkali s, H 1s)
+    gains nothing and can make ghost levels: the part of the envelope functions thrown away by augmentation is left undetermined
+    inside it (2026-10-07 17:53, user; Rb2Sc2O4 mp-7650 with Rb 2.8 a.u. had ghost levels near A in LDA and QSGW80, gone at 2.6 and below).
+    Rb, Cs: 2.8 -> 2.4 (2.0-2.8 changed the gaps of RbBr, CsCl, CsF, Rb2Sc2O4 by at most 0.014 eV); H: none -> 1.4 (1.0-1.8 in
+    NaH, LiH by at most 0.006 eV; 1s at 1.06). Sr and Ba keep 2.8: their bound d (Sr 4d at 2.15, Ba 5d at 2.51 a.u.) needs the
+    sphere (BaO: the conduction band at Gamma moved by 0.3 eV between 2.4 and 2.8). Future (smaller spheres): MD/TODOandQuestion.md."""
     z = float(z)
-    if r > 2.7 and 2.8 < z < 4.2:    r = 2.7
-    if r > 2.4 and 10.8 < z < 12.2:  r = 2.4
-    if r > 2.6 and 18.8 < z < 20.2:  r = 2.6
-    if r > 2.8 and 36.8 < z < 38.2:  r = 2.8
-    if r > 2.8 and 54.8 < z < 56.2:  r = 2.8
+    if r > 1.4 and 0.8 < z < 1.2:    r = 1.4   # H (2026-10-07 17:53)
+    if r > 2.7 and 2.8 < z < 4.2:    r = 2.7   # Li, Be
+    if r > 2.4 and 10.8 < z < 12.2:  r = 2.4   # Na, Mg
+    if r > 2.6 and 18.8 < z < 20.2:  r = 2.6   # K, Ca
+    if r > 2.4 and 36.8 < z < 37.2:  r = 2.4   # Rb (2.8 until 2026-10-07 17:53)
+    if r > 2.8 and 37.8 < z < 38.2:  r = 2.8   # Sr
+    if r > 2.4 and 54.8 < z < 55.2:  r = 2.4   # Cs (2.8 until 2026-10-07 17:53)
+    if r > 2.8 and 55.8 < z < 56.2:  r = 2.8   # Ba
     if r > 3.0:                      r = 3.0
     return r
 
