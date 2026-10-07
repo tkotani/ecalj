@@ -59,6 +59,7 @@ export default withMermaid({
           { text: 'TOML migration (2026-05)', link: '/manual/toml_migration' },
           { text: 'Samples (where what lives)', link: '/manual/samples' },
           { text: 'DFT  calculation : lmf part', link: '/manual/lmf' },
+          { text: 'MT 半径の上限と偽の準位', link: '/manual/mtradius' },
           { text: 'Command-line options (--foo) catalogue', link: '/manual/cmdopts' },
           { text: 'QSGW calculation: gwsc part', link: '/manual/gwsc' },
           { text: 'GPU version of QSGW',link: '/manual/ecaljgpu.md' },

@@ -33,7 +33,7 @@ The ideal choice of sphere radii best approximates a potential that is spherical
   A large sphere around an atom whose valence states are spread out (alkali s, H 1s) gains nothing: those states are carried by the
   envelope functions outside. It can instead make ghost levels, because the part of the envelope functions that augmentation throws
   away inside the sphere is left undetermined (Rb2Sc2O4 with Rb 2.8 a.u. had them in LDA). Atoms with a bound d (Sr 4d, Ba 5d) keep a
-  larger sphere: the d must sit inside it.
+  larger sphere: the d must sit inside it. The example and the scan: [mtradius.md](./mtradius.md).
 
 * When we treat molecules (especially dimers), we have to use very small size of MT radius. T.Kotani checked PMT works well even for such systems. However, we need examination a little more.
 
