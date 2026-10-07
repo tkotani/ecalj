@@ -672,6 +672,12 @@ moved the QP levels by at most {TRUNC_DQP} eV (check `truncated`, from 2026-10-0
                 '| rule | from | ES placement |\n| --- | --- | --- |\n')
         for t, k, d in ES_RULES:
             f.write(f'| {k} | {t} | {d} |\n')
+        f.write('\n**The MT radii changed after these runs** (ecalj e52ca3564, 2026-10-07). Every value here was computed with the caps of '
+                'its time: H none (3.0 a.u.), Rb and Cs 2.8 a.u. The present `ctrlgenToml.py` caps H at 1.4 and Rb, Cs at 2.4 a.u. (a large sphere '
+                'around an atom with spread-out valence states can make ghost levels). **A rerun with the present ecalj gives slightly different '
+                'values for the 135 materials with H (20), Rb (59) or Cs (59) whose spheres change**: in LDA tests the gaps moved by at most '
+                '0.014 eV (RbBr, CsCl, CsF, Rb2Sc2O4, NaH, LiH), but a ghost level, as in Rb2Sc2O4, disappears. Rb2Sc2O4 (mp-7650) was rerun by hand '
+                'with Rb 2.5 a.u. (see its note).\n')
         f.write(f'''
 Common to all: LDA (VWN) as the starting point and for the LDA column, PMT basis (APW + MTO) made by `ctrlgenToml.py`
 (M: its predecessors), no spin polarization, no spin-orbit coupling.
