@@ -425,6 +425,11 @@ def main():
         for l in open(f'{WORK}/db_notes.tsv'):
             if '\t' in l:
                 k, v = l.rstrip('\n').split('\t', 1); DBN[k] = v
+    RUN = {}   # 2026-10-07 18:59: runs going on when the database is made (running.tsv: mpid, since, what); shown in the table and the later list
+    if os.path.exists(f'{WORK}/running.tsv'):
+        for l in open(f'{WORK}/running.tsv'):
+            w = l.rstrip('\n').split('\t')
+            if len(w) >= 3 and w[0].startswith('mp-'): RUN[w[0]] = f'RUNNING since {w[1]}: {w[2]}'
     D = load_db_logs(db)
     E = load_db_logs(db, 'logs_es')
     E1 = load_db_logs(db, 'logs_e1')
@@ -509,7 +514,7 @@ def main():
                          category=cat, lda=lda, gap=gap, adopt=adopt or '', others=others, flag=flag, di=di,
                          iters={k: v[k].get('iter') for k in v}, mp_pbe=mp.get('band_gap'), ehull=mp.get('energy_above_hull'),
                          icsd=bool((mp.get('database_IDs') or {}).get('icsd')), old2=o.get('shot2'), old1=o.get('shot1'),
-                         note=n['note'], dbnote=DBN.get(m, ''), host=v.get('N', {}).get('host', ''),
+                         note=n['note'], dbnote=' — '.join(x for x in (RUN.get(m, ''), DBN.get(m, '')) if x), running=RUN.get(m, ''), host=v.get('N', {}).get('host', ''),
                          version=version(adopt, v.get(adopt, {}).get('host', '') if adopt else '', v.get(adopt, {}).get('worker', '') if adopt else '',
                                          v.get(adopt, {}).get('rule', '') if adopt else ''), spike=sp, km=km,
                          gap_path=pq['gap'] if pq else None, hist=H.get(m, ''),
@@ -624,6 +629,8 @@ def later_list(rows, D):
     """[(row, why)]: no adopted QSGW80, or no MLO model of grade PASS/OK (2026-10-06)"""
     out = []
     for r in rows:
+        if r.get('running'):
+            out.append((r, r['running'])); continue
         d = D.get(r['mpid']); last = f" (last database run: {d['verdict']}, iteration {d['iter']}, dqp {d['dqp']})" if d else ''
         if r['category'] in ('TOO_THEORETICAL', 'TOO_LARGE') and r['adopt']:
             out.append((r, f"skipped: {r['category']} (the QSGW80 value is kept, no MLO model)"))
