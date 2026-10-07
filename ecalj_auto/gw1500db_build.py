@@ -778,7 +778,7 @@ material (e.g. `x_s_only`: solid H2 with H s, EH2 s and ES s only; the EH2 p of 
 The model matrices (hundreds of MB per material) are not kept; the recipe makes them again.
 Models so far: {len(ml)} ({', '.join(f'{k} {v}' for k, v in mc.most_common())}).
 ''')
-        EXPL = {'CHECK': f'QSGW80 results of different conditions differ by more than {LARGE} eV',
+        EXPL = {'CHECK': f'QSGW80 results of different conditions differ by more than {LARGE} eV; kept for reference (user 2026-10-07): most differ only from the May value M (the all-TF32 precision of that time; 81 of 100 on 2026-10-07), the rest from the runs before the empty spheres or older conditions',
                 'differs': f'they differ by {AGREE}–{LARGE} eV',
                 'QSGW<LDA': 'the QSGW80 gap is smaller than the LDA gap by more than 0.05 eV',
                 'path<mesh(mesh)': 'the gap along the band path is smaller than the gap on the k mesh of lmf by more than 0.1 eV, and in LDA by more than 0.05 eV: the 8x8x8 mesh misses the band extremum (the true gap is nearer the path value)',
