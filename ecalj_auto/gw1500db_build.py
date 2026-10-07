@@ -332,6 +332,16 @@ def figure(db, m, title, curves, dm, gap, path):
 
 # The ES placement changed during the ES runs (user 2026-10-06: "rules change on the way; write by which rule and code"). A run
 # took the rule in force when it started (log time minus its seconds); the time is when ctrlg_addes.py was replaced on kt1 and kr7.
+# ES placed by hand (kt1 /mnt/data1/gw1500es/es_custom/ctrlg.<mpid>.toml, taken by gw1500_addes.py, 2026-10-07): the rule es-c gave a
+# broken or a non-converging run, or an MLO model that missed a state; the rule for slabs and molecular crystals is still to be made
+HAND_ES = {'mp-570572': 'C3N4: ctrlg_addes.py --rmin 1.8, three ES between the layers (2.96, 2.54, 2.30 a.u.)',
+           'mp-154': 'N8: ES 2.5 a.u., s (3.45 a.u. of the rule: no gap in 10 iterations)',
+           'mp-11875': 'C4O4: ES 2.5 a.u., s (3.5 a.u. of the rule: the gap swung 7.7–9.6 eV)',
+           'mp-9872': 'K4BeP2: one ES of 2.2 a.u. (2.9 a.u. of the rule broke the LDA between the large K spheres)',
+           'mp-726184': 'PbS slab: ES on the next layer outside both surfaces (2.6 a.u.) and one at the vacuum centre (2.9 a.u.)',
+           'mp-554134': 'SnS slab: ES outside both surfaces and two at the vacuum centre (2.65 a.u.)',
+           'mp-561320': 'PbS slab: ES outside both surfaces (the values shown; a run with one more ES at the vacuum centre is going on)'}
+
 ES_RULES = [('2026-10-05 00:00', 'es-a', 'ES on whole Wyckoff orbits, radius 0.9 x void (at most 4.0 a.u.); distances by wrapping each '
              'fractional coordinate (the ES of oblique cells could overlap)'),
             ('2026-10-06 12:12', 'es-b', 'as es-a with the distances to the nearest images, also bounded by the shortest lattice vector '
@@ -645,6 +655,45 @@ def later_list(rows, D):
     return out
 
 
+def evaluation(rows, fl):
+    """Overall evaluation (user 2026-10-07: "評価についても"書いておく): what is done, what can be trusted, what is left."""
+    n = len(rows); got = [r for r in rows if r['adopt']]
+    trunc = [r for r in got if 'truncated' in r['flag']]
+    run = [r for r in rows if r.get('running')]
+    rule = Counter(re.search(r'ES rule (es-\w)', r['version']).group(1) for r in got if r['adopt'] == 'E' and 'ES rule' in r['version'])
+    ml = [r for r in rows if r.get('mlo_check')]
+    mc = Counter(r['mlo_check'] for r in ml); mv = Counter(r['mlo_variant'] for r in ml if r.get('mlo_variant'))
+    bad = [r for r in ml if r['mlo_check'] in ('FAIR', 'FAIL', 'OK', 'SKIPPED')]
+    def li(r):
+        mx = f", largest deviation {float(r['mlo_max']):.2f} eV" if r.get('mlo_max') not in (None, '') and r['mlo_check'] != 'SKIPPED' else ''
+        return f"{r['formula']} {r['mpid']} ({r['mlo_check']}{mx}{', ' + r['category'] if r['mlo_check'] == 'SKIPPED' else ''})"
+    s = f'''## Overall evaluation (2026-10-07)
+
+- **QSGW80 values: {len(got)} of {n} materials** ({', '.join(f'{k} {v}' for k, v in Counter(r['adopt'] for r in got).most_common())};
+  {len(trunc)} truncated). {', '.join(f"{r['formula']} {r['mpid']}" for r in rows if not r['adopt']) or 'none'} without a value
+  (the cell is too large: atoms set far apart). QSGW80 itself failed for no material once the conditions were right: the failures
+  of the earlier runs came from the TF32 precision of May, the k mesh, or empty spheres that overlapped or were too large.
+  {('Still running: ' + ', '.join(f"{r['formula']} {r['mpid']}" for r in run) + ' (the values of its earlier run are shown).') if run else ''}
+- **Empty spheres** (set E, {sum(1 for r in got if r['adopt'] == 'E')} materials) by one rule, `ctrlg_addes.py`, whose version is written per material:
+  {', '.join(f'{k} {v}' for k, v in sorted(rule.items()))} (table "Rules that changed" below; no ES overlaps another sphere in any input, checked
+  2026-10-07). {len(HAND_ES)} materials have ES placed by hand where the rule failed (slabs with a vacuum, molecular crystals,
+  a small void between large K spheres):
+''' + ''.join(f'  - {v} ({k})\n' for k, v in HAND_ES.items()) + f'''
+- **MLO models: {len(ml)}** ({', '.join(f'{k} {v}' for k, v in mc.most_common())}), by the standard recipe ({', '.join(f'{k} {v}' for k, v in mv.most_common())};
+  see "MLO models"). Not PASS: {'; '.join(li(r) for r in bad)}. A largest deviation up to 0.3 eV (FAIR) is fit to present.
+  Most troubles of the models were troubles of the QSGW80 bands they are compared with: states in a vacuum or a void without ES,
+  or a ghost level of a large MT sphere (Rb2Sc2O4, see "Conditions"), not a lack of basis.
+- **Gaps to read with care**: path-metal ({fl.get('path-metal', 0)}, graphite-like carbons: semimetals although the 8x8x8 mesh
+  gives a gap), path<mesh(mesh) ({fl.get('path<mesh(mesh)', 0)}: the true gap is nearer the gap along the path), CHECK ({fl.get('CHECK', 0)},
+  kept for reference: mostly the May value M differs).
+- **Corrected on 2026-10-07**: the DOS panel of every figure was shifted by E_F (dos.tot holds E − E_F; it was subtracted
+  again). The figures of the 2026-10-03 database QSGW80_2026 have this error; its gaps and bands are not affected.
+  Before this snapshot was made, the band panels of 5 materials rerun with ES by hand (N8, C4O4, PbS mp-726184 and mp-561320,
+  SnS mp-554134) still showed the run before; they were extracted again.
+'''
+    return s
+
+
 def readme(db, rows, D, cnt, fl, pages):
     import datetime
     now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
@@ -662,6 +711,7 @@ and results of different conditions are compared.
 - Materials: Materials Project, paramagnetic, no lanthanides or actinides, PBE gap > 0, at most 8 atoms per cell
   (structures `ecalj_auto/INPUT/gw1500/POSCARALL`). The structures of MP are not always the experimental ones.
 
+''' + evaluation(rows, fl) + f'''
 ## Conditions
 
 **Each material: check which ecalj made its value before comparing it with your own calculation.** The table gives, per
@@ -773,7 +823,9 @@ the k mesh of lmf (8x8x8). The rule:
    orbital whose band lies above E_F − 17 eV, or above a model band, is added to the model; a d one in the window replaces the
    d function of the atom.
 3. When the baseline is not PASS: the same with EH2 s,p added to the cations (variant `+EH2 s,p cations`) and to every atom
-   but the transition metals, 4f and 5f (`+EH2 s,p all`); the best grade is taken, the simpler one on a tie.
+   but the transition metals, 4f and 5f (`+EH2 s,p all`); when neither passes and the material has K, Ca, Rb, Sr, Cs, Ba, Cu, Ag
+   or Au, also EH2 d on the first six and EH2 s,p on the noble metals (`b2d`); the best grade is taken, the simpler one on a tie
+   (variant names in `gw1500db.tsv`: b1, b2, b2all, b2d).
 
 Grade, against the QSGW80 bands along the path in the window [VBM − 8 eV, CBM + 2 eV] (metals: E_F): PASS = largest deviation
 ≤ 0.1 eV, no jump > 0.1 eV between neighbouring k, no broken band; OK = PASS in the inner window up to CBM + 1.5 eV and the
@@ -842,7 +894,7 @@ Models so far: {len(ml)} ({', '.join(f'{k} {v}' for k, v in mc.most_common())}).
   `path<mesh(mesh)`). Graphite-like carbons are semimetals although the mesh shows a gap (`path-metal`).
 - GW mesh 4x4x4, QSGW80 (80 % of the QSGW self-energy, which corrects the overestimate of QSGW gaps for the average of
   materials), no spin polarization, no spin-orbit coupling, LDA starting point, structures of Materials Project.
-- The DOS of the figures is that of lmf, written up to a little above E_F (the conduction-band DOS is not shown).
+- The DOS of the figures is the total DOS of lmf on the k mesh (tetrahedron method). Before 2026-10-07 19:14 it was drawn shifted by E_F.
 - Band plots interpolate the self-energy between the mesh points; a check compares the same k points met twice.
 
 ## Files and how this was made
@@ -852,7 +904,8 @@ Models so far: {len(ml)} ({', '.join(f'{k} {v}' for k, v in mc.most_common())}).
 - `gw1500db.tsv`: one row per material (all columns of the table, the other results in `others`, notes in `dbnote`)
 - `fig/<mpid>.png`. The raw data behind the figures (`npz/<mpid>.<tag>.npz`, bands and DOS; tags `may_qsgw`, `may_lda`, `rr_<run>`,
   `db_qsgw`, `db_lda`, `db_mlo`) and the logs of the runs are kept by the maintainers and are not in the published copy
-- Published at https://github.com/tkotani/DOSnpSupplement/tree/main/QSGW80_2026 (by `TOOLS/publish_gw1500db.sh` of ecalj)
+- Published as dated snapshots (QSGW80_2026 of 2026-10-03, QSGW80_<yyyymmdd> from 2026-10-07, with the inputs and the band data) at
+  https://github.com/tkotani/DOSnpSupplement (`ecalj_auto/gw1500db_snapshot.py` and `TOOLS/publish_gw1500db.sh` of ecalj)
 - ecalj `ecalj_auto/`: `gw1500_rerun.sh` (the runs, `T_TETRAKBT`, `ES_RMIN`), `gw1500_mlo_std.sh` (the MLO models), `gw1500db_extract.py`, `gw1500db_build.py`,
   `gw1500_reorder.py`; the status of the earlier runs `GW1500_status.md`, `gw1500_status_20260930.tsv`, `gw1500_notes_20261001.tsv`
 - Machines: kt1 (RTX 5090 x2, 64 cores, 4 workers x 16 cores), kr7 (RTX 5090, 16 cores, 2 workers x 8 cores)

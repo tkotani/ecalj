@@ -62,6 +62,9 @@ and the code of their date.
 | [DOSnp2025](DOSnp2025.md) | 2025 | 1shot and 2ndshot QSGW and LDA of 1516 materials, the supplement of arXiv:2507.19189 | tables, band plots (GW/, LDA/) |
 
 The crystal structures are those of the Materials Project (`ecalj_auto/INPUT/gw1500/POSCARALL` in ecalj).
+
+Erratum (2026-10-07): in the figures of QSGW80_2026 the DOS panel is shifted by E_F (the gaps and the bands are right);
+corrected from QSGW80_20261007 on.
 '''
 open(f'{pub}/README.md', 'w').write(cover)
 EOF
