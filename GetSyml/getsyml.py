@@ -205,7 +205,7 @@ for ipath in a['path']:
     ppp= ppp[0]*qqq[0]+ppp[1]*qqq[1] +ppp[2]*qqq[2]
     ee1,ee2,ee3 = [ float(ppp[ix]) for ix in range(0,3)]
     dis= ((ee1-ii1)**2+(ee2-ii2)**2+(ee3-ii3)**2)**.5
-    ndiv=max(int(totalbandpoint*dis/distot),3) #this controls number of divisions
+    ndiv=max(int(totalbandpoint*dis/distot),5) #this controls number of divisions. At least 5 points per segment (2026-10-07 16:47, was 3; user: a short Gamma-A of a long c axis needs 5, Rb2Sc2O4 mp-7650 had 3)
     print(ii1,ii2,ii3,ii)
     linex= '{0}  {1} {2} {3}  {4} {5} {6}  {7} {8}\n'.format(ndiv,ii1,ii2,ii3,ee1,ee2,ee3,ii,ee)
     sfile.write(linex)
