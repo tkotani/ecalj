@@ -84,6 +84,7 @@ def load_db_logs(db, sub='logs'):
     return D
 
 
+FAIR_MAX = 0.3   # eV: an MLO model graded FAIL whose largest deviation is at most this is shown as FAIR (2026-10-07, user)
 TRUNC_DQP = 0.1   # eV: a TIMEOUT or MAXITER run whose last iteration moved the QP levels by at most this is taken, as "truncated"
 
 
@@ -269,7 +270,10 @@ def mlo_title(dm, gap):
     if 'gapM' in dm and gap is not None and gap > 0.05:
         t += f"gap {float(dm['gapM']):.2f} (QSGW80 {float(dm['gapD']):.2f}) eV, "
     if 'rms_m2d' in dm:
-        t += f"rms {float(dm['rms_m2d']):.3f}, max {float(dm['max']):.2f} eV: {dm['grade'] if 'grade' in dm else dm['check']}"
+        g = str(dm['grade'] if 'grade' in dm else dm['check'])
+        if g == 'FAIL' and float(dm['max']) <= FAIR_MAX:
+            g = 'FAIR'
+        t += f"rms {float(dm['rms_m2d']):.3f}, max {float(dm['max']):.2f} eV: {g}"
     return t
 
 
@@ -494,6 +498,8 @@ def main():
                       **{f'mlo_{k}': float(dm[k]) for k in ('gapM', 'gapD', 'dVBM', 'dCBM', 'rms_m2d', 'max') if k in dm})
             if cat == 'TOO_THEORETICAL':   # 2026-10-07 14:54: the model is not taken for a structure without physical meaning
                 ml['mlo_check'] = 'SKIPPED'
+            if ml['mlo_check'] == 'FAIL' and ml.get('mlo_max') is not None and ml['mlo_max'] <= FAIR_MAX:
+                ml['mlo_check'] = 'FAIR'   # 2026-10-07 14:55 (user: "0.24 とかはプレゼンして問題ない"); grade.json keeps FAIL
             if ml['mlo_check'] == 'FAIL':
                 an.append('MLO-FAIL')
         flag = ' '.join(an)
@@ -621,8 +627,8 @@ def later_list(rows, D):
             out.append((r, 'not computed: TOO_LARGE (the cell is too large for the present runs)'))
         elif not r['adopt']:
             out.append((r, 'no QSGW80 result' + last))
-        elif r.get('mlo_check') == 'FAIL':
-            out.append((r, f"MLO FAIL (max {fmt(r.get('mlo_max'))} eV, {r.get('mlo_variant', '')})"))
+        elif r.get('mlo_check') in ('FAIL', 'FAIR'):
+            out.append((r, f"MLO {r['mlo_check']} (max {fmt(r.get('mlo_max'))} eV, {r.get('mlo_variant', '')})"))
         elif not r.get('mlo_check'):
             out.append((r, f"no MLO model yet (QSGW80 from {r['adopt']})"))
     return out
@@ -754,7 +760,8 @@ the k mesh of lmf (8x8x8). The rule:
 
 Grade, against the QSGW80 bands along the path in the window [VBM − 8 eV, CBM + 2 eV] (metals: E_F): PASS = largest deviation
 ≤ 0.1 eV, no jump > 0.1 eV between neighbouring k, no broken band; OK = PASS in the inner window up to CBM + 1.5 eV and the
-largest deviation in the whole window ≤ 0.2 eV (the top of the window, where steep bands enter); FAIL = otherwise.
+largest deviation in the whole window ≤ 0.2 eV (the top of the window, where steep bands enter); FAIR (from 2026-10-07, shown
+here only; the check itself says FAIL) = largest deviation ≤ {FAIR_MAX} eV, a model fit to present (user); FAIL = otherwise.
 Variants whose name starts with `x_` were made by hand outside the recipe for materials it does not pass (user 2026-10-07:
 "標準手法でないやりかたでもいいからまずはつくって"); what was changed is in the variant name, the figure title and the note of the
 material (e.g. `x_s_only`: solid H2 with H s, EH2 s and ES s only; the EH2 p of the recipe made the MLO overlap singular).
