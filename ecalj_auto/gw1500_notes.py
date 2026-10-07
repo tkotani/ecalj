@@ -40,6 +40,8 @@ SUBLATTICE = {
  'mp-569304': '硝酸を挿入した黒鉛（Graphite, nitrated）から N・O を除いたもの。密度 1.38（黒鉛 2.26）、層間が開いたまま',
  'mp-569416': '硝酸を挿入した黒鉛から N・O を除いたもの。密度 1.67（黒鉛 2.26）',
 }
+# 2026-10-07 14:54: skipped as too theoretical (the MLO model is not made; the QSGW80 value is kept): the Sr chain cut out of Sr-Co-O
+TOO_THEORETICAL = {'mp-1056418'}
 # The same shape as the misfit sublattices above (a ~ 4.2 A, c 11-22 A, rock-salt-like layers with coordination 4-5),
 # though the ICSD remarks do not name the other compound.
 SUSPECT_STRUCT = {
@@ -101,7 +103,9 @@ def main():
     for r in st:
         m = r['mpid']; x = mp.get(m, {}); R = rr.get(m)
         notes = []
-        if m in INVALID:
+        if m in TOO_THEORETICAL:   # 2026-10-07 14:54 (user: "Sr は skipped (too theoretical) とかにする？")
+            cat = 'TOO_THEORETICAL'; notes.append('物理的な意味の無い構造なので MLO は作らない（skipped）')   # the structure: SUBLATTICE below
+        elif m in INVALID:
             cat = 'TOO_LARGE'; notes.append(INVALID[m])   # INVALID_STRUCTURE until 2026-10-06 19:28 (user: "大きすぎる、というべきかな")
         elif m in SUSPECT_STRUCT:
             cat = 'SUSPECT_STRUCTURE'; notes.append(SUSPECT_STRUCT[m])
@@ -151,7 +155,7 @@ def main():
     from collections import Counter
     c = Counter(r['category'] for r in rows)
     print(OUT, len(rows), dict(c))
-    for cat in ('FAILED_MAY', 'UNKNOWN_MAY', 'SUSPECT_GOOD', 'NOTCONV_MAY', 'TOO_LARGE', 'SUSPECT_STRUCTURE'):
+    for cat in ('FAILED_MAY', 'UNKNOWN_MAY', 'SUSPECT_GOOD', 'NOTCONV_MAY', 'TOO_LARGE', 'TOO_THEORETICAL', 'SUSPECT_STRUCTURE'):
         sub = [r for r in rows if r['category'] == cat]
         print(f"{cat:18s} {len(sub):4d}  rerun: {dict(Counter(r['rerun_verdict'] or 'not yet' for r in sub))}")
 
