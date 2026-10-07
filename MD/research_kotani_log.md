@@ -87,6 +87,17 @@
 
 ## 2026-10-07 — 板と真空の構造の MLO: ES は真空の中央ではなく、表面のすぐ外に積層を延ばして置く（GW1500 の続き。10-06 までは下の「2026-10-02 夜」の節）
 
+### 10-07 17:10 **アルカリ・アルカリ土類の MT 半径の上限を、元素ごとに小さめに固定する（user 判断）。走査を kt1 で**
+
+- user「アルカリ、アルカリ土類の半径は固定することにしようか。最大値を小さめに固定する」「多少の全エネルギーゲインには目をつぶる。システマティクスが大事（おなじ MT 半径を使う）」。
+  `ctrlgenToml.py` の `r_upper_limit` にすでに上限がある（Li・Be 2.7、Na・Mg 2.4、K・Ca 2.6、Rb・Sr 2.8、Cs・Ba 2.8、全体 3.0）。GW1500 では K・Rb・Cs・Ca・Sr・Ba の
+  ほとんどがこの上限の値（kt1 run_db の ctrlg、Na 72、K 106、Rb 59、Cs 59、Mg 31、Ca 43、Sr 46、Ba 67 物質）。この値を下げる
+- 走査: 元素ごとに上限の値の 2 原子の化合物 2 件（Na: NaH・NaAuC₂、K: KI・KBr、Rb: RbBr・RbI と対照の Rb₂Sc₂O₄、Cs: CsF・CsCl、Mg: K₂Mg₂As₂・K₂Mg₂Bi₂、Ca: CaSe・CaTe、
+  Sr: SrS・SrTe、Ba: BaSe・BaO）、上限から 0.1 a.u. ずつ 0.4 下げた 5 通り、LDA のバンド（道筋は最低 5 点）。kt1 `/mnt/data1/rscan/`（`rscan_one.sh`、`rscan_jobs.txt`）。
+  偽の状態は、一番小さい半径の帯に 0.05 eV 以内の相手のいない準位として数える（縮退の決まりに頼らない）
+- 最初の 85 本は誤り: lmfa を mpirun なしで呼んで MPI_Init で落ち、ctrlgenToml が作った元の半径の `__atm` を lmf が読んだ（半径を変えないものだけ通り、失敗が隠れた）。
+  `mpirun -np 1 lmfa` にして回し直し（ログ `rscan_bad_lmfa.log` は残した）
+
 ### 10-07 17:00 **Rb₂Sc₂O₄: Rb 2.5 a.u. の QSGW80 が収束（6.058 eV）、MLO b1 PASS 0.040 eV。データベースの N に採った**
 
 - 半径の走査を -4〜25 eV、道筋の区間を最低 5 点で描き直した（`~/work/mlo_vac/Rb2Sc2O4_mp-7650_LDA_radii_wide.png`）: 偽の状態は A の近くに何本もあり、球を小さくすると
