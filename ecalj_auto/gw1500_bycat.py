@@ -14,8 +14,7 @@ D = Path(__file__).parent
 notes = list(csv.DictReader(open(D/'gw1500_notes_20261001.tsv'), delimiter='\t'))
 lda = {r['mpid']: r['gap_LDA_eV'] for r in csv.DictReader(open(D/'gw1500_status_20260930.tsv'), delimiter='\t')}
 ORDER = [
- ('TOO_LARGE', 'Rb8 だけ。胞が大きすぎる（一辺 19.9 Å、4410 Å³、平面波 3.2 万、lmf --jobgw=1 が 1 ランク 35 GB）。構造も Rb-IV の高圧相を MP が圧力ゼロで緩和したもので、Rb8 の環が離れて並ぶ。2026-10-06 19:28 までの名前は INVALID_STRUCTURE（user「大きすぎる、というべきかな」）。その前（10-01〜10-06）は別の化合物の副格子 11 件も入っていた'),
- ('TOO_THEORETICAL', 'Sr mp-1056418 だけ（2026-10-07 14:54 から、user「Sr は skipped (too theoretical) とかにする？」）。Sr–Co–O の Sr の鎖を抜き出した構造（1 原子 462 Å³）。QSGW80 の値は残し、MLO は作らない'),
+ ('TOO_LARGE', '原子が大きく間隔を置いて並んだだけの大きい胞（user「原子を間隔を置いていったようなもの」）。Rb8 と Sr mp-1056418（Sr は 2026-10-07 18:51 から。それまで TOO_THEORETICAL、1 原子 462 Å³、QSGW80 の値は残し MLO は作らない）。Rb8: 胞が大きすぎる（一辺 19.9 Å、4410 Å³、平面波 3.2 万、lmf --jobgw=1 が 1 ランク 35 GB）。構造も Rb-IV の高圧相を MP が圧力ゼロで緩和したもので、Rb8 の環が離れて並ぶ。2026-10-06 19:28 までの名前は INVALID_STRUCTURE（user「大きすぎる、というべきかな」）。その前（10-01〜10-06）は別の化合物の副格子 11 件も入っていた'),
  ('SUSPECT_STRUCTURE', 'ICSD の備考には出ないが、非整合層状化合物の副格子と同じ形（1 原子の体積が岩塩型の約 2〜4 倍、配位 4〜5）'),
  ('MAY_WRONG', '5 月のギャップが誤り（LDA より小さい）。回し直しの値を使う'),
  ('FAILED_MAY', '5 月に使える結果が無かった。回し直しで全部収束'),

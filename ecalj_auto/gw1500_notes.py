@@ -40,7 +40,8 @@ SUBLATTICE = {
  'mp-569304': '硝酸を挿入した黒鉛（Graphite, nitrated）から N・O を除いたもの。密度 1.38（黒鉛 2.26）、層間が開いたまま',
  'mp-569416': '硝酸を挿入した黒鉛から N・O を除いたもの。密度 1.67（黒鉛 2.26）',
 }
-# 2026-10-07 14:54: skipped as too theoretical (the MLO model is not made; the QSGW80 value is kept): the Sr chain cut out of Sr-Co-O
+# 2026-10-07 14:54: the Sr chain cut out of Sr-Co-O; its MLO model is skipped, the QSGW80 value kept. Category TOO_THEORETICAL until
+# 2026-10-07 18:51, then TOO_LARGE like Rb8 (user: "どっちも TOO_Large かな"; 462 A^3 per atom)
 TOO_THEORETICAL = {'mp-1056418'}
 # The same shape as the misfit sublattices above (a ~ 4.2 A, c 11-22 A, rock-salt-like layers with coordination 4-5),
 # though the ICSD remarks do not name the other compound.
@@ -104,7 +105,7 @@ def main():
         m = r['mpid']; x = mp.get(m, {}); R = rr.get(m)
         notes = []
         if m in TOO_THEORETICAL:   # 2026-10-07 14:54 (user: "Sr は skipped (too theoretical) とかにする？")
-            cat = 'TOO_THEORETICAL'; notes.append('物理的な意味の無い構造なので MLO は作らない（skipped）')   # the structure: SUBLATTICE below
+            cat = 'TOO_LARGE'; notes.append('胞が大きい（1 原子 462 Å³）。QSGW80 の値は残し、MLO は作らない（skipped。2026-10-07 18:51 まで TOO_THEORETICAL）')   # the structure: SUBLATTICE below
         elif m in INVALID:
             cat = 'TOO_LARGE'; notes.append(INVALID[m])   # INVALID_STRUCTURE until 2026-10-06 19:28 (user: "大きすぎる、というべきかな")
         elif m in SUSPECT_STRUCT:

@@ -491,12 +491,14 @@ def main():
             an.append(f"N:{dn['verdict']}")
         dm = npz(db, m, 'db_mlo')
         ml = {}
+        if dm is None and cat == 'TOO_LARGE':   # 2026-10-07 18:51 (user: "Rb8 も Skipped かな"): not computed, shown as SKIPPED like TOO_THEORETICAL
+            ml = dict(mlo_check='SKIPPED')
         if dm is not None:
             ml = dict(mlo_n=int(dm['nmlo']), mlo_check=str(dm['grade'] if 'grade' in dm else dm['check']), mlo_fail=str(dm['fail']),
                       mlo_version=str(dm['version']), mlo_variant=str(dm['variant']) if 'variant' in dm else 'b1',
                       mlo_es=bool(dm['es']) if 'es' in dm else False,
                       **{f'mlo_{k}': float(dm[k]) for k in ('gapM', 'gapD', 'dVBM', 'dCBM', 'rms_m2d', 'max') if k in dm})
-            if cat == 'TOO_THEORETICAL':   # 2026-10-07 14:54: the model is not taken for a structure without physical meaning
+            if cat in ('TOO_THEORETICAL', 'TOO_LARGE'):   # 2026-10-07 14:54: the model is not taken for a structure without physical meaning
                 ml['mlo_check'] = 'SKIPPED'
             if ml['mlo_check'] == 'FAIL' and ml.get('mlo_max') is not None and ml['mlo_max'] <= FAIR_MAX:
                 ml['mlo_check'] = 'FAIR'   # 2026-10-07 14:55 (user: "0.24 とかはプレゼンして問題ない"); grade.json keeps FAIL
@@ -546,6 +548,8 @@ def mlocell(r):
     """the MLO model in one cell: check, number of MLOs, gap of the model when an insulator, rms and max error (eV)"""
     if not r.get('mlo_check'):
         return ''
+    if r['mlo_check'] == 'SKIPPED' and 'mlo_n' not in r:
+        return 'SKIPPED'
     g = f" gap {r['mlo_gapM']:.2f}" if r.get('gap') and r['gap'] > 0.05 and r.get('mlo_gapM') is not None else ''
     return f"{r['mlo_check']} ({r.get('mlo_variant', 'b1')}{', ES' if r.get('mlo_es') else ''}) {r['mlo_n']}{g} rms {r.get('mlo_rms_m2d', 0):.3f} max {r.get('mlo_max', 0):.2f}"
 
@@ -621,8 +625,8 @@ def later_list(rows, D):
     out = []
     for r in rows:
         d = D.get(r['mpid']); last = f" (last database run: {d['verdict']}, iteration {d['iter']}, dqp {d['dqp']})" if d else ''
-        if r['category'] == 'TOO_THEORETICAL':
-            out.append((r, 'skipped: TOO_THEORETICAL (a structure without physical meaning; the QSGW80 value is kept, no MLO model)'))
+        if r['category'] in ('TOO_THEORETICAL', 'TOO_LARGE') and r['adopt']:
+            out.append((r, f"skipped: {r['category']} (the QSGW80 value is kept, no MLO model)"))
         elif not r['adopt'] and r['category'] == 'TOO_LARGE':
             out.append((r, 'not computed: TOO_LARGE (the cell is too large for the present runs)'))
         elif not r['adopt']:
@@ -852,8 +856,8 @@ Models so far: {len(ml)} ({', '.join(f'{k} {v}' for k, v in mc.most_common())}).
 GOOD: converged in May. DRIFT_GOOD: converged but the gap drifted over the iterations. SUSPECT_GOOD: converged, but the
 iterations oscillated. NOTCONV_MAY: not converged within 10 iterations in May. FAILED_MAY: crashed in May (mostly the
 all-TF32 precision of that time). UNKNOWN_MAY: no gap (metals, semimetals). MAY_WRONG: the May value was wrong.
-TOO_THEORETICAL: Sr (mp-1056418, from 2026-10-07), a Sr chain cut out of Sr-Co-O (462 A^3 per atom); its QSGW80 value is
-listed, its MLO model is skipped. TOO_LARGE: Rb8 (mp-1179832), the cell too large (19.9 A, 4410 A^3, 32 000 plane waves, 35 GB per rank in lmf --jobgw=1); also
+TOO_LARGE: atoms set far apart in a large cell (user: "原子を間隔を置いていったようなもの"). Sr (mp-1056418), a Sr chain cut out of Sr-Co-O (462 A^3 per atom; its QSGW80 value is listed, its MLO model is
+skipped; TOO_THEORETICAL on 2026-10-07 14:54 to 2026-10-07 18:51), and Rb8 (mp-1179832), the cell too large (19.9 A, 4410 A^3, 32 000 plane waves, 35 GB per rank in lmf --jobgw=1); also
 the high-pressure Rb-IV relaxed by MP at zero pressure (Rb8 rings far apart). Not run with empty spheres. Named INVALID_STRUCTURE
 until 2026-10-06 19:28, and until 2026-10-06 14:56 that category also had 11 sublattices cut out of other compounds (misfit layer compounds,
 a hydroxide, nitrated graphite); they now have the category of their May runs, the structure is written in the note
