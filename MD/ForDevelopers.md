@@ -400,8 +400,9 @@ gwsc 10 -np 64 <sname> > gwsc.log 2>&1
   git unpack-objects < /tmp/main.pack && git update-ref refs/heads/main <new> && git checkout main
   ```
   チェックアウトを邪魔する未追跡のファイルがあれば退避してから。版は `SRC/.ecalj_rev` ではなく `git log -1`（ucgw は `sync_ecalj_src.sh` の対象に入っていない）
-- ジョブの中の Python は 3.11 以上が要る（gwsc が tomllib を使う）。ucgw の計算ノードでどれを使うかはここには記録が無いので、最初に
-  `qsub` の小さなジョブで `python3 --version` を確かめる
+- ジョブの中の Python は 3.11 以上が要る（gwsc が tomllib を使う）。`~/.pyenv` の 3.12 には numpy・matplotlib が無く、試験の 7 組
+  （EPS、PROCAR、SLAB、EffectiveMass、DOS、IIR、AtomDimer）が止まった（2026-10-07）。`~/anaconda3/bin`（3.12.2: numpy、scipy、matplotlib。
+  getsyml の spglib・seekpath は 2026-10-07 に pip で足した）を `PATH` の先にする
 - [`ecalj_auto/jobtemplate.ucgw`](../ecalj_auto/jobtemplate.ucgw)（GW1500 の量産に使った雛形）は `-pe smp`（1 ノード）と `-V`、`-q` でノードを並べる別の形。上の形は多ノードの 1 本用
 - 本番の NiO の入力（メッシュ、時間とメモリの目安）はまだ無い。試験の [`Samples/TestInstall/nio_gwsc444`](../Samples/TestInstall/nio_gwsc444)（AF II、4³）が出発点になる
 
