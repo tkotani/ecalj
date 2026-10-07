@@ -2,7 +2,7 @@
 """
 ctrlgenToml.py — generate ctrlg.<ext>.toml from ctrls.<ext>.
 
-Companion to ctrlgenM1.py (which generates a legacy ctrl template).
+(ctrlgenM1.py, which generated the legacy ctrl template, went to trash on 2026-10-07.)
 Same ctrls.<ext> input and the same periodic-table atomlist defaults,
 but emits the one structured TOML file that today's Fortran reads directly
 (lmf side via m_ctrl_toml_loader, GW side via m_GWinput). The per-atom
@@ -53,9 +53,8 @@ Inputs:
 Outputs:
     ctrlg.<ext>.toml — schema-typed TOML, ready for lmfa/lmf/gwsc.
 
-Compatibility note: ctrlgenM1.py + ctrl2ctrltoml.py is preserved as
-the legacy path. As of 2026-05 the Fortran reads ctrlg.<ext>.toml
-only; ctrlgenM1.py exits immediately with a pointer to this script.
+As of 2026-05 the Fortran reads ctrlg.<ext>.toml only. The default parameters per element are in pylib/atomlist.py
+(from ctrlgenM1.py, 2026-10-07).
 
 2026-05-03 T.K. + Claude.
 """
@@ -69,22 +68,9 @@ from pylib.toml_comments import fmt_section_header, fmt_key_inline, apply_toml_a
 from pylib.toml_tidy import tidy_gw_sections
 
 # ---------------------------------------------------------------------------
-# Atomlist — extracted at runtime from ctrlgenM1.py so there's a single
-# source of truth for the periodic-table defaults.
+# Atomlist: the default parameters per element (pylib/atomlist.py; read from ctrlgenM1.py until 2026-10-07)
 # ---------------------------------------------------------------------------
-
-def _load_atomlist():
-    here = os.path.dirname(os.path.realpath(__file__))
-    m1path = os.path.join(here, 'ctrlgenM1.py')
-    if not os.path.exists(m1path):
-        sys.exit('ctrlgenToml: cannot find ctrlgenM1.py at ' + m1path)
-    src = open(m1path).read()
-    m = re.search(r'atomlist\s*=\s*"""(.*?)"""', src, re.DOTALL)
-    if not m:
-        sys.exit('ctrlgenToml: failed to extract atomlist from ctrlgenM1.py')
-    return m.group(1)
-
-atomlist = _load_atomlist()
+from pylib.atomlist import atomlist
 
 # Build dicatom: 'Si' -> ' atomz=14@ eh=-1*4@ eh2=-2*3@ R=1.15@'
 dicatom = {}
@@ -115,7 +101,7 @@ for sym, body in dicatom.items():
         pass
 
 # ---------------------------------------------------------------------------
-# CLI parsing (mirrors ctrlgenM1.manip_argset)
+# CLI parsing (as manip_argset of the former ctrlgenM1.py)
 # ---------------------------------------------------------------------------
 
 def parse_args(argv):
@@ -152,8 +138,7 @@ def parse_args(argv):
         elif a == '--addgw':              opts['addgw'] = True
         elif a == '--showatomlist':
             # Print the atomlist (periodic-table defaults) and exit;
-            # no <ext> required.  The atomlist is shared with the
-            # legacy ctrlgenM1.py via runtime regex extraction.
+            # no <ext> required (the table of pylib/atomlist.py).
             print(atomlist)
             sys.exit(0)
         elif a in ('-h', '--help'):
@@ -180,7 +165,7 @@ def parse_args(argv):
     return opts
 
 # ---------------------------------------------------------------------------
-# ctrls.<ext> parser (lifted from ctrlgenM1.lineReadfile / GetCat)
+# ctrls.<ext> parser (lineReadfile / GetCat of the former ctrlgenM1.py)
 # ---------------------------------------------------------------------------
 
 def line_read(filename):
@@ -335,7 +320,7 @@ def fmt_mat3x3(rows):
     return '\n        '.join(lines)
 
 # ---------------------------------------------------------------------------
-# R upper limits (mirror ctrlgenM1)
+# R upper limits (as in the former ctrlgenM1.py until 2026-10-07)
 # ---------------------------------------------------------------------------
 
 def r_upper_limit(z, r):
