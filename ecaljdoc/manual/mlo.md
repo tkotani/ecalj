@@ -5,6 +5,10 @@ ecalj branch `mlo3` / 2026-09-16 17:02 JST
 **MLO (MTO-based Localized Orbitals) は、最大局在化 Wannier 関数
 (MLWF) の代わりに使う局在基底である。**
 
+**ecalj の模型化は 2026-10-02 から MLO だけである。** 最大局在化 Wannier 関数の経路（`genMLWFx`、`hmaxloc`、`wanplot`、Wannier のマグノン、
+AHC）は外した。模型のハミルトニアン、v・W・cRPA（`job_mloW`）、広がり（`mlo_spread.py`）、マグノン（`job_mlo_magnon`）は、どれも MLO の基底で計算する。
+外す前の版は git のタグ `last-wannier` にある。下の「Wannier」の記述は、比べるための過去の記録である（§6 の表 M7 など）。
+
 MLWF は「広がりを最小にする」という条件でユニタリ変換を非線形最適化して求める。
 強力だが、初期推定 (projection) を人が与える必要があり、収束が初期値に依存し、
 エンタングルした帯では disentanglement の窓をさらに手で決めることになる。
