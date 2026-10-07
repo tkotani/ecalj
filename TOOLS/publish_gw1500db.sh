@@ -37,7 +37,7 @@ for t in $(git -C "$PUB" tag -l 'QSGW80_*'); do
 done
 
 mkdir -p "$PUB/$SUB"
-rsync -a --delete "$SNAP/" "$PUB/$SUB/"
+rsync -a --delete --exclude "changes_from_*" "$SNAP/" "$PUB/$SUB/"   # the files of the changes are made here, not in the snapshot
 
 # earlier snapshots: tag the commit that holds them, write what the new one changed, take them out of the tree
 for d in "$PUB"/QSGW80_*; do
@@ -101,7 +101,7 @@ fi
 
 # the cover: the snapshot in the tree, the earlier ones by their tags
 python3 - "$PUB" "$SUB" $(git -C "$PUB" tag -l 'QSGW80_*' --format='%(refname:short):%(contents:subject)' | sed -n 's/^\([^:]*\):GW1500 database \([^ ]*\) of \([0-9-]*\).*/\1:\2:\3/p') <<'EOF'
-import sys, os, re
+import sys, os, re, glob
 pub, sub, tags = sys.argv[1], sys.argv[2], sys.argv[3:]
 t = open(f'{pub}/{sub}/README.md').read()
 made = re.search(r'Made (\d{4}-\d\d-\d\d \d\d:\d\d)', t); made = made.group(1) if made else ''
@@ -115,7 +115,12 @@ for x in sorted(tags, reverse=True):
     rows.append(f'| [{d}](https://github.com/tkotani/DOSnpSupplement/tree/{tag}/{d}) (git tag `{tag}`) | {day} | the earlier version'
                 + (f'; [what {sub} changed]({ch}) (a past log)' if os.path.exists(f'{pub}/{ch}') else '')
                 + ' | in the tag only; the DOS panel of its figures is shifted by E_F |')
+bands = sorted(glob.glob(f'{pub}/{sub}/bands_*atoms.md'), key=lambda x: int(re.search(r'bands_(\d+)atoms', x).group(1)))
+blinks = ', '.join(f"[{re.search(r'bands_(\d+)atoms', b).group(1)} atoms]({sub}/{os.path.basename(b)})" for b in bands)
 cover = f'''# DOSnpSupplement — band gaps of the GW1500 materials by ecalj
+
+**Bands and DOS of the newest version ({sub}), by the number of atoms in the cell:** {blinks}.
+Gaps of all materials: [{sub}/table.md]({sub}/table.md).
 
 Databases of band gaps, band structures and DOS of about 1500 nonmagnetic materials of the Materials Project, computed with
 [ecalj](https://github.com/tkotani/ecalj) (QSGW, LDA, MLO models). Each database has its own cover page with the conditions,
