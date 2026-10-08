@@ -253,8 +253,8 @@ VERSION = {'M': '2026-04/05 (~/bin2, all-TF32 --mp)', 'R': '989a18637 (fp32, t_t
 def version(adopt, host, worker='', rule=''):
     if adopt == 'N':
         return VERSION.get(f'N_{host}', 'N')
-    if adopt == 'E':   # by the worker: E* the frozen b695fa65c of kr7, F* 614ab5eb8 (kr7), G* and T* (the ES tests of 2026-10-07) 0601771b4 (kt1)
-        b = 'b695fa65c' if worker.startswith('E') else ('0601771b4' if worker[:1] in ('G', 'T') else '614ab5eb8')
+    if adopt == 'E':   # by the worker: E* the frozen b695fa65c of kr7, F* 614ab5eb8 (kr7), G*, T* (the ES tests of 2026-10-07) and D* (run_esd, 2026-10-09) 0601771b4 (kt1)
+        b = 'b695fa65c' if worker.startswith('E') else ('0601771b4' if worker[:1] in ('G', 'T', 'D') else '614ab5eb8')
         return f'{b} (tf32, t_tetrakbt -300) with ES' + (f', ES rule {rule}' if rule else '')
     return VERSION.get(adopt, '')
 

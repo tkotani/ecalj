@@ -183,14 +183,20 @@ def main():
     ap.add_argument('--scale', type=float, default=0.9, help='ES radius / void radius')
     ap.add_argument('--rmax', type=float, default=3.5, help='largest ES radius (a.u.)')   # 4.0 until 2026-10-06 13:08 (see the docstring)
     ap.add_argument('--rsp', type=float, default=3.0, help='an ES of this radius (a.u.) or larger gets s,p; a smaller one s only')
+    ap.add_argument('--rfloor', type=float, default=1.5, help='an orbit whose ES radius would be smaller than this (a.u.) is left out')
     a = ap.parse_args()
     f = f'ctrlg.{a.sname}.toml'; t = open(f).read(); d = tomllib.loads(t)
     if any(s['z'] == 0 for s in d['spec']): sys.exit(f'{f} has an empty sphere already (z = 0); nothing done')
     alat, plat, pos = structure(d)
-    es, nops = wyckoff_voids(find_voids(plat, pos, a.rmin), plat, d, a.scale, a.rmax, clearance_fn(plat, pos))
+    found = find_voids(plat, pos, a.rmin)
+    es, nops = wyckoff_voids(found, plat, d, a.scale, a.rmax, clearance_fn(plat, pos), rfloor=a.rfloor)
     voids = [(f, v) for f, v, _ in es]
     if not voids:
-        print(f'no void larger than {a.rmin} a.u.; nothing done')
+        # Bug fixed 2026-10-09: this said "no void larger than rmin" also when there were voids but every orbit of them was left out
+        # for an ES radius below --rfloor (h-BN-like BN mp-685145: voids of 2.55 a.u., two of them 2.9 a.u. apart)
+        print(f'no void larger than {a.rmin} a.u.; nothing done' if not found else
+              f'{len(found)} voids larger than {a.rmin} a.u. (largest {max(v for _, v in found):.2f}), but every orbit of them would need an ES '
+              f'smaller than --rfloor {a.rfloor} a.u.; nothing done')
         return
     cart = [fr @ plat for fr, _ in voids]
     rad = [np.floor(r / 0.05) * 0.05 for _, _, r in es]          # on a 0.05 a.u. grid: one [[spec]] per radius
