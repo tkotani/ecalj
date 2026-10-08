@@ -87,6 +87,14 @@
 
 ## 2026-10-08 — 板の ES: 真空を ES の層で埋めると PbS mp-561320 の MLO が PASS（p だけでは直らない）。ucgw の試験の Python
 
+### 10-08 13:28 **新ルール es-d（板）にして、データベースを QSGW80_20261008 として出した**（user「それを新たなデータにして。ベストのものが最新。新ルールにする」「新計算は後からでいい」）
+
+- PbS mp-561320 は V3（層 + s,p、MLO PASS 0.006）を本番に: kt1 `run_es/mp-561320` に写し（前の run は `old_before_custom/mp-561320.es5_s_20261007`）、`es_custom` も V3 の入力に。
+  build の ES_RULES に es-d（2026-10-07 23:50 から）、版は 0601771b4（worker T*）
+- データベース: DOSnpSupplement a62a854、木は QSGW80_20261008、前の版はタグ QSGW80_20261007（と QSGW80_20261003）、差分の過去ログ `changes_from_20261007.md`（PbS 1 件）と
+  `changes_from_20261003.md`（引き継ぎ）。MLO は PASS 1538、FAIR 4、OK 2、SKIPPED 2、FAIL 0。ecalj・ecaljdoc は 4f103b2e6
+- 残り: SnS mp-554134 を es-d で回し直す（後で）、`ctrlg_addes.py` に板の規則を入れる、ES の試験をサンプルにする（TODO）
+
 ### 10-08 09:32 **PbS mp-561320 の ES の三通りの試験の結果（kt1 で QSGW80、t14 で MLO の標準の処方）**（user「p を入れるのではダメかな」「今日の夜はその調査」）
 
 kt1 `run_estest_V{1,2,3}`（10-07 23:52 投入、bin_frozen_es_0601771b4、tf32、t_tetrakbt -300、LIMIT 8 h、コア 0-15 / 16-31 / 32-47）。入力は kt1
@@ -115,7 +123,7 @@ kt1 `run_estest_V{1,2,3}`（10-07 23:52 投入、bin_frozen_es_0601771b4、tf32�
 - 10-07 21:20 job 36720（7569320bb、ifx 2024.2、ucs21）: 16 組 PASS（349 件、失敗 0）、7 組（EPS、PROCAR、SLAB、EffectiveMass、DOS、IIR、AtomDimer）がジョブの Python（pyenv 3.12）に
   numpy が無くて止まった
 - 23:55 job 36723: `~/anaconda3/bin` を `PATH` の先にしたら、その中の OpenMPI の `mpirun`（orterun）が Intel MPI のプログラムを 8 本の別々の rank 0 として起動し、lmfa から壊れた（rseq_error）
-- 10-08 job 36726: venv `~/venv_ecalj`（pyenv 3.12.13 から、mic と同じパッケージ）で投げ直し中。anaconda は使わない（user「Anaconda やめたいな、venv」）
+- 10-08 job 36726: venv `~/venv_ecalj`（pyenv 3.12.13 から、mic と同じパッケージ）で投げ直し、13:28 に確かめて止まっていた 7 組を含む 15 組すべて PASS。前の 16 組と合わせて ucgw は 23 組すべて PASS（失敗 0）。anaconda は使わない（user「Anaconda やめたいな、venv」）
 - mic（324408781、ifx 2026）: 23 組すべて PASS（379 件、失敗 0、10-07 21:52）
 
 ## 2026-10-07 — 板と真空の構造の MLO: ES は真空の中央ではなく、表面のすぐ外に積層を延ばして置く（GW1500 の続き。10-06 までは下の「2026-10-02 夜」の節）
