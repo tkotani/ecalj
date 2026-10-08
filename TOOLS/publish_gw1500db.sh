@@ -45,7 +45,8 @@ rsync -a --delete --exclude "changes_from_*" "$SNAP/" "$PUB/$SUB/"   # the files
 for d in "$PUB"/QSGW80_*; do
   old=$(basename "$d"); [ "$old" = "$SUB" ] && continue
   made=$(grep -m1 -o 'Made [0-9-]*' "$d/README.md" | sed 's/Made //')
-  tag="QSGW80_${made//-/}"
+  # the tag: the name of the directory when it carries the date (QSGW80_20261007, made after midnight), else QSGW80_<the day it was made>
+  if [[ $old =~ ^QSGW80_[0-9]{8}$ ]]; then tag=$old; else tag="QSGW80_${made//-/}"; fi
   git -C "$PUB" rev-parse -q --verify "refs/tags/$tag" >/dev/null || git -C "$PUB" tag -a "$tag" -m "GW1500 database $old of $made (replaced by $SUB)" HEAD
   python3 - "$d" "$PUB/$SUB" "$old" "$made" "$tag" "$SUB" <<'EOF'
 import sys, csv
@@ -63,10 +64,11 @@ for m, r in n.items():
     if a.get('adopt', '') == r['adopt'] and g0 == g1: continue
     d = (g1 - g0) if g0 is not None and g1 is not None else None
     why = (f"{SET.get(a.get('adopt', ''), a.get('adopt', ''))} -> {SET.get(r['adopt'], r['adopt'])}" if a.get('adopt') != r['adopt']
-           else 'the same set, run again')
+           else 'the same set, run again' + (f" ({r['version']})" if a.get('version') != r['version'] else ''))
     ch.append((m, r['formula'], a.get('adopt', ''), g0, r['adopt'], g1, d, why))
 ch.sort(key=lambda c: -abs(c[6]) if c[6] is not None else 0)
-ymd = made.replace('-', '')
+ymd = tag[len('QSGW80_'):]   # the date of the tag (the directory name when it has one)
+if len(ymd) == 8 and ymd.isdigit(): made = f'{ymd[:4]}-{ymd[4:6]}-{ymd[6:]}'   # the date of the version, not the minute it was written
 link = f'https://github.com/tkotani/DOSnpSupplement/tree/{tag}/{old}'
 with open(f'{nd}/changes_from_{ymd}.tsv', 'w') as w:
     w.write('mpid\tformula\told_set\told_gap\tnew_set\tnew_gap\tdifference\twhy\n')
@@ -83,8 +85,9 @@ Machine-readable: [changes_from_{ymd}.tsv](changes_from_{ymd}.tsv). The present 
 
 - Materials: {len(n)}; the same value: {len(n) - len(ch)}; changed: {len(ch)} (by more than 0.1 eV: {big})
 - Why (the set of the adopted run, {made} -> now): ''' + '; '.join(f'{k} {v}' for k, v in cnt.most_common()) + f'''
-- Besides: MLO models of every material, the runs with empty spheres, the inputs and the band data were added. The DOS panel of
+''' + (f'''- Besides: MLO models of every material, the runs with empty spheres, the inputs and the band data were added. The DOS panel of
   the figures of {made} is shifted by E_F (the gaps and the bands are right); corrected in {sub}.
+''' if made < '2026-10-07' else '') + f'''
 
 | mpid | formula | {made} | now | difference (eV) | why |
 | --- | --- | --- | --- | --- | --- |
@@ -93,6 +96,8 @@ Machine-readable: [changes_from_{ymd}.tsv](changes_from_{ymd}.tsv). The present 
         w.write(f'| {c[0]} | {c[1]} | {fm(c[3])} {c[2]} | {fm(c[5])} {c[4]} | {fm(c[6])} | {c[7]} |\n')
 print(f'changes_from_{ymd}: {len(ch)} changed ({big} by more than 0.1 eV)')
 EOF
+  # the files of the changes of earlier versions go on with the new one (a past log)
+  for f in "$d"/changes_from_*; do [ -e "$f" ] && [ ! -e "$PUB/$SUB/$(basename "$f")" ] && cp -p "$f" "$PUB/$SUB/"; done
   git -C "$PUB" rm -q -r "$old"
 done
 
@@ -113,10 +118,11 @@ rows = [f'| [{sub}]({sub}/README.md) | {made} | QSGW80 (scaledsigma 0.8) iterate
 for x in sorted(tags, reverse=True):
     tag, d, day = x.split(':')
     if tag == sub: continue
-    ch = f'{sub}/changes_from_{day.replace("-", "")}.md'
-    rows.append(f'| [{d}](https://github.com/tkotani/DOSnpSupplement/tree/{tag}/{d}) (git tag `{tag}`) | {day} | the earlier version'
-                + (f'; [what {sub} changed]({ch}) (a past log)' if os.path.exists(f'{pub}/{ch}') else '')
-                + ' | in the tag only; the DOS panel of its figures is shifted by E_F |')
+    if re.match(r'QSGW80_\d{8}$', tag): day = f'{tag[7:11]}-{tag[11:13]}-{tag[13:15]}'
+    ch = f'{sub}/changes_from_{tag[len("QSGW80_"):]}.md'
+    rows.append(f'| [{d}](https://github.com/tkotani/DOSnpSupplement/tree/{tag}/{d}) (git tag `{tag}`) | {day} | an earlier version'
+                + (f'; [what changed after it]({ch}) (a past log)' if os.path.exists(f'{pub}/{ch}') else '')
+                + ' | in the tag only' + ('; the DOS panel of its figures is shifted by E_F' if day < '2026-10-07' else '') + ' |')
 bands = sorted(glob.glob(f'{pub}/{sub}/bands_*atoms.md'), key=lambda x: int(re.search(r'bands_(\d+)atoms', x).group(1)))
 blinks = ', '.join(f"[{re.search(r'bands_(\d+)atoms', b).group(1)} atoms]({sub}/{os.path.basename(b)})" for b in bands)
 cover = f'''# DOSnpSupplement — band gaps of the GW1500 materials by ecalj

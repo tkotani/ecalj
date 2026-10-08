@@ -253,8 +253,8 @@ VERSION = {'M': '2026-04/05 (~/bin2, all-TF32 --mp)', 'R': '989a18637 (fp32, t_t
 def version(adopt, host, worker='', rule=''):
     if adopt == 'N':
         return VERSION.get(f'N_{host}', 'N')
-    if adopt == 'E':   # by the worker: E* the frozen b695fa65c of kr7, F* 614ab5eb8 (kr7), G* 0601771b4 (kt1)
-        b = 'b695fa65c' if worker.startswith('E') else ('0601771b4' if worker.startswith('G') else '614ab5eb8')
+    if adopt == 'E':   # by the worker: E* the frozen b695fa65c of kr7, F* 614ab5eb8 (kr7), G* and T* (the ES tests of 2026-10-07) 0601771b4 (kt1)
+        b = 'b695fa65c' if worker.startswith('E') else ('0601771b4' if worker[:1] in ('G', 'T') else '614ab5eb8')
         return f'{b} (tf32, t_tetrakbt -300) with ES' + (f', ES rule {rule}' if rule else '')
     return VERSION.get(adopt, '')
 
@@ -353,13 +353,17 @@ HAND_ES = {'mp-570572': 'C3N4: ctrlg_addes.py --rmin 1.8, three ES between the l
            'mp-9872': 'K4BeP2: one ES of 2.2 a.u. (2.9 a.u. of the rule broke the LDA between the large K spheres)',
            'mp-726184': 'PbS slab: ES on the next layer outside both surfaces (2.6 a.u.) and one at the vacuum centre (2.9 a.u.)',
            'mp-554134': 'SnS slab: ES outside both surfaces and two at the vacuum centre (2.65 a.u.)',
-           'mp-561320': 'PbS slab: ES outside both surfaces (the values shown; a run with one more ES at the vacuum centre is going on)'}
+           'mp-561320': 'PbS slab (rule es-d): ES outside both surfaces (2.35 a.u.), one more layer on each side (2.6 a.u.) and one at the vacuum '
+                        'centre (3.0 a.u.), s,p on every ES; with the surface and centre ES only (s) the MLO missed one band of the vacuum (0.38 eV)'}
 
 ES_RULES = [('2026-10-05 00:00', 'es-a', 'ES on whole Wyckoff orbits, radius 0.9 x void (at most 4.0 a.u.); distances by wrapping each '
              'fractional coordinate (the ES of oblique cells could overlap)'),
             ('2026-10-06 12:12', 'es-b', 'as es-a with the distances to the nearest images, also bounded by the shortest lattice vector '
              '(ecalj 967a9d03b)'),
-            ('2026-10-06 13:09', 'es-c', 'as es-b with the ES radius at most 3.5 a.u. (ecalj 15363a7e3)')]
+            ('2026-10-06 13:09', 'es-c', 'as es-b with the ES radius at most 3.5 a.u. (ecalj 15363a7e3)'),
+            ('2026-10-07 23:50', 'es-d', 'slabs with a vacuum layer (2026-10-08, user: the new rule): ES on the next layer outside both surfaces '
+             'and ES layers filling the vacuum, the empty gap between the layers at most about 2 a.u., the basis s,p on every ES; '
+             'placed by hand (es_custom) until ctrlg_addes.py has it')]
 
 
 def es_rule(when, sec):

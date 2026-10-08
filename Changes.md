@@ -3,6 +3,13 @@
 2026-10-02 に `Changes.txt` から改名した（中身は同じ。日付の行を見出しにし、本文の字下げを外しただけ）。
 新しい項目は一番上に `## YYYY-MM-DD (n)` で書く。要約は ecaljdoc の [manual/whatsnew.md](ecaljdoc/manual/whatsnew.md)。
 
+## 2026-10-08 (1)
+
+GW1500 の ES の規則に板（真空の層のある構造）の規則 es-d を足した: 表面の外に積層を延ばした ES に加えて、真空を ES の層で埋め（層と層の空き 2 a.u. 程度以下）、
+板の ES は全部 s,p にする。PbS mp-561320 で、表面の外と中央だけの ES では MLO が真空の一本を取れず（0.38 eV）、層で埋めると PASS（s 0.033、s,p 0.006 eV）。
+いまは手で置く（kt1 の es_custom）。`ctrlg_addes.py` への組み込みはこれから。説明は ecaljdoc mlo.md の表 M7・M9〜M11。
+GW1500 のデータベースは日付つきの版 QSGW80_20261008 にした（10-07 の版はタグと差分の記録 `changes_from_20261007.md`）。
+
 ## 2026-10-07 (2)
 
 `ctrlgenToml.py` の MT 半径の上限を変えた: H 1.4 a.u.（今までは全体の上限 3.0 だけ）、Rb・Cs 2.8 → 2.4 a.u.（Sr・Ba は 2.8 のまま）。
