@@ -352,7 +352,8 @@ HAND_ES = {'mp-570572': 'C3N4: ctrlg_addes.py --rmin 1.8, three ES between the l
            'mp-11875': 'C4O4: ES 2.5 a.u., s (3.5 a.u. of the rule: the gap swung 7.7–9.6 eV)',
            'mp-9872': 'K4BeP2: one ES of 2.2 a.u. (2.9 a.u. of the rule broke the LDA between the large K spheres)',
            'mp-726184': 'PbS slab: ES on the next layer outside both surfaces (2.6 a.u.) and one at the vacuum centre (2.9 a.u.)',
-           'mp-554134': 'SnS slab: ES outside both surfaces and two at the vacuum centre (2.65 a.u.)',
+           'mp-554134': 'SnS slab (rule es-d): ES outside both surfaces (1.9 a.u.), two more layers on each side (1.9 a.u.) and two at the vacuum '
+                        'centre (2.65 a.u.), 14 ES, s,p; with the surface and centre ES only (s) the MLO was FAIR 0.24 eV',
            'mp-561320': 'PbS slab (rule es-d): ES outside both surfaces (2.35 a.u.), one more layer on each side (2.6 a.u.) and one at the vacuum '
                         'centre (3.0 a.u.), s,p on every ES; with the surface and centre ES only (s) the MLO missed one band of the vacuum (0.38 eV)'}
 
