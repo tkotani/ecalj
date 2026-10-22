@@ -241,9 +241,11 @@ a material, the extension of its files (`ctrlg.gaas.toml` → `gaas`).
 ## 10. Data, and where to look when something goes wrong
 
 - The GW1500 database: QSGW80 band gaps, bands and DOS of 1546 materials of Materials Project,
-  https://github.com/tkotani/DOSnpSupplement (the cover page links the newest version, e.g. `QSGW80_20261007/`, whose README gives
-  the conditions of each value and the checks, with the inputs and the band data; earlier versions are git tags, with a file of what
-  the newer one changed). The 2025 tables there (`DOSnp2025.md`) are the supplement of arXiv:2507.19189.
+  https://github.com/tkotani/DOSnpSupplement. The latest version (e.g. `QSGW80_20261009/`) is the database: its README gives the
+  conditions of each value and the checks, with the inputs (ctrlg) and the band data. Each earlier version is kept whole as a git tag and,
+  in the latest directory, as its difference from the latest (`changes_from_<yyyymmdd>.md`). Terms: the data CC BY 4.0, the code and the
+  inputs AGPLv3 (`LICENSE.md` there; cite the repository with its version, ecalj and the papers). The 2025 tables there (`DOSnp2025.md`)
+  are the supplement of arXiv:2507.19189.
   **For each material, check which version of ecalj made its value before comparing it with a new calculation.** The table of
   the database gives it per material (column *ecalj version*, and the letters M, R, N of the other results); the conditions of
   each letter are in the database README. Values of different versions and conditions can differ by 0.05–0.3 eV (more for some

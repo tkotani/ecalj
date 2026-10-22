@@ -53,7 +53,7 @@ TOOLS/publish_ecaljdoc.sh --push   # そのうえで push（GitHub Actions が�
 
 公開するリポジトリは三つで、順番がある（サイトとデータベースは GitHub の ecalj のファイルを指す）: ① ecalj の push（dev、試験のあと rel）、
 ② ecaljdoc の公開（この文書）、③ GW1500 のデータベース（`ecalj_auto/gw1500db_snapshot.py` で日付つきのスナップショット `QSGW80_<yyyymmdd>` を作り、`TOOLS/publish_gw1500db.sh` で
-github.com/tkotani/DOSnpSupplement へ。木には最新の版だけを置き、前の版はタグ `QSGW80_<yyyymmdd>` と差分の過去ログ `changes_from_<yyyymmdd>.md` で残す（user 2026-10-07）。
+github.com/tkotani/DOSnpSupplement へ。木には最新の版だけを置き、前の版は丸ごとタグ `QSGW80_<yyyymmdd>` に、木の中では最新との差分 `changes_from_<yyyymmdd>.md` で残す（user 2026-10-07、最新との差分は 2026-10-22。公開のたびにタグの表から作り直す）。
 2025 年の補遺は `DOSnp2025.md` と元のファイル）。一括は [`TOOLS/publish_all.sh`](../TOOLS/publish_all.sh)（`--push` で push、`--rel` で rel も）。説明は最上位の [`README.md`](../README.md)
 
 ## 4. ほかの機械

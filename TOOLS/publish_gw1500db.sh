@@ -8,9 +8,10 @@
 #
 # <snapshot dir>: made by ecalj_auto/gw1500db_snapshot.py, named QSGW80_<yyyymmdd> (default: the newest in
 #   /media/takao/TAKAOMINI/gw1500db_snapshots). It is published as the subdirectory of the same name.
-# An earlier snapshot in the tree (QSGW80_2026 of 2026-10-03, ...) gets the tag QSGW80_<yyyymmdd it was made> on the commit that holds it,
-# and is removed from the tree; changes_from_<yyyymmdd>.md/.tsv in the new snapshot list the materials whose adopted value changed
-# (a past log: only what the new snapshot updated). The cover README.md links the snapshot, the tags and the 2025 database.
+# An earlier snapshot in the tree (QSGW80_2026 of 2026-10-03, ...) gets the tag QSGW80_<yyyymmdd> (the directory name when it has the date)
+# on the commit that holds it, and is removed from the tree. The latest version is the database; every earlier version (every tag) is
+# written into the latest snapshot as its difference from the latest, changes_from_<yyyymmdd>.md/.tsv, made again from the table of
+# the tag on every publish (2026-10-22, user). The cover README.md links the latest snapshot, the tags with their differences and the 2025 database.
 # The 2025 page (the supplement of arXiv:2507.19189) moves from README.md to DOSnp2025.md once, unchanged; its files
 # (GW/, LDA/, bandpng.md, ...) stay where they are.
 # Env: DOSNP_PUBLISH_DIR (default ~/work/DOSnpSupplement_publish, a clone, made if missing),
@@ -41,18 +42,28 @@ mkdir -p "$PUB/$SUB"
 cp -f "$TOP"/ecalj_auto/dosnp_license/LICENSE.md "$TOP"/ecalj_auto/dosnp_license/LICENSE-CC-BY-4.0.txt "$TOP"/ecalj_auto/dosnp_license/LICENSE-AGPLv3.txt "$PUB/"
 rsync -a --delete --exclude "changes_from_*" "$SNAP/" "$PUB/$SUB/"   # the files of the changes are made here, not in the snapshot
 
-# earlier snapshots: tag the commit that holds them, write what the new one changed, take them out of the tree
+# earlier snapshots: tag the commit that holds them and take them out of the tree
 for d in "$PUB"/QSGW80_*; do
   old=$(basename "$d"); [ "$old" = "$SUB" ] && continue
   made=$(grep -m1 -o 'Made [0-9-]*' "$d/README.md" | sed 's/Made //')
   # the tag: the name of the directory when it carries the date (QSGW80_20261007, made after midnight), else QSGW80_<the day it was made>
   if [[ $old =~ ^QSGW80_[0-9]{8}$ ]]; then tag=$old; else tag="QSGW80_${made//-/}"; fi
   git -C "$PUB" rev-parse -q --verify "refs/tags/$tag" >/dev/null || git -C "$PUB" tag -a "$tag" -m "GW1500 database $old of $made (replaced by $SUB)" HEAD
-  python3 - "$d" "$PUB/$SUB" "$old" "$made" "$tag" "$SUB" <<'EOF'
+  git -C "$PUB" rm -q -r "$old"
+done
+
+# every earlier version as its difference from the newest (2026-10-22, user: "データベースは最新のものを保つ。古くなったデータベースを
+#最新からの差分にする"): changes_from_<yyyymmdd>.md/.tsv in the newest snapshot, made again on every publish from the table of the tag
+rm -f "$PUB/$SUB"/changes_from_*
+TMPD=$(mktemp -d)
+for x in $(git -C "$PUB" tag -l 'QSGW80_*' --format='%(refname:short):%(contents:subject)' | sed -n 's/^\([^:]*\):GW1500 database \([^ ]*\) of \([0-9-]*\).*/\1:\2/p'); do
+  tag=${x%%:*}; dir=${x#*:}
+  git -C "$PUB" show "$tag:$dir/gw1500db.tsv" > "$TMPD/$tag.tsv" 2>/dev/null || { echo "publish_gw1500db: no $dir/gw1500db.tsv in $tag"; continue; }
+  python3 - "$TMPD/$tag.tsv" "$PUB/$SUB" "$dir" "$tag" "$SUB" <<'EOF'
 import sys, csv
 from collections import Counter
-od, nd, old, made, tag, sub = sys.argv[1:7]
-o = {r['mpid']: r for r in csv.DictReader(open(f'{od}/gw1500db.tsv'), delimiter='\t')}
+ot, nd, old, tag, sub = sys.argv[1:6]
+o = {r['mpid']: r for r in csv.DictReader(open(ot), delimiter='\t')}
 n = {r['mpid']: r for r in csv.DictReader(open(f'{nd}/gw1500db.tsv'), delimiter='\t')}
 def f(x):
     try: return float(x)
@@ -67,39 +78,37 @@ for m, r in n.items():
            else 'the same set, run again' + (f" ({r['version']})" if a.get('version') != r['version'] else ''))
     ch.append((m, r['formula'], a.get('adopt', ''), g0, r['adopt'], g1, d, why))
 ch.sort(key=lambda c: -abs(c[6]) if c[6] is not None else 0)
-ymd = tag[len('QSGW80_'):]   # the date of the tag (the directory name when it has one)
-if len(ymd) == 8 and ymd.isdigit(): made = f'{ymd[:4]}-{ymd[4:6]}-{ymd[6:]}'   # the date of the version, not the minute it was written
+ymd = tag[len('QSGW80_'):]
+day = f'{ymd[:4]}-{ymd[4:6]}-{ymd[6:]}' if len(ymd) == 8 and ymd.isdigit() else ymd
 link = f'https://github.com/tkotani/DOSnpSupplement/tree/{tag}/{old}'
 with open(f'{nd}/changes_from_{ymd}.tsv', 'w') as w:
-    w.write('mpid\tformula\told_set\told_gap\tnew_set\tnew_gap\tdifference\twhy\n')
+    w.write(f'mpid\tformula\tset_{ymd}\tgap_{ymd}\tset_latest\tgap_latest\tlatest_minus_old\twhy\n')
     for c in ch: w.write('\t'.join('' if x is None else (f'{x:.4f}' if isinstance(x, float) else str(x)) for x in c) + '\n')
 big = sum(1 for c in ch if c[6] is not None and abs(c[6]) > 0.1)
 cnt = Counter(c[7] for c in ch)
 fm = lambda x: '' if x is None else f'{x:.3f}'
 with open(f'{nd}/changes_from_{ymd}.md', 'w') as w:
-    w.write(f'''# Changes from {old} ({made}) — a past log: only what {sub} updated
+    w.write(f'''# {old} ({day}) as a difference from the latest version {sub}
 
-The database of {made} is kept as the git tag [{tag}]({link}) (not in the present tree). This file lists only the materials whose
-adopted QSGW80 value changed in {sub}; every other material has the same value from the same run as in {made}.
-Machine-readable: [changes_from_{ymd}.tsv](changes_from_{ymd}.tsv). The present values, conditions and checks: [README.md](README.md).
+The database is kept as the latest version ({sub}, this directory); the version of {day} is kept whole as the git tag
+[{tag}]({link}), and here as its difference from the latest: the materials whose adopted QSGW80 value in {day} differs from the latest
+one. Every other material has the same value from the same run. Machine-readable: [changes_from_{ymd}.tsv](changes_from_{ymd}.tsv).
+The latest values, conditions and checks: [README.md](README.md).
 
-- Materials: {len(n)}; the same value: {len(n) - len(ch)}; changed: {len(ch)} (by more than 0.1 eV: {big})
-- Why (the set of the adopted run, {made} -> now): ''' + '; '.join(f'{k} {v}' for k, v in cnt.most_common()) + f'''
-''' + (f'''- Besides: MLO models of every material, the runs with empty spheres, the inputs and the band data were added. The DOS panel of
-  the figures of {made} is shifted by E_F (the gaps and the bands are right); corrected in {sub}.
-''' if made < '2026-10-07' else '') + f'''
-
-| mpid | formula | {made} | now | difference (eV) | why |
+- Materials: {len(n)}; the same value: {len(n) - len(ch)}; different: {len(ch)} (by more than 0.1 eV: {big})
+- Why (the set of the adopted run, {day} -> latest): ''' + '; '.join(f'{k} {v}' for k, v in cnt.most_common()) + f'''
+''' + (f'''- In {day} the MLO models, the runs with empty spheres, the inputs and the band data were not there yet, and the DOS panel of its
+  figures is shifted by E_F (the gaps and the bands are right).
+''' if day < '2026-10-07' else '') + f'''
+| mpid | formula | {day} | latest | latest − {day} (eV) | why |
 | --- | --- | --- | --- | --- | --- |
 ''')
     for c in ch:
         w.write(f'| {c[0]} | {c[1]} | {fm(c[3])} {c[2]} | {fm(c[5])} {c[4]} | {fm(c[6])} | {c[7]} |\n')
-print(f'changes_from_{ymd}: {len(ch)} changed ({big} by more than 0.1 eV)')
+print(f'changes_from_{ymd}: {len(ch)} differ from the latest ({big} by more than 0.1 eV)')
 EOF
-  # the files of the changes of earlier versions go on with the new one (a past log)
-  for f in "$d"/changes_from_*; do [ -e "$f" ] && [ ! -e "$PUB/$SUB/$(basename "$f")" ] && cp -p "$f" "$PUB/$SUB/"; done
-  git -C "$PUB" rm -q -r "$old"
 done
+rm -rf "$TMPD"
 
 # the 2025 page out of README.md (once): the old link line of 2026-10-03 is dropped, the rest is kept as it was
 if [ ! -f "$PUB/DOSnp2025.md" ]; then
@@ -121,7 +130,7 @@ for x in sorted(tags, reverse=True):
     if re.match(r'QSGW80_\d{8}$', tag): day = f'{tag[7:11]}-{tag[11:13]}-{tag[13:15]}'
     ch = f'{sub}/changes_from_{tag[len("QSGW80_"):]}.md'
     rows.append(f'| [{d}](https://github.com/tkotani/DOSnpSupplement/tree/{tag}/{d}) (git tag `{tag}`) | {day} | an earlier version'
-                + (f'; [what changed after it]({ch}) (a past log)' if os.path.exists(f'{pub}/{ch}') else '')
+                + (f'; [its difference from the latest]({ch})' if os.path.exists(f'{pub}/{ch}') else '')
                 + ' | in the tag only' + ('; the DOS panel of its figures is shifted by E_F' if day < '2026-10-07' else '') + ' |')
 bands = sorted(glob.glob(f'{pub}/{sub}/bands_*atoms.md'), key=lambda x: int(re.search(r'bands_(\d+)atoms', x).group(1)))
 blinks = ', '.join(f"[{re.search(r'bands_(\d+)atoms', b).group(1)} atoms]({sub}/{os.path.basename(b)})" for b in bands)
@@ -132,8 +141,8 @@ Gaps of all materials: [{sub}/table.md]({sub}/table.md).
 
 Databases of band gaps, band structures and DOS of about 1500 nonmagnetic materials of the Materials Project, computed with
 [ecalj](https://github.com/tkotani/ecalj) (QSGW, LDA, MLO models). Each database has its own cover page with the conditions,
-the version of ecalj of every value, and the checks. The newest is in the tree; an earlier version is kept as a git tag, with
-a file of what the newer one changed.
+the version of ecalj of every value, and the checks. The latest version is kept in the tree; an earlier version is kept whole as
+a git tag, and in the tree as its difference from the latest.
 
 | database | made | content | files |
 | --- | --- | --- | --- |

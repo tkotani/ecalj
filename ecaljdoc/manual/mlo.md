@@ -1647,7 +1647,11 @@ GW の k 点は、間隔の規則で 3 段（low・middle・high が Si の 4×4
 回し方:
 
 1. QSGW80: [`ecalj_auto/gw1500_rerun.sh`](https://github.com/tkotani/ecalj/tree/main/ecalj_auto/gw1500_rerun.sh)
-   （POSCAR → `ctrlgenToml.py --ssig=0.8` → `ES_RMIN=auto` なら `gw1500_addes.py` で ES → `gwscconv` → `job_band`）
+   （POSCAR → `ctrlgenToml.py --ssig=0.8` → `ES_RMIN=auto` なら `gw1500_addes.py` で ES → `gwscconv` → `job_band`）。
+   規則で置けない ES は手で置く: `ES_CUSTOM_DIR` の `ctrlg.<mpid>.toml` に E* の `[[site]]`・`[[spec]]` を書けば `gw1500_addes.py` がそれを使う。
+   空隙を探すのは `ctrlg_addes.py <sname> --rmin <a.u.> [--rfloor <a.u.>] [--rsp <a.u.>] --dry-run`（`--rfloor`: 軌道ごとに置く ES の半径の下限、既定 1.5 a.u.。
+   空隙はあっても ES がこれより小さくなる軌道は置かない。そのときは空隙の数と大きさを表示する）。板（規則 es-d）は、表面の外の ES "E" と真空の中央の ES "E2" を
+   手で置いた入力から `ecalj_auto/gw1500_es_slab_layers.py <in> <out> [--r 2.6] [--nlayer 1]` で層 "E3" を足し、全部の ES を s,p にする（重なりを確かめる）
 2. MLO: [`ecalj_auto/gw1500_mlo_std.sh`](https://github.com/tkotani/ecalj/tree/main/ecalj_auto/gw1500_mlo_std.sh) `<src> <out> [np]`。
    `<src>` は 1 の `PlotBand/` に QSGW の最後の `efermi.lmf` を足したもの。版ごとに `gw1500_mlo.sh`（`[mlo]` を今の `gwinit` で書き直し、
    `job_mlo`、`mlo_bandcheck.py`、`gw1500_mlo_grade.py`）を回し、採った版と判定を `best.txt` に書く。ctrlg の `[ham] scaledsigma = 0.8` により QSGW80 の模型になる

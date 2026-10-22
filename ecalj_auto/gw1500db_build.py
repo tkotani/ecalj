@@ -907,6 +907,9 @@ Models so far: {len(ml)} ({', '.join(f'{k} {v}' for k, v in mc.most_common())}).
         f.write('''
 ## Limits
 
+- Slabs (a vacuum layer in the cell, from the Materials Project): the QSGW80 gap depends on the thickness of the vacuum (screening by the
+  periodic images): the same PbS slab gives 3.725 eV with 13.7 A of vacuum (mp-726184) and 4.152 eV with 19.4 A (mp-561320), while LDA
+  gives 1.728 and 1.738 eV. Read the value of a slab as that of its cell.
 - k mesh: the gap is that of lmf on the 8x8x8 mesh. When the band extremum is not on the mesh (layered and hexagonal
   materials, K and M points), the true gap is nearer the gap along the band path (`· path` in the table, check
   `path<mesh(mesh)`). Graphite-like carbons are semimetals although the mesh shows a gap (`path-metal`).
