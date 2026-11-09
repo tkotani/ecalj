@@ -5,6 +5,9 @@ layout: home
 hero:
   name: "ecaljdoc"
   tagline: This is for ecalj package, a first-principles electronic-structure calculations
+  image:
+    src: /ecalj_logo.png
+    alt: ecalj
   actions:
     - theme: brand
       text: GetStarted with AI (New!)

@@ -11,6 +11,7 @@ export default withMermaid({
   ignoreDeadLinks: true,
   srcExclude: ['trash/**'],
   lastUpdated: true,
+  head: [['link', { rel: 'icon', type: 'image/png', href: '/ecaljdoc/favicon.png' }]],
   // markdown: {
   //   math: true,
   // },
@@ -29,6 +30,7 @@ export default withMermaid({
   },
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
+    logo: '/ecalj_logo_small.png',
     nav: [
       { text: 'Home', link: '/' },
     ],

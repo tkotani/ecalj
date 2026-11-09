@@ -96,3 +96,31 @@
   font-size: 13px;
   pointer-events: none;
 }
+
+/* ecalj logo in the nav bar (2026-11-09): 60px, larger than the default 24px so the hand-drawn loop reads */
+.VPNavBarTitle .logo {
+  height: 60px;
+  width: 60px;
+}
+
+/* ecalj logo on the front page (2026-11-10): 240px instead of the default 320px */
+@media (min-width: 960px) {
+  .VPHero .image-container { width: 240px; height: 240px; }
+  .VPHero .image-src { max-width: 240px; max-height: 240px; }
+}
+
+/* frame of the front-page logo, like the aluminium edge of a whiteboard (2026-11-10) */
+.VPHero .image-src {
+  box-sizing: border-box;
+  border: 6px solid #b8bec4;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+}
+
+/* the same frame, thinner, on the nav-bar logo (2026-11-10) */
+.VPNavBarTitle .logo {
+  box-sizing: border-box;
+  border: 2px solid #b8bec4;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .25);
+}
