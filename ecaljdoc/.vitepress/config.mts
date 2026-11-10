@@ -11,6 +11,7 @@ export default withMermaid({
   ignoreDeadLinks: true,
   srcExclude: ['trash/**'],
   lastUpdated: true,
+  sitemap: { hostname: 'https://ecalj.github.io/ecaljdoc/' },   // sitemap.xml for search engines (2026-11-10)
   head: [['link', { rel: 'icon', type: 'image/png', href: '/ecaljdoc/favicon.png' }]],
   // markdown: {
   //   math: true,
