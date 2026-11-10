@@ -109,15 +109,7 @@
   .VPHero .image-src { max-width: 240px; max-height: 240px; }
 }
 
-/* frame of the front-page logo, like the aluminium edge of a whiteboard (2026-11-10) */
-.VPHero .image-src {
-  box-sizing: border-box;
-  border: 6px solid #b8bec4;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
-}
-
-/* the same frame, thinner, on the nav-bar logo (2026-11-10) */
+/* frame of the nav-bar logo, like the aluminium edge of a whiteboard (2026-11-10) */
 .VPNavBarTitle .logo {
   box-sizing: border-box;
   border: 2px solid #b8bec4;
