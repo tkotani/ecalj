@@ -117,15 +117,25 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, .25);
 }
 
-/* origin of the name under the front-page logo (2026-11-10): small and quiet */
-.VPHero .ecalj-origin {
+/* front-page logo with the origin of the name just under it (2026-11-10): one centred column, the line small and quiet */
+.VPHero .ecalj-hero {
   position: absolute;
+  top: 50%;
   left: 50%;
-  bottom: -1.6em;
-  transform: translateX(-50%);
-  margin: 0;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+.VPHero .ecalj-hero img { display: block; width: 192px; max-width: none; }
+@media (min-width: 640px) { .VPHero .ecalj-hero img { width: 256px; } }
+@media (min-width: 960px) { .VPHero .ecalj-hero img { width: 240px; } }
+.VPHero .ecalj-origin {
+  margin: -3px 0 0;                /* the picture has a few transparent rows under the casters */
   white-space: nowrap;
   font-size: 13px;
+  line-height: 1.2;
   letter-spacing: .02em;
   color: var(--vp-c-text-2);
 }
