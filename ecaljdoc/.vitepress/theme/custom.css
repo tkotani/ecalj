@@ -143,3 +143,9 @@
   font-weight: 600;
   color: var(--vp-c-text-1);
 }
+
+/* A side note as a block that can be skipped: smaller, gray, a rule on the left (theory/pmt.md, 2026-11-13). */
+.vp-doc div.note { font-size: .88em; color: var(--vp-c-text-2); border-left: 3px solid var(--vp-c-divider); padding-left: 1em; margin: .6em 0; }
+.vp-doc div.note p { margin: .3em 0; }
+/* Marks where a theory page departs from the published paper and needs checking (theory/pmt.md, 2026-11-13). */
+.vp-doc span.chk { color: #c0392b; font-weight: 600; }

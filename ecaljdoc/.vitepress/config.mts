@@ -93,7 +93,7 @@ export default withMermaid({
       {
         text: 'Theory',
         items: [
-          // { text: 'PMT', link: '/theory/pmt' },
+          { text: 'PMT 法（APW+MTO, DFT）', link: '/theory/pmt' },
           // { text: 'Spin-orbit interaction', link: '/theory/soi' },
           { text: 'GW approximation', link: '/theory/gw' },
           { text: 'Quasi-particle self-consistent GW', link: '/theory/qsgw' },
