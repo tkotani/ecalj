@@ -3,6 +3,7 @@ import { h } from 'vue'
 import { withBase } from 'vitepress'
 import './custom.css'
 import FileList from './components/filelist.vue'
+import LangSwitch from './components/langswitch.vue'
 import { setupLightbox } from './lightbox.js'
 
 // The front-page logo with the origin of the name under it (2026-11-10):
@@ -17,7 +18,8 @@ const heroImage = () => h('div', { class: 'ecalj-hero' }, [
 export default {
  ...DefaultTheme,
  Layout() {
-   return h(DefaultTheme.Layout, null, { 'home-hero-image': heroImage })
+   // The language button (Japanese <-> English) sits in the nav bar at every width, not only in the hamburger menu (2026-11-13).
+   return h(DefaultTheme.Layout, null, { 'home-hero-image': heroImage, 'nav-bar-content-after': () => h(LangSwitch) })
  },
  enhanceApp({ app }) {
    app.component('filelist', FileList)

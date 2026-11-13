@@ -251,6 +251,7 @@ $$
 ![frozen core と smooth Hankel の裾](figures/pmt_core.png)
 
 図 3. (a) 1 サイトの動径分布（対数目盛）。赤は `lmfa` のコア密度 $n^{\rm c}_a$、緑の破線は MT の外（$r>R_a$）で $n^{\rm c}_a$ に合わせた smooth Hankel $n^{\rm c}_{{\rm sH},a}$。MT の中では $n^{\rm c}_{{\rm sH},a}$ はなめらかで原点でも有限。(b) 二つの MT 球（A、B）を通る線上での式 (14) の 3 成分（原子核は省略）。幅の広い灰色は第 0 成分（全サイトの $n^{\rm c}_{\rm sH}$ の和）、緑は第 2 成分（そのサイトの $n^{\rm c}_{{\rm sH},a}$）、赤は第 1 成分（$n^{\rm c}_a$）。点線は B の裾で、MT A の中では第 0 成分には入るが第 2 成分には入らない。この裾も、第 0 成分を通してクーロンエネルギー（式 (13) の $\bar n_0\bullet v\bullet\bar m_0$）には入る。
+図は [`figures/pmt_core.py`](https://github.com/tkotani/ecalj/tree/main/ecaljdoc/theory/figures/pmt_core.py) で作る（数値は `pmt_core.dat`）。
 
 価電子の密度 $n$（式 9）と合わせた全電荷を $n^{\rm Zcv}=n^{\rm Zc}+n$ とし、式 (11) の多重極変換をかける。
 $Q^{\rm Zc}_{aL}=Q_{aL}[n^{\rm c}_a-Z_a\delta-n^{\rm c}_{{\rm sH},a}]$、$Q^{\rm v}_{aL}=Q_{aL}[n_{1,a}-n_{2,a}]$ として、$\bar n^{\rm Zcv}=\mathcal M[n^{\rm Zcv}]$ の 3 成分は

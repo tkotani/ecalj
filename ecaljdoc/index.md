@@ -3,7 +3,7 @@
 layout: home
 
 hero:
-  name: "ecaljdoc"
+  name: "ecaljdoc (Japanese)"
   tagline: This is for ecalj package, a first-principles electronic-structure calculations
   image:
     src: /ecalj_logo.png
@@ -24,6 +24,9 @@ hero:
     - theme: alt
       text: Theory
       link: /theory/gw
+    - theme: alt
+      text: PMT 法
+      link: /theory/pmt
     - theme: alt
       text: GW1500 database (QSGW80)
       link: https://github.com/tkotani/DOSnpSupplement#readme

@@ -13,6 +13,31 @@ export default withMermaid({
   lastUpdated: true,
   sitemap: { hostname: 'https://ecalj.github.io/ecaljdoc/' },   // sitemap.xml for search engines (2026-11-10)
   head: [['link', { rel: 'icon', type: 'image/png', href: '/ecaljdoc/favicon.png' }]],
+  // Language switch (2026-11-13): the Japanese pages at the root are the reference; English translations live under /en/
+  // with the same file names and say from which commit of the Japanese page they were translated.
+  locales: {
+    root: { label: '日本語', lang: 'ja' },
+    en: {
+      label: 'English', lang: 'en', link: '/en/',
+      themeConfig: {
+        nav: [ { text: 'Home', link: '/en/' } ],
+        sidebar: [
+          {
+            text: 'Theory (English)',
+            items: [
+              { text: 'PMT method (APW+MTO, DFT)', link: '/en/theory/pmt' },
+            ]
+          },
+          {
+            text: 'Not yet translated',
+            items: [
+              { text: 'Japanese site (all pages)', link: '/' },
+            ]
+          },
+        ],
+      },
+    },
+  },
   // markdown: {
   //   math: true,
   // },
