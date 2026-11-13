@@ -488,7 +488,7 @@ subroutine corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc, rfoc,z) !Returns parame
   !i  is: species index
   !o Outputs
   !o   cofg  :coefficient to Gaussian part of pseudocore density assigned so that pseudocore charge = true core charge
-  !o   cofh  :coefficient to smHankel part for n^c_sH,a (See Eq.. Hankel contribution is determined by inputs (qcorh,ceh,rfoc)
+  !o   cofh  :coefficient to smHankel part for n^c_sH,a (See Eq.(23) JPSJ.84.034702). Hankel contribution is determined by inputs (qcorh,ceh,rfoc)
   !           and should accurately represent the true core density for r>rmt
   !o   qcorg :charge in the gaussian part
   !o   qcorh :charge in the Hankel part
@@ -510,7 +510,8 @@ subroutine corprm(is,qcorg,qcorh,qsc,cofg,cofh,ceh,lfoc, rfoc,z) !Returns parame
   !r   cofg is set so that qc = integral of eq. 1 above.
   !r
   !r   For lfoc=0 there is no Hankel part; qc carried entirely by Gausian
-  !r   For lfoc>0 there is no Hankel part; Gaussian carries difference between qc and charge in Hankel part.
+  !r   For lfoc>0 the smHankel n^c_sH,a carries the core tail outside rmt; the Gaussian carries the rest, qc-qcorh.
+  !r   (Comment fixed 2026-11-13 23:04: it said there is no Hankel part for lfoc>0.)
   !r
   !r   To add to the radial density 4*pi*r**2*rho_true, multiply cofg,cofh by srfpi.
   !

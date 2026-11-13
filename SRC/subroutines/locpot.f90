@@ -217,7 +217,8 @@ contains
               rhol2(:,ilm,isp)=rho2(:,ilm,isp)+ qmom(ilm,ib)*pi4/df(2*l+1)*sfac*(ag2/pi)**1.5d0*(2d0*ag2)**l*rofi(:)**l*gg(:)/nsp
             enddo
             rhol2(:,1,isp)= rhol2(:,1,isp) + y0/nsp*rhochs ! rhol2 = n^c_sH,a + Gaussians(qmom) + rho2.  Eq.(30)
-            ! caution: Eq(30) has typo. wrong: n^Zc_2,a+... ==> right: n^c_sH,a+...
+            ! Eq.(30) of JPSJ writes n^Zc_2,a here; by Eq.(23) that is n^c_sH,a, which is what is added above.
+            ! (Comment fixed 2026-11-13 23:04: it called Eq.(30) a typo.)
           enddo
           if(nsp==2)then
             aloc(ib) = srfpi*sum(rwgt*((rho1(:,1,1)-rho1(:,1,2))-(rho2(:,1,1)-rho2(:,1,2))))

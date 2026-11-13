@@ -68,6 +68,12 @@
 
 ### コード
 
+- **【一部済み 2026-11-13 23:04】PMT の静電・コアまわりのコメントの直し**（(1)〜(3) はコメントを直した。m_augmat の Lo の型 2（PZ+10）は使われているので戻した。(4)・(5) は未）（2026-11-13 22:54、ecaljdoc/theory/pmt.md を書いたときにコードと突き合わせて見つけた。計算には影響しない）:
+  (1) `corprm`（`SRC/subroutines/m_hansr.f90`）の「For lfoc>0 there is no Hankel part」は誤り（`lfoc>0` で smooth Hankel がある）、`cofh` の行の「(See Eq..」が切れている。
+  (2) `locpot` の「Eq(30) has typo」は誤解を招く（論文の式 (30) の $n^{Zc}_{2,a}$ は式 (23) により $n^c_{sH,a}$ と同じ）。
+  (3) `m_augmat` の注釈「u has val=1, slo=1 at rmax」は `makusp` の「val=1, slo=0」と食い違う（`m_augmat` が誤り）。Lo の型 2・3 を `!rxxx` で外したのに「Cases 2 and 3」の説明が残る。
+  (4) コメントの式番号は論文（JPSJ 84, 034702）で書いてある。ecaljdoc/theory/pmt.md を正本にするので、その式番号も併記する（例 `Eq.(34) JPSJ = pmt.md (20)`。pmt.md の番号が固まってから）。
+  (5) `locpot` の後ろにコメントにした古い `locpt2` が約 200 行ある。要点を past_log に写して trash へ。
 - **【未着手】AHC コード（齋藤）の取り込み**（2026-10-02 21:53、user）: 異常ホール伝導度。前の AHC（`hahc`、`job_AHC`、`hx0ahc.py`、Wannier と UU の行列を使う）は
   2026-10-02 に Wannier の経路と一緒に外した（git のタグ `last-wannier` に残る。Changes.md 2026-10-02 (1)）。bcc Fe の AHC のサンプルは、粗いメッシュでは
   ビルドで値が変わるので 2026-09-30 に外し、「別の所から入れ直す」としていた（Changes.md 2026-09-30 (4)・(5)、研究ログ 2026-09-30 06:05 の表 06:05-2）

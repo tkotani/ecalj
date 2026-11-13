@@ -331,12 +331,13 @@ end module m_augmat
 !r  of radial wave functions u and s that match continuously and
 !r  differentiably onto the envelope functions at rmt.
 !r  u and s are linear combinations of and phi,phidot defined as:
-!r  u has val=1, slo=1 at rmax, s has val=0, slo=1 at rmax.
+!r  u has val=1, slo=0 at rmax, s has val=0, slo=1 at rmax.  (comment fixed 2026-11-13 23:04: it said slo=1 for u; see makus2 in makusp.f90)
 !r
 !r  Local orbitals : local orbitals occur in one of these types:
 !r  1. val,slo=0 at rmt                         (10s digit pnz=0)
-!rxxx  2. val,slo matches sm hankel                (10s digit pnz=1)
-!rxxx  3. val,slo matches sm hankel, perturbative  (10s digit pnz=2)
+!r  2. val,slo matches sm hankel                (10s digit pnz=1; extended local orbital, lpz=2 in makusp)
+!r  (Type 3, a perturbative extended local orbital with 10s digit pnz=2, is no longer handled.
+!r   Comment fixed 2026-11-13 23:04: type 2 had been marked as removed, but PZ+10 is still used, see lpztail in m_lmfinit.)
 !r  In all cases tails are not expanded about other sites.  Thus local
 !r  orbitals involve only one- and two-center terms.
 !r
