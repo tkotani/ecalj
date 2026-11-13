@@ -1,11 +1,8 @@
 <script setup>
 // A plain button in the nav bar that switches between the Japanese page (the reference, at the root) and its English
-// translation under /en/ (2026-11-13). Pages without a translation go to the English top page.
-// When a page is translated, add its path (without .md, relative to ecaljdoc/) to `translated`.
+// translation under /en/ (2026-11-13). Every page has an English twin with the same name (TOOLS/ecaljdoc_en.py).
 import { computed } from 'vue'
 import { useRoute, useData, withBase } from 'vitepress'
-
-const translated = ['', 'index', 'theory/pmt']
 
 const route = useRoute()
 const { site } = useData()
@@ -16,8 +13,7 @@ const target = computed(() => {
   if (p === 'en' || p.startsWith('en/')) {             // English -> Japanese
     return { href: withBase('/' + p.replace(/^en\/?/, '')), label: '日本語' }
   }
-  const has = translated.includes(p)
-  return { href: withBase(has ? '/en/' + p : '/en/'), label: 'English' }
+  return { href: withBase('/en/' + (p === 'index' ? '' : p)), label: 'English' }
 })
 </script>
 

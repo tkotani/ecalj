@@ -1,6 +1,6 @@
 # PMT method (mixed APW and MTO basis, DFT)
 
-> This page is a translation of the Japanese page [theory/pmt](../../theory/pmt.md), which is the reference. Translated from commit c77f93f3d (2026-11-13).
+> English version of the page [theory/pmt](../../theory/pmt.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/pmt.md of commit c9f9a3003 (source blob c677ea3bb26e).
 
 How ecalj's `lmf` solves the one-body problem. For details and derivations see
 T. Kotani, H. Kino, H. Akai, [J. Phys. Soc. Jpn. **84**, 034702 (2015)](https://doi.org/10.7566/JPSJ.84.034702).

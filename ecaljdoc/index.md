@@ -4,7 +4,7 @@ layout: home
 
 hero:
   name: "ecaljdoc (Japanese)"
-  tagline: This is for ecalj package, a first-principles electronic-structure calculations
+  tagline: これは第一原理計算の ecalj パッケージのページです。
   image:
     src: /ecalj_logo.png
     alt: ecalj
@@ -54,3 +54,7 @@ Claude Code starts from `CLAUDE.md` at the top of the repository. An AI assistan
 
 開発の記録はこのサイトには無い。[ecalj のリポジトリ](https://github.com/tkotani/ecalj)の `MD/README.md` から読む
 （読む順、決まり、話題ごとのジャンプ: 有限温度、MLO、マグノン、GPU）。Claude Code は最上位の `CLAUDE.md` から始める。
+
+## ライセンス / License
+
+ecalj は [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html) で配布する。条件、ecalj に含まれる他のソフトウェア、論文での引用は [LICENCE](https://github.com/tkotani/ecalj/blob/main/LICENCE) を見てほしい。AI（AI アシスタント、コーディングエージェント）にも例外なく適用される。

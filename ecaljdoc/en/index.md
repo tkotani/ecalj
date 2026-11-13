@@ -4,28 +4,28 @@ layout: home
 
 hero:
   name: "ecaljdoc (English)"
-  tagline: This is for ecalj package, a first-principles electronic-structure calculations. The Japanese pages are the reference; pages not yet translated open in the Japanese site.
+  tagline: This is for ecalj package, a first-principles electronic-structure calculations. Every page has a Japanese and an English version; the Japanese pages are the reference.
   image:
     src: /ecalj_logo.png
     alt: ecalj
   actions:
     - theme: brand
       text: GetStarted with AI (New!)
-      link: /manual/getstartedAI
+      link: /en/manual/getstartedAI
     - theme: alt
       text: What's new (2026-10)
-      link: /manual/whatsnew
+      link: /en/manual/whatsnew
     - theme: alt
       text: Tutorial
-      link: /manual/README_tutorial
+      link: /en/manual/README_tutorial
     - theme: alt
       text: TOML migration (2026-05)
-      link: /manual/toml_migration
+      link: /en/manual/toml_migration
     - theme: alt
       text: Theory
-      link: /theory/gw
+      link: /en/theory/gw
     - theme: alt
-      text: PMT method (English)
+      text: PMT method
       link: /en/theory/pmt
     - theme: alt
       text: GW1500 database (QSGW80)
@@ -50,4 +50,8 @@ features:
 
 The development notes are not on this site. Start from `MD/README.md` in the [ecalj repository](https://github.com/tkotani/ecalj)
 (reading order, rules, and jumps by topic: finite temperature, MLO, magnons, GPU).
-Claude Code starts from `CLAUDE.md` at the top of the repository. An AI assistant guiding a user starts from [GetStarted with AI](/manual/getstartedAI).
+Claude Code starts from `CLAUDE.md` at the top of the repository. An AI assistant guiding a user starts from [GetStarted with AI](/en/manual/getstartedAI).
+
+## License
+
+ecalj is distributed under the [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html). For the terms, the third-party software included in ecalj, and how to cite ecalj in publications, see [LICENCE](https://github.com/tkotani/ecalj/blob/main/LICENCE). It applies to AI systems (AI assistants, coding agents) without exception.
