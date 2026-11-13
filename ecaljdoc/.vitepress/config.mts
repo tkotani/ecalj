@@ -96,9 +96,14 @@ export default withMermaid({
   ignoreDeadLinks: true,
   srcExclude: ['trash/**'],
   lastUpdated: true,
-  appearance: 'dark',   // dark by default; the reader can still switch (2026-11-13)
+  appearance: true,    // the light/dark switch is kept; light on the first visit (script in head), front pages dark (pageClass home-dark in custom.css) (2026-11-13)
   sitemap: { hostname: 'https://ecalj.github.io/ecaljdoc/' },   // sitemap.xml for search engines (2026-11-10)
-  head: [['link', { rel: 'icon', type: 'image/png', href: '/ecaljdoc/favicon.png' }]],
+  head: [
+    ['link', { rel: 'icon', type: 'image/png', href: '/ecaljdoc/favicon.png' }],
+    // Light on the first visit (equations read best on white), whatever the OS setting; after the reader uses the switch,
+    // the stored choice is used. It comes before the theme's check-dark-mode script in the page head (2026-11-13).
+    ['script', {}, "try{var k='vitepress-theme-appearance';if(!localStorage.getItem(k)){localStorage.setItem(k,'light');document.documentElement.classList.remove('dark')}}catch(e){}"],
+  ],
   // Language switch (2026-11-13): the Japanese pages at the root are the reference; English translations live under /en/
   // with the same file names (every page twice; TOOLS/ecaljdoc_en.py copies and lists stale ones). The English sidebar is
   // made from the same list: /en is put in front of the links and the Japanese labels are replaced by enText.

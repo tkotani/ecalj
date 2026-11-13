@@ -1,6 +1,7 @@
 ---
 # https://vitepress.dev/reference/default-theme-home-page
 layout: home
+pageClass: home-dark
 
 hero:
   name: "ecaljdoc (English)"
