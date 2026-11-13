@@ -47,6 +47,8 @@ features:
     details: Based on PMT=LMTO+LAPW. Virtually no headaching settings by hand.
 ---
 
+> **Work in progress**: many parts of this site are still incomplete and are being written.
+
 ## For developers
 
 The development notes are not on this site. Start from `MD/README.md` in the [ecalj repository](https://github.com/tkotani/ecalj)
