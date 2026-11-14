@@ -1,6 +1,6 @@
 # ecalj MainDocument
 
-> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob e16f2305e6fa).
+> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob ddffe79c05d6).
 **This is the main document of ecaljdoc: the features of ecalj, an overview of QSGW, and the first calculation (GetStarted). Other pages are reached from the menu on the left.**
 
 * Here we give [GetStarted](#getstarted), together with install and overview of QSGW.
@@ -137,29 +137,30 @@ ecalj_auto, which computes many POSCARs in one batch, is also packaged (being pr
 Here we explain DFT/QSGW calculations with ecalj. Then we explain how to make band plots. For simplicity, we treat paramagetic cases (nsp=1), no 4f, no SOC.
 We explain things step by step.
 
-> **Worked example** — every step below uses **GaAs** as the running
-> example. A minimal seed (`ctrls.gaas` + the generated
-> `ctrlg.gaas.toml`) lives at
+> **Worked example** — every step below uses **GaAs** (material name, sname, `gaas`) as the running
+> example. A minimal seed (`ctrls.gaas` + the generated `ctrlg.gaas.toml`) lives at
 > [`Samples/GetStarted/GaAs/`](https://github.com/tkotani/ecalj/tree/main/Samples/GetStarted/GaAs).
-> Copy that directory to a fresh work area and follow Steps 1-6
-> below. See its
-> [README](https://github.com/tkotani/ecalj/blob/main/Samples/GetStarted/GaAs/README.md)
-> for the one-shot reproduction script.
+> Copy it to a work area as in Step 0 and follow Steps 1-6. The command sequence that reproduces
+> it in one go is in its
+> [README](https://github.com/tkotani/ecalj/blob/main/Samples/GetStarted/GaAs/README.md).
 
 Further details are explained at [UsageDetailed](./UsageDetailed.md)
 
 ## Step 0. Get POSCAR
-We first need POSCAR (crystal structure in VASP format). 
-You can find samples of POSCAR in ecalj/ecalj_auto/INPUT/testSGA/POSCARALL as
+For the GaAs worked example, copy the sample directory to a work area **outside** the ecalj clone and compute there (so that the files a calculation writes do not scatter inside the clone):
 ```bash
-cd ecalj
-mkdir TEST
-cd TEST
-mkdir test1
-mkdir test2
-cat ecalj_auto/INPUT/testSGA/joblist.bk
-cp ../ecalj_auto/INPUT/testSGA/POSCARALL/POSCAR.mp-2534 test1
-cp ../ecalj_auto/INPUT/testSGA/POSCARALL/POSCAR.mp-8062 test2
+mkdir -p ~/work
+cp -r ecalj/Samples/GetStarted/GaAs ~/work/gaas    # ecalj is where you cloned it
+cd ~/work/gaas
+```
+It already contains `ctrls.gaas` (the structure file made in Step 1) and `ctrlg.gaas.toml` (the input file made in Step 2).
+
+For your own material, start from a POSCAR (crystal structure in VASP format).
+Materials Project (MP) POSCARs as examples are in ecalj/ecalj_auto/INPUT/testSGA/POSCARALL (the list of materials is `joblist` in the same place):
+```bash
+cat ecalj/ecalj_auto/INPUT/testSGA/joblist
+mkdir -p ~/work/mp-2534
+cp ecalj/ecalj_auto/INPUT/testSGA/POSCARALL/POSCAR.mp-2534 ~/work/mp-2534/
 ```
 
 For example, POSCAR of mp-2534 GaAs is given as:
@@ -176,25 +177,8 @@ direct
    0.2500000000000000    0.2500000000000000    0.2500000000000000 As
 
 ```
-
-This is POSCAR for ba2pdo2cl2 (QSGW results are shown below):
-```
-POSCAR_ba2pdo2cl2
-1.0
--2.06443 2.06443 8.40383 
-2.06443 -2.06443 8.40383 
-2.06443 2.06443 -8.40383 
-Ba Pd O Cl 
-2 1 2 2 
-Cartesian
-0.0 0.0 6.5153213224
-0.0 0.0 10.2923386776
-0.0 0.0 0.0
-0.0 2.06443 0.0
-2.06443 0.0 0.0
-0.0 0.0 3.1625293056
-0.0 0.0 13.6451306944
-```
+Its lattice constant is 5.75 Å, larger than the experimental 5.65 Å, because MP relaxes structures with PBE (GGA overestimates lattice constants).
+The worked example `ctrls.gaas` uses the experimental a=5.65325 Å.
 
 If you have cif and like to convert it to `POSCAR`, do
 `cif2cell foobar.cif -p vasp --vasp-cartesian --vasp-format=5`.
@@ -202,14 +186,15 @@ If you have cif and like to convert it to `POSCAR`, do
 
 ## Step 1. convert POSCAR to ctrls
 Then we convert POSCAR to ctrls by vasp2ctrl.
-ctrls is the structure file used in ecalj.
+ctrls is the structure file used in ecalj. The GaAs worked example already has `ctrls.gaas`, so this step is not needed there.
 
+Starting from `POSCAR.foo`, do the following; `foo` becomes the material name (sname) used by the commands below.
 ```
-vasp2ctrl POSCAR.mp-2534 
-mv ctrls.POSCAR.mp-2534.vasp2ctrl ctrls.POSCAR.mp-2534
-cat ctrls.mp-2534
+vasp2ctrl POSCAR.foo
+mv ctrls.POSCAR.foo.vasp2ctrl ctrls.foo
 ```
 
+For example, for mp-2534 run `vasp2ctrl POSCAR.mp-2534` and then `mv ctrls.POSCAR.mp-2534.vasp2ctrl ctrls.mp-2534`.
 ctrls.mp-2534 contains crystal structure equivalent to POSCAR:
 ```
 STRUC
@@ -222,8 +207,7 @@ SITE
      ATOM=As POS=     1.17375100000       0.82996725000       2.03299675000 
 ```
 Indentation is needed to show blocks of categories, STRUC and SITE.
-Another example of `ctrls.gaas` (the worked-example seed shipped at
-[`Samples/GetStarted/GaAs/ctrls.gaas`](https://github.com/tkotani/ecalj/blob/main/Samples/GetStarted/GaAs/ctrls.gaas)):
+The worked example `ctrls.gaas` ([`Samples/GetStarted/GaAs/ctrls.gaas`](https://github.com/tkotani/ecalj/blob/main/Samples/GetStarted/GaAs/ctrls.gaas)) is an example of a ctrls written by hand:
 
 ```
 %const bohr=0.529177 a=5.65325/bohr
@@ -298,7 +282,7 @@ to reproduce results by VASP or in MP from your POSCAR file.
 
 
 - MEMO: 
-    - ctrl2vasp ctrls.mp-2534 can convert back to VASP file. Check this by VESTA. We can use viewvesta (convert and invoke VESTA).
+    - `ctrl2vasp ctrls.gaas` can convert back to VASP file. Check this by VESTA. We can use viewvesta (convert and invoke VESTA).
     - many unused files are generated (forget them).
     - you can use any name for sites such as [Niup or something](./UsageDetailed.md#antiferro-symmetry-without-soc), in such a case you have to set SPEC section in addition. [Non integer number of Z is allowed.](./UsageDetailed.md#background-charge-and-fractional-z). Learn afterward.
     - In old ctrls, you may see NL,NBAS,NSPEC, which are not necessary now.
@@ -306,24 +290,14 @@ to reproduce results by VASP or in MP from your POSCAR file.
 ## Step 2. Get `ctrlg.<sname>.toml` from ctrls
 
 `ctrlg.<sname>.toml` is the one input file the Fortran
-binaries (`lmf`, `lmfa`, `lmchk`, `gwsc`, ...) actually read since
-2026-05. (Its last section `[product_basis]` ends with per-atom tables
-used only by GW; the generator writes them and we do not edit them
-usually.) Generate it straight from the lightweight `ctrls.<sname>`
-(the structure-only seed produced by `vasp2ctrl` in Step 1) with
-**`ctrlgenToml.py`**:
+programs (`lmf`, `lmfa`, `lmchk`, `gwsc`, ...) read since
+2026-05. Generate it from the ctrls of Step 1 with **`ctrlgenToml.py`**:
 
 ```bash
-ctrlgenToml.py mp-2534
+ctrlgenToml.py gaas
 ```
 
-(Or, for the GaAs worked example shipped at
-[`Samples/GetStarted/GaAs/`](https://github.com/tkotani/ecalj/tree/main/Samples/GetStarted/GaAs):
-`ctrlgenToml.py gaas` — produces the
-[`ctrlg.gaas.toml`](https://github.com/tkotani/ecalj/blob/main/Samples/GetStarted/GaAs/ctrlg.gaas.toml)
-that ships in that directory.)
-
-This single command:
+This command:
 
 1. fills top-level (`symgrp` / `verbose` / `time`) and `[struc] / [[site]] / [[spec]]` from the periodic-table
    defaults (the `atomlist` table, `SRC/exec/pylib/atomlist.py`);
@@ -335,47 +309,21 @@ This single command:
 Successful end-of-run looks like:
 
 ```text
-ctrlgenToml: wrote ctrlg.mp-2534.toml (2 spec, 2 sites)
+ctrlgenToml: wrote ctrlg.gaas.toml (2 spec, 2 sites)
 ctrlgenToml: running lmfa -> lmf --jobgw=0 -> gwinit  to fill GW sections
-ctrlgenToml: done. ctrlg.mp-2534.toml has top-level/[struc]/[[site]]/[[spec]]/...
+ctrlgenToml: done. ctrlg.gaas.toml has top-level/[struc]/[[site]]/[[spec]]/...
              plus [gw]/[mlo]/[blocks]/[product_basis] (incl. nlx/valence/core).
 ```
 
+The [`ctrlg.gaas.toml`](https://github.com/tkotani/ecalj/blob/main/Samples/GetStarted/GaAs/ctrlg.gaas.toml)
+in the worked-example directory was made this way. A re-run rewrites the whole file from the ctrls (the previous file is
+moved to `ctrlg.<sname>.toml.bakup`, one-generation backup only).
+
 **Recommended workflow**: run `ctrlgenToml.py <sname>` with **no other
 flags** to get the defaults, then **edit `ctrlg.<sname>.toml`
-afterwards** — the file is fully commented and TOML-typed, so
-in-place edits in your editor are the natural path. **The CLI flags
-listed by `ctrlgenToml.py --help` are bake-in equivalents of those
-edits, not requirements.** They are useful when scripting / batch-
-generating many materials, but for normal interactive use leave them
-off and edit the generated `ctrlg.<sname>.toml` keys directly.
-
-The `nlx` / `valence` / `core` tables at the end of `[product_basis]` are
-consumed only on the GW path and **do not normally need hand editing**;
-leave them as generated.
-
-Pure DFT / no-GW directory? Add `--skipgw`:
-
-```bash
-ctrlgenToml.py <sname> --skipgw   # ctrlg.<sname>.toml without [gw]/[mlo]/[blocks]/[product_basis]
-```
-
-To add the GW sections later **without losing the ctrl-side edits
-you have made in the meantime**, use `--addgw`:
-
-```bash
-ctrlgenToml.py <sname> --addgw    # appends [gw]/[mlo]/[blocks]/[product_basis] in place;
-                                  # ctrl-side keys ([bz], [ham], [[spec]], ...)
-                                  # are preserved verbatim.
-```
-
-`--addgw` refuses to run if `[gw]` is already present (to avoid
-silent duplication). **Do not** plain re-run `ctrlgenToml.py <sname>`
-for this purpose: the default flow overwrites the whole
-`ctrlg.<sname>.toml` from `ctrls.<sname>` (the previous file is
-moved to `ctrlg.<sname>.toml.bakup`, one-generation backup only —
-your edits would be in there but you'd have to merge them back by
-hand).
+afterwards**; the file is commented and TOML-typed, so in-place edits in your editor are the natural path.
+The flags listed by `ctrlgenToml.py --help` are bake-in equivalents of those edits (useful when generating many materials in a batch), not requirements.
+The `nlx` / `valence` / `core` tables at the end of `[product_basis]` are used only by GW; we do not edit them by hand usually.
 
 Common edits in `ctrlg.<sname>.toml`:
 
@@ -392,66 +340,30 @@ Common edits in `ctrlg.<sname>.toml`:
 7. LDA+U: add `idu / uh / jh` arrays inside `[[spec]]`; see the
    [LDA+U section in `lmf.md`](./lmf).
 
-A key is overridden for one run by `--ctrlg:<section.key>=<value>` on the command line, see [Input file](./toml_migration#run-time-ctrlg-overrides):
+There is a [detailed reference for every key](./lmf).
+For `--skipgw` (no GW), `--addgw` (add the GW sections later, keeping your hand edits),
+and `--ctrlg:<section.key>=<value>` to change a key for one run (e.g. `lmf gaas --ctrlg:bz.nkabc=[8,8,8]`; with the old `-v` forms the programs stop),
+see [Input file](./toml_migration).
 
-```bash
-# OLD (legacy ctrl + %const; the programs stop)
-lmf si -vnk=8 -vmetal=3 -vnspin=2
-
-# NEW (TOML path; processed in-memory, no on-disk rewrite)
-lmf si --ctrlg:bz.nkabc=[8,8,8] --ctrlg:bz.metal=3 --ctrlg:ham.nspin=2
-```
-
-> ⚠️ **CAUTION** — `-v` *used to* override a `%const NAME=...` symbol
-> declared inside the legacy `ctrl.<sname>` (`{NAME}` then expanded
-> wherever it was referenced). Under TOML, **the override points directly at
-> a TOML path** (`--ctrlg:section.key=val`); there is no `%const`
-> indirection. With `-vmetal=3` the programs stop with a message that
-> names the new form — use `--ctrlg:bz.metal=3`. See the
-> [CAUTION block on toml_migration](./toml_migration#run-time-ctrlg-overrides).
-
-* `lmchk mp-2534 --ctrlg:verbose=60` allows you to check the recognized symmetries.
-  (Legacy `lmchk --pr60 mp-2534` is retired — the `--pr=N` shortcut now aborts
-  with a migration hint; use `--ctrlg:verbose=N` instead.)
+* `lmchk gaas --ctrlg:verbose=60` allows you to check the recognized symmetries (legacy `lmchk --pr60 gaas` is retired).
 
 At this point, you can visually check:
 
 * `SiteInfo.lmchk` — MT radii, atomic positions
 * `PlatQlat.chk` — primitive lattice vectors (plat) and reciprocal (qlat)
 
-[Detailed reference for every key in `ctrlg.<sname>.toml`](./lmf).
-
-> **`ctrlgenToml.py`** takes the periodic-table defaults from
-> `SRC/exec/pylib/atomlist.py` (the legacy `ctrlgenM1.py`, which wrote
-> `ctrl.<sname>` before 2026-05, was removed on 2026-10-07).  Old directories that already have
-> hand-edited `ctrl.<sname>` (or `ctrl.<sname>` + `GWinput`) decks are
-> converted by `Legacy2toml.py <sname>`.  See
-> Step 2-Migration below.
-
 ### Step 2-Migration. Existing `ctrl.<sname>` (and optional `GWinput`)
 
-If you start from an old working directory that already has a
-hand-edited `ctrl.<sname>` (and possibly `GWinput`), don't rebuild
-from `ctrls`; convert in place:
-
-```bash
-Legacy2toml.py mp-2534
-```
-
-This walks `ctrl.<sname>` and (if present) `GWinput` and emits
-`ctrlg.<sname>.toml`.  It is idempotent and prints
-`[INFO] / [WARN] / [ERROR]` diagnostics for any `%const` / `-v`
-overrides that won't survive as-is.  See
-[Input file](./toml_migration) for the full key map.
+A pre-2026-05 directory with a hand-edited `ctrl.<sname>` (and possibly `GWinput`) is not rebuilt from ctrls; convert it in place to `ctrlg.<sname>.toml` with `Legacy2toml.py <sname>`.
+For its diagnostics and the key map, see [Input file](./toml_migration#migration-of-an-existing-legacy-directory).
 
 ### Install VESTA 
 It is convenient to see crystal structures with VESTA.
-(I installed VESTA-gtk3.tar.bz2 (ver. 3.5.8, built on Aug 11 2022, 23.8MB) on ubuntu 24)
 At ecalj/StructureTool/, we have 'viewvesta' command.
 Try
 ```
-viewvesta ctrlg.si.toml      # canonical (post-2026-05)
-viewvesta ctrls.si           # legacy structure-only seed file
+viewvesta ctrlg.gaas.toml
+viewvesta ctrls.gaas
 ```
 to see the structure in VESTA. The converters `vasp2ctrl` / `ctrl2vasp` (also in `/StructureTool`) accept the same TOML / ctrls / ctrl input forms.
 <small>(We have ~/ecalj/GetSyml/README.md. but Users do not need to read this.)</small>
@@ -459,17 +371,19 @@ to see the structure in VESTA. The converters `vasp2ctrl` / `ctrl2vasp` (also in
 
 
 ## Step 3. LDA calculation
+The outputs shown in this step (the `conf` table, the iteration energies, the `bndfp` lines) are from a run of mp-2534 (lattice constant 5.75 Å); for gaas the numbers differ slightly.
+
 1. Run lmfa at first. It is for spherical atomic electron densities, contained in the crystals. lmfa ends in a few seconds.
    ```bash
-   lmfa mp-2534
+   lmfa gaas
    ```
    gives spherical atom calculation for initialization.  `lmfa` reads
-   `ctrlg.mp-2534.toml` (auto-detected if omitted, when there is exactly
+   `ctrlg.gaas.toml` (auto-detected if omitted, when there is exactly
    one `ctrlg.*.toml` in the cwd) and generates the files required for
    `lmf` below.
    Check `conf ` section in the console output as
    ```bash
-   lmfa mp-2534 |grep conf
+   lmfa gaas |grep conf
    ```
    . This shows atomic configuration (there are no side effects even if you run `lmfa` repeatedly) as 
    ```
@@ -502,10 +416,10 @@ to see the structure in VESTA. The converters `vasp2ctrl` / `ctrl2vasp` (also in
    * The initial electron density for lmf is given as the superposition of the spherically symmetric atomic densities given by lmfa. 
    * When [`[ham].readp = true`](./lmf.md#readp-option) (set by `ctrlgenToml.py` by default; legacy `READP=T` was the same), we keep the logarithmic derivative of the radial wave function at MT boundaries fixed.
 
-2. After `lmfa`, we run LDA calculation as:
+2. After `lmfa`, we run LDA calculation as (`tee` also writes the console output to `llmf`):
 
    ```bash
-   mpirun -np 8 lmf mp-2534
+   mpirun -np 8 lmf gaas | tee llmf
    ```
    It will finish with several seconds. Then we see   
    ```bash
@@ -514,29 +428,25 @@ to see the structure in VESTA. The converters `vasp2ctrl` / `ctrl2vasp` (also in
    diffe(q)= -0.000001 (0.000004)    tol= 0.000010 (0.000010)   more=F
    c ehf(eV)=-114268.304015 ehk(eV)=-114268.304037 sev(eV)
    ```
-   Here `c ` is the sign that `diffe(q)`,which shows the changes of energy and charge from the previous iteration, is less than the criterion, that is, converged. save.mp-2534 contains a line per iteration. We see it takes 10 times to have convergence. We show [two energies](./lmf.md#q-should-the-harris-foulkes-and-hohenberg-kohn-sham-functionals-agree-at-self-consistency), which should be the same.
-   * Note: mp-2534 (GaAs) gives 5.75 $\AA$ for GaAs, while the experimental value is 5.65$\AA$. I guess this is a PBEsol problem.
-   * llmf contains information of iterations (since I use tee command above), check eigenvalue and fermi energies, band gap.
-   * rst.mp-2534 is generated. Self-consistent charge included.
-   * You can change lattice constant by editing `[struc].alat` in
-     `ctrlg.mp-2534.toml`. Math operators in TOML scalars are not
+   Here `c ` is the sign that `diffe(q)`,which shows the changes of energy and charge from the previous iteration, is less than the criterion, that is, converged. We see it takes 10 times to have convergence. We show [two energies](./lmf.md#q-should-the-harris-foulkes-and-hohenberg-kohn-sham-functionals-agree-at-self-consistency), which should be the same (with a slight difference).
+   * `llmf` contains information of iterations; check eigenvalues, the Fermi energy and the band gap.
+   * `rst.gaas` is generated. Self-consistent charge included.
+   * `save.gaas` holds the history of lmfa and lmf: each program writes its command line (with options) on a `Start` line, and lmf writes one line per iteration.
+     The first letter of an iteration line marks its state: `c` converged, `x` the maximum number of iterations reached without convergence, `i` iterating, `h` the first iteration (Harris energy from the superposition of free-atom densities), `C` structural relaxation converged.
+   * If you restart lmf again, it automatically read rst file. Thus it should be already converged-- to make it sure, it stops after two iterations.
+   * You can change lattice constant by editing `[struc].alat` (a.u.) in
+     `ctrlg.gaas.toml`. Math operators in TOML values are not
      evaluated; precompute the value (e.g. `alat = 10.6818`) or use
-     `--ctrlg:struc.alat=10.6818` at run-time. The legacy `ctrl.<sname>`
-     `%const` math (`1.8897268777743552*5.65/5.75` etc.) was baked in
-     at `Legacy2toml.py` time.
-   * Note (historical): `ctrlp.<sname>` was an intermediate file
-     generated by `ctrl2ctrlp.py` from the legacy `ctrl.<sname>`. As of
-     2026-05 the Fortran reads `ctrlg.<sname>.toml` directly via
-     `m_ctrl_toml_loader.f90`; no `ctrlp` step occurs.
-   * check save.mp-2534. Show history of lmfa and lmf. one line per iteration. Show your console options. c,x,i,h
-   LDA energy shown two values need to be the same (but slight difference).
-   Repeat lmf stops with two iteration.
+     `--ctrlg:struc.alat=10.6818` at run-time. The `%const` math of ctrls or of a legacy `ctrl.<sname>`
+     (`1.8897268777743552*5.65/5.75` etc.) is written as a value by
+     `ctrlgenToml.py` or `Legacy2toml.py`.
+   * The intermediate file `ctrlp.<sname>` of older versions (made by `ctrl2ctrlp.py`) no longer exists; the Fortran reads `ctrlg.<sname>.toml` directly.
    * SiteInfo.lmchk : Site infor
    * PlatQlat.chk : Lattice info
    * efermi.lmf: the Fermi energy 
    * estaticpot.dat : electrostatic potential of smooth part.
    * __mixm* is the mixing file containing history of iteration.
-   * If you restart lmf again, it automatically read rst file. Thus it should be already converged-- to make it sure, it stops after two iterations.  
+
 Be careful about the definition of zero level of the one-body potential. We set the average of electrostatic potential at MT boundaries are zero. 
 `__*` are temporary files, which can be deleted. 
 As for the console out put, you see
@@ -551,7 +461,7 @@ As for the console out put, you see
  bndfp: kpt     7 of    29 k=  0.0710  0.0126  0.0000 ndimh = nmto+napw =    80   55   25
 ...
 ```
-, where we see the Hamiltonian dimensions. When PWMODE=11, we have q-dependent energy cutoff of APWs by |q+G|^2< pwemax. (In our code, we use Rydberg $2m=\hbar=e^2/2=1$). 
+, where we see the Hamiltonian dimensions. When `[ham].pwmode = 11` (default), we have q-dependent energy cutoff of APWs by `|q+G|^2 < pwemax` (`[ham].pwemax`, Ry). (In our code, we use Rydberg $2m=\hbar=e^2/2=1$). 
 
 * NOTE: In defaults given by ctrlgenToml.py, all the calculation are by  
    >No empty spheres. 
@@ -564,79 +474,53 @@ As for the console out put, you see
 ### job_tdos, job_pdos
 You can calculate total dos by
 ```
-job_tdos mp-2534 -np 8
-gnuplot -persist tdos.mp-2534.glt
+job_tdos gaas -np 8
+gnuplot -persist tdos.gaas.glt
 ```
 and pdos by
 ```
-job_pdos mp-2534 -np 8
+job_pdos gaas -np 8
 ```
-`job_pdos` is a little expensive because symmetry is not used. After finished, `gnuplot -p pdos.site001.mp-2534.glt` shows the PDOS resolved into $lm$ channels
+`job_pdos` is a little expensive because symmetry is not used. After finished, `gnuplot -p pdos.site001.gaas.glt` shows the PDOS resolved into $lm$ channels
 of real harmonics (shown at the end of `job_pdos`).
-![alt text](../../manual/image-7.png).This is PDOS at As site of mp-2534.
+The figure below is the PDOS at the As site of mp-2534.
+![PDOS at the As site of mp-2534](../../manual/image-7.png)
 Be careful about the number of k points. You may need to enlarge the
 mesh for accurate DOS / PDOS. Pass it on the command line with the
 TOML-path syntax:
-`job_tdos mp-2534 -np 8 --ctrlg:bz.nkabc=[10,10,10]`.
-Check by `grep '^bz.nkabc\|^nkabc' llmf_tdos` and look at `save.mp-2534`.
+`job_tdos gaas -np 8 --ctrlg:bz.nkabc=[10,10,10]`.
+Check by `grep '^bz.nkabc\|^nkabc' llmf_tdos` and look at `save.gaas`.
 
 ## Step 4. Create k-path and Brillouin zone for band plot
-After `lmf` converges, make a band plot with `job_band` explained later on. The normality of the calculation of bands can be confirmed by the band plot (for magnetic systems, check the total magnetic moment and the magnetic moment for each site).
+After `lmf` converges, make a band plot with `job_band` of Step 5. The normality of the calculation of bands can be confirmed by the band plot (for magnetic systems, check the total magnetic moment and the magnetic moment for each site).
 
-Before `job_band`, run ```getsyml gaas```. Install any missing packages with pip. It is on spglib by Togo and seekpath. After finished, view BZ.html. It shows the k-path in the BZ. We show an example for ba2pdo2cl2 in the figure below. 
+Before `job_band`, make the symmetry-line file [`syml.<sname>`](./syml) with `getsyml` (`gaas` is the `<sname>` of `ctrlg.<sname>.toml`):
+```
+getsyml gaas
+```
+Install any missing packages with pip. It is on spglib by Togo and seekpath. After finished, view BZ.html. It shows the k-path in the BZ.
 It is an interactive figure written with plotly, so you can read the coordinate values.
-
-```
-getsyml foobar
-```
-(`foobar` here matches the `<sname>` in `ctrlg.<sname>.toml`.)
-
-* Samples of BZ.html by getsyml are seen at 
-https://ecalj.sakura.ne.jp/BZgetsyml/
-![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/482779/6af0e96e-c573-ede7-bee2-821134910c27.png)
-
+Samples of BZ.html by getsyml are seen at https://ecalj.sakura.ne.jp/BZgetsyml/ (the one for ba2pdo2cl2 is in [the case study below](#a-case-study-of-ba2pdo2cl2)).
 
 
 ## Step 5. band plot
-(this is a case for ba2pdo2cl2 )
 ```
->job_band ba2pdo2cl2 -np 8
+job_band gaas -np 8
 ```
 
-A gnuplot script can be created. Edit it if necessary. If you edit syml.ba2pdo2cl2 before `job_band`, you can adjust the symmetry line and mesh size.
+A gnuplot script `bandplot.isp1.glt` (and `bandplot.isp2.glt` for two spins) is created. Edit it if necessary and redraw with `gnuplot -persist bandplot.isp1.glt`. If you edit `syml.gaas` before `job_band`, you can adjust the symmetry line and mesh size.
+The names of the symmetry points can be confirmed with BZ.html and `syml.<sname>`. 0 eV is the Fermi energy.
 
-* The following picture is the LDA bands for the default calculation of ba2pdo2cl2 (the names of the symmetric points can be confirmed with BZ.html. In addition, look into `syml.<sname>`). 0 eV is the Fermi energy. Since this is metallic, we see no band gap.
-![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/482779/8169cff0-78e6-ea50-0084-66a4cefc4cda.png).
-
-
-
-Here we are talking about band energies.
+* At the end of `job_band`, you can add overrides for lmf; e.g. `--ctrlg:ham.so=1 --ctrlg:ham.nspin=2` gives bands with SOC as perturbation.
 
 * In ecalj, the k mesh for `lmf` (`[bz].nkabc` in `ctrlg.<sname>.toml`) and the k mesh for GW (`[gw].n1n2n3`) can be different. The former affects LDA wall-time only weakly; the latter has a large effect (so we want to reduce `[gw].n1n2n3`).
 
-* In ecalj's band plot mode, theoretically degenerated bands because of symmetry at the BZ edge are not degenerated. This is because there are limited numbers of APW basis functions, so run the band plot with pwemax=4, etc. (Temporary solution: We want to automate it).
-![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/482779/8169cff0-78e6-ea50-0084-66a4cefc4cda.png)
+* In ecalj's band plot mode, theoretically degenerated bands because of symmetry at the BZ edge are not degenerated. This is because there are limited numbers of APW basis functions, so run the band plot with pwemax=4, etc. (`job_band gaas -np 8 --ctrlg:ham.pwemax=4`) (Temporary solution: We want to automate it).
 
 
 ### job_tdos, job_fermisurface, job_pdos
 `job_pdos` calculates PDOS, `job_tdos` calculates total DOS, and `job_fermisurface` draws the Fermi surface with Xcrysden.
 `job_fermisurface` can be used to draw the shape of the CBM bottom as ellipsoid of Si.
-xxx 
-
-<!-- ### job_pdos,job_tdos, job_fermisurface 
-For band plot, we use job_band. Before this, we need to generate symmetry lines written in [`syml.<sname>`](./syml). This can be generated by `getsyml <sname>`.
-
-This generates syml.mp-2534.
-[BZ.html](https://ecalj.sakura.ne.jp/BZgetsyml/) contains BZ and symmetry lines.
-For bandplot,
-```
-job_band mp-2534 -np 8 [options]
-```
-At the end of job_band, you can add TOML overrides for lmf as `--ctrlg:ham.so=1 --ctrlg:ham.nspin=2`.
-(these are for SOC as perturbation)
-We use gnuplot for band plot bandplot.isp1.glt.
-
-In the similar manner, we can run job_pdos, job_tdos, job_fermisurface. -->
 
 
 ## Step 6. QSGW calculation
@@ -655,14 +539,14 @@ so we recommend running smaller systems first.
 > `ctrl.<sname>`) and you want a default GW set-up, run:
 >
 > ```bash
-> ctrlgenToml.py mp-2534 --addgw     # appends [gw]/[mlo]/[blocks]/[product_basis] to ctrlg.mp-2534.toml
+> ctrlgenToml.py gaas --addgw     # appends [gw]/[mlo]/[blocks]/[product_basis] to ctrlg.gaas.toml
 > ```
 
 `[gw]` carries two temperatures in kelvin, `t_sigmaw` (Fermi-Dirac width
 of the levels in the self-energy) and `t_tetrakbt` (how $\chi_0$ is
 smeared; **required**, the programs stop without it). The generated file
 has 300 for both. For semiconductors and insulators use `t_tetrakbt = 0`
-(the tetrahedron method at T=0); for metals see [kBT](./kBT).
+(the tetrahedron method at T=0; the worked example `ctrlg.gaas.toml` has `t_tetrakbt = 0` and `t_sigmaw = 262`); for metals see [kBT](./kBT).
 
 The key you most often tweak before launching QSGW is the GW
 k-mesh, `[gw].n1n2n3`, kept smaller than `[bz].nkabc` (typically 1/2
@@ -676,6 +560,7 @@ nkabc = [12, 12, 12]      # LDA k-mesh
 n1n2n3 = [6, 6, 6]        # GW k-mesh (smaller -> faster)
 ```
 
+The worked example `ctrlg.gaas.toml` has `nkabc = [8, 8, 8]` and `n1n2n3 = [4, 4, 4]`.
 For Si, `n1n2n3 = [6, 6, 6]` is good; the rest of `[gw]` rarely needs
 touching for non-magnetic semiconductors. The legacy GWinput key
 mapping lives in [`lmf.md` § Legacy ctrl.&lt;sname&gt; ↔ TOML path map](./lmf#legacy-ctrl-lt-sname-gt-toml-path-map),
@@ -690,7 +575,7 @@ We run the QSGW calculations with gwsc. For semiconductors, several QSGW iterati
 QSGW is to obtain band structures (or one-body Hamiltonian), the total energy is not yet.
 
 `QPU` file contains diagonal components of GW calculations.
-Note that our `Mixed Produce basis` is a key technology for the GW calculation.
+Note that our `Mixed Product basis` is a key technology for the GW calculation.
 ```
 gwsc -np NP [-np2 NP2] [--gpu] [--prec=tf32|fp32|fp64] nloop extension
 ```
@@ -699,8 +584,12 @@ For magnetic materials wanting the same basis for up and down, set
 `[ham] phispinsym = true` in `ctrlg.<sname>.toml`, or pass
 `--ctrlg:ham.phispinsym=true` at run time.)
 
+For the GaAs worked example (1 is the number of QSGW iterations):
+```
+gwsc -np 8 1 gaas
+```
 
-Then console outputs of `gwsc` is somthing like
+Then console outputs of `gwsc` is somthing like (this is for Si)
 ```text
 --- Start gwsc ---
 option= []
@@ -775,15 +664,44 @@ Since I had 5th-QSGW iteration finished (checked  by the existence of QPU.5run),
 
 #### a case study of ba2pdo2cl2.
 
-If you started from a pre-2026-05 directory with only `ctrl.<sname>`,
-convert it and add the GW driver settings in two steps:
-
-```bash
-Legacy2toml.py ba2pdo2cl2            # ctrl.<sname> -> ctrlg.<sname>.toml (no GW sections without GWinput)
-ctrlgenToml.py ba2pdo2cl2 --addgw    # appends [gw]/[mlo]/[blocks]/[product_basis]
+This is the record of a ba2pdo2cl2 calculation (the times, figures and numbers below are as recorded; it has not been rerun with the present code).
+The POSCAR is below; write it to `POSCAR.ba2pdo2cl2`.
+```
+POSCAR_ba2pdo2cl2
+1.0
+-2.06443 2.06443 8.40383 
+2.06443 -2.06443 8.40383 
+2.06443 2.06443 -8.40383 
+Ba Pd O Cl 
+2 1 2 2 
+Cartesian
+0.0 0.0 6.5153213224
+0.0 0.0 10.2923386776
+0.0 0.0 0.0
+0.0 2.06443 0.0
+2.06443 0.0 0.0
+0.0 0.0 3.1625293056
+0.0 0.0 13.6451306944
 ```
 
-After that, the keys you usually need to look at before
+Follow the same flow as Steps 1-5 up to the LDA bands:
+```bash
+vasp2ctrl POSCAR.ba2pdo2cl2
+mv ctrls.POSCAR.ba2pdo2cl2.vasp2ctrl ctrls.ba2pdo2cl2
+ctrlgenToml.py ba2pdo2cl2
+lmfa ba2pdo2cl2
+mpirun -np 8 lmf ba2pdo2cl2 | tee llmf
+getsyml ba2pdo2cl2
+job_band ba2pdo2cl2 -np 8
+```
+
+* The BZ.html made by getsyml:
+![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/482779/6af0e96e-c573-ede7-bee2-821134910c27.png)
+
+* The following picture is the LDA bands for the default calculation (the names of the symmetric points can be confirmed with BZ.html; look also into `syml.ba2pdo2cl2`). 0 eV is the Fermi energy. Since this is metallic, we see no band gap.
+![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/482779/8169cff0-78e6-ea50-0084-66a4cefc4cda.png)
+
+The keys you usually need to look at before
 running QSGW are `t_tetrakbt` (above) and the GW k-mesh:
 
 ```toml
@@ -798,7 +716,7 @@ Then you can run QSGW calculation with
 ```
 gwsc -np 32 1 ba2pdo2cl2
 ```
-. Here 1 means the number of QSGW iterations. QSGW iteration is quite time-consuming. `gwsc` gives minimum help (we need to explain options elsewhere).
+. Here 1 means the number of QSGW iterations. QSGW iteration is quite time-consuming. `gwsc` gives minimum help (for the options see [gwsc](./gwsc)).
 
 The iteration is kept in `rst.<sname>`:electron density, `sigm.*`:vxcqsgw.
 (Remove these files in addition to *run files/directories if you like to start from the beginning).
@@ -816,10 +734,10 @@ Since you did 1 already. You will have the results of 1+nx QSGQ iteration.
 
 * when we run 8 iterations as for ba2pdo2cl2, we had band gap 2.1 eV. We saw band gap after 4th iteration.
 ![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/482779/4aebc98b-a050-e198-1769-d2d4236f0bf8.png)
-* For comparison with experiments, we recommend to use ssig=0.8
-(set in `ctrlg.<sname>.toml` as `[ham].scaledsigma = 0.8`), which is called as QSGW80.
+* For comparison with experiments, we recommend to use QSGW80
+(set in `ctrlg.<sname>.toml` as `[ham].scaledsigma = 0.8`).
 
-* Spin-orbit coupling. After you obtain `sigm.<sname>`, you set SO=1 (LdotS scheme) and run lmf. Then you can include effect of SOC. Sinc SO=1
+* Spin-orbit coupling. After you obtain `sigm.<sname>`, you set `[ham].so = 1` (LdotS scheme; needs `[ham].nspin = 2`) and run lmf. Then you can include effect of SOC. Since `so = 1`
 is not implemented in the whole gwsc cycle, we have to include SOC just at the end step (We include SOC after we fix VxcQSGW).
 
 * If you run 
@@ -835,7 +753,7 @@ Example of QSGW for KTaO3 (perovskite,mp-3614)
 
 ## lmchk 
   ```
-  lmchk mp-2534
+  lmchk gaas
   ```
   is to check the crystal symmetry. In addition determine MT radius. and Check the ovarlap of MTs. Defaults setting is with -3% overlap.(no overlap).
 

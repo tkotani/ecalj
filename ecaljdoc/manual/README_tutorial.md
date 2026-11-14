@@ -134,29 +134,30 @@ MLO による模型化（模型のハミルトニアン、v・W・cRPA。2026-10
 ここでは ecalj による DFT/QSGW の計算を説明します。そのあとでバンドの図の描き方を説明します。簡単のため、常磁性（nsp=1）で、4f なし、SOC なしの場合を扱います。
 一歩ずつ説明します。
 
-> **実例** — 以下のすべての Step で **GaAs** を例に使います。
-> 最小のシード（`ctrls.gaas` と、生成した
-> `ctrlg.gaas.toml`）は
+> **実例** — 以下のすべての Step で **GaAs**（物質の名前 sname は `gaas`）を例に使います。
+> 最小のシード（`ctrls.gaas` と、生成した `ctrlg.gaas.toml`）は
 > [`Samples/GetStarted/GaAs/`](https://github.com/tkotani/ecalj/tree/main/Samples/GetStarted/GaAs) にあります。
-> このディレクトリを新しい作業場所にコピーして、下の Step 1-6
-> に従ってください。一度に再現するスクリプトは、その
+> Step 0 のとおり作業の場所にコピーして、Step 1-6 に従ってください。一度に再現するコマンドの並びは、その
 > [README](https://github.com/tkotani/ecalj/blob/main/Samples/GetStarted/GaAs/README.md)
-> を見てください。
+> にあります。
 
 詳しくは [UsageDetailed](./UsageDetailed.md) で説明します。
 
 ## Step 0. POSCAR を用意する {#step-0-get-poscar}
-まず POSCAR（VASP の形式の結晶構造）が必要です。 
-POSCAR の例は ecalj/ecalj_auto/INPUT/testSGA/POSCARALL にあります。
+GaAs の実例では、サンプルのディレクトリを ecalj のクローンの**外**の作業の場所にコピーして、そこで計算します（計算で作られるファイルがクローンの中に散らばらないようにするためです）。
 ```bash
-cd ecalj
-mkdir TEST
-cd TEST
-mkdir test1
-mkdir test2
-cat ecalj_auto/INPUT/testSGA/joblist.bk
-cp ../ecalj_auto/INPUT/testSGA/POSCARALL/POSCAR.mp-2534 test1
-cp ../ecalj_auto/INPUT/testSGA/POSCARALL/POSCAR.mp-8062 test2
+mkdir -p ~/work
+cp -r ecalj/Samples/GetStarted/GaAs ~/work/gaas    # ecalj はクローンの場所
+cd ~/work/gaas
+```
+ここには `ctrls.gaas`（Step 1 で作る構造のファイル）と `ctrlg.gaas.toml`（Step 2 で作る入力ファイル）がもう入っています。
+
+自分の物質では、POSCAR（VASP の形式の結晶構造）から始めます。
+Materials Project（MP）の POSCAR の例が ecalj/ecalj_auto/INPUT/testSGA/POSCARALL にあります（物質の一覧は同じ場所の `joblist`）。
+```bash
+cat ecalj/ecalj_auto/INPUT/testSGA/joblist
+mkdir -p ~/work/mp-2534
+cp ecalj/ecalj_auto/INPUT/testSGA/POSCARALL/POSCAR.mp-2534 ~/work/mp-2534/
 ```
 
 例えば、mp-2534 の GaAs の POSCAR は次のとおりです。
@@ -173,25 +174,8 @@ direct
    0.2500000000000000    0.2500000000000000    0.2500000000000000 As
 
 ```
-
-次は ba2pdo2cl2 の POSCAR です（QSGW の結果は下に示します）。
-```
-POSCAR_ba2pdo2cl2
-1.0
--2.06443 2.06443 8.40383 
-2.06443 -2.06443 8.40383 
-2.06443 2.06443 -8.40383 
-Ba Pd O Cl 
-2 1 2 2 
-Cartesian
-0.0 0.0 6.5153213224
-0.0 0.0 10.2923386776
-0.0 0.0 0.0
-0.0 2.06443 0.0
-2.06443 0.0 0.0
-0.0 0.0 3.1625293056
-0.0 0.0 13.6451306944
-```
+この格子定数は 5.75 Å で、実験値の 5.65 Å より大きくなっています。MP は PBE で構造を緩和するためです（GGA は格子定数を大きめに出します）。
+実例の `ctrls.gaas` は実験値 a=5.65325 Å を使います。
 
 cif を `POSCAR` に変換したいときは、次のようにします。
 `cif2cell foobar.cif -p vasp --vasp-cartesian --vasp-format=5`
@@ -199,14 +183,15 @@ cif を `POSCAR` に変換したいときは、次のようにします。
 
 ## Step 1. POSCAR を ctrls に変換する {#step-1-convert-poscar-to-ctrls}
 次に vasp2ctrl で POSCAR を ctrls に変換します。
-ctrls は ecalj で使う構造のファイルです。
+ctrls は ecalj で使う構造のファイルです。GaAs の実例では `ctrls.gaas` がすでにあるので、この Step は要りません。
 
+`POSCAR.foo` から始めるときは次のようにします。`foo` が物質の名前（sname）になり、この後のコマンドで使います。
 ```
-vasp2ctrl POSCAR.mp-2534 
-mv ctrls.POSCAR.mp-2534.vasp2ctrl ctrls.POSCAR.mp-2534
-cat ctrls.mp-2534
+vasp2ctrl POSCAR.foo
+mv ctrls.POSCAR.foo.vasp2ctrl ctrls.foo
 ```
 
+例えば mp-2534 では `vasp2ctrl POSCAR.mp-2534` のあと `mv ctrls.POSCAR.mp-2534.vasp2ctrl ctrls.mp-2534` とします。
 ctrls.mp-2534 には POSCAR と同じ結晶構造が入っています。
 ```
 STRUC
@@ -219,8 +204,7 @@ SITE
      ATOM=As POS=     1.17375100000       0.82996725000       2.03299675000 
 ```
 STRUC と SITE のような区分のブロックを示すために、字下げが必要です。
-`ctrls.gaas` の別の例です（実例のシードとして
-[`Samples/GetStarted/GaAs/ctrls.gaas`](https://github.com/tkotani/ecalj/blob/main/Samples/GetStarted/GaAs/ctrls.gaas) にあります）。
+実例の `ctrls.gaas`（[`Samples/GetStarted/GaAs/ctrls.gaas`](https://github.com/tkotani/ecalj/blob/main/Samples/GetStarted/GaAs/ctrls.gaas)）は、手で書いた ctrls の例です。
 
 ```
 %const bohr=0.529177 a=5.65325/bohr
@@ -295,31 +279,21 @@ SPEC
 
 
 - メモ: 
-    - ctrl2vasp ctrls.mp-2534 で VASP のファイルに戻せます。VESTA で確かめてください。viewvesta（変換して VESTA を起動します）も使えます。
+    - `ctrl2vasp ctrls.gaas` で VASP のファイルに戻せます。VESTA で確かめてください。viewvesta（変換して VESTA を起動します）も使えます。
     - 使わないファイルがたくさん作られます（気にしなくてかまいません）。
     - サイトには [Niup などの](./UsageDetailed.md#antiferro-symmetry-without-soc) 好きな名前を使えます。その場合は SPEC の区分も設定する必要があります。[Z は整数でなくてもかまいません。](./UsageDetailed.md#background-charge-and-fractional-z) これは後で学んでください。
     - 古い ctrls には NL、NBAS、NSPEC があるかもしれませんが、いまは要りません。
 
 ## Step 2. ctrls から `ctrlg.<sname>.toml` を作る {#step-2-get-ctrlg-sname-toml-from-ctrls}
 
-`ctrlg.<sname>.toml` は、2026-05 から Fortran のバイナリ（`lmf`、`lmfa`、`lmchk`、`gwsc`、...）
-が実際に読むただ一つの入力ファイルです。（最後の区分 `[product_basis]` の末尾には、
-GW だけが使う原子ごとの表があります。生成するプログラムが書くので、ふつうは
-編集しません。）軽い `ctrls.<sname>`
-（Step 1 で `vasp2ctrl` が作った、構造だけのシード）から、
-**`ctrlgenToml.py`** で直接作ります。
+`ctrlg.<sname>.toml` は、2026-05 から Fortran のプログラム（`lmf`、`lmfa`、`lmchk`、`gwsc`、...）
+が読むただ一つの入力ファイルです。Step 1 の ctrls から **`ctrlgenToml.py`** で作ります。
 
 ```bash
-ctrlgenToml.py mp-2534
+ctrlgenToml.py gaas
 ```
 
-（あるいは、[`Samples/GetStarted/GaAs/`](https://github.com/tkotani/ecalj/tree/main/Samples/GetStarted/GaAs)
-にある GaAs の実例では、
-`ctrlgenToml.py gaas` で、そのディレクトリにある
-[`ctrlg.gaas.toml`](https://github.com/tkotani/ecalj/blob/main/Samples/GetStarted/GaAs/ctrlg.gaas.toml)
-が作られます。）
-
-この一つのコマンドは次のことをします。
+このコマンドは次のことをします。
 
 1. 最上位（`symgrp` / `verbose` / `time`）と `[struc] / [[site]] / [[spec]]` を、周期表の
    既定値（`atomlist` の表、`SRC/exec/pylib/atomlist.py`）で埋めます。
@@ -331,45 +305,22 @@ ctrlgenToml.py mp-2534
 うまく終わると、最後は次のようになります。
 
 ```text
-ctrlgenToml: wrote ctrlg.mp-2534.toml (2 spec, 2 sites)
+ctrlgenToml: wrote ctrlg.gaas.toml (2 spec, 2 sites)
 ctrlgenToml: running lmfa -> lmf --jobgw=0 -> gwinit  to fill GW sections
-ctrlgenToml: done. ctrlg.mp-2534.toml has top-level/[struc]/[[site]]/[[spec]]/...
+ctrlgenToml: done. ctrlg.gaas.toml has top-level/[struc]/[[site]]/[[spec]]/...
              plus [gw]/[mlo]/[blocks]/[product_basis] (incl. nlx/valence/core).
 ```
 
+実例のディレクトリにある
+[`ctrlg.gaas.toml`](https://github.com/tkotani/ecalj/blob/main/Samples/GetStarted/GaAs/ctrlg.gaas.toml)
+は、こうして作ったものです。走らせ直すとファイル全体を ctrls から書き直します（前のファイルは
+`ctrlg.<sname>.toml.bakup` に移しますが、控えは一世代だけです）。
+
 **勧める手順**: `ctrlgenToml.py <sname>` を**ほかのフラグなしで**走らせて
 既定値を得て、**そのあとで `ctrlg.<sname>.toml` を編集します**。
-ファイルには説明のコメントがすべて付いていて、TOML の型も付いているので、
-エディタでその場で直すのが自然なやり方です。**`ctrlgenToml.py --help` に
-出る CLI のフラグは、こうした編集をあらかじめ焼き込むためのもので、必須ではありません。**
-スクリプトで多くの物質をまとめて作るときには便利ですが、
-ふつうに対話的に使うときはフラグを付けず、生成された `ctrlg.<sname>.toml` のキーを直接編集してください。
-
-`[product_basis]` の末尾の `nlx` / `valence` / `core` の表は
-GW の計算だけで使われ、**ふつうは手で編集する必要はありません**。
-生成されたままにしておいてください。
-
-DFT だけで GW を使わないディレクトリなら、`--skipgw` を付けます。
-
-```bash
-ctrlgenToml.py <sname> --skipgw   # ctrlg.<sname>.toml without [gw]/[mlo]/[blocks]/[product_basis]
-```
-
-**それまでに ctrl の側で行った編集を失わずに**、あとから GW の区分を加えるには、
-`--addgw` を使います。
-
-```bash
-ctrlgenToml.py <sname> --addgw    # appends [gw]/[mlo]/[blocks]/[product_basis] in place;
-                                  # ctrl-side keys ([bz], [ham], [[spec]], ...)
-                                  # are preserved verbatim.
-```
-
-`[gw]` がすでにあると、`--addgw` は走るのを断ります（黙って
-二重になるのを避けるためです）。この目的で `ctrlgenToml.py <sname>` を
-そのまま走らせ直すことは**しないでください**。既定の流れでは
-`ctrlg.<sname>.toml` 全体を `ctrls.<sname>` から上書きします（前のファイルは
-`ctrlg.<sname>.toml.bakup` に移されますが、控えは一世代だけです。
-編集した内容はそこに残りますが、手で戻してマージしなければなりません）。
+ファイルには説明のコメントと TOML の型が付いているので、エディタでその場で直すのが自然なやり方です。
+`ctrlgenToml.py --help` に出るフラグは、こうした編集をあらかじめ焼き込むためのもので（多くの物質をまとめて作るときに便利です）、必須ではありません。
+`[product_basis]` の末尾の `nlx` / `valence` / `core` の表は GW の計算だけで使います。ふつうは手で編集しません。
 
 `ctrlg.<sname>.toml` でよく編集するものです。
 
@@ -386,66 +337,30 @@ ctrlgenToml.py <sname> --addgw    # appends [gw]/[mlo]/[blocks]/[product_basis] 
 7. LDA+U: `[[spec]]` の中に配列 `idu / uh / jh` を加えます。
    [`lmf.md` の LDA+U の節](./lmf) を見てください。
 
-一回の実行だけキーを上書きするには、コマンドラインで `--ctrlg:<section.key>=<value>` を使います。[入力ファイル](./toml_migration#run-time-ctrlg-overrides) を見てください。
+[すべてのキーの詳しい説明](./lmf) があります。
+GW を使わないときの `--skipgw`、手で直したところを残したままあとから GW の区分を足す `--addgw`、
+一回の実行だけキーを変える `--ctrlg:<section.key>=<value>`（例 `lmf gaas --ctrlg:bz.nkabc=[8,8,8]`。古い `-v` の形ではプログラムが止まります）は、
+[入力ファイル](./toml_migration) を見てください。
 
-```bash
-# OLD (legacy ctrl + %const; the programs stop)
-lmf si -vnk=8 -vmetal=3 -vnspin=2
-
-# NEW (TOML path; processed in-memory, no on-disk rewrite)
-lmf si --ctrlg:bz.nkabc=[8,8,8] --ctrlg:bz.metal=3 --ctrlg:ham.nspin=2
-```
-
-> ⚠️ **注意** — `-v` は*以前は*、古い `ctrl.<sname>` の中で宣言した
-> `%const NAME=...` の記号を上書きしていました（そのあと参照されている所で
-> `{NAME}` が展開されました）。TOML では、**上書きは TOML のパスを直接指します**
-> （`--ctrlg:section.key=val`）。`%const` を介した間接の参照はありません。
-> `-vmetal=3` とすると、プログラムは新しい形を示すメッセージを出して止まります。
-> `--ctrlg:bz.metal=3` を使ってください。
-> [toml_migration の注意のブロック](./toml_migration#run-time-ctrlg-overrides) を見てください。
-
-* `lmchk mp-2534 --ctrlg:verbose=60` で、認識された対称性を確かめられます。
-  （古い `lmchk --pr60 mp-2534` は廃止しました。`--pr=N` の短縮形は移行のヒントを出して
-  止まります。代わりに `--ctrlg:verbose=N` を使ってください。）
+* `lmchk gaas --ctrlg:verbose=60` で、認識された対称性を確かめられます（古い `lmchk --pr60 gaas` は廃止しました）。
 
 ここで、次のものを目で確かめられます。
 
 * `SiteInfo.lmchk` — MT 半径、原子の位置
 * `PlatQlat.chk` — 基本格子ベクトル（plat）と逆格子（qlat）
 
-[`ctrlg.<sname>.toml` のすべてのキーの詳しい説明](./lmf)。
-
-> **`ctrlgenToml.py`** は周期表の既定値を
-> `SRC/exec/pylib/atomlist.py` から取ります（2026-05 より前に
-> `ctrl.<sname>` を書いていた古い `ctrlgenM1.py` は、2026-10-07 に削除しました）。手で編集した
-> `ctrl.<sname>`（または `ctrl.<sname>` + `GWinput`）がすでにある古いディレクトリは、
-> `Legacy2toml.py <sname>` で変換します。下の
-> Step 2-Migration を見てください。
-
 ### Step 2-Migration. すでにある `ctrl.<sname>`（と、あれば `GWinput`） {#step-2-migration-existing-ctrl-sname-and-optional-gwinput}
 
-手で編集した `ctrl.<sname>`（と、場合によっては `GWinput`）がすでにある
-古い作業ディレクトリから始めるときは、`ctrls` から作り直さず、
-その場で変換してください。
-
-```bash
-Legacy2toml.py mp-2534
-```
-
-これは `ctrl.<sname>` と（あれば）`GWinput` を読んで、
-`ctrlg.<sname>.toml` を出力します。何度走らせても同じ結果になり、そのままでは
-引き継げない `%const` / `-v` の上書きについて
-`[INFO] / [WARN] / [ERROR]` の診断を出します。キーの対応の全体は
-[入力ファイル](./toml_migration) を見てください。
+手で編集した `ctrl.<sname>`（と、あれば `GWinput`）のある 2026-05 より前のディレクトリは、ctrls から作り直さず、`Legacy2toml.py <sname>` でその場で `ctrlg.<sname>.toml` に変換します。
+診断の出力とキーの対応は [入力ファイル](./toml_migration#migration-of-an-existing-legacy-directory) を見てください。
 
 ### VESTA をインストールする {#install-vesta}
 結晶構造を見るには VESTA が便利です。
-（私は ubuntu 24 に VESTA-gtk3.tar.bz2（ver. 3.5.8、built on Aug 11 2022、23.8MB）を入れました）
 ecalj/StructureTool/ に 'viewvesta' のコマンドがあります。
 次を試してください。
 ```
-viewvesta ctrlg.si.toml      # canonical (post-2026-05)
-viewvesta ctrls.si           # legacy structure-only seed file
+viewvesta ctrlg.gaas.toml
+viewvesta ctrls.gaas
 ```
 これで構造を VESTA で見られます。変換のプログラム `vasp2ctrl` / `ctrl2vasp`（これも `/StructureTool` にあります）も、同じく TOML / ctrls / ctrl の形の入力を受け付けます。
 <small>（~/ecalj/GetSyml/README.md もありますが、利用者は読まなくてかまいません。）</small>
@@ -453,17 +368,19 @@ viewvesta ctrls.si           # legacy structure-only seed file
 
 
 ## Step 3. LDA の計算 {#step-3-lda-calculation}
+この Step に載せた出力（`conf` の表、反復のエネルギー、`bndfp` の行）は、mp-2534（格子定数 5.75 Å）で走らせたときのものです。gaas では数値が少し違います。
+
 1. まず lmfa を走らせます。結晶に含まれる、球対称の原子の電子密度を求めるものです。lmfa は数秒で終わります。
    ```bash
-   lmfa mp-2534
+   lmfa gaas
    ```
    で、初期化のための球対称の原子の計算をします。`lmfa` は
-   `ctrlg.mp-2534.toml` を読み（cwd に `ctrlg.*.toml` がちょうど一つだけあれば、
+   `ctrlg.gaas.toml` を読み（cwd に `ctrlg.*.toml` がちょうど一つだけあれば、
    名前を省いても自動で見つけます）、下の `lmf` に要る
    ファイルを作ります。
    コンソールの出力の `conf ` の部分を、次のようにして確かめてください。
    ```bash
-   lmfa mp-2534 |grep conf
+   lmfa gaas |grep conf
    ```
    これで原子の配置が表示されます（`lmfa` を何度走らせても副作用はありません）。
    ```
@@ -496,10 +413,10 @@ viewvesta ctrls.si           # legacy structure-only seed file
    * lmf の初期の電子密度は、lmfa が与える球対称の原子の密度の重ね合わせです。 
    * [`[ham].readp = true`](./lmf.md#readp-option)（`ctrlgenToml.py` が既定で設定します。古い `READP=T` も同じでした）のときは、MT の境界での動径波動関数の対数微分を固定したままにします。
 
-2. `lmfa` のあと、次のようにして LDA の計算を走らせます。
+2. `lmfa` のあと、次のようにして LDA の計算を走らせます（`tee` でコンソールの出力を `llmf` にも書きます）。
 
    ```bash
-   mpirun -np 8 lmf mp-2534
+   mpirun -np 8 lmf gaas | tee llmf
    ```
    数秒で終わります。すると次のように表示されます。   
    ```bash
@@ -508,29 +425,25 @@ viewvesta ctrls.si           # legacy structure-only seed file
    diffe(q)= -0.000001 (0.000004)    tol= 0.000010 (0.000010)   more=F
    c ehf(eV)=-114268.304015 ehk(eV)=-114268.304037 sev(eV)
    ```
-   ここで `c ` は、前の反復からのエネルギーと電荷の変化を示す `diffe(q)` が基準より小さい、つまり収束したという印です。save.mp-2534 には反復ごとに 1 行が入ります。収束までに 10 回かかったことがわかります。[二つのエネルギー](./lmf.md#q-should-the-harris-foulkes-and-hohenberg-kohn-sham-functionals-agree-at-self-consistency) を表示していますが、これらは同じになるはずです。
-   * 注意: mp-2534（GaAs）では GaAs の格子定数が 5.75 $\AA$ ですが、実験値は 5.65$\AA$ です。PBEsol の問題だと思います。
-   * llmf には反復の情報が入っています（上で tee コマンドを使っているので）。固有値、フェルミエネルギー、バンドギャップを確かめてください。
-   * rst.mp-2534 が作られます。セルフコンシステントな電荷が入っています。
-   * 格子定数は `ctrlg.mp-2534.toml` の `[struc].alat` を編集して
-     変えられます。TOML のスカラーの中の演算子は
-     評価されません。値を先に計算しておく（例えば `alat = 10.6818`）か、
-     実行時に `--ctrlg:struc.alat=10.6818` を使ってください。古い `ctrl.<sname>` の
+   ここで `c ` は、前の反復からのエネルギーと電荷の変化を示す `diffe(q)` が基準より小さい、つまり収束したという印です。収束までに 10 回かかったことがわかります。[二つのエネルギー](./lmf.md#q-should-the-harris-foulkes-and-hohenberg-kohn-sham-functionals-agree-at-self-consistency) を表示していますが、これらは同じになるはずです（ただし少し違います）。
+   * `llmf` には反復の情報が入っています。固有値、フェルミエネルギー、バンドギャップを確かめてください。
+   * `rst.gaas` が作られます。セルフコンシステントな電荷が入っています。
+   * `save.gaas` には lmfa と lmf の履歴が入ります。プログラムを始めるたびにコマンドライン（オプションを含む）を `Start` の行に書き、lmf は反復ごとに 1 行を書きます。
+     反復の行の先頭の文字は状態を示します。`c` は収束、`x` は収束しないまま反復の上限に達した、`i` は反復の途中、`h` は 1 回目の反復（自由原子の密度の重ね合わせからの Harris のエネルギー）、`C` は構造の緩和の収束です。
+   * lmf をもう一度走らせると、rst のファイルを自動で読みます。そのため、もう収束しているはずです。それを確かめるために、2 回の反復で止まります。
+   * 格子定数は `ctrlg.gaas.toml` の `[struc].alat`（a.u.）を編集して
+     変えられます。TOML の値の中の演算子は
+     評価されません。計算した値を書く（例えば `alat = 10.6818`）か、
+     実行時に `--ctrlg:struc.alat=10.6818` を使ってください。ctrls や古い `ctrl.<sname>` の
      `%const` の計算（`1.8897268777743552*5.65/5.75` など）は、
-     `Legacy2toml.py` のときに値に焼き込まれました。
-   * 注意（過去の話）: `ctrlp.<sname>` は、古い `ctrl.<sname>` から
-     `ctrl2ctrlp.py` が作る中間のファイルでした。
-     2026-05 から Fortran は `m_ctrl_toml_loader.f90` で `ctrlg.<sname>.toml` を直接読むので、
-     `ctrlp` の段はありません。
-   * save.mp-2534 を確かめてください。lmfa と lmf の履歴を、反復ごとに 1 行で示します。コンソールのオプションも示します。c、x、i、h
-   LDA のエネルギーとして表示される二つの値は同じになるはずです（ただし少し違います）。
-   lmf を繰り返すと、2 回の反復で止まります。
+     `ctrlgenToml.py` や `Legacy2toml.py` が値にして書き込みます。
+   * 古い版にあった中間のファイル `ctrlp.<sname>`（`ctrl2ctrlp.py` が作っていたもの）は、いまはありません。Fortran が `ctrlg.<sname>.toml` を直接読みます。
    * SiteInfo.lmchk : サイトの情報
    * PlatQlat.chk : 格子の情報
    * efermi.lmf: フェルミエネルギー 
    * estaticpot.dat : なめらかな部分の静電ポテンシャル。
    * __mixm* は反復の履歴を入れた混合のファイルです。
-   * lmf をもう一度走らせると、rst のファイルを自動で読みます。そのため、もう収束しているはずです。それを確かめるために、2 回の反復で止まります。  
+
 一体ポテンシャルのゼロの基準の定義に注意してください。MT の境界での静電ポテンシャルの平均をゼロにしています。 
 `__*` は一時的なファイルで、消してかまいません。 
 コンソールの出力には、次のようなものが見られます。
@@ -545,7 +458,7 @@ viewvesta ctrls.si           # legacy structure-only seed file
  bndfp: kpt     7 of    29 k=  0.0710  0.0126  0.0000 ndimh = nmto+napw =    80   55   25
 ...
 ```
-ここでハミルトニアンの次元がわかります。PWMODE=11 のときは、APW のエネルギーのカットオフが |q+G|^2< pwemax で q に依存します（コードでは Rydberg 単位 $2m=\hbar=e^2/2=1$ を使います）。 
+ここでハミルトニアンの次元がわかります。`[ham].pwmode = 11`（既定）のときは、APW のエネルギーのカットオフが `|q+G|^2 < pwemax`（`[ham].pwemax`、Ry）で、q に依存します（コードでは Rydberg 単位 $2m=\hbar=e^2/2=1$ を使います）。 
 
 * 注意: ctrlgenToml.py の既定値では、すべての計算が次の設定です。  
    >空の球は置きません。 
@@ -558,79 +471,53 @@ viewvesta ctrls.si           # legacy structure-only seed file
 ### job_tdos, job_pdos {#job-tdos-job-pdos}
 全 DOS は次のようにして計算できます。
 ```
-job_tdos mp-2534 -np 8
-gnuplot -persist tdos.mp-2534.glt
+job_tdos gaas -np 8
+gnuplot -persist tdos.gaas.glt
 ```
 PDOS は次のようにします。
 ```
-job_pdos mp-2534 -np 8
+job_pdos gaas -np 8
 ```
-`job_pdos` は対称性を使わないので、少し重い計算です。終わったら、`gnuplot -p pdos.site001.mp-2534.glt` で、実の球面調和関数の $lm$ のチャネルに分けた PDOS が表示されます
+`job_pdos` は対称性を使わないので、少し重い計算です。終わったら、`gnuplot -p pdos.site001.gaas.glt` で、実の球面調和関数の $lm$ のチャネルに分けた PDOS が表示されます
 （チャネルは `job_pdos` の最後に表示されます）。
-![alt text](image-7.png)。これは mp-2534 の As のサイトでの PDOS です。
+次の図は mp-2534 の As のサイトでの PDOS です。
+![PDOS at the As site of mp-2534](image-7.png)
 k 点の数に注意してください。正確な DOS / PDOS には、メッシュを
 大きくする必要があるかもしれません。コマンドラインで、TOML のパスの書き方で
 渡してください。
-`job_tdos mp-2534 -np 8 --ctrlg:bz.nkabc=[10,10,10]`
-`grep '^bz.nkabc\|^nkabc' llmf_tdos` で確かめ、`save.mp-2534` も見てください。
+`job_tdos gaas -np 8 --ctrlg:bz.nkabc=[10,10,10]`
+`grep '^bz.nkabc\|^nkabc' llmf_tdos` で確かめ、`save.gaas` も見てください。
 
 ## Step 4. バンドの図のための k の経路とブリルアンゾーンを作る {#step-4-create-k-path-and-brillouin-zone-for-band-plot}
-`lmf` が収束したら、後で説明する `job_band` でバンドの図を描きます。バンドの計算が正常かどうかは、バンドの図で確かめられます（磁性の系では、全体の磁気モーメントとサイトごとの磁気モーメントも確かめてください）。
+`lmf` が収束したら、Step 5 の `job_band` でバンドの図を描きます。バンドの計算が正常かどうかは、バンドの図で確かめられます（磁性の系では、全体の磁気モーメントとサイトごとの磁気モーメントも確かめてください）。
 
-`job_band` の前に ```getsyml gaas``` を走らせます。足りないパッケージは pip で入れてください。Togo さんの spglib と seekpath を使っています。終わったら BZ.html を見てください。BZ の中の k の経路が表示されます。下の図に ba2pdo2cl2 の例を示します。 
+`job_band` の前に、対称線のファイル [`syml.<sname>`](./syml) を `getsyml` で作ります（`gaas` は `ctrlg.<sname>.toml` の `<sname>` です）。
+```
+getsyml gaas
+```
+足りないパッケージは pip で入れてください。Togo さんの spglib と seekpath を使っています。終わったら BZ.html を見てください。BZ の中の k の経路が表示されます。
 plotly で書いた対話的な図なので、座標の値を読み取れます。
-
-```
-getsyml foobar
-```
-（ここの `foobar` は `ctrlg.<sname>.toml` の `<sname>` に合わせます。）
-
-* getsyml による BZ.html の例は次で見られます。 
-https://ecalj.sakura.ne.jp/BZgetsyml/
-![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/482779/6af0e96e-c573-ede7-bee2-821134910c27.png)
-
+getsyml による BZ.html の例は https://ecalj.sakura.ne.jp/BZgetsyml/ で見られます（ba2pdo2cl2 の図は[下の事例](#a-case-study-of-ba2pdo2cl2)にあります）。
 
 
 ## Step 5. バンドの図 {#step-5-band-plot}
-（これは ba2pdo2cl2 の場合です）
 ```
->job_band ba2pdo2cl2 -np 8
+job_band gaas -np 8
 ```
 
-gnuplot のスクリプトが作られます。必要なら編集してください。`job_band` の前に syml.ba2pdo2cl2 を編集すれば、対称線とメッシュの大きさを調整できます。
+gnuplot のスクリプト `bandplot.isp1.glt`（スピンが二つなら `bandplot.isp2.glt` も）が作られます。必要なら編集して `gnuplot -persist bandplot.isp1.glt` で描き直してください。`job_band` の前に `syml.gaas` を編集すれば、対称線とメッシュの大きさを調整できます。
+対称点の名前は BZ.html と `syml.<sname>` で確かめられます。0 eV がフェルミエネルギーです。
 
-* 次の図は、ba2pdo2cl2 の既定の計算での LDA のバンドです（対称点の名前は BZ.html で確かめられます。`syml.<sname>` も見てください）。0 eV がフェルミエネルギーです。金属なので、バンドギャップはありません。
-![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/482779/8169cff0-78e6-ea50-0084-66a4cefc4cda.png).
-
-
-
-ここではバンドのエネルギーについて述べています。
+* `job_band` の最後には lmf のための上書きを付けられます。例えば `--ctrlg:ham.so=1 --ctrlg:ham.nspin=2` で、SOC を摂動として入れたバンドになります。
 
 * ecalj では、`lmf` の k 点のメッシュ（`ctrlg.<sname>.toml` の `[bz].nkabc`）と GW の k 点のメッシュ（`[gw].n1n2n3`）は別にできます。前者は LDA の実時間にあまり効きませんが、後者は大きく効きます（そのため `[gw].n1n2n3` は小さくしたい）。
 
-* ecalj のバンドの図のモードでは、BZ の端で対称性のために理論上縮退するバンドが縮退しません。APW の基底関数の数が限られているためです。そこで、pwemax=4 などでバンドの図を描いてください（一時的な解決策です。自動化したいと考えています）。
-![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/482779/8169cff0-78e6-ea50-0084-66a4cefc4cda.png)
+* ecalj のバンドの図のモードでは、BZ の端で対称性のために理論上縮退するバンドが縮退しません。APW の基底関数の数が限られているためです。そこで、pwemax=4 など（`job_band gaas -np 8 --ctrlg:ham.pwemax=4`）でバンドの図を描いてください（一時的な解決策です。自動化したいと考えています）。
 
 
 ### job_tdos, job_fermisurface, job_pdos {#job-tdos-job-fermisurface-job-pdos}
 `job_pdos` は PDOS を、`job_tdos` は全 DOS を計算し、`job_fermisurface` は Xcrysden でフェルミ面を描きます。
 `job_fermisurface` は、Si の CBM の底の形を楕円体として描くのにも使えます。
-xxx 
-
-<!-- ### job_pdos,job_tdos, job_fermisurface 
-For band plot, we use job_band. Before this, we need to generate symmetry lines written in [`syml.<sname>`](./syml). This can be generated by `getsyml <sname>`.
-
-This generates syml.mp-2534.
-[BZ.html](https://ecalj.sakura.ne.jp/BZgetsyml/) contains BZ and symmetry lines.
-For bandplot,
-```
-job_band mp-2534 -np 8 [options]
-```
-At the end of job_band, you can add TOML overrides for lmf as `--ctrlg:ham.so=1 --ctrlg:ham.nspin=2`.
-(these are for SOC as perturbation)
-We use gnuplot for band plot bandplot.isp1.glt.
-
-In the similar manner, we can run job_pdos, job_tdos, job_fermisurface. -->
 
 
 ## Step 6. QSGW の計算 {#step-6-qsgw-calculation}
@@ -649,14 +536,14 @@ In the similar manner, we can run job_pdos, job_tdos, job_fermisurface. -->
 > 変換した）、既定の GW の設定がほしいときは、次を走らせます。
 >
 > ```bash
-> ctrlgenToml.py mp-2534 --addgw     # appends [gw]/[mlo]/[blocks]/[product_basis] to ctrlg.mp-2534.toml
+> ctrlgenToml.py gaas --addgw     # appends [gw]/[mlo]/[blocks]/[product_basis] to ctrlg.gaas.toml
 > ```
 
 `[gw]` には、ケルビン単位の二つの温度があります。`t_sigmaw`（自己エネルギーの中の準位の
 フェルミ・ディラックの幅）と `t_tetrakbt`（$\chi_0$ をどう
 ぼかすか。**必須**で、ないとプログラムは止まります）です。生成されたファイルでは
 どちらも 300 です。半導体と絶縁体では `t_tetrakbt = 0`
-（T=0 の四面体法）を使ってください。金属は [kBT](./kBT) を見てください。
+（T=0 の四面体法）を使ってください（実例の `ctrlg.gaas.toml` は `t_tetrakbt = 0`、`t_sigmaw = 262` にしてあります）。金属は [kBT](./kBT) を見てください。
 
 QSGW を始める前に最もよく調整するキーは、GW の
 k 点のメッシュ `[gw].n1n2n3` です。実時間を大きく左右するので、
@@ -670,6 +557,7 @@ nkabc = [12, 12, 12]      # LDA k-mesh
 n1n2n3 = [6, 6, 6]        # GW k-mesh (smaller -> faster)
 ```
 
+実例の `ctrlg.gaas.toml` は `nkabc = [8, 8, 8]`、`n1n2n3 = [4, 4, 4]` です。
 Si では `n1n2n3 = [6, 6, 6]` で十分です。非磁性の半導体では、`[gw]` のほかのキーを
 触る必要はほとんどありません。古い GWinput のキーとの
 対応は [`lmf.md` § Legacy ctrl.&lt;sname&gt; ↔ TOML path map](./lmf#legacy-ctrl-lt-sname-gt-toml-path-map) にあり、
@@ -684,7 +572,7 @@ QSGW の計算は gwsc で走らせます。半導体では、QSGW の反復を�
 QSGW で得るのはバンド構造（一体のハミルトニアン）で、全エネルギーはまだ得られません。
 
 `QPU` のファイルには GW の計算の対角成分が入っています。
-混合積基底（`Mixed Produce basis`）は GW の計算の鍵となる技術です。
+混合積基底（`Mixed Product basis`）は GW の計算の鍵となる技術です。
 ```
 gwsc -np NP [-np2 NP2] [--gpu] [--prec=tf32|fp32|fp64] nloop extension
 ```
@@ -693,8 +581,12 @@ gwsc -np NP [-np2 NP2] [--gpu] [--prec=tf32|fp32|fp64] nloop extension
 `ctrlg.<sname>.toml` で `[ham] phispinsym = true` にするか、実行時に
 `--ctrlg:ham.phispinsym=true` を渡してください。）
 
+GaAs の実例では次のようにします（1 は QSGW の反復の回数です）。
+```
+gwsc -np 8 1 gaas
+```
 
-`gwsc` のコンソールの出力は次のようになります。
+`gwsc` のコンソールの出力は次のようになります（Si の例です）。
 ```text
 --- Start gwsc ---
 option= []
@@ -769,15 +661,44 @@ We found QPU.5 -->start to generate QPU.6...
 
 #### ba2pdo2cl2 の事例 {#a-case-study-of-ba2pdo2cl2}
 
-`ctrl.<sname>` だけがある 2026-05 より前のディレクトリから始めたときは、
-二つの段で変換して GW の設定を加えます。
-
-```bash
-Legacy2toml.py ba2pdo2cl2            # ctrl.<sname> -> ctrlg.<sname>.toml (no GW sections without GWinput)
-ctrlgenToml.py ba2pdo2cl2 --addgw    # appends [gw]/[mlo]/[blocks]/[product_basis]
+ba2pdo2cl2 の計算の記録です（下の時間、図、数値は記録したときのもので、今のコードで走らせ直したものではありません）。
+POSCAR は次のとおりです。これを `POSCAR.ba2pdo2cl2` に書きます。
+```
+POSCAR_ba2pdo2cl2
+1.0
+-2.06443 2.06443 8.40383 
+2.06443 -2.06443 8.40383 
+2.06443 2.06443 -8.40383 
+Ba Pd O Cl 
+2 1 2 2 
+Cartesian
+0.0 0.0 6.5153213224
+0.0 0.0 10.2923386776
+0.0 0.0 0.0
+0.0 2.06443 0.0
+2.06443 0.0 0.0
+0.0 0.0 3.1625293056
+0.0 0.0 13.6451306944
 ```
 
-そのあと、QSGW を走らせる前にふつう見る必要があるキーは、
+Step 1-5 と同じ流れで LDA のバンドまで進みます。
+```bash
+vasp2ctrl POSCAR.ba2pdo2cl2
+mv ctrls.POSCAR.ba2pdo2cl2.vasp2ctrl ctrls.ba2pdo2cl2
+ctrlgenToml.py ba2pdo2cl2
+lmfa ba2pdo2cl2
+mpirun -np 8 lmf ba2pdo2cl2 | tee llmf
+getsyml ba2pdo2cl2
+job_band ba2pdo2cl2 -np 8
+```
+
+* getsyml が作る BZ.html は次のとおりです。
+![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/482779/6af0e96e-c573-ede7-bee2-821134910c27.png)
+
+* 次の図は、既定の計算での LDA のバンドです（対称点の名前は BZ.html で確かめられます。`syml.ba2pdo2cl2` も見てください）。0 eV がフェルミエネルギーです。金属なので、バンドギャップはありません。
+![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/482779/8169cff0-78e6-ea50-0084-66a4cefc4cda.png)
+
+QSGW を走らせる前にふつう見る必要があるキーは、
 `t_tetrakbt`（上を見てください）と GW の k 点のメッシュです。
 
 ```toml
@@ -792,7 +713,7 @@ n1n2n3 = [4, 4, 4]   # smaller than [bz].nkabc; 1/2 or 2/3 of it works
 ```
 gwsc -np 32 1 ba2pdo2cl2
 ```
-ここで 1 は QSGW の反復の回数です。QSGW の反復にはかなり時間がかかります。`gwsc` が表示するヘルプは最小限です（オプションは別の所で説明する必要があります）。
+ここで 1 は QSGW の反復の回数です。QSGW の反復にはかなり時間がかかります。`gwsc` が表示するヘルプは最小限です（オプションは [gwsc](./gwsc) を見てください）。
 
 反復の結果は `rst.<sname>`（電子密度）と `sigm.*`（vxcqsgw）に保たれます。
 （最初からやり直したいときは、これらのファイルに加えて *run のファイルやディレクトリも消してください。）
@@ -810,10 +731,10 @@ gwsc -np 32 nx ba2pdo2cl2
 
 * ba2pdo2cl2 で 8 回反復すると、バンドギャップは 2.1 eV になりました。4 回目の反復のあとでバンドギャップが現れました。
 ![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/482779/4aebc98b-a050-e198-1769-d2d4236f0bf8.png)
-* 実験と比べるには、ssig=0.8 を使うことを勧めます
-（`ctrlg.<sname>.toml` で `[ham].scaledsigma = 0.8` と設定します）。これを QSGW80 と呼びます。
+* 実験と比べるには、QSGW80 を使うことを勧めます
+（`ctrlg.<sname>.toml` で `[ham].scaledsigma = 0.8` と設定します）。
 
-* スピン軌道相互作用。`sigm.<sname>` を得たあと、SO=1（LdotS の方式）にして lmf を走らせます。これで SOC の効果を入れられます。SO=1
+* スピン軌道相互作用。`sigm.<sname>` を得たあと、`[ham].so = 1`（L·S の方式。`[ham].nspin = 2` が要ります）にして lmf を走らせます。これで SOC の効果を入れられます。`so = 1`
 は gwsc のサイクル全体には実装していないので、最後の段でだけ SOC を入れる必要があります（VxcQSGW を固定したあとで SOC を入れます）。
 
 * 次を走らせると 
@@ -829,7 +750,7 @@ KTaO3（ペロブスカイト、mp-3614）の QSGW の例
 
 ## lmchk {#lmchk}
   ```
-  lmchk mp-2534
+  lmchk gaas
   ```
   で結晶の対称性を確かめます。さらに MT 半径を決め、MT の重なりを確かめます。既定の設定は -3% の重なり（重なりなし）です。
 
