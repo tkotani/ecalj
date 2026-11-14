@@ -1,112 +1,67 @@
-# How to make doping?
+# ドーピングのしかた
 
-<div class="clfix-old">
+第一原理計算は、電荷が中性の条件で行います。
+単位胞の中の電子の数を半端にするには、二つの方法（または両方の組み合わせ）があります。
 
-> ⚠️ **TOML migration (2026-05)** — The legacy `Category_Token`s in this
-> page map onto `ctrlg.<sname>.toml` as: `SPEC_ATOM_Z` → `[[spec]].z`,
-> `SPEC_ATOM_Q` → `[[spec]].q`, `BZ_ZBAK` → `[bz].zbak`. The conceptual
-> recipe below is identical; only the file/key path changes. See
-> [Input file](./toml_migration).
+ 1. 原子番号 `[[spec]].z` を半端な数にする。
+ 2. 背景電荷 `[bz].zbak` で価電子の数を決める。
 
-</div>
+以下の例は Si（Z=14、単位胞に 2 原子）のドーピングです。
 
-<div class="clfix">
+## 半端な Z
 
-下の古いキーは、`ctrlg.<sname>.toml` では `SPEC_ATOM_Z` → `[[spec]].z`、`SPEC_ATOM_Q` → `[[spec]].q`、`BZ_ZBAK` → `[bz].zbak` です。
+例えば Z=14.2 とします。Z と一緒に、原子の `[[spec]].q` も書く必要があります。
+Z=14.2 なら `q = [2, 2.2]` などとします（`q` は s、p、d、f の順の価電子の初期の数です）。
+つまり `q = [2, 2.2]` は、球対称な原子の密度を計算するときに原子が中性になるよう、p に 0.2 個の電子を足すという意味です。
 
-</div>
+`lmfa` を `grep conf` と一緒に走らせると、初期の電子の配置が分かります。
+`lmfa` の出力に Q=0（電荷の中性の確認）が出ます。`lmfa` が正しく終わったことを確かめてください。
 
-The 1st principle calculations are performed under the charge neutrality.
-
-We have two method (or combined ) to treat fractional number of electrons in the primitive cell.
-
- 1. You can use fractional numbers for SPEC_ATOM_Z, 
- 2. Set valence charge by BZ_ZBAK.
-
------
-  Following sample is doping for Si, Z=14 and two atoms per cell.
-
-
-##  Fractional Z
-, such as Z=14.2 
-Together with Z, you have to add SPEC_ATOM_Q= for atoms. 
-For example, for Z=14.2, we may need to add Q=2,2.2 (Note Q= is the initial valence electron density for {s} {p} {d} {f}, successively.) 
-Thus Q=2,2.2 implies adding +0.2 electron for p channel to keep charge neutrality of the 
-atom when we calculate spherical atomic densities.
-Run lmfa with 'grep conf'. 
-It shows electron distribution of initial condition.
-Then Q=0 (check of charge neutrality) is shown in the output of lmfa.
-Pay attention that lmfa finishs normally. 
-
-Run lmf to keep the console output to llmf. Then
+`lmf` を走らせ、画面の出力を `llmf` に残します。
 ```bash
- grep 'z=',llmf 
+ grep 'z=' llmf
 ```
-shows Z for atoms.
-
-
+で原子の Z が分かります。
 ```bash
- grep -A5 'Charges:'
+ grep -A5 'Charges:' llmf
 ```
-shows 
+で
 ```
  Charges:  valence     8.40000   cores    20.00000   nucleii   -28.40000
     hom background     0.00000   deviation from neutrality:     -0.00000
 ```
-Here we see   nuclei = - 2* 14.2  = -28.4  # given by Z
+が出ます。原子核は $-2 \times 14.2 = -28.4$（Z から）です。
 
-CAUTION: at the first iteration, Charges: shows such as
-```
-  Charges:  valence     8.00000   cores    20.00000   nucleii   -28.00000
-  hom background     0.12300   deviation from neutrality: 0.12300
-```
-because of the initial condition is given by superposition of atomic densities.
-Deviation is nonzero ==> But 'deviation from neutrality: 0' from the next iteration.
+## 背景電荷 zbak
 
-
-##  Back ground charge by ZBAK
-
-Set BZ_ZBAK. If ZBAK=0.4, the back ground charge is negative as -0.4|e|, 
-thus the number of electron becomes 0.4 smaller.
-(cores + valence electron + ZBAK = |total nucleus charge|).
-```bash
- grep -A5 'Charges:'
-```
-shows 
+`[bz].zbak` を設定します。`zbak = 0.4` なら、背景電荷は −0.4|e| で、電子の数は 0.4 少なくなります
+（芯 + 価電子 + zbak = |原子核の全電荷|）。
 ```
 Charges:  valence     7.60000   cores    20.00000   nucleii   -28.00000
     hom background     0.40000   deviation from neutrality:     -0.00000
 ```
-That is, 7.6+0.4+20.0  =  -28.0
+つまり 7.6 + 0.4 + 20.0 = 28.0 です。`zbak = 0.2` なら valence は 7.8、cores は 20.0 になります。
 
+## 半端な Z と zbak の組み合わせ
 
-## Combination of fractional Z and BZ_ZBAK
-Let us try Z=14.2, Q=2,2.2, together with ZBAK=0.3
-In this case, we have 
+Z=14.2、`q = [2, 2.2]` と、`zbak = 0.3` を一緒に使うと、
 ```
    Charges:  valence     8.10000   cores    20.00000   nucleii   -28.40000
     hom background     0.30000   deviation from neutrality:     -0.00000
 ```
-This means that (2 atoms per cell).
-  nuclei     = - 2* 14.2  = -28.4  # given by Z
-  cores      =   2* 10    =  20    # given by the atom of integer part of Z.
-  background =  0.3                # given by ZBAK
-Thus we have 
-  valence electron = 28.4 - 20- 0.3 = 8.1 
+となります。単位胞に 2 原子なので、
+- 原子核 = $-2 \times 14.2 = -28.4$（Z から）
+- 芯 = $2 \times 10 = 20$（Z の整数部分の原子から）
+- 背景 = 0.3（zbak から）
 
-## Check in the console output {#background-charge-and-fractional-z}
-You see console output, e.g, 
-```
-Charges: valence 7.80000 cores 20.00000 nucleii -28.00000
-hom background .20000 deviation from neutrality: 0.00000
-```
-<span class="clfix">(The valence and core charges were swapped here (19.8 and 8.0); for Si with `zbak = 0.2` they are 7.8 and 20.0.)</span>
-This is a case with `zbak = 0.2`.
+で、価電子 = 28.4 − 20 − 0.3 = 8.1 です。
 
-NOTE: at the first iteration, Charges: shows such as
+## 最初の反復での注意 {#background-charge-and-fractional-z}
+
+最初の反復では、`Charges:` は例えば
 ```
-Charges: valence 8.00000 cores 20.00000 nucleii -28.00000
-hom background 0.12300 deviation from neutrality: 0.12300
+  Charges:  valence     8.00000   cores    20.00000   nucleii   -28.00000
+  hom background     0.12300   deviation from neutrality: 0.12300
 ```
-because of the initial condition by superposition of atoms. It shows
-deviation seems nonzero. But charge should be conserved from the next iteration.
+のように出ます。初期の密度を原子の密度の重ね合わせで作るためで、中性からのずれが 0 でないように見えます。
+次の反復からは `deviation from neutrality: 0` になります（電荷は保存されます）。
