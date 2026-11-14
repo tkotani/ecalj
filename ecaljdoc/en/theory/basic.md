@@ -93,10 +93,6 @@ $$
 
 The polarization function $D = G G$, in which an electron and a hole propagate at the same time (the section "Time-ordered polarization function of a non-interacting system" below), and the self-energy $𝛴 = iGW$ ([Basic II](./basic2), "the case of the $GW$ self-energy") have this form. (Two mechanical springs A and B connected in parallel share the displacement and their forces add, so the inverse responses add, $1/g = 1/g_\mathrm{A} + 1/g_\mathrm{B}$. The product appears when amplitudes are multiplied, as above.)
 
-**In a many-electron system it has both sides.** In the many-electron ground state an electron cannot be put into an occupied state. The occupied states give instead
-a term in which the hole left by removing an electron propagates to the past (the side $t<t'$). The sum of the electron term ($t>t'$) and the hole term ($t<t'$)
-is the T-product Green function of the next section.
-
 ## Definition of the (one-particle) Green function
 
 $$
@@ -111,10 +107,14 @@ $$
 - $\hat 𝜓^†_\mathrm{H}(𝒓,t) = e^{i\hat Ht/\hbar}\hat 𝜓^†(𝒓)e^{-i\hat Ht/\hbar}$.
 - The field operators of fermions satisfy the anticommutation relation $\{𝜓_\mathrm{H}(𝒓_1,t),𝜓_\mathrm{H}^†(𝒓_2,t)\} = 𝛿(𝒓_1-𝒓_2)$. Note that this is the equal-time anticommutation relation.
 - $T$ is the time-ordered product; it reorders the operators so that later times stand to the left and earlier times to the right.
-- Why the T product: in perturbation theory, symmetrizing the range of the time integrals (from $-\infty$ to $\infty$) brings in the step functions $𝜃(t_1-t_2)$ and $𝜃(t_2-t_1)$.
-- On the other hand, electrons ($t_1>t_2$: an electron is added and propagates) and holes ($t_2>t_1$: an electron is removed and propagates) can be treated together by adding the two in parallel. This is because the basis functions of both the electron and the hole are specified by the same one-body Hamiltonian. That sum is the two terms of the equation above, the T product.
 - $𝜃(t)$: the step function, 1 for $t>0$ and 0 for $t<0$.
 - $\Psi_0$: the $N$-particle ground state in the Heisenberg picture, $\hat H\ket{\Psi_0} = E \ket{\Psi_0}$
+
+### Both sides in a many-electron system (T product) {#both-sides}
+
+The one-body retarded Green function of Eq. (GF6) has one side in time only (to the future). In the many-electron ground state an electron cannot be put into an occupied state. The occupied states give instead a term in which the hole left by removing an electron propagates to the past (the side $t_1<t_2$). Electrons ($t_1>t_2$: an electron is added and propagates) and holes ($t_2>t_1$: an electron is removed and propagates) can be treated together by adding the two in parallel. This is because the basis functions of both the electron and the hole are specified by the same one-body Hamiltonian. That sum is the two terms of the equation above, the T product.
+
+Seen from perturbation theory too, symmetrizing the range of the time integrals (from $-\infty$ to $\infty$) brings in the step functions $𝜃(t_1-t_2)$ and $𝜃(t_2-t_1)$, which gives the T-product form.
 
 ### The Gell-Mann–Low theorem and disconnected diagrams {#gell-mann-low}
 
