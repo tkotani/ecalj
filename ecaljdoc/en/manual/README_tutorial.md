@@ -1,6 +1,6 @@
 # ecalj MainDocument
 
-> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob 48d72f255da1).
+> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob 76c8ec472c7d).
 **This is the main document of ecaljdoc: the features of ecalj, an overview of QSGW, and the first calculation (GetStarted). Other pages are reached from the menu on the left.**
 
 * Here we give [GetStarted](#getstarted), together with install and overview of QSGW.
@@ -62,7 +62,7 @@
      MLO replaced them; they are at the git tag `last-wannier`. 
 
 5. **Singleton pattern in fortran**
-   The main part of our codes is in fortran. Our codes have the object-oriented structures respecting the singlton design pattern. We think this is a step to replace our fortran codes with those in modern languages such as JAX/PyTorch. Inevitably, we still have legacy codes but encapsulated as possible, and going to be replaced.
+   The main part of our codes is in fortran. Our codes have the object-oriented structures respecting the singlton design pattern.
 
 # Overview of QSGW 
 
