@@ -110,12 +110,7 @@ $$
 - $𝜃(t)$: the step function, 1 for $t>0$ and 0 for $t<0$.
 - $\Psi_0$: the $N$-particle ground state in the Heisenberg picture, $\hat H\ket{\Psi_0} = E \ket{\Psi_0}$
 
-This one-particle Green function is computed in perturbation theory in the following form ($\hat S$ is the time-evolution operator, the subscript I means the interaction picture, and $\ket{\Phi_0}$ is the non-interacting ground state; the reason for this form is the Gell-Mann–Low theorem below).
-
-$$
-iG(𝒓_1t_1, 𝒓_2t_2) = \frac{\braket{\Phi_0|T[\hat S\,\hat 𝜓_\mathrm{I}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{I}(𝒓_2,t_2)]|\Phi_0}}{\braket{\Phi_0|\hat S|\Phi_0}}
-\tag{G1}
-$$
+This one-particle Green function is computed in perturbation theory in the form of Eq. (G3) below (the Gell-Mann–Low theorem).
 
 ### Both sides in a many-electron system (T product) {#both-sides}
 
@@ -125,7 +120,40 @@ Seen from perturbation theory too, symmetrizing the range of the time integrals 
 
 ### The Gell-Mann–Low theorem and disconnected diagrams {#gell-mann-low}
 
-Switching the interaction on adiabatically turns the non-interacting ground state $\ket{\Phi_0}$ into the interacting ground state (the Gell-Mann–Low theorem). Therefore the Green function is written in the form of Eq. (G1). The vacuum amplitude in the denominator cancels exactly the disconnected diagrams of the numerator (the vacuum parts not connected to the external lines).
+Switching the interaction on adiabatically turns the non-interacting ground state $\ket{\Phi_0}$ into the interacting ground state (the Gell-Mann–Low theorem). Split the Hamiltonian into the non-interacting part $\hat H_0$ (including $-𝜇\hat N$) and the interaction $\hat V$, and define the operators in the interaction picture as
+
+$$
+\hat 𝜓_\mathrm{I}(𝒓,t) = e^{i\hat H_0 t/\hbar}\,\hat 𝜓(𝒓)\,e^{-i\hat H_0 t/\hbar}, \qquad
+\hat V_\mathrm{I}(t) = e^{i\hat H_0 t/\hbar}\,\hat V\,e^{-i\hat H_0 t/\hbar}
+\tag{G1}
+$$
+
+The time-evolution operator from time $t'$ to $t$ ($t>t'$) is the series of integrals with the later times on the left,
+
+$$
+\begin{aligned}
+\hat S(t,t') = \sum_{n=0}^{\infty} \left(\frac{-i}{\hbar}\right)^{n}
+&\int_{t'}^{t} d\tau_1 \int_{t'}^{\tau_1} d\tau_2 \cdots \int_{t'}^{\tau_{n-1}} d\tau_n \\
+&\times \hat V_\mathrm{I}(\tau_1)\hat V_\mathrm{I}(\tau_2)\cdots \hat V_\mathrm{I}(\tau_n)
+\end{aligned}
+\tag{G2}
+$$
+
+($\tau_1>\tau_2>\cdots>\tau_n$; the interaction is switched on with the adiabatic factor $e^{-𝜂|\tau|}$). Write $\hat S = \hat S(\infty,-\infty)$. Then the Green function is
+
+$$
+\begin{aligned}
+iG(𝒓_1t_1, 𝒓_2t_2) = \frac{1}{\braket{\Phi_0|\hat S|\Phi_0}} \Big[
+&\langle\Phi_0|\hat S(\infty,t_1)\,\hat 𝜓_\mathrm{I}(𝒓_1,t_1)\,\hat S(t_1,t_2) \\
+&\qquad \times \hat 𝜓^†_\mathrm{I}(𝒓_2,t_2)\,\hat S(t_2,-\infty)|\Phi_0\rangle\, 𝜃(t_1-t_2) \\
+-&\langle\Phi_0|\hat S(\infty,t_2)\,\hat 𝜓^†_\mathrm{I}(𝒓_2,t_2)\,\hat S(t_2,t_1) \\
+&\qquad \times \hat 𝜓_\mathrm{I}(𝒓_1,t_1)\,\hat S(t_1,-\infty)|\Phi_0\rangle\, 𝜃(t_2-t_1) \Big]
+\end{aligned}
+\tag{G3}
+$$
+
+The times are ordered with the later ones on the left; no T product is used. Symmetrizing the ranges of the integrals in Eq. (G2) to $-\infty$ to $\infty$ brings in $1/n!$ and the T product, and Eq. (G3) becomes the one line $iG = \braket{\Phi_0|T[\hat S\,\hat 𝜓_\mathrm{I}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{I}(𝒓_2,t_2)]|\Phi_0}/\braket{\Phi_0|\hat S|\Phi_0}$.
+ The vacuum amplitude in the denominator cancels exactly the disconnected diagrams of the numerator (the vacuum parts not connected to the external lines).
 So the disconnected diagrams need not be counted; only connected diagrams are summed (the linked-cluster theorem).
 
 The correspondence with ordinary (time-independent) perturbation theory: there are two kinds of disconnected diagrams.
@@ -133,11 +161,11 @@ The correspondence with ordinary (time-independent) perturbation theory: there a
 - **Disconnected type 1**: the system returns to the vacuum $\ket{\Phi_0}$ in an intermediate state (the disconnected parts follow one another in time). Ordinary perturbation theory excludes $\ket{\Phi_0}$ from the intermediate states, so these never enter.
 - **Disconnected type 2**: disconnected but overlapping in time (the intermediate state has two excitations and is not $\ket{\Phi_0}$). These do enter the formulas of ordinary perturbation theory, but they cancel exactly the terms that come from the normalization (e.g. $-V_{00}\sum_n|V_{0n}|^2/\Delta_n^2$ at third order).
 
-Excluding type 1, and dropping type 2 together with the normalization terms, leaves only the connected diagrams: the same result as Eq. (G1) (Goldstone).
+Excluding type 1, and dropping type 2 together with the normalization terms, leaves only the connected diagrams: the same result as Eq. (G3) (Goldstone).
 
 ### Perturbation theory with and without time {#td-vs-ti-perturbation}
 
-Perturbation theory with time (expanding $\hat S$ as in Eq. (G1)) gives correlation functions, that is, operators at different times sandwiched by the ground state (Green functions and response functions). It corresponds to elementary perturbation theory as follows; the two are not different theories.
+Perturbation theory with time (expanding $\hat S$ as in Eqs. (G2) and (G3)) gives correlation functions, that is, operators at different times sandwiched by the ground state (Green functions and response functions). It corresponds to elementary perturbation theory as follows; the two are not different theories.
 
 - An elementary example of perturbation theory with time is Fermi's golden rule. The transition amplitude is taken to first (linear) order in the perturbation, which gives the transition rate. The rate corresponds to the imaginary part of the second-order energy shift (the imaginary part of the self-energy, the quasiparticle lifetime).
 - Perturbation theory without time gives energies and expectation values of operators. An expectation value sandwiches the operator between the same state on the left and right; it is a correlation function with its two times set equal (for example the density, $𝜌(𝒓) = -iG(𝒓t,𝒓t^+)$).
