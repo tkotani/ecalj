@@ -248,6 +248,30 @@ $$
 
 </div>
 
+<div class="clfix">
+
+**Two bases in the code.** The code keeps both the MPB $M^{\bf k}_I$ and the orthonormal $E^{\bf k}_\mu$, and changes between them with $z^{\bf k}$ (`m2e_prod_basis` of `m_zmel.f90`, set from `zcousq` by `set_m2e_prod_basis`).
+`build_zmel` first makes $\langle M^{\bf k}_I\Psi_{\mathbf q-\mathbf k n'}|\Psi_{\mathbf q n}\rangle$ (`zmelt`), and returns it as it is with `is_m_basis=.true.`,
+or as $Z^{\mathbf q-\mathbf k n',\mathbf q n}_{\mathbf k\mu}=\sum_I (z^{\bf k}_{\mu I})^*\langle M^{\bf k}_I\Psi_{\mathbf q-\mathbf k n'}|\Psi_{\mathbf q n}\rangle$ of Eq. (I11) with `is_m_basis=.false.`.
+In `hgw` (`main_hgw.f90`), the large sums over $\mathbf k$ and bands are done in the M basis, and only the $\mathrm{ngb}\times\mathrm{ngb}$ matrices are transformed at each $\mathbf q$ and $\omega$:
+$$
+\begin{aligned}
+\Pi^{E}_{\mu\nu} &= \sum_{IJ} (z_{\mu I})^*\,\Pi^{M}_{IJ}\, z_{\nu J}, \\
+W^{{\rm c},M}_{IJ} &= \sum_{\mu\nu} z_{\mu I}\, W^{{\rm c},E}_{\mu\nu}\, (z_{\nu J})^*, \\
+W^{\rm c} &= \sum_{IJ}|M_I\rangle W^{{\rm c},M}_{IJ}\langle M_J| .
+\end{aligned}
+\tag{I14a}
+$$
+- $\Pi^M$ is accumulated from `zmelt` (`x0kf_zxq` with `is_m_basis=.true.`, called from `m_screened_coulomb.f90`), turned into $\Pi^E$, and Eqs. (I16) and (I19) are evaluated in the E basis (`WVRllwR`, `WVIllwI` of `m_llw.f90` with `is_x0_m_basis`, `is_wc_m_basis` true).
+  $W^{\rm c}$ is then stored in the M basis. At $\mathbf q=0$ the transformation to the M basis is done after the offset-$\Gamma$ correction (`w0w0i` with `is_wc_m_basis=.true.`).
+- $\Sigma^{\rm c}$ (Eq. (I20)) uses `zmelt` in the M basis with $W^{{\rm c},M}$ (`m_sxcf_sc.f90`, `build_zmel(..., is_m_basis=.true.)`).
+- $\Sigma^{\rm x}$ (Eq. (I15)) uses the E basis, where $v$ is diagonal (`build_zmel(..., is_m_basis=.false.)`). For the core states (core exchange) each atom's block of the MPB is transformed alone, since `zmelt` of a core state vanishes outside its MT.
+- `hx0fp0` (`main_hx0fp0.f90`) works in the E basis throughout (`is_x0_m_basis=.false.`).
+
+The paper [Obata2025] writes everything in the E basis; Eqs. (I14a) give the same $\Pi^E$, $W^{\rm c}$ and $\Sigma$.
+
+</div>
+
 For the all-electron full-potential $GW$ approximation,
 Eq. (I14) is introduced in Ref.[friedrich_efficient_2010].
 This corresponds to the representation in the plane wave expansion
