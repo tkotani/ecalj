@@ -71,10 +71,6 @@ Its Fourier transform is $G^\mathrm{R}(𝒓,𝒓';𝜔) = \sum_n 𝜙_n(𝒓)�
 Because the equation is of first order, the wave function at time $t'$ fixes the future, and the Green function has one side in time only ($t>t'$).
 (The spring equation (GF1) is of second order, so its initial condition needs both position and velocity.)
 
-**In a many-electron system it has both sides.** In the many-electron ground state an electron cannot be put into an occupied state. The occupied states give instead
-a term in which the hole left by removing an electron propagates to the past (the side $t<t'$). The sum of the electron term ($t>t'$) and the hole term ($t<t'$)
-is the T-product Green function of the next section.
-
 **A chain of responses is a convolution; simultaneous propagation is a product.** The frequency representation is taken with the same Fourier transform as in Eq. (GF3). When the response $x_\mathrm{A}$ of a system A drives a system B as it is (in series, a chain), the total response is a convolution in time and a product in frequency:
 
 $$
@@ -96,6 +92,10 @@ g_\mathrm{AB}(𝜔) &= \int \frac{d𝜔'}{2\pi}\, g_\mathrm{A}(𝜔') g_\mathrm{
 $$
 
 The polarization function $D = G G$, in which an electron and a hole propagate at the same time (the section "Time-ordered polarization function of a non-interacting system" below), and the self-energy $𝛴 = iGW$ ([Basic II](./basic2), "the case of the $GW$ self-energy") have this form. (Two mechanical springs A and B connected in parallel share the displacement and their forces add, so the inverse responses add, $1/g = 1/g_\mathrm{A} + 1/g_\mathrm{B}$. The product appears when amplitudes are multiplied, as above.)
+
+**In a many-electron system it has both sides.** In the many-electron ground state an electron cannot be put into an occupied state. The occupied states give instead
+a term in which the hole left by removing an electron propagates to the past (the side $t<t'$). The sum of the electron term ($t>t'$) and the hole term ($t<t'$)
+is the T-product Green function of the next section.
 
 ## Definition of the (one-particle) Green function
 
