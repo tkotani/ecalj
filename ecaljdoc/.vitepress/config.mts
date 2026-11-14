@@ -47,7 +47,7 @@ const sidebarRoot = [
     items: [
       { text: 'ecalj のバンド計算法', link: '/theory/pmt' },
       // { text: 'Spin-orbit interaction', link: '/theory/soi' },
-      { text: 'GW approximation', link: '/theory/gw' },
+      { text: 'GW 近似', link: '/theory/gw' },
       { text: 'Quasi-particle self-consistent GW', link: '/theory/qsgw' },
       { text: 'GW で用いる波動関数の表現', link: '/theory/gw_basis' },
       { text: '波動関数の積を展開する積基底', link: '/theory/gw_product_basis' },
@@ -110,6 +110,7 @@ const enText: Record<string, string> = {
   'MLO — 最大局在化などに代わる自動モデル化法': 'MLO — automatic model construction in place of maximal localization',
   'MLO-gwsc — Sigma を MLO 表現で内挿する QSGW': 'MLO-gwsc — QSGW interpolating Sigma in the MLO representation',
   'ecalj のバンド計算法': 'Band-structure method of ecalj',
+  'GW 近似': 'GW approximation',
 }
 function toEn(items: any[]): any[] {
   return items.map((it) => ({
