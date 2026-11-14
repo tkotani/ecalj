@@ -2509,7 +2509,7 @@ in `module m_rotMPB2`.
 
 ## Electron-phonon coupling in MPB (suspended) {#electron-phonon}
 
-<span class="clfix">Moved here from the Bessel-function subsection: this work was suspended. The static $\epsilon^{-1}$ for phonons is written by `hgw` into `__W4PHONON.<iq>` when `w4pmode` is on, that is, when the file `Q0P4phonon` exists (`m_llw.f90`).</span>
+<span class="clfix">Moved here from the Bessel-function subsection: this work was suspended. The static $\epsilon^{-1}$ for phonons is written by `hgw` into `__W4PHONON.<iq>` when `w4pmode` is on, that is, when the offset-Γ points along $x,y,z$ were added by `qg4gw --job=201` (`ixyz` of `m_q0p.f90`; `m_llw.f90`).</span>
 
 To calculate derivative for electron-phonon (EP) coupling, we need
 $$\begin{aligned}
