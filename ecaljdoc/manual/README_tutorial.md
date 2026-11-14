@@ -55,7 +55,7 @@
    MLO（muffin-tin based localized orbitals、マフィンティンにもとづく局在軌道）で有効模型を作ります。模型のハミルトニアンと、MLO の間の有効相互作用 v、W、cRPA の W です
    （`job_mlo`、`job_mloW --crpa`。[MLO](./mlo)）。
    * 2026-10-02 まで、ecalj には cRPA つきの最局在 Wannier 関数（Juelich のグループの定式化）がありました。もとは
-     宮川博士、佐久間博士、木野博士のコードです（これを使った論文: [https://journals.aps.org/prb/abstract/10.1103/PhysRevB.108.035141](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.108.035141)）。
+     Miyake、Sakuma、Kino らによるコードです（これを使った論文: [Phys. Rev. B 108, 035141](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.108.035141)）。
      MLO がこれに置き換わりました。もとのものは git のタグ `last-wannier` にあります。 
 
 5. **Fortran の singleton パターン**
