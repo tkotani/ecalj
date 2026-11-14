@@ -19,7 +19,6 @@ const sidebarRoot = [
       { text: 'DFT  calculation : lmf part', link: '/manual/lmf' },
       { text: 'GW の設定（[gw] などのキー）', link: '/manual/gwinput' },
       { text: 'Samples (where what lives)', link: '/manual/samples' },
-      { text: 'MT 半径の上限と偽の準位', link: '/manual/mtradius' },
       { text: 'Command-line options (--foo) catalogue', link: '/manual/cmdopts' },
       { text: 'QSGW calculation: gwsc part', link: '/manual/gwsc' },
       { text: 'GPU version of QSGW',link: '/manual/ecaljgpu.md' },
@@ -38,6 +37,7 @@ const sidebarRoot = [
       // { text: 'Spectrum function', link: '/manual/spec' },
       // developer pages (ForDevelopers, developer, auto, kBT_history, mlo_backup, implementation) moved to ecalj/MD on 2026-10-02 (not on the site)
       { text: 'MLO-gwsc — Sigma を MLO 表現で内挿する QSGW', link: '/manual/mlo_gwsc' },
+      { text: 'MT 半径の上限と偽の準位', link: '/manual/mtradius' },
     ]
   },
   {
