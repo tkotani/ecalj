@@ -1,8 +1,7 @@
-# GWinput (legacy)
+# GW の設定（`[gw]` などのキー） {#gwinput-legacy}
 
-> ⚠️ The Fortran programs do not read the `GWinput` text file. The settings of this page are keys of `ctrlg.<sname>.toml` (sections `[gw]` / `[mlo]` / `[blocks]` / `[product_basis]`; the last one also holds the per-atom tables), written in TOML syntax (`key = value`). For a directory with the legacy `ctrl.<sname>` + `GWinput`, run `Legacy2toml.py <sname>` to convert. See [Input file](./toml_migration) for the key mapping.
-
-The `[gw]` section of `ctrlg.<sname>.toml` sets the computatioanl conditions for  GW/QSGW calculations.
+`ctrlg.<sname>.toml` の `[gw]`・`[mlo]`・`[blocks]`・`[product_basis]` の区分が、GW/QSGW の計算の条件を決めます。このページはそのキーの説明です。
+ファイル全体の説明と、古い `GWinput` からの変換は [入力ファイル](./toml_migration) を見てください。
 
 ## 自動生成 {#mkgwinput}
 - GW の設定（`ctrlg.<sname>.toml` の `[gw]`・`[mlo]`・`[blocks]`・`[product_basis]`）は自動で作られ、ほとんどのパラメータは既定値のまま使える。
@@ -26,7 +25,7 @@ ctrlgenToml.py <sname> --addgw   # [gw] があれば止まる
 - `key = value` の形式であり記載順序は問わないが, 同じkeyを複数記述しないようにする。論理値は `true` / `false`、
   リストは `[4, 4, 4]`、実数は `1e-5`（`1d-5` とは書けない）、複数行の表（`QforGW` など）は `"""` で囲む
 
-## Parameters in GWinput
+## 主なキー {#parameters-in-gwinput}
 生成された `[gw]` に, パラメータの意味は記載されていますが, 以下に重要な変数と記載がない変数について記述します。
 
 ### `n1n2n3`

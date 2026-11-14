@@ -16,6 +16,7 @@ ecalj は、一体計算の部分（DFT パート）と GW パートからなり
 もしくは、生成するときにオプションを付けて生成します。
 自動生成は、POSCAR（VASP の形式）を `vasp2ctrl` で構造だけのファイル `ctrls.<sname>` に変換し、それから `ctrlgenToml.py <sname>` で ctrlg を作ります。
 AI に任せるなら、POSCAR が入力だと思ってかまいません。
+キーの詳しい説明は、ctrl の側（`[struc]`、`[[site]]`、`[[spec]]`、`[bz]`、`[ham]` など）が [lmf](./lmf)、GW の側（`[gw]` など）が [GW の設定](./gwinput) にあります。
 
 **最後にある原子ごとの表**
 
