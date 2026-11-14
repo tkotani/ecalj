@@ -33,14 +33,14 @@ $$
 \tag{GF3}
 $$
 
-For small damping ($𝜂=\gamma/2$, so that $𝜔^2 + i\gamma𝜔 \approx (𝜔+i𝜂)^2$) we get
+Hence
 
 $$
-x(𝜔) = g(𝜔) f(𝜔), \qquad g(𝜔) = \frac{1}{H - (𝜔+i𝜂)^2}
+x(𝜔) = g(𝜔) f(𝜔), \qquad g(𝜔) = \frac{1}{H - 𝜔^2 - i\gamma𝜔}
 \tag{GF4}
 $$
 
-The $i𝜂$ that comes from the damping expresses that $g=0$ for $t<t'$ (causality). $g(𝜔)$ is nothing but the inverse of the operator $H-(𝜔+i𝜂)^2$ on the left-hand side of Eq. (GF3). When the displacement also depends on position (many masses connected by springs), $H$ is the matrix of spring constants; seeing the operator as a matrix, obtaining $g(𝜔)$ is the operation of inverting the matrix.
+$g(𝜔)$ is nothing but the inverse of the operator $H-𝜔^2-i\gamma𝜔$ on the left-hand side of Eq. (GF3). When the displacement also depends on position (many masses connected by springs), $H$ is the matrix of spring constants; seeing the operator as a matrix, obtaining $g(𝜔)$ is the operation of inverting the matrix.
 
 **Dependence on position.** When the displacement $u(𝒓,t)$ also depends on position, as for a string or a membrane, the Green function is the response
 $g(𝒓,t;𝒓',t')$ at point $𝒓$ and time $t$ to a kick at point $𝒓'$ and time $t'$: $u(𝒓,t)=\int d𝒓' dt'\, g(𝒓,t;𝒓',t') f(𝒓',t')$.
