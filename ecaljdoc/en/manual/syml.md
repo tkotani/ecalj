@@ -1,12 +1,12 @@
 # `syml.<sname>`
 
-> English version of the page [manual/syml](../../manual/syml.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/syml.md of commit 01cc1bc8b (source blob d3b2a0cfd2dd).
+> English version of the page [manual/syml](../../manual/syml.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/syml.md of commit 37e22cae1 (source blob 6201087689fc).
 
-Symmetry line for the band plot.
+Symmetry lines for the band plot.
 We can generate `syml.<sname>` by `getsyml`.
 
 
-## Get symmetry lines for band plot and Brillouwin zone plot.
+## Get symmetry lines for band plot and Brillouin zone plot.
 `syml.<sname>` is generated from `ctrlg.<sname>.toml` (legacy: `ctrl.<sname>`).
 `syml.<sname>` is needed for band plot.
 After generated, you can easily edit `syml.<sname>` for `job_band`.
@@ -23,10 +23,10 @@ getsyml nio
 (or)
 getsyml ctrls.nio
 ```
-. This show 3D Brillouin zone together with symmetry lines for band plot.
+. This shows the 3D Brillouin zone together with symmetry lines for band plot.
 See [BZsamples](https://ecalj.sakura.ne.jp/BZgetsyml/) here.
 The symmetry lines are written into the `syml.<sname>` file for ecalj.
-The number of divisions for `syml` is give by a crude algorism, so edit it if necessary.
+The number of divisions for `syml` is given by a crude algorithm, so edit it if necessary.
 
 ### Needed citations for getsyml
   In addition to usual ecalj acknowledgement, following citations are <del class="clfix">required</del><span class="clfix">requested</span> when you make a publication <span class="clfix">(see [License](./license))</span>.
@@ -51,7 +51,7 @@ The number of divisions for `syml` is give by a crude algorism, so edit it if ne
     contours such as a Fermi surface.  This file (whose name is
     specified as a modifier with the command-line argument
     --band, described in the "Command-line switches" section) can
-    take on of several forms.
+    take one of several forms.
 
 ### format of syml
     generate bands along specific symmetry lines.
