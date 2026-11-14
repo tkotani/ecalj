@@ -1752,7 +1752,7 @@ in `module m_rotMPB2`.
 
 ## SOC matrix for the MLO
 
-The Wannier-function route (`hsocmat`) was removed. The SOC matrix is now used for the MLO (`job_mlo_soc`; [MLO §4](./mlo#_4-スピン軌道相互作用-—-job-mlo-soc)):
+The Wannier-function route (`hsocmat`) was removed. The SOC matrix is now used for the MLO (`job_mlo_soc`; [MLO §4](./mlo#mlo-soc)):
 
 1. `lmf --writeham --socmatrix` (scalar-relativistic, `[ham] so = 0`) writes the Hamiltonian in the PMT basis (`__HamiltonianPMT`) and, separately,
    the SOC matrix $\langle F_{{\bf k}i}|H_{\rm SOC}|F_{{\bf k}j}\rangle$ (`hammhso(ndimh,ndimh,3)` made by `aughsoc`; the three are the $\uparrow\uparrow$, $\downarrow\downarrow$ and $\uparrow\downarrow$ blocks, per orbital without spinor doubling) into `__HamiltonianPMTsoc` (`m_bandcal.f90`).
