@@ -98,8 +98,7 @@ The polarization function $D = G G$, in which an electron and a hole propagate a
 $$
 \begin{align}
 iG_\mathrm{ele}(𝒓_1t_1, 𝒓_2t_2) &= \braket{\Psi_0|\hat 𝜓_\mathrm{H}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)|\Psi_0}\, 𝜃(t_1-t_2) \tag{Gd1} \\
-iG_\mathrm{hole}(𝒓_1t_1, 𝒓_2t_2) &= -\braket{\Psi_0|\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)\hat 𝜓_\mathrm{H}(𝒓_1,t_1)|\Psi_0}\, 𝜃(t_2-t_1) \tag{Gd2} \\
-G(𝒓_1t_1, 𝒓_2t_2) &= G_\mathrm{ele}(𝒓_1t_1, 𝒓_2t_2) + G_\mathrm{hole}(𝒓_1t_1, 𝒓_2t_2) \tag{Gd3}
+iG_\mathrm{hole}(𝒓_1t_1, 𝒓_2t_2) &= -\braket{\Psi_0|\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)\hat 𝜓_\mathrm{H}(𝒓_1,t_1)|\Psi_0}\, 𝜃(t_2-t_1) \tag{Gd2}
 \end{align}
 $$
 
@@ -115,13 +114,13 @@ This one-particle Green function is computed in perturbation theory in the form 
 
 ### Both sides in a many-electron system (T product) {#both-sides}
 
-The one-body retarded Green function of Eq. (GF6) has one side in time only (to the future). In the many-electron ground state an electron cannot be put into an occupied state. The occupied states give instead a term in which the hole left by removing an electron propagates to the past (the side $t_1<t_2$). Electrons ($t_1>t_2$: an electron is added and propagates) and holes ($t_2>t_1$: an electron is removed and propagates) can be treated together by adding the two in parallel. This is because the basis functions of both the electron and the hole are specified by the same one-body Hamiltonian. That sum is Eq. (Gd3).
+The one-body retarded Green function of Eq. (GF6) has one side in time only (to the future). In the many-electron ground state an electron cannot be put into an occupied state. The occupied states give instead a term in which the hole left by removing an electron propagates to the past (the side $t_1<t_2$). Electrons ($t_1>t_2$: an electron is added and propagates) and holes ($t_2>t_1$: an electron is removed and propagates) can be treated together by adding the two in parallel. This is because the basis functions of both the electron and the hole are specified by the same one-body Hamiltonian. That sum, $G = G_\mathrm{ele} + G_\mathrm{hole}$, is the Green function.
 
 Together the two are written in one line with the time-ordered product (T product):
 
 $$
 iG(𝒓_1t_1, 𝒓_2t_2) = \braket{\Psi_0|T[\hat 𝜓_\mathrm{H}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)]|\Psi_0}
-\tag{Gd4}
+\tag{Gd3}
 $$
 
 $T$ reorders the operators with the later times on the left and the earlier on the right, changing the sign at each exchange of fermion operators.
