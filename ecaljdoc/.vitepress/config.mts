@@ -54,7 +54,7 @@ const sidebarRoot = [
       { text: 'GW で用いる行列要素', link: '/theory/gw_zmel' },
       { text: 'Basic  I', link: '/theory/basic' },
       { text: 'Basic II', link: '/theory/basic2' },
-      { text: 'Optical properties', link: '/theory/optical_properties' },
+      { text: '光学的性質', link: '/theory/optical_properties' },
     ]
   },
   {
@@ -112,6 +112,7 @@ const enText: Record<string, string> = {
   'ecalj のバンド計算法': 'Band-structure method of ecalj',
   'GW 近似': 'GW approximation',
   '準粒子自己無撞着 GW': 'Quasi-particle self-consistent GW',
+  '光学的性質': 'Optical properties',
 }
 function toEn(items: any[]): any[] {
   return items.map((it) => ({

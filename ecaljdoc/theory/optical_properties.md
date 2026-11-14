@@ -1,81 +1,92 @@
-# Optical Properties
+# 光学的性質
 
-## dielectric function in micro-scale
+## 微視的な誘電関数
 
 $$
 \begin{align}
 𝛿𝜌 = 𝜒𝛿𝜙_{ext} = 𝑃𝛿𝜙 \\
 𝜖𝛿𝜙 = 𝛿𝜙_\mathrm{ext} \\
 𝛿𝜙 = 𝜖^{-1}𝛿𝜙_\mathrm{ext}
+\tag{O1}
 \end{align}
 $$
-where:
-- $𝛿𝜌$: Change in charge density
-- $𝜒$: Electric susceptibility
-- $𝛿𝜙_{ext}$: External potential change
-- $𝑃$: Polarization function
-- $𝜖$: dielectric function
-- $𝛿𝜙 = 𝛿𝜙_\mathrm{ext} + 𝛿𝜙_\mathrm{ind}$: total potential change, which is sum of changes in the external potential and induced one
+ここで
+- $𝛿𝜌$: 電荷密度の変化
+- $𝜒$: 外部ポテンシャルへの密度応答関数（全体の応答）
+- $𝛿𝜙_{ext}$: 外部ポテンシャルの変化
+- $𝑃$: 分極関数（全ポテンシャルへの応答）
+- $𝜖$: 誘電関数
+- $𝛿𝜙 = 𝛿𝜙_\mathrm{ext} + 𝛿𝜙_\mathrm{ind}$: 全ポテンシャルの変化。外部ポテンシャルの変化と、誘起されたポテンシャルの変化の和
 ::: info
-the short formula is used above equations 
+上の式では略記を使っている。例えば
 $$
-(𝜒𝛿𝜙_{ext})(𝒓,𝒓',𝜔)= \int d𝒓'' 𝜒(𝒓,𝒓'',𝜔)𝛿𝜙_{ext}(𝒓'',𝒓',𝜔)
+(𝜒𝛿𝜙_{ext})(𝒓,𝜔)= \int d𝒓'' 𝜒(𝒓,𝒓'',𝜔)𝛿𝜙_{ext}(𝒓'',𝜔)
+\tag{O2}
 $$
 :::
-From these equations, we obtain the following equations straightforwardly
+これらの式から、ただちに次の式が得られる。
 $$
 \begin{align}
 𝜖 &= 1 - 𝑣𝑃  \\
 𝜖^{-1} &= 1 + 𝑣 𝜒 \\
 𝜒 &= 𝑃 + 𝑃 𝑣 𝜒
+\tag{O3}
 \end{align}
 $$
-where:
-- $𝑣$: Coulomb potential
+ここで
+- $𝑣$: クーロンポテンシャル
 
-## RPA Approxiamation:
+## 乱雑位相近似（RPA）
 $$
 𝑃 = 𝛱
+\tag{O4}
 $$
-where
- - $𝛱$: Kohn-Sham density response function
+ここで
+ - $𝛱$: Kohn-Sham の密度応答関数
 
 $$
  \epsilon(\mathbf{r}, \mathbf{r}', \omega) = \delta(\mathbf{r} - \mathbf{r}') - \int d\mathbf{r}'' \, v(\mathbf{r} - \mathbf{r}'') 𝛱(\mathbf{r}'', \mathbf{r}', \omega)
+\tag{O5}
 $$
 
-## macroscale dielectric function
+## 巨視的な誘電関数
 $$
 \hat{𝒒}⋅𝜖_\mathrm{mac}(𝒒,𝜔)⋅\hat{𝒒}= 1/[𝜖^{-1}(𝒒,𝜔)]_{0,0}
+\tag{O6}
 $$
+ここで $0,0$ は $𝑮=𝑮'=0$ の成分を表す。
 
-## without local field correction
+## 局所場補正なし
 $$
 𝜖_\mathrm{mac}(𝒒,𝜔) ≃ 𝜖_{0,0}(𝒒,𝜔)
+\tag{O7}
 $$
-in this case, the macroscoptic dielectric function is obtained by following way
+この場合、巨視的な誘電関数は
 $$
 𝜖_{0,0}(𝒒,𝜔) = 1 - 𝑣_0(𝒒)𝑃_{0,0}(𝒒,𝜔)
+\tag{O8}
 $$
-only, $0,0$ component of $𝑃$ is needed, being the low computational cost.
+で得られる。$𝑃$ の $0,0$ 成分だけが要るので、計算の負荷は小さい。
 
-## local field correction
-$$
-\hat{𝒒}⋅𝜖_\mathrm{mac}(𝒒,𝜔)⋅\hat{𝒒}= 1/[𝜖^{-1}(𝒒,𝜔)]_{0,0}
-$$
-in this case, all matrix element of $𝜖_{μν}(𝒒,𝜔)$ is needed to calculate the inverse of matrix.
-See the [Adler](https://dx.doi.org/10.1103/physrev.126.413) for the details.
+## 局所場補正あり
+式 (O6) をそのまま使う。この場合、逆行列を計算するために $𝜖_{μν}(𝒒,𝜔)$ のすべての行列要素が要る。
+詳しくは [Adler](https://dx.doi.org/10.1103/physrev.126.413) を参照。
 
-## relation with optical functions
-- $𝑛$: refractive index
+## 光学定数との関係
+- $𝑛$: 屈折率
 $$
 𝑛 = \sqrt{ \frac{ 𝜖_\mathrm{mac,1} + \sqrt{𝜖^2_\mathrm{mac,1} + 𝜖^2_\mathrm{mac,2}}}{2}} 
+\tag{O9}
 $$
-- $𝜅$: extinction coeffcient
+- $𝜅$: 消衰係数
 $$
-𝜅 = \sqrt{ \frac{-𝜖_\mathrm{mac,1} + \sqrt{𝜖^2_\mathrm{mac,1} + 𝜖^2_\mathrm{mac,2}}}{2}} \\
+𝜅 = \sqrt{ \frac{-𝜖_\mathrm{mac,1} + \sqrt{𝜖^2_\mathrm{mac,1} + 𝜖^2_\mathrm{mac,2}}}{2}}
+\tag{O10}
 $$
-- $𝑅$: reflectance
+- $𝑅$: 反射率
 $$
 𝑅 = \frac{( 𝑛 - 1)^2 + 𝜅^2} {( 𝑛 + 1)^2 + 𝜅^2}
+\tag{O11}
 $$
+
+$𝜖_\mathrm{mac,1}$、$𝜖_\mathrm{mac,2}$ は $𝜖_\mathrm{mac}$ の実部と虚部である。
