@@ -7,6 +7,51 @@ On the Green function at zero temperature
 ## References
 - Fetter Walecka
 
+## What is a Green function {#what-is-green}
+
+**Impulse response of a spring.** For a damped spring (mass $m$, damping $\gamma$, spring constant $k$) driven by a force $f(t)$, the displacement $x(t)$ obeys
+
+$$
+m\ddot x + \gamma \dot x + k x = f(t)
+\tag{GF1}
+$$
+
+Write $g(t-t')$ for the response to a single kick at time $t'$ ($f(t)=𝛿(t-t')$). This is the impulse response (the Green function).
+Nothing moves before the kick, so $g=0$ for $t<t'$ (causality). Since the equation is linear, the response to any force is a superposition of kicks,
+
+$$
+x(t) = \int dt'\, g(t-t') f(t')
+\tag{GF2}
+$$
+
+(linear response).
+
+**Dependence on position.** When the displacement $u(𝒓,t)$ also depends on position, as for a string or a membrane, the Green function is the response
+$g(𝒓,t;𝒓',t')$ at point $𝒓$ and time $t$ to a kick at point $𝒓'$ and time $t'$: $u(𝒓,t)=\int d𝒓' dt'\, g(𝒓,t;𝒓',t') f(𝒓',t')$.
+
+**A differential equation of first order in time.** The Schrödinger equation is of first order in time, so the Green function is the solution of
+
+$$
+\left(i\hbar \frac{\partial}{\partial t} - \hat H(𝒓)\right) G^\mathrm{R}(𝒓,t;𝒓',t') = \hbar\, 𝛿(𝒓-𝒓')𝛿(t-t')
+\tag{GF3}
+$$
+
+that vanishes for $t<t'$ (the retarded Green function). With the eigenfunctions $𝜙_n$ and eigenvalues $𝜀_n$ of $\hat H$,
+
+$$
+G^\mathrm{R}(𝒓,t;𝒓',t') = -i\, 𝜃(t-t') \sum_n 𝜙_n(𝒓)𝜙^*_n(𝒓') e^{-i𝜀_n(t-t')/\hbar}
+\tag{GF4}
+$$
+
+(the $𝛿(t-t')$ from differentiating $𝜃$, with the completeness $\sum_n 𝜙_n(𝒓)𝜙^*_n(𝒓')=𝛿(𝒓-𝒓')$, gives the right-hand side of Eq. (GF3)).
+It is the amplitude to find at point $𝒓$ and time $t$ a particle put in at point $𝒓'$ and time $t'$.
+Because the equation is of first order, the wave function at time $t'$ fixes the future, and the Green function has one side in time only ($t>t'$).
+(The spring equation (GF1) is of second order, so its initial condition needs both position and velocity.)
+
+**In a many-electron system it has both sides.** In the many-electron ground state an electron cannot be put into an occupied state. The occupied states give instead
+a term in which the hole left by removing an electron propagates to the past (the side $t<t'$). The sum of the electron term ($t>t'$) and the hole term ($t<t'$)
+is the T-product Green function of the next section.
+
 ## Definition of the (one-particle) Green function
 
 $$
