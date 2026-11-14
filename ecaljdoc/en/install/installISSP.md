@@ -166,8 +166,6 @@ module purge
 module load openmpi/4.1.5-oneapi-2023.0.0-classic
 ```
 
-Installation is
-
 `jobinstall_ohtaka.sh` was also removed from the repository, so create a script with the following content in `ecalj` and submit it.
 
 ```bash
