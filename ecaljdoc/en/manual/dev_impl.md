@@ -1,11 +1,11 @@
 # Implementation notes (details of the GW implementation) {#dev-impl}
 
-> English version of the page [manual/dev_impl](../../manual/dev_impl.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/dev_impl.md of commit 51f4441b8 (source blob 23e39239cf37).
+> English version of the page [manual/dev_impl](../../manual/dev_impl.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/dev_impl.md of commit 9d45d8968 (source blob 0e6d7f7eaf9a).
 
 ::: warning Just copied (2026-11-15)
-This page copies the sections still useful from the old developer notes `ecaljdetails.tex` (T. Kotani, last version 2024-11; the original is in `ecaljdoc/ecaljdetails/` of ecalj).
+This page copies the sections still useful from the old developer notes `ecaljdetails.tex` (T. Kotani, last version 2024-11; the original is `ecaljdetails/` in commit `3284d0b` of ecalj, `git show 3284d0b:ecaljdetails/ecaljdetails.tex`).
 It has not been reviewed yet. Code names not found in the present code are marked in red.
-The equation numbers (I1)– were given when copying; `[key]` are keys of the references (`ecaljdoc/ecaljdetails/ecaljrefs_detail.bib`).
+The equation numbers (I1)– were given when copying; `[key]` are keys of the references (`ecaljdetails/ecaljrefs_detail.bib` in the same commit).
 For the theory see [Band-structure method of ecalj](../theory/pmt), [QSGW](../theory/qsgw) and the references there.
 :::
 
