@@ -188,7 +188,7 @@ $$
 \tag{G3}
 $$
 
-The times are ordered with the later ones on the left; no T product is used. Diagrams can be written down from this form as it is; they are then a diagram expansion made of propagation forward along the time axis (with step functions).
+The times are ordered with the later ones on the left; no T product is used. Diagrams can be written down from this form as it is; they are then a diagram expansion made of propagation forward along the time axis (with step functions). That is, all the terms have to be written down with (Gd1) and (Gd2).
 
 **Writing with the T product.** Electrons ($t_1>t_2$: an electron is added and propagates) and holes ($t_2>t_1$: an electron is removed and propagates) can be treated together by adding the two in parallel. This is because the basis functions of both the electron and the hole are specified by the same one-body Hamiltonian. That sum, $G = G_\mathrm{ele} + G_\mathrm{hole}$, is the Green function, and with the time-ordered product (T product) it is written in one line:
 
