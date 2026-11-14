@@ -147,8 +147,6 @@ $$
 
 In its own time ($t_2-t_1>0$) the hole also goes to the future. The hole seems to "propagate to the past" only because the variables $(𝒓_1t_1, 𝒓_2t_2)$ are simply swapped.
 
-(Note) Relation to linear response to an external field. A "force" that adds or removes an electron cannot be applied as a classical field, so $G$ itself is not a linear response to an external field (Kubo formula). What appears as linear response to a physical external field is the density response (the polarization function $D$ below). Putting in a fermion source formally gives the retarded Green function $iG^\mathrm{R}(𝒓_1t_1,𝒓_2t_2) = 𝜃(t_1-t_2)\braket{\Psi_0|\{\hat 𝜓_\mathrm{H}(𝒓_1,t_1),\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)\}|\Psi_0}$. It has both the electron and the hole terms on the side $t_1>t_2$, and without interaction it is Eq. (GF6) with all the states, occupied and unoccupied. The time-ordered $G$ is obtained from it by moving the hole term to the side $t_2>t_1$ ([Basic II](./basic2), "Relation among advanced, retarded and time-ordered functions").
-
 - $\hat 𝜓_\mathrm{H}(𝒓,t)$ : the field operator in the Heisenberg picture, $\hat 𝜓_\mathrm{H}(𝒓,t) = e^{i\hat Ht/\hbar}\hat 𝜓(𝒓)e^{-i\hat Ht/\hbar}$.
 - $\hat 𝜓^†_\mathrm{H}(𝒓,t) = e^{i\hat Ht/\hbar}\hat 𝜓^†(𝒓)e^{-i\hat Ht/\hbar}$.
 - The field operators of fermions satisfy the anticommutation relation $\{𝜓_\mathrm{H}(𝒓_1,t),𝜓_\mathrm{H}^†(𝒓_2,t)\} = 𝛿(𝒓_1-𝒓_2)$. Note that this is the equal-time anticommutation relation.
