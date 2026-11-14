@@ -120,7 +120,7 @@ Perturbation theory with time (expanding $\hat S$ as in Eq. (G1)) gives correlat
 - Perturbation theory without time gives energies and expectation values of operators. An expectation value sandwiches the operator between the same state on the left and right; it is a correlation function with its two times set equal (for example the density, $𝜌(𝒓) = -iG(𝒓t,𝒓t^+)$).
 - Doing the time integrals with the adiabatic factor $e^{𝜂 t}$ gives one energy denominator $1/(E_0-E_n)$ per integral, which is the formula of perturbation theory without time (Goldstone).
 
-Perturbation theory with time thus contains perturbation theory without time, and gives more: the correlation at different times (the excitation spectrum). Many-body perturbation theory is not different from basic perturbation theory. What differs is that the terms are organized by diagrams and only the connected ones are counted (the Gell-Mann–Low theorem above), and that selected terms can be summed to infinite order, as in the Dyson equation.
+Perturbation theory with time thus contains perturbation theory without time, and gives more: the correlation at different times (the excitation spectrum). Many-body perturbation theory is not different from basic perturbation theory. What differs is that the terms are organized by diagrams and the waste is removed by counting only the connected ones (ordinary perturbation theory has to do the same: the disconnected terms must be cancelled; types 1 and 2 above), and that selected terms can be summed to infinite order, as in the Dyson equation.
 
 ## Green function of a non-interacting system
 
