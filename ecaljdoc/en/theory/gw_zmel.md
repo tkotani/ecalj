@@ -1,6 +1,6 @@
-# Matrix elements $Z$
+# Matrix elements
 
-> English version of the page [theory/gw_zmel](../../theory/gw_zmel.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/gw_zmel.md of the tree of c9f9a3003 (source blob 1ce207bb1dff).
+> English version of the page [theory/gw_zmel](../../theory/gw_zmel.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/gw_zmel.md of the tree of c9f9a3003 (source blob a2fdfb47bf91).
 
 ::: warning Under construction
 This page is a draft. The definitions and equations in [Band-structure method of ecalj](./pmt) and in section 2 of the main reference on the [QSGW](./qsgw) page (Obata, Kotani, Oda 2025) are newer and more accurate.
@@ -15,6 +15,8 @@ $$
 ::: info
 Regarding $\ket{E^𝒒_μ}$, it is a linear combination of $\ket{M^𝒒_I}$, so it is not separated into inside or outside of MT for a certain $μ$.
 :::
+
+In the code these matrix elements are called `zmel` (module `m_zmel`, `SRC/subroutines/m_zmel.f90`).
 
 For the case where MPB is a function within MT:
 $$

@@ -1,4 +1,4 @@
-# Matrix elements $Z$
+# Matrix elements
 
 ::: warning 工事中
 このページは書きかけです。記号の定義と式は、[ecalj のバンド計算法](./pmt) と、[QSGW](./qsgw) の第一の文献（Obata, Kotani, Oda 2025）の §2 のほうが新しく正確です。
@@ -13,6 +13,8 @@ $$
 ::: info
 Regarding $\ket{E^𝒒_μ}$, it is a linear combination of $\ket{M^𝒒_I}$, so it is not separated into inside or outside of MT for a certain $μ$.
 :::
+
+In the code these matrix elements are called `zmel` (module `m_zmel`, `SRC/subroutines/m_zmel.f90`).
 
 For the case where MPB is a function within MT:
 $$
