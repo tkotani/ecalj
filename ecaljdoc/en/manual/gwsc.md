@@ -1,19 +1,13 @@
-# gwsc: a script to run QSGW calculation
+# gwsc: a script to run QSGW calculations
 
-> English version of the page [manual/gwsc](../../manual/gwsc.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwsc.md of commit 8744007d9 (source blob 3582f6ae1433).
-
-<div class="clfix-old">
-
-> ⚠️ `gwsc` reads `ctrlg.<sname>.toml` only, and stops when the file is missing. A directory with the legacy `ctrl.<sname>` + `GWinput` is converted by `Legacy2toml.py <sname>` (run once per directory). See [Input file](./toml_migration) and the [Samples/TestInstall/*_gwsc/](https://github.com/tkotani/ecalj/tree/main/Samples/TestInstall) directories as templates.
-
-</div>
+> English version of the page [manual/gwsc](../../manual/gwsc.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwsc.md of commit 9945420a9 (source blob 74e4ccf8e0ed).
 
 gwsc is the script to run QSGW calculations.
 A QSGW calculation is run by calling several Fortran executables.
 The input is read from `ctrlg.<sname>.toml` (GW settings are in `[gw]`; the keys are explained in [gwinput](./gwinput.md)).
 
 ## Usage
-**Usage**: <del class="clfix">` gwsc -np NP [-np2 NP2] [--gpu] [--prec=tf32|fp32|fp64] [--mp] [--fp32] nloop extension [Options]`</del><span class="clfix">` gwsc -np NP [-np2 NP2] [--gpu] [--prec=tf32|fp32|fp64] [--prec-final=<prec>[:N]] [--no-tetwt-helper] [--mp] [--fp32] [--mlo] [--dumpW] [--fullstdo] nloop extension [Options]`</span>
+**Usage**: ` gwsc -np NP [-np2 NP2] [--gpu] [--prec=tf32|fp32|fp64] [--prec-final=<prec>[:N]] [--no-tetwt-helper] [--mp] [--fp32] [--mlo] [--dumpW] [--fullstdo] nloop extension [Options]`
 
 ### `-np NP`
 Number of MPI processes.
@@ -26,11 +20,10 @@ Usually set to the number of available GPUs.
 Specify only when using the GPU version.
 
 ### `--prec=tf32|fp32|fp64` (2026-09)
-Precision of the GW part. `fp64` is the double-precision version; `fp32` is the mixed-precision version with single-precision products in FP32 (same as `--mp --fp32`); `tf32` is `fp32` except that
-only the last product of Σc uses a 10-bit mantissa for the inputs (TF32 or FP16, chosen by a per-GPU table) (for LiTi₂O₄ 6³, Re Σc within E_F ±1 eV agrees with double precision within 1.3 meV, and `hgw` on RTX 5090 takes about half the time of fp32: 173 vs 367 s, version of the night of 2026-09-27). The legacy `--mp` alone is the same as `tf32`
-(until 2026-09-27 all products were TF32; the error was 6 times larger and the time shrank by only 10 %).
+Precision of the GW part. `fp64` is the double-precision version; `fp32` is the mixed-precision version with single-precision products in FP32 (same as `--mp --fp32`);
+`tf32` is `fp32` except that only the last product of Σc uses a 10-bit mantissa for the inputs (TF32 or FP16, chosen by a per-GPU table). The legacy `--mp` alone is the same as `tf32`.
 Which method computes products and inverse matrices on the GPU is chosen automatically by a table measured at installation (`<bindir>/ecalj_linalg_policy.toml`).
-Details in [GPU manual § choice of precision and automatic choice of matrix operations](./ecaljgpu#choosing-the-precision-and-automatic-selection-of-matrix-operations-2026-09).
+Accuracy and speed are compared in [GPU manual § choosing the precision](./ecaljgpu#choosing-the-precision-and-automatic-selection-of-matrix-operations-2026-09).
 When given together with `--mp` and `--fp32`, they must not contradict (a contradiction stops the run).
 
 ### `--prec-final=<prec>[:N]` (2026-09)
@@ -41,21 +34,13 @@ With `--gpu`, do not use the helper run that computes the tetrahedron weights on
 It is used by default ([GPU manual § tetrahedron weights](./ecaljgpu#computing-the-tetrahedron-weights-first-on-the-cpu)).
 
 ### `--mp`
-Use the mixed-precision version. Since 2026-09-27 it means the same as `--prec=tf32` (only the last product of Σc with a 10-bit input mantissa, other single-precision products in FP32).
-Before that, all single-precision products on the GPU were TF32, and for ill-conditioned dielectric matrices (heavy elements + molecular anions NO3 / N3 / ClO etc.) the TF32 error was
-amplified in $W$ / $\Sigma^c$. For the choice of precision see `--prec` above and [GPU manual § choice of precision](./ecaljgpu#choosing-the-precision-and-automatic-selection-of-matrix-operations-2026-09).
+Use the mixed-precision version. Since 2026-09-27 it means the same as `--prec=tf32`. The earlier meaning, and the cases where TF32 broke $W$, are in [GPU manual § mixed precision](./ecaljgpu#mixed-precision-mp-and-fp32).
 
 ### `--fp32` (2026-06)
-Used with `--mp`; same meaning as `--prec=fp32` (the products of Σc also in FP32). The GW1500 batch of ecalj_auto (`gwscconv --gpu --mp --fp32 --conv-tol 0.1`)
-uses this by default. Reproductions of cases broken by TF32 are in [`Samples/mptf32problem/`](https://github.com/tkotani/ecalj/tree/main/Samples/mptf32problem).
-
-
-<div class="clfix">
+Used with `--mp`; same meaning as `--prec=fp32` (the products of Σc also in FP32). The GW1500 batch of ecalj_auto (`gwscconv --gpu --mp --fp32 --conv-tol 0.1`) uses this by default.
 
 ### `--mlo`
 QSGW in which the self-energy is interpolated in the MLO representation (MLO-QSGW, under development). `[bz] nkabc` and `[mlo] mlo_nkabc` must equal `[gw] n1n2n3` (it stops otherwise). See [MLO-gwsc](./mlo_gwsc).
-
-</div>
 
 ### `nloop`
 Number of QSGW iterations.
@@ -78,7 +63,7 @@ determined automatically from the available memory and shown at `MPI layout:` in
 - `zmel_batch_gb`: size of the batch in which matrix elements are made at once ([gwinput](./gwinput.md))
 - `mpi_worker_exch`, `mpi_worker_corr`: number of ranks assigned to one group of $q$ points in the exchange and correlation calculations. 0 (default) is automatic. Give a divisor of the total number of ranks
 
-There are no options `--keepwv` or `--nwpara=X` (giving them stops the program). <del class="clfix">`--nb=X` is accepted but not used in the `gwsc` calculation.</del><span class="clfix">`--nb=X` was retired on 2026-10-02; giving it stops the program ([cmdopts](./cmdopts)).</span>
+There are no options `--keepwv`, `--nwpara=X` or `--nb=X` (giving them stops the program; [Command-line options](./cmdopts)).
 
 #### `--tetwtk`
 If given, the tetrahedron weights between the coupled states are not kept in memory when calculating the polarization function. Use it when memory runs short in calculations with many $k$ points.
@@ -109,7 +94,7 @@ The first line (corresponding to 1st band of 1st q point) means that total norma
 
 ### `--ntqxx`
 This fix the number of bands to calculate self energy at the first iteration for each $\bf q$ point in the IBZ.
-In principle, the number is determined by<span class="clfix"> the energy window: at each $\bf q$ point and spin, the bands up to `emax_sigm` above the Fermi energy (and at most `nband_sigm` bands) are used, and this count is made again at every iteration. With `--ntqxx`, the counts of the first iteration are written to the file `NTQXX` and read in the later iterations, so that the number of bands of $\Sigma$ (`sigm`, `QPU`) stays fixed through the iterations. Delete `NTQXX` to count again.</span>
+In principle, the number is determined by the energy window: at each $\bf q$ point and spin, the bands up to `emax_sigm` above the Fermi energy (and at most `nband_sigm` bands) are used, and this count is made again at every iteration. With `--ntqxx`, the counts of the first iteration are written to the file `NTQXX` and read in the later iterations, so that the number of bands of $\Sigma$ (`sigm`, `QPU`) stays fixed through the iterations. Delete `NTQXX` to count again.
 
 ## Cautions
 * gwsc checks QPU.[number]run and recognizes that number QSGW iterations have finished.
@@ -117,15 +102,12 @@ In principle, the number is determined by<span class="clfix"> the energy window:
 
 * A QSGW.[number]run directory stores the results of the number-th QSGW iteration, `rst`, `sigm` (plus `atmpnu`, `ctrlg.<sname>.toml`, `QPU`, `efermi.lmf`, and the logs of that iteration); band plots etc. can be made from them.
 
-* Check progress and memory usage in the logs of each step (`lgw`, `lsxC`, `lvcc` etc.). The GW programs write the screen output of rank 0 there,
-  and discard the output of other ranks (since 2026-09-27). When per-rank output is needed, use `--fullstdo` (it goes to `STDOUT/stdout.<rank>.<prog>`).
-  Errors from any rank appear in the standard error of `gwsc` with the rank number.
+* Check progress and memory usage in the logs of each step (`lgw`, `lsxC`, `lvcc` etc.); the GW programs write the screen output of rank 0 there.
+  Output per rank and how errors appear: `--fullstdo` in [Command-line options](./cmdopts).
 
 
 
 ---
-
-<div class="clfix">
 
 ## Mixing of the iterations: mixbeta and mixpriorit {#mixbeta-and-mixpriorit}
 
@@ -156,8 +138,6 @@ Table M1. `mixbeta` and the first iteration
 
 The mixing of $\Sigma^{\rm MLO}$ in MLO-gwsc (`gwsc --mlo`) is in §1.6 of [MLO-gwsc](./mlo_gwsc).
 
-</div>
-
 # Other scripts 
 
 `cleargw`: clean up temporary files
@@ -169,7 +149,7 @@ is below `conv-tol` twice in a row (prevents stopping on a single accidental con
 Among the states with |e| < 5 eV in `eQP` (relative to E_F) of `QPU.<n>run` and `QPU.<n-1>run`, stop when the maximum change is
 below `--conv-qp <eV>` (default 0.03) for 2 iterations in a row. To stop where there is no gap as before (exit 3), use
 `--no-metal`. `--gpu --mp --fp32` given to it are passed on to `gwsc` as they are.
-The GW1500 batch of ecalj_auto also calls this script (<del class="clfix">`MD/auto.md`</del><span class="clfix">development record (MD/auto.md in the repository, not on this site)</span>).
+The GW1500 batch of ecalj_auto also calls this script.
 
 `qsgw_status` (2026-06): a progress dashboard of the running `gwsc` (or gwscconv)
 iterations. Use it in the run directory as follows:
@@ -184,7 +164,7 @@ and the sev difference of `save.<target>` and `rmsdel` of `lqpe` (σ convergence
 The target name, the log and the iteration anchors are detected automatically. To avoid disturbing the run, it only
 reads output files and does no heavy processing.
 
-`gw_lmfh`: The one-shot <del class="clfix">\GW</del><span class="clfix">GW</span> calculation. Lifetime(impact ionization rate) of QPs.
+`gw_lmfh`: The one-shot GW calculation. Lifetime(impact ionization rate) of QPs.
 
 `job_eps`: dielectric function. No local field corrections ([optical](./optical))
  
@@ -203,43 +183,10 @@ to get the full spin susceptibility. -->
 # Files used in gwsc
 Temporary files are with `__*`. Thus we can delete __* (or use `cleargw`) after you finish `gwsc/job_eps` and so on.
 
-To repeat a small test for gwsc:
+A small test of `gwsc` is the install test `si_gwsc` ([Test framework](./dev_testecalj)).
+In the `si_gwsc_work/` that `testecalj` makes, `ls -rlt` roughly shows which step generates which files.
 
-```bash
-cd ~/ecalj/Samples/TestInstall
-testecalj si_gwsc -np 8
-```
-
-This is one of the install tests. `testecalj` creates
-`si_gwsc_work/` next to `si_gwsc/`, copies inputs in, and runs there.
-After that, `ls -rlt si_gwsc_work/` roughly shows which step generates
-which files.
-
-The console output of `gwsc 1 si -np 2` for the same input is
-```text
-===== Ititial band structure ====== 
---> No sigm. LDA caculation for eigenfunctions 
-00:00:00.007   mpirun -np 1 /home/takao/bin/lmfa si stdout='llmfa'  Elap. 1.5s
-00:00:01.481   mpirun -np 2 /home/takao/bin/lmf si --ctrlg:iter.b=0.5 stdout='llmf_lda'  Elap. 6.1s
-lmf successful with b=0.5
-Removing __mixm.si
-00:00:07.563   mpirun -np 2 /home/takao/bin/lmf si --jobgw=0 stdout='llmfgw00'  Elap. 1.8s
-00:00:09.335   mpirun -np 1 /home/takao/bin/qg4gw si --job=1 stdout='lqg4gw'  Elap. 1.0s
-===== QSGW iteration start iter 1 === (GW precision fp64)
-00:00:10.381   mpirun -np 2 /home/takao/bin/lmf si --jobgw=1 stdout='llmfgw01'  Elap. 3.7s
-00:00:14.042   mpirun -np 1 /home/takao/bin/heftet si --job=1 stdout='leftet'  Elap. 1.1s
-00:00:15.193   mpirun -np 1 /home/takao/bin/hbasfp0 si --job=3 stdout='lbasC'  Elap. 1.4s
-00:00:16.570   mpirun -np 2 /home/takao/bin/hvccfp0 si --job=3 stdout='lvccC'  Elap. 1.4s
-00:00:17.966   mpirun -np 2 /home/takao/bin/hsfp0_sc si --job=3 stdout='lsxC'  Elap. 1.9s
-00:00:19.862   mpirun -np 1 /home/takao/bin/hbasfp0 si --job=0 stdout='lbas'  Elap. 2.1s
-00:00:21.973   mpirun -np 2 /home/takao/bin/hvccfp0 si --job=0 stdout='lvcc'  Elap. 2.5s
-00:00:24.472   mpirun -np 2 /home/takao/bin/hgw si --jobgw=1 stdout='lgw'  Elap. 4.8s
-00:00:29.276   mpirun -np 1 /home/takao/bin/hqpe_sc si stdout='lqpe'  Elap. 1.5s
-Using cached b-value 0.5 for /home/takao/bin/lmf
-00:00:30.814   mpirun -np 2 /home/takao/bin/lmf si --ctrlg:iter.b=0.5 stdout='llmf'  Elap. 8.0s
-lmf successful with b=0.5
-===== QSGW iteration end   iter 1 ===
-```
+The console output of `gwsc 1 si -np 2` for the same input is in the [main document](./README_tutorial#flow-of-qsgw-calculation-with-the-script-gwsc).
 `lmf --jobgw=0` and `qg4gw` are run once, before the iterations; the other steps are repeated in every iteration.
 
 ## How to perform paper-quality QSGW calculations with minimum costs {#paper-quality-qsgw}
@@ -270,10 +217,8 @@ QSGW iteration cycle by gwsc contains (1) and (2)
 Big iteration cycle of QSGW is made from (1)+(2).
 With (1), we have small iteration cycle of one-body calculation with keeping given sigm.
 
-In `save.*`, we see total energy (but not the total energy in the QSGW
-mode with sigm file), a line per each iteration of (1). A line "c ..." is the final
-iteration cycle of (1)."x ..." is unconverged 
-(but no problem as long as we finally see "c ...").
+In `save.*`, we see a line per iteration of (1) with the total energy (which is not meaningful in the QSGW mode with the sigm file).
+The meaning of the first letter of each line is in [lmf: `save.<sname>`](./lmf#save-sname); an `x` on the way is no problem as long as we finally see `c` in (1).
 
 The command `"grep '[cx] ' save.*"` gives an indicator for 
 going to be converged or not.
@@ -354,17 +299,11 @@ We have a latest paper at https://arxiv.org/abs/2506.03477 for GPU version.
 It shows some details of computational steps in ecalj.
 In Japanese, pages by Dr.Gomi at [gomisai.blog75.fc2.com](http://gomisai.blog75.fc2.com/blog-entry-675.html) and [Qiita](https://qiita.com/takaokotani/items/9bdf5f1551000771dc48).
 
-## `lmfa`
-### atmpnu*
-Logalithmic derivative at MT boundaries generated by `lmfa`. This is
-used by `lmf` when `[ham].readp = true` in `ctrlg.<sname>.toml`.
+## `lmfa`, `lmf`
+`atmpnu*`, `rst.<sname>`, `__mixm.<sname>` and so on are in [lmf: output files](./lmf). Only those for GW are given here.
 
 ### `__atm.<sname>`
 This contains electron densities of spherical atoms.
-
-## `lmf`
-### `rst.<sname>`
-This contains self-consistent electron density revised by each iteration of lmf
 
 ### QPLIST*.chk
 QPLIST.jobgw1.chk (jobgw1 means --jobgw=1 for lmf) is for human, containing q for irr=1.
@@ -372,9 +311,6 @@ QPLIST.lmf.chk  (no jobgw option) is for human. Irreducible q points for lmf sel
 
 ### __HAMindex
 q points table and so on for generating Hamiltonian
-
-### `__mixm.<sname>`
-mixing file for lda
 
 ## `lmf --jobgw=0`
 ###  NLAindx.chk
@@ -448,7 +384,7 @@ radial functions.
 MTO index
 
 ### __VxcEvec*
- Coefficients of eigenfunctions and  eigenvalues for <del class="clfix">$\langle F_i|H^0|\psi F_j$</del><span class="clfix">$\langle F_i|H^0|F_j\rangle$</span> in the basis of PMT$\{F_i\}$.
+ Coefficients of eigenfunctions and  eigenvalues for $\langle F_i|H^0|F_j\rangle$ in the basis of PMT$\{F_i\}$.
 
 ### __GEIG,__CPHI,__EValue
 __GEIG: Coefficients of eigenfunctions. IPW part
@@ -548,8 +484,8 @@ An example of one-shot GW by `gw_lmfh si` (small size calculation in TestInstall
   1.00000  0.00000  0.00000  7   -3.59  -2.37  -5.91 -13.53   1.20   1.66   9.81  11.01  11.47  17.37 0.72  -0.40499    -11.86796
   1.00000  0.00000  0.00000  8   -3.59  -2.37  -5.91 -13.53   1.20   1.66   9.81  11.01  11.47  17.37 0.72  -0.40499    -11.86796
 ```
-All of the unit of energy is in eV. Detailed value of  <del class="clfix">eLDA} is in {TOTE.UP}</del><span class="clfix">`eLDA` is in `TOTE.UP`</span>.
-For insulators, the Fermi energy is at the middle of <del class="clfix">band</del><span class="clfix">the band gap (the energies are measured from it)</span>. For metals, one shot GW can be problematic
+All of the unit of energy is in eV. Detailed value of  `eLDA` is in `TOTE.UP`.
+For insulators, the Fermi energy is at the middle of the band gap (the energies are measured from it). For metals, one shot GW can be problematic
 if we consider the self-consistency of the Fermi energy.
 
 q  : q vector
@@ -560,7 +496,7 @@ SEx: $= \langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm valence}({\bf r},{\bf r}^{\pr
 
 SExcore: $= \langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm core}({\bf r},{\bf r}^{\prime})|\Psi_{{\bf k}n}\rangle$
 
-SEc: <del class="clfix">$= \langle\Psi_{{\bf k}n}|\Sigma_{\rm c}^{\rm valence}({\bf r},{\bf r}^{\prime}, \epsilon_n({\bf k})|\Psi_{{\bf k}n}\rangle$</del><span class="clfix">$= \langle\Psi_{\mathbf{k}n}|\Sigma_{\rm c}^{\rm valence}({\bf r},{\bf r}^{\prime}, \epsilon_n({\bf k}))|\Psi_{\mathbf{k}n}\rangle$</span>
+SEc: $= \langle\Psi_{\mathbf{k}n}|\Sigma_{\rm c}^{\rm valence}({\bf r},{\bf r}^{\prime}, \epsilon_n({\bf k}))|\Psi_{\mathbf{k}n}\rangle$
 
 vxc: LDA exchange correlation energy.$\langle \Psi_{{\bf k}n}|V_{\rm xc}^{\rm LDA}([n_{\rm total}],{\bf r})|\Psi_{{\bf k}n}\rangle$
 
@@ -588,37 +524,14 @@ ReS(elda):${\rm Re} \langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm core}({\bf r},{\b
 numerical detailed values of QPU. TOTE.DN for QPD
 
 In one-shot GW `gw_lmfh`, TOTE.UP contains LDA and QP energies. 
-It contains two kind of QP energies <del class="clfix">{\tt QP QPnoZ}</del><span class="clfix">`QP` and `QPnoZ`</span>.
+It contains two kind of QP energies `QP` and `QPnoZ`.
 
 ### __mixsig
 mixing file for `sigm.<sname>`
 
 ### `sigm.<sname>`
-<del class="clfix">self-energy file in the expansion of eigenfunctions of $H^0$.</del><span class="clfix">$\Sigma-V_{\rm xc}$ (the static Hermitian QSGW self-energy minus the LDA $V_{\rm xc}$, in Ry) as a matrix in the MTO basis at each irreducible $\bf q$ point, mixed with the previous iterations (`__mixsig`). `lmf` Bloch-sums it to real space and interpolates it to any $\bf k$ ([MLO-gwsc](./mlo_gwsc) §1.1).</span>
+$\Sigma-V_{\rm xc}$ (the static Hermitian QSGW self-energy minus the LDA $V_{\rm xc}$, in Ry) as a matrix in the MTO basis at each irreducible $\bf q$ point, mixed with the previous iterations (`__mixsig`). `lmf` Bloch-sums it to real space and interpolates it to any $\bf k$ ([MLO-gwsc](./mlo_gwsc) §1.1).
 
-
-# Product basis
-
-The product basis (the union of MT-local products and interstitial
-plane waves) is the heart of how ecalj represents the screened Coulomb
-interaction `W`. It is specified in the **`[product_basis]` section of
-`ctrlg.<sname>.toml`**, always the last section of the file:
-
-| key | what |
-|---|---|
-| `pb_tolerance`, `pb_lcutmx` | global cut-offs — the part you may tune |
-| `nlx`, `valence`, `core` | per-atom radial-function tables, written by `gwinit` (via `ctrlgenToml.py` / `Legacy2toml.py`) from `[[spec]]`; almost never hand-edited |
-
-(Until 2026-09 the three tables were a separate `PB.<sname>.toml`. The
-binaries do not read such a file: they abort and point at
-`ctrlg_absorb.py <sname>`, which appends its tables to `[product_basis]`
-and keeps the original as `.bk`.)
-
-> Product basis is originally given by F.Aryasetiawan and O.Gunnarsson
-> ([PRB 49, 16214](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.49.16214)).
-> The mixed product basis
-> ([Solid State Commun. 2002](https://doi.org/10.1016/S0038-1098(02)00028-5))
-> is the successor of original.
 
 ### QPU, TOTE in one-shot GW (`gw_lmfh`)
 In `gw_lmfh` (one-shot GW), `hqpe` gives `TOTE.UP` and `QPU` files (`TOTE.DN` and `QPD` as well). They contain the same values.
@@ -638,97 +551,9 @@ See the line `ef     esmr   valn=` in `lgw` and `lsxC`.
 With `[gw] t_tetrakbt` > 0 (the polarization function at finite temperature), both the polarization function and
 $G \times W$ (except the exchange of the cores) use the Fermi energy at that temperature, contained in EFERMI_kbt. See [kBT](./kBT).
 
-## `[product_basis]` cut-offs (in `ctrlg.<sname>.toml`)
-
-```toml
-[product_basis]
-pb_tolerance = [0.001]   # cut off of linear dependency (default 1e-3)
-                         #   larger ⇒ fewer product basis. 1d-2 is OK
-                         #   when you want a cheaper calculation.
-pb_lcutmx    = [4, 4]    # per-site l-cutoff for the product basis.
-                         #   4 needed when valence 3d exists (Ni, Ga, ...);
-                         #   2 OK for oxygen; 6 needed for 4f / 5f atoms.
-                         #   site order = [[site]] order; see lmchk SiteInfo.
-```
-
-After editing, re-run `lmf --jobgw=1` (or the next `gwsc` step) — the
-`hbasfp0` driver consumes these values and reports the resulting basis
-sizes in `lbas` / `lbasC`.
-
-## The per-atom tables (`nlx`, `valence`, `core`)
-
-They follow the cut-offs in the same `[product_basis]` table; every row
-starts with the site index `iatom` (in `[[site]]` order). `gwinit` writes
-them from `rsmh`/`eh`/`pz` of `[[spec]]` and adds a label per row; the
-explanation below is written into the file itself as comments, and the
-three tables are divided by `# ----` rules.
-
-```toml
-[product_basis]
-pb_tolerance = [1e-3]
-pb_lcutmx    = [4]
-# ----------------------------------------------------------------
-# nlx [iatom, l, nnvv, nnc]: one row per (iatom, l) ...
-nlx = [
-  [1, 0, 2, 3],
-  [1, 1, 2, 2],
-  [1, 2, 2, 0],
-  [1, 3, 2, 0],
-  [1, 4, 2, 0],
-]
-
-# ----------------------------------------------------------------
-# valence [iatom, l, n, occ, unocc]: one row per valence radial function ...
-valence = [
-  [1, 0, 1, 1, 1],   # 4s_phi
-  [1, 0, 2, 0, 0],   # 4s_phidot
-  [1, 1, 1, 1, 1],   # 4p_phi
-  [1, 1, 2, 0, 0],   # 4p_phidot
-  [1, 2, 1, 1, 1],   # 3d_phi
-  [1, 2, 2, 0, 0],   # 3d_phidot
-  [1, 3, 1, 0, 1],   # 4f_phi
-  [1, 3, 2, 0, 0],   # 4f_phidot
-  [1, 4, 1, 0, 0],   # 5g_phi
-  [1, 4, 2, 0, 0],   # 5g_phidot
-]
-
-# ----------------------------------------------------------------
-# core [iatom, l, n, occ, unocc, forX0, forSxc]: one row per core level ...
-core = [
-  [1, 0, 1, 0, 0, 0, 0],   # 1S
-  [1, 0, 2, 0, 0, 0, 0],   # 2S
-  [1, 0, 3, 0, 0, 0, 0],   # 3S
-  [1, 1, 1, 0, 0, 0, 0],   # 2P
-  [1, 1, 2, 0, 0, 0, 0],   # 3P
-]
-```
-
-Semantics (same as the legacy `<PRODUCT_BASIS>` block — only the
-container changed):
-
-- `nlx` row `[iatom, l, nnvv, nnc]` — how many radial functions ecalj has
-  on each `l` channel of that site: `nnvv = 2` is `{phi, phidot}`,
-  `nnvv = 3` adds the local orbital `phiz`; `nnc` is the number of core
-  levels at that `l`. Derived, do not edit.
-- `valence` row `[iatom, l, n, occ, unocc]` — one per radial function,
-  `n = 1` phi, `2` phidot, `3` phiz. `occ` / `unocc` are 0/1 switches that
-  put the function into the "occupied" / "unoccupied" group; the product
-  basis is formed from products (occupied group) × (unoccupied group) and
-  pruned by `pb_tolerance`. `phidot` is usually left out (`0 0`) for speed;
-  including it gives a more accurate basis.
-- `core` row `[iatom, l, n, occ, unocc, forX0, forSxc]` — one per core
-  level (`n = 1` deepest). `forX0` / `forSxc` came from the CORE1/CORE2
-  distinction of PRB 76, 165106 (2007). Historical: modern runs leave
-  every core row all-zero.
-
-The site index `iatom` follows the order of `[[site]]` in `ctrlg.<sname>.toml`;
-`lmchk` prints the order at the top of its console output.
-
-> **Legacy input.** `Legacy2toml.py` translates the pre-TOML
-> `<PRODUCT_BASIS>` block of `GWinput` into the `[product_basis]` section
-> above.
-
+## Product basis {#product-basis}
+The product-basis settings (the cut-offs of `[product_basis]` and the per-atom tables) are in [GW settings: product basis](./gwinput#product-basis).
 
 # MEMO
 * We need to explain how to set Gamma-cell averaged $\tilde{W}({\bf q}=0,\omega)$.
-* The old theory notes for developers, ecaljdetails (2015 to 2022, offset-Γ method, Coulomb matrix, EIBZ etc.), were removed on 2026-10-02. The points still valid are in <del class="clfix">ecalj's `MD/past_log.md` §14</del><span class="clfix">the development record (MD/past_log.md §14 in the repository, not on this site)</span>; the original is `ecaljdetails/ecaljdetails.tex` in ecaljdoc commit `3284d0b`.
+* The old theory notes for developers, ecaljdetails (2015 to 2022, offset-Γ method, Coulomb matrix, EIBZ etc.), were removed on 2026-10-02. The original is `ecaljdetails/ecaljdetails.tex` in ecaljdoc commit `3284d0b`.

@@ -215,7 +215,7 @@ an abort + one-line hint pointing at the canonical
 | Option | Type | Effect | Used in |
 |---|---|---|---|
 | `--gpu` | flag | Take the GPU code path (`InstallAll.py` grabs `/tmp/gpu.lock`; `gwsc` takes per-GPU locks in `/tmp/ecalj_res/`, see [GPU version § multiple jobs](./ecaljgpu#running-several-jobs-on-the-same-machine)) | `InstallAll.py`, `m_*.f90` |
-| `--linalg=<row>,<row>,…` | kv | Override rows of the GPU linear-algebra table, e.g. `--linalg=fp32.cgemm.large=realsgemm,fp32.epsinv.large=mixed1`. The table and the methods: [GPU version § automatic choice](./ecaljgpu#精度の選び方と行列演算の自動選択-2026-09) | `m_linalg_policy.f90` |
+| `--linalg=<row>,<row>,…` | kv | Override rows of the GPU linear-algebra table, e.g. `--linalg=fp32.cgemm.large=realsgemm,fp32.epsinv.large=mixed1`. The table and the methods: [GPU version § automatic choice](./ecaljgpu#choosing-the-precision-and-automatic-selection-of-matrix-operations-2026-09) | `m_linalg_policy.f90` |
 | `--use_gemmul8` | flag | Emulate the large GPU matrix products with GEMMul8 (Ozaki-II on INT8 tensor cores). Needs `InstallAll.py --gemmul8`. See [GPU version](./ecaljgpu) | `m_blas.f90`, `m_gemmul8.f90` |
 | `--modifiedGS` | flag | Modified Gram–Schmidt orthogonalisation | various |
 | `--diag=default` / `--diag=tridiag` / `--diag=chefsi` | kv | Diagonaliser selector (LAPACK default, tridiag, ChebFSI) | various |

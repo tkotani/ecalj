@@ -1,6 +1,6 @@
 # `lmf,lmfa,lmchk`
 
-> English version of the page [manual/lmf](../../manual/lmf.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/lmf.md of commit 7006f2703 (source blob 75d6a9529b68).
+> English version of the page [manual/lmf](../../manual/lmf.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/lmf.md of commit 9945420a9 (source blob f12daf14cede).
 
 We need an input file `ctrlg.<sname>.toml` (legacy: `ctrl.<sname>`).  
 `<sname>` is the **positional** argument passed to the binary
@@ -94,7 +94,7 @@ to live in `GWinput`, including the per-atom product-basis tables that
 close the file.  Run `Legacy2toml.py <sname>` inside any old working
 directory to generate it.
 
-The `[product_basis]` tables at the end of the file are for GW; `gwinit` writes them and they are normally not edited by hand. See [gwsc: Product basis](./gwsc#product-basis).
+The `[product_basis]` tables at the end of the file are for GW; `gwinit` writes them and they are normally not edited by hand. See [GW settings: product basis](./gwinput#product-basis).
 
 ### Console output {#reading-the-output}
 Console output is now mainly for debug purpose. 
@@ -239,7 +239,7 @@ mlo_lm     = """        # which lm channels of which atom make the model (1=s, 2
 pb_tolerance = [0.001]  # drop near-linear-dep products (default 1e-3)
 pb_lcutmx    = [4]      # max l-cutoff per atom
 # ----------------------------------------------------------------
-# nlx [iatom, l, nnvv, nnc] ... (per-atom tables written by gwinit; see manual/gwsc)
+# nlx [iatom, l, nnvv, nnc] ... (per-atom tables written by gwinit; see manual/gwinput)
 nlx = [
   [1, 0, 2, 3],
   [1, 1, 2, 2],

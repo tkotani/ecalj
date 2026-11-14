@@ -1,6 +1,6 @@
 # GW settings ([gw] and other keys) {#gwinput-legacy}
 
-> English version of the page [manual/gwinput](../../manual/gwinput.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwinput.md of commit 85cdee981 (source blob 01ed4e8057ca).
+> English version of the page [manual/gwinput](../../manual/gwinput.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwinput.md of commit 9945420a9 (source blob b4b481db0ec6).
 
 The sections `[gw]`, `[mlo]`, `[blocks]` and `[product_basis]` of `ctrlg.<sname>.toml` set the conditions of GW/QSGW calculations. This page describes their keys.
 For the whole file and the conversion of an old `GWinput`, see [Input file](./toml_migration).
@@ -239,18 +239,99 @@ Required (since 2026-11-14). The template writes true; the code default until th
 
 
 
-## `Smaller lcutmx to reduce computatinal time`
-  To reduce the computational time, we reduce number of MPB (mixed product basis).
-  One is lcutoff of Product Basis (PB) within MT. Use lcutmx=2 for oxygen or something (s,p block atoms). 
-  Thus it  is like
+## Product basis `[product_basis]` {#product-basis}
+
+The product basis (the union of MT-local products and interstitial plane waves) is the heart of how ecalj represents the
+screened Coulomb interaction $W$ ([Product basis](../theory/gw_product_basis)).
+It is specified in the **`[product_basis]` section of `ctrlg.<sname>.toml`**, always the last section of the file (Table PB1).
+
+Table PB1. Keys of `[product_basis]`
+
+| key | what |
+|---|---|
+| `pb_tolerance`, `pb_lcutmx` | global cut-offs — the part you may tune |
+| `nlx`, `valence`, `core` | per-atom radial-function tables, written by `gwinit` (via `ctrlgenToml.py` / `Legacy2toml.py`) from `[[spec]]`; almost never hand-edited |
+
+(Until 2026-09 the three tables were a separate `PB.<sname>.toml`. The programs do not read such a file: they abort and point at
+`ctrlg_absorb.py <sname>`, which appends its tables to `[product_basis]` and keeps the original as `.bk`.)
+
+The product basis originates from F. Aryasetiawan and O. Gunnarsson ([PRB 49, 16214](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.49.16214));
+the mixed product basis ([Solid State Commun. 2002](https://doi.org/10.1016/S0038-1098(02)00028-5)) is its successor.
+
+### Cut-offs: `pb_tolerance`, `pb_lcutmx`
+
 ```toml
 [product_basis]
-pb_lcutmx = [4, 4, 4, 2, 2, 2]   # maximum l-cutoff for the product basis, one per atom. 4 is required for atoms with valence d
+pb_tolerance = [0.001]   # cut off of linear dependency (default 1e-3)
+                         #   larger => fewer product basis. 1d-2 is OK
+                         #   when you want a cheaper calculation.
+pb_lcutmx    = [4, 4]    # per-site l-cutoff for the product basis.
+                         #   4 needed when valence 3d exists (Ni, Ga, ...);
+                         #   2 OK for oxygen; 6 needed for 4f / 5f atoms.
+                         #   site order = [[site]] order; see lmchk SiteInfo.
 ```
-in `ctrlg.<sname>.toml`. The atoms are in the order of the `[[site]]` tables (`lmchk` shows it, also in `SiteInfo.lmchk`).
 
-* NOTE: we need lcutmx =6 is requied for 4f/5f atoms, while 2 is enough for Oxygen (probably other species on the same row).
+- `pb_tolerance`: the criterion that drops nearly linearly dependent products. Larger gives fewer product basis functions; 1e-2 is OK for a cheaper calculation.
+- `pb_lcutmx`: the $l$ cutoff of the product basis in the MT, per site. To reduce the computational time use 2 for s,p atoms such as oxygen (probably also for other elements of the same row).
+  4 is needed for atoms with valence 3d (Ni, Ga, ...), 6 for 4f / 5f atoms. Example:
+  ```toml
+  [product_basis]
+  pb_lcutmx = [4, 4, 4, 2, 2, 2]
+  ```
+  The atoms are in the order of the `[[site]]` tables (`lmchk` shows it, also in `SiteInfo.lmchk`).
 
+After editing, re-run `lmf --jobgw=1` (or the next `gwsc` step); `hbasfp0` uses these values and reports the resulting basis sizes in `lbas` / `lbasC`.
+
+### The per-atom tables (`nlx`, `valence`, `core`)
+
+They follow the cut-offs in the same `[product_basis]`; every row starts with the site index `iatom` (in `[[site]]` order).
+`gwinit` writes them from `rsmh`/`eh`/`pz` of `[[spec]]` and adds a label per row; the explanation below is written into the file itself as comments, and the three tables are divided by `# ----` rules.
+
+```toml
+[product_basis]
+pb_tolerance = [1e-3]
+pb_lcutmx    = [4]
+# ----------------------------------------------------------------
+# nlx [iatom, l, nnvv, nnc]: one row per (iatom, l) ...
+nlx = [
+  [1, 0, 2, 3],
+  [1, 1, 2, 2],
+  [1, 2, 2, 0],
+  [1, 3, 2, 0],
+  [1, 4, 2, 0],
+]
+# ----------------------------------------------------------------
+# valence [iatom, l, n, occ, unocc]: one row per valence radial function ...
+valence = [
+  [1, 0, 1, 1, 1],   # 4s_phi
+  [1, 0, 2, 0, 0],   # 4s_phidot
+  [1, 1, 1, 1, 1],   # 4p_phi
+  [1, 1, 2, 0, 0],   # 4p_phidot
+  [1, 2, 1, 1, 1],   # 3d_phi
+  [1, 2, 2, 0, 0],   # 3d_phidot
+  [1, 3, 1, 0, 1],   # 4f_phi
+  [1, 3, 2, 0, 0],   # 4f_phidot
+  [1, 4, 1, 0, 0],   # 5g_phi
+  [1, 4, 2, 0, 0],   # 5g_phidot
+]
+# ----------------------------------------------------------------
+# core [iatom, l, n, occ, unocc, forX0, forSxc]: one row per core level ...
+core = [
+  [1, 0, 1, 0, 0, 0, 0],   # 1S
+  [1, 0, 2, 0, 0, 0, 0],   # 2S
+  [1, 0, 3, 0, 0, 0, 0],   # 3S
+  [1, 1, 1, 0, 0, 0, 0],   # 2P
+  [1, 1, 2, 0, 0, 0, 0],   # 3P
+]
+```
+
+Semantics (same as the legacy `<PRODUCT_BASIS>` block — only the container changed):
+
+- `nlx` row `[iatom, l, nnvv, nnc]` — how many radial functions ecalj has on each `l` channel of that site: `nnvv = 2` is `{phi, phidot}`, `nnvv = 3` adds the local orbital `phiz`; `nnc` is the number of core levels at that `l`. Derived, do not edit.
+- `valence` row `[iatom, l, n, occ, unocc]` — one per radial function, `n = 1` phi, `2` phidot, `3` phiz. `occ` / `unocc` are 0/1 switches that put the function into the "occupied" / "unoccupied" group; the product basis is formed from products (occupied group) × (unoccupied group) and pruned by `pb_tolerance`. `phidot` is usually left out (`0 0`) for speed; including it gives a more accurate basis.
+- `core` row `[iatom, l, n, occ, unocc, forX0, forSxc]` — one per core level (`n = 1` deepest). `forX0` / `forSxc` came from the CORE1/CORE2 distinction of PRB 76, 165106 (2007). Historical: modern runs leave every core row all-zero.
+
+`Legacy2toml.py` translates the pre-TOML `<PRODUCT_BASIS>` block of `GWinput` into this `[product_basis]` section.
 
 ## `Smaller IPW related part to reduce computational time`
 To reduce compuational time, we may reduce MPB coming from IPS, reduce the size of IPW for psi, reduce emax_sigm and pwemax as follows.
