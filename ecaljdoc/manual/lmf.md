@@ -117,7 +117,7 @@ From console output, we can check convergence behavior, band energies, Fermi ene
 
 ### `save.<sname>` and `log.<sname>` {#save-sname}
 * `save.<sname>` records starting history invoking lmf, lmchk, and lmfa. In addition, it gives total energies, a line
-per iteration of lmf. At each line, 'i: intermediate, c: converged, x: iteration max without converged'.
+per iteration of lmf. At each line, <del class="clfix">'i: intermediate, c: converged, x: iteration max without converged'.</del><span class="clfix">the first letter is c: converged, x: iteration max reached without convergence, i: intermediate, h: first iteration (Harris energy from the superposed free-atom densities), C: structural relaxation converged (`svflg='cxhiC'` in `m_lmfp.f90`).</span>
 * In addition, `--ctrlg:<dotted.path>=<value>` overrides (e.g. `--ctrlg:ham.scaledsigma=0.8`) are recorded. Older forms (`-vfoobar=val`, `-v[<path>]=val`, `--[<path>]=val`, `--toml.<path>=val`, `--pr=N`, `--time=N,M`, `--phispinsym`) all abort with a migration hint.
 
 * Two total energies Kohn-Sham and Harris-Foulkes are given---[both should be virtually the same](lmf.md#q-should-the-harris-foulkes-and-hohenberg-kohn-sham-functionals-agree-at-self-consistency). 

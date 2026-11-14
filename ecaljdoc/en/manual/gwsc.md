@@ -78,7 +78,7 @@ determined automatically from the available memory and shown at `MPI layout:` in
 - `zmel_batch_gb`: size of the batch in which matrix elements are made at once ([gwinput](./gwinput.md))
 - `mpi_worker_exch`, `mpi_worker_corr`: number of ranks assigned to one group of $q$ points in the exchange and correlation calculations. 0 (default) is automatic. Give a divisor of the total number of ranks
 
-There are no options `--keepwv` or `--nwpara=X` (giving them stops the program). `--nb=X` is accepted but not used in the `gwsc` calculation.
+There are no options `--keepwv` or `--nwpara=X` (giving them stops the program). <del class="clfix">`--nb=X` is accepted but not used in the `gwsc` calculation.</del><span class="clfix">`--nb=X` was retired on 2026-10-02; giving it stops the program ([cmdopts](./cmdopts)).</span>
 
 #### `--tetwtk`
 If given, the tetrahedron weights between the coupled states are not kept in memory when calculating the polarization function. Use it when memory runs short in calculations with many $k$ points.

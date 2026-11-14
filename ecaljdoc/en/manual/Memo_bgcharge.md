@@ -99,9 +99,10 @@ Thus we have
 ## Check in the console output {#background-charge-and-fractional-z}
 You see console output, e.g, 
 ```
-Charges: valence 19.80000 cores 8.00000 nucleii -28.00000
+Charges: valence 7.80000 cores 20.00000 nucleii -28.00000
 hom background .20000 deviation from neutrality: 0.00000
 ```
+<span class="clfix">(The valence and core charges were swapped here (19.8 and 8.0); for Si with `zbak = 0.2` they are 7.8 and 20.0.)</span>
 This is a case with `zbak = 0.2`.
 
 NOTE: at the first iteration, Charges: shows such as
