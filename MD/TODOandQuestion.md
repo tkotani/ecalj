@@ -113,6 +113,20 @@
 
 ### 判断待ち（ほかに）
 
+- **ecaljdoc のメインドキュメント（`ecaljdoc/manual/README_tutorial.md`）の中身の問題 11 件。最後に user と一緒に見る**（2026-11-14、翻訳したときに見つけた。
+  user「よくわからないが最後に見ないといけない。おぼえといて」。直すときは日英とも。かっこの中はファイルの中を探す文字列）
+  1. `cd TEST` のあとで `cat ecalj_auto/...`（`../ecalj_auto` のはず）（「cd TEST」）
+  2. `ctrls.POSCAR.mp-2534` に名前を変えたあと `cat ctrls.mp-2534`（ファイル名が合わない）（「ctrls.mp-2534」）
+  3. 「上で tee コマンドを使っているので」とあるが上に tee が無い（「tee コマンド」）
+  4. 古いキーの名前: PWMODE=11、`-vssig=0.8`（La2CuO4 の 2025-06 のログ）、SO=1（今は `[ham].so=1`）（「PWMODE」「ssig」「SO=1」）
+  5. `getsyml gaas` だがほかの例は mp-2534（「getsyml gaas」）
+  6. コマンドの頭に `>` が付いている（「>job_band」）
+  7. 縮退の話の図が LDA のバンドの図と同じ画像（「xxx」の近く、縮退の段落）
+  8. 「xxx」が残っている（「xxx」）
+  9. 「Mixed Produce basis」は Product の誤り（「Mixed Produce」）
+  10. 「Show your console options. c,x,i,h」のあたりの文が意味を成さない（訳では言い換えた。英語版で「c,x,i,h」）
+  11. 数式 `$\kappa \sim 1 $` の閉じる `$` の前の空白（ビルドは通っている）（「kappa」）
+  サイドバーの「Dielecric function」の綴りも
 - **外から写したコードのライセンス（2026-11-14 10:31、ecaljdoc のライセンスのページを作るときに見つけた。コードは動かさないと user が判断）**
   - Numerical Recipes: [`SRC/subroutines/ropbes.f90`](../SRC/subroutines/ropbes.f90) の `sphbes`・`bessjy`・`beschb`・`chebev` に
     「(C) Copr. 1986-92 Numerical Recipes Software」。NR のコードは自由に再配布できない。使われている: `smves`（mshvmt の `keep_phil`）→ `ropbes` → `sphbes` → `bessjy` → `beschb` → `chebev`。
