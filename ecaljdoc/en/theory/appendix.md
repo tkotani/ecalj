@@ -1,0 +1,94 @@
+# Appendix: mathematical notes {#appendix}
+
+> English version of the page [theory/appendix](../../theory/appendix.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/appendix.md of commit 000000000 (source blob 000000000000).
+
+Mathematical tools used in the other pages.
+
+## Block inversion {#block-inversion}
+
+Used for the dielectric function and for downfolding ([§2](#downfolding)). With square matrices $P$ and $S$,
+
+$$
+\begin{pmatrix} P & Q \\ R & S \end{pmatrix}
+\begin{pmatrix} W & -WQS^{-1} \\ -S^{-1}RW & S^{-1}+S^{-1}RWQS^{-1} \end{pmatrix}
+=\begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix},
+\tag{A1}
+$$
+
+$$
+W=(P-QS^{-1}R)^{-1}.
+\tag{A2}
+$$
+
+We write the off-diagonal blocks as $X=-WQS^{-1}$ and $Y=-S^{-1}RW$.
+
+To check it, compute the four blocks of the product:
+
+$$
+\begin{aligned}
+(1,1)&: \ PW-QS^{-1}RW=(P-QS^{-1}R)W = 1,\\
+(1,2)&: \ -PWQS^{-1}+QS^{-1}+QS^{-1}RWQS^{-1}\\
+&\qquad=\big(1-(P-QS^{-1}R)W\big)QS^{-1}=0,\\
+(2,1)&: \ RW-SS^{-1}RW=0,\\
+(2,2)&: \ -RWQS^{-1}+SS^{-1}+SS^{-1}RWQS^{-1}=1.
+\end{aligned}
+\tag{A3}
+$$
+
+## Downfolding {#downfolding}
+
+Downfolding is a general idea that appears in many contexts of physics, based on the block inversion (A1).
+It appears when a one-body problem is divided into two spaces, or when the Fock space of a many-body problem is divided into two
+(one-particle excited states, and states with more particles).
+
+For example, the Green function is the inverse of $\omega-H$, and we divide $H$ as
+
+$$
+H=\begin{pmatrix} H_{11} & H_{12} \\ H_{21}& H_{22} \end{pmatrix}.
+\tag{A4}
+$$
+
+If $H_{12}=H_{21}=0$, the main part $G^0_{11}=1/(\omega -H_{11})$ is completely separated from the rest $G_{22}^0=1/(\omega -H_{22})$.
+
+When $H_{12}$ and $H_{21}$ are not zero, their effect is taken into account by perturbation, or by the block inversion (A1). $W$ of (A1) is $G_{11}$, and
+
+$$
+\begin{pmatrix} G_{11} & G_{12} \\ G_{21} & G_{22} \end{pmatrix}
+=
+\begin{pmatrix} G_{11} & -G_{11}H_{12}G^0_{22} \\ -G^0_{22}H_{21}G_{11} & G^0_{22}+G^0_{22}H_{21}G_{11}H_{12}G^0_{22} \end{pmatrix},
+\tag{A5}
+$$
+
+$$
+G_{11}=\frac{1}{\omega - H_{11} - H_{12}G^0_{22}H_{21} }
+\tag{A6}
+$$
+
+(from (A2)). The $\omega$ dependence enters through $G^0_{22}$. $H_{12}G^0_{22}H_{21}$ is the self-energy.
+
+The spaces $\Omega_1$ and $\Omega_2$ of the division (A4) can be chosen, for example, as follows.
+
+- In a one-body problem, $\Omega_1$ is the low-energy part and $\Omega_2$ the high-energy part; or the 3d part and the others.
+- In a many-body problem, $\Omega_1$ is the one-particle Fock space. Then $G_{11}$ is the one-body propagator, and $G_{22}$ the propagator of two or more particles.
+- $\Omega_1$ is the model space and $\Omega_2$ the rest. One would like to regard $H_{11}$ as the Hubbard Hamiltonian, but it is not so simple:
+  $H_{11}$ should include the screening by the degrees of freedom of $\Omega_2$, which needs a more involved downfolding.
+
+This is different from dividing the many-body Hamiltonian as $H=H_0 + (H-H_0)$ for perturbation.
+
+## Causality and analytic property {#causality}
+
+The equation $(\omega-H) G(\omega)=1$ alone does not determine $G$. We go back to the equation of motion in real time,
+
+$$
+\Big(i \frac{\partial }{\partial t}-H\Big) G(t-t')=\delta(t-t'),
+\tag{A7}
+$$
+
+with the boundary condition that the response comes after the impulse (the source term) on the right-hand side ([Basic I](./basic), impulse response).
+
+Causality means "the cause gives the result", which is represented by the step function. For example, the Fourier transform of
+$-i\theta(t-t') e^{-i \omega_0 (t-t')}$ is $1/(\omega-\omega_0+i \delta)$ (the retarded Green function, the same convention as [Basic I](./basic)).
+Whether the pole is in the upper or lower half plane determines the direction of time.
+
+The sum rule is related to causality but is a little different. For example, the sum rule for the imaginary part of $G_{11}$ is determined only by
+the behavior of $G_{11}(\omega)$ at $|\omega| \to \infty$. Thus the sum rule is satisfied as long as $H_{12}G^0_{22}H_{21} \to 0$ for $|\omega| \to \infty$.

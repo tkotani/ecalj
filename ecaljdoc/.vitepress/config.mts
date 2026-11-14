@@ -54,6 +54,7 @@ const sidebarRoot = [
       { text: 'GW で用いる行列要素', link: '/theory/gw_zmel' },
       { text: 'Basic  I', link: '/theory/basic' },
       { text: 'Basic II', link: '/theory/basic2' },
+      { text: '付録：数学の補足', link: '/theory/appendix' },
       { text: '光学的性質', link: '/theory/optical_properties' },
     ]
   },
@@ -84,6 +85,7 @@ const sidebarRoot = [
 ]
 
 const enText: Record<string, string> = {
+  '付録：数学の補足': 'Appendix: mathematical notes',
   'ESM（真空のあるスラブ）': 'ESM (slabs with vacuum)',
   '力と構造の緩和': 'Forces and relaxation',
   '開発者向けメモ': 'Notes for developers',
