@@ -28,7 +28,7 @@
    [2][KotaniKino2013, PMT applied to diatomic molecules](https://github.com/ecalj/ecaljdoc/blob/main/presentations/KotaniKino2013PMTMolecule.pdf).
 
    ただ、セッティングや細かい改良はいろいろと加えられています。とくに、MTO の設定が自動化されている点が重要です。通常の LMTO 法では、MTO のパラメータの設定が難しく、かなり使いづらいものでした。
-   基底関数のパラメータは自動で設定するので、パラメータの設定に悩む必要はありません。計算に要るのは結晶構造（POSCAR）だけです。 
+   基底関数のパラメータは自動で設定するので、パラメータの設定に悩む必要はありません。MTO に APW を加えたことで、MTO のパラメータへの依存がかなり減ったのです。従来の MTO だけの方法では、非常に長距離の（1/r 型に近い）基底を入れる必要もありました。計算に要るのは結晶構造（POSCAR）だけです。 
    <!-- In principle, it is possible to perform reasonable calculations just from crystal structures and very minimum setting.  -->
     * PMT のはじまりは https://journals.aps.org/prb/abstract/10.1103/PhysRevB.81.125117 です。
     * PMT は [E. Bott、M. Methfessel、W. Krabs、P. C. Schmidt による smooth Hankel 関数の論文](https://github.com/ecalj/ecaljdoc/blob/main/presentations/Bott1988.pdf) にある smooth Hankel 関数を使います。これは [B][M. Methfessel、M. van Schilfgaarde、R.A. Casali による nfp の論文](https://github.com/ecalj/ecaljdoc/blob/main/presentations/nfp.pdf) で使われたもので、私たちの PMT はその上に作られています。

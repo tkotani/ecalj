@@ -1,6 +1,6 @@
 # ecalj MainDocument
 
-> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob e7d5ef67ce17).
+> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob 61df27d9a1f9).
 **This is the main document of ecaljdoc: the features of ecalj, an overview of QSGW, and the first calculation (GetStarted). Other pages are reached from the menu on the left.**
 
 * Here we give [GetStarted](#getstarted), together with install and overview of QSGW.
@@ -31,7 +31,7 @@
 
    Many settings and small improvements have been added since then. Important above all is that the setting of the MTOs is automatic. In the usual LMTO method, the MTO parameters are hard to set, which makes the method rather hard to use.
 
-   Since we have automatic settings for basis-set parameters, we don't need to be bothered with the parameter settings. Just crystal structures (POSCAR) are needed for calculations. 
+   Since we have automatic settings for basis-set parameters, we don't need to be bothered with the parameter settings. Adding APWs to the MTOs has much reduced the dependence on the MTO parameters. The methods with MTOs alone also needed very long-range basis functions (close to the 1/r type). Just crystal structures (POSCAR) are needed for calculations. 
    <!-- In principle, it is possible to perform reasonable calculations just from crystal structures and very minimum setting.  -->
     * Original PMT was started at https://journals.aps.org/prb/abstract/10.1103/PhysRevB.81.125117
     * PMT uses smooth Hankel functions described in [the smooth Hankel paper by E. Bott, M. Methfessel, W. Krabs, and P. C. Schmidt](https://github.com/ecalj/ecaljdoc/blob/main/presentations/Bott1988.pdf), which was used in [B][nfp paper by M. Methfessel and M. van Schilfgaarde, and R.A. Casali](https://github.com/ecalj/ecaljdoc/blob/main/presentations/nfp.pdf). Our PMT is on top them.
