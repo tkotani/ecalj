@@ -154,21 +154,6 @@ In its own time ($t_2-t_1>0$) the hole also goes to the future. The hole seems t
 
 This one-particle Green function is computed in perturbation theory in the form of Eq. (G3) below (the Gell-Mann–Low theorem).
 
-### Both sides in a many-electron system (T product) {#both-sides}
-
-The one-body retarded Green function of Eq. (GF6) has one side in time only (to the future). In the many-electron ground state an electron cannot be put into an occupied state. The occupied states give instead a term in which the hole left by removing an electron propagates to the past (the side $t_1<t_2$). Electrons ($t_1>t_2$: an electron is added and propagates) and holes ($t_2>t_1$: an electron is removed and propagates) can be treated together by adding the two in parallel. This is because the basis functions of both the electron and the hole are specified by the same one-body Hamiltonian. That sum, $G = G_\mathrm{ele} + G_\mathrm{hole}$, is the Green function.
-
-Together the two are written in one line with the time-ordered product (T product):
-
-$$
-iG(𝒓_1t_1, 𝒓_2t_2) = \braket{\Psi_0|T[\hat 𝜓_\mathrm{H}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)]|\Psi_0}
-\tag{Gd3}
-$$
-
-$T$ reorders the operators with the later times on the left and the earlier on the right, changing the sign at each exchange of fermion operators.
-
-Seen from perturbation theory too, symmetrizing the range of the time integrals (from $-\infty$ to $\infty$) brings in the step functions $𝜃(t_1-t_2)$ and $𝜃(t_2-t_1)$, which gives the T-product form.
-
 ### The Gell-Mann–Low theorem and disconnected diagrams {#gell-mann-low}
 
 Switching the interaction on adiabatically turns the non-interacting ground state $\ket{\Phi_0}$ into the interacting ground state (the Gell-Mann–Low theorem). Split the Hamiltonian into the non-interacting part $\hat H_0$ (including $-𝜇\hat N$) and the interaction $\hat V$, and define the operators in the interaction picture as
@@ -205,7 +190,15 @@ $$
 
 The times are ordered with the later ones on the left; no T product is used. Diagrams can be written down from this form as it is; they are then a diagram expansion made of propagation forward along the time axis (with step functions).
 
-Symmetrizing the ranges of the integrals in Eq. (G2) to $-\infty$ to $\infty$ brings in $1/n!$ and the T product, and Eq. (G3) becomes the one line $iG = \braket{\Phi_0|T[\hat S\,\hat 𝜓_\mathrm{I}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{I}(𝒓_2,t_2)]|\Phi_0}/\braket{\Phi_0|\hat S|\Phi_0}$.
+**Writing with the T product.** Electrons ($t_1>t_2$: an electron is added and propagates) and holes ($t_2>t_1$: an electron is removed and propagates) can be treated together by adding the two in parallel. This is because the basis functions of both the electron and the hole are specified by the same one-body Hamiltonian. That sum, $G = G_\mathrm{ele} + G_\mathrm{hole}$, is the Green function, and with the time-ordered product (T product) it is written in one line:
+
+$$
+iG(𝒓_1t_1, 𝒓_2t_2) = \braket{\Psi_0|T[\hat 𝜓_\mathrm{H}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)]|\Psi_0}
+\tag{G4}
+$$
+
+$T$ reorders the operators with the later times on the left and the earlier on the right, changing the sign at each exchange of fermion operators. In perturbation theory, symmetrizing the ranges of the integrals in Eq. (G2) to $-\infty$ to $\infty$ gathers the step functions into $1/n!$ and the T product, and Eq. (G3) becomes the one line $iG = \braket{\Phi_0|T[\hat S\,\hat 𝜓_\mathrm{I}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{I}(𝒓_2,t_2)]|\Phi_0}/\braket{\Phi_0|\hat S|\Phi_0}$.
+
  The vacuum amplitude in the denominator cancels exactly the disconnected diagrams of the numerator (the vacuum parts not connected to the external lines).
 So the disconnected diagrams need not be counted; only connected diagrams are summed (the linked-cluster theorem).
 
