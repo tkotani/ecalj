@@ -1,6 +1,6 @@
 # Representation of wave functions in GW
 
-> English version of the page [theory/gw_basis](../../theory/gw_basis.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/gw_basis.md of commit c6d3fb60f (source blob 57cdd1565bca).
+> English version of the page [theory/gw_basis](../../theory/gw_basis.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/gw_basis.md of commit 2023ad8e9 (source blob 6f0f606b1bd8).
 
 ::: warning Under construction
 This page is a draft. For the definitions of the symbols and the formulas, [Band-structure method of ecalj](./pmt) and section 2 of the main reference of [QSGW](./qsgw) (Obata, Kotani, Oda 2025) are newer and more accurate.
@@ -32,22 +32,19 @@ $φ_{lν}(r)$ is the $l$ channel orbital of solution on radial Schrödinger equa
 ,$\dot φ_{lν}(r)$ is energy derivative of $φ_{lν}(r)$, $φ^{z}_{l}(r)$ is a local orbital, also a solution of the radial Schrödinger equation, at an energy far from $ϵ_{lν}$.
 With `[ham].readp = true` and `[ham].pnufix = true` (both written by `ctrlgenToml.py`), the boundary conditions of $φ_{lν}$ at the MT radius (the logarithmic derivatives) are read from the results of `lmfa` (`readp`) and kept fixed (`pnufix`), so the basis set is fixed during the QSGW cycle.
 
-::: warning ?? About radial equation??
-- Is LDA used?
+::: info About the radial equation
+- The radial functions $φ_{lν}$ and $\dot φ_{lν}$ are made by solving the radial equation in the spherical part of the LDA (GGA) potential in the MT. The same holds in the QSGW cycle: the nonlocal QSGW potential does not enter the radial equation.
 $$
-\left[ -\frac{1}{2} \frac{d^2}{dr^2} + V_\mathrm{eff}[n(r)] - \frac{Z}{r} + \frac{l(l+1)}{2r^2}  -ϵ_{nlν} \right] φ_{nlν}(r) = 0
+\left[ -\frac{1}{2} \frac{d^2}{dr^2} + V_\mathrm{eff}[n](r) - \frac{Z}{r} + \frac{l(l+1)}{2r^2}  -ϵ_{lν} \right] r φ_{lν}(r) = 0
 \tag{Bq1}
 $$
-
+- The electron density that determines the potential is the sum over the occupied states of the wave functions (the radial equation uses its spherical part in the MT):
 $$
-n(r) = 2\sum_{nl} (2l+1) |φ_{nl}(r)|^2/r^2
+n(𝒓) = \sum_{𝒌n}^{\mathrm{occ}} |Ψ_{𝒌n}(𝒓)|^2
 \tag{Bq2}
 $$
-
- - In the $n(r)$ in radial equation obtained from self-consistent calculation?
- - What is the boundary conditions of radial equation.
- - $ϵ_{lν}$ is not the solution of radial equation, the $φ_{lν}(r)$ does not satisfy the some boundary conditions, for example $φ_{lν}(r) → 0 (r → 0)$
- - how to set the reference energy in the case of $φ^{z}_{l}(r)$?
+- Boundary conditions: the solution regular at the origin is taken, with the logarithmic derivative ($P$) given at the MT radius. $ϵ_{lν}$ is the energy that matches this logarithmic derivative, not an eigenvalue of the radial equation (a solution vanishing at infinity). The logarithmic derivatives are determined by the spherical free-atom calculation of `lmfa` and written to `atmpnu.*`; `lmf` reads them (`[ham].readp = true`) and keeps them fixed during the cycle (`[ham].pnufix = true`). See §1 (note) and §5 of [Band-structure method of ecalj](./pmt).
+- The local orbital $φ^{z}_{l}$ is also determined by its logarithmic derivative ($P_z$) at the MT radius; $P_z$ is also read from `atmpnu.*` written by `lmfa` and kept fixed. (With `pnufix = false`, `pnunew` updates $P$; an $l$ without a local orbital is solved at the energy of the center of gravity of the occupied states (the center of the partial DOS). This was used before, but was unstable.)
 :::
 
 ### Detail of $\ket{P^𝒌_{𝑮}}$
