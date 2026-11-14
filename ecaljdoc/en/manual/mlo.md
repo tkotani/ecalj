@@ -1,6 +1,6 @@
 # MLO — an automatic modelling method in place of maximal localization and the like
 
-> English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit b18224576 (source blob 9c1cc7dff3a5).
+> English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit 8ef3c4868 (source blob 49972c435714).
 
 ecalj branch `mlo3` / 2026-09-16 17:02 JST
 
@@ -879,6 +879,8 @@ In the working case the pnu of the empty sphere are 1.509 / 2.256 / 3.150 (s/p/d
 does not fix it. It is the same symptom as the known runaway of `yh3fcc_gwsc666`.
 **Give DFT s,p,d and make the MLO selection with `mlo_lm`**: that is the consistent way.
 
+<div class="clfix-old">
+
 **(b) A vacuum slab needs ESM. Do not forget to write `[esm]`.**
 With a vacuum layer, the zero of energy is fixed by how the $G=0$ component of the Coulomb interaction is treated.
 Without `[esm]`, `lmf` solves with ordinary periodic boundaries and **only prints a one-line warning without stopping**.
@@ -907,6 +909,14 @@ if `esm_input.dat` is left, `lmf` **stops** and points to `ctrlg_absorb.py <snam
 
 `Legacy2toml.py` converts by the same rule. Details in
 [ESM](./esm).
+
+</div>
+
+<div class="clfix">
+
+**(b) A vacuum slab needs ESM; do not forget `[esm]`.** Without `[esm]`, `lmf` solves with periodic boundaries and only prints a one-line warning. The zero of energy shifts (4.4 eV in $E_F$ for FeMgO). The settings and the conversion from `esm_input.dat` are on [ESM](./esm).
+
+</div>
 
 > This cost a long detour. Seeing a different $E_F$ come from the same `rst` on another machine,
 > we suspected the compiler and MPI, and ruled out in turn the binary compatibility of rst, `atmpnu`, negative charge density and nondeterminism,

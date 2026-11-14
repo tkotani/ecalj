@@ -1,16 +1,17 @@
 # Effective Screening Medium (ESM) {#esm-effective-screening-medium}
 
-> English version of the page [manual/esm](../../manual/esm.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/esm.md of the tree of 1b103da8c (source blob 9d9d1ae9759c).
+> English version of the page [manual/esm](../../manual/esm.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/esm.md of commit 8ef3c4868 (source blob 0aeeb03f7022).
 
-For a slab with a vacuum layer, ESM replaces the periodic electrostatics with
-the boundary condition you actually want (vacuum, or a metal electrode) on
+A slab with a vacuum layer is not a periodic crystal, but a plane-wave (smooth-density) code solves Poisson's equation as if it were. ESM
+(Otani & Sugino, [PRB 73, 115407 (2006)](https://doi.org/10.1103/PhysRevB.73.115407); implemented in ecalj by M. Obata, Kanazawa Univ.)
+replaces the periodic electrostatics with the boundary condition you actually want (vacuum, or a metal electrode) on
 each side. It also lets you apply an electric field to a slab. ESM combined
-with QSGW is quite unique; used in
+with QSGW is used in
 [PRB 101, 205120 (2020)](https://doi.org/10.1103/PhysRevB.101.205120).
 
 **Turn it on for every slab with a vacuum layer.** Without it the whole
-eigenvalue spectrum sits on a different zero — 4.4 eV on the Fe/MgO sample —
-while the total energy and `Vesav` look perfectly normal.
+eigenvalue spectrum sits on a different zero — 4.4 eV on the Fe/MgO sample (`Samples/MLOsamples/FeMgO`, 30.5 a.u. of vacuum) —
+while the total energy, `Vesav` and the magnetic moment agree to 8–13 digits, so nothing looks wrong until you compare Fermi energies.
 
 Configured by the `[esm]` section of `ctrlg.<sname>.toml` (below: all keys, the `boundary` values, how to apply a field,
 and the conversion of the retired `esm_input.dat` by `ctrlg_absorb.py`).
@@ -77,8 +78,7 @@ problems: you could not tell what the numbers meant without reading
 one line and carried on). Copying a sample directory without that one file
 therefore changed the physics without any error.
 
-The Fortran reads `ctrlg.<sname>.toml` and nothing else (since 2026-09-17;
-for one day in between `lmf` converted the file itself). A leftover
+The Fortran reads `ctrlg.<sname>.toml` and nothing else (since 2026-09-17). A leftover
 `esm_input.dat` makes `lmf` / `lmfa` / `lmchk` **abort** with a message
 naming the converter — abort rather than ignore, so a slab never runs
 without ESM by accident:
@@ -132,4 +132,4 @@ esmsmves: ESM is off (no [esm] section in ctrlg.<sname>.toml)   <- ESM off
 ## Where it is implemented {#where-it-is-implemented}
 
 `SRC/subroutines/esmsmves.f90` (the solver; called from `smves`) and
-`SRC/subroutines/m_lmfinit.f90::readesm` (reads `[esm]`, runs the migration).
+`SRC/subroutines/m_lmfinit.f90::readesm` (reads `[esm]`; stops if `esm_input.dat` is left).
