@@ -37,11 +37,6 @@ const sidebarRoot = [
       // { text: 'Quasi-particle\'s life time', link: '/manual/lifetime' },
       // { text: 'Spectrum function', link: '/manual/spec' },
       // developer pages (ForDevelopers, developer, auto, kBT_history, mlo_backup, implementation) moved to ecalj/MD on 2026-10-02 (not on the site)
-    ]
-  },
-  {
-    text: '開発中',
-    items: [
       { text: 'MLO-gwsc — Sigma を MLO 表現で内挿する QSGW', link: '/manual/mlo_gwsc' },
     ]
   },
@@ -82,7 +77,6 @@ const sidebarRoot = [
 ]
 
 const enText: Record<string, string> = {
-  '開発中': 'In development',
   'GW の設定（[gw] などのキー）': 'GW settings ([gw] and other keys)',
   'ドーピング（背景電荷）': 'Doping (background charge)',
   'スペクトル関数': 'Spectrum function',
