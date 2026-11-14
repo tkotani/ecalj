@@ -222,18 +222,6 @@ so=0 or 2. After we get sigm file, we run lmf with `--ctrlg:ham.so=1` (nit=1 can
 
 Effective masses: the sample `Samples/EffectiveMass/GaAs` (QSGW bands with SOC, the mass mode of `syml.<sname>`).
 
-## Forces and atomic position relaxation
-See the sample of the relaxation (LaGaO3).
-We have to set the `[dyn]` section of `ctrlg.<sname>.toml` (only relaxation). 
-We can set directions for relaxation with `relax = [0, 0, 1]` or so in `[[site]]`.
-No cell optimizations.  
-
-* CAUTION:
-    For DYN mode, we treat the atomic position file `AtomPos.lagao3`. If it exists, we use atomic positions written in the file. 
-    See `ecalj/SRC/subroutines/main_lmf.f90`. You find `call ReadAtomPos(irpos)` which override positions specified by `ctrlg.<sname>.toml`. 
-    I have checked relaxation of the Perovskite LaGaO3 worked well. Since we do not use so much about the relaxation mode, be careful
-    (I think some possible developments since atomic forces calculated well).
-
 ## Fermi surface 
 See the sample of the Fermi surface (Cu).
 Run `job_fermisurface cu -np 4 -vnk1=10 -vnk2=10 -vnk3=10` after `lmf cu` converged (`-vnk1` etc. are options of the script `job_fermisurface`). This write down all band energies (around
@@ -252,23 +240,6 @@ We have samples of LDA+U (GdN and the rare-earth nitrides), and the test target 
 *  `idu`, `uh`, `jh` in `[[spec]]` specify parameters for LDA+U.  `idu = [#,#,#,#]` specifies which l-channels are to have U and the type of LDA+U implementation.
           0 in a particular l-channel means no U is to be applied, 1 or 2 are for particular forms of LDA+U.  For example,
              `idu = [0, 0, 0, 1]`, `uh = [0.0, 0.0, 0.0, -0.28]`, `jh = [0.0, 0.0, 0.0, 0.0]`. See [LDA+U in lmf.md](./lmf#lda-u-toml).
-
-## Effective Screening Medium (ESM)
-For a slab with a vacuum layer, ESM replaces the periodic electrostatics with
-the boundary condition you actually want (vacuum, or a metal electrode) on
-each side. It also lets you apply an electric field to a slab. ESM combined
-with QSGW is quite unique; used in
-[PRB 101, 205120 (2020)](https://doi.org/10.1103/PhysRevB.101.205120).
-
-**Turn it on for every slab with a vacuum layer.** Without it the whole
-eigenvalue spectrum sits on a different zero — 4.4 eV on the Fe/MgO sample —
-while the total energy and `Vesav` look perfectly normal.
-
-Configured by the `[esm]` section of `ctrlg.<sname>.toml`. Full reference
-(all keys, the `boundary` values, how to apply a field, and the conversion
-of the retired `esm_input.dat` by `ctrlg_absorb.py`):
-**[ESM in lmf.md](./lmf#esm-effective-screening-medium)**.
-Sample: `Samples/MLOsamples/FeMgO`.
 
 ## Spin fluctuation
 `~/ecalj/Samples/Magnon` (test target `Fe_mlo_magnon`; `README.md` there gives the steps of `job_mlo_magnon`).
@@ -327,115 +298,3 @@ You may use `ctrlgenToml.py gd2pdo4 --so=2 --nspin=2`, or simply edit
 
 With these settings, we can perform series of calculations finished for 4f ReN. 
 Input files are available from [here](../data/RENctrlGWinput.tar.gz). Ask us when you like to use them.
-
-## How to perform paper-quality QSGW calculations with minimum costs {#paper-quality-qsgw}
-We expect that the accuracy of band gaps can be  ~0.1eV (or larger for larger band gap materials). 
-In cases, it is easy but in cases not so easy (magnetic metals requires many number of iterations). 
-So, it is better to use your own "simple criterion".
-"Not stick to convergence so much. Just stick to Reproducibility."
-
-As for the band gaps, 0.1 eV is a kind of limiting accuracy for usual semiconductors with 0~3 eV band gap materials.
-For Si or something simple, you may be able to have better accuracy. So, just say ~0.1eV level of accuracy.
-
-In principle, QSGW results should not depend on VWN or GGA. But there is minor dependence
-(frozen core density, core eigenfunctions, radial basis functions, and a slight numerical reason; it affects the band gap of GaAs by about 0.02 eV).
-Use VWN (`[ham] xcfun = 1`) as standard. Such technical things affect the band gap at the 0.05 eV level of error.
-
-### LDA calculation
- We need to confirm LDA-level of calculations first.
- `ctrlg.<sname>.toml` is generated just from ctrls.* (crystal structure file)
- For calculation of QSGW, use large enough `[bz] nkabc`, so as to avoid
- convergence check on them. 
-### QSGW: how to check convergence
-QSGW iteration cycle by gwsc contains (1) and (2)
-  (1) One-body self-consistent calculation 
-      (where we add sigm = Sigma-Vxc^LDA to one-body potential).
-      to determine one-body Hamiltonian $H_0$.
-  (2) For given $H_0$, we calculate sigm file.
-
-Big iteration cycle of QSGW is made from (1)+(2).
-With (1), we have small iteration cycle of one-body calculation with keeping given sigm.
-
-In `save.*`, we see total energy (but not the total energy in the QSGW
-mode with sigm file), a line per each iteration of (1). A line "c ..." is the final
-iteration cycle of (1)."x ..." is unconverged 
-(but no problem as long as we finally see "c ...").
-
-The command `"grep '[cx] ' save.*"` gives an indicator for 
-going to be converged or not.
-Or you can take "grep gap llmf.*run" (see it bottom.)
-
-Another way:
-`dqpu QPU.3run QPU.6run` 
-is to compare two QPU files which contains QP energies.
-(note: QP energies shown are calculated just at the beginning of iteration).
-
-For insulators, (I think), comparing band gap for each iteration 
-is good enough to check convergence. But for metal, it is better to plot energy bands
-for some of final iterations, and overlapped(`cd QSGW.*run` and run `job_band`).
-
-Another way is `grep rms lqpe*`. This gives rmsdel. Difference of self-energy
-(at least we see it is getting smaller for initial first cycles). 
-
-Avoid unbalanced k points for an anisotropic cell (Comput. Phys. Commun. 176 (2007) 1-13); the offset-Γ points are set by
-`[gw] Q0Pchoice` ([GW settings](./gwinput#q0pchoice)).
-
-One-shot QSGW (not one-shot GW) can be useful in cases.
-As it contains off-diagonal part, we can resolve band tanglement problem in Ge (no band gap).
-
-### How to make 80%QSGW +20% LDA, and SO setting
-  Note that sigm file contains $V_{\rm xc}^{\rm QSGW}-V_{\rm xc}^{\rm LDA}$.
-  If sigm exists, lmf read it, and run self-consistent calculations
-  with adding sigm to the one-body potential.
-
-  Justifications of QSGW80 are:
-  * https://iopscience.iop.org/article/10.7567/JJAP.55.051201/pdf
-  * https://journals.aps.org/prb/abstract/10.1103/PhysRevB.101.205120
-  * https://journals.aps.org/prb/abstract/10.1103/PhysRevB.108.165104
-
-#### 1. QSGW80(NoSC)
-  For practical prediction of band structure, such as band gap and so
-  on, it may be better to use 80% QSGW +20% LDA procedure when you
-  make band plot.  After, you have rst and sigm files determined self-consistently
-  Run 
-  ```
-  job_band gaas -np 4 --ctrlg:ham.scaledsigma=0.80
-  ```
-  This overrides `[ham] scaledsigma` in `ctrlg.gaas.toml` at run time, giving the QSGW80nosc result in Table II.
-
-#### 2. QSGW80(Nosc)+SO 
-   80%QSGW+20%LDA with `[ham].so = 1` (L.S method; needs `nspin = 2`).
-   If you like to include L.S method 
-
-```
-mpirun lmf gaas -np 4 --ctrlg:ham.scaledsigma=0.80 --ctrlg:ham.so=1 --ctrlg:ham.nspin=2
-```
-This procedure makes self-consistency with keeping the sigm file. This may/(or may not) required. If you expect large orbital moment this procedure may be needed.
-
-```
-job_band gaas -np 4 --ctrlg:ham.scaledsigma=0.80 --ctrlg:ham.so=1 --ctrlg:ham.nspin=2
-```
-NOTE: nspin=2 is required for so=1. rst and sigm are expanded for nspin=2 (you can not run with nspin=1, after rst and sigm are expanded).
-  
-#### 3. QSGW80
-  With `[ham] scaledsigma = 0.80` (or `gwsc ... --ctrlg:ham.scaledsigma=0.80`), you can run QSGW calculation in gwsc.
-  Then you have self-consistent results of QSGW80.
-  You can simultaneously use the setting so=2 (Lz.Sz scheme).
-  Be careful for z-direction and setting of `symgrp` (so as to keep the z-axis), for so=2.
-  If you like to get results of QSGW80+SO, you need to set so=1 after self-consistent of sigm attained.
-
-#### 4. Example of GaAs   
-  Good example to check band gap, and SO splitting at top of valence of Gamma point for ZB structure as GaAs.
-  The keys are `scaledsigma`, `so` and `nspin` in `[ham]` of `ctrlg.gaas.toml`; look at them by
-  ```   
-  >grep -E "^(scaledsigma|so|nspin) " ctrlg.gaas.toml
-  ```   
-  They are overridden for a run by `--ctrlg:ham.scaledsigma=0.80`, `--ctrlg:ham.so=1`, `--ctrlg:ham.nspin=2` as in 1. and 2.
-  (the keys need not be written in the file for this).
-
-### Papers
-It is instructive to reproduce samples in [Deguchi paper](../presentations/deguchi2016.pdf). 
-We can set up templates for your calculations. Ask us.
-We have a latest paper at https://arxiv.org/abs/2506.03477 for GPU version. 
-It shows some details of computational steps in ecalj.
-In Japanese, pages by Dr.Gomi at [gomisai.blog75.fc2.com](http://gomisai.blog75.fc2.com/blog-entry-675.html) and [Qiita](https://qiita.com/takaokotani/items/9bdf5f1551000771dc48).

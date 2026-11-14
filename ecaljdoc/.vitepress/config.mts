@@ -19,6 +19,8 @@ const sidebarRoot = [
       { text: 'DFT  calculation : lmf part', link: '/manual/lmf' },
       { text: 'Command-line options: lmf part', link: '/manual/cmdopts' },
       { text: 'ドーピング（背景電荷）', link: '/manual/Memo_bgcharge' },
+      { text: 'ESM（真空のあるスラブ）', link: '/manual/esm' },
+      { text: '力と構造の緩和', link: '/manual/relax' },
       { text: 'GW の設定（[gw] などのキー）', link: '/manual/gwinput' },
       { text: 'QSGW calculation: gwsc part', link: '/manual/gwsc' },
       { text: 'GPU version of QSGW',link: '/manual/ecaljgpu.md' },
@@ -82,6 +84,8 @@ const sidebarRoot = [
 ]
 
 const enText: Record<string, string> = {
+  'ESM（真空のあるスラブ）': 'ESM (slabs with vacuum)',
+  '力と構造の緩和': 'Forces and relaxation',
   '開発者向けメモ': 'Notes for developers',
   '試験の仕組み（testecalj）': 'Tests (testecalj)',
   'その他の説明': 'Other notes',

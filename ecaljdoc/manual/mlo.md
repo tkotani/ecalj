@@ -905,7 +905,7 @@ field     = [0.0, 0.0]       # (Ry/a.u.)
 | `ctrlg` に `[esm]` が**ない** | `esm_input.dat` を変換して `ctrlg` に `[esm]` を書き込み(GW セクションの前)、原本を **`esm_input.dat.bk`** へ退避(移送先を `.bk` 冒頭に明記) |
 
 `Legacy2toml.py` も同じ規則で変換する。詳細は
-[ESM](./lmf#esm-effective-screening-medium)。
+[ESM](./esm)。
 
 > この件で長く回り道をした。同じ `rst` から別の機械で別の $E_F$ が出るのを見て
 > コンパイラや MPI を疑い、rst のバイナリ互換性・`atmpnu`・負の電荷密度・非決定性を

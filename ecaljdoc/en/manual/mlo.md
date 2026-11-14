@@ -1,6 +1,6 @@
 # MLO — an automatic modelling method in place of maximal localization and the like
 
-> English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit b18224576 (source blob ae852a836469).
+> English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit b18224576 (source blob 9c1cc7dff3a5).
 
 ecalj branch `mlo3` / 2026-09-16 17:02 JST
 
@@ -906,7 +906,7 @@ if `esm_input.dat` is left, `lmf` **stops** and points to `ctrlg_absorb.py <snam
 | `ctrlg` **has no** `[esm]` | converts `esm_input.dat` and writes `[esm]` into `ctrlg` (before the GW sections), and moves the original to **`esm_input.dat.bk`** (the head of `.bk` names where it went) |
 
 `Legacy2toml.py` converts by the same rule. Details in
-[ESM](./lmf#esm-effective-screening-medium).
+[ESM](./esm).
 
 > This cost a long detour. Seeing a different $E_F$ come from the same `rst` on another machine,
 > we suspected the compiler and MPI, and ruled out in turn the binary compatibility of rst, `atmpnu`, negative charge density and nondeterminism,

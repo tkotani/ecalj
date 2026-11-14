@@ -61,7 +61,7 @@ Legacy2toml.py <sname>
 残っていると `lmf` は止まり、変換のスクリプト `ctrlg_absorb.py <sname>` の名前を示します。このスクリプトは、ctrlg に `[esm]` がまだ無ければ足し、
 元のファイルを `esm_input.dat.bk` に移して、設定をどこへ移したかを頭に書きます。`Legacy2toml.py` も古い形式の変換のときに同じことをします。
 同じスクリプトは、残っている `PB.<sname>.toml`（原子ごとの積基底の表。2026-09 までは別ファイル）も `[product_basis]` に取り込みます。
-GW のバイナリはこのファイルがあっても同じように止まります。[lmf.md の ESM](./lmf#esm-effective-screening-medium) を見てください。
+GW のバイナリはこのファイルがあっても同じように止まります。[ESM](./esm) を見てください。
 
 ### 古い `ctrlg.<sname>.toml`: `ctrlg_update.py` {#an-older-ctrlg-sname-toml-ctrlg-update-py}
 

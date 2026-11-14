@@ -1,6 +1,6 @@
 # Input file {#toml-migration-2026-05}
 
-> English version of the page [manual/toml_migration](../../manual/toml_migration.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/toml_migration.md of commit 034c2b739 (source blob 479713ae4d56).
+> English version of the page [manual/toml_migration](../../manual/toml_migration.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/toml_migration.md of commit 034c2b739 (source blob 124e54a572b3).
 
 ecalj consists of the one-body part (the DFT part) and the GW part.
 
@@ -73,7 +73,7 @@ where the settings went. `Legacy2toml.py` does the same during a legacy
 conversion. The same script folds a leftover `PB.<sname>.toml` (the
 per-atom product-basis tables, a separate file until 2026-09) into
 `[product_basis]`; the GW binaries abort on that file likewise.
-See [ESM in lmf.md](./lmf#esm-effective-screening-medium).
+See [ESM](./esm).
 
 ### An older `ctrlg.<sname>.toml`: `ctrlg_update.py`
 
