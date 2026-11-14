@@ -52,7 +52,7 @@ FeMgO は真空層を持つスラブで空格子球が要る。**§5 に独立�
 | §7 | [誤差の測り方](#_7-誤差の測り方-—-一方向では決まらない) | 一方向では決まらない |
 | §8 | [残る問題](#_8-残る問題) | |
 | §9 | [**模型の選び方**](#_9-模型の選び方-—-基準-1・2・3) | 基準 1・2・3 と現在のベストチョイス。`Samples/MATERIALS` の 65 物質 |
-| <del class="clfix">`MD/mlo_backup.md`</del><span class="clfix">開発記録（リポジトリの MD/mlo_backup.md、サイトには無い）</span> | 経緯と作業記録(backup) | |
+| 開発記録（リポジトリの MD/mlo_backup.md、サイトには無い） | 経緯と作業記録(backup) | |
 
 ---
 
@@ -84,7 +84,7 @@ A^{\mathbf{k}}_{n'n''}=S^{\mathbf{k}}_{n'n''}\,\theta^{\mathbf{k}}_{n'n''}
 \tag{3}
 $$
 
-**この $\theta$ をどう決めるかが問題のすべてで**、<del class="clfix">課題 1</del><span class="clfix">使い方 1（ミニマム模型）</span> の答えは式 (4) である。
+**この $\theta$ をどう決めるかが問題のすべてで**、使い方 1（ミニマム模型） の答えは式 (4) である。
 
 $$
 \boxed{\;
@@ -184,7 +184,7 @@ MLO は固定した MTO のシードを**バンド多様体へ射影**したも�
 バンドが 1 本しか無ければ、シードを 2 本与えても**射影で同じ関数に潰れる**。
 NiO で Ni の d に EH2 を足したところ、MLO の重なり行列 $O^{\rm MLO}$ の条件数が
 $1.3\times10^2 \to 7.4\times10^4$ に悪化し、伝導帯が 1 eV 動いた
-(2026-09-24、<del class="clfix">`MD/research_kotani_log.md`</del><span class="clfix">開発記録（リポジトリの MD/research_kotani_log.md、サイトには無い）</span>)。
+(2026-09-24、開発記録（リポジトリの MD/research_kotani_log.md、サイトには無い）)。
 本当に 2 本要るなら、窓を広げて第 2 のバンドを窓の中に入れるしかない。
 
 例外は、窓の中に**同じ性格の第 2 のバンドが実際にある**とき。空隙の大きい構造（閃亜鉛鉱の MgS・MgSe・MgTe・CdTe・ZnTe、
@@ -253,7 +253,7 @@ mlo_nkabc = [10, 10, 10]   # k mesh the MLO Hamiltonian is built on; required
 数え、その**全 k での最小値**を全 k に使う（2026-09-18）。k ごとに決めると、Cu の d 模型の
 ように s 帯が最下位になる k とならない k で射影子が入れ替わり、バンドに折れが出る。
 手動指定 `mlo_nskip` は廃止した。
-<span class="clfix">Cu の d 模型の折れは、k ごとに決めていた旧方式では `mlo_nkabc` を 10³ → 16³ にしても d 帯の rms が 98 → 90 meV と消えなかった（開発記録、リポジトリの MD/mlo_notes/mlo_nskip_cu_problem.md、サイトには無い）。</span>
+Cu の d 模型の折れは、k ごとに決めていた旧方式では `mlo_nkabc` を 10³ → 16³ にしても d 帯の rms が 98 → 90 meV と消えなかった（開発記録、リポジトリの MD/mlo_notes/mlo_nskip_cu_problem.md、サイトには無い）。
 
 `mlo_lm` で指定した (原子, l) に**半芯の局所軌道**（`pz`、例 Ga 3d の `pz = 3.9`）があるとき、それを模型のシードにするかも自動で決まる
 （§9 の基準 1）。その LO の帯（**同じ種類の原子の** LO をまとめた部分空間への射影重みが 1/2 を超える占有状態）の最高エネルギー
@@ -291,8 +291,7 @@ MLO-QSGW の連鎖（`HamRsMLO` で模型を凍結する）では、連鎖の最
 - 半内殻の局所軌道（`[[spec]]` の `pz`）: 自動（上の規則）。上書きは `mlo_lm3`
 - 空格子球: `[[site]]`・`[[spec]]` に置き、`mlo_lm` に行を書く（基準 3、§5・§9）。基底が変わるので `lmfa` から回し直す
 
-<del class="clfix">Cu の d 模型で 10³ → 16³ にすると d 帯の rms は 98 → 90 meV
-(`MD/mlo_notes/mlo_nskip_cu_problem.md`)。</del><span class="clfix">（この文は上の `nskip` の段落へ移した）</span>
+
 
 **通常はこのまま使える。** `Samples/MLOsamples` の 18 サンプルは全部この既定値
 ($\Delta=w=2.0$ eV)で、物質ごとに変えていない(§2)。3 つとも既定値なので、
@@ -465,13 +464,13 @@ Fe — $E_F$ を横切る sp バンドをゾーン境界の 33 eV まで追え�
 ### 参照バンドについて
 
 比較相手はどの系も **PMT 基底で解いた第一原理バンド**で、実験値ではない。
-そのうち **Si・Al₂O₃:Cr・RuO₂・GdION<span class="clfix">・GaAsSoc</span> は QSGW**(`sigm.<sname>` を持つ)、
+そのうち **Si・Al₂O₃:Cr・RuO₂・GdION・GaAsSoc は QSGW**(`sigm.<sname>` を持つ)、
 残りは DFT である。本書で「$\Delta E$」と書いているのは MLO 模型と
 この第一原理バンドの差で、$m^*$比 の分母も同じ。
 
 ### 全サンプルのバンドプロット(灰線: 第一原理 PMT、赤 ×: MLO)
 
-**<del class="clfix">課題 (1)</del><span class="clfix">使い方 1（ミニマム模型）</span> — $E_F$ 近傍の模型**
+**使い方 1（ミニマム模型） — $E_F$ 近傍の模型**
 
 ![Al2O3_Cr](mlo/Al2O3_Cr.png)
 
@@ -533,11 +532,11 @@ FeCo(18 軌道、窓 8.3 meV)— 磁性金属で両スピンとも良く乗る�
 回すものと同じ入力・同じ参照。図は `SRC/exec/mlo_bandplot.py <sampledir>_work` で再生成。
 表の後半 7 系は Materials Project の構造をそのまま `ctrlgenToml.py` に通し、
 `mlo_lm` に全原子の s,p,d を入れて既定（$\Delta = w = 2$ eV）で回したもの
-（2026-09-18、<del class="clfix">開発の記録 `MD/mlo_notes/mp_20260918/`</del><span class="clfix">開発記録（リポジトリの MD/mlo_notes/mp_20260918/、サイトには無い）</span>）。
+（2026-09-18、開発記録（リポジトリの MD/mlo_notes/mp_20260918/、サイトには無い））。
 
 | 半導体・絶縁体 | | | |
 |---|---|---|---|
-| Si (QSGW) | GaAs <del class="clfix">(QSGW)</del><span class="clfix">(DFT)</span> | GaAs+SOC<span class="clfix"> (QSGW)</span> | C (diamond) |
+| Si (QSGW) | GaAs <del class="clfix">(QSGW)</del><span class="clfix">(DFT)</span> | GaAs+SOC (QSGW) | C (diamond) |
 | ![](mlo/Si666gwsc.png) | ![](mlo/GaAs.png) | ![](mlo/GaAsSoc.png) | ![](mlo/C.png) |
 | C.sp | SrTiO3 | Al2O3:Cr (QSGW80) | NiO (LDA, AFM) |
 | ![](mlo/C.sp.png) | ![](mlo/SrTiO3.png) | ![](mlo/Al2O3_Cr.png) | ![](mlo/NiO666lda.png) |
@@ -878,44 +877,7 @@ DFT 計算側で $Z=0$ の球から $l$ チャネルを削ると動径方程式�
 与えても直らない。既知の `yh3fcc_gwsc666` の暴走と同じ症状である。
 **DFT には s,p,d を持たせ、MLO の選択は `mlo_lm` で行う**のが筋の通ったやり方。
 
-<div class="clfix-old">
-
-**(b) 真空スラブには ESM が要る。`[esm]` を書き忘れないこと。**
-真空層があると Coulomb の $G=0$ 成分の扱いでエネルギーのゼロ点が決まる。
-`[esm]` が無いと `lmf` は通常の周期境界で解き、**警告一行を出すだけで止まらない**。
-FeMgO では $E_F$ が **4.4155 eV** ずれた。全エネルギー・`Vesav`・磁気モーメントは
-8〜13 桁一致するので、Fermi エネルギーを比べるまで何も異常に見えない。
-
-```toml
-[esm]
-boundary  = "vac/slab/vac"   # 真空(-z)/スラブ/真空(+z)
-origin    = -8.63717         # (a.u.)
-shiftmode = 0
-zb        = [23.907104, -23.907104]   # (a.u.)
-potential = [0.0, 0.0]       # (Ry)
-field     = [0.0, 0.0]       # (Ry/a.u.)
-```
-
-**`esm_input.dat` は廃止した(2026-09-16)。** 設定は `ctrlg.<sname>.toml` の
-`[esm]` セクションに書く。Fortran は `ctrlg` 以外を読まないので(2026-09-17)、
-`esm_input.dat` が残っていると `lmf` は**止まって** `ctrlg_absorb.py <sname>` を
-案内する(黙って ESM 無しで走らないように、無視ではなく abort):
-
-| 状況 | `ctrlg_absorb.py` がすること |
-|---|---|
-| `ctrlg` に `[esm]` が**ある** | そちらが使われる。`esm_input.dat` は **`esm_input.dat.bk`** へ退避され、`.bk` の冒頭に「この設定は使われなかった」と記録される |
-| `ctrlg` に `[esm]` が**ない** | `esm_input.dat` を変換して `ctrlg` に `[esm]` を書き込み(GW セクションの前)、原本を **`esm_input.dat.bk`** へ退避(移送先を `.bk` 冒頭に明記) |
-
-`Legacy2toml.py` も同じ規則で変換する。詳細は
-[ESM](./esm)。
-
-</div>
-
-<div class="clfix">
-
 **(b) 真空スラブには ESM が要る。`[esm]` を書き忘れないこと。** `[esm]` が無いと `lmf` は周期境界で解き、警告を一行出すだけで止まらない。エネルギーのゼロ点がずれる（FeMgO で $E_F$ が 4.4 eV）。設定と `esm_input.dat` からの変換は [ESM](./esm) にある。
-
-</div>
 
 > この件で長く回り道をした。同じ `rst` から別の機械で別の $E_F$ が出るのを見て
 > コンパイラや MPI を疑い、rst のバイナリ互換性・`atmpnu`・負の電荷密度・非決定性を
@@ -933,8 +895,6 @@ MLO 模型でバンドが再現できたら、次に要るのは**その模型�
 である。模型ハミルトニアンに載せる Hubbard $U$、磁気ゆらぎの計算で使う
 相互作用がこれにあたる。cRPA で言う「模型空間に射影した遮蔽相互作用」で、
 MLO 基底で評価するのが `job_mloW` である。
-
-<span class="clfix">（式番号の付け直し: この節の式番号を現れる順に付け直した。旧 → 新: (7a) → (7a)、(7f) → (7b)、(7) → (7c)、(7b) → (7d)、(7c) → (7e)、(7d) → (7f)、(7e) → (7g)。(6) と §9 の (8)〜(12) は変わらない）</span>
 
 ### 何を計算するか
 
@@ -978,7 +938,7 @@ $F_i\to F_i/\sqrt{N_i}$ とし（**$\mathbf{k}$ によらない定数**）、続
 
 - 生の MLO の $N_i$ は 1 よりずっと小さい: Ni の d で 0.38、SrVO₃ の t₂g で 0.18、bcc Fe の d で 0.21〜0.33、s・p で 0.01〜0.02
   （窓の上で重みが落ちるため）。規格化しないと $V$ の $U$ が Ni で 3.4 eV（規格化して 24 eV）のような値になる
-- **$\mathbf{k}$ ごとに <del class="clfix">$1/\sqrt{O_{ii}(\mathbf{k})}$ で割って</del><span class="clfix">$\sqrt{O_{ii}(\mathbf{k})}$ で割って（$1/\sqrt{O_{ii}(\mathbf{k})}$ を掛けて）</span>はいけない**（旧 `--mlo_diagnorm`、廃止）。因子が $\mathbf{k}$ によるので実空間の軌道の形が変わり、
+- **$\mathbf{k}$ ごとに $\sqrt{O_{ii}(\mathbf{k})}$ で割って（$1/\sqrt{O_{ii}(\mathbf{k})}$ を掛けて）はいけない**（旧 `--mlo_diagnorm`、廃止）。因子が $\mathbf{k}$ によるので実空間の軌道の形が変わり、
   メッシュから外れた $\mathbf{k}$ の MLO バンドが動く（C で 0.74 eV、Al で 0.10 eV）
 - `hwmatK_MPI` は GW のメッシュで測った $N_i$ を確かめとして表示する（`lwmatK1` の `square integral of the real-space MLOs on the GW mesh`）。
   模型のメッシュ（`mlo_nkabc`）と GW のメッシュが違うので 1 から少しずれる。GW のメッシュが粗いと、その周期の箱の中で軌道が自分の像と重なってずれが大きい
@@ -1140,7 +1100,7 @@ $U=(ii|ii)$、$J=(ij|ji)$。$\Omega$ は式 (7g) の広がり（bohr²、括弧�
   Wannier 関数の d の部分空間は広い窓（$E_F\pm10$ eV）から作られて s・p 的なバンドにも乗り、式 (7e) で d ↔ s,p の遷移も一部除かれる。
   どちらが正しいということではなく、部分空間の取り方の違いである
 - GW の k メッシュが粗いと、式 (7a) の規格化が GW のメッシュの上で 1 からずれ（SrVO₃、2³ で 1.06）、$U$ が 1 割ずれる。$U$ を使うなら 4³ 以上で
-- 比較の数値と作業場所は<del class="clfix">研究ログ 2026-10-02 00:32</del><span class="clfix">開発記録（リポジトリの MD/research_kotani_log.md の 2026-10-02 00:32、サイトには無い）</span>。Wannier の経路は git のタグ `last-wannier` のコミットにある
+- 比較の数値と作業場所は開発記録（リポジトリの MD/research_kotani_log.md の 2026-10-02 00:32、サイトには無い）。Wannier の経路は git のタグ `last-wannier` のコミットにある
 - 表 M7 の MLO は生の MLO の値。Löwdin の基底（標準、2026-10-02 から）では、Ni の d（4³）の cRPA の $U$ は 2.90 eV（生 2.84、Wannier 3.78）で、
   RPA の $U$ は 1.434 eV。窓を広げると cRPA の $U$ は (4, 2) で 3.13、(6, 2) で 3.30 eV と動くが、RPA の $U$ は 1.43〜1.52 eV とあまり動かない。
   cRPA は「模型の部分空間の中の遮蔽」を除く量なので部分空間の取り方にそのまま依る（帯がもつれた系では、重みの方式か射影の方式か、Wannier の
@@ -1308,7 +1268,7 @@ $\Delta$ の効きは $w$ よりはるかに弱い。$\Delta$ を 1→4 eV と�
 | **新 $\Delta=w=2.0$ eV** | **15.0 meV** | **7.4 meV** | **13 meV** |
 
 効いたのは SrTiO₃ の占有側 52.9 → 5.5 meV と Al₂O₃:Cr の窓 17.5 → 7.2 meV。
-悪化したのは C.sp(14.9 → 26.7 meV)で、これは $w$ を上げたい側の系である(<del class="clfix">§4</del><span class="clfix">上の最適 $w$ の表</span>)。
+悪化したのは C.sp(14.9 → 26.7 meV)で、これは $w$ を上げたい側の系である(上の最適 $w$ の表)。
 
 ---
 
@@ -1318,7 +1278,7 @@ $\Delta$ の効きは $w$ よりはるかに弱い。$\Delta$ を 1→4 eV と�
 
 ### 解決済み
 
-- **Al₂O₃:Cr のギャップ** — <del class="clfix">付録 D (c)</del><span class="clfix">開発記録（リポジトリの MD/mlo_backup.md §2 の D (c)、サイトには無い）</span> の実装で **−128 → +7 meV**($m^*$ 比 0.58 → 1.08)。<span class="clfix">（このときの値。§2 の表の既定値では +1 meV、1.04）</span>
+- **Al₂O₃:Cr のギャップ** — 開発記録（リポジトリの MD/mlo_backup.md §2 の D (c)、サイトには無い） の実装で **−128 → +7 meV**($m^*$ 比 0.58 → 1.08)。<span class="clfix">（このときの値。§2 の表の既定値では +1 meV、1.04）</span>
 - ~~**FeMgO をサンプルに入れるのは保留** — 機械依存が残っているため。~~
   **解決した(2026-09-15)。機械依存ではなく、私が `esm_input.dat` を
   新サンプル `FeMgO_ES` にコピーし忘れていただけだった。**
@@ -1415,15 +1375,15 @@ $\Delta$ の効きは $w$ よりはるかに弱い。$\Delta$ を 1→4 eV と�
 
 ### 生きている
 
-- **固定 $w$ では半導体と金属を同時に満たせない。** <del class="clfix">§3</del><span class="clfix">§7</span> のとおり最適 $w$ は
+- **固定 $w$ では半導体と金属を同時に満たせない。** §7 のとおり最適 $w$ は
   半導体 <del class="clfix">0.13–0.20、Fe・Cu 0.80</del><span class="clfix">1.8–2.7 eV、Fe・Cu 10.9 eV</span> と 6 倍違い、どちらも有限の最適点である。
   系ごとの最適化は well-posed だが、**固定値一つで全系は満たせない**。
   <del class="clfix">既定を $0.20$ から半導体寄りの $0.15$ に下げる余地はある(未変更。
   変更すると testecalj の MLO 参照ファイルの再生成が要る)。</del><span class="clfix">既定は半導体寄りの 2.0 eV（旧 2.72 eV）に下げた（§7）。</span>
 
 - **Si の $6^3$ の $m^*$ は信用できない。** $6^3$ でギャップ +25 meV・$m^*$ 1.18、
-  $8^3$ で +5 meV・1.00(<del class="clfix">§2</del><span class="clfix">§7 のメッシュの表の $w=2.7$ eV</span>)。振れは補間の雑音であり模型の欠陥ではない。
-  **パラメータ調整を $6^3$ の $m^*$ で行ってはいけない**(<del class="clfix">§3</del><span class="clfix">§7</span> のメッシュの項)。
+  $8^3$ で +5 meV・1.00(§7 のメッシュの表の $w=2.7$ eV)。振れは補間の雑音であり模型の欠陥ではない。
+  **パラメータ調整を $6^3$ の $m^*$ で行ってはいけない**(§7 のメッシュの項)。
 
 ### 使ってはいけない指標(記録)
 
@@ -1431,7 +1391,7 @@ $\Delta$ の効きは $w$ よりはるかに弱い。$\Delta$ を 1→4 eV と�
 バンドファイルの零点が VBM に取られるため $E_F$ が価電子帯上端付近に来て、
 価電子側しか見ない。C.sp で $w$ を <del class="clfix">0.20 → 0.80</del><span class="clfix">2.7 → 10.9 eV</span> と広げると
 $E_F\pm1.5$ は 0.0064 → 0.0170 と鈍い一方、ギャップ誤差は $-18$ → $+822$ meV と暴走する。
-現在の測り方(<del class="clfix">§3</del><span class="clfix">§7</span>)はこの指標を使っていない。
+現在の測り方(§7)はこの指標を使っていない。
 
 ---
 
@@ -1469,7 +1429,7 @@ N^{\rm LO}_a=\sum_{l\in L^{\rm LO}_a}(2l+1)
 \tag{8}
 $$
 
-$L_a$ は `mlo_lm` の原子 $a$ の行にある $l$（<span class="clfix">$N^{\rm EH}_a$ は </span>s,p で 4、s,p,d で 9、s,p,d,f で 16。部分殻なら書いた lm の数）、$N^{\rm EH2}_a$ は `mlo_lm2` の行の lm の数
+$L_a$ は `mlo_lm` の原子 $a$ の行にある $l$（$N^{\rm EH}_a$ は s,p で 4、s,p,d で 9、s,p,d,f で 16。部分殻なら書いた lm の数）、$N^{\rm EH2}_a$ は `mlo_lm2` の行の lm の数
 （s,p で 4、`!` の行は 0）、$L^{\rm LO}_a$ は EH に**加えた**局所軌道の $l$（`lmlo` の `SHALLOW: LO added` の行。`mlo_lm3` に書いた原子はその lm の数）。
 局所軌道が EH と入れ替わる $l$（`IN THE WINDOW`）は $L_a$ の側で数える（本数は変わらない）。
 スピン分極した系は各スピンに $N_{\rm MLO}$ 本。スピン軌道を入れる物質も数え方は同じ（MLO は up と down で同一。そこに $H_{\rm SO}$ を足して
@@ -1555,7 +1515,7 @@ $$
 **検査の結果**（直交化した MLO の模型、2026-10-02。§6 の表 M8 と同じ DFT）: 基準 1 の 63 物質で PASS 55。FAIL の 8 物質（AlN・AlSb・InSb・MgS・MgSe・MgTe・Sn・SiO₂）は
 生の模型でも同じ値で FAIL で、基準 2（陽イオンに EH2）にすると AlN・AlSb・InSb・MgS・MgSe・MgTe・Sn は PASS（最大のずれ 0.007〜0.049 eV）、SiO₂ は基準 3（空格子球）で 0.005 eV。
 生の模型で壊れた Cu・Ni の基準 2 は、直交化した模型では PASS（0.045、0.055 eV）。重なりを内挿しないので、上の崩れ方が起きない。EuO の基準 2 は模型を作る所で止まる
-（`Hreduction` の規格化の確かめ、前と同じ）。2026-10-01 の生の模型での集計（65 物質: 基準 1 は 55 PASS、基準 2 は 59 PASS）は<del class="clfix">研究ログ 2026-10-01</del><span class="clfix">開発記録（リポジトリの MD/research_kotani_log.md の 2026-10-01、サイトには無い）</span>。
+（`Hreduction` の規格化の確かめ、前と同じ）。2026-10-01 の生の模型での集計（65 物質: 基準 1 は 55 PASS、基準 2 は 59 PASS）は開発記録（リポジトリの MD/research_kotani_log.md の 2026-10-01、サイトには無い）。
 
 ### 結果
 
@@ -1642,7 +1602,7 @@ rms は MLO → DFT / DFT → MLO（eV）。窓は MLO → DFT が [VBM − 8, C
 
 GW1500 のデータベース（QSGW80 のバンド）の全物質に、同じ処方で MLO の模型を作る。物質ごとに手で調整はせず、次の規則だけで決める。
 
-**<del class="clfix">表 M7</del><span class="clfix">表 M12</span>**. 標準処方の規則
+**表 M12**. 標準処方の規則
 
 | | 何を決めるか | 規則 | 理由 |
 |---|---|---|---|
@@ -1678,7 +1638,7 @@ GW の k 点は、間隔の規則で 3 段（low・middle・high が Si の 4×4
 Rb₈（mp-1179832。原子を大きな胞に間隔を置いて並べたもので、大きすぎる）。条件が整えば QSGW80 そのものが失敗した物質は無い。
 前の回の失敗は、5 月の TF32 の精度、k 点、重なった・大きすぎる ES から来ていた。
 
-**ES**: 240 物質に<del class="clfix">表 M7</del><span class="clfix">表 M12</span> の規則 1 で置いた。規則は途中で 2 度変わったので、値ごとにその時の規則を書いてある（表 M9）。
+**ES**: 240 物質に表 M12 の規則 1 で置いた。規則は途中で 2 度変わったので、値ごとにその時の規則を書いてある（表 M9）。
 入力の全件で、ES と他の球の重なりは無い（2026-10-07 に確かめた）。規則でうまくいかなかった 7 物質は手で置いた（表 M10）。
 <del class="clfix">板と真空の構造（表面のすぐ外に積層を延ばして置き、真空の中央にも置く）と分子性の結晶（2.2〜2.5 a.u. の小さい ES）の規則化はこれから。</del><span class="clfix">板の規則 es-d（表 M9）を `ctrlg_addes.py` に組み込むことと、分子性の結晶（2.2〜2.5 a.u. の小さい ES）の規則化はこれから。</span>
 
@@ -1736,7 +1696,7 @@ SKIPPED は Rb₈ と Sr（mp-1056418、1 原子で 462 Å³ の胞）。
 最終形に至る 3 つの設計判断の実測根拠、および途中で見つかった評価器と
 `m_hreduction.f90` のバグ — は別頁にまとめてある:
 
-**<del class="clfix">`MD/mlo_backup.md`</del><span class="clfix">開発記録（リポジトリの MD/mlo_backup.md、サイトには無い）</span>**
+**開発記録（リポジトリの MD/mlo_backup.md、サイトには無い）**
 
 本文の結論を読むだけなら不要だが、なぜこの式なのかを疑うときはそちらを見よ。
 

@@ -1,18 +1,6 @@
 # Dielectric function: job_eps
 
-<div class="clfix-old">
-
-> ⚠️ **Tool consolidation (2026-06)** — The dielectric-function driver is now **`job_eps`** (with `--lcf` for local-field correction, `--decompose` for interband / intraband split). The legacy `epsPP0` / `eps_lmfh` / `epsPP_lmfh` / `epsPP_lmfh_intra` wrappers have moved to `SRC/exec_legacy/` and are no longer installed to `~/bin`.
->
-> **TOML migration (2026-05)** — `job_eps` reads `ctrlg.<sname>.toml`. Convert legacy `ctrl.<sname>` / `GWinput` directories with `Legacy2toml.py <sname>`. See [Input file](./toml_migration) and worked examples in [Samples/EPS/](https://github.com/tkotani/ecalj/blob/main/Samples/EPS) — `EPS_Cu`, `EPS_GaAs`, `EPS_Ag`.
-
-</div>
-
-<div class="clfix">
-
 作業の例は [Samples/EPS/](https://github.com/tkotani/ecalj/blob/main/Samples/EPS)（`EPS_Cu`、`EPS_GaAs`、`EPS_Ag`）にあります。
-
-</div>
 
 job_eps (canonical post-2026-06; replaces the 2025-5-8 `epsPP0` script).
 
@@ -30,7 +18,6 @@ We include spherical Bessel functions in the MPB to expand $\exp(i {\bf q r})$.
 
 Local-field corrections are enabled with `job_eps --lcf` (legacy name: `eps_lmfh`); the LFC path is computationally heavier but otherwise drives the same machinery. The LFC contribution is always included in the QSGW iteration itself; `--lcf` here only controls the post-SC dielectric output.
 
-
 ## Computational steps
 
 ### Examples of `job_eps`
@@ -43,26 +30,12 @@ Follow `test.py` in these directories (`testecalj EPS_Cu -np 4` in `ecalj/Sample
 We explain the steps in `test.py` in the following steps.
 
 You can start from `ctrlg.<sname>.toml` (or, for legacy directories, `ctrl.<sname>` + `GWinput` after running `Legacy2toml.py <sname>`). After `job_eps cu -np 4 --decompose`,
-<div class="clfix-old">
-
-```
-gnuplot -p epsinter.glt 
-gnuplot -p epsintra.glt 
-gnuplot -p epsall.glt 
-```
-
-</div>
-
-<div class="clfix">
-
 ```
 gnuplot -p eps_interbandonly_cu.glt
 gnuplot -p eps_intrabandonly_cu.glt
 gnuplot -p eps_total_cu.glt
 ```
 (`epsinter.glt`, `epsintra.glt`, `epsall.glt` were the names written by the old `epsPP0`.)
-
-</div>
 
 Note that we usually need many k points if you like to have 0.1 level of error for 
 dielectric constants (at the limit of ${\bf q}=\omega =0$)
@@ -76,7 +49,6 @@ corresponding to the plane waves $\exp(i{\bf q r})$. We include such a basis in 
 
 ### step1: `lmf`収束計算行う。
 `sigm`ファイルがある場合は, QSGW計算による固有値固有関数からの誘電関数を計算することができる。
-
 
 ### step2: GW driver パラメータを設定
 
@@ -96,19 +68,17 @@ corresponding to the plane waves $\exp(i{\bf q r})$. We include such a basis in 
     """
     ```
     * この部分は誘電関数を計算するときの**q**ベクトルを設定しています。
-    この値を変えることで誘電関数の<del class="clfix">**q**方向の依存性</del><span class="clfix">**q**（大きさと方向）への依存性</span>を調べることができます。<span class="clfix">ふつうは一つの方向に小さな **q** をいくつか並べ, **q**→0 の極限をとる（バンド内とバンド間を分けるときにも複数の **q** が要る）。</span>
+    この値を変えることで誘電関数の**q**（大きさと方向）への依存性を調べることができます。ふつうは一つの方向に小さな **q** をいくつか並べ, **q**→0 の極限をとる（バンド内とバンド間を分けるときにも複数の **q** が要る）。
 
     * `QforEPSau = true` があるので、単位はa.u.になっています。すなわち、0 0 0.001であれば
     ${\bf q}$ = (0,0,0.001) bohr^{-1}です
 
     * もし `QforEPSau = true` がない場合、**q**の単位は $\frac{2 \pi }{a}$ です。$a$は `[struc] alat` で定義したものです。
 
-
     光学応答の場合は**q**=**0**としたいですが、そうすると今のコードでは数値的に不安定です。
-    なので適宜小さくとってください。<del class="clfix">この不安定性は以下の図、ecalj/Samples/EPS/EPS_GaAsでgnuplot -p epsinter.gltで100eVs弱のところに現れています。なのでたとえばEPS_GaAsだと0,0,0.00050(EPS0001に対応）だとすこしにおおきくなっておりよろしくない、ということになります。gnuplotファイルepsinter.gltを見てください。</del><span class="clfix">ecalj/Samples/EPS/EPS_GaAs で `gnuplot -p eps_interbandonly_gaas.glt` を見ると, q = 0.0005 a.u.（`0 0 0.00050`, EPS0001）では q が小さすぎ, 20〜110 eV（100 eV 弱まで）の虚部が EPS0002・EPS0003 より大きくずれている（例えば 98 eV で Im ε = 0.077, EPS0002・EPS0003 では 0.029・0.018）。この例では EPS0002（0.001 a.u.）以降を使う。</span>
+    なので適宜小さくとってください。ecalj/Samples/EPS/EPS_GaAs で `gnuplot -p eps_interbandonly_gaas.glt` を見ると, q = 0.0005 a.u.（`0 0 0.00050`, EPS0001）では q が小さすぎ, 20〜110 eV（100 eV 弱まで）の虚部が EPS0002・EPS0003 より大きくずれている（例えば 98 eV で Im ε = 0.077, EPS0002・EPS0003 では 0.029・0.018）。この例では EPS0002（0.001 a.u.）以降を使う。
 <!-- ![alt text](image.png) -->
 <!-- また後述のバンド内・間遷移を分けて計算を行う場合は、2つ以上の座標を書く必要があります。 -->
-
 
 - エネルギーメッシュの取り方
 誘電関数を計算する際のメッシュは対数メッシュでとられており、`ctrlg.<sname>.toml` の `[gw]` セクション内で
@@ -116,9 +86,8 @@ corresponding to the plane waves $\exp(i{\bf q r})$. We include such a basis in 
     HistBin_dw = 2e-3
     HistBin_ratio = 1.08
 ```
-<span class="clfix">（上の 2e-3、1.08 は 2025-08-19 までのテンプレートの値。今のテンプレートは 1e-4、1.05。[GW の設定](./gwinput) の HistBin の節）</span>
+（上の 2e-3、1.08 は 2025-08-19 までのテンプレートの値。今のテンプレートは 1e-4、1.05。[GW の設定](./gwinput) の HistBin の節）
 の値を変えることで、誘電関数のエネルギーメッシュを増やす(減らす)ことができます。メッシュを細かくとれば、誘電関数の構造がより現れるようになります。ただし、細かすぎると計算コストがすこし増えます。計算法はまずは虚部のウエイトをヒストグラム的に蓄積したあと、実部はヒルベルト変換の方法で求めています。なので数値的にはまあまあ安定です。
-
 
 * 計算メモリ量をへらしたい場合は `ctrlg.<sname>.toml` の `[gw]` セクションに
 ```toml
@@ -128,12 +97,11 @@ KeepPpb = false      # (default)
 ```
 等を適宜書き込んで下さい ([gwinput](./gwinput))。
 
-
 * `QforEPSau = true`
 これは `QforEPS` のqをa.u.ではかるという意味になります。
 たとえば `QforEPS` に `0 0 0.00005` とあれば、これは
 q=(0 0 0.00005)/bohrと読んでください。
-<span class="clfix">EPS ファイルの最初の 3 列の q は 2π/alat 単位で書かれる。</span>確認するには,2pi/alatをEPSファイル最初の3つの数字に乗じて
+EPS ファイルの最初の 3 列の q は 2π/alat 単位で書かれる。確認するには,2pi/alatをEPSファイル最初の3つの数字に乗じて
 `QforEPS` にかかれているqになるのをみます。
 
 * 以前の--zmel0のオプションは2025-5-8で廃止しました。
@@ -141,7 +109,6 @@ q=(0 0 0.00005)/bohrと読んでください。
 すこし正確な直行化が可能になったためです。
 
 * `job_eps` は最後に gnuplot のスクリプト（`--decompose` のとき `eps_interbandonly_<sname>.glt`、`eps_intrabandonly_<sname>.glt`、`eps_total_<sname>.glt`）と図（pdf）を書きます。`--nognuplot` で図を省きます。
-
 
 * Cuの場合だと、qがあまりにゼロに近いと計算が不安定です。たとえば
 ```toml
@@ -161,28 +128,13 @@ QforEPS = """
 それ以外のグラフはほぼ重なります。だた、0.0032ぐらいになるとomega=0での実部がいくらかずれてきます。
 
 * Cu (Samples/EPS/EPS_Cu) ではフェルミ面の寄与もあり、
-<del class="clfix">`gnuplot -p epsintra.glt`</del><span class="clfix">`gnuplot -p eps_intrabandonly_cu.glt`</span>
+`gnuplot -p eps_intrabandonly_cu.glt`
 を実行してフェルミ面の寄与が見れます。This is Drude weight、q分解でみれています。
 omega=0近傍でのふるまいはFetter-Waleckaにあるようにふるまっています。
-<div class="clfix-old">
-
-```
-gnuplot -p epsintra.glt
-gnuplot -p epsall.glt
-```
-
-</div>
-
-<div class="clfix">
-
 ```
 gnuplot -p eps_intrabandonly_cu.glt
 gnuplot -p eps_total_cu.glt
 ```
-
-</div>
-
-
 
 * `job_eps` (legacy `epsPP0`) の計算が終わると `EPS000*.nlfc.dat` というファイルが `[gw]` の `QforEPS` で設定したq点の数分作られます。この中は
 
@@ -196,9 +148,8 @@ gnuplot -p eps_total_cu.glt
   0.01000000  0.00000000  0.00000000    0.7389E-04  0.276274571460234E+02  0.249411594405801E+00    0.361929258459201E-01 -0.326737828014011E-03
 ```
 <span class="clfix">（この例は q = (0.01, 0, 0)（2π/alat 単位）で回した古い計算のもので, 上の `QforEPS` の例とは別。いまの見出しは `# qp(1:3) ...`）</span>
-1~3<del class="clfix">行目</del><span class="clfix">列目</span>にq点座標、4<del class="clfix">行目</del><span class="clfix">列目</span>にエネルギー(Ry単位)、5・6<del class="clfix">行目</del><span class="clfix">列目</span>が誘電関数の実部・虚部、7・8<del class="clfix">行目</del><span class="clfix">列目</span>が誘電関数の逆数の実部・虚部
+1~3列目にq点座標、4列目にエネルギー(Ry単位)、5・6列目が誘電関数の実部・虚部、7・8列目が誘電関数の逆数の実部・虚部
 が書かれています。
-
 
 ---
 
@@ -212,7 +163,7 @@ Test at 2016: we need to have correct edge $\propto \sqrt{\omega-E_0}$. To do so
 Local-field correction with `job_eps --lcf` (legacy name: `eps_lmfh`).
 To include eps with LFC, do `job_eps --lcf <sname>`. Expensive.
 lcutmx=2 seems to be good enough to get 0.5 percent error (maybe better than this).
-Further we can use smaller QpGcut_cou like 2.2 or so, with rather smaller product basis (up to <del class="clfix">p timed d</del><span class="clfix">p×d products</span>, not including f).
+Further we can use smaller QpGcut_cou like 2.2 or so, with rather smaller product basis (up to p×d products, not including f).
 But we need checks and may be modification of `job_eps --lcf`.
 
 ** スピンゆらぎを計算するにはモデルを経由するべき
@@ -242,9 +193,7 @@ But we need checks and may be modification of `job_eps --lcf`.
    (mesh not including gamma). However a little ploblem is that its thereshold around 
    0.5eV is too high and slowly changing. -->
 
-
    <!-- [fig.gas_eps_kconf.pdf] shows the convergence behevior of epsilon for  -->
-
 
 <!-- ### step:3 epsPP_lmfh , eps_lmfh
 
@@ -256,7 +205,6 @@ eps計算を行うときは、epsPP_lmfh(局所場補正なし)とeps_lmfh(局�
  // example 
  mpirun epsPP_lmfh -np 4 si
 ```
-
 
 ---
 
@@ -285,7 +233,6 @@ eps計算を行うときは、epsPP_lmfh(局所場補正なし)とeps_lmfh(局�
 というファイルが作られます。中身のデータは通常計算のときと同じです。
  -->
 
-
 <!-- 
 =======================================================
 * OLD document before 2025-5-7
@@ -297,7 +244,6 @@ ecalj/MATERIALS/Cueps
 epsPP0 cu -np 4
 などとすると、epsinter.glt, epsintra.glt, epsall.glt
 ができます。epsintraはフェルミ面の寄与になります。
-
 
 いくつかのｑ点で計算してｑ＝＞０を取るのです。そのためにctrlには
 ーーーーーーーーーーーーーーーーーー
@@ -314,7 +260,6 @@ QforEPSunita on
 ```
 ーーーーーーーーーーーーーーーーーー
 などと書いておく必要があります。
-
 
 最低でも、2行入ります。
 ```

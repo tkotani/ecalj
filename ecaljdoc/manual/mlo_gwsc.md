@@ -5,7 +5,7 @@
 > MLO 表現で描いたバンドでは、`sigm` の内挿で出ていたメッシュ点の間のこぶ（内挿のリンギング）が大きく減る（§3.2）。
 
 > 既定では何も変わらない（`gwsc --mlo` を付けたときだけ有効）。反強磁性の対称性（`symgrpaf`）との併用は確かめていない（§5）。
-> 経過の記録は<del class="clfix"> ecalj の `MD/research_kotani_log.md`（2026-09-24〜29）、設計の詳細は `MD/kBT/sigma_mlo_design.md` §9–13</del><span class="clfix">開発記録（リポジトリの MD/research_kotani_log.md の 2026-09-24〜29、サイトには無い）、設計の詳細は開発記録（リポジトリの MD/mlo_notes/sigma_mlo_design.md §9–13、サイトには無い）</span>。
+> 経過の記録は開発記録（リポジトリの MD/research_kotani_log.md の 2026-09-24〜29、サイトには無い）、設計の詳細は開発記録（リポジトリの MD/mlo_notes/sigma_mlo_design.md §9–13、サイトには無い）。
 
 このページは **§1 理論**、**§2 設定と実行**、**§3 実例: LiTi₂O₄** の 3 部です。
 
@@ -173,7 +173,7 @@ pwmode = 11                 # |q+G| 打ち切り（既定）
 n1n2n3  = [6, 6, 6]
 mixbeta = 0.5               # sigm と Sigma^MLO の混合
 t_sigmaw   = 1000.0         # (K) Sigma の中間準位の Fermi-Dirac の幅（必須）
-t_tetrakbt = -992.4         # (K) 負: chi0 は T=0 のまま Im chi0 を FD およそ 1000 K と同じ幅の Gaussian で均す（以前の SmearX0 = 0.0057 Ha）。金属の W の極を均す（[kBT](./kBT) の<del class="clfix">「実用の設定」</del><span class="clfix">冒頭の「LiTi₂O₄ の設定」と §2.4</span>）
+t_tetrakbt = -992.4         # (K) 負: chi0 は T=0 のまま Im chi0 を FD およそ 1000 K と同じ幅の Gaussian で均す（以前の SmearX0 = 0.0057 Ha）。金属の W の極を均す（[kBT](./kBT) の冒頭の「LiTi₂O₄ の設定」と §2.4）
 [mlo]
 mlo_method = 4              # 既定
 mlo_delta  = 2.0            # (eV) 既定
@@ -205,7 +205,7 @@ gwsc 10 -np 60 -np2 2 --gpu --prec=tf32 --prec-final=fp32:2 --ntqxx --mlo liti2o
 `gwsc N --mlo` はそのまま N 反復まとめて回してよい（`gwsc 1` を N 回回すのとは厳密には同じでないが、収束させれば ehf で 0.1〜0.2 meV の差、研究ログ 2026-09-25 00:06）。
 GPU の精度 `--prec=tf32|fp32|fp64` と、行列積の方法の自動選択は [ecaljgpu](./ecaljgpu) と [gwsc](./gwsc) を参照（`--prec=fp32` は旧来の `--mp --fp32` と同じ）。
 LiTi₂O₄ の `hgw` 1 回は、6³ で fp32 367 秒・tf32 173 秒（kt1、RTX 5090 × 2、2026-09-27 夜）、9³ で fp32 2990 秒・tf32 1975 秒（同日午前の版）。
-tf32 は Σc の最後の行列積だけを 10 ビットの仮数の入力（RTX 5090 では FP16<span class="clfix">。GPU ごとの表が選ぶ。FP16 は指数が 5 ビットで表せる範囲が狭い。[ecaljgpu](./ecaljgpu)</span>）にしたもので、$E_F$ ±1 eV の Re Σc は倍精度と 1.3 meV 以内（<del class="clfix">`MD/ForDevelopers.md` §11.2</del><span class="clfix">開発記録（リポジトリの MD/ForDevelopers.md §11.2、サイトには無い）</span>）。
+tf32 は Σc の最後の行列積だけを 10 ビットの仮数の入力（RTX 5090 では FP16。GPU ごとの表が選ぶ。FP16 は指数が 5 ビットで表せる範囲が狭い。[ecaljgpu](./ecaljgpu)）にしたもので、$E_F$ ±1 eV の Re Σc は倍精度と 1.3 meV 以内（開発記録（リポジトリの MD/ForDevelopers.md §11.2、サイトには無い））。
 
 - ecalj の `Samples/kBT/LiTi2O4/run_gwsc10.sh <tag> <入力> <bindir>` は `gwsc 10` を回し、最後の状態で `sigm` 描画と MLO バンドを描く。
   `run_snap.sh <tag> <niter> --mlo` は `gwsc 1` を繰り返しながら毎反復のスナップショット（再開に要るもの一式）と 2 つのバンドを残す
@@ -290,7 +290,7 @@ tf32 は Σc の最後の行列積だけを 10 ビットの仮数の入力（RTX
 | 基底 | `pwmode = 11` |
 | 窓 | `mlo_method = 4`、$\Delta = w = 2.0$ eV（既定）|
 | 計算機 | kt1（RTX 5090 × 2）、`gwsc 1 --mp --fp32` を 10 回（2026-09-26 <span class="clfix">夜の窓の修正より前</span>のコード）|
-| 窓の基準 | 連鎖の最初（LDA）の $E_F$ に固定（いまのコードは各反復の SCF の値、<del class="clfix">§1.2</del><span class="clfix">§1.5</span>）|
+| 窓の基準 | 連鎖の最初（LDA）の $E_F$ に固定（いまのコードは各反復の SCF の値、§1.5）|
 | 1 反復 | 6³: 950–1000 秒、9³: 約 5300 秒（89 分）。`hgw` が 86 %（6³）、94 %（9³）で、MLO のための処理は 1 % 程度。2026-09-27 の高速化の後は 6³ の fp32 で 555 秒 |
 | 比較の基準 | 従来 QSGW（MTO）6³、`pwmode = 1`、β = 0.5、10 反復（LDA の行だけ `pwmode = 11`）|
 
@@ -345,7 +345,7 @@ LDA から `gwsc 10 --prec=tf32`、続けて 1 反復ずつ 40 反復まで回�
 
 ![LiTi2O4 の t2g の MLO バンド、6³ と 9³、反復 10・20・30・40](mlo_gwsc/liti2o4_summary_t2g.png)
 
-**図 3.5-1**. t2g の MLO バンド（Γ→X）。左が 6³、右が 9³。上から LDA、反復 10、20、30、40<span class="clfix">。以下の $x$ は Γ→X の上の位置（Γ = 0、X = 1）</span>
+**図 3.5-1**. t2g の MLO バンド（Γ→X）。左が 6³、右が 9³。上から LDA、反復 10、20、30、40。以下の $x$ は Γ→X の上の位置（Γ = 0、X = 1）
 
 **表 3.5-1**. 前の反復からの MLO バンドの変化の最大（meV）と、一番下のバンドの波打ちの目安（LDA からの補正を cos の 3 次までで当てはめた残差の最大）
 

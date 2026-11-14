@@ -186,7 +186,7 @@ $$
 式 (11) の右辺の MT 内の成分（第 1、第 2 成分）は、$L$ を `lmxl`（既定は `lmxa` と同じ）までで打ち切っておく。
 3 成分表示においては、式 (9) の $n$ と式 (11) の $\mathcal M[n]$ は別のものとして区別されている点に注意する。
 $\mathcal A[\mathcal M[n]]=\mathcal A[n]$ なので、物理的には何も変えない（PAW の補償電荷にあたる）。
-これで第 1 成分と第 2 成分の多重極がそろい、格子間の静電ポテンシャルは第 0 成分だけで正しくなる。<del class="clfix">ガウス関数は MT 内で十分小さくとる。</del><span class="clfix">（式 10 の後と重複するので削る）</span>
+これで第 1 成分と第 2 成分の多重極がそろい、格子間の静電ポテンシャルは第 0 成分だけで正しくなる。
 
 式 (11) の右辺の 3 成分を $\bar n=\mathcal M[n]=\bar n_0\oplus\{\bar n_{1,a}\}\ominus\{\bar n_{2,a}\}$ と書く。それぞれ
 
@@ -250,7 +250,7 @@ $$
 
 <div class="note">
 
-<span class="clfix">（Claude: 式 14 の前から移した）</span>論文は「数個の smooth Hankel の一次結合」と書くが、コード（`corprm`）は 1 個である。
+論文は「数個の smooth Hankel の一次結合」と書くが、コード（`corprm`）は 1 個である。
 
 </div>
 
@@ -553,7 +553,7 @@ $\gamma_l$ の項は、Dirac 方程式の小さい成分の角度部分を $j=l\
 | $P_{akL}$, $\widetilde P_{akL}$ | MT 内の展開関数（多項式 $\times Y_L$）と、球面で値・傾きが合う部分波の組 | 式 (4) |
 | $\phi_{al}$, $\dot\phi_{al}$ | 部分波とそのエネルギー微分 | §1、§5 |
 | $\rho_{ij}$ | 密度行列 $\sum_p^{\rm occ}\alpha^{i*}_p\alpha^j_p$ | 式 (9) |
-| $\Omega$ | 単位胞 | <del class="clfix">式 (6)</del><span class="clfix">§0</span> |
+| $\Omega$ | 単位胞 | §0 |
 | $\mathbf T$ | 格子の並進ベクトル | 式 (11) |
 | $\mathbf G$ | 逆格子ベクトル（APW、実空間メッシュ） | <del class="clfix">§5</del><span class="clfix">式 (1)</span> |
 | $\bullet$, $\circ$ | 全空間での積分（周期系では単位胞あたり）、同じ MT 球の中だけの積分 | 式 (13) |
