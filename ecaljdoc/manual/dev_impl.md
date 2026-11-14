@@ -1455,13 +1455,9 @@ Let us give a formula for calculating
 $\int_{\rm BZ} f({\bf k}) d^3k$ using a discrete sum on ${\bf k}$-mesh,
 where $f({\bf k})=G({\bf q}-{\bf k}) \times W({\bf k})$.
 For the ${\bf k}$-mesh, we use
-$$\begin{aligned}
-{\bf k}(i_1,i_2,i_3) & =  2 \pi (\frac{i_1}{N_1} {\bf b}_1 
-+ \frac{i_2}{N_2} {\bf b}_2 + \frac{i_3}{N_3} {\bf b}_3),
-%\\
-%\sum_{\bf k}^{\rm BZ} & \approx  \frac{1}{N_1N_2N_3} \sum_{i_1,i_2,i_3},
-
-\end{aligned}
+$$
+{\bf k}(i_1,i_2,i_3) = 2 \pi \Big(\frac{i_1}{N_1} {\bf b}_1 
++ \frac{i_2}{N_2} {\bf b}_2 + \frac{i_3}{N_3} {\bf b}_3\Big),
 \tag{I64}
 $$
 where ${\bf b}_1, {\bf b}_2$, and ${\bf b}_3$ are the primitive reciprocal
@@ -1504,7 +1500,7 @@ F_L({\bf k}) =\sum_{ {\bf G} } \frac{\exp(- \alpha
 $$
 This is a generalization of an auxiliary function used in the
 offset-$\Gamma$ method (then we only used $F_{00}$ [kotani_quasiparticle_2007]).
-We usually take the $\alpha \to 0$ limit, or a sufficiently small $\alpha$ instead.
+We usually take the $\alpha \to 0$ limit, or a sufficiently small $\alpha$ instead<span class="clfix"> (`[gw] alpha_offG`, read in `mkqg.f90`; `m_q0p.f90`)</span>.
 Let us apply Eq. (I65) to $F_L({\bf k})$.
 Then we can evaluate the left-hand side of Eq. (I65)
 exactly (the exact values are zero except for $L=(0,0)$).
@@ -1560,6 +1556,9 @@ We can evaluate the accuracy of integrals with a discrete ${\bf k}$-mesh
 in combination with the approximation of Eq. (I67)
 by calculations while changing the size of the ${\bf k}$-mesh.\
 
+
+<div class="clfix-old">
+
 > **\[NOTE 2016-03-18:\]**
 > We now use only $w_L$ for $L=(0,0)$.
 > T.Kotani found strange behavior for $W(\omega)$ for the Wannier
@@ -1570,6 +1569,16 @@ by calculations while changing the size of the ${\bf k}$-mesh.\
 > Thus we now use the formula \"$w_L=0$ for $L\ne(0,0)$\" in
 > Eq. (I65).In the case of metal at $\omega=0$, we have very large
 > ${\bf L}$ (virtually infinite); thus no $1/|{\bf k}|^2$ behavior.\
+
+</div>
+
+<div class="clfix">
+
+The code uses only $w_L$ for $L=(0,0)$ ($w_L=0$ for $L\ne(0,0)$; `lxklm = 0` in `m_q0p.f90`, which writes the weights `wklm`).
+With all $w_L$, the real part of $W(\omega)$ became non-monotonic (against causality), which came from the $w_L$ of $L\ne(0,0)$.
+In the case of metals at $\omega=0$, ${\bf L}$ is very large (virtually infinite), and there is no $1/|{\bf k}|^2$ behavior.
+
+</div>
 
 The remaining problem is how to calculate
 the matrix ${\bf L}$ in Eq. (I67); there are two possible ways.
@@ -1591,19 +1600,24 @@ from the dielectric functions ${\hat{ {\bf k} }_{0i} }^{\rm T}{\bf L}\hat{ {\bf 
 calculated at $\{ {\bf k}_{0i}\}$ points around
 ${\bf k}=0$, where $\{ {\bf k}_{0i}; i=1,N_g\}$ is a set of the offset-$\Gamma$ points.
 The offset-$\Gamma$ points are chosen so that the conversion matrix
-from $\hat{ {\bf k} }_{0i}^{\rm T}{\bf L}(\omega)\hat{ {\bf k}^{0i} }$ to $a_g(\omega)$
-is not numerically degenerated. The length $|{\bf k}^{0i}|$
-can be chosen to be sufficiently enough, but avoiding numerical error
+from $\hat{ {\bf k} }_{0i}^{\rm T}{\bf L}(\omega)\hat{ {\bf k} }_{0i}$ to $a_g(\omega)$
+is not numerically degenerated. The length $|{\bf k}_{0i}|$<span class="clfix"> (`[gw] Q0Pchoice`, or `deltaq_scale` given directly)</span>
+can be chosen to be sufficiently <del class="clfix">enough</del><span class="clfix">small</span>, but avoiding numerical error
 as the average of $W({\bf k})$ in the $\Gamma$ cell.
 The improved offset-$\Gamma$ method shown here can be applicable even to metal cases, as long as
-$\hat{ {\bf k} }_{0i}^{\rm T}{\bf L}(\omega)\hat{ {\bf k}_{0i} }$ contains the contribution
+$\hat{ {\bf k} }_{0i}^{\rm T}{\bf L}(\omega)\hat{ {\bf k} }_{0i}$ contains the contribution
 of intraband transition.
+
+
+<div class="clfix-old">
 
 > **\[NOTE 2016-Nov:\]**
 > T.Kotani think evaluation of $L_ij(\omega)$ can be more effectively
 > performed as for the convergence on number of ${\bf k}$ points.
 > At least, without local field correction, we only need to calculate head part.
 > For the head part, we may use large number of ${\bf k}$ points.
+
+</div>
 
 ## Fourier transformation of non-local quantity
 
