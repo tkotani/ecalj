@@ -238,18 +238,101 @@ Whether q is in the unit of `2pi/alat` or in the unit of a.u.(=`bohr^{-1}`). I t
 
 
 
-## `Smaller lcutmx to reduce computatinal time`
-  To reduce the computational time, we reduce number of MPB (mixed product basis).
-  One is lcutoff of Product Basis (PB) within MT. Use lcutmx=2 for oxygen or something (s,p block atoms). 
-  Thus it  is like
+## 積基底 `[product_basis]` {#product-basis}
+
+積基底（MT の中の局所的な積と、格子間領域の平面波の和集合）は、ecalj が遮蔽されたクーロン相互作用 $W$ を表す要です
+（[波動関数の積を展開する積基底](../theory/gw_product_basis)）。
+`ctrlg.<sname>.toml` の **`[product_basis]` の節**（いつもファイルの最後）で指定します（表 PB1）。
+
+表 PB1. `[product_basis]` のキー
+
+| キー | 内容 |
+|---|---|
+| `pb_tolerance`、`pb_lcutmx` | 全体の上限。調整してよいのはこちら |
+| `nlx`、`valence`、`core` | 原子ごとの動径関数の表。`gwinit` が（`ctrlgenToml.py` / `Legacy2toml.py` を通して）`[[spec]]` から書く。手で直すことはまずない |
+
+（2026-09 までは、三つの表は別の `PB.<sname>.toml` でした。いまのプログラムはそのファイルを読まず、止まって `ctrlg_absorb.py <sname>` を案内します。
+`ctrlg_absorb.py` はその表を `[product_basis]` に足し、元のファイルを `.bk` として残します。）
+
+積基底のもとは F. Aryasetiawan と O. Gunnarsson によるもの（[PRB 49, 16214](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.49.16214)）で、
+混合積基底（[Solid State Commun. 2002](https://doi.org/10.1016/S0038-1098(02)00028-5)）はその後継です。
+
+### 上限: `pb_tolerance`、`pb_lcutmx`
+
 ```toml
 [product_basis]
-pb_lcutmx = [4, 4, 4, 2, 2, 2]   # maximum l-cutoff for the product basis, one per atom. 4 is required for atoms with valence d
+pb_tolerance = [0.001]   # cut off of linear dependency (default 1e-3)
+                         #   larger => fewer product basis. 1d-2 is OK
+                         #   when you want a cheaper calculation.
+pb_lcutmx    = [4, 4]    # per-site l-cutoff for the product basis.
+                         #   4 needed when valence 3d exists (Ni, Ga, ...);
+                         #   2 OK for oxygen; 6 needed for 4f / 5f atoms.
+                         #   site order = [[site]] order; see lmchk SiteInfo.
 ```
-in `ctrlg.<sname>.toml`. The atoms are in the order of the `[[site]]` tables (`lmchk` shows it, also in `SiteInfo.lmchk`).
 
-* NOTE: we need lcutmx =6 is requied for 4f/5f atoms, while 2 is enough for Oxygen (probably other species on the same row).
+- `pb_tolerance`: 一次従属に近い積を除く基準。大きいほど積基底は少なくなります。安く計算したいときは 1e-2 でもかまいません。
+- `pb_lcutmx`: サイトごとの、MT の中の積基底の $l$ の上限。計算の時間を減らすには、酸素などの s、p の原子で 2 にします（同じ周期のほかの元素もおそらく同じ）。
+  価電子に 3d がある原子（Ni、Ga など）では 4、4f / 5f の原子では 6 が要ります。例:
+  ```toml
+  [product_basis]
+  pb_lcutmx = [4, 4, 4, 2, 2, 2]
+  ```
+  原子の順は `[[site]]` の表の順です（`lmchk` が表示し、`SiteInfo.lmchk` にもあります）。
 
+直したら、`lmf --jobgw=1`（または `gwsc` の次の段）を走らせ直してください。`hbasfp0` がこの値を使い、できた積基底の大きさを `lbas` / `lbasC` に出します。
+
+### 原子ごとの表（`nlx`、`valence`、`core`）
+
+上限の後に、同じ `[product_basis]` の中に続きます。どの行もサイトの番号 `iatom`（`[[site]]` の順）で始まります。
+`gwinit` が `[[spec]]` の `rsmh`/`eh`/`pz` から書き、行ごとにラベルを付けます。下の説明はファイルの中にもコメントとして書かれ、三つの表は `# ----` の罫線で区切られます。
+
+```toml
+[product_basis]
+pb_tolerance = [1e-3]
+pb_lcutmx    = [4]
+# ----------------------------------------------------------------
+# nlx [iatom, l, nnvv, nnc]: one row per (iatom, l) ...
+nlx = [
+  [1, 0, 2, 3],
+  [1, 1, 2, 2],
+  [1, 2, 2, 0],
+  [1, 3, 2, 0],
+  [1, 4, 2, 0],
+]
+# ----------------------------------------------------------------
+# valence [iatom, l, n, occ, unocc]: one row per valence radial function ...
+valence = [
+  [1, 0, 1, 1, 1],   # 4s_phi
+  [1, 0, 2, 0, 0],   # 4s_phidot
+  [1, 1, 1, 1, 1],   # 4p_phi
+  [1, 1, 2, 0, 0],   # 4p_phidot
+  [1, 2, 1, 1, 1],   # 3d_phi
+  [1, 2, 2, 0, 0],   # 3d_phidot
+  [1, 3, 1, 0, 1],   # 4f_phi
+  [1, 3, 2, 0, 0],   # 4f_phidot
+  [1, 4, 1, 0, 0],   # 5g_phi
+  [1, 4, 2, 0, 0],   # 5g_phidot
+]
+# ----------------------------------------------------------------
+# core [iatom, l, n, occ, unocc, forX0, forSxc]: one row per core level ...
+core = [
+  [1, 0, 1, 0, 0, 0, 0],   # 1S
+  [1, 0, 2, 0, 0, 0, 0],   # 2S
+  [1, 0, 3, 0, 0, 0, 0],   # 3S
+  [1, 1, 1, 0, 0, 0, 0],   # 2P
+  [1, 1, 2, 0, 0, 0, 0],   # 3P
+]
+```
+
+意味（古い `<PRODUCT_BASIS>` のブロックと同じで、入れ物が変わっただけ）:
+
+- `nlx` の行 `[iatom, l, nnvv, nnc]`: そのサイトの各 `l` に、ecalj がいくつの動径関数を持つか。`nnvv = 2` は `{phi, phidot}`、`nnvv = 3` はローカル軌道 `phiz` を加えたもの。`nnc` はその `l` の芯の準位の数。導かれる値なので直さない。
+- `valence` の行 `[iatom, l, n, occ, unocc]`: 動径関数ごとに一つ。`n = 1` は phi、`2` は phidot、`3` は phiz。
+  `occ` / `unocc` は、その関数を「占有」/「非占有」の組に入れるかの 0/1 のスイッチ。積基底は（占有の組）×（非占有の組）の積から作り、`pb_tolerance` で間引く。
+  `phidot` は、速さのためにふつうは外す（`0 0`）。入れると積基底はより正確になる。
+- `core` の行 `[iatom, l, n, occ, unocc, forX0, forSxc]`: 芯の準位ごとに一つ（`n = 1` がいちばん深い）。`forX0` / `forSxc` は PRB 76, 165106 (2007) の CORE1/CORE2 の区別から来たもの。昔のもので、いまの計算ではどの芯の行もすべて 0。
+
+`Legacy2toml.py` は、TOML より前の `GWinput` の `<PRODUCT_BASIS>` のブロックを、この `[product_basis]` の節に直します。
 
 ## `Smaller IPW related part to reduce computational time`
 To reduce compuational time, we may reduce MPB coming from IPS, reduce the size of IPW for psi, reduce emax_sigm and pwemax as follows.

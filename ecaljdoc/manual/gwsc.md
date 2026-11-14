@@ -1,96 +1,80 @@
-# gwsc: a script to run QSGW calculation
+# gwsc: QSGW の計算を回すスクリプト
 
-<div class="clfix-old">
+`gwsc` は QSGW の計算を実行するスクリプトです。QSGW の計算は、いくつもの Fortran のプログラムを呼び出して行います。
+入力は `ctrlg.<sname>.toml` から読みます（GW の設定は `[gw]`。キーの説明は [GW の設定](./gwinput)）。
 
-> ⚠️ `gwsc` reads `ctrlg.<sname>.toml` only, and stops when the file is missing. A directory with the legacy `ctrl.<sname>` + `GWinput` is converted by `Legacy2toml.py <sname>` (run once per directory). See [Input file](./toml_migration) and the [Samples/TestInstall/*_gwsc/](https://github.com/tkotani/ecalj/tree/main/Samples/TestInstall) directories as templates.
-
-</div>
-
-gwscがQSGW計算実行スクリプトである。
-QSGW計算は，複数のfortran実行ファイルを呼び出して実行される．
-入力は `ctrlg.<sname>.toml` から読み込まれる(GW の設定は `[gw]`。キーの説明は [gwinput](./gwinput.md))。
-
-## Usage
-**Usage**: <del class="clfix">` gwsc -np NP [-np2 NP2] [--gpu] [--prec=tf32|fp32|fp64] [--mp] [--fp32] nloop extension [Options]`</del><span class="clfix">` gwsc -np NP [-np2 NP2] [--gpu] [--prec=tf32|fp32|fp64] [--prec-final=<prec>[:N]] [--no-tetwt-helper] [--mp] [--fp32] [--mlo] [--dumpW] [--fullstdo] nloop extension [Options]`</span>
+## 使い方
+```
+gwsc -np NP [-np2 NP2] [--gpu] [--prec=tf32|fp32|fp64] [--prec-final=<prec>[:N]] [--no-tetwt-helper] [--mp] [--fp32] [--mlo] [--dumpW] [--fullstdo] nloop extension [Options]
+```
 
 ### `-np NP`
-MPI並列数を指定する。
+MPI の並列数を指定します。
 
 ### `-np2 NP2`
-GPU版を使用する場合のみ指定する。GPUで実行される計算のMPI並列数を指定する。
-通常は使用できるGPU数を指定する。
+GPU 版を使うときだけ指定します。GPU で走らせる計算の MPI の並列数で、ふつうは使える GPU の数にします。
 
 ### `--gpu`
-GPU版を使用する場合のみ指定する。
+GPU 版を使うときだけ指定します。
 
-### `--prec=tf32|fp32|fp64` (2026-09)
-GW 部分の精度。`fp64` は倍精度版、`fp32` は混合精度版で単精度の積を FP32 で（`--mp --fp32` と同じ）、`tf32` は `fp32` のうち
-Σc の最後の積だけ入力の仮数を 10 ビット（TF32 か FP16、GPU ごとの表が選ぶ）にする（LiTi₂O₄ 6³ で E_F ±1 eV の Re Σc は倍精度と 1.3 meV 以内、RTX 5090 の `hgw` は fp32 の約半分の時間: 173 対 367 秒、2026-09-27 夜の版）。旧来の `--mp` だけの指定は `tf32` と同じ
-（2026-09-27 まではすべての積が TF32 だった。誤差が 6 倍で、時間は 1 割しか縮まない）。
-GPU でどの方法で積や逆行列を計算するかは、インストール時に測った表（`<bindir>/ecalj_linalg_policy.toml`）で自動的に決まる。
-詳細は [GPU 版マニュアル § 精度の選び方と行列演算の自動選択](./ecaljgpu#精度の選び方と行列演算の自動選択-2026-09)。
-`--mp`・`--fp32` と一緒に書くときは矛盾しないこと（矛盾すると止まる）。
+### `--prec=tf32|fp32|fp64`（2026-09）
+GW の部分の精度です。`fp64` は倍精度版、`fp32` は混合精度版で単精度の積を FP32 で行います（`--mp --fp32` と同じ）。
+`tf32` は `fp32` のうち、Σc の最後の積だけ入力の仮数を 10 ビット（TF32 か FP16。GPU ごとの表が選ぶ）にします。古い `--mp` だけの指定は `tf32` と同じです。
+GPU でどの方法で積や逆行列を計算するかは、インストールのときに測った表（`<bindir>/ecalj_linalg_policy.toml`）で自動で決まります。
+精度と速さの比べ方は [GPU 版 § 精度の選び方と行列演算の自動選択](./ecaljgpu#精度の選び方と行列演算の自動選択-2026-09) にあります。
+`--mp`、`--fp32` と一緒に書くときは、矛盾しないようにしてください（矛盾すると止まります）。
 
-### `--prec-final=<prec>[:N]` (2026-09)
-その回の最後の N 反復（省略時 1）だけ別の精度にする。例: `gwsc 10 --prec=tf32 --prec-final=fp32:2 ...` は 8 反復を tf32、最後の 2 反復を fp32 で回す。
+### `--prec-final=<prec>[:N]`（2026-09）
+その回の最後の N 反復（省略すると 1）だけ、別の精度にします。例: `gwsc 10 --prec=tf32 --prec-final=fp32:2 ...` は、8 反復を tf32、最後の 2 反復を fp32 で回します。
 
-### `--no-tetwt-helper` (2026-09)
-`--gpu` のとき、四面体の重みを CPU で先に計算する補助の実行（`hgw --tetwt_write`）を使わない。
-既定では使う（[GPU 版マニュアル § 四面体の重み](./ecaljgpu#四面体の重みを-cpu-で先に計算する)）。
+### `--no-tetwt-helper`（2026-09）
+`--gpu` のとき、四面体の重みを CPU で先に計算する補助の実行（`hgw --tetwt_write`）を使いません。既定では使います
+（[GPU 版 § 四面体の重み](./ecaljgpu#四面体の重みを-cpu-で先に計算する)）。
 
 ### `--mp`
-混合精度版を使う。2026-09-27 から `--prec=tf32` と同じ意味（Σc の最後の積だけ入力の仮数 10 ビット、ほかの単精度の積は FP32）。
-それまでは GPU のすべての単精度の積が TF32 で、悪条件な誘電行列（重元素 + 分子アニオン NO3 / N3 / ClO など）では TF32 の誤差が
-$W$ / $\Sigma^c$ で増幅された。精度の選び方は上の `--prec` と [GPU 版マニュアル § 精度の選び方](./ecaljgpu#精度の選び方と行列演算の自動選択-2026-09)。
+混合精度版を使います。2026-09-27 から `--prec=tf32` と同じ意味です。それより前の意味と、TF32 で $W$ が壊れた例は [GPU 版 § 混合精度](./ecaljgpu#混合精度-mp-と-fp32) にあります。
 
-### `--fp32` (2026-06)
-`--mp` と併用し、`--prec=fp32` と同じ意味（Σc の積も FP32）。ecalj_auto の GW1500 バッチ（`gwscconv --gpu --mp --fp32 --conv-tol 0.1`）は
-これを既定で使う。TF32 で壊れた事例の再現は [`Samples/mptf32problem/`](https://github.com/tkotani/ecalj/tree/main/Samples/mptf32problem)。
-
-
-<div class="clfix">
+### `--fp32`（2026-06）
+`--mp` と一緒に使い、`--prec=fp32` と同じ意味になります（Σc の積も FP32）。ecalj_auto の GW1500 のバッチ（`gwscconv --gpu --mp --fp32 --conv-tol 0.1`）は、これを既定で使います。
 
 ### `--mlo`
-自己エネルギーを MLO 表現で内挿する QSGW(MLO-QSGW、開発中)。`[bz] nkabc` と `[mlo] mlo_nkabc` は `[gw] n1n2n3` と同じにする(違うと止まる)。詳しくは [MLO-gwsc](./mlo_gwsc)。
-
-</div>
+自己エネルギーを MLO の表現で内挿する QSGW（MLO-QSGW、開発中）。`[bz] nkabc` と `[mlo] mlo_nkabc` は `[gw] n1n2n3` と同じにします（違うと止まります）。詳しくは [MLO-gwsc](./mlo_gwsc)。
 
 ### `nloop`
-QSGWのイテレーション数を指定する。
+QSGW の反復の回数を指定します。
 
 ### `extension`
-`ctrlg.<sname>.toml` の `<sname>` を指定する。
+`ctrlg.<sname>.toml` の `<sname>` を指定します。
 
 ### `Options`
-追加のオプションを指定する。
-追加オプションは, 全ての実行ファイルの実行時引数となる。以下追加のオプションのリスト。
-またlmfへのTOML override (`--ctrlg:ham.so=1` など、`--ctrlg:<toml-path>=<value>` 形式) もここに書く。
+追加のオプションを指定します。追加のオプションは、すべてのプログラムの実行時の引数になります。以下がその一覧です。
+`lmf` への TOML の上書き（`--ctrlg:ham.so=1` など、`--ctrlg:<toml-path>=<value>` の形）もここに書きます。
 
 ------
 #### メモリの使い方と MPI の分け方
-遮蔽クーロン相互作用 $W$ は `hgw`（`--gpu` では `hgw_gpu`、`hgw_mp_gpu`）の中でメモリに持ち、ファイルには書かない
-（解析のために `__WVR.<iq>`・`__WVI.<iq>` に書き出すのは `--dumpW`）。MPI ランクの分け方（$q$ 点の組と、その中の $\omega$・$k$ の並列）は
-使えるメモリの量から自動で決まり、`lgw` の `MPI layout:` に出る。調整はコマンドラインのオプションではなく、`ctrlg.<sname>.toml` の `[gw]` のキーで行う。
+遮蔽クーロン相互作用 $W$ は `hgw`（`--gpu` では `hgw_gpu`、`hgw_mp_gpu`）の中でメモリに持ち、ファイルには書きません
+（解析のために `__WVR.<iq>`・`__WVI.<iq>` に書き出すのは `--dumpW`）。MPI のランクの分け方（$q$ 点の組と、その中の $\omega$・$k$ の並列）は、
+使えるメモリの量から自動で決まり、`lgw` の `MPI layout:` に出ます。調整はコマンドラインのオプションではなく、`ctrlg.<sname>.toml` の `[gw]` のキーで行います。
 
-- `KeepWV`: 自己エネルギー(相関部分)を計算する際に, $W$ を GPU のメモリに載せておく。GPU 版の既定は `true`、CPU 版は `false`。`false` では $W$ を周波数ごとに主記憶から送る（GPU のメモリは減るが遅くなる）
-- `zmel_batch_gb`: 行列要素を一度に作るバッチの大きさ（[gwinput](./gwinput.md)）
+- `KeepWV`: 自己エネルギー（相関の部分）を計算するときに、$W$ を GPU のメモリに載せておく。GPU 版の既定は `true`、CPU 版は `false`。`false` では $W$ を周波数ごとに主記憶から送る（GPU のメモリは減るが遅くなる）
+- `zmel_batch_gb`: 行列要素を一度に作るバッチの大きさ（[GW の設定](./gwinput)）
 - `mpi_worker_exch`、`mpi_worker_corr`: 交換・相関の計算で、1 つの $q$ 点の組に割り当てるランクの数。0（既定）は自動。全ランク数の約数を書く
 
-`--keepwv`、`--nwpara=X` というオプションは無い（書くとプログラムが止まる）。<del class="clfix">`--nb=X` は受け付けるが、`gwsc` の計算では使われない。</del><span class="clfix">`--nb=X` は 2026-10-02 に廃止し、書くとプログラムが止まる（[cmdopts](./cmdopts)）。</span>
+`--keepwv`、`--nwpara=X`、`--nb=X` というオプションはありません（書くとプログラムが止まります。[コマンドラインのオプション](./cmdopts)）。
 
 #### `--tetwtk`
-指定すると, 分極関数を計算する際に, 結合状態間の四面体重みをメモリ上に保持しない。$k$点が多い計算でメモリ不足になる場合に使用する。
+指定すると、分極関数を計算するときに、結合する状態の間の四面体の重みをメモリに持ちません。$k$ 点が多い計算でメモリが足りないときに使います。
 
 #### `--skipGS`
-`lmf --jobgw=1` で使用される。
-GW計算ではDFT計算(`lmf`)で得られた波動関数を`lmf`とは異なる基底関数で展開しなおす。再展開後の波動関数についてGram-Schmidt正規直行化をしている。その規格直交化をスキップする場合に指定する。
+`lmf --jobgw=1` で使います。
+GW の計算では、DFT の計算（`lmf`）で得た波動関数を、`lmf` とは違う基底関数で展開し直します。展開し直した波動関数には Gram-Schmidt の規格直交化をかけています。その規格直交化を飛ばすときに指定します。
 
-通常は指定する必要はないが、`lmf --jobgw=1`計算が遅い場合には指定することによって計算の高速化が期待される。
-* ecaljでは有限のqで誘電関数が計算できるーこのとき分母分子のキャンセレーションが起こるため、波動関数の直行性が正確である必要があり、そのときには--skipGSを使うべきでない。
+ふつうは指定する必要はありませんが、`lmf --jobgw=1` の計算が遅いときは、指定すると速くなることが期待できます。
+* ecalj では有限の q で誘電関数を計算できます。このときは分母と分子の打ち消し合いが起こるので、波動関数の直交性が正確である必要があり、`--skipGS` を使うべきではありません。
 
 #### `--normcheck`
-`lmf --jobgw=1` で使用される。 GW計算で使用される波動関数の規格直交性を確認したいときに使用する。
-normchk.fobar は
+`lmf --jobgw=1` で使います。GW の計算で使う波動関数の規格直交性を確かめたいときに使います。
+`normchk.<sname>` は
 ```
 > head -20 normchk.si
 #       IPW         IPW(diag)   Onsite(tot)   Onsite(phi)      Total
@@ -101,29 +85,25 @@ normchk.fobar は
       0.507738      0.648515      0.492040      0.487673      0.999778
 ...
 ```
-などとなる。右端の値が、1になっているべきであるが、展開し直しているため従来では高いエネルギー(下の方。ここでは見えてない）でかなり小さくなっていた(0.8などのおおきさ)。最近デフォルトでは、Gram-Schmidt正規直行化をかけているので、正規直行化は8桁程度以上は保たれている。
+のようになります。右端の値は 1 になっているべきですが、展開し直しているため、以前は高いエネルギー（下の方。ここでは見えていない）でかなり小さくなっていました（0.8 などの大きさ）。
+いまは既定で Gram-Schmidt の規格直交化をかけているので、規格直交性は 8 桁ほど以上保たれています。
 
-The first line (corresponding to 1st band of 1st q point) means that total normalization almost unity = 0.999988 = 0.436015 + 0.563972. 
+最初の行（1 番目の q 点の 1 番目のバンド）は、全体の規格化がほぼ 1 であること（0.999988 = 0.436015 + 0.563972）を示しています。
 
 ### `--ntqxx`
-This fix the number of bands to calculate self energy at the first iteration for each $\bf q$ point in the IBZ.
-In principle, the number is determined by<span class="clfix"> the energy window: at each $\bf q$ point and spin, the bands up to `emax_sigm` above the Fermi energy (and at most `nband_sigm` bands) are used, and this count is made again at every iteration. With `--ntqxx`, the counts of the first iteration are written to the file `NTQXX` and read in the later iterations, so that the number of bands of $\Sigma$ (`sigm`, `QPU`) stays fixed through the iterations. Delete `NTQXX` to count again.</span>
+IBZ の各 $\bf q$ 点で自己エネルギーを計算するバンドの数を、最初の反復の値に固定します。
+本来、この数はエネルギーの窓で決まります。各 $\bf q$ 点とスピンで、フェルミエネルギーから `emax_sigm` までのバンド（最大 `nband_sigm` 本）を使い、この数を反復ごとに数え直します。
+`--ntqxx` を付けると、最初の反復の数をファイル `NTQXX` に書き、後の反復はそれを読むので、$\Sigma$ のバンドの数（`sigm`、`QPU`）は反復の間変わりません。数え直すには `NTQXX` を消します。
 
-## Cautions
-* QPU.[number]runをチェックして、number回のQSGWイテレーションが終了している、と認識する。
-(初期状態から実行したいときはすべての`*run*`ディレクトリ、ファイルを消すこと）。
+## 注意
+* `QPU.[number]run` を見て、number 回の QSGW の反復が終わっていると認識します（はじめから回したいときは、`*run*` のディレクトリとファイルをすべて消してください）。
 
-* QSGW.[number]runディレクトリには、QSGWのnumber回目の結果 `rst`, `sigm` (加えて `atmpnu`, `ctrlg.<sname>.toml`, `QPU`, `efermi.lmf`, その反復のログ) が格納されており、これを用いてバンドプロットなどができる。
+* `QSGW.[number]run` のディレクトリには、number 回目の QSGW の結果 `rst`、`sigm`（加えて `atmpnu`、`ctrlg.<sname>.toml`、`QPU`、`efermi.lmf`、その反復のログ）が入っており、これを使ってバンドプロットなどができます。
 
-* 途中経過とメモリの使用量は、各段のログ（`lgw`、`lsxC`、`lvcc` など）で見る。GW のプログラムはランク 0 の画面出力をそこに書き、
-  ほかのランクの出力は捨てる（2026-09-27 から）。ランクごとの出力が要るときは `--fullstdo`（`STDOUT/stdout.<rank>.<prog>` になる）。
-  どのランクのエラーも、ランク番号付きで `gwsc` の標準エラーに出る。
-
-
+* 途中経過とメモリの使用量は、各段のログ（`lgw`、`lsxC`、`lvcc` など）で見ます。GW のプログラムはランク 0 の画面出力をそこに書きます。
+  ランクごとの出力と、エラーの出方は [コマンドラインのオプション](./cmdopts) の `--fullstdo` にあります。
 
 ---
-
-<div class="clfix">
 
 ## 反復の混合: mixbeta と mixpriorit {#mixbeta-and-mixpriorit}
 
@@ -154,40 +134,32 @@ $\beta$ = `mixbeta`（既定 1.0）、`mixpriorit` の既定は 3 です。前�
 
 MLO-gwsc（`gwsc --mlo`）の $\Sigma^{\rm MLO}$ の混合は [MLO-gwsc](./mlo_gwsc) の §1.6 にあります。
 
-</div>
+# ほかのスクリプト
 
-# Other scripts 
+`cleargw`: 一時的なファイルを消します。
 
-`cleargw`: clean up temporary files
+`gwscconv`: `gwsc` を自動で収束まで回すラッパーです。`--conv-tol <eV>`（例 `0.1`）で QSGW の反復を止める条件を指定します。
+**収束の判定**（2026-06）: 直近 3 反復のギャップの振れが、続けて 2 回 `conv-tol` 以下になったら止めます（一回だけ偶然収束して止まるのを防ぐ）。
+**金属**（2026-09-30）: `lmf` がギャップを出さない反復は、固有値の変化で判定します。`QPU.<n>run` と `QPU.<n-1>run` の `eQP`（E_F 基準）のうち |e| < 5 eV の状態について、
+変化の最大が `--conv-qp <eV>`（既定 0.03）未満の反復が 2 回続いたら止めます。以前のようにギャップの無いところで止める（exit 3）には `--no-metal` を付けます。
+`--gpu --mp --fp32` を渡せば、そのまま `gwsc` に渡ります。ecalj_auto の GW1500 のバッチも、このスクリプトを呼んでいます。
 
-`gwscconv`: `gwsc` を自動収束まで回すラッパー。`--conv-tol <eV>` (例 `0.1`) で
-QSGW 反復の停止条件を指定する。**収束判定 (2026-06 改定)**: 直近 3 イテレーションの
-ギャップ振れが連続して 2 回 `conv-tol` 以下になったら停止 (一発の偶然収束で止まる
-のを防ぐ)。**金属 (2026-09-30)**: `lmf` がギャップを出さない反復は、固有値の変化で判定する。
-`QPU.<n>run` と `QPU.<n-1>run` の `eQP` (E_F 基準) のうち |e| < 5 eV の状態について、変化の最大が
-`--conv-qp <eV>` (既定 0.03) 未満の反復が 2 回続いたら停止。以前のようにギャップが無いところで止める (exit 3) には
-`--no-metal`。`--gpu --mp --fp32` を渡せばそのまま `gwsc` に流される。
-ecalj_auto の GW1500 バッチもこの script を呼んでいる (<del class="clfix">`MD/auto.md`</del><span class="clfix">開発記録（リポジトリの MD/auto.md、サイトには無い）</span>)。
-
-`qsgw_status` (2026-06): 走行中の `gwsc` (または gwscconv) 反復の進行
-ダッシュボード。実行ディレクトリで以下のように使う:
+`qsgw_status`（2026-06）: 走っている `gwsc`（または gwscconv）の反復の進み具合を表示します。実行のディレクトリで次のように使います。
 ```bash
 qsgw_status               # 一度だけ表示
-qsgw_status --last 21     # 最終 iter 番号を渡すと完了 ETA も計算
-watch -n 30 qsgw_status   # 常駐モニタ
+qsgw_status --last 21     # 最後の反復の番号を渡すと、終わる見込みの時刻も計算
+watch -n 30 qsgw_status   # 見張り続ける
 ```
-`QPU.*run` / `sigm.iter*` の mtime から反復ごとの経過時間・ペース(中央値)・
-ETA、`gwsc` ログ末尾から現在の step (`hgw` 等) と step 内経過時間、
-`save.<target>` の sev 差分と `lqpe` の `rmsdel` (σ 収束指標) を表示。
-対象名・ログ・反復アンカーは自動検出。run の妨げにならないよう成果物の
-読取のみで重い処理はしない。
+`QPU.*run` / `sigm.iter*` の更新時刻から、反復ごとの経過時間、ペース（中央値）、終わる見込みを、
+`gwsc` のログの末尾から、いまの段（`hgw` など）とその段の経過時間を、
+`save.<target>` の sev の差と `lqpe` の `rmsdel`（Σ の収束の指標）を表示します。
+対象の名前、ログ、反復の目印は自動で見つけます。計算の邪魔にならないよう、出力を読むだけで重い処理はしません。
 
-`gw_lmfh`: The one-shot <del class="clfix">\GW</del><span class="clfix">GW</span> calculation. Lifetime(impact ionization rate) of QPs.
+`gw_lmfh`: one-shot の GW の計算。準粒子の寿命（衝突電離の割合）。
 
-`job_eps`: dielectric function. No local field corrections ([optical](./optical))
- 
-(`job_eps --lcf` : Dielectric function with local-field corrections. computationally expensive.)
+`job_eps`: 誘電関数。局所場補正なし（[誘電関数](./optical)）。
 
+（`job_eps --lcf`: 局所場補正ありの誘電関数。計算は重い。）
 
 <!-- \item
 {\bf epsPP\_lmfh\_chipm} : non-interacting spin susceptibility. 
@@ -195,200 +167,134 @@ One-degree of freedom like Rigid moment approx.
 After it ends, you need to do \verb#calj_nlfc_metal# and/or \verb#calj_summary_mat#
 to get the full spin susceptibility. -->
 
-`job_mloW` : the MLO model and the matrix elements of v, W and the cRPA W (`--crpa`) in it ([MLO](./mlo) section 6). (`genMLWFx`, the Wannier functions, was removed 2026-10-02.)
+`job_mloW`: MLO のモデルと、その中の v、W、cRPA の W（`--crpa`）の行列要素（[MLO](./mlo) §6）。（Wannier 関数の `genMLWFx` は 2026-10-02 に外しました。）
 
+# gwsc が使うファイル
+一時的なファイルの名前は `__*` で始まります。`gwsc` や `job_eps` などが終わったら、`__*` を消して（または `cleargw` で）かまいません。
 
-# Files used in gwsc
-Temporary files are with `__*`. Thus we can delete __* (or use `cleargw`) after you finish `gwsc/job_eps` and so on.
+`gwsc` の小さな試験は、インストールの試験の一つ `si_gwsc` で回せます（[試験の仕組み](./dev_testecalj)）。
+`testecalj` が作る `si_gwsc_work/` で `ls -rlt` とすると、どの段がどのファイルを作るか、おおよそ分かります。
 
-To repeat a small test for gwsc:
+同じ入力での `gwsc 1 si -np 2` の画面の出力は、[メインドキュメント](./README_tutorial#flow-of-qsgw-calculation-with-the-script-gwsc) にあります。
+`lmf --jobgw=0` と `qg4gw` は反復の前に一度だけ走り、ほかの段は反復ごとに繰り返します。
 
-```bash
-cd ~/ecalj/Samples/TestInstall
-testecalj si_gwsc -np 8
-```
+## 論文の質の QSGW の計算を、少ない費用で行うには {#paper-quality-qsgw}
+バンドギャップの精度は 0.1 eV くらい（ギャップの大きな物質ではもっと大きい）と考えてよいでしょう。
+簡単な場合もありますが、そうでない場合もあります（磁性金属は多くの反復が要ります）。
+そこで、自分なりの「簡単な基準」を持つのがよいです。「収束にこだわりすぎない。再現性にこだわる。」
 
-This is one of the install tests. `testecalj` creates
-`si_gwsc_work/` next to `si_gwsc/`, copies inputs in, and runs there.
-After that, `ls -rlt si_gwsc_work/` roughly shows which step generates
-which files.
+バンドギャップでは、ギャップが 0〜3 eV のふつうの半導体で、0.1 eV がおおよその精度の限界です。
+Si のような簡単なものでは、もっとよい精度が得られるかもしれません。ですから「0.1 eV くらいの精度」と言っておくのがよいです。
 
-The console output of `gwsc 1 si -np 2` for the same input is
-```text
-===== Ititial band structure ====== 
---> No sigm. LDA caculation for eigenfunctions 
-00:00:00.007   mpirun -np 1 /home/takao/bin/lmfa si stdout='llmfa'  Elap. 1.5s
-00:00:01.481   mpirun -np 2 /home/takao/bin/lmf si --ctrlg:iter.b=0.5 stdout='llmf_lda'  Elap. 6.1s
-lmf successful with b=0.5
-Removing __mixm.si
-00:00:07.563   mpirun -np 2 /home/takao/bin/lmf si --jobgw=0 stdout='llmfgw00'  Elap. 1.8s
-00:00:09.335   mpirun -np 1 /home/takao/bin/qg4gw si --job=1 stdout='lqg4gw'  Elap. 1.0s
-===== QSGW iteration start iter 1 === (GW precision fp64)
-00:00:10.381   mpirun -np 2 /home/takao/bin/lmf si --jobgw=1 stdout='llmfgw01'  Elap. 3.7s
-00:00:14.042   mpirun -np 1 /home/takao/bin/heftet si --job=1 stdout='leftet'  Elap. 1.1s
-00:00:15.193   mpirun -np 1 /home/takao/bin/hbasfp0 si --job=3 stdout='lbasC'  Elap. 1.4s
-00:00:16.570   mpirun -np 2 /home/takao/bin/hvccfp0 si --job=3 stdout='lvccC'  Elap. 1.4s
-00:00:17.966   mpirun -np 2 /home/takao/bin/hsfp0_sc si --job=3 stdout='lsxC'  Elap. 1.9s
-00:00:19.862   mpirun -np 1 /home/takao/bin/hbasfp0 si --job=0 stdout='lbas'  Elap. 2.1s
-00:00:21.973   mpirun -np 2 /home/takao/bin/hvccfp0 si --job=0 stdout='lvcc'  Elap. 2.5s
-00:00:24.472   mpirun -np 2 /home/takao/bin/hgw si --jobgw=1 stdout='lgw'  Elap. 4.8s
-00:00:29.276   mpirun -np 1 /home/takao/bin/hqpe_sc si stdout='lqpe'  Elap. 1.5s
-Using cached b-value 0.5 for /home/takao/bin/lmf
-00:00:30.814   mpirun -np 2 /home/takao/bin/lmf si --ctrlg:iter.b=0.5 stdout='llmf'  Elap. 8.0s
-lmf successful with b=0.5
-===== QSGW iteration end   iter 1 ===
-```
-`lmf --jobgw=0` and `qg4gw` are run once, before the iterations; the other steps are repeated in every iteration.
+原理的には、QSGW の結果は VWN か GGA かによりませんが、わずかに依存します
+（凍結した芯の密度、芯の固有関数、動径の基底関数、わずかな数値的な理由。GaAs のバンドギャップで 0.02 eV くらい）。
+標準として VWN（`[ham] xcfun = 1`）を使ってください。このような技術的なことは、バンドギャップに 0.05 eV くらいの誤差を与えます。
 
-## How to perform paper-quality QSGW calculations with minimum costs {#paper-quality-qsgw}
-We expect that the accuracy of band gaps can be  ~0.1eV (or larger for larger band gap materials). 
-In cases, it is easy but in cases not so easy (magnetic metals requires many number of iterations). 
-So, it is better to use your own "simple criterion".
-"Not stick to convergence so much. Just stick to Reproducibility."
+### LDA の計算
+まず LDA のレベルの計算を確かめる必要があります。
+`ctrlg.<sname>.toml` は ctrls.*（結晶構造のファイル）だけから作ります。
+QSGW の計算では、`[bz] nkabc` を十分大きくして、その収束を確かめなくてすむようにします。
 
-As for the band gaps, 0.1 eV is a kind of limiting accuracy for usual semiconductors with 0~3 eV band gap materials.
-For Si or something simple, you may be able to have better accuracy. So, just say ~0.1eV level of accuracy.
+### QSGW: 収束の確かめ方
+`gwsc` の QSGW の反復は、(1) と (2) からなります。
+- (1) 一体の自己無撞着な計算（`sigm` = Σ − V_xc^LDA を一体のポテンシャルに足す）で、一体のハミルトニアン $H_0$ を決める。
+- (2) 与えられた $H_0$ で、`sigm` のファイルを計算する。
 
-In principle, QSGW results should not depend on VWN or GGA. But there is minor dependence
-(frozen core density, core eigenfunctions, radial basis functions, and a slight numerical reason; it affects the band gap of GaAs by about 0.02 eV).
-Use VWN (`[ham] xcfun = 1`) as standard. Such technical things affect the band gap at the 0.05 eV level of error.
+QSGW の大きな反復は (1)+(2) です。(1) の中に、与えた `sigm` を保ったままの一体の計算の小さな反復があります。
 
-### LDA calculation
- We need to confirm LDA-level of calculations first.
- `ctrlg.<sname>.toml` is generated just from ctrls.* (crystal structure file)
- For calculation of QSGW, use large enough `[bz] nkabc`, so as to avoid
- convergence check on them. 
-### QSGW: how to check convergence
-QSGW iteration cycle by gwsc contains (1) and (2)
-  (1) One-body self-consistent calculation 
-      (where we add sigm = Sigma-Vxc^LDA to one-body potential).
-      to determine one-body Hamiltonian $H_0$.
-  (2) For given $H_0$, we calculate sigm file.
+`save.*` には、(1) の反復ごとに一行、全エネルギーが出ます（ただし `sigm` のある QSGW のモードでは、全エネルギーには意味がありません）。
+行の先頭の文字の意味は [lmf の `save.<sname>`](./lmf#save-sname) にあります。(1) の最後に `c` が出ていれば、途中の `x` は問題ありません。
 
-Big iteration cycle of QSGW is made from (1)+(2).
-With (1), we have small iteration cycle of one-body calculation with keeping given sigm.
+`grep '[cx] ' save.*` で、収束に向かっているかどうかの目安が分かります。`grep gap llmf.*run` でもかまいません。
 
-In `save.*`, we see total energy (but not the total energy in the QSGW
-mode with sigm file), a line per each iteration of (1). A line "c ..." is the final
-iteration cycle of (1)."x ..." is unconverged 
-(but no problem as long as we finally see "c ...").
+別の方法:
+`dqpu QPU.3run QPU.6run` で、準粒子エネルギーの入った二つの QPU のファイルを比べます
+（注: 表示される準粒子エネルギーは、反復の始めに計算したものです）。
 
-The command `"grep '[cx] ' save.*"` gives an indicator for 
-going to be converged or not.
-Or you can take "grep gap llmf.*run" (see it bottom.)
+絶縁体では、反復ごとのバンドギャップを比べれば、収束を確かめるのに十分だと思います。金属では、最後のいくつかの反復のバンドを描いて重ねる方がよいです
+（`cd QSGW.*run` として `job_band` を走らせる）。
 
-Another way:
-`dqpu QPU.3run QPU.6run` 
-is to compare two QPU files which contains QP energies.
-(note: QP energies shown are calculated just at the beginning of iteration).
+ほかに `grep rms lqpe*` で rmsdel（自己エネルギーの差）が分かります（少なくとも最初のいくつかの反復で小さくなっていくのが見えます）。
 
-For insulators, (I think), comparing band gap for each iteration 
-is good enough to check convergence. But for metal, it is better to plot energy bands
-for some of final iterations, and overlapped(`cd QSGW.*run` and run `job_band`).
+異方的な単位胞では、k 点のつり合いの悪い取り方を避けてください（Comput. Phys. Commun. 176 (2007) 1-13）。offset-Γ の点は
+`[gw] Q0Pchoice` で決めます（[GW の設定](./gwinput#q0pchoice)）。
 
-Another way is `grep rms lqpe*`. This gives rmsdel. Difference of self-energy
-(at least we see it is getting smaller for initial first cycles). 
+one-shot の QSGW（one-shot の GW ではない）が役に立つこともあります。非対角の部分を含むので、Ge（バンドギャップが無い）でのバンドのもつれの問題を解決できます。
 
-Avoid unbalanced k points for an anisotropic cell (Comput. Phys. Commun. 176 (2007) 1-13); the offset-Γ points are set by
-`[gw] Q0Pchoice` ([GW settings](./gwinput#q0pchoice)).
+### 80% QSGW + 20% LDA と SO の設定
+`sigm` のファイルには $V_{\rm xc}^{\rm QSGW}-V_{\rm xc}^{\rm LDA}$ が入っています。
+`sigm` があれば `lmf` はそれを読み、一体のポテンシャルに `sigm` を足して自己無撞着な計算をします。
 
-One-shot QSGW (not one-shot GW) can be useful in cases.
-As it contains off-diagonal part, we can resolve band tanglement problem in Ge (no band gap).
-
-### How to make 80%QSGW +20% LDA, and SO setting
-  Note that sigm file contains $V_{\rm xc}^{\rm QSGW}-V_{\rm xc}^{\rm LDA}$.
-  If sigm exists, lmf read it, and run self-consistent calculations
-  with adding sigm to the one-body potential.
-
-  Justifications of QSGW80 are:
-  * https://iopscience.iop.org/article/10.7567/JJAP.55.051201/pdf
-  * https://journals.aps.org/prb/abstract/10.1103/PhysRevB.101.205120
-  * https://journals.aps.org/prb/abstract/10.1103/PhysRevB.108.165104
+QSGW80 の根拠:
+* [JJAP 55, 051201](https://iopscience.iop.org/article/10.7567/JJAP.55.051201/pdf)
+* [PRB 101, 205120](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.101.205120)
+* [PRB 108, 165104](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.108.165104)
 
 #### 1. QSGW80(NoSC)
-  For practical prediction of band structure, such as band gap and so
-  on, it may be better to use 80% QSGW +20% LDA procedure when you
-  make band plot.  After, you have rst and sigm files determined self-consistently
-  Run 
-  ```
-  job_band gaas -np 4 --ctrlg:ham.scaledsigma=0.80
-  ```
-  This overrides `[ham] scaledsigma` in `ctrlg.gaas.toml` at run time, giving the QSGW80nosc result in Table II.
+バンドギャップなどのバンド構造の実用的な予測には、バンドを描くときに 80% QSGW + 20% LDA の手順を使う方がよいかもしれません。
+自己無撞着に決めた `rst` と `sigm` のファイルができたら、
+```
+job_band gaas -np 4 --ctrlg:ham.scaledsigma=0.80
+```
+を走らせます。これは実行のときに `ctrlg.gaas.toml` の `[ham] scaledsigma` を上書きし、表 II の QSGW80nosc の結果を与えます。
 
-#### 2. QSGW80(Nosc)+SO 
-   80%QSGW+20%LDA with `[ham].so = 1` (L.S method; needs `nspin = 2`).
-   If you like to include L.S method 
-
+#### 2. QSGW80(NoSC)+SO
+`[ham].so = 1`（L·S の方法。`nspin = 2` が要る）で 80% QSGW + 20% LDA。L·S の方法を入れたいときは
 ```
 mpirun lmf gaas -np 4 --ctrlg:ham.scaledsigma=0.80 --ctrlg:ham.so=1 --ctrlg:ham.nspin=2
 ```
-This procedure makes self-consistency with keeping the sigm file. This may/(or may not) required. If you expect large orbital moment this procedure may be needed.
-
+この手順は、`sigm` のファイルを保ったまま自己無撞着にします。要る場合も要らない場合もあります。大きな軌道磁気モーメントが予想されるときは、この手順が要るかもしれません。
 ```
 job_band gaas -np 4 --ctrlg:ham.scaledsigma=0.80 --ctrlg:ham.so=1 --ctrlg:ham.nspin=2
 ```
-NOTE: nspin=2 is required for so=1. rst and sigm are expanded for nspin=2 (you can not run with nspin=1, after rst and sigm are expanded).
-  
+注: so=1 には nspin=2 が要ります。`rst` と `sigm` は nspin=2 に展開されます（展開した後は nspin=1 では走らせられません）。
+SOC のバンドの一般的な手順は [その他の説明](./UsageDetailed#spin-orbit-coupling) にあります。
+
 #### 3. QSGW80
-  With `[ham] scaledsigma = 0.80` (or `gwsc ... --ctrlg:ham.scaledsigma=0.80`), you can run QSGW calculation in gwsc.
-  Then you have self-consistent results of QSGW80.
-  You can simultaneously use the setting so=2 (Lz.Sz scheme).
-  Be careful for z-direction and setting of `symgrp` (so as to keep the z-axis), for so=2.
-  If you like to get results of QSGW80+SO, you need to set so=1 after self-consistent of sigm attained.
+`[ham] scaledsigma = 0.80`（または `gwsc ... --ctrlg:ham.scaledsigma=0.80`）で、`gwsc` で QSGW の計算を回せます。こうして QSGW80 の自己無撞着な結果が得られます。
+同時に so=2（Lz·Sz の方法）も使えます。so=2 では、z の方向と `symgrp` の設定（z 軸を保つように）に注意してください。
+QSGW80+SO の結果が欲しいときは、`sigm` が自己無撞着になった後で so=1 にする必要があります。
 
-#### 4. Example of GaAs   
-  Good example to check band gap, and SO splitting at top of valence of Gamma point for ZB structure as GaAs.
-  The keys are `scaledsigma`, `so` and `nspin` in `[ham]` of `ctrlg.gaas.toml`; look at them by
-  ```   
-  >grep -E "^(scaledsigma|so|nspin) " ctrlg.gaas.toml
-  ```   
-  They are overridden for a run by `--ctrlg:ham.scaledsigma=0.80`, `--ctrlg:ham.so=1`, `--ctrlg:ham.nspin=2` as in 1. and 2.
-  (the keys need not be written in the file for this).
+#### 4. GaAs の例
+閃亜鉛鉱構造の GaAs のように、バンドギャップと、Γ 点の価電子帯の上端の SO の分裂を確かめるのによい例です。
+キーは `ctrlg.gaas.toml` の `[ham]` の `scaledsigma`、`so`、`nspin` で、
+```
+>grep -E "^(scaledsigma|so|nspin) " ctrlg.gaas.toml
+```
+で見られます。1. と 2. のように、`--ctrlg:ham.scaledsigma=0.80`、`--ctrlg:ham.so=1`、`--ctrlg:ham.nspin=2` で実行のときに上書きします（そのためにキーをファイルに書いておく必要はありません）。
 
-### Papers
-It is instructive to reproduce samples in [Deguchi paper](../presentations/deguchi2016.pdf). 
-We can set up templates for your calculations. Ask us.
-We have a latest paper at https://arxiv.org/abs/2506.03477 for GPU version. 
-It shows some details of computational steps in ecalj.
-In Japanese, pages by Dr.Gomi at [gomisai.blog75.fc2.com](http://gomisai.blog75.fc2.com/blog-entry-675.html) and [Qiita](https://qiita.com/takaokotani/items/9bdf5f1551000771dc48).
+### 論文
+[Deguchi の論文](../presentations/deguchi2016.pdf) のサンプルを再現してみると勉強になります。計算の雛形も用意できます。お問い合わせください。
+GPU 版の新しい論文が [arXiv:2506.03477](https://arxiv.org/abs/2506.03477) にあります。ecalj の計算の手順の詳細も書いてあります。
+日本語では、五味さんのページ [gomisai.blog75.fc2.com](http://gomisai.blog75.fc2.com/blog-entry-675.html) と [Qiita](https://qiita.com/takaokotani/items/9bdf5f1551000771dc48) があります。
 
-## `lmfa`
-### atmpnu*
-Logalithmic derivative at MT boundaries generated by `lmfa`. This is
-used by `lmf` when `[ham].readp = true` in `ctrlg.<sname>.toml`.
+## `lmfa`、`lmf`
+`atmpnu*`、`rst.<sname>`、`__mixm.<sname>` などは [lmf の出力ファイル](./lmf) にあります。GW に関わるものだけを書きます。
 
 ### `__atm.<sname>`
-This contains electron densities of spherical atoms.
-
-## `lmf`
-### `rst.<sname>`
-This contains self-consistent electron density revised by each iteration of lmf
+球対称な原子の電子密度が入っています。
 
 ### QPLIST*.chk
-QPLIST.jobgw1.chk (jobgw1 means --jobgw=1 for lmf) is for human, containing q for irr=1.
-QPLIST.lmf.chk  (no jobgw option) is for human. Irreducible q points for lmf self-consistent calculations.
+QPLIST.jobgw1.chk（jobgw1 は `lmf` の `--jobgw=1`）は人が読むためのもので、irr=1 の q が入っています。
+QPLIST.lmf.chk（jobgw のオプションなし）も人が読むためのもので、`lmf` の自己無撞着な計算の既約な q 点です。
 
 ### __HAMindex
-q points table and so on for generating Hamiltonian
-
-### `__mixm.<sname>`
-mixing file for lda
+ハミルトニアンを作るための q 点の表など。
 
 ## `lmf --jobgw=0`
-###  NLAindx.chk
-This is for human. It shows index to expand eigenfunctions in MTs.
+### NLAindx.chk
+人が読むためのもの。MT の中で固有関数を展開する添字を示します。
 
 ### __HAMindex0
-Generated by `m_hamindex0_init` called in main_lmf.f90.
-Index of MTOs, space-group symmetries and so on.
+`main_lmf.f90` から呼ぶ `m_hamindex0_init` が作ります。MTO の添字、空間群の対称性など。
 
 ### QBZ.chk
-q points mesh. Just for human reading.
+q 点のメッシュ。人が読むためだけのもの。
 
 ## `qg4gw`
 
-### __QGpsi, __QGcou
-q+G of the interstitial plane wave (IPW). Type lqg4gw, which shows
+### __QGpsi、__QGcou
+格子間領域の平面波（IPW）の q+G。`lqg4gw` を見ると
 ```
 --- Max number of G for psi, G for Cou= 116 36
  iq=       1 q=  0.000000  0.000000  0.000000 ngp ngc=    111    29 irr.= 1 <--R
@@ -417,105 +323,95 @@ q+G of the interstitial plane wave (IPW). Type lqg4gw, which shows
  iq=      24 q=  0.237500  0.262500  0.262500 ngp ngc=    116    36 irr.= 1 <--Q0P+R
   OK! End of qg4gw 
 ```
-Here, we have regular mesh points specified by `<--R`. Q0P is the offset Gamma points shown in Q0P. 
-irr=1 shows the irreducible q points at which we have to generate eigenfunctions.
-ngp is the number of IPW for the expansion of eigenfunctions (controlled by QpGcut_phi). 
-ngc is for IPW for the MPB (controlled by QpGcut_cou).
+のように出ます。`<--R` が通常のメッシュの点、Q0P が offset-Γ の点です。
+irr=1 は、固有関数を作る必要のある既約な q 点です。
+ngp は固有関数を展開する IPW の数（`QpGcut_psi` で決まる）、ngc は混合積基底の IPW の数（`QpGcut_cou` で決まる）です。
 
-### __BZDATA 
-__BZDATA contains info on regular mesh points, and offset Gamma (Q0P). Data for tetrahedron division. 
+### __BZDATA
+通常のメッシュの点と offset-Γ（Q0P）の情報、四面体の分割のデータ。
 
 ## `lmf --jobgw=1`
-Generate all the following data to perform GW.
-See at subroutines/sugw.f90.
+GW を行うための次のデータをすべて作ります。`subroutines/sugw.f90` を参照。
 
-### @MNLA_core.chk 
-human readable: core index
+### @MNLA_core.chk
+人が読むためのもの: 芯の添字。
 
-### @MNLA_CPHI 
-human readable (but program use this):
-Eigenfunctions expanded within MT
+### @MNLA_CPHI
+人が読める（プログラムも使う）: MT の中で展開した固有関数。
 
-### hbe.d.chk 
-human readable: size file for check
+### hbe.d.chk
+人が読むためのもの: 大きさを確かめるファイル。
 
-###  __PHIVC
-radial functions.
+### __PHIVC
+動径関数。
 
 ### __MTOindex
-MTO index
+MTO の添字。
 
 ### __VxcEvec*
- Coefficients of eigenfunctions and  eigenvalues for <del class="clfix">$\langle F_i|H^0|\psi F_j$</del><span class="clfix">$\langle F_i|H^0|F_j\rangle$</span> in the basis of PMT$\{F_i\}$.
+PMT の基底 $\{F_i\}$ での $\langle F_i|H^0|F_j\rangle$ の固有関数の係数と固有値。
 
-### __GEIG,__CPHI,__EValue
-__GEIG: Coefficients of eigenfunctions. IPW part
-__CPHI: Coefficients of eigenfunctions. MT  part
-__EValue: eigenvalue
+### __GEIG、__CPHI、__EValue
+__GEIG: 固有関数の係数の IPW の部分。__CPHI: 固有関数の係数の MT の部分。__EValue: 固有値。
 
-### __PPOvlp, __PPOvlpG, __PPOvlpGG
-overlap matrix of IPW.
+### __PPOvlp、__PPOvlpG、__PPOvlpGG
+IPW の重なり行列。
 
 ### __VXCFP
-XC term in LDA (only diagonal part). A part of vxcevec
-Used at hsfp0 but not essential (only for convenience of presentantion).
+LDA の交換相関の項（対角の部分だけ）。vxcevec の一部。`hsfp0` で使いますが、本質的ではありません（表示のためのもの）。
 
 ## `heftet --job=1`
 
 ### EFERMI
-The Fermi energy in the tetrahedron method
+四面体法でのフェルミエネルギー。
 
 ### EFERMI_kbt
-Written when `[gw] t_tetrakbt` > 0: the Fermi energy at that temperature, used for $\chi_0$ and $\Sigma$ ([kBT](./kBT) §2.3).
+`[gw] t_tetrakbt` > 0 のときに書きます。その温度でのフェルミエネルギーで、$\chi_0$ と $\Sigma$ に使います（[kBT](./kBT) §2.3）。
 
-
-## hbasfp0 (we have --job=3 for core and --job=0 for valence)
-### __BASFP* 
- Product basis functions
+## hbasfp0（芯は --job=3、価電子は --job=0）
+### __BASFP*
+積基底の関数。
 ### __PPBRD*
- Radial integrals on each MT, symbolically written as  $\int \phi(r) \phi(r) B(r) dr$
+各 MT での動径積分。記号的に $\int \phi(r) \phi(r) B(r) dr$。
 
-## `hvccfp0` 
-We call two times one for core, and the other for valence.
+## `hvccfp0`
+芯と価電子で 2 回呼びます。
 
 ### __Vcoud*
-the Coulomb matrix (eigenvalues and eigenfunctions of the Coulomb matrix in the expansion of MPB)
+クーロン行列（混合積基底での展開での、クーロン行列の固有値と固有関数）。
 
 ## `hgw`
-`hgw --jobgw=1` calculates the valence exchange, the screened Coulomb interaction $W$ and the valence correlation in one run.
-$W-v$ in the expansion of mixed product basis (along the real axis and along the imag axis) is kept in memory and handed to the
-calculation of the correlation $q$ by $q$; it is not written to files.
-Note that we use a technique to define $W-v$ at ${\bf q}=0$ as an average of the Gamma cell.
+`hgw --jobgw=1` は、価電子の交換、遮蔽クーロン相互作用 $W$、価電子の相関を一度の実行で計算します。
+混合積基底で展開した $W-v$（実軸と虚軸）はメモリに持ち、$q$ ごとに相関の計算に渡します。ファイルには書きません。
+${\bf q}=0$ の $W-v$ は、Γ のセルの平均として定める技法を使っています。
 
 ### __WV.d
-Size of the dielectric function
+誘電関数の大きさ。
 
-### __WVR.*, __WVI.*
-Only with `gwsc --dumpW` (for analysis): $W-v$ along the real axis and along the imag axis, a file for each $q$.
+### __WVR.*、__WVI.*
+`gwsc --dumpW`（解析のため）のときだけ: 実軸と虚軸の $W-v$。$q$ ごとに一つのファイル。
 
 ### freq_r
-human readable: energy mesh to accumrate imaginary parts of W-v.
+人が読むためのもの: W−v の虚部をためるエネルギーのメッシュ。
 
+## `hsfp0_sc --job=3`（芯の交換）と `hgw`（価電子の交換と相関）
+これらは、`gwsc` の反復の終わりに SEBK に移します。
 
-## `hsfp0_sc --job=3` (core exchange) and `hgw` (valence exchange and valence correlation)
-These are moved to SEBK at the end of gwsc iteration cycle.
-
-### SEXcoreU,SEXcore2U :  
-core exchange by `hsfp0_sc --job=3` . SEXcoreU is diagonal part for human check but not used so much. 
-We have *D for down spin (isp=2)as well.
-### SEXU,SEX2U 
-valence exchange by `hgw` .       SEXU is diagonal part for human check but not used so much. 
-### SECU,SEC2U:  
-valence correlation by `hgw` .     SECU is diagonal part for human check but not used so much. 
+### SEXcoreU、SEXcore2U
+`hsfp0_sc --job=3` による芯の交換。SEXcoreU は人が確かめるための対角の部分で、あまり使いません。下向きのスピン（isp=2）には *D もあります。
+### SEXU、SEX2U
+`hgw` による価電子の交換。SEXU は人が確かめるための対角の部分で、あまり使いません。
+### SECU、SEC2U
+`hgw` による価電子の相関。SECU は人が確かめるための対角の部分で、あまり使いません。
 ### XCU
-LDA exchange correlation
+LDA の交換相関。
+
 ## `lqpe`
 
-### QPU, QPD
-human readable format. 
-decomposion of self-energy for diagonal elements.QPD is for isp=2.
+### QPU、QPD
+人が読む形式。自己エネルギーの対角要素の内訳。QPD は isp=2 のもの。
 
-An example of one-shot GW by `gw_lmfh si` (small size calculation in TestInstall) is:
+`gw_lmfh si`（TestInstall の小さな計算）での one-shot の GW の例:
 ```
 ...
            q               state  SEx   SExcore SEc    vxc    dSE  dSEnoZ  eLDA    eQP  eQPnoZ   eHF  Z    FWHM=2Z*Simg  ReS(elda)
@@ -546,187 +442,55 @@ An example of one-shot GW by `gw_lmfh si` (small size calculation in TestInstall
   1.00000  0.00000  0.00000  7   -3.59  -2.37  -5.91 -13.53   1.20   1.66   9.81  11.01  11.47  17.37 0.72  -0.40499    -11.86796
   1.00000  0.00000  0.00000  8   -3.59  -2.37  -5.91 -13.53   1.20   1.66   9.81  11.01  11.47  17.37 0.72  -0.40499    -11.86796
 ```
-All of the unit of energy is in eV. Detailed value of  <del class="clfix">eLDA} is in {TOTE.UP}</del><span class="clfix">`eLDA` is in `TOTE.UP`</span>.
-For insulators, the Fermi energy is at the middle of <del class="clfix">band</del><span class="clfix">the band gap (the energies are measured from it)</span>. For metals, one shot GW can be problematic
-if we consider the self-consistency of the Fermi energy.
+エネルギーの単位はすべて eV です。`eLDA` の詳しい値は `TOTE.UP` にあります。
+絶縁体では、フェルミエネルギーはバンドギャップの中央にとります（エネルギーはそこから測る）。金属では、フェルミエネルギーの自己無撞着性を考えると、one-shot の GW は問題になることがあります。
 
-q  : q vector
+- q: q ベクトル
+- state: 価電子のバンドの番号 n
+- SEx: $\langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm valence}({\bf r},{\bf r}^{\prime})|\Psi_{{\bf k}n}\rangle$
+- SExcore: $\langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm core}({\bf r},{\bf r}^{\prime})|\Psi_{{\bf k}n}\rangle$
+- SEc: $\langle\Psi_{\mathbf{k}n}|\Sigma_{\rm c}^{\rm valence}({\bf r},{\bf r}^{\prime}, \epsilon_n({\bf k}))|\Psi_{\mathbf{k}n}\rangle$
+- vxc: LDA の交換相関エネルギー $\langle \Psi_{{\bf k}n}|V_{\rm xc}^{\rm LDA}([n_{\rm total}],{\bf r})|\Psi_{{\bf k}n}\rangle$
+- dSE: $Z_{n{\bf k}}\times$ dSEnoZ
+- dSEnoZ: $\langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm core}+\Sigma_{\rm xc}^{\rm valence}(\epsilon_n({\bf k}))|\Psi_{{\bf k}n}\rangle - \langle\Psi_{{\bf k}n}|V_{\rm xc}^{\rm LDA}|\Psi_{{\bf k}n}\rangle$ = SEx + SExcore + SEc − vxc
+- eLDA: LDA の固有値 $\epsilon_n({\bf k})$
+- eQP: 準粒子エネルギー $\epsilon_n({\bf k})$ + dSE
+- eQPnoZ: $Z$ なしの準粒子エネルギー $\epsilon_n({\bf k})$ + dSEnoZ
+- eHF: 最初の反復の HF のエネルギー $\epsilon_n({\bf k})$ + SEx + SExcore − vxc
+- Z: Z 因子 $Z_{n{\bf k}}$
+- FWHM=2Z*S_{img}: 準粒子の寿命 $2 Z_{n{\bf k}} \times {\rm Im}\langle\Psi_{{\bf k}n}|\Sigma_{\rm c}^{\rm valence}(\epsilon_n({\bf k}))|\Psi_{{\bf k}n}\rangle$
+- ReS(elda): ${\rm Re} \langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm core}+\Sigma_{\rm xc}^{\rm valence}(\epsilon_n({\bf k}))|\Psi_{{\bf k}n}\rangle$
 
-state:  Band index n for valence.
-
-SEx: $= \langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm valence}({\bf r},{\bf r}^{\prime})|\Psi_{{\bf k}n}\rangle$
-
-SExcore: $= \langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm core}({\bf r},{\bf r}^{\prime})|\Psi_{{\bf k}n}\rangle$
-
-SEc: <del class="clfix">$= \langle\Psi_{{\bf k}n}|\Sigma_{\rm c}^{\rm valence}({\bf r},{\bf r}^{\prime}, \epsilon_n({\bf k})|\Psi_{{\bf k}n}\rangle$</del><span class="clfix">$= \langle\Psi_{\mathbf{k}n}|\Sigma_{\rm c}^{\rm valence}({\bf r},{\bf r}^{\prime}, \epsilon_n({\bf k}))|\Psi_{\mathbf{k}n}\rangle$</span>
-
-vxc: LDA exchange correlation energy.$\langle \Psi_{{\bf k}n}|V_{\rm xc}^{\rm LDA}([n_{\rm total}],{\bf r})|\Psi_{{\bf k}n}\rangle$
-
-dSE: $=Z_{n{\bf k}}\times$ dSEnoZ
-
-dSEnoZ: $=\langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm core}({\bf r},{\bf r}^{\prime})+\Sigma_{\rm xc}^{\rm valence}({\bf r},{\bf r}^{\prime},\epsilon_n({\bf k}))|\Psi_{{\bf k}n}\rangle - \langle\Psi_{{\bf k}n}|V_{\rm xc}^{\rm LDA}([n_{\rm total}],{\bf r})|\Psi_{{\bf k}n}\rangle$= SEx + SExcore + SEc - vxc
-
-eLDA: LDA eigenvalues. $\epsilon_n({\bf k})$
-
-eQP: QP energy.  $\epsilon_n({\bf k})$+dSE
-
-eQPnoZ: QP energy without $Z$. $\epsilon_n({\bf k})$+dSEnoZ
-
-eHF: HF energy of 1st iteration. $\epsilon_n({\bf k})$+SEx + SExcore -vxc
-Z: Z factor. $Z_{n{\bf k}}$
-
-FWHM=2Z*S_{img}: Quasi-particle life time. $2 Z_{n{\bf k}} \times {\rm Im}\langle\Psi_{{\bf k}n}|\Sigma_{\rm c}^{\rm valence}({\bf r},{\bf r}^{\prime},\epsilon_n({\bf k}))|\Psi_{{\bf k}n}\rangle$  
-
-ReS(elda):${\rm Re} \langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm core}({\bf r},{\bf r}^{\prime})+\Sigma_{\rm xc}^{\rm valence}({\bf r},{\bf r}^{\prime},\epsilon_n({\bf k}))|\Psi_{{\bf k}n}\rangle$ 
-
-* NOTE: QPU for `gwsc` is a little different. No Z and no life time shown.
-  Shown eQP is just the eigenvalues of starting point of lmf. 
+* 注: `gwsc` の QPU は少し違います。Z と寿命は出ず、eQP は `lmf` の出発点の固有値です。QP エネルギーを比べるときは dSEnoZ の列を見ます。
 
 ### TOTE.UP
-numerical detailed values of QPU. TOTE.DN for QPD
+QPU の詳しい数値。QPD には TOTE.DN。
+one-shot の GW `gw_lmfh` では、TOTE.UP に LDA と準粒子のエネルギー（`QP` と `QPnoZ` の 2 種類）が入ります。
 
-In one-shot GW `gw_lmfh`, TOTE.UP contains LDA and QP energies. 
-It contains two kind of QP energies <del class="clfix">{\tt QP QPnoZ}</del><span class="clfix">`QP` and `QPnoZ`</span>.
+### QPU、TOTE（one-shot の GW、`gw_lmfh`）
+`gw_lmfh`（one-shot の GW）では、`hqpe` が `TOTE.UP` と `QPU` のファイル（`TOTE.DN` と `QPD` も）を書きます。中身の値は同じです。
+one-shot の GW は衝突電離の割合の計算にも使います。サンプル `Samples/IIR/C`（ダイヤモンド、粗いメッシュ）では、`gw_lmfh` が幅を `QPU_life` に書きます。
 
 ### __mixsig
-mixing file for `sigm.<sname>`
+`sigm.<sname>` の混合のファイル。
 
 ### `sigm.<sname>`
-<del class="clfix">self-energy file in the expansion of eigenfunctions of $H^0$.</del><span class="clfix">$\Sigma-V_{\rm xc}$ (the static Hermitian QSGW self-energy minus the LDA $V_{\rm xc}$, in Ry) as a matrix in the MTO basis at each irreducible $\bf q$ point, mixed with the previous iterations (`__mixsig`). `lmf` Bloch-sums it to real space and interpolates it to any $\bf k$ ([MLO-gwsc](./mlo_gwsc) §1.1).</span>
+$\Sigma-V_{\rm xc}$（静的でエルミートな QSGW の自己エネルギーから LDA の $V_{\rm xc}$ を引いたもの、Ry）を、各既約 $\bf q$ 点で MTO の基底の行列として持ちます。前の反復と混合したもの（`__mixsig`）です。
+`lmf` はこれを Bloch 和で実空間に移し、任意の $\bf k$ に内挿します（[MLO-gwsc](./mlo_gwsc) §1.1）。
 
+## GW でのフェルミエネルギー {#the-fermi-energies-in-gw}
+数値計算の技法のため、2 種類のフェルミエネルギー $E_{\rm FERMI}^{\rm smear}$ と $E_{\rm FERMI}^{\rm tetra}$ を使います。
 
-# Product basis
+一つは EFERMI に入っている $E_{\rm FERMI}^{\rm tetra}$ で、分極関数に使います（四面体法を使うため）。
 
-The product basis (the union of MT-local products and interstitial
-plane waves) is the heart of how ecalj represents the screened Coulomb
-interaction `W`. It is specified in the **`[product_basis]` section of
-`ctrlg.<sname>.toml`**, always the last section of the file:
+もう一つは $G \times W$ に使う $E_{\rm FERMI}^{\rm smear}$ です。$G$ になました極の技法を使うためです（なましの幅は `[gw] t_sigmaw`）。
+$E_{\rm FERMI}^{\rm smear}$ は $G \times W$ の計算の始めに決めます。`lgw` と `lsxC` の `ef     esmr   valn=` の行を見てください。
 
-| key | what |
-|---|---|
-| `pb_tolerance`, `pb_lcutmx` | global cut-offs — the part you may tune |
-| `nlx`, `valence`, `core` | per-atom radial-function tables, written by `gwinit` (via `ctrlgenToml.py` / `Legacy2toml.py`) from `[[spec]]`; almost never hand-edited |
+`[gw] t_tetrakbt` > 0（有限温度の分極関数）のときは、分極関数と $G \times W$（芯の交換を除く）のどちらも、EFERMI_kbt に入っているその温度でのフェルミエネルギーを使います。[kBT](./kBT) を参照。
 
-(Until 2026-09 the three tables were a separate `PB.<sname>.toml`. The
-binaries do not read such a file: they abort and point at
-`ctrlg_absorb.py <sname>`, which appends its tables to `[product_basis]`
-and keeps the original as `.bk`.)
+## 積基底 {#product-basis}
+積基底の指定（`[product_basis]` の上限と原子ごとの表）は [GW の設定: 積基底](./gwinput#product-basis) にあります。
 
-> Product basis is originally given by F.Aryasetiawan and O.Gunnarsson
-> ([PRB 49, 16214](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.49.16214)).
-> The mixed product basis
-> ([Solid State Commun. 2002](https://doi.org/10.1016/S0038-1098(02)00028-5))
-> is the successor of original.
-
-### QPU, TOTE in one-shot GW (`gw_lmfh`)
-In `gw_lmfh` (one-shot GW), `hqpe` gives `TOTE.UP` and `QPU` files (`TOTE.DN` and `QPD` as well). They contain the same values.
-One-shot GW is also used to calculate the impact ionization rate: in the sample `Samples/IIR/C` (diamond, a coarse mesh), `gw_lmfh` writes the widths to `QPU_life`.
-
-## The Fermi energies in GW {#the-fermi-energies-in-gw}
-We use two kinds of Fermi energy $E_{\rm FERMI}^{\rm smear}$ and $E_{\rm FERMI}^{\rm tetra}$.
-This is because of numerical techniques.
-
-One is $E_{\rm FERMI}^{\rm tetra}$, contained in EFERMI, for the polarization function since we use tetrahedron method for it.
-
-The other is $E_{\rm FERMI}^{\rm smear}$ for $G \times W$ since we use smeared pole technique for $G$
-(the width of the smearing is `[gw] t_sigmaw`).
-$E_{\rm FERMI}^{\rm smear}$ is given at the beginning of $G \times W$ calculations. 
-See the line `ef     esmr   valn=` in `lgw` and `lsxC`.
-
-With `[gw] t_tetrakbt` > 0 (the polarization function at finite temperature), both the polarization function and
-$G \times W$ (except the exchange of the cores) use the Fermi energy at that temperature, contained in EFERMI_kbt. See [kBT](./kBT).
-
-## `[product_basis]` cut-offs (in `ctrlg.<sname>.toml`)
-
-```toml
-[product_basis]
-pb_tolerance = [0.001]   # cut off of linear dependency (default 1e-3)
-                         #   larger ⇒ fewer product basis. 1d-2 is OK
-                         #   when you want a cheaper calculation.
-pb_lcutmx    = [4, 4]    # per-site l-cutoff for the product basis.
-                         #   4 needed when valence 3d exists (Ni, Ga, ...);
-                         #   2 OK for oxygen; 6 needed for 4f / 5f atoms.
-                         #   site order = [[site]] order; see lmchk SiteInfo.
-```
-
-After editing, re-run `lmf --jobgw=1` (or the next `gwsc` step) — the
-`hbasfp0` driver consumes these values and reports the resulting basis
-sizes in `lbas` / `lbasC`.
-
-## The per-atom tables (`nlx`, `valence`, `core`)
-
-They follow the cut-offs in the same `[product_basis]` table; every row
-starts with the site index `iatom` (in `[[site]]` order). `gwinit` writes
-them from `rsmh`/`eh`/`pz` of `[[spec]]` and adds a label per row; the
-explanation below is written into the file itself as comments, and the
-three tables are divided by `# ----` rules.
-
-```toml
-[product_basis]
-pb_tolerance = [1e-3]
-pb_lcutmx    = [4]
-# ----------------------------------------------------------------
-# nlx [iatom, l, nnvv, nnc]: one row per (iatom, l) ...
-nlx = [
-  [1, 0, 2, 3],
-  [1, 1, 2, 2],
-  [1, 2, 2, 0],
-  [1, 3, 2, 0],
-  [1, 4, 2, 0],
-]
-
-# ----------------------------------------------------------------
-# valence [iatom, l, n, occ, unocc]: one row per valence radial function ...
-valence = [
-  [1, 0, 1, 1, 1],   # 4s_phi
-  [1, 0, 2, 0, 0],   # 4s_phidot
-  [1, 1, 1, 1, 1],   # 4p_phi
-  [1, 1, 2, 0, 0],   # 4p_phidot
-  [1, 2, 1, 1, 1],   # 3d_phi
-  [1, 2, 2, 0, 0],   # 3d_phidot
-  [1, 3, 1, 0, 1],   # 4f_phi
-  [1, 3, 2, 0, 0],   # 4f_phidot
-  [1, 4, 1, 0, 0],   # 5g_phi
-  [1, 4, 2, 0, 0],   # 5g_phidot
-]
-
-# ----------------------------------------------------------------
-# core [iatom, l, n, occ, unocc, forX0, forSxc]: one row per core level ...
-core = [
-  [1, 0, 1, 0, 0, 0, 0],   # 1S
-  [1, 0, 2, 0, 0, 0, 0],   # 2S
-  [1, 0, 3, 0, 0, 0, 0],   # 3S
-  [1, 1, 1, 0, 0, 0, 0],   # 2P
-  [1, 1, 2, 0, 0, 0, 0],   # 3P
-]
-```
-
-Semantics (same as the legacy `<PRODUCT_BASIS>` block — only the
-container changed):
-
-- `nlx` row `[iatom, l, nnvv, nnc]` — how many radial functions ecalj has
-  on each `l` channel of that site: `nnvv = 2` is `{phi, phidot}`,
-  `nnvv = 3` adds the local orbital `phiz`; `nnc` is the number of core
-  levels at that `l`. Derived, do not edit.
-- `valence` row `[iatom, l, n, occ, unocc]` — one per radial function,
-  `n = 1` phi, `2` phidot, `3` phiz. `occ` / `unocc` are 0/1 switches that
-  put the function into the "occupied" / "unoccupied" group; the product
-  basis is formed from products (occupied group) × (unoccupied group) and
-  pruned by `pb_tolerance`. `phidot` is usually left out (`0 0`) for speed;
-  including it gives a more accurate basis.
-- `core` row `[iatom, l, n, occ, unocc, forX0, forSxc]` — one per core
-  level (`n = 1` deepest). `forX0` / `forSxc` came from the CORE1/CORE2
-  distinction of PRB 76, 165106 (2007). Historical: modern runs leave
-  every core row all-zero.
-
-The site index `iatom` follows the order of `[[site]]` in `ctrlg.<sname>.toml`;
-`lmchk` prints the order at the top of its console output.
-
-> **Legacy input.** `Legacy2toml.py` translates the pre-TOML
-> `<PRODUCT_BASIS>` block of `GWinput` into the `[product_basis]` section
-> above.
-
-
-# MEMO
-* We need to explain how to set Gamma-cell averaged $\tilde{W}({\bf q}=0,\omega)$.
-* 旧い開発者向けの理論メモ ecaljdetails（2015〜2022、offset-Γ 法・クーロン行列・EIBZ など）は 2026-10-02 に外した。今も通じる要点は<del class="clfix"> ecalj の `MD/past_log.md` §14</del><span class="clfix">開発記録（リポジトリの MD/past_log.md §14、サイトには無い）</span>、原文は ecaljdoc のコミット `3284d0b` の `ecaljdetails/ecaljdetails.tex`。
+# メモ
+* Γ のセルで平均した $\tilde{W}({\bf q}=0,\omega)$ の決め方を説明する必要があります。
+* 古い開発者向けの理論のメモ ecaljdetails（2015〜2022、offset-Γ 法・クーロン行列・EIBZ など）は 2026-10-02 に外しました。原文は ecaljdoc のコミット `3284d0b` の `ecaljdetails/ecaljdetails.tex` にあります。

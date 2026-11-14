@@ -22,7 +22,7 @@ const sidebarRoot = [
       { text: 'ESM（真空のあるスラブ）', link: '/manual/esm' },
       { text: '力と構造の緩和', link: '/manual/relax' },
       { text: 'GW の設定（[gw] などのキー）', link: '/manual/gwinput' },
-      { text: 'QSGW calculation: gwsc part', link: '/manual/gwsc' },
+      { text: 'QSGW の計算: gwsc', link: '/manual/gwsc' },
       { text: 'GPU version of QSGW',link: '/manual/ecaljgpu.md' },
       { text: 'Dielecric function', link: '/manual/optical' },
       { text: 'スペクトル関数', link: '/manual/spectrum' },
@@ -112,6 +112,7 @@ const enText: Record<string, string> = {
   'ecalj のバンド計算法': 'Band-structure method of ecalj',
   'DFT の計算: lmf': 'DFT calculation: lmf',
   'コマンドラインのオプション: lmf': 'Command-line options: lmf',
+  'QSGW の計算: gwsc': 'QSGW calculation: gwsc',
   'GW 近似': 'GW approximation',
   '光学的性質': 'Optical properties',
 }

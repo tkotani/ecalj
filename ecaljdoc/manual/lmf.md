@@ -82,7 +82,7 @@ mpirun -np 4 lmf si [options] > llmf
 一つのファイル `ctrlg.<sname>.toml` に、以前 `ctrl.<sname>` にあったものすべてと、以前 `GWinput` にあった GW の設定と積基底の節が入っています。
 ファイルの最後には、原子ごとの積基底の表があります。古い作業ディレクトリでは `Legacy2toml.py <sname>` で作ります。
 
-ファイルの最後の `[product_basis]` の表は GW のためのもので、`gwinit` が書き、ふつうは手で直しません。[gwsc: Product basis](./gwsc#product-basis) を参照。
+ファイルの最後の `[product_basis]` の表は GW のためのもので、`gwinit` が書き、ふつうは手で直しません。[GW の設定: 積基底](./gwinput#product-basis) を参照。
 
 ### 画面の出力 {#reading-the-output}
 画面の出力は、いまは主にデバッグのためのものです。
@@ -226,7 +226,7 @@ mlo_lm     = """        # which lm channels of which atom make the model (1=s, 2
 pb_tolerance = [0.001]  # drop near-linear-dep products (default 1e-3)
 pb_lcutmx    = [4]      # max l-cutoff per atom
 # ----------------------------------------------------------------
-# nlx [iatom, l, nnvv, nnc] ... (per-atom tables written by gwinit; see manual/gwsc)
+# nlx [iatom, l, nnvv, nnc] ... (per-atom tables written by gwinit; see manual/gwinput)
 nlx = [
   [1, 0, 2, 3],
   [1, 1, 2, 2],
