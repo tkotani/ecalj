@@ -367,9 +367,7 @@ although the results formally does not depend on the LDA/GGA exchange-correlatio
 
 ## ${\bf q}$ and ${\bf G}$ vector generation. qg4gw
 
-*\... xxxxx under construction xxxxx\...\
-*
-To see the theory, read Section 3.2 in in [kotani_quasiparticle_2014]
+To see the theory, read Section 3.2 in [kotani_quasiparticle_2014].
 ${\bf k}$ points are the regular mesh points used for the integration
 in the BZ. Regular mesh points are given as
 $$\begin{aligned}
@@ -410,8 +408,6 @@ The algorism of `getgv2` is a little complicated.
 We first gives the upper and lower limits `n1max` $\le n_1 \le$ `n1min`,
 where ${\bf G}= n_1 Q_1 + n_2 Q_2 + n_3 Q_3$, $n_2$ and $n_3$ as well.
 
-*\... xxxxx under construction xxxxx\...\
-*
 
 
 Let us consider the three dimensional space of ${\bf x}= {\bf q}+{\bf G}$.
@@ -1303,8 +1299,6 @@ we can evaluate this in the similar manner of Eq. ((I57)).
 The second term can be evaluated from
 `rojb` and `sgpb` in the same manner of last section.
 
-*\... xxxxx under construction xxxxx\...\
-*(we will detail a little more\...)
 
 ## Offset-$\Gamma$ method; W(k=0) averaged in the $\Gamma$ cell. {#offset-gamma}
 
