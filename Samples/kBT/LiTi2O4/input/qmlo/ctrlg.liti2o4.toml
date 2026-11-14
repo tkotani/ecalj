@@ -211,6 +211,8 @@ deltaq_scale  = 0.1
 t_sigmaw = 1000.0
 t_tetrakbt    = -992.4     # (K) < 0: Im chi0 smeared by a Gaussian as wide as Fermi-Dirac at |T| (standard deviation 0.0057 Ha)
 KeepEigen     = false
+QforEPSau = false   # interpret <QforEPS> as a.u. (the former default; ctrlg_update.py)
+EMAXforGW = 99999.0   # eV (above EFermi) bands cutoff for Sigma; 99999 = no cutoff (the former default; ctrlg_update.py)
 
 # === BLOCKS: GW additional blocks (epsilon, etc.) ===
 # QforEPS / QforEPSL : q-point lists for dielectric function calc.

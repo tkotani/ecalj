@@ -144,6 +144,8 @@ QforEPS = """
  0d0 0d0 0.02d0
  0d0 0d0 0.04d0
 """
+QforEPSau = false   # interpret <QforEPS> as a.u. (the former default; ctrlg_update.py)
+EMAXforGW = 99999.0   # eV (above EFermi) bands cutoff for Sigma; 99999 = no cutoff (the former default; ctrlg_update.py)
 
 # === BLOCKS: raw multi-line blocks with no better home (QPNT, QforEPSL, hrotr) ===
 [blocks]

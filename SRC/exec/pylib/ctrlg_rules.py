@@ -8,6 +8,10 @@ Rules (2026-09-28):
      smeared by a Gaussian as wide as the Fermi-Dirac distribution at |T| (std = pi kB|T|/sqrt3), which replaces
      [gw] SmearX0 (no longer read). gw_tetrakbt() converts SmearX0 = s to t_tetrakbt = -T with the same width and
      adds t_tetrakbt = 0 (the former default) when it is missing, so the calculation stays the same.
+  3. (2026-11-14 14:33) [gw] carries t_sigmaw, HistBin_dw, HistBin_ratio, QforEPSau and EMAXforGW, always (the programs stop
+     without them; they had a code default different from the value the gwinit template writes). gw_required() adds a
+     missing one with the former code default: t_sigmaw from t_sigmakbt or esmr as m_GWinput converted them, else
+     1000 K; HistBin_dw = 1e-5; HistBin_ratio = 1.03; QforEPSau = false; EMAXforGW = 99999 (no cutoff).
 """
 import math
 import re
@@ -122,10 +126,49 @@ def gw_tetrakbt(text, name=''):
     return '\n'.join(out), '; '.join(msg)
 
 
+REQUIRED = (('HistBin_dw', '1e-5', 'bin width along the real axis at omega=0 (a.u.)'),
+            ('HistBin_ratio', '1.03', 'ratio of the bin widths'),
+            ('QforEPSau', 'false', 'interpret <QforEPS> as a.u.'),
+            ('EMAXforGW', '99999.0', 'eV (above EFermi) bands cutoff for Sigma; 99999 = no cutoff'))
+
+
+def gw_required(text, name=''):
+    """Rule 3. Return (new text, message)."""
+    L = text.split('\n')
+    i0, i1 = _section(L, 'gw')
+    if i0 is None:
+        return text, ''
+    has = lambda k: [i for i in range(i0 + 1, i1) if re.match(r'^\s*' + k + r'\s*=', L[i])]
+    val = lambda i: float(L[i].split('=', 1)[1].split('#')[0].strip())
+    add, msg = [], []
+    if not has('t_sigmaw'):
+        tsk, esm = has('t_sigmakbt'), has('esmr')
+        if tsk and val(tsk[0]) > 0:
+            T, src = val(tsk[0]), 't_sigmakbt'
+        elif esm and val(esm[0]) > 0:
+            T, src = val(esm[0]) * RY_EV / (1.81 * KB_EV), 'esmr'     # as m_GWinput converted it
+            T = float(f'{T:.6f}')
+        else:
+            T, src = 1000.0, 'the former default'
+        add.append(f't_sigmaw = {T}   # (K) Fermi-Dirac width of the levels in Sigma ({src}; ctrlg_update.py)')
+        msg.append(f't_sigmaw = {T} added ({src})')
+    for k, v, c in REQUIRED:
+        if not has(k):
+            add.append(f'{k} = {v}   # {c} (the former default; ctrlg_update.py)')
+            msg.append(f'{k} = {v} added')
+    if not add:
+        return text, ''
+    at = i1                                     # end of [gw], before trailing blank and comment lines
+    while at - 1 > i0 and (not L[at - 1].strip() or L[at - 1].lstrip().startswith('#')):
+        at -= 1
+    L[at:at] = add
+    return '\n'.join(L), '; '.join(msg)
+
+
 def update(text, name=''):
     """All rules. Return (new text, message)."""
     msgs = []
-    for f in (drop_counts, gw_tetrakbt):
+    for f in (drop_counts, gw_tetrakbt, gw_required):
         text, m = f(text, name)
         if m:
             msgs.append(m)

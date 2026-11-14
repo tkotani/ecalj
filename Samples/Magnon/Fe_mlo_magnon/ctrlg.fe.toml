@@ -130,6 +130,8 @@ deltaw         = 0.02       # (a.u.) numerical-derivative mesh for Z factor
 t_sigmaw      = 262        # (K) Fermi-Dirac width of the Sigma levels (from esmr = 0.003 Ry)
 QforEPSLIncLeft = true
 MagAtom        = 1
+QforEPSau = false   # interpret <QforEPS> as a.u. (the former default; ctrlg_update.py)
+EMAXforGW = 99999.0   # eV (above EFermi) bands cutoff for Sigma; 99999 = no cutoff (the former default; ctrlg_update.py)
 # ----------------------------------------------------------------
 # zmel_batch_gb = 0.4  # (GB) zmel batch size per rank; increase for large systems
 

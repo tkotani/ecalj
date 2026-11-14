@@ -113,6 +113,11 @@ pwemax = 3.0  # APW cutoff (Ry)
 # Touch only if you know what you are doing -- defaults are sensible.
 [gw]
 t_tetrakbt    = 0          # (K) chi0: 0 = T=0 tetrahedron, T > 0 = finite-temperature tetrahedron, -T = Gaussian on Im chi0
+t_sigmaw = 1000.0   # (K) Fermi-Dirac width of the levels in Sigma (the former default; ctrlg_update.py)
+HistBin_dw = 1e-5   # bin width along the real axis at omega=0 (a.u.) (the former default; ctrlg_update.py)
+HistBin_ratio = 1.03   # ratio of the bin widths (the former default; ctrlg_update.py)
+QforEPSau = false   # interpret <QforEPS> as a.u. (the former default; ctrlg_update.py)
+EMAXforGW = 99999.0   # eV (above EFermi) bands cutoff for Sigma; 99999 = no cutoff (the former default; ctrlg_update.py)
 # Blocks not yet structured — kept as raw text for round-trip
 
 # === MLO: muffin-tin based localized orbitals (see manual/mlo) ===

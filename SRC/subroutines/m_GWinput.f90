@@ -49,7 +49,8 @@
 !      SmearX0, SmearX0q0 -> t_tetrakbt = -T (2026-09-28). These two are NOT ignored: load_gw_section stops
 !                           when either is present (ctrlg_update.py converts), and it stops when
 !                           t_tetrakbt is missing.
-!      esmr, t_sigmakbt  -> t_sigmaw (2026-09-20); both are still read when t_sigmaw is absent.
+!      esmr, t_sigmakbt  -> t_sigmaw (2026-09-20). Since 2026-11-14 14:34 t_sigmaw is required and esmr / t_sigmakbt are
+!                           ignored (ctrlg_update.py converts them; until then they were read when t_sigmaw was absent).
 !                           (Comment corrected 2026-09-30 01:20: it listed SmearX0q0 among the ignored keys.)
 !      mlo_emax          -> retired (mlo_method=4 does not use it)
 !      esm_input.dat     -> [esm] section (see m_lmfinit; migrated in place)
@@ -82,13 +83,14 @@ module m_GWinput
   integer, protected, public :: iSigMode     = 3
   integer, protected, public :: niw          = 10
   integer, protected, public :: nband_chi0   = 99999  ! legacy extension.f90 default; effectively "all bands"
-  ! EMINforGW/EMAXforGW: legacy reads as REAL with default ±99999d0
+  ! EMINforGW/EMAXforGW: legacy reads as REAL with default ±99999d0. EMAXforGW is required in [gw] since 2026-11-14 14:34
+  ! (the gwinit template writes 15); the initial values below of the required keys are not used.
   real(8), protected, public :: EMINforGW    = -99999.0d0
   real(8), protected, public :: EMAXforGW    = 99999.0d0
   real(8), protected, public :: emax_sigm    = 3.0d0
   real(8), protected, public :: emax_chi0    = 999.0d0
   real(8), protected, public :: HistBin_ratio = 1.03d0
-  real(8), protected, public :: HistBin_dw   = 1.0d-5  ! legacy m_freq default
+  real(8), protected, public :: HistBin_dw   = 1.0d-5  ! legacy m_freq default. HistBin_dw/ratio required in [gw] since 2026-11-14
   real(8), protected, public :: deltaw       = 0.02d0
   real(8), protected, public :: SmearX0      = 0.0d0   ! (Ha) Gaussian smearing of Im chi0 along omega (dpsion5); 0=off. Not an input key
                                                       ! since 2026-09-28: set from t_tetrakbt < 0 (see there).
@@ -99,7 +101,7 @@ module m_GWinput
   logical, protected, public :: KeepPPOVL    = .false.
   logical, protected, public :: NormChk      = .false.
   logical, protected, public :: AnyQ         = .false.
-  logical, protected, public :: QforEPSau    = .false.
+  logical, protected, public :: QforEPSau    = .false.  ! required in [gw] since 2026-11-14
   logical, protected, public :: QforEPSunita = .false.
   logical, protected, public :: QforEPSLIncLeft = .false.
   ! t_tetrakbt (K, required in [gw] since 2026-09-28): how chi0 is smeared, by its sign.
@@ -112,12 +114,13 @@ module m_GWinput
   real(8), protected, public :: t_tetrakbt   = 0.0d0
   ! t_sigmaw: width (K) of the Fermi-Dirac kernel that smears the intermediate levels of the
   !   self-energy (Sigma_x = Gv and the pole term of Sigma_c = G(W-v)).  A numerical width, not a
-  !   full finite-T self-energy.  Default 1000 K ~ the former Gaussian esmr = 0.01 Ry.  Metals may
+  !   full finite-T self-energy.  Required in [gw] (the gwinit template writes 300 K; 1000 K, the code default
+  !   until 2026-11-14, is ~ the former Gaussian esmr = 0.01 Ry).  Metals may
   !   want 300-1000 K together with a finer k mesh.  The Fermi level is EFERMI_kbt when
   !   t_tetrakbt > 0 (chi0 also at finite T), EFERMI otherwise.
-  !   (2026-09-20: replaces esmr [Ry, Gaussian] and t_sigmakbt; both are read for compatibility.)
+  !   (2026-09-20: replaces esmr [Ry, Gaussian] and t_sigmakbt.)
   real(8), protected, public :: t_sigmaw     = 1000.0d0
-  real(8), parameter :: kb_ev = 8.6171d-5, rydberg_ev = 13.605693d0   ! for the esmr -> t_sigmaw conversion
+  real(8), parameter :: kb_ev = 8.6171d-5, rydberg_ev = 13.605693d0   ! for the t_tetrakbt < 0 -> SmearX0 conversion
   ! wcsmear (default true): in the real-axis pole term of Sigma_c, apply the Fermi-Dirac smearing of
   !   the intermediate level (t_sigmaw) to W_c(omega) itself instead of evaluating W_c at the mean
   !   energy (false = the old 3-point interpolation at the mean energy).  Removes the knife-edge sensitivity to sharp plasmon poles of W
@@ -507,6 +510,14 @@ contains
     use m_lgunit, only: stdo
     type(toml_table), pointer, intent(in) :: gw
     logical :: ok
+    ! (2026-11-14 14:34) t_sigmaw, HistBin_dw, HistBin_ratio, QforEPSau and EMAXforGW are required in [gw]: their code default
+    ! differed from the value the gwinit template writes. ctrlg_update.py adds a missing one with the former
+    ! code default (t_sigmaw from esmr / t_sigmakbt as before), so old inputs give the same results.
+    call need_gw_key(gw, 't_sigmaw')
+    call need_gw_key(gw, 'HistBin_dw')
+    call need_gw_key(gw, 'HistBin_ratio')
+    call need_gw_key(gw, 'QforEPSau')
+    call need_gw_key(gw, 'EMAXforGW')
     ! Integer scalars
     call gv_i(gw, 'iSigMode',      iSigMode)
     call gv_i(gw, 'niw',           niw)
@@ -519,25 +530,11 @@ contains
          '-T = Im chi0 smeared by a Gaussian as wide as the Fermi-Dirac distribution at T (the former SmearX0; '// &
          'metals, e.g. -1000). ctrlg_update.py adds it (0, or -T from SmearX0).')
     call gv_r(gw, 't_tetrakbt',    t_tetrakbt)
-    block   ! t_sigmaw, with the retired esmr (Ry, Gaussian) and t_sigmakbt (K) read for compatibility
-      real(8) :: tsk, esm
-      integer :: st1, st2, st3
-      call get_value(gw, 't_sigmaw', t_sigmaw, stat=st1)
-      tsk = -1d0; call get_value(gw, 't_sigmakbt', tsk, stat=st2)
-      esm = -1d0; call get_value(gw, 'esmr', esm, stat=st3)
-      if (st2 == 0 .and. tsk > 0d0) then
-        if (st1 /= 0) t_sigmaw = tsk
-        if (ipr) write(stdo,"(a)") ' m_GWinput: t_sigmakbt is retired -> use t_sigmaw (K); value copied'
-      endif
-      if (st3 == 0 .and. st1 /= 0 .and. (st2 /= 0 .or. tsk <= 0d0) .and. esm > 0d0) then
-        t_sigmaw = esm*rydberg_ev/(1.81d0*kb_ev)   ! Gaussian sigma (Ry) -> kBT with the same std (FD std = pi kBT/sqrt3 = 1.81 kBT)
-        if (ipr) write(stdo,"(a,f8.1,a)") ' m_GWinput: esmr is retired (Gaussian smearing); t_sigmaw =', &
-             t_sigmaw, ' K set from it. Please write t_sigmaw in [gw].'
-      elseif (st3 == 0) then
-        if (ipr) write(stdo,"(a)") ' m_GWinput: esmr is retired and ignored (the Sigma kernel is Fermi-Dirac of width t_sigmaw)'
-      endif
-      if (t_sigmaw < 0d0) call rx('m_GWinput: t_sigmaw must be >= 0 (K)')
-    end block
+    call gv_r(gw, 't_sigmaw',      t_sigmaw)   ! required (2026-11-14 14:34); esmr / t_sigmakbt are converted by ctrlg_update.py
+    if (gw%has_key('esmr') .or. gw%has_key('t_sigmakbt')) then
+      if (ipr) write(stdo,"(a)") ' m_GWinput: esmr / t_sigmakbt are retired and ignored (t_sigmaw is used)'
+    endif
+    if (t_sigmaw < 0d0) call rx('m_GWinput: t_sigmaw must be >= 0 (K)')
     call gv_l(gw, 'wcsmear',       wcsmear)
     block
       type(toml_array), pointer :: arr
@@ -705,6 +702,12 @@ contains
     call gv_rv3(gw, 'alpha_OffG_vec', alpha_OffG_vec)
     call gv_rv3(gw, 'wmat_rsite',     wmat_rsite)
   end subroutine load_gw_section
+  subroutine need_gw_key(gw, key)   ! stop when a required [gw] key is missing (2026-11-14 14:34)
+    type(toml_table), pointer, intent(in) :: gw
+    character(*), intent(in) :: key
+    if (.not. gw%has_key(key)) call rx('m_GWinput: [gw] '//key//' is required (2026-11-14); '// &
+         'ctrlg_update.py adds it with the former default (the result stays the same). See ecaljdoc manual/gwinput.')
+  end subroutine need_gw_key
 
   !> All mlo_* scalar keys. Shared by the new [mlo] section and, for backward
   !  compatibility, by a [gw] that still carries them.

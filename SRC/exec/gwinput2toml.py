@@ -286,6 +286,11 @@ def emit_toml(parsed: dict) -> str:
                 gw["t_tetrakbt"] = -smearx0_to_kelvin(sx)
                 sys.stderr.write(f"gwinput2toml: SmearX0 = {sx} -> t_tetrakbt = {gw['t_tetrakbt']} K\n")
         gw.setdefault("t_tetrakbt", 0)
+        # Keys required in [gw] since 2026-11-14 (they had a code default different from the gwinit template):
+        # a missing one gets the former code default, so the calculation stays the same.
+        for k, v in (("t_sigmaw", 1000.0), ("HistBin_dw", 1e-5), ("HistBin_ratio", 1.03),
+                     ("QforEPSau", False), ("EMAXforGW", 99999.0)):
+            gw.setdefault(k, v)
         for dead in ("GaussianFilterX0", "GaussSmear", "delta", "dw", "omg_c", "WgtQ0P", "SmearX0q0"):
             if dead in gw:
                 gw.pop(dead)

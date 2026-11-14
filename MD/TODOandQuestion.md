@@ -120,7 +120,8 @@
     `QforEPSau` true / false、`EMAXforGW` 15 / 99999（制限なし）— 後の 2 つは文書に未記載
   - コードの側が「書かれていない」印（番兵）のもの: `alpha_OffG` 1.0 / -1d60（無ければ別の既定に落ちる）、`mlo_w` 2.0 / huge（無ければ自動）、
     `t_tetrakbt` 300 / 0（必須なので既定は使われない）
-  - そろえるかどうか（どちらに合わせるか）は判断待ち
+  - → 2026-11-14 に、二重だった 5 つ（`t_sigmaw`、`HistBin_dw`、`HistBin_ratio`、`QforEPSau`、`EMAXforGW`）を必須にした（user「サンプルには書き込むようにしよう。その手順でやって」）。
+    `ctrlg_update.py` と `gwinput2toml.py` が前のコードの既定値で足す。Samples などの ctrlg 55 本に足した。番兵の 3 つはそのまま
 - ~~**ecaljdoc のメインドキュメント（`ecaljdoc/manual/README_tutorial.md`）の中身の問題 11 件。最後に user と一緒に見る**~~ → 2026-11-14 に GetStarted を書き直して全部直した（10 番の c,x,i,h はコードで確かめた）。サイドバーの Dielecric は残り（2026-11-14、翻訳したときに見つけた。
   user「よくわからないが最後に見ないといけない。おぼえといて」。直すときは日英とも。かっこの中はファイルの中を探す文字列）
   1. `cd TEST` のあとで `cat ecalj_auto/...`（`../ecalj_auto` のはず）（「cd TEST」）

@@ -142,6 +142,7 @@ QforGW = """
     0.0000000000000000     0.0000000000000000     0.0000000000000000
    -0.5000000000000000     0.5000000000000000     0.5000000000000000
 """
+QforEPSau = false   # interpret <QforEPS> as a.u. (the former default; ctrlg_update.py)
 
 # === PRODUCT_BASIS ===
 # pb_tolerance / pb_lcutmx : the cut-offs you may tune.

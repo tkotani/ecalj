@@ -236,6 +236,7 @@ QforGW = """
  0.2 0.0 0.0
  0.3 0.0 0.0
 """
+QforEPSau = false   # interpret <QforEPS> as a.u. (the former default; ctrlg_update.py)
 
 # === MLO: muffin-tin based localized orbitals (see manual/mlo) ===
 # mlo_method / mlo_delta / mlo_w shape the weight theta; mlo_lm lists the

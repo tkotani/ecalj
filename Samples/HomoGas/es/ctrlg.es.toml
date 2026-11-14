@@ -147,6 +147,8 @@ QforEPS = """
  0 0 0.0028284 
  0 0 0.004
 """
+QforEPSau = false   # interpret <QforEPS> as a.u. (the former default; ctrlg_update.py)
+EMAXforGW = 99999.0   # eV (above EFermi) bands cutoff for Sigma; 99999 = no cutoff (the former default; ctrlg_update.py)
 
 # === MLO: muffin-tin based localized orbitals (see manual/mlo) ===
 # mlo_method / mlo_delta / mlo_w shape the weight theta; mlo_lm lists the

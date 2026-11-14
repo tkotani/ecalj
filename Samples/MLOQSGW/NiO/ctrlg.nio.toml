@@ -177,6 +177,7 @@ QforGW = """
     0.0000000000000000     0.0000000000000000     0.0000000000000000
    -0.5000000000000000     0.5000000000000000     0.5000000000000000
 """
+QforEPSau = false   # interpret <QforEPS> as a.u. (the former default; ctrlg_update.py)
 
 # === BLOCKS: raw multi-line blocks with no better home (QPNT, QforEPSL, hrotr) ===
 [blocks]

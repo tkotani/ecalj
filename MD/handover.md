@@ -153,6 +153,9 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
 
 ## 6. 道具の癖
 
+- **古い ctrlg で GW が止まる**（2026-11-14 から）: `[gw]` の `t_sigmaw`、`HistBin_dw`、`HistBin_ratio`、`QforEPSau`、`EMAXforGW` は必須（`t_tetrakbt` は 2026-09-28 から）。
+  無いと「`[gw] … is required`」で止まる。`ctrlg_update.py ctrlg.<sname>.toml` が前のコードの既定値で足す（結果は変わらない）。古い `esmr`・`t_sigmakbt` は読まない
+  （`ctrlg_update.py` が `t_sigmaw` に換算）。他の機械の古い作業場所の ctrlg も同じ（ecaljdoc manual/gwinput、Changes.md 2026-11-14）
 - **VSCode のチャットのリンク**: md は相対でも絶対でも開くが、画像（png）は開かない。図を見せるときは、図を埋め込んだ md へリンクし、パスは素のテキストで添える。
   md では画像をリンクで包む `[![名前](パス.png)](パス.png)`。md の表の中の数式で `|` を生で書かない（`\vert` か `\mid`）（reference_vscode_links）
 - **ecaljdoc の図が ecalj のワークスペースのプレビューに出なかった**: Markdown Preview Enhanced がワークスペースを文字列の前方一致で判定したため（`/home/takao/ecalj` と

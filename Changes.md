@@ -3,6 +3,16 @@
 2026-10-02 に `Changes.txt` から改名した（中身は同じ。日付の行を見出しにし、本文の字下げを外しただけ）。
 新しい項目は一番上に `## YYYY-MM-DD (n)` で書く。要約は ecaljdoc の [manual/whatsnew.md](ecaljdoc/manual/whatsnew.md)。
 
+## 2026-11-14 (1)
+
+**使い方が変わる（古い ctrlg は止まる）**: `[gw]` の `t_sigmaw`、`HistBin_dw`、`HistBin_ratio`、`QforEPSau`、`EMAXforGW` を必須にした
+（`t_tetrakbt` は 2026-09-28 から必須）。どれも、コードの既定値（キーが無いときの値）が gwinit のテンプレートの値と違い、既定値が二重になっていた。
+無いと GW のプログラムは止まり、`ctrlg_update.py ctrlg.<sname>.toml` で足すように示す。`ctrlg_update.py` と `Legacy2toml.py` は、無いキーを
+それまでのコードの既定値で足すので、結果は変わらない: `t_sigmaw` は `t_sigmakbt` か `esmr` から換算（無ければ 1000 K）、`HistBin_dw = 1e-5`、
+`HistBin_ratio = 1.03`、`QforEPSau = false`、`EMAXforGW = 99999`（上限なし）。テンプレートは 300 K、1e-4、1.05、true、15 のまま。
+古い `esmr`・`t_sigmakbt` は読まなくなった（`ctrlg_update.py` が換算する）。Samples などの ctrlg 55 本に足した。説明は ecaljdoc の manual/gwinput（GW の設定）。
+このほか、使われなくなったコード（`m_keyvalue` と module 5 つ）を外した（ecaljdoc の manual/past_code）。
+
 ## 2026-10-09 (1)
 
 `ctrlg_addes.py` に `--rfloor`（軌道ごとに置く ES の半径の下限、既定 1.5 a.u.）を足した。空隙はあるのに ES の半径が下限を割って置けないとき、
