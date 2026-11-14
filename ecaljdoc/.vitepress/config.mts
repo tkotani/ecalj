@@ -6,7 +6,7 @@ import MarkdownItMathjax3 from 'markdown-it-mathjax3';
 const sidebarRoot = [
   {
     items: [
-      { text: 'GetStarted with AI (New!)', link: '/manual/getstartedAI' },
+      { text: 'GetStarted with AI!', link: '/manual/getstartedAI' },
       { text: 'ライセンス', link: '/manual/license' },
     ]
   },

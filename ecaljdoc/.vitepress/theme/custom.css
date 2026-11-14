@@ -185,3 +185,12 @@ html:has(.home-dark), html:has(.home-dark) body { background: #1b1b1f; }
    colour; the page being shown keeps the brand colour (2026-11-14). */
 #VPSidebarNav > .group > .VPSidebarItem.level-0:not(:has(> .item)) > .items > .VPSidebarItem.level-1 > .item .text { font-weight: 700; }
 #VPSidebarNav > .group > .VPSidebarItem.level-0:not(:has(> .item)) > .items > .VPSidebarItem.level-1:not(.is-active) > .item .text { color: var(--vp-c-text-1); }
+/* The two entrances, GetStarted with AI and the main document, stand out in the sidebar (both languages) (2026-11-14). */
+#VPSidebarNav a.VPLink[href$="/manual/getstartedAI"],
+#VPSidebarNav a.VPLink[href$="/manual/README_tutorial"] {
+  display: block; margin: 2px 0; padding: 2px 8px; border-radius: 6px; background: var(--vp-c-brand-soft);
+}
+#VPSidebarNav a.VPLink[href$="/manual/getstartedAI"] .text,
+#VPSidebarNav a.VPLink[href$="/manual/README_tutorial"] .text {
+  font-size: 15px; font-weight: 700; color: var(--vp-c-brand-1) !important;   /* over the bold-black rule for groups without a heading */
+}
