@@ -44,6 +44,11 @@ $$
 
 $g(𝜔)$ is nothing but the inverse of the operator $H-𝜔^2$ on the left-hand side of Eq. (GF3). When the displacement also depends on position (many masses connected by springs), $H$ is the matrix of spring constants (and damping); seeing the operator as a matrix, obtaining $g(𝜔)$ is the operation of inverting the matrix. The right-hand side of Eq. (GF2), too, is a product of a matrix $g$ and a vector $f$ when the times $t$ and $t'$ are seen as indices.
 
+Two lessons follow.
+
+- When the response $x(t)$ to the input $f(t)$ satisfies the differential equation (GF1), its solution is found by Eq. (GF2).
+- Eq. (GF4) may be written abstractly, staying in time, as $g(t-t') = 1/(m\partial^2 + \gamma\partial + k)$ ($\partial = d/dt$; the right-hand side is the $(t,t')$ element of the inverse of the differential operator). The Fourier transform, $\partial \to -i𝜔$, gives Eq. (GF4).
+
 **Dependence on position.** When the displacement $u(𝒓,t)$ also depends on position, as for a string or a membrane, the Green function is the response
 $g(𝒓,t;𝒓',t')$ at point $𝒓$ and time $t$ to a kick at point $𝒓'$ and time $t'$: $u(𝒓,t)=\int d𝒓' dt'\, g(𝒓,t;𝒓',t') f(𝒓',t')$.
 
