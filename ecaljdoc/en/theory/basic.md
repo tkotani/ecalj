@@ -88,7 +88,8 @@ $$
 - $\hat 𝜓^†_\mathrm{H}(𝒓,t) = e^{i\hat Ht/\hbar}\hat 𝜓^†(𝒓)e^{-i\hat Ht/\hbar}$.
 - The field operators of fermions satisfy the anticommutation relation $\{𝜓_\mathrm{H}(𝒓_1,t),𝜓_\mathrm{H}^†(𝒓_2,t)\} = 𝛿(𝒓_1-𝒓_2)$. Note that this is the equal-time anticommutation relation.
 - $T$ is the time-ordered product; it reorders the operators so that later times stand to the left and earlier times to the right.
-- Why the T product: in perturbation theory, symmetrizing the range of the time integrals (from $-\infty$ to $\infty$) brings in the step functions $𝜃(t_1-t_2)$ and $𝜃(t_2-t_1)$. On the other hand, to treat electrons ($t_1>t_2$: an electron is added and propagates) and holes ($t_2>t_1$: an electron is removed and propagates) together, the two are simply added in parallel. That sum is the two terms of the equation above, the T product.
+- Why the T product: in perturbation theory, symmetrizing the range of the time integrals (from $-\infty$ to $\infty$) brings in the step functions $𝜃(t_1-t_2)$ and $𝜃(t_2-t_1)$.
+- On the other hand, to treat electrons ($t_1>t_2$: an electron is added and propagates) and holes ($t_2>t_1$: an electron is removed and propagates) together, the two are simply added in parallel. That sum is the two terms of the equation above, the T product.
 - $𝜃(t)$: the step function, 1 for $t>0$ and 0 for $t<0$.
 - $\Psi_0$: the $N$-particle ground state in the Heisenberg picture, $\hat H\ket{\Psi_0} = E \ket{\Psi_0}$
 
