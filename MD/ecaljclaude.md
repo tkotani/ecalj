@@ -10,6 +10,7 @@ ecalj を Claude (LLM) で開発する際のガイドライン。
 | 何を知りたいか | 文書 |
 | --- | --- |
 | いまの状況、記憶の無いセッションへの引き継ぎ（計算機、取り決め、落とし穴） | [handover.md](handover.md) |
+| コードとサンプルで確かめた事実、ecaljdoc を直す手順（AI 向け、人間向けではない。2026-11-15） | [ecalj_knowledge.md](ecalj_knowledge.md) |
 | まだやっていないこと（やりかけ・未着手・判断待ち）と、やったこと | [TODOandQuestion.md](TODOandQuestion.md) |
 | 経緯、計測、判断の時刻（最新が上。ローカルなメモを含む） | [research_kotani_log.md](research_kotani_log.md) |
 | 片付けたものに入っていたノウハウ、trash に移したものの表 | [past_log.md](past_log.md)。ecaljdoc の UsageDetailed（その他の説明）から外した覚え書きは [usagedetailed_memos_20261114.md](usagedetailed_memos_20261114.md) |
