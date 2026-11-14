@@ -1728,14 +1728,14 @@ $\omega$ can be positive or negative; positive is for spin excitation $\beta
 
 In the tetrahedron method of ecalj, we can calculate Eq. ((I78)) as follows;
 $$\begin{aligned}
-{\rm Im}[K]([\omega_i,\omega_{i+1}])= 
+{\rm Im}[K]\,([\omega_i,\omega_{i+1}])= 
 \overline{\sum_{\bf k} } \sum_n \sum_{n'} M({\bf k},n,\beta;{\bf k}+{\bf q},n',\alpha)
 W_{\rm tet}(i,{\bf k},n,{\bf k}+{\bf q},n'),
 \end{aligned}
 \tag{I79}
 $$
 where $\overline{\sum_{\bf k} }$ is for discritized ${\bf k}$ points set by ecalj.
-${\rm Im}[K]([\omega_i,\omega_{i+1}])$ means the imaginary part (weight)
+${\rm Im}[K]\,([\omega_i,\omega_{i+1}])$ means the imaginary part (weight)
 in the interval $[\omega_i,\omega_{i+1}]$.\
 I think the t2g-eg separated motion is one of the interesting theme.
 (need to write a little more\...)\
