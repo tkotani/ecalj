@@ -362,7 +362,7 @@ since $W^{\rm c}(\omega)=W^{\rm c}(-\omega)$ only $\omega^{\rm I}_i\ge0$ are use
 $\omega^{\rm R}_i$ are the boundaries of the histogram bins of Eq. (I18a), and $w^{\rm R}_i$ are the three-point interpolation coefficients of $W^{\rm c}$ at $\varepsilon_{\mathbf q n}-\varepsilon_{\mathbf q-\mathbf k n'}$, including the step functions.
 Only $R^{\rm c}$ gives the lifetime (impact ionization rate); in the static $\Sigma^{\rm c}$ of QSGW, $W^{\rm c}$ in $R^{\rm c}$ is Hermitized.
 In the present code the step functions are smeared by the Fermi-Dirac kernel of `[gw] t_sigmaw` (K) instead of the infinitesimal $\delta$,
-and by default (`[gw] wcsmear = true`) $W^{\rm c}(\omega)$ itself is integrated over that kernel; the three-point interpolation of [Obata2025] is `wcsmear = false` ([kBT](./kBT)).
+and by default (`[gw] wcsmear = true`) $W^{\rm c}(\omega)$ itself is integrated over that kernel; the three-point interpolation of [Obata2025] is `wcsmear = false` ([kBT](./kBT)).<span class="clfix"> The integration over the kernel (`wcsmear = true`) is an improvement made after [Obata2025]; it removes the sensitivity to sharp plasmon poles of $W^{\rm c}(\omega)$.</span>
 
 The first key point, given in Sec.([§](#offset-gamma)),
 is the improved offset-$\Gamma$ method, which treats
