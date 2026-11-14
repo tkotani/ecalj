@@ -17,7 +17,7 @@ const sidebarRoot = [
       { text: '入力ファイル', link: '/manual/toml_migration' },
       { text: 'バンドプロットの対称ライン: syml.&lt;sname&gt;', link: '/manual/syml' },
       { text: 'DFT の計算: lmf', link: '/manual/lmf' },
-      { text: 'Command-line options: lmf part', link: '/manual/cmdopts' },
+      { text: 'コマンドラインのオプション: lmf', link: '/manual/cmdopts' },
       { text: 'ドーピング（背景電荷）', link: '/manual/Memo_bgcharge' },
       { text: 'ESM（真空のあるスラブ）', link: '/manual/esm' },
       { text: '力と構造の緩和', link: '/manual/relax' },
@@ -111,6 +111,7 @@ const enText: Record<string, string> = {
   'MLO-gwsc — Sigma を MLO 表現で内挿する QSGW': 'MLO-gwsc — QSGW interpolating Sigma in the MLO representation',
   'ecalj のバンド計算法': 'Band-structure method of ecalj',
   'DFT の計算: lmf': 'DFT calculation: lmf',
+  'コマンドラインのオプション: lmf': 'Command-line options: lmf',
   'GW 近似': 'GW approximation',
   '光学的性質': 'Optical properties',
 }

@@ -42,9 +42,9 @@ mpirun -np 4 lmf si [options] > llmf
 これは `ctrlg.si.toml` のある場合です。
 
 ### オプション
-* 途中で止めるオプション: `--quit=show`、`--quit=ham`、`--quit=mkpot`、`--quit=dmat`、`--quit=band`（[Command-line options](./cmdopts) を参照）。
+* 途中で止めるオプション: `--quit=show`、`--quit=ham`、`--quit=mkpot`、`--quit=dmat`、`--quit=band`（[コマンドラインのオプション](./cmdopts) を参照）。
 * `--tdos`: 全状態密度の計算。ふつうは `job_tdos` を使います。
-* `--ctrlg:<節.キー>=<値>`: 一回の実行だけキーを変えます。[Command-line options](./cmdopts#run-time-ctrlg-overrides) を参照。
+* `--ctrlg:<節.キー>=<値>`: 一回の実行だけキーを変えます。[コマンドラインのオプション](./cmdopts#run-time-ctrlg-overrides) を参照。
 
 電子密度の図や BoltzTraP などのためのオプションもあります（まだ説明していません）。
 
@@ -262,7 +262,7 @@ core = [
 
 ## 実行時の `--ctrlg:` による上書き
 
-一回の実行だけキーを変えるには `--ctrlg:<節.キー>=<値>` を付けます（例 `lmf si --ctrlg:bz.nkabc=[8,8,8]`）。ファイルは書き換えません。書き方の細部、ファイルに無いキーの扱い、やめた古い書き方（`-v<NAME>=<VAL>` など。使うと止まります）は [Command-line options](./cmdopts#run-time-ctrlg-overrides) にあります。
+一回の実行だけキーを変えるには `--ctrlg:<節.キー>=<値>` を付けます（例 `lmf si --ctrlg:bz.nkabc=[8,8,8]`）。ファイルは書き換えません。書き方の細部、ファイルに無いキーの扱い、やめた古い書き方（`-v<NAME>=<VAL>` など。使うと止まります）は [コマンドラインのオプション](./cmdopts#run-time-ctrlg-overrides) にあります。
 
 古い `ctrl.<sname>` のキーと TOML のパスの対応は [入力ファイル](./toml_migration#legacy-toml-map) にあります。
 ESM（真空のあるスラブ）の `[esm]` の節は [ESM](./esm) のページにあります。
