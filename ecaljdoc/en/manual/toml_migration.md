@@ -1,6 +1,6 @@
 # Input file {#toml-migration-2026-05}
 
-> English version of the page [manual/toml_migration](../../manual/toml_migration.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/toml_migration.md of commit 034c2b739 (source blob 124e54a572b3).
+> English version of the page [manual/toml_migration](../../manual/toml_migration.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/toml_migration.md of commit 034c2b739 (source blob 60cac4fcbc2f).
 
 ecalj consists of the one-body part (the DFT part) and the GW part.
 
@@ -132,8 +132,8 @@ quote-stripping is forgiving.
 >
 > - `--ctrlg:bz.nkabc=[8,8,8]` — directly set the value at TOML path
 >   `[bz].nkabc` in `ctrlg.<sname>.toml` for this run, in memory.
->   No `%const` indirection; no on-disk rewrite. The path must match
->   a real key in the schema. Each applied override is logged on
+>   No `%const` indirection; no on-disk rewrite. <del class="clfix">The path must match
+>   a real key in the schema.</del><span class="clfix">A key that the file does not carry is added (since 2026-09-30); a misspelled key is added too and read by no program, so check the log line ([cmdopts](./cmdopts)).</span> Each applied override is logged on
 >   rank 0 so it appears in `llmf` etc.
 >
 > Practical consequences:

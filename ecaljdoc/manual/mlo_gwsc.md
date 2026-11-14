@@ -172,7 +172,7 @@ pwmode = 11                 # |q+G| 打ち切り（既定）
 [gw]
 n1n2n3  = [6, 6, 6]
 mixbeta = 0.5               # sigm と Sigma^MLO の混合
-t_sigmaw   = 1000.0         # (K) Sigma の中間準位の Fermi-Dirac の幅（既定）
+t_sigmaw   = 1000.0         # (K) Sigma の中間準位の Fermi-Dirac の幅（必須）
 t_tetrakbt = -992.4         # (K) 負: chi0 は T=0 のまま Im chi0 を FD およそ 1000 K と同じ幅の Gaussian で均す（以前の SmearX0 = 0.0057 Ha）。金属の W の極を均す（[kBT](./kBT) の<del class="clfix">「実用の設定」</del><span class="clfix">冒頭の「LiTi₂O₄ の設定」と §2.4</span>）
 [mlo]
 mlo_method = 4              # 既定

@@ -1,6 +1,6 @@
 # quasi-particle self-consistent $GW$
 
-> English version of the page [theory/qsgw](../../theory/qsgw.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/qsgw.md of the tree of c9f9a3003 (source blob ff7b5571c7e9).
+> English version of the page [theory/qsgw](../../theory/qsgw.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/qsgw.md of the tree of c9f9a3003 (source blob 9f023bde0378).
 
 > **Main reference.** [1] M. Obata, T. Kotani, T. Oda, "Efficient implementation of the quasiparticle self-consistent $GW$ method on GPU",
 > Comput. Mater. Sci. **260**, 114190 (2025), [doi:10.1016/j.commatsci.2025.114190](https://doi.org/10.1016/j.commatsci.2025.114190) (open access).
@@ -8,8 +8,8 @@
 > the program names there are of that time: now `hgw` computes $\Sigma^{\rm x}$, $W$ and $\Sigma^{\rm c}$ in one run, and `hsfp0_sc` computes $\Sigma^{\rm Cx}$).
 
 > **Changes since [1].** The present code follows [1], with these changes (details and dates in `Changes.md` of the repository):
-> - **Smearing of Σ** (2026-09): the Gaussian smearing (`esmr`) is replaced by a Fermi-Dirac kernel of width `t_sigmaw` (K, default 1000 K)
->   in $\Sigma^{\rm x}$, in the real-axis pole part $R^{\rm c}$ and in the imaginary-axis part $I^{\rm c}$; an old `esmr` is read as the `t_sigmaw` of the same width.
+> - **Smearing of Σ** (2026-09): the Gaussian smearing (`esmr`) is replaced by a Fermi-Dirac kernel of width `t_sigmaw` (K, <del class="clfix">default 1000 K</del><span class="clfix">required since 2026-11-14</span>)
+>   in $\Sigma^{\rm x}$, in the real-axis pole part $R^{\rm c}$ and in the imaginary-axis part $I^{\rm c}$; <del class="clfix">an old `esmr` is read as the `t_sigmaw` of the same width.</del><span class="clfix">an old `esmr` is converted to `t_sigmaw` of the same width by `ctrlg_update.py`.</span>
 >   With `wcsmear = true` (default) the pole part integrates $W^{\rm c}$ over this kernel instead of evaluating it at one energy (3-point interpolation of [1]).
 >   See [kBT](../manual/kBT).
 > - **Smearing of χ0** (2026-06 to 09): chosen by the required key `[gw] t_tetrakbt`: 0 = the tetrahedron method of [1] (T = 0), T > 0 = the tetrahedron

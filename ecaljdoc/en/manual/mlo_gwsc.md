@@ -1,6 +1,6 @@
 # MLO-gwsc — QSGW interpolating the self-energy in the MLO representation (under development)
 
-> English version of the page [manual/mlo_gwsc](../../manual/mlo_gwsc.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo_gwsc.md of commit 8e38c105c (source blob a5f53889fe6c).
+> English version of the page [manual/mlo_gwsc](../../manual/mlo_gwsc.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo_gwsc.md of commit 8e38c105c (source blob 6863261db7c8).
 
 > **Status (2026-09-30)**: LiTi₂O₄ at 6³ and 9³ was run from LDA up to 40 iterations (§3.5). The difference in the MLO bands due to the precision of the GPU matrix products (tf32, fp32, fp64) is
 > a few meV or less, so the fast tf32 may be used. At 10 iterations it is still converging; at 6³ a shoulder appears in the occupied bands from iteration 20, and at 9³ the bands become fairly smooth at 40 iterations.
@@ -174,7 +174,7 @@ pwmode = 11                 # |q+G| cutoff (default)
 [gw]
 n1n2n3  = [6, 6, 6]
 mixbeta = 0.5               # mixing of sigm and Sigma^MLO
-t_sigmaw   = 1000.0         # (K) Fermi-Dirac width of the intermediate levels of Sigma (default)
+t_sigmaw   = 1000.0         # (K) Fermi-Dirac width of the intermediate levels of Sigma (required)
 t_tetrakbt = -992.4         # (K) negative: chi0 stays T=0 and Im chi0 is smeared by a Gaussian as wide as FD at about 1000 K (former SmearX0 = 0.0057 Ha). Smears the poles of W of metals (<del class="clfix">"Practical settings" of [kBT](./kBT)</del><span class="clfix">"Settings for LiTi₂O₄" at the top of [kBT](./kBT), and its §2.4</span>)
 [mlo]
 mlo_method = 4              # default

@@ -10,7 +10,7 @@ ecalj の新しい機能と、結果が変わる修正の要約。新しい順�
 - **温度と均し方の指定は、`[gw]` の 2 つのキー `t_tetrakbt` と `t_sigmaw` だけになった**（単位は K）→ [kBT](./kBT.md) 表 4
   - `t_tetrakbt`（χ0 側、必須）: 0 は T = 0 のテトラヘドロン法（均さない）、正の値 T は温度 T の有限温度のテトラヘドロン法、
     負の値 −T は T = 0 のテトラヘドロン法で作った Im χ0 を、温度 T の Fermi–Dirac と同じ幅の Gaussian で均す → [kBT](./kBT.md) §2
-  - `t_sigmaw`（Σ 側、既定 1000）: Σx・Σc の中間準位を均す Fermi–Dirac 核の幅 → [kBT](./kBT.md) §3
+  - `t_sigmaw`（Σ 側、<del class="clfix">既定 1000</del><span class="clfix">2026-11-14 から必須</span>）: Σx・Σc の中間準位を均す Fermi–Dirac 核の幅 → [kBT](./kBT.md) §3
   - 以前のキー `SmearX0`・`esmr`・`tetrakbt = true`・`t_sigmakbt` は使わない（`SmearX0` が残っていると止まり、`ctrlg_update.py` が書き換える。
     キーの変遷は [kBT](./kBT.md) §2.5 の表 2）
   - `wcsmear`（既定 true）は温度ではなく、Σc の実軸の極の項で極の位置にも同じ核を使うスイッチ。既定のままでよい。

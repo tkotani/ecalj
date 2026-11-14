@@ -305,8 +305,8 @@ The completion has two data sources, each with a different freshness:
 The mapping mirrors the parser:
 
 - A `ctrlg.*.toml` key only appears as a completion if it really exists
-  in that file — so a TAB-completed `--ctrlg:` path never triggers the
-  "key not found in target section" abort from `m_toml_override`.
+  in that file — so a TAB-completed `--ctrlg:` path <del class="clfix">never triggers the
+  "key not found in target section" abort from `m_toml_override`</del><span class="clfix">is never a misspelled key (a key that the file does not carry is added, since 2026-09-30)</span>.
 - A `--<flag>` only appears if it is registered in
   `m_cmdopt_registry::load_cmdopt0_registry` /
   `load_cmdopt2_registry` — so a TAB-completed flag never triggers

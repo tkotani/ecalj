@@ -1,6 +1,6 @@
 # What's new (summary)
 
-> English version of the page [manual/whatsnew](../../manual/whatsnew.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/whatsnew.md of commit 0b4c05734 (source blob ed1b2a66fe70).
+> English version of the page [manual/whatsnew](../../manual/whatsnew.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/whatsnew.md of commit 0b4c05734 (source blob 6261a5fd4927).
 
 A summary of new features of ecalj and of fixes that change results. Newest first. The detailed record (all changes) is ecalj's
 [Changes.md](https://github.com/tkotani/ecalj/blob/main/Changes.md). Each item is explained on the linked page.
@@ -12,7 +12,7 @@ A summary of new features of ecalj and of fixes that change results. Newest firs
 - **Temperature and smearing are now specified only by the two `[gw]` keys `t_tetrakbt` and `t_sigmaw`** (unit K) → [kBT](./kBT.md) Table 4
   - `t_tetrakbt` (χ0 side, required): 0 is the T = 0 tetrahedron method (no smearing); a positive value T is the finite-temperature tetrahedron method at temperature T;
     a negative value −T smears the Im χ0 made by the T = 0 tetrahedron method with a Gaussian of the same width as the Fermi–Dirac function at temperature T → [kBT](./kBT.md) §2
-  - `t_sigmaw` (Σ side, default 1000): width of the Fermi–Dirac kernel that smears the intermediate levels of Σx and Σc → [kBT](./kBT.md) §3
+  - `t_sigmaw` (Σ side, <del class="clfix">default 1000</del><span class="clfix">required since 2026-11-14</span>): width of the Fermi–Dirac kernel that smears the intermediate levels of Σx and Σc → [kBT](./kBT.md) §3
   - The former keys `SmearX0`, `esmr`, `tetrakbt = true`, `t_sigmakbt` are not used (if `SmearX0` remains, the program stops; `ctrlg_update.py` rewrites it.
     History of the keys in Table 2 of [kBT](./kBT.md) §2.5)
   - `wcsmear` (default true) is not a temperature but a switch to use the same kernel also for the pole positions in the real-axis pole term of Σc. Keep the default.

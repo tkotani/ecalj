@@ -12,7 +12,7 @@ $\Sigma$ 側の `t_sigmaw` は常に有効な数値的な幅、$\chi_0$ 側の `
 | キー | どこに効くか | 既定 |
 |---|---|---|
 | `t_tetrakbt`(必須) | $\chi_0$ の均し方を符号で選ぶ(0: 均さない、$T>0$: 有限温度のテトラヘドロン、$-T$: Gaussian。§2 の表 1) | 無し(書かないと止まる) |
-| `t_sigmaw` | $\Sigma_x=Gv$、$\Sigma_c=G(W-v)$ の中間準位を均す Fermi-Dirac 核の幅(§3) | 1000 |
+| `t_sigmaw`<span class="clfix">(必須)</span> | $\Sigma_x=Gv$、$\Sigma_c=G(W-v)$ の中間準位を均す Fermi-Dirac 核の幅(§3) | <del class="clfix">1000</del><span class="clfix">無し(2026-11-14 から必須。それまでのコードの既定値は 1000)</span> |
 | `wcsmear` | $\Sigma_c$ の実軸極項で、極の位置にも同じ核を使って $W_c$ を積分する(§3.5) | true |
 | `chi0_skip_window` = [emin, emax] (eV) | 両端がこの窓に入るバンド対を $\chi_0$ から除く(cRPA 風。試験中) | off |
 
@@ -237,12 +237,13 @@ $-T$ は Gaussian の幅を温度で書く約束であって、有限温度の $
 | 〜2026-06 | `GaussianFilterX0`(GWinput、$\mathrm{Im}\chi_0$ の Gaussian) | `esmr`(Ry、Gaussian) |
 | 2026-06 〜 09-18 | 有限温度は論理キー `tetrakbt = true` と `t_tetrakbt` (K)。Gaussian は `SmearX0`(Ha、$\sigma$。`GaussianFilterX0` の改名) | `esmr`、または `t_sigmakbt`(K、Fermi-Dirac) |
 | 09-19 〜 09-27 | `t_tetrakbt > 0` だけで有限温度(既定 0 = 均さない)。`SmearX0` は 09-20 から `t_tetrakbt > 0` と排他 | 09-20 から `t_sigmaw`(K、Fermi-Dirac)。`esmr` と `t_sigmakbt` は換算して読む |
-| 09-28 〜 | `t_tetrakbt` は必須で、符号で 3 通り(表 1)。`SmearX0` は読まない(書いてあれば止まる) | `t_sigmaw` |
+| 09-28 〜 <span class="clfix">11-13</span> | `t_tetrakbt` は必須で、符号で 3 通り(表 1)。`SmearX0` は読まない(書いてあれば止まる) | `t_sigmaw`<span class="clfix">(無ければ `esmr`・`t_sigmakbt` を換算して読み、それも無ければ 1000 K)</span> |
+| <span class="clfix">11-14 〜</span> | <span class="clfix">同上</span> | <span class="clfix">`t_sigmaw` は必須。`esmr`・`t_sigmakbt` は読まない(`ctrlg_update.py` が換算して `t_sigmaw` を書く)</span> |
 
 - `SmearX0 = s` と `t_tetrakbt = -T` は、式 (7) で $s\,[\mathrm{Ha}]=\pi k_BT/\sqrt3$ のとき同じ計算になる(0.0057 Ha と $-992.4$ K)。
   `ctrlg_update.py ctrlg.<sname>.toml` がこの換算で書き換え、`t_tetrakbt` の無いファイルには 0(以前の既定)を足す
 - `esmr` = $e$ (Ry、Gaussian の標準偏差)と `t_sigmaw` = $T$ は、$e=\pi k_BT/\sqrt3$ のとき同じ幅になる(0.003 Ry と 262 K、0.01 Ry と 872 K<span class="clfix">。コードは $\pi/\sqrt3$ を 1.81 に丸めて換算するのでこの値になる。丸めなければ 261 K と 870 K</span>)。
-  `t_sigmaw` が無い入力に `esmr` や `t_sigmakbt` があれば、`esmr` はこの換算で、`t_sigmakbt` は値のまま `t_sigmaw` として読む
+  <del class="clfix">`t_sigmaw` が無い入力に `esmr` や `t_sigmakbt` があれば、`esmr` はこの換算で、`t_sigmakbt` は値のまま `t_sigmaw` として読む</del><span class="clfix">2026-11-14 からは `esmr` と `t_sigmakbt` を読まない。`ctrlg_update.py` が、`esmr` はこの換算で、`t_sigmakbt` は値のまま `t_sigmaw` として書き足す</span>
 - gwinit のテンプレートは 2026-06 から 09-16 まで `tetrakbt = true`、`t_tetrakbt = 300` を書いていた(09-17 に外した)。
   09-28 からは `t_tetrakbt = 300`、`t_sigmaw = 300` を書く
 
@@ -256,7 +257,7 @@ $\Sigma_x = Gv$ の占有重み、$\Sigma_c = G(W-v)$ の実軸極項の窓重�
 
 ```toml
 [gw]
-t_sigmaw   = 1000.0   # (K) Sigma の準位を均す FD 核の幅。既定 1000
+t_sigmaw   = 1000.0   # (K) Sigma の準位を均す FD 核の幅(必須。2026-11-13 までの既定は 1000)
 t_tetrakbt = 1000.0   # chi0 も有限温度にするなら。Sigma の Fermi 準位が EFERMI_kbt になる
 ```
 
@@ -333,7 +334,7 @@ $$
 
 ```toml
 [gw]
-t_sigmaw   = 1000.0   # 既定値。wcsmear = true も既定
+t_sigmaw   = 1000.0   # 2026-11-13 までの既定値。wcsmear = true は既定
 t_tetrakbt = 1000.0   # chi0 側も有限温度にするなら
 ```
 

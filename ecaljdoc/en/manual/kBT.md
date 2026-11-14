@@ -1,6 +1,6 @@
 # kBT — finite temperature and smearing (`t_tetrakbt` / `t_sigmaw` / `wcsmear`)
 
-> English version of the page [manual/kBT](../../manual/kBT.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/kBT.md of commit 8e38c105c (source blob 4cbb3639d22e).
+> English version of the page [manual/kBT](../../manual/kBT.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/kBT.md of commit 8e38c105c (source blob 06c1fce5bb69).
 
 This page explains the `[gw]` keys that set the electron temperature and the numerical smearing in GW and QSGW. The $W$ side ($\chi_0$) and the $\Sigma$ side ($G$) have separate keys (Table 4).
 On the $\Sigma$ side, `t_sigmaw` is a numerical width that is always active. On the $\chi_0$ side, `t_tetrakbt` is mandatory: positive means a physical electron temperature,
@@ -14,7 +14,7 @@ This page describes the current specification. For the history of the keys, need
 | Key | Where it acts | Default |
 |---|---|---|
 | `t_tetrakbt` (mandatory) | selects the smearing of $\chi_0$ by its sign (0: no smearing, $T>0$: finite-temperature tetrahedron, $-T$: Gaussian; Table 1 in §2) | none (stops if absent) |
-| `t_sigmaw` | width of the Fermi-Dirac kernel that smears the intermediate levels in $\Sigma_x=Gv$ and $\Sigma_c=G(W-v)$ (§3) | 1000 |
+| `t_sigmaw`<span class="clfix"> (required)</span> | width of the Fermi-Dirac kernel that smears the intermediate levels in $\Sigma_x=Gv$ and $\Sigma_c=G(W-v)$ (§3) | <del class="clfix">1000</del><span class="clfix">none (required since 2026-11-14; the code default until then was 1000)</span> |
 | `wcsmear` | in the real-axis pole term of $\Sigma_c$, integrates $W_c$ with the same kernel also over the pole position (§3.5) | true |
 | `chi0_skip_window` = [emin, emax] (eV) | removes from $\chi_0$ the band pairs whose both ends lie in this window (cRPA-like; under test) | off |
 
@@ -239,12 +239,13 @@ The input value is converted by `m_GWinput` into $\sigma$ (Ha; internal variable
 | until 2026-06 | `GaussianFilterX0` (GWinput, Gaussian of $\mathrm{Im}\chi_0$) | `esmr` (Ry, Gaussian) |
 | 2026-06 to 09-18 | finite temperature by the logical key `tetrakbt = true` and `t_tetrakbt` (K). Gaussian by `SmearX0` (Ha, $\sigma$; renamed from `GaussianFilterX0`) | `esmr`, or `t_sigmakbt` (K, Fermi-Dirac) |
 | 09-19 to 09-27 | finite temperature by `t_tetrakbt > 0` alone (default 0 = no smearing). From 09-20 `SmearX0` is exclusive with `t_tetrakbt > 0` | from 09-20 `t_sigmaw` (K, Fermi-Dirac). `esmr` and `t_sigmakbt` are read with conversion |
-| from 09-28 | `t_tetrakbt` is mandatory, 3 cases by its sign (Table 1). `SmearX0` is not read (stops if written) | `t_sigmaw` |
+| from 09-28 <span class="clfix">to 11-13</span> | `t_tetrakbt` is mandatory, 3 cases by its sign (Table 1). `SmearX0` is not read (stops if written) | `t_sigmaw`<span class="clfix"> (if absent, `esmr` / `t_sigmakbt` converted, else 1000 K)</span> |
+| <span class="clfix">from 11-14</span> | <span class="clfix">same</span> | <span class="clfix">`t_sigmaw` is required; `esmr` and `t_sigmakbt` are not read (`ctrlg_update.py` writes `t_sigmaw` from them)</span> |
 
 - `SmearX0 = s` and `t_tetrakbt = -T` give the same calculation when $s\,[\mathrm{Ha}]=\pi k_BT/\sqrt3$ by Eq. (7) (0.0057 Ha and $-992.4$ K).
   `ctrlg_update.py ctrlg.<sname>.toml` rewrites with this conversion, and adds 0 (the former default) to files without `t_tetrakbt`
 - `esmr` = $e$ (Ry, standard deviation of the Gaussian) and `t_sigmaw` = $T$ give the same width when $e=\pi k_BT/\sqrt3$ (0.003 Ry and 262 K, 0.01 Ry and 872 K<span class="clfix">; the code rounds $\pi/\sqrt3$ to 1.81, which gives these values; without the rounding they are 261 K and 870 K</span>).
-  If an input without `t_sigmaw` has `esmr` or `t_sigmakbt`, `esmr` is read as `t_sigmaw` with this conversion, and `t_sigmakbt` with its value unchanged
+  <del class="clfix">If an input without `t_sigmaw` has `esmr` or `t_sigmakbt`, `esmr` is read as `t_sigmaw` with this conversion, and `t_sigmakbt` with its value unchanged</del><span class="clfix">Since 2026-11-14 `esmr` and `t_sigmakbt` are not read; `ctrlg_update.py` writes `t_sigmaw` from `esmr` with this conversion, and from `t_sigmakbt` with its value unchanged</span>
 - The gwinit template wrote `tetrakbt = true`, `t_tetrakbt = 300` from 2026-06 to 09-16 (removed on 09-17).
   From 09-28 it writes `t_tetrakbt = 300`, `t_sigmaw = 300`
 
@@ -257,7 +258,7 @@ the same kernel is used for all of: the occupation weights of $\Sigma_x = Gv$, t
 
 ```toml
 [gw]
-t_sigmaw   = 1000.0   # (K) width of the FD kernel smearing the levels in Sigma. default 1000
+t_sigmaw   = 1000.0   # (K) width of the FD kernel smearing the levels in Sigma (required; the default until 2026-11-13 was 1000)
 t_tetrakbt = 1000.0   # if chi0 is also at finite temperature. The Fermi level of Sigma becomes EFERMI_kbt
 ```
 
@@ -334,7 +335,7 @@ a few meV for low-lying states), and the pole is smoothed over the kernel width 
 
 ```toml
 [gw]
-t_sigmaw   = 1000.0   # default. wcsmear = true is also the default
+t_sigmaw   = 1000.0   # the default until 2026-11-13. wcsmear = true is the default
 t_tetrakbt = 1000.0   # if the chi0 side is also at finite temperature
 ```
 
