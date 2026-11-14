@@ -11,7 +11,7 @@ On the Green function at zero temperature
 
 The linear response (impulse response) of a spring is the basis of the Green function.
 
-**Impulse response of a spring.** For a damped spring (mass $m$, damping $\gamma$, spring constant $k$) driven by a force $f(t)$, the displacement $x(t)$ obeys
+**Impulse response of a spring.** For a damped spring (mass $m$, damping $\gamma$, spring constant $k$) driven by a force $f(t)$ (the source term), the displacement $x(t)$ obeys
 
 $$
 m\ddot x + \gamma \dot x + k x = f(t)
@@ -109,7 +109,7 @@ $$
 \tag{Ge2}
 $$
 
-where the right-hand side is the kick (the same form as Eq. (GF1) with $f=𝛿$). This state seen at point $𝒓_1$ (an electron taken out at point $𝒓_1$ and overlapped with the ground state) is the electron Green function:
+where the right-hand side is the source term, the kick (the same form as Eq. (GF1) with $f=𝛿$). This state seen at point $𝒓_1$ (an electron taken out at point $𝒓_1$ and overlapped with the ground state) is the electron Green function:
 
 $$
 \begin{aligned}
@@ -126,7 +126,7 @@ x(𝒓_1,t_1) = \int d𝒓_2\, dt_2\; iG_\mathrm{ele}(𝒓_1t_1, 𝒓_2t_2)\, f(
 \tag{Ge3}
 $$
 
-(the same linear-response form as Eq. (GF2)).
+(the same linear-response form as Eq. (GF2)). The basic equation is Eq. (Ge2). For an arbitrary input, the right-hand side as the source term is replaced by $i\hbar\int d𝒓_2\, f(𝒓_2,t_1)\,\hat 𝜓^†(𝒓_2)\ket{\Psi_0(t_1)}$, and the solution seen at point $𝒓_1$ is Eq. (Ge3).
 
 **Hole Green function.** At time $t_1$ remove one electron at point $𝒓_1$. The response is the remaining $(N-1)$-electron state,
 
