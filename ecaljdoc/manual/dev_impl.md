@@ -972,7 +972,7 @@ $$\begin{aligned}
 \end{aligned}
 \tag{I47}
 $$
-where the Hankel function for negative energy $E$.
+where <del class="clfix">the Hankel function for negative energy $E$.</del><span class="clfix">$E\lt 0$ (Hankel functions of negative energy).</span>
 Here $E$-dependence of $S_{ {\bf X}'{L},{\bf X}{L'} }$ is not explicitly shown.
 Note the difference between $\bar{J}_L$ and $J_L$ ($\bar{H}_L$, as well).
 
@@ -1004,14 +1004,17 @@ S^{\bf k}_{ {\bf R}{L},{\bf R}'{L'} }=
 \end{aligned}
 \tag{I49}
 $$
-Usually we use bare Coulomb at $E=0$.\
-[ No 4$\pi$ factor in the definition of $S^{ {\bf k} }_{ {\bf R}{L},{\bf R}'{L'} }$]{.underline}\
-See the top of `strxq` defined in strxq.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span> (called in hvccfp0.m.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>).
+<del class="clfix">Usually we use bare Coulomb at $E=0$.</del><span class="clfix">We use $E=-10^{-5}$ by default (`screenfac`), nearly the bare Coulomb interaction.</span>
+<del class="clfix">[ No 4$\pi$ factor in the definition of $S^{ {\bf k} }_{ {\bf R}{L},{\bf R}'{L'} }$]{.underline}</del>
+See the top of `strxq` defined in <del class="clfix">strxq.F</del><span class="clfix">`m_hvccfp0_util.f90`</span> (called in <del class="clfix">hvccfp0.m.F</del><span class="clfix">`main_hvccfp0.f90`; for $E\lt 0$ all pairs at once by `strxq_all`</span>).
 This routine is for the one-center expansion of
 usual Bloch summed Hankels. (not for smooth Hankels).
 This result is finally converted to be the
 Bloch sum of the structure constant
 $S^{ {\bf k} }_{ {\bf R}{L},{\bf R}'{L'} }$ used in Eq. (I50).
+
+
+<div class="clfix-old">
 
 > ====================\
 > NOTE in strxq.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>; it says
@@ -1030,6 +1033,16 @@ However, righ after the subroutine `strxq` is called, we have added
 $4\pi$ factor as `strx(1:nlx1,ibas1,1:nlx2,ibas2) = fpi*s` in
 `hvcc0.m.F`<span class="clfix">(not in the present SRC, 2026-11-15)</span>. Thus Eq. (I48)
 don't include $4\pi$ factors.
+
+</div>
+
+<div class="clfix">
+
+`strxq` returns the structure constant without the factor $4\pi$ (its expansion theorem is $H_{RL}(E,r)=\sum J_{R'L'}(E,r)\,S_{R'L',RL}$, with $S_{R'L',RL}=4\pi\sum_{L''}C_{LL'L''}(-1)^l(-E)^{(l+l'-l'')/2}H_{L''}(E,R-R')$ in its notation, where $R$ includes $T$).
+`main_hvccfp0.f90` multiplies it by $4\pi$ (`strx = fpi*s`), and `strx` is $S^{\bf k}_{{\bf R}L,{\bf R}'L'}$ of Eqs. (I48)–(I50).
+
+</div>
+
 
 ### $\langle B|v|B \rangle$ part {#b-v-b-part}
 
@@ -1051,13 +1064,11 @@ S^{ {\bf k} }_{ {\bf R}{L},{\bf R}'{L'} }
 \tag{I50}
 $$
 for ${\bf R}\ne {\bf R}'$.
-Note that we use $e^2=1$ (a.u.) in hvccfp0.m.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>.
-(See note at the beginning of mkjp.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>. And note the normalization check
-at the end of hvccfp0.m.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>; $\langle \exp(i {\bf q}{\bf r}) |v |\exp(i {\bf q}{\bf r})\rangle=4\pi \Omega/|{\bf q}|^2$, where $\Omega$ is the cell volume.)
+Note that we use $e^2=1$ (a.u.) in `hvccfp0`.
+(See note at the beginning of `mkjp.<del class="clfix">F</del><span class="clfix">f90</span>`. And note the normalization check
+at the end of `hvccfp0`; $\langle \exp(i {\bf q}{\bf r}) |v |\exp(i {\bf q}{\bf r})\rangle=4\pi \Omega/|{\bf q}|^2$, where $\Omega$ is the cell volume.)
 
-`strx calculated by "call strxq@L806:hvccfp0.m.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>"`
-means $S^{\bf k}_{ {\bf R}{L},{\bf R}'L'}$. Note that $4 \pi$ is mulipled right
-after `call strxq` to obtain .
+<del class="clfix">`strx calculated by "call strxq@L806:hvccfp0.m.F"` means $S^{\bf k}_{ {\bf R}{L},{\bf R}'L'}$. Note that $4 \pi$ is mulipled right after `call strxq` to obtain .</del>
 This `strx` is used in `call vcoulq_4`.
 `nlx1` means `(l+1)**2` for $R$
 `(=ibas1)`, `nlx2` as well.
@@ -1076,9 +1087,9 @@ $$\begin{aligned}
 $$
 Here $B_{ {\bf R}{l}\mu}(r)$ is the radial part of $B_{ {\bf R}{L}\mu}({\bf r})$.
 This `rojb` integrals are calculated in
-the subrouitne `mkjb_4` in `mkjp.F`<span class="clfix">(not in the present SRC, 2026-11-15)</span>.
+the <del class="clfix">subrouitne</del><span class="clfix">subroutine</span> `mkjb_4` in `mkjp.<del class="clfix">F</del><span class="clfix">f90</span>`.
 We use radial functions
-`rprodox` $=r B_{ {\bf R}{l}\mu}(r)$,
+`rprod<del class="clfix">o</del>x` $=r B_{ {\bf R}{l}\mu}(r)$,
 `rkpr`$=r\bar{J}_l(E,r)(2l+1)!!$,
 and `rkmr`$=r\bar{H}_l(E,r)/(2l-1)!!$.
 (Here `rkpr` and `rkmr` are propotional to
@@ -1102,7 +1113,7 @@ $$
 
 With the integrals `rojb` and `sgbb`, we can calculate
 $\langle B|v|B \rangle$ in `vcoulq_4` as follows
-(`nbloch` means the total number of PB);
+<div class="clfix-old">
 
 >           do ibl1= 1, nbloch
 >             ibas1= ibasbl(ibl1)
@@ -1125,6 +1136,19 @@ $\langle B|v|B \rangle$ in `vcoulq_4` as follows
 >               endif
 >             enddo
 >           enddo
+
+</div>
+
+<div class="clfix">
+
+(`nbloch` means the total number of PB; the loop over the pairs of PB in `vcoulq_4`):
+
+```fortran
+vcoul(ibl1,ibl2) = rojb(n1, l1, ibas1) *strx(lm1,ibas1,lm2,ibas2) *rojb(n2, l2, ibas2)    ! offsite Coulomb
+if(ibas1==ibas2.AND.lm1==lm2) vcoul(ibl1,ibl2) = vcoul(ibl1,ibl2) + sgbb(n1,n2,l1, ibas1) ! sigma-type onsite parts
+```
+
+</div>
 
 ### $RL$ expansion of $|P^{\bf k}_{ {\bf G}'} \rangle$
 
@@ -1688,117 +1712,9 @@ Then the high energy parts of the matrix elements are assumed
 to be diagonal, where their values are given by a simple average
 of calculated diagonal elements.
 
-## Magnon project {#magnon-project}
+<span class="clfix">(The section "Magnon project" (generalized Lindhard function for spin waves) was removed, 2026-11-15, user.)</span>
 
-Generalized Lindhard polarization function (or Kernel) is defined as
-(c.f.Eq. (I17));
-$$\begin{aligned}
- &-K^{\alpha \beta}=({\bf r}_1,{\bf r}_2;{\bf r}_3,{\bf r}_4;\omega) =
--iG_\alpha(1,3)G_\beta(4,2)=  \\
- &=
-\sum^{\rm BZ}_{ {\bf k} }  \sum^{\rm occ}_{n } 
-\sum^{\rm BZ}_{ {\bf k}'} \sum^{\rm unocc}_{n'}
-\frac{
-\Psi_{ {\bf k}n \beta}^*({\bf r}_2) \Psi_{ {\bf k}n \beta}({ {\bf r} }_4) 
-\Psi_{ {\bf k}'n' \alpha}({\bf r}_1) \Psi^*_{ {\bf k'}n'\alpha}({\bf r}_3)
-}{\omega-(\varepsilon_{ {\bf k}' n'\alpha}-\varepsilon_{ {\bf k}n \beta})+i \delta} \\
- &
-+ \sum^{\rm BZ}_{ {\bf k} } \sum^{\rm  unocc}_{n } 
-  \sum^{\rm BZ}_{ {\bf k}'} \sum^{\rm occ}_{n'}
-\frac{
-\Psi^*_{ {\bf k}n \beta}({\bf r}_2)\Psi_{ {\bf k}n \beta}({\bf r}_4) 
-\Psi_{ {\bf k}'n' \alpha}({\bf r}_1) \Psi^*_{ {\bf k}' n' \alpha}({\bf r}_3)
-}
-{-\omega-(\varepsilon_{ {\bf k}n \beta}-\varepsilon_{ {{\bf k}'} n' \alpha})+i \delta}.
-\end{aligned}
-\tag{I74}
-$$
-**(--- NEED diagram FIGURE HERE for $K_{\alpha\beta}$ ---)**\
-Here $t=t_1=t_2$ and $t'=t_3=t_4$.
-To understand this, note
-the correspondence between real-time and $\omega$ space;
-$$\begin{aligned}
-\frac{1}{\omega-\varepsilon +i \delta} &\leftrightarrow &
-i\theta(t-t') \exp (-i \varepsilon (t-t')) \\
-\frac{1}{-\omega-\varepsilon +i \delta} &\leftrightarrow &
-i\theta(t'-t) \exp (-i \varepsilon (t'-t)).
-\end{aligned}
-\tag{I75}
-$$
-It is easy to make the product $G_\alpha(1,3)G_\beta(4,2)$ in real space
-and real time represantaiton.
-This Eq. (I76) is a general time-ordered linear response function for a non-interacting system. Note that this is reduced to be Eq. (I17) for ${\bf r}_1={\bf r}_2$
-and ${\bf r}_3={\bf r}_4$.
-This is the same as $K^{\alpha \beta}$
-in Eq.(15) in Ref.[sasioglu_wannier-function_2010] by Sasioglu.
-By the Fourier transformation of Eq. (I76),
-we have
-$$\begin{aligned}
--K^{\alpha \beta}({\bf q},\omega)& =  
-\sum^{\rm BZ}_{ {\bf k} }  \sum^{\rm occ}_{n}\sum^{\rm unocc}_{n'}  
-\frac{
-\Psi_{ {\bf k}n \beta}^*({\bf r}_2) \Psi_{ {\bf k}n \beta}({ {\bf r} }_4) 
-\Psi_{ {{\bf k}+{\bf q} }n' \alpha}({\bf r}_1) \Psi^*_{ {{\bf k}+{\bf q} }n'\alpha}({\bf r}_3)
-}{\omega-(\varepsilon_{ {\bf k}+{\bf q}n'\alpha}-\varepsilon_{ {\bf k}n \beta})+i \delta} \\
-& +  \sum^{\rm BZ}_{ {\bf k} } \sum^{\rm  unocc}_{n} \sum^{\rm occ}_{n'}
-\frac{
-\Psi^*_{ {\bf k}n \beta}({\bf r}_2)\Psi_{ {\bf k}n \beta}({\bf r}_4) 
-\Psi_{ {\bf k}+{\bf q}n' \alpha}({\bf r}_1) \Psi^*_{ {\bf k}+{\bf q}n' \alpha}({\bf r}_3)
-}
-{-\omega-(\varepsilon_{ {\bf k}n \beta}-\varepsilon_{ {{\bf k}+{\bf q} } n' \alpha})+i \delta}.
-\end{aligned}
-\tag{I76}
-$$
-When we expand eigenfunctions by atom-centered localized functions as
-$$\begin{aligned}
-\Psi_{ {\bf k}n}^{\bf k}({\bf r}) = \sum_{ {\bf R}i} a^\alpha_{ {\bf R}i} w_{ {\bf R}i \alpha}^{\bf k}({\bf r}),
-{\rm \bf (correct? \ Notation \ check)}
-\end{aligned}
-\tag{I77}
-$$
-in the restricted Model Hilbert space,
-$K^{\alpha \beta}$ is represented as $K^{\alpha
-\beta}_{ {\bf R}ij,{\bf R}'kl}({\bf q},\omega)$, where ${\bf R}i,{\bf R}j,{\bf R}'
-k,{\bf R}'l$ are orbital indexes in the unit cell.
-As we have $W=\langle {\bf R}i {\bf R}j|W|{\bf R}' k {\bf R}' l\rangle$ in the mRPA method
-(or cRPA), we can calculate $\chi_{+-}={K}/(1-WK)$ in the model space.
-**(need detailed equation with indexes!)**\
-[**Spectrum funciton and Hilbert transformation**]{.underline}\
-Imaginary part of $K^{\alpha \beta}({\bf q},\omega)$ is obtained just by
-replacement $1/(\omega- \epsilon+i\delta) \rightarrow \pi \delta(\omega -\epsilon)$.
-That is, it is given as
-$$\begin{aligned}
-{\rm Im}[K]= \sum_{\bf k}\sum_n \sum_{n'} M({\bf k},n,\beta;{\bf k}+{\bf q},n',\alpha)
-\delta(\omega-(\varepsilon_{ {\bf k}+{\bf q}n'\alpha}-\varepsilon_{ {\bf k}n \beta})),
-\end{aligned}
-\tag{I78}
-$$
-where we define the matrix element
-$M=\Psi_{ {\bf k}n \beta}^*({\bf r}_2) \Psi_{ {\bf k}n \beta}({ {\bf r} }_4) 
-\Psi_{ {{\bf k}+{\bf q} }n' \alpha}({\bf r}_1) \Psi^*_{ {{\bf k}+{\bf q} }n'\alpha}({\bf r}_3)$.
-By the replacement $\delta(\omega-\varepsilon) \rightarrow 1/(\omega-\varepsilon
-+i \delta)$ by the Hilbert transformation, we can recover real part from the Im\[$K$\].
-$\omega$ can be positive or negative; positive is for spin excitation $\beta
-\to \alpha$, negative is for $\alpha \to \beta$.
-
-In the tetrahedron method of ecalj, we can calculate Eq. (I78) as follows;
-$$\begin{aligned}
-{\rm Im}[K]\,([\omega_i,\omega_{i+1}])= 
-\overline{\sum_{\bf k} } \sum_n \sum_{n'} M({\bf k},n,\beta;{\bf k}+{\bf q},n',\alpha)
-W_{\rm tet}(i,{\bf k},n,{\bf k}+{\bf q},n'),
-\end{aligned}
-\tag{I79}
-$$
-where $\overline{\sum_{\bf k} }$ is for discritized ${\bf k}$ points set by ecalj.
-${\rm Im}[K]\,([\omega_i,\omega_{i+1}])$ means the imaginary part (weight)
-in the interval $[\omega_i,\omega_{i+1}]$.\
-I think the t2g-eg separated motion is one of the interesting theme.
-(need to write a little more\...)\
-**Test of magnon calculation (transversal spin fluctuation)**\
-Look into `ecalj/MATERIALS/Fe_magnon` and `Ni_magnon`<span class="clfix">(not in the present SRC, 2026-11-15)</span>. Run a script.
-We have results of spin fluctuations.
-
-### Data structure of the tetrahedron method in ecalj {#tetrahedron-data-structure}
+## Data structure of the tetrahedron method in ecalj {#tetrahedron-data-structure}
 
 At first, you can consider only the `mtet=F` case.
 To make it safer, check `mtet=F` (if it is True, error exit by 'call rx').
@@ -1888,15 +1804,7 @@ $k$ is index for ${\bf k}$ vector.
 $W_{\rm tet}$ is given as , `iw` is
 the index for the histogram bin.
 
-### Requirement of the spin symmetic Hamiltonian
-
-(this idea is moved to another text modelSX.pdf.)
-
-I think we can set up a model spin-symmetric screened exchange energy,
-which is consistent with the linear response theory.
-Thus we have two ways, one is calculate Heisenberg's $J$ by the
-difference of total energy.
-The other is by the linear response theory as in the magnon project.
+<span class="clfix">(The subsection "Requirement of the spin symmetric Hamiltonian" of the magnon project was removed.)</span>
 
 ## Harris-Foulkner energy and Kohn-Sham energy
 
@@ -2211,126 +2119,6 @@ SYMGRP is to keep z axis. SYMGRPAF is an antiferro magnetic symmetry operation
 (we add r2x+spin inversion), then the ATOM AF=1 is mapped to AF=-1.
 Ask to T.Kotani as for AF symmetry setting, because it is relatively new.
 
-## IBZ and EIBZ scheme
-
-We include EIBZ procedure given in III.G. in Ref.[friedrich_efficient_2010].
-It is for the polarization function 0fp0,hx0fp0_sc@ and
-for self-energy \_sc@.\
-[IBZ]{.underline}\
-Recall IBZ first. We have a set of space-group operation
-$S_A=\{A_i |i=1,... N_A\}$ (except translation by reciprocal vectors).
-$A_i$ is represented by space rotation and translation.
-This $S_A$ can include time-reversal operation. ${\bf q}'=A_i({\bf q})$ belongs to BZ.
-(Simple multiplication of rotation matrix to ${\bf q}$ may (or may not) need pulling back to (1st) BZ).
-For a set of mesh points "$\{ {\bf q}\}$ in the BZ", $A_i$ gives an one-to-one mapping between them.
-"$\{ {\bf q}\}$ in IBZ" is a sub set of 1stBZ.
-
-Consider a set of functions dependent of ${\bf q}$ as $\{g_{ {\bf q} }({\bf r}, n)\}$.
-We can calculate $X$ defined as a sum of $F[g_{\bf q}]$ as
-$$\begin{aligned}
-X=\sum_{ {\bf q}\in {\rm BZ} } F[g_{\bf q}]
-= \sum_{A_i \in S_A } 
-\sum_{ {\bf q}\in {\rm IBZ} } \frac{N_{\bf q} }{N_A} F[g_{A_i({\bf q})}] \end{aligned}
-\tag{I91}
-$$
-Here IBZ is a set of ${\bf q}$ from which we can generate all the mesh points in the BZ.
-$N_{\bf q}$ is the number of mesh points generated from ${\bf q}$ by $S_A$ (the number of the set ${\bf q}^*$).
-For ${\bf q}=0$, $N_{\bf q}=1$. For general ${\bf q}$ (lowest symmetric points), $N_{\bf q}=N_A$.
-
-If $A_i[g_{\bf q}]= g_{A_i({\bf q})}({\bf r},n)$ is satisfied, we have
-$$\begin{aligned}
-X=\sum_{ {\bf q}\in {\rm BZ} } F[g_{\bf q}]
-= \sum_{A_i \in S_A } \sum_{ {\bf q}\in {\rm IBZ} } \frac{N_{\bf q} }{N_A} F[g_{A_i({\bf q})}] 
-= \sum_{A_i \in S_A } \sum_{ {\bf q}\in {\rm IBZ} } \frac{N_{\bf q} }{N_A} F[A_i[g_{\bf q}]] .
-\end{aligned}
-\tag{I92}
-$$
-This shows how we evaluate $X$ only from $\{g_{ {\bf q} }({\bf r}, n)|{\bf q}\in {\rm IBZ}\}$.
-
-(NOTE: eigenfunctions calculated by diagonalization satisfy
-$A_i[g_{\bf q}]= g_{A_i({\bf q})}({\bf r},n)$ except phase factor. We consider cases that the phase factor is irrelevant.)
-
- \
-[EIBZ]{.underline}\
-We consider sub group of $S_A$ with keeping given ${\bf k}$.
-This sub group is written as $S^{\bf k}_A=\{A^{\bf k}_i |i=1,2,...,N_A^{\bf k}\}$.
-For this sub group, we apply the same logic of IBZ, resulting
-$$\begin{aligned}
-X=\sum_{ {\bf q}\in {\rm BZ} } F[g_{\bf q}] = 
-\sum_{A^{\bf k}_i \in S_A^{\bf k} } \sum_{ {\bf q}\in {\rm EIBZ({\bf k})} }
-\frac{N_{\bf q}^{\bf k} }{N_A^{\bf k} } F[A^{\bf k}_i[g_{\bf q}]] \end{aligned}
-\tag{I93}
-$$
-Here EIBZ$({\bf k})$ is a set of ${\bf q}$ from which we can generate all the mesh points in the BZ.
-$N^{\bf k}_{\bf q}$ is the number of mesh points
-generated from $N_{\bf q}$ by $S^{\bf k}_A$. Note that ${\bf k}$ is fixed in Eq. (I93).
-Since $S_A^{\bf k}\subset S_A$, IBZ $\subset$ EIBZ(${\bf k}$). That is, equivalent $q$ poinst in IBZ
-might be diffrenciated in EIBZ(${\bf k}$).
-
-See Eq.(50) in Ref.[friedrich_efficient_2010].
-`call Seteibz -->call eibzgen` returns $S_A^{\bf k}$ stored in the modele `m_eibz`<span class="clfix">(not in the present SRC, 2026-11-15)</span>.
-
-Note normazization is
-$$\begin{aligned}
-N=\sum_{\bf q}1 = 
-\frac{1}{N_A^{\bf k} } \sum_{A^{\bf k}_i \in S_A^{\bf k} } 
-\sum_{ {\bf q}\in {\rm EIBZ}({\bf k})}N_{\bf q}^{\bf k}=
-\sum_{ {\bf q}\in {\rm EIBZ}({\bf k})}N_{\bf q}^{\bf k}\end{aligned}
-\tag{I94}
-$$
-
-[For poralization]{.underline}\
-We apply Eq. (I93) to $F^{\bf k}[g_{\bf q}]$, resulting
-$$\begin{aligned}
-X({\bf k})
-=\frac{1}{N_A^{\bf k} } \sum_{A^{\bf k}_i \in S_A^{\bf k} } \left( 
-\sum_{ {\bf q}\in {\rm EIBZ}({\bf k})}N_{\bf q}^{\bf k}F^{\bf k}[A^{\bf k}_i[g_{\bf q}]] \right).
-\end{aligned}
-\tag{I95}
-$$
-This means that we have to calculate weighted average only for
-$g_{\bf q}\in {\rm EIBZ}({\bf k})$, and then finally symmetrized (symmetrization is in
-`call x0kf_v4hz_symmetrize`
-in `hx0fp0.sc.m.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>,hx0fp0.m.F` or newly developing `hrcxq`.
-
-We apply Eq. (I95) to Eq.(22) in Ref.[friedrich_efficient_2010]
-resulting Eq.(51) in Ref.[friedrich_efficient_2010].
-Then we need to rotate MPB for given space group rotation $A^{\bf k}_i$.
-Note that $A^{\bf k}_i$ keeps ${\bf k}$ of MPB. This is in the next section.
-
-Note that `call eibzgen` stores not only $S_A^{\bf q}$(`eibzsym`),
-but also the weight $N_{\bf q}^{\bf k}$ (`nwgt`) in the module `m_eibz`<span class="clfix">(not in the present SRC, 2026-11-15)</span>.
-(role of ${\bf q}$ and ${\bf k}$ may be turn around in `m_eibz`<span class="clfix">(not in the present SRC, 2026-11-15)</span>)
-
- \
-[For self-energy]{.underline}\
-In `hsfp0.sc.m.F`(not in `hsfp0.m.F`), we have symmetrization
-as Eq.(52) in Ref.[friedrich_efficient_2010].
-But used formula is a little different.
-
-We use Eq. (I94) as it is.
-As in the same manner of poralization function, we call `eibzgen`
-at first. To obtain weighted sum of self-energy at ${\bf q}$,
-we calculate weigted sum for ${\bf k}\in {\rm EIBZ({\bf q})}$.
-(note the sum is controlled by `nrkip` which is the weights copied
-from `nwgt` (MPI parallelization is used). When `nrkip=0`, we
-skip corresponding do loop.)
-
-Symmetrizer is `call zsecsym`, called from the main program of `hsfp0.sc.m.F`.
-Its core part is
-
-           zsect(ii1:ie1,ii2:ie2)= zsect(ii1:ie1,ii2:ie2) 
-         &   + matmul( dconjg(transpose(rmatjj(1:ne1,1:ne1,iblk1))), 
-         &     matmul(zsec(ii1:ie1,ii2:ie2,iqxx),
-         &     rmatjj(1:ne2,1:ne2,iblk2)) )
-
-. This is the self-energy rotated by the rotation matrix `rmatjj`,
-which is generated by `call rotwvigg` in it.
-(NOTE: we carefully treat degenerated bands to keep symmetry well.
-It makes block decomposition(due to degeneracy) of self-energy matrix.
-A block is `zsect(ii1:ie1,ii2:ie2)`, where band indeces
-`ii1:ie1` are degenerated bands).
-
 ## Rotation of eigenfuncitons and MPB by the space-group operations {#spacegroup-rotation}
 
 ### space-group rotation of PMT eigenfunction
@@ -2506,6 +2294,126 @@ Thus we supply `ibas_tbl` and so on as
          &     max_ibas_tbl,max_l_tbl,max_k_tbl,max_offset_tbl
 
 in `module m_rotMPB2`.
+
+## IBZ and EIBZ scheme
+
+We include EIBZ procedure given in III.G. in Ref.[friedrich_efficient_2010].
+It is for the polarization function 0fp0,hx0fp0_sc@ and
+for self-energy \_sc@.\
+[IBZ]{.underline}\
+Recall IBZ first. We have a set of space-group operation
+$S_A=\{A_i |i=1,... N_A\}$ (except translation by reciprocal vectors).
+$A_i$ is represented by space rotation and translation.
+This $S_A$ can include time-reversal operation. ${\bf q}'=A_i({\bf q})$ belongs to BZ.
+(Simple multiplication of rotation matrix to ${\bf q}$ may (or may not) need pulling back to (1st) BZ).
+For a set of mesh points "$\{ {\bf q}\}$ in the BZ", $A_i$ gives an one-to-one mapping between them.
+"$\{ {\bf q}\}$ in IBZ" is a sub set of 1stBZ.
+
+Consider a set of functions dependent of ${\bf q}$ as $\{g_{ {\bf q} }({\bf r}, n)\}$.
+We can calculate $X$ defined as a sum of $F[g_{\bf q}]$ as
+$$\begin{aligned}
+X=\sum_{ {\bf q}\in {\rm BZ} } F[g_{\bf q}]
+= \sum_{A_i \in S_A } 
+\sum_{ {\bf q}\in {\rm IBZ} } \frac{N_{\bf q} }{N_A} F[g_{A_i({\bf q})}] \end{aligned}
+\tag{I91}
+$$
+Here IBZ is a set of ${\bf q}$ from which we can generate all the mesh points in the BZ.
+$N_{\bf q}$ is the number of mesh points generated from ${\bf q}$ by $S_A$ (the number of the set ${\bf q}^*$).
+For ${\bf q}=0$, $N_{\bf q}=1$. For general ${\bf q}$ (lowest symmetric points), $N_{\bf q}=N_A$.
+
+If $A_i[g_{\bf q}]= g_{A_i({\bf q})}({\bf r},n)$ is satisfied, we have
+$$\begin{aligned}
+X=\sum_{ {\bf q}\in {\rm BZ} } F[g_{\bf q}]
+= \sum_{A_i \in S_A } \sum_{ {\bf q}\in {\rm IBZ} } \frac{N_{\bf q} }{N_A} F[g_{A_i({\bf q})}] 
+= \sum_{A_i \in S_A } \sum_{ {\bf q}\in {\rm IBZ} } \frac{N_{\bf q} }{N_A} F[A_i[g_{\bf q}]] .
+\end{aligned}
+\tag{I92}
+$$
+This shows how we evaluate $X$ only from $\{g_{ {\bf q} }({\bf r}, n)|{\bf q}\in {\rm IBZ}\}$.
+
+(NOTE: eigenfunctions calculated by diagonalization satisfy
+$A_i[g_{\bf q}]= g_{A_i({\bf q})}({\bf r},n)$ except phase factor. We consider cases that the phase factor is irrelevant.)
+
+ \
+[EIBZ]{.underline}\
+We consider sub group of $S_A$ with keeping given ${\bf k}$.
+This sub group is written as $S^{\bf k}_A=\{A^{\bf k}_i |i=1,2,...,N_A^{\bf k}\}$.
+For this sub group, we apply the same logic of IBZ, resulting
+$$\begin{aligned}
+X=\sum_{ {\bf q}\in {\rm BZ} } F[g_{\bf q}] = 
+\sum_{A^{\bf k}_i \in S_A^{\bf k} } \sum_{ {\bf q}\in {\rm EIBZ({\bf k})} }
+\frac{N_{\bf q}^{\bf k} }{N_A^{\bf k} } F[A^{\bf k}_i[g_{\bf q}]] \end{aligned}
+\tag{I93}
+$$
+Here EIBZ$({\bf k})$ is a set of ${\bf q}$ from which we can generate all the mesh points in the BZ.
+$N^{\bf k}_{\bf q}$ is the number of mesh points
+generated from $N_{\bf q}$ by $S^{\bf k}_A$. Note that ${\bf k}$ is fixed in Eq. (I93).
+Since $S_A^{\bf k}\subset S_A$, IBZ $\subset$ EIBZ(${\bf k}$). That is, equivalent $q$ poinst in IBZ
+might be diffrenciated in EIBZ(${\bf k}$).
+
+See Eq.(50) in Ref.[friedrich_efficient_2010].
+`call Seteibz -->call eibzgen` returns $S_A^{\bf k}$ stored in the modele `m_eibz`<span class="clfix">(not in the present SRC, 2026-11-15)</span>.
+
+Note normazization is
+$$\begin{aligned}
+N=\sum_{\bf q}1 = 
+\frac{1}{N_A^{\bf k} } \sum_{A^{\bf k}_i \in S_A^{\bf k} } 
+\sum_{ {\bf q}\in {\rm EIBZ}({\bf k})}N_{\bf q}^{\bf k}=
+\sum_{ {\bf q}\in {\rm EIBZ}({\bf k})}N_{\bf q}^{\bf k}\end{aligned}
+\tag{I94}
+$$
+
+[For poralization]{.underline}\
+We apply Eq. (I93) to $F^{\bf k}[g_{\bf q}]$, resulting
+$$\begin{aligned}
+X({\bf k})
+=\frac{1}{N_A^{\bf k} } \sum_{A^{\bf k}_i \in S_A^{\bf k} } \left( 
+\sum_{ {\bf q}\in {\rm EIBZ}({\bf k})}N_{\bf q}^{\bf k}F^{\bf k}[A^{\bf k}_i[g_{\bf q}]] \right).
+\end{aligned}
+\tag{I95}
+$$
+This means that we have to calculate weighted average only for
+$g_{\bf q}\in {\rm EIBZ}({\bf k})$, and then finally symmetrized (symmetrization is in
+`call x0kf_v4hz_symmetrize`
+in `hx0fp0.sc.m.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>,hx0fp0.m.F` or newly developing `hrcxq`.
+
+We apply Eq. (I95) to Eq.(22) in Ref.[friedrich_efficient_2010]
+resulting Eq.(51) in Ref.[friedrich_efficient_2010].
+Then we need to rotate MPB for given space group rotation $A^{\bf k}_i$.
+Note that $A^{\bf k}_i$ keeps ${\bf k}$ of MPB. This is in the next section.
+
+Note that `call eibzgen` stores not only $S_A^{\bf q}$(`eibzsym`),
+but also the weight $N_{\bf q}^{\bf k}$ (`nwgt`) in the module `m_eibz`<span class="clfix">(not in the present SRC, 2026-11-15)</span>.
+(role of ${\bf q}$ and ${\bf k}$ may be turn around in `m_eibz`<span class="clfix">(not in the present SRC, 2026-11-15)</span>)
+
+ \
+[For self-energy]{.underline}\
+In `hsfp0.sc.m.F`(not in `hsfp0.m.F`), we have symmetrization
+as Eq.(52) in Ref.[friedrich_efficient_2010].
+But used formula is a little different.
+
+We use Eq. (I94) as it is.
+As in the same manner of poralization function, we call `eibzgen`
+at first. To obtain weighted sum of self-energy at ${\bf q}$,
+we calculate weigted sum for ${\bf k}\in {\rm EIBZ({\bf q})}$.
+(note the sum is controlled by `nrkip` which is the weights copied
+from `nwgt` (MPI parallelization is used). When `nrkip=0`, we
+skip corresponding do loop.)
+
+Symmetrizer is `call zsecsym`, called from the main program of `hsfp0.sc.m.F`.
+Its core part is
+
+           zsect(ii1:ie1,ii2:ie2)= zsect(ii1:ie1,ii2:ie2) 
+         &   + matmul( dconjg(transpose(rmatjj(1:ne1,1:ne1,iblk1))), 
+         &     matmul(zsec(ii1:ie1,ii2:ie2,iqxx),
+         &     rmatjj(1:ne2,1:ne2,iblk2)) )
+
+. This is the self-energy rotated by the rotation matrix `rmatjj`,
+which is generated by `call rotwvigg` in it.
+(NOTE: we carefully treat degenerated bands to keep symmetry well.
+It makes block decomposition(due to degeneracy) of self-energy matrix.
+A block is `zsect(ii1:ie1,ii2:ie2)`, where band indeces
+`ii1:ie1` are degenerated bands).
 
 ## Electron-phonon coupling in MPB (suspended) {#electron-phonon}
 
