@@ -95,14 +95,57 @@ The polarization function $D = G G$, in which an electron and a hole propagate a
 
 ## Definition of the (one-particle) Green function
 
-The electron and hole Green functions can both be defined as impulse responses. The electron Green function is the response to adding (kicking in) one electron at point $𝒓_2$ at time $t_2$. The $(N+1)$-electron state after the addition, $\hat 𝜓^†(𝒓_2)\ket{\Psi_0}$, evolves by the Schrödinger equation, which is linear and of first order in time. At time $t_1$ we look at the amplitude of its overlap with the state with an electron added at point $𝒓_1$. In a formula, $iG_\mathrm{ele} = 𝜃(t_1-t_2)\braket{\Psi_0|\hat 𝜓(𝒓_1)\,e^{-i(\hat H-E)(t_1-t_2)/\hbar}\,\hat 𝜓^†(𝒓_2)|\Psi_0}$, the same as Eq. (Gd1) below. The hole Green function is the response to removing one electron at point $𝒓_1$ at time $t_1$. The remaining $(N-1)$-electron state evolves, and at time $t_2$ ($>t_1$) we look at the amplitude of its overlap with the state with an electron removed at point $𝒓_2$ (the sign comes from exchanging fermions). Both have only the times after the kick, with the same structure as Eq. (GF6). The hole seems to "propagate to the past" only because the roles of the variables $(𝒓_1t_1, 𝒓_2t_2)$ are fixed as for the electron; in its own time ($t_2-t_1>0$) the hole also goes to the future.
+**Electron Green function.** At time $t_2$ add (kick in) one electron at point $𝒓_2$. The response is the $(N+1)$-electron state after the addition ($\ket{\Psi_0(t)} = e^{-iEt/\hbar}\ket{\Psi_0}$ is the ground state evolving in time),
 
 $$
-\begin{align}
-iG_\mathrm{ele}(𝒓_1t_1, 𝒓_2t_2) &= \braket{\Psi_0|\hat 𝜓_\mathrm{H}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)|\Psi_0}\, 𝜃(t_1-t_2) \tag{Gd1} \\
-iG_\mathrm{hole}(𝒓_1t_1, 𝒓_2t_2) &= -\braket{\Psi_0|\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)\hat 𝜓_\mathrm{H}(𝒓_1,t_1)|\Psi_0}\, 𝜃(t_2-t_1) \tag{Gd2}
-\end{align}
+\ket{\chi_\mathrm{ele}(t_1)} = 𝜃(t_1-t_2)\, e^{-i\hat H(t_1-t_2)/\hbar}\, \hat 𝜓^†(𝒓_2)\ket{\Psi_0(t_2)}
+\tag{Ge1}
 $$
+
+It evolves by the Schrödinger equation, which is linear and of first order in time, and it is 0 before the kick (the same structure as Eq. (GF6)). The equation satisfied by Eq. (Ge1) is
+
+$$
+\left(i\hbar\frac{\partial}{\partial t_1} - \hat H\right)\ket{\chi_\mathrm{ele}(t_1)} = i\hbar\, 𝛿(t_1-t_2)\, \hat 𝜓^†(𝒓_2)\ket{\Psi_0(t_2)}
+\tag{Ge2}
+$$
+
+where the right-hand side is the kick (the same form as Eq. (GF1) with $f=𝛿$). This state seen at point $𝒓_1$ (an electron taken out at point $𝒓_1$ and overlapped with the ground state) is the electron Green function:
+
+$$
+\begin{aligned}
+iG_\mathrm{ele}(𝒓_1t_1, 𝒓_2t_2) &= \braket{\Psi_0(t_1)|\hat 𝜓(𝒓_1)|\chi_\mathrm{ele}(t_1)} \\
+&= \braket{\Psi_0|\hat 𝜓_\mathrm{H}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)|\Psi_0}\, 𝜃(t_1-t_2)
+\end{aligned}
+\tag{Gd1}
+$$
+
+When the input that adds electrons is an arbitrary $f(𝒓_2,t_2)$ (where, when and how much), the response is the superposition of the kicked responses; seen at point $𝒓_1$,
+
+$$
+x(𝒓_1,t_1) = \int d𝒓_2\, dt_2\; iG_\mathrm{ele}(𝒓_1t_1, 𝒓_2t_2)\, f(𝒓_2,t_2)
+\tag{Ge3}
+$$
+
+(the same linear-response form as Eq. (GF2)).
+
+**Hole Green function.** At time $t_1$ remove one electron at point $𝒓_1$. The response is the remaining $(N-1)$-electron state,
+
+$$
+\ket{\chi_\mathrm{hole}(t_2)} = 𝜃(t_2-t_1)\, e^{-i\hat H(t_2-t_1)/\hbar}\, \hat 𝜓(𝒓_1)\ket{\Psi_0(t_1)}
+\tag{Gh1}
+$$
+
+This state seen at point $𝒓_2$ (the hole filled at point $𝒓_2$ and overlapped with the ground state) is the hole Green function (the sign comes from exchanging fermions):
+
+$$
+\begin{aligned}
+iG_\mathrm{hole}(𝒓_1t_1, 𝒓_2t_2) &= -\braket{\Psi_0(t_2)|\hat 𝜓^†(𝒓_2)|\chi_\mathrm{hole}(t_2)} \\
+&= -\braket{\Psi_0|\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)\hat 𝜓_\mathrm{H}(𝒓_1,t_1)|\Psi_0}\, 𝜃(t_2-t_1)
+\end{aligned}
+\tag{Gd2}
+$$
+
+In its own time ($t_2-t_1>0$) the hole also goes to the future. The hole seems to "propagate to the past" only because the roles of the variables $(𝒓_1t_1, 𝒓_2t_2)$ are fixed as for the electron.
 
 (Note) Relation to linear response to an external field. A "force" that adds or removes an electron cannot be applied as a classical field, so $G$ itself is not a linear response to an external field (Kubo formula). What appears as linear response to a physical external field is the density response (the polarization function $D$ below). Putting in a fermion source formally gives the retarded Green function $iG^\mathrm{R}(𝒓_1t_1,𝒓_2t_2) = 𝜃(t_1-t_2)\braket{\Psi_0|\{\hat 𝜓_\mathrm{H}(𝒓_1,t_1),\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)\}|\Psi_0}$. It has both the electron and the hole terms on the side $t_1>t_2$, and without interaction it is Eq. (GF6) with all the states, occupied and unoccupied. The time-ordered $G$ is obtained from it by moving the hole term to the side $t_2>t_1$ ([Basic II](./basic2), "Relation among advanced, retarded and time-ordered functions").
 
@@ -144,8 +187,8 @@ The time-evolution operator from time $t'$ to $t$ ($t>t'$) is the series of inte
 $$
 \begin{aligned}
 \hat S(t,t') = \sum_{n=0}^{\infty} \left(\frac{-i}{\hbar}\right)^{n}
-&\int_{t'}^{t} d\tau_1 \int_{t'}^{\tau_1} d\tau_2 \cdots \int_{t'}^{\tau_{n-1}} d\tau_n \\
-&\times \hat V_\mathrm{I}(\tau_1)\hat V_\mathrm{I}(\tau_2)\cdots \hat V_\mathrm{I}(\tau_n)
+&\int_{t'}^{t} d\tau_1 \int_{t'}^{\tau_1} d\tau_2 \cdots \\
+&\times \int_{t'}^{\tau_{n-1}} d\tau_n\, \hat V_\mathrm{I}(\tau_1)\hat V_\mathrm{I}(\tau_2)\cdots \hat V_\mathrm{I}(\tau_n)
 \end{aligned}
 \tag{G2}
 $$
@@ -154,11 +197,11 @@ $$
 
 $$
 \begin{aligned}
-iG(𝒓_1t_1, 𝒓_2t_2) = \frac{1}{\braket{\Phi_0|\hat S|\Phi_0}} \Big[
-&\langle\Phi_0|\hat S(\infty,t_1)\,\hat 𝜓_\mathrm{I}(𝒓_1,t_1)\,\hat S(t_1,t_2) \\
-&\qquad \times \hat 𝜓^†_\mathrm{I}(𝒓_2,t_2)\,\hat S(t_2,-\infty)|\Phi_0\rangle\, 𝜃(t_1-t_2) \\
--&\langle\Phi_0|\hat S(\infty,t_2)\,\hat 𝜓^†_\mathrm{I}(𝒓_2,t_2)\,\hat S(t_2,t_1) \\
-&\qquad \times \hat 𝜓_\mathrm{I}(𝒓_1,t_1)\,\hat S(t_1,-\infty)|\Phi_0\rangle\, 𝜃(t_2-t_1) \Big]
+&iG(𝒓_1t_1, 𝒓_2t_2) = \frac{1}{\braket{\Phi_0|\hat S|\Phi_0}} \Big[ \\
+&\quad \langle\Phi_0|\hat S(\infty,t_1)\,\hat 𝜓_\mathrm{I}(𝒓_1,t_1)\,\hat S(t_1,t_2) \\
+&\qquad\quad \times\hat 𝜓^†_\mathrm{I}(𝒓_2,t_2)\,\hat S(t_2,-\infty)|\Phi_0\rangle\, 𝜃(t_1-t_2) \\
+&\quad -\langle\Phi_0|\hat S(\infty,t_2)\,\hat 𝜓^†_\mathrm{I}(𝒓_2,t_2)\,\hat S(t_2,t_1) \\
+&\qquad\quad \times\hat 𝜓_\mathrm{I}(𝒓_1,t_1)\,\hat S(t_1,-\infty)|\Phi_0\rangle\, 𝜃(t_2-t_1) \Big]
 \end{aligned}
 \tag{G3}
 $$

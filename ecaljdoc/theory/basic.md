@@ -88,14 +88,57 @@ $$
 
 ## (1粒子) Green関数の定義
 
-電子と正孔の Green 関数は、どちらもインパルス応答として定義できる。電子の Green 関数は、時刻 $t_2$ に点 $𝒓_2$ へ電子を一つ加える（叩く）ことへの応答である。加えた後の $(N+1)$ 電子の状態 $\hat 𝜓^†(𝒓_2)\ket{\Psi_0}$ は、時間について一階で線形な Schrödinger 方程式に従って進む。時刻 $t_1$ に、それが点 $𝒓_1$ に電子を加えた状態と重なる振幅を見る。式で書くと $iG_\mathrm{ele} = 𝜃(t_1-t_2)\braket{\Psi_0|\hat 𝜓(𝒓_1)\,e^{-i(\hat H-E)(t_1-t_2)/\hbar}\,\hat 𝜓^†(𝒓_2)|\Psi_0}$ で、下の式 (Gd1) と同じものである。正孔の Green 関数は、時刻 $t_1$ に点 $𝒓_1$ から電子を一つ抜くことへの応答である。残った $(N-1)$ 電子の状態が進み、時刻 $t_2$（$>t_1$）に点 $𝒓_2$ から抜いた状態と重なる振幅を見る（符号はフェルミ粒子の入れ替えから）。どちらも叩いた後の時間だけを持ち、式 (GF6) と同じ構造である。正孔が「過去へ伝わる」ように見えるのは、変数 $(𝒓_1t_1, 𝒓_2t_2)$ の役割を電子と同じに固定して書くからで、正孔の側も自分の時間（$t_2-t_1>0$）では未来へ進む。
+**電子の Green 関数。** 時刻 $t_2$ に点 $𝒓_2$ へ電子を一つ加える（叩く）。その応答は、加えた後の $(N+1)$ 電子の状態（$\ket{\Psi_0(t)} = e^{-iEt/\hbar}\ket{\Psi_0}$ は時間とともに進む基底状態）
 
 $$
-\begin{align}
-iG_\mathrm{ele}(𝒓_1t_1, 𝒓_2t_2) &= \braket{\Psi_0|\hat 𝜓_\mathrm{H}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)|\Psi_0}\, 𝜃(t_1-t_2) \tag{Gd1} \\
-iG_\mathrm{hole}(𝒓_1t_1, 𝒓_2t_2) &= -\braket{\Psi_0|\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)\hat 𝜓_\mathrm{H}(𝒓_1,t_1)|\Psi_0}\, 𝜃(t_2-t_1) \tag{Gd2}
-\end{align}
+\ket{\chi_\mathrm{ele}(t_1)} = 𝜃(t_1-t_2)\, e^{-i\hat H(t_1-t_2)/\hbar}\, \hat 𝜓^†(𝒓_2)\ket{\Psi_0(t_2)}
+\tag{Ge1}
 $$
+
+である。これは時間について一階で線形な Schrödinger 方程式に従って進み、叩く前は 0 である（式 (GF6) と同じ構造）。式 (Ge1) の満たす方程式は
+
+$$
+\left(i\hbar\frac{\partial}{\partial t_1} - \hat H\right)\ket{\chi_\mathrm{ele}(t_1)} = i\hbar\, 𝛿(t_1-t_2)\, \hat 𝜓^†(𝒓_2)\ket{\Psi_0(t_2)}
+\tag{Ge2}
+$$
+
+で、右辺が「叩く」に当たる（式 (GF1) で $f=𝛿$ としたものと同じ形）。この状態を点 $𝒓_1$ で見たもの（点 $𝒓_1$ の電子を取り出して基底状態と重ねたもの）が電子の Green 関数である。
+
+$$
+\begin{aligned}
+iG_\mathrm{ele}(𝒓_1t_1, 𝒓_2t_2) &= \braket{\Psi_0(t_1)|\hat 𝜓(𝒓_1)|\chi_\mathrm{ele}(t_1)} \\
+&= \braket{\Psi_0|\hat 𝜓_\mathrm{H}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)|\Psi_0}\, 𝜃(t_1-t_2)
+\end{aligned}
+\tag{Gd1}
+$$
+
+電子を加える入力が任意の $f(𝒓_2,t_2)$（どこに、いつ、どれだけ加えるか）のとき、その応答は叩いた応答の重ね合わせで、点 $𝒓_1$ で見ると
+
+$$
+x(𝒓_1,t_1) = \int d𝒓_2\, dt_2\; iG_\mathrm{ele}(𝒓_1t_1, 𝒓_2t_2)\, f(𝒓_2,t_2)
+\tag{Ge3}
+$$
+
+と書ける（式 (GF2) と同じ線形応答の形）。
+
+**正孔の Green 関数。** 時刻 $t_1$ に点 $𝒓_1$ から電子を一つ抜く。その応答は、残った $(N-1)$ 電子の状態
+
+$$
+\ket{\chi_\mathrm{hole}(t_2)} = 𝜃(t_2-t_1)\, e^{-i\hat H(t_2-t_1)/\hbar}\, \hat 𝜓(𝒓_1)\ket{\Psi_0(t_1)}
+\tag{Gh1}
+$$
+
+である。これを点 $𝒓_2$ で見たもの（点 $𝒓_2$ の穴を埋めて基底状態と重ねたもの）が正孔の Green 関数である（符号はフェルミ粒子の入れ替えから）。
+
+$$
+\begin{aligned}
+iG_\mathrm{hole}(𝒓_1t_1, 𝒓_2t_2) &= -\braket{\Psi_0(t_2)|\hat 𝜓^†(𝒓_2)|\chi_\mathrm{hole}(t_2)} \\
+&= -\braket{\Psi_0|\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)\hat 𝜓_\mathrm{H}(𝒓_1,t_1)|\Psi_0}\, 𝜃(t_2-t_1)
+\end{aligned}
+\tag{Gd2}
+$$
+
+正孔の側も、自分の時間（$t_2-t_1>0$）では未来へ進む。正孔が「過去へ伝わる」ように見えるのは、変数 $(𝒓_1t_1, 𝒓_2t_2)$ の役割を電子と同じに固定して書くからである。
 
 （注）外場への線形応答との関係。電子を加える・抜く「外力」は古典的な場としては掛けられないので、$G$ そのものは外場への線形応答（久保公式）ではない。物理的な外場への線形応答として出てくるのは、密度の応答（後の分極関数 $D$）である。形式的にフェルミ粒子の源を入れると、出てくるのは遅延 Green 関数 $iG^\mathrm{R}(𝒓_1t_1,𝒓_2t_2) = 𝜃(t_1-t_2)\braket{\Psi_0|\{\hat 𝜓_\mathrm{H}(𝒓_1,t_1),\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)\}|\Psi_0}$ である。これは電子の項も正孔の項も $t_1>t_2$ の側に持ち、相互作用が無ければ、占有・非占有のすべての状態を含む式 (GF6) になる。時間順序の $G$ は、そこから正孔の項を $t_2>t_1$ の側へ移したものである（[Basic II](./basic2) の「先進, 遅延, 時間秩序の関係」）。
 
@@ -137,8 +180,8 @@ $$
 $$
 \begin{aligned}
 \hat S(t,t') = \sum_{n=0}^{\infty} \left(\frac{-i}{\hbar}\right)^{n}
-&\int_{t'}^{t} d\tau_1 \int_{t'}^{\tau_1} d\tau_2 \cdots \int_{t'}^{\tau_{n-1}} d\tau_n \\
-&\times \hat V_\mathrm{I}(\tau_1)\hat V_\mathrm{I}(\tau_2)\cdots \hat V_\mathrm{I}(\tau_n)
+&\int_{t'}^{t} d\tau_1 \int_{t'}^{\tau_1} d\tau_2 \cdots \\
+&\times \int_{t'}^{\tau_{n-1}} d\tau_n\, \hat V_\mathrm{I}(\tau_1)\hat V_\mathrm{I}(\tau_2)\cdots \hat V_\mathrm{I}(\tau_n)
 \end{aligned}
 \tag{G2}
 $$
@@ -147,11 +190,11 @@ $$
 
 $$
 \begin{aligned}
-iG(𝒓_1t_1, 𝒓_2t_2) = \frac{1}{\braket{\Phi_0|\hat S|\Phi_0}} \Big[
-&\langle\Phi_0|\hat S(\infty,t_1)\,\hat 𝜓_\mathrm{I}(𝒓_1,t_1)\,\hat S(t_1,t_2) \\
-&\qquad \times \hat 𝜓^†_\mathrm{I}(𝒓_2,t_2)\,\hat S(t_2,-\infty)|\Phi_0\rangle\, 𝜃(t_1-t_2) \\
--&\langle\Phi_0|\hat S(\infty,t_2)\,\hat 𝜓^†_\mathrm{I}(𝒓_2,t_2)\,\hat S(t_2,t_1) \\
-&\qquad \times \hat 𝜓_\mathrm{I}(𝒓_1,t_1)\,\hat S(t_1,-\infty)|\Phi_0\rangle\, 𝜃(t_2-t_1) \Big]
+&iG(𝒓_1t_1, 𝒓_2t_2) = \frac{1}{\braket{\Phi_0|\hat S|\Phi_0}} \Big[ \\
+&\quad \langle\Phi_0|\hat S(\infty,t_1)\,\hat 𝜓_\mathrm{I}(𝒓_1,t_1)\,\hat S(t_1,t_2) \\
+&\qquad\quad \times\hat 𝜓^†_\mathrm{I}(𝒓_2,t_2)\,\hat S(t_2,-\infty)|\Phi_0\rangle\, 𝜃(t_1-t_2) \\
+&\quad -\langle\Phi_0|\hat S(\infty,t_2)\,\hat 𝜓^†_\mathrm{I}(𝒓_2,t_2)\,\hat S(t_2,t_1) \\
+&\qquad\quad \times\hat 𝜓_\mathrm{I}(𝒓_1,t_1)\,\hat S(t_1,-\infty)|\Phi_0\rangle\, 𝜃(t_2-t_1) \Big]
 \end{aligned}
 \tag{G3}
 $$
