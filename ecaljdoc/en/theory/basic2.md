@@ -1,8 +1,10 @@
 # Basics 2
 
-> English version of the page [theory/basic2](../../theory/basic2.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/basic2.md of the tree of c9f9a3003 (source blob 7acfc351d7c0).
+> English version of the page [theory/basic2](../../theory/basic2.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/basic2.md of commit 49e9d6dd3 (source blob 35b977756b01).
 
-`Under construction`
+::: warning Under construction
+This page is a draft.
+:::
 
 - On the relation among time-ordered, advanced and retarded functions
 - On the Hilbert transform / Kramers-Kronig relation
@@ -16,6 +18,7 @@ The KK relation also serves as a barometer for checking numerical accuracy, so w
 ## Hilbert's formula
 $$
 \lim_{𝜂 → 0 }\int_{-∞}^{∞} \frac{𝜒(ω')}{ω' - ω ± i 𝜂} dω' = 𝒫 \int_{-∞}^{∞} \frac{𝜒(ω')}{ω' - ω } dω' ∓ iπ𝜒(ω)
+\tag{K1}
 $$
 
 ## Relation among advanced, retarded and time-ordered functions
@@ -28,6 +31,7 @@ $$ \begin{align}
 iG(𝒓_1t_1, 𝒓_2t_2) &= \braket{\Psi_0|T[\hat 𝜓_\mathrm{H}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)]|\Psi_0}  \\
 iG^\mathrm{R}(𝒓_1t_1, 𝒓_2t_2) &=  \braket{\Psi_0|\{\hat 𝜓_\mathrm{H}(𝒓_1,t_1),\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)\}|\Psi_0} 𝜃(t_1-t_2) \\
 iG^\mathrm{A}(𝒓_1t_1, 𝒓_2t_2) &= -\braket{\Psi_0|\{\hat 𝜓_\mathrm{H}(𝒓_1,t_1),\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)\}|\Psi_0} 𝜃(t_2-t_1) \\
+\tag{K2}
 \end{align} $$
 The Fourier representation is
 $$ \begin{align}
@@ -37,11 +41,13 @@ G^\mathrm{R}(𝒓_1, 𝒓_2;𝜔)  &=  \sum_{n'}^{\mathrm{unocc}} \frac{𝜙_{n'
     \sum_{n}^{\mathrm{occ}} \frac{𝜙_{n}(𝒓_1)𝜙^*_{n}(𝒓_2)}{𝜔 - 𝜀_{n}/\hbar +i𝛿} \\ &= G_{\mathrm{ele}} + G^†_{\mathrm{hole}} \\
 G^\mathrm{A}(𝒓_1, 𝒓_2;𝜔)  &=  \sum_{n'}^{\mathrm{unocc}} \frac{𝜙_{n'}(𝒓_1)𝜙^*_{n'}(𝒓_2)}{𝜔-𝜀_{n'}/\hbar - i𝛿} +
     \sum_{n}^{\mathrm{occ}} \frac{𝜙_{n}(𝒓_1)𝜙^*_{n}(𝒓_2)}{𝜔 - 𝜀_{n}/\hbar -i𝛿} \\ &= G^†_{\mathrm{ele}} + G_{\mathrm{hole}}
+\tag{K3}
 \end{align} $$
 Here $†$ means taking the complex conjugate and exchanging $𝒓_1, 𝒓_2$.
 For $G^\mathrm{R}$ and $G^\mathrm{A}$ the poles in the $ω$ plane are separated into the lower half plane (retarded) and the upper half plane (advanced), and they satisfy the Kramers-Kronig (KK) relation
 $$
 \Re G^\mathrm{R,A} (𝒓_1, 𝒓_2;𝜔) = ± 𝒫 \int_{-∞}^{∞} \frac{dω'}{π} \frac{ \Im G^{\mathrm{R,A}}(𝒓_1, 𝒓_2;𝜔') }{ω' - ω}
+\tag{K4}
 $$
 .
 
@@ -64,6 +70,7 @@ $$ \begin{align}
 iD(𝒓_1t_1, 𝒓_2t_2) &= \braket{T[\hat {𝛿𝜌}(𝒓_1,t_1)\hat {𝛿𝜌}(𝒓_2,t_2)]} \\ &= G(𝒓_1t_1,𝒓_2t_2)G(𝒓_2t_2,𝒓_1t_1) \\
 iD^\mathrm{R}(𝒓_1t_1, 𝒓_2t_2) &= \braket{[\hat {𝛿𝜌}(𝒓_1,t_1),\hat {𝛿𝜌}(𝒓_2,t_2)]} 𝜃(t_1-t_2) \\
 iD^\mathrm{A}(𝒓_1t_1, 𝒓_2t_2) &= -\braket{[\hat {𝛿𝜌}(𝒓_1,t_1),\hat {𝛿𝜌}(𝒓_2,t_2)]} 𝜃(t_2-t_1)
+\tag{K5}
 \end{align} $$
 
 The advanced function has a minus sign, as $G^\mathrm{A}$ does.
@@ -97,10 +104,12 @@ $$ \begin{align}
 𝛴(𝒓_1t_1, 𝒓_2t_2) &=iG(𝒓_1t_1, 𝒓_2t_2)W(𝒓_1t_1, 𝒓_2t_2) \\
                   &= iG_\mathrm{ele}(𝒓_1t_1, 𝒓_2t_2)W(𝒓_1t_1, 𝒓_2t_2) \\
                   &\quad + iG_\mathrm{hole}(𝒓_1t_1, 𝒓_2t_2)W(𝒓_1t_1, 𝒓_2t_2)
+\tag{K6}
 \end{align} $$
 $$ \begin{align}
 𝛴_{nn}(𝜔) &= (G_\mathrm{ele}W)(𝜔)_{nn} + (G_\mathrm{hole}W)(𝜔)_{nn} = 𝛴_\mathrm{ele}^{nn}(𝜔)+𝛴_\mathrm{hole}^{nn}(𝜔) \\
 𝛴^\mathrm{R}_{nn}(𝜔) &= 𝛴_\mathrm{ele}^{nn}(𝜔)+(𝛴_\mathrm{hole}^{†})^{nn}(𝜔) \\
+\tag{K7}
 \end{align} $$
 
 $G_\mathrm{ele}$ already contains $𝜃(t_1-t_2)$ and $G_\mathrm{hole}$ contains $𝜃(t_2-t_1)$, so $𝛴_\mathrm{ele}=iG_\mathrm{ele}W$ is nonzero only for $t_1>t_2$ and $𝛴_\mathrm{hole}=iG_\mathrm{hole}W$ only for $t_1\lt t_2$ (the poles of $𝛴_\mathrm{ele}(𝜔)$ are in the lower half plane, those of $𝛴_\mathrm{hole}(𝜔)$ in the upper). As for $G^\mathrm{R}$, the retarded self-energy takes the $†$ of the hole part; at zero temperature, with $𝜔$ measured from the Fermi level, $\Re𝛴^\mathrm{R}_{nn}(𝜔)=\Re𝛴_{nn}(𝜔)$ and $\Im𝛴^\mathrm{R}_{nn}(𝜔)=\Im𝛴_{nn}(𝜔)\,\mathrm{sgn}(𝜔)$ (the old expression said $𝛴^\mathrm{R}=𝛴$).
@@ -127,9 +136,10 @@ F(ω) &= 𝒫 \int_{-∞}^{∞} dω' \frac{f(ω')}{ω' -ω} = \sum_{i} 𝒫 \int
 <div class="clfix">
 
 $$ \begin{align}
-F(ω) &= 𝒫 \int_{-∞}^{∞} dω' \frac{f(ω')}{ω' -ω} = \sum_{i} 𝒫 \int_{ω_{L_i}}^{ω_{R_i}} dω' \frac{f(ω')}{ ω' -ω} \\
-& \simeq \sum_{i} f(ω_{C_i})𝒫 \int_{ω_{L_i}}^{ω_{R_i}} dω' \frac{1}{ω'-ω}
-= \sum_{i} f(ω_{C_i}) \log{\frac{|ω_{R_i} -ω|} {| ω_{L_i}-ω|}}
+F(ω) &= 𝒫 \int_{-∞}^{∞} dω' \frac{f(ω')}{ω' -ω} \\ &= \sum_{i} 𝒫 \int_{ω_{L_i}}^{ω_{R_i}} dω' \frac{f(ω')}{ ω' -ω} \\
+& \simeq \sum_{i} f(ω_{C_i})𝒫 \int_{ω_{L_i}}^{ω_{R_i}} dω' \frac{1}{ω'-ω} \\
+&= \sum_{i} f(ω_{C_i}) \log{\frac{|ω_{R_i} -ω|} {| ω_{L_i}-ω|}}
+\tag{K8}
 \end{align} $$
 
 Here $ω_{L_i}\lt ω_{C_i}\lt ω_{R_i}$ ($ω_{L_i}$ is the left and $ω_{R_i}$ the right midpoint). In the old expression the limits were reversed, which flips the overall sign.
