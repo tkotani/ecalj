@@ -1,40 +1,39 @@
-# GW settings ([gw] and other keys) {#gwinput-legacy}
+# GW settings (the `[gw]` and related keys) {#gwinput-legacy}
 
-> English version of the page [manual/gwinput](../../manual/gwinput.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwinput.md of commit 9945420a9 (source blob b4b481db0ec6).
+> English version of the page [manual/gwinput](../../manual/gwinput.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwinput.md of commit 694da29ec (source blob 07a83a25dd15).
 
-The sections `[gw]`, `[mlo]`, `[blocks]` and `[product_basis]` of `ctrlg.<sname>.toml` set the conditions of GW/QSGW calculations. This page describes their keys.
-For the whole file and the conversion of an old `GWinput`, see [Input file](./toml_migration).
+The sections `[gw]`, `[mlo]`, `[blocks]` and `[product_basis]` of `ctrlg.<sname>.toml` set the conditions of a GW/QSGW calculation. This page explains their keys.
+For the whole file and the conversion from the old `GWinput`, see [Input files](./toml_migration).
 
-## Automatic generation {#automatic-generation-by-mkgwinput}
-- The GW settings (`[gw]`, `[mlo]`, `[blocks]`, `[product_basis]` of `ctrlg.<sname>.toml`) are made automatically, and most parameters can be used with their defaults.
+## Automatic generation {#mkgwinput}
+- The GW settings (`[gw]`, `[mlo]`, `[blocks]`, `[product_basis]` in `ctrlg.<sname>.toml`) are generated automatically, and most parameters can be used at their default values.
 
-When starting from `ctrls.<sname>` (`<sname>` is the material name),
+When you start from `ctrls.<sname>` (`<sname>` is the material name),
 ```bash
 ctrlgenToml.py <sname>
 ```
-writes `ctrlg.<sname>.toml` including the GW settings (it runs `lmfa`, `lmf --jobgw=0` and `gwinit` internally). To add them to a `ctrlg.<sname>.toml` without the GW sections,
+writes `ctrlg.<sname>.toml` including the GW settings (internally it runs `lmfa`, `lmf --jobgw=0` and `gwinit`). To add them to a `ctrlg.<sname>.toml` without the GW sections, use
 ```bash
-ctrlgenToml.py <sname> --addgw   # stops if [gw] is present
+ctrlgenToml.py <sname> --addgw   # stops if [gw] exists
 ```
-(see [Input file](./toml_migration)).
+([Input files](./toml_migration)).
 
-`t_tetrakbt`, `t_sigmaw`, `HistBin_dw`, `HistBin_ratio`, `QforEPSau` and `EMAXforGW` are required: the programs stop if one is missing from `[gw]` (`t_tetrakbt` since 2026-09-28, the others since 2026-11-14).
-Add them to an old file with `ctrlg_update.py ctrlg.<sname>.toml`; it writes the former code defaults, so the results stay the same.
+`t_tetrakbt`, `t_sigmaw`, `HistBin_dw`, `HistBin_ratio`, `QforEPSau` and `EMAXforGW` are required; if they are missing in `[gw]`, the programs stop (`t_tetrakbt` since 2026-09-28, the others since 2026-11-14).
+For old files, add them with `ctrlg_update.py ctrlg.<sname>.toml`. What it adds are the default values of the earlier code, so the results do not change.
 
-The generated `[gw]` has `n1n2n3 = [4, 4, 4]`, `t_sigmaw = 300` and `t_tetrakbt = 300`. Change them for the calculation.
-For insulators and semiconductors the gap is much larger than $k_BT$, so the temperatures of 300 K do not affect the results ([kBT](./kBT) §4).
-
+The generated `[gw]` has `n1n2n3 = [4, 4, 4]`, `t_sigmaw = 300`, `t_tetrakbt = 300`. Rewrite them for your calculation.
+For insulators and semiconductors, the gap is much larger than $k_BT$, so a temperature left at 300 K does not affect the results ([kBT](./kBT) §4).
 
 ## Format
-- Written in TOML syntax. From `#` to the end of the line is a comment
+- Written in TOML syntax. From `#` to the end of the line is a comment.
 - The form is `key = value`; the order does not matter, but do not write the same key more than once. Logical values are `true` / `false`,
-  lists are `[4, 4, 4]`, reals are `1e-5` (`1d-5` cannot be written), and multi-line tables (`QforGW` etc.) are enclosed in `"""`
+  lists are `[4, 4, 4]`, reals are `1e-5` (`1d-5` cannot be written), and multi-line tables (such as `QforGW`) are enclosed in `"""`.
 
 ## Main keys {#parameters-in-gwinput}
-The meaning of the parameters is written in the generated `[gw]`; below we describe important variables and variables without a description there.
+The generated `[gw]` describes the meaning of the parameters; below we describe the important variables and the ones not described there.
 
 ### `n1n2n3`
-Number of k points in the $GW$ self-energy calculation. Points different from `[bz] nkabc` (the k points of `lmf`) can be specified (with `gwsc --mlo` it must be the same as `nkabc`; otherwise it stops). Note that the computational cost is proportional to the square of this number of k points.
+Number of k points in the $GW$ self-energy calculation. It can be set differently from `[bz] nkabc` (the k points of `lmf`) (in `gwsc --mlo` it must be the same as `nkabc`; otherwise the program stops). Note that the computational cost is proportional to the square of this number of k points.
 - **type** : integer list
 
 We set number of k points for self-energy in `[gw]`. These can be 1/2 or 2/3 of k points specified in `[bz] nkabc`, in order to reduce computational time.
@@ -50,77 +49,78 @@ See our examinations shown in  https://doi.org/10.7566/JPSJ.83.094711 and
 http://doi.org/10.7567/JJAP.55.051201
 
 ### `KeepEigen`  
-Whether to keep the wave functions in memory. The wave functions are written to the files `CPHI` and `GEIG`. If they are comparable to or larger than the memory available to one MPI process, always set `false`. Set `false` when the number of $k$ points or orbitals is large.
+Whether to keep the wave functions in memory. The wave functions are written to the files `CPHI` and `GEIG`. If their size is comparable to or larger than the memory available to one MPI process, always set `false`. Set `false` when the number of $k$ points or orbitals is large.
 - **type**: boolean
 - **default**: true
 
 ### `zmel_batch_gb`
-Batch size for building the matrix elements (zmel) at once, in GB (per MPI rank). About one third to one quarter of the memory available to one MPI process is a good value. It is used both in the self-energy calculation and in the calculation of $W$ (polarization function). For large systems a larger value is faster, but reduce it if the calculation crashes from lack of memory.
+Batch size (in GB, per MPI rank) for building the matrix elements (zmel) at a time. A value of about one third to one quarter of the memory available to one MPI process is good. It is used both in the self-energy calculation and in the calculation of $W$ (the polarization function). For large systems a larger value is faster, but if the calculation dies from lack of memory, make it smaller.
 - **type** : float
 - **default** : 0.4 (values below 0.4 on CPU and below 2.0 on GPU are raised to 0.4 and 2.0, respectively)
 
-If the value is too small for the system, the calculation may stop with `sxcf_fal2_count.sc. Too small memory for nmbatch. Enlarge zmel_batch_gb in ctrlg.<sname>.toml [gw]`. In that case enlarge it.
+If the value is too small for the system, the calculation may stop with `sxcf_fal2_count.sc. Too small memory for nmbatch. Enlarge zmel_batch_gb in ctrlg.<sname>.toml [gw]`. In that case make it larger.
 
 ### `zmel_max_size`
-Old name of `zmel_batch_gb`. It is still read as `zmel_batch_gb`. `MEMnmbatch` in old inputs is not read (write `zmel_batch_gb`).
+The old name of `zmel_batch_gb`. It is still read as `zmel_batch_gb`. `MEMnmbatch` in old inputs is not read (write `zmel_batch_gb`).
 
 ### `KeepPpb`
-Whether to keep in memory, for all symmetry operations, the matrix elements between the product basis in the MT and the wave-function basis in the MT (the `ppb` variable). Usually the default `false` (then only the symmetry operations in use are kept) is fine. With `true` the memory usage grows by the number of symmetry operations.
+Whether to keep in memory the matrix elements between the product basis in the MT and the wave-function basis in the MT (the variable `ppb`) for all symmetry operations. Usually the default `false` is fine (then only the ones for the symmetry operation in use are kept). With `true`, the memory use grows by the number of symmetry operations.
 - **type**: boolean
 - **default**: false
 
 ### `t_tetrakbt`  *(required, 2026-09-28)*
-Selects how $\chi_0$ is smeared, by the sign of a temperature (K). It stops if not written.
-- `0`: no smearing (T=0 tetrahedron). <del class="clfix">Insulators and semiconductors.</del><span class="clfix">For insulators and semiconductors the template value 300 is also fine (no effect if the gap ≫ $k_BT$; [kBT](kBT) §4).</span>
+Selects how $\chi_0$ is smeared, by the sign of a temperature (K). If not written, the program stops.
+- `0`: no smearing (T=0 tetrahedron). For insulators and semiconductors the template value 300 may be kept (it has no effect if gap ≫ $k_BT$. [kBT](kBT) §4).
 - `T > 0`: finite-temperature tetrahedron. The occupations in $\chi_0$ become Fermi-Dirac at temperature $T$, and the Fermi level is `EFERMI_kbt` (also on the $\Sigma$ side). [kBT](kBT) §2.
-- `-T`: keeps the T=0 tetrahedron and smears $\mathrm{Im}\chi_0$ along frequency with a Gaussian. The width is the same as Fermi-Dirac at temperature $T$ (standard deviation $\pi k_BT/\sqrt3$, $-1000$ K = 0.00574 Ha = 0.156 eV). Used when the plasmon pole of $W$ is rough in metals (the practical setting for LiTi₂O₄ is $-992.4$; <del class="clfix">"Practical settings" in [kBT](kBT)</del><span class="clfix">"Settings for LiTi₂O₄" at the top of [kBT](kBT)</span>). It also affects $W(i\omega)$ and the static $W(0)$.
+- `-T`: keeps the T=0 tetrahedron and smears $\mathrm{Im}\chi_0$ along the frequency with a Gaussian. The width is the same as the Fermi-Dirac at temperature $T$ (standard deviation $\pi k_BT/\sqrt3$, $-1000$ K = 0.00574 Ha = 0.156 eV). Use it for metals where the plasmon pole of $W$ is rough (the practical setting for LiTi₂O₄ is $-992.4$. See the settings for LiTi₂O₄ at the top of [kBT](kBT)). It also affects $W(i\omega)$ and the static $W(0)$.
 The gwinit template writes 300.
 - **type**: float (K)
 - **default**: none (required)
 
-Keys appearing in old inputs are handled as in Table 1. `ctrlg_update.py ctrlg.<sname>.toml` rewrites `SmearX0` (Ha, standard deviation of the
-Gaussian for $\mathrm{Im}\chi_0$) into `t_tetrakbt = -T` of the same width (0.0057 Ha → $-992.4$ K), and adds `t_tetrakbt = 0` to files without
-`t_tetrakbt`. The calculation does not change. `Legacy2toml.py` does the same rewriting during conversion. For the history of the keys, see Table 2 in [kBT](kBT) §2.5.
+Keys appearing in old inputs are handled as in Table 1. `ctrlg_update.py ctrlg.<sname>.toml` rewrites `SmearX0` (Ha, the standard deviation of the
+Gaussian for $\mathrm{Im}\chi_0$) to `t_tetrakbt = -T` of the same width (0.0057 Ha → $-992.4$ K), and adds
+`t_tetrakbt = 0` to files without `t_tetrakbt`. The calculation does not change. `Legacy2toml.py` does the same rewriting in the conversion. For the history of the keys, see Table 2 in [kBT](kBT) §2.5.
 
-**Table 1**. Old keys of `[gw]` and how they are handled now
+**Table 1**. Old keys in `[gw]` and how they are handled now
 
 | Old key | Current handling |
 |---|---|
-| `SmearX0`, `SmearX0q0` | stops if written. Write `t_tetrakbt = -T` |
-| `tetrakbt` (logical) | not read. Finite temperature is `t_tetrakbt > 0` |
-| `esmr` (Ry, Gaussian) | not read (since 2026-11-14); `ctrlg_update.py` writes `t_sigmaw` of the same standard deviation (until then it was converted when `t_sigmaw` was absent) |
-| `t_sigmakbt` (K) | not read (since 2026-11-14); `ctrlg_update.py` writes its value as `t_sigmaw` |
-| `GaussianFilterX0`, `GaussSmear`, `delta`, `dw`, `omg_c`, `WgtQ0P`, `MEMnmbatch` | not read (no effect even if written) |
-| `zmel_max_size` | read as `zmel_batch_gb` |
+| `SmearX0`, `SmearX0q0` | The program stops if written. Write `t_tetrakbt = -T` |
+| `tetrakbt` (logical) | Not read. Finite temperature is `t_tetrakbt > 0` |
+| `esmr` (Ry, Gaussian) | Not read (since 2026-11-14). `ctrlg_update.py` converts it to `t_sigmaw` with the same standard deviation and writes that (before, it was converted and read when `t_sigmaw` was absent) |
+| `t_sigmakbt` (K) | Not read (since 2026-11-14). `ctrlg_update.py` writes the value as it is as `t_sigmaw` |
+| `GaussianFilterX0`, `GaussSmear`, `delta`, `dw`, `omg_c`, `WgtQ0P`, `MEMnmbatch` | Not read (no effect even if written) |
+| `zmel_max_size` | Read as `zmel_batch_gb` |
 
 ### `t_sigmaw`  *(2026-09-20, formerly `esmr` / `t_sigmakbt`)*
-Width of the Fermi-Dirac kernel that smears the intermediate levels (poles of G) in the self-energy <del class="clfix">$\Sigma = G(W)$</del><span class="clfix">$\Sigma = iGW$</span>. Unit K.
-The same kernel $-\partial f/\partial\varepsilon$ ($k_BT$ = `t_sigmaw`) is used for all of: the occupation weights of <del class="clfix">$\Sigma_x = Gv$</del><span class="clfix">$\Sigma_x = iGv$</span>, and the window weights and pole positions (`wcsmear`) of the real-axis pole term of <del class="clfix">$\Sigma_c = G(W-v)$</del><span class="clfix">$\Sigma_c = iG(W-v)$</span>.
+Width of the Fermi-Dirac kernel that smears the intermediate levels (the poles of G) in the self-energy $\Sigma = iGW$. Unit K.
+The same kernel $-\partial f/\partial\varepsilon$ ($k_BT$ = `t_sigmaw`) is used for all of: the occupation weights in $\Sigma_x = iGv$, and the window weights and the pole positions (`wcsmear`)
+of the real-axis pole term of $\Sigma_c = iG(W-v)$.
 **This is a numerical width, not a complete finite-temperature self-energy** (Bose factors etc. are not included).
-The Fermi level is `EFERMI_kbt` if `t_tetrakbt > 0` ($\chi_0$ also at finite temperature); otherwise it is determined by counting levels on the k mesh (Table 5 in [kBT](kBT) §0).
-The candidate window of intermediate states and the margin of the real-axis $\omega$ mesh are $E_F \pm 15\,k_BT$. The same kernel also enters the
-half-residue step of the imaginary-axis integral of $\Sigma_c$ (contract: the occupation weights, the window weights of the pole term and the imaginary-axis step, all 3 use the same kernel. [manual/kBT](kBT) §3.6).
+The Fermi level is `EFERMI_kbt` if `t_tetrakbt > 0` ($\chi_0$ also at finite temperature); otherwise it is determined by counting the levels on the k mesh (Table 5 in [kBT](kBT) §0).
+The margin of the candidate window for intermediate states and of the real-axis $\omega$ mesh is $E_F \pm 15\,k_BT$. The same kernel also enters the step of the
+half residue in the imaginary-axis integral of $\Sigma_c$ (contract: the occupation weights, the window weights of the pole term, and the step on the imaginary axis, these 3 places use the same kernel. [manual/kBT](kBT) §3.6).
 
-- Required (since 2026-11-14). The template writes 300 K. The code default until then, 1000 K, is a width close to the old `esmr = 0.01` Ry (Gaussian $\sigma$) (the same standard deviation is 872 K; the std of FD is
-  $\pi k_BT/\sqrt3 = 1.81\,k_BT$). The old `esmr = 0.003` Ry (the value for Si etc. in TestInstall) corresponds to 262 K.
-- Insulators: if the width is sufficiently smaller than the band gap, it does not affect the result (for Si the difference between 262 K and 1000 K is a few meV).
+- Required (since 2026-11-14). The template is 300 K. The default of the earlier code was 1000 K, a width close to the old `esmr = 0.01` Ry (Gaussian $\sigma$)
+  (the same standard deviation is 872 K; the std of FD is $\pi k_BT/\sqrt3 = 1.81\,k_BT$). The old `esmr = 0.003` Ry (the value in TestInstall, e.g. Si) corresponds to 262 K.
+- Insulators: if the width is much smaller than the band gap, it does not affect the results (the difference between 262 K and 1000 K is a few meV for Si).
 - Metals: in principle the limit $n_1n_2n_3 \to \infty$, `t_sigmaw` $\to 0$, but a finite width is needed for convergence.
-  300–1000 K together with a fine k mesh. Choose per material (1000 K for LiTi₂O₄).
-- The old `esmr` and `t_sigmakbt` are not read; `ctrlg_update.py` writes `t_sigmaw = esmr[Ry]·13.6057/(1.81·8.617e-5)` (`t_sigmakbt` as is).
+  300 to 1000 K together with a fine k mesh. Choose per material (1000 K for LiTi₂O₄).
+- The old `esmr` and `t_sigmakbt` are not read. `ctrlg_update.py` writes `t_sigmaw = esmr[Ry]·13.6057/(1.81·8.617e-5)` (for `t_sigmakbt`, the value as it is).
 - **type**: float (K)
-- **default**: none (required since 2026-11-14; the template writes 300, the code default until then was 1000)
+- **default**: none (required since 2026-11-14; the template is 300, the default of the earlier code was 1000)
 
-### `wcsmear`  *(2026-09-19, default true from 2026-09-20)*
-In the real-axis pole term of $\Sigma_c$, the Fermi-Dirac kernel of the intermediate levels (`t_sigmaw`) is also applied to the pole position $\omega_\varepsilon$,
-and $W_c(\omega)$ is integrated with the kernel. `false` gives the conventional one-point evaluation at the mean energy (3-point Lagrange interpolation,
-PRB76,165106 Eq.58). In systems where $W_c$ is smooth both are almost the same (a few meV up to 77 meV at most for Si).
-Required for metals with sharp plasmon poles (LiTi₂O₄ ≲ 1500 K). The cost of the real-axis pole term grows several times (+7–26 % in total).
+### `wcsmear`  *(2026-09-19, default true since 2026-09-20)*
+In the real-axis pole term of $\Sigma_c$, applies the Fermi-Dirac kernel of the intermediate levels (`t_sigmaw`) also to the pole position $\omega_\varepsilon$
+and integrates $W_c(\omega)$ with the kernel. `false` gives the former one-point evaluation at the mean energy (3-point Lagrange interpolation,
+PRB76,165106 Eq.58). In systems where $W_c$ is smooth, both are nearly the same (a few meV up to 77 meV at most for Si).
+Required for metals with a sharp plasmon pole (LiTi₂O₄ at ≲ 1500 K). The cost of the real-axis pole term becomes several times larger (+7 to 26 % in total).
 - **type**: boolean
 - **default**: true
 
-> Parallelization of the tetrahedron weights (`tetwt5`): from 2026-09-22 **MPI k parallelization** (each rank of the W-build computes only its own k range).
-> Launching hgw with `-np2` with more ranks than GPUs (GPUs shared round-robin) makes it correspondingly faster. It matters when χ₀ is at finite temperature
-> (`t_tetrakbt > 0`, 150 s per q for 9³). The OpenMP (`omp_tetwt`) tried 09-19 to 22 was removed.
+> Parallelization of the tetrahedron weights (`tetwt5`): since 2026-09-22 **MPI k parallelization** (each rank of the W-build computes only its own k range).
+> Starting hgw with `-np2` with more ranks than GPUs (GPUs shared round-robin) makes it faster accordingly. It matters when $\chi_0$ is at finite temperature
+> (`t_tetrakbt > 0`, 150 s per q at 9³). The OpenMP version (`omp_tetwt`) tried during 09-19 to 22 was removed.
 
 ### `unit_2pioa`
   `unit_2pioa = false`   # false --> a.u.; true --> unit of QpGcut_* are in 2*pi/alat
@@ -134,51 +134,50 @@ Required for metals with sharp plasmon poles (LiTi₂O₄ ≲ 1500 K). The cost 
 
 ### `QpGcut_psi`
 
-Cutoff ~~energy: unit Ryd~~ of the IPW basis of the wave functions. Note that the basis functions of the wave functions differ from the PMT method used in the `lmf` calculation. The wave functions in the interstitial region are re-expanded and described in IPW. IPW means interstitial plane wave.
+Cutoff ~~energy (unit Ryd)~~ of the IPW basis for the wave functions. Note that the basis functions of the wave functions differ from those of the PMT method used in the `lmf` calculation. The wave functions in the interstitial region are re-expanded in IPWs. IPW means interstitial plane wave.
 - **type**: float
 - **default** : 4.0
 `|q+G| < QpGcut_psi` in units of 1/a.u.
-The number is written in the output of qg4gw (lqg4gw).
-To convert to energy (Ry), take **2.
+The number of them is written in the output of qg4gw (lqg4gw).
+To convert to energy (Ry), square it (**2).
 
-The IPW cutoff of the wave functions is also related to `[ham] pwemax`. For pwemax, 2 or 3 is often tried
-<del class="clfix">(its unit is an energy cutoff, i.e. **2, in Ryd).</del><span class="clfix">(pwemax is an energy cutoff in Ry: $|\mathbf q+\mathbf G|^2 \lt {\rm pwemax}$, with $|\mathbf q+\mathbf G|$ in 1/a.u.)</span>
+The IPW cutoff for the wave functions is also related to `[ham] pwemax`. For pwemax, 2 or 3 is often tried
+(pwemax is an energy cutoff in Ry, $|\mathbf q+\mathbf G|^2 \lt {\rm pwemax}$ ($|\mathbf q+\mathbf G|$ in 1/a.u.).)
 
 ### `QpGcut_cou`
-Cutoff ~~energy: unit Ryd~~ of the IPW part of the product basis 
+Cutoff ~~energy (unit Ryd)~~ of the IPW part of the product basis 
 `|q+G| < QpGcut_cou` in units of 1/a.u.
-To convert to energy (Ry), take **2.
+To convert to energy (Ry), square it (**2).
 - **type**: float
 - **default** : 3.0
 
-The number is written in the output of qg4gw (lqg4gw).
+The number of them is written in the output of qg4gw (lqg4gw).
 
 ### `emax_sigm`
-Maximum energy, measured from the Fermi level, of the quasiparticle states whose self-energy is calculated: unit Ryd. In QSGW the self-energy is used to build the potential, so making it small also lowers the accuracy of the potential.
+Maximum energy, measured from the Fermi level, of the quasiparticle states whose self-energy is calculated: unit Ryd. In QSGW the self-energy is used to construct the potential, so making it smaller also lowers the accuracy of the potential.
 - **type**: float
 - **default** : 3.0
-
 
 ## `HistBin_dw`, `HistBin_ratio` — the real-axis mesh of the polarization function {#change-histbin-for-high-resolution-energy-mesh-near-ef-for-metal}
 This defines histogram bins to accumulate weight (imaginary part) of the polarization functions. `getfreq` in `m_freq.f90` makes this mesh.
 
-Both are required (since 2026-11-14). The template (written into `[gw]` by `ctrlgenToml.py` through `gwinit`) has `HistBin_dw = 1e-4`, `HistBin_ratio = 1.05`.
-Until 2026-11-14 the code defaults `1e-5`, `1.03` were used when the keys were absent; `ctrlg_update.py` adds these values to old files, so the results stay the same.
+Both are required (since 2026-11-14). The template (the values `ctrlgenToml.py` writes into `[gw]` through `gwinit`) is `HistBin_dw = 1e-4`, `HistBin_ratio = 1.05`.
+Until 2026-11-14, if the keys were not written, the code defaults `1e-5`, `1.03` were used. `ctrlg_update.py` adds these values to old files, so the results do not change.
 
-The template values over time:
+History of the template values:
 
-| period | `HistBin_dw` | `HistBin_ratio` |
+| Period | `HistBin_dw` | `HistBin_ratio` |
 | --- | --- | --- |
 | until 2025-08-19 | 2e-3 | 1.08 |
 | from 2025-08-22 | 1e-4 | 1.05 |
 
-A finer mesh (smaller `HistBin_dw`, `HistBin_ratio` closer to 1) gives a better energy resolution near $\omega\sim 0$ but costs more.
-Usually the GW results do not depend much on this choice (see below); use a finer mesh, e.g., to plot $W(\omega)$ near $\omega\sim 0$.
+The finer the mesh (smaller `HistBin_dw`, `HistBin_ratio` closer to 1), the higher the energy resolution near $\omega\sim 0$, but the heavier the calculation.
+Usually the GW results do not depend much on this choice (see the explanation below). Make it finer, for example, when you plot $W(\omega)$ in detail near $\omega\sim 0$.
 
-* HistBin_dw and HistBin_ratio specify <del class="clfix">real space bins</del><span class="clfix">bins along the real frequency axis</span> which we accumulate imaginary part weight of polarization functions. The bins are (see frhis in m_freq.f90) 
-<del class="clfix">$\omega_i = {{dw}} ∗ (\exp({\rm ratio} ∗ (i − 1)) − 1)$</del><span class="clfix">$\omega_i = b\,(e^{a(i-1)}-1)$, $a={\rm HistBin\_ratio}-1$, $b={\rm HistBin\_dw}/a$</span>
+* HistBin_dw and HistBin_ratio specify bins along the real frequency axis which we accumulate imaginary part weight of polarization functions. The bins are (see frhis in m_freq.f90) 
+$\omega_i = b\,(e^{a(i-1)}-1)$, $a={\rm HistBin\_ratio}-1$, $b={\rm HistBin\_dw}/a$
 where $[\omega_i, \omega_{i+1}]$ $(i = 1, 2, ...,\verb#nwhis#+1)$ is the i-th bin. HistBin_dw is bin width at ω = 0.
-The ratio ω(i + 1)/ω(i) for large ω is <del class="clfix">exp(a)=HistBin_ratio</del><span class="clfix">$e^{a}\approx$ HistBin_ratio</span>. This choice of getting coarser at high energy is because we think W (ω) around ω ∼ 0 gives most important contribution to the GW approximation. If histogram bins are too wide, dielectric function can be less accurate, but results may be not so much affected.
+The ratio ω(i + 1)/ω(i) for large ω is $e^{a}\approx$ HistBin_ratio. This choice of getting coarser at high energy is because we think W (ω) around ω ∼ 0 gives most important contribution to the GW approximation. If histogram bins are too wide, dielectric function can be less accurate, but results may be not so much affected.
 In GW calculation, the Plasmon pole is important. It is determined not by the Drude weight; it usually gives small contribution to the Plasmon pole (for example, Si is described well by a Plasmon pole model, but Si has no Fermi surface). We expect that the GW results are not so sensitive to the choice of HistBin_dw, HistBin_ratio usually. We may use fine mesh when we plot quantities such as W (ω) near ω = 0.
 <!-- The ecalj gives ¯W (ω = 0) ∼ 0 for metal; where ¯W (ω) is the effective interaction averaged in
 the Γ-cell [?]. And ¯W (ω get closer to v for larger ω. -->
@@ -200,7 +199,6 @@ real (a.u.) only for one-shot case.
 deltaw is the interval for the numerical derivative ∂Σ(ω)/∂ω.  We calculate $\Sigma(\omega),\Sigma(\omega\pm {\rm deltaw})$.
 From these values, we can calculate two Z (or second-derivative of Σ(ω)). 
 
-
 ## `<QforGW>` section
 This is only for one-shot/spectrum function mode. 
 In `[gw]`, `QforGW` gives the q vectors, one per line between `"""` (in the unit of `2pi/alat`. See BZ.html and syml file to check):
@@ -214,9 +212,8 @@ If no `QforGW` (or `QforGWIBZ = true`), all irreducible q points are used.
 
 ## EMAXforGW
 one-shot GW. Set this (eV,above the Fermi energy) to specify up to which bands you calculate. 
+Required (since 2026-11-14). The template is 15. 99999 means no upper limit (the default of the earlier code, and the value `ctrlg_update.py` adds).
 (we have EMINforGW).
-Required (since 2026-11-14). The template writes 15; 99999 means no cutoff (the code default until then, which `ctrlg_update.py` adds).
-
 
 ## `--readQforGW` option
 We can use any q in the QforGW section
@@ -235,30 +232,28 @@ QforEPS = """
 Because of the shifted-mesh method, we can use any q point which is not on the mesh points.
 ### QforEPSau 
 Whether q is in the unit of `2pi/alat` or in the unit of a.u.(=`bohr^{-1}`). I think `QforEPSau = true` might be convenient.
-Required (since 2026-11-14). The template writes true; the code default until then was false (which `ctrlg_update.py` adds).
-
-
+Required (since 2026-11-14). The template is true. The default of the earlier code was false (the value `ctrlg_update.py` adds).
 
 ## Product basis `[product_basis]` {#product-basis}
 
-The product basis (the union of MT-local products and interstitial plane waves) is the heart of how ecalj represents the
-screened Coulomb interaction $W$ ([Product basis](../theory/gw_product_basis)).
-It is specified in the **`[product_basis]` section of `ctrlg.<sname>.toml`**, always the last section of the file (Table PB1).
+The product basis (the union of local products in the MTs and plane waves in the interstitial region) is the key to how ecalj represents the screened Coulomb interaction $W$
+([The product basis that expands products of wave functions](../theory/gw_product_basis)).
+It is specified in the **`[product_basis]` section** of `ctrlg.<sname>.toml` (always at the end of the file) (Table PB1).
 
 Table PB1. Keys of `[product_basis]`
 
-| key | what |
+| Key | Content |
 |---|---|
-| `pb_tolerance`, `pb_lcutmx` | global cut-offs — the part you may tune |
-| `nlx`, `valence`, `core` | per-atom radial-function tables, written by `gwinit` (via `ctrlgenToml.py` / `Legacy2toml.py`) from `[[spec]]`; almost never hand-edited |
+| `pb_tolerance`, `pb_lcutmx` | Global limits. These are the ones you may adjust |
+| `nlx`, `valence`, `core` | Per-atom tables of radial functions. `gwinit` writes them from `[[spec]]` (through `ctrlgenToml.py` / `Legacy2toml.py`). You rarely edit them by hand |
 
-(Until 2026-09 the three tables were a separate `PB.<sname>.toml`. The programs do not read such a file: they abort and point at
-`ctrlg_absorb.py <sname>`, which appends its tables to `[product_basis]` and keeps the original as `.bk`.)
+(Until 2026-09, the three tables were in a separate `PB.<sname>.toml`. The present programs do not read that file; they stop and point to `ctrlg_absorb.py <sname>`.
+`ctrlg_absorb.py` adds those tables to `[product_basis]` and keeps the original file as `.bk`.)
 
-The product basis originates from F. Aryasetiawan and O. Gunnarsson ([PRB 49, 16214](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.49.16214));
-the mixed product basis ([Solid State Commun. 2002](https://doi.org/10.1016/S0038-1098(02)00028-5)) is its successor.
+The product basis originates from F. Aryasetiawan and O. Gunnarsson ([PRB 49, 16214](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.49.16214)),
+and the mixed product basis ([Solid State Commun. 2002](https://doi.org/10.1016/S0038-1098(02)00028-5)) is its successor.
 
-### Cut-offs: `pb_tolerance`, `pb_lcutmx`
+### Limits: `pb_tolerance`, `pb_lcutmx`
 
 ```toml
 [product_basis]
@@ -271,21 +266,21 @@ pb_lcutmx    = [4, 4]    # per-site l-cutoff for the product basis.
                          #   site order = [[site]] order; see lmchk SiteInfo.
 ```
 
-- `pb_tolerance`: the criterion that drops nearly linearly dependent products. Larger gives fewer product basis functions; 1e-2 is OK for a cheaper calculation.
-- `pb_lcutmx`: the $l$ cutoff of the product basis in the MT, per site. To reduce the computational time use 2 for s,p atoms such as oxygen (probably also for other elements of the same row).
-  4 is needed for atoms with valence 3d (Ni, Ga, ...), 6 for 4f / 5f atoms. Example:
+- `pb_tolerance`: criterion for removing nearly linearly dependent products. The larger it is, the fewer product basis functions. 1e-2 is acceptable when you want a cheaper calculation.
+- `pb_lcutmx`: per-site upper limit of $l$ of the product basis in the MT. To reduce computational time, set 2 for s, p atoms such as oxygen (probably the same for other elements of the same period).
+  Atoms with 3d in the valence (Ni, Ga, etc.) need 4, and 4f / 5f atoms need 6. Example:
   ```toml
   [product_basis]
   pb_lcutmx = [4, 4, 4, 2, 2, 2]
   ```
-  The atoms are in the order of the `[[site]]` tables (`lmchk` shows it, also in `SiteInfo.lmchk`).
+  The order of the atoms is the order of the `[[site]]` tables (`lmchk` shows it, and it is also in `SiteInfo.lmchk`).
 
-After editing, re-run `lmf --jobgw=1` (or the next `gwsc` step); `hbasfp0` uses these values and reports the resulting basis sizes in `lbas` / `lbasC`.
+After changing them, rerun `lmf --jobgw=1` (or the next step of `gwsc`). `hbasfp0` uses these values and writes the size of the resulting product basis to `lbas` / `lbasC`.
 
-### The per-atom tables (`nlx`, `valence`, `core`)
+### Per-atom tables (`nlx`, `valence`, `core`)
 
-They follow the cut-offs in the same `[product_basis]`; every row starts with the site index `iatom` (in `[[site]]` order).
-`gwinit` writes them from `rsmh`/`eh`/`pz` of `[[spec]]` and adds a label per row; the explanation below is written into the file itself as comments, and the three tables are divided by `# ----` rules.
+They follow the limits, in the same `[product_basis]`. Every row begins with the site number `iatom` (in the `[[site]]` order).
+`gwinit` writes them from `rsmh`/`eh`/`pz` of `[[spec]]` and labels each row. The explanation below is also written in the file as comments, and the three tables are separated by `# ----` rules.
 
 ```toml
 [product_basis]
@@ -325,13 +320,15 @@ core = [
 ]
 ```
 
-Semantics (same as the legacy `<PRODUCT_BASIS>` block — only the container changed):
+Meaning (the same as the old `<PRODUCT_BASIS>` block; only the container has changed):
 
-- `nlx` row `[iatom, l, nnvv, nnc]` — how many radial functions ecalj has on each `l` channel of that site: `nnvv = 2` is `{phi, phidot}`, `nnvv = 3` adds the local orbital `phiz`; `nnc` is the number of core levels at that `l`. Derived, do not edit.
-- `valence` row `[iatom, l, n, occ, unocc]` — one per radial function, `n = 1` phi, `2` phidot, `3` phiz. `occ` / `unocc` are 0/1 switches that put the function into the "occupied" / "unoccupied" group; the product basis is formed from products (occupied group) × (unoccupied group) and pruned by `pb_tolerance`. `phidot` is usually left out (`0 0`) for speed; including it gives a more accurate basis.
-- `core` row `[iatom, l, n, occ, unocc, forX0, forSxc]` — one per core level (`n = 1` deepest). `forX0` / `forSxc` came from the CORE1/CORE2 distinction of PRB 76, 165106 (2007). Historical: modern runs leave every core row all-zero.
+- `nlx` row `[iatom, l, nnvv, nnc]`: how many radial functions ecalj has for each `l` of that site. `nnvv = 2` is `{phi, phidot}`, `nnvv = 3` adds the local orbital `phiz`. `nnc` is the number of core levels of that `l`. These are derived values, so do not edit them.
+- `valence` row `[iatom, l, n, occ, unocc]`: one per radial function. `n = 1` is phi, `2` is phidot, `3` is phiz.
+  `occ` / `unocc` are 0/1 switches for including the function in the "occupied" / "unoccupied" set. The product basis is built from the products (occupied set) × (unoccupied set) and thinned by `pb_tolerance`.
+  `phidot` is usually excluded (`0 0`) for speed. Including it makes the product basis more accurate.
+- `core` row `[iatom, l, n, occ, unocc, forX0, forSxc]`: one per core level (`n = 1` is the deepest). `forX0` / `forSxc` come from the CORE1/CORE2 distinction of PRB 76, 165106 (2007). They are historical; in present calculations they are all 0 in every core row.
 
-`Legacy2toml.py` translates the pre-TOML `<PRODUCT_BASIS>` block of `GWinput` into this `[product_basis]` section.
+`Legacy2toml.py` converts the `<PRODUCT_BASIS>` block of a pre-TOML `GWinput` into this `[product_basis]` section.
 
 ## `Smaller IPW related part to reduce computational time`
 To reduce compuational time, we may reduce MPB coming from IPS, reduce the size of IPW for psi, reduce emax_sigm and pwemax as follows.

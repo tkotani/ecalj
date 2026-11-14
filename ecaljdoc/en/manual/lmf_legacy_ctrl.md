@@ -1,18 +1,14 @@
 # `ctrl.<sname>` — legacy reference (kept for migration)
 
-> English version of the page [manual/lmf_legacy_ctrl](../../manual/lmf_legacy_ctrl.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/lmf_legacy_ctrl.md of commit 8744007d9 (source blob f4a1b108e2de).
+> English version of the page [manual/lmf_legacy_ctrl](../../manual/lmf_legacy_ctrl.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/lmf_legacy_ctrl.md of commit 694da29ec (source blob 17e7dc61e617).
 
 > ⚠️ **This page is the historical reference for the legacy `ctrl.<sname>`
 > text format.** Since 2026-05, `lmf` / `lmfa` / `lmchk` read TOML only
 > (`ctrlg.<sname>.toml`) — the Fortran no longer parses
-> the `ctrl.<sname>` shown below. <del class="clfix">The page is kept because the
-> `Category_Token` documentation here is still the most thorough
-> per-key reference; treat it as the canonical place to look up the
-> *meaning* of a key, then translate to TOML via the
-> [`Legacy ↔ TOML map`](./toml_migration#legacy-toml-map).</del>
-> <span class="clfix">The keys of the present input are described in [lmf](./lmf) (ctrl side) and [GW settings](./gwinput) (GW side).
+> the `ctrl.<sname>` shown below. 
+> The keys of the present input are described in [lmf](./lmf) (ctrl side) and [GW settings](./gwinput) (GW side).
 > This page is kept as a record; its `Category_Token` notes may still help to read the meaning of an old key
-> (the [`Legacy ↔ TOML map`](./toml_migration#legacy-toml-map) gives the TOML path).</span>
+> (the [`Legacy ↔ TOML map`](./toml_migration#legacy-toml-map) gives the TOML path).
 >
 > If you are starting fresh, ignore this page entirely and read
 > [`lmf`](./lmf) instead. If you are migrating an old working
@@ -223,7 +219,6 @@ See [SYMGRP](./lmf#symgrp) about how to set SYMGRP.
 
    Its integer part is the principal quantum number; its fractional part varies smoothly from 0 (for the bottom extreme of the band for that principal quantum number) to 1 (the top extreme of the band), and can be thought of in some sense as a "continuously variable" principal quantum number.
 
-
 . SPEC_ATOM_Q       opt    r8v      1,  1          default= 0
    Starting valence charges for each l channel.
    Initial charge configuration set by Q is shown by lmfa|grep conf
@@ -271,8 +266,8 @@ Default: R*0.4, with R=augmentation (muffin-tin) radius.
     Exchange parameter J for LDA+U
 ```
 
-In addition, it reads <del class="clfix">`dmatu.<sname>`</del><span class="clfix">`dmats.<sname>`</span> containing density matrix.
-<del class="clfix">`dmatu.<sname>`</del><span class="clfix">`dmats.<sname>`</span> is automatically generated if not exists.
+In addition, it reads `dmats.<sname>` containing density matrix.
+`dmats.<sname>` is automatically generated if not exists.
 
 For the first, a line must be added to the input file for each species that contains U and J. Consider the example taken from the ErAs test case:
 ```
@@ -288,7 +283,6 @@ This stops promptly without side effect.
 
 Initial dmats.ext is automatically generated from the 1st-shot LDA calculation without U.
 But you can supply a file occnum.ext, which is a starting guess for the density-matrix (its diagonal part). occnum.ext has one line of (2l+1) numbers for the occupation numbers of the first spin, following by a line with the occupation numbers for the second spin.
-
 
 ```
 (Need check this block: probably obsolate)
@@ -366,7 +360,6 @@ Wth this setting, we have electrons.
 Check charge neutrality and occupancy.
 See the following explanation. With C-HOLE=4f C-HQ=-7,0 together with P=0,0,0,5 (then 4f is treated as core, 5f as valence) and PZ=
 
-
 ```
  SPEC_ATOM_C-HOLE  opt    chr      1,  0
     Channel for core hole
@@ -398,8 +391,6 @@ the enrgy almost have noded of 6f.
 occupied).
 4. Run lmfa. If it does not show that freeat (warning) atom not neutral, it is the
 neutral atom. You can also chage the message tagged by Add core hole: Simultaneously
-
-
 
 ## Parameters for Brillouin zone integration ---
 ```
@@ -439,7 +430,6 @@ neutral atom. You can also chage the message tagged by Add core hole: Simultaneo
           and insulator, even when MET>0.  To suppress this,
           add 100(-100 for Fermi distribution) to N.
 
-
  . BZ_W              opt    r8       1,  1          default= 0.500D-02
     If BZ_N>=0, Line broadening for sampling integratio
     If BZ_N<0,  Temperature for Fermi distribution (Ry)W=
@@ -448,7 +438,6 @@ neutral atom. You can also chage the message tagged by Add core hole: Simultaneo
           NB: if N=-1 below, the sampling weights are computed
           from the Fermi function instead of the error function.
           In that case, token W= corresponds to temperature, in Ry.
-
 
  BZ_ZBAK           opt    r8       1,  1          default= 0
     Homogeneous background charge
@@ -468,7 +457,6 @@ neutral atom. You can also chage the message tagged by Add core hole: Simultaneo
    If NEVMX=0, program uses internal default
    If NEVMX<0, no eigenvectors are generated
 
-
  BZ_FSMOMMETHOD    opt    i4       1,  1          default= 0
     Method of Fixed-spin moment 0:original 1:discrete
 
@@ -480,7 +468,6 @@ neutral atom. You can also chage the message tagged by Add core hole: Simultaneo
     value is zero (the default).
 
 ```
-
 
 ## Parameters for Ewald sums
 ```
@@ -546,7 +533,6 @@ The syntax for Anderson mixing is `MIX=A3 b=.2` for example. You can use 'A5' or
 
    Broyden mixing uses a more sophisticated procedure, in which it tries to build up the Hessian matrix.  It usually works better but has more pitfalls than Anderson.  As with Anderson, it uses linear mixing in the absence of prior iterations, Q* = beta*Qout  + (1-beta)*Qin.  Broyden has an additional parameter, wc, that controls how much weight is given to prior iterations in the mix.  The syntax for Broyden mixing is `MIX=B3 b=.2` for example.
 * T.Kotani think  Broyden or Anderson is not superior to the other. Problem is when we are a little away from convergence. Then we may have exponentially-growing mode during iteration. No definite way to avoid this except 'stating over'.
-
 
 ## Parameters for relaxiation of atomic positions
 Try `Samples/Relax/LaGaO3`. See SITE_RELAX (TOML: `[[site]].relax`) as well.
@@ -616,7 +602,6 @@ lives at [`cmdopts`](./cmdopts).
 
 (following notes are somehow obsolete but kept. Due to Mark van Schilfgaarde)
 
-
 ### old note for APW test (at year 2010 around)
  APWs. It is very simple to add augmented plane waves to the basis. Add these tokens to category HAM:
 
@@ -671,8 +656,6 @@ The true and fit K.E. differ. The solution is again to alter PZ (4.90 in this ca
 
 At present, the P with the higher principal quantum number is automatically frozen to its input value (that is, P is frozen when PZ is a semicore orbital, and PZ is frozen when it is a high-lying orbital). Thus, only the P corresponding to the deepest state is allowed to float (see IDMOD description).
 
-
-
 ## old note for SPEC
 (TK: We now detour this difficulty to set RSMH and EH thanks to the PMT method)
 
@@ -689,7 +672,6 @@ In this case the basis on the Co site consists of an s orbital with (rsmh,eh)=(2
     SPEC ATOM=A
         RSMH= 2,2,2 EH=-.1,-.1,-.1
         RSMH2=1.5,1.5,1.5 EH2=-1,-1,-1
-
 
 You are strongly encouraged not to just take what lmfa supplies, but to spend a little time tinkering with these parameters to minimize the energy. A quick way to do that is to use the HF=t option, which always used overlapped free-atomic densities and makes only one band pass. Some rules of thumb:
 

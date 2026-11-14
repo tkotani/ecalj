@@ -1,66 +1,60 @@
 # `syml.<sname>`
 
-> English version of the page [manual/syml](../../manual/syml.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/syml.md of commit 37e22cae1 (source blob 6201087689fc).
+> English version of the page [manual/syml](../../manual/syml.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/syml.md of commit 694da29ec (source blob 661c6db1c957).
 
-Symmetry lines for the band plot.
-We can generate `syml.<sname>` by `getsyml`.
+This is the file of the symmetry lines for band plots.
+`syml.<sname>` can be made with `getsyml`.
 
+## Getting the symmetry lines for band plots and a figure of the Brillouin zone
+`syml.<sname>` is made from `ctrlg.<sname>.toml` (`ctrl.<sname>` in the old format).
+Band plots need `syml.<sname>`.
+After making it, it is also easy to edit `syml.<sname>` by hand for `job_band`.
 
-## Get symmetry lines for band plot and Brillouin zone plot.
-`syml.<sname>` is generated from `ctrlg.<sname>.toml` (legacy: `ctrl.<sname>`).
-`syml.<sname>` is needed for band plot.
-After generated, you can easily edit `syml.<sname>` for `job_band`.
+There is getsyml.py in ecalj/GetSyml. It is
+based on [seekpath](https://github.com/giovannipizzi/seekpath/) and [spglib](https://anaconda.org/conda-forge/spglib).
 
-At ecalj/GetSyml, we have getsyml.py, which is based on the
-seekpath at https://github.com/giovannipizzi/seekpath/
-and spglib at https://anaconda.org/conda-forge/spglib
-
-### Usage:
-We make a softlink `getsyml` to `ecalj/GetSyml/getsyml.py` during the install by `InstallAll.py`.
-Run 
+### Usage
+When installing with `InstallAll.py`, a symlink `getsyml` to `ecalj/GetSyml/getsyml.py` is made.
+Run it as follows.
 ```
 getsyml nio
 (or)
 getsyml ctrls.nio
 ```
-. This shows the 3D Brillouin zone together with symmetry lines for band plot.
-See [BZsamples](https://ecalj.sakura.ne.jp/BZgetsyml/) here.
-The symmetry lines are written into the `syml.<sname>` file for ecalj.
-The number of divisions for `syml` is given by a crude algorithm, so edit it if necessary.
+Together with the symmetry lines for the band plot, it shows the three-dimensional Brillouin zone.
+Examples are in [BZsamples](https://ecalj.sakura.ne.jp/BZgetsyml/).
+The symmetry lines are written to the file `syml.<sname>` for ecalj.
+The numbers of divisions in `syml` are determined by a rough method, so correct them if necessary.
 
-### Needed citations for getsyml
-  In addition to usual ecalj acknowledgement, following citations are <del class="clfix">required</del><span class="clfix">requested</span> when you make a publication <span class="clfix">(see [License](./license))</span>.
+### Citation when you use getsyml
+  When you publish a paper, in addition to citing ecalj, please cite the following (see [License](./license)).
 
    1.Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, 
      Band structure diagram paths based on crystallography,
      Comp. Mat. Sci. 128, 140 (2017)
      
-   2.You should also cite spglib that is an essential library used in the implementation.
-     <del class="clfix">https://github.com/atztogo/spglib.git</del><span class="clfix">A. Togo, K. Shinohara, I. Tanaka, Sci. Technol. Adv. Mater., Meth. 4, 2384822 (2024).</span>
+   2.Please also cite spglib, a library essential to the implementation.
+     A. Togo, K. Shinohara, I. Tanaka, Sci. Technol. Adv. Mater., Meth. 4, 2384822 (2024).
 
-* The licences of spglib and seekpath: <del class="clfix">[LICENCE](https://github.com/tkotani/ecalj/blob/main/LICENCE) of ecalj</del><span class="clfix">[License](./license)</span>.
+* Licenses of spglib and seekpath: [License](./license).
 
-### (memo for developer)
-   a.Modify lmchk to write required information to supply reasonable.
-     For example, ndiv (mesh size along lines).
-   b.Numerical accuracy of calculations. 
-     np.set_printoptions(precision=16) is not meaningful since we read output of lmchk
+### (Notes for developers)
+   a. Fix lmchk so that it writes the information needed to give reasonable values.
+     For example, ndiv (the number of mesh points along a line).
+   b. Numerical precision of the calculation.
+     Since we read the output of lmchk, np.set_printoptions(precision=16) is meaningless.
 
- symmetry-line file : input for plotting energy bands along
-    selected symmetry lines or for generating constant-energy
-    contours such as a Fermi surface.  This file (whose name is
-    specified as a modifier with the command-line argument
-    --band, described in the "Command-line switches" section) can
-    take one of several forms.
+ The symmetry-line file is the input for drawing energy bands along selected symmetry lines,
+    or for making constant-energy surfaces such as Fermi surfaces.
+    This file (its name is specified by a modifier of the command-line argument --band, described
+    in the section "Command-line switches") can take several forms.
 
-### format of syml
-    generate bands along specific symmetry lines.
-    The following sample input illustrates input for lines
-    X->Gamma and Gamma->M for the simple cubic lattice.
+### Format of syml
+    Bands are made along given symmetry lines.
+    The following example is the input for the lines X→Γ and Γ→M of the simple cubic lattice.
        21  .5 0  0    0  0  0         X     Gamma
        21  0  0  0    .5 .5 0         Gamma  M
        0   0  0  0    0  0  0
-    The first number designates how many points along each line.
-    The next six label the starting and ending q-points,
-    respectively.  Note that the last line must contain zeros.
-
+    The first number is the number of points along each line.
+    The next six are the q points of the start and the end.
+    The last line is all zeros.

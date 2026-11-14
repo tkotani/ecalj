@@ -1,36 +1,35 @@
+# Installing ecalj {#ecalj-install}
 
-# ecalj Install
+> English version of the page [install/install](../../install/install.md). The pages at the top of ecaljdoc are the reference; this one was made from install/install.md of commit 651e6e476 (source blob f95aa3293880).
 
-> English version of the page [install/install](../../install/install.md). The pages at the top of ecaljdoc are the reference; this one was made from install/install.md of commit a9d3d887c (source blob 2e44f97379c4).
+> ⚠️ **Migration to TOML (2026-05)** — The Fortran binaries read only `ctrlg.<sname>.toml`. Convert an old `ctrl.<sname>` / `GWinput` with `Legacy2toml.py <sname>`. For the whole guide and the list of migrated samples, see [Input files](../manual/toml_migration).
 
-> ⚠️ **TOML migration (2026-05)** — Fortran binaries now read `ctrlg.<sname>.toml` only. Run `Legacy2toml.py <sname>` to convert legacy `ctrl.<sname>` / `GWinput`. See [Input file](../manual/toml_migration) for the full guide and the list of migrated samples.
-
-To install the ecalj package, you need to install software and Python modules used in ecalj.
-In addition, we make some softlinks for convenience. Most steps are almost automatic. Follow the steps below.
-
+To install ecalj, you need to install the software and the Python modules that ecalj uses.
+In addition, we make some soft links for convenience. Most of the steps are almost automatic. Follow the steps below.
 
 
-## 1. Required software and native tools
 
-The core of ecalj is written in modern Fortran (Fortran 90/2003 style). The Fortran source files are:
+## 1. Required software and native tools {#_1-required-software-and-native-tools}
+
+The core of ecalj is written in modern Fortran (Fortran 90/2003 style). The Fortran source files are in the following places.
 
 ```text
 ecalj/SRC/main/*.f90
 ecalj/SRC/subroutines/*.f90
 ```
 
-We can automatically turn on/off the cpp switches for GPU support (OpenACC/CuBLAS) during the compilation below.
+The cpp switches for GPU support (OpenACC/CuBLAS) can be turned on/off automatically at compile time, as described below.
 
-Recommended/needed native tools and libraries (Ubuntu/Debian examples follow):
+Recommended or required native tools and libraries (an Ubuntu/Debian example is given later):
 
-* `git` (to clone/update the ecalj repository). `gitk` is convenient for visual history inspection.
-* A Fortran compiler: `gfortran` (GNU), `ifort` (Intel), or `nvfortran` (NVIDIA) — choose one supported by your site. `nvfortran` is for GPU.
-* BLAS/LAPACK/FFT libraries. Intel MKL is recommended where available; OpenBLAS is an alternative.
-* MPI implementation: Open MPI or MPICH. (Open MPI 4.x worked on Ubuntu 24.04.)
-* build tools: `cmake`, `make`, `bash`.
-* plotting / utilities: `gnuplot` (optional for plotting scripts and tests).
+* `git` (to clone and update the ecalj repository). `gitk` is useful for browsing the history visually.
+* Fortran compiler: choose one available on your machine among `gfortran` (GNU), `ifort` (Intel), and `nvfortran` (NVIDIA). `nvfortran` is for GPU.
+* BLAS/LAPACK/FFT libraries. Intel MKL is recommended if available. OpenBLAS also works.
+* MPI implementation: Open MPI or MPICH. (On Ubuntu 24.04 it worked with Open MPI 4.x.)
+* Build tools: `cmake`, `make`, `bash`.
+* Plotting and utilities: `gnuplot` (used by plotting scripts and tests; not mandatory).
 
-On Debian/Ubuntu, use  the following command to install these tools.:
+On Debian/Ubuntu, install these tools with the following commands.
 
 ```bash
 sudo apt update
@@ -39,37 +38,37 @@ sudo apt install -y git build-essential cmake make gfortran libopenmpi-dev openm
 ```
 
 
-Notes and tips:
+Notes and hints:
 
-* Intel MKL works well for Intel compiler and gfortran.
+* Intel MKL works well both with the Intel compilers and with gfortran.
 <!-- * For GPU builds use `nvfortran` and pass `--gpu` to the installer; CUDA toolkit and drivers must be present. (See 3.Install below) -->
-* Recently, we may need to install such tools under your home directory.
+* Nowadays you may need to install such tools under your home directory.
 
 
-Example: in my case (ThinkPad T14, Ubuntu 24.04), we use:
+Example: in my case (ThinkPad T14, Ubuntu 24.04) I use the following.
 
 * Open MPI 4.1.6
 * CMake 3.28.x
 * make 4.3
 * gfortran 13.x
-* Intel MKL 2020.x (where applicable)
+* Intel MKL 2020.x (if available)
 
 
-`git` helps with upgrades and tracking local changes (e.g., `git diff` at `ecalj/`).
+`git` is useful for updating and for tracking your local changes (e.g. `git diff` in `ecalj/`).
 
 
 
-## 2. Python and Python modules (using pyenv)
+## 2. Python and Python modules (using pyenv) {#_2-python-and-python-modules-using-pyenv}
 
 > [!TIP]
-> It is recommended to use `pyenv` to manage your Python version for ecalj. This keeps your system Python untouched and makes your setup more reproducible. You do not need `pyenv-virtualenv` unless you want to manage multiple environments; for a single ecalj environment, `pyenv` alone is sufficient.
+> We recommend managing the Python version used for ecalj with `pyenv`. It leaves the system Python untouched and makes the environment easier to reproduce. You do not need `pyenv-virtualenv` unless you want to manage several environments. If you have only one environment for ecalj, `pyenv` alone is enough.
 >
-> **Note:** Recent Ubuntu and similar systems work best when you keep your project Python environment separate from the system Python.
+> **Note:** On recent systems such as Ubuntu, it works best to keep the project's Python environment separate from the system Python.
 
-Python >= 3.9 is required. Below are the recommended steps to install `pyenv`, set up your shell, install a Python version, and install the required Python packages for ecalj.
+Python 3.9 or later is required. Below is the recommended procedure to install `pyenv`, set up the shell, install a Python version, and install the Python packages required by ecalj.
 
 
-1. Install prerequisites (Debian/Ubuntu example):
+1. Install the prerequisites (Debian/Ubuntu example).
 
 ```bash
 sudo apt update
@@ -78,13 +77,13 @@ sudo apt install -y build-essential curl libssl-dev zlib1g-dev libbz2-dev \
   xz-utils tk-dev libffi-dev liblzma-dev python-openssl git
 ```
 
-1. Install `pyenv` (recommended install method):
+1. Install `pyenv` (recommended installation method).
 
 ```bash
 curl https://pyenv.run | bash
 ```
 
-1. Add `pyenv` initialization to your shell startup (`~/.bashrc` or `~/.profile`):
+1. Add the `pyenv` initialization to your shell startup file (`~/.bashrc` or `~/.profile`).
 
 ```bash
 # pyenv
@@ -93,20 +92,20 @@ eval "$(pyenv init --path)"
 eval "$(pyenv init -)"
 ```
 
-Then reload your shell:
+Then reload the shell.
 
 ```bash
 source ~/.bashrc
 ```
 
-1. Install a Python version for ecalj. Example: install latest 3.11 and set it as local version:
+1. Install the Python version used for ecalj. Example: install the latest 3.11 and set it as the local version.
 
 ```bash
 pyenv install 3.11.6    # choose a concrete, available patch version
 pyenv local 3.11.6      # or pyenv global 3.11.6 for system-wide in that account
 ```
 
-1. Upgrade pip and install required packages:
+1. Upgrade pip and install the required packages.
 
 ```bash
 pip install --upgrade pip
@@ -115,11 +114,11 @@ pip install numpy pandas seekpath spglib pymatgen mp-api scipy plotly gnuplot ci
 
 
 Notes:
-* If you prefer conda/anaconda, you can substitute that workflow, but `pyenv` keeps system Python untouched and works well with multiple project environments.
-* On some systems you may prefer to install Python build dependencies via your package manager (examples above are for Debian/Ubuntu).
+* If you prefer conda/anaconda, you may substitute its procedure. However, `pyenv` leaves the system Python untouched and coexists well with the environments of several projects.
+* On some systems it may be better to install the build requirements of Python with the package manager (the example above is for Debian/Ubuntu).
 
 
-Optional: create a `requirements.txt` in your project with the packages above for reproducible installs:
+If needed, you can create a `requirements.txt` listing the packages above in your project, to reproduce the same installation.
 
 ```text
 numpy
@@ -135,7 +134,7 @@ cif2cell
 ```
 
 
-Then install with:
+Then install them as follows.
 
 ```bash
 pip install -r requirements.txt
@@ -143,27 +142,27 @@ pip install -r requirements.txt
 
 
 
-## 3. Install and InstallTest
+## 3. Install and install test {#_3-install-and-installtest}
 
-**For ohtaka and kugui(GPU machine) in ISSP, skip this section and see [installISSP.md](./installISSP.md).**
+**On ohtaka and kugui (GPU machine) at ISSP, skip this section and see [installISSP.md](./installISSP.md).**
 
 
-### Get ecalj package
+### Getting the ecalj package {#get-ecalj-package}
 
-The ecalj package is available at [https://github.com/tkotani/ecalj/](https://github.com/tkotani/ecalj/).
+The ecalj package is at [https://github.com/tkotani/ecalj/](https://github.com/tkotani/ecalj/).
 Check out the master branch.
 
-For ISSP machines, see [https://github.com/msobt/ecaljdoc](https://github.com/msobt/ecaljdoc).
+For the ISSP machines, see [https://github.com/msobt/ecaljdoc](https://github.com/msobt/ecaljdoc).
 
-To clone ecalj:
+To clone ecalj, do the following.
 
 ```bash
 git clone https://github.com/tkotani/ecalj.git
 ```
 
 
-After cloning, a directory `ecalj/` appears.
-You can check the history of ecalj with:
+Cloning creates a directory `ecalj/`.
+You can view the history of ecalj as follows.
 
 ```bash
 cd ecalj
@@ -171,16 +170,16 @@ gitk --all
 ```
 
 
-### InstallAll.py
+### InstallAll.py {#installall-py}
 
-To install, use `InstallAll.py [Options]`. For help, run:
+Use `InstallAll.py [Options]` to install. The help is shown by the following.
 
 ```bash
 ./InstallAll.py --help
 ```
 
 
-Example help output:
+Example of the help output:
 
 ```text
 usage: InstallAll [-h] [-np NP] [--clean] [--gpu] [--bindir BINDIR] --fc FC [--notest] [--verbose]
@@ -205,36 +204,36 @@ options:
 ```
 
 
-`InstallAll.py` copies all binaries and scripts for ecalj to your directory specified by `--bindir <path>/` (default is `$HOME/bin/`). Set `<path>/` as you like. `--fc` is required.
+`InstallAll.py` copies all the ecalj binaries and scripts to the directory given by `--bindir <path>/` (default `$HOME/bin/`). Choose `<path>/` as you like. `--fc` is mandatory.
 For GPU, use `--fc nvfortran` together with `--gpu`.
 
 
 
-Tests live at `ecalj/Samples/TestInstall/`; the test driver is the
-`testecalj` script under `ecalj/SRC/exec/` (installed into `BINDIR`
-alongside the binaries).
+The tests are in `ecalj/Samples/TestInstall/`. They are run by the
+`testecalj` script under `ecalj/SRC/exec/` (it is installed into
+`BINDIR` together with the binaries).
 
 
-## Install ecalj
+## Installing ecalj {#install-ecalj}
 
-`InstallAll.py` compiles and installs ecalj, then runs install tests at
-`ecalj/Samples/TestInstall/` (driver: `testecalj`; comparison helper:
+`InstallAll.py` compiles and installs ecalj, and then runs the install tests in
+`ecalj/Samples/TestInstall/` (run by `testecalj`, with the comparison helper
 `SRC/exec/comp.py`).
-If successful, you will see 'OK! ALL PASSED!' at the end. The process may take 3 ~ 10 minutes.
+On success it prints 'OK! ALL PASSED!' at the end. It takes 3 to 10 minutes.
 
-To install ecalj, first check the help:
+To install ecalj, first look at the help.
 
 ```bash
 ./InstallAll.py --help
 ```
 
-Typical install command:
+A typical install command:
 
 ```bash
 ./InstallAll.py --fc gfortran
 ```
 
-For GPU builds, use:
+For a GPU build, do the following.
 
 ```bash
 ./InstallAll.py --fc nvfortran --gpu
@@ -242,11 +241,11 @@ For GPU builds, use:
 
 To start from scratch, add `--clean`.
 
-This will compile the Fortran source, link, copy all programs and scripts to your bin, and run the minimum install tests at `ecalj/Samples/TestInstall/` (<del class="clfix">about ~ 5 minutes</del><span class="clfix">3 to 10 minutes</span>).
+This compiles and links the Fortran sources, copies all programs and scripts to bin, and runs the minimal install tests in `ecalj/Samples/TestInstall/` (<del class="clfix">about 5 minutes</del><span class="clfix">3 to 10 minutes</span>).
 
-*Tip:* Check `./InstallAll.py` for details on where binaries are installed (default: `BINDIR=~/bin`). Tools like `getsyml`, `viewvesta`, and `vasp2ctrl` are softlinked.
+*Hint:* For details of where the binaries are installed, see `./InstallAll.py` (default `BINDIR=~/bin`). Tools such as `getsyml`, `viewvesta`, and `vasp2ctrl` become soft links.
 
-If all tests pass, you will see output like:
+When all tests pass, the output looks like the following.
 
 ```text
 PASSED! copt TEST 1 out.lmf.copt
@@ -265,24 +264,23 @@ user    19m38.952s
 sys     3m38.583s
 ```
 
-You can also run individual tests at `ecalj/Samples/TestInstall/` with:
+In `ecalj/Samples/TestInstall/`, you can also run an individual test as follows.
 
 ```bash
 cd ecalj/Samples/TestInstall
 testecalj si_gwsc -np 8
 ```
 
-* Each test has its own directory (e.g., `si_gwsc`).
-* `testecalj` creates a sibling `si_gwsc_work/` and runs the
-  computation there, then compares results with the reference data in
-  `ecalj/Samples/TestInstall/si_gwsc/`.
-* The test logic is in each directory's `test.py` (small file).
-  Comparison helpers live in `ecalj/SRC/exec/comp.py`. It is easy to
-  add your own test.
+* Each test has its own directory (e.g. `si_gwsc`).
+* `testecalj` creates `si_gwsc_work/` next to it, runs the calculation there,
+  and compares the results with the reference data in `ecalj/Samples/TestInstall/si_gwsc/`.
+* The procedure of each test is in `test.py` (a small file) in each directory.
+  The comparison helper is in `ecalj/SRC/exec/comp.py`. It is easy to add
+  your own tests.
 
-If installation fails, you may need to restart from clean. Delete `CMakeFiles` and `CMakeCache.txt` at `ecalj/SRC/exec/`. Sometimes, old `*.mod` files under `SRC/` cause issues. Usually, running `./InstallAll.py --clean` is enough to fix this.
+If the installation fails, you may need to start over from a clean state. Delete `CMakeFiles` and `CMakeCache.txt` in `ecalj/SRC/exec/`. Old `*.mod` files left under `SRC/` can also cause problems. Usually running `./InstallAll.py --clean` fixes it.
 
-If parallel make (`make -j`) fails, run make by hand:
+If the parallel make (`make -j`) fails, run make by hand.
 
 ```bash
 cd ecalj/SRC/exec/
@@ -292,7 +290,7 @@ make
 ```
 
 
-After installation, set your command path (BINDIR). For example, add this to your `.bashrc` if you move all ecalj binaries to `~/bin`:
+After installation, set the command path (BINDIR). For example, if you moved all ecalj binaries to `~/bin`, add the following to `.bashrc`.
 
 ```bash
 PATH="~/bin/:$PATH"
@@ -301,67 +299,67 @@ PATH="~/bin/:$PATH"
 
 
 
-## 4. Uninstall
+## 4. Uninstall {#_4-uninstall}
 
-See [Uninstall](./uninstall) — three commands: `python3 uninstall.py`,
-open a new shell, then `rm -rf <ecalj-checkout>`.
+See [Uninstall](./uninstall). There are three commands: `python3 uninstall.py`,
+open a new shell, and `rm -rf <ecalj-checkout>`.
 
 
 
-## Install VESTA and getsyml
+## Installing VESTA and getsyml {#install-vesta-and-getsyml}
 
-It is convenient to view structures with VESTA.
-(Example: I installed `VESTA-gtk3.tar.bz2` (ver. 3.5.8, built on Aug 11 2022, 23.8MB) on Ubuntu 24.)
+VESTA is useful for viewing structures.
+(Example: I installed `VESTA-gtk3.tar.bz2` (ver. 3.5.8, built on August 11, 2022, 23.8MB) on Ubuntu 24.)
 
-At `ecalj/StructureTool/`, we have the `viewvesta` command. Try:
+There is a `viewvesta` command in `ecalj/StructureTool/`. Try the following.
 
 ```bash
 viewvesta ctrlg.si.toml      # canonical (post-2026-05)
 viewvesta ctrls.si           # legacy structure-only seed file
 ```
 
-to check the structure in the viewer. In `/StructureTool`, we have converters:
-`vasp2ctrl` and `ctrl2vasp`. These allow you to convert structures with POSCAR.
-`ctrl2vasp` accepts the same three input forms as `viewvesta`.
+This lets you check the structure in the viewer. `/StructureTool` contains the conversion tools
+`vasp2ctrl` and `ctrl2vasp`. With them you can convert structures to and from POSCAR.
+`ctrl2vasp` accepts the same three forms of input as `viewvesta`.
 
-<del class="clfix">In addition, you may need to install `getsyml.py` to obtain symmetry lines for band plots.</del><span class="clfix">`getsyml`, which makes the symmetry lines for band plots, is put into your bin by `InstallAll.py` (a soft link).</span>
-Generated `syml.*` files are used for band plots in ecalj.
-As long as you have `spglib` and `seekpath`, you usually do not need extra steps.
-For more details, see the upstream memo: [ecalj/GetSyml/README.md](https://github.com/tkotani/ecalj/blob/main/GetSyml/README.md).
+`getsyml`, which makes the symmetry lines for band plots, is installed into bin by `InstallAll.py` (as a soft link).
+The generated `syml.*` files are used for band plots in ecalj.
+If `spglib` and `seekpath` are available, usually no extra steps are needed.
+For details see the upstream memo [ecalj/GetSyml/README.md](https://github.com/tkotani/ecalj/blob/main/GetSyml/README.md).
 
 
 
-## Additional memo
+## Additional memo {#additional-memo}
 
-* When `InstallAll.py` has finished, all binaries and shell scripts are copied to `--bindir <path>` (default: `~/bin/`).
+* When `InstallAll.py` finishes, all binaries and shell scripts have been copied to `--bindir <path>` (default `~/bin/`).
 
-* Clean up:
+* Cleanup:
 
   If something goes wrong, run `InstallAll.py` again with `--clean`.
 
-  You may need to do:
+  You may need to do the following.
 
   ```bash
   rm -f CMakefiles CMakeCache.txt
   ```
 
-  at `ecalj/SRC/exec/` (and remove all `*.mod` files under `SRC/`). Usually, you do not need to do this.
+  Do this in `ecalj/SRC/exec/` (and also delete all `*.mod` files under `SRC/`). Usually this is not necessary.
 
-* Compile Fortran only:
+* Compiling only the Fortran part:
 
-  To compile Fortran source only, move to `ecalj/SRC/exec/` and run:
+  To compile only the Fortran sources, go to `ecalj/SRC/exec/` and run the following.
 
   ```bash
   FC=gfortran cmake . -D CMAKE_BUILD_TYPE=Debug  # or FC=ifort / FC=nvfortran
   make
   ```
 
-  You may look into `CMakeLists.txt`. Remove `CMakeCache.txt` and `CMakeFiles/` in advance if you want a clean build.
+  You may want to look at `CMakeLists.txt`. For a clean build, delete `CMakeCache.txt` and `CMakeFiles/` first.
 
-* Compiler bug: Sometimes, compilers have trouble with the `-O2` optimization. You can often avoid such bugs with lower optimization options (`-O1` or `-O0`), depending on the source files, as described in `CMakeLists.txt`. Usually, people do not use `-O3`. You may set such conditional compilation settings. See `CMakeLists.txt`.
+* Compiler bugs: a compiler can fail with `-O2` optimization. As written in `CMakeLists.txt`, using a lower optimization option (`-O1` or `-O0`) depending on the source file usually avoids such bugs. We usually do not use `-O3`. You may set up such conditional compilation settings; see `CMakeLists.txt`.
 
-* Source codes and the make system are under `SRC/`; test cases moved
-  to `Samples/`:
+* The source code and the make system are under `SRC/`, and the test examples have been
+  moved to `Samples/`.
 
   ```text
   ecalj/
@@ -375,24 +373,24 @@ For more details, see the upstream memo: [ecalj/GetSyml/README.md](https://githu
       └── EPS / PROCAR / MLOsamples / ... : topical samples (the old Legacy/ was rebuilt and removed on 2026-09-30)
   ```
 
-  All Fortran codes are in `SRC/main/` and `SRC/subroutines/`.
-  `SRC/exec/CMakeLists.txt` generates the Makefile via cmake.
-  (Historical breadcrumb: `SRC/TestInstall_is_moved_to_under_ecaljSamples`
-  marks the old TestInstall location.)
+  All Fortran code is in `SRC/main/` and `SRC/subroutines/`.
+  `SRC/exec/CMakeLists.txt` generates the Makefile with cmake.
+  (A remnant of the past: `SRC/TestInstall_is_moved_to_under_ecaljSamples`
+  points to the old location of TestInstall.)
 
-* Test system: The install test suite lives at `ecalj/Samples/TestInstall/`.
+* The test system: the install tests are in `ecalj/Samples/TestInstall/`.
 
-  Each sub-directory has its own `test.py` (the per-test schedule).
-  The shared driver is `ecalj/SRC/exec/testecalj` (installed as
-  `testecalj` in `BINDIR`); shared comparison helpers are in
-  `ecalj/SRC/exec/comp.py`. It is not difficult to add your own test:
+  Each subdirectory has its own `test.py` (the procedure of that test).
+  The common driver is `ecalj/SRC/exec/testecalj` (installed into `BINDIR` as
+  `testecalj`), and the common comparison helper is in
+  `ecalj/SRC/exec/comp.py`. Adding your own test is not difficult.
 
-  * Compute something at first.
-  * Store inputs and minimum results in a new directory under
-    `Samples/TestInstall/` (or any other `Samples/` subtree).
-  * Describe the comparison check in that directory's `test.py`.
+  * First, compute something.
+  * Put the input and minimal results in a new directory under `Samples/TestInstall/`
+    (or somewhere under `Samples/`).
+  * Write how to compare them in `test.py` in that directory.
 
-  To run install tests:
+  To run the install tests, do the following.
 
   ```bash
   cd ecalj/Samples/TestInstall
@@ -401,4 +399,4 @@ For more details, see the upstream memo: [ecalj/GetSyml/README.md](https://githu
   testecalj si_gwsc nio_gwsc -np 8      # specific tests
   ```
 
-* Note: On Ubuntu 22, I observed that gfortran + openmpi sometimes failed. Use mpich if you encounter issues. (Current status unknown.)
+* Note: on Ubuntu 22, I saw gfortran + openmpi fail occasionally. If you have problems, use mpich. (The current status is unknown.)

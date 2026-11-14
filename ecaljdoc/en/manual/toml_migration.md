@@ -1,66 +1,59 @@
-# Input file {#toml-migration-2026-05}
+# Input files {#toml-migration-2026-05}
 
-> English version of the page [manual/toml_migration](../../manual/toml_migration.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/toml_migration.md of commit ca2563cd3 (source blob 3a11b235a9e7).
+> English version of the page [manual/toml_migration](../../manual/toml_migration.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/toml_migration.md of commit 694da29ec (source blob 94f98dad9f13).
 
-ecalj consists of the one-body part (the DFT part) and the GW part.
+ecalj consists of the one-body calculation part (the DFT part) and the GW part.
 
-The present ecalj reads only the TOML-format file `ctrlg.<sname>.toml` (ctrlg below) as its basic input file; that is, every calculation starts from this ctrlg alone.
-The old format (before 2026-05) needed `ctrl.<sname>` and `GWinput`. For backward compatibility the converter
-`Legacy2toml.py`, which turns them into a ctrlg, is kept. To reproduce a past calculation, convert the input into a ctrlg
-first ([below](#migration-of-an-existing-legacy-directory)).
+The current ecalj reads only the TOML file `ctrlg.<sname>.toml` (hereafter ctrlg) as its basic input file. That is, every calculation starts from this ctrlg alone.
+The old format (before 2026-05) required `ctrl.<sname>` and `GWinput`. For backward compatibility, the converter
+`Legacy2toml.py`, which converts them to ctrlg, is kept. To reproduce past calculations, convert them beforehand to make ctrlg ([section below](#migration-of-an-existing-legacy-directory)).
 
-## The basic input file is one TOML file {#the-one-toml-file}
+## The basic input file is a single TOML file {#the-one-toml-file}
 
-| file | role |
+| File | Role |
 |---|---|
 | `ctrlg.<sname>.toml` | The basic input file of ecalj. Every calculation starts from this file. It consists of sections such as `[struc]`, `[[site]]`, `[[spec]]`, `[bz]`, `[iter]`, `[ham]`, `[gw]`, `[mlo]`, `[blocks]`, `[product_basis]` (and also `[options]`, `[str]`, `[ewald]`, `[esm]`, `[dyn]`, etc.) |
 
-The basic input file is one ctrlg. The usual way is to generate ctrlg automatically from the crystal structure (`ctrlgenToml.py`) and edit it;
-or options are given when it is generated.
-The automatic generation converts a POSCAR (VASP format) with `vasp2ctrl` into the structure-only file `ctrls.<sname>`, and then makes the ctrlg
-with `ctrlgenToml.py <sname>`. If you leave it to an AI, you may think of the POSCAR as the input.
-The keys are described in detail in [lmf](./lmf) for the ctrl side (`[struc]`, `[[site]]`, `[[spec]]`, `[bz]`, `[ham]`, ...) and in [GW settings](./gwinput) for the GW side (`[gw]`, ...).
+The basic input file is the single ctrlg. The basic way is to generate ctrlg automatically from the crystal structure (`ctrlgenToml.py`) and edit it for use.
+Alternatively, generate it with options at generation time.
+For automatic generation, convert a POSCAR (VASP format) into the structure-only file `ctrls.<sname>` with `vasp2ctrl`, and then make ctrlg with `ctrlgenToml.py <sname>`.
+If you leave it to an AI, you can regard POSCAR as the input.
+Detailed descriptions of the keys are in [lmf](./lmf) for the ctrl side (`[struc]`, `[[site]]`, `[[spec]]`, `[bz]`, `[ham]`, etc.) and in [GW settings](./gwinput) for the GW side (`[gw]` etc.).
 
 **The per-atom tables at the end**
 
-- They are used in GW calculations; normally they are not edited by hand.
-- They feed the mixed-product-basis generator (`hbasfp0` / `hvccfp0` etc.) used by `gwsc`, the eps tools and `mlo`'s W side.
-- They are written by `gwinit` (through `ctrlgenToml.py` or `Legacy2toml.py`); leave them as generated.
-- Until 2026-09 they were a separate `PB.<sname>.toml`. Such a file is not read any more:
-  the binaries abort and point at `ctrlg_absorb.py <sname>`, which moves the tables into `ctrlg`.
+- Used in GW calculations. Usually not edited by hand.
+- They are passed to the programs that build the mixed product basis (`hbasfp0` / `hvccfp0` etc.) used by `gwsc`, the eps tools, and the W side of `mlo`.
+- Written by `gwinit` (through `ctrlgenToml.py` or `Legacy2toml.py`). Leave them as generated.
+- Until 2026-09 they were in a separate file `PB.<sname>.toml`. This file is no longer read.
+  If it remains, the binaries stop and tell you to use `ctrlg_absorb.py <sname>`. This script moves the tables into `ctrlg`.
 
 **When the GW sections are not needed (`--skipgw`)**
 
-- For a pure DFT workflow (just `lmf` / `lmfa` / band plots), pass `--skipgw` to `ctrlgenToml.py`.
-- It skips the `lmfa → lmf --jobgw=0 → gwinit` sub-step and omits `[gw]` / `[mlo]` / `[blocks]` / `[product_basis]` from the output.
+- For DFT-only use (`lmf` / `lmfa` / band plots only), pass `--skipgw` to `ctrlgenToml.py`.
+- It skips the steps `lmfa → lmf --jobgw=0 → gwinit` and does not write `[gw]` / `[mlo]` / `[blocks]` / `[product_basis]` to the output.
 
-**Adding the GW sections later (`--addgw`, keeping your hand edits)**
+**Adding the GW sections later (`--addgw`, keeping hand edits)**
 
 - Use `ctrlgenToml.py <sname> --addgw`.
-- It appends `[gw]` / `[mlo]` / `[blocks]` / `[product_basis]` without regenerating the ctrl-side keys;
-  your edits to `[bz]`, `[ham]`, `[[spec]]` etc. are kept as they are.
-- It refuses to run if `[gw]` is already present (to avoid silent duplication).
-- Do **not** simply re-run `ctrlgenToml.py <sname>` for this purpose: the default flow overwrites the whole
-  `ctrlg.<sname>.toml` from `ctrls.<sname>` (the previous file is moved to `ctrlg.<sname>.toml.bakup`, a one-generation backup only).
+- It appends `[gw]` / `[mlo]` / `[blocks]` / `[product_basis]` without regenerating the keys of the ctrl side.
+  Changes you made in `[bz]`, `[ham]`, `[[spec]]`, etc. are kept as they are.
+- It does not run when `[gw]` already exists (to prevent unnoticed duplication).
+- You must **not** simply rerun `ctrlgenToml.py <sname>` for this purpose. The usual flow rewrites the whole
+  `ctrlg.<sname>.toml` from `ctrls.<sname>` (the previous file is moved to `ctrlg.<sname>.toml.bakup`, but only one generation of backup is kept).
 
-`<sname>` is the user-defined material extension (e.g. `si`, `cu`, `gaas`,
-`fe`, ...). One working directory normally has exactly one
-`ctrlg.<sname>.toml`; `lmf` auto-detects it without a positional argument
-when run inside the directory.
-
-<div class="clfix">
+`<sname>` is the material extension chosen by the user (`si`, `cu`, `gaas`, `fe`, etc.). A working directory usually has
+exactly one `ctrlg.<sname>.toml`. When run inside that directory, `lmf` finds that file even without arguments.
 
 ### Layout of the generated files {#file-layout}
 
-`ctrlgenToml.py`, `gwinit`, `Legacy2toml.py` and the formatter `pylib/toml_tidy.py` all produce the same layout.
-A blank line separates only the big headings (the `# === X ===` comment runs and single `[section]` headers).
-Everything inside a section (one `[[site]]` or `[[spec]]` table from the next, a multi-line block from its neighbours, the three product-basis tables) is divided by a `# ----` rule.
-A `[blocks]` section only appears for the few legacy `<...>` tags that have no better home (`QPNT`, `QforEPSL`, `hrotr`), kept as multi-line strings and parsed opaquely by the GW driver.
-The sections come in the order `[gw]` `[mlo]` `[blocks]` `[product_basis]`; `[product_basis]` always closes the file (`toml_tidy.py` enforces the order).
+`ctrlgenToml.py`, `gwinit`, `Legacy2toml.py`, and the formatting tool `pylib/toml_tidy.py` all produce files with the same layout.
+Only the major headings (the run of `# === X ===` comments and a lone `[section]` heading) are separated by blank lines.
+Within a section (between `[[site]]` or `[[spec]]` tables, a multi-line block and what precedes and follows it, the three product-basis tables), `# ----` rules are used as separators.
+The `[blocks]` section appears only when there are old `<...>` tags with no other place to go (`QPNT`, `QforEPSL`, `hrotr`); it holds them as multi-line strings, which the GW programs read as they are.
+The order of the sections is `[gw]` `[mlo]` `[blocks]` `[product_basis]`, and `[product_basis]` is always last (`toml_tidy.py` arranges them in this order).
 
-</div>
-
-## Migration of an existing legacy directory
+## Migration of an old-format directory {#migration-of-an-existing-legacy-directory}
 
 ```bash
 # inside an old directory containing ctrl.<sname> [+ GWinput]
@@ -69,176 +62,97 @@ Legacy2toml.py <sname>
 # resume normal workflow (lmf, gwsc, job_eps, ...)
 ```
 
-`Legacy2toml.py` lives at `ecalj/SRC/exec/Legacy2toml.py` (installed in
-`~/bin/` along with the binaries by `InstallAll.py`). It is idempotent
-and prints `[INFO] / [WARN] / [ERROR]` diagnostics for any
-command-line `-v` overrides that would not survive the conversion.
+`Legacy2toml.py` is at `ecalj/SRC/exec/Legacy2toml.py` (`InstallAll.py` puts it into `~/bin/` together with the binaries).
+Running it any number of times gives the same result. If there are command-line `-v` overrides that do not survive the conversion, it prints `[INFO] / [WARN] / [ERROR]` diagnostics.
 
-<div class="clfix">
+### Correspondence between old keys and TOML paths {#legacy-toml-map}
 
-### Legacy keys and their TOML paths {#legacy-toml-map}
+Many of the old `Category_Token` keys correspond directly to `[section.key]` when lowercased. Those whose name or form changed are as follows (Table 1).
+The meanings of the keys can be looked up in [the old ctrl document](./lmf_legacy_ctrl).
 
-Most legacy `Category_Token` keys map 1:1 onto `[section.key]` after lower-casing. Those renamed or restructured are in Table 1.
-The meaning of a key can be looked up in the [legacy ctrl reference](./lmf_legacy_ctrl).
+Table 1. Old keys and TOML paths
 
-Table 1. Legacy keys and TOML paths
-
-| legacy `Category_Token` | TOML location | note |
+| Old `Category_Token` | Location in TOML | Note |
 |---|---|---|
 | `STRUC_ALAT` / `STRUC_PLAT` | `[struc].alat` / `.plat` | |
 | `SITE_ATOM=`, `POS=`, `XPOS=` | `[[site]] atom = ...; pos = [...]` (or `xpos`) | one `[[site]]` table per atom |
-| `SPEC_ATOM=`, `Z=`, `R=`, `RSMH=`, `EH=`, ... | `[[spec]] atom = ...; z = ...; r = ...; rsmh = [...]` | one `[[spec]]` table per species; `R/W=` and `R/A=` kept as `"r/a"` quoted-key |
+| `SPEC_ATOM=`, `Z=`, `R=`, `RSMH=`, `EH=`, ... | `[[spec]] atom = ...; z = ...; r = ...; rsmh = [...]` | one `[[spec]]` table per species. `R/W=` and `R/A=` are the quoted key `"r/a"` |
 | `BZ_NKABC` / `BZ_METAL` / `BZ_TETRA` | `[bz].nkabc` / `.metal` / `.tetra` | |
 | `HAM_NSPIN` / `HAM_SO` / `HAM_XCFUN` / `HAM_GMAX` / `HAM_PWMODE` / `HAM_PWEMAX` | `[ham].nspin` etc. | |
 | `HAM_FORCES` / `HAM_OVEPS` / `HAM_FRZWF` / `HAM_REL` | `[ham].forces` etc. | |
 | `HAM_ScaledSigma` | `[ham].scaledsigma` | lowercase |
 | `HAM_READP` / `HAM_PNUFIX` | `[ham].readp` / `.pnufix` | `HAM_V0FIX` is the command-line option `--v0fix` |
-| `esm_input.dat` (separate file) | **`[esm]`** section | retired 2026-09-16; not read — `ctrlg_absorb.py <sname>` converts it ([ESM](./esm)) |
+| `esm_input.dat` (a separate file) | the **`[esm]`** section | dropped on 2026-09-16. It is not read, so convert it with `ctrlg_absorb.py <sname>` ([ESM](./esm)) |
 | `ITER_NIT` / `ITER_MIX` / `ITER_CONV` / `ITER_CONVC` / `ITER_UMIX` / `ITER_TOLU` | `[iter].nit` / `.mix` / ... | |
-| `SYMGRP` / `SYMGRPAF` | top-level `symgrp = "..."` (and `symgrpaf`) | not nested in a section |
+| `SYMGRP` / `SYMGRPAF` | top-level `symgrp = "..."` (and `symgrpaf`) | not put inside a section |
 | `EWALD_TOL` | `[ewald].tol` | rarely touched |
 | `DYN_MODE` / `DYN_NIT` / `DYN_HESS` / ... | `[dyn].mode` etc. | |
-| `IO_VERBOS` / `IO_TIM` | top-level `verbose` / `time` | promoted out of `[io]` (section dropped) |
+| `IO_VERBOS` / `IO_TIM` | top-level `verbose` / `time` | moved out of `[io]` (the section was removed) |
 | `<Worb>...</Worb>` block | `[mlo].mlo_lm = """ ... """` | multi-line string |
-| `<QforEPS>...</QforEPS>` block | `[gw].QforEPS = """ ... """` (likewise `QforGW`) | |
-| `n1n2n3` (GWinput) | `[gw].n1n2n3 = [k1,k2,k3]` | int vector |
-| `HistBin_dw` / `HistBin_ratio` / `niw` (GWinput) | `[gw].HistBin_dw` etc. | unchanged names (upper and lower case as in GWinput) |
-| `esmr`, `SmearX0` / `GaussianFilterX0`, `GaussSmear`, `delta`, `dw`, `omg_c`, `WgtQ0P` (GWinput) | `[gw].t_sigmaw` and `[gw].t_tetrakbt` (K; `t_tetrakbt` is required) | the old keys and what happens to them: [GW settings](./gwinput) Table 1, [kBT](./kBT) §2.5 Table 2 |
-| product-basis cut-offs (`tolerance`, `lcutmx` from `<PRODUCT_BASIS>`) | `[product_basis].pb_tolerance` / `.pb_lcutmx` | |
-| product-basis per-atom tables (`nlx`, `valence`, `core`) | `[product_basis].nlx` / `.valence` / `.core` (end of the file; a separate `PB.<sname>.toml` before 2026-09) | |
+| `<QforEPS>...</QforEPS>` block | `[gw].QforEPS = """ ... """` (same for `QforGW`) | |
+| `n1n2n3` (GWinput) | `[gw].n1n2n3 = [k1,k2,k3]` | integer vector |
+| `HistBin_dw` / `HistBin_ratio` / `niw` (GWinput) | `[gw].HistBin_dw` etc. | names are the same as in GWinput (including case) |
+| `esmr`, `SmearX0` / `GaussianFilterX0`, `GaussSmear`, `delta`, `dw`, `omg_c`, `WgtQ0P` (GWinput) | `[gw].t_sigmaw` and `[gw].t_tetrakbt` (K; `t_tetrakbt` is required) | old keys and how they are handled: Table 1 of [GW settings](./gwinput), Table 2 in §2.5 of [kBT](./kBT) |
+| upper limits of the product basis (`tolerance`, `lcutmx` of `<PRODUCT_BASIS>`) | `[product_basis].pb_tolerance` / `.pb_lcutmx` | |
+| per-atom tables of the product basis (`nlx`, `valence`, `core`) | `[product_basis].nlx` / `.valence` / `.core` (at the end of the file; before 2026-09, the separate `PB.<sname>.toml`) | |
 
-The full schema lives in [`SRC/exec/pylib/ctrl_schema.py`](https://github.com/tkotani/ecalj/blob/main/SRC/exec/pylib/ctrl_schema.py) (the conversion source of truth).
-Annotations and inline comments are applied by [`SRC/exec/pylib/toml_comments.py`](https://github.com/tkotani/ecalj/blob/main/SRC/exec/pylib/toml_comments.py).
+The full schema is in [`SRC/exec/pylib/ctrl_schema.py`](https://github.com/tkotani/ecalj/blob/main/SRC/exec/pylib/ctrl_schema.py) (the reference for the conversion).
+Annotations and end-of-line comments are added by [`SRC/exec/pylib/toml_comments.py`](https://github.com/tkotani/ecalj/blob/main/SRC/exec/pylib/toml_comments.py).
 
-</div>
+### `esm_input.dat` (slabs) {#esm-input-dat-slabs}
 
-### `esm_input.dat` (slabs)
+The separate file `esm_input.dat` was dropped on 2026-09-16 and became the `[esm]` section of `ctrlg.<sname>.toml`. Fortran does not read this file.
+If it remains, `lmf` stops and names the conversion script `ctrlg_absorb.py <sname>`. This script adds `[esm]` to ctrlg if it is not there yet,
+moves the original file to `esm_input.dat.bk`, and writes at its head where the settings were moved. `Legacy2toml.py` does the same when converting the old format.
+The same script also takes a remaining `PB.<sname>.toml` (the per-atom product-basis tables; a separate file until 2026-09) into `[product_basis]`.
+The GW binaries stop in the same way if this file exists. See [ESM](./esm).
 
-The separate positional `esm_input.dat` was retired on 2026-09-16 and became
-the `[esm]` section of `ctrlg.<sname>.toml`. The Fortran does not read
-the file: a leftover one makes `lmf` abort and name the converter,
-`ctrlg_absorb.py <sname>`, which appends `[esm]` to the ctrlg if it is not
-there yet and moves the original to `esm_input.dat.bk` with a header saying
-where the settings went. `Legacy2toml.py` does the same during a legacy
-conversion. The same script folds a leftover `PB.<sname>.toml` (the
-per-atom product-basis tables, a separate file until 2026-09) into
-`[product_basis]`; the GW binaries abort on that file likewise.
-See [ESM](./esm).
+### An older `ctrlg.<sname>.toml`: `ctrlg_update.py` {#an-older-ctrlg-sname-toml-ctrlg-update-py}
 
-### An older `ctrlg.<sname>.toml`: `ctrlg_update.py`
+A `ctrlg.<sname>.toml` written by a previous version of the conversion scripts may contain things that make the programs stop.
 
-The programs stop on things that a `ctrlg.<sname>.toml` written by an
-earlier version of the converters may carry:
-
-- `[struc]` must not have `nbas` / `nspec` (the numbers of sites and
-  species are those of the `[[site]]` / `[[spec]]` tables);
-- `[gw]` must have `t_tetrakbt` (K), and must not have `SmearX0` /
-  `SmearX0q0`;
-- `[gw]` must have `t_sigmaw`, `HistBin_dw`, `HistBin_ratio`, `QforEPSau` and `EMAXforGW` (since 2026-11-14).
+- `[struc]` must not have `nbas` / `nspec` (the numbers of sites and species are determined by the numbers of `[[site]]` / `[[spec]]` tables).
+- `[gw]` needs `t_tetrakbt` (K) and must not have `SmearX0` / `SmearX0q0`.
+- `[gw]` needs `t_sigmaw`, `HistBin_dw`, `HistBin_ratio`, `QforEPSau`, `EMAXforGW` (since 2026-11-14).
 
 ```bash
 ctrlg_update.py ctrlg.<sname>.toml [...]    # in place; the original is kept as <file>.bak_update
 ```
 
-removes `nbas` / `nspec` (if `nbas` was smaller than the number of
-`[[site]]` tables, it comments out the tables beyond it), rewrites
-`SmearX0 = s` as `t_tetrakbt = -T` of the same width, and adds
-`t_tetrakbt = 0` where the key is missing, and adds the other required keys with the former code defaults ([GW settings](./gwinput)), so that the calculation stays
-the same. `--no-backup` leaves no copy of the original. The rules are
-described in [lmf.md](./lmf#file-structure-sections) and
-[kBT](./kBT) §2; the old keys of `[gw]` are in Table 1 of
-[GW settings](./gwinput).
+This removes `nbas` / `nspec` (if `nbas` was smaller than the number of `[[site]]` tables, the later tables are commented out),
+rewrites `SmearX0 = s` as `t_tetrakbt = -T` of the same width, adds `t_tetrakbt = 0` where the key is missing, and also adds the other required keys with the defaults of the previous code, so that the calculation does not change ([GW settings](./gwinput)).
+With `--no-backup`, no backup of the original file is kept. The rules are in [lmf.md](./lmf#file-structure-sections) and §2 of [kBT](./kBT), and
+the old keys of `[gw]` are in Table 1 of [GW settings](./gwinput).
 
-## Run-time `--ctrlg:` overrides
+## Run-time overrides with `--ctrlg:` {#run-time-ctrlg-overrides}
 
-<div class="clfix-old">
-
-`%const` constants embedded in the legacy `ctrl.<sname>` are baked into
-`ctrlg.<sname>.toml` at conversion time. Run-time overrides use
-`--ctrlg:<dotted.path>=<value>`, processed in-memory by
-`m_toml_override.f90` (no on-disk rewrite):
-
-```bash
-# OLD (the programs stop with a message that names the new form)
-lmf si -vnk=8 -vmetal=3
-lmf si -v[bz.nkabc]=[8,8,8] -v[bz.metal]=3
-lmf si --toml.bz.nkabc=[8,8,8] --toml.bz.metal=3
-
-# NEW
-lmf si --ctrlg:bz.nkabc=[8,8,8] --ctrlg:bz.metal=3
-```
-
-The text after `--ctrlg:` is the dotted TOML path (`section.key`); the
-value parses as TOML (`[8,8,8]` for an integer vector, `true`/`false`
-lowercase for bools, quoted strings, etc.). The override layer
-auto-quotes a bare identifier value (`find` → `"find"`) so that shell
-quote-stripping is forgiving.
-
-> ⚠️ **Retired override forms (all abort with a hint).**
-> Earlier iterations of the migration accepted several override
-> spellings (`-v<NAME>=<VAL>`, `-v[<path>]=<VAL>`, `--[<path>]=<VAL>`,
-> `--<a.b.c>=<VAL>`, `--toml.<path>=<VAL>`, `--pr=N`, `--time=N,M`,
-> `--phispinsym`). They are all gone; any of them on the cmdline
-> triggers a one-line abort pointing at the canonical
-> `--ctrlg:<path>=<value>` form.
->
-> - `--ctrlg:bz.nkabc=[8,8,8]` — directly set the value at TOML path
->   `[bz].nkabc` in `ctrlg.<sname>.toml` for this run, in memory.
->   No `%const` indirection; no on-disk rewrite. <del class="clfix">The path must match
->   a real key in the schema.</del><span class="clfix">A key that the file does not carry is added (since 2026-09-30); a misspelled key is added too and read by no program, so check the log line ([cmdopts](./cmdopts)).</span> Each applied override is logged on
->   rank 0 so it appears in `llmf` etc.
->
-> Practical consequences:
->
-> - Old habits like `-vmetal=3`, `-vnspin=2 -vso=0` abort with a
->   migration hint. Use `--ctrlg:bz.metal=3`,
->   `--ctrlg:ham.nspin=2 --ctrlg:ham.so=0`.
-> - `Legacy2toml.py` prints `[INFO] / [WARN] / [ERROR]` diagnostics
->   for any `%const` overrides it encounters during conversion to
->   help spot silent breakages.
-
-</div>
-
-<div class="clfix">
-
-To change a key for one run, add `--ctrlg:<section.key>=<value>` (e.g. `lmf si --ctrlg:bz.nkabc=[8,8,8]`); the file is not rewritten. The details of the syntax, what happens to a key the file does not carry, and the retired forms (`-v<NAME>=<VAL>` and others, which make the programs stop) are in [Command-line options](./cmdopts#run-time-ctrlg-overrides).
-
-</div>
+To change a key for a single run only, add `--ctrlg:<section.key>=<value>` (e.g. `lmf si --ctrlg:bz.nkabc=[8,8,8]`). The file is not rewritten. Details of the syntax, the handling of keys not in the file, and the dropped old syntax (`-v<NAME>=<VAL>` etc.; using it stops the program) are in [Command-line options](./cmdopts#run-time-ctrlg-overrides).
 
 ## Samples {#migrated-samples-use-these-as-templates}
 
-The list of sample `ctrlg.<sname>.toml` inputs to use as templates is on [Samples](./samples). The old examples of `Samples/Legacy/` were rebuilt as the directories listed there. Convert your own legacy input as described above.
+The list of sample `ctrlg.<sname>.toml` files to use as templates is in [Samples](./samples). The examples of the old `Samples/Legacy/` have also been rebuilt as the directories listed there. Convert your own old-format input as described above.
 
-## Result summaries (worked-out reference values)
+## Summaries of results (worked-out reference values) {#result-summaries-worked-out-reference-values}
 
-- [MLOsamples/README.md § Reference value: bcc Fe Fe-3d on-site W](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md#reference-value-bcc-fe-fe-3d-on-site-w-with---mlo_feb4) — bcc Fe Fe-3d on-site screened W ~1.5 eV (job_mloW reproduction, 2×2×2 vs 4×4×4 BZ)
-- [MLOsamples/README.md § Regression test (testecalj Fe)](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md#regression-test-testecalj-fe) — automated diagonal V/W-V check against inline reference values
-- MLOsamples/README_SOC.md (`MD/mlo_notes/mlo_soc_memo.md`) — SOC-as-perturbation variant (`job_mlo_soc`)
+- [MLOsamples/README.md § Reference value: bcc Fe Fe-3d on-site W](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md#reference-value-bcc-fe-fe-3d-on-site-w-with---mlo_feb4) — the on-site screened W of Fe-3d in bcc Fe is about 1.5 eV (reproduced with job_mloW, BZ 2×2×2 and 4×4×4)
+- [MLOsamples/README.md § Regression test (testecalj Fe)](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md#regression-test-testecalj-fe) — a test that automatically compares the diagonal V/W-V with the reference values written in it
+- MLOsamples/README_SOC.md (`MD/mlo_notes/mlo_soc_memo.md`) — the version that treats SOC as a perturbation (`job_mlo_soc`)
 
-## Auto-job runner (`ecalj_auto`)
+## Tools for running jobs automatically (`ecalj_auto`) {#auto-job-runner-ecalj-auto}
 
-For batch QSGW / GW jobs across many materials, see
-[ecalj_auto/README.md](https://github.com/tkotani/ecalj/blob/main/ecalj_auto/README.md)
-and [ecalj_auto/README_slot_scheduler.md](https://github.com/tkotani/ecalj/blob/main/ecalj_auto/README_slot_scheduler.md).
-`MD/auto.md` says which of its drivers run with the present
-programs; `jobtemplate.{kugui,ohtaka,ucgw,...}` are the templates for
-SLURM/PBS clusters.
+To run QSGW / GW jobs for many materials in bulk, see
+[ecalj_auto/README.md](https://github.com/tkotani/ecalj/blob/main/ecalj_auto/README.md) and
+[ecalj_auto/README_slot_scheduler.md](https://github.com/tkotani/ecalj/blob/main/ecalj_auto/README_slot_scheduler.md).
+Which driver scripts work with the current programs is written in `MD/auto.md`. `jobtemplate.{kugui,ohtaka,ucgw,...}` are templates for SLURM/PBS clusters.
 
-## Common gotchas
+## Common pitfalls {#common-gotchas}
 
-- <del class="clfix">**Retired override forms** — `lmf` aborts on `-vnspin=2 -vso=0`, `-v[ham.so]=1`, `--toml.ham.so=1`, `--pr=50`, `--time=5,5`, `--phispinsym`. Each abort prints the canonical `--ctrlg:<path>=<value>` replacement.</del>
-- **Stale `Worb` blocks** — `gwinput2toml.py` (the GWinput leg of
-  `Legacy2toml.py`) used to last-write-wins on duplicate `<Worb>` blocks;
-  now keeps the first.
-- **`mlo_emax`** — read only by the older `mlo_method = 0` and `1`; the
-  default `mlo_method = 4` does not use it.
-- **A required key such as `t_tetrakbt` missing, `SmearX0`, `nbas` / `nspec`** — the programs
-  stop; `ctrlg_update.py` (above) brings the file up to the present rules.
-- **gfortran 13.3 / 14.2 codegen** — a documented codegen bug was
-  worked around in `m_HamPMT.f90` (one-line bait
-  `aaa = trim(aaa) // ' '`); see commits `35ee9f225` and `f693848ce`
-  on master.
+- **Old `Worb` blocks** — `gwinput2toml.py` (the part of `Legacy2toml.py` that handles GWinput) used to take the last one when `<Worb>` blocks
+  were duplicated. It now takes the first one.
+- **`mlo_emax`** — read only by the old `mlo_method = 0` and `1`. The default `mlo_method = 4` does not use it.
+- **Missing required keys such as `t_tetrakbt`, `SmearX0`, `nbas` / `nspec`** — the programs stop. Bring the file to the current rules with `ctrlg_update.py` (above).
+- **Code generation of gfortran 13.3 / 14.2** — a known code-generation bug is worked around in `m_HamPMT.f90` (a one-line bait
+  `aaa = trim(aaa) // ' '`). See master commits `35ee9f225` and `f693848ce`.
 
-For nvfortran 26.1 specifically: `findloc` runtime crashes on logical
-arrays were fixed by adding `use m_nvfortran, only: findloc` to the
-seven affected source files (commit `f693848ce`).
+Specific to nvfortran 26.1: the run-time crash of `findloc` on logical arrays was fixed by adding
+`use m_nvfortran, only: findloc` to the 7 affected source files (commit `f693848ce`).
