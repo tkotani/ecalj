@@ -69,7 +69,6 @@ const sidebarRoot = [
     items: [
       { text: 'Install', link: '/install/install' },
       { text: 'Install@ISSP_tokyo', link: '/install/installISSP' },
-      { text: 'ISSP での使い方', link: '/manual/UsageISSP' },
       { text: 'Uninstall', link: '/install/uninstall' }
     ]
   },
@@ -97,7 +96,6 @@ const enText: Record<string, string> = {
   'GW の設定（[gw] などのキー）': 'GW settings ([gw] and other keys)',
   'ドーピング（背景電荷）': 'Doping (background charge)',
   'スペクトル関数': 'Spectrum function',
-  'ISSP での使い方': 'Usage at ISSP',
   '外したコード（過去のコード）': 'Removed code (past code)',
   '古い文書（過去ログ）': 'Old documents (past records)',
   'メインドキュメント': 'MainDocument',

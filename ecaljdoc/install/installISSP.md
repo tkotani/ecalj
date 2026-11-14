@@ -153,9 +153,28 @@ OK! ==== All calclation finished for  gwsc ====
 で終了していればOKです。<span class="clfix">サンプルに前の結果 `QPU.1run` が入っているので、`gwsc 1` の 1 回の反復は 2 番と数えられ、結果は `QPU.2run` に書かれます。これをサンプルの `QPU.1run` と比べてください。スクリプトは `-c kugui_gpu`（`SRC/exec/clusters.toml` の GPU ノードの設定）を渡します（2026-11-14 に足した）。</span>
 
 
-### 6. 使い方メモ
+### 6. 本番の計算
 
-[使い方メモ](../manual/UsageISSP.md)
+<div class="clfix">
+
+（UsageISSP のページから移した。2026-11-14）
+
+本番の計算のキューは `F1accs` などです（`i1accs` は 30 分までの試験用）。例:
+
+```bash job.sh
+#!/bin/sh
+#PBS -q F1accs
+#PBS -l select=1:ncpus=64:mpiprocs=64:ompthreads=1
+#
+ulimit -s unlimited
+id=inas6gasb6
+gwsc 5 -np 64 -np2 4 --gpu -c kugui_gpu $id > lgwsc
+```
+
+- `-np` は CPU で走る部分の MPI の並列数、`-np2` は GPU で走る部分の並列数（ふつうは GPU の数）。最初の数（5）は反復の回数です。詳しくは [GPU 版](../manual/ecaljgpu)。
+- GPU 版は小さい系ではあまり効きませんが、4 枚の GPU で 40 原子くらいまで扱えます（計算の条件によります。計算量は k 点の数の 2 乗で増えます）。
+
+</div>
 
 
 ## ohtakaでのインストール
@@ -214,6 +233,26 @@ sbatch job_ohtaka.sh
 
 
 <del class="clfix">kuguiではmpirunのかわりにsrunがつかわれるなどのためgwscなどを走らせるときにこれが必要です。</del><span class="clfix">（次の節と重複するので削る）</span>
+
+<div class="clfix">
+
+（UsageISSP のページから移した。2026-11-14）
+
+- `InstallAll.py` は中で `mpirun` を使いますが、1 ノードなので動きます。
+- 大きな計算の並列の指定の例（16 ノード、512 プロセス）。メモリが足りなければ、ノードあたりのコアを減らして、コアあたりのメモリを増やします。
+
+```bash
+#SBATCH -p F16cpu
+#SBATCH -N 16
+#SBATCH -n 512
+#SBATCH -c 4
+#SBATCH --ntasks-per-node=32
+#SBATCH -t 24:00:00
+```
+
+- 実行中に MKL のエラーが出たら `-c 1` にします。
+
+</div>
 
 ## ISSPシステムでのカスタマイズについて
 

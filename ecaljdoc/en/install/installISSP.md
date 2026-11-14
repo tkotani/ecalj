@@ -1,7 +1,7 @@
 
 # Installation on <del class="clfix">kugui and ohtaka (GPU)</del><span class="clfix">kugui (GPU) and ohtaka (CPU)</span> at ISSP
 
-> English version of the page [install/installISSP](../../install/installISSP.md). The pages at the top of ecaljdoc are the reference; this one was made from install/installISSP.md of the tree of c9f9a3003 (source blob 1206082c11fe).
+> English version of the page [install/installISSP](../../install/installISSP.md). The pages at the top of ecaljdoc are the reference; this one was made from install/installISSP.md of the tree of c9f9a3003 (source blob 42fac9413b5c).
 
 > 📝 **Note** — This is a memo to install ecalj to the machines in
 > ISSP@u-tokyo as of 2025. Module names, software versions, and
@@ -158,9 +158,28 @@ OK! ==== All calclation finished for  gwsc ====
 it is OK.<span class="clfix"> The sample contains the earlier result `QPU.1run`, so the one iteration of `gwsc 1` is counted as number 2 and its result is written to `QPU.2run`. Compare it with `QPU.1run` of the sample. The script passes `-c kugui_gpu` (the GPU-node settings in `SRC/exec/clusters.toml`; added 2026-11-14).</span>
 
 
-### 6. Usage memo
+### 6. Production runs
 
-[Usage memo](../manual/UsageISSP.md)
+<div class="clfix">
+
+(Moved from the UsageISSP page, 2026-11-14.)
+
+The queue for production runs is `F1accs` etc. (`i1accs` is the test queue, up to 30 minutes). Example:
+
+```bash job.sh
+#!/bin/sh
+#PBS -q F1accs
+#PBS -l select=1:ncpus=64:mpiprocs=64:ompthreads=1
+#
+ulimit -s unlimited
+id=inas6gasb6
+gwsc 5 -np 64 -np2 4 --gpu -c kugui_gpu $id > lgwsc
+```
+
+- `-np` is the number of MPI processes of the parts run on the CPU, `-np2` that of the parts run on the GPU (usually the number of GPUs). The first number (5) is the number of iterations. See [GPU version](../manual/ecaljgpu).
+- The GPU version is not so effective for small systems, but four GPUs can handle about 40 atoms (it depends on the conditions; the cost grows with the square of the number of k points).
+
+</div>
 
 
 ## Installation on ohtaka
@@ -219,6 +238,26 @@ The scripts were adapted on 2026-09-30 to the current input (`ctrlg.<sname>.toml
 
 
 <del class="clfix">On kugui, srun is used instead of mpirun, among other things, so this is needed when running gwsc and others.</del><span class="clfix">(removed: it repeats the next section)</span>
+
+<div class="clfix">
+
+(Moved from the UsageISSP page, 2026-11-14.)
+
+- `InstallAll.py` uses `mpirun` inside; it works because it runs on one node.
+- An example of the parallel settings of a large calculation (16 nodes, 512 processes). If memory runs short, reduce the cores per node to get more memory per core.
+
+```bash
+#SBATCH -p F16cpu
+#SBATCH -N 16
+#SBATCH -n 512
+#SBATCH -c 4
+#SBATCH --ntasks-per-node=32
+#SBATCH -t 24:00:00
+```
+
+- If MKL errors appear during the run, set `-c 1`.
+
+</div>
 
 ## Customization for the ISSP systems
 
