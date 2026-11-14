@@ -152,7 +152,7 @@ iG(𝒓_1t_1, 𝒓_2t_2) = \frac{1}{\braket{\Phi_0|\hat S|\Phi_0}} \Big[
 \tag{G3}
 $$
 
-The times are ordered with the later ones on the left; no T product is used. Symmetrizing the ranges of the integrals in Eq. (G2) to $-\infty$ to $\infty$ brings in $1/n!$ and the T product, and Eq. (G3) becomes the one line $iG = \braket{\Phi_0|T[\hat S\,\hat 𝜓_\mathrm{I}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{I}(𝒓_2,t_2)]|\Phi_0}/\braket{\Phi_0|\hat S|\Phi_0}$.
+The times are ordered with the later ones on the left; no T product is used. Diagrams can be written down from this form as it is; they are then a diagram expansion made of propagation forward along the time axis (with step functions). Symmetrizing the ranges of the integrals in Eq. (G2) to $-\infty$ to $\infty$ brings in $1/n!$ and the T product, and Eq. (G3) becomes the one line $iG = \braket{\Phi_0|T[\hat S\,\hat 𝜓_\mathrm{I}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{I}(𝒓_2,t_2)]|\Phi_0}/\braket{\Phi_0|\hat S|\Phi_0}$.
  The vacuum amplitude in the denominator cancels exactly the disconnected diagrams of the numerator (the vacuum parts not connected to the external lines).
 So the disconnected diagrams need not be counted; only connected diagrams are summed (the linked-cluster theorem).
 
