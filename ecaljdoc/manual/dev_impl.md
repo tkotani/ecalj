@@ -193,7 +193,7 @@ Z^{\mathbf q-\mathbf k n',\mathbf q n}_{\mathbf k\mu} = \langle E^{\mathbf k}_\m
 $$
 where $E^{\mathbf k}_\mu$ is the MPB orthonormalized and diagonal to the Coulomb interaction (Eq. (I14) below).
 The polarization function uses them with the labels $Z^{\mathbf k n,\mathbf q+\mathbf k n'}_{\mathbf q\mu}=\langle E^{\mathbf q}_\mu\Psi_{\mathbf k n}|\Psi_{\mathbf q+\mathbf k n'}\rangle$.
-They are made on the fly by `get_zmel` and stored in `zmel` of `m_zmel.f90` ([Matrix elements used in GW](../theory/gw_zmel)).
+They are made on the fly by `build_zmel` and stored in `zmel` of `m_zmel.f90` ([Matrix elements used in GW](../theory/gw_zmel)).
 
 </div>
 
@@ -403,7 +403,7 @@ since $W^{\rm c}(\omega)=W^{\rm c}(-\omega)$ only $\omega^{\rm I}_i\ge0$ are use
 $\omega^{\rm R}_i$ are the boundaries of the histogram bins of Eq. (I18a), and $w^{\rm R}_i$ are the three-point interpolation coefficients of $W^{\rm c}$ at $\varepsilon_{\mathbf q n}-\varepsilon_{\mathbf q-\mathbf k n'}$, including the step functions.
 Only $R^{\rm c}$ gives the lifetime (impact ionization rate); in the static $\Sigma^{\rm c}$ of QSGW, $W^{\rm c}$ in $R^{\rm c}$ is Hermitized.
 In the present code the step functions are smeared by the Fermi-Dirac kernel of `[gw] t_sigmaw` (K) instead of the infinitesimal $\delta$,
-and with `wcsmear = true` $W^{\rm c}$ is integrated over that kernel instead of the three-point interpolation ([kBT](./kBT)).
+and by default (`[gw] wcsmear = true`) $W^{\rm c}(\omega)$ itself is integrated over that kernel; the three-point interpolation of [Obata2025] is `wcsmear = false` ([kBT](./kBT)).
 
 </div>
 
