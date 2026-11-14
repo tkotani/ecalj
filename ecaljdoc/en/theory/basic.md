@@ -110,6 +110,13 @@ $$
 - $𝜃(t)$: the step function, 1 for $t>0$ and 0 for $t<0$.
 - $\Psi_0$: the $N$-particle ground state in the Heisenberg picture, $\hat H\ket{\Psi_0} = E \ket{\Psi_0}$
 
+This one-particle Green function is computed in perturbation theory in the following form ($\hat S$ is the time-evolution operator, the subscript I means the interaction picture, and $\ket{\Phi_0}$ is the non-interacting ground state; the reason for this form is the Gell-Mann–Low theorem below).
+
+$$
+iG(𝒓_1t_1, 𝒓_2t_2) = \frac{\braket{\Phi_0|T[\hat S\,\hat 𝜓_\mathrm{I}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{I}(𝒓_2,t_2)]|\Phi_0}}{\braket{\Phi_0|\hat S|\Phi_0}}
+\tag{G1}
+$$
+
 ### Both sides in a many-electron system (T product) {#both-sides}
 
 The one-body retarded Green function of Eq. (GF6) has one side in time only (to the future). In the many-electron ground state an electron cannot be put into an occupied state. The occupied states give instead a term in which the hole left by removing an electron propagates to the past (the side $t_1<t_2$). Electrons ($t_1>t_2$: an electron is added and propagates) and holes ($t_2>t_1$: an electron is removed and propagates) can be treated together by adding the two in parallel. This is because the basis functions of both the electron and the hole are specified by the same one-body Hamiltonian. That sum is the two terms of the equation above, the T product.
@@ -118,14 +125,7 @@ Seen from perturbation theory too, symmetrizing the range of the time integrals 
 
 ### The Gell-Mann–Low theorem and disconnected diagrams {#gell-mann-low}
 
-Switching the interaction on adiabatically turns the non-interacting ground state $\ket{\Phi_0}$ into the interacting ground state (the Gell-Mann–Low theorem). As a result the Green function is written as
-
-$$
-iG(𝒓_1t_1, 𝒓_2t_2) = \frac{\braket{\Phi_0|T[\hat S\,\hat 𝜓_\mathrm{I}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{I}(𝒓_2,t_2)]|\Phi_0}}{\braket{\Phi_0|\hat S|\Phi_0}}
-\tag{G1}
-$$
-
-($\hat S$ is the time-evolution operator, the subscript I means the interaction picture). The vacuum amplitude in the denominator cancels exactly the disconnected diagrams of the numerator (the vacuum parts not connected to the external lines).
+Switching the interaction on adiabatically turns the non-interacting ground state $\ket{\Phi_0}$ into the interacting ground state (the Gell-Mann–Low theorem). Therefore the Green function is written in the form of Eq. (G1). The vacuum amplitude in the denominator cancels exactly the disconnected diagrams of the numerator (the vacuum parts not connected to the external lines).
 So the disconnected diagrams need not be counted; only connected diagrams are summed (the linked-cluster theorem).
 
 The correspondence with ordinary (time-independent) perturbation theory: there are two kinds of disconnected diagrams.
