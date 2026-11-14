@@ -1,34 +1,22 @@
 # その他の説明 {#usagedetailed}
 
-<div class="clfix-old">
+下に名前の出るサンプルは [サンプル](./samples) にあります。
 
-> ⚠️ The input is `ctrlg.<sname>.toml`. Run `Legacy2toml.py <sname>` to convert legacy `ctrl.<sname>` / `GWinput`. Overrides on the command line are `--ctrlg:<path>=val`; with `-v<NAME>=<VAL>` the programs stop. See [Input file](./toml_migration). <del class="clfix">The samples named below that are being rebuilt from `Samples/Legacy` are listed in ecalj [`Samples/README.md`](https://github.com/tkotani/ecalj/blob/main/Samples/README.md).</del><span class="clfix">The samples named below are listed in [Samples](./samples) (`Samples/Legacy` was rebuilt and removed on 2026-09-30).</span>
+## SOC なしのスピン分極 {#spin-polarized-case-without-soc}
+磁性のある系を扱うには、`ctrlg.<sname>.toml` で `[ham].nspin = 2` とし、さらに各 `[[spec]]` に `mmom`（スピン磁気モーメントの初期値）を書きます。
+スピン磁気モーメントは、スピン `isp=1` と `isp=2` の電子の数の差で指定します。
 
-</div>
-
-<div class="clfix">
-
-下に名前の出るサンプルは [Samples](./samples) にあります。
-
-</div>
-
-## Spin polarized case without SOC
-To treat magnetic systems, we have to set `mmom` (initial condition of spin
-magnetic moments, per `[[spec]]`) in addition to `[ham].nspin = 2` in
-`ctrlg.<sname>.toml`. The spin magnetic moments are specified as the
-difference of number of electrons between spin channels, `isp=1` and `isp=2`.
-
-For example, copy `ctrlg.nio.toml` of `ecalj/Samples/TestInstall/nio_gwsc/` to a new directory and run 
+例えば `ecalj/Samples/TestInstall/nio_gwsc/` の `ctrlg.nio.toml` を新しいディレクトリに写し、
 ```
 lmfa nio
 mpirun -np 8 lmf nio
 ```
-Try `cat save.nio`. It shows iteration history of lmf. Last line in save.nio
-is like `c mmom= 0.0000 ehf(eV)=-86704.349038 ehk(eV)=-86704.348942 sev(eV)=-142.498970` (the energies depend on the settings). `c ` means converged.
-ehf and ehk are [total energies by two formulas](./lmf.md#q-should-the-harris-foulkes-and-hohenberg-kohn-sham-functionals-agree-at-self-consistency).
-Note that total energy is not meaningful in QSGW (see [`save.<sname>`](./lmf#save-sname)).
+を走らせます。`cat save.nio` とすると、`lmf` の反復の履歴が見えます。`save.nio` の最後の行は
+`c mmom= 0.0000 ehf(eV)=-86704.349038 ehk(eV)=-86704.348942 sev(eV)=-142.498970` のようになります（エネルギーは設定によります）。`c ` は収束を意味します。
+ehf と ehk は [二つの式による全エネルギー](./lmf#q-should-the-harris-foulkes-and-hohenberg-kohn-sham-functionals-agree-at-self-consistency) です。
+QSGW では全エネルギーに意味がないことに注意してください（[`save.<sname>`](./lmf#save-sname) を参照）。
 
-Look into `ctrlg.nio.toml`. It contains 
+`ctrlg.nio.toml` を見ると、次のようになっています。
 ```toml
 [[site]]
 atom = "Niup"                 # ← Niup site
@@ -55,10 +43,10 @@ z      = 28
 r      = 2.12
 mmom   = [0.0, 0.0, -1.2, 0.0]     # ← initial spin
 ```
-Here we have two sites named Niup and Nidn. `mmom = [0.0, 0.0, 1.2, 0.0]` means initial spin moment within MTs: that is `mmom = [s, p, d, f]`, where `s, p, d, f` are number of spin moments for each $l$ at atomic sites.
-In addition, we set `nspin = 2` in `[ham]`.
+Niup と Nidn という名前の二つのサイトがあります。`mmom = [0.0, 0.0, 1.2, 0.0]` は MT の中のスピンモーメントの初期値で、`mmom = [s, p, d, f]` の各値が、原子のサイトでの $l$ ごとのスピンモーメントです。
+さらに `[ham]` で `nspin = 2` とします。
 
-Calculated spin moments within MT are at 'true mm' column in the console output, and shown in the `mmom.nio.chk` as
+計算した MT の中のスピンモーメントは、画面の出力の 'true mm' の列と、`mmom.nio.chk` に
 ```
 # Qtrue    MagMom(up-dn) Rmt   MT
 1 8.527587  1.200085  2.120000 Niup    
@@ -66,23 +54,23 @@ Calculated spin moments within MT are at 'true mm' column in the console output,
 3 5.380352 -0.000002  1.700000 O       
 4 5.380352 -0.000002  1.700000 O    
 ```
-Note it is overwritten at every iteration. These are shown in console output as `true mm` as well.
-Atomic site index are given in `SiteInfo.lmchk`.  Total Magnetic Moments are shown as
+のように出ます。反復ごとに上書きされます。原子のサイトの番号は `SiteInfo.lmchk` にあります。全体の磁気モーメントは
 ```
  Magnetic moment=     2.241805 !this is a case of bulk Fe
 ```
+のように出ます。
 
-With the GW driver settings (the `[gw]` / `[mlo]` / `[blocks]` / `[product_basis]` sections of `ctrlg.<sname>.toml`; [GW settings](./gwinput)), we can run gwsc as
+GW の設定（`ctrlg.<sname>.toml` の `[gw]` / `[mlo]` / `[blocks]` / `[product_basis]` の節。[GW の設定](./gwinput)）があれば、
 ```
 gwsc -np 32 5 nio 
 ```
-I needed 275 sec with 32 MPI per QSGW cycle. I used this qsub script.
+のように `gwsc` を回せます。32 MPI で QSGW の 1 反復に 275 秒かかりました。次の qsub のスクリプトを使いました。
 ```
 #!/bin/sh
 #$ -N NioTest
 #$ -pe smp 32
 #$ -cwd
-#$ -M takaokotani@gmail.com
+#$ -M <your e-mail>
 #$ -m be
 #$ -V
 #$ -S /usr/bin/bash
@@ -90,16 +78,15 @@ export OMP_NUM_THREADS=1
 EXEPATH=/home/takao/bin/
 $EXEPATH/gwsc -np 32 5 nio >& lgwsc
 ```
-After calculations, remove temporary files with `rm __*` or `cleargw .`, which were already in your bindir.
-You can run `job_band` and so on in the same manner of DFT with nspin=1.
+計算の後は、`rm __*` か `cleargw .` で一時的なファイルを消します。
+`job_band` なども、nspin=1 の DFT と同じように走らせられます。
 
-* Even when you use `[bz].fsmommethod` /= 0 in `ctrlg.<sname>.toml` for `gwsc`,
-  you need to set `fsmommethod = 0` (or remove the key) when you run `job_band`.
-  If you run `job_band` with `fsmommethod` /= 0, it makes a shift (adding bias magnetic field).
-* We can effectively use [antiferro symmetry for calculation (only for so=0,2)](#antiferro-symmetry-without-soc) 
+* `gwsc` で `ctrlg.<sname>.toml` の `[bz].fsmommethod` を 0 以外にしていても、`job_band` を走らせるときは `fsmommethod = 0` にする（またはキーを消す）必要があります。
+  `fsmommethod` を 0 以外のまま `job_band` を走らせると、ずれ（磁場のバイアスを足したもの）が入ります。
+* [反強磁性の対称性](#antiferro-symmetry-without-soc) を使って計算を効率よくできます（so=0、2 のときだけ）。
 
-## Orbital moments
-When so=1, orbital moments within MTs are shown in at `orbitalmom.chk:` in the console output as
+## 軌道磁気モーメント
+so=1 のとき、MT の中の軌道磁気モーメントが、画面の出力の `orbitalmom.chk:` のところに次のように出ます。
 ```
 IORBTM:  orbital moments :
  ibas  Spec        spin   Moment decomposed by l ...
@@ -111,129 +98,110 @@ IORBTM:  orbital moments :
  total orbital moment   2:    0.002738
 ```
 
-## Antiferro symmetry without SOC {#antiferro-symmetry-without-soc}
-We can perform LDA/QSGW calculation with the AF symmetry (not for so=1).
-Only up spin are calculated. Then charge density and eigenvalues are
-symmetrized for the antiferro symmetry.
+## SOC なしの反強磁性の対称性 {#antiferro-symmetry-without-soc}
+反強磁性の対称性を使って、LDA や QSGW の計算ができます（so=1 は除く）。
+上向きのスピンだけを計算し、電荷密度と固有値を反強磁性の対称性で対称化します。
 
-See the samples of the antiferromagnetic symmetry (NiO and NiSe).
-To set AF symmetry, We have to set a top-level key in `ctrlg.<sname>.toml` as
-```toml
-symgrpaf = "find"  # Antiferro symmetry: spglib finds the operations (2026-10-02)
-```
-With `symgrpaf = "find"` (and `symgrp = "find"`, the default), spglib finds the magnetic space group from the `af` labels below;
-its operations with time reversal map the up site of a pair on the down site and switch the AF mode on.
-A generator such as `symgrpaf = "i:( 1 1 1 )"` (for NiO: `g = i:(1,1,1) * $i \sigma_y$` generates the magnetic space group)
-is still accepted (it must be one of the AF operations spglib finds); with `symgrp` of generators (to lower the symmetry), write the
-AF generators, since `"find"` is not possible there. In any case 
-```toml
-[[site]]
-atom = "Niup"
-pos  = [0.0, 0.0, 0.0]
-af   = 1                  # Antiferro pair
-[[site]]
-atom = "Nidn"
-pos  = [1.0, 1.0, 1.0]
-af   = -1
-```
-should contains the `af` to specify antiferro pairs.
-Note that the space group operation `i:(1,1,1)` (this is inversion with translation) 
-is explained at [SYMGRP](./lmf.md#symgrp).
+反強磁性の対称性のサンプル（NiO と NiSe）を見てください。キー `symgrpaf` と `af` の意味は [lmf](./lmf#symgrp) にあります。手順は次のとおりです。
 
-In addition, we have an example for NiSe (`symgrpaf = "find"`; with the old search `"r2z:( 0 0 0.5 )"`) with `af = 1` and `af = -1`
-for the two Ni sites at (0, 0, 0) and (0, 0, 0.5).
+1. `ctrlg.<sname>.toml` の最上位に `symgrpaf = "find"` と書きます（spglib が操作を見つける。2026-10-02）。
+   生成元を書いた `symgrp`（対称性を下げるとき）では、`"find"` は使えないので、反強磁性の生成元を書きます。
+   NiO の例: `symgrpaf = "i:( 1 1 1 )"`（`g = i:(1,1,1) * $i \sigma_y$` が磁気空間群を生成する。`i:(1,1,1)` は並進を伴う反転）。
+2. 反強磁性の対を `af` で指定します。
+   ```toml
+   [[site]]
+   atom = "Niup"
+   pos  = [0.0, 0.0, 0.0]
+   af   = 1                  # Antiferro pair
+   [[site]]
+   atom = "Nidn"
+   pos  = [1.0, 1.0, 1.0]
+   af   = -1
+   ```
+3. `pwmode = 11`（平面波の |q+G|）を使います。スピン 2 の関数はスピン 1 の関数を回して作るので、各 q の G の組が要ります。
+   `pwmode = 1` では、いくつかの k のメッシュ（NiO の 4x4x4。3x3x3 はたまたま通る）で `rotwave: q+G rotation error` で止まります。
 
-With `symgrpaf`, use `pwmode = 11` (the plane waves |q+G|): the spin-2 functions are made by rotating those of spin 1, which needs the
-G set of each q. With `pwmode = 1` it stops with `rotwave: q+G rotation error` at some k meshes (NiO 4x4x4; 3x3x3 passes by chance).
+NiSe の例もあります（`symgrpaf = "find"`。古い探し方では `"r2z:( 0 0 0.5 )"`）。(0, 0, 0) と (0, 0, 0.5) の二つの Ni のサイトに `af = 1` と `af = -1` を付けます。
 
-### Holding the AF moment at a given value (`mmtarget.aftest`)
-Opposite fields on the two sites of an AF pair, readjusted every iteration, hold the moment $(m_1-m_2)/2$ at a target value.
-Useful for an AF metal whose moment is unstable in QSGW, or for the total energy as a function of the moment, $E(m)$.
-Example: `Samples/AFfixMMOM` of ecalj (NiO, target 1.6 $\mu_B$, with and without `symgrpaf`; the two agree within $10^{-6}$ eV).
+### 反強磁性のモーメントを決まった値に保つ（`mmtarget.aftest`）
+反強磁性の対の二つのサイトに逆向きの場を掛け、反復ごとに調整して、モーメント $(m_1-m_2)/2$ を目標の値に保ちます。
+QSGW でモーメントが不安定な反強磁性の金属や、全エネルギーをモーメントの関数 $E(m)$ として見るときに使えます。
+例: ecalj の `Samples/AFfixMMOM`（NiO、目標 1.6 $\mu_B$。`symgrpaf` あり・なしの両方で、$10^{-6}$ eV 以内で一致）。
 
-* Put a file `mmtarget.aftest` holding one number, the target moment ($\mu_B$), in the working directory. Its presence switches the mode on.
-* The field goes into the LDA+U potential (`vorb`), so the two sites of the pair need LDA+U blocks. `idu = 1` with `uh = jh = 0` makes the
-  blocks without changing the LDA result. With `sigm` (QSGW) the blocks stay, so it works there too.
-* The pair is the sites 1 and 2 (LDA+U blocks 1 and 2); with six blocks (NiSe), the blocks 1-3 and 4-6.
-* lmf writes `mmagfield.aftest` (the field `uhx` and the moments) and `mixmag.aftest` (the mixing history of the field). Remove both to start again.
-  Every start of lmf (also in `job_band`) advances the field by one step and rewrites `mmagfield.aftest`.
-* In the output, `mmaftest:` lines give the iteration, `uhx` (Ry), $m_1$, $m_2$, ...; `mmhist:` lines the history.
-* `ehk` is the total energy under the constraint, with $dE/dm_d = 2\,u_{hx}$ ($m_d$: the d moment of `dmats`).
-* Lowering the moment (NiO 1.28 to 1.0) converges slowly (about 70 iterations; the gain of the field update is fixed).
-* With `symgrpaf`, use `pwmode = 11` (see above).
+* 目標のモーメント（$\mu_B$）の数一つを書いたファイル `mmtarget.aftest` を作業ディレクトリに置きます。このファイルがあるとモードに入ります。
+* 場は LDA+U のポテンシャル（`vorb`）に入れるので、対の二つのサイトに LDA+U のブロックが要ります。`idu = 1` で `uh = jh = 0` とすれば、LDA の結果を変えずにブロックを作れます。`sigm`（QSGW）があってもブロックは残るので、QSGW でも使えます。
+* 対はサイト 1 と 2（LDA+U のブロック 1 と 2）です。ブロックが 6 つ（NiSe）なら、ブロック 1〜3 と 4〜6 です。
+* `lmf` は `mmagfield.aftest`（場 `uhx` とモーメント）と `mixmag.aftest`（場の混合の履歴）を書きます。やり直すときは両方を消します。
+  `lmf` を始めるたびに（`job_band` でも）場が一歩進み、`mmagfield.aftest` を書き直します。
+* 出力の `mmaftest:` の行に反復、`uhx`（Ry）、$m_1$、$m_2$、... が、`mmhist:` の行に履歴が出ます。
+* `ehk` は拘束のもとでの全エネルギーで、$dE/dm_d = 2\,u_{hx}$ です（$m_d$: `dmats` の d のモーメント）。
+* モーメントを下げる（NiO で 1.28 から 1.0）と、収束が遅くなります（70 反復くらい。場の更新の利得は固定）。
+* `symgrpaf` と使うときは `pwmode = 11` にします（上を参照）。
 
+## スピン軌道相互作用 {#spin-orbit-coupling}
+`ctrlg.<sname>.toml` の `[ham]` に `so` のスイッチがあります。
 
-## Spin-orbit coupling
-We have a switch `so` in `[ham]` of `ctrlg.<sname>.toml`
+* LDA/GGA では、`nspin = 2` と `so = 1` にすると SOC を入れた計算ができます。so=1 は SOC を入れる、so=2 は LxSx+LySy を無視する LzSz のモードです。
+* GaAs のような半導体では、価電子帯の上端のバンド構造を見るのに so=1 が要ります。
+* いまは so=1 で QSGW はできません。まず so=0 か 2 で `gwsc` を回し、`sigm` のファイルができてから、摂動として `--ctrlg:ham.so=1` で `lmf` を走らせます（nit=1 でもよい）。
+  80% QSGW と組み合わせる手順は [gwsc](./gwsc) の「80% QSGW + 20% LDA と SO の設定」にあります。
 
-* For LDA/GGA, set `nspin = 2` and `so = 1`. Then we can perform calculations including SOC. so=1 is for soc included (so=2 is for LzSz mode neglecting LxSx+LySy.
-* In the case of semiconductors such as GaAs, we need to include so=1 to see the band structure at the top of valence.
-* Currently, QSGW can not be performed with so=1. So we first have to run gwsc with
-so=0 or 2. After we get sigm file, we run lmf with `--ctrlg:ham.so=1` (nit=1 can be fine) as a perturbation.
+* 扱えるのは共線的なスピンだけです。スピンの軸は既定で (0,0,1) で、`[ham] socaxis` でほかの方向も選べます。SOC のサンプル（FePt と MnGa の磁気異方性）を見てください。完全には確かめていませんが、うまく働くようです。
 
-* We can treat only colinear spins. Spin axis is along (0,0,1) as default. We can choose other direction with `[ham] socaxis`. See the samples of SOC (magnetic anisotropy of FePt and MnGa). Not checked completely, but it seems work well.
-
-### Band plot with spin orbit coupling.
-* method 1: only apply SOC for band plot
+### スピン軌道相互作用を入れたバンドプロット
+* 方法 1: バンドプロットにだけ SOC を入れる
   ```bash
   job_band mp-2534 -np 8 --ctrlg:ham.so=1 --ctrlg:ham.nspin=2
   ```
-  Caution: when you set nspin=2, the size of rst is doubled. No way to move it back to rst for nspin=1. So you may need to keep rst.
+  注意: nspin=2 にすると、rst の大きさは 2 倍になります。nspin=1 の rst には戻せないので、rst を残しておく必要があるかもしれません。
 
-* method 2. single iteration with `[ham].so = 1`
+* 方法 2: `[ham].so = 1` で 1 回だけ反復する
   ```bash
   mpirun -np 8 lmf mp-2534 --ctrlg:ham.so=1 --ctrlg:ham.nspin=2 --ctrlg:iter.nit=1
   ```
-  Then we have revised `rst.<sname>`. Then run `job_band mp-2534 -np 8 --ctrlg:ham.so=1 --ctrlg:ham.nspin=2`.
+  `rst.<sname>` が更新されます。そのあと `job_band mp-2534 -np 8 --ctrlg:ham.so=1 --ctrlg:ham.nspin=2` を走らせます。
 
-* method 3. full iteration with `[ham].so = 1`
+* 方法 3: `[ham].so = 1` で収束まで反復する
   ```bash
   mpirun -np 8 lmf mp-2534 --ctrlg:ham.so=1 --ctrlg:ham.nspin=2
   ```
-  Then run `job_band mp-2534 -np 8 --ctrlg:ham.so=1 --ctrlg:ham.nspin=2`
+  そのあと `job_band mp-2534 -np 8 --ctrlg:ham.so=1 --ctrlg:ham.nspin=2` を走らせます。
 
-Effective masses: the sample `Samples/EffectiveMass/GaAs` (QSGW bands with SOC, the mass mode of `syml.<sname>`).
+有効質量: サンプル `Samples/EffectiveMass/GaAs`（SOC を入れた QSGW のバンド、`syml.<sname>` の質量のモード）。
 
-## Fermi surface 
-See the sample of the Fermi surface (Cu).
-Run `job_fermisurface cu -np 4 -vnk1=10 -vnk2=10 -vnk3=10` after `lmf cu` converged (`-vnk1` etc. are options of the script `job_fermisurface`). This write down all band energies (around
-Ef) for 10x10x10 in BZ. Then we can view it with xcrysden as `xcrysden --bxsf fermiup.bxsf`.
-With `--allband` option to `job_fermisurface`, we have all the bands. Then we can see iso-energy surface at any energy.
+## フェルミ面
+フェルミ面のサンプル（Cu）を見てください。
+`lmf cu` が収束した後で `job_fermisurface cu -np 4 -vnk1=10 -vnk2=10 -vnk3=10` を走らせます（`-vnk1` などはスクリプト `job_fermisurface` のオプション）。
+BZ の 10x10x10 のすべてのバンドのエネルギー（Ef のまわり）を書き出し、`xcrysden --bxsf fermiup.bxsf` のように xcrysden で見られます。
+`job_fermisurface` に `--allband` を付けると、すべてのバンドが出るので、どのエネルギーの等エネルギー面も見られます。
 
-## PROCAR mode {#procar-mode}
-See a sample at ecalj/Samples/PROCAR/MgO_PROCAR
-We can generate PROCAR file containing the size of eigenfunctions**2. 
-The sample (`testecalj MgO_PROCAR`; the steps are in its `test.py`) generates a pdf file showing fat band of O2p components.
- PROCAR (vasp format) is generated by `lmf --mkprocar --band mgo` and analysed by a script BandWeight.py.
+## PROCAR のモード {#procar-mode}
+サンプルは ecalj/Samples/PROCAR/MgO_PROCAR にあります。
+固有関数の 2 乗の大きさを入れた PROCAR のファイルを作れます。
+サンプル（`testecalj MgO_PROCAR`。手順はその `test.py` にある）は、O 2p の成分のファットバンドを示す pdf を作ります。
+PROCAR（vasp の形式）は `lmf --mkprocar --band mgo` で作り、スクリプト BandWeight.py で解析します。
 
 ## LDA+U
-We have samples of LDA+U (GdN and the rare-earth nitrides), and the test target `TestInstall/gdn`.
+LDA+U のサンプル（GdN と希土類の窒化物）と、試験のターゲット `TestInstall/gdn` があります。
+`[[spec]]` のキー `idu`、`uh`、`jh` の意味は [lmf の LDA+U](./lmf#lda-u-toml) にあります。例: `idu = [0, 0, 0, 1]`、`uh = [0.0, 0.0, 0.0, -0.28]`、`jh = [0.0, 0.0, 0.0, 0.0]`。
 
-*  `idu`, `uh`, `jh` in `[[spec]]` specify parameters for LDA+U.  `idu = [#,#,#,#]` specifies which l-channels are to have U and the type of LDA+U implementation.
-          0 in a particular l-channel means no U is to be applied, 1 or 2 are for particular forms of LDA+U.  For example,
-             `idu = [0, 0, 0, 1]`, `uh = [0.0, 0.0, 0.0, -0.28]`, `jh = [0.0, 0.0, 0.0, 0.0]`. See [LDA+U in lmf.md](./lmf#lda-u-toml).
-
-## Spin fluctuation
+## スピンゆらぎ
 最近、スピンゆらぎの計算を進展させています。問い合わせてください。
-`~/ecalj/Samples/Magnon` (test target `Fe_mlo_magnon`; `README.md` there gives the steps of `job_mlo_magnon`).
-The model is the [MLO](./mlo) model (no windows and no iteration). The sample compares it with the maximally localized
-Wannier functions of the version before 2026-10-02 (git tag `last-wannier`). Here is a figure (this is on top of LDA) for the spin fluctuation of Fe in [Okumura2021](../presentations/okumura2021.pdf).
-![alt text](image-6.png)
+`~/ecalj/Samples/Magnon`（試験のターゲット `Fe_mlo_magnon`。そこの `README.md` に `job_mlo_magnon` の手順がある）。
+モデルは [MLO](./mlo) のモデル（窓も反復もなし）です。サンプルは、それを 2026-10-02 より前の版（git のタグ `last-wannier`）の最局在 Wannier 関数と比べます。
+次は、[Okumura2021](../presentations/okumura2021.pdf) の Fe のスピンゆらぎの図です（LDA の上で）。
+![Fe のスピンゆらぎ](image-6.png)
 
-## 4f and 5f atoms
-We need special care to treat atoms where 4f and 5f are fractionally filled.
-The atomlist defaults for 4f atoms were updated 2025-08-21 (5f not yet);
-the same defaults are used by `ctrlgenToml.py` (the table `SRC/exec/pylib/atomlist.py`;
-until 2026-10-07 it was read from `ctrlgenM1.py`, now removed). Only limited tests yet —
-make sure by yourself.
+## 4f と 5f の原子
+4f や 5f が部分的に詰まった原子の扱いには、特別な注意が要ります。
+4f の原子の atomlist の既定値は 2025-08-21 に更新しました（5f はまだ）。`ctrlgenToml.py` も同じ既定値を使います（表 `SRC/exec/pylib/atomlist.py`）。
+試験はまだ限られているので、自分で確かめてください。
 
-Here is the setting for RareEarth rocksalt nitrides ReN such as ErN.
-1. Set `[ham].nspin = 2`, `[ham].so = 2` (since QSGW cannot treat `so=1` now).
-   If necessary, set `so=1` after `gwsc` finished.
-You may use `ctrlgenToml.py gd2pdo4 --so=2 --nspin=2`, or simply edit
-`ctrlg.<sname>.toml` after generation.
-2. `symgrp = "r4z"`. This is needed since we have lower symmetry rather than the lattice. It fixes the direction of spins and orbital moments.
-3. Our setting in `ctrlg.ern.toml` is
+ErN のような岩塩構造の希土類の窒化物 ReN の設定は次のとおりです。
+1. `[ham].nspin = 2`、`[ham].so = 2` にします（いまの QSGW は `so=1` を扱えないため）。必要なら、`gwsc` が終わってから `so=1` にします。
+   `ctrlgenToml.py gd2pdo4 --so=2 --nspin=2` を使うか、作った後で `ctrlg.<sname>.toml` を直します。
+2. `symgrp = "r4z"` にします。格子より低い対称性になるので必要です。スピンと軌道モーメントの向きを固定します。
+3. `ctrlg.ern.toml` の設定は次のとおりです。
     ```toml
     [[spec]]
     atom   = "Er"
@@ -261,13 +229,12 @@ You may use `ctrlgenToml.py gd2pdo4 --so=2 --nspin=2`, or simply edit
     pb_tolerance = [1e-2]
     pb_lcutmx    = [6, 2]
     ```
-    Here `pz` is the principal quantum number of local orbitals. This sets 5p and 5f as local orbitals. Run `lmfa ern|grep conf` to check atomic configuration.
-    * `idu`, `uh`, `jh` are the LDA+U parameters. When `idu` is 10+2, we skip U effect when sigm exists.
-    * `mmom` is the initial magnetic moments.
-    * `lmxa = 6` to expand augmented waves is needed.
-    * Make sure `[ham] readp = true`.
+    `pz` はローカル軌道の主量子数で、ここでは 5p と 5f をローカル軌道にしています。原子の配置は `lmfa ern|grep conf` で確かめます。
+    * `idu`、`uh`、`jh` は LDA+U のパラメータです。`idu` が 10+2 のときは、`sigm` があれば U の効果を使いません。
+    * `mmom` は磁気モーメントの初期値です。
+    * augmented な波の展開に `lmxa = 6` が要ります。
+    * `[ham] readp = true` であることを確かめてください。
 
-```CAUTION LDA+U is used only for initial condition for QSGW when idu>10. Thus QSGW results is not dependent on jh and uh.```
+**注意**: `idu` > 10 のとき、LDA+U は QSGW の初期条件にだけ使います。そのため QSGW の結果は `jh` と `uh` によりません。
 
-With these settings, we can perform series of calculations finished for 4f ReN. 
-Input files are available from [here](../data/RENctrlGWinput.tar.gz). Ask us when you like to use them.
+この設定で、4f の ReN の一連の計算ができます。入力のファイルは [ここ](../data/RENctrlGWinput.tar.gz) にあります。使いたいときはお問い合わせください。
