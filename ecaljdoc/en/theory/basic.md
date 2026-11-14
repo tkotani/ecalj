@@ -126,7 +126,7 @@ x(𝒓_1,t_1) = \int d𝒓_2\, dt_2\; iG_\mathrm{ele}(𝒓_1t_1, 𝒓_2t_2)\, f(
 \tag{Ge3}
 $$
 
-(the same linear-response form as Eq. (GF2)). The basic equation is Eq. (Ge2). For an arbitrary input, the right-hand side as the source term is replaced by $i\hbar\int d𝒓_2\, f(𝒓_2,t_1)\,\hat 𝜓^†(𝒓_2)\ket{\Psi_0}$, and what is observed by taking the inner product of the solution at $(𝒓_1,t_1)$ (with $\bra{\Psi_0}\hat 𝜓(𝒓_1)$) is Eq. (Ge3).
+(the same linear-response form as Eq. (GF2)). The basic equation is Eq. (Ge2). For an arbitrary input, the right-hand side as the source term is replaced by $i\hbar\int d𝒓_2\, f(𝒓_2,t_1)\,\hat 𝜓^†(𝒓_2)\ket{\Psi_0}$, and the response measured by taking the inner product of the solution at $(𝒓_1,t_1)$ (with $\bra{\Psi_0}\hat 𝜓(𝒓_1)$) is Eq. (Ge3).
 
 **Hole Green function.** At time $t_1$ remove one electron at point $𝒓_1$. The response is the remaining $(N-1)$-electron state,
 
