@@ -111,3 +111,42 @@ ecaljdoc の書き方の決まり（公開）は [`ecaljdoc/manual/writing_docs.
 | theory/gw_zmel.md | Z |
 | theory/optical_properties.md | O |
 | manual/gwsc.md | M（mixbeta） |
+
+## 5. ドキュメントとコードの書き方（要点。正本はリンク先）
+
+決まりの本文はリンク先にある。ここは作業の前に見落としを防ぐための要点と、2026-11-14 に user から受けた書き方の指示（正本にまだ無いもの）。
+決まりを変えるときは正本を直し、ここは合わせる。
+
+### 5.1 コード（正本: [ecaljclaude.md](ecaljclaude.md) の「コーディング規約」「記録の方針」）
+- Fortran の module を singleton として使う。状態は module 変数（`protected, public`）、`use m_foo, only: …` で明示して取る。
+  subroutine の引数は指示的な値（`ef`、`qp`、`isp` など）と、k 点ごとのデータに限る。`type`、`class`、type-bound procedure は使わない（例外は `m_struc_def` の入れ物の型）
+- module の依存は DAG（下位だけを `use`）。大局は [module_map.md](module_map.md)（`python3 TOOLS/module_map.py` が作る。手で直さない）
+- コメントは英語。何を計算するか、なぜその形か、壊さないための注意を書く。変更・判断・計測・バグ修正の注記には日付時刻（`date` の出力）を付ける。
+  すぐ古くなる性能値や行番号は書かない。名前を変えたら `grep` でコメントと文書の言及も直す
+- 「使われていない」と判断する前に、呼び出し元を `grep` で確かめる（2026-11-14: Numerical Recipes の `bessjy` は `smves → ropbes → sphbes → bessjy` で使われていた）
+- 消したコードは消さずに `trash/` へ移し、[past_log.md](past_log.md) の表 1 と ecaljdoc の「外したコード」（`manual/past_code.md`）に書く
+- コミットは英語で、ファイルを名指しする（`git commit -a` は使わない）。末尾にセッションの帰属の 2 行。push は user の指示があってから。`ecaljdoc/package-lock.json` はコミットしない
+- 試験の間は `~/bin` が指すものを変えない。別の木でビルドする（2026-11-14: `~/bin` を写した試験用の bin を作ったとき、`~/bin` の個人の証明書のファイルまで写してしまった。写すのは ecalj のファイルだけにする）
+- ライセンス（AGPLv3）の決まりは [`ecaljdoc/manual/license.md`](../ecaljdoc/manual/license.md)。ecalj から派生したコード（移植や、構造や手順をなぞった書き直しを含む）は AGPLv3。
+  ecalj の引用は必須、spglib と（バンドの図の）seekpath の引用はお願い。ecalj のアルゴリズムの出どころを残すのはお願い
+
+### 5.2 研究ログ・TODO・MD の文書（正本: [ecaljclaude.md](ecaljclaude.md) の「記録の方針」）
+- 研究ログは最新を上に、`## 日付` の下に `### HH:MM`。時刻は推さずに `date` で入れる
+- 直すべき点は見つけても、その場では直さずに TODO に書く（文書の誤りで、確かめられるものはその場で直してよい。2026-11-14 の作業はそうした）
+- MD/ の文書の中のパスは相対リンクにする（`python3 TOOLS/mdlinkify.py <md>`）。確かめは `python3 TOOLS/doclinks.py`
+
+### 5.3 ecaljdoc（正本: [`ecaljdoc/manual/writing_docs.md`](../ecaljdoc/manual/writing_docs.md)）
+- 日本語のページが正本、英語版は `en/`。メニュー（`config.mts` の `sidebarRoot`）がただ一つの目次で、すべてのページを載せる。一つの話題は一つのページに書き、ほかはリンク
+- 必要な理由と注意だけを書く。迷った経緯（苦労話）は書かない。数式には `\tag`、図と表にも番号
+- サイトのページから `MD/` にリンクしない（言及するときは「開発記録（リポジトリの MD/…、サイトには無い）」）。ecaljdoc の外へは GitHub の URL
+- 直したところを確かめてもらうときは朱（`clfix`）。確定は user が確かめてから、または確かめられたものだけ
+
+### 5.4 2026-11-14 に user から受けた書き方の指示（ecaljdoc）
+- 英語の混ざった日本語でよい。用語は無理に訳さない（例: 「準粒子自己無撞着 GW」でなく QSGW、quasiparticle self-consistent $GW$）
+- 数式は横のスクロールバーを出さない。折り返してよい（全ページ同じ）
+- メニューの見出し、ページの題も日本語にする（英語版のメニューは `enText`）
+- Claude の助けは README とトップに一行だけ（「2026-02 から Claude Code と開発」）。誰が書いたか・誰の指示かは書き分けない
+- 人が読む文書でも半分は AI が読む。釣り合いのとれた短さにし、AI のための長い断り書きは入れない
+- 理論のページ（Basic I）は Fetter-Walecka に書いてあることを、見方を変えて書く: バネのインパルス応答から Green 関数へ、電子と正孔、
+  T 積は摂動論で自然に出る、Gell-Mann–Low と分離したダイヤグラム、Feynman の見方（引用の囲み）、多体摂動論も通常の摂動論の書き直し
+- Samples の README とサンプル（`test.py`）の方が文書より新しく正しいことが多い（user 2026-11-14）。文書を直すときは、まずそちらとコードに合わせる
