@@ -10,8 +10,9 @@
 # Copy the sample directory to your work directory, put this script into it, and sbatch job_ohtaka.sh there.
 # (2026-09-30: brought to the present input ctrlg.<id>.toml and options; not run on ohtaka since.)
 id=inas2gasb2
-gwsc 1 -np 512 $id > lgwsc
-# compare QPU.1run with the one of the sample directory
+gwsc 1 -np 512 -c ohtaka $id > lgwsc
+# The sample has QPU.1run, so this iteration is counted as 2: compare the new QPU.2run with the sample's QPU.1run.
+# (2026-11-14: -c ohtaka added, srun as the launcher, SRC/exec/clusters.toml; comment corrected.)
 exit
 
 ### total DOS, partial DOS and bands with spin-orbit coupling, after the QSGW cycle

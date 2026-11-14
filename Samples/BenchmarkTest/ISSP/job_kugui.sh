@@ -8,8 +8,9 @@
 # (2026-09-30: brought to the present input ctrlg.<id>.toml and options; not run on kugui since.)
 export NV_ACC_TIME=1
 id=inas2gasb2
-gwsc 1 -np 64 -np2 4 --gpu $id > lgwsc
-# compare QPU.1run with the one of the sample directory
+gwsc 1 -np 64 -np2 4 --gpu -c kugui_gpu $id > lgwsc
+# The sample has QPU.1run, so this iteration is counted as 2: compare the new QPU.2run with the sample's QPU.1run.
+# (2026-11-14: -c kugui_gpu added, the launcher settings of SRC/exec/clusters.toml; comment corrected.)
 exit
 
 ### total DOS, partial DOS and bands with spin-orbit coupling, after the QSGW cycle
