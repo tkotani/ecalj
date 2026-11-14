@@ -14,7 +14,7 @@ const sidebarRoot = [
     items: [
       { text: 'メインドキュメント', link: '/manual/README_tutorial' },
       { text: '更新履歴（要約）/ What\'s new', link: '/manual/whatsnew' },
-      { text: 'TOML への移行 (2026-05)', link: '/manual/toml_migration' },
+      { text: '入力ファイル', link: '/manual/toml_migration' },
       { text: 'syml.&lt;sname&gt;', link: '/manual/syml' },
       { text: 'Samples (where what lives)', link: '/manual/samples' },
       { text: 'DFT  calculation : lmf part', link: '/manual/lmf' },
@@ -88,7 +88,7 @@ const enText: Record<string, string> = {
   '古い文書（過去ログ）': 'Old documents (past records)',
   'メインドキュメント': 'MainDocument',
   'ライセンス': 'License',
-  'TOML への移行 (2026-05)': 'TOML migration (2026-05)',
+  '入力ファイル': 'Input file',
   'ドキュメント（理論）': 'Documents (theory)',
   'ドキュメント': 'Documents',
   'インストール': 'Install',
