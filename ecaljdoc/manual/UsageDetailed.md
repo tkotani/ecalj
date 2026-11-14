@@ -204,6 +204,7 @@ We have samples of LDA+U (GdN and the rare-earth nitrides), and the test target 
              `idu = [0, 0, 0, 1]`, `uh = [0.0, 0.0, 0.0, -0.28]`, `jh = [0.0, 0.0, 0.0, 0.0]`. See [LDA+U in lmf.md](./lmf#lda-u-toml).
 
 ## Spin fluctuation
+最近、スピンゆらぎの計算を進展させています。問い合わせてください。
 `~/ecalj/Samples/Magnon` (test target `Fe_mlo_magnon`; `README.md` there gives the steps of `job_mlo_magnon`).
 The model is the [MLO](./mlo) model (no windows and no iteration). The sample compares it with the maximally localized
 Wannier functions of the version before 2026-10-02 (git tag `last-wannier`). Here is a figure (this is on top of LDA) for the spin fluctuation of Fe in [Okumura2021](../presentations/okumura2021.pdf).
