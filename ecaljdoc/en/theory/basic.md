@@ -97,16 +97,17 @@ The polarization function $D = G G$, in which an electron and a hole propagate a
 
 $$
 \begin{align}
-iG(𝒓_1t_1, 𝒓_2t_2) &= \braket{\Psi_0|T[\hat 𝜓_\mathrm{H}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)]|\Psi_0} \\
-&=\braket{\Psi_0|\hat 𝜓_\mathrm{H}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)|\Psi_0} 𝜃(t_1-t_2) \\
-&\quad -\braket{\Psi_0|\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)\hat 𝜓_\mathrm{H}(𝒓_1,t_1)|\Psi_0} 𝜃(t_2-t_1)
+iG_\mathrm{ele}(𝒓_1t_1, 𝒓_2t_2) &= \braket{\Psi_0|\hat 𝜓_\mathrm{H}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)|\Psi_0}\, 𝜃(t_1-t_2) \tag{Gd1} \\
+iG_\mathrm{hole}(𝒓_1t_1, 𝒓_2t_2) &= -\braket{\Psi_0|\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)\hat 𝜓_\mathrm{H}(𝒓_1,t_1)|\Psi_0}\, 𝜃(t_2-t_1) \tag{Gd2} \\
+G(𝒓_1t_1, 𝒓_2t_2) &= G_\mathrm{ele}(𝒓_1t_1, 𝒓_2t_2) + G_\mathrm{hole}(𝒓_1t_1, 𝒓_2t_2) \tag{Gd3}
 \end{align}
 $$
+
+The electron Green function $G_\mathrm{ele}$ is the amplitude to put an electron in at point $𝒓_2$ at time $t_2$ and take it out at point $𝒓_1$ at time $t_1$ ($>t_2$). The hole Green function $G_\mathrm{hole}$ is the amplitude to remove an electron at point $𝒓_1$ at time $t_1$ and fill the hole at point $𝒓_2$ at time $t_2$ ($>t_1$) (the sign comes from exchanging fermions).
 
 - $\hat 𝜓_\mathrm{H}(𝒓,t)$ : the field operator in the Heisenberg picture, $\hat 𝜓_\mathrm{H}(𝒓,t) = e^{i\hat Ht/\hbar}\hat 𝜓(𝒓)e^{-i\hat Ht/\hbar}$.
 - $\hat 𝜓^†_\mathrm{H}(𝒓,t) = e^{i\hat Ht/\hbar}\hat 𝜓^†(𝒓)e^{-i\hat Ht/\hbar}$.
 - The field operators of fermions satisfy the anticommutation relation $\{𝜓_\mathrm{H}(𝒓_1,t),𝜓_\mathrm{H}^†(𝒓_2,t)\} = 𝛿(𝒓_1-𝒓_2)$. Note that this is the equal-time anticommutation relation.
-- $T$ is the time-ordered product; it reorders the operators so that later times stand to the left and earlier times to the right.
 - $𝜃(t)$: the step function, 1 for $t>0$ and 0 for $t<0$.
 - $\Psi_0$: the $N$-particle ground state in the Heisenberg picture, $\hat H\ket{\Psi_0} = E \ket{\Psi_0}$
 
@@ -114,7 +115,16 @@ This one-particle Green function is computed in perturbation theory in the form 
 
 ### Both sides in a many-electron system (T product) {#both-sides}
 
-The one-body retarded Green function of Eq. (GF6) has one side in time only (to the future). In the many-electron ground state an electron cannot be put into an occupied state. The occupied states give instead a term in which the hole left by removing an electron propagates to the past (the side $t_1<t_2$). Electrons ($t_1>t_2$: an electron is added and propagates) and holes ($t_2>t_1$: an electron is removed and propagates) can be treated together by adding the two in parallel. This is because the basis functions of both the electron and the hole are specified by the same one-body Hamiltonian. That sum is the two terms of the equation above, the T product.
+The one-body retarded Green function of Eq. (GF6) has one side in time only (to the future). In the many-electron ground state an electron cannot be put into an occupied state. The occupied states give instead a term in which the hole left by removing an electron propagates to the past (the side $t_1<t_2$). Electrons ($t_1>t_2$: an electron is added and propagates) and holes ($t_2>t_1$: an electron is removed and propagates) can be treated together by adding the two in parallel. This is because the basis functions of both the electron and the hole are specified by the same one-body Hamiltonian. That sum is Eq. (Gd3).
+
+Together the two are written in one line with the time-ordered product (T product):
+
+$$
+iG(𝒓_1t_1, 𝒓_2t_2) = \braket{\Psi_0|T[\hat 𝜓_\mathrm{H}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)]|\Psi_0}
+\tag{Gd4}
+$$
+
+$T$ reorders the operators with the later times on the left and the earlier on the right, changing the sign at each exchange of fermion operators.
 
 Seen from perturbation theory too, symmetrizing the range of the time integrals (from $-\infty$ to $\infty$) brings in the step functions $𝜃(t_1-t_2)$ and $𝜃(t_2-t_1)$, which gives the T-product form.
 
@@ -231,7 +241,7 @@ iG(𝒓_1t_1,𝒓_2t_2) =& \sum_{n'}^{\mathrm{unocc}} 𝜙_{n'}(𝒓_1)𝜙^*_{n
   & \equiv iG_\mathrm{ele}(𝒓_1t_1,𝒓_2t_2)+ iG_\mathrm{hole}(𝒓_1t_1,𝒓_2t_2)
 \end{align}
 $$
-In the last line we define the electron and hole contributions separately. This helps in understanding products of the Green function with something else.
+The last line is the non-interacting form of the electron and hole Green functions of Eqs. (Gd1) and (Gd2). This helps in understanding products of the Green function with something else.
 > [!INFO]
 > The Green function is easier to picture in real space and real time.
 
@@ -371,7 +381,6 @@ D_{𝜇𝜈}(𝜔) &= \int d𝒓_1 d𝒓_2 E_{𝜇}^*(𝒓_1) D(𝒓_1,𝒓_2;�
 \end{align}
 $$
 <!-- Because it is time-symmetrized, it contains both the retarded (poles in the lower $ω$ plane) and the advanced (poles in the upper $ω$ plane) parts -->
-
 
 <!-- ::: details Derivation -->
 <!-- $$ -->
