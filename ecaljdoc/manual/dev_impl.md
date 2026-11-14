@@ -1,9 +1,9 @@
 # 実装メモ（GW の実装の詳細） {#dev-impl}
 
 ::: warning 写したばかり（2026-11-15）
-このページは、開発者向けの古いメモ `ecaljdetails.tex`（T. Kotani、最終版 2024-11。原本は ecalj の `ecaljdoc/ecaljdetails/`）から、
+このページは、開発者向けの古いメモ `ecaljdetails.tex`（T. Kotani、最終版 2024-11。原本は ecalj のコミット `3284d0b` の `ecaljdetails/`、`git show 3284d0b:ecaljdetails/ecaljdetails.tex`）から、
 いまも役に立つ節を写したものです（英語のまま）。まだ見直していません。いまのコードに見つからない名前には朱の印を付けました。
-式番号 (I1)〜 は写したときに付け直したもの、`[key]` は文献のキー（`ecaljdoc/ecaljdetails/ecaljrefs_detail.bib`）です。
+式番号 (I1)〜 は写したときに付け直したもの、`[key]` は文献のキー（同じコミットの `ecaljdetails/ecaljrefs_detail.bib`）です。
 理論の説明は [ecalj のバンド計算法](../theory/pmt)、[QSGW](../theory/qsgw) と、そこにある文献を見てください。
 :::
 
