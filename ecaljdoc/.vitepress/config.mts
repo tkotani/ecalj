@@ -61,6 +61,7 @@ const sidebarRoot = [
     text: '開発者向けメモ',   // notes for developers, made from MD/ (2026-11-14)
     items: [
       { text: '試験の仕組み（testecalj）', link: '/manual/dev_testecalj' },
+      { text: '実装メモ（GW の実装の詳細）', link: '/manual/dev_impl' },
     ]
   },
   { text: 'ライセンス', link: '/manual/license' },
@@ -115,6 +116,7 @@ const enText: Record<string, string> = {
   'QSGW の計算: gwsc': 'QSGW calculation: gwsc',
   'サンプル': 'Samples',
   '誘電関数: job_eps': 'Dielectric function: job_eps',
+  '実装メモ（GW の実装の詳細）': 'Implementation notes (details of the GW implementation)',
   'GW 近似': 'GW approximation',
   '光学的性質': 'Optical properties',
 }
