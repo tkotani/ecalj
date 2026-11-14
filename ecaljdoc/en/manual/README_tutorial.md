@@ -1,6 +1,6 @@
 # ecalj MainDocument
 
-> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob 8780927300d0).
+> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob 152528ea1fcb).
 **This is the main document of ecaljdoc: the features of ecalj, an overview of QSGW, and the first calculation (GetStarted). Other pages are reached from the menu on the left.**
 
 > The input file is `ctrlg.<sname>.toml` only (since 2026-05). Old `ctrl.<sname>` / `GWinput` in the examples below are converted as in [Input file](./toml_migration).
@@ -9,8 +9,7 @@
 * We have [UsageDetails](./UsageDetailed.md) in another file.
 * [Qiita Japanese](https://qiita.com/takaokotani/items/9bdf5f1551000771dc48) may be a help, but most of all are shown here.
 * When link did not work, go to https://github.com/tkotani/ecalj to download.
-* Install: [install](../install/install.md), [install for ISSP](../install/installISSP.md).
-* To have an AI guide you through ecalj, give it [GetStarted with AI](./getstartedAI).
+* Let an AI install ecalj and guide you (give it [GetStarted with AI](./getstartedAI)). The install steps are in [install](../install/install.md) and [install for ISSP](../install/installISSP.md).
 * Licence: AGPLv3 (AI is no exception). See the [License](./license) page.
 
 ## Features of ecalj package

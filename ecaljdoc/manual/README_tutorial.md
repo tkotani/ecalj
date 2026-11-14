@@ -7,8 +7,7 @@
 * [UsageDetails](./UsageDetailed.md) は別のファイルにあります。
 * [Qiita の日本語の記事](https://qiita.com/takaokotani/items/9bdf5f1551000771dc48) も参考になるかもしれませんが、ほとんどはここに書いてあります。
 * リンクが切れていたら、https://github.com/tkotani/ecalj からダウンロードしてください。
-* インストール: [install](../install/install.md)、[ISSP でのインストール](../install/installISSP.md)。
-* AI に案内させるときは、[GetStarted with AI](./getstartedAI) を AI に読ませてください。
+* インストールと案内は AI にやらせてください（[GetStarted with AI](./getstartedAI) を AI に読ませる）。インストールの手順の文書は [install](../install/install.md)、[ISSP でのインストール](../install/installISSP.md)。
 * ライセンス: AGPLv3（AI にも例外なく適用）。[ライセンス](./license) のページを見てください。
 
 ## ecalj パッケージの特徴 {#features-of-ecalj-package}
