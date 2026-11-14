@@ -978,19 +978,12 @@ Note the difference between $\bar{J}_L$ and $J_L$ ($\bar{H}_L$, as well).
 
 Thus, for $({\bf R}',{\bf T}')\neq({\bf R},{\bf T})$,
 we have two-center expansion;
-$$\begin{aligned}
- &
-\frac{e^{-|\kappa||{\bf r}+{\bf R}+{\bf T}-({\bf r}'+{\bf R}'+{\bf T}')|} }
-{|{\bf r}+{\bf R}+{\bf T}-({\bf r}'+{\bf R}'+{\bf T}')|}
-%= -4 \pi G(\bfr+\bfR+\bfT-(\bfr'+\bfR'+\bfT'),E)
-% \\
-%&= -4 \pi \sum_L (-i\kappa) \bar{J}_L(E,\hat{\bfr}) 
-%\bar{H}_L(E,\bfr'+\bfR'+\bfT'-\bfR-\bfT) 
-= \sum_L \sum_{L'}
-{\bar{J}_L(E,{\bf r})}
-%{(2l+1)!!} 
-S_{ {\bf R}+{\bf T}{L},{\bf R}'+{\bf T}'{L'} } {\bar{J}_{L'}(E,{\bf r}')} 
-%{(2l'+1)!!}
+$$
+\begin{aligned}
+&\frac{e^{-|\kappa||{\bf r}+{\bf R}+{\bf T}-({\bf r}'+{\bf R}'+{\bf T}')|} }
+{|{\bf r}+{\bf R}+{\bf T}-({\bf r}'+{\bf R}'+{\bf T}')|} \\
+&\qquad = \sum_L \sum_{L'} \bar{J}_L(E,{\bf r})\,
+S_{ {\bf R}+{\bf T}{L},{\bf R}'+{\bf T}'{L'} }\, \bar{J}_{L'}(E,{\bf r}')
 \end{aligned}
 \tag{I48}
 $$
@@ -1051,15 +1044,12 @@ For this calculation, we need structure constant, and a few types of
 radial integrals.
 With the Bloch-summed structure constant `strx`
 $=S^{\bf k}_{RL,R'L'}$, we have
-$$\begin{aligned}
+$$
+\begin{aligned}
 v^{\bf k}({\bf r},{\bf r}')
-=\sum_{ {\bf T}'} v({\bf r},{\bf r}'+{\bf T}') e^{i {\bf k}{\bf T}'}
-=e^2 \sum_{L,L'} 
-{\bar{J}_L(E,{\bf r}-{\bf R})}
-%{(2l+1)!!} 
-S^{ {\bf k} }_{ {\bf R}{L},{\bf R}'{L'} }
-{\bar{J}_{L'}(E,{\bf r}'-{\bf R}')},
-%{(2l+1)!!}.
+&=\sum_{ {\bf T}'} v({\bf r},{\bf r}'+{\bf T}') e^{i {\bf k}{\bf T}'} \\
+&=e^2 \sum_{L,L'} \bar{J}_L(E,{\bf r}-{\bf R})\,
+S^{ {\bf k} }_{ {\bf R}{L},{\bf R}'{L'} }\, \bar{J}_{L'}(E,{\bf r}'-{\bf R}'),
 \end{aligned}
 \tag{I50}
 $$
@@ -1077,11 +1067,11 @@ Except the contribution for $({\bf R},{\bf T})=({\bf R}',{\bf T}')$,
 we can evaluate
 $\langle B^{\bf k}_{ {\bf R}{L}\mu}({\bf r})|v^{\bf k}({\bf r},{\bf r}')|B^{\bf k}_{ {\bf R}'{L'}\mu'}({\bf r}') \rangle$, from the\
 `rojb` integrals $\rho^l(B_{ {\bf R}{l}\mu})$ as
-$$\begin{aligned}
- &\rho^l(B_{ {\bf R}{l}\mu})=
-%\frac{1}{(2l+1)!!} 
-\int_0^{R} r\bar{J}_l(E,r) \ r B_{ {\bf R}{l}\mu}(r)  dr
-= \frac{1}{(2l+1)!!}\int_0^{R} {\tt rkpr(r) \ rprodx(r)} \ dr
+$$
+\begin{aligned}
+\rho^l(B_{ {\bf R}{l}\mu})
+&=\int_0^{R} r\bar{J}_l(E,r) \ r B_{ {\bf R}{l}\mu}(r)  dr \\
+&= \frac{1}{(2l+1)!!}\int_0^{R} {\tt rkpr(r) \ rprodx(r)} \ dr
 \end{aligned}
 \tag{I51}
 $$
@@ -1099,14 +1089,13 @@ The contribution from $({\bf R},{\bf T})=({\bf R}',{\bf T}')$
 should be added. This is ${\bf k}$-independent, and
 given by the\
 `sgbb` integral, which is also calculated in `mkjb_4`.
-$$\begin{aligned}
- &\sigma^l(B_{ {\bf R}{l}\mu},B_{ {\bf R}{l}\nu})=
-{4\pi}
-\int_0^{R}\int_0^{R} (r_<)\bar{J}_l(E,r_<) (r_>)\bar{H}_l(E,r_>)
-r B_{ {\bf R}{l}\mu}(r) r' B_{ {\bf R}{l}\nu}(r') dr dr'  \\
- &=\frac{4\pi}{2l+1}
-\int_0^{R}\int_0^{R} {\tt rkpr(r_<) \ rkmr(r_>) \ rprodx(n1,r) \ rprodx(n2, r')} 
-\ dr dr'.
+$$
+\begin{aligned}
+\sigma^l(B_{ {\bf R}{l}\mu},B_{ {\bf R}{l}\nu})
+&={4\pi}\int_0^{R}\!\!\int_0^{R} r_<\bar{J}_l(E,r_<)\, r_>\bar{H}_l(E,r_>) \\
+&\qquad\times r B_{ {\bf R}{l}\mu}(r)\, r' B_{ {\bf R}{l}\nu}(r')\, dr dr'  \\
+&=\frac{4\pi}{2l+1}\int_0^{R}\!\!\int_0^{R} {\tt rkpr(r_<) \ rkmr(r_>)} \\
+&\qquad\times {\tt rprodx(n1,r)}\ {\tt rprodx(n2, r')}\, dr dr'.
 \end{aligned}
 \tag{I52}
 $$
@@ -1166,7 +1155,7 @@ as long as we use large enough $l_{\rm Pmax}$.
 Here ${P}_{ {\bf R}{L} }$ denotes the projection operator
 to extract the component of ${ {\bf R}{L} }$ contribution.
 In fact, we use large enough $l_{\rm Pmax}$;
-$l_{\rm Pmax} = 2 \times l_{\rm max}$`=2*LMXA`,
+$l_{\rm Pmax} = 2 \times l_{\rm max}$`=2*LMXA`<span class="clfix"> (`lxx = 2*lmxax` in `basnfp.f90` and `hvccfp0`)</span>,
 where $l_{\rm max}$ denotes the maximum angular momentum
 for the expansion of eigenfunctions within MT (maximum
 $l$ cutoff for $\alpha^{ {{\bf k} }n}_{ {\bf R}u}$ in Eq. (I1)).
@@ -1175,28 +1164,31 @@ since we use $l_{\rm max}=4$.
 
 The matrix elements $\langle P_1 |v| P_2 \rangle$
 can be calculated as
-$$\begin{aligned}
-\langle P_1(phiphi) |v| P_2(phiphi) \rangle=
-\sum_{\bf G_{1'} G_{1''} G_{2'} G_{2''} } 
-\langle P_1(phiphi) | {P_{1'} } \rangle  
-\langle {P}_{1'}| {P}_{1''} \rangle^{-1} 
-\langle {P}_{1''} |v| {P_{2''} } \rangle  
+$$
+\begin{aligned}
+\langle P_1(\phi\phi) |v| P_2(\phi\phi) \rangle
+&=\sum_{\bf G_{1'} G_{1''} G_{2'} G_{2''} } 
+\langle P_1(\phi\phi) | {P_{1'} } \rangle  
+\langle {P}_{1'}| {P}_{1''} \rangle^{-1} \\
+&\qquad\times\langle {P}_{1''} |v| {P_{2''} } \rangle  
 \langle {P}_{2''}| {P}_{2'} \rangle^{-1} 
-\langle {P_{2'} } | P_2(phiphi) \rangle,  
+\langle {P_{2'} } | P_2(\phi\phi) \rangle,
 \end{aligned}
 \tag{I54}
 $$
 where $1\equiv ({\bf k},{\bf G_1})$ and so on.
-Here $P_1(phiphi)$ indidates
+Here $P_1(\phi\phi)$ indicates
 that an IPW made from a product
 of IPWs.The matrix elements
 $\langle {P}_{2''}| {P}_{2'} \rangle^{-1}$
-(stored into PPOVLG,PPOVLI)
+(stored into <del class="clfix">PPOVLG,PPOVLI</del><span class="clfix">`__PPOvlp`; the inverse is taken where it is used</span>)
 and $\langle {P_{2'} } | P_2(phiphi) \rangle$
-(stored into PPOVLGG)
-are given at `rdata4gw`.
+(stored into <del class="clfix">PPOVLGG</del><span class="clfix">`__PPOvlpGG`</span>)
+are given at `rdata4gw`<span class="clfix"> (a block in `sugw.f90`, that is, `lmf --jobgw=1`)</span>.
 
-### Overlap matrix of PPOVL\* files
+### Overlap matrix of the IPWs (`__PPOvlp*` files)
+
+<div class="clfix-old">
 
 PPOVL\* files contains the
 overlap matrix of IPWs
@@ -1242,20 +1234,35 @@ The melpln2t is for generating the matrix element of
         QpGcutgcgp= (1d0+1d-2)*QpGcut_psi+QpGcut_cou+ 2d0* 2d0*pi/alat*dQQ
       dQpG, dQQ is to enlarge range related to Q0P points.
 
+</div>
+
+<div class="clfix">
+
+The overlap matrices of the IPWs are written by `lmf --jobgw=1` (the block `rdata4gw` in `sugw.f90`) and read by `getppx2` of the module `m_read_ppovl` (`rppovl.f90`), called in `build_zmel` (`m_zmel.f90`) for the IPW part of the matrix elements `<IPW psi|psi>`.
+There are two kinds:
+
+- $\langle P^{\bf k}_{\bf G}|P^{\bf k}_{{\bf G}'}\rangle$ for the IPWs of the MPB (`QpGcut_cou`), for each $q$ of the IBZ and the offset-Γ points (`qibze`):
+  `__PPOvlp` (direct access, `ppovl(ngc,ngc)`), `__PPOvlpG` (the G vectors `ngvecc`) and `__PPOvlp.info` (sizes).
+  The matrix depends only on ${\bf G}'-{\bf G}$ (Eq. (I46)), but it is stored for each $q$ since the set of G (`ngc`) depends on $q$.
+- `__PPOvlpGG`: $\langle P_{\bf G}|P_{{\bf G}'}\rangle$ as a function of ${\bf G}'-{\bf G}$ (`ggg`, on the set `nvggg`), used for $\langle G({\rm eigenfunction})\,G({\rm eigenfunction})|G({\rm Coulomb})\rangle$
+  (a product of the IPWs of two eigenfunctions is expanded in the IPWs of the MPB). It is for $k=0$ only. The ranges are set by
+  `QpGcutggg = (2+0.01)*QpGcut_psi + QpGcut_cou + 2π/alat*dQpG` and `QpGcutgcgp = (1+0.01)*QpGcut_psi + QpGcut_cou + 2*2π/alat*dQQ`
+  (the triangle inequality; `dQpG`, `dQQ` enlarge the ranges for the offset-Γ points).
+
+</div>
+
 ### $\langle {P}^{\bf k}_{\bf G}|v| {P}^{\bf k}_{ {\bf G}'} \rangle$
 
 To evaluate Eq. (I54), we need to know
 its main part $\langle {P}^{\bf k}_{\bf G}|v| {P}^{\bf k}_{ {\bf G}'} \rangle$. It is written as
-$$\begin{aligned}
+$$
+\begin{aligned}
 \langle {P}^{\bf k}_{\bf G}|v| {P}^{\bf k}_{ {\bf G}'} \rangle
-\approx
-\langle \bar{P}^{\bf k}_{\bf G}|v| \bar{P}^{\bf k}_{ {\bf G}'} \rangle
-& = \langle \exp(i({\bf k}+{\bf G}){\bf r}) |v| \exp(i({\bf k}+{\bf G}'){\bf r}) \rangle
--\sum_{ {\bf R}{L} } 
-\langle P^{ {\bf k}+{\bf G} }_{ {\bf R}{L} }|v| \exp(i({\bf k}+{\bf G}'){\bf r}) \rangle  \\
-& - \sum_{ {\bf R}'{L'} } 
-\langle \exp(i({\bf k}+{\bf G}'){\bf r}) |v| P^{ {\bf k}+{\bf G}'}_{ {\bf R}'{L'} }\rangle
-+\sum_{ {\bf R}{L} } \sum_{ {\bf R}'{L'} } 
+&\approx \langle \bar{P}^{\bf k}_{\bf G}|v| \bar{P}^{\bf k}_{ {\bf G}'} \rangle \\
+&= \langle e^{i({\bf k}+{\bf G}){\bf r}} |v| e^{i({\bf k}+{\bf G}'){\bf r}} \rangle
+-\sum_{ {\bf R}{L} } \langle P^{ {\bf k}+{\bf G} }_{ {\bf R}{L} }|v| e^{i({\bf k}+{\bf G}'){\bf r}} \rangle  \\
+&\quad - \sum_{ {\bf R}'{L'} } \langle e^{i({\bf k}+{\bf G}){\bf r}} |v| P^{ {\bf k}+{\bf G}'}_{ {\bf R}'{L'} }\rangle \\
+&\quad +\sum_{ {\bf R}{L} } \sum_{ {\bf R}'{L'} } 
 \langle P^{ {\bf k}+{\bf G} }_{ {\bf R}{L} }|v|P^{ {\bf k}+{\bf G}'}_{ {\bf R}'{L'} } \rangle,
 \end{aligned}
 \tag{I55}
@@ -1278,10 +1285,10 @@ $$
 because we simply use $\exp(i({\bf k}+{\bf G}){\bf r})$
 (no prefactor for normalization) for IPW.
 Here $E$`=eee` is negative (or (almost) zero).
-This is coded by a line
+This is coded by a line <span class="clfix">in `vcoulq_4` (`mkjp.f90`)</span>
 
-      if(ig1==ig2) vcoul(ipl1,ipl2) = fpivol/(absqg2(ig1) -eee)
-    subr:vroulq_4@L281:mkjp.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>.
+    vcoul(nbloch + ig1, nbloch + ig1) = vcoul(nbloch + ig1, nbloch + ig1) + fpivol/(absqg2(ig1) - eee)
+
 
 ##### The second and third term
 
@@ -1289,15 +1296,14 @@ In the second term,
 we can replace $v$ with $\frac{4 \pi \Omega}{|{\bf k}+{\bf G}'|^2+|E|}$
 since $v$ is diagonal for $|\exp(i({\bf k}+{\bf G}'){\bf r}) \rangle$, the third term as well.
 Without $v$, we have
-$$\begin{aligned}
- &\langle \exp(i({\bf k}+{\bf G}){\bf r})| P^{ {\bf k}+{\bf G}'}_{ {\bf R}'{L'} }\rangle
-=\sum_{ {\bf R}{L} } \langle 
-P^{ {\bf k}+{\bf G} }_{ {\bf R}{L} }|
-P^{ {\bf k}+{\bf G}'}_{ {\bf R}'{L'} }\rangle  \\
- &=\sum_{ {\bf R}{L} } 
-({\tt pjyl\_}({\bf k}+{\bf G},L) \exp(i({\bf k}+{\bf G}){\bf R}))^* 
-\times R^{JJ}(|{\bf k}+{\bf G}|,|{\bf k}+{\bf G}'|,l)  \\
- &\times {\tt pjyl\_}({\bf k}+{\bf G}',L) \exp(i({\bf k}+{\bf G}'){\bf R}), \end{aligned}
+$$
+\begin{aligned}
+\langle e^{i({\bf k}+{\bf G}){\bf r}}| P^{ {\bf k}+{\bf G}'}_{ {\bf R}'{L'} }\rangle
+&=\sum_{ {\bf R}{L} } \langle P^{ {\bf k}+{\bf G} }_{ {\bf R}{L} }| P^{ {\bf k}+{\bf G}'}_{ {\bf R}'{L'} }\rangle  \\
+&=\sum_{ {\bf R}{L} } \big({\tt pjyl\_}({\bf k}+{\bf G},L)\, e^{i({\bf k}+{\bf G}){\bf R}}\big)^* \\
+&\qquad\times R^{JJ}(|{\bf k}+{\bf G}|,|{\bf k}+{\bf G}'|,l) \\
+&\qquad\times {\tt pjyl\_}({\bf k}+{\bf G}',L)\, e^{i({\bf k}+{\bf G}'){\bf R}},
+\end{aligned}
 \tag{I57}
 $$
 where we use
@@ -1320,7 +1326,7 @@ $$
 (recall the definition of $\bar{J}_l$.
 In codes, `cy(lm)*yl(lm)`
 $=Y_L(\widehat{ {\bf k}+{\bf G} })$.)
-Search `pjyl_` in `mkjp.F`<span class="clfix">(not in the present SRC, 2026-11-15)</span>.
+Search `pjyl_` in `mkjp.<del class="clfix">F</del><span class="clfix">f90</span>`.
 The Bessel functions appear here in the expansion of PW; see Eq. (I45).
 $R^{JJ}(|{\bf k}+{\bf G}|,|{\bf k}+{\bf G}'|,l)$
 is given as
@@ -1331,18 +1337,21 @@ R^{JJ}(|{\bf k}+{\bf G}|,|{\bf k}+{\bf G}'|,l)
 \end{aligned}
 \tag{I60}
 $$
-which can be calculated by the wronskian (`wronskj`) by the formula
-$$\begin{aligned}
-R^{JJ}(\kappa_{\rm A},\kappa_{\rm B},l)=
-\int_0^R \!\!r^2 \bar{J}_l(\kappa_{\rm A} r)
-\bar{J}_l(\kappa_{\rm B} r) dr
-=R^2\frac{
-\bar{J}_l(\kappa_{\rm A} r) \frac{d \bar{J}_l(\kappa_{\rm B} r)}{dr}
--\frac{d \bar{J}_l(\kappa_{\rm A} r)}{dr}\bar{J}_l(\kappa_{\rm B} r)
-}{\kappa_{\rm A}^2-\kappa_{\rm B}^2}\Big|_{r=R}= {\tt -fjj}
+which can be calculated by the wronskian (`wronkj`) by the formula
+$$
+\begin{aligned}
+R^{JJ}(\kappa_{\rm A},\kappa_{\rm B},l)
+&=\int_0^R \!\!r^2 \bar{J}_l(\kappa_{\rm A} r) \bar{J}_l(\kappa_{\rm B} r) dr \\
+&=\frac{R^2}{\kappa_{\rm A}^2-\kappa_{\rm B}^2}\Big(
+\bar{J}_l(\kappa_{\rm A} r) \frac{d \bar{J}_l(\kappa_{\rm B} r)}{dr} \\
+&\qquad -\frac{d \bar{J}_l(\kappa_{\rm A} r)}{dr}\bar{J}_l(\kappa_{\rm B} r)
+\Big)\Big|_{r=R} = {\tt -fjj}
 \end{aligned}
 \tag{I61}
 $$
+
+<div class="clfix-old">
+
 (`-fjj` is used in `mkjp.F`<span class="clfix">(not in the present SRC, 2026-11-15)</span>.
 In codes, the contributions to the second and third terms of Eq. (I55) due to ${\bf R}{L}$ components are given as (simplified for illustration)
 
@@ -1362,50 +1371,61 @@ Correspondences are
     lm2         --> L
     ibas2       --> R
 
+</div>
+
+<div class="clfix">
+
+(`-fjj` is used in `mkjp.f90`.)
+In `vcoulq_4` the second, third and the on-site part of the fourth term of Eq. (I55) are added together for each group of atoms with the same radial mesh (`eee = 0`; for `eee < 0` they come from `vcoul_termb`):
+
+```fortran
+vcoul(nbloch+ig1,nbloch+ig2) = vcoul(nbloch+ig1,nbloch+ig2) &
+  + cPhi * sum( dconjg(pjyl_(1:lm2x,ig1)) * pjyl_(1:lm2x,ig2) &
+    * ((fpi/(absqg2(ig1)-eee)+fpi/(absqg2(ig2)-eee))*fjj(llx(1:lm2x)) + radsig(llx(1:lm2x))) )
+```
+
+where `cPhi` is the sum of the phase factors $e^{-i({\bf k}+{\bf G}_1){\bf R}}e^{i({\bf k}+{\bf G}_2){\bf R}}$ over the atoms of the group,
+`fpi` is $4\pi$, `absqg2(ig)` is $|{\bf k}+{\bf G}|^2$, `-eee` is $|E|$, and `radsig` is the $\sigma$-type integral of Eq. (I62) (`sigintpp`).
+
+</div>
+
 ##### The forth term
 
 The last term of Eq. (I55) can be calculated essentially
 the same manner with $\langle B| v| B\rangle$, where we use the
 Bessel function instead of $B_{ {\bf R}{l}\mu}(r)$ appeared in Sec.([§](#b-v-b-part)).
 Then we define integrals
-`rojp` and `sgpp` defined as (in `fpgw/gwsrc/mkjp.F`);
-$$\begin{aligned}
-{\tt rojp}({\bf R}L)& = {\tt pjyl\_} \ 
-\exp(i ({\bf q}+{\bf G}) {\bf R})  \rho^l(\bar{J}_l) \\
-{\tt sgpp}({\bf R}L,{\bf G},{\bf G}')& = {\tt pjyl\_^*(ig1)} \exp(-i ({\bf q}+{\bf G}) {\bf R})
-{\tt pjyl\_(ig2)} \exp(i ({\bf q}+{\bf G}') {\bf R}) 
- \\
- &  \times {\tt  radsig},  \\
- & \ {\rm where\ }
-{\tt radsig}=\sigma^l(\bar{J}_l(|{\bf q}+{\bf G}|r),\bar{J}_l(|{\bf q}+{\bf G}'|r)).
+`rojp` and `sgpp` defined as (in <del class="clfix">`fpgw/gwsrc/mkjp.F`</del><span class="clfix">`mkjp.f90`; `sgpp` is not stored as an array now, see `radsig` above</span>);
+$$
+\begin{aligned}
+{\tt rojp}({\bf R}L)&= {\tt pjyl\_}\, \exp(i ({\bf q}+{\bf G}) {\bf R})\,  \rho^l(\bar{J}_l), \\
+{\tt sgpp}({\bf R}L,{\bf G},{\bf G}')&= {\tt pjyl\_^*(ig1)} \exp(-i ({\bf q}+{\bf G}) {\bf R}) \\
+&\qquad\times {\tt pjyl\_(ig2)} \exp(i ({\bf q}+{\bf G}') {\bf R})\, {\tt radsig}, \\
+{\tt radsig}&=\sigma^l(\bar{J}_l(|{\bf q}+{\bf G}|r),\bar{J}_l(|{\bf q}+{\bf G}'|r)).
 \end{aligned}
 \tag{I62}
 $$
 Thus, `rojp` and `sgpp` made of coefficients for explansion
 and radial integral.
-Search `sgpp_ig1_ig2`<span class="clfix">(not in the present SRC, 2026-11-15)</span> in `mkjp.F`<span class="clfix">(not in the present SRC, 2026-11-15)</span>.
+<del class="clfix">Search `sgpp_ig1_ig2` in `mkjp.F`.</del><span class="clfix">The off-site part of the fourth term is $\sum$ `rojp`$^*$ `strx` `rojp` (`zmm` in `vcoulq_4`).</span>
 
 ### $\langle P|B \rangle$ part
 
-$$\begin{aligned}
- &\langle {P}^{\bf k}_{ {\bf G} } |v| B^{\bf k}_{ {\bf R}{L}\mu}({\bf r}) \rangle
-=\langle  \exp(i({\bf k}+{\bf G}){\bf r}) 
-|v|B^{\bf k}_{ {\bf R}{L}\mu}({\bf r}) \rangle
--\sum_{ {\bf R}'{L'} } 
-\langle P^{ {\bf k}+{\bf G} }_{ {\bf R}{L} }|v|
-B^{\bf k}_{ {\bf R}{L}\mu}({\bf r})  \rangle  \\
- &={\tt fouvb}({\bf G},{\bf R}L \mu)
--\sum_{ {\bf R}'L'} {\tt rojp * strx * rojb}
+$$
+\begin{aligned}
+\langle {P}^{\bf k}_{ {\bf G} } |v| B^{\bf k}_{ {\bf R}{L}\mu} \rangle
+&=\langle  e^{i({\bf k}+{\bf G}){\bf r}} |v|B^{\bf k}_{ {\bf R}{L}\mu} \rangle \\
+&\quad -\sum_{ {\bf R}'{L'} } \langle P^{ {\bf k}+{\bf G} }_{ {\bf R}'{L'} }|v| B^{\bf k}_{ {\bf R}{L}\mu} \rangle  \\
+&={\tt fouvb}({\bf G},{\bf R}L \mu) - {\tt sgpb}({\bf G},{\bf R}L \mu) \\
+&\quad -\sum_{ {\bf R}'L'} {\tt rojp}^*\, {\tt strx}\, {\tt rojb}
 \end{aligned}
 \tag{I63}
 $$
-The first term is stored in `fouvb(ngc,nxx,nlxx,nbas)` allocated at
-`L824:hvccfp0.m.F`.
-Search `fouvb` in `mkjp.F`<span class="clfix">(not in the present SRC, 2026-11-15)</span>.
+The first term is stored in `fouvb(ngc,nxx,nlxx,nbas)`<del class="clfix"> allocated at `L824:hvccfp0.m.F`. Search `fouvb` in `mkjp.F`.</del><span class="clfix">, made by `mkjp_4` (`mkjp.f90`) together with `rojp` and `sgpb`, and used in `vcoulq_4`.</span>
 Since $v$ is diagonal to PWs,
 we can evaluate this in the similar manner of Eq. (I57).
 The second term can be evaluated from
-`rojb` and `sgpb` in the same manner of last section.
+`rojb` and `sgpb` in the same manner of last section<span class="clfix">: the on-site part ${\bf R}'={\bf R}$ is `sgpb`, and the off-site part is $\sum$ `rojp`$^*$ `strx` `rojb` (`zmm` in the block `PvB2` of `vcoulq_4`)</span>.
 
 
 ## Offset-$\Gamma$ method; W(k=0) averaged in the $\Gamma$ cell. {#offset-gamma}
@@ -2025,9 +2045,11 @@ Princeton University Press, 1960,\
 John Wiley & Sons, INC. 1957,\
 if necessary. The definition of spherical hermonics are the same in these books.
 
-### SOC matrix for the Wannier functions
+### SOC matrix for the MLO <span class="clfix">(was: for the Wannier functions)</span>
 
-We calculate SOC matrix `hammsoc`<span class="clfix">(not in the present SRC, 2026-11-15)</span>
+<div class="clfix-old">
+
+We calculate SOC matrix `hammsoc`
 $\langle F_{ {\bf k}i \sigma} |H_{\rm SOC}|F_{ {\bf k}j \sigma} \rangle$ in `sugw.F`\
 (`lmf-MPIK --jobgw --job --socmatrix` mode around the end of `genMLFhso`)
 for all ${\bf k}$ points in the Brillowin zone. Here
@@ -2036,23 +2058,22 @@ Eigenfunction is given as
 $$\begin{aligned}
 \Psi_{ {\bf k}n \sigma}=\sum_i F_{ {\bf k}i \sigma} \alpha^{\bf k}(i,n,\sigma) .
 \end{aligned}
-\tag{I90}
 $$
 
 Thus the required SOC matrix
 $\langle W_{lm\sigma}({\bf r}) | H_{\rm SOC} |W_{lm'\sigma'}({\bf r}) \rangle$
-(`hammso`<span class="clfix">(not in the present SRC, 2026-11-15)</span> in `hsocmat.F`<span class="clfix">(not in the present SRC, 2026-11-15)</span>) is calcualted in `hsocmat`<span class="clfix">(not in the present SRC, 2026-11-15)</span> from
+(`hammso` in `hsocmat.F`) is calcualted in `hsocmat` from
 
-1.  $\alpha^{\bf k}(i,n,\sigma)$ (`evec(1:nz,iband,iqbz,isp)` in `hsocmat.F`<span class="clfix">(not in the present SRC, 2026-11-15)</span>)
+1.  $\alpha^{\bf k}(i,n,\sigma)$ (`evec(1:nz,iband,iqbz,isp)` in `hsocmat.F`)
 
 2.  $\langle F_{ {\bf k}i\sigma} |H_{\rm SOC}|F_{ {\bf k}j\sigma'} \rangle$
-    (`hso(1:nz,1:nz,iqbz,ispc)` in `hsocmat.F`<span class="clfix">(not in the present SRC, 2026-11-15)</span>. `ispc=3` means spin off-diagonal)
+    (`hso(1:nz,1:nz,iqbz,ispc)` in `hsocmat.F`. `ispc=3` means spin off-diagonal)
 
 3.  $\langle \psi_{ {\bf k}n\sigma}|G_{l\sigma}(r)y_{lm}(\hat{ {\bf r} })\rangle$
-    (`dnk(iband,iwf,iqbz,isp)` in `hsocmat.F`<span class="clfix">(not in the present SRC, 2026-11-15)</span>)
+    (`dnk(iband,iwf,iqbz,isp)` in `hsocmat.F`)
 
-See `hsocmat.F`<span class="clfix">(not in the present SRC, 2026-11-15)</span>. We have `evecw=matmul(evec,dnk)`.
-From `hammso`<span class="clfix">(not in the present SRC, 2026-11-15)</span>, we calculate the trace of the
+See `hsocmat.F`. We have `evecw=matmul(evec,dnk)`.
+From `hammso`, we calculate the trace of the
 square of $H_{\rm SOC}$ as ${\rm Tr}(H_{\rm SOC}^2)$ in the space spanned by the Wannier functions.
 By construction the trace is not dependent on $y_{lm}$ or on $Y_{lm}$ because projected fourteen Wannier functions (when $4f$) spans the same Hilbert space. The trace is equilannt to the sum of square of eigenvalues
 of $H_{\rm SOC}$.
@@ -2064,6 +2085,23 @@ But we expect the dependence is not so large.
 
 Important check point to evaluate the size of SOC is whether we can reproduce the SOC splitting in the original bands
 (not the bands of the 14-space model but the bands of full QSGW).
+
+</div>
+
+<div class="clfix">
+
+The Wannier-function route (`hsocmat`) was removed. The SOC matrix is now used for the MLO (`job_mlo_soc`; [MLO §4](./mlo#_4-スピン軌道相互作用-—-job-mlo-soc)):
+
+1. `lmf --writeham --socmatrix` (scalar-relativistic, `[ham] so = 0`) writes the Hamiltonian in the PMT basis (`__HamiltonianPMT`) and, separately,
+   the SOC matrix $\langle F_{{\bf k}i}|H_{\rm SOC}|F_{{\bf k}j}\rangle$ (`hammhso(ndimh,ndimh,3)` made by `aughsoc`; the three are the $\uparrow\uparrow$, $\downarrow\downarrow$ and $\uparrow\downarrow$ blocks, per orbital without spinor doubling) into `__HamiltonianPMTsoc` (`m_bandcal.f90`).
+   Here $F_{{\bf k}i}$ are the basis functions of the PMT method, and $\Psi_{{\bf k}n\sigma}=\sum_i F_{{\bf k}i}\alpha^{\bf k}(i,n,\sigma)$.
+2. `mlo --socmatrix` transforms it to the MLO basis together with the Hamiltonian (`hammhsor` in `HamRsMLO`, read in `m_mlo_ham.f90`),
+   and adds it as a perturbation to the MLO Hamiltonian (spinor dimension `nspinor = 2`).
+3. The Fermi energy is taken from a full-SOC `lmf` run (`[ham] so = 1`, `efermi_soc`).
+
+The SOC splitting of the MLO bands should be checked against the bands of the full calculation with SOC (`job_mlo_soc` draws both).
+
+</div>
 
 ## Crystal symmetry for GW calculation
 
