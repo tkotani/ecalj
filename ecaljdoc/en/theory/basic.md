@@ -112,6 +112,16 @@ The correspondence with ordinary (time-independent) perturbation theory: there a
 
 Excluding type 1, and dropping type 2 together with the normalization terms, leaves only the connected diagrams: the same result as Eq. (G1) (Goldstone).
 
+### Perturbation theory with and without time {#td-vs-ti-perturbation}
+
+Perturbation theory with time (expanding $\hat S$ as in Eq. (G1)) gives correlation functions, that is, operators at different times sandwiched by the ground state (Green functions and response functions). It corresponds to elementary perturbation theory as follows; the two are not different theories.
+
+- An elementary example of perturbation theory with time is Fermi's golden rule. The transition amplitude is taken to first (linear) order in the perturbation, which gives the transition rate. The rate corresponds to the imaginary part of the second-order energy shift (the imaginary part of the self-energy, the quasiparticle lifetime).
+- Perturbation theory without time gives energies and expectation values of operators. An expectation value sandwiches the operator between the same state on the left and right; it is a correlation function with its two times set equal (for example the density, $𝜌(𝒓) = -iG(𝒓t,𝒓t^+)$).
+- Doing the time integrals with the adiabatic factor $e^{𝜂 t}$ gives one energy denominator $1/(E_0-E_n)$ per integral, which is the formula of perturbation theory without time (Goldstone).
+
+Perturbation theory with time thus contains perturbation theory without time, and gives more: the correlation at different times (the excitation spectrum). Many-body perturbation theory is not different from basic perturbation theory. What differs is that the terms are organized by diagrams and only the connected ones are counted (the Gell-Mann–Low theorem above), and that selected terms can be summed to infinite order, as in the Dyson equation.
+
 ## Green function of a non-interacting system
 
 ### Hamiltonian
