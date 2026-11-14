@@ -23,15 +23,15 @@
 
    いまの PMT の定式化は次にあります。
 
-   [1][KotaniKinoAkai2015, PMT formalism](https://github.com/ecalj/ecaljdoc/blob/main/presentations/KotaniKinoAkai2015FormulationPMT.pdf)
+   [1][KotaniKinoAkai2015, PMT formalism](../presentations/KotaniKinoAkai2015FormulationPMT.pdf)
    
-   [2][KotaniKino2013, PMT applied to diatomic molecules](https://github.com/ecalj/ecaljdoc/blob/main/presentations/KotaniKino2013PMTMolecule.pdf).
+   [2][KotaniKino2013, PMT applied to diatomic molecules](../presentations/KotaniKino2013PMTMolecule.pdf).
 
    ただ、セッティングや細かい改良はいろいろと加えられています。とくに、MTO の設定が自動化されている点が重要です。通常の LMTO 法では、MTO のパラメータの設定が難しく、かなり使いづらいものでした。
    基底関数のパラメータは自動で設定するので、パラメータの設定に悩む必要はありません。MTO に APW を加えたことで、MTO のパラメータへの依存がかなり減ったのです。従来の MTO だけの方法では、非常に長距離の（1/r 型に近い）基底を入れる必要もありました。計算に要るのは結晶構造（POSCAR）だけです。 
    <!-- In principle, it is possible to perform reasonable calculations just from crystal structures and very minimum setting.  -->
     * PMT のはじまりは https://journals.aps.org/prb/abstract/10.1103/PhysRevB.81.125117 です。
-    * PMT は [E. Bott、M. Methfessel、W. Krabs、P. C. Schmidt による smooth Hankel 関数の論文](https://github.com/ecalj/ecaljdoc/blob/main/presentations/Bott1988.pdf) にある smooth Hankel 関数を使います。これは [B][M. Methfessel、M. van Schilfgaarde、R.A. Casali による nfp の論文](https://github.com/ecalj/ecaljdoc/blob/main/presentations/nfp.pdf) で使われたもので、私たちの PMT はその上に作られています。
+    * PMT は [E. Bott、M. Methfessel、W. Krabs、P. C. Schmidt による smooth Hankel 関数の論文](../presentations/Bott1988.pdf) にある smooth Hankel 関数を使います。これは [B][M. Methfessel、M. van Schilfgaarde、R.A. Casali による nfp の論文](../presentations/nfp.pdf) で使われたもので、私たちの PMT はその上に作られています。
    *  PMT の基底に加えて、局所軌道（local orbital）も合わせて使います。
    * カットオフ $\approx 3$ Ry は驚くほど小さく聞こえるかもしれません。しかし、平面波の方法で高いエネルギーの部分は、動径関数の曲率が負になる、固有関数の内殻のような形を表すためだけに使われていることに注意してください。さらに、平面波には周期ゲージ（periodic gauge）を満たさないという難しさがあります（[arXiv:2010.03959](https://arxiv.org/pdf/2010.03959)）。ecalj では MTO のおかげで、最大局在ワニエ法に対応する方法（[MLO モデル化](./mlo)）をシンプルな方法で実行できます。一方、LMTO やガウス関数のような局在基底の方法は、真空の領域を扱うのが苦手です。表面の扱いなどでは問題になりえます。
 
@@ -39,8 +39,8 @@
    
    QSGW 法とは、準粒子バンドを的確に与える有効一体ハミルトニアンを計算する方法です。
    PMT-QSGW とは、`the Quasiparticle self-consistent GW method (QSGW) based on the PMT method`、つまり PMT 法にもとづく準粒子セルフコンシステント GW 法（QSGW）のことです。PMT の上で QSGW を行うための鍵は [3] の開発です。磁性金属も扱えます。ecalj は GPU に実装したので、4 枚の GPU で約 40 原子を扱えます。
-   [3][Kotani2014, Formulation of PMT-QSGW method](https://github.com/ecalj/ecaljdoc/blob/main/presentations/Kotani2014QSGWinPMT.pdf)
-   [4][D.Deguchi PMT-QSGW applied to a variety of insulators/semiconductors](https://github.com/ecalj/ecaljdoc/blob/main/presentations/deguchi2016.pdf)
+   [3][Kotani2014, Formulation of PMT-QSGW method](../presentations/Kotani2014QSGWinPMT.pdf)
+   [4][D.Deguchi PMT-QSGW applied to a variety of insulators/semiconductors](../presentations/deguchi2016.pdf)
    [5][M.Obata GPU implementation](https://arxiv.org/abs/2506.03477)。ここでは Type II の GaSb/InAs（40 原子）を 4 枚の GPU で扱っています。
    Wannier などの内挿をしなくても、バンドの図を簡単に描けます。自己エネルギーの内挿の仕組みが内部に組み込まれているからです。
    これは、QSGW の基底状態の上で固有関数から物理量を計算するのにとても大事です。
@@ -74,7 +74,7 @@
 * [QSGW の GPU による高速化](https://arxiv.org/abs/2506.03477) があります。この論文は QSGW の基本も説明しています。QSGW のアルゴリズムは GPU の計算にとてもよく合います。4 枚の GPU で、セルあたり 40 原子の系を計算できます（lmf の部分では、まだ GPU を効率よく使えていません）。PMT ではスラブ模型の大きな真空の領域も扱えます。
 * 手でパラメータを設定することなく、ほぼ自動で QSGW を行えます。そのため、ecalj は GW/QSGW を行うのに最も簡単なものの一つだと考えています。QSGW のバンドのデータベースは [DOSnpSupplement](https://github.com/tkotani/DOSnpSupplement) を見てください。
 
-![alt text](image-2.png) この図は [4][D.Deguchi](https://github.com/ecalj/ecaljdoc/blob/main/presentations/deguchi2016.pdf) から取りました。
+![alt text](image-2.png) この図は [4][D.Deguchi](../presentations/deguchi2016.pdf) から取りました。
 
 LDA と比べると、QSGW では次の違いが見られます。
 * バンドギャップ。QSGW は実験よりやや大きくなる傾向があります。上の図のように系統的に見えます。

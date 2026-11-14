@@ -1,6 +1,6 @@
 # Other notes {#usagedetailed}
 
-> English version of the page [manual/UsageDetailed](../../manual/UsageDetailed.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/UsageDetailed.md of commit a8bdac429 (source blob d171e88b0e16).
+> English version of the page [manual/UsageDetailed](../../manual/UsageDetailed.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/UsageDetailed.md of commit a8bdac429 (source blob c12aff03726e).
 
 > ⚠️ The input is `ctrlg.<sname>.toml`. Run `Legacy2toml.py <sname>` to convert legacy `ctrl.<sname>` / `GWinput`. Overrides on the command line are `--ctrlg:<path>=val`; with `-v<NAME>=<VAL>` the programs stop. See [Input file](./toml_migration). The samples named below that are being rebuilt from `Samples/Legacy` are listed in ecalj [`Samples/README.md`](https://github.com/tkotani/ecalj/blob/main/Samples/README.md).
 
@@ -290,21 +290,10 @@ hom background 0.12300 deviation from neutrality: 0.12300
 because of the initial condition by superposition of atoms. It shows
 deviation seems nonzero. But charge should be conserved from the next iteration.
 
-## Molecules
-`ctrlgenToml.py <sname> --systype=molecule` makes a template for a molecule in a box (Γ point only, `[bz] nkabc = [1, 1, 1]`).
-For a molecule we use in `[bz]`
-```toml
-tetra = false
-n = -1        # Negative is the Fermi distribution function. w gives temperature.
-w = 0.001     # w=0.001 corresponds to T=157K as shown in console
-```
-In addition, `fsmom` (n_up-n_down) is needed (`fsmommethod = 1`) if we have magnetic moment.
-Sample: `Samples/AtomDimer/N2` (N₂ and the N atom in a box, bond length and binding energy).
-
 ## Spin fluctuation
 `~/ecalj/Samples/Magnon` (test target `Fe_mlo_magnon`; `README.md` there gives the steps of `job_mlo_magnon`).
 The model is the [MLO](./mlo) model (no windows and no iteration). The sample compares it with the maximally localized
-Wannier functions of the version before 2026-10-02 (git tag `last-wannier`). Here is a figure (this is on top of LDA) for the spin fluctuation of Fe in [Okumura2021](https://github.com/ecalj/ecaljdoc/blob/main/presentations/okumura2021.pdf).
+Wannier functions of the version before 2026-10-02 (git tag `last-wannier`). Here is a figure (this is on top of LDA) for the spin fluctuation of Fe in [Okumura2021](../../presentations/okumura2021.pdf).
 ![alt text](../../manual/image-6.png)
 
 ## 4f and 5f atoms
@@ -465,7 +454,7 @@ NOTE: nspin=2 is required for so=1. rst and sigm are expanded for nspin=2 (you c
   (the keys need not be written in the file for this).
 
 ### Papers
-It is instructive to reproduce samples in [Deguchi paper](https://github.com/ecalj/ecaljdoc/blob/main/presentations/deguchi2016.pdf). 
+It is instructive to reproduce samples in [Deguchi paper](../../presentations/deguchi2016.pdf). 
 We can set up templates for your calculations. Ask us.
 We have a latest paper at https://arxiv.org/abs/2506.03477 for GPU version. 
 It shows some details of computational steps in ecalj.
@@ -529,3 +518,19 @@ it is better to use `pz` (lo). Treat the core as valence. Bi4d is such a case. M
 The message `ecore>evalence` means that Ecore is greater than Evalence.
 For safety, we do not allow this.
 Compare the ECORE file and valence levels, shown in log file or console output.
+
+## Molecules
+`ctrlgenToml.py <sname> --systype=molecule` makes a template for a molecule in a box (Γ point only, `[bz] nkabc = [1, 1, 1]`).
+For a molecule we use in `[bz]`
+```toml
+tetra = false
+n = -1        # Negative is the Fermi distribution function. w gives temperature.
+w = 0.001     # w=0.001 corresponds to T=157K as shown in console
+```
+In addition, `fsmom` (n_up-n_down) is needed (`fsmommethod = 1`) if we have magnetic moment.
+Sample: `Samples/AtomDimer/N2` (N₂ and the N atom in a box, bond length and binding energy).
+The template that `ctrlgenToml.py --systype=molecule` writes has `tetra = true` and `w = 0.01`, which differ from the values above
+(those of the sample `Samples/AtomDimer/N2`); which is better has not been checked (2026-11-14).
+The PMT method applied to molecules from H₂ to Kr₂: T. Kotani and H. Kino, J. Phys. Soc. Jpn. **82**, 124714 (2013),
+[doi:10.7566/JPSJ.82.124714](https://doi.org/10.7566/JPSJ.82.124714)
+([pdf](../../presentations/KotaniKino2013PMTMolecule.pdf)).

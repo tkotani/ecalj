@@ -2,13 +2,13 @@ ecaljdoc/manual/UsageDetailed.md（サイトのページ「その他の説明」
 
 ### ecalj/Samples/
 For the canonical layout and per-tree role table see the
-[Samples overview page](./samples) (or the upstream
+[Samples overview page](../ecaljdoc/manual/samples.md) (or the upstream
 [Samples/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/README.md)).
 Highlights touched in this page:
 
 * `MLOsamples/` — new MTO Localized Orbital basis (Wannier replacement),
   with on-site W via `job_mloW`. **The method itself is written up in
-  [MLO](./mlo)** (what theta is, why `mlo_method = 4`, measured accuracy of the
+  [MLO](../ecaljdoc/manual/mlo.md)** (what theta is, why `mlo_method = 4`, measured accuracy of the
   samples with band plots). See also the per-dir
   [README](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md).
 * the older Wannier90-style examples (CuMLWFs, La2CuO4, NiOMLWF, SrVO3MLWF; cRPA via the
@@ -80,6 +80,6 @@ For Si or something simple, you may be able to have better accuracy. However, QS
 So, just say ~0.1eV level of accuracy. Convergence check is expected for the technical developments in future.
 
 ## Anisotropic Q0P 
-   In cases, we are worrying about the anisotropy. The offset Gamma method uses the 1/10 of gamma cell (`[gw] Q0Pchoice = 1`; see [gwinput](./gwinput)).
+   In cases, we are worrying about the anisotropy. The offset Gamma method uses the 1/10 of gamma cell (`[gw] Q0Pchoice = 1`; see [gwinput](../ecaljdoc/manual/gwinput.md)).
    It seems not so bad, however, we may need to examine the anisotropy problem again in future.  
    It is problematic to use unbalanced k points for anisotropic cell. See Copmuter Physics Comm. 176(2007)1-13.

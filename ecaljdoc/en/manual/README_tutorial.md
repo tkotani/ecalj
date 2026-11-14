@@ -1,6 +1,6 @@
 # ecalj MainDocument
 
-> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob 46af44e3b46d).
+> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob 94088a4f32f9).
 **This is the main document of ecaljdoc: the features of ecalj, an overview of QSGW, and the first calculation (GetStarted). Other pages are reached from the menu on the left.**
 
 * Here we give [GetStarted](#getstarted), together with install and overview of QSGW.
@@ -25,16 +25,16 @@
 
    Our current PMT formulation is given in
 
-   [1][KotaniKinoAkai2015, PMT formalism](https://github.com/ecalj/ecaljdoc/blob/main/presentations/KotaniKinoAkai2015FormulationPMT.pdf)
+   [1][KotaniKinoAkai2015, PMT formalism](../../presentations/KotaniKinoAkai2015FormulationPMT.pdf)
    
-   [2][KotaniKino2013, PMT applied to diatomic molecules](https://github.com/ecalj/ecaljdoc/blob/main/presentations/KotaniKino2013PMTMolecule.pdf).
+   [2][KotaniKino2013, PMT applied to diatomic molecules](../../presentations/KotaniKino2013PMTMolecule.pdf).
 
    Many settings and small improvements have been added since then. Important above all is that the setting of the MTOs is automatic. In the usual LMTO method, the MTO parameters are hard to set, which makes the method rather hard to use.
 
    Since we have automatic settings for basis-set parameters, we don't need to be bothered with the parameter settings. Adding APWs to the MTOs has much reduced the dependence on the MTO parameters. The methods with MTOs alone also needed very long-range basis functions (close to the 1/r type). Just crystal structures (POSCAR) are needed for calculations. 
    <!-- In principle, it is possible to perform reasonable calculations just from crystal structures and very minimum setting.  -->
     * Original PMT was started at https://journals.aps.org/prb/abstract/10.1103/PhysRevB.81.125117
-    * PMT uses smooth Hankel functions described in [the smooth Hankel paper by E. Bott, M. Methfessel, W. Krabs, and P. C. Schmidt](https://github.com/ecalj/ecaljdoc/blob/main/presentations/Bott1988.pdf), which was used in [B][nfp paper by M. Methfessel and M. van Schilfgaarde, and R.A. Casali](https://github.com/ecalj/ecaljdoc/blob/main/presentations/nfp.pdf). Our PMT is on top them.
+    * PMT uses smooth Hankel functions described in [the smooth Hankel paper by E. Bott, M. Methfessel, W. Krabs, and P. C. Schmidt](../../presentations/Bott1988.pdf), which was used in [B][nfp paper by M. Methfessel and M. van Schilfgaarde, and R.A. Casali](../../presentations/nfp.pdf). Our PMT is on top them.
    *  In addition to PMT basis, we use local orbitals together.
    * The cutoff $\approx 3$ Ry may sound surprisingly small. However, note that high energy part of the plane wave methods are consumed only for the core like shape of eigenfunctions with negative curvatures of radial functions. Furthermore, the plane waves have difficulties not satisfying the periodic gauge https://arxiv.org/pdf/2010.03959. In ecalj, thanks to the MTOs, the counterpart of the maximally-localized Wannier method ([MLO modelling](./mlo)) is done in a simple way. On the other hand, localized basis methods such as LMTO and Gaussians have difficulties to handle vacuum regions, which can be a problem, for example, for surfaces.
 
@@ -42,8 +42,8 @@
    
    The QSGW method calculates the effective one-body Hamiltonian that gives the quasiparticle bands accurately.
    The PMT-QSGW means `the Quasiparticle self-consistent GW method (QSGW) based on the PMT method`. The development of [3] is the key to perform QSGW on the PMT. We can handle even magnetic metals. Since we have implemented ecalj on GPU, we can handle ~40 atoms with four GPUs.
-   [3][Kotani2014, Formulation of PMT-QSGW method](https://github.com/ecalj/ecaljdoc/blob/main/presentations/Kotani2014QSGWinPMT.pdf)
-   [4][D.Deguchi PMT-QSGW applied to a variety of insulators/semiconductors](https://github.com/ecalj/ecaljdoc/blob/main/presentations/deguchi2016.pdf)
+   [3][Kotani2014, Formulation of PMT-QSGW method](../../presentations/Kotani2014QSGWinPMT.pdf)
+   [4][D.Deguchi PMT-QSGW applied to a variety of insulators/semiconductors](../../presentations/deguchi2016.pdf)
    [5][M.Obata GPU implementation](https://arxiv.org/abs/2506.03477), where we treat Type II GaSb/InAs (40 atoms) with four GPUs.
    We can easily make band plots without the Wanneir kinds of interpolations. This is because an interpolation scheme of self-energy is internally built in.
    This is very essential to calculate physical quantities from eigenfunctions on top of the QSGW ground states.
@@ -77,7 +77,7 @@ As a rule of thumb, one QSGW iteration takes about 10 hours for 20 atoms
 * We have [GPU acceleration for QSGW](https://arxiv.org/abs/2506.03477), which also describe basics of QSGW.  QSGW algorism fits to GPU computations very well. With four GPUs, we can compute systems with 40 atoms per cell. (As for lmf part, GPUs are not efficiently used yet.). Our PMT allows us to handle large vaccum region for slab model.
 * We can perform QSGW virtually without parameter settings by hands. Thus I think ecalj is one of the easiest to perform GW/QSGW. See the band database in QSGW at [DOSnpSupplement](https://github.com/tkotani/DOSnpSupplement).
 
-![alt text](../../manual/image-2.png) This is taken from  [4][D.Deguchi](https://github.com/ecalj/ecaljdoc/blob/main/presentations/deguchi2016.pdf)
+![alt text](../../manual/image-2.png) This is taken from  [4][D.Deguchi](../../presentations/deguchi2016.pdf)
 
 In comparison with LDA, we see differences in QSGW;
 * Band gap. QSGW tends to give slightly larger than experiments. It looks systematic as in the Figure above.
