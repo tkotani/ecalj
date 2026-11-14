@@ -1,6 +1,6 @@
 # ecalj MainDocument
 
-> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob 198761590e70).
+> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob 25d151fe5b6c).
 **This is the main document of ecaljdoc: the features of ecalj, an overview of QSGW, and the first calculation (GetStarted). Other pages are reached from the menu on the left.**
 
 * Here we give [GetStarted](#getstarted), together with install and overview of QSGW.
@@ -46,6 +46,7 @@
    [5][M.Obata GPU implementation](https://arxiv.org/abs/2506.03477), where we treat Type II GaSb/InAs (40 atoms) with four GPUs.
    We can easily make band plots without the Wanneir kinds of interpolations. This is because an interpolation scheme of self-energy is internally built in.
    This is very essential to calculate physical quantities from eigenfunctions on top of the QSGW ground states.
+   (A QSGW method based on MLO ([MLO-gwsc](./mlo_gwsc)) also runs, but has not been tested yet.)
 
    Since we treat all the electrons, we are not bothered with the ambiguities of the pseudopotentials.
 
