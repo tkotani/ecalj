@@ -9,6 +9,12 @@
 
 [[toc]]
 
+<div class="clfix">
+
+The main reference for the formulas of the GW part is [Obata2025]: M. Obata, T. Kotani, T. Oda, "Efficient implementation of the quasiparticle self-consistent $GW$ method on GPU", Comput. Mater. Sci. **260**, 114190 (2025), [doi:10.1016/j.commatsci.2025.114190](https://doi.org/10.1016/j.commatsci.2025.114190), section 2. The equations below that carry "[Obata2025] Eq. (n)" are taken from it.
+
+</div>
+
 ### Representation of eigenfunctions
 
 In the PMT method [kotani_fusion_2010],
@@ -28,7 +34,7 @@ specified by the index of MT site ${\bf R}$,
 angular momentum $L=(l,m)$, and $j$ for radial functions.
 As for core eigenfunctions, we calculate them under the condition
 that they are restricted within MTs.
-Then we take into accounts the contributions of the cores to the exchange part defined in Eq. ((I15)) in the following. But not to the correlation part.
+Then we take into accounts the contributions of the cores to the exchange part defined in Eq. (I15) in the following. But not to the correlation part.
 All cores are treated as "core1" of Ref.[kotani07a] (the `core` rows of `[product_basis]` are all zero).
 
 ####  MTO part
@@ -43,7 +49,7 @@ $A_{ {\bf R}{Lj} }({\bf r})
 These radial functions are solutions of
 the radial Schrödinger equations(or their energy derivatives)
 within ${\bf R}$.
-The MTO basis is specified by smHankel functions which
+The MTO basis is specified by smHankel functions which
 contains two parameters ($E=-|\kappa|^2,R_{\rm sm}$).
 
 $A_{ {\bf R}{Lj} }({\bf r})$ makes orthonormalized basis for each MT ${\bf R}$.
@@ -123,7 +129,7 @@ To perform the $GW$ calculation, we first
 have to prepare all eigenfunctions (and eigenvalues) for
 given setting of BZ mesh. Then the eigenfunctions are
 represented as follows; we
-re-expand ${\Psi_{ {\bf k}n} }({\bf r})$ in Eq. ((I1))
+re-expand ${\Psi_{ {\bf k}n} }({\bf r})$ in Eq. (I1)
 as the sum of the augmentation parts in MTs and the
 PW parts in the interstitial region.
 $$\begin{aligned}
@@ -152,7 +158,9 @@ $$\begin{aligned}
 $$
 **T** and **G** are lattice translation vectors in real and reciprocal spaces, respectively.
 We explain how they can be represented in codes
-in Sec. (ref sec:crystalstructure in the original).
+in Sec. (ref sec:crystalstructure in the original).
+
+<div class="clfix-old">
 
 We expand the eigenfunctions as the sum of the augmentation parts in MTs and the PW parts in the interstitial region
 $$\begin{aligned}
@@ -160,6 +168,10 @@ $$\begin{aligned}
 \end{aligned}
 \tag{I10}
 $$
+
+</div>
+
+<span class="clfix">Eq. (I10) was the same as Eq. (I7) ([Obata2025] Eqs. (4)–(6)).</span>
 This is Eq.(17) in Ref.[kotani_quasiparticle_2014].
 `lmf --jobgw=1` (`sugw.f90`) writes $\alpha_{ {\bf R}u}^{ {\bf k}n}$ to `__CPHI`, $\beta_{\bf G}^{ {\bf k}n}$ to `__GEIG` and the eigenvalues to `__EValue`. They are read by `readcphi` and `readgeig` in `readeigen.f90` (used e.g. in `m_zmel.f90`).
 
@@ -172,17 +184,20 @@ radial functions. It is in `__PHIVC`, written by `sugw.f90` and read in `main_hb
 (dependes on $l,n,\sigma$, but not on $m$).
 `lmxa` is given per species (`[[spec]] lmxa`) and may differ; the arrays are dimensioned by the maximum `lmxax` (`sugw.f90`).
 
-In the GW calculation of ecalj, important matrix elements related
-to the eigenfunction is only the matrix element as
-$$\begin{aligned}
-\langle E^{\bf q}_\mu \Psi_{ {\bf k}n} |\Psi_{ {\bf q+k}n'} \rangle,
-\end{aligned}
+<div class="clfix">
+
+In the GW calculation of ecalj, the eigenfunctions enter only through the matrix elements ([Obata2025] Eq. (8))
+$$
+Z^{\mathbf q-\mathbf k n',\mathbf q n}_{\mathbf k\mu} = \langle E^{\mathbf k}_\mu \Psi_{\mathbf q-\mathbf k n'} | \Psi_{\mathbf q n}\rangle ,
 \tag{I11}
 $$
-, where $E^{\bf q}_\mu$ is the MPB (an unitary transformation of MPB).
-The information of eigenfunctions are used to calculate this matrix elements, which is read by `get_zmel`. The matrix elements are `zmel` of `m_zmel.f90` ([Matrix elements used in GW](../theory/gw_zmel)).
+where $E^{\mathbf k}_\mu$ is the MPB orthonormalized and diagonal to the Coulomb interaction (Eq. (I14) below).
+The polarization function uses them with the labels $Z^{\mathbf k n,\mathbf q+\mathbf k n'}_{\mathbf q\mu}=\langle E^{\mathbf q}_\mu\Psi_{\mathbf k n}|\Psi_{\mathbf q+\mathbf k n'}\rangle$.
+They are made on the fly by `get_zmel` and stored in `zmel` of `m_zmel.f90` ([Matrix elements used in GW](../theory/gw_zmel)).
 
-Coefficients of Eq. ((I7)) (here is MTO part only)
+</div>
+
+Coefficients of Eq. (I7) (here is MTO part only)
 are calculated as
 $$\begin{aligned}
  &\alpha^{ {\bf k} n}_{au} = \sum_s C^{ {\bf k}s}_{a u} z^{ {\bf k}n}_s \\
@@ -199,140 +214,178 @@ The basis $s$ includes the APWs as well as the MTOs. The coefficients are then o
 
 ### Overview of GW calculation
 
+<div class="clfix">
+
+(2026-11-15) The equations of this section are rewritten in the notation of [Obata2025] (section 2.3) and taken from it; the previous text is in the commit `b8dd02851`.
+
+</div>
+
 In the $GW$ calculation, we need not only the basis set for
 eigenfunctions, but also the basis set for expanding the product of eigenfunctions.
 The basis is called the mixed product basis (MPB) $\{M^{\bf k}_I({\bf r}) \}$ first introduced in Ref.[kotani_all-electron_2002] by Kotani. The MPB consists of the product basis (PB) within MTs [aryasetiawan_product-basis_1994]
 and the IPW in the interstitial region.
-Since $\{M^{\bf k}_I({\bf r}) \}$ contains IPWs which are not orthogonal,
-we define dual for $\{M^{\bf k}_I({\bf r}) \}$ as
+Since $\{M^{\bf k}_I({\bf r}) \}$ contains IPWs which are not orthogonal, we have the overlap matrix and the dual basis
 $$\begin{aligned}
- & |\tilde{M}^{\bf k}_{I} \rangle \equiv \sum_{I'}
-   |M^{\bf k}_{I'} \rangle (O^{\bf k})^{-1}_{I'I} \, , \\
- & O^{\bf k}_{I'I} = \langle M^{\bf k}_{I'} |  M^{\bf k}_I \rangle.
+ & O^{\bf k}_{IJ} = \langle M^{\bf k}_{I} |  M^{\bf k}_J \rangle, \\
+ & |\tilde{M}^{\bf k}_{I} \rangle \equiv \sum_{J}
+   |M^{\bf k}_{J} \rangle (O^{\bf k})^{-1}_{JI} .
 \end{aligned}
 \tag{I13}
 $$
-From $v_{IJ}^{\bf k}= \langle M^{\bf k}_{I} |v|  M^{\bf k}_J \rangle$,
-we calculate the eigenfunction for the generalized eigenvalue problem defined by
-$\sum_J (v_{IJ}^{\bf k}- v^{\bf k}_\mu O^{ {\bf k} }_{IJ} ) w_{\mu J}^{\bf k}= 0$, where
-$v_\mu({\bf k})$ are the eigenvalues of the Coulomb interaction matrix.
-Then we have the Coulomb interaction represented by matrix elements as
+
+<div class="clfix">
+
+With $v_{IJ}^{\bf k}= \langle M^{\bf k}_{I} |v|  M^{\bf k}_J \rangle$, the generalized eigenvalue problem
+$\sum_J (v_{IJ}^{\bf k}- v_\mu({\bf k}) O^{\bf k}_{IJ} ) z^{\bf k}_{\mu J}= 0$
+gives the eigenvalues $v_\mu({\bf k})$ and the coefficients $z^{\bf k}_{\mu J}$ (`zcousq` in the code) of the orthonormal MPB
+$|E^{\bf k}_\mu\rangle=\sum_J z^{\bf k}_{\mu J}|M^{\bf k}_J\rangle$, which diagonalizes the Coulomb interaction ([Obata2025] Eq. (7)),
 $$\begin{aligned}
-v({\bf k})=\sum_{\mu} | E^{ {\bf k} }_\mu \rangle {v_\mu({\bf k})} 
-\langle E^{ {\bf k} }_\mu |,
+v({\bf k})=\sum_{\mu} | E^{ {\bf k} }_\mu \rangle {v_\mu({\bf k})}
+\langle E^{ {\bf k} }_\mu |.
 \end{aligned}
 \tag{I14}
 $$
-where we define a new MPB
-$|E^{\bf k}_\mu({\bf r})\rangle=\sum_J |M^{\bf k}_J\rangle w^{\bf k}_{\mu J}$,
-which is orthonormal and is diagonal to the Coulomb interaction $v({\bf k})$.
+
+</div>
+
 For the all-electron full-potential $GW$ approximation,
-Eq. ((I14)) is introduced in Ref.[friedrich_efficient_2010].
+Eq. (I14) is introduced in Ref.[friedrich_efficient_2010].
 This corresponds to the representation in the plane wave expansion
 $v({\bf k}+{\bf G},{\bf k}+{\bf G}')=\frac{4 \pi \delta_{ {\bf G}{\bf G}'} }{|{\bf k}+{\bf G}|^2}$.
 $\mu=1$ corresponds to the largest eigenvalue of $v_{\mu}$, and
-$v_{\mu=1}$ is $\sim \frac{4 \pi e^2}{|{\bf k}|^2}$, which is related to
+$v_{\mu=1}({\bf k})$ is $\sim \frac{4 \pi}{|{\bf k}|^2}$, which is related to
 the divergent term discussed in Sec.([§](#offset-gamma)).
 
-With the definition of
-$\langle A| B\rangle =\int d^3r A^*({\bf r}) B({\bf r})$,
-the exchange part of $\Sigma(\omega)$ is written as
+<div class="clfix">
+
+With $\langle A| B\rangle =\int d^3r A^*({\bf r}) B({\bf r})$,
+the exchange self-energy is ([Obata2025] Eq. (9))
 $$\begin{aligned}
-\Sigma^{\rm x}_{nm}({\bf q})=
-\langle {\Psi_{ {\bf q}n} }|\Sigma_{\rm x} |{\Psi_{ {\bf q}m} }\rangle
-=-\sum^{\rm BZ}_{ {\bf k} }  \sum^{\rm  occ}_{n'}
-\langle {\Psi_{ {\bf q}n} }| \Psi_{ {\bf q-k}n'} E_\mu^{\bf k} \rangle
-v_{\mu}({\bf k})
-\langle E_\mu^{\bf k}\Psi_{ {\bf q-k}n'} | {\Psi_{ {\bf q}m} }\rangle.
+\Sigma^{\rm x}_{nm}({\bf q})&=
+\langle \Psi_{ {\bf q}n} |\Sigma^{\rm x} |\Psi_{ {\bf q}m} \rangle \\
+&=-\sum^{\rm BZ}_{ {\bf k} }  \sum^{\rm  occ}_{n'} \sum_\mu
+[Z^{\mathbf q-\mathbf k n',\mathbf q n}_{\mathbf k\mu}]^*\, v_{\mu}({\bf k})\,
+Z^{\mathbf q-\mathbf k n',\mathbf q m}_{\mathbf k\mu}.
 \end{aligned}
 \tag{I15}
 $$
+Replacing the occupied valence states $\Psi_{\mathbf q-\mathbf k n'}$ with the core states gives the core exchange $\Sigma^{\rm Cx}$;
+its MPB differs from that for the valence, since it represents products of the core and valence eigenfunctions.
 
-The screened Coulomb interaction $W(\omega)$ is calculated from
-$$W = \epsilon^{-1} v = \left(1-v \Pi\right)^{-1} v,
+The screened Coulomb interaction is given in the symmetric form ([Obata2025] Eqs. (10), (11))
+$$
+\begin{aligned}
+\epsilon_{\mu\nu}(\mathbf q,\omega) &= \delta_{\mu\nu} - \sqrt{v_\mu(\mathbf q)}\,\Pi_{\mu\nu}(\mathbf q,\omega)\sqrt{v_\nu(\mathbf q)}, \\
+W_{\mu\nu}(\mathbf q,\omega) &= \sqrt{v_\mu(\mathbf q)}\,\epsilon^{-1}_{\mu\nu}(\mathbf q,\omega)\sqrt{v_\nu(\mathbf q)},
+\end{aligned}
 \tag{I16}
 $$
-where the Lindhard polarization function $\Pi(\omega)$
-is written as
+where the Lindhard polarization function is ([Obata2025] Eq. (12))
 $$\begin{aligned}
 \Pi_{\mu \nu}({\bf q},\omega)
  &=
 \sum^{\rm BZ}_{ {\bf k} } \sum^{\rm occ}_{n } \sum^{\rm unocc}_{n'}
-\frac{
-\langle E^{\bf q}_\mu {\Psi_{ {\bf k}n} }|\Psi_{ {\bf q+k}n'} \rangle
-\langle \Psi_{ {\bf q+k}n'}| {\Psi_{ {\bf k}n} }E^{\bf q}_\nu \rangle
-}{\omega-(\varepsilon_{ {\bf q+k} n'}-\varepsilon_{ {\bf k}n})+i \delta} \\
+\frac{Z^{\mathbf k n,\mathbf q+\mathbf k n'}_{\mathbf q\mu}[Z^{\mathbf k n,\mathbf q+\mathbf k n'}_{\mathbf q\nu}]^*}
+{\omega-(\varepsilon_{ {\bf q+k} n'}-\varepsilon_{ {\bf k}n})+i \delta} \\
  &+ \sum^{\rm BZ}_{ {\bf k} } \sum^{\rm  unocc}_{n } \sum^{\rm occ}_{n'}
-\frac{
-\langle E^{\bf q}_\mu \Psi_{ {\bf k}n} |\Psi_{ {\bf q+k}n'} \rangle
-\langle \Psi_{ {\bf q+k}n'}| \Psi_{ {\bf k}n} E^{\bf q}_\nu \rangle
-}{-\omega-(\varepsilon_{ {\bf k}n}-\varepsilon_{ {\bf q+k} n'})+i \delta}.
+\frac{Z^{\mathbf k n,\mathbf q+\mathbf k n'}_{\mathbf q\mu}[Z^{\mathbf k n,\mathbf q+\mathbf k n'}_{\mathbf q\nu}]^*}
+{-\omega-(\varepsilon_{ {\bf k}n}-\varepsilon_{ {\bf q+k} n'})+i \delta}.
 \end{aligned}
 \tag{I17}
 $$
-When time-reversal symmetry is assumed (if $\Psi_{ {\bf k}n}$ is the eigenfunction,
-$\Psi^*_{ {\bf k}n}$ is also the eigenfuntion with the same eigenvalue
-$\varepsilon_{ {\bf k}n}$),
-$\Pi(\omega)$ is simplified to be
+With time-reversal symmetry ($\Psi^*_{\mathbf k n}$ is the degenerate eigenfunction of $\Psi_{-\mathbf k n}$), the second term equals the first one with $n\leftrightarrow n'$, and ([Obata2025] Eq. (14))
 $$\begin{aligned}
 \Pi_{\mu \nu}({\bf q},\omega)
  &=\sum^{\rm BZ}_{ {\bf k} }  \sum^{\rm  occ}_{n} \sum^{\rm  unocc}_{n'}
-\langle E^{\bf q}_\mu \Psi_{ {\bf k}n} |\Psi_{ {\bf q+k}n'} \rangle
-\langle \Psi_{ {\bf q+k}n'}| \Psi_{ {\bf k}n} E^{\bf q}_\nu \rangle  \\
- & \times
-\left(\frac{1}{\omega-\varepsilon_{ {\bf q+k}n'}+\varepsilon_{ {\bf k}n}+i \delta}
--\frac{1}{\omega+\varepsilon_{ {\bf q+k}n'}-\varepsilon_{ {\bf k}n}-i \delta}\right). \end{aligned}
+Z^{\mathbf k n,\mathbf q+\mathbf k n'}_{\mathbf q\mu}[Z^{\mathbf k n,\mathbf q+\mathbf k n'}_{\mathbf q\nu}]^* \\
+ &\quad\times\Big(\frac{1}{\omega-\varepsilon_{ {\bf q+k}n'}+\varepsilon_{ {\bf k}n}+i \delta} \\
+ &\qquad -\frac{1}{\omega+\varepsilon_{ {\bf q+k}n'}-\varepsilon_{ {\bf k}n}-i \delta}\Big).
+\end{aligned}
 \tag{I18}
 $$
-This definition is the same as that in the Fetter-Walecka text book.
-At $\omega=0$, this is negative definite matrix.
-Im part at any $\omega$ is negative definite matrix. This is even function of $\omega$.
+This definition is the same as that in the Fetter-Walecka textbook.
+At $\omega=0$ it is a negative definite matrix, and $\Pi_{\mu\nu}(\mathbf q,\omega)=\Pi_{\mu\nu}(\mathbf q,-\omega)$.
+Without time-reversal symmetry, the negative-energy part of Eq. (I17) is accumulated as well (Eq. (I18) may be used as an approximation).
 
-To evaluate Eq. ((I17)) or Eq. ((I18)),
-we first accumulate the imaginary parts (anti-Hermitian part) of $\Pi_{\mu \nu}({\bf q},\omega)$
-along bins of histograms on the real axis $\omega$
-by the tetrahedron technique [rath_generalized_1975],
-and then determine the real part via the Hilbert transformation.
-The bins are dense near the Fermi energy and coarser at higher energy as described in
-Ref.[kotani_quasiparticle_2007].
-This procedure is not only more efficient but also safer than the methods
-of calculating the real part directly.
+We first accumulate the anti-Hermitian part of $\Pi$ on histogram bins $\omega_j=[\omega_{{\rm L}j},\omega_{{\rm R}j}]$ of the real axis
+by the tetrahedron method [rath_generalized_1975], and then obtain the Hermitian part by the Hilbert transformation ([Obata2025] Eqs. (15)–(18)):
+$$
+\begin{aligned}
+&\mathrm{Im}[\Pi_{\mu\nu}(\mathbf q,\omega_j)] = \frac{\pi}{i}\sum^{\rm BZ}_{\mathbf k}\sum^{\rm occ}_{n}\sum^{\rm unocc}_{n'} \\
+&\qquad\qquad Z^{\mathbf k n,\mathbf q+\mathbf k n'}_{\mathbf q\mu}\,[Z^{\mathbf k n,\mathbf q+\mathbf k n'}_{\mathbf q\nu}]^*\, w^{\mathbf q,\mathbf k}_{n'n}(\omega_j), \\
+&w^{\mathbf q,\mathbf k}_{n'n}(\omega_j) = \sum_{\mathbf k\in{\rm BZtet}(i_{\rm tet})}\frac14\, w(n',n,\mathbf q,\mathbf k,i_{\rm tet},\omega_j), \\
+&w(n',n,\mathbf q,\mathbf k,i_{\rm tet},\omega_j) \\
+&\qquad\qquad = \int_{{\rm BZtet}(i_{\rm tet})} d^3k \int_{\omega_{{\rm L}j}}^{\omega_{{\rm R}j}} \delta(\omega-\varepsilon_{\mathbf q+\mathbf k n'}+\varepsilon_{\mathbf k n})\,d\omega, \\
+&\mathrm{Re}[\Pi_{\mu\nu}(\mathbf q,\omega_i)] = \sum_j K_{ij}\,\mathrm{Im}[\Pi_{\mu\nu}(\mathbf q,\omega_j)].
+\end{aligned}
+\tag{I18a}
+$$
+The bins are a logarithmic mesh, dense near $\omega=0$ (`[gw] HistBin_dw`, `HistBin_ratio`; [kotani_quasiparticle_2007]).
+$K_{ij}$ is the Hilbert-transformation matrix, a discretized $1/(\omega_i-\omega_j)$ that takes the size of the bins into account.
+The tetrahedron weights are made by `gettetwt` (`m_tetwt.f90`).
+This is more efficient and safer than calculating the real part directly.
+
+</div>
+
 The extended irreducible zone (EIBZ) symmetrization of Ref.[friedrich_efficient_2010] is not used at present: `eibzgen.f90` is there but not called,
 `[gw] EIBZmode` is read but not used, and `main_hx0fp0.f90` runs with `ngrpx=1` (no symmetry operation). It may be used again ([IBZ and EIBZ](#ibz-and-eibz-scheme)).
 
-The correlation part of the screened Coulomb interaction $W^c(\omega)=W(\omega)-v$,
-which is calculated from $v$ and $\Pi(\omega)$, is given as
-$$\begin{aligned}
-W^{\rm c}({\bf k},\omega)=\sum_{\mu\nu} | E^{ {\bf k} }_\mu \rangle {W^{\rm c}_{\mu\nu}({\bf k},\omega)} 
-\langle E^{ {\bf k} }_\mu |.
-\end{aligned}
+<div class="clfix">
+
+The correlation part $W^{\rm c}=W-v$ is ([Obata2025] Eq. (19))
+$$
+W^{\rm c}_{\mu\nu}(\mathbf k,\omega) = \sqrt{v_\mu(\mathbf k)}\,(\epsilon^{-1}_{\mu\nu}(\mathbf k,\omega)-\delta_{\mu\nu})\sqrt{v_\nu(\mathbf k)},
 \tag{I19}
 $$
-With this $W^{\rm c}({\bf k},\omega)$, we have the correlation part of the self-energy as
-$$\begin{aligned}
-
-\Sigma^{\rm c}_{n,n'}({\bf q},\omega)= \sum_{ {\bf k},m} \int_{-\infty}^\infty  \!d \omega' \sum_{\mu,\nu} 
-\frac{\langle{\Psi_{ {\bf q}n} }|{\Psi_{ {\bf q}-{\bf k}m} }E^{ {\bf k} }_\mu \rangle 
-W^{\rm c}_{\mu\nu}({\bf k},\omega')\langle E^{ {\bf k} }_\nu {\Psi_{ {\bf q}-{\bf k}m} }
-|{\Psi_{ {\bf q}n'} }\rangle e^{-i \delta \omega'} }
-{\omega-\omega'-\epsilon_{ {\bf q}-{\bf k}m}\pm i \delta}.
+and the correlation self-energy is ([Obata2025] Eq. (20))
+$$
+\begin{aligned}
+\Sigma^{\rm c}_{nm}({\bf q},\omega) &= \sum_{\mathbf k,n'}\sum_{\mu\nu} \int_{-\infty}^\infty \frac{i\,d\omega'}{2\pi}\,
+\frac{e^{-i\delta\omega'}}{\omega-\omega'-\varepsilon_{\mathbf q-\mathbf k n'}\pm i \delta} \\
+&\qquad\times [Z^{\mathbf q-\mathbf k n',\mathbf q n}_{\mathbf k\mu}]^*\,W^{\rm c}_{\mu\nu}(\mathbf k,\omega')\,Z^{\mathbf q-\mathbf k n',\mathbf q m}_{\mathbf k\nu},
 \end{aligned}
 \tag{I20}
 $$
-Here, we use $-i \delta$ for occupied states of
-${ {\bf q}\!-\!{\bf k}m}$, and $+i \delta$ for unoccupied states. In the code the poles are smeared by a Fermi-Dirac kernel of width `[gw] t_sigmaw` (K) instead of an infinitesimal $\delta$ ([kBT](./kBT)).
-In QSGW, we have to calculate the Hermitian part of $\Sigma_{nn'}({\bf q},\epsilon_{ {\bf q}n})$,
-to obtain $V^{\rm xc}_{\bf q}$ using Eq. ((ref eq:vxceq in the original)).
+with $-i\delta$ for the occupied states $\mathbf q-\mathbf k n'$ and $+i\delta$ for the unoccupied ones.
+In QSGW we need the Hermitian part of $\Sigma^{\rm c}_{nm}(\mathbf q,\varepsilon_{\mathbf q n})$ to obtain $V^{\rm xc}$ by [Obata2025] Eq. (3) (Eq. (Q3) of [QSGW](../theory/qsgw)).
+The contour of $\omega'$ is deformed, and $\Sigma^{\rm c}$ is the sum of the imaginary-axis part $I^{\rm c}$ and the pole part $R^{\rm c}$ ([Obata2025] Eqs. (21)–(24)):
+$$
+\begin{aligned}
+\Sigma^{\rm c}_{nm}(\mathbf q,\varepsilon_{\mathbf q n}) &= I^{\rm c}_{nm}(\mathbf q,\varepsilon_{\mathbf q n}) + R^{\rm c}_{nm}(\mathbf q,\varepsilon_{\mathbf q n}), \\
+I^{\rm c}_{nm}(\mathbf q,\varepsilon_{\mathbf q n}) &= -\sum_{\mathbf k,n'}\sum_{\mu\nu}\int_{-\infty}^{\infty}\frac{d\omega}{2\pi}
+ \frac{1}{\varepsilon_{\mathbf q n}-i\omega-\varepsilon_{\mathbf q-\mathbf k n'}} \\
+ &\qquad\times [Z^{\mathbf q-\mathbf k n',\mathbf q n}_{\mathbf k\mu}]^*\,W^{\rm c}_{\mu\nu}(\mathbf k,i\omega)\,Z^{\mathbf q-\mathbf k n',\mathbf q m}_{\mathbf k\nu} \\
+ &\simeq -\sum_{\mathbf k,n'}\sum_{i}\sum_{\mu\nu} w^{\rm I}_i(\varepsilon_{\mathbf q n}-\varepsilon_{\mathbf q-\mathbf k n'}) \\
+ &\qquad\times [Z^{\mathbf q-\mathbf k n',\mathbf q n}_{\mathbf k\mu}]^*\,W^{\rm c}_{\mu\nu}(\mathbf k,i\omega^{\rm I}_i)\,Z^{\mathbf q-\mathbf k n',\mathbf q m}_{\mathbf k\nu}, \\
+R^{\rm c}_{nm}(\mathbf q,\varepsilon_{\mathbf q n}) &= \sum_{\mathbf k,n'}\sum_{\mu\nu}[Z^{\mathbf q-\mathbf k n',\mathbf q n}_{\mathbf k\mu}]^* \\
+ &\qquad\times W^{\rm c}_{\mu\nu}(\mathbf k,\varepsilon_{\mathbf q n}-\varepsilon_{\mathbf q-\mathbf k n'})\,Z^{\mathbf q-\mathbf k n',\mathbf q m}_{\mathbf k\nu} \\
+ &\quad\times\big[\theta(\varepsilon_{\mathbf q n}-E_{\rm F})\,\theta(\varepsilon_{\mathbf q n}-\varepsilon_{\mathbf q-\mathbf k n'}) \\
+ &\qquad\qquad\times\theta(\varepsilon_{\mathbf q-\mathbf k n'}-E_{\rm F}) \\
+ &\qquad -\theta(E_{\rm F}-\varepsilon_{\mathbf q n})\,\theta(\varepsilon_{\mathbf q-\mathbf k n'}-\varepsilon_{\mathbf q n}) \\
+ &\qquad\qquad\times\theta(E_{\rm F}-\varepsilon_{\mathbf q-\mathbf k n'})\big] \\
+ &\simeq \sum_{\mathbf k,n'}\sum_{\omega^{\rm R}_i}\sum_{\mu\nu} w^{\rm R}_i(\varepsilon_{\mathbf q n}-E_{\rm F},\varepsilon_{\mathbf q-\mathbf k n'}-E_{\rm F}) \\
+ &\qquad\times[Z^{\mathbf q-\mathbf k n',\mathbf q n}_{\mathbf k\mu}]^* \\
+ &\qquad\times W^{\rm c}_{\mu\nu}(\mathbf k,\omega^{\rm R}_i)\,Z^{\mathbf q-\mathbf k n',\mathbf q m}_{\mathbf k\nu}.
+\end{aligned}
+\tag{I20a}
+$$
+The weights $w^{\rm I}_i(\Delta E)$ at the imaginary-axis points $i\omega^{\rm I}_i$ follow Aryasetiawan and Gunnarsson;
+since $W^{\rm c}(\omega)=W^{\rm c}(-\omega)$ only $\omega^{\rm I}_i\ge0$ are used, typically about 10 points.
+$\omega^{\rm R}_i$ are the boundaries of the histogram bins of Eq. (I18a), and $w^{\rm R}_i$ are the three-point interpolation coefficients of $W^{\rm c}$ at $\varepsilon_{\mathbf q n}-\varepsilon_{\mathbf q-\mathbf k n'}$, including the step functions.
+Only $R^{\rm c}$ gives the lifetime (impact ionization rate); in the static $\Sigma^{\rm c}$ of QSGW, $W^{\rm c}$ in $R^{\rm c}$ is Hermitized.
+In the present code the step functions are smeared by the Fermi-Dirac kernel of `[gw] t_sigmaw` (K) instead of the infinitesimal $\delta$,
+and with `wcsmear = true` $W^{\rm c}$ is integrated over that kernel instead of the three-point interpolation ([kBT](./kBT)).
 
-There are two key points to handle the $GW$ procedure given above.
+</div>
+
 The first key point, given in Sec.([§](#offset-gamma)),
 is the improved offset-$\Gamma$ method, which treats
-the divergence of $W^{\rm c}({\bf k}\to 0,\omega)$ in Eq. ((I20)).
+the divergence of $W^{\rm c}({\bf k}\to 0,\omega)$ in Eq. (I20).
 For this purpose, we define the non-divergent
 effective interaction $\overline{W^{\rm c} }({\bf k}=0,\omega)$ instead of
 ${W^{\rm c} }({\bf k}=0,\omega)$.
 Then we can take a simple discrete sum for both expressions of
-Eqs.((I15)) and ((I20)).
+Eqs.(I15) and (I20).
 
 The second point in Sec.([§](#sigma-interpolation)) is
 how to perform
@@ -341,7 +394,7 @@ from $V^{\rm xc}_{\bf q}$ calculated only at limited numbers of ${\bf q}$ points
 This is required in the offset-$\Gamma$ method shown in Sec.([§](#offset-gamma)),
 that is, we have to calculate eigenfunctions at some ${\bf q}$ points near ${\bf q}=0$.
 For the interpolation, we expand the static
-nonlocal potential $V^{\rm xc}$ in Eq. ((ref eq:vxceq in the original)) in highly localized
+nonlocal potential $V^{\rm xc}$ in <del class="clfix">Eq. ((ref eq:vxceq in the original))</del><span class="clfix">[Obata2025] Eq. (3)</span> in highly localized
 MTOs in real space. Thus such MTOs are used for two purposes:
 one as the basis of the eigenfunctions; and two as the basis of
 expanding $V^{\rm xc}$. The interpolation procedure of $V^{\rm xc}_{\bf k}({\bf r},{\bf r}')$
@@ -350,7 +403,7 @@ complicated interpolation procedure in
 Ref.[kotani_quasiparticle_2007].
 This is because we now use highly localized MTOs. `sigm.<sname>` holds $\Sigma-V_{\rm xc}$ as a matrix in the MTO basis at the irreducible $\mathbf q$;
 `gwsc --mlo` (in development) holds it in the MLO representation instead ([MLO-gwsc](./mlo_gwsc)).
-In the planewave-based QSGW method by Hamann and Vanderbilt [hamann09],
+In the planewave-based QSGW method by Hamann and Vanderbilt [hamann09],
 they expand $V^{\rm xc}$ in the maximally localized Wannier functions instead of MTOs.
 
 In practical implementation, the LDA or GGA exchange-correlation
@@ -472,7 +525,7 @@ $$
 because $\{ P^{\bf k}_{\bf G}({\bf r})\}$
 are not orthogonal.
 Thus it is convenient to define the dual of ${M}^{\bf k}_{I}({\bf r})$ as
-$\tilde{M}^{\bf k}_{I}({\bf r})$ in the manner of Eq. ((I13)).
+$\tilde{M}^{\bf k}_{I}({\bf r})$ in the manner of Eq. (I13).
 
 Functions made from the product of eigenfunctions can be
 virtually completely expanded in the basis of ${M}^{\bf k}_{I}({\bf r})$
@@ -492,7 +545,7 @@ $$
 
 ---- NOTE: ----
 Now we use Coulomb matrix orthogonalized basis $\{E^{\bf k}_\mu\}$ as
-discussed in Eq. ((I14)).
+discussed in Eq. (I14).
 
 ### Product basis (hbasfp0) {#product-basis-hbasfp0}
 
@@ -653,7 +706,7 @@ coefficient ( rotated by point group symmetries).
 
 We have to calculate
 $v_{IJ}^{\bf k}= \langle M^{\bf k}_{I} |v|  M^{\bf k}_J \rangle$, which
-appears right after Eq. ((I13)).
+appears right after Eq. (I13).
 Our `hvccfp0.m.F` can handle the
 case $\frac{\exp(- |\kappa| |{\bf r}_1-{\bf r}_2|)}{|{\bf r}_1-{\bf r}_2|}$.
 The default is the bare Coulomb interaction, that is, $\kappa=0$.
@@ -824,10 +877,10 @@ G({\bf r}-{\bf r}',E)=-\frac{1}{4 \pi}
 $$
 where $\kappa \equiv \sqrt{E}$; Imaginary part of $\kappa$ is positive
 for $E\lt 0$, that is, $\kappa = i |\kappa|= i \sqrt{-E}$ for negative $E$.
-Eq. ((I42)) is nothing but the solution of Helmhorz
+Eq. (I42) is nothing but the solution of Helmhorz
 differential equation; it reduces to the usual Poisson equation at
 $E=0$. For $E\lt 0$, we have Thomas-Fermi type function;
-the numerator of Eq. ((I42)) is $\exp(i \kappa |{\bf r}-{\bf r}'|)=\exp(- |\kappa| |{\bf r}-{\bf r}'|)$.
+the numerator of Eq. (I42) is $\exp(i \kappa |{\bf r}-{\bf r}'|)=\exp(- |\kappa| |{\bf r}-{\bf r}'|)$.
 
 ### Used formulas {#used-formulas}
 
@@ -848,7 +901,7 @@ Y^*_K(\hat{ {\bf r} })Y_K(\hat{ {\bf r} })
 \end{aligned}
 \tag{I44}
 $$
-The definition of $\bar{J},R^{+l}$ are in Eq. ((I35)) and Eq. ((I38)).
+The definition of $\bar{J},R^{+l}$ are in Eq. (I35) and Eq. (I38).
 Here $E\lt 0$ and $\kappa= i|\kappa|=\sqrt{-E}$.
 
 $$\begin{aligned}
@@ -876,11 +929,11 @@ $$
 
 We can expand
 $v({\bf r},{\bf r}')=\frac{e^{-|\kappa||{\bf r}-{\bf r}'|} }{|{\bf r}-{\bf r}'|}$
-in the one-center expansion Eq. ((I44)).
+in the one-center expansion Eq. (I44).
 
-For the Hankel function in Eq. ((I44)), we use
+For the Hankel function in Eq. (I44), we use
 the off-center expansion theorem of the
-Hankel function Eq. ((I47)), that is,
+Hankel function Eq. (I47), that is,
 a Hankel whose center is at ${\bf X}\equiv{\bf R}+{\bf T}$, $H_L({\bf r}-{\bf X})$,
 can be expanded in the Bessel functions whose center is at ${\bf X}'$;
 $$\begin{aligned}
@@ -927,7 +980,7 @@ This routine is for the one-center expansion of
 usual Bloch summed Hankels. (not for smooth Hankels).
 This result is finally converted to be the
 Bloch sum of the structure constant
-$S^{ {\bf k} }_{ {\bf R}{L},{\bf R}'{L'} }$ used in Eq. ((I50)).
+$S^{ {\bf k} }_{ {\bf R}{L},{\bf R}'{L'} }$ used in Eq. (I50).
 
 > ====================\
 > NOTE in strxq.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>; it says
@@ -1061,7 +1114,7 @@ In fact, we use large enough $l_{\rm Pmax}$;
 $l_{\rm Pmax} = 2 \times l_{\rm max}$`=2*LMXA`,
 where $l_{\rm max}$ denotes the maximum angular momentum
 for the expansion of eigenfunctions within MT (maximum
-$l$ cutoff for $\alpha^{ {{\bf k} }n}_{ {\bf R}u}$ in Eq. ((I1))).
+$l$ cutoff for $\alpha^{ {{\bf k} }n}_{ {\bf R}u}$ in Eq. (I1)).
 In the defalut setting, we use $l_{\rm Pmax}=8$
 since we use $l_{\rm max}=4$.
 
@@ -1136,7 +1189,7 @@ The melpln2t is for generating the matrix element of
 
 ### $\langle {P}^{\bf k}_{\bf G}|v| {P}^{\bf k}_{ {\bf G}'} \rangle$
 
-To evaluate Eq. ((I54)), we need to know
+To evaluate Eq. (I54), we need to know
 its main part $\langle {P}^{\bf k}_{\bf G}|v| {P}^{\bf k}_{ {\bf G}'} \rangle$. It is written as
 $$\begin{aligned}
 \langle {P}^{\bf k}_{\bf G}|v| {P}^{\bf k}_{ {\bf G}'} \rangle
@@ -1160,7 +1213,7 @@ $P^{ {\bf k}+{\bf G} }_{ {\bf R}{L} } \equiv
 
 ##### The first term
 
-The first term in the right-hand side of Eq. ((I55)) is
+The first term in the right-hand side of Eq. (I55) is
 $$\begin{aligned}
 \langle \exp(i({\bf k}+{\bf G}){\bf r}) |v| \exp(i({\bf k}+{\bf G}'){\bf r}) \rangle
 =\frac{4 \pi \Omega}{|{\bf k}+{\bf G}|^2+|E|} \delta_{ {\bf G}{\bf G}'},
@@ -1213,7 +1266,7 @@ $$
 In codes, `cy(lm)*yl(lm)`
 $=Y_L(\widehat{ {\bf k}+{\bf G} })$.)
 Search `pjyl_` in `mkjp.F`<span class="clfix">(not in the present SRC, 2026-11-15)</span>.
-The Bessel functions appear here in the expansion of PW; see Eq. ((I45)).
+The Bessel functions appear here in the expansion of PW; see Eq. (I45).
 $R^{JJ}(|{\bf k}+{\bf G}|,|{\bf k}+{\bf G}'|,l)$
 is given as
 $$\begin{aligned}
@@ -1236,7 +1289,7 @@ R^{JJ}(\kappa_{\rm A},\kappa_{\rm B},l)=
 \tag{I61}
 $$
 (`-fjj` is used in `mkjp.F`<span class="clfix">(not in the present SRC, 2026-11-15)</span>.
-In codes, the contributions to the second and third terms of Eq. ((I55)) due to ${\bf R}{L}$ components are given as (simplified for illustration)
+In codes, the contributions to the second and third terms of Eq. (I55) due to ${\bf R}{L}$ components are given as (simplified for illustration)
 
       fouvp_ig1_ig2 = fpi/(absqg2(ig1)-eee)                  &
              * dconjg(pjyl_(lm2,ig1)*phase(ig1,ibas2))      &  
@@ -1256,7 +1309,7 @@ Correspondences are
 
 ##### The forth term
 
-The last term of Eq. ((I55)) can be calculated essentially
+The last term of Eq. (I55) can be calculated essentially
 the same manner with $\langle B| v| B\rangle$, where we use the
 Bessel function instead of $B_{ {\bf R}{l}\mu}(r)$ appeared in Sec.([§](#b-v-b-part)).
 Then we define integrals
@@ -1295,7 +1348,7 @@ The first term is stored in `fouvb(ngc,nxx,nlxx,nbas)` allocated at
 `L824:hvccfp0.m.F`.
 Search `fouvb` in `mkjp.F`<span class="clfix">(not in the present SRC, 2026-11-15)</span>.
 Since $v$ is diagonal to PWs,
-we can evaluate this in the similar manner of Eq. ((I57)).
+we can evaluate this in the similar manner of Eq. (I57).
 The second term can be evaluated from
 `rojb` and `sgpb` in the same manner of last section.
 
@@ -1308,7 +1361,7 @@ invented for Ref.[kotani_all-electron_2002] by Kotani
 was a key to perform accurate $GW$
 calculation in our papers.
 It is for the integration of ${\bf k}$
-in Eqs.((I15)) and ((I20)), where
+in Eqs.(I15) and (I20), where
 we have the integrands that diverge at ${\bf k}\to 0$.
 The original offset $\Gamma$ method works well
 for highly symmetric systems; however,
@@ -1377,18 +1430,18 @@ $$
 This is a generalization of an auxiliary function used in the
 offset-$\Gamma$ method (then we only used $F_{00}$ [kotani_quasiparticle_2007]).
 We usually take the $\alpha \to 0$ limit, or a sufficiently small $\alpha$ instead.
-Let us apply Eq. ((I65)) to $F_L({\bf k})$.
-Then we can evaluate the left-hand side of Eq. ((I65))
+Let us apply Eq. (I65) to $F_L({\bf k})$.
+Then we can evaluate the left-hand side of Eq. (I65)
 exactly (the exact values are zero except for $L=(0,0)$).
 On the other hand, the first and
-third terms on the right-hand side of Eq. ((I65))
+third terms on the right-hand side of Eq. (I65)
 can be evaluated numerically.
 In addition, we know that $f_{L'}$ for $F_L({\bf k})$ is unity for $L'=L$,
 and zero otherwise.
-Thus we can determine $w_L$ in Eq. ((I65))
-so that Eq. ((I65)) is exactly satisfied for $F_L({\bf k})$ for any $L$.
+Thus we can determine $w_L$ in Eq. (I65)
+so that Eq. (I65) is exactly satisfied for $F_L({\bf k})$ for any $L$.
 
-Let us apply Eq. ((I65)) to $f({\bf k})=G({\bf q}-{\bf k}) \times W({\bf k})$.
+Let us apply Eq. (I65) to $f({\bf k})=G({\bf q}-{\bf k}) \times W({\bf k})$.
 Then we perform an approximation taking only the most divergent term
 in $W({\bf k})$ in addition to its analytic part. That is, we use
 $$\begin{aligned}
@@ -1401,7 +1454,7 @@ $$
 at ${\bf k}\to 0$.
 $\widetilde{W}_{\mu \nu}({\bf 0})=0$ for $\mu=1$ or $\nu=1$.
 See Eq.(36) in Ref.[friedrich_efficient_2010] to know what is
-neglected in the approximation of Eq. ((I67)).
+neglected in the approximation of Eq. (I67).
 
 Then we finally obtain
 $$\begin{aligned}
@@ -1429,7 +1482,7 @@ ${ {\bf k}^{\rm T}{\bf L}{\bf k} }/|{\bf k}^2|$
 is expanded in the spherical harmonics. Then
 $W_L$ is calculated for a given ${\bf L}$ in the manner shown in Ref.[friedrich_efficient_2010].
 We can evaluate the accuracy of integrals with a discrete ${\bf k}$-mesh
-in combination with the approximation of Eq. ((I67))
+in combination with the approximation of Eq. (I67)
 by calculations while changing the size of the ${\bf k}$-mesh.\
 
 > **\[NOTE 2016-03-18:\]**
@@ -1440,11 +1493,11 @@ by calculations while changing the size of the ${\bf k}$-mesh.\
 > we should see monotonic behavior as long as causality is satisfied.
 > I found it is originated from non zero $w_L$ for $L\ne(0,0)$.
 > Thus we now use the formula \"$w_L=0$ for $L\ne(0,0)$\" in
-> Eq. ((I65)).In the case of metal at $\omega=0$, we have very large
+> Eq. (I65).In the case of metal at $\omega=0$, we have very large
 > ${\bf L}$ (virtually infinite); thus no $1/|{\bf k}|^2$ behavior.\
 
 The remaining problem is how to calculate
-the matrix ${\bf L}$ in Eq. ((I67)); there are two possible ways.
+the matrix ${\bf L}$ in Eq. (I67); there are two possible ways.
 One is the ${\bf k}\cdot {\bf p}$ method (perturbation) used in Ref.[friedrich_efficient_2010];
 the other is the numerical method to calculate ${\bf L}$ at some
 ${\bf k}$ points near ${\bf k}=0$. Here we use the latter method.
@@ -1508,7 +1561,7 @@ need to obtain its real-space representation
 $f({\bf R}{\bf T},{\bf R}'{\bf T}')$. Because of the periodicity,
 we have ambiguity for the choice of possible
 $|{\bf T}-{\bf T}'|$. If we introduce $\bar{\bf T}={\bf T}-{\bf T}'$,
-Eq. ((I72)) is written as
+Eq. (I72) is written as
 $f({\bf R}\bar{ {\bf T} },{\bf R}'0)=\sum_{\bf k}
 f_{ {\bf R}{\bf R}'}({\bf k}) \exp(i {\bf k}\bar{ {\bf T} })$ because of translational symmetry.
 
@@ -1567,17 +1620,17 @@ $$\begin{aligned}
 $$
 where we use the simplified basis index $a$, which is the index for specifying a basis
 (${\bf R}L{j}$ for MTO or ${ {\bf G} }$ for APW).
-Thus $\chi^{ {\bf k} }_a$ denotes the APWs or MTOs in Eq. ((I1));
+Thus $\chi^{ {\bf k} }_a$ denotes the APWs or MTOs in Eq. (I1);
 $z_{na}$ (${\bf k}$ is omitted for simplicity)
 denotes the coefficients of the eigenfunctions at ${\bf k}$, that is,
-$z^{ {{\bf k} }n}_{ {\bf R}L{j} }$ and $z^{ {\bf k}n}_{ {\bf G} }$ in Eq. ((I1)) together.
+$z^{ {{\bf k} }n}_{ {\bf R}L{j} }$ and $z^{ {\bf k}n}_{ {\bf G} }$ in Eq. (I1) together.
 This $z_{an}$ is identified as a conversion matrix that connects
 eigenfunctions (band index $n$) and the APW and MTO bases (basis index $a$).
 
 To obtain real-space representation of ${\it \Delta} V^{\rm xc}$, we need a representation
 expanded in the basis that consist of the Bloch-summed localized orbitals,
 which are periodic for ${\bf k}$ in the BZ. However, this is not the case for the APWs in
-Eq. ((I73)). To overcome this problem, we use an approximation
+Eq. (I73). To overcome this problem, we use an approximation
 in which we only take the matrix elements
 related to MTOs, that is, the elements
 $\langle \chi^{ {\bf k} }_a| {\it \Delta} V^{\rm xc}_{\bf k}| \chi^{ {\bf k} }_b \rangle$
@@ -1607,7 +1660,7 @@ of calculated diagonal elements.
 ## Magnon project {#magnon-project}
 
 Generalized Lindhard polarization function (or Kernel) is defined as
-(c.f.Eq. ((I17)));
+(c.f.Eq. (I17));
 $$\begin{aligned}
  &-K^{\alpha \beta}=({\bf r}_1,{\bf r}_2;{\bf r}_3,{\bf r}_4;\omega) =
 -iG_\alpha(1,3)G_\beta(4,2)=  \\
@@ -1643,11 +1696,11 @@ i\theta(t'-t) \exp (-i \varepsilon (t'-t)).
 $$
 It is easy to make the product $G_\alpha(1,3)G_\beta(4,2)$ in real space
 and real time represantaiton.
-This Eq. ((I76)) is a general time-ordered linear response function for a non-interacting system. Note that this is reduced to be Eq. ((I17)) for ${\bf r}_1={\bf r}_2$
+This Eq. (I76) is a general time-ordered linear response function for a non-interacting system. Note that this is reduced to be Eq. (I17) for ${\bf r}_1={\bf r}_2$
 and ${\bf r}_3={\bf r}_4$.
 This is the same as $K^{\alpha \beta}$
 in Eq.(15) in Ref.[sasioglu_wannier-function_2010] by Sasioglu.
-By the Fourier transformation of Eq. ((I76)),
+By the Fourier transformation of Eq. (I76),
 we have
 $$\begin{aligned}
 -K^{\alpha \beta}({\bf q},\omega)& =  
@@ -1697,7 +1750,7 @@ By the replacement $\delta(\omega-\varepsilon) \rightarrow 1/(\omega-\varepsilon
 $\omega$ can be positive or negative; positive is for spin excitation $\beta
 \to \alpha$, negative is for $\alpha \to \beta$.
 
-In the tetrahedron method of ecalj, we can calculate Eq. ((I78)) as follows;
+In the tetrahedron method of ecalj, we can calculate Eq. (I78) as follows;
 $$\begin{aligned}
 {\rm Im}[K]\,([\omega_i,\omega_{i+1}])= 
 \overline{\sum_{\bf k} } \sum_n \sum_{n'} M({\bf k},n,\beta;{\bf k}+{\bf q},n',\alpha)
@@ -1797,7 +1850,7 @@ These are used as in `x0kf_v4h.F`. Look into it. Here is a simplified version fo
               enddo          
        25  continue
 
-We do $\sum_n \sum_{n'}$ in Eq. ((I78)) as follows;
+We do $\sum_n \sum_{n'}$ in Eq. (I78) as follows;
 before this `do 25`, we set ${\bf k},{\bf k}+{\bf q}$.
 $k$ is index for ${\bf k}$ vector.
 `n2bminimum` is introduced (this is for unoccupied states for `npm=1`.
@@ -1898,7 +1951,7 @@ $$
 
 ## Downfolding
 
-Downfolding is a general concept which often appears in physics of varieties of contexts. It is based on the Block inversion Eq. ((I81)).
+Downfolding is a general concept which often appears in physics of varieties of contexts. It is based on the Block inversion Eq. (I81).
 This appears for the inversion of one-body problem, or divide the Fock space
 for many-body theory.
 (divide the Fock space into two Hilbert spaces; one-particle excited states and
@@ -1918,7 +1971,7 @@ from the residual part $G_{22}^0=1/(\omega -H_{22})$.
 
 When $H_{12}$ and $H_{21}$ are non-zero,
 we have to take into their effect by perturbation, or by the block inversion
-of Eq. ((I81)). Then we have
+of Eq. (I81). Then we have
 $$\begin{aligned}
 \left(\begin{array}{cc} G_{11} & G_{12} \\ G_{21} & G_{22} \\ \end{array} \right)
 =
@@ -1927,8 +1980,8 @@ $$\begin{aligned}
 \end{aligned}
 \tag{I85}
 $$
-where $W$ in Eq. ((I81)) is $G_{11}$. Note that the $\omega$ dependence is
-in $G^0_{11}$ and $G^0_{22}$. Here $G_{11}$ given as (See Eq. ((I82))).
+where $W$ in Eq. (I81) is $G_{11}$. Note that the $\omega$ dependence is
+in $G^0_{11}$ and $G^0_{22}$. Here $G_{11}$ given as (See Eq. (I82)).
 $$\begin{aligned}
 G_{11}=\frac{1}{\omega - H_{11} - H_{12}G^0_{22}H_{21} }.
 \end{aligned}
@@ -1937,7 +1990,7 @@ $$
 Then $H_{12}G^0_{22}H_{21}$ is identified as the self-energy.
 
 There are possible cases about how to choose Hilbert space $\Omega_1$ and
-$\Omega_2$ corresponding to the division Eq. ((I84)).
+$\Omega_2$ corresponding to the division Eq. (I84).
 
 -   In the one-body problem, for example, we take $\Omega_1$ as low energy part
     and $\Omega_2$ as high energy part. or 3d parts and others.
@@ -2166,7 +2219,7 @@ This shows how we evaluate $X$ only from $\{g_{ {\bf q} }({\bf r}, n)|{\bf q}\in
 (NOTE: eigenfunctions calculated by diagonalization satisfy
 $A_i[g_{\bf q}]= g_{A_i({\bf q})}({\bf r},n)$ except phase factor. We consider cases that the phase factor is irrelevant.)
 
- \
+ \
 [EIBZ]{.underline}\
 We consider sub group of $S_A$ with keeping given ${\bf k}$.
 This sub group is written as $S^{\bf k}_A=\{A^{\bf k}_i |i=1,2,...,N_A^{\bf k}\}$.
@@ -2179,7 +2232,7 @@ X=\sum_{ {\bf q}\in {\rm BZ} } F[g_{\bf q}] =
 $$
 Here EIBZ$({\bf k})$ is a set of ${\bf q}$ from which we can generate all the mesh points in the BZ.
 $N^{\bf k}_{\bf q}$ is the number of mesh points
-generated from $N_{\bf q}$ by $S^{\bf k}_A$. Note that ${\bf k}$ is fixed in Eq. ((I93)).
+generated from $N_{\bf q}$ by $S^{\bf k}_A$. Note that ${\bf k}$ is fixed in Eq. (I93).
 Since $S_A^{\bf k}\subset S_A$, IBZ $\subset$ EIBZ(${\bf k}$). That is, equivalent $q$ poinst in IBZ
 might be diffrenciated in EIBZ(${\bf k}$).
 
@@ -2196,7 +2249,7 @@ N=\sum_{\bf q}1 =
 $$
 
 [For poralization]{.underline}\
-We apply Eq. ((I93)) to $F^{\bf k}[g_{\bf q}]$, resulting
+We apply Eq. (I93) to $F^{\bf k}[g_{\bf q}]$, resulting
 $$\begin{aligned}
 X({\bf k})
 =\frac{1}{N_A^{\bf k} } \sum_{A^{\bf k}_i \in S_A^{\bf k} } \left( 
@@ -2209,7 +2262,7 @@ $g_{\bf q}\in {\rm EIBZ}({\bf k})$, and then finally symmetrized (symmetrization
 `call x0kf_v4hz_symmetrize`
 in `hx0fp0.sc.m.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>,hx0fp0.m.F` or newly developing `hrcxq`.
 
-We apply Eq. ((I95)) to Eq.(22) in Ref.[friedrich_efficient_2010]
+We apply Eq. (I95) to Eq.(22) in Ref.[friedrich_efficient_2010]
 resulting Eq.(51) in Ref.[friedrich_efficient_2010].
 Then we need to rotate MPB for given space group rotation $A^{\bf k}_i$.
 Note that $A^{\bf k}_i$ keeps ${\bf k}$ of MPB. This is in the next section.
@@ -2218,13 +2271,13 @@ Note that `call eibzgen` stores not only $S_A^{\bf q}$(`eibzsym`),
 but also the weight $N_{\bf q}^{\bf k}$ (`nwgt`) in the module `m_eibz`<span class="clfix">(not in the present SRC, 2026-11-15)</span>.
 (role of ${\bf q}$ and ${\bf k}$ may be turn around in `m_eibz`<span class="clfix">(not in the present SRC, 2026-11-15)</span>)
 
- \
+ \
 [For self-energy]{.underline}\
 In `hsfp0.sc.m.F`(not in `hsfp0.m.F`), we have symmetrization
 as Eq.(52) in Ref.[friedrich_efficient_2010].
 But used formula is a little different.
 
-We use Eq. ((I94)) as it is.
+We use Eq. (I94) as it is.
 As in the same manner of poralization function, we call `eibzgen`
 at first. To obtain weighted sum of self-energy at ${\bf q}$,
 we calculate weigted sum for ${\bf k}\in {\rm EIBZ({\bf q})}$.
@@ -2292,7 +2345,7 @@ $$
 
 Let us apply this to the bloch sum function
 $A^{\bf k}_{ {\bf R}u L}({\bf r}) \equiv \sum_{\bf T} 
-A_{ {\bf R}u L}({\bf r-R-T}) \exp(i {\bf kT})$ in Eq. ((I3)).
+A_{ {\bf R}u L}({\bf r-R-T}) \exp(i {\bf kT})$ in Eq. (I3).
 (Here we get the angular momentum index $L$. $u$ is for radial part of index.)
 Then we have
 $$\begin{aligned}
@@ -2317,7 +2370,7 @@ $D_{L'L}(g)$ is the rotaion matrix of the real spherical harmonics for $g$.
 We have eigenfunction rotation routine `subroutine rotwvigg` called from `zsecsym.F`<span class="clfix">(not in the present SRC, 2026-11-15)</span>.
 
 
-With this Eq. ((I100)), coeffecients of eigenfunctions for the MTO part of
+With this Eq. (I100), coeffecients of eigenfunctions for the MTO part of
 eigenfunctions are rotated (mapped) by the space group operation $g$.
 It is coded in `subroutine rotwvigg`(eigenfunction rotation routine) as
 
@@ -2396,7 +2449,7 @@ Thus it is coded as\
 ### space-group rotation of MTIPW expansion of eigenfunction
 
 In ecalj, we re-expand eigenfuncitons in the manner of MTIPW form, that is,
-MTpart+IPWpart as in Eq. ((I7)) in the GW calculations.
+MTpart+IPWpart as in Eq. (I7) in the GW calculations.
 In the form of MTIPW, we have to map eigenfunctions by space-group operations.
 As in the manner of `rotwvigg`, we have `rotmto` and `rotipw`.
 These are for rotation MTpart and IPW parts.
@@ -2407,7 +2460,7 @@ We need all the matrix elements $\langle \Psi_{ {\bf q+k}n'}| \Psi_{ {\bf k}n} E
 for given inputs of ${\bf q},{\bf k},n,n'$. Here $E^{\bf q}_\nu$ is the Coulomb-diagonalized mixed product basis
 [friedrich_efficient_2010].
 
-In the procedure of EIBZ (See Eq. ((I95)) around), we have to rotate MPB.\
+In the procedure of EIBZ (See Eq. (I95) around), we have to rotate MPB.\
 Module `module m_rotMPB2 (in m_rotMPB.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>)` is for generating the rotation matrix `zrotm`.
 With `zrotm`, we rotate MPB in `call X0kf_v4hz_symmetrize`, where
 we multiple conversion matrix `\zcousq` for conversion from MPB to $\{\}E^{\bf q}_\nu\}$ as\
