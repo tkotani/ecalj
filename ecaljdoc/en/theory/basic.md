@@ -18,7 +18,7 @@ m\ddot x + \gamma \dot x + k x = f(t)
 \tag{GF1}
 $$
 
-Write $g(t-t')$ for the response to a single kick at time $t'$ ($f(t)=𝛿(t-t')$). This is the impulse response (the Green function).
+Write $g(t-t')$ for the response to a single kick at time $t'$ ($f(t)=𝛿(t-t')$). This is the impulse response (the Green function). An impulse is a strong kick in a very short time: the limit of a shorter and stronger kick with the impulse (the time integral of the force) kept fixed (this is $𝛿(t-t')$, with impulse 1).
 Nothing moves before the kick, so $g=0$ for $t<t'$ (causality). Since the equation is linear, the response to any force is a superposition of kicks,
 
 $$
