@@ -43,7 +43,6 @@ const sidebarRoot = [
     text: '開発中',
     items: [
       { text: 'MLO-gwsc — Sigma を MLO 表現で内挿する QSGW', link: '/manual/mlo_gwsc' },
-      { text: 'Hedin 方程式', link: '/theory/hedin_eqs' },
       { text: '線形化された MTO 法', link: '/theory/lmto' },
     ]
   },
@@ -61,6 +60,7 @@ const sidebarRoot = [
       { text: '分極の計算式', link: '/theory/chi' },
       { text: 'Basic  I', link: '/theory/basic' },
       { text: 'Basic II', link: '/theory/basic2' },
+      { text: 'Hedin 方程式', link: '/theory/hedin_eqs' },
     ]
   },
   { text: 'ライセンス', link: '/manual/license' },
