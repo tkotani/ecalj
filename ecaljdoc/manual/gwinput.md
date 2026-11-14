@@ -156,15 +156,23 @@ PRB76,165106 Eq.58)。$W_c$ が滑らかな系では両者はほぼ同じ(Si で
 - **default** : 3.0
 
 
-## Change `HistBin` for high resolution energy mesh near Ef for metal 
-This defines histogram bins to accumulate weight (imaginary part) of the polarization functions.
+## `HistBin_dw`、`HistBin_ratio` — 分極関数の実軸のメッシュ {#change-histbin-for-high-resolution-energy-mesh-near-ef-for-metal}
+This defines histogram bins to accumulate weight (imaginary part) of the polarization functions. `m_freq.f90` の `getfreq` がこのメッシュを作る。
 
-For metal, it might be better to test
-```toml
-HistBin_dw    = 1e-5   # 1e-5 is fine mesh (good for metal?)  (a.u.) BinWidth along real axis at omega=0.
-HistBin_ratio = 1.03   # 1.03 maybe safer. frhis(iw)= b*(exp(a*(iw-1))-1), where a=ratio-1.0 and dw=b*a
-```
-m_freq.f90のgetfreqでこのメッシュを作っている。
+既定値が二つある（いまはこのままにしてある）。
+
+- テンプレート（`ctrlgenToml.py` が `gwinit` を通して `[gw]` に書く値）: `HistBin_dw = 1e-4`、`HistBin_ratio = 1.05`
+- キーを書かないときのコードの既定値（`m_GWinput.f90`）: `HistBin_dw = 1e-5`、`HistBin_ratio = 1.03`
+
+テンプレートの値の変遷:
+
+| 期間 | `HistBin_dw` | `HistBin_ratio` |
+| --- | --- | --- |
+| 2025-08-19 まで | 2e-3 | 1.08 |
+| 2025-08-22 から | 1e-4 | 1.05 |
+
+メッシュを細かくする（`HistBin_dw` を小さく、`HistBin_ratio` を 1 に近く）ほど、$\omega\sim 0$ の近くのエネルギーの分解能は上がるが、計算は重くなる。
+ふつうは GW の結果はこの選び方にあまりよらない（下の説明）。$W(\omega)$ を $\omega\sim 0$ の近くで細かく描くときなどに細かくする。
 
 * HistBin_dw and HistBin_ratio specify <del class="clfix">real space bins</del><span class="clfix">bins along the real frequency axis</span> which we accumulate imaginary part weight of polarization functions. The bins are (see frhis in m_freq.f90) 
 <del class="clfix">$\omega_i = {{dw}} ∗ (\exp({\rm ratio} ∗ (i − 1)) − 1)$</del><span class="clfix">$\omega_i = b\,(e^{a(i-1)}-1)$, $a={\rm HistBin\_ratio}-1$, $b={\rm HistBin\_dw}/a$</span>

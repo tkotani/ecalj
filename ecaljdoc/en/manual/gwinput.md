@@ -1,6 +1,6 @@
 # GW settings ([gw] and other keys) {#gwinput-legacy}
 
-> English version of the page [manual/gwinput](../../manual/gwinput.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwinput.md of commit 85cdee981 (source blob c038fc4e99d1).
+> English version of the page [manual/gwinput](../../manual/gwinput.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwinput.md of commit 85cdee981 (source blob 569f7c9109b1).
 
 The sections `[gw]`, `[mlo]`, `[blocks]` and `[product_basis]` of `ctrlg.<sname>.toml` set the conditions of GW/QSGW calculations. This page describes their keys.
 For the whole file and the conversion of an old `GWinput`, see [Input file](./toml_migration).
@@ -157,15 +157,23 @@ Maximum energy, measured from the Fermi level, of the quasiparticle states whose
 - **default** : 3.0
 
 
-## Change `HistBin` for high resolution energy mesh near Ef for metal 
-This defines histogram bins to accumulate weight (imaginary part) of the polarization functions.
+## `HistBin_dw`, `HistBin_ratio` — the real-axis mesh of the polarization function {#change-histbin-for-high-resolution-energy-mesh-near-ef-for-metal}
+This defines histogram bins to accumulate weight (imaginary part) of the polarization functions. `getfreq` in `m_freq.f90` makes this mesh.
 
-For metal, it might be better to test
-```toml
-HistBin_dw    = 1e-5   # 1e-5 is fine mesh (good for metal?)  (a.u.) BinWidth along real axis at omega=0.
-HistBin_ratio = 1.03   # 1.03 maybe safer. frhis(iw)= b*(exp(a*(iw-1))-1), where a=ratio-1.0 and dw=b*a
-```
-This mesh is made in getfreq of m_freq.f90.
+There are two defaults (left as they are for now).
+
+- The template (written into `[gw]` by `ctrlgenToml.py` through `gwinit`): `HistBin_dw = 1e-4`, `HistBin_ratio = 1.05`
+- The default of the code when the keys are not written (`m_GWinput.f90`): `HistBin_dw = 1e-5`, `HistBin_ratio = 1.03`
+
+The template values over time:
+
+| period | `HistBin_dw` | `HistBin_ratio` |
+| --- | --- | --- |
+| until 2025-08-19 | 2e-3 | 1.08 |
+| from 2025-08-22 | 1e-4 | 1.05 |
+
+A finer mesh (smaller `HistBin_dw`, `HistBin_ratio` closer to 1) gives a better energy resolution near $\omega\sim 0$ but costs more.
+Usually the GW results do not depend much on this choice (see below); use a finer mesh, e.g., to plot $W(\omega)$ near $\omega\sim 0$.
 
 * HistBin_dw and HistBin_ratio specify <del class="clfix">real space bins</del><span class="clfix">bins along the real frequency axis</span> which we accumulate imaginary part weight of polarization functions. The bins are (see frhis in m_freq.f90) 
 <del class="clfix">$\omega_i = {{dw}} ∗ (\exp({\rm ratio} ∗ (i − 1)) − 1)$</del><span class="clfix">$\omega_i = b\,(e^{a(i-1)}-1)$, $a={\rm HistBin\_ratio}-1$, $b={\rm HistBin\_dw}/a$</span>
