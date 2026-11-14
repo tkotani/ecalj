@@ -1,6 +1,6 @@
 # GetStarted with AI
 
-> English version of the page [manual/getstartedAI](../../manual/getstartedAI.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/getstartedAI.md of commit b18224576 (source blob 6e4fb2e8d703).
+> English version of the page [manual/getstartedAI](../../manual/getstartedAI.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/getstartedAI.md of commit b18224576 (source blob 6602678d32f2).
 
 Give this page to an AI and it will guide you through ecalj. People do not need to read this page.
 
@@ -239,16 +239,9 @@ a material, the extension of its files (`ctrlg.gaas.toml` → `gaas`).
 
 ## 10. Data, and where to look when something goes wrong
 
-- The GW1500 database: QSGW80 band gaps, bands and DOS of 1546 materials of Materials Project,
-  https://github.com/tkotani/DOSnpSupplement. The latest version (e.g. `QSGW80_20261009/`) is the database: its README gives the
-  conditions of each value and the checks, with the inputs (ctrlg) and the band data. Each earlier version is kept whole as a git tag and,
-  in the latest directory, as its difference from the latest (`changes_from_<yyyymmdd>.md`). Terms: the data CC BY 4.0, the code and the
-  inputs AGPLv3 (`LICENSE.md` there; cite the repository with its version, ecalj and the papers). The 2025 tables there (`DOSnp2025.md`)
-  are the supplement of arXiv:2507.19189.
-  **For each material, check which version of ecalj made its value before comparing it with a new calculation.** The table of
-  the database gives it per material (column *ecalj version*, and the letters M, R, N of the other results); the conditions of
-  each letter are in the database README. Values of different versions and conditions can differ by 0.05–0.3 eV (more for some
-  of M, the production of April–May 2026), and the present ecalj may differ again.
+- The QSGW band database: [DOSnpSupplement](https://github.com/tkotani/DOSnpSupplement). The database is updated successively (the past versions
+  are kept there). For the versions, the conditions of each value and the terms of use, read its README. **Before comparing a value with a new
+  calculation, check in the README which version and conditions of ecalj made it.** Different versions and conditions can give different values.
 - An old `ctrl.<sname>` or `GWinput`: not read any more; convert with `Legacy2toml.py`. An old `ctrlg` with `SmearX0` stops;
   `ctrlg_update.py` rewrites it. `t_tetrakbt` must be in `[gw]`.
 - Numbers off from a README: check the k mesh, `scaledsigma`, and the number of iterations first; then `Changes.md` for a change

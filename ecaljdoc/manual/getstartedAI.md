@@ -228,14 +228,9 @@ PMT: 基底。補強平面波とマフィンティン軌道。QSGW: 準粒子セ
 
 ## 10. データと、うまくいかないときに見るところ
 
-- GW1500 のデータベース: Materials Project の 1546 物質の QSGW80 のバンドギャップ、バンド、DOS。https://github.com/tkotani/DOSnpSupplement 。
-  最新の版（例えば `QSGW80_20261009/`）がデータベース。その README が各値の条件と確かめ方を、入力（ctrlg）とバンドのデータとともに示す。
-  前の版はそれぞれ git のタグとして丸ごと残り、最新のディレクトリには最新との差分（`changes_from_<yyyymmdd>.md`）としても残る。
-  利用条件: データは CC BY 4.0、コードと入力は AGPLv3（そこの `LICENSE.md`。リポジトリを版とともに、ecalj と論文も引用する）。
-  そこの 2025 年の表（`DOSnp2025.md`）は arXiv:2507.19189 の補遺。
-  **新しい計算と比べる前に、物質ごとに、その値をどの版の ecalj が作ったかを確かめる。** データベースの表が物質ごとに示す
-  （列 *ecalj version*、ほかの結果の文字 M、R、N）。各文字の条件はデータベースの README にある。版と条件が違う値は 0.05〜0.3 eV 違うことがあり
-  （M の一部、2026 年 4〜5 月の量産ではもっと）、今の ecalj はさらに違うことがある。
+- QSGW のバンドのデータベース: [DOSnpSupplement](https://github.com/tkotani/DOSnpSupplement)。データベースは逐次更新されている（過去の版もそこに残る）。
+  版、各値の条件、利用条件はそこの README を見る。**新しい計算と比べる前に、その値をどの版・どの条件の ecalj が作ったかを README で確かめる。**
+  版と条件が違えば値も違いうる。
 - 古い `ctrl.<sname>` や `GWinput`: もう読まない。`Legacy2toml.py` で変換する。`SmearX0` のある古い `ctrlg` は止まる。
   `ctrlg_update.py` が書き換える。`[gw]` には `t_tetrakbt` が要る。
 - README と数値が違う: まず k のメッシュ、`scaledsigma`、反復の回数を確かめる。次に、README を書いたあとの既定値の変更を `Changes.md` で探す。
