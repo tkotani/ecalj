@@ -1763,9 +1763,11 @@ of calculated diagonal elements.
 
 ## Data structure of the tetrahedron method in ecalj {#tetrahedron-data-structure}
 
+<div class="clfix-old">
+
 At first, you can consider only the `mtet=F` case.
 To make it safer, check `mtet=F` (if it is True, error exit by 'call rx').
-In `m_tetw.F`<span class="clfix">(not in the present SRC, 2026-11-15)</span> we have `gettetwt` called from `hx0fp0.m.F` as
+In `m_tetw.F` we have `gettetwt` called from `hx0fp0.m.F` as
 
               call gettetwt(q,iq,is,isf,nwgt(:,iq),frhis,nwhis,npm,
          i     qbas,ginv, ef, nqibz, nband,ekxx1,ekxx2, nctot,ecore,
@@ -1774,7 +1776,7 @@ In `m_tetw.F`<span class="clfix">(not in the present SRC, 2026-11-15)</span> we 
 
 . All arguments are input.
 This returns tetrahedron weight $W_{\rm tet}(i,{\bf k},n,{\bf k}+{\bf q},n')$
-in the common data area of `m_tetw`<span class="clfix">(not in the present SRC, 2026-11-15)</span>.\
+in the common data area of `m_tetw`.\
 
 -   `q`: ${\bf q}$ vector and index of ${\bf q}$ vector
 
@@ -1850,6 +1852,50 @@ $k$ is index for ${\bf k}$ vector.
 `n2bminimum` is introduced (this is for unoccupied states for `npm=1`.
 $W_{\rm tet}$ is given as , `iw` is
 the index for the histogram bin.
+
+</div>
+
+<div class="clfix">
+
+The tetrahedron weights of the polarization function, Eqs. (I18a), are made by `gettetwt` of the module `m_tetwt` (`m_tetwt.f90`):
+
+```fortran
+call gettetwt(q, iq, isp_k, isp_kq, ekxx1, ekxx2, nband=nband, ikbz_in=k_lo, fkbz_in=k_hi)   ! in x0kf_v4h.f90
+```
+
+- `q`, `iq`: the vector ${\bf q}$ and its index.
+- `isp_k`, `isp_kq` ($\alpha$, $\beta$): the spins of ${\bf k}$ and ${\bf k}+{\bf q}$ (different for the transverse spin susceptibility).
+- `ekxx1(nband,nqbz)`, `ekxx2(nband,nqbz)`: the eigenvalues at ${\bf k}$ and ${\bf k}+{\bf q}$ for all ${\bf k}$ of the BZ (`readeval`).
+- `ikbz_in`, `fkbz_in`: the range of ${\bf k}$ to be done (the ${\bf k}$ loop is split for memory and for the parallelization).
+- The other inputs come from modules: the histogram bins `frhis(1:nwhis+1)` and `npm` of `m_freq` (`npm = 2` also accumulates the negative-frequency part, needed without time-reversal symmetry),
+  the tetrahedra (`ntetf`, `idtetf`, `ib1bz`) of `m_read_bzdata`, the core levels of `m_core_state`, $E_{\rm F}$ of `m_ReadEfermi`, and `ebmx`, `nbmx`, `mtet` of `m_readgwinput`.
+  With `[gw] t_tetrakbt`, the Fermi level of the finite-temperature occupation is used ([kBT](./kBT)).
+
+The output is in the module variables:
+
+- `nbnb(k,jpm)`: the number of pairs $(n,n')$ with non-zero weight at ${\bf k}$; `n1b(ibib,k,jpm)` (occupied, cores after the valence) and `n2b(ibib,k,jpm)` (unoccupied) are their band indexes.
+- `ihw(ibib,k,jpm)`, `nhw(ibib,k,jpm)`: the first histogram bin and the number of bins with non-zero weight for the pair;
+  `jhw(ibib,k,jpm)` points to the weights `whw(jhw : jhw+nhw-1)`.
+
+They are used in `x0kf_v4h.f90` as (simplified)
+
+```fortran
+do jpm = 1, npm
+  do ibib = 1, nbnb(k,jpm)
+    it  = n1b(ibib,k,jpm)                      ! n  at k
+    itp = n2b(ibib,k,jpm)                      ! n' at k+q
+    ! M(I,J) = conjg(zmel(I,it,itp)) * zmel(J,it,itp)   (zmel from build_zmel)
+    do iw = ihw(ibib,k,jpm), ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1
+      imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
+      ! Im Pi(:,:,iw,jpm) += M(:,:)*imagweight
+    enddo
+  enddo
+enddo
+```
+
+which is the sum over $n,n'$ and ${\bf k}$ of Eq. (I18a).
+
+</div>
 
 <span class="clfix">(The subsection "Requirement of the spin symmetric Hamiltonian" of the magnon project was removed.)</span>
 
