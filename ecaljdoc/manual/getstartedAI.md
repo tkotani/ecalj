@@ -231,7 +231,9 @@ PMT: 基底。補強平面波とマフィンティン軌道。QSGW: 準粒子セ
 - QSGW のバンドのデータベース: [DOSnpSupplement](https://github.com/tkotani/DOSnpSupplement)。データベースは逐次更新されている（過去の版もそこに残る）。
   版、各値の条件、利用条件はそこの README を見る。**新しい計算と比べる前に、その値をどの版・どの条件の ecalj が作ったかを README で確かめる。**
   版と条件が違えば値も違いうる。
-- 古い `ctrl.<sname>` や `GWinput`: もう読まない。`Legacy2toml.py` で変換する。`SmearX0` のある古い `ctrlg` は止まる。
-  `ctrlg_update.py` が書き換える。`[gw]` には `t_tetrakbt` が要る。
+- 古い `ctrl.<sname>` や `GWinput`: もう読まない。`Legacy2toml.py` で変換する。
+- 古い `ctrlg` で GW のプログラムが止まる（「`[gw] … is required`」、`SmearX0`、`nbas`）: `ctrlg_update.py ctrlg.<sname>.toml` を走らせる。
+  `[gw]` の必須のキー（`t_tetrakbt`、`t_sigmaw`、`HistBin_dw`、`HistBin_ratio`、`QforEPSau`、`EMAXforGW`）が無ければ、前のコードの既定値で足すので、結果は変わらない。
+  古い `esmr`・`t_sigmakbt` はもう読まない（`ctrlg_update.py` が `t_sigmaw` に換算する）。詳しくは [GW の設定](./gwinput)。
 - README と数値が違う: まず k のメッシュ、`scaledsigma`、反復の回数を確かめる。次に、README を書いたあとの既定値の変更を `Changes.md` で探す。
 - 質問と報告: GitHub のリポジトリ https://github.com/tkotani/ecalj

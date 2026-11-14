@@ -1,6 +1,6 @@
 # GetStarted with AI
 
-> English version of the page [manual/getstartedAI](../../manual/getstartedAI.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/getstartedAI.md of commit b18224576 (source blob 6602678d32f2).
+> English version of the page [manual/getstartedAI](../../manual/getstartedAI.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/getstartedAI.md of commit b18224576 (source blob 087fce0def74).
 
 Give this page to an AI and it will guide you through ecalj. People do not need to read this page.
 
@@ -242,8 +242,11 @@ a material, the extension of its files (`ctrlg.gaas.toml` → `gaas`).
 - The QSGW band database: [DOSnpSupplement](https://github.com/tkotani/DOSnpSupplement). The database is updated successively (the past versions
   are kept there). For the versions, the conditions of each value and the terms of use, read its README. **Before comparing a value with a new
   calculation, check in the README which version and conditions of ecalj made it.** Different versions and conditions can give different values.
-- An old `ctrl.<sname>` or `GWinput`: not read any more; convert with `Legacy2toml.py`. An old `ctrlg` with `SmearX0` stops;
-  `ctrlg_update.py` rewrites it. `t_tetrakbt` must be in `[gw]`.
+- An old `ctrl.<sname>` or `GWinput`: not read any more; convert with `Legacy2toml.py`.
+- A GW program stops on an old `ctrlg` ("`[gw] … is required`", `SmearX0`, `nbas`): run `ctrlg_update.py ctrlg.<sname>.toml`.
+  It adds missing required `[gw]` keys (`t_tetrakbt`, `t_sigmaw`, `HistBin_dw`, `HistBin_ratio`, `QforEPSau`, `EMAXforGW`) with the former code
+  defaults, so the results stay the same. The old `esmr` and `t_sigmakbt` are not read any more (`ctrlg_update.py` converts them to `t_sigmaw`).
+  See [GW settings](./gwinput).
 - Numbers off from a README: check the k mesh, `scaledsigma`, and the number of iterations first; then `Changes.md` for a change
   of defaults since the README was written.
 - Questions and reports: the GitHub repository, https://github.com/tkotani/ecalj

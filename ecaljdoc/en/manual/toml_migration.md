@@ -1,6 +1,6 @@
 # Input file {#toml-migration-2026-05}
 
-> English version of the page [manual/toml_migration](../../manual/toml_migration.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/toml_migration.md of commit 034c2b739 (source blob 77dfcb46e2ef).
+> English version of the page [manual/toml_migration](../../manual/toml_migration.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/toml_migration.md of commit 034c2b739 (source blob 479713ae4d56).
 
 ecalj consists of the one-body part (the DFT part) and the GW part.
 
@@ -77,13 +77,14 @@ See [ESM in lmf.md](./lmf#esm-effective-screening-medium).
 
 ### An older `ctrlg.<sname>.toml`: `ctrlg_update.py`
 
-The programs stop on two things that a `ctrlg.<sname>.toml` written by an
+The programs stop on things that a `ctrlg.<sname>.toml` written by an
 earlier version of the converters may carry:
 
 - `[struc]` must not have `nbas` / `nspec` (the numbers of sites and
   species are those of the `[[site]]` / `[[spec]]` tables);
 - `[gw]` must have `t_tetrakbt` (K), and must not have `SmearX0` /
-  `SmearX0q0`.
+  `SmearX0q0`;
+- `[gw]` must have `t_sigmaw`, `HistBin_dw`, `HistBin_ratio`, `QforEPSau` and `EMAXforGW` (since 2026-11-14).
 
 ```bash
 ctrlg_update.py ctrlg.<sname>.toml [...]    # in place; the original is kept as <file>.bak_update
@@ -92,11 +93,11 @@ ctrlg_update.py ctrlg.<sname>.toml [...]    # in place; the original is kept as 
 removes `nbas` / `nspec` (if `nbas` was smaller than the number of
 `[[site]]` tables, it comments out the tables beyond it), rewrites
 `SmearX0 = s` as `t_tetrakbt = -T` of the same width, and adds
-`t_tetrakbt = 0` where the key is missing, so that the calculation stays
+`t_tetrakbt = 0` where the key is missing, and adds the other required keys with the former code defaults ([GW settings](./gwinput)), so that the calculation stays
 the same. `--no-backup` leaves no copy of the original. The rules are
 described in [lmf.md](./lmf#file-structure-sections) and
 [kBT](./kBT) §2; the old keys of `[gw]` are in Table 1 of
-[gwinput](./gwinput).
+[GW settings](./gwinput).
 
 ## Run-time `--ctrlg:` overrides
 
@@ -192,7 +193,7 @@ SLURM/PBS clusters.
   now keeps the first.
 - **`mlo_emax`** — read only by the older `mlo_method = 0` and `1`; the
   default `mlo_method = 4` does not use it.
-- **`t_tetrakbt` missing, `SmearX0`, `nbas` / `nspec`** — the programs
+- **A required key such as `t_tetrakbt` missing, `SmearX0`, `nbas` / `nspec`** — the programs
   stop; `ctrlg_update.py` (above) brings the file up to the present rules.
 - **gfortran 13.3 / 14.2 codegen** — a documented codegen bug was
   worked around in `m_HamPMT.f90` (one-line bait

@@ -16,6 +16,9 @@ ctrlgenToml.py <sname> --addgw   # [gw] があれば止まる
 ```
 とする（[入力ファイル](./toml_migration)）。
 
+`t_tetrakbt`、`t_sigmaw`、`HistBin_dw`、`HistBin_ratio`、`QforEPSau`、`EMAXforGW` は必須で、`[gw]` に無いとプログラムは止まる（`t_tetrakbt` は 2026-09-28、ほかは 2026-11-14 から）。
+古いファイルは `ctrlg_update.py ctrlg.<sname>.toml` で足す。足すのはそれまでのコードの既定値なので、結果は変わらない。
+
 生成される `[gw]` は `n1n2n3 = [4, 4, 4]`、`t_sigmaw = 300`、`t_tetrakbt = 300` である。計算に合わせて書き換える。
 絶縁体・半導体では、ギャップが $k_BT$ より十分大きいので、温度は 300 K のままで結果に効かない（[kBT](./kBT) §4）。
 
@@ -83,8 +86,8 @@ Gaussian の標準偏差)を同じ幅の `t_tetrakbt = -T` に書き換え(0.005
 |---|---|
 | `SmearX0`、`SmearX0q0` | 書いてあれば止まる。`t_tetrakbt = -T` を書く |
 | `tetrakbt`(論理値) | 読まれない。有限温度は `t_tetrakbt > 0` |
-| `esmr`(Ry、Gaussian) | `t_sigmaw` が無ければ、同じ標準偏差の `t_sigmaw` に換算して読まれる |
-| `t_sigmakbt`(K) | `t_sigmaw` が無ければ、値がそのまま `t_sigmaw` になる |
+| `esmr`(Ry、Gaussian) | 読まれない(2026-11-14 から)。`ctrlg_update.py` が同じ標準偏差の `t_sigmaw` に換算して書く(それまでは `t_sigmaw` が無いとき換算して読んでいた) |
+| `t_sigmakbt`(K) | 読まれない(2026-11-14 から)。`ctrlg_update.py` が値をそのまま `t_sigmaw` として書く |
 | `GaussianFilterX0`、`GaussSmear`、`delta`、`dw`、`omg_c`、`WgtQ0P`、`MEMnmbatch` | 読まれない(書いてあっても効かない) |
 | `zmel_max_size` | `zmel_batch_gb` として読まれる |
 
@@ -97,15 +100,14 @@ Fermi 準位は `t_tetrakbt > 0`($\chi_0$ も有限温度)なら `EFERMI_kbt`、
 中間状態の候補窓と実軸 $\omega$ メッシュの余裕は $E_F \pm 15\,k_BT$。同じ核が $\Sigma_c$ の虚軸積分の
 半留数の段差にも入る(契約: 占有重み・極項の窓重み・虚軸の段差の 3 か所が同じ核。[manual/kBT](kBT) §3.6)。
 
-- 既定 1000 K は旧 `esmr = 0.01` Ry(Gaussian $\sigma$)に近い幅(同じ標準偏差になるのは 872 K。FD の std は
-  $\pi k_BT/\sqrt3 = 1.81\,k_BT$)。旧 `esmr = 0.003` Ry(Si など TestInstall の値)は 262 K に相当。
+- 必須(2026-11-14 から)。テンプレートは 300 K。それまでのコードの既定値は 1000 K で、旧 `esmr = 0.01` Ry(Gaussian $\sigma$)に近い幅
+  (同じ標準偏差になるのは 872 K。FD の std は $\pi k_BT/\sqrt3 = 1.81\,k_BT$)。旧 `esmr = 0.003` Ry(Si など TestInstall の値)は 262 K に相当。
 - 絶縁体: 幅はバンドギャップより十分小さければ結果に効かない(Si で 262 K と 1000 K の差は数 meV)。
 - 金属: 原理的には $n_1n_2n_3 \to \infty$、`t_sigmaw` $\to 0$ の極限だが、有限の幅が収束に要る。
   細かい k メッシュと合わせて 300〜1000 K。物質ごとに選ぶ(LiTi₂O₄ は 1000 K)。
-- `esmr` が ctrlg に残っていれば `t_sigmaw = esmr[Ry]·13.6057/(1.81·8.617e-5)` に換算して読む
-  (`t_sigmaw` があればそちらが優先)。`t_sigmakbt` は値をそのまま `t_sigmaw` に写す。
+- 古い `esmr` と `t_sigmakbt` は読まない。`ctrlg_update.py` が `t_sigmaw = esmr[Ry]·13.6057/(1.81·8.617e-5)`(`t_sigmakbt` は値をそのまま)を書く。
 - **type**: float (K)
-- **default**: 1000.0(gwinit のテンプレートは 300 を書く)
+- **default**: 無し(必須、2026-11-14 から。テンプレートは 300、それまでのコードの既定値は 1000)
 
 ### `wcsmear`  *(2026-09-19、2026-09-20 から既定 true)*
 $\Sigma_c$ の実軸極項で、中間準位の Fermi-Dirac 核(`t_sigmaw`)を極の位置 $\omega_\varepsilon$ にも
@@ -159,10 +161,8 @@ PRB76,165106 Eq.58)。$W_c$ が滑らかな系では両者はほぼ同じ(Si で
 ## `HistBin_dw`、`HistBin_ratio` — 分極関数の実軸のメッシュ {#change-histbin-for-high-resolution-energy-mesh-near-ef-for-metal}
 This defines histogram bins to accumulate weight (imaginary part) of the polarization functions. `m_freq.f90` の `getfreq` がこのメッシュを作る。
 
-既定値が二つある（いまはこのままにしてある）。
-
-- テンプレート（`ctrlgenToml.py` が `gwinit` を通して `[gw]` に書く値）: `HistBin_dw = 1e-4`、`HistBin_ratio = 1.05`
-- キーを書かないときのコードの既定値（`m_GWinput.f90`）: `HistBin_dw = 1e-5`、`HistBin_ratio = 1.03`
+どちらも必須（2026-11-14 から）。テンプレート（`ctrlgenToml.py` が `gwinit` を通して `[gw]` に書く値）は `HistBin_dw = 1e-4`、`HistBin_ratio = 1.05`。
+2026-11-14 までは、キーを書かないとコードの既定値 `1e-5`、`1.03` が使われていた。古いファイルには `ctrlg_update.py` がこの値を書き足すので、結果は変わらない。
 
 テンプレートの値の変遷:
 
@@ -213,6 +213,7 @@ If no `QforGW` (or `QforGWIBZ = true`), all irreducible q points are used.
 
 ## EMAXforGW
 one-shot GW. Set this (eV,above the Fermi energy) to specify up to which bands you calculate. 
+必須（2026-11-14 から）。テンプレートは 15。99999 は上限なし（それまでのコードの既定値で、`ctrlg_update.py` が書き足す値）。
 (we have EMINforGW).
 
 
@@ -233,6 +234,7 @@ QforEPS = """
 Because of the shifted-mesh method, we can use any q point which is not on the mesh points.
 ### QforEPSau 
 Whether q is in the unit of `2pi/alat` or in the unit of a.u.(=`bohr^{-1}`). I think `QforEPSau = true` might be convenient.
+必須（2026-11-14 から）。テンプレートは true。それまでのコードの既定値は false（`ctrlg_update.py` が書き足す値）。
 
 
 

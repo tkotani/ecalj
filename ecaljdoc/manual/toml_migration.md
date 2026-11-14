@@ -65,19 +65,20 @@ GW のバイナリはこのファイルがあっても同じように止まり�
 
 ### 古い `ctrlg.<sname>.toml`: `ctrlg_update.py` {#an-older-ctrlg-sname-toml-ctrlg-update-py}
 
-前の版の変換スクリプトが書いた `ctrlg.<sname>.toml` には、プログラムが止まる原因になるものが二つ入っていることがあります。
+前の版の変換スクリプトが書いた `ctrlg.<sname>.toml` には、プログラムが止まる原因になるものが入っていることがあります。
 
 - `[struc]` に `nbas` / `nspec` があってはいけない（サイトと種の数は `[[site]]` / `[[spec]]` の表の数で決まる）。
 - `[gw]` には `t_tetrakbt`（K）が要り、`SmearX0` / `SmearX0q0` があってはいけない。
+- `[gw]` には `t_sigmaw`、`HistBin_dw`、`HistBin_ratio`、`QforEPSau`、`EMAXforGW` が要る（2026-11-14 から）。
 
 ```bash
 ctrlg_update.py ctrlg.<sname>.toml [...]    # in place; the original is kept as <file>.bak_update
 ```
 
 これは `nbas` / `nspec` を消し（`nbas` が `[[site]]` の表の数より少なかったときは、それより後の表をコメントにする）、
-`SmearX0 = s` を同じ幅の `t_tetrakbt = -T` に書き換え、キーが無いところには `t_tetrakbt = 0` を足して、計算が変わらないようにします。
+`SmearX0 = s` を同じ幅の `t_tetrakbt = -T` に書き換え、キーが無いところには `t_tetrakbt = 0` を足し、ほかの必須のキーもそれまでのコードの既定値で足して、計算が変わらないようにします（[GW の設定](./gwinput)）。
 `--no-backup` を付けると元のファイルの控えを残しません。規則は [lmf.md](./lmf#file-structure-sections) と [kBT](./kBT) §2 に、
-`[gw]` の古いキーは [gwinput](./gwinput) の表 1 にあります。
+`[gw]` の古いキーは [GW の設定](./gwinput) の表 1 にあります。
 
 ## 実行時の `--ctrlg:` による上書き {#run-time-ctrlg-overrides}
 
@@ -153,7 +154,7 @@ lmf si --ctrlg:bz.nkabc=[8,8,8] --ctrlg:bz.metal=3
 - **古い `Worb` ブロック** — `gwinput2toml.py`（`Legacy2toml.py` の GWinput を扱う部分）は、`<Worb>` ブロックが重複していると
   以前は最後のものを採っていました。今は最初のものを採ります。
 - **`mlo_emax`** — 古い `mlo_method = 0` と `1` だけが読みます。既定の `mlo_method = 4` は使いません。
-- **`t_tetrakbt` が無い、`SmearX0`、`nbas` / `nspec`** — プログラムが止まります。`ctrlg_update.py`（上）でファイルを今の規則に合わせます。
+- **`t_tetrakbt` などの必須のキーが無い、`SmearX0`、`nbas` / `nspec`** — プログラムが止まります。`ctrlg_update.py`（上）でファイルを今の規則に合わせます。
 - **gfortran 13.3 / 14.2 のコード生成** — 知られているコード生成のバグを `m_HamPMT.f90` で回避しています（一行のおとり
   `aaa = trim(aaa) // ' '`）。master のコミット `35ee9f225` と `f693848ce` を見てください。
 

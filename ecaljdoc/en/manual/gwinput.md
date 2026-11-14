@@ -1,6 +1,6 @@
 # GW settings ([gw] and other keys) {#gwinput-legacy}
 
-> English version of the page [manual/gwinput](../../manual/gwinput.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwinput.md of commit 85cdee981 (source blob 569f7c9109b1).
+> English version of the page [manual/gwinput](../../manual/gwinput.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwinput.md of commit 85cdee981 (source blob 01ed4e8057ca).
 
 The sections `[gw]`, `[mlo]`, `[blocks]` and `[product_basis]` of `ctrlg.<sname>.toml` set the conditions of GW/QSGW calculations. This page describes their keys.
 For the whole file and the conversion of an old `GWinput`, see [Input file](./toml_migration).
@@ -17,6 +17,9 @@ writes `ctrlg.<sname>.toml` including the GW settings (it runs `lmfa`, `lmf --jo
 ctrlgenToml.py <sname> --addgw   # stops if [gw] is present
 ```
 (see [Input file](./toml_migration)).
+
+`t_tetrakbt`, `t_sigmaw`, `HistBin_dw`, `HistBin_ratio`, `QforEPSau` and `EMAXforGW` are required: the programs stop if one is missing from `[gw]` (`t_tetrakbt` since 2026-09-28, the others since 2026-11-14).
+Add them to an old file with `ctrlg_update.py ctrlg.<sname>.toml`; it writes the former code defaults, so the results stay the same.
 
 The generated `[gw]` has `n1n2n3 = [4, 4, 4]`, `t_sigmaw = 300` and `t_tetrakbt = 300`. Change them for the calculation.
 For insulators and semiconductors the gap is much larger than $k_BT$, so the temperatures of 300 K do not affect the results ([kBT](./kBT) §4).
@@ -85,8 +88,8 @@ Gaussian for $\mathrm{Im}\chi_0$) into `t_tetrakbt = -T` of the same width (0.00
 |---|---|
 | `SmearX0`, `SmearX0q0` | stops if written. Write `t_tetrakbt = -T` |
 | `tetrakbt` (logical) | not read. Finite temperature is `t_tetrakbt > 0` |
-| `esmr` (Ry, Gaussian) | if `t_sigmaw` is absent, read after conversion to `t_sigmaw` of the same standard deviation |
-| `t_sigmakbt` (K) | if `t_sigmaw` is absent, its value becomes `t_sigmaw` as is |
+| `esmr` (Ry, Gaussian) | not read (since 2026-11-14); `ctrlg_update.py` writes `t_sigmaw` of the same standard deviation (until then it was converted when `t_sigmaw` was absent) |
+| `t_sigmakbt` (K) | not read (since 2026-11-14); `ctrlg_update.py` writes its value as `t_sigmaw` |
 | `GaussianFilterX0`, `GaussSmear`, `delta`, `dw`, `omg_c`, `WgtQ0P`, `MEMnmbatch` | not read (no effect even if written) |
 | `zmel_max_size` | read as `zmel_batch_gb` |
 
@@ -98,15 +101,14 @@ The Fermi level is `EFERMI_kbt` if `t_tetrakbt > 0` ($\chi_0$ also at finite tem
 The candidate window of intermediate states and the margin of the real-axis $\omega$ mesh are $E_F \pm 15\,k_BT$. The same kernel also enters the
 half-residue step of the imaginary-axis integral of $\Sigma_c$ (contract: the occupation weights, the window weights of the pole term and the imaginary-axis step, all 3 use the same kernel. [manual/kBT](kBT) §3.6).
 
-- The default 1000 K is a width close to the old `esmr = 0.01` Ry (Gaussian $\sigma$) (the same standard deviation is 872 K; the std of FD is
+- Required (since 2026-11-14). The template writes 300 K. The code default until then, 1000 K, is a width close to the old `esmr = 0.01` Ry (Gaussian $\sigma$) (the same standard deviation is 872 K; the std of FD is
   $\pi k_BT/\sqrt3 = 1.81\,k_BT$). The old `esmr = 0.003` Ry (the value for Si etc. in TestInstall) corresponds to 262 K.
 - Insulators: if the width is sufficiently smaller than the band gap, it does not affect the result (for Si the difference between 262 K and 1000 K is a few meV).
 - Metals: in principle the limit $n_1n_2n_3 \to \infty$, `t_sigmaw` $\to 0$, but a finite width is needed for convergence.
   300–1000 K together with a fine k mesh. Choose per material (1000 K for LiTi₂O₄).
-- If `esmr` remains in ctrlg, it is read after conversion `t_sigmaw = esmr[Ry]·13.6057/(1.81·8.617e-5)`
-  (`t_sigmaw` takes precedence if present). `t_sigmakbt` is copied as is to `t_sigmaw`.
+- The old `esmr` and `t_sigmakbt` are not read; `ctrlg_update.py` writes `t_sigmaw = esmr[Ry]·13.6057/(1.81·8.617e-5)` (`t_sigmakbt` as is).
 - **type**: float (K)
-- **default**: 1000.0 (the gwinit template writes 300)
+- **default**: none (required since 2026-11-14; the template writes 300, the code default until then was 1000)
 
 ### `wcsmear`  *(2026-09-19, default true from 2026-09-20)*
 In the real-axis pole term of $\Sigma_c$, the Fermi-Dirac kernel of the intermediate levels (`t_sigmaw`) is also applied to the pole position $\omega_\varepsilon$,
@@ -160,10 +162,8 @@ Maximum energy, measured from the Fermi level, of the quasiparticle states whose
 ## `HistBin_dw`, `HistBin_ratio` — the real-axis mesh of the polarization function {#change-histbin-for-high-resolution-energy-mesh-near-ef-for-metal}
 This defines histogram bins to accumulate weight (imaginary part) of the polarization functions. `getfreq` in `m_freq.f90` makes this mesh.
 
-There are two defaults (left as they are for now).
-
-- The template (written into `[gw]` by `ctrlgenToml.py` through `gwinit`): `HistBin_dw = 1e-4`, `HistBin_ratio = 1.05`
-- The default of the code when the keys are not written (`m_GWinput.f90`): `HistBin_dw = 1e-5`, `HistBin_ratio = 1.03`
+Both are required (since 2026-11-14). The template (written into `[gw]` by `ctrlgenToml.py` through `gwinit`) has `HistBin_dw = 1e-4`, `HistBin_ratio = 1.05`.
+Until 2026-11-14 the code defaults `1e-5`, `1.03` were used when the keys were absent; `ctrlg_update.py` adds these values to old files, so the results stay the same.
 
 The template values over time:
 
@@ -215,6 +215,7 @@ If no `QforGW` (or `QforGWIBZ = true`), all irreducible q points are used.
 ## EMAXforGW
 one-shot GW. Set this (eV,above the Fermi energy) to specify up to which bands you calculate. 
 (we have EMINforGW).
+Required (since 2026-11-14). The template writes 15; 99999 means no cutoff (the code default until then, which `ctrlg_update.py` adds).
 
 
 ## `--readQforGW` option
@@ -234,6 +235,7 @@ QforEPS = """
 Because of the shifted-mesh method, we can use any q point which is not on the mesh points.
 ### QforEPSau 
 Whether q is in the unit of `2pi/alat` or in the unit of a.u.(=`bohr^{-1}`). I think `QforEPSau = true` might be convenient.
+Required (since 2026-11-14). The template writes true; the code default until then was false (which `ctrlg_update.py` adds).
 
 
 
