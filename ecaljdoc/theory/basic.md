@@ -217,7 +217,7 @@ $T$ は、時刻の順序を左側に未来の時間、右側に過去の時間�
 ## 相互作用のない系でのGreen関数
 
 ### ハミルトニアン
-ハミルトニアンを$\hat H -μ\hat N$ として, 基底状態のエネルギーを0としておく．$𝜇$:フェルミエネルギー, $\hat N = \int d𝒓 𝜓^†(𝒓)𝜓(𝒓)$: 粒子数演算子であり, 基底状態の粒子数を$N$とすると$\hat N \ket{\Psi_0} = N \ket{\Psi_0}$.<span class="clfix">前の節からの ハイゼンベルグ表示 $e^{i\hat Ht/\hbar}\cdots e^{-i\hat Ht/\hbar}$ の $\hat H$ もこの $\hat H-𝜇\hat N$ と読む（密度演算子 $\hat 𝜌_\mathrm{H}$ では $\hat N$ が $\hat 𝜌$ と交換するので同じ）．</span>
+ハミルトニアンを$\hat H -μ\hat N$ として, 基底状態のエネルギーを0としておく．$𝜇$:フェルミエネルギー, $\hat N = \int d𝒓 𝜓^†(𝒓)𝜓(𝒓)$: 粒子数演算子であり, 基底状態の粒子数を$N$とすると$\hat N \ket{\Psi_0} = N \ket{\Psi_0}$.前の節からの ハイゼンベルグ表示 $e^{i\hat Ht/\hbar}\cdots e^{-i\hat Ht/\hbar}$ の $\hat H$ もこの $\hat H-𝜇\hat N$ と読む（密度演算子 $\hat 𝜌_\mathrm{H}$ では $\hat N$ が $\hat 𝜌$ と交換するので同じ）．
 また, 相互作用がない場合は1粒子状態の和であるので
 $$
 \hat H - \mu \hat N =  \sum_n 𝜀_n \hat c^†_{n}\hat c_{n}
@@ -254,14 +254,10 @@ $$
 - 正孔の生成状態も励起状態であり基底状態からの，励起エネルギーは$-𝜀_n>0$である．
 ::: details 導出
 
-<div class="clfix">
-
 $\hat H-𝜇\hat N$ の固有値を基底状態で 0 としたので $e^{-i(\hat H-𝜇\hat N)t_2/\hbar}\ket{\Psi_0}=\ket{\Psi_0}$．
 $\hat 𝜓^†(𝒓_2)\ket{\Psi_0}=\sum_{n'}𝜙^*_{n'}(𝒓_2)\hat c^†_{n'}\ket{\Psi_0}$ のうち残るのは非占有の $n'$ だけで，$(\hat H-𝜇\hat N)\hat c^†_{n'}\ket{\Psi_0}=𝜀_{n'}\hat c^†_{n'}\ket{\Psi_0}$ である．
 左から $\bra{\Psi_0}\hat 𝜓(𝒓_1)=\sum_{m}𝜙_{m}(𝒓_1)\bra{\Psi_0}\hat c_{m}$ を掛けると $\braket{\Psi_0|\hat c_{m}\hat c^†_{n'}|\Psi_0}=𝛿_{mn'}$ で第 1 式を得る．
 第 2 式も同様で, $\hat 𝜓(𝒓_1)\ket{\Psi_0}$ では占有の $n$ だけが残り, $(\hat H-𝜇\hat N)\hat c_{n}\ket{\Psi_0}=-𝜀_{n}\hat c_{n}\ket{\Psi_0}$ である．
-
-</div>
 
 :::
 
@@ -321,7 +317,7 @@ $$
 
 ![グリーン関数の極](./figures/green_poles.png)
 
-<span class="clfix">図の「occupied stats」「unoccupied stats」は「occupied states」「unoccupied states」（占有状態、非占有状態）の誤り。図を作ったスクリプトが残っていないので、図は描き直していない。</span>
+図中の stats → states
 
 > [!INFO]
 > 実時間表示の定義についていた$i$は, 振動数表示での表式がキレイになるようにつけられていた．
@@ -339,20 +335,7 @@ $$
 \tag{N10}
 \end{align}
 $$
-<span class="clfix">(複号は上が占有 $𝜀_n\lt 0$, 下が非占有 $𝜀_n>0$.)</span> となるので形式的には状態密度<del class="clfix">$D(𝜀) = \sum_n 𝛿(𝜀-𝜀_n)$</del><span class="clfix">$N(𝜀) = \sum_n 𝛿(𝜀-𝜀_n)$（分極関数の $D$ と区別する）</span>は
-
-<div class="clfix-old">
-
-$$
-\begin{align}
-D(𝜀) = \pm \frac{1}{𝜋}\Im \text{Tr}G(𝜀/\hbar)  ただし (+:𝜀<0, -:𝜀>0)
-\end{align}
-$$
-のように書ける($\hbar$や符号があっている??)
-
-</div>
-
-<div class="clfix">
+(複号は上が占有 $𝜀_n\lt 0$, 下が非占有 $𝜀_n>0$.) となるので形式的には状態密度$N(𝜀) = \sum_n 𝛿(𝜀-𝜀_n)$（分極関数の $D$ と区別する）は
 
 $$
 \begin{align}
@@ -362,11 +345,9 @@ N(𝜀) = \pm \frac{1}{𝜋\hbar}\Im \text{Tr}G(𝜀/\hbar)  ただし (+:𝜀<0
 $$
 のように書ける．$𝛿(𝜀/\hbar-𝜀_n/\hbar)=\hbar\,𝛿(𝜀-𝜀_n)$ から $1/\hbar$ が付く．符号は上の複号のとおり．
 
-</div>
-
 ## 時間秩序分極関数
 
-ハイゼンベルグ表示の密度演算子を$\hat 𝜌_\mathrm{H}(𝒓,t)$とすると $\hat 𝜌_\mathrm{H}(𝒓,t) = e^{i\hat Ht/\hbar}\hat 𝜓^†(𝒓)\hat 𝜓(𝒓)e^{-i\hat Ht/\hbar}$ である．<span class="clfix">（もとは $\hat 𝜓$ の後に余分な `^` があった）</span>
+ハイゼンベルグ表示の密度演算子を$\hat 𝜌_\mathrm{H}(𝒓,t)$とすると $\hat 𝜌_\mathrm{H}(𝒓,t) = e^{i\hat Ht/\hbar}\hat 𝜓^†(𝒓)\hat 𝜓(𝒓)e^{-i\hat Ht/\hbar}$ である．
 密度の期待値からの変位を表す演算子として$\hat {𝛿\rho} = \hat \rho - \braket{\hat \rho}$を導入する．
 このとき時間秩序分極関数$D(𝒓_1t_1,𝒓_2t_2)$は以下のような時間順序積（式 (G4) の $T$）による密度の積(密度相関)と定義する．
 $$

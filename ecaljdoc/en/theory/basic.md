@@ -224,7 +224,7 @@ Perturbation theory with time thus contains perturbation theory without time, an
 ## Green function of a non-interacting system
 
 ### Hamiltonian
-We take the Hamiltonian as $\hat H -μ\hat N$ and set the ground-state energy to 0. $𝜇$: the Fermi energy; $\hat N = \int d𝒓 𝜓^†(𝒓)𝜓(𝒓)$: the particle-number operator; with $N$ the number of particles in the ground state, $\hat N \ket{\Psi_0} = N \ket{\Psi_0}$.<span class="clfix">From the previous section on, the $\hat H$ of the Heisenberg picture $e^{i\hat Ht/\hbar}\cdots e^{-i\hat Ht/\hbar}$ is also read as this $\hat H-𝜇\hat N$ (for the density operator $\hat 𝜌_\mathrm{H}$ it makes no difference, since $\hat N$ commutes with $\hat 𝜌$).</span>
+We take the Hamiltonian as $\hat H -μ\hat N$ and set the ground-state energy to 0. $𝜇$: the Fermi energy; $\hat N = \int d𝒓 𝜓^†(𝒓)𝜓(𝒓)$: the particle-number operator; with $N$ the number of particles in the ground state, $\hat N \ket{\Psi_0} = N \ket{\Psi_0}$.From the previous section on, the $\hat H$ of the Heisenberg picture $e^{i\hat Ht/\hbar}\cdots e^{-i\hat Ht/\hbar}$ is also read as this $\hat H-𝜇\hat N$ (for the density operator $\hat 𝜌_\mathrm{H}$ it makes no difference, since $\hat N$ commutes with $\hat 𝜌$).
 Without interaction the Hamiltonian is a sum over one-particle states,
 $$
 \hat H - \mu \hat N =  \sum_n 𝜀_n \hat c^†_{n}\hat c_{n}
@@ -261,14 +261,10 @@ $$
 - A state with a created hole is also an excited state; its excitation energy from the ground state is $-𝜀_n>0$.
 ::: details Derivation
 
-<div class="clfix">
-
 Since the eigenvalue of $\hat H-𝜇\hat N$ in the ground state is set to 0, $e^{-i(\hat H-𝜇\hat N)t_2/\hbar}\ket{\Psi_0}=\ket{\Psi_0}$.
 Of $\hat 𝜓^†(𝒓_2)\ket{\Psi_0}=\sum_{n'}𝜙^*_{n'}(𝒓_2)\hat c^†_{n'}\ket{\Psi_0}$ only the unoccupied $n'$ survive, and $(\hat H-𝜇\hat N)\hat c^†_{n'}\ket{\Psi_0}=𝜀_{n'}\hat c^†_{n'}\ket{\Psi_0}$.
 Multiplying from the left by $\bra{\Psi_0}\hat 𝜓(𝒓_1)=\sum_{m}𝜙_{m}(𝒓_1)\bra{\Psi_0}\hat c_{m}$ and using $\braket{\Psi_0|\hat c_{m}\hat c^†_{n'}|\Psi_0}=𝛿_{mn'}$ gives the first expression.
 The second follows in the same way: in $\hat 𝜓(𝒓_1)\ket{\Psi_0}$ only the occupied $n$ survive, and $(\hat H-𝜇\hat N)\hat c_{n}\ket{\Psi_0}=-𝜀_{n}\hat c_{n}\ket{\Psi_0}$.
-
-</div>
 
 :::
 
@@ -328,7 +324,7 @@ is obtained. In the $𝜔$ plane extended to complex numbers, the poles of the u
 
 ![Poles of the Green function](../../theory/figures/green_poles.png)
 
-<span class="clfix">"occupied stats" and "unoccupied stats" in the figure should read "occupied states" and "unoccupied states". The script that drew the figure is lost, so the figure has not been redrawn.</span>
+In the figure: stats → states
 
 > [!INFO]
 > The $i$ in the definition of the real-time representation was attached so that the expression in the frequency representation becomes clean.
@@ -346,20 +342,7 @@ $$
 \tag{N10}
 \end{align}
 $$
-<span class="clfix">(upper signs: occupied, $𝜀_n\lt 0$; lower signs: unoccupied, $𝜀_n>0$),</span> and formally the density of states <del class="clfix">$D(𝜀) = \sum_n 𝛿(𝜀-𝜀_n)$</del><span class="clfix">$N(𝜀) = \sum_n 𝛿(𝜀-𝜀_n)$ (to distinguish it from the polarization function $D$)</span> can be written as
-
-<div class="clfix-old">
-
-$$
-\begin{align}
-D(𝜀) = \pm \frac{1}{𝜋}\Im \text{Tr}G(𝜀/\hbar)\quad \text{where } (+:𝜀<0,\ -:𝜀>0)
-\end{align}
-$$
-(are $\hbar$ and the signs correct??)
-
-</div>
-
-<div class="clfix">
+(upper signs: occupied, $𝜀_n\lt 0$; lower signs: unoccupied, $𝜀_n>0$), and formally the density of states $N(𝜀) = \sum_n 𝛿(𝜀-𝜀_n)$ (to distinguish it from the polarization function $D$) can be written as
 
 $$
 \begin{align}
@@ -369,11 +352,9 @@ N(𝜀) = \pm \frac{1}{𝜋\hbar}\Im \text{Tr}G(𝜀/\hbar)\quad \text{where } (
 $$
 The factor $1/\hbar$ comes from $𝛿(𝜀/\hbar-𝜀_n/\hbar)=\hbar\,𝛿(𝜀-𝜀_n)$. The signs follow the double signs above.
 
-</div>
-
 ## Time-ordered polarization function
 
-With the density operator in the Heisenberg picture $\hat 𝜌_\mathrm{H}(𝒓,t)$, $\hat 𝜌_\mathrm{H}(𝒓,t) = e^{i\hat Ht/\hbar}\hat 𝜓^†(𝒓)\hat 𝜓(𝒓)e^{-i\hat Ht/\hbar}$.<span class="clfix">(previously written with a stray `^` after $\hat 𝜓$)</span>
+With the density operator in the Heisenberg picture $\hat 𝜌_\mathrm{H}(𝒓,t)$, $\hat 𝜌_\mathrm{H}(𝒓,t) = e^{i\hat Ht/\hbar}\hat 𝜓^†(𝒓)\hat 𝜓(𝒓)e^{-i\hat Ht/\hbar}$.
 We introduce the operator of the deviation from the expectation value of the density, $\hat {𝛿\rho} = \hat \rho - \braket{\hat \rho}$.
 The time-ordered polarization function $D(𝒓_1t_1,𝒓_2t_2)$ is then defined as the time-ordered product ($T$ of Eq. (G4)) of densities (density correlation):
 $$
