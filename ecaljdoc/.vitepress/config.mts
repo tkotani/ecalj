@@ -25,6 +25,8 @@ const sidebarRoot = [
       { text: 'MLO — 最大局在化などに代わる自動モデル化法', link: '/manual/mlo' },
       { text: 'MLO-gwsc — Sigma を MLO 表現で内挿する QSGW（開発中）', link: '/manual/mlo_gwsc' },
       { text: 'UsageDetailed ', link: '/manual/UsageDetailed' },
+      { text: 'ドーピング（背景電荷）', link: '/manual/Memo_bgcharge' },
+      { text: 'スペクトル関数', link: '/manual/spectrum' },
       // { text: 'Density of states', link: '/manual/dos' },
       // { text: 'Band dispersion plot', link: '/manual/band' },
       // { text: 'Spin-orbit interaction', link: '/manual/soi' },
@@ -54,8 +56,11 @@ const sidebarRoot = [
       { text: 'Product basis', link: '/theory/gw_product_basis' },
       { text: 'Projection of product basis', link: '/theory/gw_zmel' },
       { text: 'Optical properties', link: '/theory/optical_properties' },
+      { text: '分極の計算式', link: '/theory/chi' },
       { text: 'Basic  I', link: '/theory/basic' },
       { text: 'Basic II', link: '/theory/basic2' },
+      { text: 'Hedin 方程式（加筆中）', link: '/theory/hedin_eqs' },
+      { text: '線形化された MTO 法（加筆中）', link: '/theory/lmto' },
     ]
   },
   { text: 'ライセンス', link: '/manual/license' },
@@ -64,6 +69,7 @@ const sidebarRoot = [
     items: [
       { text: 'Install', link: '/install/install' },
       { text: 'Install@ISSP_tokyo', link: '/install/installISSP' },
+      { text: 'ISSP での使い方', link: '/manual/UsageISSP' },
       { text: 'Uninstall', link: '/install/uninstall' }
     ]
   },
@@ -78,6 +84,12 @@ const sidebarRoot = [
 ]
 
 const enText: Record<string, string> = {
+  'ドーピング（背景電荷）': 'Doping (background charge)',
+  'スペクトル関数': 'Spectrum function',
+  'ISSP での使い方': 'Usage at ISSP',
+  '分極の計算式': 'Formulas of the polarization',
+  'Hedin 方程式（加筆中）': 'Hedin equations (in progress)',
+  '線形化された MTO 法（加筆中）': 'Linearized MTO method (in progress)',
   '外したコード（過去のコード）': 'Removed code (past code)',
   '古い文書（過去ログ）': 'Old documents (past records)',
   'メインドキュメント': 'MainDocument',
