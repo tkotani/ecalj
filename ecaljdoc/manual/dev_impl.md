@@ -1795,7 +1795,7 @@ $E_{\rm k}^{\rm core}+E_{\rm B}
 その差は数値誤差である。行頭の `c` は「収束した」を意味する。
 ${\tt h}$ は `atm.*` ファイル（原子密度の重ね合わせ）からの最初の反復を意味する。これらの文字は `m_lmfp.f90` の `svflg='cxhiC'` である（`x`: 反復の最大回数に達した、`i`: 途中の反復、`C`: 緩和が収束した）。
 
-## IBZ と EIBZ の方式
+## IBZ と EIBZ の方式 {#ibz-and-eibz-scheme}
 
 以下の IBZ の部分は、コードが使っているものである。自己エネルギーは IBZ の ${\bf k}$ と回転について和をとる（`m_sxcf_sc.f90` の `kx` と `irot`、表は `irkip`）。EIBZ の部分は覚え書きで、今は使っていない（`eibzgen.f90` はあるが呼ばれない。`[gw] EIBZmode` は読むが使わない。`m_eibz`、`x0kf_v4hz_symmetrize`、`zsecsym`、`rotwvigg` は今のコードにない）。再び使うことがあるかもしれない。
 
