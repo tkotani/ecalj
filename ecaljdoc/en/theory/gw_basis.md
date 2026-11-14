@@ -1,26 +1,28 @@
-# Basis set in the 𝘎𝘞 calculation
+# Representation of wave functions in GW
 
-> English version of the page [theory/gw_basis](../../theory/gw_basis.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/gw_basis.md of the tree of c9f9a3003 (source blob cfcb556370fb).
+> English version of the page [theory/gw_basis](../../theory/gw_basis.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/gw_basis.md of commit c6d3fb60f (source blob 57cdd1565bca).
 
 ::: warning Under construction
-This page is a draft. The definitions and equations in [Band-structure method of ecalj](./pmt) and in section 2 of the main reference on the [QSGW](./qsgw) page (Obata, Kotani, Oda 2025) are newer and more accurate.
+This page is a draft. For the definitions of the symbols and the formulas, [Band-structure method of ecalj](./pmt) and section 2 of the main reference of [QSGW](./qsgw) (Obata, Kotani, Oda 2025) are newer and more accurate.
 :::
 
 ## Representation of one-particle wave functions
 The wave functions are expanded in two types of basis functions as follows:
 $$
 \ket{Ψ_{𝒌n}} = \sum_{𝑹u} α_{𝑹u}^{𝒌n} \ket{φ^𝒌_{𝑹u}} + \sum_{𝑮} β_{𝑮}^{𝒌n} \ket{P^𝒌_{𝑮}},
+\tag{B1}
 $$
 where
-$\ket{φ_{𝑹u}}$ is an atomic MTO basis function (an augmented smooth Hankel function) and $\ket{P^𝒌_{𝑮}}$ is an interstitial plane wave (zero inside the MTs).
+$\ket{φ_{𝑹u}}$ is a function confined in the MT sphere at $𝑹$ (a radial function times a spherical harmonic; zero outside the MT), and $\ket{P^𝒌_{𝑮}}$ is an interstitial plane wave (zero inside the MTs). The eigenfunctions of `lmf`, expanded in MTOs and APWs, are re-expanded in these two kinds of functions for the GW calculation.
 
 ### Detail of $\ket{φ^𝒌_{𝑹u}}$
 
 The $\ket{φ^𝒌_{𝑹u}}$ is the Bloch sum of the atomic orbital $\ket{φ_{𝑹u}}$:
 $$
 φ^𝒌_{𝑹u}(𝒓) = \sum_{𝑻} φ_{𝑹u}(𝒓 - 𝑹 - 𝑻) \exp(i𝒌⋅𝑻)
+\tag{B2}
 $$
-The radial part of atomic orbital are constructed from $φ_{lν}(r)$, $\dot φ_{lν}(r)$, and $φ^{z}_{l}(r)$ by the augmentation of smooth Hankel functions.
+The radial part of $φ_{𝑹u}$ is one of $φ_{lν}(r)$, $\dot φ_{lν}(r)$ and $φ^{z}_{l}(r)$ (the functions used in the augmentation of the smooth Hankel functions); $u$ labels the radial function and $lm$.
 <!-- ::: details $\braket{φ^𝒌_{𝑹u}|φ^𝒌_{𝑹'u'}}$ -->
 <!---->
 <!-- ::: -->
@@ -34,10 +36,12 @@ With `[ham].readp = true` and `[ham].pnufix = true` (both written by `ctrlgenTom
 - Is LDA used?
 $$
 \left[ -\frac{1}{2} \frac{d^2}{dr^2} + V_\mathrm{eff}[n(r)] - \frac{Z}{r} + \frac{l(l+1)}{2r^2}  -ϵ_{nlν} \right] φ_{nlν}(r) = 0
+\tag{Bq1}
 $$
 
 $$
 n(r) = 2\sum_{nl} (2l+1) |φ_{nl}(r)|^2/r^2
+\tag{Bq2}
 $$
 
  - In the $n(r)$ in radial equation obtained from self-consistent calculation?
@@ -55,21 +59,25 @@ $$
 0    & \text{if}~ 𝒓 \in \text{any MT} \\
   \exp(i (𝒌 + 𝑮)⋅𝒓)& \text{otherwise}
 \end{cases}
+\tag{B3}
 \end{align}
 $$
 Since the MT regions are cut out, these functions are not orthogonal; their overlap matrix is
 $$
-\braket{P^𝒌_{𝑮}|P^𝒌_{𝑮'}} = \delta_{𝑮,𝑮'} - \sum_{𝑹_I} \int_{MT_I} e^{i(𝒓+𝑹_I) ⋅(𝑮'-𝑮)} d𝒓
+\braket{P^𝒌_{𝑮}|P^𝒌_{𝑮'}} = \Omega\,\delta_{𝑮,𝑮'} - \sum_{𝑹_I} \int_{MT_I} e^{i(𝒓+𝑹_I) ⋅(𝑮'-𝑮)} d𝒓
+\tag{B4}
 $$
-where,
+where $\Omega$ is the volume of the unit cell, and
 $$
 \int_{MT_I} e^{i(𝒓+𝑹_I) ⋅(𝑮'-𝑮)} d𝒓
- = \frac{4\pi e^{i𝑹_I ⋅(𝑮'-𝑮)}}{|𝑮'-𝑮|} \int_0^{R_I} dr r \sin(|𝑮'-𝑮|r)
+ = \frac{4\pi e^{i𝑹_I ⋅(𝑮'-𝑮)}}{|𝑮'-𝑮|} \int_0^{R_I} dr\, r \sin(|𝑮'-𝑮|r)
+\tag{B5}
 $$
 
 ### Formula of inner product
 This is for checking the orthonormality of the wave functions, and helps understanding.
 $$
 \braket{Ψ_{𝒌n}|Ψ_{𝒌m}} = \sum_{𝑹uu'} α_{𝑹u}^{𝒌n*} α_{𝑹u'}^{𝒌m}\braket{φ^𝒌_{𝑹u}|φ^𝒌_{𝑹u'}} + \sum_{𝑮𝑮'} β_{𝑮}^{𝒌n*} β_{𝑮'}^{𝒌m}\braket{P^𝒌_{𝑮}|P^𝒌_{𝑮'}}
+\tag{B6}
 $$
-The cross terms vanish.
+The cross terms vanish, since $φ_{𝑹u}$ is zero outside the MTs and $P^𝒌_{𝑮}$ is zero inside.
