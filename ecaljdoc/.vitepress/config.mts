@@ -43,7 +43,6 @@ const sidebarRoot = [
     text: '開発中',
     items: [
       { text: 'MLO-gwsc — Sigma を MLO 表現で内挿する QSGW', link: '/manual/mlo_gwsc' },
-      { text: '線形化された MTO 法', link: '/theory/lmto' },
     ]
   },
   {
@@ -90,7 +89,6 @@ const enText: Record<string, string> = {
   'ISSP での使い方': 'Usage at ISSP',
   '分極の計算式': 'Formulas of the polarization',
   'Hedin 方程式': 'Hedin equations',
-  '線形化された MTO 法': 'Linearized MTO method',
   '外したコード（過去のコード）': 'Removed code (past code)',
   '古い文書（過去ログ）': 'Old documents (past records)',
   'メインドキュメント': 'MainDocument',
