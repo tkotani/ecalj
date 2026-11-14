@@ -453,7 +453,7 @@ viewvesta ctrls.si           # legacy structure-only seed file
 
 
 ## Step 3. LDA の計算 {#step-3-lda-calculation}
-1. まず lmfa を走らせます。結晶に含まれる、球対称の原子の電子密度を求めるものです。lmfa はすぐに終わります。
+1. まず lmfa を走らせます。結晶に含まれる、球対称の原子の電子密度を求めるものです。lmfa は数秒で終わります。
    ```bash
    lmfa mp-2534
    ```

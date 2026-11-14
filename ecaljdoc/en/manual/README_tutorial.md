@@ -1,6 +1,6 @@
 # ecalj MainDocument
 
-> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob 6ce11f780e7f).
+> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob 93ec94e07e10).
 **This is the main document of ecaljdoc: the features of ecalj, an overview of QSGW, and the first calculation (GetStarted). Other pages are reached from the menu on the left.**
 
 * Here we give [GetStarted](#getstarted), together with install and overview of QSGW.
@@ -459,7 +459,7 @@ to see the structure in VESTA. The converters `vasp2ctrl` / `ctrl2vasp` (also in
 
 
 ## Step 3. LDA calculation
-1. Run lmfa at first. It is for spherical atomic electron densities, contained in the crystals. lmfa ends instantaneously.
+1. Run lmfa at first. It is for spherical atomic electron densities, contained in the crystals. lmfa ends in a few seconds.
    ```bash
    lmfa mp-2534
    ```
