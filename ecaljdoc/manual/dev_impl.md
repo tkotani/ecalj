@@ -9,14 +9,14 @@
 
 [[toc]]
 
-The main reference for the formulas of the GW part is [Obata2025]: M. Obata, T. Kotani, T. Oda, "Efficient implementation of the quasiparticle self-consistent $GW$ method on GPU", Comput. Mater. Sci. **260**, 114190 (2025), [doi:10.1016/j.commatsci.2025.114190](https://doi.org/10.1016/j.commatsci.2025.114190), section 2. The equations below that carry "[Obata2025] Eq. (n)" are taken from it.
+GW の部分の式の主な文献は [Obata2025] である: M. Obata, T. Kotani, T. Oda, "Efficient implementation of the quasiparticle self-consistent $GW$ method on GPU", Comput. Mater. Sci. **260**, 114190 (2025), [doi:10.1016/j.commatsci.2025.114190](https://doi.org/10.1016/j.commatsci.2025.114190), 第 2 節。以下で「[Obata2025] Eq. (n)」と付けた式はそこから取ったものである。
 
-### Representation of eigenfunctions
+### 固有関数の表し方
 
-In the PMT method [kotani_fusion_2010],
-the valence eigenfunctions for a given $H^0$ are represented
-in the linear combinations of the Bloch-summed MTOs
-$\chi^{ {\bf k} }_{ {\bf R}L{j} }({\bf r})$ and the APWs $\chi^{ {\bf k} }_{\bf G}({\bf r})$;
+PMT 法 [kotani_fusion_2010] では、
+与えられた $H^0$ の価電子の固有関数を、
+Bloch 和をとった MTO
+$\chi^{ {\bf k} }_{ {\bf R}L{j} }({\bf r})$ と APW $\chi^{ {\bf k} }_{\bf G}({\bf r})$ の線形結合で表す。
 $$\begin{aligned}
 {\Psi_{ {\bf k}n} }({\bf r}) = \sum_{ {\bf R}L{j} } z^{ {{\bf k} }n}_{ {\bf R}L{j} }
 \chi^{ {\bf k} }_{ {\bf R}L{j} }({ {\bf r} })+ \sum_{ {\bf G} } z^{ {\bf k}n}_{ {\bf G} }
@@ -24,39 +24,39 @@ $$\begin{aligned}
 \end{aligned}
 \tag{I1}
 $$
-where we use indexes of the wave vector ${\bf k}$, band index $n$, and
-reciprocal lattice vector ${\bf G}$. The MTOs in the primitive cell are
-specified by the index of MT site ${\bf R}$,
-angular momentum $L=(l,m)$, and $j$ for radial functions.
-As for core eigenfunctions, we calculate them under the condition
-that they are restricted within MTs.
-Then we take into accounts the contributions of the cores to the exchange part defined in Eq. (I15) in the following. But not to the correlation part.
-All cores are treated as "core1" of Ref.[kotani07a] (the `core` rows of `[product_basis]` are all zero).
+ここで、添字は波数ベクトル ${\bf k}$、バンドの添字 $n$、
+逆格子ベクトル ${\bf G}$ である。基本セルの中の MTO は、
+MT サイトの添字 ${\bf R}$、
+角運動量 $L=(l,m)$、動径関数の添字 $j$ で
+指定する。
+芯の固有関数は、MT の中に閉じこめるという条件の下で
+計算する。
+そのうえで、芯の寄与を、後の式 (I15) で定める交換の部分には入れる。相関の部分には入れない。
+芯はすべて Ref.[kotani07a] の「core1」として扱う（`[product_basis]` の `core` の行はすべて 0）。
 
-####  MTO part
+####  MTO の部分
 
-Within MTs, the Bloch sum of the MTO,
-$\chi^{ {\bf k} }_{ {\bf R}L{j} }({\bf r})$, is
-expressed by a linear combination of atomic like orbitals
+MT の中では、MTO の Bloch 和
+$\chi^{ {\bf k} }_{ {\bf R}L{j} }({\bf r})$ は、
+原子に似た軌道
 $A_{ {\bf R}{Lj} }({\bf r})
 \equiv \{ 
 \phi_{ {\bf R}{Lj} }(r),\dot{\phi}_{ {\bf R}{Lj} }(r),\phi^z_{ {\bf R}{Lj} }(r) \}
-\times Y_L$. ($\phi^z$ means local orbital).
-These radial functions are solutions of
-the radial Schrödinger equations(or their energy derivatives)
-within ${\bf R}$.
-The MTO basis is specified by smHankel functions which
-contains two parameters ($E=-|\kappa|^2,R_{\rm sm}$).
+\times Y_L$ の線形結合で表す（$\phi^z$ は局在軌道（local orbital）を表す）。
+これらの動径関数は、${\bf R}$ の中での
+動径 Schrödinger 方程式の解（またはそのエネルギー微分）である。
+MTO 基底は smooth Hankel 関数で指定し、
+smooth Hankel 関数は 2 つのパラメータ（$E=-|\kappa|^2,R_{\rm sm}$）をもつ。
 
-$A_{ {\bf R}{Lj} }({\bf r})$ makes orthonormalized basis for each MT ${\bf R}$.
-Then the MTO including tail part can be written as
+$A_{ {\bf R}{Lj} }({\bf r})$ は各 MT ${\bf R}$ で正規直交基底をなす。
+すると、すその部分を含めた MTO は次のように書ける。
 $$\begin{aligned}
 \chi^{ {\bf k} }_{ {\bf R}{Lj} }({\bf r}) & =  \sum_{ {\bf R}{Lj} } C^{ {\bf k} }_{ {\bf R}{Lj} } A^{\bf k}_{ {\bf R}{Lj} }({\bf r})   \ \ \ {\rm \ if \ {\bf r} \in any \ MT}  \\
         & =    H^{\kappa,R_s,{\bf k} }_{ {\bf R}{L} }({\bf r}) \ \ \ {\rm otherwise},
 \end{aligned}
 \tag{I2}
 $$
-where we use the Bloch sums,
+ここで Bloch 和は次のとおり。
 $$\begin{aligned}
 A^{\bf k}_{ {\bf R}{Lj} }({\bf r}) & \equiv  \sum_{\bf T} A_{ {\bf R}{Lj} }({\bf r-{\bf R}-{\bf T} }) \exp(i {\bf kT}), \\
 H^{ {\bf k}s}({\bf r})   & \equiv  \sum_{\bf T} H_{s}({\bf r-{\bf R}-{\bf T} })
@@ -64,45 +64,45 @@ H^{ {\bf k}s}({\bf r})   & \equiv  \sum_{\bf T} H_{s}({\bf r-{\bf R}-{\bf T} })
 \end{aligned}
 \tag{I3}
 $$
-Here the smoothe Hankel functions $H^{ {\bf k}s}({\bf r})$ are
-the envelope functions of MTOs.
+ここで smooth Hankel 関数 $H^{ {\bf k}s}({\bf r})$ は
+MTO の包絡関数（envelope function）である。
 
-The MTOs have the symmetry of the angular momentum $L$.
-This is also the casee for any atomic-like localized functions.
-All such kinds of functions follow the same mapping formulas by space-group operations.
-See Sec.([§](#spacegroup-rotation)).
+MTO は角運動量 $L$ の対称性をもつ。
+原子に似た局在関数はどれも同じである。
+そうした関数はすべて、空間群の操作で同じ写像の式に従う。
+節（[§](#spacegroup-rotation)）を見よ。
 
-####  APW part
+####  APW の部分
 
-The APW $\chi^{ {\bf k} }_{\bf G}({\bf r})$ are
-given as a linear combination of atomic like orbitals
+APW $\chi^{ {\bf k} }_{\bf G}({\bf r})$ は、
+MT の中では原子に似た軌道
 $A_{ {\bf R}{Lu} }({\bf r})\equiv 
 \{ \phi_{ {\bf R}{l}u}(r) Y_L(\hat{\bf r}),
     \dot{\phi}_{ {\bf R}{l}u}(r) Y_L(\hat{\bf r}) \}$
-within MTs, and just the usual plane waves
-within the interstitial region. Here
-$\phi_{ {\bf R}{l}u}(r)$ and $\dot{\phi}_{ {\bf R}{l}u}(r)$
-denote two solutions of
-the radial Schrödinger equations for each $l$, with the logarithmic derivative at the MT radius given.
-With `[ham] readp = true` and `pnufix = true` (the defaults), the logarithmic derivatives are those of the free atom of `lmfa` (`atmpnu.*`) and are kept fixed
-(with `pnufix = false`, `pnunew.f90` sets them at the center of gravity of the occupied PDOS; [lmf § readp](./lmf#readp-option)). $\dot{\phi}$ means energy derivatives
-(or something similar).
-$u$ is the composite index
-to diffrenciate $\phi$ and $\dot{\phi}$.
-${\bf R}$ is the index to specify MTs in the primitive cell.
-The APW basis is specified by $s \equiv { {\bf R}{j}L}$, where
-$L\equiv(l,m)$ is the angular momentum index,
-and $j$ is the additional index (principle quantum number or so).
-$A_{ {\bf R}{L}u}({\bf r})$ makes normalized-orthogonal basis in
-each MT ${\bf R}$.
-The APW can be written as
+の線形結合で、
+格子間領域ではただの平面波で与える。ここで
+$\phi_{ {\bf R}{l}u}(r)$ と $\dot{\phi}_{ {\bf R}{l}u}(r)$
+は、MT 半径での対数微分を与えたときの、各 $l$ の
+動径 Schrödinger 方程式の 2 つの解を表す。
+`[ham] readp = true` と `pnufix = true`（既定）では、対数微分は `lmfa` の自由原子のもの（`atmpnu.*`）で、固定したままにする
+（`pnufix = false` では、`pnunew.f90` が占有された PDOS の重心に置く。[lmf § readp](./lmf#readp-option)）。$\dot{\phi}$ はエネルギー微分
+（またはそれに似たもの）を表す。
+$u$ は $\phi$ と $\dot{\phi}$ を区別する
+複合添字である。
+${\bf R}$ は基本セルの中の MT を指定する添字である。
+APW 基底は $s \equiv { {\bf R}{j}L}$ で指定する。ここで
+$L\equiv(l,m)$ は角運動量の添字、
+$j$ は追加の添字（主量子数など）である。
+$A_{ {\bf R}{L}u}({\bf r})$ は各 MT ${\bf R}$ で
+正規直交基底をなす。
+APW は次のように書ける。
 $$\begin{aligned}
 \chi^{\bf k+G}({\bf r}) & =  \sum_{a u} C^{\bf k+G}_{a u} A^{\bf k}_{a u}({\bf r})   \ \ \ {\rm \ if \ {\bf r} \in any \ MT}  \\
         & =    \exp(i ({\bf k+G}){\bf r}) \ \ \ {\rm otherwise},
 \end{aligned}
 \tag{I4}
 $$
-where we use the Bloch sums,
+ここで Bloch 和は次のとおり。
 $$\begin{aligned}
 A^{\bf k}_{ {\bf R}u}({\bf r}) & \equiv  \sum_{\bf T} 
 A_{ {\bf R}u}({\bf r-R-T}) \exp(i {\bf kT}),
@@ -110,24 +110,24 @@ A_{ {\bf R}u}({\bf r-R-T}) \exp(i {\bf kT}),
 \tag{I5}
 $$
 
-The number of ${\bf G}$ is limited by the condition
-$|{\bf k+G}|\lt  {\tt QpGcut\_psi}$ (IPWpsi).
-The coefficients $\alpha^{ {\bf k}n}_{au}$ can be calculated as
+${\bf G}$ の数は条件
+$|{\bf k+G}|\lt  {\tt QpGcut\_psi}$（IPWpsi）で制限する。
+係数 $\alpha^{ {\bf k}n}_{au}$ は次のように計算できる。
 $$\begin{aligned}
 \alpha^{ {\bf k}n}_{au} = \sum_{\bf G} C^{ {\bf k+G} }_{a u} z^{\bf k+G}_n.
 \end{aligned}
 \tag{I6}
 $$
 
-### Re-expansion of eigenfunctions: CPHI and GEIG
+### 固有関数の展開し直し: CPHI と GEIG
 
-To perform the $GW$ calculation, we first
-have to prepare all eigenfunctions (and eigenvalues) for
-given setting of BZ mesh. Then the eigenfunctions are
-represented as follows; we
-re-expand ${\Psi_{ {\bf k}n} }({\bf r})$ in Eq. (I1)
-as the sum of the augmentation parts in MTs and the
-PW parts in the interstitial region.
+$GW$ 計算をするには、まず
+与えた BZ のメッシュについて、すべての固有関数（と固有値）を
+用意しなければならない。そのうえで固有関数を
+次のように表す。
+式 (I1) の ${\Psi_{ {\bf k}n} }({\bf r})$ を、
+MT の中の augmentation の部分と、格子間領域の
+PW の部分との和として展開し直す。
 $$\begin{aligned}
 {\Psi_{ {\bf k}n} }({\bf r})
 = \sum_{ {\bf R}u}  \alpha^{ {{\bf k} }n}_{ {\bf R}u} \varphi^{\bf k}_{ {\bf R}u}({\bf r})
@@ -135,7 +135,7 @@ $$\begin{aligned}
 \end{aligned}
 \tag{I7}
 $$
-where the interstitial plane wave (IPW) is defined as
+ここで格子間平面波（IPW）を次で定める。
 $$\begin{aligned}
 P^{\bf k}_{\bf G}({\bf r}) =
 \begin{cases}
@@ -145,37 +145,38 @@ P^{\bf k}_{\bf G}({\bf r}) =
 \end{aligned}
 \tag{I8}
 $$
-and $\varphi^{\bf k}_{R u}({\bf r})$ are Bloch sums of the atomic functions
-$\varphi_{R u}({\bf r})$ defined within the MT at $R$,
+また $\varphi^{\bf k}_{R u}({\bf r})$ は、$R$ の MT の中で定めた原子関数
+$\varphi_{R u}({\bf r})$ の Bloch 和である。
 $$\begin{aligned}
 \varphi^{\bf k}_{R u}({\bf r}) & \equiv  \sum_{\bf T} \varphi_{R u}({\bf r-R-T}) \exp(i {\bf k\cdot{}T}).
 \end{aligned}
 \tag{I9}
 $$
-**T** and **G** are lattice translation vectors in real and reciprocal spaces, respectively.
-Eq. (I7) is Eq. (17) in Ref.[kotani_quasiparticle_2014].
-`lmf --jobgw=1` (`sugw.f90`) writes $\alpha_{ {\bf R}u}^{ {\bf k}n}$ to `__CPHI`, $\beta_{\bf G}^{ {\bf k}n}$ to `__GEIG` and the eigenvalues to `__EValue`. They are read by `readcphi` and `readgeig` in `readeigen.f90` (used e.g. in `m_zmel.f90`).
+**T** と **G** は、それぞれ実空間と逆空間の格子並進ベクトルである。
+式 (I7) は Ref.[kotani_quasiparticle_2014] の式 (17) である。
+`lmf --jobgw=1`（`sugw.f90`）は、$\alpha_{ {\bf R}u}^{ {\bf k}n}$ を `__CPHI` に、$\beta_{\bf G}^{ {\bf k}n}$ を `__GEIG` に、固有値を `__EValue` に書く。これらは `readeigen.f90` の `readcphi` と `readgeig` が読む（たとえば `m_zmel.f90` で使う）。
 
-We need $\Psi_{ {\bf k}n}$ at the ${\bf k}$ points generated by **qg4gw** (the regular mesh and the offset-Γ points).
-Then $P_{\bf G}^{\bf k}({\bf r})$ is just specified by
-${\bf G}$, which is also generated by **qg4gw**.
-$\varphi_{ {\bf R}u}^{\bf k}({\bf r})$ is specified by
-radial functions. It is in `__PHIVC`, written by `sugw.f90` and read in `main_hbasfp0.f90`. Number of radial functions are
-`ncore(ic)+nrad(ic)`
-(dependes on $l,n,\sigma$, but not on $m$).
-`lmxa` is given per species (`[[spec]] lmxa`) and may differ; the arrays are dimensioned by the maximum `lmxax` (`sugw.f90`).
+$\Psi_{ {\bf k}n}$ は、**qg4gw** が作る ${\bf k}$ 点（正則メッシュと offset-Γ 点）で要る。
+すると $P_{\bf G}^{\bf k}({\bf r})$ は
+${\bf G}$ だけで指定される。これも **qg4gw** が作る。
+$\varphi_{ {\bf R}u}^{\bf k}({\bf r})$ は
+動径関数で指定する。動径関数は `__PHIVC` にあり、`sugw.f90` が書き、`main_hbasfp0.f90` で読む。動径関数の数は
+`ncore(ic)+nrad(ic)` である
+（$l,n,\sigma$ には依存するが、$m$ には依存しない）。
+`lmxa` は種ごとに与え（`[[spec]] lmxa`）、異なってよい。配列は最大値 `lmxax` で大きさを決める（`sugw.f90`）。
 
-In the GW calculation of ecalj, the eigenfunctions enter only through the matrix elements ([Obata2025] Eq. (8))
+ecalj の GW 計算では、固有関数は行列要素（[Obata2025] Eq. (8)）
 $$
 Z^{\mathbf q-\mathbf k n',\mathbf q n}_{\mathbf k\mu} = \langle E^{\mathbf k}_\mu \Psi_{\mathbf q-\mathbf k n'} | \Psi_{\mathbf q n}\rangle ,
 \tag{I11}
 $$
-where $E^{\mathbf k}_\mu$ is the MPB orthonormalized and diagonal to the Coulomb interaction (Eq. (I14) below).
-The polarization function uses them with the labels $Z^{\mathbf k n,\mathbf q+\mathbf k n'}_{\mathbf q\mu}=\langle E^{\mathbf q}_\mu\Psi_{\mathbf k n}|\Psi_{\mathbf q+\mathbf k n'}\rangle$.
-They are made on the fly by `build_zmel` and stored in `zmel` of `m_zmel.f90` ([Matrix elements used in GW](../theory/gw_zmel)).
+を通してだけ入る。
+ここで $E^{\mathbf k}_\mu$ は、正規直交化し Coulomb 相互作用を対角にした MPB である（後の式 (I14)）。
+分極関数では、ラベルを付け替えた $Z^{\mathbf k n,\mathbf q+\mathbf k n'}_{\mathbf q\mu}=\langle E^{\mathbf q}_\mu\Psi_{\mathbf k n}|\Psi_{\mathbf q+\mathbf k n'}\rangle$ として使う。
+これらはその場で `build_zmel` が作り、`m_zmel.f90` の `zmel` に置く（[GW で使う行列要素](../theory/gw_zmel)）。
 
-Coefficients of Eq. (I7) (here is MTO part only)
-are calculated as
+式 (I7) の係数（ここでは MTO の部分だけ）は
+次のように計算する。
 $$\begin{aligned}
  &\alpha^{ {\bf k} n}_{au} = \sum_s C^{ {\bf k}s}_{a u} z^{ {\bf k}n}_s \\
  &\beta^{ {\bf k}n}_{\bf G} = \sum_{ {\bf G}'s} 
@@ -184,18 +185,18 @@ $$\begin{aligned}
 \end{aligned}
 \tag{I12}
 $$
-where the number of ${\bf G}$ is limited by the condition
-$|{\bf k+G}|\lt  {\tt QpGcut\_psi}$;
-${\bf G}'$ is limited by the `gmax` of `lmf` (the overlaps are made by `pwmat`, called in `sugw.f90`).
-The basis $s$ includes the APWs as well as the MTOs. The coefficients are then orthonormalized by Gram-Schmidt (skipped with `--skipGS`).
+ここで ${\bf G}$ の数は条件
+$|{\bf k+G}|\lt  {\tt QpGcut\_psi}$ で制限する。
+${\bf G}'$ は `lmf` の `gmax` で制限する（重なりは `sugw.f90` から呼ぶ `pwmat` が作る）。
+基底 $s$ には MTO だけでなく APW も入る。そのうえで係数を Gram-Schmidt で正規直交化する（`--skipGS` で省く）。
 
-### Overview of GW calculation
+### GW 計算の概要
 
-In the $GW$ calculation, we need not only the basis set for
-eigenfunctions, but also the basis set for expanding the product of eigenfunctions.
-The basis is called the mixed product basis (MPB) $\{M^{\bf k}_I({\bf r}) \}$ first introduced in Ref.[kotani_all-electron_2002] by Kotani. The MPB consists of the product basis (PB) within MTs [aryasetiawan_product-basis_1994]
-and the IPW in the interstitial region.
-Since $\{M^{\bf k}_I({\bf r}) \}$ contains IPWs which are not orthogonal, we have the overlap matrix and the dual basis
+$GW$ 計算では、固有関数の基底だけでなく、
+固有関数の積を展開する基底も要る。
+この基底を混合積基底（mixed product basis、MPB）$\{M^{\bf k}_I({\bf r}) \}$ と呼ぶ。Kotani が Ref.[kotani_all-electron_2002] で初めて導入した。MPB は、MT の中の積基底（PB）[aryasetiawan_product-basis_1994]
+と格子間領域の IPW からなる。
+$\{M^{\bf k}_I({\bf r}) \}$ は直交しない IPW を含むので、重なり行列と双対基底をもつ。
 $$\begin{aligned}
  & O^{\bf k}_{IJ} = \langle M^{\bf k}_{I} |  M^{\bf k}_J \rangle, \\
  & |\tilde{M}^{\bf k}_{I} \rangle \equiv \sum_{J}
@@ -204,10 +205,10 @@ $$\begin{aligned}
 \tag{I13}
 $$
 
-With $v_{IJ}^{\bf k}= \langle M^{\bf k}_{I} |v|  M^{\bf k}_J \rangle$, the generalized eigenvalue problem
+$v_{IJ}^{\bf k}= \langle M^{\bf k}_{I} |v|  M^{\bf k}_J \rangle$ として、一般化固有値問題
 $\sum_J (v_{IJ}^{\bf k}- v_\mu({\bf k}) O^{\bf k}_{IJ} ) z^{\bf k}_{\mu J}= 0$
-gives the eigenvalues $v_\mu({\bf k})$ and the coefficients $z^{\bf k}_{\mu J}$ (`zcousq` in the code) of the orthonormal MPB
-$|E^{\bf k}_\mu\rangle=\sum_J z^{\bf k}_{\mu J}|M^{\bf k}_J\rangle$, which diagonalizes the Coulomb interaction ([Obata2025] Eq. (7)),
+は、固有値 $v_\mu({\bf k})$ と、正規直交な MPB
+$|E^{\bf k}_\mu\rangle=\sum_J z^{\bf k}_{\mu J}|M^{\bf k}_J\rangle$ の係数 $z^{\bf k}_{\mu J}$（コードでは `zcousq`）を与える。この基底は Coulomb 相互作用を対角にする（[Obata2025] Eq. (7)）。
 $$\begin{aligned}
 v({\bf k})=\sum_{\mu} | E^{ {\bf k} }_\mu \rangle {v_\mu({\bf k})}
 \langle E^{ {\bf k} }_\mu |.
@@ -215,10 +216,10 @@ v({\bf k})=\sum_{\mu} | E^{ {\bf k} }_\mu \rangle {v_\mu({\bf k})}
 \tag{I14}
 $$
 
-**Two bases in the code.** The code keeps both the MPB $M^{\bf k}_I$ and the orthonormal $E^{\bf k}_\mu$, and changes between them with $z^{\bf k}$ (`m2e_prod_basis` of `m_zmel.f90`, set from `zcousq` by `set_m2e_prod_basis`).
-`build_zmel` first makes $\langle M^{\bf k}_I\Psi_{\mathbf q-\mathbf k n'}|\Psi_{\mathbf q n}\rangle$ (`zmelt`), and returns it as it is with `is_m_basis=.true.`,
-or as $Z^{\mathbf q-\mathbf k n',\mathbf q n}_{\mathbf k\mu}=\sum_I (z^{\bf k}_{\mu I})^*\langle M^{\bf k}_I\Psi_{\mathbf q-\mathbf k n'}|\Psi_{\mathbf q n}\rangle$ of Eq. (I11) with `is_m_basis=.false.`.
-In `hgw` (`main_hgw.f90`), the large sums over $\mathbf k$ and bands are done in the M basis, and only the $\mathrm{ngb}\times\mathrm{ngb}$ matrices are transformed at each $\mathbf q$ and $\omega$:
+**コードの中の 2 つの基底。** コードは MPB $M^{\bf k}_I$ と正規直交な $E^{\bf k}_\mu$ の両方をもち、$z^{\bf k}$ で互いに移す（`m_zmel.f90` の `m2e_prod_basis`。`set_m2e_prod_basis` が `zcousq` から作る）。
+`build_zmel` はまず $\langle M^{\bf k}_I\Psi_{\mathbf q-\mathbf k n'}|\Psi_{\mathbf q n}\rangle$（`zmelt`）を作り、`is_m_basis=.true.` ではそのまま返し、
+`is_m_basis=.false.` では式 (I11) の $Z^{\mathbf q-\mathbf k n',\mathbf q n}_{\mathbf k\mu}=\sum_I (z^{\bf k}_{\mu I})^*\langle M^{\bf k}_I\Psi_{\mathbf q-\mathbf k n'}|\Psi_{\mathbf q n}\rangle$ として返す。
+`hgw`（`main_hgw.f90`）では、$\mathbf k$ とバンドについての大きな和を M 基底で行い、各 $\mathbf q$ と $\omega$ で $\mathrm{ngb}\times\mathrm{ngb}$ の行列だけを変換する。
 $$
 \begin{aligned}
 \Pi^{E}_{\mu\nu} &= \sum_{IJ} (z_{\mu I})^*\,\Pi^{M}_{IJ}\, z_{\nu J}, \\
@@ -227,24 +228,24 @@ W^{\rm c} &= \sum_{IJ}|M_I\rangle W^{{\rm c},M}_{IJ}\langle M_J| .
 \end{aligned}
 \tag{I14a}
 $$
-- $\Pi^M$ is accumulated from `zmelt` (`x0kf_zxq` with `is_m_basis=.true.`, called from `m_screened_coulomb.f90`), turned into $\Pi^E$, and Eqs. (I16) and (I19) are evaluated in the E basis (`WVRllwR`, `WVIllwI` of `m_llw.f90` with `is_x0_m_basis`, `is_wc_m_basis` true).
-  $W^{\rm c}$ is then stored in the M basis. At $\mathbf q=0$ the transformation to the M basis is done after the offset-$\Gamma$ correction (`w0w0i` with `is_wc_m_basis=.true.`).
-- $\Sigma^{\rm c}$ (Eq. (I20)) uses `zmelt` in the M basis with $W^{{\rm c},M}$ (`m_sxcf_sc.f90`, `build_zmel(..., is_m_basis=.true.)`).
-- $\Sigma^{\rm x}$ (Eq. (I15)) uses the E basis, where $v$ is diagonal (`build_zmel(..., is_m_basis=.false.)`). For the core states (core exchange) each atom's block of the MPB is transformed alone, since `zmelt` of a core state vanishes outside its MT.
-- `hx0fp0` (`main_hx0fp0.f90`) works in the E basis throughout (`is_x0_m_basis=.false.`).
+- $\Pi^M$ は `zmelt` から積み上げ（`m_screened_coulomb.f90` から呼ぶ `x0kf_zxq`、`is_m_basis=.true.`）、$\Pi^E$ に直し、式 (I16) と (I19) を E 基底で計算する（`m_llw.f90` の `WVRllwR`、`WVIllwI`。`is_x0_m_basis`、`is_wc_m_basis` は true）。
+  そのうえで $W^{\rm c}$ を M 基底で置く。$\mathbf q=0$ では、M 基底への変換を offset-$\Gamma$ の補正の後に行う（`w0w0i`、`is_wc_m_basis=.true.`）。
+- $\Sigma^{\rm c}$（式 (I20)）は、M 基底の `zmelt` と $W^{{\rm c},M}$ を使う（`m_sxcf_sc.f90`、`build_zmel(..., is_m_basis=.true.)`）。
+- $\Sigma^{\rm x}$（式 (I15)）は、$v$ が対角になる E 基底を使う（`build_zmel(..., is_m_basis=.false.)`）。芯の状態（芯の交換）では、MPB の各原子のブロックを別々に変換する。芯の状態の `zmelt` はその MT の外では 0 だからである。
+- `hx0fp0`（`main_hx0fp0.f90`）は終始 E 基底で計算する（`is_x0_m_basis=.false.`）。
 
-The paper [Obata2025] writes everything in the E basis; Eqs. (I14a) give the same $\Pi^E$, $W^{\rm c}$ and $\Sigma$.
+論文 [Obata2025] はすべてを E 基底で書いている。式 (I14a) は同じ $\Pi^E$、$W^{\rm c}$、$\Sigma$ を与える。
 
-For the all-electron full-potential $GW$ approximation,
-Eq. (I14) is introduced in Ref.[friedrich_efficient_2010].
-This corresponds to the representation in the plane wave expansion
-$v({\bf k}+{\bf G},{\bf k}+{\bf G}')=\frac{4 \pi \delta_{ {\bf G}{\bf G}'} }{|{\bf k}+{\bf G}|^2}$.
-$\mu=1$ corresponds to the largest eigenvalue of $v_{\mu}$, and
-$v_{\mu=1}({\bf k})$ is $\sim \frac{4 \pi}{|{\bf k}|^2}$, which is related to
-the divergent term discussed in Sec.([§](#offset-gamma)).
+全電子フルポテンシャルの $GW$ 近似では、
+式 (I14) は Ref.[friedrich_efficient_2010] で導入された。
+これは平面波展開での表現
+$v({\bf k}+{\bf G},{\bf k}+{\bf G}')=\frac{4 \pi \delta_{ {\bf G}{\bf G}'} }{|{\bf k}+{\bf G}|^2}$ に対応する。
+$\mu=1$ は $v_{\mu}$ の最大の固有値に対応し、
+$v_{\mu=1}({\bf k})$ は $\sim \frac{4 \pi}{|{\bf k}|^2}$ である。これは
+節（[§](#offset-gamma)）で述べる発散項と関係する。
 
-With $\langle A| B\rangle =\int d^3r A^*({\bf r}) B({\bf r})$,
-the exchange self-energy is ([Obata2025] Eq. (9))
+$\langle A| B\rangle =\int d^3r A^*({\bf r}) B({\bf r})$ として、
+交換の自己エネルギーは次である（[Obata2025] Eq. (9)）。
 $$\begin{aligned}
 \Sigma^{\rm x}_{nm}({\bf q})&=
 \langle \Psi_{ {\bf q}n} |\Sigma^{\rm x} |\Psi_{ {\bf q}m} \rangle \\
@@ -254,15 +255,15 @@ Z^{\mathbf q-\mathbf k n',\mathbf q m}_{\mathbf k\mu}.
 \end{aligned}
 \tag{I15}
 $$
-Replacing the occupied valence states $\Psi_{\mathbf q-\mathbf k n'}$ with the core states gives the core exchange $\Sigma^{\rm Cx}$.
-Its MPB (MPB$_{\rm C}$, written $M_{{\rm C}I}$ and $E_{{\rm C}\mu}$ here) differs from that for the valence, since it represents products of the core and valence eigenfunctions.
-`gwsc` makes it in a separate step before the valence part: `hbasfp0 --job=3` makes the product basis $M_{\rm C}$ (`genallcf_v3` with `incwfin=-2`: the core states times the valence radial functions),
-`hvccfp0 --job=3` makes the Coulomb matrix in it and its eigenvectors ($E_{\rm C}$, in `__Vcoud.*`, which are overwritten by the valence `hvccfp0 --job=0` afterwards),
-and `hsfp0_sc --job=3` evaluates Eq. (I15) with the core states in the $E_{\rm C}$ basis.
-Thus `gwsc` computes the exchange twice in each iteration: the core exchange $\Sigma^{\rm Cx}$ here (in $E_{\rm C}$), and the valence exchange $\Sigma^{\rm x}$ inside `hgw` (in $E$) after `hbasfp0 --job=0` and `hvccfp0 --job=0`.
-The core exchange can be computed without the product basis, since the core states are within the MTs (a task for the future).
+占有された価電子の状態 $\Psi_{\mathbf q-\mathbf k n'}$ を芯の状態に置きかえると、芯の交換 $\Sigma^{\rm Cx}$ になる。
+その MPB（MPB$_{\rm C}$。ここでは $M_{{\rm C}I}$、$E_{{\rm C}\mu}$ と書く）は価電子のものとは異なる。芯と価電子の固有関数の積を表すからである。
+`gwsc` はこれを価電子の部分の前の別の段で作る。`hbasfp0 --job=3` が積基底 $M_{\rm C}$ を作り（`genallcf_v3`、`incwfin=-2`: 芯の状態と価電子の動径関数の積）、
+`hvccfp0 --job=3` がその基底での Coulomb 行列とその固有ベクトル（$E_{\rm C}$、`__Vcoud.*` に置く。後で価電子の `hvccfp0 --job=0` が上書きする）を作り、
+`hsfp0_sc --job=3` が芯の状態で式 (I15) を $E_{\rm C}$ 基底で計算する。
+このように `gwsc` は各反復で交換を 2 回計算する。ここでの芯の交換 $\Sigma^{\rm Cx}$（$E_{\rm C}$ で）と、`hbasfp0 --job=0` と `hvccfp0 --job=0` の後に `hgw` の中で計算する価電子の交換 $\Sigma^{\rm x}$（$E$ で）である。
+芯の状態は MT の中にあるので、芯の交換は積基底を使わずに計算できる（今後の課題）。
 
-The screened Coulomb interaction is given in the symmetric form ([Obata2025] Eqs. (10), (11))
+遮蔽された Coulomb 相互作用は対称な形で与える（[Obata2025] Eqs. (10), (11)）。
 $$
 \begin{aligned}
 \epsilon_{\mu\nu}(\mathbf q,\omega) &= \delta_{\mu\nu} - \sqrt{v_\mu(\mathbf q)}\,\Pi_{\mu\nu}(\mathbf q,\omega)\sqrt{v_\nu(\mathbf q)}, \\
@@ -270,7 +271,7 @@ W_{\mu\nu}(\mathbf q,\omega) &= \sqrt{v_\mu(\mathbf q)}\,\epsilon^{-1}_{\mu\nu}(
 \end{aligned}
 \tag{I16}
 $$
-where the Lindhard polarization function is ([Obata2025] Eq. (12))
+ここで Lindhard の分極関数は次である（[Obata2025] Eq. (12)）。
 $$\begin{aligned}
 \Pi_{\mu \nu}({\bf q},\omega)
  &=
@@ -283,7 +284,7 @@ $$\begin{aligned}
 \end{aligned}
 \tag{I17}
 $$
-With time-reversal symmetry ($\Psi^*_{\mathbf k n}$ is the degenerate eigenfunction of $\Psi_{-\mathbf k n}$), the second term equals the first one with $n\leftrightarrow n'$, and ([Obata2025] Eq. (14))
+時間反転対称性がある（$\Psi^*_{\mathbf k n}$ が $\Psi_{-\mathbf k n}$ と縮退した固有関数である）と、第 2 項は第 1 項で $n\leftrightarrow n'$ としたものに等しく、次になる（[Obata2025] Eq. (14)）。
 $$\begin{aligned}
 \Pi_{\mu \nu}({\bf q},\omega)
  &=\sum^{\rm BZ}_{ {\bf k} }  \sum^{\rm  occ}_{n} \sum^{\rm  unocc}_{n'}
@@ -293,12 +294,12 @@ Z^{\mathbf k n,\mathbf q+\mathbf k n'}_{\mathbf q\mu}[Z^{\mathbf k n,\mathbf q+\
 \end{aligned}
 \tag{I18}
 $$
-This definition is the same as that in the Fetter-Walecka textbook.
-At $\omega=0$ it is a negative definite matrix, and $\Pi_{\mu\nu}(\mathbf q,\omega)=\Pi_{\mu\nu}(\mathbf q,-\omega)$.
-Without time-reversal symmetry, the negative-energy part of Eq. (I17) is accumulated as well (Eq. (I18) may be used as an approximation).
+この定義は Fetter-Walecka の教科書のものと同じである。
+$\omega=0$ では負定値の行列で、$\Pi_{\mu\nu}(\mathbf q,\omega)=\Pi_{\mu\nu}(\mathbf q,-\omega)$ である。
+時間反転対称性がないときは、式 (I17) の負エネルギーの部分も積み上げる（近似として式 (I18) を使ってもよい）。
 
-We first accumulate the anti-Hermitian part of $\Pi$ on histogram bins $\omega_j=[\omega_{{\rm L}j},\omega_{{\rm R}j}]$ of the real axis
-by the tetrahedron method [rath_generalized_1975], and then obtain the Hermitian part by the Hilbert transformation ([Obata2025] Eqs. (15)–(18)):
+まず $\Pi$ の反 Hermite の部分を、実軸のヒストグラムのビン $\omega_j=[\omega_{{\rm L}j},\omega_{{\rm R}j}]$ の上に
+tetrahedron method [rath_generalized_1975] で積み上げ、次に Hilbert 変換で Hermite の部分を得る（[Obata2025] Eqs. (15)–(18)）。
 $$
 \begin{aligned}
 &\mathrm{Im}[\Pi_{\mu\nu}(\mathbf q,\omega_j)] = \frac{\pi}{i}\sum^{\rm BZ}_{\mathbf k}\sum^{\rm occ}_{n}\sum^{\rm unocc}_{n'} \\
@@ -310,20 +311,20 @@ $$
 \end{aligned}
 \tag{I18a}
 $$
-The bins are a logarithmic mesh, dense near $\omega=0$ (`[gw] HistBin_dw`, `HistBin_ratio`; [kotani_quasiparticle_2007]).
-$K_{ij}$ is the Hilbert-transformation matrix, a discretized $1/(\omega_i-\omega_j)$ that takes the size of the bins into account.
-The tetrahedron weights are made by `gettetwt` (`m_tetwt.f90`).
-This is more efficient and safer than calculating the real part directly.
+ビンは対数メッシュで、$\omega=0$ の近くで密である（`[gw] HistBin_dw`、`HistBin_ratio`。[kotani_quasiparticle_2007]）。
+$K_{ij}$ は Hilbert 変換の行列で、ビンの大きさを考慮して $1/(\omega_i-\omega_j)$ を離散化したものである。
+tetrahedron の重みは `gettetwt`（`m_tetwt.f90`）が作る。
+これは実部を直接計算するより効率がよく、安全である。
 
-The extended irreducible zone (EIBZ) symmetrization of Ref.[friedrich_efficient_2010] is not used at present: `eibzgen.f90` is there but not called,
-`[gw] EIBZmode` is read but not used, and `main_hx0fp0.f90` runs with `ngrpx=1` (no symmetry operation). It may be used again ([IBZ and EIBZ](#ibz-and-eibz-scheme)).
+Ref.[friedrich_efficient_2010] の拡張既約領域（EIBZ）での対称化は、いまは使っていない。`eibzgen.f90` はあるが呼ばれず、
+`[gw] EIBZmode` は読むが使わず、`main_hx0fp0.f90` は `ngrpx=1`（対称操作なし）で走る。将来また使うかもしれない（[IBZ と EIBZ](#ibz-and-eibz-scheme)）。
 
-The correlation part $W^{\rm c}=W-v$ is ([Obata2025] Eq. (19))
+相関の部分 $W^{\rm c}=W-v$ は次である（[Obata2025] Eq. (19)）。
 $$
 W^{\rm c}_{\mu\nu}(\mathbf k,\omega) = \sqrt{v_\mu(\mathbf k)}\,(\epsilon^{-1}_{\mu\nu}(\mathbf k,\omega)-\delta_{\mu\nu})\sqrt{v_\nu(\mathbf k)},
 \tag{I19}
 $$
-and the correlation self-energy is ([Obata2025] Eq. (20))
+相関の自己エネルギーは次である（[Obata2025] Eq. (20)）。
 $$
 \begin{aligned}
 \Sigma^{\rm c}_{nm}({\bf q},\omega) &= \sum_{\mathbf k,n'}\sum_{\mu\nu} \int_{-\infty}^\infty \frac{i\,d\omega'}{2\pi}\,
@@ -332,9 +333,9 @@ $$
 \end{aligned}
 \tag{I20}
 $$
-with $-i\delta$ for the occupied states $\mathbf q-\mathbf k n'$ and $+i\delta$ for the unoccupied ones.
-In QSGW we need the Hermitian part of $\Sigma^{\rm c}_{nm}(\mathbf q,\varepsilon_{\mathbf q n})$ to obtain $V^{\rm xc}$ by [Obata2025] Eq. (3) (Eq. (Q3) of [QSGW](../theory/qsgw)).
-The contour of $\omega'$ is deformed, and $\Sigma^{\rm c}$ is the sum of the imaginary-axis part $I^{\rm c}$ and the pole part $R^{\rm c}$ ([Obata2025] Eqs. (21)–(24)):
+占有状態 $\mathbf q-\mathbf k n'$ には $-i\delta$、非占有状態には $+i\delta$ をとる。
+QSGW では、[Obata2025] Eq. (3)（[QSGW](../theory/qsgw) の式 (Q3)）で $V^{\rm xc}$ を得るために、$\Sigma^{\rm c}_{nm}(\mathbf q,\varepsilon_{\mathbf q n})$ の Hermite の部分が要る。
+$\omega'$ の積分路を変形すると、$\Sigma^{\rm c}$ は虚軸の部分 $I^{\rm c}$ と極の部分 $R^{\rm c}$ の和になる（[Obata2025] Eqs. (21)–(24)）。
 $$
 \begin{aligned}
 \Sigma^{\rm c}_{nm}(\mathbf q,\varepsilon_{\mathbf q n}) &= I^{\rm c}_{nm}(\mathbf q,\varepsilon_{\mathbf q n}) + R^{\rm c}_{nm}(\mathbf q,\varepsilon_{\mathbf q n}), \\
@@ -355,75 +356,73 @@ R^{\rm c}_{nm}(\mathbf q,\varepsilon_{\mathbf q n}) &= \sum_{\mathbf k,n'}\sum_{
 \end{aligned}
 \tag{I20a}
 $$
-The weights $w^{\rm I}_i(\Delta E)$ at the imaginary-axis points $i\omega^{\rm I}_i$ follow Aryasetiawan and Gunnarsson;
-since $W^{\rm c}(\omega)=W^{\rm c}(-\omega)$ only $\omega^{\rm I}_i\ge0$ are used, typically about 10 points.
-$\omega^{\rm R}_i$ are the boundaries of the histogram bins of Eq. (I18a), and $w^{\rm R}_i$ are the three-point interpolation coefficients of $W^{\rm c}$ at $\varepsilon_{\mathbf q n}-\varepsilon_{\mathbf q-\mathbf k n'}$, including the step functions.
-Only $R^{\rm c}$ gives the lifetime (impact ionization rate); in the static $\Sigma^{\rm c}$ of QSGW, $W^{\rm c}$ in $R^{\rm c}$ is Hermitized.
-In the present code the step functions are smeared by the Fermi-Dirac kernel of `[gw] t_sigmaw` (K) instead of the infinitesimal $\delta$,
-and by default (`[gw] wcsmear = true`) $W^{\rm c}(\omega)$ itself is integrated over that kernel; the three-point interpolation of [Obata2025] is `wcsmear = false` ([kBT](./kBT)). The integration over the kernel (`wcsmear = true`) is an improvement made after [Obata2025]; it removes the sensitivity to sharp plasmon poles of $W^{\rm c}(\omega)$.
+虚軸の点 $i\omega^{\rm I}_i$ での重み $w^{\rm I}_i(\Delta E)$ は Aryasetiawan と Gunnarsson に従う。
+$W^{\rm c}(\omega)=W^{\rm c}(-\omega)$ なので $\omega^{\rm I}_i\ge0$ だけを使い、ふつう 10 点ほどである。
+$\omega^{\rm R}_i$ は式 (I18a) のヒストグラムのビンの境界で、$w^{\rm R}_i$ は $\varepsilon_{\mathbf q n}-\varepsilon_{\mathbf q-\mathbf k n'}$ での $W^{\rm c}$ の 3 点補間の係数（階段関数を含む）である。
+寿命（衝突電離率、impact ionization rate）を与えるのは $R^{\rm c}$ だけである。QSGW の静的な $\Sigma^{\rm c}$ では、$R^{\rm c}$ の中の $W^{\rm c}$ を Hermite 化する。
+いまのコードでは、階段関数を無限小の $\delta$ ではなく `[gw] t_sigmaw`（K）の Fermi-Dirac 核でなまらせ、
+既定（`[gw] wcsmear = true`）では $W^{\rm c}(\omega)$ そのものをその核で積分する。[Obata2025] の 3 点補間は `wcsmear = false` である（[kBT](./kBT)）。核での積分（`wcsmear = true`）は [Obata2025] の後に入れた改良で、$W^{\rm c}(\omega)$ の鋭いプラズモンの極への敏感さを取り除く。
 
-The first key point, given in Sec.([§](#offset-gamma)),
-is the improved offset-$\Gamma$ method, which treats
-the divergence of $W^{\rm c}({\bf k}\to 0,\omega)$ in Eq. (I20).
-For this purpose, we define the non-divergent
-effective interaction $\overline{W^{\rm c} }({\bf k}=0,\omega)$ instead of
-${W^{\rm c} }({\bf k}=0,\omega)$.
-Then we can take a simple discrete sum for both expressions of
-Eqs.(I15) and (I20).
+第 1 の要点は、節（[§](#offset-gamma)）で述べる
+改良した offset-$\Gamma$ 法である。これは
+式 (I20) の $W^{\rm c}({\bf k}\to 0,\omega)$ の発散を扱う。
+そのために、
+${W^{\rm c} }({\bf k}=0,\omega)$ の代わりに、発散しない
+有効相互作用 $\overline{W^{\rm c} }({\bf k}=0,\omega)$ を定める。
+すると、式 (I15) と (I20) のどちらも
+単純な離散和でとれる。
 
-The second point in Sec.([§](#sigma-interpolation)) is
-how to perform
-an interpolation to give $V^{\rm xc}_{\bf q}$ at any ${\bf q}$ in the whole BZ,
-from $V^{\rm xc}_{\bf q}$ calculated only at limited numbers of ${\bf q}$ points.
-This is required in the offset-$\Gamma$ method shown in Sec.([§](#offset-gamma)),
-that is, we have to calculate eigenfunctions at some ${\bf q}$ points near ${\bf q}=0$.
-For the interpolation, we expand the static
-nonlocal potential $V^{\rm xc}$ in [Obata2025] Eq. (3) in highly localized
-MTOs in real space. Thus such MTOs are used for two purposes:
-one as the basis of the eigenfunctions; and two as the basis of
-expanding $V^{\rm xc}$. The interpolation procedure of $V^{\rm xc}_{\bf k}({\bf r},{\bf r}')$
-becomes stabler and simpler than the
-complicated interpolation procedure in
-Ref.[kotani_quasiparticle_2007].
-This is because we now use highly localized MTOs. `sigm.<sname>` holds $\Sigma-V_{\rm xc}$ as a matrix in the MTO basis at the irreducible $\mathbf q$;
-`gwsc --mlo` (in development) holds it in the MLO representation instead ([MLO-gwsc](./mlo_gwsc)).
-In the planewave-based QSGW method by Hamann and Vanderbilt [hamann09],
-they expand $V^{\rm xc}$ in the maximally localized Wannier functions instead of MTOs.
+第 2 の要点は節（[§](#sigma-interpolation)）で述べる。
+限られた数の ${\bf q}$ 点でだけ計算した $V^{\rm xc}_{\bf q}$ から、
+BZ 全体の任意の ${\bf q}$ での $V^{\rm xc}_{\bf q}$ を
+補間で与える方法である。
+これは節（[§](#offset-gamma)）の offset-$\Gamma$ 法で要る。
+つまり、${\bf q}=0$ の近くのいくつかの ${\bf q}$ 点で固有関数を計算しなければならない。
+補間のために、[Obata2025] Eq. (3) の静的な
+非局所ポテンシャル $V^{\rm xc}$ を、実空間でよく局在した
+MTO で展開する。このように、そうした MTO は 2 つの目的に使う。
+1 つは固有関数の基底として、もう 1 つは
+$V^{\rm xc}$ を展開する基底としてである。$V^{\rm xc}_{\bf k}({\bf r},{\bf r}')$ の補間の手順は、
+Ref.[kotani_quasiparticle_2007] の
+複雑な補間の手順より
+安定で単純になる。
+これは、いまはよく局在した MTO を使うからである。`sigm.<sname>` は $\Sigma-V_{\rm xc}$ を、既約な $\mathbf q$ での MTO 基底の行列としてもつ。
+`gwsc --mlo`（開発中）は、代わりに MLO の表現でもつ（[MLO-gwsc](./mlo_gwsc)）。
+Hamann と Vanderbilt の平面波に基づく QSGW 法 [hamann09] では、
+$V^{\rm xc}$ を MTO の代わりに最大局在 Wannier 関数で展開する。
 
-In practical implementation, the LDA or GGA exchange-correlation
-potential $V^{\rm xc}_{\rm LDA}$ is used to perform efficient numerical calculations.
-That is, it is used in order to generate core eigenfunctions as well as radial functions within MTs
-(in this paper, we use the subscript LDA even when we use GGA. "LDA/GGA" means LDA or GGA).
-The difference $V^{\rm xc}-V^{\rm xc}_{\rm LDA}$ is used
-for the interpolation in the BZ (explained in Sec.([§](#sigma-interpolation))),
-because this difference is numerically small as long as
-$V^{\rm xc}_{\rm LDA}$ roughly gives an approximation to $V^{\rm xc}$.
-This procedure utilizing $V^{\rm xc}_{\rm LDA}$ to perform efficient numerical calculations
-give a very weak dependence to the final numerical results in practice,
-although the results formally does not depend on the LDA/GGA exchange-correlation functions.
+実際の実装では、効率よく数値計算するために、LDA または GGA の交換相関
+ポテンシャル $V^{\rm xc}_{\rm LDA}$ を使う。
+すなわち、芯の固有関数と MT の中の動径関数を作るのに使う
+（ここでは GGA を使うときも添字 LDA を使う。「LDA/GGA」は LDA または GGA を意味する）。
+差 $V^{\rm xc}-V^{\rm xc}_{\rm LDA}$ を
+BZ での補間（節（[§](#sigma-interpolation)）で説明する）に使う。
+$V^{\rm xc}_{\rm LDA}$ が $V^{\rm xc}$ をおおまかに近似している限り、
+この差は数値的に小さいからである。
+効率よく数値計算するために $V^{\rm xc}_{\rm LDA}$ を使うこの手順は、
+実際には最終的な数値結果にごく弱い依存しか与えない。
+ただし、形式的には結果は LDA/GGA の交換相関汎関数に依存しない。
 
-## ${\bf q}$ and ${\bf G}$ vector generation. qg4gw
+## ${\bf q}$ と ${\bf G}$ ベクトルの生成。qg4gw
 
-To see the theory, read Section 3.2 in [kotani_quasiparticle_2014].
-${\bf k}$ points are the regular mesh points used for the integration
-in the BZ. Regular mesh points are given as
+理論は [kotani_quasiparticle_2014] の 3.2 節を見よ。
+${\bf k}$ 点は BZ での積分に使う正則メッシュの点である。正則メッシュの点は次で与える。
 $$\begin{aligned}
 {\bf k}_{i_1,i2,i3}=(i1/N1)*{\bf P}_1+(i2/N2)*{\bf P}_2+(i3/N3)*{\bf P}_3
 \end{aligned}
 \tag{I21}
 $$
-, where ${\bf P}_i$ is the primitive vector $\frac{2\pi}{\rm alat} \times$ `qlat(:,i)`, the reciprocal lattice vectors ${\bf Q}_i$ (`[gw] chi_RegQbz = true`, the default, includes ${\bf k}=0$; with `false` the mesh is shifted by half a step).
-Quantities $f({\bf k})$ (periodic in BZ) can
-be integrated just as a sum on the regular mesh points.
-However, when $f({\bf k}=0)$ is divergent, we have careful treatments.
+ここで ${\bf P}_i$ は基本ベクトル $\frac{2\pi}{\rm alat} \times$ `qlat(:,i)`、すなわち逆格子ベクトル ${\bf Q}_i$ である（`[gw] chi_RegQbz = true` が既定で、${\bf k}=0$ を含む。`false` ではメッシュを半ステップずらす）。
+（BZ で周期的な）量 $f({\bf k})$ は、正則メッシュの点での和として積分できる。
+ただし $f({\bf k}=0)$ が発散するときは、注意深い扱いをする。
 
-`mkQG2` in `mkqg.f90` is the main part of **qg4gw** (`main_qg4gw.f90`). The job `--job=N` (`iq0pin`) is 1 (generate the offset-Γ points Q0P; `gwsc`), 2 (read Q0P; `job_eps` uses `--job=2 --n1n2n3eps`), 3 (epsPP), 4 (χ+-; ngp = ngc = 0), 201 (Q0P plus the Q0P along x, y, z), 10002 (skip the Γ cell), 20002 (Γ cell only), 40001 (`QforEPSL` for magnons). With `--n1n2n3eps`, the mesh `[gw] n1n2n3eps` is used if given.
-The purpose is to generate the required q and G vectors at the regular mesh points and at the offset-Γ points.
-It writes the BZ data `__BZDATA` and, for each q, the G vectors with $|{\bf q}+{\bf G}|$ below `[gw] QpGcut_psi` (for the eigenfunctions, `__QGpsi`) and below `QpGcut_cou` (for the IPW of the MPB, `__QGcou`).
+`mkqg.f90` の `mkQG2` が **qg4gw**（`main_qg4gw.f90`）の主要部である。ジョブ `--job=N`（`iq0pin`）は、1（offset-Γ 点 Q0P を生成する。`gwsc`）、2（Q0P を読む。`job_eps` は `--job=2 --n1n2n3eps` を使う）、3（epsPP）、4（χ+-。ngp = ngc = 0）、201（Q0P に加えて x、y、z 方向の Q0P）、10002（Γ セルを飛ばす）、20002（Γ セルだけ）、40001（マグノン用の `QforEPSL`）である。`--n1n2n3eps` を付けると、`[gw] n1n2n3eps` があればそのメッシュを使う。
+目的は、正則メッシュの点と offset-Γ 点で必要な q と G ベクトルを生成することである。
+BZ のデータ `__BZDATA` と、各 q について $|{\bf q}+{\bf G}|$ が `[gw] QpGcut_psi` より小さい G ベクトル（固有関数用、`__QGpsi`）と `QpGcut_cou` より小さい G ベクトル（MPB の IPW 用、`__QGcou`）を書く。
 
-#### Make $G$ vectors: getgv2
+#### $G$ ベクトルを作る: getgv2
 
-To get ${\bf G}$ vectors, we use `getgv2` in `getgv2.f90`, whose head is
+${\bf G}$ ベクトルを得るには `getgv2.f90` の `getgv2` を使う。その先頭は次のとおりである。
 
 ```fortran
 subroutine getgv2(alat,plat,qlat,q, QpGcut,job, ng,ngvec) ! Set up a list of recip vectors within cutoff |q+G| < QpGcut a.u.
@@ -432,76 +431,76 @@ subroutine getgv2(alat,plat,qlat,q, QpGcut,job, ng,ngvec) ! Set up a list of rec
   ! True G is given by  G(1:3,1:ng) = 2*pi/alat * matmul(qlat * ngvec(1:3,1:ng))
 ```
 
-We can use this to get $\{ {\bf G}\}$ for given $q$.
-The algorism of `getgv2` is a little complicated.
-We first give the lower and upper limits `n1min` $\le n_1 \le$ `n1max` (with a margin of 1),
-where ${\bf G}= n_1 Q_1 + n_2 Q_2 + n_3 Q_3$, $n_2$ and $n_3$ as well.
+これで、与えた $q$ に対する $\{ {\bf G}\}$ が得られる。
+`getgv2` のアルゴリズムは少し込み入っている。
+まず下限と上限 `n1min` $\le n_1 \le$ `n1max` を（1 の余裕を付けて）与える。
+ここで ${\bf G}= n_1 Q_1 + n_2 Q_2 + n_3 Q_3$ であり、$n_2$ と $n_3$ も同様である。
 
-Let us consider the three dimensional space of ${\bf x}= {\bf q}+{\bf G}$.
-For given ${\bf q}$, allowed ${\bf G}$ make a set of regular mesh points $\{ {\bf q}+{\bf G}\}$.
-The purpose of `getgv2` is picking up only mesh points satisfying
-$|{\bf q}+{\bf G}|\lt $`QpGcut` among these mesh points.
+${\bf x}= {\bf q}+{\bf G}$ の三次元空間を考える。
+与えた ${\bf q}$ に対し、許される ${\bf G}$ は正則メッシュの点の集合 $\{ {\bf q}+{\bf G}\}$ をなす。
+`getgv2` の目的は、これらのメッシュ点のうち
+$|{\bf q}+{\bf G}|\lt $`QpGcut` を満たすものだけを拾うことである。
 
-At first, we can calculate allowed range of $n_1$ for given maximum of
-$|{\bf q}+{\bf G}|$ (=`QpGcut`). Note $|{\bf x}|=|{\bf q}+{\bf G}|$=`QpGcut`
-gives a sphere; we have to pick up mesh points within the sphere.
-When we spefcify $n_1$, we have a plane
-(allowing $n_2,n_3$ can take any values).
-The range is determined by the condition that the sphere
-$|{\bf q}+{\bf G}|$=`QpGcut` cross the plane specified by $n_1$
-(exactly speaking, such $n_1$ is real number).
-The vector normal to the plane is the external product $Q_2 \times Q_3$.
+まず、$|{\bf q}+{\bf G}|$ の最大値（=`QpGcut`）に対して $n_1$ の許される範囲を計算できる。
+$|{\bf x}|=|{\bf q}+{\bf G}|$=`QpGcut`
+は球を与えることに注意する。この球の中のメッシュ点を拾えばよい。
+$n_1$ を指定すると平面が一つ決まる
+（$n_2,n_3$ は任意の値をとってよい）。
+範囲は、球
+$|{\bf q}+{\bf G}|$=`QpGcut` が $n_1$ で指定した平面と交わるという条件で決まる
+（正確には、そのような $n_1$ は実数である）。
+平面の法線ベクトルは外積 $Q_2 \times Q_3$ である。
 
-After we get the range of $n_1$, as well as $n_2,n_3$ ,
-we simply test whether ${\bf q}+{\bf G}$ for $(n_1,n_2,n_3)$ is allowed or not.
+$n_1$ の範囲（$n_2,n_3$ も同様）が得られたら、
+$(n_1,n_2,n_3)$ に対する ${\bf q}+{\bf G}$ が許されるかどうかを単純に調べる。
 
-#### Make $G$ vectors: shortn3
+#### $G$ ベクトルを作る: shortn3
 
-Find shortest vector in modulo of $\{Q_i\}$. That is, pull back ${\bf q}$ in the 1st BZ. (`shortn3`, in `m_shortn3.f90`)
-Caution; it can be not unique when ${\bf q}$ is on the BZ boundary;
-then we need to know all ${\bf q}$ and degeneracy.
+$\{Q_i\}$ を法として最短のベクトルを見つける。すなわち ${\bf q}$ を第 1 BZ に引き戻す（`m_shortn3.f90` の `shortn3`）。
+注意: ${\bf q}$ が BZ の境界にあるときは一意でないことがある。
+そのときは、すべての ${\bf q}$ と縮重度を知る必要がある。
 
-## Mixed Product basis {#mixed-product-basis}
+## 混合積基底 {#mixed-product-basis}
 
-The mixed product basis consists of two types of basis sets, that is
-the product basis and the IPW:
+混合積基底は二種類の基底、すなわち
+積基底と IPW からなる。
 $\{M^{\bf k}_I({\bf r}) \}\equiv 
-\{ P^{\bf k}_{\bf G}({\bf r}), B_{ {\bf R}\mu}^{\bf k}({\bf r})\}$,
-where the index $I\equiv \{ {\bf G},{\bf R}\mu\}$
-classifies the members of the basis.
-The PB $B^{\bf k}_{ {\bf R}\mu}({\bf r})$ is defined as
+\{ P^{\bf k}_{\bf G}({\bf r}), B_{ {\bf R}\mu}^{\bf k}({\bf r})\}$
+であり、添字 $I\equiv \{ {\bf G},{\bf R}\mu\}$
+が基底の要素を区別する。
+PB $B^{\bf k}_{ {\bf R}\mu}({\bf r})$ は次で定義する。
 $$\begin{aligned}
   B^{\bf k}_{ {\bf R}\mu}({\bf r}) & =  
           \sum_{\bf T} B_{ {\bf R}\mu}({\bf r-R}-{\bf T}) e^{i {\bf k\cdot T} },
 \end{aligned}
 \tag{I22}
 $$
-where $B_{ {\bf R}\mu}({\bf r})$ is made from the products of radial functions.
-$B_{ {\bf R}\mu}({\bf r})$ is real and
-zero for outside of MT, $|{\bf r}| \gt  R$ (See Sec.([§](#product-basis-hbasfp0))).
-We set up $\{B_{ {\bf R}\mu}({\bf r})\}$ so that they are orthonormalized;
+ここで $B_{ {\bf R}\mu}({\bf r})$ は動径関数の積から作る。
+$B_{ {\bf R}\mu}({\bf r})$ は実数で、
+MT の外 $|{\bf r}| \gt  R$ ではゼロである（Sec.([§](#product-basis-hbasfp0)) を見よ）。
+$\{B_{ {\bf R}\mu}({\bf r})\}$ は正規直交になるように作る。
 $$\begin{aligned}
   \int_{|{\bf r}| < R} B_{ {\bf R}\mu}({\bf r}) B_{ {\bf R}\mu'}({\bf r}) d^3r =
   \delta_{\mu \mu'}.
   \end{aligned}
 \tag{I23}
 $$
-In addition, it is trivial that $\{B_{ {\bf R}\mu}({\bf r})\}$ and
-$\{ P^{\bf k}_{\bf G}({\bf r})\}$ are orthogonal.
-The overlap matrix
+加えて、$\{B_{ {\bf R}\mu}({\bf r})\}$ と
+$\{ P^{\bf k}_{\bf G}({\bf r})\}$ が直交することは自明である。
+したがって重なり行列
 $$\begin{aligned}
  O^{\bf k}_{IJ}= 
   \int_\Omega \{M_I^{\bf k}({\bf r})\}^* {M}_J^{\bf k}({\bf r}) d^3r
 \end{aligned}
 \tag{I24}
 $$
-is therefore the unit matrix in the PB block and is not diagonal only in the IPW block, since the IPWs $\{ P^{\bf k}_{\bf G}({\bf r})\}$ are not orthogonal.
-Thus it is convenient to define the dual of ${M}^{\bf k}_{I}({\bf r})$ as
-$\tilde{M}^{\bf k}_{I}({\bf r})$ in the manner of Eq. (I13).
+は PB のブロックでは単位行列であり、IPW のブロックでだけ対角でない。IPW $\{ P^{\bf k}_{\bf G}({\bf r})\}$ が直交しないからである。
+そこで、式 (I13) と同じやり方で ${M}^{\bf k}_{I}({\bf r})$ の双対
+$\tilde{M}^{\bf k}_{I}({\bf r})$ を定義すると便利である。
 
-Functions made from the product of eigenfunctions can be
-virtually completely expanded in the basis of ${M}^{\bf k}_{I}({\bf r})$
-in this manner;
+固有関数の積から作った関数は、
+${M}^{\bf k}_{I}({\bf r})$ の基底で事実上完全に
+次のように展開できる。
 $$\begin{aligned}
 \begin{cases}
   \displaystyle 
@@ -515,60 +514,60 @@ $$\begin{aligned}
 \tag{I25}
 $$
 
-The GW part uses both $M^{\bf k}_I$ and the Coulomb-orthonormalized $E^{\bf k}_\mu$ of Eq. (I14); see Eq. (I14a) for which step uses which.
+GW の部分は $M^{\bf k}_I$ と、式 (I14) の Coulomb 正規直交化した $E^{\bf k}_\mu$ の両方を使う。どの段でどちらを使うかは式 (I14a) を見よ。
 
-### Product basis (hbasfp0) {#product-basis-hbasfp0}
+### 積基底（hbasfp0） {#product-basis-hbasfp0}
 
-We denote the radial function of atom $a$ as
+原子 $a$ の動径関数を次のように書く。
 $$\begin{aligned}
    u_{apl\sigma}(r) = r \phi_{apl\sigma}(r),
 \end{aligned}
 \tag{I26}
 $$
-where the index $p$ takes 1 for $\phi$, 2 for $\dot{\phi}$,
-3 for local orbital as well. We do not allow $m$ dependence
-($m$ is $m$ of $L=(l,m)$.) for the radial functions.
+ここで添字 $p$ は、$\phi$ なら 1、$\dot{\phi}$ なら 2、
+局所軌道なら 3 などをとる。動径関数には $m$ 依存性
+（$m$ は $L=(l,m)$ の $m$）を許さない。
 
-In addition, $p$ also takes the indexes of the core functions: the core and valence radial functions are read together from `__PHIVC`
-(written by `lmf --jobgw=1`, `sugw.f90`) in `main_hbasfp0.f90`.
-For each atom and spin, the cores come first (`ncore`, with their $l$ and $n$ in `lcindx`, `ncindx`), then the valence radial functions (`nrad`, `lindx_r`, `nindx_r`),
-so that the valence $n$ is shifted by the number of cores of that $l$ (`nc_max`).
-The orthonormalized radial functions $u_{apl\sigma}(r)$ are stored in `phitoto`, and the raw ones in `phitotr` (the same for the cores).
+加えて、$p$ はコア関数の添字もとる。コアと価電子の動径関数は、`main_hbasfp0.f90` で `__PHIVC`
+（`lmf --jobgw=1`、`sugw.f90` が書く）からまとめて読む。
+各原子と各スピンについて、まずコア（`ncore`。その $l$ と $n$ は `lcindx`、`ncindx`）、次に価電子の動径関数（`nrad`、`lindx_r`、`nindx_r`）が並ぶ。
+したがって価電子の $n$ は、その $l$ のコアの数（`nc_max`）だけずれる。
+正規直交化した動径関数 $u_{apl\sigma}(r)$ は `phitoto` に、生のものは `phitotr` に入る（コアも同じ）。
 
-Note that the *true* radial function is
-$\phi_{apl\sigma}(r) = u_{apl\sigma}(r)/r$.
-Normalization is
+*本当の* 動径関数は
+$\phi_{apl\sigma}(r) = u_{apl\sigma}(r)/r$ であることに注意する。
+規格化は
 $1=\int_0^{R_a} \{ u_{apl\sigma}(r) \}^2 dr = 
-   \int_0^{R_a} \{ \phi_{apl\sigma}(r) \}^2 r^2dr$.
-The function $u_{apl\sigma}(r)$ is stored in `phitoto`.
+   \int_0^{R_a} \{ \phi_{apl\sigma}(r) \}^2 r^2dr$ である。
+関数 $u_{apl\sigma}(r)$ は `phitoto` に入る。
 
-When producing the product functions,
-we use spin-averaged function `phiav` given as
+積関数を作るときは、
+次で与えるスピン平均した関数 `phiav` を使う。
 $$\begin{aligned}
    u_{apl}(r) = \frac{1}{N_{\rm spin} }\sum_{\sigma}
    u_{apl\sigma}(r).
 \end{aligned}
 \tag{I27}
 $$
-(See `subroutine basnfp_v2` in `basnfp.f90`; it averages the raw `phitotr`, with the sign of the spin-down function aligned to the spin-up one).
-From them, we make the product functions `rprod`
+（`basnfp.f90` の `subroutine basnfp_v2` を見よ。生の `phitotr` を、下向きスピンの関数の符号を上向きスピンのものに揃えて平均する。）
+これらから積関数 `rprod` を作る。
 $$\begin{aligned}
   \tilde{b}_{al\nu}(r) = \frac{1}{r}{u_{a p l }(r) u_{a p' l'}(r)}
   = r \phi_{a p l}(r) \phi_{a p' l'}(r),
 \end{aligned}
 \tag{I28}
 $$
-where the index $l$ runs $|l-l'| \le l \le |l+l'|$;
-$\nu$ is the index of the combination $(p,p')$.
-Note the *true* product functions are given as
+ここで添字 $l$ は $|l-l'| \le l \le |l+l'|$ を動き、
+$\nu$ は組み合わせ $(p,p')$ の添字である。
+*本当の* 積関数は次で与えられることに注意する。
 $$\begin{aligned}
   \tilde{B}_{al\nu}(r) = \frac{1}{r}\tilde{b}_{al\nu}(r).
 \end{aligned}
 \tag{I29}
 $$
-This relation is as same as $\phi_{apl}(r)=u_{apl}(r)/r$.
+この関係は $\phi_{apl}(r)=u_{apl}(r)/r$ と同じである。
 
-Then we calculate the overlap matrix `ovmt`,
+次に重なり行列 `ovmt` を計算する。
 $$\begin{aligned}
   O_{\nu_1\nu_2} &= \int_0^{R_a} 
   \tilde{B}_{al\nu_1}(r) \tilde{B}_{al\nu_2}(r) r^2 dr \\
@@ -577,28 +576,28 @@ $$\begin{aligned}
 \end{aligned}
 \tag{I30}
 $$
-and solve the eigenvalue problem of the overlap matrix,
-$Oz_{\nu}=\epsilon_{\nu} z_{\nu}$, by `call rss(..)`.
-(See `basnfp_v2`.)
+そして重なり行列の固有値問題
+$Oz_{\nu}=\epsilon_{\nu} z_{\nu}$ を `call rss(..)` で解く。
+（`basnfp_v2` を見よ。）
 
-After neglecting eigenvectors
-$z_{\nu}$ with eigenvalues $\epsilon_{\nu} \lt  {\rm tolerance} \sim 10^{-4}$ (given for each $l$ by `[product_basis] pb_tolerance` ([GW input](./gwinput#product-basis)); the last value is used for the larger $l$),
-we finally have the optimal product functions as the linear combinations
-of the product functions as
+固有値が $\epsilon_{\nu} \lt  {\rm tolerance} \sim 10^{-4}$ の固有ベクトル
+$z_{\nu}$ を捨てると（tolerance は `[product_basis] pb_tolerance`（[GW input](./gwinput#product-basis)）で $l$ ごとに与える。それより大きい $l$ には最後の値を使う）、
+最終的に、積関数の一次結合として
+最適な積関数が次のように得られる。
 $$\begin{aligned}
    b_{al\nu}(r) = \frac{1}{\sqrt{\epsilon_{\nu} }}
    \sum_{\nu'}\tilde{b}_{al\nu'}(r)z_{\nu'\nu},
 \end{aligned}
 \tag{I31}
 $$
-which are stored in `rprodx` and written into `__BASFP<ic>`
-and used in the successive Coulomb matrix routine `hvccfp0`.
-Of course, *true* product function is
-$B_{al\nu}(r) = b_{al\nu}(r)/r$.
+これは `rprodx` に入り、`__BASFP<ic>` に書かれて、
+続く Coulomb 行列のルーチン `hvccfp0` で使われる。
+もちろん、*本当の* 積関数は
+$B_{al\nu}(r) = b_{al\nu}(r)/r$ である。
 
-We check the normalization of the optimal product function
-in standard output
-(See `lbasC` and `lbas` written by `gwsc`):
+最適な積関数の規格化は
+標準出力で確かめる
+（`gwsc` が書く `lbasC` と `lbas` を見よ）。
 
     ...
     Use rs diagonalization for real symmetric 
@@ -609,8 +608,8 @@ in standard output
 
     ...
 
-In `basnfp`, we calculate all the required
-radial integrations $\lt \phi \phi B\gt $`=ppbrd`;
+`basnfp` では、必要な動径積分
+$\lt \phi \phi B\gt $`=ppbrd` をすべて計算する。
 $$\begin{aligned}
    \langle\phi \phi B\rangle &= \int_0^{R_a}
    \phi_{ap_1 l_1}(r) \phi_{ap_2 l_2}(r) B_{al\nu}(r) r^2 dr \\
@@ -619,48 +618,47 @@ $$\begin{aligned}
 \end{aligned}
 \tag{I32}
 $$
-which are stored into `__PPBRD_V2_<ic>`.
-At `call rdpp(...` in `rdpp.f90` (module `m_rdpp`, used by `m_zmel`),
-we allocate and read `ppbrd`.
+これは `__PPBRD_V2_<ic>` に入る。
+`rdpp.f90` の `call rdpp(...`（module `m_rdpp`。`m_zmel` が使う）で、
+`ppbrd` を確保して読む。
 
-In addition, we read the \"rotated Clebsh-Gordon coefficient\"
-$C(L,L_1,L_2,g)$ `cgr(lm,lm1,lm2,ng)`
-, where $g$ is the index for space group
-coefficient ( rotated by point group symmetries).
+加えて、\"回転した Clebsch-Gordan 係数\"
+$C(L,L_1,L_2,g)$ `cgr(lm,lm1,lm2,ng)` を読む。
+ここで $g$ は空間群の
+係数（点群の対称操作で回転したもの）の添字である。
 
-## The Coulomb matrix (hvccfp0)
+## Coulomb 行列（hvccfp0）
 
-We have to calculate
-$v_{IJ}^{\bf k}= \langle M^{\bf k}_{I} |v|  M^{\bf k}_J \rangle$, which
-appears right after Eq. (I13).
-Our `hvccfp0` (`main_hvccfp0.f90`) can handle the
-case $\frac{\exp(- |\kappa| |{\bf r}_1-{\bf r}_2|)}{|{\bf r}_1-{\bf r}_2|}$.
-The energy variable $E$ is given by $E=\kappa^2$, where
-imaginary part of $\kappa$ is defined to be positive for negative $E$.
-This $E=$`eee=screenfac()` in `main_hvccfp0.f90`; `screenfac()` in `switch.f90` returns $-$`TFscreen`$^2$.
-The default is `[gw] TFscreen` $=\sqrt{10^{-5}}$, that is, $E=-10^{-5}$, nearly the bare Coulomb interaction (a too small value gives a negative eigenvalue of the Coulomb matrix at $q=0$).
-For example, we can set $|\kappa|=0.1$ (a.u.) by `TFscreen = 0.1` in `[gw]` of `ctrlg.<sname>.toml` if necessary.
+式 (I13) のすぐ後に現れる
+$v_{IJ}^{\bf k}= \langle M^{\bf k}_{I} |v|  M^{\bf k}_J \rangle$ を計算しなければならない。
+`hvccfp0`（`main_hvccfp0.f90`）は
+$\frac{\exp(- |\kappa| |{\bf r}_1-{\bf r}_2|)}{|{\bf r}_1-{\bf r}_2|}$ の場合を扱える。
+エネルギー変数 $E$ は $E=\kappa^2$ で与える。
+負の $E$ では $\kappa$ の虚部を正にとる。
+この $E=$`eee=screenfac()` は `main_hvccfp0.f90` にある。`switch.f90` の `screenfac()` は $-$`TFscreen`$^2$ を返す。
+既定は `[gw] TFscreen` $=\sqrt{10^{-5}}$、すなわち $E=-10^{-5}$ で、ほぼ裸の Coulomb 相互作用である（小さすぎる値は $q=0$ で Coulomb 行列に負の固有値を生む）。
+例えば必要なら、`ctrlg.<sname>.toml` の `[gw]` に `TFscreen = 0.1` と書けば $|\kappa|=0.1$（a.u.）にできる。
 
-The MPB is made of IPWcou ($|{\bf q}+{\bf G}|$`<QpGcut_cou`) and PB,
-that is, $\{M^{\bf k}_J\}=\{P_{\bf G}^{\bf k}({\bf r}), B^{\bf k}_{ {\bf R}{liL}\mu}({\bf r})\}$.
-For given ${\bf k}$ (not explicitly shown in cases for simplicity),
-IPWcou is specified just by the ${\bf G}$ vector.
-PB can be specified just by the radial functions for each $l$
-(because we have neither $m$ nor spin dependence);
-PB is generated in the manner of Sec.([§](#mixed-product-basis)).
-For $GW$ calculation, we need the Coulomb matrix elements
-$\langle B|v|B \rangle,\langle B|v|P_{\bf G}\rangle,$ and $\langle P|v|P \rangle$.
-`vcoulq_4` (`mkjp.f90`), called in `main_hvccfp0.f90`, handles these calculations.
+MPB は IPWcou（$|{\bf q}+{\bf G}|$`<QpGcut_cou`）と PB からなる。
+すなわち $\{M^{\bf k}_J\}=\{P_{\bf G}^{\bf k}({\bf r}), B^{\bf k}_{ {\bf R}{liL}\mu}({\bf r})\}$ である。
+与えた ${\bf k}$（簡単のため明示しない場合がある）に対し、
+IPWcou は ${\bf G}$ ベクトルだけで指定される。
+PB は各 $l$ の動径関数だけで指定できる
+（$m$ 依存性もスピン依存性もないからである）。
+PB は Sec.([§](#mixed-product-basis)) のやり方で作る。
+$GW$ 計算には Coulomb 行列要素
+$\langle B|v|B \rangle,\langle B|v|P_{\bf G}\rangle,$ と $\langle P|v|P \rangle$ が要る。
+これらの計算は、`main_hvccfp0.f90` から呼ぶ `vcoulq_4`（`mkjp.f90`）が受け持つ。
 
-### Spherical Bessel and related functions
+### 球 Bessel 関数と関連する関数
 
-We use a notation such that $X_L({\bf r})=X_l(r) Y_L(\hat{r})$; note that
-their radial part is dependent only on $l$.
+$X_L({\bf r})=X_l(r) Y_L(\hat{r})$ という記法を使う。
+動径部分は $l$ だけに依存することに注意する。
 
-For given energy $E$, Bessel functions
-$J_L(E,{\bf r}),H_L(E,{\bf r})$ are
-(here we introduce $\sqrt{E}=\kappa$,
-where $\sqrt{E}=\kappa=i|\kappa|$ for $E\lt 0$),
+与えたエネルギー $E$ に対し、Bessel 関数
+$J_L(E,{\bf r}),H_L(E,{\bf r})$ は次のとおりである
+（ここで $\sqrt{E}=\kappa$ を導入する。
+$E\lt 0$ では $\sqrt{E}=\kappa=i|\kappa|$ である）。
 $$\begin{aligned}
  &{J}_L(E,{\bf r})=
 j_l(\sqrt{E} r)Y_L(\hat{r}) =
@@ -674,18 +672,18 @@ j_l(\kappa r)Y_L(\hat{r})    \ {\rm for \ E>0},
 \end{aligned}
 \tag{I33}
 $$
-where $j_l(z)$ and $h_l(z)$ are usual spherical Bessel and Hankel functions
-which behaves
+ここで $j_l(z)$ と $h_l(z)$ は通常の球 Bessel 関数と球 Hankel 関数で、
+$z \sim 0$ で
 $$\begin{aligned}
  &j_l(z) \sim \frac{z^l}{(2l+1)!!}  \\
  &h_l(z) \sim \frac{-i(2l-1)!!}{z^{l+1} }
 \end{aligned}
 \tag{I34}
 $$
-at $z \sim 0$.
-For convenience, we define
-the **Methfessel's Bessel functions (convension)**
-$\bar{J}_L=\bar{J}_lY_L$ and $\bar{H}_L=\bar{H}_lY_L$, where
+のようにふるまう。
+便利のため、
+**Methfessel の Bessel 関数（の規約）**
+$\bar{J}_L=\bar{J}_lY_L$ と $\bar{H}_L=\bar{H}_lY_L$ を定義する。ここで
 $$\begin{aligned}
  &\bar{J}_l(E,{\bf r})=j_l(i|\kappa| r) / (i |\kappa|)^l  \\
  &\bar{H}_l(E,{\bf r})=h_l(i|\kappa| r) i (i |\kappa|)^{l+1}. 
@@ -694,10 +692,10 @@ $$\begin{aligned}
 \end{aligned}
 \tag{I35}
 $$
-(memo: for example, $7!!=7\cdot5\cdot3\cdot1$ `;function fac2m(i)`).
-These are real functions for $E\le 0$.
-See note for `genjh` in `mkjp.f90`.
-At $E=0$, this is reduced to be
+（メモ: 例えば $7!!=7\cdot5\cdot3\cdot1$ `;function fac2m(i)`）。
+これらは $E\le 0$ で実関数である。
+`mkjp.f90` の `genjh` の注を見よ。
+$E=0$ では次に帰着する。
 $$\begin{aligned}
  &\bar{J}_l(E=0,{\bf r})=r^l/(2l+1)!!,  \\
  &\bar{H}_l(E=0,{\bf r})=r^{-l-1} (2l-1)!!.
@@ -705,19 +703,19 @@ $$\begin{aligned}
 \tag{I36}
 $$
 
-(We use very small negetive $E=-10^{-5}$ as default instead of $E=0$
-for Coulomb matrix generator `hvccfp0`
-to avoid numerical troubles (see default `screenfac` in `switch.f90`)).
+（Coulomb 行列を作る `hvccfp0` では、数値的な問題を避けるため、
+既定で $E=0$ の代わりにごく小さな負の $E=-10^{-5}$ を使う
+（`switch.f90` の既定の `screenfac` を見よ）。）
 
-The source codes to define bessl is a little confusing because
-of some convensions are mixed up\...(note at the beginning of `besslr.f90`).
+bessl を定義するソースコードは、いくつかの規約が混ざっているため
+少し紛らわしい\...（`besslr.f90` の冒頭の注）。
 
-Main one is `call bessl(ex2,lx,phi(0:lx),psi(0:lx))` in `mkjp.f90` (`genjh`).
-This is defined in `bessl(ex2,lmax,phi,psi)` in `besslr.f90` (the module `m_bessl` has the same `bessl`, used in `vcoulq_4`).
-`lx` is the upper limit of $l$.
-For given `ex2`$=E\times x^2$,
-this return spherical Bessel functions $j_l(\kappa x)$
-in the following manner.
+主なものは `mkjp.f90`（`genjh`）の `call bessl(ex2,lx,phi(0:lx),psi(0:lx))` である。
+これは `besslr.f90` の `bessl(ex2,lmax,phi,psi)` で定義される（module `m_bessl` にも同じ `bessl` があり、`vcoulq_4` で使う）。
+`lx` は $l$ の上限である。
+与えた `ex2`$=E\times x^2$ に対し、
+これは球 Bessel 関数 $j_l(\kappa x)$ を
+次のように返す。
 
 <div class="clfix-old">
 
@@ -754,14 +752,14 @@ $$\begin{aligned}
 $$
 
 </div>
-for $0\le l \le{\tt lmax}$. These definition gives `phi`$=1/(2l+1)!!$
-and `psi`$=(2l-1)!!$ at $E \to 0$.
-Here $n_l(r)$ is the spherical Neumann functions.
-That is, `psi` is for Hankel function
-for negative $E$, and for Neumann function for positive $E$.
-See `hansmr` in `m_hansr.f90`, for example. `psi` is not used so often.
+ここで $0\le l \le{\tt lmax}$ である。この定義から、$E \to 0$ で `phi`$=1/(2l+1)!!$、
+`psi`$=(2l-1)!!$ となる。
+ここで $n_l(r)$ は球 Neumann 関数である。
+すなわち `psi` は、負の $E$ では Hankel 関数、
+正の $E$ では Neumann 関数に対するものである。
+例えば `m_hansr.f90` の `hansmr` を見よ。`psi` はあまり使わない。
 
-For convenience, we sometimes use
+便利のため、次をときどき使う。
 $$\begin{aligned}
  &R^{+l}=\bar{J}_l(E,r)(2l+1)!!={\tt phi(l)}r^l(2l+1)!!,   \\
  &R^{-l}=\bar{H}_l(E,r)/(2l-1)!!={\tt psi(l)}r^{-l-1}(2l-1)!!.
@@ -769,40 +767,40 @@ $$\begin{aligned}
 \tag{I38}
 $$
 
-Here note $R^{+k} \rightarrow r^k$ for $E\to 0$,and
-$R^{-k} \rightarrow r^{-k-1}$ for $E\to 0$.
-These $rR^{+k},rR^{-k}$ are `rkpr,rkmr` generated in subroutine `genjh`.
+ここで $E\to 0$ で $R^{+k} \rightarrow r^k$、
+$E\to 0$ で $R^{-k} \rightarrow r^{-k-1}$ となることに注意する。
+これらの $rR^{+k},rR^{-k}$ は、サブルーチン `genjh` で作る `rkpr,rkmr` である。
 
-### Green function
+### Green 関数
 
-(Readers can skip this subsection).
-We explain the free-space Green's function
-$G({\bf r}-{\bf r}',E)$ here.
-Let us start from $G({\bf r}-{\bf r}',E)$, which satisfies
+（この小節は読み飛ばしてよい。）
+ここでは自由空間の Green 関数
+$G({\bf r}-{\bf r}',E)$ を説明する。
+次を満たす $G({\bf r}-{\bf r}',E)$ から始める。
 $$\begin{aligned}
 (E+i\delta+\nabla^2)G({\bf r}-{\bf r}',E)=\delta({\bf r}-{\bf r}').
 \end{aligned}
 \tag{I41}
 $$
-($+i\delta$ is to specify the boundary condition along time axis. This pick up the retarded Green's function).
-Roughly speaking, this is $(\omega -H) G=1$.
-Its Fourier transform is easily written as
-$G({\bf k},E)=1/(E-|{\bf k}|^2+ i \delta)$.
-We apply back Fourier transformation to this, and get $G({\bf r}-{\bf r}',E)$.
-It is
+（$+i\delta$ は時間軸に沿った境界条件を指定するためのものである。これにより遅延 Green 関数が選ばれる。）
+大まかに言えば、これは $(\omega -H) G=1$ である。
+その Fourier 変換は簡単に
+$G({\bf k},E)=1/(E-|{\bf k}|^2+ i \delta)$ と書ける。
+これを Fourier 逆変換すると $G({\bf r}-{\bf r}',E)$ が得られる。
+それは
 $$\begin{aligned}
 G({\bf r}-{\bf r}',E)=-\frac{1}{4 \pi} 
 \frac{e^{i \kappa|{\bf r}-{\bf r}'|} }{|{\bf r}-{\bf r}'|}, \end{aligned}
 \tag{I42}
 $$
-where $\kappa \equiv \sqrt{E}$; Imaginary part of $\kappa$ is positive
-for $E\lt 0$, that is, $\kappa = i |\kappa|= i \sqrt{-E}$ for negative $E$.
-Eq. (I42) is nothing but the solution of Helmhorz
-differential equation; it reduces to the usual Poisson equation at
-$E=0$. For $E\lt 0$, we have Thomas-Fermi type function;
-the numerator of Eq. (I42) is $\exp(i \kappa |{\bf r}-{\bf r}'|)=\exp(- |\kappa| |{\bf r}-{\bf r}'|)$.
+である。ここで $\kappa \equiv \sqrt{E}$ であり、$E\lt 0$ では $\kappa$ の虚部は正である。
+すなわち負の $E$ では $\kappa = i |\kappa|= i \sqrt{-E}$ である。
+式 (I42) は Helmholtz
+微分方程式の解にほかならない。$E=0$ では通常の Poisson 方程式に帰着する。
+$E\lt 0$ では Thomas-Fermi 型の関数になる。
+式 (I42) の分子は $\exp(i \kappa |{\bf r}-{\bf r}'|)=\exp(- |\kappa| |{\bf r}-{\bf r}'|)$ である。
 
-### Used formulas {#used-formulas}
+### 使う公式 {#used-formulas}
 
 $$\begin{aligned}
 \frac{1}{|{\bf r}-{\bf r}'|}
@@ -810,8 +808,8 @@ $$\begin{aligned}
 Y^*_K(\hat{ {\bf r} })Y_K(\hat{ {\bf r} }') \end{aligned}
 \tag{I43}
 $$
-See Appendix A in Ref.[svane_evaluation_1986].
-This is generalized to be
+文献 [svane_evaluation_1986] の Appendix A を見よ。
+これは次のように一般化される。
 $$\begin{aligned}
 \frac{e^{-|\kappa| |{\bf r}-{\bf r}'|} }{|{\bf r}-{\bf r}'|}
 &=4 \pi \sum_K R^{+k}(r_<) R^{-k}(r_>)\frac{1}{2k+1}
@@ -821,8 +819,8 @@ Y^*_K(\hat{ {\bf r} })Y_K(\hat{ {\bf r} }') \\
 \end{aligned}
 \tag{I44}
 $$
-The definition of $\bar{J},R^{+l}$ are in Eq. (I35) and Eq. (I38).
-Here $E\lt 0$ and $\kappa= i|\kappa|=i\sqrt{-E}$.
+$\bar{J},R^{+l}$ の定義は式 (I35) と式 (I38) にある。
+ここで $E\lt 0$、$\kappa= i|\kappa|=i\sqrt{-E}$ である。
 
 $$\begin{aligned}
  &\exp( i {\bf k} {\bf r}) = 4 \pi \sum_L i^l 
@@ -835,37 +833,35 @@ Y_L({\bf \widehat{r} }_2) \ \ \ \ \ \
 \tag{I45}
 $$
 
-The overlap of the IPWs (`mkppovl2` and `matgg2` in `pwmat.f90`) depends only on ${\bf G}'-{\bf G}$ and not on ${\bf k}$:
+IPW の重なり（`pwmat.f90` の `mkppovl2` と `matgg2`）は ${\bf G}'-{\bf G}$ だけに依存し、${\bf k}$ には依存しない。
 $$\begin{aligned}
 \langle P^{\bf k}_{\bf G}|P^{\bf k}_{ {\bf G}'} \rangle
 &= \Omega \delta_{ {\bf G},{\bf G}'} \\ &\quad - \sum_{a} e^{ i ({\bf G}'-{\bf G})\cdot {\bf R}_a}\,\frac{4\pi}{g^3}\big(\sin(gR_a)-gR_a\cos(gR_a)\big),
 \end{aligned}
 \tag{I46}
 $$
-where $g=|{\bf G}'-{\bf G}|$, and the term of $a$ is $4\pi R_a^3/3$ for $g=0$.
+ここで $g=|{\bf G}'-{\bf G}|$ であり、$g=0$ では $a$ の項は $4\pi R_a^3/3$ である。
 
-### Hankel function and Structure constant
+### Hankel 関数と構造定数
 
-We can expand
 $v({\bf r},{\bf r}')=\frac{e^{-|\kappa||{\bf r}-{\bf r}'|} }{|{\bf r}-{\bf r}'|}$
-in the one-center expansion Eq. (I44).
+は一中心展開の式 (I44) で展開できる。
 
-For the Hankel function in Eq. (I44), we use
-the off-center expansion theorem of the
-Hankel function Eq. (I47), that is,
-a Hankel whose center is at ${\bf X}\equiv{\bf R}+{\bf T}$, $H_L({\bf r}-{\bf X})$,
-can be expanded in the Bessel functions whose center is at ${\bf X}'$;
+式 (I44) の Hankel 関数には、
+Hankel 関数の中心外展開定理の式 (I47) を使う。すなわち、
+中心が ${\bf X}\equiv{\bf R}+{\bf T}$ にある Hankel 関数 $H_L({\bf r}-{\bf X})$ は、
+中心が ${\bf X}'$ にある Bessel 関数で展開できる。
 $$\begin{aligned}
 \bar{H}_L(E,{\bf r}-{\bf X})=\frac{1}{4\pi} \sum_{L'}\bar{J}_{L'}(E,{\bf r}-{\bf X}') S_{ {\bf X}'{L'},{\bf X}{L} }\ ,
 \end{aligned}
 \tag{I47}
 $$
-where $E\lt 0$ (Hankel functions of negative energy).
-Here $E$-dependence of $S_{ {\bf X}'{L},{\bf X}{L'} }$ is not explicitly shown.
-Note the difference between $\bar{J}_L$ and $J_L$ ($\bar{H}_L$, as well).
+ここで $E\lt 0$ である（負のエネルギーの Hankel 関数）。
+$S_{ {\bf X}'{L},{\bf X}{L'} }$ の $E$ 依存性は明示しない。
+$\bar{J}_L$ と $J_L$ の違いに注意する（$\bar{H}_L$ も同様）。
 
-Thus, for $({\bf R}',{\bf T}')\neq({\bf R},{\bf T})$,
-we have two-center expansion;
+したがって $({\bf R}',{\bf T}')\neq({\bf R},{\bf T})$ では、
+二中心展開が得られる。
 $$
 \begin{aligned}
 &\frac{e^{-|\kappa||{\bf r}+{\bf R}+{\bf T}-({\bf r}'+{\bf R}'+{\bf T}')|} }
@@ -875,35 +871,34 @@ S_{ {\bf R}+{\bf T}{L},{\bf R}'+{\bf T}'{L'} }\, \bar{J}_{L'}(E,{\bf r}')
 \end{aligned}
 \tag{I48}
 $$
-for $({\bf R}',{\bf T}')\neq({\bf R},{\bf T})$.
+これは $({\bf R}',{\bf T}')\neq({\bf R},{\bf T})$ で成り立つ。
 
-The Bloch sum of $S_{ {L},{\bf X}{L'} }$
-gives the structure constant of ${\bf k}$ as
+$S_{ {L},{\bf X}{L'} }$ の Bloch 和は、
+${\bf k}$ の構造定数を次のように与える。
 $$\begin{aligned}
 S^{\bf k}_{ {\bf R}{L},{\bf R}'{L'} }=
 \sum_{ {\bf T}'} S_{ {\bf R}{L},{\bf R}'+{\bf T}'{L'} }\exp(i {\bf k}{\bf T}').
 \end{aligned}
 \tag{I49}
 $$
-We use $E=-10^{-5}$ by default (`screenfac`), nearly the bare Coulomb interaction.
+既定では $E=-10^{-5}$（`screenfac`）を使う。ほぼ裸の Coulomb 相互作用である。
 
-See the top of `strxq` defined in `m_hvccfp0_util.f90` (called in `main_hvccfp0.f90`; for $E\lt 0$ all pairs at once by `strxq_all`).
-This routine is for the one-center expansion of
-usual Bloch summed Hankels. (not for smooth Hankels).
-This result is finally converted to be the
-Bloch sum of the structure constant
-$S^{ {\bf k} }_{ {\bf R}{L},{\bf R}'{L'} }$ used in Eq. (I50).
+`m_hvccfp0_util.f90` で定義する `strxq` の先頭を見よ（`main_hvccfp0.f90` から呼ぶ。$E\lt 0$ では `strxq_all` ですべての組を一度に計算する）。
+このルーチンは、通常の Bloch 和をとった Hankel 関数の一中心展開のためのものである（smooth Hankel 用ではない）。
+この結果は最終的に、
+式 (I50) で使う構造定数の Bloch 和
+$S^{ {\bf k} }_{ {\bf R}{L},{\bf R}'{L'} }$ に変換される。
 
-`strxq` returns the structure constant without the factor $4\pi$ (its expansion theorem is $H_{RL}(E,r)=\sum J_{R'L'}(E,r)\,S_{R'L',RL}$, with $S_{R'L',RL}=4\pi\sum_{L''}C_{LL'L''}(-1)^l(-E)^{(l+l'-l'')/2}H_{L''}(E,R-R')$ in its notation, where $R$ includes $T$).
-`main_hvccfp0.f90` multiplies it by $4\pi$ (`strx = fpi*s`), and `strx` is $S^{\bf k}_{{\bf R}L,{\bf R}'L'}$ of Eqs. (I48)–(I50).
+`strxq` は因子 $4\pi$ を除いた構造定数を返す（その展開定理は $H_{RL}(E,r)=\sum J_{R'L'}(E,r)\,S_{R'L',RL}$ であり、その記法では $S_{R'L',RL}=4\pi\sum_{L''}C_{LL'L''}(-1)^l(-E)^{(l+l'-l'')/2}H_{L''}(E,R-R')$ である。ここで $R$ は $T$ を含む）。
+`main_hvccfp0.f90` はこれに $4\pi$ を掛け（`strx = fpi*s`）、`strx` が式 (I48)–(I50) の $S^{\bf k}_{{\bf R}L,{\bf R}'L'}$ になる。
 
-### $\langle B|v|B \rangle$ part {#b-v-b-part}
+### $\langle B|v|B \rangle$ の部分 {#b-v-b-part}
 
-Let us start from $\langle B|v|B \rangle$ part.
-For this calculation, we need structure constant, and a few types of
-radial integrals.
-With the Bloch-summed structure constant `strx`
-$=S^{\bf k}_{RL,R'L'}$, we have
+$\langle B|v|B \rangle$ の部分から始める。
+この計算には、構造定数といくつかの種類の
+動径積分が要る。
+Bloch 和をとった構造定数 `strx`
+$=S^{\bf k}_{RL,R'L'}$ を使うと、
 $$
 \begin{aligned}
 v^{\bf k}({\bf r},{\bf r}')
@@ -913,19 +908,18 @@ S^{ {\bf k} }_{ {\bf R}{L},{\bf R}'{L'} }\, \bar{J}_{L'}(E,{\bf r}'-{\bf R}'),
 \end{aligned}
 \tag{I50}
 $$
-for ${\bf R}\ne {\bf R}'$.
-Note that we use $e^2=1$ (a.u.) in `hvccfp0`.
-(See note at the beginning of `mkjp.f90`. And note the normalization check
-at the end of `hvccfp0`; $\langle \exp(i {\bf q}{\bf r}) |v |\exp(i {\bf q}{\bf r})\rangle=4\pi \Omega/|{\bf q}|^2$, where $\Omega$ is the cell volume.)
+となる。これは ${\bf R}\ne {\bf R}'$ のときである。
+`hvccfp0` では $e^2=1$（a.u.）を使うことに注意する。
+（`mkjp.f90` の冒頭の注を見よ。また `hvccfp0` の最後の規格化の確認にも注意する。
+$\langle \exp(i {\bf q}{\bf r}) |v |\exp(i {\bf q}{\bf r})\rangle=4\pi \Omega/|{\bf q}|^2$ であり、$\Omega$ はセルの体積である。）
 
-This `strx` is used in `call vcoulq_4`.
-`nlx1` means `(l+1)**2` for $R$
-`(=ibas1)`, `nlx2` as well.
+この `strx` は `call vcoulq_4` で使う。
+`nlx1` は $R$
+`(=ibas1)` の `(l+1)**2` を意味する。`nlx2` も同様である。
 
-Except the contribution for $({\bf R},{\bf T})=({\bf R}',{\bf T}')$,
-we can evaluate
-$\langle B^{\bf k}_{ {\bf R}{L}\mu}({\bf r})|v^{\bf k}({\bf r},{\bf r}')|B^{\bf k}_{ {\bf R}'{L'}\mu'}({\bf r}') \rangle$, from the\
-`rojb` integrals $\rho^l(B_{ {\bf R}{l}\mu})$ as
+$({\bf R},{\bf T})=({\bf R}',{\bf T}')$ の寄与を除けば、
+$\langle B^{\bf k}_{ {\bf R}{L}\mu}({\bf r})|v^{\bf k}({\bf r},{\bf r}')|B^{\bf k}_{ {\bf R}'{L'}\mu'}({\bf r}') \rangle$ は\
+`rojb` 積分 $\rho^l(B_{ {\bf R}{l}\mu})$ から次のように評価できる。
 $$
 \begin{aligned}
 \rho^l(B_{ {\bf R}{l}\mu})
@@ -934,20 +928,19 @@ $$
 \end{aligned}
 \tag{I51}
 $$
-Here $B_{ {\bf R}{l}\mu}(r)$ is the radial part of $B_{ {\bf R}{L}\mu}({\bf r})$.
-This `rojb` integrals are calculated in
-the subroutine `mkjb_4` in `mkjp.f90`.
-We use radial functions
-`rprodx` $=r B_{ {\bf R}{l}\mu}(r)$,
-`rkpr`$=r\bar{J}_l(E,r)(2l+1)!!$,
-and `rkmr`$=r\bar{H}_l(E,r)/(2l-1)!!$.
-(Here `rkpr` and `rkmr` are propotional to
-$r^l$ and $r^{-l-1}$ for $E =0$.)
+ここで $B_{ {\bf R}{l}\mu}(r)$ は $B_{ {\bf R}{L}\mu}({\bf r})$ の動径部分である。
+この `rojb` 積分は、
+`mkjp.f90` のサブルーチン `mkjb_4` で計算する。
+動径関数として
+`rprodx` $=r B_{ {\bf R}{l}\mu}(r)$、
+`rkpr`$=r\bar{J}_l(E,r)(2l+1)!!$、
+`rkmr`$=r\bar{H}_l(E,r)/(2l-1)!!$ を使う。
+（ここで `rkpr` と `rkmr` は、$E =0$ では
+$r^l$ と $r^{-l-1}$ に比例する。）
 
-The contribution from $({\bf R},{\bf T})=({\bf R}',{\bf T}')$
-should be added. This is ${\bf k}$-independent, and
-given by the\
-`sgbb` integral, which is also calculated in `mkjb_4`.
+$({\bf R},{\bf T})=({\bf R}',{\bf T}')$ からの寄与を
+加えなければならない。これは ${\bf k}$ に依存せず、\
+`sgbb` 積分で与えられる。これも `mkjb_4` で計算する。
 $$
 \begin{aligned}
 \sigma^l(B_{ {\bf R}{l}\mu},B_{ {\bf R}{l}\nu})
@@ -959,40 +952,39 @@ $$
 \tag{I52}
 $$
 
-With the integrals `rojb` and `sgbb`, we can calculate
-$\langle B|v|B \rangle$ in `vcoulq_4` as follows
-(`nbloch` means the total number of PB; the loop over the pairs of PB in `vcoulq_4`):
+積分 `rojb` と `sgbb` を使って、`vcoulq_4` で
+$\langle B|v|B \rangle$ を次のように計算する
+（`nbloch` は PB の総数を意味する。`vcoulq_4` で PB の組についてループする）。
 
 ```fortran
 vcoul(ibl1,ibl2) = rojb(n1, l1, ibas1) *strx(lm1,ibas1,lm2,ibas2) *rojb(n2, l2, ibas2)    ! offsite Coulomb
 if(ibas1==ibas2.AND.lm1==lm2) vcoul(ibl1,ibl2) = vcoul(ibl1,ibl2) + sgbb(n1,n2,l1, ibas1) ! sigma-type onsite parts
 ```
 
-### $RL$ expansion of $|P^{\bf k}_{ {\bf G}'} \rangle$
+### $|P^{\bf k}_{ {\bf G}'} \rangle$ の $RL$ 展開
 
-To evaluate
-$\langle P^{\bf k}_{\bf G}|v| P^{\bf k}_{ {\bf G}'} \rangle$,
-we can use
+$\langle P^{\bf k}_{\bf G}|v| P^{\bf k}_{ {\bf G}'} \rangle$ を評価するには、
+十分大きな $l_{\rm Pmax}$ を使う限り、
+${P}^{\bf k}_{ {\bf G} }$ の代わりに
 $$\begin{aligned}
 \bar{P}^{\bf k}_{ {\bf G} } \equiv 
 \left( 1- \sum_{ {\bf R}{L} }^{l\le l_{\rm Pmax} } {P}_{ {\bf R}{L} } \right) 
 e^{i ({\bf k+ G}){\bf r} }, \end{aligned}
 \tag{I53}
 $$
-in the place of ${P}^{\bf k}_{ {\bf G} }$
-as long as we use large enough $l_{\rm Pmax}$.
-Here ${P}_{ {\bf R}{L} }$ denotes the projection operator
-to extract the component of ${ {\bf R}{L} }$ contribution.
-In fact, we use large enough $l_{\rm Pmax}$;
-$l_{\rm Pmax} = 2 \times l_{\rm max}$`=2*LMXA` (`lxx = 2*lmxax` in `basnfp.f90` and `hvccfp0`),
-where $l_{\rm max}$ denotes the maximum angular momentum
-for the expansion of eigenfunctions within MT (maximum
-$l$ cutoff for $\alpha^{ {{\bf k} }n}_{ {\bf R}u}$ in Eq. (I1)).
-In the defalut setting, we use $l_{\rm Pmax}=8$
-since we use $l_{\rm max}=4$.
+を使える。
+ここで ${P}_{ {\bf R}{L} }$ は、
+${ {\bf R}{L} }$ の寄与の成分を取り出す射影演算子である。
+実際、十分大きな $l_{\rm Pmax}$ を使う。
+$l_{\rm Pmax} = 2 \times l_{\rm max}$`=2*LMXA`（`basnfp.f90` と `hvccfp0` の `lxx = 2*lmxax`）であり、
+ここで $l_{\rm max}$ は MT の中での固有関数の展開の
+最大角運動量（式 (I1) の $\alpha^{ {{\bf k} }n}_{ {\bf R}u}$ の
+$l$ の最大の打ち切り）である。
+既定の設定では $l_{\rm max}=4$ を使うので、
+$l_{\rm Pmax}=8$ を使う。
 
-The matrix elements $\langle P_1 |v| P_2 \rangle$
-can be calculated as
+行列要素 $\langle P_1 |v| P_2 \rangle$ は
+次のように計算できる。
 $$
 \begin{aligned}
 \langle P_1(\phi\phi) |v| P_2(\phi\phi) \rangle
@@ -1005,33 +997,33 @@ $$
 \end{aligned}
 \tag{I54}
 $$
-where $1\equiv ({\bf k},{\bf G_1})$ and so on.
-Here $P_1(\phi\phi)$ indicates
-that an IPW made from a product
-of IPWs.The matrix elements
+ここで $1\equiv ({\bf k},{\bf G_1})$ などである。
+ここで $P_1(\phi\phi)$ は、
+IPW の積から作った IPW を
+表す。行列要素
 $\langle {P}_{2''}| {P}_{2'} \rangle^{-1}$
-(stored into `__PPOvlp`; the inverse is taken where it is used)
-and $\langle {P_{2'} } | P_2(phiphi) \rangle$
-(stored into `__PPOvlpGG`)
-are given at `rdata4gw` (a block in `sugw.f90`, that is, `lmf --jobgw=1`).
+（`__PPOvlp` に入る。逆行列は使う所でとる）
+と $\langle {P_{2'} } | P_2(\phi\phi) \rangle$
+（`__PPOvlpGG` に入る）
+は `rdata4gw`（`sugw.f90` の中のブロック、すなわち `lmf --jobgw=1`）で与える。
 
-### Overlap matrix of the IPWs (`__PPOvlp*` files)
+### IPW の重なり行列（`__PPOvlp*` ファイル）
 
-The overlap matrices of the IPWs are written by `lmf --jobgw=1` (the block `rdata4gw` in `sugw.f90`) and read by `getppx2` of the module `m_read_ppovl` (`rppovl.f90`), called in `build_zmel` (`m_zmel.f90`) for the IPW part of the matrix elements `<IPW psi|psi>`.
-There are two kinds:
+IPW の重なり行列は `lmf --jobgw=1`（`sugw.f90` のブロック `rdata4gw`）が書き、module `m_read_ppovl`（`rppovl.f90`）の `getppx2` が読む。`getppx2` は、行列要素 `<IPW psi|psi>` の IPW の部分のために `build_zmel`（`m_zmel.f90`）から呼ばれる。
+二種類ある。
 
-- $\langle P^{\bf k}_{\bf G}|P^{\bf k}_{{\bf G}'}\rangle$ for the IPWs of the MPB (`QpGcut_cou`), for each $q$ of the IBZ and the offset-Γ points (`qibze`):
-  `__PPOvlp` (direct access, `ppovl(ngc,ngc)`), `__PPOvlpG` (the G vectors `ngvecc`) and `__PPOvlp.info` (sizes).
-  The matrix depends only on ${\bf G}'-{\bf G}$ (Eq. (I46)), but it is stored for each $q$ since the set of G (`ngc`) depends on $q$.
-- `__PPOvlpGG`: $\langle P_{\bf G}|P_{{\bf G}'}\rangle$ as a function of ${\bf G}'-{\bf G}$ (`ggg`, on the set `nvggg`), used for $\langle G({\rm eigenfunction})\,G({\rm eigenfunction})|G({\rm Coulomb})\rangle$
-  (a product of the IPWs of two eigenfunctions is expanded in the IPWs of the MPB). It is for $k=0$ only. The ranges are set by
-  `QpGcutggg = (2+0.01)*QpGcut_psi + QpGcut_cou + 2π/alat*dQpG` and `QpGcutgcgp = (1+0.01)*QpGcut_psi + QpGcut_cou + 2*2π/alat*dQQ`
-  (the triangle inequality; `dQpG`, `dQQ` enlarge the ranges for the offset-Γ points).
+- MPB の IPW（`QpGcut_cou`）の $\langle P^{\bf k}_{\bf G}|P^{\bf k}_{{\bf G}'}\rangle$。IBZ の各 $q$ と offset-Γ 点（`qibze`）について、
+  `__PPOvlp`（直接アクセス、`ppovl(ngc,ngc)`）、`__PPOvlpG`（G ベクトル `ngvecc`）、`__PPOvlp.info`（大きさ）。
+  行列は ${\bf G}'-{\bf G}$ だけに依存する（式 (I46)）が、G の集合（`ngc`）が $q$ に依存するので、$q$ ごとに格納する。
+- `__PPOvlpGG`: ${\bf G}'-{\bf G}$ の関数としての $\langle P_{\bf G}|P_{{\bf G}'}\rangle$（`ggg`、集合 `nvggg` の上）。$\langle G({\rm eigenfunction})\,G({\rm eigenfunction})|G({\rm Coulomb})\rangle$ に使う
+  （二つの固有関数の IPW の積を MPB の IPW で展開する）。$k=0$ だけである。範囲は
+  `QpGcutggg = (2+0.01)*QpGcut_psi + QpGcut_cou + 2π/alat*dQpG` と `QpGcutgcgp = (1+0.01)*QpGcut_psi + QpGcut_cou + 2*2π/alat*dQQ` で決める
+  （三角不等式。`dQpG`、`dQQ` は offset-Γ 点のために範囲を広げる）。
 
 ### $\langle {P}^{\bf k}_{\bf G}|v| {P}^{\bf k}_{ {\bf G}'} \rangle$
 
-To evaluate Eq. (I54), we need to know
-its main part $\langle {P}^{\bf k}_{\bf G}|v| {P}^{\bf k}_{ {\bf G}'} \rangle$. It is written as
+式 (I54) を評価するには、
+その主要部 $\langle {P}^{\bf k}_{\bf G}|v| {P}^{\bf k}_{ {\bf G}'} \rangle$ が要る。それは次のように書ける。
 $$
 \begin{aligned}
 \langle {P}^{\bf k}_{\bf G}|v| {P}^{\bf k}_{ {\bf G}'} \rangle
@@ -1044,34 +1036,33 @@ $$
 \end{aligned}
 \tag{I55}
 $$
-where $P^{ {\bf k}+{\bf G} }_{ {\bf R}{L} }$ denotes
-the projection of PW to ${ {\bf R}{L} }$,
-That is,
+ここで $P^{ {\bf k}+{\bf G} }_{ {\bf R}{L} }$ は
+PW の ${ {\bf R}{L} }$ への射影を表す。
+すなわち
 $P^{ {\bf k}+{\bf G} }_{ {\bf R}{L} } \equiv 
-{P}_{ {\bf R}{L} } e^{i ({\bf k+ G}){\bf r} }$.
+{P}_{ {\bf R}{L} } e^{i ({\bf k+ G}){\bf r} }$ である。
 
-##### The first term
+##### 第 1 項
 
-The first term in the right-hand side of Eq. (I55) is
+式 (I55) の右辺の第 1 項は
 $$\begin{aligned}
 \langle \exp(i({\bf k}+{\bf G}){\bf r}) |v| \exp(i({\bf k}+{\bf G}'){\bf r}) \rangle
 =\frac{4 \pi \Omega}{|{\bf k}+{\bf G}|^2+|E|} \delta_{ {\bf G}{\bf G}'},
 \end{aligned}
 \tag{I56}
 $$
-because we simply use $\exp(i({\bf k}+{\bf G}){\bf r})$
-(no prefactor for normalization) for IPW.
-Here $E$`=eee` is negative (or (almost) zero).
-This is coded by a line in `vcoulq_4` (`mkjp.f90`)
+である。IPW には単に $\exp(i({\bf k}+{\bf G}){\bf r})$
+（規格化の前因子なし）を使うからである。
+ここで $E$`=eee` は負（または（ほぼ）ゼロ）である。
+これは `vcoulq_4`（`mkjp.f90`）の次の一行で書かれている。
 
     vcoul(nbloch + ig1, nbloch + ig1) = vcoul(nbloch + ig1, nbloch + ig1) + fpivol/(absqg2(ig1) - eee)
 
-##### The second and third term
+##### 第 2 項と第 3 項
 
-In the second term,
-we can replace $v$ with $\frac{4 \pi \Omega}{|{\bf k}+{\bf G}'|^2+|E|}$
-since $v$ is diagonal for $|\exp(i({\bf k}+{\bf G}'){\bf r}) \rangle$, the third term as well.
-Without $v$, we have
+第 2 項では、
+$v$ は $|\exp(i({\bf k}+{\bf G}'){\bf r}) \rangle$ に対して対角なので、$v$ を $\frac{4 \pi \Omega}{|{\bf k}+{\bf G}'|^2+|E|}$ で置き換えられる。第 3 項も同様である。
+$v$ を除くと、
 $$
 \begin{aligned}
 \langle e^{i({\bf k}+{\bf G}){\bf r}}| P^{ {\bf k}+{\bf G}'}_{ {\bf R}'{L'} }\rangle
@@ -1082,7 +1073,7 @@ $$
 \end{aligned}
 \tag{I57}
 $$
-where we use
+となる。ここで次を使った。
 $$\begin{aligned}
  &P^{ {\bf k}+{\bf G} }_{ {\bf R}{L} }({\bf r})=4 \pi i^l j_l(|{ {\bf k}+{\bf G} }|r) 
 Y_L(\widehat{ {\bf k}+{\bf G} }) Y_L(\hat{ {\bf r} })\exp(i({\bf k}+{\bf G}){\bf R}) \\
@@ -1091,21 +1082,21 @@ Y_L(\widehat{ {\bf k}+{\bf G} }) Y_L(\hat{ {\bf r} })\exp(i({\bf k}+{\bf G}){\bf
 \end{aligned}
 \tag{I58}
 $$
-where ${\bf r}$ is measured from the center ${\bf R}$.
-Here we use `pjyl_` defined as
+ここで ${\bf r}$ は中心 ${\bf R}$ から測る。
+ここで `pjyl_` は次で定義する。
 $$\begin{aligned}
 {\tt pjyl\_}({\bf k}+{\bf G},L) 
 =4 \pi i^l |{\bf k}+{\bf G}|^l Y_L(\widehat{ {\bf k}+{\bf G} }) 
 \end{aligned}
 \tag{I59}
 $$
-(recall the definition of $\bar{J}_l$.
-In codes, `cy(lm)*yl(lm)`
-$=Y_L(\widehat{ {\bf k}+{\bf G} })$.)
-Search `pjyl_` in `mkjp.f90`.
-The Bessel functions appear here in the expansion of PW; see Eq. (I45).
+（$\bar{J}_l$ の定義を思い出すこと。
+コードでは `cy(lm)*yl(lm)`
+$=Y_L(\widehat{ {\bf k}+{\bf G} })$ である。）
+`mkjp.f90` で `pjyl_` を検索せよ。
+ここで Bessel 関数は PW の展開に現れる。式 (I45) を見よ。
 $R^{JJ}(|{\bf k}+{\bf G}|,|{\bf k}+{\bf G}'|,l)$
-is given as
+は次で与えられる。
 $$\begin{aligned}
 R^{JJ}(|{\bf k}+{\bf G}|,|{\bf k}+{\bf G}'|,l)
 = \int_0^R  r^2 \bar{J}_l(|{ {\bf k}+{\bf G} }|r)
@@ -1113,7 +1104,7 @@ R^{JJ}(|{\bf k}+{\bf G}|,|{\bf k}+{\bf G}'|,l)
 \end{aligned}
 \tag{I60}
 $$
-which can be calculated by the wronskian (`wronkj`) by the formula
+これはロンスキアン（`wronkj`）で、次の式により計算できる。
 $$
 \begin{aligned}
 R^{JJ}(\kappa_{\rm A},\kappa_{\rm B},l)
@@ -1126,8 +1117,8 @@ R^{JJ}(\kappa_{\rm A},\kappa_{\rm B},l)
 \tag{I61}
 $$
 
-(`-fjj` is used in `mkjp.f90`.)
-In `vcoulq_4` the second, third and the on-site part of the fourth term of Eq. (I55) are added together for each group of atoms with the same radial mesh (`eee = 0`; for `eee < 0` they come from `vcoul_termb`):
+（`mkjp.f90` では `-fjj` を使う。）
+`vcoulq_4` では、式 (I55) の第 2 項、第 3 項、第 4 項のオンサイト部分を、同じ動径メッシュをもつ原子の組ごとにまとめて足す（`eee = 0` の場合。`eee < 0` では `vcoul_termb` から来る）。
 
 ```fortran
 vcoul(nbloch+ig1,nbloch+ig2) = vcoul(nbloch+ig1,nbloch+ig2) &
@@ -1135,16 +1126,16 @@ vcoul(nbloch+ig1,nbloch+ig2) = vcoul(nbloch+ig1,nbloch+ig2) &
     * ((fpi/(absqg2(ig1)-eee)+fpi/(absqg2(ig2)-eee))*fjj(llx(1:lm2x)) + radsig(llx(1:lm2x))) )
 ```
 
-where `cPhi` is the sum of the phase factors $e^{-i({\bf k}+{\bf G}_1){\bf R}}e^{i({\bf k}+{\bf G}_2){\bf R}}$ over the atoms of the group,
-`fpi` is $4\pi$, `absqg2(ig)` is $|{\bf k}+{\bf G}|^2$, `-eee` is $|E|$, and `radsig` is the $\sigma$-type integral of Eq. (I62) (`sigintpp`).
+ここで `cPhi` は位相因子 $e^{-i({\bf k}+{\bf G}_1){\bf R}}e^{i({\bf k}+{\bf G}_2){\bf R}}$ の組の原子についての和、
+`fpi` は $4\pi$、`absqg2(ig)` は $|{\bf k}+{\bf G}|^2$、`-eee` は $|E|$、`radsig` は式 (I62) の $\sigma$ 型の積分（`sigintpp`）である。
 
-##### The forth term
+##### 第 4 項
 
-The last term of Eq. (I55) can be calculated essentially
-the same manner with $\langle B| v| B\rangle$, where we use the
-Bessel function instead of $B_{ {\bf R}{l}\mu}(r)$ appeared in Sec.([§](#b-v-b-part)).
-Then we define integrals
-`rojp` and `sgpp` defined as (in `mkjp.f90`; `sgpp` is not stored as an array now, see `radsig` above);
+式 (I55) の最後の項は、本質的に
+$\langle B| v| B\rangle$ と同じやり方で計算できる。ただし
+Sec.([§](#b-v-b-part)) に現れた $B_{ {\bf R}{l}\mu}(r)$ の代わりに Bessel 関数を使う。
+そこで積分
+`rojp` と `sgpp` を次のように定義する（`mkjp.f90` の中。`sgpp` はいまは配列として格納しない。上の `radsig` を見よ）。
 $$
 \begin{aligned}
 {\tt rojp}({\bf R}L)&= {\tt pjyl\_}\, \exp(i ({\bf q}+{\bf G}) {\bf R})\,  \rho^l(\bar{J}_l), \\
@@ -1154,11 +1145,11 @@ $$
 \end{aligned}
 \tag{I62}
 $$
-Thus, `rojp` and `sgpp` made of coefficients for explansion
-and radial integral.
-The off-site part of the fourth term is $\sum$ `rojp`$^*$ `strx` `rojp` (`zmm` in `vcoulq_4`).
+このように、`rojp` と `sgpp` は展開の係数と
+動径積分からなる。
+第 4 項のオフサイト部分は $\sum$ `rojp`$^*$ `strx` `rojp`（`vcoulq_4` の `zmm`）である。
 
-### $\langle P|B \rangle$ part
+### $\langle P|B \rangle$ の部分
 
 $$
 \begin{aligned}
@@ -1170,99 +1161,93 @@ $$
 \end{aligned}
 \tag{I63}
 $$
-The first term is stored in `fouvb(ngc,nxx,nlxx,nbas)`, made by `mkjp_4` (`mkjp.f90`) together with `rojp` and `sgpb`, and used in `vcoulq_4`.
-Since $v$ is diagonal to PWs,
-we can evaluate this in the similar manner of Eq. (I57).
-The second term can be evaluated from
-`rojb` and `sgpb` in the same manner of last section: the on-site part ${\bf R}'={\bf R}$ is `sgpb`, and the off-site part is $\sum$ `rojp`$^*$ `strx` `rojb` (`zmm` in the block `PvB2` of `vcoulq_4`).
+第 1 項は `fouvb(ngc,nxx,nlxx,nbas)` に入る。これは `mkjp_4`（`mkjp.f90`）が `rojp`、`sgpb` と一緒に作り、`vcoulq_4` で使う。
+$v$ は PW に対して対角なので、
+これは式 (I57) と同様のやり方で評価できる。
+第 2 項は、前節と同じやり方で
+`rojb` と `sgpb` から評価できる。オンサイト部分 ${\bf R}'={\bf R}$ が `sgpb` であり、オフサイト部分は $\sum$ `rojp`$^*$ `strx` `rojb`（`vcoulq_4` のブロック `PvB2` の `zmm`）である。
 
-## Offset-$\Gamma$ method; W(k=0) averaged in the $\Gamma$ cell. {#offset-gamma}
+## Offset-$\Gamma$ 法：$\Gamma$ セルで平均した W(k=0) {#offset-gamma}
 
-The offset-$\Gamma$ method, originally
-invented for Ref.[kotani_all-electron_2002] by Kotani
-(it is described in Ref.[kotani_quasiparticle_2007]),
-was a key to perform accurate $GW$
-calculation in our papers.
-It is for the integration of ${\bf k}$
-in Eqs.(I15) and (I20), where
-we have the integrands that diverge at ${\bf k}\to 0$.
-The original offset $\Gamma$ method works well
-for highly symmetric systems; however,
-it may be problematic to apply to less symmetric systems,
-because the anisotropic divergence of the integrands
-may not be treated accurately.
+offset-$\Gamma$ 法は、もともと Ref.[kotani_all-electron_2002] のために Kotani が考案したもので
+（Ref.[kotani_quasiparticle_2007] に記述がある）、
+我々の論文で精度のよい $GW$
+計算を行う鍵であった。
+これは Eqs.(I15) と (I20) の ${\bf k}$ 積分のためのものである。
+これらの被積分関数は ${\bf k}\to 0$ で発散する。
+もとの offset $\Gamma$ 法は、対称性の高い系ではよく働く。
+しかし、対称性の低い系に適用すると問題となりうる。
+被積分関数の異方的な発散を
+正確に扱えない場合があるからである。
 
-Here we show an improved offset-$\Gamma$ method, which treats
-the anisotropy of $W({\bf k},\omega)$ accurately.
-In the followings, we use expression $W({\bf k})$
-for simplicity (omit subscripts and $\omega$)
-instead of $W_{\mu \nu}({\bf k},\omega)$,
-since we are concerned with the ${\bf k}$ integral here.
+ここでは、$W({\bf k},\omega)$ の異方性を正確に扱う、改良した offset-$\Gamma$ 法を示す。
+以下では、ここで問題にするのは ${\bf k}$ 積分なので、
+簡単のため $W_{\mu \nu}({\bf k},\omega)$ の代わりに
+$W({\bf k})$ という表記を用いる（添字と $\omega$ を省く）。
 
-Let us give a formula for calculating
-$\int_{\rm BZ} f({\bf k}) d^3k$ using a discrete sum on ${\bf k}$-mesh,
-where $f({\bf k})=G({\bf q}-{\bf k}) \times W({\bf k})$.
-For the ${\bf k}$-mesh, we use
+${\bf k}$ メッシュ上の離散和を用いて
+$\int_{\rm BZ} f({\bf k}) d^3k$ を計算する式を与える。
+ここで $f({\bf k})=G({\bf q}-{\bf k}) \times W({\bf k})$ である。
+${\bf k}$ メッシュには次を用いる。
 $$
 {\bf k}(i_1,i_2,i_3) = 2 \pi \Big(\frac{i_1}{N_1} {\bf b}_1 
 + \frac{i_2}{N_2} {\bf b}_2 + \frac{i_3}{N_3} {\bf b}_3\Big),
 \tag{I64}
 $$
-where ${\bf b}_1, {\bf b}_2$, and ${\bf b}_3$ are the primitive reciprocal
-vectors (the same as the Eq.(47) in Ref.[kotani_quasiparticle_2007]).
-The 1st BZ is divided into $N=N_1 \times N_2 \times N_3$
-microcells ($i_1=0,1,... N_1-1$, and also the same for $i_2$ and $i_3$.).
-The microcell including the $\Gamma$ point is called the
-$\Gamma$ cell [freysoldt_dielectric_2007].
-The main problem is how to evaluate the contribution of the $\Gamma$ cell.
-The divergent part of $f({\bf k})$ behaves $\approx$ (analytic function of ${\bf k}$)
-$/({\bf k}^{\rm T}{\bf L}{\bf k})$,
-where ${\bf k}^{\rm T}$ denotes the transpose of ${\bf k}$; ${\bf L}$
-is a $3\times3$ Hermitian matrix [friedrich_efficient_2010].
-We neglect an odd part of ${\bf k}$ in the above (analytic function of ${\bf k}$)
-because it has no contribution to the integral around ${\bf k}=0$.
-Thus it is sufficient to consider the integral for $f({\bf k})$ whose divergent parts behave
-as $f({\bf k})=\sum_L \frac{f_L Y_L(\widehat{ {\bf k} })}{|{\bf k}|^2}$ at ${\bf k}\to 0$,
-where $l$ of $L\equiv(l,m)$ is restricted to be even numbers.
-We evaluate the integral using the formula
+ここで ${\bf b}_1, {\bf b}_2$, ${\bf b}_3$ は基本逆格子
+ベクトルである（Ref.[kotani_quasiparticle_2007] の Eq.(47) と同じ）。
+第 1 BZ は $N=N_1 \times N_2 \times N_3$
+個の微小セルに分割される（$i_1=0,1,... N_1-1$。$i_2$ と $i_3$ も同様）。
+$\Gamma$ 点を含む微小セルを
+$\Gamma$ セルと呼ぶ [freysoldt_dielectric_2007]。
+主な問題は、$\Gamma$ セルの寄与をどう評価するかである。
+$f({\bf k})$ の発散部分は $\approx$ （${\bf k}$ の解析関数）
+$/({\bf k}^{\rm T}{\bf L}{\bf k})$ のようにふるまう。
+ここで ${\bf k}^{\rm T}$ は ${\bf k}$ の転置を表し、${\bf L}$
+は $3\times3$ の Hermite 行列である [friedrich_efficient_2010]。
+上の（${\bf k}$ の解析関数）のうち ${\bf k}$ の奇の部分は無視する。
+${\bf k}=0$ のまわりの積分に寄与しないからである。
+したがって、発散部分が ${\bf k}\to 0$ で
+$f({\bf k})=\sum_L \frac{f_L Y_L(\widehat{ {\bf k} })}{|{\bf k}|^2}$ のようにふるまう $f({\bf k})$ の積分を考えれば十分である。
+ここで $L\equiv(l,m)$ の $l$ は偶数に限られる。
+積分を次の式で評価する。
 $$\begin{aligned}
 \int_{\rm BZ} f({\bf k}) d^3k \approx \frac{1}{N}\sum^{ {\bf k}\ne 0} f({\bf k})
  + \sum_L f_L w_L + \frac{1}{N} \tilde{f},
 \end{aligned}
 \tag{I65}
 $$
-which is introduced in Ref.[freysoldt_dielectric_2007].
-Here the weight $w_L$ is determined in a manner as follows,
-so as to take into account the contributions of
-the divergent part of $f({\bf k})$ at ${\bf k}\to 0$ in the $\Gamma$ cell.
-$\tilde{f}$ is the constant part of $f({\bf k})$ at ${\bf k}\to 0$.
+この式は Ref.[freysoldt_dielectric_2007] で導入された。
+ここで重み $w_L$ は、$\Gamma$ セルの中での ${\bf k}\to 0$ における $f({\bf k})$ の
+発散部分の寄与を取り入れるように、
+以下のやり方で決める。
+$\tilde{f}$ は ${\bf k}\to 0$ での $f({\bf k})$ の定数部分である。
 
-To determine $w_L$, we can use the following procedure instead of that given
-in Ref.[freysoldt_dielectric_2007].
-We first introduce the auxiliary function
+$w_L$ を決めるには、Ref.[freysoldt_dielectric_2007] で与えられた手順の代わりに
+次の手順を用いることができる。
+まず補助関数を導入する。
 $$\begin{aligned}
 F_L({\bf k}) =\sum_{ {\bf G} } \frac{\exp(- \alpha
  |{\bf k}-{\bf G}|^2)Y_L(\widehat{ {\bf k}-{\bf G} })}{|{\bf k}-{\bf G}|^2}.
 \end{aligned}
 \tag{I66}
 $$
-This is a generalization of an auxiliary function used in the
-offset-$\Gamma$ method (then we only used $F_{00}$ [kotani_quasiparticle_2007]).
-We usually take the $\alpha \to 0$ limit, or a sufficiently small $\alpha$ instead (`[gw] alpha_offG`, read in `mkqg.f90`; `m_q0p.f90`).
-Let us apply Eq. (I65) to $F_L({\bf k})$.
-Then we can evaluate the left-hand side of Eq. (I65)
-exactly (the exact values are zero except for $L=(0,0)$).
-On the other hand, the first and
-third terms on the right-hand side of Eq. (I65)
-can be evaluated numerically.
-In addition, we know that $f_{L'}$ for $F_L({\bf k})$ is unity for $L'=L$,
-and zero otherwise.
-Thus we can determine $w_L$ in Eq. (I65)
-so that Eq. (I65) is exactly satisfied for $F_L({\bf k})$ for any $L$.
+これは offset-$\Gamma$ 法で用いた補助関数の
+一般化である（当時は $F_{00}$ だけを用いた [kotani_quasiparticle_2007]）。
+通常は $\alpha \to 0$ の極限をとるか、代わりに十分小さな $\alpha$ を用いる（`[gw] alpha_offG`、`mkqg.f90` で読む。`m_q0p.f90`）。
+Eq. (I65) を $F_L({\bf k})$ に適用する。
+すると Eq. (I65) の左辺は
+厳密に評価できる（厳密な値は $L=(0,0)$ 以外ではゼロである）。
+一方、Eq. (I65) の右辺の第 1 項と
+第 3 項は数値的に評価できる。
+さらに、$F_L({\bf k})$ に対する $f_{L'}$ は $L'=L$ のとき 1、
+それ以外ではゼロであることがわかっている。
+したがって、任意の $L$ について $F_L({\bf k})$ に対して Eq. (I65) が厳密に成り立つように、
+Eq. (I65) の $w_L$ を決めることができる。
 
-Let us apply Eq. (I65) to $f({\bf k})=G({\bf q}-{\bf k}) \times W({\bf k})$.
-Then we perform an approximation taking only the most divergent term
-in $W({\bf k})$ in addition to its analytic part. That is, we use
+Eq. (I65) を $f({\bf k})=G({\bf q}-{\bf k}) \times W({\bf k})$ に適用する。
+そして、$W({\bf k})$ の解析的な部分に加えて、最も強く発散する項だけをとる
+近似を行う。すなわち、${\bf k}\to 0$ で
 $$\begin{aligned}
 W_{\mu \nu}({\bf k}) \sim \widetilde{W}_{\mu \nu}({\bf 0}) +
  \frac{4 \pi}{ {\bf k}^{\rm T} {\bf L} {\bf k} }
@@ -1270,18 +1255,18 @@ W_{\mu \nu}({\bf k}) \sim \widetilde{W}_{\mu \nu}({\bf 0}) +
 \end{aligned}
 \tag{I67}
 $$
-at ${\bf k}\to 0$.
-$\widetilde{W}_{\mu \nu}({\bf 0})=0$ for $\mu=1$ or $\nu=1$.
-See Eq.(36) in Ref.[friedrich_efficient_2010] to know what is
-neglected in the approximation of Eq. (I67).
+を用いる。
+$\mu=1$ または $\nu=1$ のとき $\widetilde{W}_{\mu \nu}({\bf 0})=0$ である。
+Eq. (I67) の近似で何が無視されているかは、
+Ref.[friedrich_efficient_2010] の Eq.(36) を参照。
 
-Then we finally obtain
+こうして最終的に次を得る。
 $$\begin{aligned}
 \int_{\rm BZ} d^3k G({\bf q}-{\bf k}) W({\bf k}) 
 \approx \overline{\sum G({\bf q}-{\bf k}) W({\bf k})},\end{aligned}
 \tag{I68}
 $$
-where its right-hand side is defined as
+ここで右辺は次のように定義する。
 $$\begin{aligned}
  &\overline{\sum G({\bf q}-{\bf k}) W({\bf k})}  \\
  &\equiv 
@@ -1290,75 +1275,73 @@ $$\begin{aligned}
 \end{aligned}
 \tag{I69}
 $$
-Here $\overline{W}({\bf 0})$ is an
-average of $W$ in the $\Gamma$ cell.
-With this $\overline{W}({\bf 0})$, we can
-evaluate integrals just as the sum on the discrete ${\bf k}$-mesh.
-When the matrix ${\bf L}$ is given
-(a method of calculating ${\bf L}$ is given in the next paragraph),
-the non-analytic (but non-divergent) function
+ここで $\overline{W}({\bf 0})$ は
+$\Gamma$ セルでの $W$ の平均である。
+この $\overline{W}({\bf 0})$ を用いれば、
+積分を離散的な ${\bf k}$ メッシュ上の和と同じように評価できる。
+行列 ${\bf L}$ が与えられると
+（${\bf L}$ の計算法は次の段落で述べる）、
+非解析的な（ただし発散しない）関数
 ${ {\bf k}^{\rm T}{\bf L}{\bf k} }/|{\bf k}^2|$
-is expanded in the spherical harmonics. Then
-$W_L$ is calculated for a given ${\bf L}$ in the manner shown in Ref.[friedrich_efficient_2010].
-We can evaluate the accuracy of integrals with a discrete ${\bf k}$-mesh
-in combination with the approximation of Eq. (I67)
-by calculations while changing the size of the ${\bf k}$-mesh.\
+を球面調和関数で展開する。そして、
+与えられた ${\bf L}$ に対して Ref.[friedrich_efficient_2010] に示されたやり方で $W_L$ を計算する。
+Eq. (I67) の近似と組み合わせた離散的な ${\bf k}$ メッシュによる積分の精度は、
+${\bf k}$ メッシュの大きさを変えて計算することで
+評価できる。\
 
-The code uses only $w_L$ for $L=(0,0)$ ($w_L=0$ for $L\ne(0,0)$; `lxklm = 0` in `m_q0p.f90`, which writes the weights `wklm`).
-With all $w_L$, the real part of $W(\omega)$ became non-monotonic (against causality), which came from the $w_L$ of $L\ne(0,0)$.
-In the case of metals at $\omega=0$, ${\bf L}$ is very large (virtually infinite), and there is no $1/|{\bf k}|^2$ behavior.
+コードでは $L=(0,0)$ の $w_L$ だけを用いる（$L\ne(0,0)$ では $w_L=0$。`m_q0p.f90` の `lxklm = 0`。`m_q0p.f90` は重み `wklm` を書き出す）。
+すべての $w_L$ を用いると、$W(\omega)$ の実部が単調でなくなった（因果律に反する）。これは $L\ne(0,0)$ の $w_L$ から来ていた。
+金属の $\omega=0$ では ${\bf L}$ は非常に大きく（事実上無限大）、$1/|{\bf k}|^2$ のふるまいはない。
 
-The remaining problem is how to calculate
-the matrix ${\bf L}$ in Eq. (I67); there are two possible ways.
-One is the ${\bf k}\cdot {\bf p}$ method (perturbation) used in Ref.[friedrich_efficient_2010];
-the other is the numerical method to calculate ${\bf L}$ at some
-${\bf k}$ points near ${\bf k}=0$. Here we use the latter method.
-Because of the point-group symmetry of the system, ${\bf L}$ can be expressed by the
-linear combination of invariant tensors $\mu_{ij}^g$ for the symmetry of the unit cell,
+残る問題は、Eq. (I67) の行列 ${\bf L}$ を
+どう計算するかである。二つの方法がありうる。
+一つは Ref.[friedrich_efficient_2010] で用いられた ${\bf k}\cdot {\bf p}$ 法（摂動）である。
+もう一つは、${\bf k}=0$ の近くのいくつかの
+${\bf k}$ 点で ${\bf L}$ を数値的に計算する方法である。ここでは後者を用いる。
+系の点群対称性により、${\bf L}$ は単位胞の対称性に対する
+不変テンソル $\mu_{ij}^g$ の線形結合で表せる。
 $$\begin{aligned}
 L_{ij}(\omega)=  \sum_{g=1}^{N_g} a_g(\omega) \mu_{ij}^g,
 \end{aligned}
 \tag{I70}
 $$
-where $g$ is the index of the invariant tensor.
-The number of $g$'s $N_g$, can be
-from one (cubic symmetry) through six (no symmetry).
-It is possible to determine the coefficient $a_g(\omega)$
-from the dielectric functions ${\hat{ {\bf k} }_{0i} }^{\rm T}{\bf L}\hat{ {\bf k} }_{0i}$
-calculated at $\{ {\bf k}_{0i}\}$ points around
-${\bf k}=0$, where $\{ {\bf k}_{0i}; i=1,N_g\}$ is a set of the offset-$\Gamma$ points.
-The offset-$\Gamma$ points are chosen so that the conversion matrix
-from $\hat{ {\bf k} }_{0i}^{\rm T}{\bf L}(\omega)\hat{ {\bf k} }_{0i}$ to $a_g(\omega)$
-is not numerically degenerated. The length $|{\bf k}_{0i}|$ (`[gw] Q0Pchoice`, or `deltaq_scale` given directly)
-can be chosen to be sufficiently small, but avoiding numerical error
-as the average of $W({\bf k})$ in the $\Gamma$ cell.
-The improved offset-$\Gamma$ method shown here can be applicable even to metal cases, as long as
-$\hat{ {\bf k} }_{0i}^{\rm T}{\bf L}(\omega)\hat{ {\bf k} }_{0i}$ contains the contribution
-of intraband transition.
+ここで $g$ は不変テンソルの添字である。
+$g$ の数 $N_g$ は、
+1（立方対称）から 6（対称性なし）までとりうる。
+係数 $a_g(\omega)$ は、
+${\bf k}=0$ のまわりの $\{ {\bf k}_{0i}\}$ 点で計算した誘電関数 ${\hat{ {\bf k} }_{0i} }^{\rm T}{\bf L}\hat{ {\bf k} }_{0i}$
+から決めることができる。ここで $\{ {\bf k}_{0i}; i=1,N_g\}$ は offset-$\Gamma$ 点の組である。
+offset-$\Gamma$ 点は、$\hat{ {\bf k} }_{0i}^{\rm T}{\bf L}(\omega)\hat{ {\bf k} }_{0i}$ から $a_g(\omega)$ への
+変換行列が数値的に縮退しないように選ぶ。長さ $|{\bf k}_{0i}|$（`[gw] Q0Pchoice`、または直接与える `deltaq_scale`）
+は十分小さく選べるが、$\Gamma$ セルでの $W({\bf k})$ の平均として
+数値誤差が出ないようにする。
+ここで示した改良 offset-$\Gamma$ 法は、
+$\hat{ {\bf k} }_{0i}^{\rm T}{\bf L}(\omega)\hat{ {\bf k} }_{0i}$ がバンド内遷移の寄与を
+含む限り、金属の場合にも適用できる。
 
-## Data structure of the tetrahedron method in ecalj {#tetrahedron-data-structure}
+## ecalj における tetrahedron method のデータ構造 {#tetrahedron-data-structure}
 
-The tetrahedron weights of the polarization function, Eqs. (I18a), are made by `gettetwt` of the module `m_tetwt` (`m_tetwt.f90`):
+分極関数の tetrahedron の重み、Eqs. (I18a) は、module `m_tetwt`（`m_tetwt.f90`）の `gettetwt` が作る。
 
 ```fortran
 call gettetwt(q, iq, isp_k, isp_kq, ekxx1, ekxx2, nband=nband, ikbz_in=k_lo, fkbz_in=k_hi)   ! in x0kf_v4h.f90
 ```
 
-- `q`, `iq`: the vector ${\bf q}$ and its index.
-- `isp_k`, `isp_kq` ($\alpha$, $\beta$): the spins of ${\bf k}$ and ${\bf k}+{\bf q}$ (different for the transverse spin susceptibility).
-- `ekxx1(nband,nqbz)`, `ekxx2(nband,nqbz)`: the eigenvalues at ${\bf k}$ and ${\bf k}+{\bf q}$ for all ${\bf k}$ of the BZ (`readeval`).
-- `ikbz_in`, `fkbz_in`: the range of ${\bf k}$ to be done (the ${\bf k}$ loop is split for memory and for the parallelization).
-- The other inputs come from modules: the histogram bins `frhis(1:nwhis+1)` and `npm` of `m_freq` (`npm = 2` also accumulates the negative-frequency part, needed without time-reversal symmetry),
-  the tetrahedra (`ntetf`, `idtetf`, `ib1bz`) of `m_read_bzdata`, the core levels of `m_core_state`, $E_{\rm F}$ of `m_ReadEfermi`, and `ebmx`, `nbmx`, `mtet` of `m_readgwinput`.
-  With `[gw] t_tetrakbt`, the Fermi level of the finite-temperature occupation is used ([kBT](./kBT)).
+- `q`, `iq`: ベクトル ${\bf q}$ とその添字。
+- `isp_k`, `isp_kq` ($\alpha$, $\beta$): ${\bf k}$ と ${\bf k}+{\bf q}$ のスピン（横スピン感受率では異なる）。
+- `ekxx1(nband,nqbz)`, `ekxx2(nband,nqbz)`: BZ のすべての ${\bf k}$ についての、${\bf k}$ と ${\bf k}+{\bf q}$ での固有値（`readeval`）。
+- `ikbz_in`, `fkbz_in`: 扱う ${\bf k}$ の範囲（${\bf k}$ のループはメモリと並列化のために分割する）。
+- そのほかの入力は module から来る。`m_freq` のヒストグラムのビン `frhis(1:nwhis+1)` と `npm`（`npm = 2` では負の振動数の部分も足し込む。時間反転対称性がないときに要る）、
+  `m_read_bzdata` の四面体（`ntetf`, `idtetf`, `ib1bz`）、`m_core_state` のコア準位、`m_ReadEfermi` の $E_{\rm F}$、`m_readgwinput` の `ebmx`, `nbmx`, `mtet` である。
+  `[gw] t_tetrakbt` では、有限温度の占有の Fermi 準位を用いる（[kBT](./kBT)）。
 
-The output is in the module variables:
+出力は module 変数に入る。
 
-- `nbnb(k,jpm)`: the number of pairs $(n,n')$ with non-zero weight at ${\bf k}$; `n1b(ibib,k,jpm)` (occupied, cores after the valence) and `n2b(ibib,k,jpm)` (unoccupied) are their band indexes.
-- `ihw(ibib,k,jpm)`, `nhw(ibib,k,jpm)`: the first histogram bin and the number of bins with non-zero weight for the pair;
-  `jhw(ibib,k,jpm)` points to the weights `whw(jhw : jhw+nhw-1)`.
+- `nbnb(k,jpm)`: ${\bf k}$ で重みがゼロでない組 $(n,n')$ の数。`n1b(ibib,k,jpm)`（占有、コアは価電子の後）と `n2b(ibib,k,jpm)`（非占有）がそのバンドの添字である。
+- `ihw(ibib,k,jpm)`, `nhw(ibib,k,jpm)`: その組について、重みがゼロでない最初のヒストグラムのビンとビンの数。
+  `jhw(ibib,k,jpm)` は重み `whw(jhw : jhw+nhw-1)` を指す。
 
-They are used in `x0kf_v4h.f90` as (simplified)
+これらは `x0kf_v4h.f90` で次のように使われる（簡略化したもの）。
 
 ```fortran
 do jpm = 1, npm
@@ -1374,79 +1357,76 @@ do jpm = 1, npm
 enddo
 ```
 
-which is the sum over $n,n'$ and ${\bf k}$ of Eq. (I18a).
+これが Eq. (I18a) の $n,n'$ と ${\bf k}$ についての和である。
 
-## Fourier transformation of non-local quantity
+## 非局所的な量の Fourier 変換
 
-The static self-energy in the MTO basis is Fourier transformed in `m_rdsigm2` (`rdsigm2.f90`): `rdsigm2` expands `sigm.<sname>` to the full BZ, `fftz3` gives the real-space matrix `hrr`, and `bloch2` transforms it back at any ${\bf k}$.
-This is for the three dimensional FFT.
-The usual FT is by
+MTO 基底での静的な自己エネルギーは `m_rdsigm2`（`rdsigm2.f90`）で Fourier 変換する。`rdsigm2` が `sigm.<sname>` を全 BZ に展開し、`fftz3` が実空間の行列 `hrr` を与え、`bloch2` がそれを任意の ${\bf k}$ に戻す。
+これは 3 次元の FFT のためのものである。
+通常の FT は次で与えられる。
 $$\begin{aligned}
 f({\bf T})=\sum_{\bf k}f({\bf k}) \exp(i {\bf k}{\bf T}),
 \end{aligned}
 \tag{I71}
 $$
-where $\{ {\bf k}\}$ is are on the regular mesh points.
-The total number of its members is $N_1 \times N_2 \times N_3$.
-(the number is the same as that of $\{ {\bf T}\}$).
-Note that we have periodicity both in ${\bf k}$ points
-and in ${\bf T}$ points. Because of the periodicity, the range of $\{ {\bf k}\}$
-is not unique, the range of $\{ {\bf T}\}$ as well.
+ここで $\{ {\bf k}\}$ は規則的なメッシュ点上にある。
+その要素の総数は $N_1 \times N_2 \times N_3$ である
+（この数は $\{ {\bf T}\}$ の数と同じ）。
+${\bf k}$ 点にも ${\bf T}$ 点にも周期性があることに
+注意する。周期性のため、$\{ {\bf k}\}$ の範囲は
+一意でなく、$\{ {\bf T}\}$ の範囲も同様である。
 
-Let us think about non-local quantity which is dependent on ${\bf T}-{\bf T}'$. Then we have
+${\bf T}-{\bf T}'$ に依存する非局所的な量を考える。すると
 $$\begin{aligned}
 f({\bf R}{\bf T},{\bf R}'{\bf T}')=\sum_{\bf k}
 f_{ {\bf R}{\bf R}'}({\bf k}) \exp(i {\bf k}({\bf T}-{\bf T}')),
 \end{aligned}
 \tag{I72}
 $$
-In practical calculations (static version of self-energy treated by
-`bloch2`),
-we first calculate $f_{ {\bf R}{\bf R}'}({\bf k})$ on ${\bf k}$ of regular mesh points. Then we
-need to obtain its real-space representation
-$f({\bf R}{\bf T},{\bf R}'{\bf T}')$. Because of the periodicity,
-we have ambiguity for the choice of possible
-$|{\bf T}-{\bf T}'|$. If we introduce $\bar{\bf T}={\bf T}-{\bf T}'$,
-Eq. (I72) is written as
+となる。
+実際の計算（`bloch2` で扱う自己エネルギーの静的な版）では、
+まず規則的なメッシュ点の ${\bf k}$ 上で $f_{ {\bf R}{\bf R}'}({\bf k})$ を計算する。次に
+その実空間表示
+$f({\bf R}{\bf T},{\bf R}'{\bf T}')$ を得る必要がある。周期性のため、
+ありうる $|{\bf T}-{\bf T}'|$ の選び方に
+任意性がある。$\bar{\bf T}={\bf T}-{\bf T}'$ を導入すると、
+並進対称性により Eq. (I72) は
 $f({\bf R}\bar{ {\bf T} },{\bf R}'0)=\sum_{\bf k}
-f_{ {\bf R}{\bf R}'}({\bf k}) \exp(i {\bf k}\bar{ {\bf T} })$ because of translational symmetry.
+f_{ {\bf R}{\bf R}'}({\bf k}) \exp(i {\bf k}\bar{ {\bf T} })$ と書ける。
 
-A reasonable choice is that we allow $\bar{ {\bf T} }$
-which satisfy $|{\bf R}-{\bf R}'+\bar{ {\bf T} }|\le\eta_{\rm FTmax}$.
-Here we should choose $\eta_{\rm FTmax}$ so that
-the number of alllowed $\{\bar{\bf T}\}$ is $N_1 \times N_2 \times N_3$.
-Howerever, it can be not possible, because of
-deneneracy; for the largest value of $|{\bf R}-{\bf R}'+\bar{ {\bf T} }|$ in the
-alllowed $\{\bar{\bf T}\}$, we may
-have some of $\bar{ {\bf T} }$ (we say degenerated).
-Then we need to give fractional weight for such $\bar{ {\bf T} }$.
+妥当な選び方は、
+$|{\bf R}-{\bf R}'+\bar{ {\bf T} }|\le\eta_{\rm FTmax}$ を満たす $\bar{ {\bf T} }$ を許すことである。
+ここで $\eta_{\rm FTmax}$ は、
+許される $\{\bar{\bf T}\}$ の数が $N_1 \times N_2 \times N_3$ になるように選ぶべきである。
+しかし、縮退のためにそれができない場合がある。
+許される $\{\bar{\bf T}\}$ の中で $|{\bf R}-{\bf R}'+\bar{ {\bf T} }|$ が最大の値をとるものについて、
+いくつかの $\bar{ {\bf T} }$ がありうる（縮退しているという）。
+その場合は、そのような $\bar{ {\bf T} }$ に分数の重みを与える必要がある。
 
-In the code, the list of $\bar{\bf T}$ is made automatically: for each pair of sites $({\bf R},{\bf R}')$ and each ${\bf T}$ of the $N_1\times N_2\times N_3$ cell,
-`m_gennlat_sig` (`m_gennlat.f90`) keeps the shortest equivalent vectors $|{\bf R}-{\bf R}'+\bar{\bf T}|$ (`nlat`, with the range `nlatS:nlatE`),
-and `bloch2` averages the phase factors over the degenerate ones (equal fractional weights).
+コードでは $\bar{\bf T}$ のリストは自動的に作られる。サイトの各組 $({\bf R},{\bf R}')$ と $N_1\times N_2\times N_3$ セルの各 ${\bf T}$ について、
+`m_gennlat_sig`（`m_gennlat.f90`）が最も短い等価なベクトル $|{\bf R}-{\bf R}'+\bar{\bf T}|$ を保持し（`nlat`、範囲は `nlatS:nlatE`）、
+`bloch2` が縮退したものについて位相因子を平均する（等しい分数の重み）。
 
-## Interpolation of the self-energy in the Brillouin zone {#sigma-interpolation}
+## Brillouin ゾーンでの自己エネルギーの内挿 {#sigma-interpolation}
 
-Here we show
-an interpolation procedure for giving
-$V^{\rm xc}_{ {\bf k} }$ at any ${\bf k}$,
-from $V^{\rm xc}_{ {\bf k} }$ calculated only at the regular mesh points ${\bf k}(i_1,i_2,i_3)$.
-This interpolation is used for the offset-$\Gamma$ method that
-requires $W(\omega)$ at $\{ {\bf k}_{0i}\}$;
-to calculate this $W(\omega)$, we need
-eigenfunctions and eigenvalues not only
-at the regular mesh points ${\bf k}(i_1,i_2,i_3)$
-but also at ${\bf k}(i_1,i_2,i_3)+{\bf k}_{0i}$.
-This interpolation is also useful for plotting
-energy bands.
-A key point of the interpolation is that $V^{\rm xc}$
-is expanded in real space in highly localized MTOs as follows.
+ここでは、規則的なメッシュ点 ${\bf k}(i_1,i_2,i_3)$ でだけ計算した $V^{\rm xc}_{ {\bf k} }$ から、
+任意の ${\bf k}$ での $V^{\rm xc}_{ {\bf k} }$ を与える
+内挿の手順を示す。
+この内挿は、$\{ {\bf k}_{0i}\}$ での $W(\omega)$ を必要とする
+offset-$\Gamma$ 法で使われる。
+この $W(\omega)$ を計算するには、
+規則的なメッシュ点 ${\bf k}(i_1,i_2,i_3)$ だけでなく
+${\bf k}(i_1,i_2,i_3)+{\bf k}_{0i}$ でも
+固有関数と固有値が要る。
+この内挿はエネルギーバンドを描くのにも
+役に立つ。
+内挿の要点は、次のように $V^{\rm xc}$
+を局在性の高い MTO で実空間展開することである。
 
-At the end of a QSGW iteration (`hqpe_sc`), we obtain the matrix elements
-$\langle {\Psi_{ {\bf k}n} }| {\it \Delta} V^{\rm xc}_{\bf k}| {\Psi_{ {\bf k}m} }\rangle$ on the regular mesh
-points of ${\bf k}$, where
-${\it \Delta} V^{\rm xc}_{\bf k}=V^{\rm xc}_{\bf k}-V^{\rm xc,LDA}_{\bf k}$.
-Then it is converted to the representation in the APW and MTO bases as
+QSGW の反復の終わり（`hqpe_sc`）で、規則的な ${\bf k}$ メッシュ点上の行列要素
+$\langle {\Psi_{ {\bf k}n} }| {\it \Delta} V^{\rm xc}_{\bf k}| {\Psi_{ {\bf k}m} }\rangle$ を得る。ここで
+${\it \Delta} V^{\rm xc}_{\bf k}=V^{\rm xc}_{\bf k}-V^{\rm xc,LDA}_{\bf k}$ である。
+次に、これを APW と MTO 基底での表示に変換する。
 $$\begin{aligned}
 \langle \chi^{ {\bf k} }_a| {\it \Delta} V^{\rm xc}_{\bf k}| \chi^{ {\bf k} }_b \rangle
 = \sum_{n,m} \left(z^{-1}\right)^*_{an}\langle {\Psi_{ {\bf k}n} }|{\it \Delta} V^{\rm xc}_{\bf k}|
@@ -1454,77 +1434,77 @@ $$\begin{aligned}
 \end{aligned}
 \tag{I73}
 $$
-where we use the simplified basis index $a$, which is the index for specifying a basis
-(${\bf R}L{j}$ for MTO or ${ {\bf G} }$ for APW).
-Thus $\chi^{ {\bf k} }_a$ denotes the APWs or MTOs in Eq. (I1);
-$z_{na}$ (${\bf k}$ is omitted for simplicity)
-denotes the coefficients of the eigenfunctions at ${\bf k}$, that is,
-$z^{ {{\bf k} }n}_{ {\bf R}L{j} }$ and $z^{ {\bf k}n}_{ {\bf G} }$ in Eq. (I1) together.
-This $z_{an}$ is identified as a conversion matrix that connects
-eigenfunctions (band index $n$) and the APW and MTO bases (basis index $a$).
+ここで基底を指定する簡略化した基底の添字 $a$ を用いる
+（MTO なら ${\bf R}L{j}$、APW なら ${ {\bf G} }$）。
+したがって $\chi^{ {\bf k} }_a$ は Eq. (I1) の APW または MTO を表す。
+$z_{na}$（簡単のため ${\bf k}$ を省く）
+は ${\bf k}$ での固有関数の係数、すなわち
+Eq. (I1) の $z^{ {{\bf k} }n}_{ {\bf R}L{j} }$ と $z^{ {\bf k}n}_{ {\bf G} }$ をまとめたものを表す。
+この $z_{an}$ は、固有関数（バンドの添字 $n$）と APW・MTO 基底（基底の添字 $a$）を
+結ぶ変換行列とみなせる。
 
-To obtain real-space representation of ${\it \Delta} V^{\rm xc}$, we need a representation
-expanded in the basis that consist of the Bloch-summed localized orbitals,
-which are periodic for ${\bf k}$ in the BZ. However, this is not the case for the APWs in
-Eq. (I73). To overcome this problem, we use an approximation
-in which we only take the matrix elements
-related to MTOs, that is, the elements
+${\it \Delta} V^{\rm xc}$ の実空間表示を得るには、
+BZ の ${\bf k}$ について周期的な、Bloch 和をとった局在軌道からなる基底で
+展開した表示が要る。しかし、Eq. (I73) の APW はそうなっていない。
+この問題を克服するため、
+MTO に関係する行列要素、すなわち
+$a$ と $b$ が MTO を指定する要素
 $\langle \chi^{ {\bf k} }_a| {\it \Delta} V^{\rm xc}_{\bf k}| \chi^{ {\bf k} }_b \rangle$
-where $a$ and $b$ specify MTOs.
-This means that the part of ${\it \Delta} V^{\rm xc}$ related to APWs is projected onto the basis of MTOs.
-This approximation can be reasonable as long as the main part of ${\it \Delta} V^{\rm xc}$ can be
-well expanded in MTOs,
-although we need numerical tests to confirm the accuracy.
-Then we obtain a real-space representation of
-${\it \Delta} V^{\rm xc}$ expanded in MTOs from the MTO part of
-$\langle \chi^{ {\bf k} }_a| {\it \Delta} V^{\rm xc}_{\bf k}| \chi^{ {\bf k} }_b \rangle$ by Fourier transformation.
-Then we can have interpolated ${\it \Delta} V^{\rm xc}$ at any ${\bf k}$ by inverse Fourier transformation.
-Since we use highly localized MTOs,
-this interpolation is more stable
-than the previous one in FP-LMTO-QSGW [kotani_quasiparticle_2007].
-The complicated interpolation procedure
-given in Sec.II-G in Ref.[kotani_quasiparticle_2007] is no
-longer necessary.
+だけをとる近似を用いる。
+これは、${\it \Delta} V^{\rm xc}$ のうち APW に関係する部分を MTO の基底に射影することを意味する。
+精度を確かめるには数値的な試験が要るが、
+${\it \Delta} V^{\rm xc}$ の主要部分が MTO でよく展開できる限り、
+この近似は妥当でありうる。
+こうして、$\langle \chi^{ {\bf k} }_a| {\it \Delta} V^{\rm xc}_{\bf k}| \chi^{ {\bf k} }_b \rangle$ の MTO 部分から
+Fourier 変換によって、MTO で展開した ${\it \Delta} V^{\rm xc}$ の
+実空間表示を得る。
+そして、逆 Fourier 変換によって任意の ${\bf k}$ で内挿した ${\it \Delta} V^{\rm xc}$ が得られる。
+局在性の高い MTO を用いるので、
+この内挿は FP-LMTO-QSGW での以前のもの [kotani_quasiparticle_2007]
+より安定である。
+Ref.[kotani_quasiparticle_2007] の Sec.II-G で与えた
+複雑な内挿手順は
+もはや必要ない。
 
-To reduce the computational time,
-we calculate the matrix elements $\langle {\Psi_{ {\bf k}n} }|{\it \Delta} V^{\rm xc}_{\bf k}| {\Psi_{ {\bf k}m} }\rangle$ only up to the states whose
-eigenvalues are less than $E_{\rm MAX}^\Sigma$ (`[gw] emax_sigm`).
-Then the high energy parts of the matrix elements are assumed
-to be diagonal, where their values are given by an energy-weighted average (`ESEAVR` in `hqpe_sc`)
-of calculated diagonal elements.
+計算時間を減らすため、
+行列要素 $\langle {\Psi_{ {\bf k}n} }|{\it \Delta} V^{\rm xc}_{\bf k}| {\Psi_{ {\bf k}m} }\rangle$ は、
+固有値が $E_{\rm MAX}^\Sigma$（`[gw] emax_sigm`）より小さい状態までしか計算しない。
+行列要素の高エネルギー部分は
+対角であると仮定し、その値は計算した対角要素の
+エネルギー重み付き平均（`hqpe_sc` の `ESEAVR`）で与える。
 
-## Crystal symmetry for GW calculation
+## GW 計算のための結晶の対称性
 
-**Space-group operations.** `lmf` finds the space-group operations (with spglib by default; [lmf: symmetry with spglib](./lmf#spglib-symmetry)) and,
-with `--jobgw`, writes the point-group parts `symops(3,3,ig), ig=1,ngrp` and the translations `ag` into `__HAMindex` (`m_hamindexW_init` in `m_hamindex.f90`, called in `main_lmf.f90`).
-For example, GaAs has 24 operations.
+**空間群の操作。** `lmf` は空間群の操作を求め（既定では spglib を用いる。[lmf: spglib による対称性](./lmf#spglib-symmetry)）、
+`--jobgw` のとき、点群の部分 `symops(3,3,ig), ig=1,ngrp` と並進 `ag` を `__HAMindex` に書き出す（`m_hamindex.f90` の `m_hamindexW_init`、`main_lmf.f90` で呼ぶ）。
+たとえば GaAs では操作は 24 個である。
 
-The GW programs read them through the module `m_hamindex` (`symops`, `ngrp`, `invgx`).
-`mptauof_zmel` in `m_zmel.f90` calls `mptauof` (`m_symderive.f90`), which gives, for each operation, the atom to which each atom is mapped (`miat`) and the lattice translation (`tiat`).
-See the comments at the beginning of `mptauof`.
+GW のプログラムは module `m_hamindex`（`symops`, `ngrp`, `invgx`）を通してこれらを読む。
+`m_zmel.f90` の `mptauof_zmel` は `mptauof`（`m_symderive.f90`）を呼ぶ。`mptauof` は、各操作について、各原子が写される原子（`miat`）と格子並進（`tiat`）を与える。
+`mptauof` の冒頭のコメントを参照。
 
-The operations can be checked by `lmchk` in advance. For the ${\bf k}$ points, the inversion is added because of the time-reversal symmetry
-($|\psi_{-{\bf k}}({\bf r})|^2=|\psi_{\bf k}({\bf r})|^2$ for a real local potential); this needs attention when there is an orbital moment (LDA+U, SOC).
+操作は事前に `lmchk` で確かめられる。${\bf k}$ 点については、時間反転対称性のために反転が加えられる
+（実の局所ポテンシャルでは $|\psi_{-{\bf k}}({\bf r})|^2=|\psi_{\bf k}({\bf r})|^2$）。軌道モーメントがあるとき（LDA+U、SOC）は注意が要る。
 
-The symmetry is controlled by `symgrp` at the top level of `ctrlg.<sname>.toml`: `"find"` (the default) uses the symmetry of the crystal structure,
-and generators can be given to use a lower symmetry on purpose (for example, NiO is deformed along (111) in reality, but we may calculate it without the deformation).
-**Antiferromagnetic symmetry**: write `af = ±k` on the pair of sites in `[[site]]`, and `symgrpaf = "find"`; the operations that map the up-spin site to the down-spin one
-(with the spin inversion) are added. Use it with `pwmode = 11`.
+対称性は `ctrlg.<sname>.toml` の最上位の `symgrp` で制御する。`"find"`（既定）は結晶構造の対称性を用いる。
+生成元を与えて、意図的に低い対称性を用いることもできる（たとえば NiO は実際には (111) 方向に歪んでいるが、歪みなしで計算してもよい）。
+**反強磁性の対称性**: `[[site]]` のサイトの組に `af = ±k` を書き、`symgrpaf = "find"` とする。上向きスピンのサイトを下向きスピンのサイトに写す操作
+（スピン反転を伴う）が加えられる。`pwmode = 11` と一緒に使う。
 
-## Spherical Harmonics and Real harmonics in ecalj
+## ecalj における球面調和関数と実調和関数
 
-In ecalj, fortran codes are mainly based on the real harmonics $y_{lm}(\hat{\bf r})$,
-instead of the usual sperical (complex) harmonics $Y_{lm}(\hat{\bf r})$.
-The coefficients of eigenfunctions and so on are ordered as, e.g.
-$(m=-2, m=-1, m=0, m=1,m=2)$ for $l=2$.
-For example, `LMXA=4`, we have `(4+1)**2=25` harmonics,
-ordered as
+ecalj では、fortran のコードは主に、通常の球面（複素）調和関数 $Y_{lm}(\hat{\bf r})$ ではなく、
+実調和関数 $y_{lm}(\hat{\bf r})$ に基づく。
+固有関数の係数などは、たとえば $l=2$ では
+$(m=-2, m=-1, m=0, m=1,m=2)$ の順に並ぶ。
+たとえば `LMXA=4` では `(4+1)**2=25` 個の調和関数があり、
+次の順に並ぶ。
 $y_{00},y_{-11},y_{01},y_{11},y_{-22},y_{-12},... ,y_{22},y_{-33},...y_{33},
 y_{-44},...y_{44}$.
-The real harmonics (times $r^l$) are made by `sylm` (`sylm.f90`) with the normalization `cy` of `sylmnc`; for $l=1$ the order is $y, z, x$, and for $l=2$ it is $xy, yz, 3z^2-r^2, xz, x^2-y^2$ (up to the normalization). $m\gt 0$ is the $\cos m\phi$ and $m\lt 0$ the $\sin |m|\phi$ type.
+実調和関数（$r^l$ を掛けたもの）は `sylm`（`sylm.f90`）が `sylmnc` の規格化 `cy` で作る。$l=1$ では順序は $y, z, x$、$l=2$ では $xy, yz, 3z^2-r^2, xz, x^2-y^2$ である（規格化を除いて）。$m\gt 0$ は $\cos m\phi$ 型、$m\lt 0$ は $\sin |m|\phi$ 型である。
 
-$y_{lm}(\hat{\bf r})$ is defined from $Y_{lm}(\hat{\bf r})$.
-Here $\hat{\bf r}=(\theta, \phi)$.
+$y_{lm}(\hat{\bf r})$ は $Y_{lm}(\hat{\bf r})$ から定義する。
+ここで $\hat{\bf r}=(\theta, \phi)$ である。
 
 $$\begin{aligned}
  y_{l0}(\hat{\bf r}) 
@@ -1538,7 +1518,7 @@ $$\begin{aligned}
 \end{aligned}
 \tag{I87}
 $$
-, where $m\gt 0$. Equivalently,
+、ここで $m\gt 0$ である。同値な形では、
 $$\begin{aligned}
  Y_{l0}(\hat{\bf r}) 
   & \equiv  y_{l0}(\hat{\bf r}). \\
@@ -1552,7 +1532,7 @@ $$\begin{aligned}
 \tag{I88}
 $$
 
-The definition of $Y_{lm}(\hat{\bf r})$ is
+$Y_{lm}(\hat{\bf r})$ の定義は次のとおりである。
 $$\begin{aligned}
  &Y_{lm}(\theta, \phi)
 =(-1)^m \left[ \frac{(2l+1)(l-m)!}{4 \pi (l+m)!} \right]^{\frac{1}{2} } P^m_l(\cos(\theta)) e^{i m \phi}, \\
@@ -1561,60 +1541,61 @@ $$\begin{aligned}
 \tag{I89}
 $$
 
-We take these definitions from
+これらの定義は
 (1)A.R.Edmonds, Angular Momentum in quantum Mechanics,
 Princeton University Press, 1960,
 (2)M.E.Rose, Elementary Theory of angular Momentum,
-John Wiley & Sons, INC. 1957. The definition of spherical harmonics is the same in these books.
+John Wiley & Sons, INC. 1957 からとった。球面調和関数の定義はこれらの本で同じである。
 
-## Rotation of eigenfunctions and MPB by the space-group operations {#spacegroup-rotation}
+## 空間群の操作による固有関数と MPB の回転 {#spacegroup-rotation}
 
-### space-group rotation of PMT eigenfunction
+### PMT 固有関数の空間群による回転
 
-We sometimes have to map eigenfuncions by space group operations.
+固有関数を空間群の操作で写す必要がときどきある。
 
-An space-group operation is specified by $(g,{\it \Delta})$, which contains
-a $3 \times 3$ space-rotaiton matrix $g$ together with a translation vector
-${\it \Delta}$. Recall that ${\it \Delta}= 0$ for the symmorphic cases.
-This $(g,{\it \Delta})$ makes a rotation ${\bf r}\to {\bf r}'$ as
+空間群の操作は $(g,{\it \Delta})$ で指定する。これは
+$3 \times 3$ の空間回転行列 $g$ と並進ベクトル
+${\it \Delta}$ からなる。共型（symmorphic）の場合は ${\it \Delta}= 0$ であることを思い出そう。
+この $(g,{\it \Delta})$ は回転 ${\bf r}\to {\bf r}'$ を
 $$\begin{aligned}
  &{\bf r}'=g({\bf r})+ {\it \Delta},
 \end{aligned}
 \tag{I96}
 $$
-which is equilalent to
+のように行う。これは次と同値である。
 $$\begin{aligned}
  &{\bf r}=g^{-1}({\bf r}')+ {\it \Delta}^{-1},\\
  &{\it \Delta}^{-1}=-g^{-1}({\it \Delta})
 \end{aligned}
 \tag{I97}
 $$
-Further, we calculate which atomic site is mapped to which
-atomic site for give $(g,{\it \Delta})$. It is given as
+さらに、与えられた $(g,{\it \Delta})$ について、どの原子サイトがどの
+原子サイトに写されるかを計算する。それは次で与えられる。
 $$\begin{aligned}
  &g({\bf R})+{\it \Delta}={\bf R}'+{\it \Delta}{\bf T}_{\bf R}.
 \end{aligned}
 \tag{I98}
 $$
-In `ecalj`, the array `miat(ipos=1,npos)` gives ${\bf R}'$ in
-the primitve cell.
-`tiat(3,ipos)` gives the translation of multiples of primitive cell vectors
-${\it \Delta}{\bf T}_{\bf R}$. Here ${\bf R}$ is the atom in the unit cell.
+`ecalj` では、配列 `miat(ipos=1,npos)` が基本セル内の ${\bf R}'$ を
+与える。
+`tiat(3,ipos)` は基本セルベクトルの整数倍の並進
+${\it \Delta}{\bf T}_{\bf R}$ を与える。ここで ${\bf R}$ は単位胞の中の原子である。
 
-The rotation of an function $F \to F'$ by $(g,{\it \Delta})$
-is defined so that $F'({\bf r}')=F({\bf r})$. Here $F'({\bf r}')$ is written as $g[F]({\bf r}')$.
-Thus we have
+$(g,{\it \Delta})$ による関数の回転 $F \to F'$ は、
+$F'({\bf r}')=F({\bf r})$ となるように定義する。ここで $F'({\bf r}')$ を $g[F]({\bf r}')$ と書く。
+したがって
 $$\begin{aligned}
 g[F]({\bf r})=F(g^{-1}({\bf r})+{\it \Delta}^{-1})
 \end{aligned}
 \tag{I99}
 $$
+となる。
 
-Let us apply this to the bloch sum function
+これを Eq. (I3) の Bloch 和の関数
 $A^{\bf k}_{ {\bf R}u L}({\bf r}) \equiv \sum_{\bf T} 
-A_{ {\bf R}u L}({\bf r-R-T}) \exp(i {\bf kT})$ in Eq. (I3).
-(Here we get the angular momentum index $L$. $u$ is for radial part of index.)
-Then we have
+A_{ {\bf R}u L}({\bf r-R-T}) \exp(i {\bf kT})$ に適用する。
+（ここで角運動量の添字 $L$ をとる。$u$ は動径部分の添字である。）
+すると
 $$
 \begin{aligned}
 g[A^{\bf k}_{ {\bf R}u L}]({\bf r})&=A^{\bf k}_{ {\bf R}u L}(g^{-1}({\bf r})+{\it \Delta}^{-1}) \\
@@ -1632,17 +1613,17 @@ g[A^{\bf k}_{ {\bf R}u L}]({\bf r})&=A^{\bf k}_{ {\bf R}u L}(g^{-1}({\bf r})+{\i
 \end{aligned}
 \tag{I100}
 $$
-where we use $A_{ {\bf R}' u L}({\bf r})=A_{ {\bf R}u L}({\bf r})$ since $R$ and $R'$
-sites should be equilalent sites. We use cancellation ${\it \Delta}=-g({\it \Delta}^{-1})$.
-$D_{L'L}(g)$ is the rotaion matrix of the real spherical harmonics for $g$.
+となる。ここで $R$ と $R'$ のサイトは等価なサイトのはずなので、$A_{ {\bf R}' u L}({\bf r})=A_{ {\bf R}u L}({\bf r})$ を用いた。
+また打ち消し ${\it \Delta}=-g({\it \Delta}^{-1})$ を用いた。
+$D_{L'L}(g)$ は $g$ に対する実球面調和関数の回転行列である。
 
-### Code: `rotevec`
+### コード: `rotevec`
 
-The routines are in `rotwave.f90`: `rotevec` rotates the coefficients of an eigenfunction in the PMT basis (MTO and APW parts), and `rotmatMTO` gives the rotation matrix of the MTO part.
+ルーチンは `rotwave.f90` にある。`rotevec` は PMT 基底（MTO と APW の部分）での固有関数の係数を回転し、`rotmatMTO` は MTO 部分の回転行列を与える。
 
-With this Eq. (I100), coeffecients of eigenfunctions for the MTO part of
-eigenfunctions are rotated (mapped) by the space group operation $g$.
-It is coded in `subroutine rotevec`(eigenfunction rotation routine) as
+この Eq. (I100) により、固有関数の MTO 部分の係数が
+空間群の操作 $g$ で回転される（写される）。
+これは `subroutine rotevec`（固有関数を回転するルーチン）で次のようにコードされている。
 
     ...
      phase = [(exp(-img2pi*sum(qtarget*tiat(:,ibas,igg))),ibas=1,nbas)]
@@ -1658,33 +1639,33 @@ It is coded in `subroutine rotevec`(eigenfunction rotation routine) as
      enddo
     ...
 
-Here
+ここで
 
-> `ndimh = nlmto + napw`: the size of PMT Hamiltonian\
-> `evec(1:nlmto,1:nband)` : the coeffecients of eigenfunctions on MTO\
-> `igg`: index specifying the space-group operation $g$\
+> `ndimh = nlmto + napw`: PMT ハミルトニアンのサイズ\
+> `evec(1:nlmto,1:nband)` : MTO 上の固有関数の係数\
+> `igg`: 空間群の操作 $g$ を指定する添字\
 > `qtarget`: qtarget=$g({\bf k})$\
-> `ibas`: site index within the primitive cell.\
-> `iorb` is the index of MTO part of block ($2l+1$ elements for $m=-l,-l+1,... ,l$).\
-> `l` is the angularmomentum index. l of L.\
-> `k` is the radial index.\
-> `miat`: site index ibas is mapped to `miat(ibas,igg)`\
+> `ibas`: 基本セル内のサイトの添字。\
+> `iorb` は MTO 部分のブロックの添字（$m=-l,-l+1,... ,l$ の $2l+1$ 個の要素）。\
+> `l` は角運動量の添字。L の l。\
+> `k` は動径の添字。\
+> `miat`: サイトの添字 ibas は `miat(ibas,igg)` に写される\
 > `tiat`: ${\it \Delta}{\bf T}_{\bf R}$\
-> `offl`: offset for the `iorb` block\
-> `offlrev`: offset for the (ibas,l,k) block\
-> The Block `init1:iend1` is mapped to the block `init2:iend2`.
+> `offl`: `iorb` ブロックのオフセット\
+> `offlrev`: (ibas,l,k) ブロックのオフセット\
+> ブロック `init1:iend1` はブロック `init2:iend2` に写される。
 
-In order to call `rotevec`, we have to call `readhamindex()` so as to set up variables
-`ltab,ktab,offl,oflrev,...` in `m_hamindex` module in advance.
+`rotevec` を呼ぶには、あらかじめ `readhamindex()` を呼んで、`m_hamindex` module の変数
+`ltab,ktab,offl,offlrev,...` を設定しておく必要がある。
 
-Orbital index tables (`ibas_tbl`, `l_tbl`, `k_tbl`, ...) are read from a file `@MNLA_CPHI`
-(written by `sugw.f90`) by `readmnla_cphi` (`readeigen.f90`).
-The last column in `@MNLA_CPHI` contains the orbital-block index.
-The orbital-blocks are specified by $l$ and $k$, its size is $2l+1$.
-The number of $i$ is exactly the number of lines of `MNLA_CPHI`.\
+軌道の添字の表（`ibas_tbl`, `l_tbl`, `k_tbl`, ...）は、ファイル `@MNLA_CPHI`
+（`sugw.f90` が書く）から `readmnla_cphi`（`readeigen.f90`）が読む。
+`@MNLA_CPHI` の最後の列は軌道ブロックの添字である。
+軌道ブロックは $l$ と $k$ で指定され、そのサイズは $2l+1$ である。
+$i$ の数はちょうど `MNLA_CPHI` の行数である。\
 
-In `subroutine rotevec`(eigenfunction rotation routine) we also have part for the APW.
-Formula is
+`subroutine rotevec`（固有関数を回転するルーチン）には APW の部分もある。
+式は次のとおりである。
 $$
 \begin{aligned}
 g[\exp(i ({\bf k}+{\bf G}){\bf r})]  
@@ -1697,12 +1678,12 @@ g[\exp(i ({\bf k}+{\bf G}){\bf r})]
 \tag{I101}
 $$
 
-(Our definition of PW (IPW) has 'no normalization factor'.)
-Here $g({\bf k})$ is pulled back to be $\bar{g}({\bf k})$ in the 1stBZ.
-Their difference is $g({\bf k})-\bar{g}({\bf k})$.
-We define `barG` as $\bar{G}=g({\bf G})+ (g({\bf k})-\bar{g}({\bf k}))$.
-Thus it is coded as\
-(here we use ${\bf q}$ instead of ${\bf k}$, sorry for confusion).
+（我々の PW (IPW) の定義には「規格化因子がない」。）
+ここで $g({\bf k})$ は第 1 BZ の $\bar{g}({\bf k})$ に引き戻される。
+その差は $g({\bf k})-\bar{g}({\bf k})$ である。
+`barG` を $\bar{G}=g({\bf G})+ (g({\bf k})-\bar{g}({\bf k}))$ と定義する。
+したがって次のようにコードされている\
+（ここでは ${\bf k}$ の代わりに ${\bf q}$ を用いている。紛らわしくて申し訳ない）。
 
     ...
       igg: index for space group operation.
@@ -1719,56 +1700,56 @@ Thus it is coded as\
       enddo
     ...
 
-### space-group rotation of MTIPW expansion of eigenfunction
+### 固有関数の MTIPW 展開の空間群による回転
 
-In ecalj, we re-expand eigenfuncitons in the manner of MTIPW form, that is,
-MTpart+IPWpart as in Eq. (I7) in the GW calculations.
-In the form of MTIPW, we have to map eigenfunctions by space-group operations.
-As in the manner of `rotevec`, we have `rotmto` and `rotipw` (`rotwave.f90`).
-These are for rotation MTpart and IPW parts; they are used in `readeigen.f90` to give `__CPHI` and `__GEIG` at the ${\bf k}$ points that are not stored, from the stored equivalent ones.
+ecalj の GW 計算では、固有関数を MTIPW の形、すなわち
+Eq. (I7) のように MT 部分 + IPW 部分で展開し直す。
+MTIPW の形で、固有関数を空間群の操作で写す必要がある。
+`rotevec` と同様に、`rotmto` と `rotipw`（`rotwave.f90`）がある。
+これらは MT 部分と IPW 部分の回転のためのものである。`readeigen.f90` で使われ、保存されていない ${\bf k}$ 点での `__CPHI` と `__GEIG` を、保存されている等価な点から与える。
 
-### space-group rotation of Mixed Product Basis
+### Mixed Product Basis の空間群による回転
 
-We need all the matrix elements $\langle \Psi_{ {\bf q+k}n'}| \Psi_{ {\bf k}n} E^{\bf q}_\nu \rangle$.
-for given inputs of ${\bf q},{\bf k},n,n'$. Here $E^{\bf q}_\nu$ is the Coulomb-diagonalized mixed product basis
-[friedrich_efficient_2010].
+与えられた ${\bf q},{\bf k},n,n'$ に対して、すべての行列要素 $\langle \Psi_{ {\bf q+k}n'}| \Psi_{ {\bf k}n} E^{\bf q}_\nu \rangle$ が要る。
+ここで $E^{\bf q}_\nu$ は Coulomb 相互作用を対角化した mixed product basis である
+[friedrich_efficient_2010]。
 
-This is a memo for the EIBZ scheme, which is not used now ([IBZ and EIBZ](#ibz-and-eibz-scheme)); `m_rotMPB2` and `x0kf_v4hz_symmetrize` are not in the present code, while `rotmto2` and `rotipw2` remain in `rotwave.f90`.
-In the procedure of EIBZ (See Eq. (I95) around), we have to rotate MPB.
-Module `module m_rotMPB2 (in m_rotMPB.F)` is for generating the rotation matrix `zrotm`.
-With `zrotm`, we rotate MPB in `call X0kf_v4hz_symmetrize`, where
-we multiply the conversion matrix `zcousq` for conversion from MPB to $\{E^{\bf q}_\nu\}$ as\
-`  rcxq(:,:,iw,jpm) = matmul(zcousqc,matmul(rcxq_core,zcousq))` (see code in `x0kf_v4hz_symmetrize`).
+これは EIBZ の方式についての覚え書きで、EIBZ は今は使っていない（[IBZ と EIBZ](#ibz-and-eibz-scheme)）。`m_rotMPB2` と `x0kf_v4hz_symmetrize` は今のコードにはなく、`rotmto2` と `rotipw2` は `rotwave.f90` に残っている。
+EIBZ の手順（Eq. (I95) のあたりを参照）では、MPB を回転する必要がある。
+module `module m_rotMPB2 (in m_rotMPB.F)` は回転行列 `zrotm` を作るためのものである。
+`zrotm` を用いて `call X0kf_v4hz_symmetrize` で MPB を回転する。そこでは
+MPB から $\{E^{\bf q}_\nu\}$ への変換行列 `zcousq` を次のように掛ける\
+`  rcxq(:,:,iw,jpm) = matmul(zcousqc,matmul(rcxq_core,zcousq))`（`x0kf_v4hz_symmetrize` のコードを参照）。
 
-`zrotm` is generated by calling `rotmto2,rotipw2`.
-These are essentially similar with `rotmto,rotipw`, but the basis set in the MT region,
-and the basis set for the interstitial region are different from the case of eigenfunctions.
-Thus we supply `ibas_tbl` and so on as
+`zrotm` は `rotmto2,rotipw2` を呼んで作る。
+これらは本質的に `rotmto,rotipw` と似ているが、MT 領域の基底と
+格子間領域の基底が固有関数の場合とは異なる。
+そこで `ibas_tbl` などを次のように与える。
 
           use m_pbindex,only: norbt, ibas_tbl,l_tbl,k_tbl,offset_tbl,offset_rev_tbl,
          &     max_ibas_tbl,max_l_tbl,max_k_tbl,max_offset_tbl
 
-in `module m_rotMPB2`.
+（`module m_rotMPB2` の中。）
 
-## SOC matrix for the MLO
+## MLO のための SOC 行列
 
-The Wannier-function route (`hsocmat`) was removed. The SOC matrix is now used for the MLO (`job_mlo_soc`; [MLO §4](./mlo#mlo-soc)):
+Wannier 関数の経路（`hsocmat`）は削除した。SOC 行列は今は MLO のために使う（`job_mlo_soc`。[MLO §4](./mlo#mlo-soc)）。
 
-1. `lmf --writeham --socmatrix` (scalar-relativistic, `[ham] so = 0`) writes the Hamiltonian in the PMT basis (`__HamiltonianPMT`) and, separately,
-   the SOC matrix $\langle F_{{\bf k}i}|H_{\rm SOC}|F_{{\bf k}j}\rangle$ (`hammhso(ndimh,ndimh,3)` made by `aughsoc`; the three are the $\uparrow\uparrow$, $\downarrow\downarrow$ and $\uparrow\downarrow$ blocks, per orbital without spinor doubling) into `__HamiltonianPMTsoc` (`m_bandcal.f90`).
-   Here $F_{{\bf k}i}$ are the basis functions of the PMT method, and $\Psi_{{\bf k}n\sigma}=\sum_i F_{{\bf k}i}\alpha^{\bf k}(i,n,\sigma)$.
-2. `mlo --socmatrix` transforms it to the MLO basis together with the Hamiltonian (`hammhsor` in `HamRsMLO`, read in `m_mlo_ham.f90`),
-   and adds it as a perturbation to the MLO Hamiltonian (spinor dimension `nspinor = 2`).
-3. The Fermi energy is taken from a full-SOC `lmf` run (`[ham] so = 1`, `efermi_soc`).
+1. `lmf --writeham --socmatrix`（スカラー相対論、`[ham] so = 0`）は、PMT 基底でのハミルトニアン（`__HamiltonianPMT`）と、それとは別に
+   SOC 行列 $\langle F_{{\bf k}i}|H_{\rm SOC}|F_{{\bf k}j}\rangle$（`aughsoc` が作る `hammhso(ndimh,ndimh,3)`。三つは $\uparrow\uparrow$, $\downarrow\downarrow$, $\uparrow\downarrow$ のブロックで、スピノルで倍にせず軌道ごと）を `__HamiltonianPMTsoc` に書き出す（`m_bandcal.f90`）。
+   ここで $F_{{\bf k}i}$ は PMT 法の基底関数で、$\Psi_{{\bf k}n\sigma}=\sum_i F_{{\bf k}i}\alpha^{\bf k}(i,n,\sigma)$ である。
+2. `mlo --socmatrix` はそれをハミルトニアンと一緒に MLO 基底に変換し（`HamRsMLO` の `hammhsor`、`m_mlo_ham.f90` で読む）、
+   MLO ハミルトニアンに摂動として加える（スピノルの次元 `nspinor = 2`）。
+3. Fermi エネルギーは full-SOC の `lmf` の計算（`[ham] so = 1`、`efermi_soc`）からとる。
 
-The SOC splitting of the MLO bands should be checked against the bands of the full calculation with SOC (`job_mlo_soc` draws both).
+MLO バンドの SOC 分裂は、SOC を入れた完全な計算のバンドと比べて確かめるべきである（`job_mlo_soc` は両方を描く）。
 
-## Harris-Foulkner energy and Kohn-Sham energy
+## Harris-Foulkner エネルギーと Kohn-Sham エネルギー
 
-In LDA/GGA, on the way to self-consistency, input density and output
-density are not the same (not self-consitent).
-Thus we define two total energy for given input density $n^{\rm in}$,
-the Harris-Foulkner energy $E_{\rm Harris}$ and the Hohenberg-Kohn energy $E_{\rm HoKohn}$
+LDA/GGA では、自己無撞着に至る途中では、入力密度と出力
+密度は同じでない（自己無撞着でない）。
+そこで、与えられた入力密度 $n^{\rm in}$ に対して二つの全エネルギー、
+Harris-Foulkner エネルギー $E_{\rm Harris}$ と Hohenberg-Kohn エネルギー $E_{\rm HoKohn}$ を定義する。
 $$
 \begin{aligned}
 E_{\rm Harris}& =  E_{\rm k}^{\rm core} + E_{\rm B} \\
@@ -1783,63 +1764,64 @@ E_{\rm B} & =  \sum_p^{\rm occupied} \alpha_{p}^{i*} \langle F_i|H^{\rm in}|F_j 
 \end{aligned}
 \tag{I80}
 $$
-See Eqs.(B.1),(B.2)in Ref.[kotani_formulation_2015].
-These are slightly wrong because Eq.(31) for $E_{\rm xc}$ is wrong; it is
-not the functional of total charges (inlcuding nucleus) $n^{\rm Zc}+n^{\rm in}$,
-but the total electron density $n^{\rm c}+n^{\rm in}$.
-Based on the 3-component formalism in Ref.[kotani_formulation_2015],
-$E_{\rm es}$ have explicit dependendence on atomic positions ${\bf R}_a$, but $E_{\rm xc}$ does not.
-The dependence is via the mutipole transformation in Eq.(14).
-Search `ham_ehf,ham_ehk` in `m_bndfp.f90`.
-The $E_{\rm Harris}$ is given at `call m_mkehkf_etot1(sev, eharris)`, while
-$E_{\rm HoKohn}$ is given by
-`call m_mkehkf_etot2(ekinval, eksham)` (`mkehkf.f90`).
-$E_{\rm Harris}$ and $E_{\rm HoKohn}$ are shown in `save.*` file.
+Ref.[kotani_formulation_2015] の Eqs.(B.1),(B.2) を参照。
+$E_{\rm xc}$ についての Eq.(31) が誤っているので、これらは少し誤っている。$E_{\rm xc}$ は
+全電荷（原子核を含む）$n^{\rm Zc}+n^{\rm in}$ の汎関数ではなく、
+全電子密度 $n^{\rm c}+n^{\rm in}$ の汎関数である。
+Ref.[kotani_formulation_2015] の 3 成分形式に基づくと、
+$E_{\rm es}$ は原子位置 ${\bf R}_a$ に陽に依存するが、$E_{\rm xc}$ は依存しない。
+その依存性は Eq.(14) の多重極変換を通じたものである。
+`m_bndfp.f90` で `ham_ehf,ham_ehk` を探すこと。
+$E_{\rm Harris}$ は `call m_mkehkf_etot1(sev, eharris)` で与えられ、
+$E_{\rm HoKohn}$ は
+`call m_mkehkf_etot2(ekinval, eksham)`（`mkehkf.f90`）で与えられる。
+$E_{\rm Harris}$ と $E_{\rm HoKohn}$ は `save.*` ファイルに示される。
 
-The band energy $E_{\rm B}$ is stored in the module variable `sev` in `m_bndfp.f90`;
-this is shown as `sev` in `save.*`. The kinetic energy
+バンドエネルギー $E_{\rm B}$ は `m_bndfp.f90` の module 変数 `sev` に格納される。
+これは `save.*` に `sev` として示される。$E_{\rm HoKohn}$ に含まれる
+運動エネルギー
 $E_{\rm k}^{\rm core}+E_{\rm B} 
 - V_{\rm es}[n^{\rm Zc}+n^{\rm in},{\bf R}_a] \cdot n^{\rm out}
-- V_{\rm xc}[n^{\rm c}+n^{\rm in}] \cdot n^{\rm out}$ contained in
-the $E_{\rm HoKohn}$ is calculated as `ekinval` by `mkekin` (`m_bndfp_util.f90`).
+- V_{\rm xc}[n^{\rm c}+n^{\rm in}] \cdot n^{\rm out}$ は、
+`mkekin`（`m_bndfp_util.f90`）が `ekinval` として計算する。
 
-In LDA/GGA calculations by `lmf`, `save.*` file contains a line per iteration (written in `m_lmfp.f90`; the energies are relative to the sum of the reference energies `eref` of the species over the atoms, `ham_seref` of `m_lmfinit.f90`).
+`lmf` による LDA/GGA の計算では、`save.*` ファイルは反復ごとに 1 行を含む（`m_lmfp.f90` で書く。エネルギーは、原子についての種の参照エネルギー `eref` の和に対する相対値である。`m_lmfinit.f90` の `ham_seref`）。
 
     c ehf(eV)=-15730.0982239 ehk(eV)=-15730.0982222 sev(eV)=-15.7737393
 
-shows $E_{\rm Harris}=$-15730.0982239 eV and $E_{\rm HoKohn}=$-15730.0982222 eV, as well as the valence
-band energy $=-15.7737393$ eV.
-In principle, $E_{\rm Harris}$ and $E_{\rm HoKohn}$ should be exactly the same when converged;
-the difference is the numerical error. `c` at the begining of line means "converged".
-${\tt h}$ means the 1st iteration from `atm.*` file (superposition of atomic density); the letters are `svflg='cxhiC'` in `m_lmfp.f90` (`x`: the maximum number of iterations reached, `i`: an intermediate iteration, `C`: converged relaxation).
+これは $E_{\rm Harris}=$-15730.0982239 eV と $E_{\rm HoKohn}=$-15730.0982222 eV、および価電子の
+バンドエネルギー $=-15.7737393$ eV を示す。
+原理的には、収束したとき $E_{\rm Harris}$ と $E_{\rm HoKohn}$ は厳密に一致するはずである。
+その差は数値誤差である。行頭の `c` は「収束した」を意味する。
+${\tt h}$ は `atm.*` ファイル（原子密度の重ね合わせ）からの最初の反復を意味する。これらの文字は `m_lmfp.f90` の `svflg='cxhiC'` である（`x`: 反復の最大回数に達した、`i`: 途中の反復、`C`: 緩和が収束した）。
 
-## IBZ and EIBZ scheme
+## IBZ と EIBZ の方式
 
-The IBZ part below is what the code uses: the self-energy is summed over ${\bf k}$ of the IBZ and the rotations (`kx` and `irot` in `m_sxcf_sc.f90`, with the table `irkip`). The EIBZ part is a memo; it is not used now (`eibzgen.f90` is there but not called, `[gw] EIBZmode` is read but not used, and `m_eibz`, `x0kf_v4hz_symmetrize`, `zsecsym` and `rotwvigg` are not in the present code). It may be used again.
+以下の IBZ の部分は、コードが使っているものである。自己エネルギーは IBZ の ${\bf k}$ と回転について和をとる（`m_sxcf_sc.f90` の `kx` と `irot`、表は `irkip`）。EIBZ の部分は覚え書きで、今は使っていない（`eibzgen.f90` はあるが呼ばれない。`[gw] EIBZmode` は読むが使わない。`m_eibz`、`x0kf_v4hz_symmetrize`、`zsecsym`、`rotwvigg` は今のコードにない）。再び使うことがあるかもしれない。
 
-We describe the EIBZ procedure given in III.G. in Ref.[friedrich_efficient_2010], for the polarization function and for the self-energy.
+Ref.[friedrich_efficient_2010] の III.G. で与えられた EIBZ の手順を、分極関数と自己エネルギーについて述べる。
 [IBZ]{.underline}\
-Recall IBZ first. We have a set of space-group operation
-$S_A=\{A_i |i=1,... N_A\}$ (except translation by reciprocal vectors).
-$A_i$ is represented by space rotation and translation.
-This $S_A$ can include time-reversal operation. ${\bf q}'=A_i({\bf q})$ belongs to BZ.
-(Simple multiplication of rotation matrix to ${\bf q}$ may (or may not) need pulling back to (1st) BZ).
-For a set of mesh points "$\{ {\bf q}\}$ in the BZ", $A_i$ gives an one-to-one mapping between them.
-"$\{ {\bf q}\}$ in IBZ" is a sub set of 1stBZ.
+まず IBZ を思い出そう。空間群の操作の集合
+$S_A=\{A_i |i=1,... N_A\}$ がある（逆格子ベクトルによる並進を除く）。
+$A_i$ は空間回転と並進で表される。
+この $S_A$ は時間反転操作を含んでよい。${\bf q}'=A_i({\bf q})$ は BZ に属する。
+（${\bf q}$ に回転行列を単に掛けたものは、（第 1）BZ への引き戻しが要る場合と要らない場合がある。）
+「BZ の中の $\{ {\bf q}\}$」というメッシュ点の集合に対して、$A_i$ はそれらの間の一対一の写像を与える。
+「IBZ の中の $\{ {\bf q}\}$」は第 1 BZ の部分集合である。
 
-Consider a set of functions dependent of ${\bf q}$ as $\{g_{ {\bf q} }({\bf r}, n)\}$.
-We can calculate $X$ defined as a sum of $F[g_{\bf q}]$ as
+${\bf q}$ に依存する関数の集合 $\{g_{ {\bf q} }({\bf r}, n)\}$ を考える。
+$F[g_{\bf q}]$ の和として定義される $X$ を次のように計算できる。
 $$\begin{aligned}
 X=\sum_{ {\bf q}\in {\rm BZ} } F[g_{\bf q}]
 = \sum_{A_i \in S_A } 
 \sum_{ {\bf q}\in {\rm IBZ} } \frac{N_{\bf q} }{N_A} F[g_{A_i({\bf q})}] \end{aligned}
 \tag{I91}
 $$
-Here IBZ is a set of ${\bf q}$ from which we can generate all the mesh points in the BZ.
-$N_{\bf q}$ is the number of mesh points generated from ${\bf q}$ by $S_A$ (the number of the set ${\bf q}^*$).
-For ${\bf q}=0$, $N_{\bf q}=1$. For general ${\bf q}$ (lowest symmetric points), $N_{\bf q}=N_A$.
+ここで IBZ は、BZ のすべてのメッシュ点を生成できる ${\bf q}$ の集合である。
+$N_{\bf q}$ は $S_A$ によって ${\bf q}$ から生成されるメッシュ点の数（集合 ${\bf q}^*$ の数）である。
+${\bf q}=0$ では $N_{\bf q}=1$ である。一般の ${\bf q}$（最も対称性の低い点）では $N_{\bf q}=N_A$ である。
 
-If $A_i[g_{\bf q}]= g_{A_i({\bf q})}({\bf r},n)$ is satisfied, we have
+$A_i[g_{\bf q}]= g_{A_i({\bf q})}({\bf r},n)$ が成り立てば、
 $$
 \begin{aligned}
 X=\sum_{ {\bf q}\in {\rm BZ} } F[g_{\bf q}]
@@ -1848,32 +1830,33 @@ X=\sum_{ {\bf q}\in {\rm BZ} } F[g_{\bf q}]
 \end{aligned}
 \tag{I92}
 $$
-This shows how we evaluate $X$ only from $\{g_{ {\bf q} }({\bf r}, n)|{\bf q}\in {\rm IBZ}\}$.
+となる。
+これは、$\{g_{ {\bf q} }({\bf r}, n)|{\bf q}\in {\rm IBZ}\}$ だけから $X$ を評価する方法を示している。
 
-(NOTE: eigenfunctions calculated by diagonalization satisfy
-$A_i[g_{\bf q}]= g_{A_i({\bf q})}({\bf r},n)$ except phase factor. We consider cases that the phase factor is irrelevant.)
+（注: 対角化で計算した固有関数は、位相因子を除いて
+$A_i[g_{\bf q}]= g_{A_i({\bf q})}({\bf r},n)$ を満たす。位相因子が関係しない場合を考える。）
 
  \
 [EIBZ]{.underline}\
-We consider sub group of $S_A$ with keeping given ${\bf k}$.
-This sub group is written as $S^{\bf k}_A=\{A^{\bf k}_i |i=1,2,...,N_A^{\bf k}\}$.
-For this sub group, we apply the same logic of IBZ, resulting
+与えられた ${\bf k}$ を保つ $S_A$ の部分群を考える。
+この部分群を $S^{\bf k}_A=\{A^{\bf k}_i |i=1,2,...,N_A^{\bf k}\}$ と書く。
+この部分群に IBZ と同じ論理を適用すると、次を得る。
 $$\begin{aligned}
 X=\sum_{ {\bf q}\in {\rm BZ} } F[g_{\bf q}] = 
 \sum_{A^{\bf k}_i \in S_A^{\bf k} } \sum_{ {\bf q}\in {\rm EIBZ({\bf k})} }
 \frac{N_{\bf q}^{\bf k} }{N_A^{\bf k} } F[A^{\bf k}_i[g_{\bf q}]] \end{aligned}
 \tag{I93}
 $$
-Here EIBZ$({\bf k})$ is a set of ${\bf q}$ from which we can generate all the mesh points in the BZ.
-$N^{\bf k}_{\bf q}$ is the number of mesh points
-generated from $N_{\bf q}$ by $S^{\bf k}_A$. Note that ${\bf k}$ is fixed in Eq. (I93).
-Since $S_A^{\bf k}\subset S_A$, IBZ $\subset$ EIBZ(${\bf k}$). That is, equivalent $q$ poinst in IBZ
-might be diffrenciated in EIBZ(${\bf k}$).
+ここで EIBZ$({\bf k})$ は、BZ のすべてのメッシュ点を生成できる ${\bf q}$ の集合である。
+$N^{\bf k}_{\bf q}$ は、$S^{\bf k}_A$ によって $N_{\bf q}$ から生成される
+メッシュ点の数である。Eq. (I93) では ${\bf k}$ は固定されていることに注意。
+$S_A^{\bf k}\subset S_A$ なので、IBZ $\subset$ EIBZ(${\bf k}$) である。すなわち、IBZ で等価な $q$ 点が
+EIBZ(${\bf k}$) では区別されることがある。
 
-See Eq.(50) in Ref.[friedrich_efficient_2010].
-`call Seteibz -->call eibzgen` returns $S_A^{\bf k}$ stored in the modele `m_eibz`.
+Ref.[friedrich_efficient_2010] の Eq.(50) を参照。
+`call Seteibz -->call eibzgen` は $S_A^{\bf k}$ を返し、module `m_eibz` に格納する。
 
-Note normazization is
+規格化は次のとおりであることに注意。
 $$\begin{aligned}
 N=\sum_{\bf q}1 = 
 \frac{1}{N_A^{\bf k} } \sum_{A^{\bf k}_i \in S_A^{\bf k} } 
@@ -1882,8 +1865,8 @@ N=\sum_{\bf q}1 =
 \tag{I94}
 $$
 
-[For poralization]{.underline}\
-We apply Eq. (I93) to $F^{\bf k}[g_{\bf q}]$, resulting
+[分極関数について]{.underline}\
+Eq. (I93) を $F^{\bf k}[g_{\bf q}]$ に適用すると、次を得る。
 $$\begin{aligned}
 X({\bf k})
 =\frac{1}{N_A^{\bf k} } \sum_{A^{\bf k}_i \in S_A^{\bf k} } \left( 
@@ -1891,54 +1874,54 @@ X({\bf k})
 \end{aligned}
 \tag{I95}
 $$
-This means that we have to calculate weighted average only for
-$g_{\bf q}\in {\rm EIBZ}({\bf k})$, and then finally symmetrized (symmetrization is in
-`call x0kf_v4hz_symmetrize`
-in `hx0fp0.sc.m.F,hx0fp0.m.F` or newly developing `hrcxq`.
+これは、$g_{\bf q}\in {\rm EIBZ}({\bf k})$ についてだけ重み付き平均を計算し、
+最後に対称化すればよいことを意味する（対称化は
+`hx0fp0.sc.m.F,hx0fp0.m.F` または新たに開発中の `hrcxq` の中の
+`call x0kf_v4hz_symmetrize` にある）。
 
-We apply Eq. (I95) to Eq.(22) in Ref.[friedrich_efficient_2010]
-resulting Eq.(51) in Ref.[friedrich_efficient_2010].
-Then we need to rotate MPB for given space group rotation $A^{\bf k}_i$.
-Note that $A^{\bf k}_i$ keeps ${\bf k}$ of MPB. This is in the next section.
+Eq. (I95) を Ref.[friedrich_efficient_2010] の Eq.(22) に適用すると、
+Ref.[friedrich_efficient_2010] の Eq.(51) を得る。
+そこで、与えられた空間群の回転 $A^{\bf k}_i$ に対して MPB を回転する必要がある。
+$A^{\bf k}_i$ は MPB の ${\bf k}$ を保つことに注意。これは次の節で述べる。
 
-Note that `call eibzgen` stores not only $S_A^{\bf q}$(`eibzsym`),
-but also the weight $N_{\bf q}^{\bf k}$ (`nwgt`) in the module `m_eibz`.
-(role of ${\bf q}$ and ${\bf k}$ may be turn around in `m_eibz`)
+`call eibzgen` は $S_A^{\bf q}$（`eibzsym`）だけでなく、
+重み $N_{\bf q}^{\bf k}$（`nwgt`）も module `m_eibz` に格納することに注意。
+（`m_eibz` では ${\bf q}$ と ${\bf k}$ の役割が入れ替わっているかもしれない。）
 
  \
-[For self-energy]{.underline}\
-In `hsfp0.sc.m.F`(not in `hsfp0.m.F`), we have symmetrization
-as Eq.(52) in Ref.[friedrich_efficient_2010].
-But used formula is a little different.
+[自己エネルギーについて]{.underline}\
+`hsfp0.sc.m.F`（`hsfp0.m.F` ではない）では、
+Ref.[friedrich_efficient_2010] の Eq.(52) のような対称化を行う。
+ただし用いる式は少し異なる。
 
-We use Eq. (I94) as it is.
-As in the same manner of poralization function, we call `eibzgen`
-at first. To obtain weighted sum of self-energy at ${\bf q}$,
-we calculate weigted sum for ${\bf k}\in {\rm EIBZ({\bf q})}$.
-(note the sum is controlled by `nrkip` which is the weights copied
-from `nwgt` (MPI parallelization is used). When `nrkip=0`, we
-skip corresponding do loop.)
+Eq. (I94) をそのまま用いる。
+分極関数と同じように、最初に `eibzgen` を
+呼ぶ。${\bf q}$ での自己エネルギーの重み付き和を得るため、
+${\bf k}\in {\rm EIBZ({\bf q})}$ について重み付き和を計算する。
+（和は `nrkip` で制御されることに注意。`nrkip` は `nwgt` から写した重みである
+（MPI 並列化を用いる）。`nrkip=0` のときは、
+対応する do ループを飛ばす。）
 
-Symmetrizer is `call zsecsym`, called from the main program of `hsfp0.sc.m.F`.
-Its core part is
+対称化を行うのは `call zsecsym` で、`hsfp0.sc.m.F` の主プログラムから呼ばれる。
+その中心部分は次のとおりである。
 
            zsect(ii1:ie1,ii2:ie2)= zsect(ii1:ie1,ii2:ie2) 
          &   + matmul( dconjg(transpose(rmatjj(1:ne1,1:ne1,iblk1))), 
          &     matmul(zsec(ii1:ie1,ii2:ie2,iqxx),
          &     rmatjj(1:ne2,1:ne2,iblk2)) )
 
-. This is the self-energy rotated by the rotation matrix `rmatjj`,
-which is generated by `call rotwvigg` in it.
-(NOTE: we carefully treat degenerated bands to keep symmetry well.
-It makes block decomposition(due to degeneracy) of self-energy matrix.
-A block is `zsect(ii1:ie1,ii2:ie2)`, where band indeces
-`ii1:ie1` are degenerated bands).
+。これは回転行列 `rmatjj` で回転した自己エネルギーである。
+`rmatjj` はその中の `call rotwvigg` で作られる。
+（注: 対称性をよく保つため、縮退したバンドを注意深く扱う。
+これにより自己エネルギー行列が（縮退による）ブロックに分解される。
+ブロックは `zsect(ii1:ie1,ii2:ie2)` で、バンドの添字
+`ii1:ie1` は縮退したバンドである。）
 
-## Electron-phonon coupling in MPB (suspended) {#electron-phonon}
+## MPB での電子格子結合（中断） {#electron-phonon}
 
-This work was suspended. The static $\epsilon^{-1}$ for phonons is written by `hgw` into `__W4PHONON.<iq>` when `w4pmode` is on, that is, when the offset-Γ points along $x,y,z$ were added by `qg4gw --job=201` (`ixyz` of `m_q0p.f90`; `m_llw.f90`).
+この作業は中断した。フォノンのための静的な $\epsilon^{-1}$ は、`w4pmode` がオンのとき、すなわち $x,y,z$ 方向の offset-Γ 点を `qg4gw --job=201` で加えたとき（`m_q0p.f90` の `ixyz`。`m_llw.f90`）に、`hgw` が `__W4PHONON.<iq>` に書き出す。
 
-To calculate derivative for electron-phonon (EP) coupling, we need
+電子格子（EP）結合のための微分を計算するには、次が要る。
 $$
 \begin{aligned}
 &\frac{\partial}{\partial {\bf r}_i} \left(\bar{J}_l(E,{\bf r}) Y_L(\hat{r})\right)\Big|_{ {\bf r}=0}=
@@ -1947,10 +1930,10 @@ $$
 \end{aligned}
 \tag{I39}
 $$
-For real spherical harmonics, cases are:
-$i=y$ and $L=(1,-1)$; $i=z$ and $L=(1,0)$; $i=x$ and $L=(1,1)$.
-Because we use MPB, it is necessary to evaluate the bare matrix element of the Coulomb interaction between nucleus and
-$\langle B\rangle$ as
+実球面調和関数では、場合は次のとおりである。
+$i=y$ と $L=(1,-1)$、$i=z$ と $L=(1,0)$、$i=x$ と $L=(1,1)$。
+MPB を用いるので、原子核と
+$\langle B\rangle$ の間の Coulomb 相互作用の裸の行列要素を次のように評価する必要がある。
 $$
 \langle B|\frac{\partial v({\bf r}-{\bf R})}{\partial {\bf R}_i}\rangle
 \tag{I40}
