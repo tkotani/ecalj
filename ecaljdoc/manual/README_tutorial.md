@@ -72,7 +72,7 @@
 * 次は https://arxiv.org/abs/2506.03477 の Figure 1 に示した QSGW のサイクルです。MPB は、固有関数の積を展開するための混合積基底（mixed product basis）のことです。 
 ![alt text](image-4.png) 
 * [QSGW の GPU による高速化](https://arxiv.org/abs/2506.03477) があります。この論文は QSGW の基本も説明しています。QSGW のアルゴリズムは GPU の計算にとてもよく合います。4 枚の GPU で、セルあたり 40 原子の系を計算できます（lmf の部分では、まだ GPU を効率よく使えていません）。PMT ではスラブ模型の大きな真空の領域も扱えます。
-* 手でパラメータを設定することなく、ほぼ自動で QSGW を行えます。そのため、ecalj は GW/QSGW を行うのに最も簡単なものの一つだと考えています。QSGW のバンドのデータベースを https://github.com/tkotani/DOSnpSupplement で見てください（GW1500: 1546 物質の QSGW80、2026-10 から。2025 年版は https://arxiv.org/abs/2507.19189 の補遺で、その `DOSnp2025.md` です）。
+* 手でパラメータを設定することなく、ほぼ自動で QSGW を行えます。そのため、ecalj は GW/QSGW を行うのに最も簡単なものの一つだと考えています。QSGW のバンドのデータベースは [DOSnpSupplement](https://github.com/tkotani/DOSnpSupplement) を見てください。
 
 ![alt text](image-2.png) この図は [4][D.Deguchi](https://github.com/ecalj/ecaljdoc/blob/main/presentations/deguchi2016.pdf) から取りました。
 
