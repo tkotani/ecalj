@@ -48,7 +48,7 @@ const sidebarRoot = [
       { text: 'ecalj のバンド計算法', link: '/theory/pmt' },
       // { text: 'Spin-orbit interaction', link: '/theory/soi' },
       { text: 'GW 近似', link: '/theory/gw' },
-      { text: '準粒子自己無撞着 GW', link: '/theory/qsgw' },
+      { text: 'QSGW', link: '/theory/qsgw' },
       { text: 'GW で用いる波動関数の表現', link: '/theory/gw_basis' },
       { text: '波動関数の積を展開する積基底', link: '/theory/gw_product_basis' },
       { text: 'GW で用いる行列要素', link: '/theory/gw_zmel' },
@@ -111,7 +111,6 @@ const enText: Record<string, string> = {
   'MLO-gwsc — Sigma を MLO 表現で内挿する QSGW': 'MLO-gwsc — QSGW interpolating Sigma in the MLO representation',
   'ecalj のバンド計算法': 'Band-structure method of ecalj',
   'GW 近似': 'GW approximation',
-  '準粒子自己無撞着 GW': 'Quasi-particle self-consistent GW',
   '光学的性質': 'Optical properties',
 }
 function toEn(items: any[]): any[] {

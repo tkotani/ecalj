@@ -1,4 +1,4 @@
-# 準粒子自己無撞着 $GW$
+# Quasiparticle self-consistent $GW$（QSGW）
 
 > **主な文献。** [1] M. Obata, T. Kotani, T. Oda, "Efficient implementation of the quasiparticle self-consistent $GW$ method on GPU",
 > Comput. Mater. Sci. **260**, 114190 (2025), [doi:10.1016/j.commatsci.2025.114190](https://doi.org/10.1016/j.commatsci.2025.114190)（オープンアクセス）。
@@ -20,7 +20,7 @@
 >   反強磁性の対称性を使う QSGW（`symgrpaf`）、LDA+U の出発点（`idu`）。
 > - <del class="clfix">**入力**（2026-05）: 積基底を含むすべての設定は `ctrlg.<sname>.toml` にある。[入力ファイル](../manual/toml_migration) を参照。</del>
 
-準粒子自己無撞着 $GW$（QSGW）法は、物性物理と物質科学で物質の電子状態を計算する、進んだ計算手法である。
+QSGW（quasiparticle self-consistent $GW$）法は、物性物理と物質科学で物質の電子状態を計算する、進んだ計算手法である。
 一粒子（準粒子）ハミルトニアン $H^0$ を繰り返し更新することで、標準的な $GW$ 近似を改良する。
 従来の密度汎関数理論（DFT）の計算より正確な準粒子エネルギーとバンド構造を与える。
 
