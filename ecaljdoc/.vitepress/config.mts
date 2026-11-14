@@ -15,7 +15,7 @@ const sidebarRoot = [
       { text: 'メインドキュメント', link: '/manual/README_tutorial' },
       { text: '更新履歴（要約）/ What\'s new', link: '/manual/whatsnew' },
       { text: '入力ファイル', link: '/manual/toml_migration' },
-      { text: 'syml.&lt;sname&gt;', link: '/manual/syml' },
+      { text: 'バンドプロットの対称ライン: syml.&lt;sname&gt;', link: '/manual/syml' },
       { text: 'DFT  calculation : lmf part', link: '/manual/lmf' },
       { text: 'GW の設定（[gw] などのキー）', link: '/manual/gwinput' },
       { text: 'Samples (where what lives)', link: '/manual/samples' },
@@ -76,6 +76,7 @@ const sidebarRoot = [
 ]
 
 const enText: Record<string, string> = {
+  'バンドプロットの対称ライン: syml.&lt;sname&gt;': 'Symmetry lines for band plots: syml.&lt;sname&gt;',
   'GW で用いる行列要素': 'Matrix elements used in GW',
   '波動関数の積を展開する積基底': 'Product basis to expand products of wave functions',
   'GW で用いる波動関数の表現': 'Representation of the wave functions used in GW',
