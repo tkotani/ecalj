@@ -152,7 +152,7 @@ In its own time ($t_2-t_1>0$) the hole also goes to the future. The hole seems t
 - The field operators of fermions satisfy the anticommutation relation $\{𝜓_\mathrm{H}(𝒓_1,t),𝜓_\mathrm{H}^†(𝒓_2,t)\} = 𝛿(𝒓_1-𝒓_2)$. Note that this is the equal-time anticommutation relation.
 - $\Psi_0$: the $N$-particle ground state in the Heisenberg picture, $\hat H\ket{\Psi_0} = E \ket{\Psi_0}$ ($E=0$ may be taken)
 
-The sum of Eqs. (Gd1) and (Gd2) of this one-particle Green function is what is called the Green function with the T product (Eq. (G4)); it is introduced naturally in the perturbation theory below.
+The sum of Eqs. (Gd1) and (Gd2) of this one-particle Green function is what is called the one-particle Green function with the T product (Eq. (G4)); it is introduced naturally in the perturbation theory below.
 
 ### The Gell-Mann–Low theorem and disconnected diagrams {#gell-mann-low}
 
