@@ -1,8 +1,18 @@
 # Dielectric function: job_eps
 
+<div class="clfix-old">
+
 > ⚠️ **Tool consolidation (2026-06)** — The dielectric-function driver is now **`job_eps`** (with `--lcf` for local-field correction, `--decompose` for interband / intraband split). The legacy `epsPP0` / `eps_lmfh` / `epsPP_lmfh` / `epsPP_lmfh_intra` wrappers have moved to `SRC/exec_legacy/` and are no longer installed to `~/bin`.
 >
 > **TOML migration (2026-05)** — `job_eps` reads `ctrlg.<sname>.toml`. Convert legacy `ctrl.<sname>` / `GWinput` directories with `Legacy2toml.py <sname>`. See [Input file](./toml_migration) and worked examples in [Samples/EPS/](https://github.com/tkotani/ecalj/blob/main/Samples/EPS) — `EPS_Cu`, `EPS_GaAs`, `EPS_Ag`.
+
+</div>
+
+<div class="clfix">
+
+作業の例は [Samples/EPS/](https://github.com/tkotani/ecalj/blob/main/Samples/EPS)（`EPS_Cu`、`EPS_GaAs`、`EPS_Ag`）にあります。
+
+</div>
 
 job_eps (canonical post-2026-06; replaces the 2025-5-8 `epsPP0` script).
 

@@ -6,7 +6,11 @@
 The programs work, but this page (the manual) is not yet in order.
 :::
 
+<div class="clfix-old">
+
 > ⚠️ Binaries read `ctrlg.<sname>.toml` only. Use `Legacy2toml.py <sname>` to convert legacy `ctrl.<sname>` / `GWinput`. See [Input file](./toml_migration).
+
+</div>
 
 How to calculate $\langle {\bf q} n|\Sigma(\omega)|{\bf q} n\rangle$
 

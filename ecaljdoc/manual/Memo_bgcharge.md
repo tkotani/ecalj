@@ -1,10 +1,20 @@
 # How to make doping?
 
+<div class="clfix-old">
+
 > ⚠️ **TOML migration (2026-05)** — The legacy `Category_Token`s in this
 > page map onto `ctrlg.<sname>.toml` as: `SPEC_ATOM_Z` → `[[spec]].z`,
 > `SPEC_ATOM_Q` → `[[spec]].q`, `BZ_ZBAK` → `[bz].zbak`. The conceptual
 > recipe below is identical; only the file/key path changes. See
 > [Input file](./toml_migration).
+
+</div>
+
+<div class="clfix">
+
+下の古いキーは、`ctrlg.<sname>.toml` では `SPEC_ATOM_Z` → `[[spec]].z`、`SPEC_ATOM_Q` → `[[spec]].q`、`BZ_ZBAK` → `[bz].zbak` です。
+
+</div>
 
 The 1st principle calculations are performed under the charge neutrality.
 

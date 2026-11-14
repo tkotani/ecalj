@@ -2,7 +2,17 @@
 
 > English version of the page [manual/UsageDetailed](../../manual/UsageDetailed.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/UsageDetailed.md of commit a8bdac429 (source blob 233caa6d2601).
 
+<div class="clfix-old">
+
 > ⚠️ The input is `ctrlg.<sname>.toml`. Run `Legacy2toml.py <sname>` to convert legacy `ctrl.<sname>` / `GWinput`. Overrides on the command line are `--ctrlg:<path>=val`; with `-v<NAME>=<VAL>` the programs stop. See [Input file](./toml_migration). <del class="clfix">The samples named below that are being rebuilt from `Samples/Legacy` are listed in ecalj [`Samples/README.md`](https://github.com/tkotani/ecalj/blob/main/Samples/README.md).</del><span class="clfix">The samples named below are listed in [Samples](./samples) (`Samples/Legacy` was rebuilt and removed on 2026-09-30).</span>
+
+</div>
+
+<div class="clfix">
+
+The samples named below are listed in [Samples](./samples).
+
+</div>
 
 ## Spin polarized case without SOC
 To treat magnetic systems, we have to set `mmom` (initial condition of spin

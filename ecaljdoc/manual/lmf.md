@@ -1,6 +1,10 @@
 # `lmf,lmfa,lmchk`
 
+<div class="clfix-old">
+
 > ⚠️ `lmf`, `lmfa`, `lmchk` read **`ctrlg.<sname>.toml`** only. A directory with the legacy `ctrl.<sname>` is converted with `Legacy2toml.py <sname>` before invoking these binaries (the legacy syntax is described in [Legacy `ctrl.<sname>` reference](./lmf_legacy_ctrl)). See [Input file](./toml_migration) for the full guide and [Samples/](https://github.com/tkotani/ecalj/blob/main/Samples/README.md).
+
+</div>
 
 We need an input file `ctrlg.<sname>.toml` (legacy: `ctrl.<sname>`).  
 `<sname>` is the **positional** argument passed to the binary
@@ -320,6 +324,8 @@ order `[gw]` `[mlo]` `[blocks]` `[product_basis]`).
 
 ## Run-time `--ctrlg:` overrides
 
+<div class="clfix-old">
+
 A key of `ctrlg.<sname>.toml` is overridden for one run by
 `--ctrlg:<dotted.path>=<value>`, processed in-memory by `m_toml_override.f90`.
 The legacy `-v<NAME>=<VAL>` (where `<NAME>` was a `%const` symbol baked
@@ -339,6 +345,14 @@ section); the right-hand side parses as TOML
 (`[8,8,8]` for an integer vector, `1` for an int, `1.0` for a float,
 `true` / `false` for a logical, `"r4z r3d r2x"` for a string).  No on-disk
 rewrite of the .toml file takes place.
+
+</div>
+
+<div class="clfix">
+
+一回の実行だけキーを変えるには `--ctrlg:<節.キー>=<値>` を付けます（例 `lmf si --ctrlg:bz.nkabc=[8,8,8]`）。ファイルは書き換えません。書き方の細部、ファイルに無いキーの扱い、やめた古い書き方（`-v<NAME>=<VAL>` など。使うと止まります）は [Command-line options](./cmdopts#run-time-ctrlg-overrides) にあります。
+
+</div>
 
 ## Legacy `ctrl.<sname>` ↔ TOML path map
 

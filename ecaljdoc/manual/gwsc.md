@@ -1,6 +1,10 @@
 # gwsc: a script to run QSGW calculation
 
+<div class="clfix-old">
+
 > ⚠️ `gwsc` reads `ctrlg.<sname>.toml` only, and stops when the file is missing. A directory with the legacy `ctrl.<sname>` + `GWinput` is converted by `Legacy2toml.py <sname>` (run once per directory). See [Input file](./toml_migration) and the [Samples/TestInstall/*_gwsc/](https://github.com/tkotani/ecalj/tree/main/Samples/TestInstall) directories as templates.
+
+</div>
 
 gwscがQSGW計算実行スクリプトである。
 QSGW計算は，複数のfortran実行ファイルを呼び出して実行される．

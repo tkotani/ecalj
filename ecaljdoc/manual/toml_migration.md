@@ -82,6 +82,8 @@ ctrlg_update.py ctrlg.<sname>.toml [...]    # in place; the original is kept as 
 
 ## 実行時の `--ctrlg:` による上書き {#run-time-ctrlg-overrides}
 
+<div class="clfix-old">
+
 古い `ctrl.<sname>` に埋め込まれた `%const` の定数は、変換のときに `ctrlg.<sname>.toml` に書き込まれます。実行時の上書きは
 `--ctrlg:<ドットで区切ったパス>=<値>` で行い、`m_toml_override.f90` がメモリの中で処理します（ファイルは書き換えません）。
 
@@ -114,6 +116,14 @@ lmf si --ctrlg:bz.nkabc=[8,8,8] --ctrlg:bz.metal=3
 >   `--ctrlg:bz.metal=3`、`--ctrlg:ham.nspin=2 --ctrlg:ham.so=0` を使ってください。
 > - `Legacy2toml.py` は、変換のときに見つけた `%const` の上書きについて `[INFO] / [WARN] / [ERROR]` の診断を出し、
 >   知らないうちに壊れるのを見つけやすくします。
+
+</div>
+
+<div class="clfix">
+
+一回の実行だけキーを変えるには `--ctrlg:<節.キー>=<値>` を付けます（例 `lmf si --ctrlg:bz.nkabc=[8,8,8]`）。ファイルは書き換えません。書き方の細部、ファイルに無いキーの扱い、やめた古い書き方（`-v<NAME>=<VAL>` など。使うと止まります）は [Command-line options](./cmdopts#run-time-ctrlg-overrides) にあります。
+
+</div>
 
 ## 移行済みのサンプル（手本に使う） {#migrated-samples-use-these-as-templates}
 
@@ -149,8 +159,7 @@ lmf si --ctrlg:bz.nkabc=[8,8,8] --ctrlg:bz.metal=3
 
 ## よくある落とし穴 {#common-gotchas}
 
-- **やめた上書きの書き方** — `lmf` は `-vnspin=2 -vso=0`、`-v[ham.so]=1`、`--toml.ham.so=1`、`--pr=50`、`--time=5,5`、
-  `--phispinsym` で止まります。止まるときには、それぞれ正しい書き方 `--ctrlg:<path>=<value>` を示します。
+- <del class="clfix">**やめた上書きの書き方** — `lmf` は `-vnspin=2 -vso=0`、`-v[ham.so]=1`、`--toml.ham.so=1`、`--pr=50`、`--time=5,5`、 `--phispinsym` で止まります。止まるときには、それぞれ正しい書き方 `--ctrlg:<path>=<value>` を示します。</del>
 - **古い `Worb` ブロック** — `gwinput2toml.py`（`Legacy2toml.py` の GWinput を扱う部分）は、`<Worb>` ブロックが重複していると
   以前は最後のものを採っていました。今は最初のものを採ります。
 - **`mlo_emax`** — 古い `mlo_method = 0` と `1` だけが読みます。既定の `mlo_method = 4` は使いません。

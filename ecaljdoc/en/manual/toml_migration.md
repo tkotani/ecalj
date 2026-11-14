@@ -101,6 +101,8 @@ described in [lmf.md](./lmf#file-structure-sections) and
 
 ## Run-time `--ctrlg:` overrides
 
+<div class="clfix-old">
+
 `%const` constants embedded in the legacy `ctrl.<sname>` are baked into
 `ctrlg.<sname>.toml` at conversion time. Run-time overrides use
 `--ctrlg:<dotted.path>=<value>`, processed in-memory by
@@ -145,6 +147,14 @@ quote-stripping is forgiving.
 >   for any `%const` overrides it encounters during conversion to
 >   help spot silent breakages.
 
+</div>
+
+<div class="clfix">
+
+To change a key for one run, add `--ctrlg:<section.key>=<value>` (e.g. `lmf si --ctrlg:bz.nkabc=[8,8,8]`); the file is not rewritten. The details of the syntax, what happens to a key the file does not carry, and the retired forms (`-v<NAME>=<VAL>` and others, which make the programs stop) are in [Command-line options](./cmdopts#run-time-ctrlg-overrides).
+
+</div>
+
 ## Migrated samples (use these as templates)
 
 The following directories under `ecalj/Samples/` carry
@@ -184,10 +194,7 @@ SLURM/PBS clusters.
 
 ## Common gotchas
 
-- **Retired override forms** — `lmf` aborts on `-vnspin=2 -vso=0`,
-  `-v[ham.so]=1`, `--toml.ham.so=1`, `--pr=50`, `--time=5,5`,
-  `--phispinsym`. Each abort prints the canonical
-  `--ctrlg:<path>=<value>` replacement.
+- <del class="clfix">**Retired override forms** — `lmf` aborts on `-vnspin=2 -vso=0`, `-v[ham.so]=1`, `--toml.ham.so=1`, `--pr=50`, `--time=5,5`, `--phispinsym`. Each abort prints the canonical `--ctrlg:<path>=<value>` replacement.</del>
 - **Stale `Worb` blocks** — `gwinput2toml.py` (the GWinput leg of
   `Legacy2toml.py`) used to last-write-wins on duplicate `<Worb>` blocks;
   now keeps the first.

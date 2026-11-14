@@ -18,7 +18,7 @@
 > - **Interpolation of $\tilde\Sigma$** (2026-09, in development): `gwsc --mlo` holds $\tilde\Sigma$ in the MLO representation instead of interpolating $\Delta V^{\rm xc}$ in MTOs. See [MLO-gwsc](../manual/mlo_gwsc).
 > - **Bug fixes that changed GW results** (2026-06 to 09): the pole-term binning of $\Sigma^{\rm c}$, the Fermi level of $\Sigma^{\rm Cx}$ at finite temperature,
 >   QSGW with antiferromagnetic symmetry (`symgrpaf`), and the LDA+U starting point (`idu`).
-> - **Input** (2026-05): all settings, including the product basis, are in `ctrlg.<sname>.toml`; see [Input file](../manual/toml_migration).
+> - <del class="clfix">**Input** (2026-05): all settings, including the product basis, are in `ctrlg.<sname>.toml`; see [Input file](../manual/toml_migration).</del>
 
 The quasi-particle self-consistent $GW$ (QSGW) method is an advanced computational technique used in condensed matter physics and materials science to calculate the electronic properties of materials.
 It improves upon the standard $GW$ approximation by iteratively updating the one-particle (quasi-particle) Hamiltonian $H^0$.

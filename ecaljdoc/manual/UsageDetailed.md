@@ -1,6 +1,16 @@
 # その他の説明 {#usagedetailed}
 
+<div class="clfix-old">
+
 > ⚠️ The input is `ctrlg.<sname>.toml`. Run `Legacy2toml.py <sname>` to convert legacy `ctrl.<sname>` / `GWinput`. Overrides on the command line are `--ctrlg:<path>=val`; with `-v<NAME>=<VAL>` the programs stop. See [Input file](./toml_migration). <del class="clfix">The samples named below that are being rebuilt from `Samples/Legacy` are listed in ecalj [`Samples/README.md`](https://github.com/tkotani/ecalj/blob/main/Samples/README.md).</del><span class="clfix">The samples named below are listed in [Samples](./samples) (`Samples/Legacy` was rebuilt and removed on 2026-09-30).</span>
+
+</div>
+
+<div class="clfix">
+
+下に名前の出るサンプルは [Samples](./samples) にあります。
+
+</div>
 
 ## Spin polarized case without SOC
 To treat magnetic systems, we have to set `mmom` (initial condition of spin

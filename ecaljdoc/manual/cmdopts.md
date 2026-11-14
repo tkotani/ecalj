@@ -239,7 +239,7 @@ runs. Behaviour is not guaranteed to be stable.
 code in `m_HamPMT.f90`), `--wanatom`.
 <span class="clfix">(`--skipGS` is not a debug flag: it skips the Gram-Schmidt orthonormalization in `lmf --jobgw=1` (`sugw.f90`) to make it faster; see [gwsc](./gwsc).)</span>
 
-## Run-time TOML overrides (`--ctrlg:<path>=<value>`)
+## Run-time TOML overrides (`--ctrlg:<path>=<value>`) {#run-time-ctrlg-overrides}
 
 The only accepted override syntax is `--ctrlg:<dotted.path>=<value>`.
 Values are TOML-typed (bool lowercase `true`/`false`, strings quoted,
@@ -262,9 +262,9 @@ added (below the header of its section; a top-level key at the top of the
 file; with a new `[section]` when the section is absent), and the log says
 so — until 2026-09-30 such an override was skipped and the run went on with
 the default value. A misspelled key is added too and is read by no program:
-check the log line. See
+check the log line. <del class="clfix">See
 [`toml_migration`](./toml_migration#run-time-ctrlg-overrides) for
-the full spec.
+the full spec.</del><span class="clfix">This section is the reference for `--ctrlg:`. The `%const` constants of a legacy `ctrl.<sname>` are written into `ctrlg.<sname>.toml` when it is converted ([Input file](./toml_migration)), so they are overridden by their TOML paths.</span>
 
 ## When this page goes stale
 

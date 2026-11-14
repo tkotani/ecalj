@@ -2,11 +2,21 @@
 
 > English version of the page [manual/Memo_bgcharge](../../manual/Memo_bgcharge.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/Memo_bgcharge.md of the tree of c9f9a3003 (source blob 3d8e6a246f78).
 
+<div class="clfix-old">
+
 > ⚠️ **TOML migration (2026-05)** — The legacy `Category_Token`s in this
 > page map onto `ctrlg.<sname>.toml` as: `SPEC_ATOM_Z` → `[[spec]].z`,
 > `SPEC_ATOM_Q` → `[[spec]].q`, `BZ_ZBAK` → `[bz].zbak`. The conceptual
 > recipe below is identical; only the file/key path changes. See
 > [Input file](./toml_migration).
+
+</div>
+
+<div class="clfix">
+
+The old keys below are, in `ctrlg.<sname>.toml`: `SPEC_ATOM_Z` → `[[spec]].z`, `SPEC_ATOM_Q` → `[[spec]].q`, `BZ_ZBAK` → `[bz].zbak`.
+
+</div>
 
 The 1st principle calculations are performed under the charge neutrality.
 
