@@ -1,16 +1,10 @@
-# Spectrum function of G.
+# Spectral function of G
 
-> English version of the page [manual/spectrum](../../manual/spectrum.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/spectrum.md of the tree of c9f9a3003 (source blob 65da35c136ab).
+> English version of the page [manual/spectrum](../../manual/spectrum.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/spectrum.md of commit 1494063c3 (source blob b6f847863a91).
 
 ::: warning Under construction
 The programs work, but this page (the manual) is not yet in order.
 :::
-
-<div class="clfix-old">
-
-> ⚠️ Binaries read `ctrlg.<sname>.toml` only. Use `Legacy2toml.py <sname>` to convert legacy `ctrl.<sname>` / `GWinput`. See [Input file](./toml_migration).
-
-</div>
 
 How to calculate $\langle {\bf q} n|\Sigma(\omega)|{\bf q} n\rangle$
 
@@ -20,8 +14,9 @@ by the program `hsfp0` in the mode `--job=4`, after a one-shot GW calculation by
 (`gw_lmfh` leaves $W$ in the files `__WVR.*` and `__WVI.*`, which `hsfp0 --job=4` reads).
 If you have `sigm.*`, it is read as in the case of `gwsc`.
 
-We need to set $\bf q$ and band index $n$ for which we calcualte.
-These are keys of `[gw]` in `ctrlg.<sname>.toml`, the same ones as for `gw_lmfh`.
+We need to set $\bf q$ and the band index $n$ for which we calculate.
+These are keys of `[gw]` in `ctrlg.<sname>.toml`, the same ones as for `gw_lmfh`
+(the meanings of the keys: `QforGW`, `EMAXforGW`, `--readQforGW` in [GW settings](./gwinput)).
 
 (A) q points
 
@@ -53,7 +48,7 @@ EMAXforGW =  3.0
 The mesh of the self-energy is $\omega - E_{\rm F} = 0.01\,{\rm Ry} \times i$ ($i=0,\pm1,\pm2,...$), up to twice the
 highest energy of the mesh of $W$ along the real axis.
 
-Note that imaginary part of Sigma is given as the comvolution of ImW(omega) and the pole of Green's function
+Note that imaginary part of Sigma is given as the convolution of ImW(omega) and the pole of Green's function
 (`[gw].t_sigmaw` (K) gives the width of the Fermi-Dirac smearing of the pole). Resolution for Im W (near omega=0) is set by `[gw].HistBin_dw`.
 
 Run
@@ -102,7 +97,7 @@ Cautions for q points of `QforGW` that are not on the mesh:
 ```
   can give a plot for Re (Sigma_c(omega)) and Im(Sigma_c) (columns of Table 1).
 
-## 4
+## Integrated spectral function (DOS)
  To get integrated spectrum function (DOS), we need to superpose all the spectrum function
  (All q points and all band index). Be careful about the degeneracy (multiplicity) for each q points.
   You have to build it from SEComg file.
