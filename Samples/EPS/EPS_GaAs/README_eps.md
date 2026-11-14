@@ -21,7 +21,7 @@ q = 0 cannot be used, so ε is computed at small q along a line and the q → 0 
 
 ```toml
 [gw]
-QforEPSau = true   # QforEPS in a.u.; false (default): in units of 2π/alat
+QforEPSau = true   # required (since 2026-11-14): true = QforEPS in a.u.; false = in units of 2π/alat
 QforEPS = """
  0 0 0.00050
  0 0 0.00100
@@ -29,9 +29,10 @@ QforEPS = """
 """
 ```
 
-### k mesh: `[gw] n1n2n3`
+### k mesh: `[gw] n1n2n3eps` (or `n1n2n3`)
 
-Sharp structures of Im ε need many k points (about 20×20×20 for GaAs). Without `--lcf` this is affordable;
+Sharp structures of Im ε need many k points (about 20×20×20 for GaAs). `job_eps` uses `[gw] n1n2n3eps` when it is given
+(else `n1n2n3`), so the mesh of ε can be made finer without changing the QSGW mesh. Without `--lcf` this is affordable;
 with `--lcf` start from about 12×12×12 (ε(0,0) of MgO is already reasonable there).
 
 ### Mixed product basis (for `--lcf`)

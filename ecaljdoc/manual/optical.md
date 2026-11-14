@@ -1,289 +1,132 @@
-# Dielectric function: job_eps
+# 誘電関数: job_eps
 
-作業の例は [Samples/EPS/](https://github.com/tkotani/ecalj/blob/main/Samples/EPS)（`EPS_Cu`、`EPS_GaAs`、`EPS_Ag`）にあります。
+RPA の誘電関数 $\epsilon(\mathbf q,\omega)$ を `job_eps` で計算します（2026-06 から。2025-05-08 の `epsPP0` の代わり）。
+サンプルは [Samples/EPS/](https://github.com/tkotani/ecalj/tree/main/Samples/EPS)（`EPS_Cu`、`EPS_GaAs`、`EPS_Ag`）にあり、
+`EPS_GaAs` の [README_eps.md](https://github.com/tkotani/ecalj/blob/main/Samples/EPS/EPS_GaAs/README_eps.md) にこのサンプルの設定があります。
+理論は [光学的性質](../theory/optical_properties) にあります。
 
-job_eps (canonical post-2026-06; replaces the 2025-5-8 `epsPP0` script).
+QSGW の反復の中でも、$W$ のために $\epsilon_{IJ}(\mathbf q,\omega)$（局所場補正を含む）を計算しています。
+実験と比べるには、それより多くの k 点で $\epsilon(\mathbf q,\omega)$ を計算する必要があるので、自己無撞着な計算の後で `job_eps` を走らせます。
 
-During QSGW, we calculate $\epsilon_{IJ}(q, \omega)$ for $W$ in the GW calculation.
+局所場補正なしの $\epsilon(\mathbf q,\omega)=1-v(\mathbf q)\chi_0(\mathbf q,\omega)$ では、バンド間とバンド内（$\mathbf q\to0$ の極限での Drude の重み）の寄与を分けて計算できます。
+局所場補正なしのときは、$\exp(i\mathbf q\cdot\mathbf r)$ を展開するための球 Bessel 関数を、MT の中の積基底に加えます（ふつうの積基底でも、変化はわずかです）。
 
-However, we need to calculate $\epsilon(q, \omega)$ with larger number of k points
-to compare experiments.
-<!-- ecaljでは乱雑位相差近似にもとづいて誘電関数を計算し、光学特性を調べることができます。
-ここでは、具体的な計算の流れを説明します。 -->
+## 計算の手順
 
-Based on the no local-field correction equation $\epsilon({\bf q},\omega)=1-v({\bf q}) \chi_0({{\bf q},\omega})$, we can calculate interband and intraband contributions separately.
-The intraband contribution is the Drude weight at the limit ${\bf q} \to 0$.
-We use the command `job_eps` now (legacy name: `epsPP0`). `job_eps --decompose` writes the interband / intraband split.
-We include spherical Bessel functions in the MPB to expand $\exp(i {\bf q r})$.
+1. 自己無撞着な計算（`lmfa`、`lmf`。QSGW なら `gwsc` で `sigm.<sname>` を作る）。`sigm` があれば、QSGW の固有値と固有関数で計算します。
+2. `job_eps` を走らせます。
+   ```
+   job_eps gaas -np 8               # 局所場補正なし（速い）
+   job_eps gaas -np 8 --lcf         # 局所場補正あり（ずっと遅い）
+   job_eps gaas -np 8 --decompose   # バンド間とバンド内を分ける（サンプルの試験はこれ）
+   ```
+   `--nognuplot` で図を描くのを省きます。
 
-Local-field corrections are enabled with `job_eps --lcf` (legacy name: `eps_lmfh`); the LFC path is computationally heavier but otherwise drives the same machinery. The LFC contribution is always included in the QSGW iteration itself; `--lcf` here only controls the post-SC dielectric output.
+サンプルの手順は各ディレクトリの `test.py` にあります（`ecalj/Samples/EPS` で `testecalj EPS_Cu -np 4` とすると `EPS_Cu_work/` で走ります）。
 
-## Computational steps
+## `ctrlg.<sname>.toml` の設定
 
-### Examples of `job_eps`
-It is instructive to learn things from samples as 
-* ecalj/Samples/EPS/EPS_GaAs
-* ecalj/Samples/EPS/EPS_Cu
-* ecalj/Samples/EPS/EPS_Ag
+### q 点: `[gw] QforEPS`、`QforEPSau`
 
-Follow `test.py` in these directories (`testecalj EPS_Cu -np 4` in `ecalj/Samples/EPS` runs it in `EPS_Cu_work/`). 
-We explain the steps in `test.py` in the following steps.
+q = 0 は使えないので、一つの方向に小さな q をいくつか並べて計算し、q → 0 の極限をとります（または一番小さな q を使います）。
+q が小さすぎると数値的に不安定になります。
 
-You can start from `ctrlg.<sname>.toml` (or, for legacy directories, `ctrl.<sname>` + `GWinput` after running `Legacy2toml.py <sname>`). After `job_eps cu -np 4 --decompose`,
-```
-gnuplot -p eps_interbandonly_cu.glt
-gnuplot -p eps_intrabandonly_cu.glt
-gnuplot -p eps_total_cu.glt
-```
-(`epsinter.glt`, `epsintra.glt`, `epsall.glt` were the names written by the old `epsPP0`.)
-
-Note that we usually need many k points if you like to have 0.1 level of error for 
-dielectric constants (at the limit of ${\bf q}=\omega =0$)
-(e.g, reasonable results for GaAs may require `[gw].n1n2n3 = [20, 20, 20]` in `ctrlg.<sname>.toml`.)
-
-* NOTE: to calculate $\epsilon({\bf q},\omega)$ without LFC accurately,
-the best basis set for the expansion of the Coulomb matrix within MT
-is apparently not the product basis, but the Bessel functions
-corresponding to the plane waves $\exp(i{\bf q r})$. We include such a basis in this mode. 
-(However, our experience shows that the changes are little even with the usual product basis).
-
-### step1: `lmf`収束計算行う。
-`sigm`ファイルがある場合は, QSGW計算による固有値固有関数からの誘電関数を計算することができる。
-
-### step2: GW driver パラメータを設定
-
-設定は `ctrlg.<sname>.toml` の `[gw]` セクションに書きます。
-
-- `ctrlg.<sname>.toml` の `[gw]` の `QforEPS` を編集してください
-  (`[blocks]` に書いた `QforEPS` は、`[gw]` に `QforEPS` が無いときだけ読まれます)。
-    // defaultではこのように書かれている
-    ```toml
-    [gw]
-    QforEPSau = true
-
-    QforEPS = """
-    0 0 0.00050
-    0 0 0.00100
-    0 0 0.00200
-    """
-    ```
-    * この部分は誘電関数を計算するときの**q**ベクトルを設定しています。
-    この値を変えることで誘電関数の**q**（大きさと方向）への依存性を調べることができます。ふつうは一つの方向に小さな **q** をいくつか並べ, **q**→0 の極限をとる（バンド内とバンド間を分けるときにも複数の **q** が要る）。
-
-    * `QforEPSau = true` があるので、単位はa.u.になっています。すなわち、0 0 0.001であれば
-    ${\bf q}$ = (0,0,0.001) bohr^{-1}です
-
-    * もし `QforEPSau = true` がない場合、**q**の単位は $\frac{2 \pi }{a}$ です。$a$は `[struc] alat` で定義したものです。
-
-    光学応答の場合は**q**=**0**としたいですが、そうすると今のコードでは数値的に不安定です。
-    なので適宜小さくとってください。ecalj/Samples/EPS/EPS_GaAs で `gnuplot -p eps_interbandonly_gaas.glt` を見ると, q = 0.0005 a.u.（`0 0 0.00050`, EPS0001）では q が小さすぎ, 20〜110 eV（100 eV 弱まで）の虚部が EPS0002・EPS0003 より大きくずれている（例えば 98 eV で Im ε = 0.077, EPS0002・EPS0003 では 0.029・0.018）。この例では EPS0002（0.001 a.u.）以降を使う。
-<!-- ![alt text](image.png) -->
-<!-- また後述のバンド内・間遷移を分けて計算を行う場合は、2つ以上の座標を書く必要があります。 -->
-
-- エネルギーメッシュの取り方
-誘電関数を計算する際のメッシュは対数メッシュでとられており、`ctrlg.<sname>.toml` の `[gw]` セクション内で
-```toml
-    HistBin_dw = 2e-3
-    HistBin_ratio = 1.08
-```
-（上の 2e-3、1.08 は 2025-08-19 までのテンプレートの値。今のテンプレートは 1e-4、1.05。[GW の設定](./gwinput) の HistBin の節）
-の値を変えることで、誘電関数のエネルギーメッシュを増やす(減らす)ことができます。メッシュを細かくとれば、誘電関数の構造がより現れるようになります。ただし、細かすぎると計算コストがすこし増えます。計算法はまずは虚部のウエイトをヒストグラム的に蓄積したあと、実部はヒルベルト変換の方法で求めています。なので数値的にはまあまあ安定です。
-
-* 計算メモリ量をへらしたい場合は `ctrlg.<sname>.toml` の `[gw]` セクションに
 ```toml
 [gw]
-KeepEigen = false
-KeepPpb = false      # (default)
-```
-等を適宜書き込んで下さい ([gwinput](./gwinput))。
-
-* `QforEPSau = true`
-これは `QforEPS` のqをa.u.ではかるという意味になります。
-たとえば `QforEPS` に `0 0 0.00005` とあれば、これは
-q=(0 0 0.00005)/bohrと読んでください。
-EPS ファイルの最初の 3 列の q は 2π/alat 単位で書かれる。確認するには,2pi/alatをEPSファイル最初の3つの数字に乗じて
-`QforEPS` にかかれているqになるのをみます。
-
-* 以前の--zmel0のオプションは2025-5-8で廃止しました。
-これはGramSchmidt2をsugw.f90に挿入して
-すこし正確な直行化が可能になったためです。
-
-* `job_eps` は最後に gnuplot のスクリプト（`--decompose` のとき `eps_interbandonly_<sname>.glt`、`eps_intrabandonly_<sname>.glt`、`eps_total_<sname>.glt`）と図（pdf）を書きます。`--nognuplot` で図を省きます。
-
-* Cuの場合だと、qがあまりにゼロに近いと計算が不安定です。たとえば
-```toml
-[gw]
-QforEPSau = true
+QforEPSau = true   # required: true = QforEPS in a.u. (1/bohr); false = in units of 2π/alat
 QforEPS = """
- 0 0 0.00005
- 0 0 0.0001
- 0 0 0.0002
- 0 0 0.0004
- 0 0 0.0008
- 0 0 0.0016
- 0 0 0.0032
+ 0 0 0.00050
+ 0 0 0.00100
+ 0 0 0.00200
 """
 ```
-などとすると、 0 0 0.00005のグラフがおかしいです。
-それ以外のグラフはほぼ重なります。だた、0.0032ぐらいになるとomega=0での実部がいくらかずれてきます。
 
-* Cu (Samples/EPS/EPS_Cu) ではフェルミ面の寄与もあり、
-`gnuplot -p eps_intrabandonly_cu.glt`
-を実行してフェルミ面の寄与が見れます。This is Drude weight、q分解でみれています。
-omega=0近傍でのふるまいはFetter-Waleckaにあるようにふるまっています。
+`QforEPSau` は必須です（2026-11-14 から。雛形は true）。`[blocks]` に書いた `QforEPS` は、`[gw]` に `QforEPS` が無いときだけ読みます。
+
+小さすぎる q の例: `EPS_GaAs` では、q = 0.0005 a.u.（`0 0 0.00050`、EPS0001）の虚部が、20〜110 eV で EPS0002・EPS0003 から大きくずれます
+（98 eV で Im ε = 0.077、EPS0002・EPS0003 では 0.029・0.018）。この例では EPS0002（0.001 a.u.）以降を使います。
+Cu でも、`0 0 0.00005` のような小さな q ではおかしくなり、0.0032 a.u. くらいまで大きくすると ω=0 での実部がいくらかずれてきます。
+
+### k 点: `[gw] n1n2n3eps`（または `n1n2n3`）
+
+Im ε の鋭い構造には多くの k 点が要ります（GaAs で 20×20×20 くらい。Fe や Ni でも 20×20×20 は要り、収束を見るには 30×30×30）。
+`job_eps` は `[gw] n1n2n3eps` があればそれを、無ければ `n1n2n3` を使います（`qg4gw --n1n2n3eps`）。
+`n1n2n3eps` を使えば、QSGW の `n1n2n3` を変えずに、誘電関数だけ細かくできます。
+`--lcf` なしなら 20×20×20 も無理なく回せます。`--lcf` では 12×12×12 くらいから始めてください（MgO の ε(0,0) はそこでもう妥当です）。
+
+### 積基底（`--lcf` のとき）
+
+`--lcf` を軽くするには、`[product_basis] pb_lcutmx` を小さくし（例えば原子ごとに 2）、`[gw] QpGcut_cou` を 2.0 くらいにします
+（[GW の設定: 積基底](./gwinput#product-basis)）。小さな k のメッシュで、結果が変わらないことを確かめてください。
+
+### エネルギーのメッシュ: `[gw] HistBin_dw`、`HistBin_ratio`
+
+実軸のメッシュは対数的で、$\omega_i = b\,(e^{a(i-1)}-1)$、$a$ = `HistBin_ratio` − 1、$b$ = `HistBin_dw`/$a$ です（[GW の設定](./gwinput) の HistBin の節）。
+細かくしても負荷はあまり増えません。虚部の重みをヒストグラムとしてためてから、実部をヒルベルト変換で求めるので、数値的にはまずまず安定です。
+
+```toml
+HistBin_dw    = 2e-4   # (a.u.) bin width at ω = 0; 1e-5 is fine (metals)
+HistBin_ratio = 1.01   # 1.03 is safer
 ```
-gnuplot -p eps_intrabandonly_cu.glt
-gnuplot -p eps_total_cu.glt
+
+### メモリ
+
+メモリを減らしたいときは、`[gw]` に `KeepEigen = false` を書きます（`KeepPpb = false` は既定）。[GW の設定](./gwinput) を参照。
+
+## 出力
+
+`QforEPS` の 1 番目、2 番目、… の q について、`EPS0001.nlfc.dat`、`EPS0002.nlfc.dat`、… を書きます（`nlfc` は局所場補正なし）。
+`--lcf` のときは `EPS000n.dat`（局所場補正あり）も書きます。`--decompose` のときは、名前の後ろに `.interbandonly` と `.intrabandonly` が付きます。
+
+列: q（1〜3。2π/alat の単位）、ω（4。Ry）、Re ε と Im ε（5、6）、1/ε の実部と虚部（7、8）。例（`EPS_GaAs` の EPS0001）:
+```
+# qp(1:3)   w(Ry)   eps    epsi  --- NO LFC
+  0.00000000  0.00000000  0.00085013    0.0000D+00  0.304436384993639E+02  0.144767011002870E-16    0.328475848910403E-01 -0.156198369108813E-19
+```
+q の 0.00085013 は、0.0005 a.u. を 2π/alat の単位で書いたものです。サンプルに入っている参照のファイルのように、指数が `D` で書かれていることがあるので、
+自分で gnuplot で描くときは `set datafile fortran` を付けてください。
+```gnuplot
+set datafile fortran
+set xrange [0:20]
+plot "EPS0001.nlfc.dat" u ($4*13.605):($6) w lp
 ```
 
-* `job_eps` (legacy `epsPP0`) の計算が終わると `EPS000*.nlfc.dat` というファイルが `[gw]` の `QforEPS` で設定したq点の数分作られます。この中は
+`job_eps` は最後に gnuplot のスクリプトと図（pdf）を書きます。
 
-```
-    // example EPS0001.nlfc.dat
-    q(1:3)   w(Ry)   eps    epsi  --- NO LFC
-  0.01000000  0.00000000  0.00000000    0.0000E+00  0.276888086703565E+02  0.211273167660642E-17    0.361156744555281E-01 -0.275572453667495E-20
-  0.01000000  0.00000000  0.00000000    0.1015E-04  0.276873286605807E+02  0.424191214559347E-01    0.361175202203266E-01 -0.553348246663633E-04
-  0.01000000  0.00000000  0.00000000    0.3076E-04  0.276716446748960E+02  0.128515093142673E+00    0.361372966009293E-01 -0.167832020581202E-03
-  0.01000000  0.00000000  0.00000000    0.5200E-04  0.276450859807482E+02  0.197440420455938E+00    0.361709489903162E-01 -0.258331892398948E-03
-  0.01000000  0.00000000  0.00000000    0.7389E-04  0.276274571460234E+02  0.249411594405801E+00    0.361929258459201E-01 -0.326737828014011E-03
-```
-<span class="clfix">（この例は q = (0.01, 0, 0)（2π/alat 単位）で回した古い計算のもので, 上の `QforEPS` の例とは別。いまの見出しは `# qp(1:3) ...`）</span>
-1~3列目にq点座標、4列目にエネルギー(Ry単位)、5・6列目が誘電関数の実部・虚部、7・8列目が誘電関数の逆数の実部・虚部
-が書かれています。
+| 実行 | gnuplot のスクリプト |
+|---|---|
+| `job_eps <sname>` | `eps_without_lcf_<sname>.glt` |
+| `job_eps <sname> --lcf` | `eps_with_lcf_<sname>.glt` |
+| `job_eps <sname> --decompose` | `eps_interbandonly_<sname>.glt`、`eps_intrabandonly_<sname>.glt`、`eps_total_<sname>.glt`（全体はバンド間 + バンド内 − 1） |
 
----
+Cu（`EPS_Cu`）では、`gnuplot -p eps_intrabandonly_cu.glt` でフェルミ面の寄与（Drude の重み）を q ごとに見られます。ω=0 の近くの振る舞いは Fetter-Walecka にあるとおりです。
 
-** （改良計画）誘電関数計算にはバンド吸収端で(E-E0)**.5でキレイに立ち上がらない(GaAsなどの場合）、という数値計算上の問題があります。メッシュを細かく取るときれいにできることは示したことがあります。変な内挿法よりも必要なことだけ細かく取るという技法が有効だと思います。汎用化しないといけないです。
-Test at 2016: we need to have correct edge $\propto \sqrt{\omega-E_0}$. To do so, we need to move to new method as documented in the slide deck:
-[abosorb_preport_tkotani2016Jul5.pdf](../data/abosorb_preport_tkotani2016Jul5.pptx.pdf).
+## 注意
 
-**（改良計画）q=0でのinterbandの寄与は<u|u>行列を使えば先に1/q^2の割り算ができるのでもっと直接的にできるはずです。
+* 吸収端での Im ε の $\sqrt{E-E_0}$ の立ち上がりは、k のメッシュをとても細かくしないと（GaAs で 80×80×80）四面体法では再現しにくいです。ε(q → 0, ω = 0) の収束はずっと容易です。
+  吸収端を正しく出す方法の案は [2016 年のスライド](../data/abosorb_preport_tkotani2016Jul5.pptx.pdf) にあります。
+* 以前のオプション `--zmel0` は 2025-05-08 にやめました（`sugw.f90` の Gram-Schmidt の直交化で十分正確になったため。いまは登録だけ残っていて、何もしません）。
 
-** （修正するべき）局所場補正
-Local-field correction with `job_eps --lcf` (legacy name: `eps_lmfh`).
-To include eps with LFC, do `job_eps --lcf <sname>`. Expensive.
-lcutmx=2 seems to be good enough to get 0.5 percent error (maybe better than this).
-Further we can use smaller QpGcut_cou like 2.2 or so, with rather smaller product basis (up to p×d products, not including f).
-But we need checks and may be modification of `job_eps --lcf`.
+## 改良の予定
 
-** スピンゆらぎを計算するにはモデルを経由するべき
-  
-## old convergence test (2010)
-* Convergence test for number of k point(specified by n1n2n3) test at 2010. 
-   Roughly speaking, 20x20x20 is required for not-so-bad results for Fe and Ni.
-   It is better to do 30x30x30 to see convergence check.
-   However, in the case of ZB-MnAs (maybe because of simple structure around Ef), it requires less q points.
+* q = 0 のバンド間の寄与は、⟨u|u⟩ の行列を使えば先に 1/q² の割り算ができるので、もっと直接に計算できるはずです。
+* 局所場補正（`job_eps --lcf`）: `lcutmx=2` で 0.5 % の誤差（おそらくもっとよい）に十分なようです。さらに `QpGcut_cou` を 2.2 くらいに小さくし、
+  積基底を小さく（p×d の積まで、f は入れない）できそうです。ただし確認と、`job_eps --lcf` の手直しが要るかもしれません。
+* スピンゆらぎの計算は、模型（[MLO](./mlo)）を経由するべきです（[その他の説明 § スピンゆらぎ](./UsageDetailed)）。
 
-   Old figuresof epsilon for GaAs (2010).
-   fig001: n1n2n3 convergence for Chi_RegQbz = on  case. (mesh including Gamma)
-   ![fig001](./gas_fig001.png)
-   fig002: n1n2n3 convergence for Chi_RegQbz = off case. (mesh not including Gamma)
-   ![fig002](./gas_fig002.png)
-   fig003: Alouanis'(from Arnaud)  vs. ``Chi_RegQbz = on'' vs. ``Chi_RegQbz = off''
-   As you see, the threshold of the Red line (20x20x20 Chi_RegQbz=on) and Alouani's 
-   are almost the same, but the red line is too oscilating at the low energy part.
-   On the other hand, ``Chi_RegQbz = off'' in Green broken line is not so satisfactory
-   at the low energy part. 
-   ![fig003](./gas_fig003.png)
+## 古い収束の試験（2010）
+* k 点の数（`n1n2n3`）の収束の試験（2010）。おおまかには、Fe と Ni でそこそこの結果に 20×20×20 が要ります。収束を見るには 30×30×30 がよいです。
+  ただし閃亜鉛鉱の MnAs では（おそらく Ef のまわりの構造が単純なため）、もっと少ない q 点ですみます。
 
-* Old unpublished result for spin wave of ZB MnAs in QSGW as
+  GaAs の ε の古い図（2010）。
+  fig001: `Chi_RegQbz = on`（Γ を含むメッシュ）での `n1n2n3` の収束。
+  ![fig001](./gas_fig001.png)
+  fig002: `Chi_RegQbz = off`（Γ を含まないメッシュ）での `n1n2n3` の収束。
+  ![fig002](./gas_fig002.png)
+  fig003: Alouani の結果（Arnaud による）と `Chi_RegQbz = on`、`Chi_RegQbz = off` の比較。
+  赤の線（20×20×20、`Chi_RegQbz=on`）と Alouani の結果のしきい値はほぼ同じですが、赤の線は低いエネルギーで振動しすぎています。
+  一方、`Chi_RegQbz = off`（緑の破線）は低いエネルギーであまり満足できません。
+  ![fig003](./gas_fig003.png)
+
+* 閃亜鉛鉱の MnAs のスピン波の、QSGW での未発表の古い結果:
 ![zbmnas](./ZBmnasw1.png)
-
-   <!-- As you see, k points convergence looks a little better in Chi_RegQbz=off
-   (mesh not including gamma). However a little ploblem is that its thereshold around 
-   0.5eV is too high and slowly changing. -->
-
-   <!-- [fig.gas_eps_kconf.pdf] shows the convergence behevior of epsilon for  -->
-
-<!-- ### step:3 epsPP_lmfh , eps_lmfh
-
-eps計算を行うときは、epsPP_lmfh(局所場補正なし)とeps_lmfh(局所場補正あり)のどちらかを使います。
-
-使い方は
-
-```   
- // example 
- mpirun epsPP_lmfh -np 4 si
-```
-
----
-
-## バンド内・間寄与の誘電関数
-
-通常の誘電関数計算のほかに、バンド内遷移の寄与とバンド間遷移の寄与とを分けて誘電関数を計算することも可能です。
-この計算は、金属系などで誘電関数の構造や複合プラズモンを解析するときに有用です。
-
-具体的な方法は、まず `ctrlg.<sname>.toml` の `[blocks].QforEPS` (legacy: `<QforEPS>...</QforEPS>` in `GWinput`) に小さなq座標とそこから少しだけずれたq座標を書いてください。
- ```toml
-    [blocks]
-    QforEPS = """
-     0 0 0.0001
-     0 0 0.001
-     0 0 0.01
-      ・・・
-    """
-  ```
-  他は通常計算と同じように計算したい方向のq座標を入れてください。  
-  あとは、epsPP_lmfhの代わりにepsPP_lmfh_intraを用いると計算されます。
-```   
- // example 
- mpirun epsPP_lmfh_intra -np 4 si
-```
-計算が終わると`EPS000*.nlfc.dat.intrabandonly`、`EPS000*.nlfc.dat.interbandonly`
-というファイルが作られます。中身のデータは通常計算のときと同じです。
- -->
-
-<!-- 
-=======================================================
-* OLD document before 2025-5-7
-
-誘電関数ｑ＝０を計算するには、最近のバージョンの（２０２３−１０−２３以後）の
-収束したところからスクリプトepsPP0を使ってください。
-ecalj/MATERIALS/Cueps
-にサンプルがあるので、Cuを収束させた後、
-epsPP0 cu -np 4
-などとすると、epsinter.glt, epsintra.glt, epsall.glt
-ができます。epsintraはフェルミ面の寄与になります。
-
-いくつかのｑ点で計算してｑ＝＞０を取るのです。そのためにctrlには
-ーーーーーーーーーーーーーーーーーー
-```
-QforEPSunita on
-<QforEPS>
- 0d0 0d0 0.00001
- 0d0 0d0 0.001
- 0d0 0d0 0.0014142
- 0d0 0d0 0.002
- 0d0 0d0 0.0028284
- 0d0 0d0 0.004
-</QforEPS>
-```
-ーーーーーーーーーーーーーーーーーー
-などと書いておく必要があります。
-
-最低でも、2行入ります。
-```
-QforEPSunita on
-<QforEPS>
- 0d0 0d0 0.00001
- 0d0 0d0 0.001
-</QforEPS>
-```
-ーーーーーーーーーーーーーーーーーー
-が、いります.できれば後何行かあったほうがいいです。
-
-QforEPSunita onは単位を2pi/alat　とする指定です。
-最初の行の0d0 0d0 0.00001　は数値誤差を計算するためにいるんです。
-
- 0d0 0d0 0.001での誘電関数計算にも 0d0 0d0 0.00001で計算した行列要素（誤差の大きさを計算）を使うんです。なので、EPS0002以後が意味のある答えになります。
-epsinter.gltなどではqを複数計算して重ねてみています。
-Cuだとキレイにかさなっているのが見て取れます。
-
-epsPP0では最後にreadeps.pyを読んでて答えをまとめ上げてます。
-（readeps.py汚いです。試行錯誤の結果が残っていて関数fd0はいまは使っていません）。
-いぜんよりはだいぶとキレイに求まると思います。
-
-Ag、結果がこれでも変なら教えてください。
-
-================================================================================
- -->

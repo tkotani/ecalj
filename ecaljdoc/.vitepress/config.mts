@@ -24,7 +24,7 @@ const sidebarRoot = [
       { text: 'GW の設定（[gw] などのキー）', link: '/manual/gwinput' },
       { text: 'QSGW の計算: gwsc', link: '/manual/gwsc' },
       { text: 'GPU version of QSGW',link: '/manual/ecaljgpu.md' },
-      { text: 'Dielecric function', link: '/manual/optical' },
+      { text: '誘電関数: job_eps', link: '/manual/optical' },
       { text: 'スペクトル関数', link: '/manual/spectrum' },
       { text: 'Samples (where what lives)', link: '/manual/samples' },
       { text: 'kBT — 有限温度と均し方 (t_tetrakbt / t_sigmaw)', link: '/manual/kBT' },
@@ -114,6 +114,7 @@ const enText: Record<string, string> = {
   'コマンドラインのオプション: lmf': 'Command-line options: lmf',
   'QSGW の計算: gwsc': 'QSGW calculation: gwsc',
   'サンプル': 'Samples',
+  '誘電関数: job_eps': 'Dielectric function: job_eps',
   'GW 近似': 'GW approximation',
   '光学的性質': 'Optical properties',
 }
