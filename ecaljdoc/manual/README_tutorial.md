@@ -135,7 +135,7 @@ MLO による模型化（模型のハミルトニアン、v・W・cRPA。2026-10
 一歩ずつ説明します。
 
 > **実例** — 以下のすべての Step で **GaAs** を例に使います。
-> 最小の種（`ctrls.gaas` と、生成した
+> 最小のシード（`ctrls.gaas` と、生成した
 > `ctrlg.gaas.toml`）は
 > [`Samples/GetStarted/GaAs/`](https://github.com/tkotani/ecalj/tree/main/Samples/GetStarted/GaAs) にあります。
 > このディレクトリを新しい作業場所にコピーして、下の Step 1-6
@@ -219,7 +219,7 @@ SITE
      ATOM=As POS=     1.17375100000       0.82996725000       2.03299675000 
 ```
 STRUC と SITE のような区分のブロックを示すために、字下げが必要です。
-`ctrls.gaas` の別の例です（実例の種として
+`ctrls.gaas` の別の例です（実例のシードとして
 [`Samples/GetStarted/GaAs/ctrls.gaas`](https://github.com/tkotani/ecalj/blob/main/Samples/GetStarted/GaAs/ctrls.gaas) にあります）。
 
 ```
@@ -306,7 +306,7 @@ SPEC
 が実際に読むただ一つの入力ファイルです。（最後の区分 `[product_basis]` の末尾には、
 GW だけが使う原子ごとの表があります。生成するプログラムが書くので、ふつうは
 編集しません。）軽い `ctrls.<sname>`
-（Step 1 で `vasp2ctrl` が作った、構造だけの種）から、
+（Step 1 で `vasp2ctrl` が作った、構造だけのシード）から、
 **`ctrlgenToml.py`** で直接作ります。
 
 ```bash

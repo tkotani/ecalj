@@ -1,6 +1,6 @@
 # MLO — an automatic modelling method in place of maximal localization and the like
 
-> English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit b18224576 (source blob dc21608dae16).
+> English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit b18224576 (source blob ae852a836469).
 
 ecalj branch `mlo3` / 2026-09-16 17:02 JST
 
