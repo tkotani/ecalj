@@ -246,7 +246,7 @@ The input value is converted by `m_GWinput` into $\sigma$ (Ha; internal variable
   `ctrlg_update.py ctrlg.<sname>.toml` rewrites with this conversion, and adds 0 (the former default) to files without `t_tetrakbt`
 - `esmr` = $e$ (Ry, standard deviation of the Gaussian) and `t_sigmaw` = $T$ give the same width when $e=\pi k_BT/\sqrt3$ (0.003 Ry and 262 K, 0.01 Ry and 872 K<span class="clfix">; the code rounds $\pi/\sqrt3$ to 1.81, which gives these values; without the rounding they are 261 K and 870 K</span>).
   <del class="clfix">If an input without `t_sigmaw` has `esmr` or `t_sigmakbt`, `esmr` is read as `t_sigmaw` with this conversion, and `t_sigmakbt` with its value unchanged</del><span class="clfix">Since 2026-11-14 `esmr` and `t_sigmakbt` are not read; `ctrlg_update.py` writes `t_sigmaw` from `esmr` with this conversion, and from `t_sigmakbt` with its value unchanged</span>
-- The gwinit template wrote `tetrakbt = true`, `t_tetrakbt = 300` from 2026-06 to 09-16 (removed on 09-17).
+- The gwinit template wrote `tetrakbt = true`, `t_tetrakbt = 300` from 2026-06 to 09-16 (removed on 09-17). Since 2026-09-28, when `t_tetrakbt` became required, it writes `t_tetrakbt = 300` again (`main_gwinit.f90`).
   From 09-28 it writes `t_tetrakbt = 300`, `t_sigmaw = 300`
 
 ---

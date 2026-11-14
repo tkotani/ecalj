@@ -244,7 +244,7 @@ $-T$ は Gaussian の幅を温度で書く約束であって、有限温度の $
   `ctrlg_update.py ctrlg.<sname>.toml` がこの換算で書き換え、`t_tetrakbt` の無いファイルには 0(以前の既定)を足す
 - `esmr` = $e$ (Ry、Gaussian の標準偏差)と `t_sigmaw` = $T$ は、$e=\pi k_BT/\sqrt3$ のとき同じ幅になる(0.003 Ry と 262 K、0.01 Ry と 872 K。コードは $\pi/\sqrt3$ を 1.81 に丸めて換算するのでこの値になる。丸めなければ 261 K と 870 K)。
   2026-11-14 からは `esmr` と `t_sigmakbt` を読まない。`ctrlg_update.py` が、`esmr` はこの換算で、`t_sigmakbt` は値のまま `t_sigmaw` として書き足す
-- gwinit のテンプレートは 2026-06 から 09-16 まで `tetrakbt = true`、`t_tetrakbt = 300` を書いていた(09-17 に外した)。
+- gwinit のテンプレートは 2026-06 から 09-16 まで `tetrakbt = true`、`t_tetrakbt = 300` を書いていた(09-17 に外した)。`t_tetrakbt` が必須になった 2026-09-28 から、ふたたび `t_tetrakbt = 300` を書く(`main_gwinit.f90`)。
   09-28 からは `t_tetrakbt = 300`、`t_sigmaw = 300` を書く
 
 ---
