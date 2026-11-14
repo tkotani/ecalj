@@ -37,6 +37,7 @@
 
 2. **PMT-QSGW 法** 
    
+   QSGW 法とは、準粒子バンドを的確に与える有効一体ハミルトニアンを計算する方法です。
    PMT-QSGW とは、`the Quasiparticle self-consistent GW method (QSGW) based on the PMT method`、つまり PMT 法にもとづく準粒子セルフコンシステント GW 法（QSGW）のことです。PMT の上で QSGW を行うための鍵は [3] の開発です。磁性金属も扱えます。ecalj は GPU に実装したので、4 枚の GPU で約 40 原子を扱えます。
    [3][Kotani2014, Formulation of PMT-QSGW method](https://github.com/ecalj/ecaljdoc/blob/main/presentations/Kotani2014QSGWinPMT.pdf)
    [4][D.Deguchi PMT-QSGW applied to a variety of insulators/semiconductors](https://github.com/ecalj/ecaljdoc/blob/main/presentations/deguchi2016.pdf)
