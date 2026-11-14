@@ -12,7 +12,7 @@
 
 1. **全電子フルポテンシャルの PMT 法** 
    PMT 法とは、2 種類の補強された波（augmented waves）、つまり APW+MTO の混合基底の方法です。
-   言い換えると、PMT 法 = 線形化した（APW+MTO）法です。ecalj と同じ起源をもつ [Questaal](https://www.questaal.org/) を除けば、ほかにない方法です。MTO と APW は、波動関数を表現するときに相補的に機能します。それぞれ固有関数の局在した性質と広がった性質に対応します。つまり、とても局在した MTO（減衰因子 $\exp(-\kappa r)$、$\kappa \sim 1 $ bohr$^{-1}$。最近接の原子までしか届かないということです）と APW（カットオフは $\approx 3$ Ry）を合わせると、十分な収束が得られます。GGA/LDA のレベルで原子の位置の緩和もできます。APW を含むので、散乱状態もとてもよく記述できます。 
+   言い換えると、PMT 法 = 線形化した（APW+MTO）法です。ecalj と同じ起源をもつ [Questaal](https://www.questaal.org/) を除けば、ほかにない方法です。MTO と APW は、波動関数の表現において相補的に機能します。それぞれ固有関数の局在した性質と広がった性質に対応します。つまり、とても局在した MTO（減衰因子 $\exp(-\kappa r)$、$\kappa \sim 1 $ bohr$^{-1}$。最近接の原子までしか届かないということです）と APW（カットオフは $\approx 3$ Ry）を合わせると、十分な収束が得られます。GGA/LDA のレベルで原子の位置の緩和もできます。APW を含むので、散乱状態もとてもよく記述できます。 
   ![alt text](image-1.png)（この図は [M. Methfessel と M. van Schilfgaarde による nfp のマニュアル](../presentations/nfpmanual.pdf) から取りました）
    いまの PMT の定式化は次にあります。
 
