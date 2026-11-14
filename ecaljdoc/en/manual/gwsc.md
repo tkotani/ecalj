@@ -1,6 +1,6 @@
 # gwsc: a script to run QSGW calculation
 
-> English version of the page [manual/gwsc](../../manual/gwsc.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwsc.md of commit 034c2b739 (source blob af87d6264701).
+> English version of the page [manual/gwsc](../../manual/gwsc.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwsc.md of commit 034c2b739 (source blob 045e7280fc9e).
 
 > ⚠️ `gwsc` reads `ctrlg.<sname>.toml` only, and stops when the file is missing. A directory with the legacy `ctrl.<sname>` + `GWinput` is converted by `Legacy2toml.py <sname>` (run once per directory). See [Input file](./toml_migration) and the [Samples/TestInstall/*_gwsc/](https://github.com/tkotani/ecalj/tree/main/Samples/TestInstall) directories as templates.
 
@@ -582,6 +582,24 @@ and keeps the original as `.bk`.)
 > The mixed product basis
 > ([Solid State Commun. 2002](https://doi.org/10.1016/S0038-1098(02)00028-5))
 > is the successor of original.
+
+### QPU, TOTE in one-shot GW (`gw_lmfh`)
+In `gw_lmfh` (one-shot GW), `hqpe` gives `TOTE.UP` and `QPU` files (`TOTE.DN` and `QPD` as well). They contain the same values.
+One-shot GW is also used to calculate the impact ionization rate: in the sample `Samples/IIR/C` (diamond, a coarse mesh), `gw_lmfh` writes the widths to `QPU_life`.
+
+## The Fermi energies in GW {#the-fermi-energies-in-gw}
+We use two kinds of Fermi energy $E_{\rm FERMI}^{\rm smear}$ and $E_{\rm FERMI}^{\rm tetra}$.
+This is because of numerical techniques.
+
+One is $E_{\rm FERMI}^{\rm tetra}$, contained in EFERMI, for the polarization function since we use tetrahedron method for it.
+
+The other is $E_{\rm FERMI}^{\rm smear}$ for $G \times W$ since we use smeared pole technique for $G$
+(the width of the smearing is `[gw] t_sigmaw`).
+$E_{\rm FERMI}^{\rm smear}$ is given at the beginning of $G \times W$ calculations. 
+See the line `ef     esmr   valn=` in `lgw` and `lsxC`.
+
+With `[gw] t_tetrakbt` > 0 (the polarization function at finite temperature), both the polarization function and
+$G \times W$ (except the exchange of the cores) use the Fermi energy at that temperature, contained in EFERMI_kbt. See [kBT](./kBT).
 
 ## `[product_basis]` cut-offs (in `ctrlg.<sname>.toml`)
 
