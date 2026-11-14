@@ -509,16 +509,14 @@ $$\begin{aligned}
 $$
 In addition, it is trivial that $\{B_{ {\bf R}\mu}({\bf r})\}$ and
 $\{ P^{\bf k}_{\bf G}({\bf r})\}$ are orthogonal.
-Thus only the elements of overlap matrix is
+<del class="clfix">Thus only the elements of overlap matrix is</del><span class="clfix">The overlap matrix</span>
 $$\begin{aligned}
  O^{\bf k}_{IJ}= 
-  \int_\Omega \{M_I^{\bf k}({\bf r})\}^* {M}_J^{\bf k}({\bf r}) d^3r,
-  ,
+  \int_\Omega \{M_I^{\bf k}({\bf r})\}^* {M}_J^{\bf k}({\bf r}) d^3r
 \end{aligned}
 \tag{I24}
 $$
-because $\{ P^{\bf k}_{\bf G}({\bf r})\}$
-are not orthogonal.
+<del class="clfix">because $\{ P^{\bf k}_{\bf G}({\bf r})\}$ are not orthogonal.</del><span class="clfix">is therefore the unit matrix in the PB block and is not diagonal only in the IPW block, since the IPWs $\{ P^{\bf k}_{\bf G}({\bf r})\}$ are not orthogonal.</span>
 Thus it is convenient to define the dual of ${M}^{\bf k}_{I}({\bf r})$ as
 $\tilde{M}^{\bf k}_{I}({\bf r})$ in the manner of Eq. (I13).
 
@@ -538,9 +536,21 @@ $$\begin{aligned}
 \tag{I25}
 $$
 
+
+<div class="clfix-old">
+
 ---- NOTE: ----
 Now we use Coulomb matrix orthogonalized basis $\{E^{\bf k}_\mu\}$ as
 discussed in Eq. (I14).
+
+</div>
+
+<div class="clfix">
+
+The GW part uses both $M^{\bf k}_I$ and the Coulomb-orthonormalized $E^{\bf k}_\mu$ of Eq. (I14); see Eq. (I14a) for which step uses which.
+
+</div>
+
 
 ### Product basis (hbasfp0) {#product-basis-hbasfp0}
 
@@ -553,6 +563,9 @@ $$
 where the index $p$ takes 1 for $\phi$, 2 for $\dot{\phi}$,
 3 for local orbital as well. We do not allow $m$ dependence
 ($m$ is $m$ of $L=(l,m)$.) for the radial functions.
+
+<div class="clfix-old">
+
 In addition, $p$ can taks indexes to specify core functions:
 we combine core and valence functions (these
 are stored in `PHIVC`, which read in `hbasfp0.m.F`).
@@ -604,12 +617,24 @@ Here is a part of copy to read `PHIVC` in hvccfp0.m.F<span class="clfix">(the so
 > \[note: The orthonomalized radial functions $u_{apl\sigma}(r)$
 > are stored in `phitoto`; we also have the un-orthonormalized ones in `phitotr`.\]
 
+</div>
+
+<div class="clfix">
+
+In addition, $p$ also takes the indexes of the core functions: the core and valence radial functions are read together from `__PHIVC`
+(written by `lmf --jobgw=1`, `sugw.f90`) in `main_hbasfp0.f90`.
+For each atom and spin, the cores come first (`ncore`, with their $l$ and $n$ in `lcindx`, `ncindx`), then the valence radial functions (`nrad`, `lindx_r`, `nindx_r`),
+so that the valence $n$ is shifted by the number of cores of that $l$ (`nc_max`).
+The orthonormalized radial functions $u_{apl\sigma}(r)$ are stored in `phitoto`, and the raw ones in `phitotr` (the same for the cores).
+
+</div>
+
 Note that the *true* radial function is
 $\phi_{apl\sigma}(r) = u_{apl\sigma}(r)/r$.
 Normalization is
 $1=\int_0^{R_a} \{ u_{apl\sigma}(r) \}^2 dr = 
    \int_0^{R_a} \{ \phi_{apl\sigma}(r) \}^2 r^2dr$.
-The function $u_{apl\sigma}(r)$ is stored in `phitot`.
+The function $u_{apl\sigma}(r)$ is stored in <del class="clfix">`phitot`</del><span class="clfix">`phitoto`</span>.
 
 When producing the product functions,
 we use spin-averaged function `phiav` given as
@@ -619,7 +644,7 @@ $$\begin{aligned}
 \end{aligned}
 \tag{I27}
 $$
-(See `subroutine basnfp_v2`).
+(See `subroutine basnfp_v2`<span class="clfix"> in `basnfp.f90`; it averages the raw `phitotr`, with the sign of the spin-down function aligned to the spin-up one</span>).
 From them, we make the product functions `rprod`
 $$\begin{aligned}
   \tilde{b}_{al\nu}(r) = \frac{1}{r}{u_{a p l }(r) u_{a p' l'}(r)}
@@ -639,19 +664,19 @@ This relation is as same as $\phi_{apl}(r)=u_{apl}(r)/r$.
 
 Then we calculate the overlap matrix `ovmt`,
 $$\begin{aligned}
-  O_{\nu_1\nu_2} = \int_0^{R_a} 
-  \tilde{B}_{al\nu_1}(r) \tilde{B}_{al\nu_2}(r) r^2 dr
-  = \int_0^{R_a}  \phi_{a p_1 l_1}(r) \phi_{a p'_1 l'_1}(r)
+  O_{\nu_1\nu_2} &= \int_0^{R_a} 
+  \tilde{B}_{al\nu_1}(r) \tilde{B}_{al\nu_2}(r) r^2 dr \\
+  &= \int_0^{R_a}  \phi_{a p_1 l_1}(r) \phi_{a p'_1 l'_1}(r)
                   \phi_{a p_2 l_2}(r) \phi_{a p'_2 l'_2}(r) r^2 dr
 \end{aligned}
 \tag{I30}
 $$
 and solve the eigenvalue problem of the overlap matrix,
-$Oz_{\nu}=\epsilon_{\nu} z_{\nu}$, by `call rs(..)`.
+$Oz_{\nu}=\epsilon_{\nu} z_{\nu}$, by `call <del class="clfix">rs</del><span class="clfix">rss</span>(..)`.
 (See `basnfp_v2`.)
 
 After neglecting eigenvectors
-$z_{\nu}$ with eigenvalues $\epsilon_{\nu} \lt  {\rm tolerance} \sim 10^{-4}$ (given in GWinput,
+$z_{\nu}$ with eigenvalues $\epsilon_{\nu} \lt  {\rm tolerance} \sim 10^{-4}$ (given <del class="clfix">in GWinput,</del><span class="clfix">for each $l$ by `[product_basis] pb_tolerance` ([GW input](./gwinput#product-basis)); the last value is used for the larger $l$),</span>
 we finally have the optimal product functions as the linear combinations
 of the product functions as
 $$\begin{aligned}
@@ -660,14 +685,14 @@ $$\begin{aligned}
 \end{aligned}
 \tag{I31}
 $$
-which are stored in `rprodx` and written into BASFP\*
-and used in the successive Coulomb matrix routine hvccfp0.m.f.
+which are stored in `rprodx` and written into <del class="clfix">BASFP\*</del><span class="clfix">`__BASFP<ic>`</span>
+and used in the successive Coulomb matrix routine <del class="clfix">hvccfp0.m.f</del><span class="clfix">`hvccfp0`</span>.
 Of course, *true* product function is
 $B_{al\nu}(r) = b_{al\nu}(r)/r$.
 
 We check the normalization of the optimal product function
 in standard output
-(See `lbasC` and `lbas` when you did **gw_lmf**):
+(See `lbasC` and `lbas` <del class="clfix">when you did **gw_lmf**</del><span class="clfix">written by `gwsc`</span>):
 
     ...
     Use rs diagonalization for real symmetric 
@@ -681,15 +706,15 @@ in standard output
 In `basnfp`, we calculate all the required
 radial integrations $\lt \phi \phi B\gt $`=ppbrd`;
 $$\begin{aligned}
-   <\phi \phi B> = \int_0^{R_a}
-   \phi_{ap_1 l_1}(r) \phi_{ap_2 l_2}(r) B_{al\nu}(r) r^2 dr
-   = \int_0^{R_a} \frac{1}{r}
+   \langle\phi \phi B\rangle &= \int_0^{R_a}
+   \phi_{ap_1 l_1}(r) \phi_{ap_2 l_2}(r) B_{al\nu}(r) r^2 dr \\
+   &= \int_0^{R_a} \frac{1}{r}
      u_{ap_1l_1}(r) u_{ap_2l_2}(r) b_{al\nu}(r) dr,
 \end{aligned}
 \tag{I32}
 $$
-which are stored into PPBRD\*.
-At `call rdpp(...` in hx0fp0.m.f hxfp0.m.f,
+which are stored into <del class="clfix">PPBRD\*</del><span class="clfix">`__PPBRD_V2_<ic>`</span>.
+At `call rdpp(...` in <del class="clfix">hx0fp0.m.f hxfp0.m.f</del><span class="clfix">`rdpp.f90` (module `m_rdpp`, used by `m_zmel`)</span>,
 we allocate and read `ppbrd`.
 
 In addition, we read the \"rotated Clebsh-Gordon coefficient\"
@@ -697,36 +722,35 @@ $C(L,L_1,L_2,g)$ `cgr(lm,lm1,lm2,ng)`
 , where $g$ is the index for space group
 coefficient ( rotated by point group symmetries).
 
-## The Coulomb matrix (hvccfp0.m.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>)
+## The Coulomb matrix (hvccfp0)
 
 We have to calculate
 $v_{IJ}^{\bf k}= \langle M^{\bf k}_{I} |v|  M^{\bf k}_J \rangle$, which
 appears right after Eq. (I13).
-Our `hvccfp0.m.F` can handle the
+Our <del class="clfix">`hvccfp0.m.F`</del><span class="clfix">`hvccfp0` (`main_hvccfp0.f90`)</span> can handle the
 case $\frac{\exp(- |\kappa| |{\bf r}_1-{\bf r}_2|)}{|{\bf r}_1-{\bf r}_2|}$.
-The default is the bare Coulomb interaction, that is, $\kappa=0$.
 The energy variable $E$ is given by $E=\kappa^2$, where
 imaginary part of $\kappa$ is defined to be positive for negative $E$.
-This $E=$`eee=screenfac()` in hvccfp0.m.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>.
-For example, we can set $|\kappa|=0.1$ (a.u.) by a line
-\"`TFscreen 0.1`\" in GWinput if necessary. Look for `TFscreen` in `swithes.F`<span class="clfix">(not in the present SRC, 2026-11-15)</span>.
+This $E=$`eee=screenfac()` in <del class="clfix">hvccfp0.m.F</del><span class="clfix">`main_hvccfp0.f90`; `screenfac()` in `switch.f90` returns $-$`TFscreen`$^2$</span>.
+<del class="clfix">The default is the bare Coulomb interaction, that is, $\kappa=0$.</del><span class="clfix">The default is `[gw] TFscreen` $=\sqrt{10^{-5}}$, that is, $E=-10^{-5}$, nearly the bare Coulomb interaction (a too small value gives a negative eigenvalue of the Coulomb matrix at $q=0$).</span>
+For example, we can set $|\kappa|=0.1$ (a.u.) by <del class="clfix">a line \"`TFscreen 0.1`\" in GWinput</del><span class="clfix">`TFscreen = 0.1` in `[gw]` of `ctrlg.<sname>.toml`</span> if necessary.
 
 The MPB is made of IPWcou ($|{\bf q}+{\bf G}|$`<QpGcut_cou`) and PB,
 that is, $\{M^{\bf k}_J\}=\{P_{\bf G}^{\bf k}({\bf r}), B^{\bf k}_{ {\bf R}{liL}\mu}({\bf r})\}$.
 For given ${\bf k}$ (not explicitly shown in cases for simplicity),
 IPWcou is specified just by the ${\bf G}$ vector.
 PB can be specified just by the radial functions for each $l$
-PB is generated in the manner of Sec.([§](#mixed-product-basis)) .
-(because we have neither $m$ nor spin dependence).
+(because we have neither $m$ nor spin dependence)<span class="clfix">;</span>
+PB is generated in the manner of Sec.([§](#mixed-product-basis))<del class="clfix"> .</del><span class="clfix">.</span>
 For $GW$ calculation, we need the Coulomb matrix elements
-$\langle B|v|B \rangle,\langle B|v|P_{\bf G}\rangle,$ and $\langle B|v|P \rangle$.
-`hvccfp0.m.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>-->vcoulq_4` handles these calculations.
+$\langle B|v|B \rangle,\langle B|v|P_{\bf G}\rangle,$ and $\langle <del class="clfix">B</del><span class="clfix">P</span>|v|P \rangle$.
+<del class="clfix">`hvccfp0.m.F-->vcoulq_4`</del><span class="clfix">`vcoulq_4` (`mkjp.f90`), called in `main_hvccfp0.f90`,</span> handles these calculations.
 
 ### Spherical Bessel and related functions
 
 We use a notation such that $X_L({\bf r})=X_l(r) Y_L(\hat{r})$; note that
 their radial part is dependent only on $l$.
-The ordinary definition of $L$-dependent spherical
+<del class="clfix">The ordinary definition of $L$-dependent spherical</del>
 For given energy $E$, Bessel functions
 $J_L(E,{\bf r}),H_L(E,{\bf r})$ are
 (here we introduce $\sqrt{E}=\kappa$,
@@ -766,7 +790,7 @@ $$\begin{aligned}
 $$
 (memo: for example, $7!!=7\cdot5\cdot3\cdot1$ `;function fac2m(i)`).
 These are real functions for $E\le 0$.
-See note for `genjh` in `mkjp.F`<span class="clfix">(not in the present SRC, 2026-11-15)</span>.
+See note for `genjh` in `mkjp.<del class="clfix">F</del><span class="clfix">f90</span>`.
 At $E=0$, this is reduced to be
 $$\begin{aligned}
  &\bar{J}_l(E=0,{\bf r})=r^l/(2l+1)!!,  \\
@@ -776,19 +800,21 @@ $$\begin{aligned}
 $$
 
 (We use very small negetive $E=-10^{-5}$ as default instead of $E=0$
-for Coulomb matrix generator `hvccfp0.m.F`
-to avoid numerical troubles (see default `screenfac` in switch.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>)).
+for Coulomb matrix generator `hvccfp0`
+to avoid numerical troubles (see default `screenfac` in `switch.<del class="clfix">F</del><span class="clfix">f90</span>`)).
 
 The source codes to define bessl is a little confusing because
-of some convensions are mixed up\...(note at the beginning of besslr.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>).
+of some convensions are mixed up\...(note at the beginning of `besslr.<del class="clfix">F</del><span class="clfix">f90</span>`).
 
-Main one is `call bessel(ex2,lx,phi(0:lx),psi(0:lx))` in mkjp.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>.
-This is defined in `bessl(ex2,lmax,phi,psi)` in `besslr.F`
-(it calls `besslr` with `loka=F`).
+Main one is `call <del class="clfix">bessel</del><span class="clfix">bessl</span>(ex2,lx,phi(0:lx),psi(0:lx))` in `mkjp.<del class="clfix">F</del><span class="clfix">f90</span>` (`genjh`).
+This is defined in `bessl(ex2,lmax,phi,psi)` in `besslr.<del class="clfix">F</del><span class="clfix">f90</span>`<del class="clfix">(it calls `besslr` with `loka=F`)</del><span class="clfix"> (the module `m_bessl` has the same `bessl`, used in `vcoulq_4`)</span>.
 `lx` is the upper limit of $l$.
 For given `ex2`$=E\times x^2$,
 this return spherical Bessel functions $j_l(\kappa x)$
 in the following manner.
+
+<div class="clfix-old">
+
 $$\begin{aligned}
 \left.
 \begin{array}{ll}
@@ -804,49 +830,42 @@ $$\begin{aligned}
 \end{array} 
 \right\}& \ {\rm for}\ E>0, \ \kappa=\sqrt{E}
 \end{aligned}
+$$
+
+</div>
+
+<div class="clfix">
+
+$$\begin{aligned}
+&E<0,\ \kappa=i|\kappa|,\ |\kappa|=\sqrt{|E|}: \\
+&\qquad \bar{J}_l(E,{\bf r})=j_l(i|\kappa|r)/(i|\kappa|)^l={\tt phi(l)}\,r^l, \\
+&\qquad \bar{H}_l(E,{\bf r})=h_l(i|\kappa|r)\,i (i|\kappa|)^{l+1}={\tt psi(l)}/r^{l+1}, \\
+&E>0,\ \kappa=\sqrt{E}: \\
+&\qquad \bar{J}_l(E,{\bf r})=j_l(\kappa r)/\kappa^l = {\tt phi(l)}\,r^l, \\
+&\qquad \bar{N}_l(E,{\bf r}) = {\tt psi(l)}/r^{l+1}\quad (\text{Neumann function})
+\end{aligned}
 \tag{I37}
 $$
+
+</div>
 for $0\le l \le{\tt lmax}$. These definition gives `phi`$=1/(2l+1)!!$
 and `psi`$=(2l-1)!!$ at $E \to 0$.
 Here $n_l(r)$ is the spherical Neumann functions.
 That is, `psi` is for Hankel function
 for negative $E$, and for Neumann function for positive $E$.
-See `hansmr.F`, for example. `psi` is not used so often.
-We have `lm7K/subs/besslr.F`, it is similar.
+See `hansmr` <del class="clfix">`hansmr.F`</del><span class="clfix">in `m_hansr.f90`</span>, for example. `psi` is not used so often.<del class="clfix">We have `lm7K/subs/besslr.F`, it is similar.</del>
 
 For convenience, we sometimes use
 $$\begin{aligned}
- &R^{+l}=\bar{J}_l(E,r)(2l+1)!!={\tt psi(l)}r^l(2l+1)!!,   \\
+ &R^{+l}=\bar{J}_l(E,r)(2l+1)!!={\tt phi(l)}r^l(2l+1)!!,   \\
  &R^{-l}=\bar{H}_l(E,r)/(2l-1)!!={\tt psi(l)}r^{-l-1}(2l-1)!!.
 \end{aligned}
 \tag{I38}
 $$
+<span class="clfix">(In Eq. (I38), `psi(l)` of the first line was corrected to `phi(l)`, as in `genjh`.)</span>
 Here note $R^{+k} \rightarrow r^k$ for $E\to 0$,and
 $R^{-k} \rightarrow r^{-k-1}$ for $E\to 0$.
-These $rR^{+k},rR^{-k}$ are `rkpr,rkmr` generated in subroutine `genjh`.\
-xxxx We may need to simplify our treatment of bessel functions in
-future\... xxxx
-
-##### Electron-phonon coupling in MPB
-
-To calculate derivative for electron-phonon (EP) coupling, we need
-$$\begin{aligned}
- &\frac{\partial}{\partial {\bf r}_i} \left(\bar{J}_l(E,{\bf r})
-                    Y_L(\hat{r})\right)\big|_{ {\bf r}=0}=
-\frac{1}{3} \sqrt{\frac{3}{4\pi} }, \ \ \ \ {\rm only \ for} \ L=1,\ {\rm zero otherwize}.
-\end{aligned}
-\tag{I39}
-$$
-For real spherical harmonics, cases are:
-$i=y$ and $L=(1,-1)$; $i=z$ and $L=(1,0)$; $i=x$ and $L=(1,1)$.
-Because we use MPB, it is necessary to evaluate the
-the bare matrix element of the Coulomb interaction between nucleus and
-$\langle B\rangle$ as
-$$\begin{aligned}
- &\langle B|\frac{\partial v({\bf r}-{\bf R})}{\partial {\bf R}_i}\rangle
-\end{aligned}
-\tag{I40}
-$$
+These $rR^{+k},rR^{-k}$ are `rkpr,rkmr` generated in subroutine `genjh`.<del class="clfix">xxxx We may need to simplify our treatment of bessel functions in future\... xxxx</del>
 
 ### Green function
 
@@ -882,22 +901,22 @@ the numerator of Eq. (I42) is $\exp(i \kappa |{\bf r}-{\bf r}'|)=\exp(- |\kappa|
 $$\begin{aligned}
 \frac{1}{|{\bf r}-{\bf r}'|}
 =4 \pi \sum_K \frac{r^k_<}{r^{k+1}_>}\frac{1}{2k+1}
-Y^*_K(\hat{ {\bf r} })Y_K(\hat{ {\bf r} }) \end{aligned}
+Y^*_K(\hat{ {\bf r} })Y_K(\hat{ {\bf r} }') \end{aligned}
 \tag{I43}
 $$
 See Appendix A in Ref.[svane_evaluation_1986].
 This is generalized to be
 $$\begin{aligned}
 \frac{e^{-|\kappa| |{\bf r}-{\bf r}'|} }{|{\bf r}-{\bf r}'|}
-=4 \pi \sum_K R^{+k}(r_<) R^{-k}(r_>)\frac{1}{2k+1}
-Y^*_K(\hat{ {\bf r} })Y_K(\hat{ {\bf r} }) 
-=4\pi \sum_L 
-\bar{J}_L(E,r_<) \bar{H}_L(E,r_>), %Y^*_L(\hat{\bfr})Y_L(\hat{\bfr})
+&=4 \pi \sum_K R^{+k}(r_<) R^{-k}(r_>)\frac{1}{2k+1}
+Y^*_K(\hat{ {\bf r} })Y_K(\hat{ {\bf r} }') \\
+&=4\pi \sum_K 
+\bar{J}_k(E,r_<) \bar{H}_k(E,r_>)\, Y^*_K(\hat{ {\bf r} })Y_K(\hat{ {\bf r} }'),
 \end{aligned}
 \tag{I44}
 $$
 The definition of $\bar{J},R^{+l}$ are in Eq. (I35) and Eq. (I38).
-Here $E\lt 0$ and $\kappa= i|\kappa|=\sqrt{-E}$.
+Here $E\lt 0$ and $\kappa= i|\kappa|=i\sqrt{-E}$.
 
 $$\begin{aligned}
  &\exp( i {\bf k} {\bf r}) = 4 \pi \sum_L i^l 
@@ -910,6 +929,9 @@ Y_L({\bf \widehat{r} }_2) \ \ \ \ \ \
 \tag{I45}
 $$
 
+
+<div class="clfix-old">
+
 $$\begin{aligned}
 \langle P^{\bf k}_{\bf G}|P^{\bf k}_{ {\bf G}'} \rangle
 = \Omega \delta_{ {\bf G},{\bf G}'} -  
@@ -917,8 +939,22 @@ $$\begin{aligned}
 Y_L( {\bf \widehat{ k+G} })  \\
 \times \int_0^{R_a} j_l(|{\bf k+G}|r)j_l(|{\bf k+G}'|r) 4 \pi^2 r^2 dr,
 \end{aligned}
+$$
+
+</div>
+
+<div class="clfix">
+
+The overlap of the IPWs (`mkppovl2` and `matgg2` in `pwmat.f90`) depends only on ${\bf G}'-{\bf G}$ and not on ${\bf k}$:
+$$\begin{aligned}
+\langle P^{\bf k}_{\bf G}|P^{\bf k}_{ {\bf G}'} \rangle
+&= \Omega \delta_{ {\bf G},{\bf G}'} \\ &\quad - \sum_{a} e^{ i ({\bf G}'-{\bf G})\cdot {\bf R}_a}\,\frac{4\pi}{g^3}\big(\sin(gR_a)-gR_a\cos(gR_a)\big),
+\end{aligned}
 \tag{I46}
 $$
+where $g=|{\bf G}'-{\bf G}|$, and the term of $a$ is $4\pi R_a^3/3$ for $g=0$.
+
+</div>
 
 ### Hankel function and Structure constant
 
@@ -2470,3 +2506,26 @@ Thus we supply `ibas_tbl` and so on as
          &     max_ibas_tbl,max_l_tbl,max_k_tbl,max_offset_tbl
 
 in `module m_rotMPB2`.
+
+## Electron-phonon coupling in MPB (suspended) {#electron-phonon}
+
+<span class="clfix">Moved here from the Bessel-function subsection: this work was suspended. The static $\epsilon^{-1}$ for phonons is written by `hgw` into `__W4PHONON.<iq>` when `w4pmode` is on, that is, when the file `Q0P4phonon` exists (`m_llw.f90`).</span>
+
+To calculate derivative for electron-phonon (EP) coupling, we need
+$$\begin{aligned}
+ &\frac{\partial}{\partial {\bf r}_i} \left(\bar{J}_l(E,{\bf r})
+                    Y_L(\hat{r})\right)\big|_{ {\bf r}=0}=
+\frac{1}{3} \sqrt{\frac{3}{4\pi} }, \ \ \ \ {\rm only \ for} \ L=1,\ {\rm zero otherwize}.
+\end{aligned}
+\tag{I39}
+$$
+For real spherical harmonics, cases are:
+$i=y$ and $L=(1,-1)$; $i=z$ and $L=(1,0)$; $i=x$ and $L=(1,1)$.
+Because we use MPB, it is necessary to evaluate the
+the bare matrix element of the Coulomb interaction between nucleus and
+$\langle B\rangle$ as
+$$\begin{aligned}
+ &\langle B|\frac{\partial v({\bf r}-{\bf R})}{\partial {\bf R}_i}\rangle
+\end{aligned}
+\tag{I40}
+$$
