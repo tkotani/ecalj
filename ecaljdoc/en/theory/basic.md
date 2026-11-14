@@ -95,6 +95,8 @@ The polarization function $D = G G$, in which an electron and a hole propagate a
 
 ## Definition of the (one-particle) Green function
 
+The electron and hole Green functions can both be defined as impulse responses. The electron Green function is the response to adding (kicking in) one electron at point $𝒓_2$ at time $t_2$. The $(N+1)$-electron state after the addition, $\hat 𝜓^†(𝒓_2)\ket{\Psi_0}$, evolves by the Schrödinger equation, which is linear and of first order in time. At time $t_1$ we look at the amplitude of its overlap with the state with an electron added at point $𝒓_1$. In a formula, $iG_\mathrm{ele} = 𝜃(t_1-t_2)\braket{\Psi_0|\hat 𝜓(𝒓_1)\,e^{-i(\hat H-E)(t_1-t_2)/\hbar}\,\hat 𝜓^†(𝒓_2)|\Psi_0}$, the same as Eq. (Gd1) below. The hole Green function is the response to removing one electron at point $𝒓_1$ at time $t_1$. The remaining $(N-1)$-electron state evolves, and at time $t_2$ ($>t_1$) we look at the amplitude of its overlap with the state with an electron removed at point $𝒓_2$ (the sign comes from exchanging fermions). Both have only the times after the kick, with the same structure as Eq. (GF6). The hole seems to "propagate to the past" only because the roles of the variables $(𝒓_1t_1, 𝒓_2t_2)$ are fixed as for the electron; in its own time ($t_2-t_1>0$) the hole also goes to the future.
+
 $$
 \begin{align}
 iG_\mathrm{ele}(𝒓_1t_1, 𝒓_2t_2) &= \braket{\Psi_0|\hat 𝜓_\mathrm{H}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)|\Psi_0}\, 𝜃(t_1-t_2) \tag{Gd1} \\
@@ -102,7 +104,7 @@ iG_\mathrm{hole}(𝒓_1t_1, 𝒓_2t_2) &= -\braket{\Psi_0|\hat 𝜓^†_\mathrm{
 \end{align}
 $$
 
-The electron Green function $G_\mathrm{ele}$ is the amplitude to put an electron in at point $𝒓_2$ at time $t_2$ and take it out at point $𝒓_1$ at time $t_1$ ($>t_2$). The hole Green function $G_\mathrm{hole}$ is the amplitude to remove an electron at point $𝒓_1$ at time $t_1$ and fill the hole at point $𝒓_2$ at time $t_2$ ($>t_1$) (the sign comes from exchanging fermions).
+(Note) Relation to linear response to an external field. A "force" that adds or removes an electron cannot be applied as a classical field, so $G$ itself is not a linear response to an external field (Kubo formula). What appears as linear response to a physical external field is the density response (the polarization function $D$ below). Putting in a fermion source formally gives the retarded Green function $iG^\mathrm{R}(𝒓_1t_1,𝒓_2t_2) = 𝜃(t_1-t_2)\braket{\Psi_0|\{\hat 𝜓_\mathrm{H}(𝒓_1,t_1),\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)\}|\Psi_0}$. It has both the electron and the hole terms on the side $t_1>t_2$, and without interaction it is Eq. (GF6) with all the states, occupied and unoccupied. The time-ordered $G$ is obtained from it by moving the hole term to the side $t_2>t_1$ ([Basic II](./basic2), "Relation among advanced, retarded and time-ordered functions").
 
 - $\hat 𝜓_\mathrm{H}(𝒓,t)$ : the field operator in the Heisenberg picture, $\hat 𝜓_\mathrm{H}(𝒓,t) = e^{i\hat Ht/\hbar}\hat 𝜓(𝒓)e^{-i\hat Ht/\hbar}$.
 - $\hat 𝜓^†_\mathrm{H}(𝒓,t) = e^{i\hat Ht/\hbar}\hat 𝜓^†(𝒓)e^{-i\hat Ht/\hbar}$.
