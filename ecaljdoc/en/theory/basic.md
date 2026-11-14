@@ -26,7 +26,7 @@ x(t) = \int dt'\, g(t-t') f(t')
 \tag{GF2}
 $$
 
-(linear response).
+(linear response). This is sometimes called an integral equation. In the integral equation the solution $x(t)$ for the input $f(t)$ is determined uniquely, because the initial condition (at rest before the kick, $g=0$ for $t<t'$) is built in exactly (the differential equation (GF1) alone leaves the freedom to add a solution without force).
 
 Set $m=1$. Taking the Fourier transform $x(𝜔)=\int dt\, e^{i𝜔t} x(t)$ ($d/dt \to -i𝜔$) and writing the spring and damping terms together as $H = k - i\gamma𝜔$, Eq. (GF1) becomes
 
