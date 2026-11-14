@@ -9,6 +9,8 @@ On the Green function at zero temperature
 
 ## What is a Green function {#what-is-green}
 
+The linear response (impulse response) of a spring is the basis of the Green function.
+
 **Impulse response of a spring.** For a damped spring (mass $m$, damping $\gamma$, spring constant $k$) driven by a force $f(t)$, the displacement $x(t)$ obeys
 
 $$
