@@ -1,6 +1,6 @@
 # License {#license}
 
-> English version of the page [manual/license](../../manual/license.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/license.md of the tree of 31d8516dc (source blob 99d61c4ffdf2).
+> English version of the page [manual/license](../../manual/license.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/license.md of the tree of 31d8516dc (source blob a36e5d66957b).
 
 ecalj is distributed under the [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html). **This page is the reference** for the licence terms;
 [LICENCE](https://github.com/tkotani/ecalj/blob/main/LICENCE) of the repository is a summary that points here.
