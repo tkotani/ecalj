@@ -2143,7 +2143,7 @@ and generators can be given to use a lower symmetry on purpose (for example, NiO
 
 </div>
 
-## Rotation of eigenfuncitons and MPB by the space-group operations {#spacegroup-rotation}
+## Rotation of <del class="clfix">eigenfuncitons</del><span class="clfix">eigenfunctions</span> and MPB by the space-group operations {#spacegroup-rotation}
 
 ### space-group rotation of PMT eigenfunction
 
@@ -2191,16 +2191,20 @@ $A^{\bf k}_{ {\bf R}u L}({\bf r}) \equiv \sum_{\bf T}
 A_{ {\bf R}u L}({\bf r-R-T}) \exp(i {\bf kT})$ in Eq. (I3).
 (Here we get the angular momentum index $L$. $u$ is for radial part of index.)
 Then we have
-$$\begin{aligned}
- &g[A^{\bf k}_{ {\bf R}u L}]({\bf r})=A^{\bf k}_{ {\bf R}u L}(g^{-1}({\bf r})+{\it \Delta}^{-1})
-=\sum_{\bf T}A_{ {\bf R}u L}(g^{-1}({\bf r})+{\it \Delta}^{-1} -{\bf R}-{\bf T}) \exp(i {\bf kT})  \\
- &=\sum_{\bf T}A_{ {\bf R}u L}(g^{-1}({\bf r}+g({\it \Delta}^{-1}) -g({\bf R})-g({\bf T})))
- \exp(i {\bf kT})  \\
- &=\sum_{\bf T}\sum_{L'}  A_{ {\bf R}u L'} ({\bf r}+g({\it \Delta}^{-1}) -g({\bf R})-g({\bf T}))D_{L'L}(g) \exp(i {\bf kT})  \\
- &=\sum_{\bf T}\sum_{L'}  A_{ {\bf R}' u L'}({\bf r}-{\bf R}'-{\it \Delta}{\bf T}_{\bf R}-g({\bf T})) D_{L'L}(g)\exp(i {\bf kT})  \\
- &=\sum_{ {\bf T}''} \sum_{L'}  A_{ {\bf R}' u L'}({\bf r}-{\bf R}'-{\bf T}'') D_{L'L}(g)
- \exp(i g({\bf k}){ {\bf T} }'') \exp(-i g({\bf k}){\it \Delta}{\bf T}_{\bf R})  \\
- &= \sum_{L'}  A^{g({\bf k})}_{ {\bf R}' u L'}({\bf r}) D_{L'L}(g) \exp(-i g({\bf k}){\it \Delta}{\bf T}_{\bf R}),
+$$
+\begin{aligned}
+g[A^{\bf k}_{ {\bf R}u L}]({\bf r})&=A^{\bf k}_{ {\bf R}u L}(g^{-1}({\bf r})+{\it \Delta}^{-1}) \\
+&=\sum_{\bf T}A_{ {\bf R}u L}(g^{-1}({\bf r})+{\it \Delta}^{-1} -{\bf R}-{\bf T}) \exp(i {\bf kT})  \\
+&=\sum_{\bf T}A_{ {\bf R}u L}\big(g^{-1}({\bf r}+g({\it \Delta}^{-1}) -g({\bf R})-g({\bf T}))\big) \\
+&\qquad\times \exp(i {\bf kT})  \\
+&=\sum_{\bf T}\sum_{L'}  A_{ {\bf R}u L'} ({\bf r}+g({\it \Delta}^{-1}) -g({\bf R})-g({\bf T})) \\
+&\qquad\times D_{L'L}(g) \exp(i {\bf kT})  \\
+&=\sum_{\bf T}\sum_{L'}  A_{ {\bf R}' u L'}({\bf r}-{\bf R}'-{\it \Delta}{\bf T}_{\bf R}-g({\bf T})) \\
+&\qquad\times D_{L'L}(g)\exp(i {\bf kT})  \\
+&=\sum_{ {\bf T}''} \sum_{L'}  A_{ {\bf R}' u L'}({\bf r}-{\bf R}'-{\bf T}'')\, D_{L'L}(g)
+ \exp(i g({\bf k}){ {\bf T} }'') \\
+&\qquad\times \exp(-i g({\bf k}){\it \Delta}{\bf T}_{\bf R})  \\
+&= \sum_{L'}  A^{g({\bf k})}_{ {\bf R}' u L'}({\bf r})\, D_{L'L}(g) \exp(-i g({\bf k}){\it \Delta}{\bf T}_{\bf R}),
 \end{aligned}
 \tag{I100}
 $$
@@ -2208,14 +2212,14 @@ where we use $A_{ {\bf R}' u L}({\bf r})=A_{ {\bf R}u L}({\bf r})$ since $R$ and
 sites should be equilalent sites. We use cancellation ${\it \Delta}=-g({\it \Delta}^{-1})$.
 $D_{L'L}(g)$ is the rotaion matrix of the real spherical harmonics for $g$.
 
-### space-group rotation of PMT eigenfunction
+### <del class="clfix">space-group rotation of PMT eigenfunction</del><span class="clfix">Code: `rotevec`</span>
 
-We have eigenfunction rotation routine `subroutine rotwvigg` called from `zsecsym.F`<span class="clfix">(not in the present SRC, 2026-11-15)</span>.
+<del class="clfix">We have eigenfunction rotation routine `subroutine rotwvigg` called from `zsecsym.F`.</del><span class="clfix">The routines are in `rotwave.f90`: `rotevec` rotates the coefficients of an eigenfunction in the PMT basis (MTO and APW parts), and `rotmatMTO` gives the rotation matrix of the MTO part.</span>
 
 
 With this Eq. (I100), coeffecients of eigenfunctions for the MTO part of
 eigenfunctions are rotated (mapped) by the space group operation $g$.
-It is coded in `subroutine rotwvigg`(eigenfunction rotation routine) as
+It is coded in `subroutine <del class="clfix">rotwvigg</del><span class="clfix">rotevec</span>`(eigenfunction rotation routine) as
 
     ...
      phase = [(exp(-img2pi*sum(qtarget*tiat(:,ibas,igg))),ibas=1,nbas)]
@@ -2247,27 +2251,30 @@ Here
 > `offlrev`: offset for the (ibas,l,k) block\
 > The Block `init1:iend1` is mapped to the block `init2:iend2`.
 
-In order to call rotwvigg, we have to call `readhamindex()` so as to set up variables
+In order to call <del class="clfix">rotwvigg</del><span class="clfix">`rotevec`</span>, we have to call `readhamindex()` so as to set up variables
 `ltab,ktab,offl,oflrev,...` in `m_hamindex` module in advance.
 
-Orbital index tables (`_tbl`<span class="clfix">(not in the present SRC, 2026-11-15)</span> is read from a file `MNLA_CPHI`
-(See Sec.(ref sec:atmnla in the original)) by `readmnla_cphi`.
-The last column in `MNLA_CPHI` contains the orbital-block index.
+Orbital index tables (`<span class="clfix">ibas</span>_tbl`<span class="clfix">, `l_tbl`, `k_tbl`, ...)</span> <del class="clfix">is</del><span class="clfix">are</span> read from a file `<span class="clfix">@</span>MNLA_CPHI`
+<del class="clfix">(See Sec.(ref sec:atmnla in the original))</del><span class="clfix">(written by `sugw.f90`)</span> by `readmnla_cphi` <span class="clfix">(`readeigen.f90`)</span>.
+The last column in `<span class="clfix">@</span>MNLA_CPHI` contains the orbital-block index.
 The orbital-blocks are specified by $l$ and $k$, its size is $2l+1$.
 The number of $i$ is exactly the number of lines of `MNLA_CPHI`.\
 
-In `subroutine rotwvigg`(eigenfunction rotation routine) we also have part for the APW.
+In `subroutine <del class="clfix">rotwvigg</del><span class="clfix">rotevec</span>`(eigenfunction rotation routine) we also have part for the APW.
 Formula is
-$$\begin{aligned}
- &g[\exp(i ({\bf k}+{\bf G}){\bf r})]  
-=\exp(i ({\bf k}+{\bf G}) (g^{-1}({\bf r})+{\it \Delta}^{-1})) 
-=\exp(i (g({\bf k})+g({\bf G})) ({\bf r}+g({\it \Delta}^{-1}))  \\
- &=\exp(i (g({\bf k}+{\bf G}) {\bf r}) \exp(i ({\bf k}+{\bf G}) {\it \Delta}^{-1})  \\
- &= \exp({i (\bar{g}({\bf k}) + g({\bf G})+ (g({\bf k})-\bar{g}({\bf k}))) {\bf r} }) \exp({-i ({\bf k}+ {\bf G}){\it \Delta} }).
+$$
+\begin{aligned}
+g[\exp(i ({\bf k}+{\bf G}){\bf r})]  
+&=\exp\big(i ({\bf k}+{\bf G}) (g^{-1}({\bf r})+{\it \Delta}^{-1})\big) \\
+&=\exp\big(i (g({\bf k})+g({\bf G})) ({\bf r}+g({\it \Delta}^{-1}))\big)  \\
+&=\exp\big(i g({\bf k}+{\bf G}) {\bf r}\big) \exp\big(i ({\bf k}+{\bf G}) {\it \Delta}^{-1}\big)  \\
+&= \exp\Big({i \big(\bar{g}({\bf k}) + g({\bf G})+ (g({\bf k})-\bar{g}({\bf k}))\big) {\bf r} }\Big) \\
+&\qquad\times\exp\big(-i\, g({\bf k}+ {\bf G}){\it \Delta} \big).
 \end{aligned}
 \tag{I101}
 $$
-(Our definition of PW (IPW) has 'no nomalization factor'.)
+<span class="clfix">(In the last line of Eq. (I101), $({\bf k}+{\bf G}){\it \Delta}$ was corrected to $g({\bf k}+{\bf G}){\it \Delta}$, since $({\bf k}+{\bf G})\cdot{\it \Delta}^{-1}=-g({\bf k}+{\bf G})\cdot{\it \Delta}$; the code uses `exp(-img2pi*sum(qpgr*shtvg(:,igg)))` with `qpgr` $=g({\bf q}+{\bf G})$.)</span>
+(Our definition of PW (IPW) has 'no <del class="clfix">nomalization</del><span class="clfix">normalization</span> factor'.)
 Here $g({\bf k})$ is pulled back to be $\bar{g}({\bf k})$ in the 1stBZ.
 Their difference is $g({\bf k})-\bar{g}({\bf k})$.
 We define `barG` as $\bar{G}=g({\bf G})+ (g({\bf k})-\bar{g}({\bf k}))$.
@@ -2294,8 +2301,8 @@ Thus it is coded as\
 In ecalj, we re-expand eigenfuncitons in the manner of MTIPW form, that is,
 MTpart+IPWpart as in Eq. (I7) in the GW calculations.
 In the form of MTIPW, we have to map eigenfunctions by space-group operations.
-As in the manner of `rotwvigg`, we have `rotmto` and `rotipw`.
-These are for rotation MTpart and IPW parts.
+As in the manner of `<del class="clfix">rotwvigg</del><span class="clfix">rotevec</span>`, we have `rotmto` and `rotipw` <span class="clfix">(`rotwave.f90`)</span>.
+These are for rotation MTpart and IPW parts<span class="clfix">; they are used in `readeigen.f90` to give `__CPHI` and `__GEIG` at the ${\bf k}$ points that are not stored, from the stored equivalent ones</span>.
 
 ### space-group rotation of Mixed Product Basis
 
@@ -2303,11 +2310,12 @@ We need all the matrix elements $\langle \Psi_{ {\bf q+k}n'}| \Psi_{ {\bf k}n} E
 for given inputs of ${\bf q},{\bf k},n,n'$. Here $E^{\bf q}_\nu$ is the Coulomb-diagonalized mixed product basis
 [friedrich_efficient_2010].
 
-In the procedure of EIBZ (See Eq. (I95) around), we have to rotate MPB.\
-Module `module m_rotMPB2 (in m_rotMPB.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>)` is for generating the rotation matrix `zrotm`.
+<span class="clfix">This is a memo for the EIBZ scheme, which is not used now ([IBZ and EIBZ](#ibz-and-eibz-scheme)); `m_rotMPB2` and `x0kf_v4hz_symmetrize` are not in the present code, while `rotmto2` and `rotipw2` remain in `rotwave.f90`.</span>
+In the procedure of EIBZ (See Eq. (I95) around), we have to rotate MPB.
+Module `module m_rotMPB2 (in m_rotMPB.F)` is for generating the rotation matrix `zrotm`.
 With `zrotm`, we rotate MPB in `call X0kf_v4hz_symmetrize`, where
-we multiple conversion matrix `\zcousq` for conversion from MPB to $\{\}E^{\bf q}_\nu\}$ as\
-`  rcxq(:,:,iw,jpm) = matmul(zcousqc,matmul(rcxq_core,zcousq))` (see code in `x0kf_v4hz_symmetrize`<span class="clfix">(not in the present SRC, 2026-11-15)</span>).
+we multiply the conversion matrix `zcousq` for conversion from MPB to $\{E^{\bf q}_\nu\}$ as\
+`  rcxq(:,:,iw,jpm) = matmul(zcousqc,matmul(rcxq_core,zcousq))` (see code in `x0kf_v4hz_symmetrize`).
 
 `zrotm` is generated by calling `rotmto2,rotipw2`.
 These are essentially similar with `rotmto,rotipw`, but the basis set in the MT region,
