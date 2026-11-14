@@ -52,6 +52,28 @@ Because the equation is of first order, the wave function at time $t'$ fixes the
 a term in which the hole left by removing an electron propagates to the past (the side $t<t'$). The sum of the electron term ($t>t'$) and the hole term ($t<t'$)
 is the T-product Green function of the next section.
 
+**A chain of responses is a convolution; simultaneous propagation is a product.** Take the frequency representation $g(𝜔)=\int dt\, e^{i𝜔t} g(t)$. When the response $x_\mathrm{A}$ of a system A drives a system B as it is (in series, a chain), the total response is a convolution in time and a product in frequency:
+
+$$
+\begin{aligned}
+g(t-t') &= \int dt''\, g_\mathrm{B}(t-t'') g_\mathrm{A}(t''-t'), \\
+g(𝜔) &= g_\mathrm{B}(𝜔)\, g_\mathrm{A}(𝜔)
+\end{aligned}
+\tag{GF5}
+$$
+
+The Dyson equation $G = G_0 + G_0 𝛴 G$ has this chain form. On the other hand, when two independent propagations run at the same time (in parallel) and we ask for the amplitude that both happen, the result is a product in time and a convolution in frequency:
+
+$$
+\begin{aligned}
+g_\mathrm{AB}(t) &= g_\mathrm{A}(t)\, g_\mathrm{B}(t), \\
+g_\mathrm{AB}(𝜔) &= \int \frac{d𝜔'}{2\pi}\, g_\mathrm{A}(𝜔') g_\mathrm{B}(𝜔-𝜔')
+\end{aligned}
+\tag{GF6}
+$$
+
+The polarization function $D = G G$, in which an electron and a hole propagate at the same time (the section "Time-ordered polarization function of a non-interacting system" below), and the self-energy $𝛴 = iGW$ ([Basic II](./basic2), "the case of the $GW$ self-energy") have this form. (Two mechanical springs A and B connected in parallel share the displacement and their forces add, so the inverse responses add, $1/g = 1/g_\mathrm{A} + 1/g_\mathrm{B}$. The product appears when amplitudes are multiplied, as above.)
+
 ## Definition of the (one-particle) Green function
 
 $$
