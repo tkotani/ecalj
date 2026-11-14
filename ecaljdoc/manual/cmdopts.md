@@ -200,8 +200,8 @@ Fortran のプログラムは、次の形の引数を受け付けます。それ
 
 | オプション | 型 | 働き | 使う場所 |
 |---|---|---|---|
-| `--gpu` | flag | GPU のコードを使う（`InstallAll.py` は `/tmp/gpu.lock` を取り、`gwsc` は `/tmp/ecalj_res/` に GPU ごとのロックを取る。[GPU 版 § 複数のジョブ](./ecaljgpu#同じ機械で複数のジョブを走らせるとき)） | `InstallAll.py`、`m_*.f90` |
-| `--linalg=<row>,<row>,…` | kv | GPU の行列演算の表の行を上書きする。例 `--linalg=fp32.cgemm.large=realsgemm,fp32.epsinv.large=mixed1`。表と方法は [GPU 版 § 自動選択](./ecaljgpu#精度の選び方と行列演算の自動選択-2026-09) を参照 | `m_linalg_policy.f90` |
+| `--gpu` | flag | GPU のコードを使う（`InstallAll.py` は `/tmp/gpu.lock` を取り、`gwsc` は `/tmp/ecalj_res/` に GPU ごとのロックを取る。[GPU 版 § 複数のジョブ](./ecaljgpu#gpu-multijob)） | `InstallAll.py`、`m_*.f90` |
+| `--linalg=<row>,<row>,…` | kv | GPU の行列演算の表の行を上書きする。例 `--linalg=fp32.cgemm.large=realsgemm,fp32.epsinv.large=mixed1`。表と方法は [GPU 版 § 自動選択](./ecaljgpu#gpu-precision) を参照 | `m_linalg_policy.f90` |
 | `--use_gemmul8` | flag | 大きな GPU の行列の積を GEMMul8（INT8 のテンソルコアでの Ozaki-II）で行う。`InstallAll.py --gemmul8` が要る。[GPU 版](./ecaljgpu) を参照 | `m_blas.f90`、`m_gemmul8.f90` |
 | `--modifiedGS` | flag | 修正 Gram–Schmidt の直交化 | いろいろ |
 | `--diag=default` / `--diag=tridiag` / `--diag=chefsi` | kv | 対角化の方法を選ぶ（LAPACK の既定、三重対角、ChebFSI） | いろいろ |
