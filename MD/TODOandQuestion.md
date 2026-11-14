@@ -111,6 +111,23 @@
 - **【未着手】`MLOsamples/RuO2` の `rst`・`dmats`** は `pwmode = 11` の LDA+U の誤りの時期（2026-03-30〜09-30）に作ったもの。作り直すか
 - **【判断待ち】試験の入力の温度**（`t_tetrakbt = 262`、`t_sigmaw = 0`）をテンプレート（300/300）に揃えるか。揃えると gas_gwsc・fe_gwsc などの参照が動く
 
+### ecaljdoc（文書）（2026-11-14 23:59 に書いた）
+
+- **【やりかけ】英語版（`ecaljdoc/en/`）を日本語の側に合わせる**（2026-11-14）: 日本語の側で朱の印を確定させたページと書き直したページを、英語版に写していない。
+  対象: install、installISSP、README_tutorial、ecaljgpu、gwinput、toml_migration、whatsnew、mtradius、syml、lmf_legacy_ctrl、qsgw、basic2、mlo_gwsc、pmt、kBT、mlo
+  （朱の確定）と optical（2026-11-14 に README_eps.md を土台に書き直した。英語版は古い版のまま）。写したら `ecaljdoc_en.py status` が空になるよう出典の行を直す
+  （手順: 英語版を書き換えた後、`TOOLS/ecaljdoc_en.py` の見出しの行のコミットと blob を更新）
+- **【判断待ち】残した朱の印**（2026-11-14）: コードやデータで確かめきれなかったもの。約 90 か所: mlo 42（窓の幅、4f の θ、模型の表の値、本数）、
+  pmt 17（`lfoca`、`lmxl`、1 中心の項などの物理の直し。G の参照を「式 (1)」にした直しは式 (1) に G が無いので保留）、kBT 11（LiTi₂O₄ の数値）、
+  mlo_gwsc 8（厳密さの条件、日付・コミット）、ecaljgpu 4（Re Σc の差の言い換え）、install 2（時間 3〜10 分）、optical 1（古い例の注。2026-11-14 の書き直しで消えた）。
+  writing_docs の 4 か所は朱の書き方の見本なので残す
+- **【未着手】数式の本文からのはみ出し**（2026-11-14）: 幅 1300px で kBT（9 式）、pmt（8 式）、mlo（2 式）、gw（2 式）。幅 960px ではさらに gw、basic、basic2、mlo_gwsc。
+  `aligned` で折り返す。番号付きの式は CSS で横に流れる（スクロールバーは出ない）ので、本文の幅を超えるかで調べる（scratchpad の検査は playwright で svg の右端と `.vp-doc` の右端を比べた）
+- **【未着手】メニューの見出しの残り**（2026-11-14）: 「GPU version of QSGW」を日本語に
+- **【未着手】二重化の残り**（2026-11-14）: lmf・cmdopts・ドーピング・ESM・緩和・gwsc・スペクトル関数・サンプル・その他の説明は片付けた。残りはメインドキュメント（README_tutorial）とほかのページ
+  （`save` の文字、lmchk、SOC の手順など）、kBT・mlo の中の重複。Samples の README の古い記述（2026-11-14 に EPS_GaAs の README_eps.md の `QforEPSau`、`n1n2n3eps` を直した）
+- **【未着手】`TestInstall/yh3fcc_gwsc666` が走らない**（`Samples/README.md` に記載。Y の拡張局所軌道で動径方程式が失敗）。直すか外すか
+
 ### 判断待ち（ほかに）
 
 - **ecaljdoc の「その他の説明」（UsageDetailed）を整理したときに見つけた、確かめが要ること**（2026-11-14）
