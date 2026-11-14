@@ -71,6 +71,9 @@ ecaljdoc の書き方の決まり（公開）は [`ecaljdoc/manual/writing_docs.
   `lmf` が読み（`m_lmfinit`）、反復の間固定する（`m_bndfp` で `pnunew` を呼ばない）。動径関数は LDA のポテンシャルの球対称部分で解く
 - 占有状態の重心（部分状態密度の中心）で解くのは `pnufix = false` のときの `pnunew` だけ（ローカル軌道の無い $l$ の価電子）。以前の方法で、不安定だった
 - GW の波動関数の表現: $\phi_{Ru}$ は MT の中だけの関数（MTO そのものではない）、IPW は MT の中で 0。そのため内積の交差項は消える。IPW の重なりは $\Omega\delta_{GG'}$ − MT の積分
+- 「2 種の MPB」は M（もとの混合積基底 $M_I$、直交しない）と E（Coulomb を対角にする直交基底 $E_\mu=\sum_I z_{\mu I}M_I$、係数は `zcousq`）のこと（user 2026-11-15）。
+  `hgw` は χ0 の足し込みと Σc を M で（`build_zmel(..., is_m_basis=.true.)`）、ε の逆行列と W^c を E で（`m_llw` で ngb×ngb を変換）、Σx を E で行う。W^c は M でしまう。
+  `hx0fp0` は E だけ。論文 Obata 2025 は E だけで書いている。詳しくは [`ecaljdoc/manual/dev_impl.md`](../ecaljdoc/manual/dev_impl.md) の (I14a)
 
 ### 出力とファイル
 - `save.<sname>` の行の先頭の文字は `svflg='cxhiC'`（`m_lmfp.f90`）: c 収束、x 上限に達した、h 最初（Harris）、i 途中、C 緩和の収束
