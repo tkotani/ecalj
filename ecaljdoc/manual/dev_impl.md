@@ -412,21 +412,32 @@ $$\begin{aligned}
 \end{aligned}
 \tag{I21}
 $$
-, where ${\bf P}_i$ is the primitive vector $\frac{2\pi}{\rm alat} \times$
+, where ${\bf P}_i$ is the primitive vector $\frac{2\pi}{\rm alat} \times$<span class="clfix"> `qlat(:,i)`, the reciprocal lattice vectors ${\bf Q}_i$ (`[gw] chi_RegQbz = true`, the default, includes ${\bf k}=0$; with `false` the mesh is shifted by half a step).</span>
 Quantities $f({\bf k})$ (periodic in BZ) can
 be integrated just as a sum on the regular mesh points.
 However, when $f({\bf k}=0)$ is divergent, we have careful treatments.
 
-`qlat`(:,i1), where qlat=${\bf Q}_i$ is the reciprocal vectors.
-See Sec.3.2 .
+<del class="clfix">`qlat`(:,i1), where qlat=${\bf Q}_i$ is the reciprocal vectors.
+See Sec.3.2 .</del>
 
-`mkQG2` in `mkqg.f90` is the main part of **qg4gw** (`main_qg4gw.f90`). The job `--job=N` (`iq0pin`) is 1 (generate the offset-Γ points Q0P; `gwsc`), 2 (read Q0P; `job_eps` uses `--job=2 --n1n2n3eps`), 3 (epsPP), 4 (χ+-), 201, 10002 (skip the Γ cell), 20002 (Γ cell only), 40001 (`QforEPSL` for magnons). With `--n1n2n3eps`, the mesh `[gw] n1n2n3eps` is used if given.
+`mkQG2` in `mkqg.f90` is the main part of **qg4gw** (`main_qg4gw.f90`). The job `--job=N` (`iq0pin`) is 1 (generate the offset-Γ points Q0P; `gwsc`), 2 (read Q0P; `job_eps` uses `--job=2 --n1n2n3eps`), 3 (epsPP), 4 (χ+-<span class="clfix">; ngp = ngc = 0</span>), 201<span class="clfix"> (Q0P plus the Q0P along x, y, z</span><span class="clfix">)</span>, 10002 (skip the Γ cell), 20002 (Γ cell only), 40001 (`QforEPSL` for magnons). With `--n1n2n3eps`, the mesh `[gw] n1n2n3eps` is used if given.
+<div class="clfix-old">
+
 The purpose is generates required q and G vectors.
 Not only regular mesh points, or q along symmetry lines,
 but also offset Gamma points.
 
 iq0pin=1: normal mode. Generate q and G for regular mesh point and Q0P
 points (offset Gamma points).
+
+</div>
+
+<div class="clfix">
+
+The purpose is to generate the required q and G vectors at the regular mesh points and at the offset-Γ points.
+It writes the BZ data `__BZDATA` and, for each q, the G vectors with $|{\bf q}+{\bf G}|$ below `[gw] QpGcut_psi` (for the eigenfunctions, `__QGpsi`) and below `QpGcut_cou` (for the IPW of the MPB, `__QGcou`).
+
+</div>
 
 
 #### Make $G$ vectors: getgv2
@@ -442,7 +453,7 @@ subroutine getgv2(alat,plat,qlat,q, QpGcut,job, ng,ngvec) ! Set up a list of rec
 
 We can use this to get $\{ {\bf G}\}$ for given $q$.
 The algorism of `getgv2` is a little complicated.
-We first gives the upper and lower limits `n1max` $\le n_1 \le$ `n1min`,
+We first <del class="clfix">gives the upper and lower limits `n1max` $\le n_1 \le$ `n1min`</del><span class="clfix">give the lower and upper limits `n1min` $\le n_1 \le$ `n1max` (with a margin of 1)</span>,
 where ${\bf G}= n_1 Q_1 + n_2 Q_2 + n_3 Q_3$, $n_2$ and $n_3$ as well.
 
 
