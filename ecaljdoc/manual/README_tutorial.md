@@ -1,8 +1,6 @@
 # ecalj メインドキュメント {#ecalj-maindocument}
 **ecaljdoc のメインドキュメントです。ecalj の特徴、QSGW の概観、最初の計算（GetStarted）を書いています。ほかのページへは左のメニューからたどってください。**
 
-> 入力ファイルは `ctrlg.<sname>.toml` だけです（2026-05 から）。下の例の古い `ctrl.<sname>` / `GWinput` は [入力ファイル](./toml_migration) を見て変換してください。
-
 * ここでは [GetStarted](#getstarted) を、インストールと QSGW の概観とあわせて説明します。
 * [UsageDetails](./UsageDetailed.md) は別のファイルにあります。
 * [Qiita の日本語の記事](https://qiita.com/takaokotani/items/9bdf5f1551000771dc48) も参考になるかもしれませんが、ほとんどはここに書いてあります。
@@ -287,7 +285,7 @@ SPEC
 
 
 - メモ: 
-    - ctrl2vasp ctrl.mp-2534 で VASP のファイルに戻せます。VESTA で確かめてください。viewvesta（変換して VESTA を起動します）も使えます。
+    - ctrl2vasp ctrls.mp-2534 で VASP のファイルに戻せます。VESTA で確かめてください。viewvesta（変換して VESTA を起動します）も使えます。
     - 使わないファイルがたくさん作られます（気にしなくてかまいません）。
     - サイトには [Niup などの](./UsageDetailed.md#antiferro-symmetry-without-soc) 好きな名前を使えます。その場合は SPEC の区分も設定する必要があります。[Z は整数でなくてもかまいません。](./UsageDetailed.md#background-charge-and-fractional-z) これは後で学んでください。
     - 古い ctrls には NL、NBAS、NSPEC があるかもしれませんが、いまは要りません。
