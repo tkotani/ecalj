@@ -6,8 +6,8 @@
 > 図にあるプログラム名は当時のもので、いまは `hgw` が $\Sigma^{\rm x}$、$W$、$\Sigma^{\rm c}$ を一度の実行で計算し、`hsfp0_sc` が $\Sigma^{\rm Cx}$ を計算する）。
 
 > **[1] からの変更。** いまのコードは [1] に従っているが、次の変更がある（詳細と日付はリポジトリの `Changes.md`）。
-> - **Σ のなまし**（2026-09）: ガウスのなまし（`esmr`）を、幅 `t_sigmaw`（K、<del class="clfix">既定 1000 K</del><span class="clfix">2026-11-14 から必須</span>）の Fermi-Dirac の核に置き換えた。
->   $\Sigma^{\rm x}$、実軸の極の部分 $R^{\rm c}$、虚軸の部分 $I^{\rm c}$ のすべてで使う。<del class="clfix">古い `esmr` は同じ幅の `t_sigmaw` として読む。</del><span class="clfix">古い `esmr` は `ctrlg_update.py` が同じ幅の `t_sigmaw` に変換する。</span>
+> - **Σ のなまし**（2026-09）: ガウスのなまし（`esmr`）を、幅 `t_sigmaw`（K、2026-11-14 から必須）の Fermi-Dirac の核に置き換えた。
+>   $\Sigma^{\rm x}$、実軸の極の部分 $R^{\rm c}$、虚軸の部分 $I^{\rm c}$ のすべてで使う。古い `esmr` は `ctrlg_update.py` が同じ幅の `t_sigmaw` に変換する。
 >   `wcsmear = true`（既定）では、極の部分は $W^{\rm c}$ を一つのエネルギーで評価する（[1] の 3 点の内挿）代わりに、この核で積分する。
 >   [kBT](../manual/kBT) を参照。
 > - **χ0 のなまし**（2026-06〜09）: 必須のキー `[gw] t_tetrakbt` で選ぶ。0 は [1] の四面体法（T = 0）、T > 0 は有限温度の四面体法、
@@ -18,7 +18,6 @@
 > - **$\tilde\Sigma$ の内挿**（2026-09、開発中）: `gwsc --mlo` は、$\Delta V^{\rm xc}$ を MTO で内挿する代わりに、$\tilde\Sigma$ を MLO の表示で持つ。[MLO-gwsc](../manual/mlo_gwsc) を参照。
 > - **GW の結果を変えたバグの修正**（2026-06〜09）: $\Sigma^{\rm c}$ の極の項のビン分け、有限温度での $\Sigma^{\rm Cx}$ のフェルミ準位、
 >   反強磁性の対称性を使う QSGW（`symgrpaf`）、LDA+U の出発点（`idu`）。
-> - <del class="clfix">**入力**（2026-05）: 積基底を含むすべての設定は `ctrlg.<sname>.toml` にある。[入力ファイル](../manual/toml_migration) を参照。</del>
 
 QSGW（quasiparticle self-consistent $GW$）法は、物性物理と物質科学で物質の電子状態を計算する、進んだ計算手法である。
 一粒子（準粒子）ハミルトニアン $H^0$ を繰り返し更新することで、標準的な $GW$ 近似を改良する。

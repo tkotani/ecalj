@@ -3,7 +3,6 @@
 バンドプロットの対称ラインのファイルです。
 `syml.<sname>` は `getsyml` で作れます。
 
-
 ## バンドプロットの対称ラインとブリルアンゾーンの図を得る
 `syml.<sname>` は `ctrlg.<sname>.toml`（古い形式では `ctrl.<sname>`）から作ります。
 バンドプロットには `syml.<sname>` が要ります。
@@ -26,16 +25,16 @@ getsyml ctrls.nio
 `syml` の分割数は大まかな方法で決めているので、必要なら直してください。
 
 ### getsyml を使ったときの引用
-  論文にするときは、ecalj の引用に加えて、次の引用を<del class="clfix">必須とします</del><span class="clfix">お願いします</span><span class="clfix">（[ライセンス](./license) を参照）</span>。
+  論文にするときは、ecalj の引用に加えて、次の引用をお願いします（[ライセンス](./license) を参照）。
 
    1.Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, 
      Band structure diagram paths based on crystallography,
      Comp. Mat. Sci. 128, 140 (2017)
      
    2.実装に欠かせないライブラリである spglib も引用してください。
-     <del class="clfix">https://github.com/atztogo/spglib.git</del><span class="clfix">A. Togo, K. Shinohara, I. Tanaka, Sci. Technol. Adv. Mater., Meth. 4, 2384822 (2024).</span>
+     A. Togo, K. Shinohara, I. Tanaka, Sci. Technol. Adv. Mater., Meth. 4, 2384822 (2024).
 
-* spglib と seekpath のライセンス: <del class="clfix">ecalj の [LICENCE](https://github.com/tkotani/ecalj/blob/main/LICENCE)</del><span class="clfix">[ライセンス](./license)</span>。
+* spglib と seekpath のライセンス: [ライセンス](./license)。
 
 ### （開発者向けのメモ）
    a. lmchk を直して、妥当な値を与えるのに必要な情報を書かせる。

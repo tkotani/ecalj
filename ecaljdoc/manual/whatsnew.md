@@ -10,7 +10,7 @@ ecalj の新しい機能と、結果が変わる修正の要約。新しい順�
 - **温度と均し方の指定は、`[gw]` の 2 つのキー `t_tetrakbt` と `t_sigmaw` だけになった**（単位は K）→ [kBT](./kBT.md) 表 4
   - `t_tetrakbt`（χ0 側、必須）: 0 は T = 0 のテトラヘドロン法（均さない）、正の値 T は温度 T の有限温度のテトラヘドロン法、
     負の値 −T は T = 0 のテトラヘドロン法で作った Im χ0 を、温度 T の Fermi–Dirac と同じ幅の Gaussian で均す → [kBT](./kBT.md) §2
-  - `t_sigmaw`（Σ 側、<del class="clfix">既定 1000</del><span class="clfix">2026-11-14 から必須</span>）: Σx・Σc の中間準位を均す Fermi–Dirac 核の幅 → [kBT](./kBT.md) §3
+  - `t_sigmaw`（Σ 側、2026-11-14 から必須）: Σx・Σc の中間準位を均す Fermi–Dirac 核の幅 → [kBT](./kBT.md) §3
   - 以前のキー `SmearX0`・`esmr`・`tetrakbt = true`・`t_sigmakbt` は使わない（`SmearX0` が残っていると止まり、`ctrlg_update.py` が書き換える。
     キーの変遷は [kBT](./kBT.md) §2.5 の表 2）
   - `wcsmear`（既定 true）は温度ではなく、Σc の実軸の極の項で極の位置にも同じ核を使うスイッチ。既定のままでよい。
@@ -56,7 +56,7 @@ ecalj の新しい機能と、結果が変わる修正の要約。新しい順�
 
 ## 2026-10-01
 
-- **MLO の模型の既定を整理した**（基準 1・2・3<span class="clfix">。基準 1 は EH と自動の局所軌道、基準 2 はそれに陽イオンの s,p の EH2、基準 3 は空隙の空格子球を足す。[MLO](./mlo.md) §9 表 M3</span>）。半内殻の局所軌道は帯の位置から自動で選ぶ（入力のキーは無い）。gwinit は 4f の原子の f と、
+- **MLO の模型の既定を整理した**（基準 1・2・3。基準 1 は EH と自動の局所軌道、基準 2 はそれに陽イオンの s,p の EH2、基準 3 は空隙の空格子球を足す。[MLO](./mlo.md) §9 表 M3）。半内殻の局所軌道は帯の位置から自動で選ぶ（入力のキーは無い）。gwinit は 4f の原子の f と、
   `!` 付きの `mlo_lm2`（外せば基準 2、空隙の大きい MgTe・ZnTe・CdTe・AlN などが合う）を書く → [MLO](./mlo.md) §1・§9
 - **模型の検査** `mlo_bandcheck.py`（`job_mlo`・`job_mlo_soc` が最後に回し、CHECK PASS/FAIL を出す）→ [MLO](./mlo.md) §9
 - `job_mlo_soc` は、スピン軌道ありの DFT のバンドも描いて比べる → [MLO](./mlo.md) §4

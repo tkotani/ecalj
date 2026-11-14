@@ -22,7 +22,6 @@ ctrlgenToml.py <sname> --addgw   # [gw] があれば止まる
 生成される `[gw]` は `n1n2n3 = [4, 4, 4]`、`t_sigmaw = 300`、`t_tetrakbt = 300` である。計算に合わせて書き換える。
 絶縁体・半導体では、ギャップが $k_BT$ より十分大きいので、温度は 300 K のままで結果に効かない（[kBT](./kBT) §4）。
 
-
 ## Format
 - TOML の文法で書く。`#` から行末まではコメント
 - `key = value` の形式であり記載順序は問わないが, 同じkeyを複数記述しないようにする。論理値は `true` / `false`、
@@ -69,9 +68,9 @@ MT内の積基底とMT内波動関数基底の行列要素(`ppb`変数)を、対
 
 ### `t_tetrakbt`  *(必須、2026-09-28)*
 $\chi_0$ をどう均すかを温度 (K) の符号で選ぶ。書かないと止まる。
-- `0`: 均さない(T=0 のテトラヘドロン)。<del class="clfix">絶縁体・半導体。</del><span class="clfix">絶縁体・半導体はテンプレートの 300 のままでもよい(ギャップ ≫ $k_BT$ なら効かない。[kBT](kBT) §4)。</span>
+- `0`: 均さない(T=0 のテトラヘドロン)。絶縁体・半導体はテンプレートの 300 のままでもよい(ギャップ ≫ $k_BT$ なら効かない。[kBT](kBT) §4)。
 - `T > 0`: 有限温度のテトラヘドロン。$\chi_0$ の占有数が温度 $T$ の Fermi-Dirac になり、Fermi 準位は `EFERMI_kbt`($\Sigma$ 側も)。[kBT](kBT) §2。
-- `-T`: T=0 のテトラヘドロンのまま、$\mathrm{Im}\chi_0$ を周波数方向に Gaussian で均す。幅は温度 $T$ の Fermi-Dirac と同じ(標準偏差 $\pi k_BT/\sqrt3$、$-1000$ K = 0.00574 Ha = 0.156 eV)。金属で $W$ のプラズモン極が荒れるときに使う(LiTi₂O₄ の実用の設定は $-992.4$。[kBT](kBT) の<del class="clfix">「実用の設定」</del><span class="clfix">冒頭「LiTi₂O₄ の設定」</span>)。$W(i\omega)$ や静的 $W(0)$ にも効く。
+- `-T`: T=0 のテトラヘドロンのまま、$\mathrm{Im}\chi_0$ を周波数方向に Gaussian で均す。幅は温度 $T$ の Fermi-Dirac と同じ(標準偏差 $\pi k_BT/\sqrt3$、$-1000$ K = 0.00574 Ha = 0.156 eV)。金属で $W$ のプラズモン極が荒れるときに使う(LiTi₂O₄ の実用の設定は $-992.4$。[kBT](kBT) の冒頭「LiTi₂O₄ の設定」)。$W(i\omega)$ や静的 $W(0)$ にも効く。
 gwinit のテンプレートは 300 を書く。
 - **type**: float (K)
 - **default**: 無し(必須)
@@ -92,8 +91,8 @@ Gaussian の標準偏差)を同じ幅の `t_tetrakbt = -T` に書き換え(0.005
 | `zmel_max_size` | `zmel_batch_gb` として読まれる |
 
 ### `t_sigmaw`  *(2026-09-20、旧 `esmr` / `t_sigmakbt`)*
-自己エネルギー <del class="clfix">$\Sigma = G(W)$</del><span class="clfix">$\Sigma = iGW$</span> の中間準位(G の極)を均す Fermi-Dirac 核の幅。単位 K。
-<del class="clfix">$\Sigma_x = Gv$</del><span class="clfix">$\Sigma_x = iGv$</span> の占有重み、<del class="clfix">$\Sigma_c = G(W-v)$</del><span class="clfix">$\Sigma_c = iG(W-v)$</span> の実軸極項の窓重みと極の位置(`wcsmear`)の
+自己エネルギー $\Sigma = iGW$ の中間準位(G の極)を均す Fermi-Dirac 核の幅。単位 K。
+$\Sigma_x = iGv$ の占有重み、$\Sigma_c = iG(W-v)$ の実軸極項の窓重みと極の位置(`wcsmear`)の
 すべてに同じ核 $-\partial f/\partial\varepsilon$($k_BT$ = `t_sigmaw`)が使われる。
 **これは数値的な幅であって完全な有限温度自己エネルギーではない**(Bose 因子などは入らない)。
 Fermi 準位は `t_tetrakbt > 0`($\chi_0$ も有限温度)なら `EFERMI_kbt`、そうでなければ k メッシュの上の準位を数えて決める([kBT](kBT) §0 の表 5)。
@@ -141,7 +140,7 @@ PRB76,165106 Eq.58)。$W_c$ が滑らかな系では両者はほぼ同じ(Si で
 エネルギー(Ry)にするには**2する。
 
 波動関数のIPWのカットオフは `[ham] pwemax` とも関係する。pwemaxとしては2,3を試すことが多い
-<del class="clfix">(こちらの単位は**2のエネルギーカットオフになっていて単位Ryd)。</del><span class="clfix">(pwemax は Ry 単位のエネルギーのカットオフで、$|\mathbf q+\mathbf G|^2 \lt {\rm pwemax}$($|\mathbf q+\mathbf G|$ は 1/a.u.)。)</span>
+(pwemax は Ry 単位のエネルギーのカットオフで、$|\mathbf q+\mathbf G|^2 \lt {\rm pwemax}$($|\mathbf q+\mathbf G|$ は 1/a.u.)。)
 
 ### `QpGcut_cou`
 積基底のIPW部分のカットオフ~~エネルギー: 単位 Ryd~~ 
@@ -156,7 +155,6 @@ PRB76,165106 Eq.58)。$W_c$ が滑らかな系では両者はほぼ同じ(Si で
 フェルミ準位から測った, 計算する準粒子状態の自己エネルギーの最大値: 単位 Ryd。QSGW計算では自己エネルギーはポテンシャル構築に使用されるため小さくするとポテンシャルの精度も下がる。
 - **type**: float
 - **default** : 3.0
-
 
 ## `HistBin_dw`、`HistBin_ratio` — 分極関数の実軸のメッシュ {#change-histbin-for-high-resolution-energy-mesh-near-ef-for-metal}
 This defines histogram bins to accumulate weight (imaginary part) of the polarization functions. `m_freq.f90` の `getfreq` がこのメッシュを作る。
@@ -174,10 +172,10 @@ This defines histogram bins to accumulate weight (imaginary part) of the polariz
 メッシュを細かくする（`HistBin_dw` を小さく、`HistBin_ratio` を 1 に近く）ほど、$\omega\sim 0$ の近くのエネルギーの分解能は上がるが、計算は重くなる。
 ふつうは GW の結果はこの選び方にあまりよらない（下の説明）。$W(\omega)$ を $\omega\sim 0$ の近くで細かく描くときなどに細かくする。
 
-* HistBin_dw and HistBin_ratio specify <del class="clfix">real space bins</del><span class="clfix">bins along the real frequency axis</span> which we accumulate imaginary part weight of polarization functions. The bins are (see frhis in m_freq.f90) 
-<del class="clfix">$\omega_i = {{dw}} ∗ (\exp({\rm ratio} ∗ (i − 1)) − 1)$</del><span class="clfix">$\omega_i = b\,(e^{a(i-1)}-1)$, $a={\rm HistBin\_ratio}-1$, $b={\rm HistBin\_dw}/a$</span>
+* HistBin_dw and HistBin_ratio specify bins along the real frequency axis which we accumulate imaginary part weight of polarization functions. The bins are (see frhis in m_freq.f90) 
+$\omega_i = b\,(e^{a(i-1)}-1)$, $a={\rm HistBin\_ratio}-1$, $b={\rm HistBin\_dw}/a$
 where $[\omega_i, \omega_{i+1}]$ $(i = 1, 2, ...,\verb#nwhis#+1)$ is the i-th bin. HistBin_dw is bin width at ω = 0.
-The ratio ω(i + 1)/ω(i) for large ω is <del class="clfix">exp(a)=HistBin_ratio</del><span class="clfix">$e^{a}\approx$ HistBin_ratio</span>. This choice of getting coarser at high energy is because we think W (ω) around ω ∼ 0 gives most important contribution to the GW approximation. If histogram bins are too wide, dielectric function can be less accurate, but results may be not so much affected.
+The ratio ω(i + 1)/ω(i) for large ω is $e^{a}\approx$ HistBin_ratio. This choice of getting coarser at high energy is because we think W (ω) around ω ∼ 0 gives most important contribution to the GW approximation. If histogram bins are too wide, dielectric function can be less accurate, but results may be not so much affected.
 In GW calculation, the Plasmon pole is important. It is determined not by the Drude weight; it usually gives small contribution to the Plasmon pole (for example, Si is described well by a Plasmon pole model, but Si has no Fermi surface). We expect that the GW results are not so sensitive to the choice of HistBin_dw, HistBin_ratio usually. We may use fine mesh when we plot quantities such as W (ω) near ω = 0.
 <!-- The ecalj gives ¯W (ω = 0) ∼ 0 for metal; where ¯W (ω) is the effective interaction averaged in
 the Γ-cell [?]. And ¯W (ω get closer to v for larger ω. -->
@@ -199,7 +197,6 @@ real (a.u.) only for one-shot case.
 deltaw is the interval for the numerical derivative ∂Σ(ω)/∂ω.  We calculate $\Sigma(\omega),\Sigma(\omega\pm {\rm deltaw})$.
 From these values, we can calculate two Z (or second-derivative of Σ(ω)). 
 
-
 ## `<QforGW>` section
 This is only for one-shot/spectrum function mode. 
 In `[gw]`, `QforGW` gives the q vectors, one per line between `"""` (in the unit of `2pi/alat`. See BZ.html and syml file to check):
@@ -215,7 +212,6 @@ If no `QforGW` (or `QforGWIBZ = true`), all irreducible q points are used.
 one-shot GW. Set this (eV,above the Fermi energy) to specify up to which bands you calculate. 
 必須（2026-11-14 から）。テンプレートは 15。99999 は上限なし（それまでのコードの既定値で、`ctrlg_update.py` が書き足す値）。
 (we have EMINforGW).
-
 
 ## `--readQforGW` option
 We can use any q in the QforGW section
@@ -235,8 +231,6 @@ Because of the shifted-mesh method, we can use any q point which is not on the m
 ### QforEPSau 
 Whether q is in the unit of `2pi/alat` or in the unit of a.u.(=`bohr^{-1}`). I think `QforEPSau = true` might be convenient.
 必須（2026-11-14 から）。テンプレートは true。それまでのコードの既定値は false（`ctrlg_update.py` が書き足す値）。
-
-
 
 ## 積基底 `[product_basis]` {#product-basis}
 

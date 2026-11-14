@@ -43,8 +43,6 @@ AI に任せるなら、POSCAR が入力だと思ってかまいません。
 `<sname>` は利用者が決める物質の拡張子です（`si`、`cu`、`gaas`、`fe` など）。一つの作業ディレクトリには、ふつう `ctrlg.<sname>.toml` が
 ちょうど一つあります。そのディレクトリの中で走らせれば、`lmf` は引数無しでもそのファイルを見つけます。
 
-<div class="clfix">
-
 ### 生成されるファイルの体裁 {#file-layout}
 
 `ctrlgenToml.py`、`gwinit`、`Legacy2toml.py` と整形の道具 `pylib/toml_tidy.py` は、どれも同じ体裁のファイルを作ります。
@@ -52,8 +50,6 @@ AI に任せるなら、POSCAR が入力だと思ってかまいません。
 節の中（`[[site]]` や `[[spec]]` の表どうし、複数行のブロックとその前後、積基底の三つの表）は `# ----` の罫線で区切ります。
 `[blocks]` の節は、ほかに置き場のない古い `<...>` のタグ（`QPNT`、`QforEPSL`、`hrotr`）があるときだけ現れ、複数行の文字列として持ち、GW のプログラムがそのまま読みます。
 節の順は `[gw]` `[mlo]` `[blocks]` `[product_basis]` で、`[product_basis]` がいつも最後です（`toml_tidy.py` がこの順にそろえます）。
-
-</div>
 
 ## 古い形式のディレクトリの移行 {#migration-of-an-existing-legacy-directory}
 
@@ -66,8 +62,6 @@ Legacy2toml.py <sname>
 
 `Legacy2toml.py` は `ecalj/SRC/exec/Legacy2toml.py` にあります（`InstallAll.py` がバイナリと一緒に `~/bin/` に入れます）。
 何度走らせても同じ結果になります。変換で生き残らないコマンドラインの `-v` の上書きがあれば、`[INFO] / [WARN] / [ERROR]` の診断を出します。
-
-<div class="clfix">
 
 ### 古いキーと TOML のパスの対応 {#legacy-toml-map}
 
@@ -103,8 +97,6 @@ Legacy2toml.py <sname>
 全体のスキーマは [`SRC/exec/pylib/ctrl_schema.py`](https://github.com/tkotani/ecalj/blob/main/SRC/exec/pylib/ctrl_schema.py) にあります（変換の正本）。
 注釈と行末のコメントは [`SRC/exec/pylib/toml_comments.py`](https://github.com/tkotani/ecalj/blob/main/SRC/exec/pylib/toml_comments.py) が付けます。
 
-</div>
-
 ### `esm_input.dat`（スラブ） {#esm-input-dat-slabs}
 
 別ファイルだった `esm_input.dat` は 2026-09-16 にやめ、`ctrlg.<sname>.toml` の `[esm]` 節にしました。Fortran はこのファイルを読みません。
@@ -132,48 +124,7 @@ ctrlg_update.py ctrlg.<sname>.toml [...]    # in place; the original is kept as 
 
 ## 実行時の `--ctrlg:` による上書き {#run-time-ctrlg-overrides}
 
-<div class="clfix-old">
-
-古い `ctrl.<sname>` に埋め込まれた `%const` の定数は、変換のときに `ctrlg.<sname>.toml` に書き込まれます。実行時の上書きは
-`--ctrlg:<ドットで区切ったパス>=<値>` で行い、`m_toml_override.f90` がメモリの中で処理します（ファイルは書き換えません）。
-
-```bash
-# OLD (the programs stop with a message that names the new form)
-lmf si -vnk=8 -vmetal=3
-lmf si -v[bz.nkabc]=[8,8,8] -v[bz.metal]=3
-lmf si --toml.bz.nkabc=[8,8,8] --toml.bz.metal=3
-
-# NEW
-lmf si --ctrlg:bz.nkabc=[8,8,8] --ctrlg:bz.metal=3
-```
-
-`--ctrlg:` の後ろは、ドットで区切った TOML のパス（`節.キー`）です。値は TOML として読みます（整数のベクトルは `[8,8,8]`、
-真偽値は小文字の `true`/`false`、文字列は引用符で囲む、など）。上書きの層は、裸の識別子の値を自動で引用符で囲むので（`find` → `"find"`）、
-シェルが引用符を取ってしまっても困りません。
-
-> ⚠️ **やめた上書きの書き方（どれもヒントを出して止まる）。**
-> 移行の途中の版では、いくつもの書き方を受け付けていました（`-v<NAME>=<VAL>`、`-v[<path>]=<VAL>`、`--[<path>]=<VAL>`、
-> `--<a.b.c>=<VAL>`、`--toml.<path>=<VAL>`、`--pr=N`、`--time=N,M`、`--phispinsym`）。これらはすべて無くなりました。
-> コマンドラインにどれかがあると、正しい書き方 `--ctrlg:<path>=<value>` を示す一行を出して止まります。
->
-> - `--ctrlg:bz.nkabc=[8,8,8]` — この実行の間だけ、`ctrlg.<sname>.toml` の TOML のパス `[bz].nkabc` の値をメモリの中で直接置き換えます。
->   `%const` を介さず、ファイルも書き換えません。<del class="clfix">パスはスキーマにある本当のキーでなければいけません。</del><span class="clfix">ファイルに無いキーは書き足されます（2026-09-30 から）。綴りの違うキーも足され、どのプログラムも読まないので、ログの行で確かめます（[cmdopts](./cmdopts)）。</span>
->   使った上書きはランク 0 がログに書くので、`llmf` などに出ます。
->
-> 実際の使い方で変わること:
->
-> - `-vmetal=3`、`-vnspin=2 -vso=0` のような古い癖は、移行のヒントを出して止まります。
->   `--ctrlg:bz.metal=3`、`--ctrlg:ham.nspin=2 --ctrlg:ham.so=0` を使ってください。
-> - `Legacy2toml.py` は、変換のときに見つけた `%const` の上書きについて `[INFO] / [WARN] / [ERROR]` の診断を出し、
->   知らないうちに壊れるのを見つけやすくします。
-
-</div>
-
-<div class="clfix">
-
 一回の実行だけキーを変えるには `--ctrlg:<節.キー>=<値>` を付けます（例 `lmf si --ctrlg:bz.nkabc=[8,8,8]`）。ファイルは書き換えません。書き方の細部、ファイルに無いキーの扱い、やめた古い書き方（`-v<NAME>=<VAL>` など。使うと止まります）は [コマンドラインのオプション](./cmdopts#run-time-ctrlg-overrides) にあります。
-
-</div>
 
 ## サンプル {#migrated-samples-use-these-as-templates}
 
@@ -194,7 +145,6 @@ lmf si --ctrlg:bz.nkabc=[8,8,8] --ctrlg:bz.metal=3
 
 ## よくある落とし穴 {#common-gotchas}
 
-- <del class="clfix">**やめた上書きの書き方** — `lmf` は `-vnspin=2 -vso=0`、`-v[ham.so]=1`、`--toml.ham.so=1`、`--pr=50`、`--time=5,5`、 `--phispinsym` で止まります。止まるときには、それぞれ正しい書き方 `--ctrlg:<path>=<value>` を示します。</del>
 - **古い `Worb` ブロック** — `gwinput2toml.py`（`Legacy2toml.py` の GWinput を扱う部分）は、`<Worb>` ブロックが重複していると
   以前は最後のものを採っていました。今は最初のものを採ります。
 - **`mlo_emax`** — 古い `mlo_method = 0` と `1` だけが読みます。既定の `mlo_method = 4` は使いません。
