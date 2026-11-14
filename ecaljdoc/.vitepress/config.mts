@@ -15,6 +15,7 @@ const sidebarRoot = [
       { text: 'メインドキュメント', link: '/manual/README_tutorial' },
       { text: '更新履歴（要約）/ What\'s new', link: '/manual/whatsnew' },
       { text: 'TOML への移行 (2026-05)', link: '/manual/toml_migration' },
+      { text: 'syml.&lt;sname&gt;', link: '/manual/syml' },
       { text: 'Samples (where what lives)', link: '/manual/samples' },
       { text: 'DFT  calculation : lmf part', link: '/manual/lmf' },
       { text: 'MT 半径の上限と偽の準位', link: '/manual/mtradius' },
@@ -36,13 +37,6 @@ const sidebarRoot = [
       // { text: 'Quasi-particle\'s life time', link: '/manual/lifetime' },
       // { text: 'Spectrum function', link: '/manual/spec' },
       // developer pages (ForDevelopers, developer, auto, kBT_history, mlo_backup, implementation) moved to ecalj/MD on 2026-10-02 (not on the site)
-    ]
-  },
-  {
-    text: '入力ファイル',
-    items: [
-      { text: 'ctrlg.&lt;sname&gt;.toml (TOML input)', link: '/manual/toml_migration' },
-      { text: 'syml.&lt;sname&gt;', link: '/manual/syml' }
     ]
   },
   {
@@ -96,7 +90,6 @@ const enText: Record<string, string> = {
   'ライセンス': 'License',
   'TOML への移行 (2026-05)': 'TOML migration (2026-05)',
   '理論': 'Theory',
-  '入力ファイル': 'Input files',
   'ドキュメント': 'Documents',
   'インストール': 'Install',
   '更新履歴（要約）/ What\'s new': 'What\'s new',
