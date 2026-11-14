@@ -1,5 +1,5 @@
 # ecalj メインドキュメント {#ecalj-maindocument}
-**ecaljdoc のメインドキュメントです。すべてのファイルはこのファイルからリンクしています。**
+**ecaljdoc のメインドキュメントです。ecalj の特徴、QSGW の概観、最初の計算（GetStarted）を書いています。ほかのページへは左のメニューからたどってください。**
 
 > ⚠️ **TOML への移行（2026-05）** — Fortran のバイナリは `ctrlg.<sname>.toml` だけを読みます。下の例で `ctrl.<sname>` / `GWinput` を使っているものは古い形です。走らせる前に `Legacy2toml.py <sname>` で変換してください。手引きの全体は [TOML への移行](./toml_migration) を、ひな形には移行済みの [Samples/](https://github.com/tkotani/ecalj/blob/main/Samples/README.md)（EPS、PROCAR、MLOsamples、TestInstall）を見てください。
 
