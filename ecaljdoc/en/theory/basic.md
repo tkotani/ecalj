@@ -95,25 +95,25 @@ The polarization function $D = G G$, in which an electron and a hole propagate a
 
 ## Definition of the (one-particle) Green function
 
-**Electron Green function.** At time $t_2$ add (kick in) one electron at point $𝒓_2$. The response is the $(N+1)$-electron state after the addition ($\ket{\Psi_0(t)} = e^{-iEt/\hbar}\ket{\Psi_0}$ is the ground state evolving in time),
+**Electron Green function.** At time $t_2$ add (kick in) one electron at point $𝒓_2$. The response is the $(N+1)$-electron state after the addition (the ground-state energy may be set to 0, so the ground state $\ket{\Psi_0}$ is taken as time-independent),
 
 $$
-\ket{\chi_\mathrm{ele}(t_1)} = 𝜃(t_1-t_2)\, e^{-i\hat H(t_1-t_2)/\hbar}\, \hat 𝜓^†(𝒓_2)\ket{\Psi_0(t_2)}
+\ket{\chi_\mathrm{ele}(t_1)} = 𝜃(t_1-t_2)\, e^{-i\hat H(t_1-t_2)/\hbar}\, \hat 𝜓^†(𝒓_2)\ket{\Psi_0}
 \tag{Ge1}
 $$
 
 It evolves by the Schrödinger equation, which is linear and of first order in time, and it is 0 before the kick (the same structure as Eq. (GF6)). The equation satisfied by Eq. (Ge1) is
 
 $$
-\left(i\hbar\frac{\partial}{\partial t_1} - \hat H\right)\ket{\chi_\mathrm{ele}(t_1)} = i\hbar\, 𝛿(t_1-t_2)\, \hat 𝜓^†(𝒓_2)\ket{\Psi_0(t_2)}
+\left(i\hbar\frac{\partial}{\partial t_1} - \hat H\right)\ket{\chi_\mathrm{ele}(t_1)} = i\hbar\, 𝛿(t_1-t_2)\, \hat 𝜓^†(𝒓_2)\ket{\Psi_0}
 \tag{Ge2}
 $$
 
-where the right-hand side is the source term, the kick (the same form as Eq. (GF1) with $f=𝛿$). This state seen at point $𝒓_1$ (an electron taken out at point $𝒓_1$ and overlapped with the ground state) is the electron Green function:
+where the right-hand side is the source term, the kick (the same form as Eq. (GF1) with $f=𝛿$). Understand Eq. (Ge2) in correspondence with Eq. (GF1). The point is that the source term on the right-hand side is proportional to $𝛿(t_1-t_2)$, and we solve the differential equation for the response to it. In the many-body problem the source term $\hat 𝜓^†(𝒓_2)\ket{\Psi_0}$ is the $(N+1)$-electron state made by adding one electron to the ground state of $N$ electrons; expanded in the eigenstates of the $(N+1)$-electron system, it contains many electron and hole excitations. This state seen at point $𝒓_1$ (an electron taken out at point $𝒓_1$ and overlapped with the ground state) is the electron Green function:
 
 $$
 \begin{aligned}
-iG_\mathrm{ele}(𝒓_1t_1, 𝒓_2t_2) &= \braket{\Psi_0(t_1)|\hat 𝜓(𝒓_1)|\chi_\mathrm{ele}(t_1)} \\
+iG_\mathrm{ele}(𝒓_1t_1, 𝒓_2t_2) &= \braket{\Psi_0|\hat 𝜓(𝒓_1)|\chi_\mathrm{ele}(t_1)} \\
 &= \braket{\Psi_0|\hat 𝜓_\mathrm{H}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)|\Psi_0}\, 𝜃(t_1-t_2)
 \end{aligned}
 \tag{Gd1}
@@ -126,12 +126,12 @@ x(𝒓_1,t_1) = \int d𝒓_2\, dt_2\; iG_\mathrm{ele}(𝒓_1t_1, 𝒓_2t_2)\, f(
 \tag{Ge3}
 $$
 
-(the same linear-response form as Eq. (GF2)). The basic equation is Eq. (Ge2). For an arbitrary input, the right-hand side as the source term is replaced by $i\hbar\int d𝒓_2\, f(𝒓_2,t_1)\,\hat 𝜓^†(𝒓_2)\ket{\Psi_0(t_1)}$, and what is observed by taking the inner product of the solution at $(𝒓_1,t_1)$ (with $\bra{\Psi_0(t_1)}\hat 𝜓(𝒓_1)$) is Eq. (Ge3).
+(the same linear-response form as Eq. (GF2)). The basic equation is Eq. (Ge2). For an arbitrary input, the right-hand side as the source term is replaced by $i\hbar\int d𝒓_2\, f(𝒓_2,t_1)\,\hat 𝜓^†(𝒓_2)\ket{\Psi_0}$, and what is observed by taking the inner product of the solution at $(𝒓_1,t_1)$ (with $\bra{\Psi_0}\hat 𝜓(𝒓_1)$) is Eq. (Ge3).
 
 **Hole Green function.** At time $t_1$ remove one electron at point $𝒓_1$. The response is the remaining $(N-1)$-electron state,
 
 $$
-\ket{\chi_\mathrm{hole}(t_2)} = 𝜃(t_2-t_1)\, e^{-i\hat H(t_2-t_1)/\hbar}\, \hat 𝜓(𝒓_1)\ket{\Psi_0(t_1)}
+\ket{\chi_\mathrm{hole}(t_2)} = 𝜃(t_2-t_1)\, e^{-i\hat H(t_2-t_1)/\hbar}\, \hat 𝜓(𝒓_1)\ket{\Psi_0}
 \tag{Gh1}
 $$
 
@@ -139,7 +139,7 @@ This state seen at point $𝒓_2$ (the hole filled at point $𝒓_2$ and overlap
 
 $$
 \begin{aligned}
-iG_\mathrm{hole}(𝒓_1t_1, 𝒓_2t_2) &= -\braket{\Psi_0(t_2)|\hat 𝜓^†(𝒓_2)|\chi_\mathrm{hole}(t_2)} \\
+iG_\mathrm{hole}(𝒓_1t_1, 𝒓_2t_2) &= -\braket{\Psi_0|\hat 𝜓^†(𝒓_2)|\chi_\mathrm{hole}(t_2)} \\
 &= -\braket{\Psi_0|\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)\hat 𝜓_\mathrm{H}(𝒓_1,t_1)|\Psi_0}\, 𝜃(t_2-t_1)
 \end{aligned}
 \tag{Gd2}
@@ -153,7 +153,7 @@ In its own time ($t_2-t_1>0$) the hole also goes to the future. The hole seems t
 - $\hat 𝜓^†_\mathrm{H}(𝒓,t) = e^{i\hat Ht/\hbar}\hat 𝜓^†(𝒓)e^{-i\hat Ht/\hbar}$.
 - The field operators of fermions satisfy the anticommutation relation $\{𝜓_\mathrm{H}(𝒓_1,t),𝜓_\mathrm{H}^†(𝒓_2,t)\} = 𝛿(𝒓_1-𝒓_2)$. Note that this is the equal-time anticommutation relation.
 - $𝜃(t)$: the step function, 1 for $t>0$ and 0 for $t<0$.
-- $\Psi_0$: the $N$-particle ground state in the Heisenberg picture, $\hat H\ket{\Psi_0} = E \ket{\Psi_0}$
+- $\Psi_0$: the $N$-particle ground state in the Heisenberg picture, $\hat H\ket{\Psi_0} = E \ket{\Psi_0}$ ($E=0$ may be taken)
 
 This one-particle Green function is computed in perturbation theory in the form of Eq. (G3) below (the Gell-Mann–Low theorem).
 
