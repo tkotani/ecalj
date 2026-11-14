@@ -1,6 +1,6 @@
 # ecalj MainDocument
 
-> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob 29032477a410).
+> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob 6ce11f780e7f).
 **This is the main document of ecaljdoc: the features of ecalj, an overview of QSGW, and the first calculation (GetStarted). Other pages are reached from the menu on the left.**
 
 * Here we give [GetStarted](#getstarted), together with install and overview of QSGW.
@@ -57,8 +57,8 @@
 4. **The Model Hamiltonian with MLO** 
    We generate the effective model with MLO (muffin-tin based localized orbitals): the model Hamiltonian, and the effective
    interaction v, W and the cRPA W between MLOs (`job_mlo`, `job_mloW --crpa`; [MLO](./mlo)).
-   * Until 2026-10-02 ecalj had maximally localized Wannier functions with cRPA (Juelich group's formulation), originally from
-     codes by Miyake, Sakuma, Kino et al. (a paper using it: [Phys. Rev. B 108, 035141](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.108.035141)).
+   * Until 2026-10-02 ecalj had maximally localized Wannier functions with cRPA (Juelich group's formulation). The part of the maximally localized Wannier functions
+     started from the codes by Miyake, Sakuma, Kino et al. (a paper using it: [Phys. Rev. B 108, 035141](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.108.035141)).
      MLO replaced them; they are at the git tag `last-wannier`. 
 
 5. **Singleton pattern in fortran**
