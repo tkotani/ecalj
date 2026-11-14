@@ -82,6 +82,7 @@
 - **【済み 2026-10-07】`SRC/exec/auto_creplot.py`**（2026-10-01）: `auto_job_mp.py`・`ctrlgenM1.py` と一緒に trash へ（user「もういらないよね」、past_log §15）
 - **【未着手】`sugw`（`lmf --jobgw=1`）のメモリ**（2026-10-01）: `GEIGpart` の `ppovl(ngp,ngp)` と `ppovlLU` を各ランクで持つ（32·ngp² バイト、胞の体積の 2 乗）。
   案: (a) ngp から並列数を決める、(b) Cholesky の因子だけ持つ、(c) O·x を FFT で作り反復法で解く
+- **【未着手】コアの交換項を MPB を使わずに計算する**（2026-11-15、user「コアの交換項は MPB を使わなくても計算できる。これは先の課題」）: いまは `gwsc` の反復ごとに `hbasfp0 --job=3`（M_C）→ `hvccfp0 --job=3`（E_C）→ `hsfp0_sc --job=3` と、コア用の MPB を作ってから Σ^Cx を出している（[`ecaljdoc/manual/dev_impl.md`](../ecaljdoc/manual/dev_impl.md) の (I15) の下）。コアは MT の中だけにあるので、MT の中の積分として直接計算できるはず
 - **【未着手】`hgw` の残り**（2026-04、past_log.md §3.2）: ノード内の W の共有（`MPI_Win_allocate_shared`）、`hsfp0_sc` の Sx・core の交換も `hgw` に（優先度は低い）
 - **【未着手】AFTEST の残り**（2026-10-01、研究ログ 2026-10-01 06:46）: (a) モーメントを下げる向きで更新が行き過ぎる（割線で見積もるか）、(b) 対がサイト 1・2、ブロック 1・2 の決め打ち、
   (c) `m_ldau_init` が lmf の起動のたびに場を更新して `mmagfield.aftest` を書き直す（`job_band` でも）
