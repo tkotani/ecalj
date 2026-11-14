@@ -491,7 +491,7 @@ use it to verify the symmetry was parsed as intended.  The inversion is
 implicit in the DFT path when the potential is local; pay attention to
 the inversion-related notes in the console banner.
 
-## Symmetry from spglib: `symmetry.<sname>.json` (2026-10)
+## Symmetry from spglib: `symmetry.<sname>.json` (2026-10) {#spglib-symmetry}
 
 With `symgrp = "find"` (the default), lmf, lmchk and the MLO programs find the space group with spglib, which is built
 into ecalj (`SRC/external/spglib`, version 2.6.0; no Python needed). The operations $x' = Rx + t$, in the fractional

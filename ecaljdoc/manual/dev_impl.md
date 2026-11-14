@@ -2067,11 +2067,13 @@ The SOC splitting of the MLO bands should be checked against the bands of the fu
 
 ## Crystal symmetry for GW calculation
 
+<div class="clfix-old">
+
 [space group operation (space group rotation):]{.underline}\
 In the preparation state of GW calculation, we have
 3x3 matrices `symops(3,3,ig),ig=1,ngrp`
 for point group part of the space group operations.
-It is written in `call m_hamindex_init,m_hamindex.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>:L128`) at `lmv7.F` (lmfgw-MPIK job=0 mode).
+It is written in `call m_hamindex_init,m_hamindex.F:L128`) at `lmv7.F` (lmfgw-MPIK job=0 mode).
 For example, in the case of GaAs, it shows 24 matrices in it.
 
 In GW main routines such as `hsfp0.sc.m.F`,
@@ -2102,7 +2104,7 @@ For example, NiO is deformed along (111) direction in realitiy,
 but we may like to use structure without such deformation for calcualtions.
 In such a case, we may need to supply generators for lower symmetry.\
 [AF symmetry]{.underline}:\
-Recently, we add a new option `SYMGRP_AF`<span class="clfix">(not in the present SRC, 2026-11-15)</span>.
+Recently, we add a new option `SYMGRP_AF`.
 We have to set
 
     /home/usr2/h70252a/ecaljAFtest/NdTEST
@@ -2118,6 +2120,28 @@ Here, AF=1,AF=-1 give AF pairs.
 SYMGRP is to keep z axis. SYMGRPAF is an antiferro magnetic symmetry operation
 (we add r2x+spin inversion), then the ATOM AF=1 is mapped to AF=-1.
 Ask to T.Kotani as for AF symmetry setting, because it is relatively new.
+
+</div>
+
+<div class="clfix">
+
+**Space-group operations.** `lmf` finds the space-group operations (with spglib by default; [lmf: symmetry with spglib](./lmf#spglib-symmetry)) and,
+with `--jobgw`, writes the point-group parts `symops(3,3,ig), ig=1,ngrp` and the translations `ag` into `__HAMindex` (`m_hamindexW_init` in `m_hamindex.f90`, called in `main_lmf.f90`).
+For example, GaAs has 24 operations.
+
+The GW programs read them through the module `m_hamindex` (`symops`, `ngrp`, `invgx`).
+`mptauof_zmel` in `m_zmel.f90` calls `mptauof` (`m_symderive.f90`), which gives, for each operation, the atom to which each atom is mapped (`miat`) and the lattice translation (`tiat`).
+See the comments at the beginning of `mptauof`.
+
+The operations can be checked by `lmchk` in advance. For the ${\bf k}$ points, the inversion is added because of the time-reversal symmetry
+($|\psi_{-{\bf k}}({\bf r})|^2=|\psi_{\bf k}({\bf r})|^2$ for a real local potential); this needs attention when there is an orbital moment (LDA+U, SOC).
+
+The symmetry is controlled by `symgrp` at the top level of `ctrlg.<sname>.toml`: `"find"` (the default) uses the symmetry of the crystal structure,
+and generators can be given to use a lower symmetry on purpose (for example, NiO is deformed along (111) in reality, but we may calculate it without the deformation).
+**Antiferromagnetic symmetry**: write `af = ±k` on the pair of sites in `[[site]]`, and `symgrpaf = "find"`; the operations that map the up-spin site to the down-spin one
+(with the spin inversion) are added. Use it with `pwmode = 11`.
+
+</div>
 
 ## Rotation of eigenfuncitons and MPB by the space-group operations {#spacegroup-rotation}
 

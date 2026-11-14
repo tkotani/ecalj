@@ -444,7 +444,7 @@ symgrp = "e"
 `lmchk` は、認識した対称操作を画面の出力の始めに表示します。対称性が意図どおりに読まれたか、これで確かめてください。
 ポテンシャルが局所的なとき、DFT の計算では反転は暗に含まれます。画面の出力の冒頭の、反転についての注意を見てください。
 
-## spglib による対称性: `symmetry.<sname>.json`（2026-10）
+## spglib による対称性: `symmetry.<sname>.json`（2026-10） {#spglib-symmetry}
 
 `symgrp = "find"`（既定）のとき、`lmf`、`lmchk`、MLO のプログラムは spglib で空間群を見つけます。spglib は ecalj に組み込んであります（`SRC/external/spglib`、版 2.6.0。Python は要りません）。
 操作 $x' = Rx + t$（`plat` の分率座標で、$R$ は整数）を、空間群の番号と記号、それが属する構造と一緒に、作業ディレクトリの `symmetry.<sname>.json` に書きます。
