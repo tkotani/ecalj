@@ -1,6 +1,6 @@
 # ecalj MainDocument
 
-> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob ddffe79c05d6).
+> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob 46af44e3b46d).
 **This is the main document of ecaljdoc: the features of ecalj, an overview of QSGW, and the first calculation (GetStarted). Other pages are reached from the menu on the left.**
 
 * Here we give [GetStarted](#getstarted), together with install and overview of QSGW.
@@ -528,25 +528,14 @@ The names of the symmetry points can be confirmed with BZ.html and `syml.<sname>
 We now run QSGW calculations. QSGW is computationally very expensive,
 so we recommend running smaller systems first.
 
-> The GW driver inputs are **inside** the same
-> `ctrlg.<sname>.toml`, in sections `[gw]`, `[mlo]`, `[blocks]` and
-> `[product_basis]`; `ctrlgenToml.py` (Step 2) has written them. The legacy
-> separate `GWinput` text file is not
-> parsed by Fortran.  If you started from an old directory with
-> `ctrl.<sname>` + `GWinput`, `Legacy2toml.py <sname>` (Step 2-Migration)
-> already merged the GW content for you.  If `ctrlg.<sname>.toml` has no GW
-> sections (made with `--skipgw`, or converted from a directory with only
-> `ctrl.<sname>`) and you want a default GW set-up, run:
->
-> ```bash
-> ctrlgenToml.py gaas --addgw     # appends [gw]/[mlo]/[blocks]/[product_basis] to ctrlg.gaas.toml
-> ```
+The GW settings are in the sections `[gw]`, `[mlo]`, `[blocks]` and `[product_basis]` of the same `ctrlg.<sname>.toml`; `ctrlgenToml.py` (Step 2) writes the defaults.
+For converting old inputs, or adding the GW sections later, see [Input file](./toml_migration).
 
 `[gw]` carries two temperatures in kelvin, `t_sigmaw` (Fermi-Dirac width
 of the levels in the self-energy) and `t_tetrakbt` (how $\chi_0$ is
 smeared; **required**, the programs stop without it). The generated file
-has 300 for both. For semiconductors and insulators use `t_tetrakbt = 0`
-(the tetrahedron method at T=0; the worked example `ctrlg.gaas.toml` has `t_tetrakbt = 0` and `t_sigmaw = 262`); for metals see [kBT](./kBT).
+has 300 K for both, which is fine for insulators and semiconductors ([kBT](./kBT) §4); for metals see [kBT](./kBT).
+The worked example `ctrlg.gaas.toml` was converted from an old input and has `t_tetrakbt = 0` (the tetrahedron method at T=0) and `t_sigmaw = 262`.
 
 The key you most often tweak before launching QSGW is the GW
 k-mesh, `[gw].n1n2n3`, kept smaller than `[bz].nkabc` (typically 1/2
@@ -562,9 +551,7 @@ n1n2n3 = [6, 6, 6]        # GW k-mesh (smaller -> faster)
 
 The worked example `ctrlg.gaas.toml` has `nkabc = [8, 8, 8]` and `n1n2n3 = [4, 4, 4]`.
 For Si, `n1n2n3 = [6, 6, 6]` is good; the rest of `[gw]` rarely needs
-touching for non-magnetic semiconductors. The legacy GWinput key
-mapping lives in [`lmf.md` § Legacy ctrl.&lt;sname&gt; ↔ TOML path map](./lmf#legacy-ctrl-lt-sname-gt-toml-path-map),
-and the keys of `[gw]` are described in [`gwinput.md`](./gwinput).
+touching for non-magnetic semiconductors. The keys of `[gw]` are described in [GW settings](./gwinput).
 Here is a convergence behavior of the band gap for GaAs  taken from Ref.[3],
 ![convGaAs](../../manual/gaasnk.png) 
 From this picture, I may say 4 4 4 is not so bad if we assume ~0.1eV accuracy. 6 6 6 is good. More than 8 8 8 is for numerical check(not fruitful for practical applications).

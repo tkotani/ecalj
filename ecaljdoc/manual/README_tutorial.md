@@ -525,25 +525,14 @@ gnuplot のスクリプト `bandplot.isp1.glt`（スピンが二つなら `bandp
 ここで QSGW の計算を走らせます。QSGW は計算がとても重いので、
 まず小さな系から走らせることを勧めます。
 
-> GW の入力は、同じ `ctrlg.<sname>.toml` の**中の**
-> `[gw]`、`[mlo]`、`[blocks]`、`[product_basis]` の区分にあります。
-> `ctrlgenToml.py`（Step 2）がこれらを書いています。古い
-> 別の `GWinput` のテキストファイルは、Fortran は読みません。
-> `ctrl.<sname>` + `GWinput` のある古いディレクトリから始めたときは、
-> `Legacy2toml.py <sname>`（Step 2-Migration）がすでに GW の内容をまとめています。
-> `ctrlg.<sname>.toml` に GW の区分がなく
-> （`--skipgw` で作った、または `ctrl.<sname>` だけのディレクトリから
-> 変換した）、既定の GW の設定がほしいときは、次を走らせます。
->
-> ```bash
-> ctrlgenToml.py gaas --addgw     # appends [gw]/[mlo]/[blocks]/[product_basis] to ctrlg.gaas.toml
-> ```
+GW の設定は、同じ `ctrlg.<sname>.toml` の `[gw]`、`[mlo]`、`[blocks]`、`[product_basis]` の区分にあり、`ctrlgenToml.py`（Step 2）が既定値を書きます。
+古い入力からの変換や、GW の区分をあとから足す方法は [入力ファイル](./toml_migration) を見てください。
 
 `[gw]` には、ケルビン単位の二つの温度があります。`t_sigmaw`（自己エネルギーの中の準位の
 フェルミ・ディラックの幅）と `t_tetrakbt`（$\chi_0$ をどう
 ぼかすか。**必須**で、ないとプログラムは止まります）です。生成されたファイルでは
-どちらも 300 です。半導体と絶縁体では `t_tetrakbt = 0`
-（T=0 の四面体法）を使ってください（実例の `ctrlg.gaas.toml` は `t_tetrakbt = 0`、`t_sigmaw = 262` にしてあります）。金属は [kBT](./kBT) を見てください。
+どちらも 300 K で、絶縁体・半導体ではそのままでかまいません（[kBT](./kBT) §4）。金属は [kBT](./kBT) を見てください。
+実例の `ctrlg.gaas.toml` は古い入力から変換したもので、`t_tetrakbt = 0`（T=0 の四面体法）、`t_sigmaw = 262` です。
 
 QSGW を始める前に最もよく調整するキーは、GW の
 k 点のメッシュ `[gw].n1n2n3` です。実時間を大きく左右するので、
@@ -559,9 +548,7 @@ n1n2n3 = [6, 6, 6]        # GW k-mesh (smaller -> faster)
 
 実例の `ctrlg.gaas.toml` は `nkabc = [8, 8, 8]`、`n1n2n3 = [4, 4, 4]` です。
 Si では `n1n2n3 = [6, 6, 6]` で十分です。非磁性の半導体では、`[gw]` のほかのキーを
-触る必要はほとんどありません。古い GWinput のキーとの
-対応は [`lmf.md` § Legacy ctrl.&lt;sname&gt; ↔ TOML path map](./lmf#legacy-ctrl-lt-sname-gt-toml-path-map) にあり、
-`[gw]` のキーは [`gwinput.md`](./gwinput) で説明しています。
+触る必要はほとんどありません。`[gw]` のキーは [GW の設定](./gwinput) で説明しています。
 次は Ref.[3] から取った、GaAs のバンドギャップの収束の様子です。
 ![convGaAs](./gaasnk.png) 
 この図から、~0.1eV の精度でよければ 4 4 4 でも悪くないと言えそうです。6 6 6 なら十分です。8 8 8 より大きいのは数値の確認のためです（実用上は得るものがありません）。
