@@ -209,7 +209,7 @@ The correspondence with ordinary (time-independent) perturbation theory: there a
 
 Excluding type 1, and dropping type 2 together with the normalization terms, leaves only the connected diagrams: the same result as Eq. (G3) (Goldstone).
 
-> In the form of Eq. (G3), with the terms written for each time ordering (Goldstone type), each ordering of the vertex times is a separate term. Feynman's view is to see the hole as an electron going backward in time, to represent the electron and the hole by one propagator (the T-product Green function of Eq. (G4)), and to gather the terms of different time orderings into one diagram. Integrating over frequency, the energy denominators come out automatically. The formal derivation with the T product and $1/n!$ is due to Dyson.
+> In the form of Eq. (G3), with the terms written for each time ordering (Goldstone type), each ordering of the vertex times is a separate term. Feynman's view is to see the hole as an electron going backward in time, to represent the electron and the hole by one propagator (the T-product Green function of Eq. (G4)), and to gather the terms of different time orderings into one diagram. Integrating over frequency, the energy denominators come out automatically. The formal derivation with the T product and $1/n!$ is due to Dyson. Note that the essence is the same as ordinary perturbation theory; it is only rewritten.
 
 ### Perturbation theory with and without time {#td-vs-ti-perturbation}
 
