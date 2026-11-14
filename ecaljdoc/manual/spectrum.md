@@ -1,5 +1,9 @@
 # Spectrum function of G.
 
+::: warning 工事中
+プログラムは動きますが、このページ（マニュアル）はまだ整っていません。
+:::
+
 > ⚠️ Binaries read `ctrlg.<sname>.toml` only. Use `Legacy2toml.py <sname>` to convert legacy `ctrl.<sname>` / `GWinput`. See [Input file](./toml_migration).
 
 How to calculate $\langle {\bf q} n|\Sigma(\omega)|{\bf q} n\rangle$
