@@ -164,8 +164,6 @@ module purge
 module load openmpi/4.1.5-oneapi-2023.0.0-classic
 ```
 
-インストールは
-
 `jobinstall_ohtaka.sh` もリポジトリから外したので, 次の内容のスクリプトを `ecalj` に作って投入します。
 
 ```bash
