@@ -1,11 +1,5 @@
 # ecalj GPU version の使い方
 
-<div class="clfix-old">
-
-> ⚠️ GPU 版 `gwsc` も `ctrlg.<sname>.toml` だけを読みます。Legacy `ctrl.<sname>` / `GWinput` directory は `Legacy2toml.py <sname>` で変換してから実行してください。See [Input file](./toml_migration).
-
-</div>
-
 ecalj ではGPUによるQSGW計算が可能です。
 * GPUは自己エネルギーおよび遮蔽クーロン相互作用の計算に使用されます。
 * 現状では`lmf` (DFT計算) はCPUで実行されます。
@@ -13,7 +7,7 @@ ecalj ではGPUによるQSGW計算が可能です。
 > CPUで実行される部分とGPUで実行される部分で、それぞれ並列数を指定する必要があります。
 
 * GPU の使用には NVIDIA のコンパイラでecaljのGPUバージョンをコンパイルする必要があります。
-<span class="clfix">必要なもの: NVIDIA の GPU と NVHPC（cuBLAS、cuSOLVER を含む）。コンパイルは `python3 InstallAll.py --fc nvfortran --gpu`（CPU 版も一緒に作られる）。GPU の計算は 1 ノードで走らせるのを勧めます。複数ノードで使うときは、MPI のプロセスがノードに正しく割り振られているか確かめてください。（末尾の古い英語の節から移した）</span>
+必要なもの: NVIDIA の GPU と NVHPC（cuBLAS、cuSOLVER を含む）。コンパイルは `python3 InstallAll.py --fc nvfortran --gpu`（CPU 版も一緒に作られる）。GPU の計算は 1 ノードで走らせるのを勧めます。複数ノードで使うときは、MPI のプロセスがノードに正しく割り振られているか確かめてください。
 Kugui でのインストール、初期設定、GPUテスト計算は[installISSP](../install/installISSP.md) を参照してください。
 
 ## おすすめ設定 in ISSP Kugui
@@ -22,21 +16,6 @@ Kugui でのインストール、初期設定、GPUテスト計算は[installISS
 * GPUで実行される部分のMPI並列数(`-np2` で指定)をGPU数と同じ4とする。
 
 以下qsub ファイルの例。
-
-<div class="clfix-old">
-
-```bash job.sh
-#!/bin/sh
-#PBS -q i1accs
-#PBS -l select=1:ncpus=64:mpiprocs=64:ompthreads=1
-
-ulimit -s unlimited
-gwsc -np 64 -np2 4 --gpu 2 inas2gasb2 > lgwsc
-```
-
-</div>
-
-<div class="clfix">
 
 ```bash job.sh
 #!/bin/sh
@@ -48,8 +27,6 @@ gwsc 2 -np 64 -np2 4 --gpu inas2gasb2 > lgwsc
 ```
 
 `--gpu` は引数を取らない。最初の数 `2` は反復の回数（`gwsc` の第 1 引数）。
-
-</div>
 
 `i1accs` はテストキュー(最大時間30分)ですので、プロダクトランでは`F1accs`等を使用してください。
 
@@ -168,73 +145,3 @@ if which nvidia-cuda-mps-control > /dev/null 2>&1 ; then
   nvidia-cuda-mps-control -d
 fi
 ```
-
-<div class="clfix">
-
-末尾にあった古い英語の節（"Using the GPU Version"）は、上の本文と重なるので消す。本文に無かったこと（必要なもの、コンパイルのコマンド、1 ノードでの実行の勧め）は冒頭に移した。`zmel_batch_gb` を書かないとき（または 2 未満のとき）GPU の計算では 2 GB を使う、という注意は [gwinput](../manual/gwinput.md) の側の説明に任せる。
-
-</div>
-
-<div class="clfix-old">
-
---------------
-
-**Using the GPU Version**
-
-The GPU can be utilized in QSGW calculations:
-- The GPU is used for the calculation of self-energy and screened Coulomb interaction.
-- `lmf` is executed on the CPU.
-
-**Requirements:**
-1. NVIDIA GPU
-2. Compiler: NVHPC with GPU-accelerated libraries: cuBLAS, cuSolver
-
-**Compilation**
-```bash
-python3 InstallAll.py --fc nvfortran --gpu
-```
-
-**Execution**
-- The GPU version can be used by specifying the `--gpu` option with `gwsc`.
-- The number of MPI processes for the GPU code can be specified with `-np2`. This should typically match the number of GPUs available.
-Example:
-<div class="clfix-old">
-
-```
-gwsc -np 64 -np2 4 --gpu 1 $id > lgwsc
-```
-
-</div>
-
-<div class="clfix">
-
-```
-gwsc 1 -np 64 -np2 4 --gpu $id > lgwsc
-```
-
-</div>
-
-**Tips**
-
-1. The GPU version uses fewer MPI processes compared to the CPU version, so the available memory per MPI process is larger
-   This allows for larger batch sizes in the calculation, potentially improving computation speed.
-   The variable controlling the batch size is `zmel_batch_gb` in the `[gw]` section of `ctrlg.<sname>.toml`.
-   For GPU calculations, set the value to around 4 (representing 4GB).
-   ```toml
-   [gw]
-   zmel_batch_gb = 4
-   ```
-   > [!TIP]
-   > If not set (or set below 2), 2 GB is used in GPU calculations.
-
-2. When handling large systems, add the following to `[gw]` to prevent memory exhaustion:
-   ```toml
-   [gw]
-   KeepEigen = false
-   ```
-
-**Notes**
-- It is recommended to run GPU calculations on a single node.
-- When using multiple nodes, ensure that MPI processes are correctly distributed across nodes.
-
-</div>

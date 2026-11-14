@@ -320,7 +320,7 @@ viewvesta ctrls.si           # legacy structure-only seed file
 `vasp2ctrl` と `ctrl2vasp` があります。これらで POSCAR との間で構造を変換できます。
 `ctrl2vasp` は `viewvesta` と同じ三つの形の入力を受け付けます。
 
-<del class="clfix">さらに、バンドの図の対称線を得るために `getsyml.py` を入れる必要があるかもしれません。</del><span class="clfix">バンドの図の対称線を作る `getsyml` は、`InstallAll.py` が bin に入れます（ソフトリンク）。</span>
+バンドの図の対称線を作る `getsyml` は、`InstallAll.py` が bin に入れます（ソフトリンク）。
 作られた `syml.*` ファイルは ecalj のバンドの図に使います。
 `spglib` と `seekpath` があれば、ふつうは追加の手順は要りません。
 詳しくは上流のメモ [ecalj/GetSyml/README.md](https://github.com/tkotani/ecalj/blob/main/GetSyml/README.md) を見てください。
