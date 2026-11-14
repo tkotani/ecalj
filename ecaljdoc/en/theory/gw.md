@@ -1,6 +1,6 @@
 # $GW$ approximation
 
-> English version of the page [theory/gw](../../theory/gw.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/gw.md of the tree of c9f9a3003 (source blob 85647d78b155).
+> English version of the page [theory/gw](../../theory/gw.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/gw.md of the tree of c9f9a3003 (source blob c224631ea4a5).
 
 ## $GW$ approximation
 The $GW$ approximation is a method used in many-body perturbation theory to describe the electronic structure of systems.
@@ -97,6 +97,30 @@ where, $Z_n$ is the renormalization factor, given by:
 $$
 Z_n = \left( 1 - \left. \frac{\partial \varSigma(\omega)}{\partial \omega} \right|_{\omega = \epsilon_n} \right)^{-1}.
 $$
+
+## Hedin's equations
+
+The Green's function $G$ is related to the non-interacting $G_0$ by the Dyson equation with the self-energy $\varSigma$:
+
+$$
+G(x_1, x_2) = G_0(x_1, x_2) + \int dx_3 dx_4  G_0(x_1, x_3) \varSigma(x_3, x_4) G(x_4, x_2)
+\tag{H1}
+$$
+
+Hedin's equations give $\varSigma$ together with the polarization $P$, the screened interaction $W$ and the vertex $\Gamma$:
+
+$$
+\begin{aligned}
+P(x_1, x_2) &= -i \int dx_3 dx_4  G(x_4, x_2) G(x_2, x_3) \Gamma(x_3, x_4, x_1) \\
+W(x_1, x_2) &= v(x_1, x_2) + \int dx_3 dx_4  v(x_1, x_3) P(x_3, x_4) W(x_4, x_2) \\
+\varSigma(x_1, x_2) &= i \int dx_3 dx_4 \, G(x_1, x_4) \Gamma(x_4, x_2, x_3) W(x_1^+, x_3) \\
+\Gamma(x_1, x_2, x_3) &= \delta(x_1, x_2) \delta(x_1, x_3) \\
+&\quad + \int dx_4 dx_5 dx_6 dx_7 \frac{\delta \varSigma(x_1, x_2)}{\delta G(x_4, x_5)} G(x_4, x_6) G(x_7, x_5) \Gamma(x_6, x_7, x_3)
+\end{aligned}
+\tag{H2}
+$$
+
+The $GW$ approximation keeps only the first term of $\Gamma$, $\Gamma(x_1,x_2,x_3)=\delta(x_1,x_2)\delta(x_1,x_3)$ (the vertex correction is neglected).
 
 ## Known issue about the $GW$ Approximation
 
