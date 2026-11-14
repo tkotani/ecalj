@@ -81,7 +81,7 @@ g(𝜔) &= g_\mathrm{B}(𝜔)\, g_\mathrm{A}(𝜔)
 \tag{GF7}
 $$
 
-The Dyson equation $G = G_0 + G_0 𝛴 G$ has this chain form. On the other hand, when two independent propagations run at the same time (in parallel) and we ask for the amplitude that both happen, the result is a product in time and a convolution in frequency:
+On the other hand, when two independent propagations run at the same time (in parallel) and we ask for the amplitude that both happen, the result is a product in time and a convolution in frequency:
 
 $$
 \begin{aligned}
