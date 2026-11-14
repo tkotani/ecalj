@@ -1905,19 +1905,17 @@ In LDA/GGA, on the way to self-consistency, input density and output
 density are not the same (not self-consitent).
 Thus we define two total energy for given input density $n^{\rm in}$,
 the Harris-Foulkner energy $E_{\rm Harris}$ and the Hohenberg-Kohn energy $E_{\rm HoKohn}$
-$$\begin{aligned}
-E_{\rm Harris}& =  E_{\rm k}^{\rm core} + E_{\rm B} 
-- V_{\rm es}[n^{\rm Zc}+n^{\rm in},{\bf R}_a] \cdot n^{\rm in}
+$$
+\begin{aligned}
+E_{\rm Harris}& =  E_{\rm k}^{\rm core} + E_{\rm B} \\
+ &\quad - V_{\rm es}[n^{\rm Zc}+n^{\rm in},{\bf R}_a] \cdot n^{\rm in}
 - V_{\rm xc}[n^{\rm c}+n^{\rm in}] \cdot n^{\rm in} \\
- &+ E_{\rm es}[n^{\rm Zc}+n^{\rm in},{\bf R}_a] + E_{\rm xc}[n^{\rm c}+n^{\rm in}],\\
-E_{\rm HoKohn}& =  E_{\rm k}^{\rm core} + E_{\rm B} 
-- V_{\rm es}[n^{\rm Zc}+n^{\rm in},{\bf R}_a] \cdot n^{\rm out}
+ &\quad + E_{\rm es}[n^{\rm Zc}+n^{\rm in},{\bf R}_a] + E_{\rm xc}[n^{\rm c}+n^{\rm in}],\\
+E_{\rm HoKohn}& =  E_{\rm k}^{\rm core} + E_{\rm B} \\
+ &\quad - V_{\rm es}[n^{\rm Zc}+n^{\rm in},{\bf R}_a] \cdot n^{\rm out}
 - V_{\rm xc}[n^{\rm c}+n^{\rm in}] \cdot n^{\rm out} \\
- &+ E_{\rm es}[n^{\rm Zc}+n^{\rm out},{\bf R}_a] + E_{\rm xc}[n^{\rm c}+n^{\rm out}], \\
-E_{\rm B} & =  \sum_p^{\rm occupied}
-\alpha_{p}^{i*} 
-\langle F_i|H^{\rm in}|F_j \rangle 
-\alpha_p^j,
+ &\quad + E_{\rm es}[n^{\rm Zc}+n^{\rm out},{\bf R}_a] + E_{\rm xc}[n^{\rm c}+n^{\rm out}], \\
+E_{\rm B} & =  \sum_p^{\rm occupied} \alpha_{p}^{i*} \langle F_i|H^{\rm in}|F_j \rangle \alpha_p^j,
 \end{aligned}
 \tag{I80}
 $$
@@ -1963,6 +1961,7 @@ For example, `LMXA=4`, we have `(4+1)**2=25` harmonics,
 ordered as
 $y_{00},y_{-11},y_{01},y_{11},y_{-22},y_{-12},... ,y_{22},y_{-33},...y_{33},
 y_{-44},...y_{44}$.
+<span class="clfix">The real harmonics (times $r^l$) are made by `sylm` (`sylm.f90`) with the normalization `cy` of `sylmnc`; for $l=1$ the order is $y, z, x$, and for $l=2$ it is $xy, yz, 3z^2-r^2, xz, x^2-y^2$ (up to the normalization). $m\gt 0$ is the $\cos m\phi$ and $m\lt 0$ the $\sin |m|\phi$ type.</span>
 
 $y_{lm}(\hat{\bf r})$ is defined from $Y_{lm}(\hat{\bf r})$.
 Here $\hat{\bf r}=(\theta, \phi)$.
@@ -1993,8 +1992,7 @@ $$\begin{aligned}
 \tag{I88}
 $$
 
-----------------------------------------------------\
-The definition of $Y_{lm}(\hat{\bf r})$ are
+The definition of $Y_{lm}(\hat{\bf r})$ <del class="clfix">are</del><span class="clfix">is</span>
 $$\begin{aligned}
  &Y_{lm}(\theta, \phi)
 =(-1)^m \left[ \frac{(2l+1)(l-m)!}{4 \pi (l+m)!} \right]^{\frac{1}{2} } P^m_l(\cos(\theta)) e^{i m \phi}, \\
@@ -2003,12 +2001,11 @@ $$\begin{aligned}
 \tag{I89}
 $$
 
-We take these definitions from\
+We take these definitions from
 (1)A.R.Edmonds, Angular Momentum in quantum Mechanics,
-Princeton University Press, 1960,\
+Princeton University Press, 1960,
 (2)M.E.Rose, Elementary Theory of angular Momentum,
-John Wiley & Sons, INC. 1957,\
-if necessary. The definition of spherical hermonics are the same in these books.
+John Wiley & Sons, INC. 1957<del class="clfix">,\ if necessary</del>. The definition of spherical <del class="clfix">hermonics are</del><span class="clfix">harmonics is</span> the same in these books.
 
 ### SOC matrix for the MLO <span class="clfix">(was: for the Wannier functions)</span>
 
