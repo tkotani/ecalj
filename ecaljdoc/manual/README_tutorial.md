@@ -378,7 +378,7 @@ ctrlgenToml.py <sname> --addgw    # appends [gw]/[mlo]/[blocks]/[product_basis] 
 3. `[ham].so` — 0 / 1（完全な L·S）/ 2（Lz·Sz だけ）。`nspin = 2` が必要です。
    `so=1` はまだ QSGW に対応していません。QSGW + SOC では、`so=0`
    か `so=2` で走らせて `sigm.<sname>` を得てから、`so=1` にします。
-4. `[ham].xcfun` — 1 = VWN、2 = Barth-Hedin（既定）、103 = PBE-GGA。
+4. `[ham].xcfun` — 1 = VWN（既定）、2 = Barth-Hedin、103 = PBE-GGA。
 5. `[ham].scaledsigma` — QSGW の混合。`1.0` = 完全な QSGW、`0.8` = QSGW80。
    `sigm.<sname>` のファイルがあれば、`(scaledsigma) × (V_xc^QSGW − V_xc^LDA)` が lmf の
    ハミルトニアンに加わります。

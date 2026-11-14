@@ -1,6 +1,6 @@
 # ecalj MainDocument
 
-> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob 60221c502b24).
+> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob e16f2305e6fa).
 **This is the main document of ecaljdoc: the features of ecalj, an overview of QSGW, and the first calculation (GetStarted). Other pages are reached from the menu on the left.**
 
 * Here we give [GetStarted](#getstarted), together with install and overview of QSGW.
@@ -384,7 +384,7 @@ Common edits in `ctrlg.<sname>.toml`:
 3. `[ham].so` — 0 / 1 (full L·S) / 2 (Lz·Sz only); needs `nspin = 2`.
    `so=1` does not yet support QSGW; for QSGW + SOC, run with `so=0`
    or `so=2` to obtain `sigm.<sname>`, then set `so=1`.
-4. `[ham].xcfun` — 1 = VWN, 2 = Barth-Hedin (default), 103 = PBE-GGA.
+4. `[ham].xcfun` — 1 = VWN (default), 2 = Barth-Hedin, 103 = PBE-GGA.
 5. `[ham].scaledsigma` — QSGW mixing. `1.0` = full QSGW, `0.8` = QSGW80.
    `(scaledsigma) × (V_xc^QSGW − V_xc^LDA)` is added to the lmf
    Hamiltonian whenever a `sigm.<sname>` file is present.
