@@ -788,14 +788,14 @@ end module m_x0kf
 !! (V_IJ - vcoud_mu O_IJ) Zcousq(J, mu)=0, where Z is normalized with O_IJ.
 !! <I|v|J>= \sum_mu ppovl*zcousq(:,mu) v^mu (Zcousq^*(:,mu) ppovl)
 !!
-!! zmelt contains O^-1=<I|J>^-1 factor. Thus zmelt(phi phi J)= <phi |phi I> O^-1_IJ
-!! ppovlz(I, mu) = \sum_J O_IJ Zcousq(J, mu)
+!! zmel = <E_mu psi|psi> = sum_I Zcousq(I,mu)^* <M_I psi|psi> in the orthonormal basis E_mu (m2e_prod_basis = Zcousq).
+!! (2026-11-14 14:09: corrected. Before 2025-10-10 zmelt carried O^-1 = <I|J>^-1 and ppovlz = O Zcousq took it to E; the result is the same.)
 !!
 !!  rcxq (npr,npr,nwhis,npm): for given q,
 !!       rcxq(I,J,iw,ipm) = Im (chi0(omega))= \sum_k <I_q psi_k|psi_(q+k)> <psi_(q+k)|psi_k> \delta(\omega- (e_i-ej))
 !!        When npm=2 we calculate negative energy part. (time-reversal asymmetry)
 !!
-! note: zmel: matrix element <phi phi |M>
+! note: zmel: matrix element <E_mu phi|phi> (see above)
 !! ndima   = total number of atomic basis functions within MT
 !! nqbz    = number of k-points in the 1st BZ
 
@@ -823,6 +823,6 @@ end module m_x0kf
 !!     rkvec= rk(:,k)   ! <phi(q+rk,nqmax)|phi(rk,nctot+nmmax)  MPB(q,ngb )>
 !!     qbz_kr= rk(:,k)  !
 !!     qibz_k= rk(:,k)  ! k
-!! Get_zmelt in m_zmel gives the matrix element zmel,  ZO^-1 <MPB psi|psi> , where ZO is ppovlz
+!! build_zmel in m_zmel gives the matrix element zmel = <E_mu psi|psi> (E: orthonormal product basis; corrected 2026-11-14 14:09, the old text was ZO^-1 <MPB psi|psi>)
 !! zmel(ngb, nctot+nt0,  ncc+ntp0) in m_zmel
 !            nkmin:nt0, nkqmin:ntp0, where nt0=nkmax-nkmin+1  , ntp0=nkqmax-nkqmin+1

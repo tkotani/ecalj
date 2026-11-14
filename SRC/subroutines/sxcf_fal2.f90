@@ -475,8 +475,8 @@ subroutine sxcf_fal3z(&
         !          endif
         !! used in get_zmel
         !! <I|v|J>= \sum_mu ppovl*zcousq(:,mu) v^mu (Zcousq^*(:,mu) ppovl)
-        !! zmel contains O^-1=<I|J>^-1 factor. zmel(phi phi J)= <phi phi|I> O^-1_IJ
-        !! ppovlz= O Zcousq
+        !! zmel = <E_mu phi|phi> = sum_I Zcousq(I,mu)^* <M_I phi|phi>; set_m2e_prod_basis below sets M->E (= Zcousq).
+        !! (2026-11-14 14:09: corrected. Before 2025-10-10 zmel carried O^-1 = <I|J>^-1 and ppovlz = O Zcousq, as in the code commented out below.)
         !! (V_IJ - vcoud_mu O_IJ) Zcousq(J, mu)=0, where Z is normalized with O_IJ.
         !$$$          if(allocated(ppovl)) deallocate(ppovl,ppovlz)
         !$$$          allocate(ppovl(ngc,ngc),ppovlz(ngb,ngb))
