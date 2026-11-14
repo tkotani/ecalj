@@ -194,3 +194,7 @@ html:has(.home-dark), html:has(.home-dark) body { background: #1b1b1f; }
 #VPSidebarNav a.VPLink[href$="/manual/README_tutorial"] .text {
   font-size: 15px; font-weight: 700; color: var(--vp-c-brand-1) !important;   /* over the bold-black rule for groups without a heading */
 }
+/* The notes for writing this site, last in the sidebar, in small type (2026-11-14). */
+#VPSidebarNav a.VPLink[href$="/manual/writing_docs"] .text {
+  font-size: 12px; font-weight: 400 !important; color: var(--vp-c-text-3) !important;
+}

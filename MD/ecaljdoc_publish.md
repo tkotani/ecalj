@@ -18,20 +18,11 @@ GitHub の **`ecalj/ecaljdoc`**（organization の ecalj）の `main` から出�
 
 ## 2. ふだんの作業
 
-- 文書は [`ecaljdoc/`](../ecaljdoc/README.md) の下を直す。コードと文書を同じコミットで直してよい。コミットメッセージは英語（ecalj の決まり）
-- **`~/ecaljdoc`（古いクローン）では作業しない**。公開リポジトリ（`ecalj/ecaljdoc`）を GitHub の画面などで直接直すこともしない（次の公開で上書きされる）
-- 手元で見る（Node が要る）:
+書き方の決まり（ページは必ずメニューに載せる、日英のそろえ方、VitePress の落とし穴、リンクの書き方、見え消し、手元で見る方法）は、
+サイトのページ [`ecaljdoc/manual/writing_docs.md`](../ecaljdoc/manual/writing_docs.md)（「ecaljdoc の書き方」、2026-11-14）に移した。ここには公開しない手元の話だけを書く。
 
-```bash
-cd ~/ecalj/ecaljdoc
-npm install            # 初回だけ（node_modules は ecaljdoc/.gitignore で無視される）
-npm run docs:dev       # http://localhost:5173/ecaljdoc/
-npx vitepress build    # ビルドが通るか（本文の <...> や {{ をコードの印の外に書くと止まる）
-```
-
+- **`~/ecaljdoc`（古いクローン）では作業しない**
 - `ecaljdoc/.github/workflows/deploy.yml` は ecalj の中では働かない（GitHub は最上位の `.github` だけを見る）。写した先の `ecalj/ecaljdoc` で働く
-- サイトのページから ecaljdoc の外（Samples、ソース、MD）へは GitHub の URL で書く（`../` の相対リンクはサイトで切れる）。`MD/` へはリンクを張らない。
-  確かめは `python3 TOOLS/doclinks.py`
 
 ## 3. 公開（push はメンテナの指示があってから）
 

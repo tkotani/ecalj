@@ -1,0 +1,61 @@
+# ecaljdoc の書き方 {#writing-docs}
+
+このサイト（ecaljdoc）を書き、直すためのメモです。人が直すときも、AI が直すときも、これに従います。
+
+## 置き場と公開 {#where-and-publishing}
+
+- 正本は ecalj のリポジトリの `ecaljdoc/` です。コードと文書を同じコミットで直してかまいません（コミットのメッセージは英語）。
+- 公開サイト（https://ecalj.github.io/ecaljdoc/ ）は、GitHub の `ecalj/ecaljdoc` から GitHub Pages で作られます。公開するときは、ecalj の HEAD のコミット済みの `ecaljdoc/` を
+  `TOOLS/publish_ecaljdoc.sh` でそのリポジトリへ写します（`--push` で push）。`ecalj/ecaljdoc` を直接直すと、次の公開で上書きされます。
+- 公開は三つを順に出します: ecalj の push、ecaljdoc、QSGW のバンドのデータベース。まとめて出すのは `TOOLS/publish_all.sh` です。push はメンテナの指示があってからです。
+
+## 手元で見る {#preview}
+
+```bash
+cd ecalj/ecaljdoc
+npm install            # first time only
+npm run docs:dev       # http://localhost:5173/ecaljdoc/
+npx vitepress build    # check that the site builds
+```
+
+## ページとメニュー {#pages-and-menu}
+
+- すべてのページを、左のメニューに載せます。メニューがただ一つの目次です。ほかのページに、同じ一覧を二重に持ちません。
+- 中身を書く場所は一つにします。本文がほかのページの話に触れるところでは、そのページ（なるべくその節）へリンクします。中身は写しません。
+- ページを足したら、`.vitepress/config.mts` の `sidebarRoot` に載せます。項目名が日本語のときは、英語版の名前を `enText` に足します。
+
+## 日本語と英語 {#japanese-and-english}
+
+- 日本語のページが正本です。英語版は `en/` の下の同じ名前のページです（右上のボタンで切り替えます）。
+- 日本語のページを直したら、英語版も直します。英語版の 3 行目に元のページの印（source blob）があり、`python3 TOOLS/ecaljdoc_en.py status` が、英語版の古いページを示します。
+  何も出なければそろっています。直したら、その印を新しい値にします。
+- 新しいページの英語版のひな形は `python3 TOOLS/ecaljdoc_en.py copy <page>.md` で作り、本文を英語にします。
+
+## 書き方 {#style}
+
+- 半分は AI が読みますが、人が読めるように書きます。釣り合いのとれた短さにし、AI のための長い断り書きや重複は入れません。
+- 必要な理由と注意だけを書きます。どこで迷ったかの経緯は、ここには書きません（開発の記録へ）。
+- 数式には式番号（`\tag{n}`）を付け、本文から番号で参照します。図と表にも番号を付けます。
+- 誰が書いたか（人か AI か）、誰の指示かは書き分けません（git でわかります）。
+
+## VitePress の落とし穴 {#vitepress-pitfalls}
+
+- 本文で `<...>` をコードの印（バッククォート）の外に書くと、ビルドが止まります。`&lt;` と書くか、コードの印に入れます。
+- 二重の波かっこ（`{` が二つ続くもの）は、コードの印の中でも止まります（Vue の式の印と取られます）。コードのブロック（```）の中なら大丈夫です。
+- インラインの数式の中に `<` を書くと止まります。`\lt` を使います。閉じる `$` の前に空白を入れても止まります。
+- 日本語の文の中に URL をそのまま書くと、後ろの文字までリンクになります。`[文字](URL)` の形で書きます。
+- メニューの項目名の `<sname>` は `&lt;sname&gt;` と書きます。
+
+## リンク {#links}
+
+- ページから ecaljdoc の外（Samples、ソース）へは、GitHub の URL で書きます（`../` の相対リンクはサイトで切れます）。開発の記録（リポジトリの `MD/`）へはリンクしません。
+- 確かめは `python3 TOOLS/doclinks.py` です。
+
+## 見え消し（朱入れ） {#red-pen}
+
+直したところを確かめてもらうときは、見え消しにします。元の文は `<del class="clfix">…</del>`、新しい文は `<span class="clfix">…</span>` です。
+式や段落ごと直すときは、元を `<div class="clfix-old">`、新しいものを `<div class="clfix">` で囲みます（中の前後に空行）。確かめ終わったら、印を外して本文にします。
+
+## 消したもの {#removed}
+
+ページやコードは消さずに、手元の `trash/` に移し、git の追跡から外します。コードなら [外したコード](./past_code) に、外す前のコミットと一緒に一行足します。

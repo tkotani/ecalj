@@ -74,9 +74,11 @@ const sidebarRoot = [
       { text: '外したコード（過去のコード）', link: '/manual/past_code' },
     ]
   },
+  { text: 'ecaljdoc の書き方', link: '/manual/writing_docs' },   // notes for writing this site, small, last (2026-11-14)
 ]
 
 const enText: Record<string, string> = {
+  'ecaljdoc の書き方': 'Writing ecaljdoc',
   'GW の設定（[gw] などのキー）': 'GW settings ([gw] and other keys)',
   'ドーピング（背景電荷）': 'Doping (background charge)',
   'スペクトル関数': 'Spectrum function',
