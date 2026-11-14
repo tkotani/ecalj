@@ -1928,20 +1928,20 @@ but the total electron density $n^{\rm c}+n^{\rm in}$.
 Based on the 3-component formalism in Ref.[kotani_formulation_2015],
 $E_{\rm es}$ have explicit dependendence on atomic positions ${\bf R}_a$, but $E_{\rm xc}$ does not.
 The dependence is via the mutipole transformation in Eq.(14).
-Search `ham_ehf,ham_ehk` in ecalj/lm7K/fp/bndfp.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>.
+Search `ham_ehf,ham_ehk` in <del class="clfix">ecalj/lm7K/fp/bndfp.F</del><span class="clfix">`m_bndfp.f90`</span>.
 The $E_{\rm Harris}$ is given at `call m_mkehkf_etot1(sev, eharris)`, while
-$E_{\rm HoKohn}$ is given by\
-`call m_mkehkf_etot2(sev,sumtv, eksham)`.
+$E_{\rm HoKohn}$ is given by
+`call m_mkehkf_etot2(<del class="clfix">sev,sumtv,</del><span class="clfix">ekinval,</span> eksham)` <span class="clfix">(`mkehkf.f90`)</span>.
 $E_{\rm Harris}$ and $E_{\rm HoKohn}$ are shown in `save.*` file.
 
-The band energy $E_{\rm B}$ is stored in the module variable in bndfp.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>;
+The band energy $E_{\rm B}$ is stored in the module variable <span class="clfix">`sev`</span> in <del class="clfix">bndfp.F</del><span class="clfix">`m_bndfp.f90`</span>;
 this is shown as `sev` in `save.*`. The kinetic energy
 $E_{\rm k}^{\rm core}+E_{\rm B} 
 - V_{\rm es}[n^{\rm Zc}+n^{\rm in},{\bf R}_a] \cdot n^{\rm out}
 - V_{\rm xc}[n^{\rm c}+n^{\rm in}] \cdot n^{\rm out}$ contained in
-the $E_{\rm HoKohn}$ is calculated as `sumtv` in bndfp.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>-mkekin.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>
+the $E_{\rm HoKohn}$ is calculated as <del class="clfix">`sumtv` in bndfp.F-mkekin.F</del><span class="clfix">`ekinval` by `mkekin` (`m_bndfp_util.f90`)</span>.
 
-In LDA/GGA calculations by lmf-MPIK, `save.*` file contains a line per iteration.
+In LDA/GGA calculations by <del class="clfix">lmf-MPIK</del><span class="clfix">`lmf`</span>, `save.*` file contains a line per iteration<span class="clfix"> (written in `m_lmfp.f90`; the energies are relative to the sum of the reference energies `eref` of the species over the atoms, `ham_seref` of `m_lmfinit.f90`)</span>.
 
     c ehf(eV)=-15730.0982239 ehk(eV)=-15730.0982222 sev(eV)=-15.7737393
 
@@ -1949,7 +1949,7 @@ shows $E_{\rm Harris}=$-15730.0982239 eV and $E_{\rm HoKohn}=$-15730.0982222 eV,
 band energy $=-15.7737393$ eV.
 In principle, $E_{\rm Harris}$ and $E_{\rm HoKohn}$ should be exactly the same when converged;
 the difference is the numerical error. `c` at the begining of line means "converged".
-${\tt h}$ means the 1st iteration from `atm.*` file (superposition of atomic density).
+${\tt h}$ means the 1st iteration from `atm.*` file (superposition of atomic density)<span class="clfix">; the letters are `svflg='cxhiC'` in `m_lmfp.f90` (`x`: the maximum number of iterations reached, `i`: an intermediate iteration, `C`: converged relaxation)</span>.
 
 ## Block inversion used for dielectric functions and downfolding
 
