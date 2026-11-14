@@ -7,18 +7,9 @@ const sidebarRoot = [
   {
     items: [
       { text: 'GetStarted with AI!', link: '/manual/getstartedAI' },
-      { text: 'ライセンス', link: '/manual/license' },
     ]
   },
-  {
-    text: 'インストール',
-    items: [
-      { text: 'Install', link: '/install/install' },
-      { text: 'Install@ISSP_tokyo', link: '/install/installISSP' },
-      { text: 'Uninstall', link: '/install/uninstall' }
-    ]
-  },
-  { text: 'メインドキュメント', link: '/manual/README_tutorial' },   // a heading of its own, just above the additional documents (2026-11-14)
+  { text: 'メインドキュメント', link: '/manual/README_tutorial' },   // a link of its own, just above the additional documents (2026-11-14)
   {
     text: '追加ドキュメント',
     items: [
@@ -65,6 +56,15 @@ const sidebarRoot = [
       { text: 'Optical properties', link: '/theory/optical_properties' },
       { text: 'Basic  I', link: '/theory/basic' },
       { text: 'Basic II', link: '/theory/basic2' },
+    ]
+  },
+  { text: 'ライセンス', link: '/manual/license' },
+  {
+    text: 'インストール',
+    items: [
+      { text: 'Install', link: '/install/install' },
+      { text: 'Install@ISSP_tokyo', link: '/install/installISSP' },
+      { text: 'Uninstall', link: '/install/uninstall' }
     ]
   },
   {
