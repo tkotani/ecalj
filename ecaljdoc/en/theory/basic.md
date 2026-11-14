@@ -1,6 +1,6 @@
 # Basic expressions
 
-> English version of the page [theory/basic](../../theory/basic.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/basic.md of the tree of c9f9a3003 (source blob b45c3680727f).
+> English version of the page [theory/basic](../../theory/basic.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/basic.md of the tree of c9f9a3003 (source blob ad3128c864d8).
 
 On the Green function at zero temperature
 
@@ -12,7 +12,8 @@ On the Green function at zero temperature
 $$
 \begin{align}
 iG(𝒓_1t_1, 𝒓_2t_2) &= \braket{\Psi_0|T[\hat 𝜓_\mathrm{H}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)]|\Psi_0} \\
-&=\braket{\Psi_0|\hat 𝜓_\mathrm{H}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)|\Psi_0} 𝜃(t_1-t_2) -\braket{\Psi_0|\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)\hat 𝜓_\mathrm{H}(𝒓_1,t_1)|\Psi_0} 𝜃(t_2-t_1)
+&=\braket{\Psi_0|\hat 𝜓_\mathrm{H}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)|\Psi_0} 𝜃(t_1-t_2) \\
+&\quad -\braket{\Psi_0|\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)\hat 𝜓_\mathrm{H}(𝒓_1,t_1)|\Psi_0} 𝜃(t_2-t_1)
 \end{align}
 $$
 
@@ -23,6 +24,25 @@ $$
 - Why the T product: in perturbation theory, symmetrizing the range of the time integrals (from $-\infty$ to $\infty$) brings in the step functions $𝜃(t_1-t_2)$ and $𝜃(t_2-t_1)$. On the other hand, to treat electrons ($t_1>t_2$: an electron is added and propagates) and holes ($t_2>t_1$: an electron is removed and propagates) together, the two are simply added in parallel. That sum is the two terms of the equation above, the T product.
 - $𝜃(t)$: the step function, 1 for $t>0$ and 0 for $t<0$.
 - $\Psi_0$: the $N$-particle ground state in the Heisenberg picture, $\hat H\ket{\Psi_0} = E \ket{\Psi_0}$
+
+### The Gell-Mann–Low theorem and disconnected diagrams {#gell-mann-low}
+
+Switching the interaction on adiabatically turns the non-interacting ground state $\ket{\Phi_0}$ into the interacting ground state (the Gell-Mann–Low theorem). As a result the Green function is written as
+
+$$
+iG(𝒓_1t_1, 𝒓_2t_2) = \frac{\braket{\Phi_0|T[\hat S\,\hat 𝜓_\mathrm{I}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{I}(𝒓_2,t_2)]|\Phi_0}}{\braket{\Phi_0|\hat S|\Phi_0}}
+\tag{G1}
+$$
+
+($\hat S$ is the time-evolution operator, the subscript I means the interaction picture). The vacuum amplitude in the denominator cancels exactly the disconnected diagrams of the numerator (the vacuum parts not connected to the external lines).
+So the disconnected diagrams need not be counted; only connected diagrams are summed (the linked-cluster theorem).
+
+The correspondence with ordinary (time-independent) perturbation theory: there are two kinds of disconnected diagrams.
+
+- **Disconnected type 1**: the system returns to the vacuum $\ket{\Phi_0}$ in an intermediate state (the disconnected parts follow one another in time). Ordinary perturbation theory excludes $\ket{\Phi_0}$ from the intermediate states, so these never enter.
+- **Disconnected type 2**: disconnected but overlapping in time (the intermediate state has two excitations and is not $\ket{\Phi_0}$). These do enter the formulas of ordinary perturbation theory, but they cancel exactly the terms that come from the normalization (e.g. $-V_{00}\sum_n|V_{0n}|^2/\Delta_n^2$ at third order).
+
+Excluding type 1, and dropping type 2 together with the normalization terms, leaves only the connected diagrams: the same result as Eq. (G1) (Goldstone).
 
 ## Green function of a non-interacting system
 
@@ -47,12 +67,14 @@ In the ground state without interaction, the orbitals of energy $𝜀_n$ are occ
 The two processes, an electron created in an unoccupied state by $\hat 𝜓^\dagger \ket{\Psi_0}$, or a hole created in an occupied state by $\hat 𝜓 \ket{\Psi_0}$ (an occupied electron annihilated), correspond to the first and the second terms of the Green function.
 $$
 \begin{align}
-\braket{\Psi_0|\hat 𝜓_\mathrm{H}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)|\Psi_0} &= 
-\braket{\Psi_0|\hat 𝜓(𝒓_1)e^{-i(\hat H- 𝜇 \hat N)(t_1-t_2)/\hbar}  \hat 𝜓^†(𝒓_2)|\Psi_0} \\
-&= \sum_{n'}^{\mathrm{unocc}} 𝜙_{n'}(𝒓_1)𝜙^*_{n'}(𝒓_2)e^{-i𝜀_{n'}(t_1-t_2)/\hbar} :\ \text{propagator of an electron from creation to annihilation} \\
-\braket{\Psi_0|\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)\hat 𝜓_\mathrm{H}(𝒓_1,t_1)|\Psi_0} &= 
-\braket{\Psi_0|\hat 𝜓^†(𝒓_2)e^{-i(\hat H- 𝜇 \hat N)(t_2-t_1)/\hbar} \hat 𝜓(𝒓_1)|\Psi_0} \\
-&= \sum_{n}^{\mathrm{occ}} 𝜙_{n}(𝒓_1)𝜙^*_{n}(𝒓_2)e^{i𝜀_{n}(t_2-t_1)/\hbar}:\ \text{propagator of a hole from creation to annihilation}
+&\braket{\Psi_0|\hat 𝜓_\mathrm{H}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)|\Psi_0} \\
+&= \braket{\Psi_0|\hat 𝜓(𝒓_1)e^{-i(\hat H- 𝜇 \hat N)(t_1-t_2)/\hbar}  \hat 𝜓^†(𝒓_2)|\Psi_0} \\
+&= \sum_{n'}^{\mathrm{unocc}} 𝜙_{n'}(𝒓_1)𝜙^*_{n'}(𝒓_2)e^{-i𝜀_{n'}(t_1-t_2)/\hbar} \\
+&\qquad (\text{electron: from creation to annihilation}) \\
+&\braket{\Psi_0|\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)\hat 𝜓_\mathrm{H}(𝒓_1,t_1)|\Psi_0} \\
+&= \braket{\Psi_0|\hat 𝜓^†(𝒓_2)e^{-i(\hat H- 𝜇 \hat N)(t_2-t_1)/\hbar} \hat 𝜓(𝒓_1)|\Psi_0} \\
+&= \sum_{n}^{\mathrm{occ}} 𝜙_{n}(𝒓_1)𝜙^*_{n}(𝒓_2)e^{i𝜀_{n}(t_2-t_1)/\hbar} \\
+&\qquad (\text{hole: from creation to annihilation})
 \end{align}
 $$
 - Creation and annihilation act on the same one-particle state $n$; otherwise the term vanishes.
@@ -134,7 +156,7 @@ $$
 Using the relation above,
 $$
 \begin{align}
-\int d𝒓 G(𝒓,𝒓;𝜔) =  \sum_{n} \frac{1}{𝜔-𝜀_{n}/\hbar \mp i𝛿} = \sum_n \left( \mathcal{P} \frac{1}{𝜔-𝜀_n/\hbar} \pm i 𝜋 𝛿(𝜔-𝜀_n/\hbar)\right)
+\int d𝒓 G(𝒓,𝒓;𝜔) &=  \sum_{n} \frac{1}{𝜔-𝜀_{n}/\hbar \mp i𝛿} \\ &= \sum_n \left( \mathcal{P} \frac{1}{𝜔-𝜀_n/\hbar} \pm i 𝜋 𝛿(𝜔-𝜀_n/\hbar)\right)
 \end{align}
 $$
 <span class="clfix">(upper signs: occupied, $𝜀_n\lt 0$; lower signs: unoccupied, $𝜀_n>0$),</span> and formally the density of states <del class="clfix">$D(𝜀) = \sum_n 𝛿(𝜀-𝜀_n)$</del><span class="clfix">$N(𝜀) = \sum_n 𝛿(𝜀-𝜀_n)$ (to distinguish it from the polarization function $D$)</span> can be written as
@@ -168,10 +190,10 @@ We introduce the operator of the deviation from the expectation value of the den
 The time-ordered polarization function $D(𝒓_1t_1,𝒓_2t_2)$ is then defined as the time-ordered product of densities (density correlation):
 $$
 \begin{align}
-iD(𝒓_1t_1,𝒓_2t_2) = 
-\braket{T[\hat {𝛿𝜌}(𝒓_1,t_1)\hat {𝛿𝜌}(𝒓_2,t_2)]} = 
+iD(𝒓_1t_1,𝒓_2t_2) &= 
+\braket{T[\hat {𝛿𝜌}(𝒓_1,t_1)\hat {𝛿𝜌}(𝒓_2,t_2)]} \\ &= 
 \braket{\hat   {𝛿𝜌}(𝒓_1,t_1)\hat {𝛿𝜌}(𝒓_2,t_2)}𝜃(t_1-t_2)  \\
-+\braket{\hat  {𝛿𝜌}(𝒓_2,t_2)\hat {𝛿𝜌}(𝒓_1,t_1)}𝜃(t_2-t_1)
+&\quad +\braket{\hat  {𝛿𝜌}(𝒓_2,t_2)\hat {𝛿𝜌}(𝒓_1,t_1)}𝜃(t_2-t_1)
 \end{align}
 $$
 
@@ -179,8 +201,8 @@ $$
 In a non-interacting system the normal-ordered (N-product) terms have zero ground-state expectation value, so by Wick's theorem only the full contractions remain:
 $$
 \begin{align}
-iD(𝒓_1t_1,𝒓_2t_2) = 
-\braket{T[\hat {𝛿𝜌}(𝒓_1,t_1)\hat {𝛿𝜌}(𝒓_2,t_2)]} = G(𝒓_1t_1,𝒓_2t_2)G(𝒓_2t_2,𝒓_1t_1)
+iD(𝒓_1t_1,𝒓_2t_2) &= 
+\braket{T[\hat {𝛿𝜌}(𝒓_1,t_1)\hat {𝛿𝜌}(𝒓_2,t_2)]} \\ &= G(𝒓_1t_1,𝒓_2t_2)G(𝒓_2t_2,𝒓_1t_1)
 \end{align}
 $$
 Recalling that $G(𝒓_1t_1,𝒓_2t_2) = G_\mathrm{ele}(𝒓_1t_1,𝒓_2t_2) + G_\mathrm{hole}(𝒓_1t_1,𝒓_2t_2)$ can be separated, with $G_\mathrm{ele}$ remaining for $t_1 > t_2$ and $G_\mathrm{hole}$ for $t_1 < t_2$,
@@ -188,8 +210,10 @@ $$
 \begin{align}
 iD(𝒓_1t_1,𝒓_2t_2) =& G_\mathrm{ele}(𝒓_1t_1,𝒓_2t_2)G_\mathrm{hole}(𝒓_2t_2,𝒓_1t_1) \\
                   &+ G_\mathrm{hole}(𝒓_1t_1,𝒓_2t_2)G_\mathrm{ele}(𝒓_2t_2,𝒓_1t_1) \\
-               =& \sum_{n'}^\mathrm{unocc} \sum_{n}^\mathrm{occ} 𝜙_{n'}(𝒓_1) 𝜙^*_{n'}(𝒓_2) 𝜙_{n}(𝒓_2) 𝜙^*_{n}(𝒓_1)e^{-i(𝜀_{n'}-𝜀_{n})(t_1-t_2)/\hbar} \theta(t_1-t_2) \\
-                & +\sum_{n}^\mathrm{occ} \sum_{n'}^\mathrm{unocc} 𝜙_{n}(𝒓_1) 𝜙^*_{n}(𝒓_2) 𝜙_{n'}(𝒓_2) 𝜙^*_{n'}(𝒓_1)e^{-i(𝜀_{n'}-𝜀_{n})(t_2-t_1)/\hbar} \theta(t_2-t_1)
+               =& \sum_{n'}^\mathrm{unocc} \sum_{n}^\mathrm{occ} 𝜙_{n'}(𝒓_1) 𝜙^*_{n'}(𝒓_2) 𝜙_{n}(𝒓_2) 𝜙^*_{n}(𝒓_1) \\
+                &\qquad \times e^{-i(𝜀_{n'}-𝜀_{n})(t_1-t_2)/\hbar} \theta(t_1-t_2) \\
+                & +\sum_{n}^\mathrm{occ} \sum_{n'}^\mathrm{unocc} 𝜙_{n}(𝒓_1) 𝜙^*_{n}(𝒓_2) 𝜙_{n'}(𝒓_2) 𝜙^*_{n'}(𝒓_1) \\
+                &\qquad \times e^{-i(𝜀_{n'}-𝜀_{n})(t_2-t_1)/\hbar} \theta(t_2-t_1)
 \end{align}
 $$
 Its Fourier transform, in the same way as above, is
@@ -200,8 +224,8 @@ D(𝒓_1,𝒓_2;𝜔) =& \sum_{n'}^\mathrm{unocc} \sum_{n}^\mathrm{occ}
               & +\sum_{n}^\mathrm{occ} \sum_{n'}^\mathrm{unocc} 
                    \frac{𝜙_{n}(𝒓_1) 𝜙^*_{n}(𝒓_2) 𝜙_{n'}(𝒓_2) 𝜙^*_{n'}(𝒓_1)}{-(𝜔-(𝜀_{n}-𝜀_{n'})/\hbar) + i𝛿} \\
             =& \sum_{n'}^\mathrm{unocc} \sum_{n}^\mathrm{occ} \left[
-                   \frac{𝜙_{n'}(𝒓_1) 𝜙^*_{n'}(𝒓_2) 𝜙_{n}(𝒓_2) 𝜙^*_{n}(𝒓_1)}{  𝜔-(𝜀_{n'}-𝜀_n)/\hbar + i𝛿}
-                  -\frac{𝜙_{n}(𝒓_1) 𝜙^*_{n}(𝒓_2) 𝜙_{n'}(𝒓_2) 𝜙^*_{n'}(𝒓_1)}{  𝜔+(𝜀_{n'}-𝜀_{n})/\hbar - i𝛿} \right]
+                   \frac{𝜙_{n'}(𝒓_1) 𝜙^*_{n'}(𝒓_2) 𝜙_{n}(𝒓_2) 𝜙^*_{n}(𝒓_1)}{  𝜔-(𝜀_{n'}-𝜀_n)/\hbar + i𝛿} \right. \\
+              & \qquad\qquad \left. -\frac{𝜙_{n}(𝒓_1) 𝜙^*_{n}(𝒓_2) 𝜙_{n'}(𝒓_2) 𝜙^*_{n'}(𝒓_1)}{  𝜔+(𝜀_{n'}-𝜀_{n})/\hbar - i𝛿} \right]
 \end{align}
 $$
 .
@@ -211,8 +235,8 @@ $$
 \begin{align}
 D_{𝜇𝜈}(𝜔) &= \int d𝒓_1 d𝒓_2 E_{𝜇}^*(𝒓_1) D(𝒓_1,𝒓_2;𝜔)  E_{𝜈}(𝒓_2) \\
          &= \sum_{n'}^\mathrm{unocc} \sum_{n}^\mathrm{occ} \left[
-               \frac{Z_{nn'𝜇} Z^*_{nn'𝜈}}{  𝜔-(𝜀_{n'}-𝜀_n)/\hbar + i𝛿}
-              -\frac{Z_{n'n𝜇} Z^*_{n'n𝜈}}{  𝜔+(𝜀_{n'}-𝜀_{n})/\hbar - i𝛿} \right]
+               \frac{Z_{nn'𝜇} Z^*_{nn'𝜈}}{  𝜔-(𝜀_{n'}-𝜀_n)/\hbar + i𝛿} \right. \\
+         & \qquad\qquad \left. -\frac{Z_{n'n𝜇} Z^*_{n'n𝜈}}{  𝜔+(𝜀_{n'}-𝜀_{n})/\hbar - i𝛿} \right]
 \end{align}
 $$
 <!-- Because it is time-symmetrized, it contains both the retarded (poles in the lower $ω$ plane) and the advanced (poles in the upper $ω$ plane) parts -->

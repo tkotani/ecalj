@@ -53,7 +53,7 @@ Note that $iGv$ gives the Fock exchange.
 $$
 \begin{align}
 𝛴^\mathrm{x} (𝒓_1,𝒓_2) &≡ \frac{i}{2\pi} \int d𝜔' G(𝒓_1,𝒓_2; 𝜔-𝜔') v(𝒓_1,𝒓_2)e^{-iη𝜔'} \\
-& = \sum_{n} 𝜙_n(𝒓_1)\frac{1}{|𝒓_1 -𝒓_2|}𝜙^*_n(𝒓_2)\frac{i}{2\pi} \int d𝜔' \frac{e^{-iη𝜔'}}{𝜔- 𝜔'- 𝜀_n + iη \text{sgn}(𝜀_n - E_\mathrm{F})} \\
+& = \sum_{n} 𝜙_n(𝒓_1)\frac{1}{|𝒓_1 -𝒓_2|}𝜙^*_n(𝒓_2) \\ &\qquad \times \frac{i}{2\pi} \int d𝜔' \frac{e^{-iη𝜔'}}{𝜔- 𝜔'- 𝜀_n + iη \text{sgn}(𝜀_n - E_\mathrm{F})} \\
 & = -\sum_{n}^\mathrm{occ} 𝜙_n(𝒓_1)\frac{1}{|𝒓_1 -𝒓_2|}𝜙^*_n(𝒓_2)
 \end{align}
 $$
@@ -64,7 +64,7 @@ As a result, expected value of $iGv$ on state $n$ is as follows:
 $$
 \begin{align}
 \braket{𝜙_n|𝛴^\mathrm{x} (𝒓_1,𝒓_2) |𝜙_n}
- = -\sum_{m}^\mathrm{occ} \int d𝒓_1 d𝒓_2 𝜙^*_n(𝒓_1)𝜙_m(𝒓_1)\frac{1}{|𝒓_1 -𝒓_2|}𝜙^*_m(𝒓_2)𝜙_n(𝒓_2)
+ &= -\sum_{m}^\mathrm{occ} \int d𝒓_1 d𝒓_2 \\ &\qquad \times 𝜙^*_n(𝒓_1)𝜙_m(𝒓_1)\frac{1}{|𝒓_1 -𝒓_2|}𝜙^*_m(𝒓_2)𝜙_n(𝒓_2)
 \end{align}.
 $$
 This corresponds to the Fock exchange.

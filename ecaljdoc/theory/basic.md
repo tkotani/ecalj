@@ -10,7 +10,8 @@
 $$
 \begin{align}
 iG(𝒓_1t_1, 𝒓_2t_2) &= \braket{\Psi_0|T[\hat 𝜓_\mathrm{H}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)]|\Psi_0} \\
-&=\braket{\Psi_0|\hat 𝜓_\mathrm{H}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)|\Psi_0} 𝜃(t_1-t_2) -\braket{\Psi_0|\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)\hat 𝜓_\mathrm{H}(𝒓_1,t_1)|\Psi_0} 𝜃(t_2-t_1)
+&=\braket{\Psi_0|\hat 𝜓_\mathrm{H}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)|\Psi_0} 𝜃(t_1-t_2) \\
+&\quad -\braket{\Psi_0|\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)\hat 𝜓_\mathrm{H}(𝒓_1,t_1)|\Psi_0} 𝜃(t_2-t_1)
 \end{align}
 $$
 
@@ -21,6 +22,25 @@ $$
 - なぜ T 積になるか: 摂動理論で時間軸の積分範囲を対称化する（$-\infty$ から $\infty$ にする）ところで、ステップ関数 $𝜃(t_1-t_2)$、$𝜃(t_2-t_1)$ が出てくる。一方で、電子（$t_1>t_2$、電子を足して伝播させる）と正孔（$t_2>t_1$、電子を抜いて伝播させる）を同時に扱うと考えると、二つを並列に足しておけばよい。この足し合わせが上の式の二つの項で、T 積となる。
 - $𝜃(t)$: ステップ関数 $t>0$なら1, $t<0$なら0である．
 - $\Psi_0$:ハイゼンベルグ表示の$N$粒子での基底状態 $\hat H\ket{\Psi_0} = E \ket{\Psi_0}$
+
+### Gell-Mann–Low の定理と分離したダイヤグラム {#gell-mann-low}
+
+相互作用を断熱的に入れると、相互作用の無い基底状態 $\ket{\Phi_0}$ から、相互作用のある基底状態が得られる（Gell-Mann–Low の定理）。その結果、Green 関数は
+
+$$
+iG(𝒓_1t_1, 𝒓_2t_2) = \frac{\braket{\Phi_0|T[\hat S\,\hat 𝜓_\mathrm{I}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{I}(𝒓_2,t_2)]|\Phi_0}}{\braket{\Phi_0|\hat S|\Phi_0}}
+\tag{G1}
+$$
+
+と書ける（$\hat S$ は時間発展の演算子、添字 I は相互作用表示）。分母の真空の振幅が、分子に出てくる分離したダイヤグラム（外の線につながらない真空の部分）をちょうど打ち消す。
+そのため、分離したダイヤグラムは数えなくてよく、つながったダイヤグラムだけを足せばよい（つながったダイヤグラムの定理）。
+
+通常の（時間によらない）摂動論との対応は次のとおり。分離したダイヤグラムには 2 種類ある。
+
+- **分離型 1**: 中間状態で系がいったん真空 $\ket{\Phi_0}$ に戻るもの（分離した部分が時間の上で前後に並ぶ）。通常の摂動論では中間状態から $\ket{\Phi_0}$ を除くので、最初から入らない。
+- **分離型 2**: 分離しているが時間の上で重なるもの（中間状態は励起を二つ持ち、$\ket{\Phi_0}$ ではない）。通常の摂動論の式には入っているが、規格化から来る項（3 次の $-V_{00}\sum_n|V_{0n}|^2/\Delta_n^2$ など）とちょうど打ち消し合う。
+
+分離型 1 を除き、分離型 2 と規格化の項をまとめて捨てると、つながったダイヤグラムだけが残り、式 (G1) と同じ結果になる（Goldstone）。
 
 ## 相互作用のない系でのGreen関数
 
@@ -45,12 +65,14 @@ $$
 $\hat 𝜓^\dagger \ket{\Psi_0}$によって電子が非占有状態に生成されるもしくは, $\hat 𝜓 \ket{\Psi_0}$によって正孔が占有状態に生成される(占有状態電子を消滅する)という2通りが, それぞれGreen関数の1項目と2項目に対応する．
 $$
 \begin{align}
-\braket{\Psi_0|\hat 𝜓_\mathrm{H}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)|\Psi_0} &= 
-\braket{\Psi_0|\hat 𝜓(𝒓_1)e^{-i(\hat H- 𝜇 \hat N)(t_1-t_2)/\hbar}  \hat 𝜓^†(𝒓_2)|\Psi_0} \\
-&= \sum_{n'}^{\mathrm{unocc}} 𝜙_{n'}(𝒓_1)𝜙^*_{n'}(𝒓_2)e^{-i𝜀_{n'}(t_1-t_2)/\hbar} : 電子の生成から消滅のプロパゲータ \\
-\braket{\Psi_0|\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)\hat 𝜓_\mathrm{H}(𝒓_1,t_1)|\Psi_0} &= 
-\braket{\Psi_0|\hat 𝜓^†(𝒓_2)e^{-i(\hat H- 𝜇 \hat N)(t_2-t_1)/\hbar} \hat 𝜓(𝒓_1)|\Psi_0} \\
-&= \sum_{n}^{\mathrm{occ}} 𝜙_{n}(𝒓_1)𝜙^*_{n}(𝒓_2)e^{i𝜀_{n}(t_2-t_1)/\hbar}: 正孔の生成から消滅のプロパゲータ
+&\braket{\Psi_0|\hat 𝜓_\mathrm{H}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)|\Psi_0} \\
+&= \braket{\Psi_0|\hat 𝜓(𝒓_1)e^{-i(\hat H- 𝜇 \hat N)(t_1-t_2)/\hbar}  \hat 𝜓^†(𝒓_2)|\Psi_0} \\
+&= \sum_{n'}^{\mathrm{unocc}} 𝜙_{n'}(𝒓_1)𝜙^*_{n'}(𝒓_2)e^{-i𝜀_{n'}(t_1-t_2)/\hbar} \\
+&\qquad (\text{電子の生成から消滅のプロパゲータ}) \\
+&\braket{\Psi_0|\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)\hat 𝜓_\mathrm{H}(𝒓_1,t_1)|\Psi_0} \\
+&= \braket{\Psi_0|\hat 𝜓^†(𝒓_2)e^{-i(\hat H- 𝜇 \hat N)(t_2-t_1)/\hbar} \hat 𝜓(𝒓_1)|\Psi_0} \\
+&= \sum_{n}^{\mathrm{occ}} 𝜙_{n}(𝒓_1)𝜙^*_{n}(𝒓_2)e^{i𝜀_{n}(t_2-t_1)/\hbar} \\
+&\qquad (\text{正孔の生成から消滅のプロパゲータ})
 \end{align}
 $$
 - 生成と消滅は同じ1粒子状態$n$に対して行なわれる．そうでない場合はゼロになる．
@@ -132,7 +154,7 @@ $$
 の関係式を用いると,
 $$
 \begin{align}
-\int d𝒓 G(𝒓,𝒓;𝜔) =  \sum_{n} \frac{1}{𝜔-𝜀_{n}/\hbar \mp i𝛿} = \sum_n \left( \mathcal{P} \frac{1}{𝜔-𝜀_n/\hbar} \pm i 𝜋 𝛿(𝜔-𝜀_n/\hbar)\right)
+\int d𝒓 G(𝒓,𝒓;𝜔) &=  \sum_{n} \frac{1}{𝜔-𝜀_{n}/\hbar \mp i𝛿} \\ &= \sum_n \left( \mathcal{P} \frac{1}{𝜔-𝜀_n/\hbar} \pm i 𝜋 𝛿(𝜔-𝜀_n/\hbar)\right)
 \end{align}
 $$
 <span class="clfix">(複号は上が占有 $𝜀_n\lt 0$, 下が非占有 $𝜀_n>0$.)</span> となるので形式的には状態密度<del class="clfix">$D(𝜀) = \sum_n 𝛿(𝜀-𝜀_n)$</del><span class="clfix">$N(𝜀) = \sum_n 𝛿(𝜀-𝜀_n)$（分極関数の $D$ と区別する）</span>は
@@ -166,10 +188,10 @@ $$
 このとき時間秩序分極関数$D(𝒓_1t_1,𝒓_2t_2)$は以下のような時間順序積による密度の積(密度相関)と定義する．
 $$
 \begin{align}
-iD(𝒓_1t_1,𝒓_2t_2) = 
-\braket{T[\hat {𝛿𝜌}(𝒓_1,t_1)\hat {𝛿𝜌}(𝒓_2,t_2)]} = 
+iD(𝒓_1t_1,𝒓_2t_2) &= 
+\braket{T[\hat {𝛿𝜌}(𝒓_1,t_1)\hat {𝛿𝜌}(𝒓_2,t_2)]} \\ &= 
 \braket{\hat   {𝛿𝜌}(𝒓_1,t_1)\hat {𝛿𝜌}(𝒓_2,t_2)}𝜃(t_1-t_2)  \\
-+\braket{\hat  {𝛿𝜌}(𝒓_2,t_2)\hat {𝛿𝜌}(𝒓_1,t_1)}𝜃(t_2-t_1)
+&\quad +\braket{\hat  {𝛿𝜌}(𝒓_2,t_2)\hat {𝛿𝜌}(𝒓_1,t_1)}𝜃(t_2-t_1)
 \end{align}
 $$
 
@@ -177,8 +199,8 @@ $$
 相互作用がない系では、N積項は消えるためWickの定理により
 $$
 \begin{align}
-iD(𝒓_1t_1,𝒓_2t_2) = 
-\braket{T[\hat {𝛿𝜌}(𝒓_1,t_1)\hat {𝛿𝜌}(𝒓_2,t_2)]} = G(𝒓_1t_1,𝒓_2t_2)G(𝒓_2t_2,𝒓_1t_1)
+iD(𝒓_1t_1,𝒓_2t_2) &= 
+\braket{T[\hat {𝛿𝜌}(𝒓_1,t_1)\hat {𝛿𝜌}(𝒓_2,t_2)]} \\ &= G(𝒓_1t_1,𝒓_2t_2)G(𝒓_2t_2,𝒓_1t_1)
 \end{align}
 $$
 となる。$G(𝒓_1t_1,𝒓_2t_2) = G_\mathrm{ele}(𝒓_1t_1,𝒓_2t_2) + G_\mathrm{hole}(𝒓_1t_1,𝒓_2t_2)$のように分離でき、$t_1 > t_2$では $G_\mathrm{ele}$が残り$t_1 < t_2$では $G_\mathrm{hole}$が残ることを思い出すと
@@ -186,8 +208,10 @@ $$
 \begin{align}
 iD(𝒓_1t_1,𝒓_2t_2) =& G_\mathrm{ele}(𝒓_1t_1,𝒓_2t_2)G_\mathrm{hole}(𝒓_2t_2,𝒓_1t_1) \\
                   &+ G_\mathrm{hole}(𝒓_1t_1,𝒓_2t_2)G_\mathrm{ele}(𝒓_2t_2,𝒓_1t_1) \\
-               =& \sum_{n'}^\mathrm{unocc} \sum_{n}^\mathrm{occ} 𝜙_{n'}(𝒓_1) 𝜙^*_{n'}(𝒓_2) 𝜙_{n}(𝒓_2) 𝜙^*_{n}(𝒓_1)e^{-i(𝜀_{n'}-𝜀_{n})(t_1-t_2)/\hbar} \theta(t_1-t_2) \\
-                & +\sum_{n}^\mathrm{occ} \sum_{n'}^\mathrm{unocc} 𝜙_{n}(𝒓_1) 𝜙^*_{n}(𝒓_2) 𝜙_{n'}(𝒓_2) 𝜙^*_{n'}(𝒓_1)e^{-i(𝜀_{n'}-𝜀_{n})(t_2-t_1)/\hbar} \theta(t_2-t_1)
+               =& \sum_{n'}^\mathrm{unocc} \sum_{n}^\mathrm{occ} 𝜙_{n'}(𝒓_1) 𝜙^*_{n'}(𝒓_2) 𝜙_{n}(𝒓_2) 𝜙^*_{n}(𝒓_1) \\
+                &\qquad \times e^{-i(𝜀_{n'}-𝜀_{n})(t_1-t_2)/\hbar} \theta(t_1-t_2) \\
+                & +\sum_{n}^\mathrm{occ} \sum_{n'}^\mathrm{unocc} 𝜙_{n}(𝒓_1) 𝜙^*_{n}(𝒓_2) 𝜙_{n'}(𝒓_2) 𝜙^*_{n'}(𝒓_1) \\
+                &\qquad \times e^{-i(𝜀_{n'}-𝜀_{n})(t_2-t_1)/\hbar} \theta(t_2-t_1)
 \end{align}
 $$
 となる。このフーリエ変換は上記と同様に
@@ -198,8 +222,8 @@ D(𝒓_1,𝒓_2;𝜔) =& \sum_{n'}^\mathrm{unocc} \sum_{n}^\mathrm{occ}
               & +\sum_{n}^\mathrm{occ} \sum_{n'}^\mathrm{unocc} 
                    \frac{𝜙_{n}(𝒓_1) 𝜙^*_{n}(𝒓_2) 𝜙_{n'}(𝒓_2) 𝜙^*_{n'}(𝒓_1)}{-(𝜔-(𝜀_{n}-𝜀_{n'})/\hbar) + i𝛿} \\
             =& \sum_{n'}^\mathrm{unocc} \sum_{n}^\mathrm{occ} \left[
-                   \frac{𝜙_{n'}(𝒓_1) 𝜙^*_{n'}(𝒓_2) 𝜙_{n}(𝒓_2) 𝜙^*_{n}(𝒓_1)}{  𝜔-(𝜀_{n'}-𝜀_n)/\hbar + i𝛿}
-                  -\frac{𝜙_{n}(𝒓_1) 𝜙^*_{n}(𝒓_2) 𝜙_{n'}(𝒓_2) 𝜙^*_{n'}(𝒓_1)}{  𝜔+(𝜀_{n'}-𝜀_{n})/\hbar - i𝛿} \right]
+                   \frac{𝜙_{n'}(𝒓_1) 𝜙^*_{n'}(𝒓_2) 𝜙_{n}(𝒓_2) 𝜙^*_{n}(𝒓_1)}{  𝜔-(𝜀_{n'}-𝜀_n)/\hbar + i𝛿} \right. \\
+              & \qquad\qquad \left. -\frac{𝜙_{n}(𝒓_1) 𝜙^*_{n}(𝒓_2) 𝜙_{n'}(𝒓_2) 𝜙^*_{n'}(𝒓_1)}{  𝜔+(𝜀_{n'}-𝜀_{n})/\hbar - i𝛿} \right]
 \end{align}
 $$
 を得る。
@@ -209,8 +233,8 @@ $$
 \begin{align}
 D_{𝜇𝜈}(𝜔) &= \int d𝒓_1 d𝒓_2 E_{𝜇}^*(𝒓_1) D(𝒓_1,𝒓_2;𝜔)  E_{𝜈}(𝒓_2) \\
          &= \sum_{n'}^\mathrm{unocc} \sum_{n}^\mathrm{occ} \left[
-               \frac{Z_{nn'𝜇} Z^*_{nn'𝜈}}{  𝜔-(𝜀_{n'}-𝜀_n)/\hbar + i𝛿}
-              -\frac{Z_{n'n𝜇} Z^*_{n'n𝜈}}{  𝜔+(𝜀_{n'}-𝜀_{n})/\hbar - i𝛿} \right]
+               \frac{Z_{nn'𝜇} Z^*_{nn'𝜈}}{  𝜔-(𝜀_{n'}-𝜀_n)/\hbar + i𝛿} \right. \\
+         & \qquad\qquad \left. -\frac{Z_{n'n𝜇} Z^*_{n'n𝜈}}{  𝜔+(𝜀_{n'}-𝜀_{n})/\hbar - i𝛿} \right]
 \end{align}
 $$
 <!-- 時間対称化しているため, 遅延(極が$ω$下面)と先進(極が$ω$上面)を含むため -->

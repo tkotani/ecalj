@@ -51,8 +51,9 @@ The integral of $𝒓=𝒓_I$ is written in spherical coordinates because the in
 
 $$
 \begin{align}
-\int_\mathrm{MT} d𝒓_I e^{i(-𝑮-𝑮_1+𝑮_2)⋅(𝒓_I+𝑹)} =  
-\frac{4\pi e^{i(-𝑮-𝑮_1+𝑮_2)⋅𝑹}}{|-𝑮-𝑮_1+𝑮_2|} \int_0^{R} dr_I r_I\sin(|-𝑮-𝑮_1+𝑮_2|r_I)
+\int_\mathrm{MT} d𝒓_I e^{i(-𝑮-𝑮_1+𝑮_2)⋅(𝒓_I+𝑹)} &=  
+\frac{4\pi e^{i(-𝑮-𝑮_1+𝑮_2)⋅𝑹}}{|-𝑮-𝑮_1+𝑮_2|} \\
+&\quad \times \int_0^{R} dr_I r_I\sin(|-𝑮-𝑮_1+𝑮_2|r_I)
 \end{align}
 $$
 ::: info
