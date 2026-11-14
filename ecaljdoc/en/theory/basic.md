@@ -26,6 +26,15 @@ $$
 
 (linear response).
 
+With $m=1$, writing the spring constant as $H$ ($=k$) and taking the Fourier transform $x(𝜔)=\int dt\, e^{i𝜔t} x(t)$ ($d/dt \to -i𝜔$), the left-hand side becomes $(H - 𝜔^2 - i\gamma𝜔)\,x(𝜔)$, and for small damping ($𝜂=\gamma/2$)
+
+$$
+x(𝜔) = g(𝜔) f(𝜔), \qquad g(𝜔) = -\frac{1}{(𝜔+i𝜂)^2 - H}
+\tag{GF3}
+$$
+
+The $i𝜂$ that comes from the damping expresses that $g=0$ for $t<t'$ (causality).
+
 **Dependence on position.** When the displacement $u(𝒓,t)$ also depends on position, as for a string or a membrane, the Green function is the response
 $g(𝒓,t;𝒓',t')$ at point $𝒓$ and time $t$ to a kick at point $𝒓'$ and time $t'$: $u(𝒓,t)=\int d𝒓' dt'\, g(𝒓,t;𝒓',t') f(𝒓',t')$.
 
@@ -33,18 +42,18 @@ $g(𝒓,t;𝒓',t')$ at point $𝒓$ and time $t$ to a kick at point $𝒓'$ and
 
 $$
 \left(i\hbar \frac{\partial}{\partial t} - \hat H(𝒓)\right) G^\mathrm{R}(𝒓,t;𝒓',t') = \hbar\, 𝛿(𝒓-𝒓')𝛿(t-t')
-\tag{GF3}
+\tag{GF4}
 $$
 
 that vanishes for $t<t'$ (the retarded Green function). It corresponds exactly to the impulse response $g$ of the spring in Eq. (GF1). With the eigenfunctions $𝜙_n$ and eigenvalues $𝜀_n$ of $\hat H$,
 
 $$
 G^\mathrm{R}(𝒓,t;𝒓',t') = -i\, 𝜃(t-t') \sum_n 𝜙_n(𝒓)𝜙^*_n(𝒓') e^{-i𝜀_n(t-t')/\hbar}
-\tag{GF4}
+\tag{GF5}
 $$
 
-(the $𝛿(t-t')$ from differentiating $𝜃$, with the completeness $\sum_n 𝜙_n(𝒓)𝜙^*_n(𝒓')=𝛿(𝒓-𝒓')$, gives the right-hand side of Eq. (GF3)).
-It is the amplitude to find at point $𝒓$ and time $t$ a particle put in at point $𝒓'$ and time $t'$.
+(the $𝛿(t-t')$ from differentiating $𝜃$, with the completeness $\sum_n 𝜙_n(𝒓)𝜙^*_n(𝒓')=𝛿(𝒓-𝒓')$, gives the right-hand side of Eq. (GF4)).
+Its Fourier transform is $G^\mathrm{R}(𝒓,𝒓';𝜔) = \sum_n 𝜙_n(𝒓)𝜙^*_n(𝒓')/(𝜔+i𝜂-𝜀_n/\hbar)$, that is, $(𝜔+i𝜂-\hat H/\hbar)^{-1}$ as an operator, the same form as Eq. (GF3) ($𝜔$ enters squared or linearly as the equation is of second or first order in time; when the displacement also depends on position, $H$ in Eq. (GF3) becomes the matrix of spring constants too). It is the amplitude to find at point $𝒓$ and time $t$ a particle put in at point $𝒓'$ and time $t'$.
 Because the equation is of first order, the wave function at time $t'$ fixes the future, and the Green function has one side in time only ($t>t'$).
 (The spring equation (GF1) is of second order, so its initial condition needs both position and velocity.)
 
@@ -52,14 +61,14 @@ Because the equation is of first order, the wave function at time $t'$ fixes the
 a term in which the hole left by removing an electron propagates to the past (the side $t<t'$). The sum of the electron term ($t>t'$) and the hole term ($t<t'$)
 is the T-product Green function of the next section.
 
-**A chain of responses is a convolution; simultaneous propagation is a product.** Take the frequency representation $g(𝜔)=\int dt\, e^{i𝜔t} g(t)$. When the response $x_\mathrm{A}$ of a system A drives a system B as it is (in series, a chain), the total response is a convolution in time and a product in frequency:
+**A chain of responses is a convolution; simultaneous propagation is a product.** The frequency representation is taken with the same Fourier transform as in Eq. (GF3). When the response $x_\mathrm{A}$ of a system A drives a system B as it is (in series, a chain), the total response is a convolution in time and a product in frequency:
 
 $$
 \begin{aligned}
 g(t-t') &= \int dt''\, g_\mathrm{B}(t-t'') g_\mathrm{A}(t''-t'), \\
 g(𝜔) &= g_\mathrm{B}(𝜔)\, g_\mathrm{A}(𝜔)
 \end{aligned}
-\tag{GF5}
+\tag{GF6}
 $$
 
 The Dyson equation $G = G_0 + G_0 𝛴 G$ has this chain form. On the other hand, when two independent propagations run at the same time (in parallel) and we ask for the amplitude that both happen, the result is a product in time and a convolution in frequency:
@@ -69,7 +78,7 @@ $$
 g_\mathrm{AB}(t) &= g_\mathrm{A}(t)\, g_\mathrm{B}(t), \\
 g_\mathrm{AB}(𝜔) &= \int \frac{d𝜔'}{2\pi}\, g_\mathrm{A}(𝜔') g_\mathrm{B}(𝜔-𝜔')
 \end{aligned}
-\tag{GF6}
+\tag{GF7}
 $$
 
 The polarization function $D = G G$, in which an electron and a hole propagate at the same time (the section "Time-ordered polarization function of a non-interacting system" below), and the self-energy $𝛴 = iGW$ ([Basic II](./basic2), "the case of the $GW$ self-energy") have this form. (Two mechanical springs A and B connected in parallel share the displacement and their forces add, so the inverse responses add, $1/g = 1/g_\mathrm{A} + 1/g_\mathrm{B}$. The product appears when amplitudes are multiplied, as above.)
