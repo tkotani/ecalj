@@ -17,7 +17,7 @@ const sidebarRoot = [
       { text: '入力ファイル', link: '/manual/toml_migration' },
       { text: 'バンドプロットの対称ライン: syml.&lt;sname&gt;', link: '/manual/syml' },
       { text: 'DFT  calculation : lmf part', link: '/manual/lmf' },
-      { text: 'Command-line options (--foo): lmf part', link: '/manual/cmdopts' },
+      { text: 'Command-line options: lmf part', link: '/manual/cmdopts' },
       { text: 'GW の設定（[gw] などのキー）', link: '/manual/gwinput' },
       { text: 'Samples (where what lives)', link: '/manual/samples' },
       { text: 'QSGW calculation: gwsc part', link: '/manual/gwsc' },
