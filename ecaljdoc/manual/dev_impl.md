@@ -2329,9 +2329,9 @@ in `module m_rotMPB2`.
 
 ## IBZ and EIBZ scheme
 
-We include EIBZ procedure given in III.G. in Ref.[friedrich_efficient_2010].
-It is for the polarization function 0fp0,hx0fp0_sc@ and
-for self-energy \_sc@.\
+<span class="clfix">The IBZ part below is what the code uses: the self-energy is summed over ${\bf k}$ of the IBZ and the rotations (`kx` and `irot` in `m_sxcf_sc.f90`, with the table `irkip`). The EIBZ part is a memo; it is not used now (`eibzgen.f90` is there but not called, `[gw] EIBZmode` is read but not used, and `m_eibz`, `x0kf_v4hz_symmetrize`, `zsecsym` and `rotwvigg` are not in the present code). It may be used again.</span>
+
+We <del class="clfix">include</del><span class="clfix">describe the</span> EIBZ procedure given in III.G. in Ref.[friedrich_efficient_2010]<del class="clfix">. It is for the polarization function 0fp0,hx0fp0_sc@ and for self-energy \_sc@.</del><span class="clfix">, for the polarization function and for the self-energy.</span>
 [IBZ]{.underline}\
 Recall IBZ first. We have a set of space-group operation
 $S_A=\{A_i |i=1,... N_A\}$ (except translation by reciprocal vectors).
@@ -2354,10 +2354,11 @@ $N_{\bf q}$ is the number of mesh points generated from ${\bf q}$ by $S_A$ (the 
 For ${\bf q}=0$, $N_{\bf q}=1$. For general ${\bf q}$ (lowest symmetric points), $N_{\bf q}=N_A$.
 
 If $A_i[g_{\bf q}]= g_{A_i({\bf q})}({\bf r},n)$ is satisfied, we have
-$$\begin{aligned}
+$$
+\begin{aligned}
 X=\sum_{ {\bf q}\in {\rm BZ} } F[g_{\bf q}]
-= \sum_{A_i \in S_A } \sum_{ {\bf q}\in {\rm IBZ} } \frac{N_{\bf q} }{N_A} F[g_{A_i({\bf q})}] 
-= \sum_{A_i \in S_A } \sum_{ {\bf q}\in {\rm IBZ} } \frac{N_{\bf q} }{N_A} F[A_i[g_{\bf q}]] .
+&= \sum_{A_i \in S_A } \sum_{ {\bf q}\in {\rm IBZ} } \frac{N_{\bf q} }{N_A} F[g_{A_i({\bf q})}] \\
+&= \sum_{A_i \in S_A } \sum_{ {\bf q}\in {\rm IBZ} } \frac{N_{\bf q} }{N_A} F[A_i[g_{\bf q}]] .
 \end{aligned}
 \tag{I92}
 $$
@@ -2384,7 +2385,7 @@ Since $S_A^{\bf k}\subset S_A$, IBZ $\subset$ EIBZ(${\bf k}$). That is, equivale
 might be diffrenciated in EIBZ(${\bf k}$).
 
 See Eq.(50) in Ref.[friedrich_efficient_2010].
-`call Seteibz -->call eibzgen` returns $S_A^{\bf k}$ stored in the modele `m_eibz`<span class="clfix">(not in the present SRC, 2026-11-15)</span>.
+`call Seteibz -->call eibzgen` returns $S_A^{\bf k}$ stored in the modele `m_eibz`.
 
 Note normazization is
 $$\begin{aligned}
@@ -2407,7 +2408,7 @@ $$
 This means that we have to calculate weighted average only for
 $g_{\bf q}\in {\rm EIBZ}({\bf k})$, and then finally symmetrized (symmetrization is in
 `call x0kf_v4hz_symmetrize`
-in `hx0fp0.sc.m.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>,hx0fp0.m.F` or newly developing `hrcxq`.
+in `hx0fp0.sc.m.F,hx0fp0.m.F` or newly developing `hrcxq`.
 
 We apply Eq. (I95) to Eq.(22) in Ref.[friedrich_efficient_2010]
 resulting Eq.(51) in Ref.[friedrich_efficient_2010].
@@ -2415,8 +2416,8 @@ Then we need to rotate MPB for given space group rotation $A^{\bf k}_i$.
 Note that $A^{\bf k}_i$ keeps ${\bf k}$ of MPB. This is in the next section.
 
 Note that `call eibzgen` stores not only $S_A^{\bf q}$(`eibzsym`),
-but also the weight $N_{\bf q}^{\bf k}$ (`nwgt`) in the module `m_eibz`<span class="clfix">(not in the present SRC, 2026-11-15)</span>.
-(role of ${\bf q}$ and ${\bf k}$ may be turn around in `m_eibz`<span class="clfix">(not in the present SRC, 2026-11-15)</span>)
+but also the weight $N_{\bf q}^{\bf k}$ (`nwgt`) in the module `m_eibz`.
+(role of ${\bf q}$ and ${\bf k}$ may be turn around in `m_eibz`)
 
  \
 [For self-energy]{.underline}\
@@ -2452,20 +2453,16 @@ A block is `zsect(ii1:ie1,ii2:ie2)`, where band indeces
 <span class="clfix">Moved here from the Bessel-function subsection: this work was suspended. The static $\epsilon^{-1}$ for phonons is written by `hgw` into `__W4PHONON.<iq>` when `w4pmode` is on, that is, when the offset-Γ points along $x,y,z$ were added by `qg4gw --job=201` (`ixyz` of `m_q0p.f90`; `m_llw.f90`).</span>
 
 To calculate derivative for electron-phonon (EP) coupling, we need
-$$\begin{aligned}
- &\frac{\partial}{\partial {\bf r}_i} \left(\bar{J}_l(E,{\bf r})
-                    Y_L(\hat{r})\right)\big|_{ {\bf r}=0}=
-\frac{1}{3} \sqrt{\frac{3}{4\pi} }, \ \ \ \ {\rm only \ for} \ L=1,\ {\rm zero otherwize}.
-\end{aligned}
+$$
+\frac{\partial}{\partial {\bf r}_i} \left(\bar{J}_l(E,{\bf r}) Y_L(\hat{r})\right)\Big|_{ {\bf r}=0}=
+\frac{1}{3} \sqrt{\frac{3}{4\pi} } \quad (\text{only for } l=1;\ \text{zero otherwise}).
 \tag{I39}
 $$
 For real spherical harmonics, cases are:
 $i=y$ and $L=(1,-1)$; $i=z$ and $L=(1,0)$; $i=x$ and $L=(1,1)$.
-Because we use MPB, it is necessary to evaluate the
-the bare matrix element of the Coulomb interaction between nucleus and
+Because we use MPB, it is necessary to evaluate the bare matrix element of the Coulomb interaction between nucleus and
 $\langle B\rangle$ as
-$$\begin{aligned}
- &\langle B|\frac{\partial v({\bf r}-{\bf R})}{\partial {\bf R}_i}\rangle
-\end{aligned}
+$$
+\langle B|\frac{\partial v({\bf r}-{\bf R})}{\partial {\bf R}_i}\rangle
 \tag{I40}
 $$
