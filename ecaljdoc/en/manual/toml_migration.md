@@ -1,6 +1,6 @@
 # Input file {#toml-migration-2026-05}
 
-> English version of the page [manual/toml_migration](../../manual/toml_migration.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/toml_migration.md of commit 034c2b739 (source blob 1e5f36556a1a).
+> English version of the page [manual/toml_migration](../../manual/toml_migration.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/toml_migration.md of commit 034c2b739 (source blob 1e7e71fb2d08).
 
 ecalj consists of the one-body part (the DFT part) and the GW part.
 
@@ -17,6 +17,8 @@ first ([below](#migration-of-an-existing-legacy-directory)).
 
 The basic input file is one ctrlg. The usual way is to generate ctrlg automatically from the crystal structure (`ctrlgenToml.py`) and edit it;
 or options are given when it is generated.
+The automatic generation converts a POSCAR (VASP format) with `vasp2ctrl` into the structure-only file `ctrls.<sname>`, and then makes the ctrlg
+with `ctrlgenToml.py <sname>`. If you leave it to an AI, you may think of the POSCAR as the input.
 
 **The per-atom tables at the end**
 

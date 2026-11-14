@@ -14,6 +14,8 @@ ecalj は、一体計算の部分（DFT パート）と GW パートからなり
 
 基本となる入力ファイルは ctrlg 一つです。ctrlg は結晶構造から自動生成し（`ctrlgenToml.py`）、それを編集して使うのが基本です。
 もしくは、生成するときにオプションを付けて生成します。
+自動生成は、POSCAR（VASP の形式）を `vasp2ctrl` で構造だけのファイル `ctrls.<sname>` に変換し、それから `ctrlgenToml.py <sname>` で ctrlg を作ります。
+AI に任せるなら、POSCAR が入力だと思ってかまいません。
 
 **最後にある原子ごとの表**
 
