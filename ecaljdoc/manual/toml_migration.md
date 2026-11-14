@@ -175,24 +175,9 @@ lmf si --ctrlg:bz.nkabc=[8,8,8] --ctrlg:bz.metal=3
 
 </div>
 
-## 移行済みのサンプル（手本に使う） {#migrated-samples-use-these-as-templates}
+## サンプル {#migrated-samples-use-these-as-templates}
 
-`ecalj/Samples/` の下の次のディレクトリは `ctrlg.<sname>.toml` を持ち、`testecalj` を通ります（全体の一覧は [Samples](./samples)）。
-
-| ディレクトリ | 役割 |
-|---|---|
-| [Samples/MLOsamples/](https://github.com/tkotani/ecalj/tree/main/Samples/MLOsamples) | MuffinTin Localized Orbitals（Wannier の代わり）。試験のターゲットは 25 — [MLOsamples/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md) を参照 |
-| [Samples/TestInstall/](https://github.com/tkotani/ecalj/tree/main/Samples/TestInstall) | インストールの検証の組。26 ターゲット（66 件の確認）を `testecalj --all` で回す |
-| [Samples/EPS/](https://github.com/tkotani/ecalj/tree/main/Samples/EPS) | 誘電関数 ε(q,ω) — `EPS_Cu`、`EPS_GaAs`、`EPS_Ag`（`job_eps`） |
-| [Samples/PROCAR/](https://github.com/tkotani/ecalj/tree/main/Samples/PROCAR) | ファットバンドの重み — `MgO_PROCAR`、`Ni2MnGa_L21_PROCAR` |
-
-サンプルの木全体の索引は [Samples/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/README.md) です。
-
-## 古い形式のサンプル {#legacy-samples}
-
-`Samples/Legacy/` にあった古い例は、`Samples/` の下にそれぞれのディレクトリとして作り直し（反強磁性の対称性、マグノンのスペクトル、
-フェルミ面、ドーピング、磁気異方性、LDA+U、有効質量、緩和、DOS など）、元のものは 2026-09-30 に消しました。一覧は ecalj の
-`Samples/README.md` の表 1 にあります。古い形式の自分の入力は、上に書いたとおりに変換してください。
+手本になる `ctrlg.<sname>.toml` のサンプルの一覧は [Samples](./samples) にあります。古い `Samples/Legacy/` の例も、そこに書いたディレクトリとして作り直してあります。古い形式の自分の入力は、上に書いたとおりに変換してください。
 
 ## 結果のまとめ（計算済みの参照値） {#result-summaries-worked-out-reference-values}
 

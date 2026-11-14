@@ -1,12 +1,9 @@
-# Samples — what's where in `ecalj/Samples/`
+# サンプル — `ecalj/Samples/` のどこに何があるか
 
-This page is a thin index over the [`ecalj/Samples/`](https://github.com/tkotani/ecalj/tree/main/Samples)
-tree.  Each row points at the per-directory README that owns the
-authoritative description; the role / what-to-start-with column is
-meant to help you pick the right entry point without opening every
-sub-tree.
+このページは、[`ecalj/Samples/`](https://github.com/tkotani/ecalj/tree/main/Samples) の木の簡単な索引です。
+各行は、そのディレクトリの説明の正本である README を指します。役割と「何から始めるか」の列は、すべての枝を開かなくても入口を選べるようにするためのものです。
 
-## Top-level layout (since 2026-05)
+## 最上位の構成（2026-05 から）
 
 ```
 ecalj/Samples/
@@ -28,110 +25,98 @@ ecalj/Samples/
 └── AtomDimer/         a molecule and an atom in a box (N2): bond length and binding energy
 ```
 
-The inputs of all these directories are `ctrlg.<sname>.toml`, what `lmf` /
-`gwsc` / `job_eps` / ... read out-of-the-box.  The groups of test targets
-are run one after another by `TOOLS/samples_tests.sh` of ecalj.
-The targets of every directory and the group of `samples_tests.sh` that runs
-them are in table 1 of ecalj
-[`Samples/README.md`](https://github.com/tkotani/ecalj/blob/main/Samples/README.md).
-For your own directory with the legacy `ctrl.<sname>` + `GWinput`, see
-[Input file](./toml_migration) for the conversion flow.
+どのディレクトリの入力も `ctrlg.<sname>.toml` で、`lmf`、`gwsc`、`job_eps` などがそのまま読みます。
+試験のターゲットの組は、ecalj の `TOOLS/samples_tests.sh` が順に回します（[試験の仕組み](./dev_testecalj)）。
+各ディレクトリのターゲットと、それを回す `samples_tests.sh` の組は、ecalj の
+[`Samples/README.md`](https://github.com/tkotani/ecalj/blob/main/Samples/README.md) の表 1 にあります。
+古い `ctrl.<sname>` + `GWinput` の自分のディレクトリは、[入力ファイル](./toml_migration) の手順で変換してください。
 
-## TOML-migrated samples (testecalj-runnable)
+## 試験になるサンプル（testecalj で回せる）
 
-| dir | physics / role | per-dir README | doc page |
+| ディレクトリ | 物理・役割 | ディレクトリの README | 説明のページ |
 |---|---|---|---|
-| **GetStarted/GaAs** | minimal worked example for the [tutorial](./README_tutorial#getstarted) — GaAs zinc-blende, 2 atoms, ships `ctrls.gaas` + `ctrlg.gaas.toml` | [GetStarted/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/GetStarted/README.md) / [GaAs README](https://github.com/tkotani/ecalj/blob/main/Samples/GetStarted/GaAs/README.md) | [./README_tutorial](./README_tutorial) |
-| **EPS/EPS_Cu** | dielectric ε(q,ω), `job_eps`, FCC metal | [EPS_Cu/](https://github.com/tkotani/ecalj/tree/main/Samples/EPS/EPS_Cu) (no README; see test.py) | [Dielectric function: job_eps](./optical) |
-| **EPS/EPS_GaAs** | ε(q,ω), GaAs zinc-blende semiconductor | [EPS_GaAs/](https://github.com/tkotani/ecalj/tree/main/Samples/EPS/EPS_GaAs) (no README; see test.py) | [./optical](./optical) |
-| **EPS/EPS_Ag** | ε(q,ω), Ag (FCC, no LFC) | [EPS_Ag/](https://github.com/tkotani/ecalj/tree/main/Samples/EPS/EPS_Ag) (no README; see test.py) | [./optical](./optical) |
-| **MLOsamples/** (25 test targets) | MTO Localized Orbitals (Wannier replacement); SOC variants; on-site W via `job_mloW` | [MLOsamples/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md) | README_SOC.md (`MD/mlo_notes/mlo_soc_memo.md`) |
-| **PROCAR/MgO_PROCAR** | fat-band weight; O-2p projection on MgO bands | [MgO_PROCAR/](https://github.com/tkotani/ecalj/tree/main/Samples/PROCAR/MgO_PROCAR) (no README; see test.py) | [./UsageDetailed § PROCAR mode](./UsageDetailed#procar-mode) |
-| **PROCAR/Ni2MnGa_L21_PROCAR** | per-atom fat band; FM Heusler; ships converged `rst.ni2mnga` | [Ni2MnGa_L21_PROCAR/](https://github.com/tkotani/ecalj/tree/main/Samples/PROCAR/Ni2MnGa_L21_PROCAR) (no README; see test.py) | [./UsageDetailed § PROCAR mode](./UsageDetailed#procar-mode) |
-| **TestInstall/** (26 targets in `testecalj --all`, 66 checks) | install validation: ground-state, GW (`gwsc`, `gw_lmfh`), finite-T (`fe_kbt`), eps (`job_eps`), ChiPM, cRPA of the MLO model. The heavy GW targets `cugase2_gwsc222`, `nio_gwsc444`, `pdo_gwsc443`, `gas_gwsc666` are run one by one | (per dir; driven by `testecalj --all`) | [./gwsc](./gwsc), [./optical](./optical) |
-| **MLOQSGW/** (`GaAs`, `NiO`) | QSGW with the self-energy interpolated in the MLO representation (`gwsc --mlo`) | [MLOQSGW/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/MLOQSGW/README.md) | [./mlo_gwsc](./mlo_gwsc) |
-| **BenchmarkTest/** (`inas2gasb2`, `inas4gasb4`) | one QSGW iteration of InAs/GaSb superlattices against the stored `QPU.1run`; with one 32 GB GPU use `-np2 1` | (no README; see test.py) | [./ecaljgpu](./ecaljgpu) |
-| **AFsymmetry/** (`NiO`, `NiSe`, `NiO_gwsc`) | antiferromagnetic symmetry `symgrpaf` with `af = 1 / -1` on the sites: LDA, and QSGW (the GW programs compute both spins) | [AFsymmetry/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/AFsymmetry/README.md) | [./lmf](./lmf) |
-| **Magnon/** (`Fe_mlo_magnon`) | magnon spectra through the MLO model (`job_mlo_magnon`, bcc Fe), compared with the Wannier functions of the version before 2026-10-02 (tag `last-wannier`) | [Magnon/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/Magnon/README.md) | [./UsageDetailed](./UsageDetailed) |
-| **kBT/scanT/** (`Si`) | the same input at several electron temperatures (`scan_T.sh`, `collect_T.py`): gap of Si, bands and moment of bcc Fe | [kBT/scanT/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/kBT/scanT/README.md) | [./kBT](./kBT) section 5 |
-| **FermiSurface/Cu**, **Doping/Si**, **HomoGas/es**, **BoltzTraP/Si**, **SLAB/Cu001**, **SOC/** (`FePt_MAE`, `MnGa_MAE`), **LDAU/ReN**, **EffectiveMass/** (`GaAs`, `CdS`, `GaN`), **Relax/LaGaO3**, **DOS/** (`ZnS`, `Fe`), **IIR/C**, **AtomDimer/N2** | short examples (each below a few minutes): Fermi surface for xcrysden, doping by fractional Z or background charge, Lindhard function against the analytic form, input of BoltzTraP, slab with work function, magnetic anisotropy energy, LDA+U, effective masses with SOC, relaxation of atomic positions, total and partial DOS, impact ionization rate (Im of the self-energy), a molecule in a box | README.md in each directory | [./UsageDetailed](./UsageDetailed) |
+| **GetStarted/GaAs** | [チュートリアル](./README_tutorial#getstarted) の最小の例。閃亜鉛鉱の GaAs、2 原子。`ctrls.gaas` と `ctrlg.gaas.toml` を含む | [GetStarted/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/GetStarted/README.md) / [GaAs README](https://github.com/tkotani/ecalj/blob/main/Samples/GetStarted/GaAs/README.md) | [メインドキュメント](./README_tutorial) |
+| **EPS/EPS_Cu** | 誘電関数 ε(q,ω)、`job_eps`、fcc の金属 | [EPS_Cu/](https://github.com/tkotani/ecalj/tree/main/Samples/EPS/EPS_Cu)（README なし。test.py を参照） | [誘電関数](./optical) |
+| **EPS/EPS_GaAs** | ε(q,ω)、閃亜鉛鉱の半導体 GaAs | [EPS_GaAs/](https://github.com/tkotani/ecalj/tree/main/Samples/EPS/EPS_GaAs)（README なし。test.py を参照） | [誘電関数](./optical) |
+| **EPS/EPS_Ag** | ε(q,ω)、Ag（fcc、局所場補正なし） | [EPS_Ag/](https://github.com/tkotani/ecalj/tree/main/Samples/EPS/EPS_Ag)（README なし。test.py を参照） | [誘電関数](./optical) |
+| **MLOsamples/**（試験のターゲット 25） | MTO の局在軌道（Wannier の代わり）。SOC の例、`job_mloW` によるオンサイトの W | [MLOsamples/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md) | [MLO](./mlo) |
+| **PROCAR/MgO_PROCAR** | ファットバンドの重み。MgO のバンドへの O 2p の射影 | [MgO_PROCAR/](https://github.com/tkotani/ecalj/tree/main/Samples/PROCAR/MgO_PROCAR)（README なし。test.py を参照） | [その他の説明 § PROCAR](./UsageDetailed#procar-mode) |
+| **PROCAR/Ni2MnGa_L21_PROCAR** | 原子ごとのファットバンド。強磁性の Heusler。収束した `rst.ni2mnga` を含む | [Ni2MnGa_L21_PROCAR/](https://github.com/tkotani/ecalj/tree/main/Samples/PROCAR/Ni2MnGa_L21_PROCAR)（README なし。test.py を参照） | [その他の説明 § PROCAR](./UsageDetailed#procar-mode) |
+| **TestInstall/**（`testecalj --all` で 26 ターゲット、66 件の確認） | インストールの確認: 基底状態、GW（`gwsc`、`gw_lmfh`）、有限温度（`fe_kbt`）、eps（`job_eps`）、ChiPM、MLO のモデルの cRPA。重い GW のターゲット `cugase2_gwsc222`、`nio_gwsc444`、`pdo_gwsc443`、`gas_gwsc666` は一つずつ回す | （ディレクトリごと。`testecalj --all` で回す） | [gwsc](./gwsc)、[誘電関数](./optical) |
+| **MLOQSGW/**（`GaAs`、`NiO`） | 自己エネルギーを MLO の表現で内挿する QSGW（`gwsc --mlo`） | [MLOQSGW/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/MLOQSGW/README.md) | [MLO-gwsc](./mlo_gwsc) |
+| **BenchmarkTest/**（`inas2gasb2`、`inas4gasb4`） | InAs/GaSb の超格子の QSGW の 1 反復を、保存した `QPU.1run` と比べる。32 GB の GPU 1 枚では `-np2 1` | （README なし。test.py を参照） | [GPU 版](./ecaljgpu) |
+| **AFsymmetry/**（`NiO`、`NiSe`、`NiO_gwsc`） | サイトに `af = 1 / -1` を付けた反強磁性の対称性 `symgrpaf`。LDA と QSGW（GW のプログラムは両方のスピンを計算する） | [AFsymmetry/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/AFsymmetry/README.md) | [lmf](./lmf#symgrp) |
+| **Magnon/**（`Fe_mlo_magnon`） | MLO のモデルによるマグノンのスペクトル（`job_mlo_magnon`、bcc Fe）。2026-10-02 より前の版（タグ `last-wannier`）の Wannier 関数と比べる | [Magnon/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/Magnon/README.md) | [その他の説明](./UsageDetailed) |
+| **kBT/scanT/**（`Si`） | 同じ入力を、いくつかの電子温度で（`scan_T.sh`、`collect_T.py`）: Si のギャップ、bcc Fe のバンドとモーメント | [kBT/scanT/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/kBT/scanT/README.md) | [kBT](./kBT) §5 |
+| **FermiSurface/Cu**、**Doping/Si**、**HomoGas/es**、**BoltzTraP/Si**、**SLAB/Cu001**、**SOC/**（`FePt_MAE`、`MnGa_MAE`）、**LDAU/ReN**、**EffectiveMass/**（`GaAs`、`CdS`、`GaN`）、**Relax/LaGaO3**、**DOS/**（`ZnS`、`Fe`）、**IIR/C**、**AtomDimer/N2** | 短い例（どれも数分以内）: xcrysden のためのフェルミ面、半端な Z か背景電荷によるドーピング、Lindhard 関数と解析的な形との比較、BoltzTraP の入力、仕事関数を見るスラブ、磁気異方性エネルギー、LDA+U、SOC を入れた有効質量、原子位置の緩和、全・部分状態密度、衝突電離の割合（自己エネルギーの虚部）、箱の中の分子 | 各ディレクトリの README.md | [その他の説明](./UsageDetailed) |
 
-## Not testecalj targets
+## 試験にしないもの
 
-| dir | physics / role | per-dir README | doc page |
+| ディレクトリ | 物理・役割 | ディレクトリの README | 説明のページ |
 |---|---|---|---|
-| **MATERIALS/** | LDA and MLO samples of 65 materials (62 simple materials, La2CuO4, InAs/GaSb, BaTiO3; how to choose the MLO model: [mlo](./mlo) §9). Also QSGW of the larger systems: La2CuO4 (20 iterations, 7 atoms), InAs/GaSb superlattices of 16 and 40 atoms, BaTiO3 (three stages), inputs and results kept, long runs | [MATERIALS/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/MATERIALS/README.md) | [./gwsc](./gwsc) |
-| **kBT/LiTi2O4** and the rest of kBT/ | LiTi₂O₄ (metallic spinel): the input of the MLO-QSGW runs (`LiTi2O4/input/qmlo`: `t_tetrakbt = -992.4`, `t_sigmaw = 1000`) with the scripts and figures, the finite-T QSGW runs (`t_tetrakbt` > 0), the control experiment on bcc Fe, the reports on the GPU precision, and the research log. **Inputs and results only** — the runs are too expensive for a regression test (the test targets at finite temperature are `TestInstall/fe_kbt` and `kBT/scanT/Si`) | [kBT/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/kBT/README.md) | [./kBT](./kBT) |
+| **MATERIALS/** | 65 物質の LDA と MLO のサンプル（簡単な 62 物質、La2CuO4、InAs/GaSb、BaTiO3。MLO のモデルの選び方は [MLO](./mlo) §9）。大きな系の QSGW: La2CuO4（20 反復、7 原子）、16 原子と 40 原子の InAs/GaSb の超格子、BaTiO3（三段階）の入力と結果を残してある。時間のかかる計算 | [MATERIALS/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/MATERIALS/README.md) | [gwsc](./gwsc) |
+| **kBT/LiTi2O4** と kBT/ の残り | LiTi₂O₄（金属のスピネル）: MLO-QSGW の計算の入力（`LiTi2O4/input/qmlo`: `t_tetrakbt = -992.4`、`t_sigmaw = 1000`）とスクリプトと図、有限温度の QSGW の計算（`t_tetrakbt` > 0）、bcc Fe での対照実験、GPU の精度の報告、研究の記録。**入力と結果だけ**で、回帰試験には重すぎる（有限温度の試験のターゲットは `TestInstall/fe_kbt` と `kBT/scanT/Si`） | [kBT/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/kBT/README.md) | [kBT](./kBT) |
 
-### `Samples/MLOsamples/` quick map (25 testecalj cases)
+### `Samples/MLOsamples/` の早見（testecalj の 25 件）
 
-The dedicated [MLOsamples/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md)
-table has roles + reference data per case.  Highlights:
+[MLOsamples/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md) の表に、各例の役割と参照のデータがあります。主なもの:
 
-- `GaAsSoc`, `FeSoc`, `FeMgOSoc` — SOC-as-perturbation tests (`job_mlo_soc`; compared with the DFT bands with SOC that it draws, [mlo](./mlo) §4)
-- `C`, `C.sp`, `Cu`, `SrTiO3`, `GaAs`, `Si666gwsc` (QSGW) — non-magnetic semiconductors / metals
-- `Ag`, `Al`, `NaCl`, `SiC`, `CdTe`, `ZnO`, `TiO2` — Materials Project structures with the default settings
-- `Fe`, `FeCo`, `FeMgO` — magnetic metals (no SOC)
-- `Al2O3_Cr`, `GdCo5`, `GdION`, `SmP`, `NiO666lda`, `RuO2` — LDA+U / 4f / AFM
-- `Fe`'s test.py drives `job_mloW` and verifies on-site V, W−V vs
-  inline reference values — see
-  [MLOsamples/README.md § Regression test (testecalj Fe)](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md#regression-test-testecalj-fe).
+- `GaAsSoc`、`FeSoc`、`FeMgOSoc` — 摂動としての SOC の試験（`job_mlo_soc`。それが描く SOC 入りの DFT のバンドと比べる、[MLO](./mlo) §4）
+- `C`、`C.sp`、`Cu`、`SrTiO3`、`GaAs`、`Si666gwsc`（QSGW） — 非磁性の半導体・金属
+- `Ag`、`Al`、`NaCl`、`SiC`、`CdTe`、`ZnO`、`TiO2` — Materials Project の構造で、既定の設定
+- `Fe`、`FeCo`、`FeMgO` — 磁性金属（SOC なし）
+- `Al2O3_Cr`、`GdCo5`、`GdION`、`SmP`、`NiO666lda`、`RuO2` — LDA+U・4f・反強磁性
+- `Fe` の test.py は `job_mloW` を回し、オンサイトの V、W−V を中に書いた参照値と比べる。
+  [MLOsamples/README.md § Regression test (testecalj Fe)](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md#regression-test-testecalj-fe) を参照。
 
-### `Samples/TestInstall/` what each tests
+### `Samples/TestInstall/` が何を試すか
 
-Driven by `testecalj --all -np 8` from inside the directory.  Coverage
-table (one-line role per dir):
+ディレクトリの中で `testecalj --all -np 8` として回します。ディレクトリごとの役割:
 
-| dir | tool exercised |
+| ディレクトリ | 試す道具 |
 |---|---|
-| `c`, `te`, `zrt`, `co`, `cr3si6`, `felz`, `gasls`, `eras`, `crn`, `cu`, `na`, `fe`, `gdn` | LDA / lmf install validation (`fe`: spin-polarized DOS, `gdn`: LDA+U) |
-| `copt` | LDA + force calculation |
-| `gas_eps_lmfh`, `gas_epsPP_lmfh` | dielectric ε(q,ω) (with / without LFC) on GaAs |
-| `fe_epsPP_lmfh_chipm` | spin susceptibility χ⁻⁻ on bcc Fe |
-| `si_gw_lmfh`, `gas_pw_gw_lmfh`, `si_gwsc`, `gas_gwsc`, `nio_gwsc`, `fe_gwsc` | one-shot GW vs full QSGW (`gwsc`) |
-| `fe_kbt` | QSGW with the finite-temperature tetrahedron method (`t_tetrakbt` > 0) on bcc Fe |
-| `ni_crpa`, `srvo3_crpa` | constrained RPA |
+| `c`、`te`、`zrt`、`co`、`cr3si6`、`felz`、`gasls`、`eras`、`crn`、`cu`、`na`、`fe`、`gdn` | LDA / lmf のインストールの確認（`fe`: スピン分極の状態密度、`gdn`: LDA+U） |
+| `copt` | LDA + 力の計算 |
+| `gas_eps_lmfh`、`gas_epsPP_lmfh` | GaAs の誘電関数 ε(q,ω)（局所場補正あり・なし） |
+| `fe_epsPP_lmfh_chipm` | bcc Fe のスピン感受率 χ⁻⁻ |
+| `si_gw_lmfh`、`gas_pw_gw_lmfh`、`si_gwsc`、`gas_gwsc`、`nio_gwsc`、`fe_gwsc` | one-shot の GW と、全体の QSGW（`gwsc`） |
+| `fe_kbt` | bcc Fe の、有限温度の四面体法（`t_tetrakbt` > 0）による QSGW |
+| `ni_crpa`、`srvo3_crpa` | constrained RPA |
 
-### EPS samples — what differs across the three
+### EPS のサンプル — 三つの違い
 
-Detailed worked descriptions live in [./optical](./optical).  Quick
-distinguishing features:
+詳しい説明は [誘電関数](./optical) にあります。見分けるための特徴:
 
-| dir | sname | binary | BZ mesh | QforEPS | what's specific |
+| ディレクトリ | sname | プログラム | BZ のメッシュ | QforEPS | 特徴 |
 |---|---|---|---|---|---|
-| `EPS_Cu` | `cu` | `job_eps` | 12³ (lmf) / 10³ (gw) | 3 small q (5e-4 / 1e-3 / 2e-3 a.u.) | FCC metal, has band plot scripts |
-| `EPS_GaAs` | `gaas` | `job_eps` | 4³ / 8³ | same Cu-style 3-q | zinc-blende semiconductor |
-| `EPS_Ag` | `ag` | `job_eps` | 8³ / 8³ | Cu-style | FCC metal, no LFC; reference data 2026-05-08 generated |
+| `EPS_Cu` | `cu` | `job_eps` | 12³（lmf）/ 10³（gw） | 小さな q を 3 つ（5e-4 / 1e-3 / 2e-3 a.u.） | fcc の金属。バンドを描くスクリプトを含む |
+| `EPS_GaAs` | `gaas` | `job_eps` | 4³ / 8³ | Cu と同じ 3 つの q | 閃亜鉛鉱の半導体 |
+| `EPS_Ag` | `ag` | `job_eps` | 8³ / 8³ | Cu と同じ | fcc の金属、局所場補正なし。参照のデータは 2026-05-08 に作成 |
 
-All three carry committed reference EPS files (`EPS000{1,2,3}.nlfc.dat.{inter,intra}bandonly`)
-and the test.py compares them with skipcond on the intra-band 1/(ω+iη)
-divergence.  `testecalj EPS_Cu / EPS_GaAs / EPS_Ag -np 4` each yields
-6/6 PASSED.
+三つとも、参照の EPS のファイル（`EPS000{1,2,3}.nlfc.dat.{inter,intra}bandonly`）をコミットしてあり、test.py は、バンド内の 1/(ω+iη) の発散を skipcond で除いて比べます。
+`testecalj EPS_Cu / EPS_GaAs / EPS_Ag -np 4` は、どれも 6/6 PASSED になります。
 
-## Legacy/ — gone
+## Legacy/ — なくした
 
-The older examples of `Samples/Legacy/` were rebuilt as the directories above (2026-09-29 and 30) and the directory
-was removed from the repository on 2026-09-30 (ecalj history before commit `932c59a6d`). The last one,
-`TestHomoDimerAtom` (dimers and atoms in a box, 2012), became `AtomDimer/N2`.
+`Samples/Legacy/` の古い例は、上のディレクトリとして作り直し（2026-09-29、30）、ディレクトリは 2026-09-30 にリポジトリから外しました（ecalj のコミット `932c59a6d` より前の履歴にあります）。
+最後の `TestHomoDimerAtom`（箱の中の二量体と原子、2012）は `AtomDimer/N2` になりました。
 
-## Where each Samples-related description in ecaljdoc lives
+## サンプルに関わる説明の置き場
 
-To minimise duplication across pages, each topic is owned by one
-page; this Samples page only points:
+重複を減らすため、話題ごとに一つのページが正本で、この Samples のページは指すだけです。
 
-| topic | owner page |
+| 話題 | 正本のページ |
 |---|---|
-| TOML migration / `Legacy2toml.py` workflow | [./toml_migration](./toml_migration) |
-| `ctrlg.<sname>.toml` schema and the legacy ↔ TOML key map | [./lmf](./lmf) |
-| keys of `[gw]` (the former `GWinput`) | [./gwinput](./gwinput) |
-| finite temperature, the keys `t_tetrakbt` / `t_sigmaw` | [./kBT](./kBT) |
-| MLO-QSGW (`gwsc --mlo`) | [./mlo_gwsc](./mlo_gwsc) |
-| QSGW with `gwsc` end-to-end | [./gwsc](./gwsc) |
-| Dielectric ε(q,ω) (`job_eps`) | [./optical](./optical) |
-| Fat-band weights / `PROCAR` (`MgO_PROCAR`, `Ni2MnGa_L21_PROCAR`) | [./UsageDetailed § PROCAR mode](./UsageDetailed#procar-mode) |
-| MLO bands + on-site W (`job_mloW`) | [MLOsamples/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md) |
-| `ecalj_auto` batch runner | `MD/auto.md` |
-| End-to-end tutorial (POSCAR → QSGW) | [./README_tutorial](./README_tutorial) |
+| 入力ファイル、`Legacy2toml.py` の手順、古いキーと TOML のパスの対応 | [入力ファイル](./toml_migration) |
+| `ctrlg.<sname>.toml` の構成 | [lmf](./lmf#file-structure-sections) |
+| `[gw]` のキー（以前の `GWinput`）、積基底 | [GW の設定](./gwinput) |
+| 有限温度、キー `t_tetrakbt` / `t_sigmaw` | [kBT](./kBT) |
+| MLO-QSGW（`gwsc --mlo`） | [MLO-gwsc](./mlo_gwsc) |
+| `gwsc` による QSGW の全体 | [gwsc](./gwsc) |
+| 誘電関数 ε(q,ω)（`job_eps`） | [誘電関数](./optical) |
+| ファットバンドの重み・`PROCAR`（`MgO_PROCAR`、`Ni2MnGa_L21_PROCAR`） | [その他の説明 § PROCAR](./UsageDetailed#procar-mode) |
+| MLO のバンドとオンサイトの W（`job_mloW`） | [MLOsamples/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md) |
+| `ecalj_auto` のバッチ | [ecalj_auto/README.md](https://github.com/tkotani/ecalj/blob/main/ecalj_auto/README.md) |
+| POSCAR から QSGW までのチュートリアル | [メインドキュメント](./README_tutorial) |
 
-If you want to add a new Samples directory, the conventions live in
-<del class="clfix">`MD/developer.md`</del><span class="clfix">[Tests (testecalj)](./dev_testecalj)</span> (`testecalj`, `comp.py`, naming).
+新しい Samples のディレクトリを足すときの約束（`testecalj`、`comp.py`、名前の付け方）は [試験の仕組み](./dev_testecalj) にあります。

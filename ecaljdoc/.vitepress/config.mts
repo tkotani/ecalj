@@ -113,6 +113,7 @@ const enText: Record<string, string> = {
   'DFT の計算: lmf': 'DFT calculation: lmf',
   'コマンドラインのオプション: lmf': 'Command-line options: lmf',
   'QSGW の計算: gwsc': 'QSGW calculation: gwsc',
+  'サンプル': 'Samples',
   'GW 近似': 'GW approximation',
   '光学的性質': 'Optical properties',
 }
