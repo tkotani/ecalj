@@ -43,6 +43,18 @@ AI に任せるなら、POSCAR が入力だと思ってかまいません。
 `<sname>` は利用者が決める物質の拡張子です（`si`、`cu`、`gaas`、`fe` など）。一つの作業ディレクトリには、ふつう `ctrlg.<sname>.toml` が
 ちょうど一つあります。そのディレクトリの中で走らせれば、`lmf` は引数無しでもそのファイルを見つけます。
 
+<div class="clfix">
+
+### 生成されるファイルの体裁 {#file-layout}
+
+`ctrlgenToml.py`、`gwinit`、`Legacy2toml.py` と整形の道具 `pylib/toml_tidy.py` は、どれも同じ体裁のファイルを作ります。
+空行で区切るのは大きな見出し（`# === X ===` のコメントの並びと、一つだけの `[section]` の見出し）だけです。
+節の中（`[[site]]` や `[[spec]]` の表どうし、複数行のブロックとその前後、積基底の三つの表）は `# ----` の罫線で区切ります。
+`[blocks]` の節は、ほかに置き場のない古い `<...>` のタグ（`QPNT`、`QforEPSL`、`hrotr`）があるときだけ現れ、複数行の文字列として持ち、GW のプログラムがそのまま読みます。
+節の順は `[gw]` `[mlo]` `[blocks]` `[product_basis]` で、`[product_basis]` がいつも最後です（`toml_tidy.py` がこの順にそろえます）。
+
+</div>
+
 ## 古い形式のディレクトリの移行 {#migration-of-an-existing-legacy-directory}
 
 ```bash
@@ -54,6 +66,44 @@ Legacy2toml.py <sname>
 
 `Legacy2toml.py` は `ecalj/SRC/exec/Legacy2toml.py` にあります（`InstallAll.py` がバイナリと一緒に `~/bin/` に入れます）。
 何度走らせても同じ結果になります。変換で生き残らないコマンドラインの `-v` の上書きがあれば、`[INFO] / [WARN] / [ERROR]` の診断を出します。
+
+<div class="clfix">
+
+### 古いキーと TOML のパスの対応 {#legacy-toml-map}
+
+古い `Category_Token` のキーの多くは、小文字にすると `[節.キー]` にそのまま対応します。名前や形が変わったものは次のとおりです（表 1）。
+キーの意味は [古い ctrl の文書](./lmf_legacy_ctrl) で引けます。
+
+表 1. 古いキーと TOML のパス
+
+| 古い `Category_Token` | TOML の場所 | 注 |
+|---|---|---|
+| `STRUC_ALAT` / `STRUC_PLAT` | `[struc].alat` / `.plat` | |
+| `SITE_ATOM=`, `POS=`, `XPOS=` | `[[site]] atom = ...; pos = [...]`（または `xpos`） | 原子ごとに `[[site]]` の表を一つ |
+| `SPEC_ATOM=`, `Z=`, `R=`, `RSMH=`, `EH=`, ... | `[[spec]] atom = ...; z = ...; r = ...; rsmh = [...]` | 種ごとに `[[spec]]` の表を一つ。`R/W=` と `R/A=` は引用符付きのキー `"r/a"` |
+| `BZ_NKABC` / `BZ_METAL` / `BZ_TETRA` | `[bz].nkabc` / `.metal` / `.tetra` | |
+| `HAM_NSPIN` / `HAM_SO` / `HAM_XCFUN` / `HAM_GMAX` / `HAM_PWMODE` / `HAM_PWEMAX` | `[ham].nspin` など | |
+| `HAM_FORCES` / `HAM_OVEPS` / `HAM_FRZWF` / `HAM_REL` | `[ham].forces` など | |
+| `HAM_ScaledSigma` | `[ham].scaledsigma` | 小文字 |
+| `HAM_READP` / `HAM_PNUFIX` | `[ham].readp` / `.pnufix` | `HAM_V0FIX` はコマンドラインのオプション `--v0fix` |
+| `esm_input.dat`（別のファイル） | **`[esm]`** の節 | 2026-09-16 にやめた。読まないので `ctrlg_absorb.py <sname>` で変換する（[ESM](./esm)） |
+| `ITER_NIT` / `ITER_MIX` / `ITER_CONV` / `ITER_CONVC` / `ITER_UMIX` / `ITER_TOLU` | `[iter].nit` / `.mix` / ... | |
+| `SYMGRP` / `SYMGRPAF` | 最上位の `symgrp = "..."`（と `symgrpaf`） | 節の中には入れない |
+| `EWALD_TOL` | `[ewald].tol` | ほとんど触らない |
+| `DYN_MODE` / `DYN_NIT` / `DYN_HESS` / ... | `[dyn].mode` など | |
+| `IO_VERBOS` / `IO_TIM` | 最上位の `verbose` / `time` | `[io]` から出した（節はなくした） |
+| `<Worb>...</Worb>` のブロック | `[mlo].mlo_lm = """ ... """` | 複数行の文字列 |
+| `<QforEPS>...</QforEPS>` のブロック | `[gw].QforEPS = """ ... """`（`QforGW` も同じ） | |
+| `n1n2n3`（GWinput） | `[gw].n1n2n3 = [k1,k2,k3]` | 整数のベクトル |
+| `HistBin_dw` / `HistBin_ratio` / `niw`（GWinput） | `[gw].HistBin_dw` など | 名前は GWinput と同じ（大文字・小文字も） |
+| `esmr`, `SmearX0` / `GaussianFilterX0`, `GaussSmear`, `delta`, `dw`, `omg_c`, `WgtQ0P`（GWinput） | `[gw].t_sigmaw` と `[gw].t_tetrakbt`（K。`t_tetrakbt` は必須） | 古いキーとその扱い: [GW の設定](./gwinput) の表 1、[kBT](./kBT) §2.5 の表 2 |
+| 積基底の上限（`<PRODUCT_BASIS>` の `tolerance`、`lcutmx`） | `[product_basis].pb_tolerance` / `.pb_lcutmx` | |
+| 積基底の原子ごとの表（`nlx`、`valence`、`core`） | `[product_basis].nlx` / `.valence` / `.core`（ファイルの最後。2026-09 より前は別の `PB.<sname>.toml`） | |
+
+全体のスキーマは [`SRC/exec/pylib/ctrl_schema.py`](https://github.com/tkotani/ecalj/blob/main/SRC/exec/pylib/ctrl_schema.py) にあります（変換の正本）。
+注釈と行末のコメントは [`SRC/exec/pylib/toml_comments.py`](https://github.com/tkotani/ecalj/blob/main/SRC/exec/pylib/toml_comments.py) が付けます。
+
+</div>
 
 ### `esm_input.dat`（スラブ） {#esm-input-dat-slabs}
 

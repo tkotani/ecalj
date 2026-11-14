@@ -32,12 +32,12 @@ lmchk gives useful information of space group symmetry recognized by lmf. In add
 ### MT radius determined by lmchk
 The ideal choice of sphere radii best approximates a potential that is spherical within the MT spheres and flat outside. Program lmchk has implemented one algorithm that makes a reasonable initial choice for MT radii. The algorithm works by computing the (electrostatic) potential obtained from overlapping free-atom densities along all connecting vectors between a given site and its relatively near neighbors. The MT radius is taken as the first potential maximum along any ray. This choice is a pretty reasonable estimate for the potential being approximately spherical inside. Also, note that for a completely symmetric bond, the potential maximum will fall exactly midway between the bond, so for that case the two sphere radii will exactly touch and have equal potentials. To tell lmchk to find these radii, invoke lmchk as
 `lmchk --getwsr`. This is performed automatically in `ctrlgenToml.py`.
-* In addition, `ctrlgenToml.py` enforces upper limits of the radius (a.u.): H 1.4, Li and Be 2.7, Na and Mg 2.4, K and Ca 2.6, Rb and Cs 2.4,
+* <del class="clfix">In addition, `ctrlgenToml.py` enforces upper limits of the radius (a.u.): H 1.4, Li and Be 2.7, Na and Mg 2.4, K and Ca 2.6, Rb and Cs 2.4,
   Sr and Ba 2.8, others 3.0 (`r_upper_limit`; H, Rb and Cs from 2026-10-07, before H had none and Rb, Cs 2.8).
   A large sphere around an atom whose valence states are spread out (alkali s, H 1s) gains nothing: those states are carried by the
   envelope functions outside. It can instead make ghost levels, because the part of the envelope functions that augmentation throws
   away inside the sphere is left undetermined (Rb2Sc2O4 with Rb 2.8 a.u. had them in LDA). Atoms with a bound d (Sr 4d, Ba 5d) keep a
-  larger sphere: the d must sit inside it. The example and the scan: [mtradius.md](./mtradius.md).
+  larger sphere: the d must sit inside it. The example and the scan: [mtradius.md](./mtradius.md).</del><span class="clfix">`ctrlgenToml.py` also caps the radius of some atoms (`r_upper_limit`); the limits and the reason (ghost levels) are in [MT radius](./mtradius).</span>
 
 * When we treat molecules (especially dimers), we have to use very small size of MT radius. T.Kotani checked PMT works well even for such systems. However, we need examination a little more.
 
@@ -55,7 +55,7 @@ This is a case with `ctrlg.si.toml`.
 * quit option at some point: `--quit=show`, `--quit=ham`, `--quit=mkpot`, `--quit=dmat`, `--quit=band` (see [Command-line options](./cmdopts)).
 * `--tdos`
 total dos calculation. But we usually use `job_tdos'
-* `--ctrlg:<dotted.path>=<value>` : Runtime override of a key in `ctrlg.<sname>.toml`. The path uses dotted TOML syntax (e.g. `--ctrlg:bz.nkabc=[8,8,8]`, `--ctrlg:ham.scaledsigma=0.8`, `--ctrlg:ham.phispinsym=true`, `--ctrlg:verbose=50`, `--ctrlg:spec.1.r=2.5` for the 1st `[[spec]]`). Substituted into the in-memory TOML before parsing; the file on disk is untouched. Each applied override is logged on rank 0. Older syntaxes (`-vfoo=val`, `-v[<path>]=val`, `--[<path>]=val`, `--toml.<path>=val`, `--pr=N`, `--time=N,M`, `--phispinsym`) abort with a one-line migration hint.
+* <del class="clfix">`--ctrlg:<dotted.path>=<value>` : Runtime override of a key in `ctrlg.<sname>.toml`. The path uses dotted TOML syntax (e.g. `--ctrlg:bz.nkabc=[8,8,8]`, `--ctrlg:ham.scaledsigma=0.8`, `--ctrlg:ham.phispinsym=true`, `--ctrlg:verbose=50`, `--ctrlg:spec.1.r=2.5` for the 1st `[[spec]]`). Substituted into the in-memory TOML before parsing; the file on disk is untouched. Each applied override is logged on rank 0. Older syntaxes (`-vfoo=val`, `-v[<path>]=val`, `--[<path>]=val`, `--toml.<path>=val`, `--pr=N`, `--time=N,M`, `--phispinsym`) abort with a one-line migration hint.</del><span class="clfix">`--ctrlg:<section.key>=<value>`: overrides a key for one run; see [Command-line options](./cmdopts#run-time-ctrlg-overrides).</span>
 
 We have some kinds of options for electron density plot, boltztrap and so on.
 (not yet described).
@@ -87,7 +87,7 @@ We have some kinds of options for electron density plot, boltztrap and so on.
         Broyden mixing scheme to accelerate convergence towards
         self-consistency.  `lmf` discards the file of a previous run
         at start (the option `--keepmixm` keeps it), so that it is not
-        used in a new calculation (such as changing the lattice constant).
+        <del class="clfix">used in a new calculation (such as changing the lattice constant).</del><span class="clfix">used in a new calculation (such as changing the lattice constant). A history left by a run that ended non-magnetic drags a new spin-polarized run onto the non-magnetic solution at the first Broyden step (Fe: 2.13 → 0.02 μB). Only `rst.<sname>` carries over; if you change `nspin` on top of an existing `rst`, delete `rst.<sname>` first.</span>
 
 
 
@@ -103,12 +103,23 @@ to live in `GWinput`, including the per-atom product-basis tables that
 close the file.  Run `Legacy2toml.py <sname>` inside any old working
 directory to generate it.
 
+<div class="clfix-old">
+
 > **The `[product_basis]` tables `nlx` / `valence` / `core` are for the GW
 > path** (consumed by `hbasfp0` / `hvccfp0` / etc. when generating the
 > mixed product basis). They are written by `gwinit` (through
 > `ctrlgenToml.py` or `Legacy2toml.py`) and **do not normally need hand
 > editing**; the cut-offs `pb_tolerance` / `pb_lcutmx` above them are what
 > you tune. (Before 2026-09 the tables were a separate `PB.<sname>.toml`.)
+
+</div>
+
+<div class="clfix">
+
+The `[product_basis]` tables at the end of the file are for GW; `gwinit` writes them and they are normally not edited by hand. See [gwsc: Product basis](./gwsc#product-basis).
+
+</div>
+
 
 ### Console output {#reading-the-output}
 Console output is now mainly for debug purpose. 
@@ -118,7 +129,7 @@ From console output, we can check convergence behavior, band energies, Fermi ene
 ### `save.<sname>` and `log.<sname>` {#save-sname}
 * `save.<sname>` records starting history invoking lmf, lmchk, and lmfa. In addition, it gives total energies, a line
 per iteration of lmf. At each line, <del class="clfix">'i: intermediate, c: converged, x: iteration max without converged'.</del><span class="clfix">the first letter is c: converged, x: iteration max reached without convergence, i: intermediate, h: first iteration (Harris energy from the superposed free-atom densities), C: structural relaxation converged (`svflg='cxhiC'` in `m_lmfp.f90`).</span>
-* In addition, `--ctrlg:<dotted.path>=<value>` overrides (e.g. `--ctrlg:ham.scaledsigma=0.8`) are recorded. Older forms (`-vfoobar=val`, `-v[<path>]=val`, `--[<path>]=val`, `--toml.<path>=val`, `--pr=N`, `--time=N,M`, `--phispinsym`) all abort with a migration hint.
+* <del class="clfix">In addition, `--ctrlg:<dotted.path>=<value>` overrides (e.g. `--ctrlg:ham.scaledsigma=0.8`) are recorded. Older forms (`-vfoobar=val`, `-v[<path>]=val`, `--[<path>]=val`, `--toml.<path>=val`, `--pr=N`, `--time=N,M`, `--phispinsym`) all abort with a migration hint.</del><span class="clfix">The `--ctrlg:` overrides used are recorded too.</span>
 
 * Two total energies Kohn-Sham and Harris-Foulkes are given---[both should be virtually the same](lmf.md#q-should-the-harris-foulkes-and-hohenberg-kohn-sham-functionals-agree-at-self-consistency). 
 But some differences for bigger systems. Take one of them.
@@ -149,6 +160,8 @@ time    = [0, 0]        # CPU timing log: [depth, on-the-fly]
 [product_basis]   pb_tolerance / pb_lcutmx + nlx / valence / core   (always the last section)
 ```
 
+<div class="clfix-old">
+
 > **Do not write `nbas` / `nspec`** (2026-09-28). The numbers of sites and
 > species are the numbers of `[[site]]` / `[[spec]]` tables, and `lmf`
 > stops if `[struc]` carries `nbas` or `nspec`. A count written beside the
@@ -158,6 +171,14 @@ time    = [0, 0]        # CPU timing log: [depth, on-the-fly]
 > two lines; if `nbas` was smaller than the tables (the old way to use only
 > the first sites), it comments out the `[[site]]` blocks beyond it, so the
 > calculation stays the same.
+
+</div>
+
+<div class="clfix">
+
+Do not write `nbas` / `nspec` in `[struc]`; see [Input file](./toml_migration#an-older-ctrlg-sname-toml-ctrlg-update-py).
+
+</div>
 
 ## Worked example: bcc-Cu (FCC, 1 atom, non-magnetic)
 
@@ -285,6 +306,8 @@ core = [
 (`QforEPS` / `QforGW`, the q-point lists, sit at the end of `[gw]` as
 multi-line strings; the example above shows them.) That's the entire input.
 
+<div class="clfix-old">
+
 Layout convention of the generated files (`ctrlgenToml.py`, `gwinit`,
 `Legacy2toml.py` and the formatter `pylib/toml_tidy.py` all produce it): a
 blank line separates only the big headings — the `# === X ===` comment
@@ -299,7 +322,17 @@ parsed opaquely by the GW driver; when present it sits between `[mlo]` and
 `[product_basis]`, which always closes the file (`toml_tidy.py` enforces the
 order `[gw]` `[mlo]` `[blocks]` `[product_basis]`).
 
+</div>
+
+<div class="clfix">
+
+The layout of the generated files (blank lines, `# ----` rules, the order of the sections) is in [Input file](./toml_migration#file-layout).
+
+</div>
+
 ### Per-physics deltas (from the Cu starting point)
+
+<div class="clfix-old">
 
 - **Spin-polarized metal** (Fe, Ni, FeCo): set `[ham].nspin = 2` and
   add `mmom = [0, 0, 2.5]` (or per-l guess) to each `[[spec]]`. Start from
@@ -321,6 +354,19 @@ order `[gw]` `[mlo]` `[blocks]` `[product_basis]`).
   set `[[site]].relax = [1, 1, 1]` per atom. See [Forces and relaxation](./relax).
 - **GW BZ mesh**: keep `[gw].n1n2n3` ≤ `[bz].nkabc` (often 1/2 or 2/3 of
   it) — `n1n2n3` dominates GW wall-time.
+
+</div>
+
+<div class="clfix">
+
+- **Spin-polarized**: `[ham].nspin = 2` and `mmom` in each `[[spec]]`; see [Other notes](./UsageDetailed#spin-polarized-case-without-soc). Start from a clean directory (see `__mixm.<sname>` above).
+- **SOC**: `[ham].so = 1` (L·S) or `2` (Lz·Sz only) with `[ham].nspin = 2`; see [Other notes](./UsageDetailed#spin-orbit-coupling) and `Samples/MLOsamples/FeSoc/`.
+- **Insulator / semiconductor** (Si, GaAs): `[bz].metal = 0` and `[bz].tetra = true`; smaller `[bz].nkabc`; `[ham].pwemax` ~3 is enough.
+- **LDA+U**: see [LDA+U](#lda-u-toml) below.
+- **Atomic-position relaxation**: see [Forces and relaxation](./relax).
+- **GW BZ mesh**: `[gw].n1n2n3` ≤ `[bz].nkabc`; see [GW settings](./gwinput).
+
+</div>
 
 ## Run-time `--ctrlg:` overrides
 
@@ -353,6 +399,8 @@ rewrite of the .toml file takes place.
 一回の実行だけキーを変えるには `--ctrlg:<節.キー>=<値>` を付けます（例 `lmf si --ctrlg:bz.nkabc=[8,8,8]`）。ファイルは書き換えません。書き方の細部、ファイルに無いキーの扱い、やめた古い書き方（`-v<NAME>=<VAL>` など。使うと止まります）は [Command-line options](./cmdopts#run-time-ctrlg-overrides) にあります。
 
 </div>
+
+<div class="clfix-old">
 
 ## Legacy `ctrl.<sname>` ↔ TOML path map
 
@@ -389,8 +437,26 @@ The full schema lives in
 applied by
 [`SRC/exec/pylib/toml_comments.py`](https://github.com/tkotani/ecalj/blob/main/SRC/exec/pylib/toml_comments.py).
 
+</div>
+
+<div class="clfix">
+
+## Legacy `ctrl.<sname>` ↔ TOML path map
+
+Moved to [Input file](./toml_migration#legacy-toml-map).
+
+</div>
+
 
 ---
+
+<div class="clfix">
+
+ESM（真空のあるスラブ）の `[esm]` の節は [ESM](./esm) のページにある。
+
+</div>
+
+<div class="clfix-old">
 
 # ESM (Effective Screening Medium)
 
@@ -412,7 +478,10 @@ moment all agree to 8–13 digits, so nothing looks wrong until you compare
 Fermi energies. Two directories that differ only in whether ESM was on will
 produce band plots on different energy zeros.
 
-ESM（真空のあるスラブ）の `[esm]` の節は [ESM](./esm) のページにある。
+
+</div>
+
+<div class="clfix-old">
 
 ## mixbeta and mixpriorit {#mixbeta-and-mixpriorit}
 If not stable convergence in gwsc, try setting
@@ -443,6 +512,16 @@ Example, `Samples/TestInstall/si_gwsc`, one `gwsc 1` from LDA (2026-09-26):
 | $\beta=0.5$ | 6.0488 → 3.0244 | 0.934 eV (half the shift) |
 
 MLO-gwsc (`gwsc --mlo`) mixes $\Sigma^{\rm MLO}$ the same way with the same `mixbeta` by default (history in `__QMLO_mixsig`; the environment variable `ECALJ_MLO_MIX=0` turns it off). Its $x_0$ is the Bloch sum of `QMLO_SigRs`, the counterpart of `sigm` here, so the history may be deleted; see [MLO-gwsc](./mlo_gwsc).
+
+</div>
+
+<div class="clfix">
+
+## Convergence of lmf
+
+If lmf itself does not converge, use a smaller `[iter] b`, such as 0.015, 0.01, 0.005. The mixing of the self-energy in gwsc (`[gw].mixbeta`, `mixpriorit`) is in [gwsc](./gwsc#mixbeta-and-mixpriorit).
+
+</div>
 
 ## Check used MTOs
  Near beginning of console output, what MTO you use is shown as: (GaAs case).
@@ -711,4 +790,4 @@ memo) has been moved to a dedicated page:
 
 That page is the canonical place to look up the *meaning* of a legacy
 key, then translate to TOML via the
-[Legacy ↔ TOML map](#legacy-ctrl-lt-sname-gt-↔-toml-path-map) above.
+[Legacy ↔ TOML map](./toml_migration#legacy-toml-map).

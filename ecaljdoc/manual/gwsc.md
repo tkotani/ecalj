@@ -123,6 +123,39 @@ In principle, the number is determined by<span class="clfix"> the energy window:
 
 ---
 
+<div class="clfix">
+
+## 反復の混合: mixbeta と mixpriorit {#mixbeta-and-mixpriorit}
+
+`gwsc` の収束が不安定なときは、`ctrlg.<sname>.toml` で `[gw].mixbeta = 0.5` を試してください。
+（`lmf` 自身が収束しないときは、`[iter] b` を 0.015、0.01、0.005 のように小さくします。）
+
+すること: 反復の終わりごとに、`hqpe_sc` が静的な自己エネルギー `sigm` を混合します。
+その反復で使った `sigm` を $x_0$、GW が新しく作ったものを $f$ とすると、次の `sigm` は
+
+$$x_{\rm new} = x^* + \beta\,(f^* - x^*) \tag{M1}$$
+
+です。$x^*$、$f^*$ は、いまの反復と、最大 `mixpriorit` 回前までの反復の Anderson の組み合わせです（履歴は `__mixsig`）。
+$\beta$ = `mixbeta`（既定 1.0）、`mixpriorit` の既定は 3 です。前の反復が無いときは $x^*=x_0$、$f^*=f$ で、ただの線形混合になります。
+
+**LDA からの最初の反復。** 前の `sigm` も履歴も無いので $x_0=0$（自己エネルギーなし、つまり LDA）で、式 (M1) は $\beta f$ になります。
+最初の一歩は GW の自己エネルギーの $\beta$ 倍だけを取ります。既定の $\beta=1$ なら全部、$\beta=0.5$ なら半分です。
+2 回目もまた線形混合（履歴は一つ）で、Anderson の外挿は 3 回目から始まります。
+収束した結果は $\beta$ によりません。変わるのは途中の道筋だけです。
+`Samples/TestInstall/si_gwsc` で、LDA から `gwsc 1` を一回回した例（2026-09-26）を表 M1 に示します。
+
+表 M1. `mixbeta` と最初の反復
+
+| | 混合の前 → 後の `sigm` | バンドギャップ |
+|---|---|---|
+| LDA | — | 0.571 eV |
+| $\beta=1.0$（既定） | 6.0488 → 6.0488 | 1.293 eV |
+| $\beta=0.5$ | 6.0488 → 3.0244 | 0.934 eV（ずれの半分） |
+
+MLO-gwsc（`gwsc --mlo`）の $\Sigma^{\rm MLO}$ の混合は [MLO-gwsc](./mlo_gwsc) の §1.6 にあります。
+
+</div>
+
 # Other scripts 
 
 `cleargw`: clean up temporary files

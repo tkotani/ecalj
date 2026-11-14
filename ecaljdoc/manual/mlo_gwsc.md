@@ -133,7 +133,7 @@ $\Sigma^{\rm MLO}$ には `sigm` と同じ Anderson 混合（β = `[gw] mixbeta`
 - 履歴は `__QMLO_mixsig`（`sigm` 側は `__mixsig`）。混合の入力 $x_0$（その反復が実際に使った $\Sigma^{\rm MLO}$）は、
   `QMLO_SigRs` を既約 $q$ で Bloch 和したもの（`getsenex` が $H$ に入れたのと同じ行列）。`sigm` の混合での `sigm` と同じ役なので、履歴は捨ててもよい
 - **初回（LDA から）は $\beta$ 倍から始まる**: 前の $\Sigma$ が無いので $x_0=0$（$\Sigma=0$）から混合し、iteration 1 は $\beta\Sigma^{\rm out}$。
-  `sigm` も $\Sigma^{\rm MLO}$ も $\beta$ 倍で、既定の $\beta=1$ なら全量が入る（LiTi₂O₄ は $\beta=0.5$。[mixbeta](./lmf#mixbeta-and-mixpriorit)）
+  `sigm` も $\Sigma^{\rm MLO}$ も $\beta$ 倍で、既定の $\beta=1$ なら全量が入る（LiTi₂O₄ は $\beta=0.5$。[mixbeta](./gwsc#mixbeta-and-mixpriorit)）
 
 ### 1.7 MLO バンドの描き方
 

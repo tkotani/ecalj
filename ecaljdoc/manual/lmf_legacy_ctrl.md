@@ -7,10 +7,10 @@
 > `Category_Token` documentation here is still the most thorough
 > per-key reference; treat it as the canonical place to look up the
 > *meaning* of a key, then translate to TOML via the
-> [`Legacy ↔ TOML map`](./lmf#legacy-ctrl-lt-sname-gt-↔-toml-path-map).</del>
+> [`Legacy ↔ TOML map`](./toml_migration#legacy-toml-map).</del>
 > <span class="clfix">The keys of the present input are described in [lmf](./lmf) (ctrl side) and [GW settings](./gwinput) (GW side).
 > This page is kept as a record; its `Category_Token` notes may still help to read the meaning of an old key
-> (the [`Legacy ↔ TOML map`](./lmf#legacy-ctrl-lt-sname-gt-↔-toml-path-map) gives the TOML path).</span>
+> (the [`Legacy ↔ TOML map`](./toml_migration#legacy-toml-map) gives the TOML path).</span>
 >
 > If you are starting fresh, ignore this page entirely and read
 > [`lmf`](./lmf) instead. If you are migrating an old working
