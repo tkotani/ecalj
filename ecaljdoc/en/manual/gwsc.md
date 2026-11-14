@@ -1,6 +1,6 @@
 # gwsc: a script to run QSGW calculations
 
-> English version of the page [manual/gwsc](../../manual/gwsc.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwsc.md of commit 9945420a9 (source blob 74e4ccf8e0ed).
+> English version of the page [manual/gwsc](../../manual/gwsc.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwsc.md of commit e98a6e686 (source blob f5ccb52eaa6a).
 
 gwsc is the script to run QSGW calculations.
 A QSGW calculation is run by calling several Fortran executables.
@@ -23,7 +23,7 @@ Specify only when using the GPU version.
 Precision of the GW part. `fp64` is the double-precision version; `fp32` is the mixed-precision version with single-precision products in FP32 (same as `--mp --fp32`);
 `tf32` is `fp32` except that only the last product of Σc uses a 10-bit mantissa for the inputs (TF32 or FP16, chosen by a per-GPU table). The legacy `--mp` alone is the same as `tf32`.
 Which method computes products and inverse matrices on the GPU is chosen automatically by a table measured at installation (`<bindir>/ecalj_linalg_policy.toml`).
-Accuracy and speed are compared in [GPU manual § choosing the precision](./ecaljgpu#choosing-the-precision-and-automatic-selection-of-matrix-operations-2026-09).
+Accuracy and speed are compared in [GPU manual § choosing the precision](./ecaljgpu#gpu-precision).
 When given together with `--mp` and `--fp32`, they must not contradict (a contradiction stops the run).
 
 ### `--prec-final=<prec>[:N]` (2026-09)
@@ -31,10 +31,10 @@ Use a different precision only for the last N iterations of the run (default 1).
 
 ### `--no-tetwt-helper` (2026-09)
 With `--gpu`, do not use the helper run that computes the tetrahedron weights on the CPU beforehand (`hgw --tetwt_write`).
-It is used by default ([GPU manual § tetrahedron weights](./ecaljgpu#computing-the-tetrahedron-weights-first-on-the-cpu)).
+It is used by default ([GPU manual § tetrahedron weights](./ecaljgpu#gpu-tetwt-cpu)).
 
 ### `--mp`
-Use the mixed-precision version. Since 2026-09-27 it means the same as `--prec=tf32`. The earlier meaning, and the cases where TF32 broke $W$, are in [GPU manual § mixed precision](./ecaljgpu#mixed-precision-mp-and-fp32).
+Use the mixed-precision version. Since 2026-09-27 it means the same as `--prec=tf32`. The earlier meaning, and the cases where TF32 broke $W$, are in [GPU manual § mixed precision](./ecaljgpu#gpu-mp-fp32).
 
 ### `--fp32` (2026-06)
 Used with `--mp`; same meaning as `--prec=fp32` (the products of Σc also in FP32). The GW1500 batch of ecalj_auto (`gwscconv --gpu --mp --fp32 --conv-tol 0.1`) uses this by default.
