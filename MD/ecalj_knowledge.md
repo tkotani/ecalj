@@ -74,6 +74,7 @@ ecaljdoc の書き方の決まり（公開）は [`ecaljdoc/manual/writing_docs.
 - 「2 種の MPB」は M（もとの混合積基底 $M_I$、直交しない）と E（Coulomb を対角にする直交基底 $E_\mu=\sum_I z_{\mu I}M_I$、係数は `zcousq`）のこと（user 2026-11-15）。
   `hgw` は χ0 の足し込みと Σc を M で（`build_zmel(..., is_m_basis=.true.)`）、ε の逆行列と W^c を E で（`m_llw` で ngb×ngb を変換）、Σx を E で行う。W^c は M でしまう。
   `hx0fp0` は E だけ。論文 Obata 2025 は E だけで書いている。詳しくは [`ecaljdoc/manual/dev_impl.md`](../ecaljdoc/manual/dev_impl.md) の (I14a)
+- コアの交換項 Σ^Cx 用の MPB_C（M_C と E_C）は別にあり、使っている: `gwsc` で `hbasfp0 --job=3`（M_C、コア×価電子の動径関数、`incwfin=-2`）→ `hvccfp0 --job=3`（Coulomb 行列と E_C、`__Vcoud.*` はあとの `--job=0` で上書き）→ `hsfp0_sc --job=3`（E_C で Σ^Cx）。dev_impl の (I15) の下
 
 ### 出力とファイル
 - `save.<sname>` の行の先頭の文字は `svflg='cxhiC'`（`m_lmfp.f90`）: c 収束、x 上限に達した、h 最初（Harris）、i 途中、C 緩和の収束

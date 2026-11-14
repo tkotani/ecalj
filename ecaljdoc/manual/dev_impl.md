@@ -293,8 +293,11 @@ Z^{\mathbf q-\mathbf k n',\mathbf q m}_{\mathbf k\mu}.
 \end{aligned}
 \tag{I15}
 $$
-Replacing the occupied valence states $\Psi_{\mathbf q-\mathbf k n'}$ with the core states gives the core exchange $\Sigma^{\rm Cx}$;
-its MPB differs from that for the valence, since it represents products of the core and valence eigenfunctions.
+Replacing the occupied valence states $\Psi_{\mathbf q-\mathbf k n'}$ with the core states gives the core exchange $\Sigma^{\rm Cx}$.
+Its MPB (MPB$_{\rm C}$, written $M_{{\rm C}I}$ and $E_{{\rm C}\mu}$ here) differs from that for the valence, since it represents products of the core and valence eigenfunctions.
+`gwsc` makes it in a separate step before the valence part: `hbasfp0 --job=3` makes the product basis $M_{\rm C}$ (`genallcf_v3` with `incwfin=-2`: the core states times the valence radial functions),
+`hvccfp0 --job=3` makes the Coulomb matrix in it and its eigenvectors ($E_{\rm C}$, in `__Vcoud.*`, which are overwritten by the valence `hvccfp0 --job=0` afterwards),
+and `hsfp0_sc --job=3` evaluates Eq. (I15) with the core states in the $E_{\rm C}$ basis.
 
 The screened Coulomb interaction is given in the symmetric form ([Obata2025] Eqs. (10), (11))
 $$
