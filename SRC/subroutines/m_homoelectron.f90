@@ -1,6 +1,5 @@
 !>homogenious electron gas module
 module m_homoelectron
-  use m_keyvalue,only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, tg_ene_sppola => ene_sppola
   implicit none
   public:: Read_qgband,Efermi_egas

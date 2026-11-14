@@ -11,7 +11,6 @@ subroutine hqpe() bind(C)  ! Jul,2000 t.kotani started from hqpe by Ferdi.Aryase
   ! SEx and xcLDA are in file SEX
   ! SEc is in file SEC
   use m_genallcf_v3,only: genallcf_v3; use m_struct_from_lmf,only: laf
-  use m_keyvalue,only: getkeyvalue
   use m_mpi,only: MPI__Initialize
   implicit real*8 (a-h,o-z)
   implicit integer(i-n)

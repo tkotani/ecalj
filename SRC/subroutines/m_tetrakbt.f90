@@ -3,7 +3,6 @@
 !! (2026-10-02 05:26) The old midpoint-factorization routines (tetrakbt, eaf_triangle, factri, ... ; they gave a wrong
 !! chi0 and were no longer called) are removed; the diagnosis and how to get them back: MD/past_log.md §13.
 module m_tetrakbt
-  use m_keyvalue,only: getkeyvalue
   implicit none
   public:: tetrakbt_init, kbt,integtetn
   private

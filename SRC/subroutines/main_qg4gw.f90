@@ -47,7 +47,6 @@ subroutine qg4gw() bind(C)
   !! True q+G is given by
   !!    qplusG(1:3,igp) = 2*pi/alat * (q + matmul(qlat * ngvec(1:3,igp))), for igp=1,ngp
   !! ----------------------------------------------------------------------
-  use m_keyvalue,only: getkeyvalue
   use m_mpi,only: MPI__Initialize,MPI__root
   use m_lgunit,only: m_lgunit_init
   implicit none

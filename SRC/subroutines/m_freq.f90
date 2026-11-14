@@ -71,7 +71,6 @@ contains
   end subroutine getfreq2
   !----------------
   subroutine Getfreq(epsmode,realomega,imagomega,omg2max,wemax,niw,ua,npmtwo,dw,ratio) !,tetra
-    use m_keyvalue,only: getkeyvalue
     use m_GWinput, only: gwinput_init, gwinput_loaded, &
                          tg_HistBin_ratio => HistBin_ratio, &
                          tg_HistBin_dw    => HistBin_dw
@@ -211,7 +210,6 @@ end subroutine freq01x
 subroutine getwemax(lqall,wemax)!> In order to get |e_ip-ef| on real space integration ! too complicated ---> need to fix in future
   use m_read_bzdata,only: read_bzdata, nqibz,qibz,ginv,qbz,nqbz,wibz
   use m_struct_from_lmf,only: nspin,z,nl,natom,nband,laf; use m_core_state,only: konf; use m_gw_user_config,only: esmr,deltaw !,anfcond
-  use m_keyvalue,only:getkeyvalue
   use m_readeigen,only: readeval !init* is alreaday called.
   use m_ReadEfermi,only: ef !ef is set at main routine
   use m_nvfortran

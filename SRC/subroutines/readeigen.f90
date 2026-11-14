@@ -12,7 +12,6 @@ module m_readeigen
   use m_hamindex,only:   plat,invgx, miat,tiat,dlmm,shtvg,symops,lmxax,nbas
   use m_read_bzdata,only: ginv
   use m_struct_from_lmf,only: nsp=>nspin, mrecb,mrece,mrecg,nband,nspc; use m_gw_product_basis,only: ndima,ndimanspc,nspx
-  use m_keyvalue,only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, tg_KeepQG => KeepQG
   use m_keep_wfs,only: keep_wfs_init, update_keep_geig, update_keep_cphi, set_geig_from_keep, set_cphi_from_keep
   use m_sharedmem, only: shm_init, shm_rank, shm_alloc_c8_4d, shm_barrier

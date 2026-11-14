@@ -18,7 +18,6 @@ contains
     !     xcLDA(k,t) = <psi(k,t)| vxc |psi(k,t)>
     !     SEx and xcLDA are in file SEX
     !     SEc is in file SEC
-    use m_keyvalue,only: Getkeyvalue
     use m_read_bzdata, only: Read_bzdata, nstar, nqibz2=>nqibz, nqbz,nqibz,  n1,n2,n3
     use m_hamindex,only: Readhamindex, nhq=>ndham
     use m_mpi,only: MPI__Initialize, mpi__rank
@@ -407,7 +406,6 @@ contains
     !i        nmix < 0: use mmix instead of nmix.
     !o  nmix: (abs)  number of iter actually mixed.
     !o        (sign) <0, intended that caller update nmix for next call.
-    use m_keyvalue,only: getkeyvalue
     implicit none
     logical :: lsigin
     integer :: nda,nmix,mmix

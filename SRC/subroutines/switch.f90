@@ -65,7 +65,6 @@ real(8) function deltaq_scale()
   ! Q0Pchoice=1: qzerolimit. (not too small because of numerical reason.)
   ! Q0Pchoice=2: =1d0/3.0**.5d0/Q is the mean value of \int_{|q|<Q} d^3 q <1/q^2> for a sphere.
   ! deltaq_scale (toml, real): if >0 it directly sets the offset-Gamma magnitude scale, overriding Q0Pchoice.
-  use m_keyvalue,only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, tg_Q0Pchoice => Q0Pchoice, tg_dqs => DeltaQscale
   integer,save :: ttt=1
   real(8),save :: dqs=-1d0
@@ -119,7 +118,6 @@ real(8) function screenfac()
   ! Formally scrennfac=0d0 is correct, however, we can not choose too small screenfac
   ! in out current implementation. For example,
   ! screenfac=-1d-8 gives NaN for GaAs222 test-->This gives negative eigenvalue of Vcoul for q=0
-  use m_keyvalue,only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, tg_TFscreen => TFscreen
   real(8):: ddd
   real(8),save :: tss
@@ -151,7 +149,6 @@ logical function evaltest()
   evaltest=.false.
 end function evaltest
 logical function TimeReversal()
-  use m_keyvalue,only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, tg_TimeReversal => TimeReversal
   logical,save:: init=.true.,trevc
   if(init) then
@@ -199,7 +196,6 @@ complex(8) function NaNcmpx()
   NaNcmpx=cmplx(NaNdble(),NaNdble())
 END function NaNcmpx
 logical function rmeshrefine()
-  use m_keyvalue,only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, tg_rmeshrefine => rmeshrefine
   call gwinput_init()
   if (gwinput_loaded) then
@@ -211,7 +207,6 @@ logical function rmeshrefine()
 end function rmeshrefine
 real(8) function delrset()
   ! dr/dI at rmat. used for rmeshrefin=T case
-  use m_keyvalue,only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, tg_dRdIatRmax => dRdIatRmax
   call gwinput_init()
   if (gwinput_loaded) then
@@ -222,7 +217,6 @@ real(8) function delrset()
   endif
 END function delrset
 logical function qbzreg()
-  use m_keyvalue,only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, tg_chi_RegQbz => chi_RegQbz
   logical,save:: init=.true.,ccrq
   if(init) then
@@ -268,7 +262,6 @@ logical function qreduce() !
 end function qreduce                !(But I think true is OK---not tested completely).
 ! Long-range-only Coulomb interaction
 real(8) function eees()
-  use m_keyvalue,only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, tg_removed_r0c => removed_r0c
   logical,save:: init=.true.
   real(8),save:: eee
@@ -309,7 +302,6 @@ integer(4) function zvztest()
   !                    1    0    3    1    1   ! 1S_l
 END function zvztest
 logical function matrix_linear()
-  use m_keyvalue,only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, &
                        tg_tetrahedron_matrix_linear => tetrahedron_matrix_linear
   ! Use linear interpolation for matrix elements (numerator) in tetrahdron-weight's calculation.
@@ -328,7 +320,6 @@ logical function matrix_linear()
   matrix_linear=matrix_linear0
 end function matrix_linear
 logical function KeepEigen()
-  use m_keyvalue,only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, tg_KeepEigen => KeepEigen
   !! Keep data from CPHI and GEIG in memory or not; in readeigen
   ! KeepEigen=T : speed up
@@ -357,7 +348,6 @@ end function KeepEigen
 !$$$      core_orth=core_orthx
 !$$$  end
 integer(4) function verbose()
-  use m_keyvalue,only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, gwinput_available, tg_Verbose => Verbose
   logical,save ::init=.true.,ggg
   !      logical:: readgwinput
@@ -382,7 +372,6 @@ integer(4) function verbose()
   verbose=verbosex
 END function verbose
 integer function q0pchoice()
-  use m_keyvalue,only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, tg_Q0P_Choice => Q0P_Choice
   !- Switch whether you use new seeting Q0P (offsetted Gamma).
   ! q0pchoice=0: old---along plat
@@ -409,7 +398,6 @@ logical function tetra_hsfp0()
   tetra_hsfp0=.false.
 end function tetra_hsfp0
 real(8) function escale()
-  use m_keyvalue,only: getkeyvalue   !c--- used q0pchoice<0 mode -------
   use m_GWinput, only: gwinput_init, gwinput_loaded, tg_q0scale => q0scale
   call gwinput_init()
   if (gwinput_loaded) then
@@ -420,7 +408,6 @@ real(8) function escale()
   endif
 END function escale
 integer(4) function normcheck()
-  use m_keyvalue,only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, tg_NormChk_int => NormChk_int
   ! write normcheck files or not
   ! normcheck=0: not

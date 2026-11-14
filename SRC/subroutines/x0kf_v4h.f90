@@ -1,7 +1,6 @@
 !> get zxq and zxqi for given q
 module m_x0kf
   use m_lgunit,only: stdo
-  use m_keyvalue,only : Getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, tg_zmel_batch_gb => zmel_batch_gb
   use m_pkm4crpa,only : Readpkm4crpa
   use m_zmel,only: build_zmel, zmel

@@ -18,7 +18,6 @@ subroutine wmatqk_mpi(kount,irot,nrws1,nrws2,nrws,  tr, iatomp, &
   use m_ftox
   use m_readqg,only: readqg0
   ! use m_wan_wfs,only:readcphiw !the Wannier functions, removed 2026-10-02 (tag last-wannier)
-  use m_keyvalue,only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, &
                        tg_nbcutlow_sig => nbcutlow_sig, &
                        tg_TestOnlyQ0P  => TestOnlyQ0P, &

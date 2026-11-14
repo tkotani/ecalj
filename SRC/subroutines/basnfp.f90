@@ -1,6 +1,5 @@
 subroutine basnfp_v2(nocc,nunocc,nindx, lmxax,nn,nrx,nrofi,r,aa,bb,ic, & !Generate product basis siwhin MT
        phitoto,phitotr,nsp,nclass, cutbase,lcutmx,ixx,alat,nc_max)
-  use m_keyvalue,only:getkeyvalue
   use m_ll,only: ll
   use m_read_bzdata,only: Read_bzdata, q0i,nq0i,wqt=>wt
   use m_struct_from_lmf,only: lmxa

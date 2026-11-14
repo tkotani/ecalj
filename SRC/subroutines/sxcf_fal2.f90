@@ -36,7 +36,6 @@ subroutine sxcf_fal3z(&
      zsec,coh,exx)
   use m_readqg,only:readqg0
   use m_readeigen,only: readeval
-  use m_keyvalue,only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, tg_gauss_img => gauss_img, tg_wcsmear => wcsmear
   use m_zmel,only: build_zmel, set_m2e_prod_basis, zmel
   use m_readVcoud,only:   Readvcoud, vcoud,vcousq,zcousq,ngb,ngc

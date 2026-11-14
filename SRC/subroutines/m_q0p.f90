@@ -26,7 +26,6 @@ module m_q0p
   private
 contains
   subroutine getallq0p(iq0pin,alat,plat,qlat,nnn,alp,alpv,nqbz,nqibz,nstbz,qbz,qibz,wibz,symops,ngrp,lnq0iadd) !! All arguments are input.
-    use m_keyvalue,only: getkeyvalue
     use m_GWinput, only: gwinput_init, gwinput_loaded, &
                          tg_QforEPSunita => QforEPSunita, &
                          tg_QforEPSau    => QforEPSau, &
@@ -240,7 +239,6 @@ contains
   end subroutine getallq0p
   !! ==================================================================
   subroutine getq0p(alat,plat,qlat,nnn,alp,alpv,ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect,lnq0iadd) !! All arguments are input.
-    use m_keyvalue,only: getkeyvalue
 !    use m_scg,only: rotcg
     intent(in)::    alat,plat,qlat,nnn,alp,alpv,ngcxx,ngcx,nqbz,nqibz,nstbz,qbz,qibz,symops,ngrp,ngvect,lnq0iadd
     !! output

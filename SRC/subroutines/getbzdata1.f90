@@ -8,7 +8,6 @@ module m_get_bzdata1 ! bzmesh data, tetra are included in this routine.
   private
 contains
   subroutine getbzdata1(qlat,nnn, symops,ngrp,tetrai,tetraf,gammacellctrl) !mtet
-    use m_keyvalue,only: getkeyvalue
     use m_GWinput, only: gwinput_init, gwinput_loaded, tg_ngcell => ngcell
     use m_tetirr,only: ccutup
     use m_cmdopt_registry, only: c0_avoidgamma
@@ -578,7 +577,6 @@ contains
   real(8) function xqconv(x)!x --> xqconv : uniform to non uniform mesh converter
     !! x is [0,1] --> xqcon = [0,1]
     !! x can be -1 <= x =< 1
-    use m_keyvalue,only: getkeyvalue
     use m_GWinput, only: gwinput_init, gwinput_loaded, gwinput_available, tg_BZadiv => BZadiv
     real(8),intent(in)::x
     real(8),parameter:: pi=4d0*atan(1d0) !3.1415926535897932d0

@@ -132,7 +132,6 @@ contains
       endif
     endblock rankdivider
     PreIcountBlock: Block!Get Size: nstateMax(ncount),ndiv(icount),nstatei(j,icount),nstatee(j,icount)
-      use m_keyvalue,only: getkeyvalue
       integer:: ndivide,nmbatch,nnn,nloadav,nrem,idiv,j
       integer,allocatable:: nload(:)
       ncount=count(irkip/=0)

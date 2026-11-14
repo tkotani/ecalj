@@ -17,7 +17,6 @@ contains
        iq,isp1,isp2,nqibz,&!eibzmode,nwgt, &
        nbmx,ebmx,mtet, &
        wan)                 
-    use m_keyvalue,only: getkeyvalue
     use m_GWinput, only: gwinput_init, gwinput_loaded, tg_t_tetrakbt => t_tetrakbt
     !> Obtain weights (imaginary part) for Dielectric function by tetrahedron method.
     !! ------------------------------------------------------------------------------

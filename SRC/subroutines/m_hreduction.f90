@@ -50,7 +50,6 @@ contains
 !   use m_HamPMT,only: GramSchmidt!,epsovl
    use m_lgunit,only:stdo
    use m_lmfinit,only:oveps
-   use m_keyvalue,only: getkeyvalue
    use m_GWinput, only: gwinput_init, gwinput_loaded, &
                         tg_mlo_w => mlo_w, &   ! tg_mlo_nskip => mlo_nskip retired 2026-09-18
                         tg_mlo_emax => mlo_emax, &

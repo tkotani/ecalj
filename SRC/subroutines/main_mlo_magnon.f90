@@ -14,7 +14,6 @@ subroutine mlo_magnon() bind(C)
   use m_ReadEfermi, only: readefermi
   use m_read_bzdata, only: nqbz, qbz
   use m_genallcf_v3, only: genallcf_v3; use m_struct_from_lmf, only: nspin
-  use m_keyvalue, only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, &
                        tg_magnon_w_onsite_dddd => magnon_w_onsite_dddd, &
                        tg_magnon_delta         => magnon_delta, &

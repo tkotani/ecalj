@@ -13,7 +13,6 @@ subroutine qqsave (qi,nmax,ginv, qsave,imx) !---accumulate q into qsave imx
   qsave(:,imx) = qi
 end subroutine qqsave
 subroutine readd_iSigma_en(ifinin,iSigma_en)
-  use m_keyvalue,only:getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, tg_iSigMode => iSigMode
   integer(4):: iSigma_en,ifinin
   call gwinput_init()
@@ -26,7 +25,6 @@ subroutine readd_iSigma_en(ifinin,iSigma_en)
   write(6,*)' iSigma_en=',iSigma_en
 end subroutine readd_iSigma_en
 subroutine getnemx(nbmx,ebmx,im,ipr) !- Readin nbmx ebmx for hxofp0 hscfp0
-  use m_keyvalue,only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, &
                        tg_nband_sigm => nband_sigm, tg_emax_sigm => emax_sigm, &
                        tg_nband_chi0 => nband_chi0, tg_emax_chi0 => emax_chi0
@@ -57,7 +55,6 @@ subroutine getnemx(nbmx,ebmx,im,ipr) !- Readin nbmx ebmx for hxofp0 hscfp0
   return
 end subroutine getnemx
 subroutine getnemx8(nbmx,ebmx)  !- Readin nbmx ebmx for hscfp0
-  use m_keyvalue,only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, &
                        tg_nband_sigm => nband_sigm, tg_emax_sigm => emax_sigm
   integer :: ret

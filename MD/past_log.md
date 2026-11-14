@@ -359,6 +359,8 @@ ecaljdoc の `BackUp/`（148 本、35 MB: 初版の GW マニュアル `man-gw.t
 
 ## 表 1. 片付けたもの（trash に移したもの）
 
+コードを外したときは、公開する抜粋 [`ecaljdoc/manual/past_code.md`](../ecaljdoc/manual/past_code.md)（サイトの「古い文書」の「外したコード」）にも一行足す（日英とも。2026-11-14 に作った）。
+
 最上位の `MATERIALS/` は trash ではなく `Samples/MATERIALS/` へ移した（§9）。
 
 | 日 | もの | 元の場所 | 外す前のコミット | 過去ログの節 |
@@ -402,6 +404,8 @@ ecaljdoc の `BackUp/`（148 本、35 MB: 初版の GW マニュアル `man-gw.t
 | 2026-10-01 | 旧形式の古いサンプル（30 項目） | `Samples/MATERIALS/`（元は最上位の `MATERIALS/`、624 ファイル） | `52a14ecea` | §9 |
 
 | 2026-10-07 | 2026-05 より前の入力の流れのスクリプト 3 本（user「ctrlgenM1.py 消そう」「もういらないよね」） | `SRC/exec/ctrlgenM1.py`、`SRC/exec/auto_creplot.py`、`SRC/exec/auto_job_mp.py` | `72967dec5` | §15 |
+| 2026-11-14 | GWinput を読む `m_keyvalue`（`getkeyvalue`。H. Kino 2002–2003 の入力ルーチンに小谷の 2005–2006 の手直し。2026-05 の TOML 化で呼び出しが 0 になり、33 ファイルの使われない `use` の行 53 行だけが残っていた。頭の「Copyright, all rights reserved.」が AGPLv3 と食い違うので外した。置き場 `trash/SRC_subroutines_20261114/`） | `SRC/subroutines/keyvalue.f90`（git では 2009-05-03 の `fpgw/gwsrc/keyvalue.F` から） | `31d8516dc` | — |
+| 2026-11-14 | どこからも `use` されなくなった module 5 つ（置き場 `trash/SRC_subroutines_20261114/`）: `m_bz_integ`（四面体の頂点の平均で BZ 積分、main_mlo_magnon のコメントにだけ残る）、`m_pbindex`（積基底の添字の表）、`m_readqgcou`（QGcou の読み込み）、`m_HamRsMLO`（古い `HamRsMLO` の読み込み。2026-10-02 から Löwdin の MLO で使わない。`m_HamPMT.f90` の末尾から切り出した）、`m_qdwh_eigensolver`（GPU の固有値ソルバの試作、QDWH 極分解による一般化固有値問題 `qdwh_batched_zhegv`。2026-03-30。また使うかもしれない。`SRC/CMakeLists.txt` の GPU_ONLY_SOURCES からも外した） | `SRC/subroutines/m_bz_intg.f90`、`m_pbindex.f90`、`m_readQGcou.f90`、`m_qdwh_eigensolver.f90`、`m_HamPMT.f90` の `module m_HamRsMLO` | `31d8516dc` | — |
 注: サンプルの古い試行と控えは、MLOsamples の `test*`・`temp`・`*.bk`・`*.tmp`（§4.1）、`Samples/TestInstall/TESTunused`、
 `Samples/TestInstall/eras/occnum.eras.bk`、`TOOLS/FparserTools/f_calltree.py.bk*`、`TOOLS/SrcFragments/f_calltree.py.bk*`・`ANALYZEnotusednow/analyze_temp~`、
 `ecalj_auto/INPUT/testSGA/joblist.bk`。

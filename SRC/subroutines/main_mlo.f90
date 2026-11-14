@@ -14,7 +14,6 @@ contains
   use m_lgunit,only: stdo,m_lgunit_init
   use m_zhev,only:   Zhev_tk4
   use m_mpi,only: MPI__Initialize, nsize, procid,master_mpi,comm !  use m_ext,only:      m_ext_init,sname
-  use m_keyvalue,only: Getkeyvalue
   use m_lmfinit,only:  m_lmfinit_init,oveps,nbas 
   use m_ext,only: m_ext_init,sname
   use m_cmdpath,only: Setcmdpath

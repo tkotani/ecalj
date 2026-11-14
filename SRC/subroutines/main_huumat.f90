@@ -16,7 +16,6 @@ subroutine uumatrix()
   use m_readeigen, only: readcphif_mpi, readgeigf_mpi
   use m_read_bzdata,only: read_bzdata, nqbz, nqibz, qbas=>qlat, qibz, qbz, nq0i_=> nq0i, nq0i=>nq0ix, q0i
   use m_genallcf_v3,only: genallcf_v3, natom, nspin, nl, nn, plat, pos, alat, nindx, ndima, nqbzt, nband, nspc, nspx, lmxa
-  use m_keyvalue,only: getkeyvalue
   use m_pwmat,only: mkppovl2, set_ppovl
   use m_ll,only: ll
   use m_mpi,only: mpi__broadcast, mpi__root, mpi__size, mpi__rank, comm, mpi__allreducesum, mpi__reducesum

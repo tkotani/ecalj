@@ -4,7 +4,6 @@ module m_HamPMT
    use m_lgunit,only:stdo
    use m_ftox
    use m_lmfinit,only: oveps
-   use m_keyvalue,only: getkeyvalue
    use m_GWinput, only: gwinput_init, gwinput_loaded, tg_mlo_method => mlo_method, &
                         tg_n_worb => n_worb, tg_worb_iatom => worb_iatom, &
                         tg_worb_lm => worb_lm, tg_worb_nlm => worb_nlm, &
@@ -1147,29 +1146,3 @@ contains
       Vout(:,:,3) = Vfr(1:N,   N+1:2*N  )
    end subroutine spinor_rotate
 end module m_HamPMT
-
-
-module m_HamRsMLO ! read real-space MLO Hamiltonian
-   use m_lgunit,only:stdo
-   use m_ftox
-   integer,protected:: ndimMTO,npairmx,nspx  !ndimMTO<ldim if we throw away f MTOs, for example.
-   integer,allocatable,protected:: ib_tableM(:),l_tableM(:),k_tableM(:)
-   complex(8),allocatable,protected:: ovlmr(:,:,:,:),hammr(:,:,:,:)
-contains
-   subroutine ReadHamRsMLO()! read RealSpace MTO Hamiltonian
-      use m_mpi,only: master_mpi
-      integer:: ifihmto
-      open(newunit=ifihmto,file='HamRsMLO',form='unformatted')
-      read(ifihmto) ndimMTO,npairmx,nspx !    allocate(ix(ndimMTO))
-      if(master_mpi) write(stdo,ftox)'MTOHamiltonian: ndimMTO,npairmx,nspx=',ndimMTO,npairmx,nspx
-      allocate(ovlmr(1:ndimMTO,1:ndimMTO,npairmx,nspx), hammr(1:ndimMTO,1:ndimMTO,npairmx,nspx))
-      ! read(ifihmto) hammr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx)
-      ! read(ifihmto) ovlmr(1:ndimMTO,1:ndimMTO,1:npairmx,1:nspx) !,ix(1:ndimMTO)
-      read(ifihmto) hammr(1:npairmx,1:ndimMTO,1:ndimMTO,1:nspx)
-      read(ifihmto) ovlmr(1:npairmx,1:ndimMTO,1:ndimMTO,1:nspx) !,ix(1:ndimMTO)
-      allocate(ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO))
-      read(ifihmto) ib_tableM(1:ndimMTO),k_tableM(1:ndimMTO),l_tableM(1:ndimMTO)
-      close(ifihmto)
-      if(master_mpi) write(stdo,*)'OK: Read HamRsMLO file! Use i-ioffib for setting mlo_lm'
-   end subroutine ReadHamRsMLO
-end module m_HamRsMLO

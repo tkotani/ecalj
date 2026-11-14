@@ -281,7 +281,6 @@ subroutine hwmatK_MPI() !== Calculates the bare/screened interaction W ===
   use m_mlo_wfs, only : cmlo_init, nwf_mlo => nmlo, write_pkm4crpa_mlo
   use m_genallcf_v3,only:niwg=>niw,alat,deltaw,esmr,icore,natom,nl,nlnmc,nlnmv,nlnmc,nlnmx,nlnx,laf
   use m_genallcf_v3,only: genallcf_v3,ncore,nn,nnc,nspin,pos,plat, nprecb,mrecb,mrece,nqbzt,nband,mrecg,ndima
-  use m_keyvalue,only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, &
                        tg_wmat_static => wmat_static, tg_wmat_all => wmat_all, &
                        tg_wmat_rcut1  => wmat_rcut1, tg_wmat_rcut2 => wmat_rcut2, &

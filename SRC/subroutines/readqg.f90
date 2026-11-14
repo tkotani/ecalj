@@ -4,7 +4,6 @@ module m_readQG
   use m_read_bzdata,only: ginv
   use NaNum,only:NaN
   use m_nvfortran,only:findloc
-  use m_keyvalue,only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, tg_KeepQG => KeepQG
   implicit none
   !--------------------------------------------

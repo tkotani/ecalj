@@ -94,7 +94,6 @@ contains
     !> calls with (full symgg, ng=ngrp): the larger setup subsumes the smaller.
     use m_symderive,only:mptauof
     use m_hamindex0,only: Readhamindex0,iclasst, symops_h0=>symops, shtvg_h0=>shtvg, ngrp_h0=>ngrp
-    use m_keyvalue,only: getkeyvalue
     use m_GWinput, only: gwinput_init, gwinput_loaded, tg_KeepPpb => KeepPpb
     intent(in)::          symops,ng
     integer:: ng

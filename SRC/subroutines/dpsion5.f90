@@ -139,7 +139,6 @@ contains
     init=.false.
   end subroutine dpsion_init
   subroutine dpsion_chiq_d(realomega, imagomega, chipm, rcxq, zxqi, npr, npr_col, schi, isp, ecut)
-    use m_keyvalue,only: getkeyvalue
     use m_GWinput, only: gwinput_init, gwinput_loaded, tg_SmearX0 => SmearX0
     use m_freq, only: frhis, freqr=>freq_r,freqi=>freq_i, nwhis, npm, nw_i, nw_w=>nw, niwt=>niw
 !    use m_readgwinput, only: egauss
@@ -352,7 +351,6 @@ contains
   !> Host (CPU) version of dpsion_chiq: no attributes(device), no OpenACC.
   !> rcxq and zxqi must be host-resident (e.g. pointing to shm_wvr/shm_wvi).
   subroutine dpsion_chiq_h(realomega, imagomega, chipm, rcxq, zxqi, npr, npr_col, schi, isp, ecut)
-    use m_keyvalue, only: getkeyvalue
     use m_freq, only: frhis, freqr=>freq_r, freqi=>freq_i, nwhis, npm, nw_i, nw_w=>nw, niwt=>niw
     use m_ftox
     use m_lgunit, only: stdo
@@ -450,7 +448,6 @@ contains
     use m_ftox
     use m_lgunit,only:stdo
     use m_kind,only:kindrcxq
-    use m_keyvalue,only: getkeyvalue
     implicit none
     intent(in)::     realomega,imagomega,     nmbas1,nmbas2,           chipm,schi,isp,ecut,ecuts
     intent(out)::                        rcxq,                zxq,zxqi

@@ -98,7 +98,6 @@ module m_gw_product_basis
   private
 contains
   subroutine gw_product_basis_init(incwfx)
-    use m_keyvalue, only: getkeyvalue
     use m_GWinput, only: gwinput_init, gwinput_loaded, &
                          tg_pb_tolerance => pb_tolerance, tg_pb_lcutmx => pb_lcutmx, &
                          tg_pb_nlx => pb_nlx, tg_pb_n_nlx => pb_n_nlx, &

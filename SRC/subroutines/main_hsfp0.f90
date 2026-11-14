@@ -14,7 +14,6 @@ subroutine hsfp0() bind(C)
   use m_genallcf_v3,only: Genallcf_v3, natom,nspin,nl,nn, ndima,nlnmx, nctot,niw, &
        alat,deltaw,esmr_in=>esmr, il,in,im,nlnm, &
        plat, pos,z,ecore,  konf,nlnx,laf,ncore
-  use m_keyvalue,only: Getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, tg_allq0i => allq0i
   use m_rdpp,only: Rdpp, nblocha,lx,nx,ppbrd,mdimx,nbloch,cgr,nxx
   use m_zmel,only: Mptauof_zmel

@@ -311,7 +311,6 @@ contains
   ! Pre-kxloop setup: allocate module-level workspace, initialize stopwatches,
   ! partition omega-mesh across MPI w-ranks, allocate + zero zsecall.
   subroutine sxcf_correlation_init(ef, esmr, nspinmx)
-    use m_keyvalue, only: getkeyvalue
     use m_GWinput, only: gwinput_init, gwinput_loaded, tg_KeepWV => KeepWV
     use m_mpi, only: mpi__size_b => mpi__size_b_sxc, mpi__rank_b => mpi__rank_b_sxc, ipr
     use m_blas, only: int_split

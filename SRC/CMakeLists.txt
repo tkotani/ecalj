@@ -61,11 +61,11 @@ endif()
 # --- Source Files ---
 file(GLOB SOURCES "${CMAKE_SOURCE_DIR}/subroutines/*.f90")
 # Exclude GPU-only modules from base SOURCES (added back for GPU variants)
+# (2026-11-14 10:48: m_qdwh_eigensolver.f90, used by nothing, moved to trash; see MD/past_log.md table 1)
 set(GPU_ONLY_SOURCES
     "${CMAKE_SOURCE_DIR}/subroutines/m_batched_diag.f90"
     "${CMAKE_SOURCE_DIR}/subroutines/m_chefsi.f90"
     "${CMAKE_SOURCE_DIR}/subroutines/m_ozaki_tridiag.f90"
-    "${CMAKE_SOURCE_DIR}/subroutines/m_qdwh_eigensolver.f90"
     "${CMAKE_SOURCE_DIR}/subroutines/m_zhev_gpu_handles.f90"
 )
 list(REMOVE_ITEM SOURCES ${GPU_ONLY_SOURCES})

@@ -3,7 +3,6 @@ subroutine mkQG2(iq0pin,gammacellctrl,lnq0iadd,lmagnon,ln1n2n3eps)! Make require
   use m_get_bzdata1,only: Getbzdata1, nqbz, nqibz, nqbzw,ntetf,nteti,nqbzm
   use m_get_bzdata1,only: qbz,wbz,qibz,wibz, qbzw, idtetf, ib1bz, idteti, irk, nstar, nstbz 
   use m_q0p,only: Getallq0p, nq0i,nq0iadd,  q0i,wt, epslgroup, lxklm, epinv,wklm, dmlx, epinvq0i,ixyz,nany
-  use m_keyvalue,only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, &
                        tg_n1n2n3 => n1n2n3, tg_n1n2n3eps => n1n2n3eps, &
                        tg_n1n2n3dos => n1n2n3dos, &

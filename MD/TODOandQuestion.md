@@ -113,6 +113,15 @@
 
 ### 判断待ち（ほかに）
 
+- **外から写したコードのライセンス（2026-11-14 10:31、ecaljdoc のライセンスのページを作るときに見つけた。コードは動かさないと user が判断）**
+  - Numerical Recipes: [`SRC/subroutines/ropbes.f90`](../SRC/subroutines/ropbes.f90) の `sphbes`・`bessjy`・`beschb`・`chebev` に
+    「(C) Copr. 1986-92 Numerical Recipes Software」。NR のコードは自由に再配布できない。使われている: `smves`（mshvmt の `keep_phil`）→ `ropbes` → `sphbes` → `bessjy` → `beschb` → `chebev`。
+    置き換えの案: `m_bessl` の `bessl(y=x**2, lmax, fi, gi)` の `fi` が同じ $j_l(x)/x^l$。ただし SCF の静電の部分なので、
+    大きな $x=|G|R_{\rm MT}$ までの値の比較と全試験が要る（危険なので保留、user 2026-11-14）。`polint.f90`・`relax.f90` は「adapted from NR」（写しかどうか未確認）
+  - [`SRC/subroutines/xcpbe.f90`](../SRC/subroutines/xcpbe.f90): ABINIT 6.2.1 から（GPL）。AGPLv3 と両立するのは GPL v3 か「v2 以降」のとき。版を確かめて LICENCE の表に足す
+  - ~~`keyvalue.f90`（H. Kino、2002）の頭の「Copyright, all rights reserved.」~~ → 2026-11-14 に済み: `getkeyvalue` の呼び出しが 0 だったので、使われない `use` の行（33 ファイル、53 行）を消し、`keyvalue.f90` を trash へ（past_log の表 1）。別の木で gfortran のビルドが通ることを確かめた
+  - GEMMul8（`InstallAll.py --gemmul8` が GitHub から取ってビルドし、`libgemmul8.so` を入れる）: ライセンスを確かめて LICENCE の表に足すか
+  - LMTO・PMT の部分の出自（Methfessel・van Schilfgaarde の nfp / lm suite）を LICENCE やライセンスのページに書くか
 - **GW1500 の `INVALID_STRUCTURE`（12）・`SUSPECT_STRUCTURE`（4）を集合から外すか**。いまは注記だけ
 - 試験に使った古いツリー（mic の `~/ecalj_test0928`、kt1 の `/mnt/data1/ecalj_test0930b`・`0930c`）も trash に入れるか
 - ブランチ `fix-idu10`（main にマージ済み）を消すか

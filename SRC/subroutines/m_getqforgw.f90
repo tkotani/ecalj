@@ -1,7 +1,6 @@
 !> Set q and range of band index i for calculating the self-energy \Sigma(q,i). Range of band index is not q dependent
 module m_getQforGW 
   use m_read_bzdata,only:  nqibz,qibz
-  use m_keyvalue,only: getkeyvalue
   use m_GWinput, only: gwinput_init, gwinput_loaded, &
                        tg_EMAXforGW => EMAXforGW, tg_EMINforGW => EMINforGW, &
                        tg_QforGWIBZ => QforGWIBZ, &

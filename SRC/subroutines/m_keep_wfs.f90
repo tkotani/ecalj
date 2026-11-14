@@ -16,7 +16,6 @@ module m_keep_wfs
 contains
 
   subroutine keep_wfs_init()
-    use m_keyvalue,only: getkeyvalue
     use m_GWinput, only: gwinput_init, gwinput_loaded, tg_nkeep_wfs => nkeep_wfs
     call gwinput_init()
     if (gwinput_loaded) then
