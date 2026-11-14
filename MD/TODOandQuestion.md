@@ -113,7 +113,7 @@
 
 ### 判断待ち（ほかに）
 
-- **ecaljdoc のメインドキュメント（`ecaljdoc/manual/README_tutorial.md`）の中身の問題 11 件。最後に user と一緒に見る**（2026-11-14、翻訳したときに見つけた。
+- ~~**ecaljdoc のメインドキュメント（`ecaljdoc/manual/README_tutorial.md`）の中身の問題 11 件。最後に user と一緒に見る**~~ → 2026-11-14 に GetStarted を書き直して全部直した（10 番の c,x,i,h はコードで確かめた）。サイドバーの Dielecric は残り（2026-11-14、翻訳したときに見つけた。
   user「よくわからないが最後に見ないといけない。おぼえといて」。直すときは日英とも。かっこの中はファイルの中を探す文字列）
   1. `cd TEST` のあとで `cat ecalj_auto/...`（`../ecalj_auto` のはず）（「cd TEST」）
   2. `ctrls.POSCAR.mp-2534` に名前を変えたあと `cat ctrls.mp-2534`（ファイル名が合わない）（「ctrls.mp-2534」）
