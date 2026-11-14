@@ -1,18 +1,8 @@
 # Other notes {#usagedetailed}
 
-> English version of the page [manual/UsageDetailed](../../manual/UsageDetailed.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/UsageDetailed.md of commit a8bdac429 (source blob 233caa6d2601).
-
-<div class="clfix-old">
-
-> ⚠️ The input is `ctrlg.<sname>.toml`. Run `Legacy2toml.py <sname>` to convert legacy `ctrl.<sname>` / `GWinput`. Overrides on the command line are `--ctrlg:<path>=val`; with `-v<NAME>=<VAL>` the programs stop. See [Input file](./toml_migration). <del class="clfix">The samples named below that are being rebuilt from `Samples/Legacy` are listed in ecalj [`Samples/README.md`](https://github.com/tkotani/ecalj/blob/main/Samples/README.md).</del><span class="clfix">The samples named below are listed in [Samples](./samples) (`Samples/Legacy` was rebuilt and removed on 2026-09-30).</span>
-
-</div>
-
-<div class="clfix">
+> English version of the page [manual/UsageDetailed](../../manual/UsageDetailed.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/UsageDetailed.md of commit 7cc0ed1f0 (source blob 5f71fe79bc4b).
 
 The samples named below are listed in [Samples](./samples).
-
-</div>
 
 ## Spin polarized case without SOC
 To treat magnetic systems, we have to set `mmom` (initial condition of spin
@@ -84,7 +74,7 @@ I needed 275 sec with 32 MPI per QSGW cycle. I used this qsub script.
 #$ -N NioTest
 #$ -pe smp 32
 #$ -cwd
-#$ -M takaokotani@gmail.com
+#$ -M <your e-mail>
 #$ -m be
 #$ -V
 #$ -S /usr/bin/bash
@@ -118,7 +108,7 @@ We can perform LDA/QSGW calculation with the AF symmetry (not for so=1).
 Only up spin are calculated. Then charge density and eigenvalues are
 symmetrized for the antiferro symmetry.
 
-See the samples of the antiferromagnetic symmetry (NiO and NiSe).
+See the samples of the antiferromagnetic symmetry (NiO and NiSe). The meanings of the keys `symgrpaf` and `af` are in [lmf](./lmf#symgrp).
 To set AF symmetry, We have to set a top-level key in `ctrlg.<sname>.toml` as
 ```toml
 symgrpaf = "find"  # Antiferro symmetry: spglib finds the operations (2026-10-02)
@@ -211,9 +201,7 @@ The sample (`testecalj MgO_PROCAR`; the steps are in its `test.py`) generates a 
 ## LDA+U
 We have samples of LDA+U (GdN and the rare-earth nitrides), and the test target `TestInstall/gdn`.
 
-*  `idu`, `uh`, `jh` in `[[spec]]` specify parameters for LDA+U.  `idu = [#,#,#,#]` specifies which l-channels are to have U and the type of LDA+U implementation.
-          0 in a particular l-channel means no U is to be applied, 1 or 2 are for particular forms of LDA+U.  For example,
-             `idu = [0, 0, 0, 1]`, `uh = [0.0, 0.0, 0.0, -0.28]`, `jh = [0.0, 0.0, 0.0, 0.0]`. See [LDA+U in lmf.md](./lmf#lda-u-toml).
+The meanings of the `[[spec]]` keys `idu`, `uh`, `jh` are in [LDA+U in lmf](./lmf#lda-u-toml). Example: `idu = [0, 0, 0, 1]`, `uh = [0.0, 0.0, 0.0, -0.28]`, `jh = [0.0, 0.0, 0.0, 0.0]`.
 
 ## Spin fluctuation
 The calculation of spin fluctuations has been advanced recently; please contact us.
@@ -225,8 +213,7 @@ Wannier functions of the version before 2026-10-02 (git tag `last-wannier`). Her
 ## 4f and 5f atoms
 We need special care to treat atoms where 4f and 5f are fractionally filled.
 The atomlist defaults for 4f atoms were updated 2025-08-21 (5f not yet);
-the same defaults are used by `ctrlgenToml.py` (the table `SRC/exec/pylib/atomlist.py`;
-until 2026-10-07 it was read from `ctrlgenM1.py`, now removed). Only limited tests yet —
+the same defaults are used by `ctrlgenToml.py` (the table `SRC/exec/pylib/atomlist.py`). Only limited tests yet —
 make sure by yourself.
 
 Here is the setting for RareEarth rocksalt nitrides ReN such as ErN.
