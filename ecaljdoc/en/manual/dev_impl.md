@@ -1,6 +1,6 @@
 # Implementation notes (details of the GW implementation) {#dev-impl}
 
-> English version of the page [manual/dev_impl](../../manual/dev_impl.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/dev_impl.md of commit bbfb8165d (source blob dd1c3cdb9a9c).
+> English version of the page [manual/dev_impl](../../manual/dev_impl.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/dev_impl.md of commit d42233cf6 (source blob 3804aa7b95a0).
 
 ::: info About this page
 This page is made from the sections, still useful, of the old developer memo `ecaljdetails.tex` (T. Kotani, last version 2024-11; the original is `ecaljdetails/` of the ecalj commit `3284d0b`, `git show 3284d0b:ecaljdetails/ecaljdetails.tex`),
@@ -625,7 +625,7 @@ which are stored into `__PPBRD_V2_<ic>`.
 At `call rdpp(...` in `rdpp.f90` (module `m_rdpp`, used by `m_zmel`),
 we allocate and read `ppbrd`.
 
-In addition, we read the \"rotated Clebsh-Gordon coefficient\"
+In addition, we read the \"rotated Clebsch-Gordan coefficient\"
 $C(L,L_1,L_2,g)$ `cgr(lm,lm1,lm2,ng)`
 , where $g$ is the index for space group
 coefficient ( rotated by point group symmetries).
@@ -799,7 +799,7 @@ G({\bf r}-{\bf r}',E)=-\frac{1}{4 \pi}
 $$
 where $\kappa \equiv \sqrt{E}$; Imaginary part of $\kappa$ is positive
 for $E\lt 0$, that is, $\kappa = i |\kappa|= i \sqrt{-E}$ for negative $E$.
-Eq. (I42) is nothing but the solution of Helmhorz
+Eq. (I42) is nothing but the solution of Helmholtz
 differential equation; it reduces to the usual Poisson equation at
 $E=0$. For $E\lt 0$, we have Thomas-Fermi type function;
 the numerator of Eq. (I42) is $\exp(i \kappa |{\bf r}-{\bf r}'|)=\exp(- |\kappa| |{\bf r}-{\bf r}'|)$.
@@ -1013,7 +1013,7 @@ that an IPW made from a product
 of IPWs.The matrix elements
 $\langle {P}_{2''}| {P}_{2'} \rangle^{-1}$
 (stored into `__PPOvlp`; the inverse is taken where it is used)
-and $\langle {P_{2'} } | P_2(phiphi) \rangle$
+and $\langle {P_{2'} } | P_2(\phi\phi) \rangle$
 (stored into `__PPOvlpGG`)
 are given at `rdata4gw` (a block in `sugw.f90`, that is, `lmf --jobgw=1`).
 
@@ -1677,7 +1677,7 @@ Here
 > The Block `init1:iend1` is mapped to the block `init2:iend2`.
 
 In order to call `rotevec`, we have to call `readhamindex()` so as to set up variables
-`ltab,ktab,offl,oflrev,...` in `m_hamindex` module in advance.
+`ltab,ktab,offl,offlrev,...` in `m_hamindex` module in advance.
 
 Orbital index tables (`ibas_tbl`, `l_tbl`, `k_tbl`, ...) are read from a file `@MNLA_CPHI`
 (written by `sugw.f90`) by `readmnla_cphi` (`readeigen.f90`).
@@ -1896,7 +1896,7 @@ $$
 This means that we have to calculate weighted average only for
 $g_{\bf q}\in {\rm EIBZ}({\bf k})$, and then finally symmetrized (symmetrization is in
 `call x0kf_v4hz_symmetrize`
-in `hx0fp0.sc.m.F,hx0fp0.m.F` or newly developing `hrcxq`.
+in `hx0fp0.sc.m.F,hx0fp0.m.F` or newly developing `hrcxq`).
 
 We apply Eq. (I95) to Eq.(22) in Ref.[friedrich_efficient_2010]
 resulting Eq.(51) in Ref.[friedrich_efficient_2010].
