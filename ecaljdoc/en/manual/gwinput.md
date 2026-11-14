@@ -1,29 +1,26 @@
 # GWinput (legacy)
 
-> English version of the page [manual/gwinput](../../manual/gwinput.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwinput.md of commit 85cdee981 (source blob c626e5938cfc).
+> English version of the page [manual/gwinput](../../manual/gwinput.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwinput.md of commit 85cdee981 (source blob b436113132dc).
 
 > ⚠️ The Fortran programs do not read the `GWinput` text file. The settings of this page are keys of `ctrlg.<sname>.toml` (sections `[gw]` / `[mlo]` / `[blocks]` / `[product_basis]`; the last one also holds the per-atom tables), written in TOML syntax (`key = value`). For a directory with the legacy `ctrl.<sname>` + `GWinput`, run `Legacy2toml.py <sname>` to convert. See [Input file](./toml_migration) for the key mapping.
 
 The `[gw]` section of `ctrlg.<sname>.toml` sets the computatioanl conditions for  GW/QSGW calculations.
 
-## Automatic generation by mkGWinput
-- The GW settings (`[gw]`, `[mlo]`, `[blocks]`, `[product_basis]` of `ctrlg.<sname>.toml`) can be generated automatically, and most parameters can be used with their default settings.
+## Automatic generation {#automatic-generation-by-mkgwinput}
+- The GW settings (`[gw]`, `[mlo]`, `[blocks]`, `[product_basis]` of `ctrlg.<sname>.toml`) are made automatically, and most parameters can be used with their defaults.
 
 When starting from `ctrls.<sname>` (`<sname>` is the material name),
 ```bash
 ctrlgenToml.py <sname>
 ```
-writes `ctrlg.<sname>.toml` including the GW settings. To add the GW settings to an existing `ctrlg.<sname>.toml`,
+writes `ctrlg.<sname>.toml` including the GW settings (it runs `lmfa`, `lmf --jobgw=0` and `gwinit` internally). To add them to a `ctrlg.<sname>.toml` without the GW sections,
 ```bash
-mkGWinput <sname>                # regenerate the GW settings; the original file is kept as ctrlg.<sname>.toml.bakup
-ctrlgenToml.py <sname> --addgw   # add to a file without [gw] (stops if [gw] exists)
+ctrlgenToml.py <sname> --addgw   # stops if [gw] is present
 ```
-> [!INFO]
-> Both internally run executables of the ecalj package (`lmfa`, `lmf --jobgw=0`, `gwinit`) with `mpirun`.
-> The executables in the same directory as the script (the binary install directory of the ecalj package) are used.
+(see [Input file](./toml_migration)).
 
-The generated `[gw]` has `n1n2n3 = [4, 4, 4]`, `t_sigmaw = 300`, `t_tetrakbt = 300`. Rewrite them for your calculation
-(`t_tetrakbt = 0` if you do not smear $\chi_0$ for insulators and semiconductors<span class="clfix">; the template value 300 does not affect the result either when the gap is much larger than $k_BT$ ([kBT](kBT) §4)</span>).
+The generated `[gw]` has `n1n2n3 = [4, 4, 4]`, `t_sigmaw = 300` and `t_tetrakbt = 300`. Change them for the calculation.
+For insulators and semiconductors the gap is much larger than $k_BT$, so the temperatures of 300 K do not affect the results ([kBT](./kBT) §4).
 
 
 ## Format

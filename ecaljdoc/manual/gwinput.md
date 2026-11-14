@@ -4,24 +4,21 @@
 
 The `[gw]` section of `ctrlg.<sname>.toml` sets the computatioanl conditions for  GW/QSGW calculations.
 
-## mkGWinputによる自動生成
-- GW の設定（`ctrlg.<sname>.toml` の `[gw]`・`[mlo]`・`[blocks]`・`[product_basis]`）は自動生成することができ、殆どのパラメータはデフォルト設定で使用できる。
+## 自動生成 {#mkgwinput}
+- GW の設定（`ctrlg.<sname>.toml` の `[gw]`・`[mlo]`・`[blocks]`・`[product_basis]`）は自動で作られ、ほとんどのパラメータは既定値のまま使える。
 
 `ctrls.<sname>` から始めるとき（`<sname>` は物質名）は
 ```bash
 ctrlgenToml.py <sname>
 ```
-が GW の設定も含めて `ctrlg.<sname>.toml` を書く。すでにある `ctrlg.<sname>.toml` に GW の設定を付けるには
+が GW の設定も含めて `ctrlg.<sname>.toml` を書く（内部で `lmfa`、`lmf --jobgw=0`、`gwinit` を走らせる）。GW の区分の無い `ctrlg.<sname>.toml` に足すときは
 ```bash
-mkGWinput <sname>                # GW の設定を作り直す。元のファイルは ctrlg.<sname>.toml.bakup に残る
-ctrlgenToml.py <sname> --addgw   # [gw] の無いファイルに足す（[gw] があれば止まる）
+ctrlgenToml.py <sname> --addgw   # [gw] があれば止まる
 ```
-> [!INFO]
-> どちらも内部で ecalj package の実行ファイル（`lmfa`、`lmf --jobgw=0`、`gwinit`）を `mpirun` で実行する。
-> 実行ファイルはスクリプトと同じディレクトリ(ecalj package のバイナリinstall ディレクトリ)のものが使われる。
+とする（[入力ファイル](./toml_migration)）。
 
-生成される `[gw]` は `n1n2n3 = [4, 4, 4]`、`t_sigmaw = 300`、`t_tetrakbt = 300` である。計算に合わせて書き換える
-（絶縁体・半導体で $\chi_0$ を均さないなら `t_tetrakbt = 0`<span class="clfix">。ただしテンプレートの 300 のままでも、ギャップが $k_BT$ より十分大きければ結果に効かない([kBT](kBT) §4)</span>）。
+生成される `[gw]` は `n1n2n3 = [4, 4, 4]`、`t_sigmaw = 300`、`t_tetrakbt = 300` である。計算に合わせて書き換える。
+絶縁体・半導体では、ギャップが $k_BT$ より十分大きいので、温度は 300 K のままで結果に効かない（[kBT](./kBT) §4）。
 
 
 ## Format
