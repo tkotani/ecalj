@@ -33,7 +33,7 @@
     * PMT のはじまりは https://journals.aps.org/prb/abstract/10.1103/PhysRevB.81.125117 です。
     * PMT は [E. Bott、M. Methfessel、W. Krabs、P. C. Schmidt による smooth Hankel 関数の論文](https://github.com/ecalj/ecaljdoc/blob/main/presentations/Bott1988.pdf) にある smooth Hankel 関数を使います。これは [B][M. Methfessel、M. van Schilfgaarde、R.A. Casali による nfp の論文](https://github.com/ecalj/ecaljdoc/blob/main/presentations/nfp.pdf) で使われたもので、私たちの PMT はその上に作られています。
    *  PMT の基底に加えて、局所軌道（local orbital）も合わせて使います。
-   * カットオフ $\approx 3$ Ry は驚くほど小さく聞こえるかもしれません。しかし、平面波の方法で高いエネルギーの部分は、動径関数の曲率が負になる、固有関数の内殻のような形を表すためだけに使われていることに注意してください。さらに、平面波には周期ゲージ（periodic gauge）を満たさないという難しさがあります（https://arxiv.org/pdf/2010.03959）。一方、LMTO やガウス関数のような局在基底の方法は、真空の領域を扱うのが苦手です。
+   * カットオフ $\approx 3$ Ry は驚くほど小さく聞こえるかもしれません。しかし、平面波の方法で高いエネルギーの部分は、動径関数の曲率が負になる、固有関数の内殻のような形を表すためだけに使われていることに注意してください。さらに、平面波には周期ゲージ（periodic gauge）を満たさないという難しさがあります（https://arxiv.org/pdf/2010.03959）。ecalj では [MLO](./mlo) のおかげで、最大局在ワニエ法に対応する方法（モデル化）をシンプルな方法で実行できます。一方、LMTO やガウス関数のような局在基底の方法は、真空の領域を扱うのが苦手です。
 
 2. **PMT-QSGW 法** 
    

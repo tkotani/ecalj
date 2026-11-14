@@ -1,6 +1,6 @@
 # ecalj MainDocument
 
-> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob 61df27d9a1f9).
+> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob ebe6737911a5).
 **This is the main document of ecaljdoc: the features of ecalj, an overview of QSGW, and the first calculation (GetStarted). Other pages are reached from the menu on the left.**
 
 * Here we give [GetStarted](#getstarted), together with install and overview of QSGW.
@@ -36,7 +36,7 @@
     * Original PMT was started at https://journals.aps.org/prb/abstract/10.1103/PhysRevB.81.125117
     * PMT uses smooth Hankel functions described in [the smooth Hankel paper by E. Bott, M. Methfessel, W. Krabs, and P. C. Schmidt](https://github.com/ecalj/ecaljdoc/blob/main/presentations/Bott1988.pdf), which was used in [B][nfp paper by M. Methfessel and M. van Schilfgaarde, and R.A. Casali](https://github.com/ecalj/ecaljdoc/blob/main/presentations/nfp.pdf). Our PMT is on top them.
    *  In addition to PMT basis, we use local orbitals together.
-   * The cutoff $\approx 3$ Ry may sound surprisingly small. However, note that high energy part of the plane wave methods are consumed only for the core like shape of eigenfunctions with negative curvatures of radial functions. Furthermore, the plane waves have difficulties not satisfying the periodic gauge https://arxiv.org/pdf/2010.03959. On the other hand, localized basis methods such as LMTO and Gaussians have difficulties to handle vacuum regions.
+   * The cutoff $\approx 3$ Ry may sound surprisingly small. However, note that high energy part of the plane wave methods are consumed only for the core like shape of eigenfunctions with negative curvatures of radial functions. Furthermore, the plane waves have difficulties not satisfying the periodic gauge https://arxiv.org/pdf/2010.03959. In ecalj, thanks to [MLO](./mlo), the counterpart of the maximally-localized Wannier method (the modelling) is done in a simple way. On the other hand, localized basis methods such as LMTO and Gaussians have difficulties to handle vacuum regions.
 
 2. **PMT-QSGW method** 
    
