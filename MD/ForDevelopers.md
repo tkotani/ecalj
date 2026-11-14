@@ -65,27 +65,7 @@ python3 InstallAll.py --fc nvfortran --gpu --bindir ~/bin       # GPU（kt1）�
 
 ## 5. テスト
 
-```bash
-cd Samples/TestInstall; for d in *_work; do rm -rf "$d"; done     # 毎回、前の *_work を消す
-testecalj -np 8 --all                                              # CPU 全部（26 ターゲット。有限温度は fe_kbt）
-testecalj -np 8 -np2 2 --gwall --gpu [--mp] [--run-args=--prec=fp32]   # GW を GPU で（fp64 / tf32 / fp32）
-cd Samples/MLOsamples; testecalj -np 8 Si666gwsc Cu NiO ...        # MLO（--all は TestInstall の中だけ。対象は README.md の表）
-cd Samples/MLOQSGW;    testecalj -np 8 -np2 2 --gpu --mp GaAs NiO  # MLO-QSGW
-```
-
-- `testecalj` は走らせる各ターゲットの `<target>_work` を消してから作り直す（2025-10-09 から）。以前、前の失敗で残った `rst` による偽の失敗があったので、
-  手で `*_work` を消す手順も残している（害は無い）。`-np` は手元（16 コア・30 GB）で 6〜12、kt1 で 8
-- GPU＋MP のテストは照合するファイルが少ない（`--mp` では QPU の厳密照合を省く）。CPU のほうが照合は厳しい
-- GPU では同じ入力でも GPU 0 と 1 で下の桁が違うことがある。比べるときは `CUDA_VISIBLE_DEVICES` を固定
-- **2 原子のテストでは GPU の非同期のバグ（競合）は出ない**。GPU の実行順を触ったら、実物質（LiTi2O4 6³ など）で Σ を前の版と桁まで比べる
-- QPU を比べるときは dSEnoZ の列（出発の固有値の列ではない）
-- Samples の組ごとの試験は ecalj の `TOOLS/samples_tests.sh [--gpu] -np 8 [組 ...]`（inputs、TestInstall、EPS、PROCAR、MLOsamples、MLOQSGW、
-  AFsymmetry、BenchmarkTest、重い GW、Magnon）。件数は testecalj の最後の要約で数え、途中で止まったターゲットは STOPPED にする
-  （ログの PASSED 行は延べ数。2026-09-28）
-- **組ごとの時間の目安**（マシンごと）は ecaljdoc の [GetStarted with AI](../ecaljdoc/manual/getstartedAI.md) §4 の表 2（2026-10-03 にここから移した。
-  AI が利用者に試験を案内するときにも使うため）
-- 試験に要る Python: numpy、pandas、matplotlib、pymatgen、seekpath（getsyml）、spglib、scipy、plotly。gnuplot は無くてもよい
-  （図は飛ばして .glt だけ書く、2026-09-28 から）
+ecaljdoc のページ [`ecaljdoc/manual/dev_testecalj.md`](../ecaljdoc/manual/dev_testecalj.md)（「試験の仕組み（testecalj）」）にまとめた（2026-11-14）。
 
 ## 6. GPU 開発の注意
 

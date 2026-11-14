@@ -55,6 +55,12 @@ const sidebarRoot = [
       { text: 'Optical properties', link: '/theory/optical_properties' },
     ]
   },
+  {
+    text: '開発者向けメモ',   // notes for developers, made from MD/ (2026-11-14)
+    items: [
+      { text: '試験の仕組み（testecalj）', link: '/manual/dev_testecalj' },
+    ]
+  },
   { text: 'ライセンス', link: '/manual/license' },
   {
     text: 'インストール',
@@ -76,6 +82,8 @@ const sidebarRoot = [
 ]
 
 const enText: Record<string, string> = {
+  '開発者向けメモ': 'Notes for developers',
+  '試験の仕組み（testecalj）': 'Tests (testecalj)',
   'その他の説明': 'Other notes',
   'バンドプロットの対称ライン: syml.&lt;sname&gt;': 'Symmetry lines for band plots: syml.&lt;sname&gt;',
   'GW で用いる行列要素': 'Matrix elements used in GW',
