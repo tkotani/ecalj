@@ -5,7 +5,7 @@
 
 2026-11-15 00:04 に書いた。2026-11-14 のセッション（ecaljdoc の整理、日本語化、二重化の片付け、朱の確定）で、
 コード・サンプル・git で確かめたことをまとめる。Claude が後で引くためのもの。人への説明はここから組み立てる。
-取り決めと計算機は [handover.md](handover.md)、まだのことは [TODOandQuestion.md](TODOandQuestion.md) の「ecaljdoc（文書）」、
+入口は [`CLAUDE.md`](../CLAUDE.md)（Claude 以外の AI は [`AGENTS.md`](../AGENTS.md)）。取り決めと計算機は [handover.md](handover.md)、まだのことは [TODOandQuestion.md](TODOandQuestion.md) の「ecaljdoc（文書）」、
 ecaljdoc の書き方の決まり（公開）は [`ecaljdoc/manual/writing_docs.md`](../ecaljdoc/manual/writing_docs.md)。ここではそれらを繰り返さない。
 
 **使い方**: 書いてあることも、使う前にコードで確かめる（日付の時点の事実）。違っていたら直し、日付を付ける。
@@ -126,7 +126,7 @@ ecaljdoc の書き方の決まり（公開）は [`ecaljdoc/manual/writing_docs.
 - 「使われていない」と判断する前に、呼び出し元を `grep` で確かめる（2026-11-14: Numerical Recipes の `bessjy` は `smves → ropbes → sphbes → bessjy` で使われていた）
 - 消したコードは消さずに `trash/` へ移し、[past_log.md](past_log.md) の表 1 と ecaljdoc の「外したコード」（`manual/past_code.md`）に書く
 - コミットは英語で、ファイルを名指しする（`git commit -a` は使わない）。末尾にセッションの帰属の 2 行。push は user の指示があってから。`ecaljdoc/package-lock.json` はコミットしない
-- 試験の間は `~/bin` が指すものを変えない。別の木でビルドする（2026-11-14: `~/bin` を写した試験用の bin を作ったとき、`~/bin` の個人の証明書のファイルまで写してしまった。写すのは ecalj のファイルだけにする）
+- 試験の間はインストール先の bin が指すものを変えない。別の木でビルドし、試験用の bin を別に作る。bin を丸ごと写すときは、ecalj のファイルだけを写す（bin にはほかの個人のファイルがあることがある）
 - ライセンス（AGPLv3）の決まりは [`ecaljdoc/manual/license.md`](../ecaljdoc/manual/license.md)。ecalj から派生したコード（移植や、構造や手順をなぞった書き直しを含む）は AGPLv3。
   ecalj の引用は必須、spglib と（バンドの図の）seekpath の引用はお願い。ecalj のアルゴリズムの出どころを残すのはお願い
 
