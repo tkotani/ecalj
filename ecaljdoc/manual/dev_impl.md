@@ -2201,8 +2201,8 @@ g[A^{\bf k}_{ {\bf R}u L}]({\bf r})&=A^{\bf k}_{ {\bf R}u L}(g^{-1}({\bf r})+{\i
 &\qquad\times D_{L'L}(g) \exp(i {\bf kT})  \\
 &=\sum_{\bf T}\sum_{L'}  A_{ {\bf R}' u L'}({\bf r}-{\bf R}'-{\it \Delta}{\bf T}_{\bf R}-g({\bf T})) \\
 &\qquad\times D_{L'L}(g)\exp(i {\bf kT})  \\
-&=\sum_{ {\bf T}''} \sum_{L'}  A_{ {\bf R}' u L'}({\bf r}-{\bf R}'-{\bf T}'')\, D_{L'L}(g)
- \exp(i g({\bf k}){ {\bf T} }'') \\
+&=\sum_{ {\bf T}''} \sum_{L'}  A_{ {\bf R}' u L'}({\bf r}-{\bf R}'-{\bf T}'')\, D_{L'L}(g) \\
+&\qquad\times \exp(i g({\bf k}){ {\bf T} }'') \\
 &\qquad\times \exp(-i g({\bf k}){\it \Delta}{\bf T}_{\bf R})  \\
 &= \sum_{L'}  A^{g({\bf k})}_{ {\bf R}' u L'}({\bf r})\, D_{L'L}(g) \exp(-i g({\bf k}){\it \Delta}{\bf T}_{\bf R}),
 \end{aligned}
