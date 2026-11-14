@@ -1,6 +1,6 @@
 # ecalj MainDocument
 
-> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob def6eea59da8).
+> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob 8948500b4b40).
 **This is the main document of ecaljdoc: the features of ecalj, an overview of QSGW, and the first calculation (GetStarted). Other pages are reached from the menu on the left.**
 
 * Here we give [GetStarted](#getstarted), together with install and overview of QSGW.
@@ -17,7 +17,7 @@
    In other words, the PMT method= the linearized (APW+MTO) method, which is unique except the [Questaal](https://www.questaal.org/) having the same origin with ecalj. MTOs and APWs work complementarily in the representation of the wave functions, corresponding to the localized and the extended natures of eigenfunctions.
 
    See Fig. 1.<br>
-   Outside the MTs the envelope functions (dashed in the figure) of MTOs and APWs have curvatures of opposite sign. Localized MTOs (damping factor $\exp(-\kappa r)$ where $\kappa \sim 1\,{\rm bohr}^{-1}$; this implies only reaching to nearest atoms) together with APWs (cutoff is $\approx 3$ Ry) works well to get reasonable convergences. We can perform atomic-position relaxation at GGA/LDA level. Because of including APWs, we can describe the scattering states very well; this is difficult with Gaussians and the like. On the other hand, it is thanks to the MTOs that extremely few APWs suffice to describe atomic wave functions close to the core shape, such as 3d. 
+   Outside the MTs the envelope functions (dashed in the figure) of MTOs and APWs have curvatures of opposite sign. Localized MTOs (damping factor $\exp(-\kappa r)$ where $\kappa \sim 1\,{\rm bohr}^{-1}$; this implies only reaching to nearest atoms) together with APWs (cutoff is $\approx 3$ Ry) works well to get reasonable convergences. Because of including APWs, we can describe the scattering states very well; this is difficult with Gaussians and the like. On the other hand, it is thanks to the MTOs that extremely few APWs suffice to describe atomic wave functions close to the core shape, such as 3d. We can perform atomic-position relaxation at GGA/LDA level. 
    ![MTO and APW](../../manual/image-1.png)
 
    *Fig. 1*. MTO and APW (from the [nfp manual by M. Methfessel and M. van Schilfgaarde](../../presentations/nfpmanual.pdf)).
