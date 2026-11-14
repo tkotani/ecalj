@@ -1,6 +1,6 @@
 # ecalj MainDocument
 
-> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob 6f915a94c629).
+> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob a65972f47ab6).
 **This is MainDocument of ecaljdoc. All files are linked from this file.**
 
 > ⚠️ **TOML migration (2026-05)** — Fortran binaries now read `ctrlg.<sname>.toml` only. Examples below referring to `ctrl.<sname>` / `GWinput` are legacy; convert with `Legacy2toml.py <sname>` before running. See [TOML migration](./toml_migration) for the full guide, and migrated [Samples/](https://github.com/tkotani/ecalj/blob/main/Samples/README.md) (EPS, PROCAR, MLOsamples, TestInstall) as templates.
@@ -9,15 +9,9 @@
 * We have [UsageDetails](./UsageDetailed.md) in another file.
 * [Qiita Japanese](https://qiita.com/takaokotani/items/9bdf5f1551000771dc48) may be a help, but most of all are shown here.
 * When link did not work, go to https://github.com/tkotani/ecalj to download.
-
-## Licence {#licence}
-See the [License](./license) page (AGPLv3; AI is no exception).
-
-## Guided by an AI {#ai-agent}
-To have an AI (Claude Code, for example) guide you through ecalj, give it [GetStarted with AI](./getstartedAI).
-
-## Install
-To install ecalj, look into [install](../install/install.md), as well as [install for ISSP](../install/installISSP.md).
+* Install: [install](../install/install.md), [install for ISSP](../install/installISSP.md).
+* To have an AI guide you through ecalj, give it [GetStarted with AI](./getstartedAI).
+* Licence: AGPLv3 (AI is no exception). See the [License](./license) page.
 
 ## Features of ecalj package
 
