@@ -1,10 +1,10 @@
 # 入力ファイル {#toml-migration-2026-05}
 
-ecalj は、一体計算の部分（DFT パート）と GW パートからなります。TOML はそれらの計算すべてを制御する入力ファイルです。
+ecalj は、一体計算の部分（DFT パート）と GW パートからなります。
 
-今の ecalj は、TOML（`ctrlg.<sname>.toml`）だけを基本の入力ファイルとして読みます。すなわち、あらゆる計算はこの TOML のみから出発します。
-古い形式（2026-05 以前）では `ctrl.<sname>` と `GWinput` が必要でした。後方互換性のため、これらを TOML に変換するコンバータ
-`Legacy2toml.py` は残してあります。過去の計算を再現するには、あらかじめ変換して TOML を作ってください（[下の節](#migration-of-an-existing-legacy-directory)）。
+今の ecalj は、TOML 形式のファイル `ctrlg.<sname>.toml`（以下 ctrlg）だけを基本の入力ファイルとして読みます。すなわち、あらゆる計算はこの ctrlg のみから出発します。
+古い形式（2026-05 以前）では `ctrl.<sname>` と `GWinput` が必要でした。後方互換性のため、これらを ctrlg に変換するコンバータ
+`Legacy2toml.py` は残してあります。過去の計算を再現するには、あらかじめ変換して ctrlg を作ってください（[下の節](#migration-of-an-existing-legacy-directory)）。
 
 ## 基本となる入力ファイルは TOML ファイル一つ {#the-one-toml-file}
 
@@ -12,7 +12,7 @@ ecalj は、一体計算の部分（DFT パート）と GW パートからなり
 |---|---|
 | `ctrlg.<sname>.toml` | ecalj の基本入力ファイル。すべての計算はこのファイルから出発する。`[struc]`、`[[site]]`、`[[spec]]`、`[bz]`、`[iter]`、`[ham]`、`[gw]`、`[mlo]`、`[blocks]`、`[product_basis]` などの節からなる（ほかに `[options]`、`[str]`、`[ewald]`、`[esm]`、`[dyn]` など） |
 
-基本となる入力ファイルは TOML ファイル一つです（以下、ctrlg と呼びます）。ctrlg は結晶構造から自動生成し（`ctrlgenToml.py`）、それを編集して使うのが基本です。
+基本となる入力ファイルは ctrlg 一つです。ctrlg は結晶構造から自動生成し（`ctrlgenToml.py`）、それを編集して使うのが基本です。
 もしくは、生成するときにオプションを付けて生成します。
 
 **最後にある原子ごとの表**
@@ -55,7 +55,7 @@ Legacy2toml.py <sname>
 ### `esm_input.dat`（スラブ） {#esm-input-dat-slabs}
 
 別ファイルだった `esm_input.dat` は 2026-09-16 にやめ、`ctrlg.<sname>.toml` の `[esm]` 節にしました。Fortran はこのファイルを読みません。
-残っていると `lmf` は止まり、変換のスクリプト `ctrlg_absorb.py <sname>` の名前を示します。このスクリプトは、TOML に `[esm]` がまだ無ければ足し、
+残っていると `lmf` は止まり、変換のスクリプト `ctrlg_absorb.py <sname>` の名前を示します。このスクリプトは、ctrlg に `[esm]` がまだ無ければ足し、
 元のファイルを `esm_input.dat.bk` に移して、設定をどこへ移したかを頭に書きます。`Legacy2toml.py` も古い形式の変換のときに同じことをします。
 同じスクリプトは、残っている `PB.<sname>.toml`（原子ごとの積基底の表。2026-09 までは別ファイル）も `[product_basis]` に取り込みます。
 GW のバイナリはこのファイルがあっても同じように止まります。[lmf.md の ESM](./lmf#esm-effective-screening-medium) を見てください。

@@ -1,12 +1,12 @@
 # Input file {#toml-migration-2026-05}
 
-> English version of the page [manual/toml_migration](../../manual/toml_migration.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/toml_migration.md of commit 034c2b739 (source blob 6f5805fdc8ab).
+> English version of the page [manual/toml_migration](../../manual/toml_migration.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/toml_migration.md of commit 034c2b739 (source blob 1e5f36556a1a).
 
-ecalj consists of the one-body part (the DFT part) and the GW part. The TOML file is the input file that controls all of these calculations.
+ecalj consists of the one-body part (the DFT part) and the GW part.
 
-The present ecalj reads only the TOML file (`ctrlg.<sname>.toml`) as its basic input file; that is, every calculation starts from this TOML alone.
+The present ecalj reads only the TOML-format file `ctrlg.<sname>.toml` (ctrlg below) as its basic input file; that is, every calculation starts from this ctrlg alone.
 The old format (before 2026-05) needed `ctrl.<sname>` and `GWinput`. For backward compatibility the converter
-`Legacy2toml.py`, which turns them into TOML, is kept. To reproduce a past calculation, convert the input to TOML
+`Legacy2toml.py`, which turns them into a ctrlg, is kept. To reproduce a past calculation, convert the input into a ctrlg
 first ([below](#migration-of-an-existing-legacy-directory)).
 
 ## The basic input file is one TOML file {#the-one-toml-file}
@@ -15,7 +15,7 @@ first ([below](#migration-of-an-existing-legacy-directory)).
 |---|---|
 | `ctrlg.<sname>.toml` | The basic input file of ecalj. Every calculation starts from this file. It consists of sections such as `[struc]`, `[[site]]`, `[[spec]]`, `[bz]`, `[iter]`, `[ham]`, `[gw]`, `[mlo]`, `[blocks]`, `[product_basis]` (and also `[options]`, `[str]`, `[ewald]`, `[esm]`, `[dyn]`, etc.) |
 
-The basic input is one TOML file (called ctrlg below). The usual way is to generate ctrlg automatically from the crystal structure (`ctrlgenToml.py`) and edit it;
+The basic input file is one ctrlg. The usual way is to generate ctrlg automatically from the crystal structure (`ctrlgenToml.py`) and edit it;
 or options are given when it is generated.
 
 **The per-atom tables at the end**
@@ -64,7 +64,7 @@ command-line `-v` overrides that would not survive the conversion.
 The separate positional `esm_input.dat` was retired on 2026-09-16 and became
 the `[esm]` section of `ctrlg.<sname>.toml`. The Fortran does not read
 the file: a leftover one makes `lmf` abort and name the converter,
-`ctrlg_absorb.py <sname>`, which appends `[esm]` to the TOML if it is not
+`ctrlg_absorb.py <sname>`, which appends `[esm]` to the ctrlg if it is not
 there yet and moves the original to `esm_input.dat.bk` with a header saying
 where the settings went. `Legacy2toml.py` does the same during a legacy
 conversion. The same script folds a leftover `PB.<sname>.toml` (the
