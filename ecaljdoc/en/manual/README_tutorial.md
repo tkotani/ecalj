@@ -1,6 +1,6 @@
 # ecalj MainDocument
 
-> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob a1dae6e09116).
+> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob f40114e3f7ae).
 **This is the main document of ecaljdoc: the features of ecalj, an overview of QSGW, and the first calculation (GetStarted). Other pages are reached from the menu on the left.**
 
 * Here we give [GetStarted](#getstarted), together with install and overview of QSGW.
@@ -15,7 +15,10 @@
 1. **All electron full-potential PMT method** 
    The PMT method means; a mixed basis method of two kinds of augmented waves, that is, APW+MTO.
    In other words, the PMT method= the linearized (APW+MTO) method, which is unique except the [Questaal](https://www.questaal.org/) having the same origin with ecalj. MTOs and APWs work complementarily in the representation of the wave functions, corresponding to the localized and the extented natures of eigenfunctions. That is, localized MTOs (damping factor $\exp(-\kappa r)$ where $\kappa \sim 1\,{\rm bohr}^{-1}$; this implies only reaching to nearest atoms) together with APWs (cutoff is $\approx 3$ Ry) works well to get reasonable convergences. We can perform atomic-position relaxation at GGA/LDA level. Because of including APWs, we can describe the scattering states very well; this is difficult with Gaussians and the like. On the other hand, it is thanks to the MTOs that extremely few APWs suffice to describe atomic wave functions close to the core shape, such as 3d. 
-  ![alt text](../../manual/image-1.png)(This fig is taken from [nfp-manual by M. Methfessel and M. van Schilfgaarde](../../presentations/nfpmanual.pdf))
+   ![MTO and APW](../../manual/image-1.png)
+
+   *Fig. 1*. MTO and APW (from the [nfp manual by M. Methfessel and M. van Schilfgaarde](../../presentations/nfpmanual.pdf)).
+
    Our current PMT formulation is given in
 
    [1][KotaniKinoAkai2015, PMT formalism](https://github.com/ecalj/ecaljdoc/blob/main/presentations/KotaniKinoAkai2015FormulationPMT.pdf)
