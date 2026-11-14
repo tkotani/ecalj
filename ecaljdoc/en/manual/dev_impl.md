@@ -1,6 +1,6 @@
 # Implementation notes (details of the GW implementation) {#dev-impl}
 
-> English version of the page [manual/dev_impl](../../manual/dev_impl.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/dev_impl.md of commit 9a70dc248 (source blob f186ba7aa15d).
+> English version of the page [manual/dev_impl](../../manual/dev_impl.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/dev_impl.md of commit 51f4441b8 (source blob 23e39239cf37).
 
 ::: warning Just copied (2026-11-15)
 This page copies the sections still useful from the old developer notes `ecaljdetails.tex` (T. Kotani, last version 2024-11; the original is in `ecaljdoc/ecaljdetails/` of ecalj).
