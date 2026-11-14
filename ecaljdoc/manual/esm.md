@@ -126,3 +126,8 @@ system : vaccum(-z)/slab/vaccum(+z)
 
 esmsmves: ESM is off (no [esm] section in ctrlg.<sname>.toml)   <- ESM off
 ```
+
+## Where it is implemented {#where-it-is-implemented}
+
+`SRC/subroutines/esmsmves.f90` (the solver; called from `smves`) and
+`SRC/subroutines/m_lmfinit.f90::readesm` (reads `[esm]`, runs the migration).

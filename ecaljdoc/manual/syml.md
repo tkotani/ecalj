@@ -27,16 +27,16 @@ The symmetry lines are written into the `syml.<sname>` file for ecalj.
 The number of divisions for `syml` is give by a crude algorism, so edit it if necessary.
 
 ### Needed citations for getsyml
-  In addition to usual ecalj acknowledgement, following citations are required when you make a publication.
+  In addition to usual ecalj acknowledgement, following citations are <del class="clfix">required</del><span class="clfix">requested</span> when you make a publication <span class="clfix">(see [License](./license))</span>.
 
    1.Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, 
      Band structure diagram paths based on crystallography,
      Comp. Mat. Sci. 128, 140 (2017)
      
    2.You should also cite spglib that is an essential library used in the implementation.
-     https://github.com/atztogo/spglib.git
+     <del class="clfix">https://github.com/atztogo/spglib.git</del><span class="clfix">A. Togo, K. Shinohara, I. Tanaka, Sci. Technol. Adv. Mater., Meth. 4, 2384822 (2024).</span>
 
-* The licences of spglib and seekpath: [LICENCE](https://github.com/tkotani/ecalj/blob/main/LICENCE) of ecalj.
+* The licences of spglib and seekpath: <del class="clfix">[LICENCE](https://github.com/tkotani/ecalj/blob/main/LICENCE) of ecalj</del><span class="clfix">[License](./license)</span>.
 
 ### (memo for developer)
    a.Modify lmchk to write required information to supply reasonable.

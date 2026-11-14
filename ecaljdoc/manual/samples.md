@@ -134,4 +134,4 @@ page; this Samples page only points:
 | End-to-end tutorial (POSCAR → QSGW) | [./README_tutorial](./README_tutorial) |
 
 If you want to add a new Samples directory, the conventions live in
-`MD/developer.md` (`testecalj`, `comp.py`, naming).
+<del class="clfix">`MD/developer.md`</del><span class="clfix">[Tests (testecalj)](./dev_testecalj)</span> (`testecalj`, `comp.py`, naming).

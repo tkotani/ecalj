@@ -1,7 +1,7 @@
 
 # ecalj Install
 
-> English version of the page [install/install](../../install/install.md). The pages at the top of ecaljdoc are the reference; this one was made from install/install.md of commit a9d3d887c (source blob de24c7ae6d1f).
+> English version of the page [install/install](../../install/install.md). The pages at the top of ecaljdoc are the reference; this one was made from install/install.md of commit a9d3d887c (source blob 2e44f97379c4).
 
 > ⚠️ **TOML migration (2026-05)** — Fortran binaries now read `ctrlg.<sname>.toml` only. Run `Legacy2toml.py <sname>` to convert legacy `ctrl.<sname>` / `GWinput`. See [Input file](../manual/toml_migration) for the full guide and the list of migrated samples.
 
@@ -199,7 +199,7 @@ options:
                    default: none
                    compile the GPU and GPU-MP version
   --bindir BINDIR  ecalj binaries and scripts
-  --fc FC          fortran compiler gfortran/ifort/nvfortran
+  --fc FC          fortran compiler gfortran/ifort/ifx/nvfortran
   --notest         no test. only compile
   --verbose        verbose on for debug
 ```
@@ -242,7 +242,7 @@ For GPU builds, use:
 
 To start from scratch, add `--clean`.
 
-This will compile the Fortran source, link, copy all programs and scripts to your bin, and run the minimum install tests at `ecalj/Samples/TestInstall/` (about ~ 5 minutes).
+This will compile the Fortran source, link, copy all programs and scripts to your bin, and run the minimum install tests at `ecalj/Samples/TestInstall/` (<del class="clfix">about ~ 5 minutes</del><span class="clfix">3 to 10 minutes</span>).
 
 *Tip:* Check `./InstallAll.py` for details on where binaries are installed (default: `BINDIR=~/bin`). Tools like `getsyml`, `viewvesta`, and `vasp2ctrl` are softlinked.
 
@@ -324,7 +324,7 @@ to check the structure in the viewer. In `/StructureTool`, we have converters:
 `vasp2ctrl` and `ctrl2vasp`. These allow you to convert structures with POSCAR.
 `ctrl2vasp` accepts the same three input forms as `viewvesta`.
 
-In addition, you may need to install `getsyml.py` to obtain symmetry lines for band plots.
+<del class="clfix">In addition, you may need to install `getsyml.py` to obtain symmetry lines for band plots.</del><span class="clfix">`getsyml`, which makes the symmetry lines for band plots, is put into your bin by `InstallAll.py` (a soft link).</span>
 Generated `syml.*` files are used for band plots in ecalj.
 As long as you have `spglib` and `seekpath`, you usually do not need extra steps.
 For more details, see the upstream memo: [ecalj/GetSyml/README.md](https://github.com/tkotani/ecalj/blob/main/GetSyml/README.md).
@@ -372,8 +372,7 @@ For more details, see the upstream memo: [ecalj/GetSyml/README.md](https://githu
   │   └── external    : bundled third-party (toml-f, ...)
   └── Samples/
       ├── TestInstall : Root of install tests (testecalj --all)
-      ├── EPS / PROCAR / MLOsamples : modernized topical tests
-      └── Legacy/     : older examples that are not rebuilt (Samples/README.md, table 2)
+      └── EPS / PROCAR / MLOsamples / ... : topical samples (the old Legacy/ was rebuilt and removed on 2026-09-30)
   ```
 
   All Fortran codes are in `SRC/main/` and `SRC/subroutines/`.

@@ -1,6 +1,6 @@
 # Server specific setting
 
-> English version of the page [manual/UsageISSP](../../manual/UsageISSP.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/UsageISSP.md of the tree of c9f9a3003 (source blob e8c8f7dc901c).
+> English version of the page [manual/UsageISSP](../../manual/UsageISSP.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/UsageISSP.md of the tree of c9f9a3003 (source blob 3342253fc781).
 Here we explain how to install and submit jobs in Ohtaka and Kugui at ISSP in u-tokyo.
 
 ## Use ISSP System B: Ohtaka
@@ -51,7 +51,7 @@ If you run out of memory, reduce the number of cores per node to ensure enough m
 
 ### modification of ecalj code for Ohtaka (just for developer)
 At ohtaka it uses `srun` instead of `mpirun`. 
-The difference is written in `SRC/exec/MachineDependence.py`.
+The difference is written in <del class="clfix">`SRC/exec/MachineDependence.py`</del><span class="clfix">`SRC/exec/clusters.toml` (chosen with `-c <name>` of `gwsc` etc.) and `SRC/exec/pylib/MachineDependence.py`</span>.
 
 <!-- Replace the `ecalj` directory path with your own.
 ```
@@ -120,8 +120,9 @@ FC=nvfortran ./InstallAll --gpu --clean
 #
 ulimit -s unlimited
 id=inas6gasb6
-gwsc -np 64 -np2 4 --gpu 5 $id > lgwsc
+gwsc 5 -np 64 -np2 4 --gpu -c kugui_gpu $id > lgwsc
 ```
+<span class="clfix">The number of iterations (5) is the first argument of `gwsc`; `--gpu` takes no argument; `-c kugui_gpu` selects the launcher settings of the GPU node (corrected 2026-11-14, as in [ecaljgpu](./ecaljgpu) and [installISSP](../install/installISSP)).</span>
 * Specify the number of parallel processes for CPU calculations with `-np`.
 * Specify the number of parallel processes for GPU calculations with `-np2`. Usually, this is the number of available GPUs.
 * `--gpu` uses the GPU version of the executable.

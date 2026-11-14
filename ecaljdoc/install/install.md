@@ -196,7 +196,7 @@ options:
                    default: none
                    compile the GPU and GPU-MP version
   --bindir BINDIR  ecalj binaries and scripts
-  --fc FC          fortran compiler gfortran/ifort/nvfortran
+  --fc FC          fortran compiler gfortran/ifort/ifx/nvfortran
   --notest         no test. only compile
   --verbose        verbose on for debug
 ```
@@ -239,7 +239,7 @@ GPU 用のビルドでは次のようにします。
 
 一から始めるには `--clean` を加えます。
 
-これで Fortran のソースをコンパイル、リンクし、すべてのプログラムとスクリプトを bin にコピーし、`ecalj/Samples/TestInstall/` の最小限のインストールの試験を走らせます（約 5 分）。
+これで Fortran のソースをコンパイル、リンクし、すべてのプログラムとスクリプトを bin にコピーし、`ecalj/Samples/TestInstall/` の最小限のインストールの試験を走らせます（<del class="clfix">約 5 分</del><span class="clfix">3〜10 分</span>）。
 
 *ヒント:* バイナリをどこに入れるかの詳細は `./InstallAll.py` を見てください（既定は `BINDIR=~/bin`）。`getsyml`、`viewvesta`、`vasp2ctrl` などのツールはソフトリンクになります。
 
@@ -320,7 +320,7 @@ viewvesta ctrls.si           # legacy structure-only seed file
 `vasp2ctrl` と `ctrl2vasp` があります。これらで POSCAR との間で構造を変換できます。
 `ctrl2vasp` は `viewvesta` と同じ三つの形の入力を受け付けます。
 
-さらに、バンドの図の対称線を得るために `getsyml.py` を入れる必要があるかもしれません。
+<del class="clfix">さらに、バンドの図の対称線を得るために `getsyml.py` を入れる必要があるかもしれません。</del><span class="clfix">バンドの図の対称線を作る `getsyml` は、`InstallAll.py` が bin に入れます（ソフトリンク）。</span>
 作られた `syml.*` ファイルは ecalj のバンドの図に使います。
 `spglib` と `seekpath` があれば、ふつうは追加の手順は要りません。
 詳しくは上流のメモ [ecalj/GetSyml/README.md](https://github.com/tkotani/ecalj/blob/main/GetSyml/README.md) を見てください。
@@ -368,8 +368,7 @@ viewvesta ctrls.si           # legacy structure-only seed file
   │   └── external    : bundled third-party (toml-f, ...)
   └── Samples/
       ├── TestInstall : Root of install tests (testecalj --all)
-      ├── EPS / PROCAR / MLOsamples : modernized topical tests
-      └── Legacy/     : older examples that are not rebuilt (Samples/README.md, table 2)
+      └── EPS / PROCAR / MLOsamples / ... : topical samples (the old Legacy/ was rebuilt and removed on 2026-09-30)
   ```
 
   Fortran のコードはすべて `SRC/main/` と `SRC/subroutines/` にあります。

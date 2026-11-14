@@ -1,6 +1,6 @@
 # Samples — what's where in `ecalj/Samples/`
 
-> English version of the page [manual/samples](../../manual/samples.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/samples.md of commit 034c2b739 (source blob 063f0847cccf).
+> English version of the page [manual/samples](../../manual/samples.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/samples.md of commit 034c2b739 (source blob a1e1584f99ab).
 
 This page is a thin index over the [`ecalj/Samples/`](https://github.com/tkotani/ecalj/tree/main/Samples)
 tree.  Each row points at the per-directory README that owns the
@@ -136,4 +136,4 @@ page; this Samples page only points:
 | End-to-end tutorial (POSCAR → QSGW) | [./README_tutorial](./README_tutorial) |
 
 If you want to add a new Samples directory, the conventions live in
-`MD/developer.md` (`testecalj`, `comp.py`, naming).
+<del class="clfix">`MD/developer.md`</del><span class="clfix">[Tests (testecalj)](./dev_testecalj)</span> (`testecalj`, `comp.py`, naming).

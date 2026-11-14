@@ -161,6 +161,9 @@ The full `ctrlg.cu.toml` from `Samples/EPS/EPS_Cu/` is shown below. Inline
 `#` comments document each key's role; copy-paste the file as a starting
 point for FCC monatomic metals and adjust [`spec`], [`bz`], [`ham`] to
 your case.
+<span class="clfix">This file was converted from an old input of the sample: some values differ from what `ctrlgenToml.py` writes now and from the defaults
+(e.g. `pwmode = 1` here, 11 by default; `[iter] mix = "A2"`, `nit = 30`; `[gw] n1n2n3`, `QpGcut_*`, `t_sigmaw = 262`, `t_tetrakbt = 0`).
+For the present template values see [GW settings](./gwinput) and the comments of a freshly generated `ctrlg.<sname>.toml`.</span>
 
 ```toml
 # Top-level scalars
@@ -308,7 +311,7 @@ order `[gw]` `[mlo]` `[blocks]` `[product_basis]`).
 - **Insulator / semiconductor** (Si, GaAs): `[bz].metal = 0` and
   `[bz].tetra = true`; smaller `[bz].nkabc`; `[ham].pwemax` ~3 is enough.
 - **LDA+U**: add `idu = [0, 0, 2, 2]`, `uh = [0, 0, 0.1, 0.632]`,
-  `jh = [0, 0, 0, 0.055]` to `[[spec]]`.  `dmatu.<sname>` is read
+  `jh = [0, 0, 0, 0.055]` to `[[spec]]`.  <del class="clfix">`dmatu.<sname>`</del><span class="clfix">`dmats.<sname>`</span> is read
   separately if present.
 - **Atomic-position relaxation**: `[dyn].mode = 4` (CG) or `6` (Broyden),
   set `[[site]].relax = [1, 1, 1]` per atom. See [Forces and relaxation](./relax).
@@ -472,11 +475,6 @@ The PMT method applied to molecules from H₂ to Kr₂: T. Kotani and H. Kino, J
 [doi:10.7566/JPSJ.82.124714](https://doi.org/10.7566/JPSJ.82.124714)
 ([pdf](../presentations/KotaniKino2013PMTMolecule.pdf)).
 
-## Where it is implemented
-
-`SRC/subroutines/esmsmves.f90` (the solver; called from `smves`) and
-`SRC/subroutines/m_lmfinit.f90::readesm` (reads `[esm]`, runs the migration).
-
 ---
 
 # LDA+U (TOML)
@@ -502,7 +500,7 @@ Mode codes (`idu[l]`):
 - `12` / `21` / ... — same code +10 means "skip LDA+U when `sigm.<sname>` exists"
   (so a QSGW run with `sigm` falls back to plain QSGW).
 
-`dmatu.<sname>` (density matrix) is read & written automatically — it is
+<del class="clfix">`dmatu.<sname>`</del><span class="clfix">`dmats.<sname>`</span> (density matrix) is read & written automatically — it is
 the LDA+U analogue of `rst.<sname>`.  A first-shot LDA run without U
 populates it.  You can override the initial occupation by hand-writing
 `occnum.<sname>` (one line of `2l+1` numbers per spin) — see the

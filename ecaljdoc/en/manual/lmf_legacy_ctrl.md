@@ -1,15 +1,18 @@
 # `ctrl.<sname>` — legacy reference (kept for migration)
 
-> English version of the page [manual/lmf_legacy_ctrl](../../manual/lmf_legacy_ctrl.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/lmf_legacy_ctrl.md of the tree of c9f9a3003 (source blob 6a00773c2224).
+> English version of the page [manual/lmf_legacy_ctrl](../../manual/lmf_legacy_ctrl.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/lmf_legacy_ctrl.md of the tree of c9f9a3003 (source blob fefaea7bd2d5).
 
 > ⚠️ **This page is the historical reference for the legacy `ctrl.<sname>`
 > text format.** Since 2026-05, `lmf` / `lmfa` / `lmchk` read TOML only
 > (`ctrlg.<sname>.toml`) — the Fortran no longer parses
-> the `ctrl.<sname>` shown below. The page is kept because the
+> the `ctrl.<sname>` shown below. <del class="clfix">The page is kept because the
 > `Category_Token` documentation here is still the most thorough
 > per-key reference; treat it as the canonical place to look up the
 > *meaning* of a key, then translate to TOML via the
-> [`Legacy ↔ TOML map`](./lmf#legacy-ctrl-lt-sname-gt-↔-toml-path-map).
+> [`Legacy ↔ TOML map`](./lmf#legacy-ctrl-lt-sname-gt-↔-toml-path-map).</del>
+> <span class="clfix">The keys of the present input are described in [lmf](./lmf) (ctrl side) and [GW settings](./gwinput) (GW side).
+> This page is kept as a record; its `Category_Token` notes may still help to read the meaning of an old key
+> (the [`Legacy ↔ TOML map`](./lmf#legacy-ctrl-lt-sname-gt-↔-toml-path-map) gives the TOML path).</span>
 >
 > If you are starting fresh, ignore this page entirely and read
 > [`lmf`](./lmf) instead. If you are migrating an old working
@@ -268,8 +271,8 @@ Default: R*0.4, with R=augmentation (muffin-tin) radius.
     Exchange parameter J for LDA+U
 ```
 
-In addition, it reads `dmatu.<sname>` containing density matrix.
-`dmatu.<sname>` is automatically generated if not exists.
+In addition, it reads <del class="clfix">`dmatu.<sname>`</del><span class="clfix">`dmats.<sname>`</span> containing density matrix.
+<del class="clfix">`dmatu.<sname>`</del><span class="clfix">`dmats.<sname>`</span> is automatically generated if not exists.
 
 For the first, a line must be added to the input file for each species that contains U and J. Consider the example taken from the ErAs test case:
 ```

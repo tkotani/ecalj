@@ -1,6 +1,6 @@
 # Effective Screening Medium (ESM) {#esm-effective-screening-medium}
 
-> English version of the page [manual/esm](../../manual/esm.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/esm.md of the tree of 1b103da8c (source blob 0102b044462c).
+> English version of the page [manual/esm](../../manual/esm.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/esm.md of the tree of 1b103da8c (source blob 9d9d1ae9759c).
 
 For a slab with a vacuum layer, ESM replaces the periodic electrostatics with
 the boundary condition you actually want (vacuum, or a metal electrode) on
@@ -128,3 +128,8 @@ system : vaccum(-z)/slab/vaccum(+z)
 
 esmsmves: ESM is off (no [esm] section in ctrlg.<sname>.toml)   <- ESM off
 ```
+
+## Where it is implemented {#where-it-is-implemented}
+
+`SRC/subroutines/esmsmves.f90` (the solver; called from `smves`) and
+`SRC/subroutines/m_lmfinit.f90::readesm` (reads `[esm]`, runs the migration).

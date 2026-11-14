@@ -1,6 +1,6 @@
 # Command-line options for `lmf` / `lmfa` / `lmchk` (and friends)
 
-> English version of the page [manual/cmdopts](../../manual/cmdopts.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/cmdopts.md of the tree of c9f9a3003 (source blob ab549f38ed26).
+> English version of the page [manual/cmdopts](../../manual/cmdopts.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/cmdopts.md of the tree of c9f9a3003 (source blob 1bc2494df668).
 
 ## Cmdline argument structure (the minimum)
 
@@ -151,7 +151,7 @@ an abort + one-line hint pointing at the canonical
 | `--readQforGW` | flag | `qg4gw`: take the q-vectors of `[gw] QforGW` (one-shot GW, `gw_lmfh` passes it) | `m_q0p.f90` |
 | `--n1n2n3eps` | flag | Honour `n1n2n3eps` mesh in `qg4gw`/`mkqg` for ε/χ⁺⁻ | `mkqg.f90` |
 | `--job=N` | kv | Stage selector in `hbasfp0`, `hvccfp0`, `hsfp0_sc`, `hsfp0`, `hx0fp0`, `hqpe`, `qg4gw`, `heftet`. Range is per-binary; the values that `gwsc` uses are in the console output shown in [gwsc](./gwsc) | many |
-| `--ntqxx` | flag | Limit number of QP states (debug) | various |
+| `--ntqxx` | flag | <del class="clfix">Limit number of QP states (debug)</del><span class="clfix">Fix the number of bands for Σ at each q to that of the first iteration (file `NTQXX`; [gwsc](./gwsc))</span> | <del class="clfix">various</del><span class="clfix">`m_itq.f90`</span> |
 | `--nk=` | kv | k-parallel group size in `mlo_magnon` (overrides the default from the number of ranks) | `main_mlo_magnon.f90` |
 | `--cutuu=`, `--nww=`, `--nb=`, `--Wtype=` | — | Removed (2026-10-02, the AHC and the Wannier magnon were taken out). Giving it stops the program | `m_cmdopt_registry.f90` |
 | `--dumpW` | flag | `hgw`: write W−v, which is kept in memory, to `__WVR.<iq>` / `__WVI.<iq>` for analysis (`gwsc --dumpW`) | `main_hgw.f90` |
@@ -235,10 +235,11 @@ runs. Behaviour is not guaranteed to be stable.
 
 `--debugbndfp`, `--debugpwmat`, `--debugsugw`, `--debugzmel`, `--zmel0`,
 `--normcheck`, `--showdmat`, `--x0test`, `--q2q1test`, `--cvK:`,
-`--skip_qvalcheck`, `--skipbstruxinit`, `--skipCPHI`, `--skipGS`,
+`--skip_qvalcheck`, `--skipbstruxinit`, `--skipCPHI`, <del class="clfix">`--skipGS`,</del>
 `--skiphammsoc`, `--skip1d` / `--skip2nd` / `--skip2ndd` / `--skip2ndp`
 / `--skip2nds`, `--skipd` / `--skipf` / `--skiplo` (all currently dead
 code in `m_HamPMT.f90`), `--wanatom`.
+<span class="clfix">(`--skipGS` is not a debug flag: it skips the Gram-Schmidt orthonormalization in `lmf --jobgw=1` (`sugw.f90`) to make it faster; see [gwsc](./gwsc).)</span>
 
 ## Run-time TOML overrides (`--ctrlg:<path>=<value>`)
 

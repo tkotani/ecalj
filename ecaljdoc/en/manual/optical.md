@@ -1,6 +1,6 @@
 # Dielectric function: job_eps
 
-> English version of the page [manual/optical](../../manual/optical.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/optical.md of commit 85cdee981 (source blob 2cf0032efe11).
+> English version of the page [manual/optical](../../manual/optical.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/optical.md of commit 85cdee981 (source blob fb80ecc6c9fb).
 
 > ⚠️ **Tool consolidation (2026-06)** — The dielectric-function driver is now **`job_eps`** (with `--lcf` for local-field correction, `--decompose` for interband / intraband split). The legacy `epsPP0` / `eps_lmfh` / `epsPP_lmfh` / `epsPP_lmfh_intra` wrappers have moved to `SRC/exec_legacy/` and are no longer installed to `~/bin`.
 >
@@ -108,6 +108,7 @@ The mesh for calculating the dielectric function is a logarithmic mesh; in the `
     HistBin_dw = 2e-3
     HistBin_ratio = 1.08
 ```
+<span class="clfix">(2e-3 and 1.08 above are the template values until 2025-08-19; the present template has 1e-4 and 1.05; see HistBin in [GW settings](./gwinput).)</span>
 by changing these values the energy mesh of the dielectric function can be increased (decreased). With a finer mesh, more structure of the dielectric function appears. However, if it is too fine, the computational cost increases somewhat. The method first accumulates the weights of the imaginary part as a histogram, and then obtains the real part by Hilbert transformation. So it is reasonably stable numerically.
 
 
