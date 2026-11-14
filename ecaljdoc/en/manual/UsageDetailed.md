@@ -1,6 +1,6 @@
 # Other notes {#usagedetailed}
 
-> English version of the page [manual/UsageDetailed](../../manual/UsageDetailed.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/UsageDetailed.md of commit a8bdac429 (source blob b51987d70ab6).
+> English version of the page [manual/UsageDetailed](../../manual/UsageDetailed.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/UsageDetailed.md of commit a8bdac429 (source blob 455f57e2a43b).
 
 > ⚠️ The input is `ctrlg.<sname>.toml`. Run `Legacy2toml.py <sname>` to convert legacy `ctrl.<sname>` / `GWinput`. Overrides on the command line are `--ctrlg:<path>=val`; with `-v<NAME>=<VAL>` the programs stop. See [Input file](./toml_migration). The samples named below that are being rebuilt from `Samples/Legacy` are listed in ecalj [`Samples/README.md`](https://github.com/tkotani/ecalj/blob/main/Samples/README.md).
 
@@ -441,78 +441,3 @@ We can set up templates for your calculations. Ask us.
 We have a latest paper at https://arxiv.org/abs/2506.03477 for GPU version. 
 It shows some details of computational steps in ecalj.
 In Japanese, pages by Dr.Gomi at [gomisai.blog75.fc2.com](http://gomisai.blog75.fc2.com/blog-entry-675.html) and [Qiita](https://qiita.com/takaokotani/items/9bdf5f1551000771dc48).
-
-## mixbeta and mixpriorit {#mixbeta-and-mixpriorit}
-If not stable convergence in gwsc, try setting
-`[gw].mixbeta = 0.5`
-in `ctrlg.<sname>.toml`.
-If lmf itself does not converge, use smaller `[iter] b`, such as 0.015, 0.01, 0.005.
-
-What they do: at the end of every iteration `hqpe_sc` mixes the static self-energy `sigm`.
-With $x_0$ the `sigm` the iteration ran with and $f$ the one GW has just made, the next `sigm` is
-
-$$x_{\rm new} = x^* + \beta\,(f^* - x^*) \tag{1}$$
-
-where $x^*$, $f^*$ are the Anderson combination of the current and up to `mixpriorit` previous
-iterations (history in `__mixsig`). $\beta$ = `mixbeta` (default 1.0), `mixpriorit` default 3.
-With no previous iteration, $x^*=x_0$ and $f^*=f$, i.e. plain linear mixing.
-
-**The first iteration from LDA.** There is no previous `sigm` and no history, so $x_0=0$ (no self-energy,
-i.e. LDA) and eq (1) gives $\beta f$: the first step takes only $\beta$ of the GW self-energy.
-With the default $\beta=1$ it takes all of it; with $\beta=0.5$, half.
-The second iteration is again linear mixing (one history entry); the Anderson extrapolation starts at the third.
-The converged result does not depend on $\beta$; only the path does.
-Example, `Samples/TestInstall/si_gwsc`, one `gwsc 1` from LDA (2026-09-26):
-
-| | `sigm` before → after mixing | band gap |
-|---|---|---|
-| LDA | — | 0.571 eV |
-| $\beta=1.0$ (default) | 6.0488 → 6.0488 | 1.293 eV |
-| $\beta=0.5$ | 6.0488 → 3.0244 | 0.934 eV (half the shift) |
-
-MLO-gwsc (`gwsc --mlo`) mixes $\Sigma^{\rm MLO}$ the same way with the same `mixbeta` by default (history in `__QMLO_mixsig`; the environment variable `ECALJ_MLO_MIX=0` turns it off). Its $x_0$ is the Bloch sum of `QMLO_SigRs`, the counterpart of `sigm` here, so the history may be deleted; see [MLO-gwsc](./mlo_gwsc).
-
-## Check used MTOs
- Near beginning of console output, what MTO you use is shown as: (GaAs case).
- ```
- sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
- spec      l    rsm    eh     gmax    last term    cutoff
-  Ga       0*   1.13  -1.00   6.579    1.19E-06    1459
-  Ga       1*   1.13  -1.00   7.028    1.26E-06    1807
-  Ga       2*   1.13  -1.00   7.475    1.09E-06    2109
-  Ga       3    1.13  -1.00   7.920    1.06E-06    2637
-  Ga       0*   1.13  -2.00   6.579    1.19E-06    1459
-  Ga       1*   1.13  -2.00   7.028    1.26E-06    1807
-  Ga       2    1.13  -2.00   7.475    1.09E-06    2109
-  As       0*   1.18  -1.00   6.300    2.13E-06    1243
-  As       1*   1.18  -1.00   6.720    1.26E-06    1471
-  As       2*   1.18  -1.00   7.140    1.37E-06    1837
-  As       3    1.18  -1.00   7.558    1.05E-06    2229
-  As       0*   1.18  -2.00   6.300    2.13E-06    1243
-  As       1*   1.18  -2.00   6.720    1.26E-06    1471
-  As       2    1.18  -2.00   7.140    1.37E-06    1837
- ```
-
-### Local orbitals (`pz`) and the `ecore>evalence` message
-If spillout of core is not so small (more than 0.05 or something),
-it is better to use `pz` (lo). Treat the core as valence. Bi4d is such a case. Maybe use `pz = [0.0, 0.0, 4.9]`.
-
-The message `ecore>evalence` means that Ecore is greater than Evalence.
-For safety, we do not allow this.
-Compare the ECORE file and valence levels, shown in log file or console output.
-
-## Molecules
-`ctrlgenToml.py <sname> --systype=molecule` makes a template for a molecule in a box (Γ point only, `[bz] nkabc = [1, 1, 1]`).
-For a molecule we use in `[bz]`
-```toml
-tetra = false
-n = -1        # Negative is the Fermi distribution function. w gives temperature.
-w = 0.001     # w=0.001 corresponds to T=157K as shown in console
-```
-In addition, `fsmom` (n_up-n_down) is needed (`fsmommethod = 1`) if we have magnetic moment.
-Sample: `Samples/AtomDimer/N2` (N₂ and the N atom in a box, bond length and binding energy).
-The template that `ctrlgenToml.py --systype=molecule` writes has `tetra = true` and `w = 0.01`, which differ from the values above
-(those of the sample `Samples/AtomDimer/N2`); which is better has not been checked (2026-11-14).
-The PMT method applied to molecules from H₂ to Kr₂: T. Kotani and H. Kino, J. Phys. Soc. Jpn. **82**, 124714 (2013),
-[doi:10.7566/JPSJ.82.124714](https://doi.org/10.7566/JPSJ.82.124714)
-([pdf](../../presentations/KotaniKino2013PMTMolecule.pdf)).

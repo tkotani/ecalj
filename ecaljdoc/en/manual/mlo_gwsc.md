@@ -1,6 +1,6 @@
 # MLO-gwsc — QSGW interpolating the self-energy in the MLO representation (under development)
 
-> English version of the page [manual/mlo_gwsc](../../manual/mlo_gwsc.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo_gwsc.md of commit 8e38c105c (source blob 4eaccfab5ec0).
+> English version of the page [manual/mlo_gwsc](../../manual/mlo_gwsc.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo_gwsc.md of commit 8e38c105c (source blob a5f53889fe6c).
 
 > **Status (2026-09-30)**: LiTi₂O₄ at 6³ and 9³ was run from LDA up to 40 iterations (§3.5). The difference in the MLO bands due to the precision of the GPU matrix products (tf32, fp32, fp64) is
 > a few meV or less, so the fast tf32 may be used. At 10 iterations it is still converging; at 6³ a shoulder appears in the occupied bands from iteration 20, and at 9³ the bands become fairly smooth at 40 iterations.
@@ -135,7 +135,7 @@ In earlier code it was mixed only when `ECALJ_MLO_MIX=1` was given).
 - The history is `__QMLO_mixsig` (`__mixsig` on the `sigm` side). The input of the mixing $x_0$ (the $\Sigma^{\rm MLO}$ actually used in that iteration) is
   the Bloch sum of `QMLO_SigRs` at the irreducible $q$ (the same matrix that `getsenex` put into $H$). It plays the same role as `sigm` in the `sigm` mixing, so the history may be discarded
 - **The first time (from LDA) starts with a factor $\beta$**: there is no previous $\Sigma$, so mixing starts from $x_0=0$ ($\Sigma=0$), and iteration 1 is $\beta\Sigma^{\rm out}$.
-  Both `sigm` and $\Sigma^{\rm MLO}$ are scaled by $\beta$; with the default $\beta=1$ the full amount enters ($\beta=0.5$ for LiTi₂O₄. [mixbeta](./UsageDetailed#mixbeta-and-mixpriorit))
+  Both `sigm` and $\Sigma^{\rm MLO}$ are scaled by $\beta$; with the default $\beta=1$ the full amount enters ($\beta=0.5$ for LiTi₂O₄. [mixbeta](./lmf#mixbeta-and-mixpriorit))
 
 ### 1.7 How to draw the MLO bands
 
