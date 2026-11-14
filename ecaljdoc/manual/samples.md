@@ -15,6 +15,7 @@ ecalj/Samples/
 ├── MLOsamples/        testecalj-runnable
 ├── MLOQSGW/           testecalj-runnable (QSGW with gwsc --mlo)
 ├── AFsymmetry/        testecalj-runnable (antiferromagnetic symmetry, LDA and QSGW)
+├── AFfixMMOM/         testecalj-runnable (AF moment held at a given value, mmtarget.aftest)
 ├── Magnon/            testecalj-runnable (magnon spectra, job_mlo_magnon)
 ├── kBT/               electron temperature in GW: scanT/ (testecalj-runnable), LiTi2O4, research log
 ├── FermiSurface/ Doping/ HomoGas/ BoltzTraP/ SLAB/ SOC/ LDAU/ EffectiveMass/ Relax/ DOS/ IIR/
@@ -44,10 +45,11 @@ ecalj/Samples/
 | **PROCAR/Ni2MnGa_L21_PROCAR** | 原子ごとのファットバンド。強磁性の Heusler。収束した `rst.ni2mnga` を含む | [Ni2MnGa_L21_PROCAR/](https://github.com/tkotani/ecalj/tree/main/Samples/PROCAR/Ni2MnGa_L21_PROCAR)（README なし。test.py を参照） | [その他の説明 § PROCAR](./UsageDetailed#procar-mode) |
 | **TestInstall/**（`testecalj --all` で 26 ターゲット、66 件の確認） | インストールの確認: 基底状態、GW（`gwsc`、`gw_lmfh`）、有限温度（`fe_kbt`）、eps（`job_eps`）、ChiPM、MLO のモデルの cRPA。重い GW のターゲット `cugase2_gwsc222`、`nio_gwsc444`、`pdo_gwsc443`、`gas_gwsc666` は一つずつ回す | （ディレクトリごと。`testecalj --all` で回す） | [gwsc](./gwsc)、[誘電関数](./optical) |
 | **MLOQSGW/**（`GaAs`、`NiO`） | 自己エネルギーを MLO の表現で内挿する QSGW（`gwsc --mlo`） | [MLOQSGW/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/MLOQSGW/README.md) | [MLO-gwsc](./mlo_gwsc) |
-| **BenchmarkTest/**（`inas2gasb2`、`inas4gasb4`） | InAs/GaSb の超格子の QSGW の 1 反復を、保存した `QPU.1run` と比べる。32 GB の GPU 1 枚では `-np2 1` | （README なし。test.py を参照） | [GPU 版](./ecaljgpu) |
+| **BenchmarkTest/**（`inas2gasb2`、`inas4gasb4`） | InAs/GaSb の超格子の QSGW の 1 反復を、保存した `QPU.1run` と比べる。32 GB の GPU 1 枚では `-np2 1`。ISSP の計算機用のジョブのスクリプトは `BenchmarkTest/ISSP/`（[ISSP](../install/installISSP)） | （README なし。test.py を参照） | [GPU 版](./ecaljgpu) |
 | **AFsymmetry/**（`NiO`、`NiSe`、`NiO_gwsc`） | サイトに `af = 1 / -1` を付けた反強磁性の対称性 `symgrpaf`。LDA と QSGW（GW のプログラムは両方のスピンを計算する） | [AFsymmetry/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/AFsymmetry/README.md) | [lmf](./lmf#symgrp) |
+| **AFfixMMOM/**（`NiO_afsym`、`NiO_noafsym`） | 反強磁性の対のモーメントを決まった値に保つ（`mmtarget.aftest`）。NiO を `symgrpaf` あり・なしで | [AFfixMMOM/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/AFfixMMOM/README.md) | [その他の説明](./UsageDetailed#antiferro-symmetry-without-soc) |
 | **Magnon/**（`Fe_mlo_magnon`） | MLO のモデルによるマグノンのスペクトル（`job_mlo_magnon`、bcc Fe）。2026-10-02 より前の版（タグ `last-wannier`）の Wannier 関数と比べる | [Magnon/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/Magnon/README.md) | [その他の説明](./UsageDetailed) |
-| **kBT/scanT/**（`Si`） | 同じ入力を、いくつかの電子温度で（`scan_T.sh`、`collect_T.py`）: Si のギャップ、bcc Fe のバンドとモーメント | [kBT/scanT/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/kBT/scanT/README.md) | [kBT](./kBT) §5 |
+| **kBT/scanT/**（`Si`） | 同じ入力を、いくつかの電子温度で（`scan_T.sh`、`collect_T.py`）: Si のギャップ、bcc Fe のバンドとモーメント。試験のターゲットは `Si` だけ（`Cu`、`Fe`、`GaAs` のディレクトリもある） | [kBT/scanT/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/kBT/scanT/README.md) | [kBT](./kBT) §5 |
 | **FermiSurface/Cu**、**Doping/Si**、**HomoGas/es**、**BoltzTraP/Si**、**SLAB/Cu001**、**SOC/**（`FePt_MAE`、`MnGa_MAE`）、**LDAU/ReN**、**EffectiveMass/**（`GaAs`、`CdS`、`GaN`）、**Relax/LaGaO3**、**DOS/**（`ZnS`、`Fe`）、**IIR/C**、**AtomDimer/N2** | 短い例（どれも数分以内）: xcrysden のためのフェルミ面、半端な Z か背景電荷によるドーピング、Lindhard 関数と解析的な形との比較、BoltzTraP の入力、仕事関数を見るスラブ、磁気異方性エネルギー、LDA+U、SOC を入れた有効質量、原子位置の緩和、全・部分状態密度、衝突電離の割合（自己エネルギーの虚部）、箱の中の分子 | 各ディレクトリの README.md | [その他の説明](./UsageDetailed) |
 
 ## 試験にしないもの
@@ -82,6 +84,8 @@ ecalj/Samples/
 | `si_gw_lmfh`、`gas_pw_gw_lmfh`、`si_gwsc`、`gas_gwsc`、`nio_gwsc`、`fe_gwsc` | one-shot の GW と、全体の QSGW（`gwsc`） |
 | `fe_kbt` | bcc Fe の、有限温度の四面体法（`t_tetrakbt` > 0）による QSGW |
 | `ni_crpa`、`srvo3_crpa` | constrained RPA |
+
+`yh3fcc_gwsc666` は、いまのコードでは走りません（Y の拡張局所軌道で動径方程式を解くところが失敗する）。古い参照のまま残していて、どの組にも入れていません。
 
 ### EPS のサンプル — 三つの違い
 

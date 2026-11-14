@@ -20,6 +20,7 @@ ecalj/Samples/
 ├── MLOsamples/        testecalj-runnable
 ├── MLOQSGW/           testecalj-runnable (QSGW with gwsc --mlo)
 ├── AFsymmetry/        testecalj-runnable (antiferromagnetic symmetry, LDA and QSGW)
+├── AFfixMMOM/         testecalj-runnable (AF moment held at a given value, mmtarget.aftest)
 ├── Magnon/            testecalj-runnable (magnon spectra, job_mlo_magnon)
 ├── kBT/               electron temperature in GW: scanT/ (testecalj-runnable), LiTi2O4, research log
 ├── FermiSurface/ Doping/ HomoGas/ BoltzTraP/ SLAB/ SOC/ LDAU/ EffectiveMass/ Relax/ DOS/ IIR/
@@ -54,6 +55,7 @@ For your own directory with the legacy `ctrl.<sname>` + `GWinput`, see
 | **MLOQSGW/** (`GaAs`, `NiO`) | QSGW with the self-energy interpolated in the MLO representation (`gwsc --mlo`) | [MLOQSGW/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/MLOQSGW/README.md) | [./mlo_gwsc](./mlo_gwsc) |
 | **BenchmarkTest/** (`inas2gasb2`, `inas4gasb4`) | one QSGW iteration of InAs/GaSb superlattices against the stored `QPU.1run`; with one 32 GB GPU use `-np2 1` | (no README; see test.py) | [./ecaljgpu](./ecaljgpu) |
 | **AFsymmetry/** (`NiO`, `NiSe`, `NiO_gwsc`) | antiferromagnetic symmetry `symgrpaf` with `af = 1 / -1` on the sites: LDA, and QSGW (the GW programs compute both spins) | [AFsymmetry/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/AFsymmetry/README.md) | [./lmf](./lmf#symgrp) |
+| **AFfixMMOM/** (`NiO_afsym`, `NiO_noafsym`) | the moment of the AF pair held at a given value (`mmtarget.aftest`): NiO with and without `symgrpaf` | [AFfixMMOM/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/AFfixMMOM/README.md) | [./UsageDetailed](./UsageDetailed#antiferro-symmetry-without-soc) |
 | **Magnon/** (`Fe_mlo_magnon`) | magnon spectra through the MLO model (`job_mlo_magnon`, bcc Fe), compared with the Wannier functions of the version before 2026-10-02 (tag `last-wannier`) | [Magnon/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/Magnon/README.md) | [./UsageDetailed](./UsageDetailed) |
 | **kBT/scanT/** (`Si`) | the same input at several electron temperatures (`scan_T.sh`, `collect_T.py`): gap of Si, bands and moment of bcc Fe | [kBT/scanT/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/kBT/scanT/README.md) | [./kBT](./kBT) section 5 |
 | **FermiSurface/Cu**, **Doping/Si**, **HomoGas/es**, **BoltzTraP/Si**, **SLAB/Cu001**, **SOC/** (`FePt_MAE`, `MnGa_MAE`), **LDAU/ReN**, **EffectiveMass/** (`GaAs`, `CdS`, `GaN`), **Relax/LaGaO3**, **DOS/** (`ZnS`, `Fe`), **IIR/C**, **AtomDimer/N2** | short examples (each below a few minutes): Fermi surface for xcrysden, doping by fractional Z or background charge, Lindhard function against the analytic form, input of BoltzTraP, slab with work function, magnetic anisotropy energy, LDA+U, effective masses with SOC, relaxation of atomic positions, total and partial DOS, impact ionization rate (Im of the self-energy), a molecule in a box | README.md in each directory | [./UsageDetailed](./UsageDetailed) |
@@ -93,6 +95,8 @@ table (one-line role per dir):
 | `si_gw_lmfh`, `gas_pw_gw_lmfh`, `si_gwsc`, `gas_gwsc`, `nio_gwsc`, `fe_gwsc` | one-shot GW vs full QSGW (`gwsc`) |
 | `fe_kbt` | QSGW with the finite-temperature tetrahedron method (`t_tetrakbt` > 0) on bcc Fe |
 | `ni_crpa`, `srvo3_crpa` | constrained RPA |
+
+`yh3fcc_gwsc666` does not run with the present code (the radial solver fails on the extended local orbitals of Y); it is kept with its old references and is not in any group.
 
 ### EPS samples — what differs across the three
 
