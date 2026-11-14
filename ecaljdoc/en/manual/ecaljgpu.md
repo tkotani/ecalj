@@ -1,6 +1,6 @@
 # How to use the GPU version of ecalj
 
-> English version of the page [manual/ecaljgpu](../../manual/ecaljgpu.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/ecaljgpu.md of the tree of c9f9a3003 (source blob 52d74485762e).
+> English version of the page [manual/ecaljgpu](../../manual/ecaljgpu.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/ecaljgpu.md of commit 2efea4c73 (source blob c5e85a8d7201).
 
 <div class="clfix-old">
 

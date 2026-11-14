@@ -1,6 +1,6 @@
 # Dielectric function: job_eps
 
-> English version of the page [manual/optical](../../manual/optical.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/optical.md of commit 85cdee981 (source blob fb80ecc6c9fb).
+> English version of the page [manual/optical](../../manual/optical.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/optical.md of commit 2efea4c73 (source blob 27287f24287d).
 
 <div class="clfix-old">
 
