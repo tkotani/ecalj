@@ -1,6 +1,6 @@
 # Appendix: mathematical notes {#appendix}
 
-> English version of the page [theory/appendix](../../theory/appendix.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/appendix.md of commit 000000000 (source blob 000000000000).
+> English version of the page [theory/appendix](../../theory/appendix.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/appendix.md of commit 8ac1a9b0d (source blob 018e31a760db).
 
 Mathematical tools used in the other pages.
 
