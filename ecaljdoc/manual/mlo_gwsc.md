@@ -5,7 +5,7 @@
 > MLO 表現で描いたバンドでは、`sigm` の内挿で出ていたメッシュ点の間のこぶ（内挿のリンギング）が大きく減る（§3.2）。
 
 > 既定では何も変わらない（`gwsc --mlo` を付けたときだけ有効）。反強磁性の対称性（`symgrpaf`）との併用は確かめていない（§5）。
-> 経過の記録は ecalj の `MD/research_kotani_log.md`（2026-09-24〜29）、設計の詳細は `MD/kBT/sigma_mlo_design.md` §9–13。
+> 経過の記録は<del class="clfix"> ecalj の `MD/research_kotani_log.md`（2026-09-24〜29）、設計の詳細は `MD/kBT/sigma_mlo_design.md` §9–13</del><span class="clfix">開発記録（リポジトリの MD/research_kotani_log.md の 2026-09-24〜29、サイトには無い）、設計の詳細は開発記録（リポジトリの MD/mlo_notes/sigma_mlo_design.md §9–13、サイトには無い）</span>。
 
 このページは **§1 理論**、**§2 設定と実行**、**§3 実例: LiTi₂O₄** の 3 部です。
 
@@ -61,7 +61,7 @@ GW が出すのはバンド添字の $\Sigma^\psi_{ij}(q)=\langle\psi_i|\hat\Sig
 
 $$\Sigma^{\rm MLO}=c^\dagger\,\Sigma^\psi\,c,\qquad c=\langle\psi|\tilde\chi\rangle \tag{5}$$
 
-これは文字どおり $\langle\tilde\chi_\alpha|\hat\Sigma|\tilde\chi_\beta\rangle$ です（窓 $\bar\theta$ の外の状態は落ちるので、厳密なのは窓の中だけ）。
+これは文字どおり $\langle\tilde\chi_\alpha|\hat\Sigma|\tilde\chi_\beta\rangle$ です（<del class="clfix">窓 $\bar\theta$ の外の状態は落ちるので、厳密なのは窓の中だけ</del><span class="clfix">$c_i$ は $\bar\theta$ が 0 でないバンドでだけ 0 でない。$\bar\theta$ が無視できないバンド（$f$ の裾を含む）をすべて $\Sigma^\psi$ が含めば（`ntq` が十分なら）厳密で、足りなければ裾が切れる</span>）。
 PMT 基底は非直交で、その重なり行列を $S^{\rm PMT}_{mn}(k)=\langle\chi^{\rm PMT}_m(k)|\chi^{\rm PMT}_n(k)\rangle$ と書きます。
 固有状態を $|\psi_i\rangle=\sum_m|\chi^{\rm PMT}_m\rangle\psi_{mi}$ と展開すると（$\psi$ は係数の行列）、式 (4) から $c=\psi^\dagger S^{\rm PMT}z^{\rm MLO}$ です。
 $\Sigma^{\rm MLO}(q)$ を実空間の $\Sigma^{\rm MLO}(R)$（`QMLO_SigRs`）に落として k 空間で内挿し、任意の $k$ で PMT 基底へ戻して $H$ に足します（`getsenex`）。
@@ -110,7 +110,7 @@ $\hat P_{\rm MLO}=|\tilde\chi\rangle O^{-1}\langle\tilde\chi|$ は MLO 部分空
 
 連鎖の最初に一度だけ、`lmf --writeham --mlo` と `mlo --mlo` で **MLO の索引**を `HamRsMLO` に作ります。
 索引とは、どの MTO チャネルを種にするか（`ndimMTO` 本）です。$\Sigma^{\rm MLO}$ はそのチャネル上の行列なので、索引は連鎖を通じて固定です（`--mlofreeze`）。
-窓の基準（$E_F$ と伝導端）は索引に含めず、段 a' が毎反復その反復の SCF の `efermi.lmf` から読みます（2026-09-26 から。§2.4）。
+窓の基準（$E_F$ と伝導端）は索引に含めず、段 a' が毎反復その反復の SCF の `efermi.lmf` から読みます（2026-09-26<span class="clfix"> 夜のコミット 5118934d3</span> から。§2.4）。
 一方、係数 $z$ は毎反復①で作り直し、ハミルトニアンに追随します。
 
 | # | 実行 | $\tilde\chi$ について |
@@ -173,7 +173,7 @@ pwmode = 11                 # |q+G| 打ち切り（既定）
 n1n2n3  = [6, 6, 6]
 mixbeta = 0.5               # sigm と Sigma^MLO の混合
 t_sigmaw   = 1000.0         # (K) Sigma の中間準位の Fermi-Dirac の幅（既定）
-t_tetrakbt = -992.4         # (K) 負: chi0 は T=0 のまま Im chi0 を FD およそ 1000 K と同じ幅の Gaussian で均す（以前の SmearX0 = 0.0057 Ha）。金属の W の極を均す（[kBT](./kBT) の「実用の設定」）
+t_tetrakbt = -992.4         # (K) 負: chi0 は T=0 のまま Im chi0 を FD およそ 1000 K と同じ幅の Gaussian で均す（以前の SmearX0 = 0.0057 Ha）。金属の W の極を均す（[kBT](./kBT) の<del class="clfix">「実用の設定」</del><span class="clfix">冒頭の「LiTi₂O₄ の設定」と §2.4</span>）
 [mlo]
 mlo_method = 4              # 既定
 mlo_delta  = 2.0            # (eV) 既定
@@ -193,7 +193,7 @@ mlo_lm = """
   LiTi₂O₄ では全原子を s+p+d（126 本）にした。既定のままなら 76 本（Li と O が s,p）。76 本との優劣は決着していない（§5）
 - **(サイト, lm) あたり MLO は原則 1 本まで。** `mlo_lm2`（EH2）を同じ lm に足すと、射影で同じ関数に潰れて $O$ がほぼ特異になる
   （例外は空隙に広がった伝導帯の底がある陽イオンの s,p: [MLO](./mlo) §9 の基準 2。MLO-QSGW では試していない）。
-  式 (7) は $O^{-1}$ を 2 回挟むので効き方は 2 乗（NiO の Ni d で条件数 $1.3\times10^2\to7.4\times10^4$）
+  <span class="clfix">2026-10-02 までの生の MLO では、</span>式 (7) は $O^{-1}$ を 2 回挟むので効き方は 2 乗<span class="clfix">だった</span>（NiO の Ni d で条件数 $1.3\times10^2\to7.4\times10^4$）<span class="clfix">。いまは Löwdin の直交化の $O^{-1/2}$ を通して、ほぼ特異な $O$ が効く</span>
 
 ### 2.2 実行
 
@@ -205,7 +205,7 @@ gwsc 10 -np 60 -np2 2 --gpu --prec=tf32 --prec-final=fp32:2 --ntqxx --mlo liti2o
 `gwsc N --mlo` はそのまま N 反復まとめて回してよい（`gwsc 1` を N 回回すのとは厳密には同じでないが、収束させれば ehf で 0.1〜0.2 meV の差、研究ログ 2026-09-25 00:06）。
 GPU の精度 `--prec=tf32|fp32|fp64` と、行列積の方法の自動選択は [ecaljgpu](./ecaljgpu) と [gwsc](./gwsc) を参照（`--prec=fp32` は旧来の `--mp --fp32` と同じ）。
 LiTi₂O₄ の `hgw` 1 回は、6³ で fp32 367 秒・tf32 173 秒（kt1、RTX 5090 × 2、2026-09-27 夜）、9³ で fp32 2990 秒・tf32 1975 秒（同日午前の版）。
-tf32 は Σc の最後の行列積だけを 10 ビットの仮数の入力（RTX 5090 では FP16）にしたもので、$E_F$ ±1 eV の Re Σc は倍精度と 1.3 meV 以内（`MD/ForDevelopers.md` §11.2）。
+tf32 は Σc の最後の行列積だけを 10 ビットの仮数の入力（RTX 5090 では FP16<span class="clfix">。GPU ごとの表が選ぶ。FP16 は指数が 5 ビットで表せる範囲が狭い。[ecaljgpu](./ecaljgpu)</span>）にしたもので、$E_F$ ±1 eV の Re Σc は倍精度と 1.3 meV 以内（<del class="clfix">`MD/ForDevelopers.md` §11.2</del><span class="clfix">開発記録（リポジトリの MD/ForDevelopers.md §11.2、サイトには無い）</span>）。
 
 - ecalj の `Samples/kBT/LiTi2O4/run_gwsc10.sh <tag> <入力> <bindir>` は `gwsc 10` を回し、最後の状態で `sigm` 描画と MLO バンドを描く。
   `run_snap.sh <tag> <niter> --mlo` は `gwsc 1` を繰り返しながら毎反復のスナップショット（再開に要るもの一式）と 2 つのバンドを残す
@@ -289,8 +289,8 @@ tf32 は Σc の最後の行列積だけを 10 ビットの仮数の入力（RTX
 | 混合 | `[gw] mixbeta = 0.5`（`sigm` と $\Sigma^{\rm MLO}$ の両方）|
 | 基底 | `pwmode = 11` |
 | 窓 | `mlo_method = 4`、$\Delta = w = 2.0$ eV（既定）|
-| 計算機 | kt1（RTX 5090 × 2）、`gwsc 1 --mp --fp32` を 10 回（2026-09-26 のコード）|
-| 窓の基準 | 連鎖の最初（LDA）の $E_F$ に固定（いまのコードは各反復の SCF の値、§1.2）|
+| 計算機 | kt1（RTX 5090 × 2）、`gwsc 1 --mp --fp32` を 10 回（2026-09-26 <span class="clfix">夜の窓の修正より前</span>のコード）|
+| 窓の基準 | 連鎖の最初（LDA）の $E_F$ に固定（いまのコードは各反復の SCF の値、<del class="clfix">§1.2</del><span class="clfix">§1.5</span>）|
 | 1 反復 | 6³: 950–1000 秒、9³: 約 5300 秒（89 分）。`hgw` が 86 %（6³）、94 %（9³）で、MLO のための処理は 1 % 程度。2026-09-27 の高速化の後は 6³ の fp32 で 555 秒 |
 | 比較の基準 | 従来 QSGW（MTO）6³、`pwmode = 1`、β = 0.5、10 反復（LDA の行だけ `pwmode = 11`）|
 
@@ -345,7 +345,7 @@ LDA から `gwsc 10 --prec=tf32`、続けて 1 反復ずつ 40 反復まで回�
 
 ![LiTi2O4 の t2g の MLO バンド、6³ と 9³、反復 10・20・30・40](mlo_gwsc/liti2o4_summary_t2g.png)
 
-**図 3.5-1**. t2g の MLO バンド（Γ→X）。左が 6³、右が 9³。上から LDA、反復 10、20、30、40
+**図 3.5-1**. t2g の MLO バンド（Γ→X）。左が 6³、右が 9³。上から LDA、反復 10、20、30、40<span class="clfix">。以下の $x$ は Γ→X の上の位置（Γ = 0、X = 1）</span>
 
 **表 3.5-1**. 前の反復からの MLO バンドの変化の最大（meV）と、一番下のバンドの波打ちの目安（LDA からの補正を cos の 3 次までで当てはめた残差の最大）
 
@@ -382,7 +382,7 @@ LDA から `gwsc 10 --prec=tf32`、続けて 1 反復ずつ 40 反復まで回�
 - **`pwmode = 11` の従来連鎖**を 10 反復回し、§3.4 の差を表現の差と `pwmode` の差に分ける
 - **反強磁性の対称性（`symgrpaf`）**: QSGW は 2026-09-30 から、GW のプログラムが両方のスピンを計算する形で動く（ecalj `Samples/AFsymmetry`）。
   `--mlo` との併用は確かめていない
-- §3.2〜§3.4 の図と数値は 2026-09-26 のコード（窓の基準が連鎖の最初の $E_F$）のもの。いまのコードの 9 反復後の MLO バンドはそれと
+- §3.2〜§3.4 の図と数値は 2026-09-26 <span class="clfix">夜の窓の修正より前</span>のコード（窓の基準が連鎖の最初の $E_F$）のもの。いまのコードの 9 反復後の MLO バンドはそれと
   rms 8 meV（最大 23 meV）、ほぼ一様な 7〜10 meV の下がり（窓の基準が 0.55 eV 動いたため、2 反復目から分かれる）。§3.5 はいまのコード
 - `--prec-final=fp32:N`（最後だけ fp32）は、まだ走らせて確かめていない（tf32 と fp32 の差は §3.5 のとおり 1 meV ほど）
 - 6³ の肩（§3.5）が収束した解の性質なのか、さらに反復すると消えるのかは分かっていない

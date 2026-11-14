@@ -1,6 +1,6 @@
 # Basic expressions
 
-> English version of the page [theory/basic](../../theory/basic.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/basic.md of the tree of c9f9a3003 (source blob 54bea79ad7ef).
+> English version of the page [theory/basic](../../theory/basic.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/basic.md of the tree of c9f9a3003 (source blob 0c3198c06f9f).
 
 On the Green function at zero temperature
 
@@ -26,7 +26,7 @@ $$
 ## Green function of a non-interacting system
 
 ### Hamiltonian
-We take the Hamiltonian as $\hat H -μ\hat N$ and set the ground-state energy to 0. $𝜇$: the Fermi energy; $\hat N = \int d𝒓 𝜓^†(𝒓)𝜓(𝒓)$: the particle-number operator; with $N$ the number of particles in the ground state, $\hat N \ket{\Psi_0} = N \ket{\Psi_0}$.
+We take the Hamiltonian as $\hat H -μ\hat N$ and set the ground-state energy to 0. $𝜇$: the Fermi energy; $\hat N = \int d𝒓 𝜓^†(𝒓)𝜓(𝒓)$: the particle-number operator; with $N$ the number of particles in the ground state, $\hat N \ket{\Psi_0} = N \ket{\Psi_0}$.<span class="clfix">Below, the $\hat H$ of the Heisenberg picture $e^{i\hat Ht/\hbar}\cdots e^{-i\hat Ht/\hbar}$ is also read as this $\hat H-𝜇\hat N$ (for the density operator $\hat 𝜌_\mathrm{H}$ it makes no difference, since $\hat N$ commutes with $\hat 𝜌$).</span>
 Without interaction the Hamiltonian is a sum over one-particle states,
 $$
 \hat H - \mu \hat N =  \sum_n 𝜀_n \hat c^†_{n}\hat c_{n}
@@ -57,6 +57,15 @@ $$
 - Creation and annihilation act on the same one-particle state $n$; otherwise the term vanishes.
 - A state with a created hole is also an excited state; its excitation energy from the ground state is $-𝜀_n>0$.
 ::: details Derivation
+
+<div class="clfix">
+
+Since the eigenvalue of $\hat H-𝜇\hat N$ in the ground state is set to 0, $e^{-i(\hat H-𝜇\hat N)t_2/\hbar}\ket{\Psi_0}=\ket{\Psi_0}$.
+Of $\hat 𝜓^†(𝒓_2)\ket{\Psi_0}=\sum_{n'}𝜙^*_{n'}(𝒓_2)\hat c^†_{n'}\ket{\Psi_0}$ only the unoccupied $n'$ survive, and $(\hat H-𝜇\hat N)\hat c^†_{n'}\ket{\Psi_0}=𝜀_{n'}\hat c^†_{n'}\ket{\Psi_0}$.
+Multiplying from the left by $\bra{\Psi_0}\hat 𝜓(𝒓_1)=\sum_{m}𝜙_{m}(𝒓_1)\bra{\Psi_0}\hat c_{m}$ and using $\braket{\Psi_0|\hat c_{m}\hat c^†_{n'}|\Psi_0}=𝛿_{mn'}$ gives the first expression.
+The second follows in the same way: in $\hat 𝜓(𝒓_1)\ket{\Psi_0}$ only the occupied $n$ survive, and $(\hat H-𝜇\hat N)\hat c_{n}\ket{\Psi_0}=-𝜀_{n}\hat c_{n}\ket{\Psi_0}$.
+
+</div>
 
 :::
 
@@ -111,6 +120,8 @@ is obtained. In the $𝜔$ plane extended to complex numbers, the poles of the u
 
 ![Poles of the Green function](../../theory/figures/green_poles.png)
 
+<span class="clfix">"occupied stats" and "unoccupied stats" in the figure should read "occupied states" and "unoccupied states". The script that drew the figure is lost, so the figure has not been redrawn.</span>
+
 > [!INFO]
 > The $i$ in the definition of the real-time representation was attached so that the expression in the frequency representation becomes clean.
 
@@ -125,7 +136,10 @@ $$
 \int d𝒓 G(𝒓,𝒓;𝜔) =  \sum_{n} \frac{1}{𝜔-𝜀_{n}/\hbar \mp i𝛿} = \sum_n \left( \mathcal{P} \frac{1}{𝜔-𝜀_n/\hbar} \pm i 𝜋 𝛿(𝜔-𝜀_n/\hbar)\right)
 \end{align}
 $$
-and formally the density of states $D(𝜀) = \sum_n 𝛿(𝜀-𝜀_n)$ can be written as
+<span class="clfix">(upper signs: occupied, $𝜀_n\lt 0$; lower signs: unoccupied, $𝜀_n>0$),</span> and formally the density of states <del class="clfix">$D(𝜀) = \sum_n 𝛿(𝜀-𝜀_n)$</del><span class="clfix">$N(𝜀) = \sum_n 𝛿(𝜀-𝜀_n)$ (to distinguish it from the polarization function $D$)</span> can be written as
+
+<div class="clfix-old">
+
 $$
 \begin{align}
 D(𝜀) = \pm \frac{1}{𝜋}\Im \text{Tr}G(𝜀/\hbar)\quad \text{where } (+:𝜀<0,\ -:𝜀>0)
@@ -133,9 +147,22 @@ D(𝜀) = \pm \frac{1}{𝜋}\Im \text{Tr}G(𝜀/\hbar)\quad \text{where } (+:�
 $$
 (are $\hbar$ and the signs correct??)
 
+</div>
+
+<div class="clfix">
+
+$$
+\begin{align}
+N(𝜀) = \pm \frac{1}{𝜋\hbar}\Im \text{Tr}G(𝜀/\hbar)\quad \text{where } (+:𝜀<0,\ -:𝜀>0)
+\end{align}
+$$
+The factor $1/\hbar$ comes from $𝛿(𝜀/\hbar-𝜀_n/\hbar)=\hbar\,𝛿(𝜀-𝜀_n)$. The signs follow the double signs above.
+
+</div>
+
 ## Time-ordered polarization function
 
-With the density operator in the Heisenberg picture $\hat 𝜌_\mathrm{H}(𝒓,t)$, $\hat 𝜌_\mathrm{H}(𝒓,t) = e^{i\hat Ht/\hbar}\hat 𝜓^†(𝒓)\hat 𝜓^(𝒓)e^{-i\hat Ht/\hbar}$.
+With the density operator in the Heisenberg picture $\hat 𝜌_\mathrm{H}(𝒓,t)$, $\hat 𝜌_\mathrm{H}(𝒓,t) = e^{i\hat Ht/\hbar}\hat 𝜓^†(𝒓)\hat 𝜓(𝒓)e^{-i\hat Ht/\hbar}$.<span class="clfix">(previously written with a stray `^` after $\hat 𝜓$)</span>
 We introduce the operator of the deviation from the expectation value of the density, $\hat {𝛿\rho} = \hat \rho - \braket{\hat \rho}$.
 The time-ordered polarization function $D(𝒓_1t_1,𝒓_2t_2)$ is then defined as the time-ordered product of densities (density correlation):
 $$
@@ -148,7 +175,7 @@ iD(𝒓_1t_1,𝒓_2t_2) =
 $$
 
 ## Time-ordered polarization function of a non-interacting system
-In a non-interacting system the N-product terms vanish, so by Wick's theorem
+In a non-interacting system the normal-ordered (N-product) terms have zero ground-state expectation value, so by Wick's theorem only the full contractions remain:
 $$
 \begin{align}
 iD(𝒓_1t_1,𝒓_2t_2) = 

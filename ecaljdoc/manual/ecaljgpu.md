@@ -9,6 +9,7 @@ ecalj ではGPUによるQSGW計算が可能です。
 > CPUで実行される部分とGPUで実行される部分で、それぞれ並列数を指定する必要があります。
 
 * GPU の使用には NVIDIA のコンパイラでecaljのGPUバージョンをコンパイルする必要があります。
+<span class="clfix">必要なもの: NVIDIA の GPU と NVHPC（cuBLAS、cuSOLVER を含む）。コンパイルは `python3 InstallAll.py --fc nvfortran --gpu`（CPU 版も一緒に作られる）。GPU の計算は 1 ノードで走らせるのを勧めます。複数ノードで使うときは、MPI のプロセスがノードに正しく割り振られているか確かめてください。（末尾の古い英語の節から移した）</span>
 Kugui でのインストール、初期設定、GPUテスト計算は[installISSP](../install/installISSP.md) を参照してください。
 
 ## おすすめ設定 in ISSP Kugui
@@ -18,6 +19,8 @@ Kugui でのインストール、初期設定、GPUテスト計算は[installISS
 
 以下qsub ファイルの例。
 
+<div class="clfix-old">
+
 ```bash job.sh
 #!/bin/sh
 #PBS -q i1accs
@@ -26,6 +29,23 @@ Kugui でのインストール、初期設定、GPUテスト計算は[installISS
 ulimit -s unlimited
 gwsc -np 64 -np2 4 --gpu 2 inas2gasb2 > lgwsc
 ```
+
+</div>
+
+<div class="clfix">
+
+```bash job.sh
+#!/bin/sh
+#PBS -q i1accs
+#PBS -l select=1:ncpus=64:mpiprocs=64:ompthreads=1
+
+ulimit -s unlimited
+gwsc 2 -np 64 -np2 4 --gpu inas2gasb2 > lgwsc
+```
+
+`--gpu` は引数を取らない。最初の数 `2` は反復の回数（`gwsc` の第 1 引数）。
+
+</div>
 
 `i1accs` はテストキュー(最大時間30分)ですので、プロダクトランでは`F1accs`等を使用してください。
 
@@ -81,7 +101,7 @@ gwsc 5 -np 64 -np2 4 --gpu --prec=fp32 inas2gasb2 > lgwsc
 
 QSGW の 1 反復（`gwsc`、LiTi2O4 6³、tf32、GPU 2 枚・CPU 60 本）は約 212 秒で、その 8 割が `hgw`。
 
-`--mp` だけの指定も `tf32` と同じにした。tf32 の誤差の大半は Σc の一様な縮み（Re Σc の −5×10⁻⁵〜−1×10⁻⁴ 倍）で、
+`--mp` だけの指定も `tf32` と同じにした。tf32 の誤差の大半は Σc の一様な縮み（<del class="clfix">Re Σc の −5×10⁻⁵〜−1×10⁻⁴ 倍</del><span class="clfix">Re Σc の相対的な変化 ΔΣ/Σ が −5×10⁻⁵〜−1×10⁻⁴</span>）で、
 テンソルコアの和の取り方（途中の和の切り捨て）から来る。入力の丸めは最近接で、これ以上は安くは減らせない。
 tf32 は途中の反復に使い、最後の反復は `--prec-final=fp32:N` で fp32 にするのが前提（誤差は乱雑ではなく一様な縮みなので、最後の fp32 の反復で消えるはず。
 **2026-09-28 の時点ではこの使い方を実際に走らせて確かめていない**。6³ では tf32 だけの 10 反復でもバンドは fp32 と rms 0.3 meV で一致した）。
@@ -103,7 +123,7 @@ tf32 は途中の反復に使い、最後の反復は `--prec-final=fp32:N` で 
   Σc の積の精度が TF32 の 3e-4 から 1e-5 に上がる（そのぶん遅い）。Ozaki は分解数 1 つで精度が約 1 桁変わる
 - 例（RTX 5090 ×2、LiTi2O4 の `hgw` 1 回）: 表は fp32 で「単精度の複素積は組み替え、倍精度の積は GEMMul8 14、逆行列は mixed1」、
   tf32 の行（Σc の積）は FP16 の組み替え（`realhgemm`）になる。6³ は以前の 833 秒が fp32 367 秒・tf32 173 秒（2026-09-27 夜）、
-  9³ は 5004 秒が fp32 2990 秒・tf32 1975 秒（同日午前の版、四面体の重みの補助あり）。倍精度の計算との差も Re Σc で 2.4e-4 → 4.2e-5 eV に減る
+  9³ は 5004 秒が fp32 2990 秒・tf32 1975 秒（同日午前の版、四面体の重みの補助あり）。<del class="clfix">倍精度の計算との差も Re Σc で 2.4e-4 → 4.2e-5 eV に減る</del><span class="clfix">fp32 の 6³ の `hgw` 1 回で, 倍精度の計算との差（全状態の Re Σc の最大）も, 09-26 までの版（cuBLAS の複素積）の 2.4e-4 eV から組み替え（`realsgemm`）で 4.2e-5 eV に減る（2026-09-27 朝。E_F ±1 eV に限ると上の表の 0.02 meV）</span>
 - GEMMul8 は小さな積（どれかの辺が 64 未満、または m·n·k < 1e8）には表に関係なく使わない（分解の固定費が積より大きい）
 
 ### 同じ機械で複数のジョブを走らせるとき
@@ -145,32 +165,52 @@ if which nvidia-cuda-mps-control > /dev/null 2>&1 ; then
 fi
 ```
 
+<div class="clfix">
+
+末尾にあった古い英語の節（"Using the GPU Version"）は、上の本文と重なるので消す。本文に無かったこと（必要なもの、コンパイルのコマンド、1 ノードでの実行の勧め）は冒頭に移した。`zmel_batch_gb` を書かないとき（または 2 未満のとき）GPU の計算では 2 GB を使う、という注意は [gwinput](../manual/gwinput.md) の側の説明に任せる。
+
+</div>
+
+<div class="clfix-old">
+
 --------------
 
-# Using the GPU Version
+**Using the GPU Version**
 
 The GPU can be utilized in QSGW calculations:
 - The GPU is used for the calculation of self-energy and screened Coulomb interaction.
 - `lmf` is executed on the CPU.
 
-## Requirements:
+**Requirements:**
 1. NVIDIA GPU
 2. Compiler: NVHPC with GPU-accelerated libraries: cuBLAS, cuSolver
 
-## Compilation
+**Compilation**
 ```bash
 python3 InstallAll.py --fc nvfortran --gpu
 ```
 
-## Execution
+**Execution**
 - The GPU version can be used by specifying the `--gpu` option with `gwsc`.
 - The number of MPI processes for the GPU code can be specified with `-np2`. This should typically match the number of GPUs available.
 Example:
+<div class="clfix-old">
+
 ```
 gwsc -np 64 -np2 4 --gpu 1 $id > lgwsc
 ```
 
-## Tips
+</div>
+
+<div class="clfix">
+
+```
+gwsc 1 -np 64 -np2 4 --gpu $id > lgwsc
+```
+
+</div>
+
+**Tips**
 
 1. The GPU version uses fewer MPI processes compared to the CPU version, so the available memory per MPI process is larger
    This allows for larger batch sizes in the calculation, potentially improving computation speed.
@@ -189,6 +229,8 @@ gwsc -np 64 -np2 4 --gpu 1 $id > lgwsc
    KeepEigen = false
    ```
 
-## Notes
+**Notes**
 - It is recommended to run GPU calculations on a single node.
 - When using multiple nodes, ensure that MPI processes are correctly distributed across nodes.
+
+</div>

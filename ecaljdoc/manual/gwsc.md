@@ -7,7 +7,7 @@ QSGW計算は，複数のfortran実行ファイルを呼び出して実行され
 入力は `ctrlg.<sname>.toml` から読み込まれる(GW の設定は `[gw]`。キーの説明は [gwinput](./gwinput.md))。
 
 ## Usage
-**Usage**: ` gwsc -np NP [-np2 NP2] [--gpu] [--prec=tf32|fp32|fp64] [--mp] [--fp32] nloop extension [Options]`
+**Usage**: <del class="clfix">` gwsc -np NP [-np2 NP2] [--gpu] [--prec=tf32|fp32|fp64] [--mp] [--fp32] nloop extension [Options]`</del><span class="clfix">` gwsc -np NP [-np2 NP2] [--gpu] [--prec=tf32|fp32|fp64] [--prec-final=<prec>[:N]] [--no-tetwt-helper] [--mp] [--fp32] [--mlo] [--dumpW] [--fullstdo] nloop extension [Options]`</span>
 
 ### `-np NP`
 MPI並列数を指定する。
@@ -43,6 +43,13 @@ $W$ / $\Sigma^c$ で増幅された。精度の選び方は上の `--prec` と [
 `--mp` と併用し、`--prec=fp32` と同じ意味（Σc の積も FP32）。ecalj_auto の GW1500 バッチ（`gwscconv --gpu --mp --fp32 --conv-tol 0.1`）は
 これを既定で使う。TF32 で壊れた事例の再現は [`Samples/mptf32problem/`](https://github.com/tkotani/ecalj/tree/main/Samples/mptf32problem)。
 
+
+<div class="clfix">
+
+### `--mlo`
+自己エネルギーを MLO 表現で内挿する QSGW(MLO-QSGW、開発中)。`[bz] nkabc` と `[mlo] mlo_nkabc` は `[gw] n1n2n3` と同じにする(違うと止まる)。詳しくは [MLO-gwsc](./mlo_gwsc)。
+
+</div>
 
 ### `nloop`
 QSGWのイテレーション数を指定する。
@@ -96,7 +103,7 @@ The first line (corresponding to 1st band of 1st q point) means that total norma
 
 ### `--ntqxx`
 This fix the number of bands to calculate self energy at the first iteration for each $\bf q$ point in the IBZ.
-In principle, the number is determined by
+In principle, the number is determined by<span class="clfix"> the energy window: at each $\bf q$ point and spin, the bands up to `emax_sigm` above the Fermi energy (and at most `nband_sigm` bands) are used, and this count is made again at every iteration. With `--ntqxx`, the counts of the first iteration are written to the file `NTQXX` and read in the later iterations, so that the number of bands of $\Sigma$ (`sigm`, `QPU`) stays fixed through the iterations. Delete `NTQXX` to count again.</span>
 
 ## Cautions
 * QPU.[number]runをチェックして、number回のQSGWイテレーションが終了している、と認識する。
@@ -123,7 +130,7 @@ QSGW 反復の停止条件を指定する。**収束判定 (2026-06 改定)**: �
 `QPU.<n>run` と `QPU.<n-1>run` の `eQP` (E_F 基準) のうち |e| < 5 eV の状態について、変化の最大が
 `--conv-qp <eV>` (既定 0.03) 未満の反復が 2 回続いたら停止。以前のようにギャップが無いところで止める (exit 3) には
 `--no-metal`。`--gpu --mp --fp32` を渡せばそのまま `gwsc` に流される。
-ecalj_auto の GW1500 バッチもこの script を呼んでいる (`MD/auto.md`)。
+ecalj_auto の GW1500 バッチもこの script を呼んでいる (<del class="clfix">`MD/auto.md`</del><span class="clfix">開発記録（リポジトリの MD/auto.md、サイトには無い）</span>)。
 
 `qsgw_status` (2026-06): 走行中の `gwsc` (または gwscconv) 反復の進行
 ダッシュボード。実行ディレクトリで以下のように使う:
@@ -138,7 +145,7 @@ ETA、`gwsc` ログ末尾から現在の step (`hgw` 等) と step 内経過時�
 対象名・ログ・反復アンカーは自動検出。run の妨げにならないよう成果物の
 読取のみで重い処理はしない。
 
-`gw_lmfh`: The one-shot \GW calculation. Lifetime(impact ionization rate) of QPs.
+`gw_lmfh`: The one-shot <del class="clfix">\GW</del><span class="clfix">GW</span> calculation. Lifetime(impact ionization rate) of QPs.
 
 `job_eps`: dielectric function. No local field corrections ([optical](./optical))
  
@@ -290,7 +297,7 @@ radial functions.
 MTO index
 
 ### __VxcEvec*
- Coefficients of eigenfunctions and  eigenvalues for $\langle F_i|H^0|\psi F_j$ in the basis of PMT$\{F_i\}$.
+ Coefficients of eigenfunctions and  eigenvalues for <del class="clfix">$\langle F_i|H^0|\psi F_j$</del><span class="clfix">$\langle F_i|H^0|F_j\rangle$</span> in the basis of PMT$\{F_i\}$.
 
 ### __GEIG,__CPHI,__EValue
 __GEIG: Coefficients of eigenfunctions. IPW part
@@ -390,8 +397,8 @@ An example of one-shot GW by `gw_lmfh si` (small size calculation in TestInstall
   1.00000  0.00000  0.00000  7   -3.59  -2.37  -5.91 -13.53   1.20   1.66   9.81  11.01  11.47  17.37 0.72  -0.40499    -11.86796
   1.00000  0.00000  0.00000  8   -3.59  -2.37  -5.91 -13.53   1.20   1.66   9.81  11.01  11.47  17.37 0.72  -0.40499    -11.86796
 ```
-All of the unit of energy is in eV. Detailed value of  eLDA} is in {TOTE.UP}.
-For insulators, the Fermi energy is at the middle of band. For metals, one shot GW can be problematic
+All of the unit of energy is in eV. Detailed value of  <del class="clfix">eLDA} is in {TOTE.UP}</del><span class="clfix">`eLDA` is in `TOTE.UP`</span>.
+For insulators, the Fermi energy is at the middle of <del class="clfix">band</del><span class="clfix">the band gap (the energies are measured from it)</span>. For metals, one shot GW can be problematic
 if we consider the self-consistency of the Fermi energy.
 
 q  : q vector
@@ -402,7 +409,7 @@ SEx: $= \langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm valence}({\bf r},{\bf r}^{\pr
 
 SExcore: $= \langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm core}({\bf r},{\bf r}^{\prime})|\Psi_{{\bf k}n}\rangle$
 
-SEc: $= \langle\Psi_{{\bf k}n}|\Sigma_{\rm c}^{\rm valence}({\bf r},{\bf r}^{\prime}, \epsilon_n({\bf k})|\Psi_{{\bf k}n}\rangle$
+SEc: <del class="clfix">$= \langle\Psi_{{\bf k}n}|\Sigma_{\rm c}^{\rm valence}({\bf r},{\bf r}^{\prime}, \epsilon_n({\bf k})|\Psi_{{\bf k}n}\rangle$</del><span class="clfix">$= \langle\Psi_{\mathbf{k}n}|\Sigma_{\rm c}^{\rm valence}({\bf r},{\bf r}^{\prime}, \epsilon_n({\bf k}))|\Psi_{\mathbf{k}n}\rangle$</span>
 
 vxc: LDA exchange correlation energy.$\langle \Psi_{{\bf k}n}|V_{\rm xc}^{\rm LDA}([n_{\rm total}],{\bf r})|\Psi_{{\bf k}n}\rangle$
 
@@ -430,13 +437,13 @@ ReS(elda):${\rm Re} \langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm core}({\bf r},{\b
 numerical detailed values of QPU. TOTE.DN for QPD
 
 In one-shot GW `gw_lmfh`, TOTE.UP contains LDA and QP energies. 
-It contains two kind of QP energies {\tt QP QPnoZ}.
+It contains two kind of QP energies <del class="clfix">{\tt QP QPnoZ}</del><span class="clfix">`QP` and `QPnoZ`</span>.
 
 ### __mixsig
 mixing file for `sigm.<sname>`
 
 ### `sigm.<sname>`
-self-energy file in the expansion of eigenfunctions of $H^0$.
+<del class="clfix">self-energy file in the expansion of eigenfunctions of $H^0$.</del><span class="clfix">$\Sigma-V_{\rm xc}$ (the static Hermitian QSGW self-energy minus the LDA $V_{\rm xc}$, in Ry) as a matrix in the MTO basis at each irreducible $\bf q$ point, mixed with the previous iterations (`__mixsig`). `lmf` Bloch-sums it to real space and interpolates it to any $\bf k$ ([MLO-gwsc](./mlo_gwsc) §1.1).</span>
 
 
 # Product basis
@@ -555,4 +562,4 @@ The site index `iatom` follows the order of `[[site]]` in `ctrlg.<sname>.toml`;
 
 # MEMO
 * We need to explain how to set Gamma-cell averaged $\tilde{W}({\bf q}=0,\omega)$.
-* 旧い開発者向けの理論メモ ecaljdetails（2015〜2022、offset-Γ 法・クーロン行列・EIBZ など）は 2026-10-02 に外した。今も通じる要点は ecalj の `MD/past_log.md` §14、原文は ecaljdoc のコミット `3284d0b` の `ecaljdetails/ecaljdetails.tex`。
+* 旧い開発者向けの理論メモ ecaljdetails（2015〜2022、offset-Γ 法・クーロン行列・EIBZ など）は 2026-10-02 に外した。今も通じる要点は<del class="clfix"> ecalj の `MD/past_log.md` §14</del><span class="clfix">開発記録（リポジトリの MD/past_log.md §14、サイトには無い）</span>、原文は ecaljdoc のコミット `3284d0b` の `ecaljdetails/ecaljdetails.tex`。

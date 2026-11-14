@@ -1,6 +1,6 @@
 # ecalj Uninstall
 
-> English version of the page [install/uninstall](../../install/uninstall.md). The pages at the top of ecaljdoc are the reference; this one was made from install/uninstall.md of the tree of c9f9a3003 (source blob 00d192515890).
+> English version of the page [install/uninstall](../../install/uninstall.md). The pages at the top of ecaljdoc are the reference; this one was made from install/uninstall.md of the tree of c9f9a3003 (source blob d45fb837d183).
 
 `InstallAll.py` writes an install manifest into `BIN_DIR`
 (`ecalj_install_manifest.txt`, default `~/bin/`).  Uninstall is then

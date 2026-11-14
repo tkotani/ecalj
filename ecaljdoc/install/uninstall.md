@@ -1,8 +1,7 @@
-# ecalj Uninstall
+# ecalj のアンインストール {#ecalj-uninstall}
 
-`InstallAll.py` writes an install manifest into `BIN_DIR`
-(`ecalj_install_manifest.txt`, default `~/bin/`).  Uninstall is then
-three commands:
+`InstallAll.py` は、インストールしたものの一覧（マニフェスト、`ecalj_install_manifest.txt`）を `BIN_DIR`（既定は `~/bin/`）に書きます。
+アンインストールは次の 3 つのコマンドで済みます。
 
 ```bash
 # 1. Remove BIN_DIR symlinks + the bash-completion block in ~/.bashrc.
@@ -16,29 +15,21 @@ python3 uninstall.py
 rm -rf <path-to-ecalj-checkout>
 ```
 
-That's it.  Nothing is written to `/usr/local/`, `/etc/`, or any system
-path during install, so no `sudo` is needed at any step.
+これだけです。インストールでは `/usr/local/` や `/etc/` などのシステムの場所に何も書かないので、どの段階でも `sudo` は要りません。
 
-## What `uninstall.py` actually does
+## `uninstall.py` がすること {#what-uninstall-py-actually-does}
 
-It reads `BIN_DIR/ecalj_install_manifest.txt` and removes every path
-listed there, which covers:
+`BIN_DIR/ecalj_install_manifest.txt` を読み、そこに書かれたパスを全部消します。消すのは次のものです。
 
-* **Symlinks** placed in `BIN_DIR` by `InstallAll.py` and by the
-  CMake `deliver` target — `lmf`, `lmfa`, `lmchk`, `gwsc`, `hsfp0`,
-  `hx0fp0`, `hvccfp0`, `libecaljF*.so`, `viewvesta`, `ctrl2vasp`,
-  `vasp2ctrl`, `getsyml`, `slot_run.py`, `slot_scheduler_daemon.py`,
-  every `job_*` workflow, `ecalj_complete.bash`, ...
-* **Real files** dropped alongside them — `ecalj_cmdopts.list` and
-  `libgemmul8.*` (the latter only if you installed with `--gemmul8`).
+* `InstallAll.py` と CMake の `deliver` ターゲットが `BIN_DIR` に置いた **symlink**: `lmf`、`lmfa`、`lmchk`、`gwsc`、`hsfp0`、
+  `hx0fp0`、`hvccfp0`、`libecaljF*.so`、`viewvesta`、`ctrl2vasp`、`vasp2ctrl`、`getsyml`、`slot_run.py`、`slot_scheduler_daemon.py`、
+  すべての `job_*`、`ecalj_complete.bash` など。
+* 一緒に置いた**実体のファイル**: `ecalj_cmdopts.list` と `libgemmul8.*`（後者は `--gemmul8` を付けてインストールしたときだけ）。
 
-Then it strips the auto-installed bash-completion block from
-`~/.bashrc` (the one bracketed by
-`# >>> ecalj bash completion (auto-installed by InstallAll.py) >>>` and
-`# <<< ecalj bash completion <<<`), and finally deletes the manifest
-file itself.
+次に、`~/.bashrc` に自動で足した bash の補完のブロック（`# >>> ecalj bash completion (auto-installed by InstallAll.py) >>>` と
+`# <<< ecalj bash completion <<<` で囲まれた部分）を取り除き、最後にマニフェストのファイルそのものを消します。
 
-Common flags:
+よく使うオプション:
 
 ```bash
 python3 uninstall.py --dry-run        # show what would be removed, change nothing
@@ -47,19 +38,15 @@ python3 uninstall.py --bindir ~/opt   # if you installed to a non-default BIN_DI
 python3 uninstall.py --no-bashrc      # leave ~/.bashrc untouched
 ```
 
-The source checkout (the `ecalj/` directory itself, including
-`SRC/build_*/` and `Samples/TestInstall/*_work/`) is **not** touched by
-`uninstall.py` — step 3 above (`rm -rf <ecalj-checkout>`) is the one
-command that removes it.
+ソースのチェックアウト（`ecalj/` ディレクトリそのもの。`SRC/build_*/` や `Samples/TestInstall/*_work/` も含む）には `uninstall.py` は
+**手を付けません**。これを消すのは、上の 3 番目のコマンド（`rm -rf <ecalj-checkout>`）です。
 
-## If the manifest is missing
+## マニフェストが無いとき {#if-the-manifest-is-missing}
 
-You may have an older install that pre-dates the manifest (or you
-removed the manifest by hand).  Two options:
+マニフェストを書くようになる前の古いインストールか、マニフェストを手で消した場合です。やり方は 2 つあります。
 
-1. **Re-run InstallAll.py once** to regenerate the manifest, then run
-   `uninstall.py`.
-2. **Remove by hand**:
+1. **InstallAll.py を一度走らせ直して**マニフェストを作り直し、それから `uninstall.py` を走らせる。
+2. **手で消す**:
 
    ```bash
    ECALJ_DIR=~/ecalj     # path to your ecalj checkout

@@ -60,4 +60,4 @@ Claude Code starts from `CLAUDE.md` at the top of the repository. An AI assistan
 
 ## ライセンス / License
 
-ecalj は [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html) で配布する。条件、ecalj に含まれる他のソフトウェア、論文での引用は [LICENCE](https://github.com/tkotani/ecalj/blob/main/LICENCE) を見てほしい。AI（AI アシスタント、コーディングエージェント）にも例外なく適用される。
+ecalj は [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html) で配布する。条件、ecalj に含まれる他のソフトウェア、論文での引用は [ライセンス](/manual/license) のページを見てほしい（正本はリポジトリの [LICENCE](https://github.com/tkotani/ecalj/blob/main/LICENCE)）。AI（AI アシスタント、コーディングエージェント）にも例外なく適用される。

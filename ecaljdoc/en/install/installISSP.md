@@ -1,7 +1,7 @@
 
-# Installation on kugui and ohtaka (GPU) at ISSP
+# Installation on <del class="clfix">kugui and ohtaka (GPU)</del><span class="clfix">kugui (GPU) and ohtaka (CPU)</span> at ISSP
 
-> English version of the page [install/installISSP](../../install/installISSP.md). The pages at the top of ecaljdoc are the reference; this one was made from install/installISSP.md of the tree of c9f9a3003 (source blob 6ad7f826aed2).
+> English version of the page [install/installISSP](../../install/installISSP.md). The pages at the top of ecaljdoc are the reference; this one was made from install/installISSP.md of the tree of c9f9a3003 (source blob 1206082c11fe).
 
 > 📝 **Note** — This is a memo to install ecalj to the machines in
 > ISSP@u-tokyo as of 2025. Module names, software versions, and
@@ -41,6 +41,8 @@ fi
 > Intel MKL can be used with both nvfortran and gfortran.
 
 
+<span class="clfix">The following message can appear at login or with mpirun; it is harmless (see §4).</span>
+
 >--------------------------------------------------------------------------
 >The library attempted to open the following supporting CUDA libraries,
 >but each of them failed.  CUDA-aware support is disabled.
@@ -63,13 +65,39 @@ cd ecalj
 
 Then run the install + test command.
 
+<div class="clfix-old">
+
 ```bash
 qsub jobinstall_kugui.sh
 ```
 
+</div>
+
+<div class="clfix">
+
+`jobinstall_kugui.sh` was removed from the repository (2026-10-01), so write a job script with the following content (e.g. `jobinstall_kugui.sh`) in `ecalj` and submit it. The MPI tests cannot be run on the front end.
+
+```bash
+#!/bin/sh
+#PBS -q i2cpu
+#PBS -l select=1:ncpus=16:mpiprocs=8:ompthreads=1
+#PBS -N install
+ulimit -s unlimited
+module purge
+module load nvhpc-nompi/24.7 openmpi_nvhpc compiler-rt tbb mkl
+export PATH=$HOME/bin:$PATH
+./InstallAll.py --fc nvfortran --gpu
+```
+
+```bash
+qsub jobinstall_kugui.sh
+```
+
+</div>
+
 This compiles and then runs the test calculations. `jobinstall_kugui.sh` installs both the CPU and the GPU versions. The
 InstallAll.py called in it creates the directory `$HOME/bin` and copies the ecalj binaries and scripts there.
-If this is a problem, back up the current copy and let ecalj overwrite it, or search for --bidir bin in InstallAll.py and rewrite it. bin must be in your PATH.
+If this is a problem, back up the current copy and let ecalj overwrite it, or <del class="clfix">search for --bidir bin in InstallAll.py and rewrite it. bin must be in your PATH.</del><span class="clfix">pass `--bindir <dir>` to InstallAll.py (default `$HOME/bin`). That directory must be in your PATH.</span>
 
 The test proceeds printing OK. Error-like messages such as the following can be ignored (normal operation).
 
@@ -105,11 +133,9 @@ This completes the installation and the test (about 10 minutes in total).
 
 During the test,
 
-```bash
-tail -f ecalj/Samples/TestInstall/summary.txt
-```
+<del class="clfix">`tail -f ecalj/Samples/TestInstall/summary.txt`</del>
 
-shows the progress. It is OK if it ends with `PASSED! srvo3_crpa/Screening_W-v_crpa.h` and there is no FAIL or error.
+<span class="clfix">the standard output of the job (with PBS, `install.o<job id>`)</span> shows the progress. <span class="clfix">The result of each target is written to `ecalj/Samples/TestInstall/<target>_work/summary.txt` (the `See work/summary.txt` in the output example above is from an older version).</span> It is OK if it ends with `PASSED! srvo3_crpa/Screening_W-v_crpa.h` and there is no FAIL or error.
 Even with nvfortran the test runs on the CPU.
 
 
@@ -129,7 +155,7 @@ qsub job_kugui.sh
 OK! ==== All calclation finished for  gwsc ====
 ```
 
-it is OK.
+it is OK.<span class="clfix"> The sample contains the earlier result `QPU.1run`, so the one iteration of `gwsc 1` is counted as number 2 and its result is written to `QPU.2run`. Compare it with `QPU.1run` of the sample. The script passes `-c kugui_gpu` (the GPU-node settings in `SRC/exec/clusters.toml`; added 2026-11-14).</span>
 
 
 ### 6. Usage memo
@@ -150,9 +176,34 @@ module load openmpi/4.1.5-oneapi-2023.0.0-classic
 
 The installation is
 
+<div class="clfix-old">
+
 ```bash
 sbatch jobinstall_ohtaka.sh
 ```
+
+</div>
+
+<div class="clfix">
+
+`jobinstall_ohtaka.sh` was also removed from the repository, so write a script with the following content in `ecalj` and submit it.
+
+```bash
+#!/bin/sh
+#SBATCH -p i8cpu
+#SBATCH -N 1
+#SBATCH -n 8
+#SBATCH -c 1
+#SBATCH --job-name=install
+#SBATCH --ntasks-per-node=8
+./InstallAll.py --fc ifort
+```
+
+```bash
+sbatch jobinstall_ohtaka.sh
+```
+
+</div>
 
 . If you do not see `OK! ALL PASSED!` at the end at this stage, the installation has failed.
 
@@ -163,13 +214,13 @@ After confirming it, for the calculation test copy `ecalj/Samples/BenchmarkTest/
 sbatch job_ohtaka.sh
 ```
 
-run it. The 16-atom `inas4gasb4` follows the same procedure (rewrite `id` in the script).
+run it.<span class="clfix"> Here too the result is written to `QPU.2run`; compare it with `QPU.1run` of the sample. The script passes `-c ohtaka` (launch with srun; added 2026-11-14).</span> The 16-atom `inas4gasb4` follows the same procedure (rewrite `id` in the script).
 The scripts were adapted on 2026-09-30 to the current input (`ctrlg.<sname>.toml`) and options, and have not been run on the ISSP machines since.
 
 
-On kugui, srun is used instead of mpirun, among other things, so this is needed when running gwsc and others.
+<del class="clfix">On kugui, srun is used instead of mpirun, among other things, so this is needed when running gwsc and others.</del><span class="clfix">(removed: it repeats the next section)</span>
 
 ## Customization for the ISSP systems
 
-The machine dependence is described in `SRC/exec/MachineDependence.py` of the ecalj source code.
-On kugui, srun is used instead of mpirun, among other things; this is needed when running gwsc and others.
+The machine dependence is described in <del class="clfix">`SRC/exec/MachineDependence.py`</del><span class="clfix">`SRC/exec/clusters.toml` (selected with `-c <name>` of `gwsc` and others) and `SRC/exec/pylib/MachineDependence.py`</span> of the ecalj source code.
+<del class="clfix">On kugui, srun is used instead of mpirun, among other things</del><span class="clfix">On ohtaka srun is used instead of mpirun, and on the kugui GPU nodes `mpirun --bind-to none`, among other things</span>; this is needed when running gwsc and others.

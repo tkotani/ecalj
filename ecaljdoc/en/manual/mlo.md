@@ -1,6 +1,6 @@
 # MLO — an automatic modelling method in place of maximal localization and the like
 
-> English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit b18224576 (source blob c310d189badd).
+> English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit b18224576 (source blob dc21608dae16).
 
 ecalj branch `mlo3` / 2026-09-16 17:02 JST
 
@@ -54,7 +54,7 @@ The loss numbers come from `SRC/exec/mlo_losscheck.py <sample dir>`.
 | §7 | [Measuring the error](#_7-measuring-the-error-—-not-fixed-by-one-direction) | Not fixed by one direction |
 | §8 | [Remaining problems](#_8-remaining-problems) | |
 | §9 | [**Choosing the model**](#_9-choosing-the-model-—-criteria-1-2-3) | Criteria 1, 2, 3 and the present best choice. The 65 materials of `Samples/MATERIALS` |
-| `MD/mlo_backup.md` | History and work log (backup) | |
+| <del class="clfix">`MD/mlo_backup.md`</del><span class="clfix">development note (MD/mlo_backup.md in the repository, not on this site)</span> | History and work log (backup) | |
 
 ---
 
@@ -86,7 +86,7 @@ A^{\mathbf{k}}_{n'n''}=S^{\mathbf{k}}_{n'n''}\,\theta^{\mathbf{k}}_{n'n''}
 \tag{3}
 $$
 
-**How to choose this $\theta$ is the whole problem**, and the answer to task 1 is Eq. (4).
+**How to choose this $\theta$ is the whole problem**, and the answer to <del class="clfix">task 1</del><span class="clfix">use 1 (the minimal model)</span> is Eq. (4).
 
 $$
 \boxed{\;
@@ -186,7 +186,7 @@ An MLO is a fixed MTO seed **projected onto the band manifold**, so if the windo
 of that character, giving two seeds **collapses them to the same function by the projection**.
 When EH2 was added to the d of Ni in NiO, the condition number of the MLO overlap matrix $O^{\rm MLO}$
 went from $1.3\times10^2 \to 7.4\times10^4$ and the conduction band moved by 1 eV
-(2026-09-24, `MD/research_kotani_log.md`).
+(2026-09-24, <del class="clfix">`MD/research_kotani_log.md`</del><span class="clfix">development note (MD/research_kotani_log.md in the repository, not on this site)</span>).
 If you really need two, the only way is to widen the window so that the second band lies inside it.
 
 The exception is when the window really **contains a second band of the same character**. In open structures (zinc-blende MgS, MgSe, MgTe, CdTe, ZnTe and
@@ -255,6 +255,7 @@ is set automatically: at each k, count "the number of lowest states whose weight
 and use its **minimum over all k** for all k (2026-09-18). Choosing it per k swaps the projector between k where,
 as in the d model of Cu, the s band is the lowest and k where it is not, and kinks appear in the bands.
 The manual setting `mlo_nskip` has been removed.
+<span class="clfix">With the former per-k choice, the kink of the d model of Cu did not go away when `mlo_nkabc` went from 10³ to 16³ (rms of the d bands 98 → 90 meV; development note (MD/mlo_notes/mlo_nskip_cu_problem.md in the repository, not on this site)).</span>
 
 When an (atom, l) given in `mlo_lm` has a **semicore local orbital** (`pz`, e.g. `pz = 3.9` for Ga 3d), whether it becomes a seed of the model is also decided automatically
 (criterion 1 of §9). It is decided by the highest energy $E^{\rm top}$ of the band of that LO (the occupied states whose projection weight on the subspace of the LOs **of all atoms of the same species** exceeds 1/2):
@@ -291,8 +292,8 @@ Summary of what decides the seeds of the model:
 - semicore local orbitals (`pz` of `[[spec]]`): automatic (rule above). Override with `mlo_lm3`
 - empty spheres: put them in `[[site]]` and `[[spec]]` and write a line in `mlo_lm` (criterion 3, §5, §9). The basis changes, so rerun from `lmfa`
 
-For the d model of Cu, going from 10³ to 16³ changes the rms of the d bands from 98 to 90 meV
-(`MD/mlo_notes/mlo_nskip_cu_problem.md`).
+<del class="clfix">For the d model of Cu, going from 10³ to 16³ changes the rms of the d bands from 98 to 90 meV
+(`MD/mlo_notes/mlo_nskip_cu_problem.md`).</del><span class="clfix">(this sentence was moved to the `nskip` paragraph above)</span>
 
 **Normally it can be used as it is.** All 18 samples of `Samples/MLOsamples` use these defaults
 ($\Delta=w=2.0$ eV), unchanged per material (§2). All three are defaults,
@@ -369,7 +370,7 @@ All 38 figures (18 systems × window/full range + 2 comparing $w$ for Fe) are in
 
 ![Si](../../manual/mlo/Si666gwsc.png)
 
-Si (**QSGW**, 18 MTOs = 2 atoms × sp³d⁵). From the valence band up to conduction band +5 eV the
+Si (**QSGW**, 18 MTOs = 2 atoms × sp³d⁵). From the valence band up to <del class="clfix">conduction band +5 eV</del><span class="clfix">the floor (about +3 eV)</span> the
 red × lie exactly on the gray lines.
 
 ---
@@ -465,13 +466,13 @@ Fe — the sp band crossing $E_F$ is followed up to 33 eV at the zone boundary.
 ### About the reference bands
 
 The comparison in every system is with the **first-principles bands solved in the PMT basis**, not with experiment.
-Of these, **Si, Al₂O₃:Cr, RuO₂ and GdION are QSGW** (they have `sigm.<sname>`),
+Of these, **Si, Al₂O₃:Cr, RuO₂<span class="clfix">, GaAsSoc</span> and GdION are QSGW** (they have `sigm.<sname>`),
 the rest DFT. What is written "$\Delta E$" on this page is the difference between the MLO model and
 these first-principles bands, and the denominator of the $m^*$ ratio is the same.
 
 ### Band plots of all samples (gray: first-principles PMT, red ×: MLO)
 
-**Task (1) — models around $E_F$**
+**<del class="clfix">Task (1)</del><span class="clfix">Use 1 (the minimal model)</span> — models around $E_F$**
 
 ![Al2O3_Cr](../../manual/mlo/Al2O3_Cr.png)
 
@@ -533,11 +534,11 @@ All 25 systems of `Samples/MLOsamples` (gray: first-principles PMT bands, red ×
 `testecalj` runs. The figures are regenerated with `SRC/exec/mlo_bandplot.py <sampledir>_work`.
 The last 7 systems of the table take the Materials Project structure through `ctrlgenToml.py` as it is,
 put s,p,d of all atoms in `mlo_lm`, and run with the defaults ($\Delta = w = 2$ eV)
-(2026-09-18, development record `MD/mlo_notes/mp_20260918/`).
+(2026-09-18, <del class="clfix">development record `MD/mlo_notes/mp_20260918/`</del><span class="clfix">development note (MD/mlo_notes/mp_20260918/ in the repository, not on this site)</span>).
 
 | Semiconductors, insulators | | | |
 |---|---|---|---|
-| Si (QSGW) | GaAs (QSGW) | GaAs+SOC | C (diamond) |
+| Si (QSGW) | GaAs <del class="clfix">(QSGW)</del><span class="clfix">(DFT)</span> | GaAs+SOC<span class="clfix"> (QSGW)</span> | C (diamond) |
 | ![](../../manual/mlo/Si666gwsc.png) | ![](../../manual/mlo/GaAs.png) | ![](../../manual/mlo/GaAsSoc.png) | ![](../../manual/mlo/C.png) |
 | C.sp | SrTiO3 | Al2O3:Cr (QSGW80) | NiO (LDA, AFM) |
 | ![](../../manual/mlo/C.sp.png) | ![](../../manual/mlo/SrTiO3.png) | ![](../../manual/mlo/Al2O3_Cr.png) | ![](../../manual/mlo/NiO666lda.png) |
@@ -575,7 +576,7 @@ the 7 4f bands, and so on; most of the first-principles bands in the window are 
 |---|---|---:|---|
 | Cu | lm 5–9 of Cu (d only) | 147.8 meV | **No**. The model just does not have the sp bands |
 | SmP | 10–16 of Sm (4f only), P empty | 121.3 meV | **No**. It does not have the valence band |
-| GdION | 10–16 of Gd (4f only) | 0.2 meV | Only 4f is in the window, so conversely it can be measured |
+| GdION | 10–16 of Gd (4f only) | 0.2 meV | Only 4f is in the window, so here the window loss happens to work (the small value is not a real test) |
 | GdCo5 | only 10–16 of Gd, the 5 Co sites empty | (not enough data) | same as above |
 
 (Until 2026-10-01 this said "the window of `GaAsSoc`, 105.9 meV, is the same kind of artefact — the comparison is with 2N spinors and the band counts do not match".
@@ -599,8 +600,8 @@ At each k point, the distance from each MLO level to the nearest first-principle
 
 However, **$\Delta$ has no effect here.** The 4f levels $\varepsilon^{\rm MTO}_{n''}$ lie far below
 the floor $\varepsilon_{\rm CBM}+\Delta$, so $e^{\rm cut}_{n''}$ always takes the floor,
-and in GdION the floor is at $E_F+23.9$ eV (the huge gap of the Gd ion), above everything, so
-$\theta\approx1$, that is, it goes back to $A\approx S$ (the bare projection).
+and in GdION the floor is at $E_F+23.9$ eV (the huge gap of the Gd ion), <del class="clfix">above everything, so
+$\theta\approx1$, that is, it goes back to $A\approx S$ (the bare projection).</del><span class="clfix">far above the majority 4f ($-0.06$ eV), so for the majority $\theta\approx1$, that is, it goes back to $A\approx S$ (the bare projection). The minority 4f ($+23.8$ eV) lie only 0.1 eV below the floor, so there $\theta\approx\sigma(-0.05)\approx1/2$, not the bare projection.</span>
 **A 4f model has no requirement at a band edge in the first place, so the meaning of $\Delta$, "how far you want to fit",
 disappears** — method 4 does not break it, but it does not act either.
 
@@ -634,8 +635,8 @@ The gray lines at $+22.2$ to $+23.0$ eV below the minority are bands that are no
 the model does not take them, so there are no red ×.
 
 **This huge gap is also why $\Delta$ has no effect in 4f models.**
-The floor $\varepsilon_{\rm CBM}+\Delta$ is put at $E_F+23.9$ eV, above almost all
-the 4f levels, so $\theta\approx1$ and it goes back to the bare projection.
+The floor $\varepsilon_{\rm CBM}+\Delta$ is put at $E_F+23.9$ eV, <del class="clfix">above almost all
+the 4f levels, so $\theta\approx1$ and it goes back to the bare projection.</del><span class="clfix">so $\theta\approx1$ (the bare projection) for the majority 4f, and $\theta\approx1/2$ for the minority 4f just below the floor.</span>
 
 ---
 
@@ -689,8 +690,8 @@ This assumes that the MLO for up and down are identical; it is exact for non-mag
 | 3 | `mlo --socmatrix --efermi=efermi_soc` | after the PMT→MLO reduction, projects the SOC matrix onto the MLO and diagonalizes $2N\times2N$ on the symmetry lines. The window reference is `efermi_soc` (the value with SOC) |
 
 All of them get `--ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true`.
-`phispinsym` (spin-averaged radial functions) is needed because $\langle\uparrow|L_z|\uparrow\rangle$ is used
-in place of $\langle\uparrow|L_z|\downarrow\rangle$.
+`phispinsym` (spin-averaged radial functions) is needed <del class="clfix">because $\langle\uparrow|L_z|\uparrow\rangle$ is used
+in place of $\langle\uparrow|L_z|\downarrow\rangle$.</del><span class="clfix">so that the radial integrals $\langle\varphi_\uparrow|\xi(r)|\varphi_\downarrow\rangle$ of the spin-flip part ($L_\pm S_\mp$) can be taken with a single spin-averaged $\varphi$.</span>
 
 ~~Note that **stage 1 overwrites `efermi.lmf` with the SOC value**. If you continue non-SOC calculations
 in the same directory, save `efermi.lmf` first
@@ -793,7 +794,8 @@ Errors in the window for majority / minority (meV):
 | Model | number of MLO | window (meV) |
 |---|---:|---:|
 | without empty spheres | 78 | 126.9 / 73.5 |
-| ES with s only | 85 | 2.2 / 1.1 |
+| ES with s only<span class="clfix"> (d of Mg, O kept)</span> | 85 | 2.2 / 1.1 |
+| <span class="clfix">ES with s only + d of Mg, O removed</span> | <span class="clfix">55</span> | <span class="clfix">3.1 / — (majority only, table below)</span> |
 | **ES with s,p + d of Mg, O removed (adopted)** | **76** | **2.5 / 1.3** |
 | ES with s,p | 106 | 1.8 / 1.1 |
 | ES with s,p,d | 141 | 1.6 / 0.9 |
@@ -821,14 +823,14 @@ p is needed**. The window-type loss (window $E_F\pm2$ eV) just does not measure 
 
 ![ES with s only vs s,p](../../manual/mlo/FeMgO_ES_sp_compare.png)
 
-Left: ES with s only (55 bands); right: s,p (76 bands). Drawn from $-7$ to $+10$ eV,
+Left: ES with s only<span class="clfix"> (+ d of Mg, O removed)</span> (55 bands); right: s,p (76 bands). Drawn from $-7$ to $+10$ eV,
 **the left leaves gray lines without red × at $+5$ to $+10$ eV**, while the right is filled.
 
 ![Errors for ES with s only and s,p](../../manual/mlo/FeMgO_ES_sp_error.png)
 
 Sorting the error of each level by its first-principles energy shows where it acts:
 
-| Region | ES s only (55) | ES s,p (76) |
+| Region | ES s only<span class="clfix"> (+ d of Mg, O removed)</span> (55) | ES s,p (76) |
 |---|---|---|
 | $-7$ to $-1.5$ eV (valence band) | 0.3–0.7 meV | **the same** |
 | $E_F$ to $+2$ eV | a little worse | a little better |
@@ -838,7 +840,7 @@ In the overall numbers too:
 
 | | orbitals | window (meV) | occupied (meV) | dispersion | per-level mean (meV) | max (meV) |
 |---|---:|---:|---:|---:|---:|---:|
-| ES s only | 55 | 3.1 | 0.6 | 0.008 | 15.9 / 11.4 | 860 |
+| ES s only<span class="clfix"> (+ d of Mg, O removed)</span> | 55 | 3.1 | 0.6 | 0.008 | 15.9 / 11.4 | 860 |
 | **ES s,p (adopted)** | **76** | **2.5** | **0.5** | **0.006** | **8.3 / 6.0** | **294** |
 
 The window-type loss gives a modest 3.1 → 2.5 meV, but **level by level the mean halves and
@@ -922,6 +924,8 @@ the Hubbard $U$ put on the model Hamiltonian, or the interaction used in the cal
 In cRPA terms it is "the screened interaction projected onto the model space", and
 `job_mloW` evaluates it in the MLO basis.
 
+<span class="clfix">(Equation numbers renumbered: the equations of this section are now numbered in order of appearance. Old → new: (7a) → (7a), (7f) → (7b), (7) → (7c), (7b) → (7d), (7c) → (7e), (7d) → (7f), (7e) → (7g). (6) and (8)–(12) of §9 are unchanged)</span>
+
 ### What is computed
 
 For MLO orbitals $i,j,k,l$, lattice vectors $\mathbf{R}$ and frequencies $\omega$,
@@ -958,13 +962,13 @@ N_i=\int|F_{i\mathbf{0}}(\mathbf{r})|^2d\mathbf{r}
 $$
 
 that is, the $\mathbf{R}=0$ diagonal element of the overlap matrix of the model of the raw MLO. `mlo`, which defines the model (`job_mlo`, `lmf --mlo`), first sets
-$F_i\to F_i/\sqrt{N_i}$ (**a constant independent of $\mathbf{k}$**), and then orthogonalizes at each $\mathbf{k}$ by Eq. (7f) of the next subsection. The result of the Löwdin orthogonalization
+$F_i\to F_i/\sqrt{N_i}$ (**a constant independent of $\mathbf{k}$**), and then orthogonalizes at each $\mathbf{k}$ by Eq. (7b) of the next subsection. The result of the Löwdin orthogonalization
 depends on the scale of the input orbitals (it chooses the orthonormal set closest to the input, so the lengths of the orbitals are made equal first). $N_i$ is written at the end of `HamRsMLO`, and every later place that builds MLO
 (`__cmlo` of `job_mloW`, sugw and `m_sigmlo` of MLO-QSGW) divides by the same constants and then applies the same orthogonalization (2026-10-02).
 
 - $N_i$ of the raw MLO is much smaller than 1: 0.38 for the d of Ni, 0.18 for the t₂g of SrVO₃, 0.21–0.33 for the d of bcc Fe, 0.01–0.02 for s and p
   (because the weight falls off above the window). Without normalization the $U$ from $V$ takes values like 3.4 eV for Ni (24 eV normalized)
-- **Do not divide by $1/\sqrt{O_{ii}(\mathbf{k})}$ per $\mathbf{k}$** (the former `--mlo_diagnorm`, removed). The factor depends on $\mathbf{k}$, so the shape of the orbital in real space changes and
+- **Do not divide by <del class="clfix">$1/\sqrt{O_{ii}(\mathbf{k})}$</del><span class="clfix">$\sqrt{O_{ii}(\mathbf{k})}$ (multiply by $1/\sqrt{O_{ii}(\mathbf{k})}$)</span> per $\mathbf{k}$** (the former `--mlo_diagnorm`, removed). The factor depends on $\mathbf{k}$, so the shape of the orbital in real space changes and
   the MLO bands at $\mathbf{k}$ off the mesh move (0.74 eV for C, 0.10 eV for Al)
 - `hwmatK_MPI` prints $N_i$ measured on the GW mesh as a check (`square integral of the real-space MLOs on the GW mesh` in `lwmatK1`).
   The model mesh (`mlo_nkabc`) and the GW mesh differ, so it deviates slightly from 1. If the GW mesh is coarse, the orbital overlaps its own images in the periodic box and the deviation is large
@@ -976,7 +980,7 @@ The MLO are not orthogonal at each $\mathbf{k}$. The functions obtained at each 
 
 $$
 |\tilde F(\mathbf{k})\rangle=|F(\mathbf{k})\rangle\,O(\mathbf{k})^{-1/2},\qquad O_{ij}(\mathbf{k})=\langle F_i(\mathbf{k})|F_j(\mathbf{k})\rangle
-\tag{7f}
+\tag{7b}
 $$
 
 are orthonormal localized functions spanning the same subspace as the MLO, the projected Wannier functions of the MLO subspace. In real space, they are the MLO minus half of the overlap with
@@ -988,7 +992,7 @@ and bands off the $\mathbf{k}$ mesh are obtained by diagonalizing the Fourier su
 the $\Sigma$ of MLO-QSGW are all in this basis. The bands on the mesh are the same as before the orthogonalization. `job_mlo <sname> --mlo_raw` (passed to lmf) builds the earlier
 model without orthogonalization (the pair $H(\mathbf{R})$ and $O(\mathbf{R})$). It is an option only for comparison; later programs choose the same basis from the mark written in `HamRsMLO`.
 
-The orthogonalized functions oscillate on the neighbouring atoms because of the orthogonality, but they are more concentrated at the centre (spread $\Omega$: 1.72 → 1.46 bohr² for the t₂g of bcc Fe, 9.88 → 9.42 for the d of Ni).
+The orthogonalized functions oscillate on the neighbouring atoms because of the orthogonality, but they are more concentrated at the centre (spread $\Omega$: 1.72 → 1.46 bohr² for the t₂g of bcc Fe, 9.88 → 9.42 for the d of Ni<span class="clfix">, summed over the 5 d orbitals</span>).
 The matrix elements of the model are also smaller at long range (bcc Fe at $|\mathbf{R}|=5a$: $\max|H|$ 2.9×10⁻³ Ry and $\max|O|$ 2.8×10⁻³ against $\max|\tilde H|$ 4.3×10⁻⁴ Ry).
 The interpolation off the mesh is as in Table M8; near $E_F$ the orthogonalized version is better.
 
@@ -1003,7 +1007,7 @@ The interpolation off the mesh is as in Table M8; near $E_F$ the orthogonalized 
 
 - Much better near $E_F$: Cu 0.107 → 0.008, Ni 0.054 → 0.010, C 0.078 → 0.031 (gap error −0.038 → −0.013). Worse: 2H-SiC 0.035 → 0.051,
   MnO 0.007 → 0.030. Over the whole window only the bottom of the 4s band of bcc Fe ($E_F-8$ to $-3$ eV) goes 0.03 → 0.10
-- Since the overlap of the model is 1, the smallest eigenvalue of the overlap in the check of §9 (criterion 3 until 2026-10-02) has lost its meaning and was replaced by the spikes of the band (Eq. (12)). The line
+- Since the overlap of the model is 1, the smallest eigenvalue of the overlap in the check of §9 (check item 3 until 2026-10-02) has lost its meaning and was replaced by the spikes of the band (Eq. (12)). The line
   `Smallest eigenvalue of the normalized raw overlap` in the output of `mlo` (`lwriteham`) is the value on the mesh before the orthogonalization (0.22–0.31 over 63 materials)
 
 - The orthogonalization gathers the contribution of the overlap of the tails to the centre, and the on-site $U$ grows (d of bcc Fe, default window, $\omega=0$: 1.564 → 1.704 eV).
@@ -1035,7 +1039,7 @@ The columns follow the format of `main_wannier_hwmatK.f90` exactly:
 
 $$
 W_{\rm onsite} = V + (W-V)
-\tag{7}
+\tag{7c}
 $$
 
 They are added this way.
@@ -1049,7 +1053,7 @@ d orbitals of Fe (bcc, 9 sp³d⁵ orbitals), majority spin:
 | 5, 6, 8 ($xy$, $yz$, $xz$) | 22.91 | −21.40 | **1.510** |
 | 7, 9 ($3z^2-1$, $x^2-y^2$) | 22.90 | −21.24 | **1.661** |
 
-(2026-10-02, normalization of Eq. (7a). The expected values of `Samples/MLOsamples/Fe/test.py`)
+(2026-10-02, normalization of Eq. (7a)<del class="clfix">. The expected values of `Samples/MLOsamples/Fe/test.py`</del><span class="clfix">, values for the raw MLO (`--mlo_raw`). The expected values of the current `Samples/MLOsamples/Fe/test.py` are in the Löwdin basis: for the majority d, $V$ 24.52 / 24.18 and $W$ 1.66 / 1.79 eV</span>)
 
 **$V\approx23$ eV and $W-V\approx-22$ eV cancel to $W\approx1.6$ eV.**
 $W$ is only 7% of $V$. Therefore:
@@ -1095,7 +1099,7 @@ $W$ with the screening inside the model removed (constrained RPA). How much the 
 $$
 p_{\mathbf{k}n}=\big[C\,(C^\dagger C)^{-1}C^\dagger\big]_{nn},\qquad
 |F_j(\mathbf{k})\rangle=\sum_n|\psi_{\mathbf{k}n}\rangle C_{nj}
-\tag{7b}
+\tag{7d}
 $$
 
 (the diagonal of the projection onto the MLO subspace; $0\le p_{\mathbf{k}n}\le1$, $\sum_n p_{\mathbf{k}n}$ = number of MLO), and each transition
@@ -1103,16 +1107,16 @@ $\mathbf{k}n\to\mathbf{k}+\mathbf{q}\,n'$ in $\chi_0$ is multiplied by
 
 $$
 1-p_{\mathbf{k}n}\,p_{\mathbf{k}+\mathbf{q}\,n'}
-\tag{7c}
+\tag{7e}
 $$
 
 (the weighting scheme, Şaşıoğlu–Friedrich–Blügel, PRB 83, 121101). $p$ is a projection, so it does not depend on the MLO normalization (7a).
-`job_mloW <sname> --crpa` runs, after v and $W-V$, `hwmatK_MPI --mlo` (10011: Eq. (7b) to `pkm4crpa`) → `hx0fp0` (10011) →
+`job_mloW <sname> --crpa` runs, after v and $W-V$, `hwmatK_MPI --mlo` (10011: Eq. (7d) to `pkm4crpa`) → `hx0fp0` (10011) →
 `hwmatK_MPI --mlo` (100), and writes `Screening_W-v_crpa.UP/DN` (same format as `Screening_W-v`). The model subspace is `mlo_lm` itself;
 models of d only (Ni) or t₂g only (SrVO₃, lm = 5 6 8 in `mlo_lm`) are built and used. The tests are `TestInstall/ni_crpa` and `srvo3_crpa`.
 
 **Table M7**. Comparison of MLO and Wannier functions (the maximal localization that was in ecalj until 2026-10-02, `genMLWFx`). On-site means at $\omega=0$ (eV),
-$U=(ii|ii)$, $J=(ij|ji)$. $\Omega$ is the spread of Eq. (7e) (bohr²; in parentheses the Marzari–Vanderbilt form)
+$U=(ii|ii)$, $J=(ij|ji)$. $\Omega$ is the spread of Eq. (7g) (bohr²; in parentheses the Marzari–Vanderbilt form)
 
 | System (GW k mesh) | Method | $\Omega$ | $U$ of $V$ | $U$ of RPA | $U$ of cRPA | $J$ of cRPA |
 |---|---|---:|---:|---:|---:|---:|
@@ -1123,10 +1127,10 @@ $U=(ii|ii)$, $J=(ij|ji)$. $\Omega$ is the spread of Eq. (7e) (bohr²; in parenth
 
 - For SrVO₃, where the t₂g are isolated, the cRPA $U$ agrees within 1 %
 - For Ni, where d mixes with s, the d of MLO is wider (by 20–40 % in $\Omega$) and cRPA removes less screening ($(U_{\rm cRPA}-U_{\rm RPA})/V$ is 0.060 against 0.085).
-  The d subspace of the Wannier functions is built from a wide window ($E_F\pm10$ eV) and also lies on s,p-like bands, so Eq. (7c) also removes part of the d ↔ s,p transitions.
+  The d subspace of the Wannier functions is built from a wide window ($E_F\pm10$ eV) and also lies on s,p-like bands, so Eq. (7e) also removes part of the d ↔ s,p transitions.
   Neither is the correct one; it is a difference in how the subspace is taken
 - If the GW k mesh is coarse, the normalization of Eq. (7a) deviates from 1 on the GW mesh (SrVO₃, 1.06 on 2³), and $U$ is off by 10 %. If you use $U$, use 4³ or more
-- The numbers of the comparison and the working directories are in the research log, 2026-10-02 00:32. The Wannier path is in the commit of the git tag `last-wannier`
+- The numbers of the comparison and the working directories are in <del class="clfix">the research log, 2026-10-02 00:32</del><span class="clfix">a development note (MD/research_kotani_log.md in the repository, 2026-10-02 00:32, not on this site)</span>. The Wannier path is in the commit of the git tag `last-wannier`
 - The MLO of Table M7 are raw MLO values. In the Löwdin basis (the standard from 2026-10-02) the cRPA $U$ of the d of Ni (4³) is 2.90 eV (raw 2.84, Wannier 3.78), and
   the RPA $U$ is 1.434 eV. Widening the window moves the cRPA $U$ to 3.13 for (4, 2) and 3.30 eV for (6, 2), while the RPA $U$ moves little, 1.43–1.52 eV.
   cRPA removes "the screening inside the model subspace", so it depends directly on how the subspace is taken (in systems with entangled bands also on the choice between weighting and projection schemes, the disentanglement window
@@ -1143,17 +1147,17 @@ $M_{ij}(\mathbf{k},\mathbf{b})=\langle u_{i\mathbf{k}}|u_{j\mathbf{k}+\mathbf{b}
 
 $$
 \langle\mathbf{r}\rangle_i=-\frac{1}{N_k}\sum_{\mathbf{k},\mathbf{b}}w_b\,\mathbf{b}\,{\rm Im}\,M_{ii}(\mathbf{k},\mathbf{b})
-\tag{7d}
+\tag{7f}
 $$
 
 $$
 \langle r^2\rangle_i=\frac{2}{N_k}\sum_{\mathbf{k},\mathbf{b}}w_b\big[O_{ii}(\mathbf{k})-{\rm Re}\,M_{ii}(\mathbf{k},\mathbf{b})\big],
 \qquad \Omega_i=\langle r^2\rangle_i-|\langle\mathbf{r}\rangle_i|^2
-\tag{7e}
+\tag{7g}
 $$
 
-are printed in bohr. Eq. (7e) is the sum of $|u(\mathbf{k}+\mathbf{b})-u(\mathbf{k})|^2$ and does not assume length 1 at each $\mathbf{k}$ (the MLO of Eq. (7a) are not 1 at each $\mathbf{k}$).
-The difference from the $\ln M$ form of Marzari–Vanderbilt is smaller for smaller $|\mathbf{b}|$; on coarse meshes (2³–4³) it comes out 4–10 % larger (parentheses in Table M7). Both approach the second real-space moment as the mesh is refined.
+are printed in bohr. Eq. (7g) is the sum of $|u(\mathbf{k}+\mathbf{b})-u(\mathbf{k})|^2$ and does not assume length 1 at each $\mathbf{k}$ (the MLO of Eq. (7a) are not 1 at each $\mathbf{k}$).
+The difference from the $\ln M$ form of Marzari–Vanderbilt is smaller for smaller $|\mathbf{b}|$; <del class="clfix">on coarse meshes (2³–4³) it comes out 4–10 % larger</del><span class="clfix">on 4³ it comes out 2–4 % larger</span> (parentheses in Table M7). Both approach the second real-space moment as the mesh is refined.
 
 ### Regression test
 
@@ -1185,8 +1189,8 @@ the denominator of $\delta v/v$ is the rms of the first-principles slope in the 
 Levels are matched by an order-preserving optimal assignment (dynamic programming), which copes with degeneracies, crossings and different numbers of bands.
 
 $\delta E_{\rm occ}$ is kept separate because **looking only at the window misses the degradation of the deep valence band**
-(for Si, raising $w$ leaves the window almost unchanged, while
-$-12..-9$ eV gets worse, 2.5 → 10.7 meV).
+(for Si, raising $w$ <del class="clfix">leaves the window almost unchanged, while</del><span class="clfix">improves only the bin just below $E_F$ ($-2..0$ eV) slightly, while</span>
+$-12..-9$ eV gets worse, 2.5 → 10.7 meV<span class="clfix">; table in "Behaviour below $E_F$" below</span>).
 
 ### Each quantity with the defaults
 
@@ -1261,7 +1265,7 @@ $\Delta=2.45$ eV fixed, Si. Each cell is $\delta E_{\rm win}$ (meV) / $\delta E_
 | 2.7 | 19.4 / +25 / 1.18 | 14.8 / +5 / 1.00 | 14.3 / +3 / 0.96 |
 | 4.1 | 45.3 / +50 / 1.02 | 44.6 / +40 / 0.96 | 44.4 / +38 / 0.93 |
 
-$6^3$ says $w=3.4$ eV is best, but $8^3$/$10^3$ say $2.0$ eV.
+<del class="clfix">$6^3$ says $w=3.4$ eV is best, but $8^3$/$10^3$ say $2.0$ eV.</del><span class="clfix">$6^3$ says $w=3.4$ eV (0.25 Ry) is best, but $8^3$/$10^3$ say $2.0$ eV (0.15 Ry). This is the best by the single loss $L$ used for a while on 2026-09-13 (the sum of squares of the window error, velocity, gap and $m^*$ ratio, each divided by a reference value; later replaced by the per-quantity tables): on $6^3$, $L$ is 17.9 / 13.1 / 30.6 at $w=$ 2.7 / 3.4 / 4.1 eV, and on $8^3$ its minimum is 0.4 at 2.0 eV (MLO_minimal.md of ecalj commit 03854f228). The triples of the table above are not recorded for $w=3.4$ eV, so no row is added</span>
 **$6^3$ systematically makes large $w$ look good.**
 The sign of the gap error differs between $8^3$ and $10^3$ ($+3$ / $-5$ meV at $w=1.8$ eV)
 because of the supercell dependence of the truncation of $H(\mathbf{R})$, so **the range where the two meshes agree** is taken.
@@ -1286,7 +1290,7 @@ tens of percent, but for Si $8^3$ just changing $w$ from 1.8 eV to 4.1 eV makes 
 5.6 → 44.6 meV, 8 times larger. **Moving $w$ is enough.**
 
 The basis for changing the defaults from $\Delta=2.45$ / $w=2.72$ eV to $2.0$ / $2.0$ eV
-(mean over all 12 systems, raw errors):
+(mean over all 12 systems, raw errors<span class="clfix">. The 12 systems are the rows of the error table of 2026-09-13: the table of §2 without FeMgO, plus Cu (spd, 9) and Si $8^3$ (Si counted separately on $6^3$ and $8^3$). The means of the new-default values of that table were checked to be 15.0 meV (window) and 7.4 meV (occupied) (MLO_minimal.md of ecalj commit 9d063df33). The §2 table later gained FeMgO and lost Cu and Si $8^3$, hence 11 rows</span>):
 
 | Default | $\delta E_{\rm win}$ | $\delta E_{\rm occ}$ | \|$\delta E_{\rm gap}$\| |
 |---|---:|---:|---:|
@@ -1294,7 +1298,7 @@ The basis for changing the defaults from $\Delta=2.45$ / $w=2.72$ eV to $2.0$ / 
 | **new $\Delta=w=2.0$ eV** | **15.0 meV** | **7.4 meV** | **13 meV** |
 
 What helped were the occupied side of SrTiO₃, 52.9 → 5.5 meV, and the window of Al₂O₃:Cr, 17.5 → 7.2 meV.
-What got worse was C.sp (14.9 → 26.7 meV), a system on the side that wants a larger $w$ (§4).
+What got worse was C.sp (14.9 → 26.7 meV), a system on the side that wants a larger $w$ (<del class="clfix">§4</del><span class="clfix">the table of optimal $w$ above</span>).
 
 ---
 
@@ -1304,7 +1308,8 @@ All of the following were measured again with `mlo_method = 4` (the final form o
 
 ### Solved
 
-- **The gap of Al₂O₃:Cr** — with the implementation of Appendix D (c), **−128 → +7 meV** ($m^*$ ratio 0.58 → 1.08). - ~~**Adding FeMgO to the samples is on hold** — because a machine dependence remains.~~
+- **The gap of Al₂O₃:Cr** — with the implementation of <del class="clfix">Appendix D (c)</del><span class="clfix">D (c) of §2 of a development note (MD/mlo_backup.md in the repository, not on this site)</span>, **−128 → +7 meV** ($m^*$ ratio 0.58 → 1.08).<span class="clfix"> (values of that time; with the defaults, the table of §2 gives +1 meV and 1.04)</span>
+- ~~**Adding FeMgO to the samples is on hold** — because a machine dependence remains.~~
   **Solved (2026-09-15). It was not a machine dependence; I had simply forgotten to copy `esm_input.dat`
   to the new sample `FeMgO_ES`.**
 
@@ -1359,7 +1364,7 @@ All of the following were measured again with `mlo_method = 4` (the final form o
      identical to the byte, but `esm_input.dat` was not in place, so
      $E_F$ was $+0.07203343$ Ry (without ESM) against $-0.25231238$ Ry (with ESM), a
      difference of $4.4129$ eV. The reference was an `rst` converged with ESM, expanded without ESM.
-  3. **The samples were unified to the 55-orbital model with empty spheres.**
+  3. **The samples were unified to the 55-orbital model with empty spheres.**<span class="clfix"> (State of 2026-09-16. Later replaced by the 76-orbital model with s,p on the ES, §5. The 113.3 meV of the old model in the table below is a different measurement from the 126.9 meV of the table of §5)</span>
      The old 78-orbital model without empty spheres (`mlo_method=0`, `mlo_emax=5`) was removed, and
      `FeMgO` and `FeMgOSoc` now share the whole input. Measured locally:
 
@@ -1400,23 +1405,23 @@ All of the following were measured again with `mlo_method = 4` (the final form o
 
 ### Still open
 
-- **A fixed $w$ cannot satisfy semiconductors and metals at the same time.** As in §3 the optimal $w$ is
-  0.13–0.20 for semiconductors and 0.80 for Fe and Cu, a factor of 6, and both are finite optima.
+- **A fixed $w$ cannot satisfy semiconductors and metals at the same time.** As in <del class="clfix">§3</del><span class="clfix">§7</span> the optimal $w$ is
+  <del class="clfix">0.13–0.20 for semiconductors and 0.80 for Fe and Cu</del><span class="clfix">1.8–2.7 eV for semiconductors and 10.9 eV for Fe and Cu</span>, a factor of 6, and both are finite optima.
   Optimizing per system is well-posed, but **no single fixed value satisfies all systems**.
-  There is room to lower the default from $0.20$ to $0.15$, toward the semiconductors (not changed;
-  changing it requires regenerating the MLO reference files of testecalj).
+  <del class="clfix">There is room to lower the default from $0.20$ to $0.15$, toward the semiconductors (not changed;
+  changing it requires regenerating the MLO reference files of testecalj).</del><span class="clfix">The default was lowered toward the semiconductors, to 2.0 eV (formerly 2.72 eV) (§7).</span>
 
 - **The $m^*$ of Si on $6^3$ cannot be trusted.** On $6^3$ the gap is +25 meV and $m^*$ 1.18,
-  on $8^3$ +5 meV and 1.00 (§2). The swing is interpolation noise, not a defect of the model.
-  **Do not tune parameters with the $m^*$ of $6^3$** (the mesh item of §3).
+  on $8^3$ +5 meV and 1.00 (<del class="clfix">§2</del><span class="clfix">the mesh table of §7, $w=2.7$ eV</span>). The swing is interpolation noise, not a defect of the model.
+  **Do not tune parameters with the $m^*$ of $6^3$** (the mesh item of <del class="clfix">§3</del><span class="clfix">§7</span>).
 
 ### Measures that must not be used (record)
 
 During the study the rms in $E_F\pm1.5$ eV was used, but **it is invalid for wide-gap systems**.
 The zero of the band file is taken at the VBM, so $E_F$ comes near the top of the valence band and
-only the valence side is seen. Widening $w$ for C.sp from 0.20 to 0.80,
+only the valence side is seen. Widening $w$ for C.sp from <del class="clfix">0.20 to 0.80</del><span class="clfix">2.7 to 10.9 eV</span>,
 $E_F\pm1.5$ responds sluggishly, 0.0064 → 0.0170, while the gap error runs away, $-18$ → $+822$ meV.
-The present measures (§3) do not use this one.
+The present measures (<del class="clfix">§3</del><span class="clfix">§7</span>) do not use this one.
 
 ---
 
@@ -1454,7 +1459,7 @@ N^{\rm LO}_a=\sum_{l\in L^{\rm LO}_a}(2l+1)
 \tag{8}
 $$
 
-$L_a$ are the $l$ on the line of atom $a$ in `mlo_lm` (4 for s,p, 9 for s,p,d, 16 for s,p,d,f; for a partial shell, the number of lm written), $N^{\rm EH2}_a$ is the number of lm on the line of `mlo_lm2`
+$L_a$ are the $l$ on the line of atom $a$ in `mlo_lm` (<span class="clfix">$N^{\rm EH}_a$ is </span>4 for s,p, 9 for s,p,d, 16 for s,p,d,f; for a partial shell, the number of lm written), $N^{\rm EH2}_a$ is the number of lm on the line of `mlo_lm2`
 (4 for s,p; 0 for a line with `!`), and $L^{\rm LO}_a$ are the $l$ of the local orbitals **added** to EH (the `SHALLOW: LO added` lines of `lmlo`; for atoms written in `mlo_lm3`, the number of lm given there).
 An $l$ where the local orbital replaces EH (`IN THE WINDOW`) is counted on the side of $L_a$ (the number does not change).
 A spin-polarized system has $N_{\rm MLO}$ for each spin. Materials with spin-orbit are counted the same way (the MLO are identical for up and down; adding $H_{\rm SO}$ and
@@ -1532,15 +1537,15 @@ $$
 Rough values of Eq. (12) (2026-10-02): for healthy models, at most 0.56 eV (2H-SiC) over the 63 materials of criterion 1, median about 0.1 eV (corners at band crossings).
 Broken models (the model of raw MLO with EH2 of criterion 2 added to Cu and Ni) give 24 eV and 926 eV.
 
-**Criterion 3 of the check until 2026-10-02** was that the smallest eigenvalue $\min\,\mathrm{eig}\,O^{\rm MLO}(\mathbf{k})$ of the MLO overlap matrix on the symmetry lines is 0 or below, or below 1/100 of the median
-(`MLO_ovlpmin.dat` written by `mlo`). Now that the model consists of orthogonalized MLO (Eq. (7f) of §6) and $O^{\rm MLO}=1$, it is not used. The values then: over the 63 materials of criterion 1
+**Check item 3 until 2026-10-02** was that the smallest eigenvalue $\min\,\mathrm{eig}\,O^{\rm MLO}(\mathbf{k})$ of the MLO overlap matrix on the symmetry lines is 0 or below, or below 1/100 of the median
+(`MLO_ovlpmin.dat` written by `mlo`). Now that the model consists of orthogonalized MLO (Eq. (7b) of §6) and $O^{\rm MLO}=1$, it is not used. The values then: over the 63 materials of criterion 1
 the minimum was 0.20–0.42 (after normalization in real space); with criterion 2 it dropped through the overlap of EH and EH2 (median $3\times10^{-4}$ for Cu), and for the broken Cu and Ni it was negative (the Fourier sum of the overlap
 truncated in real space was no longer positive definite). The value on the mesh before the orthogonalization can now be seen in the output of `mlo` (`Smallest eigenvalue of the normalized raw overlap`; 0.22–0.31 over the 63 materials of criterion 1).
 
 **Results of the check** (models of orthogonalized MLO, 2026-10-02; the same DFT as Table M8 of §6): PASS for 55 of the 63 materials of criterion 1. The 8 FAIL materials (AlN, AlSb, InSb, MgS, MgSe, MgTe, Sn, SiO₂)
 also FAIL with the same values for the raw model; with criterion 2 (EH2 on the cations) AlN, AlSb, InSb, MgS, MgSe, MgTe and Sn PASS (largest shift 0.007–0.049 eV), and SiO₂ gives 0.005 eV with criterion 3 (empty spheres).
 Criterion 2 for Cu and Ni, which broke with the raw model, PASSES with the orthogonalized model (0.045, 0.055 eV): the overlap is not interpolated, so the collapse above does not happen. Criterion 2 for EuO stops where the model is built
-(the normalization check of `Hreduction`, as before). The tally with the raw model on 2026-10-01 (65 materials: 55 PASS for criterion 1, 59 PASS for criterion 2) is in the research log, 2026-10-01.
+(the normalization check of `Hreduction`, as before). The tally with the raw model on 2026-10-01 (65 materials: 55 PASS for criterion 1, 59 PASS for criterion 2) is in <del class="clfix">the research log, 2026-10-01</del><span class="clfix">a development note (MD/research_kotani_log.md in the repository, 2026-10-01, not on this site)</span>.
 
 ### Results
 
@@ -1565,7 +1570,7 @@ $\Delta E_g=E_g^{\rm M}-E_g^{\rm D}$, $\delta$ is Eq. (11)
 | ZnTe | 1.033 | +0.038 | 0.038 | +0.001 | 0.004 | | 18 / 22 |
 | CdTe | 0.516 | +0.037 | 0.037 | +0.000 | 0.003 | | 18 / 22 |
 | AlN (wz) | 4.335 | +0.011 | 0.052 | +0.000 | 0.008 | | 26 / 34 |
-| 2H-SiC | 2.154 | +0.021 | 0.021 | +0.000 | 0.010 | | 26 / 42 |
+| 2H-SiC | 2.154 | +0.021 | 0.021 | +0.000 | 0.010 | | 26 / 42<span class="clfix"> (42 is right: C is not in the anion list, so it is treated like a cation and the EH2 s,p go on all 4 atoms, Si and C: 26 + 4×4. The `mlo_lm2` of `Samples/MATERIALS/2hSiC` also has 4 rows)</span> |
 | AlSb | 1.148 | +0.009 | 0.020 | +0.002 | 0.008 | | 18 / 22 |
 | Sn (metal in LDA) | metal | | 0.024 | | 0.006 | | 18 / 26 |
 | C | 4.156 | −0.038 | 0.038 | −0.008 | 0.024 | | 8 / 16 |
@@ -1627,7 +1632,7 @@ rms is MLO → DFT / DFT → MLO (eV). The window is [VBM − 8, CBM + 3] for ML
 
 MLO models are built with the same recipe for all materials of the GW1500 database (QSGW80 bands). Nothing is tuned by hand per material; everything is fixed by the following rules.
 
-**Table M7**. Rules of the standard recipe
+**<del class="clfix">Table M7</del><span class="clfix">Table M12</span>**. Rules of the standard recipe
 
 | | What is decided | Rule | Reason |
 |---|---|---|---|
@@ -1635,7 +1640,7 @@ MLO models are built with the same recipe for all materials of the GW1500 databa
 | 2 | criterion 1 | `[mlo]` of `gwinit` (s,p up to Ne, s,p,d from Na, f for 4f atoms, s,p for ES) | |
 | 3 | semicore local orbitals | added to the model if the top of the band is above $E_F-17$ eV, or if a band of the model lies below it. A d in the window (above $E_F-8$ eV) replaces the EH function | `nskip` can drop only bands below every band of the model. Semicore s,p in the window (Cs 5p) are kept because EH (Cs 6p) makes the conduction band |
 | 4 | adding basis functions | if criterion 1 does not PASS, also build a version with EH2 s,p added to the cations and a version with it added to all atoms other than transition metals and 4f/5f. If that still does not PASS and the material contains K, Ca, Rb, Sr, Cs, Ba, Cu, Ag or Au, build a third version that adds, besides the EH2 s,p of all atoms, EH2 d to K–Ba and EH2 s,p to Cu, Ag, Au. The version with the better judgement is taken (if equal, the simpler one; among FAILs, the one with the smaller shift) | the conduction band of strongly ionic materials is a state spread outside the cations (and anions), and one set of MTOs is not enough. For K–Ba the empty d appears widely in the conduction band (Cs₂S₂ 0.44 → 0.05 eV). In the noble metals d sinks and the conduction band is s,p (CsCu₃O₂ 0.30 → 0.01 eV). The better one is taken, so materials that break (metallic Cu, etc.) do not get worse |
-| 5 | judgement | PASS: largest shift ≤ 0.1 eV in the window $[{\rm VBM}-8, {\rm CBM}+2]$ eV (no jumps or broken bands). OK: PASS up to CBM + 1.5 eV, and ≤ 0.2 eV over the whole window. FAIL: otherwise | strongly dispersive bands enter near the upper end of the window and shift easily |
+| 5 | judgement | PASS: largest shift ≤ 0.1 eV in the window $[{\rm VBM}-8, {\rm CBM}+2]$ eV (no jumps or broken bands). OK: PASS up to CBM + 1.5 eV, and ≤ 0.2 eV over the whole window. FAIL: otherwise<span class="clfix">. A FAIL whose largest shift is 0.3 eV or less is shown as FAIR in the database (from 2026-10-07)</span> | strongly dispersive bands enter near the upper end of the window and shift easily |
 
 The values of the GW1500 database were computed with the MT-radius upper limits of that time (no limit for H, 2.8 a.u. for Rb and Cs). From 2026-10-07 `ctrlgenToml.py` limits H to 1.4 and Rb and Cs to 2.4 a.u., so
 rerunning with the present ecalj shifts the materials containing H, Rb or Cs (135) slightly (gap differences of 0.014 eV or less in the LDA test; spurious levels like that of Rb₂Sc₂O₄ disappear). Examples of spurious levels (bands without a degenerate partner) and how the limits are chosen: [mtradius.md](./mtradius.md).
@@ -1663,9 +1668,9 @@ How to run:
 Rb₈ (mp-1179832; atoms placed with spacing in a large cell, too large). When the conditions are right, there is no material for which QSGW80 itself failed.
 The failures of the previous round came from the TF32 precision of May, the k points, and overlapping or too large ES.
 
-**ES**: placed for 240 materials by rule 1 of Table M7. The rule changed twice along the way, so the rule of the time is recorded for each value (Table M9).
+**ES**: placed for 240 materials by rule 1 of <del class="clfix">Table M7</del><span class="clfix">Table M12</span>. The rule changed twice along the way, so the rule of the time is recorded for each value (Table M9).
 For all inputs, the ES do not overlap other spheres (checked on 2026-10-07). The 7 materials where the rule did not work were placed by hand (Table M10).
-Turning into rules the structures of slabs and vacuum (extending the stacking just outside the surface and also placing ES in the middle of the vacuum) and of molecular crystals (small ES of 2.2–2.5 a.u.) is still to be done.
+<del class="clfix">Turning into rules the structures of slabs and vacuum (extending the stacking just outside the surface and also placing ES in the middle of the vacuum) and of molecular crystals (small ES of 2.2–2.5 a.u.) is still to be done.</del><span class="clfix">Building the slab rule es-d (Table M9) into `ctrlg_addes.py`, and a rule for molecular crystals (small ES of 2.2–2.5 a.u.), are still to be done.</span>
 
 *Table M9*. Versions of the ES rule (the version column of `gw1500db.tsv` of the database)
 
@@ -1688,7 +1693,7 @@ Turning into rules the structures of slabs and vacuum (extending the stacking ju
 | SnS mp-554134 (slab, rule es-d) | outside both surfaces (1.9 a.u.), two more layers on each side (1.9 a.u., small because the pairs of surface ES are close), two in the middle of the vacuum (2.65 a.u.), 14 in all, all s,p | only outside the surfaces and in the middle (s) gave FAIR 0.24 eV; es-d gives PASS 0.007 eV |
 | PbS mp-561320 (slab, rule es-d) | outside both surfaces (2.35 a.u.), one more layer on each side (2.6 a.u.), in the middle of the vacuum (3.0 a.u.), 9 in all, all s,p | only outside the surfaces and in the middle (s), the model could not take one band spread over the empty layer of vacuum (about 4 Å) (0.38 eV). Table M11 |
 
-**MLO**: of 1546 materials, PASS 1539, FAIR 3, OK 2, SKIPPED 2 (2026-10-09). The chosen versions are b1 989, b2 420, b2all 107, b2d 28 and one handmade (for solid H₂,
+**MLO**: of 1546 materials, PASS 1539, FAIR 3, OK 2, SKIPPED 2 (2026-10-09). The chosen versions are <del class="clfix">b1 989, b2 420, b2all 107, b2d 28 and one handmade</del><span class="clfix">b1 991, b2 420, b2all 105, b2d 28 and one handmade, 1545 in all (the mlo_variant column of `gw1500db.tsv` of the database QSGW80_20261009; 989 and 107 were earlier counts. The 1545 include the SKIPPED Sr (b2); only Rb₈ has no version)</span> (for solid H₂,
 `x_s_only`: only H s, EH2 s and ES s; with the EH2 p of the recipe the MLO overlap matrix became singular). FAIR (largest shift 0.3 eV or less,
 a category only for the database display; fine to present) are H₂ 0.11, H₈ 0.15 and BN mp-685145 0.24 eV (placing a small ES of 1.25 a.u. in the 2.56 a.u. void between the sheets made the valence band off by 0.55 eV instead; 2026-10-09). There is no FAIL.
 SKIPPED are Rb₈ and Sr (mp-1056418, a 462 Å³ cell with one atom).
@@ -1710,7 +1715,7 @@ spurious levels of large MT spheres (Rb₂Sc₂O₄, [mtradius.md](./mtradius.md
 
 **Notes for reading**: rhombohedral graphite-like carbon and the like have a gap on the 8×8×8 mesh but are semimetals whose bands cross on the band path (`path-metal`, 5 materials).
 For materials whose band edges are not on the mesh (53), the true gap is close to the gap on the path (`path<mesh(mesh)`). Values whose difference between conditions exceeds 0.2 eV (`CHECK`, 100) are
-kept for reference. Most are differences from the May value M. The DOS column of the figures was shifted by $E_F$ only until 2026-10-07 (figures of the version published on 10-03; the gaps and bands are correct).
+kept for reference. Most are differences from the May value M. Until 2026-10-07 the DOS column of the figures was shifted by $E_F$ (figures of the version published on 10-03; the gaps and bands are correct).
 
 ---
 
@@ -1721,6 +1726,6 @@ what the original samples did, the intermediate stage with the floor at $E_F+\De
 the measured grounds for the three design decisions that led to the final form, and the bugs found along the way in the evaluator and
 in `m_hreduction.f90` — is collected on a separate page:
 
-**`MD/mlo_backup.md`**
+**<del class="clfix">`MD/mlo_backup.md`</del><span class="clfix">development note (MD/mlo_backup.md in the repository, not on this site)</span>**
 
 It is not needed for reading the conclusions of this page, but look there when you doubt why the formula is this one.

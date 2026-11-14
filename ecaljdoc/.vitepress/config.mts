@@ -7,22 +7,23 @@ const sidebarRoot = [
   {
     items: [
       { text: 'GetStarted with AI (New!)', link: '/manual/getstartedAI' },
-      { text: 'MainDocument', link: '/manual/README_tutorial' },
+      { text: 'ライセンス', link: '/manual/license' },
     ]
   },
   {
-    text: 'Install',
+    text: 'インストール',
     items: [
       { text: 'Install', link: '/install/install' },
-      { text: 'Install@ISSP', link: '/install/installISSP' },
+      { text: 'Install@ISSP_tokyo', link: '/install/installISSP' },
       { text: 'Uninstall', link: '/install/uninstall' }
     ]
   },
+  { text: 'メインドキュメント', link: '/manual/README_tutorial' },   // a heading of its own, just above the additional documents (2026-11-14)
   {
-    text: 'Manual',
+    text: '追加ドキュメント',
     items: [
       { text: '更新履歴（要約）/ What\'s new', link: '/manual/whatsnew' },
-      { text: 'TOML migration (2026-05)', link: '/manual/toml_migration' },
+      { text: 'TOML への移行 (2026-05)', link: '/manual/toml_migration' },
       { text: 'Samples (where what lives)', link: '/manual/samples' },
       { text: 'DFT  calculation : lmf part', link: '/manual/lmf' },
       { text: 'MT 半径の上限と偽の準位', link: '/manual/mtradius' },
@@ -45,18 +46,16 @@ const sidebarRoot = [
     ]
   },
   {
-    text: 'Input files (TOML, 2026-05+)',
+    text: '入力ファイル',
     items: [
-      { text: 'ctrlg.<sname>.toml (TOML input)', link: '/manual/toml_migration' },
-      { text: 'ctrl.<sname> (legacy)', link: '/manual/lmf_legacy_ctrl' },
-      { text: 'GWinput (legacy)', link: '/manual/gwinput' },
-      { text: 'syml.<sname>', link: '/manual/syml' }
+      { text: 'ctrlg.&lt;sname&gt;.toml (TOML input)', link: '/manual/toml_migration' },
+      { text: 'syml.&lt;sname&gt;', link: '/manual/syml' }
     ]
   },
   {
-    text: 'Theory',
+    text: '理論',
     items: [
-      { text: 'PMT 法（APW+MTO, DFT）', link: '/theory/pmt' },
+      { text: 'ecalj のバンド計算法', link: '/theory/pmt' },
       // { text: 'Spin-orbit interaction', link: '/theory/soi' },
       { text: 'GW approximation', link: '/theory/gw' },
       { text: 'Quasi-particle self-consistent GW', link: '/theory/qsgw' },
@@ -68,15 +67,32 @@ const sidebarRoot = [
       { text: 'Basic II', link: '/theory/basic2' },
     ]
   },
+  {
+    text: '古い文書（過去ログ）',   // legacy pages kept as records (2026-11-14)
+    items: [
+      { text: 'ctrl.&lt;sname&gt; (legacy)', link: '/manual/lmf_legacy_ctrl' },
+      { text: 'GWinput (legacy)', link: '/manual/gwinput' },
+      { text: '外したコード（過去のコード）', link: '/manual/past_code' },
+    ]
+  },
 ]
 
 const enText: Record<string, string> = {
+  '外したコード（過去のコード）': 'Removed code (past code)',
+  '古い文書（過去ログ）': 'Old documents (past records)',
+  'メインドキュメント': 'MainDocument',
+  'ライセンス': 'License',
+  'TOML への移行 (2026-05)': 'TOML migration (2026-05)',
+  '理論': 'Theory',
+  '入力ファイル': 'Input files',
+  '追加ドキュメント': 'Additional documents',
+  'インストール': 'Install',
   '更新履歴（要約）/ What\'s new': 'What\'s new',
   'MT 半径の上限と偽の準位': 'Upper limit of MT radii and spurious levels',
   'kBT — 有限温度と均し方 (t_tetrakbt / t_sigmaw)': 'kBT — finite temperature and smearing (t_tetrakbt / t_sigmaw)',
   'MLO — 最大局在化などに代わる自動モデル化法': 'MLO — automatic model construction in place of maximal localization',
   'MLO-gwsc — Sigma を MLO 表現で内挿する QSGW（開発中）': 'MLO-gwsc — QSGW interpolating Sigma in the MLO representation (in development)',
-  'PMT 法（APW+MTO, DFT）': 'PMT method (APW+MTO, DFT)',
+  'ecalj のバンド計算法': 'Band-structure method of ecalj',
 }
 function toEn(items: any[]): any[] {
   return items.map((it) => ({
@@ -108,10 +124,11 @@ export default withMermaid({
   // with the same file names (every page twice; TOOLS/ecaljdoc_en.py copies and lists stale ones). The English sidebar is
   // made from the same list: /en is put in front of the links and the Japanese labels are replaced by enText.
   locales: {
-    root: { label: '日本語', lang: 'ja' },
+    root: { label: '日本語', lang: 'ja', themeConfig: { siteTitle: 'ecalj: 日本語' } },   // nav-bar name per language; the tab title stays (2026-11-14)
     en: {
       label: 'English', lang: 'en', link: '/en/',
       themeConfig: {
+        siteTitle: 'ecalj: English',
         nav: [ { text: 'Home', link: '/en/' } ],
         sidebar: toEn(sidebarRoot),
       },

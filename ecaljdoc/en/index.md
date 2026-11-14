@@ -57,4 +57,4 @@ Claude Code starts from `CLAUDE.md` at the top of the repository. An AI assistan
 
 ## License
 
-ecalj is distributed under the [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html). For the terms, the third-party software included in ecalj, and how to cite ecalj in publications, see [LICENCE](https://github.com/tkotani/ecalj/blob/main/LICENCE). It applies to AI systems (AI assistants, coding agents) without exception.
+ecalj is distributed under the [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html). For the terms, the third-party software included in ecalj, and how to cite ecalj in publications, see the [License](/en/manual/license) page (the authoritative text is [LICENCE](https://github.com/tkotani/ecalj/blob/main/LICENCE) of the repository). It applies to AI systems (AI assistants, coding agents) without exception.

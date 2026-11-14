@@ -1,6 +1,6 @@
 # GWinput (legacy)
 
-> English version of the page [manual/gwinput](../../manual/gwinput.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwinput.md of commit 85cdee981 (source blob cd4e36a7fe8b).
+> English version of the page [manual/gwinput](../../manual/gwinput.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwinput.md of commit 85cdee981 (source blob b9de41292f7f).
 
 > ⚠️ The Fortran programs do not read the `GWinput` text file. The settings of this page are keys of `ctrlg.<sname>.toml` (sections `[gw]` / `[mlo]` / `[blocks]` / `[product_basis]`; the last one also holds the per-atom tables), written in TOML syntax (`key = value`). For a directory with the legacy `ctrl.<sname>` + `GWinput`, run `Legacy2toml.py <sname>` to convert. See [TOML migration](./toml_migration) for the key mapping.
 
@@ -23,7 +23,7 @@ ctrlgenToml.py <sname> --addgw   # add to a file without [gw] (stops if [gw] exi
 > The executables in the same directory as the script (the binary install directory of the ecalj package) are used.
 
 The generated `[gw]` has `n1n2n3 = [4, 4, 4]`, `t_sigmaw = 300`, `t_tetrakbt = 300`. Rewrite them for your calculation
-(`t_tetrakbt = 0` if you do not smear $\chi_0$ for insulators and semiconductors).
+(`t_tetrakbt = 0` if you do not smear $\chi_0$ for insulators and semiconductors<span class="clfix">; the template value 300 does not affect the result either when the gap is much larger than $k_BT$ ([kBT](kBT) §4)</span>).
 
 
 ## Format
@@ -72,9 +72,9 @@ Whether to keep in memory, for all symmetry operations, the matrix elements betw
 
 ### `t_tetrakbt`  *(required, 2026-09-28)*
 Selects how $\chi_0$ is smeared, by the sign of a temperature (K). It stops if not written.
-- `0`: no smearing (T=0 tetrahedron). Insulators and semiconductors.
+- `0`: no smearing (T=0 tetrahedron). <del class="clfix">Insulators and semiconductors.</del><span class="clfix">For insulators and semiconductors the template value 300 is also fine (no effect if the gap ≫ $k_BT$; [kBT](kBT) §4).</span>
 - `T > 0`: finite-temperature tetrahedron. The occupations in $\chi_0$ become Fermi-Dirac at temperature $T$, and the Fermi level is `EFERMI_kbt` (also on the $\Sigma$ side). [kBT](kBT) §2.
-- `-T`: keeps the T=0 tetrahedron and smears $\mathrm{Im}\chi_0$ along frequency with a Gaussian. The width is the same as Fermi-Dirac at temperature $T$ (standard deviation $\pi k_BT/\sqrt3$, $-1000$ K = 0.00574 Ha = 0.156 eV). Used when the plasmon pole of $W$ is rough in metals (the practical setting for LiTi₂O₄ is $-992.4$; "Practical settings" in [kBT](kBT)). It also affects $W(i\omega)$ and the static $W(0)$.
+- `-T`: keeps the T=0 tetrahedron and smears $\mathrm{Im}\chi_0$ along frequency with a Gaussian. The width is the same as Fermi-Dirac at temperature $T$ (standard deviation $\pi k_BT/\sqrt3$, $-1000$ K = 0.00574 Ha = 0.156 eV). Used when the plasmon pole of $W$ is rough in metals (the practical setting for LiTi₂O₄ is $-992.4$; <del class="clfix">"Practical settings" in [kBT](kBT)</del><span class="clfix">"Settings for LiTi₂O₄" at the top of [kBT](kBT)</span>). It also affects $W(i\omega)$ and the static $W(0)$.
 The gwinit template writes 300.
 - **type**: float (K)
 - **default**: none (required)
@@ -94,9 +94,9 @@ Gaussian for $\mathrm{Im}\chi_0$) into `t_tetrakbt = -T` of the same width (0.00
 | `GaussianFilterX0`, `GaussSmear`, `delta`, `dw`, `omg_c`, `WgtQ0P`, `MEMnmbatch` | not read (no effect even if written) |
 | `zmel_max_size` | read as `zmel_batch_gb` |
 
-## `t_sigmaw`  *(2026-09-20, formerly `esmr` / `t_sigmakbt`)*
-Width of the Fermi-Dirac kernel that smears the intermediate levels (poles of G) in the self-energy $\Sigma = G(W)$. Unit K.
-The same kernel $-\partial f/\partial\varepsilon$ ($k_BT$ = `t_sigmaw`) is used for all of: the occupation weights of $\Sigma_x = Gv$, and the window weights and pole positions (`wcsmear`) of the real-axis pole term of $\Sigma_c = G(W-v)$.
+### `t_sigmaw`  *(2026-09-20, formerly `esmr` / `t_sigmakbt`)*
+Width of the Fermi-Dirac kernel that smears the intermediate levels (poles of G) in the self-energy <del class="clfix">$\Sigma = G(W)$</del><span class="clfix">$\Sigma = iGW$</span>. Unit K.
+The same kernel $-\partial f/\partial\varepsilon$ ($k_BT$ = `t_sigmaw`) is used for all of: the occupation weights of <del class="clfix">$\Sigma_x = Gv$</del><span class="clfix">$\Sigma_x = iGv$</span>, and the window weights and pole positions (`wcsmear`) of the real-axis pole term of <del class="clfix">$\Sigma_c = G(W-v)$</del><span class="clfix">$\Sigma_c = iG(W-v)$</span>.
 **This is a numerical width, not a complete finite-temperature self-energy** (Bose factors etc. are not included).
 The Fermi level is `EFERMI_kbt` if `t_tetrakbt > 0` ($\chi_0$ also at finite temperature); otherwise it is determined by counting levels on the k mesh (Table 5 in [kBT](kBT) §0).
 The candidate window of intermediate states and the margin of the real-axis $\omega$ mesh are $E_F \pm 15\,k_BT$. The same kernel also enters the
@@ -144,7 +144,7 @@ The number is written in the output of qg4gw (lqg4gw).
 To convert to energy (Ry), take **2.
 
 The IPW cutoff of the wave functions is also related to `[ham] pwemax`. For pwemax, 2 or 3 is often tried
-(its unit is an energy cutoff, i.e. **2, in Ryd).
+<del class="clfix">(its unit is an energy cutoff, i.e. **2, in Ryd).</del><span class="clfix">(pwemax is an energy cutoff in Ry: $|\mathbf q+\mathbf G|^2 \lt {\rm pwemax}$, with $|\mathbf q+\mathbf G|$ in 1/a.u.)</span>
 
 ### `QpGcut_cou`
 Cutoff ~~energy: unit Ryd~~ of the IPW part of the product basis 
@@ -171,10 +171,10 @@ HistBin_ratio = 1.03   # 1.03 maybe safer. frhis(iw)= b*(exp(a*(iw-1))-1), where
 ```
 This mesh is made in getfreq of m_freq.f90.
 
-* HistBin_dw and HistBin_ratio specify real space bins which we accumulate imaginary part weight of polarization functions. The bins are (see frhis in m_freq.f90) 
-$\omega_i = {{dw}} ∗ (\exp({\rm ratio} ∗ (i − 1)) − 1) $
+* HistBin_dw and HistBin_ratio specify <del class="clfix">real space bins</del><span class="clfix">bins along the real frequency axis</span> which we accumulate imaginary part weight of polarization functions. The bins are (see frhis in m_freq.f90) 
+<del class="clfix">$\omega_i = {{dw}} ∗ (\exp({\rm ratio} ∗ (i − 1)) − 1)$</del><span class="clfix">$\omega_i = b\,(e^{a(i-1)}-1)$, $a={\rm HistBin\_ratio}-1$, $b={\rm HistBin\_dw}/a$</span>
 where $[\omega_i, \omega_{i+1}]$ $(i = 1, 2, ...,\verb#nwhis#+1)$ is the i-th bin. HistBin_dw is bin width at ω = 0.
-The ratio ω(i + 1)/ω(i) for large ω is exp(a)=HistBin_ratio. This choice of getting coarser at high energy is because we think W (ω) around ω ∼ 0 gives most important contribution to the GW approximation. If histogram bins are too wide, dielectric function can be less accurate, but results may be not so much affected.
+The ratio ω(i + 1)/ω(i) for large ω is <del class="clfix">exp(a)=HistBin_ratio</del><span class="clfix">$e^{a}\approx$ HistBin_ratio</span>. This choice of getting coarser at high energy is because we think W (ω) around ω ∼ 0 gives most important contribution to the GW approximation. If histogram bins are too wide, dielectric function can be less accurate, but results may be not so much affected.
 In GW calculation, the Plasmon pole is important. It is determined not by the Drude weight; it usually gives small contribution to the Plasmon pole (for example, Si is described well by a Plasmon pole model, but Si has no Fermi surface). We expect that the GW results are not so sensitive to the choice of HistBin_dw, HistBin_ratio usually. We may use fine mesh when we plot quantities such as W (ω) near ω = 0.
 <!-- The ecalj gives ¯W (ω = 0) ∼ 0 for metal; where ¯W (ω) is the effective interaction averaged in
 the Γ-cell [?]. And ¯W (ω get closer to v for larger ω. -->

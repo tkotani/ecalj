@@ -52,7 +52,7 @@ FeMgO は真空層を持つスラブで空格子球が要る。**§5 に独立�
 | §7 | [誤差の測り方](#_7-誤差の測り方-—-一方向では決まらない) | 一方向では決まらない |
 | §8 | [残る問題](#_8-残る問題) | |
 | §9 | [**模型の選び方**](#_9-模型の選び方-—-基準-1・2・3) | 基準 1・2・3 と現在のベストチョイス。`Samples/MATERIALS` の 65 物質 |
-| `MD/mlo_backup.md` | 経緯と作業記録(backup) | |
+| <del class="clfix">`MD/mlo_backup.md`</del><span class="clfix">開発記録（リポジトリの MD/mlo_backup.md、サイトには無い）</span> | 経緯と作業記録(backup) | |
 
 ---
 
@@ -84,7 +84,7 @@ A^{\mathbf{k}}_{n'n''}=S^{\mathbf{k}}_{n'n''}\,\theta^{\mathbf{k}}_{n'n''}
 \tag{3}
 $$
 
-**この $\theta$ をどう決めるかが問題のすべてで**、課題 1 の答えは式 (4) である。
+**この $\theta$ をどう決めるかが問題のすべてで**、<del class="clfix">課題 1</del><span class="clfix">使い方 1（ミニマム模型）</span> の答えは式 (4) である。
 
 $$
 \boxed{\;
@@ -184,7 +184,7 @@ MLO は固定した MTO 種を**バンド多様体へ射影**したものなの�
 バンドが 1 本しか無ければ、種を 2 本与えても**射影で同じ関数に潰れる**。
 NiO で Ni の d に EH2 を足したところ、MLO の重なり行列 $O^{\rm MLO}$ の条件数が
 $1.3\times10^2 \to 7.4\times10^4$ に悪化し、伝導帯が 1 eV 動いた
-(2026-09-24、`MD/research_kotani_log.md`)。
+(2026-09-24、<del class="clfix">`MD/research_kotani_log.md`</del><span class="clfix">開発記録（リポジトリの MD/research_kotani_log.md、サイトには無い）</span>)。
 本当に 2 本要るなら、窓を広げて第 2 のバンドを窓の中に入れるしかない。
 
 例外は、窓の中に**同じ性格の第 2 のバンドが実際にある**とき。空隙の大きい構造（閃亜鉛鉱の MgS・MgSe・MgTe・CdTe・ZnTe、
@@ -253,6 +253,7 @@ mlo_nkabc = [10, 10, 10]   # k mesh the MLO Hamiltonian is built on; required
 数え、その**全 k での最小値**を全 k に使う（2026-09-18）。k ごとに決めると、Cu の d 模型の
 ように s 帯が最下位になる k とならない k で射影子が入れ替わり、バンドに折れが出る。
 手動指定 `mlo_nskip` は廃止した。
+<span class="clfix">Cu の d 模型の折れは、k ごとに決めていた旧方式では `mlo_nkabc` を 10³ → 16³ にしても d 帯の rms が 98 → 90 meV と消えなかった（開発記録、リポジトリの MD/mlo_notes/mlo_nskip_cu_problem.md、サイトには無い）。</span>
 
 `mlo_lm` で指定した (原子, l) に**半芯の局所軌道**（`pz`、例 Ga 3d の `pz = 3.9`）があるとき、それを模型のシードにするかも自動で決まる
 （§9 の基準 1）。その LO の帯（**同じ種類の原子の** LO をまとめた部分空間への射影重みが 1/2 を超える占有状態）の最高エネルギー
@@ -290,8 +291,8 @@ MLO-QSGW の連鎖（`HamRsMLO` で模型を凍結する）では、連鎖の最
 - 半内殻の局所軌道（`[[spec]]` の `pz`）: 自動（上の規則）。上書きは `mlo_lm3`
 - 空格子球: `[[site]]`・`[[spec]]` に置き、`mlo_lm` に行を書く（基準 3、§5・§9）。基底が変わるので `lmfa` から回し直す
 
-Cu の d 模型で 10³ → 16³ にすると d 帯の rms は 98 → 90 meV
-(`MD/mlo_notes/mlo_nskip_cu_problem.md`)。
+<del class="clfix">Cu の d 模型で 10³ → 16³ にすると d 帯の rms は 98 → 90 meV
+(`MD/mlo_notes/mlo_nskip_cu_problem.md`)。</del><span class="clfix">（この文は上の `nskip` の段落へ移した）</span>
 
 **通常はこのまま使える。** `Samples/MLOsamples` の 18 サンプルは全部この既定値
 ($\Delta=w=2.0$ eV)で、物質ごとに変えていない(§2)。3 つとも既定値なので、
@@ -368,7 +369,7 @@ MLO の使い方は大きく 2 つに分かれ、**測り方も評価の仕方�
 
 ![Si](mlo/Si666gwsc.png)
 
-Si(**QSGW**、18 MTO = 2 原子 × sp³d⁵)。価電子帯から伝導帯 +5 eV まで
+Si(**QSGW**、18 MTO = 2 原子 × sp³d⁵)。価電子帯から<del class="clfix">伝導帯 +5 eV</del><span class="clfix">床（+3 eV 付近）</span> まで
 赤 × が灰線に完全に乗る。
 
 ---
@@ -464,13 +465,13 @@ Fe — $E_F$ を横切る sp バンドをゾーン境界の 33 eV まで追え�
 ### 参照バンドについて
 
 比較相手はどの系も **PMT 基底で解いた第一原理バンド**で、実験値ではない。
-そのうち **Si・Al₂O₃:Cr・RuO₂・GdION は QSGW**(`sigm.<sname>` を持つ)、
+そのうち **Si・Al₂O₃:Cr・RuO₂・GdION<span class="clfix">・GaAsSoc</span> は QSGW**(`sigm.<sname>` を持つ)、
 残りは DFT である。本書で「$\Delta E$」と書いているのは MLO 模型と
 この第一原理バンドの差で、$m^*$比 の分母も同じ。
 
 ### 全サンプルのバンドプロット(灰線: 第一原理 PMT、赤 ×: MLO)
 
-**課題 (1) — $E_F$ 近傍の模型**
+**<del class="clfix">課題 (1)</del><span class="clfix">使い方 1（ミニマム模型）</span> — $E_F$ 近傍の模型**
 
 ![Al2O3_Cr](mlo/Al2O3_Cr.png)
 
@@ -532,11 +533,11 @@ FeCo(18 軌道、窓 8.3 meV)— 磁性金属で両スピンとも良く乗る�
 回すものと同じ入力・同じ参照。図は `SRC/exec/mlo_bandplot.py <sampledir>_work` で再生成。
 表の後半 7 系は Materials Project の構造をそのまま `ctrlgenToml.py` に通し、
 `mlo_lm` に全原子の s,p,d を入れて既定（$\Delta = w = 2$ eV）で回したもの
-（2026-09-18、開発の記録 `MD/mlo_notes/mp_20260918/`）。
+（2026-09-18、<del class="clfix">開発の記録 `MD/mlo_notes/mp_20260918/`</del><span class="clfix">開発記録（リポジトリの MD/mlo_notes/mp_20260918/、サイトには無い）</span>）。
 
 | 半導体・絶縁体 | | | |
 |---|---|---|---|
-| Si (QSGW) | GaAs (QSGW) | GaAs+SOC | C (diamond) |
+| Si (QSGW) | GaAs <del class="clfix">(QSGW)</del><span class="clfix">(DFT)</span> | GaAs+SOC<span class="clfix"> (QSGW)</span> | C (diamond) |
 | ![](mlo/Si666gwsc.png) | ![](mlo/GaAs.png) | ![](mlo/GaAsSoc.png) | ![](mlo/C.png) |
 | C.sp | SrTiO3 | Al2O3:Cr (QSGW80) | NiO (LDA, AFM) |
 | ![](mlo/C.sp.png) | ![](mlo/SrTiO3.png) | ![](mlo/Al2O3_Cr.png) | ![](mlo/NiO666lda.png) |
@@ -598,8 +599,8 @@ MP 7 系の窓内 rms（2026-09-18 の評価。金属 [E_F−8, +2]、絶縁体 
 
 ただし **$\Delta$ はここでは効いていない。** 4f 準位 $\varepsilon^{\rm MTO}_{n''}$ は
 床 $\varepsilon_{\rm CBM}+\Delta$ より遥かに下なので $e^{\rm cut}_{n''}$ は常に床側が選ばれ、
-しかも GdION では床が $E_F+23.9$ eV(Gd イオンの巨大ギャップ)と全部より上に来るため
-$\theta\approx1$、すなわち $A\approx S$(素の射影)に戻る。
+しかも GdION では床が $E_F+23.9$ eV(Gd イオンの巨大ギャップ)と<del class="clfix">全部より上に来るため
+$\theta\approx1$、すなわち $A\approx S$(素の射影)に戻る。</del><span class="clfix">majority の 4f（$-0.06$ eV）よりはるかに上に来るため、majority では $\theta\approx1$、すなわち $A\approx S$(素の射影)に戻る。minority の 4f（$+23.8$ eV）は床のわずか 0.1 eV 下なので $\theta\approx\sigma(-0.05)\approx1/2$ で、素の射影ではない。</span>
 **4f 模型にはバンド端の要求自体が無いので、$\Delta$ の「どこまで合わせたいか」
 という意味が消える** — method 4 でも壊れないが、効いてもいない。
 
@@ -633,8 +634,8 @@ minority の下に見える $+22.2$〜$+23.0$ eV の灰線は 4f ではない帯
 模型が取っていないので赤 × が無い。
 
 **この巨大なギャップが、4f 模型で $\Delta$ が効かない理由**でもある。
-床 $\varepsilon_{\rm CBM}+\Delta$ は $E_F+23.9$ eV に置かれ、4f 準位の
-ほとんど全部より上に来るので $\theta\approx1$、素の射影に戻る。
+床 $\varepsilon_{\rm CBM}+\Delta$ は $E_F+23.9$ eV に置かれ、<del class="clfix">4f 準位の
+ほとんど全部より上に来るので $\theta\approx1$、素の射影に戻る。</del><span class="clfix">majority の 4f では $\theta\approx1$（素の射影）、床のすぐ下の minority の 4f では $\theta\approx1/2$ になる。</span>
 
 ---
 
@@ -688,8 +689,8 @@ up と down の MLO が同一であることを前提にした作りで、非磁
 | 3 | `mlo --socmatrix --efermi=efermi_soc` | PMT→MLO 縮約のあと SOC 行列を MLO に射影し、対称線上で $2N\times2N$ を対角化。窓の基準は `efermi_soc`（SOC の値）|
 
 共通で `--ctrlg:ham.nspin=2 --ctrlg:ham.phispinsym=true` が付く。
-`phispinsym`(スピン平均した動径関数)が要るのは、$\langle\uparrow|L_z|\downarrow\rangle$
-の代わりに $\langle\uparrow|L_z|\uparrow\rangle$ を使うためである。
+`phispinsym`(スピン平均した動径関数)が要るのは、<del class="clfix">$\langle\uparrow|L_z|\downarrow\rangle$
+の代わりに $\langle\uparrow|L_z|\uparrow\rangle$ を使うためである。</del><span class="clfix">スピンを反転させる部分（$L_\pm S_\mp$）の動径積分 $\langle\varphi_\uparrow|\xi(r)|\varphi_\downarrow\rangle$ を、スピン平均した 1 つの $\varphi$ で取るためである。</span>
 
 ~~**1 段目が `efermi.lmf` を SOC の値で上書きする**点に注意。非 SOC の計算を
 同じディレクトリで続けるなら、`efermi.lmf` を退避しておくこと
@@ -792,7 +793,8 @@ majority / minority の窓内誤差(meV):
 | 模型 | MLO 本数 | 窓 (meV) |
 |---|---:|---:|
 | 空格子球なし | 78 | 126.9 / 73.5 |
-| ES に s のみ | 85 | 2.2 / 1.1 |
+| ES に s のみ<span class="clfix">（Mg,O の d は残す）</span> | 85 | 2.2 / 1.1 |
+| <span class="clfix">ES に s のみ + Mg,O の d 削除</span> | <span class="clfix">55</span> | <span class="clfix">3.1 / —（majority のみ、下の表）</span> |
 | **ES に s,p + Mg,O の d 削除(採用)** | **76** | **2.5 / 1.3** |
 | ES に s,p | 106 | 1.8 / 1.1 |
 | ES に s,p,d | 141 | 1.6 / 0.9 |
@@ -820,14 +822,14 @@ p が要る**。窓型の損失(窓は $E_F\pm2$ eV)がそこを測っていな�
 
 ![ES s のみ と s,p の比較](mlo/FeMgO_ES_sp_compare.png)
 
-左が ES に s のみ(55 本)、右が s,p(76 本)。$-7$ 〜 $+10$ eV で描くと、
+左が ES に s のみ<span class="clfix">（+ Mg,O の d 削除）</span>(55 本)、右が s,p(76 本)。$-7$ 〜 $+10$ eV で描くと、
 **左は $+5$〜$+10$ eV に赤 × の乗っていない灰線が残る**のに対し、右は埋まっている。
 
 ![ES s のみ と s,p の誤差](mlo/FeMgO_ES_sp_error.png)
 
 準位ごとの誤差を第一原理側のエネルギーで分けると、どこで効いているかが分かる:
 
-| 領域 | ES s のみ (55) | ES s,p (76) |
+| 領域 | ES s のみ<span class="clfix">（+ Mg,O の d 削除）</span> (55) | ES s,p (76) |
 |---|---|---|
 | $-7$ 〜 $-1.5$ eV(価電子帯) | 0.3〜0.7 meV | **同じ** |
 | $E_F$ 〜 $+2$ eV | やや悪い | 少し良い |
@@ -837,7 +839,7 @@ p が要る**。窓型の損失(窓は $E_F\pm2$ eV)がそこを測っていな�
 
 | | 軌道数 | 窓 (meV) | 占有 (meV) | 分散 | 準位ごと平均 (meV) | 最大 (meV) |
 |---|---:|---:|---:|---:|---:|---:|
-| ES s のみ | 55 | 3.1 | 0.6 | 0.008 | 15.9 / 11.4 | 860 |
+| ES s のみ<span class="clfix">（+ Mg,O の d 削除）</span> | 55 | 3.1 | 0.6 | 0.008 | 15.9 / 11.4 | 860 |
 | **ES s,p(採用)** | **76** | **2.5** | **0.5** | **0.006** | **8.3 / 6.0** | **294** |
 
 窓型の損失では 3.1 → 2.5 meV と控えめだが、**準位ごとに見ると平均が半分、
@@ -922,6 +924,8 @@ MLO 模型でバンドが再現できたら、次に要るのは**その模型�
 相互作用がこれにあたる。cRPA で言う「模型空間に射影した遮蔽相互作用」で、
 MLO 基底で評価するのが `job_mloW` である。
 
+<span class="clfix">（式番号の付け直し: この節の式番号を現れる順に付け直した。旧 → 新: (7a) → (7a)、(7f) → (7b)、(7) → (7c)、(7b) → (7d)、(7c) → (7e)、(7d) → (7f)、(7e) → (7g)。(6) と §9 の (8)〜(12) は変わらない）</span>
+
 ### 何を計算するか
 
 MLO 軌道 $i,j,k,l$ と格子ベクトル $\mathbf{R}$、振動数 $\omega$ について
@@ -958,13 +962,13 @@ N_i=\int|F_{i\mathbf{0}}(\mathbf{r})|^2d\mathbf{r}
 $$
 
 で、生の MLO の模型の重なり行列の $\mathbf{R}=0$ の対角成分である。模型を定義する `mlo`（`job_mlo`、`lmf --mlo`）は、まず
-$F_i\to F_i/\sqrt{N_i}$ とし（**$\mathbf{k}$ によらない定数**）、続けて次の小節の式 (7f) で各 $\mathbf{k}$ で直交化する。Löwdin の直交化は入力の軌道の尺度で
+$F_i\to F_i/\sqrt{N_i}$ とし（**$\mathbf{k}$ によらない定数**）、続けて次の小節の式 (7b) で各 $\mathbf{k}$ で直交化する。Löwdin の直交化は入力の軌道の尺度で
 結果が変わる（入力に最も近い正規直交系を選ぶので、先に各軌道の長さをそろえておく）。$N_i$ は `HamRsMLO` の末尾に書き、以後 MLO を作る所
 （`job_mloW` の `__cmlo`、MLO-QSGW の sugw・`m_sigmlo`）はすべて同じ定数で割ってから同じ直交化をする（2026-10-02）。
 
 - 生の MLO の $N_i$ は 1 よりずっと小さい: Ni の d で 0.38、SrVO₃ の t₂g で 0.18、bcc Fe の d で 0.21〜0.33、s・p で 0.01〜0.02
   （窓の上で重みが落ちるため）。規格化しないと $V$ の $U$ が Ni で 3.4 eV（規格化して 24 eV）のような値になる
-- **$\mathbf{k}$ ごとに $1/\sqrt{O_{ii}(\mathbf{k})}$ で割ってはいけない**（旧 `--mlo_diagnorm`、廃止）。因子が $\mathbf{k}$ によるので実空間の軌道の形が変わり、
+- **$\mathbf{k}$ ごとに <del class="clfix">$1/\sqrt{O_{ii}(\mathbf{k})}$ で割って</del><span class="clfix">$\sqrt{O_{ii}(\mathbf{k})}$ で割って（$1/\sqrt{O_{ii}(\mathbf{k})}$ を掛けて）</span>はいけない**（旧 `--mlo_diagnorm`、廃止）。因子が $\mathbf{k}$ によるので実空間の軌道の形が変わり、
   メッシュから外れた $\mathbf{k}$ の MLO バンドが動く（C で 0.74 eV、Al で 0.10 eV）
 - `hwmatK_MPI` は GW のメッシュで測った $N_i$ を確かめとして表示する（`lwmatK1` の `square integral of the real-space MLOs on the GW mesh`）。
   模型のメッシュ（`mlo_nkabc`）と GW のメッシュが違うので 1 から少しずれる。GW のメッシュが粗いと、その周期の箱の中で軌道が自分の像と重なってずれが大きい
@@ -976,7 +980,7 @@ MLO は各 $\mathbf{k}$ で直交していない。各 $\mathbf{k}$ で
 
 $$
 |\tilde F(\mathbf{k})\rangle=|F(\mathbf{k})\rangle\,O(\mathbf{k})^{-1/2},\qquad O_{ij}(\mathbf{k})=\langle F_i(\mathbf{k})|F_j(\mathbf{k})\rangle
-\tag{7f}
+\tag{7b}
 $$
 
 とした関数は、MLO と同じ部分空間を張る正規直交な局在関数で、MLO の部分空間の射影 Wannier 関数である。実空間では、MLO から重なっている
@@ -988,7 +992,7 @@ $\mathbf{k}$ メッシュの外のバンドは $\tilde H(\mathbf{R})$ のフー�
 MLO-QSGW の $\Sigma$ もすべてこの基底である。メッシュ上のバンドは直交化の前と同じ。`job_mlo <sname> --mlo_raw`（lmf に渡る）で直交化しない以前の
 模型（$H(\mathbf{R})$ と $O(\mathbf{R})$ の二本立て）を作れる。比較のためだけの選択で、以後のプログラムは `HamRsMLO` に書いた印で同じ基底を選ぶ。
 
-直交化した関数は、直交のために隣の原子の上で振動するが、中心に寄る（広がり $\Omega$: bcc Fe の t₂g で 1.72 → 1.46 bohr²、Ni の d で 9.88 → 9.42）。
+直交化した関数は、直交のために隣の原子の上で振動するが、中心に寄る（広がり $\Omega$: bcc Fe の t₂g で 1.72 → 1.46 bohr²、Ni の d で<span class="clfix"> 5 本の和が</span> 9.88 → 9.42）。
 模型の行列要素も遠方で小さい（bcc Fe、$|\mathbf{R}|=5a$ で $\max|H|$ 2.9×10⁻³ Ry、$\max|O|$ 2.8×10⁻³ に対し $\max|\tilde H|$ 4.3×10⁻⁴ Ry）。
 メッシュの外の内挿は表 M8 のとおりで、$E_F$ 近くでは直交化した方がよい。
 
@@ -1035,7 +1039,7 @@ $E_F$ 近くは $[{\rm VBM}-1,{\rm CBM}+1]$（金属は $E_F\pm1$）
 
 $$
 W_{\rm onsite} = V + (W-V)
-\tag{7}
+\tag{7c}
 $$
 
 として足し合わせる。
@@ -1049,7 +1053,7 @@ Fe(bcc、sp³d⁵ 9 軌道)の d 軌道、majority スピン:
 | 5, 6, 8 ($xy$, $yz$, $xz$) | 22.91 | −21.40 | **1.510** |
 | 7, 9 ($3z^2-1$, $x^2-y^2$) | 22.90 | −21.24 | **1.661** |
 
-（2026-10-02、式 (7a) の規格化。`Samples/MLOsamples/Fe/test.py` の期待値）
+（2026-10-02、式 (7a) の規格化<del class="clfix">。`Samples/MLOsamples/Fe/test.py` の期待値</del><span class="clfix">をした生の MLO（`--mlo_raw`）の値。いまの `Samples/MLOsamples/Fe/test.py` の期待値は Löwdin の基底で、majority の d は $V$ 24.52 / 24.18、$W$ 1.66 / 1.79 eV</span>）
 
 **$V\approx23$ eV と $W-V\approx-22$ eV が打ち消して $W\approx1.6$ eV になる。**
 $W$ は $V$ の 7% しかない。したがって:
@@ -1095,7 +1099,7 @@ $w$ を上げると $W$ は戻る($w=11$ で UP $+3.1$%、DN $+9.1$%)。
 $$
 p_{\mathbf{k}n}=\big[C\,(C^\dagger C)^{-1}C^\dagger\big]_{nn},\qquad
 |F_j(\mathbf{k})\rangle=\sum_n|\psi_{\mathbf{k}n}\rangle C_{nj}
-\tag{7b}
+\tag{7d}
 $$
 
 で測り（MLO の部分空間への射影の対角成分。$0\le p_{\mathbf{k}n}\le1$、$\sum_n p_{\mathbf{k}n}$ = MLO の本数）、$\chi_0$ の遷移
@@ -1103,16 +1107,16 @@ $\mathbf{k}n\to\mathbf{k}+\mathbf{q}\,n'$ に
 
 $$
 1-p_{\mathbf{k}n}\,p_{\mathbf{k}+\mathbf{q}\,n'}
-\tag{7c}
+\tag{7e}
 $$
 
 を掛ける（重みの方式、Şaşıoğlu–Friedrich–Blügel, PRB 83, 121101）。$p$ は射影なので MLO の規格化 (7a) によらない。
-`job_mloW <sname> --crpa` が、v と $W-V$ の後に `hwmatK_MPI --mlo`（10011: `pkm4crpa` に式 (7b)）→ `hx0fp0`（10011）→
+`job_mloW <sname> --crpa` が、v と $W-V$ の後に `hwmatK_MPI --mlo`（10011: `pkm4crpa` に式 (7d)）→ `hx0fp0`（10011）→
 `hwmatK_MPI --mlo`（100）を回し、`Screening_W-v_crpa.UP/DN` を書く（形式は `Screening_W-v` と同じ）。模型の部分空間は `mlo_lm` そのもので、
 d だけ（Ni）や t₂g だけ（SrVO₃、`mlo_lm` の lm = 5 6 8）の模型を作って使う。試験は `TestInstall/ni_crpa`・`srvo3_crpa`。
 
 **表 M7**. MLO と Wannier 関数（2026-10-02 まで ecalj にあった最大局在化、`genMLWFx`）の比較。$\omega=0$ のオンサイトの平均（eV）、
-$U=(ii|ii)$、$J=(ij|ji)$。$\Omega$ は式 (7e) の広がり（bohr²、括弧は Marzari–Vanderbilt の形）
+$U=(ii|ii)$、$J=(ij|ji)$。$\Omega$ は式 (7g) の広がり（bohr²、括弧は Marzari–Vanderbilt の形）
 
 | 系（GW の k メッシュ） | 方法 | $\Omega$ | $V$ の $U$ | RPA の $U$ | cRPA の $U$ | cRPA の $J$ |
 |---|---|---:|---:|---:|---:|---:|
@@ -1123,10 +1127,10 @@ $U=(ii|ii)$、$J=(ij|ji)$。$\Omega$ は式 (7e) の広がり（bohr²、括弧�
 
 - t₂g が孤立した SrVO₃ では、cRPA の $U$ が 1 % 以内で一致する
 - d が s と絡む Ni では、MLO の d のほうが広く（$\Omega$ で 2〜4 割）、cRPA で除く遮蔽が少ない（$(U_{\rm cRPA}-U_{\rm RPA})/V$ が 0.060 対 0.085）。
-  Wannier 関数の d の部分空間は広い窓（$E_F\pm10$ eV）から作られて s・p 的なバンドにも乗り、式 (7c) で d ↔ s,p の遷移も一部除かれる。
+  Wannier 関数の d の部分空間は広い窓（$E_F\pm10$ eV）から作られて s・p 的なバンドにも乗り、式 (7e) で d ↔ s,p の遷移も一部除かれる。
   どちらが正しいということではなく、部分空間の取り方の違いである
 - GW の k メッシュが粗いと、式 (7a) の規格化が GW のメッシュの上で 1 からずれ（SrVO₃、2³ で 1.06）、$U$ が 1 割ずれる。$U$ を使うなら 4³ 以上で
-- 比較の数値と作業場所は研究ログ 2026-10-02 00:32。Wannier の経路は git のタグ `last-wannier` のコミットにある
+- 比較の数値と作業場所は<del class="clfix">研究ログ 2026-10-02 00:32</del><span class="clfix">開発記録（リポジトリの MD/research_kotani_log.md の 2026-10-02 00:32、サイトには無い）</span>。Wannier の経路は git のタグ `last-wannier` のコミットにある
 - 表 M7 の MLO は生の MLO の値。Löwdin の基底（標準、2026-10-02 から）では、Ni の d（4³）の cRPA の $U$ は 2.90 eV（生 2.84、Wannier 3.78）で、
   RPA の $U$ は 1.434 eV。窓を広げると cRPA の $U$ は (4, 2) で 3.13、(6, 2) で 3.30 eV と動くが、RPA の $U$ は 1.43〜1.52 eV とあまり動かない。
   cRPA は「模型の部分空間の中の遮蔽」を除く量なので部分空間の取り方にそのまま依る（帯がもつれた系では、重みの方式か射影の方式か、Wannier の
@@ -1143,17 +1147,17 @@ $M_{ij}(\mathbf{k},\mathbf{b})=\langle u_{i\mathbf{k}}|u_{j\mathbf{k}+\mathbf{b}
 
 $$
 \langle\mathbf{r}\rangle_i=-\frac{1}{N_k}\sum_{\mathbf{k},\mathbf{b}}w_b\,\mathbf{b}\,{\rm Im}\,M_{ii}(\mathbf{k},\mathbf{b})
-\tag{7d}
+\tag{7f}
 $$
 
 $$
 \langle r^2\rangle_i=\frac{2}{N_k}\sum_{\mathbf{k},\mathbf{b}}w_b\big[O_{ii}(\mathbf{k})-{\rm Re}\,M_{ii}(\mathbf{k},\mathbf{b})\big],
 \qquad \Omega_i=\langle r^2\rangle_i-|\langle\mathbf{r}\rangle_i|^2
-\tag{7e}
+\tag{7g}
 $$
 
-を bohr で出す。式 (7e) は $|u(\mathbf{k}+\mathbf{b})-u(\mathbf{k})|^2$ の和で、各 $\mathbf{k}$ で長さ 1 を仮定しない（式 (7a) の MLO は各 $\mathbf{k}$ では 1 でない）。
-Marzari–Vanderbilt の $\ln M$ の形との差は $|\mathbf{b}|$ が小さいほど小さく、粗いメッシュ（2³〜4³）では 4〜10 % 大きく出る（表 M7 の括弧）。どちらもメッシュを細かくするほど実空間の 2 次のモーメントに近づく。
+を bohr で出す。式 (7g) は $|u(\mathbf{k}+\mathbf{b})-u(\mathbf{k})|^2$ の和で、各 $\mathbf{k}$ で長さ 1 を仮定しない（式 (7a) の MLO は各 $\mathbf{k}$ では 1 でない）。
+Marzari–Vanderbilt の $\ln M$ の形との差は $|\mathbf{b}|$ が小さいほど小さく、<del class="clfix">粗いメッシュ（2³〜4³）では 4〜10 % 大きく出る</del><span class="clfix">4³ では 2〜4 % 大きく出る</span>（表 M7 の括弧）。どちらもメッシュを細かくするほど実空間の 2 次のモーメントに近づく。
 
 ### 回帰試験
 
@@ -1185,8 +1189,8 @@ $\delta v/v$ の分母は窓内の第一原理側の勾配の rms。
 準位の対応づけは順序を保つ最適割当(動的計画法)で、縮退・交差・バンド数の差に耐える。
 
 $\delta E_{\rm occ}$ を別に立てるのは、**窓だけ見ていると深い価電子帯の劣化を
-見落とす**ためである(Si は $w$ を上げると窓内はほぼ不変なのに
-$-12..-9$ eV が 2.5 → 10.7 meV と悪化する)。
+見落とす**ためである(Si は $w$ を上げると<del class="clfix">窓内はほぼ不変なのに</del><span class="clfix">$E_F$ 直下（$-2..0$ eV）だけが少し良くなる一方、</span>
+$-12..-9$ eV が 2.5 → 10.7 meV と悪化する<span class="clfix">。下の「$E_F$ 以下の振る舞い」の表</span>)。
 
 ### 既定値での各量
 
@@ -1261,7 +1265,7 @@ $\Delta=2.45$ eV 固定、Si。各セルは $\delta E_{\rm win}$ (meV) / $\delta
 | 2.7 | 19.4 / +25 / 1.18 | 14.8 / +5 / 1.00 | 14.3 / +3 / 0.96 |
 | 4.1 | 45.3 / +50 / 1.02 | 44.6 / +40 / 0.96 | 44.4 / +38 / 0.93 |
 
-$6^3$ は $w=3.4$ eV を最良と言うが $8^3$/$10^3$ は $2.0$ eV と言う。
+<del class="clfix">$6^3$ は $w=3.4$ eV を最良と言うが $8^3$/$10^3$ は $2.0$ eV と言う。</del><span class="clfix">$6^3$ は $w=3.4$ eV（0.25 Ry）を最良と言うが $8^3$/$10^3$ は $2.0$ eV（0.15 Ry）と言う。これは 2026-09-13 にいったん使った一つの損失 $L$（窓の誤差・速度・ギャップ・$m^*$比 を目安の値で割って 2 乗した和、のちに量ごとの表に替えた）での最良で、$L$ は $6^3$ で $w=$ 2.7 / 3.4 / 4.1 eV に 17.9 / 13.1 / 30.6、$8^3$ では 2.0 eV で最小の 0.4（ecalj のコミット 03854f228 の MLO_minimal.md）。$w=3.4$ eV の上の表の 3 つ組の値は記録に無いので、行は足さない</span>
 **$6^3$ は系統的に大きい $w$ を良く見せる。**
 $8^3$ と $10^3$ でギャップ誤差の符号が逆($w=1.8$ eV で $+3$ / $-5$ meV)なのは
 $H(\mathbf{R})$ 打ち切りの超格子依存性なので、**2 つのメッシュで一致する範囲**を採る。
@@ -1286,7 +1290,7 @@ $\Delta$ の効きは $w$ よりはるかに弱い。$\Delta$ を 1→4 eV と�
 5.6 → 44.6 meV と 8 倍になる。**動かすのは $w$ でよい。**
 
 既定を $\Delta=2.45$ / $w=2.72$ eV から $2.0$ / $2.0$ eV に変えた根拠
-(全 12 系の平均、生の誤差):
+(全 12 系の平均、生の誤差<span class="clfix">。12 系は 2026-09-13 の誤差の表の行で、§2 の表から FeMgO を除き、Cu（spd、9）と Si $8^3$ を足したもの（Si は $6^3$ と $8^3$ を別に数える）。その表の新既定の値の平均が窓 15.0、占有 7.4 meV になることを確かめた（ecalj のコミット 9d063df33 の MLO_minimal.md）。§2 の表は後に FeMgO を足し、Cu と Si $8^3$ を外したので 11 行</span>):
 
 | 既定 | $\delta E_{\rm win}$ | $\delta E_{\rm occ}$ | \|$\delta E_{\rm gap}$\| |
 |---|---:|---:|---:|
@@ -1294,7 +1298,7 @@ $\Delta$ の効きは $w$ よりはるかに弱い。$\Delta$ を 1→4 eV と�
 | **新 $\Delta=w=2.0$ eV** | **15.0 meV** | **7.4 meV** | **13 meV** |
 
 効いたのは SrTiO₃ の占有側 52.9 → 5.5 meV と Al₂O₃:Cr の窓 17.5 → 7.2 meV。
-悪化したのは C.sp(14.9 → 26.7 meV)で、これは $w$ を上げたい側の系である(§4)。
+悪化したのは C.sp(14.9 → 26.7 meV)で、これは $w$ を上げたい側の系である(<del class="clfix">§4</del><span class="clfix">上の最適 $w$ の表</span>)。
 
 ---
 
@@ -1304,7 +1308,8 @@ $\Delta$ の効きは $w$ よりはるかに弱い。$\Delta$ を 1→4 eV と�
 
 ### 解決済み
 
-- **Al₂O₃:Cr のギャップ** — 付録 D (c) の実装で **−128 → +7 meV**($m^*$ 比 0.58 → 1.08)。- ~~**FeMgO をサンプルに入れるのは保留** — 機械依存が残っているため。~~
+- **Al₂O₃:Cr のギャップ** — <del class="clfix">付録 D (c)</del><span class="clfix">開発記録（リポジトリの MD/mlo_backup.md §2 の D (c)、サイトには無い）</span> の実装で **−128 → +7 meV**($m^*$ 比 0.58 → 1.08)。<span class="clfix">（このときの値。§2 の表の既定値では +1 meV、1.04）</span>
+- ~~**FeMgO をサンプルに入れるのは保留** — 機械依存が残っているため。~~
   **解決した(2026-09-15)。機械依存ではなく、私が `esm_input.dat` を
   新サンプル `FeMgO_ES` にコピーし忘れていただけだった。**
 
@@ -1359,7 +1364,7 @@ $\Delta$ の効きは $w$ よりはるかに弱い。$\Delta$ を 1→4 eV と�
      バイト一致の同じスラブなのに `esm_input.dat` が置かれておらず、
      $E_F$ が $+0.07203343$ Ry(ESM 無し)対 $-0.25231238$ Ry(ESM 有り)、
      差 $4.4129$ eV。ESM で収束させた `rst` を ESM 無しで展開した参照になっていた。
-  3. **サンプルを空格子球ありの 55 軌道模型に一本化した。**
+  3. **サンプルを空格子球ありの 55 軌道模型に一本化した。**<span class="clfix">（2026-09-16 の状態。後に ES に s,p を入れた 76 軌道の模型に替えた、§5。下の表の旧模型の 113.3 meV は §5 の表の 126.9 meV とは別の測定）</span>
      空格子球なしの旧 78 軌道模型(`mlo_method=0`, `mlo_emax=5`)は削除し、
      `FeMgO` も `FeMgOSoc` も入力一式を共有する形にした。ローカルで実測:
 
@@ -1400,23 +1405,23 @@ $\Delta$ の効きは $w$ よりはるかに弱い。$\Delta$ を 1→4 eV と�
 
 ### 生きている
 
-- **固定 $w$ では半導体と金属を同時に満たせない。** §3 のとおり最適 $w$ は
-  半導体 0.13–0.20、Fe・Cu 0.80 と 6 倍違い、どちらも有限の最適点である。
+- **固定 $w$ では半導体と金属を同時に満たせない。** <del class="clfix">§3</del><span class="clfix">§7</span> のとおり最適 $w$ は
+  半導体 <del class="clfix">0.13–0.20、Fe・Cu 0.80</del><span class="clfix">1.8–2.7 eV、Fe・Cu 10.9 eV</span> と 6 倍違い、どちらも有限の最適点である。
   系ごとの最適化は well-posed だが、**固定値一つで全系は満たせない**。
-  既定を $0.20$ から半導体寄りの $0.15$ に下げる余地はある(未変更。
-  変更すると testecalj の MLO 参照ファイルの再生成が要る)。
+  <del class="clfix">既定を $0.20$ から半導体寄りの $0.15$ に下げる余地はある(未変更。
+  変更すると testecalj の MLO 参照ファイルの再生成が要る)。</del><span class="clfix">既定は半導体寄りの 2.0 eV（旧 2.72 eV）に下げた（§7）。</span>
 
 - **Si の $6^3$ の $m^*$ は信用できない。** $6^3$ でギャップ +25 meV・$m^*$ 1.18、
-  $8^3$ で +5 meV・1.00(§2)。振れは補間の雑音であり模型の欠陥ではない。
-  **パラメータ調整を $6^3$ の $m^*$ で行ってはいけない**(§3 のメッシュの項)。
+  $8^3$ で +5 meV・1.00(<del class="clfix">§2</del><span class="clfix">§7 のメッシュの表の $w=2.7$ eV</span>)。振れは補間の雑音であり模型の欠陥ではない。
+  **パラメータ調整を $6^3$ の $m^*$ で行ってはいけない**(<del class="clfix">§3</del><span class="clfix">§7</span> のメッシュの項)。
 
 ### 使ってはいけない指標(記録)
 
 検討の途中で $E_F\pm1.5$ eV の rms を使っていたが、**ワイドギャップ系では無効**だった。
 バンドファイルの零点が VBM に取られるため $E_F$ が価電子帯上端付近に来て、
-価電子側しか見ない。C.sp で $w$ を 0.20 → 0.80 と広げると
+価電子側しか見ない。C.sp で $w$ を <del class="clfix">0.20 → 0.80</del><span class="clfix">2.7 → 10.9 eV</span> と広げると
 $E_F\pm1.5$ は 0.0064 → 0.0170 と鈍い一方、ギャップ誤差は $-18$ → $+822$ meV と暴走する。
-現在の測り方(§3)はこの指標を使っていない。
+現在の測り方(<del class="clfix">§3</del><span class="clfix">§7</span>)はこの指標を使っていない。
 
 ---
 
@@ -1454,7 +1459,7 @@ N^{\rm LO}_a=\sum_{l\in L^{\rm LO}_a}(2l+1)
 \tag{8}
 $$
 
-$L_a$ は `mlo_lm` の原子 $a$ の行にある $l$（s,p で 4、s,p,d で 9、s,p,d,f で 16。部分殻なら書いた lm の数）、$N^{\rm EH2}_a$ は `mlo_lm2` の行の lm の数
+$L_a$ は `mlo_lm` の原子 $a$ の行にある $l$（<span class="clfix">$N^{\rm EH}_a$ は </span>s,p で 4、s,p,d で 9、s,p,d,f で 16。部分殻なら書いた lm の数）、$N^{\rm EH2}_a$ は `mlo_lm2` の行の lm の数
 （s,p で 4、`!` の行は 0）、$L^{\rm LO}_a$ は EH に**加えた**局所軌道の $l$（`lmlo` の `SHALLOW: LO added` の行。`mlo_lm3` に書いた原子はその lm の数）。
 局所軌道が EH と入れ替わる $l$（`IN THE WINDOW`）は $L_a$ の側で数える（本数は変わらない）。
 スピン分極した系は各スピンに $N_{\rm MLO}$ 本。スピン軌道を入れる物質も数え方は同じ（MLO は up と down で同一。そこに $H_{\rm SO}$ を足して
@@ -1533,14 +1538,14 @@ $$
 壊れた模型（生の MLO の模型に基準 2 の EH2 を Cu・Ni に足したもの）は 24 eV と 926 eV。
 
 **2026-10-02 までの判定 3**は、MLO の重なり行列の最小固有値 $\min\,\mathrm{eig}\,O^{\rm MLO}(\mathbf{k})$ が対称線の上で 0 以下、または中央値の 1/100 未満、だった
-（`mlo` が書く `MLO_ovlpmin.dat`）。模型が直交化した MLO（§6 の式 (7f)）になって $O^{\rm MLO}=1$ なので使わない。そのときの値: 基準 1 の 63 物質で
+（`mlo` が書く `MLO_ovlpmin.dat`）。模型が直交化した MLO（§6 の式 (7b)）になって $O^{\rm MLO}=1$ なので使わない。そのときの値: 基準 1 の 63 物質で
 最小 0.20〜0.42（実空間で規格化した後）、基準 2 は EH と EH2 の重なりで下がり（Cu で中央値 $3\times10^{-4}$）、壊れた Cu・Ni で負（実空間で打ち切った重なりの
 フーリエ和が正定値でなくなる）。いまは直交化の前のメッシュ上の値を `mlo` の出力（`Smallest eigenvalue of the normalized raw overlap`）で見られる（基準 1 の 63 物質で 0.22〜0.31）。
 
 **検査の結果**（直交化した MLO の模型、2026-10-02。§6 の表 M8 と同じ DFT）: 基準 1 の 63 物質で PASS 55。FAIL の 8 物質（AlN・AlSb・InSb・MgS・MgSe・MgTe・Sn・SiO₂）は
 生の模型でも同じ値で FAIL で、基準 2（陽イオンに EH2）にすると AlN・AlSb・InSb・MgS・MgSe・MgTe・Sn は PASS（最大のずれ 0.007〜0.049 eV）、SiO₂ は基準 3（空格子球）で 0.005 eV。
 生の模型で壊れた Cu・Ni の基準 2 は、直交化した模型では PASS（0.045、0.055 eV）。重なりを内挿しないので、上の崩れ方が起きない。EuO の基準 2 は模型を作る所で止まる
-（`Hreduction` の規格化の確かめ、前と同じ）。2026-10-01 の生の模型での集計（65 物質: 基準 1 は 55 PASS、基準 2 は 59 PASS）は研究ログ 2026-10-01。
+（`Hreduction` の規格化の確かめ、前と同じ）。2026-10-01 の生の模型での集計（65 物質: 基準 1 は 55 PASS、基準 2 は 59 PASS）は<del class="clfix">研究ログ 2026-10-01</del><span class="clfix">開発記録（リポジトリの MD/research_kotani_log.md の 2026-10-01、サイトには無い）</span>。
 
 ### 結果
 
@@ -1565,7 +1570,7 @@ $\Delta E_g=E_g^{\rm M}-E_g^{\rm D}$、$\delta$ は式 (11)
 | ZnTe | 1.033 | +0.038 | 0.038 | +0.001 | 0.004 | | 18 / 22 |
 | CdTe | 0.516 | +0.037 | 0.037 | +0.000 | 0.003 | | 18 / 22 |
 | AlN（wz） | 4.335 | +0.011 | 0.052 | +0.000 | 0.008 | | 26 / 34 |
-| 2H-SiC | 2.154 | +0.021 | 0.021 | +0.000 | 0.010 | | 26 / 42 |
+| 2H-SiC | 2.154 | +0.021 | 0.021 | +0.000 | 0.010 | | 26 / 42<span class="clfix">（42 で正しい。C は陰イオンの表に無いので陽イオンと同じ扱いで、EH2 の s,p は Si・C の 4 原子すべてに入る: 26 + 4×4。`Samples/MATERIALS/2hSiC` の `mlo_lm2` も 4 行）</span> |
 | AlSb | 1.148 | +0.009 | 0.020 | +0.002 | 0.008 | | 18 / 22 |
 | Sn（LDA で金属） | 金属 | | 0.024 | | 0.006 | | 18 / 26 |
 | C | 4.156 | −0.038 | 0.038 | −0.008 | 0.024 | | 8 / 16 |
@@ -1627,7 +1632,7 @@ rms は MLO → DFT / DFT → MLO（eV）。窓は MLO → DFT が [VBM − 8, C
 
 GW1500 のデータベース（QSGW80 のバンド）の全物質に、同じ処方で MLO の模型を作る。物質ごとに手で調整はせず、次の規則だけで決める。
 
-**表 M7**. 標準処方の規則
+**<del class="clfix">表 M7</del><span class="clfix">表 M12</span>**. 標準処方の規則
 
 | | 何を決めるか | 規則 | 理由 |
 |---|---|---|---|
@@ -1635,7 +1640,7 @@ GW1500 のデータベース（QSGW80 のバンド）の全物質に、同じ処
 | 2 | 基準 1 | `gwinit` の `[mlo]`（Ne まで s,p、Na から s,p,d、4f の原子は f、ES は s,p） | |
 | 3 | 半内殻の局所軌道 | 帯の上端が $E_F-17$ eV より上、またはその下に模型の帯があるなら模型に加える。窓の中（$E_F-8$ eV より上）の d は EH の関数と入れ替える | `nskip` で落とせるのは模型のどの帯よりも下の帯だけ。窓の中の s,p の半内殻（Cs 5p）は EH（Cs 6p）が伝導帯を作るので残す |
 | 4 | 基底を足す | 基準 1 が PASS でなければ、EH2 の s,p を陽イオンに足した版と、遷移金属・4f・5f 以外の全原子に足した版も作る。それでも PASS でなく、K・Ca・Rb・Sr・Cs・Ba・Cu・Ag・Au を含むなら、3 つ目の版として、全原子の EH2 の s,p に加えて K〜Ba に EH2 の d、Cu・Ag・Au に EH2 の s,p を足す。判定の良い版を採る（同じなら単純な方。FAIL どうしならずれの小さい方） | イオン性の強い物質の伝導帯は陽イオン（と陰イオン）の外に広がった状態で、MTO 1 組では足りない。K〜Ba は空の d が伝導帯に広く出る（Cs₂S₂ 0.44 → 0.05 eV）。貴金属は d が沈み、伝導帯が s,p（CsCu₃O₂ 0.30 → 0.01 eV）。良い方を採るので、壊れる物質（Cu の金属など）でも悪くならない |
-| 5 | 判定 | PASS: 窓 $[{\rm VBM}-8, {\rm CBM}+2]$ eV で最大のずれ ≤ 0.1 eV（跳び・壊れた帯なし）。OK: CBM + 1.5 eV までは PASS で、窓全体で ≤ 0.2 eV。FAIL: それ以外 | 窓の上端は分散の大きい帯が入ってきてずれやすい |
+| 5 | 判定 | PASS: 窓 $[{\rm VBM}-8, {\rm CBM}+2]$ eV で最大のずれ ≤ 0.1 eV（跳び・壊れた帯なし）。OK: CBM + 1.5 eV までは PASS で、窓全体で ≤ 0.2 eV。FAIL: それ以外<span class="clfix">。FAIL のうち最大のずれが 0.3 eV 以下のものは、データベースでは FAIR と表示する（2026-10-07 から）</span> | 窓の上端は分散の大きい帯が入ってきてずれやすい |
 
 GW1500 のデータベースの値は、その時の MT 半径の上限で計算した（H は上限なし、Rb・Cs は 2.8 a.u.）。2026-10-07 から `ctrlgenToml.py` は H を 1.4、Rb・Cs を 2.4 a.u. に抑えるので、
 今の ecalj で回し直すと H・Rb・Cs を含む物質（135）は少しずれる（LDA の試験でギャップの差 0.014 eV 以下。Rb₂Sc₂O₄ のような偽の準位は消える）。偽の準位（縮退の相手のいないバンド）の例と上限の決め方は [mtradius.md](./mtradius.md)。
@@ -1663,9 +1668,9 @@ GW の k 点は、間隔の規則で 3 段（low・middle・high が Si の 4×4
 Rb₈（mp-1179832。原子を大きな胞に間隔を置いて並べたもので、大きすぎる）。条件が整えば QSGW80 そのものが失敗した物質は無い。
 前の回の失敗は、5 月の TF32 の精度、k 点、重なった・大きすぎる ES から来ていた。
 
-**ES**: 240 物質に表 M7 の規則 1 で置いた。規則は途中で 2 度変わったので、値ごとにその時の規則を書いてある（表 M9）。
+**ES**: 240 物質に<del class="clfix">表 M7</del><span class="clfix">表 M12</span> の規則 1 で置いた。規則は途中で 2 度変わったので、値ごとにその時の規則を書いてある（表 M9）。
 入力の全件で、ES と他の球の重なりは無い（2026-10-07 に確かめた）。規則でうまくいかなかった 7 物質は手で置いた（表 M10）。
-板と真空の構造（表面のすぐ外に積層を延ばして置き、真空の中央にも置く）と分子性の結晶（2.2〜2.5 a.u. の小さい ES）の規則化はこれから。
+<del class="clfix">板と真空の構造（表面のすぐ外に積層を延ばして置き、真空の中央にも置く）と分子性の結晶（2.2〜2.5 a.u. の小さい ES）の規則化はこれから。</del><span class="clfix">板の規則 es-d（表 M9）を `ctrlg_addes.py` に組み込むことと、分子性の結晶（2.2〜2.5 a.u. の小さい ES）の規則化はこれから。</span>
 
 *表 M9*. ES の規則の版（データベースの `gw1500db.tsv` の version の列）
 
@@ -1688,7 +1693,7 @@ Rb₈（mp-1179832。原子を大きな胞に間隔を置いて並べたもの�
 | SnS mp-554134（板、規則 es-d） | 両方の表面の外（1.9 a.u.）、両側にもう 2 層（1.9 a.u.、表面の ES の組が近いので小さく）、真空の中央に 2 つ（2.65 a.u.）の 14 個、全部 s,p | 表面の外と中央だけ（s）では FAIR 0.24 eV、es-d で PASS 0.007 eV |
 | PbS mp-561320（板、規則 es-d） | 両方の表面の外（2.35 a.u.）、両側にもう 1 層（2.6 a.u.）、真空の中央（3.0 a.u.）の 9 個、全部 s,p | 表面の外と中央だけ（s）では、真空の空いた層（約 4 Å）に広がった一本を模型が取れなかった（0.38 eV）。表 M11 |
 
-**MLO**: 1546 物質で PASS 1539、FAIR 3、OK 2、SKIPPED 2（2026-10-09）。採った版は b1 989、b2 420、b2all 107、b2d 28、手作り 1（固体 H₂ の
+**MLO**: 1546 物質で PASS 1539、FAIR 3、OK 2、SKIPPED 2（2026-10-09）。採った版は <del class="clfix">b1 989、b2 420、b2all 107、b2d 28、手作り 1</del><span class="clfix">b1 991、b2 420、b2all 105、b2d 28、手作り 1 の 1545（データベース QSGW80_20261009 の `gw1500db.tsv` の mlo_variant の列。989・107 はそれより前の数え。1545 は SKIPPED の Sr（b2）を含み、Rb₈ だけ版が無い）</span>（固体 H₂ の
 `x_s_only`: H の s、EH2 の s、ES の s だけ。処方の EH2 の p で MLO の重なりの行列が特異になった）。FAIR（最大のずれ 0.3 eV 以下、
 データベースの表示だけの区分。提示してよい）は H₂ 0.11、H₈ 0.15、BN mp-685145 0.24 eV（シートの間の 2.56 a.u. の空隙に小さな ES 1.25 a.u. を置くと、かえって価電子帯で 0.55 eV 外れた。2026-10-09）。FAIL は無い。
 SKIPPED は Rb₈ と Sr（mp-1056418、1 原子で 462 Å³ の胞）。
@@ -1721,7 +1726,7 @@ SKIPPED は Rb₈ と Sr（mp-1056418、1 原子で 462 Å³ の胞）。
 最終形に至る 3 つの設計判断の実測根拠、および途中で見つかった評価器と
 `m_hreduction.f90` のバグ — は別頁にまとめてある:
 
-**`MD/mlo_backup.md`**
+**<del class="clfix">`MD/mlo_backup.md`</del><span class="clfix">開発記録（リポジトリの MD/mlo_backup.md、サイトには無い）</span>**
 
 本文の結論を読むだけなら不要だが、なぜこの式なのかを疑うときはそちらを見よ。
 

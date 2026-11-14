@@ -49,7 +49,7 @@ ax.set_title(T('(a) MT 球（白）と格子間（色）', '(a) MT spheres (whit
 # (b) model potential along the diagonal (t, t) through the large spheres A at t = 0, 1, 2, 3 (spacing sqrt(2) d)
 x = np.linspace(-0.5, n - 0.5, 3001) * np.sqrt(2)
 V = np.zeros_like(x)
-for i in range(n):
+for i in range(-20, n + 20):           # images outside the window too, so that both ends look periodic (2026-11-14)
     V -= 0.35 / np.sqrt((x - i * np.sqrt(2))**2 + 0.004)
 V -= V.max()
 V = np.maximum(V, -6.0)

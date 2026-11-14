@@ -1,54 +1,50 @@
-# TOML migration (2026-05)
+# TOML への移行 (2026-05) {#toml-migration-2026-05}
 
-> 🤖 **Auto-edited by Claude — verify before relying on details.**
-> This page and the TOML-migration banners across ecaljdoc are written
-> with Claude Code and checked against the programs. Flag anything that
-> reads off and either fix it directly or open an issue.
+> 🤖 **Claude が自動で編集したページです。細部に頼る前に確かめてください。**
+> このページと、ecaljdoc の各ページにある TOML 移行の注意書きは、Claude Code で書き、プログラムと突き合わせて確かめたものです。
+> おかしなところがあれば、直接直すか issue を立ててください。
 
-The Fortran binaries (`lmf`, `lmfa`, `lmchk`, `hsfp0`, `hgw`, `hx0fp0`,
-`mlo`, ...) read **structured TOML only**, and so do the scripts that run
-them (`gwsc`, `gw_lmfh`, `job_eps`, `job_band`, ...). Legacy `ctrl.<sname>`
-and `GWinput` text files are not
-parsed by Fortran — they are kept around as developer references but
-must be converted before any binary is invoked.
+ecalj は、一体計算の部分（DFT パート）と GW パートからなります。TOML はそれらの計算すべてを制御する入力ファイルです。
 
-## The one TOML file
+今の ecalj は、TOML（`ctrlg.<sname>.toml`）だけを基本の入力ファイルとして読みます。すなわち、あらゆる計算はこの TOML のみから出発します。
+古い形式（2026-05 以前）では `ctrl.<sname>` と `GWinput` が必要でした。後方互換性のため、これらを TOML に変換するコンバータ
+`Legacy2toml.py` は残してあります。過去の計算を再現するには、あらかじめ変換して TOML を作ってください（[下の節](#migration-of-an-existing-legacy-directory)）。
 
-| file | role |
+## 基本となる入力ファイルは TOML ファイル一つ {#the-one-toml-file}
+
+| ファイル | 役割 |
 |---|---|
-| `ctrlg.<sname>.toml` | ctrl + GW driver sections (`[gw]` `[mlo]` `[blocks]`) + `[product_basis]` last, with the cut-offs and the per-atom tables (`nlx`, `valence`, `core`) |
+| `ctrlg.<sname>.toml` | ecalj の基本入力ファイル。すべての計算はこのファイルから出発する。`[struc]`、`[[site]]`、`[[spec]]`、`[bz]`、`[iter]`、`[ham]`、`[gw]`、`[mlo]`、`[blocks]`、`[product_basis]` などの節からなる（ほかに `[options]`、`[str]`、`[ewald]`、`[esm]`、`[dyn]` など） |
 
-> **The per-atom tables are for the GW path only — normally no hand editing.**
-> They feed the mixed-product-basis generator (`hbasfp0` / `hvccfp0`
-> etc.) used by `gwsc`, the eps tools and `mlo`'s W-side, and are written
-> by `gwinit` (through `ctrlgenToml.py` or `Legacy2toml.py`); leave them
-> as generated. Until 2026-09 they were a separate `PB.<sname>.toml`; such
-> a file is not read any more — the binaries abort and point at
-> `ctrlg_absorb.py <sname>`, which moves the tables into `ctrlg`.
->
-> If you have a pure DFT / no-GW workflow (just `lmf` / `lmfa` /
-> band plots) and don't want the GW sections at all, pass
-> **`--skipgw`** to `ctrlgenToml.py` — that skips the
-> `lmfa → lmf --jobgw=0 → gwinit` sub-step, omits
-> `[gw]` / `[mlo]` / `[blocks]` / `[product_basis]` from the output.
->
-> **Adding GW sections later (preserving your hand-edits):** use
-> `ctrlgenToml.py <sname> --addgw`. This appends `[gw]` /
-> `[mlo]` / `[blocks]` / `[product_basis]` **without
-> regenerating the ctrl-side keys** — your edits to `[bz]`, `[ham]`,
-> `[[spec]]` etc. are preserved as is. It refuses to run if `[gw]`
-> is already present (to avoid silent duplication). Do **not** plain
-> re-run `ctrlgenToml.py <sname>` for this purpose: the default flow
-> overwrites the whole `ctrlg.<sname>.toml` from `ctrls.<sname>` (the
-> previous file is moved to `ctrlg.<sname>.toml.bakup`, one-generation
-> backup only).
+基本となる入力ファイルは TOML ファイル一つです（以下、ctrlg と呼びます）。ctrlg は結晶構造から自動生成し（`ctrlgenToml.py`）、それを編集して使うのが基本です。
+もしくは、生成するときにオプションを付けて生成します。
 
-`<sname>` is the user-defined material extension (e.g. `si`, `cu`, `gaas`,
-`fe`, ...). One working directory normally has exactly one
-`ctrlg.<sname>.toml`; `lmf` auto-detects it without a positional argument
-when run inside the directory.
+**最後にある原子ごとの表**
 
-## Migration of an existing legacy directory
+- GW 計算で使います。ふつうは手で直しません。
+- `gwsc`、eps の道具、`mlo` の W の側が使う混合積基底を作るプログラム（`hbasfp0` / `hvccfp0` など）に渡すものです。
+- `gwinit` が書きます（`ctrlgenToml.py` か `Legacy2toml.py` を通して）。作られたままにしておいてください。
+- 2026-09 までは別のファイル `PB.<sname>.toml` でした。このファイルはもう読みません。
+  残っているとバイナリは止まり、`ctrlg_absorb.py <sname>` を使うように示します。このスクリプトが表を `ctrlg` に移します。
+
+**GW の節が要らないとき（`--skipgw`）**
+
+- DFT だけの使い方（`lmf` / `lmfa` / バンドの図だけ）なら、`ctrlgenToml.py` に `--skipgw` を渡してください。
+- `lmfa → lmf --jobgw=0 → gwinit` の段を飛ばし、出力に `[gw]` / `[mlo]` / `[blocks]` / `[product_basis]` を書きません。
+
+**あとから GW の節を足すとき（`--addgw`、手で直したところを残す）**
+
+- `ctrlgenToml.py <sname> --addgw` を使います。
+- `[gw]` / `[mlo]` / `[blocks]` / `[product_basis]` を、ctrl の側のキーを作り直さずに書き足します。
+  `[bz]`、`[ham]`、`[[spec]]` などに入れた変更はそのまま残ります。
+- `[gw]` がすでにあるときは走りません（知らないうちに重複するのを防ぐため）。
+- この目的で `ctrlgenToml.py <sname>` をただ走らせ直しては**いけません**。ふつうの流れでは `ctrls.<sname>` から
+  `ctrlg.<sname>.toml` 全体を書き直します（前のファイルは `ctrlg.<sname>.toml.bakup` に移しますが、控えは一世代だけです）。
+
+`<sname>` は利用者が決める物質の拡張子です（`si`、`cu`、`gaas`、`fe` など）。一つの作業ディレクトリには、ふつう `ctrlg.<sname>.toml` が
+ちょうど一つあります。そのディレクトリの中で走らせれば、`lmf` は引数無しでもそのファイルを見つけます。
+
+## 古い形式のディレクトリの移行 {#migration-of-an-existing-legacy-directory}
 
 ```bash
 # inside an old directory containing ctrl.<sname> [+ GWinput]
@@ -57,53 +53,37 @@ Legacy2toml.py <sname>
 # resume normal workflow (lmf, gwsc, job_eps, ...)
 ```
 
-`Legacy2toml.py` lives at `ecalj/SRC/exec/Legacy2toml.py` (installed in
-`~/bin/` along with the binaries by `InstallAll.py`). It is idempotent
-and prints `[INFO] / [WARN] / [ERROR]` diagnostics for any
-command-line `-v` overrides that would not survive the conversion.
+`Legacy2toml.py` は `ecalj/SRC/exec/Legacy2toml.py` にあります（`InstallAll.py` がバイナリと一緒に `~/bin/` に入れます）。
+何度走らせても同じ結果になります。変換で生き残らないコマンドラインの `-v` の上書きがあれば、`[INFO] / [WARN] / [ERROR]` の診断を出します。
 
-### `esm_input.dat` (slabs)
+### `esm_input.dat`（スラブ） {#esm-input-dat-slabs}
 
-The separate positional `esm_input.dat` was retired on 2026-09-16 and became
-the `[esm]` section of `ctrlg.<sname>.toml`. The Fortran does not read
-the file: a leftover one makes `lmf` abort and name the converter,
-`ctrlg_absorb.py <sname>`, which appends `[esm]` to the TOML if it is not
-there yet and moves the original to `esm_input.dat.bk` with a header saying
-where the settings went. `Legacy2toml.py` does the same during a legacy
-conversion. The same script folds a leftover `PB.<sname>.toml` (the
-per-atom product-basis tables, a separate file until 2026-09) into
-`[product_basis]`; the GW binaries abort on that file likewise.
-See [ESM in lmf.md](./lmf#esm-effective-screening-medium).
+別ファイルだった `esm_input.dat` は 2026-09-16 にやめ、`ctrlg.<sname>.toml` の `[esm]` 節にしました。Fortran はこのファイルを読みません。
+残っていると `lmf` は止まり、変換のスクリプト `ctrlg_absorb.py <sname>` の名前を示します。このスクリプトは、TOML に `[esm]` がまだ無ければ足し、
+元のファイルを `esm_input.dat.bk` に移して、設定をどこへ移したかを頭に書きます。`Legacy2toml.py` も古い形式の変換のときに同じことをします。
+同じスクリプトは、残っている `PB.<sname>.toml`（原子ごとの積基底の表。2026-09 までは別ファイル）も `[product_basis]` に取り込みます。
+GW のバイナリはこのファイルがあっても同じように止まります。[lmf.md の ESM](./lmf#esm-effective-screening-medium) を見てください。
 
-### An older `ctrlg.<sname>.toml`: `ctrlg_update.py`
+### 古い `ctrlg.<sname>.toml`: `ctrlg_update.py` {#an-older-ctrlg-sname-toml-ctrlg-update-py}
 
-The programs stop on two things that a `ctrlg.<sname>.toml` written by an
-earlier version of the converters may carry:
+前の版の変換スクリプトが書いた `ctrlg.<sname>.toml` には、プログラムが止まる原因になるものが二つ入っていることがあります。
 
-- `[struc]` must not have `nbas` / `nspec` (the numbers of sites and
-  species are those of the `[[site]]` / `[[spec]]` tables);
-- `[gw]` must have `t_tetrakbt` (K), and must not have `SmearX0` /
-  `SmearX0q0`.
+- `[struc]` に `nbas` / `nspec` があってはいけない（サイトと種の数は `[[site]]` / `[[spec]]` の表の数で決まる）。
+- `[gw]` には `t_tetrakbt`（K）が要り、`SmearX0` / `SmearX0q0` があってはいけない。
 
 ```bash
 ctrlg_update.py ctrlg.<sname>.toml [...]    # in place; the original is kept as <file>.bak_update
 ```
 
-removes `nbas` / `nspec` (if `nbas` was smaller than the number of
-`[[site]]` tables, it comments out the tables beyond it), rewrites
-`SmearX0 = s` as `t_tetrakbt = -T` of the same width, and adds
-`t_tetrakbt = 0` where the key is missing, so that the calculation stays
-the same. `--no-backup` leaves no copy of the original. The rules are
-described in [lmf.md](./lmf#file-structure-sections) and
-[kBT](./kBT) §2; the old keys of `[gw]` are in Table 1 (表 1) of
-[gwinput](./gwinput).
+これは `nbas` / `nspec` を消し（`nbas` が `[[site]]` の表の数より少なかったときは、それより後の表をコメントにする）、
+`SmearX0 = s` を同じ幅の `t_tetrakbt = -T` に書き換え、キーが無いところには `t_tetrakbt = 0` を足して、計算が変わらないようにします。
+`--no-backup` を付けると元のファイルの控えを残しません。規則は [lmf.md](./lmf#file-structure-sections) と [kBT](./kBT) §2 に、
+`[gw]` の古いキーは [gwinput](./gwinput) の表 1 にあります。
 
-## Run-time `--ctrlg:` overrides
+## 実行時の `--ctrlg:` による上書き {#run-time-ctrlg-overrides}
 
-`%const` constants embedded in the legacy `ctrl.<sname>` are baked into
-`ctrlg.<sname>.toml` at conversion time. Run-time overrides use
-`--ctrlg:<dotted.path>=<value>`, processed in-memory by
-`m_toml_override.f90` (no on-disk rewrite):
+古い `ctrl.<sname>` に埋め込まれた `%const` の定数は、変換のときに `ctrlg.<sname>.toml` に書き込まれます。実行時の上書きは
+`--ctrlg:<ドットで区切ったパス>=<値>` で行い、`m_toml_override.f90` がメモリの中で処理します（ファイルは書き換えません）。
 
 ```bash
 # OLD (the programs stop with a message that names the new form)
@@ -115,90 +95,68 @@ lmf si --toml.bz.nkabc=[8,8,8] --toml.bz.metal=3
 lmf si --ctrlg:bz.nkabc=[8,8,8] --ctrlg:bz.metal=3
 ```
 
-The text after `--ctrlg:` is the dotted TOML path (`section.key`); the
-value parses as TOML (`[8,8,8]` for an integer vector, `true`/`false`
-lowercase for bools, quoted strings, etc.). The override layer
-auto-quotes a bare identifier value (`find` → `"find"`) so that shell
-quote-stripping is forgiving.
+`--ctrlg:` の後ろは、ドットで区切った TOML のパス（`節.キー`）です。値は TOML として読みます（整数のベクトルは `[8,8,8]`、
+真偽値は小文字の `true`/`false`、文字列は引用符で囲む、など）。上書きの層は、裸の識別子の値を自動で引用符で囲むので（`find` → `"find"`）、
+シェルが引用符を取ってしまっても困りません。
 
-> ⚠️ **Retired override forms (all abort with a hint).**
-> Earlier iterations of the migration accepted several override
-> spellings (`-v<NAME>=<VAL>`, `-v[<path>]=<VAL>`, `--[<path>]=<VAL>`,
-> `--<a.b.c>=<VAL>`, `--toml.<path>=<VAL>`, `--pr=N`, `--time=N,M`,
-> `--phispinsym`). They are all gone; any of them on the cmdline
-> triggers a one-line abort pointing at the canonical
-> `--ctrlg:<path>=<value>` form.
+> ⚠️ **やめた上書きの書き方（どれもヒントを出して止まる）。**
+> 移行の途中の版では、いくつもの書き方を受け付けていました（`-v<NAME>=<VAL>`、`-v[<path>]=<VAL>`、`--[<path>]=<VAL>`、
+> `--<a.b.c>=<VAL>`、`--toml.<path>=<VAL>`、`--pr=N`、`--time=N,M`、`--phispinsym`）。これらはすべて無くなりました。
+> コマンドラインにどれかがあると、正しい書き方 `--ctrlg:<path>=<value>` を示す一行を出して止まります。
 >
-> - `--ctrlg:bz.nkabc=[8,8,8]` — directly set the value at TOML path
->   `[bz].nkabc` in `ctrlg.<sname>.toml` for this run, in memory.
->   No `%const` indirection; no on-disk rewrite. The path must match
->   a real key in the schema. Each applied override is logged on
->   rank 0 so it appears in `llmf` etc.
+> - `--ctrlg:bz.nkabc=[8,8,8]` — この実行の間だけ、`ctrlg.<sname>.toml` の TOML のパス `[bz].nkabc` の値をメモリの中で直接置き換えます。
+>   `%const` を介さず、ファイルも書き換えません。パスはスキーマにある本当のキーでなければいけません。
+>   使った上書きはランク 0 がログに書くので、`llmf` などに出ます。
 >
-> Practical consequences:
+> 実際の使い方で変わること:
 >
-> - Old habits like `-vmetal=3`, `-vnspin=2 -vso=0` abort with a
->   migration hint. Use `--ctrlg:bz.metal=3`,
->   `--ctrlg:ham.nspin=2 --ctrlg:ham.so=0`.
-> - `Legacy2toml.py` prints `[INFO] / [WARN] / [ERROR]` diagnostics
->   for any `%const` overrides it encounters during conversion to
->   help spot silent breakages.
+> - `-vmetal=3`、`-vnspin=2 -vso=0` のような古い癖は、移行のヒントを出して止まります。
+>   `--ctrlg:bz.metal=3`、`--ctrlg:ham.nspin=2 --ctrlg:ham.so=0` を使ってください。
+> - `Legacy2toml.py` は、変換のときに見つけた `%const` の上書きについて `[INFO] / [WARN] / [ERROR]` の診断を出し、
+>   知らないうちに壊れるのを見つけやすくします。
 
-## Migrated samples (use these as templates)
+## 移行済みのサンプル（手本に使う） {#migrated-samples-use-these-as-templates}
 
-The following directories under `ecalj/Samples/` carry
-`ctrlg.<sname>.toml` and pass `testecalj` (the whole list is in
-[Samples](./samples)):
+`ecalj/Samples/` の下の次のディレクトリは `ctrlg.<sname>.toml` を持ち、`testecalj` を通ります（全体の一覧は [Samples](./samples)）。
 
-| dir | role |
+| ディレクトリ | 役割 |
 |---|---|
-| [Samples/MLOsamples/](https://github.com/tkotani/ecalj/tree/main/Samples/MLOsamples) | MuffinTin Localized Orbitals (Wannier replacement). 25 test targets — see [MLOsamples/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md) |
-| [Samples/TestInstall/](https://github.com/tkotani/ecalj/tree/main/Samples/TestInstall) | install validation suite. 26 targets (66 checks) driven by `testecalj --all` |
-| [Samples/EPS/](https://github.com/tkotani/ecalj/tree/main/Samples/EPS) | dielectric function ε(q,ω) — `EPS_Cu`, `EPS_GaAs`, `EPS_Ag` (`job_eps`) |
-| [Samples/PROCAR/](https://github.com/tkotani/ecalj/tree/main/Samples/PROCAR) | fat-band weight — `MgO_PROCAR`, `Ni2MnGa_L21_PROCAR` |
+| [Samples/MLOsamples/](https://github.com/tkotani/ecalj/tree/main/Samples/MLOsamples) | MuffinTin Localized Orbitals（Wannier の代わり）。試験のターゲットは 25 — [MLOsamples/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md) を参照 |
+| [Samples/TestInstall/](https://github.com/tkotani/ecalj/tree/main/Samples/TestInstall) | インストールの検証の組。26 ターゲット（66 件の確認）を `testecalj --all` で回す |
+| [Samples/EPS/](https://github.com/tkotani/ecalj/tree/main/Samples/EPS) | 誘電関数 ε(q,ω) — `EPS_Cu`、`EPS_GaAs`、`EPS_Ag`（`job_eps`） |
+| [Samples/PROCAR/](https://github.com/tkotani/ecalj/tree/main/Samples/PROCAR) | ファットバンドの重み — `MgO_PROCAR`、`Ni2MnGa_L21_PROCAR` |
 
-The catch-all index for the sample tree is
-[Samples/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/README.md).
+サンプルの木全体の索引は [Samples/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/README.md) です。
 
-## Legacy samples
+## 古い形式のサンプル {#legacy-samples}
 
-The older examples of `Samples/Legacy/` were rebuilt as directories of their own under `Samples/` (antiferromagnetic
-symmetry, magnon spectra, Fermi surface, doping, magnetic anisotropy, LDA+U, effective mass, relaxation, DOS, ...) and
-the originals were removed on 2026-09-30; table 1 of ecalj `Samples/README.md` lists them. Inputs of your own in the
-legacy form are converted as described above.
-## Result summaries (worked-out reference values)
+`Samples/Legacy/` にあった古い例は、`Samples/` の下にそれぞれのディレクトリとして作り直し（反強磁性の対称性、マグノンのスペクトル、
+フェルミ面、ドーピング、磁気異方性、LDA+U、有効質量、緩和、DOS など）、元のものは 2026-09-30 に消しました。一覧は ecalj の
+`Samples/README.md` の表 1 にあります。古い形式の自分の入力は、上に書いたとおりに変換してください。
 
-- [MLOsamples/README.md § Reference value: bcc Fe Fe-3d on-site W](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md#reference-value-bcc-fe-fe-3d-on-site-w-with---mlo_feb4) — bcc Fe Fe-3d on-site screened W ~1.5 eV (job_mloW reproduction, 2×2×2 vs 4×4×4 BZ)
-- [MLOsamples/README.md § Regression test (testecalj Fe)](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md#regression-test-testecalj-fe) — automated diagonal V/W-V check against inline reference values
-- MLOsamples/README_SOC.md (`MD/mlo_notes/mlo_soc_memo.md`) — SOC-as-perturbation variant (`job_mlo_soc`)
+## 結果のまとめ（計算済みの参照値） {#result-summaries-worked-out-reference-values}
 
-## Auto-job runner (`ecalj_auto`)
+- [MLOsamples/README.md § Reference value: bcc Fe Fe-3d on-site W](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md#reference-value-bcc-fe-fe-3d-on-site-w-with---mlo_feb4) — bcc Fe の Fe-3d のオンサイトの遮蔽された W はおよそ 1.5 eV（job_mloW での再現、BZ は 2×2×2 と 4×4×4）
+- [MLOsamples/README.md § Regression test (testecalj Fe)](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md#regression-test-testecalj-fe) — 対角の V/W-V を、中に書いた参照値と自動で比べる試験
+- MLOsamples/README_SOC.md（`MD/mlo_notes/mlo_soc_memo.md`）— SOC を摂動として扱う版（`job_mlo_soc`）
 
-For batch QSGW / GW jobs across many materials, see
-[ecalj_auto/README.md](https://github.com/tkotani/ecalj/blob/main/ecalj_auto/README.md)
-and [ecalj_auto/README_slot_scheduler.md](https://github.com/tkotani/ecalj/blob/main/ecalj_auto/README_slot_scheduler.md).
-`MD/auto.md` says which of its drivers run with the present
-programs; `jobtemplate.{kugui,ohtaka,ucgw,...}` are the templates for
-SLURM/PBS clusters.
+## 自動でジョブを回す道具（`ecalj_auto`） {#auto-job-runner-ecalj-auto}
 
-## Common gotchas
+多くの物質で QSGW / GW のジョブをまとめて回すときは、
+[ecalj_auto/README.md](https://github.com/tkotani/ecalj/blob/main/ecalj_auto/README.md) と
+[ecalj_auto/README_slot_scheduler.md](https://github.com/tkotani/ecalj/blob/main/ecalj_auto/README_slot_scheduler.md) を見てください。
+どの駆動スクリプトが今のプログラムで動くかは `MD/auto.md` に書いてあります。`jobtemplate.{kugui,ohtaka,ucgw,...}` は SLURM/PBS のクラスタ用の雛形です。
 
-- **Retired override forms** — `lmf` aborts on `-vnspin=2 -vso=0`,
-  `-v[ham.so]=1`, `--toml.ham.so=1`, `--pr=50`, `--time=5,5`,
-  `--phispinsym`. Each abort prints the canonical
-  `--ctrlg:<path>=<value>` replacement.
-- **Stale `Worb` blocks** — `gwinput2toml.py` (the GWinput leg of
-  `Legacy2toml.py`) used to last-write-wins on duplicate `<Worb>` blocks;
-  now keeps the first.
-- **`mlo_emax`** — read only by the older `mlo_method = 0` and `1`; the
-  default `mlo_method = 4` does not use it.
-- **`t_tetrakbt` missing, `SmearX0`, `nbas` / `nspec`** — the programs
-  stop; `ctrlg_update.py` (above) brings the file up to the present rules.
-- **gfortran 13.3 / 14.2 codegen** — a documented codegen bug was
-  worked around in `m_HamPMT.f90` (one-line bait
-  `aaa = trim(aaa) // ' '`); see commits `35ee9f225` and `f693848ce`
-  on master.
+## よくある落とし穴 {#common-gotchas}
 
-For nvfortran 26.1 specifically: `findloc` runtime crashes on logical
-arrays were fixed by adding `use m_nvfortran, only: findloc` to the
-seven affected source files (commit `f693848ce`).
+- **やめた上書きの書き方** — `lmf` は `-vnspin=2 -vso=0`、`-v[ham.so]=1`、`--toml.ham.so=1`、`--pr=50`、`--time=5,5`、
+  `--phispinsym` で止まります。止まるときには、それぞれ正しい書き方 `--ctrlg:<path>=<value>` を示します。
+- **古い `Worb` ブロック** — `gwinput2toml.py`（`Legacy2toml.py` の GWinput を扱う部分）は、`<Worb>` ブロックが重複していると
+  以前は最後のものを採っていました。今は最初のものを採ります。
+- **`mlo_emax`** — 古い `mlo_method = 0` と `1` だけが読みます。既定の `mlo_method = 4` は使いません。
+- **`t_tetrakbt` が無い、`SmearX0`、`nbas` / `nspec`** — プログラムが止まります。`ctrlg_update.py`（上）でファイルを今の規則に合わせます。
+- **gfortran 13.3 / 14.2 のコード生成** — 知られているコード生成のバグを `m_HamPMT.f90` で回避しています（一行のおとり
+  `aaa = trim(aaa) // ' '`）。master のコミット `35ee9f225` と `f693848ce` を見てください。
+
+nvfortran 26.1 に限った話として、論理型の配列に対する `findloc` が実行時に落ちる件は、影響を受ける 7 つのソースファイルに
+`use m_nvfortran, only: findloc` を足して直しました（コミット `f693848ce`）。

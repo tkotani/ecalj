@@ -1,13 +1,13 @@
 # kBT — finite temperature and smearing (`t_tetrakbt` / `t_sigmaw` / `wcsmear`)
 
-> English version of the page [manual/kBT](../../manual/kBT.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/kBT.md of commit 8e38c105c (source blob 70a0030fd12f).
+> English version of the page [manual/kBT](../../manual/kBT.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/kBT.md of commit 8e38c105c (source blob 4cbb3639d22e).
 
 This page explains the `[gw]` keys that set the electron temperature and the numerical smearing in GW and QSGW. The $W$ side ($\chi_0$) and the $\Sigma$ side ($G$) have separate keys (Table 4).
 On the $\Sigma$ side, `t_sigmaw` is a numerical width that is always active. On the $\chi_0$ side, `t_tetrakbt` is mandatory: positive means a physical electron temperature,
 negative means the width (written as a temperature) of a Gaussian that smears $\mathrm{Im}\chi_0$, and 0 means no smearing.
 
 This page describes the current specification. For the history of the keys, needed when reading old inputs and records, see Table 2 in §2.5. The history of 2026-06 to 09 and the explanation of the calculations of that time are in
-`MD/kBT/history.md`.
+<del class="clfix">`MD/kBT/history.md`</del><span class="clfix">a development note (MD/kBT/history.md in the repository, not on this site)</span>.
 
 **Table 4**. Keys in `[gw]` (temperatures in K)
 
@@ -29,7 +29,7 @@ The gwinit template (also used by `ctrlgenToml.py`) writes `t_tetrakbt = 300` an
 
 **Settings for LiTi₂O₄**: $\chi_0$ is the T=0 tetrahedron with $\mathrm{Im}\chi_0$ smeared by a Gaussian, `t_tetrakbt = -992.4`
 (same width as Fermi-Dirac at 992.4 K, standard deviation 0.155 eV), `t_sigmaw = 1000`, `wcsmear = true`, `mixbeta = 0.5`.
-With this, $6^3$ converges in 8 iterations (change of QP energies from iteration 7 to 8: max 10, mean 2 meV), and the one-shot difference between $6^3$ and $9^3$ is at most 13 meV in `dSEnoZ`.
+With this, $6^3$ converges in 8 iterations (change of QP energies from iteration 7 to 8: max 10, mean 2 meV), and the one-shot difference between $6^3$ and $9^3$ is at most 13 meV in `dSEnoZ`<span class="clfix"> (the `QPU` column: the diagonal $\langle\Sigma-V_{\rm xc}\rangle$ without the $Z$ factor; [gwsc](./gwsc))</span>.
 The MLO-QSGW calculation (§5.3, ecalj `Samples/kBT/LiTi2O4`) uses the same settings.
 
 ---
@@ -138,6 +138,8 @@ $$
 
 ### 2.3 `t_tetrakbt = T > 0` — finite-temperature tetrahedron (method B′)
 
+<span class="clfix">“Method B′” is the name used during development: averaging the T=0 tetrahedron weights over the Fermi level with the thermal kernel, as in Eq. (5).</span>
+
 The finite-temperature occupation difference equals the step of Eq. (3) averaged over the Fermi level $E$ with the thermal kernel $-f'$. With $f(x)=1/(e^{x/k_BT}+1)$,
 
 $$
@@ -241,7 +243,7 @@ The input value is converted by `m_GWinput` into $\sigma$ (Ha; internal variable
 
 - `SmearX0 = s` and `t_tetrakbt = -T` give the same calculation when $s\,[\mathrm{Ha}]=\pi k_BT/\sqrt3$ by Eq. (7) (0.0057 Ha and $-992.4$ K).
   `ctrlg_update.py ctrlg.<sname>.toml` rewrites with this conversion, and adds 0 (the former default) to files without `t_tetrakbt`
-- `esmr` = $e$ (Ry, standard deviation of the Gaussian) and `t_sigmaw` = $T$ give the same width when $e=\pi k_BT/\sqrt3$ (0.003 Ry and 262 K, 0.01 Ry and 872 K).
+- `esmr` = $e$ (Ry, standard deviation of the Gaussian) and `t_sigmaw` = $T$ give the same width when $e=\pi k_BT/\sqrt3$ (0.003 Ry and 262 K, 0.01 Ry and 872 K<span class="clfix">; the code rounds $\pi/\sqrt3$ to 1.81, which gives these values; without the rounding they are 261 K and 870 K</span>).
   If an input without `t_sigmaw` has `esmr` or `t_sigmakbt`, `esmr` is read as `t_sigmaw` with this conversion, and `t_sigmakbt` with its value unchanged
 - The gwinit template wrote `tetrakbt = true`, `t_tetrakbt = 300` from 2026-06 to 09-16 (removed on 09-17).
   From 09-28 it writes `t_tetrakbt = 300`, `t_sigmaw = 300`
@@ -276,7 +278,7 @@ are the tail of the kernel $E_F \pm 15\,k_BT$ (`sig_window`), and widen automati
 
 ### Choosing the temperature
 
-- Insulators: no effect if well below the gap (in Si the difference between 262 K and 1000 K is a few meV).
+- Insulators: no effect if well below the gap (<span class="clfix">according to earlier records, </span>in Si the difference between 262 K and 1000 K is a few meV<span class="clfix">; not re-checked with the present code</span>).
 - Metals: in principle the limit $n_1n_2n_3 \to \infty$, `t_sigmaw` → 0, but a width comparable to the level spacing of the k mesh
   at the Fermi surface is needed. 300–1000 K, chosen per material. 1000 K for LiTi₂O₄ $9^3$.
 - When using `t_tetrakbt`, the same temperature is natural (not mandatory).
@@ -295,15 +297,15 @@ For `t_tetrakbt > 0`, `ef<-EFERMI_kbt=...`. In this case the program aborts if `
 ## 3.5 The origin of roughness in metals and `wcsmear`
 
 In QSGW for metals, the bands may become rough by tens of meV depending on the k mesh and the iteration, and one-shot GW from LDA may produce eV-size spikes near $E_F$
-(LiTi₂O₄ at 1000 K and below: at $9^3$ the bottom of the O 2p band is rough by 30–100 meV, and one-shot GW gives spikes of −2 to −3 eV). The cause is as follows
-(record of the investigation in ecalj `MD/research_kotani_log.md`, 2026-09-18 to 19).
+(LiTi₂O₄ at 1000 K and below: at $9^3$ the bottom of the O 2p band is rough by 30–100 meV, and one-shot GW gives spikes of <del class="clfix">−2 to −3 eV</del><span class="clfix">−2.5 to −3.4 eV ($6^3$, 500 K and 1000 K)</span>). The cause is as follows
+(record of the investigation in ecalj <del class="clfix">`MD/research_kotani_log.md`</del><span class="clfix">development notes (MD/research_kotani_log.md in the repository, not on this site)</span>, 2026-09-18 to 19).
 
-- **The culprit is the real-axis pole term of $\Sigma_c$** (cutting it changes the anomalous off-diagonal ⟨48|Σc|33⟩ from −13 to −0.35 eV).
+- **The culprit is the real-axis pole term of $\Sigma_c$** (cutting it changes the anomalous off-diagonal ⟨48|Σc|33⟩ from −13 to −0.35 eV<span class="clfix">. ⟨48|Σc|33⟩ is the off-diagonal element $\langle 48|\Sigma_c(\varepsilon_{48})|33\rangle$ between bands 48 ($E_F$+3.7 eV) and 33 at $\mathbf q=(-\tfrac16,\tfrac16,\tfrac16)$ in one-shot GW from LDA for LiTi₂O₄ $6^3$ at 1000 K; the same below</span>).
   The imaginary-axis integral, the mixing of sigm, the offset-Γ head and the $\omega$ interpolation are unrelated.
 - What the pole term hits is the **t2g plasmon pole** in $W_c(q,\omega)$ at $q$ of the first shell
   ($\omega_p \simeq 1.78$ eV, width ≈ 0.1 eV; confirmed directly with `--dumpW`). For each intermediate state
   $n'$ the pole term picks up $W_c(\mathbf k,\, \varepsilon_{\mathbf q n} - \varepsilon_{\mathbf q-\mathbf k, n'})$ at
-  one point, so a term whose $\varepsilon$ falls within ±0.1 eV of the pole receives ±50 a.u.,
+  one point, so a term whose $\varepsilon$ falls within ±0.1 eV of the pole receives <del class="clfix">±50 a.u.</del><span class="clfix">a value of $W_c$ of about ±50 a.u. (at the pole $\mathrm{Re}\,W_c$ jumps from −54 to +4 a.u. between neighbouring bins)</span>,
   and each time the eigenvalues move during the iterations it crosses to the other side of the pole (seesaw).
 - It vanishes monotonically with temperature: ⟨48|Σc|33⟩ = −27 / −13 / −3.2 / −1.9 eV (500 / 1000 / 1500 / 2000 K).
   This is why runs at 2000 K and above had no accidents.
@@ -406,7 +408,7 @@ $$
 
 — **the step on the imaginary-axis side smeared with a Gaussian (standard deviation $\sigma$)**. Since the window weight (10) on the pole-term side was also the Gaussian cumulative $\Phi_G$
 with the same $\sigma$, the two sides were consistent and gave "$\Sigma_c$ of Gaussian-smeared levels".
-That is, `sig` in Eq. 57 was not a numerical regularization but **the level smearing itself**.
+That is, <del class="clfix">`sig` in Eq. 57</del><span class="clfix">`sig` in PRB 76, 165106 Eq. 57 ($\sigma$ of Eq. (14))</span> was not a numerical regularization but **the level smearing itself**.
 
 ### What happens if only the pole-term kernel is changed
 
@@ -459,7 +461,7 @@ Notes:
 - **Rule when changing the kernel**: the occupation weights (`wfacx`), the window weights of the pole term (`wfacx2` / `pole_weights`) and the imaginary-axis step (17),
   these 3 places must refer to the same $\Phi$. To go back to the Gaussian, revert all 3 as in (14)–(15).
 
-History and numbers: `MD/research_kotani_log.md` 2026-09-20 12:17 / 13:10.
+History and numbers: <del class="clfix">`MD/research_kotani_log.md`</del><span class="clfix">development notes (MD/research_kotani_log.md in the repository, not on this site)</span> 2026-09-20 12:17 / 13:10.
 
 ---
 
@@ -622,7 +624,7 @@ the worst-case error of the occupation factor was measured as in Table 11.
 | 1 interval $[-6,6]$ × GL20 (code until 2026-09-26) | 20 | 1.7e-1 | 9.7e-2 | 2.3e-2 | 1.3e-2 | 6.8e-3 |
 
 For strongly dispersive bands the error is small. With flat bands, band edges or van Hove singularities at $E_F$, the occupation factor is off by 0.01–0.03.
-Increasing the number of nodes reduces the error only as $1/N$; how the intervals are cut matters more. Cutting the intervals at the kinks of the integrand (the energies of the 8 corners of the tetrahedron)
+Increasing the number of nodes reduces the error only as $1/N$; how the intervals are cut matters more. Cutting the intervals at the kinks of the integrand (<del class="clfix">the energies of the 8 corners of the tetrahedron</del><span class="clfix">the 8 energies $e_a$, $e_b$ at the 4 corners of the tetrahedron</span>)
 is the proper way, but it is not implemented. The error of `EFERMI_kbt` for Fe at 3000 K, $5^3$ (against a 600-point quadrature) is 1.2 meV.
 
 ### 7.3 Window of states on the $\Sigma$ side
@@ -630,7 +632,7 @@ is the proper way, but it is not implemented. The error of `EFERMI_kbt` for Fe a
 The candidate window of intermediate states and the margin of the real-axis $\omega$ mesh are set by the tail of the kernel $E_F\pm15\,k_BT$ ($k_BT$ from `t_sigmaw`, `sig_window`).
 The truncated occupation is $f(15)=3\times10^{-7}$, and raising `t_sigmaw` widens the window too. The center of the window and the center of the weights are the same Fermi level
 (`EFERMI_kbt` if `t_tetrakbt > 0`). In the code until 2026-09-19 the window was set by `esmr`, and occupations were truncated at high temperature
-(`MD/kBT/history.md` §4).
+(<del class="clfix">`MD/kBT/history.md` §4</del><span class="clfix">the window was $E_F\pm10\,$`esmr`; for example, at 2000 K with `esmr` = 0.002 Ry, 17 % of the occupation is cut off. Development note MD/kBT/history.md §4 in the repository, not on this site</span>).
 
 ### 7.4 Scope — $\Sigma$ needs the "sum", not the "difference"
 
@@ -688,7 +690,7 @@ The core levels are much deeper than $k_BT$, so the result is the T=0 value rega
 in systems where the number of core states $n_\mathrm{ctot}$ is smaller than the number of occupied bands (e.g. compounds of light elements whose only core is 1s), part of the
 valence states entered the exchange with the core. This can be judged by comparing `CoreEx mode: ef nspin nctot=` in `lsxC` with `valn=` (number of valence electrons)
 (note that systems with semicore states in the valence have fewer core states). Fe ($n_\mathrm{ctot}=9$) and LiTi₂O₄ ($n_\mathrm{ctot}=46$) are not affected.
-Details of the errors are in `MD/kBT/history.md` §5.
+<del class="clfix">Details of the errors are in `MD/kBT/history.md` §5.</del><span class="clfix">The errors were that the Fermi level of CoreEx was overwritten by `EFERMI_kbt`, so that occupied valence states entered the sum, and an index shift in `sxs_ekc` (both fixed on 2026-09-27). Development note MD/kBT/history.md §5 in the repository, not on this site.</span>
 
 ---
 
@@ -864,7 +866,7 @@ determined by Kramers–Kronig.
 
 Check of $T\to0$: $n_B(\Omega>0)\to0$, $n_B(\Omega<0)\to-1$, $f_j\to\theta(-\varepsilon_j)$.
 For a quasiparticle with $\omega>0$, if $j$ is occupied $[-1+1]=0$ (Pauli blocking),
-if $j$ is empty $[-1+0]=-1$ and it contributes. This returns to the conventional $T=0$ GW.
+<del class="clfix">if $j$ is empty $[-1+0]=-1$ and it contributes.</del><span class="clfix">if $j$ is empty with $0<\varepsilon_j<\omega$, $[-1+0]=-1$ and it contributes (decay); if $\varepsilon_j>\omega$, $[0+0]=0$ (no final state).</span> This returns to the conventional $T=0$ GW.
 
 ### 8.7 What the current implementation keeps and what it drops
 
@@ -893,7 +895,7 @@ $\mathrm{Re}\,\Sigma(\varepsilon_j)$ used by QSGW stays at the $O((k_BT)^2)$ of 
 
 ### 8.8 Note on initial correlations
 
-In 8.2 it was said that the interaction is switched on adiabatically from $\rho_0$ (noninteracting thermal equilibrium), but
+In <del class="clfix">8.2</del><span class="clfix">8.1–8.2</span> it was said that the interaction is switched on adiabatically from $\rho_0$ (noninteracting thermal equilibrium), but
 this **drops initial correlations**. Strictly, one uses the Kadanoff–Baym path, which adds an imaginary-time vertical branch
 $[t_0,\,t_0-i\beta]$ to the path and puts the initial correlations there
 (Danielewicz). In the equilibrium and adiabatic case the vertical branch decouples from the real-time part,
@@ -934,7 +936,7 @@ It is different from `t_sigmaw` on this page.
 
 - [QSGW calculation (gwsc)](./gwsc)
 - Samples `ecalj/Samples/kBT/` (§5)
-- `MD/kBT/history.md`: history of 2026-06 to 09, explanation of the calculations of that time, errors that were fixed
+- <del class="clfix">`MD/kBT/history.md`</del><span class="clfix">development note (MD/kBT/history.md in the repository, not on this site)</span>: history of 2026-06 to 09, explanation of the calculations of that time, errors that were fixed
 - [The `[gw]` section of `ctrlg.<sname>.toml`](./lmf#file-structure-sections)
 - For one-shot GW QP energies, evaluation along arbitrary k lines, and diagnostics of $W$ and the real-axis integral,
-  see ecalj `MD/past_log.md` §5 (the essentials of the 2026-06 guide `FiniteT_and_QPE_HOWTO.md`; this page develops its §1)
+  see ecalj <del class="clfix">`MD/past_log.md` §5</del><span class="clfix">development notes (MD/past_log.md §5 in the repository, not on this site)</span> (the essentials of the 2026-06 guide `FiniteT_and_QPE_HOWTO.md`; this page develops its §1)

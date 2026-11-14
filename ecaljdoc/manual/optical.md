@@ -33,11 +33,27 @@ Follow `test.py` in these directories (`testecalj EPS_Cu -np 4` in `ecalj/Sample
 We explain the steps in `test.py` in the following steps.
 
 You can start from `ctrlg.<sname>.toml` (or, for legacy directories, `ctrl.<sname>` + `GWinput` after running `Legacy2toml.py <sname>`). After `job_eps cu -np 4 --decompose`,
+<div class="clfix-old">
+
 ```
 gnuplot -p epsinter.glt 
 gnuplot -p epsintra.glt 
 gnuplot -p epsall.glt 
 ```
+
+</div>
+
+<div class="clfix">
+
+```
+gnuplot -p eps_interbandonly_cu.glt
+gnuplot -p eps_intrabandonly_cu.glt
+gnuplot -p eps_total_cu.glt
+```
+(`epsinter.glt`, `epsintra.glt`, `epsall.glt` were the names written by the old `epsPP0`.)
+
+</div>
+
 Note that we usually need many k points if you like to have 0.1 level of error for 
 dielectric constants (at the limit of ${\bf q}=\omega =0$)
 (e.g, reasonable results for GaAs may require `[gw].n1n2n3 = [20, 20, 20]` in `ctrlg.<sname>.toml`.)
@@ -70,7 +86,7 @@ corresponding to the plane waves $\exp(i{\bf q r})$. We include such a basis in 
     """
     ```
     * この部分は誘電関数を計算するときの**q**ベクトルを設定しています。
-    この値を変えることで誘電関数の**q**方向の依存性を調べることができます。
+    この値を変えることで誘電関数の<del class="clfix">**q**方向の依存性</del><span class="clfix">**q**（大きさと方向）への依存性</span>を調べることができます。<span class="clfix">ふつうは一つの方向に小さな **q** をいくつか並べ, **q**→0 の極限をとる（バンド内とバンド間を分けるときにも複数の **q** が要る）。</span>
 
     * `QforEPSau = true` があるので、単位はa.u.になっています。すなわち、0 0 0.001であれば
     ${\bf q}$ = (0,0,0.001) bohr^{-1}です
@@ -79,7 +95,7 @@ corresponding to the plane waves $\exp(i{\bf q r})$. We include such a basis in 
 
 
     光学応答の場合は**q**=**0**としたいですが、そうすると今のコードでは数値的に不安定です。
-    なので適宜小さくとってください。この不安定性は以下の図、ecalj/Samples/EPS/EPS_GaAsでgnuplot -p epsinter.gltで100eVs弱のところに現れています。なのでたとえばEPS_GaAsだと0,0,0.00050(EPS0001に対応）だとすこしにおおきくなっておりよろしくない、ということになります。gnuplotファイルepsinter.gltを見てください。
+    なので適宜小さくとってください。<del class="clfix">この不安定性は以下の図、ecalj/Samples/EPS/EPS_GaAsでgnuplot -p epsinter.gltで100eVs弱のところに現れています。なのでたとえばEPS_GaAsだと0,0,0.00050(EPS0001に対応）だとすこしにおおきくなっておりよろしくない、ということになります。gnuplotファイルepsinter.gltを見てください。</del><span class="clfix">ecalj/Samples/EPS/EPS_GaAs で `gnuplot -p eps_interbandonly_gaas.glt` を見ると, q = 0.0005 a.u.（`0 0 0.00050`, EPS0001）では q が小さすぎ, 20〜110 eV（100 eV 弱まで）の虚部が EPS0002・EPS0003 より大きくずれている（例えば 98 eV で Im ε = 0.077, EPS0002・EPS0003 では 0.029・0.018）。この例では EPS0002（0.001 a.u.）以降を使う。</span>
 <!-- ![alt text](image.png) -->
 <!-- また後述のバンド内・間遷移を分けて計算を行う場合は、2つ以上の座標を書く必要があります。 -->
 
@@ -106,7 +122,7 @@ KeepPpb = false      # (default)
 これは `QforEPS` のqをa.u.ではかるという意味になります。
 たとえば `QforEPS` に `0 0 0.00005` とあれば、これは
 q=(0 0 0.00005)/bohrと読んでください。
-確認するには,2pi/alatをEPSファイル最初の3つの数字に乗じて
+<span class="clfix">EPS ファイルの最初の 3 列の q は 2π/alat 単位で書かれる。</span>確認するには,2pi/alatをEPSファイル最初の3つの数字に乗じて
 `QforEPS` にかかれているqになるのをみます。
 
 * 以前の--zmel0のオプションは2025-5-8で廃止しました。
@@ -134,15 +150,27 @@ QforEPS = """
 それ以外のグラフはほぼ重なります。だた、0.0032ぐらいになるとomega=0での実部がいくらかずれてきます。
 
 * Cu (Samples/EPS/EPS_Cu) ではフェルミ面の寄与もあり、
-```
-gnuplot -p epsintra.glt
-```
+<del class="clfix">`gnuplot -p epsintra.glt`</del><span class="clfix">`gnuplot -p eps_intrabandonly_cu.glt`</span>
 を実行してフェルミ面の寄与が見れます。This is Drude weight、q分解でみれています。
 omega=0近傍でのふるまいはFetter-Waleckaにあるようにふるまっています。
+<div class="clfix-old">
+
 ```
 gnuplot -p epsintra.glt
 gnuplot -p epsall.glt
 ```
+
+</div>
+
+<div class="clfix">
+
+```
+gnuplot -p eps_intrabandonly_cu.glt
+gnuplot -p eps_total_cu.glt
+```
+
+</div>
+
 
 
 * `job_eps` (legacy `epsPP0`) の計算が終わると `EPS000*.nlfc.dat` というファイルが `[gw]` の `QforEPS` で設定したq点の数分作られます。この中は
@@ -156,7 +184,8 @@ gnuplot -p epsall.glt
   0.01000000  0.00000000  0.00000000    0.5200E-04  0.276450859807482E+02  0.197440420455938E+00    0.361709489903162E-01 -0.258331892398948E-03
   0.01000000  0.00000000  0.00000000    0.7389E-04  0.276274571460234E+02  0.249411594405801E+00    0.361929258459201E-01 -0.326737828014011E-03
 ```
-1~3行目にq点座標、4行目にエネルギー(Ry単位)、5・6行目が誘電関数の実部・虚部、7・8行目が誘電関数の逆数の実部・虚部
+<span class="clfix">（この例は q = (0.01, 0, 0)（2π/alat 単位）で回した古い計算のもので, 上の `QforEPS` の例とは別。いまの見出しは `# qp(1:3) ...`）</span>
+1~3<del class="clfix">行目</del><span class="clfix">列目</span>にq点座標、4<del class="clfix">行目</del><span class="clfix">列目</span>にエネルギー(Ry単位)、5・6<del class="clfix">行目</del><span class="clfix">列目</span>が誘電関数の実部・虚部、7・8<del class="clfix">行目</del><span class="clfix">列目</span>が誘電関数の逆数の実部・虚部
 が書かれています。
 
 
@@ -172,7 +201,7 @@ Test at 2016: we need to have correct edge $\propto \sqrt{\omega-E_0}$. To do so
 Local-field correction with `job_eps --lcf` (legacy name: `eps_lmfh`).
 To include eps with LFC, do `job_eps --lcf <sname>`. Expensive.
 lcutmx=2 seems to be good enough to get 0.5 percent error (maybe better than this).
-Further we can use smaller QpGcut_cou like 2.2 or so, with rather smaller product basis (up to p timed d, not including f).
+Further we can use smaller QpGcut_cou like 2.2 or so, with rather smaller product basis (up to <del class="clfix">p timed d</del><span class="clfix">p×d products</span>, not including f).
 But we need checks and may be modification of `job_eps --lcf`.
 
 ** スピンゆらぎを計算するにはモデルを経由するべき

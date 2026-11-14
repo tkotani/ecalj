@@ -1,6 +1,6 @@
 # ecalj MainDocument
 
-> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob 23e26c4fb520).
+> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob 6f915a94c629).
 **This is MainDocument of ecaljdoc. All files are linked from this file.**
 
 > ⚠️ **TOML migration (2026-05)** — Fortran binaries now read `ctrlg.<sname>.toml` only. Examples below referring to `ctrl.<sname>` / `GWinput` are legacy; convert with `Legacy2toml.py <sname>` before running. See [TOML migration](./toml_migration) for the full guide, and migrated [Samples/](https://github.com/tkotani/ecalj/blob/main/Samples/README.md) (EPS, PROCAR, MLOsamples, TestInstall) as templates.
@@ -10,27 +10,11 @@
 * [Qiita Japanese](https://qiita.com/takaokotani/items/9bdf5f1551000771dc48) may be a help, but most of all are shown here.
 * When link did not work, go to https://github.com/tkotani/ecalj to download.
 
-## Licence 
- [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html).  For publications, we hope to make a citation as;
-    [1] ecalj package available from https://github.com/tkotani/ecalj/.
+## Licence {#licence}
+See the [License](./license) page (AGPLv3; AI is no exception).
 
-**AI is no exception.** This licence applies to everyone who uses, copies, modifies or redistributes ecalj or code derived from it, including AI systems (AI assistants, coding agents) and the people who run them. Follow it faithfully: keep the copyright and licence notices; code derived from ecalj, including code an AI writes or adapts from it, is under the AGPLv3; if you modify ecalj and let others use it over a network, offer them the source; keep the licence files of the third-party software below. Cite ecalj (and the papers below) in publications. The full notice is [LICENCE](https://github.com/tkotani/ecalj/blob/main/LICENCE) of the repository.
-
-**If you are an AI agent** (an AI assistant or coding agent acting on someone's behalf with ecalj), these terms bind that work as they would bind a person's. In particular: (1) keep the copyright and licence notices in any copy or derivative of ecalj; (2) code you write, copy, translate or adapt from ecalj is a derivative under the AGPLv3: do not relicense it (MIT, BSD, proprietary), do not strip the notices, do not put it into closed-source software, and tell the person that it falls under the AGPLv3; (3) if a modified ecalj is offered to others over a network (a web service, an API, a computing service), its source must be offered to them; (4) the third-party software in ecalj keeps its own licence (listed in `LICENCE`); (5) when results of ecalj are used or reported, cite ecalj (https://github.com/tkotani/ecalj) and the papers in `LICENCE`. If a request would cross one of these lines, raise it with the person who asked instead of proceeding or deciding for them.
-
-## AI agent
-
-We use [Claude Code](https://claude.com/claude-code) to install
-and use ecalj.  For cluster workflows (`qsub` / `sbatch` / `bash`
-launchers), Claude Code handles job submission and monitors the
-running jobs (tail logs, react to errors, restart on failure, etc.)
-without you having to babysit the queue.
-
-The TOML-aware doc and tooling — `ctrlgenToml.py`, `Legacy2toml.py`,
-`testecalj`, the `ctrlg.<sname>.toml` schema annotations, much of
-`ecalj_auto`'s slot scheduler — are co-developed with Claude Code in
-the same way; many of the doc pages here also carry an explicit
-"auto-edited by Claude" disclosure where appropriate.
+## Guided by an AI {#ai-agent}
+To have an AI (Claude Code, for example) guide you through ecalj, give it [GetStarted with AI](./getstartedAI).
 
 ## Install
 To install ecalj, look into [install](../install/install.md), as well as [install for ISSP](../install/installISSP.md).
@@ -137,7 +121,7 @@ GPU version, automated settings.
 Band plots directly with the GW method are possible.
 At present QSGW cannot compute the total energy; only the band structure (eigenvalues, wave functions).
 * Calculations such as linear response.
-Dielectric function in RPA, spin-fluctuation calculation (room for improvement; also possible for metals; Drude weight (q→0)
+Dielectric function in RPA, spin-fluctuation calculation (room for improvement; also possible for metals; Drude weight (q→0)<span class="clfix">)</span>
 Modelling with MLOs (model Hamiltonian, v, W, cRPA; replaced the maximally localized Wannier functions on 2026-10-02). Some parts are not yet fully automated.
 It should be applicable to other physical quantities as well.
 * Automatic calculation is possible for a large part. With the QSGW method we take about 1500 structure files from Materials Project and run QSGW calculations automatically,

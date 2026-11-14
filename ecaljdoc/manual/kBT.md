@@ -5,7 +5,7 @@ $\Sigma$ 側の `t_sigmaw` は常に有効な数値的な幅、$\chi_0$ 側の `
 負なら $\mathrm{Im}\chi_0$ を均す Gaussian の幅(温度で書く)、0 なら均さない。
 
 この頁にはいまの仕様を書く。古い入力や記録を読むときのキーの変遷は §2.5 の表 2。2026-06〜09 の経緯と当時の計算の説明は
-`MD/kBT/history.md`。
+<del class="clfix">`MD/kBT/history.md`</del><span class="clfix">開発記録(リポジトリの MD/kBT/history.md、サイトには無い)</span>。
 
 **表 4**. `[gw]` のキー(温度の単位は K)
 
@@ -27,7 +27,7 @@ gwinit のテンプレート(`ctrlgenToml.py` もこれを使う)は `t_tetrakbt
 
 **LiTi₂O₄ の設定**: $\chi_0$ は T=0 のテトラヘドロンで、$\mathrm{Im}\chi_0$ を Gaussian で均す `t_tetrakbt = -992.4`
 (Fermi-Dirac 992.4 K と同じ幅、標準偏差 0.155 eV)、`t_sigmaw = 1000`、`wcsmear = true`、`mixbeta = 0.5`。
-$6^3$ はこれで 8 反復で収束し(反復 7→8 の QP の変化は最大 10、平均 2 meV)、$6^3$ と $9^3$ の一発の差は `dSEnoZ` 最大 13 meV。
+$6^3$ はこれで 8 反復で収束し(反復 7→8 の QP の変化は最大 10、平均 2 meV)、$6^3$ と $9^3$ の一発の差は `dSEnoZ`<span class="clfix">(`QPU` の列。$Z$ を掛けない $\langle\Sigma-V_{\rm xc}\rangle$ の対角要素。[gwsc](./gwsc))</span> 最大 13 meV。
 MLO-QSGW の計算(§5.3、ecalj `Samples/kBT/LiTi2O4`)も同じ設定である。
 
 ---
@@ -136,6 +136,8 @@ $$
 
 ### 2.3 `t_tetrakbt = T > 0` — 有限温度のテトラヘドロン(method B′)
 
+<span class="clfix">method B′ は開発時の呼び名で、式 (5) のように T=0 のテトラヘドロンの重みを Fermi 準位について熱核で平均する方法を指す。</span>
+
 有限温度の占有の差は、式 (3) の階段を Fermi 準位 $E$ について熱核 $-f'$ で平均したものに等しい。$f(x)=1/(e^{x/k_BT}+1)$ として
 
 $$
@@ -239,7 +241,7 @@ $-T$ は Gaussian の幅を温度で書く約束であって、有限温度の $
 
 - `SmearX0 = s` と `t_tetrakbt = -T` は、式 (7) で $s\,[\mathrm{Ha}]=\pi k_BT/\sqrt3$ のとき同じ計算になる(0.0057 Ha と $-992.4$ K)。
   `ctrlg_update.py ctrlg.<sname>.toml` がこの換算で書き換え、`t_tetrakbt` の無いファイルには 0(以前の既定)を足す
-- `esmr` = $e$ (Ry、Gaussian の標準偏差)と `t_sigmaw` = $T$ は、$e=\pi k_BT/\sqrt3$ のとき同じ幅になる(0.003 Ry と 262 K、0.01 Ry と 872 K)。
+- `esmr` = $e$ (Ry、Gaussian の標準偏差)と `t_sigmaw` = $T$ は、$e=\pi k_BT/\sqrt3$ のとき同じ幅になる(0.003 Ry と 262 K、0.01 Ry と 872 K<span class="clfix">。コードは $\pi/\sqrt3$ を 1.81 に丸めて換算するのでこの値になる。丸めなければ 261 K と 870 K</span>)。
   `t_sigmaw` が無い入力に `esmr` や `t_sigmakbt` があれば、`esmr` はこの換算で、`t_sigmakbt` は値のまま `t_sigmaw` として読む
 - gwinit のテンプレートは 2026-06 から 09-16 まで `tetrakbt = true`、`t_tetrakbt = 300` を書いていた(09-17 に外した)。
   09-28 からは `t_tetrakbt = 300`、`t_sigmaw = 300` を書く
@@ -275,7 +277,7 @@ $\Sigma_c$ が壊れる。これは重要な点なので [§3.6](#_3-6-の-conto
 
 ### 温度の選び方
 
-- 絶縁体: ギャップより十分小さければ効かない(Si で 262 K と 1000 K の差は数 meV)。
+- 絶縁体: ギャップより十分小さければ効かない(<span class="clfix">以前の記録では、</span>Si で 262 K と 1000 K の差は数 meV<span class="clfix">。いまのコードでの確認はしていない</span>)。
 - 金属: 原理的には $n_1n_2n_3 \to \infty$、`t_sigmaw` → 0 の極限だが、k メッシュの
   Fermi 面での準位間隔と同程度の幅が要る。300〜1000 K を物質ごとに。LiTi₂O₄ $9^3$ は 1000 K。
 - `t_tetrakbt` を使うときは同じ温度にするのが自然(必須ではない)。
@@ -294,15 +296,15 @@ $\Sigma_c$ が壊れる。これは重要な点なので [§3.6](#_3-6-の-conto
 ## 3.5 金属の荒れの正体と `wcsmear`
 
 金属の QSGW では、バンドが k メッシュと反復によって数十 meV 荒れたり、LDA からの一発 GW で $E_F$ の近くに eV の大きさの針が
-立ったりすることがある(LiTi₂O₄ の 1000 K 以下、$9^3$ で O 2p 帯の底が 30〜100 meV 荒れ、一発 GW で −2〜−3 eV の針)。原因は次のとおり
-(調べた記録は ecalj の `MD/research_kotani_log.md` の 2026-09-18〜19)。
+立ったりすることがある(LiTi₂O₄ の 1000 K 以下、$9^3$ で O 2p 帯の底が 30〜100 meV 荒れ、一発 GW で <del class="clfix">−2〜−3 eV</del><span class="clfix">−2.5〜−3.4 eV($6^3$、500 K と 1000 K)</span> の針)。原因は次のとおり
+(調べた記録は ecalj の <del class="clfix">`MD/research_kotani_log.md`</del><span class="clfix">開発記録(リポジトリの MD/research_kotani_log.md、サイトには無い)</span> の 2026-09-18〜19)。
 
-- **犯人は $\Sigma_c$ の実軸極項**(切ると異常な非対角 ⟨48|Σc|33⟩ が −13 → −0.35 eV)。
+- **犯人は $\Sigma_c$ の実軸極項**(切ると異常な非対角 ⟨48|Σc|33⟩ が −13 → −0.35 eV<span class="clfix">。⟨48|Σc|33⟩ は LiTi₂O₄ $6^3$ の LDA からの一発 GW、1000 K で、$\mathbf q=(-\tfrac16,\tfrac16,\tfrac16)$ のバンド 48($E_F$+3.7 eV)と 33 の間の非対角要素 $\langle 48|\Sigma_c(\varepsilon_{48})|33\rangle$。以下同じ</span>)。
   虚軸積分、sigm の混合、offset-Γ の頭、$\omega$ 内挿法は無関係。
 - 極項が踏んでいるのは、第一殻 $q$ の $W_c(q,\omega)$ にある **t2g プラズモン極**
   ($\omega_p \simeq 1.78$ eV、幅 ≈ 0.1 eV。`--dumpW` で直接確認)。極項は各中間状態
   $n'$ について $W_c(\mathbf k,\, \varepsilon_{\mathbf q n} - \varepsilon_{\mathbf q-\mathbf k, n'})$ を
-  1 点で拾うので、その $\varepsilon$ が極の ±0.1 eV に落ちる項が ±50 a.u. を受け取り、
+  1 点で拾うので、その $\varepsilon$ が極の ±0.1 eV に落ちる項が <del class="clfix">±50 a.u. を受け取り</del><span class="clfix">$W_c$ の ±50 a.u. ほどの値を受け取り(極の所で $\mathrm{Re}\,W_c$ が隣のビンへ −54 から +4 a.u. に跳ぶ)</span>、
   反復で固有値が動くたびに極の反対側へ渡る(シーソー)。
 - 温度で単調に消える: ⟨48|Σc|33⟩ = −27 / −13 / −3.2 / −1.9 eV (500 / 1000 / 1500 / 2000 K)。
   2000 K 以上の run に事故が無かったのはこのため。
@@ -405,7 +407,7 @@ $$
 
 — **虚軸側の段差を Gaussian(標準偏差 $\sigma$)で均した**ものである。極項側の窓重み (10) も同じ $\sigma$ の
 Gaussian 累積 $\Phi_G$ だったから、両側が整合して「Gaussian で均した準位の $\Sigma_c$」になっていた。
-つまり Eq. 57 の `sig` は数値正則化ではなく、**準位 smearing そのもの**だった。
+つまり <del class="clfix">Eq. 57 の `sig`</del><span class="clfix">PRB 76, 165106 Eq. 57 の `sig`(式 (14) の $\sigma$)</span> は数値正則化ではなく、**準位 smearing そのもの**だった。
 
 ### 極項だけ核を変えるとどうなるか
 
@@ -458,7 +460,7 @@ $x_j = k_BT\ln\frac{u_j}{1-u_j}$、$u_j = (j-\tfrac12)/40$ の中点則で平均
 - **核を変えるときの規則**: 占有重み(`wfacx`)、極項の窓重み(`wfacx2` / `pole_weights`)、虚軸の段差 (17) の
   3 か所が同じ $\Phi$ を指していること。Gaussian に戻すなら (14)–(15) のように 3 か所とも戻す。
 
-経緯と数値は `MD/research_kotani_log.md` 2026-09-20 12:17 / 13:10。
+経緯と数値は <del class="clfix">`MD/research_kotani_log.md`</del><span class="clfix">開発記録(リポジトリの MD/research_kotani_log.md、サイトには無い)</span> 2026-09-20 12:17 / 13:10。
 
 ---
 
@@ -621,7 +623,7 @@ LDA から 40 反復まで回した。まとめは ecalj の `Samples/kBT/LiTi2O
 | 1 区間 $[-6,6]$ × GL20(2026-09-26 までのコード) | 20 | 1.7e-1 | 9.7e-2 | 2.3e-2 | 1.3e-2 | 6.8e-3 |
 
 分散の大きいバンドでは誤差は小さい。平坦なバンド、バンドの端、van Hove 特異点が $E_F$ にあると、占有の因子が 0.01〜0.03 ずれる。
-節点を増やしても誤差は $1/N$ でしか減らず、区間の切り方のほうが効く。被積分関数の折れ点(四面体の 8 個の角のエネルギー)で
+節点を増やしても誤差は $1/N$ でしか減らず、区間の切り方のほうが効く。被積分関数の折れ点(<del class="clfix">四面体の 8 個の角のエネルギー</del><span class="clfix">四面体の 4 個の角での $e_a$、$e_b$ の 8 個のエネルギー</span>)で
 区間を切るのが本筋だが、実装していない。Fe 3000 K $5^3$ の `EFERMI_kbt` の誤差(600 点の求積に対して)は 1.2 meV。
 
 ### 7.3 $\Sigma$ 側の状態の窓
@@ -629,7 +631,7 @@ LDA から 40 反復まで回した。まとめは ecalj の `Samples/kBT/LiTi2O
 中間状態の候補の窓と実軸の $\omega$ メッシュの余裕は、核の裾 $E_F\pm15\,k_BT$($k_BT$ は `t_sigmaw`、`sig_window`)で決まる。
 切り捨てられる占有は $f(15)=3\times10^{-7}$ で、`t_sigmaw` を上げれば窓も広がる。窓の中心と重みの中心は同じ Fermi 準位
 (`t_tetrakbt > 0` なら `EFERMI_kbt`)である。2026-09-19 までのコードでは窓が `esmr` で決まっていて、高温で占有が切り捨てられた
-(`MD/kBT/history.md` §4)。
+(<del class="clfix">`MD/kBT/history.md` §4</del><span class="clfix">窓は $E_F\pm10\,$`esmr` で、例えば 2000 K・`esmr` = 0.002 Ry なら占有の 17 % が切り捨てられる。開発記録はリポジトリの MD/kBT/history.md §4、サイトには無い</span>)。
 
 ### 7.4 範囲 — $\Sigma$ が要るのは「差」ではなく「和」
 
@@ -687,7 +689,7 @@ core の準位は $k_BT$ よりずっと深いので、温度によらず T=0 �
 core の状態の数 $n_\mathrm{ctot}$ が占有バンドの数より少ない系(1s だけが core の軽元素の化合物など)では、core との交換に
 価電子の状態の一部が入っていた。`lsxC` の `CoreEx mode: ef nspin nctot=` と `valn=`(価電子数)を比べれば判定できる
 (semicore を価電子に入れた系は core が減るので注意)。Fe($n_\mathrm{ctot}=9$)と LiTi₂O₄($n_\mathrm{ctot}=46$)には影響が無い。
-誤りの中身は `MD/kBT/history.md` §5。
+<del class="clfix">誤りの中身は `MD/kBT/history.md` §5。</del><span class="clfix">誤りは、CoreEx の Fermi 準位が `EFERMI_kbt` で上書きされて占有された価電子の状態が和に入ったことと、`sxs_ekc` の添字のずれ(2026-09-27 に両方を修正)。開発記録はリポジトリの MD/kBT/history.md §5、サイトには無い。</span>
 
 ---
 
@@ -865,7 +867,7 @@ Kramers–Kronig で決まる。
 
 $T\to0$ の確認: $n_B(\Omega>0)\to0$、$n_B(\Omega<0)\to-1$、$f_j\to\theta(-\varepsilon_j)$。
 $\omega>0$ の準粒子について、$j$ が占有だと $[-1+1]=0$(Pauli 阻止)、
-$j$ が空だと $[-1+0]=-1$ で寄与する。従来の $T=0$ GW に戻る。
+<del class="clfix">$j$ が空だと $[-1+0]=-1$ で寄与する。</del><span class="clfix">$j$ が空で $0<\varepsilon_j<\omega$ なら $[-1+0]=-1$ で寄与し(崩壊)、$\varepsilon_j>\omega$ なら $[0+0]=0$(終状態が無い)。</span>従来の $T=0$ GW に戻る。
 
 ### 8.7 いまの実装が保っているもの・落としているもの
 
@@ -894,7 +896,7 @@ $\mathrm{Re}\,\Sigma(\varepsilon_j)$ への影響は (20) の $O((k_BT)^2)$ に�
 
 ### 8.8 初期相関についての注意
 
-8.2 では $\rho_0$(非相互作用の熱平衡)から断熱的に相互作用を入れると書いたが、
+<del class="clfix">8.2</del><span class="clfix">8.1–8.2</span> では $\rho_0$(非相互作用の熱平衡)から断熱的に相互作用を入れると書いたが、
 これは**初期相関を落としている**。厳密には径路に虚時間の縦枝
 $[t_0,\,t_0-i\beta]$ を足した Kadanoff–Baym 径路を使い、そこに初期相関を
 持たせる(Danielewicz)。平衡かつ断熱的な場合には縦枝が実時間部分から
@@ -935,7 +937,7 @@ $[t_0,\,t_0-i\beta]$ を足した Kadanoff–Baym 径路を使い、そこに初
 
 - [QSGW の計算 (gwsc)](./gwsc)
 - サンプル `ecalj/Samples/kBT/`(§5)
-- `MD/kBT/history.md`: 2026-06〜09 の経緯、当時の計算の説明、直した誤り
+- <del class="clfix">`MD/kBT/history.md`</del><span class="clfix">開発記録(リポジトリの MD/kBT/history.md、サイトには無い)</span>: 2026-06〜09 の経緯、当時の計算の説明、直した誤り
 - [`ctrlg.<sname>.toml` の `[gw]` セクション](./lmf#file-structure-sections)
 - 一発 GW の QP エネルギー、任意 k 線上の評価、$W$ と実軸積分の診断は
-  ecalj の `MD/past_log.md` §5 を見よ(2026-06 の手引き `FiniteT_and_QPE_HOWTO.md` の要点。本頁はその §1 を発展させたもの)
+  ecalj の <del class="clfix">`MD/past_log.md` §5</del><span class="clfix">開発記録(リポジトリの MD/past_log.md §5、サイトには無い)</span> を見よ(2026-06 の手引き `FiniteT_and_QPE_HOWTO.md` の要点。本頁はその §1 を発展させたもの)

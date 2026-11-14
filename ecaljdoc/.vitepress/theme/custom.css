@@ -166,3 +166,22 @@
   background: var(--vp-c-bg); color: var(--vp-c-text-1); min-height: 100vh;
 }
 html:has(.home-dark), html:has(.home-dark) body { background: #1b1b1f; }
+
+/* Red-pen corrections by Claude (2026-11-14): the old text is struck through (<del class="clfix">), the new text is red
+   (<span class="clfix"> inline, <div class="clfix"> for blocks) and starts with a small "Claude" mark. Kept until the
+   maintainer accepts them; then the markup is removed. */
+.vp-doc span.clfix, .vp-doc div.clfix { color: #c0392b; }
+.dark .vp-doc span.clfix, .dark .vp-doc div.clfix { color: #ff8a7a; }
+.vp-doc span.clfix::before, .vp-doc div.clfix::before {
+  content: "Claude"; font-size: .68em; font-weight: 700; border: 1px solid currentColor; border-radius: 3px;
+  padding: 0 .25em; margin-right: .3em; vertical-align: .15em;
+}
+.vp-doc div.clfix { border-left: 3px solid currentColor; padding-left: .8em; }
+.vp-doc del.clfix { color: var(--vp-c-text-3); text-decoration-color: #c0392b; }
+.vp-doc div.clfix-old { color: var(--vp-c-text-3); text-decoration: line-through; text-decoration-color: #c0392b; border-left: 3px solid var(--vp-c-divider); padding-left: .8em; }
+
+/* Sidebar groups without a heading (GetStarted with AI and the license at the top; the main document, a link of its own,
+   which VitePress also puts into a group without a heading) have their items set like the group headings: bold, in the text
+   colour; the page being shown keeps the brand colour (2026-11-14). */
+#VPSidebarNav > .group > .VPSidebarItem.level-0:not(:has(> .item)) > .items > .VPSidebarItem.level-1 > .item .text { font-weight: 700; }
+#VPSidebarNav > .group > .VPSidebarItem.level-0:not(:has(> .item)) > .items > .VPSidebarItem.level-1:not(.is-active) > .item .text { color: var(--vp-c-text-1); }

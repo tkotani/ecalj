@@ -1,6 +1,6 @@
 # gwsc: a script to run QSGW calculation
 
-> English version of the page [manual/gwsc](../../manual/gwsc.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwsc.md of commit 034c2b739 (source blob da85c53e30e0).
+> English version of the page [manual/gwsc](../../manual/gwsc.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwsc.md of commit 034c2b739 (source blob ecf993d644ea).
 
 > ⚠️ `gwsc` reads `ctrlg.<sname>.toml` only, and stops when the file is missing. A directory with the legacy `ctrl.<sname>` + `GWinput` is converted by `Legacy2toml.py <sname>` (run once per directory). See [TOML migration](./toml_migration) and the [Samples/TestInstall/*_gwsc/](https://github.com/tkotani/ecalj/tree/main/Samples/TestInstall) directories as templates.
 
@@ -9,7 +9,7 @@ A QSGW calculation is run by calling several Fortran executables.
 The input is read from `ctrlg.<sname>.toml` (GW settings are in `[gw]`; the keys are explained in [gwinput](./gwinput.md)).
 
 ## Usage
-**Usage**: ` gwsc -np NP [-np2 NP2] [--gpu] [--prec=tf32|fp32|fp64] [--mp] [--fp32] nloop extension [Options]`
+**Usage**: <del class="clfix">` gwsc -np NP [-np2 NP2] [--gpu] [--prec=tf32|fp32|fp64] [--mp] [--fp32] nloop extension [Options]`</del><span class="clfix">` gwsc -np NP [-np2 NP2] [--gpu] [--prec=tf32|fp32|fp64] [--prec-final=<prec>[:N]] [--no-tetwt-helper] [--mp] [--fp32] [--mlo] [--dumpW] [--fullstdo] nloop extension [Options]`</span>
 
 ### `-np NP`
 Number of MPI processes.
@@ -45,6 +45,13 @@ amplified in $W$ / $\Sigma^c$. For the choice of precision see `--prec` above an
 Used with `--mp`; same meaning as `--prec=fp32` (the products of Σc also in FP32). The GW1500 batch of ecalj_auto (`gwscconv --gpu --mp --fp32 --conv-tol 0.1`)
 uses this by default. Reproductions of cases broken by TF32 are in [`Samples/mptf32problem/`](https://github.com/tkotani/ecalj/tree/main/Samples/mptf32problem).
 
+
+<div class="clfix">
+
+### `--mlo`
+QSGW in which the self-energy is interpolated in the MLO representation (MLO-QSGW, under development). `[bz] nkabc` and `[mlo] mlo_nkabc` must equal `[gw] n1n2n3` (it stops otherwise). See [MLO-gwsc](./mlo_gwsc).
+
+</div>
 
 ### `nloop`
 Number of QSGW iterations.
@@ -98,7 +105,7 @@ The first line (corresponding to 1st band of 1st q point) means that total norma
 
 ### `--ntqxx`
 This fix the number of bands to calculate self energy at the first iteration for each $\bf q$ point in the IBZ.
-In principle, the number is determined by
+In principle, the number is determined by<span class="clfix"> the energy window: at each $\bf q$ point and spin, the bands up to `emax_sigm` above the Fermi energy (and at most `nband_sigm` bands) are used, and this count is made again at every iteration. With `--ntqxx`, the counts of the first iteration are written to the file `NTQXX` and read in the later iterations, so that the number of bands of $\Sigma$ (`sigm`, `QPU`) stays fixed through the iterations. Delete `NTQXX` to count again.</span>
 
 ## Cautions
 * gwsc checks QPU.[number]run and recognizes that number QSGW iterations have finished.
@@ -125,7 +132,7 @@ is below `conv-tol` twice in a row (prevents stopping on a single accidental con
 Among the states with |e| < 5 eV in `eQP` (relative to E_F) of `QPU.<n>run` and `QPU.<n-1>run`, stop when the maximum change is
 below `--conv-qp <eV>` (default 0.03) for 2 iterations in a row. To stop where there is no gap as before (exit 3), use
 `--no-metal`. `--gpu --mp --fp32` given to it are passed on to `gwsc` as they are.
-The GW1500 batch of ecalj_auto also calls this script (`MD/auto.md`).
+The GW1500 batch of ecalj_auto also calls this script (<del class="clfix">`MD/auto.md`</del><span class="clfix">development record (MD/auto.md in the repository, not on this site)</span>).
 
 `qsgw_status` (2026-06): a progress dashboard of the running `gwsc` (or gwscconv)
 iterations. Use it in the run directory as follows:
@@ -140,7 +147,7 @@ and the sev difference of `save.<target>` and `rmsdel` of `lqpe` (σ convergence
 The target name, the log and the iteration anchors are detected automatically. To avoid disturbing the run, it only
 reads output files and does no heavy processing.
 
-`gw_lmfh`: The one-shot \GW calculation. Lifetime(impact ionization rate) of QPs.
+`gw_lmfh`: The one-shot <del class="clfix">\GW</del><span class="clfix">GW</span> calculation. Lifetime(impact ionization rate) of QPs.
 
 `job_eps`: dielectric function. No local field corrections ([optical](./optical))
  
@@ -292,7 +299,7 @@ radial functions.
 MTO index
 
 ### __VxcEvec*
- Coefficients of eigenfunctions and  eigenvalues for $\langle F_i|H^0|\psi F_j$ in the basis of PMT$\{F_i\}$.
+ Coefficients of eigenfunctions and  eigenvalues for <del class="clfix">$\langle F_i|H^0|\psi F_j$</del><span class="clfix">$\langle F_i|H^0|F_j\rangle$</span> in the basis of PMT$\{F_i\}$.
 
 ### __GEIG,__CPHI,__EValue
 __GEIG: Coefficients of eigenfunctions. IPW part
@@ -392,8 +399,8 @@ An example of one-shot GW by `gw_lmfh si` (small size calculation in TestInstall
   1.00000  0.00000  0.00000  7   -3.59  -2.37  -5.91 -13.53   1.20   1.66   9.81  11.01  11.47  17.37 0.72  -0.40499    -11.86796
   1.00000  0.00000  0.00000  8   -3.59  -2.37  -5.91 -13.53   1.20   1.66   9.81  11.01  11.47  17.37 0.72  -0.40499    -11.86796
 ```
-All of the unit of energy is in eV. Detailed value of  eLDA} is in {TOTE.UP}.
-For insulators, the Fermi energy is at the middle of band. For metals, one shot GW can be problematic
+All of the unit of energy is in eV. Detailed value of  <del class="clfix">eLDA} is in {TOTE.UP}</del><span class="clfix">`eLDA` is in `TOTE.UP`</span>.
+For insulators, the Fermi energy is at the middle of <del class="clfix">band</del><span class="clfix">the band gap (the energies are measured from it)</span>. For metals, one shot GW can be problematic
 if we consider the self-consistency of the Fermi energy.
 
 q  : q vector
@@ -404,7 +411,7 @@ SEx: $= \langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm valence}({\bf r},{\bf r}^{\pr
 
 SExcore: $= \langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm core}({\bf r},{\bf r}^{\prime})|\Psi_{{\bf k}n}\rangle$
 
-SEc: $= \langle\Psi_{{\bf k}n}|\Sigma_{\rm c}^{\rm valence}({\bf r},{\bf r}^{\prime}, \epsilon_n({\bf k})|\Psi_{{\bf k}n}\rangle$
+SEc: <del class="clfix">$= \langle\Psi_{{\bf k}n}|\Sigma_{\rm c}^{\rm valence}({\bf r},{\bf r}^{\prime}, \epsilon_n({\bf k})|\Psi_{{\bf k}n}\rangle$</del><span class="clfix">$= \langle\Psi_{\mathbf{k}n}|\Sigma_{\rm c}^{\rm valence}({\bf r},{\bf r}^{\prime}, \epsilon_n({\bf k}))|\Psi_{\mathbf{k}n}\rangle$</span>
 
 vxc: LDA exchange correlation energy.$\langle \Psi_{{\bf k}n}|V_{\rm xc}^{\rm LDA}([n_{\rm total}],{\bf r})|\Psi_{{\bf k}n}\rangle$
 
@@ -432,13 +439,13 @@ ReS(elda):${\rm Re} \langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm core}({\bf r},{\b
 numerical detailed values of QPU. TOTE.DN for QPD
 
 In one-shot GW `gw_lmfh`, TOTE.UP contains LDA and QP energies. 
-It contains two kind of QP energies {\tt QP QPnoZ}.
+It contains two kind of QP energies <del class="clfix">{\tt QP QPnoZ}</del><span class="clfix">`QP` and `QPnoZ`</span>.
 
 ### __mixsig
 mixing file for `sigm.<sname>`
 
 ### `sigm.<sname>`
-self-energy file in the expansion of eigenfunctions of $H^0$.
+<del class="clfix">self-energy file in the expansion of eigenfunctions of $H^0$.</del><span class="clfix">$\Sigma-V_{\rm xc}$ (the static Hermitian QSGW self-energy minus the LDA $V_{\rm xc}$, in Ry) as a matrix in the MTO basis at each irreducible $\bf q$ point, mixed with the previous iterations (`__mixsig`). `lmf` Bloch-sums it to real space and interpolates it to any $\bf k$ ([MLO-gwsc](./mlo_gwsc) §1.1).</span>
 
 
 # Product basis
@@ -557,4 +564,4 @@ The site index `iatom` follows the order of `[[site]]` in `ctrlg.<sname>.toml`;
 
 # MEMO
 * We need to explain how to set Gamma-cell averaged $\tilde{W}({\bf q}=0,\omega)$.
-* The old theory notes for developers, ecaljdetails (2015 to 2022, offset-Γ method, Coulomb matrix, EIBZ etc.), were removed on 2026-10-02. The points still valid are in ecalj's `MD/past_log.md` §14; the original is `ecaljdetails/ecaljdetails.tex` in ecaljdoc commit `3284d0b`.
+* The old theory notes for developers, ecaljdetails (2015 to 2022, offset-Γ method, Coulomb matrix, EIBZ etc.), were removed on 2026-10-02. The points still valid are in <del class="clfix">ecalj's `MD/past_log.md` §14</del><span class="clfix">the development record (MD/past_log.md §14 in the repository, not on this site)</span>; the original is `ecaljdetails/ecaljdetails.tex` in ecaljdoc commit `3284d0b`.

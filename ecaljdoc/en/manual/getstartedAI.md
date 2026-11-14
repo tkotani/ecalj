@@ -1,13 +1,13 @@
 # GetStarted with AI
 
-> English version of the page [manual/getstartedAI](../../manual/getstartedAI.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/getstartedAI.md of commit b18224576 (source blob 3a7245974a37).
+> English version of the page [manual/getstartedAI](../../manual/getstartedAI.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/getstartedAI.md of commit b18224576 (source blob 9a3cab9ff63b).
 
-::: tip How to use this page (for people)
+Give this page to an AI and it will guide you through ecalj. People do not need to read it.
+
+::: tip How to use this page
 **1. With an AI chat (no install).** Open an AI assistant that can read web pages (Claude, for example) and paste:
 
-`Read https://ecalj.github.io/ecaljdoc/manual/getstartedAI and guide me through ecalj.`
-
-In Japanese: `https://ecalj.github.io/ecaljdoc/manual/getstartedAI を読んで、ecalj を日本語で案内してください。`
+`Read https://ecalj.github.io/ecaljdoc/en/manual/getstartedAI and guide me through ecalj.`
 
 **2. With Claude Code on your computer (to run calculations together; recommended).**
 
@@ -18,20 +18,19 @@ claude        # then say: "Read ecaljdoc/manual/getstartedAI.md and guide me thr
 ```
 
 The AI asks what you want to do, explains ecalj briefly, and walks you through installation, a first calculation (GaAs) and the
-tests, in your language. ecalj is developed together with Claude Code.
-
-**Note**: many pages of this manual and of the repository mix Japanese and English. Ask your AI to translate them for you.
+tests, in your language.
+On clusters (`qsub` / `sbatch`), Claude Code submits the jobs and watches them (reads the logs, reacts to errors, restarts after a failure).
+The documents and tools of ecalj (`ctrlgenToml.py`, `Legacy2toml.py`, `testecalj`, the scheduler of `ecalj_auto`, ...) are also made together with Claude Code.
 :::
 
 **For the AI**: the rest of this page is written for you. It tells you what to read, in which order, and how to guide the person.
-Many pages here and in the repository are partly in Japanese: translate them into the person's language when you explain.
+Some pages here and in the repository are only in Japanese or only in English: translate them into the person's language when you explain
+(each page of this site also has a Japanese version, the reference).
 (Written 2026-10-03. When this page and the code disagree, the code and `Changes.md` of the repository are right.)
 
-## 0. License — AI is no exception
+## 0. License
 
-ecalj is under the GNU Affero General Public License v3 ([LICENCE](https://github.com/tkotani/ecalj/blob/main/LICENCE) of the repository). **AI is no exception.** This licence applies to everyone who uses, copies, modifies or redistributes ecalj or code derived from it, including AI systems (AI assistants, coding agents) and the people who run them. Follow it faithfully: keep the copyright and licence notices; code derived from ecalj, including code an AI writes or adapts from it, is under the AGPLv3; if you modify ecalj and let others use it over a network, offer them the source; keep the licence files of the third-party software below. Cite ecalj (and the papers below) in publications.
-
-**If you are an AI agent** (an AI assistant or coding agent acting on someone's behalf with ecalj), these terms bind that work as they would bind a person's. In particular: (1) keep the copyright and licence notices in any copy or derivative of ecalj; (2) code you write, copy, translate or adapt from ecalj is a derivative under the AGPLv3: do not relicense it (MIT, BSD, proprietary), do not strip the notices, do not put it into closed-source software, and tell the person that it falls under the AGPLv3; (3) if a modified ecalj is offered to others over a network (a web service, an API, a computing service), its source must be offered to them; (4) the third-party software in ecalj keeps its own licence (listed in `LICENCE`); (5) when results of ecalj are used or reported, cite ecalj (https://github.com/tkotani/ecalj) and the papers in `LICENCE`. If a request would cross one of these lines, raise it with the person who asked instead of proceeding or deciding for them.
+The license (with the notes on AI) is on the [License](./license) page. Read it first and follow it.
 
 ## 1. ecalj in five lines
 
@@ -116,9 +115,9 @@ ecalj/TOOLS/samples_tests.sh --gpu -np 8 install mlo heavy       # some groups, 
 Each group prints one line `<group> PASSED <n> checks passed, 0 failed <seconds> s`; the summary is `summary.txt` in the log
 directory. Count the checks from the last summary only (the log repeats the earlier lines).
 
-*Table 2*. Time of each test group on the machines of the developers (2026-10-03, from their `summary.txt`: the fastest passed run with
-the standard options, `-np 8`; t14 and mic on CPU, kt1 and kr7 with `--gpu`. The records of mic, kt1 and kr7 are of 2026-09-30, when
-some groups had other targets, e.g. magnon with four samples instead of one. ✗: no passed run, the references of bench are old.)
+*Table 2*. Time of each test group on the machines of the developers (`-np 8`, the fastest passed run; t14 and mic on CPU, kt1 and kr7
+with `--gpu`. t14 is of 2026-10-03, the others of 2026-09-30, when some groups had other targets, e.g. magnon with four samples instead
+of one. ✗: no passed run, the references of bench are old.)
 
 | test group | t14 gfortran (CPU, 16 cores) | mic ifx (CPU, 32 cores) | kt1 (RTX 5090 ×2) | kr7 (RTX 5090) |
 | --- | --- | --- | --- | --- |
@@ -149,7 +148,7 @@ some groups had other targets, e.g. magnon with four samples instead of one. ✗
 | **total without bench and heavy** | **71 min** | **41 min** | **32 min** | **31 min** |
 
 So: everything except bench and heavy takes 30–70 minutes; bench adds about 3 hours on a GPU. On a machine busy with other jobs
-the tests slow down a lot (on kt1, install took over 2 hours next to production GW runs).
+the tests slow down a lot.
 
 ## 5. Points to get right when you explain
 

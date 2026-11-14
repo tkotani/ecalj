@@ -1,6 +1,6 @@
 # How to use the GPU version of ecalj
 
-> English version of the page [manual/ecaljgpu](../../manual/ecaljgpu.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/ecaljgpu.md of the tree of c9f9a3003 (source blob 94f94ae94b99).
+> English version of the page [manual/ecaljgpu](../../manual/ecaljgpu.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/ecaljgpu.md of the tree of c9f9a3003 (source blob aad4186482d2).
 
 > ⚠️ The GPU version of `gwsc` also reads only `ctrlg.<sname>.toml`. Convert a legacy `ctrl.<sname>` / `GWinput` directory with `Legacy2toml.py <sname>` before running. See [TOML migration](./toml_migration).
 
@@ -11,6 +11,7 @@ ecalj can perform QSGW calculations on GPUs.
 > You must specify the number of parallel processes separately for the part run on the CPU and the part run on the GPU.
 
 * To use the GPU, the GPU version of ecalj must be compiled with the NVIDIA compiler.
+<span class="clfix">Requirements: an NVIDIA GPU and NVHPC (with cuBLAS and cuSOLVER). Compile with `python3 InstallAll.py --fc nvfortran --gpu` (the CPU version is built as well). Running the GPU calculation on one node is recommended; on several nodes, make sure that the MPI processes are distributed over the nodes correctly. (Moved from the old English section at the end.)</span>
 For installation, initial setup and GPU test calculations on Kugui, see [installISSP](../install/installISSP.md).
 
 ## Recommended settings on ISSP Kugui
@@ -20,6 +21,8 @@ For installation, initial setup and GPU test calculations on Kugui, see [install
 
 An example qsub file:
 
+<div class="clfix-old">
+
 ```bash job.sh
 #!/bin/sh
 #PBS -q i1accs
@@ -28,6 +31,23 @@ An example qsub file:
 ulimit -s unlimited
 gwsc -np 64 -np2 4 --gpu 2 inas2gasb2 > lgwsc
 ```
+
+</div>
+
+<div class="clfix">
+
+```bash job.sh
+#!/bin/sh
+#PBS -q i1accs
+#PBS -l select=1:ncpus=64:mpiprocs=64:ompthreads=1
+
+ulimit -s unlimited
+gwsc 2 -np 64 -np2 4 --gpu inas2gasb2 > lgwsc
+```
+
+`--gpu` takes no argument; the number `2` is the number of iterations (the first argument of `gwsc`).
+
+</div>
 
 `i1accs` is a test queue (maximum 30 minutes); use `F1accs` or similar for production runs.
 
@@ -83,7 +103,7 @@ lets small errors be magnified by $(1-v\chi_0)^{-1}$. For one `hgw` run of LiTi2
 
 One QSGW iteration (`gwsc`, LiTi2O4 6³, tf32, 2 GPUs, 60 CPU cores) takes about 212 s, 80% of which is `hgw`.
 
-Specifying only `--mp` is now also the same as `tf32`. Most of the tf32 error is a uniform shrinking of Σc (by a factor of −5×10⁻⁵ to −1×10⁻⁴ of Re Σc),
+Specifying only `--mp` is now also the same as `tf32`. Most of the tf32 error is a uniform shrinking of Σc (<del class="clfix">by a factor of −5×10⁻⁵ to −1×10⁻⁴ of Re Σc</del><span class="clfix">a relative change ΔΣ/Σ of Re Σc of −5×10⁻⁵ to −1×10⁻⁴</span>),
 which comes from the way tensor cores accumulate sums (truncation of intermediate sums). Input rounding is round-to-nearest, and this cannot be reduced further cheaply.
 The assumption is that tf32 is used for the intermediate iterations and the last iterations are run in fp32 with `--prec-final=fp32:N` (the error is not random but a uniform shrinking, so it should vanish in the final fp32 iterations.
 **As of 2026-09-28 this usage has not actually been run and checked**. For 6³, even 10 iterations with tf32 only gave bands agreeing with fp32 to rms 0.3 meV).
@@ -105,7 +125,7 @@ Writing e.g. `--prec-final=fp32:2` runs only the last 2 iterations of that run a
   and raises the precision of the Σc product from 3e-4 of TF32 to 1e-5 (correspondingly slower). In the Ozaki scheme one split changes the precision by about one digit
 - Example (RTX 5090 ×2, one `hgw` run of LiTi2O4): the table in fp32 is "single-precision complex products recast, double-precision products GEMMul8 14, inverse mixed1",
   and the `tf32` row (the Σc product) becomes the FP16 recast (`realhgemm`). For 6³, the former 833 s became 367 s with fp32 and 173 s with tf32 (evening of 2026-09-27);
-  for 9³, 5004 s became 2990 s with fp32 and 1975 s with tf32 (version of the morning of the same day, with the tetrahedron-weight helper). The difference from the double-precision calculation in Re Σc also drops from 2.4e-4 to 4.2e-5 eV
+  for 9³, 5004 s became 2990 s with fp32 and 1975 s with tf32 (version of the morning of the same day, with the tetrahedron-weight helper). <del class="clfix">The difference from the double-precision calculation in Re Σc also drops from 2.4e-4 to 4.2e-5 eV</del><span class="clfix">In one fp32 `hgw` run of 6³, the difference from the double-precision calculation (maximum of Re Σc over all states) also drops from 2.4e-4 eV with the version up to 09-26 (cuBLAS complex products) to 4.2e-5 eV with the recast products (`realsgemm`) (morning of 2026-09-27; within E_F ±1 eV it is the 0.02 meV of the table above)</span>
 - GEMMul8 is not used for small products (any dimension below 64, or m·n·k < 1e8) regardless of the table (the fixed cost of the splitting exceeds the product)
 
 ### Running several jobs on the same machine
@@ -147,32 +167,52 @@ if which nvidia-cuda-mps-control > /dev/null 2>&1 ; then
 fi
 ```
 
+<div class="clfix">
+
+The old English section at the end ("Using the GPU Version") repeats the text above and is removed. What was not in the text above (requirements, the compile command, the advice to use one node) has been moved to the beginning. The note that GPU runs use 2 GB when `zmel_batch_gb` is not set (or is below 2) is left to the description in [gwinput](../manual/gwinput.md).
+
+</div>
+
+<div class="clfix-old">
+
 --------------
 
-# Using the GPU Version
+**Using the GPU Version**
 
 The GPU can be utilized in QSGW calculations:
 - The GPU is used for the calculation of self-energy and screened Coulomb interaction.
 - `lmf` is executed on the CPU.
 
-## Requirements:
+**Requirements:**
 1. NVIDIA GPU
 2. Compiler: NVHPC with GPU-accelerated libraries: cuBLAS, cuSolver
 
-## Compilation
+**Compilation**
 ```bash
 python3 InstallAll.py --fc nvfortran --gpu
 ```
 
-## Execution
+**Execution**
 - The GPU version can be used by specifying the `--gpu` option with `gwsc`.
 - The number of MPI processes for the GPU code can be specified with `-np2`. This should typically match the number of GPUs available.
 Example:
+<div class="clfix-old">
+
 ```
 gwsc -np 64 -np2 4 --gpu 1 $id > lgwsc
 ```
 
-## Tips
+</div>
+
+<div class="clfix">
+
+```
+gwsc 1 -np 64 -np2 4 --gpu $id > lgwsc
+```
+
+</div>
+
+**Tips**
 
 1. The GPU version uses fewer MPI processes compared to the CPU version, so the available memory per MPI process is larger
    This allows for larger batch sizes in the calculation, potentially improving computation speed.
@@ -191,6 +231,8 @@ gwsc -np 64 -np2 4 --gpu 1 $id > lgwsc
    KeepEigen = false
    ```
 
-## Notes
+**Notes**
 - It is recommended to run GPU calculations on a single node.
 - When using multiple nodes, ensure that MPI processes are correctly distributed across nodes.
+
+</div>

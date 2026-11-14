@@ -45,17 +45,38 @@ $$
 
 ### 密度応答の場合
 密度応答関数は、時間反転対称性がある。
+
+<div class="clfix-old">
+
 $$ \begin{align}
 iD(𝒓_1t_1, 𝒓_2t_2) &= \braket{T[\hat {𝛿𝜌}(𝒓_1,t_1)\hat {𝛿𝜌}(𝒓_2,t_2)]} = G(𝒓_1t_1,𝒓_2t_2)G(𝒓_2t_2,𝒓_1t_1) \\
 iD^\mathrm{R}(𝒓_1t_1, 𝒓_2t_2) &= \braket{[\hat {𝛿𝜌}(𝒓_1,t_1),\hat {𝛿𝜌}(𝒓_2,t_2)]} 𝜃(t_1-t_2) \\
 iD^\mathrm{A}(𝒓_1t_1, 𝒓_2t_2) &= \braket{[\hat {𝛿𝜌}(𝒓_1,t_1),\hat {𝛿𝜌}(𝒓_2,t_2)]} 𝜃(t_2-t_1)
 \end{align} $$
+
+</div>
+
+<div class="clfix">
+
+$$ \begin{align}
+iD(𝒓_1t_1, 𝒓_2t_2) &= \braket{T[\hat {𝛿𝜌}(𝒓_1,t_1)\hat {𝛿𝜌}(𝒓_2,t_2)]} = G(𝒓_1t_1,𝒓_2t_2)G(𝒓_2t_2,𝒓_1t_1) \\
+iD^\mathrm{R}(𝒓_1t_1, 𝒓_2t_2) &= \braket{[\hat {𝛿𝜌}(𝒓_1,t_1),\hat {𝛿𝜌}(𝒓_2,t_2)]} 𝜃(t_1-t_2) \\
+iD^\mathrm{A}(𝒓_1t_1, 𝒓_2t_2) &= -\braket{[\hat {𝛿𝜌}(𝒓_1,t_1),\hat {𝛿𝜌}(𝒓_2,t_2)]} 𝜃(t_2-t_1)
+\end{align} $$
+
+先進関数には $G^\mathrm{A}$ と同じく負号が付く．
+
+</div>
+
 > [!INFO]
 > フェッター ワレッカの章末問題
 >  $\Re D(ω) = \Re D^\mathrm{R}(ω)$ と $\Im D(ω) \mathrm{sgn}(ω) = \Im D^\mathrm{R}(ω)$
 
 
 ### $GW$自己エネルギーの場合
+
+<div class="clfix-old">
+
 $$ \begin{align}
 𝛴(𝒓_1t_1, 𝒓_2t_2) &=iG(𝒓_1t_1, 𝒓_2t_2)W(𝒓_1t_1, 𝒓_2t_2) \\
                   &= iG_\mathrm{elec}(𝒓_1t_1, 𝒓_2t_2)W(𝒓_1t_1, 𝒓_2t_2) 𝜃(t_1-t_2)
@@ -66,15 +87,51 @@ $$ \begin{align}
 𝛴^\mathrm{R}_{nn}(𝜔) &= 𝛴_\mathrm{ele}^{nn}(𝜔)+𝛴_\mathrm{hole}^{nn}(𝜔) \\
 \end{align} $$
 
+</div>
+
+<div class="clfix">
+
+$$ \begin{align}
+𝛴(𝒓_1t_1, 𝒓_2t_2) &=iG(𝒓_1t_1, 𝒓_2t_2)W(𝒓_1t_1, 𝒓_2t_2) \\
+                  &= iG_\mathrm{ele}(𝒓_1t_1, 𝒓_2t_2)W(𝒓_1t_1, 𝒓_2t_2)
+                   + iG_\mathrm{hole}(𝒓_1t_1, 𝒓_2t_2)W(𝒓_1t_1, 𝒓_2t_2)
+\end{align} $$
+$$ \begin{align}
+𝛴_{nn}(𝜔) &= (G_\mathrm{ele}W)(𝜔)_{nn} + (G_\mathrm{hole}W)(𝜔)_{nn} = 𝛴_\mathrm{ele}^{nn}(𝜔)+𝛴_\mathrm{hole}^{nn}(𝜔) \\
+𝛴^\mathrm{R}_{nn}(𝜔) &= 𝛴_\mathrm{ele}^{nn}(𝜔)+(𝛴_\mathrm{hole}^{†})^{nn}(𝜔) \\
+\end{align} $$
+
+$G_\mathrm{ele}$ はすでに $𝜃(t_1-t_2)$ を, $G_\mathrm{hole}$ は $𝜃(t_2-t_1)$ を含むので, $𝛴_\mathrm{ele}=iG_\mathrm{ele}W$ は $t_1>t_2$ だけ, $𝛴_\mathrm{hole}=iG_\mathrm{hole}W$ は $t_1\lt t_2$ だけに値を持つ（$𝛴_\mathrm{ele}(𝜔)$ の極は下半面, $𝛴_\mathrm{hole}(𝜔)$ の極は上半面）．$G^\mathrm{R}$ と同じく正孔の部分を $†$ にしたものが遅延自己エネルギーで, 絶対零度で $𝜔$ をフェルミ準位から測ると $\Re𝛴^\mathrm{R}_{nn}(𝜔)=\Re𝛴_{nn}(𝜔)$, $\Im𝛴^\mathrm{R}_{nn}(𝜔)=\Im𝛴_{nn}(𝜔)\,\mathrm{sgn}(𝜔)$ である（もとの式は $𝛴^\mathrm{R}=𝛴$ となっていた）．
+
+</div>
+
 ## ヒルベルト変換
 
 ### 数値計算
 主値積分があるが、基本は通常の数値積分方を使う。ただし発散点を数値的に扱わないようにする。
 データ点は$ω_{C_i}$にあるとして, 近接のデータ点までの中間地点を $ω_{L_i}$と$ω_{R_i}$とする。
 - 第ゼロ近似
+
+<div class="clfix-old">
+
 $$ \begin{align}
 F(ω) &= 𝒫 \int_{-∞}^{∞} dω' \frac{f(ω')}{ω' -ω} = \sum_{i} 𝒫 \int_{ω_{R_i}}^{ω_{L_i}} dω' \frac{f(ω')}{ ω' -ω} \\
 & \simeq \sum_{i} f(ω_{C_i})𝒫 \int_{ω_{R_i}}^{ω_{L_i}} dω' \frac{1}{ω'-ω}
 = \sum_{i} f(ω_{C_i}) \log{\frac{|ω_{L_i} -ω|} {| ω_{R_i}-ω|}}
 \end{align} $$
+
+</div>
+
+<div class="clfix">
+
+$$ \begin{align}
+F(ω) &= 𝒫 \int_{-∞}^{∞} dω' \frac{f(ω')}{ω' -ω} = \sum_{i} 𝒫 \int_{ω_{L_i}}^{ω_{R_i}} dω' \frac{f(ω')}{ ω' -ω} \\
+& \simeq \sum_{i} f(ω_{C_i})𝒫 \int_{ω_{L_i}}^{ω_{R_i}} dω' \frac{1}{ω'-ω}
+= \sum_{i} f(ω_{C_i}) \log{\frac{|ω_{R_i} -ω|} {| ω_{L_i}-ω|}}
+\end{align} $$
+
+ここで $ω_{L_i}\lt ω_{C_i}\lt ω_{R_i}$（$ω_{L_i}$ が左, $ω_{R_i}$ が右の中間点）．もとの式は積分の上下端が逆で, 全体の符号が逆になっていた．
+
+</div>
+
  通常は虚部(実部)と同じメッシュ点に対して実部(虚部)を計算する。

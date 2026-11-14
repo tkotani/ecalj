@@ -1,6 +1,6 @@
 # What's new (summary)
 
-> English version of the page [manual/whatsnew](../../manual/whatsnew.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/whatsnew.md of commit 0b4c05734 (source blob 48bb726b92ee).
+> English version of the page [manual/whatsnew](../../manual/whatsnew.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/whatsnew.md of commit 0b4c05734 (source blob f4e9c15075f6).
 
 A summary of new features of ecalj and of fixes that change results. Newest first. The detailed record (all changes) is ecalj's
 [Changes.md](https://github.com/tkotani/ecalj/blob/main/Changes.md). Each item is explained on the linked page.
@@ -58,7 +58,7 @@ A summary of new features of ecalj and of fixes that change results. Newest firs
 
 ## 2026-10-01
 
-- **Defaults of the MLO model were organized** (criteria 1, 2, 3). Semicore local orbitals are selected automatically from the band positions (no input key). gwinit writes f for 4f atoms and
+- **Defaults of the MLO model were organized** (criteria 1, 2, 3<span class="clfix">: criterion 1 is the EH plus the automatic local orbitals, criterion 2 adds EH2 on the s,p of the cations, criterion 3 adds empty spheres in the voids; [MLO](./mlo.md) §9 Table M3</span>). Semicore local orbitals are selected automatically from the band positions (no input key). gwinit writes f for 4f atoms and
   `mlo_lm2` with `!` (removing it gives criterion 2, which fits MgTe, ZnTe, CdTe, AlN etc. with large voids) → [MLO](./mlo.md) §1, §9
 - **Model check** `mlo_bandcheck.py` (run at the end by `job_mlo` and `job_mlo_soc`, prints CHECK PASS/FAIL) → [MLO](./mlo.md) §9
 - `job_mlo_soc` also plots the DFT bands with spin-orbit for comparison → [MLO](./mlo.md) §4
@@ -75,7 +75,7 @@ A summary of new features of ecalj and of fixes that change results. Newest firs
 - `gwscconv`: for metals and semimetals, convergence is judged by the change of eigenvalues → [gwsc](./gwsc.md)
 - Samples were reorganized (SOC magnetic anisotropy, LDA+U, effective mass, structural relaxation, DOS, IIR, molecule in a box, electron-temperature scan, etc.) → [Samples](./samples.md)
 
-## Before 2026-09 (major topics)
+## Up to 2026-09 (major topics)
 
 | Period | Topic | Explanation |
 | --- | --- | --- |

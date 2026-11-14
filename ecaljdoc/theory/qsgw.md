@@ -1,5 +1,25 @@
 # quasi-particle self-consistent $GW$
 
+> **Main reference.** [1] M. Obata, T. Kotani, T. Oda, "Efficient implementation of the quasiparticle self-consistent $GW$ method on GPU",
+> Comput. Mater. Sci. **260**, 114190 (2025), [doi:10.1016/j.commatsci.2025.114190](https://doi.org/10.1016/j.commatsci.2025.114190) (open access).
+> Its section 2 is the latest compact account of the QSGW formalism and algorithm in ecalj (the flowchart below is its Fig. 1;
+> the program names there are of that time: now `hgw` computes $\Sigma^{\rm x}$, $W$ and $\Sigma^{\rm c}$ in one run, and `hsfp0_sc` computes $\Sigma^{\rm Cx}$).
+
+> **Changes since [1].** The present code follows [1], with these changes (details and dates in `Changes.md` of the repository):
+> - **Smearing of Σ** (2026-09): the Gaussian smearing (`esmr`) is replaced by a Fermi-Dirac kernel of width `t_sigmaw` (K, default 1000 K)
+>   in $\Sigma^{\rm x}$, in the real-axis pole part $R^{\rm c}$ and in the imaginary-axis part $I^{\rm c}$; an old `esmr` is read as the `t_sigmaw` of the same width.
+>   With `wcsmear = true` (default) the pole part integrates $W^{\rm c}$ over this kernel instead of evaluating it at one energy (3-point interpolation of [1]).
+>   See [kBT](../manual/kBT).
+> - **Smearing of χ0** (2026-06 to 09): chosen by the required key `[gw] t_tetrakbt`: 0 = the tetrahedron method of [1] (T = 0), T > 0 = the tetrahedron
+>   method at finite temperature, −T = Im χ0 smeared with the Fermi-Dirac width.
+> - **Programs**: $W$ and $\Sigma^{\rm x}$, $\Sigma^{\rm c}$ are computed in one run of `hgw` (W kept in memory, not in files); `hsfp0_sc` computes $\Sigma^{\rm Cx}$.
+> - **GPU precision** (2026-06 to 09): `gwsc --prec=tf32|fp32|fp64`. The all-TF32 mode `--mp` of [1] could break $W$ (ill-conditioned dielectric matrix);
+>   `--mp` now means `--prec=tf32`, where only the last product of $\Sigma^{\rm c}$ is in reduced precision. GPUs can be shared by several ranks (`-np2`). See [GPU version](../manual/ecaljgpu).
+> - **Interpolation of $\tilde\Sigma$** (2026-09, in development): `gwsc --mlo` holds $\tilde\Sigma$ in the MLO representation instead of interpolating $\Delta V^{\rm xc}$ in MTOs. See [MLO-gwsc](../manual/mlo_gwsc).
+> - **Bug fixes that changed GW results** (2026-06 to 09): the pole-term binning of $\Sigma^{\rm c}$, the Fermi level of $\Sigma^{\rm Cx}$ at finite temperature,
+>   QSGW with antiferromagnetic symmetry (`symgrpaf`), and the LDA+U starting point (`idu`).
+> - **Input** (2026-05): all settings, including the product basis, are in `ctrlg.<sname>.toml`; see [TOML migration](../manual/toml_migration).
+
 The quasi-particle self-consistent $GW$ (QSGW) method is an advanced computational technique used in condensed matter physics and materials science to calculate the electronic properties of materials.
 It improves upon the standard $GW$ approximation by iteratively updating the one-particle (quasi-particle) Hamiltonian $H^0$.
 This method provides more accurate quasi-particle energies and electronic band structures compared to traditional density functional theory (DFT) calculations.

@@ -1,49 +1,49 @@
 # TOML migration (2026-05)
 
-> English version of the page [manual/toml_migration](../../manual/toml_migration.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/toml_migration.md of commit 034c2b739 (source blob 78ff85a458e9).
+> English version of the page [manual/toml_migration](../../manual/toml_migration.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/toml_migration.md of commit 034c2b739 (source blob 3c4d8e4e98cd).
 
 > 🤖 **Auto-edited by Claude — verify before relying on details.**
 > This page and the TOML-migration banners across ecaljdoc are written
 > with Claude Code and checked against the programs. Flag anything that
 > reads off and either fix it directly or open an issue.
 
-The Fortran binaries (`lmf`, `lmfa`, `lmchk`, `hsfp0`, `hgw`, `hx0fp0`,
-`mlo`, ...) read **structured TOML only**, and so do the scripts that run
-them (`gwsc`, `gw_lmfh`, `job_eps`, `job_band`, ...). Legacy `ctrl.<sname>`
-and `GWinput` text files are not
-parsed by Fortran — they are kept around as developer references but
-must be converted before any binary is invoked.
+ecalj consists of the one-body part (the DFT part) and the GW part. The TOML file is the input file that controls all of these calculations.
 
-## The one TOML file
+The present ecalj reads only the TOML file (`ctrlg.<sname>.toml`) as its basic input file; that is, every calculation starts from this TOML alone.
+The old format (before 2026-05) needed `ctrl.<sname>` and `GWinput`. For backward compatibility the converter
+`Legacy2toml.py`, which turns them into TOML, is kept. To reproduce a past calculation, convert the input to TOML
+first ([below](#migration-of-an-existing-legacy-directory)).
+
+## The basic input file is one TOML file {#the-one-toml-file}
 
 | file | role |
 |---|---|
-| `ctrlg.<sname>.toml` | ctrl + GW driver sections (`[gw]` `[mlo]` `[blocks]`) + `[product_basis]` last, with the cut-offs and the per-atom tables (`nlx`, `valence`, `core`) |
+| `ctrlg.<sname>.toml` | The basic input file of ecalj. Every calculation starts from this file. It consists of sections such as `[struc]`, `[[site]]`, `[[spec]]`, `[bz]`, `[iter]`, `[ham]`, `[gw]`, `[mlo]`, `[blocks]`, `[product_basis]` (and also `[options]`, `[str]`, `[ewald]`, `[esm]`, `[dyn]`, etc.) |
 
-> **The per-atom tables are for the GW path only — normally no hand editing.**
-> They feed the mixed-product-basis generator (`hbasfp0` / `hvccfp0`
-> etc.) used by `gwsc`, the eps tools and `mlo`'s W-side, and are written
-> by `gwinit` (through `ctrlgenToml.py` or `Legacy2toml.py`); leave them
-> as generated. Until 2026-09 they were a separate `PB.<sname>.toml`; such
-> a file is not read any more — the binaries abort and point at
-> `ctrlg_absorb.py <sname>`, which moves the tables into `ctrlg`.
->
-> If you have a pure DFT / no-GW workflow (just `lmf` / `lmfa` /
-> band plots) and don't want the GW sections at all, pass
-> **`--skipgw`** to `ctrlgenToml.py` — that skips the
-> `lmfa → lmf --jobgw=0 → gwinit` sub-step, omits
-> `[gw]` / `[mlo]` / `[blocks]` / `[product_basis]` from the output.
->
-> **Adding GW sections later (preserving your hand-edits):** use
-> `ctrlgenToml.py <sname> --addgw`. This appends `[gw]` /
-> `[mlo]` / `[blocks]` / `[product_basis]` **without
-> regenerating the ctrl-side keys** — your edits to `[bz]`, `[ham]`,
-> `[[spec]]` etc. are preserved as is. It refuses to run if `[gw]`
-> is already present (to avoid silent duplication). Do **not** plain
-> re-run `ctrlgenToml.py <sname>` for this purpose: the default flow
-> overwrites the whole `ctrlg.<sname>.toml` from `ctrls.<sname>` (the
-> previous file is moved to `ctrlg.<sname>.toml.bakup`, one-generation
-> backup only).
+The basic input is one TOML file (called ctrlg below). The usual way is to generate ctrlg automatically from the crystal structure (`ctrlgenToml.py`) and edit it;
+or options are given when it is generated.
+
+**The per-atom tables at the end**
+
+- They are used in GW calculations; normally they are not edited by hand.
+- They feed the mixed-product-basis generator (`hbasfp0` / `hvccfp0` etc.) used by `gwsc`, the eps tools and `mlo`'s W side.
+- They are written by `gwinit` (through `ctrlgenToml.py` or `Legacy2toml.py`); leave them as generated.
+- Until 2026-09 they were a separate `PB.<sname>.toml`. Such a file is not read any more:
+  the binaries abort and point at `ctrlg_absorb.py <sname>`, which moves the tables into `ctrlg`.
+
+**When the GW sections are not needed (`--skipgw`)**
+
+- For a pure DFT workflow (just `lmf` / `lmfa` / band plots), pass `--skipgw` to `ctrlgenToml.py`.
+- It skips the `lmfa → lmf --jobgw=0 → gwinit` sub-step and omits `[gw]` / `[mlo]` / `[blocks]` / `[product_basis]` from the output.
+
+**Adding the GW sections later (`--addgw`, keeping your hand edits)**
+
+- Use `ctrlgenToml.py <sname> --addgw`.
+- It appends `[gw]` / `[mlo]` / `[blocks]` / `[product_basis]` without regenerating the ctrl-side keys;
+  your edits to `[bz]`, `[ham]`, `[[spec]]` etc. are kept as they are.
+- It refuses to run if `[gw]` is already present (to avoid silent duplication).
+- Do **not** simply re-run `ctrlgenToml.py <sname>` for this purpose: the default flow overwrites the whole
+  `ctrlg.<sname>.toml` from `ctrls.<sname>` (the previous file is moved to `ctrlg.<sname>.toml.bakup`, a one-generation backup only).
 
 `<sname>` is the user-defined material extension (e.g. `si`, `cu`, `gaas`,
 `fe`, ...). One working directory normally has exactly one

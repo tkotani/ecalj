@@ -1,6 +1,6 @@
 # Dielectric function: job_eps
 
-> English version of the page [manual/optical](../../manual/optical.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/optical.md of commit 85cdee981 (source blob d45d8ee7057e).
+> English version of the page [manual/optical](../../manual/optical.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/optical.md of commit 85cdee981 (source blob 8613b4aaa71b).
 
 > ⚠️ **Tool consolidation (2026-06)** — The dielectric-function driver is now **`job_eps`** (with `--lcf` for local-field correction, `--decompose` for interband / intraband split). The legacy `epsPP0` / `eps_lmfh` / `epsPP_lmfh` / `epsPP_lmfh_intra` wrappers have moved to `SRC/exec_legacy/` and are no longer installed to `~/bin`.
 >
@@ -35,11 +35,27 @@ Follow `test.py` in these directories (`testecalj EPS_Cu -np 4` in `ecalj/Sample
 We explain the steps in `test.py` in the following steps.
 
 You can start from `ctrlg.<sname>.toml` (or, for legacy directories, `ctrl.<sname>` + `GWinput` after running `Legacy2toml.py <sname>`). After `job_eps cu -np 4 --decompose`,
+<div class="clfix-old">
+
 ```
 gnuplot -p epsinter.glt 
 gnuplot -p epsintra.glt 
 gnuplot -p epsall.glt 
 ```
+
+</div>
+
+<div class="clfix">
+
+```
+gnuplot -p eps_interbandonly_cu.glt
+gnuplot -p eps_intrabandonly_cu.glt
+gnuplot -p eps_total_cu.glt
+```
+(`epsinter.glt`, `epsintra.glt`, `epsall.glt` were the names written by the old `epsPP0`.)
+
+</div>
+
 Note that we usually need many k points if you like to have 0.1 level of error for 
 dielectric constants (at the limit of ${\bf q}=\omega =0$)
 (e.g, reasonable results for GaAs may require `[gw].n1n2n3 = [20, 20, 20]` in `ctrlg.<sname>.toml`.)
@@ -72,7 +88,7 @@ The settings are written in the `[gw]` section of `ctrlg.<sname>.toml`.
     """
     ```
     * This part sets the **q** vectors at which the dielectric function is calculated.
-    By changing these values, the dependence of the dielectric function on the direction of **q** can be studied.
+    By changing these values, the dependence of the dielectric function on <del class="clfix">the direction of **q**</del><span class="clfix">**q** (magnitude and direction)</span> can be studied. <span class="clfix">Usually several small **q** along one direction are given and the limit **q**→0 is taken (several **q** are also needed to separate the intraband and interband parts).</span>
 
     * Since `QforEPSau = true` is given, the unit is a.u. That is, 0 0 0.001 means
     ${\bf q}$ = (0,0,0.001) bohr^{-1}
@@ -81,7 +97,7 @@ The settings are written in the `[gw]` section of `ctrlg.<sname>.toml`.
 
 
     For optical response we want **q**=**0**, but this is numerically unstable in the present code.
-    So take it suitably small. This instability appears slightly below 100 eV in the figure from gnuplot -p epsinter.glt in ecalj/Samples/EPS/EPS_GaAs. So, for example, for EPS_GaAs, 0,0,0.00050 (corresponding to EPS0001) becomes somewhat large and is not good. See the gnuplot file epsinter.glt.
+    So take it suitably small. <del class="clfix">This instability appears slightly below 100 eV in the figure from gnuplot -p epsinter.glt in ecalj/Samples/EPS/EPS_GaAs. So, for example, for EPS_GaAs, 0,0,0.00050 (corresponding to EPS0001) becomes somewhat large and is not good. See the gnuplot file epsinter.glt.</del><span class="clfix">In ecalj/Samples/EPS/EPS_GaAs, `gnuplot -p eps_interbandonly_gaas.glt` shows that at q = 0.0005 a.u. (`0 0 0.00050`, EPS0001) q is too small: the imaginary part between 20 and 110 eV (up to just below 100 eV) deviates upward from EPS0002 and EPS0003 (e.g. Im ε = 0.077 at 98 eV, against 0.029 and 0.018). In this example use EPS0002 (0.001 a.u.) and later.</span>
 <!-- ![alt text](../../manual/image.png) -->
 <!-- Also, when the intraband and interband transitions are calculated separately as described below, two or more coordinates must be written. -->
 
@@ -108,7 +124,7 @@ and so on, as appropriate ([gwinput](./gwinput)).
 This means that q of `QforEPS` is measured in a.u.
 For example, if `QforEPS` has `0 0 0.00005`, read it as
 q=(0 0 0.00005)/bohr.
-To check, multiply the first three numbers of the EPS file by 2pi/alat
+<span class="clfix">The EPS files write q (the first three columns) in units of 2π/alat.</span> To check, multiply the first three numbers of the EPS file by 2pi/alat
 and see that it becomes the q written in `QforEPS`.
 
 * The former --zmel0 option was abolished on 2025-5-8.
@@ -136,15 +152,27 @@ then the graph for 0 0 0.00005 is strange.
 The other graphs almost coincide. However, at about 0.0032 the real part at omega=0 starts to deviate somewhat.
 
 * For Cu (Samples/EPS/EPS_Cu) there is also the Fermi-surface contribution;
-```
-gnuplot -p epsintra.glt
-```
+<del class="clfix">`gnuplot -p epsintra.glt`</del><span class="clfix">`gnuplot -p eps_intrabandonly_cu.glt`</span>
 shows the Fermi-surface contribution. This is Drude weight, seen resolved in q.
 The behavior near omega=0 is as described in Fetter-Walecka.
+<div class="clfix-old">
+
 ```
 gnuplot -p epsintra.glt
 gnuplot -p epsall.glt
 ```
+
+</div>
+
+<div class="clfix">
+
+```
+gnuplot -p eps_intrabandonly_cu.glt
+gnuplot -p eps_total_cu.glt
+```
+
+</div>
+
 
 
 * When the `job_eps` (legacy `epsPP0`) calculation finishes, files `EPS000*.nlfc.dat` are created, as many as the q points set by `QforEPS` in `[gw]`. They contain
@@ -158,6 +186,7 @@ gnuplot -p epsall.glt
   0.01000000  0.00000000  0.00000000    0.5200E-04  0.276450859807482E+02  0.197440420455938E+00    0.361709489903162E-01 -0.258331892398948E-03
   0.01000000  0.00000000  0.00000000    0.7389E-04  0.276274571460234E+02  0.249411594405801E+00    0.361929258459201E-01 -0.326737828014011E-03
 ```
+<span class="clfix">(This example is from an old run at q = (0.01, 0, 0) in units of 2π/alat, not from the `QforEPS` example above; the present header is `# qp(1:3) ...`.)</span>
 columns 1-3: q-point coordinates; column 4: energy (Ry); columns 5, 6: real and imaginary parts of the dielectric function; columns 7, 8: real and imaginary parts of the inverse dielectric function.
 
 
@@ -167,13 +196,13 @@ columns 1-3: q-point coordinates; column 4: energy (Ry); columns 5, 6: real and 
 Test at 2016: we need to have correct edge $\propto \sqrt{\omega-E_0}$. To do so, we need to move to new method as documented in the slide deck:
 [abosorb_preport_tkotani2016Jul5.pdf](../../data/abosorb_preport_tkotani2016Jul5.pptx.pdf).
 
-**(Improvement plan) The interband contribution at q=0 should be obtainable more directly, since with the `<u|u>` matrix the division by 1/q^2 can be done beforehand.
+**(Improvement plan) The interband contribution at q=0 should be obtainable more directly, since with the `<u|u>` matrix the division by q² (the 1/q² factor) can be done beforehand.
 
 ** (To be fixed) Local-field correction
 Local-field correction with `job_eps --lcf` (legacy name: `eps_lmfh`).
 To include eps with LFC, do `job_eps --lcf <sname>`. Expensive.
 lcutmx=2 seems to be good enough to get 0.5 percent error (maybe better than this).
-Further we can use smaller QpGcut_cou like 2.2 or so, with rather smaller product basis (up to p timed d, not including f).
+Further we can use smaller QpGcut_cou like 2.2 or so, with rather smaller product basis (up to <del class="clfix">p timed d</del><span class="clfix">p×d products</span>, not including f).
 But we need checks and may be modification of `job_eps --lcf`.
 
 ** Spin fluctuations should be calculated via a model

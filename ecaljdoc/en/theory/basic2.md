@@ -1,6 +1,6 @@
 # Basics 2
 
-> English version of the page [theory/basic2](../../theory/basic2.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/basic2.md of the tree of c9f9a3003 (source blob e86d73963d75).
+> English version of the page [theory/basic2](../../theory/basic2.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/basic2.md of the tree of c9f9a3003 (source blob 7acfc351d7c0).
 
 `Under construction`
 
@@ -47,17 +47,38 @@ $$
 
 ### Density response
 The density response function has time-reversal symmetry.
+
+<div class="clfix-old">
+
 $$ \begin{align}
 iD(𝒓_1t_1, 𝒓_2t_2) &= \braket{T[\hat {𝛿𝜌}(𝒓_1,t_1)\hat {𝛿𝜌}(𝒓_2,t_2)]} = G(𝒓_1t_1,𝒓_2t_2)G(𝒓_2t_2,𝒓_1t_1) \\
 iD^\mathrm{R}(𝒓_1t_1, 𝒓_2t_2) &= \braket{[\hat {𝛿𝜌}(𝒓_1,t_1),\hat {𝛿𝜌}(𝒓_2,t_2)]} 𝜃(t_1-t_2) \\
 iD^\mathrm{A}(𝒓_1t_1, 𝒓_2t_2) &= \braket{[\hat {𝛿𝜌}(𝒓_1,t_1),\hat {𝛿𝜌}(𝒓_2,t_2)]} 𝜃(t_2-t_1)
 \end{align} $$
+
+</div>
+
+<div class="clfix">
+
+$$ \begin{align}
+iD(𝒓_1t_1, 𝒓_2t_2) &= \braket{T[\hat {𝛿𝜌}(𝒓_1,t_1)\hat {𝛿𝜌}(𝒓_2,t_2)]} = G(𝒓_1t_1,𝒓_2t_2)G(𝒓_2t_2,𝒓_1t_1) \\
+iD^\mathrm{R}(𝒓_1t_1, 𝒓_2t_2) &= \braket{[\hat {𝛿𝜌}(𝒓_1,t_1),\hat {𝛿𝜌}(𝒓_2,t_2)]} 𝜃(t_1-t_2) \\
+iD^\mathrm{A}(𝒓_1t_1, 𝒓_2t_2) &= -\braket{[\hat {𝛿𝜌}(𝒓_1,t_1),\hat {𝛿𝜌}(𝒓_2,t_2)]} 𝜃(t_2-t_1)
+\end{align} $$
+
+The advanced function has a minus sign, as $G^\mathrm{A}$ does.
+
+</div>
+
 > [!INFO]
 > A problem at the end of a chapter of Fetter and Walecka:
 >  $\Re D(ω) = \Re D^\mathrm{R}(ω)$ and $\Im D(ω) \mathrm{sgn}(ω) = \Im D^\mathrm{R}(ω)$
 
 
 ### $GW$ self-energy
+
+<div class="clfix-old">
+
 $$ \begin{align}
 𝛴(𝒓_1t_1, 𝒓_2t_2) &=iG(𝒓_1t_1, 𝒓_2t_2)W(𝒓_1t_1, 𝒓_2t_2) \\
                   &= iG_\mathrm{elec}(𝒓_1t_1, 𝒓_2t_2)W(𝒓_1t_1, 𝒓_2t_2) 𝜃(t_1-t_2)
@@ -68,15 +89,51 @@ $$ \begin{align}
 𝛴^\mathrm{R}_{nn}(𝜔) &= 𝛴_\mathrm{ele}^{nn}(𝜔)+𝛴_\mathrm{hole}^{nn}(𝜔) \\
 \end{align} $$
 
+</div>
+
+<div class="clfix">
+
+$$ \begin{align}
+𝛴(𝒓_1t_1, 𝒓_2t_2) &=iG(𝒓_1t_1, 𝒓_2t_2)W(𝒓_1t_1, 𝒓_2t_2) \\
+                  &= iG_\mathrm{ele}(𝒓_1t_1, 𝒓_2t_2)W(𝒓_1t_1, 𝒓_2t_2)
+                   + iG_\mathrm{hole}(𝒓_1t_1, 𝒓_2t_2)W(𝒓_1t_1, 𝒓_2t_2)
+\end{align} $$
+$$ \begin{align}
+𝛴_{nn}(𝜔) &= (G_\mathrm{ele}W)(𝜔)_{nn} + (G_\mathrm{hole}W)(𝜔)_{nn} = 𝛴_\mathrm{ele}^{nn}(𝜔)+𝛴_\mathrm{hole}^{nn}(𝜔) \\
+𝛴^\mathrm{R}_{nn}(𝜔) &= 𝛴_\mathrm{ele}^{nn}(𝜔)+(𝛴_\mathrm{hole}^{†})^{nn}(𝜔) \\
+\end{align} $$
+
+$G_\mathrm{ele}$ already contains $𝜃(t_1-t_2)$ and $G_\mathrm{hole}$ contains $𝜃(t_2-t_1)$, so $𝛴_\mathrm{ele}=iG_\mathrm{ele}W$ is nonzero only for $t_1>t_2$ and $𝛴_\mathrm{hole}=iG_\mathrm{hole}W$ only for $t_1\lt t_2$ (the poles of $𝛴_\mathrm{ele}(𝜔)$ are in the lower half plane, those of $𝛴_\mathrm{hole}(𝜔)$ in the upper). As for $G^\mathrm{R}$, the retarded self-energy takes the $†$ of the hole part; at zero temperature, with $𝜔$ measured from the Fermi level, $\Re𝛴^\mathrm{R}_{nn}(𝜔)=\Re𝛴_{nn}(𝜔)$ and $\Im𝛴^\mathrm{R}_{nn}(𝜔)=\Im𝛴_{nn}(𝜔)\,\mathrm{sgn}(𝜔)$ (the old expression said $𝛴^\mathrm{R}=𝛴$).
+
+</div>
+
 ## Hilbert transform
 
 ### Numerical calculation
 There is a principal-value integral, but basically an ordinary numerical integration method is used, avoiding treating the divergent point numerically.
 With the data points at $ω_{C_i}$, let $ω_{L_i}$ and $ω_{R_i}$ be the midpoints to the neighbouring data points.
 - Zeroth approximation
+
+<div class="clfix-old">
+
 $$ \begin{align}
 F(ω) &= 𝒫 \int_{-∞}^{∞} dω' \frac{f(ω')}{ω' -ω} = \sum_{i} 𝒫 \int_{ω_{R_i}}^{ω_{L_i}} dω' \frac{f(ω')}{ ω' -ω} \\
 & \simeq \sum_{i} f(ω_{C_i})𝒫 \int_{ω_{R_i}}^{ω_{L_i}} dω' \frac{1}{ω'-ω}
 = \sum_{i} f(ω_{C_i}) \log{\frac{|ω_{L_i} -ω|} {| ω_{R_i}-ω|}}
 \end{align} $$
+
+</div>
+
+<div class="clfix">
+
+$$ \begin{align}
+F(ω) &= 𝒫 \int_{-∞}^{∞} dω' \frac{f(ω')}{ω' -ω} = \sum_{i} 𝒫 \int_{ω_{L_i}}^{ω_{R_i}} dω' \frac{f(ω')}{ ω' -ω} \\
+& \simeq \sum_{i} f(ω_{C_i})𝒫 \int_{ω_{L_i}}^{ω_{R_i}} dω' \frac{1}{ω'-ω}
+= \sum_{i} f(ω_{C_i}) \log{\frac{|ω_{R_i} -ω|} {| ω_{L_i}-ω|}}
+\end{align} $$
+
+Here $ω_{L_i}\lt ω_{C_i}\lt ω_{R_i}$ ($ω_{L_i}$ is the left and $ω_{R_i}$ the right midpoint). In the old expression the limits were reversed, which flips the overall sign.
+
+</div>
+
  Usually the real (imaginary) part is computed on the same mesh points as the imaginary (real) part.

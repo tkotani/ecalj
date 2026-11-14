@@ -1,7 +1,7 @@
 
 # ecalj Install
 
-> English version of the page [install/install](../../install/install.md). The pages at the top of ecaljdoc are the reference; this one was made from install/install.md of commit a9d3d887c (source blob 09f06b5a4205).
+> English version of the page [install/install](../../install/install.md). The pages at the top of ecaljdoc are the reference; this one was made from install/install.md of commit a9d3d887c (source blob a4f2b546a241).
 
 > ⚠️ **TOML migration (2026-05)** — Fortran binaries now read `ctrlg.<sname>.toml` only. Run `Legacy2toml.py <sname>` to convert legacy `ctrl.<sname>` / `GWinput`. See [TOML migration](../manual/toml_migration) for the full guide and the list of migrated samples.
 
