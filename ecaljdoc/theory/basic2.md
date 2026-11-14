@@ -1,6 +1,8 @@
 # 基本2
 
-`工事中`
+::: warning 工事中
+このページは書きかけです。
+:::
 
 - 時間秩序, 先進, 遅延の関係について
 - ヒルベルト変換/クラマース・クロニッヒ関係について
@@ -14,6 +16,7 @@ Wickの定理が使用でき摂動計算では有用であるため、時間秩�
 ## ヒルベルトの公式
 $$
 \lim_{𝜂 → 0 }\int_{-∞}^{∞} \frac{𝜒(ω')}{ω' - ω ± i 𝜂} dω' = 𝒫 \int_{-∞}^{∞} \frac{𝜒(ω')}{ω' - ω } dω' ∓ iπ𝜒(ω)
+\tag{K1}
 $$
 
 ## 先進, 遅延, 時間秩序の関係
@@ -26,6 +29,7 @@ $$ \begin{align}
 iG(𝒓_1t_1, 𝒓_2t_2) &= \braket{\Psi_0|T[\hat 𝜓_\mathrm{H}(𝒓_1,t_1)\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)]|\Psi_0}  \\
 iG^\mathrm{R}(𝒓_1t_1, 𝒓_2t_2) &=  \braket{\Psi_0|\{\hat 𝜓_\mathrm{H}(𝒓_1,t_1),\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)\}|\Psi_0} 𝜃(t_1-t_2) \\
 iG^\mathrm{A}(𝒓_1t_1, 𝒓_2t_2) &= -\braket{\Psi_0|\{\hat 𝜓_\mathrm{H}(𝒓_1,t_1),\hat 𝜓^†_\mathrm{H}(𝒓_2,t_2)\}|\Psi_0} 𝜃(t_2-t_1) \\
+\tag{K2}
 \end{align} $$
 フーリエ表示は、
 $$ \begin{align}
@@ -35,11 +39,13 @@ G^\mathrm{R}(𝒓_1, 𝒓_2;𝜔)  &=  \sum_{n'}^{\mathrm{unocc}} \frac{𝜙_{n'
     \sum_{n}^{\mathrm{occ}} \frac{𝜙_{n}(𝒓_1)𝜙^*_{n}(𝒓_2)}{𝜔 - 𝜀_{n}/\hbar +i𝛿} \\ &= G_{\mathrm{ele}} + G^†_{\mathrm{hole}} \\
 G^\mathrm{A}(𝒓_1, 𝒓_2;𝜔)  &=  \sum_{n'}^{\mathrm{unocc}} \frac{𝜙_{n'}(𝒓_1)𝜙^*_{n'}(𝒓_2)}{𝜔-𝜀_{n'}/\hbar - i𝛿} +
     \sum_{n}^{\mathrm{occ}} \frac{𝜙_{n}(𝒓_1)𝜙^*_{n}(𝒓_2)}{𝜔 - 𝜀_{n}/\hbar -i𝛿} \\ &= G^†_{\mathrm{ele}} + G_{\mathrm{hole}}
+\tag{K3}
 \end{align} $$
 となる。$†$ は複素共役をとって$𝒓_1, 𝒓_2$をいれかえるという意味。
 $G^\mathrm{R}$, $G^\mathrm{A}$は$ω$面での極の位置が、下半面(遅延)、上半面(先進)と分離されていてクラマース・クロニッヒ(KK)関係を満たす。
 $$
 \Re G^\mathrm{R,A} (𝒓_1, 𝒓_2;𝜔) = ± 𝒫 \int_{-∞}^{∞} \frac{dω'}{π} \frac{ \Im G^{\mathrm{R,A}}(𝒓_1, 𝒓_2;𝜔') }{ω' - ω}
+\tag{K4}
 $$
 である。
 
@@ -62,6 +68,7 @@ $$ \begin{align}
 iD(𝒓_1t_1, 𝒓_2t_2) &= \braket{T[\hat {𝛿𝜌}(𝒓_1,t_1)\hat {𝛿𝜌}(𝒓_2,t_2)]} \\ &= G(𝒓_1t_1,𝒓_2t_2)G(𝒓_2t_2,𝒓_1t_1) \\
 iD^\mathrm{R}(𝒓_1t_1, 𝒓_2t_2) &= \braket{[\hat {𝛿𝜌}(𝒓_1,t_1),\hat {𝛿𝜌}(𝒓_2,t_2)]} 𝜃(t_1-t_2) \\
 iD^\mathrm{A}(𝒓_1t_1, 𝒓_2t_2) &= -\braket{[\hat {𝛿𝜌}(𝒓_1,t_1),\hat {𝛿𝜌}(𝒓_2,t_2)]} 𝜃(t_2-t_1)
+\tag{K5}
 \end{align} $$
 
 先進関数には $G^\mathrm{A}$ と同じく負号が付く．
@@ -95,10 +102,12 @@ $$ \begin{align}
 𝛴(𝒓_1t_1, 𝒓_2t_2) &=iG(𝒓_1t_1, 𝒓_2t_2)W(𝒓_1t_1, 𝒓_2t_2) \\
                   &= iG_\mathrm{ele}(𝒓_1t_1, 𝒓_2t_2)W(𝒓_1t_1, 𝒓_2t_2) \\
                   &\quad + iG_\mathrm{hole}(𝒓_1t_1, 𝒓_2t_2)W(𝒓_1t_1, 𝒓_2t_2)
+\tag{K6}
 \end{align} $$
 $$ \begin{align}
 𝛴_{nn}(𝜔) &= (G_\mathrm{ele}W)(𝜔)_{nn} + (G_\mathrm{hole}W)(𝜔)_{nn} = 𝛴_\mathrm{ele}^{nn}(𝜔)+𝛴_\mathrm{hole}^{nn}(𝜔) \\
 𝛴^\mathrm{R}_{nn}(𝜔) &= 𝛴_\mathrm{ele}^{nn}(𝜔)+(𝛴_\mathrm{hole}^{†})^{nn}(𝜔) \\
+\tag{K7}
 \end{align} $$
 
 $G_\mathrm{ele}$ はすでに $𝜃(t_1-t_2)$ を, $G_\mathrm{hole}$ は $𝜃(t_2-t_1)$ を含むので, $𝛴_\mathrm{ele}=iG_\mathrm{ele}W$ は $t_1>t_2$ だけ, $𝛴_\mathrm{hole}=iG_\mathrm{hole}W$ は $t_1\lt t_2$ だけに値を持つ（$𝛴_\mathrm{ele}(𝜔)$ の極は下半面, $𝛴_\mathrm{hole}(𝜔)$ の極は上半面）．$G^\mathrm{R}$ と同じく正孔の部分を $†$ にしたものが遅延自己エネルギーで, 絶対零度で $𝜔$ をフェルミ準位から測ると $\Re𝛴^\mathrm{R}_{nn}(𝜔)=\Re𝛴_{nn}(𝜔)$, $\Im𝛴^\mathrm{R}_{nn}(𝜔)=\Im𝛴_{nn}(𝜔)\,\mathrm{sgn}(𝜔)$ である（もとの式は $𝛴^\mathrm{R}=𝛴$ となっていた）．
@@ -125,9 +134,10 @@ F(ω) &= 𝒫 \int_{-∞}^{∞} dω' \frac{f(ω')}{ω' -ω} = \sum_{i} 𝒫 \int
 <div class="clfix">
 
 $$ \begin{align}
-F(ω) &= 𝒫 \int_{-∞}^{∞} dω' \frac{f(ω')}{ω' -ω} = \sum_{i} 𝒫 \int_{ω_{L_i}}^{ω_{R_i}} dω' \frac{f(ω')}{ ω' -ω} \\
-& \simeq \sum_{i} f(ω_{C_i})𝒫 \int_{ω_{L_i}}^{ω_{R_i}} dω' \frac{1}{ω'-ω}
-= \sum_{i} f(ω_{C_i}) \log{\frac{|ω_{R_i} -ω|} {| ω_{L_i}-ω|}}
+F(ω) &= 𝒫 \int_{-∞}^{∞} dω' \frac{f(ω')}{ω' -ω} \\ &= \sum_{i} 𝒫 \int_{ω_{L_i}}^{ω_{R_i}} dω' \frac{f(ω')}{ ω' -ω} \\
+& \simeq \sum_{i} f(ω_{C_i})𝒫 \int_{ω_{L_i}}^{ω_{R_i}} dω' \frac{1}{ω'-ω} \\
+&= \sum_{i} f(ω_{C_i}) \log{\frac{|ω_{R_i} -ω|} {| ω_{L_i}-ω|}}
+\tag{K8}
 \end{align} $$
 
 ここで $ω_{L_i}\lt ω_{C_i}\lt ω_{R_i}$（$ω_{L_i}$ が左, $ω_{R_i}$ が右の中間点）．もとの式は積分の上下端が逆で, 全体の符号が逆になっていた．
