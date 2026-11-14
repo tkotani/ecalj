@@ -40,7 +40,7 @@ const sidebarRoot = [
     ]
   },
   {
-    text: '理論',
+    text: 'ドキュメント（理論）',
     items: [
       { text: 'ecalj のバンド計算法', link: '/theory/pmt' },
       // { text: 'Spin-orbit interaction', link: '/theory/soi' },
@@ -89,7 +89,7 @@ const enText: Record<string, string> = {
   'メインドキュメント': 'MainDocument',
   'ライセンス': 'License',
   'TOML への移行 (2026-05)': 'TOML migration (2026-05)',
-  '理論': 'Theory',
+  'ドキュメント（理論）': 'Documents (theory)',
   'ドキュメント': 'Documents',
   'インストール': 'Install',
   '更新履歴（要約）/ What\'s new': 'What\'s new',
