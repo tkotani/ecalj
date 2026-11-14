@@ -2455,8 +2455,11 @@ A block is `zsect(ii1:ie1,ii2:ie2)`, where band indeces
 
 To calculate derivative for electron-phonon (EP) coupling, we need
 $$
-\frac{\partial}{\partial {\bf r}_i} \left(\bar{J}_l(E,{\bf r}) Y_L(\hat{r})\right)\Big|_{ {\bf r}=0}=
-\frac{1}{3} \sqrt{\frac{3}{4\pi} } \quad (\text{only for } l=1;\ \text{zero otherwise}).
+\begin{aligned}
+&\frac{\partial}{\partial {\bf r}_i} \left(\bar{J}_l(E,{\bf r}) Y_L(\hat{r})\right)\Big|_{ {\bf r}=0}=
+\frac{1}{3} \sqrt{\frac{3}{4\pi} } \\
+&\qquad (\text{only for } l=1;\ \text{zero otherwise}).
+\end{aligned}
 \tag{I39}
 $$
 For real spherical harmonics, cases are:
