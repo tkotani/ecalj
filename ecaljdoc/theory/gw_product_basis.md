@@ -1,8 +1,11 @@
 # Product basis set in the 𝘎𝘞 calculation
 
+::: warning 工事中
+このページは書きかけです。記号の定義と式は、[ecalj のバンド計算法](./pmt) と、[QSGW](./qsgw) の第一の文献（Obata, Kotani, Oda 2025）の §2 のほうが新しく正確です。
+:::
+
 ## Product basis $M$
-The basis set to represent product of one-particle wave functions.
-This is the way to reduce the dimension of product.
+The basis set to represent products of one-particle wave functions, with a reduced dimension.
 $$
 \ket{M^𝒌_I}  = \{ \ket{φ^{𝒌_1*}_{𝑹u} φ^{𝒌_2}_{𝑹u'}},  \ket{P^{𝒌_1*}_{𝑮_1} P^{𝒌_2}_{𝑮_2}} \}
  \equiv \{ \ket{M^𝒌_I}_\mathrm{MT}, \ket{M^𝒌_{𝑮}}_\mathrm{IPW} \}
@@ -16,18 +19,18 @@ $\braket{ 𝒓| φ^{𝒌_1*}_{𝑹u} φ^{𝒌_2}_{𝑹u'}} = φ^{𝒌_1*}_{𝑹u
 :::
 ## Product basis $E$
 
-The MPB $M$ introduced above does not satisfy orthogonality. Therefore, we introduce an orthogonal basis.
+The MPB $M$ introduced above is not orthogonal. Therefore, we introduce an orthonormal basis.
 This basis also diagonalizes the Coulomb matrix. By doing so, the calculation of the exchange self-energy becomes easier.
-In equations, new product basis $E$ is represent by the liner combination of $M$, i.e.:
+The new product basis $E$ is a linear combination of $M$:
 $$
 \ket{E^𝒒_μ} = \sum_{I} z^𝒒_{μI}\ket{M^𝒒_I}.
 $$
-Then, $E$ is satisfy the following releations.
+Then $E$ satisfies
 $$
 \braket{E^𝒒_μ|E^𝒒_ν} = δ_{μν},
 v(𝒒) \ket{E^𝒒_μ} =v_μ(𝒒)\ket{E^𝒒_μ}
 $$
-where $v(𝒒)$ is Coulomb matrix and $v_μ(𝒒)$ is eigen value. The coefficient $z^𝒒_{μI}$ and $v_μ(𝒒)$ are obtained by soliving following generalized eigenvalue equation:
+where $v(𝒒)$ is the Coulomb matrix and $v_μ(𝒒)$ its eigenvalue. The coefficients $z^𝒒_{μI}$ and $v_μ(𝒒)$ are obtained by solving the generalized eigenvalue problem
 $$
 \sum_J (v_{IJ}^{𝒒} - v_{\mu}(𝒒) O^{𝒒}_{IJ} ) z^{𝒒}_{\mu J} = 0,
 $$

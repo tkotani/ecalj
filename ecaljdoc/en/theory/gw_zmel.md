@@ -1,8 +1,12 @@
-# calculation of $Z$
+# Matrix elements $Z$
 
-> English version of the page [theory/gw_zmel](../../theory/gw_zmel.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/gw_zmel.md of the tree of c9f9a3003 (source blob 51fb90ac74c7).
+> English version of the page [theory/gw_zmel](../../theory/gw_zmel.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/gw_zmel.md of the tree of c9f9a3003 (source blob 1ce207bb1dff).
 
-## Calculation of matrix elementns
+::: warning Under construction
+This page is a draft. The definitions and equations in [Band-structure method of ecalj](./pmt) and in section 2 of the main reference on the [QSGW](./qsgw) page (Obata, Kotani, Oda 2025) are newer and more accurate.
+:::
+
+## Calculation of the matrix elements
 
 $$
 \braket{E^𝒒_μ Ψ_{𝒌n} |Ψ_{𝒒+𝒌n'}} = \sum_{I} z^{𝒒*}_{μI} \braket{M^𝒒_I Ψ_{𝒌n} |Ψ_{𝒒+𝒌n'}}

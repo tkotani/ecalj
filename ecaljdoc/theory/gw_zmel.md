@@ -1,6 +1,10 @@
-# calculation of $Z$
+# Matrix elements $Z$
 
-## Calculation of matrix elementns
+::: warning 工事中
+このページは書きかけです。記号の定義と式は、[ecalj のバンド計算法](./pmt) と、[QSGW](./qsgw) の第一の文献（Obata, Kotani, Oda 2025）の §2 のほうが新しく正確です。
+:::
+
+## Calculation of the matrix elements
 
 $$
 \braket{E^𝒒_μ Ψ_{𝒌n} |Ψ_{𝒒+𝒌n'}} = \sum_{I} z^{𝒒*}_{μI} \braket{M^𝒒_I Ψ_{𝒌n} |Ψ_{𝒒+𝒌n'}}
