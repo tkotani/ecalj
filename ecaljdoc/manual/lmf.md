@@ -13,7 +13,7 @@ Example:`
 ```
 lmfa si 
 ```
-It finishes instantaneously.
+It finishes in a few seconds.
 ```
 lmfa si |grep conf
 ```

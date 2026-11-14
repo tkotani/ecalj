@@ -1,6 +1,6 @@
 # `lmf,lmfa,lmchk`
 
-> English version of the page [manual/lmf](../../manual/lmf.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/lmf.md of commit a005a90c0 (source blob fed09e2c48aa).
+> English version of the page [manual/lmf](../../manual/lmf.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/lmf.md of commit a005a90c0 (source blob 2b53e490844c).
 
 > ⚠️ `lmf`, `lmfa`, `lmchk` read **`ctrlg.<sname>.toml`** only. A directory with the legacy `ctrl.<sname>` is converted with `Legacy2toml.py <sname>` before invoking these binaries (the legacy syntax is described in [Legacy `ctrl.<sname>` reference](./lmf_legacy_ctrl)). See [Input file](./toml_migration) for the full guide and [Samples/](https://github.com/tkotani/ecalj/blob/main/Samples/README.md).
 
@@ -15,7 +15,7 @@ Example:`
 ```
 lmfa si 
 ```
-It finishes instantaneously.
+It finishes in a few seconds.
 ```
 lmfa si |grep conf
 ```
