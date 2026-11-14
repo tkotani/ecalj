@@ -1,6 +1,6 @@
 # Samples — what's where in `ecalj/Samples/`
 
-> English version of the page [manual/samples](../../manual/samples.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/samples.md of commit 034c2b739 (source blob a1e1584f99ab).
+> English version of the page [manual/samples](../../manual/samples.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/samples.md of commit ca2563cd3 (source blob 7dff95bfbd14).
 
 This page is a thin index over the [`ecalj/Samples/`](https://github.com/tkotani/ecalj/tree/main/Samples)
 tree.  Each row points at the per-directory README that owns the
@@ -47,13 +47,13 @@ For your own directory with the legacy `ctrl.<sname>` + `GWinput`, see
 | **EPS/EPS_Cu** | dielectric ε(q,ω), `job_eps`, FCC metal | [EPS_Cu/](https://github.com/tkotani/ecalj/tree/main/Samples/EPS/EPS_Cu) (no README; see test.py) | [Dielectric function: job_eps](./optical) |
 | **EPS/EPS_GaAs** | ε(q,ω), GaAs zinc-blende semiconductor | [EPS_GaAs/](https://github.com/tkotani/ecalj/tree/main/Samples/EPS/EPS_GaAs) (no README; see test.py) | [./optical](./optical) |
 | **EPS/EPS_Ag** | ε(q,ω), Ag (FCC, no LFC) | [EPS_Ag/](https://github.com/tkotani/ecalj/tree/main/Samples/EPS/EPS_Ag) (no README; see test.py) | [./optical](./optical) |
-| **MLOsamples/** (25 test targets) | MTO Localized Orbitals (Wannier replacement); SOC variants; on-site W via `job_mloW` | [MLOsamples/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md) | README_SOC.md (`MD/mlo_notes/mlo_soc_memo.md`) |
+| **MLOsamples/** (25 test targets) | MTO Localized Orbitals (Wannier replacement); SOC variants; on-site W via `job_mloW` | [MLOsamples/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md) | [MLO](./mlo) |
 | **PROCAR/MgO_PROCAR** | fat-band weight; O-2p projection on MgO bands | [MgO_PROCAR/](https://github.com/tkotani/ecalj/tree/main/Samples/PROCAR/MgO_PROCAR) (no README; see test.py) | [./UsageDetailed § PROCAR mode](./UsageDetailed#procar-mode) |
 | **PROCAR/Ni2MnGa_L21_PROCAR** | per-atom fat band; FM Heusler; ships converged `rst.ni2mnga` | [Ni2MnGa_L21_PROCAR/](https://github.com/tkotani/ecalj/tree/main/Samples/PROCAR/Ni2MnGa_L21_PROCAR) (no README; see test.py) | [./UsageDetailed § PROCAR mode](./UsageDetailed#procar-mode) |
 | **TestInstall/** (26 targets in `testecalj --all`, 66 checks) | install validation: ground-state, GW (`gwsc`, `gw_lmfh`), finite-T (`fe_kbt`), eps (`job_eps`), ChiPM, cRPA of the MLO model. The heavy GW targets `cugase2_gwsc222`, `nio_gwsc444`, `pdo_gwsc443`, `gas_gwsc666` are run one by one | (per dir; driven by `testecalj --all`) | [./gwsc](./gwsc), [./optical](./optical) |
 | **MLOQSGW/** (`GaAs`, `NiO`) | QSGW with the self-energy interpolated in the MLO representation (`gwsc --mlo`) | [MLOQSGW/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/MLOQSGW/README.md) | [./mlo_gwsc](./mlo_gwsc) |
 | **BenchmarkTest/** (`inas2gasb2`, `inas4gasb4`) | one QSGW iteration of InAs/GaSb superlattices against the stored `QPU.1run`; with one 32 GB GPU use `-np2 1` | (no README; see test.py) | [./ecaljgpu](./ecaljgpu) |
-| **AFsymmetry/** (`NiO`, `NiSe`, `NiO_gwsc`) | antiferromagnetic symmetry `symgrpaf` with `af = 1 / -1` on the sites: LDA, and QSGW (the GW programs compute both spins) | [AFsymmetry/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/AFsymmetry/README.md) | [./lmf](./lmf) |
+| **AFsymmetry/** (`NiO`, `NiSe`, `NiO_gwsc`) | antiferromagnetic symmetry `symgrpaf` with `af = 1 / -1` on the sites: LDA, and QSGW (the GW programs compute both spins) | [AFsymmetry/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/AFsymmetry/README.md) | [./lmf](./lmf#symgrp) |
 | **Magnon/** (`Fe_mlo_magnon`) | magnon spectra through the MLO model (`job_mlo_magnon`, bcc Fe), compared with the Wannier functions of the version before 2026-10-02 (tag `last-wannier`) | [Magnon/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/Magnon/README.md) | [./UsageDetailed](./UsageDetailed) |
 | **kBT/scanT/** (`Si`) | the same input at several electron temperatures (`scan_T.sh`, `collect_T.py`): gap of Si, bands and moment of bcc Fe | [kBT/scanT/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/kBT/scanT/README.md) | [./kBT](./kBT) section 5 |
 | **FermiSurface/Cu**, **Doping/Si**, **HomoGas/es**, **BoltzTraP/Si**, **SLAB/Cu001**, **SOC/** (`FePt_MAE`, `MnGa_MAE`), **LDAU/ReN**, **EffectiveMass/** (`GaAs`, `CdS`, `GaN`), **Relax/LaGaO3**, **DOS/** (`ZnS`, `Fe`), **IIR/C**, **AtomDimer/N2** | short examples (each below a few minutes): Fermi surface for xcrysden, doping by fractional Z or background charge, Lindhard function against the analytic form, input of BoltzTraP, slab with work function, magnetic anisotropy energy, LDA+U, effective masses with SOC, relaxation of atomic positions, total and partial DOS, impact ionization rate (Im of the self-energy), a molecule in a box | README.md in each directory | [./UsageDetailed](./UsageDetailed) |
@@ -123,17 +123,17 @@ page; this Samples page only points:
 
 | topic | owner page |
 |---|---|
-| TOML migration / `Legacy2toml.py` workflow | [./toml_migration](./toml_migration) |
-| `ctrlg.<sname>.toml` schema and the legacy ↔ TOML key map | [./lmf](./lmf) |
-| keys of `[gw]` (the former `GWinput`) | [./gwinput](./gwinput) |
+| Input file, `Legacy2toml.py` workflow, legacy ↔ TOML key map | [./toml_migration](./toml_migration) |
+| `ctrlg.<sname>.toml` structure | [./lmf](./lmf#file-structure-sections) |
+| keys of `[gw]` (the former `GWinput`), product basis | [./gwinput](./gwinput) |
 | finite temperature, the keys `t_tetrakbt` / `t_sigmaw` | [./kBT](./kBT) |
 | MLO-QSGW (`gwsc --mlo`) | [./mlo_gwsc](./mlo_gwsc) |
 | QSGW with `gwsc` end-to-end | [./gwsc](./gwsc) |
 | Dielectric ε(q,ω) (`job_eps`) | [./optical](./optical) |
 | Fat-band weights / `PROCAR` (`MgO_PROCAR`, `Ni2MnGa_L21_PROCAR`) | [./UsageDetailed § PROCAR mode](./UsageDetailed#procar-mode) |
 | MLO bands + on-site W (`job_mloW`) | [MLOsamples/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md) |
-| `ecalj_auto` batch runner | `MD/auto.md` |
+| `ecalj_auto` batch runner | [ecalj_auto/README.md](https://github.com/tkotani/ecalj/blob/main/ecalj_auto/README.md) |
 | End-to-end tutorial (POSCAR → QSGW) | [./README_tutorial](./README_tutorial) |
 
 If you want to add a new Samples directory, the conventions live in
-<del class="clfix">`MD/developer.md`</del><span class="clfix">[Tests (testecalj)](./dev_testecalj)</span> (`testecalj`, `comp.py`, naming).
+[Tests (testecalj)](./dev_testecalj) (`testecalj`, `comp.py`, naming).

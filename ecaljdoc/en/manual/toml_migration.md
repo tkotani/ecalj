@@ -1,6 +1,6 @@
 # Input file {#toml-migration-2026-05}
 
-> English version of the page [manual/toml_migration](../../manual/toml_migration.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/toml_migration.md of commit 7006f2703 (source blob eeb3c573949e).
+> English version of the page [manual/toml_migration](../../manual/toml_migration.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/toml_migration.md of commit ca2563cd3 (source blob 3a11b235a9e7).
 
 ecalj consists of the one-body part (the DFT part) and the GW part.
 
@@ -205,28 +205,10 @@ To change a key for one run, add `--ctrlg:<section.key>=<value>` (e.g. `lmf si -
 
 </div>
 
-## Migrated samples (use these as templates)
+## Samples {#migrated-samples-use-these-as-templates}
 
-The following directories under `ecalj/Samples/` carry
-`ctrlg.<sname>.toml` and pass `testecalj` (the whole list is in
-[Samples](./samples)):
+The list of sample `ctrlg.<sname>.toml` inputs to use as templates is on [Samples](./samples). The old examples of `Samples/Legacy/` were rebuilt as the directories listed there. Convert your own legacy input as described above.
 
-| dir | role |
-|---|---|
-| [Samples/MLOsamples/](https://github.com/tkotani/ecalj/tree/main/Samples/MLOsamples) | MuffinTin Localized Orbitals (Wannier replacement). 25 test targets — see [MLOsamples/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md) |
-| [Samples/TestInstall/](https://github.com/tkotani/ecalj/tree/main/Samples/TestInstall) | install validation suite. 26 targets (66 checks) driven by `testecalj --all` |
-| [Samples/EPS/](https://github.com/tkotani/ecalj/tree/main/Samples/EPS) | dielectric function ε(q,ω) — `EPS_Cu`, `EPS_GaAs`, `EPS_Ag` (`job_eps`) |
-| [Samples/PROCAR/](https://github.com/tkotani/ecalj/tree/main/Samples/PROCAR) | fat-band weight — `MgO_PROCAR`, `Ni2MnGa_L21_PROCAR` |
-
-The catch-all index for the sample tree is
-[Samples/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/README.md).
-
-## Legacy samples
-
-The older examples of `Samples/Legacy/` were rebuilt as directories of their own under `Samples/` (antiferromagnetic
-symmetry, magnon spectra, Fermi surface, doping, magnetic anisotropy, LDA+U, effective mass, relaxation, DOS, ...) and
-the originals were removed on 2026-09-30; table 1 of ecalj `Samples/README.md` lists them. Inputs of your own in the
-legacy form are converted as described above.
 ## Result summaries (worked-out reference values)
 
 - [MLOsamples/README.md § Reference value: bcc Fe Fe-3d on-site W](https://github.com/tkotani/ecalj/blob/main/Samples/MLOsamples/README.md#reference-value-bcc-fe-fe-3d-on-site-w-with---mlo_feb4) — bcc Fe Fe-3d on-site screened W ~1.5 eV (job_mloW reproduction, 2×2×2 vs 4×4×4 BZ)
