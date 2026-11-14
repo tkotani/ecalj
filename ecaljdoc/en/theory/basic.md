@@ -135,7 +135,7 @@ $$
 \tag{Gh1}
 $$
 
-This state seen at point $𝒓_2$ (the hole filled at point $𝒓_2$ and overlapped with the ground state) is the hole Green function (the sign comes from exchanging fermions):
+This state seen at point $𝒓_2$ is the hole Green function (the sign comes from exchanging fermions):
 
 $$
 \begin{aligned}
