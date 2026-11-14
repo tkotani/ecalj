@@ -5,12 +5,7 @@
 On the Green function at zero temperature
 
 ## References
-
-1. A. L. Fetter and J. D. Walecka, *Quantum Theory of Many-Particle Systems* (McGraw-Hill, 1971).
-2. M. Gell-Mann and F. Low, "Bound states in quantum field theory", Phys. Rev. **84**, 350 (1951).
-3. J. Goldstone, "Derivation of the Brueckner many-body theory", Proc. R. Soc. Lond. A **239**, 267 (1957).
-4. R. P. Feynman, "The theory of positrons", Phys. Rev. **76**, 749 (1949); "Space-time approach to quantum electrodynamics", Phys. Rev. **76**, 769 (1949).
-5. F. J. Dyson, "The radiation theories of Tomonaga, Schwinger, and Feynman", Phys. Rev. **75**, 486 (1949).
+- Fetter Walecka
 
 ## What is a Green function {#what-is-green}
 
@@ -161,7 +156,7 @@ The sum of Eqs. (Gd1) and (Gd2) of this one-particle Green function is what is c
 
 ### The Gell-Mann–Low theorem and disconnected diagrams {#gell-mann-low}
 
-Switching the interaction on adiabatically turns the non-interacting ground state $\ket{\Phi_0}$ into the interacting ground state (the Gell-Mann–Low theorem [2]). Split the Hamiltonian into the non-interacting part $\hat H_0$ (including $-𝜇\hat N$) and the interaction $\hat V$, and define the operators in the interaction picture as
+Switching the interaction on adiabatically turns the non-interacting ground state $\ket{\Phi_0}$ into the interacting ground state (the Gell-Mann–Low theorem). Split the Hamiltonian into the non-interacting part $\hat H_0$ (including $-𝜇\hat N$) and the interaction $\hat V$, and define the operators in the interaction picture as
 
 $$
 \hat 𝜓_\mathrm{I}(𝒓,t) = e^{i\hat H_0 t/\hbar}\,\hat 𝜓(𝒓)\,e^{-i\hat H_0 t/\hbar}, \qquad
@@ -212,9 +207,9 @@ The correspondence with ordinary (time-independent) perturbation theory: there a
 - **Disconnected type 1**: the system returns to the vacuum $\ket{\Phi_0}$ in an intermediate state (the disconnected parts follow one another in time). Ordinary perturbation theory excludes $\ket{\Phi_0}$ from the intermediate states, so these never enter.
 - **Disconnected type 2**: disconnected but overlapping in time (the intermediate state has two excitations and is not $\ket{\Phi_0}$). These do enter the formulas of ordinary perturbation theory, but they cancel exactly the terms that come from the normalization (e.g. $-V_{00}\sum_n|V_{0n}|^2/\Delta_n^2$ at third order).
 
-Excluding type 1, and dropping type 2 together with the normalization terms, leaves only the connected diagrams: the same result as Eq. (G3) (Goldstone [3]).
+Excluding type 1, and dropping type 2 together with the normalization terms, leaves only the connected diagrams: the same result as Eq. (G3) (Goldstone).
 
-In the form of Eq. (G3), with the terms written for each time ordering (Goldstone type), each ordering of the vertex times is a separate term. Feynman's view is to see the hole as an electron going backward in time, to represent the electron and the hole by one propagator (the T-product Green function of Eq. (G4)), and to gather the terms of different time orderings into one diagram [4]. Integrating over frequency, the energy denominators come out automatically. The formal derivation with the T product and $1/n!$ is due to Dyson [5].
+In the form of Eq. (G3), with the terms written for each time ordering (Goldstone type), each ordering of the vertex times is a separate term. Feynman's view is to see the hole as an electron going backward in time, to represent the electron and the hole by one propagator (the T-product Green function of Eq. (G4)), and to gather the terms of different time orderings into one diagram. Integrating over frequency, the energy denominators come out automatically. The formal derivation with the T product and $1/n!$ is due to Dyson.
 
 ### Perturbation theory with and without time {#td-vs-ti-perturbation}
 

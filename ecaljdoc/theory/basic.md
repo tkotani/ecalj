@@ -3,12 +3,7 @@
 絶対零度でのGreen関数について
 
 ## 参考文献
-
-1. A. L. Fetter and J. D. Walecka, *Quantum Theory of Many-Particle Systems* (McGraw-Hill, 1971).
-2. M. Gell-Mann and F. Low, "Bound states in quantum field theory", Phys. Rev. **84**, 350 (1951).
-3. J. Goldstone, "Derivation of the Brueckner many-body theory", Proc. R. Soc. Lond. A **239**, 267 (1957).
-4. R. P. Feynman, "The theory of positrons", Phys. Rev. **76**, 749 (1949); "Space-time approach to quantum electrodynamics", Phys. Rev. **76**, 769 (1949).
-5. F. J. Dyson, "The radiation theories of Tomonaga, Schwinger, and Feynman", Phys. Rev. **75**, 486 (1949).
+- Fetter Walecka
 
 ## Green関数とは {#what-is-green}
 
@@ -154,7 +149,7 @@ $$
 
 ### Gell-Mann–Low の定理と分離したダイヤグラム {#gell-mann-low}
 
-相互作用を断熱的に入れると、相互作用の無い基底状態 $\ket{\Phi_0}$ から、相互作用のある基底状態が得られる（Gell-Mann–Low の定理 [2]）。ハミルトニアンを、相互作用の無い部分 $\hat H_0$（$-𝜇\hat N$ も含める）と相互作用 $\hat V$ に分け、相互作用表示の演算子を
+相互作用を断熱的に入れると、相互作用の無い基底状態 $\ket{\Phi_0}$ から、相互作用のある基底状態が得られる（Gell-Mann–Low の定理）。ハミルトニアンを、相互作用の無い部分 $\hat H_0$（$-𝜇\hat N$ も含める）と相互作用 $\hat V$ に分け、相互作用表示の演算子を
 
 $$
 \hat 𝜓_\mathrm{I}(𝒓,t) = e^{i\hat H_0 t/\hbar}\,\hat 𝜓(𝒓)\,e^{-i\hat H_0 t/\hbar}, \qquad
@@ -205,9 +200,9 @@ $T$ は、時刻の順序を左側に未来の時間、右側に過去の時間�
 - **分離型 1**: 中間状態で系がいったん真空 $\ket{\Phi_0}$ に戻るもの（分離した部分が時間の上で前後に並ぶ）。通常の摂動論では中間状態から $\ket{\Phi_0}$ を除くので、最初から入らない。
 - **分離型 2**: 分離しているが時間の上で重なるもの（中間状態は励起を二つ持ち、$\ket{\Phi_0}$ ではない）。通常の摂動論の式には入っているが、規格化から来る項（3 次の $-V_{00}\sum_n|V_{0n}|^2/\Delta_n^2$ など）とちょうど打ち消し合う。
 
-分離型 1 を除き、分離型 2 と規格化の項をまとめて捨てると、つながったダイヤグラムだけが残り、式 (G3) と同じ結果になる（Goldstone [3]）。
+分離型 1 を除き、分離型 2 と規格化の項をまとめて捨てると、つながったダイヤグラムだけが残り、式 (G3) と同じ結果になる（Goldstone）。
 
-時間の順序ごとに項を書く式 (G3) の形（Goldstone 型）では、頂点の時間の並べ方ごとに別の項になる。正孔を時間を逆に進む電子と見て、電子と正孔を一本の伝播関数（式 (G4) の T 積の Green 関数）で表し、時間の順序の違う項を一つのダイヤグラムにまとめるのが Feynman の見方である [4]。振動数で積分すると、エネルギーの分母は自動的に出てくる。T 積と $1/n!$ による形式的な導出は Dyson による [5]。
+時間の順序ごとに項を書く式 (G3) の形（Goldstone 型）では、頂点の時間の並べ方ごとに別の項になる。正孔を時間を逆に進む電子と見て、電子と正孔を一本の伝播関数（式 (G4) の T 積の Green 関数）で表し、時間の順序の違う項を一つのダイヤグラムにまとめるのが Feynman の見方である。振動数で積分すると、エネルギーの分母は自動的に出てくる。T 積と $1/n!$ による形式的な導出は Dyson による。
 
 ### 時間の入った摂動論と時間の入らない摂動論 {#td-vs-ti-perturbation}
 
