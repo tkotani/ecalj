@@ -9,10 +9,10 @@ const sidebarRoot = [
       { text: 'GetStarted with AI!', link: '/manual/getstartedAI' },
     ]
   },
-  { text: 'メインドキュメント', link: '/manual/README_tutorial' },   // a link of its own, just above the additional documents (2026-11-14)
   {
-    text: '追加ドキュメント',
+    text: 'ドキュメント',
     items: [
+      { text: 'メインドキュメント', link: '/manual/README_tutorial' },
       { text: '更新履歴（要約）/ What\'s new', link: '/manual/whatsnew' },
       { text: 'TOML への移行 (2026-05)', link: '/manual/toml_migration' },
       { text: 'Samples (where what lives)', link: '/manual/samples' },
@@ -97,7 +97,7 @@ const enText: Record<string, string> = {
   'TOML への移行 (2026-05)': 'TOML migration (2026-05)',
   '理論': 'Theory',
   '入力ファイル': 'Input files',
-  '追加ドキュメント': 'Additional documents',
+  'ドキュメント': 'Documents',
   'インストール': 'Install',
   '更新履歴（要約）/ What\'s new': 'What\'s new',
   'MT 半径の上限と偽の準位': 'Upper limit of MT radii and spurious levels',
