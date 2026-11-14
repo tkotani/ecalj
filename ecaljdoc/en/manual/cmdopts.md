@@ -1,6 +1,6 @@
 # Command-line options for `lmf` / `lmfa` / `lmchk` (and friends)
 
-> English version of the page [manual/cmdopts](../../manual/cmdopts.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/cmdopts.md of the tree of c9f9a3003 (source blob 1bc2494df668).
+> English version of the page [manual/cmdopts](../../manual/cmdopts.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/cmdopts.md of commit 7006f2703 (source blob c0ad6c89530f).
 
 ## Cmdline argument structure (the minimum)
 
@@ -151,13 +151,13 @@ an abort + one-line hint pointing at the canonical
 | `--readQforGW` | flag | `qg4gw`: take the q-vectors of `[gw] QforGW` (one-shot GW, `gw_lmfh` passes it) | `m_q0p.f90` |
 | `--n1n2n3eps` | flag | Honour `n1n2n3eps` mesh in `qg4gw`/`mkqg` for ε/χ⁺⁻ | `mkqg.f90` |
 | `--job=N` | kv | Stage selector in `hbasfp0`, `hvccfp0`, `hsfp0_sc`, `hsfp0`, `hx0fp0`, `hqpe`, `qg4gw`, `heftet`. Range is per-binary; the values that `gwsc` uses are in the console output shown in [gwsc](./gwsc) | many |
-| `--ntqxx` | flag | <del class="clfix">Limit number of QP states (debug)</del><span class="clfix">Fix the number of bands for Σ at each q to that of the first iteration (file `NTQXX`; [gwsc](./gwsc))</span> | <del class="clfix">various</del><span class="clfix">`m_itq.f90`</span> |
+| `--ntqxx` | flag | Fix the number of bands for Σ at each q to that of the first iteration (file `NTQXX`; [gwsc](./gwsc)) | `m_itq.f90` |
 | `--nk=` | kv | k-parallel group size in `mlo_magnon` (overrides the default from the number of ranks) | `main_mlo_magnon.f90` |
 | `--cutuu=`, `--nww=`, `--nb=`, `--Wtype=` | — | Removed (2026-10-02, the AHC and the Wannier magnon were taken out). Giving it stops the program | `m_cmdopt_registry.f90` |
 | `--dumpW` | flag | `hgw`: write W−v, which is kept in memory, to `__WVR.<iq>` / `__WVI.<iq>` for analysis (`gwsc --dumpW`) | `main_hgw.f90` |
 | `--WVR2ptRaxis` | flag | Pole term of Σc on the real axis: W_c at the pole by linear interpolation of 2 points instead of 3 points (`gwsc --WVR2ptRaxis`) | `m_sxcf_sc.f90` |
 | `--wcsmear` | flag | Same as `[gw] wcsmear = true` (the key is preferred; it is true by default) | `m_sxcf_sc.f90` |
-| `--sigma_tf32` | flag | MP GPU programs at `--use_fp32`: run only the products of Σc (W·zmel on both axes, zsec) with 10-bit-mantissa inputs (TF32, or FP16 when the table chooses `realhgemm`), with the rows of level `tf32` of the linear-algebra table (`gwsc --prec=tf32` passes it) | `m_sxcf_sc.f90`, `m_linalg_policy.f90` |
+| `--sigma_tf32` | flag | MP GPU programs at `--use_fp32`: run only the products of Σc with 10-bit-mantissa inputs (`gwsc --prec=tf32` passes it). See [GPU version](./ecaljgpu) | `m_sxcf_sc.f90`, `m_linalg_policy.f90` |
 | `--tetwt_write` | flag | `hgw`: only write the tetrahedron weights of every q to `__TETWT.<iq>.<isp>` (no GPU, no W, no Σ) and stop. `gwsc --gpu` runs this on the CPU cores next to `hgw`, which then reads the files (bit-identical; a missing or non-matching file is computed in `hgw`) | `main_hgw.f90`, `x0kf_v4h.f90` |
 | `--qibzonly` | flag | Compute only IBZ q-points (skip auxiliary q₀) | various |
 | `--geteta` | flag | Get η damping diagnostics for ε(q,ω) | various |
@@ -173,7 +173,7 @@ an abort + one-line hint pointing at the canonical
 | `--mlo` | flag | MLO mode. `lmf --jobgw=1 --mlo` writes `__cmlo.data`/`.info` (step a') when `HamRsMLO` exists; `mlo --mlo` builds `HamRsMLO` (the MLO index) and, when `__HamiltonianGW.info` is there (job_mloW, job_mlo_magnon), `__cmlo` from it | `sugw.f90`, `m_HamPMT.f90` |
 | `--mlog` | flag | MLO + GW combined output | various |
 | `--mlo_diagnorm`, `--mlo_feb4`, `--mlo_ortho`, `--mlo_orthonorm`, `--gs` | — | Removed (2026-10-02). Giving it stops the program. MLOs are normalized per orbital by a k-independent constant so that the squared integral in real space is 1 ([mlo](./mlo) §6). Normalization and orthogonalization per k are not used, since they change the shape of the orbitals and the interpolated bands | `m_cmdopt_registry.f90` |
-| `--mlofreeze` | flag | **MLO-gwsc (under development)**: use the MLO index of the existing `HamRsMLO` (the seed MTO channels and the reference of the window) and rewrite only `QMLO_SigRs` (Σ^MLO(q) → real space; H and O are not handled and `__HamiltonianPMT` is not read, 2026-09-27). The coefficients of $\tilde\chi$ are rebuilt at every iteration. `gwsc --mlo` passes it to `mlo` within the iteration. → [MLO-gwsc](./mlo_gwsc) | `m_HamPMT.f90` |
+| `--mlofreeze` | flag | MLO-gwsc (in development): use the MLO index of the existing `HamRsMLO` and rewrite only `QMLO_SigRs`. `gwsc --mlo` passes it to `mlo` in the cycle. See [MLO-gwsc](./mlo_gwsc) | `m_HamPMT.f90` |
 | `--dwnb=mlo` | kv | `huumat_MPI`: the basis of ⟨u_k\|u_k+b⟩ is the MLOs (`job_mlo_magnon`, `mlo_spread.py`). `--dwnb=wan` (the Wannier functions) was removed 2026-10-02 | `main_huumat.f90` |
 | `--ahc`, `--mloahc`, `--AHCMAT`, `--UUMAT`, `--cmlo`, `--q2q1test` | — | Removed (2026-10-02; AHC, lmfham2, for tests). Giving it stops the program | `m_cmdopt_registry.f90` |
 | `--writedw` | flag | Default-on: write `dw` weights in `m_procar` | `m_procar.f90` |
@@ -215,8 +215,8 @@ an abort + one-line hint pointing at the canonical
 | Option | Type | Effect | Used in |
 |---|---|---|---|
 | `--gpu` | flag | Take the GPU code path (`InstallAll.py` grabs `/tmp/gpu.lock`; `gwsc` takes per-GPU locks in `/tmp/ecalj_res/`, see [GPU version § multiple jobs](./ecaljgpu#running-several-jobs-on-the-same-machine)) | `InstallAll.py`, `m_*.f90` |
-| `--linalg=<row>,<row>,…` | kv | Override rows of the GPU linear-algebra table (which method runs each product and the epstilde inverse), e.g. `--linalg=fp32.cgemm.large=realsgemm,fp32.epsinv.large=mixed1`. Row: `<tf32\|fp32\|fp64>.<cgemm\|zgemm\|dgemm\|epsinv>.<small\|large\|minm\|minn\|mink\|minmnk>`; methods `cublas`, `realsgemm`, `realhgemm` (FP16 inputs, FP32 sums; tf32 rows only), `gemmul8[:moduli]`, `lu64`, `mixed1`, `mixed2`. Normally the table comes from `<bindir>/ecalj_linalg_policy.toml` written by `linalgtune_gpu` at installation (`ECALJ_LINALG_POLICY` overrides the path). See [GPU version § automatic selection](./ecaljgpu#choosing-the-precision-and-automatic-selection-of-matrix-operations-2026-09) | `m_linalg_policy.f90` |
-| `--use_gemmul8` | flag | Emulate the large GPU matrix products with GEMMul8 (Ozaki-II on INT8 tensor cores). Single-precision complex: 7 moduli, only when all sizes ≥ 1000 (faster and more accurate than cuBLAS FP32 there). Double precision: 14 moduli from m·n·k ≥ 1e8 (FP64 accuracy, 12× native FP64 on RTX 5090). Needs `InstallAll.py --gemmul8`; `ECALJ_GEMMUL8_MODULI_C`/`_Z`/`_D` and `ECALJ_GEMMUL8_FAST` override the defaults | `m_blas.f90`, `m_gemmul8.f90` |
+| `--linalg=<row>,<row>,…` | kv | Override rows of the GPU linear-algebra table, e.g. `--linalg=fp32.cgemm.large=realsgemm,fp32.epsinv.large=mixed1`. The table and the methods: [GPU version § automatic choice](./ecaljgpu#精度の選び方と行列演算の自動選択-2026-09) | `m_linalg_policy.f90` |
+| `--use_gemmul8` | flag | Emulate the large GPU matrix products with GEMMul8 (Ozaki-II on INT8 tensor cores). Needs `InstallAll.py --gemmul8`. See [GPU version](./ecaljgpu) | `m_blas.f90`, `m_gemmul8.f90` |
 | `--modifiedGS` | flag | Modified Gram–Schmidt orthogonalisation | various |
 | `--diag=default` / `--diag=tridiag` / `--diag=chefsi` | kv | Diagonaliser selector (LAPACK default, tridiag, ChebFSI) | various |
 
@@ -234,12 +234,12 @@ These exist for development and are unlikely to be useful in production
 runs. Behaviour is not guaranteed to be stable.
 
 `--debugbndfp`, `--debugpwmat`, `--debugsugw`, `--debugzmel`, `--zmel0`,
-`--normcheck`, `--showdmat`, `--x0test`, `--q2q1test`, `--cvK:`,
-`--skip_qvalcheck`, `--skipbstruxinit`, `--skipCPHI`, <del class="clfix">`--skipGS`,</del>
+`--normcheck`, `--showdmat`, `--x0test`, `--cvK:`,
+`--skip_qvalcheck`, `--skipbstruxinit`, `--skipCPHI`,
 `--skiphammsoc`, `--skip1d` / `--skip2nd` / `--skip2ndd` / `--skip2ndp`
 / `--skip2nds`, `--skipd` / `--skipf` / `--skiplo` (all currently dead
 code in `m_HamPMT.f90`), `--wanatom`.
-<span class="clfix">(`--skipGS` is not a debug flag: it skips the Gram-Schmidt orthonormalization in `lmf --jobgw=1` (`sugw.f90`) to make it faster; see [gwsc](./gwsc).)</span>
+(`--skipGS` is not a debug flag: it skips the Gram-Schmidt orthonormalization in `lmf --jobgw=1` (`sugw.f90`) to make it faster; see [gwsc](./gwsc).)
 
 ## Run-time TOML overrides (`--ctrlg:<path>=<value>`) {#run-time-ctrlg-overrides}
 
@@ -264,9 +264,7 @@ added (below the header of its section; a top-level key at the top of the
 file; with a new `[section]` when the section is absent), and the log says
 so — until 2026-09-30 such an override was skipped and the run went on with
 the default value. A misspelled key is added too and is read by no program:
-check the log line. <del class="clfix">See
-[`toml_migration`](./toml_migration#run-time-ctrlg-overrides) for
-the full spec.</del><span class="clfix">This section is the reference for `--ctrlg:`. The `%const` constants of a legacy `ctrl.<sname>` are written into `ctrlg.<sname>.toml` when it is converted ([Input file](./toml_migration)), so they are overridden by their TOML paths.</span>
+check the log line. This section is the reference for `--ctrlg:`. The `%const` constants of a legacy `ctrl.<sname>` are written into `ctrlg.<sname>.toml` when it is converted ([Input file](./toml_migration)), so they are overridden by their TOML paths.
 
 ## When this page goes stale
 
@@ -308,8 +306,7 @@ The completion has two data sources, each with a different freshness:
 The mapping mirrors the parser:
 
 - A `ctrlg.*.toml` key only appears as a completion if it really exists
-  in that file — so a TAB-completed `--ctrlg:` path <del class="clfix">never triggers the
-  "key not found in target section" abort from `m_toml_override`</del><span class="clfix">is never a misspelled key (a key that the file does not carry is added, since 2026-09-30)</span>.
+  in that file — so a TAB-completed `--ctrlg:` path is never a misspelled key (a key that the file does not carry is added, since 2026-09-30).
 - A `--<flag>` only appears if it is registered in
   `m_cmdopt_registry::load_cmdopt0_registry` /
   `load_cmdopt2_registry` — so a TAB-completed flag never triggers
