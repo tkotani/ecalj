@@ -1,6 +1,6 @@
 # ecalj MainDocument
 
-> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob 580afb82f8f4).
+> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob b8270aca268d).
 **This is the main document of ecaljdoc: the features of ecalj, an overview of QSGW, and the first calculation (GetStarted). Other pages are reached from the menu on the left.**
 
 * Here we give [GetStarted](#getstarted), together with install and overview of QSGW.
@@ -14,7 +14,7 @@
 
 1. **All electron full-potential PMT method** 
    The PMT method means; a mixed basis method of two kinds of augmented waves, that is, APW+MTO.
-   In other words, the PMT method= the linearized (APW+MTO) method, which is unique except the [Questaal](https://www.questaal.org/) having the same origin with ecalj. We found that MTOs and APWs are very comlementary, corresponding to the localized and the extented natures of eigenfunctions. That is, very localized MTOs (damping factor $\exp(-\kappa r)$ where $\kappa \sim 1 $ bohr$^{-1}$; this implies only reaching to nearest atoms) together with APWs (cutoff is $\approx 3$ Ry) works well to get reasonable convergences. We can perform atomic-position relaxation at GGA/LDA level. Because of including APWs, we can describe the scattering states very well. 
+   In other words, the PMT method= the linearized (APW+MTO) method, which is unique except the [Questaal](https://www.questaal.org/) having the same origin with ecalj. MTOs and APWs work complementarily in representing the wave functions, corresponding to the localized and the extented natures of eigenfunctions. That is, very localized MTOs (damping factor $\exp(-\kappa r)$ where $\kappa \sim 1 $ bohr$^{-1}$; this implies only reaching to nearest atoms) together with APWs (cutoff is $\approx 3$ Ry) works well to get reasonable convergences. We can perform atomic-position relaxation at GGA/LDA level. Because of including APWs, we can describe the scattering states very well. 
   ![alt text](../../manual/image-1.png)(This fig is taken from [nfp-manual by M. Methfessel and M. van Schilfgaarde](../../presentations/nfpmanual.pdf))
    Our current PMT formulation is given in
 
