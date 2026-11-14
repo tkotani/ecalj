@@ -1,6 +1,6 @@
 # Samples/AtomDimer — 箱の中の分子と原子
 
-> 説明の本体: ecaljdoc の [manual/UsageDetailed.md](../../ecaljdoc/manual/UsageDetailed.md)「For molecules, we may use --systype=molecule for ctrlgenToml.py.」（サイト https://ecalj.github.io/ecaljdoc/manual/UsageDetailed）。サンプルの一覧は [manual/samples.md](../../ecaljdoc/manual/samples.md)。
+> 説明の本体: ecaljdoc の [manual/UsageDetailed.md](../../ecaljdoc/manual/UsageDetailed.md)「Molecules」（サイト https://ecalj.github.io/ecaljdoc/manual/UsageDetailed）。サンプルの一覧は [manual/samples.md](../../ecaljdoc/manual/samples.md)。
 
 | ディレクトリ | 内容 | 試験 |
 | --- | --- | --- |

@@ -113,6 +113,11 @@
 
 ### 判断待ち（ほかに）
 
+- **ecaljdoc の「その他の説明」（UsageDetailed）を整理したときに見つけた、確かめが要ること**（2026-11-14）
+  - 分子の設定: `ctrlgenToml.py --systype=molecule` が書くのは `nkabc = [1,1,1]`、`tetra = true`、`n = -1`、`w = 0.01`。ところが `toml_comments.py` のコメントと
+    ページ（と Samples/AtomDimer/N2）は `tetra = false`、`w = 0.001`。コードかコメントのどちらかを合わせる
+  - 「`so = 1` では QSGW を回せない（`so = 0` か 2 で `sigm` を作ってから `so = 1`）」がいまも正しいか（メインドキュメントの Step 2 にも同じ記述）
+  - 覚え書きの「Q0P は Γ セルの 1/10（`Q0Pchoice = 1`）」と、GW の設定のページの `deltaq_scale` の説明の食い違い（覚え書きは `MD/usagedetailed_memos_20261114.md`）
 - **`[gw]` のテンプレートの値とコードの既定値のずれ（2026-11-14、user「とにかく注意を書いておくこと」）**。テンプレートは `main_gwinit.f90`
   （`ctrlgenToml.py` が gwinit を通して書く値）、既定値は `m_GWinput.f90`（キーが無いときの値）。ずれは、いまはこのままにする。
   **ずれがあるキーは、文書（ecaljdoc の GW の設定のページ）に両方の値を書いておく**。2026-11-14 の突き合わせ:

@@ -12,7 +12,7 @@ ecalj を Claude (LLM) で開発する際のガイドライン。
 | いまの状況、記憶の無いセッションへの引き継ぎ（計算機、取り決め、落とし穴） | [handover.md](handover.md) |
 | まだやっていないこと（やりかけ・未着手・判断待ち）と、やったこと | [TODOandQuestion.md](TODOandQuestion.md) |
 | 経緯、計測、判断の時刻（最新が上。ローカルなメモを含む） | [research_kotani_log.md](research_kotani_log.md) |
-| 片付けたものに入っていたノウハウ、trash に移したものの表 | [past_log.md](past_log.md) |
+| 片付けたものに入っていたノウハウ、trash に移したものの表 | [past_log.md](past_log.md)。ecaljdoc の UsageDetailed（その他の説明）から外した覚え書きは [usagedetailed_memos_20261114.md](usagedetailed_memos_20261114.md) |
 | 新機能と変更（利用者向け、正本） | [`Changes.md`](../Changes.md)（最上位。2026-10-02 に `Changes.txt` から改名） |
 | 主プログラム → module の階層（生成物） | [module_map.md](module_map.md) |
 | 個別の設計・手順: 対称性 [symmetry_spglib.md](symmetry_spglib.md)、Wannier と MLO の比較 [wannier_vs_mlo.md](wannier_vs_mlo.md)、ecaljdoc の管理と公開 [ecaljdoc_publish.md](ecaljdoc_publish.md)、履歴の書き換えのハッシュの対応 `commit_map_20261002.txt` | [`MD/`](.) |

@@ -18,6 +18,8 @@ git checkout <コミット> -- <パス>          # 作業ツリーに戻す（�
 
 `trash/` は `.gitignore` に入っていて、空にする（本当に消す）のはメンテナが決める。
 
+**2026-11-14**: ecaljdoc の「その他の説明」（`manual/UsageDetailed.md`）から外した開発者向けのメモ（git の使い方、CORE1、VWN と GGA など）は、そのまま [usagedetailed_memos_20261114.md](usagedetailed_memos_20261114.md) に写した。
+
 ---
 
 ## 1. ビルドとインストール
