@@ -1,6 +1,6 @@
 # Writing ecaljdoc {#writing-docs}
 
-> English version of the page [manual/writing_docs](../../manual/writing_docs.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/writing_docs.md of the tree of 6d046218a (source blob aade2a7932d6).
+> English version of the page [manual/writing_docs](../../manual/writing_docs.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/writing_docs.md of the tree of 6d046218a (source blob 4847f97f9495).
 
 Notes for writing and editing this site (ecaljdoc). They hold for people and for AI alike.
 
@@ -39,6 +39,7 @@ npx vitepress build    # check that the site builds
 - Write only the reasons and the cautions that are needed. How we got there (the history) does not go here (it goes to the development records).
 - Equations carry numbers (`\tag{n}`) and are referred to by number; figures and tables are numbered too.
 - Do not separate who wrote what (a person or an AI) or who asked for it; git tells that.
+- For an input key whose template value (written by `ctrlgenToml.py`) differs from the default of the code (used when the key is absent), write both values.
 
 ## VitePress pitfalls {#vitepress-pitfalls}
 
