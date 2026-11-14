@@ -16,6 +16,7 @@ const sidebarRoot = [
       { text: '更新履歴（要約）/ What\'s new', link: '/manual/whatsnew' },
       { text: '入力ファイル', link: '/manual/toml_migration' },
       { text: 'syml.&lt;sname&gt;', link: '/manual/syml' },
+      { text: 'GW の設定（[gw] などのキー）', link: '/manual/gwinput' },
       { text: 'Samples (where what lives)', link: '/manual/samples' },
       { text: 'DFT  calculation : lmf part', link: '/manual/lmf' },
       { text: 'MT 半径の上限と偽の準位', link: '/manual/mtradius' },
@@ -24,7 +25,6 @@ const sidebarRoot = [
       { text: 'GPU version of QSGW',link: '/manual/ecaljgpu.md' },
       { text: 'kBT — 有限温度と均し方 (t_tetrakbt / t_sigmaw)', link: '/manual/kBT' },
       { text: 'MLO — 最大局在化などに代わる自動モデル化法', link: '/manual/mlo' },
-      { text: 'MLO-gwsc — Sigma を MLO 表現で内挿する QSGW（開発中）', link: '/manual/mlo_gwsc' },
       { text: 'UsageDetailed ', link: '/manual/UsageDetailed' },
       { text: 'ドーピング（背景電荷）', link: '/manual/Memo_bgcharge' },
       { text: 'スペクトル関数', link: '/manual/spectrum' },
@@ -37,6 +37,14 @@ const sidebarRoot = [
       // { text: 'Quasi-particle\'s life time', link: '/manual/lifetime' },
       // { text: 'Spectrum function', link: '/manual/spec' },
       // developer pages (ForDevelopers, developer, auto, kBT_history, mlo_backup, implementation) moved to ecalj/MD on 2026-10-02 (not on the site)
+    ]
+  },
+  {
+    text: '開発中',
+    items: [
+      { text: 'MLO-gwsc — Sigma を MLO 表現で内挿する QSGW', link: '/manual/mlo_gwsc' },
+      { text: 'Hedin 方程式', link: '/theory/hedin_eqs' },
+      { text: '線形化された MTO 法', link: '/theory/lmto' },
     ]
   },
   {
@@ -53,8 +61,6 @@ const sidebarRoot = [
       { text: '分極の計算式', link: '/theory/chi' },
       { text: 'Basic  I', link: '/theory/basic' },
       { text: 'Basic II', link: '/theory/basic2' },
-      { text: 'Hedin 方程式（加筆中）', link: '/theory/hedin_eqs' },
-      { text: '線形化された MTO 法（加筆中）', link: '/theory/lmto' },
     ]
   },
   { text: 'ライセンス', link: '/manual/license' },
@@ -71,19 +77,20 @@ const sidebarRoot = [
     text: '古い文書（過去ログ）',   // legacy pages kept as records (2026-11-14)
     items: [
       { text: 'ctrl.&lt;sname&gt; (legacy)', link: '/manual/lmf_legacy_ctrl' },
-      { text: 'GWinput (legacy)', link: '/manual/gwinput' },
       { text: '外したコード（過去のコード）', link: '/manual/past_code' },
     ]
   },
 ]
 
 const enText: Record<string, string> = {
+  '開発中': 'In development',
+  'GW の設定（[gw] などのキー）': 'GW settings ([gw] and other keys)',
   'ドーピング（背景電荷）': 'Doping (background charge)',
   'スペクトル関数': 'Spectrum function',
   'ISSP での使い方': 'Usage at ISSP',
   '分極の計算式': 'Formulas of the polarization',
-  'Hedin 方程式（加筆中）': 'Hedin equations (in progress)',
-  '線形化された MTO 法（加筆中）': 'Linearized MTO method (in progress)',
+  'Hedin 方程式': 'Hedin equations',
+  '線形化された MTO 法': 'Linearized MTO method',
   '外したコード（過去のコード）': 'Removed code (past code)',
   '古い文書（過去ログ）': 'Old documents (past records)',
   'メインドキュメント': 'MainDocument',
@@ -96,7 +103,7 @@ const enText: Record<string, string> = {
   'MT 半径の上限と偽の準位': 'Upper limit of MT radii and spurious levels',
   'kBT — 有限温度と均し方 (t_tetrakbt / t_sigmaw)': 'kBT — finite temperature and smearing (t_tetrakbt / t_sigmaw)',
   'MLO — 最大局在化などに代わる自動モデル化法': 'MLO — automatic model construction in place of maximal localization',
-  'MLO-gwsc — Sigma を MLO 表現で内挿する QSGW（開発中）': 'MLO-gwsc — QSGW interpolating Sigma in the MLO representation (in development)',
+  'MLO-gwsc — Sigma を MLO 表現で内挿する QSGW': 'MLO-gwsc — QSGW interpolating Sigma in the MLO representation',
   'ecalj のバンド計算法': 'Band-structure method of ecalj',
 }
 function toEn(items: any[]): any[] {
