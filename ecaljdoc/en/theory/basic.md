@@ -19,7 +19,7 @@ m\ddot x + \gamma \dot x + k x = f(t)
 $$
 
 Write $g(t-t')$ for the response to a single kick at time $t'$ ($f(t)=𝛿(t-t')$). This is the impulse response (the Green function). An impulse is a strong kick in a very short time: the limit of a shorter and stronger kick with the impulse (the time integral of the force) kept fixed (this is $𝛿(t-t')$, with impulse 1).
-Nothing moves before the kick, so $g=0$ for $t<t'$ (causality). Since the equation is linear, the response to any force is a superposition of kicks,
+Nothing moves before the kick, so $g=0$ for $t<t'$ (causality). With the step function $𝜃(t)$ (1 for $t>0$ and 0 for $t<0$), $g(t-t')$ has the factor $𝜃(t-t')$. Since the equation is linear, the response to any force is a superposition of kicks,
 
 $$
 x(t) = \int dt'\, g(t-t') f(t')
@@ -150,7 +150,6 @@ In its own time ($t_2-t_1>0$) the hole also goes to the future. The hole seems t
 - $\hat 𝜓_\mathrm{H}(𝒓,t)$ : the field operator in the Heisenberg picture, $\hat 𝜓_\mathrm{H}(𝒓,t) = e^{i\hat Ht/\hbar}\hat 𝜓(𝒓)e^{-i\hat Ht/\hbar}$.
 - $\hat 𝜓^†_\mathrm{H}(𝒓,t) = e^{i\hat Ht/\hbar}\hat 𝜓^†(𝒓)e^{-i\hat Ht/\hbar}$.
 - The field operators of fermions satisfy the anticommutation relation $\{𝜓_\mathrm{H}(𝒓_1,t),𝜓_\mathrm{H}^†(𝒓_2,t)\} = 𝛿(𝒓_1-𝒓_2)$. Note that this is the equal-time anticommutation relation.
-- $𝜃(t)$: the step function, 1 for $t>0$ and 0 for $t<0$.
 - $\Psi_0$: the $N$-particle ground state in the Heisenberg picture, $\hat H\ket{\Psi_0} = E \ket{\Psi_0}$ ($E=0$ may be taken)
 
 This one-particle Green function is computed in perturbation theory in the form of Eq. (G3) below (the Gell-Mann–Low theorem).
