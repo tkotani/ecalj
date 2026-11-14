@@ -1,6 +1,6 @@
-# quasi-particle self-consistent $GW$
+# Quasi-particle self-consistent $GW$
 
-> English version of the page [theory/qsgw](../../theory/qsgw.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/qsgw.md of the tree of c9f9a3003 (source blob 9f023bde0378).
+> English version of the page [theory/qsgw](../../theory/qsgw.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/qsgw.md of commit 847e65213 (source blob 7c582dc25df2).
 
 > **Main reference.** [1] M. Obata, T. Kotani, T. Oda, "Efficient implementation of the quasiparticle self-consistent $GW$ method on GPU",
 > Comput. Mater. Sci. **260**, 114190 (2025), [doi:10.1016/j.commatsci.2025.114190](https://doi.org/10.1016/j.commatsci.2025.114190) (open access).
@@ -37,17 +37,19 @@ The former method is known as self-consistent $GW$, but it is also known as a le
 
 $$
 H_0 = H_{\text{DFT}} + V^\mathrm{QSGW}_\text{xc} - V^\mathrm{LDA/GGA}_{\text{xc}}
+\tag{Q1}
 $$
 where 
 $$
 H_{\text{DFT}} = -\frac{\hbar^2}{2m}\nabla^2 + V_{\text{ext}} + V_{\text{H}} + V^\mathrm{LDA/GGA}_{\text{xc}}
+\tag{Q2}
 $$
 - $-\frac{\hbar^2}{2m}\nabla^2$: Kinetic energy term
 - $V_{\text{ext}}$: External potential
 - $V_{\text{H}}$: Hartree term (Coulomb interaction between electrons)
 - $V_{\text{xc}}$: Exchange-correlation potential
 
-in the QSGW, one-particle Hamiltonian is constracted by following formula
+In QSGW, the one-particle Hamiltonian is constructed with the following formula
 $$
 \begin{align}
   \widetilde{𝛴}^\mathrm{c}_{nm}(𝐤) &
@@ -55,6 +57,7 @@ $$
   {\rm Re}\left[
   {\frac{ {\varSigma}^{\rm c}(\varepsilon_{𝐤n}) + {\varSigma}^{\rm c}(\varepsilon_{𝐤m}) }{2}}
 \right]  |{\Psi_{𝐤m}} }
+\tag{Q3}
 \end{align}
 $$
 
@@ -77,6 +80,6 @@ graph TD
     F1 -->|Yes| G1[Converge]
 ```
 This flowchart outlines the process of obtaining the GW self-energy $𝛴$ and the QSGW potential $V^\mathrm{xc}_\mathrm{QSGW}$.
-It starts with solving a one-particle equation to get $H^0$, followed by determining the its eigenvalues and eigenfunctions.
+It starts with solving a one-particle equation to get $H^0$, followed by determining its eigenvalues and eigenfunctions.
 The process then branches into calculating core-exchange self-energy $𝛴^\mathrm{Cx}$, exchange self-energy $𝛴^\mathrm{x}$, and correlation self-energy $𝛴^\mathrm{c}$, which are combined to obtain the $GW$ self-energy $𝛴$ and the QSGW potential $V^\mathrm{xc}_\mathrm{QSGW}$.
 The cycle continues until the condition $| 𝛴 - 𝛴^\mathrm{old}| ≤ Δ_\mathrm{QP}$ is met.
