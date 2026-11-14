@@ -1,9 +1,9 @@
 
 # ecalj Install
 
-> English version of the page [install/install](../../install/install.md). The pages at the top of ecaljdoc are the reference; this one was made from install/install.md of commit a9d3d887c (source blob a4f2b546a241).
+> English version of the page [install/install](../../install/install.md). The pages at the top of ecaljdoc are the reference; this one was made from install/install.md of commit a9d3d887c (source blob de24c7ae6d1f).
 
-> ⚠️ **TOML migration (2026-05)** — Fortran binaries now read `ctrlg.<sname>.toml` only. Run `Legacy2toml.py <sname>` to convert legacy `ctrl.<sname>` / `GWinput`. See [TOML migration](../manual/toml_migration) for the full guide and the list of migrated samples.
+> ⚠️ **TOML migration (2026-05)** — Fortran binaries now read `ctrlg.<sname>.toml` only. Run `Legacy2toml.py <sname>` to convert legacy `ctrl.<sname>` / `GWinput`. See [Input file](../manual/toml_migration) for the full guide and the list of migrated samples.
 
 To install the ecalj package, you need to install software and Python modules used in ecalj.
 In addition, we make some softlinks for convenience. Most steps are almost automatic. Follow the steps below.

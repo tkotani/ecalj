@@ -69,7 +69,7 @@ ecalj の新しい機能と、結果が変わる修正の要約。新しい順�
     この間の `pwmode = 11` の LDA+U の SCF は誤り
   - `[[spec]]` の `idu = 10 + mode`（4f の `idu = 12` など）は、`sigm` が無いとき二重計数の項を引かない LDA+U になっていた（2023-09 から）
   - 反強磁性の対称性（`symgrpaf`）の QSGW が止まっていた → 両方のスピンを計算して動く
-- `--ctrlg:<path>=<value>` で、ファイルに無いキーも書き足して効かせる（これまで既定値のまま走った）→ [TOML migration](./toml_migration.md)
+- `--ctrlg:<path>=<value>` で、ファイルに無いキーも書き足して効かせる（これまで既定値のまま走った）→ [Input file](./toml_migration.md)
 - `gwscconv`: 金属・半金属は固有値の変化で収束を判定する → [gwsc](./gwsc.md)
 - サンプルを組み直した（SOC の磁気異方性、LDA+U、有効質量、構造緩和、DOS、IIR、箱の中の分子、電子温度のスキャンなど）→ [Samples](./samples.md)
 
@@ -82,4 +82,4 @@ ecalj の新しい機能と、結果が変わる修正の要約。新しい順�
 | 2026-09 | GW の GPU 高速化（精度の切り替え `--prec=tf32\|fp32\|fp64`、方法は表で自動） | [GPU version](./ecaljgpu.md) |
 | 2026-09 | MLO の自動の窓（`mlo_method = 4`）、局所軌道の扱い | [MLO](./mlo.md) |
 | 2026-06 | 有限温度の四面体法、`gw_lmfh` の GPU | [kBT](./kBT.md)、[gwsc](./gwsc.md) |
-| 2026-05 | 入力は `ctrlg.<sname>.toml` 一本に（TOML）、上書きは `--ctrlg:` | [TOML migration](./toml_migration.md) |
+| 2026-05 | 入力は `ctrlg.<sname>.toml` 一本に（TOML）、上書きは `--ctrlg:` | [Input file](./toml_migration.md) |

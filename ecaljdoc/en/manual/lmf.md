@@ -1,8 +1,8 @@
 # `lmf,lmfa,lmchk`
 
-> English version of the page [manual/lmf](../../manual/lmf.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/lmf.md of commit a005a90c0 (source blob c6e9c479563f).
+> English version of the page [manual/lmf](../../manual/lmf.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/lmf.md of commit a005a90c0 (source blob fed09e2c48aa).
 
-> ⚠️ `lmf`, `lmfa`, `lmchk` read **`ctrlg.<sname>.toml`** only. A directory with the legacy `ctrl.<sname>` is converted with `Legacy2toml.py <sname>` before invoking these binaries (the legacy syntax is described in [Legacy `ctrl.<sname>` reference](./lmf_legacy_ctrl)). See [TOML migration](./toml_migration) for the full guide and [Samples/](https://github.com/tkotani/ecalj/blob/main/Samples/README.md).
+> ⚠️ `lmf`, `lmfa`, `lmchk` read **`ctrlg.<sname>.toml`** only. A directory with the legacy `ctrl.<sname>` is converted with `Legacy2toml.py <sname>` before invoking these binaries (the legacy syntax is described in [Legacy `ctrl.<sname>` reference](./lmf_legacy_ctrl)). See [Input file](./toml_migration) for the full guide and [Samples/](https://github.com/tkotani/ecalj/blob/main/Samples/README.md).
 
 We need an input file `ctrlg.<sname>.toml` (legacy: `ctrl.<sname>`).  
 `<sname>` is the **positional** argument passed to the binary

@@ -1,8 +1,8 @@
 # Spectrum function of G.
 
-> English version of the page [manual/spectrum](../../manual/spectrum.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/spectrum.md of the tree of c9f9a3003 (source blob a0593a4b30be).
+> English version of the page [manual/spectrum](../../manual/spectrum.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/spectrum.md of the tree of c9f9a3003 (source blob e6c9f15eb344).
 
-> ⚠️ Binaries read `ctrlg.<sname>.toml` only. Use `Legacy2toml.py <sname>` to convert legacy `ctrl.<sname>` / `GWinput`. See [TOML migration](./toml_migration).
+> ⚠️ Binaries read `ctrlg.<sname>.toml` only. Use `Legacy2toml.py <sname>` to convert legacy `ctrl.<sname>` / `GWinput`. See [Input file](./toml_migration).
 
 How to calculate $\langle {\bf q} n|\Sigma(\omega)|{\bf q} n\rangle$
 

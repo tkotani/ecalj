@@ -1,7 +1,7 @@
 # ecalj メインドキュメント {#ecalj-maindocument}
 **ecaljdoc のメインドキュメントです。ecalj の特徴、QSGW の概観、最初の計算（GetStarted）を書いています。ほかのページへは左のメニューからたどってください。**
 
-> ⚠️ **TOML への移行（2026-05）** — Fortran のバイナリは `ctrlg.<sname>.toml` だけを読みます。下の例で `ctrl.<sname>` / `GWinput` を使っているものは古い形です。走らせる前に `Legacy2toml.py <sname>` で変換してください。手引きの全体は [TOML への移行](./toml_migration) を、ひな形には移行済みの [Samples/](https://github.com/tkotani/ecalj/blob/main/Samples/README.md)（EPS、PROCAR、MLOsamples、TestInstall）を見てください。
+> ⚠️ **TOML への移行（2026-05）** — Fortran のバイナリは `ctrlg.<sname>.toml` だけを読みます。下の例で `ctrl.<sname>` / `GWinput` を使っているものは古い形です。走らせる前に `Legacy2toml.py <sname>` で変換してください。手引きの全体は [入力ファイル](./toml_migration) を、ひな形には移行済みの [Samples/](https://github.com/tkotani/ecalj/blob/main/Samples/README.md)（EPS、PROCAR、MLOsamples、TestInstall）を見てください。
 
 * ここでは [GetStarted](#getstarted) を、インストールと QSGW の概観とあわせて説明します。
 * [UsageDetails](./UsageDetailed.md) は別のファイルにあります。
@@ -379,7 +379,7 @@ ctrlgenToml.py <sname> --addgw    # appends [gw]/[mlo]/[blocks]/[product_basis] 
 7. LDA+U: `[[spec]]` の中に配列 `idu / uh / jh` を加えます。
    [`lmf.md` の LDA+U の節](./lmf) を見てください。
 
-一回の実行だけキーを上書きするには、コマンドラインで `--ctrlg:<section.key>=<value>` を使います。[TOML への移行](./toml_migration#run-time-ctrlg-overrides) を見てください。
+一回の実行だけキーを上書きするには、コマンドラインで `--ctrlg:<section.key>=<value>` を使います。[入力ファイル](./toml_migration#run-time-ctrlg-overrides) を見てください。
 
 ```bash
 # OLD (legacy ctrl + %const; the programs stop)
@@ -429,7 +429,7 @@ Legacy2toml.py mp-2534
 `ctrlg.<sname>.toml` を出力します。何度走らせても同じ結果になり、そのままでは
 引き継げない `%const` / `-v` の上書きについて
 `[INFO] / [WARN] / [ERROR]` の診断を出します。キーの対応の全体は
-[TOML への移行](./toml_migration) を見てください。
+[入力ファイル](./toml_migration) を見てください。
 
 ### VESTA をインストールする {#install-vesta}
 結晶構造を見るには VESTA が便利です。

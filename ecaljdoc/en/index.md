@@ -11,16 +11,16 @@ hero:
     alt: ecalj
   actions:
     - theme: brand
-      text: GetStarted with AI (New!)
+      text: GetStarted with AI!
       link: /en/manual/getstartedAI
     - theme: alt
       text: What's new (2026-10)
       link: /en/manual/whatsnew
     - theme: alt
-      text: Tutorial
+      text: MainDocument
       link: /en/manual/README_tutorial
     - theme: alt
-      text: TOML migration (2026-05)
+      text: Input file
       link: /en/manual/toml_migration
     - theme: alt
       text: Theory

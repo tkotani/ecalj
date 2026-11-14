@@ -1,6 +1,6 @@
 # Samples — what's where in `ecalj/Samples/`
 
-> English version of the page [manual/samples](../../manual/samples.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/samples.md of commit 034c2b739 (source blob 733cad7ad4d8).
+> English version of the page [manual/samples](../../manual/samples.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/samples.md of commit 034c2b739 (source blob 063f0847cccf).
 
 This page is a thin index over the [`ecalj/Samples/`](https://github.com/tkotani/ecalj/tree/main/Samples)
 tree.  Each row points at the per-directory README that owns the
@@ -37,7 +37,7 @@ The targets of every directory and the group of `samples_tests.sh` that runs
 them are in table 1 of ecalj
 [`Samples/README.md`](https://github.com/tkotani/ecalj/blob/main/Samples/README.md).
 For your own directory with the legacy `ctrl.<sname>` + `GWinput`, see
-[TOML migration](./toml_migration) for the conversion flow.
+[Input file](./toml_migration) for the conversion flow.
 
 ## TOML-migrated samples (testecalj-runnable)
 

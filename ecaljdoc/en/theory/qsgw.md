@@ -1,6 +1,6 @@
 # quasi-particle self-consistent $GW$
 
-> English version of the page [theory/qsgw](../../theory/qsgw.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/qsgw.md of the tree of c9f9a3003 (source blob d8dda28f2336).
+> English version of the page [theory/qsgw](../../theory/qsgw.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/qsgw.md of the tree of c9f9a3003 (source blob ff7b5571c7e9).
 
 > **Main reference.** [1] M. Obata, T. Kotani, T. Oda, "Efficient implementation of the quasiparticle self-consistent $GW$ method on GPU",
 > Comput. Mater. Sci. **260**, 114190 (2025), [doi:10.1016/j.commatsci.2025.114190](https://doi.org/10.1016/j.commatsci.2025.114190) (open access).
@@ -20,7 +20,7 @@
 > - **Interpolation of $\tilde\Sigma$** (2026-09, in development): `gwsc --mlo` holds $\tilde\Sigma$ in the MLO representation instead of interpolating $\Delta V^{\rm xc}$ in MTOs. See [MLO-gwsc](../manual/mlo_gwsc).
 > - **Bug fixes that changed GW results** (2026-06 to 09): the pole-term binning of $\Sigma^{\rm c}$, the Fermi level of $\Sigma^{\rm Cx}$ at finite temperature,
 >   QSGW with antiferromagnetic symmetry (`symgrpaf`), and the LDA+U starting point (`idu`).
-> - **Input** (2026-05): all settings, including the product basis, are in `ctrlg.<sname>.toml`; see [TOML migration](../manual/toml_migration).
+> - **Input** (2026-05): all settings, including the product basis, are in `ctrlg.<sname>.toml`; see [Input file](../manual/toml_migration).
 
 The quasi-particle self-consistent $GW$ (QSGW) method is an advanced computational technique used in condensed matter physics and materials science to calculate the electronic properties of materials.
 It improves upon the standard $GW$ approximation by iteratively updating the one-particle (quasi-particle) Hamiltonian $H^0$.

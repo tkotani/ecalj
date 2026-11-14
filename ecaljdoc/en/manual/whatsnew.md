@@ -1,6 +1,6 @@
 # What's new (summary)
 
-> English version of the page [manual/whatsnew](../../manual/whatsnew.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/whatsnew.md of commit 0b4c05734 (source blob f4e9c15075f6).
+> English version of the page [manual/whatsnew](../../manual/whatsnew.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/whatsnew.md of commit 0b4c05734 (source blob ed1b2a66fe70).
 
 A summary of new features of ecalj and of fixes that change results. Newest first. The detailed record (all changes) is ecalj's
 [Changes.md](https://github.com/tkotani/ecalj/blob/main/Changes.md). Each item is explained on the linked page.
@@ -71,7 +71,7 @@ A summary of new features of ecalj and of fixes that change results. Newest firs
     LDA+U SCF with `pwmode = 11` in this period is wrong
   - `idu = 10 + mode` of `[[spec]]` (`idu = 12` for 4f etc.) was LDA+U without subtracting the double-counting term when there is no `sigm` (since 2023-09)
   - QSGW with antiferromagnetic symmetry (`symgrpaf`) stopped → now works by computing both spins
-- `--ctrlg:<path>=<value>` now also adds and applies keys not in the file (previously the run went on with the default value) → [TOML migration](./toml_migration.md)
+- `--ctrlg:<path>=<value>` now also adds and applies keys not in the file (previously the run went on with the default value) → [Input file](./toml_migration.md)
 - `gwscconv`: for metals and semimetals, convergence is judged by the change of eigenvalues → [gwsc](./gwsc.md)
 - Samples were reorganized (SOC magnetic anisotropy, LDA+U, effective mass, structural relaxation, DOS, IIR, molecule in a box, electron-temperature scan, etc.) → [Samples](./samples.md)
 
@@ -84,4 +84,4 @@ A summary of new features of ecalj and of fixes that change results. Newest firs
 | 2026-09 | GPU acceleration of GW (precision switch `--prec=tf32\|fp32\|fp64`, method chosen automatically from a table) | [GPU version](./ecaljgpu.md) |
 | 2026-09 | Automatic MLO window (`mlo_method = 4`), treatment of local orbitals | [MLO](./mlo.md) |
 | 2026-06 | Finite-temperature tetrahedron method, GPU for `gw_lmfh` | [kBT](./kBT.md), [gwsc](./gwsc.md) |
-| 2026-05 | Input unified into `ctrlg.<sname>.toml` (TOML), override with `--ctrlg:` | [TOML migration](./toml_migration.md) |
+| 2026-05 | Input unified into `ctrlg.<sname>.toml` (TOML), override with `--ctrlg:` | [Input file](./toml_migration.md) |

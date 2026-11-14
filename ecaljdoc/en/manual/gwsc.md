@@ -1,8 +1,8 @@
 # gwsc: a script to run QSGW calculation
 
-> English version of the page [manual/gwsc](../../manual/gwsc.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwsc.md of commit 034c2b739 (source blob ecf993d644ea).
+> English version of the page [manual/gwsc](../../manual/gwsc.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwsc.md of commit 034c2b739 (source blob f9334d3b2666).
 
-> ⚠️ `gwsc` reads `ctrlg.<sname>.toml` only, and stops when the file is missing. A directory with the legacy `ctrl.<sname>` + `GWinput` is converted by `Legacy2toml.py <sname>` (run once per directory). See [TOML migration](./toml_migration) and the [Samples/TestInstall/*_gwsc/](https://github.com/tkotani/ecalj/tree/main/Samples/TestInstall) directories as templates.
+> ⚠️ `gwsc` reads `ctrlg.<sname>.toml` only, and stops when the file is missing. A directory with the legacy `ctrl.<sname>` + `GWinput` is converted by `Legacy2toml.py <sname>` (run once per directory). See [Input file](./toml_migration) and the [Samples/TestInstall/*_gwsc/](https://github.com/tkotani/ecalj/tree/main/Samples/TestInstall) directories as templates.
 
 gwsc is the script to run QSGW calculations.
 A QSGW calculation is run by calling several Fortran executables.

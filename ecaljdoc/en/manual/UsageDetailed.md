@@ -1,8 +1,8 @@
 # UsageDetailed
 
-> English version of the page [manual/UsageDetailed](../../manual/UsageDetailed.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/UsageDetailed.md of commit a8bdac429 (source blob 900c84f4a108).
+> English version of the page [manual/UsageDetailed](../../manual/UsageDetailed.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/UsageDetailed.md of commit a8bdac429 (source blob d3e2bcde5e37).
 
-> ⚠️ The input is `ctrlg.<sname>.toml`. Run `Legacy2toml.py <sname>` to convert legacy `ctrl.<sname>` / `GWinput`. Overrides on the command line are `--ctrlg:<path>=val`; with `-v<NAME>=<VAL>` the programs stop. See [TOML migration](./toml_migration). The samples named below that are being rebuilt from `Samples/Legacy` are listed in ecalj [`Samples/README.md`](https://github.com/tkotani/ecalj/blob/main/Samples/README.md).
+> ⚠️ The input is `ctrlg.<sname>.toml`. Run `Legacy2toml.py <sname>` to convert legacy `ctrl.<sname>` / `GWinput`. Overrides on the command line are `--ctrlg:<path>=val`; with `-v<NAME>=<VAL>` the programs stop. See [Input file](./toml_migration). The samples named below that are being rebuilt from `Samples/Legacy` are listed in ecalj [`Samples/README.md`](https://github.com/tkotani/ecalj/blob/main/Samples/README.md).
 
 ## console output
 Console output is now mainly for debug purpose. 

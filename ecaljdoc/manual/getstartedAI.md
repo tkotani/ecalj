@@ -51,7 +51,7 @@ ecalj の文書と道具（`ctrlgenToml.py`、`Legacy2toml.py`、`testecalj`、`
 | 2 | [メインドキュメント](./README_tutorial.md) | ecalj で何ができるか、QSGW の概観、そして **GetStarted**（GaAs で一歩ずつ: POSCAR → ctrlg → LDA → バンドの図 → QSGW） |
 | 3 | [Install](../install/install.md) | `InstallAll.py` とインストールの試験 |
 | 4 | [Samples](./samples.md) | どのサンプルが何を示すか（サンプルのディレクトリにはそれぞれ README がある） |
-| 5 | [TOML への移行](./toml_migration.md) | 入力ファイル、上書き `--ctrlg:<path>=<value>`、古い `ctrl` + `GWinput` からの変更 |
+| 5 | [入力ファイル](./toml_migration.md) | 入力ファイル、上書き `--ctrlg:<path>=<value>`、古い `ctrl` + `GWinput` からの変更 |
 | 6 | 話題ごと | [lmf](./lmf.md)（DFT、対称性）、[gwsc](./gwsc.md)（QSGW）、[GPU 版](./ecaljgpu.md)、[kBT](./kBT.md)（温度と均し）、[MLO](./mlo.md)（模型、U/J/cRPA、マグノン）、[MLO-gwsc](./mlo_gwsc.md)、[誘電関数](./optical.md)、[スペクトル](./spectrum.md)、[UsageDetailed](./UsageDetailed.md)（反強磁性、SOC、LDA+U）、[コマンドラインのオプション](./cmdopts.md) |
 
 **段階 2: リポジトリ**（その人がクローンしたとき、または GitHub で）
@@ -205,7 +205,7 @@ https://github.com/tkotani/ecalj/tree/main/<directory>             the listing o
 `ctrlg.<sname>.toml` の節は `[struc]`（格子）、`[[site]]`（原子）、`[[spec]]`（種: 基底、半径、LDA+U）、`[bz]`（k のメッシュ、金属かどうか）、
 `[iter]`（混合）、`[ham]`（汎関数、スピン、SOC、`scaledsigma`、平面波）、`[options]`、`[gw]`（GW のメッシュとカットオフ、`t_tetrakbt`、`t_sigmaw`）、
 `[mlo]`、最後に `[product_basis]`（自動で作る）。どのキーもコマンドラインで上書きできる: `lmf <sname> --ctrlg:bz.nkabc=[8,8,8]`
-（[TOML への移行](./toml_migration.md)）。
+（[入力ファイル](./toml_migration.md)）。
 
 *表 5*. 見る出力ファイル
 

@@ -1,6 +1,6 @@
 # GetStarted with AI
 
-> English version of the page [manual/getstartedAI](../../manual/getstartedAI.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/getstartedAI.md of commit b18224576 (source blob 13c6c844ec6a).
+> English version of the page [manual/getstartedAI](../../manual/getstartedAI.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/getstartedAI.md of commit b18224576 (source blob 6e4fb2e8d703).
 
 Give this page to an AI and it will guide you through ecalj. People do not need to read this page.
 
@@ -57,7 +57,7 @@ next to this page.
 | 2 | [MainDocument](./README_tutorial.md) | what ecalj can do, the overview of QSGW, and **GetStarted** (GaAs, step by step: POSCAR → ctrlg → LDA → band plot → QSGW) |
 | 3 | [Install](../install/install.md) | `InstallAll.py` and the install tests |
 | 4 | [Samples](./samples.md) | which sample shows what (each sample directory has a README) |
-| 5 | [TOML migration](./toml_migration.md) | the input file, the override `--ctrlg:<path>=<value>`, the change from the old `ctrl` + `GWinput` |
+| 5 | [Input file](./toml_migration.md) | the input file, the override `--ctrlg:<path>=<value>`, the change from the old `ctrl` + `GWinput` |
 | 6 | by topic | [lmf](./lmf.md) (DFT, symmetry), [gwsc](./gwsc.md) (QSGW), [GPU version](./ecaljgpu.md), [kBT](./kBT.md) (temperature and smearing), [MLO](./mlo.md) (models, U/J/cRPA, magnons), [MLO-gwsc](./mlo_gwsc.md), [Dielectric function](./optical.md), [spectrum](./spectrum.md), [UsageDetailed](./UsageDetailed.md) (antiferromagnets, SOC, LDA+U), [Command-line options](./cmdopts.md) |
 
 **Step 2, the repository** (when the person has cloned it, or through GitHub)
@@ -215,7 +215,7 @@ Every program prints its options with `--help`; [Command-line options](./cmdopts
 `ctrlg.<sname>.toml` has the sections `[struc]` (lattice), `[[site]]` (atoms), `[[spec]]` (species: basis, radii, LDA+U),
 `[bz]` (k mesh, metal or not), `[iter]` (mixing), `[ham]` (functional, spin, SOC, `scaledsigma`, plane waves), `[options]`,
 `[gw]` (GW meshes and cut-offs, `t_tetrakbt`, `t_sigmaw`), `[mlo]`, and at the end `[product_basis]` (made automatically).
-Any key can be overridden on the command line: `lmf <sname> --ctrlg:bz.nkabc=[8,8,8]` ([TOML migration](./toml_migration.md)).
+Any key can be overridden on the command line: `lmf <sname> --ctrlg:bz.nkabc=[8,8,8]` ([Input file](./toml_migration.md)).
 
 *Table 5*. Output files to look at
 

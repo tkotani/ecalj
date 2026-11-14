@@ -1,6 +1,6 @@
 # ecalj のインストール {#ecalj-install}
 
-> ⚠️ **TOML への移行（2026-05）** — Fortran のバイナリは `ctrlg.<sname>.toml` だけを読みます。古い `ctrl.<sname>` / `GWinput` は `Legacy2toml.py <sname>` で変換してください。手引きの全体と移行済みのサンプルの一覧は [TOML への移行](../manual/toml_migration) を見てください。
+> ⚠️ **TOML への移行（2026-05）** — Fortran のバイナリは `ctrlg.<sname>.toml` だけを読みます。古い `ctrl.<sname>` / `GWinput` は `Legacy2toml.py <sname>` で変換してください。手引きの全体と移行済みのサンプルの一覧は [入力ファイル](../manual/toml_migration) を見てください。
 
 ecalj をインストールするには、ecalj が使うソフトウェアと Python のモジュールを入れる必要があります。
 さらに、便利のためにいくつかのソフトリンクを作ります。ほとんどの手順はほぼ自動です。以下の手順に従ってください。

@@ -35,7 +35,7 @@ The targets of every directory and the group of `samples_tests.sh` that runs
 them are in table 1 of ecalj
 [`Samples/README.md`](https://github.com/tkotani/ecalj/blob/main/Samples/README.md).
 For your own directory with the legacy `ctrl.<sname>` + `GWinput`, see
-[TOML migration](./toml_migration) for the conversion flow.
+[Input file](./toml_migration) for the conversion flow.
 
 ## TOML-migrated samples (testecalj-runnable)
 

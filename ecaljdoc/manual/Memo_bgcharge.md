@@ -4,7 +4,7 @@
 > page map onto `ctrlg.<sname>.toml` as: `SPEC_ATOM_Z` → `[[spec]].z`,
 > `SPEC_ATOM_Q` → `[[spec]].q`, `BZ_ZBAK` → `[bz].zbak`. The conceptual
 > recipe below is identical; only the file/key path changes. See
-> [TOML migration](./toml_migration).
+> [Input file](./toml_migration).
 
 The 1st principle calculations are performed under the charge neutrality.
 

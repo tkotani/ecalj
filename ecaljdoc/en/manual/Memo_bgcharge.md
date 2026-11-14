@@ -1,12 +1,12 @@
 # How to make doping?
 
-> English version of the page [manual/Memo_bgcharge](../../manual/Memo_bgcharge.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/Memo_bgcharge.md of the tree of c9f9a3003 (source blob 90e04a87922f).
+> English version of the page [manual/Memo_bgcharge](../../manual/Memo_bgcharge.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/Memo_bgcharge.md of the tree of c9f9a3003 (source blob d2017f4a5be5).
 
 > ⚠️ **TOML migration (2026-05)** — The legacy `Category_Token`s in this
 > page map onto `ctrlg.<sname>.toml` as: `SPEC_ATOM_Z` → `[[spec]].z`,
 > `SPEC_ATOM_Q` → `[[spec]].q`, `BZ_ZBAK` → `[bz].zbak`. The conceptual
 > recipe below is identical; only the file/key path changes. See
-> [TOML migration](./toml_migration).
+> [Input file](./toml_migration).
 
 The 1st principle calculations are performed under the charge neutrality.
 

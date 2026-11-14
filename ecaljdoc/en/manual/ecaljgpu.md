@@ -1,8 +1,8 @@
 # How to use the GPU version of ecalj
 
-> English version of the page [manual/ecaljgpu](../../manual/ecaljgpu.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/ecaljgpu.md of the tree of c9f9a3003 (source blob aad4186482d2).
+> English version of the page [manual/ecaljgpu](../../manual/ecaljgpu.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/ecaljgpu.md of the tree of c9f9a3003 (source blob 52d74485762e).
 
-> ⚠️ The GPU version of `gwsc` also reads only `ctrlg.<sname>.toml`. Convert a legacy `ctrl.<sname>` / `GWinput` directory with `Legacy2toml.py <sname>` before running. See [TOML migration](./toml_migration).
+> ⚠️ The GPU version of `gwsc` also reads only `ctrlg.<sname>.toml`. Convert a legacy `ctrl.<sname>` / `GWinput` directory with `Legacy2toml.py <sname>` before running. See [Input file](./toml_migration).
 
 ecalj can perform QSGW calculations on GPUs.
 * The GPU is used for the calculation of the self-energy and the screened Coulomb interaction.
