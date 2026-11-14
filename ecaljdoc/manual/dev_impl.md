@@ -9,6 +9,8 @@
 
 [[toc]]
 
+<span class="clfix">(The sections after the GW overview were reordered: the flow of the GW part (qg4gw → MPB → Coulomb → offset-Γ → tetrahedron → Σ interpolation), then the symmetry (crystal symmetry, real harmonics, rotation), then SOC for the MLO, the total energy of lmf, the EIBZ memo and the suspended electron-phonon part.)</span>
+
 The main reference for the formulas of the GW part is [Obata2025]: M. Obata, T. Kotani, T. Oda, "Efficient implementation of the quasiparticle self-consistent $GW$ method on GPU", Comput. Mater. Sci. **260**, 114190 (2025), [doi:10.1016/j.commatsci.2025.114190](https://doi.org/10.1016/j.commatsci.2025.114190), section 2. The equations below that carry "[Obata2025] Eq. (n)" are taken from it.
 
 ### Representation of eigenfunctions
@@ -1427,7 +1429,6 @@ we can evaluate this in the similar manner of Eq. (I57).
 The second term can be evaluated from
 `rojb` and `sgpb` in the same manner of last section<span class="clfix">: the on-site part ${\bf R}'={\bf R}$ is `sgpb`, and the off-site part is $\sum$ `rojp`$^*$ `strx` `rojb` (`zmm` in the block `PvB2` of `vcoulq_4`)</span>.
 
-
 ## Offset-$\Gamma$ method; W(k=0) averaged in the $\Gamma$ cell. {#offset-gamma}
 
 The offset-$\Gamma$ method, originally
@@ -1619,6 +1620,144 @@ of intraband transition.
 
 </div>
 
+## Data structure of the tetrahedron method in ecalj {#tetrahedron-data-structure}
+
+<div class="clfix-old">
+
+At first, you can consider only the `mtet=F` case.
+To make it safer, check `mtet=F` (if it is True, error exit by 'call rx').
+In `m_tetw.F` we have `gettetwt` called from `hx0fp0.m.F` as
+
+              call gettetwt(q,iq,is,isf,nwgt(:,iq),frhis,nwhis,npm,
+         i     qbas,ginv, ef, nqibz, nband,ekxx1,ekxx2, nctot,ecore,
+         i     nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,
+         i     nbmx,ebmx,mtet,eibzmode) !nov2016
+
+. All arguments are input.
+This returns tetrahedron weight $W_{\rm tet}(i,{\bf k},n,{\bf k}+{\bf q},n')$
+in the common data area of `m_tetw`.\
+
+-   `q`: ${\bf q}$ vector and index of ${\bf q}$ vector
+
+-   `iq`: unused for `mtet=F`. It may be safer to set -9999 for safe.
+
+-   `is,isf`: $\alpha$ and $\beta$
+
+-   Eigenvalues are supplied by
+
+              do kx = 1, nqbz
+                call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) 
+                call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
+              enddo
+
+    at `hx0fp0.m.F`
+
+-   `nwgt`: This is for EIBZ mode.
+    We skip microtetrahedrons when all of `nwgt(kx0:kx3)`
+    are zero (here ,kx1,kx2,kx3@ are four corners of ${\bf k}$ vectors).
+    Thus we calculate tetrahedron weigh only for ${\bf k}$ points for `nwgw(k)=1`.
+    In EIBZ mode, we will symmetrize finally obtained correct $K^{\alpha\beta}$.
+    (takao: I like to check this code again\...)\
+
+-   `frhis(1:1+nwhis),nwhis`: Histogram bins $[\omega_i,\omega_{i+1}]$
+    are @. We set `frhis(1)=0d0`.
+    See `m_freq.F`. We calculate values on $K^{\alpha,\beta}(\omega)$ where
+    $\omega$ is specified by `freq_r` (this is center of the bins.
+    See `freq_r` file.)
+
+-   If @, we calculate negative frequency part. For negative $\omega$,
+    Histogram bins $[\omega_i,\omega_{i+1}]$
+    are @.
+    (Opposite spin flip excitation to positive energy.)
+
+-   We can set `ncore=0` (genallcf_v3@).
+
+-   For BZ data (m_read_bzdata@), you can set them
+    by read_bzdata@.
+
+-   (3,3,1:ngrp)@ is the rotation part of space group operation.
+    SYMOPS file is created by `echo 0|lmfgw`, and read by qg4gw.
+    Then symops information is written into HAMindex file.
+
+Output data sets are
+real(8),allocatable :: whw(:)
+
+          integer,allocatable:: ihw(:,:,:),nhw(:,:,:),jhw(:,:,:),ibjb(:,:,:,:)
+          integer:: nbnbx,nhwtot
+          integer,allocatable :: n1b(:,:,:),n2b(:,:,:),nbnb(:,:)
+
+These are used as in `x0kf_v4h.F`. Look into it. Here is a simplified version for showing how to use these data set.
+
+            do 25 jpm  = 1, npm !
+            do 25 ibib = 1, nbnb(k,jpm)
+              n1b(ibib,k,jpm) !band index for k
+              n2b(ibib,k,jpm) !band index for q+k
+              it  =  n1b(ibib,k,jpm)                ! index for n  for q
+              itp =  1+  n2b(ibib,k,jpm)-n2bminimum ! index for n' for q+k
+              ... M(:,:) is calculated here ...  
+                    call get_zmelt2 --> Get zmel=<MPB psi_k|psi_{k+q}>
+                 zmel=dconjg(zmel)  ! -->  zmel= <psi_{k+q}| psi_k MPB_q>
+                 M(igb1,igb2) = dconjg(zmel(igb1,it,itp))* zmel(igb2, it,itp)
+                 Here M = <M_igb1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
+              do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 
+                 imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
+                 Kmatrix(:,:,iw,jpm) = Kmatrix(:,:,iw,jpm) + M(:,:)*imagweight 
+              enddo          
+       25  continue
+
+We do $\sum_n \sum_{n'}$ in Eq. (I78) as follows;
+before this `do 25`, we set ${\bf k},{\bf k}+{\bf q}$.
+$k$ is index for ${\bf k}$ vector.
+`n2bminimum` is introduced (this is for unoccupied states for `npm=1`.
+$W_{\rm tet}$ is given as , `iw` is
+the index for the histogram bin.
+
+</div>
+
+<div class="clfix">
+
+The tetrahedron weights of the polarization function, Eqs. (I18a), are made by `gettetwt` of the module `m_tetwt` (`m_tetwt.f90`):
+
+```fortran
+call gettetwt(q, iq, isp_k, isp_kq, ekxx1, ekxx2, nband=nband, ikbz_in=k_lo, fkbz_in=k_hi)   ! in x0kf_v4h.f90
+```
+
+- `q`, `iq`: the vector ${\bf q}$ and its index.
+- `isp_k`, `isp_kq` ($\alpha$, $\beta$): the spins of ${\bf k}$ and ${\bf k}+{\bf q}$ (different for the transverse spin susceptibility).
+- `ekxx1(nband,nqbz)`, `ekxx2(nband,nqbz)`: the eigenvalues at ${\bf k}$ and ${\bf k}+{\bf q}$ for all ${\bf k}$ of the BZ (`readeval`).
+- `ikbz_in`, `fkbz_in`: the range of ${\bf k}$ to be done (the ${\bf k}$ loop is split for memory and for the parallelization).
+- The other inputs come from modules: the histogram bins `frhis(1:nwhis+1)` and `npm` of `m_freq` (`npm = 2` also accumulates the negative-frequency part, needed without time-reversal symmetry),
+  the tetrahedra (`ntetf`, `idtetf`, `ib1bz`) of `m_read_bzdata`, the core levels of `m_core_state`, $E_{\rm F}$ of `m_ReadEfermi`, and `ebmx`, `nbmx`, `mtet` of `m_readgwinput`.
+  With `[gw] t_tetrakbt`, the Fermi level of the finite-temperature occupation is used ([kBT](./kBT)).
+
+The output is in the module variables:
+
+- `nbnb(k,jpm)`: the number of pairs $(n,n')$ with non-zero weight at ${\bf k}$; `n1b(ibib,k,jpm)` (occupied, cores after the valence) and `n2b(ibib,k,jpm)` (unoccupied) are their band indexes.
+- `ihw(ibib,k,jpm)`, `nhw(ibib,k,jpm)`: the first histogram bin and the number of bins with non-zero weight for the pair;
+  `jhw(ibib,k,jpm)` points to the weights `whw(jhw : jhw+nhw-1)`.
+
+They are used in `x0kf_v4h.f90` as (simplified)
+
+```fortran
+do jpm = 1, npm
+  do ibib = 1, nbnb(k,jpm)
+    it  = n1b(ibib,k,jpm)                      ! n  at k
+    itp = n2b(ibib,k,jpm)                      ! n' at k+q
+    ! M(I,J) = conjg(zmel(I,it,itp)) * zmel(J,it,itp)   (zmel from build_zmel)
+    do iw = ihw(ibib,k,jpm), ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1
+      imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
+      ! Im Pi(:,:,iw,jpm) += M(:,:)*imagweight
+    enddo
+  enddo
+enddo
+```
+
+which is the sum over $n,n'$ and ${\bf k}$ of Eq. (I18a).
+
+</div>
+
+<span class="clfix">(The subsection "Requirement of the spin symmetric Hamiltonian" of the magnon project was removed.)</span>
+
 ## Fourier transformation of non-local quantity
 
 <del class="clfix">We have "`call bloch`" in `lm7K/fp/bndfp.F`.</del><span class="clfix">The static self-energy in the MTO basis is Fourier transformed in `m_rdsigm2` (`rdsigm2.f90`): `rdsigm2` expands `sigm.<sname>` to the full BZ, `fftz3` gives the real-space matrix `hrr`, and `bloch2` transforms it back at any ${\bf k}$.</span>
@@ -1761,310 +1900,6 @@ of calculated diagonal elements.
 
 <span class="clfix">(The section "Magnon project" (generalized Lindhard function for spin waves) was removed, 2026-11-15, user.)</span>
 
-## Data structure of the tetrahedron method in ecalj {#tetrahedron-data-structure}
-
-<div class="clfix-old">
-
-At first, you can consider only the `mtet=F` case.
-To make it safer, check `mtet=F` (if it is True, error exit by 'call rx').
-In `m_tetw.F` we have `gettetwt` called from `hx0fp0.m.F` as
-
-              call gettetwt(q,iq,is,isf,nwgt(:,iq),frhis,nwhis,npm,
-         i     qbas,ginv, ef, nqibz, nband,ekxx1,ekxx2, nctot,ecore,
-         i     nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,
-         i     nbmx,ebmx,mtet,eibzmode) !nov2016
-
-. All arguments are input.
-This returns tetrahedron weight $W_{\rm tet}(i,{\bf k},n,{\bf k}+{\bf q},n')$
-in the common data area of `m_tetw`.\
-
--   `q`: ${\bf q}$ vector and index of ${\bf q}$ vector
-
--   `iq`: unused for `mtet=F`. It may be safer to set -9999 for safe.
-
--   `is,isf`: $\alpha$ and $\beta$
-
--   Eigenvalues are supplied by
-
-              do kx = 1, nqbz
-                call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) 
-                call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
-              enddo
-
-    at `hx0fp0.m.F`
-
--   `nwgt`: This is for EIBZ mode.
-    We skip microtetrahedrons when all of `nwgt(kx0:kx3)`
-    are zero (here ,kx1,kx2,kx3@ are four corners of ${\bf k}$ vectors).
-    Thus we calculate tetrahedron weigh only for ${\bf k}$ points for `nwgw(k)=1`.
-    In EIBZ mode, we will symmetrize finally obtained correct $K^{\alpha\beta}$.
-    (takao: I like to check this code again\...)\
-
--   `frhis(1:1+nwhis),nwhis`: Histogram bins $[\omega_i,\omega_{i+1}]$
-    are @. We set `frhis(1)=0d0`.
-    See `m_freq.F`. We calculate values on $K^{\alpha,\beta}(\omega)$ where
-    $\omega$ is specified by `freq_r` (this is center of the bins.
-    See `freq_r` file.)
-
--   If @, we calculate negative frequency part. For negative $\omega$,
-    Histogram bins $[\omega_i,\omega_{i+1}]$
-    are @.
-    (Opposite spin flip excitation to positive energy.)
-
--   We can set `ncore=0` (genallcf_v3@).
-
--   For BZ data (m_read_bzdata@), you can set them
-    by read_bzdata@.
-
--   (3,3,1:ngrp)@ is the rotation part of space group operation.
-    SYMOPS file is created by `echo 0|lmfgw`, and read by qg4gw.
-    Then symops information is written into HAMindex file.
-
-Output data sets are
-real(8),allocatable :: whw(:)
-
-          integer,allocatable:: ihw(:,:,:),nhw(:,:,:),jhw(:,:,:),ibjb(:,:,:,:)
-          integer:: nbnbx,nhwtot
-          integer,allocatable :: n1b(:,:,:),n2b(:,:,:),nbnb(:,:)
-
-These are used as in `x0kf_v4h.F`. Look into it. Here is a simplified version for showing how to use these data set.
-
-            do 25 jpm  = 1, npm !
-            do 25 ibib = 1, nbnb(k,jpm)
-              n1b(ibib,k,jpm) !band index for k
-              n2b(ibib,k,jpm) !band index for q+k
-              it  =  n1b(ibib,k,jpm)                ! index for n  for q
-              itp =  1+  n2b(ibib,k,jpm)-n2bminimum ! index for n' for q+k
-              ... M(:,:) is calculated here ...  
-                    call get_zmelt2 --> Get zmel=<MPB psi_k|psi_{k+q}>
-                 zmel=dconjg(zmel)  ! -->  zmel= <psi_{k+q}| psi_k MPB_q>
-                 M(igb1,igb2) = dconjg(zmel(igb1,it,itp))* zmel(igb2, it,itp)
-                 Here M = <M_igb1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
-              do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 
-                 imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
-                 Kmatrix(:,:,iw,jpm) = Kmatrix(:,:,iw,jpm) + M(:,:)*imagweight 
-              enddo          
-       25  continue
-
-We do $\sum_n \sum_{n'}$ in Eq. (I78) as follows;
-before this `do 25`, we set ${\bf k},{\bf k}+{\bf q}$.
-$k$ is index for ${\bf k}$ vector.
-`n2bminimum` is introduced (this is for unoccupied states for `npm=1`.
-$W_{\rm tet}$ is given as , `iw` is
-the index for the histogram bin.
-
-</div>
-
-<div class="clfix">
-
-The tetrahedron weights of the polarization function, Eqs. (I18a), are made by `gettetwt` of the module `m_tetwt` (`m_tetwt.f90`):
-
-```fortran
-call gettetwt(q, iq, isp_k, isp_kq, ekxx1, ekxx2, nband=nband, ikbz_in=k_lo, fkbz_in=k_hi)   ! in x0kf_v4h.f90
-```
-
-- `q`, `iq`: the vector ${\bf q}$ and its index.
-- `isp_k`, `isp_kq` ($\alpha$, $\beta$): the spins of ${\bf k}$ and ${\bf k}+{\bf q}$ (different for the transverse spin susceptibility).
-- `ekxx1(nband,nqbz)`, `ekxx2(nband,nqbz)`: the eigenvalues at ${\bf k}$ and ${\bf k}+{\bf q}$ for all ${\bf k}$ of the BZ (`readeval`).
-- `ikbz_in`, `fkbz_in`: the range of ${\bf k}$ to be done (the ${\bf k}$ loop is split for memory and for the parallelization).
-- The other inputs come from modules: the histogram bins `frhis(1:nwhis+1)` and `npm` of `m_freq` (`npm = 2` also accumulates the negative-frequency part, needed without time-reversal symmetry),
-  the tetrahedra (`ntetf`, `idtetf`, `ib1bz`) of `m_read_bzdata`, the core levels of `m_core_state`, $E_{\rm F}$ of `m_ReadEfermi`, and `ebmx`, `nbmx`, `mtet` of `m_readgwinput`.
-  With `[gw] t_tetrakbt`, the Fermi level of the finite-temperature occupation is used ([kBT](./kBT)).
-
-The output is in the module variables:
-
-- `nbnb(k,jpm)`: the number of pairs $(n,n')$ with non-zero weight at ${\bf k}$; `n1b(ibib,k,jpm)` (occupied, cores after the valence) and `n2b(ibib,k,jpm)` (unoccupied) are their band indexes.
-- `ihw(ibib,k,jpm)`, `nhw(ibib,k,jpm)`: the first histogram bin and the number of bins with non-zero weight for the pair;
-  `jhw(ibib,k,jpm)` points to the weights `whw(jhw : jhw+nhw-1)`.
-
-They are used in `x0kf_v4h.f90` as (simplified)
-
-```fortran
-do jpm = 1, npm
-  do ibib = 1, nbnb(k,jpm)
-    it  = n1b(ibib,k,jpm)                      ! n  at k
-    itp = n2b(ibib,k,jpm)                      ! n' at k+q
-    ! M(I,J) = conjg(zmel(I,it,itp)) * zmel(J,it,itp)   (zmel from build_zmel)
-    do iw = ihw(ibib,k,jpm), ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1
-      imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
-      ! Im Pi(:,:,iw,jpm) += M(:,:)*imagweight
-    enddo
-  enddo
-enddo
-```
-
-which is the sum over $n,n'$ and ${\bf k}$ of Eq. (I18a).
-
-</div>
-
-<span class="clfix">(The subsection "Requirement of the spin symmetric Hamiltonian" of the magnon project was removed.)</span>
-
-## Harris-Foulkner energy and Kohn-Sham energy
-
-In LDA/GGA, on the way to self-consistency, input density and output
-density are not the same (not self-consitent).
-Thus we define two total energy for given input density $n^{\rm in}$,
-the Harris-Foulkner energy $E_{\rm Harris}$ and the Hohenberg-Kohn energy $E_{\rm HoKohn}$
-$$
-\begin{aligned}
-E_{\rm Harris}& =  E_{\rm k}^{\rm core} + E_{\rm B} \\
- &\quad - V_{\rm es}[n^{\rm Zc}+n^{\rm in},{\bf R}_a] \cdot n^{\rm in}
-- V_{\rm xc}[n^{\rm c}+n^{\rm in}] \cdot n^{\rm in} \\
- &\quad + E_{\rm es}[n^{\rm Zc}+n^{\rm in},{\bf R}_a] + E_{\rm xc}[n^{\rm c}+n^{\rm in}],\\
-E_{\rm HoKohn}& =  E_{\rm k}^{\rm core} + E_{\rm B} \\
- &\quad - V_{\rm es}[n^{\rm Zc}+n^{\rm in},{\bf R}_a] \cdot n^{\rm out}
-- V_{\rm xc}[n^{\rm c}+n^{\rm in}] \cdot n^{\rm out} \\
- &\quad + E_{\rm es}[n^{\rm Zc}+n^{\rm out},{\bf R}_a] + E_{\rm xc}[n^{\rm c}+n^{\rm out}], \\
-E_{\rm B} & =  \sum_p^{\rm occupied} \alpha_{p}^{i*} \langle F_i|H^{\rm in}|F_j \rangle \alpha_p^j,
-\end{aligned}
-\tag{I80}
-$$
-See Eqs.(B.1),(B.2)in Ref.[kotani_formulation_2015].
-These are slightly wrong because Eq.(31) for $E_{\rm xc}$ is wrong; it is
-not the functional of total charges (inlcuding nucleus) $n^{\rm Zc}+n^{\rm in}$,
-but the total electron density $n^{\rm c}+n^{\rm in}$.
-Based on the 3-component formalism in Ref.[kotani_formulation_2015],
-$E_{\rm es}$ have explicit dependendence on atomic positions ${\bf R}_a$, but $E_{\rm xc}$ does not.
-The dependence is via the mutipole transformation in Eq.(14).
-Search `ham_ehf,ham_ehk` in <del class="clfix">ecalj/lm7K/fp/bndfp.F</del><span class="clfix">`m_bndfp.f90`</span>.
-The $E_{\rm Harris}$ is given at `call m_mkehkf_etot1(sev, eharris)`, while
-$E_{\rm HoKohn}$ is given by
-`call m_mkehkf_etot2(<del class="clfix">sev,sumtv,</del><span class="clfix">ekinval,</span> eksham)` <span class="clfix">(`mkehkf.f90`)</span>.
-$E_{\rm Harris}$ and $E_{\rm HoKohn}$ are shown in `save.*` file.
-
-The band energy $E_{\rm B}$ is stored in the module variable <span class="clfix">`sev`</span> in <del class="clfix">bndfp.F</del><span class="clfix">`m_bndfp.f90`</span>;
-this is shown as `sev` in `save.*`. The kinetic energy
-$E_{\rm k}^{\rm core}+E_{\rm B} 
-- V_{\rm es}[n^{\rm Zc}+n^{\rm in},{\bf R}_a] \cdot n^{\rm out}
-- V_{\rm xc}[n^{\rm c}+n^{\rm in}] \cdot n^{\rm out}$ contained in
-the $E_{\rm HoKohn}$ is calculated as <del class="clfix">`sumtv` in bndfp.F-mkekin.F</del><span class="clfix">`ekinval` by `mkekin` (`m_bndfp_util.f90`)</span>.
-
-In LDA/GGA calculations by <del class="clfix">lmf-MPIK</del><span class="clfix">`lmf`</span>, `save.*` file contains a line per iteration<span class="clfix"> (written in `m_lmfp.f90`; the energies are relative to the sum of the reference energies `eref` of the species over the atoms, `ham_seref` of `m_lmfinit.f90`)</span>.
-
-    c ehf(eV)=-15730.0982239 ehk(eV)=-15730.0982222 sev(eV)=-15.7737393
-
-shows $E_{\rm Harris}=$-15730.0982239 eV and $E_{\rm HoKohn}=$-15730.0982222 eV, as well as the valence
-band energy $=-15.7737393$ eV.
-In principle, $E_{\rm Harris}$ and $E_{\rm HoKohn}$ should be exactly the same when converged;
-the difference is the numerical error. `c` at the begining of line means "converged".
-${\tt h}$ means the 1st iteration from `atm.*` file (superposition of atomic density)<span class="clfix">; the letters are `svflg='cxhiC'` in `m_lmfp.f90` (`x`: the maximum number of iterations reached, `i`: an intermediate iteration, `C`: converged relaxation)</span>.
-
-<span class="clfix">(The sections "Block inversion", "Downfolding" and "Causality and analytic property" were moved to [Appendix: mathematical notes](../theory/appendix).)</span>
-
-## Spherical Harmonics and Real harmonics in ecalj
-
-In ecalj, fortran codes are mainly based on the real harmonics $y_{lm}(\hat{\bf r})$,
-instead of the usual sperical (complex) harmonics $Y_{lm}(\hat{\bf r})$.
-The coefficients of eigenfunctions and so on are ordered as, e.g.
-$(m=-2, m=-1, m=0, m=1,m=2)$ for $l=2$.
-For example, `LMXA=4`, we have `(4+1)**2=25` harmonics,
-ordered as
-$y_{00},y_{-11},y_{01},y_{11},y_{-22},y_{-12},... ,y_{22},y_{-33},...y_{33},
-y_{-44},...y_{44}$.
-<span class="clfix">The real harmonics (times $r^l$) are made by `sylm` (`sylm.f90`) with the normalization `cy` of `sylmnc`; for $l=1$ the order is $y, z, x$, and for $l=2$ it is $xy, yz, 3z^2-r^2, xz, x^2-y^2$ (up to the normalization). $m\gt 0$ is the $\cos m\phi$ and $m\lt 0$ the $\sin |m|\phi$ type.</span>
-
-$y_{lm}(\hat{\bf r})$ is defined from $Y_{lm}(\hat{\bf r})$.
-Here $\hat{\bf r}=(\theta, \phi)$.
-
-$$\begin{aligned}
- y_{l0}(\hat{\bf r}) 
-  & \equiv  Y_{l0}(\hat{\bf r}). \\
- y_{lm}(\hat{\bf r}) 
-  & \equiv  \frac{1}{\sqrt{2} }
-           [ (-1)^m Y_{lm}(\hat{\bf r}) + Y_{l-m}(\hat{\bf r}) ]. \\
- y_{l-m}(\hat{\bf r})
-  & \equiv  \frac{1}{\sqrt{2}i}
-           [ (-1)^m Y_{lm}(\hat{\bf r}) - Y_{l-m}(\hat{\bf r}) ].
-\end{aligned}
-\tag{I87}
-$$
-, where $m\gt 0$. Equivalently,
-$$\begin{aligned}
- Y_{l0}(\hat{\bf r}) 
-  & \equiv  y_{l0}(\hat{\bf r}). \\
- Y_{lm}(\hat{\bf r}) 
-  & \equiv  \frac{(-1)^m}{\sqrt{2} }
-           [ y_{lm}(\hat{\bf r}) + iy_{l-m}(\hat{\bf r}) ]. \\
- Y_{l-m}(\hat{\bf r})
-  & \equiv  \frac{1}{\sqrt{2} }
-           [ y_{lm}(\hat{\bf r}) - iy_{l-m}(\hat{\bf r}) ].
-\end{aligned}
-\tag{I88}
-$$
-
-The definition of $Y_{lm}(\hat{\bf r})$ <del class="clfix">are</del><span class="clfix">is</span>
-$$\begin{aligned}
- &Y_{lm}(\theta, \phi)
-=(-1)^m \left[ \frac{(2l+1)(l-m)!}{4 \pi (l+m)!} \right]^{\frac{1}{2} } P^m_l(\cos(\theta)) e^{i m \phi}, \\
- &P^m_l(x) = \frac{(1-x^2)^{m/2} }{2^l l!}\frac{d^{l+m} \ \ }{dx^{l+m} } (x^2-1)^l
-\end{aligned}
-\tag{I89}
-$$
-
-We take these definitions from
-(1)A.R.Edmonds, Angular Momentum in quantum Mechanics,
-Princeton University Press, 1960,
-(2)M.E.Rose, Elementary Theory of angular Momentum,
-John Wiley & Sons, INC. 1957<del class="clfix">,\ if necessary</del>. The definition of spherical <del class="clfix">hermonics are</del><span class="clfix">harmonics is</span> the same in these books.
-
-### SOC matrix for the MLO <span class="clfix">(was: for the Wannier functions)</span>
-
-<div class="clfix-old">
-
-We calculate SOC matrix `hammsoc`
-$\langle F_{ {\bf k}i \sigma} |H_{\rm SOC}|F_{ {\bf k}j \sigma} \rangle$ in `sugw.F`\
-(`lmf-MPIK --jobgw --job --socmatrix` mode around the end of `genMLFhso`)
-for all ${\bf k}$ points in the Brillowin zone. Here
-$F_{ {\bf k}i \sigma}$ means the basis functions in the PMT method.
-Eigenfunction is given as
-$$\begin{aligned}
-\Psi_{ {\bf k}n \sigma}=\sum_i F_{ {\bf k}i \sigma} \alpha^{\bf k}(i,n,\sigma) .
-\end{aligned}
-$$
-
-Thus the required SOC matrix
-$\langle W_{lm\sigma}({\bf r}) | H_{\rm SOC} |W_{lm'\sigma'}({\bf r}) \rangle$
-(`hammso` in `hsocmat.F`) is calcualted in `hsocmat` from
-
-1.  $\alpha^{\bf k}(i,n,\sigma)$ (`evec(1:nz,iband,iqbz,isp)` in `hsocmat.F`)
-
-2.  $\langle F_{ {\bf k}i\sigma} |H_{\rm SOC}|F_{ {\bf k}j\sigma'} \rangle$
-    (`hso(1:nz,1:nz,iqbz,ispc)` in `hsocmat.F`. `ispc=3` means spin off-diagonal)
-
-3.  $\langle \psi_{ {\bf k}n\sigma}|G_{l\sigma}(r)y_{lm}(\hat{ {\bf r} })\rangle$
-    (`dnk(iband,iwf,iqbz,isp)` in `hsocmat.F`)
-
-See `hsocmat.F`. We have `evecw=matmul(evec,dnk)`.
-From `hammso`, we calculate the trace of the
-square of $H_{\rm SOC}$ as ${\rm Tr}(H_{\rm SOC}^2)$ in the space spanned by the Wannier functions.
-By construction the trace is not dependent on $y_{lm}$ or on $Y_{lm}$ because projected fourteen Wannier functions (when $4f$) spans the same Hilbert space. The trace is equilannt to the sum of square of eigenvalues
-of $H_{\rm SOC}$.
-
-${\rm Tr}(H_{\rm SOC}^2)$, as well as
-$\langle W_{lm \sigma}| H_{\rm SOC} |W_{lm'\sigma'} \rangle$,
-can be Wannier dependent because the Wannier is not unique.
-But we expect the dependence is not so large.
-
-Important check point to evaluate the size of SOC is whether we can reproduce the SOC splitting in the original bands
-(not the bands of the 14-space model but the bands of full QSGW).
-
-</div>
-
-<div class="clfix">
-
-The Wannier-function route (`hsocmat`) was removed. The SOC matrix is now used for the MLO (`job_mlo_soc`; [MLO §4](./mlo#_4-スピン軌道相互作用-—-job-mlo-soc)):
-
-1. `lmf --writeham --socmatrix` (scalar-relativistic, `[ham] so = 0`) writes the Hamiltonian in the PMT basis (`__HamiltonianPMT`) and, separately,
-   the SOC matrix $\langle F_{{\bf k}i}|H_{\rm SOC}|F_{{\bf k}j}\rangle$ (`hammhso(ndimh,ndimh,3)` made by `aughsoc`; the three are the $\uparrow\uparrow$, $\downarrow\downarrow$ and $\uparrow\downarrow$ blocks, per orbital without spinor doubling) into `__HamiltonianPMTsoc` (`m_bandcal.f90`).
-   Here $F_{{\bf k}i}$ are the basis functions of the PMT method, and $\Psi_{{\bf k}n\sigma}=\sum_i F_{{\bf k}i}\alpha^{\bf k}(i,n,\sigma)$.
-2. `mlo --socmatrix` transforms it to the MLO basis together with the Hamiltonian (`hammhsor` in `HamRsMLO`, read in `m_mlo_ham.f90`),
-   and adds it as a perturbation to the MLO Hamiltonian (spinor dimension `nspinor = 2`).
-3. The Fermi energy is taken from a full-SOC `lmf` run (`[ham] so = 1`, `efermi_soc`).
-
-The SOC splitting of the MLO bands should be checked against the bands of the full calculation with SOC (`job_mlo_soc` draws both).
-
-</div>
-
 ## Crystal symmetry for GW calculation
 
 <div class="clfix-old">
@@ -2142,6 +1977,62 @@ and generators can be given to use a lower symmetry on purpose (for example, NiO
 (with the spin inversion) are added. Use it with `pwmode = 11`.
 
 </div>
+
+## Spherical Harmonics and Real harmonics in ecalj
+
+In ecalj, fortran codes are mainly based on the real harmonics $y_{lm}(\hat{\bf r})$,
+instead of the usual sperical (complex) harmonics $Y_{lm}(\hat{\bf r})$.
+The coefficients of eigenfunctions and so on are ordered as, e.g.
+$(m=-2, m=-1, m=0, m=1,m=2)$ for $l=2$.
+For example, `LMXA=4`, we have `(4+1)**2=25` harmonics,
+ordered as
+$y_{00},y_{-11},y_{01},y_{11},y_{-22},y_{-12},... ,y_{22},y_{-33},...y_{33},
+y_{-44},...y_{44}$.
+<span class="clfix">The real harmonics (times $r^l$) are made by `sylm` (`sylm.f90`) with the normalization `cy` of `sylmnc`; for $l=1$ the order is $y, z, x$, and for $l=2$ it is $xy, yz, 3z^2-r^2, xz, x^2-y^2$ (up to the normalization). $m\gt 0$ is the $\cos m\phi$ and $m\lt 0$ the $\sin |m|\phi$ type.</span>
+
+$y_{lm}(\hat{\bf r})$ is defined from $Y_{lm}(\hat{\bf r})$.
+Here $\hat{\bf r}=(\theta, \phi)$.
+
+$$\begin{aligned}
+ y_{l0}(\hat{\bf r}) 
+  & \equiv  Y_{l0}(\hat{\bf r}). \\
+ y_{lm}(\hat{\bf r}) 
+  & \equiv  \frac{1}{\sqrt{2} }
+           [ (-1)^m Y_{lm}(\hat{\bf r}) + Y_{l-m}(\hat{\bf r}) ]. \\
+ y_{l-m}(\hat{\bf r})
+  & \equiv  \frac{1}{\sqrt{2}i}
+           [ (-1)^m Y_{lm}(\hat{\bf r}) - Y_{l-m}(\hat{\bf r}) ].
+\end{aligned}
+\tag{I87}
+$$
+, where $m\gt 0$. Equivalently,
+$$\begin{aligned}
+ Y_{l0}(\hat{\bf r}) 
+  & \equiv  y_{l0}(\hat{\bf r}). \\
+ Y_{lm}(\hat{\bf r}) 
+  & \equiv  \frac{(-1)^m}{\sqrt{2} }
+           [ y_{lm}(\hat{\bf r}) + iy_{l-m}(\hat{\bf r}) ]. \\
+ Y_{l-m}(\hat{\bf r})
+  & \equiv  \frac{1}{\sqrt{2} }
+           [ y_{lm}(\hat{\bf r}) - iy_{l-m}(\hat{\bf r}) ].
+\end{aligned}
+\tag{I88}
+$$
+
+The definition of $Y_{lm}(\hat{\bf r})$ <del class="clfix">are</del><span class="clfix">is</span>
+$$\begin{aligned}
+ &Y_{lm}(\theta, \phi)
+=(-1)^m \left[ \frac{(2l+1)(l-m)!}{4 \pi (l+m)!} \right]^{\frac{1}{2} } P^m_l(\cos(\theta)) e^{i m \phi}, \\
+ &P^m_l(x) = \frac{(1-x^2)^{m/2} }{2^l l!}\frac{d^{l+m} \ \ }{dx^{l+m} } (x^2-1)^l
+\end{aligned}
+\tag{I89}
+$$
+
+We take these definitions from
+(1)A.R.Edmonds, Angular Momentum in quantum Mechanics,
+Princeton University Press, 1960,
+(2)M.E.Rose, Elementary Theory of angular Momentum,
+John Wiley & Sons, INC. 1957<del class="clfix">,\ if necessary</del>. The definition of spherical <del class="clfix">hermonics are</del><span class="clfix">harmonics is</span> the same in these books.
 
 ## Rotation of <del class="clfix">eigenfuncitons</del><span class="clfix">eigenfunctions</span> and MPB by the space-group operations {#spacegroup-rotation}
 
@@ -2326,6 +2217,116 @@ Thus we supply `ibas_tbl` and so on as
          &     max_ibas_tbl,max_l_tbl,max_k_tbl,max_offset_tbl
 
 in `module m_rotMPB2`.
+
+## SOC matrix for the MLO <span class="clfix">(was: for the Wannier functions)</span>
+
+<div class="clfix-old">
+
+We calculate SOC matrix `hammsoc`
+$\langle F_{ {\bf k}i \sigma} |H_{\rm SOC}|F_{ {\bf k}j \sigma} \rangle$ in `sugw.F`\
+(`lmf-MPIK --jobgw --job --socmatrix` mode around the end of `genMLFhso`)
+for all ${\bf k}$ points in the Brillowin zone. Here
+$F_{ {\bf k}i \sigma}$ means the basis functions in the PMT method.
+Eigenfunction is given as
+$$\begin{aligned}
+\Psi_{ {\bf k}n \sigma}=\sum_i F_{ {\bf k}i \sigma} \alpha^{\bf k}(i,n,\sigma) .
+\end{aligned}
+$$
+
+Thus the required SOC matrix
+$\langle W_{lm\sigma}({\bf r}) | H_{\rm SOC} |W_{lm'\sigma'}({\bf r}) \rangle$
+(`hammso` in `hsocmat.F`) is calcualted in `hsocmat` from
+
+1.  $\alpha^{\bf k}(i,n,\sigma)$ (`evec(1:nz,iband,iqbz,isp)` in `hsocmat.F`)
+
+2.  $\langle F_{ {\bf k}i\sigma} |H_{\rm SOC}|F_{ {\bf k}j\sigma'} \rangle$
+    (`hso(1:nz,1:nz,iqbz,ispc)` in `hsocmat.F`. `ispc=3` means spin off-diagonal)
+
+3.  $\langle \psi_{ {\bf k}n\sigma}|G_{l\sigma}(r)y_{lm}(\hat{ {\bf r} })\rangle$
+    (`dnk(iband,iwf,iqbz,isp)` in `hsocmat.F`)
+
+See `hsocmat.F`. We have `evecw=matmul(evec,dnk)`.
+From `hammso`, we calculate the trace of the
+square of $H_{\rm SOC}$ as ${\rm Tr}(H_{\rm SOC}^2)$ in the space spanned by the Wannier functions.
+By construction the trace is not dependent on $y_{lm}$ or on $Y_{lm}$ because projected fourteen Wannier functions (when $4f$) spans the same Hilbert space. The trace is equilannt to the sum of square of eigenvalues
+of $H_{\rm SOC}$.
+
+${\rm Tr}(H_{\rm SOC}^2)$, as well as
+$\langle W_{lm \sigma}| H_{\rm SOC} |W_{lm'\sigma'} \rangle$,
+can be Wannier dependent because the Wannier is not unique.
+But we expect the dependence is not so large.
+
+Important check point to evaluate the size of SOC is whether we can reproduce the SOC splitting in the original bands
+(not the bands of the 14-space model but the bands of full QSGW).
+
+</div>
+
+<div class="clfix">
+
+The Wannier-function route (`hsocmat`) was removed. The SOC matrix is now used for the MLO (`job_mlo_soc`; [MLO §4](./mlo#_4-スピン軌道相互作用-—-job-mlo-soc)):
+
+1. `lmf --writeham --socmatrix` (scalar-relativistic, `[ham] so = 0`) writes the Hamiltonian in the PMT basis (`__HamiltonianPMT`) and, separately,
+   the SOC matrix $\langle F_{{\bf k}i}|H_{\rm SOC}|F_{{\bf k}j}\rangle$ (`hammhso(ndimh,ndimh,3)` made by `aughsoc`; the three are the $\uparrow\uparrow$, $\downarrow\downarrow$ and $\uparrow\downarrow$ blocks, per orbital without spinor doubling) into `__HamiltonianPMTsoc` (`m_bandcal.f90`).
+   Here $F_{{\bf k}i}$ are the basis functions of the PMT method, and $\Psi_{{\bf k}n\sigma}=\sum_i F_{{\bf k}i}\alpha^{\bf k}(i,n,\sigma)$.
+2. `mlo --socmatrix` transforms it to the MLO basis together with the Hamiltonian (`hammhsor` in `HamRsMLO`, read in `m_mlo_ham.f90`),
+   and adds it as a perturbation to the MLO Hamiltonian (spinor dimension `nspinor = 2`).
+3. The Fermi energy is taken from a full-SOC `lmf` run (`[ham] so = 1`, `efermi_soc`).
+
+The SOC splitting of the MLO bands should be checked against the bands of the full calculation with SOC (`job_mlo_soc` draws both).
+
+</div>
+
+## Harris-Foulkner energy and Kohn-Sham energy
+
+In LDA/GGA, on the way to self-consistency, input density and output
+density are not the same (not self-consitent).
+Thus we define two total energy for given input density $n^{\rm in}$,
+the Harris-Foulkner energy $E_{\rm Harris}$ and the Hohenberg-Kohn energy $E_{\rm HoKohn}$
+$$
+\begin{aligned}
+E_{\rm Harris}& =  E_{\rm k}^{\rm core} + E_{\rm B} \\
+ &\quad - V_{\rm es}[n^{\rm Zc}+n^{\rm in},{\bf R}_a] \cdot n^{\rm in}
+- V_{\rm xc}[n^{\rm c}+n^{\rm in}] \cdot n^{\rm in} \\
+ &\quad + E_{\rm es}[n^{\rm Zc}+n^{\rm in},{\bf R}_a] + E_{\rm xc}[n^{\rm c}+n^{\rm in}],\\
+E_{\rm HoKohn}& =  E_{\rm k}^{\rm core} + E_{\rm B} \\
+ &\quad - V_{\rm es}[n^{\rm Zc}+n^{\rm in},{\bf R}_a] \cdot n^{\rm out}
+- V_{\rm xc}[n^{\rm c}+n^{\rm in}] \cdot n^{\rm out} \\
+ &\quad + E_{\rm es}[n^{\rm Zc}+n^{\rm out},{\bf R}_a] + E_{\rm xc}[n^{\rm c}+n^{\rm out}], \\
+E_{\rm B} & =  \sum_p^{\rm occupied} \alpha_{p}^{i*} \langle F_i|H^{\rm in}|F_j \rangle \alpha_p^j,
+\end{aligned}
+\tag{I80}
+$$
+See Eqs.(B.1),(B.2)in Ref.[kotani_formulation_2015].
+These are slightly wrong because Eq.(31) for $E_{\rm xc}$ is wrong; it is
+not the functional of total charges (inlcuding nucleus) $n^{\rm Zc}+n^{\rm in}$,
+but the total electron density $n^{\rm c}+n^{\rm in}$.
+Based on the 3-component formalism in Ref.[kotani_formulation_2015],
+$E_{\rm es}$ have explicit dependendence on atomic positions ${\bf R}_a$, but $E_{\rm xc}$ does not.
+The dependence is via the mutipole transformation in Eq.(14).
+Search `ham_ehf,ham_ehk` in <del class="clfix">ecalj/lm7K/fp/bndfp.F</del><span class="clfix">`m_bndfp.f90`</span>.
+The $E_{\rm Harris}$ is given at `call m_mkehkf_etot1(sev, eharris)`, while
+$E_{\rm HoKohn}$ is given by
+`call m_mkehkf_etot2(<del class="clfix">sev,sumtv,</del><span class="clfix">ekinval,</span> eksham)` <span class="clfix">(`mkehkf.f90`)</span>.
+$E_{\rm Harris}$ and $E_{\rm HoKohn}$ are shown in `save.*` file.
+
+The band energy $E_{\rm B}$ is stored in the module variable <span class="clfix">`sev`</span> in <del class="clfix">bndfp.F</del><span class="clfix">`m_bndfp.f90`</span>;
+this is shown as `sev` in `save.*`. The kinetic energy
+$E_{\rm k}^{\rm core}+E_{\rm B} 
+- V_{\rm es}[n^{\rm Zc}+n^{\rm in},{\bf R}_a] \cdot n^{\rm out}
+- V_{\rm xc}[n^{\rm c}+n^{\rm in}] \cdot n^{\rm out}$ contained in
+the $E_{\rm HoKohn}$ is calculated as <del class="clfix">`sumtv` in bndfp.F-mkekin.F</del><span class="clfix">`ekinval` by `mkekin` (`m_bndfp_util.f90`)</span>.
+
+In LDA/GGA calculations by <del class="clfix">lmf-MPIK</del><span class="clfix">`lmf`</span>, `save.*` file contains a line per iteration<span class="clfix"> (written in `m_lmfp.f90`; the energies are relative to the sum of the reference energies `eref` of the species over the atoms, `ham_seref` of `m_lmfinit.f90`)</span>.
+
+    c ehf(eV)=-15730.0982239 ehk(eV)=-15730.0982222 sev(eV)=-15.7737393
+
+shows $E_{\rm Harris}=$-15730.0982239 eV and $E_{\rm HoKohn}=$-15730.0982222 eV, as well as the valence
+band energy $=-15.7737393$ eV.
+In principle, $E_{\rm Harris}$ and $E_{\rm HoKohn}$ should be exactly the same when converged;
+the difference is the numerical error. `c` at the begining of line means "converged".
+${\tt h}$ means the 1st iteration from `atm.*` file (superposition of atomic density)<span class="clfix">; the letters are `svflg='cxhiC'` in `m_lmfp.f90` (`x`: the maximum number of iterations reached, `i`: an intermediate iteration, `C`: converged relaxation)</span>.
+
+<span class="clfix">(The sections "Block inversion", "Downfolding" and "Causality and analytic property" were moved to [Appendix: mathematical notes](../theory/appendix).)</span>
 
 ## IBZ and EIBZ scheme
 
