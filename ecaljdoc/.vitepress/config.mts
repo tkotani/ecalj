@@ -28,7 +28,7 @@ const sidebarRoot = [
       { text: 'kBT — 有限温度と均し方 (t_tetrakbt / t_sigmaw)', link: '/manual/kBT' },
       { text: 'MLO — 最大局在化などに代わる自動モデル化法', link: '/manual/mlo' },
       { text: 'MLO-gwsc — Sigma を MLO 表現で内挿する QSGW', link: '/manual/mlo_gwsc' },
-      { text: 'UsageDetailed ', link: '/manual/UsageDetailed' },
+      { text: 'その他の説明', link: '/manual/UsageDetailed' },
       // { text: 'Density of states', link: '/manual/dos' },
       // { text: 'Band dispersion plot', link: '/manual/band' },
       // { text: 'Spin-orbit interaction', link: '/manual/soi' },
@@ -76,6 +76,7 @@ const sidebarRoot = [
 ]
 
 const enText: Record<string, string> = {
+  'その他の説明': 'Other notes',
   'バンドプロットの対称ライン: syml.&lt;sname&gt;': 'Symmetry lines for band plots: syml.&lt;sname&gt;',
   'GW で用いる行列要素': 'Matrix elements used in GW',
   '波動関数の積を展開する積基底': 'Product basis to expand products of wave functions',
