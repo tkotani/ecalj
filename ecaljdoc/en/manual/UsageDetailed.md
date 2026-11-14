@@ -1,6 +1,6 @@
 # Other notes {#usagedetailed}
 
-> English version of the page [manual/UsageDetailed](../../manual/UsageDetailed.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/UsageDetailed.md of commit 7cc0ed1f0 (source blob 5f71fe79bc4b).
+> English version of the page [manual/UsageDetailed](../../manual/UsageDetailed.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/UsageDetailed.md of commit 2d93c9ead (source blob db0ba4b9df32).
 
 The samples named below are listed in [Samples](./samples).
 
