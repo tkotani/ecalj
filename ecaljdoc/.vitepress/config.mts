@@ -48,7 +48,7 @@ const sidebarRoot = [
       { text: 'GW approximation', link: '/theory/gw' },
       { text: 'Quasi-particle self-consistent GW', link: '/theory/qsgw' },
       { text: 'GW で用いる波動関数の表現', link: '/theory/gw_basis' },
-      { text: '波動関数の積を展開する基底', link: '/theory/gw_product_basis' },
+      { text: '波動関数の積を展開する積基底', link: '/theory/gw_product_basis' },
       { text: 'Projection of product basis', link: '/theory/gw_zmel' },
       { text: 'Basic  I', link: '/theory/basic' },
       { text: 'Basic II', link: '/theory/basic2' },
@@ -76,7 +76,7 @@ const sidebarRoot = [
 ]
 
 const enText: Record<string, string> = {
-  '波動関数の積を展開する基底': 'Basis to expand products of wave functions',
+  '波動関数の積を展開する積基底': 'Product basis to expand products of wave functions',
   'GW で用いる波動関数の表現': 'Representation of the wave functions used in GW',
   'ecaljdoc の書き方': 'Writing ecaljdoc',
   'GW の設定（[gw] などのキー）': 'GW settings ([gw] and other keys)',
