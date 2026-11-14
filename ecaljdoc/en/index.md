@@ -51,10 +51,13 @@ features:
 
 ## For developers
 
+ecalj is developed by T. Kotani and co-workers. Since 2026-02, much of the code, the tests and the documents has been made
+together with Claude Code (Anthropic's AI); such commits carry a `Co-Authored-By: Claude` line, and pages edited by Claude say so.
+
 The development notes are not on this site. Start from `MD/README.md` in the [ecalj repository](https://github.com/tkotani/ecalj)
 (reading order, rules, and jumps by topic: finite temperature, MLO, magnons, GPU).
 Claude Code starts from `CLAUDE.md` at the top of the repository. An AI assistant guiding a user starts from [GetStarted with AI](/en/manual/getstartedAI).
 
 ## License
 
-ecalj is distributed under the [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html). For the terms, the third-party software included in ecalj, and how to cite ecalj in publications, see the [License](/en/manual/license) page (the authoritative text is [LICENCE](https://github.com/tkotani/ecalj/blob/main/LICENCE) of the repository). It applies to AI systems (AI assistants, coding agents) without exception.
+ecalj is distributed under the [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html). For the terms, the third-party software included in ecalj, and how to cite ecalj in publications, see the [License](/en/manual/license) page (the reference; [LICENCE](https://github.com/tkotani/ecalj/blob/main/LICENCE) of the repository is its summary). It applies to AI systems (AI assistants, coding agents) without exception.

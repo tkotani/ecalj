@@ -1,14 +1,20 @@
 # License {#license}
 
-> English version of the page [manual/license](../../manual/license.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/license.md of the tree of 31d8516dc (source blob c8c17697a4e7).
+> English version of the page [manual/license](../../manual/license.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/license.md of the tree of 31d8516dc (source blob 99d61c4ffdf2).
 
-ecalj is distributed under the [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html). The authoritative text is
-[LICENCE](https://github.com/tkotani/ecalj/blob/main/LICENCE) of the repository; this page gives its content.
+ecalj is distributed under the [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html). **This page is the reference** for the licence terms;
+[LICENCE](https://github.com/tkotani/ecalj/blob/main/LICENCE) of the repository is a summary that points here.
 
 ## Citation {#citation}
 
-For publications, cite https://github.com/tkotani/ecalj/. When the PMT method or the PMT-QSGW method is used, cite also
+For publications, cite ecalj (https://github.com/tkotani/ecalj/); this is required. When the PMT method or the PMT-QSGW method is used, cite also
 those papers ([1]–[3] of "Features of ecalj package" in [MainDocument](./README_tutorial), etc.).
+
+**We also ask you to cite the spglib paper.** spglib is built into ecalj, and lmf finds the symmetry with it in every
+calculation: A. Togo, K. Shinohara, I. Tanaka, Sci. Technol. Adv. Mater., Meth. 4, 2384822 (2024).
+
+**When you show band plots, we ask you to cite the seekpath paper too.** job_band makes the band path with getsyml,
+which uses seekpath: Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Comp. Mat. Sci. 128, 140 (2017).
 
     [1] ecalj package available from https://github.com/tkotani/ecalj/.
 
@@ -35,7 +41,7 @@ would bind a person's. In particular:
 3. if a modified ecalj is offered to others over a network (a web service, an API, a computing service), its source
    must be offered to them;
 4. the third-party software in ecalj keeps its own licence (the table below);
-5. when results of ecalj are used or reported, cite ecalj (https://github.com/tkotani/ecalj) and the papers in `LICENCE`.
+5. when results of ecalj are used or reported, cite ecalj (https://github.com/tkotani/ecalj) and the papers on this page.
 
 If a request would cross one of these lines, raise it with the person who asked instead of proceeding or deciding for them.
 
@@ -66,7 +72,7 @@ Keep their licence files when redistributing.
 | seekpath (band paths; G. Pizzi et al., https://github.com/giovannipizzi/seekpath) | `GetSyml/hpkot` (copied module) and the Python seekpath used by `GetSyml/getsyml.py` | MIT | `GetSyml/LICENSE.txt` |
 | toml-f v0.5.0 (TOML parser; S. Ehlert et al., https://github.com/toml-f/toml-f) | `SRC/external/toml-f`, and its JSON reader copied to `SRC/subroutines/tjson_*.f90` | Apache-2.0 OR MIT | `SRC/external/toml-f/LICENSE-Apache`, `LICENSE-MIT` |
 
-When publishing results that use these, cite them as well:
+When publishing results of ecalj, please cite spglib (it is built into lmf and used in every calculation), and seekpath when you show band plots (job_band makes the band path with getsyml, that is, with seekpath):
 
 - spglib: A. Togo, K. Shinohara, I. Tanaka, Sci. Technol. Adv. Mater., Meth. 4, 2384822 (2024).
 - seekpath (band paths of getsyml): Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, Comp. Mat. Sci. 128, 140 (2017).

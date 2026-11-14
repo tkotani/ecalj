@@ -55,9 +55,12 @@ The development notes are not on this site. Start from `MD/README.md` in the [ec
 (reading order, rules, and jumps by topic: finite temperature, MLO, magnons, GPU).
 Claude Code starts from `CLAUDE.md` at the top of the repository. An AI assistant guiding a user starts from [GetStarted with AI](/manual/getstartedAI).
 
+ecalj は小谷岳生と共同研究者が開発している。2026-02 から、コード、試験、文書の多くを Claude Code（Anthropic の AI）と一緒に作っている
+（そのコミットには `Co-Authored-By: Claude` の行があり、Claude が編集したページにはそう書いてある）。
+
 開発の記録はこのサイトには無い。[ecalj のリポジトリ](https://github.com/tkotani/ecalj)の `MD/README.md` から読む
 （読む順、決まり、話題ごとのジャンプ: 有限温度、MLO、マグノン、GPU）。Claude Code は最上位の `CLAUDE.md` から始める。
 
 ## ライセンス / License
 
-ecalj は [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html) で配布する。条件、ecalj に含まれる他のソフトウェア、論文での引用は [ライセンス](/manual/license) のページを見てほしい（正本はリポジトリの [LICENCE](https://github.com/tkotani/ecalj/blob/main/LICENCE)）。AI（AI アシスタント、コーディングエージェント）にも例外なく適用される。
+ecalj は [AGPLv3](https://www.gnu.org/licenses/agpl-3.0.html) で配布する。条件、ecalj に含まれる他のソフトウェア、論文での引用は [ライセンス](/manual/license) のページを見てほしい（このページが正本。リポジトリの [LICENCE](https://github.com/tkotani/ecalj/blob/main/LICENCE) はその要約）。AI（AI アシスタント、コーディングエージェント）にも例外なく適用される。
