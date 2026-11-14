@@ -14,7 +14,10 @@ $$
 Regarding $\ket{E^𝒒_μ}$, it is a linear combination of $\ket{M^𝒒_I}$, so it is not separated into inside or outside of MT for a certain $μ$.
 :::
 
-In the code these matrix elements are called `zmel` (module `m_zmel`, `SRC/subroutines/m_zmel.f90`).
+In the code these matrix elements are called `zmel` (module `m_zmel`, `SRC/subroutines/m_zmel.f90`): `zmel` is $\braket{E^𝒒_μ Ψ_{𝒌n} |Ψ_{𝒒+𝒌n'}}$ above.
+Since the product basis $M$ is not orthogonal, $E$ (orthonormal, made from $M$ by the eigenvectors $z$ of the Coulomb matrix normalized with $O_{IJ}=\braket{M^𝒒_I|M^𝒒_J}$) is used.
+The code multiplies $\braket{M^𝒒_I Ψ_{𝒌n} |Ψ_{𝒒+𝒌n'}}$ by $z$ (`m2e_prod_basis` = `zcousq`). Before 2025-10-10 it went through the expansion coefficients in $M$,
+$\sum_J (O^{-1})_{IJ} \braket{M^𝒒_J Ψ|Ψ}$, and then multiplied by `ppovlz` $= O z$ (the `ZO^-1` of older comments); the result is the same.
 
 For the case where MPB is a function within MT:
 $$

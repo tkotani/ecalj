@@ -1,4 +1,7 @@
-!> Get the matrix element zmel =  ZO^-1 <MPB psi|psi> , where ZO is ppovlz(inverse of overlap matrix) !  "call build_zmel" return zmel 
+!> Get the matrix element zmel = <E_mu psi|psi> = sum_I z(I,mu)^* <M_I psi|psi>, where E_mu is the orthonormal product basis made from the
+!> (non-orthogonal) mixed product basis M_I by the eigenvectors z of the Coulomb matrix (zcousq; m2e_prod_basis).  "call build_zmel" returns zmel.
+!> (2026-11-14 14:07: corrected. The older "ZO^-1 <MPB psi|psi>, ZO = ppovlz" described the route before 2025-10-10, through the
+!>  expansion coefficients O^-1 <M psi|psi> and ppovlz = O z; the result is the same.)
 !  All dependencies (use foobar below ) are inputs (must be protected).
 module m_zmel
   use m_struct_from_lmf,only: natom,nspin,nnv,nnc,nband; use m_gw_product_basis,only: nn,nlnmx,ndima; use m_gw_user_config,only: niw
