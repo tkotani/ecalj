@@ -86,7 +86,7 @@ $EXEPATH/gwsc -np 32 5 nio >& lgwsc
 * [反強磁性の対称性](#antiferro-symmetry-without-soc) を使って計算を効率よくできます（so=0、2 のときだけ）。
 
 ## 軌道磁気モーメント
-so=1 のとき、MT の中の軌道磁気モーメントが、画面の出力の `orbitalmom.chk:` のところに次のように出ます。
+so=1 のとき、MT の中の軌道磁気モーメントが、画面の出力（`IORBTM:` の行から）とファイル `orbitalmom.chk` に次のように出ます。
 ```
 IORBTM:  orbital moments :
  ibas  Spec        spin   Moment decomposed by l ...
@@ -179,11 +179,12 @@ BZ の 10x10x10 のすべてのバンドのエネルギー（Ef のまわり）�
 サンプルは ecalj/Samples/PROCAR/MgO_PROCAR にあります。
 固有関数の 2 乗の大きさを入れた PROCAR のファイルを作れます。
 サンプル（`testecalj MgO_PROCAR`。手順はその `test.py` にある）は、O 2p の成分のファットバンドを示す pdf を作ります。
-PROCAR（vasp の形式）は `lmf --mkprocar --band mgo` で作り、スクリプト BandWeight.py で解析します。
+手順: `job_band mgo` でバンドを描いた後、`lmf --mkprocar --band mgo` で PROCAR（vasp の形式）をランクごとに書き（`PROCAR.UP.<rank>`）、それを k の順につないで `PROCAR.UP` にし、
+サンプルのディレクトリにあるスクリプト `BandWeight.py` で重みを取り出して（`bw.dat`）、`gnuplot bnds.gnu.mgoW` で描きます。
 
 ## LDA+U
-LDA+U のサンプル（GdN と希土類の窒化物）と、試験のターゲット `TestInstall/gdn` があります。
-`[[spec]]` のキー `idu`、`uh`、`jh` の意味は [lmf の LDA+U](./lmf#lda-u-toml) にあります。例: `idu = [0, 0, 0, 1]`、`uh = [0.0, 0.0, 0.0, -0.28]`、`jh = [0.0, 0.0, 0.0, 0.0]`。
+LDA+U のサンプル `Samples/LDAU/ReN`（GdN と PrN。4f に U、`so = 2`、初期の占有 `occnum.<sname>`）と、試験のターゲット `TestInstall/gdn` があります。
+`[[spec]]` のキー `idu`、`uh`、`jh` の意味は [lmf の LDA+U](./lmf#lda-u-toml) にあります。例（PrN の Pr）: `idu = [0, 0, 0, 2]`（FLL）、`uh = [0.0, 0.0, 0.0, 0.535]`、`jh = [0.0, 0.0, 0.0, 0.0692]`（Ry）。
 
 ## スピンゆらぎ
 最近、スピンゆらぎの計算を進展させています。問い合わせてください。
@@ -197,7 +198,7 @@ LDA+U のサンプル（GdN と希土類の窒化物）と、試験のターゲ�
 4f の原子の atomlist の既定値は 2025-08-21 に更新しました（5f はまだ）。`ctrlgenToml.py` も同じ既定値を使います（表 `SRC/exec/pylib/atomlist.py`）。
 試験はまだ限られているので、自分で確かめてください。
 
-ErN のような岩塩構造の希土類の窒化物 ReN の設定は次のとおりです。
+ErN のような岩塩構造の希土類の窒化物 ReN の設定は次のとおりです（以前の計算のもの。いま試験しているのは、同じ考え方の `Samples/LDAU/ReN` の GdN と PrN）。
 1. `[ham].nspin = 2`、`[ham].so = 2` にします（いまの QSGW は `so=1` を扱えないため）。必要なら、`gwsc` が終わってから `so=1` にします。
    `ctrlgenToml.py gd2pdo4 --so=2 --nspin=2` を使うか、作った後で `ctrlg.<sname>.toml` を直します。
 2. `symgrp = "r4z"` にします。格子より低い対称性になるので必要です。スピンと軌道モーメントの向きを固定します。
