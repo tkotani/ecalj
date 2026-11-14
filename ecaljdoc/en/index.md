@@ -51,8 +51,7 @@ features:
 
 ## For developers
 
-ecalj is developed by T. Kotani and co-workers. Since 2026-02, much of the code, the tests and the documents has been made
-together with Claude Code (Anthropic's AI); such commits carry a `Co-Authored-By: Claude` line, and pages edited by Claude say so.
+ecalj is developed by T. Kotani and co-workers, with Claude Code since 2026-02.
 
 The development notes are not on this site. Start from `MD/README.md` in the [ecalj repository](https://github.com/tkotani/ecalj)
 (reading order, rules, and jumps by topic: finite temperature, MLO, magnons, GPU).

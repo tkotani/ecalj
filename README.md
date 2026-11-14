@@ -7,8 +7,7 @@ First-principles electronic-structure package (PMT = APW + MTO basis; LDA/GGA an
 - Start here: [MD/README.md](MD/README.md)
 - Changes: [Changes.md](Changes.md)
 
-Developed by T. Kotani and co-workers. Since 2026-02, much of the code, the tests and the documents has been made together
-with Claude Code (Anthropic's AI); such commits carry a `Co-Authored-By: Claude` line, and pages edited by Claude say so.
+Developed by T. Kotani and co-workers, with Claude Code since 2026-02.
 
 ## License
 
