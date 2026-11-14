@@ -1,6 +1,6 @@
 # Representation of wave functions in GW
 
-> English version of the page [theory/gw_basis](../../theory/gw_basis.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/gw_basis.md of commit 2023ad8e9 (source blob 6f0f606b1bd8).
+> English version of the page [theory/gw_basis](../../theory/gw_basis.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/gw_basis.md of commit 8744007d9 (source blob bfe3e10187cd).
 
 ::: warning Under construction
 This page is a draft. For the definitions of the symbols and the formulas, [Band-structure method of ecalj](./pmt) and section 2 of the main reference of [QSGW](./qsgw) (Obata, Kotani, Oda 2025) are newer and more accurate.
@@ -35,7 +35,7 @@ With `[ham].readp = true` and `[ham].pnufix = true` (both written by `ctrlgenTom
 ::: info About the radial equation
 - The radial functions $φ_{lν}$ and $\dot φ_{lν}$ are made by solving the radial equation in the spherical part of the LDA (GGA) potential in the MT. The same holds in the QSGW cycle: the nonlocal QSGW potential does not enter the radial equation.
 $$
-\left[ -\frac{1}{2} \frac{d^2}{dr^2} + V_\mathrm{eff}[n](r) - \frac{Z}{r} + \frac{l(l+1)}{2r^2}  -ϵ_{lν} \right] r φ_{lν}(r) = 0
+\left[ -\frac{1}{2} \frac{d^2}{dr^2} + V_\mathrm{eff}(r) - \frac{Z}{r} + \frac{l(l+1)}{2r^2}  -ϵ_{lν} \right] r φ_{lν}(r) = 0
 \tag{Bq1}
 $$
 - The electron density that determines the potential is the sum over the occupied states of the wave functions (the radial equation uses its spherical part in the MT):

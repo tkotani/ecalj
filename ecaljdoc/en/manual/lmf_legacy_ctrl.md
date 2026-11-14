@@ -1,6 +1,6 @@
 # `ctrl.<sname>` — legacy reference (kept for migration)
 
-> English version of the page [manual/lmf_legacy_ctrl](../../manual/lmf_legacy_ctrl.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/lmf_legacy_ctrl.md of the tree of c9f9a3003 (source blob fefaea7bd2d5).
+> English version of the page [manual/lmf_legacy_ctrl](../../manual/lmf_legacy_ctrl.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/lmf_legacy_ctrl.md of commit 8744007d9 (source blob f4a1b108e2de).
 
 > ⚠️ **This page is the historical reference for the legacy `ctrl.<sname>`
 > text format.** Since 2026-05, `lmf` / `lmfa` / `lmchk` read TOML only
@@ -9,10 +9,10 @@
 > `Category_Token` documentation here is still the most thorough
 > per-key reference; treat it as the canonical place to look up the
 > *meaning* of a key, then translate to TOML via the
-> [`Legacy ↔ TOML map`](./lmf#legacy-ctrl-lt-sname-gt-↔-toml-path-map).</del>
+> [`Legacy ↔ TOML map`](./toml_migration#legacy-toml-map).</del>
 > <span class="clfix">The keys of the present input are described in [lmf](./lmf) (ctrl side) and [GW settings](./gwinput) (GW side).
 > This page is kept as a record; its `Category_Token` notes may still help to read the meaning of an old key
-> (the [`Legacy ↔ TOML map`](./lmf#legacy-ctrl-lt-sname-gt-↔-toml-path-map) gives the TOML path).</span>
+> (the [`Legacy ↔ TOML map`](./toml_migration#legacy-toml-map) gives the TOML path).</span>
 >
 > If you are starting fresh, ignore this page entirely and read
 > [`lmf`](./lmf) instead. If you are migrating an old working

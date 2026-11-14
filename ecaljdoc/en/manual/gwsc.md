@@ -1,6 +1,6 @@
 # gwsc: a script to run QSGW calculation
 
-> English version of the page [manual/gwsc](../../manual/gwsc.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwsc.md of commit 034c2b739 (source blob 045e7280fc9e).
+> English version of the page [manual/gwsc](../../manual/gwsc.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwsc.md of commit 8744007d9 (source blob 3582f6ae1433).
 
 <div class="clfix-old">
 
@@ -124,6 +124,39 @@ In principle, the number is determined by<span class="clfix"> the energy window:
 
 
 ---
+
+<div class="clfix">
+
+## Mixing of the iterations: mixbeta and mixpriorit {#mixbeta-and-mixpriorit}
+
+If `gwsc` does not converge stably, try `[gw].mixbeta = 0.5` in `ctrlg.<sname>.toml`.
+(If `lmf` itself does not converge, use a smaller `[iter] b`, such as 0.015, 0.01, 0.005.)
+
+What they do: at the end of every iteration `hqpe_sc` mixes the static self-energy `sigm`.
+With $x_0$ the `sigm` the iteration ran with and $f$ the one GW has just made, the next `sigm` is
+
+$$x_{\rm new} = x^* + \beta\,(f^* - x^*) \tag{M1}$$
+
+where $x^*$, $f^*$ are the Anderson combination of the current and up to `mixpriorit` previous iterations (history in `__mixsig`).
+$\beta$ = `mixbeta` (default 1.0), `mixpriorit` default 3. With no previous iteration, $x^*=x_0$ and $f^*=f$, i.e. plain linear mixing.
+
+**The first iteration from LDA.** There is no previous `sigm` and no history, so $x_0=0$ (no self-energy, i.e. LDA) and Eq. (M1) gives $\beta f$:
+the first step takes only $\beta$ of the GW self-energy. With the default $\beta=1$ it takes all of it; with $\beta=0.5$, half.
+The second iteration is again linear mixing (one history entry); the Anderson extrapolation starts at the third.
+The converged result does not depend on $\beta$; only the path does.
+Table M1 shows `Samples/TestInstall/si_gwsc`, one `gwsc 1` from LDA (2026-09-26).
+
+Table M1. `mixbeta` and the first iteration
+
+| | `sigm` before → after mixing | band gap |
+|---|---|---|
+| LDA | — | 0.571 eV |
+| $\beta=1.0$ (default) | 6.0488 → 6.0488 | 1.293 eV |
+| $\beta=0.5$ | 6.0488 → 3.0244 | 0.934 eV (half the shift) |
+
+The mixing of $\Sigma^{\rm MLO}$ in MLO-gwsc (`gwsc --mlo`) is in §1.6 of [MLO-gwsc](./mlo_gwsc).
+
+</div>
 
 # Other scripts 
 

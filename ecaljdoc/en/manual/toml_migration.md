@@ -1,6 +1,6 @@
 # Input file {#toml-migration-2026-05}
 
-> English version of the page [manual/toml_migration](../../manual/toml_migration.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/toml_migration.md of commit 034c2b739 (source blob 60cac4fcbc2f).
+> English version of the page [manual/toml_migration](../../manual/toml_migration.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/toml_migration.md of commit 8744007d9 (source blob 8c0ea19bc7a9).
 
 ecalj consists of the one-body part (the DFT part) and the GW part.
 
@@ -48,6 +48,18 @@ The keys are described in detail in [lmf](./lmf) for the ctrl side (`[struc]`, `
 `ctrlg.<sname>.toml`; `lmf` auto-detects it without a positional argument
 when run inside the directory.
 
+<div class="clfix">
+
+### Layout of the generated files {#file-layout}
+
+`ctrlgenToml.py`, `gwinit`, `Legacy2toml.py` and the formatter `pylib/toml_tidy.py` all produce the same layout.
+A blank line separates only the big headings (the `# === X ===` comment runs and single `[section]` headers).
+Everything inside a section (one `[[site]]` or `[[spec]]` table from the next, a multi-line block from its neighbours, the three product-basis tables) is divided by a `# ----` rule.
+A `[blocks]` section only appears for the few legacy `<...>` tags that have no better home (`QPNT`, `QforEPSL`, `hrotr`), kept as multi-line strings and parsed opaquely by the GW driver.
+The sections come in the order `[gw]` `[mlo]` `[blocks]` `[product_basis]`; `[product_basis]` always closes the file (`toml_tidy.py` enforces the order).
+
+</div>
+
 ## Migration of an existing legacy directory
 
 ```bash
@@ -61,6 +73,44 @@ Legacy2toml.py <sname>
 `~/bin/` along with the binaries by `InstallAll.py`). It is idempotent
 and prints `[INFO] / [WARN] / [ERROR]` diagnostics for any
 command-line `-v` overrides that would not survive the conversion.
+
+<div class="clfix">
+
+### Legacy keys and their TOML paths {#legacy-toml-map}
+
+Most legacy `Category_Token` keys map 1:1 onto `[section.key]` after lower-casing. Those renamed or restructured are in Table 1.
+The meaning of a key can be looked up in the [legacy ctrl reference](./lmf_legacy_ctrl).
+
+Table 1. Legacy keys and TOML paths
+
+| legacy `Category_Token` | TOML location | note |
+|---|---|---|
+| `STRUC_ALAT` / `STRUC_PLAT` | `[struc].alat` / `.plat` | |
+| `SITE_ATOM=`, `POS=`, `XPOS=` | `[[site]] atom = ...; pos = [...]` (or `xpos`) | one `[[site]]` table per atom |
+| `SPEC_ATOM=`, `Z=`, `R=`, `RSMH=`, `EH=`, ... | `[[spec]] atom = ...; z = ...; r = ...; rsmh = [...]` | one `[[spec]]` table per species; `R/W=` and `R/A=` kept as `"r/a"` quoted-key |
+| `BZ_NKABC` / `BZ_METAL` / `BZ_TETRA` | `[bz].nkabc` / `.metal` / `.tetra` | |
+| `HAM_NSPIN` / `HAM_SO` / `HAM_XCFUN` / `HAM_GMAX` / `HAM_PWMODE` / `HAM_PWEMAX` | `[ham].nspin` etc. | |
+| `HAM_FORCES` / `HAM_OVEPS` / `HAM_FRZWF` / `HAM_REL` | `[ham].forces` etc. | |
+| `HAM_ScaledSigma` | `[ham].scaledsigma` | lowercase |
+| `HAM_READP` / `HAM_PNUFIX` | `[ham].readp` / `.pnufix` | `HAM_V0FIX` is the command-line option `--v0fix` |
+| `esm_input.dat` (separate file) | **`[esm]`** section | retired 2026-09-16; not read — `ctrlg_absorb.py <sname>` converts it ([ESM](./esm)) |
+| `ITER_NIT` / `ITER_MIX` / `ITER_CONV` / `ITER_CONVC` / `ITER_UMIX` / `ITER_TOLU` | `[iter].nit` / `.mix` / ... | |
+| `SYMGRP` / `SYMGRPAF` | top-level `symgrp = "..."` (and `symgrpaf`) | not nested in a section |
+| `EWALD_TOL` | `[ewald].tol` | rarely touched |
+| `DYN_MODE` / `DYN_NIT` / `DYN_HESS` / ... | `[dyn].mode` etc. | |
+| `IO_VERBOS` / `IO_TIM` | top-level `verbose` / `time` | promoted out of `[io]` (section dropped) |
+| `<Worb>...</Worb>` block | `[mlo].mlo_lm = """ ... """` | multi-line string |
+| `<QforEPS>...</QforEPS>` block | `[gw].QforEPS = """ ... """` (likewise `QforGW`) | |
+| `n1n2n3` (GWinput) | `[gw].n1n2n3 = [k1,k2,k3]` | int vector |
+| `HistBin_dw` / `HistBin_ratio` / `niw` (GWinput) | `[gw].HistBin_dw` etc. | unchanged names (upper and lower case as in GWinput) |
+| `esmr`, `SmearX0` / `GaussianFilterX0`, `GaussSmear`, `delta`, `dw`, `omg_c`, `WgtQ0P` (GWinput) | `[gw].t_sigmaw` and `[gw].t_tetrakbt` (K; `t_tetrakbt` is required) | the old keys and what happens to them: [GW settings](./gwinput) Table 1, [kBT](./kBT) §2.5 Table 2 |
+| product-basis cut-offs (`tolerance`, `lcutmx` from `<PRODUCT_BASIS>`) | `[product_basis].pb_tolerance` / `.pb_lcutmx` | |
+| product-basis per-atom tables (`nlx`, `valence`, `core`) | `[product_basis].nlx` / `.valence` / `.core` (end of the file; a separate `PB.<sname>.toml` before 2026-09) | |
+
+The full schema lives in [`SRC/exec/pylib/ctrl_schema.py`](https://github.com/tkotani/ecalj/blob/main/SRC/exec/pylib/ctrl_schema.py) (the conversion source of truth).
+Annotations and inline comments are applied by [`SRC/exec/pylib/toml_comments.py`](https://github.com/tkotani/ecalj/blob/main/SRC/exec/pylib/toml_comments.py).
+
+</div>
 
 ### `esm_input.dat` (slabs)
 
