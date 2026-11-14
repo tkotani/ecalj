@@ -36,7 +36,7 @@ $$
 \tag{GF3}
 $$
 
-that vanishes for $t<t'$ (the retarded Green function). With the eigenfunctions $𝜙_n$ and eigenvalues $𝜀_n$ of $\hat H$,
+that vanishes for $t<t'$ (the retarded Green function). It corresponds exactly to the impulse response $g$ of the spring in Eq. (GF1). With the eigenfunctions $𝜙_n$ and eigenvalues $𝜀_n$ of $\hat H$,
 
 $$
 G^\mathrm{R}(𝒓,t;𝒓',t') = -i\, 𝜃(t-t') \sum_n 𝜙_n(𝒓)𝜙^*_n(𝒓') e^{-i𝜀_n(t-t')/\hbar}
