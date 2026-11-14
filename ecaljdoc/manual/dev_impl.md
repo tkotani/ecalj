@@ -1,15 +1,13 @@
 # 実装メモ（GW の実装の詳細） {#dev-impl}
 
-::: warning 写したばかり（2026-11-15）
+::: info このページについて
 このページは、開発者向けの古いメモ `ecaljdetails.tex`（T. Kotani、最終版 2024-11。原本は ecalj のコミット `3284d0b` の `ecaljdetails/`、`git show 3284d0b:ecaljdetails/ecaljdetails.tex`）から、
-いまも役に立つ節を写したものです（英語のまま）。最初の 4 節（「q and G vector generation」まで）はいまのコードと M. Obata et al. (2025) に合わせて見直しました。それより後はまだ見直していません。いまのコードに見つからない名前には朱の印を付けました。
-式番号 (I1)〜 は写したときに付け直したもの、`[key]` は文献のキー（同じコミットの `ecaljdetails/ecaljrefs_detail.bib`）です。
-理論の説明は [ecalj のバンド計算法](../theory/pmt)、[QSGW](../theory/qsgw) と、そこにある文献を見てください。
+いまも役に立つ節を写し、いまのコードと M. Obata et al. (2025) に合わせて見直したものです（英語のまま）。
+式番号 (I1)〜 は写したときに付け直したもので、消した式の番号は欠番です。`[key]` は文献のキー（同じコミットの `ecaljdetails/ecaljrefs_detail.bib`）です。
+理論の説明は [ecalj のバンド計算法](../theory/pmt)、[QSGW](../theory/qsgw) と、そこにある文献を見てください。数学の補足は [付録](../theory/appendix) に移しました。
 :::
 
 [[toc]]
-
-<span class="clfix">(The sections after the GW overview were reordered: the flow of the GW part (qg4gw → MPB → Coulomb → offset-Γ → tetrahedron → Σ interpolation), then the symmetry (crystal symmetry, real harmonics, rotation), then SOC for the MLO, the total energy of lmf, the EIBZ memo and the suspended electron-phonon part.)</span>
 
 The main reference for the formulas of the GW part is [Obata2025]: M. Obata, T. Kotani, T. Oda, "Efficient implementation of the quasiparticle self-consistent $GW$ method on GPU", Comput. Mater. Sci. **260**, 114190 (2025), [doi:10.1016/j.commatsci.2025.114190](https://doi.org/10.1016/j.commatsci.2025.114190), section 2. The equations below that carry "[Obata2025] Eq. (n)" are taken from it.
 
@@ -362,7 +360,7 @@ since $W^{\rm c}(\omega)=W^{\rm c}(-\omega)$ only $\omega^{\rm I}_i\ge0$ are use
 $\omega^{\rm R}_i$ are the boundaries of the histogram bins of Eq. (I18a), and $w^{\rm R}_i$ are the three-point interpolation coefficients of $W^{\rm c}$ at $\varepsilon_{\mathbf q n}-\varepsilon_{\mathbf q-\mathbf k n'}$, including the step functions.
 Only $R^{\rm c}$ gives the lifetime (impact ionization rate); in the static $\Sigma^{\rm c}$ of QSGW, $W^{\rm c}$ in $R^{\rm c}$ is Hermitized.
 In the present code the step functions are smeared by the Fermi-Dirac kernel of `[gw] t_sigmaw` (K) instead of the infinitesimal $\delta$,
-and by default (`[gw] wcsmear = true`) $W^{\rm c}(\omega)$ itself is integrated over that kernel; the three-point interpolation of [Obata2025] is `wcsmear = false` ([kBT](./kBT)).<span class="clfix"> The integration over the kernel (`wcsmear = true`) is an improvement made after [Obata2025]; it removes the sensitivity to sharp plasmon poles of $W^{\rm c}(\omega)$.</span>
+and by default (`[gw] wcsmear = true`) $W^{\rm c}(\omega)$ itself is integrated over that kernel; the three-point interpolation of [Obata2025] is `wcsmear = false` ([kBT](./kBT)). The integration over the kernel (`wcsmear = true`) is an improvement made after [Obata2025]; it removes the sensitivity to sharp plasmon poles of $W^{\rm c}(\omega)$.
 
 The first key point, given in Sec.([§](#offset-gamma)),
 is the improved offset-$\Gamma$ method, which treats
@@ -401,7 +399,7 @@ for the interpolation in the BZ (explained in Sec.([§](#sigma-interpolation))),
 because this difference is numerically small as long as
 $V^{\rm xc}_{\rm LDA}$ roughly gives an approximation to $V^{\rm xc}$.
 This procedure utilizing $V^{\rm xc}_{\rm LDA}$ to perform efficient numerical calculations
-give a very weak dependence to the final numerical results in practice<del class="clfix"> as seen in Sec.(ref sec:numtest in the original)</del>,
+give a very weak dependence to the final numerical results in practice,
 although the results formally does not depend on the LDA/GGA exchange-correlation functions.
 
 ## ${\bf q}$ and ${\bf G}$ vector generation. qg4gw
@@ -414,33 +412,14 @@ $$\begin{aligned}
 \end{aligned}
 \tag{I21}
 $$
-, where ${\bf P}_i$ is the primitive vector $\frac{2\pi}{\rm alat} \times$<span class="clfix"> `qlat(:,i)`, the reciprocal lattice vectors ${\bf Q}_i$ (`[gw] chi_RegQbz = true`, the default, includes ${\bf k}=0$; with `false` the mesh is shifted by half a step).</span>
+, where ${\bf P}_i$ is the primitive vector $\frac{2\pi}{\rm alat} \times$ `qlat(:,i)`, the reciprocal lattice vectors ${\bf Q}_i$ (`[gw] chi_RegQbz = true`, the default, includes ${\bf k}=0$; with `false` the mesh is shifted by half a step).
 Quantities $f({\bf k})$ (periodic in BZ) can
 be integrated just as a sum on the regular mesh points.
 However, when $f({\bf k}=0)$ is divergent, we have careful treatments.
 
-<del class="clfix">`qlat`(:,i1), where qlat=${\bf Q}_i$ is the reciprocal vectors.
-See Sec.3.2 .</del>
-
-`mkQG2` in `mkqg.f90` is the main part of **qg4gw** (`main_qg4gw.f90`). The job `--job=N` (`iq0pin`) is 1 (generate the offset-Γ points Q0P; `gwsc`), 2 (read Q0P; `job_eps` uses `--job=2 --n1n2n3eps`), 3 (epsPP), 4 (χ+-<span class="clfix">; ngp = ngc = 0</span>), 201<span class="clfix"> (Q0P plus the Q0P along x, y, z</span><span class="clfix">)</span>, 10002 (skip the Γ cell), 20002 (Γ cell only), 40001 (`QforEPSL` for magnons). With `--n1n2n3eps`, the mesh `[gw] n1n2n3eps` is used if given.
-<div class="clfix-old">
-
-The purpose is generates required q and G vectors.
-Not only regular mesh points, or q along symmetry lines,
-but also offset Gamma points.
-
-iq0pin=1: normal mode. Generate q and G for regular mesh point and Q0P
-points (offset Gamma points).
-
-</div>
-
-<div class="clfix">
-
+`mkQG2` in `mkqg.f90` is the main part of **qg4gw** (`main_qg4gw.f90`). The job `--job=N` (`iq0pin`) is 1 (generate the offset-Γ points Q0P; `gwsc`), 2 (read Q0P; `job_eps` uses `--job=2 --n1n2n3eps`), 3 (epsPP), 4 (χ+-; ngp = ngc = 0), 201 (Q0P plus the Q0P along x, y, z), 10002 (skip the Γ cell), 20002 (Γ cell only), 40001 (`QforEPSL` for magnons). With `--n1n2n3eps`, the mesh `[gw] n1n2n3eps` is used if given.
 The purpose is to generate the required q and G vectors at the regular mesh points and at the offset-Γ points.
 It writes the BZ data `__BZDATA` and, for each q, the G vectors with $|{\bf q}+{\bf G}|$ below `[gw] QpGcut_psi` (for the eigenfunctions, `__QGpsi`) and below `QpGcut_cou` (for the IPW of the MPB, `__QGcou`).
-
-</div>
-
 
 #### Make $G$ vectors: getgv2
 
@@ -455,10 +434,8 @@ subroutine getgv2(alat,plat,qlat,q, QpGcut,job, ng,ngvec) ! Set up a list of rec
 
 We can use this to get $\{ {\bf G}\}$ for given $q$.
 The algorism of `getgv2` is a little complicated.
-We first <del class="clfix">gives the upper and lower limits `n1max` $\le n_1 \le$ `n1min`</del><span class="clfix">give the lower and upper limits `n1min` $\le n_1 \le$ `n1max` (with a margin of 1)</span>,
+We first give the lower and upper limits `n1min` $\le n_1 \le$ `n1max` (with a margin of 1),
 where ${\bf G}= n_1 Q_1 + n_2 Q_2 + n_3 Q_3$, $n_2$ and $n_3$ as well.
-
-
 
 Let us consider the three dimensional space of ${\bf x}= {\bf q}+{\bf G}$.
 For given ${\bf q}$, allowed ${\bf G}$ make a set of regular mesh points $\{ {\bf q}+{\bf G}\}$.
@@ -511,14 +488,14 @@ $$\begin{aligned}
 $$
 In addition, it is trivial that $\{B_{ {\bf R}\mu}({\bf r})\}$ and
 $\{ P^{\bf k}_{\bf G}({\bf r})\}$ are orthogonal.
-<del class="clfix">Thus only the elements of overlap matrix is</del><span class="clfix">The overlap matrix</span>
+The overlap matrix
 $$\begin{aligned}
  O^{\bf k}_{IJ}= 
   \int_\Omega \{M_I^{\bf k}({\bf r})\}^* {M}_J^{\bf k}({\bf r}) d^3r
 \end{aligned}
 \tag{I24}
 $$
-<del class="clfix">because $\{ P^{\bf k}_{\bf G}({\bf r})\}$ are not orthogonal.</del><span class="clfix">is therefore the unit matrix in the PB block and is not diagonal only in the IPW block, since the IPWs $\{ P^{\bf k}_{\bf G}({\bf r})\}$ are not orthogonal.</span>
+is therefore the unit matrix in the PB block and is not diagonal only in the IPW block, since the IPWs $\{ P^{\bf k}_{\bf G}({\bf r})\}$ are not orthogonal.
 Thus it is convenient to define the dual of ${M}^{\bf k}_{I}({\bf r})$ as
 $\tilde{M}^{\bf k}_{I}({\bf r})$ in the manner of Eq. (I13).
 
@@ -538,21 +515,7 @@ $$\begin{aligned}
 \tag{I25}
 $$
 
-
-<div class="clfix-old">
-
----- NOTE: ----
-Now we use Coulomb matrix orthogonalized basis $\{E^{\bf k}_\mu\}$ as
-discussed in Eq. (I14).
-
-</div>
-
-<div class="clfix">
-
 The GW part uses both $M^{\bf k}_I$ and the Coulomb-orthonormalized $E^{\bf k}_\mu$ of Eq. (I14); see Eq. (I14a) for which step uses which.
-
-</div>
-
 
 ### Product basis (hbasfp0) {#product-basis-hbasfp0}
 
@@ -566,77 +529,18 @@ where the index $p$ takes 1 for $\phi$, 2 for $\dot{\phi}$,
 3 for local orbital as well. We do not allow $m$ dependence
 ($m$ is $m$ of $L=(l,m)$.) for the radial functions.
 
-<div class="clfix-old">
-
-In addition, $p$ can taks indexes to specify core functions:
-we combine core and valence functions (these
-are stored in `PHIVC`, which read in `hbasfp0.m.F`).
-Here is a part of copy to read `PHIVC` in hvccfp0.m.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>
-
->           ifphi  = iopen('PHIVC', 0,-1,0)! augmentation wave and core
->           read(ifphi) nbas, nradmx, ncoremx
->           allocate(  ncindx(ncoremx,nbas),
->          &           lcindx(ncoremx,nbas),
->          &           nrad(nbas), nindx_r(1:nradmx,1:nbas),
->          &           lindx_r(1:nradmx,1:nbas),
->          &        aa(nbas),bb(nbas),zz(nbas), rr(nrx,nbas), nrofi(nbas) ,
->          &        phitoto(nrx,0:nl-1,nn,nbas,nsp),
->          &        phitotr(nrx,0:nl-1,nn,nbas,nsp),
->          &        nc_max(0:nl-1,nbas),ncore(nbas) )
->           read(ifphi) nrad(1:nbas)
->           read(ifphi) nindx_r(1:nradmx,1:nbas),lindx_r(1:nradmx,1:nbas)
->           nc_max=0
->           do ibas=1,nbas
->             write(6,*)' --- read PHIVC of ibas=',ibas
->             ic = ibas
->             read(ifphi) ncore(ic), ncoremx                            !core
->             read(ifphi) ncindx(1:ncoremx,ibas),lcindx(1:ncoremx,ibas) !core
->             read(ifphi) icx,zz(ic),nrofi(ic),aa(ic),bb(ic)
->             if(ic/=icx) then
->               write(6,*) 'ic icx=',ic,icx
->               call rx( 'hbasfp0: ic/=icx')
->             endif
->             read(ifphi) rr(1:nrofi(ic),ic)
->             do isp = 1, nsp
->               write(6,*)'---  isp nrad ncore(ic)=',isp, nrad(ic),ncore(ic)
->               do icore = 1, ncore(ic)
->                 l =  lcindx(icore,ic)
->                 n =  ncindx(icore,ic)
->                 read(ifphi) phitoto(1:nrofi(ic),l,n, ic,isp)!core orthogonal
->                 phitotr(1:nrofi(ic),l,n, ic,isp)=   !we set core raw= core orthgonal
->          &      phitoto(1:nrofi(ic),l,n, ic,isp)       
->                 if(n>nc_max(l,ic)) nc_max(l,ic)=n
->               enddo
->               do irad = 1, nrad(ic)
->                 l = lindx_r (irad,ic)
->                 n = nindx_r (irad,ic) + nc_max(l,ic)
->                 read(ifphi) phitoto(1:nrofi(ic),l,n, ic,isp) !valence orthogonal
->                 read(ifphi) phitotr(1:nrofi(ic),l,n, ic,isp) !valence raw
->               enddo
->             enddo
->           enddo
->
-> \[note: The orthonomalized radial functions $u_{apl\sigma}(r)$
-> are stored in `phitoto`; we also have the un-orthonormalized ones in `phitotr`.\]
-
-</div>
-
-<div class="clfix">
-
 In addition, $p$ also takes the indexes of the core functions: the core and valence radial functions are read together from `__PHIVC`
 (written by `lmf --jobgw=1`, `sugw.f90`) in `main_hbasfp0.f90`.
 For each atom and spin, the cores come first (`ncore`, with their $l$ and $n$ in `lcindx`, `ncindx`), then the valence radial functions (`nrad`, `lindx_r`, `nindx_r`),
 so that the valence $n$ is shifted by the number of cores of that $l$ (`nc_max`).
 The orthonormalized radial functions $u_{apl\sigma}(r)$ are stored in `phitoto`, and the raw ones in `phitotr` (the same for the cores).
 
-</div>
-
 Note that the *true* radial function is
 $\phi_{apl\sigma}(r) = u_{apl\sigma}(r)/r$.
 Normalization is
 $1=\int_0^{R_a} \{ u_{apl\sigma}(r) \}^2 dr = 
    \int_0^{R_a} \{ \phi_{apl\sigma}(r) \}^2 r^2dr$.
-The function $u_{apl\sigma}(r)$ is stored in <del class="clfix">`phitot`</del><span class="clfix">`phitoto`</span>.
+The function $u_{apl\sigma}(r)$ is stored in `phitoto`.
 
 When producing the product functions,
 we use spin-averaged function `phiav` given as
@@ -646,7 +550,7 @@ $$\begin{aligned}
 \end{aligned}
 \tag{I27}
 $$
-(See `subroutine basnfp_v2`<span class="clfix"> in `basnfp.f90`; it averages the raw `phitotr`, with the sign of the spin-down function aligned to the spin-up one</span>).
+(See `subroutine basnfp_v2` in `basnfp.f90`; it averages the raw `phitotr`, with the sign of the spin-down function aligned to the spin-up one).
 From them, we make the product functions `rprod`
 $$\begin{aligned}
   \tilde{b}_{al\nu}(r) = \frac{1}{r}{u_{a p l }(r) u_{a p' l'}(r)}
@@ -674,11 +578,11 @@ $$\begin{aligned}
 \tag{I30}
 $$
 and solve the eigenvalue problem of the overlap matrix,
-$Oz_{\nu}=\epsilon_{\nu} z_{\nu}$, by `call <del class="clfix">rs</del><span class="clfix">rss</span>(..)`.
+$Oz_{\nu}=\epsilon_{\nu} z_{\nu}$, by `call rss(..)`.
 (See `basnfp_v2`.)
 
 After neglecting eigenvectors
-$z_{\nu}$ with eigenvalues $\epsilon_{\nu} \lt  {\rm tolerance} \sim 10^{-4}$ (given <del class="clfix">in GWinput,</del><span class="clfix">for each $l$ by `[product_basis] pb_tolerance` ([GW input](./gwinput#product-basis)); the last value is used for the larger $l$),</span>
+$z_{\nu}$ with eigenvalues $\epsilon_{\nu} \lt  {\rm tolerance} \sim 10^{-4}$ (given for each $l$ by `[product_basis] pb_tolerance` ([GW input](./gwinput#product-basis)); the last value is used for the larger $l$),
 we finally have the optimal product functions as the linear combinations
 of the product functions as
 $$\begin{aligned}
@@ -687,14 +591,14 @@ $$\begin{aligned}
 \end{aligned}
 \tag{I31}
 $$
-which are stored in `rprodx` and written into <del class="clfix">BASFP\*</del><span class="clfix">`__BASFP<ic>`</span>
-and used in the successive Coulomb matrix routine <del class="clfix">hvccfp0.m.f</del><span class="clfix">`hvccfp0`</span>.
+which are stored in `rprodx` and written into `__BASFP<ic>`
+and used in the successive Coulomb matrix routine `hvccfp0`.
 Of course, *true* product function is
 $B_{al\nu}(r) = b_{al\nu}(r)/r$.
 
 We check the normalization of the optimal product function
 in standard output
-(See `lbasC` and `lbas` <del class="clfix">when you did **gw_lmf**</del><span class="clfix">written by `gwsc`</span>):
+(See `lbasC` and `lbas` written by `gwsc`):
 
     ...
     Use rs diagonalization for real symmetric 
@@ -715,8 +619,8 @@ $$\begin{aligned}
 \end{aligned}
 \tag{I32}
 $$
-which are stored into <del class="clfix">PPBRD\*</del><span class="clfix">`__PPBRD_V2_<ic>`</span>.
-At `call rdpp(...` in <del class="clfix">hx0fp0.m.f hxfp0.m.f</del><span class="clfix">`rdpp.f90` (module `m_rdpp`, used by `m_zmel`)</span>,
+which are stored into `__PPBRD_V2_<ic>`.
+At `call rdpp(...` in `rdpp.f90` (module `m_rdpp`, used by `m_zmel`),
 we allocate and read `ppbrd`.
 
 In addition, we read the \"rotated Clebsh-Gordon coefficient\"
@@ -729,30 +633,30 @@ coefficient ( rotated by point group symmetries).
 We have to calculate
 $v_{IJ}^{\bf k}= \langle M^{\bf k}_{I} |v|  M^{\bf k}_J \rangle$, which
 appears right after Eq. (I13).
-Our <del class="clfix">`hvccfp0.m.F`</del><span class="clfix">`hvccfp0` (`main_hvccfp0.f90`)</span> can handle the
+Our `hvccfp0` (`main_hvccfp0.f90`) can handle the
 case $\frac{\exp(- |\kappa| |{\bf r}_1-{\bf r}_2|)}{|{\bf r}_1-{\bf r}_2|}$.
 The energy variable $E$ is given by $E=\kappa^2$, where
 imaginary part of $\kappa$ is defined to be positive for negative $E$.
-This $E=$`eee=screenfac()` in <del class="clfix">hvccfp0.m.F</del><span class="clfix">`main_hvccfp0.f90`; `screenfac()` in `switch.f90` returns $-$`TFscreen`$^2$</span>.
-<del class="clfix">The default is the bare Coulomb interaction, that is, $\kappa=0$.</del><span class="clfix">The default is `[gw] TFscreen` $=\sqrt{10^{-5}}$, that is, $E=-10^{-5}$, nearly the bare Coulomb interaction (a too small value gives a negative eigenvalue of the Coulomb matrix at $q=0$).</span>
-For example, we can set $|\kappa|=0.1$ (a.u.) by <del class="clfix">a line \"`TFscreen 0.1`\" in GWinput</del><span class="clfix">`TFscreen = 0.1` in `[gw]` of `ctrlg.<sname>.toml`</span> if necessary.
+This $E=$`eee=screenfac()` in `main_hvccfp0.f90`; `screenfac()` in `switch.f90` returns $-$`TFscreen`$^2$.
+The default is `[gw] TFscreen` $=\sqrt{10^{-5}}$, that is, $E=-10^{-5}$, nearly the bare Coulomb interaction (a too small value gives a negative eigenvalue of the Coulomb matrix at $q=0$).
+For example, we can set $|\kappa|=0.1$ (a.u.) by `TFscreen = 0.1` in `[gw]` of `ctrlg.<sname>.toml` if necessary.
 
 The MPB is made of IPWcou ($|{\bf q}+{\bf G}|$`<QpGcut_cou`) and PB,
 that is, $\{M^{\bf k}_J\}=\{P_{\bf G}^{\bf k}({\bf r}), B^{\bf k}_{ {\bf R}{liL}\mu}({\bf r})\}$.
 For given ${\bf k}$ (not explicitly shown in cases for simplicity),
 IPWcou is specified just by the ${\bf G}$ vector.
 PB can be specified just by the radial functions for each $l$
-(because we have neither $m$ nor spin dependence)<span class="clfix">;</span>
-PB is generated in the manner of Sec.([§](#mixed-product-basis))<del class="clfix"> .</del><span class="clfix">.</span>
+(because we have neither $m$ nor spin dependence);
+PB is generated in the manner of Sec.([§](#mixed-product-basis)).
 For $GW$ calculation, we need the Coulomb matrix elements
-$\langle B|v|B \rangle,\langle B|v|P_{\bf G}\rangle,$ and $\langle <del class="clfix">B</del><span class="clfix">P</span>|v|P \rangle$.
-<del class="clfix">`hvccfp0.m.F-->vcoulq_4`</del><span class="clfix">`vcoulq_4` (`mkjp.f90`), called in `main_hvccfp0.f90`,</span> handles these calculations.
+$\langle B|v|B \rangle,\langle B|v|P_{\bf G}\rangle,$ and $\langle P|v|P \rangle$.
+`vcoulq_4` (`mkjp.f90`), called in `main_hvccfp0.f90`, handles these calculations.
 
 ### Spherical Bessel and related functions
 
 We use a notation such that $X_L({\bf r})=X_l(r) Y_L(\hat{r})$; note that
 their radial part is dependent only on $l$.
-<del class="clfix">The ordinary definition of $L$-dependent spherical</del>
+
 For given energy $E$, Bessel functions
 $J_L(E,{\bf r}),H_L(E,{\bf r})$ are
 (here we introduce $\sqrt{E}=\kappa$,
@@ -792,7 +696,7 @@ $$\begin{aligned}
 $$
 (memo: for example, $7!!=7\cdot5\cdot3\cdot1$ `;function fac2m(i)`).
 These are real functions for $E\le 0$.
-See note for `genjh` in `mkjp.<del class="clfix">F</del><span class="clfix">f90</span>`.
+See note for `genjh` in `mkjp.f90`.
 At $E=0$, this is reduced to be
 $$\begin{aligned}
  &\bar{J}_l(E=0,{\bf r})=r^l/(2l+1)!!,  \\
@@ -803,13 +707,13 @@ $$
 
 (We use very small negetive $E=-10^{-5}$ as default instead of $E=0$
 for Coulomb matrix generator `hvccfp0`
-to avoid numerical troubles (see default `screenfac` in `switch.<del class="clfix">F</del><span class="clfix">f90</span>`)).
+to avoid numerical troubles (see default `screenfac` in `switch.f90`)).
 
 The source codes to define bessl is a little confusing because
-of some convensions are mixed up\...(note at the beginning of `besslr.<del class="clfix">F</del><span class="clfix">f90</span>`).
+of some convensions are mixed up\...(note at the beginning of `besslr.f90`).
 
-Main one is `call <del class="clfix">bessel</del><span class="clfix">bessl</span>(ex2,lx,phi(0:lx),psi(0:lx))` in `mkjp.<del class="clfix">F</del><span class="clfix">f90</span>` (`genjh`).
-This is defined in `bessl(ex2,lmax,phi,psi)` in `besslr.<del class="clfix">F</del><span class="clfix">f90</span>`<del class="clfix">(it calls `besslr` with `loka=F`)</del><span class="clfix"> (the module `m_bessl` has the same `bessl`, used in `vcoulq_4`)</span>.
+Main one is `call bessl(ex2,lx,phi(0:lx),psi(0:lx))` in `mkjp.f90` (`genjh`).
+This is defined in `bessl(ex2,lmax,phi,psi)` in `besslr.f90` (the module `m_bessl` has the same `bessl`, used in `vcoulq_4`).
 `lx` is the upper limit of $l$.
 For given `ex2`$=E\times x^2$,
 this return spherical Bessel functions $j_l(\kappa x)$
@@ -855,7 +759,7 @@ and `psi`$=(2l-1)!!$ at $E \to 0$.
 Here $n_l(r)$ is the spherical Neumann functions.
 That is, `psi` is for Hankel function
 for negative $E$, and for Neumann function for positive $E$.
-See `hansmr` <del class="clfix">`hansmr.F`</del><span class="clfix">in `m_hansr.f90`</span>, for example. `psi` is not used so often.<del class="clfix">We have `lm7K/subs/besslr.F`, it is similar.</del>
+See `hansmr` in `m_hansr.f90`, for example. `psi` is not used so often.
 
 For convenience, we sometimes use
 $$\begin{aligned}
@@ -864,10 +768,10 @@ $$\begin{aligned}
 \end{aligned}
 \tag{I38}
 $$
-<span class="clfix">(In Eq. (I38), `psi(l)` of the first line was corrected to `phi(l)`, as in `genjh`.)</span>
+
 Here note $R^{+k} \rightarrow r^k$ for $E\to 0$,and
 $R^{-k} \rightarrow r^{-k-1}$ for $E\to 0$.
-These $rR^{+k},rR^{-k}$ are `rkpr,rkmr` generated in subroutine `genjh`.<del class="clfix">xxxx We may need to simplify our treatment of bessel functions in future\... xxxx</del>
+These $rR^{+k},rR^{-k}$ are `rkpr,rkmr` generated in subroutine `genjh`.
 
 ### Green function
 
@@ -931,22 +835,6 @@ Y_L({\bf \widehat{r} }_2) \ \ \ \ \ \
 \tag{I45}
 $$
 
-
-<div class="clfix-old">
-
-$$\begin{aligned}
-\langle P^{\bf k}_{\bf G}|P^{\bf k}_{ {\bf G}'} \rangle
-= \Omega \delta_{ {\bf G},{\bf G}'} -  
-\sum_{a,L} \exp( i ({\bf G}-{\bf G}') {\bf R_a}) \times Y_L(\widehat{ {\bf k+G} }') 
-Y_L( {\bf \widehat{ k+G} })  \\
-\times \int_0^{R_a} j_l(|{\bf k+G}|r)j_l(|{\bf k+G}'|r) 4 \pi^2 r^2 dr,
-\end{aligned}
-$$
-
-</div>
-
-<div class="clfix">
-
 The overlap of the IPWs (`mkppovl2` and `matgg2` in `pwmat.f90`) depends only on ${\bf G}'-{\bf G}$ and not on ${\bf k}$:
 $$\begin{aligned}
 \langle P^{\bf k}_{\bf G}|P^{\bf k}_{ {\bf G}'} \rangle
@@ -955,8 +843,6 @@ $$\begin{aligned}
 \tag{I46}
 $$
 where $g=|{\bf G}'-{\bf G}|$, and the term of $a$ is $4\pi R_a^3/3$ for $g=0$.
-
-</div>
 
 ### Hankel function and Structure constant
 
@@ -974,7 +860,7 @@ $$\begin{aligned}
 \end{aligned}
 \tag{I47}
 $$
-where <del class="clfix">the Hankel function for negative energy $E$.</del><span class="clfix">$E\lt 0$ (Hankel functions of negative energy).</span>
+where $E\lt 0$ (Hankel functions of negative energy).
 Here $E$-dependence of $S_{ {\bf X}'{L},{\bf X}{L'} }$ is not explicitly shown.
 Note the difference between $\bar{J}_L$ and $J_L$ ($\bar{H}_L$, as well).
 
@@ -999,45 +885,17 @@ S^{\bf k}_{ {\bf R}{L},{\bf R}'{L'} }=
 \end{aligned}
 \tag{I49}
 $$
-<del class="clfix">Usually we use bare Coulomb at $E=0$.</del><span class="clfix">We use $E=-10^{-5}$ by default (`screenfac`), nearly the bare Coulomb interaction.</span>
-<del class="clfix">[ No 4$\pi$ factor in the definition of $S^{ {\bf k} }_{ {\bf R}{L},{\bf R}'{L'} }$]{.underline}</del>
-See the top of `strxq` defined in <del class="clfix">strxq.F</del><span class="clfix">`m_hvccfp0_util.f90`</span> (called in <del class="clfix">hvccfp0.m.F</del><span class="clfix">`main_hvccfp0.f90`; for $E\lt 0$ all pairs at once by `strxq_all`</span>).
+We use $E=-10^{-5}$ by default (`screenfac`), nearly the bare Coulomb interaction.
+
+See the top of `strxq` defined in `m_hvccfp0_util.f90` (called in `main_hvccfp0.f90`; for $E\lt 0$ all pairs at once by `strxq_all`).
 This routine is for the one-center expansion of
 usual Bloch summed Hankels. (not for smooth Hankels).
 This result is finally converted to be the
 Bloch sum of the structure constant
 $S^{ {\bf k} }_{ {\bf R}{L},{\bf R}'{L'} }$ used in Eq. (I50).
 
-
-<div class="clfix-old">
-
-> ====================\
-> NOTE in strxq.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>; it says
->
->     -------------------------------------
->     Cr Expansion Theorem: H_{RL}(r) = H_L(r-R)
->     Cr H_{RL}(E,r) = J_{R'L'}(E,r) * S_{R'L',RL}
->     Cr S_R'L',RL = 4 pi Sum_l" C_{LL'L"} (-1)^l (-E)^(l+l'-l")/2 H_L"(E,R-R')
->     -----
->     CAUTION!: We use R to denote MT position in the primitive cell; 
->     thus this R is R+T in our notation.
->     --------------------------------
-
-Thus it seeminly $4 \pi$ factor is missing in (I48).
-However, righ after the subroutine `strxq` is called, we have added
-$4\pi$ factor as `strx(1:nlx1,ibas1,1:nlx2,ibas2) = fpi*s` in
-`hvcc0.m.F`<span class="clfix">(not in the present SRC, 2026-11-15)</span>. Thus Eq. (I48)
-don't include $4\pi$ factors.
-
-</div>
-
-<div class="clfix">
-
 `strxq` returns the structure constant without the factor $4\pi$ (its expansion theorem is $H_{RL}(E,r)=\sum J_{R'L'}(E,r)\,S_{R'L',RL}$, with $S_{R'L',RL}=4\pi\sum_{L''}C_{LL'L''}(-1)^l(-E)^{(l+l'-l'')/2}H_{L''}(E,R-R')$ in its notation, where $R$ includes $T$).
 `main_hvccfp0.f90` multiplies it by $4\pi$ (`strx = fpi*s`), and `strx` is $S^{\bf k}_{{\bf R}L,{\bf R}'L'}$ of Eqs. (I48)–(I50).
-
-</div>
-
 
 ### $\langle B|v|B \rangle$ part {#b-v-b-part}
 
@@ -1057,10 +915,9 @@ S^{ {\bf k} }_{ {\bf R}{L},{\bf R}'{L'} }\, \bar{J}_{L'}(E,{\bf r}'-{\bf R}'),
 $$
 for ${\bf R}\ne {\bf R}'$.
 Note that we use $e^2=1$ (a.u.) in `hvccfp0`.
-(See note at the beginning of `mkjp.<del class="clfix">F</del><span class="clfix">f90</span>`. And note the normalization check
+(See note at the beginning of `mkjp.f90`. And note the normalization check
 at the end of `hvccfp0`; $\langle \exp(i {\bf q}{\bf r}) |v |\exp(i {\bf q}{\bf r})\rangle=4\pi \Omega/|{\bf q}|^2$, where $\Omega$ is the cell volume.)
 
-<del class="clfix">`strx calculated by "call strxq@L806:hvccfp0.m.F"` means $S^{\bf k}_{ {\bf R}{L},{\bf R}'L'}$. Note that $4 \pi$ is mulipled right after `call strxq` to obtain .</del>
 This `strx` is used in `call vcoulq_4`.
 `nlx1` means `(l+1)**2` for $R$
 `(=ibas1)`, `nlx2` as well.
@@ -1079,9 +936,9 @@ $$
 $$
 Here $B_{ {\bf R}{l}\mu}(r)$ is the radial part of $B_{ {\bf R}{L}\mu}({\bf r})$.
 This `rojb` integrals are calculated in
-the <del class="clfix">subrouitne</del><span class="clfix">subroutine</span> `mkjb_4` in `mkjp.<del class="clfix">F</del><span class="clfix">f90</span>`.
+the subroutine `mkjb_4` in `mkjp.f90`.
 We use radial functions
-`rprod<del class="clfix">o</del>x` $=r B_{ {\bf R}{l}\mu}(r)$,
+`rprodx` $=r B_{ {\bf R}{l}\mu}(r)$,
 `rkpr`$=r\bar{J}_l(E,r)(2l+1)!!$,
 and `rkmr`$=r\bar{H}_l(E,r)/(2l-1)!!$.
 (Here `rkpr` and `rkmr` are propotional to
@@ -1104,42 +961,12 @@ $$
 
 With the integrals `rojb` and `sgbb`, we can calculate
 $\langle B|v|B \rangle$ in `vcoulq_4` as follows
-<div class="clfix-old">
-
->           do ibl1= 1, nbloch
->             ibas1= ibasbl(ibl1)
->             n1   = nbl (ibl1)
->             l1   = lbl (ibl1)
->             m1   = mbl (ibl1)
->             lm1  = lmbl(ibl1)
->             do ibl2= 1, ibl1
->               ibas2= ibasbl(ibl2)
->               n2   = nbl (ibl2)
->               l2   = lbl (ibl2)
->               m2   = mbl (ibl2)
->               lm2  = lmbl(ibl2)
->               vcoul(ibl1,ibl2) =
->          &     rojb(n1, l1, ibas1) *strx(lm1,ibas1,lm2,ibas2)
->          &    *rojb(n2, l2, ibas2)
->               if(ibas1==ibas2 .and. lm1==lm2) then
->                 vcoul(ibl1,ibl2) = vcoul(ibl1,ibl2) + sgbb(n1,n2,l1, ibas1)
->                 ! sigma-type contribution. onsite coulomb
->               endif
->             enddo
->           enddo
-
-</div>
-
-<div class="clfix">
-
 (`nbloch` means the total number of PB; the loop over the pairs of PB in `vcoulq_4`):
 
 ```fortran
 vcoul(ibl1,ibl2) = rojb(n1, l1, ibas1) *strx(lm1,ibas1,lm2,ibas2) *rojb(n2, l2, ibas2)    ! offsite Coulomb
 if(ibas1==ibas2.AND.lm1==lm2) vcoul(ibl1,ibl2) = vcoul(ibl1,ibl2) + sgbb(n1,n2,l1, ibas1) ! sigma-type onsite parts
 ```
-
-</div>
 
 ### $RL$ expansion of $|P^{\bf k}_{ {\bf G}'} \rangle$
 
@@ -1157,7 +984,7 @@ as long as we use large enough $l_{\rm Pmax}$.
 Here ${P}_{ {\bf R}{L} }$ denotes the projection operator
 to extract the component of ${ {\bf R}{L} }$ contribution.
 In fact, we use large enough $l_{\rm Pmax}$;
-$l_{\rm Pmax} = 2 \times l_{\rm max}$`=2*LMXA`<span class="clfix"> (`lxx = 2*lmxax` in `basnfp.f90` and `hvccfp0`)</span>,
+$l_{\rm Pmax} = 2 \times l_{\rm max}$`=2*LMXA` (`lxx = 2*lmxax` in `basnfp.f90` and `hvccfp0`),
 where $l_{\rm max}$ denotes the maximum angular momentum
 for the expansion of eigenfunctions within MT (maximum
 $l$ cutoff for $\alpha^{ {{\bf k} }n}_{ {\bf R}u}$ in Eq. (I1)).
@@ -1183,62 +1010,12 @@ Here $P_1(\phi\phi)$ indicates
 that an IPW made from a product
 of IPWs.The matrix elements
 $\langle {P}_{2''}| {P}_{2'} \rangle^{-1}$
-(stored into <del class="clfix">PPOVLG,PPOVLI</del><span class="clfix">`__PPOvlp`; the inverse is taken where it is used</span>)
+(stored into `__PPOvlp`; the inverse is taken where it is used)
 and $\langle {P_{2'} } | P_2(phiphi) \rangle$
-(stored into <del class="clfix">PPOVLGG</del><span class="clfix">`__PPOvlpGG`</span>)
-are given at `rdata4gw`<span class="clfix"> (a block in `sugw.f90`, that is, `lmf --jobgw=1`)</span>.
+(stored into `__PPOvlpGG`)
+are given at `rdata4gw` (a block in `sugw.f90`, that is, `lmf --jobgw=1`).
 
 ### Overlap matrix of the IPWs (`__PPOvlp*` files)
-
-<div class="clfix-old">
-
-PPOVL\* files contains the
-overlap matrix of IPWs
-$\langle {P}^{\bf k}_{ {\bf G} }|{P}^{\bf k}_{ {\bf G'} }\rangle$
-.
-We have two types of $\langle {P}^{\bf k}_{ {\bf G} }|{P}^{\bf k}_{ {\bf G'} }\rangle$.
-One is for the Coulomb matrix (PPOVLG,PPOVLI).
-The other is for generating
-$\langle G({\rm eigenfun.}) G({\rm eigenfun.})| G({\rm cou}) \rangle$.
-(a product of IPWs of eigenfunctions can be
-expanded by IPWs for Coulomb matrix).
-
-The overlap matrix elements
-$\langle {P}^{\bf k}_{ {\bf G} }|{P}^{\bf k}_{ {\bf G'} }\rangle$
-are generated in `rdata4gw`.
-These are read and allocated in the module
-`m_read_ppovl (rppovl.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>)` when we call
-`getppx2`. We have \"call getppx2\" in the
-subroutine melpln2t in ppbafp.fal.F<span class="clfix">(the source is now *.f90; check the name, 2026-11-15)</span>.
-The melpln2t is for generating the matrix element of
-`<IPW psi |psi>`.
-
-    (1)PPOVLG + PPOVLI:
-       For q in qibze(1:3,1:nqnumt) (=IBZ + Q0P points), 
-       number of IPWcou =ngc can be dependent of q.
-       We have <k+G|k+G'>= ppovl(ngc,ngc) 
-       PPOVLG: G vectors as ngvecc(1:ngc).
-       PPOVLI: ppovl^-1(ngc,ngc). Inverse of PPOVL0
-       (PPOVL0 is unused now. It is divided into PPOVLG and PPOVLI).
-
-       In principle the matrix element itself is k-independent,
-       (just the difference of G vectors due to periodicity).
-       But, for convenience, we generate them separately for each k.
-
-    (2)PPOVLGG: 
-      This is used for <Gphi Gphi|Gc>.
-      ppovl(nggg,ngcgp) for nvggg,nvgcgp
-      Range of G for nvggg is |Gc+Gp+Gp|< |Gcou|+ |Gphi|+ |Gphi| 
-      (triangle inequality.)
-      This is only for k=0 (Thus we remove k-dependece).
-      ngcgp 
-        QpGcutggg = (2d0+1d-2)*QpGcut_psi+QpGcut_cou+ 2d0*pi/alat*dQpG 
-        QpGcutgcgp= (1d0+1d-2)*QpGcut_psi+QpGcut_cou+ 2d0* 2d0*pi/alat*dQQ
-      dQpG, dQQ is to enlarge range related to Q0P points.
-
-</div>
-
-<div class="clfix">
 
 The overlap matrices of the IPWs are written by `lmf --jobgw=1` (the block `rdata4gw` in `sugw.f90`) and read by `getppx2` of the module `m_read_ppovl` (`rppovl.f90`), called in `build_zmel` (`m_zmel.f90`) for the IPW part of the matrix elements `<IPW psi|psi>`.
 There are two kinds:
@@ -1250,8 +1027,6 @@ There are two kinds:
   (a product of the IPWs of two eigenfunctions is expanded in the IPWs of the MPB). It is for $k=0$ only. The ranges are set by
   `QpGcutggg = (2+0.01)*QpGcut_psi + QpGcut_cou + 2π/alat*dQpG` and `QpGcutgcgp = (1+0.01)*QpGcut_psi + QpGcut_cou + 2*2π/alat*dQQ`
   (the triangle inequality; `dQpG`, `dQQ` enlarge the ranges for the offset-Γ points).
-
-</div>
 
 ### $\langle {P}^{\bf k}_{\bf G}|v| {P}^{\bf k}_{ {\bf G}'} \rangle$
 
@@ -1287,10 +1062,9 @@ $$
 because we simply use $\exp(i({\bf k}+{\bf G}){\bf r})$
 (no prefactor for normalization) for IPW.
 Here $E$`=eee` is negative (or (almost) zero).
-This is coded by a line <span class="clfix">in `vcoulq_4` (`mkjp.f90`)</span>
+This is coded by a line in `vcoulq_4` (`mkjp.f90`)
 
     vcoul(nbloch + ig1, nbloch + ig1) = vcoul(nbloch + ig1, nbloch + ig1) + fpivol/(absqg2(ig1) - eee)
-
 
 ##### The second and third term
 
@@ -1328,7 +1102,7 @@ $$
 (recall the definition of $\bar{J}_l$.
 In codes, `cy(lm)*yl(lm)`
 $=Y_L(\widehat{ {\bf k}+{\bf G} })$.)
-Search `pjyl_` in `mkjp.<del class="clfix">F</del><span class="clfix">f90</span>`.
+Search `pjyl_` in `mkjp.f90`.
 The Bessel functions appear here in the expansion of PW; see Eq. (I45).
 $R^{JJ}(|{\bf k}+{\bf G}|,|{\bf k}+{\bf G}'|,l)$
 is given as
@@ -1352,31 +1126,6 @@ R^{JJ}(\kappa_{\rm A},\kappa_{\rm B},l)
 \tag{I61}
 $$
 
-<div class="clfix-old">
-
-(`-fjj` is used in `mkjp.F`<span class="clfix">(not in the present SRC, 2026-11-15)</span>.
-In codes, the contributions to the second and third terms of Eq. (I55) due to ${\bf R}{L}$ components are given as (simplified for illustration)
-
-      fouvp_ig1_ig2 = fpi/(absqg2(ig1)-eee)                  &
-             * dconjg(pjyl_(lm2,ig1)*phase(ig1,ibas2))      &  
-             * (-fjj(l)) * pjyl_(lm2,ig2)*phase(ig2,ibas2)
-      fouvp_ig2_ig1 = fpi/(absqg2(ig2)-eee)                  & 
-             * dconjg(pjyl_(lm2,ig2)*phase(ig2,ibas2))      &
-             * (-fjj(l)) * pjyl_(lm2,ig1)*phase(ig1,ibas2)
-
-Look for the keyword `fourvp` in `mkjp.F`<span class="clfix">(not in the present SRC, 2026-11-15)</span>.
-Correspondences are
-
-    fpi --> 4 pi
-    absqg2(ig1) --> |q+G1|**2
-    -eee        --> |E|
-    lm2         --> L
-    ibas2       --> R
-
-</div>
-
-<div class="clfix">
-
 (`-fjj` is used in `mkjp.f90`.)
 In `vcoulq_4` the second, third and the on-site part of the fourth term of Eq. (I55) are added together for each group of atoms with the same radial mesh (`eee = 0`; for `eee < 0` they come from `vcoul_termb`):
 
@@ -1389,15 +1138,13 @@ vcoul(nbloch+ig1,nbloch+ig2) = vcoul(nbloch+ig1,nbloch+ig2) &
 where `cPhi` is the sum of the phase factors $e^{-i({\bf k}+{\bf G}_1){\bf R}}e^{i({\bf k}+{\bf G}_2){\bf R}}$ over the atoms of the group,
 `fpi` is $4\pi$, `absqg2(ig)` is $|{\bf k}+{\bf G}|^2$, `-eee` is $|E|$, and `radsig` is the $\sigma$-type integral of Eq. (I62) (`sigintpp`).
 
-</div>
-
 ##### The forth term
 
 The last term of Eq. (I55) can be calculated essentially
 the same manner with $\langle B| v| B\rangle$, where we use the
 Bessel function instead of $B_{ {\bf R}{l}\mu}(r)$ appeared in Sec.([§](#b-v-b-part)).
 Then we define integrals
-`rojp` and `sgpp` defined as (in <del class="clfix">`fpgw/gwsrc/mkjp.F`</del><span class="clfix">`mkjp.f90`; `sgpp` is not stored as an array now, see `radsig` above</span>);
+`rojp` and `sgpp` defined as (in `mkjp.f90`; `sgpp` is not stored as an array now, see `radsig` above);
 $$
 \begin{aligned}
 {\tt rojp}({\bf R}L)&= {\tt pjyl\_}\, \exp(i ({\bf q}+{\bf G}) {\bf R})\,  \rho^l(\bar{J}_l), \\
@@ -1409,7 +1156,7 @@ $$
 $$
 Thus, `rojp` and `sgpp` made of coefficients for explansion
 and radial integral.
-<del class="clfix">Search `sgpp_ig1_ig2` in `mkjp.F`.</del><span class="clfix">The off-site part of the fourth term is $\sum$ `rojp`$^*$ `strx` `rojp` (`zmm` in `vcoulq_4`).</span>
+The off-site part of the fourth term is $\sum$ `rojp`$^*$ `strx` `rojp` (`zmm` in `vcoulq_4`).
 
 ### $\langle P|B \rangle$ part
 
@@ -1423,11 +1170,11 @@ $$
 \end{aligned}
 \tag{I63}
 $$
-The first term is stored in `fouvb(ngc,nxx,nlxx,nbas)`<del class="clfix"> allocated at `L824:hvccfp0.m.F`. Search `fouvb` in `mkjp.F`.</del><span class="clfix">, made by `mkjp_4` (`mkjp.f90`) together with `rojp` and `sgpb`, and used in `vcoulq_4`.</span>
+The first term is stored in `fouvb(ngc,nxx,nlxx,nbas)`, made by `mkjp_4` (`mkjp.f90`) together with `rojp` and `sgpb`, and used in `vcoulq_4`.
 Since $v$ is diagonal to PWs,
 we can evaluate this in the similar manner of Eq. (I57).
 The second term can be evaluated from
-`rojb` and `sgpb` in the same manner of last section<span class="clfix">: the on-site part ${\bf R}'={\bf R}$ is `sgpb`, and the off-site part is $\sum$ `rojp`$^*$ `strx` `rojb` (`zmm` in the block `PvB2` of `vcoulq_4`)</span>.
+`rojb` and `sgpb` in the same manner of last section: the on-site part ${\bf R}'={\bf R}$ is `sgpb`, and the off-site part is $\sum$ `rojp`$^*$ `strx` `rojb` (`zmm` in the block `PvB2` of `vcoulq_4`).
 
 ## Offset-$\Gamma$ method; W(k=0) averaged in the $\Gamma$ cell. {#offset-gamma}
 
@@ -1501,7 +1248,7 @@ F_L({\bf k}) =\sum_{ {\bf G} } \frac{\exp(- \alpha
 $$
 This is a generalization of an auxiliary function used in the
 offset-$\Gamma$ method (then we only used $F_{00}$ [kotani_quasiparticle_2007]).
-We usually take the $\alpha \to 0$ limit, or a sufficiently small $\alpha$ instead<span class="clfix"> (`[gw] alpha_offG`, read in `mkqg.f90`; `m_q0p.f90`)</span>.
+We usually take the $\alpha \to 0$ limit, or a sufficiently small $\alpha$ instead (`[gw] alpha_offG`, read in `mkqg.f90`; `m_q0p.f90`).
 Let us apply Eq. (I65) to $F_L({\bf k})$.
 Then we can evaluate the left-hand side of Eq. (I65)
 exactly (the exact values are zero except for $L=(0,0)$).
@@ -1557,29 +1304,9 @@ We can evaluate the accuracy of integrals with a discrete ${\bf k}$-mesh
 in combination with the approximation of Eq. (I67)
 by calculations while changing the size of the ${\bf k}$-mesh.\
 
-
-<div class="clfix-old">
-
-> **\[NOTE 2016-03-18:\]**
-> We now use only $w_L$ for $L=(0,0)$.
-> T.Kotani found strange behavior for $W(\omega)$ for the Wannier
-> functions (for La2CuO4) when we use all $w_L$.
-> Then I observed non-monotonic behavior of its real part; recall that
-> we should see monotonic behavior as long as causality is satisfied.
-> I found it is originated from non zero $w_L$ for $L\ne(0,0)$.
-> Thus we now use the formula \"$w_L=0$ for $L\ne(0,0)$\" in
-> Eq. (I65).In the case of metal at $\omega=0$, we have very large
-> ${\bf L}$ (virtually infinite); thus no $1/|{\bf k}|^2$ behavior.\
-
-</div>
-
-<div class="clfix">
-
 The code uses only $w_L$ for $L=(0,0)$ ($w_L=0$ for $L\ne(0,0)$; `lxklm = 0` in `m_q0p.f90`, which writes the weights `wklm`).
 With all $w_L$, the real part of $W(\omega)$ became non-monotonic (against causality), which came from the $w_L$ of $L\ne(0,0)$.
 In the case of metals at $\omega=0$, ${\bf L}$ is very large (virtually infinite), and there is no $1/|{\bf k}|^2$ behavior.
-
-</div>
 
 The remaining problem is how to calculate
 the matrix ${\bf L}$ in Eq. (I67); there are two possible ways.
@@ -1602,119 +1329,14 @@ calculated at $\{ {\bf k}_{0i}\}$ points around
 ${\bf k}=0$, where $\{ {\bf k}_{0i}; i=1,N_g\}$ is a set of the offset-$\Gamma$ points.
 The offset-$\Gamma$ points are chosen so that the conversion matrix
 from $\hat{ {\bf k} }_{0i}^{\rm T}{\bf L}(\omega)\hat{ {\bf k} }_{0i}$ to $a_g(\omega)$
-is not numerically degenerated. The length $|{\bf k}_{0i}|$<span class="clfix"> (`[gw] Q0Pchoice`, or `deltaq_scale` given directly)</span>
-can be chosen to be sufficiently <del class="clfix">enough</del><span class="clfix">small</span>, but avoiding numerical error
+is not numerically degenerated. The length $|{\bf k}_{0i}|$ (`[gw] Q0Pchoice`, or `deltaq_scale` given directly)
+can be chosen to be sufficiently small, but avoiding numerical error
 as the average of $W({\bf k})$ in the $\Gamma$ cell.
 The improved offset-$\Gamma$ method shown here can be applicable even to metal cases, as long as
 $\hat{ {\bf k} }_{0i}^{\rm T}{\bf L}(\omega)\hat{ {\bf k} }_{0i}$ contains the contribution
 of intraband transition.
 
-
-<div class="clfix-old">
-
-> **\[NOTE 2016-Nov:\]**
-> T.Kotani think evaluation of $L_ij(\omega)$ can be more effectively
-> performed as for the convergence on number of ${\bf k}$ points.
-> At least, without local field correction, we only need to calculate head part.
-> For the head part, we may use large number of ${\bf k}$ points.
-
-</div>
-
 ## Data structure of the tetrahedron method in ecalj {#tetrahedron-data-structure}
-
-<div class="clfix-old">
-
-At first, you can consider only the `mtet=F` case.
-To make it safer, check `mtet=F` (if it is True, error exit by 'call rx').
-In `m_tetw.F` we have `gettetwt` called from `hx0fp0.m.F` as
-
-              call gettetwt(q,iq,is,isf,nwgt(:,iq),frhis,nwhis,npm,
-         i     qbas,ginv, ef, nqibz, nband,ekxx1,ekxx2, nctot,ecore,
-         i     nqbz,qbz,nqbzw,qbzw,  ntetf,idtetf,ib1bz,
-         i     nbmx,ebmx,mtet,eibzmode) !nov2016
-
-. All arguments are input.
-This returns tetrahedron weight $W_{\rm tet}(i,{\bf k},n,{\bf k}+{\bf q},n')$
-in the common data area of `m_tetw`.\
-
--   `q`: ${\bf q}$ vector and index of ${\bf q}$ vector
-
--   `iq`: unused for `mtet=F`. It may be safer to set -9999 for safe.
-
--   `is,isf`: $\alpha$ and $\beta$
-
--   Eigenvalues are supplied by
-
-              do kx = 1, nqbz
-                call readeval(qbz(:,kx),   is,  ekxx1(1:nband, kx) ) 
-                call readeval(q+qbz(:,kx), isf, ekxx2(1:nband, kx) )
-              enddo
-
-    at `hx0fp0.m.F`
-
--   `nwgt`: This is for EIBZ mode.
-    We skip microtetrahedrons when all of `nwgt(kx0:kx3)`
-    are zero (here ,kx1,kx2,kx3@ are four corners of ${\bf k}$ vectors).
-    Thus we calculate tetrahedron weigh only for ${\bf k}$ points for `nwgw(k)=1`.
-    In EIBZ mode, we will symmetrize finally obtained correct $K^{\alpha\beta}$.
-    (takao: I like to check this code again\...)\
-
--   `frhis(1:1+nwhis),nwhis`: Histogram bins $[\omega_i,\omega_{i+1}]$
-    are @. We set `frhis(1)=0d0`.
-    See `m_freq.F`. We calculate values on $K^{\alpha,\beta}(\omega)$ where
-    $\omega$ is specified by `freq_r` (this is center of the bins.
-    See `freq_r` file.)
-
--   If @, we calculate negative frequency part. For negative $\omega$,
-    Histogram bins $[\omega_i,\omega_{i+1}]$
-    are @.
-    (Opposite spin flip excitation to positive energy.)
-
--   We can set `ncore=0` (genallcf_v3@).
-
--   For BZ data (m_read_bzdata@), you can set them
-    by read_bzdata@.
-
--   (3,3,1:ngrp)@ is the rotation part of space group operation.
-    SYMOPS file is created by `echo 0|lmfgw`, and read by qg4gw.
-    Then symops information is written into HAMindex file.
-
-Output data sets are
-real(8),allocatable :: whw(:)
-
-          integer,allocatable:: ihw(:,:,:),nhw(:,:,:),jhw(:,:,:),ibjb(:,:,:,:)
-          integer:: nbnbx,nhwtot
-          integer,allocatable :: n1b(:,:,:),n2b(:,:,:),nbnb(:,:)
-
-These are used as in `x0kf_v4h.F`. Look into it. Here is a simplified version for showing how to use these data set.
-
-            do 25 jpm  = 1, npm !
-            do 25 ibib = 1, nbnb(k,jpm)
-              n1b(ibib,k,jpm) !band index for k
-              n2b(ibib,k,jpm) !band index for q+k
-              it  =  n1b(ibib,k,jpm)                ! index for n  for q
-              itp =  1+  n2b(ibib,k,jpm)-n2bminimum ! index for n' for q+k
-              ... M(:,:) is calculated here ...  
-                    call get_zmelt2 --> Get zmel=<MPB psi_k|psi_{k+q}>
-                 zmel=dconjg(zmel)  ! -->  zmel= <psi_{k+q}| psi_k MPB_q>
-                 M(igb1,igb2) = dconjg(zmel(igb1,it,itp))* zmel(igb2, it,itp)
-                 Here M = <M_igb1 psi_it | psi_itp> < psi_itp | psi_it M_ibg2 >
-              do iw = ihw(ibib,k,jpm),ihw(ibib,k,jpm)+nhw(ibib,k,jpm)-1 
-                 imagweight = whw(jhw(ibib,k,jpm)+iw-ihw(ibib,k,jpm))
-                 Kmatrix(:,:,iw,jpm) = Kmatrix(:,:,iw,jpm) + M(:,:)*imagweight 
-              enddo          
-       25  continue
-
-We do $\sum_n \sum_{n'}$ in Eq. (I78) as follows;
-before this `do 25`, we set ${\bf k},{\bf k}+{\bf q}$.
-$k$ is index for ${\bf k}$ vector.
-`n2bminimum` is introduced (this is for unoccupied states for `npm=1`.
-$W_{\rm tet}$ is given as , `iw` is
-the index for the histogram bin.
-
-</div>
-
-<div class="clfix">
 
 The tetrahedron weights of the polarization function, Eqs. (I18a), are made by `gettetwt` of the module `m_tetwt` (`m_tetwt.f90`):
 
@@ -1754,13 +1376,9 @@ enddo
 
 which is the sum over $n,n'$ and ${\bf k}$ of Eq. (I18a).
 
-</div>
-
-<span class="clfix">(The subsection "Requirement of the spin symmetric Hamiltonian" of the magnon project was removed.)</span>
-
 ## Fourier transformation of non-local quantity
 
-<del class="clfix">We have "`call bloch`" in `lm7K/fp/bndfp.F`.</del><span class="clfix">The static self-energy in the MTO basis is Fourier transformed in `m_rdsigm2` (`rdsigm2.f90`): `rdsigm2` expands `sigm.<sname>` to the full BZ, `fftz3` gives the real-space matrix `hrr`, and `bloch2` transforms it back at any ${\bf k}$.</span>
+The static self-energy in the MTO basis is Fourier transformed in `m_rdsigm2` (`rdsigm2.f90`): `rdsigm2` expands `sigm.<sname>` to the full BZ, `fftz3` gives the real-space matrix `hrr`, and `bloch2` transforms it back at any ${\bf k}$.
 This is for the three dimensional FFT.
 The usual FT is by
 $$\begin{aligned}
@@ -1783,7 +1401,7 @@ f_{ {\bf R}{\bf R}'}({\bf k}) \exp(i {\bf k}({\bf T}-{\bf T}')),
 \tag{I72}
 $$
 In practical calculations (static version of self-energy treated by
-<del class="clfix">`bloch` called in `fp/bndfp.F`</del><span class="clfix">`bloch2`</span>),
+`bloch2`),
 we first calculate $f_{ {\bf R}{\bf R}'}({\bf k})$ on ${\bf k}$ of regular mesh points. Then we
 need to obtain its real-space representation
 $f({\bf R}{\bf T},{\bf R}'{\bf T}')$. Because of the periodicity,
@@ -1803,32 +1421,9 @@ alllowed $\{\bar{\bf T}\}$, we may
 have some of $\bar{ {\bf T} }$ (we say degenerated).
 Then we need to give fractional weight for such $\bar{ {\bf T} }$.
 
-
-<div class="clfix-old">
-
-To get a list of $\bar{ {\bf T} }$,
-we need to collect them satisfying
-$|{\bf R}-{\bf R}'+\bar{\bf T}|\lt \eta_{\rm FTmax}$.
-$\eta_{\rm FTmax}$ should be automatically chosen.
-However, in the \"`bloch`\" subroutine, this it too primitive yet(aug2015);
-we need to specify possible upper limit of
-\"range of allowed pairs\" $({\bf R}\bar{ {\bf T} },{\bf R}'0)$ by hand.
-(`RSRNGE` in `ctrl` file). This should be fixed in future.
-In the current version `iaxs (=``sham%iv_a_oiaxs``)` contains such pair table.
-It is generated by `call hft2rs` in `call seneinterp` in `bndfp.F`, I think.
-We will have to replace \"`bloch`\" with better version. Pair table must be generated
-in a simple manner( with the technique of
-`getgv2` (`getgv2` is given in `fpgw/gwsrc/getgv2.F` and `lm7K/subs/pairs.F`.
-
-</div>
-
-<div class="clfix">
-
 In the code, the list of $\bar{\bf T}$ is made automatically: for each pair of sites $({\bf R},{\bf R}')$ and each ${\bf T}$ of the $N_1\times N_2\times N_3$ cell,
 `m_gennlat_sig` (`m_gennlat.f90`) keeps the shortest equivalent vectors $|{\bf R}-{\bf R}'+\bar{\bf T}|$ (`nlat`, with the range `nlatS:nlatE`),
 and `bloch2` averages the phase factors over the degenerate ones (equal fractional weights).
-
-</div>
 
 ## Interpolation of the self-energy in the Brillouin zone {#sigma-interpolation}
 
@@ -1847,7 +1442,7 @@ energy bands.
 A key point of the interpolation is that $V^{\rm xc}$
 is expanded in real space in highly localized MTOs as follows.
 
-At the end of <del class="clfix">step (IV) in Sec.(ref sec:qsgwth in the original)</del><span class="clfix">a QSGW iteration (`hqpe_sc`)</span>, we obtain the matrix elements
+At the end of a QSGW iteration (`hqpe_sc`), we obtain the matrix elements
 $\langle {\Psi_{ {\bf k}n} }| {\it \Delta} V^{\rm xc}_{\bf k}| {\Psi_{ {\bf k}m} }\rangle$ on the regular mesh
 points of ${\bf k}$, where
 ${\it \Delta} V^{\rm xc}_{\bf k}=V^{\rm xc}_{\bf k}-V^{\rm xc,LDA}_{\bf k}$.
@@ -1879,7 +1474,7 @@ where $a$ and $b$ specify MTOs.
 This means that the part of ${\it \Delta} V^{\rm xc}$ related to APWs is projected onto the basis of MTOs.
 This approximation can be reasonable as long as the main part of ${\it \Delta} V^{\rm xc}$ can be
 well expanded in MTOs,
-although we need numerical tests to confirm the accuracy<del class="clfix"> as shown in Sec.(ref sec:numtest in the original)</del>.
+although we need numerical tests to confirm the accuracy.
 Then we obtain a real-space representation of
 ${\it \Delta} V^{\rm xc}$ expanded in MTOs from the MTO part of
 $\langle \chi^{ {\bf k} }_a| {\it \Delta} V^{\rm xc}_{\bf k}| \chi^{ {\bf k} }_b \rangle$ by Fourier transformation.
@@ -1893,72 +1488,12 @@ longer necessary.
 
 To reduce the computational time,
 we calculate the matrix elements $\langle {\Psi_{ {\bf k}n} }|{\it \Delta} V^{\rm xc}_{\bf k}| {\Psi_{ {\bf k}m} }\rangle$ only up to the states whose
-eigenvalues are less than $E_{\rm MAX}^\Sigma$<span class="clfix"> (`[gw] emax_sigm`)</span>.
+eigenvalues are less than $E_{\rm MAX}^\Sigma$ (`[gw] emax_sigm`).
 Then the high energy parts of the matrix elements are assumed
-to be diagonal, where their values are given by <del class="clfix">a simple average</del><span class="clfix">an energy-weighted average (`ESEAVR` in `hqpe_sc`)</span>
+to be diagonal, where their values are given by an energy-weighted average (`ESEAVR` in `hqpe_sc`)
 of calculated diagonal elements.
 
-<span class="clfix">(The section "Magnon project" (generalized Lindhard function for spin waves) was removed, 2026-11-15, user.)</span>
-
 ## Crystal symmetry for GW calculation
-
-<div class="clfix-old">
-
-[space group operation (space group rotation):]{.underline}\
-In the preparation state of GW calculation, we have
-3x3 matrices `symops(3,3,ig),ig=1,ngrp`
-for point group part of the space group operations.
-It is written in `call m_hamindex_init,m_hamindex.F:L128`) at `lmv7.F` (lmfgw-MPIK job=0 mode).
-For example, in the case of GaAs, it shows 24 matrices in it.
-
-In GW main routines such as `hsfp0.sc.m.F`,
-we do `call genallcf_v3`. This set `symgg (=symops)` in
-the module `m_genallcf_v3` as well as `invg` pointing the .
-In the module `m_zmel.F`, we do `call mptauof`.
-This set all required symmetry operations (find accompanied translation vector
-and atom-site mapping information)
-from point group operations. It gives informations of space group symmetry
-(which atom is mapped to which atom, and so on).
-See document at the begining of `subroutine mptauof`.
-
-In `lmv7.F`(main routine), we have `m_hamindex` called for lmfgw mode=0.
-This gives a file Hamindex, containing Hamindex.
-
-The space group symmetry operation can be checked by
-"lmchk" in advance. But be careful. It also includes inversion symmetry,
-which means $|\psi_{-{\bf k} }({\bf r})|^2=|\psi_{\bf k}({\bf r})|^2$
-(this is because of time-reversal symmetry as for real local $V({\bf r})$ (DFT case)).
-Need attention as for LDA+U case of orbital moments appears (no time-reversal case).
-
-The given crystal symmetry can be controlled by `SYMGRP` category
-in `GWinput`. You can supply generators of space group (see
-explanation in GWinput), or set `find`. If it is `find`,
-we assume electronic structure has the symmetry of crystal structure.
-Note that symmetry of electronic structure can be lower than the crystal symmetry.
-For example, NiO is deformed along (111) direction in realitiy,
-but we may like to use structure without such deformation for calcualtions.
-In such a case, we may need to supply generators for lower symmetry.\
-[AF symmetry]{.underline}:\
-Recently, we add a new option `SYMGRP_AF`.
-We have to set
-
-    /home/usr2/h70252a/ecaljAFtest/NdTEST
-    ~/SWJ/Nd2CuO4
-    ...
-        ATOM=Ndup  POS=  0.0000  {a}/2   {c}/2-{znd}*{c}  AF=1
-        ATOM=Nddn  POS=  {a}/2   0.0000  {znd}*{c}       AF=-1
-    SYMGRPAF r2x
-    SYMGRP r4z::(-1/2,1/2,0) 
-    ...
-
-Here, AF=1,AF=-1 give AF pairs.
-SYMGRP is to keep z axis. SYMGRPAF is an antiferro magnetic symmetry operation
-(we add r2x+spin inversion), then the ATOM AF=1 is mapped to AF=-1.
-Ask to T.Kotani as for AF symmetry setting, because it is relatively new.
-
-</div>
-
-<div class="clfix">
 
 **Space-group operations.** `lmf` finds the space-group operations (with spglib by default; [lmf: symmetry with spglib](./lmf#spglib-symmetry)) and,
 with `--jobgw`, writes the point-group parts `symops(3,3,ig), ig=1,ngrp` and the translations `ag` into `__HAMindex` (`m_hamindexW_init` in `m_hamindex.f90`, called in `main_lmf.f90`).
@@ -1976,8 +1511,6 @@ and generators can be given to use a lower symmetry on purpose (for example, NiO
 **Antiferromagnetic symmetry**: write `af = ±k` on the pair of sites in `[[site]]`, and `symgrpaf = "find"`; the operations that map the up-spin site to the down-spin one
 (with the spin inversion) are added. Use it with `pwmode = 11`.
 
-</div>
-
 ## Spherical Harmonics and Real harmonics in ecalj
 
 In ecalj, fortran codes are mainly based on the real harmonics $y_{lm}(\hat{\bf r})$,
@@ -1988,7 +1521,7 @@ For example, `LMXA=4`, we have `(4+1)**2=25` harmonics,
 ordered as
 $y_{00},y_{-11},y_{01},y_{11},y_{-22},y_{-12},... ,y_{22},y_{-33},...y_{33},
 y_{-44},...y_{44}$.
-<span class="clfix">The real harmonics (times $r^l$) are made by `sylm` (`sylm.f90`) with the normalization `cy` of `sylmnc`; for $l=1$ the order is $y, z, x$, and for $l=2$ it is $xy, yz, 3z^2-r^2, xz, x^2-y^2$ (up to the normalization). $m\gt 0$ is the $\cos m\phi$ and $m\lt 0$ the $\sin |m|\phi$ type.</span>
+The real harmonics (times $r^l$) are made by `sylm` (`sylm.f90`) with the normalization `cy` of `sylmnc`; for $l=1$ the order is $y, z, x$, and for $l=2$ it is $xy, yz, 3z^2-r^2, xz, x^2-y^2$ (up to the normalization). $m\gt 0$ is the $\cos m\phi$ and $m\lt 0$ the $\sin |m|\phi$ type.
 
 $y_{lm}(\hat{\bf r})$ is defined from $Y_{lm}(\hat{\bf r})$.
 Here $\hat{\bf r}=(\theta, \phi)$.
@@ -2019,7 +1552,7 @@ $$\begin{aligned}
 \tag{I88}
 $$
 
-The definition of $Y_{lm}(\hat{\bf r})$ <del class="clfix">are</del><span class="clfix">is</span>
+The definition of $Y_{lm}(\hat{\bf r})$ is
 $$\begin{aligned}
  &Y_{lm}(\theta, \phi)
 =(-1)^m \left[ \frac{(2l+1)(l-m)!}{4 \pi (l+m)!} \right]^{\frac{1}{2} } P^m_l(\cos(\theta)) e^{i m \phi}, \\
@@ -2032,9 +1565,9 @@ We take these definitions from
 (1)A.R.Edmonds, Angular Momentum in quantum Mechanics,
 Princeton University Press, 1960,
 (2)M.E.Rose, Elementary Theory of angular Momentum,
-John Wiley & Sons, INC. 1957<del class="clfix">,\ if necessary</del>. The definition of spherical <del class="clfix">hermonics are</del><span class="clfix">harmonics is</span> the same in these books.
+John Wiley & Sons, INC. 1957. The definition of spherical harmonics is the same in these books.
 
-## Rotation of <del class="clfix">eigenfuncitons</del><span class="clfix">eigenfunctions</span> and MPB by the space-group operations {#spacegroup-rotation}
+## Rotation of eigenfunctions and MPB by the space-group operations {#spacegroup-rotation}
 
 ### space-group rotation of PMT eigenfunction
 
@@ -2103,14 +1636,13 @@ where we use $A_{ {\bf R}' u L}({\bf r})=A_{ {\bf R}u L}({\bf r})$ since $R$ and
 sites should be equilalent sites. We use cancellation ${\it \Delta}=-g({\it \Delta}^{-1})$.
 $D_{L'L}(g)$ is the rotaion matrix of the real spherical harmonics for $g$.
 
-### <del class="clfix">space-group rotation of PMT eigenfunction</del><span class="clfix">Code: `rotevec`</span>
+### Code: `rotevec`
 
-<del class="clfix">We have eigenfunction rotation routine `subroutine rotwvigg` called from `zsecsym.F`.</del><span class="clfix">The routines are in `rotwave.f90`: `rotevec` rotates the coefficients of an eigenfunction in the PMT basis (MTO and APW parts), and `rotmatMTO` gives the rotation matrix of the MTO part.</span>
-
+The routines are in `rotwave.f90`: `rotevec` rotates the coefficients of an eigenfunction in the PMT basis (MTO and APW parts), and `rotmatMTO` gives the rotation matrix of the MTO part.
 
 With this Eq. (I100), coeffecients of eigenfunctions for the MTO part of
 eigenfunctions are rotated (mapped) by the space group operation $g$.
-It is coded in `subroutine <del class="clfix">rotwvigg</del><span class="clfix">rotevec</span>`(eigenfunction rotation routine) as
+It is coded in `subroutine rotevec`(eigenfunction rotation routine) as
 
     ...
      phase = [(exp(-img2pi*sum(qtarget*tiat(:,ibas,igg))),ibas=1,nbas)]
@@ -2142,16 +1674,16 @@ Here
 > `offlrev`: offset for the (ibas,l,k) block\
 > The Block `init1:iend1` is mapped to the block `init2:iend2`.
 
-In order to call <del class="clfix">rotwvigg</del><span class="clfix">`rotevec`</span>, we have to call `readhamindex()` so as to set up variables
+In order to call `rotevec`, we have to call `readhamindex()` so as to set up variables
 `ltab,ktab,offl,oflrev,...` in `m_hamindex` module in advance.
 
-Orbital index tables (`<span class="clfix">ibas</span>_tbl`<span class="clfix">, `l_tbl`, `k_tbl`, ...)</span> <del class="clfix">is</del><span class="clfix">are</span> read from a file `<span class="clfix">@</span>MNLA_CPHI`
-<del class="clfix">(See Sec.(ref sec:atmnla in the original))</del><span class="clfix">(written by `sugw.f90`)</span> by `readmnla_cphi` <span class="clfix">(`readeigen.f90`)</span>.
-The last column in `<span class="clfix">@</span>MNLA_CPHI` contains the orbital-block index.
+Orbital index tables (`ibas_tbl`, `l_tbl`, `k_tbl`, ...) are read from a file `@MNLA_CPHI`
+(written by `sugw.f90`) by `readmnla_cphi` (`readeigen.f90`).
+The last column in `@MNLA_CPHI` contains the orbital-block index.
 The orbital-blocks are specified by $l$ and $k$, its size is $2l+1$.
 The number of $i$ is exactly the number of lines of `MNLA_CPHI`.\
 
-In `subroutine <del class="clfix">rotwvigg</del><span class="clfix">rotevec</span>`(eigenfunction rotation routine) we also have part for the APW.
+In `subroutine rotevec`(eigenfunction rotation routine) we also have part for the APW.
 Formula is
 $$
 \begin{aligned}
@@ -2164,8 +1696,8 @@ g[\exp(i ({\bf k}+{\bf G}){\bf r})]
 \end{aligned}
 \tag{I101}
 $$
-<span class="clfix">(In the last line of Eq. (I101), $({\bf k}+{\bf G}){\it \Delta}$ was corrected to $g({\bf k}+{\bf G}){\it \Delta}$, since $({\bf k}+{\bf G})\cdot{\it \Delta}^{-1}=-g({\bf k}+{\bf G})\cdot{\it \Delta}$; the code uses `exp(-img2pi*sum(qpgr*shtvg(:,igg)))` with `qpgr` $=g({\bf q}+{\bf G})$.)</span>
-(Our definition of PW (IPW) has 'no <del class="clfix">nomalization</del><span class="clfix">normalization</span> factor'.)
+
+(Our definition of PW (IPW) has 'no normalization factor'.)
 Here $g({\bf k})$ is pulled back to be $\bar{g}({\bf k})$ in the 1stBZ.
 Their difference is $g({\bf k})-\bar{g}({\bf k})$.
 We define `barG` as $\bar{G}=g({\bf G})+ (g({\bf k})-\bar{g}({\bf k}))$.
@@ -2192,8 +1724,8 @@ Thus it is coded as\
 In ecalj, we re-expand eigenfuncitons in the manner of MTIPW form, that is,
 MTpart+IPWpart as in Eq. (I7) in the GW calculations.
 In the form of MTIPW, we have to map eigenfunctions by space-group operations.
-As in the manner of `<del class="clfix">rotwvigg</del><span class="clfix">rotevec</span>`, we have `rotmto` and `rotipw` <span class="clfix">(`rotwave.f90`)</span>.
-These are for rotation MTpart and IPW parts<span class="clfix">; they are used in `readeigen.f90` to give `__CPHI` and `__GEIG` at the ${\bf k}$ points that are not stored, from the stored equivalent ones</span>.
+As in the manner of `rotevec`, we have `rotmto` and `rotipw` (`rotwave.f90`).
+These are for rotation MTpart and IPW parts; they are used in `readeigen.f90` to give `__CPHI` and `__GEIG` at the ${\bf k}$ points that are not stored, from the stored equivalent ones.
 
 ### space-group rotation of Mixed Product Basis
 
@@ -2201,7 +1733,7 @@ We need all the matrix elements $\langle \Psi_{ {\bf q+k}n'}| \Psi_{ {\bf k}n} E
 for given inputs of ${\bf q},{\bf k},n,n'$. Here $E^{\bf q}_\nu$ is the Coulomb-diagonalized mixed product basis
 [friedrich_efficient_2010].
 
-<span class="clfix">This is a memo for the EIBZ scheme, which is not used now ([IBZ and EIBZ](#ibz-and-eibz-scheme)); `m_rotMPB2` and `x0kf_v4hz_symmetrize` are not in the present code, while `rotmto2` and `rotipw2` remain in `rotwave.f90`.</span>
+This is a memo for the EIBZ scheme, which is not used now ([IBZ and EIBZ](#ibz-and-eibz-scheme)); `m_rotMPB2` and `x0kf_v4hz_symmetrize` are not in the present code, while `rotmto2` and `rotipw2` remain in `rotwave.f90`.
 In the procedure of EIBZ (See Eq. (I95) around), we have to rotate MPB.
 Module `module m_rotMPB2 (in m_rotMPB.F)` is for generating the rotation matrix `zrotm`.
 With `zrotm`, we rotate MPB in `call X0kf_v4hz_symmetrize`, where
@@ -2218,50 +1750,7 @@ Thus we supply `ibas_tbl` and so on as
 
 in `module m_rotMPB2`.
 
-## SOC matrix for the MLO <span class="clfix">(was: for the Wannier functions)</span>
-
-<div class="clfix-old">
-
-We calculate SOC matrix `hammsoc`
-$\langle F_{ {\bf k}i \sigma} |H_{\rm SOC}|F_{ {\bf k}j \sigma} \rangle$ in `sugw.F`\
-(`lmf-MPIK --jobgw --job --socmatrix` mode around the end of `genMLFhso`)
-for all ${\bf k}$ points in the Brillowin zone. Here
-$F_{ {\bf k}i \sigma}$ means the basis functions in the PMT method.
-Eigenfunction is given as
-$$\begin{aligned}
-\Psi_{ {\bf k}n \sigma}=\sum_i F_{ {\bf k}i \sigma} \alpha^{\bf k}(i,n,\sigma) .
-\end{aligned}
-$$
-
-Thus the required SOC matrix
-$\langle W_{lm\sigma}({\bf r}) | H_{\rm SOC} |W_{lm'\sigma'}({\bf r}) \rangle$
-(`hammso` in `hsocmat.F`) is calcualted in `hsocmat` from
-
-1.  $\alpha^{\bf k}(i,n,\sigma)$ (`evec(1:nz,iband,iqbz,isp)` in `hsocmat.F`)
-
-2.  $\langle F_{ {\bf k}i\sigma} |H_{\rm SOC}|F_{ {\bf k}j\sigma'} \rangle$
-    (`hso(1:nz,1:nz,iqbz,ispc)` in `hsocmat.F`. `ispc=3` means spin off-diagonal)
-
-3.  $\langle \psi_{ {\bf k}n\sigma}|G_{l\sigma}(r)y_{lm}(\hat{ {\bf r} })\rangle$
-    (`dnk(iband,iwf,iqbz,isp)` in `hsocmat.F`)
-
-See `hsocmat.F`. We have `evecw=matmul(evec,dnk)`.
-From `hammso`, we calculate the trace of the
-square of $H_{\rm SOC}$ as ${\rm Tr}(H_{\rm SOC}^2)$ in the space spanned by the Wannier functions.
-By construction the trace is not dependent on $y_{lm}$ or on $Y_{lm}$ because projected fourteen Wannier functions (when $4f$) spans the same Hilbert space. The trace is equilannt to the sum of square of eigenvalues
-of $H_{\rm SOC}$.
-
-${\rm Tr}(H_{\rm SOC}^2)$, as well as
-$\langle W_{lm \sigma}| H_{\rm SOC} |W_{lm'\sigma'} \rangle$,
-can be Wannier dependent because the Wannier is not unique.
-But we expect the dependence is not so large.
-
-Important check point to evaluate the size of SOC is whether we can reproduce the SOC splitting in the original bands
-(not the bands of the 14-space model but the bands of full QSGW).
-
-</div>
-
-<div class="clfix">
+## SOC matrix for the MLO
 
 The Wannier-function route (`hsocmat`) was removed. The SOC matrix is now used for the MLO (`job_mlo_soc`; [MLO §4](./mlo#_4-スピン軌道相互作用-—-job-mlo-soc)):
 
@@ -2273,8 +1762,6 @@ The Wannier-function route (`hsocmat`) was removed. The SOC matrix is now used f
 3. The Fermi energy is taken from a full-SOC `lmf` run (`[ham] so = 1`, `efermi_soc`).
 
 The SOC splitting of the MLO bands should be checked against the bands of the full calculation with SOC (`job_mlo_soc` draws both).
-
-</div>
 
 ## Harris-Foulkner energy and Kohn-Sham energy
 
@@ -2303,20 +1790,20 @@ but the total electron density $n^{\rm c}+n^{\rm in}$.
 Based on the 3-component formalism in Ref.[kotani_formulation_2015],
 $E_{\rm es}$ have explicit dependendence on atomic positions ${\bf R}_a$, but $E_{\rm xc}$ does not.
 The dependence is via the mutipole transformation in Eq.(14).
-Search `ham_ehf,ham_ehk` in <del class="clfix">ecalj/lm7K/fp/bndfp.F</del><span class="clfix">`m_bndfp.f90`</span>.
+Search `ham_ehf,ham_ehk` in `m_bndfp.f90`.
 The $E_{\rm Harris}$ is given at `call m_mkehkf_etot1(sev, eharris)`, while
 $E_{\rm HoKohn}$ is given by
-`call m_mkehkf_etot2(<del class="clfix">sev,sumtv,</del><span class="clfix">ekinval,</span> eksham)` <span class="clfix">(`mkehkf.f90`)</span>.
+`call m_mkehkf_etot2(ekinval, eksham)` (`mkehkf.f90`).
 $E_{\rm Harris}$ and $E_{\rm HoKohn}$ are shown in `save.*` file.
 
-The band energy $E_{\rm B}$ is stored in the module variable <span class="clfix">`sev`</span> in <del class="clfix">bndfp.F</del><span class="clfix">`m_bndfp.f90`</span>;
+The band energy $E_{\rm B}$ is stored in the module variable `sev` in `m_bndfp.f90`;
 this is shown as `sev` in `save.*`. The kinetic energy
 $E_{\rm k}^{\rm core}+E_{\rm B} 
 - V_{\rm es}[n^{\rm Zc}+n^{\rm in},{\bf R}_a] \cdot n^{\rm out}
 - V_{\rm xc}[n^{\rm c}+n^{\rm in}] \cdot n^{\rm out}$ contained in
-the $E_{\rm HoKohn}$ is calculated as <del class="clfix">`sumtv` in bndfp.F-mkekin.F</del><span class="clfix">`ekinval` by `mkekin` (`m_bndfp_util.f90`)</span>.
+the $E_{\rm HoKohn}$ is calculated as `ekinval` by `mkekin` (`m_bndfp_util.f90`).
 
-In LDA/GGA calculations by <del class="clfix">lmf-MPIK</del><span class="clfix">`lmf`</span>, `save.*` file contains a line per iteration<span class="clfix"> (written in `m_lmfp.f90`; the energies are relative to the sum of the reference energies `eref` of the species over the atoms, `ham_seref` of `m_lmfinit.f90`)</span>.
+In LDA/GGA calculations by `lmf`, `save.*` file contains a line per iteration (written in `m_lmfp.f90`; the energies are relative to the sum of the reference energies `eref` of the species over the atoms, `ham_seref` of `m_lmfinit.f90`).
 
     c ehf(eV)=-15730.0982239 ehk(eV)=-15730.0982222 sev(eV)=-15.7737393
 
@@ -2324,15 +1811,13 @@ shows $E_{\rm Harris}=$-15730.0982239 eV and $E_{\rm HoKohn}=$-15730.0982222 eV,
 band energy $=-15.7737393$ eV.
 In principle, $E_{\rm Harris}$ and $E_{\rm HoKohn}$ should be exactly the same when converged;
 the difference is the numerical error. `c` at the begining of line means "converged".
-${\tt h}$ means the 1st iteration from `atm.*` file (superposition of atomic density)<span class="clfix">; the letters are `svflg='cxhiC'` in `m_lmfp.f90` (`x`: the maximum number of iterations reached, `i`: an intermediate iteration, `C`: converged relaxation)</span>.
-
-<span class="clfix">(The sections "Block inversion", "Downfolding" and "Causality and analytic property" were moved to [Appendix: mathematical notes](../theory/appendix).)</span>
+${\tt h}$ means the 1st iteration from `atm.*` file (superposition of atomic density); the letters are `svflg='cxhiC'` in `m_lmfp.f90` (`x`: the maximum number of iterations reached, `i`: an intermediate iteration, `C`: converged relaxation).
 
 ## IBZ and EIBZ scheme
 
-<span class="clfix">The IBZ part below is what the code uses: the self-energy is summed over ${\bf k}$ of the IBZ and the rotations (`kx` and `irot` in `m_sxcf_sc.f90`, with the table `irkip`). The EIBZ part is a memo; it is not used now (`eibzgen.f90` is there but not called, `[gw] EIBZmode` is read but not used, and `m_eibz`, `x0kf_v4hz_symmetrize`, `zsecsym` and `rotwvigg` are not in the present code). It may be used again.</span>
+The IBZ part below is what the code uses: the self-energy is summed over ${\bf k}$ of the IBZ and the rotations (`kx` and `irot` in `m_sxcf_sc.f90`, with the table `irkip`). The EIBZ part is a memo; it is not used now (`eibzgen.f90` is there but not called, `[gw] EIBZmode` is read but not used, and `m_eibz`, `x0kf_v4hz_symmetrize`, `zsecsym` and `rotwvigg` are not in the present code). It may be used again.
 
-We <del class="clfix">include</del><span class="clfix">describe the</span> EIBZ procedure given in III.G. in Ref.[friedrich_efficient_2010]<del class="clfix">. It is for the polarization function 0fp0,hx0fp0_sc@ and for self-energy \_sc@.</del><span class="clfix">, for the polarization function and for the self-energy.</span>
+We describe the EIBZ procedure given in III.G. in Ref.[friedrich_efficient_2010], for the polarization function and for the self-energy.
 [IBZ]{.underline}\
 Recall IBZ first. We have a set of space-group operation
 $S_A=\{A_i |i=1,... N_A\}$ (except translation by reciprocal vectors).
@@ -2451,7 +1936,7 @@ A block is `zsect(ii1:ie1,ii2:ie2)`, where band indeces
 
 ## Electron-phonon coupling in MPB (suspended) {#electron-phonon}
 
-<span class="clfix">Moved here from the Bessel-function subsection: this work was suspended. The static $\epsilon^{-1}$ for phonons is written by `hgw` into `__W4PHONON.<iq>` when `w4pmode` is on, that is, when the offset-Γ points along $x,y,z$ were added by `qg4gw --job=201` (`ixyz` of `m_q0p.f90`; `m_llw.f90`).</span>
+This work was suspended. The static $\epsilon^{-1}$ for phonons is written by `hgw` into `__W4PHONON.<iq>` when `w4pmode` is on, that is, when the offset-Γ points along $x,y,z$ were added by `qg4gw --job=201` (`ixyz` of `m_q0p.f90`; `m_llw.f90`).
 
 To calculate derivative for electron-phonon (EP) coupling, we need
 $$

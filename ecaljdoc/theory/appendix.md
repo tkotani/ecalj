@@ -1,7 +1,6 @@
 # 付録：数学の補足 {#appendix}
 
 ほかのページで使う数学の道具をまとめる。
-<span class="clfix">（実装メモから移した。移すときに直したところに朱を付けた。）</span>
 
 ## ブロック行列の逆行列 {#block-inversion}
 
@@ -85,8 +84,7 @@ $$
 に戻り、右辺の撃力（ソース項）に遅れて応答するという境界条件を課す必要がある（[Basic I](./basic) のインパルス応答）。
 
 因果律は「原因が結果を生む」ことであり、ステップ関数で表される。例えば
-<del class="clfix">$\theta(t-t') \exp(i \omega_0 (t-t'))$ のフーリエ変換は $1/(\omega-\omega_0-i \delta)$</del>
-<span class="clfix">$-i\theta(t-t') e^{-i \omega_0 (t-t')}$ のフーリエ変換は $1/(\omega-\omega_0+i \delta)$（遅延 Green 関数、[Basic I](./basic) と同じ規約）</span>
+$-i\theta(t-t') e^{-i \omega_0 (t-t')}$ のフーリエ変換は $1/(\omega-\omega_0+i \delta)$（遅延 Green 関数、[Basic I](./basic) と同じ規約）
 である。極が上半面と下半面のどちらにあるかが、時間の向きを決める。
 
 総和則は因果律と関係するが、少し別のものである。例えば $G_{11}$ の虚部の総和則は、$|\omega| \to \infty$ での $G_{11}(\omega)$ の振る舞いだけで決まる。
