@@ -1,6 +1,6 @@
 # Implementation notes (details of the GW implementation) {#dev-impl}
 
-> English version of the page [manual/dev_impl](../../manual/dev_impl.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/dev_impl.md of commit d42233cf6 (source blob 3804aa7b95a0).
+> English version of the page [manual/dev_impl](../../manual/dev_impl.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/dev_impl.md of commit e4a3e834e (source blob 3214db0395b9).
 
 ::: info About this page
 This page is made from the sections, still useful, of the old developer memo `ecaljdetails.tex` (T. Kotani, last version 2024-11; the original is `ecaljdetails/` of the ecalj commit `3284d0b`, `git show 3284d0b:ecaljdetails/ecaljdetails.tex`),
@@ -1815,7 +1815,7 @@ In principle, $E_{\rm Harris}$ and $E_{\rm HoKohn}$ should be exactly the same w
 the difference is the numerical error. `c` at the begining of line means "converged".
 ${\tt h}$ means the 1st iteration from `atm.*` file (superposition of atomic density); the letters are `svflg='cxhiC'` in `m_lmfp.f90` (`x`: the maximum number of iterations reached, `i`: an intermediate iteration, `C`: converged relaxation).
 
-## IBZ and EIBZ scheme
+## IBZ and EIBZ scheme {#ibz-and-eibz-scheme}
 
 The IBZ part below is what the code uses: the self-energy is summed over ${\bf k}$ of the IBZ and the rotations (`kx` and `irot` in `m_sxcf_sc.f90`, with the table `irkip`). The EIBZ part is a memo; it is not used now (`eibzgen.f90` is there but not called, `[gw] EIBZmode` is read but not used, and `m_eibz`, `x0kf_v4hz_symmetrize`, `zsecsym` and `rotwvigg` are not in the present code). It may be used again.
 
