@@ -1,6 +1,6 @@
 # $GW$ approximation
 
-> English version of the page [theory/gw](../../theory/gw.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/gw.md of commit 580c5a7f6 (source blob 43e45621f740).
+> English version of the page [theory/gw](../../theory/gw.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/gw.md of commit 152b68f11 (source blob a325d9223ca0).
 
 ## $GW$ approximation
 The $GW$ approximation is a method used in many-body perturbation theory to describe the electronic structure of systems.
