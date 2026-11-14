@@ -298,6 +298,7 @@ Its MPB (MPB$_{\rm C}$, written $M_{{\rm C}I}$ and $E_{{\rm C}\mu}$ here) differ
 `gwsc` makes it in a separate step before the valence part: `hbasfp0 --job=3` makes the product basis $M_{\rm C}$ (`genallcf_v3` with `incwfin=-2`: the core states times the valence radial functions),
 `hvccfp0 --job=3` makes the Coulomb matrix in it and its eigenvectors ($E_{\rm C}$, in `__Vcoud.*`, which are overwritten by the valence `hvccfp0 --job=0` afterwards),
 and `hsfp0_sc --job=3` evaluates Eq. (I15) with the core states in the $E_{\rm C}$ basis.
+Thus `gwsc` computes the exchange twice in each iteration: the core exchange $\Sigma^{\rm Cx}$ here (in $E_{\rm C}$), and the valence exchange $\Sigma^{\rm x}$ inside `hgw` (in $E$) after `hbasfp0 --job=0` and `hvccfp0 --job=0`.
 
 The screened Coulomb interaction is given in the symmetric form ([Obata2025] Eqs. (10), (11))
 $$
