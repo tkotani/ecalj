@@ -109,7 +109,7 @@ $$
 \tag{Ge2}
 $$
 
-where the right-hand side is the source term, the kick (the same form as Eq. (GF1) with $f=𝛿$). Understand Eq. (Ge2) in correspondence with Eq. (GF1). The point is that the source term on the right-hand side is proportional to $𝛿(t_1-t_2)$, and we solve the differential equation for the response to it. In the many-body problem the source term $\hat 𝜓^†(𝒓_2)\ket{\Psi_0}$ is the $(N+1)$-electron state made by adding one electron to the ground state of $N$ electrons; expanded in the eigenstates of the $(N+1)$-electron system, it contains many electron and hole excitations. This state seen at point $𝒓_1$ (an electron taken out at point $𝒓_1$ and overlapped with the ground state) is the electron Green function:
+where the right-hand side is the source term, the kick (the same form as Eq. (GF1) with $f=𝛿$). Understand Eq. (Ge2) in correspondence with Eq. (GF1). The point is that the source term on the right-hand side is proportional to $𝛿(t_1-t_2)$, and we solve the differential equation for the response to it. In the many-body problem the source term $\hat 𝜓^†(𝒓_2)\ket{\Psi_0}$ is the $(N+1)$-electron state made by adding one electron to the ground state of $N$ electrons; expanded in the eigenstates of the $(N+1)$-electron system, it contains many electron and hole excitations. This state seen at point $𝒓_1$ is the electron Green function:
 
 $$
 \begin{aligned}
