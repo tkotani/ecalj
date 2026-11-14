@@ -1,7 +1,7 @@
 
 # Installation on kugui (GPU) and ohtaka (CPU) at ISSP
 
-> English version of the page [install/installISSP](../../install/installISSP.md). The pages at the top of ecaljdoc are the reference; this one was made from install/installISSP.md of commit 651e6e476 (source blob f08719ba279d).
+> English version of the page [install/installISSP](../../install/installISSP.md). The pages at the top of ecaljdoc are the reference; this one was made from install/installISSP.md of commit ce3432b93 (source blob 74e6b114019b).
 
 > 📝 **Note** — This is a memo, as of 2025, for installing ecalj on the computers of the Institute for Solid State Physics (ISSP), the University of Tokyo.
 > The module names, software versions, and file system layout of `kugui` / `ohtaka` change over time.
