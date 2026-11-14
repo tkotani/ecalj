@@ -281,7 +281,7 @@ SPEC
 - メモ: 
     - `ctrl2vasp ctrls.gaas` で VASP のファイルに戻せます。VESTA で確かめてください。viewvesta（変換して VESTA を起動します）も使えます。
     - 使わないファイルがたくさん作られます（気にしなくてかまいません）。
-    - サイトには [Niup などの](./UsageDetailed.md#antiferro-symmetry-without-soc) 好きな名前を使えます。その場合は SPEC の区分も設定する必要があります。[Z は整数でなくてもかまいません。](./UsageDetailed.md#background-charge-and-fractional-z) これは後で学んでください。
+    - サイトには [Niup などの](./UsageDetailed.md#antiferro-symmetry-without-soc) 好きな名前を使えます。その場合は SPEC の区分も設定する必要があります。[Z は整数でなくてもかまいません。](./Memo_bgcharge.md#background-charge-and-fractional-z) これは後で学んでください。
     - 古い ctrls には NL、NBAS、NSPEC があるかもしれませんが、いまは要りません。
 
 ## Step 2. ctrls から `ctrlg.<sname>.toml` を作る {#step-2-get-ctrlg-sname-toml-from-ctrls}

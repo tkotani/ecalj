@@ -1,6 +1,6 @@
 # ecalj MainDocument
 
-> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob 94088a4f32f9).
+> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 7a8dd5bf2 (source blob d0529b9a8b5a).
 **This is the main document of ecaljdoc: the features of ecalj, an overview of QSGW, and the first calculation (GetStarted). Other pages are reached from the menu on the left.**
 
 * Here we give [GetStarted](#getstarted), together with install and overview of QSGW.
@@ -284,7 +284,7 @@ to reproduce results by VASP or in MP from your POSCAR file.
 - MEMO: 
     - `ctrl2vasp ctrls.gaas` can convert back to VASP file. Check this by VESTA. We can use viewvesta (convert and invoke VESTA).
     - many unused files are generated (forget them).
-    - you can use any name for sites such as [Niup or something](./UsageDetailed.md#antiferro-symmetry-without-soc), in such a case you have to set SPEC section in addition. [Non integer number of Z is allowed.](./UsageDetailed.md#background-charge-and-fractional-z). Learn afterward.
+    - you can use any name for sites such as [Niup or something](./UsageDetailed.md#antiferro-symmetry-without-soc), in such a case you have to set SPEC section in addition. [Non integer number of Z is allowed.](./Memo_bgcharge.md#background-charge-and-fractional-z). Learn afterward.
     - In old ctrls, you may see NL,NBAS,NSPEC, which are not necessary now.
 
 ## Step 2. Get `ctrlg.<sname>.toml` from ctrls

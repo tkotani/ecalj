@@ -1,6 +1,6 @@
 # How to make doping?
 
-> English version of the page [manual/Memo_bgcharge](../../manual/Memo_bgcharge.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/Memo_bgcharge.md of the tree of c9f9a3003 (source blob d2017f4a5be5).
+> English version of the page [manual/Memo_bgcharge](../../manual/Memo_bgcharge.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/Memo_bgcharge.md of the tree of c9f9a3003 (source blob 3d8e6a246f78).
 
 > ⚠️ **TOML migration (2026-05)** — The legacy `Category_Token`s in this
 > page map onto `ctrlg.<sname>.toml` as: `SPEC_ATOM_Z` → `[[spec]].z`,
@@ -86,4 +86,18 @@ This means that (2 atoms per cell).
 Thus we have 
   valence electron = 28.4 - 20- 0.3 = 8.1 
 
+## Check in the console output {#background-charge-and-fractional-z}
+You see console output, e.g, 
+```
+Charges: valence 19.80000 cores 8.00000 nucleii -28.00000
+hom background .20000 deviation from neutrality: 0.00000
+```
+This is a case with `zbak = 0.2`.
 
+NOTE: at the first iteration, Charges: shows such as
+```
+Charges: valence 8.00000 cores 20.00000 nucleii -28.00000
+hom background 0.12300 deviation from neutrality: 0.12300
+```
+because of the initial condition by superposition of atoms. It shows
+deviation seems nonzero. But charge should be conserved from the next iteration.

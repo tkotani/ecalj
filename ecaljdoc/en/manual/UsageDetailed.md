@@ -1,6 +1,6 @@
 # Other notes {#usagedetailed}
 
-> English version of the page [manual/UsageDetailed](../../manual/UsageDetailed.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/UsageDetailed.md of commit a8bdac429 (source blob c12aff03726e).
+> English version of the page [manual/UsageDetailed](../../manual/UsageDetailed.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/UsageDetailed.md of commit a8bdac429 (source blob b51987d70ab6).
 
 > ⚠️ The input is `ctrlg.<sname>.toml`. Run `Legacy2toml.py <sname>` to convert legacy `ctrl.<sname>` / `GWinput`. Overrides on the command line are `--ctrlg:<path>=val`; with `-v<NAME>=<VAL>` the programs stop. See [Input file](./toml_migration). The samples named below that are being rebuilt from `Samples/Legacy` are listed in ecalj [`Samples/README.md`](https://github.com/tkotani/ecalj/blob/main/Samples/README.md).
 
@@ -271,24 +271,6 @@ Configured by the `[esm]` section of `ctrlg.<sname>.toml`. Full reference
 of the retired `esm_input.dat` by `ctrlg_absorb.py`):
 **[ESM in lmf.md](./lmf#esm-effective-screening-medium)**.
 Sample: `Samples/MLOsamples/FeMgO`.
-
-## Background charge and fractional Z {#background-charge-and-fractional-z}
-You can use fractional numbers for `z` of `[[spec]]`, and also can set valence charge by `[bz] zbak`.
-The recipe and examples are in [doping (background charge)](./Memo_bgcharge).
-You see console output, e.g, 
-```
-Charges: valence 19.80000 cores 8.00000 nucleii -28.00000
-hom background .20000 deviation from neutrality: 0.00000
-```
-This is a case with `zbak = 0.2`.
-
-NOTE: at the first iteration, Charges: shows such as
-```
-Charges: valence 8.00000 cores 20.00000 nucleii -28.00000
-hom background 0.12300 deviation from neutrality: 0.12300
-```
-because of the initial condition by superposition of atoms. It shows
-deviation seems nonzero. But charge should be conserved from the next iteration.
 
 ## Spin fluctuation
 `~/ecalj/Samples/Magnon` (test target `Fe_mlo_magnon`; `README.md` there gives the steps of `job_mlo_magnon`).
