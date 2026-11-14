@@ -1,64 +1,59 @@
 # `syml.<sname>`
 
-Symmetry line for the band plot.
-We can generate `syml.<sname>` by `getsyml`.
+バンドプロットの対称ラインのファイルです。
+`syml.<sname>` は `getsyml` で作れます。
 
 
-## Get symmetry lines for band plot and Brillouwin zone plot.
-`syml.<sname>` is generated from `ctrlg.<sname>.toml` (legacy: `ctrl.<sname>`).
-`syml.<sname>` is needed for band plot.
-After generated, you can easily edit `syml.<sname>` for `job_band`.
+## バンドプロットの対称ラインとブリルアンゾーンの図を得る
+`syml.<sname>` は `ctrlg.<sname>.toml`（古い形式では `ctrl.<sname>`）から作ります。
+バンドプロットには `syml.<sname>` が要ります。
+作った後で、`job_band` のために `syml.<sname>` を手で直すのも簡単です。
 
-At ecalj/GetSyml, we have getsyml.py, which is based on the
-seekpath at https://github.com/giovannipizzi/seekpath/
-and spglib at https://anaconda.org/conda-forge/spglib
+ecalj/GetSyml に getsyml.py があります。これは
+[seekpath](https://github.com/giovannipizzi/seekpath/) と [spglib](https://anaconda.org/conda-forge/spglib) にもとづいています。
 
-### Usage:
-We make a softlink `getsyml` to `ecalj/GetSyml/getsyml.py` during the install by `InstallAll.py`.
-Run 
+### 使い方
+`InstallAll.py` でインストールするときに、`ecalj/GetSyml/getsyml.py` への symlink `getsyml` を作ります。
+次のように実行します。
 ```
 getsyml nio
 (or)
 getsyml ctrls.nio
 ```
-. This show 3D Brillouin zone together with symmetry lines for band plot.
-See [BZsamples](https://ecalj.sakura.ne.jp/BZgetsyml/) here.
-The symmetry lines are written into the `syml.<sname>` file for ecalj.
-The number of divisions for `syml` is give by a crude algorism, so edit it if necessary.
+バンドプロットの対称ラインと一緒に、3 次元のブリルアンゾーンを表示します。
+例は [BZsamples](https://ecalj.sakura.ne.jp/BZgetsyml/) にあります。
+対称ラインは、ecalj 用の `syml.<sname>` ファイルに書かれます。
+`syml` の分割数は大まかな方法で決めているので、必要なら直してください。
 
-### Needed citations for getsyml
-  In addition to usual ecalj acknowledgement, following citations are <del class="clfix">required</del><span class="clfix">requested</span> when you make a publication <span class="clfix">(see [License](./license))</span>.
+### getsyml を使ったときの引用
+  論文にするときは、ecalj の引用に加えて、次の引用を<del class="clfix">必須とします</del><span class="clfix">お願いします</span><span class="clfix">（[ライセンス](./license) を参照）</span>。
 
    1.Y. Hinuma, G. Pizzi, Y. Kumagai, F. Oba, I. Tanaka, 
      Band structure diagram paths based on crystallography,
      Comp. Mat. Sci. 128, 140 (2017)
      
-   2.You should also cite spglib that is an essential library used in the implementation.
+   2.実装に欠かせないライブラリである spglib も引用してください。
      <del class="clfix">https://github.com/atztogo/spglib.git</del><span class="clfix">A. Togo, K. Shinohara, I. Tanaka, Sci. Technol. Adv. Mater., Meth. 4, 2384822 (2024).</span>
 
-* The licences of spglib and seekpath: <del class="clfix">[LICENCE](https://github.com/tkotani/ecalj/blob/main/LICENCE) of ecalj</del><span class="clfix">[License](./license)</span>.
+* spglib と seekpath のライセンス: <del class="clfix">ecalj の [LICENCE](https://github.com/tkotani/ecalj/blob/main/LICENCE)</del><span class="clfix">[ライセンス](./license)</span>。
 
-### (memo for developer)
-   a.Modify lmchk to write required information to supply reasonable.
-     For example, ndiv (mesh size along lines).
-   b.Numerical accuracy of calculations. 
-     np.set_printoptions(precision=16) is not meaningful since we read output of lmchk
+### （開発者向けのメモ）
+   a. lmchk を直して、妥当な値を与えるのに必要な情報を書かせる。
+     例えば ndiv（ラインに沿ったメッシュの数）。
+   b. 計算の数値精度。
+     lmchk の出力を読んでいるので、np.set_printoptions(precision=16) は意味がない。
 
- symmetry-line file : input for plotting energy bands along
-    selected symmetry lines or for generating constant-energy
-    contours such as a Fermi surface.  This file (whose name is
-    specified as a modifier with the command-line argument
-    --band, described in the "Command-line switches" section) can
-    take on of several forms.
+ 対称ラインのファイルは、選んだ対称ラインに沿ってエネルギーバンドを描くとき、
+    あるいはフェルミ面のような等エネルギー面を作るときの入力です。
+    このファイル（その名前は、"Command-line switches" の節で説明している
+    コマンドライン引数 --band の修飾子で指定する）は、いくつかの形をとれます。
 
-### format of syml
-    generate bands along specific symmetry lines.
-    The following sample input illustrates input for lines
-    X->Gamma and Gamma->M for the simple cubic lattice.
+### syml の書式
+    決まった対称ラインに沿ってバンドを作ります。
+    次の例は、単純立方格子の X→Γ と Γ→M のラインの入力です。
        21  .5 0  0    0  0  0         X     Gamma
        21  0  0  0    .5 .5 0         Gamma  M
        0   0  0  0    0  0  0
-    The first number designates how many points along each line.
-    The next six label the starting and ending q-points,
-    respectively.  Note that the last line must contain zeros.
-
+    最初の数は、各ラインに沿った点の数です。
+    次の 6 つは、始点と終点の q 点です。
+    最後の行はすべて 0 にします。
