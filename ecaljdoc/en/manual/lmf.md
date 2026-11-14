@@ -1,6 +1,6 @@
 # `lmf,lmfa,lmchk`
 
-> English version of the page [manual/lmf](../../manual/lmf.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/lmf.md of commit b6105f798 (source blob 152140597bf1).
+> English version of the page [manual/lmf](../../manual/lmf.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/lmf.md of commit 7006f2703 (source blob 75d6a9529b68).
 
 We need an input file `ctrlg.<sname>.toml` (legacy: `ctrl.<sname>`).  
 `<sname>` is the **positional** argument passed to the binary
