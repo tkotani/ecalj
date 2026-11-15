@@ -3,7 +3,7 @@
 絶対零度でのGreen関数について
 
 ## 参考文献
-- Fetter Walecka
+- A. L. Fetter and J. D. Walecka, *Quantum Theory of Many-Particle Systems* (McGraw-Hill, 1971)。日本語訳: A. L. フェッター、J. D. ワレッカ 著、松原武生・藤井勝彦 訳『多粒子系の量子論』理論編・応用編（マグロウヒルブック、1987）
 
 ## Green関数とは {#what-is-green}
 
