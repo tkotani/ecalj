@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit b07ad4814 (source blob 90962362d248).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit a2fd531c0 (source blob 9d3f236bc22f).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -91,7 +91,7 @@ $$
 $$
 
 This is now transformed.
-From Eq. (C5), $\partial\hat J_x/\partial A_x=-(e^2/m)\hat N$, and its expectation value is $-(e^2/m)n\Omega$ ($n$ is the electron density).
+From Eq. (C5), $\partial\hat J_x/\partial A_x=-(e^2/m)\hat N$, and its expectation value is $-(e^2/m)\langle\hat N\rangle=-(e^2/m)n\Omega$ (the volume of the system is $\Omega$ and the electron density $n$).
 Also from Eq. (C5), $\hat J_x\big|_{A_x=0}=\hat J^0_x$, so $\chi^R_{AB}$ is the response function between $\hat J^0_x$; it is written $\chi^R_{JJ}$. Therefore
 
 $$
