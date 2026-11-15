@@ -1,6 +1,6 @@
 # Basic expressions
 
-> English version of the page [theory/basic](../../theory/basic.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/basic.md of commit 3973e4ffe (source blob a7612e333680).
+> English version of the page [theory/basic](../../theory/basic.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/basic.md of commit 87dcafe53 (source blob c0c3b894e408).
 
 On the Green function at zero temperature
 
@@ -93,6 +93,17 @@ g_\mathrm{AB}(𝜔) &= \int \frac{d𝜔'}{2\pi}\, g_\mathrm{A}(𝜔') g_\mathrm{
 $$
 
 The polarization function $D = G G$, in which an electron and a hole propagate at the same time (Eq. (P3) below), and the self-energy $𝛴 = iGW$ ([Basic II](./basic2), "the case of the $GW$ self-energy") have this form. (Two mechanical springs A and B connected in parallel share the displacement and their forces add, so the inverse responses add, $1/g = 1/g_\mathrm{A} + 1/g_\mathrm{B}$. The product appears when amplitudes are multiplied, as above.)
+
+## The vector space of an electron system {#fock-space}
+
+In second quantization, operations that change the number of particles are also considered.
+For simplicity, take $M=n^3$ lattice points and consider whether an electron is or is not at each point (spin is ignored).
+Since each site either has an electron or not, there are $2^M$ states, and their linear combinations form a $2^M$-dimensional vector space.
+This vector space is conveniently built up with products of matrices called creation and annihilation operators.
+The Hamiltonian is then considered in this linear space, and the ground state found with the total number of particles fixed is the ground state of the many-body system.
+
+In a one-body problem, on the other hand, only one electron is considered, so we work in an $n^3$-dimensional vector space.
+With this as a block, the $2^M$-dimensional vector space is built up.
 
 ## Definition of the (one-particle) Green function
 
@@ -214,7 +225,7 @@ Excluding type 1, and dropping type 2 together with the normalization terms, lea
 > The renormalization terms that come from the normalization cancel the unlinked terms, and the energy stays proportional to the size of the system (size consistency).
 > Unlinked terms appear clearly from the fourth order on, and terms such as $-E^{(2)}\sum_n|V_{0n}|^2/\Delta_n^2$ cancel them (the linked-diagram theorem).
 > There the energy (vacuum diagrams without external lines) is treated, but the mechanism of the cancellation is the same for the Green function (two external lines).
-> In the Møller–Plesset division ($\hat H_0$ taken as the sum of Fock operators), $\hat H-\hat H_0$ contains a one-body part, so $V_{00}=E^{(1)}$ is not zero; this is the same structure as the note on the adiabatic connection in 4.1.
+> In the Møller–Plesset division ($\hat H_0$ taken as the sum of Fock operators), $\hat H-\hat H_0$ contains a one-body part, so $V_{00}=E^{(1)}$ is not zero; this is the same structure as the note on the adiabatic connection in the section [Hamiltonian](#hamiltonian).
 
 > In the form of Eq. (G3), with the terms written for each time ordering (Goldstone type), each ordering of the vertex times is a separate term. Feynman's view is to see the hole as an electron going backward in time, to represent the electron and the hole by one propagator (the T-product Green function of Eq. (G4)), and to gather the terms of different time orderings into one diagram. Integrating over frequency, the energy denominators come out automatically. The formal derivation with the T product and $1/n!$ is due to Dyson. Note that, many-body perturbation theory though it is, the essence is the same as ordinary perturbation theory; it is only rewritten.
 
@@ -230,7 +241,7 @@ Perturbation theory with time thus contains perturbation theory without time, an
 
 ## Green function of a non-interacting system
 
-### Hamiltonian
+### Hamiltonian {#hamiltonian}
 We take the Hamiltonian as $\hat H -μ\hat N$ and set the ground-state energy to 0. $𝜇$: the Fermi energy; $\hat N = \int d𝒓 𝜓^†(𝒓)𝜓(𝒓)$: the particle-number operator; with $N$ the number of particles in the ground state, $\hat N \ket{\Psi_0} = N \ket{\Psi_0}$. From the previous section on, the $\hat H$ of the Heisenberg picture $e^{i\hat Ht/\hbar}\cdots e^{-i\hat Ht/\hbar}$ is also read as this $\hat H-𝜇\hat N$ (for the density operator $\hat 𝜌_\mathrm{H}$ it makes no difference, since $\hat N$ commutes with $\hat 𝜌$).
 Without interaction the Hamiltonian is a sum over one-particle states,
 $$
