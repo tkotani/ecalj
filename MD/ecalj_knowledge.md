@@ -149,7 +149,7 @@ ecaljdoc の書き方の決まり（公開）は [`ecaljdoc/manual/writing_docs.
 
 ### 5.4 2026-11-14 に user から受けた書き方の指示（ecaljdoc）
 - 英語の混ざった日本語でよい。用語は無理に訳さない（例: 「準粒子自己無撞着 GW」でなく QSGW、quasiparticle self-consistent $GW$）
-- core はコア（「芯」と訳さない。user 2026-11-15「芯と書かれているがコアである。ときどきカタカナにすることもある」）。semicore はセミコア、core hole はコアホール
+- core はコア（「芯」と訳さない。user 2026-11-15「芯と書かれているがコアである。ときどきカタカナにすることもある」）。semicore はセミコア、core hole はコアホール、fractional Z はフラクショナルな Z（「半端な Z」と書かない。user 2026-11-15）
 - 節の番号は custom.css のカウンタで自動（h2・h3、右の目次も。outline: [2, 3]。user 2026-11-15「セクション番号をうったほうがいいかも。議論用に」）。手で番号のあった 9 ページ（kBT、mlo、mlo_gwsc、pmt、getstartedAI、mtradius、install、installISSP、whatsnew）も 2026-11-15 に自動にそろえた（user「自動揃えがいいです」）: 見出しの番号を外し、本文・ほかのページ・Samples の README・handover の「§」191 か所を新しい番号に書き換えた（kBT は 0 始まりと 3.5・3.6 があったので全部ずれた: 旧 3.5→5、3.6→6、4→7、5→8、7→10、8→11、9→12。pmt・getstartedAI は +1、installISSP は 1→1.1）。研究ログ（research_kotani_log、MD/kBT/history など）の古い「§」は直していない。止める仕組み `pageClass: secnum-manual` は残してあるが使っていない。h1 は題だけ（lmf、gwsc、README_tutorial、lmf_legacy_ctrl の二つ目からの h1 を一段下げた）。式だけの見出しは `{#id}` が要る（dev_impl の `#p-v-p-part`）。本文の見出しと目次の数の一致は scratchpad の secall.py で 80 ページ確かめた
 - コードの文字: ブロックは 12.5px、本文の中は 0.8em（user 2026-11-15）
 - 数式は横のスクロールバーを出さない。折り返してよい（全ページ同じ）
