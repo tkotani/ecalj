@@ -84,12 +84,13 @@ $$
 に戻り、右辺の撃力（ソース項）に遅れて応答するという境界条件を課す必要がある（[Basic I](./basic) のインパルス応答）。
 
 この応答関数は数でなくてもよいことに注意する。$G(x,x',t-t')$ とし、$H$ を行列 $H(x,x')$、右辺を $B(x)\delta(x-x')\delta(t-t')$ としても、同じことが成り立つ。
-最後に、左辺に左から行列 $C$ を掛けてもよい:
+最後に、両辺に左から同時に行列 $C$ を掛けてもよい:
 
 $$
 \begin{aligned}
 &\sum_{x''x'''} C(x,x'')\Big(i\frac{\partial}{\partial t}\delta(x''-x''')-H(x'',x''')\Big)G(x''',x',t-t')\\
-&\qquad=B(x)\,\delta(x-x')\,\delta(t-t').
+&\qquad=\sum_{x''} C(x,x'')B(x'')\,\delta(x''-x')\,\delta(t-t')\\
+&\qquad=C(x,x')B(x')\,\delta(t-t').
 \end{aligned}
 \tag{A8}
 $$
