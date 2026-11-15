@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit e4b81c3fa (source blob 687734eab737).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit ab3dbadc9 (source blob bfd7e293854e).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -217,7 +217,7 @@ $$
 
 The left-hand side is the Fermi-surface quantity in Eq. (C16), and the right-hand side is the sum of the inverse effective masses over all occupied states.
 For free electrons $\partial^2\varepsilon_{\bf k}/\partial k_x^2=\hbar^2/m$ is constant, so the right-hand side is $n/m$ (per spin), in agreement with Drude's $n/m$.
-For a general band, Drude's $n/m$ has to be read as the effective $(n/m)_{\rm eff}$ on the right-hand side.
+The approximation of a constant effective mass on the Fermi surface should hold well for Na, Cu, Al and so on.
 
 In practice the matrix elements are not only diagonal, but the number of states $m$ connected to $n$ is finite (by completeness $\sum_m|\langle n|\hat v_x|m\rangle|^2=\langle n|\hat v_x^2|n\rangle$ is finite), so Eq. (C16) may be regarded as correct.
 
