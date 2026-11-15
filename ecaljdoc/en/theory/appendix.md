@@ -1,6 +1,6 @@
 # Appendix: mathematical notes {#appendix}
 
-> English version of the page [theory/appendix](../../theory/appendix.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/appendix.md of commit 424d4245d (source blob f95a6ea0fa0e).
+> English version of the page [theory/appendix](../../theory/appendix.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/appendix.md of commit a5d08bc3e (source blob b8ff9a8f6553).
 
 Mathematical tools used in the other pages.
 
@@ -87,16 +87,14 @@ $$
 with the boundary condition that the response comes after the impulse (the source term) on the right-hand side ([Basic I](./basic), impulse response).
 
 Note that this response function need not be a number. The same holds for $G(x,x',t-t')$ with $H$ a matrix $H(x,x')$ and the right-hand side by $B(x)\delta(x-x')\delta(t-t')$.
-Finally, both sides may be multiplied from the left by the same matrix $C$:
+Finally, both sides may be multiplied from the left by the same matrix $C$. In matrix notation,
 
 $$
-\begin{aligned}
-&\sum_{x''x'''} C(x,x'')\Big(i\frac{\partial}{\partial t}\delta(x''-x''')-H(x'',x''')\Big)G(x''',x',t-t')\\
-&\qquad=\sum_{x''} C(x,x'')B(x'')\,\delta(x''-x')\,\delta(t-t')\\
-&\qquad=C(x,x')B(x')\,\delta(t-t').
-\end{aligned}
+C\Big(i \frac{\partial }{\partial t}-H\Big) G(t-t')=C B\,\delta(t-t').
 \tag{A8}
 $$
+
+Here $H$, $C$ and $G$ are matrices with the index $x$ (the components of $G$ are $G(x,x',t-t')$), and $B$ is the diagonal matrix $B(x)\delta(x-x')$.
 
 In fact, such forms are used in many-body perturbation theory.
 In short, a Green function (a linear response) can be defined for any inhomogeneous differential equation whose right-hand side is a source term $\delta(t-t')$ at the point $x'$.
