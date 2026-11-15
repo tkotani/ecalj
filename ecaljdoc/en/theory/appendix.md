@@ -1,6 +1,6 @@
 # Appendix: mathematical notes {#appendix}
 
-> English version of the page [theory/appendix](../../theory/appendix.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/appendix.md of commit a5d08bc3e (source blob b8ff9a8f6553).
+> English version of the page [theory/appendix](../../theory/appendix.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/appendix.md of commit 3a5c46cbd (source blob 3d7bcb24f718).
 
 Mathematical tools used in the other pages.
 
@@ -99,6 +99,23 @@ Here $H$, $C$ and $G$ are matrices with the index $x$ (the components of $G$ are
 In fact, such forms are used in many-body perturbation theory.
 In short, a Green function (a linear response) can be defined for any inhomogeneous differential equation whose right-hand side is a source term $\delta(t-t')$ at the point $x'$.
 The matrix $C$ on the left can be regarded as the sensitivity of a sensor placed at the point $x$.
+Abstractly, $G$ is the integral kernel that gives the particular solution of a general homogeneous linear equation to which a source term is added.
+Once this kernel is known, for the equation
+
+$$
+\Big(i \frac{\partial }{\partial t}-H\Big) R(t)=S(t)
+\tag{A9}
+$$
+
+that maps a source $S$ to a response $R$, the solution multiplied by $C$ from the left is written at once as the integral
+
+$$
+C R(t)=\int dt'\, C\, G(t-t')\, B^{-1} S(t')
+\tag{A10}
+$$
+
+(matrix notation; in components $R(x,t)$ and $S(x,t)$, and the right-hand side contains the sum over $x'$. For $B=1$ the kernel is $G$ itself.)
+By causality $G(t-t')=0$ for $t<t'$, so the integral runs only over $t'\le t$.
 
 Causality means "the cause gives the result", which is represented by the step function. For example, the Fourier transform of
 $-i\theta(t-t') e^{-i \omega_0 (t-t')}$ is $1/(\omega-\omega_0+i \delta)$ (the retarded Green function, the same convention as [Basic I](./basic)).
