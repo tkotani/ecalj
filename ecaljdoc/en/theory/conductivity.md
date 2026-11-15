@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 727e5e02d (source blob 4b7518ee6f6e).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit e5f83e546 (source blob 2dde34106134).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -192,7 +192,7 @@ $$
 \tag{C15}
 $$
 
-independent of $\delta$. When the matrix elements are only diagonal (free electrons without impurities), only the terms $n=m$ remain, and with $\int dx\,\delta_\delta(x)^2=1/(2\pi\delta)$
+independent of $\delta$. When the matrix elements are only diagonal, only the terms $n=m$ remain, and with $\int dx\,\delta_\delta(x)^2=1/(2\pi\delta)$
 
 $$
 \begin{aligned}
