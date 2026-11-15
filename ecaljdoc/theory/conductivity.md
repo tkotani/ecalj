@@ -181,7 +181,7 @@ $$
 式 (C10) のデルタ関数の積の和（積分）は分かりにくいと思うので、以下で説明しておく。
 $i\delta$ を有限に残すと、式 (C10) のデルタ関数は幅 $\delta$ のローレンツ関数 $\delta_\delta(x)=(1/\pi)\,\delta/(x^2+\delta^2)$ になる。
 $\sum_n\delta_\delta(E-E_n)$ は状態密度 $D(E)$（系全体の、エネルギーあたりの状態の数）である。
-行列要素 $|\langle n|\hat v_x|m\rangle|^2$ が $E_F$ の近くで一様（平均 $\overline{|v_x|^2}$）なら
+もし行列要素 $|\langle n|\hat v_x|m\rangle|^2$ が $E_F$ の近くで一様（平均 $\overline{|v_x|^2}$）なら
 
 $$
 \begin{aligned}
