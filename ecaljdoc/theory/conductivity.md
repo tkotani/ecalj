@@ -211,6 +211,13 @@ $$
 不純物があると、平均した $G$ の幅は物理的な $\hbar/2\tau$ になる（[平均した一本のグリーン関数](#averaged-g)）。
 この幅が $\delta$ の役を担い、$\delta=\hbar/2\tau$ とすると、$D(E_F)/\Omega=N_1(E_F)$、$\overline{v_x^2}=v_F^2/3$ で式 (C16) は $2e^2\tau v_F^2N_1(E_F)/3=ne^2\tau/m$ となり、[Drude の式](#drude) と一致する。
 
+二つの場合の関係は、行列要素の和を考えると分かる。完全系への分解 $\sum_m|m\rangle\langle m|=1$ を使うと
+$\sum_m|\langle n|\hat v_x|m\rangle|^2=\langle n|\hat v_x^2|n\rangle$ で、これは有限である。
+つまり $n$ と $\hat v_x$ でつながる $m$ は、実質的に有限の個数（あるエネルギーの幅 $W$ の中）しかない。
+それらが幅 $W$ に一様に広がっているとすると $|\langle n|\hat v_x|m\rangle|^2\approx\overline{v_x^2}/\big(D(E_F)\,W\big)$ で、式 (C15) は
+$\sigma_{xx}\approx(2\pi\hbar e^2/\Omega)\,\overline{v_x^2}\,D(E_F)/W$ となる。これは式 (C16) と同じ形で、$\delta$ を $W$ に置き換えたものである。
+伝導度は、$\hat v_x$ でつながる状態がエネルギーにどれだけの幅で広がるか（$W$ か $\delta$ の大きい方）で決まる。
+
 ### $G^RG^A$ の項 {#grga}
 
 式 (C11) は、不純物の配置を一つ決めたときの式である。観測される伝導度は、これを不純物の配置について平均したもの $\langle\cdots\rangle_{\rm imp}$ である。
