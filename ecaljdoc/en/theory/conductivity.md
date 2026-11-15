@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit dc60b5d15 (source blob dd887a9d59c4).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit bf1d12508 (source blob c5da84811423).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -76,8 +76,7 @@ $$
 ($\hat N$ is the operator of the number of electrons; the sum is over the electrons).
 $\hat J_x$ is the total current operator (the sum of the charge $-e$ times the velocity $(\hat{\bf p}_i+e{\bf A})/m$), and $\hat J^0_x$ is $\hat J_x$ at ${\bf A}=0$.
 
-Compared with Eq. (C2), the perturbation to first order in ${\bf A}$ is $-\hat J^0_x A_x$, so $\hat B=\hat J^0_x$ and $F=A_x$.
-What is observed is the total current $\hat J_x$, so Eq. (C3) is applied as it is with $\hat A=\hat J_x$.
+Comparing with Eqs. (C2) and (C3), $\hat A=\hat J_x$, $\hat B=\hat J^0_x$ and $F=A_x$.
 Writing the response function in (C3) as $\chi^R_{JJ}$, the current density is ($n$ is the electron density)
 
 $$
