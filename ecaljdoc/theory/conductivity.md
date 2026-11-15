@@ -79,15 +79,15 @@ $\hat J_x$ が全電流の演算子（電荷 $-e$ と速度 $(\hat{\bf p}_i+e{\b
 
 $$
 \begin{aligned}
-&\delta\langle\hat J_x\rangle(t)=\int dt'\,\chi^R_{J_xJ^0_x}(t-t')\,A_x(t'),\\
-&\chi^R_{J_xJ^0_x}(t)=\frac{i}{\hbar}\,\theta(t)\,\big\langle[\hat J_{x,{\rm H}}(t),\hat J^0_x]\big\rangle
+&\delta\langle\hat J_x\rangle(t)=\int dt'\,\chi^R_{AB}(t-t')\,A_x(t'),\\
+&\chi^R_{AB}(t)=\frac{i}{\hbar}\,\theta(t)\,\big\langle[\hat J_{x,{\rm H}}(t),\hat J^0_x]\big\rangle
 \end{aligned}
 \tag{C6}
 $$
 
 である。これを変形する。
 $\hat J_x=\hat J^0_x-(e^2/m)\hat N A_x$ の第 2 項は、$\hat N$ が $\hat H_0$ とも $\hat J^0_x$ とも交換するので、交換子に寄与しない。
-したがって $\chi^R_{J_xJ^0_x}$ は $\hat J^0_x$ どうしの応答関数 $\chi^R_{JJ}(t)=(i/\hbar)\theta(t)\langle[\hat J^0_{x,{\rm H}}(t),\hat J^0_x]\rangle$ に等しい。
+したがって $\chi^R_{AB}$ は $\hat J^0_x$ どうしの応答関数 $\chi^R_{JJ}(t)=(i/\hbar)\theta(t)\langle[\hat J^0_{x,{\rm H}}(t),\hat J^0_x]\rangle$ に等しい。
 一方、期待値 $\langle\hat J_x\rangle_0$ には第 2 項が $-(e^2/m)\langle\hat N\rangle_0A_x=-(e^2/m)n\Omega A_x$ を与える（$n$ は電子の数密度）。まとめると
 
 $$
