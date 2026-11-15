@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 2709efaba (source blob 05cb7b582bd7).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 44dfa6a6c (source blob 5820ef02796c).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -203,6 +203,7 @@ $$
 $$
 
 which diverges for $\delta\to 0$ (without scattering the current does not decay). Roughly, $\delta$ may be regarded as the width $\hbar/2\tau$ from the lifetime $\tau$ of quasiparticles due to phonons and so on.
+In practice the matrix elements are not only diagonal, but the number of states $m$ connected to $n$ is finite (by completeness $\sum_m|\langle n|\hat v_x|m\rangle|^2=\langle n|\hat v_x^2|n\rangle$ is finite), so Eq. (C16) may be regarded as correct.
 
 The two views (Drude's "all electrons are accelerated for the time $\tau$" and Eq. (C16)'s "only the electrons on the Fermi surface contribute") are connected as follows.
 The following factor on the right-hand side of Eq. (C16), for one band and per spin, becomes by integration by parts with $v_x=\hbar^{-1}\partial\varepsilon_{\bf k}/\partial k_x$
@@ -225,8 +226,6 @@ $$
 
 which is [the Drude formula](#drude).
 This approximation of a constant effective mass on the Fermi surface should hold well for Na, Cu, Al and so on.
-
-In practice the matrix elements are not only diagonal, but the number of states $m$ connected to $n$ is finite (by completeness $\sum_m|\langle n|\hat v_x|m\rangle|^2=\langle n|\hat v_x^2|n\rangle$ is finite), so Eq. (C16) may be regarded as correct.
 
 ### The $G^RG^A$ terms {#grga}
 
