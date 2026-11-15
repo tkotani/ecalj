@@ -1,6 +1,6 @@
 # Command-line options for `lmf` / `lmfa` / `lmchk` (and friends)
 
-> English version of the page [manual/cmdopts](../../manual/cmdopts.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/cmdopts.md of commit e98a6e686 (source blob 3651c1c428dc).
+> English version of the page [manual/cmdopts](../../manual/cmdopts.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/cmdopts.md of commit 7263caee9 (source blob 036044b11735).
 
 ## Cmdline argument structure (the minimum)
 

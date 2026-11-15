@@ -1,6 +1,6 @@
 # GW settings (the `[gw]` and related keys) {#gwinput-legacy}
 
-> English version of the page [manual/gwinput](../../manual/gwinput.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwinput.md of commit 694da29ec (source blob 07a83a25dd15).
+> English version of the page [manual/gwinput](../../manual/gwinput.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwinput.md of commit 7263caee9 (source blob bf79de204480).
 
 The sections `[gw]`, `[mlo]`, `[blocks]` and `[product_basis]` of `ctrlg.<sname>.toml` set the conditions of a GW/QSGW calculation. This page explains their keys.
 For the whole file and the conversion from the old `GWinput`, see [Input files](./toml_migration).

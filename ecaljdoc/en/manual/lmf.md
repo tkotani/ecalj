@@ -1,6 +1,6 @@
 # `lmf,lmfa,lmchk`
 
-> English version of the page [manual/lmf](../../manual/lmf.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/lmf.md of commit 11b55c627 (source blob 13add4e61d5b).
+> English version of the page [manual/lmf](../../manual/lmf.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/lmf.md of commit 7263caee9 (source blob 1f2a0fe9b913).
 
 The input file is `ctrlg.<sname>.toml` (`ctrl.<sname>` in the old format).
 `<sname>` is a **positional argument** passed to the program (for example, `lmf si` reads `ctrlg.si.toml`). On this page,
