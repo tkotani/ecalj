@@ -56,7 +56,7 @@ const sidebarRoot = [
       { text: 'Basic II', link: '/theory/basic2' },
       { text: '付録：数学の補足', link: '/theory/appendix' },
       { text: '光学的性質', link: '/theory/optical_properties' },
-      { text: '電気伝導度計算の基本（未筆）', link: '/theory/conductivity' },
+      { text: '電気伝導度計算の基本（下書き）', link: '/theory/conductivity' },
     ]
   },
   {
@@ -122,7 +122,7 @@ const enText: Record<string, string> = {
   '実装メモ（GW の実装の詳細）': 'Implementation notes (details of the GW implementation)',
   'GW 近似': 'GW approximation',
   '光学的性質': 'Optical properties',
-  '電気伝導度計算の基本（未筆）': 'Basics of the electrical conductivity calculation (not yet written)',
+  '電気伝導度計算の基本（下書き）': 'Basics of the electrical conductivity calculation (draft)',
 }
 function toEn(items: any[]): any[] {
   return items.map((it) => ({

@@ -114,6 +114,7 @@ ecaljdoc の書き方の決まり（公開）は [`ecaljdoc/manual/writing_docs.
 | theory/gw_product_basis.md | PB |
 | theory/gw_zmel.md | Z |
 | theory/optical_properties.md | O |
+| theory/conductivity.md | C（電気伝導度、2026-11-15 の下書き） |
 | theory/appendix.md | A（ブロック逆行列、ダウンフォールディング、因果律。2026-11-15 に実装メモから移した） |
 | manual/dev_impl.md | I（実装メモ。番号は写したときのまま、抜けがある） |
 | manual/gwsc.md | M（mixbeta） |
