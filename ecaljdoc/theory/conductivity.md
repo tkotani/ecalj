@@ -93,7 +93,10 @@ $$
 また式 (C5) から $\hat J_x\big|_{A_x=0}=\hat J^0_x$ なので、$\chi^R_{AB}$ は $\hat J^0_x$ どうしの応答関数である。これを $\chi^R_{JJ}$ と書く。したがって
 
 $$
-\delta\langle\hat J_x\rangle(t)=-\frac{e^2}{m}n\Omega\,A_x(t)+\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t')
+\begin{aligned}
+&\delta\langle\hat J_x\rangle(t)=-\frac{e^2}{m}n\Omega\,A_x(t)+\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t'),\\
+&\chi^R_{JJ}(t)=\frac{i}{\hbar}\,\theta(t)\,\big\langle[\hat J^0_{x,{\rm H}}(t),\hat J^0_x]\big\rangle
+\end{aligned}
 \tag{C7}
 $$
 
