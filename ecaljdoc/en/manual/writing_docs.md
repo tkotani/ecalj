@@ -1,6 +1,6 @@
 # Writing ecaljdoc {#writing-docs}
 
-> English version of the page [manual/writing_docs](../../manual/writing_docs.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/writing_docs.md of commit 296542c3a (source blob 99d174c9d42a).
+> English version of the page [manual/writing_docs](../../manual/writing_docs.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/writing_docs.md of commit e1dd775c3 (source blob 79c5fd0d8e8e).
 
 Notes for writing and editing this site (ecaljdoc). They hold for people and for AI alike.
 

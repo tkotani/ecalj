@@ -1,6 +1,6 @@
 # How to dope
 
-> English version of the page [manual/Memo_bgcharge](../../manual/Memo_bgcharge.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/Memo_bgcharge.md of commit 7263caee9 (source blob 87d02dee4859).
+> English version of the page [manual/Memo_bgcharge](../../manual/Memo_bgcharge.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/Memo_bgcharge.md of commit e1dd775c3 (source blob af34ce36c9d3).
 
 First-principles calculations are done under charge neutrality.
 There are two ways (or their combination) to have a fractional number of electrons in the cell:
