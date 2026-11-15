@@ -216,7 +216,8 @@ $$
 \tag{C17}
 $$
 
-となる。左辺はフェルミ面の量、右辺は占有された全状態の逆有効質量の和である。
+となる。$v_x^2$ の一方の $v_x$ はデルタ関数と組になって $\theta$ の微分になり（$\theta$ を $k_x$ で微分すると $\partial\varepsilon_{\bf k}/\partial k_x=\hbar v_x$ が出る）、部分積分で微分がもう一方の $v_x$ に移って $\partial v_x/\partial k_x=\hbar^{-1}\partial^2\varepsilon_{\bf k}/\partial k_x^2$（逆有効質量）になる。
+左辺はフェルミ面の量、右辺は占有された全状態の逆有効質量の和である。
 自由電子では $\partial^2\varepsilon_{\bf k}/\partial k_x^2=\hbar^2/m$ が一定なので、右辺は $n/2m$ となる（$n$ は両スピンを含む電子の数密度で、$n/2$ がスピンあたり）。
 したがって、式 (C16) で $\delta=\hbar/2\tau$ とし、式 (C17) を使うと
 
