@@ -1,3 +1,7 @@
+---
+pageClass: secnum-manual
+---
+
 # kBT — 有限温度と均し方 (`t_tetrakbt` / `t_sigmaw` / `wcsmear`)
 
 GW と QSGW で、電子温度と数値的な均し方を決める `[gw]` のキーを説明する。$W$ 側($\chi_0$)と $\Sigma$ 側($G$)に別のキーがある(表 4)。

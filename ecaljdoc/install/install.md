@@ -1,3 +1,7 @@
+---
+pageClass: secnum-manual
+---
+
 # ecalj のインストール {#ecalj-install}
 
 > ⚠️ **TOML への移行（2026-05）** — Fortran のバイナリは `ctrlg.<sname>.toml` だけを読みます。古い `ctrl.<sname>` / `GWinput` は `Legacy2toml.py <sname>` で変換してください。手引きの全体と移行済みのサンプルの一覧は [入力ファイル](../manual/toml_migration) を見てください。

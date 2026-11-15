@@ -1,3 +1,7 @@
+---
+pageClass: secnum-manual
+---
+
 # GetStarted with AI
 
 このページを AI に読ませれば、ecalj をガイドしてくれます。人間がこのページを読まなくていいです。

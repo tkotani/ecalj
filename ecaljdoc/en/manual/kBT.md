@@ -1,3 +1,7 @@
+---
+pageClass: secnum-manual
+---
+
 # kBT — finite temperature and smearing (`t_tetrakbt` / `t_sigmaw` / `wcsmear`)
 
 > English version of the page [manual/kBT](../../manual/kBT.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/kBT.md of commit e98a6e686 (source blob 7aaebd134b7f).

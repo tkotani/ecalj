@@ -199,8 +199,33 @@ html:has(.home-dark), html:has(.home-dark) body { background: #1b1b1f; }
   font-size: 12px; font-weight: 400 !important; color: var(--vp-c-text-3) !important;
 }
 
-/* Code blocks in a smaller font than VitePress's 14px (user 2026-11-15); inline code keeps the default size */
+/* Code blocks in a smaller font than VitePress's 14px (user 2026-11-15) */
 .vp-doc div[class*='language-'] code {
   font-size: 12.5px;
   line-height: 1.55;
 }
+
+/* Inline code smaller too (VitePress 0.875em; user 2026-11-15) */
+:root { --vp-code-font-size: 0.8em; }
+
+/* ---------------------------------------------------------------------------
+   Section numbers for discussion (user 2026-11-15): h2 -> "1.", h3 -> "1.2",
+   on the page and in the outline on the right (outline shows h2 and h3).
+   Only headings directly in the page body are counted, so that the numbers
+   agree with the outline. A page whose headings already carry numbers by hand
+   sets `pageClass: secnum-manual` in its frontmatter and gets no automatic ones.
+--------------------------------------------------------------------------- */
+.vp-doc > div { counter-reset: sec2 sec3; }
+.vp-doc > div > h2 { counter-increment: sec2; counter-reset: sec3; }
+.vp-doc > div > h3 { counter-increment: sec3; }
+.vp-doc > div > h2::before { content: counter(sec2) ". "; }
+.vp-doc > div > h3::before { content: counter(sec2) "." counter(sec3) " "; }
+.VPDocAsideOutline ul.root { counter-reset: out2; }
+.VPDocAsideOutline ul.root > li { counter-increment: out2; }
+.VPDocAsideOutline ul.root > li > a::before { content: counter(out2) ". "; }
+.VPDocAsideOutline ul.nested { counter-reset: out3; }
+.VPDocAsideOutline ul.nested > li { counter-increment: out3; }
+.VPDocAsideOutline ul.root > li > ul.nested > li > a::before { content: counter(out2) "." counter(out3) " "; }
+.secnum-manual .vp-doc > div > h2::before,
+.secnum-manual .vp-doc > div > h3::before,
+.secnum-manual .VPDocAsideOutline a::before { content: none !important; }

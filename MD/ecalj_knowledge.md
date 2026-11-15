@@ -150,6 +150,8 @@ ecaljdoc の書き方の決まり（公開）は [`ecaljdoc/manual/writing_docs.
 ### 5.4 2026-11-14 に user から受けた書き方の指示（ecaljdoc）
 - 英語の混ざった日本語でよい。用語は無理に訳さない（例: 「準粒子自己無撞着 GW」でなく QSGW、quasiparticle self-consistent $GW$）
 - core はコア（「芯」と訳さない。user 2026-11-15「芯と書かれているがコアである。ときどきカタカナにすることもある」）。semicore はセミコア、core hole はコアホール
+- 節の番号は custom.css のカウンタで自動（h2・h3、右の目次も。outline: [2, 3]。user 2026-11-15「セクション番号をうったほうがいいかも。議論用に」）。手で番号のあるページ（kBT、mlo、mlo_gwsc、pmt、getstartedAI、mtradius、install、installISSP、whatsnew）は frontmatter `pageClass: secnum-manual`。h1 は題だけ（lmf、gwsc、README_tutorial、lmf_legacy_ctrl の二つ目からの h1 を一段下げた）。式だけの見出しは `{#id}` が要る（dev_impl の `#p-v-p-part`）。本文の見出しと目次の数の一致は scratchpad の secall.py で 80 ページ確かめた
+- コードの文字: ブロックは 12.5px、本文の中は 0.8em（user 2026-11-15）
 - 数式は横のスクロールバーを出さない。折り返してよい（全ページ同じ）
 - メニューの見出し、ページの題も日本語にする（英語版のメニューは `enText`）
 - Claude の助けは README とトップに一行だけ（「2026-02 から Claude Code と開発」）。誰が書いたか・誰の指示かは書き分けない

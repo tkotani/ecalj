@@ -598,11 +598,11 @@ lives at [`cmdopts`](./cmdopts).
 
 ---
 
-# Old notes (historical, mostly obsolete)
+## Old notes (historical, mostly obsolete)
 
 (following notes are somehow obsolete but kept. Due to Mark van Schilfgaarde)
 
-### old note for APW test (at year 2010 around)
+#### old note for APW test (at year 2010 around)
  APWs. It is very simple to add augmented plane waves to the basis. Add these tokens to category HAM:
 
         PWMODE=1 PWEMIN=# PWEMAX=#
@@ -632,7 +632,7 @@ Curve "8" is a standard LMTO larger basis: spdspd orbitals on Sr and Ti, and spd
 
 Curve "11" enlarges the MTO basis still more, with Sr: spdspd, Ti: spdspd, O: spdspd. Also local orbitals are used to represent the high-lying Ti 4d and O 3s and 3p states. For occupied states, these orbitals have little effect, but they are important for unoccupied states higher than about 2 Ry. Comparing the last curves, it appears that finally E is at last converging to an absolute minimum at around -2.760 Ry. The instabilities in the overlap matrix mentioned above are largely controlled, but there is a small uncertainty in the absolute energy on the order of 1 mRy. It is clear even from inspection of Curve "1", that a pure APW basis would require an extremely large number of PWs to reach this level of convergence.
 
-## old note for local orbitals
+### old note for local orbitals
  Local orbitals. The local orbital is specified with the PZ= token, which is its analog of the continuously variable principal quantum number P. Conventional local orbitals may be used either for semicore or high-lying states. In this case, specify the integer part of PZ must either as one less than the integer part of P for a semicore state or one greater for a high-lying state. As for the fractional part, it is recommended that you specify 0.9 or so for the semicore case; while for high-lying states 0.3 or so is reasonable (a larger number specifies a higher linearization energy).
 
 Extended local orbitals:. Extended local orbitals have a smooth Hankel envelope attached to the radial wave function which spills out into the interstitial. The tail is matched value and slope to the radial function, but lmf will try to vary both RSMH and EH to match the kinetic energy as well. To specify that a semicore local orbital is of the extended type, simply add 10 to token PZ=.
@@ -656,7 +656,7 @@ The true and fit K.E. differ. The solution is again to alter PZ (4.90 in this ca
 
 At present, the P with the higher principal quantum number is automatically frozen to its input value (that is, P is frozen when PZ is a semicore orbital, and PZ is frozen when it is a high-lying orbital). Thus, only the P corresponding to the deepest state is allowed to float (see IDMOD description).
 
-## old note for SPEC
+### old note for SPEC
 (TK: We now detour this difficulty to set RSMH and EH thanks to the PMT method)
 
 First, the muffin-tin radii should be taken somewhat smaller than in the ASA. There is no volume-filling condition as found in the ASA. Strictly speaking, there should be no sphere overlaps, though in practice overlaps up to about 10% seem to engender minimal error, because of the way the augmented potential is constructed. See section on "Selection of Sphere Radii" for a discussion of choosing sphere radii and a way to automatically find good choices for them.
@@ -680,7 +680,7 @@ You are strongly encouraged not to just take what lmfa supplies, but to spend a 
     Occupied d orbitals are atomic-like and require a small RSMH. Usually the value produced by lmfa is pretty close to the optimum one.
     Assembling the hamiltonian is more efficient when you use the same rsmh,eh for consecutive l channels, because it can better vectorize loops. However, there is a tradeoff in that the basis set may be poorer when it is not tailored. If only a mRy or so is gained by splitting rsmh,eh, for consecutive l's, it is preferable to keep them the same.
 
-## old Memo for tetrahedron output
+### old Memo for tetrahedron output
 
  BZWTS : --- Tetrahedron Integration ---
          Est E_f           Window        Tolerance  n(E_f)

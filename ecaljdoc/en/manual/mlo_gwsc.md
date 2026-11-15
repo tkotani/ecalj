@@ -1,3 +1,7 @@
+---
+pageClass: secnum-manual
+---
+
 # MLO-gwsc — QSGW with the self-energy interpolated in the MLO representation (under development)
 
 > English version of the page [manual/mlo_gwsc](../../manual/mlo_gwsc.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo_gwsc.md of commit f3b063889 (source blob 49a816691be6).

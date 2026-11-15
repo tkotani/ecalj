@@ -1,3 +1,7 @@
+---
+pageClass: secnum-manual
+---
+
 
 # Installation on kugui (GPU) and ohtaka (CPU) at ISSP
 

@@ -138,7 +138,7 @@ Table M1. `mixbeta` and the first iteration
 
 The mixing of $\Sigma^{\rm MLO}$ in MLO-gwsc (`gwsc --mlo`) is in §1.6 of [MLO-gwsc](./mlo_gwsc).
 
-# Other scripts 
+## Other scripts 
 
 `cleargw`: clean up temporary files
 
@@ -180,7 +180,7 @@ to get the full spin susceptibility. -->
 `job_mloW` : the MLO model and the matrix elements of v, W and the cRPA W (`--crpa`) in it ([MLO](./mlo) section 6). (`genMLWFx`, the Wannier functions, was removed 2026-10-02.)
 
 
-# Files used in gwsc
+## Files used in gwsc
 Temporary files are with `__*`. Thus we can delete __* (or use `cleargw`) after you finish `gwsc/job_eps` and so on.
 
 A small test of `gwsc` is the install test `si_gwsc` ([Test framework](./dev_testecalj)).
@@ -189,7 +189,7 @@ In the `si_gwsc_work/` that `testecalj` makes, `ls -rlt` roughly shows which ste
 The console output of `gwsc 1 si -np 2` for the same input is in the [main document](./README_tutorial#flow-of-qsgw-calculation-with-the-script-gwsc).
 `lmf --jobgw=0` and `qg4gw` are run once, before the iterations; the other steps are repeated in every iteration.
 
-## How to perform paper-quality QSGW calculations with minimum costs {#paper-quality-qsgw}
+### How to perform paper-quality QSGW calculations with minimum costs {#paper-quality-qsgw}
 We expect that the accuracy of band gaps can be  ~0.1eV (or larger for larger band gap materials). 
 In cases, it is easy but in cases not so easy (magnetic metals requires many number of iterations). 
 So, it is better to use your own "simple criterion".
@@ -202,12 +202,12 @@ In principle, QSGW results should not depend on VWN or GGA. But there is minor d
 (frozen core density, core eigenfunctions, radial basis functions, and a slight numerical reason; it affects the band gap of GaAs by about 0.02 eV).
 Use VWN (`[ham] xcfun = 1`) as standard. Such technical things affect the band gap at the 0.05 eV level of error.
 
-### LDA calculation
+#### LDA calculation
  We need to confirm LDA-level of calculations first.
  `ctrlg.<sname>.toml` is generated just from ctrls.* (crystal structure file)
  For calculation of QSGW, use large enough `[bz] nkabc`, so as to avoid
  convergence check on them. 
-### QSGW: how to check convergence
+#### QSGW: how to check convergence
 QSGW iteration cycle by gwsc contains (1) and (2)
   (1) One-body self-consistent calculation 
       (where we add sigm = Sigma-Vxc^LDA to one-body potential).
@@ -242,7 +242,7 @@ Avoid unbalanced k points for an anisotropic cell (Comput. Phys. Commun. 176 (20
 One-shot QSGW (not one-shot GW) can be useful in cases.
 As it contains off-diagonal part, we can resolve band tanglement problem in Ge (no band gap).
 
-### How to make 80%QSGW +20% LDA, and SO setting
+#### How to make 80%QSGW +20% LDA, and SO setting
   Note that sigm file contains $V_{\rm xc}^{\rm QSGW}-V_{\rm xc}^{\rm LDA}$.
   If sigm exists, lmf read it, and run self-consistent calculations
   with adding sigm to the one-body potential.
@@ -252,7 +252,7 @@ As it contains off-diagonal part, we can resolve band tanglement problem in Ge (
   * https://journals.aps.org/prb/abstract/10.1103/PhysRevB.101.205120
   * https://journals.aps.org/prb/abstract/10.1103/PhysRevB.108.165104
 
-#### 1. QSGW80(NoSC)
+##### 1. QSGW80(NoSC)
   For practical prediction of band structure, such as band gap and so
   on, it may be better to use 80% QSGW +20% LDA procedure when you
   make band plot.  After, you have rst and sigm files determined self-consistently
@@ -262,7 +262,7 @@ As it contains off-diagonal part, we can resolve band tanglement problem in Ge (
   ```
   This overrides `[ham] scaledsigma` in `ctrlg.gaas.toml` at run time, giving the QSGW80nosc result in Table II.
 
-#### 2. QSGW80(Nosc)+SO 
+##### 2. QSGW80(Nosc)+SO 
    80%QSGW+20%LDA with `[ham].so = 1` (L.S method; needs `nspin = 2`).
    If you like to include L.S method 
 
@@ -276,14 +276,14 @@ job_band gaas -np 4 --ctrlg:ham.scaledsigma=0.80 --ctrlg:ham.so=1 --ctrlg:ham.ns
 ```
 NOTE: nspin=2 is required for so=1. rst and sigm are expanded for nspin=2 (you can not run with nspin=1, after rst and sigm are expanded).
   
-#### 3. QSGW80
+##### 3. QSGW80
   With `[ham] scaledsigma = 0.80` (or `gwsc ... --ctrlg:ham.scaledsigma=0.80`), you can run QSGW calculation in gwsc.
   Then you have self-consistent results of QSGW80.
   You can simultaneously use the setting so=2 (Lz.Sz scheme).
   Be careful for z-direction and setting of `symgrp` (so as to keep the z-axis), for so=2.
   If you like to get results of QSGW80+SO, you need to set so=1 after self-consistent of sigm attained.
 
-#### 4. Example of GaAs   
+##### 4. Example of GaAs   
   Good example to check band gap, and SO splitting at top of valence of Gamma point for ZB structure as GaAs.
   The keys are `scaledsigma`, `so` and `nspin` in `[ham]` of `ctrlg.gaas.toml`; look at them by
   ```   
@@ -292,40 +292,40 @@ NOTE: nspin=2 is required for so=1. rst and sigm are expanded for nspin=2 (you c
   They are overridden for a run by `--ctrlg:ham.scaledsigma=0.80`, `--ctrlg:ham.so=1`, `--ctrlg:ham.nspin=2` as in 1. and 2.
   (the keys need not be written in the file for this).
 
-### Papers
+#### Papers
 It is instructive to reproduce samples in [Deguchi paper](../../presentations/deguchi2016.pdf). 
 We can set up templates for your calculations. Ask us.
 We have a latest paper at https://arxiv.org/abs/2506.03477 for GPU version. 
 It shows some details of computational steps in ecalj.
 In Japanese, pages by Dr.Gomi at [gomisai.blog75.fc2.com](http://gomisai.blog75.fc2.com/blog-entry-675.html) and [Qiita](https://qiita.com/takaokotani/items/9bdf5f1551000771dc48).
 
-## `lmfa`, `lmf`
+### `lmfa`, `lmf`
 `atmpnu*`, `rst.<sname>`, `__mixm.<sname>` and so on are in [lmf: output files](./lmf). Only those for GW are given here.
 
-### `__atm.<sname>`
+#### `__atm.<sname>`
 This contains electron densities of spherical atoms.
 
-### QPLIST*.chk
+#### QPLIST*.chk
 QPLIST.jobgw1.chk (jobgw1 means --jobgw=1 for lmf) is for human, containing q for irr=1.
 QPLIST.lmf.chk  (no jobgw option) is for human. Irreducible q points for lmf self-consistent calculations.
 
-### __HAMindex
+#### __HAMindex
 q points table and so on for generating Hamiltonian
 
-## `lmf --jobgw=0`
-###  NLAindx.chk
+### `lmf --jobgw=0`
+####  NLAindx.chk
 This is for human. It shows index to expand eigenfunctions in MTs.
 
-### __HAMindex0
+#### __HAMindex0
 Generated by `m_hamindex0_init` called in main_lmf.f90.
 Index of MTOs, space-group symmetries and so on.
 
-### QBZ.chk
+#### QBZ.chk
 q points mesh. Just for human reading.
 
-## `qg4gw`
+### `qg4gw`
 
-### __QGpsi, __QGcou
+#### __QGpsi, __QGcou
 q+G of the interstitial plane wave (IPW). Type lqg4gw, which shows
 ```
 --- Max number of G for psi, G for Cou= 116 36
@@ -360,96 +360,96 @@ irr=1 shows the irreducible q points at which we have to generate eigenfunctions
 ngp is the number of IPW for the expansion of eigenfunctions (controlled by QpGcut_phi). 
 ngc is for IPW for the MPB (controlled by QpGcut_cou).
 
-### __BZDATA 
+#### __BZDATA 
 __BZDATA contains info on regular mesh points, and offset Gamma (Q0P). Data for tetrahedron division. 
 
-## `lmf --jobgw=1`
+### `lmf --jobgw=1`
 Generate all the following data to perform GW.
 See at subroutines/sugw.f90.
 
-### @MNLA_core.chk 
+#### @MNLA_core.chk 
 human readable: core index
 
-### @MNLA_CPHI 
+#### @MNLA_CPHI 
 human readable (but program use this):
 Eigenfunctions expanded within MT
 
-### hbe.d.chk 
+#### hbe.d.chk 
 human readable: size file for check
 
-###  __PHIVC
+####  __PHIVC
 radial functions.
 
-### __MTOindex
+#### __MTOindex
 MTO index
 
-### __VxcEvec*
+#### __VxcEvec*
  Coefficients of eigenfunctions and  eigenvalues for $\langle F_i|H^0|F_j\rangle$ in the basis of PMT$\{F_i\}$.
 
-### __GEIG,__CPHI,__EValue
+#### __GEIG,__CPHI,__EValue
 __GEIG: Coefficients of eigenfunctions. IPW part
 __CPHI: Coefficients of eigenfunctions. MT  part
 __EValue: eigenvalue
 
-### __PPOvlp, __PPOvlpG, __PPOvlpGG
+#### __PPOvlp, __PPOvlpG, __PPOvlpGG
 overlap matrix of IPW.
 
-### __VXCFP
+#### __VXCFP
 XC term in LDA (only diagonal part). A part of vxcevec
 Used at hsfp0 but not essential (only for convenience of presentantion).
 
-## `heftet --job=1`
+### `heftet --job=1`
 
-### EFERMI
+#### EFERMI
 The Fermi energy in the tetrahedron method
 
-### EFERMI_kbt
+#### EFERMI_kbt
 Written when `[gw] t_tetrakbt` > 0: the Fermi energy at that temperature, used for $\chi_0$ and $\Sigma$ ([kBT](./kBT) §2.3).
 
 
-## hbasfp0 (we have --job=3 for core and --job=0 for valence)
-### __BASFP* 
+### hbasfp0 (we have --job=3 for core and --job=0 for valence)
+#### __BASFP* 
  Product basis functions
-### __PPBRD*
+#### __PPBRD*
  Radial integrals on each MT, symbolically written as  $\int \phi(r) \phi(r) B(r) dr$
 
-## `hvccfp0` 
+### `hvccfp0` 
 We call two times one for core, and the other for valence.
 
-### __Vcoud*
+#### __Vcoud*
 the Coulomb matrix (eigenvalues and eigenfunctions of the Coulomb matrix in the expansion of MPB)
 
-## `hgw`
+### `hgw`
 `hgw --jobgw=1` calculates the valence exchange, the screened Coulomb interaction $W$ and the valence correlation in one run.
 $W-v$ in the expansion of mixed product basis (along the real axis and along the imag axis) is kept in memory and handed to the
 calculation of the correlation $q$ by $q$; it is not written to files.
 Note that we use a technique to define $W-v$ at ${\bf q}=0$ as an average of the Gamma cell.
 
-### __WV.d
+#### __WV.d
 Size of the dielectric function
 
-### __WVR.*, __WVI.*
+#### __WVR.*, __WVI.*
 Only with `gwsc --dumpW` (for analysis): $W-v$ along the real axis and along the imag axis, a file for each $q$.
 
-### freq_r
+#### freq_r
 human readable: energy mesh to accumrate imaginary parts of W-v.
 
 
-## `hsfp0_sc --job=3` (core exchange) and `hgw` (valence exchange and valence correlation)
+### `hsfp0_sc --job=3` (core exchange) and `hgw` (valence exchange and valence correlation)
 These are moved to SEBK at the end of gwsc iteration cycle.
 
-### SEXcoreU,SEXcore2U :  
+#### SEXcoreU,SEXcore2U :  
 core exchange by `hsfp0_sc --job=3` . SEXcoreU is diagonal part for human check but not used so much. 
 We have *D for down spin (isp=2)as well.
-### SEXU,SEX2U 
+#### SEXU,SEX2U 
 valence exchange by `hgw` .       SEXU is diagonal part for human check but not used so much. 
-### SECU,SEC2U:  
+#### SECU,SEC2U:  
 valence correlation by `hgw` .     SECU is diagonal part for human check but not used so much. 
-### XCU
+#### XCU
 LDA exchange correlation
-## `lqpe`
+### `lqpe`
 
-### QPU, QPD
+#### QPU, QPD
 human readable format. 
 decomposion of self-energy for diagonal elements.QPD is for isp=2.
 
@@ -520,24 +520,24 @@ ReS(elda):${\rm Re} \langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm core}({\bf r},{\b
 * NOTE: QPU for `gwsc` is a little different. No Z and no life time shown.
   Shown eQP is just the eigenvalues of starting point of lmf. 
 
-### TOTE.UP
+#### TOTE.UP
 numerical detailed values of QPU. TOTE.DN for QPD
 
 In one-shot GW `gw_lmfh`, TOTE.UP contains LDA and QP energies. 
 It contains two kind of QP energies `QP` and `QPnoZ`.
 
-### __mixsig
+#### __mixsig
 mixing file for `sigm.<sname>`
 
-### `sigm.<sname>`
+#### `sigm.<sname>`
 $\Sigma-V_{\rm xc}$ (the static Hermitian QSGW self-energy minus the LDA $V_{\rm xc}$, in Ry) as a matrix in the MTO basis at each irreducible $\bf q$ point, mixed with the previous iterations (`__mixsig`). `lmf` Bloch-sums it to real space and interpolates it to any $\bf k$ ([MLO-gwsc](./mlo_gwsc) §1.1).
 
 
-### QPU, TOTE in one-shot GW (`gw_lmfh`)
+#### QPU, TOTE in one-shot GW (`gw_lmfh`)
 In `gw_lmfh` (one-shot GW), `hqpe` gives `TOTE.UP` and `QPU` files (`TOTE.DN` and `QPD` as well). They contain the same values.
 One-shot GW is also used to calculate the impact ionization rate: in the sample `Samples/IIR/C` (diamond, a coarse mesh), `gw_lmfh` writes the widths to `QPU_life`.
 
-## The Fermi energies in GW {#the-fermi-energies-in-gw}
+### The Fermi energies in GW {#the-fermi-energies-in-gw}
 We use two kinds of Fermi energy $E_{\rm FERMI}^{\rm smear}$ and $E_{\rm FERMI}^{\rm tetra}$.
 This is because of numerical techniques.
 
@@ -551,9 +551,9 @@ See the line `ef     esmr   valn=` in `lgw` and `lsxC`.
 With `[gw] t_tetrakbt` > 0 (the polarization function at finite temperature), both the polarization function and
 $G \times W$ (except the exchange of the cores) use the Fermi energy at that temperature, contained in EFERMI_kbt. See [kBT](./kBT).
 
-## Product basis {#product-basis}
+### Product basis {#product-basis}
 The product-basis settings (the cut-offs of `[product_basis]` and the per-atom tables) are in [GW settings: product basis](./gwinput#product-basis).
 
-# MEMO
+## MEMO
 * We need to explain how to set Gamma-cell averaged $\tilde{W}({\bf q}=0,\omega)$.
 * The old theory notes for developers, ecaljdetails (2015 to 2022, offset-Γ method, Coulomb matrix, EIBZ etc.), were removed on 2026-10-02. The original is `ecaljdetails/ecaljdetails.tex` in ecaljdoc commit `3284d0b`.

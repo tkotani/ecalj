@@ -40,6 +40,7 @@ npx vitepress build    # check that the site builds
 - Equations carry numbers (`\tag{n}`) and are referred to by number; figures and tables are numbered too.
 - Do not separate who wrote what (a person or an AI) or who asked for it; git tells that.
 - In the Japanese pages, core is written コア (not 芯); semicore is セミコア and core hole is コアホール. Some other terms are also written in katakana.
+- Section numbers ("1." for h2, "1.2" for h3) are added by CSS (`.vitepress/theme/custom.css`), and the outline on the right shows the same numbers; use them in discussions. Do not write numbers in the headings by hand. Pages that already have numbers written by hand (kBT, mlo, ...) set `pageClass: secnum-manual` in the frontmatter to stop the automatic ones. Use only one h1, the title of the page (a second one shifts the numbers). Give a heading made only of math a `{#id}` (its name would be empty, it would drop out of the outline and shift the numbers).
 - For an input key whose template value (written by `ctrlgenToml.py`) differs from the default of the code (used when the key is absent), write both values.
 
 ## VitePress pitfalls {#vitepress-pitfalls}

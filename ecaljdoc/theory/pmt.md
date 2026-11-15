@@ -1,3 +1,7 @@
+---
+pageClass: secnum-manual
+---
+
 # PMT 法（APW と MTO の混合基底、DFT）
 
 ecalj の `lmf` の一体問題の解き方。詳細と導出は

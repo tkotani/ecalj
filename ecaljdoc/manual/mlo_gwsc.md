@@ -1,3 +1,7 @@
+---
+pageClass: secnum-manual
+---
+
 # MLO-gwsc — 自己エネルギーを MLO 表現で内挿する QSGW（開発中）
 
 > **状況（2026-09-30）**: LiTi₂O₄ の 6³ と 9³ を LDA から 40 反復まで回した（§3.5）。GPU の行列積の精度（tf32・fp32・fp64）による MLO バンドの差は

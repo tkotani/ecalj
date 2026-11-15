@@ -1,3 +1,7 @@
+---
+pageClass: secnum-manual
+---
+
 # Upper limits of the MT radii, and spurious levels (bands without a degeneracy partner)
 
 > English version of the page [manual/mtradius](../../manual/mtradius.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mtradius.md of commit 694da29ec (source blob 152336edf2ab).

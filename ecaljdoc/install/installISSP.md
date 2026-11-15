@@ -1,3 +1,7 @@
+---
+pageClass: secnum-manual
+---
+
 
 # ISSPのkugui（GPU）とohtaka（CPU）でのインストール
 

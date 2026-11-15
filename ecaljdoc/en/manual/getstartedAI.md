@@ -1,3 +1,7 @@
+---
+pageClass: secnum-manual
+---
+
 # GetStarted with AI
 
 > English version of the page [manual/getstartedAI](../../manual/getstartedAI.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/getstartedAI.md of commit b18224576 (source blob 087fce0def74).

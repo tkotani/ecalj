@@ -63,7 +63,7 @@
 5. **The singleton pattern in Fortran**
    The main part of the code is in Fortran. The code has an object-oriented structure based on the singleton design pattern. This structure has the advantage that it is easy for AI to understand and hard to get wrong. Each piece of data is placed in only one module, and where it is used is made explicit by `use ..., only:`, so the data flow is easy to follow and copies never disagree.
 
-# Overview of QSGW {#overview-of-qsgw}
+## Overview of QSGW {#overview-of-qsgw}
 
 * Band calculations (at the LDA level) are done with the program `lmf`. The initial setting file is `ctrlg.<sname>.toml` (`<sname>` is the extension for the material chosen by the user; the old form is `ctrl.<sname>`). Before `lmf`, `lmfa` needs to be run. This is a calculation of spherical atoms that determines the initial condition of the electron density (`lmfa` finishes in a few seconds).
 * The file `sigm.<sname>` is the key to the QSGW calculation. `sigm.<sname>` contains the nonlocal potential $\Delta V_{\rm xc}=V_{\rm xc}^{\rm QSGW}-V_{\rm xc}^{\rm LDA}$. Adding this potential term to the usual LDA calculation performed by `lmf` gives the QSGW calculation. See the figure below.
@@ -92,7 +92,7 @@ In cases like NiO, the magnetic moment becomes larger and closer to the experime
 In reality, however, things are complicated and not always so simple.
 
 <!--
-## Basic knowledge check
+### Basic knowledge check
 * Flow of an LDA calculation
 * MT division of space
 * Basis functions MTO and APW (augmentation and atomic wave functions inside the MT). They have three components: envelope + true - counter
@@ -107,7 +107,7 @@ In reality, however, things are complicated and not always so simple.
 * QSGW method. A special exchange-correlation term made by somewhat forcibly removing the time dependence from the self-energy in the GW approximation.
 * (If possible, basics of linear response theory, Fourier transform of the step function, Green's function (linear response function) for a classical damped oscillator.)
 
-## What can ecalj do?
+### What can ecalj do?
 
 * LDA calculations
 VWN, PBE-GGA, LDA+U can be chosen.
@@ -132,7 +132,7 @@ ecalj_auto, for computing many POSCARs at once, is also bundled (being developed
 
 
 
-# Let's get started (GetStarted) {#getstarted}
+## Let's get started (GetStarted) {#getstarted}
 Here we explain DFT/QSGW calculations with ecalj. After that we explain how to draw band plots. For simplicity, we treat the paramagnetic case (nsp=1), without 4f and without SOC.
 We explain step by step.
 
@@ -145,7 +145,7 @@ We explain step by step.
 
 Details are explained in [UsageDetailed](./UsageDetailed.md).
 
-## Step 0. Prepare a POSCAR {#step-0-get-poscar}
+### Step 0. Prepare a POSCAR {#step-0-get-poscar}
 For the GaAs example, copy the sample directory to a working place **outside** your clone of ecalj, and compute there (so that the files made by the calculation are not scattered inside the clone).
 ```bash
 mkdir -p ~/work
@@ -183,7 +183,7 @@ If you want to convert a cif to a `POSCAR`, do as follows.
 `cif2cell foobar.cif -p vasp --vasp-cartesian --vasp-format=5`
 
 
-## Step 1. Convert the POSCAR to ctrls {#step-1-convert-poscar-to-ctrls}
+### Step 1. Convert the POSCAR to ctrls {#step-1-convert-poscar-to-ctrls}
 Next, convert the POSCAR to ctrls with vasp2ctrl.
 ctrls is the structure file used in ecalj. In the GaAs example `ctrls.gaas` already exists, so this Step is not needed.
 
@@ -286,7 +286,7 @@ reproducing the results of VASP or MP from your own POSCAR is not that difficult
     - You can use any names for sites, [such as Niup](./UsageDetailed.md#antiferro-symmetry-without-soc). In that case the SPEC category also needs to be set. [Z need not be an integer.](./Memo_bgcharge.md#background-charge-and-fractional-z) Learn this later.
     - Old ctrls may have NL, NBAS, NSPEC, but they are not needed now.
 
-## Step 2. Make `ctrlg.<sname>.toml` from ctrls {#step-2-get-ctrlg-sname-toml-from-ctrls}
+### Step 2. Make `ctrlg.<sname>.toml` from ctrls {#step-2-get-ctrlg-sname-toml-from-ctrls}
 
 `ctrlg.<sname>.toml` is, since 2026-05, the only input file that the Fortran programs (`lmf`, `lmfa`, `lmchk`, `gwsc`, ...)
 read. It is made from the ctrls of Step 1 with **`ctrlgenToml.py`**.
@@ -351,12 +351,12 @@ Here you can check the following by eye.
 * `SiteInfo.lmchk` — MT radii, atomic positions
 * `PlatQlat.chk` — primitive lattice vectors (plat) and reciprocal lattice (qlat)
 
-### Step 2-Migration. Existing `ctrl.<sname>` (and `GWinput`, if any) {#step-2-migration-existing-ctrl-sname-and-optional-gwinput}
+#### Step 2-Migration. Existing `ctrl.<sname>` (and `GWinput`, if any) {#step-2-migration-existing-ctrl-sname-and-optional-gwinput}
 
 Directories from before 2026-05 with a hand-edited `ctrl.<sname>` (and `GWinput`, if any) are not remade from ctrls; convert them in place to `ctrlg.<sname>.toml` with `Legacy2toml.py <sname>`.
 For the diagnostic output and the correspondence of keys, see [Input files](./toml_migration#migration-of-an-existing-legacy-directory).
 
-### Install VESTA {#install-vesta}
+#### Install VESTA {#install-vesta}
 VESTA is convenient for viewing crystal structures.
 There is a command 'viewvesta' in ecalj/StructureTool/.
 Try the following.
@@ -369,7 +369,7 @@ Now you can view the structure with VESTA. The conversion programs `vasp2ctrl` /
 
 
 
-## Step 3. LDA calculation {#step-3-lda-calculation}
+### Step 3. LDA calculation {#step-3-lda-calculation}
 The outputs shown in this Step (the `conf` table, the energies of the iterations, the `bndfp` lines) are from a run with mp-2534 (lattice constant 5.75 Å). For gaas the numbers differ slightly.
 
 1. First run lmfa. It computes the electron densities of the spherical atoms contained in the crystal. lmfa finishes in a few seconds.
@@ -470,7 +470,7 @@ Here you can see the dimension of the Hamiltonian. When `[ham].pwmode = 11` (the
    We do not claim that this setting is the best. However, nonlinear optimization is very troublesome. We do not want to optimize one by one.
    Changing this setting might require a large-scale systematic study.
 
-### job_tdos, job_pdos {#job-tdos-job-pdos}
+#### job_tdos, job_pdos {#job-tdos-job-pdos}
 The total DOS can be computed as follows.
 ```
 job_tdos gaas -np 8
@@ -490,7 +490,7 @@ as follows.
 `job_tdos gaas -np 8 --ctrlg:bz.nkabc=[10,10,10]`
 Check with `grep '^bz.nkabc\|^nkabc' llmf_tdos`, and look at `save.gaas` too.
 
-## Step 4. Make the k path for the band plot and the Brillouin zone {#step-4-create-k-path-and-brillouin-zone-for-band-plot}
+### Step 4. Make the k path for the band plot and the Brillouin zone {#step-4-create-k-path-and-brillouin-zone-for-band-plot}
 After `lmf` has converged, draw the band plot with `job_band` in Step 5. The band plot lets you check whether the band calculation is sane (for magnetic systems, also check the total magnetic moment and the magnetic moment of each site).
 
 Before `job_band`, make the symmetry-line file [`syml.<sname>`](./syml) with `getsyml` (`gaas` is the `<sname>` of `ctrlg.<sname>.toml`).
@@ -502,7 +502,7 @@ It is an interactive figure written with plotly, so you can read off coordinate 
 Examples of BZ.html by getsyml can be seen at https://ecalj.sakura.ne.jp/BZgetsyml/ (the figure for ba2pdo2cl2 is in [the case study below](#a-case-study-of-ba2pdo2cl2)).
 
 
-## Step 5. Band plot {#step-5-band-plot}
+### Step 5. Band plot {#step-5-band-plot}
 ```
 job_band gaas -np 8
 ```
@@ -517,12 +517,12 @@ The names of the symmetry points can be checked in BZ.html and `syml.<sname>`. 0
 * In the band-plot mode of ecalj, bands that are theoretically degenerate by symmetry at the BZ boundary are not degenerate. This is because the number of APW basis functions is limited. So draw band plots with, e.g., pwemax=4 (`job_band gaas -np 8 --ctrlg:ham.pwemax=4`) (a temporary solution; we want to automate it).
 
 
-### job_tdos, job_fermisurface, job_pdos {#job-tdos-job-fermisurface-job-pdos}
+#### job_tdos, job_fermisurface, job_pdos {#job-tdos-job-fermisurface-job-pdos}
 `job_pdos` computes the PDOS, `job_tdos` the total DOS, and `job_fermisurface` draws Fermi surfaces with Xcrysden.
 `job_fermisurface` can also be used to draw the shape of the bottom of the CBM of Si as an ellipsoid.
 
 
-## Step 6. QSGW calculation {#step-6-qsgw-calculation}
+### Step 6. QSGW calculation {#step-6-qsgw-calculation}
 
 Now we run the QSGW calculation. QSGW is computationally very heavy, so
 we recommend running a small system first.
@@ -556,7 +556,7 @@ The following is the convergence of the band gap of GaAs, taken from Ref.[3].
 From this figure, if ~0.1eV accuracy is enough, 4 4 4 seems not bad. 6 6 6 is enough. Larger than 8 8 8 is for numerical checks (no practical gain).
 
 
-### Flow of the QSGW calculation with the script gwsc {#flow-of-qsgw-calculation-with-the-script-gwsc}
+#### Flow of the QSGW calculation with the script gwsc {#flow-of-qsgw-calculation-with-the-script-gwsc}
 QSGW calculations are run with gwsc. For semiconductors, a few QSGW iterations are enough to get sufficiently close to the final result.
 What QSGW gives is the band structure (one-body Hamiltonian); total energies are not yet available.
 
@@ -611,7 +611,7 @@ The console output is written to the log files `l*`. `lsxC` is the exchange self
 In this calculation `gwsc -np 2 1 si` is run. 1 is the number of QSGW iterations.
 Repeating gwsc adds QSGW iterations on top of the previous calculation.
 
-#### The case of La2CuO4 {#a-case-of-la2cuo4}
+##### The case of La2CuO4 {#a-case-of-la2cuo4}
 For La2CuO4 it went as follows (the log of 2025-06 is shown as it is. With the old form `-vssig=0.8`
 recorded below, the programs now stop. The equivalent override is
 `--ctrlg:ham.scaledsigma=0.8`. Also, the three stages `hsfp0_sc --job=1`, `hrcxq`,
@@ -648,7 +648,7 @@ This is without GPUs. One QSGW iteration takes 24 minutes (the start time is sho
 Since the 5th QSGW iteration had already finished (confirmed by the presence of QPU.5run), it starts from the 6th iteration.
 
 
-#### A case study of ba2pdo2cl2 {#a-case-study-of-ba2pdo2cl2}
+##### A case study of ba2pdo2cl2 {#a-case-study-of-ba2pdo2cl2}
 
 This is a record of a calculation of ba2pdo2cl2 (the times, figures and numbers below are those at the time of recording, not rerun with the present code).
 The POSCAR is as follows. Write it to `POSCAR.ba2pdo2cl2`.
@@ -732,12 +732,12 @@ gwsc -np 32 5 ba2pdo2cl2 --ctrlg:ham.scaledsigma=0.8
 ```
 the `[ham] scaledsigma` of `ctrlg.ba2pdo2cl2.toml` is overridden in the lmf calculations (check it in save.ba2pdo2cl2 and at the beginning of `llmf`).
 
-#### The case of KTaO3 {#a-case-of-ktao3}
+##### The case of KTaO3 {#a-case-of-ktao3}
 An example of QSGW for KTaO3 (perovskite, mp-3614)
 ![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/482779/2e785d2a-9418-acc3-93f9-788daa2bd19b.png)
 
 
-## lmchk {#lmchk}
+### lmchk {#lmchk}
   ```
   lmchk gaas
   ```
@@ -751,11 +751,11 @@ the symmetry of the crystal needs to be set by hand.
 This is done by writing the generators of the space-group symmetry operations in `symgrp` of `ctrlg.<sname>.toml` (instead of `find`).
 Care is needed on this point in the case of SOC.
 
-### How to write space-group operations {#how-to-write-space-group-operation}
+#### How to write space-group operations {#how-to-write-space-group-operation}
 For example, r3x means a 3-fold axis around the x axis. How space-group operations are written in ecalj is explained in [the SYMGRP section of lmf.md](lmf.md#symgrp).
 
 
-## How to start calculations over {#how-to-start-over-calcualtions}
+### How to start calculations over {#how-to-start-over-calcualtions}
 Delete rst* (the mixing file `__mixm.<sname>` of the previous run is discarded by `lmf` when it starts).
 If you changed the MT radii, start over from lmfa (delete the atm* files).
 
@@ -763,7 +763,7 @@ If you changed the MT radii, start over from lmfa (delete the atm* files).
 - Care is needed when there are bands entangled like 3d spaghetti at Ef.
 
 
-# Samples/MATERIALS: LDA and MLO examples of 65 materials {#samples-materials-lda-and-mlo-samples-of-65-materials}
+## Samples/MATERIALS: LDA and MLO examples of 65 materials {#samples-materials-lda-and-mlo-samples-of-65-materials}
 In ecalj's `Samples/MATERIALS/` there is one directory per material: 62 simple materials (Si, GaAs, ZnO, MgO, SrTiO3, NiO, EuO, Bi2Te3, ...)
 plus La2CuO4, a 16-atom InAs/GaSb superlattice, and BaTiO3. Each has `ctrls.<sname>` and `ctrlg.<sname>.toml`.
 These are examples of LDA calculations and MLO models. The LDA bands and MLO models of all 65 materials were

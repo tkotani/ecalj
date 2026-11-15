@@ -2,16 +2,15 @@
 
 ::: info このページについて
 このページは、開発者向けの古いメモ `ecaljdetails.tex`（T. Kotani、最終版 2024-11。原本は ecalj のコミット `3284d0b` の `ecaljdetails/`、`git show 3284d0b:ecaljdetails/ecaljdetails.tex`）から、
-いまも役に立つ節を写し、いまのコードと M. Obata et al. (2025) に合わせて見直したものです（英語のまま）。
+いまも役に立つ節を写し、いまのコードと M. Obata et al. (2025) に合わせて見直したものです。
 式番号 (I1)〜 は写したときに付け直したもので、消した式の番号は欠番です。`[key]` は文献のキー（同じコミットの `ecaljdetails/ecaljrefs_detail.bib`）です。
 理論の説明は [ecalj のバンド計算法](../theory/pmt)、[QSGW](../theory/qsgw) と、そこにある文献を見てください。数学の補足は [付録](../theory/appendix) に移しました。
 :::
 
-[[toc]]
 
 GW の部分の式の主な文献は [Obata2025] である: M. Obata, T. Kotani, T. Oda, "Efficient implementation of the quasiparticle self-consistent $GW$ method on GPU", Comput. Mater. Sci. **260**, 114190 (2025), [doi:10.1016/j.commatsci.2025.114190](https://doi.org/10.1016/j.commatsci.2025.114190), 第 2 節。以下で「[Obata2025] Eq. (n)」と付けた式はそこから取ったものである。
 
-### 固有関数の表し方
+## 固有関数の表し方
 
 PMT 法 [kotani_fusion_2010] では、
 与えられた $H^0$ の価電子の固有関数を、
@@ -34,7 +33,7 @@ MT サイトの添字 ${\bf R}$、
 そのうえで、コアの寄与を、後の式 (I15) で定める交換の部分には入れる。相関の部分には入れない。
 コアはすべて Ref.[kotani07a] の「core1」として扱う（`[product_basis]` の `core` の行はすべて 0）。
 
-####  MTO の部分
+###  MTO の部分
 
 MT の中では、MTO の Bloch 和
 $\chi^{ {\bf k} }_{ {\bf R}L{j} }({\bf r})$ は、
@@ -72,7 +71,7 @@ MTO は角運動量 $L$ の対称性をもつ。
 そうした関数はすべて、空間群の操作で同じ写像の式に従う。
 節（[§](#spacegroup-rotation)）を見よ。
 
-####  APW の部分
+###  APW の部分
 
 APW $\chi^{ {\bf k} }_{\bf G}({\bf r})$ は、
 MT の中では原子に似た軌道
@@ -119,7 +118,7 @@ $$\begin{aligned}
 \tag{I6}
 $$
 
-### 固有関数の展開し直し: CPHI と GEIG
+## 固有関数の展開し直し: CPHI と GEIG
 
 $GW$ 計算をするには、まず
 与えた BZ のメッシュについて、すべての固有関数（と固有値）を
@@ -190,7 +189,7 @@ $|{\bf k+G}|\lt  {\tt QpGcut\_psi}$ で制限する。
 ${\bf G}'$ は `lmf` の `gmax` で制限する（重なりは `sugw.f90` から呼ぶ `pwmat` が作る）。
 基底 $s$ には MTO だけでなく APW も入る。そのうえで係数を Gram-Schmidt で正規直交化する（`--skipGS` で省く）。
 
-### GW 計算の概要
+## GW 計算の概要
 
 $GW$ 計算では、固有関数の基底だけでなく、
 固有関数の積を展開する基底も要る。
@@ -420,7 +419,7 @@ $$
 目的は、正則メッシュの点と offset-Γ 点で必要な q と G ベクトルを生成することである。
 BZ のデータ `__BZDATA` と、各 q について $|{\bf q}+{\bf G}|$ が `[gw] QpGcut_psi` より小さい G ベクトル（固有関数用、`__QGpsi`）と `QpGcut_cou` より小さい G ベクトル（MPB の IPW 用、`__QGcou`）を書く。
 
-#### $G$ ベクトルを作る: getgv2
+### $G$ ベクトルを作る: getgv2
 
 ${\bf G}$ ベクトルを得るには `getgv2.f90` の `getgv2` を使う。その先頭は次のとおりである。
 
@@ -454,7 +453,7 @@ $|{\bf q}+{\bf G}|$=`QpGcut` が $n_1$ で指定した平面と交わるとい�
 $n_1$ の範囲（$n_2,n_3$ も同様）が得られたら、
 $(n_1,n_2,n_3)$ に対する ${\bf q}+{\bf G}$ が許されるかどうかを単純に調べる。
 
-#### $G$ ベクトルを作る: shortn3
+### $G$ ベクトルを作る: shortn3
 
 $\{Q_i\}$ を法として最短のベクトルを見つける。すなわち ${\bf q}$ を第 1 BZ に引き戻す（`m_shortn3.f90` の `shortn3`）。
 注意: ${\bf q}$ が BZ の境界にあるときは一意でないことがある。
@@ -1020,7 +1019,7 @@ IPW の重なり行列は `lmf --jobgw=1`（`sugw.f90` のブロック `rdata4gw
   `QpGcutggg = (2+0.01)*QpGcut_psi + QpGcut_cou + 2π/alat*dQpG` と `QpGcutgcgp = (1+0.01)*QpGcut_psi + QpGcut_cou + 2*2π/alat*dQQ` で決める
   （三角不等式。`dQpG`、`dQQ` は offset-Γ 点のために範囲を広げる）。
 
-### $\langle {P}^{\bf k}_{\bf G}|v| {P}^{\bf k}_{ {\bf G}'} \rangle$
+### $\langle {P}^{\bf k}_{\bf G}|v| {P}^{\bf k}_{ {\bf G}'} \rangle$ {#p-v-p-part}
 
 式 (I54) を評価するには、
 その主要部 $\langle {P}^{\bf k}_{\bf G}|v| {P}^{\bf k}_{ {\bf G}'} \rangle$ が要る。それは次のように書ける。

@@ -61,7 +61,7 @@
 5. **Fortran の singleton パターン**
    コードの主な部分は Fortran です。コードは singleton のデザインパターンにもとづくオブジェクト指向の構造をもっています。この構造は、AI にとっても理解しやすく、間違いにくいという利点があります。データは一つの module にだけ置かれ、どこで何を使うかは `use ..., only:` で明示されるので、データの流れを追いやすく、写しの食い違いも起きません。
 
-# QSGW の概観 {#overview-of-qsgw}
+## QSGW の概観 {#overview-of-qsgw}
 
 * バンド計算（LDA のレベル）はプログラム `lmf` で行います。最初の設定ファイルは `ctrlg.<sname>.toml` です（`<sname>` は利用者が選ぶ物質の拡張子。古い形は `ctrl.<sname>`）。`lmf` の前に `lmfa` を走らせる必要があります。これは球対称の原子の計算で、電子密度の初期条件を決めます（`lmfa` は数秒で終わります）。
 * ファイル `sigm.<sname>` が QSGW 計算の鍵です。`sigm.<sname>` には非局所ポテンシャル $\Delta V_{\rm xc}=V_{\rm xc}^{\rm QSGW}-V_{\rm xc}^{\rm LDA}$ が入っています。`lmf` が行う通常の LDA 計算にこのポテンシャルの項を加えることで、QSGW 計算ができます。下の図を見てください。
@@ -90,7 +90,7 @@ NiO のような場合、磁気モーメントは大きくなり、実験値に�
 ただし実際は複雑で、場合によってはそう単純ではありません。
 
 <!-- 
-## 基礎知識check 
+### 基礎知識check 
 * LDA計算の流れ
 * MT division of space
 * 基底関数 MTOとAPW　（AugmentationとMT内の原子的な波動関数). 3つの成分をもつ。envelope + true - counter
@@ -105,7 +105,7 @@ NiO のような場合、磁気モーメントは大きくなり、実験値に�
 * QSGW法。GW近似における自己エネルギーからいくらか強引に時間依存性をとりのぞいて特殊な交換相関項をつくる。
 * （できたら線形応答理論の基礎、ステップ関数のフーリエ変換、古典的な減衰振動系でのグリーン関数（線形応答関数）。）
 
-## ecalj 何ができるか？
+### ecalj 何ができるか？
 
 * LDA計算 
 VWN,PBE-GGA,LDA+Uがえらべる。
@@ -130,7 +130,7 @@ MLO による模型化（模型のハミルトニアン、v・W・cRPA。2026-10
 
 
 
-# 始めよう（GetStarted） {#getstarted}
+## 始めよう（GetStarted） {#getstarted}
 ここでは ecalj による DFT/QSGW の計算を説明します。そのあとでバンドの図の描き方を説明します。簡単のため、常磁性（nsp=1）で、4f なし、SOC なしの場合を扱います。
 一歩ずつ説明します。
 
@@ -143,7 +143,7 @@ MLO による模型化（模型のハミルトニアン、v・W・cRPA。2026-10
 
 詳しくは [UsageDetailed](./UsageDetailed.md) で説明します。
 
-## Step 0. POSCAR を用意する {#step-0-get-poscar}
+### Step 0. POSCAR を用意する {#step-0-get-poscar}
 GaAs の実例では、サンプルのディレクトリを ecalj のクローンの**外**の作業の場所にコピーして、そこで計算します（計算で作られるファイルがクローンの中に散らばらないようにするためです）。
 ```bash
 mkdir -p ~/work
@@ -181,7 +181,7 @@ cif を `POSCAR` に変換したいときは、次のようにします。
 `cif2cell foobar.cif -p vasp --vasp-cartesian --vasp-format=5`
 
 
-## Step 1. POSCAR を ctrls に変換する {#step-1-convert-poscar-to-ctrls}
+### Step 1. POSCAR を ctrls に変換する {#step-1-convert-poscar-to-ctrls}
 次に vasp2ctrl で POSCAR を ctrls に変換します。
 ctrls は ecalj で使う構造のファイルです。GaAs の実例では `ctrls.gaas` がすでにあるので、この Step は要りません。
 
@@ -284,7 +284,7 @@ SPEC
     - サイトには [Niup などの](./UsageDetailed.md#antiferro-symmetry-without-soc) 好きな名前を使えます。その場合は SPEC の区分も設定する必要があります。[Z は整数でなくてもかまいません。](./Memo_bgcharge.md#background-charge-and-fractional-z) これは後で学んでください。
     - 古い ctrls には NL、NBAS、NSPEC があるかもしれませんが、いまは要りません。
 
-## Step 2. ctrls から `ctrlg.<sname>.toml` を作る {#step-2-get-ctrlg-sname-toml-from-ctrls}
+### Step 2. ctrls から `ctrlg.<sname>.toml` を作る {#step-2-get-ctrlg-sname-toml-from-ctrls}
 
 `ctrlg.<sname>.toml` は、2026-05 から Fortran のプログラム（`lmf`、`lmfa`、`lmchk`、`gwsc`、...）
 が読むただ一つの入力ファイルです。Step 1 の ctrls から **`ctrlgenToml.py`** で作ります。
@@ -349,12 +349,12 @@ GW を使わないときの `--skipgw`、手で直したところを残したま
 * `SiteInfo.lmchk` — MT 半径、原子の位置
 * `PlatQlat.chk` — 基本格子ベクトル（plat）と逆格子（qlat）
 
-### Step 2-Migration. すでにある `ctrl.<sname>`（と、あれば `GWinput`） {#step-2-migration-existing-ctrl-sname-and-optional-gwinput}
+#### Step 2-Migration. すでにある `ctrl.<sname>`（と、あれば `GWinput`） {#step-2-migration-existing-ctrl-sname-and-optional-gwinput}
 
 手で編集した `ctrl.<sname>`（と、あれば `GWinput`）のある 2026-05 より前のディレクトリは、ctrls から作り直さず、`Legacy2toml.py <sname>` でその場で `ctrlg.<sname>.toml` に変換します。
 診断の出力とキーの対応は [入力ファイル](./toml_migration#migration-of-an-existing-legacy-directory) を見てください。
 
-### VESTA をインストールする {#install-vesta}
+#### VESTA をインストールする {#install-vesta}
 結晶構造を見るには VESTA が便利です。
 ecalj/StructureTool/ に 'viewvesta' のコマンドがあります。
 次を試してください。
@@ -367,7 +367,7 @@ viewvesta ctrls.gaas
 
 
 
-## Step 3. LDA の計算 {#step-3-lda-calculation}
+### Step 3. LDA の計算 {#step-3-lda-calculation}
 この Step に載せた出力（`conf` の表、反復のエネルギー、`bndfp` の行）は、mp-2534（格子定数 5.75 Å）で走らせたときのものです。gaas では数値が少し違います。
 
 1. まず lmfa を走らせます。結晶に含まれる、球対称の原子の電子密度を求めるものです。lmfa は数秒で終わります。
@@ -468,7 +468,7 @@ viewvesta ctrls.gaas
    この設定が最良だと主張するわけではありません。しかし、非線形の最適化はとても厄介です。一つずつ最適化することはしたくありません。
    この設定を変えるには、大がかりな系統的な研究が必要かもしれません。
 
-### job_tdos, job_pdos {#job-tdos-job-pdos}
+#### job_tdos, job_pdos {#job-tdos-job-pdos}
 全 DOS は次のようにして計算できます。
 ```
 job_tdos gaas -np 8
@@ -488,7 +488,7 @@ k 点の数に注意してください。正確な DOS / PDOS には、メッシ
 `job_tdos gaas -np 8 --ctrlg:bz.nkabc=[10,10,10]`
 `grep '^bz.nkabc\|^nkabc' llmf_tdos` で確かめ、`save.gaas` も見てください。
 
-## Step 4. バンドの図のための k の経路とブリルアンゾーンを作る {#step-4-create-k-path-and-brillouin-zone-for-band-plot}
+### Step 4. バンドの図のための k の経路とブリルアンゾーンを作る {#step-4-create-k-path-and-brillouin-zone-for-band-plot}
 `lmf` が収束したら、Step 5 の `job_band` でバンドの図を描きます。バンドの計算が正常かどうかは、バンドの図で確かめられます（磁性の系では、全体の磁気モーメントとサイトごとの磁気モーメントも確かめてください）。
 
 `job_band` の前に、対称線のファイル [`syml.<sname>`](./syml) を `getsyml` で作ります（`gaas` は `ctrlg.<sname>.toml` の `<sname>` です）。
@@ -500,7 +500,7 @@ plotly で書いた対話的な図なので、座標の値を読み取れます�
 getsyml による BZ.html の例は https://ecalj.sakura.ne.jp/BZgetsyml/ で見られます（ba2pdo2cl2 の図は[下の事例](#a-case-study-of-ba2pdo2cl2)にあります）。
 
 
-## Step 5. バンドの図 {#step-5-band-plot}
+### Step 5. バンドの図 {#step-5-band-plot}
 ```
 job_band gaas -np 8
 ```
@@ -515,12 +515,12 @@ gnuplot のスクリプト `bandplot.isp1.glt`（スピンが二つなら `bandp
 * ecalj のバンドの図のモードでは、BZ の端で対称性のために理論上縮退するバンドが縮退しません。APW の基底関数の数が限られているためです。そこで、pwemax=4 など（`job_band gaas -np 8 --ctrlg:ham.pwemax=4`）でバンドの図を描いてください（一時的な解決策です。自動化したいと考えています）。
 
 
-### job_tdos, job_fermisurface, job_pdos {#job-tdos-job-fermisurface-job-pdos}
+#### job_tdos, job_fermisurface, job_pdos {#job-tdos-job-fermisurface-job-pdos}
 `job_pdos` は PDOS を、`job_tdos` は全 DOS を計算し、`job_fermisurface` は Xcrysden でフェルミ面を描きます。
 `job_fermisurface` は、Si の CBM の底の形を楕円体として描くのにも使えます。
 
 
-## Step 6. QSGW の計算 {#step-6-qsgw-calculation}
+### Step 6. QSGW の計算 {#step-6-qsgw-calculation}
 
 ここで QSGW の計算を走らせます。QSGW は計算がとても重いので、
 まず小さな系から走らせることを勧めます。
@@ -554,7 +554,7 @@ Si では `n1n2n3 = [6, 6, 6]` で十分です。非磁性の半導体では、`
 この図から、~0.1eV の精度でよければ 4 4 4 でも悪くないと言えそうです。6 6 6 なら十分です。8 8 8 より大きいのは数値の確認のためです（実用上は得るものがありません）。
 
 
-### スクリプト gwsc による QSGW の計算の流れ {#flow-of-qsgw-calculation-with-the-script-gwsc}
+#### スクリプト gwsc による QSGW の計算の流れ {#flow-of-qsgw-calculation-with-the-script-gwsc}
 QSGW の計算は gwsc で走らせます。半導体では、QSGW の反復を数回行えば十分で、最終の結果に十分近くなります。
 QSGW で得るのはバンド構造（一体のハミルトニアン）で、全エネルギーはまだ得られません。
 
@@ -609,7 +609,7 @@ OK! ==== All calclation finished for  gwsc ====
 この計算では `gwsc -np 2 1 si` を走らせています。1 は QSGW の反復の回数です。
 gwsc を繰り返すと、前の計算の上に QSGW の反復が追加されます。
 
-#### La2CuO4 の場合 {#a-case-of-la2cuo4}
+##### La2CuO4 の場合 {#a-case-of-la2cuo4}
 La2CuO4 では次のようになりました（2025-06 のログをそのまま載せます。下に記録された古い `-vssig=0.8`
 の形では、今はプログラムが止まります。同じ上書きは
 `--ctrlg:ham.scaledsigma=0.8` です。また、三つの段 `hsfp0_sc --job=1`、`hrcxq`、
@@ -646,7 +646,7 @@ We found QPU.5 -->start to generate QPU.6...
 5 回目の QSGW の反復がすでに終わっていた（QPU.5run があることで確かめます）ので、6 回目の反復から始まっています。
 
 
-#### ba2pdo2cl2 の事例 {#a-case-study-of-ba2pdo2cl2}
+##### ba2pdo2cl2 の事例 {#a-case-study-of-ba2pdo2cl2}
 
 ba2pdo2cl2 の計算の記録です（下の時間、図、数値は記録したときのもので、今のコードで走らせ直したものではありません）。
 POSCAR は次のとおりです。これを `POSCAR.ba2pdo2cl2` に書きます。
@@ -730,12 +730,12 @@ gwsc -np 32 5 ba2pdo2cl2 --ctrlg:ham.scaledsigma=0.8
 ```
 lmf の計算で `ctrlg.ba2pdo2cl2.toml` の `[ham] scaledsigma` が上書きされます（save.ba2pdo2cl2 と `llmf` の先頭で確かめてください）。
 
-#### KTaO3 の場合 {#a-case-of-ktao3}
+##### KTaO3 の場合 {#a-case-of-ktao3}
 KTaO3（ペロブスカイト、mp-3614）の QSGW の例
 ![image.png](https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/482779/2e785d2a-9418-acc3-93f9-788daa2bd19b.png)
 
 
-## lmchk {#lmchk}
+### lmchk {#lmchk}
   ```
   lmchk gaas
   ```
@@ -749,11 +749,11 @@ KTaO3（ペロブスカイト、mp-3614）の QSGW の例
 これは `ctrlg.<sname>.toml` の `symgrp` に（`find` の代わりに）空間群の対称操作の生成元を書くことでできます。
 SOC の場合はこの点に注意が必要です。
 
-### 空間群の操作の書き方 {#how-to-write-space-group-operation}
+#### 空間群の操作の書き方 {#how-to-write-space-group-operation}
 例えば r3x は x 軸のまわりの 3 回軸を意味します。ecalj での空間群の操作の書き方は [lmf.md の SYMGRP の節](lmf.md#symgrp) で説明しています。
 
 
-## 計算をやり直す方法 {#how-to-start-over-calcualtions}
+### 計算をやり直す方法 {#how-to-start-over-calcualtions}
 rst* を消します（前の実行の混合のファイル `__mixm.<sname>` は、`lmf` が始めるときに捨てます）。
 MT 半径を変えたときは、lmfa からやり直します（atm* のファイルを消します）。
 
@@ -761,7 +761,7 @@ MT 半径を変えたときは、lmfa からやり直します（atm* のファ�
 - Ef に 3d のスパゲッティのように絡み合ったバンドがあるときは、注意が必要です。
 
 
-# Samples/MATERIALS: 65 物質の LDA と MLO の例 {#samples-materials-lda-and-mlo-samples-of-65-materials}
+## Samples/MATERIALS: 65 物質の LDA と MLO の例 {#samples-materials-lda-and-mlo-samples-of-65-materials}
 ecalj の `Samples/MATERIALS/` には物質ごとに一つのディレクトリがあります。62 の簡単な物質（Si、GaAs、ZnO、MgO、SrTiO3、NiO、EuO、Bi2Te3、...）
 と、La2CuO4、16 原子の InAs/GaSb 超格子、BaTiO3 です。それぞれに `ctrls.<sname>` と `ctrlg.<sname>.toml` があります。
 これらは LDA の計算と MLO の模型の例です。65 物質すべての LDA のバンドと MLO の模型を

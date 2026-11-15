@@ -76,7 +76,7 @@ mpirun -np 4 lmf si [options] > llmf
 
 **主なソース**: [`SRC/subroutines/main_lmf.f90`](https://github.com/tkotani/ecalj/blob/main/SRC/subroutines/main_lmf.f90)
 
-# ctrlg.&lt;sname&gt;.toml — いまの入力の形式（2026-05〜）
+## ctrlg.&lt;sname&gt;.toml — いまの入力の形式（2026-05〜）
 
 `lmf`、`lmfa`、`lmchk` は、2026-05 から **TOML だけ**を読みます。
 一つのファイル `ctrlg.<sname>.toml` に、以前 `ctrl.<sname>` にあったものすべてと、以前 `GWinput` にあった GW の設定と積基底の節が入っています。
@@ -84,12 +84,12 @@ mpirun -np 4 lmf si [options] > llmf
 
 ファイルの最後の `[product_basis]` の表は GW のためのもので、`gwinit` が書き、ふつうは手で直しません。[GW の設定: 積基底](./gwinput#product-basis) を参照。
 
-### 画面の出力 {#reading-the-output}
+#### 画面の出力 {#reading-the-output}
 画面の出力は、いまは主にデバッグのためのものです。
 それでも、いくつかの値は画面の出力から読む必要があります（直していくつもりです）。
 収束の様子、バンドのエネルギー、フェルミエネルギー、`sigm` や `rst` を正しく読んだかどうかを、画面の出力で確かめられます。
 
-### `save.<sname>` と `log.<sname>` {#save-sname}
+#### `save.<sname>` と `log.<sname>` {#save-sname}
 * `save.<sname>` には、`lmf`、`lmchk`、`lmfa` を起動した履歴が残ります。さらに `lmf` の反復ごとに 1 行、全エネルギーを書きます。
   各行の最初の文字は状態を表します。c: 収束、x: 収束しないまま反復の上限に達した、i: 反復の途中、
   h: 最初の反復（自由原子の密度の重ね合わせからの Harris のエネルギー）、C: 構造の緩和の収束（`m_lmfp.f90` の `svflg='cxhiC'`）。
@@ -102,7 +102,7 @@ mpirun -np 4 lmf si [options] > llmf
 * ログのファイル
   `lmf`、`lmchk`、`lmfa` が作る `log.<sname>` は、いまはデバッグのためのものです。
 
-## ファイルの構成（節） {#file-structure-sections}
+### ファイルの構成（節） {#file-structure-sections}
 
 ```toml
 # Top-level scalars
@@ -126,7 +126,7 @@ time    = [0, 0]        # CPU timing log: [depth, on-the-fly]
 
 `[struc]` に `nbas` / `nspec` を書かないでください。[入力ファイル](./toml_migration#an-older-ctrlg-sname-toml-ctrlg-update-py) を参照。
 
-## 例: fcc の Cu（1 原子、磁性なし）
+### 例: fcc の Cu（1 原子、磁性なし）
 
 `Samples/EPS/EPS_Cu/` の `ctrlg.cu.toml` の全体を下に示します。行末の `#` のコメントが、それぞれのキーの役割です。
 fcc の単体の金属の出発点として写し、`[spec]`、`[bz]`、`[ham]` をそれぞれの場合に合わせてください。
@@ -251,7 +251,7 @@ core = [
 
 生成されるファイルの体裁（空行、`# ----` の罫線、節の順）は [入力ファイル](./toml_migration#file-layout) にあります。
 
-### 物理ごとの差分（Cu を出発点として）
+#### 物理ごとの差分（Cu を出発点として）
 
 - **スピン分極**: `[ham].nspin = 2` とし、各 `[[spec]]` に `mmom` を書きます。[その他の説明](./UsageDetailed#spin-polarized-case-without-soc) を参照。きれいなディレクトリから始めてください（上の `__mixm.<sname>`）。
 - **SOC**: `[ham].nspin = 2` で、`[ham].so = 1`（L·S）または `2`（Lz·Sz だけ）。[その他の説明](./UsageDetailed#spin-orbit-coupling) と `Samples/MLOsamples/FeSoc/` を参照。
@@ -260,18 +260,18 @@ core = [
 - **原子位置の緩和**: [力と構造の緩和](./relax) を参照。
 - **GW の BZ のメッシュ**: `[gw].n1n2n3` ≤ `[bz].nkabc`。[GW の設定](./gwinput) を参照。
 
-## 実行時の `--ctrlg:` による上書き
+### 実行時の `--ctrlg:` による上書き
 
 一回の実行だけキーを変えるには `--ctrlg:<節.キー>=<値>` を付けます（例 `lmf si --ctrlg:bz.nkabc=[8,8,8]`）。ファイルは書き換えません。書き方の細部、ファイルに無いキーの扱い、やめた古い書き方（`-v<NAME>=<VAL>` など。使うと止まります）は [コマンドラインのオプション](./cmdopts#run-time-ctrlg-overrides) にあります。
 
 古い `ctrl.<sname>` のキーと TOML のパスの対応は [入力ファイル](./toml_migration#legacy-toml-map) にあります。
 ESM（真空のあるスラブ）の `[esm]` の節は [ESM](./esm) のページにあります。
 
-## lmf の収束
+### lmf の収束
 
 `lmf` 自身が収束しないときは、`[iter] b` を 0.015、0.01、0.005 のように小さくします。`gwsc` での自己エネルギーの混合（`[gw].mixbeta`、`mixpriorit`）は [gwsc](./gwsc#mixbeta-and-mixpriorit) にあります。
 
-## 使っている MTO を確かめる
+### 使っている MTO を確かめる
 画面の出力の始めの方に、使っている MTO が表示されます（GaAs の場合）。
  ```
  sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
@@ -292,14 +292,14 @@ ESM（真空のあるスラブ）の `[esm]` の節は [ESM](./esm) のページ
   As       2    1.18  -2.00   7.140    1.37E-06    1837
  ```
 
-### ローカル軌道（`pz`）と `ecore>evalence` のメッセージ
+#### ローカル軌道（`pz`）と `ecore>evalence` のメッセージ
 コアの電子のはみ出し（spillout）が小さくない（0.05 くらいより大きい）ときは、`pz`（ローカル軌道）を使い、そのコアを価電子として扱う方がよいです。
 Bi の 4d がその例で、`pz = [0.0, 0.0, 4.9]` などとします。
 
 メッセージ `ecore>evalence` は、コアの準位が価電子の準位より高いことを意味します。安全のため、これは許していません。
 ECORE のファイルと、ログや画面の出力にある価電子の準位を比べてください。
 
-## 分子
+### 分子
 `ctrlgenToml.py <sname> --systype=molecule` で、箱の中の分子の雛形を作ります（Γ 点だけ、`[bz] nkabc = [1, 1, 1]`）。
 分子では `[bz]` に次を書きます。
 ```toml
@@ -317,7 +317,7 @@ H₂ から Kr₂ までの分子に PMT 法を使った例: T. Kotani and H. Ki
 
 ---
 
-# LDA+U {#lda-u-toml}
+## LDA+U {#lda-u-toml}
 
 LDA+U は、種ごとに、各 `[[spec]]` の表に `idu`、`uh`、`jh` のベクトルを書いて選びます。添字は `[s, p, d, f]` です。
 
@@ -353,7 +353,7 @@ tolu = 0.0          # rms tol where dmat mixing stops (0 = always mix)
 
 `lmf <sname> --quit=dmat` で、密度行列を一度確かめてください。初期の設定の後で止まり、再開のファイルを書かずに行列を表示します。
 
-# コアホール {#core-hole-toml}
+## コアホール {#core-hole-toml}
 
 コアの占有を部分的に変えることで、Slater の遷移状態の考え方を実現します（XAS や、4f を外すときに使えます）。種ごとに設定します。
 
@@ -379,7 +379,7 @@ Q(spin2) = full_core_count + c-hq[1]/2 - c-hq[2]/2
 中性になっていることを `lmfa <sname> | grep -i 'add core hole'` で確かめてください。Gd、Nd、CrN の例は
 [古いコアホールの説明](./lmf_legacy_ctrl#core-hole-options) にあります。
 
-# ローカル軌道 {#local-orbitals-toml}
+## ローカル軌道 {#local-orbitals-toml}
 
 ローカル軌道 `pz` は、連続な主量子数 `p` に対応するものです。どちらも `[[spec]]` の中の、種ごと・`l` ごとのベクトルです。
 
@@ -408,7 +408,7 @@ pz  = [0.0, 0.0, 3.9, 0.0]       # 3d treated as semicore local orbital
 
 スムーズ Hankel の `mtchre` の昔の議論は、[古いローカル軌道の覚え書き](./lmf_legacy_ctrl#old-note-for-local-orbitals) にあります。
 
-# SYMGRP / symgrp — 空間群の指定 {#symgrp}
+## SYMGRP / symgrp — 空間群の指定 {#symgrp}
 
 TOML では、空間群の指定は最上位の文字列 `symgrp` です。
 
@@ -444,7 +444,7 @@ symgrp = "e"
 `lmchk` は、認識した対称操作を画面の出力の始めに表示します。対称性が意図どおりに読まれたか、これで確かめてください。
 ポテンシャルが局所的なとき、DFT の計算では反転は暗に含まれます。画面の出力の冒頭の、反転についての注意を見てください。
 
-## spglib による対称性: `symmetry.<sname>.json`（2026-10） {#spglib-symmetry}
+### spglib による対称性: `symmetry.<sname>.json`（2026-10） {#spglib-symmetry}
 
 `symgrp = "find"`（既定）のとき、`lmf`、`lmchk`、MLO のプログラムは spglib で空間群を見つけます。spglib は ecalj に組み込んであります（`SRC/external/spglib`、版 2.6.0。Python は要りません）。
 操作 $x' = Rx + t$（`plat` の分率座標で、$R$ は整数）を、空間群の番号と記号、それが属する構造と一緒に、作業ディレクトリの `symmetry.<sname>.json` に書きます。
@@ -459,7 +459,7 @@ symgrp = "e"
 * ecalj の古い探し方（格子の操作と、結晶を不変に保つ操作を探す。`ECALJ_SYMFIND=ecalj`）は 2026-10-02 に外しました。探すのは spglib だけです。上の入力の形はどれもいまも受け付けます。
 * `symfind.py <sname>`（Python の spglib）で、`lmf` の外でも同じファイルを作れます。
 
-# Q: 自己無撞着のとき、Harris-Foulkes と Hohenberg-Kohn-Sham の汎関数は一致するべきか？ {#q-should-the-harris-foulkes-and-hohenberg-kohn-sham-functionals-agree-at-self-consistency}
+## Q: 自己無撞着のとき、Harris-Foulkes と Hohenberg-Kohn-Sham の汎関数は一致するべきか？ {#q-should-the-harris-foulkes-and-hohenberg-kohn-sham-functionals-agree-at-self-consistency}
 （Mark van Schilfgaarde による）
 A: はい。一致しないなら、自己無撞着に達していないか、行列要素の評価の許容誤差が緩すぎます。よくある原因は、格子間領域の積分のメッシュが細かくないことです。
 次は、格子間の密度に 14×14×14 の分割のメッシュを使ったときの出力の一部です。
@@ -492,7 +492,7 @@ A: はい。一致しないなら、自己無撞着に達していないか、�
   20 -14561.131170    0.000000
 ```
 
-# 古い文書
+## 古い文書
 
 昔の `Category_Token` の説明の大部分と、物理の古い覚え書き（APW のテスト、スムーズ Hankel の `mtchre` の議論、古い SPEC の覚え書き、古い四面体法のメモ）は、別のページに移しました。
 

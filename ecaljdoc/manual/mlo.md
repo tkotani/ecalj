@@ -1,3 +1,7 @@
+---
+pageClass: secnum-manual
+---
+
 # MLO — 最大局在化などに代わる自動モデル化法
 
 ecalj branch `mlo3` / 2026-09-16 17:02 JST

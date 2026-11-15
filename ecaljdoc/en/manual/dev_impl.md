@@ -9,11 +9,10 @@ The equation numbers (I1)– were given when copied; the numbers of the removed 
 For the theory, see [Band calculation method of ecalj](../theory/pmt), [QSGW](../theory/qsgw) and the references there. The mathematical notes are in the [Appendix](../theory/appendix).
 :::
 
-[[toc]]
 
 The main reference for the formulas of the GW part is [Obata2025]: M. Obata, T. Kotani, T. Oda, "Efficient implementation of the quasiparticle self-consistent $GW$ method on GPU", Comput. Mater. Sci. **260**, 114190 (2025), [doi:10.1016/j.commatsci.2025.114190](https://doi.org/10.1016/j.commatsci.2025.114190), section 2. The equations below that carry "[Obata2025] Eq. (n)" are taken from it.
 
-### Representation of eigenfunctions
+## Representation of eigenfunctions
 
 In the PMT method [kotani_fusion_2010],
 the valence eigenfunctions for a given $H^0$ are represented
@@ -35,7 +34,7 @@ that they are restricted within MTs.
 Then we take into accounts the contributions of the cores to the exchange part defined in Eq. (I15) in the following. But not to the correlation part.
 All cores are treated as "core1" of Ref.[kotani07a] (the `core` rows of `[product_basis]` are all zero).
 
-####  MTO part
+###  MTO part
 
 Within MTs, the Bloch sum of the MTO,
 $\chi^{ {\bf k} }_{ {\bf R}L{j} }({\bf r})$, is
@@ -74,7 +73,7 @@ This is also the casee for any atomic-like localized functions.
 All such kinds of functions follow the same mapping formulas by space-group operations.
 See Sec.([§](#spacegroup-rotation)).
 
-####  APW part
+###  APW part
 
 The APW $\chi^{ {\bf k} }_{\bf G}({\bf r})$ are
 given as a linear combination of atomic like orbitals
@@ -121,7 +120,7 @@ $$\begin{aligned}
 \tag{I6}
 $$
 
-### Re-expansion of eigenfunctions: CPHI and GEIG
+## Re-expansion of eigenfunctions: CPHI and GEIG
 
 To perform the $GW$ calculation, we first
 have to prepare all eigenfunctions (and eigenvalues) for
@@ -191,7 +190,7 @@ $|{\bf k+G}|\lt  {\tt QpGcut\_psi}$;
 ${\bf G}'$ is limited by the `gmax` of `lmf` (the overlaps are made by `pwmat`, called in `sugw.f90`).
 The basis $s$ includes the APWs as well as the MTOs. The coefficients are then orthonormalized by Gram-Schmidt (skipped with `--skipGS`).
 
-### Overview of GW calculation
+## Overview of GW calculation
 
 In the $GW$ calculation, we need not only the basis set for
 eigenfunctions, but also the basis set for expanding the product of eigenfunctions.
@@ -423,7 +422,7 @@ However, when $f({\bf k}=0)$ is divergent, we have careful treatments.
 The purpose is to generate the required q and G vectors at the regular mesh points and at the offset-Γ points.
 It writes the BZ data `__BZDATA` and, for each q, the G vectors with $|{\bf q}+{\bf G}|$ below `[gw] QpGcut_psi` (for the eigenfunctions, `__QGpsi`) and below `QpGcut_cou` (for the IPW of the MPB, `__QGcou`).
 
-#### Make $G$ vectors: getgv2
+### Make $G$ vectors: getgv2
 
 To get ${\bf G}$ vectors, we use `getgv2` in `getgv2.f90`, whose head is
 
@@ -457,7 +456,7 @@ The vector normal to the plane is the external product $Q_2 \times Q_3$.
 After we get the range of $n_1$, as well as $n_2,n_3$ ,
 we simply test whether ${\bf q}+{\bf G}$ for $(n_1,n_2,n_3)$ is allowed or not.
 
-#### Make $G$ vectors: shortn3
+### Make $G$ vectors: shortn3
 
 Find shortest vector in modulo of $\{Q_i\}$. That is, pull back ${\bf q}$ in the 1st BZ. (`shortn3`, in `m_shortn3.f90`)
 Caution; it can be not unique when ${\bf q}$ is on the BZ boundary;
@@ -1030,7 +1029,7 @@ There are two kinds:
   `QpGcutggg = (2+0.01)*QpGcut_psi + QpGcut_cou + 2π/alat*dQpG` and `QpGcutgcgp = (1+0.01)*QpGcut_psi + QpGcut_cou + 2*2π/alat*dQQ`
   (the triangle inequality; `dQpG`, `dQQ` enlarge the ranges for the offset-Γ points).
 
-### $\langle {P}^{\bf k}_{\bf G}|v| {P}^{\bf k}_{ {\bf G}'} \rangle$
+### $\langle {P}^{\bf k}_{\bf G}|v| {P}^{\bf k}_{ {\bf G}'} \rangle$ {#p-v-p-part}
 
 To evaluate Eq. (I54), we need to know
 its main part $\langle {P}^{\bf k}_{\bf G}|v| {P}^{\bf k}_{ {\bf G}'} \rangle$. It is written as

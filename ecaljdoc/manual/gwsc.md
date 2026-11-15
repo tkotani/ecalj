@@ -134,7 +134,7 @@ $\beta$ = `mixbeta`（既定 1.0）、`mixpriorit` の既定は 3 です。前�
 
 MLO-gwsc（`gwsc --mlo`）の $\Sigma^{\rm MLO}$ の混合は [MLO-gwsc](./mlo_gwsc) の §1.6 にあります。
 
-# ほかのスクリプト
+## ほかのスクリプト
 
 `cleargw`: 一時的なファイルを消します。
 
@@ -169,7 +169,7 @@ to get the full spin susceptibility. -->
 
 `job_mloW`: MLO のモデルと、その中の v、W、cRPA の W（`--crpa`）の行列要素（[MLO](./mlo) §6）。（Wannier 関数の `genMLWFx` は 2026-10-02 に外しました。）
 
-# gwsc が使うファイル
+## gwsc が使うファイル
 一時的なファイルの名前は `__*` で始まります。`gwsc` や `job_eps` などが終わったら、`__*` を消して（または `cleargw` で）かまいません。
 
 `gwsc` の小さな試験は、インストールの試験の一つ `si_gwsc` で回せます（[試験の仕組み](./dev_testecalj)）。
@@ -178,7 +178,7 @@ to get the full spin susceptibility. -->
 同じ入力での `gwsc 1 si -np 2` の画面の出力は、[メインドキュメント](./README_tutorial#flow-of-qsgw-calculation-with-the-script-gwsc) にあります。
 `lmf --jobgw=0` と `qg4gw` は反復の前に一度だけ走り、ほかの段は反復ごとに繰り返します。
 
-## 論文の質の QSGW の計算を、少ない費用で行うには {#paper-quality-qsgw}
+### 論文の質の QSGW の計算を、少ない費用で行うには {#paper-quality-qsgw}
 バンドギャップの精度は 0.1 eV くらい（ギャップの大きな物質ではもっと大きい）と考えてよいでしょう。
 簡単な場合もありますが、そうでない場合もあります（磁性金属は多くの反復が要ります）。
 そこで、自分なりの「簡単な基準」を持つのがよいです。「収束にこだわりすぎない。再現性にこだわる。」
@@ -190,12 +190,12 @@ Si のような簡単なものでは、もっとよい精度が得られるか�
 （凍結したコアの密度、コアの固有関数、動径の基底関数、わずかな数値的な理由。GaAs のバンドギャップで 0.02 eV くらい）。
 標準として VWN（`[ham] xcfun = 1`）を使ってください。このような技術的なことは、バンドギャップに 0.05 eV くらいの誤差を与えます。
 
-### LDA の計算
+#### LDA の計算
 まず LDA のレベルの計算を確かめる必要があります。
 `ctrlg.<sname>.toml` は ctrls.*（結晶構造のファイル）だけから作ります。
 QSGW の計算では、`[bz] nkabc` を十分大きくして、その収束を確かめなくてすむようにします。
 
-### QSGW: 収束の確かめ方
+#### QSGW: 収束の確かめ方
 `gwsc` の QSGW の反復は、(1) と (2) からなります。
 - (1) 一体の自己無撞着な計算（`sigm` = Σ − V_xc^LDA を一体のポテンシャルに足す）で、一体のハミルトニアン $H_0$ を決める。
 - (2) 与えられた $H_0$ で、`sigm` のファイルを計算する。
@@ -221,7 +221,7 @@ QSGW の大きな反復は (1)+(2) です。(1) の中に、与えた `sigm` を
 
 one-shot の QSGW（one-shot の GW ではない）が役に立つこともあります。非対角の部分を含むので、Ge（バンドギャップが無い）でのバンドのもつれの問題を解決できます。
 
-### 80% QSGW + 20% LDA と SO の設定
+#### 80% QSGW + 20% LDA と SO の設定
 `sigm` のファイルには $V_{\rm xc}^{\rm QSGW}-V_{\rm xc}^{\rm LDA}$ が入っています。
 `sigm` があれば `lmf` はそれを読み、一体のポテンシャルに `sigm` を足して自己無撞着な計算をします。
 
@@ -230,7 +230,7 @@ QSGW80 の根拠:
 * [PRB 101, 205120](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.101.205120)
 * [PRB 108, 165104](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.108.165104)
 
-#### 1. QSGW80(NoSC)
+##### 1. QSGW80(NoSC)
 バンドギャップなどのバンド構造の実用的な予測には、バンドを描くときに 80% QSGW + 20% LDA の手順を使う方がよいかもしれません。
 自己無撞着に決めた `rst` と `sigm` のファイルができたら、
 ```
@@ -238,7 +238,7 @@ job_band gaas -np 4 --ctrlg:ham.scaledsigma=0.80
 ```
 を走らせます。これは実行のときに `ctrlg.gaas.toml` の `[ham] scaledsigma` を上書きし、表 II の QSGW80nosc の結果を与えます。
 
-#### 2. QSGW80(NoSC)+SO
+##### 2. QSGW80(NoSC)+SO
 `[ham].so = 1`（L·S の方法。`nspin = 2` が要る）で 80% QSGW + 20% LDA。L·S の方法を入れたいときは
 ```
 mpirun lmf gaas -np 4 --ctrlg:ham.scaledsigma=0.80 --ctrlg:ham.so=1 --ctrlg:ham.nspin=2
@@ -250,12 +250,12 @@ job_band gaas -np 4 --ctrlg:ham.scaledsigma=0.80 --ctrlg:ham.so=1 --ctrlg:ham.ns
 注: so=1 には nspin=2 が要ります。`rst` と `sigm` は nspin=2 に展開されます（展開した後は nspin=1 では走らせられません）。
 SOC のバンドの一般的な手順は [その他の説明](./UsageDetailed#spin-orbit-coupling) にあります。
 
-#### 3. QSGW80
+##### 3. QSGW80
 `[ham] scaledsigma = 0.80`（または `gwsc ... --ctrlg:ham.scaledsigma=0.80`）で、`gwsc` で QSGW の計算を回せます。こうして QSGW80 の自己無撞着な結果が得られます。
 同時に so=2（Lz·Sz の方法）も使えます。so=2 では、z の方向と `symgrp` の設定（z 軸を保つように）に注意してください。
 QSGW80+SO の結果が欲しいときは、`sigm` が自己無撞着になった後で so=1 にする必要があります。
 
-#### 4. GaAs の例
+##### 4. GaAs の例
 閃亜鉛鉱構造の GaAs のように、バンドギャップと、Γ 点の価電子帯の上端の SO の分裂を確かめるのによい例です。
 キーは `ctrlg.gaas.toml` の `[ham]` の `scaledsigma`、`so`、`nspin` で、
 ```
@@ -263,37 +263,37 @@ QSGW80+SO の結果が欲しいときは、`sigm` が自己無撞着になった
 ```
 で見られます。1. と 2. のように、`--ctrlg:ham.scaledsigma=0.80`、`--ctrlg:ham.so=1`、`--ctrlg:ham.nspin=2` で実行のときに上書きします（そのためにキーをファイルに書いておく必要はありません）。
 
-### 論文
+#### 論文
 [Deguchi の論文](../presentations/deguchi2016.pdf) のサンプルを再現してみると勉強になります。計算の雛形も用意できます。お問い合わせください。
 GPU 版の新しい論文が [arXiv:2506.03477](https://arxiv.org/abs/2506.03477) にあります。ecalj の計算の手順の詳細も書いてあります。
 日本語では、五味さんのページ [gomisai.blog75.fc2.com](http://gomisai.blog75.fc2.com/blog-entry-675.html) と [Qiita](https://qiita.com/takaokotani/items/9bdf5f1551000771dc48) があります。
 
-## `lmfa`、`lmf`
+### `lmfa`、`lmf`
 `atmpnu*`、`rst.<sname>`、`__mixm.<sname>` などは [lmf の出力ファイル](./lmf) にあります。GW に関わるものだけを書きます。
 
-### `__atm.<sname>`
+#### `__atm.<sname>`
 球対称な原子の電子密度が入っています。
 
-### QPLIST*.chk
+#### QPLIST*.chk
 QPLIST.jobgw1.chk（jobgw1 は `lmf` の `--jobgw=1`）は人が読むためのもので、irr=1 の q が入っています。
 QPLIST.lmf.chk（jobgw のオプションなし）も人が読むためのもので、`lmf` の自己無撞着な計算の既約な q 点です。
 
-### __HAMindex
+#### __HAMindex
 ハミルトニアンを作るための q 点の表など。
 
-## `lmf --jobgw=0`
-### NLAindx.chk
+### `lmf --jobgw=0`
+#### NLAindx.chk
 人が読むためのもの。MT の中で固有関数を展開する添字を示します。
 
-### __HAMindex0
+#### __HAMindex0
 `main_lmf.f90` から呼ぶ `m_hamindex0_init` が作ります。MTO の添字、空間群の対称性など。
 
-### QBZ.chk
+#### QBZ.chk
 q 点のメッシュ。人が読むためだけのもの。
 
-## `qg4gw`
+### `qg4gw`
 
-### __QGpsi、__QGcou
+#### __QGpsi、__QGcou
 格子間領域の平面波（IPW）の q+G。`lqg4gw` を見ると
 ```
 --- Max number of G for psi, G for Cou= 116 36
@@ -327,88 +327,88 @@ q 点のメッシュ。人が読むためだけのもの。
 irr=1 は、固有関数を作る必要のある既約な q 点です。
 ngp は固有関数を展開する IPW の数（`QpGcut_psi` で決まる）、ngc は混合積基底の IPW の数（`QpGcut_cou` で決まる）です。
 
-### __BZDATA
+#### __BZDATA
 通常のメッシュの点と offset-Γ（Q0P）の情報、四面体の分割のデータ。
 
-## `lmf --jobgw=1`
+### `lmf --jobgw=1`
 GW を行うための次のデータをすべて作ります。`subroutines/sugw.f90` を参照。
 
-### @MNLA_core.chk
+#### @MNLA_core.chk
 人が読むためのもの: コアの添字。
 
-### @MNLA_CPHI
+#### @MNLA_CPHI
 人が読める（プログラムも使う）: MT の中で展開した固有関数。
 
-### hbe.d.chk
+#### hbe.d.chk
 人が読むためのもの: 大きさを確かめるファイル。
 
-### __PHIVC
+#### __PHIVC
 動径関数。
 
-### __MTOindex
+#### __MTOindex
 MTO の添字。
 
-### __VxcEvec*
+#### __VxcEvec*
 PMT の基底 $\{F_i\}$ での $\langle F_i|H^0|F_j\rangle$ の固有関数の係数と固有値。
 
-### __GEIG、__CPHI、__EValue
+#### __GEIG、__CPHI、__EValue
 __GEIG: 固有関数の係数の IPW の部分。__CPHI: 固有関数の係数の MT の部分。__EValue: 固有値。
 
-### __PPOvlp、__PPOvlpG、__PPOvlpGG
+#### __PPOvlp、__PPOvlpG、__PPOvlpGG
 IPW の重なり行列。
 
-### __VXCFP
+#### __VXCFP
 LDA の交換相関の項（対角の部分だけ）。vxcevec の一部。`hsfp0` で使いますが、本質的ではありません（表示のためのもの）。
 
-## `heftet --job=1`
+### `heftet --job=1`
 
-### EFERMI
+#### EFERMI
 四面体法でのフェルミエネルギー。
 
-### EFERMI_kbt
+#### EFERMI_kbt
 `[gw] t_tetrakbt` > 0 のときに書きます。その温度でのフェルミエネルギーで、$\chi_0$ と $\Sigma$ に使います（[kBT](./kBT) §2.3）。
 
-## hbasfp0（コアは --job=3、価電子は --job=0）
-### __BASFP*
+### hbasfp0（コアは --job=3、価電子は --job=0）
+#### __BASFP*
 積基底の関数。
-### __PPBRD*
+#### __PPBRD*
 各 MT での動径積分。記号的に $\int \phi(r) \phi(r) B(r) dr$。
 
-## `hvccfp0`
+### `hvccfp0`
 コアと価電子で 2 回呼びます。
 
-### __Vcoud*
+#### __Vcoud*
 クーロン行列（混合積基底での展開での、クーロン行列の固有値と固有関数）。
 
-## `hgw`
+### `hgw`
 `hgw --jobgw=1` は、価電子の交換、遮蔽クーロン相互作用 $W$、価電子の相関を一度の実行で計算します。
 混合積基底で展開した $W-v$（実軸と虚軸）はメモリに持ち、$q$ ごとに相関の計算に渡します。ファイルには書きません。
 ${\bf q}=0$ の $W-v$ は、Γ のセルの平均として定める技法を使っています。
 
-### __WV.d
+#### __WV.d
 誘電関数の大きさ。
 
-### __WVR.*、__WVI.*
+#### __WVR.*、__WVI.*
 `gwsc --dumpW`（解析のため）のときだけ: 実軸と虚軸の $W-v$。$q$ ごとに一つのファイル。
 
-### freq_r
+#### freq_r
 人が読むためのもの: W−v の虚部をためるエネルギーのメッシュ。
 
-## `hsfp0_sc --job=3`（コアの交換）と `hgw`（価電子の交換と相関）
+### `hsfp0_sc --job=3`（コアの交換）と `hgw`（価電子の交換と相関）
 これらは、`gwsc` の反復の終わりに SEBK に移します。
 
-### SEXcoreU、SEXcore2U
+#### SEXcoreU、SEXcore2U
 `hsfp0_sc --job=3` によるコアの交換。SEXcoreU は人が確かめるための対角の部分で、あまり使いません。下向きのスピン（isp=2）には *D もあります。
-### SEXU、SEX2U
+#### SEXU、SEX2U
 `hgw` による価電子の交換。SEXU は人が確かめるための対角の部分で、あまり使いません。
-### SECU、SEC2U
+#### SECU、SEC2U
 `hgw` による価電子の相関。SECU は人が確かめるための対角の部分で、あまり使いません。
-### XCU
+#### XCU
 LDA の交換相関。
 
-## `lqpe`
+### `lqpe`
 
-### QPU、QPD
+#### QPU、QPD
 人が読む形式。自己エネルギーの対角要素の内訳。QPD は isp=2 のもの。
 
 `gw_lmfh si`（TestInstall の小さな計算）での one-shot の GW の例:
@@ -463,22 +463,22 @@ LDA の交換相関。
 
 * 注: `gwsc` の QPU は少し違います。Z と寿命は出ず、eQP は `lmf` の出発点の固有値です。QP エネルギーを比べるときは dSEnoZ の列を見ます。
 
-### TOTE.UP
+#### TOTE.UP
 QPU の詳しい数値。QPD には TOTE.DN。
 one-shot の GW `gw_lmfh` では、TOTE.UP に LDA と準粒子のエネルギー（`QP` と `QPnoZ` の 2 種類）が入ります。
 
-### QPU、TOTE（one-shot の GW、`gw_lmfh`）
+#### QPU、TOTE（one-shot の GW、`gw_lmfh`）
 `gw_lmfh`（one-shot の GW）では、`hqpe` が `TOTE.UP` と `QPU` のファイル（`TOTE.DN` と `QPD` も）を書きます。中身の値は同じです。
 one-shot の GW は衝突電離の割合の計算にも使います。サンプル `Samples/IIR/C`（ダイヤモンド、粗いメッシュ）では、`gw_lmfh` が幅を `QPU_life` に書きます。
 
-### __mixsig
+#### __mixsig
 `sigm.<sname>` の混合のファイル。
 
-### `sigm.<sname>`
+#### `sigm.<sname>`
 $\Sigma-V_{\rm xc}$（静的でエルミートな QSGW の自己エネルギーから LDA の $V_{\rm xc}$ を引いたもの、Ry）を、各既約 $\bf q$ 点で MTO の基底の行列として持ちます。前の反復と混合したもの（`__mixsig`）です。
 `lmf` はこれを Bloch 和で実空間に移し、任意の $\bf k$ に内挿します（[MLO-gwsc](./mlo_gwsc) §1.1）。
 
-## GW でのフェルミエネルギー {#the-fermi-energies-in-gw}
+### GW でのフェルミエネルギー {#the-fermi-energies-in-gw}
 数値計算の技法のため、2 種類のフェルミエネルギー $E_{\rm FERMI}^{\rm smear}$ と $E_{\rm FERMI}^{\rm tetra}$ を使います。
 
 一つは EFERMI に入っている $E_{\rm FERMI}^{\rm tetra}$ で、分極関数に使います（四面体法を使うため）。
@@ -488,9 +488,9 @@ $E_{\rm FERMI}^{\rm smear}$ は $G \times W$ の計算の始めに決めます�
 
 `[gw] t_tetrakbt` > 0（有限温度の分極関数）のときは、分極関数と $G \times W$（コアの交換を除く）のどちらも、EFERMI_kbt に入っているその温度でのフェルミエネルギーを使います。[kBT](./kBT) を参照。
 
-## 積基底 {#product-basis}
+### 積基底 {#product-basis}
 積基底の指定（`[product_basis]` の上限と原子ごとの表）は [GW の設定: 積基底](./gwinput#product-basis) にあります。
 
-# メモ
+## メモ
 * Γ のセルで平均した $\tilde{W}({\bf q}=0,\omega)$ の決め方を説明する必要があります。
 * 古い開発者向けの理論のメモ ecaljdetails（2015〜2022、offset-Γ 法・クーロン行列・EIBZ など）は 2026-10-02 に外しました。原文は ecaljdoc のコミット `3284d0b` の `ecaljdetails/ecaljdetails.tex` にあります。

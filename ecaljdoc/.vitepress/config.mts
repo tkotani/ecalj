@@ -181,6 +181,7 @@ export default withMermaid({
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     logo: '/ecalj_logo_small.png',
+    outline: [2, 3],   // h2 and h3 in the outline, numbered by custom.css (2026-11-15)
     nav: [
       { text: 'Home', link: '/' },
     ],

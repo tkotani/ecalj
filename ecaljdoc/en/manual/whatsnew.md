@@ -1,3 +1,7 @@
+---
+pageClass: secnum-manual
+---
+
 # What's new (summary)
 
 > English version of the page [manual/whatsnew](../../manual/whatsnew.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/whatsnew.md of commit 694da29ec (source blob 2322f76de64b).

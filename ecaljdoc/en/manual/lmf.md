@@ -78,7 +78,7 @@ For details, see "On the radial equation" in [Representation of wave functions u
 
 **Main source**: [`SRC/subroutines/main_lmf.f90`](https://github.com/tkotani/ecalj/blob/main/SRC/subroutines/main_lmf.f90)
 
-# ctrlg.&lt;sname&gt;.toml — the current input format (2026-05–)
+## ctrlg.&lt;sname&gt;.toml — the current input format (2026-05–)
 
 Since 2026-05, `lmf`, `lmfa`, and `lmchk` read **only TOML**.
 A single file `ctrlg.<sname>.toml` contains everything that used to be in `ctrl.<sname>`, plus the GW settings and the product-basis section that used to be in `GWinput`.
@@ -86,12 +86,12 @@ At the end of the file there are per-atom product-basis tables. In an old workin
 
 The `[product_basis]` tables at the end of the file are for GW; `gwinit` writes them and they are usually not edited by hand. See [GW settings: product basis](./gwinput#product-basis).
 
-### Console output {#reading-the-output}
+#### Console output {#reading-the-output}
 The console output is now mainly for debugging.
 Still, some values have to be read from the console output (we intend to fix this).
 From the console output you can check the progress of convergence, band energies, the Fermi energy, and whether `sigm` and `rst` were read correctly.
 
-### `save.<sname>` and `log.<sname>` {#save-sname}
+#### `save.<sname>` and `log.<sname>` {#save-sname}
 * `save.<sname>` keeps the history of invocations of `lmf`, `lmchk`, and `lmfa`. In addition, it writes one line with the total energy for each `lmf` iteration.
   The first character of each line indicates the status. c: converged, x: reached the iteration limit without converging, i: in the middle of the iterations,
   h: first iteration (Harris energy from the superposition of free-atom densities), C: converged structural relaxation (`svflg='cxhiC'` in `m_lmfp.f90`).
@@ -104,7 +104,7 @@ From the console output you can check the progress of convergence, band energies
 * Log file
   `log.<sname>`, made by `lmf`, `lmchk`, and `lmfa`, is currently for debugging.
 
-## File structure (sections) {#file-structure-sections}
+### File structure (sections) {#file-structure-sections}
 
 ```toml
 # Top-level scalars
@@ -128,7 +128,7 @@ time    = [0, 0]        # CPU timing log: [depth, on-the-fly]
 
 Do not write `nbas` / `nspec` in `[struc]`. See [Input files](./toml_migration#an-older-ctrlg-sname-toml-ctrlg-update-py).
 
-## Example: fcc Cu (1 atom, nonmagnetic)
+### Example: fcc Cu (1 atom, nonmagnetic)
 
 The whole of `ctrlg.cu.toml` in `Samples/EPS/EPS_Cu/` is shown below. The `#` comments at the ends of the lines give the role of each key.
 Copy it as a starting point for an elemental fcc metal and adapt `[spec]`, `[bz]`, and `[ham]` to each case.
@@ -253,7 +253,7 @@ core = [
 
 The layout of the generated file (blank lines, `# ----` rules, order of sections) is described in [Input files](./toml_migration#file-layout).
 
-### Differences by physics (starting from Cu)
+#### Differences by physics (starting from Cu)
 
 - **Spin polarization**: set `[ham].nspin = 2` and write `mmom` in each `[[spec]]`. See [Other explanations](./UsageDetailed#spin-polarized-case-without-soc). Start from a clean directory (`__mixm.<sname>` above).
 - **SOC**: `[ham].nspin = 2` with `[ham].so = 1` (L·S) or `2` (Lz·Sz only). See [Other explanations](./UsageDetailed#spin-orbit-coupling) and `Samples/MLOsamples/FeSoc/`.
@@ -262,18 +262,18 @@ The layout of the generated file (blank lines, `# ----` rules, order of sections
 - **Relaxation of atomic positions**: see [Forces and structural relaxation](./relax).
 - **GW BZ mesh**: `[gw].n1n2n3` ≤ `[bz].nkabc`. See [GW settings](./gwinput).
 
-## Run-time overrides with `--ctrlg:`
+### Run-time overrides with `--ctrlg:`
 
 To change a key for one run only, add `--ctrlg:<section.key>=<value>` (for example `lmf si --ctrlg:bz.nkabc=[8,8,8]`). The file is not rewritten. Details of the syntax, the handling of keys not in the file, and the retired old syntax (such as `-v<NAME>=<VAL>`; using it stops the program) are in [command-line options](./cmdopts#run-time-ctrlg-overrides).
 
 The correspondence between the keys of the old `ctrl.<sname>` and the TOML paths is in [Input files](./toml_migration#legacy-toml-map).
 The `[esm]` section for ESM (slabs with vacuum) is on the [ESM](./esm) page.
 
-## Convergence of lmf
+### Convergence of lmf
 
 If `lmf` itself does not converge, make `[iter] b` smaller, such as 0.015, 0.01, 0.005. Mixing of the self-energy in `gwsc` (`[gw].mixbeta`, `mixpriorit`) is described in [gwsc](./gwsc#mixbeta-and-mixpriorit).
 
-## Checking the MTOs in use
+### Checking the MTOs in use
 The MTOs in use are shown near the beginning of the console output (for GaAs).
  ```
  sugcut:  make orbital-dependent reciprocal vector cutoffs for tol= 1.00E-06
@@ -294,14 +294,14 @@ The MTOs in use are shown near the beginning of the console output (for GaAs).
   As       2    1.18  -2.00   7.140    1.37E-06    1837
  ```
 
-### Local orbitals (`pz`) and the `ecore>evalence` message
+#### Local orbitals (`pz`) and the `ecore>evalence` message
 When the core spillout is not small (larger than about 0.05), it is better to use `pz` (local orbitals) and treat that core as valence.
 Bi 4d is an example; set `pz = [0.0, 0.0, 4.9]` or similar.
 
 The message `ecore>evalence` means that a core level is higher than a valence level. For safety, this is not allowed.
 Compare the ECORE file with the valence levels in the log or console output.
 
-## Molecules
+### Molecules
 `ctrlgenToml.py <sname> --systype=molecule` makes a template for a molecule in a box (Γ point only, `[bz] nkabc = [1, 1, 1]`).
 For molecules, write the following in `[bz]`.
 ```toml
@@ -319,7 +319,7 @@ An example of the PMT method applied to molecules from H₂ to Kr₂: T. Kotani 
 
 ---
 
-# LDA+U {#lda-u-toml}
+## LDA+U {#lda-u-toml}
 
 LDA+U is selected per species by writing the vectors `idu`, `uh`, `jh` in each `[[spec]]` table. The index is `[s, p, d, f]`.
 
@@ -355,7 +355,7 @@ tolu = 0.0          # rms tol where dmat mixing stops (0 = always mix)
 
 Check the density matrix once with `lmf <sname> --quit=dmat`. It stops after the initial setup and prints the matrix without writing the restart file.
 
-# Core hole {#core-hole-toml}
+## Core hole {#core-hole-toml}
 
 By partially changing the core occupation, Slater's transition-state idea is realized (useful for XAS or for removing 4f). It is set per species.
 
@@ -381,7 +381,7 @@ A negative `c-hq[1]` removes electrons (a hole). The second entry `c-hq[2]` pola
 Check charge neutrality with `lmfa <sname> | grep -i 'add core hole'`. Examples for Gd, Nd, and CrN are in
 [old explanation of core holes](./lmf_legacy_ctrl#core-hole-options).
 
-# Local orbitals {#local-orbitals-toml}
+## Local orbitals {#local-orbitals-toml}
 
 The local orbital `pz` is the counterpart of the continuous principal quantum number `p`. Both are per-species, per-`l` vectors in `[[spec]]`.
 
@@ -410,7 +410,7 @@ Common pitfalls:
 
 The old discussion of `mtchre` for smooth Hankels is in [old notes on local orbitals](./lmf_legacy_ctrl#old-note-for-local-orbitals).
 
-# SYMGRP / symgrp — specifying the space group {#symgrp}
+## SYMGRP / symgrp — specifying the space group {#symgrp}
 
 In TOML, the space group is specified by the top-level string `symgrp`.
 
@@ -446,7 +446,7 @@ symgrp = "e"
 `lmchk` prints the recognized symmetry operations at the beginning of the console output. Use this to check that the symmetry was read as intended.
 When the potential is local, inversion is implicitly included in DFT calculations. See the note about inversion at the top of the console output.
 
-## Symmetry from spglib: `symmetry.<sname>.json` (2026-10) {#spglib-symmetry}
+### Symmetry from spglib: `symmetry.<sname>.json` (2026-10) {#spglib-symmetry}
 
 With `symgrp = "find"` (the default), `lmf`, `lmchk`, and the MLO programs find the space group with spglib. spglib is built into ecalj (`SRC/external/spglib`, version 2.6.0; Python is not needed).
 The operations $x' = Rx + t$ (in fractional coordinates of `plat`, with integer $R$) are written to `symmetry.<sname>.json` in the working directory, together with the space-group number and symbol and the structure they belong to.
@@ -461,7 +461,7 @@ The console output tells which happened: `mksym: N operations, read from ...` or
 * The old ecalj search (searching for lattice operations and the operations that keep the crystal invariant; `ECALJ_SYMFIND=ecalj`) was removed on 2026-10-02. Only spglib does the search. All the input forms above are still accepted.
 * `symfind.py <sname>` (the Python spglib) makes the same file outside `lmf` as well.
 
-# Q: Should the Harris-Foulkes and Hohenberg-Kohn-Sham functionals agree at self-consistency? {#q-should-the-harris-foulkes-and-hohenberg-kohn-sham-functionals-agree-at-self-consistency}
+## Q: Should the Harris-Foulkes and Hohenberg-Kohn-Sham functionals agree at self-consistency? {#q-should-the-harris-foulkes-and-hohenberg-kohn-sham-functionals-agree-at-self-consistency}
 (by Mark van Schilfgaarde)
 A: Yes. If they do not agree, either self-consistency has not been reached, or the tolerance for evaluating matrix elements is too loose. A common cause is that the integration mesh for the interstitial region is not fine enough.
 The following is part of the output when a mesh of 14×14×14 divisions is used for the interstitial density.
@@ -494,7 +494,7 @@ In this case (3 Te atoms), the difference between the HF and HK total energies i
   20 -14561.131170    0.000000
 ```
 
-# Old documents
+## Old documents
 
 Most of the old explanation of `Category_Token` and the old notes on physics (APW tests, the discussion of `mtchre` for smooth Hankels, old SPEC notes, old notes on the tetrahedron method) have been moved to a separate page.
 

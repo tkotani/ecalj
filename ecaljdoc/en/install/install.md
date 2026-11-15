@@ -1,3 +1,7 @@
+---
+pageClass: secnum-manual
+---
+
 # Installing ecalj {#ecalj-install}
 
 > English version of the page [install/install](../../install/install.md). The pages at the top of ecaljdoc are the reference; this one was made from install/install.md of commit 651e6e476 (source blob f95aa3293880).
