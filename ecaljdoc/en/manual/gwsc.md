@@ -1,6 +1,6 @@
 # gwsc: a script to run QSGW calculations
 
-> English version of the page [manual/gwsc](../../manual/gwsc.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwsc.md of commit 7263caee9 (source blob 99c59b283ed5).
+> English version of the page [manual/gwsc](../../manual/gwsc.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/gwsc.md of commit b55836332 (source blob 064122bb8938).
 
 gwsc is the script to run QSGW calculations.
 A QSGW calculation is run by calling several Fortran executables.

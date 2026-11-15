@@ -4,7 +4,7 @@ pageClass: secnum-manual
 
 # MLO — an automatic modeling method in place of maximal localization and similar methods
 
-> English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit 7263caee9 (source blob 2ee3d4fca3d9).
+> English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit b55836332 (source blob 98a771e82adc).
 
 ecalj branch `mlo3` / 2026-09-16 17:02 JST
 

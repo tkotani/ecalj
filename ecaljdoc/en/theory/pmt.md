@@ -4,7 +4,7 @@ pageClass: secnum-manual
 
 # PMT method (mixed basis of APW and MTO, DFT)
 
-> English version of the page [theory/pmt](../../theory/pmt.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/pmt.md of commit f3b063889 (source blob d68d3a2e28b3).
+> English version of the page [theory/pmt](../../theory/pmt.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/pmt.md of commit b55836332 (source blob b82c6935c56f).
 
 How `lmf` of ecalj solves the one-body problem. For details and derivations, see
 T. Kotani, H. Kino, H. Akai, [J. Phys. Soc. Jpn. **84**, 034702 (2015)](https://doi.org/10.7566/JPSJ.84.034702).

@@ -4,7 +4,7 @@ pageClass: secnum-manual
 
 # Installing ecalj {#ecalj-install}
 
-> English version of the page [install/install](../../install/install.md). The pages at the top of ecaljdoc are the reference; this one was made from install/install.md of commit 651e6e476 (source blob f95aa3293880).
+> English version of the page [install/install](../../install/install.md). The pages at the top of ecaljdoc are the reference; this one was made from install/install.md of commit b55836332 (source blob 23f41b02170c).
 
 > ⚠️ **Migration to TOML (2026-05)** — The Fortran binaries read only `ctrlg.<sname>.toml`. Convert an old `ctrl.<sname>` / `GWinput` with `Legacy2toml.py <sname>`. For the whole guide and the list of migrated samples, see [Input files](../manual/toml_migration).
 

@@ -1,6 +1,6 @@
 # `ctrl.<sname>` — legacy reference (kept for migration)
 
-> English version of the page [manual/lmf_legacy_ctrl](../../manual/lmf_legacy_ctrl.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/lmf_legacy_ctrl.md of commit 694da29ec (source blob 17e7dc61e617).
+> English version of the page [manual/lmf_legacy_ctrl](../../manual/lmf_legacy_ctrl.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/lmf_legacy_ctrl.md of commit b55836332 (source blob f262d6b8eb2d).
 
 > ⚠️ **This page is the historical reference for the legacy `ctrl.<sname>`
 > text format.** Since 2026-05, `lmf` / `lmfa` / `lmchk` read TOML only
