@@ -1,6 +1,6 @@
 # Appendix: mathematical notes {#appendix}
 
-> English version of the page [theory/appendix](../../theory/appendix.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/appendix.md of commit 2b1fbe0f6 (source blob 33c9730db7d3).
+> English version of the page [theory/appendix](../../theory/appendix.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/appendix.md of commit c86bc3520 (source blob 10b0e8123966).
 
 Mathematical tools used in the other pages.
 
@@ -86,12 +86,12 @@ $$
 
 with the boundary condition that the response comes after the impulse (the source term) on the right-hand side ([Basic I](./basic), impulse response).
 
-Note that this response function need not be a number. The same holds for $G(x,x',t-t')$ with $H$ replaced by a matrix $A(x,x')$ and the right-hand side by $B(x)\delta(x-x')\delta(t-t')$.
+Note that this response function need not be a number. The same holds for $G(x,x',t-t')$ with $H$ a matrix $H(x,x')$ and the right-hand side by $B(x)\delta(x-x')\delta(t-t')$.
 Finally, the left-hand side may also be multiplied from the left by a matrix $C$:
 
 $$
 \begin{aligned}
-&\sum_{x''x'''} C(x,x'')\Big(i\frac{\partial}{\partial t}\delta(x''-x''')-A(x'',x''')\Big)G(x''',x',t-t')\\
+&\sum_{x''x'''} C(x,x'')\Big(i\frac{\partial}{\partial t}\delta(x''-x''')-H(x'',x''')\Big)G(x''',x',t-t')\\
 &\qquad=B(x)\,\delta(x-x')\,\delta(t-t').
 \end{aligned}
 \tag{A8}
