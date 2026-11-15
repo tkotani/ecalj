@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 723453694 (source blob fb0b91e2b294).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit aa2de6ad7 (source blob ce38ad304f96).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -109,16 +109,22 @@ $$
 \tag{C8}
 $$
 
-This is the result of the Kubo formula. The real part, which fixes the dissipation (Joule heat), is ${\rm Re}\,\sigma(\omega)={\rm Im}\,\chi^R_{JJ}(\omega)/(\omega\Omega)$. In the diamagnetic term the phases of the electric field and the current are orthogonal, so it gives no dissipation (it affects only the imaginary part of $\sigma$; multiplying by the imaginary unit $i$ means a phase delay of 90 degrees. This is an inductance effect, not due to a magnetic field but a kinetic inductance from the inertia of the electrons; the energy is stored as the kinetic energy of the electrons).
+This is the result of the Kubo formula. What fixes the dissipation (Joule heat) is the real part of $\sigma$. In the diamagnetic term the phases of the electric field and the current are orthogonal, so it gives no dissipation (it affects only the imaginary part of $\sigma$; multiplying by the imaginary unit $i$ means a phase delay of 90 degrees. This is an inductance effect, not due to a magnetic field but a kinetic inductance from the inertia of the electrons; the energy is stored as the kinetic energy of the electrons).
 
 ### The direct-current limit: the Kubo–Greenwood formula {#kubo-greenwood}
 
-Inserting Eq. (C4) and using ${\rm Im}\,[1/(x-i\delta)]=\pi\delta(x)$,
+Taking the real part of Eq. (C8), the diamagnetic term drops out and
 
 $$
-{\rm Re}\,\sigma(\omega)=\frac{\pi}{\omega\Omega}\sum_{nm}(f_n-f_m)\,|\langle n|\hat J^0_x|m\rangle|^2\,\delta(E_m-E_n-\hbar\omega).
+\begin{aligned}
+{\rm Re}\,\sigma(\omega)&=\frac{1}{\omega\Omega}\,{\rm Im}\,\chi^R_{JJ}(\omega)\\
+&=\frac{1}{\omega\Omega}\,{\rm Im}\sum_{nm}(f_n-f_m)\,\frac{|\langle n|\hat J^0_x|m\rangle|^2}{E_m-E_n-\hbar\omega-i\delta}\\
+&=\frac{\pi}{\omega\Omega}\sum_{nm}(f_n-f_m)\,|\langle n|\hat J^0_x|m\rangle|^2\,\delta(E_m-E_n-\hbar\omega)
+\end{aligned}
 \tag{C9}
 $$
+
+In the second line Eq. (C4) is inserted with $\hat A=\hat B=\hat J^0_x$, and in the third ${\rm Im}\,[1/(x-i\delta)]=\pi\delta(x)$ is used.
 
 For $\omega\to 0$ the delta function gives $E_m=E_n+\hbar\omega$, so $f_n-f_m\simeq -f'(E_n)\,\hbar\omega$ and $\omega$ cancels.
 At low temperature $-f'(E)=\delta(E-E_F)$. The one-body matrix element of $\hat J^0_x$ is $-e\langle n|\hat v_x|m\rangle$, and the spin sum gives a factor 2 ($n$, $m$ are orbital states), so
