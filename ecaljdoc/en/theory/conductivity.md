@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 465e8e2b2 (source blob dc03e1ae22a7).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit ae9535a7a (source blob 398b5a804ad2).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -203,7 +203,6 @@ $$
 $$
 
 which diverges for $\delta\to 0$ (without scattering the current does not decay). Roughly, $\delta$ may be regarded as the width $\hbar/2\tau$ from the lifetime $\tau$ of quasiparticles due to phonons and so on.
-Then, with $D(E_F)/\Omega=N_1(E_F)$ (the density of states per spin and per unit volume) and $\overline{v_x^2}=v_F^2/3$, Eq. (C16) becomes $2e^2\tau v_F^2N_1(E_F)/3=ne^2\tau/m$, in agreement with [the Drude formula](#drude).
 
 The two views (Drude's "all electrons are accelerated for the time $\tau$" and Eq. (C16)'s "only the electrons on the Fermi surface contribute") are connected by the following identity.
 For one band and per spin, integrating by parts with $v_x=\hbar^{-1}\partial\varepsilon_{\bf k}/\partial k_x$,
@@ -216,7 +215,15 @@ $$
 $$
 
 The left-hand side is the Fermi-surface quantity in Eq. (C16), and the right-hand side is the sum of the inverse effective masses over all occupied states.
-For free electrons $\partial^2\varepsilon_{\bf k}/\partial k_x^2=\hbar^2/m$ is constant, so the right-hand side is $n/m$ (per spin), in agreement with Drude's $n/m$.
+For free electrons $\partial^2\varepsilon_{\bf k}/\partial k_x^2=\hbar^2/m$ is constant, so the right-hand side is $n/2m$ ($n$ is the electron density including both spins, and $n/2$ is per spin).
+Therefore, with $\delta=\hbar/2\tau$ in Eq. (C16) and using Eq. (C17),
+
+$$
+\sigma_{xx}=2e^2\tau\,\frac{\overline{v_x^2}\,D(E_F)}{\Omega}=\frac{ne^2\tau}{m}
+\tag{C18}
+$$
+
+which is [the Drude formula](#drude).
 This approximation of a constant effective mass on the Fermi surface should hold well for Na, Cu, Al and so on.
 
 In practice the matrix elements are not only diagonal, but the number of states $m$ connected to $n$ is finite (by completeness $\sum_m|\langle n|\hat v_x|m\rangle|^2=\langle n|\hat v_x^2|n\rangle$ is finite), so Eq. (C16) may be regarded as correct.
@@ -230,7 +237,7 @@ For weak impurities the $G^RG^A$ terms dominate:
 $$
 \sigma_{xx}\simeq\frac{\hbar e^2}{\pi\Omega}\,{\rm Re}\,
 \Big\langle {\rm Tr}\big[\hat v_x\,G^R(E_F)\,\hat v_x\,G^A(E_F)\big]\Big\rangle_{\rm imp}
-\tag{C18}
+\tag{C19}
 $$
 
 (the $G^RG^R$ terms only give corrections of higher order in $1/\tau$).
@@ -240,7 +247,7 @@ $$
 $$
 \big\langle \hat v_x G^R \hat v_x G^A\big\rangle_{\rm imp}\neq
 \hat v_x\langle G^R\rangle_{\rm imp}\,\hat v_x\langle G^A\rangle_{\rm imp}.
-\tag{C19}
+\tag{C20}
 $$
 
 A correlation remains between $G^R$ and $G^A$ being scattered by the same impurity (in diagrams, impurity lines connecting the two lines). This is the vertex correction.
@@ -251,7 +258,7 @@ Averaging a single $G^R$ restores the translational symmetry, and it becomes dia
 
 $$
 \langle G^R\rangle_{\rm imp}({\bf k},E)=\frac{1}{E-\varepsilon_{\bf k}-\Sigma^R({\bf k},E)}.
-\tag{C20}
+\tag{C21}
 $$
 
 The self-energy to second order in the impurity potential (Born approximation) is
@@ -259,7 +266,7 @@ The self-energy to second order in the impurity potential (Born approximation) i
 $$
 \Sigma^R({\bf k},E)=n_i\int\frac{d^3k'}{(2\pi)^3}\,
 \frac{|u({\bf k}-{\bf k}')|^2}{E-\varepsilon_{\bf k'}+i\delta}
-\tag{C21}
+\tag{C22}
 $$
 
 and its imaginary part gives the lifetime $\tau$ of the quasiparticle (the real part is an energy shift, absorbed in $E_F$):
@@ -269,14 +276,14 @@ $$
 &{\rm Im}\,\Sigma^R=-\frac{\hbar}{2\tau},\\
 &\frac{1}{\tau}=\frac{2\pi}{\hbar}\,n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\,\delta(E-\varepsilon_{\bf k'}).
 \end{aligned}
-\tag{C22}
+\tag{C23}
 $$
 
 $1/\tau$ is just the scattering rate by Fermi's golden rule (see the correspondence between the golden rule and the imaginary part of the self-energy in [Basic I](./basic#td-vs-ti-perturbation)).
 
 ## Without the vertex correction: the Drude formula {#drude}
 
-Replacing the average in Eq. (C18) by the product of the single averages (C20) (dropping the vertex correction) gives a sum over ${\bf k}$.
+Replacing the average in Eq. (C19) by the product of the single averages (C21) (dropping the vertex correction) gives a sum over ${\bf k}$.
 When $\tau$ is long ($\hbar/\tau\ll E_F$),
 
 $$
@@ -285,7 +292,7 @@ $$
 &=\frac{1}{(E-\varepsilon_{\bf k})^2+(\hbar/2\tau)^2}\\
 &\simeq\frac{2\pi\tau}{\hbar}\,\delta(E-\varepsilon_{\bf k})
 \end{aligned}
-\tag{C23}
+\tag{C24}
 $$
 
 so, with the angular average $v_F^2/3$ of $v_x^2$ and the density of states per spin $N_1(E_F)$ (per unit volume),
@@ -293,14 +300,14 @@ so, with the angular average $v_F^2/3$ of $v_x^2$ and the density of states per 
 $$
 \sigma_{xx}=\frac{\hbar e^2}{\pi}\cdot\frac{2\pi\tau}{\hbar}\cdot\frac{v_F^2}{3}\,N_1(E_F)
 =\frac{2e^2\tau v_F^2N_1(E_F)}{3}=\frac{ne^2\tau}{m}
-\tag{C24}
+\tag{C25}
 $$
 
 The last step uses $N_1(E_F)=mk_F/(2\pi^2\hbar^2)$, $n=k_F^3/(3\pi^2)$ and $v_F=\hbar k_F/m$ of free electrons. This is the Drude formula.
 
 ## Vertex correction: the transport relaxation time {#vertex-correction}
 
-The product average (C19) is taken up to the ladder diagrams, in which impurity lines connect the two $G$ (the approximation that goes with the Born self-energy (C21)).
+The product average (C20) is taken up to the ladder diagrams, in which impurity lines connect the two $G$ (the approximation that goes with the Born self-energy (C22)).
 The current vertex $\Gamma_x({\bf k})$ satisfies
 
 $$
@@ -308,23 +315,23 @@ $$
 \Gamma_x({\bf k})={}&v_x({\bf k})+n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\\
 &\times\langle G^R\rangle({\bf k}',E_F)\langle G^A\rangle({\bf k}',E_F)\,\Gamma_x({\bf k}')
 \end{aligned}
-\tag{C25}
+\tag{C26}
 $$
 
-Putting $\Gamma_x({\bf k})=\gamma\,v_x({\bf k})$ and using (C23), the average over the direction of ${\bf k}'$ turns $v_x({\bf k}')$ into $v_x({\bf k})\cos\theta_{\bf kk'}$, so that
+Putting $\Gamma_x({\bf k})=\gamma\,v_x({\bf k})$ and using (C24), the average over the direction of ${\bf k}'$ turns $v_x({\bf k}')$ into $v_x({\bf k})\cos\theta_{\bf kk'}$, so that
 $\gamma=1+\gamma\,(1-\tau/\tau_{\rm tr})$, that is $\gamma=\tau_{\rm tr}/\tau$. Here
 
 $$
 \frac{1}{\tau_{\rm tr}}=\frac{2\pi}{\hbar}\,n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\,
 \big(1-\cos\theta_{\bf kk'}\big)\,\delta(E_F-\varepsilon_{\bf k'})
-\tag{C26}
+\tag{C27}
 $$
 
-is the transport relaxation time. Replacing one $v_x$ in Eq. (C24) by $\Gamma_x$ gives
+is the transport relaxation time. Replacing one $v_x$ in Eq. (C25) by $\Gamma_x$ gives
 
 $$
 \sigma_{xx}=\frac{ne^2\tau_{\rm tr}}{m}
-\tag{C27}
+\tag{C28}
 $$
 
 Forward scattering ($\cos\theta\simeq 1$) hardly reduces the current, so what matters for the resistance is the scattering weighted by $1-\cos\theta$.
