@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit f54cf0be6 (source blob 2aef425e709e).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit c48bcd857 (source blob 4adfba1da1d8).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -144,29 +144,28 @@ $$
 
 $\hat v_x$ is the velocity operator, ${\rm Tr}$ the sum over one-body (orbital) states, and the factor 2 is the spin.
 
-Alternatively, one can start from the definition of $\chi^R_{JJ}$ and write it with Green functions from the beginning.
-The Fourier transform of $\chi^R_{JJ}$ of Eq. (C6) is Eq. (C4) with $\hat A=\hat B=\hat J^0_x$.
-Insert $1=\int dE\,\delta(E-E_n)$ in the $f_n$ term and use $\sum_m|m\rangle\langle m|/(E_m-E-\hbar\omega-i\delta)=-G^R(E+\hbar\omega)$.
-Treating the $f_m$ term in the same way ($E_m\to E$, $\sum_n|n\rangle\langle n|/(E-\hbar\omega-E_n-i\delta)=G^A(E-\hbar\omega)$) and using $\delta(E-H)=-{\rm Im}\,G^R(E)/\pi$,
+Alternatively, starting from the level of the correlation function, one obtains the Green-function form from the beginning.
+$\hat J^0_x$ is Hermitian and the equilibrium does not depend on the origin of time, so $C(t)=\langle[\hat J^0_{x,{\rm H}}(t),\hat J^0_x]\rangle$ satisfies $C(t)^*=-C(t)$ and $C(-t)=-C(t)$.
+Therefore the imaginary part of $\chi^R_{JJ}$ of Eq. (C6) is the Fourier transform without $\theta(t)$.
+Moreover, in a one-body system the expectation value of the commutator becomes a trace in the one-body space ($J=-e\hat v_x$ is a one-body operator, $J(t)=e^{iHt/\hbar}Je^{-iHt/\hbar}$, $f(H)$ the occupation):
 
 $$
 \begin{aligned}
-\chi^R_{JJ}(\omega)=\frac{1}{\pi}\int dE\,f(E)\,
-{\rm Tr}\big[&\hat J^0_x\,{\rm Im}\,G^R(E)\,\hat J^0_x\,G^R(E+\hbar\omega)\\
-&+\hat J^0_x\,G^A(E-\hbar\omega)\,\hat J^0_x\,{\rm Im}\,G^R(E)\big]
+{\rm Im}\,\chi^R_{JJ}(\omega)&=\frac{1}{2\hbar}\int dt\,e^{i\omega t}\,\big\langle[\hat J^0_{x,{\rm H}}(t),\hat J^0_x]\big\rangle\\
+&=\frac{1}{2\hbar}\int dt\,e^{i\omega t}\,{\rm Tr}\big[f(H)\,\big(J(t)\,J-J\,J(t)\big)\big]
 \end{aligned}
 \tag{C12}
 $$
 
-Here ${\rm Re}\,G=(G^R+G^A)/2$ and ${\rm Im}\,G=(G^R-G^A)/2i$ are both Hermitian operators, and $G^R(E+\hbar\omega)={\rm Re}\,G+i\,{\rm Im}\,G$, $G^A(E-\hbar\omega)={\rm Re}\,G-i\,{\rm Im}\,G$.
-The traces of the terms with ${\rm Re}\,G$ are real, so they do not contribute to the imaginary part of $\chi^R_{JJ}$. The imaginary part is given only by the products of ${\rm Im}\,G$, that is, by the poles.
-Shifting $E\to E+\hbar\omega$ in the second term,
+Inserting $e^{\pm iHt/\hbar}=\int dE\,e^{\pm iEt/\hbar}\,\delta(E-H)$, the time integral gives $2\pi\hbar\,\delta(\hbar\omega+E-E')$, and
+${\rm Im}\,\chi^R_{JJ}(\omega)=\pi\int dE\,[f(E)-f(E+\hbar\omega)]\,{\rm Tr}[J\,\delta(E-H)\,J\,\delta(E+\hbar\omega-H)]$.
+With $\delta(E-H)=-{\rm Im}\,G^R(E)/\pi$,
 
 $$
 \begin{aligned}
 {\rm Re}\,\sigma(\omega)&=\frac{1}{\omega\Omega}\,{\rm Im}\,\chi^R_{JJ}(\omega)\\
 &=\frac{1}{\pi\omega\Omega}\int dE\,\big[f(E)-f(E+\hbar\omega)\big]\\
-&\quad\times{\rm Tr}\big[\hat J^0_x\,{\rm Im}\,G^R(E)\,\hat J^0_x\,{\rm Im}\,G^R(E+\hbar\omega)\big]
+&\quad\times{\rm Tr}\big[J\,{\rm Im}\,G^R(E)\,J\,{\rm Im}\,G^R(E+\hbar\omega)\big]
 \end{aligned}
 \tag{C13}
 $$
