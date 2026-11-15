@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 999789391 (source blob 87a78ca038b5).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit a3ca2dbbd (source blob ed13d504b64b).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -179,16 +179,15 @@ $$
 
 This holds for any $\omega$ and temperature (for $\omega\neq 0$ it gives the optical conductivity). In the limit $\omega\to 0$ at low temperature it agrees with Eq. (C10).
 
-The product of delta functions in Eqs. (C10) and (C11) is hard to read; it is easier to start from Eq. (C9) with $\hbar\omega$ finite but very small.
-Eq. (C9) is the sum of transitions in which an electron absorbs the energy $\hbar\omega$ and moves from an occupied state $n$ to an unoccupied state $m$.
-Because of $f_n-f_m$, only transitions from just below $E_F$ to just above it contribute, within a width $\hbar\omega$; $(f_n-f_m)/\omega\to\hbar\,(-f')$ cancels the $1/\omega$.
-So the product of delta functions in Eq. (C10) gives the strength of the transitions, through $J$, between pairs of states near $E_F$ separated by $\hbar\omega\to 0$.
-Mind the order of the limits: $\omega$ is made small while $\hbar\omega$ stays larger than the level spacing of the finite system (the system is made large first, then $\omega\to 0$).
+The product of delta functions in Eqs. (C10) and (C11) is hard to read; it is easier to keep $i\delta$ finite.
+${\rm Im}\,G^R(E)=-\sum_n|n\rangle\langle n|\,\delta/\big((E-E_n)^2+\delta^2\big)$ is a sum of Lorentzians of width $\delta$, and the delta function is its limit $\delta\to 0$.
+Eq. (C11) is a product of two Lorentzians of width $\delta$ centred at $E_F$; it gives the strength, through $J$, of the pairs of states with both $E_n$ and $E_m$ within $\delta$ of $E_F$.
+Mind the order of the limits: the system is made large so that the level spacing is much smaller than $\delta$, and then $\delta\to 0$.
 
-For example, for free electrons without impurities $J$ is diagonal in the wave vector (it connects only equal ${\bf k}$), so there are no transitions with $\hbar\omega\neq 0$ and ${\rm Re}\,\sigma=0$ for $\omega>0$.
-All the weight is at $\omega=0$ (a delta function, the Drude weight), and the direct-current conductivity is infinite (the current does not decay).
-With impurities the wave vector is not conserved, $J$ connects different states near $E_F$, and transitions with small $\hbar\omega$ occur.
-${\rm Re}\,\sigma(\omega)$ approaches a constant when $\hbar\omega$ becomes smaller than the level width $\hbar/2\tau$, and the value is proportional to $\tau$ (see [the Drude formula](#drude)).
+For example, for free electrons without impurities $J$ is diagonal in the wave vector (it connects only equal ${\bf k}$), so only the terms $n=m$ remain, giving the square of a Lorentzian.
+Since $\int dE\,\delta^2/\big((E-E_n)^2+\delta^2\big)^2=\pi/2\delta$, this diverges for $\delta\to 0$: without scattering the current does not decay and the direct-current conductivity is infinite.
+With impurities the wave vector is not conserved, and the averaged $G$ has the physical width $\hbar/2\tau$ (see [the averaged single Green function](#averaged-g)).
+This width plays the role of $\delta$, so the conductivity stays finite for $\delta\to 0$ and is proportional to $1/(\hbar/2\tau)$, that is, to $\tau$ (see [the Drude formula](#drude)).
 
 ### The $G^RG^A$ terms {#grga}
 
