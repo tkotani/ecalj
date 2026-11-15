@@ -183,7 +183,7 @@ ${\rm Im}\,G^R(E)=-\sum_n|n\rangle\langle n|\,\delta/\big((E-E_n)^2+\delta^2\big
 式 (C11) は、$E_F$ を中心とする幅 $\delta$ のローレンツ関数二つの積で、$E_n$ と $E_m$ がともに $E_F$ から $\delta$ 以内にある状態の対を $J$ でつなぐ強さを表す。
 極限の順序に注意する: 系を大きくして準位の間隔を $\delta$ より十分小さくしてから、$\delta\to 0$ とする。
 
-行列要素 $|\langle n|\hat v_x|m\rangle|^2$ が $E_F$ の近くであまり変わらない（平均値 $\overline{|v_x|^2}$ でよい）として和の外へ出すと、式 (C10) は
+もし行列要素 $|\langle n|\hat v_x|m\rangle|^2$ が $E_F$ の近くであまり変わらない（平均値 $\overline{|v_x|^2}$ でよい）として和の外へ出すと、式 (C10) は
 
 $$
 \begin{aligned}
