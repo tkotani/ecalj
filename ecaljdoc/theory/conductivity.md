@@ -152,9 +152,9 @@ $f(H)\,e^{\pm iHt/\hbar}=\int dE\,f(E)\,e^{\pm iEt/\hbar}\,\delta(E-H)$ とス�
 
 $$
 \begin{aligned}
-\chi^R_{JJ}(\omega)=\frac{1}{2\pi i}\int dE\,f(E)\,
-{\rm Tr}\big[&J\,\big(G^R(E)-G^A(E)\big)\,J\,G^R(E+\hbar\omega)\\
-&+J\,G^A(E-\hbar\omega)\,J\,\big(G^R(E)-G^A(E)\big)\big]
+\chi^R_{JJ}(\omega)&=\frac{1}{2\pi i}\int dE\,f(E)\\
+&\quad\times{\rm Tr}\big[J\,\big(G^R(E)-G^A(E)\big)\,J\,G^R(E+\hbar\omega)\\
+&\qquad+J\,G^A(E-\hbar\omega)\,J\,\big(G^R(E)-G^A(E)\big)\big]
 \end{aligned}
 \tag{C12}
 $$
