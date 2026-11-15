@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 543395c75 (source blob 0450b4ab5af8).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit dc60b5d15 (source blob dd887a9d59c4).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -78,17 +78,11 @@ $\hat J_x$ is the total current operator (the sum of the charge $-e$ times the v
 
 Compared with Eq. (C2), the perturbation to first order in ${\bf A}$ is $-\hat J^0_x A_x$, so $\hat B=\hat J^0_x$ and $F=A_x$.
 What is observed is the total current $\hat J_x$, so Eq. (C3) is applied as it is with $\hat A=\hat J_x$.
-$\langle\hat J_x\rangle(t)$ is the expectation value $\langle\hat J_x\rangle_0$ in the equilibrium state plus the change given by (C3).
-No current flows in equilibrium ($\langle\hat J^0_x\rangle_0=0$), so $\langle\hat J_x\rangle_0=-(e^2/m)\langle\hat N\rangle_0A_x=-(e^2/m)n\Omega A_x$ ($n$ is the electron density).
-The response function in (C3) is needed only at zeroth order in ${\bf A}$; it is written $\chi^R_{JJ}$.
-Dividing by the volume $\Omega$, the current density is
+Writing the response function in (C3) as $\chi^R_{JJ}$, the current density is ($n$ is the electron density)
 
 $$
-\begin{aligned}
-j_x(t)&=\frac{1}{\Omega}\,\langle\hat J_x\rangle(t)
-=\frac{1}{\Omega}\,\langle\hat J_x\rangle_0+\frac{1}{\Omega}\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t')\\
-&=-\frac{ne^2}{m}A_x(t)+\frac{1}{\Omega}\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t')
-\end{aligned}
+j_x(t)=\frac{1}{\Omega}\,\langle\hat J_x\rangle(t)
+=-\frac{ne^2}{m}A_x(t)+\frac{1}{\Omega}\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t')
 \tag{C6}
 $$
 
