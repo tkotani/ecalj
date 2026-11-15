@@ -143,22 +143,24 @@ $$
 
 を得る。$\hat v_x$ は速度の演算子、${\rm Tr}$ は一体の（軌道の）状態についての和、因子 2 はスピンである。
 
-一方、相関関数のレベルから出発すると、はじめからグリーン関数で書ける。
-$\hat J^0_x$ はエルミートで、平衡では時間の原点によらないので、$C(t)=\langle[\hat J^0_{x,{\rm H}}(t),\hat J^0_x]\rangle$ は $C(t)^*=-C(t)$、$C(-t)=-C(t)$ を満たす。
-このため、式 (C6) の $\chi^R_{JJ}$ の虚部は $\theta(t)$ の無いフーリエ変換になる。
-さらに一体の系では、交換子の期待値は一体の空間でのトレースになる（$J=-e\hat v_x$ は一体の演算子、$J(t)=e^{iHt/\hbar}Je^{-iHt/\hbar}$、$f(H)$ は占有）:
+一方、相関関数のレベルから出発すると、そのままグリーン関数のたたみこみの形になる。
+一体の系では、交換子の期待値は一体の空間でのトレースになり、式 (C6) は
+$\chi^R_{JJ}(t)=(i/\hbar)\theta(t)\,{\rm Tr}\big[f(H)\big(J(t)\,J-J\,J(t)\big)\big]$ となる
+（$J=-e\hat v_x$ は一体の演算子、$J(t)=e^{iHt/\hbar}Je^{-iHt/\hbar}$、$f(H)$ は占有）。
+$f(H)\,e^{\pm iHt/\hbar}=\int dE\,f(E)\,e^{\pm iEt/\hbar}\,\delta(E-H)$ とスペクトル分解すると、残る $(i/\hbar)\theta(t)\,e^{\mp i(H-E)t/\hbar}$ のフーリエ変換は、一体のグリーン関数 $-G^R(E+\hbar\omega)$、$G^A(E-\hbar\omega)$ である。
+したがって時間についての積は、エネルギーについてのたたみこみになり、$\delta(E-H)=-{\rm Im}\,G^R(E)/\pi$ を使うと
 
 $$
 \begin{aligned}
-{\rm Im}\,\chi^R_{JJ}(\omega)&=\frac{1}{2\hbar}\int dt\,e^{i\omega t}\,\big\langle[\hat J^0_{x,{\rm H}}(t),\hat J^0_x]\big\rangle\\
-&=\frac{1}{2\hbar}\int dt\,e^{i\omega t}\,{\rm Tr}\big[f(H)\,\big(J(t)\,J-J\,J(t)\big)\big]
+\chi^R_{JJ}(\omega)=\frac{1}{\pi}\int dE\,f(E)\,
+{\rm Tr}\big[&J\,{\rm Im}\,G^R(E)\,J\,G^R(E+\hbar\omega)\\
+&+J\,G^A(E-\hbar\omega)\,J\,{\rm Im}\,G^R(E)\big]
 \end{aligned}
 \tag{C12}
 $$
 
-$e^{\pm iHt/\hbar}=\int dE\,e^{\pm iEt/\hbar}\,\delta(E-H)$ を入れると、時間積分が $2\pi\hbar\,\delta(\hbar\omega+E-E')$ を与え、
-${\rm Im}\,\chi^R_{JJ}(\omega)=\pi\int dE\,[f(E)-f(E+\hbar\omega)]\,{\rm Tr}[J\,\delta(E-H)\,J\,\delta(E+\hbar\omega-H)]$ となる。
-$\delta(E-H)=-{\rm Im}\,G^R(E)/\pi$ を使うと
+となる。$G^R={\rm Re}\,G+i\,{\rm Im}\,G$、$G^A={\rm Re}\,G-i\,{\rm Im}\,G$（${\rm Re}\,G$、${\rm Im}\,G$ はどちらもエルミート）と分けると、虚部は ${\rm Re}\,G\cdot{\rm Im}\,G$ と ${\rm Im}\,G\cdot{\rm Im}\,G$ の組み合わせになる。
+${\rm Re}\,G$ を含む項のトレースは実数なので虚部には効かず、${\rm Im}\,G$ どうしの積（極の寄与）だけが残る。第 2 項で $E\to E+\hbar\omega$ とずらすと
 
 $$
 \begin{aligned}
