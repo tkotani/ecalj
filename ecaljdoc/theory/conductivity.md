@@ -202,7 +202,7 @@ $$
 $$
 
 で、$\delta\to 0$ で発散する（散乱が無ければ電流は減衰しない）。大雑把には、$\delta$ はフォノンなどによる準粒子の寿命 $\tau$ から来る幅 $\hbar/2\tau$ と考えてもよい。
-二つの場合は、完全系から $\sum_m|\langle n|\hat v_x|m\rangle|^2=\langle n|\hat v_x^2|n\rangle$ が有限であることでつながる。$n$ とつながる $m$ がエネルギーの幅 $W$ に広がっていれば $|\langle n|\hat v_x|m\rangle|^2\approx\overline{v_x^2}/(D W)$ で、式 (C15) は式 (C16) の $\delta$ を $W$ に替えた形になる。
+実際には、行列要素は対角成分だけではないにせよ、$n$ とつながる $m$ の数は（完全系から $\sum_m|\langle n|\hat v_x|m\rangle|^2=\langle n|\hat v_x^2|n\rangle$ が有限なので）有限であり、式 (C16) が正しいと考えてよい。
 
 ### $G^RG^A$ の項 {#grga}
 
