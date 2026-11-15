@@ -202,7 +202,6 @@ $$
 $$
 
 で、$\delta\to 0$ で発散する（散乱が無ければ電流は減衰しない）。大雑把には、$\delta$ はフォノンなどによる準粒子の寿命 $\tau$ から来る幅 $\hbar/2\tau$ と考えてもよい。
-このとき、$D(E_F)/\Omega=N_1(E_F)$（スピンあたり、単位体積あたりの状態密度）、$\overline{v_x^2}=v_F^2/3$ とすると、式 (C16) は $2e^2\tau v_F^2N_1(E_F)/3=ne^2\tau/m$ となり、[Drude の式](#drude) と一致する。
 
 二つの見方（Drude の「すべての電子が $\tau$ の間加速される」と、式 (C16) の「フェルミ面の電子だけが効く」）は、次の恒等式でつながる。
 一つのバンド、スピンあたりで、$v_x=\hbar^{-1}\partial\varepsilon_{\bf k}/\partial k_x$ を使って部分積分すると
@@ -215,7 +214,15 @@ $$
 $$
 
 である。左辺は式 (C16) に現れるフェルミ面の量、右辺は占有された全状態の逆有効質量の和である。
-自由電子では $\partial^2\varepsilon_{\bf k}/\partial k_x^2=\hbar^2/m$ が一定なので右辺は $n/m$（スピンあたり）となり、Drude の $n/m$ に一致する。
+自由電子では $\partial^2\varepsilon_{\bf k}/\partial k_x^2=\hbar^2/m$ が一定なので、右辺は $n/2m$ となる（$n$ は両スピンを含む電子の数密度で、$n/2$ がスピンあたり）。
+したがって、式 (C16) で $\delta=\hbar/2\tau$ とし、式 (C17) を使うと
+
+$$
+\sigma_{xx}=2e^2\tau\,\frac{\overline{v_x^2}\,D(E_F)}{\Omega}=\frac{ne^2\tau}{m}
+\tag{C18}
+$$
+
+となり、[Drude の式](#drude) が出る。
 このフェルミ面での有効質量を一定とする近似は、Na、Cu、Al などではよく成り立つはずである。
 
 実際には、行列要素は対角成分だけではないにせよ、$n$ とつながる $m$ の数は（完全系から $\sum_m|\langle n|\hat v_x|m\rangle|^2=\langle n|\hat v_x^2|n\rangle$ が有限なので）有限であり、式 (C16) が正しいと考えてよい。
@@ -229,7 +236,7 @@ ${\rm Im}\,G^R=(G^R-G^A)/2i$ と書いて展開すると、$G^RG^A$ の項と $G
 $$
 \sigma_{xx}\simeq\frac{\hbar e^2}{\pi\Omega}\,{\rm Re}\,
 \Big\langle {\rm Tr}\big[\hat v_x\,G^R(E_F)\,\hat v_x\,G^A(E_F)\big]\Big\rangle_{\rm imp}
-\tag{C18}
+\tag{C19}
 $$
 
 である（$G^RG^R$ の項は、$1/\tau$ について高次の補正を与えるだけである）。
@@ -239,7 +246,7 @@ $$
 $$
 \big\langle \hat v_x G^R \hat v_x G^A\big\rangle_{\rm imp}\neq
 \hat v_x\langle G^R\rangle_{\rm imp}\,\hat v_x\langle G^A\rangle_{\rm imp}.
-\tag{C19}
+\tag{C20}
 $$
 
 $G^R$ と $G^A$ が同じ不純物で散乱される相関（ダイヤグラムでは、二本の線を結ぶ不純物の線）が残る。これがバーテックス補正である。
@@ -250,7 +257,7 @@ $G^R$ と $G^A$ が同じ不純物で散乱される相関（ダイヤグラム�
 
 $$
 \langle G^R\rangle_{\rm imp}({\bf k},E)=\frac{1}{E-\varepsilon_{\bf k}-\Sigma^R({\bf k},E)}.
-\tag{C20}
+\tag{C21}
 $$
 
 不純物について二次（Born 近似）の自己エネルギーは
@@ -258,7 +265,7 @@ $$
 $$
 \Sigma^R({\bf k},E)=n_i\int\frac{d^3k'}{(2\pi)^3}\,
 \frac{|u({\bf k}-{\bf k}')|^2}{E-\varepsilon_{\bf k'}+i\delta}
-\tag{C21}
+\tag{C22}
 $$
 
 で、その虚部が準粒子の寿命 $\tau$ を与える（実部はエネルギーのずれで、$E_F$ に繰り込む）:
@@ -268,14 +275,14 @@ $$
 &{\rm Im}\,\Sigma^R=-\frac{\hbar}{2\tau},\\
 &\frac{1}{\tau}=\frac{2\pi}{\hbar}\,n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\,\delta(E-\varepsilon_{\bf k'}).
 \end{aligned}
-\tag{C22}
+\tag{C23}
 $$
 
 $1/\tau$ はフェルミの黄金則による散乱の速さそのものである（[Basic I](./basic#td-vs-ti-perturbation) の、黄金則と自己エネルギーの虚部の対応）。
 
 ## バーテックス補正を入れない場合: Drude の式 {#drude}
 
-式 (C18) の平均を、一本ずつの平均 (C20) の積で置きかえると（バーテックス補正を落とすと）、${\bf k}$ についての和になる。
+式 (C19) の平均を、一本ずつの平均 (C21) の積で置きかえると（バーテックス補正を落とすと）、${\bf k}$ についての和になる。
 $\tau$ が長い（$\hbar/\tau\ll E_F$）とき
 
 $$
@@ -284,7 +291,7 @@ $$
 &=\frac{1}{(E-\varepsilon_{\bf k})^2+(\hbar/2\tau)^2}\\
 &\simeq\frac{2\pi\tau}{\hbar}\,\delta(E-\varepsilon_{\bf k})
 \end{aligned}
-\tag{C23}
+\tag{C24}
 $$
 
 なので、$v_x^2$ の角度平均 $v_F^2/3$ と、スピンあたりの状態密度 $N_1(E_F)$（単位体積あたり）を使って
@@ -292,14 +299,14 @@ $$
 $$
 \sigma_{xx}=\frac{\hbar e^2}{\pi}\cdot\frac{2\pi\tau}{\hbar}\cdot\frac{v_F^2}{3}\,N_1(E_F)
 =\frac{2e^2\tau v_F^2N_1(E_F)}{3}=\frac{ne^2\tau}{m}
-\tag{C24}
+\tag{C25}
 $$
 
 となる。最後は自由電子の $N_1(E_F)=mk_F/(2\pi^2\hbar^2)$、$n=k_F^3/(3\pi^2)$、$v_F=\hbar k_F/m$ を使った。Drude の式である。
 
 ## バーテックス補正: 輸送の緩和時間 {#vertex-correction}
 
-積の平均 (C19) を、不純物の線で二本の $G$ を結ぶはしご型のダイヤグラムまで取る（Born 近似の自己エネルギー (C21) と組になる近似）。
+積の平均 (C20) を、不純物の線で二本の $G$ を結ぶはしご型のダイヤグラムまで取る（Born 近似の自己エネルギー (C22) と組になる近似）。
 電流のバーテックス $\Gamma_x({\bf k})$ は
 
 $$
@@ -307,23 +314,23 @@ $$
 \Gamma_x({\bf k})={}&v_x({\bf k})+n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\\
 &\times\langle G^R\rangle({\bf k}',E_F)\langle G^A\rangle({\bf k}',E_F)\,\Gamma_x({\bf k}')
 \end{aligned}
-\tag{C25}
+\tag{C26}
 $$
 
-を満たす。$\Gamma_x({\bf k})=\gamma\,v_x({\bf k})$ と置き、(C23) を使うと、${\bf k}'$ の向きについての平均で $v_x({\bf k}')$ が $v_x({\bf k})\cos\theta_{\bf kk'}$ になるので、
+を満たす。$\Gamma_x({\bf k})=\gamma\,v_x({\bf k})$ と置き、(C24) を使うと、${\bf k}'$ の向きについての平均で $v_x({\bf k}')$ が $v_x({\bf k})\cos\theta_{\bf kk'}$ になるので、
 $\gamma=1+\gamma\,(1-\tau/\tau_{\rm tr})$、すなわち $\gamma=\tau_{\rm tr}/\tau$ を得る。ここで
 
 $$
 \frac{1}{\tau_{\rm tr}}=\frac{2\pi}{\hbar}\,n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\,
 \big(1-\cos\theta_{\bf kk'}\big)\,\delta(E_F-\varepsilon_{\bf k'})
-\tag{C26}
+\tag{C27}
 $$
 
-は輸送の緩和時間である。式 (C24) の片方の $v_x$ を $\Gamma_x$ に替えると
+は輸送の緩和時間である。式 (C25) の片方の $v_x$ を $\Gamma_x$ に替えると
 
 $$
 \sigma_{xx}=\frac{ne^2\tau_{\rm tr}}{m}
-\tag{C27}
+\tag{C28}
 $$
 
 となる。前方への散乱（$\cos\theta\simeq 1$）は電流をほとんど減らさないので、抵抗に効くのは $1-\cos\theta$ の重みを付けた散乱である。
