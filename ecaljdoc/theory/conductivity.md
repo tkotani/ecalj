@@ -74,12 +74,12 @@ $$
 である（$\hat N$ は電子の数の演算子、和は電子についてとる）。
 $\hat J_x$ が全電流の演算子（電荷 $-e$ と速度 $(\hat{\bf p}_i+e{\bf A})/m$ の積の和）で、$\hat J^0_x$ は ${\bf A}=0$ での $\hat J_x$ である。
 
-式 (C2) と比べると、${\bf A}$ について一次の摂動は $-\hat J_x A_x$（$\hat J_x$ は ${\bf A}=0$ でのもの）なので、$\hat B=\hat J_x$、$F=A_x$ である。
-観測するのも同じ電流 $\hat J_x$ なので、式 (C3) で $\hat A=\hat B=\hat J_x$ とすればよい。
-注意すべきは、$\hat J_x$ 自身が ${\bf A}$ を陽に含むことだけである。$\langle\hat J_x\rangle(t)$ を ${\bf A}$ について一次まで取ると、次の二つになる。
+式 (C2) と比べると、${\bf A}$ について一次の摂動は $-\hat J^0_x A_x$ なので、$\hat B=\hat J^0_x$、$F=A_x$ である。
+一方、観測するのは全電流 $\hat J_x$ なので、$\hat A=\hat J_x$ である。
+$\hat J_x=\hat J^0_x-(e^2/m)\hat N A_x$ は ${\bf A}$ を陽に含むので、$\langle\hat J_x\rangle(t)$ を ${\bf A}$ について一次まで取ると、次の二つになる。
 
-- 状態の変化から来る部分: 式 (C3) の交換子は ${\bf A}$ について 0 次でよいので、$\hat A=\hat B=\hat J_x|_{\mathbf A=0}=\hat J^0_x$ とする。平衡では電流は流れていない（$\langle\hat J^0_x\rangle=0$）ので、この変化分だけが残る。この応答関数を $\chi^R_{JJ}$ と書く。
-- $\hat J_x$ が陽に含む $-(e^2/m)\hat N A_x$: すでに ${\bf A}$ について一次なので、期待値は平衡の状態で取ればよく、$\langle\hat N\rangle=n\Omega$ である（$n$ は電子の数密度）。
+- 第 1 項 $\hat J^0_x$ の期待値の変化: 式 (C3) を $\hat A=\hat B=\hat J^0_x$、$F=A_x$ として使う。平衡では電流は流れていない（$\langle\hat J^0_x\rangle=0$）ので、この変化分だけが残る。この応答関数を $\chi^R_{JJ}$ と書く。
+- 第 2 項 $-(e^2/m)\hat N A_x$: すでに ${\bf A}$ について一次なので、期待値は平衡の状態で取ればよく、$\langle\hat N\rangle=n\Omega$ である（$n$ は電子の数密度）。
 
 体積 $\Omega$ で割って、電流密度は
 
