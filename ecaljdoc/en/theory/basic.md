@@ -1,11 +1,11 @@
 # Basic expressions
 
-> English version of the page [theory/basic](../../theory/basic.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/basic.md of commit 7f12f9348 (source blob 28dacf720605).
+> English version of the page [theory/basic](../../theory/basic.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/basic.md of commit e7f8f7d3f (source blob 1bcf95418988).
 
 On the Green function at zero temperature
 
 ## References
-- Fetter Walecka
+- A. L. Fetter and J. D. Walecka, *Quantum Theory of Many-Particle Systems* (McGraw-Hill, 1971). Japanese translation: 『多粒子系の量子論』理論編・応用編, translated by T. Matsubara and K. Fujii (McGraw-Hill Book, Tokyo, 1987)
 
 ## What is a Green function {#what-is-green}
 
