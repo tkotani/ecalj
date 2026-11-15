@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 503e32cf6 (source blob fca1b1d8619a).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit f49451b56 (source blob 91fb04f48b6f).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -63,19 +63,26 @@ $$
 ### Response to an electric field: the Kubo formula {#response-to-field}
 
 A uniform electric field is introduced through a vector potential $A_x(t)$ as $E_x=-\partial A_x/\partial t$ (this avoids the position operator even with periodic boundary conditions).
-With the electron charge $-e$, expanding the kinetic energy $(\hat{\bf p}+e{\bf A})^2/2m$ to first order in ${\bf A}$ gives the perturbation
+With the electron charge $-e$, the kinetic energy in the Hamiltonian is $\sum_i(\hat{\bf p}_i+e{\bf A})^2/2m$, and its expansion in ${\bf A}$ is
 
 $$
-\hat H'(t)=-\hat J^0_x\,A_x(t),\qquad \hat J^0_x=-e\sum_i\hat v_{x,i}
+\begin{aligned}
+&\hat H(t)=\hat H_0-\hat J^0_x\,A_x(t)+\frac{e^2}{2m}\hat N A_x(t)^2,\qquad \hat J^0_x=-e\sum_i\frac{\hat p_{x,i}}{m},\\
+&\hat J_x\equiv-\frac{\partial\hat H}{\partial A_x}=\hat J^0_x-\frac{e^2}{m}\hat N A_x
+\end{aligned}
 \tag{C5}
 $$
 
-$\hat J^0_x$ is the total current operator at ${\bf A}=0$ ($\hat v_{x,i}=\hat p_{x,i}/m$; the sum is over the electrons); it corresponds to $\hat B=\hat J^0_x$, $F=A_x$ in Eq. (C2).
+($\hat N$ is the operator of the number of electrons; the sum is over the electrons).
+$\hat J_x$ is the total current operator (the sum of the charge $-e$ times the velocity $(\hat{\bf p}_i+e{\bf A})/m$), and $\hat J^0_x$ is $\hat J_x$ at ${\bf A}=0$.
 
-With ${\bf A}$ the velocity is $(\hat{\bf p}+e{\bf A})/m$, so the total current operator becomes $\hat J_x=\hat J^0_x-(e^2/m)\hat N A_x$ ($\hat N$ is the operator of the number of electrons).
-Its expectation value is taken to first order in ${\bf A}$.
-For the first term Eq. (C3) is used with $\hat A=\hat B=\hat J^0_x$ and $F=A_x$ (no current flows in equilibrium, $\langle\hat J^0_x\rangle=0$, so only the change remains). This response function is written $\chi^R_{JJ}$.
-The second term is already of first order in ${\bf A}$, so $\hat N$ can be replaced by its equilibrium value $n\Omega$ ($n$ is the electron density).
+Compared with Eq. (C2), the perturbation to first order in ${\bf A}$ is $-\hat J_x A_x$ (with $\hat J_x$ at ${\bf A}=0$), so $\hat B=\hat J_x$ and $F=A_x$.
+What is observed is the same current $\hat J_x$, so Eq. (C3) is used with $\hat A=\hat B=\hat J_x$.
+The only point of care is that $\hat J_x$ itself contains ${\bf A}$ explicitly. Taking $\langle\hat J_x\rangle(t)$ to first order in ${\bf A}$ gives two parts:
+
+- The part from the change of the state: the commutator in Eq. (C3) is needed only at zeroth order in ${\bf A}$, so $\hat A=\hat B=\hat J_x|_{\mathbf A=0}=\hat J^0_x$. No current flows in equilibrium ($\langle\hat J^0_x\rangle=0$), so only this change remains. This response function is written $\chi^R_{JJ}$.
+- The term $-(e^2/m)\hat N A_x$ contained explicitly in $\hat J_x$: it is already of first order in ${\bf A}$, so its expectation value is taken in the equilibrium state, $\langle\hat N\rangle=n\Omega$ ($n$ is the electron density).
+
 Dividing by the volume $\Omega$, the current density is
 
 $$
