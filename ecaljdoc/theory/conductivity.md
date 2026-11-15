@@ -68,15 +68,23 @@ $$
 \tag{C5}
 $$
 
-である。$\hat J_x$ は全電流の演算子（和は電子についてとる）で、式 (C2) の $\hat B=\hat J_x$、$F=A_x$ に当たる。
-電流密度は、常磁性の部分（$\hat J_x$ の期待値の変化）と、${\bf A}$ に比例する反磁性の部分の和である（$n$ は電子の数密度）:
+である。$\hat J_x$ は ${\bf A}=0$ での全電流の演算子（$\hat v_{x,i}=\hat p_{x,i}/m$。和は電子についてとる）で、式 (C2) の $\hat B=\hat J_x$、$F=A_x$ に当たる。
+
+${\bf A}$ があるときの速度は $(\hat{\bf p}+e{\bf A})/m$ なので、全電流の演算子は $\hat J_x-(e^2/m)\hat N A_x$ になる（$\hat N$ は電子の数の演算子）。
+その期待値を ${\bf A}$ について一次まで取る。
+第 1 項には、式 (C3) を $\hat A=\hat B=\hat J_x$、$F=A_x$ として使う（平衡では電流は流れていないので $\langle\hat J_x\rangle=0$ で、変化分だけが残る）。
+第 2 項はすでに ${\bf A}$ について一次なので、$\hat N$ は平衡での値 $n\Omega$ でよい（$n$ は電子の数密度）。
+体積 $\Omega$ で割って、電流密度は
 
 $$
-j_x(t)=\frac{1}{\Omega}\,\delta\langle\hat J_x\rangle(t)-\frac{ne^2}{m}A_x(t).
+j_x(t)=\frac{1}{\Omega}\int_{-\infty}^{\infty}dt'\,\chi^R_{JJ}(t-t')\,A_x(t')-\frac{ne^2}{m}A_x(t)
 \tag{C6}
 $$
 
-$e^{-i\omega t}$ の成分では $A_x(\omega)=E_x(\omega)/i\omega$ なので、式 (C3) を使って
+となる。第 1 項が常磁性の部分、第 2 項が反磁性の部分である。
+
+$e^{-i\omega t}$ の成分では、第 1 項のたたみこみは積 $\chi^R_{JJ}(\omega)A_x(\omega)$ になる（$\chi^R_{JJ}(\omega)$ は式 (C4) で与えられる）。
+さらに $A_x(\omega)=E_x(\omega)/i\omega$ なので
 
 $$
 \sigma(\omega)=\frac{j_x(\omega)}{E_x(\omega)}=\frac{i}{\omega}\Big[\frac{ne^2}{m}-\frac{1}{\Omega}\,\chi^R_{JJ}(\omega)\Big]
