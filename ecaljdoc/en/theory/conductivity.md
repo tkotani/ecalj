@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit ee4373457 (source blob 511181c5e499).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit b46d34219 (source blob befc8c2049cc).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -177,7 +177,7 @@ $$
 \tag{C14}
 $$
 
-This holds for any $\omega$ and temperature (for $\omega\neq 0$ it gives the optical conductivity).
+This holds for any $\omega$ and temperature (for $\omega\neq 0$ it gives the optical conductivity). In the limit $\omega\to 0$ at low temperature it agrees with Eq. (C10).
 
 ### The $G^RG^A$ terms {#grga}
 
