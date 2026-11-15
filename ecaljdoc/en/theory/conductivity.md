@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit e4d60a484 (source blob 3fa3d7f833d7).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit ee4373457 (source blob 511181c5e499).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -134,11 +134,11 @@ $$
 $$
 
 This is fixed only by one-body quantities at the Fermi level $E_F$.
-Rewriting it with $\delta(E-H)=-{\rm Im}\,G^R(E)/\pi$ and averaging over the impurity configurations gives the Kubo–Greenwood formula
+Rewriting it with $\delta(E-H)=-{\rm Im}\,G^R(E)/\pi$ gives the Kubo–Greenwood formula
 
 $$
 \sigma_{xx}=\frac{2\hbar e^2}{\pi\Omega}\,
-\Big\langle {\rm Tr}\big[\hat v_x\,{\rm Im}\,G^R(E_F)\,\hat v_x\,{\rm Im}\,G^R(E_F)\big]\Big\rangle_{\rm imp}
+{\rm Tr}\big[\hat v_x\,{\rm Im}\,G^R(E_F)\,\hat v_x\,{\rm Im}\,G^R(E_F)\big]
 \tag{C11}
 $$
 
@@ -181,6 +181,7 @@ This holds for any $\omega$ and temperature (for $\omega\neq 0$ it gives the opt
 
 ### The $G^RG^A$ terms {#grga}
 
+Eq. (C11) is for one fixed configuration of the impurities. The observed conductivity is its average $\langle\cdots\rangle_{\rm imp}$ over the impurity configurations.
 Writing ${\rm Im}\,G^R=(G^R-G^A)/2i$ and expanding gives terms with $G^RG^A$ and terms with $G^RG^R$, $G^AG^A$.
 For weak impurities the $G^RG^A$ terms dominate:
 
