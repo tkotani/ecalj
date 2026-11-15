@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit dc7ef7365 (source blob 7ae7f4027f5b).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit b5ba54072 (source blob 87560c3fcdc8).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -202,7 +202,7 @@ $$
 \tag{C16}
 $$
 
-which diverges for $\delta\to 0$ (without scattering the current does not decay).
+which diverges for $\delta\to 0$ (without scattering the current does not decay). Roughly, $\delta$ may be regarded as the width $\hbar/2\tau$ from the lifetime $\tau$ of quasiparticles due to phonons and so on.
 The two cases are connected by the completeness, $\sum_m|\langle n|\hat v_x|m\rangle|^2=\langle n|\hat v_x^2|n\rangle$ being finite: if the states $m$ connected to $n$ spread over an energy width $W$, $|\langle n|\hat v_x|m\rangle|^2\approx\overline{v_x^2}/(D W)$, and Eq. (C15) takes the form of Eq. (C16) with $\delta$ replaced by $W$.
 
 ### The $G^RG^A$ terms {#grga}
