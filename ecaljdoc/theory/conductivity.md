@@ -178,12 +178,9 @@ $$
 
 となる。これは任意の $\omega$ と温度で成り立つ（$\omega\neq 0$ では光学伝導度を与える）。$\omega\to 0$、低温の極限では、式 (C10) と一致する。
 
-式 (C10)、(C11) のデルタ関数の積は分かりにくいので、$i\delta$ を有限に残して考えるとよい。
-${\rm Im}\,G^R(E)=-\sum_n|n\rangle\langle n|\,\delta/\big((E-E_n)^2+\delta^2\big)$ は幅 $\delta$ のローレンツ関数の和で、デルタ関数はその $\delta\to 0$ の極限である。
-式 (C11) は、$E_F$ を中心とする幅 $\delta$ のローレンツ関数二つの積で、$E_n$ と $E_m$ がともに $E_F$ から $\delta$ 以内にある状態の対を $J$ でつなぐ強さを表す。
-極限の順序に注意する: 系を大きくして準位の間隔を $\delta$ より十分小さくしてから、$\delta\to 0$ とする。
-
-もし行列要素 $|\langle n|\hat v_x|m\rangle|^2$ が $E_F$ の近くであまり変わらない（平均値 $\overline{|v_x|^2}$ でよい）として和の外へ出すと、式 (C10) は
+$i\delta$ を有限に残すと、式 (C10) のデルタ関数は幅 $\delta$ のローレンツ関数 $\delta_\delta(x)=(1/\pi)\,\delta/(x^2+\delta^2)$ になる（系を大きくして準位の間隔を $\delta$ より十分小さくしてから $\delta\to 0$ とする）。
+$\sum_n\delta_\delta(E-E_n)$ は状態密度 $D(E)$（系全体の、エネルギーあたりの状態の数）である。
+行列要素 $|\langle n|\hat v_x|m\rangle|^2$ が $E_F$ の近くで一様（平均 $\overline{|v_x|^2}$）なら
 
 $$
 \begin{aligned}
@@ -193,10 +190,7 @@ $$
 \tag{C15}
 $$
 
-となる。$\delta_\delta(x)=(1/\pi)\,\delta/(x^2+\delta^2)$ は幅 $\delta$ のローレンツ関数で、準位の間隔が $\delta$ より十分小さければ、$\sum_n\delta_\delta(E-E_n)$ は状態密度 $D(E)$（系全体の、エネルギーあたりの状態の数）になる。
-つまりデルタ関数の積は、状態密度の二乗という有限の量になり、$\delta$ によらない。$D$ は $\Omega$ に比例し、$\overline{|v_x|^2}$ は $1/\Omega$ に比例するので、$\sigma$ は系の大きさにもよらない。
-
-これに対して、行列要素が対角成分だけの場合（不純物の無い自由電子では、$J$ は波数について対角で、同じ ${\bf k}$ の間でしか値を持たない）は、$n=m$ の項だけが残り、ローレンツ関数の二乗になる:
+で、$\delta$ によらない。一方、対角成分だけの場合（不純物の無い自由電子）は $n=m$ の項だけが残り、$\int dx\,\delta_\delta(x)^2=1/(2\pi\delta)$ から
 
 $$
 \begin{aligned}
@@ -206,17 +200,9 @@ $$
 \tag{C16}
 $$
 
-ここで $\int dx\,\delta_\delta(x)^2=1/(2\pi\delta)$ を使い、$\overline{v_x^2}$ は $E_F$ での $v_x^2$ の平均である。
-これは $\delta\to 0$ で $1/\delta$ のように発散する。散乱が無ければ電流は減衰せず、直流の伝導度は無限大である。
-不純物があると、平均した $G$ の幅は物理的な $\hbar/2\tau$ になる（[平均した一本のグリーン関数](#averaged-g)）。
-この幅が $\delta$ の役を担い、$\delta=\hbar/2\tau$ とすると、$D(E_F)/\Omega=N_1(E_F)$、$\overline{v_x^2}=v_F^2/3$ で式 (C16) は $2e^2\tau v_F^2N_1(E_F)/3=ne^2\tau/m$ となり、[Drude の式](#drude) と一致する。
-
-二つの場合の関係は、行列要素の和を考えると分かる。完全系への分解 $\sum_m|m\rangle\langle m|=1$ を使うと
-$\sum_m|\langle n|\hat v_x|m\rangle|^2=\langle n|\hat v_x^2|n\rangle$ で、これは有限である。
-つまり $n$ と $\hat v_x$ でつながる $m$ は、実質的に有限の個数（あるエネルギーの幅 $W$ の中）しかない。
-それらが幅 $W$ に一様に広がっているとすると $|\langle n|\hat v_x|m\rangle|^2\approx\overline{v_x^2}/\big(D(E_F)\,W\big)$ で、式 (C15) は
-$\sigma_{xx}\approx(2\pi\hbar e^2/\Omega)\,\overline{v_x^2}\,D(E_F)/W$ となる。これは式 (C16) と同じ形で、$\delta$ を $W$ に置き換えたものである。
-伝導度は、$\hat v_x$ でつながる状態がエネルギーにどれだけの幅で広がるか（$W$ か $\delta$ の大きい方）で決まる。
+で、$\delta\to 0$ で発散する（散乱が無ければ電流は減衰しない）。
+不純物があると平均した $G$ の幅は $\hbar/2\tau$ になり（[平均した一本のグリーン関数](#averaged-g)）、$\delta=\hbar/2\tau$ とすると式 (C16) は $ne^2\tau/m$、すなわち [Drude の式](#drude) になる。
+二つの場合は、完全系から $\sum_m|\langle n|\hat v_x|m\rangle|^2=\langle n|\hat v_x^2|n\rangle$ が有限であることでつながる。$n$ とつながる $m$ がエネルギーの幅 $W$ に広がっていれば $|\langle n|\hat v_x|m\rangle|^2\approx\overline{v_x^2}/(D W)$ で、式 (C15) は式 (C16) の $\delta$ を $W$ に替えた形になる。
 
 ### $G^RG^A$ の項 {#grga}
 
