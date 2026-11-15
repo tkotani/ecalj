@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit a3ca2dbbd (source blob ed13d504b64b).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 30b5ade03 (source blob c289ff888231).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -184,7 +184,20 @@ ${\rm Im}\,G^R(E)=-\sum_n|n\rangle\langle n|\,\delta/\big((E-E_n)^2+\delta^2\big
 Eq. (C11) is a product of two Lorentzians of width $\delta$ centred at $E_F$; it gives the strength, through $J$, of the pairs of states with both $E_n$ and $E_m$ within $\delta$ of $E_F$.
 Mind the order of the limits: the system is made large so that the level spacing is much smaller than $\delta$, and then $\delta\to 0$.
 
-For example, for free electrons without impurities $J$ is diagonal in the wave vector (it connects only equal ${\bf k}$), so only the terms $n=m$ remain, giving the square of a Lorentzian.
+If the matrix elements $|\langle n|\hat v_x|m\rangle|^2$ change little near $E_F$ (their average $\overline{|v_x|^2}$ is enough) and are taken out of the sum, Eq. (C10) becomes
+
+$$
+\begin{aligned}
+\sigma_{xx}&\simeq\frac{2\pi\hbar e^2}{\Omega}\,\overline{|v_x|^2}\,\Big[\sum_n\delta_\delta(E_F-E_n)\Big]^2\\
+&=\frac{2\pi\hbar e^2}{\Omega}\,\overline{|v_x|^2}\,D(E_F)^2
+\end{aligned}
+\tag{C15}
+$$
+
+Here $\delta_\delta(x)=(1/\pi)\,\delta/(x^2+\delta^2)$ is a Lorentzian of width $\delta$; when the level spacing is much smaller than $\delta$, $\sum_n\delta_\delta(E-E_n)$ is the density of states $D(E)$ (the number of states per energy in the whole system).
+So the product of delta functions becomes a finite quantity, the square of the density of states, independent of $\delta$. $D$ is proportional to $\Omega$ and $\overline{|v_x|^2}$ to $1/\Omega$, so $\sigma$ does not depend on the size of the system either.
+
+In contrast, for free electrons without impurities $J$ is diagonal in the wave vector (it connects only equal ${\bf k}$), so only the terms $n=m$ remain, giving the square of a Lorentzian.
 Since $\int dE\,\delta^2/\big((E-E_n)^2+\delta^2\big)^2=\pi/2\delta$, this diverges for $\delta\to 0$: without scattering the current does not decay and the direct-current conductivity is infinite.
 With impurities the wave vector is not conserved, and the averaged $G$ has the physical width $\hbar/2\tau$ (see [the averaged single Green function](#averaged-g)).
 This width plays the role of $\delta$, so the conductivity stays finite for $\delta\to 0$ and is proportional to $1/(\hbar/2\tau)$, that is, to $\tau$ (see [the Drude formula](#drude)).
@@ -198,7 +211,7 @@ For weak impurities the $G^RG^A$ terms dominate:
 $$
 \sigma_{xx}\simeq\frac{\hbar e^2}{\pi\Omega}\,{\rm Re}\,
 \Big\langle {\rm Tr}\big[\hat v_x\,G^R(E_F)\,\hat v_x\,G^A(E_F)\big]\Big\rangle_{\rm imp}
-\tag{C15}
+\tag{C16}
 $$
 
 (the $G^RG^R$ terms only give corrections of higher order in $1/\tau$).
@@ -208,7 +221,7 @@ $$
 $$
 \big\langle \hat v_x G^R \hat v_x G^A\big\rangle_{\rm imp}\neq
 \hat v_x\langle G^R\rangle_{\rm imp}\,\hat v_x\langle G^A\rangle_{\rm imp}.
-\tag{C16}
+\tag{C17}
 $$
 
 A correlation remains between $G^R$ and $G^A$ being scattered by the same impurity (in diagrams, impurity lines connecting the two lines). This is the vertex correction.
@@ -219,7 +232,7 @@ Averaging a single $G^R$ restores the translational symmetry, and it becomes dia
 
 $$
 \langle G^R\rangle_{\rm imp}({\bf k},E)=\frac{1}{E-\varepsilon_{\bf k}-\Sigma^R({\bf k},E)}.
-\tag{C17}
+\tag{C18}
 $$
 
 The self-energy to second order in the impurity potential (Born approximation) is
@@ -227,7 +240,7 @@ The self-energy to second order in the impurity potential (Born approximation) i
 $$
 \Sigma^R({\bf k},E)=n_i\int\frac{d^3k'}{(2\pi)^3}\,
 \frac{|u({\bf k}-{\bf k}')|^2}{E-\varepsilon_{\bf k'}+i\delta}
-\tag{C18}
+\tag{C19}
 $$
 
 and its imaginary part gives the lifetime $\tau$ of the quasiparticle (the real part is an energy shift, absorbed in $E_F$):
@@ -237,14 +250,14 @@ $$
 &{\rm Im}\,\Sigma^R=-\frac{\hbar}{2\tau},\\
 &\frac{1}{\tau}=\frac{2\pi}{\hbar}\,n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\,\delta(E-\varepsilon_{\bf k'}).
 \end{aligned}
-\tag{C19}
+\tag{C20}
 $$
 
 $1/\tau$ is just the scattering rate by Fermi's golden rule (see the correspondence between the golden rule and the imaginary part of the self-energy in [Basic I](./basic#td-vs-ti-perturbation)).
 
 ## Without the vertex correction: the Drude formula {#drude}
 
-Replacing the average in Eq. (C15) by the product of the single averages (C17) (dropping the vertex correction) gives a sum over ${\bf k}$.
+Replacing the average in Eq. (C16) by the product of the single averages (C18) (dropping the vertex correction) gives a sum over ${\bf k}$.
 When $\tau$ is long ($\hbar/\tau\ll E_F$),
 
 $$
@@ -253,7 +266,7 @@ $$
 &=\frac{1}{(E-\varepsilon_{\bf k})^2+(\hbar/2\tau)^2}\\
 &\simeq\frac{2\pi\tau}{\hbar}\,\delta(E-\varepsilon_{\bf k})
 \end{aligned}
-\tag{C20}
+\tag{C21}
 $$
 
 so, with the angular average $v_F^2/3$ of $v_x^2$ and the density of states per spin $N_1(E_F)$ (per unit volume),
@@ -261,14 +274,14 @@ so, with the angular average $v_F^2/3$ of $v_x^2$ and the density of states per 
 $$
 \sigma_{xx}=\frac{\hbar e^2}{\pi}\cdot\frac{2\pi\tau}{\hbar}\cdot\frac{v_F^2}{3}\,N_1(E_F)
 =\frac{2e^2\tau v_F^2N_1(E_F)}{3}=\frac{ne^2\tau}{m}
-\tag{C21}
+\tag{C22}
 $$
 
 The last step uses $N_1(E_F)=mk_F/(2\pi^2\hbar^2)$, $n=k_F^3/(3\pi^2)$ and $v_F=\hbar k_F/m$ of free electrons. This is the Drude formula.
 
 ## Vertex correction: the transport relaxation time {#vertex-correction}
 
-The product average (C16) is taken up to the ladder diagrams, in which impurity lines connect the two $G$ (the approximation that goes with the Born self-energy (C18)).
+The product average (C17) is taken up to the ladder diagrams, in which impurity lines connect the two $G$ (the approximation that goes with the Born self-energy (C19)).
 The current vertex $\Gamma_x({\bf k})$ satisfies
 
 $$
@@ -276,23 +289,23 @@ $$
 \Gamma_x({\bf k})={}&v_x({\bf k})+n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\\
 &\times\langle G^R\rangle({\bf k}',E_F)\langle G^A\rangle({\bf k}',E_F)\,\Gamma_x({\bf k}')
 \end{aligned}
-\tag{C22}
+\tag{C23}
 $$
 
-Putting $\Gamma_x({\bf k})=\gamma\,v_x({\bf k})$ and using (C20), the average over the direction of ${\bf k}'$ turns $v_x({\bf k}')$ into $v_x({\bf k})\cos\theta_{\bf kk'}$, so that
+Putting $\Gamma_x({\bf k})=\gamma\,v_x({\bf k})$ and using (C21), the average over the direction of ${\bf k}'$ turns $v_x({\bf k}')$ into $v_x({\bf k})\cos\theta_{\bf kk'}$, so that
 $\gamma=1+\gamma\,(1-\tau/\tau_{\rm tr})$, that is $\gamma=\tau_{\rm tr}/\tau$. Here
 
 $$
 \frac{1}{\tau_{\rm tr}}=\frac{2\pi}{\hbar}\,n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\,
 \big(1-\cos\theta_{\bf kk'}\big)\,\delta(E_F-\varepsilon_{\bf k'})
-\tag{C23}
+\tag{C24}
 $$
 
-is the transport relaxation time. Replacing one $v_x$ in Eq. (C21) by $\Gamma_x$ gives
+is the transport relaxation time. Replacing one $v_x$ in Eq. (C22) by $\Gamma_x$ gives
 
 $$
 \sigma_{xx}=\frac{ne^2\tau_{\rm tr}}{m}
-\tag{C24}
+\tag{C25}
 $$
 
 Forward scattering ($\cos\theta\simeq 1$) hardly reduces the current, so what matters for the resistance is the scattering weighted by $1-\cos\theta$.
