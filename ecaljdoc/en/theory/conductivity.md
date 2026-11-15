@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 1ff37cad1 (source blob 24a21aa88b8d).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit a6384f75b (source blob c6d0b40f37f5).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -104,7 +104,7 @@ $$
 
 The first term is the diamagnetic part and the second the paramagnetic part; both come from the linear-response formula (C3).
 
-For the $e^{-i\omega t}$ component the convolution in the second term becomes the product $\chi^R_{JJ}(\omega)A_x(\omega)$ ($\chi^R_{JJ}(\omega)$ is given by Eq. (C4)).
+For the $e^{-i\omega t}$ component the convolution in the second term becomes the product $\chi^R_{JJ}(\omega)A_x(\omega)$.
 The current density is $\delta\langle\hat J_x\rangle/\Omega$, and $A_x(\omega)=E_x(\omega)/i\omega$, so
 
 $$
