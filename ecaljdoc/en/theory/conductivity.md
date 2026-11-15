@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit dc084e8c4 (source blob 1832343159a5).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit ca6e82e62 (source blob 81756d9918f2).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -28,17 +28,90 @@ The self-energy and the vertex correction that appear below look like many-body 
 
 ## Kubo formula {#kubo}
 
-Applying an electric field ${\bf E}(t)$ as a perturbation and taking the response of the current density to first order, the conductivity is written by the retarded current-current correlation function (the Kubo formula).
-For non-interacting electrons, the direct-current ($\omega\to 0$) conductivity at low temperature is written only by one-body quantities at the Fermi level $E_F$ (the Kubo–Greenwood formula):
+### General linear response {#linear-response}
+
+Suppose that a time-dependent external field $F(t)$ acts on the system through an operator $\hat B$:
+
+$$
+\hat H(t)=\hat H_0-\hat B\,F(t).
+\tag{C2}
+$$
+
+Expanding the state (or the density matrix) in the interaction picture to first order in $F$, the change of the expectation value of another operator $\hat A$ is
+
+$$
+\begin{aligned}
+&\delta\langle\hat A\rangle(t)=\int_{-\infty}^{\infty}dt'\,\chi^R_{AB}(t-t')\,F(t'),\\
+&\chi^R_{AB}(t)=\frac{i}{\hbar}\,\theta(t)\,\big\langle[\hat A_{\rm H}(t),\hat B]\big\rangle
+\end{aligned}
+\tag{C3}
+$$
+
+where $\hat A_{\rm H}(t)=e^{i\hat H_0t/\hbar}\hat A\,e^{-i\hat H_0t/\hbar}$ and $\langle\cdots\rangle$ is the thermal average for $\hat H_0$.
+Because of $\theta(t)$, $\chi^R$ is retarded: the response comes only after the cause $F$ (see the [Appendix](./appendix#causality)).
+
+In a one-body system, with the one-body eigenstates $|n\rangle$ of $\hat H_0$ (energy $E_n$, occupation $f_n$) and one-body operators $\hat A$, $\hat B$, the Fourier transform is
+
+$$
+\chi^R_{AB}(\omega)=\int dt\,e^{i\omega t}\chi^R_{AB}(t)
+=\sum_{nm}(f_n-f_m)\,\frac{\langle n|\hat A|m\rangle\langle m|\hat B|n\rangle}{E_m-E_n-\hbar\omega-i\delta}
+\tag{C4}
+$$
+
+(using $\langle[\hat c^\dagger_n\hat c_m,\hat c^\dagger_m\hat c_n]\rangle=f_n-f_m$).
+
+### Response to an electric field: the Kubo formula {#response-to-field}
+
+A uniform electric field is introduced through a vector potential $A_x(t)$ as $E_x=-\partial A_x/\partial t$ (this avoids the position operator even with periodic boundary conditions).
+With the electron charge $-e$, expanding the kinetic energy $(\hat{\bf p}+e{\bf A})^2/2m$ to first order in ${\bf A}$ gives the perturbation
+
+$$
+\hat H'(t)=-\hat J_x\,A_x(t),\qquad \hat J_x=-e\sum_i\hat v_{x,i}
+\tag{C5}
+$$
+
+$\hat J_x$ is the total current operator (the sum is over the electrons); it corresponds to $\hat B=\hat J_x$, $F=A_x$ in Eq. (C2).
+The current density is the sum of the paramagnetic part (the change of the expectation value of $\hat J_x$) and the diamagnetic part proportional to ${\bf A}$ ($n$ is the electron density):
+
+$$
+j_x(t)=\frac{1}{\Omega}\,\delta\langle\hat J_x\rangle(t)-\frac{ne^2}{m}A_x(t).
+\tag{C6}
+$$
+
+For the $e^{-i\omega t}$ component $A_x(\omega)=E_x(\omega)/i\omega$, so with Eq. (C3)
+
+$$
+\sigma(\omega)=\frac{j_x(\omega)}{E_x(\omega)}=\frac{i}{\omega}\Big[\frac{ne^2}{m}-\frac{1}{\Omega}\,\chi^R_{JJ}(\omega)\Big].
+\tag{C7}
+$$
+
+This is the Kubo formula. The real part, which fixes the dissipation (Joule heat), is ${\rm Re}\,\sigma(\omega)={\rm Im}\,\chi^R_{JJ}(\omega)/(\omega\Omega)$; the diamagnetic term affects only the imaginary part.
+
+### The direct-current limit: the Kubo–Greenwood formula {#kubo-greenwood}
+
+Inserting Eq. (C4) and using ${\rm Im}\,[1/(x-i\delta)]=\pi\delta(x)$,
+
+$$
+{\rm Re}\,\sigma(\omega)=\frac{\pi}{\omega\Omega}\sum_{nm}(f_n-f_m)\,|\langle n|\hat J_x|m\rangle|^2\,\delta(E_m-E_n-\hbar\omega).
+\tag{C8}
+$$
+
+For $\omega\to 0$ the delta function gives $E_m=E_n+\hbar\omega$, so $f_n-f_m\simeq -f'(E_n)\,\hbar\omega$ and $\omega$ cancels.
+At low temperature $-f'(E)=\delta(E-E_F)$. The one-body matrix element of $\hat J_x$ is $-e\langle n|\hat v_x|m\rangle$, and the spin sum gives a factor 2 ($n$, $m$ are orbital states), so
+$\sigma_{xx}=(2\pi\hbar e^2/\Omega)\sum_{nm}|\langle n|\hat v_x|m\rangle|^2\delta(E_F-E_n)\delta(E_F-E_m)$.
+This is fixed only by one-body quantities at the Fermi level $E_F$.
+Rewriting it with $\delta(E-H)=-{\rm Im}\,G^R(E)/\pi$ and averaging over the impurity configurations gives the Kubo–Greenwood formula
 
 $$
 \sigma_{xx}=\frac{2\hbar e^2}{\pi\Omega}\,
 \Big\langle {\rm Tr}\big[\hat v_x\,{\rm Im}\,G^R(E_F)\,\hat v_x\,{\rm Im}\,G^R(E_F)\big]\Big\rangle_{\rm imp}.
-\tag{C2}
+\tag{C9}
 $$
 
-$\hat v_x$ is the velocity operator, ${\rm Tr}$ the sum over one-body states, and the factor 2 is the spin.
-Inserting ${\rm Im}\,G^R(E)=-\pi\delta(E-H)$ gives the sum over eigenstates $n$, $\sigma_{xx}=(2\pi\hbar e^2/\Omega)\sum_{nm}|\langle n|\hat v_x|m\rangle|^2\delta(E_F-E_n)\delta(E_F-E_m)$.
+$\hat v_x$ is the velocity operator, ${\rm Tr}$ the sum over one-body (orbital) states, and the factor 2 is the spin.
+
+### The $G^RG^A$ terms {#grga}
+
 
 Writing ${\rm Im}\,G^R=(G^R-G^A)/2i$ and expanding gives terms with $G^RG^A$ and terms with $G^RG^R$, $G^AG^A$.
 For weak impurities the $G^RG^A$ terms dominate:
@@ -46,7 +119,7 @@ For weak impurities the $G^RG^A$ terms dominate:
 $$
 \sigma_{xx}\simeq\frac{\hbar e^2}{\pi\Omega}\,{\rm Re}\,
 \Big\langle {\rm Tr}\big[\hat v_x\,G^R(E_F)\,\hat v_x\,G^A(E_F)\big]\Big\rangle_{\rm imp}
-\tag{C3}
+\tag{C10}
 $$
 
 (the $G^RG^R$ terms only give corrections of higher order in $1/\tau$).
@@ -56,7 +129,7 @@ $$
 $$
 \big\langle \hat v_x G^R \hat v_x G^A\big\rangle_{\rm imp}\neq
 \hat v_x\langle G^R\rangle_{\rm imp}\,\hat v_x\langle G^A\rangle_{\rm imp}.
-\tag{C4}
+\tag{C11}
 $$
 
 A correlation remains between $G^R$ and $G^A$ being scattered by the same impurity (in diagrams, impurity lines connecting the two lines). This is the vertex correction.
@@ -67,7 +140,7 @@ Averaging a single $G^R$ restores the translational symmetry, and it becomes dia
 
 $$
 \langle G^R\rangle_{\rm imp}({\bf k},E)=\frac{1}{E-\varepsilon_{\bf k}-\Sigma^R({\bf k},E)}.
-\tag{C5}
+\tag{C12}
 $$
 
 The self-energy to second order in the impurity potential (Born approximation) is
@@ -75,7 +148,7 @@ The self-energy to second order in the impurity potential (Born approximation) i
 $$
 \Sigma^R({\bf k},E)=n_i\int\frac{d^3k'}{(2\pi)^3}\,
 \frac{|u({\bf k}-{\bf k}')|^2}{E-\varepsilon_{\bf k'}+i\delta}
-\tag{C6}
+\tag{C13}
 $$
 
 and its imaginary part gives the lifetime $\tau$ of the quasiparticle (the real part is an energy shift, absorbed in $E_F$):
@@ -85,14 +158,14 @@ $$
 &{\rm Im}\,\Sigma^R=-\frac{\hbar}{2\tau},\\
 &\frac{1}{\tau}=\frac{2\pi}{\hbar}\,n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\,\delta(E-\varepsilon_{\bf k'}).
 \end{aligned}
-\tag{C7}
+\tag{C14}
 $$
 
 $1/\tau$ is just the scattering rate by Fermi's golden rule (see the correspondence between the golden rule and the imaginary part of the self-energy in [Basic I](./basic#td-vs-ti-perturbation)).
 
 ## Without the vertex correction: the Drude formula {#drude}
 
-Replacing the average in Eq. (C3) by the product of the single averages (C5) (dropping the vertex correction) gives a sum over ${\bf k}$.
+Replacing the average in Eq. (C10) by the product of the single averages (C12) (dropping the vertex correction) gives a sum over ${\bf k}$.
 When $\tau$ is long ($\hbar/\tau\ll E_F$),
 
 $$
@@ -101,7 +174,7 @@ $$
 &=\frac{1}{(E-\varepsilon_{\bf k})^2+(\hbar/2\tau)^2}\\
 &\simeq\frac{2\pi\tau}{\hbar}\,\delta(E-\varepsilon_{\bf k})
 \end{aligned}
-\tag{C8}
+\tag{C15}
 $$
 
 so, with the angular average $v_F^2/3$ of $v_x^2$ and the density of states per spin $N_1(E_F)$ (per unit volume),
@@ -109,14 +182,14 @@ so, with the angular average $v_F^2/3$ of $v_x^2$ and the density of states per 
 $$
 \sigma_{xx}=\frac{\hbar e^2}{\pi}\cdot\frac{2\pi\tau}{\hbar}\cdot\frac{v_F^2}{3}\,N_1(E_F)
 =\frac{2e^2\tau v_F^2N_1(E_F)}{3}=\frac{ne^2\tau}{m}
-\tag{C9}
+\tag{C16}
 $$
 
 The last step uses $N_1(E_F)=mk_F/(2\pi^2\hbar^2)$, $n=k_F^3/(3\pi^2)$ and $v_F=\hbar k_F/m$ of free electrons. This is the Drude formula.
 
 ## Vertex correction: the transport relaxation time {#vertex-correction}
 
-The product average (C4) is taken up to the ladder diagrams, in which impurity lines connect the two $G$ (the approximation that goes with the Born self-energy (C6)).
+The product average (C11) is taken up to the ladder diagrams, in which impurity lines connect the two $G$ (the approximation that goes with the Born self-energy (C13)).
 The current vertex $\Gamma_x({\bf k})$ satisfies
 
 $$
@@ -124,23 +197,23 @@ $$
 \Gamma_x({\bf k})={}&v_x({\bf k})+n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\\
 &\times\langle G^R\rangle({\bf k}',E_F)\langle G^A\rangle({\bf k}',E_F)\,\Gamma_x({\bf k}')
 \end{aligned}
-\tag{C10}
+\tag{C17}
 $$
 
-Putting $\Gamma_x({\bf k})=\gamma\,v_x({\bf k})$ and using (C8), the average over the direction of ${\bf k}'$ turns $v_x({\bf k}')$ into $v_x({\bf k})\cos\theta_{\bf kk'}$, so that
+Putting $\Gamma_x({\bf k})=\gamma\,v_x({\bf k})$ and using (C15), the average over the direction of ${\bf k}'$ turns $v_x({\bf k}')$ into $v_x({\bf k})\cos\theta_{\bf kk'}$, so that
 $\gamma=1+\gamma\,(1-\tau/\tau_{\rm tr})$, that is $\gamma=\tau_{\rm tr}/\tau$. Here
 
 $$
 \frac{1}{\tau_{\rm tr}}=\frac{2\pi}{\hbar}\,n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\,
 \big(1-\cos\theta_{\bf kk'}\big)\,\delta(E_F-\varepsilon_{\bf k'})
-\tag{C11}
+\tag{C18}
 $$
 
-is the transport relaxation time. Replacing one $v_x$ in Eq. (C9) by $\Gamma_x$ gives
+is the transport relaxation time. Replacing one $v_x$ in Eq. (C16) by $\Gamma_x$ gives
 
 $$
 \sigma_{xx}=\frac{ne^2\tau_{\rm tr}}{m}
-\tag{C12}
+\tag{C19}
 $$
 
 Forward scattering ($\cos\theta\simeq 1$) hardly reduces the current, so what matters for the resistance is the scattering weighted by $1-\cos\theta$.
