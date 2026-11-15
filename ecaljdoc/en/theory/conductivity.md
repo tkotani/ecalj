@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 22168717e (source blob 941ed7c397a2).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 43db72160 (source blob 56f71438953a).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -257,7 +257,7 @@ $$
 
 A correlation remains between $G^R$ and $G^A$ being scattered by the same impurity (in diagrams, impurity lines connecting the two lines). This is the vertex correction.
 
-If Eq. (C20) is taken as an equality (the product of the single averages), $\langle G\rangle$ is diagonal in ${\bf k}$, so the result has the form of Eq. (C16). As it stands, this would lead to the conclusion that in a one-body problem the impurities give no resistance (it diverges for $\delta\to 0$).
+If Eq. (C20) is taken as an equality (the product of the single averages), the result has the form of Eq. (C16). As it stands, this would lead to the conclusion that in a one-body problem the impurities give no resistance (it diverges for $\delta\to 0$).
 
 ## Averaged single Green function: the lifetime {#averaged-g}
 
