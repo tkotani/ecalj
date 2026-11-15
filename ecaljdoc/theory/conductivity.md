@@ -278,12 +278,12 @@ $$
 
 式 (C20) で等号とすることは、$G^R$ と $G^A$ を結ぶ線を落とすことにあたる。
 
-## 平均した一本のグリーン関数: 寿命 {#averaged-g}
+## 自己エネルギーを含むグリーン関数: 寿命 {#averaged-g}
 
-一本の $G^R$ を平均すると並進対称性が戻り、波数 ${\bf k}$ で対角になる。
+ランダム位相の平均の結果、一本の $G$ の中で結ぶ線はすべて自己エネルギーにまとまる。つまり $G^R$ を平均する代わりに、次の $\bar G^R$（並進対称で、波数 ${\bf k}$ について対角）を考え、その積を取ればよい（$G^R$ と $G^A$ を結ぶ線は別に扱う）。
 
 $$
-\langle G^R\rangle_{\rm imp}({\bf k},E)=\frac{1}{E-\varepsilon_{\bf k}-\Sigma^R({\bf k},E)}.
+\bar G^R({\bf k},E)=\frac{1}{E-\varepsilon_{\bf k}-\Sigma^R({\bf k},E)}.
 \tag{C22}
 $$
 
@@ -309,12 +309,12 @@ $1/\tau$ はフェルミの黄金則による散乱の速さそのものであ�
 
 ## バーテックス補正を入れない場合: Drude の式 {#drude}
 
-式 (C20) で等号とした近似（$G^R$ と $G^A$ を結ぶ線を落とす近似）でも、平均した $\langle G\rangle$ には自己エネルギーによる幅 $\hbar/2\tau$ が入っている。
+式 (C20) で等号とした近似（$G^R$ と $G^A$ を結ぶ線を落とす近似）でも、$\bar G$ には自己エネルギーによる幅 $\hbar/2\tau$ が入っている。
 $\tau$ が長い（$\hbar/\tau\ll E_F$）とき
 
 $$
 \begin{aligned}
-\langle G^R\rangle({\bf k},E)\,\langle G^A\rangle({\bf k},E)
+\bar G^R({\bf k},E)\,\bar G^A({\bf k},E)
 &=\frac{1}{(E-\varepsilon_{\bf k})^2+(\hbar/2\tau)^2}\\
 &\simeq\frac{2\pi\tau}{\hbar}\,\delta(E-\varepsilon_{\bf k})
 \end{aligned}
@@ -339,7 +339,7 @@ $$
 $$
 \begin{aligned}
 \Gamma_x({\bf k})={}&v_x({\bf k})+n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\\
-&\times\langle G^R\rangle({\bf k}',E_F)\langle G^A\rangle({\bf k}',E_F)\,\Gamma_x({\bf k}')
+&\times\bar G^R({\bf k}',E_F)\bar G^A({\bf k}',E_F)\,\Gamma_x({\bf k}')
 \end{aligned}
 \tag{C27}
 $$
