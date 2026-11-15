@@ -143,29 +143,28 @@ $$
 
 を得る。$\hat v_x$ は速度の演算子、${\rm Tr}$ は一体の（軌道の）状態についての和、因子 2 はスピンである。
 
-一方、$\chi^R_{JJ}$ の定義から出発して、はじめからグリーン関数で書くこともできる。
-式 (C6) の $\chi^R_{JJ}$ のフーリエ変換は、式 (C4) で $\hat A=\hat B=\hat J^0_x$ としたものである。
-$f_n$ の項に $1=\int dE\,\delta(E-E_n)$ を入れ、$\sum_m|m\rangle\langle m|/(E_m-E-\hbar\omega-i\delta)=-G^R(E+\hbar\omega)$ を使う。
-$f_m$ の項も同様にして（$E_m\to E$、$\sum_n|n\rangle\langle n|/(E-\hbar\omega-E_n-i\delta)=G^A(E-\hbar\omega)$）、$\delta(E-H)=-{\rm Im}\,G^R(E)/\pi$ を使うと
+一方、相関関数のレベルから出発すると、はじめからグリーン関数で書ける。
+$\hat J^0_x$ はエルミートで、平衡では時間の原点によらないので、$C(t)=\langle[\hat J^0_{x,{\rm H}}(t),\hat J^0_x]\rangle$ は $C(t)^*=-C(t)$、$C(-t)=-C(t)$ を満たす。
+このため、式 (C6) の $\chi^R_{JJ}$ の虚部は $\theta(t)$ の無いフーリエ変換になる。
+さらに一体の系では、交換子の期待値は一体の空間でのトレースになる（$J=-e\hat v_x$ は一体の演算子、$J(t)=e^{iHt/\hbar}Je^{-iHt/\hbar}$、$f(H)$ は占有）:
 
 $$
 \begin{aligned}
-\chi^R_{JJ}(\omega)=\frac{1}{\pi}\int dE\,f(E)\,
-{\rm Tr}\big[&\hat J^0_x\,{\rm Im}\,G^R(E)\,\hat J^0_x\,G^R(E+\hbar\omega)\\
-&+\hat J^0_x\,G^A(E-\hbar\omega)\,\hat J^0_x\,{\rm Im}\,G^R(E)\big]
+{\rm Im}\,\chi^R_{JJ}(\omega)&=\frac{1}{2\hbar}\int dt\,e^{i\omega t}\,\big\langle[\hat J^0_{x,{\rm H}}(t),\hat J^0_x]\big\rangle\\
+&=\frac{1}{2\hbar}\int dt\,e^{i\omega t}\,{\rm Tr}\big[f(H)\,\big(J(t)\,J-J\,J(t)\big)\big]
 \end{aligned}
 \tag{C12}
 $$
 
-となる。ここで ${\rm Re}\,G=(G^R+G^A)/2$、${\rm Im}\,G=(G^R-G^A)/2i$ はどちらもエルミートの演算子で、$G^R(E+\hbar\omega)={\rm Re}\,G+i\,{\rm Im}\,G$、$G^A(E-\hbar\omega)={\rm Re}\,G-i\,{\rm Im}\,G$ と分けられる。
-${\rm Re}\,G$ を含む項のトレースは実数なので、$\chi^R_{JJ}$ の虚部には効かない。虚部は ${\rm Im}\,G$ どうしの積、すなわち極の寄与だけで決まる。
-第 2 項で $E\to E+\hbar\omega$ とずらすと
+$e^{\pm iHt/\hbar}=\int dE\,e^{\pm iEt/\hbar}\,\delta(E-H)$ を入れると、時間積分が $2\pi\hbar\,\delta(\hbar\omega+E-E')$ を与え、
+${\rm Im}\,\chi^R_{JJ}(\omega)=\pi\int dE\,[f(E)-f(E+\hbar\omega)]\,{\rm Tr}[J\,\delta(E-H)\,J\,\delta(E+\hbar\omega-H)]$ となる。
+$\delta(E-H)=-{\rm Im}\,G^R(E)/\pi$ を使うと
 
 $$
 \begin{aligned}
 {\rm Re}\,\sigma(\omega)&=\frac{1}{\omega\Omega}\,{\rm Im}\,\chi^R_{JJ}(\omega)\\
 &=\frac{1}{\pi\omega\Omega}\int dE\,\big[f(E)-f(E+\hbar\omega)\big]\\
-&\quad\times{\rm Tr}\big[\hat J^0_x\,{\rm Im}\,G^R(E)\,\hat J^0_x\,{\rm Im}\,G^R(E+\hbar\omega)\big]
+&\quad\times{\rm Tr}\big[J\,{\rm Im}\,G^R(E)\,J\,{\rm Im}\,G^R(E+\hbar\omega)\big]
 \end{aligned}
 \tag{C13}
 $$
