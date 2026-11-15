@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit d8df9d0a6 (source blob c325d628674f).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 2bcce7a50 (source blob 433ef1107).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -281,7 +281,7 @@ Taking Eq. (C20) as an equality means dropping the lines connecting $G^R$ and $G
 
 ## Green function with the self-energy: the lifetime {#averaged-g}
 
-As a result of the random-phase average, all the lines within one $G$ are collected into the self-energy. So, instead of averaging $G^R$, one considers the following $\bar G^R$ (translationally invariant and diagonal in the wave vector ${\bf k}$) and takes products of it (the lines connecting $G^R$ and $G^A$ are treated separately).
+As a result of the random-phase average, all the lines within one $G$ are collected into the self-energy. So, instead of averaging $G^R$, one considers the following $\bar G^R$ (translationally invariant and diagonal in the wave vector ${\bf k}$) and takes products of it.
 
 $$
 \bar G^R({\bf k},E)=\frac{1}{E-\varepsilon_{\bf k}-\Sigma^R({\bf k},E)}.
