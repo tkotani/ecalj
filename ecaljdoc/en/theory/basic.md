@@ -1,6 +1,6 @@
 # Basic expressions
 
-> English version of the page [theory/basic](../../theory/basic.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/basic.md of commit 3c3d839dc (source blob 1e40b99f7fab).
+> English version of the page [theory/basic](../../theory/basic.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/basic.md of commit 12e791b01 (source blob f71054987498).
 
 On the Green function at zero temperature
 
@@ -99,7 +99,7 @@ The polarization function $D = G G$, in which an electron and a hole propagate a
 In second quantization, operations that change the number of particles are also considered.
 For simplicity, take $M=n^3$ lattice points and consider whether an electron is or is not at each point (spin is ignored).
 Since each site either has an electron or not, there are $2^M$ states, and their linear combinations form a $2^M$-dimensional vector space.
-This vector space is conveniently built up with products of matrices called creation and annihilation operators.
+This vector space is conveniently built up with products of matrices (these are changes of basis) called creation and annihilation operators.
 The Hamiltonian is then considered in this linear space, and the ground state found with the total number of particles fixed is the ground state of the many-body system.
 
 In a one-body problem, on the other hand, only one electron is considered, so we work in an $n^3$-dimensional vector space.
