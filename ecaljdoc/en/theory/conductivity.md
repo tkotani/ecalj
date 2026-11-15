@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit e82479ed9 (source blob e6353122d3fa).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit ea9eacfbe (source blob 64fa4ac1ba2b).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -149,13 +149,13 @@ In a one-body system the expectation value of the commutator becomes a trace in 
 $\chi^R_{JJ}(t)=(i/\hbar)\theta(t)\,{\rm Tr}\big[f(H)\big(J(t)\,J-J\,J(t)\big)\big]$
 ($J=-e\hat v_x$ is a one-body operator, $J(t)=e^{iHt/\hbar}Je^{-iHt/\hbar}$, $f(H)$ the occupation).
 With the spectral decomposition $f(H)\,e^{\pm iHt/\hbar}=\int dE\,f(E)\,e^{\pm iEt/\hbar}\,\delta(E-H)$, the Fourier transforms of the remaining $(i/\hbar)\theta(t)\,e^{\mp i(H-E)t/\hbar}$ are the one-body Green functions $-G^R(E+\hbar\omega)$ and $G^A(E-\hbar\omega)$.
-So the product in time becomes a convolution in energy, and with $\delta(E-H)=-{\rm Im}\,G^R(E)/\pi$,
+So the product in time becomes a convolution in energy, and with $\delta(E-H)=-\big(G^R(E)-G^A(E)\big)/2\pi i$,
 
 $$
 \begin{aligned}
-\chi^R_{JJ}(\omega)=\frac{1}{\pi}\int dE\,f(E)\,
-{\rm Tr}\big[&J\,{\rm Im}\,G^R(E)\,J\,G^R(E+\hbar\omega)\\
-&+J\,G^A(E-\hbar\omega)\,J\,{\rm Im}\,G^R(E)\big]
+\chi^R_{JJ}(\omega)=\frac{1}{2\pi i}\int dE\,f(E)\,
+{\rm Tr}\big[&J\,\big(G^R(E)-G^A(E)\big)\,J\,G^R(E+\hbar\omega)\\
+&+J\,G^A(E-\hbar\omega)\,J\,\big(G^R(E)-G^A(E)\big)\big]
 \end{aligned}
 \tag{C12}
 $$
