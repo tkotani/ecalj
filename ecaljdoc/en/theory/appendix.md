@@ -1,6 +1,6 @@
 # Appendix: mathematical notes {#appendix}
 
-> English version of the page [theory/appendix](../../theory/appendix.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/appendix.md of commit 3a5c46cbd (source blob 3d7bcb24f718).
+> English version of the page [theory/appendix](../../theory/appendix.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/appendix.md of commit 8e1c45028 (source blob f54fcabbfb38).
 
 Mathematical tools used in the other pages.
 
@@ -86,15 +86,15 @@ $$
 
 with the boundary condition that the response comes after the impulse (the source term) on the right-hand side ([Basic I](./basic), impulse response).
 
-Note that this response function need not be a number. The same holds for $G(x,x',t-t')$ with $H$ a matrix $H(x,x')$ and the right-hand side by $B(x)\delta(x-x')\delta(t-t')$.
+Note that this response function need not be a number. The same holds for $G(x,x',t-t')$ with $H$ a matrix $H(x,x')$ and the right-hand side $\delta(x-x')\delta(t-t')$.
 Finally, both sides may be multiplied from the left by the same matrix $C$. In matrix notation,
 
 $$
-C\Big(i \frac{\partial }{\partial t}-H\Big) G(t-t')=C B\,\delta(t-t').
+C\Big(i \frac{\partial }{\partial t}-H\Big) G(t-t')=C\,\delta(t-t').
 \tag{A8}
 $$
 
-Here $H$, $C$ and $G$ are matrices with the index $x$ (the components of $G$ are $G(x,x',t-t')$), and $B$ is the diagonal matrix $B(x)\delta(x-x')$.
+Here $H$, $C$ and $G$ are matrices with the index $x$; the components of $G$ are $G(x,x',t-t')$.
 
 In fact, such forms are used in many-body perturbation theory.
 In short, a Green function (a linear response) can be defined for any inhomogeneous differential equation whose right-hand side is a source term $\delta(t-t')$ at the point $x'$.
@@ -110,11 +110,11 @@ $$
 that maps a source $S$ to a response $R$, the solution multiplied by $C$ from the left is written at once as the integral
 
 $$
-C R(t)=\int dt'\, C\, G(t-t')\, B^{-1} S(t')
+C R(t)=\int dt'\, C\, G(t-t')\, S(t')
 \tag{A10}
 $$
 
-(matrix notation; in components $R(x,t)$ and $S(x,t)$, and the right-hand side contains the sum over $x'$. For $B=1$ the kernel is $G$ itself.)
+(matrix notation; in components $R(x,t)$ and $S(x,t)$, and the right-hand side contains the sum over $x'$.)
 By causality $G(t-t')=0$ for $t<t'$, so the integral runs only over $t'\le t$.
 
 Causality means "the cause gives the result", which is represented by the step function. For example, the Fourier transform of
