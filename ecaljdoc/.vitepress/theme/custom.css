@@ -198,3 +198,9 @@ html:has(.home-dark), html:has(.home-dark) body { background: #1b1b1f; }
 #VPSidebarNav a.VPLink[href$="/manual/writing_docs"] .text {
   font-size: 12px; font-weight: 400 !important; color: var(--vp-c-text-3) !important;
 }
+
+/* Code blocks in a smaller font than VitePress's 14px (user 2026-11-15); inline code keeps the default size */
+.vp-doc div[class*='language-'] code {
+  font-size: 12.5px;
+  line-height: 1.55;
+}
