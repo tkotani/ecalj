@@ -1,6 +1,6 @@
 # Basic expressions
 
-> English version of the page [theory/basic](../../theory/basic.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/basic.md of commit 4e3d07986 (source blob ede507680f06).
+> English version of the page [theory/basic](../../theory/basic.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/basic.md of commit 3c3d839dc (source blob 1e40b99f7fab).
 
 On the Green function at zero temperature
 
