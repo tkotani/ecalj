@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit ae9535a7a (source blob 398b5a804ad2).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 2709efaba (source blob 05cb7b582bd7).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -204,8 +204,8 @@ $$
 
 which diverges for $\delta\to 0$ (without scattering the current does not decay). Roughly, $\delta$ may be regarded as the width $\hbar/2\tau$ from the lifetime $\tau$ of quasiparticles due to phonons and so on.
 
-The two views (Drude's "all electrons are accelerated for the time $\tau$" and Eq. (C16)'s "only the electrons on the Fermi surface contribute") are connected by the following identity.
-For one band and per spin, integrating by parts with $v_x=\hbar^{-1}\partial\varepsilon_{\bf k}/\partial k_x$,
+The two views (Drude's "all electrons are accelerated for the time $\tau$" and Eq. (C16)'s "only the electrons on the Fermi surface contribute") are connected as follows.
+The following factor on the right-hand side of Eq. (C16), for one band and per spin, becomes by integration by parts with $v_x=\hbar^{-1}\partial\varepsilon_{\bf k}/\partial k_x$
 
 $$
 \frac{\overline{v_x^2}\,D(E_F)}{\Omega}
@@ -214,7 +214,7 @@ $$
 \tag{C17}
 $$
 
-The left-hand side is the Fermi-surface quantity in Eq. (C16), and the right-hand side is the sum of the inverse effective masses over all occupied states.
+The left-hand side is a Fermi-surface quantity, and the right-hand side is the sum of the inverse effective masses over all occupied states.
 For free electrons $\partial^2\varepsilon_{\bf k}/\partial k_x^2=\hbar^2/m$ is constant, so the right-hand side is $n/2m$ ($n$ is the electron density including both spins, and $n/2$ is per spin).
 Therefore, with $\delta=\hbar/2\tau$ in Eq. (C16) and using Eq. (C17),
 
