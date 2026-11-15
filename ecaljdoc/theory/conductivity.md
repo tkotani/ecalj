@@ -102,7 +102,7 @@ $$
 
 となる。第 1 項が反磁性の部分、第 2 項が常磁性の部分で、どちらも線形応答の式 (C3) から出る。
 
-$e^{-i\omega t}$ の成分では、第 2 項のたたみこみは積 $\chi^R_{JJ}(\omega)A_x(\omega)$ になる（$\chi^R_{JJ}(\omega)$ は式 (C4) で与えられる）。
+$e^{-i\omega t}$ の成分では、第 2 項のたたみこみは積 $\chi^R_{JJ}(\omega)A_x(\omega)$ になる。
 電流密度は $\delta\langle\hat J_x\rangle/\Omega$ で、$A_x(\omega)=E_x(\omega)/i\omega$ なので
 
 $$
