@@ -39,7 +39,7 @@ TOOLS/samples_tests.sh --gpu -np 8 install mlo    # some groups, GPU
 
 - 使うバイナリのディレクトリは環境変数 `BIN`（既定は `~/bin`）、ログの置き場は `LOG` で変えられます。インストールしたものに触らずに、別に作ったバイナリで試験できます。
 - 途中で止まったターゲットは STOPPED と数えます。
-- 組ごとの時間の目安は [GetStarted with AI](./getstartedAI) の §4 の表 2 にあります。
+- 組ごとの時間の目安は [GetStarted with AI](./getstartedAI) の §5 の表 2 にあります。
 - 試験に要る Python のモジュール: numpy、pandas、matplotlib、pymatgen、seekpath、spglib、scipy、plotly。gnuplot は無くてもかまいません（図は描かずに `.glt` だけを書きます）。
 
 ## 試験を比べるときの注意 {#cautions}

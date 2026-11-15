@@ -1,7 +1,3 @@
----
-pageClass: secnum-manual
----
-
 # MLO-gwsc — 自己エネルギーを MLO 表現で内挿する QSGW（開発中）
 
 > **状況（2026-09-30）**: LiTi₂O₄ の 6³ と 9³ を LDA から 40 反復まで回した（§3.5）。GPU の行列積の精度（tf32・fp32・fp64）による MLO バンドの差は
@@ -15,9 +11,9 @@ pageClass: secnum-manual
 
 ---
 
-## 1. 理論
+## 理論
 
-### 1.1 何を解決するのか
+### 何を解決するのか
 
 QSGW の静的自己エネルギー $\Sigma$ は GW の $q$ メッシュ上で計算し、任意の $k$ ではメッシュ点の値から **k 空間で内挿**して使います（実空間に落として戻すフーリエ内挿）。
 従来はこれを **MTO 基底**の行列（`sigm`）として実空間に落とし、Bloch 和で戻しています。
@@ -29,7 +25,7 @@ MTO 基底は非直交で、EH と EH2 がほぼ線形従属、裾も長いた�
 MLO-gwsc は同じ $\Sigma$ を **MLO（MTO をもとにした局在軌道）** の小さな部分空間 $\{\tilde\chi_\alpha\}$ で表した行列にして、k 空間で内挿します。
 MLO は反復ごとに作り直し、$\Sigma$ はその MLO で書いて、同じ MLO で読み戻します（MLO Sigma インターポレーション、§1.4）。
 
-### 1.2 MLO $\tilde\chi$ の作り方
+### MLO $\tilde\chi$ の作り方
 
 各 $k$ で、PMT ハミルトニアンの固有状態 $\Psi^{\rm PMT}_i(k)$（固有値 $\varepsilon^{\rm PMT}_i$）と、MTO ブロックだけを対角化した固有状態 $\Psi^{\rm MTO}_j(k)$（固有値 $\varepsilon^{\rm MTO}_j$）から射影
 
@@ -59,7 +55,7 @@ $\tilde\chi$ は保存された表ではなく、**その時点のハミルト�
   エネルギーが高めに出てしまう。MTO の状態 $j$ に当たる PMT の固有状態は $\varepsilon^{\rm MTO}_j$ より下にあるので、
   PMT の固有状態のエネルギーが $\varepsilon^{\rm MTO}_j$ 以下ならば取り込む、とする。
 
-### 1.3 $\Sigma$ を MLO で持ち、PMT に戻す
+### $\Sigma$ を MLO で持ち、PMT に戻す
 
 GW が出すのはバンド添字の $\Sigma^\psi_{ij}(q)=\langle\psi_i|\hat\Sigma|\psi_j\rangle$ です。これを MLO に移します:
 
@@ -80,7 +76,7 @@ $\hat P_{\rm MLO}=|\tilde\chi\rangle O^{-1}\langle\tilde\chi|$ は MLO 部分空
 > **注意**: 従来の `sigm` は MTO ブロックに擬似逆で射影した量で、両側に $O^{-1}$ を畳み込んだ形です。
 > $\Sigma(R)$ の大きさを $\Sigma^{\rm MLO}(R)$ と直接比べることはできません。
 
-### 1.4 MLO Sigma インターポレーション — $\Sigma$ は、それを書いた $\tilde\chi$ で読む
+### MLO Sigma インターポレーション — $\Sigma$ は、それを書いた $\tilde\chi$ で読む
 
 反復ごとに MLO を作り直し、その反復の $\Sigma$ を MLO 表現の行列 $\Sigma^{\rm MLO}(k)$ にして **k 空間で内挿**し
 （メッシュ点の値から任意の $k$ の値を作る）、PMT 基底に戻すときも同じ MLO を使います。
@@ -110,7 +106,7 @@ $\hat P_{\rm MLO}=|\tilde\chi\rangle O^{-1}\langle\tilde\chi|$ は MLO 部分空
 `gwsc` が計算の前に確かめ、違えば止まります。
 保存済みに無い $k$ で読もうとした場合も、既定では止まります（$\Sigma$ を別の基底で読むことになるため）。
 
-### 1.5 1 反復の流れ（`gwsc 1 --mlo`）
+### 反復 1 回の流れ（`gwsc 1 --mlo`）
 
 連鎖の最初に一度だけ、`lmf --writeham --mlo` と `mlo --mlo` で **MLO の索引**を `HamRsMLO` に作ります。
 索引とは、どの MTO チャネルを種にするか（`ndimMTO` 本）です。$\Sigma^{\rm MLO}$ はそのチャネル上の行列なので、索引は連鎖を通じて固定です（`--mlofreeze`）。
@@ -126,7 +122,7 @@ $\hat P_{\rm MLO}=|\tilde\chi\rangle O^{-1}\langle\tilde\chi|$ は MLO 部分空
 | ⑤ | 昇格（④の `mlo` の中）| `__QMLO_zNew` → `QMLO_z`。ここで「現行の $\tilde\chi$」が $z_n$ に切り替わる |
 | ⑥ | `lmf`（SCF）| `getsenex` が $\Sigma_n$ を $z_n$ で読む |
 
-### 1.6 混合
+### 混合
 
 MLO 経路で SCF が読むのは `QMLO_SigRs`（`__QMLO_Sig` から作る）で、`sigm` ではありません。
 `sigm` は `hqpe_sc` で Anderson 混合されますが、$\Sigma^{\rm MLO}$ も混合しないと **MLO 連鎖だけ実効 β=1 で回る**ことになり、
@@ -139,7 +135,7 @@ $\Sigma^{\rm MLO}$ には `sigm` と同じ Anderson 混合（β = `[gw] mixbeta`
 - **初回（LDA から）は $\beta$ 倍から始まる**: 前の $\Sigma$ が無いので $x_0=0$（$\Sigma=0$）から混合し、iteration 1 は $\beta\Sigma^{\rm out}$。
   `sigm` も $\Sigma^{\rm MLO}$ も $\beta$ 倍で、既定の $\beta=1$ なら全量が入る（LiTi₂O₄ は $\beta=0.5$。[mixbeta](./gwsc#mixbeta-and-mixpriorit)）
 
-### 1.7 MLO バンドの描き方
+### MLO バンドの描き方
 
 途中の反復の状態を $\Sigma^{\rm MLO}$ のまま任意の $k$ で見るには、**SCF が解いたハミルトニアンの MLO 模型**を作って解きます
 （ecalj の `Samples/kBT/LiTi2O4/draw_mloband.sh`）。
@@ -162,9 +158,9 @@ $\Sigma^{\rm MLO}$ には `sigm` と同じ Anderson 混合（β = `[gw] mixbeta`
 
 ---
 
-## 2. 設定と実行
+## 設定と実行
 
-### 2.1 `ctrlg.<sname>.toml`
+### `ctrlg.<sname>.toml`
 
 LiTi₂O₄ の 6³ で使った設定（9³ はメッシュの 3 か所を `[9, 9, 9]` にしただけ）:
 
@@ -177,7 +173,7 @@ pwmode = 11                 # |q+G| 打ち切り（既定）
 n1n2n3  = [6, 6, 6]
 mixbeta = 0.5               # sigm と Sigma^MLO の混合
 t_sigmaw   = 1000.0         # (K) Sigma の中間準位の Fermi-Dirac の幅（必須）
-t_tetrakbt = -992.4         # (K) 負: chi0 は T=0 のまま Im chi0 を FD およそ 1000 K と同じ幅の Gaussian で均す（以前の SmearX0 = 0.0057 Ha）。金属の W の極を均す（[kBT](./kBT) の冒頭の「LiTi₂O₄ の設定」と §2.4）
+t_tetrakbt = -992.4         # (K) 負: chi0 は T=0 のまま Im chi0 を FD およそ 1000 K と同じ幅の Gaussian で均す（以前の SmearX0 = 0.0057 Ha）。金属の W の極を均す（[kBT](./kBT) の冒頭の「LiTi₂O₄ の設定」と §3.4）
 [mlo]
 mlo_method = 4              # 既定
 mlo_delta  = 2.0            # (eV) 既定
@@ -199,7 +195,7 @@ mlo_lm = """
   （例外は空隙に広がった伝導帯の底がある陽イオンの s,p: [MLO](./mlo) §9 の基準 2。MLO-QSGW では試していない）。
   <span class="clfix">2026-10-02 までの生の MLO では、</span>式 (7) は $O^{-1}$ を 2 回挟むので効き方は 2 乗<span class="clfix">だった</span>（NiO の Ni d で条件数 $1.3\times10^2\to7.4\times10^4$）<span class="clfix">。いまは Löwdin の直交化の $O^{-1/2}$ を通して、ほぼ特異な $O$ が効く</span>
 
-### 2.2 実行
+### 実行
 
 ```bash
 gwsc 10 -np 60 -np2 2 --gpu --prec=fp32 --ntqxx --mlo liti2o4                     # 10 反復
@@ -216,7 +212,7 @@ tf32 は Σc の最後の行列積だけを 10 ビットの仮数の入力（RTX
   （LDA の後に混合ファイルが 1 つでも残っていれば止まる）。`run_gwsc10.sh` は `RUNS_DIR`（作業場所）と `GPUS`（既定は GPU 0 の 1 枚）で指定でき、
   入力は `Samples/kBT/LiTi2O4/input/qmlo`。`run_snap.sh` には kt1 のパスが書き込んであるので、使うときは書き換える
 
-### 2.3 各反復の確認
+### 各反復の確認
 
 見るもの（`run_snap.sh` の鎖では `Samples/kBT/LiTi2O4/check_iter.sh` が、`watch_iter.sh` が反復の終わりに退避したログで調べる）。
 `gwsc N` でまとめて回したときは、`gwsc` が各反復の終わりに `QSGW.<N>run/` へ `lgw`・`lqpe`・`llmfgw01`・`lmlo_sigr`・`llmf`（`llmf.<N>run`）を写すので
@@ -235,7 +231,7 @@ tf32 は Σc の最後の行列積だけを 10 ビットの仮数の入力（RTX
 `-np 60` で、6³ は既約 16 点なので 16、GW の 72 点で 36。9³ は 35 点で 35、200 点で 50。
 これより**少なければ**、一部のプロセスが MLO 経路に入らず従来の `sigm` に落ちています。
 
-### 2.4 使うファイルと、残すもの
+### 使うファイルと、残すもの
 
 印: **●** MLO-QSGW 特有（`gwsc --mlo` でだけ出てくる）、**○** MLO 法一般（`job_mlo` でも出てくる）、無印は通常の QSGW と共通。
 保存: **結果** = 計算結果として残す、**再開** = 連鎖を続けるのに要る、**—** = 反復の中だけで使う作業ファイル。
@@ -266,7 +262,7 @@ tf32 は Σc の最後の行列積だけを 10 ビットの仮数の入力（RTX
 `sigm` は値としては SCF に使いませんが、無いと `gwsc` も `lmf` も LDA からやり直すので、再開には必須です。
 `run_snap.sh` のスナップショットは、「結果」の多くに `sigm.<sname>`、`__atm.<sname>`、`syml.<sname>` などを加えたものです。
 
-### 2.5 オプションと環境変数
+### オプションと環境変数
 
 | | 効果 |
 |---|---|
@@ -282,9 +278,9 @@ tf32 は Σc の最後の行列積だけを 10 ビットの仮数の入力（RTX
 
 ---
 
-## 3. 実例: LiTi₂O₄
+## 実例: LiTi₂O₄
 
-### 3.1 設定
+### 設定
 
 | 項目 | 値 |
 |---|---|
@@ -298,7 +294,7 @@ tf32 は Σc の最後の行列積だけを 10 ビットの仮数の入力（RTX
 | 1 反復 | 6³: 950–1000 秒、9³: 約 5300 秒（89 分）。`hgw` が 86 %（6³）、94 %（9³）で、MLO のための処理は 1 % 程度。2026-09-27 の高速化の後は 6³ の fp32 で 555 秒 |
 | 比較の基準 | 従来 QSGW（MTO）6³、`pwmode = 1`、β = 0.5、10 反復（LDA の行だけ `pwmode = 11`）|
 
-### 3.2 バンド
+### バンド
 
 ![LiTi2O4 の t2g バンドの反復推移（従来 6³ / MLO-QSGW 6³ / MLO-QSGW 9³）](mlo_gwsc/liti2o4_5col_all.png)
 
@@ -316,7 +312,7 @@ t2g（バンド 33–44）、Γ→X 211 点。列は左から **従来 QSGW 6³*
   こちらは `sigm` 描画にも MLO バンドにも出る
 - 従来 QSGW の列には iteration 9〜10 でも青が出る。同じ 6³ の MLO-QSGW の 2 列には出ない
 
-### 3.3 収束
+### 収束
 
 ![反復ごとのバンド変化](mlo_gwsc/liti2o4_conv.png)
 
@@ -334,7 +330,7 @@ t2g（バンド 33–44）、Γ→X 211 点。列は左から **従来 QSGW 6³*
 - **メッシュを 6³ → 9³ にしたときのバンドの動き**（iteration 10）は、MLO バンドで rms 13 meV、`sigm` 描画で 27 meV。
   **MLO 表現の内挿の方がメッシュに鈍い**
 
-### 3.4 従来との差
+### 従来との差
 
 iteration 10 の MLO バンドと従来 6³ の差は、6³ で rms 46 meV（平均 +30）、9³ で rms 49 meV（平均 +34）です。
 6³ で見ると一様なずれではなく、占有の 2 本が 7–13 meV 低く、非占有の t2g が 22–61 meV 高い。t2g 全体の幅は 1505 対 1516 meV でほぼ同じです。
@@ -342,7 +338,7 @@ iteration 10 の MLO バンドと従来 6³ の差は、6³ で rms 46 meV（平
 ただし比較の基準は `pwmode = 1`、MLO 側は `pwmode = 11` です。LDA での `pwmode` の差（rms 5.6 meV）だけでは説明できませんが、
 QSGW で増幅された可能性は残ります。**$\Sigma$ の表現の差か `pwmode` の差かは、`pwmode = 11` の従来連鎖を回さないと分けられません**（未実施）。
 
-### 3.5 40 反復まで（2026-09-29）
+### 反復 40 回まで（2026-09-29）
 
 §3.1 の設定（ただし 2026-09-27 以後のコード: 窓の基準は各反復の SCF の値、$\chi_0$ は `t_tetrakbt = -992.4`、`t_sigmaw = 1000`）で、
 LDA から `gwsc 10 --prec=tf32`、続けて 1 反復ずつ 40 反復まで回した。設定の表、図と数値の全部は ecalj の `Samples/kBT/LiTi2O4/README.md`。
@@ -372,7 +368,7 @@ LDA から `gwsc 10 --prec=tf32`、続けて 1 反復ずつ 40 反復まで回�
 
 ---
 
-## 4. 落とし穴
+## 落とし穴
 
 | 誤り | なぜだめか / 正しくは |
 |---|---|
@@ -381,7 +377,7 @@ LDA から `gwsc 10 --prec=tf32`、続けて 1 反復ずつ 40 反復まで回�
 | `job_band --mlo` や `job_mlo --mlofreeze` で MLO バンドを描く | §1.7 の表のとおり無効 |
 | 別のメッシュの確認値（印の行数、所要時間）を当てはめる | 正常を異常と判定してしまう。値はメッシュと並列数で決まる（§2.3）|
 
-## 5. 未解決・今後
+## 未解決・今後
 
 - **`pwmode = 11` の従来連鎖**を 10 反復回し、§3.4 の差を表現の差と `pwmode` の差に分ける
 - **反強磁性の対称性（`symgrpaf`）**: QSGW は 2026-09-30 から、GW のプログラムが両方のスピンを計算する形で動く（ecalj `Samples/AFsymmetry`）。

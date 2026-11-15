@@ -1,7 +1,3 @@
----
-pageClass: secnum-manual
----
-
 # What's new (summary)
 
 > English version of the page [manual/whatsnew](../../manual/whatsnew.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/whatsnew.md of commit b55836332 (source blob d2992e9b7e96).
@@ -11,22 +7,22 @@ A summary of the new features of ecalj and of the fixes that change results, new
 
 ## Recent major topics (2026-09 to 10)
 
-### 1. Temperature and smoothing are given only by `t_tetrakbt` and `t_sigmaw`; results of the LiTi₂O₄ iterations (tf32, fp32, fp64)
+### Temperature and smoothing are given only by `t_tetrakbt` and `t_sigmaw`; results of the LiTi₂O₄ iterations (tf32, fp32, fp64)
 
 - **Temperature and smoothing are now specified only by the two keys `t_tetrakbt` and `t_sigmaw` in `[gw]`** (unit K) → [kBT](./kBT.md) Table 4
   - `t_tetrakbt` (χ0 side, required): 0 is the T = 0 tetrahedron method (no smoothing); a positive value T is the finite-temperature tetrahedron method at temperature T;
-    a negative value −T smooths the Im χ0 made by the T = 0 tetrahedron method with a Gaussian of the same width as the Fermi–Dirac function at temperature T → [kBT](./kBT.md) §2
-  - `t_sigmaw` (Σ side, required from 2026-11-14): the width of the Fermi–Dirac kernel that smooths the intermediate levels of Σx and Σc → [kBT](./kBT.md) §3
+    a negative value −T smooths the Im χ0 made by the T = 0 tetrahedron method with a Gaussian of the same width as the Fermi–Dirac function at temperature T → [kBT](./kBT.md) §3
+  - `t_sigmaw` (Σ side, required from 2026-11-14): the width of the Fermi–Dirac kernel that smooths the intermediate levels of Σx and Σc → [kBT](./kBT.md) §4
   - The former keys `SmearX0`, `esmr`, `tetrakbt = true`, `t_sigmakbt` are not used (if `SmearX0` remains, the program stops; `ctrlg_update.py` rewrites it.
-    The history of the keys is in Table 2 of [kBT](./kBT.md) §2.5)
+    The history of the keys is in Table 2 of [kBT](./kBT.md) §3.5)
   - `wcsmear` (default true) is not a temperature but a switch to use the same kernel also for the pole positions in the real-axis pole term of Σc. Keep the default.
-    It smooths the cause of rough bands in metals that depend on the iteration and the k mesh (the real-axis pole term of Σc picks up the plasmon pole of W at small q) → [kBT](./kBT.md) §3.5
+    It smooths the cause of rough bands in metals that depend on the iteration and the k mesh (the real-axis pole term of Σc picks up the plasmon pole of W at small q) → [kBT](./kBT.md) §5
 - **MLO-QSGW of LiTi₂O₄ (metallic spinel, 14 atoms), 40 iterations from LDA** (6³ and 9³, `gwsc --mlo`). Changing the precision of the matrix products on the GPU (`gwsc --prec=tf32|fp32|fp64`)
   changes the MLO bands by a few meV or less (at 10 iterations on 6³, tf32 vs fp32 is 0.8 meV for t2g; in the first iteration, fp64 vs fp32 is 1 meV), one order of magnitude smaller than
   the differences due to iterations or meshes (tens of meV). The fast tf32 can be used (one iteration on 6³: tf32 3.7 min, fp64 17 min; kt1, RTX 5090 × 2). Stopping at 10 iterations is midway through convergence; 30 to 40 iterations are needed
   → [Summary of LiTi₂O₄](https://github.com/tkotani/ecalj/blob/main/Samples/kBT/LiTi2O4/README.md) (Tables 3 to 5, Figs. 1 and 2), [MLO-gwsc](./mlo_gwsc.md), [GPU version](./ecaljgpu.md)
 
-### 2. MLO and magnons
+### MLO and magnons
 
 - **MLO now uses Löwdin-orthogonalized functions (projected Wannier functions) as the standard** (2026-10-02). They keep the orbital names and symmetry, and the model is only $H(\mathbf R)$ in the orthogonal basis.
   $U$, $J$, cRPA (`job_mloW`) and magnons (`job_mlo_magnon`) also use this basis; the Wannier-function (maximally localized) path was removed → [MLO](./mlo.md) §6

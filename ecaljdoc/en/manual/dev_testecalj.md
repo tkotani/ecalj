@@ -41,7 +41,7 @@ TOOLS/samples_tests.sh --gpu -np 8 install mlo    # some groups, GPU
 
 - The directory of the binaries is set by the environment variable `BIN` (default `~/bin`), the place of the logs by `LOG`. So binaries built elsewhere can be tested without touching the installed ones.
 - A target that stops on the way is counted as STOPPED.
-- The time of each group is in table 2 of section 4 of [GetStarted with AI](./getstartedAI).
+- The time of each group is in table 2 of section 5 of [GetStarted with AI](./getstartedAI).
 - Python modules needed by the tests: numpy, pandas, matplotlib, pymatgen, seekpath, spglib, scipy, plotly. gnuplot is not needed (without it, only `.glt` files are written).
 
 ## Cautions when comparing {#cautions}

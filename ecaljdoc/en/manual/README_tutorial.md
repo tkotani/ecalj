@@ -533,7 +533,7 @@ For conversion from old inputs and how to add the GW sections later, see [Input 
 `[gw]` has two temperatures in kelvin: `t_sigmaw` (the Fermi-Dirac width of the levels in the self-energy)
 and `t_tetrakbt` (how $\chi_0$ is
 smeared; **required**, the programs stop without it). In the generated file
-both are 300 K, and for insulators and semiconductors you can leave them as they are ([kBT](./kBT) §4). For metals see [kBT](./kBT).
+both are 300 K, and for insulators and semiconductors you can leave them as they are ([kBT](./kBT) §7). For metals see [kBT](./kBT).
 The `ctrlg.gaas.toml` of the example was converted from an old input and has `t_tetrakbt = 0` (tetrahedron method at T=0), `t_sigmaw = 262`.
 
 The key most often adjusted before starting QSGW is the GW

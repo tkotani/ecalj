@@ -3,7 +3,7 @@
 金属スピネル LiTi₂O₄（14 原子、Ti の t2g バンドが Fermi 準位を横切る）を、自己エネルギー Σ を MLO で内挿する QSGW
 （`gwsc --mlo`、MLO-QSGW）で、LDA から 40 反復まで回した結果のまとめ。
 方法の説明は ecaljdoc の [mlo_gwsc](https://ecalj.github.io/ecaljdoc/manual/mlo_gwsc)、温度のキーの式は
-[kBT](https://ecalj.github.io/ecaljdoc/manual/kBT) §2・§3。ここには設定と結果だけを書く。
+[kBT](https://ecalj.github.io/ecaljdoc/manual/kBT) §3・§4。ここには設定と結果だけを書く。
 
 言葉:
 

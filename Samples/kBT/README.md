@@ -1,7 +1,7 @@
 # Samples/kBT — 電子温度と均し方のサンプル、MLO-QSGW の結果、研究の記録
 
 `[gw]` の `t_tetrakbt`（χ0 側）と `t_sigmaw`（Σ 側）の使い方と、それで何が変わるかを見るためのサンプル。
-キーの意味と式は ecaljdoc の [kBT](https://ecalj.github.io/ecaljdoc/manual/kBT)（表 1 と §2・§3）。
+キーの意味と式は ecaljdoc の [kBT](https://ecalj.github.io/ecaljdoc/manual/kBT)（表 1 と §3・§4）。
 
 **表 1**. `t_tetrakbt` と `t_sigmaw`（単位は K）
 

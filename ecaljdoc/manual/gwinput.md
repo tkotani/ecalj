@@ -20,7 +20,7 @@ ctrlgenToml.py <sname> --addgw   # [gw] があれば止まる
 古いファイルは `ctrlg_update.py ctrlg.<sname>.toml` で足す。足すのはそれまでのコードの既定値なので、結果は変わらない。
 
 生成される `[gw]` は `n1n2n3 = [4, 4, 4]`、`t_sigmaw = 300`、`t_tetrakbt = 300` である。計算に合わせて書き換える。
-絶縁体・半導体では、ギャップが $k_BT$ より十分大きいので、温度は 300 K のままで結果に効かない（[kBT](./kBT) §4）。
+絶縁体・半導体では、ギャップが $k_BT$ より十分大きいので、温度は 300 K のままで結果に効かない（[kBT](./kBT) §7）。
 
 ## Format
 - TOML の文法で書く。`#` から行末まではコメント
@@ -68,8 +68,8 @@ MT内の積基底とMT内波動関数基底の行列要素(`ppb`変数)を、対
 
 ### `t_tetrakbt`  *(必須、2026-09-28)*
 $\chi_0$ をどう均すかを温度 (K) の符号で選ぶ。書かないと止まる。
-- `0`: 均さない(T=0 のテトラヘドロン)。絶縁体・半導体はテンプレートの 300 のままでもよい(ギャップ ≫ $k_BT$ なら効かない。[kBT](kBT) §4)。
-- `T > 0`: 有限温度のテトラヘドロン。$\chi_0$ の占有数が温度 $T$ の Fermi-Dirac になり、Fermi 準位は `EFERMI_kbt`($\Sigma$ 側も)。[kBT](kBT) §2。
+- `0`: 均さない(T=0 のテトラヘドロン)。絶縁体・半導体はテンプレートの 300 のままでもよい(ギャップ ≫ $k_BT$ なら効かない。[kBT](kBT) §7)。
+- `T > 0`: 有限温度のテトラヘドロン。$\chi_0$ の占有数が温度 $T$ の Fermi-Dirac になり、Fermi 準位は `EFERMI_kbt`($\Sigma$ 側も)。[kBT](kBT) §3。
 - `-T`: T=0 のテトラヘドロンのまま、$\mathrm{Im}\chi_0$ を周波数方向に Gaussian で均す。幅は温度 $T$ の Fermi-Dirac と同じ(標準偏差 $\pi k_BT/\sqrt3$、$-1000$ K = 0.00574 Ha = 0.156 eV)。金属で $W$ のプラズモン極が荒れるときに使う(LiTi₂O₄ の実用の設定は $-992.4$。[kBT](kBT) の冒頭「LiTi₂O₄ の設定」)。$W(i\omega)$ や静的 $W(0)$ にも効く。
 gwinit のテンプレートは 300 を書く。
 - **type**: float (K)
@@ -77,7 +77,7 @@ gwinit のテンプレートは 300 を書く。
 
 古い入力に出てくるキーの扱いは表 1 のとおり。`ctrlg_update.py ctrlg.<sname>.toml` は `SmearX0`(Ha、$\mathrm{Im}\chi_0$ の
 Gaussian の標準偏差)を同じ幅の `t_tetrakbt = -T` に書き換え(0.0057 Ha → $-992.4$ K)、`t_tetrakbt` の無いファイルには
-`t_tetrakbt = 0` を足す。計算は変わらない。`Legacy2toml.py` も変換のときに同じ書き換えをする。キーの変遷は [kBT](kBT) §2.5 の表 2。
+`t_tetrakbt = 0` を足す。計算は変わらない。`Legacy2toml.py` も変換のときに同じ書き換えをする。キーの変遷は [kBT](kBT) §3.5 の表 2。
 
 **表 1**. `[gw]` の古いキーと今の扱い
 
@@ -95,9 +95,9 @@ Gaussian の標準偏差)を同じ幅の `t_tetrakbt = -T` に書き換え(0.005
 $\Sigma_x = iGv$ の占有重み、$\Sigma_c = iG(W-v)$ の実軸極項の窓重みと極の位置(`wcsmear`)の
 すべてに同じ核 $-\partial f/\partial\varepsilon$($k_BT$ = `t_sigmaw`)が使われる。
 **これは数値的な幅であって完全な有限温度自己エネルギーではない**(Bose 因子などは入らない)。
-Fermi 準位は `t_tetrakbt > 0`($\chi_0$ も有限温度)なら `EFERMI_kbt`、そうでなければ k メッシュの上の準位を数えて決める([kBT](kBT) §0 の表 5)。
+Fermi 準位は `t_tetrakbt > 0`($\chi_0$ も有限温度)なら `EFERMI_kbt`、そうでなければ k メッシュの上の準位を数えて決める([kBT](kBT) §1 の表 5)。
 中間状態の候補窓と実軸 $\omega$ メッシュの余裕は $E_F \pm 15\,k_BT$。同じ核が $\Sigma_c$ の虚軸積分の
-半留数の段差にも入る(契約: 占有重み・極項の窓重み・虚軸の段差の 3 か所が同じ核。[manual/kBT](kBT) §3.6)。
+半留数の段差にも入る(契約: 占有重み・極項の窓重み・虚軸の段差の 3 か所が同じ核。[manual/kBT](kBT) §6)。
 
 - 必須(2026-11-14 から)。テンプレートは 300 K。それまでのコードの既定値は 1000 K で、旧 `esmr = 0.01` Ry(Gaussian $\sigma$)に近い幅
   (同じ標準偏差になるのは 872 K。FD の std は $\pi k_BT/\sqrt3 = 1.81\,k_BT$)。旧 `esmr = 0.003` Ry(Si など TestInstall の値)は 262 K に相当。

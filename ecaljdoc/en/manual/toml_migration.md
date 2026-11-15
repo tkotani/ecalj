@@ -92,7 +92,7 @@ Table 1. Old keys and TOML paths
 | `<QforEPS>...</QforEPS>` block | `[gw].QforEPS = """ ... """` (same for `QforGW`) | |
 | `n1n2n3` (GWinput) | `[gw].n1n2n3 = [k1,k2,k3]` | integer vector |
 | `HistBin_dw` / `HistBin_ratio` / `niw` (GWinput) | `[gw].HistBin_dw` etc. | names are the same as in GWinput (including case) |
-| `esmr`, `SmearX0` / `GaussianFilterX0`, `GaussSmear`, `delta`, `dw`, `omg_c`, `WgtQ0P` (GWinput) | `[gw].t_sigmaw` and `[gw].t_tetrakbt` (K; `t_tetrakbt` is required) | old keys and how they are handled: Table 1 of [GW settings](./gwinput), Table 2 in §2.5 of [kBT](./kBT) |
+| `esmr`, `SmearX0` / `GaussianFilterX0`, `GaussSmear`, `delta`, `dw`, `omg_c`, `WgtQ0P` (GWinput) | `[gw].t_sigmaw` and `[gw].t_tetrakbt` (K; `t_tetrakbt` is required) | old keys and how they are handled: Table 1 of [GW settings](./gwinput), Table 2 in §3.5 of [kBT](./kBT) |
 | upper limits of the product basis (`tolerance`, `lcutmx` of `<PRODUCT_BASIS>`) | `[product_basis].pb_tolerance` / `.pb_lcutmx` | |
 | per-atom tables of the product basis (`nlx`, `valence`, `core`) | `[product_basis].nlx` / `.valence` / `.core` (at the end of the file; before 2026-09, the separate `PB.<sname>.toml`) | |
 
@@ -121,7 +121,7 @@ ctrlg_update.py ctrlg.<sname>.toml [...]    # in place; the original is kept as 
 
 This removes `nbas` / `nspec` (if `nbas` was smaller than the number of `[[site]]` tables, the later tables are commented out),
 rewrites `SmearX0 = s` as `t_tetrakbt = -T` of the same width, adds `t_tetrakbt = 0` where the key is missing, and also adds the other required keys with the defaults of the previous code, so that the calculation does not change ([GW settings](./gwinput)).
-With `--no-backup`, no backup of the original file is kept. The rules are in [lmf.md](./lmf#file-structure-sections) and §2 of [kBT](./kBT), and
+With `--no-backup`, no backup of the original file is kept. The rules are in [lmf.md](./lmf#file-structure-sections) and §3 of [kBT](./kBT), and
 the old keys of `[gw]` are in Table 1 of [GW settings](./gwinput).
 
 ## Run-time overrides with `--ctrlg:` {#run-time-ctrlg-overrides}

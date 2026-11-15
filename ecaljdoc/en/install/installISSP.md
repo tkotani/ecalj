@@ -1,7 +1,3 @@
----
-pageClass: secnum-manual
----
-
 
 # Installation on kugui (GPU) and ohtaka (CPU) at ISSP
 
@@ -15,11 +11,11 @@ pageClass: secnum-manual
 
 ## Installation on kugui
 
-### 1. Log in
+### Log in
 
-### 2. [Install Python and tools with pyenv etc.](./install.md)
+### [Install Python and tools with pyenv etc.](./install.md)
 
-### 3. Editing `~/.bashrc`
+### Editing `~/.bashrc`
 
 Insert the following at the end of `~/.bashrc`.
 
@@ -41,7 +37,7 @@ fi
 > OneAPI_MPI is slightly faster but slightly less stable.
 > Intel MKL can be used with both nvfortran and gfortran.
 
-The following message may appear at login or at mpirun, but it is harmless (§4).
+The following message may appear at login or at mpirun, but it is harmless (§1.4).
 
 >--------------------------------------------------------------------------
 >The library attempted to open the following supporting CUDA libraries,
@@ -56,7 +52,7 @@ The following message may appear at login or at mpirun, but it is harmless (§4)
 >of libcuda.so.1 to get passed this issue.
 >
 
-### 4. Installing and testing ecalj
+### Installing and testing ecalj
 
 ```bash
 git clone https://github.com/tkotani/ecalj.git
@@ -124,7 +120,7 @@ During the tests,
 you can check the progress in the standard output of the job (with PBS, `install.o<job number>`). The result of each target is written to `ecalj/Samples/TestInstall/<target>_work/summary.txt` (`See work/summary.txt` in the output example above is what an old version printed). It is OK if `PASSED! srvo3_crpa/Screening_W-v_crpa.h` is shown at the end and there is no FAIL or error.
 Even with nvfortran, the tests run on the CPU.
 
-### 5. GPU calculation test
+### GPU calculation test
 
 Copy `ecalj/Samples/BenchmarkTest/inas2gasb2` to a working directory (the work files are large), put
 `ecalj/Samples/BenchmarkTest/ISSP/job_kugui.sh` there, and
@@ -142,7 +138,7 @@ OK! ==== All calclation finished for  gwsc ====
 
 Since the sample contains the previous result `QPU.1run`, the single iteration of `gwsc 1` is counted as number 2, and the result is written to `QPU.2run`. Compare it with `QPU.1run` of the sample. The script passes `-c kugui_gpu` (the GPU node setting in `SRC/exec/clusters.toml`).
 
-### 6. Production calculations
+### Production calculations
 
 The queues for production calculations are `F1accs` and others (`i1accs` is for tests of up to 30 minutes). Example:
 

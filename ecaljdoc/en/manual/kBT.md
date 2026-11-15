@@ -1,7 +1,3 @@
----
-pageClass: secnum-manual
----
-
 # kBT — finite temperature and smearing (`t_tetrakbt` / `t_sigmaw` / `wcsmear`)
 
 > English version of the page [manual/kBT](../../manual/kBT.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/kBT.md of commit b55836332 (source blob 1e6e63b398cc).
@@ -10,42 +6,42 @@ This page explains the `[gw]` keys that set the electronic temperature and the n
 `t_sigmaw` on the $\Sigma$ side is a numerical width that is always in effect; `t_tetrakbt` on the $\chi_0$ side is required: if positive it is the physical electronic temperature,
 if negative it is the width (written as a temperature) of the Gaussian that smears $\mathrm{Im}\chi_0$, and if 0 there is no smearing.
 
-This page describes the present specification. For the history of the keys, needed when reading old inputs and records, see Table 2 in §2.5. The course of events in 2026-06 to 09 and the explanation of the calculations of that time are in
+This page describes the present specification. For the history of the keys, needed when reading old inputs and records, see Table 2 in §3.5. The course of events in 2026-06 to 09 and the explanation of the calculations of that time are in
 the development record (MD/kBT/history.md in the repository, not on the site).
 
 **Table 4**. Keys of `[gw]` (temperatures in K)
 
 | Key | Where it acts | Default |
 |---|---|---|
-| `t_tetrakbt` (required) | Selects the smearing of $\chi_0$ by its sign (0: no smearing, $T>0$: finite-temperature tetrahedron, $-T$: Gaussian. Table 1 in §2) | None (stops if not given) |
-| `t_sigmaw` (required) | Width of the Fermi-Dirac kernel that smears the intermediate levels in $\Sigma_x=Gv$ and $\Sigma_c=G(W-v)$ (§3) | None (required since 2026-11-14. The default of the code before that was 1000) |
-| `wcsmear` | In the real-axis pole term of $\Sigma_c$, integrates $W_c$ using the same kernel also for the position of the pole (§3.5) | true |
+| `t_tetrakbt` (required) | Selects the smearing of $\chi_0$ by its sign (0: no smearing, $T>0$: finite-temperature tetrahedron, $-T$: Gaussian. Table 1 in §3) | None (stops if not given) |
+| `t_sigmaw` (required) | Width of the Fermi-Dirac kernel that smears the intermediate levels in $\Sigma_x=Gv$ and $\Sigma_c=G(W-v)$ (§4) | None (required since 2026-11-14. The default of the code before that was 1000) |
+| `wcsmear` | In the real-axis pole term of $\Sigma_c$, integrates $W_c$ using the same kernel also for the position of the pole (§5) | true |
 | `chi0_skip_window` = [emin, emax] (eV) | Removes from $\chi_0$ the band pairs whose both ends fall in this window (cRPA-like. Under test) | off |
 
 The template of gwinit (also used by `ctrlgenToml.py`) writes `t_tetrakbt = 300` and `t_sigmaw = 300`.
 
 **Which to use**
 
-- Insulators and semiconductors: the template as it is (§4).
-- To see the effect of the electronic temperature: `t_tetrakbt = t_sigmaw = T` (Si in §5.1, Fe in §5.2).
-- Metals whose bands become rough depending on the iteration or the k mesh (plasmon poles of $W$, §3.5): `wcsmear` (default) and `t_sigmaw = 1000`.
+- Insulators and semiconductors: the template as it is (§7).
+- To see the effect of the electronic temperature: `t_tetrakbt = t_sigmaw = T` (Si in §8.1, Fe in §8.2).
+- Metals whose bands become rough depending on the iteration or the k mesh (plasmon poles of $W$, §5): `wcsmear` (default) and `t_sigmaw = 1000`.
   To smear $\chi_0$ while keeping T=0, make `t_tetrakbt` negative.
 
 **Setting for LiTi₂O₄**: $\chi_0$ is the T=0 tetrahedron with $\mathrm{Im}\chi_0$ smeared by a Gaussian, `t_tetrakbt = -992.4`
 (the same width as Fermi-Dirac at 992.4 K, standard deviation 0.155 eV), `t_sigmaw = 1000`, `wcsmear = true`, `mixbeta = 0.5`.
 With this, $6^3$ converges in 8 iterations (the change of the QP energies from iteration 7 to 8 is at most 10 meV, 2 meV on average), and the one-shot difference between $6^3$ and $9^3$ in `dSEnoZ` (the column of `QPU`: the diagonal elements of $\langle\Sigma-V_{\rm xc}\rangle$ without multiplying by $Z$. [gwsc](./gwsc)) is at most 13 meV.
-The MLO-QSGW calculation (§5.3, ecalj `Samples/kBT/LiTi2O4`) uses the same setting.
+The MLO-QSGW calculation (§8.3, ecalj `Samples/kBT/LiTi2O4`) uses the same setting.
 
 ---
 
-## 0. What changes between T=0 and finite temperature (overview)
+## What changes between T=0 and finite temperature (overview)
 
 The temperatures on the $\chi_0$ side and the $\Sigma$ side are independent keys. If you use `t_tetrakbt > 0`, it is natural to set the same T in `t_sigmaw` on the $\Sigma$ side
 (not required). The setting for LiTi₂O₄ keeps $\chi_0$ at T=0 and smears it with the Gaussian of `t_tetrakbt < 0` ("Setting for LiTi₂O₄" at the top).
 
 ### $\chi_0$ side (hx0fp0 / W-build of hgw)
 
-The differences between the three cases of `t_tetrakbt` (0, $T>0$, $-T$) are in Table 1 and Eqs. (3) to (8) of §2. In all cases `chi0_skip_window = [emin, emax]`
+The differences between the three cases of `t_tetrakbt` (0, $T>0$, $-T$) are in Table 1 and Eqs. (3) to (8) of §3. In all cases `chi0_skip_window = [emin, emax]`
 (eV; removes from $\chi_0$ the band pairs whose both ends fall in the window. Under test) can be used.
 
 ### $\Sigma$ side (hsfp0_sc / $\Sigma_c$ of hgw, $\Sigma_x$ of hsfp0)
@@ -63,45 +59,45 @@ The only thing tied to the temperature on the $\chi_0$ side is the Fermi level.
 | Candidate window of intermediate states, margin of the $\omega$ mesh | $E_F \pm 15\,k_BT$ (`sig_window`) | Same as left |
 | Imaginary-axis integral, $W_c$ itself, mixing of sigm (`mixbeta`) | Common | Common |
 
-- `t_sigmaw` is a numerical width, not a full finite-temperature self-energy (Bose term, §8.7).
+- `t_sigmaw` is a numerical width, not a full finite-temperature self-energy (Bose term, §11.7).
   The standard deviation of the kernel $-\partial f/\partial\varepsilon$ is $\pi k_BT/\sqrt3 \simeq 1.81\,k_BT$ (0.156 eV at 1000 K).
-- `wcsmear` is not a temperature switch but a switch to "use the same distribution as the occupation kernel also for the position of the pole" (§3.5).
+- `wcsmear` is not a temperature switch but a switch to "use the same distribution as the occupation kernel also for the position of the pole" (§5).
 - On the $\chi_0$ side the $\theta$ is truly sharp at T=0, so a width appears only when `t_tetrakbt` is made nonzero.
 
 ---
 
-## 1. Why it is needed
+## Why it is needed
 
 There are two uses.
 
 1. **Physics of the electronic temperature**. At $T>0$ the occupation near the Fermi level becomes the Fermi-Dirac distribution, and in semiconductors carriers thermally excited across the gap
-   join the screening. This is handled by `t_tetrakbt = T` on the $\chi_0$ side (§2.3) and `t_sigmaw = T` on the $\Sigma$ side (§3).
-   In Si the gap shrinks by 0.16 eV at an electronic temperature of 3000 K (§5.1).
+   join the screening. This is handled by `t_tetrakbt = T` on the $\chi_0$ side (§3.3) and `t_sigmaw = T` on the $\Sigma$ side (§4).
+   In Si the gap shrinks by 0.16 eV at an electronic temperature of 3000 K (§8.1).
 2. **Numerical stabilization of QSGW for metals**. In metals $W_c(\omega)$ at small $q$ has sharp plasmon poles, and if the real-axis pole term of $\Sigma_c$
-   picks them up at a single point, the value changes strongly with the k mesh and at every iteration (§3.5). What smears this are `wcsmear` and `t_sigmaw` on the $\Sigma$ side,
-   and `t_tetrakbt < 0` on the $\chi_0$ side (Gaussian, §2.4). The temperature here is a numerical width, not a physical temperature.
+   picks them up at a single point, the value changes strongly with the k mesh and at every iteration (§5). What smears this are `wcsmear` and `t_sigmaw` on the $\Sigma$ side,
+   and `t_tetrakbt < 0` on the $\chi_0$ side (Gaussian, §3.4). The temperature here is a numerical width, not a physical temperature.
 
 ---
 
-## 2. $\chi_0$ side — `t_tetrakbt`
+## $\chi_0$ side — `t_tetrakbt`
 
 `[gw] t_tetrakbt` (K) is **required** (stops if not given). Its sign selects the smearing of $\chi_0$ (Table 1).
-The template of gwinit writes `t_tetrakbt = 300`. The name and meaning of the key changed several times, so when reading old inputs and records see Table 2 in §2.5.
+The template of gwinit writes `t_tetrakbt = 300`. The name and meaning of the key changed several times, so when reading old inputs and records see Table 2 in §3.5.
 
 **Table 1**. The three cases of `t_tetrakbt`
 
-| `t_tetrakbt` | Occupation difference $f_a-f_b$ | $\mathrm{Im}\chi_0$ in the $\omega$ direction | Fermi level of $\chi_0$ ($\Sigma$: Table 5 in §0) | Use |
+| `t_tetrakbt` | Occupation difference $f_a-f_b$ | $\mathrm{Im}\chi_0$ in the $\omega$ direction | Fermi level of $\chi_0$ ($\Sigma$: Table 5 in §1) | Use |
 |---|---|---|---|---|
 | 0 | Sharp step, Eq. (3) | As it is | `EFERMI` | Insulators and semiconductors |
-| $T>0$ | Fermi-Dirac at temperature $T$, Eqs. (4)(5) | As it is | `EFERMI_kbt`, Eq. (6) | Physics of the electronic temperature (§1, §5.1) |
-| $-T$ | Sharp step, Eq. (3) | Smeared by a Gaussian, Eqs. (7)(8) | `EFERMI` | Metals where the plasmon poles of $W$ make things rough (§3.5) |
+| $T>0$ | Fermi-Dirac at temperature $T$, Eqs. (4)(5) | As it is | `EFERMI_kbt`, Eq. (6) | Physics of the electronic temperature (§2, §8.1) |
+| $-T$ | Sharp step, Eq. (3) | Smeared by a Gaussian, Eqs. (7)(8) | `EFERMI` | Metals where the plasmon poles of $W$ make things rough (§5) |
 
 ```toml
 [gw]
 t_tetrakbt = 0        # (K) required. 0: no smearing. T > 0: finite-temperature tetrahedron at temperature T. -T: smear Im chi0 with a Gaussian
 ```
 
-### 2.1 Common — histogram of $\mathrm{Im}\chi_0$ and the Hilbert transform
+### Common — histogram of $\mathrm{Im}\chi_0$ and the Hilbert transform
 
 In all cases, $\chi_0$ is built by first making $\mathrm{Im}\chi_0$ as a **histogram** for $\omega>0$, and from it the real part on the real axis and
 the values on the imaginary axis are made by the Hilbert transform. Bin $j$ is $[\omega_j,\omega_{j+1}]$; its center is written $\bar\omega_j$ and its width $\Delta_j=\omega_{j+1}-\omega_j$
@@ -129,7 +125,7 @@ is integrated analytically bin by bin (`hilbertmat`, `dpsion_init` and `dpsion_c
 is $\mathrm{Re}\chi_0(\omega)$, and for the imaginary part the bin means are used as they are. On the imaginary axis $z=i\nu$, and since the function is odd the values are real.
 The three cases differ only in the occupation difference $f_a-f_b$ of Eq. (1) and in the treatment of $h_j$ before it is passed to Eq. (2).
 
-### 2.2 `t_tetrakbt = 0` — T=0 tetrahedron
+### `t_tetrakbt = 0` — T=0 tetrahedron
 
 The occupation is a step at the Fermi level $E_F$ (`EFERMI`), and the occupation difference in Eq. (1) is
 
@@ -140,7 +136,7 @@ $$
 
 (`lindtet6`. Transitions from an occupied $a$ to an empty $b$, falling at $\omega=e_b-e_a>0$).
 
-### 2.3 `t_tetrakbt = T > 0` — finite-temperature tetrahedron (method B′)
+### `t_tetrakbt = T > 0` — finite-temperature tetrahedron (method B′)
 
 Method B′ is the name used during development; it refers to the method that averages the weights of the T=0 tetrahedron over the Fermi level with the thermal kernel, as in Eq. (5).
 
@@ -164,8 +160,8 @@ The nodes $t_i$ and weights $w_i$ are 5-point Gauss-Legendre (`gausq_fd`) on eac
 $t\in[-6,6]$ (that is, $|E-\mu|\le12\,k_BT$) is divided. The sum of the $c_i$ is normalized to 1, so the sum of the occupations is kept even though the outside of the range is cut off.
 When at the 4 vertices of a tetrahedron both $a$ and $b$ lie together outside the window $|e-\mu|\le12\,k_BT$ on one side (the occupation is flat over the window), the result is the T=0 value
 itself, so the 20 evaluations are skipped (`lindtet6_kbt`, `tetwt5.f90`). Eq. (5) only exchanges the order of the $\mathbf k$ integral and the $E$ integral,
-and the only error is that of the numerical $E$ integration (§7.1, §7.2). The numerator obtained is the Adler–Wiser $f_a-f_b$, not $f_a(1-f_b)$
-(this is the correct one for a response function. What is dropped on the $\Sigma$ side is in §7.4).
+and the only error is that of the numerical $E$ integration (§10.1, §10.2). The numerator obtained is the Adler–Wiser $f_a-f_b$, not $f_a(1-f_b)$
+(this is the correct one for a response function. What is dropped on the $\Sigma$ side is in §10.4).
 
 $\mu$ = `EFERMI_kbt` is obtained by `heftet`, which smears the tetrahedron number of states $N(E)$ with the same thermal kernel and
 
@@ -175,8 +171,8 @@ $$
 $$
 
 solves this by bisection, writing it to the file `EFERMI_kbt` (`fermi_kbt_tetra`, `main_heftet.f90`). As $T\to0$ it returns to the tetrahedron $E_F$.
-When the solution is an interval in the gap (the left-hand side is flat at $N_{\rm val}$ across the gap), the middle of the interval is taken (item 2 of §9).
-When `t_tetrakbt > 0`, both $\chi_0$ and $\Sigma$ use this, and the program stops if the file is absent (§0, §3). When `t_tetrakbt` ≤ 0, $\chi_0$ uses `EFERMI` of the tetrahedron method of `heftet`, and $\Sigma$ uses the Fermi level counted on the k mesh (Table 5 in §0).
+When the solution is an interval in the gap (the left-hand side is flat at $N_{\rm val}$ across the gap), the middle of the interval is taken (item 2 of §12).
+When `t_tetrakbt > 0`, both $\chi_0$ and $\Sigma$ use this, and the program stops if the file is absent (§1, §4). When `t_tetrakbt` ≤ 0, $\chi_0$ uses `EFERMI` of the tetrahedron method of `heftet`, and $\Sigma$ uses the Fermi level counted on the k mesh (Table 5 in §1).
 
 Check in the output (standard output of `heftet`):
 
@@ -184,7 +180,7 @@ Check in the output (standard output of `heftet`):
 tetrakbt_init: T[K], kbt[Ry], kbt[eV]  2000  0.12667E-01 0.17234E+00
 ```
 
-### 2.4 `t_tetrakbt = -T` — smearing $\mathrm{Im}\chi_0$ with a Gaussian
+### `t_tetrakbt = -T` — smearing $\mathrm{Im}\chi_0$ with a Gaussian
 
 The occupation and the Fermi level stay at T=0 (Eq. (3), `EFERMI`), and the bin weights $h_j$ are smeared along $\omega$ with a Gaussian before being passed to Eq. (2).
 The standard deviation of the Gaussian is matched to that of the Fermi-Dirac kernel $-f'$ at temperature $T$:
@@ -234,11 +230,11 @@ The input value is converted by `m_GWinput` to $\sigma$ (Ha; the internal variab
  SmearX0 (Ha) =   5.7438E-03  : Gaussian smearing of Im chi0 along omega ([gw] t_tetrakbt < 0)
 ```
 
-### 2.5 History of the keys
+### History of the keys
 
 **Table 2**. History of the inputs for the smearing of $\chi_0$ and $\Sigma$
 
-| Period | Smearing of $\chi_0$ | Width of the levels in $\Sigma$ (§3) |
+| Period | Smearing of $\chi_0$ | Width of the levels in $\Sigma$ (§4) |
 |---|---|---|
 | to 2026-06 | `GaussianFilterX0` (GWinput, Gaussian on $\mathrm{Im}\chi_0$) | `esmr` (Ry, Gaussian) |
 | 2026-06 to 09-18 | Finite temperature by the logical key `tetrakbt = true` and `t_tetrakbt` (K). Gaussian by `SmearX0` (Ha, $\sigma$; renamed from `GaussianFilterX0`) | `esmr`, or `t_sigmakbt` (K, Fermi-Dirac) |
@@ -255,7 +251,7 @@ The input value is converted by `m_GWinput` to $\sigma$ (Ha; the internal variab
 
 ---
 
-## 3. $\Sigma$ side — `t_sigmaw`
+## $\Sigma$ side — `t_sigmaw`
 
 The intermediate levels of $\Sigma$ (the poles of $G$) are smeared by a Fermi-Dirac kernel. Its width is `t_sigmaw` (K), and
 the same kernel is used for all of the occupation weight of $\Sigma_x = Gv$, the window weight of the real-axis pole term of $\Sigma_c = G(W-v)$,
@@ -278,9 +274,9 @@ $$
 
 **The same kernel also enters the imaginary-axis integral of $\Sigma_c$**
 — the pole term and the imaginary-axis integral are the two halves of one contour, and unless the smearing of the levels enters both with the same kernel,
-$\Sigma_c$ breaks. Since this is an important point, it is described separately in [§3.6](#kbt-contour-smearing).
+$\Sigma_c$ breaks. Since this is an important point, it is described separately in [§6](#kbt-contour-smearing).
 The candidate window of intermediate states and the margin of the real-axis $\omega$ mesh
-are the tail of the kernel $E_F \pm 15\,k_BT$ (`sig_window`), and widen automatically when `t_sigmaw` is raised (§7.3).
+are the tail of the kernel $E_F \pm 15\,k_BT$ (`sig_window`), and widen automatically when `t_sigmaw` is raised (§10.3).
 
 ### Choosing the temperature
 
@@ -300,7 +296,7 @@ If `t_tetrakbt > 0`, `ef<-EFERMI_kbt=...`. In this case the program aborts if `E
 
 ---
 
-## 3.5 What makes metals rough, and `wcsmear`
+## What makes metals rough, and `wcsmear`
 
 In QSGW for metals, the bands can become rough by tens of meV depending on the k mesh and the iteration, and a one-shot GW from LDA can produce spikes of the size of eV
 near $E_F$ (for LiTi₂O₄ at 1000 K or below, the bottom of the O 2p band is rough by 30 to 100 meV at $9^3$, and one-shot GW gives spikes of <del class="clfix">−2 to −3 eV</del><span class="clfix">−2.5 to −3.4 eV ($6^3$, 500 K and 1000 K)</span>). The cause is as follows
@@ -362,7 +358,7 @@ integration as $\chi_0$ is not implemented.
 
 ---
 
-## 3.6 Contour decomposition of $\Sigma_c$ and consistency of the level smearing {#kbt-contour-smearing}
+## Contour decomposition of $\Sigma_c$ and consistency of the level smearing {#kbt-contour-smearing}
 
 The kernel of `t_sigmaw` is not only a matter of "occupation numbers". In the contour decomposition that splits $\Sigma_c = G(W-v)$ into the imaginary-axis integral and the real-axis pole term,
 **unless the kernel smearing the intermediate levels enters both terms in the same form, the steps do not cancel for levels near $\omega$,
@@ -443,7 +439,7 @@ $$
 \tag{16}
 $$
 
-**in both terms**. The second term is `wcsmear` (window weight $\Phi_{FD}$, $W_c$ integrated with the kernel, §3.5).
+**in both terms**. The second term is `wcsmear` (window weight $\Phi_{FD}$, $W_c$ integrated with the kernel, §5).
 The first term uses the sharp formula (13), and only the discontinuous $-\tfrac12\mathrm{sign}(w_e)$ is replaced analytically by
 
 $$
@@ -471,10 +467,10 @@ The course of events and the numbers are in the development record (MD/research_
 
 ---
 
-## 4. Choosing the width and the temperature
+## Choosing the width and the temperature
 
 - **Insulators and semiconductors**: if the gap is sufficiently larger than $k_BT$, the width does not affect the results. The template value of 300 K is fine
-  (Si: the difference of the gap between `t_tetrakbt` = 0 and 300 K is below 0.001 meV, and −1 meV at 1000 K. Table 9 in §5.1).
+  (Si: the difference of the gap between `t_tetrakbt` = 0 and 300 K is below 0.001 meV, and −1 meV at 1000 K. Table 9 in §8.1).
 - **`t_sigmaw` for metals**: in principle the limit $n_1n_2n_3\to\infty$, `t_sigmaw` → 0 is what is wanted, but with a finite k mesh
   a width at least comparable to the level spacing that the mesh has near the Fermi surface is needed. A guide is
 
@@ -491,7 +487,7 @@ $$
 
 ---
 
-## 5. Samples — `Samples/kBT/`
+## Samples — `Samples/kBT/`
 
 They are in `Samples/kBT/` of ecalj (Table 8). All numbers and figures, and how to run them, are in the README of each directory.
 
@@ -499,14 +495,14 @@ They are in `Samples/kBT/` of ecalj (Table 8). All numbers and figures, and how 
 
 | Directory | Contents | Time |
 |---|---|---|
-| `scanT/` | Temperature scan. `scan_T.sh` runs QSGW on the same input changing only `t_tetrakbt` and `t_sigmaw`, and `collect_T.py` makes tables and figures. Si and GaAs (§5.1), and bcc Fe and fcc Cu (§5.2) | 2 to 10 min per setting |
-| `LiTi2O4/` | MLO-QSGW of the metallic spinel LiTi₂O₄ (§5.3) | 21 min per iteration for $9^3$ (RTX 5090 × 2) |
+| `scanT/` | Temperature scan. `scan_T.sh` runs QSGW on the same input changing only `t_tetrakbt` and `t_sigmaw`, and `collect_T.py` makes tables and figures. Si and GaAs (§8.1), and bcc Fe and fcc Cu (§8.2) | 2 to 10 min per setting |
+| `LiTi2O4/` | MLO-QSGW of the metallic spinel LiTi₂O₄ (§8.3) | 21 min per iteration for $9^3$ (RTX 5090 × 2) |
 | `scanT/Si`, `Samples/TestInstall/fe_kbt` | Tests of `testecalj` (Si and Fe at 3000 K, 1 iteration) | 20 to 40 s |
 
-In all samples, the electronic temperature enters only $\chi_0$ and $\Sigma$ (§4). `scanT` has a coarse k mesh and few iterations, so
+In all samples, the electronic temperature enters only $\chi_0$ and $\Sigma$ (§7). `scanT` has a coarse k mesh and few iterations, so
 its numbers are for seeing the change with temperature, not converged values.
 
-### 5.1 Si and GaAs — gap and electronic temperature
+### Si and GaAs — gap and electronic temperature
 
 `nkabc` = `n1n2n3` = $4^3$, 5 QSGW iterations from LDA. `t_tetrakbt = t_sigmaw = T`.
 
@@ -532,11 +528,11 @@ its numbers are for seeing the change with temperature, not converged values.
 - The shape of the valence band hardly changes; the conduction band moves down as a whole relative to the valence band.
 - The shrinking comes mainly from the $\chi_0$ side (of the −157 meV at 3000 K, −133 meV when only $\chi_0$ is at 3000 K, and −46 meV with only $\Sigma$).
   Carriers thermally excited across the gap join the screening, and $W$ becomes smaller.
-- With `t_tetrakbt = -3000` (Gaussian), the result is almost the same as the case with only $\Sigma$ (−50 meV). The Gaussian does not change the occupations, so the screening by carriers does not enter (§2.4).
+- With `t_tetrakbt = -3000` (Gaussian), the result is almost the same as the case with only $\Sigma$ (−50 meV). The Gaussian does not change the occupations, so the screening by carriers does not enter (§3.4).
 - GaAs ($4^3$, 5 QSGW iterations, direct gap 1.415 eV) shows the same trend: no change at 300 K, −4 meV at 1000 K, −20 meV at 2000 K, −95 meV at 3000 K,
   and −267 meV at 5000 K. At 3000 K, −83 meV with $\chi_0$ only and −39 meV with $\Sigma$ only (numbers and figures in Table 3 of `Samples/kBT/scanT/README.md`).
 
-### 5.2 bcc Fe and fcc Cu — bands and magnetic moment of metals
+### bcc Fe and fcc Cu — bands and magnetic moment of metals
 
 `nkabc` = $7^3$, `n1n2n3` = $5^3$, spin polarized, 3 QSGW iterations from LDA.
 
@@ -555,7 +551,7 @@ its numbers are for seeing the change with temperature, not converged values.
 
 - At 300 K it is almost the same as at $T=0$ (the difference of the bands at the symmetry points is at most 14 meV).
 - Up to 1000 K the bands move by at most 63 meV, not monotonically with temperature. With the $5^3$ mesh, the bands move by this much depending on which states near $E_F$
-  become fractionally occupied (item 1 of §9).
+  become fractionally occupied (item 1 of §12).
 - From 3000 K the exchange splitting and the moment decrease. In metals the $\Sigma$ side matters: the change of the exchange splitting at 3000 K, −0.13 eV, is close to the case with only $\Sigma$ at 3000 K (−0.17 eV),
   while with only $\chi_0$ it is +0.06 eV. This is the opposite of Si.
 - `t_tetrakbt = -1000` (Gaussian) and `t_tetrakbt = 1000` (finite temperature) give almost the same results at this temperature (the difference of the bands is at most 7 meV).
@@ -563,7 +559,7 @@ its numbers are for seeing the change with temperature, not converged values.
   (the d band at Γ moves by about +61 meV at 3000 K and +130 meV at 5000 K). +46 meV with $\chi_0$ only and +24 meV with $\Sigma$ only, so both matter
   (Table 4 of `Samples/kBT/scanT/README.md`).
 
-### 5.3 LiTi₂O₄ — MLO-QSGW
+### LiTi₂O₄ — MLO-QSGW
 
 The metallic spinel LiTi₂O₄ (14 atoms) was run from LDA up to 40 iterations with the "Setting for LiTi₂O₄" at the top, by QSGW with $\Sigma$ interpolated by MLOs ([mlo_gwsc](./mlo_gwsc)).
 The summary is in `Samples/kBT/LiTi2O4/README.md` of ecalj.
@@ -574,7 +570,7 @@ The summary is in `Samples/kBT/LiTi2O4/README.md` of ecalj.
 
 ---
 
-## 6. Where it is implemented
+## Where it is implemented
 
 **Table 3**. Implementation of finite temperature and smearing (`SRC/subroutines/`)
 
@@ -588,18 +584,18 @@ The summary is in `Samples/kBT/LiTi2O4/README.md` of ecalj.
 | `dpsion5.f90`, `hilbertmat.f90` | Hilbert transform (Eq. (2)) and Gaussian (`gaussianfilterhis`, `smearx0_apply`, Eq. (8)) |
 | `genallcf_mod.f90` | `sigmakbt_setup`: Fermi level of $\Sigma$ (`EFERMI_kbt` if `t_tetrakbt > 0`; stops if absent) |
 | `wfacx.f90` | Fermi–Dirac kernel on the $\Sigma$ side (`fd_cdf`, `fd_iav`. Width `t_sigmaw`, Eq. (10)) |
-| `m_sxcf_sc.f90`, `sxcf_fal2.f90` | Real-axis pole term of $\Sigma_c$ and `wcsmear` (§3.5, §3.6) |
+| `m_sxcf_sc.f90`, `sxcf_fal2.f90` | Real-axis pole term of $\Sigma_c$ and `wcsmear` (§5, §6) |
 
 ---
 
-## 7. Verification and limitations of the implementation
+## Verification and limitations of the implementation
 
 What was checked by rereading the implementation, and the limitations that remain. The contour identity on the $\Sigma$ side (imaginary axis + pole term) is in
-[§3.6](#kbt-contour-smearing).
+[§6](#kbt-contour-smearing).
 
-### 7.1 The identity is exact (checked)
+### The identity is exact (checked)
 
-Method B′ of `lindtet6_kbt` (`tetwt5.f90`) uses Eq. (4) (§2.3) **inside the k integral**. Since the $E$ integral and the $k$ integral
+Method B′ of `lindtet6_kbt` (`tetwt5.f90`) uses Eq. (4) (§3.3) **inside the k integral**. Since the $E$ integral and the $k$ integral
 commute, it is exact. The numerator obtained is the Adler–Wiser $f_a-f_b$, not $f_a(1-f_b)$
 — this is the correct one for a response function.
 
@@ -614,7 +610,7 @@ Checked individually:
   — the NOS convolved with the thermal kernel, then bisection. As $T\to0$ it returns exactly to the tetrahedron $E_F$.
   The χ0 side also reads it (`m_tetwt`)
 
-### 7.2 Limitation — quadrature of the $E$ integral
+### Limitation — quadrature of the $E$ integral
 
 The $E$ integral of Eqs. (5)(6) uses 20 points: 5-point Gauss-Legendre on each of the 4 intervals $[-6,-1],[-1,0],[0,1],[1,6]$ into which $t\in[-6,6]$ is divided
 (`gausq_fd`). The node closest to $E_F$ is at $|t|=0.047$ ($|E-E_F|=0.094\,k_BT$). With $\Delta$ the width of the band inside a tetrahedron,
@@ -633,14 +629,14 @@ For bands with large dispersion the error is small. When a flat band, a band edg
 Increasing the number of nodes reduces the error only as $1/N$; how the intervals are cut matters more. The proper way is to cut the intervals at the kinks of the integrand (the 8 energies $e_a$, $e_b$ at the 4 corners of the tetrahedron),
 but this is not implemented. The error of `EFERMI_kbt` for Fe 3000 K $5^3$ (relative to a 600-point quadrature) is 1.2 meV.
 
-### 7.3 Window of states on the $\Sigma$ side
+### Window of states on the $\Sigma$ side
 
 The candidate window of intermediate states and the margin of the real-axis $\omega$ mesh are determined by the tail of the kernel $E_F\pm15\,k_BT$ ($k_BT$ is `t_sigmaw`; `sig_window`).
 The occupation cut off is $f(15)=3\times10^{-7}$, and the window widens when `t_sigmaw` is raised. The center of the window and the center of the weights are the same Fermi level
 (`EFERMI_kbt` if `t_tetrakbt > 0`). In the code up to 2026-09-19 the window was determined by `esmr`, and at high temperatures occupations were cut off
 (<del class="clfix">`MD/kBT/history.md` §4</del><span class="clfix">the window was $E_F\pm10\,$`esmr`; for example, at 2000 K with `esmr` = 0.002 Ry, 17 % of the occupation is cut off. The development record is MD/kBT/history.md §4 in the repository, not on the site</span>).
 
-### 7.4 Scope — what $\Sigma$ needs is the "sum", not the "difference"
+### Scope — what $\Sigma$ needs is the "sum", not the "difference"
 
 Making $\chi_0$ finite-temperature alone does not make $\Sigma$ consistent. The reason can be stated in one line.
 
@@ -665,7 +661,7 @@ $$
 
 so this is what is usually called the Bose factor. **However, its origin is the Fermi
 occupation numbers**, not a bosonic heat bath put in from outside. For the derivation see
-[§8](#kbt-real-time). The physics is simple: at $T>0$
+[§11](#kbt-real-time). The physics is simple: at $T>0$
 particle‑hole pairs are already thermally excited, and electrons can absorb them; that is all.
 
 **Size.** $f_2(1-f_3)$ is exponentially small for $\omega'\gg k_BT$, so only
@@ -687,7 +683,7 @@ and partly because what is dropped is mainly on the detailed-balance (= lifetime
 the effect is much lighter than when computing the spectral function of one-shot GW.
 It is simply that (19) is needed if one wants the $\Sigma$ of equilibrium many-body perturbation theory.
 
-### 7.5 Core exchange (CoreEx)
+### Core exchange (CoreEx)
 
 The exchange with the core (`hsfp0_sc --job=3`) places the Fermi level below the bottom of the valence states even at finite temperature, so that only core states enter the sum.
 The core levels are much deeper than $k_BT$, so the result is the T=0 value regardless of the temperature.
@@ -700,7 +696,7 @@ entered the exchange with the core. This can be judged by comparing `CoreEx mode
 
 ---
 
-## 8. Appendix — formulation without imaginary time {#kbt-real-time}
+## Appendix — formulation without imaginary time {#kbt-real-time}
 
 Where $n_B$ comes from becomes clear without going through the Matsubara formalism. Rather,
 that way it is easier to see that **everything comes from the Fermi occupation numbers**.
@@ -710,7 +706,7 @@ so here it is written through in one piece.
 Below, $\hbar=1$, and energies are measured from $\mu$.
 $f(\varepsilon)=1/(e^{\beta\varepsilon}+1)$, $n_B(\omega)=1/(e^{\beta\omega}-1)$.
 
-### 8.1 Why the $T=0$ argument cannot be used as it is
+### Why the $T=0$ argument cannot be used as it is
 
 Real-time perturbation theory at $T=0$ relies on Gell-Mann–Low. When the interaction is switched on adiabatically,
 $U(\infty,-\infty)|\Phi_0\rangle = e^{i\theta}|\Phi_0\rangle$, that is,
@@ -730,7 +726,7 @@ even under adiabatic evolution **the weights remain those of the noninteracting 
 $e^{-\beta E_n}$), so the $+\infty$ side cannot be identified with the $-\infty$ side.
 The essence of the problem is that the counterpart of the denominator of (21) cannot be written.
 
-### 8.2 Closed time path — going and coming back
+### Closed time path — going and coming back
 
 So **the state at $+\infty$ is not used at all**. If one takes the path $C$ that goes
 $-\infty\to+\infty\to-\infty$ and back, then as long as no operators are inserted
@@ -763,7 +759,7 @@ $$
 
 are used.
 
-### 8.3 Wick's theorem — the only input is $f$
+### Wick's theorem — the only input is $f$
 
 $\rho_0$ is Gaussian with respect to $H_0$, so Wick's theorem holds as it is,
 and the contractions become free path propagators. For a level of energy $\varepsilon_j$,
@@ -777,7 +773,7 @@ $$
 **This is the only place where temperature enters, and what enters is only the Fermi distribution.**
 There is no Bose distribution anywhere at this stage.
 
-### 8.4 Writing GW on the path
+### Writing GW on the path
 
 With path arguments, the form is the same as at $T=0$:
 
@@ -798,7 +794,7 @@ $$
 
 The key point is that **$\gtrless$ is flipped**.
 
-### 8.5 The $\gtrless$ components of $\chi_0$ — this is where $n_B$ appears
+### The $\gtrless$ components of $\chi_0$ — this is where $n_B$ appears
 
 From (26)(27) and (25), using time-translation symmetry,
 
@@ -846,7 +842,7 @@ Dressing with RPA does not change the ratio. Since $W^{\gtrless}=\epsilon^{-1,R}
 \epsilon^{-1,A}$ with $\epsilon^{-1,A}=(\epsilon^{-1,R})^\dagger$,
 (30) is inherited as it is by $W^{\gtrless}$.
 
-### 8.6 The $\gtrless$ components of $\Sigma$
+### The $\gtrless$ components of $\Sigma$
 
 From (26)(27), $\Sigma^{\gtrless}(t)=i\,G^{\gtrless}(t)\,W^{\lessgtr}(-t)$,
 and in frequency
@@ -876,7 +872,7 @@ Check of $T\to0$: $n_B(\Omega>0)\to0$, $n_B(\Omega<0)\to-1$, $f_j\to\theta(-\var
 For a quasiparticle with $\omega>0$: if $j$ is occupied, $[-1+1]=0$ (Pauli blocking);
 if $j$ is empty and $0<\varepsilon_j<\omega$, it contributes $[-1+0]=-1$ (decay); and if $\varepsilon_j>\omega$, $[0+0]=0$ (no final state). This returns to the conventional $T=0$ GW.
 
-### 8.7 What the present implementation keeps and what it drops
+### What the present implementation keeps and what it drops
 
 What ecalj computes is $\mathrm{Im}W^R$, that is, the **difference** in (29).
 When building $\Sigma$, only the outer $f_j$ is made finite-temperature, and the $n_B$ of (33) is not included.
@@ -901,7 +897,7 @@ Hamiltonian, and $\mathrm{Im}\Sigma$ is discarded from the start.
 That (34) is broken is mainly a matter of the lifetime side, and the effect on the
 $\mathrm{Re}\,\Sigma(\varepsilon_j)$ used by QSGW stays at the $O((k_BT)^2)$ of (20).
 
-### 8.8 Note on initial correlations
+### Note on initial correlations
 
 In <del class="clfix">8.2</del><span class="clfix">8.1–8.2</span> it was said that the interaction is switched on adiabatically from $\rho_0$ (thermal equilibrium without interaction), but
 this **drops the initial correlations**. Strictly, one uses the Kadanoff–Baym path, in which the vertical imaginary-time branch
@@ -915,24 +911,24 @@ as seen in 8.5, that comes only from the Fermi distribution in (25).
 
 ---
 
-## 9. Remaining issues
+## Remaining issues
 
 1. **Verification of the choice of `t_sigmaw` in metals**. A few states within $\pm k_BT$ of $E_F$ become fractionally occupied, and their SEx and SEc move by the size of eV and
    cancel each other. On a coarse mesh this is sensitive to "which states cross $E_F$", so the convergence with respect to the mesh ($5^3\to9^3$) needs to be pinned down numerically
-   (temperature dependence of Fe in §5.2).
+   (temperature dependence of Fe in §8.2).
 2. **`EFERMI_kbt` for insulators**. When the solution is an interval in the gap, the middle of the interval is returned. Physically it should return the intrinsic $E_F$ determined by the asymmetry of the density of states,
    and the result changes with the relation between the window of `fermi_kbt_tetra` ($E_F\pm60\,k_BT$) and the reach of the thermal kernel ($\pm12\,k_BT$) (GaAs at 300 K: 0.15345 Ry; the middle at T=0 is 0.15221 Ry).
-3. **Bose term of $O((k_BT)^2)$** (§7.4, §8.7). $f_2(1-f_3)=(f_3-f_2)\,n_B$ is dropped. Whether it matters at 3000 K has not been estimated.
-4. **Cutting the $E$ integral at the kinks of the integrand** (§7.2).
-5. **Off-diagonal elements of pairs with a plasmon pole between the two levels** (limitation in §3.5). Not removed by `wcsmear`.
-6. **The density of `lmf` keeps the T=0 occupations** (§4). The contribution of carriers thermally excited at high temperature to the density is not included.
+3. **Bose term of $O((k_BT)^2)$** (§10.4, §11.7). $f_2(1-f_3)=(f_3-f_2)\,n_B$ is dropped. Whether it matters at 3000 K has not been estimated.
+4. **Cutting the $E$ integral at the kinks of the integrand** (§10.2).
+5. **Off-diagonal elements of pairs with a plasmon pole between the two levels** (limitation in §5). Not removed by `wcsmear`.
+6. **The density of `lmf` keeps the T=0 occupations** (§7). The contribution of carriers thermally excited at high temperature to the density is not included.
 7. **LiTi₂O₄ $9^3$ at 3000 K**: there is no calculation that follows the iterations.
-8. **The Fermi level of $\Sigma$ when `t_tetrakbt` ≤ 0** is determined by Gaussian counting (Table 5 in §0), while the kernel smearing the levels is Fermi-Dirac.
+8. **The Fermi level of $\Sigma$ when `t_tetrakbt` ≤ 0** is determined by Gaussian counting (Table 5 in §1), while the kernel smearing the levels is Fermi-Dirac.
    They are not made the same kernel.
 
 ---
 
-## 10. About gwkbt-dev
+## About gwkbt-dev
 
 Everything on this page is in `main`. There is no need to switch branches.
 The separate `gwkbt-dev` is a half-finished attempt to build the finite-temperature $\Sigma$ with a different design (gwkbt Stage A/B), and is not in a usable state.
@@ -943,7 +939,7 @@ It is different from `t_sigmaw` on this page.
 ## Related
 
 - [QSGW calculation (gwsc)](./gwsc)
-- Samples `ecalj/Samples/kBT/` (§5)
+- Samples `ecalj/Samples/kBT/` (§8)
 - Development record (MD/kBT/history.md in the repository, not on the site): the course of events in 2026-06 to 09, explanations of the calculations of that time, errors fixed
 - [The `[gw]` section of `ctrlg.<sname>.toml`](./lmf#file-structure-sections)
 - For QP energies of one-shot GW, evaluation on arbitrary k lines, and diagnostics of $W$ and the real-axis integral, see

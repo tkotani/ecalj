@@ -74,7 +74,7 @@ sigmakbt_setup: WARNING t_sigmakbt>0 but EFERMI_kbt missing (need tetrakbt/hefte
 (窓 = ±10·esmr)。ここのサンプルの設定では窓が ±7.9 $k_BT$ なので切り捨ては
 3.7e-4 で無害だが、`esmr` を下げたり $T$ を上げたりすると**警告なしに**
 占有数が切り捨てられる (5000 K で 4%、esmr=0.002 で 17%)。
-→ [doc §7.3](https://ecalj.github.io/ecaljdoc/manual/kBT)
+→ [doc §10.3](https://ecalj.github.io/ecaljdoc/manual/kBT)
 
 ### 高温では `deltaq_scale` も小さくする
 
@@ -82,7 +82,7 @@ sigmakbt_setup: WARNING t_sigmakbt>0 but EFERMI_kbt missing (need tetrakbt/hefte
 `deltaq_scale = 0.1` で消える。offset-Gamma の $q\to0$ head が高温 × 大きい
 `deltaq` で破綻するもので、`tetrakbt` のバグではない
 ([`LiTi2O4/finiteT_202606.md` §3.5](LiTi2O4/finiteT_202606.md))。**（→ 2026-09-28 の注: この説明は後で否定された。スパイクは第一殻 q の W のプラズモン極を
-Σc の実軸極項が踏むことによるもので、`deltaq` で変わったのは極踏みの当たり外れ。研究ログ 2026-09-19 09:55、ecaljdoc kBT.md §3.5）**
+Σc の実軸極項が踏むことによるもので、`deltaq` で変わったのは極踏みの当たり外れ。研究ログ 2026-09-19 09:55、ecaljdoc kBT.md §5）**
 
 ### $T$ について収束を確認する
 
@@ -173,7 +173,7 @@ kt1 側にあってここに持ってきていないもの:
 
 研究ログ（日付順、試したこと・数字・仮説）は [MD/research_kotani_log.md](../../MD/research_kotani_log.md)。
 
-一覧は [ecaljdoc: kBT §9](https://ecalj.github.io/ecaljdoc/manual/kBT#9-これから詰めるべき課題-2026-09-17)。
+一覧は [ecaljdoc: kBT §12](https://ecalj.github.io/ecaljdoc/manual/kBT#9-これから詰めるべき課題-2026-09-17)。
 要点だけ:
 
 - `t_sigmakbt` は **300 K でも金属で $\Sigma - v_{xc}$ が 0.1 eV 動く** (Fe $5^3$, 1 反復:

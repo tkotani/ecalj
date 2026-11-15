@@ -16,7 +16,7 @@
 > **2026-09-27 23:55**: `results/` を `8545a6938`（有限温度の E 積分を 4 区間 × Gauss-Legendre 5 点に、gfortran 8 rank）で作り直した。
 > `EFERMI_kbt` 0.033730 → 0.034335 Ry（旧 GL20 の誤差 −9.4 meV が −1.2 meV に）、`dSEnoZ` の変化は 6 meV 以内、SExcore は不変。
 > 262 K と 3000 K の差は `dSEnoZ` max 0.144 / 平均 0.054 eV (up)、max 0.089 / 平均 0.044 eV (down)。
-> 同じ日に直した CoreEx の 2 つのバグ（ecaljdoc kBT.md §7.5）は打ち消し合っていたので、この系の SExcore は前から正しい。
+> 同じ日に直した CoreEx の 2 つのバグ（ecaljdoc kBT.md §10.5）は打ち消し合っていたので、この系の SExcore は前から正しい。
 
 **Σ 側の有限温度が効くかどうかを、それ以外を完全に固定して測ったもの。**
 

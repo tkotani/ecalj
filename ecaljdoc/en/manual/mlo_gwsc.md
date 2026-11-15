@@ -1,7 +1,3 @@
----
-pageClass: secnum-manual
----
-
 # MLO-gwsc — QSGW with the self-energy interpolated in the MLO representation (under development)
 
 > English version of the page [manual/mlo_gwsc](../../manual/mlo_gwsc.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo_gwsc.md of commit b55836332 (source blob b50806803862).
@@ -17,9 +13,9 @@ This page has three parts: **§1 Theory**, **§2 Settings and running**, **§3 E
 
 ---
 
-## 1. Theory
+## Theory
 
-### 1.1 What it solves
+### What it solves
 
 The static QSGW self-energy $\Sigma$ is computed on the GW $q$ mesh, and at an arbitrary $k$ it is used after **interpolation in k space** from the values at the mesh points (Fourier interpolation: transform to real space and back).
 Conventionally it is brought to real space as a matrix in the **MTO basis** (`sigm`) and brought back by a Bloch sum.
@@ -31,7 +27,7 @@ Making the mesh finer does not make the bumps smaller; in LiTi₂O₄ they becam
 MLO-gwsc turns the same $\Sigma$ into a matrix represented in a small subspace $\{\tilde\chi_\alpha\}$ of **MLOs (localized orbitals based on MTOs)** and interpolates it in k space.
 The MLOs are rebuilt at every iteration; $\Sigma$ is written with those MLOs and read back with the same MLOs (MLO Sigma interpolation, §1.4).
 
-### 1.2 Construction of the MLO $\tilde\chi$
+### Construction of the MLO $\tilde\chi$
 
 At each $k$, from the eigenstates $\Psi^{\rm PMT}_i(k)$ of the PMT Hamiltonian (eigenvalues $\varepsilon^{\rm PMT}_i$) and the eigenstates $\Psi^{\rm MTO}_j(k)$ obtained by diagonalizing only the MTO block (eigenvalues $\varepsilon^{\rm MTO}_j$), the projection
 
@@ -61,7 +57,7 @@ In any case, MLOs can be made as long as the Hamiltonian (including the basis fu
   higher by the amount the basis is insufficient. The PMT eigenstate corresponding to the MTO state $j$ lies below $\varepsilon^{\rm MTO}_j$, so
   PMT eigenstates with energies at or below $\varepsilon^{\rm MTO}_j$ are taken in.
 
-### 1.3 Holding $\Sigma$ in MLOs and returning it to PMT
+### Holding $\Sigma$ in MLOs and returning it to PMT
 
 What GW produces is the band-indexed $\Sigma^\psi_{ij}(q)=\langle\psi_i|\hat\Sigma|\psi_j\rangle$. This is transferred to the MLOs:
 
@@ -82,7 +78,7 @@ $\hat P_{\rm MLO}=|\tilde\chi\rangle O^{-1}\langle\tilde\chi|$ is the projector 
 > **Caution**: the conventional `sigm` is a quantity projected onto the MTO block with a pseudo-inverse, i.e. a form with $O^{-1}$ folded in on both sides.
 > The magnitude of $\Sigma(R)$ cannot be compared directly with $\Sigma^{\rm MLO}(R)$.
 
-### 1.4 MLO Sigma interpolation — $\Sigma$ is read with the $\tilde\chi$ it was written with
+### MLO Sigma interpolation — $\Sigma$ is read with the $\tilde\chi$ it was written with
 
 At every iteration the MLOs are rebuilt, the $\Sigma$ of that iteration is turned into the matrix $\Sigma^{\rm MLO}(k)$ in the MLO representation and **interpolated in k space**
 (values at arbitrary $k$ are made from the values at the mesh points), and the same MLOs are used when returning to the PMT basis.
@@ -112,7 +108,7 @@ To keep "all $k$ that will be read later" within the saved points, **`nkabc` = `
 `gwsc` checks this before the calculation and stops if they differ.
 An attempt to read at a $k$ not among the saved ones also stops by default (since $\Sigma$ would be read in a different basis).
 
-### 1.5 Flow of one iteration (`gwsc 1 --mlo`)
+### Flow of one iteration (`gwsc 1 --mlo`)
 
 Only once at the start of the chain, `lmf --writeham --mlo` and `mlo --mlo` make the **MLO index** in `HamRsMLO`.
 The index specifies which MTO channels are used as seeds (`ndimMTO` of them). $\Sigma^{\rm MLO}$ is a matrix on these channels, so the index is fixed throughout the chain (`--mlofreeze`).
@@ -128,7 +124,7 @@ On the other hand, the coefficients $z$ are rebuilt at ① in every iteration an
 | ⑤ | promotion (inside the `mlo` of ④) | `__QMLO_zNew` → `QMLO_z`. Here the "current $\tilde\chi$" switches to $z_n$ |
 | ⑥ | `lmf` (SCF) | `getsenex` reads $\Sigma_n$ with $z_n$ |
 
-### 1.6 Mixing
+### Mixing
 
 In the MLO path, what the SCF reads is `QMLO_SigRs` (made from `__QMLO_Sig`), not `sigm`.
 `sigm` is Anderson-mixed in `hqpe_sc`, but unless $\Sigma^{\rm MLO}$ is also mixed, **only the MLO chain runs with an effective β=1**,
@@ -141,7 +137,7 @@ In older code it was mixed only when `ECALJ_MLO_MIX=1` was given).
 - **The first iteration (from LDA) starts at $\beta$ times**: since there is no previous $\Sigma$, mixing starts from $x_0=0$ ($\Sigma=0$), and iteration 1 is $\beta\Sigma^{\rm out}$.
   Both `sigm` and $\Sigma^{\rm MLO}$ are multiplied by $\beta$; with the default $\beta=1$ the full amount enters (LiTi₂O₄ uses $\beta=0.5$; [mixbeta](./gwsc#mixbeta-and-mixpriorit))
 
-### 1.7 How to draw MLO bands
+### How to draw MLO bands
 
 To see the state of an intermediate iteration at arbitrary $k$ while keeping $\Sigma^{\rm MLO}$ as it is, make and solve **the MLO model of the Hamiltonian solved by the SCF**
 (`Samples/kBT/LiTi2O4/draw_mloband.sh` of ecalj).
@@ -164,9 +160,9 @@ it can also be given by `--efermi=`). Drawing inside the chain's directory does 
 
 ---
 
-## 2. Settings and running
+## Settings and running
 
-### 2.1 `ctrlg.<sname>.toml`
+### `ctrlg.<sname>.toml`
 
 Settings used for LiTi₂O₄ 6³ (for 9³ only the three mesh entries were changed to `[9, 9, 9]`):
 
@@ -179,7 +175,7 @@ pwmode = 11                 # |q+G| cutoff (default)
 n1n2n3  = [6, 6, 6]
 mixbeta = 0.5               # mixing of sigm and Sigma^MLO
 t_sigmaw   = 1000.0         # (K) Fermi-Dirac width of the intermediate levels of Sigma (required)
-t_tetrakbt = -992.4         # (K) negative: chi0 stays at T=0 and Im chi0 is smoothed by a Gaussian of about the same width as FD at 1000 K (formerly SmearX0 = 0.0057 Ha). Smooths the poles of W of a metal ("Settings for LiTi₂O₄" at the top of [kBT](./kBT), and §2.4)
+t_tetrakbt = -992.4         # (K) negative: chi0 stays at T=0 and Im chi0 is smoothed by a Gaussian of about the same width as FD at 1000 K (formerly SmearX0 = 0.0057 Ha). Smooths the poles of W of a metal ("Settings for LiTi₂O₄" at the top of [kBT](./kBT), and §3.4)
 [mlo]
 mlo_method = 4              # default
 mlo_delta  = 2.0            # (eV) default
@@ -201,7 +197,7 @@ mlo_lm = """
   (the exception is s,p of cations with a conduction-band bottom spread into the voids: criterion 2 in [MLO](./mlo) §9; not tried in MLO-QSGW).
   <span class="clfix">With the raw MLOs up to 2026-10-02, </span>Eq. (7) sandwiches $O^{-1}$ twice, so the effect is<span class="clfix"> (was)</span> squared (for NiO Ni d the condition number goes $1.3\times10^2\to7.4\times10^4$)<span class="clfix">. Now a nearly singular $O$ acts through $O^{-1/2}$ of the Löwdin orthogonalization</span>
 
-### 2.2 Running
+### Running
 
 ```bash
 gwsc 10 -np 60 -np2 2 --gpu --prec=fp32 --ntqxx --mlo liti2o4                     # 10 iterations
@@ -218,7 +214,7 @@ tf32 makes only the last matrix product of Σc take inputs with a 10-bit mantiss
   (it stops if even one mixing file remains after LDA). `run_gwsc10.sh` can be given `RUNS_DIR` (working location) and `GPUS` (default: one card, GPU 0),
   and its input is `Samples/kBT/LiTi2O4/input/qmlo`. `run_snap.sh` has kt1 paths hard-coded, so rewrite them when using it
 
-### 2.3 Checks at each iteration
+### Checks at each iteration
 
 What to look at (in a `run_snap.sh` chain, `Samples/kBT/LiTi2O4/check_iter.sh` checks the logs that `watch_iter.sh` saved at the end of the iteration).
 When run all at once with `gwsc N`, `gwsc` copies `lgw`, `lqpe`, `llmfgw01`, `lmlo_sigr`, and `llmf` (`llmf.<N>run`) to `QSGW.<N>run/` at the end of each iteration
@@ -237,7 +233,7 @@ The numbers of lines **are determined by the mesh and the number of parallel pro
 With `-np 60`, 6³ has 16 irreducible points, so 16, and 36 for the 72 GW points. 9³ gives 35 for 35 points and 50 for 200 points.
 If there are **fewer** than these, some processes did not enter the MLO path and fell back to the conventional `sigm`.
 
-### 2.4 Files used, and what to keep
+### Files used, and what to keep
 
 Marks: **●** specific to MLO-QSGW (appears only with `gwsc --mlo`), **○** the MLO method in general (also appears with `job_mlo`); unmarked = shared with ordinary QSGW.
 Keep: **result** = keep as a calculation result, **restart** = needed to continue the chain, **—** = work file used only within an iteration.
@@ -268,7 +264,7 @@ Files starting with `__` may all be deleted between `gwsc` calls (deleting `__mi
 `sigm` is not used as values in the SCF, but without it both `gwsc` and `lmf` restart from LDA, so it is required for restarting.
 A `run_snap.sh` snapshot consists of most of the "result" files plus `sigm.<sname>`, `__atm.<sname>`, `syml.<sname>`, and so on.
 
-### 2.5 Options and environment variables
+### Options and environment variables
 
 | | Effect |
 |---|---|
@@ -284,9 +280,9 @@ A `run_snap.sh` snapshot consists of most of the "result" files plus `sigm.<snam
 
 ---
 
-## 3. Example: LiTi₂O₄
+## Example: LiTi₂O₄
 
-### 3.1 Settings
+### Settings
 
 | Item | Value |
 |---|---|
@@ -300,7 +296,7 @@ A `run_snap.sh` snapshot consists of most of the "result" files plus `sigm.<snam
 | One iteration | 6³: 950–1000 s, 9³: about 5300 s (89 min). `hgw` takes 86 % (6³) and 94 % (9³), and the processing for MLO about 1 %. After the 2026-09-27 speedup, 555 s for 6³ with fp32 |
 | Reference for comparison | conventional QSGW (MTO) 6³, `pwmode = 1`, β = 0.5, 10 iterations (only the LDA row uses `pwmode = 11`) |
 
-### 3.2 Bands
+### Bands
 
 ![Evolution of the t2g bands of LiTi2O4 over the iterations (conventional 6³ / MLO-QSGW 6³ / MLO-QSGW 9³)](../../manual/mlo_gwsc/liti2o4_5col_all.png)
 
@@ -318,7 +314,7 @@ it is tracked across crossings and colored only in iterations where the bulge is
   These appear both in the `sigm` plots and in the MLO bands
 - In the conventional QSGW column, blue appears even at iterations 9–10. It does not appear in the two MLO-QSGW columns of the same 6³
 
-### 3.3 Convergence
+### Convergence
 
 ![Band change per iteration](../../manual/mlo_gwsc/liti2o4_conv.png)
 
@@ -336,7 +332,7 @@ Change of t2g per iteration (left: max, right: rms). 9³ is solid, 6³ is dashed
 - **The movement of the bands when the mesh goes from 6³ to 9³** (iteration 10) is rms 13 meV for the MLO bands and 27 meV for the `sigm` plots.
   **Interpolation in the MLO representation is less sensitive to the mesh**
 
-### 3.4 Difference from conventional
+### Difference from conventional
 
 The difference between the MLO bands at iteration 10 and conventional 6³ is rms 46 meV (mean +30) for 6³ and rms 49 meV (mean +34) for 9³.
 Looking at 6³, it is not a uniform shift: the two occupied bands are 7–13 meV lower and the unoccupied t2g are 22–61 meV higher. The total t2g width is nearly the same, 1505 vs 1516 meV.
@@ -344,7 +340,7 @@ Looking at 6³, it is not a uniform shift: the two occupied bands are 7–13 meV
 However, the reference for comparison uses `pwmode = 1` and the MLO side `pwmode = 11`. The `pwmode` difference at LDA (rms 5.6 meV) alone cannot explain it,
 but it may have been amplified by QSGW. **Whether it is a difference in the representation of $\Sigma$ or in `pwmode` cannot be separated without running a conventional chain with `pwmode = 11`** (not done).
 
-### 3.5 Up to 40 iterations (2026-09-29)
+### Up to 40 iterations (2026-09-29)
 
 With the settings of §3.1 (but code from 2026-09-27 on: the window reference is the value of the SCF at each iteration, $\chi_0$ with `t_tetrakbt = -992.4`, `t_sigmaw = 1000`),
 we ran `gwsc 10 --prec=tf32` from LDA, followed by one iteration at a time up to 40 iterations. The settings table and all the figures and numbers are in `Samples/kBT/LiTi2O4/README.md` of ecalj.
@@ -374,7 +370,7 @@ we ran `gwsc 10 --prec=tf32` from LDA, followed by one iteration at a time up to
 
 ---
 
-## 4. Pitfalls
+## Pitfalls
 
 | Mistake | Why it is wrong / what is correct |
 |---|---|
@@ -383,7 +379,7 @@ we ran `gwsc 10 --prec=tf32` from LDA, followed by one iteration at a time up to
 | Drawing MLO bands with `job_band --mlo` or `job_mlo --mlofreeze` | invalid, as in the table of §1.7 |
 | Applying check values (numbers of marked lines, run times) from a different mesh | normal runs are judged abnormal. The values are determined by the mesh and the number of parallel processes (§2.3) |
 
-## 5. Open issues and future work
+## Open issues and future work
 
 - Run a **conventional chain with `pwmode = 11`** for 10 iterations and separate the difference of §3.4 into the difference of representation and the difference of `pwmode`
 - **Antiferromagnetic symmetry (`symgrpaf`)**: since 2026-09-30 QSGW works in a form where the GW programs compute both spins (ecalj `Samples/AFsymmetry`).

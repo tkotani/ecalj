@@ -1,7 +1,3 @@
----
-pageClass: secnum-manual
----
-
 # PMT method (mixed basis of APW and MTO, DFT)
 
 > English version of the page [theory/pmt](../../theory/pmt.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/pmt.md of commit b55836332 (source blob b82c6935c56f).
@@ -16,7 +12,7 @@ The first proposal is Kotani and van Schilfgaarde, [PRB **81**, 125117 (2010)](h
   - As a special type there are local orbitals Lo (in the implementation and the theory they are usually treated as belonging to the MTOs)
 - The formulation is the "three-component formalism" (a rewriting of the additive augmentation formalism of Soler and Williams; J. M. Soler and A. R. Williams, [PRB **40**, 1560 (1989)](https://doi.org/10.1103/PhysRevB.40.1560), [PRB **47**, 6784 (1993)](https://doi.org/10.1103/PhysRevB.47.6784)). The Kohn–Sham equation and the atomic forces follow directly from the minimization of the total energy
 
-## 0. Preliminaries: muffin-tin division of space
+## Preliminaries: muffin-tin division of space
 
 The unit cell $\Omega$ is divided into non-overlapping spheres centered at the atoms $a$ (MT spheres, center $\mathbf R_a$, radius $R_a$) and the interstitial region outside them.
 
@@ -35,26 +31,26 @@ This division is for representing the wave functions and the density; it is not 
 Unlike the old muffin-tin approximation (spherical inside the spheres, constant outside), PMT is full-potential and treats everything, both the non-spherical part inside the spheres and the variation in the interstitial.
 The MT radius is given by `r` in `[[spec]]` and is usually taken so that the spheres nearly touch their neighbors. However, by default (`--tratio=0.97` of `ctrlgenToml.py`) it is made 3% smaller than the touching radius (for the upper limit and cautions, see [Upper limit of MT radii and spurious levels](../manual/mtradius.md)).
 
-## 1. Three-component formalism
+## Three-component formalism
 
 The three-component formalism is a rewriting of the Soler–Williams formalism. The wave functions are expressed as linear combinations of basis functions.
 A basis function is an envelope function augmented in the MTs (the inside of each MT is cut out and replaced by atomic-like wave functions).
-On top of the MT division of §0, we write this as a set of three components:
+On top of the MT division of §1, we write this as a set of three components:
 
 $$
 F_i = F_{0i}(\mathbf r) \oplus \{F_{1i,a}(\mathbf r)\} \ominus \{F_{2i,a}(\mathbf r)\} \tag{1}
 $$
 
-Here $\oplus,\ominus$ are mere separators. However, addition of $F_i$ is done component by component. Multiplication of $F_i$ is also done component by component, as we will see from §2 on.
+Here $\oplus,\ominus$ are mere separators. However, addition of $F_i$ is done component by component. Multiplication of $F_i$ is also done component by component, as we will see from §3 on.
 
 - Component 0 $F_{0i}$: the envelope (a plane wave, or a Bloch sum of smooth Hankel functions). Analytic in all space
 - Component 1 $F_{1i,a}$: the true function in the MT (a linear combination of partial waves)
 - Component 2 $F_{2i,a}$: the low-$l$, slowly oscillating part of $F_{0i}$ in the MT (the expansion with $l\le l_{\max,a}$, $k\le k_{\max,a}$, Eq. 4). It cancels this part of component 0 in the MT
 
 Indices in Eq. (1): $i$ numbers the basis functions ($\mathbf G$ for APW; the set of $a$, $L$, $(R_{\rm SM},\epsilon)$ for MTO; $a$, $L$ for Lo).
-$L=(l,m)$ is the angular-momentum index ($Y_L$ are real spherical harmonics). $(R_{\rm SM},\epsilon)$ are the parameters of the smooth Hankel function (see below, §5, Eq. 25).
+$L=(l,m)$ is the angular-momentum index ($Y_L$ are real spherical harmonics). $(R_{\rm SM},\epsilon)$ are the parameters of the smooth Hankel function (see below, §6, Eq. 25).
 The leading 0, 1, 2 are the component numbers. $a$ numbers the MTs (atomic sites), and $\{\cdots\}$ denotes the set over all $a$.
-The $\mathbf r$ of components 1 and 2 is measured from the MT center $\mathbf R_a$ and is defined only for $|\mathbf r|\le R_a$. The list of indices is Table 2 (§10).
+The $\mathbf r$ of components 1 and 2 is measured from the MT center $\mathbf R_a$ and is defined only for $|\mathbf r|\le R_a$. The list of indices is Table 2 (§11).
 
 Figure 2 shows the APW and MTO basis functions in these three components.
 
@@ -112,11 +108,11 @@ The cutoffs $k_{\max,a}$, $l_{\max,a}$ are the input `kmxa`, `lmxa`.
 
 <div class="note">
 
-Since (A′) contains "$\approx$", it is somewhat ambiguous as a definition of the function space, and it need not be part of the definition. The function space is determined by (B) alone ($\mathcal A[F]$ is continuous in both value and slope on the MT sphere). (A′) is the condition for the separable products of §2 to be a good approximation (it makes $(0-2)$ of Eq. 8 small).
+Since (A′) contains "$\approx$", it is somewhat ambiguous as a definition of the function space, and it need not be part of the definition. The function space is determined by (B) alone ($\mathcal A[F]$ is continuous in both value and slope on the MT sphere). (A′) is the condition for the separable products of §3 to be a good approximation (it makes $(0-2)$ of Eq. 8 small).
 
 </div>
 
-## 2. Augmentation of products (separable form)
+## Augmentation of products (separable form)
 
 Physical quantities are obtained from component-wise products, following the definition of products in the three-component representation, without making cross terms between components:
 
@@ -148,7 +144,7 @@ $$
 $(0-2)$ is 0 under (A); under (A′) it is the remainder of high $l$ and fast oscillation due to the truncation by `lmxa`, `kmxa` (its amplitude is small and, for each $L$, largest at the MT sphere).
 $(1'-2')$ is the low-energy part that converges regardless of the truncation, and it is 0 in both value and slope at the MT sphere.
 Hence the product $\delta n_a(\mathbf r)=(0-2)_a(1'-2')_a$ is small, and for low $L$ it is nearly orthogonal, $\int_{|\mathbf r|\le R_a}\delta n_a\,Y_L\approx 0$.
-The error can be checked by changing `lmxa`, `kmxa`. The same idea can be used, with a small modification, for the electron density in the Coulomb interaction (§3).
+The error can be checked by changing `lmxa`, `kmxa`. The same idea can be used, with a small modification, for the electron density in the Coulomb interaction (§4).
 
 </div>
 
@@ -167,7 +163,7 @@ $$
 Note that the map to real space $\mathcal A$ (Eq. 3) is introduced for the formalism and is not used in actual calculations.
 What is computed are only component-wise quantities like the right-hand side of Eq. (5) (Eqs. 6, 7, 9, and likewise the Coulomb and exchange-correlation terms below); there is no need to construct the real-space function $\mathcal A[\psi_p]$. The addition and subtraction of components 1 and 2 in Eq. (5) are formal, but they are useful when considering the map to the physical reality.
 
-## 3. Coulomb interaction
+## Coulomb interaction
 
 Equations are written keeping $e^2$ and $m$. The code uses Ry units ($\hbar=1$, $2m=1$, $e^2=2$).
 
@@ -231,7 +227,7 @@ The Coulomb term is evaluated with the last expression of Eq. (13) (the separabl
 We estimate the approximation in Eq. (13). The difference is $(\bar n_0-\bar n_2)\circ v\circ(\bar m_1-\bar m_2)+(\bar n_1-\bar n_2)\circ v\circ(\bar m_0-\bar m_2)$. Consider the first term (the second is the same).
 The multipoles of $\bar m_1-\bar m_2$ are 0 for all $L$ up to `lmxl` (because in Eq. 11, $Q_{aL}[m_1-m_2]$ was added with $G_{aL}$ normalized to multipole 1; it has no components with $L$ above `lmxl`). Hence the potential produced by $v\circ(\bar m_1-\bar m_2)$ is 0 outside the MT, and its $L$ is at most `lmxl`. Inside the MT, however, this potential is not 0. Its size is determined not by the multipoles but by the difference of the radial distributions of the charge in the MT (for example, the difference between $G_{aL}$, localized near the center, and the distribution of $\bar m_1$), and it is not necessarily small near the center. On the other hand, it is guaranteed to approach 0 near the MT boundary. Since the multipoles are 0, the potential does not leak outside the MT and is 0 in both value and slope at the MT sphere (the same property as $(1'-2')$ of Eq. 8).
 On the other hand, $\bar n_0-\bar n_2$ is the deviation from (A′) and is dominated by high-$L$ components. <del class="clfix">Since $v$ is spherically symmetric, these high-$L$ components do not couple to the potential and do not contribute.</del><span class="clfix">$v$ preserves $L$ (it is invariant under rotations), and $v\circ(\bar m_1-\bar m_2)$ has only components with $L\le$ `lmxl`, so the components of $\bar n_0-\bar n_2$ with $L>$ `lmxl` are orthogonal to it and do not contribute.</span>
-Only the low-$L$ components of $\bar n_0-\bar n_2$ contribute, and they are the part that $n_2$ cannot fully reproduce of $n_0$ (the truncation by `kmxa` in Eq. (4)). Hence the difference consists only of terms proportional to that truncation. Furthermore, $\bar n_0-\bar n_2$ is large near the MT sphere (the error of the separable form in §2), while the potential is 0 in both value and slope at the MT sphere, so the integral of the product is even smaller.
+Only the low-$L$ components of $\bar n_0-\bar n_2$ contribute, and they are the part that $n_2$ cannot fully reproduce of $n_0$ (the truncation by `kmxa` in Eq. (4)). Hence the difference consists only of terms proportional to that truncation. Furthermore, $\bar n_0-\bar n_2$ is large near the MT sphere (the error of the separable form in §3), while the potential is 0 in both value and slope at the MT sphere, so the integral of the product is even smaller.
 
 </div>
 
@@ -290,7 +286,7 @@ Correspondence with the code (`corprm`, `mkrout`): with `lfoca`=1, the core dens
 
 </div>
 
-## 4. Total energy and the Kohn–Sham equation
+## Total energy and the Kohn–Sham equation
 
 $$
 \begin{aligned}
@@ -359,7 +355,7 @@ Correspondence with the code (Eqs. 20 to 22, `smves` and `locpot`; Ry units, $e^
 3. `locpot`: makes component 1 in the MT, `rhol1` $=\rho_1+Y_0\rho_{\rm c}$ (the nucleus $-Z$ is put in when solving Poisson), and component 2, `rhol2` $=\rho_2+\sum_L$`qmom`$_L\,G_{aL}+Y_0\,n^{\rm c}_{\rm sH}$ (Eq. 15). It checks that the two charges are equal.
 4. `poinsp(0, 0, rhol2)`: solves component 2 with the boundary condition 0 on the MT sphere. This is $\bar n_2\circ w$ (Eq. 22). It computes `gpotb`$_{aL}=\int G_{aL}\,(\bar n_2\circ w)$ and sets `dEdQ`$_{aL}=$ (`gpot0` $-$ `gpotb`) $R_a^l=\overset{\raise{-0.3em}{\scriptscriptstyle\bullet}}{Q}{}^{\rm v}_{aL}R_a^l$ (Eq. 21).
 5. `poinsp(z, dEdQ, rhol1)`, `poinsp(0, dEdQ, rhol2)`: solve components 1 and 2 again with the boundary value `dEdQ`. Since `poinsp` matches the boundary value with the homogeneous solution $r^lY_L$, the solution becomes $\bar n_{1(2)}\circ w+\sum_L\overset{\raise{-0.3em}{\scriptscriptstyle\bullet}}{Q}{}^{\rm v}_{aL}\mathcal Y_L$, which is exactly the electrostatic part of Eq. (20). The electrostatic potential of component 1 is $Y_0$`v1es` $-2Z/r$.
-6. The potential for the partial waves, `v1out`, is solved separately by `poinsp(z, vval, rhol1)`, matching the value on the MT sphere to `vval` (§5).
+6. The potential for the partial waves, `v1out`, is solved separately by `poinsp(z, vval, rhol1)`, matching the value on the MT sphere to `vval` (§6).
 7. With the re-solved component 2, `gpotb` is recomputed, and `gpot0` $-$ `gpotb` is passed to `gaugm` and used for the matrix elements (the multipole term of $\pi$ in Eq. 24).
 
 </div>
@@ -405,7 +401,7 @@ Correspondence with the code:
 
 </div>
 
-## 5. PMT basis
+## PMT basis
 
 There are three kinds of basis functions:
 
@@ -425,7 +421,7 @@ $$
 
 For $R_{\rm SM}\to0$ it becomes the ordinary Hankel function $e^{-\kappa r}/r$ ($\epsilon=-\kappa^2$). <del class="clfix">It does not diverge at the origin.</del><span class="clfix">For finite $R_{\rm SM}$, $h_0$ does not diverge at the origin.</span>
 
-- The partial waves $\phi_{al}$, $\dot\phi_{al}$ are made by solving the radial equation in the spherical part of the actual potential in the MT. This potential is the electrostatic potential of the charge of component 1, solved with its value on the MT sphere matched to that determined from component 0, plus $v^{\rm xc}_{1,a}$ (`v1out` in the code); its boundary value differs from that of component 1, $V_{1,a}$, of Eq. (20). Since the partial waves are only ingredients of the basis, this does not affect the consistency of the variation. The logarithmic derivative at the MT boundary is fixed to that of the spherical atom of `lmfa` (note in §1).
+- The partial waves $\phi_{al}$, $\dot\phi_{al}$ are made by solving the radial equation in the spherical part of the actual potential in the MT. This potential is the electrostatic potential of the charge of component 1, solved with its value on the MT sphere matched to that determined from component 0, plus $v^{\rm xc}_{1,a}$ (`v1out` in the code); its boundary value differs from that of component 1, $V_{1,a}$, of Eq. (20). Since the partial waves are only ingredients of the basis, this does not affect the consistency of the variation. The logarithmic derivative at the MT boundary is fixed to that of the spherical atom of `lmfa` (note in §2).
 - The partial waves of Lo are also solved with the logarithmic derivative at the MT boundary fixed to the value from `lmfa`. <del>The partial waves of Lo are solved at their center of gravity for deep levels (semicore), and then $\phi_{al}$ is taken at the Fermi energy</del>
 - Simple rules are enough for $R_{\rm SM}$ and $\epsilon$ of the MTOs ($R_{\rm SM}=R_a/2$ etc.)
   - What is missing is supplemented by the APWs. The dependence of the total energy on $\epsilon$ is weak and becomes weaker as more APWs are added
@@ -439,7 +435,7 @@ When `pnufix = false`, `pnunew` updates $P$. There, for $l$ without Lo, $\phi$ i
 
 </div>
 
-## 6. Points to note
+## Points to note
 
 - **Positive definiteness of $O_{ij}$**
   - The last term of Eq. (6) is negative, so the matrix can fail to be positive definite.
@@ -454,7 +450,7 @@ When `pnufix = false`, `pnunew` updates $P$. There, for $l$ without Lo, $\phi$ i
   - If the MTs are made very small, the wave functions are no longer orthogonal to the core and the calculation does not converge.
   - In that case, represent the core with Lo (`pz`).
 
-## 7. Comparison with PAW (main points)
+## Comparison with PAW (main points)
 
 Written in the same three-component formalism, PAW is the method that determines components 1 and 2 from component 0 (the pseudo wave function $\tilde\psi$) with projectors $\tilde p_i$:
 
@@ -468,7 +464,7 @@ $$
 - In PMT (and LAPW), component 2 cancels component 0 in the MT, so component 0 can be anything in the MT
   - The plane-wave cutoff can be as low as in LAPW (~15 Ry; PAW ~30 Ry)
 
-## 8. Atomic forces
+## Atomic forces
 
 **Harris energy**
 
@@ -514,7 +510,7 @@ The first term requires $\delta n^{\rm in}$. At self-consistency it is determine
 So we set $\delta n^{\rm in}=0$ in the three-component representation. Physically, this means that $n_{1,a}-n_{2,a}$ and the frozen core centered at $\mathbf R_a$ move rigidly together with $\mathbf R_a\to\mathbf R_a+\delta\mathbf R_a$.
 Then $\delta V$ is obtained from $\delta\bar n^{\rm Zcv}_0$ of Eq. (20), and $\delta\bar n^{\rm Zcv}_0$ from Eq. (15). $n^{\rm Zc}_0$ also depends on $\mathbf R_a$ as in Eq. (14).
 
-## 9. Scalar relativity
+## Scalar relativity
 
 In the MTs the scalar-relativistic (SR) approximation is used. SR wave functions have large and small components. The large component connects smoothly to the non-relativistic (NR) wave function in the interstitial, and the small component is negligible in the interstitial. Physical quantities in the MTs are computed with the SR wave functions.
 
@@ -543,13 +539,13 @@ Appendix D of the paper writes the replacement as $g^*g+(\frac{1}{2mc})^2f^*f$, 
 
 </div>
 
-## 10. Summary of indices and symbols
+## Summary of indices and symbols
 
 | Symbol | Meaning | First appears |
 | --- | --- | --- |
 | $i, j$ | Basis function number ($\mathbf G$ for APW; $a$, $L$, $(R_{\rm SM},\epsilon)$ for MTO; $a$, $L$ for Lo). $(R_{\rm SM},\epsilon)$ are the parameters of the smooth Hankel function (Eq. 25) | Eq. (1) |
 | 0, 1, 2 | Components: 0 = envelope (all space), 1 = the true function in the MT, 2 = the low-$l$, slowly oscillating part of the envelope in the MT | Eq. (1) |
-| $a$ | MT (atomic site). Center $\mathbf R_a$, radius $R_a$ | §0, Eq. (1) |
+| $a$ | MT (atomic site). Center $\mathbf R_a$, radius $R_a$ | §1, Eq. (1) |
 | $p$ | Eigenstate (wave function $\psi_p$), eigenvalue $\epsilon_p$ | Eqs. (2), (18) |
 | $\alpha^i_p$ | Coefficients of the wave function, $\psi_p=\sum_i\alpha^i_pF_i$ | Eq. (2) |
 | $L=(l,m)$ | Angular momentum. $Y_L$ are real spherical harmonics, $\mathcal Y_L(\mathbf r)=r^lY_L(\hat{\mathbf r})$ | Eq. (1) |
@@ -557,16 +553,16 @@ Appendix D of the paper writes the replacement as $g^*g+(\frac{1}{2mc})^2f^*f$, 
 | $k_{\max,a}$, $l_{\max,a}$ | Cutoffs of the expansion of components 1 and 2 (`kmxa`, `lmxa`) | Eq. (4) |
 | $C^i_{akL}$ | Expansion coefficients of basis function $i$ in MT $a$ | Eq. (4) |
 | $P_{akL}$, $\widetilde P_{akL}$ | Expansion functions in the MT (polynomial $\times Y_L$) and the matching combinations of partial waves (value and slope agree at the sphere) | Eq. (4) |
-| $\phi_{al}$, $\dot\phi_{al}$ | Partial wave and its energy derivative | §1, §5 |
+| $\phi_{al}$, $\dot\phi_{al}$ | Partial wave and its energy derivative | §2, §6 |
 | $\rho_{ij}$ | Density matrix $\sum_p^{\rm occ}\alpha^{i*}_p\alpha^j_p$ | Eq. (9) |
-| $\Omega$ | Unit cell | §0 |
+| $\Omega$ | Unit cell | §1 |
 | $\mathbf T$ | Lattice translation vector | Eq. (11) |
-| $\mathbf G$ | Reciprocal lattice vector (APW, real-space mesh) | <del class="clfix">§5</del><span class="clfix">Eq. (1)</span> |
+| $\mathbf G$ | Reciprocal lattice vector (APW, real-space mesh) | <del class="clfix">§6</del><span class="clfix">Eq. (1)</span> |
 | $\bullet$, $\circ$ | Integral over all space (per unit cell for periodic systems); integral only within the same MT sphere | Eq. (13) |
 
 Table 2. Indices and symbols on this page.
 
-## Appendix A. Derivation of the electrostatic potential (Eqs. 20, 21)
+## Appendix A: Derivation of the electrostatic potential (Eqs. 20, 21)
 
 **In the MT terms, $v$ may be replaced by $w$**
 
@@ -601,14 +597,14 @@ Since $G_{aL}$ enters both $\bar n_0$ and $\bar n_2$, two terms appear in $\over
 Reading Eq. (A3) component by component, the electrostatic potential is $\bar n_0\bullet v$ for component 0, $\bar n_{1,a}\circ w+\sum_L\overset{\raise{-0.3em}{\scriptscriptstyle\bullet}}{Q}{}^{\rm v}_{aL}\mathcal Y_L$ for component 1, and $\bar n_{2,a}\circ w+\sum_L\overset{\raise{-0.3em}{\scriptscriptstyle\bullet}}{Q}{}^{\rm v}_{aL}\mathcal Y_L$ for component 2 (on the $\ominus$ side).
 Adding the exchange-correlation potential $v^{\rm xc}$ (Eq. 19) coming from Eq. (17) gives Eq. (20).
 
-## Appendix B. Extension to open core (non-spherical core) (proposal)
+## Appendix B: Extension to open core (non-spherical core) (proposal)
 
 A proposal for modifications to treat 4f electrons as a core with fixed occupation (open core). The present code takes the core density to be spherical ($L=0$), and the multipoles, Poisson and exchange-correlation also assume this. To give the 4f occupation matrix $n_{mm'\sigma}$ and make the core non-spherical, the following places need to be changed.
 
 - **Core density**: from the 4f radial function $R_{4f}(r)$ and the occupation matrix, make
   $n^{\rm c}_{aL\sigma}(r)=|R_{4f}(r)|^2\sum_{mm'}n_{mm'\sigma}\,C_{mLm'}$ ($C$ are the Gaunt coefficients of real spherical harmonics; $L$ is even with $l\le 6$) and add it to the spherical density of the other core states. $R_{4f}$ comes from the atomic calculation of `lmfa`, and the occupation is given in the input.
 - **Eqs. (14), (15)**: the core in component 1 has components with $L>0$. Assuming the 4f fits within the MT and keeping $n^{\rm c}_{\rm sH}$ at $L=0$, the multipoles for $L>0$ become $Q^{\rm Zc}_{aL}=Q_{aL}[n^{\rm c}_{a,L}]$. Set `lmxl` of that site to 6 or more (otherwise the non-spherical part of the 4f is lost by the truncation of the density).
-- **Relation to the frozen core (§3)**: if the 4f is solved anew at each iteration as with `lfoca`=0, `getcor` solves it in the spherical potential, so it does not become non-spherical. The open-core 4f should be frozen (treated as `lfoca`=1), with the radial function and the occupation fixed.
+- **Relation to the frozen core (§4)**: if the 4f is solved anew at each iteration as with `lfoca`=0, `getcor` solves it in the spherical potential, so it does not become non-spherical. The open-core 4f should be frozen (treated as `lfoca`=1), with the radial function and the occupation fixed.
 
 <div class="note">
 
@@ -618,7 +614,7 @@ Places to change in the code (proposal):
 - Kinetic energy of the core $E^{\rm core}_{\rm k}$: if the radial function is fixed, it does not depend on the orientation of the occupation, but the double-counting term ($\int n^{\rm c}V$) is taken over all $L$.
 - Symmetry: a non-spherical core lowers the site symmetry. Use only the symmetry operations compatible with the occupation matrix, so that the components with $L>0$ are not removed by the symmetrization in `symrhoat`.
 - Valence $f$: so that the valence $f$ partial waves do not collapse into the occupied 4f, make the valence $f$ 5f ($P_f=5.x$) or remove $f$ from the valence.
-- Atomic forces (§8): if the orientation of the 4f is fixed in the crystal coordinates and it moves rigidly with the atom, the present treatment with $\delta n^{\rm in}=0$ can be used as it is.
+- Atomic forces (§9): if the orientation of the 4f is fixed in the crystal coordinates and it moves rigidly with the atom, the present treatment with $\delta n^{\rm in}=0$ can be used as it is.
 - GW: the core wave functions used for the core exchange (generated and used in GW) should also be made for the 4f with the occupation per $m$.
 
 </div>

@@ -43,7 +43,7 @@ $$
 n(𝒓) = \sum_{𝒌n}^{\mathrm{occ}} |Ψ_{𝒌n}(𝒓)|^2
 \tag{Bq2}
 $$
-- Boundary conditions: the solution regular at the origin is taken, with the logarithmic derivative ($P$) given at the MT radius. $ϵ_{lν}$ is the energy that matches this logarithmic derivative, not an eigenvalue of the radial equation (a solution vanishing at infinity). The logarithmic derivatives are determined by the spherical free-atom calculation of `lmfa` and written to `atmpnu.*`; `lmf` reads them (`[ham].readp = true`) and keeps them fixed during the cycle (`[ham].pnufix = true`). See §1 (note) and §5 of [Band-structure method of ecalj](./pmt).
+- Boundary conditions: the solution regular at the origin is taken, with the logarithmic derivative ($P$) given at the MT radius. $ϵ_{lν}$ is the energy that matches this logarithmic derivative, not an eigenvalue of the radial equation (a solution vanishing at infinity). The logarithmic derivatives are determined by the spherical free-atom calculation of `lmfa` and written to `atmpnu.*`; `lmf` reads them (`[ham].readp = true`) and keeps them fixed during the cycle (`[ham].pnufix = true`). See §2 (note) and §6 of [Band-structure method of ecalj](./pmt).
 - The local orbital $φ^{z}_{l}$ is also determined by its logarithmic derivative ($P_z$) at the MT radius; $P_z$ is also read from `atmpnu.*` written by `lmfa` and kept fixed. (With `pnufix = false`, `pnunew` updates $P$; an $l$ without a local orbital is solved at the energy of the center of gravity of the occupied states (the center of the partial DOS). This was used before, but was unstable.)
 :::
 

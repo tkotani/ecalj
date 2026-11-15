@@ -1,7 +1,3 @@
----
-pageClass: secnum-manual
----
-
 # GetStarted with AI
 
 > English version of the page [manual/getstartedAI](../../manual/getstartedAI.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/getstartedAI.md of commit b55836332 (source blob a70a332a5de1).
@@ -32,11 +28,11 @@ Some pages here and in the repository are only in Japanese or only in English: t
 (each page of this site also has a Japanese version, the reference).
 (Written 2026-10-03. When this page and the code disagree, the code and `Changes.md` of the repository are right.)
 
-## 0. License
+## License
 
 The license (with the notes on AI) is on the [License](./license) page. Read it first and follow it.
 
-## 1. ecalj in five lines
+## ecalj in five lines
 
 1. A first-principles electronic-structure package: DFT (LDA/GGA, LDA+U) with the PMT basis (augmented plane waves + muffin-tin orbitals), and
    **QSGW** (quasiparticle self-consistent GW), which gives band structures, band gaps and effective masses close to experiment
@@ -48,7 +44,7 @@ The license (with the notes on AI) is on the [License](./license) page. Read it 
 4. Runs on CPUs (MPI) and NVIDIA GPUs (`--gpu`; the precision of the GW products is chosen by `--prec=tf32|fp32|fp64`).
 5. Open source (AGPLv3), developed by T. Kotani and co-workers, largely together with Claude Code.
 
-## 2. What to read, and in which order
+## What to read, and in which order
 
 Read only as deep as the person's question needs. Pages of this site are given by their names; open them as `./<name>.md`
 next to this page.
@@ -74,7 +70,7 @@ next to this page.
   something is as it is.
 - The structure of the code (main programs → modules): `MD/module_map.md`.
 
-## 3. How to guide a person
+## How to guide a person
 
 Explain in the person's language. One step at a time; show the commands; let the person run them and report back.
 
@@ -83,7 +79,7 @@ Explain in the person's language. One step at a time; show the commands; let the
      Hamiltonian / finite temperature / large-scale automatic runs / develop the code)
    - Your background: DFT? GW? (decides how much theory to explain)
    - Your computer: OS, number of cores, NVIDIA GPU or not, compilers (gfortran, ifx, nvfortran). Is ecalj already installed?
-2. **Give the overview** in a few lines (section 1), adjusted to the answers. For a newcomer, say what QSGW buys over DFT (gaps without
+2. **Give the overview** in a few lines (section 2), adjusted to the answers. For a newcomer, say what QSGW buys over DFT (gaps without
    adjustable parameters) and what it costs (minutes to hours instead of seconds).
 3. **Route by the goal** (table 1), then do it together.
 4. **Check the results** with the person: the gap printed by lmf (`gap = ... eV` in `llmf`), the band plot files, the iteration
@@ -105,7 +101,7 @@ Explain in the person's language. One step at a time; show the commands; let the
 | many materials automatically | `ecalj_auto/` of the repository (`README.md` there) | |
 | develop the code | `CLAUDE.md` and `MD/README.md` of the repository | |
 
-## 4. Tests
+## Tests
 
 After `InstallAll.py` (it runs the minimum tests), the full tests are run by `testecalj` and, group by group, by
 `TOOLS/samples_tests.sh` of the repository:
@@ -154,7 +150,7 @@ of one. ✗: no passed run, the references of bench are old.)
 So: everything except bench and heavy takes 30–70 minutes; bench adds about 3 hours on a GPU. On a machine busy with other jobs
 the tests slow down a lot.
 
-## 5. Points to get right when you explain
+## Points to get right when you explain
 
 - QSGW gives band structures and gaps (eigenvalues and wave functions), **not total energies**.
 - The input is `ctrlg.<sname>.toml` (since 2026-05). The old `ctrl.<sname>` + `GWinput` are not read; `Legacy2toml.py` converts them.
@@ -168,7 +164,7 @@ the tests slow down a lot.
 - GPU precision: `--prec=tf32` changes gaps by about 1 meV against fp32; the old option `--mp` (all products in TF32, before 2026-09)
   could shift gaps by 0.1–0.3 eV.
 
-## 6. Exploring the repository without cloning it
+## Exploring the repository without cloning it
 
 Every file of ecalj can be read on GitHub. For an AI that fetches web pages, the raw text is at
 
@@ -193,7 +189,7 @@ https://github.com/tkotani/ecalj/tree/main/<directory>             the listing o
 | `MD/` | development notes (not on this site; `MD/README.md` first) |
 | `GetSyml/`, `StructureTool/` | k paths for band plots, structure conversion |
 
-## 7. Programs and drivers
+## Programs and drivers
 
 *Table 4*. What runs what (installed into the bin directory by `InstallAll.py`)
 
@@ -214,7 +210,7 @@ https://github.com/tkotani/ecalj/tree/main/<directory>             the listing o
 
 Every program prints its options with `--help`; [Command-line options](./cmdopts.md) lists them.
 
-## 8. The input file and the output files
+## The input file and the output files
 
 `ctrlg.<sname>.toml` has the sections `[struc]` (lattice), `[[site]]` (atoms), `[[spec]]` (species: basis, radii, LDA+U),
 `[bz]` (k mesh, metal or not), `[iter]` (mixing), `[ham]` (functional, spin, SOC, `scaledsigma`, plane waves), `[options]`,
@@ -233,7 +229,7 @@ Any key can be overridden on the command line: `lmf <sname> --ctrlg:bz.nkabc=[8,
 | `dos.tot.<sname>*` | total DOS |
 | `QSGW.<n>run/` | the files of each iteration (`gwsc`, `gwscconv`) |
 
-## 9. Words
+## Words
 
 PMT: the basis, augmented plane waves plus muffin-tin orbitals. QSGW: quasiparticle self-consistent GW; the static
 Hermitian part of Σ replaces the exchange-correlation potential and is iterated to self-consistency. QSGW80: 80 % of the QSGW Σ
@@ -241,7 +237,7 @@ and 20 % of LDA (`scaledsigma = 0.8`). MLO: localized orbitals made from the muf
 for models. cRPA: the constrained RPA for the screened U. ESM: the effective screening medium for slabs. `<sname>`: the name of
 a material, the extension of its files (`ctrlg.gaas.toml` → `gaas`).
 
-## 10. Data, and where to look when something goes wrong
+## Data, and where to look when something goes wrong
 
 - The QSGW band database: [DOSnpSupplement](https://github.com/tkotani/DOSnpSupplement). The database is updated successively (the past versions
   are kept there). For the versions, the conditions of each value and the terms of use, read its README. **Before comparing a value with a new

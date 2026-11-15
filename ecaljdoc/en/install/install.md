@@ -1,7 +1,3 @@
----
-pageClass: secnum-manual
----
-
 # Installing ecalj {#ecalj-install}
 
 > English version of the page [install/install](../../install/install.md). The pages at the top of ecaljdoc are the reference; this one was made from install/install.md of commit b55836332 (source blob 23f41b02170c).
@@ -13,7 +9,7 @@ In addition, we make some soft links for convenience. Most of the steps are almo
 
 
 
-## 1. Required software and native tools {#_1-required-software-and-native-tools}
+## Required software and native tools {#_1-required-software-and-native-tools}
 
 The core of ecalj is written in modern Fortran (Fortran 90/2003 style). The Fortran source files are in the following places.
 
@@ -62,7 +58,7 @@ Example: in my case (ThinkPad T14, Ubuntu 24.04) I use the following.
 
 
 
-## 2. Python and Python modules (using pyenv) {#_2-python-and-python-modules-using-pyenv}
+## Python and Python modules (using pyenv) {#_2-python-and-python-modules-using-pyenv}
 
 > [!TIP]
 > We recommend managing the Python version used for ecalj with `pyenv`. It leaves the system Python untouched and makes the environment easier to reproduce. You do not need `pyenv-virtualenv` unless you want to manage several environments. If you have only one environment for ecalj, `pyenv` alone is enough.
@@ -146,7 +142,7 @@ pip install -r requirements.txt
 
 
 
-## 3. Install and install test {#_3-install-and-installtest}
+## Install and install test {#_3-install-and-installtest}
 
 **On ohtaka and kugui (GPU machine) at ISSP, skip this section and see [installISSP.md](./installISSP.md).**
 
@@ -303,7 +299,7 @@ PATH="~/bin/:$PATH"
 
 
 
-## 4. Uninstall {#_4-uninstall}
+## Uninstall {#_4-uninstall}
 
 See [Uninstall](./uninstall). There are three commands: `python3 uninstall.py`,
 open a new shell, and `rm -rf <ecalj-checkout>`.

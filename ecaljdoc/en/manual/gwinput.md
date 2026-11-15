@@ -22,7 +22,7 @@ ctrlgenToml.py <sname> --addgw   # stops if [gw] exists
 For old files, add them with `ctrlg_update.py ctrlg.<sname>.toml`. What it adds are the default values of the earlier code, so the results do not change.
 
 The generated `[gw]` has `n1n2n3 = [4, 4, 4]`, `t_sigmaw = 300`, `t_tetrakbt = 300`. Rewrite them for your calculation.
-For insulators and semiconductors, the gap is much larger than $k_BT$, so a temperature left at 300 K does not affect the results ([kBT](./kBT) §4).
+For insulators and semiconductors, the gap is much larger than $k_BT$, so a temperature left at 300 K does not affect the results ([kBT](./kBT) §7).
 
 ## Format
 - Written in TOML syntax. From `#` to the end of the line is a comment.
@@ -70,8 +70,8 @@ Whether to keep in memory the matrix elements between the product basis in the M
 
 ### `t_tetrakbt`  *(required, 2026-09-28)*
 Selects how $\chi_0$ is smeared, by the sign of a temperature (K). If not written, the program stops.
-- `0`: no smearing (T=0 tetrahedron). For insulators and semiconductors the template value 300 may be kept (it has no effect if gap ≫ $k_BT$. [kBT](kBT) §4).
-- `T > 0`: finite-temperature tetrahedron. The occupations in $\chi_0$ become Fermi-Dirac at temperature $T$, and the Fermi level is `EFERMI_kbt` (also on the $\Sigma$ side). [kBT](kBT) §2.
+- `0`: no smearing (T=0 tetrahedron). For insulators and semiconductors the template value 300 may be kept (it has no effect if gap ≫ $k_BT$. [kBT](kBT) §7).
+- `T > 0`: finite-temperature tetrahedron. The occupations in $\chi_0$ become Fermi-Dirac at temperature $T$, and the Fermi level is `EFERMI_kbt` (also on the $\Sigma$ side). [kBT](kBT) §3.
 - `-T`: keeps the T=0 tetrahedron and smears $\mathrm{Im}\chi_0$ along the frequency with a Gaussian. The width is the same as the Fermi-Dirac at temperature $T$ (standard deviation $\pi k_BT/\sqrt3$, $-1000$ K = 0.00574 Ha = 0.156 eV). Use it for metals where the plasmon pole of $W$ is rough (the practical setting for LiTi₂O₄ is $-992.4$. See the settings for LiTi₂O₄ at the top of [kBT](kBT)). It also affects $W(i\omega)$ and the static $W(0)$.
 The gwinit template writes 300.
 - **type**: float (K)
@@ -79,7 +79,7 @@ The gwinit template writes 300.
 
 Keys appearing in old inputs are handled as in Table 1. `ctrlg_update.py ctrlg.<sname>.toml` rewrites `SmearX0` (Ha, the standard deviation of the
 Gaussian for $\mathrm{Im}\chi_0$) to `t_tetrakbt = -T` of the same width (0.0057 Ha → $-992.4$ K), and adds
-`t_tetrakbt = 0` to files without `t_tetrakbt`. The calculation does not change. `Legacy2toml.py` does the same rewriting in the conversion. For the history of the keys, see Table 2 in [kBT](kBT) §2.5.
+`t_tetrakbt = 0` to files without `t_tetrakbt`. The calculation does not change. `Legacy2toml.py` does the same rewriting in the conversion. For the history of the keys, see Table 2 in [kBT](kBT) §3.5.
 
 **Table 1**. Old keys in `[gw]` and how they are handled now
 
@@ -97,9 +97,9 @@ Width of the Fermi-Dirac kernel that smears the intermediate levels (the poles o
 The same kernel $-\partial f/\partial\varepsilon$ ($k_BT$ = `t_sigmaw`) is used for all of: the occupation weights in $\Sigma_x = iGv$, and the window weights and the pole positions (`wcsmear`)
 of the real-axis pole term of $\Sigma_c = iG(W-v)$.
 **This is a numerical width, not a complete finite-temperature self-energy** (Bose factors etc. are not included).
-The Fermi level is `EFERMI_kbt` if `t_tetrakbt > 0` ($\chi_0$ also at finite temperature); otherwise it is determined by counting the levels on the k mesh (Table 5 in [kBT](kBT) §0).
+The Fermi level is `EFERMI_kbt` if `t_tetrakbt > 0` ($\chi_0$ also at finite temperature); otherwise it is determined by counting the levels on the k mesh (Table 5 in [kBT](kBT) §1).
 The margin of the candidate window for intermediate states and of the real-axis $\omega$ mesh is $E_F \pm 15\,k_BT$. The same kernel also enters the step of the
-half residue in the imaginary-axis integral of $\Sigma_c$ (contract: the occupation weights, the window weights of the pole term, and the step on the imaginary axis, these 3 places use the same kernel. [manual/kBT](kBT) §3.6).
+half residue in the imaginary-axis integral of $\Sigma_c$ (contract: the occupation weights, the window weights of the pole term, and the step on the imaginary axis, these 3 places use the same kernel. [manual/kBT](kBT) §6).
 
 - Required (since 2026-11-14). The template is 300 K. The default of the earlier code was 1000 K, a width close to the old `esmr = 0.01` Ry (Gaussian $\sigma$)
   (the same standard deviation is 872 K; the std of FD is $\pi k_BT/\sqrt3 = 1.81\,k_BT$). The old `esmr = 0.003` Ry (the value in TestInstall, e.g. Si) corresponds to 262 K.

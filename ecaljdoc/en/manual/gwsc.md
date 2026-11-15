@@ -404,7 +404,7 @@ Used at hsfp0 but not essential (only for convenience of presentantion).
 The Fermi energy in the tetrahedron method
 
 #### EFERMI_kbt
-Written when `[gw] t_tetrakbt` > 0: the Fermi energy at that temperature, used for $\chi_0$ and $\Sigma$ ([kBT](./kBT) §2.3).
+Written when `[gw] t_tetrakbt` > 0: the Fermi energy at that temperature, used for $\chi_0$ and $\Sigma$ ([kBT](./kBT) §3.3).
 
 
 ### hbasfp0 (we have --job=3 for core and --job=0 for valence)

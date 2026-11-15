@@ -49,7 +49,7 @@ ecalj/Samples/
 | **AFsymmetry/**（`NiO`、`NiSe`、`NiO_gwsc`） | サイトに `af = 1 / -1` を付けた反強磁性の対称性 `symgrpaf`。LDA と QSGW（GW のプログラムは両方のスピンを計算する） | [AFsymmetry/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/AFsymmetry/README.md) | [lmf](./lmf#symgrp) |
 | **AFfixMMOM/**（`NiO_afsym`、`NiO_noafsym`） | 反強磁性の対のモーメントを決まった値に保つ（`mmtarget.aftest`）。NiO を `symgrpaf` あり・なしで | [AFfixMMOM/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/AFfixMMOM/README.md) | [その他の説明](./UsageDetailed#antiferro-symmetry-without-soc) |
 | **Magnon/**（`Fe_mlo_magnon`） | MLO のモデルによるマグノンのスペクトル（`job_mlo_magnon`、bcc Fe）。2026-10-02 より前の版（タグ `last-wannier`）の Wannier 関数と比べる | [Magnon/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/Magnon/README.md) | [その他の説明](./UsageDetailed) |
-| **kBT/scanT/**（`Si`） | 同じ入力を、いくつかの電子温度で（`scan_T.sh`、`collect_T.py`）: Si のギャップ、bcc Fe のバンドとモーメント。試験のターゲットは `Si` だけ（`Cu`、`Fe`、`GaAs` のディレクトリもある） | [kBT/scanT/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/kBT/scanT/README.md) | [kBT](./kBT) §5 |
+| **kBT/scanT/**（`Si`） | 同じ入力を、いくつかの電子温度で（`scan_T.sh`、`collect_T.py`）: Si のギャップ、bcc Fe のバンドとモーメント。試験のターゲットは `Si` だけ（`Cu`、`Fe`、`GaAs` のディレクトリもある） | [kBT/scanT/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/kBT/scanT/README.md) | [kBT](./kBT) §8 |
 | **FermiSurface/Cu**、**Doping/Si**、**HomoGas/es**、**BoltzTraP/Si**、**SLAB/Cu001**、**SOC/**（`FePt_MAE`、`MnGa_MAE`）、**LDAU/ReN**、**EffectiveMass/**（`GaAs`、`CdS`、`GaN`）、**Relax/LaGaO3**、**DOS/**（`ZnS`、`Fe`）、**IIR/C**、**AtomDimer/N2** | 短い例（どれも数分以内）: xcrysden のためのフェルミ面、半端な Z か背景電荷によるドーピング、Lindhard 関数と解析的な形との比較、BoltzTraP の入力、仕事関数を見るスラブ、磁気異方性エネルギー、LDA+U、SOC を入れた有効質量、原子位置の緩和、全・部分状態密度、衝突電離の割合（自己エネルギーの虚部）、箱の中の分子 | 各ディレクトリの README.md | [その他の説明](./UsageDetailed) |
 
 ## 試験にしないもの

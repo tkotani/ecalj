@@ -1,7 +1,3 @@
----
-pageClass: secnum-manual
----
-
 
 # ISSPのkugui（GPU）とohtaka（CPU）でのインストール
 
@@ -13,11 +9,11 @@ pageClass: secnum-manual
 
 ## kuguiでのインストール
 
-### 1. ログイン
+### ログイン
 
-### 2. [pyenvなどを用いてpythonとtoolをインストール](./install.md)
+### [pyenvなどを用いてpythonとtoolをインストール](./install.md)
 
-### 3. `~/.bashrc`の書き換え
+### `~/.bashrc`の書き換え
 
 `~/.bashrc`の最後に以下を挿入します。
 
@@ -39,7 +35,7 @@ fi
 > OneAPI_MPIはやや速いですが安定性はやや劣ります。
 > Intel MKLはnvfortran/gfortran両方で利用可能です。
 
-ログインや mpirun のときに次のメッセージが出ることがありますが, 害はありません（§4）。
+ログインや mpirun のときに次のメッセージが出ることがありますが, 害はありません（§1.4）。
 
 >--------------------------------------------------------------------------
 >The library attempted to open the following supporting CUDA libraries,
@@ -54,7 +50,7 @@ fi
 >of libcuda.so.1 to get passed this issue.
 >
 
-### 4. ecaljのインストールとテスト
+### ecaljのインストールとテスト
 
 ```bash
 git clone https://github.com/tkotani/ecalj.git
@@ -122,7 +118,7 @@ Elapsed time for testecalj.py: 409 seconds
 ジョブの標準出力（PBS では `install.o<ジョブ番号>`）で進行状況を確認できます。各ターゲットの結果は `ecalj/Samples/TestInstall/<ターゲット>_work/summary.txt` に書かれます（上の出力例の `See work/summary.txt` は古い版の表示）。最後に`PASSED! srvo3_crpa/Screening_W-v_crpa.h`と表示され、FAILやエラーがなければOKです。
 nvfortranでもテストはCPU実行です。
 
-### 5. GPU計算テスト
+### GPU計算テスト
 
 `ecalj/Samples/BenchmarkTest/inas2gasb2` を作業用のディレクトリに写し（作業ファイルが大きい）、そこに
 `ecalj/Samples/BenchmarkTest/ISSP/job_kugui.sh` を置いて
@@ -140,7 +136,7 @@ OK! ==== All calclation finished for  gwsc ====
 
 で終了していればOKです。サンプルに前の結果 `QPU.1run` が入っているので、`gwsc 1` の 1 回の反復は 2 番と数えられ、結果は `QPU.2run` に書かれます。これをサンプルの `QPU.1run` と比べてください。スクリプトは `-c kugui_gpu`（`SRC/exec/clusters.toml` の GPU ノードの設定）を渡します。
 
-### 6. 本番の計算
+### 本番の計算
 
 本番の計算のキューは `F1accs` などです（`i1accs` は 30 分までの試験用）。例:
 

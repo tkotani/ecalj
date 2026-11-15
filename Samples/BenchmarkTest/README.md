@@ -20,6 +20,6 @@ On CPU alone the two targets take about a day (8 ranks): `TOOLS/samples_tests.sh
 The references were made on 2026-09-30 (kr7, GPU, double precision). Those of 2026-05-31 differed from the present
 results by 0.03 eV in SEx and SEc of the band-edge states (they cancel) and by 0.01-0.02 eV in the quasiparticle
 energy shift: the systems have a gap of 0.14 eV in LDA, and the occupation of the band-edge states follows the
-Fermi-Dirac kernel of `t_sigmaw` since 2026-09-20 (ecaljdoc [kBT](https://ecalj.github.io/ecaljdoc/manual/kBT), section 3).
+Fermi-Dirac kernel of `t_sigmaw` since 2026-09-20 (ecaljdoc [kBT](https://ecalj.github.io/ecaljdoc/manual/kBT), section 4).
 
 `ISSP/` holds job scripts for the ISSP supercomputers.

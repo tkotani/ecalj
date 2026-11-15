@@ -1,7 +1,3 @@
----
-pageClass: secnum-manual
----
-
 # Upper limits of the MT radii, and spurious levels (bands without a degeneracy partner)
 
 > English version of the page [manual/mtradius](../../manual/mtradius.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mtradius.md of commit b55836332 (source blob 3264d5f7eb9c).
@@ -10,7 +6,7 @@ If the MT spheres are taken too large, spurious levels can appear in the bands. 
 (`r_upper_limit` in `ctrlgenToml.py`, 2026-10-07). This page summarizes an example and how the upper limits are determined. The table of the upper limits itself is also in the section
 on MT radii of [lmf.md](./lmf.md).
 
-## 1. Example: Rb₂Sc₂O₄ (mp-7650, P6₃/mmc)
+## Example: Rb₂Sc₂O₄ (mp-7650, P6₃/mmc)
 
 Rb₂Sc₂O₄ has a layered structure, with an in-plane lattice constant of 3.26 Å and c of 12.8 Å. Since the space group P6₃/mmc is nonsymmorphic (it has screw axes and glide planes), on the top face of the BZ
 (A–L–H, k_z = π/c) all levels are doubly degenerate in the absence of spin-orbit coupling.
@@ -28,7 +24,7 @@ right: ecalj of 2026-10-07 (t14). The plotted values are in [`mtradius/bands.npz
 This spurious level appears as it is in QSGW80 as well, and in the MLO check of the database (comparison of the bands of the model and of QSGW80) it was the cause of a FAIL with a maximum deviation of 0.86 eV.
 The model side has no spurious level, so it was the reference being compared against that was broken. Rerunning with Rb 2.5 a.u. (not 2.4 a.u. of the present rule; QSGW80 with 2.4 a.u. has not been run), the QSGW80 gap changed 6.056 → 6.058 eV, and the MLO check became PASS (0.040 eV).
 
-## 2. What is happening
+## What is happening
 
 In the PMT method, inside a sphere the envelope functions (MTO and APW) are replaced by combinations of the radial functions φ, φ̇ (l ≤ lmxa) of that atom (augmentation). The part of the envelope functions
 that cannot be represented by φ, φ̇ inside the sphere (higher-l components, radial shapes) is discarded. When the sphere is large, the discarded part becomes large, and combinations of envelope functions
@@ -51,7 +47,7 @@ Above 20 eV the bands are crowded, so this way of counting (pairs within 0.02 eV
 
 *Fig. 2*. LDA bands of Rb₂Sc₂O₄ (-4 to 25 eV) for Rb radii 2.3 to 2.8 a.u. (rsmh kept at 1.4, ecalj b81da2342, kt1). The orange circles are as in Fig. 1.
 
-## 3. How the upper limits are determined
+## How the upper limits are determined
 
 What should be kept inside the sphere are the semicore p and the bound d. Extended states such as the alkali s (and the alkaline-earth s) and the H 1s
 can be represented by the envelope functions outside the sphere, so large spheres are not needed. Table 2 shows the free-atom orbitals (the valence table of `lmfa`, the radius where the radial function is maximal).
@@ -96,7 +92,7 @@ the bonds are short and the spheres have to be small; then the meshes of the APW
 rsmh (the smoothing radius of the smooth Hankel functions) is r/2 and changes with the radius. With the input of the present rule (Rb, Cs: r 2.4, rsmh 1.2; H: r 1.4, rsmh 0.7),
 the gaps of Rb₂Sc₂O₄, CsCl, RbBr and NaH agreed with those of the previous input within 0.006 eV, and no spurious levels appeared.
 
-## 4. How to recognize them
+## How to recognize them
 
 - If there is a level without a partner where symmetry requires degeneracy (faces of the BZ for nonsymmorphic space groups, high-symmetry points), suspect a spurious level
 - Draw the LDA bands with the radius changed slightly; a level that moves a lot is spurious, one that does not move is real

@@ -90,7 +90,7 @@ Legacy2toml.py <sname>
 | `<QforEPS>...</QforEPS>` のブロック | `[gw].QforEPS = """ ... """`（`QforGW` も同じ） | |
 | `n1n2n3`（GWinput） | `[gw].n1n2n3 = [k1,k2,k3]` | 整数のベクトル |
 | `HistBin_dw` / `HistBin_ratio` / `niw`（GWinput） | `[gw].HistBin_dw` など | 名前は GWinput と同じ（大文字・小文字も） |
-| `esmr`, `SmearX0` / `GaussianFilterX0`, `GaussSmear`, `delta`, `dw`, `omg_c`, `WgtQ0P`（GWinput） | `[gw].t_sigmaw` と `[gw].t_tetrakbt`（K。`t_tetrakbt` は必須） | 古いキーとその扱い: [GW の設定](./gwinput) の表 1、[kBT](./kBT) §2.5 の表 2 |
+| `esmr`, `SmearX0` / `GaussianFilterX0`, `GaussSmear`, `delta`, `dw`, `omg_c`, `WgtQ0P`（GWinput） | `[gw].t_sigmaw` と `[gw].t_tetrakbt`（K。`t_tetrakbt` は必須） | 古いキーとその扱い: [GW の設定](./gwinput) の表 1、[kBT](./kBT) §3.5 の表 2 |
 | 積基底の上限（`<PRODUCT_BASIS>` の `tolerance`、`lcutmx`） | `[product_basis].pb_tolerance` / `.pb_lcutmx` | |
 | 積基底の原子ごとの表（`nlx`、`valence`、`core`） | `[product_basis].nlx` / `.valence` / `.core`（ファイルの最後。2026-09 より前は別の `PB.<sname>.toml`） | |
 
@@ -119,7 +119,7 @@ ctrlg_update.py ctrlg.<sname>.toml [...]    # in place; the original is kept as 
 
 これは `nbas` / `nspec` を消し（`nbas` が `[[site]]` の表の数より少なかったときは、それより後の表をコメントにする）、
 `SmearX0 = s` を同じ幅の `t_tetrakbt = -T` に書き換え、キーが無いところには `t_tetrakbt = 0` を足し、ほかの必須のキーもそれまでのコードの既定値で足して、計算が変わらないようにします（[GW の設定](./gwinput)）。
-`--no-backup` を付けると元のファイルの控えを残しません。規則は [lmf.md](./lmf#file-structure-sections) と [kBT](./kBT) §2 に、
+`--no-backup` を付けると元のファイルの控えを残しません。規則は [lmf.md](./lmf#file-structure-sections) と [kBT](./kBT) §3 に、
 `[gw]` の古いキーは [GW の設定](./gwinput) の表 1 にあります。
 
 ## 実行時の `--ctrlg:` による上書き {#run-time-ctrlg-overrides}

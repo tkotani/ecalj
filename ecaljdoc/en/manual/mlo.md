@@ -1,7 +1,3 @@
----
-pageClass: secnum-manual
----
-
 # MLO — an automatic modeling method in place of maximal localization and similar methods
 
 > English version of the page [manual/mlo](../../manual/mlo.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo.md of commit b55836332 (source blob 98a771e82adc).
@@ -62,7 +58,7 @@ The loss numbers come from `SRC/exec/mlo_losscheck.py <sample dir>`.
 
 ---
 
-## 1. Final form {#mlo-final}
+## Final form {#mlo-final}
 
 MLO is built from the resolution of the identity in the PMT basis, through the eigenstates
 $\Psi^{\mathrm{MTO}}$ of the chosen MTO subspace:
@@ -310,7 +306,7 @@ a factor of 6 apart (§7). For Fe, setting $w$ to 11 eV halves the in-window err
 
 ---
 
-## 2. Minimal model — reproducing the region containing $E_F$ {#mlo-minimal}
+## Minimal model — reproducing the region containing $E_F$ {#mlo-minimal}
 
 There are two main ways to use MLO, and **they are measured and evaluated differently**.
 
@@ -568,7 +564,7 @@ run with the s,p,d of all atoms in `mlo_lm` and the defaults ($\Delta = w = 2$ e
 In-window rms for the 7 MP systems (evaluation of 2026-09-18; [E_F−8, +2] eV for metals and [E_F−8, CBM+3] eV for insulators, which differ from the window of the current `mlo_bandcheck.py` (Eq. (9) in §9)): Ag 15, Al 74 (the free-electron band is
 outside the window), NaCl 2.9, SiC 3.3, CdTe 28, ZnO 0.8, TiO2 0.8 meV.
 
-## 3. Model taking a subset of bands — only d / only 4f {#mlo-partial}
+## Model taking a subset of bands — only d / only 4f {#mlo-partial}
 
 This is a model that **takes only some of the bands from the start**: 5 d bands of Cu,
 7 4f bands, and so on; most of the first-principles bands in the window are not in the model.
@@ -655,7 +651,7 @@ The results measured by the overlap of levels are in the table above.
 
 ---
 
-## 4. Spin-orbit coupling — `job_mlo_soc` {#mlo-soc}
+## Spin-orbit coupling — `job_mlo_soc` {#mlo-soc}
 
 SOC is **added afterwards as a perturbation, without rebuilding the MLOs**. $V_{\rm SO}$ is projected onto the MLO model
 built in the scalar-relativistic approximation and added, and the problem is solved again as $2N\times2N$
@@ -753,7 +749,7 @@ The splitting at the top of the valence band of GaAs, $\Delta_{\rm SO}$, is 0.33
 
 ---
 
-## 5. FeMgO — placing empty spheres in the vacuum slab {#mlo-femgo}
+## FeMgO — placing empty spheres in the vacuum slab {#mlo-femgo}
 
 For a long time this was "the outlier that does not fit however $\theta$ is changed". The cause was
 neither $\theta$ nor the method, but **a region where no model was placed**.
@@ -894,7 +890,7 @@ does not fix it.
 
 ---
 
-## 6. Effective interaction $W$ — `job_mloW` {#mlo-w}
+## Effective interaction $W$ — `job_mloW` {#mlo-w}
 
 Once the bands are reproduced by the MLO model, what is needed next is **the electron-electron interaction within that model**.
 This corresponds to the Hubbard $U$ put on the model Hamiltonian and the interaction used in the calculation of magnetic fluctuations.
@@ -1142,7 +1138,7 @@ The values move when the way of building the model changes, so update the expect
 
 ---
 
-## 7. How to measure the error — not determined from one direction {#mlo-error}
+## How to measure the error — not determined from one direction {#mlo-error}
 
 ### Definition — keep the raw quantities as a vector
 
@@ -1277,7 +1273,7 @@ What got worse was C.sp (14.9 → 26.7 meV), a system on the side that wants a l
 
 ---
 
-## 8. Remaining problems {#mlo-problems}
+## Remaining problems {#mlo-problems}
 
 All of the following were remeasured with `mlo_method = 4` (the final form of §1).
 
@@ -1402,7 +1398,7 @@ The current way of measuring (§7) does not use this measure.
 
 ---
 
-## 9. How to choose the model — criteria 1, 2, 3 {#mlo-choice}
+## How to choose the model — criteria 1, 2, 3 {#mlo-choice}
 
 ecalj's `Samples/MATERIALS` is **a set of samples for LDA calculations and MLO calculations**, with inputs for 62 materials (expanded from a structure database) and
 La₂CuO₄, an InAs/GaSb superlattice (16 atoms) and BaTiO₃. For these 65 materials, after the self-consistent LDA calculation (LDA+U for the Eu compounds),

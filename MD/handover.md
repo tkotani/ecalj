@@ -115,7 +115,7 @@ t14 で `printf '<main>\n^<相手のHEAD>\n' | git pack-objects --revs --stdout 
 - **Σ の準位の均しは、実軸の極の項と虚軸の積分で同じ核にする**: 虚軸積分の Gaussian の正則化（`sig = esmr/2`）は Gaussian の準位の均しそのもの。極の項だけ Fermi–Dirac にすると
   段差が打ち消さず、NiO 2³ の O 2s の対で 0.6 eV ずれた（2026-09-20、project_tsigmaw。ecaljdoc kBT.md）
 - **金属の QSGW が反復で荒れる正体**: 小さい q の W_c(ω) の鋭いプラズモン極を Σ_c の実軸の極の項が 1 点で拾う（LiTi₂O₄ で 1.8 eV、幅 0.1 eV）。`wcsmear = true`（既定）
-  （2026-09-18〜19、project_kbt_plasmon_pole。ecaljdoc kBT.md §3.5）
+  （2026-09-18〜19、project_kbt_plasmon_pole。ecaljdoc kBT.md §5）
 - **GPU の精度**: TF32（旧 `--mp` だけ）は条件の悪い誘電行列を壊す。既定は fp32（`--prec=fp32`、`--prec=tf32` は Σ_c の最後の積だけ TF32）。GEMMul8 は小さい積（辺 < 64 か mnk < 1e8）に使わない。
   OpenACC の非同期キュー 1 は既定ストリームの cuBLAS を待たないので、非同期にするなら m_blas の積も同じストリームに（project_hgw_speedup_20260927、ecaljclaude.md「OpenACC 一般注意」）
 - **APW の G の選び方**（`m_igv2x.f90`）: `pwmode` の 10 の位が 0（`pwmode = 1`）なら |G| < √pwemax で q によらない基底、1（`pwmode = 11`）なら |q+G|。

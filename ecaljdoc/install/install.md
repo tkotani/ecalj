@@ -1,7 +1,3 @@
----
-pageClass: secnum-manual
----
-
 # ecalj のインストール {#ecalj-install}
 
 > ⚠️ **TOML への移行（2026-05）** — Fortran のバイナリは `ctrlg.<sname>.toml` だけを読みます。古い `ctrl.<sname>` / `GWinput` は `Legacy2toml.py <sname>` で変換してください。手引きの全体と移行済みのサンプルの一覧は [入力ファイル](../manual/toml_migration) を見てください。
@@ -11,7 +7,7 @@ ecalj をインストールするには、ecalj が使うソフトウェアと P
 
 
 
-## 1. 必要なソフトウェアとネイティブのツール {#_1-required-software-and-native-tools}
+## 必要なソフトウェアとネイティブのツール {#_1-required-software-and-native-tools}
 
 ecalj の中心部はモダンな Fortran（Fortran 90/2003 の書き方）で書かれています。Fortran のソースファイルは次の場所にあります。
 
@@ -60,7 +56,7 @@ sudo apt install -y git build-essential cmake make gfortran libopenmpi-dev openm
 
 
 
-## 2. Python と Python のモジュール（pyenv を使う） {#_2-python-and-python-modules-using-pyenv}
+## Python と Python のモジュール（pyenv を使う） {#_2-python-and-python-modules-using-pyenv}
 
 > [!TIP]
 > ecalj で使う Python の版は `pyenv` で管理することを勧めます。システムの Python に手を付けずに済み、環境を再現しやすくなります。複数の環境を管理したいのでなければ `pyenv-virtualenv` は要りません。ecalj の環境が一つだけなら `pyenv` だけで足ります。
@@ -144,7 +140,7 @@ pip install -r requirements.txt
 
 
 
-## 3. インストールとインストールの試験 {#_3-install-and-installtest}
+## インストールとインストールの試験 {#_3-install-and-installtest}
 
 **ISSP の ohtaka と kugui（GPU 機）では、この節を飛ばして [installISSP.md](./installISSP.md) を見てください。**
 
@@ -301,7 +297,7 @@ PATH="~/bin/:$PATH"
 
 
 
-## 4. アンインストール {#_4-uninstall}
+## アンインストール {#_4-uninstall}
 
 [アンインストール](./uninstall) を見てください。コマンドは三つです: `python3 uninstall.py`、
 新しいシェルを開く、そして `rm -rf <ecalj-checkout>`。
