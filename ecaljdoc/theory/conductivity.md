@@ -258,21 +258,41 @@ $G^R$ と $G^A$ が同じ不純物で散乱される相関（ダイヤグラム�
 
 もし式 (C20) で等号としてしまうと（一本ずつの平均の積にすると）、式 (C16) の形になる。このままでは、一体問題において不純物は抵抗を与えない（$\delta\to 0$ で発散する）という結論になってしまう。
 
+## 不純物の配置についての平均 {#impurity-average}
+
+式 (C20) の積の平均を計算するには、そもそもの一体問題に戻る。$G^R(E)=(E-H_0-V+i\delta)^{-1}$ は、不純物の配置を一つ決めた一体のハミルトニアン $H=H_0+V$（$H_0$ は運動エネルギー、$V$ は式 (C1)）のレゾルベントである。これを $V$ について展開し、積の平均を、$V$ の対の平均の積に分解する。
+平面波 $|{\bf k}\rangle$ での行列要素は $\langle{\bf k}|V|{\bf k}'\rangle=\Omega^{-1}u({\bf k}-{\bf k}')\sum_j e^{-i({\bf k}-{\bf k}')\cdot{\bf R}_j}$ である。
+不純物の位置は乱雑なので、位相 $e^{-i{\bf q}\cdot{\bf R}_j}$ は平均すると打ち消し合い（ランダム位相）、残るのは同じ不純物 $j$ について位相が消える組だけである:
+
+$$
+\big\langle \langle{\bf k}|V|{\bf k}'\rangle\langle{\bf k}'|V|{\bf k}\rangle\big\rangle_{\rm imp}=\frac{n_i}{\Omega}\,|u({\bf k}-{\bf k}')|^2
+\tag{C21}
+$$
+
+（${\bf q}=0$ の成分は一様なエネルギーのずれで、$E_F$ に繰り込む。同じ不純物に三回以上かかる項は、不純物が弱いとして落とす。）
+したがって $G^R=G^R_0+G^R_0VG^R_0+\cdots$、$G^A$ も同様に展開して積を平均すると、$V$ が二つずつ組になった項の和になる。ダイヤグラムでは、組になった二つの $V$ を不純物の線で結ぶ。線には次の三通りがある。
+
+- 一本の $G$ の中で結ぶ線: 自己エネルギーになる（次節）。
+- $G^R$ と $G^A$ を結ぶ線: バーテックス補正になる（[バーテックス補正](#vertex-correction) の節）。
+- 交差する線: 弱局在の補正になる（ここでは扱わない）。
+
+式 (C20) で等号とすることは、$G^R$ と $G^A$ を結ぶ線を落とすことにあたる。
+
 ## 平均した一本のグリーン関数: 寿命 {#averaged-g}
 
 一本の $G^R$ を平均すると並進対称性が戻り、波数 ${\bf k}$ で対角になる。
 
 $$
 \langle G^R\rangle_{\rm imp}({\bf k},E)=\frac{1}{E-\varepsilon_{\bf k}-\Sigma^R({\bf k},E)}.
-\tag{C21}
+\tag{C22}
 $$
 
-不純物について二次（Born 近似）の自己エネルギーは
+一本の $G$ の中で結ぶ線を、互いに交差しないもの（Born 近似）まで取ると、式 (C21) から自己エネルギーは
 
 $$
 \Sigma^R({\bf k},E)=n_i\int\frac{d^3k'}{(2\pi)^3}\,
 \frac{|u({\bf k}-{\bf k}')|^2}{E-\varepsilon_{\bf k'}+i\delta}
-\tag{C22}
+\tag{C23}
 $$
 
 で、その虚部が準粒子の寿命 $\tau$ を与える（実部はエネルギーのずれで、$E_F$ に繰り込む）:
@@ -282,14 +302,14 @@ $$
 &{\rm Im}\,\Sigma^R=-\frac{\hbar}{2\tau},\\
 &\frac{1}{\tau}=\frac{2\pi}{\hbar}\,n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\,\delta(E-\varepsilon_{\bf k'}).
 \end{aligned}
-\tag{C23}
+\tag{C24}
 $$
 
 $1/\tau$ はフェルミの黄金則による散乱の速さそのものである（[Basic I](./basic#td-vs-ti-perturbation) の、黄金則と自己エネルギーの虚部の対応）。
 
 ## バーテックス補正を入れない場合: Drude の式 {#drude}
 
-式 (C19) の平均を、一本ずつの平均 (C21) の積で置きかえると（バーテックス補正を落とすと）、${\bf k}$ についての和になる。
+式 (C20) で等号とした近似（$G^R$ と $G^A$ を結ぶ線を落とす近似）でも、平均した $\langle G\rangle$ には自己エネルギーによる幅 $\hbar/2\tau$ が入っている。
 $\tau$ が長い（$\hbar/\tau\ll E_F$）とき
 
 $$
@@ -298,22 +318,22 @@ $$
 &=\frac{1}{(E-\varepsilon_{\bf k})^2+(\hbar/2\tau)^2}\\
 &\simeq\frac{2\pi\tau}{\hbar}\,\delta(E-\varepsilon_{\bf k})
 \end{aligned}
-\tag{C24}
-$$
-
-なので、$v_x^2$ の角度平均 $v_F^2/3$ と、スピンあたりの状態密度 $N_1(E_F)$（単位体積あたり）を使って
-
-$$
-\sigma_{xx}=\frac{\hbar e^2}{\pi}\cdot\frac{2\pi\tau}{\hbar}\cdot\frac{v_F^2}{3}\,N_1(E_F)
-=\frac{2e^2\tau v_F^2N_1(E_F)}{3}=\frac{ne^2\tau}{m}
 \tag{C25}
 $$
 
-となる。最後は自由電子の $N_1(E_F)=mk_F/(2\pi^2\hbar^2)$、$n=k_F^3/(3\pi^2)$、$v_F=\hbar k_F/m$ を使った。Drude の式である。
+で、これは式 (C16) のローレンツ関数の幅 $\delta$ を $\hbar/2\tau$ にしたものにあたる。したがって式 (C19) は
+
+$$
+\sigma_{xx}=2e^2\tau\,\frac{\overline{v_x^2}\,D(E_F)}{\Omega}
+\tag{C26}
+$$
+
+となり、式 (C18) と同じ Drude の式（自由電子では $ne^2\tau/m$）が出る。
+素朴に $\delta\to 0$ とすると抵抗が 0 になったが、不純物による散乱の幅が $\delta$ の役を担い、不純物は寿命 $\tau$ を通して抵抗を与える。
 
 ## バーテックス補正: 輸送の緩和時間 {#vertex-correction}
 
-積の平均 (C20) を、不純物の線で二本の $G$ を結ぶはしご型のダイヤグラムまで取る（Born 近似の自己エネルギー (C22) と組になる近似）。
+積の平均 (C20) を、不純物の線で二本の $G$ を結ぶはしご型のダイヤグラムまで取る（Born 近似の自己エネルギー (C23) と組になる近似）。
 電流のバーテックス $\Gamma_x({\bf k})$ は
 
 $$
@@ -321,26 +341,26 @@ $$
 \Gamma_x({\bf k})={}&v_x({\bf k})+n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\\
 &\times\langle G^R\rangle({\bf k}',E_F)\langle G^A\rangle({\bf k}',E_F)\,\Gamma_x({\bf k}')
 \end{aligned}
-\tag{C26}
+\tag{C27}
 $$
 
-を満たす。$\Gamma_x({\bf k})=\gamma\,v_x({\bf k})$ と置き、(C24) を使うと、${\bf k}'$ の向きについての平均で $v_x({\bf k}')$ が $v_x({\bf k})\cos\theta_{\bf kk'}$ になるので、
+を満たす。$\Gamma_x({\bf k})=\gamma\,v_x({\bf k})$ と置き、(C25) を使うと、${\bf k}'$ の向きについての平均で $v_x({\bf k}')$ が $v_x({\bf k})\cos\theta_{\bf kk'}$ になるので、
 $\gamma=1+\gamma\,(1-\tau/\tau_{\rm tr})$、すなわち $\gamma=\tau_{\rm tr}/\tau$ を得る。ここで
 
 $$
 \frac{1}{\tau_{\rm tr}}=\frac{2\pi}{\hbar}\,n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\,
 \big(1-\cos\theta_{\bf kk'}\big)\,\delta(E_F-\varepsilon_{\bf k'})
-\tag{C27}
-$$
-
-は輸送の緩和時間である。式 (C25) の片方の $v_x$ を $\Gamma_x$ に替えると
-
-$$
-\sigma_{xx}=\frac{ne^2\tau_{\rm tr}}{m}
 \tag{C28}
 $$
 
-となる。前方への散乱（$\cos\theta\simeq 1$）は電流をほとんど減らさないので、抵抗に効くのは $1-\cos\theta$ の重みを付けた散乱である。
+は輸送の緩和時間である。式 (C26) の片方の $v_x$ を $\Gamma_x$ に替えると
+
+$$
+\sigma_{xx}=2e^2\tau_{\rm tr}\,\frac{\overline{v_x^2}\,D(E_F)}{\Omega}
+\tag{C29}
+$$
+
+となる（自由電子では $ne^2\tau_{\rm tr}/m$）。前方への散乱（$\cos\theta\simeq 1$）は電流をほとんど減らさないので、抵抗に効くのは $1-\cos\theta$ の重みを付けた散乱である。
 寿命 $\tau$（一本の $G$ の平均で決まる）と、抵抗を決める $\tau_{\rm tr}$（積の平均で決まる）は一般に違う。
 $u$ が点状（$u({\bf q})$ が ${\bf q}$ によらない）なら $\cos\theta$ の平均は 0 で、バーテックス補正は消えて $\tau_{\rm tr}=\tau$ になる。
 この結果は Boltzmann 方程式で得られるものと同じである。
