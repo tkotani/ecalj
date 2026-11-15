@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit a86b74152 (source blob 1ac99a487baf).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 503e32cf6 (source blob fca1b1d8619a).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -66,15 +66,15 @@ A uniform electric field is introduced through a vector potential $A_x(t)$ as $E
 With the electron charge $-e$, expanding the kinetic energy $(\hat{\bf p}+e{\bf A})^2/2m$ to first order in ${\bf A}$ gives the perturbation
 
 $$
-\hat H'(t)=-\hat J_x\,A_x(t),\qquad \hat J_x=-e\sum_i\hat v_{x,i}
+\hat H'(t)=-\hat J^0_x\,A_x(t),\qquad \hat J^0_x=-e\sum_i\hat v_{x,i}
 \tag{C5}
 $$
 
-$\hat J_x$ is the total current operator at ${\bf A}=0$ ($\hat v_{x,i}=\hat p_{x,i}/m$; the sum is over the electrons); it corresponds to $\hat B=\hat J_x$, $F=A_x$ in Eq. (C2).
+$\hat J^0_x$ is the total current operator at ${\bf A}=0$ ($\hat v_{x,i}=\hat p_{x,i}/m$; the sum is over the electrons); it corresponds to $\hat B=\hat J^0_x$, $F=A_x$ in Eq. (C2).
 
-With ${\bf A}$ the velocity is $(\hat{\bf p}+e{\bf A})/m$, so the total current operator becomes $\hat J_x-(e^2/m)\hat N A_x$ ($\hat N$ is the operator of the number of electrons).
+With ${\bf A}$ the velocity is $(\hat{\bf p}+e{\bf A})/m$, so the total current operator becomes $\hat J_x=\hat J^0_x-(e^2/m)\hat N A_x$ ($\hat N$ is the operator of the number of electrons).
 Its expectation value is taken to first order in ${\bf A}$.
-For the first term Eq. (C3) is used with $\hat A=\hat B=\hat J_x$ and $F=A_x$ (no current flows in equilibrium, $\langle\hat J_x\rangle=0$, so only the change remains).
+For the first term Eq. (C3) is used with $\hat A=\hat B=\hat J^0_x$ and $F=A_x$ (no current flows in equilibrium, $\langle\hat J^0_x\rangle=0$, so only the change remains). This response function is written $\chi^R_{JJ}$.
 The second term is already of first order in ${\bf A}$, so $\hat N$ can be replaced by its equilibrium value $n\Omega$ ($n$ is the electron density).
 Dividing by the volume $\Omega$, the current density is
 
@@ -100,12 +100,12 @@ This is the Kubo formula. The real part, which fixes the dissipation (Joule heat
 Inserting Eq. (C4) and using ${\rm Im}\,[1/(x-i\delta)]=\pi\delta(x)$,
 
 $$
-{\rm Re}\,\sigma(\omega)=\frac{\pi}{\omega\Omega}\sum_{nm}(f_n-f_m)\,|\langle n|\hat J_x|m\rangle|^2\,\delta(E_m-E_n-\hbar\omega).
+{\rm Re}\,\sigma(\omega)=\frac{\pi}{\omega\Omega}\sum_{nm}(f_n-f_m)\,|\langle n|\hat J^0_x|m\rangle|^2\,\delta(E_m-E_n-\hbar\omega).
 \tag{C8}
 $$
 
 For $\omega\to 0$ the delta function gives $E_m=E_n+\hbar\omega$, so $f_n-f_m\simeq -f'(E_n)\,\hbar\omega$ and $\omega$ cancels.
-At low temperature $-f'(E)=\delta(E-E_F)$. The one-body matrix element of $\hat J_x$ is $-e\langle n|\hat v_x|m\rangle$, and the spin sum gives a factor 2 ($n$, $m$ are orbital states), so
+At low temperature $-f'(E)=\delta(E-E_F)$. The one-body matrix element of $\hat J^0_x$ is $-e\langle n|\hat v_x|m\rangle$, and the spin sum gives a factor 2 ($n$, $m$ are orbital states), so
 $\sigma_{xx}=(2\pi\hbar e^2/\Omega)\sum_{nm}|\langle n|\hat v_x|m\rangle|^2\delta(E_F-E_n)\delta(E_F-E_m)$.
 This is fixed only by one-body quantities at the Fermi level $E_F$.
 Rewriting it with $\delta(E-H)=-{\rm Im}\,G^R(E)/\pi$ and averaging over the impurity configurations gives the Kubo–Greenwood formula
