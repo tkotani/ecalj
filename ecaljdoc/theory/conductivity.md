@@ -107,18 +107,23 @@ $$
 \tag{C8}
 $$
 
-を得る。これが久保公式の結果である。散逸（ジュール熱）を決める実部は ${\rm Re}\,\sigma(\omega)={\rm Im}\,\chi^R_{JJ}(\omega)/(\omega\Omega)$ である。反磁性の項は、電場と電流の位相が直交しており、散逸を与えない（$\sigma$ の虚部にだけ効く。虚数 $i$ を掛けることは、位相が 90 度遅れることである。これはインダクタンス効果である。ただし磁場によるものではなく、電子の慣性による運動インダクタンスで、エネルギーは電子の運動エネルギーとして蓄えられる）。
+を得る。これが久保公式の結果である。散逸（ジュール熱）を決めるのは $\sigma$ の実部である。反磁性の項は、電場と電流の位相が直交しており、散逸を与えない（$\sigma$ の虚部にだけ効く。虚数 $i$ を掛けることは、位相が 90 度遅れることである。これはインダクタンス効果である。ただし磁場によるものではなく、電子の慣性による運動インダクタンスで、エネルギーは電子の運動エネルギーとして蓄えられる）。
 
 ### 直流の極限: Kubo–Greenwood の式 {#kubo-greenwood}
 
-式 (C4) を入れ、${\rm Im}\,[1/(x-i\delta)]=\pi\delta(x)$ を使うと
+式 (C8) の実部を取ると、反磁性の項は落ちて
 
 $$
-{\rm Re}\,\sigma(\omega)=\frac{\pi}{\omega\Omega}\sum_{nm}(f_n-f_m)\,|\langle n|\hat J^0_x|m\rangle|^2\,\delta(E_m-E_n-\hbar\omega)
+\begin{aligned}
+{\rm Re}\,\sigma(\omega)&=\frac{1}{\omega\Omega}\,{\rm Im}\,\chi^R_{JJ}(\omega)\\
+&=\frac{1}{\omega\Omega}\,{\rm Im}\sum_{nm}(f_n-f_m)\,\frac{|\langle n|\hat J^0_x|m\rangle|^2}{E_m-E_n-\hbar\omega-i\delta}\\
+&=\frac{\pi}{\omega\Omega}\sum_{nm}(f_n-f_m)\,|\langle n|\hat J^0_x|m\rangle|^2\,\delta(E_m-E_n-\hbar\omega)
+\end{aligned}
 \tag{C9}
 $$
 
-となる。$\omega\to 0$ では、デルタ関数により $E_m=E_n+\hbar\omega$ なので $f_n-f_m\simeq -f'(E_n)\,\hbar\omega$ で、$\omega$ が消える。
+となる。2 行目では式 (C4) を $\hat A=\hat B=\hat J^0_x$ として入れ、3 行目では ${\rm Im}\,[1/(x-i\delta)]=\pi\delta(x)$ を使った。
+$\omega\to 0$ では、デルタ関数により $E_m=E_n+\hbar\omega$ なので $f_n-f_m\simeq -f'(E_n)\,\hbar\omega$ で、$\omega$ が消える。
 低温では $-f'(E)=\delta(E-E_F)$ である。$\hat J^0_x$ の一体の行列要素は $-e\langle n|\hat v_x|m\rangle$ で、スピンの和で因子 2 が付くので（$n$、$m$ は軌道の状態）、
 $\sigma_{xx}=(2\pi\hbar e^2/\Omega)\sum_{nm}|\langle n|\hat v_x|m\rangle|^2\delta(E_F-E_n)\delta(E_F-E_m)$ となる。
 これは、フェルミ準位 $E_F$ での一体の量だけで決まる。
