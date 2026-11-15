@@ -9,8 +9,8 @@ each side. It also lets you apply an electric field to a slab. ESM combined
 with QSGW is used in
 [PRB 101, 205120 (2020)](https://doi.org/10.1103/PhysRevB.101.205120).
 
-**Turn it on for every slab with a vacuum layer.** Without it the whole
-eigenvalue spectrum sits on a different zero — 4.4 eV on the Fe/MgO sample (`Samples/MLOsamples/FeMgO`, 30.5 a.u. of vacuum) —
+**Turn it on for every slab with a vacuum layer.** Without it the $G=0$ component of the Coulomb potential is fixed by the periodic
+convention instead of by the vacuum level, and the whole eigenvalue spectrum sits on a different zero — 4.4 eV on the Fe/MgO sample (`Samples/MLOsamples/FeMgO`, 30.5 a.u. of vacuum) —
 while the total energy, `Vesav` and the magnetic moment agree to 8–13 digits, so nothing looks wrong until you compare Fermi energies.
 
 Configured by the `[esm]` section of `ctrlg.<sname>.toml` (below: all keys, the `boundary` values, how to apply a field,
@@ -38,9 +38,11 @@ a bulk crystal and the wrong thing for a slab, so `lmf` prints a warning when
 `[ham]`; for a slab, uncomment it and set the numbers with care. A bulk
 crystal leaves it commented — no `[esm]` section means ESM off.
 
+Table 1. The keys of `[esm]`
+
 | key | meaning | legacy `esm_input.dat` |
 |---|---|---|
-| `boundary` | which boundary condition on each side (table below) | line 1, `jesm` |
+| `boundary` | which boundary condition on each side (table 2) | line 1, `jesm` |
 | `origin` | z-translation applied to the density before solving. The code uses `-origin` internally, so this is **the same number as line 2** of the old file | line 2, `tresm` |
 | `shiftmode` | `0`: `origin` is in a.u.; `1`: in units of the cell length | line 2, `jtresm` |
 | `zb` | the two boundary planes `z1esm`, `z2esm` in a.u. Omit to get `±alat·plat[2][2]/2` | line 3 |
@@ -48,6 +50,8 @@ crystal leaves it commented — no `[esm]` section means ESM off.
 | `field` | fixed electric field on the +z / -z side (Ry/a.u.). Used by the `:field` form | line 5 |
 
 ### `boundary` values
+
+Table 2. The values of `boundary`
 
 | value | system | `jesm` |
 |---|---|---|
@@ -81,12 +85,14 @@ therefore changed the physics without any error.
 The Fortran reads `ctrlg.<sname>.toml` and nothing else (since 2026-09-17). A leftover
 `esm_input.dat` makes `lmf` / `lmfa` / `lmchk` **abort** with a message
 naming the converter — abort rather than ignore, so a slab never runs
-without ESM by accident:
+without ESM by accident.
 
 ```bash
 ctrlg_absorb.py <sname>      # esm_input.dat -> [esm] in ctrlg.<sname>.toml
                              # (and PB.<sname>.toml -> [product_basis], if present)
 ```
+
+Table 3. What `ctrlg_absorb.py` does
 
 | situation | what `ctrlg_absorb.py` does |
 |---|---|
@@ -111,7 +117,9 @@ potential = [0.0, 0.0]
 field     = [0.0, 0.0]
 ```
 
-With and without this section, on the same `rst.<sname>`:
+With and without this section, on the same `rst.<sname>`, table 4 compares the two.
+
+Table 4. With and without `[esm]` (FeMgO)
 
 | | E_F (Ry) | Vesav (eV) | `val*vef` (Ry) |
 |---|---|---|---|

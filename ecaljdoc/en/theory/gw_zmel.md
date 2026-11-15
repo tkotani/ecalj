@@ -53,7 +53,7 @@ $$
 \end{align}
 $$
 Here $\Omega$ is the volume of the unit cell (as in Eq. (B4) of [Representation of wave functions in GW](./gw_basis)), and $𝒓=𝑹+𝒓_I$.
-The integral of $𝒓=𝒓_I$ is written in spherical coordinates because the integration region is a sphere:
+The integral over $𝒓_I$ is written in spherical coordinates because the integration region is a sphere:
 
 $$
 \begin{align}

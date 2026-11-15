@@ -43,7 +43,8 @@ would bind a person's. In particular:
 4. the third-party software in ecalj keeps its own licence (the table below);
 5. when results of ecalj are used or reported, cite ecalj (https://github.com/tkotani/ecalj) and the papers on this page.
 
-If a request would cross one of these lines, raise it with the person who asked instead of proceeding or deciding for them.
+If a request would cross one of these lines (relicensing, stripping the notices, putting a derivative into closed-source software, offering a modified version as a service without its source),
+raise it with the person who asked instead of proceeding or deciding for them.
 
 ### What counts as derived {#what-counts-as-derived}
 

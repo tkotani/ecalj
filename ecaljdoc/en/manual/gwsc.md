@@ -4,10 +4,12 @@
 
 gwsc is the script to run QSGW calculations.
 A QSGW calculation is run by calling several Fortran executables.
-The input is read from `ctrlg.<sname>.toml` (GW settings are in `[gw]`; the keys are explained in [gwinput](./gwinput.md)).
+The input is read from `ctrlg.<sname>.toml` (GW settings are in `[gw]`; the keys are explained in [gwinput](./gwinput)).
 
 ## Usage
-**Usage**: ` gwsc -np NP [-np2 NP2] [--gpu] [--prec=tf32|fp32|fp64] [--prec-final=<prec>[:N]] [--no-tetwt-helper] [--mp] [--fp32] [--mlo] [--dumpW] [--fullstdo] nloop extension [Options]`
+```
+gwsc -np NP [-np2 NP2] [--gpu] [--prec=tf32|fp32|fp64] [--prec-final=<prec>[:N]] [--no-tetwt-helper] [--mp] [--fp32] [--mlo] [--dumpW] [--fullstdo] nloop extension [Options]
+```
 
 ### `-np NP`
 Number of MPI processes.
@@ -60,7 +62,7 @@ The screened Coulomb interaction $W$ is held in memory inside `hgw` (`hgw_gpu`, 
 determined automatically from the available memory and shown at `MPI layout:` in `lgw`. Tuning is done not with command-line options but with keys in `[gw]` of `ctrlg.<sname>.toml`.
 
 - `KeepWV`: keep $W$ in GPU memory when calculating the self-energy (correlation part). Default `true` for the GPU version, `false` for the CPU version. With `false`, $W$ is sent from main memory frequency by frequency (less GPU memory but slower)
-- `zmel_batch_gb`: size of the batch in which matrix elements are made at once ([gwinput](./gwinput.md))
+- `zmel_batch_gb`: size of the batch in which matrix elements are made at once ([gwinput](./gwinput))
 - `mpi_worker_exch`, `mpi_worker_corr`: number of ranks assigned to one group of $q$ points in the exchange and correlation calculations. 0 (default) is automatic. Give a divisor of the total number of ranks
 
 There are no options `--keepwv`, `--nwpara=X` or `--nb=X` (giving them stops the program; [Command-line options](./cmdopts)).
@@ -77,7 +79,7 @@ Usually it need not be given, but when the `lmf --jobgw=1` calculation is slow, 
 
 #### `--normcheck`
 Used by `lmf --jobgw=1`. Use it to check the orthonormality of the wave functions used in the GW calculation.
-normchk.fobar looks like
+`normchk.<sname>` looks like
 ```
 > head -20 normchk.si
 #       IPW         IPW(diag)   Onsite(tot)   Onsite(phi)      Total
@@ -152,7 +154,7 @@ below `--conv-qp <eV>` (default 0.03) for 2 iterations in a row. To stop where t
 The GW1500 batch of ecalj_auto also calls this script.
 
 `qsgw_status` (2026-06): a progress dashboard of the running `gwsc` (or gwscconv)
-iterations. Use it in the run directory as follows:
+iterations. Use it in the run directory as follows.
 ```bash
 qsgw_status               # show once
 qsgw_status --last 21     # given the final iter number, also computes the ETA of completion
@@ -203,16 +205,15 @@ In principle, QSGW results should not depend on VWN or GGA. But there is minor d
 Use VWN (`[ham] xcfun = 1`) as standard. Such technical things affect the band gap at the 0.05 eV level of error.
 
 #### LDA calculation
- We need to confirm LDA-level of calculations first.
- `ctrlg.<sname>.toml` is generated just from ctrls.* (crystal structure file)
- For calculation of QSGW, use large enough `[bz] nkabc`, so as to avoid
- convergence check on them. 
+We need to confirm LDA-level of calculations first.
+`ctrlg.<sname>.toml` is generated just from ctrls.* (crystal structure file).
+For calculation of QSGW, use large enough `[bz] nkabc`, so as to avoid
+convergence check on them.
+
 #### QSGW: how to check convergence
-QSGW iteration cycle by gwsc contains (1) and (2)
-  (1) One-body self-consistent calculation 
-      (where we add sigm = Sigma-Vxc^LDA to one-body potential).
-      to determine one-body Hamiltonian $H_0$.
-  (2) For given $H_0$, we calculate sigm file.
+QSGW iteration cycle by gwsc contains (1) and (2).
+- (1) One-body self-consistent calculation (where we add `sigm` = Σ − V_xc^LDA to the one-body potential) to determine the one-body Hamiltonian $H_0$.
+- (2) For given $H_0$, we calculate the `sigm` file.
 
 Big iteration cycle of QSGW is made from (1)+(2).
 With (1), we have small iteration cycle of one-body calculation with keeping given sigm.
@@ -220,9 +221,8 @@ With (1), we have small iteration cycle of one-body calculation with keeping giv
 In `save.*`, we see a line per iteration of (1) with the total energy (which is not meaningful in the QSGW mode with the sigm file).
 The meaning of the first letter of each line is in [lmf: `save.<sname>`](./lmf#save-sname); an `x` on the way is no problem as long as we finally see `c` in (1).
 
-The command `"grep '[cx] ' save.*"` gives an indicator for 
-going to be converged or not.
-Or you can take "grep gap llmf.*run" (see it bottom.)
+The command `grep '[cx] ' save.*` gives an indicator for
+going to be converged or not. Or you can take `grep gap llmf.*run`.
 
 Another way:
 `dqpu QPU.3run QPU.6run` 
@@ -243,59 +243,57 @@ One-shot QSGW (not one-shot GW) can be useful in cases.
 As it contains off-diagonal part, we can resolve band tanglement problem in Ge (no band gap).
 
 #### How to make 80%QSGW +20% LDA, and SO setting
-  Note that sigm file contains $V_{\rm xc}^{\rm QSGW}-V_{\rm xc}^{\rm LDA}$.
-  If sigm exists, lmf read it, and run self-consistent calculations
-  with adding sigm to the one-body potential.
+Note that the `sigm` file contains $V_{\rm xc}^{\rm QSGW}-V_{\rm xc}^{\rm LDA}$.
+If `sigm` exists, `lmf` reads it, and runs self-consistent calculations
+with adding `sigm` to the one-body potential.
 
-  Justifications of QSGW80 are:
-  * https://iopscience.iop.org/article/10.7567/JJAP.55.051201/pdf
-  * https://journals.aps.org/prb/abstract/10.1103/PhysRevB.101.205120
-  * https://journals.aps.org/prb/abstract/10.1103/PhysRevB.108.165104
+Justifications of QSGW80 are:
+* [JJAP 55, 051201](https://iopscience.iop.org/article/10.7567/JJAP.55.051201/pdf)
+* [PRB 101, 205120](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.101.205120)
+* [PRB 108, 165104](https://journals.aps.org/prb/abstract/10.1103/PhysRevB.108.165104)
 
 ##### 1. QSGW80(NoSC)
-  For practical prediction of band structure, such as band gap and so
-  on, it may be better to use 80% QSGW +20% LDA procedure when you
-  make band plot.  After, you have rst and sigm files determined self-consistently
-  Run 
-  ```
-  job_band gaas -np 4 --ctrlg:ham.scaledsigma=0.80
-  ```
-  This overrides `[ham] scaledsigma` in `ctrlg.gaas.toml` at run time, giving the QSGW80nosc result in Table II.
+For practical prediction of band structure, such as band gap and so
+on, it may be better to use 80% QSGW +20% LDA procedure when you
+make band plot. After you have the `rst` and `sigm` files determined self-consistently, run
+```
+job_band gaas -np 4 --ctrlg:ham.scaledsigma=0.80
+```
+This overrides `[ham] scaledsigma` in `ctrlg.gaas.toml` at run time, giving the QSGW80nosc result in Table II.
 
-##### 2. QSGW80(Nosc)+SO 
-   80%QSGW+20%LDA with `[ham].so = 1` (L.S method; needs `nspin = 2`).
-   If you like to include L.S method 
-
+##### 2. QSGW80(NoSC)+SO
+80%QSGW+20%LDA with `[ham].so = 1` (L·S method; needs `nspin = 2`).
+If you like to include the L·S method:
 ```
 mpirun lmf gaas -np 4 --ctrlg:ham.scaledsigma=0.80 --ctrlg:ham.so=1 --ctrlg:ham.nspin=2
 ```
 This procedure makes self-consistency with keeping the sigm file. This may/(or may not) required. If you expect large orbital moment this procedure may be needed.
-
 ```
 job_band gaas -np 4 --ctrlg:ham.scaledsigma=0.80 --ctrlg:ham.so=1 --ctrlg:ham.nspin=2
 ```
 NOTE: nspin=2 is required for so=1. rst and sigm are expanded for nspin=2 (you can not run with nspin=1, after rst and sigm are expanded).
-  
-##### 3. QSGW80
-  With `[ham] scaledsigma = 0.80` (or `gwsc ... --ctrlg:ham.scaledsigma=0.80`), you can run QSGW calculation in gwsc.
-  Then you have self-consistent results of QSGW80.
-  You can simultaneously use the setting so=2 (Lz.Sz scheme).
-  Be careful for z-direction and setting of `symgrp` (so as to keep the z-axis), for so=2.
-  If you like to get results of QSGW80+SO, you need to set so=1 after self-consistent of sigm attained.
+The general procedure for SOC bands is in [Other explanations](./UsageDetailed#spin-orbit-coupling).
 
-##### 4. Example of GaAs   
-  Good example to check band gap, and SO splitting at top of valence of Gamma point for ZB structure as GaAs.
-  The keys are `scaledsigma`, `so` and `nspin` in `[ham]` of `ctrlg.gaas.toml`; look at them by
-  ```   
-  >grep -E "^(scaledsigma|so|nspin) " ctrlg.gaas.toml
-  ```   
-  They are overridden for a run by `--ctrlg:ham.scaledsigma=0.80`, `--ctrlg:ham.so=1`, `--ctrlg:ham.nspin=2` as in 1. and 2.
-  (the keys need not be written in the file for this).
+##### 3. QSGW80
+With `[ham] scaledsigma = 0.80` (or `gwsc ... --ctrlg:ham.scaledsigma=0.80`), you can run QSGW calculation in gwsc.
+Then you have self-consistent results of QSGW80.
+You can simultaneously use the setting so=2 (Lz·Sz scheme).
+Be careful for z-direction and setting of `symgrp` (so as to keep the z-axis), for so=2.
+If you like to get results of QSGW80+SO, you need to set so=1 after self-consistency of `sigm` is attained.
+
+##### 4. Example of GaAs
+Good example to check band gap, and SO splitting at top of valence of Gamma point for ZB structure as GaAs.
+The keys are `scaledsigma`, `so` and `nspin` in `[ham]` of `ctrlg.gaas.toml`; look at them by
+```
+>grep -E "^(scaledsigma|so|nspin) " ctrlg.gaas.toml
+```
+They are overridden for a run by `--ctrlg:ham.scaledsigma=0.80`, `--ctrlg:ham.so=1`, `--ctrlg:ham.nspin=2` as in 1. and 2.
+(the keys need not be written in the file for this).
 
 #### Papers
 It is instructive to reproduce samples in [Deguchi paper](../../presentations/deguchi2016.pdf). 
 We can set up templates for your calculations. Ask us.
-We have a latest paper at https://arxiv.org/abs/2506.03477 for GPU version. 
+We have a latest paper at [arXiv:2506.03477](https://arxiv.org/abs/2506.03477) for GPU version.
 It shows some details of computational steps in ecalj.
 In Japanese, pages by Dr.Gomi at [gomisai.blog75.fc2.com](http://gomisai.blog75.fc2.com/blog-entry-675.html) and [Qiita](https://qiita.com/takaokotani/items/9bdf5f1551000771dc48).
 
@@ -357,8 +355,8 @@ q+G of the interstitial plane wave (IPW). Type lqg4gw, which shows
 ```
 Here, we have regular mesh points specified by `<--R`. Q0P is the offset Gamma points shown in Q0P. 
 irr=1 shows the irreducible q points at which we have to generate eigenfunctions.
-ngp is the number of IPW for the expansion of eigenfunctions (controlled by QpGcut_phi). 
-ngc is for IPW for the MPB (controlled by QpGcut_cou).
+ngp is the number of IPW for the expansion of eigenfunctions (controlled by `QpGcut_psi`).
+ngc is for IPW for the MPB (controlled by `QpGcut_cou`).
 
 #### __BZDATA 
 __BZDATA contains info on regular mesh points, and offset Gamma (Q0P). Data for tetrahedron division. 
@@ -386,7 +384,7 @@ MTO index
 #### __VxcEvec*
  Coefficients of eigenfunctions and  eigenvalues for $\langle F_i|H^0|F_j\rangle$ in the basis of PMT$\{F_i\}$.
 
-#### __GEIG,__CPHI,__EValue
+#### __GEIG, __CPHI, __EValue
 __GEIG: Coefficients of eigenfunctions. IPW part
 __CPHI: Coefficients of eigenfunctions. MT  part
 __EValue: eigenvalue
@@ -438,15 +436,16 @@ human readable: energy mesh to accumrate imaginary parts of W-v.
 ### `hsfp0_sc --job=3` (core exchange) and `hgw` (valence exchange and valence correlation)
 These are moved to SEBK at the end of gwsc iteration cycle.
 
-#### SEXcoreU,SEXcore2U :  
+#### SEXcoreU, SEXcore2U
 core exchange by `hsfp0_sc --job=3` . SEXcoreU is diagonal part for human check but not used so much. 
 We have *D for down spin (isp=2)as well.
-#### SEXU,SEX2U 
+#### SEXU, SEX2U
 valence exchange by `hgw` .       SEXU is diagonal part for human check but not used so much. 
-#### SECU,SEC2U:  
+#### SECU, SEC2U
 valence correlation by `hgw` .     SECU is diagonal part for human check but not used so much. 
 #### XCU
 LDA exchange correlation
+
 ### `lqpe`
 
 #### QPU, QPD
@@ -488,54 +487,38 @@ All of the unit of energy is in eV. Detailed value of  `eLDA` is in `TOTE.UP`.
 For insulators, the Fermi energy is at the middle of the band gap (the energies are measured from it). For metals, one shot GW can be problematic
 if we consider the self-consistency of the Fermi energy.
 
-q  : q vector
+- q: q vector
+- state: band index n for valence
+- SEx: $\langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm valence}({\bf r},{\bf r}^{\prime})|\Psi_{{\bf k}n}\rangle$
+- SExcore: $\langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm core}({\bf r},{\bf r}^{\prime})|\Psi_{{\bf k}n}\rangle$
+- SEc: $\langle\Psi_{\mathbf{k}n}|\Sigma_{\rm c}^{\rm valence}({\bf r},{\bf r}^{\prime}, \epsilon_n({\bf k}))|\Psi_{\mathbf{k}n}\rangle$
+- vxc: LDA exchange correlation energy $\langle \Psi_{{\bf k}n}|V_{\rm xc}^{\rm LDA}([n_{\rm total}],{\bf r})|\Psi_{{\bf k}n}\rangle$
+- dSE: $Z_{n{\bf k}}\times$ dSEnoZ
+- dSEnoZ: $\langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm core}+\Sigma_{\rm xc}^{\rm valence}(\epsilon_n({\bf k}))|\Psi_{{\bf k}n}\rangle - \langle\Psi_{{\bf k}n}|V_{\rm xc}^{\rm LDA}|\Psi_{{\bf k}n}\rangle$ = SEx + SExcore + SEc − vxc
+- eLDA: LDA eigenvalue $\epsilon_n({\bf k})$
+- eQP: QP energy $\epsilon_n({\bf k})$ + dSE
+- eQPnoZ: QP energy without $Z$, $\epsilon_n({\bf k})$ + dSEnoZ
+- eHF: HF energy of the first iteration, $\epsilon_n({\bf k})$ + SEx + SExcore − vxc
+- Z: Z factor $Z_{n{\bf k}}$
+- FWHM=2Z*S_{img}: quasiparticle lifetime $2 Z_{n{\bf k}} \times {\rm Im}\langle\Psi_{{\bf k}n}|\Sigma_{\rm c}^{\rm valence}(\epsilon_n({\bf k}))|\Psi_{{\bf k}n}\rangle$
+- ReS(elda): ${\rm Re} \langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm core}+\Sigma_{\rm xc}^{\rm valence}(\epsilon_n({\bf k}))|\Psi_{{\bf k}n}\rangle$
 
-state:  Band index n for valence.
-
-SEx: $= \langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm valence}({\bf r},{\bf r}^{\prime})|\Psi_{{\bf k}n}\rangle$
-
-SExcore: $= \langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm core}({\bf r},{\bf r}^{\prime})|\Psi_{{\bf k}n}\rangle$
-
-SEc: $= \langle\Psi_{\mathbf{k}n}|\Sigma_{\rm c}^{\rm valence}({\bf r},{\bf r}^{\prime}, \epsilon_n({\bf k}))|\Psi_{\mathbf{k}n}\rangle$
-
-vxc: LDA exchange correlation energy.$\langle \Psi_{{\bf k}n}|V_{\rm xc}^{\rm LDA}([n_{\rm total}],{\bf r})|\Psi_{{\bf k}n}\rangle$
-
-dSE: $=Z_{n{\bf k}}\times$ dSEnoZ
-
-dSEnoZ: $=\langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm core}({\bf r},{\bf r}^{\prime})+\Sigma_{\rm xc}^{\rm valence}({\bf r},{\bf r}^{\prime},\epsilon_n({\bf k}))|\Psi_{{\bf k}n}\rangle - \langle\Psi_{{\bf k}n}|V_{\rm xc}^{\rm LDA}([n_{\rm total}],{\bf r})|\Psi_{{\bf k}n}\rangle$= SEx + SExcore + SEc - vxc
-
-eLDA: LDA eigenvalues. $\epsilon_n({\bf k})$
-
-eQP: QP energy.  $\epsilon_n({\bf k})$+dSE
-
-eQPnoZ: QP energy without $Z$. $\epsilon_n({\bf k})$+dSEnoZ
-
-eHF: HF energy of 1st iteration. $\epsilon_n({\bf k})$+SEx + SExcore -vxc
-Z: Z factor. $Z_{n{\bf k}}$
-
-FWHM=2Z*S_{img}: Quasi-particle life time. $2 Z_{n{\bf k}} \times {\rm Im}\langle\Psi_{{\bf k}n}|\Sigma_{\rm c}^{\rm valence}({\bf r},{\bf r}^{\prime},\epsilon_n({\bf k}))|\Psi_{{\bf k}n}\rangle$  
-
-ReS(elda):${\rm Re} \langle\Psi_{{\bf k}n}|\Sigma_{\rm x}^{\rm core}({\bf r},{\bf r}^{\prime})+\Sigma_{\rm xc}^{\rm valence}({\bf r},{\bf r}^{\prime},\epsilon_n({\bf k}))|\Psi_{{\bf k}n}\rangle$ 
-
-* NOTE: QPU for `gwsc` is a little different. No Z and no life time shown.
-  Shown eQP is just the eigenvalues of starting point of lmf. 
+* NOTE: QPU for `gwsc` is a little different. No Z and no life time shown;
+  the shown eQP is just the eigenvalues of the starting point of `lmf`. To compare QP energies, look at the column dSEnoZ.
 
 #### TOTE.UP
-numerical detailed values of QPU. TOTE.DN for QPD
-
-In one-shot GW `gw_lmfh`, TOTE.UP contains LDA and QP energies. 
-It contains two kind of QP energies `QP` and `QPnoZ`.
-
-#### __mixsig
-mixing file for `sigm.<sname>`
-
-#### `sigm.<sname>`
-$\Sigma-V_{\rm xc}$ (the static Hermitian QSGW self-energy minus the LDA $V_{\rm xc}$, in Ry) as a matrix in the MTO basis at each irreducible $\bf q$ point, mixed with the previous iterations (`__mixsig`). `lmf` Bloch-sums it to real space and interpolates it to any $\bf k$ ([MLO-gwsc](./mlo_gwsc) §1.1).
-
+Numerical detailed values of QPU. TOTE.DN for QPD.
+In one-shot GW `gw_lmfh`, TOTE.UP contains LDA and QP energies (two kinds of QP energies, `QP` and `QPnoZ`).
 
 #### QPU, TOTE in one-shot GW (`gw_lmfh`)
 In `gw_lmfh` (one-shot GW), `hqpe` gives `TOTE.UP` and `QPU` files (`TOTE.DN` and `QPD` as well). They contain the same values.
 One-shot GW is also used to calculate the impact ionization rate: in the sample `Samples/IIR/C` (diamond, a coarse mesh), `gw_lmfh` writes the widths to `QPU_life`.
+
+#### __mixsig
+Mixing file for `sigm.<sname>`.
+
+#### `sigm.<sname>`
+$\Sigma-V_{\rm xc}$ (the static Hermitian QSGW self-energy minus the LDA $V_{\rm xc}$, in Ry) as a matrix in the MTO basis at each irreducible $\bf q$ point, mixed with the previous iterations (`__mixsig`). `lmf` Bloch-sums it to real space and interpolates it to any $\bf k$ ([MLO-gwsc](./mlo_gwsc) §1.1).
 
 ### The Fermi energies in GW {#the-fermi-energies-in-gw}
 We use two kinds of Fermi energy $E_{\rm FERMI}^{\rm smear}$ and $E_{\rm FERMI}^{\rm tetra}$.

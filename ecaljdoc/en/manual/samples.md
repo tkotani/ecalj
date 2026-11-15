@@ -33,14 +33,14 @@ ecalj/Samples/
 
 The inputs of all these directories are `ctrlg.<sname>.toml`, what `lmf` /
 `gwsc` / `job_eps` / ... read out-of-the-box.  The groups of test targets
-are run one after another by `TOOLS/samples_tests.sh` of ecalj.
+are run one after another by `TOOLS/samples_tests.sh` of ecalj ([Tests (testecalj)](./dev_testecalj)).
 The targets of every directory and the group of `samples_tests.sh` that runs
 them are in table 1 of ecalj
 [`Samples/README.md`](https://github.com/tkotani/ecalj/blob/main/Samples/README.md).
 For your own directory with the legacy `ctrl.<sname>` + `GWinput`, see
 [Input file](./toml_migration) for the conversion flow.
 
-## TOML-migrated samples (testecalj-runnable)
+## Samples that are tests (testecalj-runnable)
 
 | dir | physics / role | per-dir README | doc page |
 |---|---|---|---|
@@ -53,11 +53,11 @@ For your own directory with the legacy `ctrl.<sname>` + `GWinput`, see
 | **PROCAR/Ni2MnGa_L21_PROCAR** | per-atom fat band; FM Heusler; ships converged `rst.ni2mnga` | [Ni2MnGa_L21_PROCAR/](https://github.com/tkotani/ecalj/tree/main/Samples/PROCAR/Ni2MnGa_L21_PROCAR) (no README; see test.py) | [./UsageDetailed § PROCAR mode](./UsageDetailed#procar-mode) |
 | **TestInstall/** (26 targets in `testecalj --all`, 66 checks) | install validation: ground-state, GW (`gwsc`, `gw_lmfh`), finite-T (`fe_kbt`), eps (`job_eps`), ChiPM, cRPA of the MLO model. The heavy GW targets `cugase2_gwsc222`, `nio_gwsc444`, `pdo_gwsc443`, `gas_gwsc666` are run one by one | (per dir; driven by `testecalj --all`) | [./gwsc](./gwsc), [./optical](./optical) |
 | **MLOQSGW/** (`GaAs`, `NiO`) | QSGW with the self-energy interpolated in the MLO representation (`gwsc --mlo`) | [MLOQSGW/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/MLOQSGW/README.md) | [./mlo_gwsc](./mlo_gwsc) |
-| **BenchmarkTest/** (`inas2gasb2`, `inas4gasb4`) | one QSGW iteration of InAs/GaSb superlattices against the stored `QPU.1run`; with one 32 GB GPU use `-np2 1` | (no README; see test.py) | [./ecaljgpu](./ecaljgpu) |
+| **BenchmarkTest/** (`inas2gasb2`, `inas4gasb4`) | one QSGW iteration of InAs/GaSb superlattices against the stored `QPU.1run`; with one 32 GB GPU use `-np2 1`. The job scripts for the ISSP machines are in `BenchmarkTest/ISSP/` ([ISSP](../install/installISSP)) | (no README; see test.py) | [./ecaljgpu](./ecaljgpu) |
 | **AFsymmetry/** (`NiO`, `NiSe`, `NiO_gwsc`) | antiferromagnetic symmetry `symgrpaf` with `af = 1 / -1` on the sites: LDA, and QSGW (the GW programs compute both spins) | [AFsymmetry/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/AFsymmetry/README.md) | [./lmf](./lmf#symgrp) |
 | **AFfixMMOM/** (`NiO_afsym`, `NiO_noafsym`) | the moment of the AF pair held at a given value (`mmtarget.aftest`): NiO with and without `symgrpaf` | [AFfixMMOM/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/AFfixMMOM/README.md) | [./UsageDetailed](./UsageDetailed#antiferro-symmetry-without-soc) |
 | **Magnon/** (`Fe_mlo_magnon`) | magnon spectra through the MLO model (`job_mlo_magnon`, bcc Fe), compared with the Wannier functions of the version before 2026-10-02 (tag `last-wannier`) | [Magnon/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/Magnon/README.md) | [./UsageDetailed](./UsageDetailed) |
-| **kBT/scanT/** (`Si`) | the same input at several electron temperatures (`scan_T.sh`, `collect_T.py`): gap of Si, bands and moment of bcc Fe | [kBT/scanT/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/kBT/scanT/README.md) | [./kBT](./kBT) section 8 |
+| **kBT/scanT/** (`Si`) | the same input at several electron temperatures (`scan_T.sh`, `collect_T.py`): gap of Si, bands and moment of bcc Fe. The test target is `Si` only (there are also the directories `Cu`, `Fe`, `GaAs`) | [kBT/scanT/README.md](https://github.com/tkotani/ecalj/blob/main/Samples/kBT/scanT/README.md) | [./kBT](./kBT) section 8 |
 | **FermiSurface/Cu**, **Doping/Si**, **HomoGas/es**, **BoltzTraP/Si**, **SLAB/Cu001**, **SOC/** (`FePt_MAE`, `MnGa_MAE`), **LDAU/ReN**, **EffectiveMass/** (`GaAs`, `CdS`, `GaN`), **Relax/LaGaO3**, **DOS/** (`ZnS`, `Fe`), **IIR/C**, **AtomDimer/N2** | short examples (each below a few minutes): Fermi surface for xcrysden, doping by fractional Z or background charge, Lindhard function against the analytic form, input of BoltzTraP, slab with work function, magnetic anisotropy energy, LDA+U, effective masses with SOC, relaxation of atomic positions, total and partial DOS, impact ionization rate (Im of the self-energy), a molecule in a box | README.md in each directory | [./UsageDetailed](./UsageDetailed) |
 
 ## Not testecalj targets

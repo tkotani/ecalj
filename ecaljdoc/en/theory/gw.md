@@ -34,7 +34,7 @@ G(𝒓_1, 𝒓_2; 𝜔) = \sum_n \frac{𝜙_n(𝒓_1) 𝜙_n^*(𝒓_2)}{𝜔  - 
 \tag{W4}
 $$
 > [!INFO]
-> See the [Basic](basic) for the derivation.
+> See [Basic I](basic) for the derivation.
 
 The screened Coulomb interaction $W$ is related to the bare Coulomb interaction $v$ and the dielectric function $𝜖$ by:
 $$
@@ -84,12 +84,12 @@ This corresponds to the Fock exchange.
 
 Usually, the GW calculations are used as perturbative corrections to LDA/GGA.
 Specifically, the eigenvalues and eigenfunctions obtained from LDA/GGA are chosen as the unperturbed states.
-The Kohn-Sham equation employing LDA/GGA can be written as follows, with the eigenvalues and eigenfunctions denoted as $𝜀_n^0\ket{𝜙^0_n}$:
+The Kohn-Sham equation employing LDA/GGA can be written as follows, with the eigenvalues and eigenfunctions denoted as $𝜀_n^0$ and $\ket{𝜙^0_n}$:
 $$
 \left(\frac{𝒑^2}{2m}  + V_\mathrm{H} + V_\mathrm{ext} + V_\mathrm{xc}^\mathrm{LDA}\right)\ket{𝜙^0_n} = 𝜀_n^0\ket{𝜙^0_n}
 \tag{W9}
 $$
-Here, $V_\mathrm{H} + V_\mathrm{ext} + V_\mathrm{xc}^\mathrm{LDA}$ represents the Hartree potential, the potential due to ions, and the exchange-correlation potential in LDA/GGA, respectively. 
+Here, $V_\mathrm{H}$, $V_\mathrm{ext}$ and $V_\mathrm{xc}^\mathrm{LDA}$ represent the Hartree potential, the potential due to ions, and the exchange-correlation potential in LDA/GGA, respectively. 
 
 From this, the one-body Green's function $G_0$ is calculated as:
 $$
@@ -156,8 +156,8 @@ While the GW approximation provides a more accurate description of quasiparticle
 Despite these challenges, the GW approximation remains a valuable tool for studying the electronic properties of materials, particularly for systems where electron-electron interactions play a significant role.
 
 > [!IMPORTANT] For the self-consistency issue:
-> The issues on Self-Consistency and Starting Point Dependence are overcome by introducing self-consistent scheme. Our implementation of quasi-particle self-consistent $GW$ is one of solution for these issues
+> The issues on Self-Consistency and Starting Point Dependence are overcome by introducing self-consistent scheme. QSGW (quasiparticle self-consistent $GW$) in ecalj is one solution to these issues.
 
 > [!IMPORTANT] For the computational cost issue:
-> Our code combines an implementation that enables large-scale parallel computing with the use of GPU accelerators, leading to the expansion of the applicable range of materials.
+> ecalj combines an implementation that enables large-scale parallel computing with the use of GPU accelerators, leading to the expansion of the applicable range of materials.
 

@@ -1,4 +1,4 @@
-# ecalj Uninstall
+# ecalj Uninstall {#ecalj-uninstall}
 
 > English version of the page [install/uninstall](../../install/uninstall.md). The pages at the top of ecaljdoc are the reference; this one was made from install/uninstall.md of the tree of c9f9a3003 (source blob d45fb837d183).
 
@@ -21,7 +21,7 @@ rm -rf <path-to-ecalj-checkout>
 That's it.  Nothing is written to `/usr/local/`, `/etc/`, or any system
 path during install, so no `sudo` is needed at any step.
 
-## What `uninstall.py` actually does
+## What `uninstall.py` actually does {#what-uninstall-py-actually-does}
 
 It reads `BIN_DIR/ecalj_install_manifest.txt` and removes every path
 listed there, which covers:
@@ -54,7 +54,7 @@ The source checkout (the `ecalj/` directory itself, including
 `uninstall.py` — step 3 above (`rm -rf <ecalj-checkout>`) is the one
 command that removes it.
 
-## If the manifest is missing
+## If the manifest is missing {#if-the-manifest-is-missing}
 
 You may have an older install that pre-dates the manifest (or you
 removed the manifest by hand).  Two options:

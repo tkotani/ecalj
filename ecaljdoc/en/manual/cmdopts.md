@@ -4,12 +4,14 @@
 
 ## Cmdline argument structure (the minimum)
 
-The Fortran binaries accept four token forms. Anything else aborts at
+The Fortran binaries accept the following argument forms. Anything else aborts at
 startup with a one-line hint. All parsing lives in
 [`SRC/subroutines/m_cmdopt_registry.f90`](https://github.com/tkotani/ecalj/blob/main/SRC/subroutines/m_cmdopt_registry.f90)
 (option table + typo / retired-syntax check) and
 [`SRC/subroutines/m_toml_override.f90`](https://github.com/tkotani/ecalj/blob/main/SRC/subroutines/m_toml_override.f90)
 (TOML override application).
+
+Table 1. Argument forms
 
 | Form | Meaning | Where it goes |
 |---|---|---|
@@ -51,7 +53,7 @@ and checked against
 - **Key=value** are cmdopt2: always include `=`, e.g. `--jobgw=1`.
   Unrecognised `--<word>=<value>` aborts with a typo hint.
 - **TOML override** lives in a different namespace: `--ctrlg:<dotted.path>=<value>`
-  (handled in `m_toml_override.f90`). It does not appear in this table.
+  (handled in `m_toml_override.f90`). It does not appear in this table. See [below](#run-time-ctrlg-overrides).
 - Most flags work in `lmf` (and `lmf --jobgw=…` which acts as the
   GW driver). `lmfa` / `lmchk` honour the few that apply to the
   atomic-program / structure-check phases — they are explicitly
@@ -63,6 +65,8 @@ These used to be `cmdopt0` / `cmdopt2` shortcuts that overrode a TOML
 key directly. They are gone and any of these on the cmdline triggers
 an abort + one-line hint pointing at the canonical
 `--ctrlg:<path>=<value>` form.
+
+Table 2. Retired forms and their replacements
 
 | Retired form | Replacement |
 |---|---|
@@ -239,7 +243,8 @@ runs. Behaviour is not guaranteed to be stable.
 `--skiphammsoc`, `--skip1d` / `--skip2nd` / `--skip2ndd` / `--skip2ndp`
 / `--skip2nds`, `--skipd` / `--skipf` / `--skiplo` (all currently dead
 code in `m_HamPMT.f90`), `--wanatom`.
-(`--skipGS` is not a debug flag: it skips the Gram-Schmidt orthonormalization in `lmf --jobgw=1` (`sugw.f90`) to make it faster; see [gwsc](./gwsc).)
+
+`--skipGS` is not a debug flag: it skips the Gram-Schmidt orthonormalization in `lmf --jobgw=1` (`sugw.f90`) to make it faster; see [gwsc](./gwsc).
 
 ## Run-time TOML overrides (`--ctrlg:<path>=<value>`) {#run-time-ctrlg-overrides}
 
@@ -296,7 +301,9 @@ the cmdopt registry and the TOML override syntax. After installation:
   `--ct<TAB>` becomes `--ctrlg:` with the cursor still on the colon,
   ready for `bz.nkabc=...`).
 
-The completion has two data sources, each with a different freshness:
+The completion has two data sources, each with a different freshness (Table 3).
+
+Table 3. Data sources of the completion
 
 | Completion target | Source | When it updates |
 |---|---|---|

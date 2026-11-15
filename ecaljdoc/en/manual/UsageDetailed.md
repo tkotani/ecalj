@@ -4,7 +4,7 @@
 
 The samples named below are listed in [Samples](./samples).
 
-## Spin polarized case without SOC
+## Spin polarized case without SOC {#spin-polarized-case-without-soc}
 To treat magnetic systems, we have to set `mmom` (initial condition of spin
 magnetic moments, per `[[spec]]`) in addition to `[ham].nspin = 2` in
 `ctrlg.<sname>.toml`. The spin magnetic moments are specified as the
@@ -17,7 +17,7 @@ mpirun -np 8 lmf nio
 ```
 Try `cat save.nio`. It shows iteration history of lmf. Last line in save.nio
 is like `c mmom= 0.0000 ehf(eV)=-86704.349038 ehk(eV)=-86704.348942 sev(eV)=-142.498970` (the energies depend on the settings). `c ` means converged.
-ehf and ehk are [total energies by two formulas](./lmf.md#q-should-the-harris-foulkes-and-hohenberg-kohn-sham-functionals-agree-at-self-consistency).
+ehf and ehk are [total energies by two formulas](./lmf#q-should-the-harris-foulkes-and-hohenberg-kohn-sham-functionals-agree-at-self-consistency).
 Note that total energy is not meaningful in QSGW (see [`save.<sname>`](./lmf#save-sname)).
 
 Look into `ctrlg.nio.toml`. It contains 
@@ -58,8 +58,7 @@ Calculated spin moments within MT are at 'true mm' column in the console output,
 3 5.380352 -0.000002  1.700000 O       
 4 5.380352 -0.000002  1.700000 O    
 ```
-Note it is overwritten at every iteration. These are shown in console output as `true mm` as well.
-Atomic site index are given in `SiteInfo.lmchk`.  Total Magnetic Moments are shown as
+Note it is overwritten at every iteration. Atomic site index are given in `SiteInfo.lmchk`. Total Magnetic Moments are shown as
 ```
  Magnetic moment=     2.241805 !this is a case of bulk Fe
 ```
@@ -82,13 +81,13 @@ export OMP_NUM_THREADS=1
 EXEPATH=/home/takao/bin/
 $EXEPATH/gwsc -np 32 5 nio >& lgwsc
 ```
-After calculations, remove temporary files with `rm __*` or `cleargw .`, which were already in your bindir.
+After calculations, remove temporary files with `rm __*` or `cleargw .`.
 You can run `job_band` and so on in the same manner of DFT with nspin=1.
 
 * Even when you use `[bz].fsmommethod` /= 0 in `ctrlg.<sname>.toml` for `gwsc`,
   you need to set `fsmommethod = 0` (or remove the key) when you run `job_band`.
   If you run `job_band` with `fsmommethod` /= 0, it makes a shift (adding bias magnetic field).
-* We can effectively use [antiferro symmetry for calculation (only for so=0,2)](#antiferro-symmetry-without-soc) 
+* We can effectively use [antiferro symmetry for calculation (only for so=0,2)](#antiferro-symmetry-without-soc).
 
 ## Orbital moments
 When so=1, orbital moments within MTs are shown in the console output (from the line `IORBTM:`) and in the file `orbitalmom.chk` as
@@ -108,35 +107,26 @@ We can perform LDA/QSGW calculation with the AF symmetry (not for so=1).
 Only up spin are calculated. Then charge density and eigenvalues are
 symmetrized for the antiferro symmetry.
 
-See the samples of the antiferromagnetic symmetry (NiO and NiSe). The meanings of the keys `symgrpaf` and `af` are in [lmf](./lmf#symgrp).
-To set AF symmetry, We have to set a top-level key in `ctrlg.<sname>.toml` as
-```toml
-symgrpaf = "find"  # Antiferro symmetry: spglib finds the operations (2026-10-02)
-```
-With `symgrpaf = "find"` (and `symgrp = "find"`, the default), spglib finds the magnetic space group from the `af` labels below;
-its operations with time reversal map the up site of a pair on the down site and switch the AF mode on.
-A generator such as `symgrpaf = "i:( 1 1 1 )"` (for NiO: `g = i:(1,1,1) * $i \sigma_y$` generates the magnetic space group)
-is still accepted (it must be one of the AF operations spglib finds); with `symgrp` of generators (to lower the symmetry), write the
-AF generators, since `"find"` is not possible there. In any case 
-```toml
-[[site]]
-atom = "Niup"
-pos  = [0.0, 0.0, 0.0]
-af   = 1                  # Antiferro pair
-[[site]]
-atom = "Nidn"
-pos  = [1.0, 1.0, 1.0]
-af   = -1
-```
-should contains the `af` to specify antiferro pairs.
-Note that the space group operation `i:(1,1,1)` (this is inversion with translation) 
-is explained at [SYMGRP](./lmf.md#symgrp).
+See the samples of the antiferromagnetic symmetry (NiO and NiSe). The meanings of the keys `symgrpaf` and `af` are in [lmf](./lmf#symgrp). The steps are as follows.
 
-In addition, we have an example for NiSe (`symgrpaf = "find"`; with the old search `"r2z:( 0 0 0.5 )"`) with `af = 1` and `af = -1`
-for the two Ni sites at (0, 0, 0) and (0, 0, 0.5).
+1. Write `symgrpaf = "find"` at the top level of `ctrlg.<sname>.toml` (spglib finds the operations; 2026-10-02).
+   With `symgrp` of generators (to lower the symmetry), `"find"` is not possible, so write the AF generators.
+   Example for NiO: `symgrpaf = "i:( 1 1 1 )"` (`g = i:(1,1,1) * $i \sigma_y$` generates the magnetic space group; `i:(1,1,1)` is inversion with translation).
+2. Specify the antiferro pairs with `af`.
+   ```toml
+   [[site]]
+   atom = "Niup"
+   pos  = [0.0, 0.0, 0.0]
+   af   = 1                  # Antiferro pair
+   [[site]]
+   atom = "Nidn"
+   pos  = [1.0, 1.0, 1.0]
+   af   = -1
+   ```
+3. Use `pwmode = 11` (the plane waves |q+G|). The spin-2 functions are made by rotating those of spin 1, which needs the G set of each q.
+   With `pwmode = 1` it stops with `rotwave: q+G rotation error` at some k meshes (NiO 4x4x4; 3x3x3 passes by chance).
 
-With `symgrpaf`, use `pwmode = 11` (the plane waves |q+G|): the spin-2 functions are made by rotating those of spin 1, which needs the
-G set of each q. With `pwmode = 1` it stops with `rotwave: q+G rotation error` at some k meshes (NiO 4x4x4; 3x3x3 passes by chance).
+There is also an example for NiSe (`symgrpaf = "find"`; with the old search `"r2z:( 0 0 0.5 )"`). Give `af = 1` and `af = -1` to the two Ni sites at (0, 0, 0) and (0, 0, 0.5).
 
 ### Holding the AF moment at a given value (`mmtarget.aftest`)
 Opposite fields on the two sites of an AF pair, readjusted every iteration, hold the moment $(m_1-m_2)/2$ at a target value.
@@ -154,31 +144,31 @@ Example: `Samples/AFfixMMOM` of ecalj (NiO, target 1.6 $\mu_B$, with and without
 * Lowering the moment (NiO 1.28 to 1.0) converges slowly (about 70 iterations; the gain of the field update is fixed).
 * With `symgrpaf`, use `pwmode = 11` (see above).
 
+## Spin-orbit coupling {#spin-orbit-coupling}
+We have a switch `so` in `[ham]` of `ctrlg.<sname>.toml`.
 
-## Spin-orbit coupling
-We have a switch `so` in `[ham]` of `ctrlg.<sname>.toml`
-
-* For LDA/GGA, set `nspin = 2` and `so = 1`. Then we can perform calculations including SOC. so=1 is for soc included (so=2 is for LzSz mode neglecting LxSx+LySy.
+* For LDA/GGA, set `nspin = 2` and `so = 1`. Then we can perform calculations including SOC. so=1 is for soc included; so=2 is for LzSz mode neglecting LxSx+LySy.
 * In the case of semiconductors such as GaAs, we need to include so=1 to see the band structure at the top of valence.
 * Currently, QSGW can not be performed with so=1. So we first have to run gwsc with
-so=0 or 2. After we get sigm file, we run lmf with `--ctrlg:ham.so=1` (nit=1 can be fine) as a perturbation.
+  so=0 or 2. After we get sigm file, we run lmf with `--ctrlg:ham.so=1` (nit=1 can be fine) as a perturbation.
+  The procedure combined with 80% QSGW is in "80% QSGW + 20% LDA, and SO setting" of [gwsc](./gwsc).
 
 * We can treat only colinear spins. Spin axis is along (0,0,1) as default. We can choose other direction with `[ham] socaxis`. See the samples of SOC (magnetic anisotropy of FePt and MnGa). Not checked completely, but it seems work well.
 
-### Band plot with spin orbit coupling.
+### Band plot with spin orbit coupling
 * method 1: only apply SOC for band plot
   ```bash
   job_band mp-2534 -np 8 --ctrlg:ham.so=1 --ctrlg:ham.nspin=2
   ```
   Caution: when you set nspin=2, the size of rst is doubled. No way to move it back to rst for nspin=1. So you may need to keep rst.
 
-* method 2. single iteration with `[ham].so = 1`
+* method 2: single iteration with `[ham].so = 1`
   ```bash
   mpirun -np 8 lmf mp-2534 --ctrlg:ham.so=1 --ctrlg:ham.nspin=2 --ctrlg:iter.nit=1
   ```
   Then we have revised `rst.<sname>`. Then run `job_band mp-2534 -np 8 --ctrlg:ham.so=1 --ctrlg:ham.nspin=2`.
 
-* method 3. full iteration with `[ham].so = 1`
+* method 3: full iteration with `[ham].so = 1`
   ```bash
   mpirun -np 8 lmf mp-2534 --ctrlg:ham.so=1 --ctrlg:ham.nspin=2
   ```
@@ -186,17 +176,17 @@ so=0 or 2. After we get sigm file, we run lmf with `--ctrlg:ham.so=1` (nit=1 can
 
 Effective masses: the sample `Samples/EffectiveMass/GaAs` (QSGW bands with SOC, the mass mode of `syml.<sname>`).
 
-## Fermi surface 
+## Fermi surface
 See the sample of the Fermi surface (Cu).
 Run `job_fermisurface cu -np 4 -vnk1=10 -vnk2=10 -vnk3=10` after `lmf cu` converged (`-vnk1` etc. are options of the script `job_fermisurface`). This write down all band energies (around
 Ef) for 10x10x10 in BZ. Then we can view it with xcrysden as `xcrysden --bxsf fermiup.bxsf`.
 With `--allband` option to `job_fermisurface`, we have all the bands. Then we can see iso-energy surface at any energy.
 
 ## PROCAR mode {#procar-mode}
-See a sample at ecalj/Samples/PROCAR/MgO_PROCAR
+See a sample at ecalj/Samples/PROCAR/MgO_PROCAR.
 We can generate PROCAR file containing the size of eigenfunctions**2. 
 The sample (`testecalj MgO_PROCAR`; the steps are in its `test.py`) generates a pdf file showing fat band of O2p components.
- Steps: after `job_band mgo`, `lmf --mkprocar --band mgo` writes PROCAR (vasp format) per rank (`PROCAR.UP.<rank>`); they are joined in k order into `PROCAR.UP`,
+Steps: after `job_band mgo`, `lmf --mkprocar --band mgo` writes PROCAR (vasp format) per rank (`PROCAR.UP.<rank>`); they are joined in k order into `PROCAR.UP`,
 the weights are extracted by the script `BandWeight.py` in the sample directory (`bw.dat`), and `gnuplot bnds.gnu.mgoW` draws them.
 
 ## LDA+U
@@ -209,7 +199,7 @@ The calculation of spin fluctuations has been advanced recently; please contact 
 `~/ecalj/Samples/Magnon` (test target `Fe_mlo_magnon`; `README.md` there gives the steps of `job_mlo_magnon`).
 The model is the [MLO](./mlo) model (no windows and no iteration). The sample compares it with the maximally localized
 Wannier functions of the version before 2026-10-02 (git tag `last-wannier`). Here is a figure (this is on top of LDA) for the spin fluctuation of Fe in [Okumura2021](../../presentations/okumura2021.pdf).
-![alt text](../../manual/image-6.png)
+![Spin fluctuation of Fe](../../manual/image-6.png)
 
 ## 4f and 5f atoms
 We need special care to treat atoms where 4f and 5f are fractionally filled.
@@ -220,8 +210,8 @@ make sure by yourself.
 Here is the setting for rare-earth rocksalt nitrides ReN such as ErN (from an earlier calculation; the tested ones are GdN and PrN of `Samples/LDAU/ReN`, set up the same way).
 1. Set `[ham].nspin = 2`, `[ham].so = 2` (since QSGW cannot treat `so=1` now).
    If necessary, set `so=1` after `gwsc` finished.
-You may use `ctrlgenToml.py gd2pdo4 --so=2 --nspin=2`, or simply edit
-`ctrlg.<sname>.toml` after generation.
+   You may use `ctrlgenToml.py gd2pdo4 --so=2 --nspin=2`, or simply edit
+   `ctrlg.<sname>.toml` after generation.
 2. `symgrp = "r4z"`. This is needed since we have lower symmetry rather than the lattice. It fixes the direction of spins and orbital moments.
 3. Our setting in `ctrlg.ern.toml` is
     ```toml
@@ -257,7 +247,7 @@ You may use `ctrlgenToml.py gd2pdo4 --so=2 --nspin=2`, or simply edit
     * `lmxa = 6` to expand augmented waves is needed.
     * Make sure `[ham] readp = true`.
 
-```CAUTION LDA+U is used only for initial condition for QSGW when idu>10. Thus QSGW results is not dependent on jh and uh.```
+**Caution**: when `idu` > 10, LDA+U is used only for the initial condition of QSGW. Thus the QSGW results do not depend on `jh` and `uh`.
 
-With these settings, we can perform series of calculations finished for 4f ReN. 
-Input files are available from [here](../data/RENctrlGWinput.tar.gz). Ask us when you like to use them.
+With these settings, we can perform series of calculations finished for 4f ReN.
+Input files are available from [here](../../data/RENctrlGWinput.tar.gz). Ask us when you like to use them.
