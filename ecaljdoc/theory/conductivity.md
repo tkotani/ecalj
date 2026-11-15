@@ -148,13 +148,13 @@ $$
 $\chi^R_{JJ}(t)=(i/\hbar)\theta(t)\,{\rm Tr}\big[f(H)\big(J(t)\,J-J\,J(t)\big)\big]$ となる
 （$J=-e\hat v_x$ は一体の演算子、$J(t)=e^{iHt/\hbar}Je^{-iHt/\hbar}$、$f(H)$ は占有）。
 $f(H)\,e^{\pm iHt/\hbar}=\int dE\,f(E)\,e^{\pm iEt/\hbar}\,\delta(E-H)$ とスペクトル分解すると、残る $(i/\hbar)\theta(t)\,e^{\mp i(H-E)t/\hbar}$ のフーリエ変換は、一体のグリーン関数 $-G^R(E+\hbar\omega)$、$G^A(E-\hbar\omega)$ である。
-したがって時間についての積は、エネルギーについてのたたみこみになり、$\delta(E-H)=-{\rm Im}\,G^R(E)/\pi$ を使うと
+したがって時間についての積は、エネルギーについてのたたみこみになり、$\delta(E-H)=-\big(G^R(E)-G^A(E)\big)/2\pi i$ を使うと
 
 $$
 \begin{aligned}
-\chi^R_{JJ}(\omega)=\frac{1}{\pi}\int dE\,f(E)\,
-{\rm Tr}\big[&J\,{\rm Im}\,G^R(E)\,J\,G^R(E+\hbar\omega)\\
-&+J\,G^A(E-\hbar\omega)\,J\,{\rm Im}\,G^R(E)\big]
+\chi^R_{JJ}(\omega)=\frac{1}{2\pi i}\int dE\,f(E)\,
+{\rm Tr}\big[&J\,\big(G^R(E)-G^A(E)\big)\,J\,G^R(E+\hbar\omega)\\
+&+J\,G^A(E-\hbar\omega)\,J\,\big(G^R(E)-G^A(E)\big)\big]
 \end{aligned}
 \tag{C12}
 $$
