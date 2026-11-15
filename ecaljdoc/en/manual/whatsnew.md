@@ -1,6 +1,6 @@
 # What's new (summary)
 
-> English version of the page [manual/whatsnew](../../manual/whatsnew.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/whatsnew.md of commit b55836332 (source blob d2992e9b7e96).
+> English version of the page [manual/whatsnew](../../manual/whatsnew.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/whatsnew.md of commit 296542c3a (source blob 2144868241ea).
 
 A summary of the new features of ecalj and of the fixes that change results, newest first. The detailed record (all changes) is ecalj's
 [Changes.md](https://github.com/tkotani/ecalj/blob/main/Changes.md). Each item is explained on the linked page.

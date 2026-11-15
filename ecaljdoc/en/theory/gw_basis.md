@@ -1,6 +1,6 @@
 # Representation of wave functions in GW
 
-> English version of the page [theory/gw_basis](../../theory/gw_basis.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/gw_basis.md of commit 8744007d9 (source blob bfe3e10187cd).
+> English version of the page [theory/gw_basis](../../theory/gw_basis.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/gw_basis.md of commit 296542c3a (source blob 0958e9992c41).
 
 ::: warning Under construction
 This page is a draft. For the definitions of the symbols and the formulas, [Band-structure method of ecalj](./pmt) and section 2 of the main reference of [QSGW](./qsgw) (Obata, Kotani, Oda 2025) are newer and more accurate.

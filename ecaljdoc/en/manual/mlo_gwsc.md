@@ -1,6 +1,6 @@
 # MLO-gwsc — QSGW with the self-energy interpolated in the MLO representation (under development)
 
-> English version of the page [manual/mlo_gwsc](../../manual/mlo_gwsc.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo_gwsc.md of commit b55836332 (source blob b50806803862).
+> English version of the page [manual/mlo_gwsc](../../manual/mlo_gwsc.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mlo_gwsc.md of commit 296542c3a (source blob 1aa8a46fb6b6).
 
 > **Status (2026-09-30)**: LiTi₂O₄ with 6³ and 9³ was run from LDA up to 40 iterations (§3.5). The differences in the MLO bands due to the precision of the GPU matrix products (tf32, fp32, fp64) are
 > a few meV or less, so the fast tf32 can be used. At 10 iterations convergence is still in progress; for 6³ a shoulder appears in an occupied band from iteration 20, and for 9³ the bands become fairly smooth at 40 iterations.

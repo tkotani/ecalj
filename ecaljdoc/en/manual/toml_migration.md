@@ -1,6 +1,6 @@
 # Input files {#toml-migration-2026-05}
 
-> English version of the page [manual/toml_migration](../../manual/toml_migration.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/toml_migration.md of commit 694da29ec (source blob 94f98dad9f13).
+> English version of the page [manual/toml_migration](../../manual/toml_migration.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/toml_migration.md of commit 296542c3a (source blob 90d0c155ab0e).
 
 ecalj consists of the one-body calculation part (the DFT part) and the GW part.
 

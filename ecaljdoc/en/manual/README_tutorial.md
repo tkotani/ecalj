@@ -1,6 +1,6 @@
 # ecalj main document {#ecalj-maindocument}
 
-> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit b55836332 (source blob 7d1ddb305965).
+> English version of the page [manual/README_tutorial](../../manual/README_tutorial.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/README_tutorial.md of commit 296542c3a (source blob ed1e22e5cb0d).
 **This is the main document of ecaljdoc. It describes the features of ecalj, an overview of QSGW, and the first calculation (GetStarted). Follow the menu on the left to the other pages.**
 
 * Here we explain [GetStarted](#getstarted), together with the installation and an overview of QSGW.

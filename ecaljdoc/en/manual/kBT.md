@@ -1,6 +1,6 @@
 # kBT — finite temperature and smearing (`t_tetrakbt` / `t_sigmaw` / `wcsmear`)
 
-> English version of the page [manual/kBT](../../manual/kBT.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/kBT.md of commit b55836332 (source blob 1e6e63b398cc).
+> English version of the page [manual/kBT](../../manual/kBT.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/kBT.md of commit 296542c3a (source blob 12e5a5c2bbf2).
 
 This page explains the `[gw]` keys that set the electronic temperature and the numerical smearing in GW and QSGW. There are separate keys for the $W$ side ($\chi_0$) and the $\Sigma$ side ($G$) (Table 4).
 `t_sigmaw` on the $\Sigma$ side is a numerical width that is always in effect; `t_tetrakbt` on the $\chi_0$ side is required: if positive it is the physical electronic temperature,

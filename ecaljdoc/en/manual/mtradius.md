@@ -1,6 +1,6 @@
 # Upper limits of the MT radii, and spurious levels (bands without a degeneracy partner)
 
-> English version of the page [manual/mtradius](../../manual/mtradius.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mtradius.md of commit b55836332 (source blob 3264d5f7eb9c).
+> English version of the page [manual/mtradius](../../manual/mtradius.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/mtradius.md of commit 296542c3a (source blob 21c4a9a7c751).
 
 If the MT spheres are taken too large, spurious levels can appear in the bands. The upper limits of the spheres for alkali and alkaline-earth atoms and for H are chosen to avoid this
 (`r_upper_limit` in `ctrlgenToml.py`, 2026-10-07). This page summarizes an example and how the upper limits are determined. The table of the upper limits itself is also in the section

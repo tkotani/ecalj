@@ -1,6 +1,6 @@
 # Samples — what's where in `ecalj/Samples/`
 
-> English version of the page [manual/samples](../../manual/samples.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/samples.md of commit 6eec699cc (source blob 9cee1e7b9c80).
+> English version of the page [manual/samples](../../manual/samples.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/samples.md of commit 296542c3a (source blob ec78369ba5d2).
 
 This page is a thin index over the [`ecalj/Samples/`](https://github.com/tkotani/ecalj/tree/main/Samples)
 tree.  Each row points at the per-directory README that owns the
