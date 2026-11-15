@@ -75,21 +75,23 @@ $$
 $\hat J_x$ が全電流の演算子（電荷 $-e$ と速度 $(\hat{\bf p}_i+e{\bf A})/m$ の積の和）で、$\hat J^0_x$ は ${\bf A}=0$ での $\hat J_x$ である。
 
 式 (C2)、(C3) と見比べると、$\hat A=\hat J_x$、$\hat B=\hat J^0_x$、$F=A_x$ である。
-(C3) の応答関数を $\chi^R_{JJ}$ と書くと、電流密度は（$n$ は電子の数密度）
+(C3) にそのまま当てはめ、その応答関数を $\chi^R_{JJ}$ と書くと
 
 $$
-j_x(t)=\frac{1}{\Omega}\,\langle\hat J_x\rangle(t)
-=-\frac{ne^2}{m}A_x(t)+\frac{1}{\Omega}\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t')
+\begin{aligned}
+\langle\hat J_x\rangle(t)&=\langle\hat J_x\rangle_0+\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t')\\
+&=-\frac{e^2}{m}n\Omega\,A_x(t)+\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t')
+\end{aligned}
 \tag{C6}
 $$
 
-となる。$-ne^2A_x/m$ が反磁性の部分、$\chi^R_{JJ}$ の項が常磁性の部分である。
+となる（$\langle\hat J_x\rangle_0=-(e^2/m)\langle\hat N\rangle_0A_x$、$n$ は電子の数密度）。第 1 項が反磁性の部分、第 2 項が常磁性の部分である。
 
-$e^{-i\omega t}$ の成分では、常磁性の項のたたみこみは積 $\chi^R_{JJ}(\omega)A_x(\omega)$ になる（$\chi^R_{JJ}(\omega)$ は式 (C4) で与えられる）。
-さらに $A_x(\omega)=E_x(\omega)/i\omega$ なので
+$e^{-i\omega t}$ の成分では、第 2 項のたたみこみは積 $\chi^R_{JJ}(\omega)A_x(\omega)$ になる（$\chi^R_{JJ}(\omega)$ は式 (C4) で与えられる）。
+電流密度は $\langle\hat J_x\rangle/\Omega$ で、$A_x(\omega)=E_x(\omega)/i\omega$ なので
 
 $$
-\sigma(\omega)=\frac{j_x(\omega)}{E_x(\omega)}=\frac{i}{\omega}\Big[\frac{ne^2}{m}-\frac{1}{\Omega}\,\chi^R_{JJ}(\omega)\Big]
+\sigma(\omega)=\frac{\langle\hat J_x\rangle(\omega)}{\Omega\,E_x(\omega)}=\frac{i}{\omega}\Big[\frac{ne^2}{m}-\frac{1}{\Omega}\,\chi^R_{JJ}(\omega)\Big]
 \tag{C7}
 $$
 
