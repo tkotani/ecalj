@@ -152,12 +152,8 @@ $$
 $$
 
 と書ける（絶対零度。$J=-e\hat v_x$ は一体の演算子）。$E$ の積分で留数を取ると、占有の $n$ と非占有の $m$ の組だけが残る。極の位置は式 (C4) と同じで、違うのは $\omega\lt 0$ の側の $i\delta$ の向きだけである。
-遅延型（任意の温度）にするには、占有 $f(E)$ を陽に分けて $G^R$、$G^A$ で書き直せばよい。これは相関関数のレベルから直接たどれる。
-一体の系では、交換子の期待値は一体の空間でのトレースになり、式 (C6) は
-$\chi^R_{JJ}(t)=(i/\hbar)\theta(t)\,{\rm Tr}\big[f(H)\big(J(t)\,J-J\,J(t)\big)\big]$ となる
-（$J=-e\hat v_x$ は一体の演算子、$J(t)=e^{iHt/\hbar}Je^{-iHt/\hbar}$、$f(H)$ は占有）。
-$f(H)\,e^{\pm iHt/\hbar}=\int dE\,f(E)\,e^{\pm iEt/\hbar}\,\delta(E-H)$ とスペクトル分解すると、残る $(i/\hbar)\theta(t)\,e^{\mp i(H-E)t/\hbar}$ のフーリエ変換は、一体のグリーン関数 $-G^R(E+\hbar\omega)$、$G^A(E-\hbar\omega)$ である。
-したがって時間についての積は、エネルギーについてのたたみこみになり、$\delta(E-H)=-\big(G^R(E)-G^A(E)\big)/2\pi i$ を使うと
+この $\chi^T$ を遅延型にするには、$\omega$ の極をすべて下半面に移せばよい（$\omega\to\omega+i\delta$。遅延型の応答関数は上半面で解析的である）。
+占有を $f(E)$ で書けば、任意の温度で次のようになる:
 
 $$
 \begin{aligned}
