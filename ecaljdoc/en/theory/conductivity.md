@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 8fabb7a6f (source blob 589fb04d78b6).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 867720fe2 (source blob 560021a59298).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -221,8 +221,6 @@ $$
 The left-hand side is the Fermi-surface quantity in Eq. (C16), and the right-hand side is the sum of the inverse effective masses over all occupied states.
 For free electrons $\partial^2\varepsilon_{\bf k}/\partial k_x^2=\hbar^2/m$ is constant, so the right-hand side is $n/m$ (per spin), in agreement with Drude's $n/m$.
 For a general band, Drude's $n/m$ has to be read as the effective $(n/m)_{\rm eff}$ on the right-hand side.
-For a full band, the right-hand side is 0 although there are many electrons ($1/m^*$ integrated over the whole Brillouin zone is 0), and the left-hand side is also 0 since there is no Fermi surface. This is an insulator.
-For an almost full band, what counts is the number of empty states (holes).
 
 In practice the matrix elements are not only diagonal, but the number of states $m$ connected to $n$ is finite (by completeness $\sum_m|\langle n|\hat v_x|m\rangle|^2=\langle n|\hat v_x^2|n\rangle$ is finite), so Eq. (C16) may be regarded as correct.
 
