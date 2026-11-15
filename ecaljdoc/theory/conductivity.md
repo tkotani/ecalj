@@ -75,24 +75,37 @@ $$
 $\hat J_x$ が全電流の演算子（電荷 $-e$ と速度 $(\hat{\bf p}_i+e{\bf A})/m$ の積の和）で、$\hat J^0_x$ は ${\bf A}=0$ での $\hat J_x$ である。
 
 式 (C2)、(C3) と見比べると、$\hat A=\hat J_x$、$\hat B=\hat J^0_x$、$F=A_x$ である。
-(C3) にそのまま当てはめ、その応答関数を $\chi^R_{JJ}$ と書くと
+これを式 (C3) に代入すると
 
 $$
 \begin{aligned}
-\langle\hat J_x\rangle(t)&=\langle\hat J_x\rangle_0+\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t')\\
-&=-\frac{e^2}{m}n\Omega\,A_x(t)+\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t')
+&\delta\langle\hat J_x\rangle(t)=\int dt'\,\chi^R_{J_xJ^0_x}(t-t')\,A_x(t'),\\
+&\chi^R_{J_xJ^0_x}(t)=\frac{i}{\hbar}\,\theta(t)\,\big\langle[\hat J_{x,{\rm H}}(t),\hat J^0_x]\big\rangle
 \end{aligned}
 \tag{C6}
 $$
 
-となる（$\langle\hat J_x\rangle_0=-(e^2/m)\langle\hat N\rangle_0A_x$、$n$ は電子の数密度）。第 1 項が反磁性の部分、第 2 項が常磁性の部分である。
+である。これを変形する。
+$\hat J_x=\hat J^0_x-(e^2/m)\hat N A_x$ の第 2 項は、$\hat N$ が $\hat H_0$ とも $\hat J^0_x$ とも交換するので、交換子に寄与しない。
+したがって $\chi^R_{J_xJ^0_x}$ は $\hat J^0_x$ どうしの応答関数 $\chi^R_{JJ}(t)=(i/\hbar)\theta(t)\langle[\hat J^0_{x,{\rm H}}(t),\hat J^0_x]\rangle$ に等しい。
+一方、期待値 $\langle\hat J_x\rangle_0$ には第 2 項が $-(e^2/m)\langle\hat N\rangle_0A_x=-(e^2/m)n\Omega A_x$ を与える（$n$ は電子の数密度）。まとめると
+
+$$
+\begin{aligned}
+\langle\hat J_x\rangle(t)&=\langle\hat J_x\rangle_0+\delta\langle\hat J_x\rangle(t)\\
+&=-\frac{e^2}{m}n\Omega\,A_x(t)+\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t')
+\end{aligned}
+\tag{C7}
+$$
+
+となる。第 1 項が反磁性の部分、第 2 項が常磁性の部分である。
 
 $e^{-i\omega t}$ の成分では、第 2 項のたたみこみは積 $\chi^R_{JJ}(\omega)A_x(\omega)$ になる（$\chi^R_{JJ}(\omega)$ は式 (C4) で与えられる）。
 電流密度は $\langle\hat J_x\rangle/\Omega$ で、$A_x(\omega)=E_x(\omega)/i\omega$ なので
 
 $$
 \sigma(\omega)=\frac{\langle\hat J_x\rangle(\omega)}{\Omega\,E_x(\omega)}=\frac{i}{\omega}\Big[\frac{ne^2}{m}-\frac{1}{\Omega}\,\chi^R_{JJ}(\omega)\Big]
-\tag{C7}
+\tag{C8}
 $$
 
 を得る。これが久保公式である。散逸（ジュール熱）を決める実部は ${\rm Re}\,\sigma(\omega)={\rm Im}\,\chi^R_{JJ}(\omega)/(\omega\Omega)$ で、反磁性の項は虚部にだけ効く。
@@ -103,7 +116,7 @@ $$
 
 $$
 {\rm Re}\,\sigma(\omega)=\frac{\pi}{\omega\Omega}\sum_{nm}(f_n-f_m)\,|\langle n|\hat J^0_x|m\rangle|^2\,\delta(E_m-E_n-\hbar\omega)
-\tag{C8}
+\tag{C9}
 $$
 
 となる。$\omega\to 0$ では、デルタ関数により $E_m=E_n+\hbar\omega$ なので $f_n-f_m\simeq -f'(E_n)\,\hbar\omega$ で、$\omega$ が消える。
@@ -115,7 +128,7 @@ $\delta(E-H)=-{\rm Im}\,G^R(E)/\pi$ で書き直し、不純物の配置につ�
 $$
 \sigma_{xx}=\frac{2\hbar e^2}{\pi\Omega}\,
 \Big\langle {\rm Tr}\big[\hat v_x\,{\rm Im}\,G^R(E_F)\,\hat v_x\,{\rm Im}\,G^R(E_F)\big]\Big\rangle_{\rm imp}.
-\tag{C9}
+\tag{C10}
 $$
 
 を得る。$\hat v_x$ は速度の演算子、${\rm Tr}$ は一体の（軌道の）状態についての和、因子 2 はスピンである。
@@ -129,7 +142,7 @@ ${\rm Im}\,G^R=(G^R-G^A)/2i$ と書いて展開すると、$G^RG^A$ の項と $G
 $$
 \sigma_{xx}\simeq\frac{\hbar e^2}{\pi\Omega}\,{\rm Re}\,
 \Big\langle {\rm Tr}\big[\hat v_x\,G^R(E_F)\,\hat v_x\,G^A(E_F)\big]\Big\rangle_{\rm imp}
-\tag{C10}
+\tag{C11}
 $$
 
 である（$G^RG^R$ の項は、$1/\tau$ について高次の補正を与えるだけである）。
@@ -139,7 +152,7 @@ $$
 $$
 \big\langle \hat v_x G^R \hat v_x G^A\big\rangle_{\rm imp}\neq
 \hat v_x\langle G^R\rangle_{\rm imp}\,\hat v_x\langle G^A\rangle_{\rm imp}.
-\tag{C11}
+\tag{C12}
 $$
 
 $G^R$ と $G^A$ が同じ不純物で散乱される相関（ダイヤグラムでは、二本の線を結ぶ不純物の線）が残る。これがバーテックス補正である。
@@ -150,7 +163,7 @@ $G^R$ と $G^A$ が同じ不純物で散乱される相関（ダイヤグラム�
 
 $$
 \langle G^R\rangle_{\rm imp}({\bf k},E)=\frac{1}{E-\varepsilon_{\bf k}-\Sigma^R({\bf k},E)}.
-\tag{C12}
+\tag{C13}
 $$
 
 不純物について二次（Born 近似）の自己エネルギーは
@@ -158,7 +171,7 @@ $$
 $$
 \Sigma^R({\bf k},E)=n_i\int\frac{d^3k'}{(2\pi)^3}\,
 \frac{|u({\bf k}-{\bf k}')|^2}{E-\varepsilon_{\bf k'}+i\delta}
-\tag{C13}
+\tag{C14}
 $$
 
 で、その虚部が準粒子の寿命 $\tau$ を与える（実部はエネルギーのずれで、$E_F$ に繰り込む）:
@@ -168,14 +181,14 @@ $$
 &{\rm Im}\,\Sigma^R=-\frac{\hbar}{2\tau},\\
 &\frac{1}{\tau}=\frac{2\pi}{\hbar}\,n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\,\delta(E-\varepsilon_{\bf k'}).
 \end{aligned}
-\tag{C14}
+\tag{C15}
 $$
 
 $1/\tau$ はフェルミの黄金則による散乱の速さそのものである（[Basic I](./basic#td-vs-ti-perturbation) の、黄金則と自己エネルギーの虚部の対応）。
 
 ## バーテックス補正を入れない場合: Drude の式 {#drude}
 
-式 (C10) の平均を、一本ずつの平均 (C12) の積で置きかえると（バーテックス補正を落とすと）、${\bf k}$ についての和になる。
+式 (C11) の平均を、一本ずつの平均 (C13) の積で置きかえると（バーテックス補正を落とすと）、${\bf k}$ についての和になる。
 $\tau$ が長い（$\hbar/\tau\ll E_F$）とき
 
 $$
@@ -184,7 +197,7 @@ $$
 &=\frac{1}{(E-\varepsilon_{\bf k})^2+(\hbar/2\tau)^2}\\
 &\simeq\frac{2\pi\tau}{\hbar}\,\delta(E-\varepsilon_{\bf k})
 \end{aligned}
-\tag{C15}
+\tag{C16}
 $$
 
 なので、$v_x^2$ の角度平均 $v_F^2/3$ と、スピンあたりの状態密度 $N_1(E_F)$（単位体積あたり）を使って
@@ -192,14 +205,14 @@ $$
 $$
 \sigma_{xx}=\frac{\hbar e^2}{\pi}\cdot\frac{2\pi\tau}{\hbar}\cdot\frac{v_F^2}{3}\,N_1(E_F)
 =\frac{2e^2\tau v_F^2N_1(E_F)}{3}=\frac{ne^2\tau}{m}
-\tag{C16}
+\tag{C17}
 $$
 
 となる。最後は自由電子の $N_1(E_F)=mk_F/(2\pi^2\hbar^2)$、$n=k_F^3/(3\pi^2)$、$v_F=\hbar k_F/m$ を使った。Drude の式である。
 
 ## バーテックス補正: 輸送の緩和時間 {#vertex-correction}
 
-積の平均 (C11) を、不純物の線で二本の $G$ を結ぶはしご型のダイヤグラムまで取る（Born 近似の自己エネルギー (C13) と組になる近似）。
+積の平均 (C12) を、不純物の線で二本の $G$ を結ぶはしご型のダイヤグラムまで取る（Born 近似の自己エネルギー (C14) と組になる近似）。
 電流のバーテックス $\Gamma_x({\bf k})$ は
 
 $$
@@ -207,23 +220,23 @@ $$
 \Gamma_x({\bf k})={}&v_x({\bf k})+n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\\
 &\times\langle G^R\rangle({\bf k}',E_F)\langle G^A\rangle({\bf k}',E_F)\,\Gamma_x({\bf k}')
 \end{aligned}
-\tag{C17}
+\tag{C18}
 $$
 
-を満たす。$\Gamma_x({\bf k})=\gamma\,v_x({\bf k})$ と置き、(C15) を使うと、${\bf k}'$ の向きについての平均で $v_x({\bf k}')$ が $v_x({\bf k})\cos\theta_{\bf kk'}$ になるので、
+を満たす。$\Gamma_x({\bf k})=\gamma\,v_x({\bf k})$ と置き、(C16) を使うと、${\bf k}'$ の向きについての平均で $v_x({\bf k}')$ が $v_x({\bf k})\cos\theta_{\bf kk'}$ になるので、
 $\gamma=1+\gamma\,(1-\tau/\tau_{\rm tr})$、すなわち $\gamma=\tau_{\rm tr}/\tau$ を得る。ここで
 
 $$
 \frac{1}{\tau_{\rm tr}}=\frac{2\pi}{\hbar}\,n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\,
 \big(1-\cos\theta_{\bf kk'}\big)\,\delta(E_F-\varepsilon_{\bf k'})
-\tag{C18}
+\tag{C19}
 $$
 
-は輸送の緩和時間である。式 (C16) の片方の $v_x$ を $\Gamma_x$ に替えると
+は輸送の緩和時間である。式 (C17) の片方の $v_x$ を $\Gamma_x$ に替えると
 
 $$
 \sigma_{xx}=\frac{ne^2\tau_{\rm tr}}{m}
-\tag{C19}
+\tag{C20}
 $$
 
 となる。前方への散乱（$\cos\theta\simeq 1$）は電流をほとんど減らさないので、抵抗に効くのは $1-\cos\theta$ の重みを付けた散乱である。
