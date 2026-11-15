@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit a2fd531c0 (source blob 9d3f236bc22f).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit eaebb83fa (source blob 1c87c1878762).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -109,7 +109,7 @@ $$
 \tag{C8}
 $$
 
-This is the Kubo formula. The real part, which fixes the dissipation (Joule heat), is ${\rm Re}\,\sigma(\omega)={\rm Im}\,\chi^R_{JJ}(\omega)/(\omega\Omega)$; the diamagnetic term affects only the imaginary part.
+This is the result of the Kubo formula. The real part, which fixes the dissipation (Joule heat), is ${\rm Re}\,\sigma(\omega)={\rm Im}\,\chi^R_{JJ}(\omega)/(\omega\Omega)$; the diamagnetic term affects only the imaginary part.
 
 ### The direct-current limit: the Kubo–Greenwood formula {#kubo-greenwood}
 
