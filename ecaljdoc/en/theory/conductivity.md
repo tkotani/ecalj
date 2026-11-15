@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 2ec481c43 (source blob 83011d232f3b).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 3d5e11e52 (source blob d0c3544b72c6).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -258,8 +258,7 @@ $$
 A correlation remains between $G^R$ and $G^A$ being scattered by the same impurity (in diagrams, impurity lines connecting the two lines). This is the vertex correction.
 
 If, as on the right-hand side of Eq. (C20), the product of the single averages is taken, $\langle G\rangle$ is diagonal in ${\bf k}$, so the result has the form of Eq. (C16) with $\delta$ replaced by the width $\hbar/2\tau$ due to the impurities.
-This gives a finite value ([the Drude formula](#drude) with the lifetime $\tau$), but what actually fixes the resistance is not $\tau$ but the [transport relaxation time](#vertex-correction) $\tau_{\rm tr}$, and the difference comes from the vertex correction.
-(If, moreover, the bare $G$ is used instead of $\langle G\rangle$, the result diverges for $\delta\to 0$, and the impurities would give no resistance.)
+This gives a finite value ([the Drude formula](#drude) with the lifetime $\tau$).
 
 ## Averaged single Green function: the lifetime {#averaged-g}
 
