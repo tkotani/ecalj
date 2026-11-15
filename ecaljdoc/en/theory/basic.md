@@ -1,6 +1,6 @@
 # Basic expressions
 
-> English version of the page [theory/basic](../../theory/basic.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/basic.md of commit 2023ad8e9 (source blob 6b28601204e1).
+> English version of the page [theory/basic](../../theory/basic.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/basic.md of commit 7f12f9348 (source blob 28dacf720605).
 
 On the Green function at zero temperature
 
@@ -241,6 +241,11 @@ $$
 \tag{N2}
 $$
 In the ground state without interaction, all the orbitals with $𝜀_n<0$ are occupied and those with $𝜀_n>0$ are empty.
+
+> In QSGW and similar methods the one-body term of $\hat H_0$ is optimized, so the division for perturbation (the way the interaction is switched on adiabatically) is
+> $\hat H_\lambda-\mu\hat N=\hat H_0-\mu\hat N+\lambda(\hat H-\hat H_0)$, where $\hat H_0$ is the one-body part.
+> This is also called the adiabatic connection. $\hat H-\hat H_0$ then contains a one-body part.
+> In this method the quasiparticle bands are conserved while $\lambda$ is changed from 0 to 1. It is the best way to switch on the interaction adiabatically.
 
 ### Real-time representation
 The two processes, an electron created in an unoccupied state by $\hat 𝜓^\dagger \ket{\Psi_0}$, or a hole created in an occupied state by $\hat 𝜓 \ket{\Psi_0}$ (an occupied electron annihilated), correspond to the electron of Eq. (Gd1) and the hole of Eq. (Gd2), respectively.
