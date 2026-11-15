@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit f49451b56 (source blob 91fb04f48b6f).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 926bb9081 (source blob a2060de7621f).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -76,12 +76,12 @@ $$
 ($\hat N$ is the operator of the number of electrons; the sum is over the electrons).
 $\hat J_x$ is the total current operator (the sum of the charge $-e$ times the velocity $(\hat{\bf p}_i+e{\bf A})/m$), and $\hat J^0_x$ is $\hat J_x$ at ${\bf A}=0$.
 
-Compared with Eq. (C2), the perturbation to first order in ${\bf A}$ is $-\hat J_x A_x$ (with $\hat J_x$ at ${\bf A}=0$), so $\hat B=\hat J_x$ and $F=A_x$.
-What is observed is the same current $\hat J_x$, so Eq. (C3) is used with $\hat A=\hat B=\hat J_x$.
-The only point of care is that $\hat J_x$ itself contains ${\bf A}$ explicitly. Taking $\langle\hat J_x\rangle(t)$ to first order in ${\bf A}$ gives two parts:
+Compared with Eq. (C2), the perturbation to first order in ${\bf A}$ is $-\hat J^0_x A_x$, so $\hat B=\hat J^0_x$ and $F=A_x$.
+What is observed, on the other hand, is the total current $\hat J_x$, so $\hat A=\hat J_x$.
+Since $\hat J_x=\hat J^0_x-(e^2/m)\hat N A_x$ contains ${\bf A}$ explicitly, taking $\langle\hat J_x\rangle(t)$ to first order in ${\bf A}$ gives two parts:
 
-- The part from the change of the state: the commutator in Eq. (C3) is needed only at zeroth order in ${\bf A}$, so $\hat A=\hat B=\hat J_x|_{\mathbf A=0}=\hat J^0_x$. No current flows in equilibrium ($\langle\hat J^0_x\rangle=0$), so only this change remains. This response function is written $\chi^R_{JJ}$.
-- The term $-(e^2/m)\hat N A_x$ contained explicitly in $\hat J_x$: it is already of first order in ${\bf A}$, so its expectation value is taken in the equilibrium state, $\langle\hat N\rangle=n\Omega$ ($n$ is the electron density).
+- The change of the expectation value of the first term $\hat J^0_x$: Eq. (C3) is used with $\hat A=\hat B=\hat J^0_x$ and $F=A_x$. No current flows in equilibrium ($\langle\hat J^0_x\rangle=0$), so only this change remains. This response function is written $\chi^R_{JJ}$.
+- The second term $-(e^2/m)\hat N A_x$: it is already of first order in ${\bf A}$, so its expectation value is taken in the equilibrium state, $\langle\hat N\rangle=n\Omega$ ($n$ is the electron density).
 
 Dividing by the volume $\Omega$, the current density is
 
