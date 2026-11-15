@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 01b18445c (source blob f6ed1dec087f).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit b07ad4814 (source blob 90962362d248).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -37,7 +37,7 @@ $$
 \tag{C2}
 $$
 
-The observed operator $\hat A$ may itself contain $F$ (the current operator used below does).
+The operator $\hat A$ with which the response is observed may itself contain $F$ (the current operator used below does).
 Taking the expectation value $\langle\hat A\rangle(t)={\rm Tr}[\rho(t)\hat A(t)]$ to first order in $F$ gives the sum of the term in which the change of $\hat A$ itself, $(\partial\hat A/\partial F)F$, is averaged with the equilibrium density matrix $\rho_0$, and the term from the change $\delta\rho$ of the density matrix.
 The latter is obtained by expanding, in the interaction picture, $\delta\rho_{\rm I}(t)=(i/\hbar)\int_{-\infty}^{t}dt'\,[\hat B_{\rm I}(t'),\rho_0]\,F(t')$ to first order. The result is
 
