@@ -1,6 +1,6 @@
 # Appendix: mathematical notes {#appendix}
 
-> English version of the page [theory/appendix](../../theory/appendix.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/appendix.md of commit 3992145a5 (source blob 23fed74bd5d7).
+> English version of the page [theory/appendix](../../theory/appendix.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/appendix.md of commit 1dd77bb12 (source blob 1fdc16fa378e).
 
 Mathematical tools used in the other pages.
 
@@ -117,7 +117,7 @@ $$
 (matrix notation; in components $R(x,t)$ and $S(x,t)$, and the right-hand side contains the sum over $x'$.)
 By causality $G(t-t')=0$ for $t<t'$, so the integral runs only over $t'\le t$.
 In a word, (A9) has the form $AR=S$ with $A=i\frac{\partial}{\partial t}-H$, and $A^{-1}$ is the Green function. Note, however, that the inverse matrix can be taken only after the boundary condition (initial condition) of the retarded type is imposed.
-The Green function here is the retarded one. In many-body perturbation theory the complicated T-product appears, but it can be regarded as a combination of retarded functions (the theory can be built without the T-product, giving up the picture of time running backwards).
+The Green function here is the retarded one. In many-body perturbation theory the complicated T-product appears, but it can be regarded as a combination of retarded functions (the theory can be built without the T-product, with only the Green function of electrons (particles) going forward in time and the Green function of holes going forward in time).
 
 Causality means "the cause gives the result", which is represented by the step function. For example, the Fourier transform of
 $-i\theta(t-t') e^{-i \omega_0 (t-t')}$ is $1/(\omega-\omega_0+i \delta)$ (the retarded Green function, the same convention as [Basic I](./basic)).
