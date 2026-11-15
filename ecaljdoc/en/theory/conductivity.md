@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 71dd6528e (source blob ab52b927883b).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit d8df9d0a6 (source blob c325d628674f).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -279,12 +279,12 @@ So expanding $G^R=G^R_0+G^R_0VG^R_0+\cdots$ and $G^A$ in the same way and averag
 
 Taking Eq. (C20) as an equality means dropping the lines connecting $G^R$ and $G^A$.
 
-## Averaged single Green function: the lifetime {#averaged-g}
+## Green function with the self-energy: the lifetime {#averaged-g}
 
-Averaging a single $G^R$ restores the translational symmetry, and it becomes diagonal in the wave vector ${\bf k}$:
+As a result of the random-phase average, all the lines within one $G$ are collected into the self-energy. So, instead of averaging $G^R$, one considers the following $\bar G^R$ (translationally invariant and diagonal in the wave vector ${\bf k}$) and takes products of it (the lines connecting $G^R$ and $G^A$ are treated separately).
 
 $$
-\langle G^R\rangle_{\rm imp}({\bf k},E)=\frac{1}{E-\varepsilon_{\bf k}-\Sigma^R({\bf k},E)}.
+\bar G^R({\bf k},E)=\frac{1}{E-\varepsilon_{\bf k}-\Sigma^R({\bf k},E)}.
 \tag{C22}
 $$
 
@@ -310,12 +310,12 @@ $1/\tau$ is just the scattering rate by Fermi's golden rule (see the corresponde
 
 ## Without the vertex correction: the Drude formula {#drude}
 
-Even in the approximation taking Eq. (C20) as an equality (dropping the lines connecting $G^R$ and $G^A$), the averaged $\langle G\rangle$ contains the width $\hbar/2\tau$ from the self-energy.
+Even in the approximation taking Eq. (C20) as an equality (dropping the lines connecting $G^R$ and $G^A$), $\bar G$ contains the width $\hbar/2\tau$ from the self-energy.
 When $\tau$ is long ($\hbar/\tau\ll E_F$),
 
 $$
 \begin{aligned}
-\langle G^R\rangle({\bf k},E)\,\langle G^A\rangle({\bf k},E)
+\bar G^R({\bf k},E)\,\bar G^A({\bf k},E)
 &=\frac{1}{(E-\varepsilon_{\bf k})^2+(\hbar/2\tau)^2}\\
 &\simeq\frac{2\pi\tau}{\hbar}\,\delta(E-\varepsilon_{\bf k})
 \end{aligned}
@@ -340,7 +340,7 @@ The current vertex $\Gamma_x({\bf k})$ satisfies
 $$
 \begin{aligned}
 \Gamma_x({\bf k})={}&v_x({\bf k})+n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\\
-&\times\langle G^R\rangle({\bf k}',E_F)\langle G^A\rangle({\bf k}',E_F)\,\Gamma_x({\bf k}')
+&\times\bar G^R({\bf k}',E_F)\bar G^A({\bf k}',E_F)\,\Gamma_x({\bf k}')
 \end{aligned}
 \tag{C27}
 $$
