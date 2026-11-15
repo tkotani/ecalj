@@ -61,19 +61,26 @@ $$
 ### 電場への応答: 久保公式 {#response-to-field}
 
 一様な電場は、ベクトルポテンシャル $A_x(t)$ を使って $E_x=-\partial A_x/\partial t$ として入れる（周期境界条件の下でも位置の演算子を使わずにすむ）。
-電子の電荷を $-e$ とし、運動エネルギー $(\hat{\bf p}+e{\bf A})^2/2m$ を ${\bf A}$ について一次まで展開すると、摂動は
+電子の電荷を $-e$ とすると、ハミルトニアンの運動エネルギーは $\sum_i(\hat{\bf p}_i+e{\bf A})^2/2m$ で、${\bf A}$ について展開すると
 
 $$
-\hat H'(t)=-\hat J^0_x\,A_x(t),\qquad \hat J^0_x=-e\sum_i\hat v_{x,i}
+\begin{aligned}
+&\hat H(t)=\hat H_0-\hat J^0_x\,A_x(t)+\frac{e^2}{2m}\hat N A_x(t)^2,\qquad \hat J^0_x=-e\sum_i\frac{\hat p_{x,i}}{m},\\
+&\hat J_x\equiv-\frac{\partial\hat H}{\partial A_x}=\hat J^0_x-\frac{e^2}{m}\hat N A_x
+\end{aligned}
 \tag{C5}
 $$
 
-である。$\hat J^0_x$ は ${\bf A}=0$ での全電流の演算子（$\hat v_{x,i}=\hat p_{x,i}/m$。和は電子についてとる）で、式 (C2) の $\hat B=\hat J^0_x$、$F=A_x$ に当たる。
+である（$\hat N$ は電子の数の演算子、和は電子についてとる）。
+$\hat J_x$ が全電流の演算子（電荷 $-e$ と速度 $(\hat{\bf p}_i+e{\bf A})/m$ の積の和）で、$\hat J^0_x$ は ${\bf A}=0$ での $\hat J_x$ である。
 
-${\bf A}$ があるときの速度は $(\hat{\bf p}+e{\bf A})/m$ なので、全電流の演算子は $\hat J_x=\hat J^0_x-(e^2/m)\hat N A_x$ になる（$\hat N$ は電子の数の演算子）。
-その期待値を ${\bf A}$ について一次まで取る。
-第 1 項には、式 (C3) を $\hat A=\hat B=\hat J^0_x$、$F=A_x$ として使う（平衡では電流は流れていないので $\langle\hat J^0_x\rangle=0$ で、変化分だけが残る）。この応答関数を $\chi^R_{JJ}$ と書く。
-第 2 項はすでに ${\bf A}$ について一次なので、$\hat N$ は平衡での値 $n\Omega$ でよい（$n$ は電子の数密度）。
+式 (C2) と比べると、${\bf A}$ について一次の摂動は $-\hat J_x A_x$（$\hat J_x$ は ${\bf A}=0$ でのもの）なので、$\hat B=\hat J_x$、$F=A_x$ である。
+観測するのも同じ電流 $\hat J_x$ なので、式 (C3) で $\hat A=\hat B=\hat J_x$ とすればよい。
+注意すべきは、$\hat J_x$ 自身が ${\bf A}$ を陽に含むことだけである。$\langle\hat J_x\rangle(t)$ を ${\bf A}$ について一次まで取ると、次の二つになる。
+
+- 状態の変化から来る部分: 式 (C3) の交換子は ${\bf A}$ について 0 次でよいので、$\hat A=\hat B=\hat J_x|_{\mathbf A=0}=\hat J^0_x$ とする。平衡では電流は流れていない（$\langle\hat J^0_x\rangle=0$）ので、この変化分だけが残る。この応答関数を $\chi^R_{JJ}$ と書く。
+- $\hat J_x$ が陽に含む $-(e^2/m)\hat N A_x$: すでに ${\bf A}$ について一次なので、期待値は平衡の状態で取ればよく、$\langle\hat N\rangle=n\Omega$ である（$n$ は電子の数密度）。
+
 体積 $\Omega$ で割って、電流密度は
 
 $$
