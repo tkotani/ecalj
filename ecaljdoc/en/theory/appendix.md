@@ -1,6 +1,6 @@
 # Appendix: mathematical notes {#appendix}
 
-> English version of the page [theory/appendix](../../theory/appendix.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/appendix.md of commit c86bc3520 (source blob 10b0e8123966).
+> English version of the page [theory/appendix](../../theory/appendix.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/appendix.md of commit 50ef506de (source blob 5d0c0928deba).
 
 Mathematical tools used in the other pages.
 
@@ -98,6 +98,8 @@ $$
 $$
 
 In fact, such forms are used in many-body perturbation theory.
+In short, a Green function (a linear response) can be defined for any inhomogeneous differential equation whose right-hand side is a source term $\delta(t-t')$ at the point $x'$.
+The matrix $C$ on the left can be regarded as the sensitivity of a sensor placed at the point $x$.
 
 Causality means "the cause gives the result", which is represented by the step function. For example, the Fourier transform of
 $-i\theta(t-t') e^{-i \omega_0 (t-t')}$ is $1/(\omega-\omega_0+i \delta)$ (the retarded Green function, the same convention as [Basic I](./basic)).
