@@ -107,7 +107,7 @@ $$
 \tag{C8}
 $$
 
-を得る。これが久保公式である。散逸（ジュール熱）を決める実部は ${\rm Re}\,\sigma(\omega)={\rm Im}\,\chi^R_{JJ}(\omega)/(\omega\Omega)$ で、反磁性の項は虚部にだけ効く。
+を得る。これが久保公式の結果である。散逸（ジュール熱）を決める実部は ${\rm Re}\,\sigma(\omega)={\rm Im}\,\chi^R_{JJ}(\omega)/(\omega\Omega)$ で、反磁性の項は虚部にだけ効く。
 
 ### 直流の極限: Kubo–Greenwood の式 {#kubo-greenwood}
 
