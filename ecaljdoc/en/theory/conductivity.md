@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 2e2383f1c (source blob b1343081afab).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 543395c75 (source blob 0450b4ab5af8).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -77,19 +77,16 @@ $$
 $\hat J_x$ is the total current operator (the sum of the charge $-e$ times the velocity $(\hat{\bf p}_i+e{\bf A})/m$), and $\hat J^0_x$ is $\hat J_x$ at ${\bf A}=0$.
 
 Compared with Eq. (C2), the perturbation to first order in ${\bf A}$ is $-\hat J^0_x A_x$, so $\hat B=\hat J^0_x$ and $F=A_x$.
-What is observed, on the other hand, is the total current $\hat J_x$, so $\hat A=\hat J_x$.
-
-Eq. (C3), however, was derived for an $\hat A$ that does not contain $F$.
-Since $\hat A=\hat J_x$ contains ${\bf A}$ explicitly, to first order in ${\bf A}$ the equilibrium expectation value of the change of the operator itself, $(\partial\hat J_x/\partial A_x)A_x$, is added to (C3), which comes from the change of the state.
-The commutator in (C3) is needed only at zeroth order in ${\bf A}$, so the operators there are those at ${\bf A}=0$. This response function is written $\chi^R_{JJ}$.
-No current flows in equilibrium ($\langle\hat J_x\rangle=0$), so only the first-order change remains.
-The equilibrium expectation value of $\partial\hat J_x/\partial A_x=-(e^2/m)\hat N$ is $-(e^2/m)n\Omega$ ($n$ is the electron density).
+What is observed is the total current $\hat J_x$, so Eq. (C3) is applied as it is with $\hat A=\hat J_x$.
+$\langle\hat J_x\rangle(t)$ is the expectation value $\langle\hat J_x\rangle_0$ in the equilibrium state plus the change given by (C3).
+No current flows in equilibrium ($\langle\hat J^0_x\rangle_0=0$), so $\langle\hat J_x\rangle_0=-(e^2/m)\langle\hat N\rangle_0A_x=-(e^2/m)n\Omega A_x$ ($n$ is the electron density).
+The response function in (C3) is needed only at zeroth order in ${\bf A}$; it is written $\chi^R_{JJ}$.
 Dividing by the volume $\Omega$, the current density is
 
 $$
 \begin{aligned}
-j_x(t)&=\frac{1}{\Omega}\,\delta\langle\hat J_x\rangle(t)\\
-&=\frac{1}{\Omega}\Big\langle\frac{\partial\hat J_x}{\partial A_x}\Big\rangle A_x(t)+\frac{1}{\Omega}\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t')\\
+j_x(t)&=\frac{1}{\Omega}\,\langle\hat J_x\rangle(t)
+=\frac{1}{\Omega}\,\langle\hat J_x\rangle_0+\frac{1}{\Omega}\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t')\\
 &=-\frac{ne^2}{m}A_x(t)+\frac{1}{\Omega}\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t')
 \end{aligned}
 \tag{C6}
