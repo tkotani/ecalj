@@ -35,17 +35,20 @@ $$
 \tag{C2}
 $$
 
-相互作用表示で状態（または密度行列）を $F$ について一次まで展開すると、別の演算子 $\hat A$ の期待値の変化は
+観測する演算子 $\hat A$ は、それ自身が $F$ を含んでいてもよい（後で使う電流の演算子がそうである）。
+期待値 $\langle\hat A\rangle(t)={\rm Tr}[\rho(t)\hat A(t)]$ を $F$ について一次まで取ると、$\hat A$ 自身の変化 $(\partial\hat A/\partial F)F$ を平衡の密度行列 $\rho_0$ で平均した項と、密度行列の変化 $\delta\rho$ による項の和になる。
+後者は、相互作用表示で $\delta\rho_{\rm I}(t)=(i/\hbar)\int_{-\infty}^{t}dt'\,[\hat B_{\rm I}(t'),\rho_0]\,F(t')$ と一次まで展開して得られる。結果は
 
 $$
 \begin{aligned}
-&\delta\langle\hat A\rangle(t)=\int_{-\infty}^{\infty}dt'\,\chi^R_{AB}(t-t')\,F(t'),\\
+&\delta\langle\hat A\rangle(t)=\Big\langle\frac{\partial\hat A}{\partial F}\Big\rangle F(t)+\int dt'\,\chi^R_{AB}(t-t')\,F(t'),\\
 &\chi^R_{AB}(t)=\frac{i}{\hbar}\,\theta(t)\,\big\langle[\hat A_{\rm H}(t),\hat B]\big\rangle
 \end{aligned}
 \tag{C3}
 $$
 
-となる。$\hat A_{\rm H}(t)=e^{i\hat H_0t/\hbar}\hat A\,e^{-i\hat H_0t/\hbar}$、$\langle\cdots\rangle$ は $\hat H_0$ の熱平衡での期待値である。
+である。$\hat A_{\rm H}(t)=e^{i\hat H_0t/\hbar}\hat A\,e^{-i\hat H_0t/\hbar}$、$\langle\cdots\rangle$ は $\hat H_0$ の熱平衡での期待値で、第 2 項の $\hat A$ は $F=0$ でのものである。
+$\hat A$ が $F$ を含まなければ第 1 項は無い。
 $\theta(t)$ があるので $\chi^R$ は遅延型で、応答は原因 $F$ より後にしか起きない（[付録](./appendix#causality)）。
 
 一体の系では、$\hat H_0$ の一体の固有状態 $|n\rangle$（エネルギー $E_n$、占有 $f_n$）を使い、$\hat A$、$\hat B$ を一体の演算子とすると、フーリエ変換は
@@ -79,32 +82,28 @@ $\hat J_x$ が全電流の演算子（電荷 $-e$ と速度 $(\hat{\bf p}_i+e{\b
 
 $$
 \begin{aligned}
-&\delta\langle\hat J_x\rangle(t)=\int dt'\,\chi^R_{AB}(t-t')\,A_x(t'),\\
-&\chi^R_{AB}(t)=\frac{i}{\hbar}\,\theta(t)\,\big\langle[\hat J_{x,{\rm H}}(t),\hat J^0_x]\big\rangle
+&\delta\langle\hat J_x\rangle(t)=\Big\langle\frac{\partial\hat J_x}{\partial A_x}\Big\rangle A_x(t)+\int dt'\,\chi^R_{AB}(t-t')\,A_x(t'),\\
+&\chi^R_{AB}(t)=\frac{i}{\hbar}\,\theta(t)\,\big\langle[\hat J^0_{x,{\rm H}}(t),\hat J^0_x]\big\rangle
 \end{aligned}
 \tag{C6}
 $$
 
-である。これを変形する。
-$\hat J_x=\hat J^0_x-(e^2/m)\hat N A_x$ の第 2 項は、$\hat N$ が $\hat H_0$ とも $\hat J^0_x$ とも交換するので、交換子に寄与しない。
-したがって $\chi^R_{AB}$ は $\hat J^0_x$ どうしの応答関数 $\chi^R_{JJ}(t)=(i/\hbar)\theta(t)\langle[\hat J^0_{x,{\rm H}}(t),\hat J^0_x]\rangle$ に等しい。
-一方、期待値 $\langle\hat J_x\rangle_0$ には第 2 項が $-(e^2/m)\langle\hat N\rangle_0A_x=-(e^2/m)n\Omega A_x$ を与える（$n$ は電子の数密度）。まとめると
+である（第 2 項の $\hat A$ は $F=0$ での $\hat J_x$、すなわち $\hat J^0_x$）。これを変形する。
+式 (C5) から $\partial\hat J_x/\partial A_x=-(e^2/m)\hat N$ で、その期待値は $-(e^2/m)n\Omega$ である（$n$ は電子の数密度）。
+また $\chi^R_{AB}$ は $\hat J^0_x$ どうしの応答関数で、これを $\chi^R_{JJ}$ と書く。したがって
 
 $$
-\begin{aligned}
-\langle\hat J_x\rangle(t)&=\langle\hat J_x\rangle_0+\delta\langle\hat J_x\rangle(t)\\
-&=-\frac{e^2}{m}n\Omega\,A_x(t)+\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t')
-\end{aligned}
+\delta\langle\hat J_x\rangle(t)=-\frac{e^2}{m}n\Omega\,A_x(t)+\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t')
 \tag{C7}
 $$
 
-となる。第 1 項が反磁性の部分、第 2 項が常磁性の部分である。
+となる。第 1 項が反磁性の部分、第 2 項が常磁性の部分で、どちらも線形応答の式 (C3) から出る。
 
 $e^{-i\omega t}$ の成分では、第 2 項のたたみこみは積 $\chi^R_{JJ}(\omega)A_x(\omega)$ になる（$\chi^R_{JJ}(\omega)$ は式 (C4) で与えられる）。
-電流密度は $\langle\hat J_x\rangle/\Omega$ で、$A_x(\omega)=E_x(\omega)/i\omega$ なので
+電流密度は $\delta\langle\hat J_x\rangle/\Omega$ で、$A_x(\omega)=E_x(\omega)/i\omega$ なので
 
 $$
-\sigma(\omega)=\frac{\langle\hat J_x\rangle(\omega)}{\Omega\,E_x(\omega)}=\frac{i}{\omega}\Big[\frac{ne^2}{m}-\frac{1}{\Omega}\,\chi^R_{JJ}(\omega)\Big]
+\sigma(\omega)=\frac{\delta\langle\hat J_x\rangle(\omega)}{\Omega\,E_x(\omega)}=\frac{i}{\omega}\Big[\frac{ne^2}{m}-\frac{1}{\Omega}\,\chi^R_{JJ}(\omega)\Big]
 \tag{C8}
 $$
 
