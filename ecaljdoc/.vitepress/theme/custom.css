@@ -216,7 +216,7 @@ html:has(.home-dark), html:has(.home-dark) body { background: #1b1b1f; }
    sets `pageClass: secnum-manual` in its frontmatter and gets no automatic ones.
 --------------------------------------------------------------------------- */
 .vp-doc > div { counter-reset: sec2 sec3; }
-.vp-doc > div > h2 { counter-increment: sec2; counter-reset: sec3; }
+.vp-doc > div > h2 { counter-increment: sec2; counter-set: sec3 0; }   /* counter-set, not counter-reset: a reset on a sibling h2 starts a new nested counter and the h3 numbers ran on (4.3 for 4.1, fixed 2026-11-15) */
 .vp-doc > div > h3 { counter-increment: sec3; }
 .vp-doc > div > h2::before { content: counter(sec2) ". "; }
 .vp-doc > div > h3::before { content: counter(sec2) "." counter(sec3) " "; }
