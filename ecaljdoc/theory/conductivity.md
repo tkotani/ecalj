@@ -89,7 +89,7 @@ $$
 $$
 
 である。これを変形する。
-式 (C5) から $\partial\hat J_x/\partial A_x=-(e^2/m)\hat N$ で、その期待値は $-(e^2/m)n\Omega$ である（$n$ は電子の数密度）。
+式 (C5) から $\partial\hat J_x/\partial A_x=-(e^2/m)\hat N$ で、その期待値は $-(e^2/m)\langle\hat N\rangle=-(e^2/m)n\Omega$ である（系の体積を $\Omega$、電子の数密度を $n$ とする）。
 また式 (C5) から $\hat J_x\big|_{A_x=0}=\hat J^0_x$ なので、$\chi^R_{AB}$ は $\hat J^0_x$ どうしの応答関数である。これを $\chi^R_{JJ}$ と書く。したがって
 
 $$
