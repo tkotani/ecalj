@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 3783960ce (source blob d80b84cd68ae).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 312941c3e (source blob 470c474818ff).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -109,7 +109,7 @@ $$
 \tag{C8}
 $$
 
-This is the result of the Kubo formula. The real part, which fixes the dissipation (Joule heat), is ${\rm Re}\,\sigma(\omega)={\rm Im}\,\chi^R_{JJ}(\omega)/(\omega\Omega)$. In the diamagnetic term the phases of the electric field and the current are orthogonal, so it gives no dissipation (it affects only the imaginary part of $\sigma$; multiplying by the imaginary unit $i$ means a phase delay of 90 degrees, the same as the phase lag in a coil, that is, an inductance effect).
+This is the result of the Kubo formula. The real part, which fixes the dissipation (Joule heat), is ${\rm Re}\,\sigma(\omega)={\rm Im}\,\chi^R_{JJ}(\omega)/(\omega\Omega)$. In the diamagnetic term the phases of the electric field and the current are orthogonal, so it gives no dissipation (it affects only the imaginary part of $\sigma$; multiplying by the imaginary unit $i$ means a phase delay of 90 degrees. This is an inductance effect).
 
 ### The direct-current limit: the Kubo–Greenwood formula {#kubo-greenwood}
 
