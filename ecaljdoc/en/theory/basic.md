@@ -1,11 +1,12 @@
 # Basic expressions
 
-> English version of the page [theory/basic](../../theory/basic.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/basic.md of commit e7f8f7d3f (source blob 1bcf95418988).
+> English version of the page [theory/basic](../../theory/basic.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/basic.md of commit 3973e4ffe (source blob a7612e333680).
 
 On the Green function at zero temperature
 
 ## References
 - A. L. Fetter and J. D. Walecka, *Quantum Theory of Many-Particle Systems* (McGraw-Hill, 1971). Japanese translation: 『多粒子系の量子論』理論編・応用編, translated by T. Matsubara and K. Fujii (McGraw-Hill Book, Tokyo, 1987)
+- A. Szabo and N. S. Ostlund, *Modern Quantum Chemistry* (Macmillan, 1982; Dover, 1996), Chapter 6. Japanese translation: 『新しい量子化学 電子構造の理論入門』上・下, translated by K. Ohno, T. Sakai and Y. Mochizuki (University of Tokyo Press, 1987, 1988)
 
 ## What is a Green function {#what-is-green}
 
@@ -208,6 +209,12 @@ The correspondence with ordinary (time-independent) perturbation theory: there a
 - **Disconnected type 2**: disconnected but overlapping in time (the intermediate state has two excitations and is not $\ket{\Phi_0}$). These do enter the formulas of ordinary perturbation theory, but they cancel exactly the terms that come from the normalization (e.g. $-V_{00}\sum_n|V_{0n}|^2/\Delta_n^2$ at third order).
 
 Excluding type 1, and dropping type 2 together with the normalization terms, leaves only the connected diagrams: the same result as Eq. (G3) (Goldstone).
+
+> On the side of perturbation theory without time, this cancellation is shown for the energy, order by order, in Chapter 6 (many-body perturbation theory) of the quantum-chemistry textbook by Szabo and Ostlund.
+> The renormalization terms that come from the normalization cancel the unlinked terms, and the energy stays proportional to the size of the system (size consistency).
+> Unlinked terms appear clearly from the fourth order on, and terms such as $-E^{(2)}\sum_n|V_{0n}|^2/\Delta_n^2$ cancel them (the linked-diagram theorem).
+> There the energy (vacuum diagrams without external lines) is treated, but the mechanism of the cancellation is the same for the Green function (two external lines).
+> In the Møller–Plesset division ($\hat H_0$ taken as the sum of Fock operators), $\hat H-\hat H_0$ contains a one-body part, so $V_{00}=E^{(1)}$ is not zero; this is the same structure as the note on the adiabatic connection in 4.1.
 
 > In the form of Eq. (G3), with the terms written for each time ordering (Goldstone type), each ordering of the vertex times is a separate term. Feynman's view is to see the hole as an electron going backward in time, to represent the electron and the hole by one propagator (the T-product Green function of Eq. (G4)), and to gather the terms of different time orderings into one diagram. Integrating over frequency, the energy denominators come out automatically. The formal derivation with the T product and $1/n!$ is due to Dyson. Note that, many-body perturbation theory though it is, the essence is the same as ordinary perturbation theory; it is only rewritten.
 
