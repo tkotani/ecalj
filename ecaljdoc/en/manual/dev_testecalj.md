@@ -1,6 +1,6 @@
 # Tests (testecalj) {#dev-testecalj}
 
-> English version of the page [manual/dev_testecalj](../../manual/dev_testecalj.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/dev_testecalj.md of the tree of 4386e3a86 (source blob d71f3167376a).
+> English version of the page [manual/dev_testecalj](../../manual/dev_testecalj.md). The pages at the top of ecaljdoc are the reference; this one was made from manual/dev_testecalj.md of commit c1c4537df (source blob f43b00823148).
 
 The tests of ecalj are run with `testecalj`. The minimum tests that `InstallAll.py` runs at installation also use it.
 
