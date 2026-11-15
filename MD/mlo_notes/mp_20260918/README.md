@@ -45,7 +45,7 @@ POSCAR (MP の primitive) → vasp2ctrl → ctrls.<name> → ctrlgenToml.py <nam
    `--mlo_lod` を付けて回すと **0.8 meV**。GaAs に同じことをすると 14 → 20 meV と少し悪化
    （深い 3d を模型に入れ、伝導帯の 4d 的成分を失う）。
    → **自動化した（同日夜、commit 参照）。** `m_HamPMT` が模型選択の前に PMT ハミルトニアンを
-   全 k で対角化し、半芯 LO（0 < pz < 10 かつ int(pz) < int(pnu)）ごとに「LO 部分空間への
+   全 k で対角化し、セミコア LO（0 < pz < 10 かつ int(pz) < int(pnu)）ごとに「LO 部分空間への
    射影重み > 1/2 の占有状態」の最高エネルギーを取る。それが **E_F − 10 eV より上なら
    浅い LO として LO を模型関数に**（EH は捨てる）、下なら従来どおり EH を使い LO 状態は
    nskip で外す。ZnO の Zn 3d は −3.8 eV → LO を使って 0.8 meV、GaAs Ga 3d −14.7 eV、

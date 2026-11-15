@@ -19,7 +19,7 @@ ecaljdoc の書き方の決まり（公開）は [`ecaljdoc/manual/writing_docs.
 | 話題 | 正本のページ |
 |---|---|
 | 入力ファイル、`Legacy2toml.py`、古いキーと TOML のパスの対応（表 1 `#legacy-toml-map`）、生成されるファイルの体裁（`#file-layout`）、`ctrlg_update.py` | `manual/toml_migration.md`（メニュー「入力ファイル」） |
-| `ctrlg.<sname>.toml` の構成、lmf のキー、LDA+U（`#lda-u-toml`）、芯の穴、ローカル軌道、`symgrp`/`symgrpaf`（`#symgrp`）、`save.<sname>`（`#save-sname`）、出力ファイル、`readp`/`pnufix`（`#readp-option`） | `manual/lmf.md` |
+| `ctrlg.<sname>.toml` の構成、lmf のキー、LDA+U（`#lda-u-toml`）、コアホール、ローカル軌道、`symgrp`/`symgrpaf`（`#symgrp`）、`save.<sname>`（`#save-sname`）、出力ファイル、`readp`/`pnufix`（`#readp-option`） | `manual/lmf.md` |
 | コマンドラインのオプションの一覧、`--ctrlg:` の仕様（`#run-time-ctrlg-overrides`）、`--fullstdo` | `manual/cmdopts.md` |
 | `[gw]` のキー、積基底 `[product_basis]`（`#product-basis`、2026-11-14 に gwsc から移した） | `manual/gwinput.md` |
 | `gwsc` のオプション、反復の混合 `mixbeta`（`#mixbeta-and-mixpriorit`、lmf から移した）、gwsc の使うファイル、QPU の列 | `manual/gwsc.md` |
@@ -149,6 +149,7 @@ ecaljdoc の書き方の決まり（公開）は [`ecaljdoc/manual/writing_docs.
 
 ### 5.4 2026-11-14 に user から受けた書き方の指示（ecaljdoc）
 - 英語の混ざった日本語でよい。用語は無理に訳さない（例: 「準粒子自己無撞着 GW」でなく QSGW、quasiparticle self-consistent $GW$）
+- core はコア（「芯」と訳さない。user 2026-11-15「芯と書かれているがコアである。ときどきカタカナにすることもある」）。semicore はセミコア、core hole はコアホール
 - 数式は横のスクロールバーを出さない。折り返してよい（全ページ同じ）
 - メニューの見出し、ページの題も日本語にする（英語版のメニューは `enText`）
 - Claude の助けは README とトップに一行だけ（「2026-02 から Claude Code と開発」）。誰が書いたか・誰の指示かは書き分けない

@@ -320,11 +320,11 @@ core = [
 
 意味（古い `<PRODUCT_BASIS>` のブロックと同じで、入れ物が変わっただけ）:
 
-- `nlx` の行 `[iatom, l, nnvv, nnc]`: そのサイトの各 `l` に、ecalj がいくつの動径関数を持つか。`nnvv = 2` は `{phi, phidot}`、`nnvv = 3` はローカル軌道 `phiz` を加えたもの。`nnc` はその `l` の芯の準位の数。導かれる値なので直さない。
+- `nlx` の行 `[iatom, l, nnvv, nnc]`: そのサイトの各 `l` に、ecalj がいくつの動径関数を持つか。`nnvv = 2` は `{phi, phidot}`、`nnvv = 3` はローカル軌道 `phiz` を加えたもの。`nnc` はその `l` のコアの準位の数。導かれる値なので直さない。
 - `valence` の行 `[iatom, l, n, occ, unocc]`: 動径関数ごとに一つ。`n = 1` は phi、`2` は phidot、`3` は phiz。
   `occ` / `unocc` は、その関数を「占有」/「非占有」の組に入れるかの 0/1 のスイッチ。積基底は（占有の組）×（非占有の組）の積から作り、`pb_tolerance` で間引く。
   `phidot` は、速さのためにふつうは外す（`0 0`）。入れると積基底はより正確になる。
-- `core` の行 `[iatom, l, n, occ, unocc, forX0, forSxc]`: 芯の準位ごとに一つ（`n = 1` がいちばん深い）。`forX0` / `forSxc` は PRB 76, 165106 (2007) の CORE1/CORE2 の区別から来たもの。昔のもので、いまの計算ではどの芯の行もすべて 0。
+- `core` の行 `[iatom, l, n, occ, unocc, forX0, forSxc]`: コアの準位ごとに一つ（`n = 1` がいちばん深い）。`forX0` / `forSxc` は PRB 76, 165106 (2007) の CORE1/CORE2 の区別から来たもの。昔のもので、いまの計算ではどのコアの行もすべて 0。
 
 `Legacy2toml.py` は、TOML より前の `GWinput` の `<PRODUCT_BASIS>` のブロックを、この `[product_basis]` の節に直します。
 

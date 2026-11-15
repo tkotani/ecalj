@@ -39,6 +39,7 @@ npx vitepress build    # check that the site builds
 - Write only the reasons and the cautions that are needed. How we got there (the history) does not go here (it goes to the development records).
 - Equations carry numbers (`\tag{n}`) and are referred to by number; figures and tables are numbered too.
 - Do not separate who wrote what (a person or an AI) or who asked for it; git tells that.
+- In the Japanese pages, core is written コア (not 芯); semicore is セミコア and core hole is コアホール. Some other terms are also written in katakana.
 - For an input key whose template value (written by `ctrlgenToml.py`) differs from the default of the code (used when the key is absent), write both values.
 
 ## VitePress pitfalls {#vitepress-pitfalls}

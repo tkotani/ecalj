@@ -101,7 +101,7 @@ Fortran のプログラムは、次の形の引数を受け付けます。それ
 | `--quit=mkpot` | `m_mkpot`（ポテンシャルを作る）の後で止まる | `m_bndfp.f90` |
 | `--quit=dmat` | 最初に密度行列を作った後で止まる | `main_lmf.f90` |
 | `--quit=band` | バンドのループの後で止まる（密度は更新しない） | `m_lmfinit.f90` |
-| `--quitecore` | 芯の扱いの後で止まる | `m_bndfp.f90` |
+| `--quitecore` | コアの扱いの後で止まる | `m_bndfp.f90` |
 
 ## バンド・状態密度・フェルミ面
 
@@ -119,8 +119,8 @@ Fortran のプログラムは、次の形の引数を受け付けます。それ
 | `--writeeigen` | flag | `--eigen-at-k` と同じ（別名） | `m_bndfp.f90` |
 | `--allband` | flag | すべての k ですべてのバンドを出す | `m_bandcal.f90` |
 | `--boltztrap` | flag | 全メッシュで `BoltzTraP` の入力を書く | `m_bndfp.f90` |
-| `--cls` | flag | 芯の準位の分光の重み（`m_clsmode.f90`） | `m_bndfp.f90` |
-| `--corehole` | flag | 芯の穴の計算 | いろいろ |
+| `--cls` | flag | コアの準位の分光の重み（`m_clsmode.f90`） | `m_bndfp.f90` |
+| `--corehole` | flag | コアホールの計算 | いろいろ |
 | `--efermi=<file>` | kv | `lmf` が書き（バンドプロットのモードでは読み）、`mlo` が読むフェルミ準位のファイルを、`efermi.lmf` の代わりにこれにする。`job_band`、`job_dos`、`job_fermisurface` は `efermi.lmf.job_band` などを、`job_mlo_soc` は `efermi_soc` を渡す。こうして `efermi.lmf` には最後の自己無撞着な `lmf` の値が残る（2026-09-26） | `m_cmdopt_registry.f90`（`efermi_file`） |
 
 ## GW の準備とその仲間（`lmf --jobgw=…`、`gwsc` の中）

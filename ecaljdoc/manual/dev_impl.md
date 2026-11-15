@@ -29,10 +29,10 @@ $$
 MT サイトの添字 ${\bf R}$、
 角運動量 $L=(l,m)$、動径関数の添字 $j$ で
 指定する。
-芯の固有関数は、MT の中に閉じこめるという条件の下で
+コアの固有関数は、MT の中に閉じこめるという条件の下で
 計算する。
-そのうえで、芯の寄与を、後の式 (I15) で定める交換の部分には入れる。相関の部分には入れない。
-芯はすべて Ref.[kotani07a] の「core1」として扱う（`[product_basis]` の `core` の行はすべて 0）。
+そのうえで、コアの寄与を、後の式 (I15) で定める交換の部分には入れる。相関の部分には入れない。
+コアはすべて Ref.[kotani07a] の「core1」として扱う（`[product_basis]` の `core` の行はすべて 0）。
 
 ####  MTO の部分
 
@@ -231,7 +231,7 @@ $$
 - $\Pi^M$ は `zmelt` から積み上げ（`m_screened_coulomb.f90` から呼ぶ `x0kf_zxq`、`is_m_basis=.true.`）、$\Pi^E$ に直し、式 (I16) と (I19) を E 基底で計算する（`m_llw.f90` の `WVRllwR`、`WVIllwI`。`is_x0_m_basis`、`is_wc_m_basis` は true）。
   そのうえで $W^{\rm c}$ を M 基底で置く。$\mathbf q=0$ では、M 基底への変換を offset-$\Gamma$ の補正の後に行う（`w0w0i`、`is_wc_m_basis=.true.`）。
 - $\Sigma^{\rm c}$（式 (I20)）は、M 基底の `zmelt` と $W^{{\rm c},M}$ を使う（`m_sxcf_sc.f90`、`build_zmel(..., is_m_basis=.true.)`）。
-- $\Sigma^{\rm x}$（式 (I15)）は、$v$ が対角になる E 基底を使う（`build_zmel(..., is_m_basis=.false.)`）。芯の状態（芯の交換）では、MPB の各原子のブロックを別々に変換する。芯の状態の `zmelt` はその MT の外では 0 だからである。
+- $\Sigma^{\rm x}$（式 (I15)）は、$v$ が対角になる E 基底を使う（`build_zmel(..., is_m_basis=.false.)`）。コアの状態（コアの交換）では、MPB の各原子のブロックを別々に変換する。コアの状態の `zmelt` はその MT の外では 0 だからである。
 - `hx0fp0`（`main_hx0fp0.f90`）は終始 E 基底で計算する（`is_x0_m_basis=.false.`）。
 
 論文 [Obata2025] はすべてを E 基底で書いている。式 (I14a) は同じ $\Pi^E$、$W^{\rm c}$、$\Sigma$ を与える。
@@ -255,13 +255,13 @@ Z^{\mathbf q-\mathbf k n',\mathbf q m}_{\mathbf k\mu}.
 \end{aligned}
 \tag{I15}
 $$
-占有された価電子の状態 $\Psi_{\mathbf q-\mathbf k n'}$ を芯の状態に置きかえると、芯の交換 $\Sigma^{\rm Cx}$ になる。
-その MPB（MPB$_{\rm C}$。ここでは $M_{{\rm C}I}$、$E_{{\rm C}\mu}$ と書く）は価電子のものとは異なる。芯と価電子の固有関数の積を表すからである。
-`gwsc` はこれを価電子の部分の前の別の段で作る。`hbasfp0 --job=3` が積基底 $M_{\rm C}$ を作り（`genallcf_v3`、`incwfin=-2`: 芯の状態と価電子の動径関数の積）、
+占有された価電子の状態 $\Psi_{\mathbf q-\mathbf k n'}$ をコアの状態に置きかえると、コアの交換 $\Sigma^{\rm Cx}$ になる。
+その MPB（MPB$_{\rm C}$。ここでは $M_{{\rm C}I}$、$E_{{\rm C}\mu}$ と書く）は価電子のものとは異なる。コアと価電子の固有関数の積を表すからである。
+`gwsc` はこれを価電子の部分の前の別の段で作る。`hbasfp0 --job=3` が積基底 $M_{\rm C}$ を作り（`genallcf_v3`、`incwfin=-2`: コアの状態と価電子の動径関数の積）、
 `hvccfp0 --job=3` がその基底での Coulomb 行列とその固有ベクトル（$E_{\rm C}$、`__Vcoud.*` に置く。後で価電子の `hvccfp0 --job=0` が上書きする）を作り、
-`hsfp0_sc --job=3` が芯の状態で式 (I15) を $E_{\rm C}$ 基底で計算する。
-このように `gwsc` は各反復で交換を 2 回計算する。ここでの芯の交換 $\Sigma^{\rm Cx}$（$E_{\rm C}$ で）と、`hbasfp0 --job=0` と `hvccfp0 --job=0` の後に `hgw` の中で計算する価電子の交換 $\Sigma^{\rm x}$（$E$ で）である。
-芯の状態は MT の中にあるので、芯の交換は積基底を使わずに計算できる（今後の課題）。
+`hsfp0_sc --job=3` がコアの状態で式 (I15) を $E_{\rm C}$ 基底で計算する。
+このように `gwsc` は各反復で交換を 2 回計算する。ここでのコアの交換 $\Sigma^{\rm Cx}$（$E_{\rm C}$ で）と、`hbasfp0 --job=0` と `hvccfp0 --job=0` の後に `hgw` の中で計算する価電子の交換 $\Sigma^{\rm x}$（$E$ で）である。
+コアの状態は MT の中にあるので、コアの交換は積基底を使わずに計算できる（今後の課題）。
 
 遮蔽された Coulomb 相互作用は対称な形で与える（[Obata2025] Eqs. (10), (11)）。
 $$
@@ -393,7 +393,7 @@ $V^{\rm xc}$ を MTO の代わりに最大局在 Wannier 関数で展開する�
 
 実際の実装では、効率よく数値計算するために、LDA または GGA の交換相関
 ポテンシャル $V^{\rm xc}_{\rm LDA}$ を使う。
-すなわち、芯の固有関数と MT の中の動径関数を作るのに使う
+すなわち、コアの固有関数と MT の中の動径関数を作るのに使う
 （ここでは GGA を使うときも添字 LDA を使う。「LDA/GGA」は LDA または GGA を意味する）。
 差 $V^{\rm xc}-V^{\rm xc}_{\rm LDA}$ を
 BZ での補間（節（[§](#sigma-interpolation)）で説明する）に使う。
