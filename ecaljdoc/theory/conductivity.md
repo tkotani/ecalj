@@ -42,12 +42,12 @@ $$
 $$
 \begin{aligned}
 &\delta\langle\hat A\rangle(t)=\Big\langle\frac{\partial\hat A}{\partial F}\Big\rangle F(t)+\int dt'\,\chi^R_{AB}(t-t')\,F(t'),\\
-&\chi^R_{AB}(t)=\frac{i}{\hbar}\,\theta(t)\,\big\langle[\hat A_{\rm H}(t),\hat B]\big\rangle
+&\chi^R_{AB}(t)=\frac{i}{\hbar}\,\theta(t)\,\big\langle\big[\big(\hat A\big|_{F=0}\big)_{\rm H}(t),\hat B\big]\big\rangle
 \end{aligned}
 \tag{C3}
 $$
 
-である。$\hat A_{\rm H}(t)=e^{i\hat H_0t/\hbar}\hat A\,e^{-i\hat H_0t/\hbar}$、$\langle\cdots\rangle$ は $\hat H_0$ の熱平衡での期待値で、第 2 項の $\hat A$ は $F=0$ でのものである。
+である。$\hat A_{\rm H}(t)=e^{i\hat H_0t/\hbar}\hat A\,e^{-i\hat H_0t/\hbar}$、$\langle\cdots\rangle$ は $\hat H_0$ の熱平衡での期待値である。第 2 項の交換子には、$F$ について 0 次の $\hat A\big|_{F=0}$ が入る。
 $\hat A$ が $F$ を含まなければ第 1 項は無い。
 $\theta(t)$ があるので $\chi^R$ は遅延型で、応答は原因 $F$ より後にしか起きない（[付録](./appendix#causality)）。
 
@@ -83,14 +83,14 @@ $\hat J_x$ が全電流の演算子（電荷 $-e$ と速度 $(\hat{\bf p}_i+e{\b
 $$
 \begin{aligned}
 &\delta\langle\hat J_x\rangle(t)=\Big\langle\frac{\partial\hat J_x}{\partial A_x}\Big\rangle A_x(t)+\int dt'\,\chi^R_{AB}(t-t')\,A_x(t'),\\
-&\chi^R_{AB}(t)=\frac{i}{\hbar}\,\theta(t)\,\big\langle[\hat J^0_{x,{\rm H}}(t),\hat J^0_x]\big\rangle
+&\chi^R_{AB}(t)=\frac{i}{\hbar}\,\theta(t)\,\big\langle\big[\big(\hat J_x\big|_{A_x=0}\big)_{\rm H}(t),\hat J^0_x\big]\big\rangle
 \end{aligned}
 \tag{C6}
 $$
 
-である（第 2 項の $\hat A$ は $F=0$ での $\hat J_x$、すなわち $\hat J^0_x$）。これを変形する。
+である。これを変形する。
 式 (C5) から $\partial\hat J_x/\partial A_x=-(e^2/m)\hat N$ で、その期待値は $-(e^2/m)n\Omega$ である（$n$ は電子の数密度）。
-また $\chi^R_{AB}$ は $\hat J^0_x$ どうしの応答関数で、これを $\chi^R_{JJ}$ と書く。したがって
+また式 (C5) から $\hat J_x\big|_{A_x=0}=\hat J^0_x$ なので、$\chi^R_{AB}$ は $\hat J^0_x$ どうしの応答関数である。これを $\chi^R_{JJ}$ と書く。したがって
 
 $$
 \delta\langle\hat J_x\rangle(t)=-\frac{e^2}{m}n\Omega\,A_x(t)+\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t')
