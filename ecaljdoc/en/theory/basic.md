@@ -1,6 +1,6 @@
 # Basic expressions
 
-> English version of the page [theory/basic](../../theory/basic.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/basic.md of commit 05147cd2f (source blob 4eba1b6b7ffd).
+> English version of the page [theory/basic](../../theory/basic.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/basic.md of commit 4e3d07986 (source blob ede507680f06).
 
 On the Green function at zero temperature
 
@@ -104,7 +104,7 @@ The Hamiltonian is then considered in this linear space, and the ground state fo
 
 In a one-body problem, on the other hand, only one electron is considered, so we work in an $n^3$-dimensional vector space.
 The ground state of a one-body problem is specified by dividing this $n^3$-dimensional vector space into the occupied and the unoccupied subspaces with the one-body Hamiltonian (this is what solving a one-body problem means).
-With the Hamiltonian specified by the one-body problem (the division into the occupied and the unoccupied subspaces) as a block, the $2^M$-dimensional vector space is built up.
+With the Hamiltonian specified by the one-body problem (the division into the occupied and the unoccupied subspaces) as the base, the $2^M$-dimensional vector space is built up.
 The Green-function method below (many-body perturbation theory) approaches this many-body problem on the basis of the one-body problem.
 
 ## Definition of the (one-particle) Green function
