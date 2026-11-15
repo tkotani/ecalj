@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 74902897e (source blob 1ffe58d25fc7).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit e04f9fdef (source blob 394c889c9d13).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -81,15 +81,15 @@ Substituting these into Eq. (C3),
 
 $$
 \begin{aligned}
-&\delta\langle\hat J_x\rangle(t)=\int dt'\,\chi^R_{J_xJ^0_x}(t-t')\,A_x(t'),\\
-&\chi^R_{J_xJ^0_x}(t)=\frac{i}{\hbar}\,\theta(t)\,\big\langle[\hat J_{x,{\rm H}}(t),\hat J^0_x]\big\rangle
+&\delta\langle\hat J_x\rangle(t)=\int dt'\,\chi^R_{AB}(t-t')\,A_x(t'),\\
+&\chi^R_{AB}(t)=\frac{i}{\hbar}\,\theta(t)\,\big\langle[\hat J_{x,{\rm H}}(t),\hat J^0_x]\big\rangle
 \end{aligned}
 \tag{C6}
 $$
 
 This is now transformed.
 The second term of $\hat J_x=\hat J^0_x-(e^2/m)\hat N A_x$ does not contribute to the commutator, because $\hat N$ commutes with both $\hat H_0$ and $\hat J^0_x$.
-So $\chi^R_{J_xJ^0_x}$ equals the response function between $\hat J^0_x$, $\chi^R_{JJ}(t)=(i/\hbar)\theta(t)\langle[\hat J^0_{x,{\rm H}}(t),\hat J^0_x]\rangle$.
+So $\chi^R_{AB}$ equals the response function between $\hat J^0_x$, $\chi^R_{JJ}(t)=(i/\hbar)\theta(t)\langle[\hat J^0_{x,{\rm H}}(t),\hat J^0_x]\rangle$.
 On the other hand, the second term gives $-(e^2/m)\langle\hat N\rangle_0A_x=-(e^2/m)n\Omega A_x$ to the expectation value $\langle\hat J_x\rangle_0$ ($n$ is the electron density). Altogether,
 
 $$
