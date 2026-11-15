@@ -191,7 +191,7 @@ $$
 \tag{C15}
 $$
 
-で、$\delta$ によらない。一方、対角成分だけの場合（不純物の無い自由電子）は $n=m$ の項だけが残り、$\int dx\,\delta_\delta(x)^2=1/(2\pi\delta)$ から
+で、$\delta$ によらない。一方、対角成分だけの場合は $n=m$ の項だけが残り、$\int dx\,\delta_\delta(x)^2=1/(2\pi\delta)$ から
 
 $$
 \begin{aligned}
