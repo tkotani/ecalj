@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit ea9eacfbe (source blob 64fa4ac1ba2b).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 7eb92ca24 (source blob 43f7ca5d7f60).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -153,9 +153,9 @@ So the product in time becomes a convolution in energy, and with $\delta(E-H)=-\
 
 $$
 \begin{aligned}
-\chi^R_{JJ}(\omega)=\frac{1}{2\pi i}\int dE\,f(E)\,
-{\rm Tr}\big[&J\,\big(G^R(E)-G^A(E)\big)\,J\,G^R(E+\hbar\omega)\\
-&+J\,G^A(E-\hbar\omega)\,J\,\big(G^R(E)-G^A(E)\big)\big]
+\chi^R_{JJ}(\omega)&=\frac{1}{2\pi i}\int dE\,f(E)\\
+&\quad\times{\rm Tr}\big[J\,\big(G^R(E)-G^A(E)\big)\,J\,G^R(E+\hbar\omega)\\
+&\qquad+J\,G^A(E-\hbar\omega)\,J\,\big(G^R(E)-G^A(E)\big)\big]
 \end{aligned}
 \tag{C12}
 $$
