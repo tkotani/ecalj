@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 2a25e8b86 (source blob 56c96255f172).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 71b9450ae (source blob bc44068d7ab4).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -179,12 +179,9 @@ $$
 
 This holds for any $\omega$ and temperature (for $\omega\neq 0$ it gives the optical conductivity). In the limit $\omega\to 0$ at low temperature it agrees with Eq. (C10).
 
-The product of delta functions in Eqs. (C10) and (C11) is hard to read; it is easier to keep $i\delta$ finite.
-${\rm Im}\,G^R(E)=-\sum_n|n\rangle\langle n|\,\delta/\big((E-E_n)^2+\delta^2\big)$ is a sum of Lorentzians of width $\delta$, and the delta function is its limit $\delta\to 0$.
-Eq. (C11) is a product of two Lorentzians of width $\delta$ centred at $E_F$; it gives the strength, through $J$, of the pairs of states with both $E_n$ and $E_m$ within $\delta$ of $E_F$.
-Mind the order of the limits: the system is made large so that the level spacing is much smaller than $\delta$, and then $\delta\to 0$.
-
-If the matrix elements $|\langle n|\hat v_x|m\rangle|^2$ change little near $E_F$ (their average $\overline{|v_x|^2}$ is enough) and are taken out of the sum, Eq. (C10) becomes
+Keeping $i\delta$ finite, the delta functions in Eq. (C10) become Lorentzians of width $\delta$, $\delta_\delta(x)=(1/\pi)\,\delta/(x^2+\delta^2)$ (the system is made large so that the level spacing is much smaller than $\delta$, and then $\delta\to 0$).
+$\sum_n\delta_\delta(E-E_n)$ is the density of states $D(E)$ (the number of states per energy in the whole system).
+If the matrix elements $|\langle n|\hat v_x|m\rangle|^2$ are uniform near $E_F$ (average $\overline{|v_x|^2}$),
 
 $$
 \begin{aligned}
@@ -194,10 +191,7 @@ $$
 \tag{C15}
 $$
 
-Here $\delta_\delta(x)=(1/\pi)\,\delta/(x^2+\delta^2)$ is a Lorentzian of width $\delta$; when the level spacing is much smaller than $\delta$, $\sum_n\delta_\delta(E-E_n)$ is the density of states $D(E)$ (the number of states per energy in the whole system).
-So the product of delta functions becomes a finite quantity, the square of the density of states, independent of $\delta$. $D$ is proportional to $\Omega$ and $\overline{|v_x|^2}$ to $1/\Omega$, so $\sigma$ does not depend on the size of the system either.
-
-In contrast, when the matrix elements are only diagonal (for free electrons without impurities $J$ is diagonal in the wave vector and connects only equal ${\bf k}$), only the terms $n=m$ remain, giving the square of a Lorentzian:
+independent of $\delta$. When the matrix elements are only diagonal (free electrons without impurities), only the terms $n=m$ remain, and with $\int dx\,\delta_\delta(x)^2=1/(2\pi\delta)$
 
 $$
 \begin{aligned}
@@ -207,17 +201,9 @@ $$
 \tag{C16}
 $$
 
-Here $\int dx\,\delta_\delta(x)^2=1/(2\pi\delta)$ is used, and $\overline{v_x^2}$ is the average of $v_x^2$ at $E_F$.
-This diverges like $1/\delta$ for $\delta\to 0$: without scattering the current does not decay and the direct-current conductivity is infinite.
-With impurities the averaged $G$ has the physical width $\hbar/2\tau$ (see [the averaged single Green function](#averaged-g)).
-This width plays the role of $\delta$: with $\delta=\hbar/2\tau$, $D(E_F)/\Omega=N_1(E_F)$ and $\overline{v_x^2}=v_F^2/3$, Eq. (C16) becomes $2e^2\tau v_F^2N_1(E_F)/3=ne^2\tau/m$, in agreement with [the Drude formula](#drude).
-
-The relation between the two cases is seen from the sum of the matrix elements. With the decomposition of unity $\sum_m|m\rangle\langle m|=1$,
-$\sum_m|\langle n|\hat v_x|m\rangle|^2=\langle n|\hat v_x^2|n\rangle$, which is finite.
-So the states $m$ connected to $n$ by $\hat v_x$ are effectively finite in number (within some energy width $W$).
-If they are spread uniformly over the width $W$, $|\langle n|\hat v_x|m\rangle|^2\approx\overline{v_x^2}/\big(D(E_F)\,W\big)$, and Eq. (C15) becomes
-$\sigma_{xx}\approx(2\pi\hbar e^2/\Omega)\,\overline{v_x^2}\,D(E_F)/W$. This has the same form as Eq. (C16), with $\delta$ replaced by $W$.
-The conductivity is fixed by the energy width over which the states connected by $\hat v_x$ are spread (the larger of $W$ and $\delta$).
+which diverges for $\delta\to 0$ (without scattering the current does not decay).
+With impurities the averaged $G$ has the width $\hbar/2\tau$ (see [the averaged single Green function](#averaged-g)), and with $\delta=\hbar/2\tau$ Eq. (C16) becomes $ne^2\tau/m$, the [Drude formula](#drude).
+The two cases are connected by the completeness, $\sum_m|\langle n|\hat v_x|m\rangle|^2=\langle n|\hat v_x^2|n\rangle$ being finite: if the states $m$ connected to $n$ spread over an energy width $W$, $|\langle n|\hat v_x|m\rangle|^2\approx\overline{v_x^2}/(D W)$, and Eq. (C15) takes the form of Eq. (C16) with $\delta$ replaced by $W$.
 
 ### The $G^RG^A$ terms {#grga}
 
