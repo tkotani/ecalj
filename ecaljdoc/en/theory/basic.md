@@ -1,6 +1,6 @@
 # Basic expressions
 
-> English version of the page [theory/basic](../../theory/basic.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/basic.md of commit ec44cb046 (source blob b0cc5f74a628).
+> English version of the page [theory/basic](../../theory/basic.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/basic.md of commit 9e7fb6520 (source blob d534accfa28b).
 
 On the Green function at zero temperature
 
@@ -103,6 +103,7 @@ This vector space is conveniently built up with products of matrices called crea
 The Hamiltonian is then considered in this linear space, and the ground state found with the total number of particles fixed is the ground state of the many-body system.
 
 In a one-body problem, on the other hand, only one electron is considered, so we work in an $n^3$-dimensional vector space.
+The ground state of a one-body problem is specified by dividing this $n^3$-dimensional vector space into the occupied and the unoccupied subspaces with the one-body Hamiltonian (this is what solving a one-body problem means).
 With this as a block, the $2^M$-dimensional vector space is built up.
 The Green-function method below (many-body perturbation theory) approaches this many-body problem on the basis of the one-body problem.
 
