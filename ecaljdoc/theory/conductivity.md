@@ -202,7 +202,6 @@ $$
 $$
 
 で、$\delta\to 0$ で発散する（散乱が無ければ電流は減衰しない）。
-不純物があると平均した $G$ の幅は $\hbar/2\tau$ になり（[平均した一本のグリーン関数](#averaged-g)）、$\delta=\hbar/2\tau$ とすると式 (C16) は $ne^2\tau/m$、すなわち [Drude の式](#drude) になる。
 二つの場合は、完全系から $\sum_m|\langle n|\hat v_x|m\rangle|^2=\langle n|\hat v_x^2|n\rangle$ が有限であることでつながる。$n$ とつながる $m$ がエネルギーの幅 $W$ に広がっていれば $|\langle n|\hat v_x|m\rangle|^2\approx\overline{v_x^2}/(D W)$ で、式 (C15) は式 (C16) の $\delta$ を $W$ に替えた形になる。
 
 ### $G^RG^A$ の項 {#grga}
