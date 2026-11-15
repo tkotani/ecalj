@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 926bb9081 (source blob a2060de7621f).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 2e2383f1c (source blob b1343081afab).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -78,21 +78,26 @@ $\hat J_x$ is the total current operator (the sum of the charge $-e$ times the v
 
 Compared with Eq. (C2), the perturbation to first order in ${\bf A}$ is $-\hat J^0_x A_x$, so $\hat B=\hat J^0_x$ and $F=A_x$.
 What is observed, on the other hand, is the total current $\hat J_x$, so $\hat A=\hat J_x$.
-Since $\hat J_x=\hat J^0_x-(e^2/m)\hat N A_x$ contains ${\bf A}$ explicitly, taking $\langle\hat J_x\rangle(t)$ to first order in ${\bf A}$ gives two parts:
 
-- The change of the expectation value of the first term $\hat J^0_x$: Eq. (C3) is used with $\hat A=\hat B=\hat J^0_x$ and $F=A_x$. No current flows in equilibrium ($\langle\hat J^0_x\rangle=0$), so only this change remains. This response function is written $\chi^R_{JJ}$.
-- The second term $-(e^2/m)\hat N A_x$: it is already of first order in ${\bf A}$, so its expectation value is taken in the equilibrium state, $\langle\hat N\rangle=n\Omega$ ($n$ is the electron density).
-
+Eq. (C3), however, was derived for an $\hat A$ that does not contain $F$.
+Since $\hat A=\hat J_x$ contains ${\bf A}$ explicitly, to first order in ${\bf A}$ the equilibrium expectation value of the change of the operator itself, $(\partial\hat J_x/\partial A_x)A_x$, is added to (C3), which comes from the change of the state.
+The commutator in (C3) is needed only at zeroth order in ${\bf A}$, so the operators there are those at ${\bf A}=0$. This response function is written $\chi^R_{JJ}$.
+No current flows in equilibrium ($\langle\hat J_x\rangle=0$), so only the first-order change remains.
+The equilibrium expectation value of $\partial\hat J_x/\partial A_x=-(e^2/m)\hat N$ is $-(e^2/m)n\Omega$ ($n$ is the electron density).
 Dividing by the volume $\Omega$, the current density is
 
 $$
-j_x(t)=\frac{1}{\Omega}\int_{-\infty}^{\infty}dt'\,\chi^R_{JJ}(t-t')\,A_x(t')-\frac{ne^2}{m}A_x(t).
+\begin{aligned}
+j_x(t)&=\frac{1}{\Omega}\,\delta\langle\hat J_x\rangle(t)\\
+&=\frac{1}{\Omega}\Big\langle\frac{\partial\hat J_x}{\partial A_x}\Big\rangle A_x(t)+\frac{1}{\Omega}\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t')\\
+&=-\frac{ne^2}{m}A_x(t)+\frac{1}{\Omega}\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t')
+\end{aligned}
 \tag{C6}
 $$
 
-The first term is the paramagnetic part and the second the diamagnetic part.
+$-ne^2A_x/m$ is the diamagnetic part and the $\chi^R_{JJ}$ term the paramagnetic part.
 
-For the $e^{-i\omega t}$ component the convolution in the first term becomes the product $\chi^R_{JJ}(\omega)A_x(\omega)$ ($\chi^R_{JJ}(\omega)$ is given by Eq. (C4)).
+For the $e^{-i\omega t}$ component the convolution in the paramagnetic term becomes the product $\chi^R_{JJ}(\omega)A_x(\omega)$ ($\chi^R_{JJ}(\omega)$ is given by Eq. (C4)).
 Moreover $A_x(\omega)=E_x(\omega)/i\omega$, so
 
 $$
