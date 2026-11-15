@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 32896bedb (source blob 4664e2947279).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 01b18445c (source blob f6ed1dec087f).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -44,12 +44,12 @@ The latter is obtained by expanding, in the interaction picture, $\delta\rho_{\r
 $$
 \begin{aligned}
 &\delta\langle\hat A\rangle(t)=\Big\langle\frac{\partial\hat A}{\partial F}\Big\rangle F(t)+\int dt'\,\chi^R_{AB}(t-t')\,F(t'),\\
-&\chi^R_{AB}(t)=\frac{i}{\hbar}\,\theta(t)\,\big\langle[\hat A_{\rm H}(t),\hat B]\big\rangle
+&\chi^R_{AB}(t)=\frac{i}{\hbar}\,\theta(t)\,\big\langle\big[\big(\hat A\big|_{F=0}\big)_{\rm H}(t),\hat B\big]\big\rangle
 \end{aligned}
 \tag{C3}
 $$
 
-where $\hat A_{\rm H}(t)=e^{i\hat H_0t/\hbar}\hat A\,e^{-i\hat H_0t/\hbar}$, $\langle\cdots\rangle$ is the thermal average for $\hat H_0$, and $\hat A$ in the second term is the one at $F=0$.
+where $\hat A_{\rm H}(t)=e^{i\hat H_0t/\hbar}\hat A\,e^{-i\hat H_0t/\hbar}$, $\langle\cdots\rangle$ is the thermal average for $\hat H_0$. The commutator in the second term contains $\hat A\big|_{F=0}$, of zeroth order in $F$.
 If $\hat A$ does not contain $F$, the first term is absent.
 Because of $\theta(t)$, $\chi^R$ is retarded: the response comes only after the cause $F$ (see the [Appendix](./appendix#causality)).
 
@@ -85,14 +85,14 @@ Substituting these into Eq. (C3),
 $$
 \begin{aligned}
 &\delta\langle\hat J_x\rangle(t)=\Big\langle\frac{\partial\hat J_x}{\partial A_x}\Big\rangle A_x(t)+\int dt'\,\chi^R_{AB}(t-t')\,A_x(t'),\\
-&\chi^R_{AB}(t)=\frac{i}{\hbar}\,\theta(t)\,\big\langle[\hat J^0_{x,{\rm H}}(t),\hat J^0_x]\big\rangle
+&\chi^R_{AB}(t)=\frac{i}{\hbar}\,\theta(t)\,\big\langle\big[\big(\hat J_x\big|_{A_x=0}\big)_{\rm H}(t),\hat J^0_x\big]\big\rangle
 \end{aligned}
 \tag{C6}
 $$
 
-($\hat A$ in the second term is $\hat J_x$ at $F=0$, that is $\hat J^0_x$). This is now transformed.
+This is now transformed.
 From Eq. (C5), $\partial\hat J_x/\partial A_x=-(e^2/m)\hat N$, and its expectation value is $-(e^2/m)n\Omega$ ($n$ is the electron density).
-$\chi^R_{AB}$ is the response function between $\hat J^0_x$, written $\chi^R_{JJ}$. Therefore
+Also from Eq. (C5), $\hat J_x\big|_{A_x=0}=\hat J^0_x$, so $\chi^R_{AB}$ is the response function between $\hat J^0_x$; it is written $\chi^R_{JJ}$. Therefore
 
 $$
 \delta\langle\hat J_x\rangle(t)=-\frac{e^2}{m}n\Omega\,A_x(t)+\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t')
