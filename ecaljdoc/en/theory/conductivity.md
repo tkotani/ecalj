@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 258901bc6 (source blob 9ec6adb1af49).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 2a25e8b86 (source blob 56c96255f172).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -211,6 +211,13 @@ Here $\int dx\,\delta_\delta(x)^2=1/(2\pi\delta)$ is used, and $\overline{v_x^2}
 This diverges like $1/\delta$ for $\delta\to 0$: without scattering the current does not decay and the direct-current conductivity is infinite.
 With impurities the averaged $G$ has the physical width $\hbar/2\tau$ (see [the averaged single Green function](#averaged-g)).
 This width plays the role of $\delta$: with $\delta=\hbar/2\tau$, $D(E_F)/\Omega=N_1(E_F)$ and $\overline{v_x^2}=v_F^2/3$, Eq. (C16) becomes $2e^2\tau v_F^2N_1(E_F)/3=ne^2\tau/m$, in agreement with [the Drude formula](#drude).
+
+The relation between the two cases is seen from the sum of the matrix elements. With the decomposition of unity $\sum_m|m\rangle\langle m|=1$,
+$\sum_m|\langle n|\hat v_x|m\rangle|^2=\langle n|\hat v_x^2|n\rangle$, which is finite.
+So the states $m$ connected to $n$ by $\hat v_x$ are effectively finite in number (within some energy width $W$).
+If they are spread uniformly over the width $W$, $|\langle n|\hat v_x|m\rangle|^2\approx\overline{v_x^2}/\big(D(E_F)\,W\big)$, and Eq. (C15) becomes
+$\sigma_{xx}\approx(2\pi\hbar e^2/\Omega)\,\overline{v_x^2}\,D(E_F)/W$. This has the same form as Eq. (C16), with $\delta$ replaced by $W$.
+The conductivity is fixed by the energy width over which the states connected by $\hat v_x$ are spread (the larger of $W$ and $\delta$).
 
 ### The $G^RG^A$ terms {#grga}
 
