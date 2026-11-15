@@ -64,15 +64,15 @@ $$
 電子の電荷を $-e$ とし、運動エネルギー $(\hat{\bf p}+e{\bf A})^2/2m$ を ${\bf A}$ について一次まで展開すると、摂動は
 
 $$
-\hat H'(t)=-\hat J_x\,A_x(t),\qquad \hat J_x=-e\sum_i\hat v_{x,i}
+\hat H'(t)=-\hat J^0_x\,A_x(t),\qquad \hat J^0_x=-e\sum_i\hat v_{x,i}
 \tag{C5}
 $$
 
-である。$\hat J_x$ は ${\bf A}=0$ での全電流の演算子（$\hat v_{x,i}=\hat p_{x,i}/m$。和は電子についてとる）で、式 (C2) の $\hat B=\hat J_x$、$F=A_x$ に当たる。
+である。$\hat J^0_x$ は ${\bf A}=0$ での全電流の演算子（$\hat v_{x,i}=\hat p_{x,i}/m$。和は電子についてとる）で、式 (C2) の $\hat B=\hat J^0_x$、$F=A_x$ に当たる。
 
-${\bf A}$ があるときの速度は $(\hat{\bf p}+e{\bf A})/m$ なので、全電流の演算子は $\hat J_x-(e^2/m)\hat N A_x$ になる（$\hat N$ は電子の数の演算子）。
+${\bf A}$ があるときの速度は $(\hat{\bf p}+e{\bf A})/m$ なので、全電流の演算子は $\hat J_x=\hat J^0_x-(e^2/m)\hat N A_x$ になる（$\hat N$ は電子の数の演算子）。
 その期待値を ${\bf A}$ について一次まで取る。
-第 1 項には、式 (C3) を $\hat A=\hat B=\hat J_x$、$F=A_x$ として使う（平衡では電流は流れていないので $\langle\hat J_x\rangle=0$ で、変化分だけが残る）。
+第 1 項には、式 (C3) を $\hat A=\hat B=\hat J^0_x$、$F=A_x$ として使う（平衡では電流は流れていないので $\langle\hat J^0_x\rangle=0$ で、変化分だけが残る）。この応答関数を $\chi^R_{JJ}$ と書く。
 第 2 項はすでに ${\bf A}$ について一次なので、$\hat N$ は平衡での値 $n\Omega$ でよい（$n$ は電子の数密度）。
 体積 $\Omega$ で割って、電流密度は
 
@@ -98,12 +98,12 @@ $$
 式 (C4) を入れ、${\rm Im}\,[1/(x-i\delta)]=\pi\delta(x)$ を使うと
 
 $$
-{\rm Re}\,\sigma(\omega)=\frac{\pi}{\omega\Omega}\sum_{nm}(f_n-f_m)\,|\langle n|\hat J_x|m\rangle|^2\,\delta(E_m-E_n-\hbar\omega)
+{\rm Re}\,\sigma(\omega)=\frac{\pi}{\omega\Omega}\sum_{nm}(f_n-f_m)\,|\langle n|\hat J^0_x|m\rangle|^2\,\delta(E_m-E_n-\hbar\omega)
 \tag{C8}
 $$
 
 となる。$\omega\to 0$ では、デルタ関数により $E_m=E_n+\hbar\omega$ なので $f_n-f_m\simeq -f'(E_n)\,\hbar\omega$ で、$\omega$ が消える。
-低温では $-f'(E)=\delta(E-E_F)$ である。$\hat J_x$ の一体の行列要素は $-e\langle n|\hat v_x|m\rangle$ で、スピンの和で因子 2 が付くので（$n$、$m$ は軌道の状態）、
+低温では $-f'(E)=\delta(E-E_F)$ である。$\hat J^0_x$ の一体の行列要素は $-e\langle n|\hat v_x|m\rangle$ で、スピンの和で因子 2 が付くので（$n$、$m$ は軌道の状態）、
 $\sigma_{xx}=(2\pi\hbar e^2/\Omega)\sum_{nm}|\langle n|\hat v_x|m\rangle|^2\delta(E_F-E_n)\delta(E_F-E_m)$ となる。
 これは、フェルミ準位 $E_F$ での一体の量だけで決まる。
 $\delta(E-H)=-{\rm Im}\,G^R(E)/\pi$ で書き直し、不純物の配置について平均すると、Kubo–Greenwood の式
