@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 0d26cd522 (source blob f7548a511112).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit e4d60a484 (source blob 3fa3d7f833d7).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -153,12 +153,8 @@ $$
 $$
 
 (at zero temperature; $J=-e\hat v_x$ is a one-body operator). Taking the residues in the $E$ integral, only the pairs of occupied $n$ and unoccupied $m$ remain. The poles are at the same places as in Eq. (C4); only the sign of $i\delta$ on the $\omega\lt 0$ side differs.
-For the retarded form (at any temperature), the occupation $f(E)$ is separated explicitly and the result is rewritten with $G^R$ and $G^A$. This can be followed directly from the level of the correlation function.
-In a one-body system the expectation value of the commutator becomes a trace in the one-body space, and Eq. (C6) becomes
-$\chi^R_{JJ}(t)=(i/\hbar)\theta(t)\,{\rm Tr}\big[f(H)\big(J(t)\,J-J\,J(t)\big)\big]$
-($J=-e\hat v_x$ is a one-body operator, $J(t)=e^{iHt/\hbar}Je^{-iHt/\hbar}$, $f(H)$ the occupation).
-With the spectral decomposition $f(H)\,e^{\pm iHt/\hbar}=\int dE\,f(E)\,e^{\pm iEt/\hbar}\,\delta(E-H)$, the Fourier transforms of the remaining $(i/\hbar)\theta(t)\,e^{\mp i(H-E)t/\hbar}$ are the one-body Green functions $-G^R(E+\hbar\omega)$ and $G^A(E-\hbar\omega)$.
-So the product in time becomes a convolution in energy, and with $\delta(E-H)=-\big(G^R(E)-G^A(E)\big)/2\pi i$,
+To make this $\chi^T$ retarded, all the poles in $\omega$ are moved to the lower half-plane ($\omega\to\omega+i\delta$; a retarded response function is analytic in the upper half-plane).
+Writing the occupation with $f(E)$, at any temperature
 
 $$
 \begin{aligned}
