@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit ca6e82e62 (source blob 81756d9918f2).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit a86b74152 (source blob 1ac99a487baf).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -70,15 +70,23 @@ $$
 \tag{C5}
 $$
 
-$\hat J_x$ is the total current operator (the sum is over the electrons); it corresponds to $\hat B=\hat J_x$, $F=A_x$ in Eq. (C2).
-The current density is the sum of the paramagnetic part (the change of the expectation value of $\hat J_x$) and the diamagnetic part proportional to ${\bf A}$ ($n$ is the electron density):
+$\hat J_x$ is the total current operator at ${\bf A}=0$ ($\hat v_{x,i}=\hat p_{x,i}/m$; the sum is over the electrons); it corresponds to $\hat B=\hat J_x$, $F=A_x$ in Eq. (C2).
+
+With ${\bf A}$ the velocity is $(\hat{\bf p}+e{\bf A})/m$, so the total current operator becomes $\hat J_x-(e^2/m)\hat N A_x$ ($\hat N$ is the operator of the number of electrons).
+Its expectation value is taken to first order in ${\bf A}$.
+For the first term Eq. (C3) is used with $\hat A=\hat B=\hat J_x$ and $F=A_x$ (no current flows in equilibrium, $\langle\hat J_x\rangle=0$, so only the change remains).
+The second term is already of first order in ${\bf A}$, so $\hat N$ can be replaced by its equilibrium value $n\Omega$ ($n$ is the electron density).
+Dividing by the volume $\Omega$, the current density is
 
 $$
-j_x(t)=\frac{1}{\Omega}\,\delta\langle\hat J_x\rangle(t)-\frac{ne^2}{m}A_x(t).
+j_x(t)=\frac{1}{\Omega}\int_{-\infty}^{\infty}dt'\,\chi^R_{JJ}(t-t')\,A_x(t')-\frac{ne^2}{m}A_x(t).
 \tag{C6}
 $$
 
-For the $e^{-i\omega t}$ component $A_x(\omega)=E_x(\omega)/i\omega$, so with Eq. (C3)
+The first term is the paramagnetic part and the second the diamagnetic part.
+
+For the $e^{-i\omega t}$ component the convolution in the first term becomes the product $\chi^R_{JJ}(\omega)A_x(\omega)$ ($\chi^R_{JJ}(\omega)$ is given by Eq. (C4)).
+Moreover $A_x(\omega)=E_x(\omega)/i\omega$, so
 
 $$
 \sigma(\omega)=\frac{j_x(\omega)}{E_x(\omega)}=\frac{i}{\omega}\Big[\frac{ne^2}{m}-\frac{1}{\Omega}\,\chi^R_{JJ}(\omega)\Big].
