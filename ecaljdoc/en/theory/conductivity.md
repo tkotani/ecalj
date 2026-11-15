@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 867720fe2 (source blob 560021a59298).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit e4b81c3fa (source blob 687734eab737).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -204,9 +204,6 @@ $$
 
 which diverges for $\delta\to 0$ (without scattering the current does not decay). Roughly, $\delta$ may be regarded as the width $\hbar/2\tau$ from the lifetime $\tau$ of quasiparticles due to phonons and so on.
 Then, with $D(E_F)/\Omega=N_1(E_F)$ (the density of states per spin and per unit volume) and $\overline{v_x^2}=v_F^2/3$, Eq. (C16) becomes $2e^2\tau v_F^2N_1(E_F)/3=ne^2\tau/m$, in agreement with [the Drude formula](#drude).
-Note, however, that this assumes $\overline{v_x^2}=v_F^2/3$ (an isotropic Fermi surface) and determines $v_F$ and $N_1(E_F)$ from the electron density $n$ by the free-electron relations ($n=k_F^3/3\pi^2$, $v_F=\hbar k_F/m$, $N_1=mk_F/2\pi^2\hbar^2$).
-For a general band, $\overline{v_x^2}\,D(E_F)$ in Eq. (C16) has to be obtained from the velocities and the density of states on the Fermi surface, and the result is not of the form $ne^2\tau/m$.
-It holds approximately, however, when the conducting band is free-electron-like and can be matched to a free-electron band, as in Na, Cu and Al (in practice, such light free-electron-like electrons often carry the current).
 
 The two views (Drude's "all electrons are accelerated for the time $\tau$" and Eq. (C16)'s "only the electrons on the Fermi surface contribute") are connected by the following identity.
 For one band and per spin, integrating by parts with $v_x=\hbar^{-1}\partial\varepsilon_{\bf k}/\partial k_x$,
