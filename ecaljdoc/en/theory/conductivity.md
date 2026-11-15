@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 5fde22b2a (source blob 9635a0d33763).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 75e533a15 (source blob 1e6f48e6759b).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -217,6 +217,7 @@ $$
 \tag{C17}
 $$
 
+One $v_x$ of $v_x^2$ combines with the delta function into the derivative of $\theta$ (differentiating $\theta$ in $k_x$ brings out $\partial\varepsilon_{\bf k}/\partial k_x=\hbar v_x$), and the integration by parts moves the derivative onto the other $v_x$, giving $\partial v_x/\partial k_x=\hbar^{-1}\partial^2\varepsilon_{\bf k}/\partial k_x^2$ (the inverse effective mass).
 The left-hand side is a Fermi-surface quantity, and the right-hand side is the sum of the inverse effective masses over all occupied states.
 For free electrons $\partial^2\varepsilon_{\bf k}/\partial k_x^2=\hbar^2/m$ is constant, so the right-hand side is $n/2m$ ($n$ is the electron density including both spins, and $n/2$ is per spin).
 Therefore, with $\delta=\hbar/2\tau$ in Eq. (C16) and using Eq. (C17),
