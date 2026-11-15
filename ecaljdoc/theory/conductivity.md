@@ -133,11 +133,11 @@ $$
 
 となる。
 これは、フェルミ準位 $E_F$ での一体の量だけで決まる。
-$\delta(E-H)=-{\rm Im}\,G^R(E)/\pi$ で書き直し、不純物の配置について平均すると、Kubo–Greenwood の式
+$\delta(E-H)=-{\rm Im}\,G^R(E)/\pi$ で書き直すと、Kubo–Greenwood の式
 
 $$
 \sigma_{xx}=\frac{2\hbar e^2}{\pi\Omega}\,
-\Big\langle {\rm Tr}\big[\hat v_x\,{\rm Im}\,G^R(E_F)\,\hat v_x\,{\rm Im}\,G^R(E_F)\big]\Big\rangle_{\rm imp}
+{\rm Tr}\big[\hat v_x\,{\rm Im}\,G^R(E_F)\,\hat v_x\,{\rm Im}\,G^R(E_F)\big]
 \tag{C11}
 $$
 
@@ -180,6 +180,7 @@ $$
 
 ### $G^RG^A$ の項 {#grga}
 
+式 (C11) は、不純物の配置を一つ決めたときの式である。観測される伝導度は、これを不純物の配置について平均したもの $\langle\cdots\rangle_{\rm imp}$ である。
 ${\rm Im}\,G^R=(G^R-G^A)/2i$ と書いて展開すると、$G^RG^A$ の項と $G^RG^R$、$G^AG^A$ の項が出る。
 不純物が弱いとき主になるのは $G^RG^A$ の項で、
 
