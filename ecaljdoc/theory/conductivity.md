@@ -76,21 +76,26 @@ $\hat J_x$ が全電流の演算子（電荷 $-e$ と速度 $(\hat{\bf p}_i+e{\b
 
 式 (C2) と比べると、${\bf A}$ について一次の摂動は $-\hat J^0_x A_x$ なので、$\hat B=\hat J^0_x$、$F=A_x$ である。
 一方、観測するのは全電流 $\hat J_x$ なので、$\hat A=\hat J_x$ である。
-$\hat J_x=\hat J^0_x-(e^2/m)\hat N A_x$ は ${\bf A}$ を陽に含むので、$\langle\hat J_x\rangle(t)$ を ${\bf A}$ について一次まで取ると、次の二つになる。
 
-- 第 1 項 $\hat J^0_x$ の期待値の変化: 式 (C3) を $\hat A=\hat B=\hat J^0_x$、$F=A_x$ として使う。平衡では電流は流れていない（$\langle\hat J^0_x\rangle=0$）ので、この変化分だけが残る。この応答関数を $\chi^R_{JJ}$ と書く。
-- 第 2 項 $-(e^2/m)\hat N A_x$: すでに ${\bf A}$ について一次なので、期待値は平衡の状態で取ればよく、$\langle\hat N\rangle=n\Omega$ である（$n$ は電子の数密度）。
-
+ただし式 (C3) は、$\hat A$ が $F$ を含まないとして導いたものである。
+$\hat A=\hat J_x$ は ${\bf A}$ を陽に含むので、${\bf A}$ について一次の範囲では、状態の変化による (C3) に、演算子そのものの変化 $(\partial\hat J_x/\partial A_x)A_x$ の平衡での期待値が加わる。
+(C3) の交換子の中は ${\bf A}$ について 0 次でよいので、そこでの演算子は ${\bf A}=0$ のときのものである。この応答関数を $\chi^R_{JJ}$ と書く。
+平衡では電流は流れていない（$\langle\hat J_x\rangle=0$）ので、一次の変化だけが残る。
+$\partial\hat J_x/\partial A_x=-(e^2/m)\hat N$ の平衡での期待値は $-(e^2/m)n\Omega$ である（$n$ は電子の数密度）。
 体積 $\Omega$ で割って、電流密度は
 
 $$
-j_x(t)=\frac{1}{\Omega}\int_{-\infty}^{\infty}dt'\,\chi^R_{JJ}(t-t')\,A_x(t')-\frac{ne^2}{m}A_x(t)
+\begin{aligned}
+j_x(t)&=\frac{1}{\Omega}\,\delta\langle\hat J_x\rangle(t)\\
+&=\frac{1}{\Omega}\Big\langle\frac{\partial\hat J_x}{\partial A_x}\Big\rangle A_x(t)+\frac{1}{\Omega}\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t')\\
+&=-\frac{ne^2}{m}A_x(t)+\frac{1}{\Omega}\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t')
+\end{aligned}
 \tag{C6}
 $$
 
-となる。第 1 項が常磁性の部分、第 2 項が反磁性の部分である。
+となる。$-ne^2A_x/m$ が反磁性の部分、$\chi^R_{JJ}$ の項が常磁性の部分である。
 
-$e^{-i\omega t}$ の成分では、第 1 項のたたみこみは積 $\chi^R_{JJ}(\omega)A_x(\omega)$ になる（$\chi^R_{JJ}(\omega)$ は式 (C4) で与えられる）。
+$e^{-i\omega t}$ の成分では、常磁性の項のたたみこみは積 $\chi^R_{JJ}(\omega)A_x(\omega)$ になる（$\chi^R_{JJ}(\omega)$ は式 (C4) で与えられる）。
 さらに $A_x(\omega)=E_x(\omega)/i\omega$ なので
 
 $$
