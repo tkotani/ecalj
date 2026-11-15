@@ -96,7 +96,7 @@ ecaljdoc の書き方の決まり（公開）は [`ecaljdoc/manual/writing_docs.
 
 ### サンプル（ecalj の `Samples/`、2026-11-14）
 - `AFfixMMOM/`（`NiO_afsym`、`NiO_noafsym`、組 `affix`）がある
-- `TestInstall/yh3fcc_gwsc666` はいまのコードで走らない（Y の拡張局所軌道で動径方程式が失敗）。どの組にも入れていない
+- `TestInstall/yh3fcc_gwsc666` は走らなかった（Y の拡張局所軌道で動径方程式が失敗）ので 2026-11-15 に外した（MD/past_log.md 表 1）
 - LDA+U の試験済みの例は `LDAU/ReN`（GdN、PrN。`symgrp = "r4z"`、`so = 2`、`occnum`）。UsageDetailed の ErN の設定は以前の計算
 - PROCAR: `BandWeight.py` はサンプルのディレクトリにある（`SRC/exec` には無い）
 

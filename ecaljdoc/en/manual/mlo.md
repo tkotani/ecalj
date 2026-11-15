@@ -875,7 +875,7 @@ If $l$ channels are removed from the $Z=0$ sphere on the DFT side, the radial eq
 | `lmx=1, lmxa=2` + explicit `p` | same as above. `q` overflows at $e=+20$ Ry |
 
 When it works, the pnu of the empty sphere is 1.509 / 2.256 / 3.150 (s/p/d), and giving these as `p`
-does not fix it. It is the same symptom as the known runaway of `yh3fcc_gwsc666`.
+does not fix it.
 **Give s,p,d on the DFT side and make the MLO selection with `mlo_lm`**; this is the consistent way.
 
 **(b) A vacuum slab needs ESM. Do not forget to write `[esm]`.** Without `[esm]`, `lmf` solves with periodic boundaries and only prints a one-line warning without stopping. The zero of energy shifts ($E_F$ by 4.4 eV for FeMgO). The settings and the conversion from `esm_input.dat` are in [ESM](./esm).

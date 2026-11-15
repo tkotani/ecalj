@@ -85,8 +85,6 @@ ecalj/Samples/
 | `fe_kbt` | bcc Fe の、有限温度の四面体法（`t_tetrakbt` > 0）による QSGW |
 | `ni_crpa`、`srvo3_crpa` | constrained RPA |
 
-`yh3fcc_gwsc666` は、いまのコードでは走りません（Y の拡張局所軌道で動径方程式を解くところが失敗する）。古い参照のまま残していて、どの組にも入れていません。
-
 ### EPS のサンプル — 三つの違い
 
 詳しい説明は [誘電関数](./optical) にあります。見分けるための特徴:

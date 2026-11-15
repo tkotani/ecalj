@@ -52,8 +52,6 @@ Notes:
 
 - The magnon targets make work directories of 1-5 GB each.
 - `BenchmarkTest` with one GPU of 32 GB: `-np2 1` (`samples_tests.sh --gpu` does it).
-- `TestInstall/yh3fcc_gwsc666` does not run with the present code (the radial solver fails on the extended local
-  orbitals of Y); it is kept with its old references and is not in any group.
 - An input of your own in the legacy form (`ctrl.<sname>` + `GWinput`) is converted by `Legacy2toml.py <sname>`
   (ecaljdoc [toml_migration](https://ecalj.github.io/ecaljdoc/manual/toml_migration)).
 

@@ -127,7 +127,7 @@
 - **【未着手】メニューの見出しの残り**（2026-11-14）: 「GPU version of QSGW」を日本語に
 - **【未着手】二重化の残り**（2026-11-14）: lmf・cmdopts・ドーピング・ESM・緩和・gwsc・スペクトル関数・サンプル・その他の説明は片付けた。残りはメインドキュメント（README_tutorial）とほかのページ
   （`save` の文字、lmchk、SOC の手順など）、kBT・mlo の中の重複。Samples の README の古い記述（2026-11-14 に EPS_GaAs の README_eps.md の `QforEPSau`、`n1n2n3eps` を直した）
-- **【未着手】`TestInstall/yh3fcc_gwsc666` が走らない**（`Samples/README.md` に記載。Y の拡張局所軌道で動径方程式が失敗）。直すか外すか
+- **【済】`TestInstall/yh3fcc_gwsc666` が走らない**（Y の拡張局所軌道で動径方程式が失敗）。2026-11-15 に外した（user「やっぱりcommitからはずそう」。past_log.md 表 1）
 
 ### 判断待ち（ほかに）
 

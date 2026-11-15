@@ -96,8 +96,6 @@ table (one-line role per dir):
 | `fe_kbt` | QSGW with the finite-temperature tetrahedron method (`t_tetrakbt` > 0) on bcc Fe |
 | `ni_crpa`, `srvo3_crpa` | constrained RPA |
 
-`yh3fcc_gwsc666` does not run with the present code (the radial solver fails on the extended local orbitals of Y); it is kept with its old references and is not in any group.
-
 ### EPS samples — what differs across the three
 
 Detailed worked descriptions live in [./optical](./optical).  Quick
