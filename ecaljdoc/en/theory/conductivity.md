@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit e04f9fdef (source blob 394c889c9d13).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 32896bedb (source blob 4664e2947279).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -37,17 +37,20 @@ $$
 \tag{C2}
 $$
 
-Expanding the state (or the density matrix) in the interaction picture to first order in $F$, the change of the expectation value of another operator $\hat A$ is
+The observed operator $\hat A$ may itself contain $F$ (the current operator used below does).
+Taking the expectation value $\langle\hat A\rangle(t)={\rm Tr}[\rho(t)\hat A(t)]$ to first order in $F$ gives the sum of the term in which the change of $\hat A$ itself, $(\partial\hat A/\partial F)F$, is averaged with the equilibrium density matrix $\rho_0$, and the term from the change $\delta\rho$ of the density matrix.
+The latter is obtained by expanding, in the interaction picture, $\delta\rho_{\rm I}(t)=(i/\hbar)\int_{-\infty}^{t}dt'\,[\hat B_{\rm I}(t'),\rho_0]\,F(t')$ to first order. The result is
 
 $$
 \begin{aligned}
-&\delta\langle\hat A\rangle(t)=\int_{-\infty}^{\infty}dt'\,\chi^R_{AB}(t-t')\,F(t'),\\
+&\delta\langle\hat A\rangle(t)=\Big\langle\frac{\partial\hat A}{\partial F}\Big\rangle F(t)+\int dt'\,\chi^R_{AB}(t-t')\,F(t'),\\
 &\chi^R_{AB}(t)=\frac{i}{\hbar}\,\theta(t)\,\big\langle[\hat A_{\rm H}(t),\hat B]\big\rangle
 \end{aligned}
 \tag{C3}
 $$
 
-where $\hat A_{\rm H}(t)=e^{i\hat H_0t/\hbar}\hat A\,e^{-i\hat H_0t/\hbar}$ and $\langle\cdots\rangle$ is the thermal average for $\hat H_0$.
+where $\hat A_{\rm H}(t)=e^{i\hat H_0t/\hbar}\hat A\,e^{-i\hat H_0t/\hbar}$, $\langle\cdots\rangle$ is the thermal average for $\hat H_0$, and $\hat A$ in the second term is the one at $F=0$.
+If $\hat A$ does not contain $F$, the first term is absent.
 Because of $\theta(t)$, $\chi^R$ is retarded: the response comes only after the cause $F$ (see the [Appendix](./appendix#causality)).
 
 In a one-body system, with the one-body eigenstates $|n\rangle$ of $\hat H_0$ (energy $E_n$, occupation $f_n$) and one-body operators $\hat A$, $\hat B$, the Fourier transform is
@@ -81,32 +84,28 @@ Substituting these into Eq. (C3),
 
 $$
 \begin{aligned}
-&\delta\langle\hat J_x\rangle(t)=\int dt'\,\chi^R_{AB}(t-t')\,A_x(t'),\\
-&\chi^R_{AB}(t)=\frac{i}{\hbar}\,\theta(t)\,\big\langle[\hat J_{x,{\rm H}}(t),\hat J^0_x]\big\rangle
+&\delta\langle\hat J_x\rangle(t)=\Big\langle\frac{\partial\hat J_x}{\partial A_x}\Big\rangle A_x(t)+\int dt'\,\chi^R_{AB}(t-t')\,A_x(t'),\\
+&\chi^R_{AB}(t)=\frac{i}{\hbar}\,\theta(t)\,\big\langle[\hat J^0_{x,{\rm H}}(t),\hat J^0_x]\big\rangle
 \end{aligned}
 \tag{C6}
 $$
 
-This is now transformed.
-The second term of $\hat J_x=\hat J^0_x-(e^2/m)\hat N A_x$ does not contribute to the commutator, because $\hat N$ commutes with both $\hat H_0$ and $\hat J^0_x$.
-So $\chi^R_{AB}$ equals the response function between $\hat J^0_x$, $\chi^R_{JJ}(t)=(i/\hbar)\theta(t)\langle[\hat J^0_{x,{\rm H}}(t),\hat J^0_x]\rangle$.
-On the other hand, the second term gives $-(e^2/m)\langle\hat N\rangle_0A_x=-(e^2/m)n\Omega A_x$ to the expectation value $\langle\hat J_x\rangle_0$ ($n$ is the electron density). Altogether,
+($\hat A$ in the second term is $\hat J_x$ at $F=0$, that is $\hat J^0_x$). This is now transformed.
+From Eq. (C5), $\partial\hat J_x/\partial A_x=-(e^2/m)\hat N$, and its expectation value is $-(e^2/m)n\Omega$ ($n$ is the electron density).
+$\chi^R_{AB}$ is the response function between $\hat J^0_x$, written $\chi^R_{JJ}$. Therefore
 
 $$
-\begin{aligned}
-\langle\hat J_x\rangle(t)&=\langle\hat J_x\rangle_0+\delta\langle\hat J_x\rangle(t)\\
-&=-\frac{e^2}{m}n\Omega\,A_x(t)+\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t')
-\end{aligned}
+\delta\langle\hat J_x\rangle(t)=-\frac{e^2}{m}n\Omega\,A_x(t)+\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t')
 \tag{C7}
 $$
 
-The first term is the diamagnetic part and the second the paramagnetic part.
+The first term is the diamagnetic part and the second the paramagnetic part; both come from the linear-response formula (C3).
 
 For the $e^{-i\omega t}$ component the convolution in the second term becomes the product $\chi^R_{JJ}(\omega)A_x(\omega)$ ($\chi^R_{JJ}(\omega)$ is given by Eq. (C4)).
-The current density is $\langle\hat J_x\rangle/\Omega$, and $A_x(\omega)=E_x(\omega)/i\omega$, so
+The current density is $\delta\langle\hat J_x\rangle/\Omega$, and $A_x(\omega)=E_x(\omega)/i\omega$, so
 
 $$
-\sigma(\omega)=\frac{\langle\hat J_x\rangle(\omega)}{\Omega\,E_x(\omega)}=\frac{i}{\omega}\Big[\frac{ne^2}{m}-\frac{1}{\Omega}\,\chi^R_{JJ}(\omega)\Big]
+\sigma(\omega)=\frac{\delta\langle\hat J_x\rangle(\omega)}{\Omega\,E_x(\omega)}=\frac{i}{\omega}\Big[\frac{ne^2}{m}-\frac{1}{\Omega}\,\chi^R_{JJ}(\omega)\Big]
 \tag{C8}
 $$
 
