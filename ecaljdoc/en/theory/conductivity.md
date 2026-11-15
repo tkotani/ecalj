@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit bf1d12508 (source blob c5da84811423).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 45a58771c (source blob 621fae2a46eb).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -77,21 +77,23 @@ $$
 $\hat J_x$ is the total current operator (the sum of the charge $-e$ times the velocity $(\hat{\bf p}_i+e{\bf A})/m$), and $\hat J^0_x$ is $\hat J_x$ at ${\bf A}=0$.
 
 Comparing with Eqs. (C2) and (C3), $\hat A=\hat J_x$, $\hat B=\hat J^0_x$ and $F=A_x$.
-Writing the response function in (C3) as $\chi^R_{JJ}$, the current density is ($n$ is the electron density)
+Applying (C3) as it is and writing its response function as $\chi^R_{JJ}$,
 
 $$
-j_x(t)=\frac{1}{\Omega}\,\langle\hat J_x\rangle(t)
-=-\frac{ne^2}{m}A_x(t)+\frac{1}{\Omega}\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t')
+\begin{aligned}
+\langle\hat J_x\rangle(t)&=\langle\hat J_x\rangle_0+\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t')\\
+&=-\frac{e^2}{m}n\Omega\,A_x(t)+\int dt'\,\chi^R_{JJ}(t-t')\,A_x(t')
+\end{aligned}
 \tag{C6}
 $$
 
-$-ne^2A_x/m$ is the diamagnetic part and the $\chi^R_{JJ}$ term the paramagnetic part.
+($\langle\hat J_x\rangle_0=-(e^2/m)\langle\hat N\rangle_0A_x$; $n$ is the electron density). The first term is the diamagnetic part and the second the paramagnetic part.
 
-For the $e^{-i\omega t}$ component the convolution in the paramagnetic term becomes the product $\chi^R_{JJ}(\omega)A_x(\omega)$ ($\chi^R_{JJ}(\omega)$ is given by Eq. (C4)).
-Moreover $A_x(\omega)=E_x(\omega)/i\omega$, so
+For the $e^{-i\omega t}$ component the convolution in the second term becomes the product $\chi^R_{JJ}(\omega)A_x(\omega)$ ($\chi^R_{JJ}(\omega)$ is given by Eq. (C4)).
+The current density is $\langle\hat J_x\rangle/\Omega$, and $A_x(\omega)=E_x(\omega)/i\omega$, so
 
 $$
-\sigma(\omega)=\frac{j_x(\omega)}{E_x(\omega)}=\frac{i}{\omega}\Big[\frac{ne^2}{m}-\frac{1}{\Omega}\,\chi^R_{JJ}(\omega)\Big].
+\sigma(\omega)=\frac{\langle\hat J_x\rangle(\omega)}{\Omega\,E_x(\omega)}=\frac{i}{\omega}\Big[\frac{ne^2}{m}-\frac{1}{\Omega}\,\chi^R_{JJ}(\omega)\Big]
 \tag{C7}
 $$
 
