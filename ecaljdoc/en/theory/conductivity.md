@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 43db72160 (source blob 56f71438953a).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 71dd6528e (source blob ab52b927883b).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -259,21 +259,41 @@ A correlation remains between $G^R$ and $G^A$ being scattered by the same impuri
 
 If Eq. (C20) is taken as an equality (the product of the single averages), the result has the form of Eq. (C16). As it stands, this would lead to the conclusion that in a one-body problem the impurities give no resistance (it diverges for $\delta\to 0$).
 
+## Average over the impurity configurations {#impurity-average}
+
+To compute the average of the product in Eq. (C20), we go back to the original one-body problem. $G^R(E)=(E-H_0-V+i\delta)^{-1}$ is the resolvent of the one-body Hamiltonian $H=H_0+V$ for one fixed configuration of the impurities ($H_0$ is the kinetic energy and $V$ is Eq. (C1)). It is expanded in $V$, and the average of the product is decomposed into products of averages of pairs of $V$.
+The matrix element between plane waves $|{\bf k}\rangle$ is $\langle{\bf k}|V|{\bf k}'\rangle=\Omega^{-1}u({\bf k}-{\bf k}')\sum_j e^{-i({\bf k}-{\bf k}')\cdot{\bf R}_j}$.
+Since the impurity positions are random, the phases $e^{-i{\bf q}\cdot{\bf R}_j}$ cancel on averaging (random phases), and only the pairs on the same impurity $j$, whose phases cancel, remain:
+
+$$
+\big\langle \langle{\bf k}|V|{\bf k}'\rangle\langle{\bf k}'|V|{\bf k}\rangle\big\rangle_{\rm imp}=\frac{n_i}{\Omega}\,|u({\bf k}-{\bf k}')|^2
+\tag{C21}
+$$
+
+(the ${\bf q}=0$ component is a uniform energy shift, absorbed in $E_F$; terms in which the same impurity acts three times or more are dropped for weak impurities).
+So expanding $G^R=G^R_0+G^R_0VG^R_0+\cdots$ and $G^A$ in the same way and averaging the product gives a sum of terms in which the $V$ are paired. In diagrams, the two $V$ of a pair are connected by an impurity line. The lines are of three kinds:
+
+- lines within one $G$: they give the self-energy (next section);
+- lines connecting $G^R$ and $G^A$: they give the vertex correction (section [Vertex correction](#vertex-correction));
+- crossing lines: they give the weak-localization correction (not treated here).
+
+Taking Eq. (C20) as an equality means dropping the lines connecting $G^R$ and $G^A$.
+
 ## Averaged single Green function: the lifetime {#averaged-g}
 
 Averaging a single $G^R$ restores the translational symmetry, and it becomes diagonal in the wave vector ${\bf k}$:
 
 $$
 \langle G^R\rangle_{\rm imp}({\bf k},E)=\frac{1}{E-\varepsilon_{\bf k}-\Sigma^R({\bf k},E)}.
-\tag{C21}
+\tag{C22}
 $$
 
-The self-energy to second order in the impurity potential (Born approximation) is
+Taking the lines within one $G$ that do not cross each other (Born approximation), Eq. (C21) gives the self-energy
 
 $$
 \Sigma^R({\bf k},E)=n_i\int\frac{d^3k'}{(2\pi)^3}\,
 \frac{|u({\bf k}-{\bf k}')|^2}{E-\varepsilon_{\bf k'}+i\delta}
-\tag{C22}
+\tag{C23}
 $$
 
 and its imaginary part gives the lifetime $\tau$ of the quasiparticle (the real part is an energy shift, absorbed in $E_F$):
@@ -283,14 +303,14 @@ $$
 &{\rm Im}\,\Sigma^R=-\frac{\hbar}{2\tau},\\
 &\frac{1}{\tau}=\frac{2\pi}{\hbar}\,n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\,\delta(E-\varepsilon_{\bf k'}).
 \end{aligned}
-\tag{C23}
+\tag{C24}
 $$
 
 $1/\tau$ is just the scattering rate by Fermi's golden rule (see the correspondence between the golden rule and the imaginary part of the self-energy in [Basic I](./basic#td-vs-ti-perturbation)).
 
 ## Without the vertex correction: the Drude formula {#drude}
 
-Replacing the average in Eq. (C19) by the product of the single averages (C21) (dropping the vertex correction) gives a sum over ${\bf k}$.
+Even in the approximation taking Eq. (C20) as an equality (dropping the lines connecting $G^R$ and $G^A$), the averaged $\langle G\rangle$ contains the width $\hbar/2\tau$ from the self-energy.
 When $\tau$ is long ($\hbar/\tau\ll E_F$),
 
 $$
@@ -299,22 +319,22 @@ $$
 &=\frac{1}{(E-\varepsilon_{\bf k})^2+(\hbar/2\tau)^2}\\
 &\simeq\frac{2\pi\tau}{\hbar}\,\delta(E-\varepsilon_{\bf k})
 \end{aligned}
-\tag{C24}
-$$
-
-so, with the angular average $v_F^2/3$ of $v_x^2$ and the density of states per spin $N_1(E_F)$ (per unit volume),
-
-$$
-\sigma_{xx}=\frac{\hbar e^2}{\pi}\cdot\frac{2\pi\tau}{\hbar}\cdot\frac{v_F^2}{3}\,N_1(E_F)
-=\frac{2e^2\tau v_F^2N_1(E_F)}{3}=\frac{ne^2\tau}{m}
 \tag{C25}
 $$
 
-The last step uses $N_1(E_F)=mk_F/(2\pi^2\hbar^2)$, $n=k_F^3/(3\pi^2)$ and $v_F=\hbar k_F/m$ of free electrons. This is the Drude formula.
+which corresponds to the Lorentzian of Eq. (C16) with the width $\delta$ set to $\hbar/2\tau$. So Eq. (C19) becomes
+
+$$
+\sigma_{xx}=2e^2\tau\,\frac{\overline{v_x^2}\,D(E_F)}{\Omega}
+\tag{C26}
+$$
+
+the same Drude formula as Eq. (C18) ($ne^2\tau/m$ for free electrons).
+A naive $\delta\to 0$ gave zero resistance, but the scattering width due to the impurities plays the role of $\delta$, and the impurities give a resistance through the lifetime $\tau$.
 
 ## Vertex correction: the transport relaxation time {#vertex-correction}
 
-The product average (C20) is taken up to the ladder diagrams, in which impurity lines connect the two $G$ (the approximation that goes with the Born self-energy (C22)).
+The product average (C20) is taken up to the ladder diagrams, in which impurity lines connect the two $G$ (the approximation that goes with the Born self-energy (C23)).
 The current vertex $\Gamma_x({\bf k})$ satisfies
 
 $$
@@ -322,25 +342,26 @@ $$
 \Gamma_x({\bf k})={}&v_x({\bf k})+n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\\
 &\times\langle G^R\rangle({\bf k}',E_F)\langle G^A\rangle({\bf k}',E_F)\,\Gamma_x({\bf k}')
 \end{aligned}
-\tag{C26}
+\tag{C27}
 $$
 
-Putting $\Gamma_x({\bf k})=\gamma\,v_x({\bf k})$ and using (C24), the average over the direction of ${\bf k}'$ turns $v_x({\bf k}')$ into $v_x({\bf k})\cos\theta_{\bf kk'}$, so that
+Putting $\Gamma_x({\bf k})=\gamma\,v_x({\bf k})$ and using (C25), the average over the direction of ${\bf k}'$ turns $v_x({\bf k}')$ into $v_x({\bf k})\cos\theta_{\bf kk'}$, so that
 $\gamma=1+\gamma\,(1-\tau/\tau_{\rm tr})$, that is $\gamma=\tau_{\rm tr}/\tau$. Here
 
 $$
 \frac{1}{\tau_{\rm tr}}=\frac{2\pi}{\hbar}\,n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\,
 \big(1-\cos\theta_{\bf kk'}\big)\,\delta(E_F-\varepsilon_{\bf k'})
-\tag{C27}
-$$
-
-is the transport relaxation time. Replacing one $v_x$ in Eq. (C25) by $\Gamma_x$ gives
-
-$$
-\sigma_{xx}=\frac{ne^2\tau_{\rm tr}}{m}
 \tag{C28}
 $$
 
+is the transport relaxation time. Replacing one $v_x$ in Eq. (C26) by $\Gamma_x$ gives
+
+$$
+\sigma_{xx}=2e^2\tau_{\rm tr}\,\frac{\overline{v_x^2}\,D(E_F)}{\Omega}
+\tag{C29}
+$$
+
+($ne^2\tau_{\rm tr}/m$ for free electrons).
 Forward scattering ($\cos\theta\simeq 1$) hardly reduces the current, so what matters for the resistance is the scattering weighted by $1-\cos\theta$.
 The lifetime $\tau$ (fixed by the average of a single $G$) and $\tau_{\rm tr}$, which fixes the resistance (by the average of the product), differ in general.
 If $u$ is point-like ($u({\bf q})$ independent of ${\bf q}$), the average of $\cos\theta$ is zero, the vertex correction vanishes, and $\tau_{\rm tr}=\tau$.
