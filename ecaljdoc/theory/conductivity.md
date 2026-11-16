@@ -128,7 +128,7 @@ $$
 \tag{C9}
 $$
 
-で、違いは第 2 項だけである。$\chi^R_{JJ}(0)$ は、式 (C4) で $\omega=0$ とすれば
+で、違いは第 2 項だけである。これは、式 (C6) の右辺第 1 項 $-(ne^2\Omega/m)A_x(t)$ を、第 2 項の形で $-\chi^R_{JJ}(\omega=0)\,A_x(t)$ と書いているためである。$\chi^R_{JJ}(0)$ は、式 (C4) で $\omega=0$ とすれば
 
 $$
 \chi^R_{JJ}(0)=\sum_{nm}(f_n-f_m)\,\frac{|\langle n|\hat J^0_x|m\rangle|^2}{E_m-E_n}
