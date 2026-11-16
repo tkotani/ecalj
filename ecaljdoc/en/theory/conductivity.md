@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 0853a224b (source blob f546bf1fc).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 59aea94aa (source blob 772a544fb).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -495,7 +495,7 @@ $$
 \tag{C38}
 $$
 
-is the transport relaxation time. Compared with $1/\tau$ of Eq. (C32), the only difference is the weight $1-\cos\theta_{\bf kk'}$ in the integrand. Forward scattering ($\theta\simeq0$) contributes to $1/\tau$ but hardly to $1/\tau_{\rm tr}$, while backward scattering ($\theta\simeq\pi$) contributes to $1/\tau_{\rm tr}$ with twice the weight. Hence $\tau_{\rm tr}\ge\tau/2$, and the stronger the forward scattering, the longer $\tau_{\rm tr}$ is than $\tau$. Replacing one $v_x$ in Eq. (C34) by $\Gamma_x$ gives
+is the transport relaxation time. Compared with $1/\tau$ of Eq. (C32), **the only difference is the weight $1-\cos\theta_{\bf kk'}$ in the integrand.** Forward scattering ($\theta\simeq0$) contributes to $1/\tau$ but hardly to $1/\tau_{\rm tr}$, while backward scattering ($\theta\simeq\pi$) contributes to $1/\tau_{\rm tr}$ with twice the weight. Hence $\tau_{\rm tr}\ge\tau/2$, and the stronger the forward scattering, the longer $\tau_{\rm tr}$ is than $\tau$. Replacing one $v_x$ in Eq. (C34) by $\Gamma_x$ gives
 
 $$
 \sigma_{xx}=2e^2\tau_{\rm tr}\,\frac{\overline{v_x^2}\,D(E_F)}{\Omega}
