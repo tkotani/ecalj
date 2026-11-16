@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit bf52c0ef0 (source blob 9b6b69800).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 555d274fe (source blob aabe1b847).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -547,6 +547,7 @@ $$
 
 The Chern number on the closed surface reduces to the winding number of the gluing phase $e^{i\phi(k_x)}$ on the loop ($T^1$) of the cut. If $w\neq 0$, although everything is smooth wherever one looks and there is no singularity, the phase cannot be made smooth on the whole $T^2$ however it is chosen (the cut cannot be removed). That an integer appears although everything is smooth wherever one looks is the same as in Eq. (C40).
 $T^3$ has three kinds of closed surfaces in different directions, so there are three Chern numbers $(C^x,C^y,C^z)$, which give the ${\bf G}$ of Eq. (C35).
+When there is a Fermi surface, its topology also matters (for example, the Fermi surface of a closed pocket cannot have a Chern number unless there is a band degeneracy inside), but we do not go into it here.
 
 **Thouless pump** (D. J. Thouless, Phys. Rev. B **27**, 6083 (1983)): The Hamiltonian of a one-dimensional insulator (lattice constant $a$) is varied slowly with period $T$ ($H(t+T)=H(t)$). The gap between the occupied and unoccupied bands stays open during the whole cycle.
 To each time $t$ we assign the phase obtained by integrating the Berry connection of the periodic parts $|u_{nk}(t)\rangle$ of the occupied Bloch functions over the $T^1$ of $k$ (the one-dimensional Brillouin zone), the Zak phase. The polarization is written with it (R. D. King-Smith and D. Vanderbilt, Phys. Rev. B **47**, 1651 (1993)):
