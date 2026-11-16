@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 50b7b4412 (source blob 764b00a68).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 84344a855 (source blob 6e65fd348).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -528,7 +528,7 @@ e^{i\theta}=e^{i{\bf G}\cdot{\bf r}},\qquad {\bf G}=2\pi\Big(\frac{w_x}{a},\frac
 \tag{C40}
 $$
 
-is smooth everywhere and has the winding numbers $(w_x,w_y,w_z)$. The set of winding numbers is nothing but a reciprocal lattice vector (the same form as ${\bf G}$ in Eq. (C35)). This is the essence of topological quantization.
+has the winding numbers $(w_x,w_y,w_z)$, although it is smooth wherever one looks and has no singularity. The set of winding numbers is nothing but a reciprocal lattice vector (the same form as ${\bf G}$ in Eq. (C35)). This is the essence of topological quantization.
 
 Applied to wave functions: the periodic part $|u_{n{\bf k}}\rangle$ of the Bloch functions is given, in the form amplitude × phase, at each point ${\bf k}$ of the Brillouin zone, a closed three-dimensional space ($T^3$) (read $(x,y,z)$ as ${\bf k}$). The discussion above corresponds to fixing that amplitude and considering only the phase factor $e^{i\theta({\bf k})}$. A gauge transformation $|u_{n{\bf k}}\rangle\to e^{i\phi({\bf k})}|u_{n{\bf k}}\rangle$ changes only the phase without changing the amplitude, and its winding number is the $w$ of Eq. (C37).
 
@@ -545,7 +545,7 @@ $$
 \tag{C41}
 $$
 
-The Chern number on the closed surface reduces to the winding number of the gluing phase $e^{i\phi(k_x)}$ on the loop ($T^1$) of the cut. If $w\neq 0$, although everything is smooth wherever one looks and there is no singularity, the phase cannot be made smooth on the whole $T^2$ however it is chosen (the cut cannot be removed).
+The Chern number on the closed surface reduces to the winding number of the gluing phase $e^{i\phi(k_x)}$ on the loop ($T^1$) of the cut. If $w\neq 0$, although everything is smooth wherever one looks and there is no singularity, the phase cannot be made smooth on the whole $T^2$ however it is chosen (the cut cannot be removed). That an integer appears although everything is smooth wherever one looks is the same as in Eq. (C40).
 $T^3$ has three kinds of closed surfaces in different directions, so there are three Chern numbers $(C^x,C^y,C^z)$, which give the ${\bf G}$ of Eq. (C35).
 
 **Thouless pump** (D. J. Thouless, Phys. Rev. B **27**, 6083 (1983)): The Hamiltonian of a one-dimensional insulator (lattice constant $a$) is varied slowly with period $T$ ($H(t+T)=H(t)$). The gap between the occupied and unoccupied bands stays open during the whole cycle.
