@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 9f08d3d7d (source blob d1696c02d).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit cf6eb3249 (source blob bceb91523).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -432,7 +432,7 @@ A region that fits inside the Brillouin zone (like the pocket $S$ below), on the
 
 Why do we need to think about this at all? Because in linear-response calculations, problems can arise (as a topological response). The linear-response integrals, in the form of sums over states, do not depend on how the phases are chosen. When they are rewritten, by partial integration, as integrals of the Berry curvature or over the Fermi surface, however, one uses the fact that the phase can be chosen smoothly. On a closed surface $T^2$ in $T^3$, this may not be possible.
 
-Thinking of it in simplified form, it is the case in which a phase factor $e^{i\theta(x,y,z)}$ is specified at each point $(x,y,z)$ of $T^3$. It may also be given in the form amplitude × phase, but the amplitude is not essential and can be considered later.
+Thinking of it in simplified form, it suffices to focus on the case in which a phase factor $e^{i\theta(x,y,z)}$ is specified at each point $(x,y,z)$ of $T^3$. It may also be given in the form amplitude × phase, but the amplitude is not essential and can be considered later.
 
 The phase is assumed to vary continuously and smoothly. However, singular lines (vortex lines; the limit of the phase depends on the direction of approach, so the phase is undefined there, and it goes around by an integer multiple of $2\pi$ on a loop around them; for example $\theta=\arg(x+iy)$ on the $z$ axis) and singular points where bands are degenerate are also considered in some cases. In three dimensions, a singularity of the phase is generically a line.
 
