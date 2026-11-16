@@ -445,21 +445,19 @@ $$
 
 ### <span style="color:#d00">式 (C29) の右辺第 2 項</span> {#rr-term}
 
-<span style="color:#d00">式 (C29) の第 2 項を、第 1 項と比べて正確に見積もる。$g(\varepsilon)=\sum_{\bf k}v_x({\bf k})^2\,\delta(\varepsilon-\varepsilon_{\bf k})$、$\gamma=\hbar/2\tau$ と書くと、</span>
+<span style="color:#d00">式 (C29) の第 2 項を正確に見積もる。$g(\varepsilon)=\sum_{\bf k}v_x({\bf k})^2\,\delta(\varepsilon-\varepsilon_{\bf k})$、$\gamma=\hbar/2\tau$ と書くと、</span>
 
 $$
 \begin{aligned}
 \sum_{\bf k}v_x({\bf k})^2\,\bar G^R({\bf k},E_F)^2
 &=\int d\varepsilon\,\frac{g(\varepsilon)}{(E_F-\varepsilon+i\gamma)^2}\\
-&=-\int d\varepsilon\,\frac{g'(\varepsilon)}{E_F-\varepsilon+i\gamma},\\
-\sum_{\bf k}v_x({\bf k})^2\,\bar G^R\,\bar G^A
-&=\int d\varepsilon\,\frac{g(\varepsilon)}{(E_F-\varepsilon)^2+\gamma^2}\\
-&\simeq\frac{\pi}{\gamma}\,g(E_F)
+&=-\int d\varepsilon\,\frac{g'(\varepsilon)}{E_F-\varepsilon+i\gamma}
 \end{aligned}
 \tag{C35}
 $$
 
-<span style="color:#d00">である。一つ目の式の二つ目の等号は、$(E_F-\varepsilon+i\gamma)^{-2}=\partial_\varepsilon(E_F-\varepsilon+i\gamma)^{-1}$ を使った部分積分である（境界の項は消える）。一つ目の式は $\gamma\to0$ でも有限で、その実部は $-{\rm P}\!\int d\varepsilon\,g'(\varepsilon)/(E_F-\varepsilon)$ となり、$\tau$ によらない。二つ目の式（第 1 項）は $1/\gamma=2\tau/\hbar$ に比例する。したがって第 2 項は、第 1 項に比べて $\gamma/E_F\sim\hbar/(E_F\tau)$ の程度だけ小さいので落とした。</span>
+<span style="color:#d00">である。二つ目の等号は、$(E_F-\varepsilon+i\gamma)^{-2}=\partial_\varepsilon(E_F-\varepsilon+i\gamma)^{-1}$ を使った部分積分である（境界の項は消える）。右辺は $\gamma\to0$ でも有限で、その実部は $-{\rm P}\!\int d\varepsilon\,g'(\varepsilon)/(E_F-\varepsilon)$ となり、$\tau$ によらない。$g$ は $E_F$ ほどのエネルギーの尺度で変わるので、その大きさは $g(E_F)$ の程度である。</span>
+<span style="color:#d00">一方、第 1 項は式 (C33) から $\sum_{\bf k}v_x({\bf k})^2\,\bar G^R\bar G^A\simeq(2\pi\tau/\hbar)\,g(E_F)$ で、$\tau$ に比例する。二つの比は $\hbar/(E_F\tau)$ の程度で、散乱が弱い（$\hbar/\tau\ll E_F$）ときは小さいので、第 2 項を落とした。</span>
 
 ### <span style="color:#d00">まとめ</span> {#lifetime-summary}
 
