@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 6f97b512d (source blob 0420340ec).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 308f2b124 (source blob 0072ece2b).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -423,7 +423,7 @@ Adding diagrams with crossed impurity lines, instead of the ladder, gives the we
 
 Linear response computes integrals over the Brillouin zone. We therefore review the geometry (topology) of the Brillouin zone. Once it is understood on the two-dimensional torus, it can be grasped intuitively to a fair extent. This is the key point in discussing topological physical quantities; jumping straight into the calculation makes things hard to follow.
 
-${\bf k}$ and ${\bf k}+{\bf G}$ (${\bf G}$ a reciprocal lattice vector) represent the same state, so the Brillouin zone, with its opposite faces glued together, is a three-dimensional torus $T^3$.
+${\bf k}$ and ${\bf k}+{\bf G}$ (${\bf G}$ a reciprocal lattice vector) represent the same point, so the Brillouin zone, with its opposite faces glued together, is a three-dimensional torus $T^3$.
 $T^2$ (the two-dimensional torus) is a two-dimensional space like the surface of a doughnut. $T^3$ (the three-dimensional torus) is the three-dimensional version of $T^2$, a kind of closed three-dimensional space without boundary.
 On $T^2$ there are two kinds of loops ($T^1$) that cannot be shrunk to a point (loops that can be deformed continuously into each other are regarded as the same): calling the large circle of the doughnut the "ring" and the small circle of its cross-section the "tube", one goes along the ring and one goes around the tube. Other loops are combinations of these two, for example a path that goes twice around the tube and then once along the ring.
 On $T^3$ there are three such kinds of loops ($T^1$), winding in the $k_x$, $k_y$, $k_z$ directions, and in addition three kinds of closed surfaces ($T^2$) that cannot be shrunk to a point. These are closed surfaces without boundary (two-dimensional tori), specified by $k_x=$ const and so on.
