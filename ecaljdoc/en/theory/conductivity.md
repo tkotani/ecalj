@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit b7485607d (source blob 962cd5a71).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 3b3417d9e (source blob b00169ddd).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -167,6 +167,7 @@ $$
 \tag{C12}
 $$
 
+Here the delta functions are regarded as the limit $\delta\to+0$ of the Lorentzian $\delta_\delta(x)=(1/\pi)\,\delta/(x^2+\delta^2)$ of width $\delta$ (the subscript $\delta$ is the $\delta$ in the denominator of Eq. (C11)). The case with finite $\delta$ is discussed later in Eqs. (C19) and (C20).
 This is fixed only by one-body quantities at the Fermi level $E_F$.
 Rewriting it with $\delta(E-H)=-{\rm Im}\,G^R(E)/\pi$ gives the Kubo–Greenwood formula
 
@@ -242,7 +243,7 @@ $\hat v_x$ is the velocity operator, ${\rm Tr}$ the sum over one-body (orbital) 
 > This holds for any $\omega$ and temperature (for $\omega\neq 0$ it gives the optical conductivity). In the limit $\omega\to 0$ at low temperature it agrees with Eq. (C12).
 
 The sum (integral) over the product of delta functions in Eq. (C12) may be hard to read, so it is explained here.
-Keeping $i\delta$ finite (here $\delta$ is a width put in by hand, separate from the infinitesimal of the Kubo formula), the delta functions in Eq. (C12) become Lorentzians of width $\delta$, $\delta_\delta(x)=(1/\pi)\,\delta/(x^2+\delta^2)$.
+Keeping $\delta$ finite, the delta functions in Eq. (C12) remain $\delta_\delta$.
 $\sum_n\delta_\delta(E-E_n)$ is the density of states $D(E)$ (the number of states per energy in the whole system).
 
 Let us consider this a little. If the matrix elements $|\langle n|\hat v_x|m\rangle|^2$ are uniform near $E_F$ (average $\overline{|v_x|^2}$),
