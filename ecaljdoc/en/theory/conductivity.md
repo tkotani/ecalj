@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 92cfbdb06 (source blob f949223c6).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 1dad73dfd (source blob 540f3556a).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -518,8 +518,9 @@ $$
 
 is an integer. $\theta$ need not return to its starting value after one turn; only $e^{i\theta}$ must, so $\theta$ may shift by $2\pi w_L$.
 The winding number does not change when the assignment or the loop is varied continuously (an integer cannot change continuously). It changes only when the variation passes through a place where $e^{i\theta}$ cannot be defined (where the amplitude vanishes, a singularity).
+Note in particular that if the loop can be shrunk to a point (without passing a singularity), the winding number can only be zero: on a loop shrunk to a point $\theta$ is constant and the winding number is zero, and the winding number does not change while shrinking.
 
-Here it matters whether the loop can be shrunk. If $X$ is ordinary three-dimensional space, every loop can be shrunk to a point. Shrinking must bring the winding number to zero, so a loop with a nonzero winding number always winds around a singularity (a vortex line; in three dimensions it is a line).
+Here it matters whether the loop can be shrunk. If $X$ is ordinary three-dimensional space, every loop can be shrunk to a point. So a loop with a nonzero winding number must pass a singularity while being shrunk; that is, it winds around a singularity (a vortex line; in three dimensions it is a line).
 If $X$ is $T^3$ (a periodic box; the [preliminary](#fermi-sea-surface)), however, the loops ($T^1$) winding in the $x$, $y$, $z$ directions cannot be shrunk to a point. So $X$ can have three winding numbers $(w_x,w_y,w_z)$ without any singularity anywhere. For example, in a periodic box with sides $a$, $b$, $c$,
 
 $$
