@@ -149,8 +149,7 @@ $$
 $$
 
 となる（f 総和則。二つ目の等号は $\langle n|[\hat x,[\hat H_0,\hat x]]|n\rangle=2\sum_m(E_m-E_n)|\langle n|\hat x|m\rangle|^2$ による）。したがって二つは一致する。
-周期境界条件では $\hat x$ が使えず、式 (C10) で $f_n=f_m$ の項（同じ ${\bf k}$ のバンド内の項）が落ちる分だけ $\chi^R_{JJ}(0)$ が $ne^2\Omega/m$ より小さくなりうる。その差が Drude の重みである。
-周期境界条件でも、不純物のある系（この文書の設定）で、まず系を無限大に大きくして単位体積あたりの量に直してから $\delta\to+0$ を取れば、Drude の重みは 0 になり、本の評価 $\chi^R_{JJ}(\omega\to0)=ne^2\Omega/m$ が成り立つ。
+周期境界条件でも、不純物のある系（この文書の設定）で、まず系を無限大に大きくして単位体積あたりの量に直してから $\delta\to+0$ を取れば、本の評価 $\chi^R_{JJ}(\omega\to0)=ne^2\Omega/m$ が成り立つ。
 
 ### 直流の極限: Kubo–Greenwood の式 {#kubo-greenwood}
 
