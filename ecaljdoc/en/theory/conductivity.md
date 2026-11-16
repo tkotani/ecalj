@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 3a9384348 (source blob 7ac0cc415).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit c566e0672 (source blob e1637e84c).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -389,7 +389,9 @@ $$
 
 Below, $\Sigma$ is obtained (next section) and the two terms of Eq. (C29) are evaluated (section on the [Drude formula](#drude)). The terms of the type of the fourth term are included in the section on the [vertex correction](#vertex-correction). Pairings that cross each other give the weak-localization correction, which is not treated here.
 
-## Green function with the self-energy: the lifetime {#averaged-g}
+## Summing the second and third terms: the lifetime and the Drude formula {#self-energy-sum}
+
+### Green function with the self-energy: the lifetime {#averaged-g}
 
 We now obtain the $\Sigma^{\pm}$ of Eq. (C28) explicitly. Turning the sum in $\Sigma_2$ into an integral, the self-energy is
 
@@ -413,7 +415,7 @@ $1/\tau$ is just the scattering rate by Fermi's golden rule (see the corresponde
 
 Putting this into Eq. (C29), $\bar G^R({\bf k},E_F)=1/(E_F-\varepsilon_{\bf k}+i\hbar/2\tau)$ and $\bar G^A$ is its complex conjugate. In the first term, $\bar G^R\bar G^A=1/\big[(E_F-\varepsilon_{\bf k})^2+(\hbar/2\tau)^2\big]$ has a sharp peak of width $\hbar/2\tau$ at $\varepsilon_{\bf k}=E_F$, and the sum over ${\bf k}$ is proportional to $\tau$. The second term $(\bar G^R)^2$ does not behave so, because its poles are on the same side of the real axis. They are evaluated explicitly in the next section.
 
-## Without the vertex correction: the Drude formula {#drude}
+### Without the vertex correction: the Drude formula {#drude}
 
 In Eq. (C29), $\bar G$ contains the width $\hbar/2\tau$ from the self-energy.
 When $\tau$ is long ($\hbar/\tau\ll E_F$),
