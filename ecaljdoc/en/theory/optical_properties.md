@@ -1,6 +1,10 @@
 # Optical properties
 
-> English version of the page [theory/optical_properties](../../theory/optical_properties.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/optical_properties.md of commit 3759f2a6d (source blob ef9fffb1172f).
+::: warning Unfinished
+This page is unfinished.
+:::
+
+> English version of the page [theory/optical_properties](../../theory/optical_properties.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/optical_properties.md of commit c173e3b69 (source blob 9c39003eda09).
 
 ## Dielectric function on the microscopic scale
 
