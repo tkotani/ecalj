@@ -85,6 +85,15 @@
 意味のある異常はこの数より**少ない**場合（一部のプロセスが MLO 経路に入らず従来の `sigm` に落ちた）。
 ほか: 1 反復 ≈ 5300 秒（6³ は ≈ 950）、スナップショット 2.4 GB（6³ は 0.9）。
 
+## 2026-11-17 — rel の前の試験（mic、ifx 2026）
+
+### 01:55 mic で全組 PASS（user「mic で通ればいい」）
+- HEAD `679034618`（11-14 の `[gw]` 必須キー e4544fa79、module 削除 433ce99b0、yh3fcc_gwsc666 を外した 6eec699cc を含む）を
+  `sync_ecalj_src.sh --samples mic ~/ecalj_test1117` で送り、ifx 2026 でビルド（00:50）。`run_1117.sh`（10-07 の run_1007.sh と同じ組）。
+- `samples_tests.sh -np 8`（bench 以外）: inputs 171、install 66、eps 18、procar 5、mlo 45、mloqsgw 5、afsym 4、affix 12、
+  samples の 13 ディレクトリ、magnon 2、heavy 8。失敗 0（01:50 に終了。heavy 1496 秒、AtomDimer 667 秒）。
+- 公開の木での `vitepress build` も通った（145 秒）。
+
 ## 2026-10-09 — SnS（板）を規則 es-d で、BN を小さな ES で回し直す（user「SnS BN をやり直しといて」）
 
 ### 10-09 05:57 **SnS mp-554134 と BN mp-685145 を kt1 run_esd で投入**
