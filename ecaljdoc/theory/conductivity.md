@@ -392,7 +392,7 @@ $$
 
 ## <span style="color:#d00">第 2 項と第 3 項の足し上げ: 寿命と Drude の式</span> {#self-energy-sum}
 
-### 自己エネルギーを含むグリーン関数: 寿命 {#averaged-g}
+### <span style="color:#d00">式 (C29) の右辺第 1 項: 寿命と Drude の式</span> {#averaged-g}
 
 <span style="color:#d00">式 (C28) の $\Sigma^{\pm}$ を具体的に求める。</span>$\Sigma_2$ の和を積分にすると、自己エネルギーは
 
@@ -414,9 +414,9 @@ $$
 
 $1/\tau$ はフェルミの黄金則による散乱の速さそのものである（[Basic I](./basic#td-vs-ti-perturbation) の、黄金則と自己エネルギーの虚部の対応）。
 
-<span style="color:#d00">これを式 (C29) に入れると、$\bar G^R({\bf k},E_F)=1/(E_F-\varepsilon_{\bf k}+i\hbar/2\tau)$、$\bar G^A$ はその複素共役である。第 1 項の $\bar G^R\bar G^A=1/\big[(E_F-\varepsilon_{\bf k})^2+(\hbar/2\tau)^2\big]$ は $\varepsilon_{\bf k}=E_F$ に幅 $\hbar/2\tau$ の鋭い山を持ち、${\bf k}$ で和を取ると $\tau$ に比例する。第 2 項の $(\bar G^R)^2$ は、極が実軸の同じ側にあるのでそうならない。次節で具体的に評価する。</span>
+<span style="color:#d00">これを式 (C29) に入れると、$\bar G^R({\bf k},E_F)=1/(E_F-\varepsilon_{\bf k}+i\hbar/2\tau)$、$\bar G^A$ はその複素共役である。第 1 項の $\bar G^R\bar G^A=1/\big[(E_F-\varepsilon_{\bf k})^2+(\hbar/2\tau)^2\big]$ は $\varepsilon_{\bf k}=E_F$ に幅 $\hbar/2\tau$ の鋭い山を持ち、${\bf k}$ で和を取ると $\tau$ に比例する。第 2 項の $(\bar G^R)^2$ は、極が実軸の同じ側にあるのでそうならない。以下で具体的に評価する。</span>
 
-### バーテックス補正を入れない場合: Drude の式 {#drude}
+<a id="drude"></a>
 
 式 (C29) では、$\bar G$ に自己エネルギーによる幅 $\hbar/2\tau$ が入っている。
 $\tau$ が長い（$\hbar/\tau\ll E_F$）とき
@@ -438,6 +438,9 @@ $$
 $$
 
 となり、式 (C22) と同じ Drude の式（自由電子では $ne^2\tau/m$）が出る。
+
+### <span style="color:#d00">式 (C29) の右辺第 2 項</span> {#rr-term}
+
 <span style="color:#d00">式 (C29) の第 2 項を、第 1 項と比べて正確に見積もる。$g(\varepsilon)=\sum_{\bf k}v_x({\bf k})^2\,\delta(\varepsilon-\varepsilon_{\bf k})$、$\gamma=\hbar/2\tau$ と書くと、</span>
 
 $$
@@ -453,6 +456,10 @@ $$
 $$
 
 <span style="color:#d00">である。一つ目の式の二つ目の等号は、$(E_F-\varepsilon+i\gamma)^{-2}=\partial_\varepsilon(E_F-\varepsilon+i\gamma)^{-1}$ を使った部分積分である（境界の項は消える）。一つ目の式は $\gamma\to0$ でも有限で、その実部は $-{\rm P}\!\int d\varepsilon\,g'(\varepsilon)/(E_F-\varepsilon)$ となり、$\tau$ によらない。二つ目の式（第 1 項）は $1/\gamma=2\tau/\hbar$ に比例する。したがって第 2 項は、第 1 項に比べて $\gamma/E_F\sim\hbar/(E_F\tau)$ の程度だけ小さいので落とした。</span>
+
+### <span style="color:#d00">まとめ</span> {#lifetime-summary}
+
+<span style="color:#d00">まとめると、第 4 項（橙）の型を落とした近似では、式 (C29) の第 1 項から寿命 $\tau$ の Drude の式 (C33) が出て、第 2 項はそれより $\hbar/(E_F\tau)$ の程度だけ小さい。</span>
 素朴に $\delta\to 0$ とすると抵抗が 0 になったが、不純物による散乱の幅が $\delta$ の役を担い、不純物は寿命 $\tau$ を通して抵抗を与える。
 
 ## バーテックス補正: 輸送の緩和時間 {#vertex-correction}
