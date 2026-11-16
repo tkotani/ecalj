@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit ae97751ca (source blob fbfad135f).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 5297a23aa (source blob c04d8c9cc).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -178,7 +178,6 @@ $$
 $$
 
 $\hat v_x$ is the velocity operator, ${\rm Tr}$ the sum over one-body (orbital) states, and the factor 2 is the spin.
-Eq. (C13) is a formula of the one-body problem, exact for one fixed configuration of the impurities, because the intermediate states (excitations) are written as pairs $(n,m)$ of one-body states (one-electron excitations from $n$ to $m$). For a system with electron-electron interactions, using this form with $G$ replaced by the interacting Green function is an approximation (the two-body correlation, that is the vertex correction, is missing).
 
 > For a better understanding, we look at the relation to the viewpoint of many-body perturbation theory. In a one-body system the ring diagram (a product of two $G$, closed with $J$ at the end points) gives the exact result.
 > Its linear response function is written with the time-ordered Green function $G^T(E)=\sum_m|m\rangle\langle m|/\big(E-E_m+i\delta\,{\rm sgn}(E_m-\mu)\big)$ as
