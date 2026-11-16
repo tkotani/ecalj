@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 28d49e750 (source blob bf8f3f987).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit a825dd8a7 (source blob b88b9667e).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -650,11 +650,12 @@ and this difference cannot be told from the Fermi surface. The extreme case is a
 
 A weak coupling only changes the Fermi surface and the Berry phase continuously; the integer does not change unless the gap closes.
 
-In a finite sample with surfaces, the integer part can also be regarded as carried by edge states passing through $E_F$ ([Example: a sample with surfaces](#slab-edge)).
 In the bulk formula with periodic boundary conditions, the boundary term of the integration by parts vanishes by the periodicity of the Brillouin zone, so only the integer part remains in the Fermi sea.
 $\sigma_{xx}$ has nothing corresponding to this integer, so the integration by parts in Eq. (C21) moves it completely onto the Fermi surface.
 
-### Example: a sample with surfaces {#slab-edge}
+## Note: a finite sample with surfaces {#slab-edge}
+
+In a finite sample with surfaces, the integer part can also be regarded as carried by edge states (states localized at the surface) passing through $E_F$. We look at an example below.
 
 **One sheet**: First consider a single two-dimensional Chern-insulator sheet spread in the $xy$ plane (Chern number $C$). Its Brillouin zone is the $T^2$ of $(k_x,k_y)$.
 Cutting it at $x=0$ into the half-plane $x\gt 0$, $k_x$ is no longer a good quantum number, and the states are labeled only by $k_y$ along the edge ($T^1$).
