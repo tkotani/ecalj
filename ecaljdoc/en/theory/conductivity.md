@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit f0b1f9538 (source blob d5ede9d08).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit f822ee1e2 (source blob a35d059e5).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -419,7 +419,7 @@ This result is the same as that of the Boltzmann equation.
 
 Adding diagrams with crossed impurity lines, instead of the ladder, gives the weak-localization correction (not treated here).
 
-## Integrals over the Brillouin zone and its topology $T^3$ {#bz-topology}
+## Note: integrals over the Brillouin zone and its topology $T^3$ {#bz-topology}
 
 Once it is understood on the two-dimensional torus, it can be grasped intuitively to a fair extent. This is the key point in discussing topological physical quantities; jumping straight into the calculation makes things hard to follow.
 
