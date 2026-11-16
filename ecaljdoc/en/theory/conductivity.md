@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 64f95e748 (source blob 17b7082a7).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 98c6e2eb9 (source blob 4b4acfd49).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -418,3 +418,28 @@ If $u$ is point-like ($u({\bf q})$ independent of ${\bf q}$), the average of $\c
 This result is the same as that of the Boltzmann equation.
 
 Adding diagrams with crossed impurity lines, instead of the ladder, gives the weak-localization correction (not treated here).
+
+## Note: Fermi-surface and Fermi-sea terms {#fermi-sea-surface}
+
+The static conductivity $\sigma_{ij}$ of the Kubo formula is sometimes split into a **Fermi-surface term**, with the weight $-\partial f/\partial E$, and a **Fermi-sea term**, integrated over all occupied states with the weight $f(E)$ (Středa's split; often used in the literature on the anomalous Hall effect).
+The Fermi-sea term is antisymmetric in $i\leftrightarrow j$, so it does not contribute to $\sigma_{xx}$. Eq. (C19) is the $G^RG^A$ part of the Fermi-surface term.
+
+This split, however, is not unique, because integration by parts rewrites one into the other.
+In Eq. (C17), the integral over the occupied region (Drude's $n/m$) and $\overline{v_x^2}D(E_F)$ on the Fermi surface were the same quantity.
+For the anomalous Hall conductivity too, the integral of the Berry curvature over the occupied states can be rewritten as the Berry phase on the Fermi surface (F. D. M. Haldane, Phys. Rev. Lett. **93**, 206602 (2004)).
+So the distinction "only the electrons on the Fermi surface contribute, or all electrons" has no physical meaning.
+
+The exception is the integer part. The Berry phase is fixed only modulo $2\pi$, so moving the integral to the Fermi surface leaves the Chern number $C$ of the completely filled bands.
+As an example, put a filled Chern-insulator layer ($C=1$) under an ordinary metal layer, without coupling. The Fermi surface is only that of the metal layer, the same as before, but
+
+$$
+\sigma_{xy}^{\text{(stacked)}}=\sigma_{xy}^{\text{(metal layer only)}}+\frac{e^2}{h}
+\tag{C33}
+$$
+
+This $e^2/h$ is not fixed by the Fermi surface; it can only be written as the Fermi-sea integral $\frac{1}{2\pi}\int_{\rm BZ}\Omega\,d^2k=C$. The extreme case is a quantum Hall insulator, which has no Fermi surface but $\sigma_{xy}=Ce^2/h$.
+A weak coupling only changes the Fermi surface and the Berry phase continuously; the integer does not change unless the gap closes. In three dimensions, this integer part becomes a reciprocal lattice vector (B. I. Halperin, Jpn. J. Appl. Phys. **26**, Suppl. 26-3, 1913 (1987)).
+
+In a finite sample with edges, however, as many edge states as the Chern number cross the gap and pass through $E_F$ (bulk-edge correspondence). If the integer part is regarded as carried by the edge states at $E_F$, the view "determined by the states at $E_F$" holds once the boundary is included.
+In the bulk formula with periodic boundary conditions, the boundary term of the integration by parts vanishes by the periodicity of the Brillouin zone, so only the integer part remains in the Fermi sea.
+$\sigma_{xx}$ has nothing corresponding to this integer, so the integration by parts in Eq. (C17) moves it completely onto the Fermi surface.
