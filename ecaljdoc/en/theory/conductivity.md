@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 308f2b124 (source blob 0072ece2b).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 9f08d3d7d (source blob d1696c02d).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -430,7 +430,7 @@ On $T^3$ there are three such kinds of loops ($T^1$), winding in the $k_x$, $k_y
 For example, the cross-section $T^2(k_z)$ at $k_z=$ const wraps the Brillouin zone in the $k_x$ and $k_y$ directions. An integral over such a surface cannot be rewritten as an integral over a boundary.
 A region that fits inside the Brillouin zone (like the pocket $S$ below), on the other hand, has a boundary, and an integral over it can be rewritten by Stokes' theorem as an integral over the boundary.
 
-Why do we need to think about this at all? Because in linear-response calculations, problems can arise (as a topological response). The linear-response integrals, in the form of sums over states, do not depend on how the phases are chosen. When they are rewritten as integrals of the Berry curvature or over the Fermi surface, however, one uses the fact that the phase can be chosen smoothly. On a closed surface $T^2$ in $T^3$, this may not be possible.
+Why do we need to think about this at all? Because in linear-response calculations, problems can arise (as a topological response). The linear-response integrals, in the form of sums over states, do not depend on how the phases are chosen. When they are rewritten, by partial integration, as integrals of the Berry curvature or over the Fermi surface, however, one uses the fact that the phase can be chosen smoothly. On a closed surface $T^2$ in $T^3$, this may not be possible.
 
 Thinking of it in simplified form, it is the case in which a phase factor $e^{i\theta(x,y,z)}$ is specified at each point $(x,y,z)$ of $T^3$. It may also be given in the form amplitude × phase, but the amplitude is not essential and can be considered later.
 
