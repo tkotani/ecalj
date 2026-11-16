@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 6591d420d (source blob 68f213e4b).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit f84a09929 (source blob f3f42294b).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -430,6 +430,11 @@ For the anomalous Hall conductivity too, the integral of the Berry curvature ove
 So the distinction "only the electrons on the Fermi surface contribute, or all electrons" has no physical meaning.
 
 The exception is the integer part. We see this with formulas in the following setting.
+
+First we recall the geometry of the Brillouin zone. ${\bf k}$ and ${\bf k}+{\bf G}$ (${\bf G}$ a reciprocal lattice vector) represent the same state, so the Brillouin zone, with its opposite faces glued together, is a three-dimensional torus $T^3$.
+The cross-section $T^2(k_z)$ at fixed $k_z$ is itself a closed surface without boundary (a two-dimensional torus) that wraps the Brillouin zone in the $k_x$ and $k_y$ directions. An integral over such a surface cannot be rewritten as an integral over a boundary.
+A region that fits inside the Brillouin zone (like the pocket $S$ below), on the other hand, has a boundary, and an integral over it can be rewritten by Stokes' theorem as an integral over the boundary.
+
 In a three-dimensional crystal (orthorhombic for simplicity, with lattice constants $a$, $b$, $c$), band 1 is completely filled (no Fermi surface), and band 2 is occupied only in a region $S$ of the Brillouin zone (an electron pocket). The Fermi surface is the closed surface $\partial S$, the boundary of $S$.
 The Berry connection and Berry curvature of the periodic part $|u_{n{\bf k}}\rangle$ of the Bloch functions are
 
@@ -451,8 +456,7 @@ $$
 
 where $T^2(k_z)$ is the cross-section of the Brillouin zone at fixed $k_z$ and $S(k_z)$ the pocket in that cross-section.
 
-**First term (band 1)**: The Brillouin zone is a three-dimensional torus, so the cross-section $T^2(k_z)$ is itself a closed surface without boundary (a two-dimensional torus) that wraps the Brillouin zone in the $k_x$ and $k_y$ directions.
-The integral on it, $C_1^z=\frac{1}{2\pi}\int_{T^2(k_z)}\Omega_1^z\,d^2k$, is a Chern number, an integer. Band 1 has a gap, so it does not depend on $k_z$. Since the surface is closed, it cannot be rewritten as an integral over a boundary.
+**First term (band 1)**: The integral on the closed surface $T^2(k_z)$, $C_1^z=\frac{1}{2\pi}\int_{T^2(k_z)}\Omega_1^z\,d^2k$, is a Chern number, an integer. Band 1 has a gap, so it does not depend on $k_z$. Since $T^2(k_z)$ is closed, this cannot be rewritten as an integral over a boundary.
 The $k_z$ integral gives $2\pi/c$, so the first term is $(e^2/h)\,C_1^z/c$. Together with the Chern numbers $C_1^x$, $C_1^y$ of the surfaces wrapping the Brillouin zone in the other directions,
 
 $$
