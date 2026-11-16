@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 87fa87d7e (source blob e805ecc52).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 5481695ad (source blob c5638de29).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -320,12 +320,12 @@ $$
 $$
 
 (the ${\bf q}=0$ component is a uniform energy shift, absorbed in $E_F$; terms in which the same impurity acts three times or more are dropped for weak impurities).
-With this we expand the two terms of Eq. (C23). Writing $G^{\pm}=(E-H_0-V\pm i\delta)^{-1}$ ($G^+=G^R$, $G^-=G^A$), we consider ${\rm Tr}[\hat v_xG^+\hat v_xG^{\pm}]$ (the lower sign $-$ gives the first term, the upper sign $+$ the second). In plane waves $|{\bf k}\rangle$ the operator $\hat v_x$ is diagonal ($v_x({\bf k})=\hbar k_x/m$), so the trace is
+With this we expand the two terms of Eq. (C23). Writing $G^{\pm}=(E-H_0-V\pm i\delta)^{-1}$ ($G^+=G^R$, $G^-=G^A$), we consider ${\rm Tr}[\hat v_xG^{\pm}\hat v_xG^{\pm'}]$ (the two signs are taken independently; $(+,-)$ gives the first term, $(+,+)$ the second). In plane waves $|{\bf k}\rangle$ the operator $\hat v_x$ is diagonal ($v_x({\bf k})=\hbar k_x/m$), so the trace is
 
 $$
 \begin{aligned}
-{\rm Tr}\big[\hat v_x G^+\hat v_x G^{\pm}\big]
-&=\sum_{ {\bf k}{\bf k}'}v_x({\bf k})\,G^+_{ {\bf k}{\bf k}'}\,v_x({\bf k}')\,G^{\pm}_{ {\bf k}'{\bf k}}
+{\rm Tr}\big[\hat v_x G^{\pm}\hat v_x G^{\pm'}\big]
+&=\sum_{ {\bf k}{\bf k}'}v_x({\bf k})\,G^{\pm}_{ {\bf k}{\bf k}'}\,v_x({\bf k}')\,G^{\pm'}_{ {\bf k}'{\bf k}}
 \end{aligned}
 \tag{C25}
 $$
@@ -345,19 +345,19 @@ We put this into Eq. (C25) and average. Of the terms first order in $V$ only the
 
 $$
 \begin{aligned}
-&\Big\langle{\rm Tr}\big[\hat v_x G^+\hat v_x G^{\pm}\big]\Big\rangle_{\rm imp}\\
-&\quad=\sum_{\bf k}v_x({\bf k})^2\,G^+_0({\bf k})\,G^{\pm}_0({\bf k})\\
-&\qquad+\sum_{\bf k}v_x({\bf k})^2\,G^+_0({\bf k})\,\Sigma^+_2({\bf k})\,G^+_0({\bf k})\,G^{\pm}_0({\bf k})\\
-&\qquad+\sum_{\bf k}v_x({\bf k})^2\,G^+_0({\bf k})\,G^{\pm}_0({\bf k})\,\Sigma^{\pm}_2({\bf k})\,G^{\pm}_0({\bf k})\\
-&\qquad+\sum_{ {\bf k}{\bf k}'}v_x({\bf k})\,G^+_0({\bf k})\,G^{\pm}_0({\bf k})\\
-&\qquad\quad\times\frac{n_i}{\Omega}\,|u({\bf k}-{\bf k}')|^2\,G^+_0({\bf k}')\,G^{\pm}_0({\bf k}')\,v_x({\bf k}')\\
+&\Big\langle{\rm Tr}\big[\hat v_x G^{\pm}\hat v_x G^{\pm'}\big]\Big\rangle_{\rm imp}\\
+&\quad=\sum_{\bf k}v_x({\bf k})^2\,G^{\pm}_0({\bf k})\,G^{\pm'}_0({\bf k})\\
+&\qquad+\sum_{\bf k}v_x({\bf k})^2\,G^{\pm}_0({\bf k})\,\Sigma^{\pm}_2({\bf k})\,G^{\pm}_0({\bf k})\,G^{\pm'}_0({\bf k})\\
+&\qquad+\sum_{\bf k}v_x({\bf k})^2\,G^{\pm}_0({\bf k})\,G^{\pm'}_0({\bf k})\,\Sigma^{\pm'}_2({\bf k})\,G^{\pm'}_0({\bf k})\\
+&\qquad+\sum_{ {\bf k}{\bf k}'}v_x({\bf k})\,G^{\pm}_0({\bf k})\,G^{\pm'}_0({\bf k})\\
+&\qquad\quad\times\frac{n_i}{\Omega}\,|u({\bf k}-{\bf k}')|^2\,G^{\pm}_0({\bf k}')\,G^{\pm'}_0({\bf k}')\,v_x({\bf k}')\\
 &\qquad+O(V^4)
 \end{aligned}
 \tag{C27}
 $$
 
 where $\Sigma^{\pm}_2({\bf k})=\sum_{ {\bf k}_1}(n_i/\Omega)\,|u({\bf k}-{\bf k}_1)|^2\,G^{\pm}_0({\bf k}_1)$.
-On the right-hand side, the first term is the one without impurities; the second and third terms connect the two $V$ within one $G$ (one self-energy $\Sigma_2$ is inserted); the fourth term connects a $V$ in $G^+$ with a $V$ in $G^{\pm}$.
+On the right-hand side, the first term is the one without impurities; the second and third terms connect the two $V$ within one $G$ (one self-energy $\Sigma_2$ is inserted); the fourth term connects a $V$ in $G^{\pm}$ with a $V$ in $G^{\pm'}$.
 The average within one $G$, $\langle V_{ {\bf k}{\bf k}_1}V_{ {\bf k}_1{\bf k}'}\rangle_{\rm imp}$, remains only for ${\bf k}={\bf k}'$ because of the random phases. This is why the averaged $G$ is diagonal in ${\bf k}$ (translationally invariant).
 
 The higher-order terms are the same: the average of a product of $V$ is the sum of products of the averages of pairs. In diagrams, the two $V$ of a pair are connected by an impurity line. The lines are of three kinds:
