@@ -118,30 +118,30 @@ $$
 
 を得る。これが久保公式の結果である。散逸（ジュール熱）を決めるのは $\sigma$ の実部である。反磁性の項は、電場と電流の位相が直交しており、散逸を与えない（$\sigma$ の虚部にだけ効く。虚数 $i$ を掛けることは、位相が 90 度遅れることである。これはインダクタンス効果である。ただし磁場によるものではなく、電子の慣性による運動インダクタンスで、エネルギーは電子の運動エネルギーとして蓄えられる）。
 
-楠瀬の本（楠瀬博明『スピンと軌道の電子論』講談社 (2019)、§1.3 の式 (1.106)–(1.109)）では、電場を $-\Omega\,{\bf P}\cdot{\bf E}$（${\bf P}$ は分極）で入れ、時間についての部分積分を使って伝導度を書いている（本の式 (1.107)、(1.108)。本では $\Pi_{\mu\nu}=\chi^R_{JJ}$、$V=\Omega$）。式 (C8) と並べると
-
-$$
-\begin{aligned}
-\sigma(\omega)&=\frac{\chi^R_{JJ}(\omega)-ne^2\Omega/m}{i\omega\Omega}&&\text{（式 (C8)）}\\
-\sigma(\omega)&=\frac{\chi^R_{JJ}(\omega)-\chi^R_{JJ}(0)}{i\omega\Omega}&&\text{（本の式 (1.109)）}
-\end{aligned}
-\tag{C9}
-$$
-
-で、違いは第 2 項だけである。これは、式 (C6) の右辺第 1 項 $-(ne^2\Omega/m)A_x(t)$ を、あえて第 2 項の形 $-\chi^R_{JJ}(\omega=0)\,A_x(t)$ に押し込んで書いているためである。
-$\chi^R_{JJ}(\omega=0)\,A_x$ は、$A_x$ を無限にゆっくり（断熱的に）入れたときの密度行列 $\rho$ の変化による電流である。線形応答の式を導いた道を逆にたどると分かる。静的な $A_x$ を $e^{\delta t'}$ で入れ、式 (C3) を導いた $\delta\rho_{\rm I}$ の式で $F(t')=e^{\delta t'}A_x$ として $t=0$ で見ると
-
-$$
-\begin{aligned}
-\delta\rho&=\frac{i}{\hbar}\int_{-\infty}^{0}dt'\,e^{\delta t'}\,[\hat J^0_{x,{\rm H}}(t'),\rho_0]\,A_x,\\
-\langle n|\delta\rho|m\rangle&=(f_m-f_n)\,\frac{\langle n|\hat J^0_x|m\rangle}{E_n-E_m-i\delta}\,A_x,\\
-{\rm Tr}[\delta\rho\,\hat J^0_x]&=\sum_{nm}(f_n-f_m)\,\frac{|\langle n|\hat J^0_x|m\rangle|^2}{E_m-E_n-i\delta}\,A_x=\chi^R_{JJ}(0)\,A_x
-\end{aligned}
-\tag{C10}
-$$
-
-である（$\hbar\delta$ を改めて $\delta$ と書いた）。$i\delta$ はゆっくり入れたことの名残で、三行目は式 (C4) で $\omega=0$ としたものである。
-つまり本の形は、静的な $A_x$ の下では $\rho$ の変化による電流が反磁性の電流をちょうど打ち消し、全電流が 0 になると仮定していることになる。超伝導のように静的な $A_x$ の下で電流が残る系では、本の形は使えず、式 (C8) を使う。
+> 楠瀬の本（楠瀬博明『スピンと軌道の電子論』講談社 (2019)、§1.3 の式 (1.106)–(1.109)）では、電場を $-\Omega\,{\bf P}\cdot{\bf E}$（${\bf P}$ は分極）で入れ、時間についての部分積分を使って伝導度を書いている（本の式 (1.107)、(1.108)。本では $\Pi_{\mu\nu}=\chi^R_{JJ}$、$V=\Omega$）。式 (C8) と並べると
+>
+> $$
+> \begin{aligned}
+> \sigma(\omega)&=\frac{\chi^R_{JJ}(\omega)-ne^2\Omega/m}{i\omega\Omega}&&\text{（式 (C8)）}\\
+> \sigma(\omega)&=\frac{\chi^R_{JJ}(\omega)-\chi^R_{JJ}(0)}{i\omega\Omega}&&\text{（本の式 (1.109)）}
+> \end{aligned}
+> \tag{C9}
+> $$
+>
+> で、違いは第 2 項だけである。これは、式 (C6) の右辺第 1 項 $-(ne^2\Omega/m)A_x(t)$ を、あえて第 2 項の形 $-\chi^R_{JJ}(\omega=0)\,A_x(t)$ に押し込んで書いているためである。
+> $\chi^R_{JJ}(\omega=0)\,A_x$ は、$A_x$ を無限にゆっくり（断熱的に）入れたときの密度行列 $\rho$ の変化による電流である。線形応答の式を導いた道を逆にたどると分かる。静的な $A_x$ を $e^{\delta t'}$ で入れ、式 (C3) を導いた $\delta\rho_{\rm I}$ の式で $F(t')=e^{\delta t'}A_x$ として $t=0$ で見ると
+>
+> $$
+> \begin{aligned}
+> \delta\rho&=\frac{i}{\hbar}\int_{-\infty}^{0}dt'\,e^{\delta t'}\,[\hat J^0_{x,{\rm H}}(t'),\rho_0]\,A_x,\\
+> \langle n|\delta\rho|m\rangle&=(f_m-f_n)\,\frac{\langle n|\hat J^0_x|m\rangle}{E_n-E_m-i\delta}\,A_x,\\
+> {\rm Tr}[\delta\rho\,\hat J^0_x]&=\sum_{nm}(f_n-f_m)\,\frac{|\langle n|\hat J^0_x|m\rangle|^2}{E_m-E_n-i\delta}\,A_x=\chi^R_{JJ}(0)\,A_x
+> \end{aligned}
+> \tag{C10}
+> $$
+>
+> である（$\hbar\delta$ を改めて $\delta$ と書いた）。$i\delta$ はゆっくり入れたことの名残で、三行目は式 (C4) で $\omega=0$ としたものである。
+> つまり本の形は、静的な $A_x$ の下では $\rho$ の変化による電流が反磁性の電流をちょうど打ち消し、全電流が 0 になると仮定していることになる。超伝導のように静的な $A_x$ の下で電流が残る系では、本の形は使えず、式 (C8) を使う。
 
 ### 直流の極限: Kubo–Greenwood の式 {#kubo-greenwood}
 
