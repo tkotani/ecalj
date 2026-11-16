@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit c3c1eae1c (source blob c454b86c4).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 8c5b5451d (source blob 24b301048).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -130,7 +130,7 @@ $$
 \tag{C9}
 $$
 
-and the only difference is in the second term. $\chi^R_{JJ}(0)$ is evaluated by setting $\omega=0$ in Eq. (C4):
+and the only difference is in the second term. This is because the first term on the right-hand side of Eq. (C6), $-(ne^2\Omega/m)A_x(t)$, is written in the form of the second term as $-\chi^R_{JJ}(\omega=0)\,A_x(t)$. $\chi^R_{JJ}(0)$ is evaluated by setting $\omega=0$ in Eq. (C4):
 
 $$
 \chi^R_{JJ}(0)=\sum_{nm}(f_n-f_m)\,\frac{|\langle n|\hat J^0_x|m\rangle|^2}{E_m-E_n}.
