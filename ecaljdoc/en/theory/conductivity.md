@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 0479b774e (source blob cf327ba00).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit ca3fc7c95 (source blob 74821cbca).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -301,7 +301,7 @@ This approximation of a constant effective mass on the Fermi surface should hold
 
 Eq. (C13) is for one fixed configuration of the impurities. The observed conductivity is its average $\langle\cdots\rangle_{\rm imp}$ over the impurity configurations.
 Writing ${\rm Im}\,G^R=(G^R-G^A)/2i$ and expanding gives terms with $G^RG^A$ and terms with $G^RG^R$, $G^AG^A$.
-For weak impurities the $G^RG^A$ terms dominate:
+For weak impurities (small $n_i|u|^2$) the $G^RG^A$ terms dominate:
 
 $$
 \sigma_{xx}\simeq\frac{\hbar e^2}{\pi\Omega}\,{\rm Re}\,
@@ -309,7 +309,7 @@ $$
 \tag{C23}
 $$
 
-(the $G^RG^R$ terms only give corrections of higher order in $1/\tau$).
+(after the configuration average, the $G^RG^A$ terms become large, of the order of the inverse of $n_i|u|^2$, while the $G^RG^R$ and $G^AG^A$ terms do not, and are smaller by a factor of the first order in $n_i|u|^2$).
 
 **The key point**: the average is taken of the **product** of $G^R$ and $G^A$:
 
