@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit da44a13d4 (source blob 27cb4d9fc).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 959ff66f0 (source blob 84d9b43df).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -202,7 +202,7 @@ $\hat v_x$ is the velocity operator, ${\rm Tr}$ the sum over one-body (orbital) 
 > $$
 >
 > (using $1/(E_m-E-\hbar\omega-i\delta)=-G^R_m(E+\hbar\omega)$ and $1/(E-E_n-\hbar\omega-i\delta)=G^A_n(E-\hbar\omega)$; the subscripts are components in the eigenstates).
-> In the first line of Eq. (C15), the energies with $\hbar\omega=E_m-E_n$ are the excitation energies (excitation from $n$ to $m$). $\chi^R_{JJ}$ has the retarded form with respect to these excitations (the poles $\hbar\omega=E_m-E_n-i\delta$ lie in the lower half-plane of $\omega$). The last step of Eq. (C15) replaces this excitation energy $\hbar\omega=E_m-E_n$ by the energy $E+\hbar\omega=E_m$ (with $E=E_n$) of the retarded Green function $G^R(E+\hbar\omega)$.
+> In the first line of Eq. (C15), the energies with $\hbar\omega=E_m-E_n$ are the excitation energies (excitation from $n$ to $m$). $\chi^R_{JJ}$ has the retarded form with respect to these excitations (the poles $\hbar\omega=E_m-E_n-i\delta$ lie in the lower half-plane of $\omega$). The last step of Eq. (C15) replaces this excitation energy $\hbar\omega=E_m-E_n$ by the quasiparticle energies of the retarded Green function.
 > The poles at negative frequency (the pairs with $E_m\lt E_n$) represent the response to a perturbation whose phase rotates in the opposite direction (time still runs forward). This is seen by rewriting the first line of Eq. (C15) in real time:
 >
 > $$
