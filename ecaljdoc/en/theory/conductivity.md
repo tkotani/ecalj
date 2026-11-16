@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 7c86d4efc (source blob 471858ba7).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 430c7454d (source blob 9ebaf3ee4).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -506,7 +506,7 @@ $$
 
 ## Two relaxation times: the lifetime $\tau$ and the transport relaxation time $\tau_{\rm tr}$ {#two-taus}
 
-In the theory of impurity scattering, the point that must be understood is the difference between the lifetime $\tau$ (Eq. (C32)) and the transport relaxation time $\tau_{\rm tr}$ (Eq. (C38)). Side by side, <strong>the only difference is the weight $1-\cos\theta_{\bf kk'}$ in the integrand.</strong>
+What is important is the difference between the lifetime $\tau$ (Eq. (C32)) and the transport relaxation time $\tau_{\rm tr}$ (Eq. (C38)). Side by side, <strong>the only difference is the weight $1-\cos\theta_{\bf kk'}$ in the integrand.</strong>
 
 | | quasiparticle lifetime $\tau$ (Eq. (C32)) | transport relaxation time $\tau_{\rm tr}$ (Eq. (C38)) |
 | --- | --- | --- |
