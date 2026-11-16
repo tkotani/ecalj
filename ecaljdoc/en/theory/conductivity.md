@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 167179362 (source blob d6531a346).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 8068b7c0d (source blob 2785a9311).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -533,7 +533,8 @@ has the winding numbers $(w_x,w_y,w_z)$, although it is smooth wherever one look
 Applied to wave functions: the periodic part $|u_{n{\bf k}}\rangle$ of the Bloch functions is given, in the form amplitude × phase, at each point ${\bf k}$ of the Brillouin zone, a closed three-dimensional space ($T^3$) (read $(x,y,z)$ as ${\bf k}$). The discussion above corresponds to fixing that amplitude and considering only the phase factor $e^{i\theta({\bf k})}$. A gauge transformation $|u_{n{\bf k}}\rangle\to e^{i\phi({\bf k})}|u_{n{\bf k}}\rangle$ changes only the phase without changing the amplitude, and its winding number is the $w$ of Eq. (C37).
 
 The function $e^{i\theta(x,y,z)}$ on $T^3$, with functions that deform continuously into each other regarded as the same, is characterized only by the winding numbers $(w_x,w_y,w_z)$ on the loops ($T^1$) in three directions. What about closed surfaces ($T^2$)?
-$T^3$ has three kinds of closed $T^2$, so there are also three Chern numbers $(C^x,C^y,C^z)$ on them, which give the ${\bf G}$ of Eq. (C35).
+The phase of the wave function, though smooth wherever one looks, may not be choosable as a single smooth function over the whole $T^2$. The winding number of the mismatch in that case is the Chern number ($C_1^z$ after Eq. (C34)).
+$T^3$ has three kinds of closed $T^2$, so there are also three Chern numbers $(C_1^x,C_1^y,C_1^z)$ on them, which give the ${\bf G}$ of Eq. (C35).
 When there is a Fermi surface, its topology also matters (for example, the Fermi surface of a closed pocket cannot have a Chern number unless there is a band degeneracy inside), but we do not go into it here.
 
 **Thouless pump** (D. J. Thouless, Phys. Rev. B **27**, 6083 (1983)): The Hamiltonian of a one-dimensional insulator (lattice constant $a$) is varied slowly with period $T$ ($H(t+T)=H(t)$). The gap between the occupied and unoccupied bands stays open during the whole cycle.
