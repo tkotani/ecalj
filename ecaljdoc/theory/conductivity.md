@@ -210,7 +210,8 @@ $$
 > $$
 >
 > 各項は $\theta(t)\,e^{\mp i|E_m-E_n|t/\hbar-\delta t/\hbar}$ の形で、$E_m\gt E_n$ なら正の振動数、$E_m\lt E_n$ なら負の振動数で回るが、どちらも $\theta(t)$ を持ち、$t\gt 0$ にだけ応答する。$\int dt\,e^{i\omega t}$ でフーリエ変換すると式 (C15) の一行目に戻る。
-> これに $\delta(E-H)=-\big(G^R(E)-G^A(E)\big)/2\pi i$ を入れると、任意の温度で次のようになる:
+
+> 式 (C15) に $\delta(E-H)=-\big(G^R(E)-G^A(E)\big)/2\pi i$ を入れると、任意の温度で次のようになる:
 >
 > $$
 > \begin{aligned}
