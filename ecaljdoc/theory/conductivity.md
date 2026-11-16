@@ -210,6 +210,7 @@ $$
 > $$
 >
 > 各項は $\theta(t)\,e^{\mp i|E_m-E_n|t/\hbar-\delta t/\hbar}$ の形で、$E_m\gt E_n$ なら正の振動数、$E_m\lt E_n$ なら負の振動数で回るが、どちらも $\theta(t)$ を持ち、$t\gt 0$ にだけ応答する。$\int dt\,e^{i\omega t}$ でフーリエ変換すると式 (C15) の一行目に戻る。
+> 式 (C15)、(C16) のように、応答関数は必ず、$1/(\varepsilon-\hbar\omega-i\delta)$（振動数で書いた形）もしくはステップ関数 $\times\,e^{-i\varepsilon t/\hbar}$（実時間で書いた形）に、行列要素と占有数の因子を掛けたものの和で書ける（$\varepsilon=E_m-E_n$ は励起エネルギー）。
 
 > 式 (C15) に $\delta(E-H)=-\big(G^R(E)-G^A(E)\big)/2\pi i$ を入れると、任意の温度で次のようになる:
 >
