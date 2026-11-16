@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 1dad73dfd (source blob 540f3556a).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 1e52cbb18 (source blob 413938443).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -529,6 +529,8 @@ e^{i\theta}=e^{i{\bf G}\cdot{\bf r}},\qquad {\bf G}=2\pi\Big(\frac{w_x}{a},\frac
 $$
 
 is smooth everywhere and has the winding numbers $(w_x,w_y,w_z)$. The set of winding numbers is nothing but a reciprocal lattice vector (the same form as ${\bf G}$ in Eq. (C35)). This is the essence of topological quantization.
+
+Applied to wave functions: the periodic part $|u_{n{\bf k}}\rangle$ of the Bloch functions is given, in the form amplitude × phase, at each point ${\bf k}$ of the Brillouin zone, a closed three-dimensional space ($T^3$) (read $(x,y,z)$ as ${\bf k}$). The discussion above corresponds to fixing that amplitude and considering only the phase factor $e^{i\theta({\bf k})}$. A gauge transformation $|u_{n{\bf k}}\rangle\to e^{i\phi({\bf k})}|u_{n{\bf k}}\rangle$ changes only the phase without changing the amplitude, and its winding number is the $w$ of Eq. (C37).
 
 **Thouless pump** (D. J. Thouless, Phys. Rev. B **27**, 6083 (1983)): The Hamiltonian of a one-dimensional insulator (lattice constant $a$) is varied slowly with period $T$ ($H(t+T)=H(t)$). The gap between the occupied and unoccupied bands stays open during the whole cycle.
 To each time $t$ we assign the phase obtained by integrating the Berry connection of the periodic parts $|u_{nk}(t)\rangle$ of the occupied Bloch functions over the $T^1$ of $k$ (the one-dimensional Brillouin zone), the Zak phase. The polarization is written with it (R. D. King-Smith and D. Vanderbilt, Phys. Rev. B **47**, 1651 (1993)):
