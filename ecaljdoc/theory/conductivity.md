@@ -132,7 +132,7 @@ $$
 $\chi^R_{JJ}(0)$ は、式 (C4) で $\omega=0$ とすれば
 
 $$
-\chi^R_{JJ}(0)=\sum_{nm}(f_n-f_m)\,\frac{|\langle n|\hat J^0_x|m\rangle|^2}{E_m-E_n}
+\chi^R_{JJ}(0)=\sum_{nm}(f_n-f_m)\,\frac{|\langle n|\hat J^0_x|m\rangle|^2}{E_m-E_n-i\delta}
 \tag{C10}
 $$
 
