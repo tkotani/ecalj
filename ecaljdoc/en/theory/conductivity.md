@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit fc5f0e0bd (source blob 56a25e5f7).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 858aa00fa (source blob 56a25e5f7).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
