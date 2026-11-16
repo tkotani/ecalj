@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 8f64dbcf6 (source blob 5ce89a1c0).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit ca0096f74 (source blob d8a520ed3).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -536,7 +536,7 @@ The total cross section $\sigma_{\rm tot}$ counts scattering in any direction an
 If each $G$ is averaged first and then multiplied, as in Eq. (C29), $\sigma_{xx}$ contains $\tau$ (Eq. (C34)). To obtain the correct $\tau_{\rm tr}$, the average of the product of $G$ (the vertex correction) is needed. This is what it means that the average is taken of the product of $G$.
 Eq. (C39) with $\tau_{\rm tr}$ is the same as the result of the Boltzmann equation.
 
----
+<hr style="margin-top:4em;margin-bottom:2.5em">
 
 This concludes the discussion of impurities. The following are notes for calculations such as the anomalous Hall effect.
 
