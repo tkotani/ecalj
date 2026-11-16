@@ -312,8 +312,10 @@ $$
 
 <span style="color:#d00">となる。まず第 1 項を調べる（第 2 項は [Drude の式](#drude) の節で見積もる）。</span>
 グリーン関数の積の平均を計算するには、そもそもの一体問題に戻る。$G^R(E)=(E-H_0-V+i\delta)^{-1}$ は、不純物の配置を一つ決めた一体のハミルトニアン $H=H_0+V$（$H_0$ は運動エネルギー、$V$ は式 (C1)）のグリーン関数である。これを $V$ について展開し、積の平均を、$V$ の対の平均の積に分解する。
-平面波 $|{\bf k}\rangle$ での行列要素は $\langle{\bf k}|V|{\bf k}'\rangle=\Omega^{-1}u({\bf k}-{\bf k}')\sum_j e^{-i({\bf k}-{\bf k}')\cdot{\bf R}_j}$ である。
-不純物の位置は乱雑なので、位相 $e^{-i{\bf q}\cdot{\bf R}_j}$ は平均すると打ち消し合い（ランダム位相）、残るのは同じ不純物 $j$ について位相が消える組だけである:
+
+<span style="color:#d00">**平均を取る前**（配置を一つ決めたとき）:</span> 平面波 $|{\bf k}\rangle$ での行列要素は $\langle{\bf k}|V|{\bf k}'\rangle=\Omega^{-1}u({\bf k}-{\bf k}')\sum_j e^{-i({\bf k}-{\bf k}')\cdot{\bf R}_j}$ である。
+
+<span style="color:#d00">**平均を取った後**:</span> 不純物の位置は乱雑なので、位相 $e^{-i{\bf q}\cdot{\bf R}_j}$ は平均すると打ち消し合い（ランダム位相）、残るのは同じ不純物 $j$ について位相が消える組だけである:
 
 $$
 \big\langle \langle{\bf k}|V|{\bf k}'\rangle\langle{\bf k}'|V|{\bf k}\rangle\big\rangle_{\rm imp}=\frac{n_i}{\Omega}\,|u({\bf k}-{\bf k}')|^2
