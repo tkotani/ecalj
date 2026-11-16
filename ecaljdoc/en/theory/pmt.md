@@ -1,6 +1,6 @@
 # PMT method (mixed basis of APW and MTO, DFT)
 
-> English version of the page [theory/pmt](../../theory/pmt.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/pmt.md of commit 296542c3a (source blob 0be50b121c79).
+> English version of the page [theory/pmt](../../theory/pmt.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/pmt.md of commit 67645a4a0 (source blob 190c13badd57).
 
 How `lmf` of ecalj solves the one-body problem. For details and derivations, see
 T. Kotani, H. Kino, H. Akai, [J. Phys. Soc. Jpn. **84**, 034702 (2015)](https://doi.org/10.7566/JPSJ.84.034702).
@@ -90,7 +90,7 @@ $$
 
 and the conditions on the function space that is its domain are the following two:
 
-- <span class="clfix">(A) $\psi_{2p,a}=\psi_{0p}$ in the MT (the exact condition; in practice relaxed to (A′) below)</span>
+- (A) $\psi_{2p,a}=\psi_{0p}$ in the MT (the exact condition; in practice relaxed to (A′) below)
 - (A′) $\psi_{2p,a}\approx\psi_{0p}$ in the MT (it suffices that the low-$l$, low-frequency parts match)
 - (B) $\psi_{1p,a}$ and $\psi_{2p,a}$ agree in value and slope on the MT sphere
 
@@ -103,7 +103,7 @@ F_{2i,a}(\mathbf r) = \sum_{k\le k_{\max,a},\,l\le l_{\max,a}} C^i_{akL} P_{akL}
 F_{1i,a}(\mathbf r) = \sum_{kL} C^i_{akL} \widetilde P_{akL}(\mathbf r) \tag{4}
 $$
 
-$P_{akL}$ are Laguerre polynomials $\times\, Y_L$ (<del class="clfix">for the head part of a smooth Hankel function, it is itself added too</del><span class="clfix">at the site at the center of the MTO (the head part), the smooth Hankel function itself is also added to the expansion functions</span>). $\widetilde P_{akL}$ is the linear combination of the partial waves $\phi_{al},\dot\phi_{al}$ that matches $P_{akL}$ in value and slope at the sphere surface.
+$P_{akL}$ are Laguerre polynomials $\times\, Y_L$ (at the site at the center of the MTO (the head part), the smooth Hankel function itself is also added to the expansion functions). $\widetilde P_{akL}$ is the linear combination of the partial waves $\phi_{al},\dot\phi_{al}$ that matches $P_{akL}$ in value and slope at the sphere surface.
 The cutoffs $k_{\max,a}$, $l_{\max,a}$ are the input `kmxa`, `lmxa`.
 
 <div class="note">
@@ -226,7 +226,7 @@ The Coulomb term is evaluated with the last expression of Eq. (13) (the separabl
 
 We estimate the approximation in Eq. (13). The difference is $(\bar n_0-\bar n_2)\circ v\circ(\bar m_1-\bar m_2)+(\bar n_1-\bar n_2)\circ v\circ(\bar m_0-\bar m_2)$. Consider the first term (the second is the same).
 The multipoles of $\bar m_1-\bar m_2$ are 0 for all $L$ up to `lmxl` (because in Eq. 11, $Q_{aL}[m_1-m_2]$ was added with $G_{aL}$ normalized to multipole 1; it has no components with $L$ above `lmxl`). Hence the potential produced by $v\circ(\bar m_1-\bar m_2)$ is 0 outside the MT, and its $L$ is at most `lmxl`. Inside the MT, however, this potential is not 0. Its size is determined not by the multipoles but by the difference of the radial distributions of the charge in the MT (for example, the difference between $G_{aL}$, localized near the center, and the distribution of $\bar m_1$), and it is not necessarily small near the center. On the other hand, it is guaranteed to approach 0 near the MT boundary. Since the multipoles are 0, the potential does not leak outside the MT and is 0 in both value and slope at the MT sphere (the same property as $(1'-2')$ of Eq. 8).
-On the other hand, $\bar n_0-\bar n_2$ is the deviation from (A′) and is dominated by high-$L$ components. <del class="clfix">Since $v$ is spherically symmetric, these high-$L$ components do not couple to the potential and do not contribute.</del><span class="clfix">$v$ preserves $L$ (it is invariant under rotations), and $v\circ(\bar m_1-\bar m_2)$ has only components with $L\le$ `lmxl`, so the components of $\bar n_0-\bar n_2$ with $L>$ `lmxl` are orthogonal to it and do not contribute.</span>
+On the other hand, $\bar n_0-\bar n_2$ is the deviation from (A′) and is dominated by high-$L$ components. $v$ preserves $L$ (it is invariant under rotations), and $v\circ(\bar m_1-\bar m_2)$ has only components with $L\le$ `lmxl`, so the components of $\bar n_0-\bar n_2$ with $L>$ `lmxl` are orthogonal to it and do not contribute.
 Only the low-$L$ components of $\bar n_0-\bar n_2$ contribute, and they are the part that $n_2$ cannot fully reproduce of $n_0$ (the truncation by `kmxa` in Eq. (4)). Hence the difference consists only of terms proportional to that truncation. Furthermore, $\bar n_0-\bar n_2$ is large near the MT sphere (the error of the separable form in §3), while the potential is 0 in both value and slope at the MT sphere, so the integral of the product is even smaller.
 
 </div>
@@ -300,7 +300,7 @@ $$
 E_{\rm xc}[n^{\rm Zcv}] = E_{\rm xc}[n^{\rm Zcv}_0] + \sum_a E_{\rm xc}[n^{\rm Zcv}_{1,a}] - \sum_a E_{\rm xc}[n^{\rm Zcv}_{2,a}] \tag{17}
 $$
 
-$E^{\rm core}_{\rm k}$ is the kinetic energy of the core (<del class="clfix">a constant</del><span class="clfix">a constant for the frozen core with `lfoca`=1; with `lfoca`=0 it is recomputed each time the core is solved anew</span>), and $T_{ij}$ is Eq. (7). $E_{\rm es}$ is evaluated with the last expression of Eq. (13) (the separable form), using $\bar n=\mathcal M[n^{\rm Zcv}]$ (excluding the constant self-interaction of the nuclei).
+$E^{\rm core}_{\rm k}$ is the kinetic energy of the core (a constant for the frozen core with `lfoca`=1; with `lfoca`=0 it is recomputed each time the core is solved anew), and $T_{ij}$ is Eq. (7). $E_{\rm es}$ is evaluated with the last expression of Eq. (13) (the separable form), using $\bar n=\mathcal M[n^{\rm Zcv}]$ (excluding the constant self-interaction of the nuclei).
 The components of $n^{\rm Zcv}$ and $\bar n^{\rm Zcv}$ are Eqs. (14), (15). Component 0 is computed on a real-space mesh (cutoff `gmax`), the inside of the MTs on radial meshes.
 Fixing the basis and varying Eq. (16) with respect to $\alpha^{i*}_p$ while keeping the normalization $\sum_{ij}\alpha^{i*}_pO_{ij}\alpha^j_p=1$ gives a generalized eigenvalue problem:
 
@@ -389,7 +389,7 @@ $$
 
 $\sigma$ and $\tau$ depend only on $l$ of $L=(l,m)$. The first term of $\pi$ is the multipole contribution through $\overset{\raise{-0.3em}{\scriptscriptstyle\bullet}}{Q}{}^{\rm v}_{aM}$ of Eq. (21), and $Q_{akk'LL'M}$ is the $M$-th multipole of $\widetilde P\widetilde P-PP$.
 Local orbitals Lo (those with tens digit 0 in `pz`) are made so that both value and slope are 0 at the MT boundary, so they have only component 1 (components 0 and 2 are 0). Matrix elements involving Lo consist only of MT terms.
-$O_{ij}$ and $T_{ij}$ are <del class="clfix">Eq. (24)</del><span class="clfix">the one-center terms of Eq. (23) (Eq. 24)</span> with the radial function of the Lo $\times\,Y_L$ used in place of $\widetilde P_{akL}$, and with the $P$ terms on the Lo side set to 0.
+$O_{ij}$ and $T_{ij}$ are the one-center terms of Eq. (23) (Eq. 24) with the radial function of the Lo $\times\,Y_L$ used in place of $\widetilde P_{akL}$, and with the $P$ terms on the Lo side set to 0.
 For $V_{ij}$, since Lo have no components 0 and 2, there is no freedom to shift the potential by harmonic functions $\mathcal Y_L$. Therefore, instead of $V_{1,a}$ of Eq. (20) (whose value on the MT sphere is $\overset{\raise{-0.3em}{\scriptscriptstyle\bullet}}{Q}{}^{\rm v}_{aL}R_a^l$), a potential whose value on the MT sphere is matched to the actual electrostatic potential (determined from component 0) is used.
 
 <div class="note">
@@ -419,14 +419,14 @@ $$
 (\nabla^2+\epsilon)\,h_0(\mathbf r) = -4\pi g_0(\mathbf r),\quad g_0\propto e^{-r^2/R_{\rm SM}^2},\qquad h_L = \mathcal Y_L(-\nabla)h_0 \tag{25}
 $$
 
-For $R_{\rm SM}\to0$ it becomes the ordinary Hankel function $e^{-\kappa r}/r$ ($\epsilon=-\kappa^2$). <del class="clfix">It does not diverge at the origin.</del><span class="clfix">For finite $R_{\rm SM}$, $h_0$ does not diverge at the origin.</span>
+For $R_{\rm SM}\to0$ it becomes the ordinary Hankel function $e^{-\kappa r}/r$ ($\epsilon=-\kappa^2$). For finite $R_{\rm SM}$, $h_0$ does not diverge at the origin.
 
 - The partial waves $\phi_{al}$, $\dot\phi_{al}$ are made by solving the radial equation in the spherical part of the actual potential in the MT. This potential is the electrostatic potential of the charge of component 1, solved with its value on the MT sphere matched to that determined from component 0, plus $v^{\rm xc}_{1,a}$ (`v1out` in the code); its boundary value differs from that of component 1, $V_{1,a}$, of Eq. (20). Since the partial waves are only ingredients of the basis, this does not affect the consistency of the variation. The logarithmic derivative at the MT boundary is fixed to that of the spherical atom of `lmfa` (note in §2).
-- The partial waves of Lo are also solved with the logarithmic derivative at the MT boundary fixed to the value from `lmfa`. <del>The partial waves of Lo are solved at their center of gravity for deep levels (semicore), and then $\phi_{al}$ is taken at the Fermi energy</del>
+- The partial waves of Lo are also solved with the logarithmic derivative at the MT boundary fixed to the value from `lmfa`. 
 - Simple rules are enough for $R_{\rm SM}$ and $\epsilon$ of the MTOs ($R_{\rm SM}=R_a/2$ etc.)
   - What is missing is supplemented by the APWs. The dependence of the total energy on $\epsilon$ is weak and becomes weaker as more APWs are added
   - "How to choose the MTO parameters", which was a hard problem of the full-potential LMTO, essentially disappears
-- Above <del class="clfix">$l_{\max,a}$</del><span class="clfix">`lmxl` (default $l_{\max,a}$ = `lmxa`)</span>, components 1 and 2 are discarded also in the density (products of components produce up to $2l_{\max,a}$, but this is meaningless because the eigenfunctions are already truncated)
+- Above `lmxl` (default $l_{\max,a}$ = `lmxa`), components 1 and 2 are discarded also in the density (products of components produce up to $2l_{\max,a}$, but this is meaningless because the eigenfunctions are already truncated)
 
 <div class="note">
 
@@ -529,7 +529,7 @@ $$
 (Ry units; $V(r)$ is the spherical potential including the nuclear $-2Z/r$, and $\epsilon$ is the energy of the partial wave).
 The $\gamma_l$ term is $l(l+1)g^2/(2Mcr)^2$, which arises when the angular part of the small component of the Dirac equation is averaged over $j=l\pm\frac12$.
 With this, the density $n$, $O_{ij}$ etc. are obtained, giving the total energy in the SR approximation.
-What changes is $\widetilde P_{akL}\widetilde P_{ak'L}$ in Eq. (24) (and those with $\nabla$), which is read as the product of the large components<span class="clfix"> multiplied by $\gamma_l$ (Eq. 30)</span> plus the product of the small components. The same holds for the density of component 1, $n_{1,a}$, in $\pi$.
+What changes is $\widetilde P_{akL}\widetilde P_{ak'L}$ in Eq. (24) (and those with $\nabla$), which is read as the product of the large components multiplied by $\gamma_l$ (Eq. 30) plus the product of the small components. The same holds for the density of component 1, $n_{1,a}$, in $\pi$.
 The spin-orbit interaction is also put into component 1 in the same way, giving spin-off-diagonal contributions.
 
 <div class="note">
@@ -557,7 +557,7 @@ Appendix D of the paper writes the replacement as $g^*g+(\frac{1}{2mc})^2f^*f$, 
 | $\rho_{ij}$ | Density matrix $\sum_p^{\rm occ}\alpha^{i*}_p\alpha^j_p$ | Eq. (9) |
 | $\Omega$ | Unit cell | §1 |
 | $\mathbf T$ | Lattice translation vector | Eq. (11) |
-| $\mathbf G$ | Reciprocal lattice vector (APW, real-space mesh) | <del class="clfix">§6</del><span class="clfix">Eq. (1)</span> |
+| $\mathbf G$ | Reciprocal lattice vector (APW, real-space mesh) | Eq. (1) |
 | $\bullet$, $\circ$ | Integral over all space (per unit cell for periodic systems); integral only within the same MT sphere | Eq. (13) |
 
 Table 2. Indices and symbols on this page.
@@ -582,7 +582,7 @@ $$
 
 **Variation**
 
-<span class="clfix">Since the core is frozen, only the valence part changes.</span> From Eq. (12), $\delta\bar n_0=\delta n_0+\sum_{a\mathbf TL}\delta Q_{aL}G_{aL}(\mathbf r-\mathbf R_a-\mathbf T)$, $\delta\bar n_{1,a}=\delta n_{1,a}$, $\delta\bar n_{2,a}=\delta n_{2,a}+\sum_L\delta Q_{aL}G_{aL}(\mathbf r)$, and the change of the multipoles is $\delta Q_{aL}=\int_{|\mathbf r|\le R_a}\mathcal Y_L(\delta n_{1,a}-\delta n_{2,a})$. Substituting into Eq. (A2) gives
+Since the core is frozen, only the valence part changes. From Eq. (12), $\delta\bar n_0=\delta n_0+\sum_{a\mathbf TL}\delta Q_{aL}G_{aL}(\mathbf r-\mathbf R_a-\mathbf T)$, $\delta\bar n_{1,a}=\delta n_{1,a}$, $\delta\bar n_{2,a}=\delta n_{2,a}+\sum_L\delta Q_{aL}G_{aL}(\mathbf r)$, and the change of the multipoles is $\delta Q_{aL}=\int_{|\mathbf r|\le R_a}\mathcal Y_L(\delta n_{1,a}-\delta n_{2,a})$. Substituting into Eq. (A2) gives
 
 $$
 \begin{aligned}
