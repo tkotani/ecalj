@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit eff52095a (source blob 98023ecac).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 3bb33413d (source blob 6d050a427).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -656,13 +656,18 @@ $\sigma_{xx}$ has nothing corresponding to this integer, so the integration by p
 
 ### Example: a sample with surfaces {#slab-edge}
 
-Take the system B of Eq. (C48) (layers of a Chern insulator stacked in $z$ with period $c$, $C_1^z=1$; no metal) and cut it by one plane at $x=0$, keeping the half-infinite sample ($x\gt 0$, periodic in $y$ and $z$). Only one axis, $x$, is cut.
-Each layer is a two-dimensional Chern-insulator sheet spread in the $xy$ plane, and the sheets are stacked in $z$ with spacing $c$, so the crystal is periodic in $z$ as well (period $c$). If the layers are weakly coupled, the Chern number $C_1^z$ of the cross-section $T^2(k_z)$ equals that of one sheet, and the Hall conductivity per unit volume is $e^2/h$ per sheet divided by $c$, i.e. $e^2/hc$.
+**One sheet**: First consider a single two-dimensional Chern-insulator sheet spread in the $xy$ plane (Chern number $C$). Its Brillouin zone is the $T^2$ of $(k_x,k_y)$.
+Cutting it at $x=0$ into the half-plane $x\gt 0$, $k_x$ is no longer a good quantum number, and the states are labeled only by $k_y$ along the edge ($T^1$).
+On the edge there are $C$ states propagating in one direction only (chiral edge states); they disperse in $k_y$, cross the gap and pass through $E_F$.
+The Hall conductance of the sheet is $\sigma_{xy}=C\,e^2/h$, and this Hall current is carried by the edge states. This is the bulk-edge correspondence.
+
+**Stacked sheets**: The system B of Eq. (C48) is this sheet ($C=C_1^z=1$) stacked in $z$ with spacing $c$, so it is periodic in $z$ as well (period $c$; no metal). If the layers are weakly coupled, the Chern number $C_1^z$ of the cross-section $T^2(k_z)$ equals that of one sheet, and the Hall conductivity per unit volume is $e^2/h$ per sheet divided by $c$, i.e. $e^2/hc$.
+Cut it by one plane at $x=0$ into the half-infinite sample ($x\gt 0$, periodic in $y$ and $z$).
 
 - The states are labeled by $(k_y,k_z)$. The surface Brillouin zone is the $T^2$ obtained from the bulk $T^3$ by removing $k_x$, normal to the surface.
-- For each $k_z$, the cross-section $T^2(k_z)$ is a two-dimensional insulator with Chern number $C_1^z$, with an edge at $x=0$. On that edge there are $C_1^z$ states propagating in one direction only; they disperse in $k_y$, cross the gap and pass through $E_F$. In real space, the edge states along the $y$-directed line of each sheet are lined up in $z$ with period $c$ and cover the surface.
-- As $k_z$ varies, they form a sheet of surface states present at every $k_z$. The Hall current is carried by these surface states. This is the bulk-edge correspondence; if the integer part is regarded as carried by the surface states at $E_F$, the view "determined by the states at $E_F$" holds once the surface is included.
-- A cut by a plane perpendicular to $z$ (parallel to the Chern-insulator layers), on the other hand, only exposes the face of a sheet, not its edge, so it gives no such states. Surface states appear when the surface normal is perpendicular to ${\bf G}$ (here along $z$).
+- The edge states of the sheets are lined up in $z$ with period $c$ and cover the surface. For each $k_z$, the edge of the cross-section $T^2(k_z)$ carries $C_1^z$ edge states as for one sheet; as $k_z$ varies, they form a sheet of surface states present at every $k_z$.
+- The Hall current is carried by these surface states. If the integer part is regarded as carried by the surface states at $E_F$, the view "determined by the states at $E_F$" holds once the surface is included.
+- A cut by a plane perpendicular to $z$ (parallel to the sheets), on the other hand, only exposes the face of a sheet, not its edge, so it gives no such states. Surface states appear when the surface normal is perpendicular to ${\bf G}$ (here along $z$).
 
 ## Note: the Thouless pump {#thouless-pump}
 
