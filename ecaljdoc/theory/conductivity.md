@@ -147,8 +147,8 @@ $$
 
 $$
 \begin{aligned}
-\chi^R_{JJ}(0)&=\frac{e^2}{\hbar^2}\sum_{nm}(f_n-f_m)(E_m-E_n)\,|\langle n|\hat x|m\rangle|^2
-=\frac{e^2}{\hbar^2}\sum_n f_n\langle n|[\hat x,[\hat H_0,\hat x]]|n\rangle\\
+\chi^R_{JJ}(0)&=\frac{e^2}{\hbar^2}\sum_{nm}(f_n-f_m)(E_m-E_n)\,|\langle n|\hat x|m\rangle|^2\\
+&=\frac{e^2}{\hbar^2}\sum_n f_n\langle n|[\hat x,[\hat H_0,\hat x]]|n\rangle\\
 &=\frac{e^2}{\hbar^2}\sum_n f_n\,\frac{\hbar^2}{m}=\frac{Ne^2}{m}=\frac{ne^2\Omega}{m}
 \end{aligned}
 \tag{C12}
