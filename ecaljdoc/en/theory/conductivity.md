@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 7e3ab067d (source blob 60150a9f0).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit d5fddc675 (source blob 3f667c6ff).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -656,23 +656,12 @@ $\sigma_{xx}$ has nothing corresponding to this integer, so the integration by p
 
 ### Example: a sample with surfaces {#slab-edge}
 
-Consider only the system B of Eq. (C48) (layers of a Chern insulator stacked in $z$ with period $c$, $C_1^z=1$; no metal). We look at what happens with surfaces.
+Take the system B of Eq. (C48) (layers of a Chern insulator stacked in $z$ with period $c$, $C_1^z=1$; no metal) and cut it by one plane at $x=0$, keeping the half-infinite sample ($x\gt 0$, periodic in $y$ and $z$). Only one axis, $x$, is cut.
 
-**Bulk**: well inside the surfaces it is the same as the infinite crystal, and the Brillouin zone is $T^3$. The Hall conductivity (per unit volume) is $\sigma_{xy}=e^2/hc$.
-
-**Only surfaces perpendicular to $z$ (a slab)**: surfaces at $z=0$ and $z=L_z$, periodic in $x$ and $y$. There are $N=L_z/c$ layers.
-
-- The states are labeled by $(k_x,k_y)$, and the Brillouin zone is $T^2$. There is no $k_z$.
-- The whole slab is a two-dimensional insulator with Chern number $N\,C_1^z$, and the Hall conductance per sheet is $\sigma_{xy}=N\,C_1^z\,e^2/h$. Divided by the thickness $L_z$, it agrees with the bulk $e^2/hc$.
-- On the top and bottom surfaces (perpendicular to $z$) there are no states crossing the gap. The slab has no edge, so no state passes through $E_F$ anywhere, and the integer appears as the Chern number on the $T^2$ of the slab.
-- In a supercell calculation with the slab and vacuum repeated periodically in $z$, the Brillouin zone is formally $T^3$, but there is no dispersion in $k_z$, and it is effectively $T^2$.
-
-**With edges also in $x$**: side faces at $x=0$ and $x=L_x$ ($y$ periodic).
-
-- The states are labeled by $k_y$.
-- On the side faces there are $N\,C_1^z$ states that propagate in one direction only (chiral edge states); they cross the gap and pass through $E_F$. On the opposite side faces they propagate in opposite directions.
-- The Hall current is carried by these edge states. This is the bulk-edge correspondence; if the integer part is regarded as carried by the edge states at $E_F$, the view "determined by the states at $E_F$" holds once the edges are included.
-- Layer by layer, each layer (with the same Chern number as each cross-section $T^2(k_z)$) is a two-dimensional Chern insulator with an edge in $x$, and $N$ layers of its edge states stack into the sheet of states covering the side face.
+- The states are labeled by $(k_y,k_z)$. The surface Brillouin zone is the $T^2$ obtained from the bulk $T^3$ by removing $k_x$, normal to the surface.
+- For each $k_z$, the cross-section $T^2(k_z)$ is a two-dimensional insulator with Chern number $C_1^z$, with an edge at $x=0$. On that edge there are $C_1^z$ states propagating in one direction only; they disperse in $k_y$, cross the gap and pass through $E_F$.
+- As $k_z$ varies, they form a sheet of surface states present at every $k_z$. The Hall current is carried by these surface states. This is the bulk-edge correspondence; if the integer part is regarded as carried by the surface states at $E_F$, the view "determined by the states at $E_F$" holds once the surface is included.
+- A cut by a plane perpendicular to $z$ (parallel to the Chern-insulator layers), on the other hand, gives no such states. Surface states appear when the surface normal is perpendicular to ${\bf G}$ (here along $z$).
 
 ## Note: the Thouless pump {#thouless-pump}
 
