@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 36e310dd6 (source blob 11e5a3511).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit ee743e5e3 (source blob 2a57a5382).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -459,7 +459,7 @@ The second equality of the first relation is an integration by parts with $(E_F-
 ### Summary {#lifetime-summary}
 
 In summary, in the approximation dropping the terms of the type of the fourth term (orange), the first term of Eq. (C29) gives the Drude formula (C33) with the lifetime $\tau$, and the second term is smaller by a factor of the order of $\hbar/(E_F\tau)$.
-A naive $\delta\to 0$ gave zero resistance, but the scattering width due to the impurities plays the role of $\delta$, and the impurities give a resistance through the lifetime $\tau$.
+A naive $\delta\to 0$ gave zero resistance, but the scattering width due to the impurities plays the role of $\delta$, and the impurities give a resistance through the lifetime $\tau$. That is, we obtain the result of the naive Drude picture, in which electrons are accelerated by the field and their lifetime is set by the time $\tau$ until they are scattered by the impurities.
 
 ## Vertex correction: the transport relaxation time {#vertex-correction}
 
