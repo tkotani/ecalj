@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 430c7454d (source blob 9ebaf3ee4).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit c09485741 (source blob 7e2a0722e).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -643,7 +643,7 @@ $$
 
 ($w$ is the integer number of times $\phi$ winds by $2\pi$ around the loop). Which $w$ is right (which gauge connects smoothly inside $S(k_z)$) cannot be decided without looking at the states inside the Fermi surface.
 
-In summary, the Fermi surface fixes $\sigma_{ij}$ only modulo a term of the form (C45) (a reciprocal lattice vector ${\bf G}$); that integer part is information of the Fermi sea (Haldane's conclusion).
+In summary, the information on the Fermi surface alone (the Fermi surface and the Berry phases on it) fixes $\sigma_{ij}$ only up to a term of the form (C45) (a reciprocal lattice vector ${\bf G}$). That integer part is information of the Fermi sea, such as band 1, which has no Fermi surface (Haldane's conclusion).
 As an example, consider two systems A and B in which band 2 (the Fermi surface and the states on it) is exactly the same and only band 1 differs. For instance, under a metal, without coupling, put either an ordinary insulator (A, ${\bf G}=0$) or Chern-insulator layers stacked along $z$ with period $c$ (B, $C_1^z=1$). Eq. (C44) gives
 
 $$
