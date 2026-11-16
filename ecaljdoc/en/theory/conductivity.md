@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 79f8180ec (source blob 7bd37e788).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 721df86e8 (source blob c7e084bd9).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -424,7 +424,7 @@ Adding diagrams with crossed impurity lines, instead of the ladder, gives the we
 > As a preliminary, we recall the geometry (topology) of the Brillouin zone. Once it is understood on the two-dimensional torus, it can be grasped intuitively to a fair extent. This is the key point in discussing topological physical quantities; jumping straight into the calculation makes things hard to follow.
 >
 > ${\bf k}$ and ${\bf k}+{\bf G}$ (${\bf G}$ a reciprocal lattice vector) represent the same state, so the Brillouin zone, with its opposite faces glued together, is a three-dimensional torus $T^3$.
-> $T^2$ (the two-dimensional torus) is a two-dimensional space like the surface of a doughnut. $T^3$ (the three-dimensional torus) is the three-dimensional version of $T^2$.
+> $T^2$ (the two-dimensional torus) is a two-dimensional space like the surface of a doughnut. $T^3$ (the three-dimensional torus) is the three-dimensional version of $T^2$, a closed three-dimensional space without boundary.
 > On $T^2$ there are two kinds of loops that cannot be shrunk to a point (loops that can be deformed continuously into each other are regarded as the same): calling the large circle of the doughnut the "ring" and the small circle of its cross-section the "tube", one goes along the ring and one goes around the tube. Other loops are combinations of these two, for example a path that goes twice around the tube and then once along the ring.
 > On $T^3$ there are three such kinds of loops, winding in the $k_x$, $k_y$, $k_z$ directions, and in addition three kinds of closed surfaces ($T^2$) that cannot be shrunk to a point, winding in the $k_xk_y$, $k_yk_z$, $k_zk_x$ directions.
 > The cross-section $T^2(k_z)$ at fixed $k_z$ is itself a closed surface without boundary (a two-dimensional torus) that wraps the Brillouin zone in the $k_x$ and $k_y$ directions. An integral over such a surface cannot be rewritten as an integral over a boundary.
