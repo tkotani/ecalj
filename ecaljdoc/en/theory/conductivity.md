@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 4939029a3 (source blob a5a94b99c).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit affc7dfbf (source blob 329f373b9).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -299,17 +299,19 @@ This approximation of a constant effective mass on the Fermi surface should hold
 
 ## Average over the impurity configurations {#impurity-average}
 
-Eq. (C13) is for one fixed configuration of the impurities. The observed conductivity is its average $\langle\cdots\rangle_{\rm imp}$ over the impurity configurations. Writing ${\rm Im}\,G^R=(G^R-G^A)/2i$ and expanding (${\rm Tr}[\hat v_xG^R\hat v_xG^A]$ is real, and ${\rm Tr}[\hat v_xG^A\hat v_xG^A]$ is the complex conjugate of ${\rm Tr}[\hat v_xG^R\hat v_xG^R]$),
+Eq. (C13) is for one fixed configuration of the impurities. Writing ${\rm Im}\,G^R=(G^R-G^A)/2i$, and since $G^A=(G^R)^\dagger$ makes ${\rm Tr}[\hat v_xG^R\hat v_xG^A]$ real and ${\rm Tr}[\hat v_xG^A\hat v_xG^A]$ the complex conjugate of ${\rm Tr}[\hat v_xG^R\hat v_xG^R]$, the first line of Eq. (C23) holds for each configuration (no approximation is used). The observed conductivity is the average of Eq. (C13) over the impurity configurations, which gives the second line (all $G$ at $E=E_F$):
 
 $$
 \begin{aligned}
-\sigma_{xx}={}&\frac{\hbar e^2}{\pi\Omega}\Big\{\Big\langle{\rm Tr}\big[\hat v_x\,G^R(E_F)\,\hat v_x\,G^A(E_F)\big]\Big\rangle_{\rm imp}\\
-&-{\rm Re}\,\Big\langle{\rm Tr}\big[\hat v_x\,G^R(E_F)\,\hat v_x\,G^R(E_F)\big]\Big\rangle_{\rm imp}\Big\}
+{\rm Tr}\big[\hat v_x\,{\rm Im}\,G^R\,\hat v_x\,{\rm Im}\,G^R\big]&=\frac{1}{2}\Big\{ {\rm Tr}\big[\hat v_x\,G^R\,\hat v_x\,G^A\big]\\
+&\qquad-{\rm Re}\,{\rm Tr}\big[\hat v_x\,G^R\,\hat v_x\,G^R\big]\Big\},\\
+\sigma_{xx}&=\frac{\hbar e^2}{\pi\Omega}\Big\{\Big\langle{\rm Tr}\big[\hat v_x\,G^R\,\hat v_x\,G^A\big]\Big\rangle_{\rm imp}\\
+&\qquad-{\rm Re}\,\Big\langle{\rm Tr}\big[\hat v_x\,G^R\,\hat v_x\,G^R\big]\Big\rangle_{\rm imp}\Big\}
 \end{aligned}
 \tag{C23}
 $$
 
-We first study the first term (the second term is estimated in the section on the [Drude formula](#drude)).
+The two terms are expanded together below (that the second term is small is seen in the section on the [Drude formula](#drude)).
 To compute the average of the product of Green functions, we go back to the original one-body problem. $G^R(E)=(E-H_0-V+i\delta)^{-1}$ is the Green function of the one-body Hamiltonian $H=H_0+V$ for one fixed configuration of the impurities ($H_0$ is the kinetic energy and $V$ is Eq. (C1)). It is expanded in $V$, and the average of the product is decomposed into products of averages of pairs of $V$.
 
 ::: tip Preparation: the average when the impurities are placed at random
@@ -364,17 +366,7 @@ $$
 $$
 
 where $\Sigma^{\pm}_2({\bf k})=\sum_{ {\bf k}_1}(n_i/\Omega)\,|u({\bf k}-{\bf k}_1)|^2\,G^{\pm}_0({\bf k}_1)$.
-The terms on the right-hand side are as follows.
-
-- The first term: the term without impurities.
-- The second and third terms (<span style="color:#1f6fd0">blue</span>): the two $V$ within one $G$ are paired, inserting one self-energy $\Sigma_2$. The average within one $G$, $\langle V_{ {\bf k}{\bf k}_1}V_{ {\bf k}_1{\bf k}'}\rangle_{\rm imp}$, remains only for ${\bf k}={\bf k}'$ because of the random phases, so the averaged $G$ is diagonal in ${\bf k}$ (translationally invariant). Summed to higher orders they give the self-energy (next section).
-- The fourth term (<span style="color:#d26a00">orange</span>): a $V$ in $G^{\pm}$ is paired with a $V$ in $G^{\pm'}$. It is the correlation of scattering by the same impurity, which remains because the product of the two $G$ is averaged; it does not appear if each $G$ is averaged first and then multiplied. Summed to higher orders it gives the vertex correction (section [Vertex correction](#vertex-correction)).
-
-At higher orders in $V$ too, the average of a product of $V$ is the sum of products of the averages of pairs, and each pair is of one of the kinds above (pairings that cross each other give the weak-localization correction, which is not treated here).
-
-## Green function with the self-energy: the lifetime {#averaged-g}
-
-The factor $G^{\pm}_0\Sigma^{\pm}_2G^{\pm}_0$ in the second term of Eq. (C27) (blue) has one $\Sigma_2$ inserted. At higher orders in $V$, the terms pairing $V$ within one $G$ have two, three, ... $\Sigma_2$ inserted. Keeping only the pairings that do not cross each other (Born approximation), they form a geometric series,
+The second and third terms of Eq. (C27) (<span style="color:#1f6fd0">blue</span>) pair the two $V$ within one $G$ and have one $\Sigma_2$ inserted (the average within one $G$ remains only for ${\bf k}={\bf k}'$ because of the random phases, so it is diagonal in ${\bf k}$). At higher orders in $V$, two, three, ... $\Sigma_2$ are inserted. Keeping only the pairings that do not cross each other (Born approximation), they form a geometric series,
 
 $$
 \begin{aligned}
@@ -384,13 +376,27 @@ $$
 \tag{C28}
 $$
 
-($\Sigma^{\pm}=\Sigma^{\pm}_2$). So, instead of averaging $G$, one considers this $\bar G$ (translationally invariant and diagonal in ${\bf k}$) and takes products of it. The second and third terms of Eq. (C27) are $\bar G^{\pm}$ and $\bar G^{\pm'}$ expanded to first order in $\Sigma$.
-Turning the sum in $\Sigma_2$ into an integral, the self-energy is
+($\Sigma^{\pm}=\Sigma^{\pm}_2$). $\bar G$ is translationally invariant and diagonal in ${\bf k}$.
+The fourth term (<span style="color:#d26a00">orange</span>) pairs a $V$ in $G^{\pm}$ with a $V$ in $G^{\pm'}$; it is the correlation of scattering by the same impurity, which remains because the product of the two $G$ is averaged (it does not appear if each $G$ is averaged first and then multiplied). Dropping the terms of this type, Eq. (C23) becomes
+
+$$
+\begin{aligned}
+\sigma_{xx}=\frac{\hbar e^2}{\pi\Omega}\sum_{\bf k}v_x({\bf k})^2\Big\{&\bar G^R({\bf k},E_F)\,\bar G^A({\bf k},E_F)\\
+&-{\rm Re}\,\bar G^R({\bf k},E_F)^2\Big\}
+\end{aligned}
+\tag{C29}
+$$
+
+Below, $\Sigma$ is obtained (next section) and the two terms of Eq. (C29) are evaluated (section on the [Drude formula](#drude)). The terms of the type of the fourth term are included in the section on the [vertex correction](#vertex-correction). Pairings that cross each other give the weak-localization correction, which is not treated here.
+
+## Green function with the self-energy: the lifetime {#averaged-g}
+
+We now obtain the $\Sigma^{\pm}$ of Eq. (C28) explicitly. Turning the sum in $\Sigma_2$ into an integral, the self-energy is
 
 $$
 \Sigma^R({\bf k},E)=n_i\int\frac{d^3k'}{(2\pi)^3}\,
 \frac{|u({\bf k}-{\bf k}')|^2}{E-\varepsilon_{\bf k'}+i\delta}
-\tag{C29}
+\tag{C30}
 $$
 
 and its imaginary part gives the lifetime $\tau$ of the quasiparticle (the real part is an energy shift, absorbed in $E_F$):
@@ -400,14 +406,14 @@ $$
 &{\rm Im}\,\Sigma^R=-\frac{\hbar}{2\tau},\\
 &\frac{1}{\tau}=\frac{2\pi}{\hbar}\,n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\,\delta(E-\varepsilon_{\bf k'}).
 \end{aligned}
-\tag{C30}
+\tag{C31}
 $$
 
 $1/\tau$ is just the scattering rate by Fermi's golden rule (see the correspondence between the golden rule and the imaginary part of the self-energy in [Basic I](./basic#td-vs-ti-perturbation)).
 
 ## Without the vertex correction: the Drude formula {#drude}
 
-Even in the approximation dropping the fourth term of Eq. (C27) (orange) and its higher orders (averaging each $G$ first and then multiplying), $\bar G$ contains the width $\hbar/2\tau$ from the self-energy.
+In Eq. (C29), $\bar G$ contains the width $\hbar/2\tau$ from the self-energy.
 When $\tau$ is long ($\hbar/\tau\ll E_F$),
 
 $$
@@ -416,23 +422,23 @@ $$
 &=\frac{1}{(E-\varepsilon_{\bf k})^2+(\hbar/2\tau)^2}\\
 &\simeq\frac{2\pi\tau}{\hbar}\,\delta(E-\varepsilon_{\bf k})
 \end{aligned}
-\tag{C31}
-$$
-
-which corresponds to the Lorentzian of Eq. (C20) with the width $\delta$ set to $\hbar/2\tau$. So the first term of Eq. (C23) becomes
-
-$$
-\sigma_{xx}=2e^2\tau\,\frac{\overline{v_x^2}\,D(E_F)}{\Omega}
 \tag{C32}
 $$
 
+which corresponds to the Lorentzian of Eq. (C20) with the width $\delta$ set to $\hbar/2\tau$. So the first term of Eq. (C29) becomes
+
+$$
+\sigma_{xx}=2e^2\tau\,\frac{\overline{v_x^2}\,D(E_F)}{\Omega}
+\tag{C33}
+$$
+
 the same Drude formula as Eq. (C22) ($ne^2\tau/m$ for free electrons).
-In the second term of Eq. (C23), both poles of $\bar G^R({\bf k},E_F)\,\bar G^R({\bf k},E_F)$ lie below the real axis, so it does not become large in proportion to $\tau$ as in Eq. (C31). It is smaller than the first term by a factor of the order of $\hbar/(E_F\tau)$, so it was dropped.
+In the second term of Eq. (C29), both poles of $\bar G^R({\bf k},E_F)\,\bar G^R({\bf k},E_F)$ lie below the real axis, so it does not become large in proportion to $\tau$ as in Eq. (C32). It is smaller than the first term by a factor of the order of $\hbar/(E_F\tau)$, so it was dropped.
 A naive $\delta\to 0$ gave zero resistance, but the scattering width due to the impurities plays the role of $\delta$, and the impurities give a resistance through the lifetime $\tau$.
 
 ## Vertex correction: the transport relaxation time {#vertex-correction}
 
-The product average is taken by summing the terms of the type of the fourth term of Eq. (C27) (orange) to all orders (the ladder; the approximation that goes with the Born self-energy (C29)).
+The product average is taken by summing the terms of the type of the fourth term of Eq. (C27) (orange) to all orders (the ladder; the approximation that goes with the Born self-energy (C30)).
 The current vertex $\Gamma_x({\bf k})$ satisfies
 
 $$
@@ -440,23 +446,23 @@ $$
 \Gamma_x({\bf k})={}&v_x({\bf k})+n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\\
 &\times\bar G^R({\bf k}',E_F)\bar G^A({\bf k}',E_F)\,\Gamma_x({\bf k}')
 \end{aligned}
-\tag{C33}
+\tag{C34}
 $$
 
-Putting $\Gamma_x({\bf k})=\gamma\,v_x({\bf k})$ and using (C31), the average over the direction of ${\bf k}'$ turns $v_x({\bf k}')$ into $v_x({\bf k})\cos\theta_{\bf kk'}$, so that
+Putting $\Gamma_x({\bf k})=\gamma\,v_x({\bf k})$ and using (C32), the average over the direction of ${\bf k}'$ turns $v_x({\bf k}')$ into $v_x({\bf k})\cos\theta_{\bf kk'}$, so that
 $\gamma=1+\gamma\,(1-\tau/\tau_{\rm tr})$, that is $\gamma=\tau_{\rm tr}/\tau$. Here
 
 $$
 \frac{1}{\tau_{\rm tr}}=\frac{2\pi}{\hbar}\,n_i\int\frac{d^3k'}{(2\pi)^3}\,|u({\bf k}-{\bf k}')|^2\,
 \big(1-\cos\theta_{\bf kk'}\big)\,\delta(E_F-\varepsilon_{\bf k'})
-\tag{C34}
+\tag{C35}
 $$
 
-is the transport relaxation time. Replacing one $v_x$ in Eq. (C32) by $\Gamma_x$ gives
+is the transport relaxation time. Replacing one $v_x$ in Eq. (C33) by $\Gamma_x$ gives
 
 $$
 \sigma_{xx}=2e^2\tau_{\rm tr}\,\frac{\overline{v_x^2}\,D(E_F)}{\Omega}
-\tag{C35}
+\tag{C36}
 $$
 
 ($ne^2\tau_{\rm tr}/m$ for free electrons).
@@ -504,7 +510,7 @@ $$
 {\bf\Omega}_n({\bf k})=\nabla_{\bf k}\times{\bf a}_n({\bf k}),\\
 &\Omega_n^z=-2\,{\rm Im}\sum_{m\neq n}\frac{\langle u_{n{\bf k}}|\partial_{k_x}H_{\bf k}|u_{m{\bf k}}\rangle\langle u_{m{\bf k}}|\partial_{k_y}H_{\bf k}|u_{n{\bf k}}\rangle}{(E_{n{\bf k}}-E_{m{\bf k}})^2}
 \end{aligned}
-\tag{C36}
+\tag{C37}
 $$
 
 ($H_{\bf k}=e^{-i{\bf k}\cdot{\bf r}}He^{i{\bf k}\cdot{\bf r}}$). The second line is the form as a sum over states, which follows directly from the Kubo formula.
@@ -515,12 +521,12 @@ $$
 \sigma_{xy}&=\frac{e^2}{\hbar}\sum_n\int_{\rm occ}\frac{d^3k}{(2\pi)^3}\,\Omega_n^z\\
 &=\frac{e^2}{h}\,\frac{1}{2\pi}\int dk_z\,\Big[\frac{1}{2\pi}\int_{T^2(k_z)}\Omega_1^z\,d^2k+\frac{1}{2\pi}\int_{S(k_z)}\Omega_2^z\,d^2k\Big]
 \end{aligned}
-\tag{C37}
+\tag{C38}
 $$
 
 where $T^2(k_z)$ is the cross-section of the Brillouin zone at fixed $k_z$ and $S(k_z)$ the pocket in that cross-section.
 
-The integrand $\Omega_n^z$ does not depend on the choice of phases, in either term. Changing the phase as $|u_{n{\bf k}}\rangle\to e^{i\phi({\bf k})}|u_{n{\bf k}}\rangle$ changes the Berry connection as ${\bf a}_n\to{\bf a}_n-\nabla_{\bf k}\phi$, but $\nabla_{\bf k}\times\nabla_{\bf k}\phi=0$. In the second line of Eq. (C36), too, the phase of each state cancels in the numerator. Only the Berry connection ${\bf a}_n$ depends on the choice of phases.
+The integrand $\Omega_n^z$ does not depend on the choice of phases, in either term. Changing the phase as $|u_{n{\bf k}}\rangle\to e^{i\phi({\bf k})}|u_{n{\bf k}}\rangle$ changes the Berry connection as ${\bf a}_n\to{\bf a}_n-\nabla_{\bf k}\phi$, but $\nabla_{\bf k}\times\nabla_{\bf k}\phi=0$. In the second line of Eq. (C37), too, the phase of each state cancels in the numerator. Only the Berry connection ${\bf a}_n$ depends on the choice of phases.
 When bands are degenerate, there are choices that mix the degenerate bands, so $\Omega_n$ is not determined band by band. The sum over the occupied bands, $\sum_n\Omega_n$, is determined.
 
 **First term (band 1)**: The integral on the closed surface $T^2(k_z)$, $C_1^z=\frac{1}{2\pi}\int_{T^2(k_z)}\Omega_1^z\,d^2k$, is a Chern number, an integer. Band 1 has a gap, so it does not depend on $k_z$. Since $T^2(k_z)$ is closed, this cannot be rewritten as an integral over a boundary.
@@ -529,7 +535,7 @@ The $k_z$ integral gives $2\pi/c$, so the first term is $(e^2/h)\,C_1^z/c$. Toge
 $$
 \sigma_{ij}^{(1)}=\frac{e^2}{2\pi h}\,\epsilon_{ijl}\,G_l,\qquad
 {\bf G}=2\pi\Big(\frac{C_1^x}{a},\frac{C_1^y}{b},\frac{C_1^z}{c}\Big)
-\tag{C38}
+\tag{C39}
 $$
 
 where ${\bf G}$ is a reciprocal lattice vector (B. I. Halperin, Jpn. J. Appl. Phys. **26**, Suppl. 26-3, 1913 (1987)).
@@ -538,7 +544,7 @@ where ${\bf G}$ is a reciprocal lattice vector (B. I. Halperin, Jpn. J. Appl. Ph
 
 $$
 \int_{S(k_z)}\Omega_2^z\,d^2k=\oint_{\partial S(k_z)}{\bf a}_2\cdot d{\bf k}\equiv\gamma_2(k_z)
-\tag{C39}
+\tag{C40}
 $$
 
 The loop $\partial S(k_z)$ is the Fermi surface cut at $k_z$ (the cyclotron orbit in a magnetic field along $z$), and $\gamma_2(k_z)$ is the Berry phase on it.
@@ -546,17 +552,17 @@ From the states on the Fermi surface alone, however, $\gamma_2(k_z)$ is fixed on
 
 $$
 \gamma_2(k_z)\to\gamma_2(k_z)-2\pi w
-\tag{C40}
+\tag{C41}
 $$
 
 ($w$ is the integer number of times $\phi$ winds by $2\pi$ around the loop). Which $w$ is right (which gauge connects smoothly inside $S(k_z)$) cannot be decided without looking at the states inside the Fermi surface.
 
-In summary, the Fermi surface fixes $\sigma_{ij}$ only modulo a term of the form (C38) (a reciprocal lattice vector ${\bf G}$); that integer part is information of the Fermi sea (Haldane's conclusion).
-As an example, consider two systems A and B in which band 2 (the Fermi surface and the states on it) is exactly the same and only band 1 differs. For instance, under a metal, without coupling, put either an ordinary insulator (A, ${\bf G}=0$) or Chern-insulator layers stacked along $z$ with period $c$ (B, $C_1^z=1$). Eq. (C37) gives
+In summary, the Fermi surface fixes $\sigma_{ij}$ only modulo a term of the form (C39) (a reciprocal lattice vector ${\bf G}$); that integer part is information of the Fermi sea (Haldane's conclusion).
+As an example, consider two systems A and B in which band 2 (the Fermi surface and the states on it) is exactly the same and only band 1 differs. For instance, under a metal, without coupling, put either an ordinary insulator (A, ${\bf G}=0$) or Chern-insulator layers stacked along $z$ with period $c$ (B, $C_1^z=1$). Eq. (C38) gives
 
 $$
 \sigma_{xy}^{\rm B}-\sigma_{xy}^{\rm A}=\frac{e^2}{hc}
-\tag{C41}
+\tag{C42}
 $$
 
 and this difference cannot be told from the Fermi surface. The extreme case is a three-dimensional quantum Hall insulator, in which $S$ is empty (no Fermi surface) but $\sigma_{xy}=C_1^z e^2/hc$.
@@ -574,7 +580,7 @@ The winding number, the number of times $e^{i\theta}$ goes around the unit circl
 
 $$
 w_L=\frac{1}{2\pi}\oint_L\nabla\theta\cdot d{\bf r}
-\tag{C42}
+\tag{C43}
 $$
 
 is an integer. $\theta$ need not return to its starting value after one turn; only $e^{i\theta}$ must, so $\theta$ may shift by $2\pi w_L$.
@@ -586,16 +592,16 @@ If $X$ is $T^3$ (a periodic box; see [the topology of the Brillouin zone](#bz-to
 
 $$
 e^{i\theta}=e^{i{\bf G}\cdot{\bf r}},\qquad {\bf G}=2\pi\Big(\frac{w_x}{a},\frac{w_y}{b},\frac{w_z}{c}\Big)
-\tag{C43}
+\tag{C44}
 $$
 
-has the winding numbers $(w_x,w_y,w_z)$, although it is smooth wherever one looks and has no singularity. The set of winding numbers is nothing but a reciprocal lattice vector (the same form as ${\bf G}$ in Eq. (C38)). This is the essence of topological quantization.
+has the winding numbers $(w_x,w_y,w_z)$, although it is smooth wherever one looks and has no singularity. The set of winding numbers is nothing but a reciprocal lattice vector (the same form as ${\bf G}$ in Eq. (C39)). This is the essence of topological quantization.
 
-Applied to wave functions: the periodic part $|u_{n{\bf k}}\rangle$ of the Bloch functions is given, in the form amplitude × phase, at each point ${\bf k}$ of the Brillouin zone, a closed three-dimensional space ($T^3$) (read $(x,y,z)$ as ${\bf k}$). The discussion above corresponds to fixing that amplitude and considering only the phase factor $e^{i\theta({\bf k})}$. A gauge transformation $|u_{n{\bf k}}\rangle\to e^{i\phi({\bf k})}|u_{n{\bf k}}\rangle$ changes only the phase without changing the amplitude, and its winding number is the $w$ of Eq. (C40).
+Applied to wave functions: the periodic part $|u_{n{\bf k}}\rangle$ of the Bloch functions is given, in the form amplitude × phase, at each point ${\bf k}$ of the Brillouin zone, a closed three-dimensional space ($T^3$) (read $(x,y,z)$ as ${\bf k}$). The discussion above corresponds to fixing that amplitude and considering only the phase factor $e^{i\theta({\bf k})}$. A gauge transformation $|u_{n{\bf k}}\rangle\to e^{i\phi({\bf k})}|u_{n{\bf k}}\rangle$ changes only the phase without changing the amplitude, and its winding number is the $w$ of Eq. (C41).
 
 The function $e^{i\theta(x,y,z)}$ on $T^3$, with functions that deform continuously into each other regarded as the same, is characterized only by the winding numbers $(w_x,w_y,w_z)$ on the loops ($T^1$) in three directions. What about closed surfaces ($T^2$)?
-The phase of the wave function, though smooth wherever one looks, may not be choosable as a single smooth function over the whole $T^2$. The winding number of the mismatch in that case is the Chern number ($C_1^z$ after Eq. (C37)).
-$T^3$ has three kinds of closed $T^2$, so there are also three Chern numbers $(C_1^x,C_1^y,C_1^z)$ on them, which give the ${\bf G}$ of Eq. (C38).
+The phase of the wave function, though smooth wherever one looks, may not be choosable as a single smooth function over the whole $T^2$. The winding number of the mismatch in that case is the Chern number ($C_1^z$ after Eq. (C38)).
+$T^3$ has three kinds of closed $T^2$, so there are also three Chern numbers $(C_1^x,C_1^y,C_1^z)$ on them, which give the ${\bf G}$ of Eq. (C39).
 When there is a Fermi surface, its topology also matters (for example, the Fermi surface of a closed pocket cannot have a Chern number unless there is a band degeneracy inside), but we do not go into it here.
 
 **Thouless pump** (D. J. Thouless, Phys. Rev. B **27**, 6083 (1983)): The Hamiltonian of a one-dimensional insulator (lattice constant $a$) is varied slowly with period $T$ ($H(t+T)=H(t)$). The gap between the occupied and unoccupied bands stays open during the whole cycle.
@@ -604,20 +610,20 @@ To each time $t$ we assign the phase obtained by integrating the Berry connectio
 $$
 \gamma(t)=\sum_{n\in{\rm occ}}\oint_{T^1}i\langle u_{nk}(t)|\partial_k u_{nk}(t)\rangle\,dk,\qquad
 P(t)=-\frac{e}{2\pi}\,\gamma(t)
-\tag{C44}
+\tag{C45}
 $$
 
-(the electron charge is $-e$). $\gamma$ changes by integer multiples of $2\pi$ under gauge transformations (Eq. (C40)), so $P$ is fixed only modulo $e$. This corresponds to the crystal being the same when an electron is moved to the neighboring unit cell.
+(the electron charge is $-e$). $\gamma$ changes by integer multiples of $2\pi$ under gauge transformations (Eq. (C41)), so $P$ is fixed only modulo $e$. This corresponds to the crystal being the same when an electron is moved to the neighboring unit cell.
 Under an adiabatic variation, the current is $dP/dt$, and the charge passing a unit-cell boundary in one cycle is
 
 $$
 Q=\int_0^T\frac{dP}{dt}\,dt=-\frac{e}{2\pi}\big[\gamma(T)-\gamma(0)\big]=-eC
-\tag{C45}
+\tag{C46}
 $$
 
-($\gamma(t)$ is followed continuously in $t$). Since $H(T)=H(0)$, $e^{i\gamma(T)}=e^{i\gamma(0)}$, and $C$ is the winding number (C42) of the map $t\mapsto e^{i\gamma(t)}$ from the time loop $T^1$ to the unit circle. The charge carried in one cycle is quantized in integer multiples of $e$.
+($\gamma(t)$ is followed continuously in $t$). Since $H(T)=H(0)$, $e^{i\gamma(T)}=e^{i\gamma(0)}$, and $C$ is the winding number (C43) of the map $t\mapsto e^{i\gamma(t)}$ from the time loop $T^1$ to the unit circle. The charge carried in one cycle is quantized in integer multiples of $e$.
 
 No singularity appears here. The gap stays open, and $|u_{nk}(t)\rangle$ is smooth in $(k,t)$. The integer comes only from $t$ being periodic, so that the loop cannot be shrunk.
-$C$ is also the Chern number on the $T^2$ formed by $(k,t)$, a quantity of the same kind as $C_1^z$ in Eq. (C38) with $k_y$ replaced by $t$. Seen in a larger parameter space, it counts how many times the loop traced by the Hamiltonian goes around a gap-closing point lying outside the loop (in the Rice–Mele model, for example, $C=\pm 1$ when the circle traced by the dimerization and the sublattice potential difference encloses the point where both vanish).
+$C$ is also the Chern number on the $T^2$ formed by $(k,t)$, a quantity of the same kind as $C_1^z$ in Eq. (C39) with $k_y$ replaced by $t$. Seen in a larger parameter space, it counts how many times the loop traced by the Hamiltonian goes around a gap-closing point lying outside the loop (in the Rice–Mele model, for example, $C=\pm 1$ when the circle traced by the dimerization and the sublattice potential difference encloses the point where both vanish).
 
 In a finite chain with ends, a charge $-eC$ is carried from one end to the other in one cycle. Since the bulk has a gap, this happens by edge-state levels crossing the gap ($C$ of them per cycle). This is the one-dimensional version of the bulk-edge correspondence. For the two-dimensional Hall conductivity too, making the sample a cylinder and threading a flux lets $k_y$ play the role of $t$, and the same argument holds (Laughlin's argument).
