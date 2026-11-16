@@ -239,7 +239,7 @@ GPU 用のビルドでは次のようにします。
 
 一から始めるには `--clean` を加えます。
 
-これで Fortran のソースをコンパイル、リンクし、すべてのプログラムとスクリプトを bin にコピーし、`ecalj/Samples/TestInstall/` の最小限のインストールの試験を走らせます（<del class="clfix">約 5 分</del><span class="clfix">3〜10 分</span>）。
+これで Fortran のソースをコンパイル、リンクし、すべてのプログラムとスクリプトを bin にコピーし、`ecalj/Samples/TestInstall/` の最小限のインストールの試験を走らせます（3〜10 分）。
 
 *ヒント:* バイナリをどこに入れるかの詳細は `./InstallAll.py` を見てください（既定は `BINDIR=~/bin`）。`getsyml`、`viewvesta`、`vasp2ctrl` などのツールはソフトリンクになります。
 

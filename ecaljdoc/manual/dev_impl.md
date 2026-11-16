@@ -716,28 +716,6 @@ bessl を定義するソースコードは、いくつかの規約が混ざっ�
 これは球 Bessel 関数 $j_l(\kappa x)$ を
 次のように返す。
 
-<div class="clfix-old">
-
-$$\begin{aligned}
-\left.
-\begin{array}{ll}
-\bar{J}_l(E,{\bf r})=j_l(i|\kappa|r)/(i|\kappa|)^l={\tt phi(l)}r^l\\
-\bar{H}_l(E,{\bf r})=h_l(i|\kappa|r){i (i|\kappa|)}^{l+1}={\tt psi(l)}/r^{l+1} 
-\end{array}
-\right\}& \ {\rm for}\ E<0, \ \kappa=i|\kappa|,
-|\kappa|=\sqrt{|E|}  \\
-\left.
-\begin{array}{ll}
-\bar{J}_l(E,{\bf r})=j_l(\kappa r)/(\kappa )^l = {\tt phi(l)}r^l  \\
-\bar{N}_l(\kappa r) = {\tt psi(l)}\frac{1}{(\kappa)^{l+1} }={\tt psi(l)}/r^{l+1}
-\end{array} 
-\right\}& \ {\rm for}\ E>0, \ \kappa=\sqrt{E}
-\end{aligned}
-$$
-
-</div>
-
-<div class="clfix">
 
 $$\begin{aligned}
 &E<0,\ \kappa=i|\kappa|,\ |\kappa|=\sqrt{|E|}: \\
@@ -750,7 +728,6 @@ $$\begin{aligned}
 \tag{I37}
 $$
 
-</div>
 ここで $0\le l \le{\tt lmax}$ である。この定義から、$E \to 0$ で `phi`$=1/(2l+1)!!$、
 `psi`$=(2l-1)!!$ となる。
 ここで $n_l(r)$ は球 Neumann 関数である。

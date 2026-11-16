@@ -297,15 +297,15 @@ $\Sigma_c$ が壊れる。これは重要な点なので [§6](#kbt-contour-smea
 ## 金属の荒れの正体と `wcsmear`
 
 金属の QSGW では、バンドが k メッシュと反復によって数十 meV 荒れたり、LDA からの一発 GW で $E_F$ の近くに eV の大きさの針が
-立ったりすることがある(LiTi₂O₄ の 1000 K 以下、$9^3$ で O 2p 帯の底が 30〜100 meV 荒れ、一発 GW で <del class="clfix">−2〜−3 eV</del><span class="clfix">−2.5〜−3.4 eV($6^3$、500 K と 1000 K)</span> の針)。原因は次のとおり
+立ったりすることがある(LiTi₂O₄ の 1000 K 以下、$9^3$ で O 2p 帯の底が 30〜100 meV 荒れ、一発 GW で −2.5〜−3.4 eV($6^3$、500 K と 1000 K) の針)。原因は次のとおり
 (調べた記録は ecalj の 開発記録(リポジトリの MD/research_kotani_log.md、サイトには無い) の 2026-09-18〜19)。
 
-- **犯人は $\Sigma_c$ の実軸極項**(切ると異常な非対角 ⟨48|Σc|33⟩ が −13 → −0.35 eV<span class="clfix">。⟨48|Σc|33⟩ は LiTi₂O₄ $6^3$ の LDA からの一発 GW、1000 K で、$\mathbf q=(-\tfrac16,\tfrac16,\tfrac16)$ のバンド 48($E_F$+3.7 eV)と 33 の間の非対角要素 $\langle 48|\Sigma_c(\varepsilon_{48})|33\rangle$。以下同じ</span>)。
+- **犯人は $\Sigma_c$ の実軸極項**(切ると異常な非対角 ⟨48|Σc|33⟩ が −13 → −0.35 eV。⟨48|Σc|33⟩ は LiTi₂O₄ $6^3$ の LDA からの一発 GW、1000 K で、$\mathbf q=(-\tfrac16,\tfrac16,\tfrac16)$ のバンド 48($E_F$+3.7 eV)と 33 の間の非対角要素 $\langle 48|\Sigma_c(\varepsilon_{48})|33\rangle$。以下同じ)。
   虚軸積分、sigm の混合、offset-Γ の頭、$\omega$ 内挿法は無関係。
 - 極項が踏んでいるのは、第一殻 $q$ の $W_c(q,\omega)$ にある **t2g プラズモン極**
   ($\omega_p \simeq 1.78$ eV、幅 ≈ 0.1 eV。`--dumpW` で直接確認)。極項は各中間状態
   $n'$ について $W_c(\mathbf k,\, \varepsilon_{\mathbf q n} - \varepsilon_{\mathbf q-\mathbf k, n'})$ を
-  1 点で拾うので、その $\varepsilon$ が極の ±0.1 eV に落ちる項が <del class="clfix">±50 a.u. を受け取り</del><span class="clfix">$W_c$ の ±50 a.u. ほどの値を受け取り(極の所で $\mathrm{Re}\,W_c$ が隣のビンへ −54 から +4 a.u. に跳ぶ)</span>、
+  1 点で拾うので、その $\varepsilon$ が極の ±0.1 eV に落ちる項が $W_c$ の ±50 a.u. ほどの値を受け取り(極の所で $\mathrm{Re}\,W_c$ が隣のビンへ −54 から +4 a.u. に跳ぶ)、
   反復で固有値が動くたびに極の反対側へ渡る(シーソー)。
 - 温度で単調に消える: ⟨48|Σc|33⟩ = −27 / −13 / −3.2 / −1.9 eV (500 / 1000 / 1500 / 2000 K)。
   2000 K 以上の run に事故が無かったのはこのため。
@@ -632,7 +632,7 @@ LDA から 40 反復まで回した。まとめは ecalj の `Samples/kBT/LiTi2O
 中間状態の候補の窓と実軸の $\omega$ メッシュの余裕は、核の裾 $E_F\pm15\,k_BT$($k_BT$ は `t_sigmaw`、`sig_window`)で決まる。
 切り捨てられる占有は $f(15)=3\times10^{-7}$ で、`t_sigmaw` を上げれば窓も広がる。窓の中心と重みの中心は同じ Fermi 準位
 (`t_tetrakbt > 0` なら `EFERMI_kbt`)である。2026-09-19 までのコードでは窓が `esmr` で決まっていて、高温で占有が切り捨てられた
-(<del class="clfix">`MD/kBT/history.md` §4</del><span class="clfix">窓は $E_F\pm10\,$`esmr` で、例えば 2000 K・`esmr` = 0.002 Ry なら占有の 17 % が切り捨てられる。開発記録はリポジトリの MD/kBT/history.md §4、サイトには無い</span>)。
+(窓は $E_F\pm10\,$`esmr` で、例えば 2000 K・`esmr` = 0.002 Ry なら占有の 17 % が切り捨てられる。開発記録はリポジトリの MD/kBT/history.md §4、サイトには無い)。
 
 ### 範囲 — $\Sigma$ が要るのは「差」ではなく「和」
 
@@ -690,7 +690,7 @@ core の準位は $k_BT$ よりずっと深いので、温度によらず T=0 �
 core の状態の数 $n_\mathrm{ctot}$ が占有バンドの数より少ない系(1s だけが core の軽元素の化合物など)では、core との交換に
 価電子の状態の一部が入っていた。`lsxC` の `CoreEx mode: ef nspin nctot=` と `valn=`(価電子数)を比べれば判定できる
 (semicore を価電子に入れた系は core が減るので注意)。Fe($n_\mathrm{ctot}=9$)と LiTi₂O₄($n_\mathrm{ctot}=46$)には影響が無い。
-<del class="clfix">誤りの中身は `MD/kBT/history.md` §5。</del><span class="clfix">誤りは、CoreEx の Fermi 準位が `EFERMI_kbt` で上書きされて占有された価電子の状態が和に入ったことと、`sxs_ekc` の添字のずれ(2026-09-27 に両方を修正)。開発記録はリポジトリの MD/kBT/history.md §5、サイトには無い。</span>
+誤りは、CoreEx の Fermi 準位が `EFERMI_kbt` で上書きされて占有された価電子の状態が和に入ったことと、`sxs_ekc` の添字のずれ(2026-09-27 に両方を修正)。開発記録はリポジトリの MD/kBT/history.md §5、サイトには無い。
 
 ---
 
@@ -897,7 +897,7 @@ $\mathrm{Re}\,\Sigma(\varepsilon_j)$ への影響は (20) の $O((k_BT)^2)$ に�
 
 ### 初期相関についての注意
 
-<del class="clfix">8.2</del><span class="clfix">8.1–8.2</span> では $\rho_0$(非相互作用の熱平衡)から断熱的に相互作用を入れると書いたが、
+8.1–8.2 では $\rho_0$(非相互作用の熱平衡)から断熱的に相互作用を入れると書いたが、
 これは**初期相関を落としている**。厳密には径路に虚時間の縦枝
 $[t_0,\,t_0-i\beta]$ を足した Kadanoff–Baym 径路を使い、そこに初期相関を
 持たせる(Danielewicz)。平衡かつ断熱的な場合には縦枝が実時間部分から

@@ -61,7 +61,7 @@ GW が出すのはバンド添字の $\Sigma^\psi_{ij}(q)=\langle\psi_i|\hat\Sig
 
 $$\Sigma^{\rm MLO}=c^\dagger\,\Sigma^\psi\,c,\qquad c=\langle\psi|\tilde\chi\rangle \tag{5}$$
 
-これは文字どおり $\langle\tilde\chi_\alpha|\hat\Sigma|\tilde\chi_\beta\rangle$ です（<del class="clfix">窓 $\bar\theta$ の外の状態は落ちるので、厳密なのは窓の中だけ</del><span class="clfix">$c_i$ は $\bar\theta$ が 0 でないバンドでだけ 0 でない。$\bar\theta$ が無視できないバンド（$f$ の裾を含む）をすべて $\Sigma^\psi$ が含めば（`ntq` が十分なら）厳密で、足りなければ裾が切れる</span>）。
+これは文字どおり $\langle\tilde\chi_\alpha|\hat\Sigma|\tilde\chi_\beta\rangle$ です（$c_i$ は $\bar\theta$ が 0 でないバンドでだけ 0 でない。$\bar\theta$ が無視できないバンド（$f$ の裾を含む）をすべて $\Sigma^\psi$ が含めば（`ntq` が十分なら）厳密で、足りなければ裾が切れる）。
 PMT 基底は非直交で、その重なり行列を $S^{\rm PMT}_{mn}(k)=\langle\chi^{\rm PMT}_m(k)|\chi^{\rm PMT}_n(k)\rangle$ と書きます。
 固有状態を $|\psi_i\rangle=\sum_m|\chi^{\rm PMT}_m\rangle\psi_{mi}$ と展開すると（$\psi$ は係数の行列）、式 (4) から $c=\psi^\dagger S^{\rm PMT}z^{\rm MLO}$ です。
 $\Sigma^{\rm MLO}(q)$ を実空間の $\Sigma^{\rm MLO}(R)$（`QMLO_SigRs`）に落として k 空間で内挿し、任意の $k$ で PMT 基底へ戻して $H$ に足します（`getsenex`）。
@@ -110,7 +110,7 @@ $\hat P_{\rm MLO}=|\tilde\chi\rangle O^{-1}\langle\tilde\chi|$ は MLO 部分空
 
 連鎖の最初に一度だけ、`lmf --writeham --mlo` と `mlo --mlo` で **MLO の索引**を `HamRsMLO` に作ります。
 索引とは、どの MTO チャネルを種にするか（`ndimMTO` 本）です。$\Sigma^{\rm MLO}$ はそのチャネル上の行列なので、索引は連鎖を通じて固定です（`--mlofreeze`）。
-窓の基準（$E_F$ と伝導端）は索引に含めず、段 a' が毎反復その反復の SCF の `efermi.lmf` から読みます（2026-09-26<span class="clfix"> 夜のコミット 5118934d3</span> から。§2.4）。
+窓の基準（$E_F$ と伝導端）は索引に含めず、段 a' が毎反復その反復の SCF の `efermi.lmf` から読みます（2026-09-26 夜のコミット 5118934d3 から。§2.4）。
 一方、係数 $z$ は毎反復①で作り直し、ハミルトニアンに追随します。
 
 | # | 実行 | $\tilde\chi$ について |
@@ -193,7 +193,7 @@ mlo_lm = """
   LiTi₂O₄ では全原子を s+p+d（126 本）にした。既定のままなら 76 本（Li と O が s,p）。76 本との優劣は決着していない（§5）
 - **(サイト, lm) あたり MLO は原則 1 本まで。** `mlo_lm2`（EH2）を同じ lm に足すと、射影で同じ関数に潰れて $O$ がほぼ特異になる
   （例外は空隙に広がった伝導帯の底がある陽イオンの s,p: [MLO](./mlo) §9 の基準 2。MLO-QSGW では試していない）。
-  <span class="clfix">2026-10-02 までの生の MLO では、</span>式 (7) は $O^{-1}$ を 2 回挟むので効き方は 2 乗<span class="clfix">だった</span>（NiO の Ni d で条件数 $1.3\times10^2\to7.4\times10^4$）<span class="clfix">。いまは Löwdin の直交化の $O^{-1/2}$ を通して、ほぼ特異な $O$ が効く</span>
+  2026-10-02 までの生の MLO では、式 (7) は $O^{-1}$ を 2 回挟むので効き方は 2 乗だった（NiO の Ni d で条件数 $1.3\times10^2\to7.4\times10^4$）。いまは Löwdin の直交化の $O^{-1/2}$ を通して、ほぼ特異な $O$ が効く
 
 ### 実行
 
@@ -289,7 +289,7 @@ tf32 は Σc の最後の行列積だけを 10 ビットの仮数の入力（RTX
 | 混合 | `[gw] mixbeta = 0.5`（`sigm` と $\Sigma^{\rm MLO}$ の両方）|
 | 基底 | `pwmode = 11` |
 | 窓 | `mlo_method = 4`、$\Delta = w = 2.0$ eV（既定）|
-| 計算機 | kt1（RTX 5090 × 2）、`gwsc 1 --mp --fp32` を 10 回（2026-09-26 <span class="clfix">夜の窓の修正より前</span>のコード）|
+| 計算機 | kt1（RTX 5090 × 2）、`gwsc 1 --mp --fp32` を 10 回（2026-09-26 夜の窓の修正より前のコード）|
 | 窓の基準 | 連鎖の最初（LDA）の $E_F$ に固定（いまのコードは各反復の SCF の値、§1.5）|
 | 1 反復 | 6³: 950–1000 秒、9³: 約 5300 秒（89 分）。`hgw` が 86 %（6³）、94 %（9³）で、MLO のための処理は 1 % 程度。2026-09-27 の高速化の後は 6³ の fp32 で 555 秒 |
 | 比較の基準 | 従来 QSGW（MTO）6³、`pwmode = 1`、β = 0.5、10 反復（LDA の行だけ `pwmode = 11`）|
@@ -382,7 +382,7 @@ LDA から `gwsc 10 --prec=tf32`、続けて 1 反復ずつ 40 反復まで回�
 - **`pwmode = 11` の従来連鎖**を 10 反復回し、§3.4 の差を表現の差と `pwmode` の差に分ける
 - **反強磁性の対称性（`symgrpaf`）**: QSGW は 2026-09-30 から、GW のプログラムが両方のスピンを計算する形で動く（ecalj `Samples/AFsymmetry`）。
   `--mlo` との併用は確かめていない
-- §3.2〜§3.4 の図と数値は 2026-09-26 <span class="clfix">夜の窓の修正より前</span>のコード（窓の基準が連鎖の最初の $E_F$）のもの。いまのコードの 9 反復後の MLO バンドはそれと
+- §3.2〜§3.4 の図と数値は 2026-09-26 夜の窓の修正より前のコード（窓の基準が連鎖の最初の $E_F$）のもの。いまのコードの 9 反復後の MLO バンドはそれと
   rms 8 meV（最大 23 meV）、ほぼ一様な 7〜10 meV の下がり（窓の基準が 0.55 eV 動いたため、2 反復目から分かれる）。§3.5 はいまのコード
 - `--prec-final=fp32:N`（最後だけ fp32）は、まだ走らせて確かめていない（tf32 と fp32 の差は §3.5 のとおり 1 meV ほど）
 - 6³ の肩（§3.5）が収束した解の性質なのか、さらに反復すると消えるのかは分かっていない
