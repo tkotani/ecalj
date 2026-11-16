@@ -128,7 +128,7 @@ $$
 \tag{C9}
 $$
 
-で、違いは第 2 項だけである。一行目から二行目を引くと
+で、違いは第 2 項だけで、
 
 $$
 \Delta\sigma(\omega)=\frac{1}{i\omega\Omega}\Big[\chi^R_{JJ}(0)-\frac{ne^2\Omega}{m}\Big]
