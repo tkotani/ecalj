@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit c0ce7fce3 (source blob 0ff91547a).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 38e57df79 (source blob e533226f3).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -11,15 +11,19 @@ For retarded response functions see also the [Appendix](./appendix#causality).
 
 ## Setting {#setting}
 
-Non-interacting electrons (mass $m$, $\varepsilon_{\bf k}=\hbar^2k^2/2m$) feel the potential of impurities placed at random in the volume $\Omega$,
+Here we consider a system of atoms (impurities) placed at random in vacuum.
+There are $N_i$ identical atoms in the volume $\Omega$, and their positions ${\bf R}_j$ are distributed uniformly and independently of each other.
+Non-interacting electrons (mass $m$, $\varepsilon_{\bf k}=\hbar^2k^2/2m$) feel the potential of these atoms,
 
 $$
 V({\bf r})=\sum_{j} u({\bf r}-{\bf R}_j)
 \tag{C1}
 $$
 
-The number density of the impurities is $n_i$, and the Fourier transform of $u$ is $u({\bf q})=\int d^3r\, e^{-i{\bf q}\cdot{\bf r}}u({\bf r})$.
+($u$ is the potential of one atom). The number density of the impurities is $n_i=N_i/\Omega$, and the Fourier transform of $u$ is $u({\bf q})=\int d^3r\, e^{-i{\bf q}\cdot{\bf r}}u({\bf r})$.
 What is observed is the average $\langle\cdots\rangle_{\rm imp}$ over the configurations $\{ {\bf R}_j \}$ of the impurities.
+
+The discussion here carries over directly to impurities in a solid: replace the plane waves $|{\bf k}\rangle$ and $\varepsilon_{\bf k}$ by the Bloch states and band energies of the host crystal, and $u$ by the change of the potential caused by the substituted impurity.
 
 **What is treated here is a one-body problem.** There is no interaction between the electrons; each electron moves independently in the static potential (C1) of the impurities.
 The Hamiltonian is the one-body $H=\hat{\bf p}^2/2m+V({\bf r})$, and $G^R(E)=1/(E-H+i\delta)$ below is its one-body Green function.
