@@ -1,6 +1,6 @@
 # Basics of the electrical conductivity calculation {#conductivity}
 
-> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit ced09ba6f (source blob 6bd05464c).
+> English version of the page [theory/conductivity](../../theory/conductivity.md). The pages at the top of ecaljdoc are the reference; this one was made from theory/conductivity.md of commit 4939029a3 (source blob a5a94b99c).
 
 ::: info Draft
 As a **one-body problem**, the electrical resistance due to impurities is derived from linear response (the Kubo formula).
@@ -374,14 +374,18 @@ At higher orders in $V$ too, the average of a product of $V$ is the sum of produ
 
 ## Green function with the self-energy: the lifetime {#averaged-g}
 
-As a result of the random-phase average, all the lines within one $G$ are collected into the self-energy. So, instead of averaging $G^R$, one considers the following $\bar G^R$ (translationally invariant and diagonal in the wave vector ${\bf k}$) and takes products of it.
+The factor $G^{\pm}_0\Sigma^{\pm}_2G^{\pm}_0$ in the second term of Eq. (C27) (blue) has one $\Sigma_2$ inserted. At higher orders in $V$, the terms pairing $V$ within one $G$ have two, three, ... $\Sigma_2$ inserted. Keeping only the pairings that do not cross each other (Born approximation), they form a geometric series,
 
 $$
-\bar G^R({\bf k},E)=\frac{1}{E-\varepsilon_{\bf k}-\Sigma^R({\bf k},E)}.
+\begin{aligned}
+\bar G^{\pm}({\bf k},E)&=G^{\pm}_0+G^{\pm}_0\Sigma^{\pm}G^{\pm}_0+G^{\pm}_0\Sigma^{\pm}G^{\pm}_0\Sigma^{\pm}G^{\pm}_0+\cdots\\
+&=\frac{1}{E-\varepsilon_{\bf k}-\Sigma^{\pm}({\bf k},E)}
+\end{aligned}
 \tag{C28}
 $$
 
-Taking the lines within one $G$ that do not cross each other (Born approximation), Eq. (C24) gives the self-energy
+($\Sigma^{\pm}=\Sigma^{\pm}_2$). So, instead of averaging $G$, one considers this $\bar G$ (translationally invariant and diagonal in ${\bf k}$) and takes products of it. The second and third terms of Eq. (C27) are $\bar G^{\pm}$ and $\bar G^{\pm'}$ expanded to first order in $\Sigma$.
+Turning the sum in $\Sigma_2$ into an integral, the self-energy is
 
 $$
 \Sigma^R({\bf k},E)=n_i\int\frac{d^3k'}{(2\pi)^3}\,
@@ -389,7 +393,7 @@ $$
 \tag{C29}
 $$
 
-(the $\Sigma^R_2$ of Eq. (C27) with the sum turned into an integral), and its imaginary part gives the lifetime $\tau$ of the quasiparticle (the real part is an energy shift, absorbed in $E_F$):
+and its imaginary part gives the lifetime $\tau$ of the quasiparticle (the real part is an energy shift, absorbed in $E_F$):
 
 $$
 \begin{aligned}
