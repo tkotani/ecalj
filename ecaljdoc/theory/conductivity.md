@@ -321,44 +321,44 @@ $$
 $$
 
 （${\bf q}=0$ の成分は一様なエネルギーのずれで、$E_F$ に繰り込む。同じ不純物に三回以上かかる項は、不純物が弱いとして落とす。）
-これを使って式 (C23) の<span style="color:#d00">第 1 項</span>を展開する。平面波 $|{\bf k}\rangle$ では $\hat v_x$ は対角（$v_x({\bf k})=\hbar k_x/m$）なので、トレースは
+これを使って式 (C23) の<span style="color:#d00">二つの項</span>を展開する。<span style="color:#d00">$G^{\pm}=(E-H_0-V\pm i\delta)^{-1}$（$G^+=G^R$、$G^-=G^A$）と書き、$s=\pm$ として ${\rm Tr}[\hat v_xG^+\hat v_xG^s]$ を考える（$s=-$ が第 1 項、$s=+$ が第 2 項）。</span>平面波 $|{\bf k}\rangle$ では $\hat v_x$ は対角（$v_x({\bf k})=\hbar k_x/m$）なので、トレースは
 
 $$
 \begin{aligned}
-{\rm Tr}\big[\hat v_x G^R\hat v_x G^A\big]
-&=\sum_{ {\bf k}{\bf k}'}v_x({\bf k})\,G^R_{ {\bf k}{\bf k}'}\,v_x({\bf k}')\,G^A_{ {\bf k}'{\bf k}}
+{\rm Tr}\big[\hat v_x G^+\hat v_x G^s\big]
+&=\sum_{ {\bf k}{\bf k}'}v_x({\bf k})\,G^+_{ {\bf k}{\bf k}'}\,v_x({\bf k}')\,G^s_{ {\bf k}'{\bf k}}
 \end{aligned}
 \tag{C25}
 $$
 
-である（$G_{ {\bf k}{\bf k}'}=\langle{\bf k}|G|{\bf k}'\rangle$。$E=E_F$ は書かない）。$G^R=(E-H_0-V+i\delta)^{-1}$ を $V$ について展開すると
+である（$G_{ {\bf k}{\bf k}'}=\langle{\bf k}|G|{\bf k}'\rangle$。$E=E_F$ は書かない）。$G^{\pm}$ を $V$ について展開すると
 
 $$
 \begin{aligned}
-G^R_{ {\bf k}{\bf k}'}={}&G^R_0({\bf k})\,\delta_{ {\bf k}{\bf k}'}+G^R_0({\bf k})\,V_{ {\bf k}{\bf k}'}\,G^R_0({\bf k}')\\
-&+\sum_{ {\bf k}_1}G^R_0({\bf k})\,V_{ {\bf k}{\bf k}_1}\,G^R_0({\bf k}_1)\,V_{ {\bf k}_1{\bf k}'}\,G^R_0({\bf k}')+\cdots
+G^{\pm}_{ {\bf k}{\bf k}'}={}&G^{\pm}_0({\bf k})\,\delta_{ {\bf k}{\bf k}'}+G^{\pm}_0({\bf k})\,V_{ {\bf k}{\bf k}'}\,G^{\pm}_0({\bf k}')\\
+&+\sum_{ {\bf k}_1}G^{\pm}_0({\bf k})\,V_{ {\bf k}{\bf k}_1}\,G^{\pm}_0({\bf k}_1)\,V_{ {\bf k}_1{\bf k}'}\,G^{\pm}_0({\bf k}')+\cdots
 \end{aligned}
 \tag{C26}
 $$
 
-である。ここで $G^R_0({\bf k})=1/(E-\varepsilon_{\bf k}+i\delta)$、$\varepsilon_{\bf k}=\hbar^2k^2/2m$、$V_{ {\bf k}{\bf k}'}=\langle{\bf k}|V|{\bf k}'\rangle$ で、$G^A$ も同様（$G^A_0({\bf k})=1/(E-\varepsilon_{\bf k}-i\delta)$）である。
+である。ここで $G^{\pm}_0({\bf k})=1/(E-\varepsilon_{\bf k}\pm i\delta)$、$\varepsilon_{\bf k}=\hbar^2k^2/2m$、$V_{ {\bf k}{\bf k}'}=\langle{\bf k}|V|{\bf k}'\rangle$ である。
 これを式 (C25) に入れて平均する。$V$ について 1 次の項は ${\bf q}=0$ の成分だけが残り、$E_F$ に繰り込まれている。2 次の項は、二つの $V$ がどこにあるかで三つに分かれ、式 (C24) を使うと
 
 $$
 \begin{aligned}
-&\Big\langle{\rm Tr}\big[\hat v_x G^R\hat v_x G^A\big]\Big\rangle_{\rm imp}\\
-&\quad=\sum_{\bf k}v_x({\bf k})^2\,G^R_0({\bf k})\,G^A_0({\bf k})\\
-&\qquad+\sum_{\bf k}v_x({\bf k})^2\,G^R_0({\bf k})\,\Sigma^R_2({\bf k})\,G^R_0({\bf k})\,G^A_0({\bf k})\\
-&\qquad+\sum_{\bf k}v_x({\bf k})^2\,G^R_0({\bf k})\,G^A_0({\bf k})\,\Sigma^A_2({\bf k})\,G^A_0({\bf k})\\
-&\qquad+\sum_{ {\bf k}{\bf k}'}v_x({\bf k})\,G^R_0({\bf k})\,G^A_0({\bf k})\\
-&\qquad\quad\times\frac{n_i}{\Omega}\,|u({\bf k}-{\bf k}')|^2\,G^R_0({\bf k}')\,G^A_0({\bf k}')\,v_x({\bf k}')\\
+&\Big\langle{\rm Tr}\big[\hat v_x G^+\hat v_x G^s\big]\Big\rangle_{\rm imp}\\
+&\quad=\sum_{\bf k}v_x({\bf k})^2\,G^+_0({\bf k})\,G^s_0({\bf k})\\
+&\qquad+\sum_{\bf k}v_x({\bf k})^2\,G^+_0({\bf k})\,\Sigma^+_2({\bf k})\,G^+_0({\bf k})\,G^s_0({\bf k})\\
+&\qquad+\sum_{\bf k}v_x({\bf k})^2\,G^+_0({\bf k})\,G^s_0({\bf k})\,\Sigma^s_2({\bf k})\,G^s_0({\bf k})\\
+&\qquad+\sum_{ {\bf k}{\bf k}'}v_x({\bf k})\,G^+_0({\bf k})\,G^s_0({\bf k})\\
+&\qquad\quad\times\frac{n_i}{\Omega}\,|u({\bf k}-{\bf k}')|^2\,G^+_0({\bf k}')\,G^s_0({\bf k}')\,v_x({\bf k}')\\
 &\qquad+O(V^4)
 \end{aligned}
 \tag{C27}
 $$
 
-となる。ここで $\Sigma^{R}_2({\bf k})=\sum_{ {\bf k}_1}(n_i/\Omega)\,|u({\bf k}-{\bf k}_1)|^2\,G^R_0({\bf k}_1)$（$\Sigma^A_2$ は $G^R_0$ を $G^A_0$ にしたもの）である。
-右辺の第 1 項は不純物の無い項、第 2 項と第 3 項は一本の $G$ の中の二つの $V$ を結んだ項（自己エネルギー $\Sigma_2$ が一つ挟まる）、第 4 項は $G^R$ の $V$ と $G^A$ の $V$ を結んだ項である。
+となる。ここで $\Sigma^{\pm}_2({\bf k})=\sum_{ {\bf k}_1}(n_i/\Omega)\,|u({\bf k}-{\bf k}_1)|^2\,G^{\pm}_0({\bf k}_1)$ である。
+右辺の第 1 項は不純物の無い項、第 2 項と第 3 項は一本の $G$ の中の二つの $V$ を結んだ項（自己エネルギー $\Sigma_2$ が一つ挟まる）、第 4 項は $G^+$ の $V$ と $G^s$ の $V$ を結んだ項である。
 一本の $G$ の中の平均 $\langle V_{ {\bf k}{\bf k}_1}V_{ {\bf k}_1{\bf k}'}\rangle_{\rm imp}$ は、ランダム位相のため ${\bf k}={\bf k}'$ のときだけ残る。平均した後の $G$ が ${\bf k}$ について対角（並進対称）になるのはこのためである。
 
 $V$ について高次の項も同じで、$V$ の積の平均は対の平均の積の和になる。ダイヤグラムでは、組になった二つの $V$ を不純物の線で結ぶ。線には次の三通りがある。
